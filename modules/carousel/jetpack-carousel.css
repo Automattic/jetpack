@@ -1,3 +1,7 @@
+[data-carousel-extra] {
+	cursor: pointer; /* adds a cursor when the carousel takes effect */
+}
+
 .jp-carousel-wrap * {
 	line-height:inherit; /* prevent declarations of line-height in the universal selector */
 }

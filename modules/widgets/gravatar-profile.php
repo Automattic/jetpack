@@ -11,7 +11,7 @@ function jetpack_gravatar_profile_widget_init() {
 
 /**
  * Display a widgetized version of your Gravatar Profile
- * http://blog.gravatar.com/2010/03/26/gravatar-profiles/
+ * https://blog.gravatar.com/2010/03/26/gravatar-profiles/
  */
 class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 

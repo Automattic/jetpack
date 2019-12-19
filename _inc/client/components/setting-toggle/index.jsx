@@ -15,11 +15,11 @@ export class SettingToggle extends React.Component {
 		activated: PropTypes.bool,
 		disabled: PropTypes.bool,
 		className: PropTypes.string,
-		id: PropTypes.string
+		id: PropTypes.string,
 	};
 
 	static defaultProps = {
-		activated: false
+		activated: false,
 	};
 
 	toggleSetting = () => {
@@ -27,11 +27,17 @@ export class SettingToggle extends React.Component {
 	};
 
 	render() {
-		return <CompactFormToggle checked={ this.props.activated }
-			className={ this.props.className }
-			onChange={ this.toggleSetting }
-			disabled={ this.props.disabled }
-			id={ this.props.id }
-		> { this.props.children }</CompactFormToggle>;
+		return (
+			<CompactFormToggle
+				checked={ this.props.activated }
+				className={ this.props.className }
+				onChange={ this.toggleSetting }
+				disabled={ this.props.disabled }
+				id={ this.props.id }
+			>
+				{' '}
+				{ this.props.children }
+			</CompactFormToggle>
+		);
 	}
 }

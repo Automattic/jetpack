@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Connection\Client;
+
 class VideoPress_AJAX {
 
 	/**
@@ -53,7 +55,7 @@ class VideoPress_AJAX {
 		);
 
 		$endpoint = "sites/{$options['shadow_blog_id']}/media/token";
-		$result   = Jetpack_Client::wpcom_json_api_request_as_blog( $endpoint, Jetpack_Client::WPCOM_JSON_API_VERSION, $args );
+		$result   = Client::wpcom_json_api_request_as_blog( $endpoint, Client::WPCOM_JSON_API_VERSION, $args );
 
 		if ( is_wp_error( $result ) ) {
 			wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress upload token. Please try again later.', 'jetpack' ) ) );

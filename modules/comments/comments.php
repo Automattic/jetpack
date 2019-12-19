@@ -1,6 +1,7 @@
 <?php
 
 require dirname( __FILE__ ) . '/base.php';
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
 /**
  * Main Comments class
@@ -155,7 +156,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 
 		// Detect whether it's a Facebook or Twitter avatar
 		$foreign_avatar          = get_comment_meta( $comment->comment_ID, 'hc_avatar', true );
-		$foreign_avatar_hostname = parse_url( $foreign_avatar, PHP_URL_HOST );
+		$foreign_avatar_hostname = wp_parse_url( $foreign_avatar, PHP_URL_HOST );
 		if ( ! $foreign_avatar_hostname ||
 			! preg_match( '/\.?(graph\.facebook\.com|twimg\.com)$/', $foreign_avatar_hostname ) ) {
 			return $avatar;
@@ -276,13 +277,32 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			$params['has_cookie_consent']  = (int) ! empty( $commenter['comment_author_email'] );
 		}
 
-		$signature = Jetpack_Comments::sign_remote_comment_parameters( $params, Jetpack_Options::get_option( 'blog_token' ) );
+		$blog_token = Jetpack_Data::get_access_token();
+		list( $token_key ) = explode( '.', $blog_token->secret, 2 );
+		// Prophylactic check: anything else should never happen.
+		if ( $token_key && $token_key !== $blog_token->secret ) {
+			// Is the token a Special Token (@see class.jetpack-data.php)?
+			if ( preg_match( '/^;.\d+;\d+;$/', $token_key, $matches ) ) {
+				// The token key for a Special Token is public.
+				$params['token_key'] = $token_key;
+			} else {
+				/*
+				 * The token key for a Normal Token is public but
+				 * looks like sensitive data. Since there can only be
+				 * one Normal Token per site, avoid concern by
+				 * sending the magic "use the Normal Token" token key.
+				 */
+				$params['token_key'] = Connection_Manager::MAGIC_NORMAL_TOKEN_KEY;
+			}
+		}
+
+		$signature = Jetpack_Comments::sign_remote_comment_parameters( $params, $blog_token->secret );
 		if ( is_wp_error( $signature ) ) {
 			$signature = 'error';
 		}
 
 		$params['sig']    = $signature;
-		$url_origin       = set_url_scheme( 'http://jetpack.wordpress.com' );
+		$url_origin       = 'https://jetpack.wordpress.com';
 		$url              = "{$url_origin}/jetpack-comment/?" . http_build_query( $params );
 		$url              = "{$url}#parent=" . urlencode( set_url_scheme( 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] ) );
 		$this->signed_url = $url;
@@ -344,7 +364,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	 * @since JetpackComments (1.4)
 	 */
 	public function watch_comment_parent() {
-		$url_origin = set_url_scheme( 'http://jetpack.wordpress.com' );
+		$url_origin = 'https://jetpack.wordpress.com';
 		?>
 
 		<!--[if IE]>
@@ -455,7 +475,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		$post_array = stripslashes_deep( $_POST );
 
 		// Bail if missing the Jetpack token
-		if ( ! isset( $post_array['sig'] ) ) {
+		if ( ! isset( $post_array['sig'] ) || ! isset( $post_array['token_key'] ) ) {
 			unset( $_POST['hc_post_as'] );
 
 			return;
@@ -465,14 +485,18 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			$post_array['hc_avatar'] = htmlentities( $post_array['hc_avatar'] );
 		}
 
-		$check = Jetpack_Comments::sign_remote_comment_parameters( $post_array, Jetpack_Options::get_option( 'blog_token' ) );
+		$blog_token = Jetpack_Data::get_access_token( false, $post_array['token_key'] );
+		if ( ! $blog_token ) {
+			wp_die( __( 'Unknown security token.', 'jetpack' ), 400 );
+		}
+		$check = Jetpack_Comments::sign_remote_comment_parameters( $post_array, $blog_token->secret );
 		if ( is_wp_error( $check ) ) {
 			wp_die( $check );
 		}
 
 		// Bail if token is expired or not valid
-		if ( $check !== $post_array['sig'] ) {
-			wp_die( __( 'Invalid security token.', 'jetpack' ) );
+		if ( ! hash_equals( $check, $post_array['sig'] ) ) {
+			wp_die( __( 'Invalid security token.', 'jetpack' ), 400 );
 		}
 
 		/** This filter is documented in modules/comments/comments.php */
@@ -480,7 +504,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			// In case the comment POST is legit, but the comments are
 			// now disabled, we don't allow the comment
 
-			wp_die( __( 'Comments are not allowed.', 'jetpack' ) );
+			wp_die( __( 'Comments are not allowed.', 'jetpack' ), 403 );
 		}
 	}
 

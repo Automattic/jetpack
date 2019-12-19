@@ -13,7 +13,7 @@ function jetpack_verification_services() {
 			'name'   => 'Bing Webmaster Center',
 			'key'    => 'msvalidate.01',
 			'format' => '12C1203B5086AECE94EB3A3D9830B2E',
-			'url'    => 'http://www.bing.com/webmaster/',
+			'url'    => 'https://www.bing.com/toolbox/webmaster/',
 		),
 		'pinterest' => array(
 			'name'   => 'Pinterest Site Verification',

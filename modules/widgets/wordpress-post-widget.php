@@ -4,7 +4,7 @@
  * Description: Displays recent posts from a WordPress.com or Jetpack-enabled self-hosted WordPress site.
  * Version: 1.0
  * Author: Brad Angelcyk, Kathryn Presner, Justin Shreve, Carolyn Sonnek
- * Author URI: http://automattic.com
+ * Author URI: https://automattic.com
  * License: GPL2
  */
 

@@ -1,8 +1,8 @@
 /* global brightcove, brightcoveData */
-(function($){
-	var script = document.createElement('script'),
-		tld    = 'co.jp' === brightcoveData.tld ? 'co.jp' : 'com',
-		timer  = false;
+( function( $ ) {
+	var script = document.createElement( 'script' ),
+		tld = 'co.jp' === brightcoveData.tld ? 'co.jp' : 'com',
+		timer = false;
 
 	// Load Brightcove script
 	script.src = 'https://sadmin.brightcove.' + tld + '/js/BrightcoveExperiences.js';
@@ -26,4 +26,4 @@
 			timer = setTimeout( try_brightcove, 100 );
 		}
 	}
-})(jQuery);
+} )( jQuery );

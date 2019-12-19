@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Assets;
+
 /**
  * Renders extra controls in the Gallery Settings section of the new media UI.
  */
@@ -59,7 +61,7 @@ class Jetpack_Gallery_Settings {
 			 */
 			wp_register_script(
 				'jetpack-gallery-settings',
-				Jetpack::get_file_url_for_environment( '_inc/build/gallery-settings.min.js', '_inc/gallery-settings.js' ),
+				Assets::get_file_url_for_environment( '_inc/build/gallery-settings.min.js', '_inc/gallery-settings.js' ),
 				array( 'media-views' ),
 				'20121225'
 			);

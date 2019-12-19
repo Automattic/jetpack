@@ -3,6 +3,8 @@
 include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 include_once ABSPATH . 'wp-admin/includes/file.php';
 
+use Automattic\Jetpack\Connection\Client;
+
 class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_Endpoint {
 
 	// POST  /sites/%s/themes/%s/install
@@ -160,7 +162,7 @@ class Jetpack_JSON_API_Themes_Install_Endpoint extends Jetpack_JSON_API_Themes_E
 
 		$url = "themes/download/$theme.zip";
 		$args = array( 'stream' => true, 'filename' => $file );
-		$result = Jetpack_Client::wpcom_json_api_request_as_blog( $url, '1.1', $args );
+		$result = Client::wpcom_json_api_request_as_blog( $url, '1.1', $args );
 
 		$response =  $result[ 'response' ];
 		if ( $response[ 'code' ] !== 200 ) {

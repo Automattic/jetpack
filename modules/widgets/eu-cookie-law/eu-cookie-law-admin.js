@@ -1,4 +1,3 @@
-
 /* eslint no-var: 0 */
 
 ( function( $ ) {
@@ -6,8 +5,7 @@
 
 	$document.on( 'ready', function() {
 		var maybeShowNotice = function( e, policyUrl ) {
-			var $policyUrl = $( policyUrl || this )
-				.closest( '.eu-cookie-law-widget-policy-url' );
+			var $policyUrl = $( policyUrl || this ).closest( '.eu-cookie-law-widget-policy-url' );
 
 			if ( $policyUrl.find( 'input[type="radio"][value="default"]' ).is( ':checked' ) ) {
 				$policyUrl.find( '.notice.default-policy' ).css( 'display', 'block' );
@@ -18,7 +16,11 @@
 			}
 		};
 
-		$document.on( 'click', '.eu-cookie-law-widget-policy-url input[type="radio"]', maybeShowNotice );
+		$document.on(
+			'click',
+			'.eu-cookie-law-widget-policy-url input[type="radio"]',
+			maybeShowNotice
+		);
 		$document.on( 'widget-updated widget-added', function( e, widget ) {
 			var widgetId = $( widget ).attr( 'id' );
 			if ( widgetId.indexOf( 'eu_cookie_law_widget' ) !== -1 ) {

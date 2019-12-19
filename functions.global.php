@@ -6,14 +6,49 @@
  * This file is loaded whether or not Jetpack is active.
  *
  * Please namespace with jetpack_
- * Please write docblocks
+ *
+ * @package Jetpack
  */
+
+use Automattic\Jetpack\Connection\Client;
 
 /**
  * Disable direct access.
  */
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
+}
+
+if ( ! function_exists( 'wp_timezone' ) ) {
+	/**
+	 * Shim for WordPress 5.3's wp_timezone() function.
+	 *
+	 * This is a mix of wp_timezone(), which calls wp_timezone_string().
+	 * We don't need both in Jetpack, so providing only one function.
+	 *
+	 * @since 7.9.0
+	 * @todo Remove when WP 5.3 is Jetpack's minimum
+	 *
+	 * @return DateTimeZone Site's DateTimeZone
+	 */
+	function wp_timezone() {
+		$timezone_string = get_option( 'timezone_string' );
+
+		if ( $timezone_string ) {
+			return new DateTimeZone( $timezone_string );
+		}
+
+		$offset  = (float) get_option( 'gmt_offset' );
+		$hours   = (int) $offset;
+		$minutes = ( $offset - $hours );
+
+		$sign      = ( $offset < 0 ) ? '-' : '+';
+		$abs_hour  = abs( $hours );
+		$abs_mins  = abs( $minutes * 60 );
+		$tz_offset = sprintf( '%s%02d:%02d', $sign, $abs_hour, $abs_mins );
+
+		return new DateTimeZone( $tz_offset );
+	}
 }
 
 /**
@@ -48,14 +83,17 @@ function jetpack_is_atomic_site() {
  * @since 5.2
  */
 function jetpack_register_migration_post_type() {
-	register_post_type( 'jetpack_migration', array(
-		'supports'     => array(),
-		'taxonomies'   => array(),
-		'hierarchical' => false,
-		'public'       => false,
-		'has_archive'  => false,
-		'can_export'   => true,
-	) );
+	register_post_type(
+		'jetpack_migration',
+		array(
+			'supports'     => array(),
+			'taxonomies'   => array(),
+			'hierarchical' => false,
+			'public'       => false,
+			'has_archive'  => false,
+			'can_export'   => true,
+		)
+	);
 }
 
 /**
@@ -63,8 +101,8 @@ function jetpack_register_migration_post_type() {
  *
  * @since 5.2
  *
- * @param string $option_name
- * @param bool $option_value
+ * @param string $option_name  Option name.
+ * @param bool   $option_value Option value.
  *
  * @return int|WP_Error
  */
@@ -72,10 +110,10 @@ function jetpack_store_migration_data( $option_name, $option_value ) {
 	jetpack_register_migration_post_type();
 
 	$insert = array(
-		'post_title' => $option_name,
+		'post_title'            => $option_name,
 		'post_content_filtered' => $option_value,
-		'post_type' => 'jetpack_migration',
-		'post_date' => date( 'Y-m-d H:i:s', time() ),
+		'post_type'             => 'jetpack_migration',
+		'post_date'             => date( 'Y-m-d H:i:s', time() ),
 	);
 
 	$post = get_page_by_title( $option_name, 'OBJECT', 'jetpack_migration' );
@@ -92,7 +130,7 @@ function jetpack_store_migration_data( $option_name, $option_value ) {
  *
  * @since 5.2
  *
- * @param string $option_name
+ * @param string $option_name Option name.
  *
  * @return mixed|null
  */
@@ -107,11 +145,22 @@ function jetpack_get_migration_data( $option_name ) {
  *
  * @since 5.3
  *
- * @return string
+ * @echo string
  */
 function jetpack_render_tos_blurb() {
 	printf(
-		__( 'By clicking the <strong>Set up Jetpack</strong> button, you agree to our <a href="%s" target="_blank">Terms of Service</a> and to <a href="%s" target="_blank">share details</a> with WordPress.com.', 'jetpack' ),
+		wp_kses(
+			/* Translators: placeholders are links. */
+			__( 'By clicking the <strong>Set up Jetpack</strong> button, you agree to our <a href="%1$s" target="_blank" rel="noopener noreferrer">Terms of Service</a> and to <a href="%2$s" target="_blank" rel="noopener noreferrer">share details</a> with WordPress.com.', 'jetpack' ),
+			array(
+				'a'      => array(
+					'href'   => array(),
+					'target' => array(),
+					'rel'    => array(),
+				),
+				'strong' => true,
+			)
+		),
 		'https://wordpress.com/tos',
 		'https://jetpack.com/support/what-data-does-jetpack-sync'
 	);
@@ -134,12 +183,17 @@ function jetpack_theme_update( $preempt, $r, $url ) {
 		if ( ! $file ) {
 			return new WP_Error( 'problem_creating_theme_file', esc_html__( 'Problem creating file for theme download', 'jetpack' ) );
 		}
-		$theme = pathinfo( parse_url( $url, PHP_URL_PATH ), PATHINFO_FILENAME );
+		$theme = pathinfo( wp_parse_url( $url, PHP_URL_PATH ), PATHINFO_FILENAME );
 
 		// Remove filter to avoid endless loop since wpcom_json_api_request_as_blog uses this too.
 		remove_filter( 'pre_http_request', 'jetpack_theme_update' );
-		$result = Jetpack_Client::wpcom_json_api_request_as_blog(
-			"themes/download/$theme.zip", '1.1', array( 'stream' => true, 'filename' => $file )
+		$result = Client::wpcom_json_api_request_as_blog(
+			"themes/download/$theme.zip",
+			'1.1',
+			array(
+				'stream'   => true,
+				'filename' => $file,
+			)
 		);
 
 		if ( 200 !== wp_remote_retrieve_response_code( $result ) ) {
@@ -172,14 +226,14 @@ add_filter( 'upgrader_pre_download', 'jetpack_upgrader_pre_download' );
  *
  * @since 6.1.0
  *
- * @param $any
- * @param array $seen_nodes
+ * @param array|obj $any        Source data to be cleaned up.
+ * @param array     $seen_nodes Built array of nodes.
  *
  * @return array
  */
 function jetpack_json_wrap( &$any, $seen_nodes = array() ) {
 	if ( is_object( $any ) ) {
-		$input = get_object_vars( $any );
+		$input        = get_object_vars( $any );
 		$input['__o'] = 1;
 	} else {
 		$input = &$any;
@@ -205,4 +259,80 @@ function jetpack_json_wrap( &$any, $seen_nodes = array() ) {
 	}
 
 	return $any;
+}
+
+/**
+ * Checks if the mime_content_type function is available and return it if so.
+ *
+ * The function mime_content_type is enabled by default in PHP, but can be disabled. We attempt to
+ * enforce this via composer.json, but that won't be checked in majority of cases where
+ * this would be happening.
+ *
+ * @since 7.8.0
+ *
+ * @param string $file File location.
+ *
+ * @return string|false MIME type or false if functionality is not available.
+ */
+function jetpack_mime_content_type( $file ) {
+	if ( function_exists( 'mime_content_type' ) ) {
+		return mime_content_type( $file );
+	}
+
+	return false;
+}
+
+/**
+ * Checks that the mime type of the specified file is among those in a filterable list of mime types.
+ *
+ * @since 7.8.0
+ *
+ * @param string $file Path to file to get its mime type.
+ *
+ * @return bool
+ */
+function jetpack_is_file_supported_for_sideloading( $file ) {
+	$type = jetpack_mime_content_type( $file );
+
+	if ( ! $type ) {
+		return false;
+	}
+
+	/**
+	 * Filter the list of supported mime types for media sideloading.
+	 *
+	 * @since 4.0.0
+	 *
+	 * @module json-api
+	 *
+	 * @param array $supported_mime_types Array of the supported mime types for media sideloading.
+	 */
+	$supported_mime_types = apply_filters(
+		'jetpack_supported_media_sideload_types',
+		array(
+			'image/png',
+			'image/jpeg',
+			'image/gif',
+			'image/bmp',
+			'video/quicktime',
+			'video/mp4',
+			'video/mpeg',
+			'video/ogg',
+			'video/3gpp',
+			'video/3gpp2',
+			'video/h261',
+			'video/h262',
+			'video/h264',
+			'video/x-msvideo',
+			'video/x-ms-wmv',
+			'video/x-ms-asf',
+		)
+	);
+
+	// If the type returned was not an array as expected, then we know we don't have a match.
+	if ( ! is_array( $supported_mime_types ) ) {
+		return false;
+	}
+
+	return in_array( $type, $supported_mime_types, true );
 }

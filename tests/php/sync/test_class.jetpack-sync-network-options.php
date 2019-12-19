@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Sync\Modules;
+
 /**
  * Testing CRUD on Network Options
  * use phpunit --testsuite sync  -c tests/php.multisite.xml --filter WP_Test_Jetpack_Sync_Network_Options
@@ -12,7 +14,7 @@ class WP_Test_Jetpack_Sync_Network_Options extends WP_Test_Jetpack_Sync_Base {
 
 		parent::setUp();
 
-		$this->network_options_module = Jetpack_Sync_Modules::get_module( "network_options" );
+		$this->network_options_module = Modules::get_module( "network_options" );
 
 		$this->network_options_module->set_network_options_whitelist( array( 'test_network_option' ) );
 		add_site_option( 'test_network_option', 'foo' );

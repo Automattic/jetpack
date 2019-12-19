@@ -1,17 +1,12 @@
 /**
  * External dependencies
  */
-import assign from 'lodash/assign';
-import merge from 'lodash/merge';
-import get from 'lodash/get';
+import { assign, get, merge } from 'lodash';
 
 /**
  * Internal dependencies
  */
-import {
-	JETPACK_SET_INITIAL_STATE,
-	MOCK_SWITCH_USER_PERMISSIONS
-} from 'state/action-types';
+import { JETPACK_SET_INITIAL_STATE, MOCK_SWITCH_USER_PERMISSIONS } from 'state/action-types';
 
 export const initialState = ( state = window.Initial_State, action ) => {
 	switch ( action.type ) {
@@ -72,6 +67,10 @@ export function isSitePublic( state ) {
 	return get( state.jetpack.initialState, [ 'connectionStatus', 'isPublic' ] );
 }
 
+export function isGutenbergAvailable( state ) {
+	return get( state.jetpack.initialState, 'is_gutenberg_available', false );
+}
+
 export function userIsSubscriber( state ) {
 	return ! get( state.jetpack.initialState.userData.currentUser.permissions, 'edit_posts', false );
 }
@@ -81,11 +80,19 @@ export function userCanPublish( state ) {
 }
 
 export function userCanManageModules( state ) {
-	return get( state.jetpack.initialState.userData.currentUser.permissions, 'manage_modules', false );
+	return get(
+		state.jetpack.initialState.userData.currentUser.permissions,
+		'manage_modules',
+		false
+	);
 }
 
 export function userCanManageOptions( state ) {
-	return get( state.jetpack.initialState.userData.currentUser.permissions, 'manage_options', false );
+	return get(
+		state.jetpack.initialState.userData.currentUser.permissions,
+		'manage_options',
+		false
+	);
 }
 
 /**
@@ -107,7 +114,11 @@ export function userCanEditPosts( state ) {
  * @return {bool} Whether user can manage plugins.
  */
 export function userCanManagePlugins( state ) {
-	return get( state.jetpack.initialState.userData.currentUser.permissions, 'manage_plugins', false );
+	return get(
+		state.jetpack.initialState.userData.currentUser.permissions,
+		'manage_plugins',
+		false
+	);
 }
 
 export function userCanDisconnectSite( state ) {
@@ -244,3 +255,56 @@ export function currentThemeSupports( state, feature ) {
 export function showBackups( state ) {
 	return get( state.jetpack.initialState.siteData, 'showBackups', true );
 }
+
+/**
+ * Check if the site is part of a Multisite network.
+ *
+ * @param {object} state Global state tree
+ *
+ * @return {boolean} True if the site is part of a Multisite network.
+ */
+export function isMultisite( state ) {
+	return get( state.jetpack.initialState.siteData, 'isMultisite', false );
+}
+
+/**
+ * Returns the affiliate code, if it exists. Otherwise an empty string.
+ *
+ * @param {object} state Global state tree
+ *
+ * @return {string} The affiliate code.
+ */
+export function getAffiliateCode( state ) {
+	return get( state.jetpack.initialState, 'aff', '' );
+}
+
+/**
+ * Returns the partner subsidiary id, if it exists. Otherwise an empty string.
+ *
+ * @param {object} state Global state tree
+ *
+ * @return {string} The partner subsidiary id.
+ */
+export function getPartnerSubsidiaryId( state ) {
+	return get( state.jetpack.initialState, 'partnerSubsidiaryId', '' );
+}
+
+/**
+ * Return an upgrade URL
+ *
+ * @param {object} state Global state tree
+ * @param {string} source Context where this URL is clicked.
+ * @param {string} userId Current user id.
+ *
+ * @return {string} Upgrade URL with source, site, and affiliate code added.
+ */
+export const getUpgradeUrl = ( state, source, userId = '' ) => {
+	const affiliateCode = getAffiliateCode( state );
+	const subsidiaryId = getPartnerSubsidiaryId( state );
+	return (
+		`https://jetpack.com/redirect/?source=${ source }&site=${ getSiteRawUrl( state ) }` +
+		( affiliateCode ? `&aff=${ affiliateCode }` : '' ) +
+		( userId ? `&u=${ userId }` : '' ) +
+		( subsidiaryId ? `&subsidiaryId=${ subsidiaryId }` : '' )
+	);
+};

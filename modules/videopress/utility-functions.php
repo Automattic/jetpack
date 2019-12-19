@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Connection\Client;
+
 /**
  * We won't have any videos less than sixty pixels wide. That would be silly.
  */
@@ -69,7 +71,7 @@ function videopress_get_video_details( $guid ) {
 /**
  * Get an attachment ID given a URL.
  *
- * Modified from http://wpscholar.com/blog/get-attachment-id-from-wp-image-url/
+ * Modified from https://wpscholar.com/blog/get-attachment-id-from-wp-image-url/
  *
  * @todo: Add some caching in here.
  *
@@ -490,7 +492,7 @@ function videopress_make_video_get_path( $guid ) {
 		'%s://%s/rest/v%s/videos/%s',
 		'https',
 		JETPACK__WPCOM_JSON_API_HOST,
-		Jetpack_Client::WPCOM_JSON_API_VERSION,
+		Client::WPCOM_JSON_API_VERSION,
 		$guid
 	);
 }
@@ -663,7 +665,7 @@ function video_get_post_by_guid( $guid ) {
  *
  * When the MP4 hasn't been processed yet or this is not a VideoPress video, this will return null.
  *
- * @param int $post_id
+ * @param int $post_id Post ID of the attachment.
  * @return string|null
  */
 function videopress_get_attachment_url( $post_id ) {
@@ -678,12 +680,49 @@ function videopress_get_attachment_url( $post_id ) {
 	if ( ! isset( $meta['videopress']['files']['hd']['mp4'] ) ) {
 		// Use the original file as the url if it isn't transcoded yet.
 		if ( isset( $meta['original'] ) ) {
-			return $meta['original'];
+			$return = $meta['original'];
+		} else {
+			// Otherwise, there isn't much we can do.
+			return null;
 		}
-
-		// Otherwise, there isn't much we can do.
-		return null;
+	} else {
+		$return = $meta['videopress']['file_url_base']['https'] . $meta['videopress']['files']['hd']['mp4'];
 	}
 
-	return $meta['videopress']['file_url_base']['https'] . $meta['videopress']['files']['hd']['mp4'];
+	// If the URL is a string, return it. Otherwise, we shouldn't to avoid errors downstream, so null.
+	return ( is_string( $return ) ) ? $return : null;
 }
+
+/**
+ * Converts VideoPress flash embeds into oEmbed-able URLs.
+ *
+ * Older VideoPress embed depended on Flash, which no longer work,
+ * so let us convert them to an URL that WordPress can oEmbed.
+ *
+ * Note that this file is always loaded via modules/module-extras.php and is not dependent on module status.
+ *
+ * @param string $content the content.
+ * @return string filtered content
+ */
+function jetpack_videopress_flash_embed_filter( $content ) {
+	$regex   = '%<embed[^>]*+>(?:\s*</embed>)?%i';
+	$content = preg_replace_callback(
+		$regex,
+		function( $matches, $orig_html = null ) {
+			$embed_code  = $matches[0];
+			$url_matches = array();
+
+			// get video ID from flash URL.
+			$url_matched = preg_match( '/src="http:\/\/v.wordpress.com\/([^"]+)"/', $embed_code, $url_matches );
+
+			if ( $url_matched ) {
+				$video_id = $url_matches[1];
+				return "https://videopress.com/v/$video_id";
+			}
+		},
+		$content
+	);
+	return $content;
+}
+
+add_filter( 'the_content', 'jetpack_videopress_flash_embed_filter', 7 ); // Needs to be priority 7 to allow Core to oEmbed.

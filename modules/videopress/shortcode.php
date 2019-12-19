@@ -13,7 +13,7 @@ class VideoPress_Shortcode {
 	protected function __construct() {
 
 		// By explicitly declaring the provider here, we can speed things up by not relying on oEmbed discovery.
-		wp_oembed_add_provider( '#^https?://videopress.com/v/.*#', 'http://public-api.wordpress.com/oembed/1.0/', true );
+		wp_oembed_add_provider( '#^https?://videopress.com/v/.*#', 'https://public-api.wordpress.com/oembed/1.0/', true );
 
 		add_shortcode( 'videopress', array( $this, 'shortcode_callback' ) );
 		add_shortcode( 'wpvideo', array( $this, 'shortcode_callback' ) );
@@ -44,7 +44,7 @@ class VideoPress_Shortcode {
 	 * [videopress OcobLTqC]
 	 * [wpvideo OcobLTqC]
 	 *
-	 * @link http://codex.wordpress.org/Shortcode_API Shortcode API
+	 * @link https://codex.wordpress.org/Shortcode_API Shortcode API
 	 * @param array $attr shortcode attributes
 	 * @return string HTML markup or blank string on fail
 	 */
@@ -226,7 +226,7 @@ class VideoPress_Shortcode {
 		if ( false === stripos( $oembed_provider, 'videopress.com' ) ) {
 			return $oembed_provider;
 		}
-		return add_query_arg( 'for', parse_url( home_url(), PHP_URL_HOST ), $oembed_provider );
+		return add_query_arg( 'for', wp_parse_url( home_url(), PHP_URL_HOST ), $oembed_provider );
 	}
 
 	/**

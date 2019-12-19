@@ -1,11 +1,11 @@
 <?php
 /**
  * Module Name: Beautiful Math
- * Module Description: Use LaTeX markup for complex equations and other geekery.
+ * Module Description: Use the LaTeX markup language to write mathematical equations and formulas
  * Sort Order: 12
  * First Introduced: 1.1
  * Requires Connection: No
- * Auto Activate: Yes
+ * Auto Activate: No
  * Module Tags: Writing
  * Feature: Writing
  * Additional Search Queries: latex, math, equation, equations, formula, code

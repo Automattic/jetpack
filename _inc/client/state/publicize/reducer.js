@@ -2,15 +2,12 @@
  * External dependencies
  */
 import { combineReducers } from 'redux';
-import get from 'lodash/get';
-import assign from 'lodash/assign';
+import { assign, get } from 'lodash';
 
 /**
  * Internal dependencies
  */
-import {
-	JETPACK_SET_INITIAL_STATE,
-} from 'state/action-types';
+import { JETPACK_SET_INITIAL_STATE } from 'state/action-types';
 
 export const connectUrls = ( state = {}, action ) => {
 	switch ( action.type ) {

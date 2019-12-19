@@ -1,8 +1,7 @@
 <?php
 
-$sync_dir = dirname( __FILE__ ) . '/../../../sync/';
-
-require_once $sync_dir . 'class.jetpack-sync-queue.php';
+use Automattic\Jetpack\Sync\Queue;
+use Automattic\Jetpack\Sync\Queue_Buffer;
 
 class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 
@@ -11,7 +10,7 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 	public function setUp() {
 		parent::setUp();
 
-		$this->queue = new Jetpack_Sync_Queue( 'my_queue' );
+		$this->queue = new Queue( 'my_queue' );
 	}
 
 	function test_add_queue_items() {
@@ -52,8 +51,8 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 	}
 
 	function test_queue_lag() {
-		/* @var $queue Jetpack_Sync_Queue|\PHPUnit\Framework\MockObject\MockObject */
-		$queue = $this->getMockBuilder( 'Jetpack_Sync_Queue' )
+		/* @var $queue Automattic\Jetpack\Sync\Queue|\PHPUnit\Framework\MockObject\MockObject */
+		$queue = $this->getMockBuilder( 'Automattic\\Jetpack\\Sync\\Queue' )
 			->setMethods( array( 'generate_option_name_timestamp' ) )
 			->setConstructorArgs( array( 'my_queue' ) )
 			->getMock();
@@ -166,7 +165,7 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 	}
 
 	function test_checkout_enforced_across_multiple_instances() {
-		$other_queue = new Jetpack_Sync_Queue( $this->queue->id, 2 );
+		$other_queue = new Queue( $this->queue->id, 2 );
 
 		$this->queue->add_all( array( 1, 2, 3, 4, 5 ) );
 
@@ -181,7 +180,7 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 	}
 
 	function test_checkin_non_checked_out_buffer_raises_error() {
-		$buffer   = new Jetpack_Sync_Queue_Buffer( uniqid(), array() );
+		$buffer   = new Queue_Buffer( uniqid(), array() );
 		$response = $this->queue->checkin( $buffer );
 
 		$this->assertEquals( 'buffer_not_checked_out', $response->get_error_code() );
@@ -189,7 +188,7 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 
 	function test_checkin_wrong_buffer_raises_error() {
 		$this->queue->add_all( array( 1, 2, 3, 4 ) );
-		$buffer       = new Jetpack_Sync_Queue_Buffer( uniqid(), array() );
+		$buffer       = new Queue_Buffer( uniqid(), array() );
 		$other_buffer = $this->queue->checkout( 5 );
 
 		$response = $this->queue->checkin( $buffer );
@@ -260,7 +259,7 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 	}
 
 	function test_queue_is_persisted() {
-		$other_queue = new Jetpack_Sync_Queue( $this->queue->id );
+		$other_queue = new Queue( $this->queue->id );
 
 		$this->queue->add( 'foo' );
 		$this->assertEquals( array( 'foo' ), $other_queue->checkout( 5 )->get_item_values() );

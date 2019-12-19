@@ -5,7 +5,7 @@
  * Module Description: Display different types of content on your site with custom content types.
  * First Introduced: 3.1
  * Requires Connection: No
- * Auto Activate: Yes
+ * Auto Activate: No
  * Module Tags: Writing
  * Sort Order: 34
  * Feature: Writing
@@ -18,14 +18,8 @@ function jetpack_load_custom_post_types() {
 
 function jetpack_custom_post_types_loaded() {
 	Jetpack::enable_module_configurable( __FILE__ );
-	Jetpack::module_configuration_load( __FILE__, 'jetpack_custom_post_types_configuration_load' );
 }
 add_action( 'jetpack_modules_loaded', 'jetpack_custom_post_types_loaded' );
-
-function jetpack_custom_post_types_configuration_load() {
-	wp_safe_redirect( admin_url( 'options-writing.php#cpt-options' ) );
-	exit;
-}
 
 // Add Settings Section for CPT
 function jetpack_cpt_settings_api_init() {
@@ -45,7 +39,7 @@ function jetpack_cpt_section_callback() {
 	?>
 	<p>
 		<?php esc_html_e( 'Use these settings to display different types of content on your site.', 'jetpack' ); ?>
-		<a target="_blank" href="http://jetpack.com/support/custom-content-types/"><?php esc_html_e( 'Learn More', 'jetpack' ); ?></a>
+		<a target="_blank" href="https://jetpack.com/support/custom-content-types/"><?php esc_html_e( 'Learn More', 'jetpack' ); ?></a>
 	</p>
 	<?php
 }

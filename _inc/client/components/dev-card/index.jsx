@@ -5,7 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import { getPlanClass } from 'lib/plans/constants';
-import get from 'lodash/get';
+import { get } from 'lodash';
 
 /**
  * Internal dependencies
@@ -15,7 +15,7 @@ import {
 	userCanViewStats,
 	userIsMaster,
 	userCanDisconnectSite,
-	userCanEditPosts
+	userCanEditPosts,
 } from 'state/initial-state';
 import { getSitePlan } from 'state/site';
 import { isCurrentUserLinked } from 'state/connection';
@@ -132,10 +132,7 @@ export class DevCard extends React.Component {
 			return null;
 		}
 
-		const classes = classNames(
-			this.props.className,
-			'jp-dev-card'
-		);
+		const classes = classNames( this.props.className, 'jp-dev-card' );
 
 		const planClass = getPlanClass( this.props.sitePlan.product_slug );
 		const rewindState = get( this.props.rewindStatus, [ 'state' ], false );
@@ -147,7 +144,10 @@ export class DevCard extends React.Component {
 					role="button"
 					tabIndex="0"
 					onKeyDown={ onKeyDownCallback( this.props.disableDevCard ) }
-					onClick={ this.props.disableDevCard }>x</a>
+					onClick={ this.props.disableDevCard }
+				>
+					x
+				</a>
 				<div className="jp-dev-card__heading">Dev Tools</div>
 				<ul>
 					<li>
@@ -191,7 +191,7 @@ export class DevCard extends React.Component {
 					</li>
 					<li>
 						<label htmlFor="jetpack_business">
-						<input
+							<input
 								type="radio"
 								id="jetpack_business"
 								value="jetpack_business"
@@ -200,6 +200,32 @@ export class DevCard extends React.Component {
 								onChange={ this.onPlanChange }
 							/>
 							Pro
+						</label>
+					</li>
+					<li>
+						<label htmlFor="jetpack_backup_daily">
+							<input
+								type="radio"
+								id="jetpack_backup_daily"
+								value="jetpack_backup_daily"
+								name="jetpack_backup_daily"
+								checked={ 'is-daily-backup-plan' === planClass }
+								onChange={ this.onPlanChange }
+							/>
+							Jetpack Backup Daily
+						</label>
+					</li>
+					<li>
+						<label htmlFor="jetpack_backup_realtime">
+							<input
+								type="radio"
+								id="jetpack_backup_realtime"
+								value="jetpack_backup_realtime"
+								name="jetpack_backup_realtime"
+								checked={ 'is-realtime-backup-plan' === planClass }
+								onChange={ this.onPlanChange }
+							/>
+							Jetpack Backup Reatime
 						</label>
 					</li>
 				</ul>
@@ -289,7 +315,7 @@ export class DevCard extends React.Component {
 				</ul>
 				<hr />
 				<ul>
-					<strong>Rewind</strong>
+					<strong>Backup & Scan</strong>
 					<li>
 						<label htmlFor="rewindUnavailable">
 							<input
@@ -304,16 +330,29 @@ export class DevCard extends React.Component {
 						</label>
 					</li>
 					<li>
-						<label htmlFor="rewindAvailable">
+						<label htmlFor="rewindProvisioning">
 							<input
 								type="radio"
-								id="rewindAvailable"
-								value="available"
-								name="available"
-								checked={ 'unavailable' !== rewindState && 'active' !== rewindState }
+								id="rewindProvisioning"
+								value="provisioning"
+								name="provisioning"
+								checked={ 'provisioning' === rewindState }
 								onChange={ this.onRewindStatusChange }
 							/>
-							Available
+							Provisioning
+						</label>
+					</li>
+					<li>
+						<label htmlFor="rewindAwatingCreds">
+							<input
+								type="radio"
+								id="rewindAwatingCreds"
+								value="awaiting_credentials"
+								name="awaiting_credentials"
+								checked={ 'awaiting_credentials' === rewindState }
+								onChange={ this.onRewindStatusChange }
+							/>
+							Awaiting credentials
 						</label>
 					</li>
 					<li>
@@ -352,12 +391,12 @@ export default connect(
 			rewindStatus: getRewindStatus( state ),
 		};
 	},
-	( dispatch ) => {
+	dispatch => {
 		return {
-			switchPlanPreview: ( slug ) => {
+			switchPlanPreview: slug => {
 				return dispatch( switchPlanPreview( slug ) );
 			},
-			switchUserPermissions: ( slug ) => {
+			switchUserPermissions: slug => {
 				return dispatch( switchUserPermission( slug ) );
 			},
 			switchThreats: count => {
@@ -366,9 +405,9 @@ export default connect(
 			disableDevCard: () => {
 				return dispatch( disableDevCard() );
 			},
-			switchRewindState: ( rewindState ) => {
+			switchRewindState: rewindState => {
 				return dispatch( switchRewindState( rewindState ) );
-			}
+			},
 		};
 	}
 )( DevCard );

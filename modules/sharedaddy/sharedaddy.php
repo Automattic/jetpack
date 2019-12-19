@@ -4,8 +4,8 @@ Plugin Name: Sharedaddy
 Description: The most super duper sharing tool on the interwebs.
 Version: 0.3.1
 Author: Automattic, Inc.
-Author URI: http://automattic.com/
-Plugin URI: http://en.blog.wordpress.com/2010/08/24/more-ways-to-share/
+Author URI: https://automattic.com/
+Plugin URI: https://en.blog.wordpress.com/2010/08/24/more-ways-to-share/
 */
 
 require_once plugin_dir_path( __FILE__ ).'sharing.php';
@@ -143,7 +143,7 @@ function sharing_add_meta_box() {
 	$title = apply_filters( 'sharing_meta_box_title', __( 'Sharing', 'jetpack' ) );
 	if ( $post->ID !== get_option( 'page_for_posts' ) ) {
 		foreach( $post_types as $post_type ) {
-			add_meta_box( 'sharing_meta', $title, 'sharing_meta_box_content', $post_type, 'side', 'default' );
+			add_meta_box( 'sharing_meta', $title, 'sharing_meta_box_content', $post_type, 'side', 'default', array( '__back_compat_meta_box' => true ) );
 		}
 	}
 }
@@ -204,14 +204,14 @@ function sharing_meta_box_save( $post_id ) {
   	return $post_id;
 }
 
-function sharing_meta_box_protected( $protected, $meta_key, $meta_type ) {
+function sharing_meta_box_protected( $protected, $meta_key ) {
 	if ( 'sharing_disabled' == $meta_key )
 		$protected = true;
 
 	return $protected;
 }
 
-add_filter( 'is_protected_meta', 'sharing_meta_box_protected', 10, 3 );
+add_filter( 'is_protected_meta', 'sharing_meta_box_protected', 10, 2 );
 
 function sharing_plugin_settings( $links ) {
 	$settings_link = '<a href="options-general.php?page=sharing.php">'.__( 'Settings', 'jetpack' ).'</a>';
@@ -222,7 +222,7 @@ function sharing_plugin_settings( $links ) {
 function sharing_add_plugin_settings($links, $file) {
 	if ( $file == basename( dirname( __FILE__ ) ).'/'.basename( __FILE__ ) ) {
 		$links[] = '<a href="options-general.php?page=sharing.php">' . __( 'Settings', 'jetpack' ) . '</a>';
-		$links[] = '<a href="http://support.wordpress.com/sharing/" rel="noopener noreferrer" target="_blank">' . __( 'Support', 'jetpack' ) . '</a>';
+		$links[] = '<a href="https://support.wordpress.com/sharing/" rel="noopener noreferrer" target="_blank">' . __( 'Support', 'jetpack' ) . '</a>';
 	}
 
 	return $links;

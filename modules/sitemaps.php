@@ -5,8 +5,9 @@
  * Sort Order: 13
  * First Introduced: 3.9
  * Requires Connection: No
- * Auto Activate: Public
+ * Auto Activate: No
  * Module Tags: Recommended, Traffic
+ * Feature: Recommended
  * Additional Search Queries: sitemap, traffic, search, site map, seo
  *
  * @package Jetpack

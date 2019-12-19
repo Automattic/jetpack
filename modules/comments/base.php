@@ -45,13 +45,13 @@ class Highlander_Comments_Base {
 	 * @param ...
 	 * @return false|string false if it's not a Highlander POST request.  The matching credentials slug if it is.
 	 */
-	function is_highlander_comment_post() {
+	function is_highlander_comment_post( ...$args ) {
 		if ( empty( $_POST['hc_post_as'] ) ) {
 			return false;
 		}
 
-		if ( func_num_args() ) {
-			foreach ( func_get_args() as $id_source ) {
+		if ( $args ) {
+			foreach ( $args as $id_source ) {
 				if ( $id_source === $_POST['hc_post_as'] ) {
 					return $id_source;
 				}
@@ -80,7 +80,7 @@ class Highlander_Comments_Base {
 		$signing = array();
 		foreach ( $parameters as $k => $v ) {
 			if ( ! is_scalar( $v ) ) {
-				return new WP_Error( 'invalid_input', __( 'Invalid request', 'jetpack' ) );
+				return new WP_Error( 'invalid_input', __( 'Invalid request', 'jetpack' ), array( 'status' => 400 ) );
 			}
 
 			$signing[] = "{$k}={$v}";
@@ -236,9 +236,9 @@ class Highlander_Comments_Base {
 
 		if ( get_option( 'require_name_email' ) ) {
 			if ( 6 > strlen( $_POST['email'] ) || empty( $_POST['author'] ) ) {
-				wp_die( __( 'Error: please fill the required fields (name, email).', 'jetpack' ) );
+				wp_die( __( 'Error: please fill the required fields (name, email).', 'jetpack' ), 400 );
 			} elseif ( ! is_email( $_POST['email'] ) ) {
-				wp_die( __( 'Error: please enter a valid email address.', 'jetpack' ) );
+				wp_die( __( 'Error: please enter a valid email address.', 'jetpack' ), 400 );
 			}
 		}
 

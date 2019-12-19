@@ -1,22 +1,21 @@
-/* jshint onevar: false, smarttabs: true */
 /* global postboxes, addLoadEvent */
 
-( function ( $ ) {
+( function( $ ) {
 	var safe, win, safecssResize, safecssInit;
 
-	safecssResize = function () {
+	safecssResize = function() {
 		safe.height( win.height() - safe.offset().top - 250 );
 	};
 
 	safecssInit = function() {
 		safe = $( '#safecss' );
-		win  = $( window );
+		win = $( window );
 
 		postboxes.add_postbox_toggles( 'editcss' );
 		safecssResize();
 
 		// Bound on a parent to ensure that this click event executes last.
-		$( '#safecssform' ).on( 'click', '#preview', function ( e ) {
+		$( '#safecssform' ).on( 'click', '#preview', function( e ) {
 			e.preventDefault();
 
 			document.forms.safecssform.target = 'csspreview';
@@ -31,53 +30,60 @@
 	addLoadEvent( safecssInit );
 } )( jQuery );
 
-jQuery( function ( $ ) {
-	$( '.edit-preprocessor' ).bind( 'click', function ( e ) {
+jQuery( function( $ ) {
+	$( '.edit-preprocessor' ).bind( 'click', function( e ) {
 		e.preventDefault();
 
 		$( '#preprocessor-select' ).slideDown();
 		$( this ).hide();
 	} );
 
-	$( '.cancel-preprocessor' ).bind( 'click', function ( e ) {
+	$( '.cancel-preprocessor' ).bind( 'click', function( e ) {
 		e.preventDefault();
 
-		$( '#preprocessor-select' ).slideUp( function () {
+		$( '#preprocessor-select' ).slideUp( function() {
 			$( '.edit-preprocessor' ).show();
 			$( '#preprocessor_choices' ).val( $( '#custom_css_preprocessor' ).val() );
 		} );
 	} );
 
-	$( '.save-preprocessor' ).bind( 'click', function ( e ) {
+	$( '.save-preprocessor' ).bind( 'click', function( e ) {
 		e.preventDefault();
 
 		$( '#preprocessor-select' ).slideUp();
 		$( '#preprocessor-display' ).text( $( '#preprocessor_choices option:selected' ).text() );
-		$( '#custom_css_preprocessor' ).val( $( '#preprocessor_choices' ).val() ).change();
+		$( '#custom_css_preprocessor' )
+			.val( $( '#preprocessor_choices' ).val() )
+			.change();
 		$( '.edit-preprocessor' ).show();
 	} );
 
-	$( '.edit-css-mode' ).bind( 'click', function ( e ) {
+	$( '.edit-css-mode' ).bind( 'click', function( e ) {
 		e.preventDefault();
 
 		$( '#css-mode-select' ).slideDown();
 		$( this ).hide();
 	} );
 
-	$( '.cancel-css-mode' ).bind( 'click', function ( e ) {
+	$( '.cancel-css-mode' ).bind( 'click', function( e ) {
 		e.preventDefault();
 
-		$( '#css-mode-select' ).slideUp( function () {
+		$( '#css-mode-select' ).slideUp( function() {
 			$( '.edit-css-mode' ).show();
-			$( 'input[name=add_to_existing_display][value=' + $( '#add_to_existing' ).val() + ']' ).attr( 'checked', true );
+			$( 'input[name=add_to_existing_display][value=' + $( '#add_to_existing' ).val() + ']' ).attr(
+				'checked',
+				true
+			);
 		} );
 	} );
 
-	$( '.save-css-mode' ).bind( 'click', function ( e ) {
+	$( '.save-css-mode' ).bind( 'click', function( e ) {
 		e.preventDefault();
 
 		$( '#css-mode-select' ).slideUp();
-		$( '#css-mode-display' ).text( $( 'input[name=add_to_existing_display]:checked' ).val() == 'true' ? 'Add-on' : 'Replacement' ); // jshint ignore:line
+		$( '#css-mode-display' ).text(
+			$( 'input[name=add_to_existing_display]:checked' ).val() === 'true' ? 'Add-on' : 'Replacement'
+		);
 		$( '#add_to_existing' ).val( $( 'input[name=add_to_existing_display]:checked' ).val() );
 		$( '.edit-css-mode' ).show();
 	} );

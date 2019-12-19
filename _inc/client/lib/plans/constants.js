@@ -1,15 +1,21 @@
 /**
  * External dependencies
  */
-import includes from 'lodash/includes';
+import { includes } from 'lodash';
 
 // plans constants
 export const PLAN_BUSINESS = 'business-bundle';
 export const PLAN_BUSINESS_2_YEARS = 'business-bundle-2y';
+export const PLAN_BUSINESS_MONTHLY = 'business-bundle-monthly';
+export const PLAN_ECOMMERCE = 'ecommerce-bundle';
+export const PLAN_ECOMMERCE_2_YEARS = 'ecommerce-bundle-2y';
+export const PLAN_ECOMMERCE_MONTHLY = 'ecommerce-bundle-monthly';
 export const PLAN_PREMIUM = 'value_bundle';
 export const PLAN_PREMIUM_2_YEARS = 'value_bundle-2y';
+export const PLAN_PREMIUM_MONTHLY = 'value_bundle-monthly';
 export const PLAN_PERSONAL = 'personal-bundle';
 export const PLAN_PERSONAL_2_YEARS = 'personal-bundle-2y';
+export const PLAN_PERSONAL_MONTHLY = 'personal-bundle-monthly';
 export const PLAN_FREE = 'free_plan';
 export const PLAN_JETPACK_FREE = 'jetpack_free';
 export const PLAN_JETPACK_PREMIUM = 'jetpack_premium';
@@ -18,6 +24,10 @@ export const PLAN_JETPACK_PERSONAL = 'jetpack_personal';
 export const PLAN_JETPACK_PREMIUM_MONTHLY = 'jetpack_premium_monthly';
 export const PLAN_JETPACK_BUSINESS_MONTHLY = 'jetpack_business_monthly';
 export const PLAN_JETPACK_PERSONAL_MONTHLY = 'jetpack_personal_monthly';
+export const PLAN_JETPACK_BACKUP_DAILY = 'jetpack_backup_daily';
+export const PLAN_JETPACK_BACKUP_DAILY_MONTHLY = 'jetpack_backup_daily_monthly';
+export const PLAN_JETPACK_BACKUP_REALTIME = 'jetpack_backup_realtime';
+export const PLAN_JETPACK_BACKUP_REALTIME_MONTHLY = 'jetpack_backup_realtime_monthly';
 export const PLAN_HOST_BUNDLE = 'host-bundle';
 export const PLAN_WPCOM_ENTERPRISE = 'wpcom-enterprise';
 export const PLAN_VIP = 'vip';
@@ -25,7 +35,18 @@ export const PLAN_CHARGEBACK = 'chargeback';
 
 export const POPULAR_PLANS = [ PLAN_PREMIUM ];
 export const NEW_PLANS = [ PLAN_JETPACK_PERSONAL, PLAN_JETPACK_PERSONAL_MONTHLY ];
-export const JETPACK_MONTHLY_PLANS = [ PLAN_JETPACK_PREMIUM_MONTHLY, PLAN_JETPACK_BUSINESS_MONTHLY, PLAN_JETPACK_PERSONAL_MONTHLY ];
+export const JETPACK_MONTHLY_PLANS = [
+	PLAN_JETPACK_PREMIUM_MONTHLY,
+	PLAN_JETPACK_BUSINESS_MONTHLY,
+	PLAN_JETPACK_PERSONAL_MONTHLY,
+];
+
+export const JETPACK_BACKUP_PRODUCTS = [
+	PLAN_JETPACK_BACKUP_DAILY,
+	PLAN_JETPACK_BACKUP_DAILY_MONTHLY,
+	PLAN_JETPACK_BACKUP_REALTIME,
+	PLAN_JETPACK_BACKUP_REALTIME_MONTHLY,
+];
 
 export const PLAN_MONTHLY_PERIOD = 31;
 export const PLAN_ANNUAL_PERIOD = 365;
@@ -105,6 +126,10 @@ export function isNew( plan ) {
 	return includes( NEW_PLANS, plan );
 }
 
+export function isJetpackBackup( product ) {
+	return includes( JETPACK_BACKUP_PRODUCTS, product );
+}
+
 export function getPlanClass( plan ) {
 	switch ( plan ) {
 		case PLAN_JETPACK_FREE:
@@ -112,20 +137,32 @@ export function getPlanClass( plan ) {
 			return 'is-free-plan';
 		case PLAN_PERSONAL:
 		case PLAN_PERSONAL_2_YEARS:
+		case PLAN_PERSONAL_MONTHLY:
 		case PLAN_JETPACK_PERSONAL:
 		case PLAN_JETPACK_PERSONAL_MONTHLY:
 			return 'is-personal-plan';
 		case PLAN_PREMIUM:
 		case PLAN_PREMIUM_2_YEARS:
+		case PLAN_PREMIUM_MONTHLY:
 		case PLAN_JETPACK_PREMIUM:
 		case PLAN_JETPACK_PREMIUM_MONTHLY:
 			return 'is-premium-plan';
 		case PLAN_BUSINESS:
 		case PLAN_BUSINESS_2_YEARS:
+		case PLAN_BUSINESS_MONTHLY:
 		case PLAN_JETPACK_BUSINESS:
 		case PLAN_JETPACK_BUSINESS_MONTHLY:
 		case PLAN_VIP:
+		case PLAN_ECOMMERCE:
+		case PLAN_ECOMMERCE_2_YEARS:
+		case PLAN_ECOMMERCE_MONTHLY:
 			return 'is-business-plan';
+		case PLAN_JETPACK_BACKUP_DAILY:
+		case PLAN_JETPACK_BACKUP_DAILY_MONTHLY:
+			return 'is-daily-backup-plan';
+		case PLAN_JETPACK_BACKUP_REALTIME:
+		case PLAN_JETPACK_BACKUP_REALTIME_MONTHLY:
+			return 'is-realtime-backup-plan';
 		default:
 			return '';
 	}

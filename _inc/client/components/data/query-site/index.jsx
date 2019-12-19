@@ -4,7 +4,7 @@
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import { connect } from 'react-redux';
-import isEmpty from 'lodash/isEmpty';
+import { isEmpty } from 'lodash';
 
 /**
  * Internal dependencies
@@ -13,8 +13,9 @@ import {
 	fetchAvailablePlans,
 	fetchSiteData,
 	fetchSiteFeatures,
+	fetchSitePurchases,
 	isFetchingSiteData,
-	getSitePlan
+	getSitePlan,
 } from 'state/site';
 import { isDevMode } from 'state/connection';
 
@@ -22,20 +23,25 @@ class QuerySite extends Component {
 	static propTypes = {
 		isFetchingSiteData: PropTypes.bool,
 		isDevMode: PropTypes.bool,
-		sitePlan: PropTypes.object
+		sitePlan: PropTypes.object,
 	};
 
 	static defaultProps = {
 		isFetchingSiteData: false,
 		isDevMode: false,
-		sitePlan: {}
+		sitePlan: {},
 	};
 
-	componentWillMount() {
-		if ( ! this.props.isFetchingSiteData && ! this.props.isDevMode && isEmpty( this.props.sitePlan ) ) {
+	UNSAFE_componentWillMount() {
+		if (
+			! this.props.isFetchingSiteData &&
+			! this.props.isDevMode &&
+			isEmpty( this.props.sitePlan )
+		) {
 			this.props.fetchSiteData();
 			this.props.fetchSiteFeatures();
 			this.props.fetchAvailablePlans();
+			this.props.fetchSitePurchases();
 		}
 	}
 
@@ -45,18 +51,19 @@ class QuerySite extends Component {
 }
 
 export default connect(
-	( state ) => {
+	state => {
 		return {
 			isFetchingSiteData: isFetchingSiteData( state ),
 			isDevMode: isDevMode( state ),
-			sitePlan: getSitePlan( state )
+			sitePlan: getSitePlan( state ),
 		};
 	},
-	( dispatch ) => {
+	dispatch => {
 		return {
 			fetchSiteData: () => dispatch( fetchSiteData() ),
 			fetchSiteFeatures: () => dispatch( fetchSiteFeatures() ),
-			fetchAvailablePlans: () => dispatch( fetchAvailablePlans() )
+			fetchAvailablePlans: () => dispatch( fetchAvailablePlans() ),
+			fetchSitePurchases: () => dispatch( fetchSitePurchases() ),
 		};
 	}
 )( QuerySite );

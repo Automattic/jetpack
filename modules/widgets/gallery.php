@@ -5,8 +5,10 @@ Plugin Name: Gallery
 Description: Gallery widget
 Author: Automattic Inc.
 Version: 1.0
-Author URI: http://automattic.com
+Author URI: https://automattic.com
 */
+
+use Automattic\Jetpack\Assets;
 
 class Jetpack_Gallery_Widget extends WP_Widget {
 	const THUMB_SIZE    = 45;
@@ -400,7 +402,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 	public function enqueue_frontend_scripts() {
 		wp_register_script(
 			'gallery-widget',
-			Jetpack::get_file_url_for_environment(
+			Assets::get_file_url_for_environment(
 				'_inc/build/widgets/gallery/js/gallery.min.js',
 				'modules/widgets/gallery/js/gallery.js'
 			)
@@ -417,7 +419,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 
 			wp_enqueue_script(
 				'gallery-widget-admin',
-				Jetpack::get_file_url_for_environment(
+				Assets::get_file_url_for_environment(
 					'_inc/build/widgets/gallery/js/admin.min.js',
 					'modules/widgets/gallery/js/admin.js'
 				),

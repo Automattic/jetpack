@@ -221,7 +221,8 @@ div.sharedaddy.sd-like-enabled .sd-like .post-likes-widget {
 
 
 /* Make ratings block. @todo: make !important unnecessary by removing inline style */
-.pd-rating {
+.pd-rating,
+.cs-rating {
 	display: block !important;
 }
 

@@ -182,9 +182,9 @@ abstract class SAL_Post {
 
 	public function get_current_user_capabilities() {
 		return array(
-			'publish_post' => current_user_can( 'publish_post', $this->post ),
-			'delete_post'  => current_user_can( 'delete_post', $this->post ),
-			'edit_post'    => current_user_can( 'edit_post', $this->post )
+			'publish_post' => current_user_can( 'publish_post', $this->post->ID ),
+			'delete_post'  => current_user_can( 'delete_post', $this->post->ID ),
+			'edit_post'    => current_user_can( 'edit_post', $this->post->ID )
 		);
 	}
 
@@ -413,12 +413,9 @@ abstract class SAL_Post {
 	public function is_likes_enabled() {
 		/** This filter is documented in modules/likes.php */
 		$sitewide_likes_enabled = (bool) apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) );
-		$post_likes_switched    = (bool) get_post_meta( $this->post->ID, 'switch_like_status', true );
-		$post_likes_enabled = $sitewide_likes_enabled;
-		if ( $post_likes_switched ) {
-			$post_likes_enabled = ! $post_likes_enabled;
-		}
-		return (bool) $post_likes_enabled;
+		$post_likes_switched    = get_post_meta( $this->post->ID, 'switch_like_status', true );
+
+		return $post_likes_switched || ( $sitewide_likes_enabled && $post_likes_switched !== '0' );
 	}
 
 	public function is_sharing_enabled() {
@@ -461,7 +458,7 @@ abstract class SAL_Post {
 		if ( 0 == $this->post->post_author )
 			return null;
 
-		$show_email = $this->context === 'edit' && current_user_can( 'edit_post', $this->post );
+		$show_email = $this->context === 'edit' && current_user_can( 'edit_post', $this->post->ID );
 
 		$user = get_user_by( 'id', $this->post->post_author );
 
@@ -475,9 +472,9 @@ abstract class SAL_Post {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$active_blog = get_active_blog_for_user( $user->ID );
 			$site_id     = $active_blog->blog_id;
-			$profile_URL = "http://en.gravatar.com/{$user->user_login}";
+			$profile_URL = "https://en.gravatar.com/{$user->user_login}";
 		} else {
-			$profile_URL = 'http://en.gravatar.com/' . md5( strtolower( trim( $user->user_email ) ) );
+			$profile_URL = 'https://en.gravatar.com/' . md5( strtolower( trim( $user->user_email ) ) );
 			$site_id     = -1;
 		}
 

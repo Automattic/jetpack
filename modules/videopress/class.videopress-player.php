@@ -305,7 +305,7 @@ class VideoPress_Player {
 		$html .= '<input type="submit" value="' . __( 'Submit', 'jetpack' ) . '" style="cursor:pointer;border-radius: 1em;border:1px solid #333;background-color:#333;background:-webkit-gradient( linear, left top, left bottom, color-stop(0.0, #444), color-stop(1, #111) );background:-moz-linear-gradient(center top, #444 0%, #111 100%);font-size:13px;padding:4px 10px 5px;line-height:1em;vertical-align:top;color:white;text-decoration:none;margin:0" />';
 
 		$html .= '</fieldset>';
-		$html .= '<p style="padding-top:20px;padding-bottom:60px;text-align:' . $text_align . ';"><a rel="nofollow noopener noreferrer" href="http://videopress.com/" target="_blank" style="color:rgb(128,128,128);text-decoration:underline;font-size:15px">' . __( 'More information', 'jetpack' ) . '</a></p>';
+		$html .= '<p style="padding-top:20px;padding-bottom:60px;text-align:' . $text_align . ';"><a rel="nofollow noopener noreferrer" href="https://videopress.com/" target="_blank" style="color:rgb(128,128,128);text-decoration:underline;font-size:15px">' . __( 'More information', 'jetpack' ) . '</a></p>';
 
 		$html .= '</div>';
 		return $html;
@@ -317,7 +317,7 @@ class VideoPress_Player {
 	 * No Flash fallback.
 	 *
 	 * @since 1.2
-	 * @link http://www.whatwg.org/specs/web-apps/current-work/multipage/video.html HTML5 video
+	 * @link https://html.spec.whatwg.org/multipage/media.html#the-video-element HTML5 video
 	 * @return string HTML5 video element and children
 	 */
 	private function html5_static() {
@@ -359,7 +359,7 @@ class VideoPress_Player {
 		}
 		$html .= '" src="' . $thumbnail . '" width="' . $this->video->calculated_width . '" height="' . $this->video->calculated_height . '" /></div>';
 		if ( isset( $this->options['freedom'] ) && $this->options['freedom'] === true ) {
-			$html .= '<p class="robots-nocontent">' . sprintf( __( 'You do not have sufficient <a rel="nofollow noopener noreferrer" href="%s" target="_blank">freedom levels</a> to view this video. Support free software and upgrade.', 'jetpack' ), 'http://www.gnu.org/philosophy/free-sw.html' ) . '</p>';
+			$html .= '<p class="robots-nocontent">' . sprintf( __( 'You do not have sufficient <a rel="nofollow noopener noreferrer" href="%s" target="_blank">freedom levels</a> to view this video. Support free software and upgrade.', 'jetpack' ), 'https://www.gnu.org/philosophy/free-sw.html' ) . '</p>';
 		} elseif ( isset( $this->video->title ) ) {
 			$html .= '<p>' . esc_html( $this->video->title ) . '</p>';
 		}
@@ -516,7 +516,7 @@ class VideoPress_Player {
 		if ( $age_gate_required ) {
 			$html .= 'if ( jQuery.VideoPress.support.flash() ) {' . PHP_EOL;
 			/**
-			 * @link http://code.google.com/p/swfobject/wiki/api#swfobject.embedSWF(swfUrlStr,_replaceElemIdStr,_widthStr,_height
+			 * @link https://github.com/swfobject/swfobject/wiki/SWFObject-API#swfobjectembedswfswfurlstr-replaceelemidstr-widthstr-heightstr-swfversionstr-xiswfurlstr-flashvarsobj-parobj-attobj-callbackfn
 			 */
 			$html .= 'swfobject.embedSWF(' . implode(
 				',',
@@ -688,11 +688,11 @@ class VideoPress_Player {
 	 * Only allow legitimate Flash parameters and their values
 	 *
 	 * @since 1.2
-	 * @link http://kb2.adobe.com/cps/127/tn_12701.html Flash object and embed attributes
-	 * @link http://kb2.adobe.com/cps/133/tn_13331.html devicefont
-	 * @link http://kb2.adobe.com/cps/164/tn_16494.html allowscriptaccess
-	 * @link http://www.adobe.com/devnet/flashplayer/articles/full_screen_mode.html full screen mode
-	 * @link http://livedocs.adobe.com/flash/9.0/main/wwhelp/wwhimpl/common/html/wwhelp.htm?context=LiveDocs_Parts&file=00001079.html allownetworking
+	 * @link https://helpx.adobe.com/flash/kb/flash-object-embed-tag-attributes.html Flash object and embed attributes
+	 * @link https://helpx.adobe.com/flash/kb/font-outlines-device-fonts.html devicefont
+	 * @link https://helpx.adobe.com/flash/kb/control-access-scripts-host-web.html allowscriptaccess
+	 * @link https://www.adobe.com/devnet/flashplayer/articles/full_screen_mode.html full screen mode
+	 * @link https://help.adobe.com/en_US/as3/dev/WS1EFE2EDA-026D-4d14-864E-79DFD56F87C6.html allownetworking
 	 * @param array $flash_params Flash parameters expressed in key-value form
 	 * @return array validated Flash parameters
 	 */
@@ -796,7 +796,7 @@ class VideoPress_Player {
 	 * Flash player markup in a HTML embed element.
 	 *
 	 * @since 1.1
-	 * @link http://www.whatwg.org/specs/web-apps/current-work/multipage/the-iframe-element.html#the-embed-element embed element
+	 * @link https://html.spec.whatwg.org/multipage/iframe-embed-object.html#the-embed-element embed element
 	 * @link http://www.google.com/support/reader/bin/answer.py?answer=70664 Google Reader markup support
 	 * @return string HTML markup. Embed element with no children
 	 */
@@ -849,7 +849,7 @@ class VideoPress_Player {
 		foreach ( $this->get_flash_parameters() as $attribute => $value ) {
 			$flash_params .= '<param name="' . esc_attr( $attribute ) . '" value="' . esc_attr( $value ) . '" />';
 		}
-		$flash_help       = sprintf( __( 'This video requires <a rel="nofollow noopener noreferrer" href="%s" target="_blank">Adobe Flash</a> for playback.', 'jetpack' ), 'http://www.adobe.com/go/getflashplayer' );
+		$flash_help       = sprintf( __( 'This video requires <a rel="nofollow noopener noreferrer" href="%s" target="_blank">Adobe Flash</a> for playback.', 'jetpack' ), 'https://get.adobe.com/flashplayer/' );
 		$flash_player_url = esc_url( $this->video->players->swf->url, array( 'http', 'https' ) );
 		$description      = '';
 		if ( isset( $this->video->title ) ) {

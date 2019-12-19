@@ -1,4 +1,8 @@
 <?php
+
+use Automattic\Jetpack\Tracking;
+use Automattic\Jetpack\Assets;
+
 include_once( 'class.jetpack-admin-page.php' );
 include_once( JETPACK__PLUGIN_DIR . 'class.jetpack-modules-list-table.php' );
 
@@ -29,8 +33,7 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 
 		// We have static.html so let's continue trying to fetch the others
 		$noscript_notice = @file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static-noscript-notice.html' );
-		$version_notice = $rest_api_notice = @file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static-version-notice.html' );
-		$ie_notice = @file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static-ie-notice.html' );
+		$rest_api_notice = @file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static-version-notice.html' );
 
 		$noscript_notice = str_replace(
 			'#HEADER_TEXT#',
@@ -41,17 +44,6 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 			'#TEXT#',
 			esc_html__( "Turn on JavaScript to unlock Jetpack's full potential!", 'jetpack' ),
 			$noscript_notice
-		);
-
-		$version_notice = str_replace(
-			'#HEADER_TEXT#',
-			esc_html__( 'You are using an outdated version of WordPress', 'jetpack' ),
-			$version_notice
-		);
-		$version_notice = str_replace(
-			'#TEXT#',
-			esc_html__( "Update WordPress to unlock Jetpack's full potential!", 'jetpack' ),
-			$version_notice
 		);
 
 		$rest_api_notice = str_replace(
@@ -65,25 +57,10 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 			$rest_api_notice
 		);
 
-		$ie_notice = str_replace(
-			'#HEADER_TEXT#',
-			esc_html__( 'You are using an unsupported browser version.', 'jetpack' ),
-			$ie_notice
-		);
-		$ie_notice = str_replace(
-			'#TEXT#',
-			esc_html__( "Update your browser to unlock Jetpack's full potential!", 'jetpack' ),
-			$ie_notice
-		);
-
-		if ( $this->is_wp_version_too_old() ) {
-			echo $version_notice;
-		}
 		if ( ! $this->is_rest_api_enabled() ) {
 			echo $rest_api_notice;
 		}
 		echo $noscript_notice;
-		echo $ie_notice;
 		?>
 
 		<div class="page-content configure">
@@ -144,7 +121,8 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 		</div><!-- /.content -->
 		<?php
 
-		JetpackTracking::record_user_event( 'wpa_page_view', array( 'path' => 'old_settings' ) );
+		$tracking = new Tracking();
+		$tracking->record_user_event( 'wpa_page_view', array( 'path' => 'old_settings' ) );
 	}
 
 	/**
@@ -160,7 +138,7 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 	function page_admin_scripts() {
 		wp_enqueue_script(
 			'jetpack-admin-js',
-			Jetpack::get_file_url_for_environment( '_inc/build/jetpack-admin.min.js', '_inc/jetpack-admin.js' ),
+			Assets::get_file_url_for_environment( '_inc/build/jetpack-admin.min.js', '_inc/jetpack-admin.js' ),
 			array( 'jquery' ),
 			JETPACK__VERSION
 		);

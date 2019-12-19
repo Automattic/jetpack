@@ -182,7 +182,7 @@ class WPCOM_JSON_API_Update_Term_Endpoint extends WPCOM_JSON_API_Taxonomy_Endpoi
 			$update['parent'] = $input['parent'];
 		}
 
-		if ( ! empty( $input['description'] ) ) {
+		if ( isset( $input['description'] ) ) {
 			$update['description'] = addslashes( $input['description'] );
 		}
 

@@ -6,7 +6,7 @@ import TagsInput from 'react-tagsinput';
 
 class JetpackTagsInput extends React.Component {
 	state = {
-		tags: this.props.value || []
+		tags: this.props.value || [],
 	};
 
 	handleChange = tags => {
@@ -15,8 +15,8 @@ class JetpackTagsInput extends React.Component {
 			this.props.onChange( {
 				target: {
 					name: this.props.name,
-					value: tags.join( ',' )
-				}
+					value: tags.join( ',' ),
+				},
 			} );
 		}
 	};
@@ -27,7 +27,8 @@ class JetpackTagsInput extends React.Component {
 				disabled={ this.props.disabled }
 				inputProps={ { placeholder: this.props.placeholder } }
 				onChange={ this.handleChange }
-				value={ this.state.tags } />
+				value={ this.state.tags }
+			/>
 		);
 	}
 }

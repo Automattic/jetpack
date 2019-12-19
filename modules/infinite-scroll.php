@@ -57,24 +57,12 @@ class Jetpack_Infinite_Scroll_Extras {
 	/**
 	 * Enable "Configure" button on module card
 	 *
-	 * @uses Jetpack::enable_module_configurable, Jetpack::module_configuration_load
+	 * @uses Jetpack::enable_module_configurable
 	 * @action jetpack_modules_loaded
 	 * @return null
 	 */
 	public function action_jetpack_modules_loaded() {
 		Jetpack::enable_module_configurable( __FILE__ );
-		Jetpack::module_configuration_load( __FILE__, array( $this, 'module_configuration_load' ) );
-	}
-
-	/**
-	 * Redirect configure button to Settings > Reading
-	 *
-	 * @uses wp_safe_redirect, admin_url
-	 * @return null
-	 */
-	public function module_configuration_load() {
-		wp_safe_redirect( admin_url( 'options-reading.php#infinite-scroll-options' ) );
-		exit;
 	}
 
 	/**
@@ -161,7 +149,7 @@ class Jetpack_Infinite_Scroll_Extras {
 			}
 
 			// We made it this far, so gather the data needed to track IS views
-			$settings['stats'] = 'blog=' . Jetpack_Options::get_option( 'id' ) . '&host=' . parse_url( get_option( 'home' ), PHP_URL_HOST ) . '&v=ext&j=' . JETPACK__API_VERSION . ':' . JETPACK__VERSION;
+			$settings['stats'] = 'blog=' . Jetpack_Options::get_option( 'id' ) . '&host=' . wp_parse_url( get_option( 'home' ), PHP_URL_HOST ) . '&v=ext&j=' . JETPACK__API_VERSION . ':' . JETPACK__VERSION;
 
 			// Pagetype parameter
 			$settings['stats'] .= '&x_pagetype=infinite';

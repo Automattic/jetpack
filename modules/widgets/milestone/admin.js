@@ -7,9 +7,15 @@
 	}
 
 	$container.on( 'change', '.milestone-type', function() {
-		var $messageWrapper = $( this ).parent().find( '.milestone-message-wrapper' );
+		var $messageWrapper = $( this )
+			.parent()
+			.find( '.milestone-message-wrapper' );
 
-		$( this ).find( 'input[type="radio"]:checked' ).val() === 'since' ? $messageWrapper.hide() : $messageWrapper.show();
+		$( this )
+			.find( 'input[type="radio"]:checked' )
+			.val() === 'since'
+			? $messageWrapper.hide()
+			: $messageWrapper.show();
 	} );
 
 	function triggerChange() {

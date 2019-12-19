@@ -29,13 +29,16 @@ if( false !== getenv( 'WP_DEVELOP_DIR' ) ) {
 } else if ( file_exists( '/vagrant/www/wordpress-develop/public_html/tests/phpunit/includes/bootstrap.php' ) ) {
 	// VVV
 	$test_root = '/vagrant/www/wordpress-develop/public_html/tests/phpunit';
+} else if ( file_exists( '/srv/www/wordpress-trunk/public_html/tests/phpunit/includes/bootstrap.php' ) ) {
+	// VVV 3.0
+	$test_root = '/srv/www/wordpress-trunk/public_html/tests/phpunit';
 } else if ( file_exists( '/tmp/wordpress-develop/tests/phpunit/includes/bootstrap.php' ) ) {
-	// Manual checkout
+	// Manual checkout & Jetpack's docker environment
 	$test_root = '/tmp/wordpress-develop/tests/phpunit';
 } else if ( file_exists( '/tmp/wordpress-tests-lib/includes/bootstrap.php' ) ) {
 	// Legacy tests
 	$test_root = '/tmp/wordpress-tests-lib';
-} 
+}
 
 echo "Using test root $test_root\n";
 
@@ -53,7 +56,7 @@ if ( '1' != getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
 
 if ( false === function_exists( 'wp_cache_is_enabled' ) ) {
 	/**
-	 * "Mocking" function so that it exists and Jetpack_Sync_Actions will load Jetpack_Sync_Module_WP_Super_Cache
+	 * "Mocking" function so that it exists and Automattic\Jetpack\Sync\Actions will load Automattic\Jetpack\Sync\Modules\WP_Super_Cache
 	 */
 	function wp_cache_is_enabled() {
 
@@ -85,7 +88,7 @@ function _manually_install_woocommerce() {
 	} else {
 		$GLOBALS['wp_roles']->reinit();
 	}
-	
+
 	echo "Installing WooCommerce..." . PHP_EOL;
 }
 
@@ -93,8 +96,28 @@ function _manually_install_woocommerce() {
 if ( ! ( in_running_uninstall_group() ) ) {
 	tests_add_filter( 'plugins_loaded', '_manually_load_plugin', 1 );
 	if ( '1' == getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
-		tests_add_filter( 'setup_theme', '_manually_install_woocommerce' );	
+		tests_add_filter( 'setup_theme', '_manually_install_woocommerce' );
 	}
+}
+
+/**
+ * Replace Full Sync module with Full Sync Immediately
+ *
+ * @param array $modules Sync Modules.
+ *
+ * @return array
+ */
+function jetpack_full_sync_immediately_on( $modules ) {
+	foreach ( $modules as $key => $module ) {
+		if ( in_array( $module, array( 'Automattic\\Jetpack\\Sync\\Modules\\Full_Sync', 'Jetpack_Sync_Modules_Full_Sync' ), true ) ) {
+			$modules[ $key ] = 'Automattic\\Jetpack\\Sync\\Modules\\Full_Sync_Immediately';
+		}
+	}
+	return $modules;
+}
+
+if ( false !== getenv( 'SYNC_BETA' ) ) {
+	tests_add_filter( 'jetpack_sync_modules', 'jetpack_full_sync_immediately_on' );
 }
 
 require $test_root . '/includes/bootstrap.php';
@@ -107,11 +130,16 @@ if ( ! function_exists( 'shortcode_new_to_old_params' ) && ! in_running_uninstal
 // Load attachment helper methods.
 require dirname( __FILE__ ) . '/attachment_test_case.php';
 
+// Load WPCOM-shared helper functions.
+require dirname( __FILE__ ) . '/lib/wpcom-helper-functions.php';
+
 function in_running_uninstall_group() {
 	global  $argv;
 	return is_array( $argv ) && in_array( '--group=uninstall', $argv );
 }
 
+require __DIR__ . '/../../vendor/autoload.php';
+
 // Using the Speed Trap Listener provided by WordPress Core testing suite to expose
 // slowest running tests. See the configuration in phpunit.xml.dist
-require $test_root . '/includes/speed-trap-listener.php';
+require $test_root . '/includes/listener-loader.php';

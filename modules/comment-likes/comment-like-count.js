@@ -26,11 +26,15 @@ jQuery( document ).ready( function( $ ) {
 							return;
 						}
 
-						$( '#comment-like-count-' + commentId ).find( '.like-count' ).hide().text( likeCount ).fadeIn();
+						$( '#comment-like-count-' + commentId )
+							.find( '.like-count' )
+							.hide()
+							.text( likeCount )
+							.fadeIn();
 					}
 				}
 			},
-			error: function() {}
+			error: function() {},
 		} );
 	}
 

@@ -30,15 +30,15 @@
 					$images = minileven_get_gallery_images();
 					if ( $images ) :
 						$total_images = count( $images );
-						$large_image = array_shift( $images );
+						$large_image  = array_shift( $images );
 						$thumb1_image = array_shift( $images );
 						$thumb2_image = array_shift( $images );
 						$thumb3_image = array_shift( $images );
 
-						$image_img_tag = wp_get_attachment_image( $large_image->ID, 'large' );
-						$thumb1_img_tag = wp_get_attachment_image( $thumb1_image->ID, 'thumbnail' );
-						$thumb2_img_tag = wp_get_attachment_image( $thumb2_image->ID, 'thumbnail' );
-						$thumb3_img_tag = wp_get_attachment_image( $thumb3_image->ID, 'thumbnail' );
+						$image_img_tag  = wp_get_attachment_image( (int) $large_image, 'large' );
+						$thumb1_img_tag = wp_get_attachment_image( (int) $thumb1_image, 'thumbnail' );
+						$thumb2_img_tag = wp_get_attachment_image( (int) $thumb2_image, 'thumbnail' );
+						$thumb3_img_tag = wp_get_attachment_image( (int) $thumb3_image, 'thumbnail' );
 					?>
 					<div class="img-gallery">
 						<div class="gallery-large">

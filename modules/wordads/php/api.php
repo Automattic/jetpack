@@ -1,5 +1,8 @@
 <?php
 
+use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Status;
+
 /**
  * Methods for accessing data through the WPCOM REST API
  *
@@ -18,7 +21,7 @@ class WordAds_API {
 	 */
 	public static function get_wordads_status() {
 		global $wordads_status_response;
-		if ( Jetpack::is_development_mode() ) {
+		if ( ( new Status() )->is_development_mode() ) {
 			self::$wordads_status = array(
 				'approved' => true,
 				'active'   => true,
@@ -30,7 +33,7 @@ class WordAds_API {
 		}
 
 		$endpoint                = sprintf( '/sites/%d/wordads/status', Jetpack::get_option( 'id' ) );
-		$wordads_status_response = $response = Jetpack_Client::wpcom_json_api_request_as_blog( $endpoint );
+		$wordads_status_response = $response = Client::wpcom_json_api_request_as_blog( $endpoint );
 		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
 			return new WP_Error( 'api_error', __( 'Error connecting to API.', 'jetpack' ), $response );
 		}
@@ -55,7 +58,7 @@ class WordAds_API {
 	 */
 	public static function get_wordads_ads_txt() {
 		$endpoint                = sprintf( '/sites/%d/wordads/ads-txt', Jetpack::get_option( 'id' ) );
-		$wordads_status_response = $response = Jetpack_Client::wpcom_json_api_request_as_blog( $endpoint );
+		$wordads_status_response = $response = Client::wpcom_json_api_request_as_blog( $endpoint );
 		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
 			return new WP_Error( 'api_error', __( 'Error connecting to API.', 'jetpack' ), $response );
 		}

@@ -314,7 +314,7 @@ class VideoPress_Video {
 	 * @return bool|string host component of the URL, or false if none found
 	 */
 	public static function hostname( $url ) {
-		return parse_url( esc_url_raw( $url ), PHP_URL_HOST );
+		return wp_parse_url( esc_url_raw( $url ), PHP_URL_HOST );
 	}
 
 
@@ -336,10 +336,7 @@ class VideoPress_Video {
 			$request_params['maxwidth'] = $this->maxwidth;
 		}
 
-		$url = 'http://videopress.com/data/wordpress.json';
-		if ( is_ssl() ) {
-			$url = 'https://v.wordpress.com/data/wordpress.json';
-		}
+		$url = 'https://v.wordpress.com/data/wordpress.json';
 
 		$response = wp_remote_get(
 			add_query_arg( $request_params, $url ),

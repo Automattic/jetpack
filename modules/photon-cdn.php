@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Asset CDN
- * Module Description: Serve static assets from our servers
+ * Module Description: Jetpack’s Site Accelerator loads your site faster by optimizing your images and serving your images and static files from our global network of servers.
  * Sort Order: 26
  * Recommendation Order: 1
  * First Introduced: 6.6
@@ -9,7 +9,7 @@
  * Auto Activate: No
  * Module Tags: Photos and Videos, Appearance, Recommended
  * Feature: Recommended, Appearance
- * Additional Search Queries: photon, image, cdn, performance, speed, assets
+ * Additional Search Queries: site accelerator, accelerate, static, assets, javascript, css, files, performance, cdn, bandwidth, content delivery network, pagespeed, combine js, optimize css
  */
 
 $GLOBALS['concatenate_scripts'] = false;
@@ -30,6 +30,7 @@ class Jetpack_Photon_Static_Assets_CDN {
 		add_action( 'admin_print_scripts', array( __CLASS__, 'cdnize_assets' ) );
 		add_action( 'admin_print_styles', array( __CLASS__, 'cdnize_assets' ) );
 		add_action( 'wp_footer', array( __CLASS__, 'cdnize_assets' ) );
+		add_filter( 'load_script_textdomain_relative_path', array( __CLASS__, 'fix_script_relative_path' ), 10, 2 );
 	}
 
 	/**
@@ -38,11 +39,24 @@ class Jetpack_Photon_Static_Assets_CDN {
 	public static function cdnize_assets() {
 		global $wp_scripts, $wp_styles, $wp_version;
 
+		/*
+		 * Short-circuit if AMP since not relevant as custom JS is not allowed and CSS is inlined.
+		 * Note that it is not suitable to use the jetpack_force_disable_site_accelerator filter for this
+		 * because it will be applied before the wp action, which is the point at which the queried object
+		 * is available and we know whether the response will be AMP or not. This is particularly important
+		 * for AMP-first (native AMP) pages where there are no AMP-specific URLs.
+		 */
+		if ( Jetpack_AMP_Support::is_amp_request() ) {
+			return;
+		}
+
 		/**
 		 * Filters Jetpack CDN's Core version number and locale. Can be used to override the values
 		 * that Jetpack uses to retrieve assets. Expects the values to be returned in an array.
 		 *
-		 * @since 6.6
+		 * @module photon-cdn
+		 *
+		 * @since 6.6.0
 		 *
 		 * @param array $values array( $version  = core assets version, i.e. 4.9.8, $locale = desired locale )
 		 */
@@ -82,6 +96,30 @@ class Jetpack_Photon_Static_Assets_CDN {
 	}
 
 	/**
+	 * Ensure use of the correct relative path when determining the JavaScript file names.
+	 *
+	 * @param string $relative The relative path of the script. False if it could not be determined.
+	 * @param string $src      The full source url of the script.
+	 * @return string The expected relative path for the CDN-ed URL.
+	 */
+	public static function fix_script_relative_path( $relative, $src ) {
+
+		// Note relevant in AMP responses. See note above.
+		if ( Jetpack_AMP_Support::is_amp_request() ) {
+			return $relative;
+		}
+
+		$strpos = strpos( $src, '/wp-includes/' );
+
+		// We only treat URLs that have wp-includes in them. Cases like language textdomains
+		// can also use this filter, they don't need to be touched because they are local paths.
+		if ( false === $strpos ) {
+			return $relative;
+		}
+		return substr( $src, 1 + $strpos );
+	}
+
+	/**
 	 * Sets up CDN URLs for supported plugin assets.
 	 *
 	 * @param String $plugin_slug plugin slug string.
@@ -97,7 +135,9 @@ class Jetpack_Photon_Static_Assets_CDN {
 		 * the assets are not yet published, so you may need to override the version value to either
 		 * trunk, or the latest available version. Expects the values to be returned in an array.
 		 *
-		 * @since 6.6
+		 * @module photon-cdn
+		 *
+		 * @since 6.6.0
 		 *
 		 * @param array $values array( $slug = the plugin repository slug, i.e. jetpack, $version = the plugin version, i.e. 6.6 )
 		 */
@@ -144,10 +184,14 @@ class Jetpack_Photon_Static_Assets_CDN {
 	 *
 	 * @param string $plugin plugin slug string.
 	 * @param string $version plugin version number string.
-	 * @return array
+	 * @return array|bool Will return false if not a public version.
 	 */
 	public static function get_plugin_assets( $plugin, $version ) {
 		if ( 'jetpack' === $plugin && JETPACK__VERSION === $version ) {
+			if ( ! self::is_public_version( $version ) ) {
+				return false;
+			}
+
 			$assets = array(); // The variable will be redefined in the included file.
 
 			include JETPACK__PLUGIN_DIR . 'modules/photon-cdn/jetpack-manifest.php';
@@ -159,7 +203,9 @@ class Jetpack_Photon_Static_Assets_CDN {
 		 * prevent the need of storing them in an option or an external api request
 		 * to w.org.
 		 *
-		 * @since 6.6
+		 * @module photon-cdn
+		 *
+		 * @since 6.6.0
 		 *
 		 * @param array $assets The assets array for the plugin.
 		 * @param string $version The version of the plugin being requested.
@@ -230,12 +276,23 @@ class Jetpack_Photon_Static_Assets_CDN {
 		if ( preg_match( '/^\d+(\.\d+)+$/', $version ) ) {
 			// matches `1` `1.2` `1.2.3`.
 			return true;
-		} elseif ( $include_beta_and_rc && preg_match( '/^\d+(\.\d+)+(-(beta|rc)\d?)$/i', $version ) ) {
-			// matches `1.2.3` `1.2.3-beta` `1.2.3-beta1` `1.2.3-rc` `1.2.3-rc2`.
+		} elseif ( $include_beta_and_rc && preg_match( '/^\d+(\.\d+)+(-(beta|rc|pressable)\d?)$/i', $version ) ) {
+			// matches `1.2.3` `1.2.3-beta` `1.2.3-pressable` `1.2.3-beta1` `1.2.3-rc` `1.2.3-rc2`.
 			return true;
 		}
 		// unrecognized version.
 		return false;
 	}
 }
-Jetpack_Photon_Static_Assets_CDN::go();
+/**
+ * Allow plugins to short-circuit the Asset CDN, even when the module is on.
+ *
+ * @module photon-cdn
+ *
+ * @since 6.7.0
+ *
+ * @param false bool Should the Asset CDN be blocked? False by default.
+ */
+if ( true !== apply_filters( 'jetpack_force_disable_site_accelerator', false ) ) {
+	Jetpack_Photon_Static_Assets_CDN::go();
+}

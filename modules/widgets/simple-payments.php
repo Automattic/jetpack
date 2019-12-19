@@ -1,4 +1,6 @@
 <?php
+use Automattic\Jetpack\Tracking;
+
 /**
  * Disable direct access/execution to/of the widget code.
  */
@@ -13,7 +15,19 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 	 * Display a Simple Payments Button as a Widget.
 	 */
 	class Jetpack_Simple_Payments_Widget extends WP_Widget {
-		// https://developer.paypal.com/docs/integration/direct/rest/currency-codes/
+		/**
+		 * Currencies should be supported by PayPal:
+		 * @link https://developer.paypal.com/docs/api/reference/currency-codes/
+		 *
+		 * List has to be in sync with list at the block's client side and API's backend side:
+		 * @link https://github.com/Automattic/jetpack/blob/31efa189ad223c0eb7ad085ac0650a23facf9ef5/extensions/blocks/simple-payments/constants.js#L9-L39
+		 * @link https://github.com/Automattic/jetpack/blob/31efa189ad223c0eb7ad085ac0650a23facf9ef5/modules/simple-payments/simple-payments.php#L386-L415
+		 *
+		 * Indian Rupee (INR) is listed here for backwards compatibility with previously added widgets.
+		 * It's not supported by Simple Payments because at the time of the creation of this file
+		 * because it's limited to in-country PayPal India accounts only.
+		 * Discussion: https://github.com/Automattic/wp-calypso/pull/28236
+		 */
 		private static $supported_currency_list = array(
 			'USD' => '$',
 			'GBP' => '&#163;',
@@ -435,7 +449,8 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				return;
 			}
 
-			jetpack_tracks_record_event( $current_user, 'jetpack_wpa_simple_payments_button_' . $event_action, $event_properties );
+			$tracking = new Tracking();
+			$tracking->tracks_record_event( $current_user, 'jetpack_wpa_simple_payments_button_' . $event_action, $event_properties );
 			$jetpack = Jetpack::init();
 			// $jetpack->stat automatically prepends the stat group with 'jetpack-'
 			$jetpack->stat( 'simple_payments', $stat_name );
@@ -504,6 +519,9 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 		 */
 		function form( $instance ) {
 			$jetpack_simple_payments = Jetpack_Simple_Payments::getInstance();
+			if ( ! method_exists( $jetpack_simple_payments, 'is_enabled_jetpack_simple_payments' ) ) {
+				return;
+			}
 			if ( ! $jetpack_simple_payments->is_enabled_jetpack_simple_payments() ) {
 				require dirname( __FILE__ ) . '/simple-payments/admin-warning.php';
 				return;

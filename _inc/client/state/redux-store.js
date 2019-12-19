@@ -19,7 +19,9 @@ function createJetpackStore() {
 	const finalCreateStore = compose(
 		applyMiddleware( thunk ),
 		applyMiddleware( history ),
-		typeof window === 'object' && typeof window.devToolsExtension !== 'undefined' ? window.devToolsExtension() : f => f
+		typeof window === 'object' && typeof window.__REDUX_DEVTOOLS_EXTENSION__ !== 'undefined'
+			? window.__REDUX_DEVTOOLS_EXTENSION__()
+			: f => f
 	)( createStore );
 	return finalCreateStore( reducer );
 }

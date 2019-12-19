@@ -1,10 +1,8 @@
-
 /**
  * External dependencies
  */
 import { combineReducers } from 'redux';
-import get from 'lodash/get';
-import assign from 'lodash/assign';
+import { assign, get } from 'lodash';
 
 /**
  * Internal dependencies
@@ -14,21 +12,12 @@ import {
 	JETPACK_NOTICES_DISMISS_SUCCESS,
 	DISCONNECT_SITE_SUCCESS,
 	RESET_OPTIONS_SUCCESS,
-	JUMPSTART_ACTIVATE_SUCCESS,
-	JUMPSTART_SKIP,
-
 } from 'state/action-types';
 
 const notice = ( state = false, action ) => {
 	switch ( action.type ) {
 		case DISCONNECT_SITE_SUCCESS:
 			return 'disconnected';
-
-		case JUMPSTART_ACTIVATE_SUCCESS:
-			return 'new_connection_jumpstart';
-
-		case JUMPSTART_SKIP:
-			return 'new_connection_no_jumpstart';
 
 		default:
 			return state;
@@ -53,7 +42,7 @@ const dismissed = ( state = window.Initial_State.dismissedNotices, action ) => {
 
 export const reducer = combineReducers( {
 	notice,
-	dismissed
+	dismissed,
 } );
 
 /**

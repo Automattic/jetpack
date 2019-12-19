@@ -78,25 +78,40 @@ class Jetpack_Widget_Authors extends WP_Widget {
 		// We need to query at least one post to determine whether an author has written any posts or not
 		$query_number = max( $instance['number'], 1 );
 
-		$default_excluded_authors = array();
 		/**
 		 * Filter authors from the Widget Authors widget.
 		 *
 		 * @module widgets
 		 *
+		 * @deprecated 7.7.0 Use jetpack_widget_authors_params instead.
+		 *
 		 * @since 4.5.0
 		 *
 		 * @param array $default_excluded_authors Array of user ID's that will be excluded
 		 */
-		$excluded_authors = apply_filters( 'jetpack_widget_authors_exclude', $default_excluded_authors );
+		$excluded_authors = apply_filters( 'jetpack_widget_authors_exclude', array() );
 
-		$authors = get_users(
+		/**
+		 * Filter the parameters of `get_users` call in the Widget Authors widget.
+		 *
+		 * See the following for `get_users` default arguments:
+		 * https://codex.wordpress.org/Function_Reference/get_users
+		 *
+		 * @module widgets
+		 *
+		 * @since 7.7.0
+		 *
+		 * @param array $get_author_params Array of params used in `get_user`
+		 */
+		$get_author_params = apply_filters(
+			'jetpack_widget_authors_params',
 			array(
-				'fields'  => 'all',
 				'who'     => 'authors',
 				'exclude' => (array) $excluded_authors,
 			)
 		);
+
+		$authors = get_users( $get_author_params );
 
 		echo $args['before_widget'];
 		/** This filter is documented in core/src/wp-includes/default-widgets.php */
@@ -157,22 +172,20 @@ class Jetpack_Widget_Authors extends WP_Widget {
 				continue;
 			}
 
-			// Display a short list of recent posts for this author
-
+			// Display a short list of recent posts for this author.
 			if ( $r->have_posts() ) {
 				echo '<ul>';
 
 				while ( $r->have_posts() ) {
 					$r->the_post();
-					echo '<li><a href="' . get_permalink() . '">';
 
-					if ( get_the_title() ) {
-						echo get_the_title();
-					} else {
-						echo get_the_ID();
-					}
-
-					echo '</a></li>';
+					printf(
+						'<li><a href="%1$s" title="%2$s"%3$s>%4$s</a></li>',
+						esc_url( get_permalink() ),
+						esc_attr( wp_kses( get_the_title(), array() ) ),
+						( get_queried_object_id() === get_the_ID() ? ' aria-current="page"' : '' ),
+						esc_html( wp_kses( get_the_title(), array() ) )
+					);
 				}
 
 				echo '</ul>';

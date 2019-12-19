@@ -51,6 +51,7 @@ if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
 			return array(
 				'title'             => esc_html__( 'Flickr Photos', 'jetpack' ),
 				'items'             => 4,
+				'target'            => false,
 				'flickr_image_size' => 'thumbnail',
 				'flickr_rss_url'    => '',
 			);
@@ -73,7 +74,7 @@ if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
 				 * Parse the URL, and rebuild a URL that's sure to display images.
 				 * Some Flickr Feeds do not display images by default.
 				 */
-				$flickr_parameters = parse_url( htmlspecialchars_decode( $instance['flickr_rss_url'] ) );
+				$flickr_parameters = wp_parse_url( htmlspecialchars_decode( $instance['flickr_rss_url'] ) );
 
 				// Is it a Flickr Feed.
 				if (
@@ -129,8 +130,11 @@ if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
 							break;
 					}
 
-					$photos .= '<a href="' . esc_url( $photo->get_permalink(), array( 'http', 'https' ) ) . '">';
-					$photos .= '<img src="' . esc_url( $src, array( 'http', 'https' ) ) . '" ';
+					$photos .= '<a href="' . esc_url( $photo->get_permalink(), array( 'http', 'https' ) ) . '" ';
+					if ( $instance['target'] ) {
+						$photos .= 'target="_blank" rel="noopener noreferrer" ';
+					}
+					$photos .= '><img src="' . esc_url( $src, array( 'http', 'https' ) ) . '" ';
 					$photos .= 'alt="' . esc_attr( $photo->get_title() ) . '" ';
 					$photos .= 'title="' . esc_attr( $photo->get_title() ) . '" ';
 					$photos .= ' /></a>';
@@ -187,6 +191,10 @@ if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
 
 			if ( isset( $new_instance['items'] ) ) {
 				$instance['items'] = intval( $new_instance['items'] );
+			}
+
+			if ( isset( $new_instance['target'] ) ) {
+				$instance['target'] = (bool) $new_instance['target'];
 			}
 
 			if (

@@ -1,4 +1,7 @@
 <?php
+
+use Automattic\Jetpack\Assets;
+
 /**
  * Add a contact form button to the post composition screen
  */
@@ -86,7 +89,7 @@ color: #D98500;
  * Hack a 'Bulk Delete' option for bulk edit in spam view
  *
  * There isn't a better way to do this until
- * http://core.trac.wordpress.org/changeset/17297 is resolved
+ * https://core.trac.wordpress.org/changeset/17297 is resolved
  */
 add_action( 'admin_head', 'grunion_add_bulk_edit_option' );
 function grunion_add_bulk_edit_option() {
@@ -660,7 +663,7 @@ function grunion_ajax_spam() {
 		do_action( 'contact_form_akismet', 'ham', $akismet_values );
 
 		$comment_author_email = $reply_to_addr = $message = $to = $headers = false;
-		$blog_url             = parse_url( site_url() );
+		$blog_url             = wp_parse_url( site_url() );
 
 		// resend the original email
 		$email          = get_post_meta( $post_id, '_feedback_email', true );
@@ -803,7 +806,7 @@ function grunion_enable_spam_recheck() {
 	// Add the scripts that handle the spam check event.
 	wp_register_script(
 		'grunion-admin',
-		Jetpack::get_file_url_for_environment(
+		Assets::get_file_url_for_environment(
 			'_inc/build/contact-form/js/grunion-admin.min.js',
 			'modules/contact-form/js/grunion-admin.js'
 		),

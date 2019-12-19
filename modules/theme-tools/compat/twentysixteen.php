@@ -1,7 +1,7 @@
 <?php
 /**
  * Jetpack Compatibility File
- * See: http://jetpack.com/
+ * See: https://jetpack.com/
  */
 
 function twentysixteen_jetpack_setup() {
@@ -56,10 +56,6 @@ function twentysixteen_remove_share() {
 add_action( 'loop_start', 'twentysixteen_remove_share' );
 
 function twentysixteen_jetpack_lazy_images_compat() {
-	if ( ! function_exists( 'wp_add_inline_script' ) ) {
-		return;
-	}
-
 	// Since TwentySixteen outdents when window is resized, let's trigger a window resize
 	// every time we lazy load an image on the TwentySixteen theme.
 	wp_add_inline_script(

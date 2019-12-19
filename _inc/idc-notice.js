@@ -11,9 +11,9 @@
 		adminBarMenu = $( '#wp-admin-bar-jetpack-idc' ),
 		confirmSafeModeButton = $( '#jp-idc-confirm-safe-mode-action' ),
 		fixConnectionButton = $( '#jp-idc-fix-connection-action' ),
-		migrateButton = $( '#jp-idc-migrate-action'),
+		migrateButton = $( '#jp-idc-migrate-action' ),
 		reconnectButton = $( '#jp-idc-reconnect-site-action' ),
-		errorNotice = $( '.jp-idc-error__notice'),
+		errorNotice = $( '.jp-idc-error__notice' ),
 		erroredAction = false;
 
 	// Initialize Tracks and bump stats.
@@ -24,20 +24,20 @@
 	if ( tracksEvent.isAdmin ) {
 		trackAndBumpMCStats( 'notice_view' );
 	} else {
-		trackAndBumpMCStats( 'non_admin_notice_view', { 'page': tracksEvent.currentScreen } );
+		trackAndBumpMCStats( 'non_admin_notice_view', { page: tracksEvent.currentScreen } );
 	}
 	clearConfirmationArgsFromUrl();
 
 	// If the user dismisses the notice, set a cookie for one week so we don't display it for that time.
 	notice.on( 'click', '.notice-dismiss', function() {
-		var secure = ( 'https:' === window.location.protocol );
+		var secure = 'https:' === window.location.protocol;
 		wpCookies.set( 'jetpack_idc_dismiss_notice', '1', 7 * 24 * 60 * 60, false, false, secure );
-		trackAndBumpMCStats( 'non_admin_notice_dismiss', { 'page': tracksEvent.currentScreen } );
+		trackAndBumpMCStats( 'non_admin_notice_dismiss', { page: tracksEvent.currentScreen } );
 	} );
 
 	notice.on( 'click', '#jp-idc-error__action', function() {
 		errorNotice.hide();
-		switch( erroredAction ) {
+		switch ( erroredAction ) {
 			case 'confirm':
 				confirmSafeMode();
 				break;
@@ -79,7 +79,10 @@
 		//
 		// Otherwise, there's a weird flow where if the user dismisses the notice, then shows the notice, then clicks
 		// the confirm safe mode button again, and then reloads the page, then the notice never disappears.
-		if ( window.location.search && -1 !== window.location.search.indexOf( 'jetpack_idc_clear_confirmation' ) ) {
+		if (
+			window.location.search &&
+			-1 !== window.location.search.indexOf( 'jetpack_idc_clear_confirmation' )
+		) {
 			trackAndBumpMCStats( 'clear_confirmation_clicked' );
 
 			// If push state is available, let's use that to minimize reloading the page.
@@ -100,7 +103,7 @@
 		disableDopsButtons();
 		$.ajax( {
 			method: 'POST',
-			beforeSend : function ( xhr ) {
+			beforeSend: function( xhr ) {
 				xhr.setRequestHeader( 'X-WP-Nonce', restNonce );
 			},
 			url: route,
@@ -118,7 +121,7 @@
 				erroredAction = 'confirm';
 				displayErrorNotice( error );
 				enableDopsButtons();
-			}
+			},
 		} );
 	}
 
@@ -130,7 +133,7 @@
 		disableDopsButtons();
 		$.ajax( {
 			method: 'POST',
-			beforeSend : function ( xhr ) {
+			beforeSend: function( xhr ) {
 				xhr.setRequestHeader( 'X-WP-Nonce', restNonce );
 			},
 			url: route,
@@ -147,7 +150,7 @@
 				erroredAction = 'migrate';
 				displayErrorNotice( error );
 				enableDopsButtons();
-			}
+			},
 		} );
 	}
 
@@ -169,12 +172,12 @@
 		disableDopsButtons();
 		$.ajax( {
 			method: 'POST',
-			beforeSend : function ( xhr ) {
+			beforeSend: function( xhr ) {
 				xhr.setRequestHeader( 'X-WP-Nonce', restNonce );
 			},
 			url: route,
 			data: {},
-			success: function( connectUrl ){
+			success: function( connectUrl ) {
 				// Add a from param and take them to connect.
 				window.location = connectUrl + '&from=idc-notice';
 			},
@@ -182,7 +185,7 @@
 				erroredAction = 'start-fresh';
 				displayErrorNotice( error );
 				enableDopsButtons();
-			}
+			},
 		} );
 	}
 
@@ -216,10 +219,17 @@
 			extraProps = {};
 		}
 
-		if ( eventName && eventName.length && 'undefined' !== typeof analytics && analytics.tracks && analytics.mc ) {
+		if (
+			eventName &&
+			eventName.length &&
+			'undefined' !== typeof analytics &&
+			analytics.tracks &&
+			analytics.mc
+		) {
 			// Format for Tracks
 			eventName = eventName.replace( /-/g, '_' );
-			eventName = eventName.indexOf( 'jetpack_idc_' ) !== 0 ? 'jetpack_idc_' + eventName : eventName;
+			eventName =
+				eventName.indexOf( 'jetpack_idc_' ) !== 0 ? 'jetpack_idc_' + eventName : eventName;
 			analytics.tracks.recordEvent( eventName, extraProps );
 
 			// Now format for MC stats
@@ -228,4 +238,4 @@
 			analytics.mc.bumpStat( 'jetpack-idc', eventName );
 		}
 	}
-})( jQuery );
+} )( jQuery );

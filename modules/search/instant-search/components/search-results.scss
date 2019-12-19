@@ -1,0 +1,31 @@
+.jetpack-instant-search__search-results {
+	padding: 0.125em 2em;
+	margin: 1em auto;
+	position: relative;
+	max-width: 1080px;
+	min-height: 400px;
+	text-align: left;
+
+	mark {
+		background-color: #ffc;
+		font-weight: bold;
+		color: inherit;
+		padding: 0;
+	}
+}
+
+.jetpack-instant-search__search-results-real-query {
+	font-size: 1.5em;
+	text-decoration: bold;
+}
+
+.jetpack-instant-search__search-results-unused-query,
+.jetpack-instant-search__search-results-real-query {
+	overflow: hidden;
+	margin: 0;
+	padding: 0;
+}
+
+.jetpack-instant-search__result-comments {
+	padding-left: 10px;
+}

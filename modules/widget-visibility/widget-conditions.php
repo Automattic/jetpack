@@ -1,5 +1,6 @@
 <?php
 
+use Automattic\Jetpack\Assets;
 
 /**
  * Hide or show widgets conditionally.
@@ -25,12 +26,12 @@ class Jetpack_Widget_Conditions {
 		wp_style_add_data( 'widget-conditions', 'rtl', 'replace' );
 		wp_enqueue_script(
 			'widget-conditions',
-			Jetpack::get_file_url_for_environment(
+			Assets::get_file_url_for_environment(
 				'_inc/build/widget-visibility/widget-conditions/widget-conditions.min.js',
 				'modules/widget-visibility/widget-conditions/widget-conditions.js'
 			),
 			array( 'jquery', 'jquery-ui-core' ),
-			20171227,
+			20191128,
 			true
 		);
 
@@ -304,7 +305,7 @@ class Jetpack_Widget_Conditions {
 
 								<?php _ex( 'is', 'Widget Visibility: {Rule Major [Page]} is {Rule Minor [Search results]}', 'jetpack' ); ?>
 
-								<select class="conditions-rule-minor" name="conditions[rules_minor][]" 
+								<select class="conditions-rule-minor" name="conditions[rules_minor][]"
 								<?php
 								if ( ! $rule['major'] ) {
 									?>
@@ -318,7 +319,7 @@ class Jetpack_Widget_Conditions {
 									<option value="<?php echo esc_attr( $rule['minor'] ); ?>" selected="selected"></option>
 								</select>
 
-								<span class="conditions-rule-has-children" 
+								<span class="conditions-rule-has-children"
 								<?php
 								if ( ! $rule['has_children'] ) {
 									?>
@@ -772,7 +773,7 @@ class Jetpack_Widget_Conditions {
 			$taxonomy = 'post_tag';
 		}
 
-		if ( function_exists( 'wp_get_split_term' ) && $new_term_id = wp_get_split_term( $old_term_id, $taxonomy ) ) {
+		if ( $new_term_id = wp_get_split_term( $old_term_id, $taxonomy ) ) {
 			$term_id = $new_term_id;
 		}
 

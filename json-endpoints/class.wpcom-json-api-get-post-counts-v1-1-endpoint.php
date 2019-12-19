@@ -108,6 +108,10 @@ class WPCOM_JSON_API_GET_Post_Counts_V1_1_Endpoint extends WPCOM_JSON_API_Endpoi
 			return $blog_id;
 		}
 
+		if ( ! in_array( $post_type, array( 'post', 'revision', 'page', 'any' ) ) && defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$this->load_theme_functions();
+		}
+
 		if ( ! post_type_exists( $post_type ) ) {
 			return new WP_Error( 'unknown_post_type', __( 'Unknown post type requested.', 'jetpack' ), 404 );
 		}

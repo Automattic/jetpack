@@ -1,8 +1,12 @@
-/** External Dependencies **/
-const React = require( 'react' );
+/**
+ * External Dependencies
+ */
+import React from 'react';
 
-/** Internal Dependencies **/
-const SelectInput = require( './input-select' );
+/**
+ * Internal Dependencies
+ */
+import SelectInput from './input-select';
 
 export default class CountrySelectInput2 extends React.Component {
 	static displayName = 'CountrySelectInput2';

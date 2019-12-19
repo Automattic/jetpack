@@ -2,6 +2,97 @@
  * Jetpack related posts
  */
 
+/**
+ * The Gutenberg block
+ */
+
+.jp-related-posts-i2__row {
+	display: flex;
+	margin-top: 1.5rem;
+}
+
+.jp-related-posts-i2__row:first-child {
+	margin-top: 0;
+}
+
+.jp-related-posts-i2__post {
+	flex-grow: 1;
+	flex-basis: 0;
+	margin: 0 10px;
+	display: flex;
+	flex-direction: column;
+	padding-left: 0;
+}
+
+.jp-related-posts-i2__row[data-post-count="3"] .jp-related-posts-i2__post {
+	max-width: calc(33% - 20px);
+}
+
+.jp-related-posts-i2__row[data-post-count="2"] .jp-related-posts-i2__post,
+.jp-related-posts-i2__row[data-post-count="1"] .jp-related-posts-i2__post {
+	max-width: calc(50% - 20px);
+}
+
+.jp-related-posts-i2__post-heading, .jp-related-posts-i2__post-img-link,
+.jp-related-posts-i2__post-date, .jp-related-posts-i2__post-context {
+	flex-direction: row;
+	display: block;
+}
+
+.jp-related-posts-i2__post-heading {
+	margin: 0.5rem 0;
+	font-size: 1rem;
+	line-height: 1.2em;
+}
+
+.jp-related-posts-i2__post-link {
+	display: block;
+	width: 100%;
+	line-height: 1.2em;
+}
+
+.jp-related-posts-i2__post-img-link {
+	order: -1;
+}
+.jp-related-posts-i2__post-img-link img {
+	width: 100%;
+}
+
+/* List view */
+
+.jp-relatedposts-i2[data-layout="list"] .jp-related-posts-i2__row{
+	margin-top: 0;
+	display: block;
+}
+
+.jp-relatedposts-i2[data-layout="list"] .jp-related-posts-i2__post {
+	max-width: none;
+	margin: 0;
+}
+
+.jp-relatedposts-i2[data-layout="list"].jp-related-posts-i2__post-img-link {
+	margin-top: 1rem;
+}
+
+/* Breakpoints */
+@media only screen and (max-width: 640px) {
+	.jp-related-posts-i2__row {
+		margin-top: 0;
+		display: block;
+	}
+	.jp-related-posts-i2__row[data-post-count] .jp-related-posts-i2__post {
+		max-width: none;
+		margin: 0;
+		margin-top: 1rem;
+	}
+	.jp-related-posts-i2__post-img-link {
+		margin-top: 1rem;
+	}
+	.jp-related-posts-i2__post-img-link img {
+		width: 350px;
+	}
+}
+
 /* Container */
 
 #jp-relatedposts {

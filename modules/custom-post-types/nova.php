@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Assets;
+
 /*
  * Put the following code in your theme's Food Menu Page Template to customize the markup of the menu.
 
@@ -51,7 +53,7 @@ class Nova_Restaurant {
 		static $instance = false;
 
 		if ( !$instance ) {
-			$instance = new Nova_Restaurant;
+			$instance = new Nova_Restaurant();
 		}
 
 		if ( $menu_item_loop_markup ) {
@@ -278,7 +280,7 @@ class Nova_Restaurant {
 			8  => sprintf( __( 'Menu item submitted. <a target="_blank" href="%s">Preview item</a>', 'jetpack' ), esc_url( add_query_arg( 'preview', 'true', get_permalink( $post->ID ) ) ) ),
 			/* translators: this is about a food menu */
 			9  => sprintf( __( 'Menu item scheduled for: <strong>%1$s</strong>. <a target="_blank" href="%2$s">Preview item</a>', 'jetpack' ),
-			// translators: Publish box date format, see http://php.net/date
+			// translators: Publish box date format, see https://php.net/date
 			date_i18n( __( 'M j, Y @ G:i', 'jetpack' ), strtotime( $post->post_date ) ), esc_url( get_permalink($post->ID) ) ),
 			/* translators: this is about a food menu */
 			10 => sprintf( __( 'Menu item draft updated. <a target="_blank" href="%s">Preview item</a>', 'jetpack' ), esc_url( add_query_arg( 'preview', 'true', get_permalink( $post->ID ) ) ) ),
@@ -439,7 +441,7 @@ class Nova_Restaurant {
 
 		wp_register_script(
 			'nova-menu-checkboxes',
-			Jetpack::get_file_url_for_environment(
+			Assets::get_file_url_for_environment(
 				'_inc/build/custom-post-types/js/menu-checkboxes.min.js',
 				'modules/custom-post-types/js/menu-checkboxes.js'
 			),
@@ -616,7 +618,7 @@ class Nova_Restaurant {
 
 		wp_enqueue_script(
 			'nova-drag-drop',
-			Jetpack::get_file_url_for_environment(
+			Assets::get_file_url_for_environment(
 				'_inc/build/custom-post-types/js/nova-drag-drop.min.js',
 				'modules/custom-post-types/js/nova-drag-drop.js'
 			),
@@ -863,7 +865,7 @@ class Nova_Restaurant {
 	function enqueue_many_items_scripts() {
 		wp_enqueue_script(
 			'nova-many-items',
-			Jetpack::get_file_url_for_environment(
+			Assets::get_file_url_for_environment(
 				'_inc/build/custom-post-types/js/many-items.min.js',
 				'modules/custom-post-types/js/many-items.js'
 			),

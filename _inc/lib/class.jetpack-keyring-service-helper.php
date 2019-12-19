@@ -15,25 +15,66 @@ class Jetpack_Keyring_Service_Helper {
 	}
 
 	public static $SERVICES = array(
-		'facebook',
-		'twitter',
-		'linkedin',
-		'tumblr',
-		'path',
-		'google_plus',
-		'google_site_verification',
+		'facebook' => array(
+			'for' => 'publicize'
+		),
+		'twitter' => array(
+			'for' => 'publicize'
+		),
+		'linkedin' => array(
+			'for' => 'publicize'
+		),
+		'tumblr' => array(
+			'for' => 'publicize'
+		),
+		'path' => array(
+			'for' => 'publicize'
+		),
+		'google_plus' => array(
+			'for' => 'publicize'
+		),
+		'google_site_verification' => array(
+			'for' => 'other'
+		)
 	);
 
+	/**
+	 * Constructor
+	 */
 	private function __construct() {
+		add_action( 'admin_menu', array( __CLASS__, 'add_sharing_menu' ), 21 );
+
 		add_action( 'load-settings_page_sharing', array( __CLASS__, 'admin_page_load' ), 9 );
 	}
 
-	function get_services( $filter = 'all' ) {
-		$services = array(
+	/**
+	 * We need a `sharing` submenu page to be able to connect and disconnect services.
+	 */
+	public static function add_sharing_menu() {
+		global $submenu;
 
+		if (
+			! isset( $submenu['options-general.php'] )
+			|| ! is_array( $submenu['options-general.php'] )
+		) {
+			return;
+		}
+
+		$general_settings_names = array_map(
+			function ( $menu ) {
+				return array_values( $menu )[0];
+			},
+			$submenu['options-general.php']
 		);
+		if ( ! in_array( 'Sharing', $general_settings_names, true ) ) {
+			add_submenu_page( 'options-general.php', '', '', 'manage_options', 'sharing', '__return_empty_string' );
+		}
+	}
 
-		if ( 'all' == $filter ) {
+	function get_services( $filter = 'all' ) {
+		$services = array();
+
+		if ( 'all' === $filter ) {
 			return $services;
 		} else {
 			$connected_services = array();
@@ -76,22 +117,23 @@ class Jetpack_Keyring_Service_Helper {
 		return $url;
 	}
 
-	static function connect_url( $service_name ) {
+	static function connect_url( $service_name, $for ) {
 		return add_query_arg( array(
 			'action'   => 'request',
 			'service'  => $service_name,
 			'kr_nonce' => wp_create_nonce( 'keyring-request' ),
 			'nonce'    => wp_create_nonce( "keyring-request-$service_name" ),
+			'for'      => $for,
 		), menu_page_url( 'sharing', false ) );
 	}
 
-	static function refresh_url( $service_name ) {
+	static function refresh_url( $service_name, $for ) {
 		return add_query_arg( array(
 			'action'   => 'request',
 			'service'  => $service_name,
 			'kr_nonce' => wp_create_nonce( 'keyring-request' ),
 			'refresh'  => 1,
-			'for'      => 'publicize',
+			'for'      => $for,
 			'nonce'    => wp_create_nonce( "keyring-request-$service_name" ),
 		), admin_url( 'options-general.php?page=sharing' ) );
 	}
@@ -146,7 +188,6 @@ class Jetpack_Keyring_Service_Helper {
 					break;
 
 				case 'completed':
-					Jetpack::load_xml_rpc_client();
 					$xml = new Jetpack_IXR_Client();
 					$xml->query( 'jetpack.fetchPublicizeConnections' );
 
@@ -175,7 +216,6 @@ class Jetpack_Keyring_Service_Helper {
 	 * Remove a Publicize connection
 	 */
 	static function disconnect( $service_name, $connection_id, $_blog_id = false, $_user_id = false, $force_delete = false ) {
-		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client();
 		$xml->query( 'jetpack.deletePublicizeConnection', $connection_id );
 

@@ -1,25 +1,24 @@
-/* jshint onevar: false, multistr: true */
 /* global _wpMediaViewsL10n, _wpGalleryWidgetAdminSettings */
 
-(function($){
+( function( $ ) {
 	var $ids;
 	var $thumbs;
 
-	$(function(){
-		$( document.body ) .on( 'click', '.gallery-widget-choose-images', function( event ) {
+	$( function() {
+		$( document.body ).on( 'click', '.gallery-widget-choose-images', function( event ) {
 			event.preventDefault();
 
 			var widget_form = $( this ).closest( 'form, .form' );
 
-			$ids    = widget_form.find( '.gallery-widget-ids' );
-			$thumbs	= widget_form.find( '.gallery-widget-thumbs' );
+			$ids = widget_form.find( '.gallery-widget-ids' );
+			$thumbs = widget_form.find( '.gallery-widget-thumbs' );
 
 			var idsString = $ids.val();
 
 			var attachments = getAttachments( idsString );
 
-			var selection   = null;
-			var editing     = false;
+			var selection = null;
+			var editing = false;
 
 			if ( attachments ) {
 				selection = getSelection( attachments );
@@ -32,25 +31,25 @@
 				title: wp.media.view.l10n.addMedia,
 				multiple: true,
 				editing: editing,
-				selection: selection
+				selection: selection,
 			};
 
 			var workflow = getWorkflow( options );
 
 			workflow.open();
-		});
+		} );
 
 		// Setup an onchange handler to toggle various options when changing style. The different style options
 		// require different form inputs to be presented in the widget; this event will keep the UI in sync
 		// with the selected style
-		$( '.widget-inside' ).on( 'change', '.gallery-widget-style', setupStyleOptions);
+		$( '.widget-inside' ).on( 'change', '.gallery-widget-style', setupStyleOptions );
 
 		// Setup the Link To options for all forms currently on the page. Does the same as the onChange handler, but
 		// is called once to display the correct form inputs for each widget on the page
 		setupStyleOptions();
-	});
+	} );
 
-	var media       = wp.media,
+	var media = wp.media,
 		l10n;
 
 	// Link any localized strings.
@@ -63,55 +62,55 @@
 	 * we cannot use the custom WidgetGalleryEdit controller with it (must overide createStates(),
 	 * which is necessary to disable the sidebar gallery settings in the media browser)
 	 */
-	media.view.MediaFrame.GalleryWidget = media.view.MediaFrame.Post.extend({
+	media.view.MediaFrame.GalleryWidget = media.view.MediaFrame.Post.extend( {
 		createStates: function() {
 			var options = this.options;
 
 			// `CollectionEdit` and `CollectionAdd` were only introduced in r27214-core,
 			// so they may not be available yet.
 			if ( 'CollectionEdit' in media.controller ) {
-				this.states.add([
-					new media.controller.CollectionEdit({
-						type:           'image',
+				this.states.add( [
+					new media.controller.CollectionEdit( {
+						type: 'image',
 						collectionType: 'gallery',
-						title:           l10n.editGalleryTitle,
-						SettingsView:    media.view.Settings.Gallery,
-						library:         options.selection,
-						editing:         options.editing,
-						menu:           'gallery'
-					}),
-					new media.controller.CollectionAdd({
-						type:           'image',
+						title: l10n.editGalleryTitle,
+						SettingsView: media.view.Settings.Gallery,
+						library: options.selection,
+						editing: options.editing,
+						menu: 'gallery',
+					} ),
+					new media.controller.CollectionAdd( {
+						type: 'image',
 						collectionType: 'gallery',
-						title:          l10n.addToGalleryTitle
-					})
-				]);
+						title: l10n.addToGalleryTitle,
+					} ),
+				] );
 			} else {
 				// If `CollectionEdit` is not available, then use the old approach.
 
 				if ( ! ( 'WidgetGalleryEdit' in media.controller ) ) {
 					// Remove the gallery settings sidebar when editing widgets.
-					media.controller.WidgetGalleryEdit = media.controller.GalleryEdit.extend({
-						gallerySettings: function( /*browser*/ ) {
+					media.controller.WidgetGalleryEdit = media.controller.GalleryEdit.extend( {
+						gallerySettings: function(/*browser*/) {
 							return;
-						}
-					});
+						},
+					} );
 				}
 
-				this.states.add([
-					new media.controller.WidgetGalleryEdit({
+				this.states.add( [
+					new media.controller.WidgetGalleryEdit( {
 						library: options.selection,
 						editing: options.editing,
-						menu:    'gallery'
-					}),
-					new media.controller.GalleryAdd({ })
-				]);
+						menu: 'gallery',
+					} ),
+					new media.controller.GalleryAdd( {} ),
+				] );
 			}
-		}
-	});
+		},
+	} );
 
-	function setupStyleOptions(){
-		$( '.widget-inside .gallery-widget-style' ).each( function( /*i*/ ){
+	function setupStyleOptions() {
+		$( '.widget-inside .gallery-widget-style' ).each( function(/*i*/) {
 			var style = $( this ).val();
 
 			var form = $( this ).parents( 'form' );
@@ -127,25 +126,32 @@
 					form.find( '.gallery-widget-link-wrapper' ).show();
 					form.find( '.gallery-widget-columns-wrapper' ).show();
 			}
-		});
+		} );
 	}
 
 	/**
 	 * Take a given Selection of attachments and a thumbs wrapper div (jQuery object)
 	 * and fill it with thumbnails
 	 */
-	function setupThumbs( selection, wrapper ){
+	function setupThumbs( selection, wrapper ) {
 		wrapper.empty();
 
 		var imageSize = _wpGalleryWidgetAdminSettings.thumbSize;
 
-		selection.each( function( model ){
-			var sizedUrl = model.get('url') + '?w=' + imageSize + '&h=' + imageSize + '&crop=true';
+		selection.each( function( model ) {
+			var sizedUrl = model.get( 'url' ) + '?w=' + imageSize + '&h=' + imageSize + '&crop=true';
 
-			var thumb = jQuery('<img>', { 'src' : sizedUrl, 'alt': model.get('title'), 'title': model.get('title'), 'width': imageSize, 'height': imageSize, 'class': 'thumb' });
+			var thumb = jQuery( '<img>', {
+				src: sizedUrl,
+				alt: model.get( 'title' ),
+				title: model.get( 'title' ),
+				width: imageSize,
+				height: imageSize,
+				class: 'thumb',
+			} );
 
 			wrapper.append( thumb );
-		});
+		} );
 	}
 
 	/**
@@ -160,7 +166,7 @@
 		var shortcode = wp.shortcode.next( 'gallery', '[gallery ids="' + idsString + '"]' );
 
 		// Ignore the rest of the match object, to give attachments() below what it expects
-		shortcode     = shortcode.shortcode;
+		shortcode = shortcode.shortcode;
 
 		var attachments = wp.media.gallery.attachments( shortcode );
 
@@ -173,9 +179,9 @@
 	 */
 	function getSelection( attachments ) {
 		var selection = new wp.media.model.Selection( attachments.models, {
-			props:    attachments.props.toJSON(),
-			multiple: true
-		});
+			props: attachments.props.toJSON(),
+			multiple: true,
+		} );
 
 		selection.gallery = attachments.gallery;
 
@@ -186,7 +192,7 @@
 			selection.props.set( { query: false } );
 			selection.unmirror();
 			selection.props.unset( 'orderby' );
-		});
+		} );
 
 		return selection;
 	}
@@ -197,29 +203,33 @@
 	function getWorkflow( options ) {
 		var workflow = new wp.media.view.MediaFrame.GalleryWidget( options );
 
-		workflow.on( 'update', function( selection ) {
-			var state = workflow.state();
+		workflow.on(
+			'update',
+			function( selection ) {
+				var state = workflow.state();
 
-			selection = selection || state.get( 'selection' );
+				selection = selection || state.get( 'selection' );
 
-			if ( ! selection ) {
-				return;
-			}
+				if ( ! selection ) {
+					return;
+				}
 
-			// Map the Models down into a simple array of ids that can be easily imploded to a csv string
-			var ids = selection.map( function( model ){
-				return model.get( 'id' );
-			} );
+				// Map the Models down into a simple array of ids that can be easily imploded to a csv string
+				var ids = selection.map( function( model ) {
+					return model.get( 'id' );
+				} );
 
-			var id_string = ids.join( ',' );
+				var id_string = ids.join( ',' );
 
-			$ids.val( id_string ).trigger( 'change' );
+				$ids.val( id_string ).trigger( 'change' );
 
-			setupThumbs( selection, $thumbs );
-		}, this );
+				setupThumbs( selection, $thumbs );
+			},
+			this
+		);
 
 		workflow.setState( workflow.options.state );
 
 		return workflow;
 	}
-})(jQuery);
+} )( jQuery );

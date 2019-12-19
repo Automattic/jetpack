@@ -1,5 +1,10 @@
 <?php
 
+use Automattic\Jetpack\Sync\Modules;
+use Automattic\Jetpack\Sync\Defaults;
+use Automattic\Jetpack\Sync\Modules\Callables;
+use Automattic\Jetpack\Sync\Settings;
+
 class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	protected $action_ran;
 	protected $action_codec;
@@ -255,14 +260,14 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$full_sync_event = $this->server_event_storage->get_most_recent_event( 'my_full_sync_action' );
 
 		$this->assertEquals( $incremental_event->queue, $this->listener->get_sync_queue()->id );
-		$this->assertEquals( $full_sync_event->queue, $this->listener->get_full_sync_queue()->id );
+		$this->assertEquals( $this->listener->get_full_sync_queue()->id, $full_sync_event->queue );
 
 		remove_action( 'my_incremental_action', array( $this->listener, 'action_handler' ) );
 		remove_action( 'my_full_sync_action', array( $this->listener, 'full_sync_action_handler' ) );
 	}
 
 	function test_reset_module_also_resets_full_sync_lock() {
-		$full_sync = Jetpack_Sync_Modules::get_module( 'full-sync' );
+		$full_sync = Modules::get_module( 'full-sync' );
 		$full_sync->start();
 		$status = $full_sync->get_status();
 		$this->assertTrue( $full_sync->is_started() );
@@ -335,21 +340,21 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		// test with strings, non-strings, 0 and null
 
 		ini_set( 'max_execution_time', '30' );
-		$this->assertEquals( 10, Jetpack_Sync_Defaults::get_max_sync_execution_time() );
+		$this->assertEquals( 10, Defaults::get_max_sync_execution_time() );
 
 		ini_set( 'max_execution_time', 65 );
-		$this->assertEquals( 21, Jetpack_Sync_Defaults::get_max_sync_execution_time() );
+		$this->assertEquals( 21, Defaults::get_max_sync_execution_time() );
 
 		ini_set( 'max_execution_time', '0' );
-		$this->assertEquals( 20, Jetpack_Sync_Defaults::get_max_sync_execution_time() );
+		$this->assertEquals( 20, Defaults::get_max_sync_execution_time() );
 
 		ini_set( 'max_execution_time', null );
-		$this->assertEquals( 20, Jetpack_Sync_Defaults::get_max_sync_execution_time() );
+		$this->assertEquals( 20, Defaults::get_max_sync_execution_time() );
 	}
 
 	function test_limits_execution_time_of_do_sync() {
 		// disable sync callables
-		set_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME, 60 );
+		set_transient( Callables::CALLABLES_AWAIT_TRANSIENT_NAME, 60 );
 		$this->sender->do_sync();
 
 		$this->assertEquals( 0, $this->sender->get_sync_queue()->size() );
@@ -426,6 +431,39 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$event = $this->server_event_storage->get_most_recent_event( 'foo_action' );
 		$this->assertFalse( $event, 'Event data present' );
 		$this->assertFalse( $sync_queue->has_any_items() ,"We didn't empty the queue" );
+	}
+
+	function test_sender_get_sync_object_for_post() {
+		$post_id = $this->factory->post->create();
+
+		$response = $this->sender->sync_object( array( 'posts', 'post', $post_id ) );
+
+		$codec = $this->sender->get_codec();
+		$decoded_object = $codec->decode( $response );
+
+		$this->assertEquals( $post_id, $decoded_object->ID );
+	}
+
+	function test_sender_sync_object_returns_false_if_missing() {
+		$response = $this->sender->sync_object( array( 'posts', 'post', 1000 ) );
+
+		$codec = $this->sender->get_codec();
+		$decoded_object = $codec->decode( $response );
+
+		$this->assertFalse( $decoded_object );
+	}
+
+	function test_sender_get_sync_object_for_user() {
+		$user_id = $this->factory->user->create();
+
+		$response = $this->sender->sync_object( array( 'users', 'user', $user_id ) );
+
+		$codec = $this->sender->get_codec();
+		$decoded_object = $codec->decode( $response );
+
+		$this->assertFalse( isset( $decoded_object->user_pass ) );
+
+		$this->assertEquals( $user_id, $decoded_object->ID );
 	}
 
 	function run_filter( $data ) {

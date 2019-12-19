@@ -11,6 +11,6 @@
  * Additional Search Queries: adminbar, masterbar
  */
 
-include dirname( __FILE__ ) . '/masterbar/masterbar.php';
+require dirname( __FILE__ ) . '/masterbar/masterbar.php';
 
-new A8C_WPCOM_Masterbar;
+new A8C_WPCOM_Masterbar();

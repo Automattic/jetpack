@@ -17,7 +17,12 @@ usage () {
 	[--force_connect=1] \
 	[--force_register=1] \
 	[--allow-root] \
-	[--partner-tracking-id=1]'
+	[--partner-tracking-id=1] \
+	[--ssh-host=example.com] \
+	[--ssh-user=user_name] \
+	[--ssh-pass=user_pass] \
+	[--ssh-private-key=/path/to/private_key] \
+	[--ssh-port=22] '
 }
 
 # Note: this script should always be designed to keep wp-cli OPTIONAL
@@ -81,6 +86,26 @@ for i in "$@"; do
 			;;
 		--partner-tracking-id=* )
 			PROVISION_REQUEST_URL="$PROVISION_REQUEST_URL?partner-tracking-id=${i#*=}"
+			shift
+			;;
+		--ssh-host=* )
+			PROVISION_REQUEST_ARGS="$PROVISION_REQUEST_ARGS --form ssh_host=${i#*=}"
+			shift
+			;;
+		--ssh-user=* )
+			PROVISION_REQUEST_ARGS="$PROVISION_REQUEST_ARGS --form ssh_user=${i#*=}"
+			shift
+			;;
+		--ssh-pass=* )
+			PROVISION_REQUEST_ARGS="$PROVISION_REQUEST_ARGS --form ssh_pass=${i#*=}"
+			shift
+			;;
+		--ssh-private-key=* )
+			PROVISION_REQUEST_ARGS="$PROVISION_REQUEST_ARGS --form ssh_private_key=<${i#*=}"
+			shift
+			;;
+		--ssh-port=* )
+			PROVISION_REQUEST_ARGS="$PROVISION_REQUEST_ARGS --form ssh_port=${i#*=}"
 			shift
 			;;
 		--allow-root )

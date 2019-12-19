@@ -150,7 +150,7 @@ class Jetpack_Blog_Stats_Widget extends WP_Widget {
 				isset( $instance['hits'] ) ? esc_html( $instance['hits'] ) : ''
 			);
 		} else {
-			esc_html_e( 'No hits.', 'jetpack' );
+			esc_html_e( 'There was an issue retrieving stats. Please try again later.', 'jetpack' );
 		}
 
 		echo $args['after_widget'];

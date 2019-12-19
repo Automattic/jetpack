@@ -1,6 +1,7 @@
 <?php
 
-/* Twitter Cards
+/*
+ * Twitter Cards
  *
  * Hooks onto the Open Graph protocol and extends it by adding only the tags
  * we need for twitter cards.
@@ -12,6 +13,13 @@ class Jetpack_Twitter_Cards {
 
 	static function twitter_cards_tags( $og_tags ) {
 		global $post;
+
+		/**
+		 * Maximum alt text length.
+		 *
+		 * @see https://developer.twitter.com/en/docs/tweets/optimize-with-cards/overview/summary-card-with-large-image.html
+		 */
+		$alt_length = 420;
 
 		if ( post_password_required() ) {
 			return $og_tags;
@@ -75,22 +83,32 @@ class Jetpack_Twitter_Cards {
 		$card_type = 'summary';
 
 		// Try to give priority to featured images
-		if ( class_exists('Jetpack_PostImages') ) {
+		if ( class_exists( 'Jetpack_PostImages' ) ) {
 			$featured = Jetpack_PostImages::from_thumbnail( $post->ID, 240, 240 );
-			if ( !empty( $featured ) && count( $featured ) > 0 ) {
+			if ( ! empty( $featured ) && count( $featured ) > 0 ) {
 				if ( (int) $featured[0]['src_width'] >= 280 && (int) $featured[0]['src_height'] >= 150 ) {
-					$card_type = 'summary_large_image';
+					$card_type                = 'summary_large_image';
 					$og_tags['twitter:image'] = esc_url( add_query_arg( 'w', 640, $featured[0]['src'] ) );
 				} else {
 					$og_tags['twitter:image'] = esc_url( add_query_arg( 'w', 240, $featured[0]['src'] ) );
+				}
+
+				// Add the alt tag if we have one.
+				if ( ! empty( $featured[0]['alt_text'] ) ) {
+					// Shorten it if it is too long.
+					if ( strlen( $featured[0]['alt_text'] ) > $alt_length ) {
+						$og_tags['twitter:image:alt'] = esc_attr( mb_substr( $featured[0]['alt_text'], 0, $alt_length ) . '…' );
+					} else {
+						$og_tags['twitter:image:alt'] = esc_attr( $featured[0]['alt_text'] );
+					}
 				}
 			}
 		}
 
 		// Only proceed with media analysis if a featured image has not superseded it already.
 		if ( empty( $og_tags['twitter:image'] ) && empty( $og_tags['twitter:image:src'] ) ) {
-			if ( ! class_exists( 'Jetpack_Media_Summary' ) && defined('IS_WPCOM') && IS_WPCOM ) {
-				include( WP_CONTENT_DIR . '/lib/class.wpcom-media-summary.php' );
+			if ( ! class_exists( 'Jetpack_Media_Summary' ) && defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+				include WP_CONTENT_DIR . '/lib/class.wpcom-media-summary.php';
 			}
 
 			if ( ! class_exists( 'Jetpack_Media_Summary' ) ) {
@@ -106,7 +124,7 @@ class Jetpack_Twitter_Cards {
 					list( $og_tags, $card_type ) = self::twitter_cards_define_type_based_on_image_count( $og_tags, $extract );
 				} elseif ( 'video' == $extract['type'] ) {
 					// Leave as summary, but with large pict of poster frame (we know those comply to Twitter's size requirements)
-					$card_type = 'summary_large_image';
+					$card_type                = 'summary_large_image';
 					$og_tags['twitter:image'] = esc_url( add_query_arg( 'w', 640, $extract['image'] ) );
 				} else {
 					list( $og_tags, $card_type ) = self::twitter_cards_define_type_based_on_image_count( $og_tags, $extract );
@@ -117,14 +135,14 @@ class Jetpack_Twitter_Cards {
 		$og_tags['twitter:card'] = $card_type;
 
 		// Make sure we have a description for Twitter, their validator isn't happy without some content (single space not valid).
-		if ( ! isset( $og_tags['og:description'] ) || '' == trim( $og_tags['og:description'] ) || __('Visit the post for more.', 'jetpack') == $og_tags['og:description'] ) { // empty( trim( $og_tags['og:description'] ) ) isn't valid php
-			$has_creator = ( ! empty($og_tags['twitter:creator']) && '@wordpressdotcom' != $og_tags['twitter:creator'] ) ? true : false;
+		if ( ! isset( $og_tags['og:description'] ) || '' == trim( $og_tags['og:description'] ) || __( 'Visit the post for more.', 'jetpack' ) == $og_tags['og:description'] ) { // empty( trim( $og_tags['og:description'] ) ) isn't valid php
+			$has_creator = ( ! empty( $og_tags['twitter:creator'] ) && '@wordpressdotcom' != $og_tags['twitter:creator'] ) ? true : false;
 			if ( ! empty( $extract ) && 'video' == $extract['type'] ) { // use $extract['type'] since $card_type is 'summary' for video posts
 				/* translators: %s is the post author */
 				$og_tags['twitter:description'] = ( $has_creator ) ? sprintf( __( 'Video post by %s.', 'jetpack' ), $og_tags['twitter:creator'] ) : __( 'Video post.', 'jetpack' );
 			} else {
 				/* translators: %s is the post author */
-				$og_tags['twitter:description'] = ( $has_creator ) ? sprintf( __( 'Post by %s.', 'jetpack' ), $og_tags['twitter:creator'] ) : __( 'Visit the post for more.', 'jetpack');
+				$og_tags['twitter:description'] = ( $has_creator ) ? sprintf( __( 'Post by %s.', 'jetpack' ), $og_tags['twitter:creator'] ) : __( 'Visit the post for more.', 'jetpack' );
 			}
 		}
 
@@ -161,7 +179,7 @@ class Jetpack_Twitter_Cards {
 		if ( empty( $img_count ) ) {
 
 			// No images, use Blavatar as a thumbnail for the summary type.
-			if ( function_exists('blavatar_domain') ) {
+			if ( function_exists( 'blavatar_domain' ) ) {
 				$blavatar_domain = blavatar_domain( site_url() );
 				if ( blavatar_exists( $blavatar_domain ) ) {
 					$og_tags['twitter:image'] = blavatar_url( $blavatar_domain, 'img', 240 );
@@ -174,7 +192,7 @@ class Jetpack_Twitter_Cards {
 			}
 
 			// Third fall back, Site Icon
-			if ( empty( $og_tags['twitter:image'] ) && ( function_exists( 'has_site_icon' ) && has_site_icon() ) ) {
+			if ( empty( $og_tags['twitter:image'] ) && has_site_icon() ) {
 				$og_tags['twitter:image'] = get_site_icon_url( '240' );
 			}
 
@@ -182,7 +200,7 @@ class Jetpack_Twitter_Cards {
 
 		} elseif ( $img_count && ( 'image' == $extract['type'] || 'gallery' == $extract['type'] ) ) {
 			// Test for $extract['type'] to limit to image and gallery, so we don't send a potential fallback image like a Gravatar as a photo post.
-			$card_type = 'summary_large_image';
+			$card_type                = 'summary_large_image';
 			$og_tags['twitter:image'] = esc_url( add_query_arg( 'w', 1400, ( empty( $extract['images'] ) ) ? $extract['image'] : $extract['images'][0]['url'] ) );
 		}
 
@@ -212,15 +230,12 @@ class Jetpack_Twitter_Cards {
 	}
 
 	static function site_tag() {
-		$site_tag = ( defined( 'IS_WPCOM' ) && IS_WPCOM  ) ?
-            trim( get_option( 'twitter_via' ) ) :
-            Jetpack_Options::get_option_and_ensure_autoload( 'jetpack-twitter-cards-site-tag', '' );
+		$site_tag = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ?
+			trim( get_option( 'twitter_via' ) ) :
+			Jetpack_Options::get_option_and_ensure_autoload( 'jetpack-twitter-cards-site-tag', '' );
 		if ( empty( $site_tag ) ) {
-			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-				return 'wordpressdotcom';
-			} else {
-				return;
-			}
+			/** This action is documented in modules/sharedaddy/sharing-sources.php */
+			return apply_filters( 'jetpack_sharing_twitter_via', '', null );
 		}
 		return $site_tag;
 	}
@@ -240,13 +255,13 @@ class Jetpack_Twitter_Cards {
 	}
 
 	static function init() {
-		add_filter( 'jetpack_open_graph_tags',        array( __CLASS__, 'twitter_cards_tags' ) );
-		add_filter( 'jetpack_open_graph_output',      array( __CLASS__, 'twitter_cards_output' ) );
+		add_filter( 'jetpack_open_graph_tags', array( __CLASS__, 'twitter_cards_tags' ) );
+		add_filter( 'jetpack_open_graph_output', array( __CLASS__, 'twitter_cards_output' ) );
 		add_filter( 'jetpack_twitter_cards_site_tag', array( __CLASS__, 'site_tag' ), -99 );
 		add_filter( 'jetpack_twitter_cards_site_tag', array( __CLASS__, 'prioritize_creator_over_default_site' ), 99, 2 );
-		add_action( 'admin_init',                     array( __CLASS__, 'settings_init' ) );
-		add_action( 'sharing_global_options',         array( __CLASS__, 'sharing_global_options' ) );
-		add_action( 'sharing_admin_update',           array( __CLASS__, 'settings_validate' ) );
+		add_action( 'admin_init', array( __CLASS__, 'settings_init' ) );
+		add_action( 'sharing_global_options', array( __CLASS__, 'sharing_global_options' ) );
+		add_action( 'sharing_admin_update', array( __CLASS__, 'settings_validate' ) );
 	}
 }
 

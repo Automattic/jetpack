@@ -2,13 +2,7 @@
  * External dependencies
  */
 import { combineReducers } from 'redux';
-import get from 'lodash/get';
-import assign from 'lodash/assign';
-import merge from 'lodash/merge';
-import includes from 'lodash/includes';
-import some from 'lodash/some';
-import filter from 'lodash/filter';
-import mapValues from 'lodash/mapValues';
+import { assign, filter, get, includes, mapValues, merge, some } from 'lodash';
 
 /**
  * Internal dependencies
@@ -25,7 +19,7 @@ import {
 	JETPACK_SETTINGS_UPDATE_SUCCESS,
 	JETPACK_SETTINGS_UPDATE_FAIL,
 	JETPACK_SETTINGS_SET_UNSAVED_FLAG,
-	JETPACK_SETTINGS_CLEAR_UNSAVED_FLAG
+	JETPACK_SETTINGS_CLEAR_UNSAVED_FLAG,
 } from 'state/action-types';
 
 export const items = ( state = {}, action ) => {
@@ -37,7 +31,7 @@ export const items = ( state = {}, action ) => {
 		case JETPACK_SETTING_UPDATE_SUCCESS:
 			const key = Object.keys( action.updatedOption )[ 0 ];
 			return assign( {}, state, {
-				[ key ]: action.updatedOption[ key ]
+				[ key ]: action.updatedOption[ key ],
 			} );
 		case JETPACK_SETTINGS_UPDATE_SUCCESS:
 			return assign( {}, state, action.updatedOptions );
@@ -48,32 +42,32 @@ export const items = ( state = {}, action ) => {
 
 export const initialRequestsState = {
 	fetchingSettingsList: false,
-	settingsSent: {}
+	settingsSent: {},
 };
 
 export const requests = ( state = initialRequestsState, action ) => {
 	switch ( action.type ) {
 		case JETPACK_SETTINGS_FETCH:
 			return assign( {}, state, {
-				fetchingSettingsList: true
+				fetchingSettingsList: true,
 			} );
 		case JETPACK_SETTINGS_FETCH_FAIL:
 		case JETPACK_SETTINGS_FETCH_RECEIVE:
 			return assign( {}, state, {
-				fetchingSettingsList: false
+				fetchingSettingsList: false,
 			} );
 
 		case JETPACK_SETTING_UPDATE:
 		case JETPACK_SETTINGS_UPDATE:
 			return merge( {}, state, {
-				settingsSent: mapValues( action.updatedOptions, () => true )
+				settingsSent: mapValues( action.updatedOptions, () => true ),
 			} );
 		case JETPACK_SETTING_UPDATE_FAIL:
 		case JETPACK_SETTING_UPDATE_SUCCESS:
 		case JETPACK_SETTINGS_UPDATE_FAIL:
 		case JETPACK_SETTINGS_UPDATE_SUCCESS:
 			return merge( {}, state, {
-				settingsSent: mapValues( action.updatedOptions, () => false )
+				settingsSent: mapValues( action.updatedOptions, () => false ),
 			} );
 		default:
 			return state;
@@ -94,7 +88,7 @@ export const unsavedSettingsFlag = ( state = false, action ) => {
 export const reducer = combineReducers( {
 	items,
 	requests,
-	unsavedSettingsFlag
+	unsavedSettingsFlag,
 } );
 
 /**
@@ -140,7 +134,12 @@ export function isFetchingSettingsList( state ) {
  */
 export function isUpdatingSetting( state, settings = '' ) {
 	if ( 'object' === typeof settings ) {
-		return some( filter( state.jetpack.settings.requests.settingsSent, ( item, key ) => includes( settings, key ) ), item => item );
+		return some(
+			filter( state.jetpack.settings.requests.settingsSent, ( item, key ) =>
+				includes( settings, key )
+			),
+			item => item
+		);
 	}
 	return state.jetpack.settings.requests.settingsSent[ settings ];
 }
@@ -190,13 +189,4 @@ export function appsCardDismissed( state ) {
  */
 export function emptyStatsCardDismissed( state ) {
 	return get( state.jetpack.settings.items, 'dismiss_empty_stats_card', false );
-}
-
-/**
- * Returns true if a new plan has been purchased.
- * @param  {Object}  state Global state tree
- * @return {Boolean} Whether a new plan has been purchased.
- */
-export function showWelcomeForNewPlan( state ) {
-	return get( state.jetpack.settings.items, 'show_welcome_for_new_plan', false );
 }

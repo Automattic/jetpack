@@ -20,15 +20,13 @@
  * Stop listening to all resize postMessage events:
  * Jetpack.resizeable( 'off' );
  */
-(function($) {
-	var listening     = false, // Are we listening for resize postMessage events
-		sourceOrigins = [],    // What origins are allowed to send resize postMessage events
-		$sources      = false, // What iframe elements are we tracking resize postMessage events from
-
-		URLtoOrigin,     // Utility to convert URLs into origins
-		setupListener,   // Binds global resize postMessage event handler
+( function( $ ) {
+	var listening = false, // Are we listening for resize postMessage events
+		sourceOrigins = [], // What origins are allowed to send resize postMessage events
+		$sources = false, // What iframe elements are we tracking resize postMessage events from
+		URLtoOrigin, // Utility to convert URLs into origins
+		setupListener, // Binds global resize postMessage event handler
 		destroyListener, // Unbinds global resize postMessage event handler
-
 		methods; // Jetpack.resizeable methods
 
 	// Setup the Jetpack global
@@ -53,7 +51,7 @@
 				}
 
 				return context ? $( context ) : context;
-			}
+			},
 		};
 	}
 
@@ -67,9 +65,9 @@
 		 * @return mixed|jQuery (chainable)
 		 */
 		$.fn.Jetpack = function( namespace ) {
-			if ( 'function' === typeof Jetpack[namespace] ) {
+			if ( 'function' === typeof Jetpack[ namespace ] ) {
 				// Send the call to the correct Jetpack.namespace
-				return Jetpack[namespace].apply( this, Array.prototype.slice.call( arguments, 1 ) );
+				return Jetpack[ namespace ].apply( this, Array.prototype.slice.call( arguments, 1 ) );
 			} else {
 				$.error( 'Namespace "' + namespace + '" does not exist on jQuery.Jetpack' );
 			}
@@ -85,7 +83,7 @@
 			 */
 			resizeable: function() {
 				$.error( 'Browser does not support window.postMessage' );
-			}
+			},
 		} );
 
 		return;
@@ -103,7 +101,9 @@
 		if ( ! URL.match( /^https?:\/\// ) ) {
 			URL = document.location.href;
 		}
-		return URL.split( '/' ).slice( 0, 3 ).join( '/' );
+		return URL.split( '/' )
+			.slice( 0, 3 )
+			.join( '/' );
 	};
 
 	/**
@@ -132,7 +132,7 @@
 				}
 			}
 
-			if ( !data.data ) {
+			if ( ! data.data ) {
 				return;
 			}
 
@@ -145,13 +145,16 @@
 			}
 
 			// Find the correct iframe and resize it
-			$sources.filter( function() {
-				if ( 'undefined' !== typeof data.name ) {
-					return this.name === data.name;
-				} else {
-					return event.source === this.contentWindow;
-				}
-			} ).first().Jetpack( 'resizeable', 'resize', data );
+			$sources
+				.filter( function() {
+					if ( 'undefined' !== typeof data.name ) {
+						return this.name === data.name;
+					} else {
+						return event.source === this.contentWindow;
+					}
+				} )
+				.first()
+				.Jetpack( 'resizeable', 'resize', data );
 		} );
 	};
 
@@ -185,9 +188,11 @@
 				setupListener();
 			}
 
-			target.each( function() {
-				sourceOrigins.push( URLtoOrigin( $( this ).attr( 'src' ) ) );
-			} ).addClass( 'jetpack-resizeable' );
+			target
+				.each( function() {
+					sourceOrigins.push( URLtoOrigin( $( this ).attr( 'src' ) ) );
+				} )
+				.addClass( 'jetpack-resizeable' );
 
 			$sources = $( '.jetpack-resizeable' );
 
@@ -212,14 +217,16 @@
 				return target;
 			}
 
-			target.each( function() {
-				var origin = URLtoOrigin( $( this ).attr( 'src' ) ),
-					pos = $.inArray( origin, sourceOrigins );
+			target
+				.each( function() {
+					var origin = URLtoOrigin( $( this ).attr( 'src' ) ),
+						pos = $.inArray( origin, sourceOrigins );
 
-				if ( -1 !== pos ) {
-					sourceOrigins.splice( pos, 1 );
-				}
-			} ).removeClass( 'jetpack-resizeable' );
+					if ( -1 !== pos ) {
+						sourceOrigins.splice( pos, 1 );
+					}
+				} )
+				.removeClass( 'jetpack-resizeable' );
 
 			$sources = $( '.jetpack-resizeable' );
 
@@ -242,21 +249,21 @@
 			$.each( [ 'width', 'height' ], function( i, variable ) {
 				var value = 0,
 					container;
-				if ( 'undefined' !== typeof dimensions[variable] ) {
-					value = parseInt( dimensions[variable], 10 );
+				if ( 'undefined' !== typeof dimensions[ variable ] ) {
+					value = parseInt( dimensions[ variable ], 10 );
 				}
 
 				if ( 0 !== value ) {
-					target[variable]( value );
+					target[ variable ]( value );
 					container = target.parent();
 					if ( container.hasClass( 'slim-likes-widget' ) ) {
-						container[variable]( value );
+						container[ variable ]( value );
 					}
 				}
 			} );
 
 			return target;
-		}
+		},
 	};
 
 	// Define Jetpack.resizeable() namespace
@@ -270,16 +277,16 @@
 		 * @return mixed|jQuery (chainable)
 		 */
 		resizeable: function( method ) {
-			if ( methods[method] ) {
+			if ( methods[ method ] ) {
 				// Send the call to the correct Jetpack.resizeable() method
-				return methods[method].apply( this, Array.prototype.slice.call( arguments, 1 ) );
+				return methods[ method ].apply( this, Array.prototype.slice.call( arguments, 1 ) );
 			} else if ( ! method ) {
 				// By default, send to Jetpack.resizeable( 'on' ), which isn't useful in that form but is when called as
 				// jQuery( selector ).Jetpack( 'resizeable' )
 				return methods.on.apply( this );
 			} else {
-				$.error( 'Method ' +  method + ' does not exist on Jetpack.resizeable' );
+				$.error( 'Method ' + method + ' does not exist on Jetpack.resizeable' );
 			}
-		}
+		},
 	} );
-})(jQuery);
+} )( jQuery );

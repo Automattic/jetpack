@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Constants;
+
 if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'plugins.php' !== $GLOBALS['pagenow'] ) {
 
 	/**
@@ -438,7 +440,7 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 		public static function hide_the_featured_term( $terms, $id, $taxonomy ) {
 
 			// This filter is only appropriate on the front-end.
-			if ( is_admin() ) {
+			if ( is_admin() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) || ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ) ) {
 				return $terms;
 			}
 
@@ -501,7 +503,7 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 			Add Featured Content settings.
 			 *
 			 * Sanitization callback registered in Featured_Content::validate_settings().
-			 * See http://themeshaper.com/2013/04/29/validation-sanitization-in-customizer/comment-page-1/#comment-12374
+			 * See https://themeshaper.com/2013/04/29/validation-sanitization-in-customizer/comment-page-1/#comment-12374
 			 */
 			$wp_customize->add_setting(
 				'featured-content[tag-name]',
@@ -693,8 +695,6 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 		}
 	}
 
-	Featured_Content::setup();
-
 	/**
 	 * Adds the featured content plugin to the set of files for which action
 	 * handlers should be copied when the theme context is loaded by the REST API.
@@ -708,4 +708,17 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 	}
 	add_action( 'restapi_theme_action_copy_dirs', 'wpcom_rest_api_featured_content_copy_plugin_actions' );
 
+	/**
+	 * Delayed initialization for API Requests.
+	 */
+	function wpcom_rest_request_before_callbacks( $request ) {
+		Featured_Content::init();
+		return $request;
+	}
+
+	if ( Constants::is_true( 'IS_WPCOM' ) && Constants::is_true( 'REST_API_REQUEST' ) ) {
+		add_filter( 'rest_request_before_callbacks', 'wpcom_rest_request_before_callbacks');
+	}
+
+	Featured_Content::setup();
 } // end if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'plugins.php' !== $GLOBALS['pagenow'] ) {

@@ -341,13 +341,15 @@ iframe[src^="http://api.mixcloud.com/"] {
 	max-width: calc(100% + 8px);
 }
 
-/* Polldaddy */
-.PDS_Poll {
+/* Crowdsignal */
+.PDS_Poll,
+.CSS_Poll {
 	display: block !important;
 	margin-bottom: 1.75em;
 }
 
-.PDS_Poll .pds-box {
+.PDS_Poll .pds-box,
+.CSS_Poll .css-box {
 	max-width: 100%;
 	width: auto;
 }

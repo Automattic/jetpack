@@ -1,5 +1,4 @@
 <?php
-
 function jetpack_require_lib( $slug ) {
 	if ( !preg_match( '|^[a-z0-9/_.-]+$|i', $slug ) ) {
 		trigger_error( "Cannot load a library with invalid slug $slug.", E_USER_ERROR );
@@ -22,6 +21,7 @@ function jetpack_require_lib( $slug ) {
 	 */
 	$lib_dir = apply_filters( 'jetpack_require_lib_dir', $lib_dir );
 	$choices = array(
+		JETPACK__PLUGIN_DIR . "vendor/automattic/jetpack-compat/lib/$slug.php",
 		"$lib_dir/$slug.php",
 		"$lib_dir/$slug/0-load.php",
 		"$lib_dir/$slug/$basename.php",

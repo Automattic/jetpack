@@ -35,13 +35,13 @@ class Jetpack_SEO_Utils {
 			return false;
 		}
 
-		if ( function_exists( 'has_blog_sticker' ) ) {
+		if ( function_exists( 'has_any_blog_stickers' ) ) {
 			// For WPCOM sites
 			if ( empty( $site_id ) ) {
 				$site_id = get_current_blog_id();
 			}
 
-			return has_blog_sticker( 'business-plan', $site_id );
+			return has_any_blog_stickers( array( 'business-plan', 'ecommerce-plan' ), $site_id );
 		}
 
 		// For all Jetpack sites

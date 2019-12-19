@@ -12,7 +12,7 @@ import {
 	fetchSettings,
 	isSettingActivated,
 	updateSetting,
-	isFetchingSettingsList
+	isFetchingSettingsList,
 } from 'state/settings';
 import { SettingToggle } from 'components/setting-toggle';
 
@@ -21,7 +21,7 @@ export class Settings extends React.Component {
 		slug: PropTypes.string,
 		activated: PropTypes.bool,
 		toggleSetting: PropTypes.func,
-		disabled: PropTypes.bool
+		disabled: PropTypes.bool,
 	};
 
 	componentDidMount() {
@@ -45,19 +45,19 @@ export class Settings extends React.Component {
 }
 
 export default connect(
-	( state ) => {
+	state => {
 		return {
-			isSettingActivated: ( setting_name ) => isSettingActivated( state, setting_name ),
+			isSettingActivated: setting_name => isSettingActivated( state, setting_name ),
 			isFetchingSettingsList: isFetchingSettingsList( state ),
-			settings: fetchSettings( state )
+			settings: fetchSettings( state ),
 		};
 	},
-	( dispatch ) => {
+	dispatch => {
 		return {
 			fetchSettings: () => dispatch( fetchSettings() ),
 			toggleSetting: ( setting_name, activated ) => {
 				dispatch( updateSetting( { [ setting_name ]: ! activated } ) );
-			}
+			},
 		};
 	}
 )( Settings );

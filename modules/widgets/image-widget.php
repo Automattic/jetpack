@@ -229,13 +229,13 @@ class Jetpack_Image_Widget extends WP_Widget {
 			<p><label for="' . $this->get_field_id( 'img_url' ) . '">' . esc_html__( 'Image URL:', 'jetpack' ) . '
 			<input class="widefat" id="' . $this->get_field_id( 'img_url' ) . '" name="' . $this->get_field_name( 'img_url' ) . '" type="text" value="' . $img_url . '" />
 			</label></p>
-			<p><label for="' . $this->get_field_id( 'alt_text' ) . '">' . esc_html__( 'Alternate text:', 'jetpack' ) . '  <a href="http://support.wordpress.com/widgets/image-widget/#image-widget-alt-text" target="_blank">( ? )</a>
+			<p><label for="' . $this->get_field_id( 'alt_text' ) . '">' . esc_html__( 'Alternate text:', 'jetpack' ) . '  <a href="https://support.wordpress.com/widgets/image-widget/#image-widget-alt-text" target="_blank">( ? )</a>
 			<input class="widefat" id="' . $this->get_field_id( 'alt_text' ) . '" name="' . $this->get_field_name( 'alt_text' ) . '" type="text" value="' . $alt_text . '" />
 			</label></p>
-			<p><label for="' . $this->get_field_id( 'img_title' ) . '">' . esc_html__( 'Image title:', 'jetpack' ) . ' <a href="http://support.wordpress.com/widgets/image-widget/#image-widget-title" target="_blank">( ? )</a>
+			<p><label for="' . $this->get_field_id( 'img_title' ) . '">' . esc_html__( 'Image title:', 'jetpack' ) . ' <a href="https://support.wordpress.com/widgets/image-widget/#image-widget-title" target="_blank">( ? )</a>
 			<input class="widefat" id="' . $this->get_field_id( 'img_title' ) . '" name="' . $this->get_field_name( 'img_title' ) . '" type="text" value="' . $img_title . '" />
 			</label></p>
-			<p><label for="' . $this->get_field_id( 'caption' ) . '">' . esc_html__( 'Caption:', 'jetpack' ) . ' <a href="http://support.wordpress.com/widgets/image-widget/#image-widget-caption" target="_blank">( ? )</a>
+			<p><label for="' . $this->get_field_id( 'caption' ) . '">' . esc_html__( 'Caption:', 'jetpack' ) . ' <a href="https://support.wordpress.com/widgets/image-widget/#image-widget-caption" target="_blank">( ? )</a>
 			<textarea class="widefat" id="' . $this->get_field_id( 'caption' ) . '" name="' . $this->get_field_name( 'caption' ) . '" rows="2" cols="20">' . $caption . '</textarea>
 			</label></p>';
 

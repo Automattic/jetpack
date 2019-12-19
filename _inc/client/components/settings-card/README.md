@@ -3,7 +3,7 @@ SettingsCard
 
 This component is used to display a card with header and a button to save settings.
 Its children are all the form elements used to compose the settings.
-Uses isSavingAnyOption and onSubmit defined in components/module-settings/module-settings-form.jsx
+Uses isSavingAnyOption and onSubmit defined in components/module-settings/with-module-settings-form-helpers.jsx
 
 #### Usage
 

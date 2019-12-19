@@ -278,6 +278,40 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 		return $response;
 	}
 
+	function filter_response( $response ) {
+
+		// Do minimal processing if the caller didn't request it
+		if ( ! isset( $_REQUEST['meta_fields'] ) ) {
+			return $response;
+		}
+
+		// Retrieve an array of field paths, such as: [`autosave.modified`, `autosave.post_ID`]
+		$fields = explode( ',', $_REQUEST['meta_fields'] );
+
+		foreach ( $response['posts'] as $post ) {
+
+			if ( ! isset( $post['meta'] ) || ! isset( $post['meta']->data ) || (! is_array( $post['meta']->data ) && ! is_object( $post['meta']->data ) ) ) {
+				continue;
+			}
+			
+			$newmeta = [];
+			foreach ( $post['meta']->data as $field_key => $field_value ) {
+
+				foreach ( $field_value as $subfield_key => $subfield_value ) {
+					$key_path = $field_key . '.' . $subfield_key;
+
+					if ( in_array( $key_path, $fields ) ) {
+						$newmeta[ $field_key ][ $subfield_key ] = $subfield_value;
+					}
+				}
+			}
+
+			$post['meta']->data = $newmeta;
+		}
+
+		return $response;
+	}
+	
 	// TODO: factor this out
 	function get_blog_post( $blog_id, $post_id, $context = 'display' ) {
 		$blog_id = $this->api->get_blog_id( $blog_id );

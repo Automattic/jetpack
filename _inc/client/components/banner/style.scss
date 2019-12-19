@@ -1,5 +1,5 @@
 @import '../../scss/layout';
-@import "../../scss/calypso-colors";
+@import "../../scss/variables/colors";
 @import "../../scss/color-functions";
 
 @mixin banner-color( $color ) {
@@ -27,6 +27,10 @@
 	}
 
 	@include banner-color( $blue-wordpress );
+
+	&.is-jetpack-info {
+		@include banner-color( $green-primary );
+	}
 
 	&.is-upgrade-personal {
 		@include banner-color( $alert-yellow );

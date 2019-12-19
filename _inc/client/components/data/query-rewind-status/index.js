@@ -8,29 +8,24 @@ import { connect } from 'react-redux';
 /**
  * Internal dependencies
  */
-import {
-	fetchRewindStatus,
-	isFetchingRewindStatus
-} from 'state/rewind';
-import {
-	getSitePlan
-} from 'state/site';
+import { fetchRewindStatus, isFetchingRewindStatus } from 'state/rewind';
+import { getSitePlan } from 'state/site';
 import { isDevMode } from 'state/connection';
 
 class QueryRewindStatus extends Component {
 	static propTypes = {
 		isFetchingRewindStatus: PropTypes.bool,
 		isDevMode: PropTypes.bool,
-		sitePlan: PropTypes.object
+		sitePlan: PropTypes.object,
 	};
 
 	static defaultProps = {
 		isFetchingRewindStatus: false,
 		isDevMode: false,
-		sitePlan: {}
+		sitePlan: {},
 	};
 
-	componentWillMount() {
+	UNSAFE_componentWillMount() {
 		if ( ! this.props.isFetchingRewindStatus && ! this.props.isDevMode ) {
 			this.props.fetchRewind();
 		}
@@ -42,16 +37,16 @@ class QueryRewindStatus extends Component {
 }
 
 export default connect(
-	( state ) => {
+	state => {
 		return {
 			isFetchingRewindStatus: isFetchingRewindStatus( state ),
 			isDevMode: isDevMode( state ),
-			sitePlan: getSitePlan( state )
+			sitePlan: getSitePlan( state ),
 		};
 	},
-	( dispatch ) => {
+	dispatch => {
 		return {
-			fetchRewind: () => dispatch( fetchRewindStatus() )
+			fetchRewind: () => dispatch( fetchRewindStatus() ),
 		};
 	}
 )( QueryRewindStatus );

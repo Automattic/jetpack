@@ -4,17 +4,9 @@ require_once JETPACK__PLUGIN_DIR . '/tests/php/lib/class-wp-test-jetpack-rest-te
 require_once JETPACK__PLUGIN_DIR . '/tests/php/lib/class-wp-test-spy-rest-server.php';
 
 class WP_Test_Jetpack_Core_Api_Module_Activate_Endpoint extends WP_Test_Jetpack_REST_Testcase {
-
-	public function setUp() {
-		parent::setUp();
-
-		Jetpack::load_xml_rpc_client();
-	}
-
 	/**
 	 * @author zinigor
 	 * @covers Jetpack_Core_API_Module_Activate_Endpoint
-	 * @requires PHP 5.2
 	 * @dataProvider api_routes
 	 */
 	public function test_register_routes( $route_string = false, $method = false, $classname = false ) {

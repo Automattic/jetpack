@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Generate sitemap files in base XML as well as some namespace extensions.
  *
@@ -14,7 +14,7 @@
  *    well as the home url. To include other post types use the 'jetpack_sitemap_post_types'
  *    filter.
  *
- * @link http://sitemaps.org/protocol.php Base sitemaps protocol.
+ * @link https://www.sitemaps.org/protocol.html Base sitemaps protocol.
  * @link https://support.google.com/webmasters/answer/178636 Image sitemap extension.
  * @link https://developers.google.com/webmasters/videosearch/sitemaps Video sitemap extension.
  *
@@ -23,7 +23,7 @@
  *    completeness, instead including at most 1000 of the most recent published posts
  *    from the previous 2 days, per the news-sitemap spec.
  *
- * @link http://www.google.com/support/webmasters/bin/answer.py?answer=74288 News sitemap extension.
+ * @link https://support.google.com/webmasters/answer/74288 News sitemap extension.
  *
  * @package Jetpack
  * @since 3.9.0
@@ -170,7 +170,7 @@ class Jetpack_Sitemap_Manager {
 			);
 		}
 
-		echo $the_content;
+		echo $the_content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- All content created by Jetpack.
 
 		die();
 	}
@@ -225,12 +225,20 @@ class Jetpack_Sitemap_Manager {
 
 			// Catch master sitemap xml.
 			if ( preg_match( $regex['master'], $request['sitemap_name'] ) ) {
+				$sitemap_content = $this->librarian->get_sitemap_text(
+					jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE, 0 ),
+					JP_MASTER_SITEMAP_TYPE
+				);
+
+				// if there is no master sitemap yet, let's just return an empty sitemap with a short TTL instead of a 404.
+				if ( empty( $sitemap_content ) ) {
+					$builder         = new Jetpack_Sitemap_Builder();
+					$sitemap_content = $builder->empty_sitemap_xml();
+				}
+
 				$this->serve_raw_and_die(
 					$xml_content_type,
-					$this->librarian->get_sitemap_text(
-						jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE, 0 ),
-						JP_MASTER_SITEMAP_TYPE
-					)
+					$sitemap_content
 				);
 			}
 
@@ -429,10 +437,21 @@ class Jetpack_Sitemap_Manager {
 		 *
 		 * @module sitemaps
 		 * @since 3.9.0
+		 * @deprecated 7.4.0
 		 *
 		 * @param bool $discover_sitemap Make default sitemap discoverable to robots.
 		 */
-		$discover_sitemap = apply_filters( 'jetpack_sitemap_generate', true );
+		$discover_sitemap = apply_filters_deprecated( 'jetpack_sitemap_generate', array( true ), 'jetpack-7.4.0', 'jetpack_sitemap_include_in_robotstxt' );
+
+		/**
+		 * Filter whether to make the default sitemap discoverable to robots or not. Default true.
+		 *
+		 * @module sitemaps
+		 * @since 7.4.0
+		 *
+		 * @param bool $discover_sitemap Make default sitemap discoverable to robots.
+		 */
+		$discover_sitemap = apply_filters( 'jetpack_sitemap_include_in_robotstxt', $discover_sitemap );
 
 		if ( true === $discover_sitemap ) {
 			$sitemap_url = $this->finder->construct_sitemap_url( 'sitemap.xml' );
@@ -444,10 +463,21 @@ class Jetpack_Sitemap_Manager {
 		 *
 		 * @module sitemaps
 		 * @since 3.9.0
+		 * @deprecated 7.4.0
 		 *
 		 * @param bool $discover_news_sitemap Make default news sitemap discoverable to robots.
 		 */
-		$discover_news_sitemap = apply_filters( 'jetpack_news_sitemap_generate', true );
+		$discover_news_sitemap = apply_filters_deprecated( 'jetpack_news_sitemap_generate', array( true ), 'jetpack-7.4.0', 'jetpack_news_sitemap_include_in_robotstxt' );
+
+		/**
+		 * Filter whether to make the news sitemap discoverable to robots or not. Default true.
+		 *
+		 * @module sitemaps
+		 * @since 7.4.0
+		 *
+		 * @param bool $discover_news_sitemap Make default news sitemap discoverable to robots.
+		 */
+		$discover_news_sitemap = apply_filters( 'jetpack_news_sitemap_include_in_robotstxt', $discover_news_sitemap );
 
 		if ( true === $discover_news_sitemap ) {
 			$news_sitemap_url = $this->finder->construct_sitemap_url( 'news-sitemap.xml' );
@@ -516,7 +546,7 @@ class Jetpack_Sitemap_Manager {
 			 * This way we don't have to wait for init to finish before building sitemaps.
 			 *
 			 * @link https://tools.ietf.org/html/rfc3986#section-3.3 RFC 3986
-			 * @link http://www.sitemaps.org/ The sitemap protocol
+			 * @link https://www.sitemaps.org/ The sitemap protocol
 			 *
 			 * @since 4.8.0
 			 */

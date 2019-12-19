@@ -1,14 +1,19 @@
 <?php
-/*
-Plugin Name: Wufoo Shortcode Plugin
-Description: Enables shortcode to embed Wufoo forms. Usage: [wufoo username="chriscoyier" formhash="x7w3w3" autoresize="true" height="458" header="show"]
-Author: Chris Coyier / Wufoo, evansolomon
+/**
+ * Plugin Name: Wufoo Shortcode
+ * Based on https://wordpress.org/plugins/wufoo-shortcode/
+ *
+ * Examples:
+ * [wufoo username="jeherve" formhash="z1x13ltw1m8jtrw" autoresize="true" height="338" header="show"]
+ *
+ * @package Jetpack
+ */
 
-Based on https://wordpress.org/extend/plugins/wufoo-shortcode/
-https://wufoo.com/docs/code-manager/wordpress-shortcode-plugin/
-*/
-
-
+/**
+ * Display the Wufoo shortcode.
+ *
+ * @param array $atts Shortcode attributes.
+ */
 function wufoo_shortcode( $atts ) {
 	$attr = shortcode_atts(
 		array(
@@ -22,59 +27,87 @@ function wufoo_shortcode( $atts ) {
 	);
 
 	// Check username and formhash to ensure they only have alphanumeric characters or underscores, and aren't empty.
-	if ( ! preg_match( '/^[a-zA-Z0-9_]+$/', $attr['username'] ) || ! preg_match( '/^[a-zA-Z0-9_]+$/', $attr['formhash'] ) ) {
-
-		/**
+	if (
+		! preg_match( '/^[a-zA-Z0-9_]+$/', $attr['username'] )
+		|| ! preg_match( '/^[a-zA-Z0-9_]+$/', $attr['formhash'] )
+	) {
+		/*
 		 * Return an error to the users with instructions if one of these params is invalid
 		 * They don't have default values because they are user/form-specific
 		 */
-		$return_error = sprintf( __( 'Something is wrong with your Wufoo shortcode. If you copy and paste it from the %1$sWufoo Code Manager%2$s, you should be golden.', 'jetpack' ), '<a href="https://wufoo.com/docs/code-manager/" target="_blank">', '</a>' );
-
-		return '
-			<div style="border: 20px solid red; border-radius: 40px; padding: 40px; margin: 50px 0 70px;">
-				<h3>Uh oh!</h3>
-				<p style="margin: 0;">' . $return_error . '</p>
-			</div>';
+		if ( current_user_can( 'edit_posts' ) ) {
+			return sprintf(
+				wp_kses(
+					/* translators: URL to Wufoo support page. */
+					__( 'Something is wrong with your Wufoo shortcode. Try following the instructions <a href="%s" target="_blank" rel="noopener noreferrer">here</a> to embed a form on your site.', 'jetpack' ),
+					array(
+						'a' => array(
+							'href'   => array(),
+							'target' => array(),
+							'rel'    => array(),
+						),
+					)
+				),
+				'https://help.wufoo.com/articles/en_US/kb/Embed'
+			);
+		}
 	}
 
 	/**
 	 * Placeholder which will tell Wufoo where to render the form.
 	 */
-	$js_embed_placeholder = '<div id="wufoo-' . $attr['formhash'] . '"></div>';
+	$js_embed_placeholder = sprintf(
+		'<div id="wufoo-%s"></div>',
+		esc_attr( $attr['formhash'] )
+	);
 
 	/**
 	 * Required parameters are present.
 	 * An error will be returned inside the form if they are invalid.
 	 */
-	$js_embed  = '(function(){try{var wufoo_' . $attr['formhash'] . ' = new WufooForm();';
-	$js_embed .= 'wufoo_' . $attr['formhash'] . '.initialize({';
-	$js_embed .= "'userName':'" . $attr['username'] . "', ";
-	$js_embed .= "'formHash':'" . $attr['formhash'] . "', ";
-	$js_embed .= "'autoResize':" . (bool) ( $attr['autoresize'] ) . ',';
-	$js_embed .= "'height':'" . (int) $attr['height'] . "',";
-	$js_embed .= "'header':'" . esc_js( $attr['header'] ) . "',";
-	$js_embed .= "'ssl':true,'async':true});";
-	$js_embed .= 'wufoo_' . $attr['formhash'] . '.display();';
-	$js_embed .= '}catch(e){}})();';
+	$js_embed = sprintf(
+		'(function(){try{var wufoo_%1$s = new WufooForm();wufoo_%1$s.initialize({"userName":"%2$s","formHash":"%1$s","autoResize":"%3$s","height":"%4$d","header":"%5$s","ssl":true,"async":true});wufoo_%1$s.display();}catch(e){}})();',
+		esc_attr( $attr['formhash'] ),
+		esc_attr( $attr['username'] ),
+		esc_attr( $attr['autoresize'] ),
+		absint( $attr['height'] ),
+		esc_js( $attr['header'] )
+	);
 
-	/**
+	// Embed URL.
+	$embed_url = sprintf(
+		'https://%1$s.wufoo.com/embed/%2$s/',
+		$attr['username'],
+		$attr['formhash']
+	);
+
+	// Form URL.
+	$form_url = sprintf(
+		'https://%1$s.wufoo.com/forms/%2$s/',
+		$attr['username'],
+		$attr['formhash']
+	);
+
+	/*
 	 * iframe embed, loaded inside <noscript> tags.
 	 */
-	$iframe_embed  = '<iframe ';
-	$iframe_embed .= 'height="' . (int) $attr['height'] . '" ';
-	$iframe_embed .= 'allowTransparency="true" frameborder="0" scrolling="no" style="width:100%;border:none;"';
-	$iframe_embed .= 'src="https://' . $attr['username'] . '.wufoo.com/embed/' . $attr['formhash'] . '/">';
-	$iframe_embed .= '<a href="https://' . $attr['username'] . '.wufoo.com/forms/' . $attr['formhash'] . '/" ';
-	$iframe_embed .= 'rel="nofollow" target="_blank">' . __( 'Fill out my Wufoo form!', 'jetpack' ) . '</a></iframe>';
+	$iframe_embed = sprintf(
+		'<iframe height="%1$d" src="%2$s" allowTransparency="true" frameborder="0" scrolling="no" style="width:100%;border:none;">
+			<a href="%3$s" target="_blank" rel="noopener noreferrer">%4$s</a>
+		</iframe>',
+		absint( $attr['height'] ),
+		esc_url( $embed_url ),
+		esc_url( $form_url ),
+		esc_html__( 'Fill out my Wufoo form!', 'jetpack' )
+	);
 
 	wp_enqueue_script(
 		'wufoo-form',
 		'https://www.wufoo.com/scripts/embed/form.js',
 		array(),
-		false,
+		JETPACK__VERSION,
 		true
 	);
-
 	wp_add_inline_script( 'wufoo-form', $js_embed );
 
 	/** This action is already documented in modules/widgets/gravatar-profile.php */
@@ -85,5 +118,4 @@ function wufoo_shortcode( $atts ) {
 	 */
 	return "$js_embed_placeholder<noscript>$iframe_embed</noscript>";
 }
-
 add_shortcode( 'wufoo', 'wufoo_shortcode' );

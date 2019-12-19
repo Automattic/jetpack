@@ -1,4 +1,7 @@
 <?php
+
+use Automattic\Jetpack\Assets;
+
 /**
  * Template for form builder
  */
@@ -16,7 +19,7 @@ $max_new_fields = apply_filters( 'grunion_max_new_fields', 5 );
 
 wp_register_script(
 	'grunion',
-	Jetpack::get_file_url_for_environment(
+	Assets::get_file_url_for_environment(
 		'_inc/build/contact-form/js/grunion.min.js',
 		'modules/contact-form/js/grunion.js'
 	),
@@ -154,7 +157,7 @@ wp_localize_script(
 </style>
 </head>
 
-<body 
+<body
 <?php
 if ( is_rtl() ) {
 	echo 'class="rtl"'; }

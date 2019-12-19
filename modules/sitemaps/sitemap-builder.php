@@ -35,6 +35,38 @@ if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 }
 
 /**
+ * Simple class for rendering an empty sitemap with a short TTL
+ */
+class Jetpack_Sitemap_Buffer_Empty extends Jetpack_Sitemap_Buffer {
+
+	public function __construct() {
+		parent::__construct( JP_SITEMAP_MAX_ITEMS, JP_SITEMAP_MAX_BYTES, '1970-01-01 00:00:00' );
+
+		$this->doc->appendChild(
+			$this->doc->createComment( "generator='jetpack-" . JETPACK__VERSION . "'" )
+		);
+
+		$this->doc->appendChild(
+			$this->doc->createProcessingInstruction(
+				'xml-stylesheet',
+				'type="text/xsl" href="' . $this->finder->construct_sitemap_url( 'sitemap-index.xsl' ) . '"'
+			)
+		);
+	}
+
+	protected function get_root_element() {
+		if ( ! isset( $this->root ) ) {
+			$this->root = $this->doc->createElement( 'sitemapindex' );
+			$this->root->setAttribute( 'xmlns', 'http://www.sitemaps.org/schemas/sitemap/0.9' );
+			$this->doc->appendChild( $this->root );
+			$this->byte_capacity -= strlen( $this->doc->saveXML( $this->root ) );
+		}
+
+		return $this->root;
+	}
+}
+
+/**
  * The Jetpack_Sitemap_Builder object handles the construction of
  * all sitemap files (except the XSL files, which are handled by
  * Jetpack_Sitemap_Stylist.) Other than the constructor, there are
@@ -119,7 +151,7 @@ class Jetpack_Sitemap_Builder {
 			if ( ! class_exists( 'DOMDocument' ) ) {
 				$this->logger->report(
 					__(
-						'-- WARNING: Jetpack can not load necessary XML manipulation libraries. This can happen if XML support in PHP is not enabled on your server. XML support is highly recommended for WordPress and Jetpack, please enable it or contact your hosting provider.',
+						'Jetpack can not load necessary XML manipulation libraries. Please ask your hosting provider to refer to our server requirements at https://jetpack.com/support/server-requirements/ .',
 						'jetpack'
 					),
 					true
@@ -966,7 +998,7 @@ class Jetpack_Sitemap_Builder {
 	/**
 	 * Construct the sitemap index url entry for a sitemap row.
 	 *
-	 * @link http://www.sitemaps.org/protocol.html#sitemapIndex_sitemap
+	 * @link https://www.sitemaps.org/protocol.html#sitemapIndex_sitemap
 	 *
 	 * @access private
 	 * @since 4.8.0
@@ -989,6 +1021,21 @@ class Jetpack_Sitemap_Builder {
 			'xml'           => $item_array,
 			'last_modified' => $row['post_date'],
 		);
+	}
+
+
+	/**
+	 * This is served instead of a 404 when the master sitemap is requested
+	 * but not yet generated.
+	 *
+	 * @access public
+	 * @since 6.7.0
+	 *
+	 * @return string The empty sitemap xml.
+	 */
+	public function empty_sitemap_xml() {
+		$empty_sitemap = new Jetpack_Sitemap_Buffer_Empty();
+		return $empty_sitemap->contents();
 	}
 
 	/**
@@ -1057,7 +1104,7 @@ class Jetpack_Sitemap_Builder {
 	/**
 	 * Construct the sitemap url entry for a WP_Post.
 	 *
-	 * @link http://www.sitemaps.org/protocol.html#urldef
+	 * @link https://www.sitemaps.org/protocol.html#urldef
 	 * @access private
 	 * @since 4.8.0
 	 *
@@ -1076,8 +1123,8 @@ class Jetpack_Sitemap_Builder {
 		 *
 		 * @since 3.9.0
 		 *
-		 * @param bool    $skip Current boolean. False by default, so no post is skipped.
-		 * @param WP_POST $post Current post object.
+		 * @param bool   $skip Current boolean. False by default, so no post is skipped.
+		 * @param object $post Current post in the form of a $wpdb result object. Not WP_Post.
 		 */
 		if ( true === apply_filters( 'jetpack_sitemap_skip_post', false, $post ) ) {
 			return array(
@@ -1135,7 +1182,7 @@ class Jetpack_Sitemap_Builder {
 	/**
 	 * Construct the image sitemap url entry for a WP_Post of image type.
 	 *
-	 * @link http://www.sitemaps.org/protocol.html#urldef
+	 * @link https://www.sitemaps.org/protocol.html#urldef
 	 *
 	 * @access private
 	 * @since 4.8.0
@@ -1220,7 +1267,7 @@ class Jetpack_Sitemap_Builder {
 	/**
 	 * Construct the video sitemap url entry for a WP_Post of video type.
 	 *
-	 * @link http://www.sitemaps.org/protocol.html#urldef
+	 * @link https://www.sitemaps.org/protocol.html#urldef
 	 * @link https://developers.google.com/webmasters/videosearch/sitemaps
 	 *
 	 * @access private
@@ -1272,6 +1319,20 @@ class Jetpack_Sitemap_Builder {
 
 		/** This filter is already documented in core/wp-includes/feed.php */
 		$content = apply_filters( 'the_content_feed', $content, 'rss2' );
+		
+		// Include thumbnails for VideoPress videos, use blank image for others
+		if ( 'complete' === get_post_meta( $post->ID, 'videopress_status', true ) && has_post_thumbnail( $post ) ) {
+			$video_thumbnail_url = get_the_post_thumbnail_url( $post );
+		} else {
+			/**
+			 * Filter the thumbnail image used in the video sitemap for non-VideoPress videos.
+			 *
+			 * @since 7.2.0
+			 *
+			 * @param string $str Image URL.
+			 */
+			$video_thumbnail_url = apply_filters( 'jetpack_video_sitemap_default_thumbnail', 'https://s0.wp.com/i/blank.jpg' );
+		}
 
 		$item_array = array(
 			'url' => array(
@@ -1280,7 +1341,7 @@ class Jetpack_Sitemap_Builder {
 				'video:video' => array(
 					/** This filter is already documented in core/wp-includes/feed.php */
 					'video:title'         => apply_filters( 'the_title_rss', $post->post_title ),
-					'video:thumbnail_loc' => '',
+					'video:thumbnail_loc' => esc_url( $video_thumbnail_url ),
 					'video:description'   => $content,
 					'video:content_loc'   => esc_url( wp_get_attachment_url( $post->ID ) ),
 				),
@@ -1316,7 +1377,7 @@ class Jetpack_Sitemap_Builder {
 	/**
 	 * Construct the news sitemap url entry for a WP_Post.
 	 *
-	 * @link http://www.sitemaps.org/protocol.html#urldef
+	 * @link https://www.sitemaps.org/protocol.html#urldef
 	 *
 	 * @access private
 	 * @since 4.8.0
@@ -1356,7 +1417,7 @@ class Jetpack_Sitemap_Builder {
 		/*
 		 * Trim the locale to an ISO 639 language code as required by Google.
 		 * Special cases are zh-cn (Simplified Chinese) and zh-tw (Traditional Chinese).
-		 * @link http://www.loc.gov/standards/iso639-2/php/code_list.php
+		 * @link https://www.loc.gov/standards/iso639-2/php/code_list.php
 		 */
 		$language = strtolower( get_locale() );
 

@@ -6,6 +6,8 @@
  *
  * [gravatar email="user@example.org" size="48"]
  * [gravatar_profile who="user@example.org"]
+ *
+ * @package Jetpack
  */
 
 add_shortcode( 'gravatar', 'jetpack_gravatar_shortcode' );
@@ -63,10 +65,10 @@ function jetpack_gravatar_shortcode( $atts ) {
  * @return string
  */
 function jetpack_gravatar_profile_shortcode( $atts ) {
-	// Give each use of the shortcode a unique ID
+	// Give each use of the shortcode a unique ID.
 	static $instance = 0;
 
-	// Process passed attributes
+	// Process passed attributes.
 	$atts = shortcode_atts(
 		array(
 			'who' => null,
@@ -75,7 +77,7 @@ function jetpack_gravatar_profile_shortcode( $atts ) {
 		'jetpack_gravatar_profile'
 	);
 
-	// Can specify username, user ID, or email address
+	// Can specify username, user ID, or email address.
 	if ( is_numeric( $atts['who'] ) ) {
 		$user = get_user_by( 'id', (int) $atts['who'] );
 	} elseif ( is_email( $atts['who'] ) ) {
@@ -86,13 +88,13 @@ function jetpack_gravatar_profile_shortcode( $atts ) {
 		$user = false;
 	}
 
-	// Bail if we don't have a user
+	// Bail if we don't have a user.
 	if ( false === $user ) {
 		return false;
 	}
 
-	// Render the shortcode
-	$gravatar_url = set_url_scheme( 'http://gravatar.com/' . $user->user_login );
+	// Render the shortcode.
+	$gravatar_url = 'https://gravatar.com/' . $user->user_login;
 
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 		$avatar_url    = wpcom_get_avatar_url( $user->ID, 96 );
@@ -154,7 +156,7 @@ function jetpack_gravatar_profile_shortcode( $atts ) {
 	</div>
 	<?php
 
-	// Increment and return the rendered profile
+	// Increment and return the rendered profile.
 	$instance++;
 
 	return ob_get_clean();

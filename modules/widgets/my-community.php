@@ -144,7 +144,7 @@ class Jetpack_My_Community_Widget extends WP_Widget {
 		$instance['include_followers']  = (bool) $new_instance['include_followers'];
 		$instance['include_commenters'] = (bool) $new_instance['include_commenters'];
 
-		delete_transient( "$this->id-{$instance['number']}" . (int) $instance['include_likers'] . (int) $instance['include_followers'] . (int) $instance['include_commenters'] );
+		delete_transient( "$this->id-v2-{$instance['number']}" . (int) $instance['include_likers'] . (int) $instance['include_followers'] . (int) $instance['include_commenters'] );
 
 		return $instance;
 	}
@@ -183,7 +183,7 @@ class Jetpack_My_Community_Widget extends WP_Widget {
 			echo $args['before_title'] . $title . $args['after_title'];
 		}
 
-		$transient_name = "$this->id-{$instance['number']}" . (int) $instance['include_likers'] . (int) $instance['include_followers'] . (int) $instance['include_commenters'];
+		$transient_name = "$this->id-v2-{$instance['number']}" . (int) $instance['include_likers'] . (int) $instance['include_followers'] . (int) $instance['include_commenters'];
 
 		$my_community = get_transient( $transient_name );
 
@@ -219,10 +219,11 @@ class Jetpack_My_Community_Widget extends WP_Widget {
 
 			foreach ( $members as $member ) {
 				$my_community .= sprintf(
-					'<li><a href="%s" %s><img alt="" src="%s" class="avatar avatar-240" height="48" width="48" originals="240" scale="1" /></a></li>',
-					$member->profile_URL,
-					empty( $member->name ) ? '' : 'title="' . $member->name . '"',
-					$member->avatar_URL
+					'<li><a href="%s" title="%s"><img alt="%s" src="%s" class="avatar avatar-48" height="48" width="48"></a></li>',
+					esc_url( $member->profile_URL ),
+					esc_attr( $member->name ),
+					esc_attr( $member->name ),
+					esc_url( $member->avatar_URL )
 				);
 			}
 

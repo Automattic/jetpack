@@ -4,12 +4,14 @@
  * Handles toggling the navigation menu for small screens.
  */
 ( function() {
-	var nav = document.getElementById( 'access' ), button, menu;
+	var nav = document.getElementById( 'access' ),
+		button,
+		menu;
 	if ( ! nav ) {
 		return;
 	}
-	button = nav.getElementsByTagName( 'h3' )[0];
-	menu   = nav.getElementsByTagName( 'ul' )[0];
+	button = nav.getElementsByTagName( 'h3' )[ 0 ];
+	menu = nav.getElementsByTagName( 'ul' )[ 0 ];
 	if ( ! button ) {
 		return;
 	}

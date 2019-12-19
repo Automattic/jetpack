@@ -1,16 +1,17 @@
 /**
  * External dependencies
  */
-const React = require( 'react' ),
-	PureRenderMixin = require( 'react-pure-render/mixin' );
+import React from 'react';
 
-const createReactClass = require( 'create-react-class' );
+import PureRenderMixin from 'react-pure-render/mixin';
+import createReactClass from 'create-react-class';
 
 /**
  * Internal dependencies
  */
-const Search = require( 'components/search' ),
-	SearchCard = require( 'components/search-card' );
+import Search from 'components/search';
+
+import SearchCard from 'components/search-card';
 
 /**
  * Globals
@@ -28,18 +29,12 @@ const SearchDemo = createReactClass( {
 				<h2>
 					<a href="/devdocs/design/search">Search</a>
 				</h2>
-				<Search
-					onSearch={ noop }
-					placeholder="Placeholder text..."
-				/>
+				<Search onSearch={ noop } placeholder="Placeholder text..." />
 				<h2>Search Card</h2>
-				<SearchCard
-					onSearch={ noop }
-					placeholder="Placeholder text..."
-				/>
+				<SearchCard onSearch={ noop } placeholder="Placeholder text..." />
 			</div>
 		);
-	}
+	},
 } );
 
-module.exports = SearchDemo;
+export default SearchDemo;

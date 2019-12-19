@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Assets;
+
 class Jetpack_Lazy_Images {
 	private static $__instance = null;
 
@@ -37,6 +39,10 @@ class Jetpack_Lazy_Images {
 		 * @param bool true Whether lazy image loading should occur.
 		 */
 		if ( ! apply_filters( 'lazyload_is_enabled', true ) ) {
+			return;
+		}
+
+		if ( Jetpack_AMP_Support::is_amp_request() ) {
 			return;
 		}
 
@@ -99,11 +105,6 @@ class Jetpack_Lazy_Images {
 
 		// Don't lazy-load if the content has already been run through previously
 		if ( false !== strpos( $content, 'data-lazy-src' ) ) {
-			return $content;
-		}
-
-		// Don't lazyload for amp-wp content
-		if ( function_exists( 'is_amp_endpoint' ) && is_amp_endpoint() ) {
 			return $content;
 		}
 
@@ -281,7 +282,8 @@ class Jetpack_Lazy_Images {
 	public function add_nojs_fallback() {
 		?>
 			<style type="text/css">
-				html:not( .jetpack-lazy-images-js-enabled ) .jetpack-lazy-image {
+				/* If html does not have either class, do not show lazy loaded images. */
+				html:not( .jetpack-lazy-images-js-enabled ):not( .js ) .jetpack-lazy-image {
 					display: none;
 				}
 			</style>
@@ -339,12 +341,9 @@ class Jetpack_Lazy_Images {
 	}
 
 	public function enqueue_assets() {
-		if ( Jetpack_AMP_Support::is_amp_request() ) {
-			return;
-		}
 		wp_enqueue_script(
 			'jetpack-lazy-images',
-			Jetpack::get_file_url_for_environment(
+			Assets::get_file_url_for_environment(
 				'_inc/build/lazy-images/js/lazy-images.min.js',
 				'modules/lazy-images/js/lazy-images.js'
 			),

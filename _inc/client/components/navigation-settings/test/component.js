@@ -18,6 +18,9 @@ describe( 'NavigationSettings', () => {
 
 	before( () => {
 		testProps = {
+			hasAnyOfTheseModules: modules => true,
+			hasAnyPerformanceFeature: true,
+			hasAnySecurityFeature: true,
 			userCanManageModules: false,
 			isSubscriber: true,
 			route: {
@@ -34,7 +37,7 @@ describe( 'NavigationSettings', () => {
 			siteAdminUrl: 'https://example.org/wp-admin/',
 			searchForTerm: () => {},
 			isLinked: true,
-			moduleList: { minileven: true, sitemaps: true, carousel: true, 'custom-content-types': true, 'verification-tools': true, markdown: true, 'infinite-scroll': true, 'gravatar-hovercards': true, sharedaddy: true, sso: true, 'related-posts': true, monitor: true, vaultpress: true, stats: true, masterbar: true, 'google-analytics': true, 'seo-tools': true, wordads: true, videopress: true, subscriptions: true, comments: true, 'post-by-email': true, 'after-the-deadline': true, photon: true, publicize: true, likes: true },
+			moduleList: { minileven: true, sitemaps: true, carousel: true, 'custom-content-types': true, 'verification-tools': true, markdown: true, 'infinite-scroll': true, 'gravatar-hovercards': true, sharedaddy: true, sso: true, 'related-posts': true, monitor: true, vaultpress: true, stats: true, masterbar: true, 'google-analytics': true, 'seo-tools': true, wordads: true, videopress: true, subscriptions: true, comments: true, 'post-by-email': true, photon: true, publicize: true, likes: true },
 			isPluginActive: () => true
 		};
 
@@ -42,7 +45,8 @@ describe( 'NavigationSettings', () => {
 			context: {
 				router: {
 					goBack: () => {},
-					listen: () => {}
+					listen: () => {},
+					getCurrentLocation: () => ( {} ),
 				},
 			},
 			moduleList: []
@@ -211,8 +215,8 @@ describe( 'NavigationSettings', () => {
 
 			describe( 'and a search term is opened', () => {
 				it( 'adds a search term in a query string', () => {
-					instance.doSearch( 'search term' );
-					expect( window.location.hash ).to.be.equal( '#settings?term=search term' );
+					instance.doSearch( 'search-term' );
+					expect( window.location.hash ).to.be.equal( '#settings?term=search-term' );
 				} );
 
 				describe( 'and a search term is deleted', () => {

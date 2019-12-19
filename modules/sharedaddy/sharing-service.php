@@ -1,5 +1,8 @@
 <?php
 
+use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Sync\Settings;
+
 include_once dirname( __FILE__ ) . '/sharing-sources.php';
 
 define( 'WP_SHARING_PLUGIN_VERSION', JETPACK__VERSION );
@@ -41,7 +44,6 @@ class Sharing_Service {
 	 * Gets a list of all available service names and classes
 	 */
 	public function get_all_services( $include_custom = true ) {
-		global $wp_version;
 		// Default services
 		// if you update this list, please update the REST API tests
 		// in bin/tests/api/suites/SharingTest.php
@@ -51,7 +53,6 @@ class Sharing_Service {
 			'linkedin'         => 'Share_LinkedIn',
 			'reddit'           => 'Share_Reddit',
 			'twitter'          => 'Share_Twitter',
-			'google-plus-1'    => 'Share_GooglePlus1',
 			'tumblr'           => 'Share_Tumblr',
 			'pinterest'        => 'Share_Pinterest',
 			'pocket'           => 'Share_Pocket',
@@ -74,7 +75,7 @@ class Sharing_Service {
 			$services['email'] = 'Share_Email';
 		}
 
-		if ( is_multisite() && ( version_compare( $wp_version, '4.9-RC1-42107', '<' ) || is_plugin_active( 'press-this/press-this-plugin.php' ) ) ) {
+		if ( is_multisite() && is_plugin_active( 'press-this/press-this-plugin.php' ) ) {
 			$services['press-this'] = 'Share_PressThis';
 		}
 
@@ -221,7 +222,10 @@ class Sharing_Service {
 		// Default services
 		if ( ! is_array( $enabled ) ) {
 			$enabled = array(
-				'visible' => array(),
+				'visible' => array(
+					'twitter',
+					'facebook',
+				),
 				'hidden'  => array(),
 			);
 
@@ -305,17 +309,17 @@ class Sharing_Service {
 	public function set_global_options( $data ) {
 		$options = get_option( 'sharing-options' );
 
-		// No options yet
+		// No options yet.
 		if ( ! is_array( $options ) ) {
 			$options = array();
 		}
 
-		// Defaults
+		// Defaults.
 		$options['global'] = array(
 			'button_style'  => 'icon-text',
 			'sharing_label' => $this->default_sharing_label,
 			'open_links'    => 'same',
-			'show'          => array(),
+			'show'          => ! isset( $options['global'] ) ? array( 'post', 'page' ) : array(),
 			'custom'        => isset( $options['global']['custom'] ) ? $options['global']['custom'] : array(),
 		);
 
@@ -380,7 +384,7 @@ class Sharing_Service {
 			if ( is_array( $options ) && isset( $options['global'] ) && is_array( $options['global'] ) ) {
 				$this->global = $options['global'];
 			} else {
-				$this->global = $this->set_global_options( $options['global'] );
+				$this->global = $this->set_global_options( $options );
 			}
 		}
 
@@ -577,6 +581,13 @@ function sharing_maybe_enqueue_scripts() {
 }
 
 function sharing_add_footer() {
+	if (
+		class_exists( 'Jetpack_AMP_Support' )
+		&& Jetpack_AMP_Support::is_amp_request()
+	) {
+		return;
+	}
+
 	global $jetpack_sharing_counts;
 
 	/**
@@ -658,11 +669,18 @@ function sharing_process_requests() {
 }
 add_action( 'template_redirect', 'sharing_process_requests', 9 );
 
+/**
+ * Append sharing links to text.
+ *
+ * @param string $text The original text to append sharing links onto.
+ * @param bool   $echo Where to echo the text or return.
+ *
+ * @return string The original $text with, if conditions are met, the sharing links.
+ */
 function sharing_display( $text = '', $echo = false ) {
 	global $post, $wp_current_filter;
 
-	require_once JETPACK__PLUGIN_DIR . '/sync/class.jetpack-sync-settings.php';
-	if ( Jetpack_Sync_Settings::is_syncing() ) {
+	if ( Settings::is_syncing() ) {
 		return $text;
 	}
 
@@ -674,15 +692,15 @@ function sharing_display( $text = '', $echo = false ) {
 		return $text;
 	}
 
-	// Don't output flair on excerpts
-	if ( in_array( 'get_the_excerpt', (array) $wp_current_filter ) ) {
+	// Don't output flair on excerpts.
+	if ( in_array( 'get_the_excerpt', (array) $wp_current_filter, true ) ) {
 		return $text;
 	}
 
-	// Don't allow flair to be added to the_content more than once (prevent infinite loops)
+	// Don't allow flair to be added to the_content more than once (prevent infinite loops).
 	$done = false;
 	foreach ( $wp_current_filter as $filter ) {
-		if ( 'the_content' == $filter ) {
+		if ( 'the_content' === $filter ) {
 			if ( $done ) {
 				return $text;
 			} else {
@@ -691,15 +709,19 @@ function sharing_display( $text = '', $echo = false ) {
 		}
 	}
 
-	// check whether we are viewing the front page and whether the front page option is checked
+	// check whether we are viewing the front page and whether the front page option is checked.
 	$options         = get_option( 'sharing-options' );
-	$display_options = $options['global']['show'];
+	$display_options = null;
 
-	if ( is_front_page() && ( is_array( $display_options ) && ! in_array( 'index', $display_options ) ) ) {
+	if ( is_array( $options ) ) {
+		$display_options = $options['global']['show'];
+	}
+
+	if ( is_front_page() && ( is_array( $display_options ) && ! in_array( 'index', $display_options, true ) ) ) {
 		return $text;
 	}
 
-	if ( is_attachment() && in_array( 'the_excerpt', (array) $wp_current_filter ) ) {
+	if ( is_attachment() && in_array( 'the_excerpt', (array) $wp_current_filter, true ) ) {
 		// Many themes run the_excerpt() conditionally on an attachment page, then run the_content().
 		// We only want to output the sharing buttons once.  Let's stick with the_content().
 		return $text;
@@ -710,9 +732,9 @@ function sharing_display( $text = '', $echo = false ) {
 
 	$show = false;
 	if ( ! is_feed() ) {
-		if ( is_singular() && in_array( get_post_type(), $global['show'] ) ) {
+		if ( is_singular() && in_array( get_post_type(), $global['show'], true ) ) {
 			$show = true;
-		} elseif ( in_array( 'index', $global['show'] ) && ( is_home() || is_front_page() || is_archive() || is_search() || in_array( get_post_type(), $global['show'] ) ) ) {
+		} elseif ( in_array( 'index', $global['show'], true ) && ( is_home() || is_front_page() || is_archive() || is_search() || in_array( get_post_type(), $global['show'], true ) ) ) {
 			$show = true;
 		}
 	}
@@ -736,15 +758,32 @@ function sharing_display( $text = '', $echo = false ) {
 		$show = false;
 	}
 
-	// Private post?
+	// Is the post private?
 	$post_status = get_post_status( $post->ID );
 
 	if ( 'private' === $post_status ) {
 		$show = false;
 	}
 
-	// Allow to be used on P2 ajax requests for latest posts.
-	if ( defined( 'DOING_AJAX' ) && DOING_AJAX && isset( $_REQUEST['action'] ) && 'get_latest_posts' == $_REQUEST['action'] ) {
+	/**
+	 * Filter the Sharing buttons' Ajax action name Jetpack checks for.
+	 * This allows the use of the buttons with your own Ajax implementation.
+	 *
+	 * @module sharedaddy
+	 *
+	 * @since 7.3.0
+	 *
+	 * @param string $sharing_ajax_action_name Name of the Sharing buttons' Ajax action.
+	 */
+	$ajax_action = apply_filters( 'sharing_ajax_action', 'get_latest_posts' );
+
+	// Allow to be used in ajax requests for latest posts.
+	if (
+		defined( 'DOING_AJAX' )
+		&& DOING_AJAX
+		&& isset( $_REQUEST['action'] )
+		&& $ajax_action === $_REQUEST['action']
+	) {
 		$show = true;
 	}
 
@@ -764,13 +803,11 @@ function sharing_display( $text = '', $echo = false ) {
 		$enabled = apply_filters( 'sharing_enabled', $sharer->get_blog_services() );
 
 		if ( count( $enabled['all'] ) > 0 ) {
-			global $post;
-
 			$dir = get_option( 'text_direction' );
 
-			// Wrapper
+			// Wrapper.
 			$sharing_content .= '<div class="sharedaddy sd-sharing-enabled"><div class="robots-nocontent sd-block sd-social sd-social-' . $global['button_style'] . ' sd-sharing">';
-			if ( $global['sharing_label'] != '' ) {
+			if ( '' !== $global['sharing_label'] ) {
 				$sharing_content .= sprintf(
 					/**
 					 * Filter the sharing buttons' headline structure.
@@ -789,11 +826,18 @@ function sharing_display( $text = '', $echo = false ) {
 			}
 			$sharing_content .= '<div class="sd-content"><ul>';
 
-			// Visible items
+			// Visible items.
 			$visible = '';
 			foreach ( $enabled['visible'] as $id => $service ) {
-				// Individual HTML for sharing service
-				$visible .= '<li class="share-' . $service->get_class() . '">' . $service->get_display( $post ) . '</li>';
+				$klasses = array( 'share-' . $service->get_class() );
+				if ( $service->is_deprecated() ) {
+					if ( ! current_user_can( 'manage_options' ) ) {
+						continue;
+					}
+					$klasses[] = 'share-deprecated';
+				}
+				// Individual HTML for sharing service.
+				$visible .= '<li class="' . implode( ' ', $klasses ) . '">' . $service->get_display( $post ) . '</li>';
 			}
 
 			$parts   = array();
@@ -807,7 +851,7 @@ function sharing_display( $text = '', $echo = false ) {
 				$parts[] = '<li><a href="#" class="sharing-anchor sd-button share-more"><span>' . $expand . '</span></a></li>';
 			}
 
-			if ( $dir == 'rtl' ) {
+			if ( 'rtl' === $dir ) {
 				$parts = array_reverse( $parts );
 			}
 
@@ -817,13 +861,13 @@ function sharing_display( $text = '', $echo = false ) {
 			if ( count( $enabled['hidden'] ) > 0 ) {
 				$sharing_content .= '<div class="sharing-hidden"><div class="inner" style="display: none;';
 
-				if ( count( $enabled['hidden'] ) == 1 ) {
+				if ( count( $enabled['hidden'] ) === 1 ) {
 					$sharing_content .= 'width:150px;';
 				}
 
 				$sharing_content .= '">';
 
-				if ( count( $enabled['hidden'] ) == 1 ) {
+				if ( count( $enabled['hidden'] ) === 1 ) {
 					$sharing_content .= '<ul style="background-image:none;">';
 				} else {
 					$sharing_content .= '<ul>';
@@ -831,41 +875,51 @@ function sharing_display( $text = '', $echo = false ) {
 
 				$count = 1;
 				foreach ( $enabled['hidden'] as $id => $service ) {
-					// Individual HTML for sharing service
-					$sharing_content .= '<li class="share-' . $service->get_class() . '">';
+					// Individual HTML for sharing service.
+					$klasses = array( 'share-' . $service->get_class() );
+					if ( $service->is_deprecated() ) {
+						if ( ! current_user_can( 'manage_options' ) ) {
+							continue;
+						}
+						$klasses[] = 'share-deprecated';
+					}
+					$sharing_content .= '<li class="' . implode( ' ', $klasses ) . '">';
 					$sharing_content .= $service->get_display( $post );
 					$sharing_content .= '</li>';
 
-					if ( ( $count % 2 ) == 0 ) {
+					if ( ( $count % 2 ) === 0 ) {
 						$sharing_content .= '<li class="share-end"></li>';
 					}
 
 					$count ++;
 				}
 
-				// End of wrapper
+				// End of wrapper.
 				$sharing_content .= '<li class="share-end"></li></ul></div></div>';
 			}
 
 			$sharing_content .= '</div></div></div>';
 
-			// Register our JS
+			// Register our JS.
 			if ( defined( 'JETPACK__VERSION' ) ) {
 				$ver = JETPACK__VERSION;
 			} else {
 				$ver = '20141212';
 			}
+
+			// @todo: Investigate if we can load this JS in the footer instead.
 			wp_register_script(
 				'sharing-js',
-				Jetpack::get_file_url_for_environment(
+				Assets::get_file_url_for_environment(
 					'_inc/build/sharedaddy/sharing.min.js',
 					'modules/sharedaddy/sharing.js'
 				),
 				array( 'jquery' ),
-				$ver
+				$ver,
+				false
 			);
 
-			// Enqueue scripts for the footer
+			// Enqueue scripts for the footer.
 			add_action( 'wp_footer', 'sharing_add_footer' );
 		}
 	}

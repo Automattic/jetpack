@@ -11,6 +11,8 @@ php:
 - "5.6"
 - "7.0"
 - "7.2"
+- "7.3"
+# 7.4 can not be included here until 5.3 is the "previous" version of WP.
 
 env:
   # Global variable is re-defined in matrix-include -list
@@ -18,33 +20,81 @@ env:
   - WP_TRAVISCI=phpunit
   # Run phpunit in Travis matrix for these combinations
   matrix:
-  - WP_MODE=single WP_BRANCH=master
-  - WP_MODE=single WP_BRANCH=latest
-  - WP_MODE=single WP_BRANCH=previous
-  - WP_MODE=multi  WP_BRANCH=master
+  - WP_BRANCH=master SIMPLE_AND_MULTISITE=1 # SIMPLE_AND_MULTISITE is just a way to explicitly mention that we run both suites
+  - WP_BRANCH=latest
+  - WP_BRANCH=previous PHP_LINT=1
 
 # Define a matrix of additional build configurations
 # The versions listed above will automatically create our first configuration,
 # so it doesn't need to be re-defined below.
 matrix:
+  fast_finish: true
   include:
-  # The versions listed below run within Precise distro with PHP 5.2 due to Travis limitation
-  - php: "5.2"
-    env: WP_MODE=single WP_BRANCH=master
-    dist: precise
-  - php: "5.2"
-    env: WP_MODE=single WP_BRANCH=latest
-    dist: precise
-  - php: "5.2"
-    env: WP_MODE=single WP_BRANCH=previous
-    dist: precise
-  - php: "5.2"
-    env: WP_MODE=multi  WP_BRANCH=master
-    dist: precise
-  - language: node_js
+  - if: branch !~ /(^branch-.*-built)/
+    name: "JavaScript & CSS lint"
+    language: node_js
     env: WP_TRAVISCI="yarn lint"
-  - language: node_js
-    env: WP_TRAVISCI="yarn test-dangerci-and-adminpage"
+  - if: branch !~ /(^branch-.*-built)/
+    name: "Danger CI, test dashboard & extensions"
+    language: node_js
+    env: WP_TRAVISCI="yarn test-dangerci-and-adminpage-and-extensions"
+  - if: branch !~ /(^branch-.*-built)/
+    name: "Build dashboard & extensions"
+    language: node_js
+    env: WP_TRAVISCI="yarn build"
+  - if: branch !~ /(^branch-.*-built)/
+    name: "Spell check Markdown files"
+    language: node_js
+    env: WP_TRAVISCI="yarn test-spelling"
+  - php: "nightly"
+    name: "PHP Nightly"
+  - php: "7.4snapshot"
+    env: WP_BRANCH=master SIMPLE_AND_MULTISITE=1
+    # add a new entry for "latest" WP once 5.3 has shipped. Remove snapshot once 7.4 is GA.
+
+  # Code Climate code coverage.
+  - php: "7.3"
+    name: "Code Coverage"
+    env:
+      - WP_BRANCH=previous
+      - DO_COVERAGE=true
+    before_script:
+      - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+      - chmod +x ./cc-test-reporter
+      - ./cc-test-reporter before-build
+      - export PATH="$HOME/.composer/vendor/bin:$PATH"
+      - export PLUGIN_SLUG=$(basename $(pwd))
+      - ./tests/setup-travis.sh
+    after_script:
+      - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT -t clover -p /tmp/wordpress-previous/src/wp-content/plugins/jetpack
+
+  - php: "7.0"
+    name: "E2E tests"
+    if: branch !~ /(^branch-.*-built)/ AND env(RUN_E2E) = true
+    before_script:
+    # Enable user namespace cloning
+    - "sysctl kernel.unprivileged_userns_clone=1"
+    - nvm install
+    - yarn && yarn build
+    - ./tests/e2e/bin/setup-e2e-travis.sh
+    - yarn test-decrypt-config
+    script:
+    - yarn test-e2e --runInBand --verbose
+    addons:
+      apt:
+        packages:
+          - nginx
+          # This is required to run new chrome on old trusty
+          - libnss3
+  - php: "7.0"
+    name: "Sync Beta"
+    env: SYNC_BETA=1 WP_BRANCH=latest
+
+  allow_failures:
+    - name: "E2E tests"
+    - name: "PHP Nightly"
+    - name: "Spell check Markdown files"
+    - name: "Code Coverage"
 
 cache:
   directories:
@@ -84,15 +134,12 @@ notifications:
      recipients:
        - enej.bajgoric@automattic.com
        - georgestephanis@automattic.com
-       - jeremy@automattic.com
        - miguel@automattic.com
        - rocco@automattic.com
        - smart@automattic.com
        - eric.binnion@automattic.com
        - allendav@automattic.com
        - beau@automattic.com
-       - kraft@automattic.com
-       - oscar@automattic.com
        # Encrypted Slack notification address
        - secure: "WQdTdmYuifSW0hiJGXpQGKystMASC50QvxHlyUL5SM3h5GP8aCgeSsHuXvKPe3dT3Pffhk0dSHBfDtdWFwSHW/upURhg0vs4dm7+nxxvGZiTPzKcuAIjgvCoqWM7teyda/XqFGNSnv+XsT34uoyPhhFgd45T3oS+QQ3aNCruFak="
 

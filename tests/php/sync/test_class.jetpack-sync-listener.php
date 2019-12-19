@@ -1,5 +1,9 @@
 <?php
 
+use Automattic\Jetpack\Roles;
+use Automattic\Jetpack\Sync\Defaults;
+use Automattic\Jetpack\Sync\Settings;
+
 class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 	function test_never_queues_if_development() {
 		$this->markTestIncomplete( "We now check this during 'init', so testing is pretty hard" );
@@ -36,14 +40,14 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 		$this->listener->get_sync_queue()->reset();
 
 		// first, let's try overriding the default queue limit
-		$this->assertEquals( Jetpack_Sync_Defaults::$default_max_queue_size, $this->listener->get_queue_size_limit() );
-		$this->assertEquals( Jetpack_Sync_Defaults::$default_max_queue_lag, $this->listener->get_queue_lag_limit() );
+		$this->assertEquals( Defaults::$default_max_queue_size, $this->listener->get_queue_size_limit() );
+		$this->assertEquals( Defaults::$default_max_queue_lag, $this->listener->get_queue_lag_limit() );
 
 		// set max queue size to 2 items
-		Jetpack_Sync_Settings::update_settings( array( 'max_queue_size' => 2 ) );
+		Settings::update_settings( array( 'max_queue_size' => 2 ) );
 
 		// set max queue age to 3 seconds
-		Jetpack_Sync_Settings::update_settings( array( 'max_queue_lag' => 3 ) );
+		Settings::update_settings( array( 'max_queue_lag' => 3 ) );
 
 		$this->listener->set_defaults(); // should pick up new queue size limit
 
@@ -87,13 +91,14 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 		$this->factory->post->create();
 		$current_user  = wp_get_current_user();
 
+		$roles = new Roles();
 		$example_actor = array(
 			'wpcom_user_id'    => null,
 			'external_user_id' => $current_user->ID,
 			'display_name'     => $current_user->display_name,
 			'user_email'       => $current_user->user_email,
 			'user_roles'       => $current_user->roles,
-			'translated_role'  => Jetpack::translate_current_user_to_role(),
+			'translated_role'  => $roles->translate_current_user_to_role(),
 			'is_cron'          => defined( 'DOING_CRON' ) ? DOING_CRON : false,
 			'is_wp_admin'      => is_admin(),
 			'is_rest'          => defined( 'REST_API_REQUEST' ) ? REST_API_REQUEST : false,
@@ -120,13 +125,14 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 		$current_user = wp_get_current_user();
 		wp_signon( array( 'user_login' => $current_user->data->user_login, 'user_password' => 'password' ) );
 
+		$roles = new Roles();
 		$example_actor = array(
 			'wpcom_user_id'    => null,
 			'external_user_id' => $current_user->ID,
 			'display_name'     => $current_user->display_name,
 			'user_email'       => $current_user->user_email,
 			'user_roles'       => $current_user->roles,
-			'translated_role'  => Jetpack::translate_current_user_to_role(),
+			'translated_role'  => $roles->translate_current_user_to_role(),
 			'is_cron'          => defined( 'DOING_CRON' ) ? DOING_CRON : false,
 			'is_wp_admin'      => is_admin(),
 			'is_rest'          => defined( 'REST_API_REQUEST' ) ? REST_API_REQUEST : false,
@@ -157,13 +163,14 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 		wp_signon( array( 'user_login' => $current_user->data->user_login, 'user_password' => 'password' ) );
 		remove_filter( 'jetpack_sync_actor_user_data', '__return_false' );
 
+		$roles = new Roles();
 		$example_actor = array(
 			'wpcom_user_id'    => null,
 			'external_user_id' => $current_user->ID,
 			'display_name'     => $current_user->display_name,
 			'user_email'       => $current_user->user_email,
 			'user_roles'       => $current_user->roles,
-			'translated_role'  => Jetpack::translate_current_user_to_role(),
+			'translated_role'  => $roles->translate_current_user_to_role(),
 			'is_cron'          => defined( 'DOING_CRON' ) ? DOING_CRON : false,
 			'is_wp_admin'      => is_admin(),
 			'is_rest'          => defined( 'REST_API_REQUEST' ) ? REST_API_REQUEST : false,
@@ -182,7 +189,7 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_does_set_silent_flag_true_while_importing() {
-		Jetpack_Sync_Settings::set_importing( true );
+		Settings::set_importing( true );
 
 		$this->factory->post->create();
 

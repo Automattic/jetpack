@@ -12,6 +12,7 @@
  */
 
 function jetpack_load_wordads() {
+	Jetpack::enable_module_configurable( __FILE__ );
 	require_once( dirname( __FILE__ ) . "/wordads/wordads.php" );
 }
 

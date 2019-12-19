@@ -310,7 +310,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		if ( ! $posts ) {
 			$link = 'https://jetpack.com/support/getting-more-views-and-traffic/';
 			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-				$link = 'http://en.support.wordpress.com/getting-more-site-traffic/';
+				$link = 'https://en.support.wordpress.com/getting-more-site-traffic/';
 			}
 
 			if ( current_user_can( 'edit_theme_options' ) ) {
@@ -363,7 +363,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 					$image         = Jetpack_PostImages::get_image(
 						$post['post_id'],
 						array(
-							'fallback_to_avatars' => true,
+							'fallback_to_avatars' => (bool) $get_image_options['fallback_to_avatars'],
 							'width'               => (int) $width,
 							'height'              => (int) $height,
 							'avatar_size'         => (int) $get_image_options['avatar_size'],
@@ -406,11 +406,16 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 						 */
 						$filtered_permalink = apply_filters( 'jetpack_top_posts_widget_permalink', $post['permalink'], $post );
 
-						?>
-						<a href="<?php echo esc_url( $filtered_permalink ); ?>" title="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" class="bump-view" data-bump-view="tp">
-							<img width="<?php echo absint( $width ); ?>" height="<?php echo absint( $height ); ?>" src="<?php echo esc_url( $post['image'] ); ?>" alt="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" data-pin-nopin="true" />
-						</a>
-						<?php
+						printf(
+							'<a href="%1$s" title="%2$s" class="bump-view" data-bump-view="tp"%3$s><img width="%4$d" height="%5$d" src="%6$s" alt="%2$s" data-pin-nopin="true"/></a>',
+							esc_url( $filtered_permalink ),
+							esc_attr( wp_kses( $post['title'], array() ) ),
+							( get_queried_object_id() === $post['post_id'] ? ' aria-current="page"' : '' ),
+							absint( $width ),
+							absint( $height ),
+							esc_url( $post['image'] )
+						);
+
 						/**
 						 * Fires after each Top Post result, inside <li>.
 						 *
@@ -437,16 +442,24 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 
 						/** This filter is documented in modules/widgets/top-posts.php */
 						$filtered_permalink = apply_filters( 'jetpack_top_posts_widget_permalink', $post['permalink'], $post );
-						?>
-						<a href="<?php echo esc_url( $filtered_permalink ); ?>" title="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" class="bump-view" data-bump-view="tp">
-							<img width="<?php echo absint( $width ); ?>" height="<?php echo absint( $height ); ?>" src="<?php echo esc_url( $post['image'] ); ?>" class='widgets-list-layout-blavatar' alt="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" data-pin-nopin="true" />
-						</a>
-						<div class="widgets-list-layout-links">
-							<a href="<?php echo esc_url( $filtered_permalink ); ?>" class="bump-view" data-bump-view="tp">
-								<?php echo esc_html( wp_kses( $post['title'], array() ) ); ?>
+
+						printf(
+							'<a href="%1$s" title="%2$s" class="bump-view" data-bump-view="tp"%3$s>
+								<img width="%4$d" height="%5$d" src="%6$s" alt="%2$s" data-pin-nopin="true" class="widgets-list-layout-blavatar"/>
 							</a>
-						</div>
-						<?php
+							<div class="widgets-list-layout-links">
+								<a href="%1$s" title="%2$s" class="bump-view" data-bump-view="tp"%3$s>%7$s</a>
+							</div>
+							',
+							esc_url( $filtered_permalink ),
+							esc_attr( wp_kses( $post['title'], array() ) ),
+							( get_queried_object_id() === $post['post_id'] ? ' aria-current="page"' : '' ),
+							absint( $width ),
+							absint( $height ),
+							esc_url( $post['image'] ),
+							esc_html( wp_kses( $post['title'], array() ) )
+						);
+
 						/** This action is documented in modules/widgets/top-posts.php */
 						do_action( 'jetpack_widget_top_posts_after_post', $post['post_id'] );
 						?>
@@ -467,11 +480,14 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 
 					/** This filter is documented in modules/widgets/top-posts.php */
 					$filtered_permalink = apply_filters( 'jetpack_top_posts_widget_permalink', $post['permalink'], $post );
-					?>
-					<a href="<?php echo esc_url( $filtered_permalink ); ?>" class="bump-view" data-bump-view="tp">
-						<?php echo esc_html( wp_kses( $post['title'], array() ) ); ?>
-					</a>
-					<?php
+
+					printf(
+						'<a href="%1$s" class="bump-view" data-bump-view="tp"%2$s>%3$s</a>',
+						esc_url( $filtered_permalink ),
+						( get_queried_object_id() === $post['post_id'] ? ' aria-current="page"' : '' ),
+						esc_html( wp_kses( $post['title'], array() ) )
+					);
+
 					/** This action is documented in modules/widgets/top-posts.php */
 					do_action( 'jetpack_widget_top_posts_after_post', $post['post_id'] );
 					?>
@@ -542,7 +558,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			$days = 2;
 		}
 
-		$post_view_posts = stats_get_from_restapi( array(), 'top-posts?max=11&summarize=1&num=' . absint( $days ) );
+		$post_view_posts = stats_get_from_restapi( array(), 'top-posts?max=11&summarize=1&num=' . intval( $days ) );
 
 		if ( ! isset( $post_view_posts->summary ) || empty( $post_view_posts->summary->postviews ) ) {
 			return array();

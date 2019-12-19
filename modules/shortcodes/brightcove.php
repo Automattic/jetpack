@@ -1,4 +1,6 @@
-<?php
+<?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+
+use Automattic\Jetpack\Assets;
 
 /**
  * Brightcove shortcode.
@@ -18,7 +20,12 @@
  * to the legacy code.
  */
 class Jetpack_Brightcove_Shortcode {
-	static $shortcode = 'brightcove';
+	/**
+	 * Shortcode name.
+	 *
+	 * @var string
+	 */
+	public static $shortcode = 'brightcove';
 
 	/**
 	 * Parse shortcode arguments and render its output.
@@ -46,7 +53,7 @@ class Jetpack_Brightcove_Shortcode {
 	 * The latest: [shortcode a=1 b=2] and the legacy: [shortcode a=1&b=2]
 	 * For an old shortcode: [shortcode a=1&b=2&c=3], it would be parsed into array( 'a' => 1&b=2&c=3' ), which is useless.
 	 * However, since we want to determine whether to call convert_to_legacy_studio() or convert_to_new_studio() via passed parameters, we still need to parse the two properly.
-	 * See http://jetpack.wp-a2z.org/oik_api/shortcode_new_to_old_params/
+	 * See https://jetpack.wp-a2z.org/oik_api/shortcode_new_to_old_params/
 	 *
 	 * @since 4.5.0
 	 *
@@ -55,10 +62,20 @@ class Jetpack_Brightcove_Shortcode {
 	 * @return array
 	 */
 	public static function normalize_attributes( $atts ) {
-		if ( is_array( $atts ) && 1 == count( $atts ) ) { // this is the case we need to take care of.
+		if ( is_array( $atts ) && 1 === count( $atts ) ) { // this is the case we need to take care of.
 			$parsed_atts = array();
 			$params      = shortcode_new_to_old_params( $atts );
-			$params      = apply_filters( 'brightcove_dimensions', $params );
+
+			/**
+			 * Filter the Brightcove shortcode parameters.
+			 *
+			 * @module shortcodes
+			 *
+			 * @since 4.5.0
+			 *
+			 * @param string $params String of shortcode parameters.
+			 */
+			$params = apply_filters( 'brightcove_dimensions', $params );
 			parse_str( $params, $parsed_atts );
 
 			return $parsed_atts;
@@ -213,7 +230,9 @@ class Jetpack_Brightcove_Shortcode {
 
 		$flashvars = trim( add_query_arg( array_map( 'urlencode', $fv ), '' ), '?' );
 
-		$width = $height = null;
+		$width  = null;
+		$height = null;
+
 		if ( ! empty( $attr['w'] ) && ! empty( $attr['h'] ) ) {
 			$w = abs( (int) $attr['w'] );
 			$h = abs( (int) $attr['h'] );
@@ -234,7 +253,7 @@ class Jetpack_Brightcove_Shortcode {
 		if ( $html5 ) {
 			wp_enqueue_script(
 				'brightcove-loader',
-				Jetpack::get_file_url_for_environment( '_inc/build/shortcodes/js/brightcove.min.js', 'modules/shortcodes/js/brightcove.js' ),
+				Assets::get_file_url_for_environment( '_inc/build/shortcodes/js/brightcove.min.js', 'modules/shortcodes/js/brightcove.js' ),
 				array( 'jquery' ),
 				20121127,
 				false
