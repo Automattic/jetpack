@@ -163,8 +163,33 @@ class Functions {
 	public static function get_hosting_provider() {
 		$hosting_provider = 'unknown';
 
+		$hosting_provider_detection_methods = array(
+			'get_hosting_provider_by_known_constant',
+			'get_hosting_provider_by_known_class',
+			'get_hosting_provider_by_known_function',
+		);
+
+		$functions = new Functions();
+		foreach ( $hosting_provider_detection_methods as $method ) {
+			$hosting_provider = call_user_func( array( $functions, $method ) );
+			if ( false !== $hosting_provider ) {
+				return $hosting_provider;
+			}
+		}
+
+		return $hosting_provider;
+	}
+
+	/**
+	 * Return a hosting provider using a set of known constants.
+	 *
+	 * @return mixed A host identifier string or false.
+	 */
+	public static function get_hosting_provider_by_known_constant() {
+		$hosting_provider = false;
+
 		switch ( true ) {
-			case ( Constants::is_defined( 'GD_SYSTEM_PLUGIN_DIR' ) || class_exists( '\\WPaaS\\Plugin' ) ):
+			case ( Constants::is_defined( 'GD_SYSTEM_PLUGIN_DIR' ) ):
 				$hosting_provider = 'gd-managed-wp';
 				break;
 			case ( Constants::is_defined( 'MM_BASE_DIR' ) ):
@@ -182,11 +207,42 @@ class Functions {
 			case ( Constants::is_defined( 'IS_PRESSABLE' ) ):
 				$hosting_provider = 'pressable';
 				break;
-			case ( function_exists( 'is_wpe' ) || function_exists( 'is_wpe_snapshot' ) ):
-				$hosting_provider = 'wpe';
-				break;
 			case ( Constants::is_defined( 'VIP_GO_ENV' ) && false !== Constants::get_constant( 'VIP_GO_ENV' ) ):
 				$hosting_provider = 'vip-go';
+				break;
+		}
+
+		return $hosting_provider;
+	}
+
+	/**
+	 * Return a hosting provider using a set of known classes.
+	 *
+	 * @return mixed A host identifier string or false.
+	 */
+	public static function get_hosting_provider_by_known_class() {
+		$hosting_provider = false;
+
+		switch ( true ) {
+			case ( class_exists( '\\WPaaS\\Plugin' ) ):
+				$hosting_provider = 'gd-managed-wp';
+				break;
+		}
+
+		return $hosting_provider;
+	}
+
+	/**
+	 * Return a hosting provider using a set of known functions.
+	 *
+	 * @return mixed A host identifier string or false.
+	 */
+	public static function get_hosting_provider_by_known_function() {
+		$hosting_provider = false;
+
+		switch ( true ) {
+			case ( function_exists( 'is_wpe' ) || function_exists( 'is_wpe_snapshot' ) ):
+				$hosting_provider = 'wpe';
 				break;
 		}
 
