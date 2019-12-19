@@ -23,6 +23,9 @@ import {
 	getResultFormatQuery,
 	hasFilter,
 	setSearchQuery,
+	setSortQuery,
+	getSortKeyFromSortOption,
+	getSortOptionFromSortKey,
 } from '../lib/query-string';
 
 class SearchApp extends Component {
@@ -70,6 +73,10 @@ class SearchApp extends Component {
 			input.form.addEventListener( 'submit', this.handleSubmit );
 			input.addEventListener( 'input', this.handleInput );
 		} );
+
+		document.querySelectorAll( this.props.themeOptions.searchSortSelector ).forEach( select => {
+			select.addEventListener( 'change', this.handleSortChange );
+		} );
 	}
 
 	removeEventListeners() {
@@ -79,6 +86,10 @@ class SearchApp extends Component {
 		document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( input => {
 			input.form.removeEventListener( 'submit', this.handleSubmit );
 			input.removeEventListener( 'input', this.handleInput );
+		} );
+
+		document.querySelectorAll( this.props.themeOptions.searchSortSelector ).forEach( select => {
+			select.removeEventListener( 'change', this.handleSortChange );
 		} );
 	}
 
@@ -99,6 +110,10 @@ class SearchApp extends Component {
 		setSearchQuery( event.target.value );
 	};
 
+	handleSortChange = event => {
+		setSortQuery( getSortKeyFromSortOption( event.target.value ) );
+	};
+
 	showResults = () => this.setState( { showResults: true } );
 	hideResults = () => this.setState( { showResults: false } );
 	toggleResults = () => this.setState( state => ( { showResults: ! state.showResults } ) );
@@ -110,6 +125,10 @@ class SearchApp extends Component {
 
 		document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( input => {
 			input.value = getSearchQuery();
+		} );
+
+		document.querySelectorAll( this.props.themeOptions.searchSortSelector ).forEach( select => {
+			select.value = getSortOptionFromSortKey( getSortQuery() );
 		} );
 	};
 
