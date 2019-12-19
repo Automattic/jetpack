@@ -1974,6 +1974,16 @@ class Jetpack_CLI extends WP_CLI_Command {
 				}
 			}
 
+			if ( 'beta' === $variation || 'experimental' === $variation ) {
+				$block_constant = sprintf(
+					/* translators: the placeholder is a constant name */
+					esc_html__( 'To load the block, add the constant %1$s as true to your wp-config.php file', 'jetpack' ),
+					( 'beta' === $variation ? 'JETPACK_BETA_BLOCKS' : 'JETPACK_EXPERIMENTAL_BLOCKS' )
+				);
+			} else {
+				$block_constant = '';
+			}
+
 			WP_CLI::success(
 				sprintf(
 					/* translators: the placeholders are a human readable title, and a series of words separated by dashes */
@@ -1984,14 +1994,15 @@ class Jetpack_CLI extends WP_CLI_Command {
 					esc_html__( 'To start using the block, build the blocks with yarn run build-extensions', 'jetpack' ) . "\n" .
 					/* translators: the placeholder is a file path */
 					esc_html__( 'The block slug has been added to the %4$s list at %5$s', 'jetpack' ) . "\n" .
-					esc_html__( 'To load the block, add the constant JETPACK_BETA_BLOCKS as true to your wp-config.php file', 'jetpack' ) . "\n" .
+					'%6$s' . "\n" .
 					/* translators: the placeholder is a URL */
-					"\n" . esc_html__( 'Read more at %6$s', 'jetpack' ) . "\n",
+					"\n" . esc_html__( 'Read more at %7$s', 'jetpack' ) . "\n",
 					$title,
 					$slug,
 					$path,
 					$variation,
 					$block_list_path,
+					$block_constant,
 					'https://github.com/Automattic/jetpack/blob/master/extensions/README.md#develop-new-blocks'
 				) . '--------------------------------------------------------------------------------------------------------------------'
 			);
