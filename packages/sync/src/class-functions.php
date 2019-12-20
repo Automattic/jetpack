@@ -161,8 +161,6 @@ class Functions {
 	 * @return string Hosting provider.
 	 */
 	public static function get_hosting_provider() {
-		$hosting_provider = 'unknown';
-
 		$hosting_provider_detection_methods = array(
 			'get_hosting_provider_by_known_constant',
 			'get_hosting_provider_by_known_class',
@@ -177,7 +175,7 @@ class Functions {
 			}
 		}
 
-		return $hosting_provider;
+		return 'unknown';
 	}
 
 	/**

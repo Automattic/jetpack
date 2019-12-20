@@ -1059,8 +1059,16 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	 *
 	 * @return void
 	 */
-	public function test_get_hosting_provider_callable() {
-		// Get hosting provider by known constant.
+	public function test_get_hosting_provider_callable_with_unknown_host() {
+		$this->assertEquals( Functions::get_hosting_provider(), 'unknown' );
+	}
+
+	/**
+	 * Test getting a hosting provider by a known constant
+	 *
+	 * @return void
+	 */
+	public function test_get_hosting_provider_by_known_constant() {
 		$functions = new Functions();
 		Constants::set_constant( 'GD_SYSTEM_PLUGIN_DIR', 'set' );
 		$this->assertEquals( $functions->get_hosting_provider_by_known_constant(), 'gd-managed-wp' );
@@ -1069,8 +1077,16 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		Constants::set_constant( 'UNKNOWN', 'set' );
 		$this->assertFalse( $functions->get_hosting_provider_by_known_constant() );
 		Constants::clear_constants();
+	}
 
-		// Get hosting provider by known class.
+	/**
+	 * Test getting a hosting provider by a known class
+	 *
+	 * @return void
+	 */
+	public function test_get_hosting_provider_by_known_class() {
+		$functions = new Functions();
+
 		$this->assertFalse( $functions->get_hosting_provider_by_known_class() );
 
 		$class_mock = $this->getMockBuilder( '\\WPaaS\\Plugin' )
@@ -1078,20 +1094,30 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertEquals( $functions->get_hosting_provider_by_known_class(), 'gd-managed-wp' );
 
-		// Get hosting provider by known function.
-		$this->assertEquals( $functions->get_hosting_provider_by_known_function(), 'wpe' );
-
 	}
 
-}
+	/**
+	 * Test getting a hosting provider by a known function
+	 *
+	 * @return bool
+	 */
+	public function test_get_hosting_provider_by_known_function() {
 
-/**
- * Used for test_get_hosting_provider_callable()
- *
- * @return boolean
- */
-function is_wpe() {
-	return true;
+		/**
+		 * Stub is_wpe for testing function exists
+		 *
+		 * @return boolean
+		 */
+		function is_wpe() {
+			return true;
+		}
+
+		$functions = new Functions();
+
+		// Get hosting provider by known function.
+		$this->assertEquals( $functions->get_hosting_provider_by_known_function(), 'wpe' );
+	}
+
 }
 
 function jetpack_recursive_banana() {
