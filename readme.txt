@@ -108,6 +108,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Enhancements**
 
 * Dashboard: preload connection flow script to improve performance.
+* Dashboard: improvements to backup interface.
 * Mobile Theme: allow one to temporary disable Jetpack's Mobile Theme for testing.
 * Mobile Theme: disable settings when feature is inactive.
 * WordPress.com REST API: add flag to determine site eligibility for Full Site Editing.
