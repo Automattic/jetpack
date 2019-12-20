@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React from 'react';
-import { moment, translate as __ } from 'i18n-calypso';
+import { translate as __ } from 'i18n-calypso';
 import { connect } from 'react-redux';
 import { find, filter, isEmpty } from 'lodash';
 
@@ -14,6 +14,7 @@ import ChecklistCta from './checklist-cta';
 import ChecklistProgress from './checklist-progress-card';
 import MyPlanCard from '../my-plan-card';
 import UpgradeLink from 'components/upgrade-link';
+import ProductExpiration from 'components/product-expiration';
 import { getPlanClass, isJetpackBackup } from 'lib/plans/constants';
 import { getUpgradeUrl, getSiteRawUrl, showBackups } from 'state/initial-state';
 import { getSitePurchases } from 'state/site';
@@ -31,10 +32,16 @@ class MyPlanHeader extends React.Component {
 		}
 
 		const purchase = find( purchases, purchaseObj => purchaseObj.product_slug === productSlug );
-		const expiration =
-			purchase && purchase.expiry_date
-				? __( 'Expires on %s.', { args: moment( purchase.expiry_date ).format( 'LL' ) } )
-				: null;
+		let expiration;
+		if ( purchase ) {
+			expiration = (
+				<ProductExpiration
+					expiryDate={ purchase.expiry_date }
+					purchaseDate={ purchase.subscribed_date }
+					isRefundable={ purchase.is_refundable }
+				/>
+			);
+		}
 
 		switch ( getPlanClass( productSlug ) ) {
 			case 'is-free-plan':

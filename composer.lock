@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "01d6dcf2001c7b2ae0bd259e0e05d904",
+    "content-hash": "23a3df0c752fcfb8b0a94250870ae7b9",
     "packages": [
         {
             "name": "automattic/jetpack-abtest",
@@ -348,6 +348,37 @@
             "description": "A wrapper for wp-options to manage specific Jetpack options."
         },
         {
+            "name": "automattic/jetpack-partner",
+            "version": "dev-add/upgrade-url-subsidiary-id",
+            "dist": {
+                "type": "path",
+                "url": "./packages/partner",
+                "reference": "d0174e06e76927cefcedcded30c38405357ddea6"
+            },
+            "require-dev": {
+                "brain/monkey": "^2.4",
+                "mockery/mockery": "^1.2",
+                "php-mock/php-mock": "^2.1",
+                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Support functions for Jetpack hosting partners."
+        },
+        {
             "name": "automattic/jetpack-roles",
             "version": "dev-retry/phpcs-changed",
             "dist": {
@@ -572,16 +603,16 @@
         },
         {
             "name": "phpcompatibility/php-compatibility",
-            "version": "9.3.2",
+            "version": "9.3.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPCompatibility/PHPCompatibility.git",
-                "reference": "bfca2be3992f40e92206e5a7ebe5eaee37280b58"
+                "reference": "1f37659196e4f3113ea506a7efba201c52303bf1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPCompatibility/PHPCompatibility/zipball/bfca2be3992f40e92206e5a7ebe5eaee37280b58",
-                "reference": "bfca2be3992f40e92206e5a7ebe5eaee37280b58",
+                "url": "https://api.github.com/repos/PHPCompatibility/PHPCompatibility/zipball/1f37659196e4f3113ea506a7efba201c52303bf1",
+                "reference": "1f37659196e4f3113ea506a7efba201c52303bf1",
                 "shasum": ""
             },
             "require": {
@@ -626,7 +657,7 @@
                 "phpcs",
                 "standards"
             ],
-            "time": "2019-10-16T21:24:24+00:00"
+            "time": "2019-11-15T04:12:02+00:00"
         },
         {
             "name": "phpcompatibility/phpcompatibility-paragonie",
@@ -732,16 +763,16 @@
         },
         {
             "name": "sirbrillig/phpcs-changed",
-            "version": "2.2.7-beta-1",
+            "version": "v2.2.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sirbrillig/phpcs-changed.git",
-                "reference": "333988bd9caccc5a73578860949f0e2f268b91a9"
+                "reference": "4fd30eda5c91862ea28023c2762d3b57aae8f5e4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sirbrillig/phpcs-changed/zipball/333988bd9caccc5a73578860949f0e2f268b91a9",
-                "reference": "333988bd9caccc5a73578860949f0e2f268b91a9",
+                "url": "https://api.github.com/repos/sirbrillig/phpcs-changed/zipball/4fd30eda5c91862ea28023c2762d3b57aae8f5e4",
+                "reference": "4fd30eda5c91862ea28023c2762d3b57aae8f5e4",
                 "shasum": ""
             },
             "require": {
@@ -782,7 +813,7 @@
                 }
             ],
             "description": "Run phpcs on files, but only report warnings/errors from lines which were changed.",
-            "time": "2019-10-29T16:28:21+00:00"
+            "time": "2019-11-21T17:09:44+00:00"
         },
         {
             "name": "sirbrillig/phpcs-variable-analysis",
@@ -834,16 +865,16 @@
         },
         {
             "name": "squizlabs/php_codesniffer",
-            "version": "3.5.2",
+            "version": "3.5.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/squizlabs/PHP_CodeSniffer.git",
-                "reference": "65b12cdeaaa6cd276d4c3033a95b9b88b12701e7"
+                "reference": "557a1fc7ac702c66b0bbfe16ab3d55839ef724cb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/65b12cdeaaa6cd276d4c3033a95b9b88b12701e7",
-                "reference": "65b12cdeaaa6cd276d4c3033a95b9b88b12701e7",
+                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/557a1fc7ac702c66b0bbfe16ab3d55839ef724cb",
+                "reference": "557a1fc7ac702c66b0bbfe16ab3d55839ef724cb",
                 "shasum": ""
             },
             "require": {
@@ -881,7 +912,7 @@
                 "phpcs",
                 "standards"
             ],
-            "time": "2019-10-28T04:36:32+00:00"
+            "time": "2019-12-04T04:46:47+00:00"
         },
         {
             "name": "wp-coding-standards/wpcs",
@@ -943,11 +974,11 @@
         "automattic/jetpack-jitm": 20,
         "automattic/jetpack-logo": 20,
         "automattic/jetpack-options": 20,
+        "automattic/jetpack-partner": 20,
         "automattic/jetpack-roles": 20,
         "automattic/jetpack-sync": 20,
         "automattic/jetpack-terms-of-service": 20,
-        "automattic/jetpack-tracking": 20,
-        "sirbrillig/phpcs-changed": 20
+        "automattic/jetpack-tracking": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,

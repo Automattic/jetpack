@@ -56,7 +56,7 @@ matrix:
   - php: "7.3"
     name: "Code Coverage"
     env:
-      - WP_BRANCH=latest
+      - WP_BRANCH=previous
       - DO_COVERAGE=true
     before_script:
       - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
@@ -66,7 +66,7 @@ matrix:
       - export PLUGIN_SLUG=$(basename $(pwd))
       - ./tests/setup-travis.sh
     after_script:
-      - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT --coverage-input-type clover
+      - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT -t clover -p /tmp/wordpress-previous/src/wp-content/plugins/jetpack
 
   - php: "7.0"
     name: "E2E tests"

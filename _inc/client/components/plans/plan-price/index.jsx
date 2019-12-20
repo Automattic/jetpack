@@ -14,72 +14,91 @@ import { getCurrencyObject } from '@automattic/format-currency';
 import './style.scss';
 
 export class PlanPrice extends Component {
-	render() {
-		const { currencyCode, rawPrice, original, discounted, className } = this.props;
+	getPriceRange() {
+		const { currencyCode, rawPrice } = this.props;
 
-		if ( ! currencyCode || ! rawPrice ) {
-			return null;
+		// "Normalize" the input price or price range
+		let rawPriceRange;
+		if ( Array.isArray( rawPrice ) ) {
+			const positivePrices = rawPrice.filter( price => price >= 0 );
+			// First array entry is lowest price, second is highest price.
+			rawPriceRange = [ Math.min( ...positivePrices ), Math.max( ...positivePrices ) ];
+		} else {
+			rawPriceRange = [ rawPrice ];
 		}
 
-		// "Normalize" the input price or price range.
-		const rawPriceRange = Array.isArray( rawPrice ) ? rawPrice.slice( 0, 2 ) : [ rawPrice ];
-		if ( rawPriceRange.includes( 0 ) ) {
-			return null;
-		}
-
-		const priceRange = rawPriceRange.map( item => {
+		return rawPriceRange.map( item => {
 			return {
 				price: getCurrencyObject( item, currencyCode ),
 				raw: item,
 			};
 		} );
+	}
 
-		const classes = classNames( 'plan-price', className, {
-			'is-original': original,
-			'is-discounted': discounted,
-		} );
+	renderPrice( priceObj ) {
+		return (
+			<>
+				<span className="plan-price__integer">{ priceObj.price.integer }</span>
+				<sup className="plan-price__fraction">
+					{ priceObj.raw - priceObj.price.integer > 0 && priceObj.price.fraction }
+				</sup>
+			</>
+		);
+	}
 
-		const renderPriceHtml = priceObj => {
-			return (
-				<>
-					<span className="plan-price__integer">{ priceObj.price.integer }</span>
-					<sup className="plan-price__fraction">
-						{ priceObj.raw - priceObj.price.integer > 0 && priceObj.price.fraction }
-					</sup>
-				</>
-			);
-		};
-
-		const smallerPriceHtml = renderPriceHtml( priceRange[ 0 ] );
-		const higherPriceHtml = priceRange[ 1 ] && renderPriceHtml( priceRange[ 1 ] );
+	renderContent() {
+		const priceRange = this.getPriceRange();
+		const smallerPrice = this.renderPrice( priceRange[ 0 ] );
+		const higherPrice = priceRange[ 1 ] && this.renderPrice( priceRange[ 1 ] );
 
 		return (
-			<h4 className={ classes }>
+			<>
 				<sup className="plan-price__currency-symbol">{ priceRange[ 0 ].price.symbol }</sup>
-				{ ! higherPriceHtml && renderPriceHtml( priceRange[ 0 ] ) }
-				{ higherPriceHtml &&
-					__( '{{smallerPrice/}}-{{higherPrice/}}', {
-						components: { smallerPrice: smallerPriceHtml, higherPrice: higherPriceHtml },
-						comment: 'The price range for a particular product',
-					} ) }
-			</h4>
+				{ higherPrice
+					? __( '{{smallerPrice/}}-{{higherPrice/}}', {
+							components: {
+								smallerPrice,
+								higherPrice,
+							},
+							comment: 'The price range for a particular product',
+					  } )
+					: smallerPrice }
+			</>
 		);
+	}
+
+	render() {
+		const { className, discounted, inline, original, rawPrice } = this.props;
+
+		if ( rawPrice === undefined ) {
+			return null;
+		}
+
+		const WrapperComponent = inline ? 'span' : 'div';
+		const classes = classNames( 'plan-price', className, {
+			'is-discounted': discounted,
+			'is-inline': inline,
+			'is-original': original,
+		} );
+
+		return <WrapperComponent className={ classes }>{ this.renderContent() }</WrapperComponent>;
 	}
 }
 
 export default PlanPrice;
 
 PlanPrice.propTypes = {
-	rawPrice: PropTypes.oneOfType( [ PropTypes.number, PropTypes.arrayOf( PropTypes.number ) ] ),
-	original: PropTypes.bool,
-	discounted: PropTypes.bool,
-	currencyCode: PropTypes.string,
 	className: PropTypes.string,
+	currencyCode: PropTypes.string,
+	discounted: PropTypes.bool,
+	inline: PropTypes.bool,
+	original: PropTypes.bool,
+	rawPrice: PropTypes.oneOfType( [ PropTypes.number, PropTypes.arrayOf( PropTypes.number ) ] ),
 };
 
 PlanPrice.defaultProps = {
-	currencyCode: 'USD',
-	original: false,
-	discounted: false,
 	className: '',
+	currencyCode: 'USD',
+	discounted: false,
+	original: false,
 };

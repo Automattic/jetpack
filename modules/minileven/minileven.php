@@ -28,6 +28,9 @@ Version: 2.1a-WPCOM
 $_SERVER['REQUEST_URI'] = ( isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : $_SERVER['SCRIPT_NAME'] . (( isset($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '')));
 
 function jetpack_check_mobile() {
+	// allow mobile theme to be disabled via query string for testing during deprecation.
+	if ( isset( $_GET['jetpack-preview'] ) && 'responsivetheme' === $_GET['jetpack-preview'] )
+		return false;
 	if ( ( defined('XMLRPC_REQUEST') && XMLRPC_REQUEST ) || ( defined('APP_REQUEST') && APP_REQUEST ) )
 		return false;
 	if ( !isset($_SERVER["HTTP_USER_AGENT"]) || (isset($_COOKIE['akm_mobile']) && $_COOKIE['akm_mobile'] == 'false') )

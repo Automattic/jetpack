@@ -279,6 +279,17 @@ export function getAffiliateCode( state ) {
 }
 
 /**
+ * Returns the partner subsidiary id, if it exists. Otherwise an empty string.
+ *
+ * @param {object} state Global state tree
+ *
+ * @return {string} The partner subsidiary id.
+ */
+export function getPartnerSubsidiaryId( state ) {
+	return get( state.jetpack.initialState, 'partnerSubsidiaryId', '' );
+}
+
+/**
  * Return an upgrade URL
  *
  * @param {object} state Global state tree
@@ -289,9 +300,11 @@ export function getAffiliateCode( state ) {
  */
 export const getUpgradeUrl = ( state, source, userId = '' ) => {
 	const affiliateCode = getAffiliateCode( state );
+	const subsidiaryId = getPartnerSubsidiaryId( state );
 	return (
 		`https://jetpack.com/redirect/?source=${ source }&site=${ getSiteRawUrl( state ) }` +
 		( affiliateCode ? `&aff=${ affiliateCode }` : '' ) +
-		( userId ? `&u=${ userId }` : '' )
+		( userId ? `&u=${ userId }` : '' ) +
+		( subsidiaryId ? `&subsidiaryId=${ subsidiaryId }` : '' )
 	);
 };

@@ -66,7 +66,6 @@ Automattic\Jetpack\Sync\Main::init();
 
 if ( is_admin() ) {
 	require_once JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php';
-	require_once JETPACK__PLUGIN_DIR . 'class.jetpack-affiliate.php';
 	$jitm = new Automattic\Jetpack\JITM();
 	add_action( 'plugins_loaded', array( $jitm, 'register' ) );
 	jetpack_require_lib( 'debugger' );

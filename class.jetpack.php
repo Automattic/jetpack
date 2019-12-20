@@ -7,6 +7,7 @@ use Automattic\Jetpack\Connection\REST_Connector as REST_Connector;
 use Automattic\Jetpack\Connection\XMLRPC_Connector as XMLRPC_Connector;
 use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Sync\Functions;
@@ -570,7 +571,8 @@ class Jetpack {
 			add_action( 'init', array( 'Jetpack_Keyring_Service_Helper', 'init' ), 9, 0 );
 		}
 
-		add_action( 'plugins_loaded', array( $this, 'after_plugins_loaded' )  );
+		add_action( 'plugins_loaded', array( $this, 'after_plugins_loaded' ) );
+		add_action( 'plugins_loaded', array( $this, 'late_initialization' ), 90 );
 
 		add_filter(
 			'jetpack_connection_secret_generator',
@@ -671,7 +673,6 @@ class Jetpack {
 		add_action( 'style_loader_src', array( 'Jetpack', 'set_suffix_on_min' ), 10, 2 );
 		add_filter( 'style_loader_tag', array( 'Jetpack', 'maybe_inline_style' ), 10, 2 );
 
-		add_filter( 'map_meta_cap', array( $this, 'jetpack_custom_caps' ), 1, 4 );
 		add_filter( 'profile_update', array( 'Jetpack', 'user_meta_cleanup' ) );
 
 		add_filter( 'jetpack_get_default_modules', array( $this, 'filter_default_modules' ) );
@@ -743,6 +744,7 @@ class Jetpack {
 	 */
 	function after_plugins_loaded() {
 
+		Partner::init();
 		$terms_of_service = new Terms_Of_Service();
 		$tracking = new Plugin_Tracking();
 		if ( $terms_of_service->has_agreed() ) {
@@ -753,6 +755,26 @@ class Jetpack {
 			 */
 			add_action( 'jetpack_agreed_to_terms_of_service', array( $tracking, 'init' ) );
 		}
+
+		add_filter( 'map_meta_cap', array( $this, 'jetpack_custom_caps' ), 1, 4 );
+	}
+
+	/**
+	 * Runs on plugins_loaded. Use this to add code that needs to be executed later than other
+	 * initialization code.
+	 *
+	 * @action plugins_loaded
+	 */
+	public function late_initialization() {
+		/**
+		 * Fires when Jetpack is fully loaded and ready. This is the point where it's safe
+		 * to instantiate classes from packages and namespaces that are managed by the Jetpack Autoloader.
+		 *
+		 * @since 8.1.0
+		 *
+		 * @param Jetpack $jetpack the main plugin class object.
+		 */
+		do_action( 'jetpack_loaded', $this );
 	}
 
 	/**
@@ -4615,14 +4637,16 @@ endif;
 			$url = add_query_arg( 'from', $from, $url );
 		}
 
-		// Ensure that class to get the affiliate code is loaded
-		if ( ! class_exists( 'Jetpack_Affiliate' ) ) {
-			require_once JETPACK__PLUGIN_DIR . 'class.jetpack-affiliate.php';
-		}
-		// Get affiliate code and add it to the URL
-		$url = Jetpack_Affiliate::init()->add_code_as_query_arg( $url );
-
-		return $raw ? esc_url_raw( $url ) : esc_url( $url );
+		$url = $raw ? esc_url_raw( $url ) : esc_url( $url );
+		/**
+		 * Filter the URL used when connecting a user to a WordPress.com account.
+		 *
+		 * @since 8.1.0
+		 *
+		 * @param string $url Connection URL.
+		 * @param bool   $raw If true, URL will not be escaped.
+		 */
+		return apply_filters( 'jetpack_build_connection_url', $url, $raw );
 	}
 
 	public static function build_authorize_url( $redirect = false, $iframe = false ) {

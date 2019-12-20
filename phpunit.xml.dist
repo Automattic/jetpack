@@ -60,6 +60,9 @@
 		<testsuite name="verification-tools">
 			<directory prefix="test_" suffix=".php">tests/php/modules/verification-tools</directory>
 		</testsuite>
+		<testsuite name="videopress">
+			<directory prefix="test_" suffix=".php">tests/php/modules/videopress</directory>
+		</testsuite>
 		<testsuite name="wpcom-block-editor">
 			<directory prefix="test_" suffix=".php">tests/php/modules/wpcom-block-editor</directory>
 		</testsuite>
@@ -78,9 +81,6 @@
 		</testsuite>
 		<testsuite name="idc">
 			<file>tests/php/test_class.jetpack-idc.php</file>
-		</testsuite>
-		<testsuite name="affiliate">
-			<file>tests/php/test_class.jetpack-affiliate.php</file>
 		</testsuite>
 		<testsuite name="3rd-party">
 			<directory prefix="test_" suffix=".php">tests/php/3rd-party</directory>

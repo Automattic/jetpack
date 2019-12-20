@@ -218,7 +218,7 @@ You can access WordPress and Jetpack files via SFTP server container.
 
 You can tunnel to this container using [Ngrok](https://ngrok.com) or [other similar service](https://alternativeto.net/software/ngrok/).
 
-Tunnelling makes testing [Jetpack Backup & Scan](https://jetpack.com/support/backups/) possible. Read more from ["Using Ngrok with Jetpack"](#using-ngrok-with-jetpack) section below.
+Tunnelling makes testing [Jetpack Backup & Scan](https://jetpack.com/support/backup/) possible. Read more from ["Using Ngrok with Jetpack"](#using-ngrok-with-jetpack) section below.
 
 ## Must Use Plugins directory
 
@@ -319,7 +319,7 @@ You can inspect traffic between your WordPress/Jetpack container and WordPress.c
 
 ### Configuring Jetpack Backup & Scan with Ngrok tunnel
 
-You should now be able to configure [Jetpack Backup & Scan](https://jetpack.com/support/backups/) credentials point to your Docker container:
+You should now be able to configure [Jetpack Backup & Scan](https://jetpack.com/support/backup/) credentials point to your Docker container:
 
 - Credential Type: `SSH/SFTP`
 - Server Address: `0.tcp.ngrok.io`
@@ -451,7 +451,7 @@ Below are instructions for starting a debug session in PhpStorm that will listen
 
 1. In the server configuration window, check the 'Use path mappings' check box.
 
-1. In the server configuration window, map the main Jetpack folder to '/var/www/html/wp-content/plugins/jetpack' and map '/docker/wordpress' to '/var/www'
+1. In the server configuration window, map the main Jetpack folder to '/var/www/html/wp-content/plugins/jetpack' and map '/docker/wordpress' to '/var/www/html'
 
 1. In the server configuration window, click 'Apply' then 'Ok'.
 

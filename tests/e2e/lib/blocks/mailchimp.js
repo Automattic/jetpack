@@ -7,13 +7,17 @@ import ConnectionsPage from '../pages/wpcom/connections';
 
 export default class MailchimpBlock {
 	constructor( block, page ) {
-		this.blockName = MailchimpBlock.name();
+		this.blockTitle = MailchimpBlock.title();
 		this.block = block;
 		this.page = page;
 		this.blockSelector = '#block-' + block.clientId;
 	}
 
 	static name() {
+		return 'mailchimp';
+	}
+
+	static title() {
 		return 'Mailchimp';
 	}
 

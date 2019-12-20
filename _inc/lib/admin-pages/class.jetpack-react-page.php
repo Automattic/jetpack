@@ -1,5 +1,6 @@
 <?php
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Partner;
 
 include_once( 'class.jetpack-admin-page.php' );
 
@@ -223,40 +224,37 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			? get_permalink( $last_post[0]->ID )
 			: get_home_url();
 
-		// Ensure that class to get the affiliate code is loaded
-		if ( ! class_exists( 'Jetpack_Affiliate' ) ) {
-			require_once JETPACK__PLUGIN_DIR . 'class.jetpack-affiliate.php';
-		}
-
 		$current_user_data = jetpack_current_user_data();
 
 		return array(
-			'WP_API_root' => esc_url_raw( rest_url() ),
-			'WP_API_nonce' => wp_create_nonce( 'wp_rest' ),
-			'pluginBaseUrl' => plugins_url( '', JETPACK__PLUGIN_FILE ),
-			'connectionStatus' => array(
-				'isActive'  => Jetpack::is_active(),
-				'isStaging' => Jetpack::is_staging_site(),
-				'devMode'   => array(
+			'WP_API_root'                 => esc_url_raw( rest_url() ),
+			'WP_API_nonce'                => wp_create_nonce( 'wp_rest' ),
+			'pluginBaseUrl'               => plugins_url( '', JETPACK__PLUGIN_FILE ),
+			'connectionStatus'            => array(
+				'isActive'           => Jetpack::is_active(),
+				'isStaging'          => Jetpack::is_staging_site(),
+				'devMode'            => array(
 					'isActive' => ( new Status() )->is_development_mode(),
 					'constant' => defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG,
 					'url'      => site_url() && false === strpos( site_url(), '.' ),
 					'filter'   => apply_filters( 'jetpack_development_mode', false ),
 				),
-				'isPublic'	=> '1' == get_option( 'blog_public' ),
+				'isPublic'           => '1' == get_option( 'blog_public' ), // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
 				'isInIdentityCrisis' => Jetpack::validate_sync_error_idc_option(),
-				'sandboxDomain' => JETPACK__SANDBOX_DOMAIN,
+				'sandboxDomain'      => JETPACK__SANDBOX_DOMAIN,
 			),
-			'connectUrl' => $current_user_data['isConnected'] == false ? Jetpack::init()->build_connect_url( true, false, false ) : '',
-			'dismissedNotices' => $this->get_dismissed_jetpack_notices(),
-			'isDevVersion' => Jetpack::is_development_version(),
-			'currentVersion' => JETPACK__VERSION,
-			'is_gutenberg_available' => true,
-			'getModules' => $modules,
-			'rawUrl' => Jetpack::build_raw_urls( get_home_url() ),
-			'adminUrl' => esc_url( admin_url() ),
-			'stats' => array(
-				// data is populated asynchronously on page load
+			'connectUrl'                  => false == $current_user_data['isConnected'] // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
+				? Jetpack::init()->build_connect_url( true, false, false )
+				: '',
+			'dismissedNotices'            => $this->get_dismissed_jetpack_notices(),
+			'isDevVersion'                => Jetpack::is_development_version(),
+			'currentVersion'              => JETPACK__VERSION,
+			'is_gutenberg_available'      => true,
+			'getModules'                  => $modules,
+			'rawUrl'                      => Jetpack::build_raw_urls( get_home_url() ),
+			'adminUrl'                    => esc_url( admin_url() ),
+			'stats'                       => array(
+				// data is populated asynchronously on page load.
 				'data'  => array(
 					'general' => false,
 					'day'     => false,
@@ -265,13 +263,13 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				),
 				'roles' => $stats_roles,
 			),
-			'aff' => Jetpack_Affiliate::init()->get_affiliate_code(),
-			'settings' => $this->get_flattened_settings( $modules ),
-			'userData' => array(
-//				'othersLinked' => Jetpack::get_other_linked_admins(),
-				'currentUser'  => $current_user_data,
+			'aff'                         => Partner::init()->get_partner_code( Partner::AFFILIATE_CODE ),
+			'partnerSubsidiaryId'         => Partner::init()->get_partner_code( Partner::SUBSIDIARY_CODE ),
+			'settings'                    => $this->get_flattened_settings( $modules ),
+			'userData'                    => array(
+				'currentUser' => $current_user_data,
 			),
-			'siteData' => array(
+			'siteData'                    => array(
 				'icon'                       => has_site_icon()
 					? apply_filters( 'jetpack_photon_url', get_site_icon_url(), array( 'w' => 64 ) )
 					: '',
@@ -289,25 +287,25 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				'showBackups'                => Jetpack::show_backups_ui(),
 				'isMultisite'                => is_multisite(),
 			),
-			'themeData' => array(
+			'themeData'                   => array(
 				'name'      => $current_theme->get( 'Name' ),
 				'hasUpdate' => (bool) get_theme_update_available( $current_theme ),
 				'support'   => array(
-					'infinite-scroll' => current_theme_supports( 'infinite-scroll' ) || in_array( $current_theme->get_stylesheet(), $inf_scr_support_themes ),
+					'infinite-scroll' => current_theme_supports( 'infinite-scroll' ) || in_array( $current_theme->get_stylesheet(), $inf_scr_support_themes, true ),
 				),
 			),
-			'locale' => Jetpack::get_i18n_data_json(),
-			'localeSlug' => join( '-', explode( '_', get_user_locale() ) ),
-			'jetpackStateNotices' => array(
-				'messageCode' => Jetpack::state( 'message' ),
-				'errorCode' => Jetpack::state( 'error' ),
+			'locale'                      => Jetpack::get_i18n_data_json(),
+			'localeSlug'                  => join( '-', explode( '_', get_user_locale() ) ),
+			'jetpackStateNotices'         => array(
+				'messageCode'      => Jetpack::state( 'message' ),
+				'errorCode'        => Jetpack::state( 'error' ),
 				'errorDescription' => Jetpack::state( 'error_description' ),
 			),
-			'tracksUserData' => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
-			'currentIp' => function_exists( 'jetpack_protect_get_ip' ) ? jetpack_protect_get_ip() : false,
-			'lastPostUrl' => esc_url( $last_post ),
+			'tracksUserData'              => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
+			'currentIp'                   => function_exists( 'jetpack_protect_get_ip' ) ? jetpack_protect_get_ip() : false,
+			'lastPostUrl'                 => esc_url( $last_post ),
 			'externalServicesConnectUrls' => $this->get_external_services_connect_urls(),
-			'calypsoEnv' => Jetpack::get_calypso_env(),
+			'calypsoEnv'                  => Jetpack::get_calypso_env(),
 		);
 	}
 
@@ -342,11 +340,20 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
  * @return array
  */
 function jetpack_current_user_data() {
-	$current_user = wp_get_current_user();
+	$current_user   = wp_get_current_user();
 	$is_master_user = $current_user->ID == Jetpack_Options::get_option( 'master_user' );
 	$dotcom_data    = Jetpack::get_connected_user_data();
+
 	// Add connected user gravatar to the returned dotcom_data.
-	$dotcom_data['avatar'] = get_avatar_url( $dotcom_data['email'], array( 'size' => 64, 'default' => 'mysteryman' ) );
+	$dotcom_data['avatar'] = ( ! empty( $dotcom_data['email'] ) ?
+		get_avatar_url(
+			$dotcom_data['email'],
+			array(
+				'size'    => 64,
+				'default' => 'mysteryman',
+			)
+		)
+		: false );
 
 	$current_user_data = array(
 		'isConnected' => Jetpack::is_user_connected( $current_user->ID ),
