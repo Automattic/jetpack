@@ -102,7 +102,7 @@ execute( $command, 'Could not create new release branch.' );
 
 // Commit those changes.
 $command = sprintf(
-	'git add composer.json && git commit -m "Updating dependencies for %1$s"',
+	'git add composer.json && ( git diff-index --quiet HEAD || git commit -m "Updating dependencies for %1$s" )',
 	escapeshellarg( $package_name )
 );
 execute( $command, 'Could not commit dependency version updates.' );
