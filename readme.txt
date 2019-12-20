@@ -128,6 +128,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
+* Map Block: fix layout issue when selecting a marker in a map and then scrolling down.
 * Map Block: avoid errors when adding more than 2 points on a map.
 * Star Rating Block: translate block title.
 * Widget Visibility: ensure that the visibility options always appear on old Widgets Options screen.
