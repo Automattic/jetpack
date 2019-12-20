@@ -127,9 +127,24 @@ class Actions {
 			self::should_initialize_sender()
 		) ) {
 			self::initialize_sender();
-			add_action( 'shutdown', array( self::$sender, 'do_sync' ) );
-			add_action( 'shutdown', array( self::$sender, 'do_full_sync' ), 9999 );
+			self::hook_sender();
 		}
+	}
+
+	/**
+	 * Send on shutdown.
+	 */
+	public static function hook_sender() {
+		add_action( 'shutdown', array( self::$sender, 'do_sync' ) );
+		add_action( 'shutdown', array( self::$sender, 'do_full_sync' ), 9999 );
+	}
+
+	/**
+	 * Don't Send on shutdown.
+	 */
+	public static function unhook_sender() {
+		remove_action( 'shutdown', array( self::$sender, 'do_sync' ) );
+		remove_action( 'shutdown', array( self::$sender, 'do_full_sync' ), 9999 );
 	}
 
 	/**
