@@ -9,6 +9,7 @@ import { createBlock } from '@wordpress/blocks';
  * Internal dependencies
  */
 import edit from './edit';
+import save from './save';
 
 export const URL_REGEX = /^\s*https?:\/\/(?:www\.)?(?:eventbrite\.[a-z.]+)\/e\/[^/]*?(\d+)\/?\s*$/i;
 
@@ -47,11 +48,30 @@ export const settings = {
 		useModal: {
 			type: 'boolean',
 		},
+		// Modal button attributes.
+		text: {
+			type: 'string',
+		},
+		backgroundColor: {
+			type: 'string',
+		},
+		textColor: {
+			type: 'string',
+		},
+		customBackgroundColor: {
+			type: 'string',
+		},
+		customTextColor: {
+			type: 'string',
+		},
+		borderRadius: {
+			type: 'number',
+		},
 	},
 
 	edit,
 
-	save: () => null,
+	save,
 
 	transforms: {
 		from: [

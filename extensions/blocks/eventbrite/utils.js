@@ -15,3 +15,7 @@ export function fallback( url, onReplace ) {
 	const link = <a href={ url }>{ url }</a>;
 	onReplace( createBlock( 'core/paragraph', { content: renderToString( link ) } ) );
 }
+
+export function eventIdFromUrl( url ) {
+	return url.substring( url.search( /\d+$/g ) );
+}

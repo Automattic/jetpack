@@ -25,11 +25,12 @@ jetpack_register_block(
 /**
  * Eventbrite block registration/dependency delclaration.
  *
- * @param array $attr    Eventbrite block attributes.
+ * @param array  $attr    Eventbrite block attributes.
+ * @param string $content Rendered embed element (without scripts) from the block editor.
  *
  * @return string
  */
-function jetpack_eventbrite_block_load_assets( $attr ) {
+function jetpack_eventbrite_block_load_assets( $attr, $content ) {
 	if ( empty( $attr['url'] ) ) {
 		return '';
 	}
@@ -56,7 +57,7 @@ function jetpack_eventbrite_block_load_assets( $attr ) {
 		);
 
 		return <<<EOT
-<div id="eventbrite-widget-container-${event_id}"></div>
+${content}
 <noscript>
 	<a href="https://www.eventbrite.com/e/${event_id}" rel="noopener noreferrer" target="_blank">Buy Tickets on Eventbrite</a>
 </noscript>
@@ -76,7 +77,7 @@ EOT;
 
 	return <<<EOT
 	<noscript><a href="https://www.eventbrite.com.au/e/${event_id}" rel="noopener noreferrer" target="_blank"></noscript>
-	<button id="eventbrite-widget-modal-trigger-${event_id}" type="button">Buy Tickets</button>
-	<noscript></a>Buy Tickets on Eventbrite</noscript>
+	${content}
+	<noscript>Buy Tickets on Eventbrite</a></noscript>
 EOT;
 }

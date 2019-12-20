@@ -20,8 +20,9 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import { fallback } from './utils';
+import { fallback, eventIdFromUrl } from './utils';
 import { icon, URL_REGEX } from '.';
+import ModalButtonPreview from './modal-button-preview';
 
 // Custom eventbrite urls use a subdomain of eventbrite.com.
 const EVENTBRITE_CUSTOM_URL_REGEX = /.*(?:eventbrite\.[a-z.]+)\/?\s*$/i;
@@ -133,9 +134,10 @@ class EventbriteEdit extends Component {
 		);
 	}
 
-	renderControls() {
+	renderInspectorControls() {
 		const { setAttributes } = this.props;
 		const { useModal } = this.props.attributes;
+
 		return (
 			<InspectorControls>
 				<PanelBody>
@@ -154,6 +156,21 @@ class EventbriteEdit extends Component {
 					/>
 				</PanelBody>
 			</InspectorControls>
+		);
+	}
+
+	renderBlockControls() {
+		return (
+			<BlockControls>
+				<Toolbar>
+					<IconButton
+						className="components-toolbar__control"
+						label={ __( 'Edit URL', 'jetpack' ) }
+						icon="edit"
+						onClick={ () => this.setState( { editingUrl: true } ) }
+					/>
+				</Toolbar>
+			</BlockControls>
 		);
 	}
 
@@ -193,18 +210,18 @@ class EventbriteEdit extends Component {
 		);
 	}
 
-	renderPreview() {
+	renderInlinePreview() {
 		const { className } = this.props;
-		const { url, useModal } = this.props.attributes;
+		const { url } = this.props.attributes;
 
-		const eventId = url ? url.substring( url.search( /\d+$/g ) ) : null;
+		const eventId = url ? eventIdFromUrl( url ) : null;
 
 		if ( ! eventId ) {
 			return;
 		}
 
-		let widgetId;
-		let html = `
+		const widgetId = `eventbrite-widget-container-${ eventId }`;
+		const html = `
 			<script src="https://www.eventbrite.com/static/widgets/eb_widgets.js"></script>
 			<style>
 				/* Eventbrite embeds have a CSS height transition on loading, which causes <Sandbox>
@@ -213,49 +230,19 @@ class EventbriteEdit extends Component {
 					transition: none !important;
 				}
 			</style>
+			<script>
+				window.EBWidgets.createWidget({
+					widgetType: 'checkout',
+					eventId: ${ eventId },
+					iframeContainerId: '${ widgetId }',
+				});
+			</script>
+			<div id="${ widgetId }"></div>
 		`;
-
-		if ( useModal ) {
-			widgetId = `eventbrite-widget-modal-trigger-${ eventId }`;
-			html += `
-				<script>
-					window.EBWidgets.createWidget({
-						widgetType: 'checkout',
-						eventId: ${ eventId },
-						modal: true,
-						modalTriggerElementId: '${ widgetId }',
-					});
-				</script>
-				<button id="${ widgetId }" type="button">Buy Tickets</button>
-			`;
-		} else {
-			widgetId = `eventbrite-widget-container-${ eventId }`;
-			html += `
-				<script>
-					window.EBWidgets.createWidget({
-						widgetType: 'checkout',
-						eventId: ${ eventId },
-						iframeContainerId: '${ widgetId }',
-					});
-				</script>
-				<div id="${ widgetId }"></div>
-			`;
-		}
 
 		return (
 			<div className={ className }>
-				<BlockControls>
-					<Toolbar>
-						<IconButton
-							className="components-toolbar__control"
-							label={ __( 'Edit URL', 'jetpack' ) }
-							icon="edit"
-							onClick={ () => this.setState( { editingUrl: true } ) }
-						/>
-					</Toolbar>
-				</BlockControls>
-
-				<SandBox html={ html } key={ widgetId } />
+				<SandBox html={ html } />
 				{ /* Use an overlay to prevent interactivity with the preview, since the modal does not resize correctly. */ }
 				<div className="block-library-embed__interactive-overlay" />
 			</div>
@@ -269,7 +256,7 @@ class EventbriteEdit extends Component {
 	 */
 	render() {
 		const { attributes } = this.props;
-		const { url } = attributes;
+		const { url, useModal } = attributes;
 		const { editingUrl, resolvingUrl } = this.state;
 
 		let component;
@@ -279,12 +266,17 @@ class EventbriteEdit extends Component {
 		} else if ( editingUrl || ! url || this.cannotEmbed() ) {
 			component = this.renderEditEmbed();
 		} else {
-			component = this.renderPreview();
+			component = (
+				<>
+					{ this.renderBlockControls() }
+					{ useModal ? <ModalButtonPreview { ...this.props } /> : this.renderInlinePreview() }
+				</>
+			);
 		}
 
 		return (
 			<>
-				{ this.renderControls() }
+				{ this.renderInspectorControls() }
 				{ component }
 			</>
 		);
