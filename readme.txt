@@ -132,6 +132,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Star Rating Block: translate block title.
 * Widget Visibility: ensure that the visibility options always appear on old Widgets Options screen.
 * WordAds: ensure that the ads.txt file created by the feature returns a correct HTTP response code.
+* WordPress.com Block Editor: exclude WordPress.com features from Jetpack sites.
 
 --------
 
