@@ -118,6 +118,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Improved compatibility**
 
+* General: improvements to Coding Standards for plugin compatibility files.
 * PHP 7.4: fix PHP warnings that may appear on sites running PHP 7.4.
 * Sharing: avoid errors when using the Thrive Architect plugin.
 * Tiled Galleries: fix layout when using a gallery inside a Classic block with the Twenty Twenty theme.
