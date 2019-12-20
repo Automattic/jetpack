@@ -923,7 +923,7 @@ class Jetpack_Search {
 					$date_start = $query->get( 'year' ) . '-' . $date_monthnum . '-' . $date_day . ' 00:00:00';
 					$date_end   = $query->get( 'year' ) . '-' . $date_monthnum . '-' . $date_day . ' 23:59:59';
 				} else {
-					$days_in_month = date( 't', mktime( 0, 0, 0, $query->get( 'monthnum' ), 14, $query->get( 'year' ) ) ); // 14 = middle of the month so no chance of DST issues
+					$days_in_month = gmdate( 't', mktime( 0, 0, 0, $query->get( 'monthnum' ), 14, $query->get( 'year' ) ) ); // 14 = middle of the month so no chance of DST issues
 
 					$date_start = $query->get( 'year' ) . '-' . $date_monthnum . '-01 00:00:00';
 					$date_end   = $query->get( 'year' ) . '-' . $date_monthnum . '-' . $days_in_month . ' 23:59:59';
@@ -1135,7 +1135,7 @@ class Jetpack_Search {
 		$decay_params = apply_filters(
 			'jetpack_search_recency_score_decay',
 			array(
-				'origin' => date( 'Y-m-d' ),
+				'origin' => gmdate( 'Y-m-d' ),
 				'scale'  => '360d',
 				'decay'  => 0.9,
 			),
@@ -1734,7 +1734,7 @@ class Jetpack_Search {
 
 						switch ( $this->aggregations[ $label ]['interval'] ) {
 							case 'year':
-								$year = (int) date( 'Y', $timestamp );
+								$year = (int) gmdate( 'Y', $timestamp );
 
 								$query_vars = array(
 									'year'     => $year,
@@ -1754,8 +1754,8 @@ class Jetpack_Search {
 								break;
 
 							case 'month':
-								$year  = (int) date( 'Y', $timestamp );
-								$month = (int) date( 'n', $timestamp );
+								$year  = (int) gmdate( 'Y', $timestamp );
+								$month = (int) gmdate( 'n', $timestamp );
 
 								$query_vars = array(
 									'year'     => $year,
@@ -1763,7 +1763,7 @@ class Jetpack_Search {
 									'day'      => false,
 								);
 
-								$name = date( 'F Y', $timestamp );
+								$name = gmdate( 'F Y', $timestamp );
 
 								// Is this month currently selected?
 								if ( ! empty( $current_year ) && (int) $current_year === $year &&
@@ -1776,9 +1776,9 @@ class Jetpack_Search {
 								break;
 
 							case 'day':
-								$year  = (int) date( 'Y', $timestamp );
-								$month = (int) date( 'n', $timestamp );
-								$day   = (int) date( 'j', $timestamp );
+								$year  = (int) gmdate( 'Y', $timestamp );
+								$month = (int) gmdate( 'n', $timestamp );
+								$day   = (int) gmdate( 'j', $timestamp );
 
 								$query_vars = array(
 									'year'     => $year,
@@ -1786,7 +1786,7 @@ class Jetpack_Search {
 									'day'      => $day,
 								);
 
-								$name = date( 'F jS, Y', $timestamp );
+								$name = gmdate( 'F jS, Y', $timestamp );
 
 								// Is this day currently selected?
 								if ( ! empty( $current_year ) && (int) $current_year === $year &&
