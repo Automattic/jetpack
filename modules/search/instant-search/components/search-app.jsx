@@ -55,10 +55,6 @@ class SearchApp extends Component {
 		if ( this.hasActiveQuery() ) {
 			this.showResults();
 		}
-
-		if ( this.props.grabFocus ) {
-			this.input.current.focus();
-		}
 	}
 
 	componentWillUnmount() {
