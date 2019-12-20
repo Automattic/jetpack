@@ -100,11 +100,11 @@ class SearchResultMinimal extends Component {
 				<h3 className="jetpack-instant-search__search-result-title">
 					<PostTypeIcon postType={ fields.post_type } shortcodeTypes={ fields.shortcode_types } />
 					<a
-						href={ `//${ fields[ 'permalink.url.raw' ] }` }
 						className="jetpack-instant-search__search-result-minimal-title"
+						href={ `//${ fields[ 'permalink.url.raw' ] }` }
+						onClick={ this.props.onClick }
 						//eslint-disable-next-line react/no-danger
 						dangerouslySetInnerHTML={ { __html: highlight.title } }
-						onClick={ this.onClick }
 					/>
 				</h3>
 				{ noMatchingContent ? this.renderNoMatchingContent() : this.renderMatchingContent() }

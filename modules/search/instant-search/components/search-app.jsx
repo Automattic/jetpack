@@ -22,6 +22,7 @@ import {
 	getSortQuery,
 	getResultFormatQuery,
 	hasFilter,
+	setSearchQuery,
 } from '../lib/query-string';
 
 class SearchApp extends Component {
@@ -90,6 +91,8 @@ class SearchApp extends Component {
 	showResults = () => this.setState( { showResults: true } );
 	hideResults = () => this.setState( { showResults: false } );
 	toggleResults = () => this.setState( state => ( { showResults: ! state.showResults } ) );
+
+	onChangeQuery = event => setSearchQuery( event.target.value );
 
 	onChangeQueryString = () => {
 		this.getResults();

@@ -26,10 +26,11 @@ class SearchResultProduct extends Component {
 			<li className="jetpack-instant-search__search-result-product">
 				<h3>
 					<a
-						href={ `//${ fields[ 'permalink.url.raw' ] }` }
-						target="_blank"
-						rel="noopener noreferrer"
 						className="jetpack-instant-search__result-product-title"
+						href={ `//${ fields[ 'permalink.url.raw' ] }` }
+						onClick={ this.props.onClick }
+						rel="noopener noreferrer"
+						target="_blank"
 						//eslint-disable-next-line react/no-danger
 						dangerouslySetInnerHTML={ { __html: highlight.title } }
 					/>
