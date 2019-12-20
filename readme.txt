@@ -124,6 +124,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Bug fixes**
 
 * Map Block: avoid errors when adding more than 2 points on a map.
+* Star Rating Block: translate block title.
 * Widget Visibility: ensure that the visibility options always appear on old Widgets Options screen.
 * WordAds: ensure that the ads.txt file created by the feature returns a correct HTTP response code.
 
