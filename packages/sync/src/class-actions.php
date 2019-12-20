@@ -160,6 +160,10 @@ class Actions {
 			return self::sync_via_cron_allowed();
 		}
 
+		if ( isset( $_GET['jp_no_sender'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+			return false;
+		}
+
 		if ( isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' === $_SERVER['REQUEST_METHOD'] ) {
 			return true;
 		}
