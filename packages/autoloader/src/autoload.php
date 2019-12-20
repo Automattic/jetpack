@@ -83,7 +83,6 @@ if ( ! function_exists( __NAMESPACE__ . '\autoloader' ) ) {
 						'Jetpack_Signature',
 						'Jetpack_XMLRPC_Server',
 						'Automattic\Jetpack\Constants',
-						'Automattic\Jetpack\Tracking',
 					),
 					true
 				);
