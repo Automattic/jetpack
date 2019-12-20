@@ -232,7 +232,7 @@
 		"winston": "3.3.3"
 	},
 	"engines": {
-		"node": ">=10",
+		"node": "^12.13.1",
 		"yarn": "^1.3.2"
 	},
 	"resolutions": {
