@@ -1060,43 +1060,38 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	 * @return void
 	 */
 	public function test_get_hosting_provider_callable() {
+		// Get hosting provider by known constant.
+		$functions = new Functions();
 		Constants::set_constant( 'GD_SYSTEM_PLUGIN_DIR', 'set' );
-		if ( Constants::is_defined( 'GD_SYSTEM_PLUGIN_DIR' ) || class_exists( '\\WPaaS\\Plugin' ) ) {
-			$this->assertEquals( Functions::get_hosting_provider(), 'gd-managed-wp' );
-			Constants::clear_constants();
-		}
-		Constants::set_constant( 'MM_BASE_DIR', 'set' );
-		if ( Constants::is_defined( 'MM_BASE_DIR' ) ) {
-			$this->assertEquals( Functions::get_hosting_provider(), 'bh' );
-			Constants::clear_constants();
-		}
-		Constants::set_constant( 'PAGELYBIN', 'set' );
-		if ( Constants::is_defined( 'PAGELYBIN' ) ) {
-			$this->assertEquals( Functions::get_hosting_provider(), 'pagely' );
-			Constants::clear_constants();
-		}
-		Constants::set_constant( 'KINSTAMU_VERSION', 'set' );
-		if ( Constants::is_defined( 'KINSTAMU_VERSION' ) ) {
-			$this->assertEquals( Functions::get_hosting_provider(), 'kinsta' );
-			Constants::clear_constants();
-		}
-		Constants::set_constant( 'FLYWHEEL_CONFIG_DIR', 'set' );
-		if ( Constants::is_defined( 'FLYWHEEL_CONFIG_DIR' ) ) {
-			$this->assertEquals( Functions::get_hosting_provider(), 'flywheel' );
-			Constants::clear_constants();
-		}
-		Constants::set_constant( 'IS_PRESSABLE', 'set' );
-		if ( Constants::is_defined( 'IS_PRESSABLE' ) ) {
-			$this->assertEquals( Functions::get_hosting_provider(), 'pressable' );
-			Constants::clear_constants();
-		}
-		Constants::set_constant( 'VIP_GO_ENV', 'set' );
-		if ( Constants::is_defined( 'VIP_GO_ENV' ) && false !== Constants::get_constant( 'VIP_GO_ENV' ) ) {
-			$this->assertEquals( Functions::get_hosting_provider(), 'vip-go' );
-			Constants::clear_constants();
-		}
+		$this->assertEquals( $functions->get_hosting_provider_by_known_constant(), 'gd-managed-wp' );
+		Constants::clear_constants();
+
+		Constants::set_constant( 'UNKNOWN', 'set' );
+		$this->assertFalse( $functions->get_hosting_provider_by_known_constant() );
+		Constants::clear_constants();
+
+		// Get hosting provider by known class.
+		$this->assertFalse( $functions->get_hosting_provider_by_known_class() );
+
+		$class_mock = $this->getMockBuilder( '\\WPaaS\\Plugin' )
+					->getMock(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+
+		$this->assertEquals( $functions->get_hosting_provider_by_known_class(), 'gd-managed-wp' );
+
+		// Get hosting provider by known function.
+		$this->assertEquals( $functions->get_hosting_provider_by_known_function(), 'wpe' );
+
 	}
 
+}
+
+/**
+ * Used for test_get_hosting_provider_callable()
+ *
+ * @return boolean
+ */
+function is_wpe() {
+	return true;
 }
 
 function jetpack_recursive_banana() {

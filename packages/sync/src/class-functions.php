@@ -185,7 +185,7 @@ class Functions {
 	 *
 	 * @return mixed A host identifier string or false.
 	 */
-	public static function get_hosting_provider_by_known_constant() {
+	public function get_hosting_provider_by_known_constant() {
 		$hosting_provider = false;
 
 		switch ( true ) {
@@ -220,7 +220,7 @@ class Functions {
 	 *
 	 * @return mixed A host identifier string or false.
 	 */
-	public static function get_hosting_provider_by_known_class() {
+	public function get_hosting_provider_by_known_class() {
 		$hosting_provider = false;
 
 		switch ( true ) {
@@ -237,7 +237,7 @@ class Functions {
 	 *
 	 * @return mixed A host identifier string or false.
 	 */
-	public static function get_hosting_provider_by_known_function() {
+	public function get_hosting_provider_by_known_function() {
 		$hosting_provider = false;
 
 		switch ( true ) {
