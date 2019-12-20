@@ -116,10 +116,6 @@ class SearchApp extends Component {
 
 	showResults = () => {
 		this.setState( { showResults: true } );
-
-		// Not working as expected...
-		document.querySelector( '.jetpack-instant-search__overlay input' ).focus();
-		console.log( document.activeElement );
 	};
 
 	hideResults = () => this.setState( { showResults: false } );
