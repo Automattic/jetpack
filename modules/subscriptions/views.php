@@ -150,6 +150,12 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 							__( 'Manage your email preferences.', 'jetpack' )
 						); ?></p>
 					<?php break;
+				case 'many_pending_subs' : ?>
+					<p class="error"><?php printf( __( 'You have a few pending subscriptions. <br /> You can manage your preferences at <a href="%1$s" title="%2$s" target="_blank">subscribe.wordpress.com</a> before continuing.', 'jetpack' ),
+							'https://subscribe.wordpress.com/',
+							__( 'Manage your email preferences.', 'jetpack' )
+						); ?></p>
+					<?php break;
 				case 'success' : ?>
                     <div class="success"><?php echo wpautop( str_replace( '[total-subscribers]', number_format_i18n( $subscribers_total['value'] ), $success_message ) ); ?></div>
 					<?php break;
