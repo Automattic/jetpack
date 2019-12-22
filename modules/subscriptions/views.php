@@ -151,7 +151,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 						); ?></p>
 					<?php break;
 				case 'many_pending_subs' : ?>
-					<p class="error"><?php printf( __( 'You have a few pending subscriptions. <br /> You can manage your preferences at <a href="%1$s" title="%2$s" target="_blank">subscribe.wordpress.com</a> before continuing.', 'jetpack' ),
+					<p class="error"><?php printf( __( 'You already have several pending email subscriptions. <br /> Approve or delete a few subscriptions at <a href="%1$s" title="%2$s" target="_blank">subscribe.wordpress.com</a> before continuing.', 'jetpack' ),
 							'https://subscribe.wordpress.com/',
 							__( 'Manage your email preferences.', 'jetpack' )
 						); ?></p>
