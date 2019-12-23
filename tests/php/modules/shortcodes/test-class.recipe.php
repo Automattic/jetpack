@@ -1,5 +1,9 @@
 <?php
-
+/**
+ * Test class for Jetpack_Recipes
+ *
+ * @covers Jetpack_Recipes
+ */
 class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 
 	/**
@@ -17,8 +21,6 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	/**
 	 * Verify that the shortcodes exist.
 	 *
-	 * @covers ::recipe_shortcode
-	 *
 	 * @since 8.0.0
 	 */
 	public function test_shortcodes_recipe_exists() {
@@ -33,8 +35,6 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	/**
 	 * Verify that the recipe shortcode outputs prep time in HTML.
 	 *
-	 * @covers ::recipe_shortcode
-	 *
 	 * @since 8.0.0
 	 */
 	public function test_shortcodes_recipe_preptime() {
@@ -46,8 +46,6 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 
 	/**
 	 * Verify that the recipe shortcode outputs cook time in HTML.
-	 *
-	 * @covers ::recipe_shortcode
 	 *
 	 * @since 8.0.0
 	 */
@@ -61,8 +59,6 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	/**
 	 * Verify that the recipe shortcode outputs rating in HTML.
 	 *
-	 * @covers ::recipe_shortcode
-	 *
 	 * @since 8.0.0
 	 */
 	public function test_shortcodes_recipe_rating() {
@@ -74,8 +70,6 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 
 	/**
 	 * Verify that the recipe shortcode does not output an image with an empty source.
-	 *
-	 * @covers ::recipe_shortcode
 	 *
 	 * @since 8.0.0
 	 */
@@ -89,8 +83,6 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	/**
 	 * Verify that the recipe shortcode does not output an image with an invalid source string.
 	 *
-	 * @covers ::recipe_shortcode
-	 *
 	 * @since 8.0.0
 	 */
 	public function test_shortcodes_recipe_image_invalid_src() {
@@ -103,8 +95,6 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	/**
 	 * Verify that the recipe shortcode does not output an image with an invalid attachment ID.
 	 *
-	 * @covers ::recipe_shortcode
-	 *
 	 * @since 8.0.0
 	 */
 	public function test_shortcodes_recipe_image_invalid_attachment() {
@@ -116,8 +106,6 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 
 	/**
 	 * Verify that the recipe shortcode outputs an image with a valid attachment ID.
-	 *
-	 * @covers ::recipe_shortcode
 	 *
 	 * @since 8.0.0
 	 */
@@ -142,8 +130,6 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	/**
 	 * Verify that the recipe shortcode outputs an image with a src string.
 	 *
-	 * @covers ::recipe_shortcode
-	 *
 	 * @since 8.0.0
 	 */
 	public function test_shortcodes_recipe_image_src() {
@@ -155,8 +141,6 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 
 	/**
 	 * Verify that the recipe shortcode does not output an image if an empty recipe-image shortcode exists.
-	 *
-	 * @covers ::recipe_shortcode
 	 *
 	 * @since 8.0.0
 	 */
@@ -170,8 +154,6 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	/**
 	 * Verify that the recipe-image shortcode does not output an image with no parameters.
 	 *
-	 * @covers ::recipe_shortcode
-	 *
 	 * @since 8.0.0
 	 */
 	public function test_shortcodes_recipe_image_shortcode_empty() {
@@ -184,8 +166,6 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	/**
 	 * Verify that the recipe-image shortcode does not output an image with an empty image attribute.
 	 *
-	 * @covers ::recipe_shortcode
-	 *
 	 * @since 8.0.0
 	 */
 	public function test_shortcodes_recipe_image_shortcode_empty_attr() {
@@ -197,8 +177,6 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 
 	/**
 	 * Verify that the recipe-image shortcode outputs an image with a string parameter.
-	 *
-	 * @covers ::recipe_shortcode
 	 *
 	 * @since 8.0.0
 	 */
@@ -213,8 +191,6 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	/**
 	 * Verify that the recipe-image shortcode outputs an image with a string parameter.
 	 *
-	 * @covers ::recipe_shortcode
-	 *
 	 * @since 8.0.0
 	 */
 	public function test_shortcodes_recipe_image_shortcode_src_attr() {
@@ -228,8 +204,6 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	/**
 	 * Verify that the recipe-image shortcode does not output an image with an invalid attachment.
 	 *
-	 * @covers ::recipe_shortcode
-	 *
 	 * @since 8.0.0
 	 */
 	public function test_shortcodes_recipe_image_shortcode_invalid_attachment() {
@@ -242,8 +216,6 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	/**
 	 * Verify that the recipe-image shortcode does not output an image with an invalid attachment attribute.
 	 *
-	 * @covers ::recipe_shortcode
-	 *
 	 * @since 8.0.0
 	 */
 	public function test_shortcodes_recipe_image_shortcode_invalid_attachment_attr() {
@@ -255,8 +227,6 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 
 	/**
 	 * Verify that the recipe-image shortcode outputs an image with a valid attachment ID.
-	 *
-	 * @covers ::recipe_shortcode
 	 *
 	 * @since 8.0.0
 	 */
@@ -281,8 +251,6 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	/**
 	 * Verify that the recipe-image shortcode outputs an image with a valid attachment ID attribute.
 	 *
-	 * @covers ::recipe_shortcode
-	 *
 	 * @since 8.0.0
 	 */
 	public function test_shortcodes_recipe_image_shortcode_attachment_attr() {
@@ -306,8 +274,6 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	/**
 	 * Verify that the recipe-nutrition shortcode formats a list of nutrition info.
 	 *
-	 * @covers ::recipe_shortcode
-	 *
 	 * @since 8.0.0
 	 */
 	public function test_shortcodes_recipe_nutrition() {
@@ -326,8 +292,6 @@ EOT;
 
 	/**
 	 * Verify that the recipe shortcode allows needed content via KSES.
-	 *
-	 * @covers ::recipe_shortcode
 	 *
 	 * @since 8.0.0
 	 */

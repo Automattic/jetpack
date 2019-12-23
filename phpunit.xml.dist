@@ -110,6 +110,8 @@
 			<directory suffix=".php">.</directory>
 			<exclude>
 				<directory suffix=".php">tests</directory>
+				<directory suffix=".php">vendor</directory>
+				<directory suffix=".php">views</directory>
 			</exclude>
 		</whitelist>
 	</filter>
