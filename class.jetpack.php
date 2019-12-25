@@ -5614,7 +5614,9 @@ endif;
 				$value = $value[0];
 			}
 			$state[ $key ] = $value;
-			setcookie( "jetpackState[$key]", $value, 0, $path, $domain );
+			if ( ! headers_sent() ) {
+				setcookie( "jetpackState[$key]", $value, 0, $path, $domain );
+			}
 		}
 	}
 
