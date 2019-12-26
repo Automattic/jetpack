@@ -413,7 +413,7 @@ class Jetpack_Subscriptions {
 					header = table.prevAll( 'h2:first' ),
 					newParent = $( '#moderation_notify' ).parent( 'label' ).parent();
 
-				if ( !table.length || !header.length || !newParent.length ) {
+				if ( ! table.length || ! header.length || ! newParent.length ) {
 					return;
 				}
 
@@ -431,11 +431,12 @@ class Jetpack_Subscriptions {
 	 * @since 8.1
 	 */
 	function social_notifications_subscribe_field() {
-		$checked = intval ('on' == get_option( 'social_notifications_subscribe', 'on' ) ); ?>
+		$checked = intval( 'on' == get_option( 'social_notifications_subscribe', 'on' ) ); ?>
 
 		<label>
 			<input type="checkbox" name="social_notifications_subscribe" id="social_notifications_subscribe" value="1" <?php checked( $checked ); ?> />
-			<?php _e( 'Someone follows my blog	', 'jetpack' ); ?>
+			/* translators: this is a label for a setting that starts with "Email me whenever" */
+			<?php _e( 'Someone follows my blog', 'jetpack' ); ?>
 		</label>
 		<?php
 	}
@@ -449,7 +450,7 @@ class Jetpack_Subscriptions {
 	 */
 	public function social_notifications_subscribe_validate( $input ) {
 		// If it's not set (was unchecked during form submission) or was set to off (during option update), return 'off'.
-		if ( !$input || 'off' == $input )
+		if ( ! $input || 'off' == $input )
 			return 'off';
 
 		// Otherwise, return 'on'.
