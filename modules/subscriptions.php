@@ -430,13 +430,14 @@ class Jetpack_Subscriptions {
 	 *
 	 * @since 8.1
 	 */
-	function social_notifications_subscribe_field() {
-		$checked = intval( 'on' == get_option( 'social_notifications_subscribe', 'on' ) ); ?>
+	public function social_notifications_subscribe_field() {
+		$checked = intval( 'on' === get_option( 'social_notifications_subscribe', 'on' ) );
+		?>
 
 		<label>
 			<input type="checkbox" name="social_notifications_subscribe" id="social_notifications_subscribe" value="1" <?php checked( $checked ); ?> />
 			/* translators: this is a label for a setting that starts with "Email me whenever" */
-			<?php _e( 'Someone follows my blog', 'jetpack' ); ?>
+			<?php esc_html_e( 'Someone follows my blog', 'jetpack' ); ?>
 		</label>
 		<?php
 	}
@@ -446,14 +447,16 @@ class Jetpack_Subscriptions {
 	 *
 	 * @since 8.1
 	 *
+	 * @param String $input the input string to be validated.
 	 * @return string on|off
 	 */
 	public function social_notifications_subscribe_validate( $input ) {
 		// If it's not set (was unchecked during form submission) or was set to off (during option update), return 'off'.
-		if ( ! $input || 'off' == $input )
+		if ( ! $input || 'off' === $input ) {
 			return 'off';
+		}
 
-		// Otherwise, return 'on'.
+		// Otherwise we return 'on'.
 		return 'on';
 	}
 
