@@ -525,6 +525,7 @@ class Jetpack_Subscriptions {
 	 *	not_subscribed  : strange error.  Jetpack servers at WordPress.com could subscribe the email.
 	 *	disabled        : Site owner has disabled subscriptions.
 	 *	active          : Already subscribed.
+	 *  pending_no_email: Email already subscribed this site but its confirmation link is never clicked. Do not send any confirmation email anymore.
 	 *	unknown         : strange error.  Jetpack servers at WordPress.com returned something malformed.
 	 *	unknown_status  : strange error.  Jetpack servers at WordPress.com returned something I didn't understand.
 	 */
@@ -589,6 +590,9 @@ class Jetpack_Subscriptions {
 				continue 2;
 			case 'pending' :
 				$r[] = true;
+				continue 2;
+			case 'pending_no_email' :
+				$r[] = new Jetpack_Error( 'pending_no_email' );
 				continue 2;
 			default :
 				$r[] = new Jetpack_Error( 'unknown_status', (string) $response[0]['status'] );
@@ -656,8 +660,10 @@ class Jetpack_Subscriptions {
 				$result = 'opted_out';
 				break;
 			case 'active':
-			case 'pending':
 				$result = 'already';
+				break;
+			case 'pending_no_email':
+				$result = 'pending_no_email';
 				break;
 			default:
 				$result = 'error';

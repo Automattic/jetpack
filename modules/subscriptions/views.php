@@ -150,6 +150,12 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 							__( 'Manage your email preferences.', 'jetpack' )
 						); ?></p>
 					<?php break;
+				case 'pending_no_email' : ?>
+					<p class="error"><?php printf( __( 'You subscribed this site before but you have not clicked the confirmation link yet. Please check your mailbox. <br /> Otherwise, you can manage your preferences at <a href="%1$s" title="%2$s" target="_blank">subscribe.wordpress.com</a>.', 'jetpack' ),
+							'https://subscribe.wordpress.com/',
+							__( 'Manage your email preferences.', 'jetpack' )
+						); ?></p>
+					<?php break;
 				case 'success' : ?>
                     <div class="success"><?php echo wpautop( str_replace( '[total-subscribers]', number_format_i18n( $subscribers_total['value'] ), $success_message ) ); ?></div>
 					<?php break;
