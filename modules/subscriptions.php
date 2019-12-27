@@ -436,8 +436,10 @@ class Jetpack_Subscriptions {
 
 		<label>
 			<input type="checkbox" name="social_notifications_subscribe" id="social_notifications_subscribe" value="1" <?php checked( $checked ); ?> />
-			/* translators: this is a label for a setting that starts with "Email me whenever" */
-			<?php esc_html_e( 'Someone follows my blog', 'jetpack' ); ?>
+			<?php
+				/* translators: this is a label for a setting that starts with "Email me whenever" */
+				esc_html_e( 'Someone follows my blog', 'jetpack' );
+			?>
 		</label>
 		<?php
 	}
