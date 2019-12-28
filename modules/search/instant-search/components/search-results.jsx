@@ -13,6 +13,7 @@ import SearchResult from './search-result';
 import { hasFilter } from '../lib/query-string';
 import ScrollButton from './scroll-button';
 import SearchForm from './search-form';
+import SearchSidebar from './search-sidebar';
 import Notice from './notice';
 
 class SearchResults extends Component {
@@ -60,62 +61,67 @@ class SearchResults extends Component {
 					this.props.isLoading === true ? ' jetpack-instant-search__is-loading' : ''
 				}` }
 			>
-				<SearchForm className="jetpack-instant-search__search-results-search-form" />
+				<div className="jetpack-instant-search__search-results-primary">
+					<SearchForm className="jetpack-instant-search__search-results-search-form" />
 
-				<div
-					className={
-						hasResults
-							? 'jetpack-instant-search__search-results-real-query'
-							: 'jetpack-instant-search__search-results-empty'
-					}
-				>
-					{ this.getSearchTitle() }
-				</div>
-
-				{ hasResults && hasCorrectedQuery && (
-					<p className="jetpack-instant-search__search-results-unused-query">
-						{ sprintf( __( 'No results for "%s"', 'jetpack' ), query ) }
-					</p>
-				) }
-				{ this.props.hasError && (
-					<Notice type="warning">
-						{ __( "It looks like you're offline. Please reconnect for results.", 'jetpack' ) }
-					</Notice>
-				) }
-				{ hasResults && ! this.props.hasError && this.props.response._isOffline && (
-					<Notice type="warning">
-						{ __(
-							"It looks like you're offline. Please reconnect to load the latest results.",
-							'jetpack'
-						) }
-					</Notice>
-				) }
-				{ hasResults && ! this.props.hasError && (
-					<ol
-						className={ `jetpack-instant-search__search-results-list is-format-${
-							this.props.resultFormat
-						}${ this.props.isLoading === true ? ' jetpack-instant-search__is-loading' : '' }` }
+					<div
+						className={
+							hasResults
+								? 'jetpack-instant-search__search-results-real-query'
+								: 'jetpack-instant-search__search-results-empty'
+						}
 					>
-						{ results.map( ( result, index ) => (
-							<SearchResult
-								index={ index }
-								locale={ this.props.locale }
-								query={ this.props.query }
-								result={ result }
-								resultFormat={ this.props.resultFormat }
-							/>
-						) ) }
-					</ol>
-				) }
-				{ hasResults && this.props.hasNextPage && (
-					<div className="jetpack-instant-search__search-pagination">
-						<ScrollButton
-							enableLoadOnScroll={ this.props.enableLoadOnScroll }
-							isLoading={ this.props.isLoading }
-							onLoadNextPage={ this.props.onLoadNextPage }
-						/>
+						{ this.getSearchTitle() }
 					</div>
-				) }
+
+					{ hasResults && hasCorrectedQuery && (
+						<p className="jetpack-instant-search__search-results-unused-query">
+							{ sprintf( __( 'No results for "%s"', 'jetpack' ), query ) }
+						</p>
+					) }
+					{ this.props.hasError && (
+						<Notice type="warning">
+							{ __( "It looks like you're offline. Please reconnect for results.", 'jetpack' ) }
+						</Notice>
+					) }
+					{ hasResults && ! this.props.hasError && this.props.response._isOffline && (
+						<Notice type="warning">
+							{ __(
+								"It looks like you're offline. Please reconnect to load the latest results.",
+								'jetpack'
+							) }
+						</Notice>
+					) }
+					{ hasResults && ! this.props.hasError && (
+						<ol
+							className={ `jetpack-instant-search__search-results-list is-format-${
+								this.props.resultFormat
+							}${ this.props.isLoading === true ? ' jetpack-instant-search__is-loading' : '' }` }
+						>
+							{ results.map( ( result, index ) => (
+								<SearchResult
+									index={ index }
+									locale={ this.props.locale }
+									query={ this.props.query }
+									result={ result }
+									resultFormat={ this.props.resultFormat }
+								/>
+							) ) }
+						</ol>
+					) }
+					{ hasResults && this.props.hasNextPage && (
+						<div className="jetpack-instant-search__search-pagination">
+							<ScrollButton
+								enableLoadOnScroll={ this.props.enableLoadOnScroll }
+								isLoading={ this.props.isLoading }
+								onLoadNextPage={ this.props.onLoadNextPage }
+							/>
+						</div>
+					) }
+				</div>
+				<div className="jetpack-instant-search__search-results-secondary">
+					<SearchSidebar />
+				</div>
 			</main>
 		);
 	}
