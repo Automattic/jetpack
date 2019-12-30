@@ -51,7 +51,7 @@ class Config {
 	}
 
 	/**
-	 * Runs on default plugins_loaded hook priority.
+	 * Runs on plugins_loaded hook priority with priority 2.
 	 *
 	 * @action plugins_loaded
 	 */
