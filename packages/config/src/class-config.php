@@ -16,6 +16,10 @@ use Automattic\Jetpack\Terms_Of_Service;
  */
 class Config {
 
+	const FEATURE_ENSURED         = 1;
+	const FEATURE_NOT_AVAILABLE   = 0;
+	const FEATURE_ALREADY_ENSURED = -1;
+
 	/**
 	 * The initial setting values.
 	 *
@@ -100,16 +104,16 @@ class Config {
 	 * Ensures a feature is enabled, sets it up if it hasn't already been set up.
 	 *
 	 * @param String $feature slug of the feature.
-	 * @return Boolean whether the feature was enabled. If it was already enabled, returns false.
+	 * @return Integer either FEATURE_ENSURED, FEATURE_ALREADY_ENSURED or FEATURE_NOT_AVAILABLE constants.
 	 */
 	protected function ensure_feature( $feature ) {
-		if ( did_action( 'jetpack_feature_' . $feature . '_enabled' ) ) {
-			return false;
-		}
-
 		$method = 'enable_' . $feature;
 		if ( ! method_exists( $this, $method ) ) {
-			return false;
+			return self::FEATURE_NOT_AVAILABLE;
+		}
+
+		if ( did_action( 'jetpack_feature_' . $feature . '_enabled' ) ) {
+			return self::FEATURE_ALREADY_ENSURED;
 		}
 
 		$this->{ $method }();
@@ -120,6 +124,8 @@ class Config {
 		 * @since 8.1.0
 		 */
 		do_action( 'jetpack_feature_' . $feature . '_enabled' );
+
+		return self::FEATURE_ENSURED;
 	}
 
 	/**
