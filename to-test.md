@@ -1,38 +1,35 @@
-## 8.0
+## 8.1
 
-### Blocks
+### Sync
 
-#### Mailchimp
+This release brings in significant changes to "Sync", the synchronization process that keeps your site's data up to date with WordPress.com. You'll consequently want to check that on newly connected sites as well as existing sites, data gets properly synchronized with WordPress.com. That means that features like Notifications, Publicize, Related Posts should keep working properly on your site.
 
-We've added 2 new options to the existing Mailchimp block. You'll locate them in the block sidebar when adding a block to a post or page.
+### Site Accelerator
 
-- If you've defined groups in your [Maichimp Audience settings](https://mailchimp.com/help/create-new-audience-group/), you'll see that option in the block sidebar.
-- In your Audience Settings, you can also define custom Audience fields and MERGE tags. You can use those to create a new field for your forms, and you can add info about that field to your block settings in the block editor. This will allow you to track where subscriptions are coming from.
+The devicepx library has been disabled by default, unless explicitly enabled via theme support. This library was previously used to compensate for lack of browser support. To quote Joseph Scott:
 
-Give that a try, try using the forms you create, and see if the fields are updated accordingly when looking at your subscriber list on Maichimp.com. Bonus points if you also try to sign up when using the AMP plugin on the site!
+```
+As a general item, I'd be happy to see devicepx go away entirely. My only concern is for places that assume it will be around and could potentially end up with unexpected results.
 
-#### Pinterest
+Devicepx came about because there were not great ways for managing alternate image needs, like DPI ( retina ). Now, we have much better options that don't require JavaScript to be checking things all the time. We certainly have the browser feature support that makes it possible for devicepx to go away.
+```
 
-This release introduces **a new Pinterest block**. This block allows you to insert various Pinterest links (pins, boards, profiles) that will be automatically converted into a Pinterest embed in your posts.
+To test enable the Jetpack plugin. Make sure it no longer enqueues the `https://s0.wp.com/wp-content/js/devicepx-jetpack.js` script on all pages automatically. Please make sure images of various sizes (galleries, featured images, icons, etc.) look fine on different screens.
 
-To test this, try adding various Pinterest URLs (short and long), and see that they are displayed properly in the editor and on the front-end of your site.
+Add `add_theme_support( 'jetpack-devicepx' );` to theme's functions.php and notice that now all front-end page loads include the https://s0.wp.com/wp-content/js/devicepx-jetpack.js script. You can use the following snippet:
 
-#### Ratings
+```
+add_action( 'init', 'jetpack_declare_theme_support' );
+function jetpack_declare_theme_support() {
+	add_theme_support( 'jetpack-devicepx' );
+}
+```
 
-This release also brings **a new Ratings block** to your site. Rate movies, books, songs, recipes — anything you can put a number on. To get started, go to the block editor and search for "Star" or "Rating".
+Load an AMP page and notice that the devicepx library is not loaded as expected.
 
-Play with the different block settings and let us know how it goes.
+### Subscriptions
 
-### Shortcodes
-
-Jetpack includes a Recipe shortcode that allows you to display recipes in your blog posts, with a nice layout and a markup optimized for search engines. In this release, we're introducing 3 new elements to the recipe display:
-- A new `cooktime` attribute.
-- A new `preptime` attribute.
-- A new `rating` attribute.
-- A `recipe-nutrition` shortcode to display nutrition information about your recipe.
-- A `recipe-image` shortcode that can be used to display a single image anywhere within your recipe.
-
-You can try to use all that data by adding your own recipe to a new blog post. [Here is an example of recipe markup you can paste in the code view, inside a classic block](https://gist.github.com/jeherve/dd9d8e9503d08a69f81e56d2bee516dd).
+The option to send emails on new subscribers has been added to wp-admin. Previously the option could only be set using Calypso. To test you can go to the wp-admin settings and open the Discussion tab. The new checkbox will be in the "Email me whenever" section. Make sure you can save both the on and off value, and change it using Calypso.
 
 ### Others
 

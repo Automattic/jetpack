@@ -2,6 +2,45 @@
 
 **This is a list detailing changes for all the past Jetpack releases. For more information about the current release, see [the readme](https://github.com/Automattic/jetpack/blob/master/readme.txt).**
 
+= 8.0 =
+
+* Release date: December 3, 2019
+* Release post: https://wp.me/p1moTy-lGH
+
+**Major enhancements**
+
+* Block Editor: new Pinterest block allowing you to easily embed boards, profiles, and pins.
+* Block Editor: new Ratings block allowing you to add star ratings any post or page.
+* Mailchimp block: you can now create forms for a subset (group) of your Mailchimp list, and add a field to track which form the signups are coming from.
+
+**Enhancements**
+
+* Blocks: start using the @wordpress/block-editor package introduced in WordPress 5.2.
+* Contact Form: make the Form block reusable on a single post / page.
+* Dashboard: add support for Jetpack Backup display.
+* Image CDN: expand number of images using the new subdomain determination function.
+* Recurring Payments block: improve display of buttons inside the block in the editor.
+* Shortcodes: add new customization options and improve Schema.org markup of the Recipe shortcode.
+* Shortcodes: add AMP views for 5 shortcodes: `vimeo`, `instagram`, `dailymotion`, `tweet`, and `soundcloud`.
+* Support Tools: improve the reliability of the tools on slower sites.
+
+**Improved compatibility**
+
+* AMP: improve display of the Map block on AMP views.
+* General: As WordPress 5.3 is now available, Jetpack now requires WordPress 5.2.
+* Shortcodes: ensure Vimeo videos can be displayed properly when using the AMP plugin.
+
+**Bug fixes**
+
+* Connection: fix communication between Jetpack sites and WordPress.com for some sites hosted on non-standard ports.
+* Connection management: fix issue that prevented the Connection transfer banner from appearing in some situations.
+* Feature Hints: disable when plugins cannot be installed on site.
+* Image CDN: avoid blurry images when using Jetpack's Image CDN alongside other image-focussed blocks.
+* SEO Tools: do not display any HTML tags in title meta tags.
+* Sharing: improve accessibility of the sharing buttons by updating the buttons' color.
+* Sync: avoid conflicts when two processes are synchronized to WordPress.com at the same time.
+* WordPress.com Block Editor: ensure that the Justify button works well on any paragraph using that button.
+
 = 7.9.1 =
 
 * Release date: November 19, 2019
