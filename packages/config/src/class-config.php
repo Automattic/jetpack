@@ -82,9 +82,9 @@ class Config {
 		if ( ! $available && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			trigger_error( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
 				sprintf(
-					/* translators: %1$s is a PHP class name, %2$s is a Jetpack feature code, like 'sync'. */
+					/* translators: %1$s is a PHP class name. */
 					esc_html__(
-						'Unable to load class %1$s, not enabling %2$s feature. Please add the package that contains it using composer and make sure you are requiring the Jetpack autoloader',
+						'Unable to load class %1$s. Please add the package that contains it using composer and make sure you are requiring the Jetpack autoloader',
 						'jetpack'
 					),
 					esc_html( $classname )
