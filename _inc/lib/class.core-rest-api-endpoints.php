@@ -2907,9 +2907,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 		if ( isset( $definition['type'] ) ) {
 			switch ( $definition['type'] ) {
 				case 'boolean':
-					if ( 'true' === $value ) {
+					if ( 'true' === $value || 'on' === $value ) {
 						return true;
-					} elseif ( 'false' === $value ) {
+					} elseif ( 'false' === $value || 'off' === $value ) {
 						return false;
 					}
 					return (bool) $value;
