@@ -193,6 +193,10 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	 * @param WP_Query $query The WP_Query being filtered.
 	 */
 	public function action__parse_query( $query ) {
+		if ( ! empty( $this->search_result ) ) {
+			return;
+		}
+
 		if ( is_admin() ) {
 			return;
 		}
@@ -205,11 +209,13 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 
 		$builder = new Jetpack_WPES_Query_Builder();
 		$this->add_aggregations_to_es_query_builder( $this->aggregations, $builder );
-		$es_args = array(
-			'aggregations' => $builder->build_aggregation(),
-			'size'         => 0,
+		$this->search_result = $this->instant_api(
+			array(
+				'aggregations' => $builder->build_aggregation(),
+				'size'         => 0,
+				'from'         => 0,
+			)
 		);
-
 	}
 
 	/**
@@ -217,50 +223,31 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	 *
 	 * @since 8.3.0
 	 *
-	 * @param array $args Args conforming to the WP.com /sites/<blog_id>/search endpoint.
+	 * @param array $args Args conforming to the WP.com v1.3/sites/<blog_id>/search endpoint.
 	 *
 	 * @return object|WP_Error The response from the public API, or a WP_Error.
 	 */
 	public function instant_api( array $args ) {
-		$endpoint    = sprintf( '/sites/%s/search', $this->jetpack_blog_id );
-		$service_url = 'https://public-api.wordpress.com/rest/v1.3' . $endpoint;
+		$start_time = microtime( true );
 
-		$do_authenticated_request = false;
-		if ( class_exists( 'Automattic\\Jetpack\\Connection\\Client' ) &&
-			isset( $args['authenticated_request'] ) &&
-			true === $args['authenticated_request'] ) {
-			$do_authenticated_request = true;
+		// Cache locally to avoid remote request slowing the page.
+		$transient_name = '_jetpack_instant_search_cache_' . md5( wp_json_encode( $args ) );
+		$cache          = get_transient( $transient_name );
+		if ( false !== $cache ) {
+			$end_time = microtime( true );
+			return $cache;
 		}
 
-		unset( $args['authenticated_request'] );
+		$endpoint     = sprintf( '/sites/%s/search', $this->jetpack_blog_id );
+		$query_params = urldecode( http_build_query( $args ) );
+		$service_url  = 'https://public-api.wordpress.com/rest/v1.3' . $endpoint . '?' . $query_params;
 
 		$request_args = array(
-			'headers'    => array(
-				'Content-Type' => 'application/json',
-			),
 			'timeout'    => 10,
 			'user-agent' => 'jetpack_search',
 		);
 
-		$request_body = wp_json_encode( $args );
-
-		$start_time = microtime( true );
-
-		if ( $do_authenticated_request ) {
-			$request_args['method'] = 'POST';
-
-			$request = Client::wpcom_json_api_request_as_blog( $endpoint, Client::WPCOM_JSON_API_VERSION, $request_args, $request_body );
-		} else {
-			$request_args = array_merge(
-				$request_args,
-				array(
-					'body' => $request_body,
-				)
-			);
-
-			$request = wp_remote_post( $service_url, $request_args );
-		}
-
+		$request  = wp_remote_get( $service_url, $request_args );
 		$end_time = microtime( true );
 
 		if ( is_wp_error( $request ) ) {
@@ -268,8 +255,28 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		}
 
 		$response_code = wp_remote_retrieve_response_code( $request );
+		$response      = json_decode( wp_remote_retrieve_body( $request ), true );
 
-		$response = json_decode( wp_remote_retrieve_body( $request ), true );
+		if ( ! $response_code || $response_code < 200 || $response_code >= 300 ) {
+			/**
+			 * Fires after a search query request has failed
+			 *
+			 * @module search
+			 *
+			 * @since  5.6.0
+			 *
+			 * @param array Array containing the response code and response from the failed search query
+			 */
+			do_action(
+				'failed_jetpack_search_query',
+				array(
+					'response_code' => $response_code,
+					'json'          => $response,
+				)
+			);
+
+			return new WP_Error( 'invalid_search_api_response', 'Invalid response from API - ' . $response_code );
+		}
 
 		$took = is_array( $response ) && ! empty( $response['took'] )
 			? $response['took']
@@ -305,30 +312,26 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		 */
 		do_action( 'did_jetpack_search_query', $query );
 
-		if ( ! $response_code || $response_code < 200 || $response_code >= 300 ) {
-			/**
-			 * Fires after a search query request has failed
-			 *
-			 * @module search
-			 *
-			 * @since  5.6.0
-			 *
-			 * @param array Array containing the response code and response from the failed search query
-			 */
-			do_action(
-				'failed_jetpack_search_query',
-				array(
-					'response_code' => $response_code,
-					'json'          => $response,
-				)
-			);
-
-			return new WP_Error( 'invalid_search_api_response', 'Invalid response from API - ' . $response_code );
-		}
+		// Update local cache.
+		set_transient( $transient_name, $response, 1 * HOUR_IN_SECONDS );
 
 		return $response;
 	}
 
+	/**
+	 * Get the raw Aggregation results from the Elasticsearch response.
+	 *
+	 * @since  8.3.0
+	 *
+	 * @return array Array of Aggregations performed on the search.
+	 */
+	public function get_search_aggregations_results() {
+		if ( empty( $this->search_result ) || ! isset( $this->search_result['aggregations'] ) ) {
+			return array();
+		}
+
+		return $this->search_result['aggregations'];
+	}
 
 
 }
