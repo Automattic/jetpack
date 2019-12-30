@@ -112,6 +112,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Mobile Theme: allow one to temporary disable Jetpack's Mobile Theme for testing.
 * Mobile Theme: disable settings when feature is inactive.
 * Site Accelerator: disable a helper library by default and allow themes to enable it when required.
+* Subscriptions: add a wp-admin setting to alert the admin when someone follows the blog.
 * WordPress.com REST API: add flag to determine site eligibility for Full Site Editing.
 * WordPress.com synchronization: improve the reliability of the synchronization events triggered to keep your site up to date with WordPress.com.
 * WordPress.com Toolbar: update the link directing to the WordPress.com Reader.
