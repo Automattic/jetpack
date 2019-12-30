@@ -4,6 +4,29 @@
 
 This release brings in significant changes to "Sync", the synchronization process that keeps your site's data up to date with WordPress.com. You'll consequently want to check that on newly connected sites as well as existing sites, data gets properly synchronized with WordPress.com. That means that features like Notifications, Publicize, Related Posts should keep working properly on your site.
 
+### Site Accelerator
+
+The devicepx library has been disabled by default, unless explicitly enabled via theme support. This library was previously used to compensate for lack of browser support. To quote Joseph Scott:
+
+```
+As a general item, I'd be happy to see devicepx go away entirely. My only concern is for places that assume it will be around and could potentially end up with unexpected results.
+
+Devicepx came about because there were not great ways for managing alternate image needs, like DPI ( retina ). Now, we have much better options that don't require JavaScript to be checking things all the time. We certainly have the browser feature support that makes it possible for devicepx to go away.
+```
+
+To test enable the Jetpack plugin. It no longer enqueues the `https://s0.wp.com/wp-content/js/devicepx-jetpack.js` script on all pages automatically.
+
+Add `add_theme_support( 'jetpack-devicepx' );` to theme's functions.php and notice that now all front-end page loads include the https://s0.wp.com/wp-content/js/devicepx-jetpack.js script. You can use the following snippet:
+
+```
+add_action( 'init', 'jetpack_declare_theme_support' );
+function jetpack_declare_theme_support() {
+	add_theme_support( 'jetpack-devicepx' );
+}
+```
+
+Load an AMP page and notice that the devicepx library is not loaded as expected.
+
 ### Others
 
 - If you have the opportunity to test in an older browser like IE11, please do so. You may catch some interesting bugs!
