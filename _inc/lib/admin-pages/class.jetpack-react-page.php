@@ -226,8 +226,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 
 		$current_user_data = jetpack_current_user_data();
 
-		$status = new Status();
-
 		return array(
 			'WP_API_root'                 => esc_url_raw( rest_url() ),
 			'WP_API_nonce'                => wp_create_nonce( 'wp_rest' ),
