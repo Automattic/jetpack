@@ -67,6 +67,15 @@ $command       = sprintf(
 );
 execute( $command, 'Could not tag the new package version in the main repository.' );
 
+// Update the version numbers of each dependency of the package we are releasing.
+execute( 'bin/version-packages.sh --no-update', 'Could not update sub-package dependency versions.', true, true );
+
+// Stage the changes before committing.
+execute( 'git add --all', 'Could not stage version changes.' );
+
+// Commit the version changes.
+execute( 'git commit -m "Updating versions of packages to production strings."', 'Could not commit version changes.' );
+
 // Do the magic: bring the subdirectory contents (and history of non-empty commits) onto the master branch.
 $command = sprintf(
 	'git filter-branch -f --prune-empty --subdirectory-filter %s master',
@@ -84,9 +93,6 @@ $command          = sprintf(
 	escapeshellarg( $package_repo_url )
 );
 execute( $command, 'Could not add the new package repository remote.', true, true );
-
-// Update the version numbers of each dependency of the package we are releasing.
-execute( 'bin/version-packages.sh --no-update', 'Could not update sub-package dependency versions.', true, true );
 
 // Create a new branch to prepare our release.
 $release_branch = sprintf(
