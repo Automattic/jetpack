@@ -17,6 +17,7 @@ module.exports = [
 	'_inc/lib/debugger/',
 	'_inc/lib/plans.php',
 	'jetpack.php',
+	'json-endpoints/class.wpcom-json-api-get-site-v1-3-endpoint.php',
 	'json-endpoints/jetpack/class-jetpack-json-api-delete-backup-helper-script-endpoint.php',
 	'json-endpoints/jetpack/class-jetpack-json-api-install-backup-helper-script-endpoint.php',
 	'load-jetpack.php',
