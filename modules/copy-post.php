@@ -203,7 +203,7 @@ class Jetpack_Copy_Post {
 		$likes   = get_post_meta( $source_post->ID, 'switch_like_status', true );
 		$sharing = get_post_meta( $source_post->ID, 'sharing_disabled', false );
 
-		if ( isset( $likes ) ) {
+		if ( '' !== $likes ) {
 			$likes_result = update_post_meta( $target_post_id, 'switch_like_status', $likes );
 		} else {
 			$likes_result = null;
