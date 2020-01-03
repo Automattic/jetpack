@@ -17,9 +17,16 @@ Eventually, we expect this module to enhance all front-end views that enable the
 7. Test the WordPress.com diff
 8. Once the code works well in both environments and has been approved by a Jetpack crew member, you can merge your branch!
 
-### Beta Features
+### Basic Build Process
 
-TBD
+This also works on WP.com
+
+```
+> npm install yarn@1.7
+> npm install node@10.17.0
+> npx yarn build-search [--watch]
+> ls _inc/build/instant-search/
+```
 
 ### Testing Instructions
 
