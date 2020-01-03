@@ -49,7 +49,7 @@ class Jetpack_Search_Customize {
 			)
 		);
 
-		$id = $setting_prefix . 'theme';
+		$id = $setting_prefix . 'color_theme';
 		$wp_customize->add_setting(
 			$id,
 			array(
@@ -134,6 +134,23 @@ class Jetpack_Search_Customize {
 			)
 		);
 
+		$id = $setting_prefix . 'inf_scroll';
+		$wp_customize->add_setting(
+			$id,
+			array(
+				'default' => true,
+				'type'    => 'option',
+			)
+		);
+		$wp_customize->add_control(
+			$id,
+			array(
+				'type'    => 'checkbox',
+				'section' => $section_id,
+				'label'   => __( 'Infinite Scroll Results', 'jetpack' ),
+			)
+		);
+
 		$id = $setting_prefix . 'show_logo';
 		$wp_customize->add_setting(
 			$id,
@@ -142,6 +159,7 @@ class Jetpack_Search_Customize {
 				'type'    => 'option',
 			)
 		);
+
 		$wp_customize->add_control(
 			$id,
 			array(

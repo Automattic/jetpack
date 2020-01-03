@@ -62,65 +62,15 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	 */
 	public function load_assets() {
 		$script_relative_path = '_inc/build/instant-search/jp-search.bundle.js';
-		if ( file_exists( JETPACK__PLUGIN_DIR . $script_relative_path ) ) {
-			$script_version = self::get_asset_version( $script_relative_path );
-			$script_path    = plugins_url( $script_relative_path, JETPACK__PLUGIN_FILE );
-			wp_enqueue_script( 'jetpack-instant-search', $script_path, array(), $script_version, true );
-			$this->load_and_initialize_tracks();
-
-			$widget_options = Jetpack_Search_Helpers::get_widgets_from_option();
-			if ( is_array( $widget_options ) ) {
-				$widget_options = end( $widget_options );
-			}
-
-			$filters = Jetpack_Search_Helpers::get_filters_from_widgets();
-			$widgets = array();
-			foreach ( $filters as $key => $filter ) {
-				if ( ! isset( $widgets[ $filter['widget_id'] ] ) ) {
-					$widgets[ $filter['widget_id'] ]['filters']   = array();
-					$widgets[ $filter['widget_id'] ]['widget_id'] = $filter['widget_id'];
-				}
-				$new_filter                                   = $filter;
-				$new_filter['filter_id']                      = $key;
-				$widgets[ $filter['widget_id'] ]['filters'][] = $new_filter;
-			}
-
-			$post_type_objs   = get_post_types( array(), 'objects' );
-			$post_type_labels = array();
-			foreach ( $post_type_objs as $key => $obj ) {
-				$post_type_labels[ $key ] = array(
-					'singular_name' => $obj->labels->singular_name,
-					'name'          => $obj->labels->name,
-				);
-			}
-			// This is probably a temporary filter for testing the prototype.
-			$options = array(
-				'enableLoadOnScroll' => false,
-				'homeUrl'            => home_url(),
-				'locale'             => str_replace( '_', '-', get_locale() ),
-				'postTypeFilters'    => $widget_options['post_types'],
-				'postTypes'          => $post_type_labels,
-				'siteId'             => Jetpack::get_option( 'id' ),
-				'sort'               => $widget_options['sort'],
-				'widgets'            => array_values( $widgets ),
-			);
-			/**
-			 * Customize Instant Search Options.
-			 *
-			 * @module search
-			 *
-			 * @since 7.7.0
-			 *
-			 * @param array $options Array of parameters used in Instant Search queries.
-			 */
-			$options = apply_filters( 'jetpack_instant_search_options', $options );
-
-			wp_localize_script(
-				'jetpack-instant-search',
-				'JetpackInstantSearchOptions',
-				$options
-			);
+		if ( ! file_exists( JETPACK__PLUGIN_DIR . $script_relative_path ) ) {
+			return;
 		}
+
+		$script_version = self::get_asset_version( $script_relative_path );
+		$script_path    = plugins_url( $script_relative_path, JETPACK__PLUGIN_FILE );
+		wp_enqueue_script( 'jetpack-instant-search', $script_path, array(), $script_version, true );
+		$this->load_and_initialize_tracks();
+		$this->load_options();
 
 		$style_relative_path = '_inc/build/instant-search/instant-search.min.css';
 		if ( file_exists( JETPACK__PLUGIN_DIR . $script_relative_path ) ) {
@@ -128,6 +78,78 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			$style_path    = plugins_url( $style_relative_path, JETPACK__PLUGIN_FILE );
 			wp_enqueue_style( 'jetpack-instant-search', $style_path, array(), $style_version );
 		}
+	}
+
+	/**
+	 * Passes all options to the JS app.
+	 */
+	protected function load_options() {
+		$widget_options = Jetpack_Search_Helpers::get_widgets_from_option();
+		if ( is_array( $widget_options ) ) {
+			$widget_options = end( $widget_options );
+		}
+
+		$filters = Jetpack_Search_Helpers::get_filters_from_widgets();
+		$widgets = array();
+		foreach ( $filters as $key => $filter ) {
+			if ( ! isset( $widgets[ $filter['widget_id'] ] ) ) {
+				$widgets[ $filter['widget_id'] ]['filters']   = array();
+				$widgets[ $filter['widget_id'] ]['widget_id'] = $filter['widget_id'];
+			}
+			$new_filter                                   = $filter;
+			$new_filter['filter_id']                      = $key;
+			$widgets[ $filter['widget_id'] ]['filters'][] = $new_filter;
+		}
+
+		$post_type_objs   = get_post_types( array(), 'objects' );
+		$post_type_labels = array();
+		foreach ( $post_type_objs as $key => $obj ) {
+			$post_type_labels[ $key ] = array(
+				'singular_name' => $obj->labels->singular_name,
+				'name'          => $obj->labels->name,
+			);
+		}
+
+		$prefix  = Jetpack_Search_Options::OPTION_PREFIX;
+		$options = array(
+			// overlay options.
+			'colorTheme'      => (bool) get_option( $prefix . 'color_theme', 'light' ),
+			'opacity'         => (bool) get_option( $prefix . 'opacity', 97 ),
+			'closeColor'      => (bool) get_option( $prefix . 'close_color', '#BD3854' ),
+			'highlightColor'  => (bool) get_option( $prefix . 'highlight_color', '#FFC' ),
+			'enableInfScroll' => (bool) get_option( $prefix . 'inf_scroll', true ),
+			'showLogo'        => (bool) get_option( $prefix . 'show_logo', true ),
+			'showPoweredBy'   => (bool) get_option( $prefix . 'show_powered_by', true ),
+
+			// core config.
+			'homeUrl'         => home_url(),
+			'locale'          => str_replace( '_', '-', get_locale() ),
+			'postsPerPage'    => get_option( 'posts_per_page' ),
+			'siteId'          => Jetpack::get_option( 'id' ),
+
+			// filtering.
+			'postTypeFilters' => $widget_options['post_types'],
+			'postTypes'       => $post_type_labels,
+			'sort'            => $widget_options['sort'],
+			'widgets'         => array_values( $widgets ),
+		);
+
+		/**
+		 * Customize Instant Search Options.
+		 *
+		 * @module search
+		 *
+		 * @since 7.7.0
+		 *
+		 * @param array $options Array of parameters used in Instant Search queries.
+		 */
+		$options = apply_filters( 'jetpack_instant_search_options', $options );
+
+		wp_localize_script(
+			'jetpack-instant-search',
+			'JetpackInstantSearchOptions',
+			$options
+		);
 	}
 
 	/**
