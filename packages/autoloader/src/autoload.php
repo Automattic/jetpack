@@ -81,7 +81,6 @@ if ( ! function_exists( __NAMESPACE__ . '\autoloader' ) ) {
 						'Automattic\Jetpack\Connection\Manager',
 						'Automattic\Jetpack\Connection\Manager_Interface',
 						'Automattic\Jetpack\Connection\XMLRPC_Connector',
-						'Jetpack_IXR_Client',
 						'Jetpack_Options',
 						'Jetpack_Signature',
 						'Jetpack_XMLRPC_Server',
