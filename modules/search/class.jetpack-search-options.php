@@ -17,6 +17,22 @@ use Automattic\Jetpack\Constants;
 class Jetpack_Search_Options {
 
 	/**
+	 * The search widget's base ID.
+	 *
+	 * @since 5.8.0
+	 * @var string
+	 */
+	const FILTER_WIDGET_BASE = 'jetpack-search-filters';
+
+	/**
+	 * Prefix for options in DB.
+	 *
+	 * @since 8.3.0
+	 * @var string
+	 */
+	const OPTION_PREFIX = 'jetpack_search_';
+
+	/**
 	 * Returns a boolean for whether instant search is enabled.
 	 *
 	 * @since 8.3.0

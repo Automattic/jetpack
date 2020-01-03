@@ -1,6 +1,9 @@
-<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+<?php
 /**
  * Jetpack Search: Instant Front-End Search and Filtering
+ *
+ * @since 8.3.0
+ * @package jetpack
  */
 
 use Automattic\Jetpack\Connection\Client;
@@ -26,8 +29,13 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	public function load_php() {
 		require_once dirname( __FILE__ ) . '/class.jetpack-search-template-tags.php';
 		require_once JETPACK__PLUGIN_DIR . 'modules/widgets/search.php';
-	}
+		require_once dirname( __FILE__ ) . '/class.jetpack-search-template-tags.php';
 
+		if ( class_exists( 'WP_Customize_Manager' ) ) {
+			require_once dirname( __FILE__ ) . '/class-jetpack-search-customize.php';
+			new Jetpack_Search_Customize();
+		}
+	}
 
 	/**
 	 * Setup the various hooks needed for the plugin to take over search duties.
