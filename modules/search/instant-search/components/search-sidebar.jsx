@@ -8,7 +8,7 @@ import { h, Component, createRef } from 'preact';
 // NOTE:
 //
 // We use Preact.Component instead of a Hooks based component because
-// we need to set shouldComponentUpdate to alway return false.
+// we need to set shouldComponentUpdate to always return false.
 //
 // We could implement such in a Hooks based component using React.memo,
 // but doing so would require importing (and bloating the bundle with)
