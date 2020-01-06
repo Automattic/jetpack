@@ -182,10 +182,6 @@ export default function OpentableEdit( { attributes, setAttributes, className, c
 		}
 	};
 
-	const restaurantPicker = ( pickerProps = {} ) => (
-		<RestaurantPicker rids={ rid } { ...pickerProps } />
-	);
-
 	const inspectorControls = () => (
 		<InspectorControls>
 			<PanelBody title={ __( 'Styles', 'jetpack' ) }>
@@ -218,7 +214,7 @@ export default function OpentableEdit( { attributes, setAttributes, className, c
 				</div>
 			</PanelBody>
 			<PanelBody title={ __( 'Settings', 'jetpack' ) }>
-				{ restaurantPicker( { onChange: onPickerSubmit } ) }
+				<RestaurantPicker rids={ rid } onChange={ onPickerSubmit } />
 				<SelectControl
 					label={ __( 'Language', 'jetpack' ) }
 					value={ lang }
@@ -254,10 +250,14 @@ export default function OpentableEdit( { attributes, setAttributes, className, c
 				)
 			}
 		>
-			{ restaurantPicker( {
-				label: __( 'Enter your restaurant name, OpenTable Restaurant ID or embed code', 'jetpack' ),
-				onSubmit: onPickerSubmit,
-			} ) }
+			<RestaurantPicker
+				rids={ rid }
+				label={ __(
+					'Enter your restaurant name, OpenTable Restaurant ID or embed code',
+					'jetpack'
+				) }
+				onSubmit={ onPickerSubmit }
+			/>
 			<div className={ `${ className }-placeholder-links` }>
 				<ExternalLink
 					href="https://en.support.wordpress.com/widgets/open-table-widget/"
