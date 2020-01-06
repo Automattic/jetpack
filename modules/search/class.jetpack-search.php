@@ -296,9 +296,9 @@ class Jetpack_Search {
 	 */
 	public function register_jetpack_instant_sidebar() {
 		$args = array(
-			'name'          => 'Jetpack Instant Search Sidebar',
+			'name'          => 'Jetpack Search Sidebar',
 			'id'            => 'jetpack-instant-search-sidebar',
-			'description'   => 'Customize the Jetpack Instant Search overlay sidebar',
+			'description'   => 'Customize the sidebar inside the Jetpack Search overlay',
 			'class'         => '',
 			'before_widget' => '<div id="%1$s" class="widget %2$s">',
 			'after_widget'  => '</div>',
