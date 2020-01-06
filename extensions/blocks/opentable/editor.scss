@@ -1,13 +1,13 @@
 /**
- * Editor styles for Opentable
+ * Editor styles for OpenTable
  */
 
 .wp-block-jetpack-opentable {
 	position: relative;
 
-    .components-base-control {
+	.components-base-control {
 		width: 100%;
-    }
+	}
 
 	.components-placeholder__fieldset {
 		p {
@@ -25,7 +25,7 @@
 	}
 
 	iframe {
-		height:100%;
+		height: 100%;
 		width: 100%;
 	}
 
@@ -40,7 +40,7 @@
 		height: 301px;
 
 		&.is-multi {
-			height: 361px
+			height: 361px;
 		}
 	}
 
@@ -48,7 +48,7 @@
 		height: 490px;
 
 		&.is-multi {
-			height: 550px
+			height: 550px;
 		}
 	}
 
@@ -58,7 +58,7 @@
 
 	&-theme-button {
 		height: 113px;
-    }
+	}
 
 	&-restaurant-picker {
 		margin-bottom: 1em;
@@ -84,21 +84,21 @@
 }
 
 .block-editor-block-styles__item.is-opentable {
-    padding-top: 6px;
+	padding-top: 6px;
 }
 
 .block-editor-block-styles__item-preview.is-opentable {
-    height: 100px;
-    margin-top: 0;
-    padding-top: 0;
+	height: 100px;
+	margin-top: 0;
+	padding-top: 0;
 	position: relative;
 
 	> iframe {
 		transform-origin: 0 0;
-		transform: scale(0.70);
+		transform: scale( 0.7 );
 		width: 143%;
 		height: 143%;
 		position: absolute;
-		z-index: 1;	
+		z-index: 1;
 	}
 }

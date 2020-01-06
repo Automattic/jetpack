@@ -1,6 +1,6 @@
 <?php
 /**
- * Opentable Block.
+ * OpenTable Block.
  *
  * @since 8.x
  *
@@ -51,9 +51,9 @@ function jetpack_opentable_block_get_blog_id() {
 }
 
 /**
- * Opentable block registration/dependency declaration.
+ * OpenTable block registration/dependency declaration.
  *
- * @param array $attributes    Array containing the Opentable block attributes.
+ * @param array $attributes    Array containing the OpenTable block attributes.
  *
  * @return string
  */
@@ -62,6 +62,7 @@ function jetpack_opentable_block_load_assets( $attributes ) {
 
 	// The OpenTable script uses multiple `rid` paramters,
 	// so we can't use WordPress to output it, as WordPress attempts to validate it and removes them.
+	// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
 	return '<script type="text/javascript" src="' . esc_url( jetpack_opentable_build_embed_url( $attributes ) ) . '"></script>';
 }
 

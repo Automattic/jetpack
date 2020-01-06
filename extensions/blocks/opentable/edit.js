@@ -60,7 +60,7 @@ const EmbedCodeForm = ( { onSubmit } ) => {
 	);
 };
 
-export default function OpentableEdit( { attributes, setAttributes, className, clientId } ) {
+export default function OpenTableEdit( { attributes, setAttributes, className, clientId } ) {
 	const validatedAttributes = getValidatedAttributes( defaultAttributes, attributes );
 
 	if ( ! isEqual( validatedAttributes, attributes ) ) {
