@@ -7,13 +7,13 @@ import { compact, reduce } from 'lodash';
 const optionValues = options => options.map( option => option.value );
 
 export const languageOptions = [
-	{ value: 'en-US', label: __( 'English-US', 'jetpack' ) },
-	{ value: 'fr-CA', label: __( 'Français-CA', 'jetpack' ) },
-	{ value: 'de-DE', label: __( 'Deutsch-DE', 'jetpack' ) },
-	{ value: 'es-MX', label: __( 'Español-MX', 'jetpack' ) },
-	{ value: 'ja-JP', label: __( '日本語-JP', 'jetpack' ) },
-	{ value: 'nl-NL', label: __( 'Nederlands-NL', 'jetpack' ) },
-	{ value: 'it-IT', label: __( 'Italiano-IT', 'jetpack' ) },
+	{ value: 'en-US', label: 'English-US' },
+	{ value: 'fr-CA', label: 'Français-CA' },
+	{ value: 'de-DE', label: 'Deutsch-DE' },
+	{ value: 'es-MX', label: 'Español-MX' },
+	{ value: 'ja-JP', label: '日本語-JP' },
+	{ value: 'nl-NL', label: 'Nederlands-NL' },
+	{ value: 'it-IT', label: 'Italiano-IT' },
 ];
 export const languageValues = optionValues( languageOptions );
 
