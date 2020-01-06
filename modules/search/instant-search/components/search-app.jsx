@@ -110,10 +110,7 @@ class SearchApp extends Component {
 		setSortQuery( getSortKeyFromSortOption( event.target.value ) );
 	};
 
-	showResults = () => {
-		this.setState( { showResults: true } );
-	};
-
+	showResults = () => this.setState( { showResults: true } );
 	hideResults = () => this.setState( { showResults: false } );
 	toggleResults = () => this.setState( state => ( { showResults: ! state.showResults } ) );
 
