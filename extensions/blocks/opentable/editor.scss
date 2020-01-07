@@ -7,10 +7,6 @@
 .wp-block-jetpack-opentable {
 	position: relative;
 
-	.editor-styles-wrapper & ul {
-		font-family: $default-font;
-		margin-bottom: 0;
-	}
 
 	.components-base-control {
 		width: 100%;
@@ -101,9 +97,10 @@
 		}
 	}
 
-	.components-form-token-field__suggestion {
+	.editor-styles-wrapper & .components-form-token-field__suggestions-list {
 		font-family: $default-font;
 		text-align: left;
+		margin-bottom: 0;
 	}
 }
 
