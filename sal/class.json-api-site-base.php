@@ -411,7 +411,6 @@ abstract class SAL_Site {
 			'edit_users'          => current_user_can( 'edit_users' ),
 			'list_users'          => current_user_can( 'list_users' ),
 			'manage_categories'   => current_user_can( 'manage_categories' ),
-			'manage_hosting'      => apply_filters( 'wpcom_json_api_site_can_manage_hosting', false ),
 			'manage_options'      => current_user_can( 'manage_options' ),
 			'moderate_comments'   => current_user_can( 'moderate_comments' ),
 			'activate_wordads'    => wpcom_get_blog_owner() === (int) get_current_user_id(),
@@ -420,6 +419,7 @@ abstract class SAL_Site {
 			'upload_files'        => current_user_can( 'upload_files' ),
 			'delete_users'        => current_user_can( 'delete_users' ),
 			'remove_users'        => current_user_can( 'remove_users' ),
+			'view_hosting'        => apply_filters( 'wpcom_json_api_site_can_view_hosting', false ),
 			'view_stats'          => stats_is_blog_user( $this->blog_id )
 		);
 	}

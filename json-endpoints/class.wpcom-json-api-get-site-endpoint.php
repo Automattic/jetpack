@@ -167,7 +167,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'created_at',
 	);
 
-	protected $site;
+	private $site;
 
 	// protected $compact = null;
 	protected $fields_to_include = '_all';
