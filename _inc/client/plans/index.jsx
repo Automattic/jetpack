@@ -17,8 +17,8 @@ export class Plans extends React.Component {
 			<Fragment>
 				<QueryProducts />
 				<QuerySite />
-				<ProductSelector />
 				<PlanGrid />
+				<ProductSelector />
 			</Fragment>
 		);
 	}
