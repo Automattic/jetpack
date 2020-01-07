@@ -7,6 +7,11 @@
 .wp-block-jetpack-opentable {
 	position: relative;
 
+	.editor-styles-wrapper & ul {
+		font-family: $default-font;
+		margin-bottom: 0;
+	}
+
 	.components-base-control {
 		width: 100%;
 	}
@@ -18,7 +23,7 @@
 		}
 
 		form {
-			flex-direction: column;
+			flex-direction: row;
 
 			p {
 				margin-top: 1em;
@@ -68,20 +73,32 @@
 		width: 100%;
 
 		.components-form-token-field__input-container {
-			width: 327px;
-			max-width: 100%;
+			width: 100%;
+			@media screen and (min-width: 480px) {
+				max-width: 327px;
+			}
 		}
 
 		.components-button.is-large {
-			height: 38px;
-			margin: 4px 0 0 0;
-			position: absolute;
-			right: 0;
+			@media screen and (min-width: 480px) {
+				margin: 4px 0 0 0;
+				position: absolute;
+				right: 0;
+				top: 4.4em;
+			}
 		}
 	}
 
-	&-placeholder-links a {
-		padding: 0 1em;
+	&-placeholder-links {
+		display: flex;
+		flex-direction: column;
+		@media screen and (min-width: 480px) {
+			display: block;
+		}
+
+		a {
+			padding: 0.25em 1em;
+		}
 	}
 
 	.components-form-token-field__suggestion {
