@@ -160,7 +160,7 @@ export default function OpenTableEdit( { attributes, setAttributes, className, c
 			{ ! isEmpty( rid ) && (
 				<Toolbar
 					isCollapsed={ true }
-					icon="edit"
+					icon="admin-appearance"
 					label={ __( 'Type', 'jetpck' ) }
 					controls={ styleOptions.map( styleOption => ( {
 						title: styleOption.label,
