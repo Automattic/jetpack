@@ -59,6 +59,26 @@ const DEFAULT_SORT_MAP = {
 	'relevance|DESC': 'score_default',
 };
 
+// Convert a sort option like date|DESC to a sort key like date_desc
+export function getSortKeyFromSortOption( sortOption ) {
+	if ( ! Object.keys( DEFAULT_SORT_MAP ).includes( sortOption ) ) {
+		return null;
+	}
+
+	return DEFAULT_SORT_MAP[ sortOption ];
+}
+
+// Convert a sort key like date_desc to a sort option like date|DESC
+export function getSortOptionFromSortKey( sortKey ) {
+	const sortKeyValues = Object.values( DEFAULT_SORT_MAP );
+
+	if ( ! sortKeyValues.includes( sortKey ) ) {
+		return null;
+	}
+
+	return Object.keys( DEFAULT_SORT_MAP )[ sortKeyValues.indexOf( sortKey ) ];
+}
+
 export function determineDefaultSort( initialSort, initialSearchString ) {
 	const query = getQuery();
 	if ( 'orderby' in query ) {
@@ -70,8 +90,9 @@ export function determineDefaultSort( initialSort, initialSearchString ) {
 		return 'date_desc';
 	}
 
-	if ( Object.keys( DEFAULT_SORT_MAP ).includes( initialSort ) ) {
-		return DEFAULT_SORT_MAP[ initialSort ];
+	const sortKeyFromSortOption = getSortKeyFromSortOption( initialSort );
+	if ( sortKeyFromSortOption ) {
+		return sortKeyFromSortOption;
 	}
 
 	return 'score_default';
