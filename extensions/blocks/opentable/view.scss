@@ -1,0 +1,19 @@
+.ot-dtp-picker {
+	box-sizing: content-box;
+
+	.ot-title {
+		margin: 4px auto 12px auto;
+	}
+
+	.ot-dtp-picker-selector-link {
+		text-decoration: none;
+	}
+
+	input[type='submit'] {
+		text-transform: none;
+		padding: 0;
+		&:hover {
+			text-decoration: none;
+		}
+	}
+}
