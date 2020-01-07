@@ -268,15 +268,6 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 		);
 	}
 
-	public function test_add_whitelisted_option_on_init_89() {
-		add_action( 'init', array( $this, 'add_option_on_89' ), 89 );
-		do_action( 'init' );
-
-		$whitelist = $this->options_module->get_options_whitelist();
-
-		$this->assertTrue( in_array( 'foo_option_bar', $whitelist ) );
-	}
-
 	function assertOptionIsSynced( $option_name, $value ) {
 		$this->assertEqualsObject( $value, $this->server_replica_storage->get_option( $option_name ), 'Option ' . $option_name . ' did\'t have the extected value of ' . json_encode( $value ) );
 	}
@@ -284,11 +275,5 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 	public function add_jetpack_options_whitelist_filter( $options ) {
 		$options[] = 'foo_option_bar';
 		return $options;
-	}
-
-
-
-	function add_option_on_89() {
-		add_filter( 'jetpack_options_whitelist', array( $this, 'add_jetpack_options_whitelist_filter' ) );
 	}
 }
