@@ -1,3 +1,5 @@
+@import '../../shared/styles/gutenberg-base-styles.scss';
+
 /**
  * Editor styles for OpenTable
  */
@@ -80,6 +82,11 @@
 
 	&-placeholder-links a {
 		padding: 0 1em;
+	}
+
+	.components-form-token-field__suggestion {
+		font-family: $default-font;
+		text-align: left;
 	}
 }
 
