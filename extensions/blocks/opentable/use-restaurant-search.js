@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { unionBy, throttle } from 'lodash';
+import { unionBy, throttle, isEmpty } from 'lodash';
 
 /**
  * WordPress dependencies
@@ -29,7 +29,9 @@ export default function useRestaurantSearch( searchTerm, maxResults ) {
 	] );
 
 	useEffect( () => {
-		throttledSearchRestaurants( searchTerm );
+		if ( ! isEmpty( searchTerm ) && ! searchTerm.startsWith( '<script' ) ) {
+			throttledSearchRestaurants( searchTerm );
+		}
 	}, [ searchTerm ] );
 
 	return restaurants;
