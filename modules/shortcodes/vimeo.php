@@ -251,7 +251,7 @@ function wpcom_vimeo_embed_url_init() {
  * This does not happen on WordPress.com, since embeds are handled by core there.
  */
 if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
-	add_action( 'init', 'wpcom_vimeo_embed_url_init' );
+	wpcom_vimeo_embed_url_init();
 }
 
 /**

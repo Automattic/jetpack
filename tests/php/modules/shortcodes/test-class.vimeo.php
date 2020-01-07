@@ -116,7 +116,6 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 		$url = 'http://vimeo.com/' . $video_id;
 		$post = $this->factory->post->create_and_get( array( 'post_content' => $url ) );
 
-		do_action( 'init' );
 		setup_postdata( $post );
 		ob_start();
 		the_content();

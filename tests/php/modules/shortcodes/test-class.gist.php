@@ -444,7 +444,6 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 		$url     = 'https://gist.github.com/' . $gist_id;
 		$post    = $this->factory()->post->create_and_get( array( 'post_content' => $url ) );
 
-		do_action( 'init' );
 		setup_postdata( $post );
 
 		// Test HTML version.
@@ -479,7 +478,6 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 		$url     = 'https://gist.github.com/' . $gist_id . '#file-' . $file;
 		$post    = $this->factory()->post->create_and_get( array( 'post_content' => $url ) );
 
-		do_action( 'init' );
 		setup_postdata( $post );
 
 		// Test HTML version.
@@ -609,7 +607,6 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 		$url     = 'https://gist.github.com/' . $gist_id . '/?ts=4';
 		$post    = $this->factory()->post->create_and_get( array( 'post_content' => $url ) );
 
-		do_action( 'init' );
 		setup_postdata( $post );
 
 		// Test HTML version.

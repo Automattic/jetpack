@@ -10,10 +10,6 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	 * After a test method runs, reset any state in WordPress the test method might have changed.
 	 */
 	public function setUp() {
-		// Run hook to load shortcode.
-		do_action( 'init' );
-
-		// Reset data.
 		wp_reset_postdata();
 		parent::tearDown();
 	}

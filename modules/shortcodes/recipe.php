@@ -30,7 +30,16 @@ class Jetpack_Recipes {
 	 * Constructor
 	 */
 	public function __construct() {
-		add_action( 'init', array( $this, 'action_init' ) );
+		// Enqueue styles if [recipe] exists.
+		add_action( 'wp_head', array( $this, 'add_scripts' ), 1 );
+
+		// Render [recipe], along with other shortcodes that can be nested within.
+		add_shortcode( 'recipe', array( $this, 'recipe_shortcode' ) );
+		add_shortcode( 'recipe-notes', array( $this, 'recipe_notes_shortcode' ) );
+		add_shortcode( 'recipe-ingredients', array( $this, 'recipe_ingredients_shortcode' ) );
+		add_shortcode( 'recipe-directions', array( $this, 'recipe_directions_shortcode' ) );
+		add_shortcode( 'recipe-nutrition', array( $this, 'recipe_nutrition_shortcode' ) );
+		add_shortcode( 'recipe-image', array( $this, 'recipe_image_shortcode' ) );
 	}
 
 	/**
@@ -61,22 +70,6 @@ class Jetpack_Recipes {
 		$allowedtags['div']['itemscope'] = array();
 		$allowedtags['div']['itemtype']  = array();
 		return $allowedtags;
-	}
-
-	/**
-	 * Register our shortcode and enqueue necessary files.
-	 */
-	public function action_init() {
-		// Enqueue styles if [recipe] exists.
-		add_action( 'wp_head', array( $this, 'add_scripts' ), 1 );
-
-		// Render [recipe], along with other shortcodes that can be nested within.
-		add_shortcode( 'recipe', array( $this, 'recipe_shortcode' ) );
-		add_shortcode( 'recipe-notes', array( $this, 'recipe_notes_shortcode' ) );
-		add_shortcode( 'recipe-ingredients', array( $this, 'recipe_ingredients_shortcode' ) );
-		add_shortcode( 'recipe-directions', array( $this, 'recipe_directions_shortcode' ) );
-		add_shortcode( 'recipe-nutrition', array( $this, 'recipe_nutrition_shortcode' ) );
-		add_shortcode( 'recipe-image', array( $this, 'recipe_image_shortcode' ) );
 	}
 
 	/**
