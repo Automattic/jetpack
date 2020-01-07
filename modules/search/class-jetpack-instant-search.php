@@ -12,16 +12,6 @@ use Automattic\Jetpack\Constants;
 class Jetpack_Instant_Search extends Jetpack_Search {
 
 	/**
-	 * Jetpack_Instant_Search constructor.
-	 *
-	 * @since 5.0.0
-	 *
-	 * Doesn't do anything. This class needs to be initialized via the instance() method instead.
-	 */
-	protected function __construct() {
-	}
-
-	/**
 	 * Loads the php for this version of search
 	 *
 	 * @since 8.3.0
@@ -29,7 +19,6 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	public function load_php() {
 		require_once dirname( __FILE__ ) . '/class.jetpack-search-template-tags.php';
 		require_once JETPACK__PLUGIN_DIR . 'modules/widgets/search.php';
-		require_once dirname( __FILE__ ) . '/class.jetpack-search-template-tags.php';
 
 		if ( class_exists( 'WP_Customize_Manager' ) ) {
 			require_once dirname( __FILE__ ) . '/class-jetpack-search-customize.php';
@@ -62,7 +51,8 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	 */
 	public function load_assets() {
 		$script_relative_path = '_inc/build/instant-search/jp-search.bundle.js';
-		if ( ! file_exists( JETPACK__PLUGIN_DIR . $script_relative_path ) ) {
+		$style_relative_path  = '_inc/build/instant-search/instant-search.min.css';
+		if ( ! file_exists( JETPACK__PLUGIN_DIR . $script_relative_path ) || ! file_exists( JETPACK__PLUGIN_DIR . $style_relative_path ) ) {
 			return;
 		}
 
@@ -70,20 +60,17 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		$script_path    = plugins_url( $script_relative_path, JETPACK__PLUGIN_FILE );
 		wp_enqueue_script( 'jetpack-instant-search', $script_path, array(), $script_version, true );
 		$this->load_and_initialize_tracks();
-		$this->load_options();
+		$this->inject_javascript_options();
 
-		$style_relative_path = '_inc/build/instant-search/instant-search.min.css';
-		if ( file_exists( JETPACK__PLUGIN_DIR . $script_relative_path ) ) {
-			$style_version = self::get_asset_version( $style_relative_path );
-			$style_path    = plugins_url( $style_relative_path, JETPACK__PLUGIN_FILE );
-			wp_enqueue_style( 'jetpack-instant-search', $style_path, array(), $style_version );
-		}
+		$style_version = self::get_asset_version( $style_relative_path );
+		$style_path    = plugins_url( $style_relative_path, JETPACK__PLUGIN_FILE );
+		wp_enqueue_style( 'jetpack-instant-search', $style_path, array(), $style_version );
 	}
 
 	/**
 	 * Passes all options to the JS app.
 	 */
-	protected function load_options() {
+	protected function inject_javascript_options() {
 		$widget_options = Jetpack_Search_Helpers::get_widgets_from_option();
 		if ( is_array( $widget_options ) ) {
 			$widget_options = end( $widget_options );
@@ -113,11 +100,11 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		$prefix  = Jetpack_Search_Options::OPTION_PREFIX;
 		$options = array(
 			// overlay options.
-			'colorTheme'      => (bool) get_option( $prefix . 'color_theme', 'light' ),
-			'opacity'         => (bool) get_option( $prefix . 'opacity', 97 ),
 			'closeColor'      => (bool) get_option( $prefix . 'close_color', '#BD3854' ),
-			'highlightColor'  => (bool) get_option( $prefix . 'highlight_color', '#FFC' ),
+			'colorTheme'      => (bool) get_option( $prefix . 'color_theme', 'light' ),
 			'enableInfScroll' => (bool) get_option( $prefix . 'inf_scroll', true ),
+			'highlightColor'  => (bool) get_option( $prefix . 'highlight_color', '#FFC' ),
+			'opacity'         => (bool) get_option( $prefix . 'opacity', 97 ),
 			'showLogo'        => (bool) get_option( $prefix . 'show_logo', true ),
 			'showPoweredBy'   => (bool) get_option( $prefix . 'show_powered_by', true ),
 

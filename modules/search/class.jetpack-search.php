@@ -140,7 +140,7 @@ class Jetpack_Search {
 	 */
 	public static function instance() {
 		if ( ! isset( self::$instance ) ) {
-			if ( Jetpack_Search_Options::instant_enabled() ) {
+			if ( Jetpack_Search_Options::is_instant_enabled() ) {
 				require_once dirname( __FILE__ ) . '/class-jetpack-instant-search.php';
 				self::$instance = new Jetpack_Instant_Search();
 			} else {

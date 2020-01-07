@@ -171,7 +171,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 	 * @since 5.8.0
 	 */
 	public function enqueue_frontend_scripts() {
-		if ( ! is_active_widget( false, false, $this->id_base, true ) || Jetpack_Search_Options::instant_enabled() ) {
+		if ( ! is_active_widget( false, false, $this->id_base, true ) || Jetpack_Search_Options::is_instant_enabled() ) {
 			return;
 		}
 
@@ -272,7 +272,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 		$instance = $this->jetpack_search_populate_defaults( $instance );
 
 		if ( ( new Status() )->is_development_mode() ) {
-			echo $args['before_widget']; //phpcs:ignore
+			echo $args['before_widget']; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			?><div id="<?php echo esc_attr( $this->id ); ?>-wrapper">
 				<div class="jetpack-search-sort-wrapper">
 					<label>
@@ -280,11 +280,11 @@ class Jetpack_Search_Widget extends WP_Widget {
 					</label>
 				</div>
 			</div><?php
-			echo $args['after_widget']; //phpcs:ignore
+			echo $args['after_widget']; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			return;
 		}
 
-		if ( Jetpack_Search_Options::instant_enabled() ) {
+		if ( Jetpack_Search_Options::is_instant_enabled() ) {
 			$this->widget_instant( $args, $instance );
 		} else {
 			$this->widget_non_instant( $args, $instance );
@@ -331,7 +331,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 		/** This filter is documented in core/src/wp-includes/default-widgets.php */
 		$title = apply_filters( 'widget_title', $title, $instance, $this->id_base );
 
-		echo $args['before_widget']; //phpcs:ignore
+		echo $args['before_widget']; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		?>
 			<div id="<?php echo esc_attr( $this->id ); ?>-wrapper" >
 		<?php
@@ -399,7 +399,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 		$this->maybe_render_sort_javascript( $instance, $order, $orderby );
 
 		echo '</div>';
-		echo $args['after_widget']; //phpcs:ignore
+		echo $args['after_widget']; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**
@@ -436,7 +436,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 		/** This filter is documented in core/src/wp-includes/default-widgets.php */
 		$title = apply_filters( 'widget_title', $title, $instance, $this->id_base );
 
-		echo $args['before_widget']; //phpcs:ignore
+		echo $args['before_widget']; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		?>
 			<div id="<?php echo esc_attr( $this->id ); ?>-wrapper" class="jetpack-instant-search-wrapper">
 		<?php
@@ -480,7 +480,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 		}
 
 		echo '</div>';
-		echo $args['after_widget']; //phpcs:ignore
+		echo $args['after_widget']; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**
@@ -498,7 +498,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 	 * @param string $orderby  The orderby to initialize the select with.
 	 */
 	private function maybe_render_sort_javascript( $instance, $order, $orderby ) {
-		if ( Jetpack_Search_Options::instant_enabled() ) {
+		if ( Jetpack_Search_Options::is_instant_enabled() ) {
 			return;
 		}
 

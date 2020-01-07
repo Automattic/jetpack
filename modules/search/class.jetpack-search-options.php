@@ -39,7 +39,7 @@ class Jetpack_Search_Options {
 	 *
 	 * @return bool
 	 */
-	public static function instant_enabled() {
+	public static function is_instant_enabled() {
 		return Constants::is_true( 'JETPACK_SEARCH_PROTOTYPE' );
 	}
 

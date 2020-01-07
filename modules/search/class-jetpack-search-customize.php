@@ -42,7 +42,7 @@ class Jetpack_Search_Customize {
 		$wp_customize->add_section(
 			$section_id,
 			array(
-				'title'       => esc_html__( 'Jetpack Instant Search', 'jetpack' ),
+				'title'       => esc_html__( 'Jetpack Search', 'jetpack' ),
 				'description' => __( 'Use these settings to customize the search overlay.', 'jetpack' ),
 				'capability'  => 'edit_theme_options',
 				'priority'    => 200,
