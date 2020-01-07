@@ -200,9 +200,17 @@ class Jetpack_Search {
 			add_action( 'init', array( $this, 'set_filters_from_widgets' ) );
 
 			add_action( 'pre_get_posts', array( $this, 'maybe_add_post_type_as_var' ) );
-			add_action( 'wp_enqueue_scripts', array( $this, 'load_assets' ) );
+
+			if ( Constants::is_true( 'JETPACK_SEARCH_PROTOTYPE' ) ) {
+				add_action( 'wp_footer', array( $this, 'print_instant_search_sidebar' ) );
+				add_action( 'wp_enqueue_scripts', array( $this, 'load_instant_search_assets' ) );
+			}
 		} else {
 			add_action( 'update_option', array( $this, 'track_widget_updates' ), 10, 3 );
+		}
+
+		if ( Constants::is_true( 'JETPACK_SEARCH_PROTOTYPE' ) ) {
+			add_action( 'widgets_init', array( $this, 'register_jetpack_instant_sidebar' ) );
 		}
 
 		add_action( 'jetpack_deactivate_module_search', array( $this, 'move_search_widgets_to_inactive' ) );
@@ -211,7 +219,7 @@ class Jetpack_Search {
 	/**
 	 * Loads assets for Jetpack Instant Search Prototype featuring Search As You Type experience.
 	 */
-	public function load_assets() {
+	public function load_instant_search_assets() {
 		if ( Constants::is_true( 'JETPACK_SEARCH_PROTOTYPE' ) ) {
 			$script_relative_path = '_inc/build/instant-search/jp-search.bundle.js';
 			if ( file_exists( JETPACK__PLUGIN_DIR . $script_relative_path ) ) {
@@ -281,6 +289,36 @@ class Jetpack_Search {
 				wp_enqueue_style( 'jetpack-instant-search', $style_path, array(), $style_version );
 			}
 		}
+	}
+
+	/**
+	 * Registers a widget sidebar for Instant Search.
+	 */
+	public function register_jetpack_instant_sidebar() {
+		$args = array(
+			'name'          => 'Jetpack Search Sidebar',
+			'id'            => 'jetpack-instant-search-sidebar',
+			'description'   => 'Customize the sidebar inside the Jetpack Search overlay',
+			'class'         => '',
+			'before_widget' => '<div id="%1$s" class="widget %2$s">',
+			'after_widget'  => '</div>',
+			'before_title'  => '<h2 class="widgettitle">',
+			'after_title'   => '</h2>',
+		);
+		register_sidebar( $args );
+	}
+
+	/**
+	 * Prints Instant Search sidebar.
+	 */
+	public function print_instant_search_sidebar() {
+		?>
+		<div class="jetpack-instant-search__widget-area" style="display: none">
+			<?php if ( is_active_sidebar( 'jetpack-instant-search-sidebar' ) ) { ?>
+				<?php dynamic_sidebar( 'jetpack-instant-search-sidebar' ); ?>
+			<?php } ?>
+		</div>
+		<?php
 	}
 
 	/**
@@ -923,7 +961,7 @@ class Jetpack_Search {
 					$date_start = $query->get( 'year' ) . '-' . $date_monthnum . '-' . $date_day . ' 00:00:00';
 					$date_end   = $query->get( 'year' ) . '-' . $date_monthnum . '-' . $date_day . ' 23:59:59';
 				} else {
-					$days_in_month = date( 't', mktime( 0, 0, 0, $query->get( 'monthnum' ), 14, $query->get( 'year' ) ) ); // 14 = middle of the month so no chance of DST issues
+					$days_in_month = gmdate( 't', mktime( 0, 0, 0, $query->get( 'monthnum' ), 14, $query->get( 'year' ) ) ); // 14 = middle of the month so no chance of DST issues
 
 					$date_start = $query->get( 'year' ) . '-' . $date_monthnum . '-01 00:00:00';
 					$date_end   = $query->get( 'year' ) . '-' . $date_monthnum . '-' . $days_in_month . ' 23:59:59';
@@ -1135,7 +1173,7 @@ class Jetpack_Search {
 		$decay_params = apply_filters(
 			'jetpack_search_recency_score_decay',
 			array(
-				'origin' => date( 'Y-m-d' ),
+				'origin' => gmdate( 'Y-m-d' ),
 				'scale'  => '360d',
 				'decay'  => 0.9,
 			),
@@ -1734,7 +1772,7 @@ class Jetpack_Search {
 
 						switch ( $this->aggregations[ $label ]['interval'] ) {
 							case 'year':
-								$year = (int) date( 'Y', $timestamp );
+								$year = (int) gmdate( 'Y', $timestamp );
 
 								$query_vars = array(
 									'year'     => $year,
@@ -1754,8 +1792,8 @@ class Jetpack_Search {
 								break;
 
 							case 'month':
-								$year  = (int) date( 'Y', $timestamp );
-								$month = (int) date( 'n', $timestamp );
+								$year  = (int) gmdate( 'Y', $timestamp );
+								$month = (int) gmdate( 'n', $timestamp );
 
 								$query_vars = array(
 									'year'     => $year,
@@ -1763,7 +1801,7 @@ class Jetpack_Search {
 									'day'      => false,
 								);
 
-								$name = date( 'F Y', $timestamp );
+								$name = gmdate( 'F Y', $timestamp );
 
 								// Is this month currently selected?
 								if ( ! empty( $current_year ) && (int) $current_year === $year &&
@@ -1776,9 +1814,9 @@ class Jetpack_Search {
 								break;
 
 							case 'day':
-								$year  = (int) date( 'Y', $timestamp );
-								$month = (int) date( 'n', $timestamp );
-								$day   = (int) date( 'j', $timestamp );
+								$year  = (int) gmdate( 'Y', $timestamp );
+								$month = (int) gmdate( 'n', $timestamp );
+								$day   = (int) gmdate( 'j', $timestamp );
 
 								$query_vars = array(
 									'year'     => $year,
@@ -1786,7 +1824,7 @@ class Jetpack_Search {
 									'day'      => $day,
 								);
 
-								$name = date( 'F jS, Y', $timestamp );
+								$name = gmdate( 'F jS, Y', $timestamp );
 
 								// Is this day currently selected?
 								if ( ! empty( $current_year ) && (int) $current_year === $year &&
