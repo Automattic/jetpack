@@ -7,18 +7,16 @@ import { h } from 'preact';
 import { useEffect } from 'preact/hooks';
 import { __ } from '@wordpress/i18n';
 
-const Overlay = ( { showOverlay, toggleOverlay, children } ) => {
-	const closeOnEscapeKey = event => {
-		if ( event.key === 'Escape' ) {
-			toggleOverlay();
-		}
-	};
+const closeOnEscapeKey = callback => event => {
+	event.key === 'Escape' && callback();
+};
 
+const Overlay = ( { showOverlay, toggleOverlay, children } ) => {
 	useEffect( () => {
-		window.addEventListener( 'keydown', closeOnEscapeKey );
+		window.addEventListener( 'keydown', closeOnEscapeKey( toggleOverlay ) );
 		return () => {
 			// Cleanup after event
-			window.removeEventListener( 'keydown', closeOnEscapeKey );
+			window.removeEventListener( 'keydown', closeOnEscapeKey( toggleOverlay ) );
 		};
 	}, [] );
 
