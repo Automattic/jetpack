@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "338cf1f9d3248fb0167d0f590ecbc153",
+    "content-hash": "5018541830b91d0eaaa4b967a34f8d2b",
     "packages": [
         {
             "name": "automattic/jetpack-abtest",
@@ -277,16 +277,16 @@
         },
         {
             "name": "automattic/jetpack-jitm",
-            "version": "v1.0.10",
+            "version": "v1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-jitm.git",
-                "reference": "068a054680fa7f51d6f58fc010a87a21884fc7eb"
+                "reference": "77cbd674fd7541075fcf1f5cf859e726131068b6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-jitm/zipball/068a054680fa7f51d6f58fc010a87a21884fc7eb",
-                "reference": "068a054680fa7f51d6f58fc010a87a21884fc7eb",
+                "url": "https://api.github.com/repos/Automattic/jetpack-jitm/zipball/77cbd674fd7541075fcf1f5cf859e726131068b6",
+                "reference": "77cbd674fd7541075fcf1f5cf859e726131068b6",
                 "shasum": ""
             },
             "require": {
@@ -313,7 +313,7 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Just in time messages for Jetpack",
-            "time": "2019-11-21T09:35:32+00:00"
+            "time": "2019-12-16T16:47:29+00:00"
         },
         {
             "name": "automattic/jetpack-logo",
@@ -475,16 +475,16 @@
         },
         {
             "name": "automattic/jetpack-sync",
-            "version": "v1.6.2",
+            "version": "v1.6.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-sync.git",
-                "reference": "819cac77039ddd1d22a4b182b4a5c8e10ea78a82"
+                "reference": "d892f67dc79e3710135692301b0b20481ad41195"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-sync/zipball/819cac77039ddd1d22a4b182b4a5c8e10ea78a82",
-                "reference": "819cac77039ddd1d22a4b182b4a5c8e10ea78a82",
+                "url": "https://api.github.com/repos/Automattic/jetpack-sync/zipball/d892f67dc79e3710135692301b0b20481ad41195",
+                "reference": "d892f67dc79e3710135692301b0b20481ad41195",
                 "shasum": ""
             },
             "require": {
@@ -649,16 +649,16 @@
         },
         {
             "name": "phpcompatibility/php-compatibility",
-            "version": "9.3.4",
+            "version": "9.3.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPCompatibility/PHPCompatibility.git",
-                "reference": "1f37659196e4f3113ea506a7efba201c52303bf1"
+                "reference": "9fb324479acf6f39452e0655d2429cc0d3914243"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPCompatibility/PHPCompatibility/zipball/1f37659196e4f3113ea506a7efba201c52303bf1",
-                "reference": "1f37659196e4f3113ea506a7efba201c52303bf1",
+                "url": "https://api.github.com/repos/PHPCompatibility/PHPCompatibility/zipball/9fb324479acf6f39452e0655d2429cc0d3914243",
+                "reference": "9fb324479acf6f39452e0655d2429cc0d3914243",
                 "shasum": ""
             },
             "require": {
@@ -703,7 +703,7 @@
                 "phpcs",
                 "standards"
             ],
-            "time": "2019-11-15T04:12:02+00:00"
+            "time": "2019-12-27T09:44:58+00:00"
         },
         {
             "name": "phpcompatibility/phpcompatibility-paragonie",
