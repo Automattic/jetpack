@@ -76,15 +76,18 @@ function jetpack_opentable_block_load_assets( $attributes ) {
  */
 function jetpack_opentable_block_get_attribute( $attributes, $attribute_name ) {
 	if ( isset( $attributes[ $attribute_name ] ) ) {
+		if ( in_array( $attribute_name, array( 'iframe', 'newtab' ), true ) ) {
+			return $attributes[ $attribute_name ] ? 'true' : 'false';
+		}
 		return wp_kses( $attributes[ $attribute_name ], array() );
 	}
 
 	$default_attributes = array(
 		'style'  => 'standard',
-		'iframe' => true,
+		'iframe' => 'true',
 		'domain' => 'com',
 		'lang'   => 'en-US',
-		'newtab' => false,
+		'newtab' => 'false',
 	);
 
 	return $default_attributes[ $attribute_name ];
