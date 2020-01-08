@@ -4,15 +4,15 @@
  * External dependencies
  */
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { h, Component } from 'preact';
+import { h, Component, Fragment } from 'preact';
 
 /**
  * Internal dependencies
  */
 import SearchResult from './search-result';
-import { hasFilter } from '../lib/query-string';
 import ScrollButton from './scroll-button';
 import SearchForm from './search-form';
+import SearchSidebar from './search-sidebar';
 import Notice from './notice';
 
 class SearchResults extends Component {
@@ -41,25 +41,14 @@ class SearchResults extends Component {
 		return sprintf( _n( '%s result', '%s results', total, 'jetpack' ), num );
 	}
 
-	render() {
+	renderPrimarySection() {
 		const { query } = this.props;
 		const { results = [], total = 0, corrected_query = false } = this.props.response;
-		const hasQuery = query !== '';
 		const hasCorrectedQuery = corrected_query !== false;
 		const hasResults = total > 0;
 
-		if ( ! hasQuery && ! hasFilter() ) {
-			return null;
-		}
-
 		return (
-			<main
-				aria-hidden={ this.props.isLoading === true }
-				aria-live="polite"
-				className={ `jetpack-instant-search__search-results ${
-					this.props.isLoading === true ? ' jetpack-instant-search__is-loading' : ''
-				}` }
-			>
+			<Fragment>
 				<SearchForm className="jetpack-instant-search__search-results-search-form" />
 
 				<div
@@ -116,6 +105,25 @@ class SearchResults extends Component {
 						/>
 					</div>
 				) }
+			</Fragment>
+		);
+	}
+
+	render() {
+		return (
+			<main
+				aria-hidden={ this.props.isLoading === true }
+				aria-live="polite"
+				className={ `jetpack-instant-search__search-results ${
+					this.props.isLoading === true ? ' jetpack-instant-search__is-loading' : ''
+				}` }
+			>
+				<div className="jetpack-instant-search__search-results-primary">
+					{ this.renderPrimarySection() }
+				</div>
+				<div className="jetpack-instant-search__search-results-secondary">
+					<SearchSidebar />
+				</div>
 			</main>
 		);
 	}

@@ -39,10 +39,12 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			add_action( 'init', array( $this, 'set_filters_from_widgets' ) );
 
 			add_action( 'wp_enqueue_scripts', array( $this, 'load_assets' ) );
+			add_action( 'wp_footer', array( $this, 'print_instant_search_sidebar' ) );
 		} else {
 			add_action( 'update_option', array( $this, 'track_widget_updates' ), 10, 3 );
 		}
 
+		add_action( 'widgets_init', array( $this, 'register_jetpack_instant_sidebar' ) );
 		add_action( 'jetpack_deactivate_module_search', array( $this, 'move_search_widgets_to_inactive' ) );
 	}
 
@@ -137,6 +139,36 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			'JetpackInstantSearchOptions',
 			$options
 		);
+	}
+
+	/**
+	 * Registers a widget sidebar for Instant Search.
+	 */
+	public function register_jetpack_instant_sidebar() {
+		$args = array(
+			'name'          => 'Jetpack Search Sidebar',
+			'id'            => 'jetpack-instant-search-sidebar',
+			'description'   => 'Customize the sidebar inside the Jetpack Search overlay',
+			'class'         => '',
+			'before_widget' => '<div id="%1$s" class="widget %2$s">',
+			'after_widget'  => '</div>',
+			'before_title'  => '<h2 class="widgettitle">',
+			'after_title'   => '</h2>',
+		);
+		register_sidebar( $args );
+	}
+
+	/**
+	 * Prints Instant Search sidebar.
+	 */
+	public function print_instant_search_sidebar() {
+		?>
+		<div class="jetpack-instant-search__widget-area" style="display: none">
+			<?php if ( is_active_sidebar( 'jetpack-instant-search-sidebar' ) ) { ?>
+				<?php dynamic_sidebar( 'jetpack-instant-search-sidebar' ); ?>
+			<?php } ?>
+		</div>
+		<?php
 	}
 
 	/**
