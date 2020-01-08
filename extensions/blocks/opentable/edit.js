@@ -247,6 +247,7 @@ export default function OpenTableEdit( { attributes, setAttributes, className, c
 			</div>
 		</Placeholder>
 	);
+
 	const editClasses = classnames( className, {
 		[ `${ className }-theme-${ style }` ]: ! isEmpty( rid ) && styleValues.includes( style ),
 		'is-multi': 'multi' === getTypeAndTheme( style )[ 0 ],

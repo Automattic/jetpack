@@ -60,10 +60,14 @@ function jetpack_opentable_block_get_blog_id() {
 function jetpack_opentable_block_load_assets( $attributes ) {
 	Jetpack_Gutenberg::load_assets_as_required( 'opentable' );
 
+	$classes = Jetpack_Gutenberg::block_classes( 'opentable', $attributes );
+	$content = '<div class="' . esc_attr( $classes ) . '">';
 	// The OpenTable script uses multiple `rid` paramters,
 	// so we can't use WordPress to output it, as WordPress attempts to validate it and removes them.
 	// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
-	return '<script type="text/javascript" src="' . esc_url( jetpack_opentable_build_embed_url( $attributes ) ) . '"></script>';
+	$content .= '<script type="text/javascript" src="' . esc_url( jetpack_opentable_build_embed_url( $attributes ) ) . '"></script>';
+	$content .= '</div>';
+	return $content;
 }
 
 /**
