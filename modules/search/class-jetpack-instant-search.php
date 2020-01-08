@@ -214,24 +214,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		$query->found_posts   = 1;
 		$query->max_num_pages = 1;
 
-		return array(
-			new WP_Post(
-				array(
-					'ID'             => 1,
-					'post_author'    => 1,
-					'post_date'      => current_time( 'mysql' ),
-					'post_date_gmt'  => current_time( 'mysql', 1 ),
-					'post_title'     => 'Some title or other',
-					'post_content'   => 'Whatever you want here. Maybe some cat pictures....',
-					'post_status'    => 'publish',
-					'comment_status' => 'closed',
-					'ping_status'    => 'closed',
-					'post_name'      => 'fake-page',
-					'post_type'      => 'page',
-					'filter'         => 'raw',
-				)
-			),
-		);
+		return array();
 	}
 
 	/**
@@ -375,7 +358,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	 * @return array Array of Aggregations performed on the search.
 	 */
 	public function get_search_aggregations_results() {
-		if ( empty( $this->search_result ) || ! isset( $this->search_result['aggregations'] ) ) {
+		if ( empty( $this->search_result ) || is_wp_error( $this->search_result ) || ! isset( $this->search_result['aggregations'] ) ) {
 			return array();
 		}
 
