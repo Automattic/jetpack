@@ -17,42 +17,45 @@ class Jetpack_Media {
 	 * The hash is built according to the filename trying to avoid name collisions
 	 * with other media files.
 	 *
-	 * @param  number $media_id - media post ID
-	 * @param  string $new_filename - the new filename
+	 * @param  number $media_id - media post ID.
+	 * @param  string $new_filename - the new filename.
 	 * @return string A random filename.
 	 */
 	public static function generate_new_filename( $media_id, $new_filename ) {
-		// get the right filename extension
+		// Get the right filename extension.
 		$new_filename_paths = pathinfo( $new_filename );
-		$new_file_ext = $new_filename_paths['extension'];
+		$new_file_ext       = $new_filename_paths['extension'];
 
-		// take out filename from the original file or from the current attachment
+		// Get the file parts from the current attachment.
+		$current_file         = get_attached_file( $media_id );
+		$current_file_parts   = pathinfo( $current_file );
+		$current_file_ext     = $current_file_parts['extension'];
+		$current_file_dirname = $current_file_parts['dirname'];
+
+		// Take out filename from the original file or from the current attachment.
 		$original_media = (array) self::get_original_media( $media_id );
 
 		if ( ! empty( $original_media ) ) {
 			$original_file_parts = pathinfo( $original_media['file'] );
-			$filename_base = $original_file_parts['filename'];
+			$filename_base       = $original_file_parts['filename'];
 		} else {
-			$current_file = get_attached_file( $media_id );
-			$current_file_parts = pathinfo( $current_file );
-			$current_file_ext = $current_file_parts['filename'];
 			$filename_base = $current_file_parts['filename'];
 		}
 
-		// add unique seed based on the filename
-		$filename_base .=  '-' . crc32( $filename_base ) . '-';
+		// Add unique seed based on the filename.
+		$filename_base .= '-' . crc32( $filename_base ) . '-';
 
 		$number_suffix = time() . rand( 100, 999 );
 
 		do {
-			$filename = $filename_base;
+			$filename  = $filename_base;
 			$filename .= $number_suffix;
-			$file_ext = $new_file_ext ? $new_file_ext : $current_file_ext;
+			$file_ext  = $new_file_ext ? $new_file_ext : $current_file_ext;
 
 			$new_filename = "{$filename}.{$file_ext}";
-			$new_path = "{$current_file_parts['dirname']}/$new_filename";
+			$new_path     = "{$current_file_dirname}/$new_filename";
 			$number_suffix++;
-		} while( file_exists( $new_path ) );
+		} while ( file_exists( $new_path ) );
 
 		return $new_filename;
 	}
