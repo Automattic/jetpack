@@ -201,7 +201,7 @@ class Jetpack_Copy_Post {
 	 */
 	protected function update_likes_sharing( $source_post, $target_post_id ) {
 		$likes   = get_post_meta( $source_post->ID, 'switch_like_status', true );
-		$sharing = get_post_meta( $source_post->ID, 'sharing_disabled', false );
+		$sharing = get_post_meta( $source_post->ID, 'sharing_disabled', true );
 
 		if ( '' !== $likes ) {
 			$likes_result = update_post_meta( $target_post_id, 'switch_like_status', $likes );
@@ -209,7 +209,7 @@ class Jetpack_Copy_Post {
 			$likes_result = null;
 		}
 
-		if ( ! empty( $sharing ) ) {
+		if ( '' !== $sharing ) {
 			$sharing_result = update_post_meta( $target_post_id, 'sharing_disabled', $sharing );
 		} else {
 			$sharing_result = null;
