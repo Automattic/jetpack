@@ -10,18 +10,16 @@ import { isEmpty, isEqual, join } from 'lodash';
  */
 import { BlockControls, BlockIcon, InspectorControls } from '@wordpress/block-editor';
 import {
-	Button,
 	ExternalLink,
 	Notice,
 	PanelBody,
 	Placeholder,
 	SelectControl,
-	TextareaControl,
 	ToggleControl,
 	Toolbar,
 } from '@wordpress/components';
 import { useState } from '@wordpress/element';
-import { _x, __ } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { ENTER, SPACE } from '@wordpress/keycodes';
 
 /**
@@ -39,26 +37,6 @@ import {
 	defaultAttributes,
 	getValidatedAttributes,
 } from './attributes';
-
-const EmbedCodeForm = ( { onSubmit } ) => {
-	const [ embedCode, setEmbedCode ] = useState( '' );
-
-	return (
-		<form onSubmit={ () => onSubmit( embedCode ) }>
-			<TextareaControl
-				onChange={ value => setEmbedCode( value ) }
-				placeholder={ __( 'Paste your OpenTable embed code here…', 'jetpack' ) }
-			>
-				{ embedCode }
-			</TextareaControl>
-			<div>
-				<Button isLarge type="submit">
-					{ _x( 'Embed', 'button label', 'jetpack' ) }
-				</Button>
-			</div>
-		</form>
-	);
-};
 
 export default function OpenTableEdit( { attributes, setAttributes, className, clientId } ) {
 	const validatedAttributes = getValidatedAttributes( defaultAttributes, attributes );
@@ -233,9 +211,6 @@ export default function OpenTableEdit( { attributes, setAttributes, className, c
 					onChange={ () => setAttributes( { newtab: ! newtab } ) }
 				/>
 			</PanelBody>
-			<PanelBody title={ __( 'Embed code', 'jetpack' ) } initialOpen={ false }>
-				<EmbedCodeForm onSubmit={ parseEmbedCode } />
-			</PanelBody>
 		</InspectorControls>
 	);
 
@@ -243,6 +218,10 @@ export default function OpenTableEdit( { attributes, setAttributes, className, c
 		<Placeholder
 			label={ __( 'OpenTable Reservation', 'jetpack' ) }
 			icon={ <BlockIcon icon={ icon } /> }
+			instructions={ __(
+				'Enter your restaurant name, OpenTable Restaurant ID or embed code',
+				'jetpack'
+			) }
 			notices={
 				notice && (
 					<Notice status="error" isDismissible={ false }>
@@ -251,14 +230,7 @@ export default function OpenTableEdit( { attributes, setAttributes, className, c
 				)
 			}
 		>
-			<RestaurantPicker
-				rids={ rid }
-				label={ __(
-					'Enter your restaurant name, OpenTable Restaurant ID or embed code',
-					'jetpack'
-				) }
-				onSubmit={ onPickerSubmit }
-			/>
+			<RestaurantPicker rids={ rid } onSubmit={ onPickerSubmit } />
 			<div className={ `${ className }-placeholder-links` }>
 				<ExternalLink
 					href="https://en.support.wordpress.com/widgets/open-table-widget/"

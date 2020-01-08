@@ -147,8 +147,10 @@ function jetpack_opentable_build_embed_url( $attributes ) {
 		'//www.opentable.com/widget/reservation/loader'
 	);
 
-	foreach ( $attributes['rid'] as $rid ) {
-		$url .= '&rid=' . wp_kses( $rid, array() );
+	if ( ! empty( $attributes['rid'] ) ) {
+		foreach ( $attributes['rid'] as $rid ) {
+			$url .= '&rid=' . wp_kses( $rid, array() );
+		}
 	}
 
 	return $url;
