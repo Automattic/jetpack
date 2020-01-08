@@ -34,6 +34,8 @@ import MapThemePicker from './map-theme-picker';
 import { settings } from './settings.js';
 import previewPlaceholder from './map-preview.jpg';
 
+const MAPBOX_A8C_ACCESS_TOKEN = window.Jetpack_Block_Map_Settings.mapbox_a8c_access_token;
+
 const API_STATE_LOADING = 0;
 const API_STATE_FAILURE = 1;
 const API_STATE_SUCCESS = 2;
@@ -85,7 +87,6 @@ class MapEdit extends Component {
 	};
 	apiCall( serviceApiKey = null, method = 'GET' ) {
 		const { noticeOperations } = this.props;
-		const { apiKey } = this.state;
 		const path = '/wpcom/v2/service-api-keys/mapbox';
 		const fetch = serviceApiKey
 			? { path, method, data: { service_api_key: serviceApiKey } }
@@ -95,8 +96,8 @@ class MapEdit extends Component {
 				result => {
 					noticeOperations.removeAllNotices();
 					this.setState( {
-						apiState: result.service_api_key ? API_STATE_SUCCESS : API_STATE_FAILURE,
-						apiKey: result.service_api_key,
+						apiState: API_STATE_SUCCESS,
+						apiKey: result.service_api_key || MAPBOX_A8C_ACCESS_TOKEN,
 						apiKeyControl: result.service_api_key,
 						apiRequestOutstanding: false,
 					} );
@@ -104,8 +105,8 @@ class MapEdit extends Component {
 				result => {
 					this.onError( null, result.message );
 					this.setState( {
+						apiState: API_STATE_FAILURE,
 						apiRequestOutstanding: false,
-						apiKeyControl: apiKey,
 					} );
 				}
 			);
@@ -191,7 +192,7 @@ class MapEdit extends Component {
 					<PanelBody title={ __( 'Mapbox Access Token', 'jetpack' ) } initialOpen={ false }>
 						<TextControl
 							label={ __( 'Mapbox Access Token', 'jetpack' ) }
-							value={ apiKeyControl }
+							value={ apiKeyControl !== MAPBOX_A8C_ACCESS_TOKEN ? apiKeyControl : '' }
 							onChange={ value => this.setState( { apiKeyControl: value } ) }
 						/>
 						<ButtonGroup>

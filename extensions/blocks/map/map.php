@@ -14,6 +14,26 @@ jetpack_register_block(
 	)
 );
 
+define( 'MAPBOX_A8C_ACCESS_TOKEN', 'test' );
+
+/**
+ * Add the A8C's Mapbox API key to the Map block script.
+ */
+function jetpack_localize_map_block_script() {
+	wp_localize_script( 'jetpack-blocks-editor', 'Jetpack_Block_Map_Settings', array( 'mapbox_a8c_access_token' => MAPBOX_A8C_ACCESS_TOKEN ) );
+}
+add_action( 'enqueue_block_editor_assets', 'jetpack_localize_map_block_script' );
+
+/**
+ * Return the site own Mapbox API key or the A8C one otherwise.
+ *
+ * @return string
+ */
+function jetpack_get_mapbox_api_key() {
+	$api_key = Jetpack_Options::get_option( 'mapbox_api_key' );
+	return empty( $api_key ) ? MAPBOX_A8C_ACCESS_TOKEN : $api_key;
+}
+
 /**
  * Map block registration/dependency declaration.
  *
@@ -23,7 +43,7 @@ jetpack_register_block(
  * @return string
  */
 function jetpack_map_block_load_assets( $attr, $content ) {
-	$api_key = Jetpack_Options::get_option( 'mapbox_api_key' );
+	$api_key = jetpack_get_mapbox_api_key();
 
 	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
 		static $map_block_counter = array();
@@ -110,7 +130,7 @@ function jetpack_map_block_render_single_block_page() {
 
 	/* Put together a new complete document containing only the requested block markup and the scripts/styles needed to render it */
 	$block_markup = $post_html->saveHTML( $container );
-	$api_key      = Jetpack_Options::get_option( 'mapbox_api_key' );
+	$api_key      = jetpack_get_mapbox_api_key();
 	$page_html    = sprintf(
 		'<!DOCTYPE html><head><style>html, body { margin: 0; padding: 0; }</style>%s</head><body>%s</body>',
 		$head_content,
