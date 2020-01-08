@@ -20,25 +20,20 @@ export const title = __( 'OpenTable', 'jetpack' );
 
 export const settings = {
 	title,
-
 	description: __( 'Allow visitors to book a reservation with OpenTable', 'jetpack' ),
-
 	icon,
-
 	category: 'jetpack',
-
-	keywords: [ 'opentable', 'reservation', 'restaurant' ],
-
+	keywords: [
+		__( 'opentable', 'jetpack' ),
+		__( 'reservation', 'jetpack' ),
+		__( 'restaurant', 'jetpack' ),
+	],
 	supports: {
 		html: false,
 	},
-
 	edit,
-
 	save: () => null,
-
 	attributes: defaultAttributes,
-
 	example: {
 		attributes: {
 			rid: '1',
