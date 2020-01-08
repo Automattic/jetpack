@@ -157,5 +157,5 @@ function jetpack_opentable_build_embed_url( $attributes ) {
 		}
 	}
 
-	return $url;
+	return apply_filters( 'jetpack_calendly_block_url', $url );
 }
