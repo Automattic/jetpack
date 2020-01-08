@@ -23,6 +23,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { fallback, eventIdFromUrl } from './utils';
 import { icon, URL_REGEX } from '.';
 import ModalButtonPreview from './modal-button-preview';
+import { EventList } from './event-list';
 
 // Custom eventbrite urls use a subdomain of eventbrite.com.
 const EVENTBRITE_CUSTOM_URL_REGEX = /.*(?:eventbrite\.[a-z.]+)\/?\s*$/i;
@@ -183,6 +184,7 @@ class EventbriteEdit extends Component {
 					label={ __( 'Eventbrite Tickets', 'jetpack' ) }
 					icon={ <BlockIcon icon={ icon } /> }
 				>
+					<div>{ __( 'Enter an event link', 'jetpack' ) }</div>
 					<form onSubmit={ this.setUrl }>
 						<input
 							type="url"
@@ -195,6 +197,8 @@ class EventbriteEdit extends Component {
 						<Button isLarge type="submit">
 							{ _x( 'Embed', 'button label', 'jetpack' ) }
 						</Button>
+						<div>{ __( 'Or select an event from your connected account', 'jetpack' ) }</div>
+						<EventList />
 						{ this.cannotEmbed() && (
 							<p className="components-placeholder__error">
 								{ __( 'Sorry, this content could not be embedded.', 'jetpack' ) }
