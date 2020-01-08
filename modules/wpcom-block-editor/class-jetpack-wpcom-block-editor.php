@@ -269,12 +269,13 @@ class Jetpack_WPCOM_Block_Editor {
 				'lodash',
 				'wp-compose',
 				'wp-data',
+				'wp-dom-ready',
 				'wp-editor',
 				'wp-element',
 				'wp-rich-text',
 			),
 			$version,
-			true
+			false
 		);
 
 		wp_localize_script(
@@ -304,10 +305,11 @@ class Jetpack_WPCOM_Block_Editor {
 					'wp-blocks',
 					'wp-data',
 					'wp-dom-ready',
+					'wp-hooks',
 					'wp-plugins',
 				),
 				$version,
-				true
+				false
 			);
 		}
 
@@ -329,7 +331,7 @@ class Jetpack_WPCOM_Block_Editor {
 					'wp-url',
 				),
 				$version,
-				true
+				false
 			);
 
 			wp_enqueue_style(
