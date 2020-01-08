@@ -19,7 +19,7 @@ import {
 	Toolbar,
 } from '@wordpress/components';
 import { useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { ENTER, SPACE } from '@wordpress/keycodes';
 
 /**
@@ -121,7 +121,7 @@ export default function OpenTableEdit( { attributes, setAttributes, className, c
 			<>
 				<div className={ `${ className }-overlay` }></div>
 				<iframe
-					title={ `Open Table Preview ${ clientId }` }
+					title={ sprintf( __( 'Open Table Preview %s', 'jetpack' ), clientId ) }
 					src={ `https://www.opentable.com/widget/reservation/canvas?rid=${ join(
 						rid,
 						'%2C'
