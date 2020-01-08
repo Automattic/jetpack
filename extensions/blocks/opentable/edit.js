@@ -122,6 +122,7 @@ export default function OpenTableEdit( { attributes, setAttributes, className, c
 				<div className={ `${ className }-overlay` }></div>
 				<iframe
 					title={ sprintf( __( 'Open Table Preview %s', 'jetpack' ), clientId ) }
+					scrolling="no"
 					src={ `https://www.opentable.com/widget/reservation/canvas?rid=${ join(
 						rid,
 						'%2C'
