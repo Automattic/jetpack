@@ -73,7 +73,7 @@ class Jetpack_Media {
 	 * @param  number $media_id
 	 * @return string
 	 */
-	private function get_time_string_from_guid( $media_id ) {
+	private static function get_time_string_from_guid( $media_id ) {
 		$time = date( "Y/m", strtotime( current_time( 'mysql' ) ) );
 
 		if ( $media = get_post( $media_id ) ) {
@@ -459,4 +459,3 @@ function clean_revision_history( $media_id ) {
 };
 
 add_action( 'delete_attachment', 'clean_revision_history' );
-
