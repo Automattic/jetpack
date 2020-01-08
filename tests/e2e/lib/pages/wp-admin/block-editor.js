@@ -6,6 +6,9 @@ import { Page, waitAndClick, waitForSelector, scrollIntoView } from 'puppeteer-u
  * WordPress dependencies
  */
 import { getAllBlocks, searchForBlock } from '@wordpress/e2e-test-utils';
+/**
+ * Internal dependencies
+ */
 import { getNgrokSiteUrl } from '../../utils-helper';
 
 export default class BlockEditorPage extends Page {

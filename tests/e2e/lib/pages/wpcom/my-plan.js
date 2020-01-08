@@ -1,5 +1,5 @@
 /**
- * Internal dependencies
+ * External dependencies
  */
 import { waitAndClick, Page } from 'puppeteer-utils';
 
