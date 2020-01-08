@@ -20,6 +20,9 @@
 
 		form {
 			flex-direction: row;
+			@media screen and (max-width: 479px) {
+				display: block;
+			}
 
 			p {
 				margin-top: 1em;
@@ -64,23 +67,24 @@
 	}
 
 	&-restaurant-picker {
-		margin-bottom: 1em;
 		position: relative;
 		width: 100%;
 
 		.components-form-token-field__input-container {
 			width: 100%;
 			@media screen and (min-width: 480px) {
-				max-width: 327px;
+				width: 327px;
 			}
+		}
+
+		.components-form-token-field__label {
+			display: none;
 		}
 
 		.components-button.is-large {
 			@media screen and (min-width: 480px) {
-				margin: 4px 0 0 0;
-				position: absolute;
-				right: 0;
-				top: 4.4em;
+				margin: 4px 0 0 4px;
+				position: relative;
 			}
 		}
 	}

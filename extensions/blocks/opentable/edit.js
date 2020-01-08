@@ -230,7 +230,7 @@ export default function OpenTableEdit( { attributes, setAttributes, className, c
 				)
 			}
 		>
-			<RestaurantPicker rids={ rid } onSubmit={ onPickerSubmit } />
+			<RestaurantPicker label={ null } rids={ rid } onSubmit={ onPickerSubmit } />
 			<div className={ `${ className }-placeholder-links` }>
 				<ExternalLink
 					href="https://en.support.wordpress.com/widgets/open-table-widget/"
