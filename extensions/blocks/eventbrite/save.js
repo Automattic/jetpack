@@ -18,6 +18,16 @@ import { createWidgetId, eventIdFromUrl } from './utils';
  * Uses a "button" element rather than "a", since the button opens a modal rather than a link.
  */
 
+/**
+ * Adapted button save function from @wordpress/block-library
+ * (Using Gutenberg code that shipped with WordPress 5.3)
+ *
+ * @see https://github.com/WordPress/gutenberg/blob/wp/5.3/packages/block-library/src/button/save.js
+ *
+ * Uses a "button" element rather than "a", since the button opens a modal rather than
+ * an external link.
+ */
+
 function saveButton( eventId, attributes ) {
 	const {
 		backgroundColor,
