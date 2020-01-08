@@ -56,6 +56,7 @@ class WPCOM_REST_API_V2_Endpoint_Resolve_Redirect extends WP_REST_Controller {
 	 * @return WP_REST_Response The REST API response.
 	 */
 	public function follow_redirect( $request ) {
+		// Add a User-Agent header since the request is sometimes blocked without it.
 		$response = wp_safe_remote_get(
 			$request['url'],
 			array(
