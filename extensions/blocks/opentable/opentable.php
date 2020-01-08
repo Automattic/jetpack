@@ -2,7 +2,7 @@
 /**
  * OpenTable Block.
  *
- * @since 8.x
+ * @since 8.2
  *
  * @package Jetpack
  */
