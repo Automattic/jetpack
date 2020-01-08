@@ -105,7 +105,7 @@ function jetpack_opentable_block_get_attribute( $attributes, $attribute_name ) {
  * @return string The filtered attribute
  */
 function jetpack_opentable_block_get_type_attribute( $attributes ) {
-	if ( count( $attributes['rid'] ) > 1 ) {
+	if ( ! empty( $attributes['rid'] ) && count( $attributes['rid'] ) > 1 ) {
 		return 'multi';
 	}
 
