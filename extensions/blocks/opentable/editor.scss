@@ -24,8 +24,26 @@
 				display: block;
 			}
 
+			.components-form-token-field__label {
+				display: none;
+			}
+
 			p {
 				margin-top: 1em;
+			}
+
+			.components-form-token-field__input-container {
+				width: 100%;
+				@media screen and (min-width: 480px) {
+					width: 327px;
+				}
+			}
+
+			.components-button.is-large {
+				@media screen and (min-width: 480px) {
+					margin: 4px 0 0 4px;
+					position: relative;
+				}
 			}
 		}
 	}
@@ -67,26 +85,9 @@
 	}
 
 	&-restaurant-picker {
+		margin-bottom: 1em;
 		position: relative;
 		width: 100%;
-
-		.components-form-token-field__input-container {
-			width: 100%;
-			@media screen and (min-width: 480px) {
-				width: 327px;
-			}
-		}
-
-		.components-form-token-field__label {
-			display: none;
-		}
-
-		.components-button.is-large {
-			@media screen and (min-width: 480px) {
-				margin: 4px 0 0 4px;
-				position: relative;
-			}
-		}
 	}
 
 	&-placeholder-links {
