@@ -1,14 +1,11 @@
 /**
- * For a detailed explanation of configuration properties, visit:
- * https://jestjs.io/docs/en/configuration.html
+ * External dependencies
  */
+const { jestConfig, jestPuppeteerConfig } = require( 'puppeteer-utils' );
+let jestConfigMod = jestConfig;
+let setupFiles = jestConfig.setupFiles;
 
-module.exports = {
-	preset: 'jest-puppeteer',
-	setupFiles: [ '<rootDir>/lib/setup.js' ],
-	setupFilesAfterEnv: [
-		'<rootDir>/lib/setup-env.js',
-		'<rootDir>/lib/jest.test.failure.js',
-		'expect-puppeteer',
-	],
-};
+setupFiles.push( './lib/setup.js' );
+jestConfigMod.setupFiles = setupFiles;
+jestPuppeteerConfig.useJestPuppeteerConfig();
+module.exports = jestConfig;

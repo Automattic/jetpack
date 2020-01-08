@@ -1,7 +1,7 @@
 /**
- * Internal dependencies
+ * External dependencies
  */
-import { waitAndType, waitAndClick, waitForSelector } from '../page-helper';
+import { waitAndType, waitAndClick, waitForSelector } from 'puppeteer-utils';
 
 export default class SimplePaymentBlock {
 	constructor( block, page ) {

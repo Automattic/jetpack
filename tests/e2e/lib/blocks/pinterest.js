@@ -1,7 +1,7 @@
 /**
- * Internal dependencies
+ * External dependencies
  */
-import { waitForSelector, waitAndClick, waitAndType } from '../page-helper';
+import { waitForSelector, waitAndClick, waitAndType } from 'puppeteer-utils';
 
 export default class PinterestBlock {
 	constructor( block, page ) {

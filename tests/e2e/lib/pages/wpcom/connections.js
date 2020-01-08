@@ -1,14 +1,14 @@
 /**
- * Internal dependencies
+ * External dependencies
  */
-import Page from '../page';
 import {
 	waitAndClick,
 	waitAndType,
 	clickAndWaitForNewPage,
 	getAccountCredentials,
 	isEventuallyPresent,
-} from '../../page-helper';
+	Page,
+} from 'puppeteer-utils';
 
 export default class ConnectionsPage extends Page {
 	constructor( page ) {

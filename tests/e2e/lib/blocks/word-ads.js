@@ -1,7 +1,7 @@
 /**
- * Internal dependencies
+ * External dependencies
  */
-import { waitForSelector, waitAndClick } from '../page-helper';
+import { waitForSelector, waitAndClick } from 'puppeteer-utils';
 /**
  * WordPress dependencies
  */

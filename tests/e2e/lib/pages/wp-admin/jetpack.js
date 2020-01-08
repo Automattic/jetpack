@@ -1,8 +1,7 @@
 /**
- * Internal dependencies
+ * External dependencies
  */
-import Page from '../page';
-import { waitAndClick, isEventuallyVisible } from '../../page-helper';
+import { waitAndClick, isEventuallyVisible, Page } from 'puppeteer-utils';
 
 export default class JetpackPage extends Page {
 	constructor( page ) {

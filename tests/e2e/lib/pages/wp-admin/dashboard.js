@@ -1,8 +1,7 @@
 /**
- * Internal dependencies
+ * External dependencies
  */
-import Page from '../page';
-import { isEventuallyVisible, waitAndClick } from '../../page-helper';
+import { isEventuallyVisible, waitAndClick, Page } from 'puppeteer-utils';
 
 export default class DashboardPage extends Page {
 	constructor( page ) {

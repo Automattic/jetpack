@@ -4,11 +4,9 @@
 import { createURL } from '@wordpress/e2e-test-utils';
 
 /**
- * Internal dependencies
+ * External dependencies
  */
-import Page from '../page';
-import { waitAndClick, waitAndType } from '../../page-helper';
-import { WP_USERNAME, WP_PASSWORD } from '../../setup';
+import { waitAndClick, waitAndType, WP_USERNAME, WP_PASSWORD, Page } from 'puppeteer-utils';
 
 export default class WPLoginPage extends Page {
 	constructor( page ) {

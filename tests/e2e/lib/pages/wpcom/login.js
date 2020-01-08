@@ -1,14 +1,14 @@
 /**
- * Internal dependencies
+ * External dependencies
  */
-import Page from '../page';
 import {
 	waitForSelector,
 	getAccountCredentials,
 	waitAndClick,
 	waitAndType,
 	isEventuallyVisible,
-} from '../../page-helper';
+	Page,
+} from 'puppeteer-utils';
 
 export default class LoginPage extends Page {
 	constructor( page ) {

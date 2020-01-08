@@ -1,7 +1,7 @@
 /**
- * Internal dependencies
+ * External dependencies
  */
-import Page from '../page';
+import { Page } from 'puppeteer-utils';
 
 export default class HomePage extends Page {
 	constructor( page ) {

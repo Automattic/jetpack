@@ -1,12 +1,11 @@
 /**
- * Internal dependencies
+ * External dependencies
  */
-import Page from '../page';
+import { Page, waitAndClick, waitForSelector, scrollIntoView } from 'puppeteer-utils';
 /**
  * WordPress dependencies
  */
 import { getAllBlocks, searchForBlock } from '@wordpress/e2e-test-utils';
-import { waitAndClick, waitForSelector, scrollIntoView } from '../../page-helper';
 import { getNgrokSiteUrl } from '../../utils-helper';
 
 export default class BlockEditorPage extends Page {

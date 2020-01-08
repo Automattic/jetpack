@@ -1,8 +1,7 @@
 /**
- * Internal dependencies
+ * External dependencies
  */
-import Page from '../page';
-import { waitAndClick, waitForSelector } from '../../page-helper';
+import { waitAndClick, waitForSelector, Page } from 'puppeteer-utils';
 
 export default class JetpackSiteTopicPage extends Page {
 	constructor( page ) {

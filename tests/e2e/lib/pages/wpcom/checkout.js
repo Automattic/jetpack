@@ -1,8 +1,13 @@
 /**
- * Internal dependencies
+ * External dependencies
  */
-import Page from '../page';
-import { waitAndType, waitForSelector, waitAndClick, isEventuallyVisible } from '../../page-helper';
+import {
+	waitAndType,
+	waitForSelector,
+	waitAndClick,
+	isEventuallyVisible,
+	Page,
+} from 'puppeteer-utils';
 
 export default class CheckoutPage extends Page {
 	constructor( page ) {

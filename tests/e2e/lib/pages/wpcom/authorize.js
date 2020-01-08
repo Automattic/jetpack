@@ -1,8 +1,7 @@
 /**
- * Internal dependencies
+ * External dependencies
  */
-import Page from '../page';
-import { waitForSelector, waitAndClick } from '../../page-helper';
+import { waitForSelector, waitAndClick, Page } from 'puppeteer-utils';
 
 export default class AuthorizePage extends Page {
 	constructor( page ) {
