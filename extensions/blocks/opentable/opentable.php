@@ -9,23 +9,44 @@
 
 namespace Jetpack\OpenTable_Block;
 
-const BLOCK_NAME = 'opentable';
+const FEATURE_NAME = 'opentable';
+const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 
-if ( is_available() ) {
-	jetpack_register_block(
-		'jetpack/opentable',
-		array( 'render_callback' => 'Jetpack\OpenTable_Block\load_assets' )
-	);
-} else {
-	\Jetpack_Gutenberg::set_extension_unavailable(
-		'jetpack/opentable',
-		'missing_plan',
-		array(
-			'required_feature' => BLOCK_NAME,
-			'required_plan'    => is_wpcom() ? 'value_bundle' : 'jetpack_premium',
-		)
-	);
+/**
+ * Register the block if it's available
+ */
+function register() {
+	if ( ! is_unavailable() ) {
+		jetpack_register_block(
+			BLOCK_NAME,
+			array( 'render_callback' => 'Jetpack\OpenTable_Block\load_assets' )
+		);
+	}
 }
+
+add_action( 'init', 'Jetpack\OpenTable_Block\register' );
+
+/**
+ * Checks if the block is available and sets the status accourdingly
+ */
+function set_availability() {
+	$unavailable = is_unavailable();
+
+	if ( $unavailable ) {
+		\Jetpack_Gutenberg::set_extension_unavailable(
+			BLOCK_NAME,
+			$unavailable,
+			array(
+				'required_feature' => FEATURE_NAME,
+				'required_plan'    => is_wpcom() ? 'value_bundle' : 'jetpack_premium',
+			)
+		);
+		return;
+	}
+	\Jetpack_Gutenberg::set_extension_available( BLOCK_NAME );
+}
+
+add_action( 'jetpack_register_gutenberg_extensions', 'Jetpack\OpenTable_Block\set_availability' );
 
 /**
  * Checks if we are running on WordPress.com
@@ -41,14 +62,21 @@ function is_wpcom() {
  *
  * @return bool True if the block is available, false otherwise.
  */
-function is_available() {
+function is_unavailable() {
 	// For WPCOM sites.
 	if ( is_wpcom() && function_exists( 'has_any_blog_stickers' ) ) {
-		$site_id = get_current_blog_id();
-		return has_any_blog_stickers( array( 'premium-plan', 'business-plan', 'ecommerce-plan' ), $site_id );
+		$site_id  = get_current_blog_id();
+		$has_plan = has_any_blog_stickers( array( 'premium-plan', 'business-plan', 'ecommerce-plan' ), $site_id );
+		return $has_plan ? false : 'missing_plan';
 	}
 	// For all Jetpack sites.
-	return \Jetpack::is_active() && \Jetpack_Plan::supports( BLOCK_NAME );
+	if ( ! \Jetpack::is_active() ) {
+		return 'jetpack_inactive';
+	}
+	if ( ! \Jetpack_Plan::supports( FEATURE_NAME ) ) {
+		return 'missing_plan';
+	}
+	return false;
 }
 
 /**
@@ -59,9 +87,9 @@ function is_available() {
  * @return string
  */
 function load_assets( $attributes ) {
-	\Jetpack_Gutenberg::load_assets_as_required( BLOCK_NAME );
+	\Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 
-	$classes = \Jetpack_Gutenberg::block_classes( BLOCK_NAME, $attributes );
+	$classes = \Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attributes );
 	$content = '<div class="' . esc_attr( $classes ) . '">';
 	// The OpenTable script uses multiple `rid` paramters,
 	// so we can't use WordPress to output it, as WordPress attempts to validate it and removes them.
