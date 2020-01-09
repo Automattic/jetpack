@@ -95,9 +95,10 @@ class MapEdit extends Component {
 			apiFetch( fetch ).then(
 				result => {
 					noticeOperations.removeAllNotices();
+					const apiKey = result.service_api_key || MAPBOX_A8C_ACCESS_TOKEN;
 					this.setState( {
-						apiState: API_STATE_SUCCESS,
-						apiKey: result.service_api_key || MAPBOX_A8C_ACCESS_TOKEN,
+						apiState: apiKey ? API_STATE_SUCCESS : API_STATE_FAILURE,
+						apiKey,
 						apiKeyControl: result.service_api_key,
 						apiRequestOutstanding: false,
 					} );

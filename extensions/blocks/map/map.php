@@ -20,6 +20,11 @@ jetpack_register_block(
  * @return string
  */
 function jetpack_fetch_mapbox_a8c_access_token() {
+	$current_user = wp_get_current_user();
+	if ( ! Jetpack::is_user_connected( $current_user->ID ) ) {
+		return '';
+	}
+
 	$response = wp_remote_get( 'https://public-api.wordpress.com/wpcom/v2/mapbox' );
 	if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
 		return '';
@@ -43,10 +48,10 @@ add_action( 'enqueue_block_editor_assets', 'jetpack_localize_map_block_script' )
  */
 function jetpack_get_mapbox_api_key() {
 	$api_key = Jetpack_Options::get_option( 'mapbox_api_key' );
-	if ( ! empty( $api_key ) ) {
-		return $api_key;
+	if ( empty( $api_key ) ) {
+		return jetpack_fetch_mapbox_a8c_access_token();
 	}
-	return jetpack_fetch_mapbox_a8c_access_token();
+	return $api_key;
 }
 
 /**
