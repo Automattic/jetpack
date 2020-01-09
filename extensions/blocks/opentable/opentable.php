@@ -7,13 +7,15 @@
  * @package Jetpack
  */
 
-if ( jetpack_opentable_block_is_available() ) {
+namespace Jetpack\OpenTable_Block;
+
+if ( is_available() ) {
 	jetpack_register_block(
 		'jetpack/opentable',
-		array( 'render_callback' => 'jetpack_opentable_block_load_assets' )
+		array( 'render_callback' => 'Jetpack\OpenTable_Block\load_assets' )
 	);
 } else {
-	Jetpack_Gutenberg::set_extension_unavailable(
+	\Jetpack_Gutenberg::set_extension_unavailable(
 		'jetpack/opentable',
 		'missing_plan',
 		array(
@@ -28,26 +30,14 @@ if ( jetpack_opentable_block_is_available() ) {
  *
  * @return bool True if the block is available, false otherwise.
  */
-function jetpack_opentable_block_is_available() {
+function is_available() {
 	// For WPCOM sites.
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM && function_exists( 'has_any_blog_stickers' ) ) {
 		$site_id = jetpack_get_blog_id();
 		return has_any_blog_stickers( array( 'premium-plan', 'business-plan', 'ecommerce-plan' ), $site_id );
 	}
 	// For all Jetpack sites.
-	return Jetpack::is_active() && Jetpack_Plan::supports( 'opentable' );
-}
-
-/**
- * Get the current blog ID
- *
- * @return int The current blog ID
- */
-function jetpack_opentable_block_get_blog_id() {
-	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-		return get_current_blog_id();
-	}
-	return Jetpack_Options::get_option( 'id' );
+	return \Jetpack::is_active() && \Jetpack_Plan::supports( 'opentable' );
 }
 
 /**
@@ -57,15 +47,15 @@ function jetpack_opentable_block_get_blog_id() {
  *
  * @return string
  */
-function jetpack_opentable_block_load_assets( $attributes ) {
-	Jetpack_Gutenberg::load_assets_as_required( 'opentable' );
+function load_assets( $attributes ) {
+	\Jetpack_Gutenberg::load_assets_as_required( 'opentable' );
 
-	$classes = Jetpack_Gutenberg::block_classes( 'opentable', $attributes );
+	$classes = \Jetpack_Gutenberg::block_classes( 'opentable', $attributes );
 	$content = '<div class="' . esc_attr( $classes ) . '">';
 	// The OpenTable script uses multiple `rid` paramters,
 	// so we can't use WordPress to output it, as WordPress attempts to validate it and removes them.
 	// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
-	$content .= '<script type="text/javascript" src="' . esc_url( jetpack_opentable_build_embed_url( $attributes ) ) . '"></script>';
+	$content .= '<script type="text/javascript" src="' . esc_url( build_embed_url( $attributes ) ) . '"></script>';
 	$content .= '</div>';
 	return $content;
 }
@@ -78,7 +68,7 @@ function jetpack_opentable_block_load_assets( $attributes ) {
  *
  * @return string The filtered attribute
  */
-function jetpack_opentable_block_get_attribute( $attributes, $attribute_name ) {
+function get_attribute( $attributes, $attribute_name ) {
 	if ( isset( $attributes[ $attribute_name ] ) ) {
 		if ( in_array( $attribute_name, array( 'iframe', 'newtab' ), true ) ) {
 			return $attributes[ $attribute_name ] ? 'true' : 'false';
@@ -104,7 +94,7 @@ function jetpack_opentable_block_get_attribute( $attributes, $attribute_name ) {
  *
  * @return string The filtered attribute
  */
-function jetpack_opentable_block_get_type_attribute( $attributes ) {
+function get_type_attribute( $attributes ) {
 	if ( ! empty( $attributes['rid'] ) && count( $attributes['rid'] ) > 1 ) {
 		return 'multi';
 	}
@@ -142,7 +132,7 @@ function jetpack_opentable_block_get_type_attribute( $attributes ) {
  *
  * @return string The filtered attribute
  */
-function jetpack_opentable_block_get_theme_attribute( $attributes ) {
+function get_theme_attribute( $attributes ) {
 	$valid_themes = array( 'standard', 'wide', 'tall' );
 
 	if ( empty( $attributes['style'] )
@@ -161,15 +151,15 @@ function jetpack_opentable_block_get_theme_attribute( $attributes ) {
  *
  * @return string Embed URL
  */
-function jetpack_opentable_build_embed_url( $attributes ) {
+function build_embed_url( $attributes ) {
 	$url = add_query_arg(
 		array(
-			'type'   => jetpack_opentable_block_get_type_attribute( $attributes ),
-			'theme'  => jetpack_opentable_block_get_theme_attribute( $attributes ),
-			'iframe' => jetpack_opentable_block_get_attribute( $attributes, 'iframe' ),
-			'domain' => jetpack_opentable_block_get_attribute( $attributes, 'domain' ),
-			'lang'   => jetpack_opentable_block_get_attribute( $attributes, 'lang' ),
-			'newtab' => jetpack_opentable_block_get_attribute( $attributes, 'newtab' ),
+			'type'   => get_type_attribute( $attributes ),
+			'theme'  => get_theme_attribute( $attributes ),
+			'iframe' => get_attribute( $attributes, 'iframe' ),
+			'domain' => get_attribute( $attributes, 'domain' ),
+			'lang'   => get_attribute( $attributes, 'lang' ),
+			'newtab' => get_attribute( $attributes, 'newtab' ),
 		),
 		'//www.opentable.com/widget/reservation/loader'
 	);
