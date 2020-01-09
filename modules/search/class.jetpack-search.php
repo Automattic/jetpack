@@ -11,6 +11,8 @@
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Constants;
 
+require_once dirname( __FILE__ ) . '/class.jetpack-search-options.php';
+
 /**
  * The main class for the Jetpack Search module.
  *
@@ -138,7 +140,12 @@ class Jetpack_Search {
 	 */
 	public static function instance() {
 		if ( ! isset( self::$instance ) ) {
-			self::$instance = new Jetpack_Search();
+			if ( Jetpack_Search_Options::is_instant_enabled() ) {
+				require_once dirname( __FILE__ ) . '/class-jetpack-instant-search.php';
+				self::$instance = new Jetpack_Instant_Search();
+			} else {
+				self::$instance = new Jetpack_Search();
+			}
 
 			self::$instance->setup();
 		}
@@ -176,11 +183,19 @@ class Jetpack_Search {
 			return;
 		}
 
+		$this->load_php();
+		$this->init_hooks();
+	}
+
+	/**
+	 * Loads the php for this version of search
+	 *
+	 * @since 8.3.0
+	 */
+	public function load_php() {
 		require_once dirname( __FILE__ ) . '/class.jetpack-search-helpers.php';
 		require_once dirname( __FILE__ ) . '/class.jetpack-search-template-tags.php';
 		require_once JETPACK__PLUGIN_DIR . 'modules/widgets/search.php';
-
-		$this->init_hooks();
 	}
 
 	/**
@@ -200,125 +215,11 @@ class Jetpack_Search {
 			add_action( 'init', array( $this, 'set_filters_from_widgets' ) );
 
 			add_action( 'pre_get_posts', array( $this, 'maybe_add_post_type_as_var' ) );
-
-			if ( Constants::is_true( 'JETPACK_SEARCH_PROTOTYPE' ) ) {
-				add_action( 'wp_footer', array( $this, 'print_instant_search_sidebar' ) );
-				add_action( 'wp_enqueue_scripts', array( $this, 'load_instant_search_assets' ) );
-			}
 		} else {
 			add_action( 'update_option', array( $this, 'track_widget_updates' ), 10, 3 );
 		}
 
-		if ( Constants::is_true( 'JETPACK_SEARCH_PROTOTYPE' ) ) {
-			add_action( 'widgets_init', array( $this, 'register_jetpack_instant_sidebar' ) );
-		}
-
 		add_action( 'jetpack_deactivate_module_search', array( $this, 'move_search_widgets_to_inactive' ) );
-	}
-
-	/**
-	 * Loads assets for Jetpack Instant Search Prototype featuring Search As You Type experience.
-	 */
-	public function load_instant_search_assets() {
-		if ( Constants::is_true( 'JETPACK_SEARCH_PROTOTYPE' ) ) {
-			$script_relative_path = '_inc/build/instant-search/jp-search.bundle.js';
-			if ( file_exists( JETPACK__PLUGIN_DIR . $script_relative_path ) ) {
-				$script_version = self::get_asset_version( $script_relative_path );
-				$script_path    = plugins_url( $script_relative_path, JETPACK__PLUGIN_FILE );
-				wp_enqueue_script( 'jetpack-instant-search', $script_path, array(), $script_version, true );
-				$this->load_and_initialize_tracks();
-
-				$widget_options = Jetpack_Search_Helpers::get_widgets_from_option();
-				if ( is_array( $widget_options ) ) {
-					$widget_options = end( $widget_options );
-				}
-
-				$filters = Jetpack_Search_Helpers::get_filters_from_widgets();
-				$widgets = array();
-				foreach ( $filters as $key => $filter ) {
-					if ( ! isset( $widgets[ $filter['widget_id'] ] ) ) {
-						$widgets[ $filter['widget_id'] ]['filters']   = array();
-						$widgets[ $filter['widget_id'] ]['widget_id'] = $filter['widget_id'];
-					}
-					$new_filter                                   = $filter;
-					$new_filter['filter_id']                      = $key;
-					$widgets[ $filter['widget_id'] ]['filters'][] = $new_filter;
-				}
-
-				$post_type_objs   = get_post_types( array(), 'objects' );
-				$post_type_labels = array();
-				foreach ( $post_type_objs as $key => $obj ) {
-					$post_type_labels[ $key ] = array(
-						'singular_name' => $obj->labels->singular_name,
-						'name'          => $obj->labels->name,
-					);
-				}
-				// This is probably a temporary filter for testing the prototype.
-				$options = array(
-					'enableLoadOnScroll' => false,
-					'homeUrl'            => home_url(),
-					'locale'             => str_replace( '_', '-', get_locale() ),
-					'postTypeFilters'    => $widget_options['post_types'],
-					'postTypes'          => $post_type_labels,
-					'siteId'             => Jetpack::get_option( 'id' ),
-					'sort'               => $widget_options['sort'],
-					'widgets'            => array_values( $widgets ),
-				);
-				/**
-				 * Customize Instant Search Options.
-				 *
-				 * @module search
-				 *
-				 * @since 7.7.0
-				 *
-				 * @param array $options Array of parameters used in Instant Search queries.
-				 */
-				$options = apply_filters( 'jetpack_instant_search_options', $options );
-
-				wp_localize_script(
-					'jetpack-instant-search',
-					'JetpackInstantSearchOptions',
-					$options
-				);
-			}
-
-			$style_relative_path = '_inc/build/instant-search/instant-search.min.css';
-			if ( file_exists( JETPACK__PLUGIN_DIR . $script_relative_path ) ) {
-				$style_version = self::get_asset_version( $style_relative_path );
-				$style_path    = plugins_url( $style_relative_path, JETPACK__PLUGIN_FILE );
-				wp_enqueue_style( 'jetpack-instant-search', $style_path, array(), $style_version );
-			}
-		}
-	}
-
-	/**
-	 * Registers a widget sidebar for Instant Search.
-	 */
-	public function register_jetpack_instant_sidebar() {
-		$args = array(
-			'name'          => 'Jetpack Search Sidebar',
-			'id'            => 'jetpack-instant-search-sidebar',
-			'description'   => 'Customize the sidebar inside the Jetpack Search overlay',
-			'class'         => '',
-			'before_widget' => '<div id="%1$s" class="widget %2$s">',
-			'after_widget'  => '</div>',
-			'before_title'  => '<h2 class="widgettitle">',
-			'after_title'   => '</h2>',
-		);
-		register_sidebar( $args );
-	}
-
-	/**
-	 * Prints Instant Search sidebar.
-	 */
-	public function print_instant_search_sidebar() {
-		?>
-		<div class="jetpack-instant-search__widget-area" style="display: none">
-			<?php if ( is_active_sidebar( 'jetpack-instant-search-sidebar' ) ) { ?>
-				<?php dynamic_sidebar( 'jetpack-instant-search-sidebar' ); ?>
-			<?php } ?>
-		</div>
-		<?php
 	}
 
 	/**
@@ -343,25 +244,6 @@ class Jetpack_Search {
 	 */
 	public function has_vip_index() {
 		return defined( 'JETPACK_SEARCH_VIP_INDEX' ) && JETPACK_SEARCH_VIP_INDEX;
-	}
-
-	/**
-	 * Loads scripts for Tracks analytics library
-	 */
-	public function load_and_initialize_tracks() {
-		wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
-	}
-
-	/**
-	 * Get the version number to use when loading the file. Allows us to bypass cache when developing.
-	 *
-	 * @param string $file Path of the file we are looking for.
-	 * @return string $script_version Version number.
-	 */
-	public static function get_asset_version( $file ) {
-		return Jetpack::is_development_version() && file_exists( JETPACK__PLUGIN_DIR . $file )
-			? filemtime( JETPACK__PLUGIN_DIR . $file )
-			: JETPACK__VERSION;
 	}
 
 	/**
