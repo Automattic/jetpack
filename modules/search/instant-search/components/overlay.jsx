@@ -11,7 +11,7 @@ const closeOnEscapeKey = callback => event => {
 	event.key === 'Escape' && callback();
 };
 
-const Overlay = ( { shouldShowOverlay, closeOverlay, children } ) => {
+const Overlay = ( { isVisible, closeOverlay, children } ) => {
 	useEffect( () => {
 		window.addEventListener( 'keydown', closeOnEscapeKey( closeOverlay ) );
 		return () => {
@@ -21,7 +21,7 @@ const Overlay = ( { shouldShowOverlay, closeOverlay, children } ) => {
 	}, [] );
 
 	const classNames = [ 'jetpack-instant-search__overlay' ];
-	if ( ! shouldShowOverlay ) {
+	if ( ! isVisible ) {
 		classNames.push( 'is-hidden' );
 	}
 

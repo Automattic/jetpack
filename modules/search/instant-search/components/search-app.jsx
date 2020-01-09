@@ -182,7 +182,7 @@ class SearchApp extends Component {
 
 	render() {
 		return createPortal(
-			<Overlay shouldShowOverlay={ this.state.showResults } closeOverlay={ this.hideResults }>
+			<Overlay isVisible={ this.state.showResults } closeOverlay={ this.hideResults }>
 				<SearchResults
 					enableLoadOnScroll={ this.props.options.enableLoadOnScroll }
 					hasError={ this.state.hasError }
