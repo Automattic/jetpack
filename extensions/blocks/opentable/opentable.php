@@ -181,5 +181,5 @@ function build_embed_url( $attributes ) {
 		}
 	}
 
-	return apply_filters( 'jetpack_calendly_block_url', esc_url( $url ) );
+	return apply_filters( 'jetpack_opentable_block_url', esc_url( $url ) );
 }
