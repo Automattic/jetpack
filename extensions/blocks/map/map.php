@@ -24,7 +24,9 @@ function jetpack_fetch_mapbox_a8c_access_token() {
 		return '';
 	}
 
-	$response = wp_remote_get( 'https://public-api.wordpress.com/wpcom/v2/mapbox' );
+	$site_id = Jetpack_Options::get_option( 'id' );
+
+	$response = wp_remote_get( 'https://public-api.wordpress.com/wpcom/v2/sites/' . $site_id . '/mapbox' );
 	if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
 		return '';
 	}
