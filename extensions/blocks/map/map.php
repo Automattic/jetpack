@@ -20,8 +20,7 @@ jetpack_register_block(
  * @return string
  */
 function jetpack_fetch_mapbox_a8c_access_token() {
-	$current_user = wp_get_current_user();
-	if ( ! Jetpack::is_user_connected( $current_user->ID ) ) {
+	if ( ! Jetpack::is_active() ) {
 		return '';
 	}
 
