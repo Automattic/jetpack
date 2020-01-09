@@ -376,6 +376,11 @@
   resolved "https://registry.yarnpkg.com/@babel/parser/-/parser-7.5.0.tgz#3e0713dff89ad6ae37faec3b29dcfc5c979770b7"
   integrity sha512-I5nW8AhGpOXGCCNYGc+p7ExQIBxRFnS2fd/d862bNOKvmoEPjYPcfIjsfdy0ujagYOIYPczKgD9l3FsgTkAzKA==
 
+"@babel/parser@^7.5.5":
+  version "7.7.7"
+  resolved "https://registry.yarnpkg.com/@babel/parser/-/parser-7.7.7.tgz#1b886595419cf92d811316d5b715a53ff38b4937"
+  integrity sha512-WtTZMZAZLbeymhkd/sEaPD8IQyGAhmuTuvTzLiCFM7iXiVdY0gc0IaI+cW0fh1BnSMbJSzXX6/fHllgHKwHhXw==
+
 "@babel/parser@^7.6.0", "@babel/parser@^7.6.2":
   version "7.6.2"
   resolved "https://registry.yarnpkg.com/@babel/parser/-/parser-7.6.2.tgz#205e9c95e16ba3b8b96090677a67c9d6075b70a1"
@@ -4225,7 +4230,7 @@ create-hmac@^1.1.0, create-hmac@^1.1.2, create-hmac@^1.1.4:
     safe-buffer "^5.0.1"
     sha.js "^2.4.8"
 
-create-react-class@15.6.3, create-react-class@^15.5.1, create-react-class@^15.6.2:
+create-react-class@15.6.3, create-react-class@^15.5.1:
   version "15.6.3"
   resolved "https://registry.yarnpkg.com/create-react-class/-/create-react-class-15.6.3.tgz#2d73237fb3f970ae6ebe011a9e66f46dbca80036"
   integrity sha512-M+/3Q6E6DLO6Yx3OwrWjwHBnvfXXYA7W+dFjt/ZDBemHO1DDZhsalX/NUtnTYclN6GfnBDRh4qRHjcDHmlJBJg==
@@ -5580,6 +5585,11 @@ estree-walker@^0.5.2:
   version "0.5.2"
   resolved "https://registry.yarnpkg.com/estree-walker/-/estree-walker-0.5.2.tgz#d3850be7529c9580d815600b53126515e146dd39"
   integrity sha512-XpCnW/AE10ws/kDAs37cngSkvgIR8aN3G0MS85m7dUpuK2EREo9VJ00uvw6Dg/hXEpfsE1I1TvJOJr+Z+TL+ig==
+
+estree-walker@^0.6.1:
+  version "0.6.1"
+  resolved "https://registry.yarnpkg.com/estree-walker/-/estree-walker-0.6.1.tgz#53049143f40c6eb918b23671d1fe3219f3a1b362"
+  integrity sha512-SqmZANLWS0mnatqbSfRP5g8OXZC12Fgg1IwNtLsyHDzJizORW4khDfjPqJZsemPWBB2uqykUah5YpQ6epsqC/w==
 
 esutils@^2.0.0, esutils@^2.0.2:
   version "2.0.2"
@@ -7156,25 +7166,30 @@ hyperlinker@^1.0.0:
   resolved "https://registry.yarnpkg.com/hyperlinker/-/hyperlinker-1.0.0.tgz#23dc9e38a206b208ee49bc2d6c8ef47027df0c0e"
   integrity sha512-Ty8UblRWFEcfSuIaajM34LdPXIhbs1ajEX/BBPv24J+enSVaEVY63xQ6lTO9VRYS5LAoghIG0IDJ+p+IPzKUQQ==
 
-i18n-calypso@3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/i18n-calypso/-/i18n-calypso-3.0.0.tgz#5672c22b6ff30ed995e74394b0eba74f29b84908"
-  integrity sha512-zfhbuG4tbD3CWTCP2Kd1GPcf3sFOWQIeqtUQxHJVOKqVd3A2kLtWHom4Ecme18Uyl/KpDUIZGJF9tqoavbtLVw==
+i18n-calypso-cli@1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/i18n-calypso-cli/-/i18n-calypso-cli-1.0.0.tgz#e8bc1094c35780d93d2319decd52c8137fa7c6e8"
+  integrity sha512-bNXshPHNl6p64IAv6cbnv1t77GxB3JoqjNE8K13M0nqJO3jomtC03UOiUr++s2td4rwmJ5iabWLFMyTx1rJCVQ==
   dependencies:
     commander "^2.9.0"
-    create-react-class "^15.6.2"
-    debug "^3.1.0"
-    globby "^6.1.0"
+    debug "^3.2.6"
+    globby "^9.0.0"
+    xgettext-js "^3.0.0"
+
+i18n-calypso@4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/i18n-calypso/-/i18n-calypso-4.0.0.tgz#4d07c0c0ff6a9a70171186778bbe0be09ce0eeec"
+  integrity sha512-L1oMtViG/LtwWqGcLfA6FJN+ililsA6r/fPJswxvND8waJAWRONZEDmmjojs6MKratJ1E6cnFjTifiC75zuHHQ==
+  dependencies:
+    debug "^3.2.6"
+    events "^3.0.0"
     hash.js "^1.1.5"
-    interpolate-components "1.1.1"
-    jed "1.1.1"
-    jstimezonedetect "1.0.5"
-    lodash.assign "^4.0.8"
-    lodash.flatten "^4.4.0"
+    interpolate-components "^1.1.1"
+    jed "^1.1.1"
+    lodash "^4.17.11"
     lru "^3.1.0"
-    moment-timezone "^0.5.16"
-    react "0.14.8 || ^15.5.0 || ^16.0.0"
-    xgettext-js "^2.0.0"
+    moment "^2.24.0"
+    react "^16.8.3"
 
 i18n-calypso@^4.0.0-alpha.1:
   version "4.0.0-alpha.1"
@@ -7400,7 +7415,7 @@ inquirer@^7.0.0:
     strip-ansi "^5.1.0"
     through "^2.3.6"
 
-interpolate-components@1.1.1:
+interpolate-components@1.1.1, interpolate-components@^1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/interpolate-components/-/interpolate-components-1.1.1.tgz#699fff45d1525e98c7ce7b7159591d992b5dd6df"
   integrity sha1-aZ//RdFSXpjHzntxWVkdmStd1t8=
@@ -7908,7 +7923,7 @@ istanbul-reports@^2.2.6:
   dependencies:
     handlebars "^4.1.2"
 
-jed@1.1.1:
+jed@1.1.1, jed@^1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/jed/-/jed-1.1.1.tgz#7a549bbd9ffe1585b0cd0a191e203055bee574b4"
   integrity sha1-elSbvZ/+FYWwzQoZHiAwVb7ldLQ=
@@ -8519,11 +8534,6 @@ jsprim@^1.2.2:
     json-schema "0.2.3"
     verror "1.10.0"
 
-jstimezonedetect@1.0.5:
-  version "1.0.5"
-  resolved "https://registry.yarnpkg.com/jstimezonedetect/-/jstimezonedetect-1.0.5.tgz#93d035cd20e8c7d64eb1375cf5aa7a10a024466a"
-  integrity sha1-k9A1zSDox9ZOsTdc9ap6EKAkRmo=
-
 jsx-ast-utils@^2.1.0, jsx-ast-utils@^2.2.1:
   version "2.2.1"
   resolved "https://registry.yarnpkg.com/jsx-ast-utils/-/jsx-ast-utils-2.2.1.tgz#4d4973ebf8b9d2837ee91a8208cc66f3a2776cfb"
@@ -8820,11 +8830,6 @@ lodash._getnative@^3.0.0:
   resolved "https://registry.yarnpkg.com/lodash._getnative/-/lodash._getnative-3.9.1.tgz#570bc7dede46d61cdcde687d65d3eecbaa3aaff5"
   integrity sha1-VwvH3t5G1hzc3mh9ZdPuy6o6r/U=
 
-lodash.assign@^4.0.8:
-  version "4.2.0"
-  resolved "https://registry.yarnpkg.com/lodash.assign/-/lodash.assign-4.2.0.tgz#0d99f3ccd7a6d261d19bdaeb9245005d285808e7"
-  integrity sha1-DZnzzNem0mHRm9rrkkUAXShYCOc=
-
 lodash.assignin@^4.0.9:
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/lodash.assignin/-/lodash.assignin-4.2.0.tgz#ba8df5fb841eb0a3e8044232b0e263a8dc6a28a2"
@@ -8860,7 +8865,7 @@ lodash.find@^4.6.0:
   resolved "https://registry.yarnpkg.com/lodash.find/-/lodash.find-4.6.0.tgz#cb0704d47ab71789ffa0de8b97dd926fb88b13b1"
   integrity sha1-ywcE1Hq3F4n/oN6Ll92Sb7iLE7E=
 
-lodash.flatten@^4.2.0, lodash.flatten@^4.4.0:
+lodash.flatten@^4.2.0:
   version "4.4.0"
   resolved "https://registry.yarnpkg.com/lodash.flatten/-/lodash.flatten-4.4.0.tgz#f31c22225a9632d2bbf8e4addbef240aa765a61f"
   integrity sha1-8xwiIlqWMtK7+OSt2+8kCqdlph8=
@@ -11442,9 +11447,9 @@ punycode@^2.1.0, punycode@^2.1.1:
   resolved "https://registry.yarnpkg.com/punycode/-/punycode-2.1.1.tgz#b58b010ac40c22c5657616c8d2c2c02c7bf479ec"
   integrity sha512-XRsRjdf+j5ml+y/6GKHPZbrF/8p2Yga0JPtdqTIY2Xe5ohJPD9saDJJLPvp9+NSBprVvevdXZybnj2cv8OEd0A==
 
-"puppeteer-utils@github:Automattic/puppeteer-utils#5d501f0":
-  version "0.0.1"
-  resolved "https://codeload.github.com/Automattic/puppeteer-utils/tar.gz/5d501f0e32745e3287cdea5c5c581b4a28e89ae7"
+"puppeteer-utils@github:Automattic/puppeteer-utils#90bd9fe":
+  version "0.0.2"
+  resolved "https://codeload.github.com/Automattic/puppeteer-utils/tar.gz/90bd9fe8ec104b2ae30f59616e45097ede6dd06c"
   dependencies:
     "@slack/web-api" "^5.6.0"
     "@wordpress/e2e-test-utils" "^3.0.0"
@@ -11776,15 +11781,6 @@ react-with-styles@^3.2.0:
     object.assign "^4.1.0"
     prop-types "^15.6.2"
     react-with-direction "^1.3.0"
-
-"react@0.14.8 || ^15.5.0 || ^16.0.0":
-  version "16.12.0"
-  resolved "https://registry.yarnpkg.com/react/-/react-16.12.0.tgz#0c0a9c6a142429e3614834d5a778e18aa78a0b83"
-  integrity sha512-fglqy3k5E+81pA8s+7K0/T3DBCF0ZDOher1elBFzF7O6arXJgzyu/FW+COxFvAWXJoJN9KIZbT2LXlukwphYTA==
-  dependencies:
-    loose-envify "^1.1.0"
-    object-assign "^4.1.1"
-    prop-types "^15.6.2"
 
 react@16.8.6, "react@^0.14.3 || ^15.1.0 || ^16.0.0", react@^16.8.3, react@^16.8.4:
   version "16.8.6"
@@ -14367,6 +14363,15 @@ xgettext-js@^2.0.0:
     "@babel/parser" "^7.0.0-beta.48"
     estree-walker "^0.5.2"
     lodash "^4.13.1"
+
+xgettext-js@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/xgettext-js/-/xgettext-js-3.0.0.tgz#d32fb434db20e96ac826cb3b4b53f0ffaa94b05e"
+  integrity sha512-htBdz05sG37ulma47azvkIaS1R02ecsp1QmhS7N0qmHffi5pbsd+34W7hg+Eb7bgbUZQQd4vO0Z1j5X9CjKXQg==
+  dependencies:
+    "@babel/parser" "^7.5.5"
+    estree-walker "^0.6.1"
+    lodash "^4.17.15"
 
 xml-name-validator@^3.0.0:
   version "3.0.0"
