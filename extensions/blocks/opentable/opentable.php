@@ -83,7 +83,7 @@ function jetpack_opentable_block_get_attribute( $attributes, $attribute_name ) {
 		if ( in_array( $attribute_name, array( 'iframe', 'newtab' ), true ) ) {
 			return $attributes[ $attribute_name ] ? 'true' : 'false';
 		}
-		return wp_kses( $attributes[ $attribute_name ], array() );
+		return $attributes[ $attribute_name ];
 	}
 
 	$default_attributes = array(
@@ -138,7 +138,7 @@ function jetpack_opentable_block_get_theme_attribute( $attributes ) {
 		return 'standard';
 	}
 
-	return wp_kses( $attributes['style'], array() );
+	return $attributes['style'];
 }
 
 /**
@@ -163,9 +163,9 @@ function jetpack_opentable_build_embed_url( $attributes ) {
 
 	if ( ! empty( $attributes['rid'] ) ) {
 		foreach ( $attributes['rid'] as $rid ) {
-			$url .= '&rid=' . wp_kses( $rid, array() );
+			$url .= '&rid=' . $rid;
 		}
 	}
 
-	return apply_filters( 'jetpack_calendly_block_url', $url );
+	return apply_filters( 'jetpack_calendly_block_url', esc_url( $url ) );
 }
