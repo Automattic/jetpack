@@ -17,5 +17,11 @@ export function fallback( url, onReplace ) {
 }
 
 export function eventIdFromUrl( url ) {
-	return url.substring( url.search( /\d+$/g ) );
+	const regex = new RegExp( window.Jetpack_Block_Eventbrite_Settings.event_id_from_url_regex );
+	const match = url.match( regex );
+	return match && match[ 1 ] ? match[ 1 ] : null;
+}
+
+export function createWidgetId( eventId ) {
+	return `${ window.Jetpack_Block_Eventbrite_Settings.widget_slug }-${ eventId }`;
 }

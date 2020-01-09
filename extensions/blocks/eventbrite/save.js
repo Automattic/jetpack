@@ -7,7 +7,7 @@ import { RichText, getColorClassName } from '@wordpress/block-editor';
 /**
  * Internal dependencies
  */
-import { eventIdFromUrl } from './utils';
+import { createWidgetId, eventIdFromUrl } from './utils';
 
 /**
  * Adapted button save function from @wordpress/block-library
@@ -49,7 +49,7 @@ function saveButton( eventId, attributes ) {
 	return (
 		<div>
 			<RichText.Content
-				id={ `eventbrite-widget-modal-trigger-${ eventId }` }
+				id={ createWidgetId( eventId ) }
 				tagName="button"
 				className={ buttonClasses }
 				style={ buttonStyle }
@@ -65,9 +65,13 @@ export default function save( { attributes } ) {
 
 	const eventId = eventIdFromUrl( url );
 
+	if ( ! eventId ) {
+		return;
+	}
+
 	if ( useModal ) {
 		return saveButton( eventId, attributes );
 	}
 
-	return <div id={ `eventbrite-widget-container-${ eventId }` } />;
+	return <div id={ createWidgetId( eventId ) } />;
 }

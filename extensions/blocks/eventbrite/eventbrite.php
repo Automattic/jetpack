@@ -7,6 +7,9 @@
  * @package Jetpack
  */
 
+const JETPACK_EVENTBRITE_ID_FROM_URL_REGEX = '(\d+)\/?\s*$';
+const JETPACK_EVENTBRITE_WIDGET_SLUG       = 'eventbrite-widget';
+
 jetpack_register_block(
 	'jetpack/eventbrite',
 	array(
@@ -18,7 +21,7 @@ jetpack_register_block(
 				'type' => 'boolean',
 			),
 		),
-		'render_callback' => 'jetpack_eventbrite_block_load_assets',
+		'render_callback' => 'jetpack_render_eventbrite_block',
 	)
 );
 
@@ -30,18 +33,20 @@ jetpack_register_block(
  *
  * @return string
  */
-function jetpack_eventbrite_block_load_assets( $attr, $content ) {
+function jetpack_render_eventbrite_block( $attr, $content ) {
 	if ( empty( $attr['url'] ) ) {
 		return '';
 	}
 
 	$matches = array();
-	preg_match( '/(\d+)$/', $attr['url'], $matches );
+	preg_match( '/' . JETPACK_EVENTBRITE_ID_FROM_URL_REGEX . '/', $attr['url'], $matches );
 	$event_id = isset( $matches[1] ) && $matches[1] ? $matches[1] : null;
 
 	if ( ! $event_id ) {
 		return '';
 	}
+
+	$widget_id = JETPACK_EVENTBRITE_WIDGET_SLUG . '-' . $event_id;
 
 	wp_enqueue_script( 'eventbrite-widget', 'https://www.eventbrite.com/static/widgets/eb_widgets.js', array(), JETPACK__VERSION, true );
 
@@ -52,7 +57,7 @@ function jetpack_eventbrite_block_load_assets( $attr, $content ) {
 			"window.EBWidgets.createWidget({
 				widgetType: 'checkout',
 				eventId: ${event_id},
-				iframeContainerId: 'eventbrite-widget-container-${event_id}',
+				iframeContainerId: '${widget_id}',
 			});"
 		);
 
@@ -71,7 +76,7 @@ EOT;
 			widgetType: 'checkout',
 			eventId: ${event_id},
 			modal: true,
-			modalTriggerElementId: 'eventbrite-widget-modal-trigger-${event_id}',
+			modalTriggerElementId: '${widget_id}',
 		});"
 	);
 
@@ -80,4 +85,17 @@ EOT;
 	${content}
 	<noscript>Buy Tickets on Eventbrite</a></noscript>
 EOT;
+}
+
+add_action( 'enqueue_block_editor_assets', 'jetpack_eventbrite_block_editor_assets' );
+
+function jetpack_eventbrite_block_editor_assets() {
+	wp_localize_script(
+		'jetpack-blocks-editor',
+		'Jetpack_Block_Eventbrite_Settings',
+		array(
+			'event_id_from_url_regex' => JETPACK_EVENTBRITE_ID_FROM_URL_REGEX,
+			'widget_slug'             => JETPACK_EVENTBRITE_WIDGET_SLUG,
+		)
+	);
 }

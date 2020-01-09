@@ -20,19 +20,16 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import { fallback, eventIdFromUrl } from './utils';
-import { icon, URL_REGEX } from '.';
+import { createWidgetId, fallback, eventIdFromUrl } from './utils';
+import { CUSTOM_URL_REGEX, icon, URL_REGEX } from '.';
 import ModalButtonPreview from './modal-button-preview';
-
-// Custom eventbrite urls use a subdomain of eventbrite.com.
-const EVENTBRITE_CUSTOM_URL_REGEX = /.*(?:eventbrite\.[a-z.]+)\/?\s*$/i;
 
 class EventbriteEdit extends Component {
 	state = {
 		editedUrl: this.props.attributes.url || '',
 		editingUrl: false,
 		// If this is a customized URL, we're going to need to find where it redirects to.
-		resolvingUrl: EVENTBRITE_CUSTOM_URL_REGEX.test( this.props.attributes.url ),
+		resolvingUrl: CUSTOM_URL_REGEX.test( this.props.attributes.url ),
 		resolvedStatusCode: null,
 	};
 
@@ -220,7 +217,7 @@ class EventbriteEdit extends Component {
 			return;
 		}
 
-		const widgetId = `eventbrite-widget-container-${ eventId }`;
+		const widgetId = createWidgetId( eventId );
 		const html = `
 			<script src="https://www.eventbrite.com/static/widgets/eb_widgets.js"></script>
 			<style>

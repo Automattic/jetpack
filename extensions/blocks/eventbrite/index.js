@@ -11,7 +11,13 @@ import { createBlock } from '@wordpress/blocks';
 import edit from './edit';
 import save from './save';
 
-export const URL_REGEX = /^\s*https?:\/\/(?:www\.)?(?:eventbrite\.[a-z.]+)\/e\/[^/]*?(\d+)\/?\s*$/i;
+// Example URLs
+// https://www.eventbrite.com/e/test-event-tickets-123456789
+// https://www.eventbrite.co.uk/e/test-event-tickets-123456789
+export const URL_REGEX = /^\s*https?:\/\/(?:www\.)?(?:eventbrite\.[a-z.]+)\/e\/[^\/]*?(\d+)\/?\s*$/i;
+
+// Custom eventbrite urls use a subdomain of eventbrite.com
+export const CUSTOM_URL_REGEX = /^\s*https?:\/\/(?:.+\.)?(?:eventbrite\.[a-z.]+)\/?\s*$/i;
 
 export const name = 'eventbrite';
 
@@ -77,7 +83,9 @@ export const settings = {
 		from: [
 			{
 				type: 'raw',
-				isMatch: node => node.nodeName === 'P' && URL_REGEX.test( node.textContent ),
+				isMatch: node =>
+					node.nodeName === 'P' &&
+					( URL_REGEX.test( node.textContent ) || CUSTOM_URL_REGEX.test( node.textContent ) ),
 				transform: node => {
 					return createBlock( 'jetpack/eventbrite', {
 						url: node.textContent.trim(),
