@@ -9,6 +9,8 @@
 
 namespace Jetpack\OpenTable_Block;
 
+const BLOCK_NAME = 'opentable';
+
 if ( is_available() ) {
 	jetpack_register_block(
 		'jetpack/opentable',
@@ -19,10 +21,19 @@ if ( is_available() ) {
 		'jetpack/opentable',
 		'missing_plan',
 		array(
-			'required_feature' => 'opentable',
-			'required_plan'    => ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? 'value_bundle' : 'jetpack_premium',
+			'required_feature' => BLOCK_NAME,
+			'required_plan'    => is_wpcom() ? 'value_bundle' : 'jetpack_premium',
 		)
 	);
+}
+
+/**
+ * Checks if we are running on WordPress.com
+ *
+ * @return bool True if it's WordPress.com
+ */
+function is_wpcom() {
+	return defined( 'IS_WPCOM' ) && IS_WPCOM;
 }
 
 /**
@@ -32,12 +43,12 @@ if ( is_available() ) {
  */
 function is_available() {
 	// For WPCOM sites.
-	if ( defined( 'IS_WPCOM' ) && IS_WPCOM && function_exists( 'has_any_blog_stickers' ) ) {
+	if ( is_wpcom() && function_exists( 'has_any_blog_stickers' ) ) {
 		$site_id = jetpack_get_blog_id();
 		return has_any_blog_stickers( array( 'premium-plan', 'business-plan', 'ecommerce-plan' ), $site_id );
 	}
 	// For all Jetpack sites.
-	return \Jetpack::is_active() && \Jetpack_Plan::supports( 'opentable' );
+	return \Jetpack::is_active() && \Jetpack_Plan::supports( BLOCK_NAME );
 }
 
 /**
@@ -48,9 +59,9 @@ function is_available() {
  * @return string
  */
 function load_assets( $attributes ) {
-	\Jetpack_Gutenberg::load_assets_as_required( 'opentable' );
+	\Jetpack_Gutenberg::load_assets_as_required( BLOCK_NAME );
 
-	$classes = \Jetpack_Gutenberg::block_classes( 'opentable', $attributes );
+	$classes = \Jetpack_Gutenberg::block_classes( BLOCK_NAME, $attributes );
 	$content = '<div class="' . esc_attr( $classes ) . '">';
 	// The OpenTable script uses multiple `rid` paramters,
 	// so we can't use WordPress to output it, as WordPress attempts to validate it and removes them.
