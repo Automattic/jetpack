@@ -61,9 +61,9 @@ export function PlanConflictWarning( {
 		return null;
 	}
 
-	let featureName = 'daily backups';
+	let featureName = __( 'daily backups' );
 	if ( 'jetpack_business' === sitePlanPurchase.product_slug ) {
-		featureName = 'real-time backups';
+		featureName = __( 'real-time backups' );
 	}
 
 	return (
