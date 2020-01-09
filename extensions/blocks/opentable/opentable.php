@@ -143,7 +143,11 @@ function jetpack_opentable_block_get_type_attribute( $attributes ) {
  * @return string The filtered attribute
  */
 function jetpack_opentable_block_get_theme_attribute( $attributes ) {
-	if ( empty( $attributes['style'] ) || 'button' === $attributes['style'] ) {
+	$valid_themes = array( 'standard', 'wide', 'tall' );
+
+	if ( empty( $attributes['style'] )
+		|| ! in_array( $attributes['style'], $valid_themes, true )
+		|| 'button' === $attributes['style'] ) {
 		return 'standard';
 	}
 
