@@ -119,17 +119,24 @@ function jetpack_opentable_block_get_type_attribute( $attributes ) {
 /**
  * Get the block theme attribute
  *
- * OpenTable has a confusing mix of themes and styles for the widget. A style
+ * OpenTable has a confusing mix of themes and types for the widget. A type
  * can have a theme, but the button style can not have a theme. The other two
- * styles (multi and standard) can have one of the three themes.
+ * types (multi and standard) can have one of the three themes.
  *
- * Style       Theme
- * ==========|==========
- * Multi     |
- * Standard  | Standard
- *           | Wide
- *           | Tall
- * Button    | Standard
+ * We have combined these into a `style` attribute as really there are 4 styles
+ * standard, wide, tall, and button. Multi can be determined by the number of
+ * restaurant IDs we have.
+ *
+ * This function along with `jetpack_opentable_block_get_type_attribute`, translates
+ * the style attribute to a type and theme.
+ *
+ * Type        Theme      Style
+ * ==========|==========|==========
+ * Multi     |          |
+ * Standard  | Standard | Standard
+ *           | Wide     | Wide
+ *           | Tall     | Tall
+ * Button    | Standard | Button
  *
  * @param array $attributes Array of block attributes.
  *
