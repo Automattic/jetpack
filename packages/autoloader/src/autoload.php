@@ -79,7 +79,6 @@ if ( ! function_exists( __NAMESPACE__ . '\autoloader' ) ) {
 					array(
 						'Automattic\Jetpack\JITM',
 						'Automattic\Jetpack\Connection\Manager',
-						'Automattic\Jetpack\Connection\Manager_Interface',
 						'Automattic\Jetpack\Connection\XMLRPC_Connector',
 						'Jetpack_Options',
 						'Jetpack_Signature',
@@ -87,7 +86,6 @@ if ( ! function_exists( __NAMESPACE__ . '\autoloader' ) ) {
 						'Automattic\Jetpack\Sync\Main',
 						'Automattic\Jetpack\Constants',
 						'Automattic\Jetpack\Tracking',
-						'Automattic\Jetpack\Plugin\Tracking',
 					),
 					true
 				);
