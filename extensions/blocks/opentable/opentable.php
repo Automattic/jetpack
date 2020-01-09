@@ -44,7 +44,7 @@ function is_wpcom() {
 function is_available() {
 	// For WPCOM sites.
 	if ( is_wpcom() && function_exists( 'has_any_blog_stickers' ) ) {
-		$site_id = jetpack_get_blog_id();
+		$site_id = get_current_blog_id();
 		return has_any_blog_stickers( array( 'premium-plan', 'business-plan', 'ecommerce-plan' ), $site_id );
 	}
 	// For all Jetpack sites.
