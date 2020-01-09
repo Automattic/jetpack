@@ -46,7 +46,8 @@ function jetpack_render_eventbrite_block( $attr, $content ) {
 		return '';
 	}
 
-	$widget_id = JETPACK_EVENTBRITE_WIDGET_SLUG . '-' . $event_id;
+	$widget_id      = JETPACK_EVENTBRITE_WIDGET_SLUG . '-' . $event_id;
+	$no_script_text = __( 'Register on Eventbrite', 'jetpack' );
 
 	wp_enqueue_script( 'eventbrite-widget', 'https://www.eventbrite.com/static/widgets/eb_widgets.js', array(), JETPACK__VERSION, true );
 
@@ -64,7 +65,7 @@ function jetpack_render_eventbrite_block( $attr, $content ) {
 		return <<<EOT
 ${content}
 <noscript>
-	<a href="https://www.eventbrite.com/e/${event_id}" rel="noopener noreferrer" target="_blank">Buy Tickets on Eventbrite</a>
+	<a href="${attr['url']}" rel="noopener noreferrer" target="_blank">${no_script_text}</a>
 </noscript>
 EOT;
 	}
@@ -81,14 +82,17 @@ EOT;
 	);
 
 	return <<<EOT
-	<noscript><a href="https://www.eventbrite.com.au/e/${event_id}" rel="noopener noreferrer" target="_blank"></noscript>
+	<noscript><a href="${attr['url']}" rel="noopener noreferrer" target="_blank"></noscript>
 	${content}
-	<noscript>Buy Tickets on Eventbrite</a></noscript>
+	<noscript></a></noscript>
 EOT;
 }
 
-add_action( 'enqueue_block_editor_assets', 'jetpack_eventbrite_block_editor_assets' );
-
+/**
+ * Share PHP block settings with js block code.
+ *
+ * @return void
+ */
 function jetpack_eventbrite_block_editor_assets() {
 	wp_localize_script(
 		'jetpack-blocks-editor',
@@ -99,3 +103,5 @@ function jetpack_eventbrite_block_editor_assets() {
 		)
 	);
 }
+
+add_action( 'enqueue_block_editor_assets', 'jetpack_eventbrite_block_editor_assets' );
