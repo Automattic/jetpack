@@ -119,6 +119,16 @@ function jetpack_opentable_block_get_type_attribute( $attributes ) {
 /**
  * Get the block theme attribute
  *
+ * OpenTable has a confusing mix of themes and styles for the widget. A style
+ * can have a theme, but the button style can not have a theme.
+ *
+ * Style       Theme
+ * ==========|==========
+ * Standord  | Standard
+ *           | Wide
+ *           | Tall
+ * Button    | Standard
+ *
  * @param array $attributes Array of block attributes.
  *
  * @return string The filtered attribute
