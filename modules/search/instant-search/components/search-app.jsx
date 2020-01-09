@@ -112,7 +112,6 @@ class SearchApp extends Component {
 
 	showResults = () => this.setState( { showResults: true } );
 	hideResults = () => this.setState( { showResults: false } );
-	toggleResults = () => this.setState( state => ( { showResults: ! state.showResults } ) );
 
 	onChangeQuery = event => setSearchQuery( event.target.value );
 
@@ -183,7 +182,7 @@ class SearchApp extends Component {
 
 	render() {
 		return createPortal(
-			<Overlay showOverlay={ this.state.showResults } toggleOverlay={ this.toggleResults }>
+			<Overlay shouldShowOverlay={ this.state.showResults } closeOverlay={ this.hideResults }>
 				<SearchResults
 					enableLoadOnScroll={ this.props.options.enableLoadOnScroll }
 					hasError={ this.state.hasError }

@@ -11,23 +11,23 @@ const closeOnEscapeKey = callback => event => {
 	event.key === 'Escape' && callback();
 };
 
-const Overlay = ( { showOverlay, toggleOverlay, children } ) => {
+const Overlay = ( { shouldShowOverlay, closeOverlay, children } ) => {
 	useEffect( () => {
-		window.addEventListener( 'keydown', closeOnEscapeKey( toggleOverlay ) );
+		window.addEventListener( 'keydown', closeOnEscapeKey( closeOverlay ) );
 		return () => {
 			// Cleanup after event
-			window.removeEventListener( 'keydown', closeOnEscapeKey( toggleOverlay ) );
+			window.removeEventListener( 'keydown', closeOnEscapeKey( closeOverlay ) );
 		};
 	}, [] );
 
 	const classNames = [ 'jetpack-instant-search__overlay' ];
-	if ( ! showOverlay ) {
+	if ( ! shouldShowOverlay ) {
 		classNames.push( 'is-hidden' );
 	}
 
 	return (
 		<div className={ classNames.join( ' ' ) }>
-			<button className="jetpack-instant-search__overlay-close" onClick={ toggleOverlay }>
+			<button className="jetpack-instant-search__overlay-close" onClick={ closeOverlay }>
 				{ __( 'Close', 'jetpack' ) }
 			</button>
 			{ children }
