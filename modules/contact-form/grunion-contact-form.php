@@ -890,8 +890,8 @@ class Grunion_Contact_Form_Plugin {
 			'_feedback_author_email' => '2_Email',
 			'_feedback_author_url'   => '3_Website',
 			'_feedback_main_comment' => '4_Comment',
-				'_feedback_author_ip'   => '5_IP',
-	);
+			'_feedback_author_ip'    => '5_IP',
+		);
 
 		foreach ( $field_mapping as $parsed_field_name => $field_name ) {
 			if (
