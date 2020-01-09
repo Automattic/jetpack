@@ -138,9 +138,10 @@ export default function OpenTableEdit( { attributes, setAttributes, className, c
 		<BlockControls>
 			{ ! isEmpty( rid ) && (
 				<Toolbar
+					popoverProps={ { className: 'is-opentable' } }
 					isCollapsed={ true }
 					icon="admin-appearance"
-					label={ __( 'Type', 'jetpack' ) }
+					label={ __( 'Style', 'jetpack' ) }
 					controls={ styleOptions.map( styleOption => ( {
 						title: styleOption.label,
 						isActive: styleOption.value === style,

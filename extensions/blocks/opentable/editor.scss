@@ -107,6 +107,7 @@
 		text-align: left;
 		margin-bottom: 0;
 	}
+
 }
 
 .block-editor-block-styles__item.is-opentable {
@@ -126,5 +127,11 @@
 		height: 143%;
 		position: absolute;
 		z-index: 1;
+	}
+}
+
+.is-opentable {
+	.is-active {
+		font-weight: bold;
 	}
 }
