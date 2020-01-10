@@ -73,7 +73,7 @@ if ( ! function_exists( 'jetpack_rating_get_schema_for_symbol' ) ) {
 	function jetpack_rating_get_schema_for_symbol( $position, $max_rating ) {
 		$schema = '';
 		if ( 1 === $position ) {
-			$schema = 'itemprop="worstRating" content="1"';
+			$schema = 'itemprop="worstRating" content="0.5"';
 		} elseif ( $max_rating === $position ) {
 			$schema = 'itemprop="bestRating" content="' . esc_attr( $max_rating ) . '"';
 		}
