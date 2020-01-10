@@ -61,6 +61,26 @@ if ( ! function_exists( 'jetpack_rating_meta_get_symbol_high_fidelity' ) ) {
 	}
 }
 
+if ( ! function_exists( 'jetpack_rating_get_schema_for_symbol' ) ) {
+	/**
+	 * Returns an itemprop and content for rating symbols
+	 *
+	 * @param  integer $position   the position of the symbol.
+	 * @param  integer $max_rating the maximum symbol score.
+	 *
+	 * @return string
+	 */
+	function jetpack_rating_get_schema_for_symbol( $position, $max_rating ) {
+		$schema = '';
+		if ( 1 === $position ) {
+			$schema = 'itemprop="worstRating" content="1"';
+		} elseif ( $max_rating === $position ) {
+			$schema = 'itemprop="bestRating" content="' . esc_attr( $max_rating ) . '"';
+		}
+		return $schema;
+	}
+}
+
 if ( ! function_exists( 'jetpack_rating_meta_get_symbols' ) ) {
 	/**
 	 * Returns the symbol for the block.
@@ -74,13 +94,7 @@ if ( ! function_exists( 'jetpack_rating_meta_get_symbols' ) ) {
 		// These are hidden by default, then unhid when CSS loads.
 		$symbols_hifi = array();
 		for ( $pos = 1; $pos <= $attributes['maxRating']; $pos++ ) {
-			$schema = '';
-			if ( 1 === $pos ) {
-				$schema = 'itemprop="worstRating" content="1"';
-			} elseif ( $attributes['maxRating'] === $pos ) {
-				$schema = 'itemprop="bestRating" content="' . esc_attr( $attributes['maxRating'] ) . '"';
-			}
-			$symbols_hifi[] = '<span style="display: none;" ' . $schema . '>' . jetpack_rating_meta_get_symbol_high_fidelity( $attributes, $pos ) . '</span>';
+			$symbols_hifi[] = '<span style="display: none;" ' . jetpack_rating_get_schema_for_symbol( $pos, $attributes['maxRating'] ) . '>' . jetpack_rating_meta_get_symbol_high_fidelity( $attributes, $pos ) . '</span>';
 		}
 
 		// Output fallback symbols for low fidelity contexts, like AMP,
