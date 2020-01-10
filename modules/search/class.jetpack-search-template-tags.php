@@ -174,6 +174,15 @@ class Jetpack_Search_Template_Tags {
 
 		$form = self::inject_hidden_form_fields( $form, $fields_to_inject );
 
+		// Temporarily add some dummy filters to demonstrate filter behaviour.
+		$form .= '<div class="jetpack-search-form__test-filters" style="margin-top: 20px">' .
+				'<h3>Filters</h3>' .
+				'<div><input type="checkbox" id="jetpack-search-form__test-filter-1" class="jetpack-search-form__test-filter-checkbox">' .
+				'<label for="jetpack-search-form__test-filter-1" class="jetpack-search-form__test-filter-label">Test filter 1</label></div>' .
+				'<div><input type="checkbox" id="jetpack-search-form__test-filter-2" class="jetpack-search-form__test-filter-checkbox">' .
+				'<label for="jetpack-search-form__test-filter-2" class="jetpack-search-form__test-filter-label">Test filter 2</label></div>' .
+				'</div>';
+
 		echo '<div class="jetpack-search-form">';
 		echo $form;
 		echo '</div>';

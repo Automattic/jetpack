@@ -13,6 +13,10 @@ export function getThemeOptions( searchOptions ) {
 			'.jetpack-instant-search-wrapper input.search-field',
 		].join( ', ' ),
 		searchSortSelector: [ '.jetpack-search-sort' ],
+		filterInputSelector: [
+			'.jetpack-search-form__test-filter-checkbox',
+			'.jetpack-search-form__test-filter-label',
+		],
 	};
 	return searchOptions.theme_options ? { ...options, ...searchOptions.theme_options } : options;
 }

@@ -73,6 +73,10 @@ class SearchApp extends Component {
 		document.querySelectorAll( this.props.themeOptions.searchSortSelector ).forEach( select => {
 			select.addEventListener( 'change', this.handleSortChange );
 		} );
+
+		document.querySelectorAll( this.props.themeOptions.filterInputSelector ).forEach( element => {
+			element.addEventListener( 'click', this.handleFilterInputClick );
+		} );
 	}
 
 	removeEventListeners() {
@@ -86,6 +90,10 @@ class SearchApp extends Component {
 
 		document.querySelectorAll( this.props.themeOptions.searchSortSelector ).forEach( select => {
 			select.removeEventListener( 'change', this.handleSortChange );
+		} );
+
+		document.querySelectorAll( this.props.themeOptions.filterInputSelector ).forEach( element => {
+			element.removeEventListener( 'click', this.handleFilterInputClick );
 		} );
 	}
 
@@ -108,6 +116,10 @@ class SearchApp extends Component {
 
 	handleSortChange = event => {
 		setSortQuery( getSortKeyFromSortOption( event.target.value ) );
+	};
+
+	handleFilterInputClick = () => {
+		this.showResults();
 	};
 
 	showResults = () => this.setState( { showResults: true } );
