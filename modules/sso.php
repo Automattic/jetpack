@@ -16,7 +16,7 @@ require_once( JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-notices.php' 
  * Auto Activate: No
  * Module Tags: Developers
  * Feature: Security
- * Additional Search Queries: sso, single sign on, login, log in
+ * Additional Search Queries: sso, single sign on, login, log in, 2fa, two-factor
  */
 
 class Jetpack_SSO {
