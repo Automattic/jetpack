@@ -2,7 +2,8 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { compact, reduce } from 'lodash';
+import { select } from '@wordpress/data';
+import { compact, reduce, isEmpty } from 'lodash';
 
 const optionValues = options => options.map( option => option.value );
 
@@ -29,6 +30,10 @@ export const getStyleOptions = rid =>
 	] );
 export const getStyleValues = rid => optionValues( getStyleOptions( rid ) );
 
+const { siteLocale } = select( 'core/block-editor' ).getSettings();
+const defaultLanguage =
+	! isEmpty( siteLocale ) && languageValues.includes( siteLocale ) ? siteLocale : 'en-US';
+
 export const defaultAttributes = {
 	rid: {
 		default: [],
@@ -48,7 +53,7 @@ export const defaultAttributes = {
 		type: 'string',
 	},
 	lang: {
-		default: 'en-US',
+		default: defaultLanguage,
 		type: 'string',
 		validValues: languageValues,
 	},
