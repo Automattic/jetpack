@@ -83,15 +83,6 @@ add_action( 'plugins_loaded', array( 'Jetpack', 'load_modules' ), 100 );
 add_filter( 'jetpack_static_url', array( 'Jetpack', 'staticize_subdomain' ) );
 add_filter( 'is_jetpack_site', '__return_true' );
 
-/**
- * Add an easy way to photon-ize a URL that is safe to call even if Jetpack isn't active.
- *
- * See: https://jetpack.com/2013/07/11/photon-and-themes/
- */
-if ( Jetpack::is_module_active( 'photon' ) ) {
-	add_filter( 'jetpack_photon_url', 'jetpack_photon_url', 10, 3 );
-}
-
 if ( JETPACK__SANDBOX_DOMAIN ) {
 	require_once JETPACK__PLUGIN_DIR . '_inc/jetpack-server-sandbox.php';
 }
