@@ -184,33 +184,26 @@ class Functions {
 	 * @return mixed A host identifier string or false.
 	 */
 	public function get_hosting_provider_by_known_constant() {
-		$hosting_provider = false;
+		$hosting_provider_constants = array(
+			'GD_SYSTEM_PLUGIN_DIR' => 'gd-managed-wp',
+			'MM_BASE_DIR'          => 'bh',
+			'PAGELYBIN'            => 'pagely',
+			'KINSTAMU_VERSION'     => 'kinsta',
+			'FLYWHEEL_CONFIG_DIR'  => 'flywheel',
+			'IS_PRESSABLE'         => 'pressable',
+			'VIP_GO_ENV'           => 'vip-go',
+		);
 
-		switch ( true ) {
-			case ( Constants::is_defined( 'GD_SYSTEM_PLUGIN_DIR' ) ):
-				$hosting_provider = 'gd-managed-wp';
-				break;
-			case ( Constants::is_defined( 'MM_BASE_DIR' ) ):
-				$hosting_provider = 'bh';
-				break;
-			case ( Constants::is_defined( 'PAGELYBIN' ) ):
-				$hosting_provider = 'pagely';
-				break;
-			case ( Constants::is_defined( 'KINSTAMU_VERSION' ) ):
-				$hosting_provider = 'kinsta';
-				break;
-			case ( Constants::is_defined( 'FLYWHEEL_CONFIG_DIR' ) ):
-				$hosting_provider = 'flywheel';
-				break;
-			case ( Constants::is_defined( 'IS_PRESSABLE' ) ):
-				$hosting_provider = 'pressable';
-				break;
-			case ( Constants::is_defined( 'VIP_GO_ENV' ) && false !== Constants::get_constant( 'VIP_GO_ENV' ) ):
-				$hosting_provider = 'vip-go';
-				break;
+		foreach ( $hosting_provider_constants as $constant => $constant_value ) {
+			if ( Constants::is_defined( $constant ) ) {
+				if ( 'VIP_GO_ENV' === $constant && false === Constants::get_constant( 'VIP_GO_ENV' ) ) {
+					continue;
+				}
+				return $constant_value;
+			}
 		}
 
-		return $hosting_provider;
+		return false;
 	}
 
 	/**
