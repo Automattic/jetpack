@@ -196,13 +196,13 @@ export function getFilterQuery( filterKey ) {
 }
 
 export function hasFilter() {
-	const filter_keys = getFilterKeys();
-	for ( let i = 0; i < filter_keys.length; i++ ) {
-		if ( getFilterQueryByKey( filter_keys[ i ] ).length > 0 ) {
-			return true;
-		}
-	}
-	return false;
+	return getFilterKeys().some( key => getFilterQueryByKey( key ).length > 0 );
+}
+
+export function clearFiltersFromQuery() {
+	const query = getQuery();
+	getFilterKeys().forEach( key => delete query[ key ] );
+	pushQueryString( encode( query ) );
 }
 
 export function setFilterQuery( filterKey, filterValue ) {
