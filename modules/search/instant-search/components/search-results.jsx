@@ -9,8 +9,10 @@ import { h, Component, Fragment } from 'preact';
 /**
  * Internal dependencies
  */
+import { getFilterQuery, setFilterQuery } from '../lib/query-string';
 import SearchResult from './search-result';
 import ScrollButton from './scroll-button';
+import SearchFilters from './search-filters';
 import SearchForm from './search-form';
 import SearchSidebar from './search-sidebar';
 import Notice from './notice';
@@ -40,6 +42,10 @@ class SearchResults extends Component {
 		}
 		return sprintf( _n( '%s result', '%s results', total, 'jetpack' ), num );
 	}
+
+	onChangeFilter = ( filterName, filterValue ) => {
+		setFilterQuery( filterName, filterValue );
+	};
 
 	renderPrimarySection() {
 		const { query } = this.props;
@@ -109,6 +115,25 @@ class SearchResults extends Component {
 		);
 	}
 
+	renderSecondarySection() {
+		return (
+			<Fragment>
+				{ this.props.widgets.map( widget => (
+					<SearchFilters
+						filters={ getFilterQuery() }
+						loading={ this.props.isLoading }
+						locale={ this.props.locale }
+						onChange={ this.onChangeFilter }
+						postTypes={ this.props.postTypes }
+						results={ this.props.response }
+						widget={ widget }
+					/>
+				) ) }
+				<SearchSidebar />
+			</Fragment>
+		);
+	}
+
 	render() {
 		return (
 			<main
@@ -122,7 +147,7 @@ class SearchResults extends Component {
 					{ this.renderPrimarySection() }
 				</div>
 				<div className="jetpack-instant-search__search-results-secondary">
-					<SearchSidebar />
+					{ this.renderSecondarySection() }
 				</div>
 			</main>
 		);
