@@ -16,12 +16,10 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
  * Register the block if it's available
  */
 function register() {
-	if ( ! is_unavailable() ) {
-		jetpack_register_block(
-			BLOCK_NAME,
-			array( 'render_callback' => 'Jetpack\OpenTable_Block\load_assets' )
-		);
-	}
+	jetpack_register_block(
+		BLOCK_NAME,
+		array( 'render_callback' => 'Jetpack\OpenTable_Block\load_assets' )
+	);
 }
 
 add_action( 'init', 'Jetpack\OpenTable_Block\register' );
@@ -36,59 +34,6 @@ function add_language_setting() {
 	wp_add_inline_script( 'jetpack-blocks-editor', sprintf( "wp.data.dispatch( 'core/block-editor' ).updateSettings( { siteLocale: '%s' } )", str_replace( '_', '-', get_locale() ) ), 'before' );
 }
 add_action( 'enqueue_block_assets', 'Jetpack\OpenTable_Block\add_language_setting' );
-
-/**
- * Checks if the block is available and sets the status accourdingly
- */
-function set_availability() {
-	$unavailable = is_unavailable();
-
-	if ( $unavailable ) {
-		\Jetpack_Gutenberg::set_extension_unavailable(
-			BLOCK_NAME,
-			$unavailable,
-			array(
-				'required_feature' => FEATURE_NAME,
-				'required_plan'    => is_wpcom() ? 'value_bundle' : 'jetpack_premium',
-			)
-		);
-		return;
-	}
-	\Jetpack_Gutenberg::set_extension_available( BLOCK_NAME );
-}
-
-add_action( 'jetpack_register_gutenberg_extensions', 'Jetpack\OpenTable_Block\set_availability' );
-
-/**
- * Checks if we are running on WordPress.com
- *
- * @return bool True if it's WordPress.com
- */
-function is_wpcom() {
-	return defined( 'IS_WPCOM' ) && IS_WPCOM;
-}
-
-/**
- * Is the OpenTable block available on a given site
- *
- * @return bool True if the block is available, false otherwise.
- */
-function is_unavailable() {
-	// For WPCOM sites.
-	if ( is_wpcom() && function_exists( 'has_any_blog_stickers' ) ) {
-		$site_id  = get_current_blog_id();
-		$has_plan = has_any_blog_stickers( array( 'premium-plan', 'business-plan', 'ecommerce-plan' ), $site_id );
-		return $has_plan ? false : 'missing_plan';
-	}
-	// For all Jetpack sites.
-	if ( ! \Jetpack::is_active() ) {
-		return 'jetpack_inactive';
-	}
-	if ( ! \Jetpack_Plan::supports( FEATURE_NAME ) ) {
-		return 'missing_plan';
-	}
-	return false;
-}
 
 /**
  * OpenTable block registration/dependency declaration.
