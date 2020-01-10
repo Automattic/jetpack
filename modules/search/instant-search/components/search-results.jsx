@@ -9,7 +9,6 @@ import { h, Component, Fragment } from 'preact';
 /**
  * Internal dependencies
  */
-import { getFilterQuery, setFilterQuery } from '../lib/query-string';
 import SearchResult from './search-result';
 import ScrollButton from './scroll-button';
 import SearchFilters from './search-filters';
@@ -42,10 +41,6 @@ class SearchResults extends Component {
 		}
 		return sprintf( _n( '%s result', '%s results', total, 'jetpack' ), num );
 	}
-
-	onChangeFilter = ( filterName, filterValue ) => {
-		setFilterQuery( filterName, filterValue );
-	};
 
 	renderPrimarySection() {
 		const { query } = this.props;
@@ -120,10 +115,8 @@ class SearchResults extends Component {
 			<Fragment>
 				{ this.props.widgets.map( widget => (
 					<SearchFilters
-						filters={ getFilterQuery() }
 						loading={ this.props.isLoading }
 						locale={ this.props.locale }
-						onChange={ this.onChangeFilter }
 						postTypes={ this.props.postTypes }
 						results={ this.props.response }
 						widget={ widget }
