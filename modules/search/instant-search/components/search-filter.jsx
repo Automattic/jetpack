@@ -136,11 +136,11 @@ export default class SearchFilter extends Component {
 	render() {
 		return (
 			<div>
-				<h4 className="jetpack-search-filters-widget__sub-heading">
+				<h4 className="jetpack-instant-search__filter-sub-heading">
 					{ this.props.configuration.name }
 				</h4>
 				{ this.props.aggregation && 'buckets' in this.props.aggregation && (
-					<div className="jetpack-search-filters-widget__filter-list" ref={ this.filtersList }>
+					<div className="jetpack-instant-search__filter-list" ref={ this.filtersList }>
 						{ this.props.type === 'date' && this.renderDates() }
 						{ this.props.type === 'postType' && this.renderPostTypes() }
 						{ this.props.type === 'taxonomy' && this.renderTaxonomies() }
