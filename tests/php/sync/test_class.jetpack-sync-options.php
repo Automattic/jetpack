@@ -56,14 +56,6 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( '123', $this->server_replica_storage->get_option( 'foo_option_bar' ) );
 	}
 
-	public function test_sync_initalize_Jetpack_Sync_Action_on_init() {
-		// prioroty should be set so that plugins can set their own filers initialize the whitelist_filter before.
-		// Priority is set earlier now plugins_loaded but we plugins should still be able to set whitelist_filters by
-		// using the plugins_loaded action.
-
-		$this->assertEquals( 90, has_action( 'plugins_loaded', array( 'Automattic\\Jetpack\\Sync\\Actions', 'init' ) ) );
-	}
-
 	public function test_sync_default_options() {
 		$this->setSyncClientDefaults();
 		// check that these values exists in the whitelist options

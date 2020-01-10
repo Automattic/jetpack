@@ -71,6 +71,7 @@ function _manually_load_plugin() {
 		require JETPACK_WOOCOMMERCE_INSTALL_DIR . '/woocommerce.php';
 	}
 	require dirname( __FILE__ ) . '/../../jetpack.php';
+	Jetpack::configure();
 }
 
 function _manually_install_woocommerce() {

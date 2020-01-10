@@ -1,10 +1,9 @@
 <?php
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
+use Automattic\Jetpack\Config;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Connection\REST_Connector as REST_Connector;
-use Automattic\Jetpack\Connection\XMLRPC_Connector as XMLRPC_Connector;
 use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Partner;
@@ -47,8 +46,6 @@ class Jetpack {
 	private $rest_authentication_status = null;
 
 	public $HTTP_RAW_POST_DATA = null; // copy of $GLOBALS['HTTP_RAW_POST_DATA']
-
-	private $tracking;
 
 	/**
 	 * @var array The handles of styles that are concatenated into jetpack.css.
@@ -561,17 +558,7 @@ class Jetpack {
 		 */
 		add_action( 'init', array( $this, 'deprecated_hooks' ) );
 
-		/*
-		 * Enable enhanced handling of previewing sites in Calypso
-		 */
-		if ( self::is_active() ) {
-			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-iframe-embed.php';
-			add_action( 'init', array( 'Jetpack_Iframe_Embed', 'init' ), 9, 0 );
-			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-keyring-service-helper.php';
-			add_action( 'init', array( 'Jetpack_Keyring_Service_Helper', 'init' ), 9, 0 );
-		}
-
-		add_action( 'plugins_loaded', array( $this, 'after_plugins_loaded' ) );
+		add_action( 'plugins_loaded', array( __CLASS__, 'configure' ), 1 );
 		add_action( 'plugins_loaded', array( $this, 'late_initialization' ), 90 );
 
 		add_filter(
@@ -737,23 +724,33 @@ class Jetpack {
 	}
 
 	/**
-	 * Runs after all the plugins have loaded but before init.
+	 * Before everything else starts getting initalized, we need to initialize Jetpack using the
+	 * Config object.
 	 */
-	function after_plugins_loaded() {
+	public static function configure() {
+		$config = new Config();
 
-		Partner::init();
-		$terms_of_service = new Terms_Of_Service();
-		$tracking = new Plugin_Tracking();
-		if ( $terms_of_service->has_agreed() ) {
-			add_action( 'init', array( $tracking, 'init' ) );
-		} else {
-			/**
-			 * Initialize tracking right after the user agrees to the terms of service.
-			 */
-			add_action( 'jetpack_agreed_to_terms_of_service', array( $tracking, 'init' ) );
+		foreach (
+			array(
+				'sync',
+				'tracking',
+				'tos',
+			)
+			as $feature
+		) {
+			$config->ensure( $feature );
 		}
 
-		add_filter( 'map_meta_cap', array( $this, 'jetpack_custom_caps' ), 1, 4 );
+		/*
+		 * Enable enhanced handling of previewing sites in Calypso
+		 */
+		if ( self::is_active() ) {
+			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-iframe-embed.php';
+			add_action( 'init', array( 'Jetpack_Iframe_Embed', 'init' ), 9, 0 );
+			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-keyring-service-helper.php';
+			add_action( 'init', array( 'Jetpack_Keyring_Service_Helper', 'init' ), 9, 0 );
+		}
+
 	}
 
 	/**
@@ -763,6 +760,11 @@ class Jetpack {
 	 * @action plugins_loaded
 	 */
 	public function late_initialization() {
+		self::plugin_textdomain();
+		self::load_modules();
+
+		Partner::init();
+
 		/**
 		 * Fires when Jetpack is fully loaded and ready. This is the point where it's safe
 		 * to instantiate classes from packages and namespaces that are managed by the Jetpack Autoloader.
@@ -772,6 +774,8 @@ class Jetpack {
 		 * @param Jetpack $jetpack the main plugin class object.
 		 */
 		do_action( 'jetpack_loaded', $this );
+
+		add_filter( 'map_meta_cap', array( $this, 'jetpack_custom_caps' ), 1, 4 );
 	}
 
 	/**
@@ -5129,6 +5133,11 @@ endif;
 		return self::connection()->xmlrpc_api_url();
 	}
 
+	/**
+	 * Returns the connection manager object.
+	 *
+	 * @return Automattic\Jetpack\Connection\Manager
+	 */
 	public static function connection() {
 		return self::init()->connection_manager;
 	}

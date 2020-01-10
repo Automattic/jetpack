@@ -1,5 +1,7 @@
 <?php
 
+require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader-skin.php';
+
 class Silent_Upgrader_Skin extends WP_Upgrader_Skin {
 
 	/**
