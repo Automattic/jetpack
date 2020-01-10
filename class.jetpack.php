@@ -558,7 +558,7 @@ class Jetpack {
 		 */
 		add_action( 'init', array( $this, 'deprecated_hooks' ) );
 
-		add_action( 'plugins_loaded', array( __CLASS__, 'configure' ), 1 );
+		add_action( 'plugins_loaded', array( $this, 'configure' ), 1 );
 		add_action( 'plugins_loaded', array( $this, 'late_initialization' ), 90 );
 
 		add_filter(
@@ -724,7 +724,7 @@ class Jetpack {
 	 * Before everything else starts getting initalized, we need to initialize Jetpack using the
 	 * Config object.
 	 */
-	public static function configure() {
+	public function configure() {
 		$config = new Config();
 
 		foreach (
