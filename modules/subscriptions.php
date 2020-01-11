@@ -93,9 +93,8 @@ class Jetpack_Subscriptions {
 
 		add_filter( 'post_updated_messages', array( $this, 'update_published_message' ), 18, 1 );
 
-		// Set and delete "social_notifications_subscribe" option during activation / deactivation
+		// Set "social_notifications_subscribe" option during the first-time activation.
 		add_action( 'jetpack_activate_module_subscriptions',   array( $this, 'set_social_notifications_subscribe' ) );
-		add_action( 'jetpack_deactivate_module_subscriptions', array( $this, 'delete_social_notifications_subscribe' ) );
 	}
 
 	/**
@@ -865,25 +864,16 @@ class Jetpack_Subscriptions {
 	}
 
 	/**
-	 * Set the social_notifications_subscribe option to `off` when the Subscriptions module is activated.
+	 * Set the social_notifications_subscribe option to `off` when the Subscriptions module is activated in the first time.
 	 *
 	 * @since 8.1
 	 *
 	 * @return null
 	 */
 	function set_social_notifications_subscribe() {
-		update_option( 'social_notifications_subscribe', 'off' );
-	}
-
-	/**
-	 * Delete the social_notifications_subscribe option that was set to `off` on the module activation.
-	 *
-	 * @since 8.1
-	 *
-	 * @return null
-	 */
-	function delete_social_notifications_subscribe() {
-		delete_option( 'social_notifications_subscribe' );
+		if ( false === get_option( 'social_notifications_subscribe' ) ) {
+			add_option( 'social_notifications_subscribe', 'off' );
+		}
 	}
 
 }
