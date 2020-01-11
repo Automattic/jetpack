@@ -13,9 +13,10 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	 */
 	public static $allowed_html_tags_for_message = array(
 		'a'  => array(
-			'href'  => array(),
-			'title' => array(),
-			'rel'   => array(),
+			'href'   => array(),
+			'title'  => array(),
+			'rel'    => array(),
+			'target' => array(),
 		),
 		'br' => array(),
 	);
@@ -169,7 +170,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 						<?php
 						printf(
 							wp_kses(
-								/* translators: this message is displayed after submitting an email in subscription widgets  */
+								/* translators: 1: Link to Subscription Management page https://subscribe.wordpress.com/, 2: Description of this link */
 								__( 'You already have several pending email subscriptions. <br /> Approve or delete a few subscriptions at <a href="%1$s" title="%2$s" target="_blank" rel="noopener noreferrer">subscribe.wordpress.com</a> before continuing.', 'jetpack' ),
 								self::$allowed_html_tags_for_message
 							),
