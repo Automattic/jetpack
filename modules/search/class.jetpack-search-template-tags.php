@@ -176,12 +176,19 @@ class Jetpack_Search_Template_Tags {
 
 		// Temporarily add some dummy filters to demonstrate filter behaviour.
 		$form .= '<div class="jetpack-search-form__test-filters" style="margin-top: 20px">' .
-				'<h3>Filters</h3>' .
+				'<h3>Post type</h3>' .
 				'<div><input type="checkbox" id="jetpack-search-form__test-filter-1" class="jetpack-search-form__test-filter-checkbox">' .
-				'<label for="jetpack-search-form__test-filter-1" class="jetpack-search-form__test-filter-label">Test filter 1</label></div>' .
+				'<label for="jetpack-search-form__test-filter-1" class="jetpack-search-form__test-filter-label">Post</label></div>' .
 				'<div><input type="checkbox" id="jetpack-search-form__test-filter-2" class="jetpack-search-form__test-filter-checkbox">' .
-				'<label for="jetpack-search-form__test-filter-2" class="jetpack-search-form__test-filter-label">Test filter 2</label></div>' .
+				'<label for="jetpack-search-form__test-filter-2" class="jetpack-search-form__test-filter-label">Page</label></div>' .
 				'</div>';
+
+		$form .= '<div class="jetpack-search-form__test-filters" style="margin-top: 20px">' .
+				'<h3>Year</h3>' .
+				'<div><input type="checkbox" id="jetpack-search-form__test-filter-3" class="jetpack-search-form__test-filter-checkbox">' .
+				'<label for="jetpack-search-form__test-filter-3" class="jetpack-search-form__test-filter-label">2020</label></div>' .
+				'<div><input type="checkbox" id="jetpack-search-form__test-filter-4" class="jetpack-search-form__test-filter-checkbox">' .
+				'<label for="jetpack-search-form__test-filter-4" class="jetpack-search-form__test-filter-label">2019</label></div></div>';
 
 		echo '<div class="jetpack-search-form">';
 		echo $form;

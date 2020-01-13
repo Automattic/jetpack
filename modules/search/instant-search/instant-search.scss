@@ -21,3 +21,12 @@ $grid-size-large: 16px;
 .jetpack-instant-search__is-loading {
 	opacity: 0.2;
 }
+
+.jetpack-search-form__test-filter-checkbox {
+	display: none;
+}
+
+.jetpack-search-form__test-filter-label:hover {
+	text-decoration: underline;
+	cursor: pointer;
+}
