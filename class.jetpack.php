@@ -558,7 +558,7 @@ class Jetpack {
 		 */
 		add_action( 'init', array( $this, 'deprecated_hooks' ) );
 
-		add_action( 'plugins_loaded', array( __CLASS__, 'configure' ), 1 );
+		add_action( 'plugins_loaded', array( $this, 'configure' ), 1 );
 		add_action( 'plugins_loaded', array( $this, 'late_initialization' ), 90 );
 
 		add_filter(
@@ -607,9 +607,6 @@ class Jetpack {
 		// Unlink user before deleting the user from WP.com.
 		add_action( 'deleted_user', array( 'Automattic\\Jetpack\\Connection\\Manager', 'disconnect_user' ), 10, 1 );
 		add_action( 'remove_user_from_blog', array( 'Automattic\\Jetpack\\Connection\\Manager', 'disconnect_user' ), 10, 1 );
-
-		// Initialize remote file upload request handlers.
-		$this->add_remote_request_handlers();
 
 		if ( self::is_active() ) {
 			add_action( 'login_form_jetpack_json_api_authorization', array( $this, 'login_form_json_api_authorization' ) );
@@ -727,7 +724,7 @@ class Jetpack {
 	 * Before everything else starts getting initalized, we need to initialize Jetpack using the
 	 * Config object.
 	 */
-	public static function configure() {
+	public function configure() {
 		$config = new Config();
 
 		foreach (
@@ -740,6 +737,9 @@ class Jetpack {
 		) {
 			$config->ensure( $feature );
 		}
+
+		// Initialize remote file upload request handlers.
+		$this->add_remote_request_handlers();
 
 		/*
 		 * Enable enhanced handling of previewing sites in Calypso
