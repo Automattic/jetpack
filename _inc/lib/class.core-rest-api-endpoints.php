@@ -2073,6 +2073,15 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'jp_group'          => 'related-posts',
 			),
 
+			// Search.
+			'instant_search_enabled' => array(
+				'description'       => esc_html__( 'Enable Instant Search', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 1,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'search',
+			),
+
 			// Verification Tools
 			'google' => array(
 				'description'       => esc_html__( 'Google Search Console', 'jetpack' ),

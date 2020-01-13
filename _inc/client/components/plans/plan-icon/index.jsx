@@ -24,6 +24,7 @@ import {
 	PLAN_PERSONAL,
 	PLAN_PERSONAL_2_YEARS,
 	PLAN_VIP,
+	PLAN_JETPACK_SEARCH,
 	getPlanClass,
 } from 'lib/plans/constants';
 
@@ -146,6 +147,25 @@ export default class PlanIcon extends Component {
 		);
 	}
 
+	getSearchIcon() {
+		return (
+			<svg
+				className={ this.getIconClassNames( 'dops-plan-icon__search' ) }
+				xmlns="http://www.w3.org/2000/svg"
+				version="1.1"
+				x="0"
+				y="0"
+				viewBox="0 0 61.8 61.8"
+			>
+				<circle className="dops-plan-icon__search-0" cx="30.9" cy="30.9" r="30.9" />
+				<g>
+					<path d="M21 19l-5.154-5.154C16.574 12.742 17 11.42 17 10c0-3.866-3.134-7-7-7s-7 3.134-7 7 3.134 7 7 7c1.42 0 2.742-.426 3.846-1.154L19 21l2-2zM5 10c0-2.757 2.243-5 5-5s5 2.243 5 5-2.243 5-5 5-5-2.243-5-5z" />
+				</g>
+				);
+			</svg>
+		);
+	}
+
 	getDefaultIcon() {
 		return (
 			<svg
@@ -201,6 +221,8 @@ export default class PlanIcon extends Component {
 			case PLAN_JETPACK_BUSINESS_MONTHLY:
 			case PLAN_VIP:
 				return this.getBusinessIcon();
+			case PLAN_JETPACK_SEARCH:
+				return this.getSearchIcon();
 			default:
 				return this.getDefaultIcon();
 		}
@@ -224,6 +246,7 @@ PlanIcon.propTypes = {
 		PLAN_JETPACK_PERSONAL_MONTHLY,
 		PLAN_PERSONAL,
 		PLAN_PERSONAL_2_YEARS,
+		PLAN_JETPACK_SEARCH,
 		PLAN_VIP,
 	] ).isRequired,
 };

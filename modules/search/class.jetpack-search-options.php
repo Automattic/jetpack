@@ -8,6 +8,7 @@
  */
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Options;
 
 /**
  * Helpers for parsing the various Search options
@@ -40,7 +41,7 @@ class Jetpack_Search_Options {
 	 * @return bool
 	 */
 	public static function is_instant_enabled() {
-		return Constants::is_true( 'JETPACK_SEARCH_PROTOTYPE' );
+		return Constants::is_true( 'JETPACK_SEARCH_PROTOTYPE' ) || (bool) Jetpack_Options::get_option( 'instant_search_enabled' );
 	}
 
 

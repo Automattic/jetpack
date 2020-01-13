@@ -16,6 +16,7 @@ import {
 	PLAN_JETPACK_PREMIUM,
 	PLAN_JETPACK_BUSINESS,
 	PLAN_JETPACK_PERSONAL,
+	PLAN_JETPACK_SEARCH,
 	FEATURE_SECURITY_SCANNING_JETPACK,
 	FEATURE_SEO_TOOLS_JETPACK,
 	FEATURE_VIDEO_HOSTING_JETPACK,
@@ -177,17 +178,28 @@ export const SettingsCard = props => {
 				);
 
 			case FEATURE_SEARCH_JETPACK:
-				if ( 'is-business-plan' === planClass ) {
+				if ( 'is-search-plan' === planClass ) {
 					return '';
+				}
+
+				if ( 'is-business-plan' === planClass ) {
+					return (
+						<JetpackBanner
+							callToAction={ upgradeLabel }
+							title={ __( 'New and Improved Jetpack Search: instant and more relevant results.' ) }
+							plan={ PLAN_JETPACK_SEARCH }
+							feature={ feature }
+							onClick={ handleClickForTracking( feature ) }
+							href={ props.searchUpgradeUrl }
+						/>
+					);
 				}
 
 				return (
 					<JetpackBanner
 						callToAction={ upgradeLabel }
-						title={ __(
-							'Add faster, more advanced searching to your site with Jetpack Professional.'
-						) }
-						plan={ PLAN_JETPACK_BUSINESS }
+						title={ __( 'Add faster, more advanced searching to your site with Jetpack Search.' ) }
+						plan={ PLAN_JETPACK_SEARCH }
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
 						href={ props.searchUpgradeUrl }
