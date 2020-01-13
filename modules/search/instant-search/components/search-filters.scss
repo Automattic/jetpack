@@ -1,4 +1,4 @@
-.jetpack-search-filters-widget__filter-list {
+.jetpack-instant-search__filter-list {
 	div label {
 		display: inline-block;
 		width: auto;
@@ -6,4 +6,8 @@
 	}
 	margin-bottom: 10px;
 	text-align: left;
+}
+
+.jetpack-instant-search__clear-filters-button {
+	margin-bottom: 1em;
 }
