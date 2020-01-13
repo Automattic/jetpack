@@ -253,7 +253,7 @@ class Test_Status extends TestCase {
 	 * Tests a WP Engine staging site URL.
 	 *
 	 * @author  kraftbj
-	 * @covers Jetpack::is_staging_site
+	 * @covers is_staging_site
 	 * @since  3.9.0
 	 */
 	public function test_is_staging_site_will_report_staging_for_wpengine_sites_by_url() {
