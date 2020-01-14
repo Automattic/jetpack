@@ -12,6 +12,7 @@ import {
 	Toolbar,
 	PanelBody,
 	Spinner,
+	ExternalLink,
 } from '@wordpress/components';
 import { BlockControls, BlockIcon } from '@wordpress/block-editor';
 import { InspectorControls } from '@wordpress/editor';
@@ -224,8 +225,12 @@ class EventbriteEdit extends Component {
 		return (
 			<div className={ className }>
 				<Placeholder
-					label={ __( 'Eventbrite Tickets', 'jetpack' ) }
-					icon={ <BlockIcon icon={ icon } /> }
+					label={ __( 'Eventbrite Checkout', 'jetpack' ) }
+					instructions={ __(
+						'Paste a link to an Eventbrite event to embed ticket checkout.',
+						'jetpack'
+					) }
+					icon={ <BlockIcon icon={ icon } showColors /> }
 				>
 					<form onSubmit={ this.setUrl }>
 						<input
@@ -249,6 +254,12 @@ class EventbriteEdit extends Component {
 							</p>
 						) }
 					</form>
+
+					<div className="components-placeholder__learn-more">
+						<ExternalLink href="#">
+							{ __( 'Learn more about Eventbrite embeds', 'jetpack' ) }
+						</ExternalLink>
+					</div>
 				</Placeholder>
 			</div>
 		);
