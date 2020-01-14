@@ -11,6 +11,7 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
+use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\Connection\Manager;
 
@@ -564,11 +565,8 @@ class JITM {
 				'u'      => $user->ID,
 			);
 
-			if ( ! class_exists( 'Jetpack_Affiliate' ) ) {
-				require_once JETPACK__PLUGIN_DIR . 'class.jetpack-affiliate.php';
-			}
 			// Get affiliate code and add it to the array of URL parameters.
-			$aff = \Jetpack_Affiliate::init()->get_affiliate_code();
+			$aff = Partner::init()->get_partner_code( Partner::AFFILIATE_CODE );
 			if ( '' !== $aff ) {
 				$url_params['aff'] = $aff;
 			}
