@@ -293,6 +293,7 @@ class WPCOM_REST_API_V2_Endpoint_Service_API_Keys extends WP_REST_Controller {
 		$option          = self::key_for_api_service( 'mapbox' );
 		$service_api_key = Jetpack_Options::get_option( $option, '' );
 
+		// If the site provides its own Mapbox API key, return it.
 		if ( ! empty( $service_api_key ) ) {
 			return array(
 				'key'    => $service_api_key,
@@ -300,6 +301,7 @@ class WPCOM_REST_API_V2_Endpoint_Service_API_Keys extends WP_REST_Controller {
 			);
 		}
 
+		// If the site is not WPCOM, return an empty API key.
 		if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) && ! jetpack_is_atomic_site() ) {
 			return array(
 				'key'    => '',
@@ -307,6 +309,15 @@ class WPCOM_REST_API_V2_Endpoint_Service_API_Keys extends WP_REST_Controller {
 			);
 		}
 
+		$transient_key = 'mapbox_a8c_access_token';
+		$cached_token  = get_transient( $transient_key );
+
+		// If there is a cached token, return it.
+		if ( ! empty( $cached_token ) ) {
+			return $cached_token;
+		}
+
+		// Otherwise retrieve an Automattic token.
 		$site_id  = Jetpack_Options::get_option( 'id' );
 		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/mapbox', $site_id ), '2', array(), null, 'wpcom' );
 
@@ -316,9 +327,14 @@ class WPCOM_REST_API_V2_Endpoint_Service_API_Keys extends WP_REST_Controller {
 				'source' => 'site',
 			);
 		}
-		$response_body = json_decode( wp_remote_retrieve_body( $response ) );
+		$response_body           = json_decode( wp_remote_retrieve_body( $response ) );
+		$mapbox_a8c_access_token = $response_body->mapbox_a8c_access_token;
+
+		// Cache the Automattic token for a month.
+		set_transient( $transient_key, $mapbox_a8c_access_token, 2592000 );
+
 		return array(
-			'key'    => $response_body->mapbox_a8c_access_token,
+			'key'    => $mapbox_a8c_access_token,
 			'source' => 'automattic',
 		);
 	}
