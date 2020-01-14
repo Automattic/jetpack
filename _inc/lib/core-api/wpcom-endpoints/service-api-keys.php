@@ -126,7 +126,7 @@ class WPCOM_REST_API_V2_Endpoint_Service_API_Keys extends WP_REST_Controller {
 			default:
 				$option                 = self::key_for_api_service( $service );
 				$service_api_key        = Jetpack_Options::get_option( $option, '' );
-				$service_api_key_source = '';
+				$service_api_key_source = 'site';
 		};
 
 		$message = esc_html__( 'API key retrieved successfully.', 'jetpack' );
