@@ -4,7 +4,7 @@
 	width: 100vw;
 	height: 100vh;
 	opacity: 0.975;
-	transition: opacity 0.5s linear, 0.5s transform ease-in-out;
+	transition: opacity 0.5s linear, 0.25s transform ease-in-out;
 	position: fixed;
 	background: white;
 	padding: 3em 1em;
@@ -14,7 +14,7 @@
 	animation-fill-mode: forwards;
 
 	&.is-hidden {
-		transform: translateX( 200vw );
+		transform: translateX( 100vw );
 	}
 }
 
