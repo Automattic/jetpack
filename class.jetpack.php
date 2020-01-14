@@ -4037,7 +4037,7 @@ p {
 					exit;
 				case 'register':
 					if ( ! current_user_can( 'jetpack_connect' ) ) {
-						$error = 'cheatin';
+						$this->error = 'cheatin';
 						break;
 					}
 					check_admin_referer( 'jetpack-register' );
@@ -4045,8 +4045,8 @@ p {
 					self::maybe_set_version_option();
 					$registered = self::try_registration();
 					if ( is_wp_error( $registered ) ) {
-						$error = $registered->get_error_code();
-						self::state( 'error', $error );
+						$this->error = $registered->get_error_code();
+						self::state( 'error', $this->error );
 						self::state( 'error', $registered->get_error_message() );
 
 						/**
@@ -4057,7 +4057,7 @@ p {
 						 * @param string|int $error The error code.
 						 * @param \WP_Error $registered The error object.
 						 */
-						do_action( 'jetpack_connection_register_fail', $error, $registered );
+						do_action( 'jetpack_connection_register_fail', $this->error, $registered );
 						break;
 					}
 
@@ -4087,7 +4087,7 @@ p {
 					exit;
 				case 'activate':
 					if ( ! current_user_can( 'jetpack_activate_modules' ) ) {
-						$error = 'cheatin';
+						$this->error = 'cheatin';
 						break;
 					}
 
@@ -4112,7 +4112,7 @@ p {
 					exit;
 				case 'disconnect':
 					if ( ! current_user_can( 'jetpack_disconnect' ) ) {
-						$error = 'cheatin';
+						$this->error = 'cheatin';
 						break;
 					}
 
@@ -4123,7 +4123,7 @@ p {
 					exit;
 				case 'reconnect':
 					if ( ! current_user_can( 'jetpack_reconnect' ) ) {
-						$error = 'cheatin';
+						$this->error = 'cheatin';
 						break;
 					}
 
@@ -4134,7 +4134,7 @@ p {
 					exit;
 				case 'deactivate':
 					if ( ! current_user_can( 'jetpack_deactivate_modules' ) ) {
-						$error = 'cheatin';
+						$this->error = 'cheatin';
 						break;
 					}
 
@@ -4192,7 +4192,7 @@ p {
 			}
 		}
 
-		if ( ! $error = $error ? $error : self::state( 'error' ) ) {
+		if ( false == $this->error && empty( self::state( 'error' ) ) ) {
 			self::activate_new_modules( true );
 		}
 
