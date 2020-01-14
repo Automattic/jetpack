@@ -148,7 +148,7 @@ class Jetpack_SSO {
 		// Always add the jetpack-sso class so that we can add SSO specific styling even when the SSO form isn't being displayed.
 		$classes[] = 'jetpack-sso';
 
-		if ( ! Jetpack::is_staging_site() ) {
+		if ( ! ( new Status() )->is_staging_site() ) {
 			/**
 			 * Should we show the SSO login form?
 			 *
@@ -352,7 +352,7 @@ class Jetpack_SSO {
 				$this->handle_login();
 				$this->display_sso_login_form();
 			} else {
-				if ( Jetpack::is_staging_site() ) {
+				if ( ( new Status() )->is_staging_site() ) {
 					add_filter( 'login_message', array( 'Jetpack_SSO_Notices', 'sso_not_allowed_in_staging' ) );
 				} else {
 					// Is it wiser to just use wp_redirect than do this runaround to wp_safe_redirect?
@@ -401,7 +401,7 @@ class Jetpack_SSO {
 		add_filter( 'login_body_class', array( $this, 'login_body_class' ) );
 		add_action( 'login_head',       array( $this, 'print_inline_admin_css' ) );
 
-		if ( Jetpack::is_staging_site() ) {
+		if ( ( new Status() )->is_staging_site() ) {
 			add_filter( 'login_message', array( 'Jetpack_SSO_Notices', 'sso_not_allowed_in_staging' ) );
 			return;
 		}

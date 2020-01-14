@@ -177,6 +177,10 @@ class Actions {
 	 * @return bool
 	 */
 	public static function sync_allowed() {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			return false;
+		}
+
 		if ( defined( 'PHPUNIT_JETPACK_TESTSUITE' ) ) {
 			return true;
 		}
@@ -189,7 +193,7 @@ class Actions {
 			return false;
 		}
 
-		if ( \Jetpack::is_staging_site() ) {
+		if ( ( new Status() )->is_staging_site() ) {
 			return false;
 		}
 

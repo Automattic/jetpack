@@ -904,11 +904,14 @@ class Jetpack_CLI extends WP_CLI_Command {
 						WP_CLI::error( __( 'Jetpack sync is not currently allowed for this site. Jetpack is not connected.', 'jetpack' ) );
 						return;
 					}
-					if ( ( new Status() )->is_development_mode() ) {
+
+					$status = new Status();
+
+					if ( $status->is_development_mode() ) {
 						WP_CLI::error( __( 'Jetpack sync is not currently allowed for this site. The site is in development mode.', 'jetpack' ) );
 						return;
 					}
-					if ( Jetpack::is_staging_site() ) {
+					if ( $status->is_staging_site() ) {
 						WP_CLI::error( __( 'Jetpack sync is not currently allowed for this site. The site is in staging mode.', 'jetpack' ) );
 						return;
 					}

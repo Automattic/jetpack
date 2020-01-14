@@ -238,7 +238,8 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	protected function test__wpcom_connection_test() {
 		$name = __FUNCTION__;
 
-		if ( ! Jetpack::is_active() || ( new Status() )->is_development_mode() || Jetpack::is_staging_site() || ! $this->pass ) {
+		$status = new Status();
+		if ( ! Jetpack::is_active() || $status->is_development_mode() || $status->is_staging_site() || ! $this->pass ) {
 			return self::skipped_test( $name );
 		}
 
@@ -344,7 +345,8 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	protected function last__wpcom_self_test() {
 		$name = 'test__wpcom_self_test';
 
-		if ( ! Jetpack::is_active() || ( new Status() )->is_development_mode() || Jetpack::is_staging_site() || ! $this->pass ) {
+		$status = new Status();
+		if ( ! Jetpack::is_active() || $status->is_development_mode() || $status->is_staging_site() || ! $this->pass ) {
 			return self::skipped_test( $name );
 		}
 

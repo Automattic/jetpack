@@ -20,6 +20,11 @@ class Main {
 	 * @action plugins_loaded
 	 */
 	public static function configure() {
+		// Exit out early if Sync isn't allowed.
+		if ( ! Actions::sync_allowed() ) {
+			return;
+		}
+
 		add_action( 'plugins_loaded', array( __CLASS__, 'on_plugins_loaded_early' ), 5 );
 		add_action( 'plugins_loaded', array( __CLASS__, 'on_plugins_loaded_late' ), 90 );
 	}

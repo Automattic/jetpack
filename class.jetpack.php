@@ -1649,7 +1649,7 @@ class Jetpack {
 			echo '<div class="updated" style="border-color: #f0821e;"><p>' . $notice . '</p></div>';
 		}
 		// Throw up a notice if using staging mode
-		if ( self::is_staging_site() ) {
+		if ( ( new Status() )->is_staging_site() ) {
 			/* translators: %s is a URL */
 			$notice = sprintf( __( 'You are running Jetpack on a <a href="%s" target="_blank">staging server</a>.', 'jetpack' ), 'https://jetpack.com/support/staging-sites/' );
 
@@ -6009,64 +6009,8 @@ endif;
 	 * @return bool True = already whitelisted False = not whitelisted
 	 */
 	public static function is_staging_site() {
-		$is_staging = false;
-
-		$known_staging = array(
-			'urls'      => array(
-				'#\.staging\.wpengine\.com$#i', // WP Engine
-				'#\.staging\.kinsta\.com$#i',   // Kinsta.com
-				'#\.stage\.site$#i',            // DreamPress
-			),
-			'constants' => array(
-				'IS_WPE_SNAPSHOT',      // WP Engine
-				'KINSTA_DEV_ENV',       // Kinsta.com
-				'WPSTAGECOACH_STAGING', // WP Stagecoach
-				'JETPACK_STAGING_MODE', // Generic
-			),
-		);
-		/**
-		 * Filters the flags of known staging sites.
-		 *
-		 * @since 3.9.0
-		 *
-		 * @param array $known_staging {
-		 *     An array of arrays that each are used to check if the current site is staging.
-		 *     @type array $urls      URLs of staging sites in regex to check against site_url.
-		 *     @type array $constants PHP constants of known staging/developement environments.
-		 *  }
-		 */
-		$known_staging = apply_filters( 'jetpack_known_staging', $known_staging );
-
-		if ( isset( $known_staging['urls'] ) ) {
-			foreach ( $known_staging['urls'] as $url ) {
-				if ( preg_match( $url, site_url() ) ) {
-					$is_staging = true;
-					break;
-				}
-			}
-		}
-
-		if ( isset( $known_staging['constants'] ) ) {
-			foreach ( $known_staging['constants'] as $constant ) {
-				if ( defined( $constant ) && constant( $constant ) ) {
-					$is_staging = true;
-				}
-			}
-		}
-
-		// Last, let's check if sync is erroring due to an IDC. If so, set the site to staging mode.
-		if ( ! $is_staging && self::validate_sync_error_idc_option() ) {
-			$is_staging = true;
-		}
-
-		/**
-		 * Filters is_staging_site check.
-		 *
-		 * @since 3.9.0
-		 *
-		 * @param bool $is_staging If the current site is a staging site.
-		 */
-		return apply_filters( 'jetpack_is_staging_site', $is_staging );
+		_deprecated_function( 'Jetpack::is_staging_site', 'jetpack-8.1', '/Automattic/Jetpack/Status->is_staging_site' );
+		return ( new Status() )->is_staging_site();
 	}
 
 	/**

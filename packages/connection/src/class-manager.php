@@ -1556,6 +1556,7 @@ class Manager {
 				return new \WP_Error( 'unknown', '', $code );
 			}
 
+			/* translators: Error description string. */
 			$error_description = isset( $json->error_description ) ? sprintf( __( 'Error Details: %s', 'jetpack' ), (string) $json->error_description ) : '';
 
 			return new \WP_Error( (string) $json->error, $error_description, $code );

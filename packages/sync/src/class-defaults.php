@@ -7,8 +7,6 @@
 
 namespace Automattic\Jetpack\Sync;
 
-require_once JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-helpers.php';
-
 use Automattic\Jetpack\Status;
 
 /**
@@ -282,11 +280,6 @@ class Defaults {
 		'shortcodes'                       => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_shortcodes' ),
 		'rest_api_allowed_post_types'      => array( 'Automattic\\Jetpack\\Sync\\Functions', 'rest_api_allowed_post_types' ),
 		'rest_api_allowed_public_metadata' => array( 'Automattic\\Jetpack\\Sync\\Functions', 'rest_api_allowed_public_metadata' ),
-		'sso_is_two_step_required'         => array( 'Jetpack_SSO_Helpers', 'is_two_step_required' ),
-		'sso_should_hide_login_form'       => array( 'Jetpack_SSO_Helpers', 'should_hide_login_form' ),
-		'sso_match_by_email'               => array( 'Jetpack_SSO_Helpers', 'match_by_email' ),
-		'sso_new_user_override'            => array( 'Jetpack_SSO_Helpers', 'new_user_override' ),
-		'sso_bypass_default_login_form'    => array( 'Jetpack_SSO_Helpers', 'bypass_login_forward_wpcom' ),
 		'wp_version'                       => array( 'Automattic\\Jetpack\\Sync\\Functions', 'wp_version' ),
 		'get_plugins'                      => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_plugins' ),
 		'get_plugins_action_links'         => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_plugins_action_links' ),
@@ -345,6 +338,19 @@ class Defaults {
 	 * @return array Whitelist of callables allowed to be managed via the JSON API.
 	 */
 	public static function get_callable_whitelist() {
+		$default = self::$default_callable_whitelist;
+
+		if ( defined( 'JETPACK__PLUGIN_DIR' ) && include_once JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-helpers.php' ) {
+			$sso_helpers = array(
+				'sso_is_two_step_required'      => array( 'Jetpack_SSO_Helpers', 'is_two_step_required' ),
+				'sso_should_hide_login_form'    => array( 'Jetpack_SSO_Helpers', 'should_hide_login_form' ),
+				'sso_match_by_email'            => array( 'Jetpack_SSO_Helpers', 'match_by_email' ),
+				'sso_new_user_override'         => array( 'Jetpack_SSO_Helpers', 'new_user_override' ),
+				'sso_bypass_default_login_form' => array( 'Jetpack_SSO_Helpers', 'bypass_login_forward_wpcom' ),
+			);
+			$default     = array_merge( $default, $sso_helpers );
+		}
+
 		/**
 		 * Filter the list of callables that are manageable via the JSON API.
 		 *
@@ -354,7 +360,7 @@ class Defaults {
 		 *
 		 * @param array The default list of callables.
 		 */
-		return apply_filters( 'jetpack_sync_callable_whitelist', self::$default_callable_whitelist );
+		return apply_filters( 'jetpack_sync_callable_whitelist', $default );
 	}
 
 	/**
