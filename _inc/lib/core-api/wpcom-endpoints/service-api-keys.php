@@ -300,7 +300,7 @@ class WPCOM_REST_API_V2_Endpoint_Service_API_Keys extends WP_REST_Controller {
 			);
 		}
 
-		if ( ! Jetpack::is_active() ) {
+		if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) && ! jetpack_is_atomic_site() ) {
 			return array(
 				'key'    => '',
 				'source' => 'site',
