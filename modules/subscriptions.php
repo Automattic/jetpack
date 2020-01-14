@@ -659,6 +659,9 @@ class Jetpack_Subscriptions {
 			case 'pending':
 				$result = 'already';
 				break;
+			case 'flooded_email':
+				$result = 'many_pending_subs';
+				break;
 			default:
 				$result = 'error';
 				break;
