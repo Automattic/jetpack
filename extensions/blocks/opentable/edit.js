@@ -244,7 +244,7 @@ export default function OpenTableEdit( { attributes, setAttributes, className, c
 		>
 			<RestaurantPicker rids={ rid } onSubmit={ onPickerSubmit } />
 			<div className={ `${ className }-placeholder-links` }>
-				<ExternalLink href="https://en.support.wordpress.com/widgets/open-table-widget/">
+				<ExternalLink href="https://restaurant.opentable.com/get-started/">
 					{ __( 'Sign up for OpenTable', 'jetpack' ) }
 				</ExternalLink>
 				<ExternalLink href="https://en.support.wordpress.com/widgets/open-table-widget/">
