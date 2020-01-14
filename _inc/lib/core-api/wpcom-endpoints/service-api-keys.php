@@ -1,4 +1,7 @@
 <?php
+
+use Automattic\Jetpack\Connection\Client;
+
 /*
  * Service API Keys: Exposes 3rd party api keys that are used on a site.
  *
@@ -109,18 +112,31 @@ class WPCOM_REST_API_V2_Endpoint_Service_API_Keys extends WP_REST_Controller {
 	 * }
 	 */
 	public static function get_service_api_key( $request ) {
-
 		$service = self::validate_service_api_service( $request['service'] );
 		if ( ! $service ) {
 			return self::service_api_invalid_service_response();
 		}
-		$option  = self::key_for_api_service( $service );
+
+		switch ( $service ) {
+			case 'mapbox':
+				$mapbox                 = self::get_service_api_key_mapbox();
+				$service_api_key        = $mapbox['key'];
+				$service_api_key_source = $mapbox['source'];
+				break;
+			default:
+				$option                 = self::key_for_api_service( $service );
+				$service_api_key        = Jetpack_Options::get_option( $option, '' );
+				$service_api_key_source = '';
+		};
+
 		$message = esc_html__( 'API key retrieved successfully.', 'jetpack' );
+
 		return array(
-			'code'            => 'success',
-			'service'         => $service,
-			'service_api_key' => Jetpack_Options::get_option( $option, '' ),
-			'message'         => $message,
+			'code'                   => 'success',
+			'service'                => $service,
+			'service_api_key'        => $service_api_key,
+			'service_api_key_source' => $service_api_key_source,
+			'message'                => $message,
 		);
 	}
 
@@ -265,6 +281,45 @@ class WPCOM_REST_API_V2_Endpoint_Service_API_Keys extends WP_REST_Controller {
 		return array(
 			'status'        => $status,
 			'error_message' => $msg,
+		);
+	}
+
+	/**
+	 * Get the site's own Mapbox API key if set, or the Automattic's one otherwise.
+	 *
+	 * @return array An array containing the key (if any) and its source ("site" or "automattic").
+	 */
+	public static function get_service_api_key_mapbox() {
+		$option          = self::key_for_api_service( 'mapbox' );
+		$service_api_key = Jetpack_Options::get_option( $option, '' );
+
+		if ( ! empty( $service_api_key ) ) {
+			return array(
+				'key'    => $service_api_key,
+				'source' => 'site',
+			);
+		}
+
+		if ( ! Jetpack::is_active() ) {
+			return array(
+				'key'    => '',
+				'source' => 'site',
+			);
+		}
+
+		$site_id  = Jetpack_Options::get_option( 'id' );
+		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/mapbox', $site_id ), '2', array(), null, 'wpcom' );
+
+		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			return array(
+				'key'    => '',
+				'source' => 'site',
+			);
+		}
+		$response_body = json_decode( wp_remote_retrieve_body( $response ) );
+		return array(
+			'key'    => $response_body->mapbox_a8c_access_token,
+			'source' => 'automattic',
 		);
 	}
 

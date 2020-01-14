@@ -15,44 +15,16 @@ jetpack_register_block(
 );
 
 /**
- * Fetch the A8C Mapbox access token from the WPCOM API.
- *
- * @return string
- */
-function jetpack_fetch_mapbox_a8c_access_token() {
-	if ( ! Jetpack::is_active() ) {
-		return '';
-	}
-
-	$site_id = Jetpack_Options::get_option( 'id' );
-
-	$response = wp_remote_get( 'https://public-api.wordpress.com/wpcom/v2/sites/' . $site_id . '/mapbox' );
-	if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-		return '';
-	}
-	$response_body = json_decode( wp_remote_retrieve_body( $response ) );
-	return $response_body->mapbox_a8c_access_token;
-}
-
-/**
- * Add the A8C's Mapbox API key to the Map block script.
- */
-function jetpack_localize_map_block_script() {
-	wp_localize_script( 'jetpack-blocks-editor', 'Jetpack_Block_Map_Settings', array( 'mapbox_a8c_access_token' => jetpack_fetch_mapbox_a8c_access_token() ) );
-}
-add_action( 'enqueue_block_editor_assets', 'jetpack_localize_map_block_script' );
-
-/**
- * Return the site own Mapbox API key or the A8C one otherwise.
+ * Return the site's own Mapbox API key if set, or the Automattic's one otherwise.
  *
  * @return string
  */
 function jetpack_get_mapbox_api_key() {
-	$api_key = Jetpack_Options::get_option( 'mapbox_api_key' );
-	if ( empty( $api_key ) ) {
-		return jetpack_fetch_mapbox_a8c_access_token();
+	if ( ! class_exists( 'WPCOM_REST_API_V2_Endpoint_Service_API_Keys' ) ) {
+		return Jetpack_Options::get_option( 'mapbox_api_key' );
 	}
-	return $api_key;
+	$response = WPCOM_REST_API_V2_Endpoint_Service_API_Keys::get_service_api_key( array( 'service' => 'mapbox' ) );
+	return $response['service_api_key'];
 }
 
 /**

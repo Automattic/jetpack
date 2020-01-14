@@ -34,8 +34,6 @@ import MapThemePicker from './map-theme-picker';
 import { settings } from './settings.js';
 import previewPlaceholder from './map-preview.jpg';
 
-const MAPBOX_A8C_ACCESS_TOKEN = window.Jetpack_Block_Map_Settings.mapbox_a8c_access_token;
-
 const API_STATE_LOADING = 0;
 const API_STATE_FAILURE = 1;
 const API_STATE_SUCCESS = 2;
@@ -93,18 +91,22 @@ class MapEdit extends Component {
 			: { path, method };
 		this.setState( { apiRequestOutstanding: true }, () => {
 			apiFetch( fetch ).then(
-				result => {
+				( { service_api_key: apiKey, service_api_key_source: apiKeySource } ) => {
 					noticeOperations.removeAllNotices();
-					const apiKey = result.service_api_key || MAPBOX_A8C_ACCESS_TOKEN;
+
+					const apiState = apiKey ? API_STATE_SUCCESS : API_STATE_FAILURE;
+					const apiKeyControl = 'automattic' === apiKeySource ? '' : apiKey;
+
 					this.setState( {
-						apiState: apiKey ? API_STATE_SUCCESS : API_STATE_FAILURE,
+						apiState,
 						apiKey,
-						apiKeyControl: result.service_api_key,
+						apiKeyControl,
+						apiKeySource,
 						apiRequestOutstanding: false,
 					} );
 				},
-				result => {
-					this.onError( null, result.message );
+				( { message } ) => {
+					this.onError( null, message );
 					this.setState( {
 						apiState: API_STATE_FAILURE,
 						apiRequestOutstanding: false,
@@ -137,6 +139,7 @@ class MapEdit extends Component {
 			addPointVisibility,
 			apiKey,
 			apiKeyControl,
+			apiKeySource,
 			apiState,
 			apiRequestOutstanding,
 		} = this.state;
@@ -190,7 +193,7 @@ class MapEdit extends Component {
 							/>
 						</PanelBody>
 					) : null }
-					{ apiKey !== MAPBOX_A8C_ACCESS_TOKEN && (
+					{ 'automattic' !== apiKeySource && (
 						<PanelBody title={ __( 'Mapbox Access Token', 'jetpack' ) } initialOpen={ false }>
 							<TextControl
 								label={ __( 'Mapbox Access Token', 'jetpack' ) }
