@@ -50,20 +50,22 @@ class Manager {
 	 *
 	 * @todo Implement a proper nonce verification.
 	 */
-	public function init() {
-		$this->setup_xmlrpc_handlers(
+	public static function configure() {
+		$manager = new self();
+
+		$manager->setup_xmlrpc_handlers(
 			$_GET, // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$this->is_active(),
-			$this->verify_xml_rpc_signature()
+			$manager->is_active(),
+			$manager->verify_xml_rpc_signature()
 		);
 
-		if ( $this->is_active() ) {
-			add_filter( 'xmlrpc_methods', array( $this, 'public_xmlrpc_methods' ) );
+		if ( $manager->is_active() ) {
+			add_filter( 'xmlrpc_methods', array( $manager, 'public_xmlrpc_methods' ) );
 		} else {
-			add_action( 'rest_api_init', array( $this, 'initialize_rest_api_registration_connector' ) );
+			add_action( 'rest_api_init', array( $manager, 'initialize_rest_api_registration_connector' ) );
 		}
 
-		add_action( 'jetpack_clean_nonces', array( $this, 'clean_nonces' ) );
+		add_action( 'jetpack_clean_nonces', array( $manager, 'clean_nonces' ) );
 		if ( ! wp_next_scheduled( 'jetpack_clean_nonces' ) ) {
 			wp_schedule_event( time(), 'hourly', 'jetpack_clean_nonces' );
 		}

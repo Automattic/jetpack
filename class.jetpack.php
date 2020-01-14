@@ -572,21 +572,6 @@ class Jetpack {
 
 		add_action( 'jetpack_verify_signature_error', array( $this, 'track_xmlrpc_error' ) );
 
-		$this->connection_manager = new Connection_Manager();
-		$this->connection_manager->init();
-
-		/*
-		 * Load things that should only be in Network Admin.
-		 *
-		 * For now blow away everything else until a more full
-		 * understanding of what is needed at the network level is
-		 * available
-		 */
-		if ( is_multisite() ) {
-			$network = Jetpack_Network::init();
-			$network->set_connection( $this->connection_manager );
-		}
-
 		add_filter(
 			'jetpack_signature_check_token',
 			array( __CLASS__, 'verify_onboarding_token' ),
@@ -729,6 +714,7 @@ class Jetpack {
 
 		foreach (
 			array(
+				'connection',
 				'sync',
 				'tracking',
 				'tos',
@@ -736,6 +722,20 @@ class Jetpack {
 			as $feature
 		) {
 			$config->ensure( $feature );
+		}
+
+		$this->connection_manager = new Connection_Manager();
+
+		/*
+		 * Load things that should only be in Network Admin.
+		 *
+		 * For now blow away everything else until a more full
+		 * understanding of what is needed at the network level is
+		 * available
+		 */
+		if ( is_multisite() ) {
+			$network = Jetpack_Network::init();
+			$network->set_connection( $this->connection_manager );
 		}
 
 		// Initialize remote file upload request handlers.
