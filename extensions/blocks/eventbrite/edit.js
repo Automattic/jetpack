@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import classnames from 'classnames';
 import { __, _x } from '@wordpress/i18n';
 import { Component } from '@wordpress/element';
 import {
@@ -10,12 +11,12 @@ import {
 	IconButton,
 	Toolbar,
 	PanelBody,
-	RadioControl,
 	Spinner,
 } from '@wordpress/components';
 import { BlockControls, BlockIcon } from '@wordpress/block-editor';
 import { InspectorControls } from '@wordpress/editor';
 import apiFetch from '@wordpress/api-fetch';
+import { ENTER, SPACE } from '@wordpress/keycodes';
 
 /**
  * Internal dependencies
@@ -23,6 +24,9 @@ import apiFetch from '@wordpress/api-fetch';
 import { createWidgetId, fallback, eventIdFromUrl } from './utils';
 import { CUSTOM_URL_REGEX, icon, URL_REGEX } from '.';
 import ModalButtonPreview from './modal-button-preview';
+import EventbriteInPageExample from './eventbrite-in-page-example.png';
+import EventbriteModalExample from './eventbrite-modal-example.png';
+import './editor.scss';
 
 class EventbriteEdit extends Component {
 	state = {
@@ -122,6 +126,12 @@ class EventbriteEdit extends Component {
 		);
 	};
 
+	setEmbedType = embedType => {
+		const { setAttributes } = this.props;
+
+		setAttributes( { useModal: 'modal' === embedType } );
+	};
+
 	renderLoading() {
 		return (
 			<div className="wp-block-embed is-loading">
@@ -132,27 +142,64 @@ class EventbriteEdit extends Component {
 	}
 
 	renderInspectorControls() {
-		const { setAttributes } = this.props;
 		const { useModal } = this.props.attributes;
+		const embedTypes = [
+			{
+				value: 'inline',
+				isActive: ! useModal,
+				label: __( 'In-page Embed', 'jetpack' ),
+				image: EventbriteInPageExample,
+				alt: __( 'In page Eventbrite checkout example', 'jetpack' ),
+			},
+			{
+				value: 'modal',
+				isActive: useModal,
+				label: __( ' Button & Modal', 'jetpack' ),
+				image: EventbriteModalExample,
+				alt: __( 'Modal Eventbrite checkout example', 'jetpack' ),
+			},
+		];
 
 		return (
 			<InspectorControls>
-				<PanelBody>
-					<RadioControl
-						label={ __( 'Embed Type', 'jetpack' ) }
-						help={ __(
-							'Whether to embed the event inline, or as a button that opens a modal.',
-							'jetpack'
-						) }
-						selected={ useModal ? 'modal' : 'inline' }
-						options={ [
-							{ label: __( 'Inline', 'jetpack' ), value: 'inline' },
-							{ label: __( 'Modal', 'jetpack' ), value: 'modal' },
-						] }
-						onChange={ option => setAttributes( { useModal: 'modal' === option } ) }
-					/>
+				<PanelBody
+					className="jetpack-eventbrite-block__embed-type-controls"
+					title={ __( 'Embed Type', 'jetpack' ) }
+					initialOpen={ true }
+				>
+					<div className="block-editor-block-styles">
+						{ embedTypes.map( this.renderEmbedTypeItem.bind( this ) ) }
+					</div>
 				</PanelBody>
 			</InspectorControls>
+		);
+	}
+
+	renderEmbedTypeItem( { alt, label, image, isActive, value } ) {
+		return (
+			<div
+				key={ value }
+				className={ classnames( 'block-editor-block-styles__item', {
+					'is-active': isActive,
+				} ) }
+				onClick={ () => this.setEmbedType( value ) }
+				onKeyDown={ event => {
+					if ( ENTER === event.keyCode || SPACE === event.keyCode ) {
+						event.preventDefault();
+						() => this.setEmbedType( value );
+					}
+				} }
+				role="button"
+				tabIndex="0"
+				aria-label={ label }
+			>
+				<div className="block-editor-block-styles__item-preview">
+					<div className="block-editor-block-preview__container">
+						<img src={ image } alt={ alt } />
+					</div>
+				</div>
+				<div className="block-editor-block-styles__item-label">{ label }</div>
+			</div>
 		);
 	}
 
