@@ -165,5 +165,13 @@ function build_embed_url( $attributes ) {
 		}
 	}
 
-	return apply_filters( 'jetpack_opentable_block_url', esc_url( $url ) );
+	/**
+	 * Filter the OpenTable URL used to embed a widget.
+	 *
+	 * @since 8.2.0
+	 *
+	 * @param string $url        OpenTable embed URL.
+	 * @param array  $attributes Array of block attributes.
+	 */
+	return apply_filters( 'jetpack_opentable_block_url', $url, $attributes );
 }
