@@ -16,7 +16,7 @@ export default function useRestaurantSearch( searchTerm, maxResults ) {
 			'https://www.opentable.com/widget/reservation/restaurant-search?pageSize=' +
 				maxResults +
 				'&query=' +
-				input
+				encodeURIComponent( input )
 		)
 			.then( result => result.json() )
 			.then( restaurantResponse =>
