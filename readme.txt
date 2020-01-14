@@ -1,7 +1,7 @@
 === Jetpack by WordPress.com ===
 Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, scarstocea, scottsweb, sdquirk, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Jetpack, WordPress.com, backup, security, related posts, CDN, speed, anti-spam, social sharing, SEO, video, stats
-Stable tag: 8.0
+Stable tag: 8.1
 Requires at least: 5.2
 Requires PHP: 5.6
 Tested up to: 5.3
@@ -96,47 +96,26 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
-= 8.1 =
+= 8.2 =
 
-* Release date: January 14, 2020
-* Release post: https://wp.me/p1moTy-lJT
+* Release date: February 11, 2020
+* Release post: https://wp.me/p1moTy-mVu
+
+**Major Enhancements**
+
+*
 
 **Enhancements**
 
-* Dashboard: preload connection flow script to improve performance.
-* Dashboard: improvements to backup interface.
-* Mobile Theme: allow one to temporary disable Jetpack's Mobile Theme for testing.
-* Mobile Theme: disable settings when feature is inactive.
-* Site Accelerator: disable a helper library by default and allow themes to enable it when required.
-* Subscriptions: add a wp-admin setting to alert the admin when someone follows the blog.
-* WordPress.com REST API: add flag to determine site eligibility for Full Site Editing.
-* WordPress.com synchronization: improve the reliability of the synchronization events triggered to keep your site up to date with WordPress.com.
-* WordPress.com Toolbar: update the link directing to the WordPress.com Reader.
-* WordPress.com Toolbar: add "My Home" link to the toolbar.
+*
 
 **Improved compatibility**
 
-* General: improvements to Coding Standards for plugin compatibility files.
-* Notifications: avoid conflicts with Twenty Twenty's instrinsic video resizes.
-* PHP 7.4: fix PHP warnings that may appear on sites running PHP 7.4.
-* Sharing: avoid errors when using the Thrive Architect plugin.
-* Tiled Galleries: fix layout when using a gallery inside a Classic block with the Twenty Twenty theme.
-* Twenty Twenty: improve the display of the Authors and Flickr widget.
-* Twenty Twenty: add Content Options to the Customizer.
-* Twenty Twenty: ensure that Infinite Scroll does not suppress the display of footer widgets.
-* Videos: automatically convert old Flash Jetpack Video embeds so they can use the new player.
-* WooCommerce Services: avoid issues when installing plugin from notification message.
+*
 
 **Bug fixes**
 
-* CLI: prevent a PHP notice when running some Jetpack CLI commands.
-* Map Block: fix layout issue when selecting a marker in a map and then scrolling down.
-* Map Block: avoid errors when adding more than 2 points on a map.
-* REST API: correctly validate on/off values for booleans.
-* Star Rating Block: translate block title.
-* Widget Visibility: ensure that the visibility options always appear on old Widgets Options screen.
-* WordAds: ensure that the ads.txt file created by the feature returns a correct HTTP response code.
-* WordPress.com Block Editor: exclude WordPress.com features from Jetpack sites.
+*
 
 --------
 
