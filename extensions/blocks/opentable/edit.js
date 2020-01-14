@@ -8,7 +8,12 @@ import { isEmpty, isEqual, join } from 'lodash';
 /**
  * WordPress dependencies
  */
-import { BlockControls, BlockIcon, InspectorControls } from '@wordpress/block-editor';
+import {
+	BlockControls,
+	BlockIcon,
+	InspectorControls,
+	InspectorAdvancedControls,
+} from '@wordpress/block-editor';
 import {
 	ExternalLink,
 	Notice,
@@ -164,56 +169,61 @@ export default function OpenTableEdit( { attributes, setAttributes, className, c
 	};
 
 	const inspectorControls = () => (
-		<InspectorControls>
-			<PanelBody title={ __( 'Styles', 'jetpack' ) }>
-				<div className="block-editor-block-styles">
-					{ styleOptions.map( styleOption => {
-						return (
-							<div
-								key={ styleOption.value }
-								className={ classnames( 'block-editor-block-styles__item is-opentable', {
-									'is-active': styleOption.value === style,
-								} ) }
-								onClick={ () => updateStyle( styleOption.value ) }
-								onKeyDown={ event => {
-									if ( ENTER === event.keyCode || SPACE === event.keyCode ) {
-										event.preventDefault();
-										updateStyle( styleOption.value );
-									}
-								} }
-								role="button"
-								tabIndex="0"
-								aria-label={ styleOption.label }
-							>
-								<div className="block-editor-block-styles__item-preview is-opentable">
-									{ blockPreview( styleOption.value ) }
-								</div>
-								<div className="block-editor-block-styles__item-label">{ styleOption.label }</div>
-							</div>
-						);
-					} ) }
-				</div>
-			</PanelBody>
-			<PanelBody title={ __( 'Settings', 'jetpack' ) }>
-				<RestaurantPicker rids={ rid } onChange={ onPickerSubmit } />
-				<SelectControl
-					label={ __( 'Language', 'jetpack' ) }
-					value={ lang }
-					onChange={ newLang => setAttributes( { lang: newLang } ) }
-					options={ languageOptions }
-				/>
+		<>
+			<InspectorAdvancedControls>
 				<ToggleControl
 					label={ __( 'Load the widget in an iFrame (Recommended)', 'jetpack' ) }
 					checked={ iframe }
 					onChange={ () => setAttributes( { iframe: ! iframe } ) }
+					className="is-opentable"
 				/>
-				<ToggleControl
-					label={ __( 'Open in a new window', 'jetpack' ) }
-					checked={ newtab }
-					onChange={ () => setAttributes( { newtab: ! newtab } ) }
-				/>
-			</PanelBody>
-		</InspectorControls>
+			</InspectorAdvancedControls>
+			<InspectorControls>
+				<PanelBody title={ __( 'Styles', 'jetpack' ) }>
+					<div className="block-editor-block-styles">
+						{ styleOptions.map( styleOption => {
+							return (
+								<div
+									key={ styleOption.value }
+									className={ classnames( 'block-editor-block-styles__item is-opentable', {
+										'is-active': styleOption.value === style,
+									} ) }
+									onClick={ () => updateStyle( styleOption.value ) }
+									onKeyDown={ event => {
+										if ( ENTER === event.keyCode || SPACE === event.keyCode ) {
+											event.preventDefault();
+											updateStyle( styleOption.value );
+										}
+									} }
+									role="button"
+									tabIndex="0"
+									aria-label={ styleOption.label }
+								>
+									<div className="block-editor-block-styles__item-preview is-opentable">
+										{ blockPreview( styleOption.value ) }
+									</div>
+									<div className="block-editor-block-styles__item-label">{ styleOption.label }</div>
+								</div>
+							);
+						} ) }
+					</div>
+				</PanelBody>
+				<PanelBody title={ __( 'Settings', 'jetpack' ) }>
+					<RestaurantPicker rids={ rid } onChange={ onPickerSubmit } />
+					<SelectControl
+						label={ __( 'Language', 'jetpack' ) }
+						value={ lang }
+						onChange={ newLang => setAttributes( { lang: newLang } ) }
+						options={ languageOptions }
+					/>
+					<ToggleControl
+						label={ __( 'Open in a new window', 'jetpack' ) }
+						checked={ newtab }
+						onChange={ () => setAttributes( { newtab: ! newtab } ) }
+					/>
+				</PanelBody>
+			</InspectorControls>
+		</>
 	);
 
 	const blockPlaceholder = (
