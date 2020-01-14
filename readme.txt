@@ -101,10 +101,6 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Release date: January 14, 2020
 * Release post: https://wp.me/p1moTy-lJT
 
-**Major enhancements**
-
-*
-
 **Enhancements**
 
 * Dashboard: preload connection flow script to improve performance.
