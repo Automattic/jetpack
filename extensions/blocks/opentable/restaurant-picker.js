@@ -16,7 +16,7 @@ import { __, _n } from '@wordpress/i18n';
 import useRestaurantSearch from './use-restaurant-search';
 
 const MAX_SUGGESTIONS = 20;
-const embedRegex = /<script type=\'text\/javascript\' src=\'\/\/www.opentable.com\/widget\/reservation\/loader\?[^']+\'><\/script>/;
+const embedRegex = /<script type=\'text\/javascript\' src=\'\/\/www.opentable\.(\w{2,3}\.)?\w+\/widget\/reservation\/loader\?[^']+\'><\/script>/;
 
 export default function RestaurantPicker( props ) {
 	const [ input, setInput ] = useState( '' );
