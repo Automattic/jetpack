@@ -203,7 +203,7 @@
 		"node-wp-i18n": "1.2.3",
 		"prettier": "npm:wp-prettier@1.18.2",
 		"puppeteer": "1.20.0",
-		"puppeteer-utils": "github:Automattic/puppeteer-utils#d96fba7",
+		"puppeteer-utils": "github:Automattic/puppeteer-utils#a2be171",
 		"react-test-renderer": "16.8.6",
 		"sass-loader": "7.3.1",
 		"sinon": "7.5.0",

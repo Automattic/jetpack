@@ -12246,9 +12246,9 @@ punycode@^2.1.0, punycode@^2.1.1:
   resolved "https://registry.yarnpkg.com/punycode/-/punycode-2.1.1.tgz#b58b010ac40c22c5657616c8d2c2c02c7bf479ec"
   integrity sha512-XRsRjdf+j5ml+y/6GKHPZbrF/8p2Yga0JPtdqTIY2Xe5ohJPD9saDJJLPvp9+NSBprVvevdXZybnj2cv8OEd0A==
 
-"puppeteer-utils@github:Automattic/puppeteer-utils#d96fba7":
-  version "0.0.5"
-  resolved "https://codeload.github.com/Automattic/puppeteer-utils/tar.gz/d96fba79d32e7a25617ca0053288916f5e4182f8"
+"puppeteer-utils@github:Automattic/puppeteer-utils#a2be171":
+  version "0.0.1"
+  resolved "https://codeload.github.com/Automattic/puppeteer-utils/tar.gz/a2be1713b839f305129175a4366159c565e13fa1"
   dependencies:
     "@babel/cli" "^7.8.3"
     "@babel/core" "^7.8.3"
