@@ -4279,8 +4279,8 @@ p {
 					__( 'Would you mind telling us why you did not complete the Jetpack connection in this  <a %s>2 question survey</a>?</br>A Jetpack connection is required for our free security and traffic features to work.', 'jetpack' ),
 					'href="https://jetpack.com/cancelled-connection/" rel="noopener noreferrer" target="_blank"'
 				);
-		        break;
-	        case 'wrong_state':
+                break;
+            case 'wrong_state':
 				$message = __(
 					'You need to stay logged in to your WordPress blog while you authorize Jetpack.', 'jetpack'
 				);
@@ -4310,7 +4310,7 @@ p {
 			case 'not_public':
 				$message = __(
 					"<strong>Your Jetpack has a glitch.</strong> Connecting this site with WordPress.com is not possible. This usually means your site is not publicly accessible (localhost).",
-                    'jetpack'
+					'jetpack'
 				);
 				break;
 			case 'wpcom_408':
@@ -4359,22 +4359,22 @@ p {
 			case 'verify_secret_1_malformed':
 			case 'verify_secrets_missing':
 			case 'verify_secrets_mismatch':
-			    $message = sprintf(
-	                __(
-                        "<strong>Your Jetpack has a glitch.</strong>  We're sorry for the inconvenience. Please try again later, if the issue continues please contact support with this message: %s",
-                        'jetpack'
-                    ),
-				    esc_html( $error )
+				$message = sprintf(
+					__(
+						"<strong>Your Jetpack has a glitch.</strong>  We're sorry for the inconvenience. Please try again later, if the issue continues please contact support with this message: %s",
+						'jetpack'
+					),
+					esc_html( $error )
 			    );
 				break;
 			default:
 				$message = sprintf(
-                    __(
-                        "<strong>Your Jetpack has a glitch.</strong>  We're sorry for the inconvenience. Please try again later, if the issue continues please contact support with this message: %s",
-                        'jetpack'
-                    ),
-				    esc_html( $error )
-                );
+					__(
+						"<strong>Your Jetpack has a glitch.</strong>  We're sorry for the inconvenience. Please try again later, if the issue continues please contact support with this message: %s",
+						'jetpack'
+					),
+					esc_html( $error )
+				);
 		}
 
 		return $message;
