@@ -101,7 +101,11 @@ class ButtonEdit extends Component {
 		const { borderRadius, placeholder, text, title } = attributes;
 
 		return (
-			<div className={ className } title={ title } ref={ this.bindRef }>
+			<div
+				className={ classnames( className, 'is-modal-button' ) }
+				title={ title }
+				ref={ this.bindRef }
+			>
 				<RichText
 					placeholder={ placeholder || __( 'Add text…' ) }
 					value={ text }

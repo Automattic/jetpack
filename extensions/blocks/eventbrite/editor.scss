@@ -5,3 +5,14 @@
 .wp-block-jetpack-eventbrite .components-placeholder__learn-more {
 	margin-top: 1em;
 }
+
+// Styles needed to display block styles correctly for when using Button & Modal.
+// Adapted from core/button block.
+
+.wp-block-jetpack-eventbrite.is-modal-button {
+	display: inline-block;
+}
+
+.block-editor-block-preview__content div[data-block] {
+	display: table;
+}

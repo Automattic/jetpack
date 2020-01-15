@@ -15,6 +15,7 @@ import {
 	ExternalLink,
 } from '@wordpress/components';
 import { BlockControls, BlockIcon } from '@wordpress/block-editor';
+import { withDispatch } from '@wordpress/data';
 import { InspectorControls } from '@wordpress/editor';
 import apiFetch from '@wordpress/api-fetch';
 import { ENTER, SPACE } from '@wordpress/keycodes';
@@ -28,6 +29,11 @@ import ModalButtonPreview from './modal-button-preview';
 import EventbriteInPageExample from './eventbrite-in-page-example.png';
 import EventbriteModalExample from './eventbrite-modal-example.png';
 import './editor.scss';
+
+const MODAL_BUTTON_STYLES = [
+	{ name: 'fill', label: __( 'Fill' ), isDefault: true },
+	{ name: 'outline', label: __( 'Outline' ) },
+];
 
 class EventbriteEdit extends Component {
 	state = {
@@ -51,6 +57,13 @@ class EventbriteEdit extends Component {
 		// Check if an Eventbrite URL has been entered, so we need to resolve it.
 		if ( ! prevState.resolvingUrl && this.state.resolvingUrl ) {
 			this.resolveUrl();
+		}
+
+		if (
+			prevProps.attributes.useModal !== this.props.attributes.useModal ||
+			( prevProps.isSelected !== this.props.isSelected && this.props.isSelected )
+		) {
+			this.setModalButtonStyles();
 		}
 	}
 
@@ -125,6 +138,14 @@ class EventbriteEdit extends Component {
 		return (
 			( url && ! URL_REGEX.test( url ) ) || ( resolvedStatusCode && resolvedStatusCode >= 400 )
 		);
+	};
+
+	setModalButtonStyles = () => {
+		if ( this.props.attributes.useModal ) {
+			this.props.addModalButtonStyles();
+		} else {
+			this.props.removeModalButtonStyles();
+		}
 	};
 
 	setEmbedType = embedType => {
@@ -338,4 +359,16 @@ class EventbriteEdit extends Component {
 	}
 }
 
-export default EventbriteEdit;
+export default withDispatch( ( dispatch, { name } ) => {
+	return {
+		addModalButtonStyles() {
+			dispatch( 'core/blocks' ).addBlockStyles( name, MODAL_BUTTON_STYLES );
+		},
+		removeModalButtonStyles() {
+			dispatch( 'core/blocks' ).removeBlockStyles(
+				name,
+				MODAL_BUTTON_STYLES.map( style => style.name )
+			);
+		},
+	};
+} )( EventbriteEdit );

@@ -57,7 +57,7 @@ export const settings = {
 		useModal: {
 			type: 'boolean',
 		},
-		// Modal button attributes.
+		// Modal button attributes, used for Button & Modal embed type.
 		text: {
 			type: 'string',
 		},
@@ -98,9 +98,13 @@ export const settings = {
 		],
 	},
 
+	// Example is used for rendering block styles previews when using Button & Modal embed type.
+	// Make sure the example has `useModal` set to true.
 	example: {
 		attributes: {
 			url: 'https://www.eventbrite.com/e/test-event-tickets-123456789',
+			useModal: true,
+			text: __( 'Register', 'jetpack' ),
 		},
 	},
 };
