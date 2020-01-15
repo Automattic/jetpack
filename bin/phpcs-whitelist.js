@@ -34,6 +34,7 @@ module.exports = [
 	'modules/verification-tools.php',
 	'modules/widgets/contact-info.php',
 	'modules/widgets/social-icons.php',
+	'modules/wpcom-block-editor/samesite-cookies.php',
 	'modules/wpcom-block-editor/class-jetpack-wpcom-block-editor.php',
 	'packages',
 ];

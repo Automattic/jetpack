@@ -46,6 +46,7 @@ $connected_tools = array(
 	'simple-payments/simple-payments.php',
 	'woocommerce-analytics/wp-woocommerce-analytics.php',
 	'wpcom-block-editor/class-jetpack-wpcom-block-editor.php',
+	'wpcom-block-editor/samesite-cookies.php',
 );
 
 // Add connected features to our existing list if the site is currently connected.
