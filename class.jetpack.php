@@ -4274,12 +4274,6 @@ p {
 			case 'cheatin':
 				$message = __( "Cheatin' uh?", 'jetpack' );
 				break;
-			case 'access_denied':
-				$message = sprintf(
-					__( 'Would you mind telling us why you did not complete the Jetpack connection in this  <a %s>2 question survey</a>?</br>A Jetpack connection is required for our free security and traffic features to work.', 'jetpack' ),
-					'href="https://jetpack.com/cancelled-connection/" rel="noopener noreferrer" target="_blank"'
-				);
-                break;
             case 'wrong_state':
 				$message = __(
 					'You need to stay logged in to your WordPress blog while you authorize Jetpack.', 'jetpack'
@@ -4287,7 +4281,7 @@ p {
 				break;
 			case 'invalid_client':
 				$message = __(
-					'We had an issue connecting Jetpack; deactivate then reactivate the Jetpack plugin, then connect again.', 'jetpack'
+					'We had an issue connecting Jetpack. Please deactivate then reactivate the Jetpack plugin and then connect again.', 'jetpack'
 				);
 				break;
 			case 'invalid_grant':
@@ -4295,10 +4289,11 @@ p {
 					'There was an issue connecting your Jetpack. Please click "Connect to WordPress.com" again.', 'jetpack'
 				);
 				break;
+			case 'access_denied':
 			case 'site_inaccessible':
 			case 'site_requires_authorization':
 				$message = __(
-					'Your website needs to be publicly accessible to use Jetpack.', 'jetpack'
+					'Your website needs to be publicly accessible to use Jetpack. Please update your website\'s settings and try again', 'jetpack'
 				);
 				break;
 			case 'site_blacklisted':
