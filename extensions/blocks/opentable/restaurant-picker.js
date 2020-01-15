@@ -36,9 +36,9 @@ export default function RestaurantPicker( props ) {
 		props.onChange && props.onChange( selectedIds );
 	};
 
-	const restaurantNames = restaurants.map(
-		restaurant => restaurant.name + ` (#${ restaurant.rid })`
-	);
+	const restaurantNames = restaurants
+		.filter( restaurant => selectedRestaurants.indexOf( restaurant.rid.toString() ) )
+		.map( restaurant => restaurant.name + ` (#${ restaurant.rid })` );
 
 	const onSubmit = event => {
 		event.preventDefault();
