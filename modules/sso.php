@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Roles;
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Tracking;
 
 require_once( JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-helpers.php' );
