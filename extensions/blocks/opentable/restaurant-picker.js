@@ -53,7 +53,7 @@ export default function RestaurantPicker( props ) {
 			suggestions={ restaurantNames }
 			onInputChange={ setInput }
 			maxSuggestions={ MAX_SUGGESTIONS }
-			label={ _n( 'Restaurant', 'Restaurants', selectedRestaurants.length ) }
+			label={ _n( 'Restaurant', 'Restaurants', selectedRestaurants.length, 'jetpack' ) }
 			{ ...props }
 			onChange={ onChange }
 		/>
