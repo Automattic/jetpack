@@ -9,6 +9,17 @@
  */
 
 /**
+ * Only proceed if Jetpack is connected to WordPress.com,
+ * and there is no active shortcircuit filter. Note that because this file
+ * executes on plugin load (to be able to define `wp_set_auth_cookie` before
+ * `pluggable.php`), a third party can only use the short-circuit filter in plugins
+ * loaded before Jetpack, or in an mu-plugin.
+ */
+if ( ! Jetpack::is_active() || apply_filters( 'jetpack_disable_auth_cookie_plugable', '__return_false' ) ) {
+	return;
+}
+
+/**
  * A PHP 5.X compatible version of the array argument version of PHP 7.3's setcookie().
  *
  * Useful for setting SameSite cookies in PHP 7.2 or earlier.
