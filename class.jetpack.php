@@ -4276,9 +4276,7 @@ p {
 				break;
 			case 'access_denied':
 				$message = sprintf(
-					__( 'Would you mind telling us why you did not complete the Jetpack connection in this ' .
-					    ' <a href="%s">2 question survey</a>?</br>' .
-					    'A Jetpack connection is required for our free security and traffic features to work.', 'jetpack' ),
+					__( 'Would you mind telling us why you did not complete the Jetpack connection in this  <a %s>2 question survey</a>?</br>A Jetpack connection is required for our free security and traffic features to work.', 'jetpack' ),
 					'href="https://jetpack.com/cancelled-connection/" rel="noopener noreferrer" target="_blank"'
 				);
 		        break;
@@ -4305,15 +4303,14 @@ p {
 				break;
 			case 'site_blacklisted':
 				$message = sprintf(
-					__( 'This site can\'t be connected to WordPress.com because it violates our ' .
-					    ' <a href="%s">Terms of Service</a>.', 'jetpack' ),
+					__( 'This site can\'t be connected to WordPress.com because it violates our  <a %s>Terms of Service</a>.', 'jetpack' ),
 					'href="https://wordpress.com/tos" rel="noopener noreferrer" target="_blank"'
 				);
 				break;
 			case 'not_public':
 				$message = __(
-					'<strong>Your Jetpack has a glitch.</strong> Connecting this site with WordPress.com is not possible. ' +
-					'This usually means your site is not publicly accessible (localhost).', 'jetpack'
+					"<strong>Your Jetpack has a glitch.</strong> Connecting this site with WordPress.com is not possible. This usually means your site is not publicly accessible (localhost).",
+                    'jetpack'
 				);
 				break;
 			case 'wpcom_408':
@@ -4362,19 +4359,18 @@ p {
 			case 'verify_secret_1_malformed':
 			case 'verify_secrets_missing':
 			case 'verify_secrets_mismatch':
-				$message = __(
-					"<strong>Your Jetpack has a glitch.</strong>  We're sorry for the inconvenience. " +
-					'Please try again later, if the issue continues please contact support with this message:',
-                    'jetpack'
-				);
-				$message .= " " . esc_html( $error );
+			    $message = sprintf(
+	                __(
+                        "<strong>Your Jetpack has a glitch.</strong>  We're sorry for the inconvenience. Please try again later, if the issue continues please contact support with this message: %s",
+                        'jetpack'
+                    ),
+				    esc_html( $error )
+			    );
 				break;
 			default:
-				$message =
 				$message = sprintf(
                     __(
-                        "<strong>Your Jetpack has a glitch.</strong>  We're sorry for the inconvenience. " +
-                        'Please try again later, if the issue continues please contact support with this message: %s',
+                        "<strong>Your Jetpack has a glitch.</strong>  We're sorry for the inconvenience. Please try again later, if the issue continues please contact support with this message: %s",
                         'jetpack'
                     ),
 				    esc_html( $error )
