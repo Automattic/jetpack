@@ -395,8 +395,7 @@ class Jetpack {
 	public static function init() {
 		if ( ! self::$instance ) {
 			self::$instance = new Jetpack();
-
-			self::$instance->plugin_upgrade();
+			add_action( 'plugins_loaded', array( self::$instance, 'plugin_upgrade' ) );
 		}
 
 		return self::$instance;
