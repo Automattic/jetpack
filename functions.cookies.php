@@ -3,7 +3,7 @@
  * This file is meant to be the home for any function handling cookies that can
  * be accessed anywhere within Jetpack.
  *
- * This file is loaded whether or not Jetpack is active.
+ * This file is loaded whether or not Jetpack is connected to WP.com.
  *
  * @package Jetpack
  */
@@ -18,7 +18,7 @@
  * @param array  $options Options to include with the cookie.
  * @return bool False when error happens, other wise true.
  */
-function shim_setcookie( $name, $value, $options ) {
+function jetpack_shim_setcookie( $name, $value, $options ) {
 	$not_allowed_chars = ",; \t\r\n\013\014";
 
 	if ( strpbrk( $name, $not_allowed_chars ) !== false ) {
@@ -140,7 +140,7 @@ if ( ! function_exists( 'wp_set_auth_cookie' ) ) :
 		 */
 		$samesite = apply_filters( 'jetpack_auth_cookie_samesite', 'Lax' );
 
-		shim_setcookie(
+		jetpack_shim_setcookie(
 			$auth_cookie_name,
 			$auth_cookie,
 			array(
@@ -153,7 +153,7 @@ if ( ! function_exists( 'wp_set_auth_cookie' ) ) :
 			)
 		);
 
-		shim_setcookie(
+		jetpack_shim_setcookie(
 			$auth_cookie_name,
 			$auth_cookie,
 			array(
@@ -166,7 +166,7 @@ if ( ! function_exists( 'wp_set_auth_cookie' ) ) :
 			)
 		);
 
-		shim_setcookie(
+		jetpack_shim_setcookie(
 			LOGGED_IN_COOKIE,
 			$logged_in_cookie,
 			array(
@@ -180,7 +180,7 @@ if ( ! function_exists( 'wp_set_auth_cookie' ) ) :
 		);
 
 		if ( COOKIEPATH !== SITECOOKIEPATH ) {
-			shim_setcookie(
+			jetpack_shim_setcookie(
 				LOGGED_IN_COOKIE,
 				$logged_in_cookie,
 				array(
