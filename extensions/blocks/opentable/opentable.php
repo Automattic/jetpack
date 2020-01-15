@@ -12,17 +12,11 @@ namespace Jetpack\OpenTable_Block;
 const FEATURE_NAME = 'opentable';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 
-/**
- * Register the block if it's available
- */
-function register() {
-	jetpack_register_block(
-		BLOCK_NAME,
-		array( 'render_callback' => 'Jetpack\OpenTable_Block\load_assets' )
-	);
-}
 
-add_action( 'init', 'Jetpack\OpenTable_Block\register' );
+jetpack_register_block(
+	BLOCK_NAME,
+	array( 'render_callback' => 'Jetpack\OpenTable_Block\load_assets' )
+);
 
 /**
  * Adds an inline script which updates the block editor settings to
