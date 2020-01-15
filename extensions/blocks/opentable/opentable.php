@@ -12,6 +12,28 @@ namespace Jetpack\OpenTable_Block;
 const FEATURE_NAME = 'opentable';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 
+/**
+ * Check if the block should be available on the site.
+ *
+ * @return bool
+ */
+function is_available() {
+	if (
+		defined( 'IS_WPCOM' )
+		&& IS_WPCOM
+		&& function_exists( 'has_any_blog_stickers' )
+	) {
+		if ( has_any_blog_stickers(
+			array( 'premium-plan', 'business-plan', 'ecommerce-plan' ),
+			get_current_blog_id()
+		) ) {
+			return true;
+		}
+		return false;
+	}
+
+	return true;
+}
 
 /**
  * Registers the block for use in Gutenberg
@@ -19,12 +41,33 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
  * registration if we need to
  */
 function register_block() {
-	jetpack_register_block(
-		BLOCK_NAME,
-		array( 'render_callback' => 'Jetpack\OpenTable_Block\load_assets' )
-	);
+	if ( is_available() ) {
+		jetpack_register_block(
+			BLOCK_NAME,
+			array( 'render_callback' => 'Jetpack\OpenTable_Block\load_assets' )
+		);
+	}
 }
-add_action( 'jetpack_register_gutenberg_extensions', 'Jetpack\OpenTable_Block\register_block' );
+add_action( 'init', 'Jetpack\OpenTable_Block\register_block' );
+
+/**
+ * Set block's availability.
+ */
+function set_availability() {
+	if ( is_available() ) {
+		\Jetpack_Gutenberg::set_extension_available( BLOCK_NAME );
+	} else {
+		\Jetpack_Gutenberg::set_extension_unavailable(
+			BLOCK_NAME,
+			'missing_plan',
+			array(
+				'required_feature' => 'opentable',
+				'required_plan'    => 'premium-plan',
+			)
+		);
+	}
+}
+add_action( 'jetpack_register_gutenberg_extensions', 'Jetpack\OpenTable_Block\set_availability' );
 
 /**
  * Adds an inline script which updates the block editor settings to
