@@ -1,11 +1,11 @@
 /**
  * External dependencies
  */
-const config = require( 'config' );
+import config from 'config';
 /**
  * Internal dependencies
  */
-const { getNgrokSiteUrl } = require( './utils-helper' );
+import { getNgrokSiteUrl } from './utils-helper';
 
 const ngrokURL = getNgrokSiteUrl();
 
