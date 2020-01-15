@@ -1053,6 +1053,71 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( ! empty( $synced_value ), 'We couldn\'t synced a value!' );
 	}
 
+	/**
+	 * Test get_hosting_provider() callable to ensure that known hosts have the
+	 * right hosting provider returned.
+	 *
+	 * @return void
+	 */
+	public function test_get_hosting_provider_callable_with_unknown_host() {
+		$this->assertEquals( Functions::get_hosting_provider(), 'unknown' );
+	}
+
+	/**
+	 * Test getting a hosting provider by a known constant
+	 *
+	 * @return void
+	 */
+	public function test_get_hosting_provider_by_known_constant() {
+		$functions = new Functions();
+		Constants::set_constant( 'GD_SYSTEM_PLUGIN_DIR', 'set' );
+		$this->assertEquals( $functions->get_hosting_provider_by_known_constant(), 'gd-managed-wp' );
+		Constants::clear_constants();
+
+		Constants::set_constant( 'UNKNOWN', 'set' );
+		$this->assertFalse( $functions->get_hosting_provider_by_known_constant() );
+		Constants::clear_constants();
+	}
+
+	/**
+	 * Test getting a hosting provider by a known class
+	 *
+	 * @return void
+	 */
+	public function test_get_hosting_provider_by_known_class() {
+		$functions = new Functions();
+
+		$this->assertFalse( $functions->get_hosting_provider_by_known_class() );
+
+		$class_mock = $this->getMockBuilder( '\\WPaaS\\Plugin' )
+					->getMock(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+
+		$this->assertEquals( $functions->get_hosting_provider_by_known_class(), 'gd-managed-wp' );
+
+	}
+
+	/**
+	 * Test getting a hosting provider by a known function
+	 *
+	 * @return bool
+	 */
+	public function test_get_hosting_provider_by_known_function() {
+
+		/**
+		 * Stub is_wpe for testing function exists
+		 *
+		 * @return boolean
+		 */
+		function is_wpe() {
+			return true;
+		}
+
+		$functions = new Functions();
+
+		// Get hosting provider by known function.
+		$this->assertEquals( $functions->get_hosting_provider_by_known_function(), 'wpe' );
+	}
+
 }
 
 function jetpack_recursive_banana() {

@@ -161,22 +161,83 @@ class Functions {
 	 * @return string Hosting provider.
 	 */
 	public static function get_hosting_provider() {
-		if ( defined( 'GD_SYSTEM_PLUGIN_DIR' ) || class_exists( '\\WPaaS\\Plugin' ) ) {
-			return 'gd-managed-wp';
+		$hosting_provider_detection_methods = array(
+			'get_hosting_provider_by_known_constant',
+			'get_hosting_provider_by_known_class',
+			'get_hosting_provider_by_known_function',
+		);
+
+		$functions = new Functions();
+		foreach ( $hosting_provider_detection_methods as $method ) {
+			$hosting_provider = call_user_func( array( $functions, $method ) );
+			if ( false !== $hosting_provider ) {
+				return $hosting_provider;
+			}
 		}
-		if ( defined( 'MM_BASE_DIR' ) ) {
-			return 'bh';
-		}
-		if ( defined( 'IS_PRESSABLE' ) ) {
-			return 'pressable';
-		}
-		if ( function_exists( 'is_wpe' ) || function_exists( 'is_wpe_snapshot' ) ) {
-			return 'wpe';
-		}
-		if ( defined( 'VIP_GO_ENV' ) && false !== VIP_GO_ENV ) {
-			return 'vip-go';
-		}
+
 		return 'unknown';
+	}
+
+	/**
+	 * Return a hosting provider using a set of known constants.
+	 *
+	 * @return mixed A host identifier string or false.
+	 */
+	public function get_hosting_provider_by_known_constant() {
+		$hosting_provider_constants = array(
+			'GD_SYSTEM_PLUGIN_DIR' => 'gd-managed-wp',
+			'MM_BASE_DIR'          => 'bh',
+			'PAGELYBIN'            => 'pagely',
+			'KINSTAMU_VERSION'     => 'kinsta',
+			'FLYWHEEL_CONFIG_DIR'  => 'flywheel',
+			'IS_PRESSABLE'         => 'pressable',
+			'VIP_GO_ENV'           => 'vip-go',
+		);
+
+		foreach ( $hosting_provider_constants as $constant => $constant_value ) {
+			if ( Constants::is_defined( $constant ) ) {
+				if ( 'VIP_GO_ENV' === $constant && false === Constants::get_constant( 'VIP_GO_ENV' ) ) {
+					continue;
+				}
+				return $constant_value;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Return a hosting provider using a set of known classes.
+	 *
+	 * @return mixed A host identifier string or false.
+	 */
+	public function get_hosting_provider_by_known_class() {
+		$hosting_provider = false;
+
+		switch ( true ) {
+			case ( class_exists( '\\WPaaS\\Plugin' ) ):
+				$hosting_provider = 'gd-managed-wp';
+				break;
+		}
+
+		return $hosting_provider;
+	}
+
+	/**
+	 * Return a hosting provider using a set of known functions.
+	 *
+	 * @return mixed A host identifier string or false.
+	 */
+	public function get_hosting_provider_by_known_function() {
+		$hosting_provider = false;
+
+		switch ( true ) {
+			case ( function_exists( 'is_wpe' ) || function_exists( 'is_wpe_snapshot' ) ):
+				$hosting_provider = 'wpe';
+				break;
+		}
+
+		return $hosting_provider;
 	}
 
 	/**
