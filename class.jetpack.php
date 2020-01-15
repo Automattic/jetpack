@@ -4261,8 +4261,8 @@ p {
 	}
 
 	/**
-     * Converts an error_code into a user friendly string for admin notices
-     *
+	 * Converts an error_code into a user friendly string for admin notices
+	 *
 	 * @param $error
 	 *
 	 * @return string
@@ -4278,7 +4278,7 @@ p {
 				$message = sprintf(
 					__( 'Would you mind telling us why you did not complete the Jetpack connection in this ' .
 					    ' <a href="%s">2 question survey</a>?</br>' .
-                        'A Jetpack connection is required for our free security and traffic features to work.', 'jetpack' ),
+					    'A Jetpack connection is required for our free security and traffic features to work.', 'jetpack' ),
 					'href="https://jetpack.com/cancelled-connection/" rel="noopener noreferrer" target="_blank"'
 				);
 		        break;
@@ -4305,8 +4305,8 @@ p {
 				break;
 			case 'site_blacklisted':
 				$message = sprintf(
-				        __( 'This site can\'t be connected to WordPress.com because it violates our ' .
-                            ' <a href="%s">Terms of Service</a>.', 'jetpack' ),
+					__( 'This site can\'t be connected to WordPress.com because it violates our ' .
+					    ' <a href="%s">Terms of Service</a>.', 'jetpack' ),
 					'href="https://wordpress.com/tos" rel="noopener noreferrer" target="_blank"'
 				);
 				break;
@@ -4383,8 +4383,7 @@ p {
 
 		return $message;
 
-    }
-
+	}
 
 	function admin_notices() {
 		if ( $this->error ) {
