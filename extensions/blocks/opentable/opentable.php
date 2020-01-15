@@ -13,10 +13,18 @@ const FEATURE_NAME = 'opentable';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 
 
-jetpack_register_block(
-	BLOCK_NAME,
-	array( 'render_callback' => 'Jetpack\OpenTable_Block\load_assets' )
-);
+/**
+ * Registers the block for use in Gutenberg
+ * This is down via an action so that we can disable
+ * registration if we need to
+ */
+function register_block() {
+	jetpack_register_block(
+		BLOCK_NAME,
+		array( 'render_callback' => 'Jetpack\OpenTable_Block\load_assets' )
+	);
+}
+add_action( 'jetpack_register_gutenberg_extensions', 'Jetpack\OpenTable_Block\register_block' );
 
 /**
  * Adds an inline script which updates the block editor settings to
