@@ -4354,20 +4354,13 @@ p {
 			case 'verify_secret_1_malformed':
 			case 'verify_secrets_missing':
 			case 'verify_secrets_mismatch':
-				$message = sprintf(
-					__(
-						"<strong>Your Jetpack has a glitch.</strong>  We're sorry for the inconvenience. Please try again later, if the issue continues please contact support with this message: %s",
-						'jetpack'
-					),
-					esc_html( $error )
-			    );
-				break;
 			default:
 				$message = sprintf(
 					__(
-						"<strong>Your Jetpack has a glitch.</strong>  We're sorry for the inconvenience. Please try again later, if the issue continues please contact support with this message: %s",
+						"<strong>Your Jetpack has a glitch.</strong>  We're sorry for the inconvenience. Please try again later, if the issue continues please <a %s>contact support</a> with this message: %s",
 						'jetpack'
 					),
+					'href="https://jetpack.com/contact-support" rel="noopener noreferrer" target="_blank"',
 					esc_html( $error )
 				);
 		}
