@@ -38,7 +38,7 @@ export const settings = {
 			submitButtonText: __( 'Schedule time with me', 'jetpack' ),
 			hideEventTypeDetails: false,
 			style: 'inline',
-			url: 'https://calendly.com/scruffian/usability-test',
+			url: 'https://calendly.com/wordpresscom/jetpack-block-example',
 		},
 	},
 };
