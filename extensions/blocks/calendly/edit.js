@@ -29,7 +29,7 @@ import icon from './icon';
 import attributeDetails, { getValidatedAttributes } from './attributes';
 import SubmitButton from '../../shared/submit-button';
 import { getAttributesFromEmbedCode } from './utils';
-import BlockStylesPreviewAndSelector from './BlockStylesPreviewAndSelector';
+import BlockStylesPreviewAndSelector from './blockStylesPreviewAndSelector';
 
 export default function CalendlyEdit( { attributes, className, clientId, setAttributes } ) {
 	const validatedAttributes = getValidatedAttributes( attributeDetails, attributes );
