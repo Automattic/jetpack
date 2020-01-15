@@ -20,7 +20,7 @@ jetpack_register_block(
  * @return string
  */
 function jetpack_get_mapbox_api_key() {
-	if ( ! class_exists( 'WPCOM_REST_API_V2_Endpoint_Service_API_Keys' ) ) {
+	if ( ! class_exists( 'WPCOM_REST_API_V2_Endpoint_Service_API_Keys' ) || ! Jetpack::is_active() ) {
 		return Jetpack_Options::get_option( 'mapbox_api_key' );
 	}
 	$response = WPCOM_REST_API_V2_Endpoint_Service_API_Keys::get_service_api_key( array( 'service' => 'mapbox' ) );
