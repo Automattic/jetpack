@@ -593,16 +593,6 @@ class Jetpack {
 		add_action( 'deleted_user', array( 'Automattic\\Jetpack\\Connection\\Manager', 'disconnect_user' ), 10, 1 );
 		add_action( 'remove_user_from_blog', array( 'Automattic\\Jetpack\\Connection\\Manager', 'disconnect_user' ), 10, 1 );
 
-		if ( self::is_active() ) {
-			add_action( 'login_form_jetpack_json_api_authorization', array( $this, 'login_form_json_api_authorization' ) );
-
-			Jetpack_Heartbeat::init();
-			if ( self::is_module_active( 'stats' ) && self::is_module_active( 'search' ) ) {
-				require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-search-performance-logger.php';
-				Jetpack_Search_Performance_Logger::init();
-			}
-		}
-
 		add_action( 'jetpack_event_log', array( 'Jetpack', 'log' ), 10, 2 );
 
 		add_filter( 'determine_current_user', array( $this, 'wp_rest_authenticate' ) );
@@ -736,6 +726,16 @@ class Jetpack {
 		if ( is_multisite() ) {
 			$network = Jetpack_Network::init();
 			$network->set_connection( $this->connection_manager );
+		}
+
+		if ( $this->connection_manager->is_active() ) {
+			add_action( 'login_form_jetpack_json_api_authorization', array( $this, 'login_form_json_api_authorization' ) );
+
+			Jetpack_Heartbeat::init();
+			if ( self::is_module_active( 'stats' ) && self::is_module_active( 'search' ) ) {
+				require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-search-performance-logger.php';
+				Jetpack_Search_Performance_Logger::init();
+			}
 		}
 
 		// Initialize remote file upload request handlers.
