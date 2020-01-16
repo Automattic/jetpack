@@ -149,23 +149,21 @@ class MailchimpSubscribeEdit extends Component {
 			</Placeholder>
 		);
 		const placeholder = (
-			<Placeholder icon={ icon } label={ __( 'Mailchimp', 'jetpack' ) } notices={ notices }>
-				<div className="components-placeholder__instructions">
-					{ __(
-						'You need to connect your Mailchimp account and choose a list in order to start collecting Email subscribers.',
-						'jetpack'
-					) }
-					<br />
-					<br />
-					<Button isDefault isLarge href={ connectURL } target="_blank">
-						{ __( 'Set up Mailchimp form', 'jetpack' ) }
-					</Button>
-					<br />
-					<br />
-					<Button isLink onClick={ this.apiCall }>
-						{ __( 'Re-check Connection', 'jetpack' ) }
-					</Button>
-				</div>
+			<Placeholder
+				icon={ icon }
+				label={ __( 'Mailchimp', 'jetpack' ) }
+				notices={ notices }
+				instructions={ __(
+					'You need to connect your Mailchimp account and choose a list in order to start collecting Email subscribers.',
+					'jetpack'
+				) }
+			>
+				<Button isDefault isLarge href={ connectURL } target="_blank">
+					{ __( 'Set up Mailchimp form', 'jetpack' ) }
+				</Button>
+				<Button isLink onClick={ this.apiCall }>
+					{ __( 'Re-check Connection', 'jetpack' ) }
+				</Button>
 			</Placeholder>
 		);
 		const inspectorControls = (
