@@ -149,24 +149,23 @@ class MailchimpSubscribeEdit extends Component {
 			</Placeholder>
 		);
 		const placeholder = (
-			<div className="wp-block-jetpack-mailchimp">
-				<Placeholder
-					icon={ icon }
-					label={ __( 'Mailchimp', 'jetpack' ) }
-					notices={ notices }
-					instructions={ __(
-						'You need to connect your Mailchimp account and choose a list in order to start collecting Email subscribers.',
-						'jetpack'
-					) }
-				>
-					<Button isDefault isLarge href={ connectURL } target="_blank">
-						{ __( 'Set up Mailchimp form', 'jetpack' ) }
-					</Button>
-					<Button isLink onClick={ this.apiCall }>
-						{ __( 'Re-check Connection', 'jetpack' ) }
-					</Button>
-				</Placeholder>
-			</div>
+			<Placeholder
+				className="wp-block-jetpack-mailchimp"
+				icon={ icon }
+				label={ __( 'Mailchimp', 'jetpack' ) }
+				notices={ notices }
+				instructions={ __(
+					'You need to connect your Mailchimp account and choose a list in order to start collecting Email subscribers.',
+					'jetpack'
+				) }
+			>
+				<Button isDefault isLarge href={ connectURL } target="_blank">
+					{ __( 'Set up Mailchimp form', 'jetpack' ) }
+				</Button>
+				<Button isLink onClick={ this.apiCall }>
+					{ __( 'Re-check Connection', 'jetpack' ) }
+				</Button>
+			</Placeholder>
 		);
 		const inspectorControls = (
 			<InspectorControls>
