@@ -15,7 +15,7 @@
  * `pluggable.php`), a third party can only use the short-circuit filter in plugins
  * loaded before Jetpack, or in an mu-plugin.
  */
-if ( ! Jetpack::is_active() || apply_filters( 'jetpack_disable_auth_cookie_plugable', '__return_false' ) ) {
+if ( ! Jetpack::is_active() || apply_filters( 'jetpack_disable_auth_cookie_plugable', false ) ) {
 	return;
 }
 
