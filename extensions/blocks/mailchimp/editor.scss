@@ -30,4 +30,22 @@
 		margin-top: 0;
 	}
 
+	.components-placeholder__fieldset .components-button {
+		margin-right: 0;
+	}
+
+	.components-placeholder__fieldset .components-button.is-link {
+		display: inline-block;
+		flex-basis: 100%;
+    text-align: center;
+	}
+
+	.components-placeholder__fieldset .components-button:not(.is-link)~.components-button.is-link {
+		margin-left: 0;
+	}
+
+	.components-placeholder__instructions {
+		max-width: 80%;
+	}
+
 }
