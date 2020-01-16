@@ -27,27 +27,35 @@ function jetpack_shim_setcookie( $name, $value, $options ) {
 
 	$cookie = 'Set-Cookie: ' . $name . '=' . rawurlencode( $value ) . '; ';
 
-	foreach ( $options as $k => $v ) {
-		if ( 'expires' === $k && ! empty( $v ) ) {
-			$cookie_date = gmdate( 'D, d M Y H:i:s \G\M\T', $v );
-			$cookie     .= sprintf( 'expires=%s', $cookie_date ) . ';';
-		} elseif ( 'secure' === $k && true === $v ) {
-			$cookie .= 'secure; ';
-		} elseif ( 'httponly' === $k && true === $v ) {
-			$cookie .= 'HttpOnly; ';
-		} elseif ( 'domain' === $k && is_string( $v ) && ! empty( $v ) ) {
-			if ( strpbrk( $v, false !== $not_allowed_chars ) ) {
-				return false;
-			}
-			$cookie .= sprintf( 'domain=%s', $v . '; ' );
-		} elseif ( 'path' === $k && is_string( $v ) && ! empty( $v ) ) {
-			if ( strpbrk( $v, false !== $not_allowed_chars ) ) {
-				return false;
-			}
-			$cookie .= sprintf( 'path=%s', $v . '; ' );
-		} elseif ( 'samesite' === $k && is_string( $v ) && ! empty( $v ) ) {
-			$cookie .= sprintf( 'SameSite=%s', $v . '; ' );
+	if ( ! empty( $options['expires'] ) ) {
+		$cookie_date = gmdate( 'D, d M Y H:i:s \G\M\T', $options['expires'] );
+		$cookie     .= sprintf( 'expires=%s', $cookie_date ) . ';';
+	}
+
+	if ( ! empty( $options['secure'] ) && true === $options['secure'] ) {
+		$cookie .= 'secure; ';
+	}
+
+	if ( ! empty( $options['httponly'] ) && true === $options['httponly'] ) {
+		$cookie .= 'HttpOnly; ';
+	}
+
+	if ( ! empty( $options['domain'] ) && is_string( $options['domain'] ) ) {
+		if ( strpbrk( $options['domain'], false !== $not_allowed_chars ) ) {
+			return false;
 		}
+		$cookie .= sprintf( 'domain=%s', $options['domain'] . '; ' );
+	}
+
+	if ( ! empty( $options['path'] ) && is_string( $options['path'] ) ) {
+		if ( strpbrk( $options['path'], false !== $not_allowed_chars ) ) {
+			return false;
+		}
+		$cookie .= sprintf( 'path=%s', $options['path'] . '; ' );
+	}
+
+	if ( ! empty( $options['samesite'] ) && is_string( $options['samesite'] ) ) {
+		$cookie .= sprintf( 'SameSite=%s', $options['samesite'] . '; ' );
 	}
 
 	$cookie = trim( $cookie );
