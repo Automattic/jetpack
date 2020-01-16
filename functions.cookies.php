@@ -9,17 +9,6 @@
  */
 
 /**
- * Only proceed if Jetpack is connected to WordPress.com,
- * and there is no active shortcircuit filter. Note that because this file
- * executes on plugin load (to be able to define `wp_set_auth_cookie` before
- * `pluggable.php`), a third party can only use the short-circuit filter in plugins
- * loaded before Jetpack, or in an mu-plugin.
- */
-if ( ! Jetpack::is_active() || apply_filters( 'jetpack_disable_auth_cookie_plugable', false ) ) {
-	return;
-}
-
-/**
  * A PHP 5.X compatible version of the array argument version of PHP 7.3's setcookie().
  *
  * Useful for setting SameSite cookies in PHP 7.2 or earlier.
@@ -68,7 +57,23 @@ function jetpack_shim_setcookie( $name, $value, $options ) {
 	return true;
 }
 
-if ( ! function_exists( 'wp_set_auth_cookie' ) ) :
+// Only proceed if Jetpack is connected to WordPress.com and there is no active short-circuit filter.
+if (
+	Jetpack::is_active() &&
+	/**
+	 * Allow plugins to short-circuit the `wp_set_auth_cookie` override that adds support for SameSite cookies.
+	 *
+	 * Note that because the `wp_set_auth_cookie` override executes on plugin load (to be able to define it before
+	 * `pluggable.php`), a third party can only use the short-circuit filter in plugins loaded before Jetpack, or
+	 * in an mu-plugin.
+	 *
+	 * @since 8.1.1
+	 *
+	 * @param false bool Whether the `wp_set_auth_cookie` override should be blocked. False by default.
+	 */
+	! apply_filters( 'jetpack_disable_auth_cookie_pluggable', false ) &&
+	! function_exists( 'wp_set_auth_cookie' )
+) :
 	/**
 	 * Sets the authentication cookies based on user ID.
 	 *
