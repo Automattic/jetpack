@@ -96,7 +96,6 @@ class SearchResultMinimal extends Component {
 
 		return (
 			<li className="jetpack-instant-search__search-result-minimal">
-				<SearchResultDate date={ fields.date } locale={ locale } />
 				<h3 className="jetpack-instant-search__search-result-title">
 					<PostTypeIcon postType={ fields.post_type } shortcodeTypes={ fields.shortcode_types } />
 					<a
@@ -107,6 +106,7 @@ class SearchResultMinimal extends Component {
 						dangerouslySetInnerHTML={ { __html: highlight.title } }
 					/>
 				</h3>
+				<SearchResultDate date={ fields.date } locale={ locale } />
 				{ noMatchingContent ? this.renderNoMatchingContent() : this.renderMatchingContent() }
 				<SearchResultComments comments={ highlight && highlight.comments } />
 			</li>
