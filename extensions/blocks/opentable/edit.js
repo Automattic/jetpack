@@ -231,7 +231,7 @@ export default function OpenTableEdit( { attributes, setAttributes, className, c
 			label={ __( 'OpenTable Reservation', 'jetpack' ) }
 			icon={ <BlockIcon icon={ icon } /> }
 			instructions={ __(
-				'Enter your restaurant names, OpenTable Restaurant IDs, or embed code',
+				'Enter your restaurant name, or paste an OpenTable Reservation Widget embed code.',
 				'jetpack'
 			) }
 			notices={
