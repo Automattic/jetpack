@@ -2,7 +2,7 @@
  * Adapted ButtonEdit component from @wordpress/block-library
  * (Using Gutenberg code that shipped with WordPress 5.3)
  *
- * @see https://github.com/WordPress/gutenberg/blob/wp/5.2/packages/block-library/src/button/edit.js
+ * @see https://github.com/WordPress/gutenberg/blob/wp/5.3/packages/block-library/src/button/edit.js
  *
  * Removes url for button, since the button triggers a modal in this block
  * rather than opening a link.

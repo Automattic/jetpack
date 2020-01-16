@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { G, Path, Rect, SVG } from '@wordpress/components';
 import { createBlock } from '@wordpress/blocks';
 
@@ -104,7 +104,7 @@ export const settings = {
 		attributes: {
 			url: 'https://www.eventbrite.com/e/test-event-tickets-123456789',
 			useModal: true,
-			text: __( 'Register', 'jetpack' ),
+			text: _x( 'Register', 'verb: e.g. register for an event.', 'jetpack' ),
 		},
 	},
 };

@@ -15,8 +15,7 @@ import { createWidgetId, eventIdFromUrl } from './utils';
  *
  * @see https://github.com/WordPress/gutenberg/blob/wp/5.3/packages/block-library/src/button/save.js
  *
- * Uses a "button" element rather than "a", since the button opens a modal rather than
- * an external link.
+ * Uses a "button" element rather than "a", since the button opens a modal rather than a link.
  */
 
 function saveButton( eventId, attributes ) {

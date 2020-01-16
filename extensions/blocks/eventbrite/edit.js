@@ -58,19 +58,10 @@ class EventbriteEdit extends Component {
 		if ( ! prevState.resolvingUrl && this.state.resolvingUrl ) {
 			this.resolveUrl();
 		}
-
-		if (
-			prevProps.attributes.useModal !== this.props.attributes.useModal ||
-			( prevProps.isSelected !== this.props.isSelected && this.props.isSelected )
-		) {
-			this.setModalButtonStyles();
-		}
 	}
 
 	// TODO: figure out how to cancel request since apiFetch was updated to use Promises rather than XHR requests.
-	componentWillUnmount() {
-		// invoke( this.fetchRequest, [ 'abort' ] );
-	}
+	// componentWillUnmount() {}
 
 	resolveUrl = () => {
 		const { url } = this.props.attributes;
@@ -140,14 +131,6 @@ class EventbriteEdit extends Component {
 		);
 	};
 
-	setModalButtonStyles = () => {
-		if ( this.props.attributes.useModal ) {
-			this.props.addModalButtonStyles();
-		} else {
-			this.props.removeModalButtonStyles();
-		}
-	};
-
 	setEmbedType = embedType => {
 		const { setAttributes } = this.props;
 
@@ -186,8 +169,11 @@ class EventbriteEdit extends Component {
 			<InspectorControls>
 				<PanelBody
 					className="jetpack-eventbrite-block__embed-type-controls"
-					title={ __( 'Embed Type', 'jetpack' ) }
-					initialOpen={ true }
+					title={ _x(
+						'Embed Type',
+						'option for how the embed displays on a page, e.g. inline or as a modal',
+						'jetpack'
+					) }
 				>
 					<div className="block-editor-block-styles">
 						{ embedTypes.map( this.renderEmbedTypeItem.bind( this ) ) }
@@ -197,6 +183,8 @@ class EventbriteEdit extends Component {
 		);
 	}
 
+	// Render embed types selection with previews, similar to block styles.
+	// https://github.com/WordPress/gutenberg/blob/wp/5.3/packages/block-editor/src/components/block-styles/index.js#L100
 	renderEmbedTypeItem( { alt, label, image, isActive, value } ) {
 		return (
 			<div
@@ -263,7 +251,7 @@ class EventbriteEdit extends Component {
 							onChange={ event => this.setState( { editedUrl: event.target.value } ) }
 						/>
 						<Button isLarge type="submit">
-							{ _x( 'Embed', 'button label', 'jetpack' ) }
+							{ _x( 'Embed', 'submit button label', 'jetpack' ) }
 						</Button>
 						{ this.cannotEmbed() && (
 							<p className="components-placeholder__error">
@@ -277,7 +265,7 @@ class EventbriteEdit extends Component {
 					</form>
 
 					<div className="components-placeholder__learn-more">
-						<ExternalLink href="#">
+						<ExternalLink href="http://en.support.wordpress.com/wordpress-editor/blocks/eventbrite-block/">
 							{ __( 'Learn more about Eventbrite embeds', 'jetpack' ) }
 						</ExternalLink>
 					</div>
@@ -300,6 +288,10 @@ class EventbriteEdit extends Component {
 		const html = `
 			<script src="https://www.eventbrite.com/static/widgets/eb_widgets.js"></script>
 			<style>
+				/* Prevent scrollbar on the embed preview */
+				body {
+					overflow: hidden;
+				}
 				/* Eventbrite embeds have a CSS height transition on loading, which causes <Sandbox>
 				to not recognise the resizing. We need to disable that transition. */
 				* {
@@ -331,17 +323,24 @@ class EventbriteEdit extends Component {
 	 * @returns {object} The UI displayed when user edits this block.
 	 */
 	render() {
-		const { attributes } = this.props;
+		const { attributes, addModalButtonStyles, removeModalButtonStyles } = this.props;
 		const { url, useModal } = attributes;
 		const { editingUrl, resolvingUrl } = this.state;
 
 		let component;
 
 		if ( resolvingUrl ) {
+			removeModalButtonStyles();
 			component = this.renderLoading();
 		} else if ( editingUrl || ! url || this.cannotEmbed() ) {
+			removeModalButtonStyles();
 			component = this.renderEditEmbed();
 		} else {
+			if ( useModal ) {
+				addModalButtonStyles();
+			} else {
+				removeModalButtonStyles();
+			}
 			component = (
 				<>
 					{ this.renderBlockControls() }
@@ -359,16 +358,22 @@ class EventbriteEdit extends Component {
 	}
 }
 
-export default withDispatch( ( dispatch, { name } ) => {
+export default withDispatch( ( dispatch, { name }, { select } ) => {
+	const { getBlockStyles } = select( 'core/blocks' );
+	const styles = getBlockStyles( name );
 	return {
 		addModalButtonStyles() {
-			dispatch( 'core/blocks' ).addBlockStyles( name, MODAL_BUTTON_STYLES );
+			if ( styles.length < 1 ) {
+				dispatch( 'core/blocks' ).addBlockStyles( name, MODAL_BUTTON_STYLES );
+			}
 		},
 		removeModalButtonStyles() {
-			dispatch( 'core/blocks' ).removeBlockStyles(
-				name,
-				MODAL_BUTTON_STYLES.map( style => style.name )
-			);
+			if ( styles.length > 0 ) {
+				dispatch( 'core/blocks' ).removeBlockStyles(
+					name,
+					MODAL_BUTTON_STYLES.map( style => style.name )
+				);
+			}
 		},
 	};
 } )( EventbriteEdit );
