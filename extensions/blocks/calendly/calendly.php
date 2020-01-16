@@ -110,7 +110,6 @@ function jetpack_calendly_block_get_attribute( $attributes, $attribute_name ) {
 	}
 
 	$default_attributes = array(
-		'url'                  => 'url',
 		'style'                => 'inline',
 		'submitButtonText'     => esc_html__( 'Schedule time with me', 'jetpack' ),
 		'backgroundColor'      => 'ffffff',
@@ -119,5 +118,7 @@ function jetpack_calendly_block_get_attribute( $attributes, $attribute_name ) {
 		'hideEventTypeDetails' => false,
 	);
 
-	return $default_attributes[ $attribute_name ];
+	if ( isset( $default_attributes[ $attribute_name ] ) ) {
+		return $default_attributes[ $attribute_name ];
+	}
 }
