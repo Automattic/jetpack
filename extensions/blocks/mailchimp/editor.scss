@@ -2,6 +2,10 @@
 
 .wp-block-jetpack-mailchimp {
 
+	.components-placeholder__label svg {
+		margin-right: 1ch;
+	}
+
 	.wp-block-jetpack-mailchimp_notification {
 		display: block;
 	}
