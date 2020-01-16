@@ -40,6 +40,8 @@ class Jetpack_WPCOM_Block_Editor {
 			add_filter( 'admin_body_class', array( $this, 'add_iframed_body_class' ) );
 		}
 
+		add_filter( 'jetpack_auth_cookie_samesite', array( $this, 'set_samesite_auth_cookie' ) );
+
 		add_action( 'login_init', array( $this, 'allow_block_editor_login' ), 1 );
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_assets' ), 9 );
 		add_action( 'enqueue_block_assets', array( $this, 'enqueue_block_assets' ) );
@@ -390,6 +392,15 @@ class Jetpack_WPCOM_Block_Editor {
 		}
 
 		return $plugin_array;
+	}
+
+	/**
+	 * Designates cookies for cross-site access.
+	 *
+	 * @return string SameSite attribute to use on auth cookies.
+	 */
+	public function set_samesite_auth_cookie() {
+		return 'None';
 	}
 }
 
