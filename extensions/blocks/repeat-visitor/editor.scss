@@ -1,6 +1,9 @@
 .wp-block-jetpack-repeat-visitor {
 	.components-notice {
 		margin: 1em 0 0;
+		&__content {
+			color: var( --color-black );
+		}
 	}
 	.components-radio-control__option {
 		text-align: left;
