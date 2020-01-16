@@ -109,17 +109,17 @@ if ( ! ( in_running_uninstall_group() ) ) {
  *
  * @return array
  */
-function jetpack_full_sync_immediately_on( $modules ) {
+function jetpack_full_sync_immediately_off( $modules ) {
 	foreach ( $modules as $key => $module ) {
-		if ( in_array( $module, array( 'Automattic\\Jetpack\\Sync\\Modules\\Full_Sync', 'Jetpack_Sync_Modules_Full_Sync' ), true ) ) {
-			$modules[ $key ] = 'Automattic\\Jetpack\\Sync\\Modules\\Full_Sync_Immediately';
+		if ( in_array( $module, array( 'Automattic\\Jetpack\\Sync\\Modules\\Full_Sync_Immediately' ), true ) ) {
+			$modules[ $key ] = 'Automattic\\Jetpack\\Sync\\Modules\\Full_Sync';
 		}
 	}
 	return $modules;
 }
 
-if ( false !== getenv( 'SYNC_BETA' ) ) {
-	tests_add_filter( 'jetpack_sync_modules', 'jetpack_full_sync_immediately_on' );
+if ( false === getenv( 'SYNC_BETA' ) ) {
+	tests_add_filter( 'jetpack_sync_modules', 'jetpack_full_sync_immediately_off' );
 }
 
 require $test_root . '/includes/bootstrap.php';
