@@ -3,33 +3,52 @@
 /**
  * External dependencies
  */
-import { h, Component, createRef } from 'preact';
+import { h } from 'preact';
+import { createPortal, useState, useEffect } from 'preact/compat';
+import SearchFilters from './search-filters';
+import WidgetAreaContainer from './widget-area-container';
 
-// NOTE:
-//
-// We use Preact.Component instead of a Hooks based component because
-// we need to set shouldComponentUpdate to always return false.
-//
-// We could implement such in a Hooks based component using React.memo,
-// but doing so would require importing (and bloating the bundle with)
-// preact/compat.
+const SearchBox = props => {
+	// TODO: Change JetpackInstantSearchOptions.widgets to only include info from widgets inside Overlay sidebar
+	const [ widgetIds, setWidgetIds ] = useState( [] );
 
-export default class SearchSidebar extends Component {
-	sidebar = createRef();
+	useEffect( () => {
+		const widgetArea = document.getElementsByClassName(
+			'jetpack-instant-search__widget-area'
+		)[ 0 ];
+		const widgets = Array.from( widgetArea.querySelectorAll( '.jetpack-instant-search-wrapper' ) );
 
-	componentDidMount() {
-		this.children = document.getElementsByClassName( 'jetpack-instant-search__widget-area' );
-		[ ...this.children ].forEach( child => {
-			child.style.removeProperty( 'display' );
-			this.sidebar.current.appendChild( child );
+		widgets.forEach( widget => {
+			const form = widget.querySelector( '.jetpack-search-form' );
+			form && widget.removeChild( form );
 		} );
-	}
 
-	shouldComponentUpdate() {
-		return false;
-	}
+		setWidgetIds( widgets.map( element => element.id ) );
+	}, [] );
 
-	render() {
-		return <div className="jetpack-instant-search__sidebar" ref={ this.sidebar }></div>;
-	}
-}
+	return (
+		<div className="jetpack-instant-search__sidebar">
+			<WidgetAreaContainer />
+			{ props.widgets
+				.filter( widget => widgetIds.includes( `${ widget.widget_id }-wrapper` ) )
+				.map( widget => {
+					return createPortal(
+						<div
+							id={ `${ widget.widget_id }-portaled-wrapper` }
+							className="jetpack-instant-search__portaled-wrapper"
+						>
+							<SearchFilters
+								loading={ props.isLoading }
+								locale={ props.locale }
+								postTypes={ props.postTypes }
+								results={ props.response }
+								widget={ widget }
+							/>
+						</div>,
+						document.getElementById( `${ widget.widget_id }-wrapper` )
+					);
+				} ) }
+		</div>
+	);
+};
+export default SearchBox;

@@ -11,7 +11,6 @@ import { h, Component, Fragment } from 'preact';
  */
 import SearchResult from './search-result';
 import ScrollButton from './scroll-button';
-import SearchFilters from './search-filters';
 import SearchForm from './search-form';
 import SearchSidebar from './search-sidebar';
 import Notice from './notice';
@@ -112,18 +111,13 @@ class SearchResults extends Component {
 
 	renderSecondarySection() {
 		return (
-			<Fragment>
-				{ this.props.widgets.map( widget => (
-					<SearchFilters
-						loading={ this.props.isLoading }
-						locale={ this.props.locale }
-						postTypes={ this.props.postTypes }
-						results={ this.props.response }
-						widget={ widget }
-					/>
-				) ) }
-				<SearchSidebar />
-			</Fragment>
+			<SearchSidebar
+				isLoading={ this.props.isLoading }
+				locale={ this.props.locale }
+				postTypes={ this.props.postTypes }
+				response={ this.props.response }
+				widgets={ this.props.widgets }
+			/>
 		);
 	}
 
