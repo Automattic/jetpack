@@ -37,8 +37,8 @@ function is_available() {
 
 /**
  * Registers the block for use in Gutenberg
- * This is down via an action so that we can disable
- * registration if we need to
+ * This is done via an action so that we can disable
+ * registration if we need to.
  */
 function register_block() {
 	if ( is_available() ) {
