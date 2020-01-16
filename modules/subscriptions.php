@@ -525,7 +525,7 @@ class Jetpack_Subscriptions {
 	 *	not_subscribed  : strange error.  Jetpack servers at WordPress.com could subscribe the email.
 	 *	disabled        : Site owner has disabled subscriptions.
 	 *	active          : Already subscribed.
-	 *  pending         : Tried to subscribe before but the confirmation link is never clicked. No confirmation email is sent.
+	 *	pending         : Tried to subscribe before but the confirmation link is never clicked. No confirmation email is sent.
 	 *	unknown         : strange error.  Jetpack servers at WordPress.com returned something malformed.
 	 *	unknown_status  : strange error.  Jetpack servers at WordPress.com returned something I didn't understand.
 	 */
