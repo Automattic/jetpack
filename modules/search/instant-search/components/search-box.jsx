@@ -22,6 +22,7 @@ const SearchBox = props => {
 			{ /* TODO: Add support for preserving label text */ }
 			<label htmlFor={ inputId } className="screen-reader-text">
 				{ __( 'Site Search', 'jetpack' ) }
+				<span class="screen-reader-text">Search for:</span>
 			</label>
 			<input
 				id={ inputId }
