@@ -150,6 +150,7 @@ class SearchApp extends Component {
 				resultFormat,
 				siteId: this.props.options.siteId,
 				sort,
+				postsPerPage: this.props.options.postsPerPage,
 			} )
 				.then( newResponse => {
 					if ( this.state.requestId === requestId ) {

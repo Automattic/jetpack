@@ -123,7 +123,16 @@ function buildFilterObject( filterQuery ) {
 	return filter;
 }
 
-export function search( { aggregations, filter, pageHandle, query, resultFormat, siteId, sort } ) {
+export function search( {
+	aggregations,
+	filter,
+	pageHandle,
+	query,
+	resultFormat,
+	siteId,
+	sort,
+	postsPerPage = 10,
+} ) {
 	const key = stringify( Array.from( arguments ) );
 
 	// Use cached value from the last 30 minutes if browser is offline
@@ -165,6 +174,7 @@ export function search( { aggregations, filter, pageHandle, query, resultFormat,
 			query: encodeURIComponent( query ),
 			sort,
 			page_handle: pageHandle,
+			size: postsPerPage,
 		} )
 	);
 
