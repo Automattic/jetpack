@@ -9,11 +9,6 @@
 		text-align: left;
 	}
 
-	.components-button {
-		display: inline-block;
-		margin-bottom: 20px;
-	}
-
 	.components-placeholder {
 		min-height: 150px;
 		padding: 24px;
@@ -24,10 +19,6 @@
 				font-size: 13px;
 				margin: 0 0 20px;
 			}
-		}
-
-		&__instructions {
-			margin-bottom: 0;
 		}
 	}
 
@@ -45,10 +36,12 @@
 
 		&__disclaimer {
 			color: var( --color-gray-200 );
+			flex-basis: 100%;
 			margin: 0;
 			font-style: italic;
 			a {
 				color: var( --color-gray-400 );
+				line-height: 36px;
 			}
 		}
 
