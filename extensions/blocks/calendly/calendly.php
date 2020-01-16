@@ -83,7 +83,7 @@ function jetpack_calendly_block_load_assets( $attr, $content ) {
 			'<div class="%1$s"><a class="button" href="" onclick="Calendly.initPopupWidget({url:\'%2$s\'});return false;">%3$s</a></div>',
 			esc_attr( $classes ),
 			esc_url( $url ),
-			esc_html( $submit_button_text )
+			wp_kses_post( $submit_button_text )
 		);
 	} else { // Button style.
 		$content = sprintf(
