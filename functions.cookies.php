@@ -89,7 +89,7 @@ if (
 	 *                         Default is the value of is_ssl().
 	 * @param string $token    Optional. User's session token to use for this cookie.
 	 *
-	 * @since 8.2
+	 * @since 8.1.1
 	 */
 	function wp_set_auth_cookie( $user_id, $remember = false, $secure = '', $token = '' ) {
 		if ( $remember ) {
@@ -152,7 +152,7 @@ if (
 		 *
 		 * @param string $samesite SameSite attribute to use in auth cookies.
 		 *
-		 * @since 8.2
+		 * @since 8.1.1
 		 */
 		$samesite = apply_filters( 'jetpack_auth_cookie_samesite', 'Lax' );
 
