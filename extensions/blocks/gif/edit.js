@@ -143,7 +143,7 @@ class GifEdit extends Component {
 					onChange={ value => setAttributes( { searchText: value } ) }
 					value={ searchText }
 				/>
-				<Button isSecondary onClick={ this.onSubmit }>
+				<Button isDefault onClick={ this.onSubmit }>
 					{ __( 'Search', 'jetpack' ) }
 				</Button>
 			</form>
