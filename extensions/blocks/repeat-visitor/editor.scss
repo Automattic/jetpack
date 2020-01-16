@@ -32,6 +32,7 @@
 		flex-wrap: nowrap;
 		.components-base-control {
 			flex-basis: 100%;
+			margin-bottom: 0;
 		}
 	}
 
@@ -53,9 +54,7 @@
 		text-align: center;
 		width: 5em;
 	}
-	.components-base-control+.components-base-control {
-		margin-bottom: 0;
-	}
+
 }
 
 // Overrides to make the preview look good
