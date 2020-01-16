@@ -6,6 +6,7 @@ module.exports = [
 	'class.jetpack-gutenberg.php',
 	'class.jetpack-plan.php',
 	'extensions/',
+	'functions.cookies.php',
 	'functions.global.php',
 	'functions.opengraph.php',
 	'_inc/lib/admin-pages/class-jetpack-about-page.php',
