@@ -194,7 +194,7 @@ class Jetpack_RelatedPosts {
 	 * @return string Rendered related posts HTML.
 	 */
 	public function get_server_rendered_html() {
-		$rp_settings       = Jetpack_Options::get_option( 'relatedposts', array() );
+		$rp_settings       = $this->get_options();
 		$block_rp_settings = array(
 			'displayThumbnails' => $rp_settings['show_thumbnails'],
 			'showHeadline'      => $rp_settings['show_headline'],
