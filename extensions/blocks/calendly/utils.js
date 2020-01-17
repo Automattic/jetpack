@@ -1,33 +1,33 @@
 export const getURLFromEmbedCode = embedCode => {
-	const url = embedCode.match( /(?<!\.)calendly\.com.+?([^"']*)/i );
+	const url = embedCode.match( /(^|\/\/)(calendly\.com[^"']*)/i );
 	if ( url ) {
-		return 'https://' + url[ 0 ];
+		return 'https://' + url[ 2 ];
 	}
 };
 
 export const getSubmitButtonTextFromEmbedCode = embedCode => {
-	let submitButtonText = embedCode.match( /(?<=false;"\>).+(?=<\/)/ );
+	let submitButtonText = embedCode.match( /false;"\>([^<]+)\<\// );
 	if ( submitButtonText ) {
-		return submitButtonText[ 0 ];
+		return submitButtonText[ 1 ];
 	}
 
-	submitButtonText = embedCode.match( /(?<=text: ').*?(?=')/ );
+	submitButtonText = embedCode.match( /text: '([^']*?)'/ );
 	if ( submitButtonText ) {
-		return submitButtonText[ 0 ];
+		return submitButtonText[ 1 ];
 	}
 };
 
 const getSubmitButtonTextColorFromEmbedCode = embedCode => {
-	const submitButtonTextColor = embedCode.match( /(?<= textColor: ').*?(?=')/ );
+	const submitButtonTextColor = embedCode.match( /textColor: '([^']*?)'/ );
 	if ( submitButtonTextColor ) {
-		return submitButtonTextColor[ 0 ];
+		return submitButtonTextColor[ 1 ];
 	}
 };
 
 const getSubmitButtonBackgroundColorFromEmbedCode = embedCode => {
-	const submitButtonBackgroundColor = embedCode.match( /(?<= color: ').*?(?=')/ );
+	const submitButtonBackgroundColor = embedCode.match( /color: '([^']*?)'/ );
 	if ( submitButtonBackgroundColor ) {
-		return submitButtonBackgroundColor[ 0 ];
+		return submitButtonBackgroundColor[ 1 ];
 	}
 };
 
