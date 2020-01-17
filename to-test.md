@@ -2,13 +2,22 @@
 
 ### Blocks
 
+### Calendly
+
+The Calendly block will be a useful tool for all coaches, consultants, therapists… Add the block to a post or page and anyone can then book appointments, meetings, and classes right from your website. 
+
+To test, you have 2 options:
+
+1. You can [create a Calendly account here](https://calendly.com) and create your own form that you'll be able to embed on your site via the block.
+2. You can use an existing Calendly account like this one: `https://calendly.com/jeherve`. Paste the link into the block to get started.
+
+Add the block to a post or a page and make sure everything works as planned. If you have your own Calendly account, try different embedding methods and see that they work well.
+
 ### OpenTable
 
 As a restaurant owner, your ultimate goal getting online is to drive reservations to your property. The OpenTable block can help you achieve just that by facilitating visitors to quickly fill an online reservation form to book a table.
 
-To test, add the block to a post or a page and play with its options. You can add a block for just about any restaurant that supports OpenTable. Just search for restaurants in the picker. You can also add multiple restaurants if you'd like.
-
-We're looking for any feedback you may have about the block and the user experience around it.
+Like the above, try to play with all options; we're looking for any feedback you may have about the block and the user experience around it.
 
 ### Others
 
