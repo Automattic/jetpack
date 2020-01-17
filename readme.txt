@@ -96,6 +96,16 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
+= 8.1.1 =
+
+* Release date: January 23, 2020
+* Release post: https://wp.me/p1moTy-lJT
+
+**Bug fixes**
+
+* Block Editor: ensure that the Jetpack block sidebar icon is properly displayed, even with the latest version of the Gutenberg plugin.
+* WordPress.com Block Editor: fix compatibility issues with Chrome's upcoming cross-site cookie changes.
+
 = 8.1 =
 
 * Release date: January 14, 2020
