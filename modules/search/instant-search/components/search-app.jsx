@@ -162,6 +162,7 @@ class SearchApp extends Component {
 				resultFormat,
 				siteId: this.props.options.siteId,
 				sort,
+				postsPerPage: this.props.options.postsPerPage,
 			} )
 				.then( newResponse => {
 					if ( this.state.requestId === requestId ) {
@@ -202,9 +203,11 @@ class SearchApp extends Component {
 					isLoading={ this.state.isLoading }
 					locale={ this.props.options.locale }
 					onLoadNextPage={ this.loadNextPage }
+					postTypes={ this.props.options.postTypes }
 					query={ getSearchQuery() }
 					response={ this.state.response }
 					resultFormat={ getResultFormatQuery() }
+					widgets={ this.props.options.widgets }
 				/>
 			</Overlay>,
 			document.body
