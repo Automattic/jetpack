@@ -103,6 +103,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
+* Dashboard: ensure that connection issues with WordPress.com are displayed in the Jetpack dashboard.
 * Block Editor: ensure that the Jetpack block sidebar icon is properly displayed, even with the latest version of the Gutenberg plugin.
 * WordPress.com Block Editor: fix compatibility issues with Chrome's upcoming cross-site cookie changes.
 
