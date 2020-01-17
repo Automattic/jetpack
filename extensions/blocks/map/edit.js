@@ -69,9 +69,9 @@ class MapEdit extends Component {
 		// Allow one cycle for alignment change to take effect
 		setTimeout( this.mapRef.current.sizeMap, 0 );
 	};
-	updateAPIKeyControl = value => {
+	updateAPIKeyControl = event => {
 		this.setState( {
-			apiKeyControl: value,
+			apiKeyControl: event.target.value,
 		} );
 	};
 	updateAPIKey = () => {
@@ -211,36 +211,47 @@ class MapEdit extends Component {
 				<Spinner />
 			</Placeholder>
 		);
+
+		const instructions = (
+			<Fragment>
+				{ __( 'To use the map block, you need an Access Token.', 'jetpack' ) }
+				<br />
+				<ExternalLink href="https://www.mapbox.com">
+					{ __( 'Create an account or log in to Mapbox.', 'jetpack' ) }
+				</ExternalLink>
+				<br />
+				{ __(
+					'Locate and copy the default access token. Then, paste it into the field below.',
+					'jetpack'
+				) }
+			</Fragment>
+		);
 		const placeholderAPIStateFailure = (
-			<Placeholder icon={ settings.icon } label={ __( 'Map', 'jetpack' ) } notices={ notices }>
+			<Placeholder
+				icon={ settings.icon }
+				label={ __( 'Map', 'jetpack' ) }
+				notices={ notices }
+				instructions={ instructions }
+			>
 				<Fragment>
-					<div className="components-placeholder__instructions">
-						{ __( 'To use the map block, you need an Access Token.', 'jetpack' ) }
-						<br />
-						<ExternalLink href="https://www.mapbox.com">
-							{ __( 'Create an account or log in to Mapbox.', 'jetpack' ) }
-						</ExternalLink>
-						<br />
-						{ __(
-							'Locate and copy the default access token. Then, paste it into the field below.',
-							'jetpack'
-						) }
-					</div>
-					<TextControl
-						className="wp-block-jetpack-map-components-text-control-api-key"
-						disabled={ apiRequestOutstanding }
-						placeholder={ __( 'Paste Token Here', 'jetpack' ) }
-						value={ apiKeyControl }
-						onChange={ this.updateAPIKeyControl }
-					/>
-					<Button
-						className="wp-block-jetpack-map-components-text-control-api-key-submit"
-						isLarge
-						disabled={ apiRequestOutstanding || ! apiKeyControl || apiKeyControl.length < 1 }
-						onClick={ this.updateAPIKey }
-					>
-						{ __( 'Set Token', 'jetpack' ) }
-					</Button>
+					<form>
+						<input
+							type="text"
+							className="components-placeholder__input"
+							disabled={ apiRequestOutstanding }
+							placeholder={ __( 'Paste Token Here', 'jetpack' ) }
+							value={ apiKeyControl }
+							onChange={ this.updateAPIKeyControl }
+						/>
+						<Button
+							isLarge
+							isSecondary
+							disabled={ apiRequestOutstanding || ! apiKeyControl || apiKeyControl.length < 1 }
+							onClick={ this.updateAPIKey }
+						>
+							{ __( 'Set Token', 'jetpack' ) }
+						</Button>
+					</form>
 				</Fragment>
 			</Placeholder>
 		);

@@ -7,6 +7,9 @@
 	.components-base-control__field {
 		text-align: center;
 	}
+	.components-placeholder__label svg {
+		margin-right: 1ch;
+	}
 	.wp-block-jetpack-gif_cover {
 		background: none;
 		border: none;
@@ -27,16 +30,15 @@
 		flex-direction: row;
 		flex-wrap: wrap;
 		justify-content: center;
-		margin: 0 auto;
 		max-width: 400px;
 		width: 100%;
 		z-index: 1;
+		.components-text-control__input {
+			height: 36px;
+		}
 		.components-base-control__label {
 			position: absolute;
 			top: -1000em;
-		}
-		.components-button {
-			margin-top: 1px;
 		}
 	}
 	.wp-block-jetpack-gif_input {

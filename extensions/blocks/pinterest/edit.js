@@ -171,7 +171,7 @@ class PinterestEdit extends Component {
 								placeholder={ __( 'Enter URL to embed here…', 'jetpack' ) }
 								onChange={ event => this.setState( { editedUrl: event.target.value } ) }
 							/>
-							<Button isLarge type="submit">
+							<Button isLarge isSecondary type="submit">
 								{ _x( 'Embed', 'button label', 'jetpack' ) }
 							</Button>
 							{ cannotEmbed && (
