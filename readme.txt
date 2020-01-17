@@ -108,7 +108,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
-*
+* Dashboard: display a notice when a site uses conflicting plans.
 
 **Improved compatibility**
 
