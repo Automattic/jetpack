@@ -16,7 +16,7 @@ describe( 'Paid blocks', () => {
 		const url = getNgrokSiteUrl();
 		console.log( 'NEW SITE URL: ' + url );
 
-		await connectThroughWPAdminIfNeeded();
+		await connectThroughWPAdminIfNeeded( { plan: 'free' } );
 
 		await activateModule( 'wordads' );
 		await activateModule( 'publicize' );

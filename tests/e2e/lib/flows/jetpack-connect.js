@@ -20,8 +20,10 @@ import {
 	getNgrokSiteUrl,
 	provisionJetpackStartConnection,
 	execShellCommand,
+	execWpCommand,
 } from '../utils-helper';
 import PlansPage from '../pages/wpcom/plans';
+import { persistPlanData } from '../plan-helper';
 
 const cookie = config.get( 'storeSandboxCookieValue' );
 const cardCredentials = config.get( 'testCardCredentials' );
@@ -69,15 +71,19 @@ export async function connectThroughWPAdminIfNeeded( {
 	// await ( await JetpackSiteTopicPage.init( page ) ).selectSiteTopic( 'test site' );
 	// await ( await JetpackUserTypePage.init( page ) ).selectUserType( 'creator' );
 
-	await ( await PickAPlanPage.init( page ) ).selectBusinessPlan();
-	await ( await CheckoutPage.init( page ) ).processPurchase( cardCredentials );
+	if ( plan === 'free' ) {
+		await ( await PickAPlanPage.init( page ) ).selectFreePlan();
+		await persistPlanData();
+	} else if ( plan === 'pro' ) {
+		await ( await PickAPlanPage.init( page ) ).selectBusinessPlan();
+		await ( await CheckoutPage.init( page ) ).processPurchase( cardCredentials );
+	}
 
 	await ( await ThankYouPage.init( page ) ).waitForSetupAndProceed();
 
 	await ( await MyPlanPage.init( page ) ).returnToWPAdmin();
 
 	jetpackPage = await JetpackPage.init( page );
-	await jetpackPage.setSandboxModeForPayments( cookie, host );
 
 	// Reload the page to hydrate plans cache
 	await jetpackPage.reload( { waitFor: 'networkidle0' } );
@@ -87,9 +93,7 @@ export async function connectThroughWPAdminIfNeeded( {
 		{ timeout: 60 * 1000 }
 	);
 
-	await execShellCommand(
-		'wp cron event run jetpack_v2_heartbeat --path="/home/travis/wordpress"'
-	);
+	await execWpCommand( 'wp cron event run jetpack_v2_heartbeat' );
 
 	if ( ! ( await jetpackPage.isPlan( plan ) ) ) {
 		throw new Error( `Site does not have ${ plan } plan` );
