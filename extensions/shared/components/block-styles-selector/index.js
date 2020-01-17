@@ -11,12 +11,13 @@ import { BlockPreview } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
 import { ENTER, SPACE } from '@wordpress/keycodes';
 
-export default function BlockStylesPreviewAndSelector( {
+export default function BlockStylesSelector( {
 	attributes,
 	clientId,
 	styleOptions,
 	onSelectStyle,
 	activeStyle,
+	viewportWidth,
 } ) {
 	const block = useSelect( select => {
 		const { getBlock } = select( 'core/block-editor' );
@@ -30,17 +31,17 @@ export default function BlockStylesPreviewAndSelector( {
 			{ styleOptions.map( styleOption => {
 				return (
 					<div
-						key={ styleOption.name }
+						key={ styleOption.value }
 						className={ classnames( 'block-editor-block-styles__item', {
-							'is-active': styleOption.name === activeStyle,
+							'is-active': styleOption.value === activeStyle,
 						} ) }
 						onClick={ () => {
-							onSelectStyle( { style: styleOption.name } );
+							onSelectStyle( { style: styleOption.value } );
 						} }
 						onKeyDown={ event => {
 							if ( ENTER === event.keyCode || SPACE === event.keyCode ) {
 								event.preventDefault();
-								onSelectStyle( { style: styleOption.name } );
+								onSelectStyle( { style: styleOption.value } );
 							}
 						} }
 						role="button"
@@ -49,16 +50,16 @@ export default function BlockStylesPreviewAndSelector( {
 					>
 						<div className="block-editor-block-styles__item-preview editor-styles-wrapper">
 							<BlockPreview
-								viewportWidth={ 500 }
+								viewportWidth={ viewportWidth }
 								blocks={
 									type.example
 										? getBlockFromExample( block.name, {
-												attributes: { ...type.example.attributes, style: styleOption.name },
+												attributes: { ...type.example.attributes, style: styleOption.value },
 												innerBlocks: type.example.innerBlocks,
 										  } )
 										: cloneBlock( block, {
 												...attributes,
-												style: styleOption.name,
+												style: styleOption.value,
 										  } )
 								}
 							/>
