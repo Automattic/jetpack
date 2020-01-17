@@ -60,6 +60,7 @@ function jetpack_calendly_block_load_assets( $attr, $content ) {
 
 	if ( 'link' === $style ) {
 		wp_enqueue_style( 'jetpack-calendly-external-css', 'https://assets.calendly.com/assets/external/widget.css', null, JETPACK__VERSION );
+		wp_enqueue_style( 'jetpack-calendly-internal-css', plugins_url( 'calendly.css', __FILE__ ), null, JETPACK__VERSION );
 
 		/*
 		 * If we have some additional styles from the editor
