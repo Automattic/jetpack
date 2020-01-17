@@ -69,9 +69,9 @@ class MapEdit extends Component {
 		// Allow one cycle for alignment change to take effect
 		setTimeout( this.mapRef.current.sizeMap, 0 );
 	};
-	updateAPIKeyControl = value => {
+	updateAPIKeyControl = event => {
 		this.setState( {
-			apiKeyControl: value,
+			apiKeyControl: event.target.value,
 		} );
 	};
 	updateAPIKey = () => {
@@ -235,15 +235,15 @@ class MapEdit extends Component {
 			>
 				<Fragment>
 					<form>
-						<TextControl
-							className="wp-block-jetpack-map-components-text-control-api-key"
+						<input
+							type="text"
+							className="components-placeholder__input"
 							disabled={ apiRequestOutstanding }
 							placeholder={ __( 'Paste Token Here', 'jetpack' ) }
 							value={ apiKeyControl }
 							onChange={ this.updateAPIKeyControl }
 						/>
 						<Button
-							className="wp-block-jetpack-map-components-text-control-api-key-submit"
 							isLarge
 							isSecondary
 							disabled={ apiRequestOutstanding || ! apiKeyControl || apiKeyControl.length < 1 }
