@@ -211,25 +211,29 @@ class MapEdit extends Component {
 				<Spinner />
 			</Placeholder>
 		);
+
+		const instructions = (
+			<Fragment>
+				{ __( 'To use the map block, you need an Access Token.', 'jetpack' ) }
+				<br />
+				<ExternalLink href="https://www.mapbox.com">
+					{ __( 'Create an account or log in to Mapbox.', 'jetpack' ) }
+				</ExternalLink>
+				<br />
+				{ __(
+					'Locate and copy the default access token. Then, paste it into the field below.',
+					'jetpack'
+				) }
+			</Fragment>
+		);
 		const placeholderAPIStateFailure = (
 			<Placeholder
 				icon={ settings.icon }
 				label={ __( 'Map', 'jetpack' ) }
 				notices={ notices }
-				instructions={ __( 'To use the map block, you need an Access Token.', 'jetpack' ) }
+				instructions={ instructions }
 			>
 				<Fragment>
-					<div className="components-placeholder__instructions">
-						<ExternalLink href="https://www.mapbox.com">
-							{ __( 'Create an account or log in to Mapbox.', 'jetpack' ) }
-						</ExternalLink>
-					</div>
-					<div className="components-placeholder__instructions">
-						{ __(
-							'Locate and copy the default access token. Then, paste it into the field below.',
-							'jetpack'
-						) }
-					</div>
 					<form>
 						<TextControl
 							className="wp-block-jetpack-map-components-text-control-api-key"
