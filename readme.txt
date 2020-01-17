@@ -116,7 +116,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
-*
+* Copy Post: ensure correct sharing and like settings are copied when posts are duplicated.
 
 --------
 
