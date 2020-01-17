@@ -35,11 +35,16 @@
 }
 
 .jetpack-instant-search__result-comments {
-	padding-left: 10px;
-	margin-left: 1px;
-	margin-top: 10px;
+	padding-left: 16px;
+	margin-left: 8px;
+	margin-top: 16px;
 	border-left: 2px solid #eee;
 	font-size: 0.9em;
+
+	.gridicon {
+		margin-right: 8px;
+		vertical-align: middle;
+	}
 }
 
 .jetpack-instant-search__search-results-list {
