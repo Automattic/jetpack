@@ -1,7 +1,7 @@
 export const getURLFromEmbedCode = embedCode => {
-	const url = embedCode.match( /\/\/calendly\.com.+?([^"']*)/i );
+	const url = embedCode.match( /(^|\/\/)(calendly\.com[^"']*)/i );
 	if ( url ) {
-		return 'https:' + url[ 0 ];
+		return 'https://' + url[ 2 ];
 	}
 };
 
