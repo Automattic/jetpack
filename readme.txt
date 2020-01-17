@@ -115,6 +115,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Improved compatibility**
 
 * Connnection Flow: ongoing work to improve the reliability of the connection between your site and WordPress.com.
+* Connection Flow: improve detection of hosting environments for better communication with WordPress.com.
 
 **Bug fixes**
 
