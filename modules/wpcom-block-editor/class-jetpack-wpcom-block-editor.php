@@ -415,7 +415,7 @@ class Jetpack_WPCOM_Block_Editor {
 	}
 
 	/**
-	 * Gets the same attribute to use in auth cookies.
+	 * Gets the SameSite attribute to use in auth cookies.
 	 *
 	 * @param  int $user_id User ID.
 	 * @return string SameSite attribute to use on auth cookies.
