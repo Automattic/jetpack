@@ -397,10 +397,12 @@ class Jetpack_WPCOM_Block_Editor {
 	/**
 	 * Designates cookies for cross-site access.
 	 *
+	 * @param string $samesite SameSite attribute to use in auth cookies.
+	 *
 	 * @return string SameSite attribute to use on auth cookies.
 	 */
-	public function set_samesite_auth_cookie() {
-		return 'None';
+	public function set_samesite_auth_cookie( $samesite ) {
+		return is_ssl() ? 'None' : $samesite;
 	}
 }
 
