@@ -26,7 +26,8 @@ import { __, _x } from '@wordpress/i18n';
  */
 import './editor.scss';
 import icon from './icon';
-import attributeDetails, { getValidatedAttributes } from './attributes';
+import attributeDetails from './attributes';
+import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import SubmitButton from '../../shared/submit-button';
 import { getAttributesFromEmbedCode } from './utils';
 import BlockStylesPreviewAndSelector from './blockStylesPreviewAndSelector';

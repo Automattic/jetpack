@@ -40,8 +40,8 @@ import {
 	languageOptions,
 	languageValues,
 	defaultAttributes,
-	getValidatedAttributes,
 } from './attributes';
+import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 
 export default function OpenTableEdit( { attributes, setAttributes, className, clientId } ) {
 	const validatedAttributes = getValidatedAttributes( defaultAttributes, attributes );
