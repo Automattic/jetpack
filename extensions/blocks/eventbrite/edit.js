@@ -23,7 +23,7 @@ import { getBlockFromExample } from '@wordpress/blocks';
 /**
  * Internal dependencies
  */
-import { createWidgetId, fallback, eventIdFromUrl } from './utils';
+import { createWidgetId, convertToLink, eventIdFromUrl } from './utils';
 import { CUSTOM_URL_REGEX, icon, URL_REGEX } from '.';
 import ModalButtonPreview from './modal-button-preview';
 import EventbriteInPageExample from './eventbrite-in-page-example.png';
@@ -271,7 +271,7 @@ class EventbriteEdit extends Component {
 							<p className="components-placeholder__error">
 								{ __( 'Sorry, this content could not be embedded.', 'jetpack' ) }
 								<br />
-								<Button isLarge onClick={ () => fallback( editedUrl, this.props.onReplace ) }>
+								<Button isLarge onClick={ () => convertToLink( editedUrl, this.props.onReplace ) }>
 									{ _x( 'Convert block to link', 'button label', 'jetpack' ) }
 								</Button>
 							</p>
