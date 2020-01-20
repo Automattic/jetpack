@@ -253,7 +253,7 @@ class EventbriteEdit extends Component {
 						'Paste a link to an Eventbrite event to embed ticket checkout.',
 						'jetpack'
 					) }
-					icon={ <BlockIcon icon={ icon } showColors /> }
+					icon={ <BlockIcon icon={ icon } /> }
 				>
 					<form onSubmit={ this.setUrl }>
 						<input
