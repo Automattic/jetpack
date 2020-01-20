@@ -20,13 +20,12 @@ class Main {
 	 * @action plugins_loaded
 	 */
 	public static function configure() {
-		// Exit out early if Sync isn't allowed.
-		if ( ! Actions::sync_allowed() ) {
-			return;
+		if ( Actions::sync_allowed() ) {
+			add_action( 'plugins_loaded', array( __CLASS__, 'on_plugins_loaded_early' ), 5 );
+			add_action( 'plugins_loaded', array( __CLASS__, 'on_plugins_loaded_late' ), 90 );
 		}
-
-		add_action( 'plugins_loaded', array( __CLASS__, 'on_plugins_loaded_early' ), 5 );
-		add_action( 'plugins_loaded', array( __CLASS__, 'on_plugins_loaded_late' ), 90 );
+		// Any hooks below are special cases that need to be declared even if Sync is not allowed.
+		add_action( 'jetpack_user_authorized', array( 'Automattic\\Jetpack\\Sync\\Actions', 'do_initial_sync' ), 10, 0 );
 	}
 
 	/**
@@ -47,7 +46,6 @@ class Main {
 
 		// We need to define this here so that it's hooked before `updating_jetpack_version` is called.
 		add_action( 'updating_jetpack_version', array( 'Automattic\\Jetpack\\Sync\\Actions', 'cleanup_on_upgrade' ), 10, 2 );
-		add_action( 'jetpack_user_authorized', array( 'Automattic\\Jetpack\\Sync\\Actions', 'do_initial_sync' ), 10, 0 );
 	}
 
 	/**
