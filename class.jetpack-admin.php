@@ -1,5 +1,6 @@
 <?php
 
+use Automattic\Jetpack\Status;
 
 // Build the Jetpack admin menu as a whole
 class Jetpack_Admin {
@@ -8,11 +9,6 @@ class Jetpack_Admin {
 	 * @var Jetpack_Admin
 	 **/
 	private static $instance = null;
-
-	/**
-	 * @var Jetpack
-	 **/
-	private $jetpack;
 
 	static function init() {
 		if ( isset( $_GET['page'] ) && $_GET['page'] === 'jetpack' ) {
@@ -31,8 +27,6 @@ class Jetpack_Admin {
 	}
 
 	private function __construct() {
-		$this->jetpack = Jetpack::init();
-
 		jetpack_require_lib( 'admin-pages/class.jetpack-react-page' );
 		$this->jetpack_react = new Jetpack_React_Page();
 
@@ -76,7 +70,7 @@ class Jetpack_Admin {
 		$available_modules = Jetpack::get_available_modules();
 		$active_modules    = Jetpack::get_active_modules();
 		$modules           = array();
-		$jetpack_active    = Jetpack::is_active() || Jetpack::is_development_mode();
+		$jetpack_active    = Jetpack::is_active() || ( new Status() )->is_development_mode();
 		$overrides         = Jetpack_Modules_Overrides::instance();
 		foreach ( $available_modules as $module ) {
 			if ( $module_array = Jetpack::get_module( $module ) ) {
@@ -176,7 +170,7 @@ class Jetpack_Admin {
 			}
 		}
 
-		uasort( $modules, array( $this->jetpack, 'sort_modules' ) );
+		uasort( $modules, array( 'Jetpack', 'sort_modules' ) );
 
 		if ( ! Jetpack::is_active() ) {
 			uasort( $modules, array( __CLASS__, 'sort_requires_connection_last' ) );
@@ -197,7 +191,7 @@ class Jetpack_Admin {
 			return false;
 		}
 
-		if ( Jetpack::is_development_mode() ) {
+		if ( ( new Status() )->is_development_mode() ) {
 			return ! ( $module['requires_connection'] );
 		} else {
 			if ( ! Jetpack::is_active() ) {

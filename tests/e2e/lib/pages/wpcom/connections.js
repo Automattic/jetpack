@@ -45,7 +45,8 @@ export default class ConnectionsPage extends Page {
 	}
 
 	async connectMailchimp() {
-		const mailchimpConnectSelector = 'div.mailchimp .foldable-card__summary button:not([disabled])';
+		const mailchimpConnectSelector =
+			'div.mailchimp .foldable-card__summary-expanded button:not([disabled])';
 		const mcPopupPage = await clickAndWaitForNewPage( this.page, mailchimpConnectSelector );
 
 		// MC Login pop-up page. TODO: maybe extract to a new page

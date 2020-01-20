@@ -2,16 +2,13 @@
 require_once JETPACK__PLUGIN_DIR . '/_inc/lib/core-api/class.jetpack-core-api-xmlrpc-consumer-endpoint.php';
 
 class WP_Test_Jetpack_Core_Api_Xmlrpc_Consumer_Endpoint extends WP_UnitTestCase {
-
-	private $home_url = 'http://example.com';
-
 	public function setUp() {
 		parent::setUp();
 	}
 
 	/**
 	 * @author zinigor
-	 * @covers Jetpack_Core_XMLRPC_Consumer_Endpoint
+	 * @covers Jetpack_Core_API_XMLRPC_Consumer_Endpoint
 	 * @dataProvider true_false_provider
 	 */
 	public function test_Jetpack_Core_API_XMLRPC_Consumer_Endpoint_privacy_check( $query_success, $result ) {

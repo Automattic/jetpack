@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Status;
+
 // Shared logic between Jetpack admin pages
 abstract class Jetpack_Admin_Page {
 	// Add page specific actions given the page hook
@@ -28,8 +30,21 @@ abstract class Jetpack_Admin_Page {
 	 */
 	function additional_styles() {}
 
-	function __construct() {
-		$this->jetpack                      = Jetpack::init();
+	/**
+	 * The constructor.
+	 */
+	public function __construct() {
+		add_action( 'jetpack_loaded', array( $this, 'on_jetpack_loaded' ) );
+	}
+
+	/**
+	 * Runs on Jetpack being ready to load its packages.
+	 *
+	 * @param Jetpack $jetpack object.
+	 */
+	public function on_jetpack_loaded( $jetpack ) {
+		$this->jetpack = $jetpack;
+
 		self::$block_page_rendering_for_idc = (
 			Jetpack::validate_sync_error_idc_option() && ! Jetpack_Options::get_option( 'safe_mode_confirmed' )
 		);
@@ -38,13 +53,14 @@ abstract class Jetpack_Admin_Page {
 	function add_actions() {
 		global $pagenow;
 
+		$is_development_mode = ( new Status() )->is_development_mode();
 		// If user is not an admin and site is in Dev Mode or not connected yet then don't do anything.
-		if ( ! current_user_can( 'manage_options' ) && ( Jetpack::is_development_mode() || ! Jetpack::is_active() ) ) {
+		if ( ! current_user_can( 'manage_options' ) && ( $is_development_mode || ! Jetpack::is_active() ) ) {
 			return;
 		}
 
 		// Don't add in the modules page unless modules are available!
-		if ( $this->dont_show_if_not_active && ! Jetpack::is_active() && ! Jetpack::is_development_mode() ) {
+		if ( $this->dont_show_if_not_active && ! Jetpack::is_active() && ! $is_development_mode ) {
 			return;
 		}
 
@@ -66,7 +82,7 @@ abstract class Jetpack_Admin_Page {
 			( 'admin.php' === $pagenow && isset( $_GET['page'] ) && 'jetpack' === $_GET['page'] )
 			&& ! Jetpack::is_active()
 			&& current_user_can( 'jetpack_connect' )
-			&& ! Jetpack::is_development_mode()
+			&& ! $is_development_mode
 		) {
 			add_action( 'admin_enqueue_scripts', array( 'Jetpack_Connection_Banner', 'enqueue_banner_scripts' ) );
 			add_action( 'admin_enqueue_scripts', array( 'Jetpack_Connection_Banner', 'enqueue_connect_button_scripts' ) );
@@ -80,7 +96,7 @@ abstract class Jetpack_Admin_Page {
 			( 'index.php' === $pagenow || 'plugins.php' === $pagenow )
 			&& ! Jetpack::is_active()
 			&& current_user_can( 'jetpack_connect' )
-			&& ! Jetpack::is_development_mode()
+			&& ! $is_development_mode
 		) {
 			add_action( 'admin_enqueue_scripts', array( 'Jetpack_Connection_Banner', 'enqueue_connect_button_scripts' ) );
 		}
@@ -158,7 +174,7 @@ abstract class Jetpack_Admin_Page {
 	 */
 	function check_plan_deactivate_modules( $page ) {
 		if (
-			Jetpack::is_development_mode()
+			( new Status() )->is_development_mode()
 			|| ! in_array(
 				$page->base,
 				array(
@@ -356,7 +372,7 @@ abstract class Jetpack_Admin_Page {
 	public static function render_footer() {
 		$admin_url = admin_url( 'admin.php?page=jetpack' );
 
-		$is_dev_mode_or_connected = Jetpack::is_active() || Jetpack::is_development_mode();
+		$is_dev_mode_or_connected = Jetpack::is_active() || ( new Status() )->is_development_mode();
 
 		$privacy_url = ( $is_dev_mode_or_connected )
 			? $admin_url . '#/privacy'

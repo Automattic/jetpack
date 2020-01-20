@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import { __ } from '@wordpress/i18n';
 import { Component, createRef } from '@wordpress/element';
 import { Button, PanelBody, Path, Placeholder, SVG, TextControl } from '@wordpress/components';
-import { InspectorControls, RichText } from '@wordpress/editor';
+import { InspectorControls, RichText } from '@wordpress/block-editor';
 
 /**
  * Internal dependencies
@@ -143,7 +143,7 @@ class GifEdit extends Component {
 					onChange={ value => setAttributes( { searchText: value } ) }
 					value={ searchText }
 				/>
-				<Button isLarge onClick={ this.onSubmit }>
+				<Button isDefault onClick={ this.onSubmit }>
 					{ __( 'Search', 'jetpack' ) }
 				</Button>
 			</form>

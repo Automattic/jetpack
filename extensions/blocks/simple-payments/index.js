@@ -8,9 +8,10 @@ import { Fragment } from '@wordpress/element';
 /**
  * Internal dependencies
  */
+import { DEFAULT_CURRENCY } from './constants';
+import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import edit from './edit';
 import save from './save';
-import { DEFAULT_CURRENCY } from './constants';
 
 /**
  * Example image
@@ -24,6 +25,11 @@ import './editor.scss';
 
 export const name = 'simple-payments';
 
+const supportLink =
+	isSimpleSite() || isAtomicSite()
+		? 'https://support.wordpress.com/simple-payments/'
+		: 'https://jetpack.com/support/jetpack-blocks/simple-payments-block/';
+
 export const settings = {
 	title: __( 'Simple Payments button', 'jetpack' ),
 
@@ -31,13 +37,17 @@ export const settings = {
 		<Fragment>
 			<p>
 				{ __(
-					'Lets you create and embed credit and debit card payment buttons with minimal setup.',
+					'Lets you add credit and debit card payment buttons with minimal setup.',
 					'jetpack'
 				) }
 			</p>
-			<ExternalLink href="https://support.wordpress.com/simple-payments/">
-				{ __( 'Support reference', 'jetpack' ) }
-			</ExternalLink>
+			<p>
+				{ __(
+					'Good for collecting donations or payments for products and services.',
+					'jetpack'
+				) }
+			</p>
+			<ExternalLink href={ supportLink }>{ __( 'Support reference', 'jetpack' ) }</ExternalLink>
 		</Fragment>
 	),
 

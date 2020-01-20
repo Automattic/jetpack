@@ -92,6 +92,9 @@ class Jetpack_Subscriptions {
 		add_filter( 'jetpack_published_post_flags', array( $this, 'set_post_flags' ), 10, 2 );
 
 		add_filter( 'post_updated_messages', array( $this, 'update_published_message' ), 18, 1 );
+
+		// Set "social_notifications_subscribe" option during the first-time activation.
+		add_action( 'jetpack_activate_module_subscriptions',   array( $this, 'set_social_notifications_subscribe' ) );
 	}
 
 	/**
@@ -297,6 +300,30 @@ class Jetpack_Subscriptions {
 			'stc_enabled'
 		);
 
+		/** Email me whenever: Someone follows my blog ***************************************************/
+		/* @since 8.1 */
+
+		add_settings_section(
+			'notifications_section',
+			__( 'Someone follows my blog', 'jetpack' ),
+			array( $this, 'social_notifications_subscribe_section' ),
+			'discussion'
+		);
+
+		add_settings_field(
+			'jetpack_subscriptions_social_notifications_subscribe',
+			__( 'Email me whenever', 'jetpack' ),
+			array( $this, 'social_notifications_subscribe_field' ),
+			'discussion',
+			'notifications_section'
+		);
+
+		register_setting(
+			'discussion',
+			'social_notifications_subscribe',
+			array( $this, 'social_notifications_subscribe_validate' )
+		);
+
 		/** Subscription Messaging Options ******************************************************/
 
 		register_setting(
@@ -369,6 +396,69 @@ class Jetpack_Subscriptions {
 		</p>
 
 	<?php
+	}
+
+	/**
+	 * Someone follows my blog section
+	 *
+	 * @since 8.1
+	 */
+	public function social_notifications_subscribe_section() {
+		// Atypical usage here. We emit jquery to move subscribe notification checkbox to be with the rest of the email notification settings
+		?>
+		<script type="text/javascript">
+			jQuery( function( $ )  {
+				var table = $( '#social_notifications_subscribe' ).parents( 'table:first' ),
+					header = table.prevAll( 'h2:first' ),
+					newParent = $( '#moderation_notify' ).parent( 'label' ).parent();
+
+				if ( ! table.length || ! header.length || ! newParent.length ) {
+					return;
+				}
+
+				newParent.append( '<br/>' ).append( table.end().parent( 'label' ).siblings().andSelf() );
+				header.remove();
+				table.remove();
+			} );
+		</script>
+		<?php
+	}
+
+	/**
+	 * Someone follows my blog Toggle
+	 *
+	 * @since 8.1
+	 */
+	public function social_notifications_subscribe_field() {
+		$checked = intval( 'on' === get_option( 'social_notifications_subscribe', 'on' ) );
+		?>
+
+		<label>
+			<input type="checkbox" name="social_notifications_subscribe" id="social_notifications_subscribe" value="1" <?php checked( $checked ); ?> />
+			<?php
+				/* translators: this is a label for a setting that starts with "Email me whenever" */
+				esc_html_e( 'Someone follows my blog', 'jetpack' );
+			?>
+		</label>
+		<?php
+	}
+
+	/**
+	 * Validate "Someone follows my blog" option
+	 *
+	 * @since 8.1
+	 *
+	 * @param String $input the input string to be validated.
+	 * @return string on|off
+	 */
+	public function social_notifications_subscribe_validate( $input ) {
+		// If it's not set (was unchecked during form submission) or was set to off (during option update), return 'off'.
+		if ( ! $input || 'off' === $input ) {
+			return 'off';
+		}
+
+		// Otherwise we return 'on'.
+		return 'on';
 	}
 
 	function validate_settings( $settings ) {
@@ -567,6 +657,9 @@ class Jetpack_Subscriptions {
 			case 'active':
 			case 'pending':
 				$result = 'already';
+				break;
+			case 'flooded_email':
+				$result = 'many_pending_subs';
 				break;
 			default:
 				$result = 'error';
@@ -770,6 +863,19 @@ class Jetpack_Subscriptions {
 			setcookie( 'jetpack_blog_subscribe_' . self::$hash, 1, time() + $cookie_lifetime, $cookie_path, $cookie_domain );
 		} else {
 			setcookie( 'jetpack_blog_subscribe_' . self::$hash, '', time() - 3600, $cookie_path, $cookie_domain );
+		}
+	}
+
+	/**
+	 * Set the social_notifications_subscribe option to `off` when the Subscriptions module is activated in the first time.
+	 *
+	 * @since 8.1
+	 *
+	 * @return null
+	 */
+	function set_social_notifications_subscribe() {
+		if ( false === get_option( 'social_notifications_subscribe' ) ) {
+			add_option( 'social_notifications_subscribe', 'off' );
 		}
 	}
 

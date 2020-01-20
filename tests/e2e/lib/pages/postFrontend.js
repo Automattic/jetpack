@@ -6,7 +6,7 @@ import { waitAndClick, waitForSelector } from '../page-helper';
 
 export default class PostFrontendPage extends Page {
 	constructor( page ) {
-		const expectedSelector = '#main article.post';
+		const expectedSelector = '.post';
 		super( page, { expectedSelector } );
 	}
 

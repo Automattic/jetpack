@@ -8,7 +8,9 @@
 		"mailchimp",
 		"map",
 		"markdown",
+		"pinterest",
 		"publicize",
+		"rating-star",
 		"recurring-payments",
 		"related-posts",
 		"repeat-visitor",
@@ -21,5 +23,5 @@
 		"videopress",
 		"wordads"
 	],
-	"beta": [ "seo" ]
+	"beta": [ "seo", "opentable", "calendly" ]
 }

@@ -196,16 +196,18 @@ $plan-features-sidebar-width: 272px;
 	color: $gray;
  }
 
-.plan-price {
-	padding-top: 15px;
-	padding-bottom: 15px;
-}
+.plan-features {
+	.plan-price {
+		padding-top: 15px;
+		padding-bottom: 15px;
+	}
 
-.plan-price__yearly {
-	color: $gray-dark;
+	.plan-price__yearly {
+		color: $gray-dark;
 
-	abbr {
-		text-underline-position: under;
+		abbr {
+			text-underline-position: under;
+		}
 	}
 }
 

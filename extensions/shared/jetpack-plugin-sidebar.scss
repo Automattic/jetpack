@@ -1,4 +1,4 @@
-@import 'styles/gutenberg-colors.scss';
+@import 'styles/gutenberg-base-styles.scss';
 
 .edit-post-pinned-plugins,
 .edit-post-more-menu__content {
@@ -19,7 +19,9 @@
 }
 
 .edit-post-pinned-plugins {
-	.components-icon-button {
+	.components-icon-button,    // Gutenberg < 7.2.0. @TODO: Remove once we drop support
+	.components-button.has-icon // Gutenberg >= 7.2.0
+	 {
 		&:not( .is-toggled ),
 		&:hover,
 		&.is-toggled,

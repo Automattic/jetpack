@@ -8,9 +8,9 @@
 		"files": [
 			"actions.php"
 		],
-		"psr-4": {
-			"Automattic\\Jetpack\\Backup\\": "src/"
-		}
+		"classmap": [
+			"src/"
+		]
 	},
 	"minimum-stability": "dev",
 	"prefer-stable": true

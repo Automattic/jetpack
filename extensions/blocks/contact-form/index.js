@@ -5,7 +5,7 @@ import { __, _x } from '@wordpress/i18n';
 import { getBlockType, createBlock } from '@wordpress/blocks';
 import { Path, Circle } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
-import { InnerBlocks } from '@wordpress/editor';
+import { InnerBlocks } from '@wordpress/block-editor';
 
 /**
  * Internal dependencies
@@ -29,11 +29,10 @@ export const settings = {
 	keywords: [
 		_x( 'email', 'block search term', 'jetpack' ),
 		_x( 'feedback', 'block search term', 'jetpack' ),
-		_x( 'contact', 'block search term', 'jetpack' ),
+		_x( 'contact form', 'block search term', 'jetpack' ),
 	],
 	category: 'jetpack',
 	supports: {
-		reusable: false,
 		html: false,
 	},
 	attributes: {

@@ -8,11 +8,15 @@
  */
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Status;
 
 add_action( 'widgets_init', 'jetpack_search_widget_init' );
 
 function jetpack_search_widget_init() {
-	if ( ! Jetpack::is_active() || ! Jetpack_Plan::supports( 'search' ) ) {
+	if (
+		! Jetpack::is_active()
+		|| ( method_exists( 'Jetpack_Plan', 'supports' ) && ! Jetpack_Plan::supports( 'search' ) )
+	) {
 		return;
 	}
 
@@ -268,7 +272,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 
 		$display_filters = false;
 
-		if ( Jetpack::is_development_mode() ) {
+		if ( ( new Status() )->is_development_mode() ) {
 			echo $args['before_widget'];
 			?><div id="<?php echo esc_attr( $this->id ); ?>-wrapper">
 				<div class="jetpack-search-sort-wrapper">
@@ -311,7 +315,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 		$title = apply_filters( 'widget_title', $title, $instance, $this->id_base );
 
 		echo $args['before_widget'];
-		?><div id="<?php echo esc_attr( $this->id ); ?>-wrapper" class="<?php 
+		?><div id="<?php echo esc_attr( $this->id ); ?>-wrapper" class="<?php
 		echo Constants::is_true( 'JETPACK_SEARCH_PROTOTYPE' ) ? 'jetpack-instant-search-wrapper' : '' ?>">
 		<?php
 

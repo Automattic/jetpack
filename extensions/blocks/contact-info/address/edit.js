@@ -4,7 +4,7 @@
 import classnames from 'classnames';
 import { __ } from '@wordpress/i18n';
 import { Component, Fragment } from '@wordpress/element';
-import { PlainText } from '@wordpress/editor';
+import { PlainText } from '@wordpress/block-editor';
 import { ToggleControl } from '@wordpress/components';
 
 /**

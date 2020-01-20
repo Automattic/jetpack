@@ -21,8 +21,8 @@
 	text-decoration: none;
 	vertical-align: top;
 	box-sizing: border-box;
-	font-size: 14px;
-	border-radius: 4px;
+	font-size: 13px;
+	border-radius: 3px;
 	padding: 7px 14px 9px;
 	-webkit-appearance: none;
 	appearance: none;
@@ -45,10 +45,8 @@
 		box-shadow: 0 0 0 1px $blue-medium-dark;
 	}
 	&.is-compact {
-		padding: 7px;
-		font-size: 11px;
-		line-height: 1;
-		text-transform: uppercase;
+		padding: 0 10px;
+		line-height: 2;
 
 		&:disabled {
 			color: lighten( $gray, 30% );
@@ -101,9 +99,12 @@
 	}
 	&[disabled],
 	&:disabled {
-		background: tint( $blue-light, 50% );
-		border-color: tint( $blue-wordpress, 55% );
-		color: $white;
+		color: #66c6e4 !important;
+		background-color: #008ec2 !important;
+		border-color: #008ec2 !important;
+		box-shadow: none !important;
+		text-shadow: none !important;
+		cursor: default;
 	}
 	&.is-compact {
 		color: $white;

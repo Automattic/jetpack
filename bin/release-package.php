@@ -9,6 +9,8 @@
  *   - A repository that lives in `automattic/jetpack-example-package`.
  *
  * This will:
+ * - Create a new release branch.
+ * - Update version numbers for each dependency of the package we want to release.
  * - Push a new release in the main repository, with a tag `automattic/jetpack-example-package@1.2.3`.
  * - Push the latest contents and history of the package directory to the package repository.
  * - Push a new release in the package repository, with a tag `v1.2.3`.
@@ -46,6 +48,17 @@ if ( ! preg_match( '/^[0-9.]+$/', $argv[2] ) ) {
 }
 $tag_version = $argv[2];
 
+// If we have uncommitted changes, stop.
+$modified_files = exec( 'git status -s --porcelain' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.system_calls_exec
+
+if ( ! empty( $modified_files ) ) {
+	echo 'Uncommitted changes found. Please deal with them and try again clean.';
+	exit;
+}
+
+// Start from a fresh copy of master.
+execute( 'git fetch origin && git checkout master && git reset --hard origin/master', 'Could not switch to an up to date version of master.' );
+
 // Create the new tag in the main repository.
 $main_repo_tag = 'automattic/jetpack-' . $package_name . '@' . $tag_version;
 $command       = sprintf(
@@ -72,8 +85,34 @@ $command          = sprintf(
 );
 execute( $command, 'Could not add the new package repository remote.', true, true );
 
+// Update the version numbers of each dependency of the package we are releasing.
+execute( 'bin/version-packages.sh --no-update', 'Could not update sub-package dependency versions.', true, true );
+
+// Create a new branch to prepare our release.
+$release_branch = sprintf(
+	'update/jetpack-%1$s-v%2$s',
+	$package_name,
+	$tag_version
+);
+$command        = sprintf(
+	'git checkout -b %1$s',
+	escapeshellarg( $release_branch )
+);
+execute( $command, 'Could not create new release branch.' );
+
+// Commit those changes.
+$command = sprintf(
+	'git add composer.json && ( git diff-index --quiet HEAD || git commit -m "Updating dependencies for %1$s" )',
+	escapeshellarg( $package_name )
+);
+execute( $command, 'Could not commit dependency version updates.' );
+
 // Push the contents to the package repository.
-execute( 'git push package master --force', 'Could not push to the new package repository.', true, true );
+$command = sprintf(
+	'git push package %1$s --force',
+	escapeshellarg( $release_branch )
+);
+execute( $command, 'Could not push to the new package repository.', true, true );
 
 // Grab all the existing tags from the package repository.
 execute( 'git fetch -f --tags', 'Could not fetch the existing tags of the package.', true, true );
@@ -100,7 +139,7 @@ $command = sprintf(
 execute( $command, 'Could not push the new version tag to the package repository.', true, true );
 
 // Reset the main repository to the original state, and remove the package repository remote.
-cleanup( true, true );
+cleanup( true, true, $tag_version );
 
 /**
  * Execute a command.
@@ -132,11 +171,21 @@ function execute( $command, $error = '', $cleanup_repo = false, $cleanup_remotes
  * Cleanup repository and remotes.
  * Should be called at any error that changes the repo, or at success at the end.
  *
- * @param bool $cleanup_repo    Whether to cleaup repo on error.
- * @param bool $cleanup_remotes Whether to cleanup remotes on error.
+ * @param bool   $cleanup_repo    Whether to cleaup repo on error.
+ * @param bool   $cleanup_remotes Whether to cleanup remotes on error.
+ * @param string $tag_version     Optional version tag that needs to be deleted locally.
  */
-function cleanup( $cleanup_repo = false, $cleanup_remotes = false ) {
+function cleanup( $cleanup_repo = false, $cleanup_remotes = false, $tag_version = '' ) {
 	if ( $cleanup_repo ) {
+		// Delete the local tag we created and pushed to the package remote.
+		if ( ! empty( $tag_version ) ) {
+			$command = sprintf(
+				'git tag --delete v%1$s',
+				escapeshellarg( $tag_version )
+			);
+			execute( $command, 'Could not delete local tag.' );
+		}
+
 		// Reset the main repository to the original state.
 		execute( 'git reset --hard refs/original/refs/heads/master', 'Could not reset the repository to its original state.' );
 

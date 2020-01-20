@@ -57,6 +57,47 @@ class Jetpack_Core_API_Site_Endpoint {
 		);
 	}
 
+
+	/**
+	 * Returns the result of `/sites/%s/purchases` endpoint call.
+	 *
+	 * @return array of site purchases.
+	 */
+	public static function get_purchases() {
+		// Make the API request.
+		$request  = sprintf( '/sites/%d/purchases', Jetpack_Options::get_option( 'id' ) );
+		$response = Client::wpcom_json_api_request_as_blog( $request, '1.1' );
+
+		// Bail if there was an error or malformed response.
+		if ( is_wp_error( $response ) || ! is_array( $response ) || ! isset( $response['body'] ) ) {
+			return new WP_Error(
+				'failed_to_fetch_data',
+				esc_html__( 'Unable to fetch the requested data.', 'jetpack' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		// Decode the results.
+		$results = json_decode( $response['body'], true );
+
+		// Bail if there were no results or purchase details returned.
+		if ( ! is_array( $results ) ) {
+			return new WP_Error(
+				'failed_to_fetch_data',
+				esc_html__( 'Unable to fetch the requested data.', 'jetpack' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		return rest_ensure_response(
+			array(
+				'code'    => 'success',
+				'message' => esc_html__( 'Site purchases correctly received.', 'jetpack' ),
+				'data'    => wp_remote_retrieve_body( $response ),
+			)
+		);
+	}
+
 	/**
 	 * Check that the current user has permissions to request information about this site.
 	 *

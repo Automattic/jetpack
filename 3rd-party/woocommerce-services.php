@@ -39,10 +39,18 @@ class WC_Services_Installer {
 	 * Constructor
 	 */
 	public function __construct() {
-		$this->jetpack = Jetpack::init();
-
+		add_action( 'jetpack_loaded', array( $this, 'on_jetpack_loaded' ) );
 		add_action( 'admin_init', array( $this, 'add_error_notice' ) );
 		add_action( 'admin_init', array( $this, 'try_install' ) );
+	}
+
+	/**
+	 * Runs on Jetpack being ready to load its packages.
+	 *
+	 * @param Jetpack $jetpack object.
+	 */
+	public function on_jetpack_loaded( $jetpack ) {
+		$this->jetpack = $jetpack;
 	}
 
 	/**

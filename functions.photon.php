@@ -1,4 +1,7 @@
 <?php
+
+use Automattic\Jetpack\Status;
+
 /**
  * Generic functions using the Photon service.
  *
@@ -28,9 +31,9 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 		 *
 		 * @since 4.1.0
 		 *
-		 * @param bool false Result of Jetpack::is_development_mode.
+		 * @param bool false Result of Automattic\Jetpack\Status->is_development_mode().
 		 */
-		if ( true === apply_filters( 'jetpack_photon_development_mode', Jetpack::is_development_mode() ) ) {
+		if ( true === apply_filters( 'jetpack_photon_development_mode', ( new Status() )->is_development_mode() ) ) {
 			return $image_url;
 		}
 	}
@@ -172,20 +175,6 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 	 */
 	$subdomain = abs( crc32( $image_host_path ) % 3 );
 
-	/*
-	 * Need to perform a slowroll out per pMz3w-arH-p2
-	 *
-	 * 7.9 - Use the old method if the value is not 0.
-	 * 8.0 - Use the old method if the value is not 0 or 1.
-	 * 8.1 - Remove this completely.
-	 */
-	if ( 0 !== $subdomain ) {
-		// Figure out which CDN subdomain to use.
-		srand( crc32( $image_host_path ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_seeding_srand
-		$subdomain = rand( 0, 2 ); // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_rand
-		srand(); // phpcs:ignore WordPress.WP.AlternativeFunctions.rand_seeding_srand
-	}
-
 	/**
 	 * Filters the domain used by the Photon module.
 	 *
@@ -231,6 +220,12 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 
 	return jetpack_photon_url_scheme( $photon_url, $scheme );
 }
+
+/**
+ * Add an easy way to photon-ize a URL that is safe to call even if Jetpack isn't active.
+ *
+ * See: https://jetpack.com/2013/07/11/photon-and-themes/
+ */
 add_filter( 'jetpack_photon_url', 'jetpack_photon_url', 10, 3 );
 
 /**

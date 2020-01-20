@@ -27,9 +27,7 @@ export class MyPlan extends React.Component {
 
 		return (
 			<div>
-				<div className="jp-landing__plans dops-card">
-					<MyPlanHeader plan={ sitePlan } siteRawUrl={ this.props.siteRawUrl } />
-				</div>
+				<MyPlanHeader plan={ sitePlan } siteRawUrl={ this.props.siteRawUrl } />
 				<MyPlanBody
 					plan={ sitePlan }
 					availableFeatures={ availableFeatures }

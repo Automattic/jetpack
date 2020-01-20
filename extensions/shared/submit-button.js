@@ -12,7 +12,7 @@ import {
 	ContrastChecker,
 	RichText,
 	withColors,
-} from '@wordpress/editor';
+} from '@wordpress/block-editor';
 import { isEqual, get } from 'lodash';
 
 const { getComputedStyle } = window;
@@ -99,7 +99,7 @@ class SubmitButton extends Component {
 						className={ buttonClasses }
 						style={ buttonStyle }
 						keepPlaceholderOnFocus
-						formattingControls={ [] }
+						allowedFormats={ [] }
 					/>
 				</div>
 				<InspectorControls>

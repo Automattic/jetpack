@@ -71,6 +71,8 @@ function _manually_load_plugin() {
 		require JETPACK_WOOCOMMERCE_INSTALL_DIR . '/woocommerce.php';
 	}
 	require dirname( __FILE__ ) . '/../../jetpack.php';
+	$jetpack = Jetpack::init();
+	$jetpack->configure();
 }
 
 function _manually_install_woocommerce() {
@@ -98,6 +100,26 @@ if ( ! ( in_running_uninstall_group() ) ) {
 	if ( '1' == getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
 		tests_add_filter( 'setup_theme', '_manually_install_woocommerce' );
 	}
+}
+
+/**
+ * Replace Full Sync module with Full Sync Immediately
+ *
+ * @param array $modules Sync Modules.
+ *
+ * @return array
+ */
+function jetpack_full_sync_immediately_off( $modules ) {
+	foreach ( $modules as $key => $module ) {
+		if ( in_array( $module, array( 'Automattic\\Jetpack\\Sync\\Modules\\Full_Sync_Immediately' ), true ) ) {
+			$modules[ $key ] = 'Automattic\\Jetpack\\Sync\\Modules\\Full_Sync';
+		}
+	}
+	return $modules;
+}
+
+if ( false === getenv( 'SYNC_BETA' ) ) {
+	tests_add_filter( 'jetpack_sync_modules', 'jetpack_full_sync_immediately_off' );
 }
 
 require $test_root . '/includes/bootstrap.php';

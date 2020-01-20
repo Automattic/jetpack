@@ -27,6 +27,18 @@ class ManagerTest extends TestCase {
 				);
 
 		$this->apply_filters = $builder->build();
+
+		$builder = new MockBuilder();
+		$builder->setNamespace( __NAMESPACE__ )
+				->setName( 'wp_redirect' )
+				->setFunction(
+					function( $url ) {
+						$this->arguments_stack['wp_redirect'] [] = [ $url ];
+						return true;
+					}
+				);
+
+		$this->wp_redirect = $builder->build();
 	}
 
 	public function tearDown() {

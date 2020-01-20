@@ -13,12 +13,16 @@ import Card from 'components/card';
 import { getModule } from 'state/modules';
 import { getSettings } from 'state/settings';
 import { isDevMode, isUnavailableInDevMode } from 'state/connection';
+import { getVaultPressData } from 'state/at-a-glance';
 import { isModuleFound } from 'state/search';
 import { isPluginActive, isPluginInstalled } from 'state/site/plugins';
 import QuerySite from 'components/data/query-site';
 import QueryAkismetKeyCheck from 'components/data/query-akismet-key-check';
+import { getPlanClass } from 'lib/plans/constants';
+import { getActiveSitePurchases, getSitePlan } from 'state/site';
 import BackupsScan from './backups-scan';
 import Antispam from './antispam';
+import { JetpackBackup } from './jetpack-backup';
 import { ManagePlugins } from './manage-plugins';
 import { Monitor } from './monitor';
 import { Protect } from './protect';
@@ -83,6 +87,25 @@ export class Security extends Component {
 			return null;
 		}
 
+		const planClass = getPlanClass( get( this.props.sitePlan, [ 'product_slug' ] ) );
+		const activePlanClasses = this.props.activeSitePurchases.map( purchase =>
+			getPlanClass( purchase.product_slug )
+		);
+
+		const isPersonalPlan = 'is-personal-plan' === planClass;
+		const isFreePlanWithBackup =
+			'is-free-plan' === planClass &&
+			( activePlanClasses.includes( 'is-daily-backup-plan' ) ||
+				activePlanClasses.includes( 'is-realtime-backup-plan' ) );
+
+		const backupsOnly = isPersonalPlan || isFreePlanWithBackup;
+
+		const backupsContent = backupsOnly ? (
+			<JetpackBackup { ...commonProps } vaultPressData={ this.props.vaultPressData } />
+		) : (
+			<BackupsScan { ...commonProps } />
+		);
+
 		return (
 			<div>
 				<QuerySite />
@@ -96,7 +119,7 @@ export class Security extends Component {
 					}
 					className="jp-settings-description"
 				/>
-				{ foundBackups && <BackupsScan { ...commonProps } /> }
+				{ foundBackups && backupsContent }
 				{ foundMonitor && <Monitor { ...commonProps } /> }
 				{ foundAkismet && (
 					<div>
@@ -114,12 +137,15 @@ export class Security extends Component {
 
 export default connect( state => {
 	return {
+		activeSitePurchases: getActiveSitePurchases( state ),
 		module: module_name => getModule( state, module_name ),
 		settings: getSettings( state ),
+		sitePlan: getSitePlan( state ),
 		isDevMode: isDevMode( state ),
 		isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
 		isModuleFound: module_name => isModuleFound( state, module_name ),
 		isPluginActive: plugin_slug => isPluginActive( state, plugin_slug ),
 		isPluginInstalled: plugin_slug => isPluginInstalled( state, plugin_slug ),
+		vaultPressData: getVaultPressData( state ),
 	};
 } )( Security );
