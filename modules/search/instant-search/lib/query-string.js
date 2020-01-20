@@ -3,10 +3,6 @@
  */
 import 'url-polyfill';
 import { decode, encode } from 'qss';
-// NOTE: We only import the get package here for to reduced bundle size.
-//       Do not import the entire lodash library!
-// eslint-disable-next-line lodash/import-scope
-import get from 'lodash/get';
 
 /**
  * Internal dependencies
@@ -170,16 +166,13 @@ export function getFilterKeys() {
 	];
 
 	// Extract taxonomy names from server widget data
-	const widgetFilters = get( window[ SERVER_OBJECT_NAME ], 'widgets[0].filters' );
-	if ( widgetFilters ) {
-		return [
-			...keys,
-			...widgetFilters
-				.filter( filter => filter.type === 'taxonomy' )
-				.map( filter => filter.taxonomy ),
-		];
-	}
-	return [ ...keys, 'category', 'post_tag' ];
+	const taxonomies = window[ SERVER_OBJECT_NAME ].widgets
+		.map( w => w.filters )
+		.filter( filters => Array.isArray( filters ) )
+		.reduce( ( filtersA, filtersB ) => filtersA.concat( filtersB ), [] )
+		.filter( filter => filter.type === 'taxonomy' )
+		.map( filter => filter.taxonomy );
+	return [ ...keys, ...taxonomies ];
 }
 
 export function getFilterQuery( filterKey ) {
