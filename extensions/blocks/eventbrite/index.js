@@ -37,19 +37,13 @@ export const icon = {
 
 export const settings = {
 	title,
-
 	description: __( 'Embed Eventbrite event details and ticket checkout.', 'jetpack' ),
-
 	icon,
-
 	category: 'jetpack',
-
 	keywords: [ __( 'events', 'jetpack' ), __( 'tickets', 'jetpack' ) ],
-
 	supports: {
 		html: false,
 	},
-
 	attributes: {
 		url: {
 			type: 'string',
@@ -77,11 +71,8 @@ export const settings = {
 			type: 'number',
 		},
 	},
-
 	edit,
-
 	save,
-
 	transforms: {
 		from: [
 			{
@@ -97,7 +88,6 @@ export const settings = {
 			},
 		],
 	},
-
 	// Example is used for rendering block styles previews when using Button & Modal embed type.
 	// Make sure the example has `useModal` set to true.
 	example: {
