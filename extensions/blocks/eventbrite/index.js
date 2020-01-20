@@ -32,7 +32,7 @@ export const icon = {
 			</G>
 		</SVG>
 	),
-	foreground: '#ff8000',
+	foreground: '#555d66',
 };
 
 export const settings = {
