@@ -409,8 +409,8 @@ class Jetpack_WPCOM_Block_Editor {
 			return;
 		}
 
-		do_action( 'set_auth_cookie', array( $this, 'set_samesite_auth_cookies' ), 10, 6 );
-		do_action( 'set_logged_in_cookie', array( $this, 'set_samesite_logged_in_cookies' ), 10, 6 );
+		add_action( 'set_auth_cookie', array( $this, 'set_samesite_auth_cookies' ), 10, 6 );
+		add_action( 'set_logged_in_cookie', array( $this, 'set_samesite_logged_in_cookies' ), 10, 6 );
 		add_filter( 'send_auth_cookies', array( $this, 'disable_core_auth_cookies' ) );
 	}
 
