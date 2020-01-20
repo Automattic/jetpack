@@ -1,17 +1,15 @@
 .jetpack-instant-search__box {
 	display: flex;
+	align-items: center;
+	flex: 0 0 100%;
 }
 
 .jetpack-instant-search__box-filter-icon {
-	margin-left: 4px;
+	margin-left: 8px;
 	cursor: pointer;
 }
 
 /* apply to all the inputs to try and pick up any theme styling */
 .jetpack-instant-search__box input {
-	border-radius: 2px;
-	font-size: 14px;
-	height: 26px;
 	width: 100%;
-	line-height: 1.2em;
 }
