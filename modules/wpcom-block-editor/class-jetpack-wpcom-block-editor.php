@@ -40,12 +40,12 @@ class Jetpack_WPCOM_Block_Editor {
 			add_filter( 'admin_body_class', array( $this, 'add_iframed_body_class' ) );
 		}
 
-		add_filter( 'jetpack_auth_cookie_samesite', array( $this, 'set_samesite_auth_cookie' ) );
-
 		add_action( 'login_init', array( $this, 'allow_block_editor_login' ), 1 );
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_assets' ), 9 );
 		add_action( 'enqueue_block_assets', array( $this, 'enqueue_block_assets' ) );
 		add_filter( 'mce_external_plugins', array( $this, 'add_tinymce_plugins' ) );
+
+		$this->enable_cross_site_auth_cookies();
 	}
 
 	/**
@@ -395,14 +395,147 @@ class Jetpack_WPCOM_Block_Editor {
 	}
 
 	/**
-	 * Designates cookies for cross-site access.
+	 * Ensures the authentication cookies are designated for cross-site access.
+	 */
+	private function enable_cross_site_auth_cookies() {
+		/**
+		 * Allow plugins to disable the cross-site auth cookies.
+		 *
+		 * @since 8.1.1
+		 *
+		 * @param false bool Whether auth cookies should be disabled for cross-site access. False by default.
+		 */
+		if ( apply_filters( 'jetpack_disable_cross_site_auth_cookies', false ) ) {
+			return;
+		}
+
+		do_action( 'set_auth_cookie', array( $this, 'set_samesite_auth_cookies' ), 10, 6 );
+		do_action( 'set_logged_in_cookie', array( $this, 'set_samesite_logged_in_cookies' ), 10, 6 );
+		add_filter( 'send_auth_cookies', array( $this, 'disable_core_auth_cookies' ) );
+	}
+
+	/**
+	 * Gets the same attribute to use in auth cookies.
 	 *
-	 * @param string $samesite SameSite attribute to use in auth cookies.
-	 *
+	 * @param  int $user_id User ID.
 	 * @return string SameSite attribute to use on auth cookies.
 	 */
-	public function set_samesite_auth_cookie( $samesite ) {
-		return is_ssl() ? 'None' : $samesite;
+	public function get_samesite_attr_for_auth_cookies( $user_id ) {
+		$secure   = apply_filters( 'secure_auth_cookie', is_ssl(), $user_id );
+		$samesite = $secure ? 'None' : 'Lax';
+		/**
+		 * Filters the SameSite attribute to use in auth cookies.
+		 *
+		 * @param string $samesite SameSite attribute to use in auth cookies.
+		 *
+		 * @since 8.1.1
+		 */
+		$samesite = apply_filters( 'jetpack_auth_cookie_samesite', $samesite );
+
+		return $samesite;
+	}
+
+	/**
+	 * Generates cross-site auth cookies so they can be accessed by WordPress.com.
+	 *
+	 * @param string $auth_cookie Authentication cookie value.
+	 * @param int    $expire      The time the login grace period expires as a UNIX timestamp.
+	 *                            Default is 12 hours past the cookie's expiration time.
+	 * @param int    $expiration  The time when the authentication cookie expires as a UNIX timestamp.
+	 *                            Default is 14 days from now.
+	 * @param int    $user_id     User ID.
+	 * @param string $scheme      Authentication scheme. Values include 'auth' or 'secure_auth'.
+	 * @param string $token       User's session token to use for this cookie.
+	 */
+	public function set_samesite_auth_cookies( $auth_cookie, $expire, $expiration, $user_id, $scheme, $token ) {
+		if ( wp_startswith( $scheme, 'secure_' ) ) {
+			$secure           = true;
+			$auth_cookie_name = SECURE_AUTH_COOKIE;
+		} else {
+			$secure           = false;
+			$auth_cookie_name = AUTH_COOKIE;
+		}
+		$samesite = $this->get_samesite_attr_for_auth_cookies( $user_id );
+
+		jetpack_shim_setcookie(
+			$auth_cookie_name,
+			$auth_cookie,
+			array(
+				'expires'  => $expire,
+				'path'     => PLUGINS_COOKIE_PATH,
+				'domain'   => COOKIE_DOMAIN,
+				'secure'   => $secure,
+				'httponly' => true,
+				'samesite' => $samesite,
+			)
+		);
+
+		jetpack_shim_setcookie(
+			$auth_cookie_name,
+			$auth_cookie,
+			array(
+				'expires'  => $expire,
+				'path'     => ADMIN_COOKIE_PATH,
+				'domain'   => COOKIE_DOMAIN,
+				'secure'   => $secure,
+				'httponly' => true,
+				'samesite' => $samesite,
+			)
+		);
+	}
+
+	/**
+	 * Generates cross-site logged in cookies so they can be accessed by WordPress.com.
+	 *
+	 * @param string $logged_in_cookie The logged-in cookie value.
+	 * @param int    $expire           The time the login grace period expires as a UNIX timestamp.
+	 *                                 Default is 12 hours past the cookie's expiration time.
+	 * @param int    $expiration       The time when the logged-in cookie expires as a UNIX timestamp.
+	 *                                 Default is 14 days from now.
+	 * @param int    $user_id          User ID.
+	 * @param string $scheme           Authentication scheme. Default 'logged_in'.
+	 * @param string $token            User's session token to use for this cookie.
+	 */
+	public function set_samesite_logged_in_cookies( $logged_in_cookie, $expire, $expiration, $user_id, $scheme, $token ) {
+		$secure   = apply_filters( 'secure_auth_cookie', is_ssl(), $user_id );
+		$samesite = $this->get_samesite_attr_for_auth_cookies( $user_id );
+
+		jetpack_shim_setcookie(
+			LOGGED_IN_COOKIE,
+			$logged_in_cookie,
+			array(
+				'expires'  => $expire,
+				'path'     => COOKIEPATH,
+				'domain'   => COOKIE_DOMAIN,
+				'secure'   => $secure,
+				'httponly' => true,
+				'samesite' => $samesite,
+			)
+		);
+
+		if ( COOKIEPATH !== SITECOOKIEPATH ) {
+			jetpack_shim_setcookie(
+				LOGGED_IN_COOKIE,
+				$logged_in_cookie,
+				array(
+					'expires'  => $expire,
+					'path'     => SITECOOKIEPATH,
+					'domain'   => COOKIE_DOMAIN,
+					'secure'   => $secure,
+					'httponly' => true,
+					'samesite' => $samesite,
+				)
+			);
+		}
+	}
+
+	/**
+	 * Prevents the default core auth cookies from being generate so they don't collide with our cross-site cookies.
+	 *
+	 * @return bool Whether the default core auth cookies should be generated.
+	 */
+	public function disable_core_auth_cookies() {
+		return false;
 	}
 }
 
