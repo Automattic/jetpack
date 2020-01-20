@@ -25,6 +25,10 @@ function jetpack_shim_setcookie( $name, $value, $options ) {
 		return false;
 	}
 
+	if ( headers_sent() ) {
+		return false;
+	}
+
 	$cookie = 'Set-Cookie: ' . $name . '=' . rawurlencode( $value ) . '; ';
 
 	if ( ! empty( $options['expires'] ) ) {
