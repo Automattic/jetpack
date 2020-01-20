@@ -1,16 +1,16 @@
 .jetpack-instant-search__overlay {
+	position: fixed;
 	top: 0;
 	left: 0;
+	z-index: 9999999999999;
 	width: 100vw;
 	height: 100vh;
-	opacity: 0.975;
-	transition: opacity 0.5s linear, 0.25s transform ease-in-out;
-	position: fixed;
-	background: white;
 	padding: 3em 1em;
+	opacity: 0.975;
+	background: white;
 	overflow-y: auto;
 	overflow-x: hidden;
-	z-index: 9999999999999;
+	transition: opacity 0.5s linear, 0.25s transform ease-in-out;
 
 	&.is-hidden {
 		transform: translateX( 100vw );

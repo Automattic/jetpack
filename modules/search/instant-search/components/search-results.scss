@@ -1,17 +1,17 @@
 .jetpack-instant-search__search-results {
-	padding: 0.125em 2em;
-	margin: 0 auto;
 	position: relative;
-	max-width: 1080px;
-	text-align: left;
 	display: flex;
 	z-index: 10;
+	max-width: 1080px;
+	margin: 0 auto;
+	padding: 0.125em 2em;
+	text-align: left;
 
 	mark {
+		padding: 0;
 		background-color: #ffc;
 		font-weight: bold;
 		color: inherit;
-		padding: 0;
 	}
 }
 
@@ -36,11 +36,11 @@
 }
 
 .jetpack-instant-search__result-comments {
-	padding-left: 16px;
 	margin-left: 8px;
 	margin-top: 16px;
-	border-left: 2px solid #eee;
+	padding-left: 16px;
 	font-size: 0.9em;
+	border-left: 2px solid #eee;
 
 	.gridicon {
 		margin-right: 8px;
@@ -57,8 +57,8 @@
 	// https://developer.mozilla.org/en-US/docs/Web/CSS/list-style-type#Accessibility_concerns
 	li:before {
 		content: '\200B';
-		height: 1px;
 		position: absolute;
+		height: 1px;
 		width: 1px;
 	}
 }
