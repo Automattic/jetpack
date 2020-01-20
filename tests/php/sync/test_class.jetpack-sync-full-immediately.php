@@ -11,11 +11,6 @@ if ( ! function_exists( 'jetpack_foo_full_sync_callable' ) ) {
 	}
 }
 
-/**
- * Sync Full Immediately
- *
- * @group sync-beta
- */
 class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 	private $full_sync;
 

@@ -103,7 +103,9 @@ if ( ! ( in_running_uninstall_group() ) ) {
 }
 
 /**
- * Replace Full Sync module with Full Sync Immediately
+ * As of Jetpack 8.2, we are using Full_Sync_Immediately as the default full sync module.
+ * Some unit tests will need to revert to the now legacy Full_Sync module. The unit tests
+ * will look for a LEGACY_FULL_SYNC flag to run tests on the legacy module.
  *
  * @param array $modules Sync Modules.
  *
@@ -118,7 +120,7 @@ function jetpack_full_sync_immediately_off( $modules ) {
 	return $modules;
 }
 
-if ( false === getenv( 'SYNC_BETA' ) ) {
+if ( false !== getenv( 'LEGACY_FULL_SYNC' ) ) {
 	tests_add_filter( 'jetpack_sync_modules', 'jetpack_full_sync_immediately_off' );
 }
 
