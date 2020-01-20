@@ -2,14 +2,40 @@
  * External Dependencies
  */
 import classnames from 'classnames';
+import { memo } from 'React';
+import { isEqual } from 'lodash';
 
 /**
  * WordPress dependencies
  */
-import { getBlockType, cloneBlock, getBlockFromExample } from '@wordpress/blocks';
+import { getBlockType, getBlockFromExample, createBlock } from '@wordpress/blocks';
 import { BlockPreview } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
 import { ENTER, SPACE } from '@wordpress/keycodes';
+
+const StylePreview = memo(
+	props => {
+		const { attributes, styleOption, viewportWidth, blockName } = props;
+		const type = getBlockType( blockName );
+
+		return (
+			<div className="block-editor-block-styles__item-preview editor-styles-wrapper">
+				<BlockPreview
+					viewportWidth={ viewportWidth }
+					blocks={
+						type.example
+							? getBlockFromExample( blockName, {
+									attributes: { ...type.example.attributes, style: styleOption.value },
+									innerBlocks: type.example.innerBlocks,
+							  } )
+							: createBlock( type, attributes )
+					}
+				/>
+			</div>
+		);
+	},
+	( prevProps, nextProps ) => isEqual( prevProps, nextProps )
+);
 
 export default function BlockStylesSelector( {
 	attributes,
@@ -24,11 +50,13 @@ export default function BlockStylesSelector( {
 		return getBlock( clientId );
 	} );
 
-	const type = getBlockType( block.name );
-
 	return (
 		<div className="block-editor-block-styles">
 			{ styleOptions.map( styleOption => {
+				const optionAttributes = {
+					...attributes,
+					style: styleOption.value,
+				};
 				return (
 					<div
 						key={ styleOption.value }
@@ -48,22 +76,12 @@ export default function BlockStylesSelector( {
 						tabIndex="0"
 						aria-label={ styleOption.label }
 					>
-						<div className="block-editor-block-styles__item-preview editor-styles-wrapper">
-							<BlockPreview
-								viewportWidth={ viewportWidth }
-								blocks={
-									type.example
-										? getBlockFromExample( block.name, {
-												attributes: { ...type.example.attributes, style: styleOption.value },
-												innerBlocks: type.example.innerBlocks,
-										  } )
-										: cloneBlock( block, {
-												...attributes,
-												style: styleOption.value,
-										  } )
-								}
-							/>
-						</div>
+						<StylePreview
+							blockName={ block.name }
+							styleOption={ styleOption }
+							attributes={ optionAttributes }
+							viewportWidth={ viewportWidth }
+						/>
 						<div className="block-editor-block-styles__item-label">{ styleOption.label }</div>
 					</div>
 				);
