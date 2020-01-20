@@ -41,6 +41,16 @@ class JITM {
 	}
 
 	/**
+	 * Initializes a JITM object and registers it. This method is called by the
+	 * Config package when the JITM feature has been enabled.
+	 */
+	public static function configure() {
+		if ( is_admin() ) {
+			( new self() )->register();
+		}
+	}
+
+	/**
 	 * Determines if JITMs are enabled.
 	 *
 	 * @return bool Enable JITMs.

@@ -192,9 +192,7 @@ class Config {
 	 * Enables the JITM feature.
 	 */
 	protected function enable_jitm() {
-		if ( is_admin() ) {
-			( new JITM() )->register();
-		}
+		JITM::configure();
 
 		return true;
 	}
