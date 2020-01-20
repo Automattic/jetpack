@@ -2,20 +2,20 @@
 	padding: 0.125em 0;
 	margin: 1em 0;
 	position: relative;
+}
 
-	h3 {
-		clear: none;
-		overflow: hidden;
+.jetpack-instant-search__search-result-title {
+	clear: none;
+	overflow: hidden;
 
-		.gridicon {
-			margin-right: 8px;
-		}
+	.gridicon {
+		margin-right: 8px;
 	}
+}
 
-	.jetpack-instant-search__search-result-date {
-		font-size: 0.85em;
-		margin: 0.5em 0;
-	}
+.jetpack-instant-search__search-result-date {
+	font-size: 0.85em;
+	margin: 0.5em 0;
 }
 
 .jetpack-instant-search__search-result-minimal-tag,
