@@ -571,21 +571,6 @@ class Jetpack {
 
 		add_action( 'jetpack_verify_signature_error', array( $this, 'track_xmlrpc_error' ) );
 
-		$this->connection_manager = new Connection_Manager();
-		$this->connection_manager->init();
-
-		/*
-		 * Load things that should only be in Network Admin.
-		 *
-		 * For now blow away everything else until a more full
-		 * understanding of what is needed at the network level is
-		 * available
-		 */
-		if ( is_multisite() ) {
-			$network = Jetpack_Network::init();
-			$network->set_connection( $this->connection_manager );
-		}
-
 		add_filter(
 			'jetpack_signature_check_token',
 			array( __CLASS__, 'verify_onboarding_token' ),
@@ -606,16 +591,6 @@ class Jetpack {
 		// Unlink user before deleting the user from WP.com.
 		add_action( 'deleted_user', array( 'Automattic\\Jetpack\\Connection\\Manager', 'disconnect_user' ), 10, 1 );
 		add_action( 'remove_user_from_blog', array( 'Automattic\\Jetpack\\Connection\\Manager', 'disconnect_user' ), 10, 1 );
-
-		if ( self::is_active() ) {
-			add_action( 'login_form_jetpack_json_api_authorization', array( $this, 'login_form_json_api_authorization' ) );
-
-			Jetpack_Heartbeat::init();
-			if ( self::is_module_active( 'stats' ) && self::is_module_active( 'search' ) ) {
-				require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-search-performance-logger.php';
-				Jetpack_Search_Performance_Logger::init();
-			}
-		}
 
 		add_action( 'jetpack_event_log', array( 'Jetpack', 'log' ), 10, 2 );
 
@@ -728,6 +703,7 @@ class Jetpack {
 
 		foreach (
 			array(
+				'connection',
 				'sync',
 				'tracking',
 				'tos',
@@ -735,6 +711,30 @@ class Jetpack {
 			as $feature
 		) {
 			$config->ensure( $feature );
+		}
+
+		$this->connection_manager = new Connection_Manager();
+
+		/*
+		 * Load things that should only be in Network Admin.
+		 *
+		 * For now blow away everything else until a more full
+		 * understanding of what is needed at the network level is
+		 * available
+		 */
+		if ( is_multisite() ) {
+			$network = Jetpack_Network::init();
+			$network->set_connection( $this->connection_manager );
+		}
+
+		if ( $this->connection_manager->is_active() ) {
+			add_action( 'login_form_jetpack_json_api_authorization', array( $this, 'login_form_json_api_authorization' ) );
+
+			Jetpack_Heartbeat::init();
+			if ( self::is_module_active( 'stats' ) && self::is_module_active( 'search' ) ) {
+				require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-search-performance-logger.php';
+				Jetpack_Search_Performance_Logger::init();
+			}
 		}
 
 		// Initialize remote file upload request handlers.

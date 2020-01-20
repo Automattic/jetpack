@@ -7,8 +7,9 @@
 
 namespace Automattic\Jetpack;
 
-use Automattic\Jetpack\Sync\Main as Sync_Main;
+use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
+use Automattic\Jetpack\Sync\Main as Sync_Main;
 use Automattic\Jetpack\Terms_Of_Service;
 
 /**
@@ -26,9 +27,10 @@ class Config {
 	 * @var Array
 	 */
 	protected $config = array(
-		'sync'     => false,
-		'tracking' => false,
-		'tos'      => false,
+		'connection' => false,
+		'sync'       => false,
+		'tracking'   => false,
+		'tos'        => false,
 	);
 
 	/**
@@ -60,6 +62,11 @@ class Config {
 	 * @action plugins_loaded
 	 */
 	public function on_plugins_loaded() {
+		if ( $this->config['connection'] ) {
+			$this->ensure_class( 'Automattic\Jetpack\Connection\Manager' )
+				&& $this->ensure_feature( 'connection' );
+		}
+
 		if ( $this->config['tracking'] ) {
 
 			$this->ensure_class( 'Automattic\Jetpack\Terms_Of_Service' )
@@ -162,6 +169,15 @@ class Config {
 	 */
 	protected function enable_sync() {
 		Sync_Main::configure();
+
+		return true;
+	}
+
+	/**
+	 * Enables the Connection feature.
+	 */
+	protected function enable_connection() {
+		Manager::configure();
 
 		return true;
 	}
