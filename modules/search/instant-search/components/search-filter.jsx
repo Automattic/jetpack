@@ -26,17 +26,8 @@ function getDateOptions( interval ) {
 }
 
 export default class SearchFilter extends Component {
-	constructor( props ) {
-		super( props );
-		this.filtersList = createRef();
-		this.idPrefix = uniqueId( 'jetpack-instant-search__filter-' );
-
-		if ( this.props.type === 'date' ) {
-			// NOTE: This assumes that the configuration never changes. It will break if we
-			// ever adjust it dynamically.
-			this.dateOptions = getDateOptions( this.props.configuration.interval );
-		}
-	}
+	filtersList = createRef();
+	idPrefix = uniqueId( 'jetpack-instant-search__filter-' );
 
 	getIdentifier() {
 		if ( this.props.type === 'postType' ) {
@@ -70,7 +61,11 @@ export default class SearchFilter extends Component {
 					type="checkbox"
 				/>
 				<label htmlFor={ `${ this.idPrefix }-dates-${ this.getIdentifier() }-${ key }` }>
-					{ new Date( key ).toLocaleString( locale, this.dateOptions ) } ({ count })
+					{ new Date( key ).toLocaleString(
+						locale,
+						getDateOptions( this.props.configuration.interval )
+					) }{' '}
+					({ count })
 				</label>
 			</div>
 		);
