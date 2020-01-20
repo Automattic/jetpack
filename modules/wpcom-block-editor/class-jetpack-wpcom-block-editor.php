@@ -411,6 +411,7 @@ class Jetpack_WPCOM_Block_Editor {
 
 		add_action( 'set_auth_cookie', array( $this, 'set_samesite_auth_cookies' ), 10, 6 );
 		add_action( 'set_logged_in_cookie', array( $this, 'set_samesite_logged_in_cookies' ), 10, 6 );
+		add_action( 'clear_auth_cookie', array( $this, 'clear_auth_cookies' ) );
 		add_filter( 'send_auth_cookies', array( $this, 'disable_core_auth_cookies' ) );
 	}
 
@@ -530,12 +531,49 @@ class Jetpack_WPCOM_Block_Editor {
 	}
 
 	/**
-	 * Prevents the default core auth cookies from being generate so they don't collide with our cross-site cookies.
+	 * Prevents the default core auth cookies from being generated so they don't collide with our cross-site cookies.
 	 *
 	 * @return bool Whether the default core auth cookies should be generated.
 	 */
 	public function disable_core_auth_cookies() {
 		return false;
+	}
+
+	/**
+	 * Removes all of the cookies associated with authentication.
+	 *
+	 * This is copied from core's `wp_clear_auth_cookie` since disabling the core auth cookies prevents also the auth
+	 * cookies from being cleared.
+	 *
+	 * @see wp_clear_auth_cookie
+	 */
+	public function clear_auth_cookies() {
+		// Auth cookies.
+		setcookie( AUTH_COOKIE, ' ', time() - YEAR_IN_SECONDS, ADMIN_COOKIE_PATH, COOKIE_DOMAIN );
+		setcookie( SECURE_AUTH_COOKIE, ' ', time() - YEAR_IN_SECONDS, ADMIN_COOKIE_PATH, COOKIE_DOMAIN );
+		setcookie( AUTH_COOKIE, ' ', time() - YEAR_IN_SECONDS, PLUGINS_COOKIE_PATH, COOKIE_DOMAIN );
+		setcookie( SECURE_AUTH_COOKIE, ' ', time() - YEAR_IN_SECONDS, PLUGINS_COOKIE_PATH, COOKIE_DOMAIN );
+		setcookie( LOGGED_IN_COOKIE, ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
+		setcookie( LOGGED_IN_COOKIE, ' ', time() - YEAR_IN_SECONDS, SITECOOKIEPATH, COOKIE_DOMAIN );
+
+		// Settings cookies.
+		setcookie( 'wp-settings-' . get_current_user_id(), ' ', time() - YEAR_IN_SECONDS, SITECOOKIEPATH );
+		setcookie( 'wp-settings-time-' . get_current_user_id(), ' ', time() - YEAR_IN_SECONDS, SITECOOKIEPATH );
+
+		// Old cookies.
+		setcookie( AUTH_COOKIE, ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
+		setcookie( AUTH_COOKIE, ' ', time() - YEAR_IN_SECONDS, SITECOOKIEPATH, COOKIE_DOMAIN );
+		setcookie( SECURE_AUTH_COOKIE, ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
+		setcookie( SECURE_AUTH_COOKIE, ' ', time() - YEAR_IN_SECONDS, SITECOOKIEPATH, COOKIE_DOMAIN );
+
+		// Even older cookies.
+		setcookie( USER_COOKIE, ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
+		setcookie( PASS_COOKIE, ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
+		setcookie( USER_COOKIE, ' ', time() - YEAR_IN_SECONDS, SITECOOKIEPATH, COOKIE_DOMAIN );
+		setcookie( PASS_COOKIE, ' ', time() - YEAR_IN_SECONDS, SITECOOKIEPATH, COOKIE_DOMAIN );
+
+		// Post password cookie.
+		setcookie( 'wp-postpass_' . COOKIEHASH, ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
 	}
 }
 
