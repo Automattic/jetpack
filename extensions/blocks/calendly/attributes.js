@@ -11,6 +11,9 @@ const colourValidator = value => hexRegex.test( value );
 const urlValidator = url => ! url || url.startsWith( 'https://calendly.com/' );
 
 export default {
+	align: {
+		type: 'string',
+	},
 	backgroundColor: {
 		type: 'string',
 		default: 'ffffff',

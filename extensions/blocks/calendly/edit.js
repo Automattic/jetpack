@@ -244,10 +244,10 @@ export default function CalendlyEdit( { attributes, className, clientId, setAttr
 	);
 
 	return (
-		<>
+		<div className={ className }>
 			{ inspectorControls }
 			{ blockControls }
 			{ url ? blockPreview( style ) : blockPlaceholder }
-		</>
+		</div>
 	);
 }
