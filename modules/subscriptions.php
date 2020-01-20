@@ -579,24 +579,24 @@ class Jetpack_Subscriptions {
 			}
 
 			switch ( $response[0]['status'] ) {
-			case 'error' :
-				$r[] = new Jetpack_Error( 'not_subscribed' );
-				continue 2;
-			case 'disabled' :
-				$r[] = new Jetpack_Error( 'disabled' );
-				continue 2;
-			case 'active' :
-				$r[] = new Jetpack_Error( 'active' );
-				continue 2;
-			case 'confirming' :
-				$r[] = true;
-				continue 2;
-			case 'pending' :
-				$r[] = new Jetpack_Error( 'pending' );
-				continue 2;
-			default :
-				$r[] = new Jetpack_Error( 'unknown_status', (string) $response[0]['status'] );
-				continue 2;
+				case 'error':
+					$r[] = new Jetpack_Error( 'not_subscribed' );
+					continue 2;
+				case 'disabled':
+					$r[] = new Jetpack_Error( 'disabled' );
+					continue 2;
+				case 'active':
+					$r[] = new Jetpack_Error( 'active' );
+					continue 2;
+				case 'confirming':
+					$r[] = true;
+					continue 2;
+				case 'pending':
+					$r[] = new Jetpack_Error( 'pending' );
+					continue 2;
+				default:
+					$r[] = new Jetpack_Error( 'unknown_status', (string) $response[0]['status'] );
+					continue 2;
 			}
 		}
 
