@@ -3,8 +3,8 @@
 /**
  * External dependencies
  */
-import { h } from 'preact';
-import { useState } from 'preact/hooks';
+import { h, createRef } from 'preact';
+import { useState, useEffect } from 'preact/hooks';
 import { __ } from '@wordpress/i18n';
 // eslint-disable-next-line lodash/import-scope
 import uniqueId from 'lodash/uniqueId';
@@ -16,6 +16,16 @@ import Gridicon from './gridicon';
 
 const SearchBox = props => {
 	const [ inputId ] = useState( () => uniqueId( 'jetpack-instant-search__box-input-' ) );
+	const inputRef = createRef();
+
+	useEffect( () => {
+		inputRef.current.focus();
+		//console.log( inputRef.current );
+		return () => {
+			// Cleanup after event
+			// @todo Focus back on the activeElement before the overlay was opened
+		};
+	}, [] );
 
 	return (
 		<div className="jetpack-instant-search__box">
@@ -27,9 +37,7 @@ const SearchBox = props => {
 				id={ inputId }
 				className="search-field jetpack-instant-search__box-input"
 				onInput={ props.onChangeQuery }
-				onFocus={ props.onFocus }
-				onBlur={ props.onBlur }
-				ref={ props.appRef }
+				ref={ inputRef }
 				placeholder={ __( 'Search…', 'jetpack' ) }
 				type="search"
 				value={ props.query }

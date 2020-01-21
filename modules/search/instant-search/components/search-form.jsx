@@ -43,8 +43,6 @@ class SearchForm extends Component {
 					<SearchBox
 						enableFilters
 						onChangeQuery={ this.onChangeQuery }
-						onFocus={ this.props.onSearchFocus }
-						onBlur={ this.props.onSearchBlur }
 						query={ getSearchQuery() }
 						widget={ this.props.widget }
 						toggleFilters={ this.toggleFilters }
