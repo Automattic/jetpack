@@ -91,6 +91,7 @@ export async function connectThroughWPAdminIfNeeded( {
 
 	await page.waitForResponse(
 		response => {
+			console.log( response, response.url() );
 			if ( response.url().match( /v4\/site[^\/]/ ) ) {
 				console.log( response );
 			}
