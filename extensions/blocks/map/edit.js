@@ -95,7 +95,7 @@ class MapEdit extends Component {
 					noticeOperations.removeAllNotices();
 
 					const apiState = apiKey ? API_STATE_SUCCESS : API_STATE_FAILURE;
-					const apiKeyControl = 'automattic' === apiKeySource ? '' : apiKey;
+					const apiKeyControl = 'wpcom' === apiKeySource ? '' : apiKey;
 
 					this.setState( {
 						apiState,
@@ -193,7 +193,7 @@ class MapEdit extends Component {
 							/>
 						</PanelBody>
 					) : null }
-					{ 'automattic' !== apiKeySource && (
+					{ 'wpcom' !== apiKeySource && (
 						<PanelBody title={ __( 'Mapbox Access Token', 'jetpack' ) } initialOpen={ false }>
 							<TextControl
 								label={ __( 'Mapbox Access Token', 'jetpack' ) }

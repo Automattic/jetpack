@@ -285,58 +285,79 @@ class WPCOM_REST_API_V2_Endpoint_Service_API_Keys extends WP_REST_Controller {
 	}
 
 	/**
-	 * Get the site's own Mapbox API key if set, or the Automattic's one otherwise.
+	 * Get the site's own Mapbox API key if set, or the WordPress.com's one otherwise.
 	 *
-	 * @return array An array containing the key (if any) and its source ("site" or "automattic").
+	 * @return array An array containing the key (if any) and its source ("site" or "wpcom").
 	 */
 	public static function get_service_api_key_mapbox() {
-		$option          = self::key_for_api_service( 'mapbox' );
-		$service_api_key = Jetpack_Options::get_option( $option, '' );
+		$service_api_key = Jetpack_Options::get_option( self::key_for_api_service( 'mapbox' ), '' );
 
 		// If the site provides its own Mapbox API key, return it.
 		if ( ! empty( $service_api_key ) ) {
-			return array(
-				'key'    => $service_api_key,
-				'source' => 'site',
-			);
+			return self::format_api_key( $service_api_key );
 		}
 
-		// If the site is not WPCOM, return an empty API key.
+		// If the site is not WordPress.com, return an empty API key.
 		if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) && ! jetpack_is_atomic_site() ) {
-			return array(
-				'key'    => '',
-				'source' => 'site',
-			);
+			return self::format_api_key();
 		}
 
-		$transient_key = 'mapbox_a8c_access_token';
+		$transient_key = 'wpcom_mapbox_access_token';
 		$cached_token  = get_transient( $transient_key );
 
 		// If there is a cached token, return it.
 		if ( ! empty( $cached_token ) ) {
-			return $cached_token;
+			return self::format_api_key( $cached_token, 'wpcom' );
 		}
 
-		// Otherwise retrieve an Automattic token.
-		$site_id  = Jetpack_Options::get_option( 'id' );
-		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/mapbox', $site_id ), '2', array(), null, 'wpcom' );
+		// Otherwise retrieve a WordPress.com token.
+		$site_id = self::get_wpcom_site_id();
+		if ( ! $site_id ) {
+			return self::format_api_key();
+		}
+
+		$request_url = 'https://public-api.wordpress.com/wpcom/v2/sites/' . $site_id . '/mapbox';
+		$response    = wp_remote_get( esc_url_raw( $request_url ) );
 
 		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			return array(
-				'key'    => '',
-				'source' => 'site',
-			);
+			return self::format_api_key();
 		}
-		$response_body           = json_decode( wp_remote_retrieve_body( $response ) );
-		$mapbox_a8c_access_token = $response_body->mapbox_a8c_access_token;
 
-		// Cache the Automattic token for a month.
-		set_transient( $transient_key, $mapbox_a8c_access_token, 2592000 );
+		$response_body             = json_decode( wp_remote_retrieve_body( $response ) );
+		$wpcom_mapbox_access_token = $response_body->wpcom_mapbox_access_token;
 
+		// Cache the WordPress.com token for an hour.
+		set_transient( $transient_key, $wpcom_mapbox_access_token, 3600 );
+
+		return self::format_api_key( $wpcom_mapbox_access_token, 'wpcom' );
+	}
+
+	/**
+	 * Format an API key and its source into an array.
+	 *
+	 * @param string $key The API key.
+	 * @param string $source The key's source ("site" or "wpcom").
+	 * @return array
+	 */
+	private static function format_api_key( $key = '', $source = 'site' ) {
 		return array(
-			'key'    => $mapbox_a8c_access_token,
-			'source' => 'automattic',
+			'key'    => $key,
+			'source' => $source,
 		);
+	}
+
+	/**
+	 * Get the current site's WordPress.com ID.
+	 *
+	 * @return mixed The site's WordPress.com ID or an empty string.
+	 */
+	private static function get_wpcom_site_id() {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			return get_current_blog_id();
+		} elseif ( method_exists( 'Jetpack', 'is_active' ) && Jetpack::is_active() ) {
+			return Jetpack_Options::get_option( 'id' );
+		}
+		return false;
 	}
 
 	/**

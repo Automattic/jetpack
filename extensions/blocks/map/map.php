@@ -15,7 +15,7 @@ jetpack_register_block(
 );
 
 /**
- * Return the site's own Mapbox API key if set, or the Automattic's one otherwise.
+ * Return the site's own Mapbox API key if set, or the WordPress.com's one otherwise.
  *
  * @return string
  */
