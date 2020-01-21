@@ -567,7 +567,7 @@ class Sender {
 	 */
 	private function create_action_to_send( $action_name, $data ) {
 		return array(
-			microtime( true ) => array(
+			(string) microtime( true ) => array(
 				$action_name,
 				$data,
 				get_current_user_id(),
