@@ -89,16 +89,16 @@ export async function connectThroughWPAdminIfNeeded( {
 	// Reload the page to hydrate plans cache
 	await jetpackPage.reload( { waitFor: 'networkidle0' } );
 
-	await page.waitForResponse(
-		response => {
-			console.log( response, response.url() );
-			if ( response.url().match( /v4\/site[^\/]/ ) ) {
-				console.log( response );
-			}
-			return response.url().match( /v4\/site[^\/]/ ) && response.status() === 200;
-		},
-		{ timeout: 60 * 1000 }
-	);
+	// await page.waitForResponse(
+	// 	response => {
+	// 		console.log( response, response.url() );
+	// 		if ( response.url().match( /v4\/site[^\/]/ ) ) {
+	// 			console.log( response );
+	// 		}
+	// 		return response.url().match( /v4\/site[^\/]/ ) && response.status() === 200;
+	// 	},
+	// 	{ timeout: 60 * 1000 }
+	// );
 
 	await execWpCommand( 'wp cron event run jetpack_v2_heartbeat' );
 
