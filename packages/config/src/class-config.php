@@ -70,7 +70,6 @@ class Config {
 		}
 
 		if ( $this->config['tracking'] ) {
-
 			$this->ensure_class( 'Automattic\Jetpack\Terms_Of_Service' )
 				&& $this->ensure_class( 'Automattic\Jetpack\Tracking' )
 				&& $this->ensure_feature( 'tracking' );
@@ -83,7 +82,7 @@ class Config {
 
 		if ( $this->config['jitm'] ) {
 			$this->ensure_class( 'Automattic\Jetpack\JITM' )
-				&& $this->ensure_feature( 'sync' );
+				&& $this->ensure_feature( 'jitm' );
 		}
 	}
 
