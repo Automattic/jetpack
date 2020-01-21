@@ -21,8 +21,7 @@ export async function persistPlanData() {
 	fs.writeFileSync( 'plan-data.txt', JSON.stringify( planData ) );
 
 	const cmd = `wp option add ${ planDataOption }`;
-	const out = await execWpCommand( cmd, ' < plan-data.txt' );
-	console.log( '!!! OUT', cmd, out );
+	await execWpCommand( cmd, ' < plan-data.txt' );
 }
 
 async function movePluginToPluginsDirectory() {
@@ -31,9 +30,13 @@ async function movePluginToPluginsDirectory() {
 
 	const cmd =
 		'cp ./tests/e2e/plugins/e2e-plan-data-interceptor.php ../e2e-plan-data-interceptor.php';
-	await execShellCommand( 'ls ..' );
 
-	await execShellCommand( cmd );
+	const out = await execShellCommand( cmd );
+	console.log( 'CP OUT', out );
+
+	await execShellCommand( 'ls ..' );
+	await execShellCommand( 'ls' );
+
 	return await execWpCommand( 'wp plugin list' );
 }
 
