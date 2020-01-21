@@ -330,8 +330,8 @@ export class Map extends Component {
 			? google_point // Already a valid Mapbox point.
 			: {
 					// Legacy point, supported here to avoid block deprecation.
-					lng: google_point.longitude ? google_point.longitude : 0,
-					lat: google_point.latitude ? google_point.latitude : 0,
+					lat: google_point.latitude || 0,
+					lng: google_point.longitude || 0,
 			  };
 }
 
