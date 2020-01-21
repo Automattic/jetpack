@@ -38,6 +38,7 @@
 	"require-dev": {
 		"dealerdirect/phpcodesniffer-composer-installer": "0.7.0",
 		"phpcompatibility/phpcompatibility-wp": "2.1.0",
+		"phpstan/phpstan": "0.12.40",
 		"sirbrillig/phpcs-changed": "2.5.1",
 		"sirbrillig/phpcs-variable-analysis": "2.8.3",
 		"wp-coding-standards/wpcs": "2.3.0"
@@ -47,7 +48,8 @@
 		"php:lint": "vendor/bin/phpcs -p -s",
 		"php:changed": "vendor/sirbrillig/phpcs-changed/bin/phpcs-changed --git",
 		"php:autofix": "vendor/bin/phpcbf",
-		"php:lint:errors": "vendor/bin/phpcs -p -s --runtime-set ignore_warnings_on_exit 1"
+		"php:lint:errors": "vendor/bin/phpcs -p -s --runtime-set ignore_warnings_on_exit 1",
+		"php:phpstan": "vendor/bin/phpstan analyze -l 0 ."
 	},
 	"repositories": [
 		{
