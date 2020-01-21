@@ -29,6 +29,7 @@ export const settings = {
 		__( 'restaurant', 'jetpack' ),
 	],
 	supports: {
+		align: true,
 		html: false,
 	},
 	edit,
