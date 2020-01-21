@@ -3,13 +3,9 @@
  */
 import { setBrowserViewport, enablePageDialogAccept } from '@wordpress/e2e-test-utils';
 /**
- * Internal dependencies
- */
-import { movePluginToPluginsDirectory } from './plan-helper';
-/**
  * Environment variables
  */
-const { PUPPETEER_TIMEOUT, E2E_DEBUG, CI } = process.env;
+const { PUPPETEER_TIMEOUT, E2E_DEBUG } = process.env;
 
 // The Jest timeout is increased because these tests are a bit slow
 jest.setTimeout( PUPPETEER_TIMEOUT || 300000 );

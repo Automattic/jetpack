@@ -19,20 +19,12 @@ export async function persistPlanData() {
 
 	const cmd = `wp option add ${ planDataOption }`;
 	await execWpCommand( cmd, ' < plan-data.txt' );
-
-	await execWpCommand( `wp option get ${ planDataOption }` );
 }
 
 export async function movePluginToPluginsDirectory() {
-	await execShellCommand( 'ls ./tests/e2e/plugins' );
-	await execShellCommand( 'ls ..' );
-
 	const cmd =
 		'mkdir ../jetpack-test-plugins && cp ./tests/e2e/plugins/e2e-plan-data-interceptor.php ../jetpack-test-plugins/e2e-plan-data-interceptor.php';
-
 	await execShellCommand( cmd );
-
-	return await execWpCommand( 'wp plugin list' );
 }
 
 async function activatePlanDataInterceptor() {
@@ -44,7 +36,7 @@ async function getSiteId() {
 	return output.split( ':' )[ 1 ].trim();
 }
 
-export function getPlanData(
+function getPlanData(
 	id,
 	siteUrl,
 	planType = 'jetpack_business',
