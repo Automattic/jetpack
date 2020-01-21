@@ -713,6 +713,10 @@ class Jetpack {
 			$config->ensure( $feature );
 		}
 
+		if ( is_admin() ) {
+			$config->ensure( 'jitm' );
+		}
+
 		$this->connection_manager = new Connection_Manager();
 
 		/*

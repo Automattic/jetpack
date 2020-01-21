@@ -81,7 +81,7 @@ class Config {
 				&& $this->ensure_feature( 'sync' );
 		}
 
-		if ( is_admin() && $this->config['jitm'] ) {
+		if ( $this->config['jitm'] ) {
 			$this->ensure_class( 'Automattic\Jetpack\JITM' )
 				&& $this->ensure_feature( 'sync' );
 		}
