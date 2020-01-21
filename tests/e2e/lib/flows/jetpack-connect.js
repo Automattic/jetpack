@@ -98,7 +98,9 @@ export async function connectThroughWPAdminIfNeeded( {
 	// 	{ timeout: 60 * 1000 }
 	// );
 
-	await execWpCommand( 'wp cron event run jetpack_v2_heartbeat' );
+	if ( ! mockPlanData ) {
+		await execWpCommand( 'wp cron event run jetpack_v2_heartbeat' );
+	}
 
 	if ( ! ( await jetpackPage.isPlan( plan ) ) ) {
 		throw new Error( `Site does not have ${ plan } plan` );
