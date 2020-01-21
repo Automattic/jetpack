@@ -5,9 +5,12 @@ import fs from 'fs';
 /**
  * Internal dependencies
  */
-import { getNgrokSiteUrl, execWpCommand } from './utils-helper';
+import { getNgrokSiteUrl, execWpCommand, execShellCommand } from './utils-helper';
 
 export async function persistPlanData() {
+	if ( process.env.CI ) {
+		await movePluginToPluginsDirectory();
+	}
 	await activatePlanDataInterceptor();
 
 	const planDataOption = 'e2e_jetpack_plan_data';
@@ -20,6 +23,15 @@ export async function persistPlanData() {
 	const cmd = `wp option add ${ planDataOption }`;
 	const out = await execWpCommand( cmd, ' < plan-data.txt' );
 	console.log( '!!! OUT', cmd, out );
+}
+
+async function movePluginToPluginsDirectory() {
+	console.log( await execShellCommand( 'ls' ) );
+	console.log( await execShellCommand( 'ls ./tests/e2e/plugins' ) );
+	console.log( await execShellCommand( 'ls ..' ) );
+
+	const cmd = 'cp ./tests/e2e/plugins/e2e-plan-data-interceptor.php ..';
+	return await execShellCommand( cmd );
 }
 
 async function activatePlanDataInterceptor() {
