@@ -3,9 +3,9 @@
  * Plugin Name: Jetpack E2E plan data interceptor
  * Plugin URI: https://github.com/automattic/jetpack
  * Author: Jetpack Team
+ * Version: 1.0.0
  *
  * @package jetpack-test-plugin-e2e-plan-data
- * @version 1.0
  */
 
 add_filter( 'pre_http_request', 'e2e_intercept_plan_data_request', 10, 3 );

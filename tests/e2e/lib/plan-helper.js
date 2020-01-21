@@ -8,9 +8,6 @@ import fs from 'fs';
 import { getNgrokSiteUrl, execWpCommand, execShellCommand } from './utils-helper';
 
 export async function persistPlanData() {
-	if ( process.env.CI ) {
-		await movePluginToPluginsDirectory();
-	}
 	await activatePlanDataInterceptor();
 
 	const planDataOption = 'e2e_jetpack_plan_data';
@@ -24,7 +21,7 @@ export async function persistPlanData() {
 	await execWpCommand( cmd, ' < plan-data.txt' );
 }
 
-async function movePluginToPluginsDirectory() {
+export async function movePluginToPluginsDirectory() {
 	await execShellCommand( 'ls ./tests/e2e/plugins' );
 	await execShellCommand( 'ls ..' );
 
