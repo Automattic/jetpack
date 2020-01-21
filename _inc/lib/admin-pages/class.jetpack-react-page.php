@@ -116,8 +116,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 
 			// We got the static.html so let's display it
 			echo $static_html;
-			self::render_footer();
-
 		}
 	}
 
@@ -149,6 +147,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			return; // No need for scripts on a fallback page
 		}
 
+
 		$is_development_mode = ( new Status() )->is_development_mode();
 		$script_deps_path    = JETPACK__PLUGIN_DIR . '_inc/build/admin.asset.php';
 		$script_dependencies = array( 'wp-polyfill' );
@@ -157,16 +156,13 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			$script_dependencies = $asset_manifest['dependencies'];
 		}
 
-		if ( Jetpack::is_active() || $is_development_mode ) {
-			wp_enqueue_script(
-				'react-plugin',
-				plugins_url( '_inc/build/admin.js', JETPACK__PLUGIN_FILE ),
-				$script_dependencies,
-				JETPACK__VERSION,
-				true
-			);
-		}
-
+		wp_enqueue_script(
+			'react-plugin',
+			plugins_url( '_inc/build/admin.js', JETPACK__PLUGIN_FILE ),
+			$script_dependencies,
+			JETPACK__VERSION,
+			true
+		);
 
 		if ( ! $is_development_mode && Jetpack::is_active() ) {
 			// Required for Analytics.
