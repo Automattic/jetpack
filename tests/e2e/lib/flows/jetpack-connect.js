@@ -35,6 +35,7 @@ const cardCredentials = config.get( 'testCardCredentials' );
 export async function connectThroughWPAdminIfNeeded( {
 	wpcomUser = 'defaultUser',
 	plan = 'pro',
+	mockPlanData = false,
 } = {} ) {
 	await ( await HomePage.visit( page ) ).setSandboxModeForPayments( cookie );
 
@@ -71,10 +72,10 @@ export async function connectThroughWPAdminIfNeeded( {
 	// await ( await JetpackSiteTopicPage.init( page ) ).selectSiteTopic( 'test site' );
 	// await ( await JetpackUserTypePage.init( page ) ).selectUserType( 'creator' );
 
-	if ( plan === 'free' ) {
+	if ( mockPlanData ) {
 		await ( await PickAPlanPage.init( page ) ).selectFreePlan();
 		await persistPlanData();
-	} else if ( plan === 'pro' ) {
+	} else {
 		await ( await PickAPlanPage.init( page ) ).selectBusinessPlan();
 		await ( await CheckoutPage.init( page ) ).processPurchase( cardCredentials );
 	}
