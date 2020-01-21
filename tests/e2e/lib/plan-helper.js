@@ -26,7 +26,7 @@ export async function movePluginToPluginsDirectory() {
 	await execShellCommand( 'ls ..' );
 
 	const cmd =
-		'cp ./tests/e2e/plugins/e2e-plan-data-interceptor.php ../e2e-plan-data-interceptor.php';
+		'mkdir ../jetpack-test-plugins && cp ./tests/e2e/plugins/e2e-plan-data-interceptor.php ../jetpack-test-plugins/e2e-plan-data-interceptor.php';
 
 	const out = await execShellCommand( cmd );
 	console.log( 'CP OUT', out );
