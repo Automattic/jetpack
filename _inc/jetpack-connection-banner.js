@@ -8,14 +8,7 @@
 		fullScreenDismiss = $( '.jp-connect-full__dismiss, .jp-connect-full__dismiss-paragraph' ),
 		wpWelcomeNotice = $( '#welcome-panel' ),
 		connectionBanner = $( '#message' ),
-		placeholder = $( '.jp-loading-placeholder' ),
 		connectionBannerDismiss = $( '.connection-banner-dismiss' );
-
-	if ( placeholder && placeholder.length ) {
-		fullScreenContainer.show();
-		var shell = $( '<div class="jp-lower"></div>' ).html( fullScreenContainer );
-		placeholder.hide().after( shell );
-	}
 
 	// Move the banner below the WP Welcome notice on the dashboard
 	$( window ).on( 'load', function() {
