@@ -37,4 +37,5 @@ module.exports = [
 	'modules/widgets/social-icons.php',
 	'modules/wpcom-block-editor/class-jetpack-wpcom-block-editor.php',
 	'packages',
+	'tests/e2e/plugins/e2e-plan-data-interceptor.php',
 ];
