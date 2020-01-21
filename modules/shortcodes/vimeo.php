@@ -6,6 +6,7 @@
  * [vimeo 141358]
  * [vimeo http://vimeo.com/141358]
  * [vimeo 141358 h=500&w=350]
+ * [vimeo 141358 h=500 w=350]
  * [vimeo id=141358 width=350 height=500]
  *
  * <iframe src="http://player.vimeo.com/video/18427511" width="400" height="225" frameborder="0"></iframe><p><a href="http://vimeo.com/18427511">Eskmo 'We Got More' (Official Video)</a> from <a href="http://vimeo.com/ninjatune">Ninja Tune</a> on <a href="http://vimeo.com">Vimeo</a>.</p>
@@ -52,11 +53,35 @@ function jetpack_shortcode_get_vimeo_dimensions( $attr, $old_attr = array() ) {
 	$default_width  = 600;
 	$default_height = 338;
 	$aspect_ratio   = $default_height / $default_width;
-	$width          = ( ! empty( $attr['width'] ) ? absint( $attr['width'] ) : $default_width );
-	$height         = ( ! empty( $attr['height'] ) ? absint( $attr['height'] ) : $default_height );
 
 	/*
-	 * Support w and h argument as fallbacks.
+	 * For width and height, we want to support both formats
+	 * that can be provided in the new shortcode format:
+	 * - for width: width or w
+	 * - for height: height or h
+	 *
+	 * For each variation, the full word takes priority.
+	 *
+	 * If no variation is set, we default to the default width and height values set above.
+	 */
+	if ( ! empty( $attr['width'] ) ) {
+		$width = absint( $attr['width'] );
+	} elseif ( ! empty( $attr['w'] ) ) {
+		$width = absint( $attr['w'] );
+	} else {
+		$width = $default_width;
+	}
+
+	if ( ! empty( $attr['height'] ) ) {
+		$height = absint( $attr['height'] );
+	} elseif ( ! empty( $attr['h'] ) ) {
+		$height = absint( $attr['h'] );
+	} else {
+		$height = $default_height;
+	}
+
+	/*
+	 * Support w and h argument as fallbacks in old shortcode format.
 	 */
 	if (
 		$default_width === $width
@@ -146,6 +171,8 @@ function vimeo_shortcode( $atts ) {
 				'height'   => 0,
 				'autoplay' => 0,
 				'loop'     => 0,
+				'w'        => 0,
+				'h'        => 0,
 			),
 			$atts
 		)
