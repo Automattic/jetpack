@@ -400,22 +400,24 @@ class Jetpack_Media {
 	 * - preserve original media file
 	 * - trace revision history
 	 *
-	 * @param  number $media_id - media post ID
-	 * @param  array $file_array - temporal file
+	 * @param  number $media_id - media post ID.
+	 * @param  array  $file_array - temporal file.
 	 * @return {Post|WP_Error} Updated media item or a WP_Error is something went wrong.
 	 */
 	public static function edit_media_file( $media_id, $file_array ) {
-		$media_item = get_post( $media_id );
+		$media_item         = get_post( $media_id );
 		$has_original_media = self::get_original_media( $media_id );
 
 		if ( ! $has_original_media ) {
+
 			// The first time that the media is updated
-			// the original media is stored into the revision_history
+			// the original media is stored into the revision_history.
 			$snapshot = self::get_snapshot( $media_item );
+			//phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			add_post_meta( $media_id, self::$WP_ORIGINAL_MEDIA, $snapshot, true );
 		}
 
-		// save temporary file in the correct location
+		// Save temporary file in the correct location.
 		$uploaded_file = self::save_temporary_file( $file_array, $media_id );
 
 		if ( is_wp_error( $uploaded_file ) ) {
@@ -423,27 +425,30 @@ class Jetpack_Media {
 			return $uploaded_file;
 		}
 
-		// revision_history control
+		// Revision_history control.
 		self::register_revision( $media_item, $uploaded_file, $has_original_media );
 
-		$uploaded_path = $uploaded_file['file'];
+		$uploaded_path     = $uploaded_file['file'];
 		$udpated_mime_type = $uploaded_file['type'];
-		$was_updated = update_attached_file( $media_id, $uploaded_path );
+		$was_updated       = update_attached_file( $media_id, $uploaded_path );
 
 		if ( ! $was_updated ) {
 			return WP_Error( 'update_error', 'Media update error' );
 		}
 
+		// Check maximum amount of revision_history before updating the attachment metadata.
+		self::limit_revision_history( $media_id );
+
 		$new_metadata = wp_generate_attachment_metadata( $media_id, $uploaded_path );
 		wp_update_attachment_metadata( $media_id, $new_metadata );
 
-		// check maximum amount of revision_history
-		self::limit_revision_history( $media_id );
-
-		$edited_action = wp_update_post( (object) array(
-			'ID'              => $media_id,
-			'post_mime_type'  => $udpated_mime_type
-		), true );
+		$edited_action = wp_update_post(
+			(object) array(
+				'ID'             => $media_id,
+				'post_mime_type' => $udpated_mime_type,
+			),
+			true
+		);
 
 		if ( is_wp_error( $edited_action ) ) {
 			return $edited_action;
