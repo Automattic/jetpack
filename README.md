@@ -35,7 +35,13 @@ When you want to release a new version of the plugin, follow the steps below:
 5. Run `git tag xx` with the version number of the release.
 6. Run `git push --tags`
 7. Visit [this page](https://github.com/Automattic/jetpack-beta/releases), and click on the tag you just pushed.
-8. Create a new release from that tag. You'll want to fill in the release title with `Jetpack Beta xx`, and the body with the body of your changelog.
+8. Download the zip file of your tag.
+9. Locally, unzip that zip file, and rename the extracted folder to `jetpack-beta`.
+10. Compress that folder back to `jetpack-beta-xx.zip`.
+11. Create a new release from the tag.
+	- You'll want to fill in the release title with `Jetpack Beta xx`
+	- Add the body of your changelog as release description.
+	- Add the zip you created as a binary attached to the release.
 
 -------
 
