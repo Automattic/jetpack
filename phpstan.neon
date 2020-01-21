@@ -1,0 +1,14 @@
+parameters:
+	excludes_analyse:
+		- vendor/automattic/*/tests/*
+		- vendor/bin
+		- vendor/dealerdirect/*
+		- vendor/phpcompatibility/*
+		- vendor/phpstan/*
+		- vendor/sirbrillig/*
+		- vendor/squizlabs/*
+		- vendor/wp-coding-standards/*
+		- packages/*
+		- docker
+		- tools
+		- tests
