@@ -26,17 +26,19 @@ export async function persistPlanData() {
 }
 
 async function movePluginToPluginsDirectory() {
-	console.log( await execShellCommand( 'ls' ) );
-	console.log( await execShellCommand( 'ls ./tests/e2e/plugins' ) );
-	console.log( await execShellCommand( 'ls ..' ) );
+	await execShellCommand( 'ls ./tests/e2e/plugins' );
+	await execShellCommand( 'ls ..' );
 
-	const cmd = 'cp ./tests/e2e/plugins/e2e-plan-data-interceptor.php ..';
-	return await execShellCommand( cmd );
+	const cmd =
+		'cp ./tests/e2e/plugins/e2e-plan-data-interceptor.php ../e2e-plan-data-interceptor.php';
+	await execShellCommand( 'ls ..' );
+
+	await execShellCommand( cmd );
+	return await execWpCommand( 'wp plugin list' );
 }
 
 async function activatePlanDataInterceptor() {
-	const output = await execWpCommand( 'wp plugin activate e2e-plan-data-interceptor' );
-	console.log( 'activate_plan_data_interceptor', output );
+	return await execWpCommand( 'wp plugin activate e2e-plan-data-interceptor' );
 }
 
 async function getSiteId() {
