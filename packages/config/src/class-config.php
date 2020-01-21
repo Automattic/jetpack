@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Connection\Manager;
+use Automattic\Jetpack\JITM;
 use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
 use Automattic\Jetpack\Sync\Main as Sync_Main;
 use Automattic\Jetpack\Terms_Of_Service;
@@ -27,6 +28,7 @@ class Config {
 	 * @var Array
 	 */
 	protected $config = array(
+		'jitm'       => false,
 		'connection' => false,
 		'sync'       => false,
 		'tracking'   => false,
@@ -68,7 +70,6 @@ class Config {
 		}
 
 		if ( $this->config['tracking'] ) {
-
 			$this->ensure_class( 'Automattic\Jetpack\Terms_Of_Service' )
 				&& $this->ensure_class( 'Automattic\Jetpack\Tracking' )
 				&& $this->ensure_feature( 'tracking' );
@@ -77,6 +78,11 @@ class Config {
 		if ( $this->config['sync'] ) {
 			$this->ensure_class( 'Automattic\Jetpack\Sync\Main' )
 				&& $this->ensure_feature( 'sync' );
+		}
+
+		if ( $this->config['jitm'] ) {
+			$this->ensure_class( 'Automattic\Jetpack\JITM' )
+				&& $this->ensure_feature( 'jitm' );
 		}
 	}
 
@@ -160,6 +166,15 @@ class Config {
 			 */
 			add_action( 'jetpack_agreed_to_terms_of_service', array( $tracking, 'init' ) );
 		}
+
+		return true;
+	}
+
+	/**
+	 * Enables the JITM feature.
+	 */
+	protected function enable_jitm() {
+		JITM::configure();
 
 		return true;
 	}

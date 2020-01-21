@@ -34,6 +34,14 @@ class JITM {
 	private $tracking;
 
 	/**
+	 * The configuration method that is called from the jetpack-config package.
+	 */
+	public static function configure() {
+		$jitm = new self();
+		$jitm->register();
+	}
+
+	/**
 	 * JITM constructor.
 	 */
 	public function __construct() {
