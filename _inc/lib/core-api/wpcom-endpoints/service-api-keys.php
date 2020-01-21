@@ -305,7 +305,7 @@ class WPCOM_REST_API_V2_Endpoint_Service_API_Keys extends WP_REST_Controller {
 		// If there is a cached token, return it.
 		$transient_key = 'wpcom_mapbox_access_token';
 		$cached_token  = get_transient( $transient_key );
-		if ( ! $cached_token ) {
+		if ( $cached_token ) {
 			return self::format_api_key( $cached_token, 'wpcom' );
 		}
 
