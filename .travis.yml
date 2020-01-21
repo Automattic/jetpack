@@ -77,6 +77,13 @@ matrix:
     after_script:
       - ./tests/process-coverage.sh
 
+  # PHPStan PHP Static Analysis Tool
+  - php: "7.3"
+    name: "PHPStan"
+    env: WP_BRANCH=latest
+    script:
+    - yarn php:phpstan
+
   - php: "7.0"
     name: "Legacy full sync"
     env: LEGACY_FULL_SYNC=1 WP_BRANCH=latest
@@ -122,6 +129,7 @@ matrix:
     - name: "Spell check Markdown files"
     - name: "Code Coverage"
     - name: "E2E tests with latest Gutenberg"
+    - name: "PHPStan"
 
 cache:
   directories:
