@@ -16,6 +16,15 @@ export default class BlockEditorPage extends Page {
 		super( page, { expectedSelector, url } );
 	}
 
+	static async init( page, enableTips = false ) {
+		const it = await super.init( page );
+		await page.evaluate( _enableTips => {
+			const action = _enableTips ? 'enableTips' : 'disableTips';
+			wp.data.dispatch( 'core/nux' )[ action ]();
+		}, enableTips );
+		return it;
+	}
+
 	async insertBlock( blockName, blockTitle ) {
 		await searchForBlock( blockTitle );
 		const blockIconSelector = `.editor-block-list-item-jetpack-${ blockName }`;
