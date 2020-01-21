@@ -49,7 +49,11 @@ export async function connectThroughWPAdminIfNeeded( {
 	const host = new URL( siteUrl ).host;
 
 	await ( await WPLoginPage.visit( page, siteUrl + '/wp-login.php' ) ).login();
-	await ( await DashboardPage.init( page ) ).setSandboxModeForPayments( cookie, host );
+
+	if ( ! mockPlanData ) {
+		await ( await DashboardPage.init( page ) ).setSandboxModeForPayments( cookie, host );
+	}
+
 	await ( await Sidebar.init( page ) ).selectJetpack();
 
 	let jetpackPage = await JetpackPage.init( page );
@@ -91,10 +95,6 @@ export async function connectThroughWPAdminIfNeeded( {
 
 	// await page.waitForResponse(
 	// 	response => {
-	// 		console.log( response, response.url() );
-	// 		if ( response.url().match( /v4\/site[^\/]/ ) ) {
-	// 			console.log( response );
-	// 		}
 	// 		return response.url().match( /v4\/site[^\/]/ ) && response.status() === 200;
 	// 	},
 	// 	{ timeout: 60 * 1000 }
@@ -105,6 +105,8 @@ export async function connectThroughWPAdminIfNeeded( {
 	if ( ! ( await jetpackPage.isPlan( plan ) ) ) {
 		throw new Error( `Site does not have ${ plan } plan` );
 	}
+
+	await jetpackPage.reload( { waitFor: 'networkidle0' } );
 
 	return true;
 }
