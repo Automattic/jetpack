@@ -290,35 +290,28 @@ class WPCOM_REST_API_V2_Endpoint_Service_API_Keys extends WP_REST_Controller {
 	 * @return array An array containing the key (if any) and its source ("site" or "wpcom").
 	 */
 	public static function get_service_api_key_mapbox() {
-		$service_api_key = Jetpack_Options::get_option( self::key_for_api_service( 'mapbox' ), '' );
-
 		// If the site provides its own Mapbox API key, return it.
-		if ( ! empty( $service_api_key ) ) {
+		$service_api_key = Jetpack_Options::get_option( self::key_for_api_service( 'mapbox' ) );
+		if ( $service_api_key ) {
 			return self::format_api_key( $service_api_key );
 		}
 
 		// If the site is not WordPress.com, return an empty API key.
-		if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) && ! jetpack_is_atomic_site() ) {
+		$site_id = self::get_wpcom_site_id();
+		if ( ( ! self::is_wpcom() && ! jetpack_is_atomic_site() ) || ! $site_id ) {
 			return self::format_api_key();
 		}
 
+		// If there is a cached token, return it.
 		$transient_key = 'wpcom_mapbox_access_token';
 		$cached_token  = get_transient( $transient_key );
-
-		// If there is a cached token, return it.
-		if ( ! empty( $cached_token ) ) {
+		if ( ! $cached_token ) {
 			return self::format_api_key( $cached_token, 'wpcom' );
 		}
 
 		// Otherwise retrieve a WordPress.com token.
-		$site_id = self::get_wpcom_site_id();
-		if ( ! $site_id ) {
-			return self::format_api_key();
-		}
-
 		$request_url = 'https://public-api.wordpress.com/wpcom/v2/sites/' . $site_id . '/mapbox';
 		$response    = wp_remote_get( esc_url_raw( $request_url ) );
-
 		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
 			return self::format_api_key();
 		}
@@ -328,7 +321,6 @@ class WPCOM_REST_API_V2_Endpoint_Service_API_Keys extends WP_REST_Controller {
 
 		// Cache the WordPress.com token for an hour.
 		set_transient( $transient_key, $wpcom_mapbox_access_token, 3600 );
-
 		return self::format_api_key( $wpcom_mapbox_access_token, 'wpcom' );
 	}
 
@@ -347,12 +339,21 @@ class WPCOM_REST_API_V2_Endpoint_Service_API_Keys extends WP_REST_Controller {
 	}
 
 	/**
+	 * Check if we're in WordPress.com.
+	 *
+	 * @return bool
+	 */
+	private static function is_wpcom() {
+		return defined( 'IS_WPCOM' ) && IS_WPCOM;
+	}
+
+	/**
 	 * Get the current site's WordPress.com ID.
 	 *
 	 * @return mixed The site's WordPress.com ID or an empty string.
 	 */
 	private static function get_wpcom_site_id() {
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		if ( self::is_wpcom() ) {
 			return get_current_blog_id();
 		} elseif ( method_exists( 'Jetpack', 'is_active' ) && Jetpack::is_active() ) {
 			return Jetpack_Options::get_option( 'id' );
