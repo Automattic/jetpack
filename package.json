@@ -64,6 +64,7 @@
 		"php:compatibility": "composer php:compatibility",
 		"php:lint": "composer php:lint",
 		"php:autofix": "composer php:autofix",
+		"php:phpstan": "composer php:phpstan",
 		"test-adminpage": "yarn test-client && yarn test-gui",
 		"test-client": "NODE_ENV=test NODE_PATH=tests:_inc/client tests/runner.js",
 		"test-decrypt-config": "openssl enc -md sha1 -aes-256-cbc -d -pass env:CONFIG_KEY -in ./tests/e2e/config/encrypted.enc -out ./tests/e2e/config/local-test.js",
