@@ -1,7 +1,6 @@
 /**
  * External Dependencies
  */
-import { reduce } from 'lodash';
 import { __ } from '@wordpress/i18n';
 
 const hexRegex = /^#?[A-Fa-f0-9]{6}$/;
@@ -67,24 +66,3 @@ export default {
 		validator: colourValidator,
 	},
 };
-
-export const getValidatedAttributes = ( attributeDetails, attributes ) =>
-	reduce(
-		attributes,
-		( ret, attribute, attributeKey ) => {
-			const { type, validator, validValues, default: defaultVal } = attributeDetails[
-				attributeKey
-			];
-			if ( 'boolean' === type ) {
-				ret[ attributeKey ] = !! attribute;
-			} else if ( validator ) {
-				ret[ attributeKey ] = validator( attribute ) ? attribute : defaultVal;
-			} else if ( validValues ) {
-				ret[ attributeKey ] = validValues.includes( attribute ) ? attribute : defaultVal;
-			} else {
-				ret[ attributeKey ] = attribute;
-			}
-			return ret;
-		},
-		{}
-	);

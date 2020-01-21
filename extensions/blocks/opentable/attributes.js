@@ -3,7 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { select } from '@wordpress/data';
-import { compact, reduce, isEmpty } from 'lodash';
+import { compact, isEmpty } from 'lodash';
 
 const optionValues = options => options.map( option => option.value );
 
@@ -62,24 +62,3 @@ export const defaultAttributes = {
 		type: 'boolean',
 	},
 };
-
-export const getValidatedAttributes = ( attributeDetails, attributesToValidate ) =>
-	reduce(
-		attributesToValidate,
-		( ret, attribute, attributeKey ) => {
-			const { type, validator, validValues, default: defaultVal } = attributeDetails[
-				attributeKey
-			];
-			if ( 'boolean' === type ) {
-				ret[ attributeKey ] = !! attribute;
-			} else if ( validator ) {
-				ret[ attributeKey ] = validator( attribute ) ? attribute : defaultVal;
-			} else if ( validValues ) {
-				ret[ attributeKey ] = validValues.includes( attribute ) ? attribute : defaultVal;
-			} else {
-				ret[ attributeKey ] = attribute;
-			}
-			return ret;
-		},
-		{}
-	);
