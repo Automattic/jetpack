@@ -90,7 +90,12 @@ export async function connectThroughWPAdminIfNeeded( {
 	await jetpackPage.reload( { waitFor: 'networkidle0' } );
 
 	await page.waitForResponse(
-		response => response.url().match( /v4\/site[^\/]/ ) && response.status() === 200,
+		response => {
+			if ( response.url().match( /v4\/site[^\/]/ ) ) {
+				console.log( response );
+			}
+			return response.url().match( /v4\/site[^\/]/ ) && response.status() === 200;
+		},
 		{ timeout: 60 * 1000 }
 	);
 

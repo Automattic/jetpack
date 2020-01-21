@@ -19,6 +19,8 @@ export async function persistPlanData() {
 
 	const cmd = `wp option add ${ planDataOption }`;
 	await execWpCommand( cmd, ' < plan-data.txt' );
+
+	await execWpCommand( `wp option get ${ planDataOption }` );
 }
 
 export async function movePluginToPluginsDirectory() {
@@ -28,11 +30,7 @@ export async function movePluginToPluginsDirectory() {
 	const cmd =
 		'mkdir ../jetpack-test-plugins && cp ./tests/e2e/plugins/e2e-plan-data-interceptor.php ../jetpack-test-plugins/e2e-plan-data-interceptor.php';
 
-	const out = await execShellCommand( cmd );
-	console.log( 'CP OUT', out );
-
-	await execShellCommand( 'ls ..' );
-	await execShellCommand( 'ls' );
+	await execShellCommand( cmd );
 
 	return await execWpCommand( 'wp plugin list' );
 }
