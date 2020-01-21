@@ -8,7 +8,7 @@ import fs from 'fs';
 import { getNgrokSiteUrl, execWpCommand, execShellCommand } from './utils-helper';
 
 export async function persistPlanData() {
-	await activatePlanDataInterceptor();
+	// await activatePlanDataInterceptor();
 
 	const planDataOption = 'e2e_jetpack_plan_data';
 	const siteUrl = getNgrokSiteUrl();

@@ -43,10 +43,6 @@ beforeAll( async () => {
 	// Handles not saved changed dialog in block editor
 	await enablePageDialogAccept();
 	setupConsoleLogs();
-
-	// if ( CI ) {
-	// 	await movePluginToPluginsDirectory();
-	// }
 } );
 
 afterEach( async () => {

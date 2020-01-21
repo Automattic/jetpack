@@ -23,7 +23,7 @@ import {
 	execWpCommand,
 } from '../utils-helper';
 import PlansPage from '../pages/wpcom/plans';
-import { persistPlanData, movePluginToPluginsDirectory } from '../plan-helper';
+import { persistPlanData } from '../plan-helper';
 
 const cookie = config.get( 'storeSandboxCookieValue' );
 const cardCredentials = config.get( 'testCardCredentials' );
