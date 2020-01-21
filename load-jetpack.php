@@ -33,10 +33,7 @@ add_filter( 'jetpack_require_lib_dir', 'jetpack_require_lib_dir' );
  * @filter jetpack_should_use_minified_assets
  */
 function jetpack_should_use_minified_assets() {
-	if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
-		return false;
-	}
-	return true;
+	return ! defined( 'SCRIPT_DEBUG' ) || ! SCRIPT_DEBUG;
 }
 add_filter( 'jetpack_should_use_minified_assets', 'jetpack_should_use_minified_assets', 9 );
 
