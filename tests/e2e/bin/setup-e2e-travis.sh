@@ -154,8 +154,11 @@ PHP
 
 prepare_jetpack() {
 	cd "$WP_CORE_DIR"
-	# Copying contents of bookings branch manually, since unable to download a private repo zip
+	# Symlink Jetpack into plugins directory
 	ln -s $WORKING_DIR $WP_CORE_DIR/wp-content/plugins/
+
+	# Symlink functionality plugin
+	ln -s $WORKING_DIR/tests/e2e/plugins/e2e-plan-data-interceptor.php $WP_CORE_DIR/wp-content/plugins/e2e-plan-data-interceptor.php
 
 	wp plugin activate jetpack
 }

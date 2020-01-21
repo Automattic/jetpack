@@ -44,9 +44,9 @@ beforeAll( async () => {
 	await enablePageDialogAccept();
 	setupConsoleLogs();
 
-	if ( CI ) {
-		await movePluginToPluginsDirectory();
-	}
+	// if ( CI ) {
+	// 	await movePluginToPluginsDirectory();
+	// }
 } );
 
 afterEach( async () => {
