@@ -161,6 +161,7 @@ prepare_jetpack() {
 	ln -s $WORKING_DIR/tests/e2e/plugins/e2e-plan-data-interceptor.php $WP_CORE_DIR/wp-content/plugins/e2e-plan-data-interceptor.php
 
 	wp plugin activate jetpack
+	wp plugin activate e2e-plan-data-interceptor.php
 }
 
 if [ "${1}" == "reset_wp" ]; then
