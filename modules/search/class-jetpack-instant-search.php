@@ -101,14 +101,15 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 
 		$prefix  = Jetpack_Search_Options::OPTION_PREFIX;
 		$options = array(
-			// overlay options.
-			'closeColor'      => (bool) get_option( $prefix . 'close_color', '#BD3854' ),
-			'colorTheme'      => (bool) get_option( $prefix . 'color_theme', 'light' ),
-			'enableInfScroll' => (bool) get_option( $prefix . 'inf_scroll', true ),
-			'highlightColor'  => (bool) get_option( $prefix . 'highlight_color', '#FFC' ),
-			'opacity'         => (bool) get_option( $prefix . 'opacity', 97 ),
-			'showLogo'        => (bool) get_option( $prefix . 'show_logo', true ),
-			'showPoweredBy'   => (bool) get_option( $prefix . 'show_powered_by', true ),
+			'overlayOptions'  => array(
+				'closeColor'      => get_option( $prefix . 'close_color', '#BD3854' ),
+				'colorTheme'      => get_option( $prefix . 'color_theme', 'light' ),
+				'enableInfScroll' => (bool) get_option( $prefix . 'inf_scroll', false ),
+				'highlightColor'  => get_option( $prefix . 'highlight_color', '#FFC' ),
+				'opacity'         => (int) get_option( $prefix . 'opacity', 97 ),
+				'showLogo'        => (bool) get_option( $prefix . 'show_logo', true ),
+				'showPoweredBy'   => (bool) get_option( $prefix . 'show_powered_by', true ),
+			),
 
 			// core config.
 			'homeUrl'         => home_url(),
@@ -134,11 +135,8 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		 */
 		$options = apply_filters( 'jetpack_instant_search_options', $options );
 
-		wp_localize_script(
-			'jetpack-instant-search',
-			'JetpackInstantSearchOptions',
-			$options
-		);
+		// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
+		wp_add_inline_script( 'jetpack-instant-search', 'var JetpackInstantSearchOptions=' . wp_json_encode( $options ) );
 	}
 
 	/**

@@ -65,8 +65,8 @@ class Jetpack_Search_Customize {
 				'section'     => $section_id,
 				'type'        => 'radio',
 				'choices'     => array(
-					'light' => 'Light',
-					'dark'  => 'Dark',
+					'light' => __( 'Light', 'jetpack' ),
+					'dark'  => __( 'Dark', 'jetpack' ),
 				),
 			)
 		);
