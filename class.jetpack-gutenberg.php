@@ -36,6 +36,19 @@ function jetpack_register_block( $slug, $args = array() ) {
 }
 
 /**
+ * Registers a gutenberg block for WPCOM users with a
+ * pard pland and all Jetpack users
+ *
+ * @param string $slug Slug of the block.
+ * @param array  $args Arguments that are passed into register_block_type.
+ */
+function jetpack_register_premium_wpcom_block( $slug, $args = array() ) {
+	if ( Jetpack_Gutenberg::is_premium_wpcom_available() ) {
+		jetpack_register_block( $slug, $args );
+	}
+}
+
+/**
  * Helper function to register a Jetpack Gutenberg plugin
  *
  * @deprecated 7.1.0 Use Jetpack_Gutenberg::set_extension_available() instead
@@ -800,5 +813,50 @@ class Jetpack_Gutenberg {
 		}
 
 		return $preset_extensions;
+	}
+
+
+	/**
+	 * Check if the block should be available on the site.
+	 *
+	 * @return bool
+	 */
+	public static function is_premium_wpcom_available() {
+		if (
+			defined( 'IS_WPCOM' )
+			&& IS_WPCOM
+			&& function_exists( 'has_any_blog_stickers' )
+		) {
+			if ( has_any_blog_stickers(
+				array( 'premium-plan', 'business-plan', 'ecommerce-plan' ),
+				get_current_blog_id()
+			) ) {
+				return true;
+			}
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Set the availability of a WPCOM premium block
+	 * based on the context we're running in
+	 *
+	 * @param string $slug Slug of the block.
+	 */
+	public static function set_premium_wpcom_availability( $slug ) {
+		if ( self::is_premium_wpcom_available() ) {
+			self::set_extension_available( $slug );
+		} else {
+			self::set_extension_unavailable(
+				$slug,
+				'missing_plan',
+				array(
+					'required_feature' => 'opentable',
+					'required_plan'    => 'value_bundle',
+				)
+			);
+		}
 	}
 }
