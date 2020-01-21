@@ -20,7 +20,27 @@
 	margin-right: 4em;
 }
 .jetpack-instant-search__search-results-secondary {
-	flex: 2;
+	display: none; // TODO: toggle visibility via JS?
+	position: absolute;
+	top: 0;
+	width: 80%;
+	padding: 1em 2em;	
+	background: #fff;
+	border: 1px solid rgba(0, 0, 0, 0.1);
+	border-radius: 6px;
+	box-shadow: 0 4px 4px rgba(0, 0, 0, 0.1);
+
+	@include break-medium() {
+		flex: 2;
+		position: static;
+		width: auto;
+		padding: 0;
+		background: none;
+		border: 0;
+		border-radius: 0;
+		box-shadow: none;
+
+	}
 }
 
 .jetpack-instant-search__search-results-real-query {
