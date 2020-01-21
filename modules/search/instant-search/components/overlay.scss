@@ -6,8 +6,7 @@
 	width: 100vw;
 	height: 100vh;
 	padding: 3em 1em;
-	opacity: 0.975;
-	background: white;
+	background: rgba(255, 255, 255, 0.975);
 	overflow-y: auto;
 	overflow-x: hidden;
 	transition: opacity 0.5s linear, 0.25s transform ease-in-out;
