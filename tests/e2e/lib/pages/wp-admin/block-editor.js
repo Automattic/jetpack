@@ -5,7 +5,7 @@ import Page from '../page';
 /**
  * WordPress dependencies
  */
-import { getAllBlocks, searchForBlock, wpDataSelect } from '@wordpress/e2e-test-utils';
+import { getAllBlocks, searchForBlock } from '@wordpress/e2e-test-utils';
 import { waitAndClick, waitForSelector, scrollIntoView } from '../../page-helper';
 import { getNgrokSiteUrl } from '../../utils-helper';
 
@@ -63,8 +63,7 @@ export default class BlockEditorPage extends Page {
 	}
 
 	async waitForAvailableBlock( blockSlug ) {
-		let allBlocks = await wpDataSelect( 'core/blocks', 'getBlockTypes' );
-		let block = allBlocks.find( b => b.name.includes( blockSlug ) );
+		let block = this.findAvailableBlock( blockSlug );
 		if ( block ) {
 			return true;
 		}
@@ -72,11 +71,20 @@ export default class BlockEditorPage extends Page {
 		while ( ! block || count > 20 ) {
 			await page.waitFor( 1000 ); // Trying to wait for plan data to be updated
 			await page.reload( { waitFor: 'networkidle0' } );
-			allBlocks = await wpDataSelect( 'core/blocks', 'getBlockTypes' );
-			block = allBlocks.find( b => b.name.includes( blockSlug ) );
+			block = this.findAvailableBlock( blockSlug );
 			count += 1;
 
+			const allBlocks = await this.getAllAvailableBlocks();
 			console.log( '!!!!!!', allBlocks.filter( b => b.name.includes( 'jetpack' ) ) );
 		}
+	}
+
+	async findAvailableBlock( blockSlug ) {
+		const allBlocks = await this.getAllAvailableBlocks();
+		return allBlocks.find( b => b.name.includes( blockSlug ) );
+	}
+
+	async getAllAvailableBlocks() {
+		return await page.evaluate( () => wp.data.select( 'core/blocks' ).getBlockTypes() );
 	}
 }
