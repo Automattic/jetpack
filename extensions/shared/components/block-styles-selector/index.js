@@ -19,7 +19,7 @@ const StylePreview = memo(
 		const type = getBlockType( blockName );
 
 		return (
-			<div className="block-editor-block-styles__item-preview editor-styles-wrapper">
+			<div className="block-editor-block-styles__item-preview">
 				<BlockPreview
 					viewportWidth={ viewportWidth }
 					blocks={
