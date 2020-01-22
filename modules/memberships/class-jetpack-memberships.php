@@ -44,13 +44,6 @@ class Jetpack_Memberships {
 	private static $tags_allowed_in_the_button = array( 'br' => array() );
 
 	/**
-	 * The minimum required plan for this Gutenberg block.
-	 *
-	 * @var string Plan slug
-	 */
-	private static $required_plan;
-
-	/**
 	 * Track recurring payments block registration.
 	 *
 	 * @var boolean True if block registration has been executed.
@@ -78,8 +71,6 @@ class Jetpack_Memberships {
 		if ( ! self::$instance ) {
 			self::$instance = new self();
 			self::$instance->register_init_hook();
-			// Yes, `personal-bundle` with a dash, `jetpack_personal` with an underscore. Check the v1.5 endpoint to verify.
-			self::$required_plan = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? 'personal-bundle' : 'jetpack_personal';
 		}
 
 		return self::$instance;
@@ -108,7 +99,7 @@ class Jetpack_Memberships {
 	 */
 	private function register_init_hook() {
 		add_action( 'init', array( $this, 'init_hook_action' ) );
-		add_action( 'jetpack_register_gutenberg_extensions', array( $this, 'register_gutenberg_block' ) );
+		add_action( 'init', array( $this, 'register_gutenberg_block' ) );
 	}
 
 	/**
@@ -317,33 +308,30 @@ class Jetpack_Memberships {
 	}
 
 	/**
-	 * Register the Recurring Payments Gutenberg block
+	 * Register the Recurring Payments Gutenberg block.
 	 */
 	public function register_gutenberg_block() {
-		// This gate was introduced to prevent duplicate registration. A race condition exists where
-		// the registration that happens via extensions/blocks/recurring-payments/recurring-payments.php
-		// was adding the registration action after the action had been run in some contexts.
+		/*
+		 * Register the Recurring Payments Gutenberg block.
+		 *
+		 * This gate was introduced to prevent duplicate registration. A race condition exists where
+		 * the registration that happens via extensions/blocks/recurring-payments/recurring-payments.php
+		 * was adding the registration action after the action had been run in some contexts.
+		 */
 		if ( self::$has_registered_block ) {
 			return;
 		}
 
-		if ( self::is_enabled_jetpack_recurring_payments() ) {
-			jetpack_register_block(
-				'jetpack/recurring-payments',
-				array(
-					'render_callback' => array( $this, 'render_button' ),
-				)
-			);
-		} else {
-			Jetpack_Gutenberg::set_extension_unavailable(
-				'jetpack/recurring-payments',
-				'missing_plan',
-				array(
-					'required_feature' => 'memberships',
-					'required_plan'    => self::$required_plan,
-				)
-			);
-		}
+		jetpack_register_block(
+			'jetpack/recurring-payments',
+			array(
+				'render_callback' => array( $this, 'render_button' ),
+			),
+			array(
+				'wpcom'   => 'personal-bundle',
+				'jetpack' => 'jetpack_personal',
+			)
+		);
 
 		self::$has_registered_block = true;
 	}
