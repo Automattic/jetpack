@@ -9,6 +9,7 @@ import { resetWordpressInstall, getNgrokSiteUrl, activateModule } from '../lib/u
 import SimplePaymentBlock from '../lib/blocks/simple-payments';
 import WordAdsBlock from '../lib/blocks/word-ads';
 import PinterestBlock from '../lib/blocks/pinterest';
+import JetpackPage from '../lib/pages/wp-admin/jetpack';
 
 describe( 'Paid blocks', () => {
 	beforeAll( async () => {
@@ -20,6 +21,19 @@ describe( 'Paid blocks', () => {
 
 		await activateModule( 'wordads' );
 		await activateModule( 'publicize' );
+
+		const r = await page.evaluate( () => Initial_State.getModules.wordads );
+		console.log( r );
+		const jetpackPage = await JetpackPage.init( page );
+
+		for ( let i = 0; i < 10; i++ ) {
+			await jetpackPage.reload( { waitFor: 'networkidle0' } );
+			await page.waitFor( 3000 );
+			console.log( await page.evaluate( () => Initial_State.getModules.wordads.activated ) );
+			console.log(
+				await page.evaluate( () => Initial_State.getModules.wordads.available.toString() )
+			);
+		}
 
 		// await page.waitFor( 10000 ); // Trying to wait for plan data to be updated
 		await page.reload( { waitFor: 'networkidle0' } );

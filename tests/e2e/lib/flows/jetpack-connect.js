@@ -93,15 +93,6 @@ export async function connectThroughWPAdminIfNeeded( {
 	// Reload the page to hydrate plans cache
 	await jetpackPage.reload( { waitFor: 'networkidle0' } );
 
-	const r = await page.evaluate( () => Initial_State.getModules.wordads );
-	console.log( r );
-
-	for ( let i = 0; i < 10; i++ ) {
-		await jetpackPage.reload( { waitFor: 'networkidle0' } );
-		await page.waitFor( 3000 );
-		console.log( await page.evaluate( () => Initial_State.getModules.wordads ) );
-	}
-
 	// await page.waitForResponse(
 	// 	response => response.url().match( /v4\/site[^\/]/ ) && response.status() === 200,
 	// 	{ timeout: 60 * 1000 }
