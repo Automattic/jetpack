@@ -12,28 +12,6 @@ namespace Jetpack\Calendly_Block;
 const FEATURE_NAME = 'calendly';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 
-/**
- * Check if the block should be available on the site.
- *
- * @return bool
- */
-function is_available() {
-	if (
-		defined( 'IS_WPCOM' )
-		&& IS_WPCOM
-		&& function_exists( 'has_any_blog_stickers' )
-	) {
-		if ( has_any_blog_stickers(
-			array( 'premium-plan', 'business-plan', 'ecommerce-plan' ),
-			get_current_blog_id()
-		) ) {
-			return true;
-		}
-		return false;
-	}
-
-	return true;
-}
 
 /**
  * Registers the block for use in Gutenberg
@@ -41,21 +19,13 @@ function is_available() {
  * registration if we need to.
  */
 function register_block() {
-	if ( is_available() ) {
-		jetpack_register_block(
-			BLOCK_NAME,
-			array( 'render_callback' => 'Jetpack\Calendly_Block\load_assets' )
-		);
-	} else {
-		\Jetpack_Gutenberg::set_extension_unavailable(
-			BLOCK_NAME,
-			'missing_plan',
-			array(
-				'required_feature' => 'calendly',
-				'required_plan'    => 'premium-plan',
-			)
-		);
-	}
+	jetpack_register_block(
+		BLOCK_NAME,
+		array( 'render_callback' => 'Jetpack\Calendly_Block\load_assets' ),
+		array(
+			'wpcom' => 'premium-plan',
+		)
+	);
 }
 
 add_action( 'init', 'Jetpack\Calendly_Block\register_block' );
