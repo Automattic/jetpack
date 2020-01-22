@@ -63,7 +63,7 @@ export default class BlockEditorPage extends Page {
 	}
 
 	async waitForAvailableBlock( blockSlug ) {
-		let block = this.findAvailableBlock( blockSlug );
+		let block = await this.findAvailableBlock( blockSlug );
 		if ( block ) {
 			return true;
 		}
@@ -71,7 +71,7 @@ export default class BlockEditorPage extends Page {
 		while ( ! block || count > 20 ) {
 			await page.waitFor( 1000 ); // Trying to wait for plan data to be updated
 			await page.reload( { waitFor: 'networkidle0' } );
-			block = this.findAvailableBlock( blockSlug );
+			block = await this.findAvailableBlock( blockSlug );
 			count += 1;
 
 			const allBlocks = await this.getAllAvailableBlocks();
