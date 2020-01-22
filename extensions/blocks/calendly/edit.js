@@ -96,10 +96,7 @@ export default function CalendlyEdit( { attributes, className, clientId, setAttr
 				</Button>
 			</div>
 			<div className={ `${ className }-learn-more` }>
-				<ExternalLink
-					href="https://help.calendly.com/hc/en-us/articles/223147027-Embed-options-overview"
-					target="_blank"
-				>
+				<ExternalLink href="https://help.calendly.com/hc/en-us/articles/223147027-Embed-options-overview">
 					{ __( 'Need help finding your embed code?', 'jetpack' ) }
 				</ExternalLink>
 			</div>
@@ -217,7 +214,6 @@ export default function CalendlyEdit( { attributes, className, clientId, setAttr
 					</PanelBody>
 				</>
 			) }
-
 			<PanelBody title={ __( 'Calendar Settings', 'jetpack' ) } initialOpen={ false }>
 				<form onSubmit={ parseEmbedCode } className={ `${ className }-embed-form-sidebar` }>
 					<input
@@ -241,6 +237,11 @@ export default function CalendlyEdit( { attributes, className, clientId, setAttr
 					onChange={ () => setAttributes( { hideEventTypeDetails: ! hideEventTypeDetails } ) }
 				/>
 			</PanelBody>
+			<Notice className={ `${ className }-color-notice` } isDismissible={ false }>
+				<ExternalLink href="https://help.calendly.com/hc/en-us/community/posts/360033166114-Embed-Widget-Color-Customization-Available-Now-">
+					{ __( 'Follow these instructions to change the colors in this block.', 'jetpack' ) }
+				</ExternalLink>
+			</Notice>
 		</InspectorControls>
 	);
 
