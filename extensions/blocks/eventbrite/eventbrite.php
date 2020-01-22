@@ -2,28 +2,20 @@
 /**
  * Eventbrite Block.
  *
- * @since 8.0.0
+ * @since 8.2.0
  *
  * @package Jetpack
  */
 
-const JETPACK_EVENTBRITE_ID_FROM_URL_REGEX = '(\d+)\/?\s*$';
-const JETPACK_EVENTBRITE_WIDGET_SLUG       = 'eventbrite-widget';
-
 jetpack_register_block(
 	'jetpack/eventbrite',
 	array(
-		'attributes'      => array(
-			'url'      => array(
-				'type' => 'string',
-			),
-			'useModal' => array(
-				'type' => 'boolean',
-			),
-		),
 		'render_callback' => 'jetpack_render_eventbrite_block',
 	)
 );
+
+const JETPACK_EVENTBRITE_ID_FROM_URL_REGEX = '(\d+)\/?\s*$';
+const JETPACK_EVENTBRITE_WIDGET_SLUG       = 'eventbrite-widget';
 
 /**
  * Eventbrite block registration/dependency delclaration.
