@@ -5,7 +5,7 @@ import Page from '../page';
 /**
  * WordPress dependencies
  */
-import { getAllBlocks, searchForBlock } from '@wordpress/e2e-test-utils';
+import { getAllBlocks, searchForBlock, wpDataSelect } from '@wordpress/e2e-test-utils';
 import { waitAndClick, waitForSelector, scrollIntoView } from '../../page-helper';
 import { getNgrokSiteUrl } from '../../utils-helper';
 
@@ -60,5 +60,23 @@ export default class BlockEditorPage extends Page {
 	async focus() {
 		await this.page.focus( this.expectedSelector );
 		await waitAndClick( this.page, '.editor-post-title__input' );
+	}
+
+	async waitForAvailableBlock( blockSlug ) {
+		let allBlocks = await wpDataSelect( 'core/blocks', 'getBlockTypes' );
+		let block = allBlocks.find( b => b.name.includes( blockSlug ) );
+		if ( block ) {
+			return true;
+		}
+		let count = 0;
+		while ( ! block || count > 20 ) {
+			await page.waitFor( 1000 ); // Trying to wait for plan data to be updated
+			await page.reload( { waitFor: 'networkidle0' } );
+			allBlocks = await wpDataSelect( 'core/blocks', 'getBlockTypes' );
+			block = allBlocks.find( b => b.name.includes( blockSlug ) );
+			count += 1;
+
+			console.log( '!!!!!!', allBlocks.filter( b => b.name.includes( 'jetpack' ) ) );
+		}
 	}
 }

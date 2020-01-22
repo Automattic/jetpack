@@ -68,6 +68,7 @@ describe( 'Paid blocks', () => {
 	describe( 'WordAds block', () => {
 		it( 'Can publish a post with a WordAds block', async () => {
 			const blockEditor = await BlockEditorPage.visit( page );
+			await blockEditor.waitForAvailableBlock( WordAdsBlock.name() );
 			const blockInfo = await blockEditor.insertBlock( WordAdsBlock.name(), WordAdsBlock.title() );
 			await blockEditor.focus();
 
