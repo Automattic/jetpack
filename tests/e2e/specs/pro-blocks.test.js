@@ -21,7 +21,7 @@ describe( 'Paid blocks', () => {
 		await activateModule( 'wordads' );
 		await activateModule( 'publicize' );
 
-		await page.waitFor( 10000 ); // Trying to wait for plan data to be updated
+		// await page.waitFor( 10000 ); // Trying to wait for plan data to be updated
 		await page.reload( { waitFor: 'networkidle0' } );
 	} );
 

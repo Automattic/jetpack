@@ -68,23 +68,25 @@ export default class BlockEditorPage extends Page {
 			return true;
 		}
 		let count = 0;
-		while ( ! block || count > 20 ) {
-			await page.waitFor( 1000 ); // Trying to wait for plan data to be updated
-			await page.reload( { waitFor: 'networkidle0' } );
+		while ( count > 20 || ! block ) {
+			await this.page.waitFor( 1000 ); // Trying to wait for plan data to be updated
+			await this.page.reload( { waitFor: 'networkidle0' } );
 			block = await this.findAvailableBlock( blockSlug );
 			count += 1;
-
-			const allBlocks = await this.getAllAvailableBlocks();
-			console.log( '!!!!!!', allBlocks.filter( b => b.name.includes( 'jetpack' ) ) );
 		}
 	}
 
 	async findAvailableBlock( blockSlug ) {
 		const allBlocks = await this.getAllAvailableBlocks();
-		return allBlocks.find( b => b.name.includes( blockSlug ) );
+		return allBlocks.find( b => b.includes( blockSlug ) );
 	}
 
 	async getAllAvailableBlocks() {
-		return await page.evaluate( () => wp.data.select( 'core/blocks' ).getBlockTypes() );
+		return await this.page.evaluate( () =>
+			wp.data
+				.select( 'core/blocks' )
+				.getBlockTypes()
+				.map( b => b.name )
+		);
 	}
 }
