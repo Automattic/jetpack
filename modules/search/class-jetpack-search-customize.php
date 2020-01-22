@@ -87,9 +87,9 @@ class Jetpack_Search_Customize {
 				'label'       => __( 'Background Opacity', 'jetpack' ),
 				'description' => __( 'Select and opacity for the search overlay.', 'jetpack' ),
 				'input_attrs' => array(
-					'min'  => 0,
+					'min'  => 85,
 					'max'  => 100,
-					'step' => 1,
+					'step' => 0.5,
 				),
 			)
 		);
