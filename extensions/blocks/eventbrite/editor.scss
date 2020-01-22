@@ -7,6 +7,9 @@
 
 .wp-block-jetpack-eventbrite.is-modal-button {
 	display: inline-block;
+	.wp-block-button__link {
+		display: block;
+	}
 }
 
 .block-editor-block-preview__content div[data-block] {
