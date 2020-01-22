@@ -26,6 +26,8 @@ import { createWidgetId, eventIdFromUrl } from './utils';
  *
  * Uses a "button" element rather than "a", since the button opens a modal rather than
  * an external link.
+ *
+ * @todo Remove this once WordPress 5.3 is Jetpack's minimum version.
  */
 
 function saveButton( eventId, attributes ) {
