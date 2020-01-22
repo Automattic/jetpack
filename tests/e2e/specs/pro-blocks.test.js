@@ -22,22 +22,18 @@ describe( 'Paid blocks', () => {
 		await activateModule( 'wordads' );
 		await activateModule( 'publicize' );
 
-		const r = await page.evaluate( () => Initial_State.getModules.wordads );
-		console.log( r );
 		const jetpackPage = await JetpackPage.init( page );
+		let ads = await page.evaluate( () => Initial_State.getModules.wordads );
 
 		for ( let i = 0; i < 10; i++ ) {
-			await activateModule( 'wordads' );
-
-			await jetpackPage.reload();
-			await page.waitFor( 3000 );
-			const ads = await page.evaluate( () => JSON.stringify( Initial_State.getModules.wordads ) );
-			console.log( ads );
-			console.log( await page.evaluate( () => Initial_State.siteData.plan.product_slug ) );
-
 			if ( ads.activated ) {
 				break;
 			}
+			await jetpackPage.reload();
+			await activateModule( 'wordads' );
+
+			ads = await page.evaluate( () => Initial_State.getModules.wordads );
+			await page.waitFor( 1000 );
 		}
 
 		// await page.waitFor( 10000 ); // Trying to wait for plan data to be updated

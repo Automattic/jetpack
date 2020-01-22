@@ -33,5 +33,15 @@ function e2e_intercept_plan_data_request( $return, $r, $url ) {
 			'body'     => $plan_data,
 		);
 	}
+
+	if ( false !== stripos( $url, sprintf( '/sites/%d/wordads/status', $site_id ) ) ) {
+		$site_url  = site_url();
+		$json_data = sprintf( '{"ID":%d,"name":"E2E Testing","URL":"%s","approved":true,"active":true,"house":true,"unsafe":false,"status":false}', $site_id, $site_url );
+
+		return array(
+			'response' => array( 'code' => 200 ),
+			'body'     => $json_data,
+		);
+	}
 	return $return;
 }
