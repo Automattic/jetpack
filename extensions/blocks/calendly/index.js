@@ -33,7 +33,7 @@ export const settings = {
 		html: false,
 	},
 	edit,
-	save: () => null,
+	save: ( { attributes: { url } } ) => url,
 	attributes,
 	example: {
 		attributes: {
