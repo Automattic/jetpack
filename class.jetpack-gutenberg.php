@@ -815,48 +815,28 @@ class Jetpack_Gutenberg {
 		return $preset_extensions;
 	}
 
-
 	/**
-	 * Check if the block should be available on the site.
+	 * Check if a block is supported by your plan,
+	 * whether it's a Jetpack plan or a WordPress.com plan.
+	 *
+	 * This can be used to decide a block should be registered or not.
+	 *
+	 * @since 8.2.0
+	 *
+	 * @param string $slug Block slug.
+	 * @param string $env  Current environment. Can be wpcom (wpcom simple sites) or jetpack.
 	 *
 	 * @return bool
 	 */
-	public static function is_premium_wpcom_available() {
-		if (
-			defined( 'IS_WPCOM' )
-			&& IS_WPCOM
-			&& function_exists( 'has_any_blog_stickers' )
-		) {
-			if ( has_any_blog_stickers(
-				array( 'premium-plan', 'business-plan', 'ecommerce-plan' ),
-				get_current_blog_id()
-			) ) {
-				return true;
-			}
-			return false;
+	public static function is_supported_by_plan( $slug, $env ) {
+		$slug = self::remove_extension_prefix( $slug );
+
+		if ( 'wpcom' === $env ) {
+			return Wpcom_Plan::supports( $slug );
+		} elseif ( 'jetpack' === $env ) {
+			return Jetpack::is_active() && Jetpack_Plan::supports( $slug );
 		}
 
-		return true;
-	}
-
-	/**
-	 * Set the availability of a WPCOM premium block
-	 * based on the context we're running in
-	 *
-	 * @param string $slug Slug of the block.
-	 */
-	public static function set_premium_wpcom_availability( $slug ) {
-		if ( self::is_premium_wpcom_available() ) {
-			self::set_extension_available( $slug );
-		} else {
-			self::set_extension_unavailable(
-				$slug,
-				'missing_plan',
-				array(
-					'required_feature' => 'opentable',
-					'required_plan'    => 'value_bundle',
-				)
-			);
-		}
+		return false;
 	}
 }
