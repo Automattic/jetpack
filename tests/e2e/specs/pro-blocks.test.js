@@ -20,6 +20,7 @@ describe( 'Paid blocks', () => {
 		await connectThroughWPAdminIfNeeded( { mockPlanData: true } );
 
 		await activateModule( 'wordads' );
+		await activateModule( 'wordads' );
 		await activateModule( 'publicize' );
 
 		const r = await page.evaluate( () => Initial_State.getModules.wordads );
@@ -27,22 +28,19 @@ describe( 'Paid blocks', () => {
 		const jetpackPage = await JetpackPage.init( page );
 
 		for ( let i = 0; i < 10; i++ ) {
-			await jetpackPage.reload( { waitFor: 'networkidle0' } );
+			await jetpackPage.reload();
 			await page.waitFor( 3000 );
-			console.log(
-				await page.evaluate( () => Initial_State.getModules.wordads.activated.split( '' ) )
-			);
-			console.log(
-				await page.evaluate( () => Initial_State.getModules.wordads.available.split( '' ) )
-			);
+			const ads = await page.evaluate( () => JSON.stringify( Initial_State.getModules.wordads ) );
+			console.log( ads );
+			console.log( await page.evaluate( () => Initial_State.siteData.plan.product_slug ) );
 
-			console.log(
-				await page.evaluate( () => Initial_State.siteData.plan.product_slug.split( '' ) )
-			);
+			if ( ads.activated ) {
+				break;
+			}
 		}
 
 		// await page.waitFor( 10000 ); // Trying to wait for plan data to be updated
-		await page.reload( { waitFor: 'networkidle0' } );
+		await page.reload();
 	} );
 
 	describe( 'Mailchimp Block', () => {
