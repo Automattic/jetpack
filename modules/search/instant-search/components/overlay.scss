@@ -6,7 +6,6 @@
 	opacity: 0.975;
 	transition: opacity 0.5s linear, 0.25s transform ease-in-out;
 	position: fixed;
-	background: white;
 	padding: 3em 1em;
 	overflow-y: auto;
 	overflow-x: hidden;
@@ -14,6 +13,14 @@
 
 	&.is-hidden {
 		transform: translateX( 100vw );
+	}
+
+	&.jetpack-instant-search__overlay--light {
+		background: #fff;
+	}
+
+	&.jetpack-instant-search__overlay--dark {
+		background: #131313;
 	}
 }
 
