@@ -20,7 +20,6 @@ describe( 'Paid blocks', () => {
 		await connectThroughWPAdminIfNeeded( { mockPlanData: true } );
 
 		await activateModule( 'wordads' );
-		await activateModule( 'wordads' );
 		await activateModule( 'publicize' );
 
 		const r = await page.evaluate( () => Initial_State.getModules.wordads );
@@ -28,6 +27,8 @@ describe( 'Paid blocks', () => {
 		const jetpackPage = await JetpackPage.init( page );
 
 		for ( let i = 0; i < 10; i++ ) {
+			await activateModule( 'wordads' );
+
 			await jetpackPage.reload();
 			await page.waitFor( 3000 );
 			const ads = await page.evaluate( () => JSON.stringify( Initial_State.getModules.wordads ) );
