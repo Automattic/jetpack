@@ -33,6 +33,10 @@ describe( 'Paid blocks', () => {
 			console.log(
 				await page.evaluate( () => Initial_State.getModules.wordads.available.toString() )
 			);
+
+			console.log(
+				await page.evaluate( () => Initial_State.siteData.plan.product_slug.toString() )
+			);
 		}
 
 		// await page.waitFor( 10000 ); // Trying to wait for plan data to be updated
