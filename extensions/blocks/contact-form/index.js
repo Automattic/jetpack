@@ -16,6 +16,7 @@ import JetpackField from './components/jetpack-field';
 import JetpackFieldTextarea from './components/jetpack-field-textarea';
 import JetpackFieldCheckbox from './components/jetpack-field-checkbox';
 import JetpackFieldMultiple from './components/jetpack-field-multiple';
+import JetpackFieldAttachment from './components/jetpack-field-attachment';
 import renderMaterialIcon from '../../shared/render-material-icon';
 
 export const name = 'contact-form';
@@ -111,6 +112,12 @@ export const settings = {
 				name: 'jetpack/field-textarea',
 				attributes: {
 					label: __( 'Message', 'jetpack' ),
+				},
+			},
+			{
+				name: 'jetpack/field-attachment',
+				attributes: {
+					label: __( 'Attachment', 'jetpack' ),
 				},
 			},
 		],
@@ -503,6 +510,42 @@ export const childBlocks = [
 				label: {
 					type: 'string',
 					default: 'Select one',
+				},
+			},
+		},
+	},
+	{
+		name: 'field-attachment',
+		settings: {
+			...FieldDefaults,
+			title: __( 'Attachment', 'jetpack' ),
+			keywords: [
+				__( 'Choose', 'jetpack' ),
+				__( 'Dropdown', 'jetpack' ),
+				__( 'Option', 'jetpack' ),
+			],
+			description: __( 'Allow user to submit an attachment.', 'jetpack' ),
+			icon: renderMaterialIcon(
+				<>
+					<Path fill="none" d="M0 0h24v24H0V0z"></Path>
+					<Path d="M9.17 6l2 2H20v10H4V6h5.17M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"></Path>
+				</>
+			),
+			edit: props => (
+				<JetpackFieldAttachment
+					label={ props.attributes.label } // label intentinally left blank
+					required={ props.attributes.required }
+					setAttributes={ props.setAttributes }
+					isSelected={ props.isSelected }
+					defaultValue={ props.attributes.defaultValue }
+					id={ props.attributes.id }
+				/>
+			),
+			attributes: {
+				...FieldDefaults.attributes,
+				label: {
+					type: 'string',
+					default: 'Attach a file',
 				},
 			},
 		},
