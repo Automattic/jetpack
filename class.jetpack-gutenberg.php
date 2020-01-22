@@ -9,6 +9,8 @@
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status;
 
+
+const WPCOM_PLANS = array( 'personal-plan', 'premium-plan', 'business-plan', 'ecommerce-plan' );
 /**
  * Wrapper function to safely register a gutenberg block type
  *
@@ -800,5 +802,56 @@ class Jetpack_Gutenberg {
 		}
 
 		return $preset_extensions;
+	}
+
+	private static function plans_greater_than_or_equal_to( $plan ) {
+		$plan_position = array_search( $plan, WPCOM_PLANS );
+		return array_slice( WPCOM_PLANS, $plan_position, WPCOM_PLANS . length );
+	}
+
+	private static function is_block_available( $block_name, $availability ) {
+		if (
+			defined( 'IS_WPCOM' )
+			&& IS_WPCOM
+			&& function_exists( 'has_any_blog_stickers' )
+		) {
+			if ( is_bool( $availability['wpcom'] ) ) {
+				return $availability['wpcom'];
+			}
+
+			$supported_plans = self::plans_greater_than_or_equal_to( $availability['wpcom'] );
+			if ( has_any_blog_stickers(
+				$supported_plans,
+				get_current_blog_id()
+			) ) {
+				return true;
+			}
+			return $availability['wpcom'];
+		}
+
+		if ( is_bool( $availability['jetpack'] ) ) {
+			return $availability['jetpack'];
+		}
+
+		return Jetpack_Plan::supports( BLOCK_NAME );
+	}
+
+	public static function register_block_with_availability( $block_name, $callback, $availability ) {
+		$availability_check_result = self::is_block_available( $block_name, $availability );
+		if ( is_bool( $availability_check_result ) && $availability_check_result ) {
+			jetpack_register_block(
+				$block_name,
+				array( 'render_callback' => $callback )
+			);
+		} else {
+			self::set_extension_unavailable(
+				$block_name,
+				'missing_plan',
+				array(
+					'required_feature' => $block_name,
+					'required_plan'    => $availability_check_result,
+				)
+			);
+		}
 	}
 }

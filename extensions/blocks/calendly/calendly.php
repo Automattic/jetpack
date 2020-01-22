@@ -11,18 +11,26 @@ namespace Jetpack\Calendly_Block;
 
 const FEATURE_NAME = 'calendly';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
+const AVAILABILITY = array(
+	'jetpack' => true,
+	'wpcom'   => 'premium-plan',
+);
 
 /**
  * Check if the block should be available on the site.
  *
  * @return bool
  */
-function is_available() {
+function is_available( $availability ) {
 	if (
 		defined( 'IS_WPCOM' )
 		&& IS_WPCOM
 		&& function_exists( 'has_any_blog_stickers' )
 	) {
+		if ( is_bool( $availability['wpcom'] ) ) {
+			return $availability['wpcom'];
+		}
+
 		if ( has_any_blog_stickers(
 			array( 'premium-plan', 'business-plan', 'ecommerce-plan' ),
 			get_current_blog_id()
@@ -32,7 +40,11 @@ function is_available() {
 		return false;
 	}
 
-	return true;
+	if ( is_bool( $availability['jetpack'] ) ) {
+		return $availability['jetpack'];
+	}
+
+	return Jetpack_Plan::supports( BLOCK_NAME );
 }
 
 /**
@@ -41,21 +53,7 @@ function is_available() {
  * registration if we need to.
  */
 function register_block() {
-	if ( is_available() ) {
-		jetpack_register_block(
-			BLOCK_NAME,
-			array( 'render_callback' => 'Jetpack\Calendly_Block\load_assets' )
-		);
-	} else {
-		\Jetpack_Gutenberg::set_extension_unavailable(
-			BLOCK_NAME,
-			'missing_plan',
-			array(
-				'required_feature' => 'calendly',
-				'required_plan'    => 'premium-plan',
-			)
-		);
-	}
+	\Jetpack_Gutenberg::register_block_with_availability( BLOCK_NAME, '\Jetpack\Calendly_Block\load_assets', AVAILABILITY );
 }
 
 add_action( 'init', 'Jetpack\Calendly_Block\register_block' );
