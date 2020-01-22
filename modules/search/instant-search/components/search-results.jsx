@@ -49,6 +49,16 @@ class SearchResults extends Component {
 
 		return (
 			<Fragment>
+				<style
+					// eslint-disable-next-line react/no-danger
+					dangerouslySetInnerHTML={ {
+						__html: `
+							.jetpack-instant-search__search-results mark { 
+								background-color: ${ this.props.highlightColor };
+							}
+						`,
+					} }
+				/>
 				<SearchForm className="jetpack-instant-search__search-results-search-form" />
 
 				<div
