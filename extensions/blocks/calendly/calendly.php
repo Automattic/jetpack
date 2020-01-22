@@ -7,10 +7,58 @@
  * @package Jetpack
  */
 
-jetpack_register_block(
-	'jetpack/calendly',
-	array( 'render_callback' => 'jetpack_calendly_block_load_assets' )
-);
+namespace Jetpack\Calendly_Block;
+
+const FEATURE_NAME = 'calendly';
+const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
+
+/**
+ * Check if the block should be available on the site.
+ *
+ * @return bool
+ */
+function is_available() {
+	if (
+		defined( 'IS_WPCOM' )
+		&& IS_WPCOM
+		&& function_exists( 'has_any_blog_stickers' )
+	) {
+		if ( has_any_blog_stickers(
+			array( 'premium-plan', 'business-plan', 'ecommerce-plan' ),
+			get_current_blog_id()
+		) ) {
+			return true;
+		}
+		return false;
+	}
+
+	return true;
+}
+
+/**
+ * Registers the block for use in Gutenberg
+ * This is done via an action so that we can disable
+ * registration if we need to.
+ */
+function register_block() {
+	if ( is_available() ) {
+		jetpack_register_block(
+			BLOCK_NAME,
+			array( 'render_callback' => 'Jetpack\Calendly_Block\load_assets' )
+		);
+	} else {
+		\Jetpack_Gutenberg::set_extension_unavailable(
+			BLOCK_NAME,
+			'missing_plan',
+			array(
+				'required_feature' => 'calendly',
+				'required_plan'    => 'premium-plan',
+			)
+		);
+	}
+}
+
+add_action( 'init', 'Jetpack\Calendly_Block\register_block' );
 
 /**
  * Calendly block registration/dependency declaration.
@@ -20,8 +68,8 @@ jetpack_register_block(
  *
  * @return string
  */
-function jetpack_calendly_block_load_assets( $attr, $content ) {
-	$url = jetpack_calendly_block_get_attribute( $attr, 'url' );
+function load_assets( $attr, $content ) {
+	$url = get_attribute( $attr, 'url' );
 	if ( empty( $url ) ) {
 		return;
 	}
@@ -29,7 +77,7 @@ function jetpack_calendly_block_load_assets( $attr, $content ) {
 	/*
 	 * Enqueue necessary scripts and styles.
 	 */
-	Jetpack_Gutenberg::load_assets_as_required( 'calendly' );
+	\Jetpack_Gutenberg::load_assets_as_required( 'calendly' );
 	wp_enqueue_script(
 		'jetpack-calendly-external-js',
 		'https://assets.calendly.com/assets/external/widget.js',
@@ -38,15 +86,15 @@ function jetpack_calendly_block_load_assets( $attr, $content ) {
 		false
 	);
 
-	$style                          = jetpack_calendly_block_get_attribute( $attr, 'style' );
-	$hide_event_type_details        = jetpack_calendly_block_get_attribute( $attr, 'hideEventTypeDetails' );
-	$background_color               = jetpack_calendly_block_get_attribute( $attr, 'backgroundColor' );
-	$text_color                     = jetpack_calendly_block_get_attribute( $attr, 'textColor' );
-	$primary_color                  = jetpack_calendly_block_get_attribute( $attr, 'primaryColor' );
-	$submit_button_text             = jetpack_calendly_block_get_attribute( $attr, 'submitButtonText' );
-	$submit_button_text_color       = jetpack_calendly_block_get_attribute( $attr, 'customTextButtonColor' );
-	$submit_button_background_color = jetpack_calendly_block_get_attribute( $attr, 'customBackgroundButtonColor' );
-	$classes                        = Jetpack_Gutenberg::block_classes( 'calendly', $attr );
+	$style                          = get_attribute( $attr, 'style' );
+	$hide_event_type_details        = get_attribute( $attr, 'hideEventTypeDetails' );
+	$background_color               = get_attribute( $attr, 'backgroundColor' );
+	$text_color                     = get_attribute( $attr, 'textColor' );
+	$primary_color                  = get_attribute( $attr, 'primaryColor' );
+	$submit_button_text             = get_attribute( $attr, 'submitButtonText' );
+	$submit_button_text_color       = get_attribute( $attr, 'customTextButtonColor' );
+	$submit_button_background_color = get_attribute( $attr, 'customBackgroundButtonColor' );
+	$classes                        = \Jetpack_Gutenberg::block_classes( 'calendly', $attr );
 
 	$url = add_query_arg(
 		array(
@@ -104,7 +152,7 @@ function jetpack_calendly_block_load_assets( $attr, $content ) {
  *
  * @return string
  */
-function jetpack_calendly_block_get_attribute( $attributes, $attribute_name ) {
+function get_attribute( $attributes, $attribute_name ) {
 	if ( isset( $attributes[ $attribute_name ] ) ) {
 		return $attributes[ $attribute_name ];
 	}
