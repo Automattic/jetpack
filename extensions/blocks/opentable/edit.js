@@ -50,7 +50,7 @@ export default function OpenTableEdit( { attributes, setAttributes, className, c
 		setAttributes( validatedAttributes );
 	}
 
-	const { rid, style, iframe, domain, lang, newtab } = attributes;
+	const { align, rid, style, iframe, domain, lang, newtab } = attributes;
 	const [ notice, setNotice ] = useState();
 
 	const setErrorNotice = () =>
@@ -110,6 +110,15 @@ export default function OpenTableEdit( { attributes, setAttributes, className, c
 
 	const updateStyle = newStyle => {
 		setAttributes( { style: newStyle } );
+		if ( style === 'wide' && align === 'wide' ) {
+			// If the old style was wide
+			setAttributes( { align: '' } ); // then reset the alignment
+		}
+
+		if ( newStyle === 'wide' ) {
+			// If the new style is wide
+			setAttributes( { align: 'wide' } ); // then set the alignment to wide as it works much better like that
+		}
 	};
 
 	const getTypeAndTheme = fromStyle =>
