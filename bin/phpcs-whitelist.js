@@ -5,6 +5,7 @@ module.exports = [
 	'3rd-party/woocommerce-services.php',
 	'class.jetpack-gutenberg.php',
 	'class.jetpack-plan.php',
+	'class.wpcom-plan.php',
 	'extensions/',
 	'functions.cookies.php',
 	'functions.global.php',
