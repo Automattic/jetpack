@@ -57,10 +57,10 @@ function BorderPanel( { borderRadius = '', setAttributes } ) {
 		[ setAttributes ]
 	);
 	return (
-		<PanelBody title={ __( 'Border Settings' ) }>
+		<PanelBody title={ __( 'Border Settings', 'jetpack' ) }>
 			<RangeControl
 				value={ borderRadius }
-				label={ __( 'Border Radius' ) }
+				label={ __( 'Border Radius', 'jetpack' ) }
 				min={ MIN_BORDER_RADIUS_VALUE }
 				max={ MAX_BORDER_RADIUS_VALUE }
 				initialPosition={ INITIAL_BORDER_RADIUS_POSITION }
@@ -107,7 +107,7 @@ class ButtonEdit extends Component {
 				ref={ this.bindRef }
 			>
 				<RichText
-					placeholder={ placeholder || __( 'Add text…' ) }
+					placeholder={ placeholder || __( 'Add text…', 'jetpack' ) }
 					value={ text }
 					onChange={ value => setAttributes( { text: value } ) }
 					withoutInteractiveFormatting
@@ -126,17 +126,17 @@ class ButtonEdit extends Component {
 				/>
 				<InspectorControls>
 					<PanelColorSettings
-						title={ __( 'Color Settings' ) }
+						title={ __( 'Color Settings', 'jetpack' ) }
 						colorSettings={ [
 							{
 								value: backgroundColor.color,
 								onChange: setBackgroundColor,
-								label: __( 'Background Color' ),
+								label: __( 'Background Color', 'jetpack' ),
 							},
 							{
 								value: textColor.color,
 								onChange: setTextColor,
-								label: __( 'Text Color' ),
+								label: __( 'Text Color', 'jetpack' ),
 							},
 						] }
 					>
