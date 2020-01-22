@@ -29,13 +29,15 @@ describe( 'Paid blocks', () => {
 		for ( let i = 0; i < 10; i++ ) {
 			await jetpackPage.reload( { waitFor: 'networkidle0' } );
 			await page.waitFor( 3000 );
-			console.log( await page.evaluate( () => Initial_State.getModules.wordads.activated ) );
 			console.log(
-				await page.evaluate( () => Initial_State.getModules.wordads.available.toString() )
+				await page.evaluate( () => Initial_State.getModules.wordads.activated.split( '' ) )
+			);
+			console.log(
+				await page.evaluate( () => Initial_State.getModules.wordads.available.split( '' ) )
 			);
 
 			console.log(
-				await page.evaluate( () => Initial_State.siteData.plan.product_slug.toString() )
+				await page.evaluate( () => Initial_State.siteData.plan.product_slug.split( '' ) )
 			);
 		}
 
