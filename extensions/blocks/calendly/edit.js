@@ -202,17 +202,15 @@ export default function CalendlyEdit( { attributes, className, clientId, setAttr
 	const inspectorControls = (
 		<InspectorControls>
 			{ url && (
-				<>
-					<PanelBody title={ __( 'Styles', 'jetpack' ) }>
-						<BlockStylesPreviewAndSelector
-							clientId={ clientId }
-							styleOptions={ styleOptions }
-							onSelectStyle={ setAttributes }
-							activeStyle={ style }
-							attributes={ attributes }
-						/>
-					</PanelBody>
-				</>
+				<PanelBody title={ __( 'Styles', 'jetpack' ) }>
+					<BlockStylesPreviewAndSelector
+						clientId={ clientId }
+						styleOptions={ styleOptions }
+						onSelectStyle={ setAttributes }
+						activeStyle={ style }
+						attributes={ attributes }
+					/>
+				</PanelBody>
 			) }
 			<PanelBody title={ __( 'Calendar Settings', 'jetpack' ) } initialOpen={ false }>
 				<form onSubmit={ parseEmbedCode } className={ `${ className }-embed-form-sidebar` }>
@@ -237,11 +235,13 @@ export default function CalendlyEdit( { attributes, className, clientId, setAttr
 					onChange={ () => setAttributes( { hideEventTypeDetails: ! hideEventTypeDetails } ) }
 				/>
 			</PanelBody>
-			<Notice className={ `${ className }-color-notice` } isDismissible={ false }>
-				<ExternalLink href="https://help.calendly.com/hc/en-us/community/posts/360033166114-Embed-Widget-Color-Customization-Available-Now-">
-					{ __( 'Follow these instructions to change the colors in this block.', 'jetpack' ) }
-				</ExternalLink>
-			</Notice>
+			{ url && (
+				<Notice className={ `${ className }-color-notice` } isDismissible={ false }>
+					<ExternalLink href="https://help.calendly.com/hc/en-us/community/posts/360033166114-Embed-Widget-Color-Customization-Available-Now-">
+						{ __( 'Follow these instructions to change the colors in this block.', 'jetpack' ) }
+					</ExternalLink>
+				</Notice>
+			) }
 		</InspectorControls>
 	);
 
