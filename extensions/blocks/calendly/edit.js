@@ -81,20 +81,22 @@ export default function CalendlyEdit( { attributes, className, clientId, setAttr
 	};
 
 	const embedCodeForm = (
-		<form onSubmit={ parseEmbedCode }>
-			<input
-				type="text"
-				id="embedCode"
-				onChange={ event => setEmbedCode( event.target.value ) }
-				placeholder={ __( 'Calendly web address or embed code…', 'jetpack' ) }
-				value={ embedCode }
-				className="components-placeholder__input"
-			/>
-			<div>
-				<Button isSecondary isLarge type="submit">
-					{ _x( 'Embed', 'button label', 'jetpack' ) }
-				</Button>
-			</div>
+		<>
+			<form onSubmit={ parseEmbedCode }>
+				<input
+					type="text"
+					id="embedCode"
+					onChange={ event => setEmbedCode( event.target.value ) }
+					placeholder={ __( 'Calendly web address or embed code…', 'jetpack' ) }
+					value={ embedCode }
+					className="components-placeholder__input"
+				/>
+				<div>
+					<Button isSecondary isLarge type="submit">
+						{ _x( 'Embed', 'button label', 'jetpack' ) }
+					</Button>
+				</div>
+			</form>
 			<div className={ `${ className }-learn-more` }>
 				<ExternalLink
 					href="https://help.calendly.com/hc/en-us/articles/223147027-Embed-options-overview"
@@ -103,7 +105,7 @@ export default function CalendlyEdit( { attributes, className, clientId, setAttr
 					{ __( 'Need help finding your embed code?', 'jetpack' ) }
 				</ExternalLink>
 			</div>
-		</form>
+		</>
 	);
 
 	const blockPlaceholder = (
