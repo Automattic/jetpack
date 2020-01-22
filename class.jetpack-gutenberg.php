@@ -12,16 +12,23 @@ use Automattic\Jetpack\Status;
 /**
  * Wrapper function to safely register a gutenberg block type
  *
- * @param string $slug Slug of the block.
- * @param array  $args Arguments that are passed into register_block_type.
+ * @param string $slug          Slug of the block.
+ * @param array  $args          Arguments that are passed into register_block_type.
+ * @param array  $required_plan {
+ *    Optional. Does the block require a plan.
+ *
+ *    @type string wpcom   Slug of the plan required to use feature on WordPress.com simple sites.
+ *    @type string jetpack Slug of the plan required to use feature on Jetpack sites.
+ * }
  *
  * @see register_block_type
  *
  * @since 6.7.0
+ * @since 8.2.0 Added required_plan parameter.
  *
  * @return WP_Block_Type|false The registered block type on success, or false on failure.
  */
-function jetpack_register_block( $slug, $args = array() ) {
+function jetpack_register_block( $slug, $args = array(), $required_plan = array() ) {
 	if ( 0 !== strpos( $slug, 'jetpack/' ) && ! strpos( $slug, '/' ) ) {
 		_doing_it_wrong( 'jetpack_register_block', 'Prefix the block with jetpack/ ', '7.1.0' );
 		$slug = 'jetpack/' . $slug;
@@ -32,20 +39,26 @@ function jetpack_register_block( $slug, $args = array() ) {
 		return false;
 	}
 
-	return register_block_type( $slug, $args );
-}
+	$env = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? 'wpcom' : 'jetpack';
 
-/**
- * Registers a gutenberg block for WPCOM users with a
- * pard pland and all Jetpack users
- *
- * @param string $slug Slug of the block.
- * @param array  $args Arguments that are passed into register_block_type.
- */
-function jetpack_register_premium_wpcom_block( $slug, $args = array() ) {
-	if ( Jetpack_Gutenberg::is_premium_wpcom_available() ) {
-		jetpack_register_block( $slug, $args );
+	// If the block requires a plan and your site does not have said plan, stop.
+	if (
+		! empty( $required_plan )
+		&& ! empty( $required_plan[ $env ] )
+		&& ! Jetpack_Gutenberg::is_supported_by_plan( $slug, $env )
+	) {
+		Jetpack_Gutenberg::set_extension_unavailable(
+			$slug,
+			'missing_plan',
+			array(
+				'required_feature' => $slug,
+				'required_plan'    => $required_plan[ $env ],
+			)
+		);
+		return false;
 	}
+
+	return register_block_type( $slug, $args );
 }
 
 /**
