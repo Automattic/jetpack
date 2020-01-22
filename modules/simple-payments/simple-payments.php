@@ -13,8 +13,6 @@ class Jetpack_Simple_Payments {
 
 	static $css_classname_prefix = 'jetpack-simple-payments';
 
-	static $required_plan;
-
 	// Increase this number each time there's a change in CSS or JS to bust cache.
 	static $version = '0.25';
 
@@ -25,7 +23,6 @@ class Jetpack_Simple_Payments {
 		if ( ! self::$instance ) {
 			self::$instance = new self();
 			self::$instance->register_init_hooks();
-			self::$required_plan = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? 'value_bundle' : 'jetpack_premium';
 		}
 		return self::$instance;
 	}
@@ -43,7 +40,6 @@ class Jetpack_Simple_Payments {
 
 	private function register_init_hooks() {
 		add_action( 'init', array( $this, 'init_hook_action' ) );
-		add_action( 'jetpack_register_gutenberg_extensions', array( $this, 'register_gutenberg_block' ) );
 		add_action( 'rest_api_init', array( $this, 'register_meta_fields_in_rest_api' ) );
 	}
 
@@ -61,21 +57,16 @@ class Jetpack_Simple_Payments {
 		$this->setup_cpts();
 
 		add_filter( 'the_content', array( $this, 'remove_auto_paragraph_from_product_description' ), 0 );
-	}
 
-	function register_gutenberg_block() {
-		if ( $this->is_enabled_jetpack_simple_payments() ) {
-			jetpack_register_block( 'jetpack/simple-payments' );
-		} else {
-			Jetpack_Gutenberg::set_extension_unavailable(
-				'jetpack/simple-payments',
-				'missing_plan',
-				array(
-					'required_feature' => 'simple-payments',
-					'required_plan'    => self::$required_plan,
-				)
-			);
-		}
+		// Register block.
+		jetpack_register_block(
+			'jetpack/simple-payments',
+			array(),
+			array(
+				'wpcom'   => 'value_bundle',
+				'jetpack' => 'jetpack_premium',
+			)
+		);
 	}
 
 	function remove_auto_paragraph_from_product_description( $content ) {
@@ -184,7 +175,7 @@ class Jetpack_Simple_Payments {
 
 		jetpack_require_lib( 'components' );
 		return Jetpack_Components::render_upgrade_nudge( array(
-			'plan' => self::$required_plan
+			'plan' => ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? 'value_bundle' : 'jetpack_premium',
 		) );
 	}
 
