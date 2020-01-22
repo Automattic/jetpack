@@ -22,7 +22,7 @@ class Wpcom_Plan {
 	}
 
 	/**
-	 * Return an array of features supported by current plan.
+	 * Return an array of features supported by current plan or sticker.
 	 *
 	 * @access public
 	 * @static
@@ -33,30 +33,39 @@ class Wpcom_Plan {
 	 */
 	public static function features( $plan ) {
 		$plan_features = array(
-			'blogger-plan'    => array(),
-			'personal-plan'   => array(
+			'blogger-plan'             => array(),
+			'personal-plan'            => array(
 				'recurring-payments',
 			),
-			'personal-bundle' => array(
+			'personal-bundle'          => array(
 				'recurring-payments',
 			),
-			'premium-plan'    => array(
+			'premium-plan'             => array(
 				'calendly',
 				'opentable',
 				'recurring-payments',
 				'simple-payments',
 			),
-			'business-plan'   => array(
+			'business-plan'            => array(
 				'calendly',
 				'opentable',
 				'recurring-payments',
 				'simple-payments',
 			),
-			'ecommerce-plan'  => array(
+			'ecommerce-plan'           => array(
 				'calendly',
 				'opentable',
 				'recurring-payments',
 				'simple-payments',
+			),
+			'wordads'                  => array(
+				'wordads',
+			),
+			'wordads-approved'         => array(
+				'wordads',
+			),
+			'wordads-approved-misfits' => array(
+				'wordads',
 			),
 		);
 
@@ -88,7 +97,17 @@ class Wpcom_Plan {
 		// Get all the site's plan stickers.
 		$plan_stickers = array_intersect(
 			get_blog_stickers( get_current_blog_id() ),
-			array( 'blogger-plan', 'personal-plan', 'premium-plan', 'business-plan', 'ecommerce-plan' )
+			array(
+				'blogger-plan',
+				'personal-plan',
+				'personal-bundle',
+				'premium-plan',
+				'business-plan',
+				'ecommerce-plan',
+				'wordads',
+				'wordads-approved',
+				'wordads-approved-misfits',
+			)
 		);
 
 		foreach ( $plan_stickers as $plan_sticker ) {

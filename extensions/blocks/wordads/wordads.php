@@ -27,42 +27,22 @@ class Jetpack_WordAds_Gutenblock {
 	}
 
 	/**
-	 * Check if the site is approved for ads for WP.com Simple sites.
-	 *
-	 * @return bool
-	 */
-	private static function is_available() {
-		if ( self::is_wpcom() ) {
-			return has_any_blog_stickers( array( 'wordads', 'wordads-approved', 'wordads-approved-misfits' ), get_current_blog_id() );
-		}
-
-		return self::is_jetpack_module_active();
-	}
-
-	/**
 	 * Register the WordAds block.
 	 */
 	public static function register() {
-		if ( self::is_available() ) {
+		// On WordPress.com the WordAds module is always active.
+		if ( self::is_jetpack_module_active() ) {
 			jetpack_register_block(
 				self::BLOCK_NAME,
 				array(
 					'render_callback' => array( 'Jetpack_WordAds_Gutenblock', 'gutenblock_render' ),
+				),
+				array(
+					'wpcom'   => 'wordads',
+					'jetpack' => 'wordads-jetpack',
 				)
 			);
 		}
-	}
-
-	/**
-	 * Set if the WordAds block is available.
-	 */
-	public static function set_availability() {
-		if ( ! self::is_available() ) {
-			Jetpack_Gutenberg::set_extension_unavailable( self::BLOCK_NAME, 'WordAds unavailable' );
-			return;
-		}
-		// Make the block available. Just in case it wasn't registed before.
-		Jetpack_Gutenberg::set_extension_available( self::BLOCK_NAME );
 	}
 
 	/**
@@ -118,9 +98,4 @@ class Jetpack_WordAds_Gutenblock {
 add_action(
 	'init',
 	array( 'Jetpack_WordAds_Gutenblock', 'register' )
-);
-
-add_action(
-	'jetpack_register_gutenberg_extensions',
-	array( 'Jetpack_WordAds_Gutenblock', 'set_availability' )
 );
