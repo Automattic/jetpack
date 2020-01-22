@@ -19,21 +19,15 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
  * registration if we need to.
  */
 function register_block() {
-	jetpack_register_premium_wpcom_block(
+	jetpack_register_block(
 		BLOCK_NAME,
-		array( 'render_callback' => 'Jetpack\OpenTable_Block\load_assets' )
+		array( 'render_callback' => 'Jetpack\OpenTable_Block\load_assets' ),
+		array(
+			'wpcom' => 'premium-plan',
+		)
 	);
 }
 add_action( 'init', 'Jetpack\OpenTable_Block\register_block' );
-
-/**
- * Sets the availability of the block based on it
- * requiring a paid plan on WPCOM
- */
-function set_availability() {
-	\Jetpack_Gutenberg::set_premium_wpcom_availability( BLOCK_NAME );
-}
-add_action( 'jetpack_register_gutenberg_extensions', 'Jetpack\OpenTable_Block\set_availability' );
 
 /**
  * Adds an inline script which updates the block editor settings to
