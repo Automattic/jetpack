@@ -26,7 +26,7 @@ describe( 'Paid blocks', () => {
 
 		await activateModule( 'wordads' );
 		await activateModule( 'publicize' );
-		await execWpCommand( 'wp jetpack option get active_modules' );
+		await execWpCommand( 'wp jetpack options get active_modules' );
 
 		const jetpackPage = await JetpackPage.init( page );
 		let ads = await page.evaluate( () => Initial_State.getModules.wordads );
@@ -38,7 +38,7 @@ describe( 'Paid blocks', () => {
 			await jetpackPage.reload();
 			await activateModule( 'wordads' );
 
-			await execWpCommand( 'wp jetpack option get active_modules' );
+			await execWpCommand( 'wp jetpack options get active_modules' );
 
 			await page.waitFor( 1000 );
 
