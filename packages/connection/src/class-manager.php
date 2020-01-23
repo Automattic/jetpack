@@ -528,7 +528,7 @@ class Manager {
 	 * @return string|int Returns the ID of the connection owner or False if no connection owner found.
 	 */
 	public function get_connection_owner_id() {
-		$user_token       = $this->get_access_token( JETPACK_MASTER_USER );
+		$user_token       = $this->get_access_token( self::JETPACK_MASTER_USER );
 		$connection_owner = false;
 		if ( $user_token && is_object( $user_token ) && isset( $user_token->external_user_id ) ) {
 			$connection_owner = $user_token->external_user_id;
@@ -603,7 +603,7 @@ class Manager {
 	 * @return object|false False if no connection owner found.
 	 */
 	public function get_connection_owner() {
-		$user_token = $this->get_access_token( JETPACK_MASTER_USER );
+		$user_token = $this->get_access_token( self::JETPACK_MASTER_USER );
 
 		$connection_owner = false;
 		if ( $user_token && is_object( $user_token ) && isset( $user_token->external_user_id ) ) {
@@ -625,7 +625,7 @@ class Manager {
 			$user_id = get_current_user_id();
 		}
 
-		$user_token = $this->get_access_token( JETPACK_MASTER_USER );
+		$user_token = $this->get_access_token( self::JETPACK_MASTER_USER );
 
 		return $user_token && is_object( $user_token ) && isset( $user_token->external_user_id ) && $user_id === $user_token->external_user_id;
 	}
