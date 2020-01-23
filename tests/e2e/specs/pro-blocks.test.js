@@ -48,6 +48,10 @@ describe( 'Paid blocks', () => {
 
 		// await page.waitFor( 10000 ); // Trying to wait for plan data to be updated
 		await page.reload();
+
+		const frPlan = await page.evaluate( () => Initial_State.siteData.plan.product_slug );
+		const bkPlan = await execWpCommand( 'wp option get jetpack_active_plan' );
+		console.log( '!!! PLANS: ', frPlan, bkPlan );
 	} );
 
 	describe( 'Mailchimp Block', () => {
