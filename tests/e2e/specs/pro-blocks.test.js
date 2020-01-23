@@ -50,14 +50,14 @@ describe( 'Paid blocks', () => {
 		await page.reload( { waitFor: 'networkidle0' } );
 
 		frPlan = await page.evaluate( () => Initial_State.siteData.plan.product_slug );
-		bkPlan = await execWpCommand( 'wp option get jetpack_active_plan' );
-		console.log( '!!! PLANS: ', frPlan, bkPlan );
+		bkPlan = JSON.parse( await execWpCommand( 'wp option get jetpack_active_plan --format=json' ) );
+		console.log( '!!! PLANS: ', frPlan, bkPlan.product_slug );
 
 		await page.reload( { waitFor: 'networkidle0' } );
 
 		frPlan = await page.evaluate( () => Initial_State.siteData.plan.product_slug );
-		bkPlan = await execWpCommand( 'wp option get jetpack_active_plan' );
-		console.log( '!!! PLANS: ', frPlan, bkPlan );
+		bkPlan = JSON.parse( await execWpCommand( 'wp option get jetpack_active_plan --format=json' ) );
+		console.log( '!!! PLANS: ', frPlan, bkPlan.product_slug );
 	} );
 
 	describe( 'Mailchimp Block', () => {
