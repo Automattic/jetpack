@@ -57,7 +57,7 @@ describe( 'Paid blocks', () => {
 			console.log( '!!! PLANS: ', frPlan, bkPlan.product_slug );
 			isSame = frPlan.trim() === bkPlan.product_slug.trim();
 			await page.reload( { waitFor: 'networkidle0' } );
-		} while ( isSame );
+		} while ( ! isSame );
 
 		await page.reload( { waitFor: 'networkidle0' } );
 	} );
