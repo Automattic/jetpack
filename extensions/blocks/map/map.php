@@ -20,11 +20,27 @@ jetpack_register_block(
  * @return string
  */
 function jetpack_get_mapbox_api_key() {
-	if ( ! class_exists( 'WPCOM_REST_API_V2_Endpoint_Service_API_Keys' ) || ! Jetpack::is_active() ) {
-		return Jetpack_Options::get_option( 'mapbox_api_key' );
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		$endpoint = sprintf(
+			'https://public-api.wordpress.com/wpcom/v2/sites/%d/service-api-keys/mapbox',
+			get_current_blog_id()
+		);
+	} else {
+		$endpoint = sprintf(
+			'%swpcom/v2/service-api-keys/mapbox',
+			rest_url()
+		);
 	}
-	$response = WPCOM_REST_API_V2_Endpoint_Service_API_Keys::get_service_api_key( array( 'service' => 'mapbox' ) );
-	return $response['service_api_key'];
+
+	$response      = wp_remote_get( esc_url_raw( $endpoint ) );
+	$response_code = wp_remote_retrieve_response_code( $response );
+
+	if ( 200 === $response_code ) {
+		$response_body = json_decode( wp_remote_retrieve_body( $response ) );
+		return $response_body->service_api_key;
+	}
+
+	return Jetpack_Options::get_option( 'mapbox_api_key' );
 }
 
 /**
