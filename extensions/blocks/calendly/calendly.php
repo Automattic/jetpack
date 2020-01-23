@@ -133,7 +133,7 @@ function load_assets( $attr, $content ) {
 			esc_js( $url ),
 			wp_kses_post( $submit_button_text )
 		);
-	} else { // Button style.
+	} else { // Inline style.
 		$content = sprintf(
 			'<div class="calendly-inline-widget %1$s" data-url="%2$s" style="min-width:320px;height:630px;"></div>',
 			esc_attr( $classes ),
