@@ -8,7 +8,7 @@
  * @package jetpack-test-plugin-e2e-plan-data
  */
 
-add_filter( 'pre_http_request', 'e2e_intercept_plan_data_request', 10, 3 );
+add_filter( 'pre_http_request', 'e2e_intercept_plan_data_request', 1, 3 );
 
 /**
  * Intercept WPCOM plan data request and replaces it with mocked data
