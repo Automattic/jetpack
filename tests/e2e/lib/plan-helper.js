@@ -335,4 +335,6 @@ export async function syncPlanData( page ) {
 		console.log( '!!! PLANS: ', frPlan, bkPlan.product_slug );
 		isSame = frPlan.trim() === bkPlan.product_slug.trim();
 	} while ( ! isSame );
+
+	await page.reload( { waitFor: 'networkidle0' } );
 }
