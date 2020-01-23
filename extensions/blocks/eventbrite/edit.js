@@ -110,7 +110,7 @@ class EventbriteEdit extends Component {
 			return;
 		}
 
-		this.props.setAttributes( { url } );
+		this.props.setAttributes( { eventId: eventIdFromUrl( url ), url } );
 
 		// Setting the `resolvingUrl` state here, then waiting for `componentDidUpdate()` to
 		// be called before actually resolving it ensures that the `editedUrl` state has also been
@@ -290,9 +290,7 @@ class EventbriteEdit extends Component {
 
 	renderInlinePreview() {
 		const { className } = this.props;
-		const { url } = this.props.attributes;
-
-		const eventId = url ? eventIdFromUrl( url ) : null;
+		const { eventId } = this.props.attributes;
 
 		if ( ! eventId ) {
 			return;

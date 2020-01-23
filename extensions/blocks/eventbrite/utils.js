@@ -27,8 +27,7 @@ export function eventIdFromUrl( url ) {
 		return null;
 	}
 
-	const regex = new RegExp( window.Jetpack_Block_Eventbrite_Settings.event_id_from_url_regex );
-	const match = url.match( regex );
+	const match = url.match( /(\d+)\/?\s*$/ );
 	return match && match[ 1 ] ? match[ 1 ] : null;
 }
 

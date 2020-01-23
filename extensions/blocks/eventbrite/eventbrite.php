@@ -14,8 +14,7 @@ jetpack_register_block(
 	)
 );
 
-const JETPACK_EVENTBRITE_ID_FROM_URL_REGEX = '(\d+)\/?\s*$';
-const JETPACK_EVENTBRITE_WIDGET_SLUG       = 'eventbrite-widget';
+const JETPACK_EVENTBRITE_WIDGET_SLUG = 'eventbrite-widget';
 
 /**
  * Eventbrite block registration/dependency delclaration.
@@ -26,19 +25,11 @@ const JETPACK_EVENTBRITE_WIDGET_SLUG       = 'eventbrite-widget';
  * @return string
  */
 function jetpack_render_eventbrite_block( $attr, $content ) {
-	if ( empty( $attr['url'] ) ) {
+	if ( empty( $attr['eventId'] ) || empty( $attr['url'] ) ) {
 		return '';
 	}
 
-	$matches = array();
-	preg_match( '/' . JETPACK_EVENTBRITE_ID_FROM_URL_REGEX . '/', $attr['url'], $matches );
-	$event_id = isset( $matches[1] ) && $matches[1] ? $matches[1] : null;
-
-	if ( ! $event_id ) {
-		return '';
-	}
-
-	$widget_id = JETPACK_EVENTBRITE_WIDGET_SLUG . '-' . $event_id;
+	$widget_id = JETPACK_EVENTBRITE_WIDGET_SLUG . '-' . $attr['eventId'];
 
 	wp_enqueue_script( 'eventbrite-widget', 'https://www.eventbrite.com/static/widgets/eb_widgets.js', array(), JETPACK__VERSION, true );
 
@@ -48,7 +39,7 @@ function jetpack_render_eventbrite_block( $attr, $content ) {
 			'eventbrite-widget',
 			"window.EBWidgets.createWidget({
 				widgetType: 'checkout',
-				eventId: " . absint( $event_id ) . ",
+				eventId: " . absint( $attr['eventId'] ) . ",
 				iframeContainerId: '" . esc_js( $widget_id ) . "',
 			});"
 		);
@@ -66,7 +57,7 @@ function jetpack_render_eventbrite_block( $attr, $content ) {
 		'eventbrite-widget',
 		"window.EBWidgets.createWidget({
 			widgetType: 'checkout',
-			eventId: " . absint( $event_id ) . ",
+			eventId: " . absint( $attr['eventId'] ) . ",
 			modal: true,
 			modalTriggerElementId: '" . esc_js( $widget_id ) . "',
 		});"
@@ -89,8 +80,7 @@ function jetpack_eventbrite_block_editor_assets() {
 		'jetpack-blocks-editor',
 		'Jetpack_Block_Eventbrite_Settings',
 		array(
-			'event_id_from_url_regex' => JETPACK_EVENTBRITE_ID_FROM_URL_REGEX,
-			'widget_slug'             => JETPACK_EVENTBRITE_WIDGET_SLUG,
+			'widget_slug' => JETPACK_EVENTBRITE_WIDGET_SLUG,
 		)
 	);
 }

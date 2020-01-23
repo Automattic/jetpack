@@ -7,7 +7,7 @@ import { RichText, getColorClassName } from '@wordpress/block-editor';
 /**
  * Internal dependencies
  */
-import { createWidgetId, eventIdFromUrl } from './utils';
+import { createWidgetId } from './utils';
 
 /**
  * Adapted button save function from @wordpress/block-library
@@ -72,9 +72,7 @@ function saveButton( eventId, attributes ) {
 }
 
 export default function save( { attributes } ) {
-	const { useModal, url } = attributes;
-
-	const eventId = eventIdFromUrl( url );
+	const { eventId, useModal } = attributes;
 
 	if ( ! eventId ) {
 		return;

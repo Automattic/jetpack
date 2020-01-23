@@ -48,6 +48,9 @@ export const settings = {
 		url: {
 			type: 'string',
 		},
+		eventId: {
+			type: 'number',
+		},
 		useModal: {
 			type: 'boolean',
 		},
