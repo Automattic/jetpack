@@ -7,16 +7,17 @@
 
 namespace Private_Site;
 
+use Jetpack;
 use WP_Error;
 use WP_REST_Request;
 use function checked;
+use function get_home_url;
 use function doing_filter;
 use function esc_html_e;
 use function get_current_blog_id;
 use function get_option;
 use function remove_filter;
 use function status_header;
-use function update_option;
 use function wp_clone;
 use function wp_get_current_user;
 use function wp_send_json_error;
@@ -31,8 +32,16 @@ function admin_init() {
 		return;
 	}
 
-	// Add the radio option to the wp-admin Site Privacy selector
-	add_action( 'blog_privacy_selector', '\Private_Site\privatize_blog_priv_selector' );
+	/**
+	 * Don't add the action when we don't intend to alter core behavior.
+	 * The mere presence of a `blog_privacy_selector` hook changes things!
+	 * @see https://github.com/WordPress/wordpress-develop/blob/fd479f953731bbf522b32b9d95eeb68bc455c418/src/wp-admin/options-reading.php#L178-L202
+	 */
+	if ( ( is_jetpack_connected() || site_is_private() ) && should_update_privacy_selector() ) {
+		add_action( 'blog_privacy_selector', '\Private_Site\privatize_blog_priv_selector' );
+		// Prevent wp-admin from touching blog_public option
+		add_action( 'whitelist_options', '\Private_Site\remove_privacy_option_from_whitelist' );
+	}
 
 	if ( ! site_is_private() ) {
 		return;
@@ -50,8 +59,6 @@ function init() {
 		return;
 	}
 
-	add_filter( 'pre_update_option_blog_public', '\Private_Site\pre_update_option_blog_public' );
-
 	if ( ! site_is_private() ) {
 		return;
 	}
@@ -61,6 +68,9 @@ function init() {
 
 	// Scrutinize REST API requests
 	add_filter( 'rest_dispatch_request', '\Private_Site\rest_dispatch_request', 10, 4 );
+
+	// Update `wpcom_coming_soon` cached value when it's updated on WP.com
+	add_filter( 'rest_api_update_site_settings', '\Private_Site\cache_coming_soon_on_update_site_settings', 10, 2 );
 
 	// Prevent Pinterest pinning
 	add_action( 'wp_head', '\Private_Site\private_no_pinning' );
@@ -96,18 +106,70 @@ function init() {
 add_action( 'init', '\Private_Site\init' );
 
 /**
- * The site is determined to be "private" when both:
- * - The `blog_public` option is `-1`
- * - The `wpcom_blog_public_updated` option is truthy
+ * Replaces the 'Site Visibility' privacy options selector with a Calypso link
+ **/
+function privatize_blog_priv_selector() {
+	$has_jetpack_connection = is_jetpack_connected();
+
+	if ( ! $has_jetpack_connection && site_is_private() ) {
+		$escaped_content = 'Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings.';
+	} else if ( ! $has_jetpack_connection || ! is_callable( 'Jetpack::build_raw_urls' ) ) {
+		return;
+	} else {
+		$site_slug = Jetpack::build_raw_urls( get_home_url() );
+		$settings_url = esc_url_raw( sprintf( 'https://wordpress.com/settings/general/%s#site-privacy-settings', $site_slug ) );
+		$manage_label = __( 'Manage your site visibility settings' );
+		$escaped_content = '<a target="_blank" href="' . esc_url( $settings_url ) . '">' . esc_html( $manage_label ) . '</a>';
+	}
+
+	?>
+<noscript>
+<p><?php echo wp_kses_post( $escaped_content ) ?></p>
+</noscript>
+<script>
+( function() {
+	var widgetArea = document.querySelector( '.option-site-visibility td' );
+	if ( ! widgetArea ) {
+	  return;
+	}
+	widgetArea.innerHTML = '<?php echo wp_kses_post( $escaped_content ) ?>';
+} )()
+</script>
+        <?php
+}
+
+/**
+ * The site is determined to be "coming soon" when both:
+ * - The site is private (@see site_is_private)
+ * - The `wpcom_coming_soon` option on the "cloud site" is truthy
  *
- * The `wpcom_blog_public_updated` check is intended to only treat sites as private which have
- * altered this setting since the Private Site module was launched.
- *
- * This is in contrast to WordPress.com Simple sites which only rely on the `blog_public` option.
+ * As such, "coming soon" is just a flavor of private sites and is always false on sites that are public.
  * @return bool
  */
-function site_is_private() {
-	return '-1' == get_option( 'blog_public' ) && get_option( 'wpcom_blog_public_updated' );
+function site_is_coming_soon() : bool {
+	if ( ! site_is_private() ) {
+		return false;
+	}
+	$wpcom_coming_soon = wp_cache_get( 'wpcom_coming_soon', 'wpcomsh' );
+	if ( false === $wpcom_coming_soon ) {
+		$wpcom_coming_soon = fetch_coming_soon_from_wp_com();
+		wp_cache_set( 'wpcom_coming_soon', $wpcom_coming_soon, 'wpcomsh' );
+	}
+	return (bool) $wpcom_coming_soon;
+}
+
+function fetch_coming_soon_from_wp_com() : int {
+	if ( ! is_jetpack_connected() ) {
+		return 0;
+	}
+
+	$jetpack = Jetpack::init();
+	if ( ! method_exists( $jetpack, 'get_cloud_site_options' ) ) {
+		return 0;
+	}
+	$options = $jetpack->get_cloud_site_options( [ 'wpcom_coming_soon' ] );
+
+	return (int) $options['wpcom_coming_soon'];
 }
 
 /**
@@ -115,14 +177,11 @@ function site_is_private() {
  * Sets a secondary option (`wpcom_blog_public_updated`) to `1` when the `blog_public` option is updated
  * This will be used to determine that the option has been set after the launch of the Private Site module.
  *
- * @param $new_value
- *
- * @return mixed $new_value is always returned
- * @see `site_is_private`
+ * This is in contrast to WordPress.com Simple sites which relies on the `blog_public` option.
+ * @return bool
  */
-function pre_update_option_blog_public( $new_value ) {
-	update_option( 'wpcom_blog_public_updated', 1 );
-	return $new_value;
+function site_is_private() {
+	return defined( 'AT_PRIVACY_MODEL' ) && AT_PRIVACY_MODEL === 'wp_uploads';
 }
 
 /**
@@ -166,7 +225,7 @@ function send_access_denied_error_response() {
 		wp_send_json_error( [ 'code' => 'private_site', 'message' => __( 'This site is private.' ) ] );
 	}
 
-	require __DIR__ . '/private-site-template.php';
+	require access_denied_template_path();
 	exit;
 }
 
@@ -189,6 +248,25 @@ function original_request_url() {
 	}
 
 	return $origin . strtok( $_SERVER['REQUEST_URI'], '?' );
+}
+
+/**
+ * Hooked into `rest_api_update_site_settings` filter.
+ *
+ * This filter updates the cached value of `wpcom_coming_soon` whenever `wpcom_coming_soon` option
+ * is changed on WP.com and this plugin is notified via Jetpack-WPCOM REST API bridge.
+ *
+ * @param $input Filtered POST input
+ * @param $unfiltered_input Raw and unfiltered POST input
+ *
+ * @return mixed
+ */
+function cache_coming_soon_on_update_site_settings( $input, $unfiltered_input ) {
+	if ( array_key_exists( 'wpcom_coming_soon', $unfiltered_input ) ) {
+		wp_cache_set( 'wpcom_coming_soon', $unfiltered_input['wpcom_coming_soon'], 'wpcomsh' );
+	}
+
+	return $input;
 }
 
 /**
@@ -306,36 +384,56 @@ function remove_mask_site_name_filter() {
  */
 function preprocess_comment( $comment ) {
 	if ( should_prevent_site_access() ) {
-		require __DIR__ . '/private-site-template.php';
+		require access_denied_template_path();
 		exit;
 	}
 	return $comment;
 }
 
-/**
- * Extend the 'Site Visibility' privacy options to also include a private option
- **/
-function privatize_blog_priv_selector() {
-	?>
-<br/><input id="blog-private" type="radio" name="blog_public"
-			value="-1" <?php checked( site_is_private()); ?> />
-<label for="blog-private"><?php _e( 'I would like my site to be private, visible only to myself and users I choose' ) ?></label>
-	<?php // Select the "public" radio button if none is selected. ?>
-<script>
-  (function(){
-    var btns = document.querySelectorAll( '.option-site-visibility input' );
-    if ( ! btns.length ) {
-      return;
-	}
-    if ( ! Array.prototype.filter.call( btns, function( node ) {
-	  return node.checked;
-    } ).length ) {
-      document.querySelector( '#blog-public' ).checked = true;
-	}
-  })();
-</script>
-	<?php
+function is_jetpack_connected() {
+	return is_callable( 'Jetpack::is_active' ) && \Jetpack::is_active();
 }
+
+/**
+ * Grabs a proper access denied template and returns it's path
+ */
+function access_denied_template_path() {
+	if ( site_is_coming_soon() ) {
+		return __DIR__ . '/access-denied-coming-soon-template.php';
+	} else {
+		return __DIR__ . '/access-denied-private-site-template.php';
+	}
+}
+
+
+/**
+ * Hooked into filter: `whitelist_options`
+ *
+ * Prevents WordPress from saving blog_public option when site options are saved.
+ *
+ * This plugin disables the 'Site Visibility' selector in wp-admin and shows a link to Calypso instead. This function
+ * effectively prevents wp-admin from accidentally updating 'blog_public' option when other site options are updated.
+ *
+ * @param array $whitelist
+ * @return array
+ */
+function remove_privacy_option_from_whitelist($whitelist) {
+	$blog_public_index = array_search( 'blog_public', $whitelist['reading'], true );
+	unset( $whitelist['reading'][ $blog_public_index ] );
+
+	return $whitelist;
+}
+
+/**
+ * Makes it possible to disable WP.com customizations to 'Site Visibility' selector by attaching
+ * a 'wpcom_should_update_privacy_selector' filter and making sure it returns false.
+ *
+ * @return bool
+ */
+function should_update_privacy_selector( ) {
+	return apply_filters( 'wpcom_should_update_privacy_selector', true );
+}
+
 
 /**
  * Don't let search engines index private sites.

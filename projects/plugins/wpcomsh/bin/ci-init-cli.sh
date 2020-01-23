@@ -18,26 +18,22 @@ POST_ID=`wp post create --post_title="this is a test post" --post_status="publis
 echo "Enabling the private site module settings (TODO: Remove this when this is launched)";
 wp option update wpcomsh_private_site_module_active 1;
 
-if [ "$1" = "private" ]; then
-  echo "Setting the option to indicate the private site setting has been updated since the module was active";
-  wp option update wpcom_blog_public_updated 1;
-
-  echo "Setting site to private";
-  wp option update blog_public -1;
-else
-  echo "Setting site to public";
-  wp option update blog_public 1;
-fi
-
 echo "Linking the wpcomsh-loader.php file into mu-plugins";
 ln -s /var/www/html/wp-content/mu-plugins/wpcomsh/wpcomsh-loader.php /var/www/html/wp-content/mu-plugins/wpcomsh-loader.php
 
-echo "Defining the IS_ATOMIC constant in a mini-plugin";
+echo "Defining various constants in a mini-plugin";
 echo "<?php
 
 if ( ! defined( 'IS_ATOMIC' ) ) {
   define( 'IS_ATOMIC', 1 );
 }
-" > wp-content/mu-plugins/0-wpcomsh-early-constant.php
+" > wp-content/mu-plugins/0-wpcomsh-early-constants.php
+
+if [ "$1" = "private" ]; then
+  echo "Setting the constant to indicate the site is private";
+  echo "define( 'AT_PRIVACY_MODEL', 'wp_uploads' );
+" >> wp-content/mu-plugins/0-wpcomsh-early-constants.php
+
+fi
 
 echo "Initialized!";
