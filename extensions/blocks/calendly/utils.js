@@ -1,5 +1,10 @@
+/**
+ * Internal dependencies
+ */
+import { REGEX } from './index';
+
 export const getURLFromEmbedCode = embedCode => {
-	const url = embedCode.match( /(^|\/\/)(calendly\.com[^"']*)/i );
+	const url = embedCode.match( REGEX );
 	if ( url ) {
 		return 'https://' + url[ 2 ];
 	}
