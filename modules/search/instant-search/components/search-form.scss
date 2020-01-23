@@ -1,3 +1,6 @@
-.jetpack-instant-search__search-results-search-form {
-	margin-bottom: 1em;
+.jetpack-instant-search__search-form-filters {
+	// TODO: To be updated to break-medium
+	@include break-small() {
+		display: none;
+	}
 }

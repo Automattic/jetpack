@@ -59,7 +59,14 @@ class SearchResults extends Component {
 						`,
 					} }
 				/>
-				<SearchForm className="jetpack-instant-search__search-results-search-form" />
+				<SearchForm
+					className="jetpack-instant-search__search-results-search-form"
+					isLoading={ this.props.isLoading }
+					locale={ this.props.locale }
+					postTypes={ this.props.postTypes }
+					response={ this.props.response }
+					widgets={ this.props.widgets }
+				/>
 
 				<div
 					className={
