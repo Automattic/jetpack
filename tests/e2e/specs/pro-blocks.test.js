@@ -5,16 +5,10 @@ import BlockEditorPage from '../lib/pages/wp-admin/block-editor';
 import PostFrontendPage from '../lib/pages/postFrontend';
 import MailchimpBlock from '../lib/blocks/mailchimp';
 import { connectThroughWPAdminIfNeeded } from '../lib/flows/jetpack-connect';
-import {
-	resetWordpressInstall,
-	getNgrokSiteUrl,
-	activateModule,
-	execWpCommand,
-} from '../lib/utils-helper';
+import { resetWordpressInstall, getNgrokSiteUrl, activateModule } from '../lib/utils-helper';
 import SimplePaymentBlock from '../lib/blocks/simple-payments';
 import WordAdsBlock from '../lib/blocks/word-ads';
 import PinterestBlock from '../lib/blocks/pinterest';
-import JetpackPage from '../lib/pages/wp-admin/jetpack';
 
 describe( 'Paid blocks', () => {
 	beforeAll( async () => {
@@ -26,7 +20,6 @@ describe( 'Paid blocks', () => {
 
 		await activateModule( 'wordads' );
 		await activateModule( 'publicize' );
-		await execWpCommand( 'wp option get jetpack_active_modules --format=json' );
 
 		// const jetpackPage = await JetpackPage.init( page );
 		// let ads = await page.evaluate( () => Initial_State.getModules.wordads );

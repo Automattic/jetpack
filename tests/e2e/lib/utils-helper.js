@@ -70,6 +70,14 @@ export function provisionJetpackStartConnection( plan = 'professional', user = '
 export async function activateModule( module ) {
 	const cliCmd = `wp jetpack module activate ${ module }`;
 	await execWpCommand( cliCmd );
+
+	const modulesList = JSON.parse(
+		await execWpCommand( 'wp option get jetpack_active_modules --format=json' )
+	);
+
+	if ( ! modulesList.includes( module ) ) {
+		throw new Error( `${ module } is failed to activate` );
+	}
 }
 
 export async function execWpCommand( wpCmd, suffix = null ) {
