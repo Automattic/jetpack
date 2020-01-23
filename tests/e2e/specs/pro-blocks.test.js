@@ -22,25 +22,6 @@ describe( 'Paid blocks', () => {
 		await activateModule( 'wordads' );
 		await activateModule( 'publicize' );
 
-		// const jetpackPage = await JetpackPage.init( page );
-		// let ads = await page.evaluate( () => Initial_State.getModules.wordads );
-
-		// for ( let i = 0; i < 10; i++ ) {
-		// 	if ( ads.activated ) {
-		// 		break;
-		// 	}
-		// 	await jetpackPage.reload();
-		// 	await activateModule( 'wordads' );
-
-		// 	await execWpCommand( 'wp option get jetpack_active_modules --format=json' );
-
-		// 	await page.waitFor( 1000 );
-
-		// 	ads = await page.evaluate( () => Initial_State.getModules.wordads );
-		// }
-
-		// await page.waitFor( 10000 ); // Trying to wait for plan data to be updated
-
 		await syncPlanData( page );
 	} );
 
