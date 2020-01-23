@@ -1,4 +1,3 @@
-
 .wp-block-jetpack-map__delete-btn {
 	padding: 0;
 	svg {
@@ -12,6 +11,11 @@
 			margin-right: 6px;
 			margin-right: 1ch;
 		}
+	}
+
+	.components-placeholder__instructions .components-external-link {
+		display: inline-block;
+		margin: 1em auto;
 	}
 }
 

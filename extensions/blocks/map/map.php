@@ -15,6 +15,19 @@ jetpack_register_block(
 );
 
 /**
+ * Return the site's own Mapbox API key if set, or the WordPress.com's one otherwise.
+ *
+ * @return string
+ */
+function jetpack_get_mapbox_api_key() {
+	if ( ! class_exists( 'WPCOM_REST_API_V2_Endpoint_Service_API_Keys' ) || ! Jetpack::is_active() ) {
+		return Jetpack_Options::get_option( 'mapbox_api_key' );
+	}
+	$response = WPCOM_REST_API_V2_Endpoint_Service_API_Keys::get_service_api_key( array( 'service' => 'mapbox' ) );
+	return $response['service_api_key'];
+}
+
+/**
  * Map block registration/dependency declaration.
  *
  * @param array  $attr    Array containing the map block attributes.
@@ -23,7 +36,7 @@ jetpack_register_block(
  * @return string
  */
 function jetpack_map_block_load_assets( $attr, $content ) {
-	$api_key = Jetpack_Options::get_option( 'mapbox_api_key' );
+	$api_key = jetpack_get_mapbox_api_key();
 
 	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
 		static $map_block_counter = array();
@@ -110,7 +123,7 @@ function jetpack_map_block_render_single_block_page() {
 
 	/* Put together a new complete document containing only the requested block markup and the scripts/styles needed to render it */
 	$block_markup = $post_html->saveHTML( $container );
-	$api_key      = Jetpack_Options::get_option( 'mapbox_api_key' );
+	$api_key      = jetpack_get_mapbox_api_key();
 	$page_html    = sprintf(
 		'<!DOCTYPE html><head><style>html, body { margin: 0; padding: 0; }</style>%s</head><body>%s</body>',
 		$head_content,

@@ -1,13 +1,14 @@
 <?php
-/*
+/**
  * Service API Keys: Exposes 3rd party api keys that are used on a site.
  *
  * [
  *   { # Availabilty Object. See schema for more detail.
- *      code:            (string) Displays success if the operation was successfully executed and an error code if it was not
- *      service:         (string) The name of the service in question
- *      service_api_key: (string) The API key used by the service empty if one is not set yet
- *      message:         (string) User friendly message
+ *      code:                   (string) Displays success if the operation was successfully executed and an error code if it was not
+ *      service:                (string) The name of the service in question
+ *      service_api_key:        (string) The API key used by the service empty if one is not set yet
+ *      service_api_key_source: (string) The source of the API key, defaults to "site"
+ *      message:                (string) User friendly message
  *   },
  *   ...
  * ]
@@ -77,19 +78,23 @@ class WPCOM_REST_API_V2_Endpoint_Service_API_Keys extends WP_REST_Controller {
 			'title'      => 'service-api-keys',
 			'type'       => 'object',
 			'properties' => array(
-				'code'          => array(
+				'code'                   => array(
 					'description' => __( 'Displays success if the operation was successfully executed and an error code if it was not', 'jetpack' ),
 					'type'        => 'string',
 				),
-				'service' => array(
+				'service'                => array(
 					'description' => __( 'The name of the service in question', 'jetpack' ),
 					'type'        => 'string',
 				),
-				'service_api_key'          => array(
+				'service_api_key'        => array(
 					'description' => __( 'The API key used by the service. Empty if none has been set yet', 'jetpack' ),
 					'type'        => 'string',
 				),
-				'message'          => array(
+				'service_api_key_source' => array(
+					'description' => __( 'The source of the API key. Defaults to "site"', 'jetpack' ),
+					'type'        => 'string',
+				),
+				'message'                => array(
 					'description' => __( 'User friendly message', 'jetpack' ),
 					'type'        => 'string',
 				),
@@ -109,18 +114,31 @@ class WPCOM_REST_API_V2_Endpoint_Service_API_Keys extends WP_REST_Controller {
 	 * }
 	 */
 	public static function get_service_api_key( $request ) {
-
 		$service = self::validate_service_api_service( $request['service'] );
 		if ( ! $service ) {
 			return self::service_api_invalid_service_response();
 		}
-		$option  = self::key_for_api_service( $service );
+
+		switch ( $service ) {
+			case 'mapbox':
+				$mapbox                 = self::get_service_api_key_mapbox();
+				$service_api_key        = $mapbox['key'];
+				$service_api_key_source = $mapbox['source'];
+				break;
+			default:
+				$option                 = self::key_for_api_service( $service );
+				$service_api_key        = Jetpack_Options::get_option( $option, '' );
+				$service_api_key_source = 'site';
+		};
+
 		$message = esc_html__( 'API key retrieved successfully.', 'jetpack' );
+
 		return array(
-			'code'            => 'success',
-			'service'         => $service,
-			'service_api_key' => Jetpack_Options::get_option( $option, '' ),
-			'message'         => $message,
+			'code'                   => 'success',
+			'service'                => $service,
+			'service_api_key'        => $service_api_key,
+			'service_api_key_source' => $service_api_key_source,
+			'message'                => $message,
 		);
 	}
 
@@ -266,6 +284,82 @@ class WPCOM_REST_API_V2_Endpoint_Service_API_Keys extends WP_REST_Controller {
 			'status'        => $status,
 			'error_message' => $msg,
 		);
+	}
+
+	/**
+	 * Get the site's own Mapbox API key if set, or the WordPress.com's one otherwise.
+	 *
+	 * @return array An array containing the key (if any) and its source ("site" or "wpcom").
+	 */
+	public static function get_service_api_key_mapbox() {
+		// If the site provides its own Mapbox API key, return it.
+		$service_api_key = Jetpack_Options::get_option( self::key_for_api_service( 'mapbox' ) );
+		if ( $service_api_key ) {
+			return self::format_api_key( $service_api_key );
+		}
+
+		// If the site is not WordPress.com, return an empty API key.
+		$site_id = self::get_wpcom_site_id();
+		if ( ( ! self::is_wpcom() && ! jetpack_is_atomic_site() ) || ! $site_id ) {
+			return self::format_api_key();
+		}
+
+		// If there is a cached token, return it.
+		$transient_key = 'wpcom_mapbox_access_token';
+		$cached_token  = get_transient( $transient_key );
+		if ( $cached_token ) {
+			return self::format_api_key( $cached_token, 'wpcom' );
+		}
+
+		// Otherwise retrieve a WordPress.com token.
+		$request_url = 'https://public-api.wordpress.com/wpcom/v2/sites/' . $site_id . '/mapbox';
+		$response    = wp_remote_get( esc_url_raw( $request_url ) );
+		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			return self::format_api_key();
+		}
+
+		$response_body             = json_decode( wp_remote_retrieve_body( $response ) );
+		$wpcom_mapbox_access_token = $response_body->wpcom_mapbox_access_token;
+
+		set_transient( $transient_key, $wpcom_mapbox_access_token, HOUR_IN_SECONDS );
+		return self::format_api_key( $wpcom_mapbox_access_token, 'wpcom' );
+	}
+
+	/**
+	 * Format an API key and its source into an array.
+	 *
+	 * @param string $key The API key.
+	 * @param string $source The key's source ("site" or "wpcom").
+	 * @return array
+	 */
+	private static function format_api_key( $key = '', $source = 'site' ) {
+		return array(
+			'key'    => $key,
+			'source' => $source,
+		);
+	}
+
+	/**
+	 * Check if we're in WordPress.com.
+	 *
+	 * @return bool
+	 */
+	private static function is_wpcom() {
+		return defined( 'IS_WPCOM' ) && IS_WPCOM;
+	}
+
+	/**
+	 * Get the current site's WordPress.com ID.
+	 *
+	 * @return mixed The site's WordPress.com ID or an empty string.
+	 */
+	private static function get_wpcom_site_id() {
+		if ( self::is_wpcom() ) {
+			return get_current_blog_id();
+		} elseif ( method_exists( 'Jetpack', 'is_active' ) && Jetpack::is_active() ) {
+			return Jetpack_Options::get_option( 'id' );
+		}
+		return false;
 	}
 
 	/**

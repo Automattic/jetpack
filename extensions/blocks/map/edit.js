@@ -85,27 +85,31 @@ class MapEdit extends Component {
 	};
 	apiCall( serviceApiKey = null, method = 'GET' ) {
 		const { noticeOperations } = this.props;
-		const { apiKey } = this.state;
 		const path = '/wpcom/v2/service-api-keys/mapbox';
 		const fetch = serviceApiKey
 			? { path, method, data: { service_api_key: serviceApiKey } }
 			: { path, method };
 		this.setState( { apiRequestOutstanding: true }, () => {
 			apiFetch( fetch ).then(
-				result => {
+				( { service_api_key: apiKey, service_api_key_source: apiKeySource } ) => {
 					noticeOperations.removeAllNotices();
+
+					const apiState = apiKey ? API_STATE_SUCCESS : API_STATE_FAILURE;
+					const apiKeyControl = 'wpcom' === apiKeySource ? '' : apiKey;
+
 					this.setState( {
-						apiState: result.service_api_key ? API_STATE_SUCCESS : API_STATE_FAILURE,
-						apiKey: result.service_api_key,
-						apiKeyControl: result.service_api_key,
+						apiState,
+						apiKey,
+						apiKeyControl,
+						apiKeySource,
 						apiRequestOutstanding: false,
 					} );
 				},
-				result => {
-					this.onError( null, result.message );
+				( { message } ) => {
+					this.onError( null, message );
 					this.setState( {
+						apiState: API_STATE_FAILURE,
 						apiRequestOutstanding: false,
-						apiKeyControl: apiKey,
 					} );
 				}
 			);
@@ -135,6 +139,7 @@ class MapEdit extends Component {
 			addPointVisibility,
 			apiKey,
 			apiKeyControl,
+			apiKeySource,
 			apiState,
 			apiRequestOutstanding,
 		} = this.state;
@@ -188,21 +193,23 @@ class MapEdit extends Component {
 							/>
 						</PanelBody>
 					) : null }
-					<PanelBody title={ __( 'Mapbox Access Token', 'jetpack' ) } initialOpen={ false }>
-						<TextControl
-							label={ __( 'Mapbox Access Token', 'jetpack' ) }
-							value={ apiKeyControl }
-							onChange={ value => this.setState( { apiKeyControl: value } ) }
-						/>
-						<ButtonGroup>
-							<Button type="button" onClick={ this.updateAPIKey } isDefault>
-								{ __( 'Update Token', 'jetpack' ) }
-							</Button>
-							<Button type="button" onClick={ this.removeAPIKey } isDefault>
-								{ __( 'Remove Token', 'jetpack' ) }
-							</Button>
-						</ButtonGroup>
-					</PanelBody>
+					{ 'wpcom' !== apiKeySource && (
+						<PanelBody title={ __( 'Mapbox Access Token', 'jetpack' ) } initialOpen={ false }>
+							<TextControl
+								label={ __( 'Mapbox Access Token', 'jetpack' ) }
+								value={ apiKeyControl }
+								onChange={ value => this.setState( { apiKeyControl: value } ) }
+							/>
+							<ButtonGroup>
+								<Button type="button" onClick={ this.updateAPIKey } isDefault>
+									{ __( 'Update Token', 'jetpack' ) }
+								</Button>
+								<Button type="button" onClick={ this.removeAPIKey } isDefault>
+									{ __( 'Remove Token', 'jetpack' ) }
+								</Button>
+							</ButtonGroup>
+						</PanelBody>
+					) }
 				</InspectorControls>
 			</Fragment>
 		);
