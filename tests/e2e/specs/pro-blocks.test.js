@@ -25,9 +25,6 @@ describe( 'Paid blocks', () => {
 
 		await activateModule( 'wordads' );
 		await activateModule( 'publicize' );
-		let frPlan = await page.evaluate( () => Initial_State.siteData.plan.product_slug );
-		let bkPlan = await execWpCommand( 'wp option get jetpack_active_plan' );
-		console.log( '!!! PLANS: ', frPlan, bkPlan );
 
 		// const jetpackPage = await JetpackPage.init( page );
 		// let ads = await page.evaluate( () => Initial_State.getModules.wordads );
@@ -47,17 +44,22 @@ describe( 'Paid blocks', () => {
 		// }
 
 		// await page.waitFor( 10000 ); // Trying to wait for plan data to be updated
+
+		let isSame = false;
+		let frPlan = null;
+		let bkPlan = null;
+
+		do {
+			frPlan = await page.evaluate( () => Initial_State.siteData.plan.product_slug );
+			bkPlan = JSON.parse(
+				await execWpCommand( 'wp option get jetpack_active_plan --format=json' )
+			);
+			console.log( '!!! PLANS: ', frPlan, bkPlan.product_slug );
+			isSame = frPlan === bkPlan.product_slug;
+			await page.reload( { waitFor: 'networkidle0' } );
+		} while ( isSame );
+
 		await page.reload( { waitFor: 'networkidle0' } );
-
-		frPlan = await page.evaluate( () => Initial_State.siteData.plan.product_slug );
-		bkPlan = JSON.parse( await execWpCommand( 'wp option get jetpack_active_plan --format=json' ) );
-		console.log( '!!! PLANS: ', frPlan, bkPlan.product_slug );
-
-		await page.reload( { waitFor: 'networkidle0' } );
-
-		frPlan = await page.evaluate( () => Initial_State.siteData.plan.product_slug );
-		bkPlan = JSON.parse( await execWpCommand( 'wp option get jetpack_active_plan --format=json' ) );
-		console.log( '!!! PLANS: ', frPlan, bkPlan.product_slug );
 	} );
 
 	describe( 'Mailchimp Block', () => {
