@@ -50,16 +50,17 @@ describe( 'Paid blocks', () => {
 		let bkPlan = null;
 
 		do {
+			await page.reload( { waitFor: 'networkidle0' } );
+
 			frPlan = await page.evaluate( () => Initial_State.siteData.plan.product_slug );
 			bkPlan = JSON.parse(
 				await execWpCommand( 'wp option get jetpack_active_plan --format=json' )
 			);
+			await execWpCommand( 'wp option get jetpack_active_modules --format=json' );
+
 			console.log( '!!! PLANS: ', frPlan, bkPlan.product_slug );
 			isSame = frPlan.trim() === bkPlan.product_slug.trim();
-			await page.reload( { waitFor: 'networkidle0' } );
 		} while ( ! isSame );
-
-		await page.reload( { waitFor: 'networkidle0' } );
 	} );
 
 	describe( 'Mailchimp Block', () => {
