@@ -23,13 +23,13 @@ export default class BlockEditorPage extends Page {
 			wp.data.dispatch( 'core/nux' )[ action ]();
 		}, enableTips );
 
-		const frPlan = await page.evaluate( () => Initial_State.siteData.plan.product_slug );
+		// const frPlan = await page.evaluate( () => Initial_State.siteData.plan.product_slug );
 		const bkPlan = JSON.parse(
 			await execWpCommand( 'wp option get jetpack_active_plan --format=json' )
 		);
-		await execWpCommand( 'wp option get jetpack_active_modules --format=json' );
+		const mods = await execWpCommand( 'wp option get jetpack_active_modules --format=json' );
 
-		console.log( '!!! BlockEditorPage PLANS:', frPlan, bkPlan.product_slug );
+		console.log( '!!! BlockEditorPage:', mods, bkPlan.product_slug );
 
 		console.log( await it.getAllAvailableBlocks() );
 		return it;
