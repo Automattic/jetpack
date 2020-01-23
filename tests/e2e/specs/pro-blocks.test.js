@@ -25,8 +25,8 @@ describe( 'Paid blocks', () => {
 
 		await activateModule( 'wordads' );
 		await activateModule( 'publicize' );
-		const frPlan = await page.evaluate( () => Initial_State.siteData.plan.product_slug );
-		const bkPlan = await execWpCommand( 'wp option get jetpack_active_plan' );
+		let frPlan = await page.evaluate( () => Initial_State.siteData.plan.product_slug );
+		let bkPlan = await execWpCommand( 'wp option get jetpack_active_plan' );
 		console.log( '!!! PLANS: ', frPlan, bkPlan );
 
 		// const jetpackPage = await JetpackPage.init( page );
@@ -49,8 +49,8 @@ describe( 'Paid blocks', () => {
 		// await page.waitFor( 10000 ); // Trying to wait for plan data to be updated
 		await page.reload();
 
-		const frPlan = await page.evaluate( () => Initial_State.siteData.plan.product_slug );
-		const bkPlan = await execWpCommand( 'wp option get jetpack_active_plan' );
+		frPlan = await page.evaluate( () => Initial_State.siteData.plan.product_slug );
+		bkPlan = await execWpCommand( 'wp option get jetpack_active_plan' );
 		console.log( '!!! PLANS: ', frPlan, bkPlan );
 	} );
 
