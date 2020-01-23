@@ -608,9 +608,22 @@ __( "By clicking the button below, you agree to our {{tosLink}}Terms of Service{
 _x( "Updates needed", "Short warning message", "jetpack" ), // _inc/client/components/dash-item/index.jsx:104
 __( "Active", "jetpack" ), // _inc/client/components/dash-item/index.jsx:110
 _x( "Paid", "Short label appearing near a paid feature configuration block.", "jetpack" ), // _inc/client/components/dash-item/index.jsx:122
-__( "This will reset all Jetpack options, are you sure?", "jetpack" ), // _inc/client/components/footer/index.jsx:21
-_x( "Reset Options (dev only)", "Navigation item.", "jetpack" ), // _inc/client/components/footer/index.jsx:41
-_x( "Dev Tools", "Navigation item.", "jetpack" ), // _inc/client/components/footer/index.jsx:59
+__( "This will reset all Jetpack options, are you sure?", "jetpack" ), // _inc/client/components/footer/index.jsx:36
+_x( "Reset Options (dev only)", "Navigation item.", "jetpack" ), // _inc/client/components/footer/index.jsx:100
+__( "Access the full list of Jetpack modules available on your site.", "jetpack" ), // _inc/client/components/footer/index.jsx:115
+_x( "Modules", "Navigation item. Noun. Links to a list of modules for Jetpack.", "jetpack" ), // _inc/client/components/footer/index.jsx:118
+__( "Test your site’s compatibility with Jetpack.", "jetpack" ), // _inc/client/components/footer/index.jsx:134
+_x( "Debug", "Navigation item. Noun. Links to a debugger tool for Jetpack.", "jetpack" ), // _inc/client/components/footer/index.jsx:137
+_x( "Dev Tools", "Navigation item.", "jetpack" ), // _inc/client/components/footer/index.jsx:157
+__( "An Automattic Airline", "jetpack" ), // _inc/client/components/footer/index.jsx:192
+__( "Jetpack version", "jetpack" ), // _inc/client/components/footer/index.jsx:207
+__( "Jetpack version %(version)s", "jetpack" ), // _inc/client/components/footer/index.jsx:209
+__( "About Jetpack", "jetpack" ), // _inc/client/components/footer/index.jsx:217
+_x( "About", "Link to learn more about Jetpack.", "jetpack" ), // _inc/client/components/footer/index.jsx:219
+__( "WordPress.com Terms of Service", "jetpack" ), // _inc/client/components/footer/index.jsx:228
+_x( "Terms", "Shorthand for Terms of Service.", "jetpack" ), // _inc/client/components/footer/index.jsx:231
+__( "Automattic's Privacy Policy", "jetpack" ), // _inc/client/components/footer/index.jsx:239
+_x( "Privacy", "Shorthand for Privacy Policy.", "jetpack" ), // _inc/client/components/footer/index.jsx:242
 __( "Saving…", "jetpack" ), // _inc/client/components/forms/index.jsx:148
 __( "Save Settings", "jetpack" ), // _inc/client/components/forms/index.jsx:148
 __( "Stars", "jetpack" ), // _inc/client/components/jetpack-dialogue/index.jsx:52
