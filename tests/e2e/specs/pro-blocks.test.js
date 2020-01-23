@@ -55,7 +55,7 @@ describe( 'Paid blocks', () => {
 				await execWpCommand( 'wp option get jetpack_active_plan --format=json' )
 			);
 			console.log( '!!! PLANS: ', frPlan, bkPlan.product_slug );
-			isSame = frPlan === bkPlan.product_slug;
+			isSame = frPlan.trim() === bkPlan.product_slug.trim();
 			await page.reload( { waitFor: 'networkidle0' } );
 		} while ( isSame );
 
