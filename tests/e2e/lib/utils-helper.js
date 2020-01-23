@@ -28,7 +28,7 @@ export function execSyncShellCommand( cmd ) {
 export function getNgrokSiteUrl() {
 	const cmd =
 		'echo $(curl -s localhost:4040/api/tunnels/command_line | jq --raw-output .public_url)';
-	return execSyncShellCommand( cmd );
+	return execSyncShellCommand( cmd ).trim();
 }
 
 export async function resetWordpressInstall() {
@@ -69,10 +69,29 @@ export function provisionJetpackStartConnection( plan = 'professional', user = '
  */
 export async function activateModule( module ) {
 	const cliCmd = `wp jetpack module activate ${ module }`;
-	let cmd = `./tests/e2e/docker/whatever.sh cli "${ cliCmd }"`;
+	await execWpCommand( cliCmd );
+
+	const modulesList = JSON.parse(
+		await execWpCommand( 'wp option get jetpack_active_modules --format=json' )
+	);
+
+	if ( ! modulesList.includes( module ) ) {
+		throw new Error( `${ module } is failed to activate` );
+	}
+}
+
+export async function execWpCommand( wpCmd, suffix = null ) {
+	// NOTE: Uncommited cli for dockerized local dev environment. Will update once dockerized PR is merged.
+	let cmd = `./tests/e2e/docker/whatever.sh cli "${ wpCmd }"`;
 	if ( process.env.CI ) {
-		cmd = `${ cliCmd } --path="/home/travis/wordpress"`;
+		cmd = `${ wpCmd } --path="/home/travis/wordpress"`;
 	}
 
-	await execShellCommand( cmd );
+	if ( suffix ) {
+		cmd = cmd + suffix;
+	}
+
+	console.log( 'execWpCommand', cmd );
+
+	return await execShellCommand( cmd );
 }

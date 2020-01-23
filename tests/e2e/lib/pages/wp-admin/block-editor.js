@@ -16,6 +16,15 @@ export default class BlockEditorPage extends Page {
 		super( page, { expectedSelector, url } );
 	}
 
+	static async init( page, enableTips = false ) {
+		const it = await super.init( page );
+		await page.evaluate( _enableTips => {
+			const action = _enableTips ? 'enableTips' : 'disableTips';
+			wp.data.dispatch( 'core/nux' )[ action ]();
+		}, enableTips );
+		return it;
+	}
+
 	async insertBlock( blockName, blockTitle ) {
 		await searchForBlock( blockTitle );
 		const blockIconSelector = `.editor-block-list-item-jetpack-${ blockName }`;
@@ -51,5 +60,33 @@ export default class BlockEditorPage extends Page {
 	async focus() {
 		await this.page.focus( this.expectedSelector );
 		await waitAndClick( this.page, '.editor-post-title__input' );
+	}
+
+	async waitForAvailableBlock( blockSlug ) {
+		let block = await this.findAvailableBlock( blockSlug );
+		if ( block ) {
+			return true;
+		}
+		let count = 0;
+		while ( count > 20 || ! block ) {
+			await this.page.waitFor( 1000 ); // Trying to wait for plan data to be updated
+			await this.reload( { waitFor: 'networkidle0' } );
+			block = await this.findAvailableBlock( blockSlug );
+			count += 1;
+		}
+	}
+
+	async findAvailableBlock( blockSlug ) {
+		const allBlocks = await this.getAllAvailableBlocks();
+		return allBlocks.find( b => b.includes( blockSlug ) );
+	}
+
+	async getAllAvailableBlocks() {
+		return await this.page.evaluate( () =>
+			wp.data
+				.select( 'core/blocks' )
+				.getBlockTypes()
+				.map( b => b.name )
+		);
 	}
 }

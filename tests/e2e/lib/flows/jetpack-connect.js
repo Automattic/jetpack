@@ -20,8 +20,10 @@ import {
 	getNgrokSiteUrl,
 	provisionJetpackStartConnection,
 	execShellCommand,
+	execWpCommand,
 } from '../utils-helper';
 import PlansPage from '../pages/wpcom/plans';
+import { persistPlanData } from '../plan-helper';
 
 const cookie = config.get( 'storeSandboxCookieValue' );
 const cardCredentials = config.get( 'testCardCredentials' );
@@ -33,6 +35,7 @@ const cardCredentials = config.get( 'testCardCredentials' );
 export async function connectThroughWPAdminIfNeeded( {
 	wpcomUser = 'defaultUser',
 	plan = 'pro',
+	mockPlanData = false,
 } = {} ) {
 	await ( await HomePage.visit( page ) ).setSandboxModeForPayments( cookie );
 
@@ -46,7 +49,11 @@ export async function connectThroughWPAdminIfNeeded( {
 	const host = new URL( siteUrl ).host;
 
 	await ( await WPLoginPage.visit( page, siteUrl + '/wp-login.php' ) ).login();
-	await ( await DashboardPage.init( page ) ).setSandboxModeForPayments( cookie, host );
+
+	if ( ! mockPlanData ) {
+		await ( await DashboardPage.init( page ) ).setSandboxModeForPayments( cookie, host );
+	}
+
 	await ( await Sidebar.init( page ) ).selectJetpack();
 
 	let jetpackPage = await JetpackPage.init( page );
@@ -69,31 +76,37 @@ export async function connectThroughWPAdminIfNeeded( {
 	// await ( await JetpackSiteTopicPage.init( page ) ).selectSiteTopic( 'test site' );
 	// await ( await JetpackUserTypePage.init( page ) ).selectUserType( 'creator' );
 
-	await ( await PickAPlanPage.init( page ) ).selectBusinessPlan();
-	await ( await CheckoutPage.init( page ) ).processPurchase( cardCredentials );
+	if ( mockPlanData ) {
+		await persistPlanData();
+		await ( await PickAPlanPage.init( page ) ).selectFreePlan();
+	} else {
+		await ( await PickAPlanPage.init( page ) ).selectBusinessPlan();
+		await ( await CheckoutPage.init( page ) ).processPurchase( cardCredentials );
+	}
 
 	await ( await ThankYouPage.init( page ) ).waitForSetupAndProceed();
 
 	await ( await MyPlanPage.init( page ) ).returnToWPAdmin();
 
 	jetpackPage = await JetpackPage.init( page );
-	await jetpackPage.setSandboxModeForPayments( cookie, host );
 
 	// Reload the page to hydrate plans cache
 	await jetpackPage.reload( { waitFor: 'networkidle0' } );
 
-	await page.waitForResponse(
-		response => response.url().match( /v4\/site[^\/]/ ) && response.status() === 200,
-		{ timeout: 60 * 1000 }
-	);
+	// await page.waitForResponse(
+	// 	response => response.url().match( /v4\/site[^\/]/ ) && response.status() === 200,
+	// 	{ timeout: 60 * 1000 }
+	// );
 
-	await execShellCommand(
-		'wp cron event run jetpack_v2_heartbeat --path="/home/travis/wordpress"'
-	);
+	if ( ! mockPlanData ) {
+		await execWpCommand( 'wp cron event run jetpack_v2_heartbeat' );
+	}
 
 	if ( ! ( await jetpackPage.isPlan( plan ) ) ) {
 		throw new Error( `Site does not have ${ plan } plan` );
 	}
+
+	await jetpackPage.reload( { waitFor: 'networkidle0' } );
 
 	return true;
 }

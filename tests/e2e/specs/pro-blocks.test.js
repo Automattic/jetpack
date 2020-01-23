@@ -9,6 +9,7 @@ import { resetWordpressInstall, getNgrokSiteUrl, activateModule } from '../lib/u
 import SimplePaymentBlock from '../lib/blocks/simple-payments';
 import WordAdsBlock from '../lib/blocks/word-ads';
 import PinterestBlock from '../lib/blocks/pinterest';
+import { syncPlanData } from '../lib/plan-helper';
 
 describe( 'Paid blocks', () => {
 	beforeAll( async () => {
@@ -16,13 +17,12 @@ describe( 'Paid blocks', () => {
 		const url = getNgrokSiteUrl();
 		console.log( 'NEW SITE URL: ' + url );
 
-		await connectThroughWPAdminIfNeeded();
+		await connectThroughWPAdminIfNeeded( { mockPlanData: true } );
 
 		await activateModule( 'wordads' );
 		await activateModule( 'publicize' );
 
-		await page.waitFor( 10000 ); // Trying to wait for plan data to be updated
-		await page.reload( { waitFor: 'networkidle0' } );
+		await syncPlanData( page );
 	} );
 
 	describe( 'Mailchimp Block', () => {
@@ -68,6 +68,7 @@ describe( 'Paid blocks', () => {
 	describe( 'WordAds block', () => {
 		it( 'Can publish a post with a WordAds block', async () => {
 			const blockEditor = await BlockEditorPage.visit( page );
+			// await blockEditor.waitForAvailableBlock( WordAdsBlock.name() );
 			const blockInfo = await blockEditor.insertBlock( WordAdsBlock.name(), WordAdsBlock.title() );
 			await blockEditor.focus();
 

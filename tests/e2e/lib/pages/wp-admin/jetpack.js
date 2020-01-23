@@ -20,6 +20,11 @@ export default class JetpackPage extends Page {
 		return await waitAndClick( this.page, myPlanButton );
 	}
 
+	async isFree() {
+		const premiumPlanImage = ".my-plan-card__icon img[src*='free']";
+		return await isEventuallyVisible( this.page, premiumPlanImage, 20000 );
+	}
+
 	async isPremium() {
 		const premiumPlanImage = ".my-plan-card__icon img[src*='premium']";
 		return await isEventuallyVisible( this.page, premiumPlanImage, 20000 );
@@ -37,6 +42,8 @@ export default class JetpackPage extends Page {
 
 	async isPlan( plan ) {
 		switch ( plan ) {
+			case 'free':
+				return await this.isPremium();
 			case 'premium':
 				return await this.isPremium();
 			case 'pro':
