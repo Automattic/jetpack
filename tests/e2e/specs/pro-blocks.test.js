@@ -46,7 +46,7 @@ describe( 'Paid blocks', () => {
 		// }
 
 		// await page.waitFor( 10000 ); // Trying to wait for plan data to be updated
-		await page.reload();
+		// await page.reload();
 	} );
 
 	describe( 'Mailchimp Block', () => {
@@ -92,7 +92,7 @@ describe( 'Paid blocks', () => {
 	describe( 'WordAds block', () => {
 		it( 'Can publish a post with a WordAds block', async () => {
 			const blockEditor = await BlockEditorPage.visit( page );
-			await blockEditor.waitForAvailableBlock( WordAdsBlock.name() );
+			// await blockEditor.waitForAvailableBlock( WordAdsBlock.name() );
 			const blockInfo = await blockEditor.insertBlock( WordAdsBlock.name(), WordAdsBlock.title() );
 			await blockEditor.focus();
 
