@@ -318,3 +318,21 @@ function getPlan( type ) {
 	}
 	throw new Error( `${ type } is not yet supported. Add it yourself!` );
 }
+
+export async function syncPlanData( page ) {
+	let isSame = false;
+	let frPlan = null;
+	let bkPlan = null;
+
+	do {
+		await page.reload( { waitFor: 'networkidle0' } );
+
+		// eslint-disable-next-line no-undef
+		frPlan = await page.evaluate( () => Initial_State.siteData.plan.product_slug );
+		bkPlan = JSON.parse( await execWpCommand( 'wp option get jetpack_active_plan --format=json' ) );
+		await execWpCommand( 'wp option get jetpack_active_modules --format=json' );
+
+		console.log( '!!! PLANS: ', frPlan, bkPlan.product_slug );
+		isSame = frPlan.trim() === bkPlan.product_slug.trim();
+	} while ( ! isSame );
+}

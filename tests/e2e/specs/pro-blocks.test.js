@@ -5,15 +5,11 @@ import BlockEditorPage from '../lib/pages/wp-admin/block-editor';
 import PostFrontendPage from '../lib/pages/postFrontend';
 import MailchimpBlock from '../lib/blocks/mailchimp';
 import { connectThroughWPAdminIfNeeded } from '../lib/flows/jetpack-connect';
-import {
-	resetWordpressInstall,
-	getNgrokSiteUrl,
-	activateModule,
-	execWpCommand,
-} from '../lib/utils-helper';
+import { resetWordpressInstall, getNgrokSiteUrl, activateModule } from '../lib/utils-helper';
 import SimplePaymentBlock from '../lib/blocks/simple-payments';
 import WordAdsBlock from '../lib/blocks/word-ads';
 import PinterestBlock from '../lib/blocks/pinterest';
+import { syncPlanData } from '../lib/plan-helper';
 
 describe( 'Paid blocks', () => {
 	beforeAll( async () => {
@@ -45,22 +41,7 @@ describe( 'Paid blocks', () => {
 
 		// await page.waitFor( 10000 ); // Trying to wait for plan data to be updated
 
-		let isSame = false;
-		let frPlan = null;
-		let bkPlan = null;
-
-		do {
-			await page.reload( { waitFor: 'networkidle0' } );
-
-			frPlan = await page.evaluate( () => Initial_State.siteData.plan.product_slug );
-			bkPlan = JSON.parse(
-				await execWpCommand( 'wp option get jetpack_active_plan --format=json' )
-			);
-			await execWpCommand( 'wp option get jetpack_active_modules --format=json' );
-
-			console.log( '!!! PLANS: ', frPlan, bkPlan.product_slug );
-			isSame = frPlan.trim() === bkPlan.product_slug.trim();
-		} while ( ! isSame );
+		await syncPlanData( page );
 	} );
 
 	describe( 'Mailchimp Block', () => {
