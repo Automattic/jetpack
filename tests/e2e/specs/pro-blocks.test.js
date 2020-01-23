@@ -46,7 +46,7 @@ describe( 'Paid blocks', () => {
 		// }
 
 		// await page.waitFor( 10000 ); // Trying to wait for plan data to be updated
-		// await page.reload();
+		await page.reload();
 	} );
 
 	describe( 'Mailchimp Block', () => {
