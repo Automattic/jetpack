@@ -47,7 +47,13 @@ describe( 'Paid blocks', () => {
 		// }
 
 		// await page.waitFor( 10000 ); // Trying to wait for plan data to be updated
-		await page.reload();
+		await page.reload( { waitFor: 'networkidle0' } );
+
+		frPlan = await page.evaluate( () => Initial_State.siteData.plan.product_slug );
+		bkPlan = await execWpCommand( 'wp option get jetpack_active_plan' );
+		console.log( '!!! PLANS: ', frPlan, bkPlan );
+
+		await page.reload( { waitFor: 'networkidle0' } );
 
 		frPlan = await page.evaluate( () => Initial_State.siteData.plan.product_slug );
 		bkPlan = await execWpCommand( 'wp option get jetpack_active_plan' );

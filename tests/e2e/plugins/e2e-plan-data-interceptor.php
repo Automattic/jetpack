@@ -38,7 +38,6 @@ function e2e_intercept_plan_data_request( $return, $r, $url ) {
 		$site_url  = site_url();
 		$json_data = sprintf( '{"ID":%d,"name":"E2E Testing","URL":"%s","approved":true,"active":true,"house":true,"unsafe":false,"status":false}', $site_id, $site_url );
 
-		error_log( print_r( $url, 1 ) );
 		return array(
 			'response' => array( 'code' => 200 ),
 			'body'     => $json_data,
