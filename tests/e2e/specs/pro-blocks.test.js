@@ -23,6 +23,7 @@ describe( 'Paid blocks', () => {
 		await activateModule( 'publicize' );
 
 		await syncPlanData( page );
+		console.log( 'DONE WITH BEFOREALL' );
 	} );
 
 	describe( 'Mailchimp Block', () => {

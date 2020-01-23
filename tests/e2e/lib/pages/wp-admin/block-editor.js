@@ -23,7 +23,6 @@ export default class BlockEditorPage extends Page {
 			wp.data.dispatch( 'core/nux' )[ action ]();
 		}, enableTips );
 
-		// const frPlan = await page.evaluate( () => Initial_State.siteData.plan.product_slug );
 		const bkPlan = JSON.parse(
 			await execWpCommand( 'wp option get jetpack_active_plan --format=json' )
 		);
