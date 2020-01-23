@@ -38,8 +38,7 @@ function jetpack_render_eventbrite_block( $attr, $content ) {
 		return '';
 	}
 
-	$widget_id      = JETPACK_EVENTBRITE_WIDGET_SLUG . '-' . $event_id;
-	$no_script_text = __( 'Register on Eventbrite', 'jetpack' );
+	$widget_id = JETPACK_EVENTBRITE_WIDGET_SLUG . '-' . $event_id;
 
 	wp_enqueue_script( 'eventbrite-widget', 'https://www.eventbrite.com/static/widgets/eb_widgets.js', array(), JETPACK__VERSION, true );
 
@@ -49,17 +48,17 @@ function jetpack_render_eventbrite_block( $attr, $content ) {
 			'eventbrite-widget',
 			"window.EBWidgets.createWidget({
 				widgetType: 'checkout',
-				eventId: ${event_id},
-				iframeContainerId: '${widget_id}',
+				eventId: " . absint( $event_id ) . ",
+				iframeContainerId: '" . esc_js( $widget_id ) . "',
 			});"
 		);
 
-		return <<<EOT
-${content}
-<noscript>
-	<a href="${attr['url']}" rel="noopener noreferrer" target="_blank">${no_script_text}</a>
-</noscript>
-EOT;
+		return sprintf(
+			'%s<noscript><a href="%s" rel="noopener noreferrer" target="_blank">%s</a></noscript>',
+			$content,
+			esc_url( $attr['url'] ),
+			esc_html__( 'Register on Eventbrite', 'jetpack' )
+		);
 	}
 
 	// Show the modal version.
@@ -67,17 +66,17 @@ EOT;
 		'eventbrite-widget',
 		"window.EBWidgets.createWidget({
 			widgetType: 'checkout',
-			eventId: ${event_id},
+			eventId: " . absint( $event_id ) . ",
 			modal: true,
-			modalTriggerElementId: '${widget_id}',
+			modalTriggerElementId: '" . esc_js( $widget_id ) . "',
 		});"
 	);
 
-	return <<<EOT
-	<noscript><a href="${attr['url']}" rel="noopener noreferrer" target="_blank"></noscript>
-	${content}
-	<noscript></a></noscript>
-EOT;
+	return sprintf(
+		'<noscript><a href="%s" rel="noopener noreferrer" target="_blank"></noscript>%s<noscript></a></noscript>',
+		esc_url( $attr['url'] ),
+		$content
+	);
 }
 
 /**
