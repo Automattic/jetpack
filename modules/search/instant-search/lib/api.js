@@ -37,11 +37,11 @@ function generateAggregation( filter ) {
 			};
 		}
 		case 'taxonomy': {
-			let field = `taxonomy.${ filter.taxonomy }.slug`;
+			let field = `taxonomy.${ filter.taxonomy }.name.raw`;
 			if ( filter.taxonomy === 'post_tag' ) {
-				field = 'tag.slug';
+				field = 'tag.name.raw';
 			} else if ( filter.type === 'category' ) {
-				field = 'category.slug';
+				field = 'category.name.raw';
 			}
 			return { terms: { field, size: filter.count } };
 		}
