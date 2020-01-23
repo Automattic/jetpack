@@ -5,7 +5,12 @@ import BlockEditorPage from '../lib/pages/wp-admin/block-editor';
 import PostFrontendPage from '../lib/pages/postFrontend';
 import MailchimpBlock from '../lib/blocks/mailchimp';
 import { connectThroughWPAdminIfNeeded } from '../lib/flows/jetpack-connect';
-import { resetWordpressInstall, getNgrokSiteUrl, activateModule } from '../lib/utils-helper';
+import {
+	resetWordpressInstall,
+	getNgrokSiteUrl,
+	activateModule,
+	execWpCommand,
+} from '../lib/utils-helper';
 import SimplePaymentBlock from '../lib/blocks/simple-payments';
 import WordAdsBlock from '../lib/blocks/word-ads';
 import PinterestBlock from '../lib/blocks/pinterest';
@@ -21,6 +26,7 @@ describe( 'Paid blocks', () => {
 
 		await activateModule( 'wordads' );
 		await activateModule( 'publicize' );
+		await execWpCommand( 'wp jetpack option get active_modules' );
 
 		const jetpackPage = await JetpackPage.init( page );
 		let ads = await page.evaluate( () => Initial_State.getModules.wordads );
@@ -32,8 +38,11 @@ describe( 'Paid blocks', () => {
 			await jetpackPage.reload();
 			await activateModule( 'wordads' );
 
-			ads = await page.evaluate( () => Initial_State.getModules.wordads );
+			await execWpCommand( 'wp jetpack option get active_modules' );
+
 			await page.waitFor( 1000 );
+
+			ads = await page.evaluate( () => Initial_State.getModules.wordads );
 		}
 
 		// await page.waitFor( 10000 ); // Trying to wait for plan data to be updated
