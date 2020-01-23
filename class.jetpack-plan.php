@@ -36,14 +36,10 @@ class Jetpack_Plan {
 			return false;
 		}
 
-		error_log( print_r( '1', 1 ) );
-
 		$body = wp_remote_retrieve_body( $response );
 		if ( is_wp_error( $body ) ) {
 			return false;
 		}
-
-		error_log( print_r( '2', 1 ) );
 
 		// Decode the results.
 		$results = json_decode( $body, true );
@@ -52,8 +48,6 @@ class Jetpack_Plan {
 		if ( ! is_array( $results ) || ! isset( $results['plan'] ) ) {
 			return false;
 		}
-
-		error_log( print_r( '3', 1 ) );
 
 		// Store the new plan in an option and return true if updated.
 		$result = update_option( self::PLAN_OPTION, $results['plan'], true );
@@ -64,16 +58,10 @@ class Jetpack_Plan {
 			$result = update_option( self::PLAN_OPTION, $results['plan'], true );
 		}
 
-		error_log( print_r( '4', 1 ) );
-
 		if ( $result ) {
 			// Reset the cache since we've just updated the plan.
 			self::$active_plan_cache = null;
-			error_log( print_r( '5', 1 ) );
-
 		}
-
-		error_log( print_r( '6', 1 ) );
 
 		return $result;
 	}
