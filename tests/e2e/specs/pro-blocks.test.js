@@ -19,10 +19,11 @@ describe( 'Paid blocks', () => {
 
 		await connectThroughWPAdminIfNeeded( { mockPlanData: true } );
 
-		await activateModule( 'wordads' );
-		await activateModule( 'publicize' );
-
 		await syncPlanData( page );
+
+		await activateModule( 'publicize' );
+		await activateModule( 'wordads' );
+
 		console.log( 'DONE WITH BEFOREALL' );
 	} );
 
