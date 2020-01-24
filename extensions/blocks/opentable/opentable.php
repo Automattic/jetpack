@@ -68,7 +68,7 @@ function set_availability() {
 		);
 	}
 }
-add_action( 'jetpack_register_gutenberg_extensions', 'Jetpack\OpenTable_Block\register_block' );
+add_action( 'jetpack_register_gutenberg_extensions', 'Jetpack\OpenTable_Block\set_availability' );
 
 /**
  * Adds an inline script which updates the block editor settings to
