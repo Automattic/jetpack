@@ -16,7 +16,7 @@ import icon from './icon';
  */
 import './editor.scss';
 
-export const REGEX = /(^|\/\/)(calendly\.com[^"']*)/i
+export const REGEX = /(^|\/\/)(calendly\.com[^"']*)/i;
 export const name = 'calendly';
 export const title = __( 'Calendly', 'jetpack' );
 export const settings = {
