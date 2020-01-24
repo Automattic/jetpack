@@ -101,7 +101,7 @@ class Jetpack_Plan {
 		$backtrace = wp_debug_backtrace_summary();
 
 		if ( ! empty( $plan ) ) {
-			error_log( print_r( 'GET PLAN DATA', 1 ) );
+			error_log( print_r( 'JetpackPlan.get()', 1 ) );
 			error_log( print_r( $plan['product_slug'], 1 ) );
 		}
 

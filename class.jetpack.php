@@ -3021,7 +3021,8 @@ class Jetpack {
 		}
 
 		if ( ! Jetpack_Plan::supports( $module ) ) {
-			error_log( print_r( "Jetpack_Plan::supports($module) is false",1));
+			error_log( print_r( "Jetpack_Plan::supports($module) is false", 1 ) );
+			error_log( print_r( wp_debug_backtrace_summary(),1));
 			return false;
 		}
 
