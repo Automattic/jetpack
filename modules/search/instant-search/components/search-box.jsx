@@ -3,8 +3,8 @@
 /**
  * External dependencies
  */
-import { h, createRef } from 'preact';
-import { useState, useEffect } from 'preact/hooks';
+import { h } from 'preact';
+import { useState, useEffect, useRef } from 'preact/hooks';
 import { __ } from '@wordpress/i18n';
 // eslint-disable-next-line lodash/import-scope
 import uniqueId from 'lodash/uniqueId';
@@ -16,14 +16,19 @@ import Gridicon from './gridicon';
 
 const SearchBox = props => {
 	const [ inputId ] = useState( () => uniqueId( 'jetpack-instant-search__box-input-' ) );
-	const inputRef = createRef();
+	const inputRef = useRef( null );
+
+	const cb = overlayElement => () =>
+		! overlayElement.classList.contains( 'is-hidden' ) && inputRef.current.focus();
 
 	useEffect( () => {
-		inputRef.current.focus();
-		//console.log( inputRef.current );
+		const overlayElement = document.querySelector( '.jetpack-instant-search__overlay' );
+		overlayElement.addEventListener( 'transitionend', cb( overlayElement ), true );
+		cb( overlayElement )(); // invoke focus if page loads with overlay already present
 		return () => {
 			// Cleanup after event
 			// @todo Focus back on the activeElement before the overlay was opened
+			overlayElement.removeEventListener( 'transitionend', cb );
 		};
 	}, [] );
 
