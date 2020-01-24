@@ -14,12 +14,12 @@ import {
 	Spinner,
 	ExternalLink,
 } from '@wordpress/components';
-import { BlockControls, BlockIcon, BlockPreview } from '@wordpress/block-editor';
+import { BlockControls, BlockIcon } from '@wordpress/block-editor';
 import { withDispatch } from '@wordpress/data';
 import { InspectorControls } from '@wordpress/editor';
 import apiFetch from '@wordpress/api-fetch';
 import { ENTER, SPACE } from '@wordpress/keycodes';
-import { getBlockFromExample } from '@wordpress/blocks';
+
 /**
  * Internal dependencies
  */
@@ -27,6 +27,7 @@ import { createWidgetId, convertToLink, eventIdFromUrl } from './utils';
 import { CUSTOM_URL_REGEX, icon, URL_REGEX } from '.';
 import ModalButtonPreview from './modal-button-preview';
 import EventbriteInPageExample from './eventbrite-in-page-example.png';
+import EventbriteModalExample from './eventbrite-modal-example.png';
 import './editor.scss';
 
 const MODAL_BUTTON_STYLES = [
@@ -152,8 +153,8 @@ class EventbriteEdit extends Component {
 	}
 
 	renderInspectorControls() {
-		const { name } = this.props;
-		const { useModal, text } = this.props.attributes;
+		const { useModal } = this.props.attributes;
+
 		const embedTypes = [
 			{
 				value: 'inline',
@@ -172,19 +173,14 @@ class EventbriteEdit extends Component {
 				value: 'modal',
 				isActive: useModal,
 				label: __( ' Button & Modal', 'jetpack' ),
+				// @todo Replace with `getBlockFromExample` when WP 5.3 becomes the Jetpack minimum version
 				preview: (
-					<BlockPreview
-						viewportWidth={ 500 }
-						blocks={ getBlockFromExample( name, {
-							attributes: {
-								...this.props.attributes,
-								url: 'https://www.eventbrite.com/e/test-event-tickets-123456789',
-								useModal: true,
-								text: text || _x( 'Register', 'verb: e.g. register for an event.', 'jetpack' ),
-							},
-							innerBlocks: [],
-						} ) }
-					/>
+					<div className="block-editor-block-preview__container">
+						<img
+							src={ EventbriteModalExample }
+							alt={ __( 'Modal Eventbrite checkout example', 'jetpack' ) }
+						/>
+					</div>
 				),
 			},
 		];
