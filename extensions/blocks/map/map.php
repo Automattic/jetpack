@@ -26,10 +26,7 @@ function jetpack_get_mapbox_api_key() {
 			get_current_blog_id()
 		);
 	} else {
-		$endpoint = sprintf(
-			'%swpcom/v2/service-api-keys/mapbox',
-			rest_url()
-		);
+		$endpoint = rest_url( 'wpcom/v2/service-api-keys/mapbox' );
 	}
 
 	$response      = wp_remote_get( esc_url_raw( $endpoint ) );
