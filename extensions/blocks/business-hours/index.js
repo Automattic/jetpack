@@ -3,6 +3,7 @@
  */
 import { __, _x } from '@wordpress/i18n';
 import { Path } from '@wordpress/components';
+import { registerBlockCollection } from '@wordpress/blocks';
 
 /**
  * Internal dependencies
@@ -82,7 +83,7 @@ export const settings = {
 	title: __( 'Business Hours', 'jetpack' ),
 	description: __( 'Display opening hours for your business.', 'jetpack' ),
 	icon,
-	category: 'jetpack',
+	category: typeof registerBlockCollection === 'function' ? 'widgets' : 'jetpack',
 	supports: {
 		html: true,
 	},
