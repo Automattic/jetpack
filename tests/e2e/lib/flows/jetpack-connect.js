@@ -85,30 +85,25 @@ export async function connectThroughWPAdminIfNeeded( {
 	}
 
 	await ( await ThankYouPage.init( page ) ).waitForSetupAndProceed();
-
 	await ( await MyPlanPage.init( page ) ).returnToWPAdmin();
 
 	jetpackPage = await JetpackPage.init( page );
 
-	// Reload the page to hydrate plans cache
-	await jetpackPage.reload( { waitFor: 'networkidle0' } );
-
-	// await page.waitForResponse(
-	// 	response => response.url().match( /v4\/site[^\/]/ ) && response.status() === 200,
-	// 	{ timeout: 60 * 1000 }
-	// );
-
 	if ( ! mockPlanData ) {
+		await jetpackPage.reload( { waitFor: 'networkidle0' } );
+
+		await page.waitForResponse(
+			response => response.url().match( /v4\/site[^\/]/ ) && response.status() === 200,
+			{ timeout: 60 * 1000 }
+		);
 		await execWpCommand( 'wp cron event run jetpack_v2_heartbeat' );
 	}
+
+	await syncPlanData( page );
 
 	if ( ! ( await jetpackPage.isPlan( plan ) ) ) {
 		throw new Error( `Site does not have ${ plan } plan` );
 	}
-
-	// await jetpackPage.reload( { waitFor: 'networkidle0' } );
-
-	await syncPlanData( page );
 
 	return true;
 }

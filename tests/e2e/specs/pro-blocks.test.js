@@ -20,8 +20,6 @@ describe( 'Paid blocks', () => {
 
 		await activateModule( 'publicize' );
 		await activateModule( 'wordads' );
-
-		console.log( 'DONE WITH BEFOREALL' );
 	} );
 
 	describe( 'Mailchimp Block', () => {
