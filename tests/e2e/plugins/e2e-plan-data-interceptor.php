@@ -24,7 +24,7 @@ function e2e_intercept_plan_data_request( $return, $r, $url ) {
 		return $return;
 	}
 	// match both /sites/$site_id && /sites/$site_id? urls
-	$regex = sprintf( '/\/sites\/\%d($|\?)/', $site_id );
+	$regex = sprintf( '/\/sites\/%d($|\?)/', $site_id );
 	error_log(print_r( 'PRE_REQUEST0', 1 ));
 	error_log(print_r( $url, 1 ));
 	error_log(print_r( $url === trim($url), 1 ));
