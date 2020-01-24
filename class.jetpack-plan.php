@@ -100,7 +100,7 @@ class Jetpack_Plan {
 		$plan      = get_option( self::PLAN_OPTION, array() );
 		$backtrace = wp_debug_backtrace_summary();
 
-		if ( ! is_empty( $plan ) ) {
+		if ( ! empty( $plan ) ) {
 			error_log( print_r( 'GET PLAN DATA', 1 ) );
 			error_log( print_r( $plan, 1 ) );
 			error_log( print_r( $backtrace, 1 ) );
