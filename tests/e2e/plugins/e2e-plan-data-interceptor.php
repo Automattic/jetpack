@@ -34,6 +34,8 @@ function e2e_intercept_plan_data_request( $return, $r, $url ) {
 			return $return;
 		}
 
+		delete_option( 'jetpack_active_plan' );
+
 		return array(
 			'response' => array( 'code' => 200 ),
 			'body'     => $plan_data,
