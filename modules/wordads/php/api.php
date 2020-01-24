@@ -136,6 +136,8 @@ class WordAds_API {
 	 */
 	static function update_wordads_status_from_api() {
 		$status = self::get_wordads_status();
+		error_log(print_r( 'WORDADS STATUS', 1));
+		error_log(print_r( $status, 1));
 		if ( ! is_wp_error( $status ) ) {
 			update_option( 'wordads_approved', self::is_wordads_approved(), true );
 			update_option( 'wordads_active', self::is_wordads_active(), true );
