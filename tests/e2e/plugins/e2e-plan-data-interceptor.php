@@ -25,8 +25,8 @@ function e2e_intercept_plan_data_request( $return, $r, $url ) {
 		error_log(print_r( $url, 1 ));
 	}
 
-	if ( false !== stripos( $url, sprintf( '/sites/%d?', $site_id ) ) ) {
-
+	// match both /sites/$site_id && /sites/$site_id? urls
+	if ( 1 === preg_match( sprintf( '/\/sites\/\%d+($|\?)/', $site_id ), $url ) ) {
 		$plan_data = get_option( 'e2e_jetpack_plan_data' );
 
 		error_log(print_r( $url, 1 ));
