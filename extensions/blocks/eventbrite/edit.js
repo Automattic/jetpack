@@ -78,7 +78,10 @@ class EventbriteEdit extends Component {
 				const resolvedUrl = response.url || url;
 				const resolvedStatusCode = response.status ? parseInt( response.status, 10 ) : null;
 
-				this.props.setAttributes( { url: resolvedUrl } );
+				this.props.setAttributes( {
+					eventId: eventIdFromUrl( resolvedUrl ),
+					url: resolvedUrl,
+				} );
 				this.setState( {
 					resolvingUrl: false,
 					resolvedStatusCode,
@@ -110,7 +113,10 @@ class EventbriteEdit extends Component {
 			return;
 		}
 
-		this.props.setAttributes( { eventId: eventIdFromUrl( url ), url } );
+		this.props.setAttributes( {
+			eventId: eventIdFromUrl( url ),
+			url,
+		} );
 
 		// Setting the `resolvingUrl` state here, then waiting for `componentDidUpdate()` to
 		// be called before actually resolving it ensures that the `editedUrl` state has also been
