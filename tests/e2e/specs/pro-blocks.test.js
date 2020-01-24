@@ -18,8 +18,8 @@ describe( 'Paid blocks', () => {
 
 		await connectThroughWPAdminIfNeeded( { mockPlanData: true } );
 
-		await activateModule( 'publicize' );
-		await activateModule( 'wordads' );
+		await activateModule( page, 'publicize' );
+		await activateModule( page, 'wordads' );
 	} );
 
 	describe( 'Mailchimp Block', () => {

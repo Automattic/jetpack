@@ -69,14 +69,33 @@ export function provisionJetpackStartConnection( plan = 'professional', user = '
 
 /**
  * Runs wp cli command to activate jetpack module, also checks if the module is available in the list of active modules.
+ * @param {Page} page Puppeteer page object
  * @param {string} module Jetpack module name
  */
-export async function activateModule( module ) {
+export async function activateModule( page, module ) {
 	const cliCmd = `wp jetpack module activate ${ module }`;
 	const activeModulesCmd = 'wp option get jetpack_active_modules --format=json';
 	await execWpCommand( cliCmd );
 
-	const modulesList = JSON.parse( await execWpCommand( activeModulesCmd ) );
+	let modulesList = JSON.parse( await execWpCommand( activeModulesCmd ) );
+
+	if ( modulesList.includes( module ) ) {
+		return true;
+	}
+
+	// Give it another try to activate the module
+	page.reload( { waitFor: 'networkidle0' } );
+	await execWpCommand( cliCmd );
+
+	const frPlan = await page.evaluate( () => Initial_State.siteData.plan.product_slug );
+	const bkPlan = JSON.parse(
+		await execWpCommand( 'wp option get jetpack_active_plan --format=json' )
+	);
+	await execWpCommand( 'wp option get jetpack_active_modules --format=json' );
+
+	console.log( '!!! PLANS: ', frPlan, bkPlan.product_slug );
+
+	modulesList = JSON.parse( await execWpCommand( activeModulesCmd ) );
 
 	if ( ! modulesList.includes( module ) ) {
 		throw new Error( `${ module } is failed to activate` );
