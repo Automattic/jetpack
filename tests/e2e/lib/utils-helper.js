@@ -73,6 +73,8 @@ export function provisionJetpackStartConnection( plan = 'professional', user = '
  * @param {string} module Jetpack module name
  */
 export async function activateModule( page, module ) {
+	console.log( Object.keys( page ) );
+
 	await page.waitFor( 1000 );
 
 	const cliCmd = `wp jetpack module activate ${ module }`;
