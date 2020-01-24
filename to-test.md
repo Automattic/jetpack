@@ -2,7 +2,7 @@
 
 ### Blocks
 
-### Calendly
+#### Calendly
 
 The Calendly block will be a useful tool for all coaches, consultants, therapists… Add the block to a post or page and anyone can then book appointments, meetings, and classes right from your website. 
 
@@ -13,11 +13,15 @@ To test, you have 2 options:
 
 Add the block to a post or a page and make sure everything works as planned. If you have your own Calendly account, try different embedding methods and see that they work well.
 
-### OpenTable
+#### OpenTable
 
 As a restaurant owner, your ultimate goal getting online is to drive reservations to your property. The OpenTable block can help you achieve just that by facilitating visitors to quickly fill an online reservation form to book a table.
 
 Like the above, try to play with all options; we're looking for any feedback you may have about the block and the user experience around it.
+
+### Sync
+
+This release brings in significant changes to "Sync", the synchronization process that keeps your site's data up to date with WordPress.com. The changes modify the initial Full Sync process and not the ongoing sync logic that powers features like Notifications, Publicize and Related Posts. Full Sync can be tested by requesting a Full Sync on WordPress.com: under Manage > Settings > General > Site Tools > Manage your connection.
 
 ### Others
 
