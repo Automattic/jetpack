@@ -50,44 +50,85 @@ class WPCOM_REST_API_V2_Endpoint_Resolve_Redirect extends WP_REST_Controller {
 	}
 
 	/**
-	 * Follows 301/302 redirect for the passed URL, and returns the final destination.
+	 * Follows 301/302 redirect for the passed URL, and returns the final destination and status code.
 	 *
 	 * @param WP_REST_Request $request The REST API request data.
 	 * @return WP_REST_Response The REST API response.
 	 */
 	public function follow_redirect( $request ) {
-		$response = wp_safe_remote_get( $request['url'] );
+		global $wp_version;
+
+		// Add a User-Agent header since the request is sometimes blocked without it.
+		$response = wp_safe_remote_get(
+			$request['url'],
+			array(
+				'headers' => array(
+					// @see https://github.com/Automattic/jetpack/blob/fe51754410f97e0f20908ebb7fdbfbc62e703987/modules/protect.php#L534
+					'User-Agent' => "WordPress/{$wp_version} | Jetpack/" . constant( 'JETPACK__VERSION' ),
+				),
+			)
+		);
+
 		if ( is_wp_error( $response ) ) {
-			return rest_ensure_response( '' );
+			return rest_ensure_response(
+				array(
+					'url'    => '',
+					'status' => $response->get_error_code(),
+				)
+			);
 		}
 
-		$history = $response['http_response']->get_response_object()->history;
-		if ( ! $history ) {
-			return response_ensure_response( $request['url'] );
-		}
-
-		$location = $history[0]->headers->getValues( 'location' );
-		if ( ! $location ) {
-			return response_ensure_response( $request['url'] );
-		}
-
-		return rest_ensure_response( $location[0] );
+		return rest_ensure_response(
+			array(
+				'url'    => $this->get_response_url( $response['http_response']->get_response_object() ),
+				'status' => wp_remote_retrieve_response_code( $response ),
+			)
+		);
 	}
 
 	/**
-	 * Retrieves the comment's schema, conforming to JSON Schema.
+	 * Retrieves the response schema, conforming to JSON Schema.
 	 *
 	 * @return array
 	 */
 	public function get_item_schema() {
 		$schema = array(
-			'$schema'     => 'http://json-schema.org/draft-04/schema#',
-			'title'       => 'resolve-redirect',
-			'type'        => 'string',
-			'description' => __( 'The final destination of the URL being checked for redirects.', 'jetpack' ),
+			'$schema'    => 'http://json-schema.org/draft-04/schema#',
+			'title'      => 'resolve-redirect',
+			'type'       => 'object',
+			'properties' => array(
+				'url'    => array(
+					'description' => __( 'The final destination of the URL being checked for redirects.', 'jetpack' ),
+					'type'        => 'string',
+				),
+				'status' => array(
+					'description' => __( 'The status code of the URL\'s response.', 'jetpack' ),
+					'type'        => 'integer',
+				),
+			),
 		);
 
 		return $schema;
+	}
+
+	/**
+	 * Finds the destination url from an http response.
+	 *
+	 * @param Requests_Response $response Response object.
+	 * @return string                     Final url of the response.
+	 */
+	protected function get_response_url( Requests_Response $response ) {
+		$history = $response->history;
+		if ( ! $history ) {
+			return $response->url;
+		}
+
+		$location = $history[0]->headers->getValues( 'location' );
+		if ( ! $location ) {
+			return $response->url;
+		}
+
+		return $location[0];
 	}
 }
 

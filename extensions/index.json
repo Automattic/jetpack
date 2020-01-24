@@ -23,5 +23,5 @@
 		"videopress",
 		"wordads"
 	],
-	"beta": [ "seo", "opentable", "calendly" ]
+	"beta": [ "calendly", "eventbrite", "opentable", "seo" ]
 }

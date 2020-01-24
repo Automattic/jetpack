@@ -59,13 +59,13 @@ class PinterestEdit extends Component {
 		} );
 
 		this.fetchRequest.then(
-			resolvedUrl => {
+			response => {
 				// resolve
 				this.fetchRequest = null;
-				this.props.setAttributes( { url: resolvedUrl } );
+				this.props.setAttributes( { url: response.url } );
 				this.setState( {
 					resolvingRedirect: false,
-					editedUrl: resolvedUrl,
+					editedUrl: response.url,
 				} );
 			},
 			xhr => {
@@ -179,7 +179,7 @@ class PinterestEdit extends Component {
 									{ __( 'Sorry, this content could not be embedded.', 'jetpack' ) }
 									<br />
 									<Button isLarge onClick={ () => fallback( editedUrl, this.props.onReplace ) }>
-										{ _x( 'Convert to link', 'button label', 'jetpack' ) }
+										{ _x( 'Convert block to link', 'button label', 'jetpack' ) }
 									</Button>
 								</p>
 							) }
