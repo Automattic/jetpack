@@ -14,11 +14,12 @@ import {
 	Spinner,
 	ExternalLink,
 } from '@wordpress/components';
-import { BlockControls, BlockIcon } from '@wordpress/block-editor';
+import { BlockControls, BlockIcon, BlockPreview } from '@wordpress/block-editor';
 import { withDispatch } from '@wordpress/data';
 import { InspectorControls } from '@wordpress/editor';
 import apiFetch from '@wordpress/api-fetch';
 import { ENTER, SPACE } from '@wordpress/keycodes';
+import { createBlock } from '@wordpress/blocks';
 
 /**
  * Internal dependencies
@@ -30,7 +31,6 @@ import { icon, URL_REGEX } from '.';
 import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import ModalButtonPreview from './modal-button-preview';
 import EventbriteInPageExample from './eventbrite-in-page-example.png';
-import EventbriteModalExample from './eventbrite-modal-example.png';
 import './editor.scss';
 
 const MODAL_BUTTON_STYLES = [
@@ -160,7 +160,8 @@ class EventbriteEdit extends Component {
 	}
 
 	renderInspectorControls() {
-		const { useModal } = this.props.attributes;
+		const { attributes, name } = this.props;
+		const { useModal, text } = attributes;
 
 		const embedTypes = [
 			{
@@ -182,12 +183,19 @@ class EventbriteEdit extends Component {
 				label: __( ' Button & Modal', 'jetpack' ),
 				// @todo Replace with `getBlockFromExample` when WP 5.3 becomes the Jetpack minimum version
 				preview: (
-					<div className="block-editor-block-preview__container">
-						<img
-							src={ EventbriteModalExample }
-							alt={ __( 'Modal Eventbrite checkout example', 'jetpack' ) }
-						/>
-					</div>
+					<BlockPreview
+						viewportWidth={ 500 }
+						blocks={ createBlock(
+							name,
+							{
+								attributes,
+								url: 'https://www.eventbrite.com/e/test-event-tickets-123456789',
+								useModal: true,
+								text: text || _x( 'Register', 'verb: e.g. register for an event.', 'jetpack' ),
+							},
+							[]
+						) }
+					/>
 				),
 			},
 		];
