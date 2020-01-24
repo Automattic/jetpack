@@ -28,7 +28,7 @@ export function eventIdFromUrl( url ) {
 	}
 
 	const match = url.match( /(\d+)\/?\s*$/ );
-	return match && match[ 1 ] ? match[ 1 ] : null;
+	return match && match[ 1 ] ? parseInt( match[ 1 ], 10 ) : null;
 }
 
 /**
