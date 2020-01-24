@@ -23,14 +23,12 @@ export default class BlockEditorPage extends Page {
 			wp.data.dispatch( 'core/nux' )[ action ]();
 		}, enableTips );
 
+		//TODO: Debug info. remove before merging
 		const bkPlan = JSON.parse(
 			await execWpCommand( 'wp option get jetpack_active_plan --format=json' )
 		);
 		const mods = await execWpCommand( 'wp option get jetpack_active_modules --format=json' );
-
 		console.log( '!!! BlockEditorPage:', mods, bkPlan.product_slug );
-
-		console.log( await it.getAllAvailableBlocks() );
 		return it;
 	}
 
