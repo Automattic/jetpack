@@ -73,7 +73,7 @@ export function provisionJetpackStartConnection( plan = 'professional', user = '
  * @param {string} module Jetpack module name
  */
 export async function activateModule( page, module ) {
-	await page.waitfFor( 1000 );
+	await page.waitFor( 1000 );
 
 	const cliCmd = `wp jetpack module activate ${ module }`;
 	const activeModulesCmd = 'wp option get jetpack_active_modules --format=json';
@@ -90,7 +90,7 @@ export async function activateModule( page, module ) {
 	// Give it another try to activate the module
 	page.reload( { waitFor: 'networkidle0' } );
 
-	await page.waitfFor( 3000 );
+	await page.waitFor( 1000 );
 
 	await execWpCommand( cliCmd );
 
