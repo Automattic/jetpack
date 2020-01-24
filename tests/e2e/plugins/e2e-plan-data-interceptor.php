@@ -20,15 +20,11 @@ add_filter( 'pre_http_request', 'e2e_intercept_plan_data_request', 1, 3 );
 function e2e_intercept_plan_data_request( $return, $r, $url ) {
 	$site_id = Jetpack_Options::get_option( 'id' );
 
-	// shortcut the api call...
-	if ( false !== stripos( $url, sprintf( '/sites/%d', $site_id ) ) ) {
-		error_log(print_r( $url, 1 ));
-	}
-
 	// match both /sites/$site_id && /sites/$site_id? urls
 	if ( 1 === preg_match( sprintf( '/\/sites\/\%d+($|\?)/', $site_id ), $url ) ) {
 		$plan_data = get_option( 'e2e_jetpack_plan_data' );
 
+		error_log(print_r( 'PRE_REQUEST', 1 ));
 		error_log(print_r( $url, 1 ));
 		error_log(print_r( $plan_data, 1 ));
 
