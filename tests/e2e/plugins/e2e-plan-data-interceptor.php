@@ -21,7 +21,13 @@ function e2e_intercept_plan_data_request( $return, $r, $url ) {
 	$site_id = Jetpack_Options::get_option( 'id' );
 
 	// match both /sites/$site_id && /sites/$site_id? urls
-	if ( 1 === preg_match( sprintf( '/\/sites\/\%d+($|\?)/', $site_id ), $url ) ) {
+	$regex = sprintf( '/\/sites\/\%d+($|\?)/', $site_id );
+	error_log(print_r( 'PRE_REQUEST0', 1 ));
+	error_log(print_r( $url, 1 ));
+	error_log(print_r( $url === trim($url), 1 ));
+	error_log(print_r( $regex, 1 ));
+	error_log(print_r( preg_match( $regex, $url ), 1 ));
+	if ( 1 === preg_match( $regex, $url ) ) {
 		$plan_data = get_option( 'e2e_jetpack_plan_data' );
 
 		error_log(print_r( 'PRE_REQUEST', 1 ));
