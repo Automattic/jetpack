@@ -87,6 +87,14 @@ export async function activateModule( page, module ) {
 	page.reload( { waitFor: 'networkidle0' } );
 	await execWpCommand( cliCmd );
 
+	const frPlan = await page.evaluate( () => Initial_State.siteData.plan.product_slug );
+	const bkPlan = JSON.parse(
+		await execWpCommand( 'wp option get jetpack_active_plan --format=json' )
+	);
+	await execWpCommand( 'wp option get jetpack_active_modules --format=json' );
+
+	console.log( '!!! PLANS: ', frPlan, bkPlan.product_slug );
+
 	modulesList = JSON.parse( await execWpCommand( activeModulesCmd ) );
 
 	if ( ! modulesList.includes( module ) ) {
