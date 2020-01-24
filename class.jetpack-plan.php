@@ -102,7 +102,7 @@ class Jetpack_Plan {
 
 		if ( ! empty( $plan ) ) {
 			error_log( print_r( 'GET PLAN DATA', 1 ) );
-			error_log( print_r( $plan, 1 ) );
+			error_log( print_r( $plan['product_slug'], 1 ) );
 			error_log( print_r( $backtrace, 1 ) );
 		}
 
