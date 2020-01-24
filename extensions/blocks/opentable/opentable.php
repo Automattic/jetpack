@@ -46,6 +46,17 @@ function register_block() {
 			BLOCK_NAME,
 			array( 'render_callback' => 'Jetpack\OpenTable_Block\load_assets' )
 		);
+	}
+}
+add_action( 'init', 'Jetpack\OpenTable_Block\register_block' );
+
+/**
+ * Set the availability of the block as the editor
+ * is loaded.
+ */
+function set_availability() {
+	if ( is_available() ) {
+		\Jetpack_Gutenberg::set_extension_available( BLOCK_NAME );
 	} else {
 		\Jetpack_Gutenberg::set_extension_unavailable(
 			BLOCK_NAME,
