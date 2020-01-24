@@ -73,6 +73,8 @@ export function provisionJetpackStartConnection( plan = 'professional', user = '
  * @param {string} module Jetpack module name
  */
 export async function activateModule( page, module ) {
+	await page.waitfFor( 1000 );
+
 	const cliCmd = `wp jetpack module activate ${ module }`;
 	const activeModulesCmd = 'wp option get jetpack_active_modules --format=json';
 	await execWpCommand( cliCmd );
@@ -83,8 +85,13 @@ export async function activateModule( page, module ) {
 		return true;
 	}
 
+	console.log( 'activateModule failed for the first time. trying once again!' );
+
 	// Give it another try to activate the module
 	page.reload( { waitFor: 'networkidle0' } );
+
+	await page.waitfFor( 3000 );
+
 	await execWpCommand( cliCmd );
 
 	const frPlan = await page.evaluate( () => Initial_State.siteData.plan.product_slug );
