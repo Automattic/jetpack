@@ -41,6 +41,22 @@ function jetpack_get_mapbox_api_key() {
 }
 
 /**
+ * Record a Tracks event every time the Map block is loaded on WordPress.com and Atomic.
+ */
+function jetpack_record_mapbox_load_event() {
+	$event_name = 'jetpack_map_block_mapbox_load';
+	$user       = wp_get_current_user();
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		require_lib( 'tracks/client' );
+		tracks_record_event( $user, $event_name, array( 'site_id' => get_current_blog_id() ) );
+		return;
+	} elseif ( jetpack_is_atomic_site() ) {
+		$tracking = new Automattic\Jetpack\Tracking();
+		$tracking->tracks_record_event( $user, $event_name, array( 'site_id' => Jetpack_Options::get_option( 'id' ) ) );
+	}
+}
+
+/**
  * Map block registration/dependency declaration.
  *
  * @param array  $attr    Array containing the map block attributes.
@@ -78,6 +94,8 @@ function jetpack_map_block_load_assets( $attr, $content ) {
 			$placeholder
 		);
 	}
+
+	jetpack_record_mapbox_load_event();
 
 	Jetpack_Gutenberg::load_assets_as_required( 'map' );
 
@@ -125,6 +143,8 @@ function jetpack_map_block_render_single_block_page() {
 	ob_start();
 
 	add_filter( 'jetpack_is_amp_request', '__return_false' );
+
+	jetpack_record_mapbox_load_event();
 
 	Jetpack_Gutenberg::load_assets_as_required( 'map' );
 	wp_scripts()->do_items();
