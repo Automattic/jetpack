@@ -46,6 +46,17 @@ function register_block() {
 			BLOCK_NAME,
 			array( 'render_callback' => 'Jetpack\Calendly_Block\load_assets' )
 		);
+	}
+}
+add_action( 'init', 'Jetpack\Calendly_Block\register_block' );
+
+/**
+ * Set the availability of the block as the editor
+ * is loaded
+ */
+function set_availability() {
+	if ( is_available() ) {
+		\Jetpack_Gutenberg::set_extension_available( BLOCK_NAME );
 	} else {
 		\Jetpack_Gutenberg::set_extension_unavailable(
 			BLOCK_NAME,
@@ -57,8 +68,7 @@ function register_block() {
 		);
 	}
 }
-
-add_action( 'init', 'Jetpack\Calendly_Block\register_block' );
+add_action( 'init', 'Jetpack\Calendly_Block\set_availability' );
 
 /**
  * Calendly block registration/dependency declaration.
