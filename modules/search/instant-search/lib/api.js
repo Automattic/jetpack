@@ -39,9 +39,9 @@ function generateAggregation( filter ) {
 		case 'taxonomy': {
 			let field = `taxonomy.${ filter.taxonomy }.name.raw`;
 			if ( filter.taxonomy === 'post_tag' ) {
-				field = 'tag.name.raw';
-			} else if ( filter.type === 'category' ) {
-				field = 'category.name.raw';
+				field = 'tag.slug';
+			} else if ( filter.taxonomy === 'category' ) {
+				field = 'category.slug';
 			}
 			return { terms: { field, size: filter.count } };
 		}
