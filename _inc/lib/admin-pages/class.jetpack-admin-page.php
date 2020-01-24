@@ -197,6 +197,7 @@ abstract class Jetpack_Admin_Page {
 			switch ( $current['product_slug'] ) {
 				case 'jetpack_free':
 					$to_deactivate = array( 'seo-tools', 'videopress', 'google-analytics', 'wordads', 'search' );
+					error_log( print_r( '!!!!!!! FREE PLAN, going to deactivate modules', 1 ) );
 					break;
 				case 'jetpack_personal':
 				case 'jetpack_personal_monthly':
