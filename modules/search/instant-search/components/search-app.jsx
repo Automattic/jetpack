@@ -51,6 +51,7 @@ class SearchApp extends Component {
 		this.getResults.flush();
 
 		this.addEventListeners();
+		this.preventBodyScroll();
 
 		if ( this.hasActiveQuery() ) {
 			this.showResults();
@@ -59,6 +60,7 @@ class SearchApp extends Component {
 
 	componentWillUnmount() {
 		this.removeEventListeners();
+		this.restoreBodyScroll();
 	}
 
 	addEventListeners() {
@@ -87,6 +89,14 @@ class SearchApp extends Component {
 		document.querySelectorAll( this.props.themeOptions.searchSortSelector ).forEach( select => {
 			select.removeEventListener( 'change', this.handleSortChange );
 		} );
+	}
+
+	preventBodyScroll() {
+		document.body.style.overflowY = 'hidden';
+	}
+
+	restoreBodyScroll() {
+		delete document.body.style.overflowY;
 	}
 
 	hasActiveQuery() {
