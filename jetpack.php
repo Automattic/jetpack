@@ -108,7 +108,7 @@ if ( is_readable( $jetpack_autoloader ) ) {
 		) {
 			return $worked;
 		}
-		// Include the new autoloader since the classes might have been shifter.
+		// Include the new autoloader since the classes might have been shifted.
 		include JETPACK__PLUGIN_DIR . 'vendor/autoload_packages.php';
 
 		return $worked;
