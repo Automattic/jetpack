@@ -94,8 +94,14 @@ if ( version_compare( $GLOBALS['wp_version'], JETPACK__MINIMUM_WP_VERSION, '<' )
 $jetpack_autoloader = JETPACK__PLUGIN_DIR . 'vendor/autoload_packages.php';
 if ( is_readable( $jetpack_autoloader ) ) {
 	add_filter( 'upgrader_post_install', 'jetpack_refresh_autoloader_post_install', 1, 2 );
+	/**
+	 * Refreshes the autoloader if the 'upgrader_post_install' hook fires. This
+	 * occurs when the plugin is updated.
+	 *
+	 * @param bool  $worked Installation response.
+	 * @param array $hook_extras Extra arguments passed to hooked filters.
+	 */
 	function jetpack_refresh_autoloader_post_install( $worked, $hook_extras ) {
-		error_log( print_r( $hook_extras, 1 ) );
 		if (
 			! isset( $hook_extras['plugin'] )
 			|| JETPACK__PLUGIN_FILE !== $hook_extras['plugin']
