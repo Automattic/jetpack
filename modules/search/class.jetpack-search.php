@@ -290,6 +290,9 @@ class Jetpack_Search {
 	 * Loads scripts for Tracks analytics library
 	 */
 	public function is_search_supported() {
+		if ( defined( 'VIP_GO_ENV' ) && false !== VIP_GO_ENV ) {
+			return true;
+		}
 		if ( method_exists( 'Jetpack_Plan', 'supports' ) ) {
 			return Jetpack_Plan::supports( 'search' );
 		}
