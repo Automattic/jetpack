@@ -35,9 +35,11 @@ export const settings = {
 	edit,
 	save: ( { attributes: { rid } } ) => (
 		<>
-			{ rid.map(
-				restaurantId => 'https://www.opentable.com/restref/client/?rid=' + restaurantId + ' '
-			) }
+			{ rid.map( restaurantId => (
+				<a href={ `https://www.opentable.com/restref/client/?rid=${ restaurantId }` }>
+					{ `https://www.opentable.com/restref/client/?rid=${ restaurantId }` }
+				</a>
+			) ) }
 		</>
 	),
 	attributes: defaultAttributes,
