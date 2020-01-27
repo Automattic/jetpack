@@ -34,15 +34,7 @@
 	margin-right: 4em;
 }
 .jetpack-instant-search__search-results-secondary {
-	display: none; // TODO: toggle visibility via JS?
-	position: absolute;
-	top: 0;
-	width: 80%;
-	padding: 1em 2em;	
-	background: #fff;
-	border: 1px solid rgba(0, 0, 0, 0.1);
-	border-radius: 6px;
-	box-shadow: 0 4px 4px rgba(0, 0, 0, 0.1);
+	display: none;
 
 	@include break-medium() {
 		flex: 2;
