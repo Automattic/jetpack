@@ -1,0 +1,31 @@
+language: php
+
+sudo: false
+
+cache:
+  directories:
+    - $HOME/.composer/cache
+
+php:
+  - 7.3
+  - 7.2
+  - 7.1
+  - 7.0
+  - 5.6
+  - hhvm
+
+matrix:
+  fast_finish: true
+  allow_failures:
+    - php: hhvm
+
+install:
+  - composer require cundd/test-flight squizlabs/php_codesniffer phpmd/phpmd
+
+script:
+  - vendor/bin/phpunit
+  - vendor/bin/test-flight README.md
+  - vendor/bin/test-flight classes/
+  - vendor/bin/phpcs --standard=PSR2 classes/ tests/
+  - vendor/bin/phpmd classes/ text cleancode,codesize,controversial,design,naming,unusedcode
+

@@ -1,0 +1,4 @@
+/* Do not modify this file directly. It is compiled from other files. */
+// Originally based on https://raw.githubusercontent.com/xwp/wp-custom-scss-demo/master/custom-scss-demo-preview.js
+/* globals jpCustomizerCssPreview */
+!function(e,s){e.settingPreviewHandlers?e.settingPreviewHandlers.custom_css=function(){}:parent.console.warn("Missing core patch that adds support for settingPreviewHandlers"),e.selectiveRefresh.partialConstructor.custom_css=e.selectiveRefresh.Partial.extend({refresh:function(){var t,r,c=e("jetpack_custom_css[preprocessor]").get();return jpCustomizerCssPreview.preprocessors.hasOwnProperty(c)?e.selectiveRefresh.Partial.prototype.refresh.call(this):(t=new s.Deferred,r=e("custom_css["+e.settings.theme.stylesheet+"]"),_.each(this.placements(),function(e){e.container.text(r.get())}),t.resolve(),t.promise())}})}(wp.customize,jQuery);
