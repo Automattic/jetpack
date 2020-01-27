@@ -1,11 +1,9 @@
 /**
  * External dependencies
  */
-const { jestConfig, jestPuppeteerConfig } = require( 'puppeteer-utils' );
+const { jestConfig, useJestPuppeteerConfig } = require( 'puppeteer-utils' );
 const jestConfigMod = jestConfig;
-const setupFiles = jestConfig.setupFiles;
 
-setupFiles.push( './lib/setup.js' );
-jestConfigMod.setupFiles = setupFiles;
-jestPuppeteerConfig.useJestPuppeteerConfig();
+jestConfigMod.setupFiles = [ './lib/setup.js' ];
+useJestPuppeteerConfig();
 module.exports = jestConfigMod;
