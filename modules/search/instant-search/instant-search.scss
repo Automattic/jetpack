@@ -24,6 +24,7 @@ $grid-size-large: 16px;
 @import './components/search-form.scss';
 @import './components/search-result-minimal.scss';
 @import './components/search-result-product.scss';
+@import './components/search-sidebar.scss';
 
 .jetpack-instant-search__is-loading {
 	opacity: 0.2;

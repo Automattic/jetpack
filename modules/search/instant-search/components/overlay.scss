@@ -14,6 +14,14 @@
 	&.is-hidden {
 		transform: translateX( 100vw );
 	}
+
+	&.jetpack-instant-search__overlay--light {
+		background: #fff;
+	}
+
+	&.jetpack-instant-search__overlay--dark {
+		background: #131313;
+	}
 }
 
 .jetpack-instant-search__overlay-close {

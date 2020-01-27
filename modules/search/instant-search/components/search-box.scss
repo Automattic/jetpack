@@ -7,9 +7,15 @@
 .jetpack-instant-search__box-filter-icon {
 	margin-left: 8px;
 	cursor: pointer;
+
+	// TODO: To be updated to break-medium
+	@include break-small() {
+		display: none;
+	}
 }
 
 /* apply to all the inputs to try and pick up any theme styling */
-.jetpack-instant-search__box input {
+.jetpack-instant-search__box input,
+.jetpack-instant-search__box input[type='search'].jetpack-instant-search__box-input {
 	width: 100%;
 }

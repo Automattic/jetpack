@@ -9,9 +9,23 @@
 
 	mark {
 		padding: 0;
-		background-color: #ffc;
 		font-weight: bold;
+	}
+
+	.jetpack-instant-search__overlay--light & {
 		color: inherit;
+
+		mark {
+			background-color: #ffc;
+		}
+	}
+
+	.jetpack-instant-search__overlay--dark & {
+		color: #fff;
+
+		mark {
+			background-color: #324E85;
+		}
 	}
 }
 
@@ -86,6 +100,7 @@
 .jetpack-instant-search__search-results-search-form {
 	// Only display the search form in the main column at the smallest breakpoint
 	font-size: 0.8em;
+	margin-bottom: 1em;
 
 	.jetpack-instant-search__sort-select {
 		font-size: 0.9em;

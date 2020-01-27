@@ -3,7 +3,7 @@
 /**
  * External dependencies
  */
-import { Component, Fragment, h } from 'preact';
+import { Component, h } from 'preact';
 
 /**
  * Internal dependencies
@@ -32,14 +32,23 @@ class SearchForm extends Component {
 	onChangeQuery = event => setSearchQuery( event.target.value );
 	onChangeSort = sort => setSortQuery( sort );
 
-	toggleFilters = () => {
-		this.setState( state => ( { showFilters: ! state.showFilters } ) );
+	toggleFilters = event => {
+		if (
+			event.type === 'click' ||
+			( event.type === 'keydown' && ( event.key === 'Enter' || event.key === ' ' ) )
+		) {
+			// Prevent page scroll from pressing spacebar
+			if ( event.key === ' ' ) {
+				event.preventDefault();
+			}
+			this.setState( state => ( { showFilters: ! state.showFilters } ) );
+		}
 	};
 
 	render() {
 		return (
 			<form onSubmit={ noop } role="search" className={ this.props.className }>
-				<div className="search-form">
+				<div className="search-form jetpack-instant-search__search-form">
 					<SearchBox
 						enableFilters
 						onChangeQuery={ this.onChangeQuery }
@@ -52,18 +61,20 @@ class SearchForm extends Component {
 					/>
 				</div>
 				{ this.state.showFilters && (
-					<Fragment>
+					<div className="jetpack-instant-search__search-form-filters">
 						<SearchSort onChange={ this.onChangeSort } value={ getSortQuery() } />
-						<SearchFilters
-							filters={ getFilterQuery() }
-							loading={ this.props.isLoading }
-							locale={ this.props.locale }
-							onChange={ this.onChangeFilter }
-							postTypes={ this.props.postTypes }
-							results={ this.props.response }
-							widget={ this.props.widget }
-						/>
-					</Fragment>
+						{ this.props.widgets.map( widget => (
+							<SearchFilters
+								filters={ getFilterQuery() }
+								loading={ this.props.isLoading }
+								locale={ this.props.locale }
+								onChange={ this.onChangeFilter }
+								postTypes={ this.props.postTypes }
+								results={ this.props.response }
+								widget={ widget }
+							/>
+						) ) }
+					</div>
 				) }
 			</form>
 		);
