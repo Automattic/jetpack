@@ -124,6 +124,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Contact Info Block: ensure that Google's Structured Data tool can recognize phone numbers added to the block.
 * Copy Post: ensure correct sharing and like settings are copied when posts are duplicated.
+* Subscriptions: maintain email subscription settings when deactivating and reactivating the feature.
 * WordPress.com REST API: avoid PHP notices when a media file is edited via the API.
 
 --------
