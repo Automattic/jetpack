@@ -195,11 +195,18 @@ class SearchApp extends Component {
 
 	render() {
 		return createPortal(
-			<Overlay isVisible={ this.state.showResults } closeOverlay={ this.hideResults }>
+			<Overlay
+				closeColor={ this.props.overlayOptions.closeColor }
+				closeOverlay={ this.hideResults }
+				colorTheme={ this.props.overlayOptions.colorTheme }
+				isVisible={ this.state.showResults }
+				opacity={ this.props.overlayOptions.opacity }
+			>
 				<SearchResults
-					enableLoadOnScroll={ this.props.options.enableLoadOnScroll }
+					enableLoadOnScroll={ this.props.overlayOptions.enableInfScroll }
 					hasError={ this.state.hasError }
 					hasNextPage={ this.hasNextPage() }
+					highlightColor={ this.props.options.highlightColor }
 					isLoading={ this.state.isLoading }
 					locale={ this.props.options.locale }
 					onLoadNextPage={ this.loadNextPage }

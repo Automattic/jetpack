@@ -24,7 +24,8 @@ This also works on WP.com
 ```
 > npm install yarn@1.7
 > npm install node@10.17.0
-> npx yarn build-search [--watch]
+> yarn build
+> yarn build-search [--watch]
 > ls _inc/build/instant-search/
 ```
 
@@ -36,7 +37,9 @@ This also works on WP.com
 
 3. Select a theme of your choice and add a Jetpack Search widget to the site via the customizer. If using a theme with a sidebar widget area, please add the Jetpack Search widget there.
 
-4. If using a theme with a sidebar widget, you can navigate to / to start the search experience. Otherwise, navigate to your search page (e.g. `/?s=hello`).
+4. Add a Jetpack Search Widget to the Jetpack Search Sidebar and configure the filters you'd like to show in the search overlay.
+
+5. Navigate to your site's search page (e.g. `/?s=hello`) via the widget you added in (3).
 
 ## Architectural Choices
 

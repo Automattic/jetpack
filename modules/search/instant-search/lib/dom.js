@@ -7,6 +7,7 @@ export function getCheckedInputNames( parentDom ) {
 export function getThemeOptions( searchOptions ) {
 	const options = {
 		searchInputSelector: [
+			'input[name="s"]',
 			'#searchform input.search-field',
 			'.search-form input.search-field',
 			'.searchform input.search-field',

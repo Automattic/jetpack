@@ -7,10 +7,25 @@
 	display: flex;
 
 	mark {
-		background-color: #ffc;
 		font-weight: bold;
 		color: inherit;
 		padding: 0;
+	}
+
+	.jetpack-instant-search__overlay--light & {
+		color: inherit;
+
+		mark {
+			background-color: #ffc;
+		}
+	}
+
+	.jetpack-instant-search__overlay--dark & {
+		color: #fff;
+
+		mark {
+			background-color: #324E85;
+		}
 	}
 }
 
@@ -24,7 +39,7 @@
 
 .jetpack-instant-search__search-results-real-query {
 	font-size: 1.5em;
-	text-decoration: bold;
+	font-weight: bold;
 }
 
 .jetpack-instant-search__search-results-unused-query,
@@ -35,11 +50,16 @@
 }
 
 .jetpack-instant-search__result-comments {
-	padding-left: 10px;
-	margin-left: 1px;
-	margin-top: 10px;
+	padding-left: 16px;
+	margin-left: 8px;
+	margin-top: 16px;
 	border-left: 2px solid #eee;
 	font-size: 0.9em;
+
+	.gridicon {
+		margin-right: 8px;
+		vertical-align: middle;
+	}
 }
 
 .jetpack-instant-search__search-results-list {
@@ -60,6 +80,7 @@
 .jetpack-instant-search__search-results-search-form {
 	// Only display the search form in the main column at the smallest breakpoint
 	font-size: 0.8em;
+	margin-bottom: 1em;
 
 	.jetpack-instant-search__sort-select {
 		font-size: 0.9em;
