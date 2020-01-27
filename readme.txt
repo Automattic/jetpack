@@ -122,6 +122,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Connection Flow: improve detection of hosting environments for better communication with WordPress.com.
 * Gutenberg: avoid any layout issues that may appear in the block editor when using the latest version of the Gutenberg plugin.
 * Related Posts: ensure that any filters customizing the display of Related Posts also apply to posts displayed with the AMP plugin.
+* Sharing: do not output Jetpack's Open Graph Meta Tags if the Complete Open Graph plugin is present on your site.
 
 **Bug fixes**
 
