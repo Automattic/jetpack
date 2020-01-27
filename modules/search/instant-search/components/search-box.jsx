@@ -4,7 +4,7 @@
  * External dependencies
  */
 import { h } from 'preact';
-import { useState } from 'preact/hooks';
+import { useState, useEffect, useRef } from 'preact/hooks';
 import { __ } from '@wordpress/i18n';
 // eslint-disable-next-line lodash/import-scope
 import uniqueId from 'lodash/uniqueId';
@@ -16,6 +16,21 @@ import Gridicon from './gridicon';
 
 const SearchBox = props => {
 	const [ inputId ] = useState( () => uniqueId( 'jetpack-instant-search__box-input-' ) );
+	const inputRef = useRef( null );
+
+	const cb = overlayElement => () =>
+		! overlayElement.classList.contains( 'is-hidden' ) && inputRef.current.focus();
+
+	useEffect( () => {
+		const overlayElement = document.querySelector( '.jetpack-instant-search__overlay' );
+		overlayElement.addEventListener( 'transitionend', cb( overlayElement ), true );
+		cb( overlayElement )(); // invoke focus if page loads with overlay already present
+		return () => {
+			// Cleanup after event
+			// @todo Focus back on the activeElement before the overlay was opened
+			overlayElement.removeEventListener( 'transitionend', cb );
+		};
+	}, [] );
 
 	return (
 		<div className="jetpack-instant-search__box">
@@ -27,9 +42,7 @@ const SearchBox = props => {
 				id={ inputId }
 				className="search-field jetpack-instant-search__box-input"
 				onInput={ props.onChangeQuery }
-				onFocus={ props.onFocus }
-				onBlur={ props.onBlur }
-				ref={ props.appRef }
+				ref={ inputRef }
 				placeholder={ __( 'Search…', 'jetpack' ) }
 				type="search"
 				value={ props.query }
