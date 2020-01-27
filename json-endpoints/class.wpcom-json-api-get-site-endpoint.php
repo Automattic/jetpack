@@ -41,6 +41,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'logo'              => '(array) The site logo, set in the Customizer',
 		'visible'           => '(bool) If this site is visible in the user\'s site list',
 		'is_private'        => '(bool) If the site is a private site or not',
+		'is_coming_soon'    => '(bool) If the site is marked as "coming soon" or not',
 		'single_user_site'  => '(bool) Whether the site is single user. Only returned for WP.com sites and for Jetpack sites with version 3.4 or higher.',
 		'is_vip'            => '(bool) If the site is a VIP site or not.',
 		'is_following'      => '(bool) If the current user is subscribed to this site in the reader',
@@ -70,6 +71,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'logo',
 		'visible',
 		'is_private',
+		'is_coming_soon',
 		'is_following',
 		'meta',
 		'launch_status',
@@ -308,6 +310,10 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$response[ $key ] = $this->site->user_can_manage();
 			case 'is_private' :
 				$response[ $key ] = $this->site->is_private();
+				break;
+			case 'is_coming_soon' :
+				// This option is stored on wp.com for both simple and atomic sites. @see mu-plugins/private-blog.php
+				$response[ $key ] = $this->site->is_private() && get_option( 'wpcom_coming_soon' );
 				break;
 			case 'visible' :
 				$response[ $key ] = $this->site->is_visible();
@@ -647,6 +653,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			unset( $response->is_vip );
 			unset( $response->single_user_site );
 			unset( $response->is_private );
+			unset( $response->is_coming_soon );
 			unset( $response->capabilities );
 			unset( $response->lang );
 			unset( $response->user_can_manage );
