@@ -8,8 +8,7 @@
 	margin-left: 8px;
 	cursor: pointer;
 
-	// TODO: To be updated to break-medium
-	@include break-small() {
+	@include break-medium() {
 		display: none;
 	}
 }

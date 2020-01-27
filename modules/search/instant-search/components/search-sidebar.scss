@@ -1,8 +1,7 @@
 .jetpack-instant-search__sidebar {
 	.jetpack-filters.widget_search,
 	.jetpack-instant-search-wrapper {
-		// TODO: To be updated to break-medium
-		@media ( max-width: #{ ( $break-small ) } ) {
+		@media ( max-width: #{ ( $break-medium ) } ) {
 			display: none;
 		}
 	}
