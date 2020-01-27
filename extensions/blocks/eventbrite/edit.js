@@ -25,6 +25,7 @@ import { ENTER, SPACE } from '@wordpress/keycodes';
  */
 import { createWidgetId, convertToLink, eventIdFromUrl } from './utils';
 import { CUSTOM_URL_REGEX, icon, URL_REGEX } from '.';
+import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import ModalButtonPreview from './modal-button-preview';
 import EventbriteInPageExample from './eventbrite-in-page-example.png';
 import EventbriteModalExample from './eventbrite-modal-example.png';
@@ -247,6 +248,11 @@ class EventbriteEdit extends Component {
 	renderEditEmbed() {
 		const { className } = this.props;
 		const { editedUrl } = this.state;
+		const supportLink =
+			isSimpleSite() || isAtomicSite()
+				? 'http://en.support.wordpress.com/wordpress-editor/blocks/eventbrite-block/'
+				: 'https://jetpack.com/support/jetpack-blocks/eventbrite-block/';
+
 		return (
 			<div className={ className }>
 				<Placeholder
@@ -281,7 +287,7 @@ class EventbriteEdit extends Component {
 					</form>
 
 					<div className="components-placeholder__learn-more">
-						<ExternalLink href="http://en.support.wordpress.com/wordpress-editor/blocks/eventbrite-block/">
+						<ExternalLink href={ supportLink }>
 							{ __( 'Learn more about Eventbrite embeds', 'jetpack' ) }
 						</ExternalLink>
 					</div>
