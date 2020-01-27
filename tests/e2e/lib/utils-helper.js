@@ -3,10 +3,6 @@
  */
 import { execSync, exec } from 'child_process';
 import config from 'config';
-/**
- * Internal dependencies
- */
-import Page from './pages/page';
 
 /**
  * Executes a shell command and return it as a Promise.
@@ -73,38 +69,13 @@ export function provisionJetpackStartConnection( plan = 'professional', user = '
  * @param {string} module Jetpack module name
  */
 export async function activateModule( page, module ) {
-	console.log( Object.keys( page ) );
-
 	await page.waitFor( 1000 );
 
 	const cliCmd = `wp jetpack module activate ${ module }`;
 	const activeModulesCmd = 'wp option get jetpack_active_modules --format=json';
 	await execWpCommand( cliCmd );
 
-	let modulesList = JSON.parse( await execWpCommand( activeModulesCmd ) );
-
-	if ( modulesList.includes( module ) ) {
-		return true;
-	}
-
-	console.log( 'activateModule failed for the first time. trying once again!' );
-
-	// Give it another try to activate the module
-	page.reload( { waitFor: 'networkidle0' } );
-
-	await page.waitFor( 1000 );
-
-	await execWpCommand( cliCmd );
-
-	const frPlan = await page.evaluate( () => Initial_State.siteData.plan.product_slug );
-	const bkPlan = JSON.parse(
-		await execWpCommand( 'wp option get jetpack_active_plan --format=json' )
-	);
-	await execWpCommand( 'wp option get jetpack_active_modules --format=json' );
-
-	console.log( '!!! PLANS: ', frPlan, bkPlan.product_slug );
-
-	modulesList = JSON.parse( await execWpCommand( activeModulesCmd ) );
+	const modulesList = JSON.parse( await execWpCommand( activeModulesCmd ) );
 
 	if ( ! modulesList.includes( module ) ) {
 		throw new Error( `${ module } is failed to activate` );

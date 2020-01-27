@@ -97,14 +97,6 @@ class Jetpack_Plan {
 	 * @return array Active Jetpack plan details
 	 */
 	public static function get() {
-		$plan      = get_option( self::PLAN_OPTION, array() );
-		$backtrace = wp_debug_backtrace_summary();
-
-		if ( ! empty( $plan ) ) {
-			error_log( print_r( 'JetpackPlan.get()', 1 ) );
-			error_log( print_r( $plan['product_slug'], 1 ) );
-		}
-
 		// this can be expensive to compute so we cache for the duration of a request.
 		if ( is_array( self::$active_plan_cache ) && ! empty( self::$active_plan_cache ) ) {
 			return self::$active_plan_cache;

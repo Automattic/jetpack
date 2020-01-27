@@ -335,6 +335,4 @@ export async function syncPlanData( page ) {
 	} while ( ! isSame );
 
 	await page.waitFor( 1000 );
-
-	// await page.reload( { waitFor: 'networkidle0' } );
 }
