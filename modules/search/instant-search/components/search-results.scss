@@ -31,14 +31,18 @@
 
 .jetpack-instant-search__search-results-primary {
 	flex: 5;
-	margin-right: 4em;
+
+	@include break-medium() {
+		margin-right: 4em;
+	}
 }
 .jetpack-instant-search__search-results-secondary {
 	display: none;
 
 	@include break-medium() {
-		flex: 2;
 		position: static;
+		display: block;
+		flex: 2;
 		width: auto;
 		padding: 0;
 		background: none;
@@ -90,9 +94,9 @@
 }
 
 .jetpack-instant-search__search-results-search-form {
-	// Only display the search form in the main column at the smallest breakpoint
-	font-size: 0.8em;
+	position: relative;
 	margin-bottom: 1em;
+	font-size: 0.8em;
 
 	.jetpack-instant-search__sort-select {
 		font-size: 0.9em;
