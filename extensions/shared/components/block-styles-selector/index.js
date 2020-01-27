@@ -45,10 +45,13 @@ export default function BlockStylesSelector( {
 	activeStyle,
 	viewportWidth,
 } ) {
-	const block = useSelect( select => {
-		const { getBlock } = select( 'core/block-editor' );
-		return getBlock( clientId );
-	} );
+	let block;
+	if ( useSelect ) {
+		block = useSelect( select => {
+			const { getBlock } = select( 'core/block-editor' );
+			return getBlock( clientId );
+		} );
+	}
 
 	return (
 		<div className="block-editor-block-styles">
@@ -76,12 +79,14 @@ export default function BlockStylesSelector( {
 						tabIndex="0"
 						aria-label={ styleOption.label }
 					>
-						<StylePreview
-							blockName={ block.name }
-							styleOption={ styleOption }
-							attributes={ optionAttributes }
-							viewportWidth={ viewportWidth }
-						/>
+						{ useSelect && (
+							<StylePreview
+								blockName={ block.name }
+								styleOption={ styleOption }
+								attributes={ optionAttributes }
+								viewportWidth={ viewportWidth }
+							/>
+						) }
 						<div className="block-editor-block-styles__item-label">{ styleOption.label }</div>
 					</div>
 				);
