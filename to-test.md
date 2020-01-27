@@ -13,11 +13,17 @@ To test, you have 2 options:
 
 Add the block to a post or a page and make sure everything works as planned. If you have your own Calendly account, try different embedding methods and see that they work well.
 
+#### EventBrite
+
+The EventBrite block is an easy way for your visitors to register for events right from your site.
+
+To test, you can pick any event from [this page](https://www.eventbrite.com/) and add it to a new post on your site. Like the above, try to play with all options; we're looking for any feedback you may have about the block and the user experience around it.
+
 #### OpenTable
 
 As a restaurant owner, your ultimate goal getting online is to drive reservations to your property. The OpenTable block can help you achieve just that by facilitating visitors to quickly fill an online reservation form to book a table.
 
-Like the above, try to play with all options; we're looking for any feedback you may have about the block and the user experience around it.
+Give it a try and let us know what you think.
 
 ### Sync
 

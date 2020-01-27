@@ -104,6 +104,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Major Enhancements**
 
 * Calendly Block: a useful tool for all coaches, consultants, therapists… Add the block to a post or page and anyone can then book appointments, meetings, and classes right from your website.
+* EventBrite Block: allow your visitors to register to events right from your site with this new block.
 * OpenTable Block: restaurant owners, you can now add a reservation form to your site to make it easy for anyone to book a table online, via your site.
 
 **Enhancements**
