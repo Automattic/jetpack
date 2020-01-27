@@ -31,8 +31,8 @@ import EventbriteModalExample from './eventbrite-modal-example.png';
 import './editor.scss';
 
 const MODAL_BUTTON_STYLES = [
-	{ name: 'fill', label: __( 'Fill' ), isDefault: true },
-	{ name: 'outline', label: __( 'Outline' ) },
+	{ name: 'fill', label: __( 'Fill', 'jetpack' ), isDefault: true },
+	{ name: 'outline', label: __( 'Outline', 'jetpack' ) },
 ];
 
 class EventbriteEdit extends Component {
@@ -147,7 +147,7 @@ class EventbriteEdit extends Component {
 		return (
 			<div className="wp-block-embed is-loading">
 				<Spinner />
-				<p>{ __( 'Embedding…' ) }</p>
+				<p>{ __( 'Embedding…', 'jetpack' ) }</p>
 			</div>
 		);
 	}
