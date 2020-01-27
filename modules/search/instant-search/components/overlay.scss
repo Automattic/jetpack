@@ -29,4 +29,13 @@
 	top: 0;
 	right: 0;
 	z-index: 20;
+	width: 44px;
+	height: 44px;
+	padding: 0;
+	line-height: 1;
+
+	@include break-medium() {
+		width: 64px;
+		height: 64px;
+	}
 }
