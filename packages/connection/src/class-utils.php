@@ -14,6 +14,8 @@ use Automattic\Jetpack\Constants;
  */
 class Utils {
 
+	const DEFAULT_JETPACK_API_VERSION = 1;
+
 	/**
 	 * Some hosts disable the OpenSSL extension and so cannot make outgoing HTTPS requests.
 	 * This method sets the URL scheme to HTTP when HTTPS requests can't be made.
@@ -58,5 +60,17 @@ class Utils {
 			$options = compact( 'user_tokens' );
 		}
 		return \Jetpack_Options::update_options( $options );
+	}
+
+	/**
+	 * Returns the Jetpack__API_VERSION constant if it exists, else returns a
+	 * default value of 1.
+	 *
+	 * @return integer
+	 */
+	public static function get_jetpack_api_version() {
+		$api_version = Constants::get_constant( 'JETPACK__API_VERSION' );
+		$api_version = $api_version ? $api_version : self::DEFAULT_JETPACK_API_VERSION;
+		return $api_version;
 	}
 }
