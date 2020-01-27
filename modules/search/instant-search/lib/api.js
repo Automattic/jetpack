@@ -116,7 +116,7 @@ function buildFilterObject( filterQuery ) {
 					filter.bool.must.push( filterKeyToEsFilter.get( key )( item ) );
 				} else {
 					// If key is not in the standard map, assume to be a custom taxonomy
-					filter.bool.must.push( { term: { [ `taxonomy.${ key }.slug` ]: item } } );
+					filter.bool.must.push( { term: { [ `taxonomy.${ key }.name.raw` ]: item } } );
 				}
 			} );
 		} );
