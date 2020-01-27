@@ -19,6 +19,12 @@ The EventBrite block is an easy way for your visitors to register for events rig
 
 To test, you can pick any event from [this page](https://www.eventbrite.com/) and add it to a new post on your site. Like the above, try to play with all options; we're looking for any feedback you may have about the block and the user experience around it.
 
+#### Map
+
+In this release we've made to the way the Mapbox access token is added to a map. If your site is hosted on WordPress.com, it's now easier than ever to get started adding maps to your post.
+
+This change should not impact self-hosted WordPress sites. To confirm this, I would invite you to try to add a new Map Block to a new post or page on your site, and make sure that everything works properly.
+
 #### OpenTable
 
 As a restaurant owner, your ultimate goal getting online is to drive reservations to your property. The OpenTable block can help you achieve just that by facilitating visitors to quickly fill an online reservation form to book a table.
