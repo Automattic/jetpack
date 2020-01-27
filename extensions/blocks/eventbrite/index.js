@@ -8,6 +8,7 @@ import { createBlock } from '@wordpress/blocks';
 /**
  * Internal dependencies
  */
+import { eventIdFromUrl } from './utils';
 import edit from './edit';
 import save from './save';
 
@@ -84,8 +85,10 @@ export const settings = {
 					node.nodeName === 'P' &&
 					( URL_REGEX.test( node.textContent ) || CUSTOM_URL_REGEX.test( node.textContent ) ),
 				transform: node => {
+					const url = node.textContent.trim();
 					return createBlock( 'jetpack/eventbrite', {
-						url: node.textContent.trim(),
+						eventId: eventIdFromUrl( url ),
+						url: url,
 					} );
 				},
 			},
