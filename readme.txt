@@ -110,6 +110,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Contact Form: add IP and Feedback date to data that can be exported via the CSV tool.
 * Dashboard: display a notice when a site uses conflicting plans.
+* Shortcodes: add new Vimeo shortcode format.
 * Subscriptions: display a clear message when an email having many pending confirmations tries to subscribe to a site.
 * Synchronization: improve performance of data synchronization with WordPress.com.
 
