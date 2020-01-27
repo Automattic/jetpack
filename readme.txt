@@ -127,6 +127,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Copy Post: ensure correct sharing and like settings are copied when posts are duplicated.
 * Subscriptions: maintain email subscription settings when deactivating and reactivating the feature.
 * WordPress.com REST API: avoid PHP notices when a media file is edited via the API.
+* WordPress.com REST API: ensure that image URLs are currently set when uploading an image multiple times.
 
 --------
 
