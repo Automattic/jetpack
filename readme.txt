@@ -117,6 +117,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Connnection Flow: ongoing work to improve the reliability of the connection between your site and WordPress.com.
 * Connection Flow: improve detection of hosting environments for better communication with WordPress.com.
+* Gutenberg: avoid any layout issues that may appear in the block editor when using the latest version of the Gutenberg plugin.
 
 **Bug fixes**
 
