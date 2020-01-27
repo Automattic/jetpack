@@ -2,40 +2,40 @@
  * External Dependencies
  */
 import classnames from 'classnames';
-import { memo } from 'React';
 import { isEqual } from 'lodash';
 
 /**
  * WordPress dependencies
  */
+import { memo } from '@wordpress/element';
 import { getBlockType, getBlockFromExample, createBlock } from '@wordpress/blocks';
 import { BlockPreview } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
 import { ENTER, SPACE } from '@wordpress/keycodes';
 
-const StylePreview = memo(
-	props => {
-		const { attributes, styleOption, viewportWidth, blockName } = props;
-		const type = getBlockType( blockName );
+const StylePreview = ( { attributes, styleOption, viewportWidth, blockName } ) => {
+	const type = getBlockType( blockName );
 
-		return (
-			<div className="block-editor-block-styles__item-preview">
-				<BlockPreview
-					viewportWidth={ viewportWidth }
-					blocks={
-						type.example
-							? getBlockFromExample( blockName, {
-									attributes: { ...type.example.attributes, style: styleOption.value },
-									innerBlocks: type.example.innerBlocks,
-							  } )
-							: createBlock( type, attributes )
-					}
-				/>
-			</div>
-		);
-	},
-	( prevProps, nextProps ) => isEqual( prevProps, nextProps )
-);
+	return (
+		<div className="block-editor-block-styles__item-preview">
+			<BlockPreview
+				viewportWidth={ viewportWidth }
+				blocks={
+					type.example
+						? getBlockFromExample( blockName, {
+								attributes: { ...type.example.attributes, style: styleOption.value },
+								innerBlocks: type.example.innerBlocks,
+						  } )
+						: createBlock( type, attributes )
+				}
+			/>
+		</div>
+	);
+};
+
+const StylePreviewComponent = memo
+	? memo( StylePreview, ( prevProps, nextProps ) => isEqual( prevProps, nextProps ) )
+	: StylePreview;
 
 export default function BlockStylesSelector( {
 	attributes,
@@ -80,7 +80,7 @@ export default function BlockStylesSelector( {
 						aria-label={ styleOption.label }
 					>
 						{ useSelect && (
-							<StylePreview
+							<StylePreviewComponent
 								blockName={ block.name }
 								styleOption={ styleOption }
 								attributes={ optionAttributes }
