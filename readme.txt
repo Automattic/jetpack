@@ -122,6 +122,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
+* Blocks / Dashboard: ensure that blocks as well as Jetpack's dashboard can be used even in older browsers such as Internet Explorer 11.
 * Contact Info Block: ensure that Google's Structured Data tool can recognize phone numbers added to the block.
 * Copy Post: ensure correct sharing and like settings are copied when posts are duplicated.
 * Subscriptions: maintain email subscription settings when deactivating and reactivating the feature.
