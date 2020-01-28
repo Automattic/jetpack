@@ -51,7 +51,6 @@ class SearchApp extends Component {
 		this.getResults.flush();
 
 		this.addEventListeners();
-		this.preventBodyScroll();
 
 		if ( this.hasActiveQuery() ) {
 			this.showResults();
@@ -120,8 +119,14 @@ class SearchApp extends Component {
 		setSortQuery( getSortKeyFromSortOption( event.target.value ) );
 	};
 
-	showResults = () => this.setState( { showResults: true } );
-	hideResults = () => this.setState( { showResults: false } );
+	showResults = () => {
+		this.setState( { showResults: true } );
+		this.preventBodyScroll();
+	};
+	hideResults = () => {
+		this.setState( { showResults: false } );
+		this.restoreBodyScroll();
+	};
 
 	onChangeQuery = event => setSearchQuery( event.target.value );
 
