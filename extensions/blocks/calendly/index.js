@@ -35,7 +35,7 @@ export const settings = {
 		html: false,
 	},
 	edit,
-	save: () => null,
+	save: ( { attributes: { url } } ) => <a href={ url }>{ url }</a>,
 	attributes,
 	example: {
 		attributes: {
