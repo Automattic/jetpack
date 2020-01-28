@@ -27,6 +27,7 @@ import {
 	getSortKeyFromSortOption,
 	getSortOptionFromSortKey,
 } from '../lib/query-string';
+import { bindCustomizerChanges } from '../lib/customize';
 
 class SearchApp extends Component {
 	static defaultProps = {
@@ -39,6 +40,7 @@ class SearchApp extends Component {
 		this.state = {
 			hasError: false,
 			isLoading: false,
+			overlayOptions: { ...this.props.initialOverlayOptions },
 			requestId: 0,
 			response: {},
 			showResults: false,
@@ -63,6 +65,8 @@ class SearchApp extends Component {
 	}
 
 	addEventListeners() {
+		bindCustomizerChanges( this.handleOverlayOptionsUpdate );
+
 		window.addEventListener( 'popstate', this.onChangeQueryString );
 		window.addEventListener( 'queryStringChange', this.onChangeQueryString );
 
@@ -117,6 +121,10 @@ class SearchApp extends Component {
 
 	handleSortChange = event => {
 		setSortQuery( getSortKeyFromSortOption( event.target.value ) );
+	};
+
+	handleOverlayOptionsUpdate = ( { key, value } ) => {
+		this.setState( { overlayOptions: { ...this.state.overlayOptions, [ key ]: value } } );
 	};
 
 	showResults = () => {
@@ -199,14 +207,14 @@ class SearchApp extends Component {
 	render() {
 		return createPortal(
 			<Overlay
-				closeColor={ this.props.overlayOptions.closeColor }
+				closeColor={ this.state.overlayOptions.closeColor }
 				closeOverlay={ this.hideResults }
-				colorTheme={ this.props.overlayOptions.colorTheme }
+				colorTheme={ this.state.overlayOptions.colorTheme }
 				isVisible={ this.state.showResults }
-				opacity={ this.props.overlayOptions.opacity }
+				opacity={ this.state.overlayOptions.opacity }
 			>
 				<SearchResults
-					enableLoadOnScroll={ this.props.overlayOptions.enableInfScroll }
+					enableLoadOnScroll={ this.state.overlayOptions.enableInfScroll }
 					hasError={ this.state.hasError }
 					hasNextPage={ this.hasNextPage() }
 					highlightColor={ this.props.options.highlightColor }
