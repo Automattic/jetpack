@@ -37,8 +37,8 @@ function jetpack_register_block( $slug, $args = array() ) {
 		return false;
 	}
 
-	// If the block is dynamic, wrap the render_callback to check availability.
-	if ( isset( $args['render_callback'] ) ) {
+	// If the block is dynamic, and a Jetpack block, wrap the render_callback to check availability.
+	if ( 0 === strpos( $slug, 'jetpack/' ) && isset( $args['render_callback'] ) ) {
 		$render_callback         = $args['render_callback'];
 		$args['render_callback'] = function ( $prepared_attributes, $block_content ) use ( $render_callback, $slug ) {
 			$availability = Jetpack_Gutenberg::get_availability();
