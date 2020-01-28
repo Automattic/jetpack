@@ -47,10 +47,10 @@ function jetpack_record_mapbox_wpcom_load_event() {
 	$event_name = 'wpcom_map_block_mapbox_load';
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 		require_lib( 'tracks/client' );
-		tracks_record_event( wp_get_current_user(), $event_name, array( 'site_id' => get_current_blog_id() ) );
+		tracks_record_event( wp_get_current_user(), $event_name );
 	} elseif ( jetpack_is_atomic_site() && Jetpack::is_active() ) {
 		$tracking = new Automattic\Jetpack\Tracking();
-		$tracking->record_user_event( $event_name, array( 'site_id' => Jetpack_Options::get_option( 'id' ) ) );
+		$tracking->record_user_event( $event_name );
 	}
 }
 
