@@ -1019,8 +1019,11 @@ class Jetpack_Gutenberg {
 			if ( ! class_exists( 'Store_Product_List' ) ) {
 				require WP_CONTENT_DIR . '/admin-plugins/wpcom-billing/store-product-list.php';
 			}
-			$features     = Store_Product_List::get_site_specific_features_data()['active'];
-			$is_available = in_array( $slug, $features, true );
+			$features_data = Store_Product_List::get_site_specific_features_data();
+			$is_available  = in_array( $slug, $features_data['active'], true );
+			if ( isset( $features_data['available'][ $slug ] ) && ! empty( $features_data['available'][ $slug ] ) ) {
+				$plan = $features_data['available'][ $slug ][0];
+			}
 		} elseif ( ! jetpack_is_atomic_site() ) {
 			/*
 			 * If it's Atomic then assume all features are available
