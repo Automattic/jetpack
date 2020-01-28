@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
+import { createBlock } from '@wordpress/blocks';
 
 /**
  * Internal dependencies
@@ -9,6 +10,7 @@ import { __ } from '@wordpress/i18n';
 import attributes from './attributes';
 import edit from './edit';
 import icon from './icon';
+import { getAttributesFromEmbedCode, REGEX } from './utils';
 
 /**
  * Style dependencies
@@ -42,5 +44,17 @@ export const settings = {
 			style: 'inline',
 			url: 'https://calendly.com/wordpresscom/jetpack-block-example',
 		},
+	},
+	transforms: {
+		from: [
+			{
+				type: 'raw',
+				isMatch: node => node.nodeName === 'P' && REGEX.test( node.textContent ),
+				transform: node => {
+					const newAttributes = getAttributesFromEmbedCode( node.textContent );
+					return createBlock( 'jetpack/calendly', newAttributes );
+				},
+			},
+		],
 	},
 };
