@@ -43,16 +43,14 @@ function jetpack_get_mapbox_api_key() {
 /**
  * Record a Tracks event every time the Map block is loaded on WordPress.com and Atomic.
  */
-function jetpack_record_mapbox_load_event() {
-	$event_name = 'jetpack_map_block_mapbox_load';
-	$user       = wp_get_current_user();
+function jetpack_record_mapbox_wpcom_load_event() {
+	$event_name = 'wpcom_map_block_mapbox_load';
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 		require_lib( 'tracks/client' );
-		tracks_record_event( $user, $event_name, array( 'site_id' => get_current_blog_id() ) );
-		return;
-	} elseif ( jetpack_is_atomic_site() ) {
+		tracks_record_event( wp_get_current_user(), $event_name, array( 'site_id' => get_current_blog_id() ) );
+	} elseif ( jetpack_is_atomic_site() && Jetpack::is_active() ) {
 		$tracking = new Automattic\Jetpack\Tracking();
-		$tracking->tracks_record_event( $user, $event_name, array( 'site_id' => Jetpack_Options::get_option( 'id' ) ) );
+		$tracking->record_user_event( $event_name, array( 'site_id' => Jetpack_Options::get_option( 'id' ) ) );
 	}
 }
 
@@ -95,7 +93,7 @@ function jetpack_map_block_load_assets( $attr, $content ) {
 		);
 	}
 
-	jetpack_record_mapbox_load_event();
+	jetpack_record_mapbox_wpcom_load_event();
 
 	Jetpack_Gutenberg::load_assets_as_required( 'map' );
 
@@ -144,7 +142,7 @@ function jetpack_map_block_render_single_block_page() {
 
 	add_filter( 'jetpack_is_amp_request', '__return_false' );
 
-	jetpack_record_mapbox_load_event();
+	jetpack_record_mapbox_wpcom_load_event();
 
 	Jetpack_Gutenberg::load_assets_as_required( 'map' );
 	wp_scripts()->do_items();
