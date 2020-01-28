@@ -53,8 +53,9 @@ class Jetpack_Search_Customize {
 		$wp_customize->add_setting(
 			$id,
 			array(
-				'default' => 'light',
-				'type'    => 'option',
+				'default'   => 'light',
+				'transport' => 'postMessage',
+				'type'      => 'option',
 			)
 		);
 		$wp_customize->add_control(
@@ -75,8 +76,9 @@ class Jetpack_Search_Customize {
 		$wp_customize->add_setting(
 			$id,
 			array(
-				'default' => 97,
-				'type'    => 'option',
+				'default'   => 97,
+				'transport' => 'postMessage',
+				'type'      => 'option',
 			)
 		);
 		$wp_customize->add_control(
@@ -98,8 +100,9 @@ class Jetpack_Search_Customize {
 		$wp_customize->add_setting(
 			$id,
 			array(
-				'default' => '#BD3854',
-				'type'    => 'option',
+				'default'   => '#BD3854',
+				'transport' => 'postMessage',
+				'type'      => 'option',
 			)
 		);
 		$wp_customize->add_control(
@@ -118,8 +121,9 @@ class Jetpack_Search_Customize {
 		$wp_customize->add_setting(
 			$id,
 			array(
-				'default' => '#FFC',
-				'type'    => 'option',
+				'default'   => '#FFC',
+				'transport' => 'postMessage',
+				'type'      => 'option',
 			)
 		);
 		$wp_customize->add_control(
@@ -138,8 +142,9 @@ class Jetpack_Search_Customize {
 		$wp_customize->add_setting(
 			$id,
 			array(
-				'default' => true,
-				'type'    => 'option',
+				'default'   => true,
+				'transport' => 'postMessage',
+				'type'      => 'option',
 			)
 		);
 		$wp_customize->add_control(
@@ -155,8 +160,9 @@ class Jetpack_Search_Customize {
 		$wp_customize->add_setting(
 			$id,
 			array(
-				'default' => true,
-				'type'    => 'option',
+				'default'   => true,
+				'transport' => 'postMessage',
+				'type'      => 'option',
 			)
 		);
 
@@ -173,8 +179,9 @@ class Jetpack_Search_Customize {
 		$wp_customize->add_setting(
 			$id,
 			array(
-				'default' => true,
-				'type'    => 'option',
+				'default'   => true,
+				'transport' => 'postMessage',
+				'type'      => 'option',
 			)
 		);
 		$wp_customize->add_control(
