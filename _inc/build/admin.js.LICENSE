@@ -1,0 +1,59 @@
+/*!
+  Copyright (c) 2017 Jed Watson.
+  Licensed under the MIT License (MIT), see
+  http://jedwatson.github.io/classnames
+*/
+
+/*!
+ * The buffer module from node.js, for the browser.
+ *
+ * @author   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
+ * @license  MIT
+ */
+
+/**
+ * @preserve jed.js https://github.com/SlexAxton/Jed
+ */
+
+/*
+object-assign
+(c) Sindre Sorhus
+@license MIT
+*/
+
+/*!
+ * clipboard.js v2.0.4
+ * https://zenorocha.github.io/clipboard.js
+ * 
+ * Licensed MIT © Zeno Rocha
+ */
+
+/** @license React v16.8.6
+ * react-is.production.min.js
+ *
+ * Copyright (c) Facebook, Inc. and its affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+/*! https://mths.be/punycode v1.4.1 by @mathias */
+
+/*
+ * Exposes number format capability
+ *
+ * @copyright Copyright (c) 2013 Kevin van Zonneveld (http://kvz.io) and Contributors (http://phpjs.org/authors).
+ * @license See CREDITS.md
+ * @see https://github.com/kvz/phpjs/blob/ffe1356af23a6f2512c84c954dd4e828e92579fa/functions/strings/number_format.js
+ */
+
+/**
+ * This test is for touch events.
+ * It may not accurately detect a touch screen, but may be close enough depending on the use case.
+ *
+ * @copyright Modernizr © 2009-2015.
+ * @license See CREDITS.md.
+ * @see https://github.com/Modernizr/Modernizr/blob/master/feature-detects/touchevents.js
+ *
+ * @returns {Boolean} whether touch screen is available
+ */
