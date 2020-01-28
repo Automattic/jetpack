@@ -98,25 +98,25 @@ export default class SearchFilter extends Component {
 	};
 
 	renderTaxonomy = ( { key, doc_count: count } ) => {
-		// Taxonomy keys contain slug and title separated by a slash
+		// Taxonomy keys contain slug and name separated by a slash
 		const [ slug, name ] = key && key.split( /\/(.+)/ );
 
 		return (
 			<div>
 				<input
-					checked={ this.isChecked( key ) }
-					id={ `${ this.idPrefix }-taxonomies-${ key }` }
-					name={ key }
+					checked={ this.isChecked( slug ) }
+					id={ `${ this.idPrefix }-taxonomies-${ slug }` }
+					name={ slug }
 					onChange={ this.toggleFilter }
 					type="checkbox"
 					className="jetpack-instant-search__filter-list-input"
 				/>
 
 				<label
-					htmlFor={ `${ this.idPrefix }-taxonomies-${ key }` }
+					htmlFor={ `${ this.idPrefix }-taxonomies-${ slug }` }
 					className="jetpack-instant-search__filter-list-label"
 				>
-					{ strip( name ) + ' - ' + slug } ({ count })
+					{ strip( name ) } ({ count })
 				</label>
 			</div>
 		);

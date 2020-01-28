@@ -80,8 +80,8 @@ const filterKeyToEsFilter = new Map( [
 	[ 'post_types', postType => ( { term: { post_type: postType } } ) ],
 
 	// Built-in taxonomies
-	[ 'category', category => ( { term: { 'category.slug_slash_name': category } } ) ],
-	[ 'post_tag', tag => ( { term: { 'tag.slug_slash_name': tag } } ) ],
+	[ 'category', category => ( { term: { 'category.slug': category } } ) ],
+	[ 'post_tag', tag => ( { term: { 'tag.slug': tag } } ) ],
 
 	// Dates
 	[ 'month_post_date', datestring => generateDateRangeFilter( 'date', datestring, 'month' ) ],
@@ -117,7 +117,7 @@ function buildFilterObject( filterQuery ) {
 					filter.bool.must.push( filterKeyToEsFilter.get( key )( item ) );
 				} else {
 					// If key is not in the standard map, assume to be a custom taxonomy
-					filter.bool.must.push( { term: { [ `taxonomy.${ key }.slug_slash_name` ]: item } } );
+					filter.bool.must.push( { term: { [ `taxonomy.${ key }.slug` ]: item } } );
 				}
 			} );
 		} );
