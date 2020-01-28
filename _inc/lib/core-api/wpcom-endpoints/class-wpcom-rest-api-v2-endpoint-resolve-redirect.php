@@ -56,15 +56,12 @@ class WPCOM_REST_API_V2_Endpoint_Resolve_Redirect extends WP_REST_Controller {
 	 * @return WP_REST_Response The REST API response.
 	 */
 	public function follow_redirect( $request ) {
-		global $wp_version;
-
 		// Add a User-Agent header since the request is sometimes blocked without it.
 		$response = wp_safe_remote_get(
 			$request['url'],
 			array(
 				'headers' => array(
-					// @see https://github.com/Automattic/jetpack/blob/fe51754410f97e0f20908ebb7fdbfbc62e703987/modules/protect.php#L534
-					'User-Agent' => "WordPress/{$wp_version} | Jetpack/" . constant( 'JETPACK__VERSION' ),
+					'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:71.0) Gecko/20100101 Firefox/71.0',
 				),
 			)
 		);
