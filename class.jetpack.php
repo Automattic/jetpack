@@ -769,7 +769,7 @@ class Jetpack {
 	 */
 	public function late_initialization() {
 		self::plugin_textdomain();
-		self::load_modules();
+		add_action( 'plugins_loaded', array( 'Jetpack', 'load_modules' ), 100 );
 
 		Partner::init();
 
