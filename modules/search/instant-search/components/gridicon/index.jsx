@@ -42,6 +42,8 @@ class Gridicon extends Component {
 				return <title>{ __( 'Is a product.' ) }</title>;
 			case 'gridicons-comment':
 				return <title>{ __( 'Matching comment.' ) }</title>;
+			case 'gridicons-cross':
+				return <title>{ __( 'Close search overlay' ) }</title>;
 			case 'gridicons-folder':
 				return <title>{ __( 'Category' ) }</title>;
 			case 'gridicons-image-multiple':
@@ -88,6 +90,12 @@ class Gridicon extends Component {
 				return (
 					<g>
 						<path d="M3 6v9c0 1.105.895 2 2 2h9v5l5.325-3.804c1.05-.75 1.675-1.963 1.675-3.254V6c0-1.105-.895-2-2-2H5c-1.105 0-2 .895-2 2z" />
+					</g>
+				);
+			case 'gridicons-cross':
+				return (
+					<g>
+						<path d="M18.36 19.78L12 13.41l-6.36 6.37-1.42-1.42L10.59 12 4.22 5.64l1.42-1.42L12 10.59l6.36-6.36 1.41 1.41L13.41 12l6.36 6.36z" />
 					</g>
 				);
 			case 'gridicons-folder':

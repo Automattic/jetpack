@@ -60,6 +60,7 @@ class SearchForm extends Component {
 				</div>
 				{ this.state.showFilters && (
 					<div className="jetpack-instant-search__search-form-filters">
+						<div className="jetpack-instant-search__search-form-filters-arrow" />
 						<SearchSort onChange={ this.onChangeSort } value={ getSortQuery() } />
 						{ this.props.widgets.map( widget => (
 							<SearchFilters
