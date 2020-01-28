@@ -1,7 +1,7 @@
 .jetpack-instant-search__sidebar {
 	.jetpack-filters.widget_search,
 	.jetpack-instant-search-wrapper {
-		@media ( max-width: #{ ( $break-medium ) } ) {
+		@media ( max-width: #{ ( $break-medium - 1 ) } ) {
 			display: none;
 		}
 	}
