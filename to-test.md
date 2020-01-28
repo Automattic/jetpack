@@ -1,31 +1,39 @@
-## 8.1
+## 8.2
 
-### Site Accelerator
+### Blocks
 
-The devicepx library has been disabled by default, unless explicitly enabled via theme support. This library was previously used to compensate for lack of browser support. To quote Joseph Scott:
+#### Calendly
 
-```
-As a general item, I'd be happy to see devicepx go away entirely. My only concern is for places that assume it will be around and could potentially end up with unexpected results.
+The Calendly block will be a useful tool for all coaches, consultants, therapists… Add the block to a post or page and anyone can then book appointments, meetings, and classes right from your website. 
 
-Devicepx came about because there were not great ways for managing alternate image needs, like DPI ( retina ). Now, we have much better options that don't require JavaScript to be checking things all the time. We certainly have the browser feature support that makes it possible for devicepx to go away.
-```
+To test, you have 2 options:
 
-To test enable the Jetpack plugin. Make sure it no longer enqueues the `https://s0.wp.com/wp-content/js/devicepx-jetpack.js` script on all pages automatically. Please make sure images of various sizes (galleries, featured images, icons, etc.) look fine on different screens.
+1. You can [create a Calendly account here](https://calendly.com) and create your own form that you'll be able to embed on your site via the block.
+2. You can use an existing Calendly account like this one: `https://calendly.com/jeherve`. Paste the link into the block to get started.
 
-Add `add_theme_support( 'jetpack-devicepx' );` to theme's functions.php and notice that now all front-end page loads include the https://s0.wp.com/wp-content/js/devicepx-jetpack.js script. You can use the following snippet:
+Add the block to a post or a page and make sure everything works as planned. If you have your own Calendly account, try different embedding methods and see that they work well.
 
-```
-add_action( 'init', 'jetpack_declare_theme_support' );
-function jetpack_declare_theme_support() {
-	add_theme_support( 'jetpack-devicepx' );
-}
-```
+#### EventBrite
 
-Load an AMP page and notice that the devicepx library is not loaded as expected.
+The EventBrite block is an easy way for your visitors to register for events right from your site.
 
-### Subscriptions
+To test, you can pick any event from [this page](https://www.eventbrite.com/) and add it to a new post on your site. Like the above, try to play with all options; we're looking for any feedback you may have about the block and the user experience around it.
 
-The option to send emails on new subscribers has been added to wp-admin. Previously the option could only be set using Calypso. To test you can go to the wp-admin settings and open the Discussion tab. The new checkbox will be in the "Email me whenever" section. Make sure you can save both the on and off value, and change it using Calypso.
+#### Map
+
+In this release we've made to the way the Mapbox access token is added to a map. If your site is hosted on WordPress.com, it's now easier than ever to get started adding maps to your post.
+
+This change should not impact self-hosted WordPress sites. To confirm this, I would invite you to try to add a new Map Block to a new post or page on your site, and make sure that everything works properly.
+
+#### OpenTable
+
+As a restaurant owner, your ultimate goal getting online is to drive reservations to your property. The OpenTable block can help you achieve just that by facilitating visitors to quickly fill an online reservation form to book a table.
+
+Give it a try and let us know what you think.
+
+### Sync
+
+This release brings in significant changes to "Sync", the synchronization process that keeps your site's data up to date with WordPress.com. The changes modify the initial Full Sync process and not the ongoing sync logic that powers features like Notifications, Publicize and Related Posts. Full Sync can be tested by requesting a Full Sync on WordPress.com: under Manage > Settings > General > Site Tools > Manage your connection.
 
 ### Others
 
