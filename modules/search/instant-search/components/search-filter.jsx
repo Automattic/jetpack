@@ -59,8 +59,12 @@ export default class SearchFilter extends Component {
 					name={ key }
 					onChange={ this.toggleFilter }
 					type="checkbox"
+					className="jetpack-instant-search__filter-list-input"
 				/>
-				<label htmlFor={ `${ this.idPrefix }-dates-${ this.getIdentifier() }-${ key }` }>
+				<label
+					htmlFor={ `${ this.idPrefix }-dates-${ this.getIdentifier() }-${ key }` }
+					className="jetpack-instant-search__filter-list-label"
+				>
 					{ new Date( key ).toLocaleString(
 						locale,
 						getDateOptions( this.props.configuration.interval )
@@ -81,8 +85,12 @@ export default class SearchFilter extends Component {
 					name={ key }
 					onChange={ this.toggleFilter }
 					type="checkbox"
+					className="jetpack-instant-search__filter-list-input"
 				/>
-				<label htmlFor={ `${ this.idPrefix }-post-types-${ key }` }>
+				<label
+					htmlFor={ `${ this.idPrefix }-post-types-${ key }` }
+					className="jetpack-instant-search__filter-list-label"
+				>
 					{ strip( name ) } ({ count })
 				</label>
 			</div>
@@ -98,8 +106,12 @@ export default class SearchFilter extends Component {
 					name={ key }
 					onChange={ this.toggleFilter }
 					type="checkbox"
+					className="jetpack-instant-search__filter-list-input"
 				/>
-				<label htmlFor={ `${ this.idPrefix }-taxonomies-${ key }` }>
+				<label
+					htmlFor={ `${ this.idPrefix }-taxonomies-${ key }` }
+					className="jetpack-instant-search__filter-list-label"
+				>
 					{ strip( key ) } ({ count })
 				</label>
 			</div>
