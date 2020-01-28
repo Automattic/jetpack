@@ -79,7 +79,7 @@ export default function BlockStylesSelector( {
 						tabIndex="0"
 						aria-label={ styleOption.label }
 					>
-						{ useSelect && (
+						{ useSelect && block && (
 							<StylePreviewComponent
 								blockName={ block.name }
 								styleOption={ styleOption }
