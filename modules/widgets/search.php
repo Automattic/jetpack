@@ -92,7 +92,11 @@ class Jetpack_Search_Widget extends WP_Widget {
 		}
 
 		add_action( 'jetpack_search_render_filters_widget_title', array( 'Jetpack_Search_Template_Tags', 'render_widget_title' ), 10, 3 );
-		add_action( 'jetpack_search_render_filters', array( 'Jetpack_Search_Template_Tags', 'render_available_filters' ), 10, 2 );
+		if ( Jetpack_Search_Options::is_instant_enabled() ) {
+			add_action( 'jetpack_search_render_filters', array( 'Jetpack_Search_Template_Tags', 'render_instant_filters' ), 10, 2 );
+		} else {
+			add_action( 'jetpack_search_render_filters', array( 'Jetpack_Search_Template_Tags', 'render_available_filters' ), 10, 2 );
+		}
 	}
 
 	/**

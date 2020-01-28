@@ -72,6 +72,24 @@ class Jetpack_Search_Template_Tags {
 	}
 
 	/**
+	 * Renders filters for instant search.
+	 *
+	 * @since 8.3.0
+	 *
+	 * @param array $filters    The available filters for the current query.
+	 * @param array $post_types An array of post types (ignored)
+	 */
+	public static function render_instant_filters( $filters = null, $post_types = null ) {
+		if ( is_null( $filters ) ) {
+			$filters = Jetpack_Search::instance()->get_filters();
+		}
+
+		foreach ( (array) $filters as $filter ) {
+			self::render_instant_filter( $filter );
+		}
+	}
+
+	/**
 	 * Renders a single filter that can be applied to the current search.
 	 *
 	 * @since 5.8.0
@@ -136,6 +154,62 @@ class Jetpack_Search_Template_Tags {
 	}
 
 	/**
+	 * Renders a single filter for instant search.
+	 *
+	 * @since 8.3.0
+	 *
+	 * @param array $filter             The filter to render.
+	 */
+	public static function render_instant_filter( $filter ) {
+		if ( empty( $filter ) || empty( $filter['buckets'] ) ) {
+			return;
+		}
+
+		$data_base = 'data-filter-type="' . $filter['buckets'][0]['type'] . '" ';
+		$qv = $filter['buckets'][0]['query_vars'];
+		switch( $filter['buckets'][0]['type'] ) {
+			case 'taxonomy':
+
+				break;
+			case 'post_type':
+				$data_base .= 'data-val="' . $qv['post_type'] . '"';
+				break;
+			case 'date_histogram':
+
+				break;
+		}
+
+		?>
+		<h4 class="jetpack-search-filters-widget__sub-heading">
+			<?php echo esc_html( $filter['name'] ); ?>
+		</h4>
+		<ul class="jetpack-search-filters-widget__filter-list">
+			<?php
+			foreach ( $filter['buckets'] as $item ) :
+				$data_str = ' ';
+				foreach( $item['query_vars'] as $k => $v ) {
+					$data_str .= 'data-' . $k . '="' . $v . '" ';
+				}
+				$url = ( empty( $item['active'] ) ) ?  $item['url'] : $item['remove_url'];
+				?>
+				<li>
+				<a href="#" class="jetpack-search-filter__link" <?php echo $data_str; ?>>
+						<?php
+							echo esc_html( $item['name'] );
+							echo '&nbsp;';
+							echo esc_html( sprintf(
+								'(%s)',
+								number_format_i18n( absint( $item['count'] ) )
+							) );
+						?>
+					</a>
+				</li>
+			<?php endforeach; ?>
+		</ul>
+		<?php
+	}
+
+	/**
 	 * Outputs the search widget's title.
 	 *
 	 * @since 5.8.0
@@ -173,22 +247,6 @@ class Jetpack_Search_Template_Tags {
 		}
 
 		$form = self::inject_hidden_form_fields( $form, $fields_to_inject );
-
-		// Temporarily add some dummy filters to demonstrate filter behaviour.
-		$form .= '<div class="jetpack-search-form__test-filters" style="margin-top: 20px">' .
-				'<h3>Post type</h3>' .
-				'<div><input type="checkbox" id="jetpack-search-form__test-filter-1" class="jetpack-search-form__test-filter-checkbox">' .
-				'<label for="jetpack-search-form__test-filter-1" class="jetpack-search-form__test-filter-label">Post</label></div>' .
-				'<div><input type="checkbox" id="jetpack-search-form__test-filter-2" class="jetpack-search-form__test-filter-checkbox">' .
-				'<label for="jetpack-search-form__test-filter-2" class="jetpack-search-form__test-filter-label">Page</label></div>' .
-				'</div>';
-
-		$form .= '<div class="jetpack-search-form__test-filters" style="margin-top: 20px">' .
-				'<h3>Year</h3>' .
-				'<div><input type="checkbox" id="jetpack-search-form__test-filter-3" class="jetpack-search-form__test-filter-checkbox">' .
-				'<label for="jetpack-search-form__test-filter-3" class="jetpack-search-form__test-filter-label">2020</label></div>' .
-				'<div><input type="checkbox" id="jetpack-search-form__test-filter-4" class="jetpack-search-form__test-filter-checkbox">' .
-				'<label for="jetpack-search-form__test-filter-4" class="jetpack-search-form__test-filter-label">2019</label></div></div>';
 
 		echo '<div class="jetpack-search-form">';
 		echo $form;

@@ -23,12 +23,6 @@ $grid-size-large: 16px;
 	opacity: 0.2;
 }
 
-// Temporary test styles
-.jetpack-search-form__test-filter-checkbox {
-	display: none;
-}
-
-.jetpack-search-form__test-filter-label:hover {
-	text-decoration: underline;
-	cursor: pointer;
+.jetpack-search-filters-widget__filter-list {
+	list-style-type: none;
 }

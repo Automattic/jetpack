@@ -26,6 +26,7 @@ import {
 	setSortQuery,
 	getSortKeyFromSortOption,
 	getSortOptionFromSortKey,
+	setFilterQuery,
 } from '../lib/query-string';
 
 class SearchApp extends Component {
@@ -118,7 +119,24 @@ class SearchApp extends Component {
 		setSortQuery( getSortKeyFromSortOption( event.target.value ) );
 	};
 
-	handleFilterInputClick = () => {
+	handleFilterInputClick = event => {
+		event.preventDefault();
+
+		switch ( event.target.dataset.filterType ) {
+			case 'post_type':
+				setFilterQuery( 'post_types', event.target.dataset.postType );
+				break;
+			case 'date':
+				if ( event.target.dataset.month ) {
+					setFilterQuery( 'month_post_date', event.target.dataset.dateVal );
+				} else {
+					setFilterQuery( 'year_post_date', event.target.dataset.dateVal );
+				}
+				break;
+			case 'taxonomy':
+				setFilterQuery( event.target.dataset.taxonomy, event.target.dataset.val );
+				break;
+		}
 		this.showResults();
 	};
 
