@@ -250,7 +250,7 @@ class EventbriteEdit extends Component {
 		const { editedUrl } = this.state;
 		const supportLink =
 			isSimpleSite() || isAtomicSite()
-				? 'http://en.support.wordpress.com/wordpress-editor/blocks/eventbrite-block/'
+				? 'http://support.wordpress.com/wordpress-editor/blocks/eventbrite-block/'
 				: 'https://jetpack.com/support/jetpack-blocks/eventbrite-block/';
 
 		return (
@@ -331,7 +331,7 @@ class EventbriteEdit extends Component {
 		return (
 			<div className={ className }>
 				<SandBox html={ html } />
-				{ /* Use an overlay to prevent interactivity with the preview, since the modal does not resize correctly. */ }
+				{ /* Use an overlay to prevent interactivity with the preview, since the preview does not always resize correctly. */ }
 				<div className="block-library-embed__interactive-overlay" />
 			</div>
 		);
