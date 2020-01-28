@@ -1006,8 +1006,8 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
-	 * Set the availability of a WPCOM premium block
-	 * based on the context we're running in
+	 * Set the availability of the block as the editor
+	 * is loaded.
 	 *
 	 * @param string $slug Slug of the block.
 	 */

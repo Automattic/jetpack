@@ -28,8 +28,8 @@ function register_block() {
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 
 /**
- * Sets the availability of the block based on it
- * requiring a paid plan on WPCOM
+ * Set the availability of the block as the editor
+ * is loaded.
  */
 function set_availability() {
 	\Jetpack_Gutenberg::set_availability_for_plan( FEATURE_NAME );
