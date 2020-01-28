@@ -68,7 +68,7 @@ export default class SearchFilter extends Component {
 					{ new Date( key ).toLocaleString(
 						locale,
 						getDateOptions( this.props.configuration.interval )
-					) }{' '}
+					) }{ ' ' }
 					({ count })
 				</label>
 			</div>
@@ -98,6 +98,9 @@ export default class SearchFilter extends Component {
 	};
 
 	renderTaxonomy = ( { key, doc_count: count } ) => {
+		// Taxonomy keys contain slug and title separated by a slash
+		const [ slug, name ] = key && key.split( /\/(.+)/ );
+
 		return (
 			<div>
 				<input
@@ -108,11 +111,12 @@ export default class SearchFilter extends Component {
 					type="checkbox"
 					className="jetpack-instant-search__filter-list-input"
 				/>
+
 				<label
 					htmlFor={ `${ this.idPrefix }-taxonomies-${ key }` }
 					className="jetpack-instant-search__filter-list-label"
 				>
-					{ strip( key ) } ({ count })
+					{ strip( name ) + ' - ' + slug } ({ count })
 				</label>
 			</div>
 		);
