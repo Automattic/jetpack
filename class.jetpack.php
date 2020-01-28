@@ -768,7 +768,7 @@ class Jetpack {
 	 * @action plugins_loaded
 	 */
 	public function late_initialization() {
-		self::plugin_textdomain();
+		add_action( 'plugins_loaded', array( 'Jetpack', 'plugin_textdomain' ), 99 );
 		add_action( 'plugins_loaded', array( 'Jetpack', 'load_modules' ), 100 );
 
 		Partner::init();
