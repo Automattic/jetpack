@@ -63,6 +63,8 @@ function jetpack_record_mapbox_wpcom_load_event() {
  * @return string
  */
 function jetpack_map_block_load_assets( $attr, $content ) {
+	jetpack_record_mapbox_wpcom_load_event();
+
 	$api_key = jetpack_get_mapbox_api_key();
 
 	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
@@ -92,8 +94,6 @@ function jetpack_map_block_load_assets( $attr, $content ) {
 			$placeholder
 		);
 	}
-
-	jetpack_record_mapbox_wpcom_load_event();
 
 	Jetpack_Gutenberg::load_assets_as_required( 'map' );
 
@@ -141,8 +141,6 @@ function jetpack_map_block_render_single_block_page() {
 	ob_start();
 
 	add_filter( 'jetpack_is_amp_request', '__return_false' );
-
-	jetpack_record_mapbox_wpcom_load_event();
 
 	Jetpack_Gutenberg::load_assets_as_required( 'map' );
 	wp_scripts()->do_items();
