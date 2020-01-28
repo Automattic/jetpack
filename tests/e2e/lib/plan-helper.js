@@ -8,8 +8,6 @@ import fs from 'fs';
 import { getNgrokSiteUrl, execWpCommand, execShellCommand } from './utils-helper';
 
 export async function persistPlanData() {
-	await activatePlanDataInterceptor();
-
 	const planDataOption = 'e2e_jetpack_plan_data';
 	const siteUrl = getNgrokSiteUrl();
 	const siteId = await getSiteId();
@@ -27,7 +25,7 @@ export async function movePluginToPluginsDirectory() {
 	await execShellCommand( cmd );
 }
 
-async function activatePlanDataInterceptor() {
+export async function activatePlanDataInterceptor() {
 	return await execWpCommand( 'wp plugin activate e2e-plan-data-interceptor' );
 }
 
@@ -335,4 +333,6 @@ export async function syncPlanData( page ) {
 		console.log( '!!! PLANS: ', frPlan, bkPlan.product_slug );
 		isSame = frPlan.trim() === bkPlan.product_slug.trim();
 	} while ( ! isSame );
+
+	await page.waitFor( 1000 );
 }

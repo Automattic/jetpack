@@ -11,7 +11,6 @@ import JetpackPage from '../pages/wp-admin/jetpack';
 import LoginPage from '../pages/wpcom/login';
 import AuthorizePage from '../pages/wpcom/authorize';
 import PickAPlanPage from '../pages/wpcom/pick-a-plan';
-import HomePage from '../pages/wpcom/home';
 import WPLoginPage from '../pages/wp-admin/login';
 import CheckoutPage from '../pages/wpcom/checkout';
 import ThankYouPage from '../pages/wpcom/thank-you';
@@ -23,7 +22,7 @@ import {
 	execWpCommand,
 } from '../utils-helper';
 import PlansPage from '../pages/wpcom/plans';
-import { persistPlanData } from '../plan-helper';
+import { persistPlanData, syncPlanData } from '../plan-helper';
 
 const cookie = config.get( 'storeSandboxCookieValue' );
 const cardCredentials = config.get( 'testCardCredentials' );
@@ -37,10 +36,11 @@ export async function connectThroughWPAdminIfNeeded( {
 	plan = 'pro',
 	mockPlanData = false,
 } = {} ) {
-	await ( await HomePage.visit( page ) ).setSandboxModeForPayments( cookie );
-
 	// Logs in to WPCOM
 	const login = await LoginPage.visit( page );
+	if ( ! mockPlanData ) {
+		await login.setSandboxModeForPayments( cookie );
+	}
 	if ( ! ( await login.isLoggedIn() ) ) {
 		await login.login( wpcomUser );
 	}
@@ -85,28 +85,25 @@ export async function connectThroughWPAdminIfNeeded( {
 	}
 
 	await ( await ThankYouPage.init( page ) ).waitForSetupAndProceed();
-
 	await ( await MyPlanPage.init( page ) ).returnToWPAdmin();
 
 	jetpackPage = await JetpackPage.init( page );
 
-	// Reload the page to hydrate plans cache
-	await jetpackPage.reload( { waitFor: 'networkidle0' } );
-
-	// await page.waitForResponse(
-	// 	response => response.url().match( /v4\/site[^\/]/ ) && response.status() === 200,
-	// 	{ timeout: 60 * 1000 }
-	// );
-
 	if ( ! mockPlanData ) {
+		await jetpackPage.reload( { waitFor: 'networkidle0' } );
+
+		await page.waitForResponse(
+			response => response.url().match( /v4\/site[^\/]/ ) && response.status() === 200,
+			{ timeout: 60 * 1000 }
+		);
 		await execWpCommand( 'wp cron event run jetpack_v2_heartbeat' );
 	}
+
+	await syncPlanData( page );
 
 	if ( ! ( await jetpackPage.isPlan( plan ) ) ) {
 		throw new Error( `Site does not have ${ plan } plan` );
 	}
-
-	await jetpackPage.reload( { waitFor: 'networkidle0' } );
 
 	return true;
 }

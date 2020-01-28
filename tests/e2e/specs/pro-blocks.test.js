@@ -9,7 +9,6 @@ import { resetWordpressInstall, getNgrokSiteUrl, activateModule } from '../lib/u
 import SimplePaymentBlock from '../lib/blocks/simple-payments';
 import WordAdsBlock from '../lib/blocks/word-ads';
 import PinterestBlock from '../lib/blocks/pinterest';
-import { syncPlanData } from '../lib/plan-helper';
 
 describe( 'Paid blocks', () => {
 	beforeAll( async () => {
@@ -19,10 +18,8 @@ describe( 'Paid blocks', () => {
 
 		await connectThroughWPAdminIfNeeded( { mockPlanData: true } );
 
-		await activateModule( 'wordads' );
-		await activateModule( 'publicize' );
-
-		await syncPlanData( page );
+		await activateModule( page, 'publicize' );
+		await activateModule( page, 'wordads' );
 	} );
 
 	describe( 'Mailchimp Block', () => {
