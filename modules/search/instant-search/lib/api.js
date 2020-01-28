@@ -37,12 +37,13 @@ function generateAggregation( filter ) {
 			};
 		}
 		case 'taxonomy': {
-			let field = `taxonomy.${ filter.taxonomy }.name.raw`;
+			let field = `taxonomy.${ filter.taxonomy }.slug_slash_name`;
 			if ( filter.taxonomy === 'post_tag' ) {
-				field = 'tag.slug';
+				field = 'tag.slug_slash_name';
 			} else if ( filter.taxonomy === 'category' ) {
-				field = 'category.slug';
+				field = 'category.slug_slash_name';
 			}
+
 			return { terms: { field, size: filter.count } };
 		}
 		case 'post_type': {
@@ -116,7 +117,7 @@ function buildFilterObject( filterQuery ) {
 					filter.bool.must.push( filterKeyToEsFilter.get( key )( item ) );
 				} else {
 					// If key is not in the standard map, assume to be a custom taxonomy
-					filter.bool.must.push( { term: { [ `taxonomy.${ key }.name.raw` ]: item } } );
+					filter.bool.must.push( { term: { [ `taxonomy.${ key }.slug` ]: item } } );
 				}
 			} );
 		} );
