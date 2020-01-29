@@ -15,9 +15,10 @@ jetpack_register_block(
 );
 
 /**
- * Return the site's own Mapbox API key if set, or the WordPress.com's one otherwise.
+ * Return the site's own Mapbox access token if set, or the WordPress.com's one otherwise,
+ * and its source ("site" or "wpcom").
  *
- * @return string
+ * @return array
  */
 function jetpack_get_mapbox_api_key() {
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -34,17 +35,29 @@ function jetpack_get_mapbox_api_key() {
 
 	if ( 200 === $response_code ) {
 		$response_body = json_decode( wp_remote_retrieve_body( $response ) );
-		return $response_body->service_api_key;
+		return array(
+			'token'  => $response_body->service_api_key,
+			'source' => $response_body->service_api_key_source,
+		);
 	}
 
-	return Jetpack_Options::get_option( 'mapbox_api_key' );
+	return array(
+		'token'  => Jetpack_Options::get_option( 'mapbox_api_key' ),
+		'source' => 'site',
+	);
 }
 
 /**
  * Record a Tracks event every time the Map block is loaded on WordPress.com and Atomic.
+ *
+ * @param string $api_key_source The Mapbox API key's source.
  */
-function jetpack_record_mapbox_wpcom_load_event() {
-	$event_name = 'wpcom_map_block_mapbox_load';
+function jetpack_record_mapbox_wpcom_load_event( $api_key_source ) {
+	if ( 'wpcom' !== $api_key_source ) {
+		return;
+	}
+
+	$event_name = 'map_block_mapbox_wpcom_key_load';
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 		require_lib( 'tracks/client' );
 		tracks_record_event( wp_get_current_user(), $event_name );
@@ -63,9 +76,9 @@ function jetpack_record_mapbox_wpcom_load_event() {
  * @return string
  */
 function jetpack_map_block_load_assets( $attr, $content ) {
-	jetpack_record_mapbox_wpcom_load_event();
-
 	$api_key = jetpack_get_mapbox_api_key();
+
+	jetpack_record_mapbox_wpcom_load_event( $api_key['source'] );
 
 	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
 		static $map_block_counter = array();
@@ -97,7 +110,7 @@ function jetpack_map_block_load_assets( $attr, $content ) {
 
 	Jetpack_Gutenberg::load_assets_as_required( 'map' );
 
-	return preg_replace( '/<div /', '<div data-api-key="' . esc_attr( $api_key ) . '" ', $content, 1 );
+	return preg_replace( '/<div /', '<div data-api-key="' . esc_attr( $api_key['token'] ) . '" ', $content, 1 );
 }
 
 /**
@@ -156,7 +169,7 @@ function jetpack_map_block_render_single_block_page() {
 	$page_html    = sprintf(
 		'<!DOCTYPE html><head><style>html, body { margin: 0; padding: 0; }</style>%s</head><body>%s</body>',
 		$head_content,
-		preg_replace( '/(?<=<div\s)/', 'data-api-key="' . esc_attr( $api_key ) . '" ', $block_markup, 1 )
+		preg_replace( '/(?<=<div\s)/', 'data-api-key="' . esc_attr( $api_key['token'] ) . '" ', $block_markup, 1 )
 	);
 	echo $page_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	exit;
