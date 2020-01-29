@@ -100,7 +100,7 @@ class SearchApp extends Component {
 	}
 
 	restoreBodyScroll() {
-		delete document.body.style.overflowY;
+		document.body.style.overflowY = null;
 	}
 
 	hasActiveQuery() {
