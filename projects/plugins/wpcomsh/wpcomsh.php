@@ -2,13 +2,13 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 2.4.64
+ * Version: 2.4.65
  * Author: Automattic
  * Author URI: http://automattic.com/
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.4.64' );
+define( 'WPCOMSH_VERSION', '2.4.65' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -897,14 +897,6 @@ function wpcomsh_get_wp_die_handler() {
 // Disabling the die handler per p9F6qB-3TQ-p2
 //add_filter( 'wp_die_handler', 'wpcomsh_get_wp_die_handler' );
 
-function get_atomic_ip_addresses( $domain ) {
-	srand( crc32( $domain ) );
-	$ip1 = '192.0.78.' . mt_rand( 128, 191 );
-	$ip2 = '192.0.78.' . mt_rand( 192, 254 );
-	srand();
-	return [ $ip1, $ip2 ];
-}
-
 function wpcomsh_display_disk_space_usage() {
 	$at_site_info_file = sys_get_temp_dir() . '/.at-site-info';
 
@@ -1043,3 +1035,23 @@ function wpcomsh_make_content_clickable($content) {
 
 add_filter( 'the_content', 'wpcomsh_make_content_clickable', 120 );
 add_filter( 'the_excerpt', 'wpcomsh_make_content_clickable', 120 );
+
+// Limit max number of records in widget to 75
+function wpcomsh_limit_widget_records( $args ) {
+	$tag_limit = 75;
+
+	if ( empty( $args['number'] ) ) {
+		$args['number'] = $tag_limit;
+	}
+
+	if ( ! empty( $args['number'] ) && intval( $args['number'] ) > $tag_limit ) {
+		$args['number'] = $tag_limit;
+	}
+
+	return $args;
+}
+// Categories Widget
+add_filter( 'widget_categories_args', 'wpcomsh_limit_widget_records', 9 );
+add_filter( 'widget_categories_dropdown_args', 'wpcomsh_limit_widget_records', 9 );
+// Tag Cloud Widget
+add_filter( 'widget_tag_cloud_args', 'wpcomsh_limit_widget_records', 9 );
