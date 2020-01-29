@@ -59,8 +59,12 @@ export default class SearchFilter extends Component {
 					name={ key }
 					onChange={ this.toggleFilter }
 					type="checkbox"
+					className="jetpack-instant-search__filter-list-input"
 				/>
-				<label htmlFor={ `${ this.idPrefix }-dates-${ this.getIdentifier() }-${ key }` }>
+				<label
+					htmlFor={ `${ this.idPrefix }-dates-${ this.getIdentifier() }-${ key }` }
+					className="jetpack-instant-search__filter-list-label"
+				>
 					{ new Date( key ).toLocaleString(
 						locale,
 						getDateOptions( this.props.configuration.interval )
@@ -81,8 +85,12 @@ export default class SearchFilter extends Component {
 					name={ key }
 					onChange={ this.toggleFilter }
 					type="checkbox"
+					className="jetpack-instant-search__filter-list-input"
 				/>
-				<label htmlFor={ `${ this.idPrefix }-post-types-${ key }` }>
+				<label
+					htmlFor={ `${ this.idPrefix }-post-types-${ key }` }
+					className="jetpack-instant-search__filter-list-label"
+				>
 					{ strip( name ) } ({ count })
 				</label>
 			</div>
@@ -90,17 +98,25 @@ export default class SearchFilter extends Component {
 	};
 
 	renderTaxonomy = ( { key, doc_count: count } ) => {
+		// Taxonomy keys contain slug and name separated by a slash
+		const [ slug, name ] = key && key.split( /\/(.+)/ );
+
 		return (
 			<div>
 				<input
-					checked={ this.isChecked( key ) }
-					id={ `${ this.idPrefix }-taxonomies-${ key }` }
-					name={ key }
+					checked={ this.isChecked( slug ) }
+					id={ `${ this.idPrefix }-taxonomies-${ slug }` }
+					name={ slug }
 					onChange={ this.toggleFilter }
 					type="checkbox"
+					className="jetpack-instant-search__filter-list-input"
 				/>
-				<label htmlFor={ `${ this.idPrefix }-taxonomies-${ key }` }>
-					{ strip( key ) } ({ count })
+
+				<label
+					htmlFor={ `${ this.idPrefix }-taxonomies-${ slug }` }
+					className="jetpack-instant-search__filter-list-label"
+				>
+					{ strip( name ) } ({ count })
 				</label>
 			</div>
 		);

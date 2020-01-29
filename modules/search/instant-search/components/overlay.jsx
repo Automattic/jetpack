@@ -5,7 +5,11 @@
  */
 import { h } from 'preact';
 import { useEffect } from 'preact/hooks';
-import { __ } from '@wordpress/i18n';
+
+/**
+ * Internal dependencies
+ */
+import Gridicon from './gridicon';
 
 const closeOnEscapeKey = callback => event => {
 	event.key === 'Escape' && callback();
@@ -34,7 +38,7 @@ const Overlay = ( { children, closeColor, closeOverlay, colorTheme, isVisible, o
 				onClick={ closeOverlay }
 				style={ { background: closeColor } }
 			>
-				{ __( 'Close', 'jetpack' ) }
+				<Gridicon icon="cross" size="24" />
 			</button>
 			{ children }
 		</div>

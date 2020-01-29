@@ -28,6 +28,7 @@ import {
 	getSortOptionFromSortKey,
 	setFilterQuery,
 } from '../lib/query-string';
+import { bindCustomizerChanges } from '../lib/customize';
 
 class SearchApp extends Component {
 	static defaultProps = {
@@ -40,6 +41,7 @@ class SearchApp extends Component {
 		this.state = {
 			hasError: false,
 			isLoading: false,
+			overlayOptions: { ...this.props.initialOverlayOptions },
 			requestId: 0,
 			response: {},
 			showResults: false,
@@ -60,9 +62,12 @@ class SearchApp extends Component {
 
 	componentWillUnmount() {
 		this.removeEventListeners();
+		this.restoreBodyScroll();
 	}
 
 	addEventListeners() {
+		bindCustomizerChanges( this.handleOverlayOptionsUpdate );
+
 		window.addEventListener( 'popstate', this.onChangeQueryString );
 		window.addEventListener( 'queryStringChange', this.onChangeQueryString );
 
@@ -98,6 +103,14 @@ class SearchApp extends Component {
 		} );
 	}
 
+	preventBodyScroll() {
+		document.body.style.overflowY = 'hidden';
+	}
+
+	restoreBodyScroll() {
+		delete document.body.style.overflowY;
+	}
+
 	hasActiveQuery() {
 		return getSearchQuery() !== '' || hasFilter();
 	}
@@ -130,8 +143,18 @@ class SearchApp extends Component {
 		this.showResults();
 	};
 
-	showResults = () => this.setState( { showResults: true } );
-	hideResults = () => this.setState( { showResults: false } );
+	handleOverlayOptionsUpdate = ( { key, value } ) => {
+		this.setState( { overlayOptions: { ...this.state.overlayOptions, [ key ]: value } } );
+	};
+
+	showResults = () => {
+		this.setState( { showResults: true } );
+		this.preventBodyScroll();
+	};
+	hideResults = () => {
+		this.setState( { showResults: false } );
+		this.restoreBodyScroll();
+	};
 
 	onChangeQuery = event => setSearchQuery( event.target.value );
 
@@ -204,14 +227,14 @@ class SearchApp extends Component {
 	render() {
 		return createPortal(
 			<Overlay
-				closeColor={ this.props.overlayOptions.closeColor }
+				closeColor={ this.state.overlayOptions.closeColor }
 				closeOverlay={ this.hideResults }
-				colorTheme={ this.props.overlayOptions.colorTheme }
+				colorTheme={ this.state.overlayOptions.colorTheme }
 				isVisible={ this.state.showResults }
-				opacity={ this.props.overlayOptions.opacity }
+				opacity={ this.state.overlayOptions.opacity }
 			>
 				<SearchResults
-					enableLoadOnScroll={ this.props.overlayOptions.enableInfScroll }
+					enableLoadOnScroll={ this.state.overlayOptions.enableInfScroll }
 					hasError={ this.state.hasError }
 					hasNextPage={ this.hasNextPage() }
 					highlightColor={ this.props.options.highlightColor }

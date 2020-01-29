@@ -20,10 +20,10 @@ const injectSearchApp = () => {
 		<SearchApp
 			aggregations={ buildFilterAggregations( window[ SERVER_OBJECT_NAME ].widgets ) }
 			initialHref={ window.location.href }
+			initialOverlayOptions={ window[ SERVER_OBJECT_NAME ].overlayOptions }
 			initialSort={ determineDefaultSort( window[ SERVER_OBJECT_NAME ].sort, getSearchQuery() ) }
 			isSearchPage={ getSearchQuery() !== '' }
 			options={ window[ SERVER_OBJECT_NAME ] }
-			overlayOptions={ window[ SERVER_OBJECT_NAME ].overlayOptions }
 			themeOptions={ getThemeOptions( window[ SERVER_OBJECT_NAME ] ) }
 		/>,
 		document.body

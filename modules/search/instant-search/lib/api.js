@@ -37,12 +37,13 @@ function generateAggregation( filter ) {
 			};
 		}
 		case 'taxonomy': {
-			let field = `taxonomy.${ filter.taxonomy }.slug`;
+			let field = `taxonomy.${ filter.taxonomy }.slug_slash_name`;
 			if ( filter.taxonomy === 'post_tag' ) {
-				field = 'tag.slug';
-			} else if ( filter.type === 'category' ) {
-				field = 'category.slug';
+				field = 'tag.slug_slash_name';
+			} else if ( filter.taxonomy === 'category' ) {
+				field = 'category.slug_slash_name';
 			}
+
 			return { terms: { field, size: filter.count } };
 		}
 		case 'post_type': {
