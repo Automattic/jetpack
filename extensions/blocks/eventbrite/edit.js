@@ -24,7 +24,7 @@ import { ENTER, SPACE } from '@wordpress/keycodes';
  * Internal dependencies
  */
 import { createWidgetId, convertToLink, eventIdFromUrl } from './utils';
-import { CUSTOM_URL_REGEX, icon, URL_REGEX } from '.';
+import { icon, URL_REGEX } from '.';
 import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import ModalButtonPreview from './modal-button-preview';
 import EventbriteInPageExample from './eventbrite-in-page-example.png';
@@ -40,8 +40,9 @@ class EventbriteEdit extends Component {
 	state = {
 		editedUrl: this.props.attributes.url || '',
 		editingUrl: false,
-		// If this is a customized URL, we're going to need to find where it redirects to.
-		resolvingUrl: CUSTOM_URL_REGEX.test( this.props.attributes.url ),
+		// Resolve the url on mount if we haven't already set an eventId,
+		// Such as when transforming from an Eventbrite link.
+		resolvingUrl: this.props.attributes.url && ! this.props.attributes.eventId,
 		resolvedStatusCode: null,
 	};
 
