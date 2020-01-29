@@ -72,7 +72,7 @@ function saveButton( eventId, attributes ) {
 }
 
 export default function save( { attributes } ) {
-	const { eventId, useModal } = attributes;
+	const { eventId, useModal, url } = attributes;
 
 	if ( ! eventId ) {
 		return;
@@ -82,5 +82,13 @@ export default function save( { attributes } ) {
 		return saveButton( eventId, attributes );
 	}
 
-	return <div id={ createWidgetId( eventId ) } />;
+	return (
+		<div id={ createWidgetId( eventId ) }>
+			{ url && (
+				<a className="eventbrite__direct-link" href={ url }>
+					{ url }
+				</a>
+			) }
+		</div>
+	);
 }
