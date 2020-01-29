@@ -176,6 +176,8 @@ class Jetpack_Search_Template_Tags {
 				}
 				if ( 'category_name' === $tax_key ) {
 					$data_base .= 'data-taxonomy="category"';
+				} elseif ( 'tag' === $tax_key ) {
+					$data_base .= 'data-taxonomy="post_tag"';
 				} else {
 					$data_base .= 'data-taxonomy="' . $tax_key . '"';
 				}
@@ -184,8 +186,11 @@ class Jetpack_Search_Template_Tags {
 				$data_base = 'data-filter-type="post_types" ';
 				break;
 			case 'date_histogram':
-				$date_slug = $filter['buckets'][0]['interval'] . '_date';
-				$data_base = 'data-filter-type="' . $date_slug . '" ';
+				if ( $filter['buckets'][0]['query_vars']['monthnum'] ) {
+					$data_base = 'data-filter-type="month_post_date" ';
+				} else {
+					$data_base = 'data-filter-type="year_post_date" ';
+				}
 				break;
 		}
 
@@ -205,11 +210,12 @@ class Jetpack_Search_Template_Tags {
 						$data_str .= 'data-val="' . $item['query_vars']['post_type'] . '"';
 						break;
 					case 'date_histogram':
-						if ( 'month' === $item['interval'] ) {
-							$data_str .= 'data-val="' . $item['query_vars']['year'] . '-' . $item['query_vars']['month'] . '"';
+						if ( $item['query_vars']['monthnum'] ) {
+							$d = sprintf( '%d-%02d-01 00:00:00', $item['query_vars']['year'], $item['query_vars']['monthnum'] );
 						} else {
-							$data_str .= 'data-val="' . $item['query_vars']['year'] . '" ';
+							$d = sprintf( '%d-01-01 00:00:00', $item['query_vars']['year'] );
 						}
+						$data_str .= 'data-val="' . $d . '" ';
 						break;
 				}
 				?>
