@@ -99,6 +99,7 @@ export const settings = {
 	example: {
 		attributes: {
 			url: 'https://www.eventbrite.com/e/test-event-tickets-123456789',
+			eventId: 123456789,
 			useModal: true,
 			text: _x( 'Register', 'verb: e.g. register for an event.', 'jetpack' ),
 		},
