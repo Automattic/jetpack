@@ -38,6 +38,7 @@ function saveButton( eventId, attributes ) {
 		customTextColor,
 		text,
 		textColor,
+		url,
 	} = attributes;
 
 	const textClass = getColorClassName( 'color', textColor );
@@ -67,6 +68,11 @@ function saveButton( eventId, attributes ) {
 				value={ text }
 				type="button"
 			/>
+			{ url && (
+				<a className="eventbrite__direct-link" href={ url }>
+					{ url }
+				</a>
+			) }
 		</div>
 	);
 }
