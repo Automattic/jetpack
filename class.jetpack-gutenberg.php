@@ -39,16 +39,7 @@ function jetpack_register_block( $slug, $args = array() ) {
 
 	// If the block is dynamic, and a Jetpack block, wrap the render_callback to check availability.
 	if ( 0 === strpos( $slug, 'jetpack/' ) && isset( $args['render_callback'] ) ) {
-		$render_callback         = $args['render_callback'];
-		$args['render_callback'] = function ( $prepared_attributes, $block_content ) use ( $render_callback, $slug ) {
-			$availability = Jetpack_Gutenberg::get_availability();
-			$bare_slug    = Jetpack_Gutenberg::remove_extension_prefix( $slug );
-			if ( isset( $availability[ $bare_slug ] ) && $availability[ $bare_slug ] ) {
-				return call_user_func( $render_callback, $prepared_attributes, $block_content );
-			}
-			$plan = Jetpack_Plan::get_minimum_plan_for_feature( $bare_slug );
-			return Jetpack_Gutenberg::upgrade_nudge( $plan );
-		};
+		$args['render_callback'] = Jetpack_Gutenberg::get_render_callback_with_availability_check( $slug, $args['render_callback'] );
 	}
 
 	return register_block_type( $slug, $args );
@@ -1039,10 +1030,29 @@ class Jetpack_Gutenberg {
 				$slug,
 				'missing_plan',
 				array(
-					'required_feature' => self::remove_extension_prefix( $slug ),
+					'required_feature' => $slug,
 					'required_plan'    => $plan,
 				)
 			);
 		}
+	}
+
+	/**
+	 * Wraps the suplied render_callback in a function to check
+	 * the availability of the block before rendering it.
+	 *
+	 * @param string   $slug The block slug, used to check for availability.
+	 * @param callable $render_callback The render_callback that will be called if the block is available.
+	 */
+	public static function get_render_callback_with_availability_check( $slug, $render_callback ) {
+		return function ( $prepared_attributes, $block_content ) use ( $render_callback, $slug ) {
+			$availability = self::get_availability();
+			$bare_slug    = self::remove_extension_prefix( $slug );
+			if ( isset( $availability[ $bare_slug ] ) && $availability[ $bare_slug ] ) {
+				return call_user_func( $render_callback, $prepared_attributes, $block_content );
+			}
+			$plan = Jetpack_Plan::get_minimum_plan_for_feature( $bare_slug );
+			return Jetpack_Gutenberg::upgrade_nudge( $plan );
+		};
 	}
 }
