@@ -122,20 +122,10 @@ class SearchApp extends Component {
 	handleFilterInputClick = event => {
 		event.preventDefault();
 
-		switch ( event.target.dataset.filterType ) {
-			case 'post_type':
-				setFilterQuery( 'post_types', event.target.dataset.postType );
-				break;
-			case 'date':
-				if ( event.target.dataset.month ) {
-					setFilterQuery( 'month_post_date', event.target.dataset.dateVal );
-				} else {
-					setFilterQuery( 'year_post_date', event.target.dataset.dateVal );
-				}
-				break;
-			case 'taxonomy':
-				setFilterQuery( event.target.dataset.taxonomy, event.target.dataset.val );
-				break;
+		if ( event.target.dataset.filterType === 'taxonomy' ) {
+			setFilterQuery( event.target.dataset.taxonomy, event.target.dataset.val );
+		} else {
+			setFilterQuery( event.target.dataset.filterType, event.target.dataset.val );
 		}
 		this.showResults();
 	};

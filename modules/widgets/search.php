@@ -289,7 +289,11 @@ class Jetpack_Search_Widget extends WP_Widget {
 		}
 
 		if ( Jetpack_Search_Options::is_instant_enabled() ) {
-			$this->widget_instant( $args, $instance );
+			if ( 'jetpack-instant-search-sidebar' === $args['id'] ) {
+				$this->widget_empty_instant( $args, $instance );
+			} else {
+				$this->widget_instant( $args, $instance );
+			}
 		} else {
 			$this->widget_non_instant( $args, $instance );
 		}
@@ -486,6 +490,53 @@ class Jetpack_Search_Widget extends WP_Widget {
 		echo '</div>';
 		echo $args['after_widget']; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
+
+	/**
+	 * Render the instant widget for the overlay.
+	 *
+	 * @since 8.3.0
+	 *
+	 * @param array $args     Widgets args supplied by the theme.
+	 * @param array $instance The current widget instance.
+	 */
+	public function widget_empty_instant( $args, $instance ) {
+		if ( Jetpack_Search_Helpers::should_rerun_search_in_customizer_preview() ) {
+			Jetpack_Search::instance()->update_search_results_aggregations();
+		}
+
+		$title = isset( $instance['title'] ) ? $instance['title'] : '';
+
+		if ( empty( $title ) ) {
+			$title = '';
+		}
+
+		/** This filter is documented in core/src/wp-includes/default-widgets.php */
+		$title = apply_filters( 'widget_title', $title, $instance, $this->id_base );
+
+		echo $args['before_widget']; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		?>
+			<div id="<?php echo esc_attr( $this->id ); ?>-wrapper" class="jetpack-instant-search-wrapper">
+		<?php
+
+		if ( ! empty( $title ) ) {
+			/**
+			 * Responsible for displaying the title of the Jetpack Search filters widget.
+			 *
+			 * @module search
+			 *
+			 * @since  5.7.0
+			 *
+			 * @param string $title                The widget's title
+			 * @param string $args['before_title'] The HTML tag to display before the title
+			 * @param string $args['after_title']  The HTML tag to display after the title
+			 */
+			do_action( 'jetpack_search_render_filters_widget_title', $title, $args['before_title'], $args['after_title'] );
+		}
+
+		echo '</div>';
+		echo $args['after_widget']; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	}
+
 
 	/**
 	 * Renders JavaScript for the sorting controls on the frontend.

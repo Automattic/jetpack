@@ -77,7 +77,7 @@ class Jetpack_Search_Template_Tags {
 	 * @since 8.3.0
 	 *
 	 * @param array $filters    The available filters for the current query.
-	 * @param array $post_types An array of post types (ignored)
+	 * @param array $post_types An array of post types (ignored).
 	 */
 	public static function render_instant_filters( $filters = null, $post_types = null ) {
 		if ( is_null( $filters ) ) {
@@ -165,17 +165,27 @@ class Jetpack_Search_Template_Tags {
 			return;
 		}
 
-		$data_base = 'data-filter-type="' . $filter['buckets'][0]['type'] . '" ';
-		$qv = $filter['buckets'][0]['query_vars'];
-		switch( $filter['buckets'][0]['type'] ) {
+		$data_base = '';
+		$qv        = $filter['buckets'][0]['query_vars'];
+		$tax_key   = '';
+		switch ( $filter['buckets'][0]['type'] ) {
 			case 'taxonomy':
-
+				$data_base = 'data-filter-type="' . $filter['buckets'][0]['type'] . '" ';
+				foreach ( $qv as $k => $v ) {
+					$tax_key = $k;
+				}
+				if ( 'category_name' === $tax_key ) {
+					$data_base .= 'data-taxonomy="category"';
+				} else {
+					$data_base .= 'data-taxonomy="' . $tax_key . '"';
+				}
 				break;
 			case 'post_type':
-				$data_base .= 'data-val="' . $qv['post_type'] . '"';
+				$data_base = 'data-filter-type="post_types" ';
 				break;
 			case 'date_histogram':
-
+				$date_slug = $filter['buckets'][0]['interval'] . '_date';
+				$data_base = 'data-filter-type="' . $date_slug . '" ';
 				break;
 		}
 
@@ -186,11 +196,22 @@ class Jetpack_Search_Template_Tags {
 		<ul class="jetpack-search-filters-widget__filter-list">
 			<?php
 			foreach ( $filter['buckets'] as $item ) :
-				$data_str = ' ';
-				foreach( $item['query_vars'] as $k => $v ) {
-					$data_str .= 'data-' . $k . '="' . $v . '" ';
+				$data_str = $data_base . ' ';
+				switch ( $filter['buckets'][0]['type'] ) {
+					case 'taxonomy':
+						$data_str .= 'data-val="' . $item['query_vars'][ $tax_key ] . '"';
+						break;
+					case 'post_type':
+						$data_str .= 'data-val="' . $item['query_vars']['post_type'] . '"';
+						break;
+					case 'date_histogram':
+						if ( 'month' === $item['interval'] ) {
+							$data_str .= 'data-val="' . $item['query_vars']['year'] . '-' . $item['query_vars']['month'] . '"';
+						} else {
+							$data_str .= 'data-val="' . $item['query_vars']['year'] . '" ';
+						}
+						break;
 				}
-				$url = ( empty( $item['active'] ) ) ?  $item['url'] : $item['remove_url'];
 				?>
 				<li>
 				<a href="#" class="jetpack-search-filter__link" <?php echo $data_str; ?>>
