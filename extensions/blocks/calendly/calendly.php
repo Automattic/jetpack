@@ -63,7 +63,7 @@ function set_availability() {
 			'missing_plan',
 			array(
 				'required_feature' => 'calendly',
-				'required_plan'    => 'premium-plan',
+				'required_plan'    => 'value_bundle',
 			)
 		);
 	}
