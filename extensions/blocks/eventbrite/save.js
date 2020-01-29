@@ -61,11 +61,10 @@ function saveButton( eventId, attributes ) {
 		<div className="wp-block-button">
 			<RichText.Content
 				id={ createWidgetId( eventId ) }
-				tagName="button"
+				tagName="a"
 				className={ buttonClasses }
 				style={ buttonStyle }
 				value={ text }
-				type="button"
 			/>
 		</div>
 	);
