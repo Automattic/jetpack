@@ -500,10 +500,6 @@ class Jetpack_Search_Widget extends WP_Widget {
 	 * @param array $instance The current widget instance.
 	 */
 	public function widget_empty_instant( $args, $instance ) {
-		if ( Jetpack_Search_Helpers::should_rerun_search_in_customizer_preview() ) {
-			Jetpack_Search::instance()->update_search_results_aggregations();
-		}
-
 		$title = isset( $instance['title'] ) ? $instance['title'] : '';
 
 		if ( empty( $title ) ) {
