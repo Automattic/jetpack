@@ -20,7 +20,7 @@ export function convertToLink( url, onReplace ) {
  * Extracts an event id from an Eventbrite URL.
  *
  * @param   {string} url Eventbrite URL.
- * @returns {string}     Event id.
+ * @returns {?number}    Event id.
  */
 export function eventIdFromUrl( url ) {
 	if ( ! url ) {
