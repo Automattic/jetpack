@@ -65,11 +65,12 @@ function saveButton( attributes ) {
 		<div className="wp-block-button">
 			<RichText.Content
 				className={ buttonClasses }
+				href={ url }
 				id={ createWidgetId( eventId ) }
 				role="button"
 				style={ buttonStyle }
 				tagName="a"
-				href={ url }
+				target="_blank"
 				value={ text }
 			/>
 		</div>
