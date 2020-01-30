@@ -79,7 +79,7 @@ function jetpack_render_eventbrite_block( $attr, $content ) {
 					// Enter and space keys.
 					if ( event.keyCode === 13 || event.keyCode === 32 ) {
 						event.preventDefault();
-						event.target.click();
+						event.target && event.target.click();
 					}
 				} );
 			}
