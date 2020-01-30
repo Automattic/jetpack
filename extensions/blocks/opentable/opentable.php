@@ -91,10 +91,14 @@ add_action( 'enqueue_block_assets', 'Jetpack\OpenTable_Block\add_language_settin
 function load_assets( $attributes ) {
 	\Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 
+	$classes = array( sprintf( 'wp-block-jetpack-%s-theme-%s', FEATURE_NAME, get_attribute( $attributes, 'style' ) ) );
+	if ( count( $attributes['rid'] ) > 1 ) {
+		$classes[] = 'is-multi';
+	}
 	$classes = \Jetpack_Gutenberg::block_classes(
 		FEATURE_NAME,
 		$attributes,
-		array( sprintf( 'wp-block-jetpack-%s-theme-%s', FEATURE_NAME, get_attribute( $attributes, 'style' ) ) )
+		$classes
 	);
 	$content = '<div class="' . esc_attr( $classes ) . '">';
 	// The OpenTable script uses multiple `rid` paramters,
