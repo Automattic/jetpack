@@ -63,11 +63,6 @@ function saveButton( attributes ) {
 				target="_blank"
 				value={ text }
 			/>
-			{ url && (
-				<a className="eventbrite__direct-link" href={ url }>
-					{ url }
-				</a>
-			) }
 		</div>
 	);
 }
