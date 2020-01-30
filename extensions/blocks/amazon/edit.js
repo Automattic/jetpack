@@ -35,7 +35,7 @@ export default function AmazonEdit( {
 		backgroundColor,
 		textColor,
 		buttonAndLinkColor,
-		product,
+		asin,
 		showImage,
 		showTitle,
 		showSeller,
@@ -64,7 +64,7 @@ export default function AmazonEdit( {
 			const selectedId = parsed[ 1 ] || parsed[ 2 ];
 			return data.products.filter( filteredProduct => filteredProduct.asin === selectedId );
 		} );
-		setAttributes( { product: selectedIds[ 0 ][ 0 ].asin } );
+		setAttributes( { asin: selectedIds[ 0 ][ 0 ].asin } );
 	};
 
 	const blockPlaceholder = (
@@ -82,7 +82,7 @@ export default function AmazonEdit( {
 		>
 			<form>
 				<FormTokenField
-					value={ product }
+					value={ asin }
 					suggestions={ suggestions }
 					onInputChange={ onInputChange }
 					maxSuggestions={ 10 }
@@ -98,7 +98,7 @@ export default function AmazonEdit( {
 
 	const inspectorControls = (
 		<InspectorControls>
-			{ product && (
+			{ asin && (
 				<>
 					<PanelBody title={ __( 'Promotion Settings', 'jetpack' ) }>
 						<ToggleControl
@@ -177,7 +177,7 @@ export default function AmazonEdit( {
 			imageWidthMedium,
 			imageHeightMedium,
 			authorshipInfo,
-		} = data.products.filter( productDataItem => productDataItem.asin === product )[ 0 ];
+		} = data.products.filter( productDataItem => productDataItem.asin === asin )[ 0 ];
 
 		// TODO - we should be able to get this from API in a neater way once we have access
 		const seller = authors.length
@@ -212,7 +212,7 @@ export default function AmazonEdit( {
 			.toHexString();
 
 		return (
-			product && (
+			asin && (
 				<div
 					style={ { backgroundColor: backgroundColor, color: textColor, width: imageWidthMedium } }
 				>
@@ -255,7 +255,7 @@ export default function AmazonEdit( {
 	return (
 		<div className={ className }>
 			{ inspectorControls }
-			{ product ? blockPreview() : blockPlaceholder }
+			{ asin ? blockPreview() : blockPlaceholder }
 		</div>
 	);
 }

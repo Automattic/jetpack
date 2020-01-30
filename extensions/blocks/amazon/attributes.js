@@ -19,7 +19,7 @@ export default {
 		default: 'small',
 		validValues: [ 'small', 'large' ],
 	},
-	product: {
+	asin: {
 		type: 'string',
 	},
 	showImage: {
