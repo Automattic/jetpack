@@ -23,8 +23,10 @@ use function wp_get_current_user;
 use function wp_send_json_error;
 
 function is_module_active() {
-	// This feature is currently in testing. It's only enabled for sites that have explicitly set the option
-	return 1 == get_option( 'wpcomsh_private_site_module_active' );
+	// This feature is currently in testing. It's only enabled for sites which have privacy model
+	// explicitly set to private. This is technically the same as site_is_private function, but since
+	// the other implementation may change, it's safe to just have that copied over for now.
+	return defined( 'AT_PRIVACY_MODEL' ) && AT_PRIVACY_MODEL === 'wp_uploads';
 }
 
 function admin_init() {

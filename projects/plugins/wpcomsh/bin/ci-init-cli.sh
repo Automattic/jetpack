@@ -15,9 +15,6 @@ wp rewrite structure "/%year%/%monthnum%/%postname%/";
 echo "Adding test content";
 POST_ID=`wp post create --post_title="this is a test post" --post_status="publish"`;
 
-echo "Enabling the private site module settings (TODO: Remove this when this is launched)";
-wp option update wpcomsh_private_site_module_active 1;
-
 echo "Linking the wpcomsh-loader.php file into mu-plugins";
 ln -s /var/www/html/wp-content/mu-plugins/wpcomsh/wpcomsh-loader.php /var/www/html/wp-content/mu-plugins/wpcomsh-loader.php
 

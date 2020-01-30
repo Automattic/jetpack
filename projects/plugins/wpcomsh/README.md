@@ -94,7 +94,7 @@ In order for WordPress to load the test site correctly, you'll need to access th
 - Update the version number in [wpcomsh.php#L5](https://github.com/Automattic/wpcomsh/blob/master/wpcomsh.php#L5), [wpcomsh.php#L11](https://github.com/Automattic/wpcomsh/blob/master/wpcomsh.php#L11), and in [package.json#L3](https://github.com/Automattic/wpcomsh/blob/4f5340d473a022c28cb1ca5f1b69bf971a8f8724/package.json#L3)
 - Wait for the PR to be approved and merged
 - Checkout latest `master`
-- Tag the release with `make tag` 
+- Tag the release with `make tag`
 - Build a new release locally with `make build`. The build will be `./build/wpcomsh.{vesion}.zip`
 - [Draft a new release](https://github.com/Automattic/wpcomsh/releases) and add the build as an asset. Note the build asset in this [example](https://github.com/Automattic/wpcomsh/releases/tag/v2.3.50).
 - Publish release
@@ -220,7 +220,6 @@ wpcomsh includes [WP CLI](http://wp-cli.org/) commands. They are located in the 
 
 To learn more about writing WP CLI commands consult the [Commands Cookbook](https://make.wordpress.org/cli/handbook/commands-cookbook/).
 
-
 ### Store support
 
 wpcomsh adds the [wc-api-dev](https://github.com/woocommerce/wc-api-dev) plugin to support Store on WordPress.com
@@ -229,4 +228,4 @@ wpcomsh adds the [wc-api-dev](https://github.com/woocommerce/wc-api-dev) plugin 
 
 Enables setting a site to "private." Doing so prevents viewing or interacting with site content to unauthenticated clients (and anyone without `read` capabilities).
 
-As this module is currently being developed & evaluated, it is only enabled when the `wpcomsh_private_site_module_active` site option is set to `1` (such that `\Private_Site\is_module_active()` returns `true`).
+As this module is currently being developed & evaluated, it is only enabled when the `AT_PRIVACY_MODEL` constant is set is set to `wp_uploads` (such that `\Private_Site\is_module_active()` returns `true`).
