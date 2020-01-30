@@ -220,3 +220,12 @@ export function restorePreviousHref( initialHref ) {
 		window.dispatchEvent( new Event( 'queryStringChange' ) );
 	}
 }
+
+export function clearSearchAndFilterQueries() {
+	// TODO: Improve detection of search and filter queries
+	if ( window.location.search ) {
+		setSearchQuery( '' );
+		clearFiltersFromQuery();
+		window.location.reload();
+	}
+}
