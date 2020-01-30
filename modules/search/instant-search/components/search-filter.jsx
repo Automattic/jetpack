@@ -68,7 +68,7 @@ export default class SearchFilter extends Component {
 					{ new Date( key ).toLocaleString(
 						locale,
 						getDateOptions( this.props.configuration.interval )
-					) }{ ' ' }
+					) }{' '}
 					({ count })
 				</label>
 			</div>

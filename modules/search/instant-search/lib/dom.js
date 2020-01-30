@@ -14,6 +14,7 @@ export function getThemeOptions( searchOptions ) {
 			'.jetpack-instant-search-wrapper input.search-field',
 		].join( ', ' ),
 		searchSortSelector: [ '.jetpack-search-sort' ],
+		filterInputSelector: [ 'a.jetpack-search-filter__link' ],
 	};
 	return searchOptions.theme_options ? { ...options, ...searchOptions.theme_options } : options;
 }
