@@ -132,7 +132,7 @@
 		"jsdom": "15.2.0",
 		"jsdom-global": "3.0.2",
 		"json-loader": "0.5.7",
-		"mapbox-gl": "0.54.1",
+		"mapbox-gl": "1.6.1",
 		"markdown-it": "8.4.2",
 		"node-sass": "4.13.0",
 		"object-hash": "2.0.0",
