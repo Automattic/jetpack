@@ -81,10 +81,12 @@ jQuery( document ).ready( function( $ ) {
 					'</a>';
 				html += '</div>';
 			}
-			html +=
-				'<a href="#" data-module="' +
-				envelope.feature_class +
-				'" class="jitm-banner__dismiss"></a>';
+			if ( envelope.is_dismissible ) {
+				html +=
+					'<a href="#" data-module="' +
+					envelope.feature_class +
+					'" class="jitm-banner__dismiss"></a>';
+			}
 			html += '</div>';
 			html += '</div>';
 
