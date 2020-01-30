@@ -14,20 +14,26 @@ import uniqueId from 'lodash/uniqueId';
  */
 import Gridicon from './gridicon';
 
+let initiallyFocusedElement = null;
+
 const SearchBox = props => {
 	const [ inputId ] = useState( () => uniqueId( 'jetpack-instant-search__box-input-' ) );
 	const inputRef = useRef( null );
 
-	const cb = overlayElement => () =>
-		! overlayElement.classList.contains( 'is-hidden' ) && inputRef.current.focus();
+	const cb = overlayElement => () => {
+		if ( ! overlayElement.classList.contains( 'is-hidden' ) ) {
+			initiallyFocusedElement = document.activeElement;
+			inputRef.current.focus();
+			return;
+		}
+		initiallyFocusedElement && initiallyFocusedElement.focus();
+	};
 
 	useEffect( () => {
 		const overlayElement = document.querySelector( '.jetpack-instant-search__overlay' );
 		overlayElement.addEventListener( 'transitionend', cb( overlayElement ), true );
 		cb( overlayElement )(); // invoke focus if page loads with overlay already present
 		return () => {
-			// Cleanup after event
-			// @todo Focus back on the activeElement before the overlay was opened
 			overlayElement.removeEventListener( 'transitionend', cb );
 		};
 	}, [] );
