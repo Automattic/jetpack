@@ -71,30 +71,6 @@
 		z-index: 10;
 	}
 
-	&-theme-standard {
-		height: 301px;
-
-		&.is-multi {
-			height: 361px;
-		}
-	}
-
-	&-theme-tall {
-		height: 490px;
-
-		&.is-multi {
-			height: 550px;
-		}
-	}
-
-	&-theme-wide {
-		height: 350px;
-	}
-
-	&-theme-button {
-		height: 113px;
-	}
-
 	&-restaurant-picker {
 		margin-bottom: 1em;
 		position: relative;
