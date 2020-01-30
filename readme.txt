@@ -1,8 +1,8 @@
 # WP Super Cache #
-* Contributors: donncha, automattic, kraftbj
+* Contributors: donncha, automattic
 * Tags: performance, caching, wp-cache, wp-super-cache, cache
 * Tested up to: 5.3.2
-* Stable tag: 1.7.0
+* Stable tag: 1.7.1
 * Requires at least: 3.1
 * Requires PHP: 5.2.4
 * License: GPLv2 or later
@@ -268,6 +268,12 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 
 ## Changelog ##
+
+### 1.7.1 ###
+* Minor fixes to docs. #709 #645
+* Fixed typo on cache contents page. #719
+* Fixed array index warning. #724
+* Updated yellow box links. #725
 
 ### 1.7.0 ###
 * Added "wpsc_cdn_urls" filter to modify the URLs used to rewrite URLs. #697
