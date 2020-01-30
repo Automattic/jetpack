@@ -8,19 +8,13 @@ import { isEmpty, isEqual, join } from 'lodash';
 /**
  * WordPress dependencies
  */
-import {
-	BlockControls,
-	BlockIcon,
-	InspectorControls,
-	InspectorAdvancedControls,
-} from '@wordpress/block-editor';
+import { BlockIcon, InspectorControls, InspectorAdvancedControls } from '@wordpress/block-editor';
 import {
 	ExternalLink,
 	PanelBody,
 	Placeholder,
 	SelectControl,
 	ToggleControl,
-	Toolbar,
 	withNotices,
 } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
@@ -88,15 +82,17 @@ function OpenTableEdit( {
 	const styleValues = getStyleValues( rid );
 
 	const updateStyle = newStyle => {
-		setAttributes( { style: newStyle } );
+		setAttributes( newStyle );
+		// If the old style was wide
+		// then reset the alignment
 		if ( style === 'wide' && align === 'wide' ) {
-			// If the old style was wide
-			setAttributes( { align: '' } ); // then reset the alignment
+			setAttributes( { align: '' } );
 		}
 
-		if ( newStyle === 'wide' ) {
-			// If the new style is wide
-			setAttributes( { align: 'wide' } ); // then set the alignment to wide as it works much better like that
+		// If the new style is wide
+		// then set the alignment to wide as it works much better like that
+		if ( newStyle.style === 'wide' ) {
+			setAttributes( { align: 'wide' } );
 		}
 	};
 
@@ -127,24 +123,6 @@ function OpenTableEdit( {
 		);
 	};
 
-	const blockControls = (
-		<BlockControls>
-			{ ! isEmpty( rid ) && (
-				<Toolbar
-					popoverProps={ { className: 'is-opentable' } }
-					isCollapsed={ true }
-					icon="admin-appearance"
-					label={ __( 'Style', 'jetpack' ) }
-					controls={ styleOptions.map( styleOption => ( {
-						title: styleOption.label,
-						isActive: styleOption.value === style,
-						onClick: () => updateStyle( styleOption.value ),
-					} ) ) }
-				/>
-			) }
-		</BlockControls>
-	);
-
 	const onPickerSubmit = input => {
 		if ( Array.isArray( input ) ) {
 			setAttributes( {
@@ -166,17 +144,15 @@ function OpenTableEdit( {
 					className="is-opentable"
 				/>
 			</InspectorAdvancedControls>
+			<BlockStylesSelector
+				clientId={ clientId }
+				styleOptions={ styleOptions }
+				onSelectStyle={ updateStyle }
+				activeStyle={ style }
+				attributes={ attributes }
+				viewportWidth={ 150 }
+			/>
 			<InspectorControls>
-				<PanelBody title={ __( 'Styles', 'jetpack' ) }>
-					<BlockStylesSelector
-						clientId={ clientId }
-						styleOptions={ styleOptions }
-						onSelectStyle={ setAttributes }
-						activeStyle={ style }
-						attributes={ attributes }
-						viewportWidth={ 150 }
-					/>
-				</PanelBody>
 				<PanelBody title={ __( 'Settings', 'jetpack' ) }>
 					<RestaurantPicker rids={ rid } onChange={ onPickerSubmit } />
 					<SelectControl
@@ -228,12 +204,7 @@ function OpenTableEdit( {
 
 	return (
 		<div className={ editClasses }>
-			{ ! isEmpty( rid ) && (
-				<>
-					{ inspectorControls() }
-					{ blockControls }
-				</>
-			) }
+			{ ! isEmpty( rid ) && <>{ inspectorControls() }</> }
 			{ ! isEmpty( rid ) ? blockPreview() : blockPlaceholder }
 		</div>
 	);

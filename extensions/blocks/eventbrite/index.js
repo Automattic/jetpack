@@ -9,6 +9,7 @@ import { createBlock } from '@wordpress/blocks';
  * Internal dependencies
  */
 import attributes from './attributes';
+import deprecated from './deprecated';
 import edit from './edit';
 import save from './save';
 
@@ -72,7 +73,9 @@ export const settings = {
 		attributes: {
 			url: 'https://www.eventbrite.com/e/test-event-tickets-123456789',
 			eventId: 123456789,
-			useModal: true,
+			style: 'modal',
+			text: _x( 'Register', 'verb: e.g. register for an event.', 'jetpack' ),
 		},
 	},
+	deprecated,
 };

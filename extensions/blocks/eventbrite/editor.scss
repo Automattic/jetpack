@@ -5,28 +5,3 @@
 		margin-top: 1em;
 	}
 }
-
-// Styles needed to display block style options correctly when using Button & Modal embed type.
-// Adapted from core/button block.
-
-.wp-block-jetpack-eventbrite.is-modal-button {
-	display: inline-block;
-
-	.wp-block-button__link {
-		display: block;
-	}
-
-	.wp-block-button__link:focus {
-		span[data-rich-text-placeholder]:after {
-			opacity: 0.3;
-		}
-	}
-}
-
-// Display "table" is used because the button container should only wrap the content and not take the full width.
-// Both selector rules needed because the block wrapper used in Gutenberg was removed in v7.3
-// @link https://github.com/WordPress/gutenberg/pull/19593
-.block-editor-block-preview__content [data-type='jetpack/eventbrite'] [data-block],
-.block-editor-block-preview__content [data-type='jetpack/eventbrite'][data-block] {
-	display: table;
-}

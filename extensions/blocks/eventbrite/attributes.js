@@ -13,8 +13,8 @@ export default {
 	eventId: {
 		type: 'number',
 	},
-	useModal: {
-		type: 'boolean',
+	style: {
+		type: 'string',
 	},
 	// Modal button attributes, used for Button & Modal embed type.
 	text: {
