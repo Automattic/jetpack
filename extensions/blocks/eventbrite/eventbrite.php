@@ -37,11 +37,11 @@ function jetpack_render_eventbrite_block( $attr, $content ) {
 	if ( empty( $attr['useModal'] ) ) {
 		wp_add_inline_script(
 			'eventbrite-widget',
-			"window.EBWidgets.createWidget({
+			"window.EBWidgets.createWidget( {
 				widgetType: 'checkout',
 				eventId: " . absint( $attr['eventId'] ) . ",
 				iframeContainerId: '" . esc_js( $widget_id ) . "',
-			});"
+			} );"
 		);
 
 		return sprintf(
@@ -55,12 +55,12 @@ function jetpack_render_eventbrite_block( $attr, $content ) {
 	// Show the modal version.
 	wp_add_inline_script(
 		'eventbrite-widget',
-		"window.EBWidgets.createWidget({
+		"window.EBWidgets.createWidget( {
 			widgetType: 'checkout',
 			eventId: " . absint( $attr['eventId'] ) . ",
 			modal: true,
 			modalTriggerElementId: '" . esc_js( $widget_id ) . "',
-		});"
+		} );"
 	);
 
 	// Modal button is saved as an `<a>` element with `role="button"` because `<button>` is not allowed
@@ -68,26 +68,22 @@ function jetpack_render_eventbrite_block( $attr, $content ) {
 	// @link https://www.w3.org/TR/wai-aria-practices/examples/button/button.html.
 	wp_add_inline_script(
 		'eventbrite-widget',
-		"(function() {
-			var widget = document.getElementById('" . esc_js( $widget_id ) . "');
+		"( function() {
+			var widget = document.getElementById( '" . esc_js( $widget_id ) . "' );
 			if ( widget ) {
-				widget.addEventListener( 'click',
-					function( event ) {
-						event.preventDefault();
-					}
-				);
+				widget.addEventListener( 'click', function( event ) {
+					event.preventDefault();
+				} );
 
-				widget.addEventListener( 'keydown',
-					function( event ) {
-						// Enter and space keys.
-						if ( event.keyCode === 13 || event.keyCode === 32 ) {
-							event.preventDefault();
-							event.target.click();
-						}
+				widget.addEventListener( 'keydown', function( event ) {
+					// Enter and space keys.
+					if ( event.keyCode === 13 || event.keyCode === 32 ) {
+						event.preventDefault();
+						event.target.click();
 					}
-				);
+				} );
 			}
-		})();"
+		} )();"
 	);
 
 	return $content;
