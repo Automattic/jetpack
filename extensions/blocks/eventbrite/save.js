@@ -67,6 +67,7 @@ function saveButton( attributes ) {
 				className={ buttonClasses }
 				href={ url }
 				id={ createWidgetId( eventId ) }
+				rel="noopener noreferrer"
 				role="button"
 				style={ buttonStyle }
 				tagName="a"
