@@ -23,7 +23,7 @@ export const settings = {
 	description: __( 'Promote Amazon products and earn a commission from sales.', 'jetpack' ),
 	icon,
 	category: 'jetpack',
-	keywords: [ 'amazon', 'affiliate' ],
+	keywords: [ __( 'amazon', 'jetpack' ), __( 'affiliate', 'jetpack' ) ],
 	supports: {
 		align: true,
 		alignWide: false,
