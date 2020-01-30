@@ -53,7 +53,7 @@ export default function AmazonEdit( {
 		// It would be great if we didn't have to embed the ASIN like this but I think that
 		// requires changes to core
 		setSuggestions(
-			data.products.map( dataProduct => dataProduct.title + ' (ASIN:' + dataProduct.asin + ')' )
+			data.products.map( dataProduct => `${ dataProduct.title } (ASIN:${ dataProduct.asin })` )
 		);
 	};
 
