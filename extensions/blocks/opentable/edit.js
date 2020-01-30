@@ -25,7 +25,6 @@ import {
 } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { ENTER, SPACE } from '@wordpress/keycodes';
 
 /**
  * Internal dependencies
@@ -33,6 +32,7 @@ import { ENTER, SPACE } from '@wordpress/keycodes';
 import './editor.scss';
 import icon from './icon';
 import RestaurantPicker from './restaurant-picker';
+import BlockStylesSelector from '../../shared/components/block-styles-selector';
 
 import {
 	getStyleOptions,
@@ -189,33 +189,14 @@ export default function OpenTableEdit( { attributes, setAttributes, className, c
 			</InspectorAdvancedControls>
 			<InspectorControls>
 				<PanelBody title={ __( 'Styles', 'jetpack' ) }>
-					<div className="block-editor-block-styles">
-						{ styleOptions.map( styleOption => {
-							return (
-								<div
-									key={ styleOption.value }
-									className={ classnames( 'block-editor-block-styles__item is-opentable', {
-										'is-active': styleOption.value === style,
-									} ) }
-									onClick={ () => updateStyle( styleOption.value ) }
-									onKeyDown={ event => {
-										if ( ENTER === event.keyCode || SPACE === event.keyCode ) {
-											event.preventDefault();
-											updateStyle( styleOption.value );
-										}
-									} }
-									role="button"
-									tabIndex="0"
-									aria-label={ styleOption.label }
-								>
-									<div className="block-editor-block-styles__item-preview is-opentable">
-										{ blockPreview( styleOption.value ) }
-									</div>
-									<div className="block-editor-block-styles__item-label">{ styleOption.label }</div>
-								</div>
-							);
-						} ) }
-					</div>
+					<BlockStylesSelector
+						clientId={ clientId }
+						styleOptions={ styleOptions }
+						onSelectStyle={ setAttributes }
+						activeStyle={ style }
+						attributes={ attributes }
+						viewportWidth={ 150 }
+					/>
 				</PanelBody>
 				<PanelBody title={ __( 'Settings', 'jetpack' ) }>
 					<RestaurantPicker rids={ rid } onChange={ onPickerSubmit } />
