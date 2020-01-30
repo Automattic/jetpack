@@ -213,3 +213,10 @@ export function getResultFormatQuery() {
 
 	return RESULT_FORMAT_MINIMAL;
 }
+
+export function restorePreviousHref( initialHref ) {
+	if ( history.pushState ) {
+		window.history.pushState( null, null, initialHref );
+		window.dispatchEvent( new Event( 'queryStringChange' ) );
+	}
+}

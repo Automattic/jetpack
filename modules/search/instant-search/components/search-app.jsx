@@ -27,6 +27,7 @@ import {
 	getSortKeyFromSortOption,
 	getSortOptionFromSortKey,
 	setFilterQuery,
+	restorePreviousHref,
 } from '../lib/query-string';
 import { bindCustomizerChanges } from '../lib/customize';
 
@@ -108,7 +109,7 @@ class SearchApp extends Component {
 	}
 
 	restoreBodyScroll() {
-		delete document.body.style.overflowY;
+		document.body.style.overflowY = null;
 	}
 
 	hasActiveQuery() {
@@ -156,6 +157,7 @@ class SearchApp extends Component {
 	hideResults = () => {
 		this.setState( { showResults: false } );
 		this.restoreBodyScroll();
+		restorePreviousHref( this.props.initialHref );
 	};
 
 	onChangeQuery = event => setSearchQuery( event.target.value );
