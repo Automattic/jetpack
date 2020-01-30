@@ -113,6 +113,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Dashboard: display a notice when a site uses conflicting plans.
 * Map Block: improve the calculation and persistence of maps' center points.
 * Map Block: improve the generation of an access token on WordPress.com sites.
+* Map Block: update Mapbox GL library to opt into map load based billing.
 * Shortcodes: add new Vimeo shortcode format.
 * Subscriptions: display a clear error message when you try to subscribe to a site where you've already subscribed but did not validate your subscription.
 * Subscriptions: display a clear message when an email having many pending confirmations tries to subscribe to a site.
