@@ -116,6 +116,7 @@ class Posts extends Module {
 		$this->action_handler = $callable;
 
 		add_action( 'wp_insert_post', array( $this, 'wp_insert_post' ), 11, 3 );
+		add_action( 'rest_after_insert_post', array( $this, 'wp_insert_post_shim' ), 11, 3 );
 		add_action( 'jetpack_sync_save_post', $callable, 10, 4 );
 
 		add_action( 'deleted_post', $callable, 10 );
@@ -502,6 +503,21 @@ class Posts extends Module {
 	}
 
 	/**
+	 * Shim for ::wp_insert_post for items coming in through the REST API.
+	 *
+	 * @param WP_Post         $post Post object.
+	 * @param WP_REST_Request $request The original REST request. Unused.
+	 * @param bool            $new If a item is newly created. True if new, false if updated.
+	 */
+	public function wp_insert_post_shim( $post, $request, $new ) {
+		if ( ! is_a( $post, WP_Post ) ) {
+			return;
+		}
+
+		$this->wp_insert_post( $post->ID, null, ! $new );
+	}
+
+	/**
 	 * Handler for the wp_insert_post hook.
 	 * Called upon creation of a new post.
 	 *
@@ -511,6 +527,11 @@ class Posts extends Module {
 	 */
 	public function wp_insert_post( $post_ID, $post = null, $update = null ) {
 		if ( ! is_numeric( $post_ID ) || is_null( $post ) ) {
+			return;
+		}
+
+		if ( $post && 'post' === $post->post_type && defined( 'REST_REQUEST' ) && REST_REQUEST ) {
+			// To work around https://core.trac.wordpress.org/ticket/45114, we abort on REST API requests to defer to acting on the rest_after_insert_post hook.
 			return;
 		}
 
