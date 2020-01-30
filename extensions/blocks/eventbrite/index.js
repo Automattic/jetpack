@@ -8,17 +8,16 @@ import { createBlock } from '@wordpress/blocks';
 /**
  * Internal dependencies
  */
-import { eventIdFromUrl } from './utils';
 import edit from './edit';
 import save from './save';
 
 // Example URLs
 // https://www.eventbrite.com/e/test-event-tickets-123456789
 // https://www.eventbrite.co.uk/e/test-event-tickets-123456789
-export const URL_REGEX = /^\s*https?:\/\/(?:www\.)?(?:eventbrite\.[a-z.]+)\/e\/[^\/]*?(\d+)\/?\s*$/i;
+export const URL_REGEX = /^\s*https?:\/\/(?:www\.)?(?:eventbrite\.[a-z.]+)\/e\/[^\/]*?(\d+)\/?(?:\?[^\/]*)?\s*$/i;
 
 // Custom eventbrite urls use a subdomain of eventbrite.com
-export const CUSTOM_URL_REGEX = /^\s*https?:\/\/(?:.+\.)?(?:eventbrite\.[a-z.]+)\/?\s*$/i;
+export const CUSTOM_URL_REGEX = /^\s*https?:\/\/(?:.+\.)?(?:eventbrite\.[a-z.]+)\/?(?:\?[^\/]*)?\s*$/i;
 
 export const name = 'eventbrite';
 
@@ -84,13 +83,10 @@ export const settings = {
 				isMatch: node =>
 					node.nodeName === 'P' &&
 					( URL_REGEX.test( node.textContent ) || CUSTOM_URL_REGEX.test( node.textContent ) ),
-				transform: node => {
-					const url = node.textContent.trim();
-					return createBlock( 'jetpack/eventbrite', {
-						eventId: eventIdFromUrl( url ),
-						url: url,
-					} );
-				},
+				transform: node =>
+					createBlock( 'jetpack/eventbrite', {
+						url: node.textContent.trim(),
+					} ),
 			},
 		],
 	},
@@ -99,6 +95,7 @@ export const settings = {
 	example: {
 		attributes: {
 			url: 'https://www.eventbrite.com/e/test-event-tickets-123456789',
+			eventId: 123456789,
 			useModal: true,
 			text: _x( 'Register', 'verb: e.g. register for an event.', 'jetpack' ),
 		},

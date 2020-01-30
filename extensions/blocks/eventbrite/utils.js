@@ -20,14 +20,14 @@ export function convertToLink( url, onReplace ) {
  * Extracts an event id from an Eventbrite URL.
  *
  * @param   {string} url Eventbrite URL.
- * @returns {string}     Event id.
+ * @returns {?number}    Event id.
  */
 export function eventIdFromUrl( url ) {
 	if ( ! url ) {
 		return null;
 	}
 
-	const match = url.match( /(\d+)\/?\s*$/ );
+	const match = url.match( /(\d+)\/?(?:\?[^\/]*)?\s*$/ );
 	return match && match[ 1 ] ? parseInt( match[ 1 ], 10 ) : null;
 }
 

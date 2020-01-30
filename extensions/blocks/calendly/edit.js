@@ -30,7 +30,7 @@ import attributeDetails from './attributes';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import SubmitButton from '../../shared/submit-button';
 import { getAttributesFromEmbedCode } from './utils';
-import BlockStylesPreviewAndSelector from './blockStylesPreviewAndSelector';
+import BlockStylesSelector from '../../shared/components/block-styles-selector';
 
 export default function CalendlyEdit( { attributes, className, clientId, setAttributes } ) {
 	const validatedAttributes = getValidatedAttributes( attributeDetails, attributes );
@@ -179,8 +179,8 @@ export default function CalendlyEdit( { attributes, className, clientId, setAttr
 	};
 
 	const styleOptions = [
-		{ name: 'inline', label: __( 'Inline', 'jetpack' ) },
-		{ name: 'link', label: __( 'Link', 'jetpack' ) },
+		{ value: 'inline', label: __( 'Inline', 'jetpack' ) },
+		{ value: 'link', label: __( 'Link', 'jetpack' ) },
 	];
 
 	const blockControls = (
@@ -192,8 +192,8 @@ export default function CalendlyEdit( { attributes, className, clientId, setAttr
 					label={ __( 'Style', 'jetpack' ) }
 					controls={ styleOptions.map( styleOption => ( {
 						title: styleOption.label,
-						isActive: styleOption.name === style,
-						onClick: () => setAttributes( { style: styleOption.name } ),
+						isActive: styleOption.value === style,
+						onClick: () => setAttributes( { style: styleOption.value } ),
 					} ) ) }
 					popoverProps={ { className: 'is-calendly' } }
 				/>
@@ -204,15 +204,18 @@ export default function CalendlyEdit( { attributes, className, clientId, setAttr
 	const inspectorControls = (
 		<InspectorControls>
 			{ url && (
-				<PanelBody title={ __( 'Styles', 'jetpack' ) }>
-					<BlockStylesPreviewAndSelector
-						clientId={ clientId }
-						styleOptions={ styleOptions }
-						onSelectStyle={ setAttributes }
-						activeStyle={ style }
-						attributes={ attributes }
-					/>
-				</PanelBody>
+				<>
+					<PanelBody title={ __( 'Styles', 'jetpack' ) }>
+						<BlockStylesSelector
+							clientId={ clientId }
+							styleOptions={ styleOptions }
+							onSelectStyle={ setAttributes }
+							activeStyle={ style }
+							attributes={ attributes }
+							viewportWidth={ 500 }
+						/>
+					</PanelBody>
+				</>
 			) }
 			<PanelBody title={ __( 'Calendar Settings', 'jetpack' ) } initialOpen={ false }>
 				<form onSubmit={ parseEmbedCode } className={ `${ className }-embed-form-sidebar` }>

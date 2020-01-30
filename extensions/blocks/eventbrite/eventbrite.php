@@ -33,6 +33,9 @@ function jetpack_render_eventbrite_block( $attr, $content ) {
 
 	wp_enqueue_script( 'eventbrite-widget', 'https://www.eventbrite.com/static/widgets/eb_widgets.js', array(), JETPACK__VERSION, true );
 
+	// Add CSS to hide direct link.
+	Jetpack_Gutenberg::load_assets_as_required( 'eventbrite' );
+
 	// Show the embedded version.
 	if ( empty( $attr['useModal'] ) ) {
 		wp_add_inline_script(
