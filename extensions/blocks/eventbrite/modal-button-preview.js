@@ -102,7 +102,7 @@ class ButtonEdit extends Component {
 
 		return (
 			<div
-				className={ classnames( className, 'is-modal-button' ) }
+				className={ classnames( className, 'wp-block-button is-modal-button' ) }
 				title={ title }
 				ref={ this.bindRef }
 			>
