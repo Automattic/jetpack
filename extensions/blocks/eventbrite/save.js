@@ -19,12 +19,13 @@ import { createWidgetId } from './utils';
  * an external link.
  */
 
-function saveButton( eventId, attributes ) {
+function saveButton( attributes ) {
 	const {
 		backgroundColor,
 		borderRadius,
 		customBackgroundColor,
 		customTextColor,
+		eventId,
 		text,
 		textColor,
 		url,
@@ -47,21 +48,21 @@ function saveButton( eventId, attributes ) {
 		borderRadius: borderRadius ? borderRadius + 'px' : undefined,
 	};
 
+	// Saves link markup, but event handlers are added with inline javascript to prevent
+	// default link behavior (see the `jetpack_render_eventbrite_block` php function).
 	return (
-		<div>
+		<div className="wp-block-button">
 			<RichText.Content
-				id={ createWidgetId( eventId ) }
-				tagName="button"
 				className={ buttonClasses }
+				href={ url }
+				id={ createWidgetId( eventId ) }
+				rel="noopener noreferrer"
+				role="button"
 				style={ buttonStyle }
+				tagName="a"
+				target="_blank"
 				value={ text }
-				type="button"
 			/>
-			{ url && (
-				<a className="eventbrite__direct-link" href={ url }>
-					{ url }
-				</a>
-			) }
 		</div>
 	);
 }
@@ -74,7 +75,7 @@ export default function save( { attributes } ) {
 	}
 
 	if ( useModal ) {
-		return saveButton( eventId, attributes );
+		return saveButton( attributes );
 	}
 
 	return (
