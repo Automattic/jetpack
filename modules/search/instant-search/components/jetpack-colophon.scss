@@ -1,10 +1,15 @@
 .jetpack-instant-search__jetpack-colophon {
-	align-items: center;
-	display: flex;
-	justify-content: center;
 	margin-top: 2em;
 	margin-bottom: 2em;
 	text-align: center;
+}
+
+.jetpack-instant-search__jetpack-colophon-link {
+	align-items: center;
+	color: inherit;
+	display: flex;
+	justify-content: center;
+	text-decoration: none;
 }
 
 .jetpack-instant-search__jetpack-colophon-logo {

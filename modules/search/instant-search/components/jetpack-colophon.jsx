@@ -37,17 +37,24 @@ const logoSize = 12;
 const JetpackColophon = () => {
 	return (
 		<div className="jetpack-instant-search__jetpack-colophon">
-			<svg
-				className="jetpack-instant-search__jetpack-colophon-logo"
-				height={ logoSize }
-				width={ logoSize }
-				viewBox={ `0 0 32 32` }
+			<a
+				href="https://jetpack.com/search"
+				rel="external noopener noreferrer"
+				target="_blank"
+				className="jetpack-instant-search__jetpack-colophon-link"
 			>
-				{ logoPath }
-			</svg>
-			<span className="jetpack-instant-search__jetpack-colophon-text">
-				{ __( 'Search powered by Jetpack', 'jetpack' ) }
-			</span>
+				<svg
+					className="jetpack-instant-search__jetpack-colophon-logo"
+					height={ logoSize }
+					width={ logoSize }
+					viewBox={ `0 0 32 32` }
+				>
+					{ logoPath }
+				</svg>
+				<span className="jetpack-instant-search__jetpack-colophon-text">
+					{ __( 'Search powered by Jetpack', 'jetpack' ) }
+				</span>
+			</a>
 		</div>
 	);
 };
