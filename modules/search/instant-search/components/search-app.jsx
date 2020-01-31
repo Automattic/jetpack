@@ -134,10 +134,10 @@ class SearchApp extends Component {
 		this.preventBodyScroll();
 	};
 	hideResults = () => {
-		this.setState( { showResults: false } );
 		this.restoreBodyScroll();
-		restorePreviousHref( this.props.initialHref );
-		clearSearchAndFilterQueries();
+		restorePreviousHref( this.props.initialHref, () => {
+			this.setState( { showResults: false } );
+		} );
 	};
 
 	onChangeQuery = event => setSearchQuery( event.target.value );
