@@ -1093,9 +1093,9 @@ class Jetpack_SSO {
 	 */
 	public function inject_sso_jitm( $envelopes ) {
 		// Bail early if that's not the first time the user uses SSO.
-		if ( true != Jetpack_Options::get_option( 'sso_first_login' ) ) {
-			return $envelopes;
-		}
+//		if ( true != Jetpack_Options::get_option( 'sso_first_login' ) ) {
+//			return $envelopes;
+//		}
 
 		// Update our option to mark that SSO was discovered.
 		Jetpack_Options::update_option( 'sso_first_login', false );
