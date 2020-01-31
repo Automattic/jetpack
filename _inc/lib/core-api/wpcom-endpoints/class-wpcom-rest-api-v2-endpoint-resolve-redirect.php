@@ -36,7 +36,9 @@ class WPCOM_REST_API_V2_Endpoint_Resolve_Redirect extends WP_REST_Controller {
 						'description'       => __( 'The URL to check for redirects.', 'jetpack' ),
 						'type'              => 'string',
 						'required'          => 'true',
-						'validate_callback' => 'wp_http_validate_url',
+						'validate_callback' => function ( $param ) {
+							return wp_http_validate_url( $param );
+						},
 					),
 				),
 				array(
