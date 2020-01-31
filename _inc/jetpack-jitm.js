@@ -67,7 +67,7 @@ jQuery( document ).ready( function( $ ) {
 					'<a href="' +
 					( envelope.CTA.ajax ? '#' : envelope.url ) +
 					'" target="' +
-					( envelope.CTA.newWindow === false ? '_self' : '_blank' ) +
+					( envelope.CTA.newWindow === false || envelope.CTA.ajax ? '_self' : '_blank' ) +
 					'" rel="noopener noreferrer" title="' +
 					envelope.CTA.message +
 					'" data-module="' +
@@ -182,16 +182,10 @@ jQuery( document ).ready( function( $ ) {
 		// Handle Ajax actions.
 		$template.find( '.jitm-button[data-ajax]' ).click( function( e ) {
 			e.preventDefault();
-			$.post(
-				window.ajaxurl,
-				{
-					action: $( this ).data( 'ajax' ),
-				},
-				function() {
-					// Hide JITM
-					$template.fadeOut( 'slow' );
-				}
-			);
+			$.post( window.ajaxurl, { action: $( this ).data( 'ajax' ) } ).always( function() {
+				// Hide JITM
+				$template.fadeOut( 'slow' );
+			} );
 		} );
 	};
 
