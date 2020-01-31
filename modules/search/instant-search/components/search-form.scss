@@ -10,6 +10,14 @@ $arrow-height: 10px;
 	padding: 16px 24px;
 	border-radius: 6px;
 
+	.jetpack-instant-search__jetpack-colophon {
+		margin-bottom: 1em;
+	}
+
+	.jetpack-instant-search__jetpack-colophon-text {
+		font-size: 0.8em;
+	}
+
 	.jetpack-instant-search__overlay--light & {
 		background: #fff;
 		border: 1px solid rgba(0, 0, 0, 0.1);

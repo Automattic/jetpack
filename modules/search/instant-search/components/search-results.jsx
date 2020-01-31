@@ -133,6 +133,7 @@ class SearchResults extends Component {
 				locale={ this.props.locale }
 				postTypes={ this.props.postTypes }
 				response={ this.props.response }
+				showPoweredBy={ this.props.showPoweredBy }
 				widgets={ this.props.widgets }
 			/>
 		);

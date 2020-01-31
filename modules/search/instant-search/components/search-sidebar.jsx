@@ -8,7 +8,12 @@ import { createPortal, useState, useEffect } from 'preact/compat';
 import SearchFilters from './search-filters';
 import WidgetAreaContainer from './widget-area-container';
 
-const SearchBox = props => {
+/**
+ * Internal dependencies
+ */
+import JetpackColophon from './jetpack-colophon';
+
+const SearchSidebar = props => {
 	// TODO: Change JetpackInstantSearchOptions.widgets to only include info from widgets inside Overlay sidebar
 	const [ widgetIds, setWidgetIds ] = useState( [] );
 
@@ -48,7 +53,8 @@ const SearchBox = props => {
 						document.getElementById( `${ widget.widget_id }-wrapper` )
 					);
 				} ) }
+			{ props.showPoweredBy && <JetpackColophon /> }
 		</div>
 	);
 };
-export default SearchBox;
+export default SearchSidebar;
