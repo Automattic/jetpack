@@ -4654,8 +4654,8 @@ endif;
 		add_filter( 'jetpack_connect_redirect_url', array( __CLASS__, 'filter_connect_redirect_url' ) );
 		add_filter( 'jetpack_connect_processing_url', array( __CLASS__, 'filter_connect_processing_url' ) );
 
-		if ( $iframe ) {
-			add_filter( 'jetpack_api_url', array( __CLASS__, 'filter_connect_api_iframe_url' ), 10, 2 );
+		if ( ! $iframe ) {
+			add_filter( 'jetpack_use_iframe_authorization_flow', '__return_false' );
 		}
 
 		$c8n = self::connection();
@@ -4665,8 +4665,8 @@ endif;
 		remove_filter( 'jetpack_connect_redirect_url', array( __CLASS__, 'filter_connect_redirect_url' ) );
 		remove_filter( 'jetpack_connect_processing_url', array( __CLASS__, 'filter_connect_processing_url' ) );
 
-		if ( $iframe ) {
-			remove_filter( 'jetpack_api_url', array( __CLASS__, 'filter_connect_api_iframe_url' ) );
+		if ( ! $iframe ) {
+			remove_filter( 'jetpack_use_iframe_authorization_flow', '__return_false' );
 		}
 
 		return $url;
@@ -4739,26 +4739,6 @@ endif;
 		}
 
 		return $redirect;
-	}
-
-	/**
-	 * Filters the API URL that is used for connect requests. The method
-	 * intercepts only the authorize URL and replaces it with another if needed.
-	 *
-	 * @param String $api_url the default redirect API URL used by the package.
-	 * @param String $relative_url the path of the URL that's being used.
-	 * @return String the modified URL.
-	 */
-	public static function filter_connect_api_iframe_url( $api_url, $relative_url ) {
-
-		// Short-circuit on anything that is not related to connect requests.
-		if ( 'authorize' !== $relative_url ) {
-			return $api_url;
-		}
-
-		$c8n = self::connection();
-
-		return $c8n->api_url( 'authorize_iframe' );
 	}
 
 	/**

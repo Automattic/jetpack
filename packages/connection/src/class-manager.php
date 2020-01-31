@@ -720,6 +720,24 @@ class Manager {
 		$version  = '/' . Utils::get_jetpack_api_version() . '/';
 
 		/**
+		 * Filters whether the connection manager should use the iframe authorization
+		 * flow instead of the regular redirect-based flow.
+		 *
+		 * @since 8.3.0
+		 *
+		 * @param String $url the generated URL.
+		 * @param String $relative_url the relative URL that was passed as an argument.
+		 * @param String $api_base the API base string that is being used.
+		 * @param String $version the version string that is being used.
+		 */
+		$iframe_flow = apply_filters( 'jetpack_use_iframe_authorization_flow', true );
+
+		// Do not modify anything that is not related to authorize requests.
+		if ( 'authorize' === $relative_url && $iframe_flow ) {
+			$relative_url = 'authorize_iframe';
+		}
+
+		/**
 		 * Filters the API URL that Jetpack uses for server communication.
 		 *
 		 * @since 8.0.0
