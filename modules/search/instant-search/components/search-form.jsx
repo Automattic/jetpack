@@ -8,6 +8,7 @@ import { Component, h } from 'preact';
 /**
  * Internal dependencies
  */
+import JetpackColophon from './jetpack-colophon';
 import SearchBox from './search-box';
 import SearchFilters from './search-filters';
 import SearchSort from './search-sort';
@@ -73,6 +74,7 @@ class SearchForm extends Component {
 								widget={ widget }
 							/>
 						) ) }
+						<JetpackColophon />
 					</div>
 				) }
 			</form>
