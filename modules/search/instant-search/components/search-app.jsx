@@ -27,7 +27,6 @@ import {
 	getSortKeyFromSortOption,
 	getSortOptionFromSortKey,
 	restorePreviousHref,
-	clearSearchAndFilterQueries,
 } from '../lib/query-string';
 import { bindCustomizerChanges } from '../lib/customize';
 
@@ -69,7 +68,7 @@ class SearchApp extends Component {
 	addEventListeners() {
 		bindCustomizerChanges( this.handleOverlayOptionsUpdate );
 
-		window.addEventListener( 'popstate', this.onChangeQueryString );
+		window.addEventListener( 'popstate', this.onPopstate );
 		window.addEventListener( 'queryStringChange', this.onChangeQueryString );
 
 		document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( input => {
@@ -83,7 +82,7 @@ class SearchApp extends Component {
 	}
 
 	removeEventListeners() {
-		window.removeEventListener( 'popstate', this.onChangeQueryString );
+		window.removeEventListener( 'popstate', this.onPopstate );
 		window.removeEventListener( 'queryStringChange', this.onChangeQueryString );
 
 		document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( input => {
@@ -141,6 +140,11 @@ class SearchApp extends Component {
 	};
 
 	onChangeQuery = event => setSearchQuery( event.target.value );
+
+	onPopstate = () => {
+		this.showResults();
+		this.onChangeQueryString();
+	};
 
 	onChangeQueryString = () => {
 		this.getResults();
