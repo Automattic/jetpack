@@ -167,30 +167,15 @@ export default function AmazonEdit( {
 	const blockPreview = () => {
 		const {
 			title,
-			authors,
-			artists,
-			actors,
-			manufacturer,
 			detailPageUrl,
 			listPrice,
 			imageUrlMedium,
 			imageWidthMedium,
 			imageHeightMedium,
-			authorshipInfo,
 		} = data.products.filter( productDataItem => productDataItem.asin === asin )[ 0 ];
 
 		// TODO - we should be able to get this from API in a neater way once we have access
-		const seller = authors.length
-			? authors
-			: artists.length
-			? artists
-			: actors.length
-			? actors
-			: manufacturer
-			? manufacturer
-			: authorshipInfo
-			? authorshipInfo
-			: null;
+		const seller = 'TODO';
 
 		// TODO - we have different image sizes in the API
 		const image = imageUrlMedium && (
