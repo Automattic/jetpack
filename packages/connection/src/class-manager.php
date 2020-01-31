@@ -725,10 +725,7 @@ class Manager {
 		 *
 		 * @since 8.3.0
 		 *
-		 * @param String $url the generated URL.
-		 * @param String $relative_url the relative URL that was passed as an argument.
-		 * @param String $api_base the API base string that is being used.
-		 * @param String $version the version string that is being used.
+		 * @param Boolean $is_iframe_flow_used should the iframe flow be used, defaults to true.
 		 */
 		$iframe_flow = apply_filters( 'jetpack_use_iframe_authorization_flow', true );
 
