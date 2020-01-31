@@ -65,7 +65,7 @@ jQuery( document ).ready( function( $ ) {
 				html += '<div class="jitm-banner__action">';
 				html +=
 					'<a href="' +
-					envelope.url +
+					( envelope.CTA.ajax ? '#' : envelope.url ) +
 					'" target="' +
 					( envelope.CTA.newWindow === false ? '_self' : '_blank' ) +
 					'" rel="noopener noreferrer" title="' +
@@ -76,7 +76,9 @@ jQuery( document ).ready( function( $ ) {
 					ctaClasses +
 					'" data-jptracks-name="nudge_click" data-jptracks-prop="jitm-' +
 					envelope.id +
-					'">' +
+					'" ' +
+					( envelope.CTA.ajax ? 'data-ajax="' + envelope.CTA.ajax + '"' : '' ) +
+					'>' +
 					envelope.CTA.message +
 					'</a>';
 				html += '</div>';
@@ -175,6 +177,21 @@ jQuery( document ).ready( function( $ ) {
 					$template.fadeOut( 'slow' );
 				}, 2000 );
 			} );
+		} );
+
+		// Handle Ajax actions.
+		$template.find( '.jitm-button[data-ajax]' ).click( function( e ) {
+			e.preventDefault();
+			$.post(
+				window.ajaxurl,
+				{
+					action: $( this ).data( 'ajax' ),
+				},
+				function() {
+					// Hide JITM
+					$template.fadeOut( 'slow' );
+				}
+			);
 		} );
 	};
 
