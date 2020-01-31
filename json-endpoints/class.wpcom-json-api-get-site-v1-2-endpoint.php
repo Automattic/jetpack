@@ -38,6 +38,7 @@ class WPCOM_JSON_API_GET_Site_V1_2_Endpoint extends WPCOM_JSON_API_GET_Site_Endp
 		'logo'              => '(array) The site logo, set in the Customizer',
 		'visible'           => '(bool) If this site is visible in the user\'s site list',
 		'is_private'        => '(bool) If the site is a private site or not',
+		'is_coming_soon'    => '(bool) If the site is a "coming soon" site or not',
 		'single_user_site'  => '(bool) Whether the site is single user. Only returned for WP.com sites and for Jetpack sites with version 3.4 or higher.',
 		'is_vip'            => '(bool) If the site is a VIP site or not.',
 		'is_following'      => '(bool) If the current user is subscribed to this site in the reader',

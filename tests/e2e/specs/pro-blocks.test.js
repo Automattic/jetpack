@@ -16,13 +16,10 @@ describe( 'Paid blocks', () => {
 		const url = getNgrokSiteUrl();
 		console.log( 'NEW SITE URL: ' + url );
 
-		await connectThroughWPAdminIfNeeded();
+		await connectThroughWPAdminIfNeeded( { mockPlanData: true } );
 
-		await activateModule( 'wordads' );
-		await activateModule( 'publicize' );
-
-		await page.waitFor( 10000 ); // Trying to wait for plan data to be updated
-		await page.reload( { waitFor: 'networkidle0' } );
+		await activateModule( page, 'publicize' );
+		await activateModule( page, 'wordads' );
 	} );
 
 	describe( 'Mailchimp Block', () => {
@@ -68,6 +65,7 @@ describe( 'Paid blocks', () => {
 	describe( 'WordAds block', () => {
 		it( 'Can publish a post with a WordAds block', async () => {
 			const blockEditor = await BlockEditorPage.visit( page );
+			// await blockEditor.waitForAvailableBlock( WordAdsBlock.name() );
 			const blockInfo = await blockEditor.insertBlock( WordAdsBlock.name(), WordAdsBlock.title() );
 			await blockEditor.focus();
 

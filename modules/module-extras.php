@@ -28,6 +28,7 @@ $tools = array(
 	'theme-tools/site-breadcrumbs.php',
 	'theme-tools/social-menu.php',
 	'theme-tools/content-options.php',
+	'theme-tools/devicepx.php',
 	// Needed for SEO Tools.
 	'seo-tools/jetpack-seo-utils.php',
 	'seo-tools/jetpack-seo-titles.php',

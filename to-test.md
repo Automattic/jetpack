@@ -1,38 +1,39 @@
-## 8.0
+## 8.2
 
 ### Blocks
 
-#### Mailchimp
+#### Calendly
 
-We've added 2 new options to the existing Mailchimp block. You'll locate them in the block sidebar when adding a block to a post or page.
+The Calendly block will be a useful tool for all coaches, consultants, therapists… Add the block to a post or page and anyone can then book appointments, meetings, and classes right from your website. 
 
-- If you've defined groups in your [Maichimp Audience settings](https://mailchimp.com/help/create-new-audience-group/), you'll see that option in the block sidebar.
-- In your Audience Settings, you can also define custom Audience fields and MERGE tags. You can use those to create a new field for your forms, and you can add info about that field to your block settings in the block editor. This will allow you to track where subscriptions are coming from.
+To test, you have 2 options:
 
-Give that a try, try using the forms you create, and see if the fields are updated accordingly when looking at your subscriber list on Maichimp.com. Bonus points if you also try to sign up when using the AMP plugin on the site!
+1. You can [create a Calendly account here](https://calendly.com) and create your own form that you'll be able to embed on your site via the block.
+2. You can use an existing Calendly account like this one: `https://calendly.com/jeherve`. Paste the link into the block to get started.
 
-#### Pinterest
+Add the block to a post or a page and make sure everything works as planned. If you have your own Calendly account, try different embedding methods and see that they work well.
 
-This release introduces **a new Pinterest block**. This block allows you to insert various Pinterest links (pins, boards, profiles) that will be automatically converted into a Pinterest embed in your posts.
+#### EventBrite
 
-To test this, try adding various Pinterest URLs (short and long), and see that they are displayed properly in the editor and on the front-end of your site.
+The EventBrite block is an easy way for your visitors to register for events right from your site.
 
-#### Ratings
+To test, you can pick any event from [this page](https://www.eventbrite.com/) and add it to a new post on your site. Like the above, try to play with all options; we're looking for any feedback you may have about the block and the user experience around it.
 
-This release also brings **a new Ratings block** to your site. Rate movies, books, songs, recipes — anything you can put a number on. To get started, go to the block editor and search for "Star" or "Rating".
+#### Map
 
-Play with the different block settings and let us know how it goes.
+In this release we've made to the way the Mapbox access token is added to a map. If your site is hosted on WordPress.com, it's now easier than ever to get started adding maps to your post.
 
-### Shortcodes
+This change should not impact self-hosted WordPress sites. To confirm this, I would invite you to try to add a new Map Block to a new post or page on your site, and make sure that everything works properly.
 
-Jetpack includes a Recipe shortcode that allows you to display recipes in your blog posts, with a nice layout and a markup optimized for search engines. In this release, we're introducing 3 new elements to the recipe display:
-- A new `cooktime` attribute.
-- A new `preptime` attribute.
-- A new `rating` attribute.
-- A `recipe-nutrition` shortcode to display nutrition information about your recipe.
-- A `recipe-image` shortcode that can be used to display a single image anywhere within your recipe.
+#### OpenTable
 
-You can try to use all that data by adding your own recipe to a new blog post. [Here is an example of recipe markup you can paste in the code view, inside a classic block](https://gist.github.com/jeherve/dd9d8e9503d08a69f81e56d2bee516dd).
+As a restaurant owner, your ultimate goal getting online is to drive reservations to your property. The OpenTable block can help you achieve just that by facilitating visitors to quickly fill an online reservation form to book a table.
+
+Give it a try and let us know what you think.
+
+### Sync
+
+This release brings in significant changes to "Sync", the synchronization process that keeps your site's data up to date with WordPress.com. The changes modify the initial Full Sync process and not the ongoing sync logic that powers features like Notifications, Publicize and Related Posts. Full Sync can be tested by requesting a Full Sync on WordPress.com: under Manage > Settings > General > Site Tools > Manage your connection.
 
 ### Others
 

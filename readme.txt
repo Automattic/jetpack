@@ -1,7 +1,7 @@
 === Jetpack by WordPress.com ===
 Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, scarstocea, scottsweb, sdquirk, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Jetpack, WordPress.com, backup, security, related posts, CDN, speed, anti-spam, social sharing, SEO, video, stats
-Stable tag: 8.0
+Stable tag: 8.1.1
 Requires at least: 5.2
 Requires PHP: 5.6
 Tested up to: 5.3
@@ -96,44 +96,45 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
-= 8.0 =
+= 8.2 =
 
-* Release date: December 3, 2019
-* Release post: https://wp.me/p1moTy-lGH
+* Release date: February 11, 2020
+* Release post: https://wp.me/p1moTy-mVu
 
-**Major enhancements**
+**Major Enhancements**
 
-* Block Editor: new Pinterest block allowing you to easily embed boards, profiles, and pins.
-* Block Editor: new Ratings block allowing you to add star ratings any post or page.
-* Mailchimp block: you can now create forms for a subset (group) of your Mailchimp list, and add a field to track which form the signups are coming from.
+* Calendly Block: a useful tool for all coaches, consultants, therapists… Add the block to a post or page and anyone can then book appointments, meetings, and classes right from your website.
+* EventBrite Block: allow your visitors to register to events right from your site with this new block.
+* OpenTable Block: restaurant owners, you can now add a reservation form to your site to make it easy for anyone to book a table online, via your site.
 
 **Enhancements**
 
-* Blocks: start using the @wordpress/block-editor package introduced in WordPress 5.2.
-* Contact Form: make the Form block reusable on a single post / page.
-* Dashboard: add support for Jetpack Backup display.
-* Image CDN: expand number of images using the new subdomain determination function.
-* Recurring Payments block: improve display of buttons inside the block in the editor.
-* Shortcodes: add new customization options and improve Schema.org markup of the Recipe shortcode.
-* Shortcodes: add AMP views for 5 shortcodes: `vimeo`, `instagram`, `dailymotion`, `tweet`, and `soundcloud`.
-* Support Tools: improve the reliability of the tools on slower sites.
+* Contact Form: add IP and Feedback date to data that can be exported via the CSV tool.
+* Dashboard: display a notice when a site uses conflicting plans.
+* Map Block: improve the calculation and persistence of maps' center points.
+* Map Block: improve the generation of an access token on WordPress.com sites.
+* Map Block: update Mapbox GL library to opt into map load based billing.
+* Shortcodes: add new Vimeo shortcode format.
+* Subscriptions: display a clear error message when you try to subscribe to a site where you've already subscribed but did not validate your subscription.
+* Subscriptions: display a clear message when an email having many pending confirmations tries to subscribe to a site.
+* Synchronization: improve performance of data synchronization with WordPress.com.
 
 **Improved compatibility**
 
-* AMP: improve display of the Map block on AMP views.
-* General: As WordPress 5.3 is now available, Jetpack now requires WordPress 5.2.
-* Shortcodes: ensure Vimeo videos can be displayed properly when using the AMP plugin.
+* Connnection Flow: ongoing work to improve the reliability of the connection between your site and WordPress.com.
+* Connection Flow: improve detection of hosting environments for better communication with WordPress.com.
+* Gutenberg: avoid any layout issues that may appear in the block editor when using the latest version of the Gutenberg plugin.
+* Related Posts: ensure that any filters customizing the display of Related Posts also apply to posts displayed with the AMP plugin.
+* Sharing: do not output Jetpack's Open Graph Meta Tags if the Complete Open Graph plugin is present on your site.
 
 **Bug fixes**
 
-* Connection: fix communication between Jetpack sites and WordPress.com for some sites hosted on non-standard ports.
-* Connection management: fix issue that prevented the Connection transfer banner from appearing in some situations.
-* Feature Hints: disable when plugins cannot be installed on site.
-* Image CDN: avoid blurry images when using Jetpack's Image CDN alongside other image-focussed blocks.
-* SEO Tools: do not display any HTML tags in title meta tags.
-* Sharing: improve accessibility of the sharing buttons by updating the buttons' color.
-* Sync: avoid conflicts when two processes are synchronized to WordPress.com at the same time.
-* WordPress.com Block Editor: ensure that the Justify button works well on any paragraph using that button.
+* Blocks / Dashboard: ensure that blocks as well as Jetpack's dashboard can be used even in older browsers such as Internet Explorer 11.
+* Contact Info Block: ensure that Google's Structured Data tool can recognize phone numbers added to the block.
+* Copy Post: ensure correct sharing and like settings are copied when posts are duplicated.
+* Subscriptions: maintain email subscription settings when deactivating and reactivating the feature.
+* WordPress.com REST API: avoid PHP notices when a media file is edited via the API.
+* WordPress.com REST API: ensure that image URLs are currently set when uploading an image multiple times.
 
 --------
 

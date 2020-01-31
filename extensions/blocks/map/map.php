@@ -15,6 +15,32 @@ jetpack_register_block(
 );
 
 /**
+ * Return the site's own Mapbox API key if set, or the WordPress.com's one otherwise.
+ *
+ * @return string
+ */
+function jetpack_get_mapbox_api_key() {
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		$endpoint = sprintf(
+			'https://public-api.wordpress.com/wpcom/v2/sites/%d/service-api-keys/mapbox',
+			get_current_blog_id()
+		);
+	} else {
+		$endpoint = rest_url( 'wpcom/v2/service-api-keys/mapbox' );
+	}
+
+	$response      = wp_remote_get( esc_url_raw( $endpoint ) );
+	$response_code = wp_remote_retrieve_response_code( $response );
+
+	if ( 200 === $response_code ) {
+		$response_body = json_decode( wp_remote_retrieve_body( $response ) );
+		return $response_body->service_api_key;
+	}
+
+	return Jetpack_Options::get_option( 'mapbox_api_key' );
+}
+
+/**
  * Map block registration/dependency declaration.
  *
  * @param array  $attr    Array containing the map block attributes.
@@ -23,7 +49,7 @@ jetpack_register_block(
  * @return string
  */
 function jetpack_map_block_load_assets( $attr, $content ) {
-	$api_key = Jetpack_Options::get_option( 'mapbox_api_key' );
+	$api_key = jetpack_get_mapbox_api_key();
 
 	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
 		static $map_block_counter = array();
@@ -110,7 +136,7 @@ function jetpack_map_block_render_single_block_page() {
 
 	/* Put together a new complete document containing only the requested block markup and the scripts/styles needed to render it */
 	$block_markup = $post_html->saveHTML( $container );
-	$api_key      = Jetpack_Options::get_option( 'mapbox_api_key' );
+	$api_key      = jetpack_get_mapbox_api_key();
 	$page_html    = sprintf(
 		'<!DOCTYPE html><head><style>html, body { margin: 0; padding: 0; }</style>%s</head><body>%s</body>',
 		$head_content,

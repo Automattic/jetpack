@@ -10,7 +10,7 @@ In most cases you want to have accessible an WordPress installation for Jetpack 
 
 * Node.js 10
 * Yarn 1.7
-* PHP 7.2 (in case you are running WordPress locally)
+* PHP 7.4 (in case you are running WordPress locally)
 * Composer
 
 ## Script for checking if your environment is ready for contributing to Jetpack
@@ -216,9 +216,9 @@ _There's also a handy `yarn php:lint` that will run `composer php:lint` if you p
 $ yarn php:lint
 ```
 
-### Checking Jetpack's PHP for compatibility with different versions of PHP since 5.2
+### Checking Jetpack's PHP for compatibility with different versions of PHP since 5.6
 
-We have a handy `composer` script that will just run the PHP CodeSniffer `PHPCompatibilityWP` ruleset checking for code not compatible with PHP 5.2
+We have a handy `composer` script that will just run the PHP CodeSniffer `PHPCompatibilityWP` ruleset checking for code not compatible with PHP 5.6
 
 ```sh
 $ composer php:compatibility .

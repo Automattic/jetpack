@@ -181,10 +181,16 @@ export class Map extends Component {
 		this.setBoundsByMarkers();
 	};
 	setBoundsByMarkers = () => {
-		const { zoom, points, onSetZoom } = this.props;
+		const { admin, onSetMapCenter, onSetZoom, points, zoom } = this.props;
 		const { map, activeMarker, mapboxgl, zoomControl, boundsSetProgrammatically } = this.state;
 		if ( ! map ) {
 			return;
+		}
+		// Do not allow map dragging in the editor if there are markers, because the positioning will be programmatically overridden.
+		if ( points.length && admin ) {
+			map.dragPan.disable();
+		} else {
+			map.dragPan.enable();
 		}
 		// If there are no points at all, there is no data to set bounds to. Abort the function.
 		if ( ! points.length ) {
@@ -198,6 +204,7 @@ export class Map extends Component {
 		points.forEach( point => {
 			bounds.extend( [ point.coordinates.longitude, point.coordinates.latitude ] );
 		} );
+		onSetMapCenter( bounds.getCenter() );
 
 		// If there are multiple points, zoom is determined by the area they cover, and zoom control is removed.
 		if ( points.length > 1 ) {
@@ -296,7 +303,13 @@ export class Map extends Component {
 		map.on( 'zoomend', () => {
 			this.props.onSetZoom( map.getZoom() );
 		} );
-
+		map.on( 'moveend', () => {
+			const { onSetMapCenter, points } = this.props;
+			// If there are no markers, user repositioning controls map center. If there are markers, set programmatically.
+			if ( points.length < 1 ) {
+				onSetMapCenter( map.getCenter() );
+			}
+		} );
 		/* Listen for clicks on the Map background, which hides the current popup. */
 		map.getCanvas().addEventListener( 'click', this.onMapClick );
 		this.setState( { map, zoomControl }, () => {
@@ -312,13 +325,14 @@ export class Map extends Component {
 			window.addEventListener( 'resize', this.debouncedSizeMap );
 		} );
 	}
-	googlePoint2Mapbox( google_point ) {
-		const mapCenter = [
-			google_point.longitude ? google_point.longitude : 0,
-			google_point.latitude ? google_point.latitude : 0,
-		];
-		return mapCenter;
-	}
+	googlePoint2Mapbox = google_point =>
+		google_point.hasOwnProperty( 'lat' ) && google_point.hasOwnProperty( 'lng' )
+			? google_point // Already a valid Mapbox point.
+			: {
+					// Legacy point, supported here to avoid block deprecation.
+					lat: google_point.latitude || 0,
+					lng: google_point.longitude || 0,
+			  };
 }
 
 Map.defaultProps = {
@@ -326,6 +340,7 @@ Map.defaultProps = {
 	mapStyle: 'default',
 	zoom: 13,
 	onSetZoom: () => {},
+	onSetMapCenter: () => {},
 	onMapLoaded: () => {},
 	onMarkerClick: () => {},
 	onError: () => {},

@@ -1,0 +1,139 @@
+@import '../../shared/styles/gutenberg-base-styles.scss';
+
+/**
+ * Editor styles for OpenTable
+ */
+
+.wp-block-jetpack-opentable {
+	position: relative;
+
+	.components-base-control {
+		width: 100%;
+	}
+
+	.components-placeholder__fieldset {
+		p {
+			font-size: 13px;
+			margin: 0 0 1em;
+		}
+
+		form {
+			flex-direction: row;
+			@media screen and ( max-width: 479px ) {
+				display: block;
+			}
+
+			.components-form-token-field__label {
+				display: none;
+			}
+
+			p {
+				margin-top: 1em;
+			}
+
+			.components-form-token-field__input-container {
+				width: 100%;
+				@media screen and ( min-width: 480px ) {
+					width: 327px;
+				}
+			}
+
+			.components-button.is-large {
+				// Used to emulate the new Gutenberg styles
+				// TODO: remove once support for < 7.2 is removed
+				padding-bottom: 0px;
+				padding-top: 0px;
+				padding-right: 8px;
+				padding-left: 8px;
+				height: 36px;
+				align-items: center;
+				line-height: normal;
+				// End copied styles
+
+				@media screen and ( min-width: 480px ) {
+					margin: 1px 0 0 4px;
+					position: relative;
+				}
+			}
+		}
+	}
+
+	iframe {
+		height: 100%;
+		width: 100%;
+	}
+
+	&-overlay {
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		z-index: 10;
+	}
+
+	&-theme-standard {
+		height: 301px;
+
+		&.is-multi {
+			height: 361px;
+		}
+	}
+
+	&-theme-tall {
+		height: 490px;
+
+		&.is-multi {
+			height: 550px;
+		}
+	}
+
+	&-theme-wide {
+		height: 350px;
+	}
+
+	&-theme-button {
+		height: 113px;
+	}
+
+	&-restaurant-picker {
+		margin-bottom: 1em;
+		position: relative;
+		width: 100%;
+	}
+
+	&-placeholder-links {
+		display: flex;
+		flex-direction: column;
+		@media screen and ( min-width: 480px ) {
+			display: block;
+		}
+
+		a {
+			padding: 0.25em 1em 0.25em 0;
+			&:last-child {
+				padding-right: 0;
+				padding-left: 1em;
+			}
+		}
+	}
+
+	.editor-styles-wrapper & .components-form-token-field__suggestions-list {
+		font-family: $default-font;
+		text-align: left;
+		padding: 0;
+		margin: 0;
+	}
+}
+
+.components-toggle-control.is-opentable {
+	padding-top: 6px;
+}
+
+.is-opentable {
+	button.is-active {
+		font-weight: bold;
+	}
+}
+
+.block-editor-block-preview__content [data-type='jetpack/opentable'] div[data-block] {
+	display: table;
+}

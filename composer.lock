@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "23a3df0c752fcfb8b0a94250870ae7b9",
+    "content-hash": "9eb6218b5e3e36832a66b69ce23b6882",
     "packages": [
         {
             "name": "automattic/jetpack-abtest",
@@ -158,6 +158,25 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Compatibility layer with previous versions of Jetpack"
+        },
+        {
+            "name": "automattic/jetpack-config",
+            "version": "dev-add/deterministic-init",
+            "dist": {
+                "type": "path",
+                "url": "./packages/config",
+                "reference": "09edd078205d6fee2f8a46eaf0f736fd4ade1473"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Jetpack configuration package that initializes other packages and configures Jetpack's functionality. Can be used as a base for all variants of Jetpack package usage."
         },
         {
             "name": "automattic/jetpack-connection",
@@ -968,6 +987,7 @@
         "automattic/jetpack-autoloader": 20,
         "automattic/jetpack-backup": 20,
         "automattic/jetpack-compat": 20,
+        "automattic/jetpack-config": 20,
         "automattic/jetpack-connection": 20,
         "automattic/jetpack-constants": 20,
         "automattic/jetpack-error": 20,

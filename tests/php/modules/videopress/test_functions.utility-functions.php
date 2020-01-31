@@ -16,7 +16,7 @@ class WP_Test_Jetpack_VideoPress_Utility_Functions extends WP_UnitTestCase {
 	 * Tests the VideoPress Flash to oEmbedable URL filter.
 	 *
 	 * @author kraftbj
-	 * @covers jetpack_videopress_flash_embed_filter
+	 * @covers ::jetpack_videopress_flash_embed_filter
 	 * @since 8.1.0
 	 */
 	public function test_jetpack_videopress_flash_embed_filter_flash() {

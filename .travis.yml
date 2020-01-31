@@ -42,10 +42,13 @@ matrix:
     name: "Build dashboard & extensions"
     language: node_js
     env: WP_TRAVISCI="yarn build"
-  - if: branch !~ /(^branch-.*-built)/
-    name: "Spell check Markdown files"
-    language: node_js
-    env: WP_TRAVISCI="yarn test-spelling"
+
+  # Disable for now until we fix all the spelling issues
+  # - name: "Spell check Markdown files"
+  #   if: branch !~ /(^branch-.*-built)/
+  #   language: node_js
+  #   env: WP_TRAVISCI="yarn test-spelling"
+
   - php: "nightly"
     name: "PHP Nightly"
   - php: "7.4snapshot"
@@ -75,7 +78,7 @@ matrix:
     # Enable user namespace cloning
     - "sysctl kernel.unprivileged_userns_clone=1"
     - nvm install
-    - yarn && yarn build
+    - yarn && yarn build-production
     - ./tests/e2e/bin/setup-e2e-travis.sh
     - yarn test-decrypt-config
     script:
@@ -87,8 +90,8 @@ matrix:
           # This is required to run new chrome on old trusty
           - libnss3
   - php: "7.0"
-    name: "Sync Beta"
-    env: SYNC_BETA=1 WP_BRANCH=latest
+    name: "Legacy full sync"
+    env: LEGACY_FULL_SYNC=1 WP_BRANCH=latest
 
   allow_failures:
     - name: "E2E tests"

@@ -4,6 +4,8 @@ use Automattic\Jetpack\Sync\Modules;
 
 /**
  * Testing sync on Term Relationships
+ *
+ * @group legacy-full-sync
  */
 class WP_Test_Jetpack_Sync_Term_Relationships extends WP_Test_Jetpack_Sync_Base {
 	protected $post_id;
@@ -86,7 +88,7 @@ class WP_Test_Jetpack_Sync_Term_Relationships extends WP_Test_Jetpack_Sync_Base 
 		// Perform a full sync.
 		$this->full_sync->start();
 		$this->sender->do_full_sync();
-		
+
 		$post_terms_after_sync = $this->server_replica_storage->get_the_terms( $this->post_id, $this->taxonomy );
 		$this->assertEquals( 1, count( $post_terms_after_sync ) );
 		$this->assertEquals( $this->taxonomy, $post_terms_after_sync[0]->taxonomy );

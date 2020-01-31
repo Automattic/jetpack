@@ -69,9 +69,9 @@ class MapEdit extends Component {
 		// Allow one cycle for alignment change to take effect
 		setTimeout( this.mapRef.current.sizeMap, 0 );
 	};
-	updateAPIKeyControl = value => {
+	updateAPIKeyControl = event => {
 		this.setState( {
-			apiKeyControl: value,
+			apiKeyControl: event.target.value,
 		} );
 	};
 	updateAPIKey = () => {
@@ -85,27 +85,31 @@ class MapEdit extends Component {
 	};
 	apiCall( serviceApiKey = null, method = 'GET' ) {
 		const { noticeOperations } = this.props;
-		const { apiKey } = this.state;
 		const path = '/wpcom/v2/service-api-keys/mapbox';
 		const fetch = serviceApiKey
 			? { path, method, data: { service_api_key: serviceApiKey } }
 			: { path, method };
 		this.setState( { apiRequestOutstanding: true }, () => {
 			apiFetch( fetch ).then(
-				result => {
+				( { service_api_key: apiKey, service_api_key_source: apiKeySource } ) => {
 					noticeOperations.removeAllNotices();
+
+					const apiState = apiKey ? API_STATE_SUCCESS : API_STATE_FAILURE;
+					const apiKeyControl = 'wpcom' === apiKeySource ? '' : apiKey;
+
 					this.setState( {
-						apiState: result.service_api_key ? API_STATE_SUCCESS : API_STATE_FAILURE,
-						apiKey: result.service_api_key,
-						apiKeyControl: result.service_api_key,
+						apiState,
+						apiKey,
+						apiKeyControl,
+						apiKeySource,
 						apiRequestOutstanding: false,
 					} );
 				},
-				result => {
-					this.onError( null, result.message );
+				( { message } ) => {
+					this.onError( null, message );
 					this.setState( {
+						apiState: API_STATE_FAILURE,
 						apiRequestOutstanding: false,
-						apiKeyControl: apiKey,
 					} );
 				}
 			);
@@ -135,6 +139,7 @@ class MapEdit extends Component {
 			addPointVisibility,
 			apiKey,
 			apiKeyControl,
+			apiKeySource,
 			apiState,
 			apiRequestOutstanding,
 		} = this.state;
@@ -188,21 +193,23 @@ class MapEdit extends Component {
 							/>
 						</PanelBody>
 					) : null }
-					<PanelBody title={ __( 'Mapbox Access Token', 'jetpack' ) } initialOpen={ false }>
-						<TextControl
-							label={ __( 'Mapbox Access Token', 'jetpack' ) }
-							value={ apiKeyControl }
-							onChange={ value => this.setState( { apiKeyControl: value } ) }
-						/>
-						<ButtonGroup>
-							<Button type="button" onClick={ this.updateAPIKey } isDefault>
-								{ __( 'Update Token', 'jetpack' ) }
-							</Button>
-							<Button type="button" onClick={ this.removeAPIKey } isDefault>
-								{ __( 'Remove Token', 'jetpack' ) }
-							</Button>
-						</ButtonGroup>
-					</PanelBody>
+					{ 'wpcom' !== apiKeySource && (
+						<PanelBody title={ __( 'Mapbox Access Token', 'jetpack' ) } initialOpen={ false }>
+							<TextControl
+								label={ __( 'Mapbox Access Token', 'jetpack' ) }
+								value={ apiKeyControl }
+								onChange={ value => this.setState( { apiKeyControl: value } ) }
+							/>
+							<ButtonGroup>
+								<Button type="button" onClick={ this.updateAPIKey } isDefault>
+									{ __( 'Update Token', 'jetpack' ) }
+								</Button>
+								<Button type="button" onClick={ this.removeAPIKey } isDefault>
+									{ __( 'Remove Token', 'jetpack' ) }
+								</Button>
+							</ButtonGroup>
+						</PanelBody>
+					) }
 				</InspectorControls>
 			</Fragment>
 		);
@@ -211,36 +218,47 @@ class MapEdit extends Component {
 				<Spinner />
 			</Placeholder>
 		);
+
+		const instructions = (
+			<Fragment>
+				{ __( 'To use the map block, you need an Access Token.', 'jetpack' ) }
+				<br />
+				<ExternalLink href="https://www.mapbox.com">
+					{ __( 'Create an account or log in to Mapbox.', 'jetpack' ) }
+				</ExternalLink>
+				<br />
+				{ __(
+					'Locate and copy the default access token. Then, paste it into the field below.',
+					'jetpack'
+				) }
+			</Fragment>
+		);
 		const placeholderAPIStateFailure = (
-			<Placeholder icon={ settings.icon } label={ __( 'Map', 'jetpack' ) } notices={ notices }>
+			<Placeholder
+				icon={ settings.icon }
+				label={ __( 'Map', 'jetpack' ) }
+				notices={ notices }
+				instructions={ instructions }
+			>
 				<Fragment>
-					<div className="components-placeholder__instructions">
-						{ __( 'To use the map block, you need an Access Token.', 'jetpack' ) }
-						<br />
-						<ExternalLink href="https://www.mapbox.com">
-							{ __( 'Create an account or log in to Mapbox.', 'jetpack' ) }
-						</ExternalLink>
-						<br />
-						{ __(
-							'Locate and copy the default access token. Then, paste it into the field below.',
-							'jetpack'
-						) }
-					</div>
-					<TextControl
-						className="wp-block-jetpack-map-components-text-control-api-key"
-						disabled={ apiRequestOutstanding }
-						placeholder={ __( 'Paste Token Here', 'jetpack' ) }
-						value={ apiKeyControl }
-						onChange={ this.updateAPIKeyControl }
-					/>
-					<Button
-						className="wp-block-jetpack-map-components-text-control-api-key-submit"
-						isLarge
-						disabled={ apiRequestOutstanding || ! apiKeyControl || apiKeyControl.length < 1 }
-						onClick={ this.updateAPIKey }
-					>
-						{ __( 'Set Token', 'jetpack' ) }
-					</Button>
+					<form>
+						<input
+							type="text"
+							className="components-placeholder__input"
+							disabled={ apiRequestOutstanding }
+							placeholder={ __( 'Paste Token Here', 'jetpack' ) }
+							value={ apiKeyControl }
+							onChange={ this.updateAPIKeyControl }
+						/>
+						<Button
+							isLarge
+							isSecondary
+							disabled={ apiRequestOutstanding || ! apiKeyControl || apiKeyControl.length < 1 }
+							onClick={ this.updateAPIKey }
+						>
+							{ __( 'Set Token', 'jetpack' ) }
+						</Button>
+					</form>
 				</Fragment>
 			</Placeholder>
 		);
@@ -262,6 +280,7 @@ class MapEdit extends Component {
 						admin={ true }
 						apiKey={ apiKey }
 						onSetPoints={ value => setAttributes( { points: value } ) }
+						onSetMapCenter={ value => setAttributes( { mapCenter: value } ) }
 						onMapLoaded={ () => this.setState( { addPointVisibility: true } ) }
 						onMarkerClick={ () => this.setState( { addPointVisibility: false } ) }
 						onError={ this.onError }

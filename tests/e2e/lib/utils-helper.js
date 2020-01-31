@@ -28,7 +28,7 @@ export function execSyncShellCommand( cmd ) {
 export function getNgrokSiteUrl() {
 	const cmd =
 		'echo $(curl -s localhost:4040/api/tunnels/command_line | jq --raw-output .public_url)';
-	return execSyncShellCommand( cmd );
+	return execSyncShellCommand( cmd ).trim();
 }
 
 export async function resetWordpressInstall() {
@@ -64,15 +64,38 @@ export function provisionJetpackStartConnection( plan = 'professional', user = '
 }
 
 /**
- * Runs wp cli command to activate jetpack module
+ * Runs wp cli command to activate jetpack module, also checks if the module is available in the list of active modules.
+ * @param {Page} page Puppeteer page object
  * @param {string} module Jetpack module name
  */
-export async function activateModule( module ) {
+export async function activateModule( page, module ) {
+	await page.waitFor( 1000 );
+
 	const cliCmd = `wp jetpack module activate ${ module }`;
-	let cmd = `./tests/e2e/docker/whatever.sh cli "${ cliCmd }"`;
-	if ( process.env.CI ) {
-		cmd = `${ cliCmd } --path="/home/travis/wordpress"`;
+	const activeModulesCmd = 'wp option get jetpack_active_modules --format=json';
+	await execWpCommand( cliCmd );
+
+	const modulesList = JSON.parse( await execWpCommand( activeModulesCmd ) );
+
+	if ( ! modulesList.includes( module ) ) {
+		throw new Error( `${ module } is failed to activate` );
 	}
 
-	await execShellCommand( cmd );
+	return true;
+}
+
+export async function execWpCommand( wpCmd, suffix = null ) {
+	// NOTE: Uncommited cli for dockerized local dev environment. Will update once dockerized PR is merged.
+	let cmd = `./tests/e2e/docker/whatever.sh cli "${ wpCmd }"`;
+	if ( process.env.CI ) {
+		cmd = `${ wpCmd } --path="/home/travis/wordpress"`;
+	}
+
+	if ( suffix ) {
+		cmd = cmd + suffix;
+	}
+
+	console.log( 'execWpCommand', cmd );
+
+	return await execShellCommand( cmd );
 }

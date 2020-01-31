@@ -70,7 +70,6 @@ class Listener {
 	 * This is necessary because you can't use "new" when you declare instance properties >:(
 	 */
 	protected function __construct() {
-		Main::init();
 		$this->set_defaults();
 		$this->init();
 	}

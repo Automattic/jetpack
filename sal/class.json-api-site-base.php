@@ -419,6 +419,16 @@ abstract class SAL_Site {
 			'upload_files'        => current_user_can( 'upload_files' ),
 			'delete_users'        => current_user_can( 'delete_users' ),
 			'remove_users'        => current_user_can( 'remove_users' ),
+			/**
+		 	 * Filter whether the Hosting section in Calypso should be available for site.
+			 *
+			 * @module json-api
+			 *
+			 * @since 8.2.0
+			 *
+			 * @param bool $view_hosting Can site access Hosting section. Default to false.
+			 */
+			'view_hosting'        => apply_filters( 'jetpack_json_api_site_can_view_hosting', false ),
 			'view_stats'          => stats_is_blog_user( $this->blog_id )
 		);
 	}

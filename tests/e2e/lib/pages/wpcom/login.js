@@ -35,7 +35,8 @@ export default class LoginPage extends Page {
 		await waitAndType( this.page, passwordSelector, password );
 		await waitAndClick( this.page, submitButtonSelector );
 
-		await waitForSelector( this.page, passwordSelector, { hidden: true, timeout: 60000 } );
+		// NOTE: here we waiting for the redirect. For some reason it might take quite some time
+		await waitForSelector( this.page, passwordSelector, { hidden: true, timeout: 90000 } );
 		await this.page.waitForNavigation( { waitFor: 'networkidle2' } );
 	}
 

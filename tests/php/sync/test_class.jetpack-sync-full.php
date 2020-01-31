@@ -5,6 +5,11 @@ use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Modules\Full_Sync;
 use Automattic\Jetpack\Sync\Settings;
 
+/**
+ * Testing Jetpack's full sync module prior to 8.2 release.
+ *
+ * @group legacy-full-sync
+ */
 class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	private $full_sync;
 

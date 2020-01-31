@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Sync;
 
+use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Constants;
 
 /**
@@ -199,7 +200,8 @@ class Sender {
 	 * @access public
 	 */
 	public function maybe_set_user_from_token() {
-		$verified_user = \Jetpack::connection()->verify_xml_rpc_signature();
+		$connection    = new Manager();
+		$verified_user = $connection->verify_xml_rpc_signature();
 		if ( Constants::is_true( 'XMLRPC_REQUEST' ) &&
 			! is_wp_error( $verified_user )
 			&& $verified_user
@@ -565,7 +567,7 @@ class Sender {
 	 */
 	private function create_action_to_send( $action_name, $data ) {
 		return array(
-			microtime( true ) => array(
+			(string) microtime( true ) => array(
 				$action_name,
 				$data,
 				get_current_user_id(),
