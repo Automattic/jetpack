@@ -12,7 +12,10 @@
 	}
 }
 
-.block-editor-block-preview__content [data-type='jetpack/eventbrite'] div[data-block],
+// Display "table" is used because the button container should only wrap the content and not take the full width.
+// Both selector rules needed because the block wrapper used in Gutenberg was removed in v7.3
+// @link https://github.com/WordPress/gutenberg/pull/19593
+.block-editor-block-preview__content [data-type='jetpack/eventbrite'] [data-block],
 .block-editor-block-preview__content [data-type='jetpack/eventbrite'][data-block] {
 	display: table;
 }
