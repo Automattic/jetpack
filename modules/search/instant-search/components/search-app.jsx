@@ -69,7 +69,7 @@ class SearchApp extends Component {
 	addEventListeners() {
 		bindCustomizerChanges( this.handleOverlayOptionsUpdate );
 
-		window.addEventListener( 'popstate', this.onChangeQueryString );
+		window.addEventListener( 'popstate', this.onPopstate );
 		window.addEventListener( 'queryStringChange', this.onChangeQueryString );
 
 		document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( input => {
@@ -87,7 +87,7 @@ class SearchApp extends Component {
 	}
 
 	removeEventListeners() {
-		window.removeEventListener( 'popstate', this.onChangeQueryString );
+		window.removeEventListener( 'popstate', this.onPopstate );
 		window.removeEventListener( 'queryStringChange', this.onChangeQueryString );
 
 		document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( input => {
@@ -155,12 +155,18 @@ class SearchApp extends Component {
 		this.preventBodyScroll();
 	};
 	hideResults = () => {
-		this.setState( { showResults: false } );
 		this.restoreBodyScroll();
-		restorePreviousHref( this.props.initialHref );
+		restorePreviousHref( this.props.initialHref, () => {
+			this.setState( { showResults: false } );
+		} );
 	};
 
 	onChangeQuery = event => setSearchQuery( event.target.value );
+
+	onPopstate = () => {
+		this.showResults();
+		this.onChangeQueryString();
+	};
 
 	onChangeQueryString = () => {
 		this.getResults();

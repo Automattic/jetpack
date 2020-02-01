@@ -22,7 +22,7 @@ function getQuery() {
 	return decode( window.location.search.substring( 1 ) );
 }
 
-function pushQueryString( queryString ) {
+function pushQueryString( queryString, shouldEmitEvent = true ) {
 	if ( history.pushState ) {
 		const url = new window.URL( window.location.href );
 		if ( window[ SERVER_OBJECT_NAME ] && 'homeUrl' in window[ SERVER_OBJECT_NAME ] ) {
@@ -30,7 +30,7 @@ function pushQueryString( queryString ) {
 		}
 		url.search = queryString;
 		window.history.pushState( null, null, url.toString() );
-		window.dispatchEvent( new Event( 'queryStringChange' ) );
+		shouldEmitEvent && window.dispatchEvent( new Event( 'queryStringChange' ) );
 	}
 }
 
@@ -214,9 +214,22 @@ export function getResultFormatQuery() {
 	return RESULT_FORMAT_MINIMAL;
 }
 
-export function restorePreviousHref( initialHref ) {
+export function restorePreviousHref( initialHref, callback ) {
 	if ( history.pushState ) {
 		window.history.pushState( null, null, initialHref );
+
+		const query = getQuery();
+		const keys = [ ...getFilterKeys(), 's' ];
+		// If initialHref has search or filter query values, clear them and reload.
+		if ( Object.keys( query ).some( key => keys.includes( key ) ) ) {
+			keys.forEach( key => delete query[ key ] );
+			pushQueryString( encode( query ), false );
+			window.location.reload( true );
+			return;
+		}
+
+		// Otherwise, invoke the callback and emit a QS change event
+		callback();
 		window.dispatchEvent( new Event( 'queryStringChange' ) );
 	}
 }
