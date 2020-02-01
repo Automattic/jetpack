@@ -134,6 +134,7 @@
 	}
 }
 
-.block-editor-block-preview__content [data-type='jetpack/opentable'] div[data-block] {
+.block-editor-block-preview__content [data-type='jetpack/opentable'] div[data-block],
+.block-editor-block-preview__content [data-type='jetpack/opentable'][data-block] {
 	display: table;
 }

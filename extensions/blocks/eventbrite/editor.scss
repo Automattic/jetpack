@@ -12,7 +12,8 @@
 	}
 }
 
-.block-editor-block-preview__content [data-type='jetpack/eventbrite'] div[data-block] {
+.block-editor-block-preview__content [data-type='jetpack/eventbrite'] div[data-block],
+.block-editor-block-preview__content [data-type='jetpack/eventbrite'][data-block] {
 	display: table;
 }
 
