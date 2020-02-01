@@ -86,5 +86,4 @@ class CustomAutoloaderPlugin implements PluginInterface, EventSubscriberInterfac
 		$generator->dump( $config, $localRepo, $package, $installationManager, 'composer', $optimize, $suffix );
 		$this->generated = true;
 	}
-
 }
