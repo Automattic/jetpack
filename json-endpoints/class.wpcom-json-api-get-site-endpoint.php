@@ -309,11 +309,11 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			case 'user_can_manage' :
 				$response[ $key ] = $this->site->user_can_manage();
 			case 'is_private' :
-				$response[ $key ] = $this->site->is_private();
+				$response[ $key ] = wpcom_is_coming_soon() ? is_private_blog() : $this->site->is_private();
 				break;
 			case 'is_coming_soon' :
 				// This option is stored on wp.com for both simple and atomic sites. @see mu-plugins/private-blog.php
-				$response[ $key ] = $this->site->is_private() && get_option( 'wpcom_coming_soon' );
+				$response[ $key ] = wpcom_is_coming_soon();
 				break;
 			case 'visible' :
 				$response[ $key ] = $this->site->is_visible();
