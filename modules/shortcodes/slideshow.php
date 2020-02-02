@@ -279,14 +279,26 @@ class Jetpack_Slideshow_Shortcode {
 			 * @since 4.7.0 Added the `speed` option to the array of options.
 			 *
 			 * @param array $args
-			 * - string - spinner - URL of the spinner image.
-			 * - string - speed   - Speed of the slideshow. Defaults to 4000.
+			 * - string - spinner        - URL of the spinner image.
+			 * - string - speed          - Speed of the slideshow. Defaults to 4000.
+			 * - string - class_prev     - CSS class for slideshow's previous button
+			 * - string - class_pause    - CSS class for slideshow's pause button
+			 * - string - class_next     - CSS class for slideshow's next button
+			 * - string - label_prev     - Aria label for slideshow's previous button
+			 * - string - label_pause    - Aria label for slideshow's pause button
+			 * - string - label_next     - Aria label for slideshow's next button
 			 */
 			apply_filters(
 				'jetpack_js_slideshow_settings',
 				array(
-					'spinner' => plugins_url( '/img/slideshow-loader.gif', __FILE__ ),
-					'speed'   => '4000',
+					'spinner'     => plugins_url( '/img/slideshow-loader.gif', __FILE__ ),
+					'speed'       => '4000',
+					'class_prev'  => 'classic-jetpack-slideshow_button-previous',
+					'class_pause' => 'classic-jetpack-slideshow_button-pause',
+					'class_next'  => 'classic-jetpack-slideshow_button-next',
+					'label_prev'  => 'Previous Slide',
+					'label_pause' => 'Pause Slideshow',
+					'label_next'  => 'Next Slide',
 				)
 			)
 		);

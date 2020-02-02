@@ -145,18 +145,22 @@ JetpackSlideshow.prototype.renderControls_ = function() {
 		a.href = '#';
 		switch ( i ) {
 			case 0:
-				a.className = 'classic-jetpack-slideshow_button-prev';
-				a.setAttribute( 'aria-label', 'Previous Slide' );
+				a.className = jetpackSlideshowSettings.class_prev;
+				a.setAttribute( 'aria-label', jetpackSlideshowSettings.label_prev );
+				// a.className = 'classic-jetpack-slideshow_button-prev';
+				// a.setAttribute( 'aria-label', 'Previous Slide' );
 				break;
 
 			case 1:
-				a.className = 'classic-jetpack-slideshow_button-pause';
-				a.setAttribute( 'aria-label', 'Pause Slideshow' );
+				a.className = jetpackSlideshowSettings.class_pause;
+				a.setAttribute( 'aria-label', jetpackSlideshowSettings.label_pause );
+				// a.className = 'classic-jetpack-slideshow_button-pause';
+				// a.setAttribute( 'aria-label', 'Pause Slideshow' );
 				break;
 
 			case 2:
-				a.className = 'classic-jetpack-slideshow_button-next';
-				a.setAttribute( 'aria-label', 'Next Slide' );
+				a.className = jetpackSlideshowSettings.class_next;
+				a.setAttribute( 'aria-label', jetpackSlideshowSettings.label_next );
 				break;
 		}
 		a.setAttribute( 'role', 'button' );
