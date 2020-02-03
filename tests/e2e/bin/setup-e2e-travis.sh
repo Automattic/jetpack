@@ -150,6 +150,10 @@ PHP
 
 	# create a debug.log file
 	touch $WP_CORE_DIR/wp-content/debug.log
+
+	# Install plugins
+	wp plugin install gutenberg --activate
+	wp plugin list
 }
 
 prepare_jetpack() {
@@ -173,8 +177,9 @@ if [ "${1}" == "reset_wp" ]; then
 	wp --path=$WP_CORE_DIR db reset --yes
 	wp --path=$WP_CORE_DIR core install --url="$WP_SITE_URL" --title="E2E Gutenpack blocks" --admin_user=wordpress --admin_password=wordpress --admin_email=wordpress@example.com
 	wp --path=$WP_CORE_DIR plugin activate jetpack
+	wp --path=$WP_CORE_DIR plugin activate gutenberg
 	wp --path=$WP_CORE_DIR plugin activate e2e-plan-data-interceptor.php
-
+	wp plugin list
 
 	# create a debug.log file
 	touch $WP_CORE_DIR/wp-content/debug.log
