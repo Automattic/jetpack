@@ -1,4 +1,13 @@
 .wp-block-jetpack-eventbrite {
+	// Make sure the widget embed container is always as tall as the
+	// default/minimum value set by Eventbrite (425px).
+	&:not( .wp-block-button ) {
+		height: auto !important;
+		iframe {
+			height: 425px;
+		}
+	}
+
 	a.eventbrite__direct-link {
 		display: none;
 	}
