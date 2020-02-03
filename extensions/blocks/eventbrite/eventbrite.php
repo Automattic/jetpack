@@ -29,7 +29,7 @@ function jetpack_render_eventbrite_block( $attr, $content ) {
 		return '';
 	}
 
-	$widget_id = JETPACK_EVENTBRITE_WIDGET_SLUG . '-' . $attr['eventId'];
+	$widget_id = JETPACK_EVENTBRITE_WIDGET_SLUG . '-' . $attr['blockId'] . '-' . $attr['eventId'];
 
 	wp_enqueue_script( 'eventbrite-widget', 'https://www.eventbrite.com/static/widgets/eb_widgets.js', array(), JETPACK__VERSION, true );
 

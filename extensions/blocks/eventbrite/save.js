@@ -22,6 +22,7 @@ import { createWidgetId } from './utils';
 function saveButton( attributes ) {
 	const {
 		backgroundColor,
+		blockId,
 		borderRadius,
 		customBackgroundColor,
 		customTextColor,
@@ -55,7 +56,7 @@ function saveButton( attributes ) {
 			<RichText.Content
 				className={ buttonClasses }
 				href={ url }
-				id={ createWidgetId( eventId ) }
+				id={ createWidgetId( blockId, eventId ) }
 				rel="noopener noreferrer"
 				role="button"
 				style={ buttonStyle }
@@ -68,7 +69,7 @@ function saveButton( attributes ) {
 }
 
 export default function save( { attributes } ) {
-	const { eventId, useModal, url } = attributes;
+	const { blockId, eventId, useModal, url } = attributes;
 
 	if ( ! eventId ) {
 		return;
@@ -79,7 +80,7 @@ export default function save( { attributes } ) {
 	}
 
 	return (
-		<div id={ createWidgetId( eventId ) }>
+		<div id={ createWidgetId( blockId, eventId ) }>
 			{ url && (
 				<a className="eventbrite__direct-link" href={ url }>
 					{ url }

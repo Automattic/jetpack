@@ -47,7 +47,16 @@ class EventbriteEdit extends Component {
 	};
 
 	componentDidMount() {
+		const { attributes, clientId, setAttributes } = this.props;
 		const { resolvingUrl } = this.state;
+
+		// Use the block's clientId to make the widget div more unique.
+		// The `clientId` changes every load while the Eventbrite's `blockId` doesn't,
+		// but it's unique enough (generated with uuid/v4) to be reasonably sure that
+		// there won't be two widgets with the same div ID.
+		if ( ! attributes.blockId ) {
+			setAttributes( { blockId: clientId } );
+		}
 
 		// Check if we need to resolve an Eventbrite URL immediately.
 		if ( resolvingUrl ) {
@@ -299,13 +308,13 @@ class EventbriteEdit extends Component {
 
 	renderInlinePreview() {
 		const { className } = this.props;
-		const { eventId } = this.props.attributes;
+		const { blockId, eventId } = this.props.attributes;
 
 		if ( ! eventId ) {
 			return;
 		}
 
-		const widgetId = createWidgetId( eventId );
+		const widgetId = createWidgetId( blockId, eventId );
 		const html = `
 			<script src="https://www.eventbrite.com/static/widgets/eb_widgets.js"></script>
 			<style>

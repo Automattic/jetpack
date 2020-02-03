@@ -51,6 +51,9 @@ export const settings = {
 		eventId: {
 			type: 'number',
 		},
+		blockId: {
+			type: 'string',
+		},
 		useModal: {
 			type: 'boolean',
 		},
