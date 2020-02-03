@@ -494,13 +494,13 @@ class Jetpack_Likes_Settings {
 			<td>
 				<div>
 					<label>
-						<input type="radio" class="code" name="wpl_default" value="on" <?php checked( $this->is_enabled_sitewide(), true ); ?> />
+						<input type="radio" class="code" name="wpl_default" value=true <?php checked( $this->is_enabled_sitewide(), true ); ?> />
 						<?php esc_html_e( 'On for all posts', 'jetpack' ); ?>
 					</label>
 				</div>
 				<div>
 					<label>
-						<input type="radio" class="code" name="wpl_default" value="off" <?php checked( $this->is_enabled_sitewide(), false ); ?> />
+						<input type="radio" class="code" name="wpl_default" value="false" <?php checked( $this->is_enabled_sitewide(), false ); ?> />
 						<?php esc_html_e( 'Turned on per post', 'jetpack' ); ?>
 					</label>
 					<div>
@@ -514,13 +514,13 @@ class Jetpack_Likes_Settings {
 				<td>
 					<div>
 						<label>
-							<input type="radio" class="code" name="jetpack_reblogs_enabled" value="on" <?php checked( $this->reblogs_enabled_sitewide(), true ); ?> />
+							<input type="radio" class="code" name="jetpack_reblogs_enabled" value="true" <?php checked( $this->reblogs_enabled_sitewide(), true ); ?> />
 							<?php esc_html_e( 'Show the Reblog button on posts', 'jetpack' ); ?>
 						</label>
 					</div>
 					<div>
 						<label>
-							<input type="radio" class="code" name="jetpack_reblogs_enabled" value="off" <?php checked( $this->reblogs_enabled_sitewide(), false ); ?> />
+							<input type="radio" class="code" name="jetpack_reblogs_enabled" value="false" <?php checked( $this->reblogs_enabled_sitewide(), false ); ?> />
 							<?php esc_html_e( 'Don\'t show the Reblog button on posts', 'jetpack' ); ?>
 						</label>
 					</div>
@@ -567,7 +567,7 @@ class Jetpack_Likes_Settings {
 
 	/**
 	 * Used for WPCOM ONLY. Comment likes are in their own module in Jetpack.
-	 * Returns if comment likes are enabled. Defaults to 'off'
+	 * Returns if comment likes are enabled. Defaults to 'false'
 	 * @return boolean true if we should show comment likes, false if not
 	 */
 	function is_comments_enabled() {
@@ -599,13 +599,13 @@ class Jetpack_Likes_Settings {
 
 		// Checked (enabled)
 		switch( $new_state ) {
-			case 'off' :
+			case 'false':
 				if ( true == $db_state && ! $this->in_jetpack ) {
 					$g_gif = file_get_contents( 'https://pixel.wp.com/g.gif?v=wpcom-no-pv&x_likes=disabled_likes' );
 				}
 				update_option( 'disabled_likes', 1 );
 				break;
-			case 'on'  :
+			case 'true':
 			default:
 				if ( false == $db_state && ! $this->in_jetpack ) {
 					$g_gif = file_get_contents( 'https://pixel.wp.com/g.gif?v=wpcom-no-pv&x_likes=reenabled_likes' );
@@ -615,13 +615,13 @@ class Jetpack_Likes_Settings {
 		}
 
 		switch( $reblogs_new_state ) {
-			case 'off' :
+			case 'false':
 				if ( true == $reblogs_db_state && ! $this->in_jetpack ) {
 					$g_gif = file_get_contents( 'https://pixel.wp.com/g.gif?v=wpcom-no-pv&x_reblogs=disabled_reblogs' );
 				}
 				update_option( 'disabled_reblogs', 1 );
 				break;
-			case 'on'  :
+			case 'true':
 			default:
 				if ( false == $reblogs_db_state && ! $this->in_jetpack ) {
 					$g_gif = file_get_contents( 'https://pixel.wp.com/g.gif?v=wpcom-no-pv&x_reblogs=reenabled_reblogs' );
