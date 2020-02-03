@@ -4,6 +4,8 @@ Let's talk to wordpress.com!
 
 ## Get Started 
 
+Package is published in [Packagist](https://packagist.org/packages/automattic/jetpack-connection). We recommend using the latest version there, or you can also test with the latest development versions like below:
+
 ```
 "require": {
     "automattic/jetpack-autoloader": "dev-master",
