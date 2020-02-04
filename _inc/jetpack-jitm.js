@@ -62,12 +62,14 @@ jQuery( document ).ready( function( $ ) {
 					ctaClasses += ' is-primary';
 				}
 
+				var hasClickHandler = envelope.CTA.has_click_handler === true;
+
 				html += '<div class="jitm-banner__action">';
 				html +=
 					'<a href="' +
-					( envelope.CTA.ajax ? '#' : envelope.url ) +
+					( hasClickHandler ? '#' : envelope.url ) +
 					'" target="' +
-					( envelope.CTA.newWindow === false || envelope.CTA.ajax ? '_self' : '_blank' ) +
+					( envelope.CTA.newWindow === false || hasClickHandler ? '_self' : '_blank' ) +
 					'" rel="noopener noreferrer" title="' +
 					envelope.CTA.message +
 					'" data-module="' +
@@ -77,7 +79,7 @@ jQuery( document ).ready( function( $ ) {
 					'" data-jptracks-name="nudge_click" data-jptracks-prop="jitm-' +
 					envelope.id +
 					'" ' +
-					( envelope.CTA.ajax ? 'data-ajax="' + envelope.CTA.ajax + '"' : '' ) +
+					( hasClickHandler ? 'data-click' : '' ) +
 					'>' +
 					envelope.CTA.message +
 					'</a>';
@@ -179,13 +181,19 @@ jQuery( document ).ready( function( $ ) {
 			} );
 		} );
 
-		// Handle Ajax actions.
-		$template.find( '.jitm-button[data-ajax]' ).click( function( e ) {
+		// Handle CTA click events.
+		$template.find( '.jitm-button[data-click][data-module="tos"]' ).click( function( e ) {
 			e.preventDefault();
-			$.post( window.ajaxurl, { action: $( this ).data( 'ajax' ) } ).always( function() {
-				// Hide JITM
-				$template.fadeOut( 'slow' );
-			} );
+			$( this ).attr( 'disabled', true );
+			$.post( window.ajaxurl, {
+				action: 'jetpack_accept_tos',
+			} )
+				.done( function() {
+					$template.fadeOut( 'slow' );
+				} )
+				.fail( function() {
+					$( this ).attr( 'disabled', false );
+				} );
 		} );
 	};
 
