@@ -277,7 +277,7 @@ class JetpackContactForm extends Component {
 									) }
 								</div>
 								<div className="jetpack-contact-form__create">
-									<Button isDefault type="submit" disabled={ this.hasEmailError() }>
+									<Button isLarge isSecondary type="submit" disabled={ this.hasEmailError() }>
 										{ __( 'Add form', 'jetpack' ) }
 									</Button>
 								</div>
