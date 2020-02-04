@@ -311,15 +311,20 @@ class WPCOM_REST_API_V2_Endpoint_Service_API_Keys extends WP_REST_Controller {
 			return self::format_api_key( $cached_token, 'wpcom' );
 		}
 
-		// Otherwise retrieve a WordPress.com token.
-		$request_url = 'https://public-api.wordpress.com/wpcom/v2/sites/' . $site_id . '/mapbox';
-		$response    = wp_remote_get( esc_url_raw( $request_url ) );
-		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			return self::format_api_key();
-		}
+		// On WordPress.com, return the access token straight away if available.
+		if ( self::is_wpcom() && defined( 'WPCOM_MAPBOX_ACCESS_TOKEN' ) ) {
+			$wpcom_mapbox_access_token = WPCOM_MAPBOX_ACCESS_TOKEN;
+		} else {
+			// Otherwise get it from the endpoint.
+			$request_url = 'https://public-api.wordpress.com/wpcom/v2/sites/' . $site_id . '/mapbox';
+			$response    = wp_remote_get( esc_url_raw( $request_url ) );
+			if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+				return self::format_api_key();
+			}
 
-		$response_body             = json_decode( wp_remote_retrieve_body( $response ) );
-		$wpcom_mapbox_access_token = $response_body->wpcom_mapbox_access_token;
+			$response_body             = json_decode( wp_remote_retrieve_body( $response ) );
+			$wpcom_mapbox_access_token = $response_body->wpcom_mapbox_access_token;
+		}
 
 		set_transient( $transient_key, $wpcom_mapbox_access_token, HOUR_IN_SECONDS );
 		return self::format_api_key( $wpcom_mapbox_access_token, 'wpcom' );
