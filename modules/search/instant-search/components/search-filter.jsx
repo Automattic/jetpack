@@ -25,6 +25,15 @@ function getDateOptions( interval ) {
 	return { year: 'numeric', month: 'long' };
 }
 
+// TODO: Fix this in the API
+// TODO: Remove once format is fixed in the API
+function fixDateFormat( dateString ) {
+	if ( dateString[ dateString.length - 1 ] !== 'Z' ) {
+		dateString += 'Z';
+	}
+	return dateString.split( ' ' ).join( 'T' );
+}
+
 export default class SearchFilter extends Component {
 	filtersList = createRef();
 	idPrefix = uniqueId( 'jetpack-instant-search__filter-' );
@@ -65,7 +74,7 @@ export default class SearchFilter extends Component {
 					htmlFor={ `${ this.idPrefix }-dates-${ this.getIdentifier() }-${ key }` }
 					className="jetpack-instant-search__filter-list-label"
 				>
-					{ new Date( key ).toLocaleString(
+					{ new Date( fixDateFormat( key ) ).toLocaleString(
 						locale,
 						getDateOptions( this.props.configuration.interval )
 					) }{' '}
