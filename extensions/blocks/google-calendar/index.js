@@ -66,6 +66,21 @@ export const settings = {
 	transforms: {
 		from: [
 			{
+				type: 'shortcode',
+				tag: 'googleapps',
+				isMatch: function( attributes ) {
+					return attributes.named.domain === 'calendar';
+				},
+				attributes: {
+					url: {
+						type: 'string',
+						shortcode: ( { named: { domain, dir, query } } ) => {
+							return `https://${ domain }.google.com/${ dir }?${ query }`;
+						},
+					},
+				},
+			},
+			{
 				type: 'raw',
 				isMatch: node => node.nodeName === 'P' && URL_REGEX.test( node.textContent ),
 				transform: node => {
