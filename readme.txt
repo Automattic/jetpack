@@ -113,6 +113,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Dashboard: display a notice when a site uses conflicting plans.
 * Map Block: improve the calculation and persistence of maps' center points.
 * Map Block: improve the generation of an access token on WordPress.com sites.
+* Map Block: update Mapbox GL library to opt into map load based billing.
 * Shortcodes: add new Vimeo shortcode format.
 * Subscriptions: display a clear error message when you try to subscribe to a site where you've already subscribed but did not validate your subscription.
 * Subscriptions: display a clear message when an email having many pending confirmations tries to subscribe to a site.
@@ -122,6 +123,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Connnection Flow: ongoing work to improve the reliability of the connection between your site and WordPress.com.
 * Connection Flow: improve detection of hosting environments for better communication with WordPress.com.
+* General: avoid any login issues when using other plugins that may interact with cookies on your site.
 * Gutenberg: avoid any layout issues that may appear in the block editor when using the latest version of the Gutenberg plugin.
 * Related Posts: ensure that any filters customizing the display of Related Posts also apply to posts displayed with the AMP plugin.
 * Sharing: do not output Jetpack's Open Graph Meta Tags if the Complete Open Graph plugin is present on your site.

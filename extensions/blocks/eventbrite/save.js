@@ -15,29 +15,20 @@ import { createWidgetId } from './utils';
  *
  * @see https://github.com/WordPress/gutenberg/blob/wp/5.3/packages/block-library/src/button/save.js
  *
- * Uses a "button" element rather than "a", since the button opens a modal rather than a link.
- */
-
-/**
- * Adapted button save function from @wordpress/block-library
- * (Using Gutenberg code that shipped with WordPress 5.3)
- *
- * @see https://github.com/WordPress/gutenberg/blob/wp/5.3/packages/block-library/src/button/save.js
- *
  * Uses a "button" element rather than "a", since the button opens a modal rather than
  * an external link.
- *
- * @todo Remove this once WordPress 5.3 is Jetpack's minimum version.
  */
 
-function saveButton( eventId, attributes ) {
+function saveButton( attributes ) {
 	const {
 		backgroundColor,
 		borderRadius,
 		customBackgroundColor,
 		customTextColor,
+		eventId,
 		text,
 		textColor,
+		url,
 	} = attributes;
 
 	const textClass = getColorClassName( 'color', textColor );
@@ -57,30 +48,43 @@ function saveButton( eventId, attributes ) {
 		borderRadius: borderRadius ? borderRadius + 'px' : undefined,
 	};
 
+	// Saves link markup, but event handlers are added with inline javascript to prevent
+	// default link behavior (see the `jetpack_render_eventbrite_block` php function).
 	return (
-		<div>
+		<div className="wp-block-button">
 			<RichText.Content
-				id={ createWidgetId( eventId ) }
-				tagName="button"
 				className={ buttonClasses }
+				href={ url }
+				id={ createWidgetId( eventId ) }
+				rel="noopener noreferrer"
+				role="button"
 				style={ buttonStyle }
+				tagName="a"
+				target="_blank"
 				value={ text }
-				type="button"
 			/>
 		</div>
 	);
 }
 
 export default function save( { attributes } ) {
-	const { eventId, useModal } = attributes;
+	const { eventId, useModal, url } = attributes;
 
 	if ( ! eventId ) {
 		return;
 	}
 
 	if ( useModal ) {
-		return saveButton( eventId, attributes );
+		return saveButton( attributes );
 	}
 
-	return <div id={ createWidgetId( eventId ) } />;
+	return (
+		<div id={ createWidgetId( eventId ) }>
+			{ url && (
+				<a className="eventbrite__direct-link" href={ url }>
+					{ url }
+				</a>
+			) }
+		</div>
+	);
 }

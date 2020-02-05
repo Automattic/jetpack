@@ -7,7 +7,6 @@
 .wp-block-jetpack-opentable {
 	position: relative;
 
-
 	.components-base-control {
 		width: 100%;
 	}
@@ -20,7 +19,7 @@
 
 		form {
 			flex-direction: row;
-			@media screen and (max-width: 479px) {
+			@media screen and ( max-width: 479px ) {
 				display: block;
 			}
 
@@ -34,7 +33,7 @@
 
 			.components-form-token-field__input-container {
 				width: 100%;
-				@media screen and (min-width: 480px) {
+				@media screen and ( min-width: 480px ) {
 					width: 327px;
 				}
 			}
@@ -51,7 +50,7 @@
 				line-height: normal;
 				// End copied styles
 
-				@media screen and (min-width: 480px) {
+				@media screen and ( min-width: 480px ) {
 					margin: 1px 0 0 4px;
 					position: relative;
 				}
@@ -104,7 +103,7 @@
 	&-placeholder-links {
 		display: flex;
 		flex-direction: column;
-		@media screen and (min-width: 480px) {
+		@media screen and ( min-width: 480px ) {
 			display: block;
 		}
 
@@ -123,34 +122,18 @@
 		padding: 0;
 		margin: 0;
 	}
-
 }
 
-.components-toggle-control.is-opentable ,
-.block-editor-block-styles__item.is-opentable {
+.components-toggle-control.is-opentable {
 	padding-top: 6px;
 }
 
-
-.block-editor-block-styles__item-preview.is-opentable {
-	height: 100px;
-	margin-top: 0;
-	padding-top: 0;
-	position: relative;
-
-	> iframe {
-		transform-origin: 0 0;
-		transform: scale( 0.7 );
-		width: 143%;
-		height: 143%;
-		position: absolute;
-		z-index: 1;
-		overflow: hidden;
+.is-opentable {
+	button.is-active {
+		font-weight: bold;
 	}
 }
 
-.is-opentable {
-	.is-active {
-		font-weight: bold;
-	}
+.block-editor-block-preview__content [data-type='jetpack/opentable'] div[data-block] {
+	display: table;
 }
