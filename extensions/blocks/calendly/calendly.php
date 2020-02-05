@@ -79,6 +79,8 @@ add_action( 'init', 'Jetpack\Calendly_Block\set_availability' );
  * @return string
  */
 function load_assets( $attr, $content ) {
+	static $block_num = 0;
+	$block_num++;
 	$url = get_attribute( $attr, 'url' );
 	if ( empty( $url ) ) {
 		return;
