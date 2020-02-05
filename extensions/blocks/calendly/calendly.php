@@ -79,6 +79,8 @@ add_action( 'init', 'Jetpack\Calendly_Block\set_availability' );
  * @return string
  */
 function load_assets( $attr, $content ) {
+	static $block_num = 0;
+	$block_num++;
 	$url = get_attribute( $attr, 'url' );
 	if ( empty( $url ) ) {
 		return;
@@ -93,7 +95,7 @@ function load_assets( $attr, $content ) {
 		'https://assets.calendly.com/assets/external/widget.js',
 		null,
 		JETPACK__VERSION,
-		false
+		true
 	);
 
 	$style                          = get_attribute( $attr, 'style' );
@@ -150,10 +152,18 @@ function load_assets( $attr, $content ) {
 		);
 	} else { // Inline style.
 		$content = sprintf(
-			'<div class="calendly-inline-widget %1$s" data-url="%2$s" style="min-width:320px;height:630px;"></div>',
+			'<div class="%1$s" id="calendly-block-%2$d"></div>',
 			esc_attr( $classes ),
-			esc_url( $url )
+			$block_num
 		);
+		$script  = <<<JS_END
+Calendly.initInlineWidget({
+	url: '%s',
+	parentElement: document.getElementById('calendly-block-%d'),
+	inlineStyles: false,
+});
+JS_END;
+		wp_add_inline_script( 'jetpack-calendly-external-js', sprintf( $script, esc_url( $url ), $block_num ) );
 	}
 
 	return $content;
