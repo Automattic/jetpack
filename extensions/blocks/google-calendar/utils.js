@@ -1,11 +1,4 @@
 /**
- * External dependencies
- */
-// import { getPath } from '@wordpress/url';
-// import { renderToString } from '@wordpress/element';
-// import { createBlock } from '@wordpress/blocks';
-
-/**
  * Internal dependencies
  */
 import { URL_REGEX, IFRAME_REGEX } from '.';
@@ -37,6 +30,7 @@ export function extractAttributesFromIframe( html ) {
 			attributes[ attr_match[ 1 ] ] = attr_match[ 3 ];
 		}
 	} );
+
 	return {
 		url: attributes.url,
 		width: attributes.width,

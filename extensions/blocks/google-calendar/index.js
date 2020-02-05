@@ -10,6 +10,7 @@ import { createBlock } from '@wordpress/blocks';
  */
 import edit from './edit';
 import { extractAttributesFromIframe } from './utils';
+import './editor.scss';
 
 const url_regex_string = 's*https?://calendar.google.com/';
 export const URL_REGEX = new RegExp( `^${ url_regex_string }`, 'i' );

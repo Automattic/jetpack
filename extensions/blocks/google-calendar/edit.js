@@ -3,14 +3,23 @@
  */
 import { __, _x } from '@wordpress/i18n';
 import { Component } from '@wordpress/element';
-import { Placeholder, SandBox, Button, IconButton, Toolbar } from '@wordpress/components';
+import {
+	Placeholder,
+	SandBox,
+	Button,
+	IconButton,
+	Toolbar,
+	Notice,
+	ExternalLink,
+} from '@wordpress/components';
 import { BlockControls, BlockIcon } from '@wordpress/editor';
 
 /**
  * Internal dependencies
  */
-import { icon } from '.';
+import { icon, IFRAME_REGEX, URL_REGEX } from '.';
 import { isMobile } from '../../../_inc/client/lib/viewport';
+import { extractAttributesFromIframe } from './utils';
 
 class GoogleCalendarEdit extends Component {
 	constructor() {
@@ -20,6 +29,7 @@ class GoogleCalendarEdit extends Component {
 			editedEmbed: this.props.attributes.url || '',
 			editingUrl: false,
 			interactive: false,
+			notice: null,
 		};
 	}
 
@@ -43,15 +53,35 @@ class GoogleCalendarEdit extends Component {
 		this.setState( { interactive: true } );
 	};
 
-	setUrl = event => {
+	setAttributes = event => {
 		if ( event ) {
 			event.preventDefault();
 		}
+		const { editedEmbed: embedString } = this.state;
+		let attributes;
 
-		const { editedEmbed: url } = this.state;
+		if ( IFRAME_REGEX.test( embedString ) ) {
+			attributes = extractAttributesFromIframe( embedString );
+		} else {
+			attributes = { url: embedString };
+		}
 
-		this.props.setAttributes( { url } );
-		this.setState( { editingUrl: false } );
+		if ( ! URL_REGEX.test( attributes.url ) ) {
+			this.setErrorNotice();
+			return;
+		}
+
+		this.props.setAttributes( attributes );
+		this.setState( { editingUrl: false, notice: null } );
+	};
+
+	setErrorNotice = () => {
+		this.setState( {
+			notice: __(
+				"Your calendar couldn't be embedded. Please double check your URL or code.",
+				'jetpack'
+			),
+		} );
 	};
 
 	/**
@@ -68,6 +98,11 @@ class GoogleCalendarEdit extends Component {
 
 		const html = `<iframe src="${ url }" style="border:0" scrolling="no" frameborder="0" width="100%" height=${ height }></iframe>`;
 
+		const permissionsLink = (
+			<ExternalLink href="https://en.support.wordpress.com/google-calendar/">
+				{ __( 'Enable Permissions for the calender you want to share', 'jetpack' ) }
+			</ExternalLink>
+		);
 		const controls = (
 			<BlockControls>
 				<Toolbar>
@@ -86,19 +121,36 @@ class GoogleCalendarEdit extends Component {
 				<div className={ className }>
 					{ controls }
 					<Placeholder
+						className="wp-block-jetpack-google-calendar"
 						label={ __( 'Google Calendar', 'jetpack' ) }
 						icon={ <BlockIcon icon={ icon } /> }
+						notices={
+							this.state.notice && (
+								<Notice status="error" isDismissible={ false }>
+									{ this.state.notice }
+								</Notice>
+							)
+						}
 					>
-						<form onSubmit={ this.setUrl }>
+						<p>
+							{ __( 'Step 1)', 'jetpack' ) } { permissionsLink }
+						</p>
+						<p>
+							{ __(
+								'Step 2) Paste the embed code you copied from your Google Calendar below',
+								'jetpack'
+							) }
+						</p>
+						<form onSubmit={ this.setAttributes }>
 							<input
 								type="text"
 								value={ editedEmbed }
 								className="components-placeholder__input"
 								aria-label={ __( 'Google Calendar URL or iframe', 'jetpack' ) }
 								placeholder={ __( 'Enter URL or iframe to embed here…', 'jetpack' ) }
-								onChange={ event => this.setState( { editedEmbed: event.target.value } ) }
+								onChange={ event => this.setState( { editedEmbed: event.target.value.trim() } ) }
 							/>
-							<Button isLarge type="submit">
+							<Button isSecondary isLarge type="submit">
 								{ _x( 'Embed', 'button label', 'jetpack' ) }
 							</Button>
 						</form>
