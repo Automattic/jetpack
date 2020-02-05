@@ -47,11 +47,11 @@ class EventbriteEdit extends Component {
 	};
 
 	componentDidMount() {
-		const { clientId, setAttributes } = this.props;
+		const { setAttributes } = this.props;
 		const { resolvingUrl } = this.state;
 
-		// Use the block's clientId to make the widget div more unique.
-		setAttributes( { blockId: clientId } );
+		// Use a random number to make the widget div more unique.
+		setAttributes( { blockId: ( new Date().getTime() * Math.random() ).toFixed() } );
 
 		// Check if we need to resolve an Eventbrite URL immediately.
 		if ( resolvingUrl ) {
