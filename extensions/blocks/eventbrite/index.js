@@ -35,6 +35,12 @@ export const icon = {
 	foreground: '#555d66',
 };
 
+export const defaultModalButtonText = _x(
+	'Register',
+	'verb: e.g. register for an event.',
+	'jetpack'
+);
+
 export const settings = {
 	title,
 	description: __( 'Embed Eventbrite event details and ticket checkout.', 'jetpack' ),
@@ -97,7 +103,7 @@ export const settings = {
 			url: 'https://www.eventbrite.com/e/test-event-tickets-123456789',
 			eventId: 123456789,
 			useModal: true,
-			text: _x( 'Register', 'verb: e.g. register for an event.', 'jetpack' ),
+			text: defaultModalButtonText,
 		},
 	},
 };
