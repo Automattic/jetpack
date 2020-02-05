@@ -6775,7 +6775,7 @@ endif;
 		<footer>
 
 		<div class="protect">
-			<h4>Jetpack Protect</h4>
+			<h4><?php esc_html_e( 'Jetpack Protect', 'jetpack' ); ?></h4>
 			<?php if ( self::is_module_active( 'protect' ) ) : ?>
 				<h3><?php echo number_format_i18n( get_site_option( 'jetpack_protect_blocked_attempts', 0 ) ); ?></h3>
 				<p><?php echo esc_html_x( 'Blocked malicious login attempts', '{#} Blocked malicious login attempts -- number is on a prior line, text is a caption.', 'jetpack' ); ?></p>
@@ -6803,7 +6803,7 @@ endif;
 		</div>
 
 		<div class="akismet">
-			<h4>Akismet</h4>
+			<h4><?php esc_html_e( 'Akismet', 'jetpack' ); ?></h4>
 			<?php if ( is_plugin_active( 'akismet/akismet.php' ) ) : ?>
 				<h3><?php echo number_format_i18n( get_option( 'akismet_spam_count', 0 ) ); ?></h3>
 				<p><?php echo esc_html_x( 'Blocked spam comments.', '{#} Spam comments blocked by Akismet -- number is on a prior line, text is a caption.', 'jetpack' ); ?></p>
