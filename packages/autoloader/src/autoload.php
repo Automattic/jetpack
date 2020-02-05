@@ -36,6 +36,8 @@ if ( ! function_exists( __NAMESPACE__ . '\enqueue_package_class' ) ) {
 				'version' => $version,
 				'path'    => $path,
 			);
+
+			return;
 		}
 		// If we have a @dev version set always use that one!
 		if ( 'dev-' === substr( $jetpack_packages_classes[ $class_name ]['version'], 0, 4 ) ) {
@@ -84,6 +86,8 @@ if ( ! function_exists( __NAMESPACE__ . '\enqueue_package_file' ) ) {
 				'version' => $version,
 				'path'    => $path,
 			);
+			
+			return;
 		}
 		// If we have a @dev version set always use that one!
 		if ( 'dev-' === substr( $jetpack_packages_files[ $file_identifier ]['version'], 0, 4 ) ) {
