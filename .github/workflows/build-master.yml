@@ -1,0 +1,19 @@
+name: Build production to master-built
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build_master_job:
+    runs-on: ubuntu-latest
+    name: Build production version of master to master-built branch!
+    steps:
+      - name: Checkout Jetpack
+        uses: actions/checkout@master
+      - name: Build production version
+        uses: automattic/action-jetpack-build-to-branch@master
+        with:
+          branch_pull: 'master'
+          branch_push: 'master-built'
+          commit_message: 'Automated production build from master'
