@@ -107,6 +107,7 @@ class SearchResults extends Component {
 								index={ index }
 								locale={ this.props.locale }
 								query={ this.props.query }
+								railcar={ this.props.isVisible ? result.railcar : null }
 								result={ result }
 								resultFormat={ this.props.resultFormat }
 							/>
