@@ -62,6 +62,68 @@ if ( ! function_exists( __NAMESPACE__ . '\enqueue_package_class' ) ) {
 	}
 }
 
+if ( ! function_exists( __NAMESPACE__ . '\enqueue_package_file' ) ) {
+	global $jetpack_packages_files;
+
+	if ( ! is_array( $jetpack_packages_files ) ) {
+		$jetpack_packages_files = array();
+	}
+	/**
+	 * Adds the version of a package file to the $jetpack_packages_files global array so that
+	 * we can load the most recent version after 'plugins_loaded'.
+	 *
+	 * @param string $file_identifier Unique id to file assigned by composer based on package name and filename.
+	 * @param string $version Version of the file.
+	 * @param string $path Absolute path to the file so that we can load it.
+	 */
+	function enqueue_package_file( $file_identifier, $version, $path ) {
+		global $jetpack_packages_files;
+
+		if ( ! isset( $jetpack_packages_files[ $file_identifier ] ) ) {
+			$jetpack_packages_files[ $file_identifier ] = array(
+				'version' => $version,
+				'path'    => $path,
+			);
+		}
+		// If we have a @dev version set always use that one!
+		if ( 'dev-' === substr( $jetpack_packages_files[ $file_identifier ]['version'], 0, 4 ) ) {
+			return;
+		}
+
+		// Always favour the @dev version. Since that version is the same as bleeding edge.
+		// We need to make sure that we don't do this in production!
+		if ( 'dev-' === substr( $version, 0, 4 ) ) {
+			$jetpack_packages_files[ $file_identifier ] = array(
+				'version' => $version,
+				'path'    => $path,
+			);
+
+			return;
+		}
+		// Set the latest version!
+		if ( version_compare( $jetpack_packages_files[ $file_identifier ]['version'], $version, '<' ) ) {
+			$jetpack_packages_files[ $file_identifier ] = array(
+				'version' => $version,
+				'path'    => $path,
+			);
+		}
+	}
+}
+
+if ( ! function_exists( __NAMESPACE__ . '\file_loader' ) ) {
+	function file_loader() {
+		global $jetpack_packages_files;
+		foreach ( $jetpack_packages_files as $fileIdentifier => $file_data ) {
+			if ( empty($GLOBALS['__composer_autoload_files'][ $fileIdentifier ] ) ) {
+				require $file_data['path'];
+
+				$GLOBALS['__composer_autoload_files'][$fileIdentifier] = true;
+			}
+		}
+	}
+}
+
+
 if ( ! function_exists( __NAMESPACE__ . '\autoloader' ) ) {
 	/**
 	 * Used for autoloading jetpack packages.
@@ -73,11 +135,26 @@ if ( ! function_exists( __NAMESPACE__ . '\autoloader' ) ) {
 
 		if ( isset( $jetpack_packages_classes[ $class_name ] ) ) {
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				if ( function_exists( 'did_action' ) && ! did_action( 'plugins_loaded' ) ) {
+				// TODO ideally we shouldn't skip any of these, see: https://github.com/Automattic/jetpack/pull/12646.
+				$ignore = in_array(
+					$class_name,
+					array(
+						'Automattic\Jetpack\JITM',
+						'Automattic\Jetpack\Connection\Manager',
+						'Automattic\Jetpack\Connection\XMLRPC_Connector',
+						'Jetpack_Options',
+						'Jetpack_Signature',
+						'Jetpack_XMLRPC_Server',
+						'Automattic\Jetpack\Constants',
+						'Automattic\Jetpack\Tracking',
+					),
+					true
+				);
+				if ( ! $ignore && function_exists( 'did_action' ) && ! did_action( 'plugins_loaded' ) ) {
 					_doing_it_wrong(
 						esc_html( $class_name ),
 						sprintf(
-							/* translators: %s Name of a PHP Class */
+						/* translators: %s Name of a PHP Class */
 							esc_html__( 'Not all plugins have loaded yet but we requested the class %s', 'jetpack' ),
 							// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 							$class_name
@@ -100,3 +177,4 @@ if ( ! function_exists( __NAMESPACE__ . '\autoloader' ) ) {
 	// Add the jetpack autoloader.
 	spl_autoload_register( __NAMESPACE__ . '\autoloader' );
 }
+
