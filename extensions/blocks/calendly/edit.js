@@ -257,8 +257,10 @@ export default function CalendlyEdit( props ) {
 		</InspectorControls>
 	);
 
+	const classes = `${ className } calendly-style-${ style }`;
+
 	return (
-		<div className={ className }>
+		<div className={ classes }>
 			{ inspectorControls }
 			{ blockControls }
 			{ url ? blockPreview( style ) : blockPlaceholder }

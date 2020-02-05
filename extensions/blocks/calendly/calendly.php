@@ -107,7 +107,7 @@ function load_assets( $attr, $content ) {
 	$submit_button_classes          = get_attribute( $attr, 'submitButtonClasses' );
 	$submit_button_text_color       = get_attribute( $attr, 'customTextButtonColor' );
 	$submit_button_background_color = get_attribute( $attr, 'customBackgroundButtonColor' );
-	$classes                        = \Jetpack_Gutenberg::block_classes( 'calendly', $attr );
+	$classes                        = \Jetpack_Gutenberg::block_classes( 'calendly', $attr, array( 'calendly-style-' . $style ) );
 	$block_id                       = wp_unique_id( 'calendly-block-' );
 
 	$url = add_query_arg(
