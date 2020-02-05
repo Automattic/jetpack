@@ -47,16 +47,14 @@ class EventbriteEdit extends Component {
 	};
 
 	componentDidMount() {
-		const { attributes, clientId, setAttributes } = this.props;
+		const { clientId, setAttributes } = this.props;
 		const { resolvingUrl } = this.state;
 
 		// Use the block's clientId to make the widget div more unique.
 		// The `clientId` changes every load while the Eventbrite's `blockId` doesn't,
 		// but it's unique enough (generated with uuid/v4) to be reasonably sure that
 		// there won't be two widgets with the same div ID.
-		if ( ! attributes.blockId ) {
-			setAttributes( { blockId: clientId } );
-		}
+		setAttributes( { blockId: clientId } );
 
 		// Check if we need to resolve an Eventbrite URL immediately.
 		if ( resolvingUrl ) {
