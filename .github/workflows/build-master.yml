@@ -13,7 +13,7 @@ jobs:
         uses: actions/checkout@master
 
       - name: Clean out dev files
-        run: sh ./bin/prepare-built-branch.sh
+        run: sh ${{ github.workflow }}/bin/prepare-built-branch.sh
 
       - name: Build production version
         run: yarn build-production
@@ -33,4 +33,4 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: master-built
-          path: .
+          path: ${{ github.workflow }}
