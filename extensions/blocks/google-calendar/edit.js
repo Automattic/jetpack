@@ -17,9 +17,9 @@ import { BlockControls, BlockIcon } from '@wordpress/editor';
 /**
  * Internal dependencies
  */
-import { icon, IFRAME_REGEX, URL_REGEX } from '.';
+import { icon } from '.';
 import { isMobile } from '../../../_inc/client/lib/viewport';
-import { extractAttributesFromIframe } from './utils';
+import { extractAttributesFromIframe, IFRAME_REGEX, URL_REGEX } from './utils';
 
 class GoogleCalendarEdit extends Component {
 	constructor() {
@@ -57,7 +57,8 @@ class GoogleCalendarEdit extends Component {
 		if ( event ) {
 			event.preventDefault();
 		}
-		const { editedEmbed: embedString } = this.state;
+		const { editedEmbed } = this.state;
+		const embedString = editedEmbed.trim();
 		let attributes;
 
 		if ( IFRAME_REGEX.test( embedString ) ) {
@@ -103,6 +104,7 @@ class GoogleCalendarEdit extends Component {
 				{ __( 'Enable Permissions for the calender you want to share', 'jetpack' ) }
 			</ExternalLink>
 		);
+
 		const controls = (
 			<BlockControls>
 				<Toolbar>
@@ -148,7 +150,7 @@ class GoogleCalendarEdit extends Component {
 								className="components-placeholder__input"
 								aria-label={ __( 'Google Calendar URL or iframe', 'jetpack' ) }
 								placeholder={ __( 'Enter URL or iframe to embed here…', 'jetpack' ) }
-								onChange={ event => this.setState( { editedEmbed: event.target.value.trim() } ) }
+								onChange={ event => this.setState( { editedEmbed: event.target.value } ) }
 							/>
 							<Button isSecondary isLarge type="submit">
 								{ _x( 'Embed', 'button label', 'jetpack' ) }

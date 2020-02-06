@@ -9,15 +9,8 @@ import { createBlock } from '@wordpress/blocks';
  * Internal dependencies
  */
 import edit from './edit';
-import { extractAttributesFromIframe } from './utils';
+import { extractAttributesFromIframe, URL_REGEX, IFRAME_REGEX } from './utils';
 import './editor.scss';
-
-const url_regex_string = 's*https?://calendar.google.com/';
-export const URL_REGEX = new RegExp( `^${ url_regex_string }`, 'i' );
-export const IFRAME_REGEX = new RegExp(
-	`<iframe((?:\\s+\\w+=(['"]).*?\\2)*)\\s+src=(["'])(${ url_regex_string }.*?)\\3((?:\\s+\\w+=(['"]).*?\\6)*)`,
-	'i'
-);
 
 export const name = 'google-calendar';
 export const title = __( 'Google Calendar', 'jetpack' );
