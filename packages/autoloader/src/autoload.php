@@ -86,7 +86,7 @@ if ( ! function_exists( __NAMESPACE__ . '\enqueue_package_file' ) ) {
 				'version' => $version,
 				'path'    => $path,
 			);
-			
+
 			return;
 		}
 		// If we have a @dev version set always use that one!
@@ -115,13 +115,16 @@ if ( ! function_exists( __NAMESPACE__ . '\enqueue_package_file' ) ) {
 }
 
 if ( ! function_exists( __NAMESPACE__ . '\file_loader' ) ) {
+	/**
+	 * Include latest version of all enqueued files. Should be called after all plugins are loaded.
+	 */
 	function file_loader() {
 		global $jetpack_packages_files;
-		foreach ( $jetpack_packages_files as $fileIdentifier => $file_data ) {
-			if ( empty($GLOBALS['__composer_autoload_files'][ $fileIdentifier ] ) ) {
+		foreach ( $jetpack_packages_files as $file_identifier => $file_data ) {
+			if ( empty($GLOBALS['__composer_autoload_files'][ $file_identifier ] ) ) {
 				require $file_data['path'];
 
-				$GLOBALS['__composer_autoload_files'][$fileIdentifier] = true;
+				$GLOBALS['__composer_autoload_files'][$file_identifier] = true;
 			}
 		}
 	}
@@ -139,22 +142,7 @@ if ( ! function_exists( __NAMESPACE__ . '\autoloader' ) ) {
 
 		if ( isset( $jetpack_packages_classes[ $class_name ] ) ) {
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				// TODO ideally we shouldn't skip any of these, see: https://github.com/Automattic/jetpack/pull/12646.
-				$ignore = in_array(
-					$class_name,
-					array(
-						'Automattic\Jetpack\JITM',
-						'Automattic\Jetpack\Connection\Manager',
-						'Automattic\Jetpack\Connection\XMLRPC_Connector',
-						'Jetpack_Options',
-						'Jetpack_Signature',
-						'Jetpack_XMLRPC_Server',
-						'Automattic\Jetpack\Constants',
-						'Automattic\Jetpack\Tracking',
-					),
-					true
-				);
-				if ( ! $ignore && function_exists( 'did_action' ) && ! did_action( 'plugins_loaded' ) ) {
+				if ( function_exists( 'did_action' ) && ! did_action( 'plugins_loaded' ) ) {
 					_doing_it_wrong(
 						esc_html( $class_name ),
 						sprintf(

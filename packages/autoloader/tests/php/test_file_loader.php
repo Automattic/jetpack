@@ -2,7 +2,6 @@
 
 use Automattic\Jetpack\Autoloader as Autoloader;
 use PHPUnit\Framework\TestCase;
-use Jetpack\TestCase_ABC\className_ABC;
 
 class WP_Test_File_Loader extends TestCase {
 	static $jetpack_packages_files;

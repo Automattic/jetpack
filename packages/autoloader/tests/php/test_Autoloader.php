@@ -15,7 +15,7 @@ class WP_Test_Autoloader extends TestCase {
 
 	function tearDown() {
 		parent::tearDown();
-		// re-aaply the global
+		// re-apply the global
 		global $jetpack_packages_classes;
 		$jetpack_packages_classes = self::$jetpack_packages_classes;
 	}
