@@ -139,7 +139,6 @@ class MapEdit extends Component {
 			addPointVisibility,
 			apiKey,
 			apiKeyControl,
-			apiKeySource,
 			apiState,
 			apiRequestOutstanding,
 		} = this.state;
@@ -193,23 +192,21 @@ class MapEdit extends Component {
 							/>
 						</PanelBody>
 					) : null }
-					{ 'wpcom' !== apiKeySource && (
-						<PanelBody title={ __( 'Mapbox Access Token', 'jetpack' ) } initialOpen={ false }>
-							<TextControl
-								label={ __( 'Mapbox Access Token', 'jetpack' ) }
-								value={ apiKeyControl }
-								onChange={ value => this.setState( { apiKeyControl: value } ) }
-							/>
-							<ButtonGroup>
-								<Button type="button" onClick={ this.updateAPIKey } isDefault>
-									{ __( 'Update Token', 'jetpack' ) }
-								</Button>
-								<Button type="button" onClick={ this.removeAPIKey } isDefault>
-									{ __( 'Remove Token', 'jetpack' ) }
-								</Button>
-							</ButtonGroup>
-						</PanelBody>
-					) }
+					<PanelBody title={ __( 'Mapbox Access Token', 'jetpack' ) } initialOpen={ false }>
+						<TextControl
+							label={ __( 'Mapbox Access Token', 'jetpack' ) }
+							value={ apiKeyControl }
+							onChange={ value => this.setState( { apiKeyControl: value } ) }
+						/>
+						<ButtonGroup>
+							<Button type="button" onClick={ this.updateAPIKey } isDefault>
+								{ __( 'Update Token', 'jetpack' ) }
+							</Button>
+							<Button type="button" onClick={ this.removeAPIKey } isDefault>
+								{ __( 'Remove Token', 'jetpack' ) }
+							</Button>
+						</ButtonGroup>
+					</PanelBody>
 				</InspectorControls>
 			</Fragment>
 		);
