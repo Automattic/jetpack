@@ -2,7 +2,7 @@ name: Build production to master-built
 on:
   push:
     branches:
-      - master
+      - add/actions-upload-artifact
 
 jobs:
   build_master_job:
@@ -10,10 +10,16 @@ jobs:
     name: Build production version of master to master-built branch!
     steps:
       - name: Checkout Jetpack
-        uses: actions/checkout@master
+        uses: actions/checkout@v1
+        run: mkdir -p jetpack-${GITHUB_REF#refs/heads/}
       - name: Build production version
         uses: automattic/action-jetpack-build-to-branch@master
         with:
           branch_pull: 'master'
           branch_push: 'master-built'
           commit_message: 'Automated production build from master'
+      - name: Upload build zip
+        uses: actions/upload-artifact@v1
+        with:
+          name: ${GITHUB_REF#refs/heads/}
+          path: jetpack-${GITHUB_REF#refs/heads/}
