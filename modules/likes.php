@@ -224,7 +224,8 @@ class Jetpack_Likes {
 			$option_setting = get_option( $option, '1' );
 		}
 
-		return intval( '1' === $option_setting );
+		// We have to account for toggle values from WP.com ('on').
+		return intval( '1' === $option_setting || 'on' === $option_setting );
 	}
 
 	function admin_discussion_likes_settings_field() {
