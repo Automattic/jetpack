@@ -39,7 +39,7 @@ function create_release_gitignore {
 	rm .gitignore-tmp
 }
 
-create_release_gitignore
+#create_release_gitignore
 
 # check .svnignore and purge
 SVNIGNORE="$(pwd)/.svnignore"

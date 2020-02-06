@@ -2,7 +2,7 @@ name: Build production to master-built
 on:
   push:
     branches:
-      - master
+      - add/actions-upload-artifact
 
 jobs:
   build_master_job:
@@ -11,9 +11,15 @@ jobs:
     steps:
       - name: Checkout Jetpack
         uses: actions/checkout@master
+
       - name: Build production version
-        uses: automattic/action-jetpack-build-to-branch@master
+        run: yarn build-production
+
+      - name: Clean out dev files
+        run: ./bin/prepare-built-branch.sh
+
+      - name: Upload build zip
+        uses: actions/upload-artifact@v1
         with:
-          branch_pull: 'master'
-          branch_push: 'master-built'
-          commit_message: 'Automated production build from master'
+          name: master-built
+          path: .
