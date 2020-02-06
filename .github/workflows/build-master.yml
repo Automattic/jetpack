@@ -11,7 +11,7 @@ jobs:
     steps:
       - name: Checkout Jetpack
         uses: actions/checkout@v1
-        run: mkdir -p jetpack-${GITHUB_REF#refs/heads/}
+      - run: mkdir -p jetpack-${GITHUB_REF#refs/heads/}
       - name: Build production version
         uses: automattic/action-jetpack-build-to-branch@master
         with:
