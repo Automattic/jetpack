@@ -8,7 +8,6 @@ import { RichText, getColorClassName } from '@wordpress/block-editor';
  * Internal dependencies
  */
 import { createWidgetId } from './utils';
-import { defaultModalButtonText } from '.';
 
 /**
  * Adapted button save function from @wordpress/block-library
@@ -49,14 +48,6 @@ function saveButton( attributes ) {
 		borderRadius: borderRadius ? borderRadius + 'px' : undefined,
 	};
 
-	const buttonText = () => {
-		if ( ! text ) {
-			return defaultModalButtonText;
-		}
-
-		return text;
-	};
-
 	// Saves link markup, but event handlers are added with inline javascript to prevent
 	// default link behavior (see the `jetpack_render_eventbrite_block` php function).
 	return (
@@ -70,7 +61,7 @@ function saveButton( attributes ) {
 				style={ buttonStyle }
 				tagName="a"
 				target="_blank"
-				value={ buttonText() }
+				value={ text }
 			/>
 		</div>
 	);

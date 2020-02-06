@@ -63,6 +63,7 @@ export const settings = {
 		// Modal button attributes, used for Button & Modal embed type.
 		text: {
 			type: 'string',
+			default: defaultModalButtonText,
 		},
 		backgroundColor: {
 			type: 'string',

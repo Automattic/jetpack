@@ -20,7 +20,6 @@ import { __ } from '@wordpress/i18n';
 import { Component, useCallback } from '@wordpress/element';
 import { compose } from '@wordpress/compose';
 import { PanelBody, RangeControl, withFallbackStyles } from '@wordpress/components';
-import { defaultModalButtonText } from '.';
 import {
 	RichText,
 	ContrastChecker,
@@ -85,16 +84,6 @@ class ButtonEdit extends Component {
 		}
 		this.nodeRef = node;
 	}
-
-	componentDidMount = () => {
-		const { setAttributes, attributes } = this.props;
-		const { text } = attributes;
-
-		// If there is no text value set for the button, set a default value.
-		if ( ! text ) {
-			setAttributes( { text: defaultModalButtonText } );
-		}
-	};
 
 	render() {
 		const {
