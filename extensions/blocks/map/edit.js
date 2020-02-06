@@ -199,10 +199,20 @@ class MapEdit extends Component {
 							onChange={ value => this.setState( { apiKeyControl: value } ) }
 						/>
 						<ButtonGroup>
-							<Button type="button" onClick={ this.updateAPIKey } isDefault>
+							<Button
+								type="button"
+								onClick={ this.updateAPIKey }
+								disabled={ ! apiKeyControl }
+								isDefault
+							>
 								{ __( 'Update Token', 'jetpack' ) }
 							</Button>
-							<Button type="button" onClick={ this.removeAPIKey } isDefault>
+							<Button
+								type="button"
+								onClick={ this.removeAPIKey }
+								disabled={ ! apiKeyControl }
+								isDefault
+							>
 								{ __( 'Remove Token', 'jetpack' ) }
 							</Button>
 						</ButtonGroup>
