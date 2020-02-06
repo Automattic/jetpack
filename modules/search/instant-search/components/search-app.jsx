@@ -249,6 +249,7 @@ class SearchApp extends Component {
 					hasNextPage={ this.hasNextPage() }
 					highlightColor={ this.props.options.highlightColor }
 					isLoading={ this.state.isLoading }
+					isVisible={ this.state.showResults }
 					locale={ this.props.options.locale }
 					onLoadNextPage={ this.loadNextPage }
 					postTypes={ this.props.options.postTypes }
