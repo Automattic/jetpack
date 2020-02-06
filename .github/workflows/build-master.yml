@@ -1,4 +1,4 @@
-name: Build production to master-built
+name: Build master branch production zip
 on:
   push:
     branches:
@@ -16,7 +16,7 @@ jobs:
         run: yarn build-production
 
       - name: Clean out dev files
-        run: ./bin/prepare-built-branch.sh
+        run: ./bin/purge-dev-files.sh
 
       - name: Upload build zip
         uses: actions/upload-artifact@v1
