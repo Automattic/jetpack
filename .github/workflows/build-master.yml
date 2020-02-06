@@ -12,11 +12,11 @@ jobs:
       - name: Checkout Jetpack
         uses: actions/checkout@master
 
+      - name: Clean out dev files
+        run: sh ./bin/prepare-built-branch.sh
+
       - name: Build production version
         run: yarn build-production
-
-      - name: Clean out dev files
-        run: sh bin/prepare-built-branch.sh
 
       - name: Adding built files to git
         run: git add .
