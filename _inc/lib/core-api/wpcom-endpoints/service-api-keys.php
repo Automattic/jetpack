@@ -168,10 +168,11 @@ class WPCOM_REST_API_V2_Endpoint_Service_API_Keys extends WP_REST_Controller {
 		$message = esc_html__( 'API key updated successfully.', 'jetpack' );
 		Jetpack_Options::update_option( $option, $service_api_key );
 		return array(
-			'code'            => 'success',
-			'service'         => $service,
-			'service_api_key' => Jetpack_Options::get_option( $option, '' ),
-			'message'         => $message,
+			'code'                   => 'success',
+			'service'                => $service,
+			'service_api_key'        => Jetpack_Options::get_option( $option, '' ),
+			'service_api_key_source' => 'site',
+			'message'                => $message,
 		);
 	}
 
@@ -192,11 +193,25 @@ class WPCOM_REST_API_V2_Endpoint_Service_API_Keys extends WP_REST_Controller {
 		$option = self::key_for_api_service( $service );
 		Jetpack_Options::delete_option( $option );
 		$message = esc_html__( 'API key deleted successfully.', 'jetpack' );
+
+		switch ( $service ) {
+			case 'mapbox':
+				// After deleting a custom Mapbox key, try to revert to the WordPress.com one if available.
+				$mapbox                 = self::get_service_api_key_mapbox();
+				$service_api_key        = $mapbox['key'];
+				$service_api_key_source = $mapbox['source'];
+				break;
+			default:
+				$service_api_key        = Jetpack_Options::get_option( $option, '' );
+				$service_api_key_source = 'site';
+		};
+
 		return array(
-			'code'            => 'success',
-			'service'         => $service,
-			'service_api_key' => Jetpack_Options::get_option( $option, '' ),
-			'message'         => $message,
+			'code'                   => 'success',
+			'service'                => $service,
+			'service_api_key'        => $service_api_key,
+			'service_api_key_source' => $service_api_key_source,
+			'message'                => $message,
 		);
 	}
 
