@@ -28,7 +28,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           push-branch: 'add/actions-upload-artifact2'
-          commit-message: 'Build from ${{GITHUB_REF##*/}}'
+          commit-message: 'Build from ${{ github.head_ref }}'
           force-add: 'true'
 
       - name: Upload build zip
