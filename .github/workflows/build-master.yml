@@ -2,7 +2,7 @@ name: Build master branch production zip
 on:
   push:
     branches:
-      - add/actions-upload-artifact
+      - master
 
 jobs:
   build_master_job:
@@ -15,7 +15,7 @@ jobs:
       - name: Build production version
         run: yarn build-production
 
-      - name: Clean out dev files
+      - name: Purge dev files
         run: ./bin/purge-dev-files.sh
 
       - name: Upload build zip
