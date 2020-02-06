@@ -273,8 +273,8 @@ class EventbriteEdit extends Component {
 							placeholder={ __( 'Enter an event URL to embed here…', 'jetpack' ) }
 							onChange={ event => this.setState( { editedUrl: event.target.value } ) }
 						/>
-						// @todo Remove isDefault when the minimum WP version supported by Jetpack uses
-						Gutenberg > 7.2
+						// @todo Remove isDefault and isLarge when the minimum WP version supported by Jetpack
+						uses Gutenberg > 7.2
 						<Button isLarge isDefault isSecondary type="submit">
 							{ _x( 'Embed', 'submit button label', 'jetpack' ) }
 						</Button>
