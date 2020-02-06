@@ -103,11 +103,11 @@ class Jetpack_Likes {
 	 * @return null
 	 */
 	function set_social_notifications_like() {
-		update_option( 'social_notifications_like', '1' );
+		update_option( 'social_notifications_like', 'on' );
 	}
 
 	/**
-	 * Delete the social_notifications_like option that was set to `1` on module activation.
+	 * Delete the social_notifications_like option that was set to `on` on module activation.
 	 *
 	 * @since 3.7.0
 	 *
@@ -219,13 +219,12 @@ class Jetpack_Likes {
 
 	function admin_likes_get_option( $option ) {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$option_setting = get_blog_option( get_current_blog_id(), $option, '1' );
+			$option_setting = get_blog_option( get_current_blog_id(), $option, 'on' );
 		} else {
-			$option_setting = get_option( $option, '1' );
+			$option_setting = get_option( $option, 'on' );
 		}
 
-		// We have to account for toggle values from WP.com ('on').
-		return intval( '1' === $option_setting || 'on' === $option_setting );
+		return intval( 'on' === $option_setting );
 	}
 
 	function admin_discussion_likes_settings_field() {
@@ -236,12 +235,13 @@ class Jetpack_Likes {
 	}
 
 	function admin_discussion_likes_settings_validate( $input ) {
-		// If it's not set (was unchecked during form submission) or was set to 0 (during option update), return '0'.
-		if ( ! $input || 'off' === $input || '0' === $input ) {
-			return '0';
+		// If it's not set (was unchecked during form submission) or was set to off (during option update), return 'off'.
+		if ( ! $input || 'off' === $input ) {
+			return 'off';
 		}
 
-		return '1';
+		// Otherwise, we can return 'on'.
+		return 'on';
 	}
 
 	function admin_init() {
