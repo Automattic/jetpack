@@ -15,6 +15,8 @@ use Automattic\Jetpack\Connection\Client;
  * Makes a request to the WP.com legal endpoint to mark the Terms of Service as accepted.
  */
 function accept_tos() {
+	check_ajax_referer( 'wp_ajax_action', '_nonce' );
+
 	$response = Client::wpcom_json_api_request_as_user(
 		'/legal',
 		'2',

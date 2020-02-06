@@ -188,6 +188,7 @@ jQuery( document ).ready( function( $ ) {
 			button.attr( 'disabled', true );
 			$.post( window.ajaxurl, {
 				action: button.data( 'ajax-action' ),
+				_nonce: $el.data( 'ajax-nonce' ),
 			} )
 				.done( function() {
 					$template.fadeOut( 'slow' );
