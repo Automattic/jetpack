@@ -11,8 +11,6 @@ jobs:
     steps:
       - name: Checkout Jetpack
         uses: actions/checkout@master
-        with:
-          path: 'master-built'
 
       - name: Build production version
         run: yarn build-production
@@ -35,4 +33,4 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: master-built
-          path: master-built
+          path: .
