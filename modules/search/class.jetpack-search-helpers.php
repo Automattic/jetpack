@@ -158,9 +158,13 @@ class Jetpack_Search_Helpers {
 			return $filters;
 		}
 
+		$overlay_widgets = get_option( 'sidebars_widgets', array() )['jetpack-instant-search-sidebar'];
 		foreach ( (array) $widget_options as $number => $settings ) {
 			$widget_id = self::build_widget_id( $number );
 			if ( ! self::is_active_widget( $widget_id ) || empty( $settings['filters'] ) ) {
+				continue;
+			}
+			if ( $overlay_widgets && ! in_array( $widget_id, $overlay_widgets, true ) ) {
 				continue;
 			}
 
