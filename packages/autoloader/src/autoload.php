@@ -121,15 +121,14 @@ if ( ! function_exists( __NAMESPACE__ . '\file_loader' ) ) {
 	function file_loader() {
 		global $jetpack_packages_files;
 		foreach ( $jetpack_packages_files as $file_identifier => $file_data ) {
-			if ( empty($GLOBALS['__composer_autoload_files'][ $file_identifier ] ) ) {
+			if ( empty( $GLOBALS['__composer_autoload_files'][ $file_identifier ] ) ) {
 				require $file_data['path'];
 
-				$GLOBALS['__composer_autoload_files'][$file_identifier] = true;
+				$GLOBALS['__composer_autoload_files'][ $file_identifier ] = true;
 			}
 		}
 	}
 }
-
 
 if ( ! function_exists( __NAMESPACE__ . '\autoloader' ) ) {
 	/**
