@@ -11,14 +11,26 @@ jobs:
     steps:
       - name: Checkout Jetpack
         uses: actions/checkout@master
-      - run: echo ${GITHUB_REF##*/}
-      - run: mkdir -p master-built && cd master-built
+          with:
+            path: 'master-built'
+
       - name: Build production version
-        uses: automattic/action-jetpack-build-to-branch@master
+        run: yarn build-production
+
+      - name: Clean out dev files
+        run: sh bin/prepare-built-branch.sh
+
+      - name: Adding built files to git
+        run: git add .
+
+      - name: Commit and push
+        uses: github-actions-x/commit@v2.4
         with:
-          branch_pull: 'master'
-          branch_push: 'master-built'
-          commit_message: 'Automated production build from master'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          push-branch: 'add/actions-upload-artifact2'
+          commit-message: 'Build from ${{GITHUB_REF##*/}}'
+          force-add: 'true'
+
       - name: Upload build zip
         uses: actions/upload-artifact@v1
         with:
