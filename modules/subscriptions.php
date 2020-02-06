@@ -430,7 +430,11 @@ class Jetpack_Subscriptions {
 	 * @since 8.1
 	 */
 	public function social_notifications_subscribe_field() {
-		$checked = intval( 'on' === get_option( 'social_notifications_subscribe', 'on' ) );
+		// For now, we have to account for the toggle value being sent by WP.com.
+		$checked = intval(
+			'1' === get_option( 'social_notifications_subscribe', '1' ) ||
+			'on' === get_option( 'social_notifications_subscribe', 'on' )
+		);
 		?>
 
 		<label>
@@ -449,16 +453,16 @@ class Jetpack_Subscriptions {
 	 * @since 8.1
 	 *
 	 * @param String $input the input string to be validated.
-	 * @return string on|off
+	 * @return string 1|0
 	 */
 	public function social_notifications_subscribe_validate( $input ) {
-		// If it's not set (was unchecked during form submission) or was set to off (during option update), return 'off'.
-		if ( ! $input || 'off' === $input ) {
-			return 'off';
+		// If it's not set (was unchecked during form submission) or was set to 0 (during option update), return '0'.
+		if ( ! $input || 'off' === $input || '0' === $input ) {
+			return '0';
 		}
 
-		// Otherwise we return 'on'.
-		return 'on';
+		// Otherwise we return '1'.
+		return '1';
 	}
 
 	function validate_settings( $settings ) {
@@ -873,7 +877,7 @@ class Jetpack_Subscriptions {
 	}
 
 	/**
-	 * Set the social_notifications_subscribe option to `off` when the Subscriptions module is activated in the first time.
+	 * Set the social_notifications_subscribe option to `0` when the Subscriptions module is activated in the first time.
 	 *
 	 * @since 8.1
 	 *
@@ -881,7 +885,7 @@ class Jetpack_Subscriptions {
 	 */
 	function set_social_notifications_subscribe() {
 		if ( false === get_option( 'social_notifications_subscribe' ) ) {
-			add_option( 'social_notifications_subscribe', 'off' );
+			add_option( 'social_notifications_subscribe', '0' );
 		}
 	}
 
