@@ -139,6 +139,7 @@ class MapEdit extends Component {
 			addPointVisibility,
 			apiKey,
 			apiKeyControl,
+			apiKeySource,
 			apiState,
 			apiRequestOutstanding,
 		} = this.state;
@@ -210,7 +211,7 @@ class MapEdit extends Component {
 							<Button
 								type="button"
 								onClick={ this.removeAPIKey }
-								disabled={ ! apiKeyControl }
+								disabled={ 'wpcom' !== apiKeySource }
 								isDefault
 							>
 								{ __( 'Remove Token', 'jetpack' ) }
