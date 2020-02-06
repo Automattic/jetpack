@@ -10,8 +10,9 @@ jobs:
     name: Build production version of master to master-built branch!
     steps:
       - name: Checkout Jetpack
-        uses: actions/checkout@v1
-      - run: mkdir -p jetpack-${GITHUB_REF#refs/heads/}
+        uses: actions/checkout@master
+      - run: echo ${GITHUB_REF##*/}
+      - run: mkdir -p master-built && cd master-built
       - name: Build production version
         uses: automattic/action-jetpack-build-to-branch@master
         with:
@@ -21,5 +22,5 @@ jobs:
       - name: Upload build zip
         uses: actions/upload-artifact@v1
         with:
-          name: ${GITHUB_REF#refs/heads/}
-          path: jetpack-${GITHUB_REF#refs/heads/}
+          name: master-built
+          path: master-built
