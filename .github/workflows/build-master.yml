@@ -11,8 +11,8 @@ jobs:
     steps:
       - name: Checkout Jetpack
         uses: actions/checkout@master
-          with:
-            path: 'master-built'
+        with:
+          path: 'master-built'
 
       - name: Build production version
         run: yarn build-production
