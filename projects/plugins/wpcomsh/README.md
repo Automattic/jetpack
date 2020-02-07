@@ -189,6 +189,10 @@ All the wp-admin custom styles for transferred sites are in `assets/admin-style.
 
 If a site has the `a8c-fse-is-eligible` site option, the site is eligible for Full-Site Editing flows. Flows are only active when a supported theme is active.
 
+### Updates Customizer Save/Publish Labels to be consistent with WordPress.com
+
+Because WordPress.com supports private sites by default, customizer label copy was updated to reduce confusion on what would launch a site or what will save changes on a site.
+
 ### Custom colors and fonts (+ Typekit fonts)
 
 On WP.com, we provide custom colors and fonts in a site's Customizer. In order to get them supported on an AT site, wpcomsh imports the `colors`, `custom-fonts` and `custom-fonts-typekit` codebases.
