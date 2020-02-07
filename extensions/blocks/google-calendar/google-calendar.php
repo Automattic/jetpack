@@ -10,7 +10,7 @@
 jetpack_register_block(
 	'jetpack/google-calendar',
 	array(
-		'attributes'      => array(
+		'attributes'           => array(
 			'url'    => array(
 				'type' => 'string',
 			),
@@ -23,7 +23,11 @@ jetpack_register_block(
 				'default' => 600,
 			),
 		),
-		'render_callback' => 'jetpack_google_calendar_block_load_assets',
+		'render_callback'      => 'jetpack_google_calendar_block_load_assets',
+		'version_requirements' => array(
+			'wp'     => '5.4',
+			'plugin' => '7.2',
+		),
 	)
 );
 
