@@ -2,7 +2,7 @@
  * External Dependencies
  */
 import 'url-polyfill';
-import { isEqual } from 'lodash';
+import { isEqual, pick } from 'lodash';
 import queryString from 'query-string';
 
 /**
@@ -33,7 +33,8 @@ import SubmitButton from '../../shared/submit-button';
 import { getAttributesFromEmbedCode } from './utils';
 import BlockStylesSelector from '../../shared/components/block-styles-selector';
 
-export default function CalendlyEdit( { attributes, name, className, clientId, setAttributes } ) {
+export default function CalendlyEdit( props ) {
+	const { attributes, name, className, clientId, setAttributes } = props;
 	const defaultClassName = getBlockDefaultClassName( name );
 	const validatedAttributes = getValidatedAttributes( attributeDetails, attributes );
 
@@ -152,13 +153,17 @@ export default function CalendlyEdit( { attributes, name, className, clientId, s
 		</>
 	);
 
-	const submitButtonPreview = (
-		<SubmitButton
-			submitButtonText={ submitButtonText }
-			attributes={ attributes }
-			setAttributes={ setAttributes }
-		/>
-	);
+	const submitButtonProps = {
+		attributes: pick( validatedAttributes, [
+			'submitButtonText',
+			'backgroundButtonColor',
+			'textButtonColor',
+			'customBackgroundButtonColor',
+			'customBackgroundButtonColor',
+		] ),
+		setAttributes,
+	};
+	const submitButtonPreview = <SubmitButton { ...submitButtonProps } />;
 
 	const linkPreview = (
 		<>

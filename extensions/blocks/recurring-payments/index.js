@@ -38,6 +38,15 @@ export const settings = {
 		submitButtonText: {
 			type: 'string',
 		},
+		submitButtonClasses: {
+			type: 'string',
+		},
+		backgroundButtonColor: {
+			type: 'string',
+		},
+		textButtonColor: {
+			type: 'string',
+		},
 		customBackgroundButtonColor: {
 			type: 'string',
 		},

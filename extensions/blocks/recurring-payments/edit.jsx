@@ -5,7 +5,7 @@ import classnames from 'classnames';
 import SubmitButton from '../../shared/submit-button';
 import apiFetch from '@wordpress/api-fetch';
 import { __, sprintf } from '@wordpress/i18n';
-import { trimEnd } from 'lodash';
+import { trimEnd, pick } from 'lodash';
 import formatCurrency, { getCurrencyDefaults } from '@automattic/format-currency';
 import { addQueryArgs, getQueryArg, isURL } from '@wordpress/url';
 import { compose } from '@wordpress/compose';
@@ -350,9 +350,8 @@ class MembershipsButtonEdit extends Component {
 	}
 
 	render = () => {
-		const { attributes, className, notices } = this.props;
+		const { notices } = this.props;
 		const { connected, products } = this.state;
-		const { align } = attributes;
 
 		const stripeConnectUrl = this.getConnectUrl();
 
@@ -377,21 +376,7 @@ class MembershipsButtonEdit extends Component {
 				</PanelBody>
 			</InspectorControls>
 		);
-		const blockClasses = classnames( className, [
-			'wp-block-button__link',
-			'components-button',
-			'is-primary',
-			'is-button',
-			`align${ align }`,
-		] );
-		const blockContent = (
-			<SubmitButton
-				className={ blockClasses }
-				submitButtonText={ this.props.attributes.submitButtonText }
-				attributes={ this.props.attributes }
-				setAttributes={ this.props.setAttributes }
-			/>
-		);
+
 		return (
 			<Fragment>
 				{ this.props.noticeUI }
@@ -474,8 +459,20 @@ class MembershipsButtonEdit extends Component {
 				{ this.state.products && inspectorControls }
 				{ ( ( ( this.hasUpgradeNudge || ! this.state.shouldUpgrade ) &&
 					connected !== API_STATE_LOADING ) ||
-					this.props.attributes.planId ) &&
-					blockContent }
+					this.props.attributes.planId ) && (
+					<SubmitButton
+						{ ...{
+							attributes: pick( this.props.attributes, [
+								'submitButtonText',
+								'backgroundButtonColor',
+								'textButtonColor',
+								'customBackgroundButtonColor',
+								'customBackgroundButtonColor',
+							] ),
+							setAttributes: this.props.setAttributes,
+						} }
+					/>
+				) }
 				{ this.hasUpgradeNudge && connected === API_STATE_NOTCONNECTED && (
 					<div className="wp-block-jetpack-recurring-payments disclaimer-only">
 						{ this.renderDisclaimer() }
