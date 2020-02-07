@@ -44,6 +44,11 @@ const SearchBox = props => {
 			<label htmlFor={ inputId } className="screen-reader-text">
 				{ __( 'Site Search', 'jetpack' ) }
 			</label>
+			{ props.showLogo && (
+				<div className="jetpack-instant-search__box-gridicon">
+					<Gridicon icon="jetpack-search" size={ 24 } />
+				</div>
+			) }
 			<input
 				id={ inputId }
 				className="search-field jetpack-instant-search__box-input"

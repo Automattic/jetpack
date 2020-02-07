@@ -4,6 +4,39 @@
 	flex: 0 0 100%;
 }
 
+input.jetpack-instant-search__box-input.search-field,
+.jetpack-instant-search__box-gridicon {
+	background: #fff;
+	border-radius: 5px;
+	border-style: solid;
+	border-width: 0.1rem;
+	color: black;
+	font-size: 1.6rem;
+	line-height: 1;
+	margin: 0;
+	padding: 1.3rem 1rem;
+	vertical-align: middle;
+}
+
+.jetpack-instant-search__box-gridicon {
+	background: lightgray;
+	border-bottom-right-radius: 0;
+	border-color: lightgray;
+	border-right: none;
+	border-top-right-radius: 0;
+	padding: 1.2rem 1rem;
+}
+
+input.jetpack-instant-search__box-input.search-field {
+	padding: 1.5rem 1.8rem;
+}
+
+.jetpack-instant-search__box-gridicon + input.jetpack-instant-search__box-input.search-field {
+	border-bottom-left-radius: 0;
+	border-top-left-radius: 0;
+	border-left: none;
+}
+
 .jetpack-instant-search__box-filter-icon {
 	margin: 0 16px;
 	cursor: pointer;
