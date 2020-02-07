@@ -27,7 +27,8 @@ function jetpack_register_block( $slug, $args = array() ) {
 		$slug = 'jetpack/' . $slug;
 	}
 
-	if ( isset( $args['version_requirements'] ) && Jetpack_Gutenberg::is_block_version_gated( $args['version_requirements'] ) ) {
+	if ( isset( $args['version_requirements'] )
+			&& Jetpack_Gutenberg::is_block_version_gated( $args['version_requirements']['wp'], $args['version_requirements']['plugin'] ) ) {
 		return false;
 	}
 
@@ -96,11 +97,12 @@ class Jetpack_Gutenberg {
 	/**
 	 * Check to see if a block is able to run with current wp or gutenburg plugin versions
 	 *
-	 * @param array $version_requirements An arry containing the minimum 'wp' and 'plugin' versions for the block.
+	 * @param string $core_wp_version The minimum wp core version needed to run the block.
+	 * @param string $plugin_version The minimum gutenberg plugin version needed to run the block.
 	 *
 	 * @return boolean True if the block is gated due to current wp or plugin versions.
 	 */
-	public static function is_block_version_gated( $version_requirements ) {
+	public static function is_block_version_gated( $core_wp_version, $plugin_version ) {
 		global $wp_version;
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -116,11 +118,11 @@ class Jetpack_Gutenberg {
 			$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/gutenberg/gutenberg.php' );
 
 			if ( isset( $plugin_data['Version'] ) ) {
-				return $plugin_data['Version'] < $version_requirements['plugin'];
+				return $plugin_data['Version'] < $plugin_version;
 			}
 		}
 
-		return version_compare( $wp_version, $version_requirements['wp'], '<' );
+		return version_compare( $wp_version, $core_wp_version, '<' );
 	}
 
 	/**
