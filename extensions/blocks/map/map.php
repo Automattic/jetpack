@@ -8,7 +8,7 @@
  */
 
 if ( ! class_exists( 'Jetpack_Mapbox_Helper' ) ) {
-	jetpack_require_lib( 'class.jetpack-mapbox-helper' );
+	jetpack_require_lib( 'class-jetpack-mapbox-helper' );
 }
 
 jetpack_register_block(

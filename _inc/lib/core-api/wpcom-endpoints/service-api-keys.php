@@ -122,7 +122,7 @@ class WPCOM_REST_API_V2_Endpoint_Service_API_Keys extends WP_REST_Controller {
 		switch ( $service ) {
 			case 'mapbox':
 				if ( ! class_exists( 'Jetpack_Mapbox_Helper' ) ) {
-					jetpack_require_lib( 'class.jetpack-mapbox-helper' );
+					jetpack_require_lib( 'class-jetpack-mapbox-helper' );
 				}
 				$mapbox                 = Jetpack_Mapbox_Helper::get_access_token();
 				$service_api_key        = $mapbox['key'];
@@ -201,7 +201,7 @@ class WPCOM_REST_API_V2_Endpoint_Service_API_Keys extends WP_REST_Controller {
 			case 'mapbox':
 				// After deleting a custom Mapbox key, try to revert to the WordPress.com one if available.
 				if ( ! class_exists( 'Jetpack_Mapbox_Helper' ) ) {
-					jetpack_require_lib( 'class.jetpack-mapbox-helper' );
+					jetpack_require_lib( 'class-jetpack-mapbox-helper' );
 				}
 				$mapbox                 = Jetpack_Mapbox_Helper::get_access_token();
 				$service_api_key        = $mapbox['key'];
