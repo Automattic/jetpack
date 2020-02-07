@@ -203,7 +203,7 @@ class MapEdit extends Component {
 							<Button
 								type="button"
 								onClick={ this.updateAPIKey }
-								disabled={ ! apiKeyControl }
+								disabled={ ! apiKeyControl || apiKeyControl === apiKey }
 								isDefault
 							>
 								{ __( 'Update Token', 'jetpack' ) }
