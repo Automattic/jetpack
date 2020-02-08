@@ -1,4 +1,4 @@
-name: Build master branch production zip
+name: Build Master Artifact
 on:
   push:
     branches:
