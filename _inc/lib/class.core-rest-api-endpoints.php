@@ -2,6 +2,7 @@
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Debugger;
 use Automattic\Jetpack\JITM;
 use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\Status;
@@ -998,8 +999,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return array|WP_Error WP_Error returned if connection test does not succeed.
 	 */
 	public static function jetpack_connection_test() {
-		jetpack_require_lib( 'debugger' );
-		$cxntests = new Jetpack_Cxn_Tests();
+		$cxntests = new Debugger();
 
 		if ( $cxntests->pass() ) {
 			return rest_ensure_response(
@@ -1039,7 +1039,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			|| ! openssl_verify(
 				$signature_data,
 				$signature,
-				JETPACK__DEBUGGER_PUBLIC_KEY
+				Debugger::PUBLIC_KEY
 			)
 		) {
 			return false;
@@ -1061,10 +1061,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return array|mixed|object|WP_Error
 	 */
 	public static function jetpack_connection_test_for_external() {
-		// Since we are running this test for inclusion in the WP.com testing suite, let's not try to run them as part of these results.
-		add_filter( 'jetpack_debugger_run_self_test', '__return_false' );
-		jetpack_require_lib( 'debugger' );
-		$cxntests = new Jetpack_Cxn_Tests();
+		$cxntests = new Debugger();
 
 		if ( $cxntests->pass() ) {
 			$result = array(

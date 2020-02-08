@@ -12,18 +12,31 @@ use Automattic\Jetpack\Status;
  *
  * Framework for various "unit tests" against the Jetpack connection.
  *
- * Individual tests should be added to the class-jetpack-cxn-tests.php file.
+ * Individual tests should be added to the class-debugger.php file.
  *
  * @author Brandon Kraft
- * @package Jetpack
+ * @package Automattic/jetpack-debugger
  */
+
+namespace Automattic\Jetpack;
 
 /**
  * "Unit Tests" for the Jetpack connection.
  *
- * @since 7.1.0
+ * @since Jetpack 7.1.0
  */
-class Jetpack_Cxn_Test_Base {
+class Debugger_Base {
+
+	const PUBLIC_KEY =
+		"\r\n" . '-----BEGIN PUBLIC KEY-----' . "\r\n"
+		. 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAm+uLLVoxGCY71LS6KFc6' . "\r\n"
+		. '1UnF6QGBAsi5XF8ty9kR3/voqfOkpW+gRerM2Kyjy6DPCOmzhZj7BFGtxSV2ZoMX' . "\r\n"
+		. '9ZwWxzXhl/Q/6k8jg8BoY1QL6L2K76icXJu80b+RDIqvOfJruaAeBg1Q9NyeYqLY' . "\r\n"
+		. 'lEVzN2vIwcFYl+MrP/g6Bc2co7Jcbli+tpNIxg4Z+Hnhbs7OJ3STQLmEryLpAxQO' . "\r\n"
+		. 'q8cbhQkMx+FyQhxzSwtXYI/ClCUmTnzcKk7SgGvEjoKGAmngILiVuEJ4bm7Q1yok' . "\r\n"
+		. 'xl9+wcfW6JAituNhml9dlHCWnn9D3+j8pxStHihKy2gVMwiFRjLEeD8K/7JVGkb/' . "\r\n"
+		. 'EwIDAQAB' . "\r\n"
+		. '-----END PUBLIC KEY-----' . "\r\n";
 
 	/**
 	 * Tests to run on the Jetpack connection.
@@ -49,7 +62,7 @@ class Jetpack_Cxn_Test_Base {
 	protected $pass = true;
 
 	/**
-	 * Jetpack_Cxn_Test constructor.
+	 * Debugger constructor.
 	 */
 	public function __construct() {
 		$this->tests   = array();
@@ -102,7 +115,7 @@ class Jetpack_Cxn_Test_Base {
 	 */
 	public function list_tests( $type = 'all', $group = 'all' ) {
 		if ( ! ( 'all' === $type || 'direct' === $type || 'async' === $type ) ) {
-			_doing_it_wrong( 'Jetpack_Cxn_Test_Base->list_tests', 'Type must be all, direct, or async', '7.3.0' );
+			_doing_it_wrong( 'Debugger_Base->list_tests', 'Type must be all, direct, or async', '7.3.0' );
 		}
 
 		$tests = array();
@@ -479,7 +492,7 @@ class Jetpack_Cxn_Test_Base {
 			return $return;
 		}
 
-		$public_key = openssl_get_publickey( JETPACK__DEBUGGER_PUBLIC_KEY );
+		$public_key = openssl_get_publickey( self::PUBLIC_KEY );
 
 		if ( $public_key && openssl_seal( $data, $encrypted_data, $env_key, array( $public_key ) ) ) {
 			// We are returning base64-encoded values to ensure they're characters we can use in JSON responses without issue.

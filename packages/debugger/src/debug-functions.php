@@ -5,6 +5,8 @@
  * @package Jetpack.
  */
 
+namespace Automattic\Jetpack;
+
 /**
  * Test runner for Core's Site Health module.
  *
@@ -15,7 +17,7 @@ function jetpack_debugger_ajax_local_testing_suite() {
 	if ( ! current_user_can( 'jetpack_manage_modules' ) ) {
 		wp_send_json_error();
 	}
-	$tests = new Jetpack_Cxn_Tests();
+	$tests = new Debugger();
 	wp_send_json_success( $tests->output_results_for_core_async_site_health() );
 }
 /**
@@ -28,7 +30,7 @@ function jetpack_debugger_ajax_local_testing_suite() {
  * @return array $core_tests Array of tests for Core's Site Health.
  */
 function jetpack_debugger_site_status_tests( $core_tests ) {
-	$cxn_tests = new Jetpack_Cxn_Tests();
+	$cxn_tests = new Debugger();
 	$tests     = $cxn_tests->list_tests( 'direct' );
 	foreach ( $tests as $test ) {
 		$core_tests['direct'][ $test['name'] ] = array(

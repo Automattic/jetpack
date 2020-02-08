@@ -2,10 +2,10 @@
 /**
  * Jetpack Debug Data for the legacy Jetpack debugger page and the WP 5.2-era Site Health sections.
  *
- * @package jetpack
+ * @package Automattic/jetpack-debugger
  */
+namespace Automattic\Jetpack;
 
-use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Functions;
 use Automattic\Jetpack\Sync\Sender;
@@ -17,7 +17,7 @@ use Automattic\Jetpack\Sync\Sender;
  *
  * @since 7.3.0
  */
-class Jetpack_Debug_Data {
+class Debug_Data {
 	/**
 	 * Determine the active plan and normalize it for the debugger results.
 	 *

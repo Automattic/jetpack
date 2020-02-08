@@ -2,17 +2,17 @@
 /**
  * Collection of tests to run on the Jetpack connection locally.
  *
- * @package Jetpack
+ * @package Automattic/jetpack-debugger
  */
+namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 
 /**
  * Class Jetpack_Cxn_Tests contains all of the actual tests.
  */
-class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
+class Debugger_Tests extends Debugger_Base {
 
 	/**
 	 * Jetpack_Cxn_Tests constructor.

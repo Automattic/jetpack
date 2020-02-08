@@ -1,12 +1,12 @@
 <?php
-
-use Automattic\Jetpack\Status;
-
 /**
  * Jetpack Debugger functionality allowing for self-service diagnostic information via the legacy jetpack debugger.
  *
  * @package jetpack
  */
+
+use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Debugger;
 
 /**
  * Class Jetpack_Debugger
@@ -60,7 +60,7 @@ class Jetpack_Debugger {
 			? 'https://jetpack.com/contact-support/beta-group/'
 			: 'https://jetpack.com/contact-support/';
 
-		$cxntests = new Jetpack_Cxn_Tests();
+		$cxntests = new Debugger();
 		?>
 		<div class="wrap">
 			<h2><?php esc_html_e( 'Debugging Center', 'jetpack' ); ?></h2>
