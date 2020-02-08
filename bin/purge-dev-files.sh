@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# This will remove most files that we do not intend to ship with production Jetpack.
+
 rm -rf \
 .eslintrc.js \
 .eslintignore \
