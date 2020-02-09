@@ -13,4 +13,6 @@ jobs:
         uses: actions/checkout@master
 
       - name: See value
-        run: echo ${{ toJson(github) }}
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
