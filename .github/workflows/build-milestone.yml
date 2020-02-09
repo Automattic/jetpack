@@ -1,7 +1,8 @@
 name: Build Milestone Artifact
 on:
-  pull_request:
-    types: [edited]
+  push:
+    branches:
+      - try/actions-conditionals
 
 jobs:
   build_milestone_artifact:
