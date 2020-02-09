@@ -13,10 +13,10 @@ jobs:
         uses: actions/checkout@master
 
       - name: Echo random stuff
-        run: echo ${{ github.ref }}
+        run: echo ${{ github.ref }} ${{ github.head_ref }}
 
       - name: See value
-        if: startsWith(github.ref, 'try/')
+        if: startsWith(github.base_ref, 'try/')
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
         run: echo "$GITHUB_CONTEXT"
