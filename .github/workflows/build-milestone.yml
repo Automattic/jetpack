@@ -13,4 +13,4 @@ jobs:
         uses: actions/checkout@master
 
       - name: See value
-        run: echo ${{ github.event }}
+        run: echo ${{ toJson(github) }}
