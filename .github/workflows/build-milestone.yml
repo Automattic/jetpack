@@ -1,11 +1,10 @@
 name: Build Milestone Artifact
 on:
-  push:
-    branches:
-      - try/actions-conditionals
+  pull_request:
+    types: [edited]
 
 jobs:
-  build_master_job:
+  build_milestone_artifact:
     runs-on: ubuntu-latest
     name: Build production version of master to master-built branch!
     steps:
@@ -16,7 +15,7 @@ jobs:
         run: echo ${{ github.ref }}
 
       - name: See value
-        if: contains(github.ref, 'try/')
+        if: startsWith(github.ref, 'refs/heads/try/')
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
         run: echo "$GITHUB_CONTEXT"
