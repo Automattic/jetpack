@@ -1,12 +1,24 @@
 #!/bin/bash
 
 # This will remove most files that we do not intend to ship with production Jetpack.
+# By default, it will leave a few directories around. Takes a parameter to remove all.
+
+# Script parameter, what do you want to do?
+COMMAND=$1
+
+# This stuff we sometimes want to ship with dev builds.
+if [[ '--all' == ${COMMAND} ]]; then
+	rm -rf \
+	    .git \
+	    .gitignore \
+	    .github \
+	    to-test.md \
+
+fi
 
 rm -rf \
 .eslintrc.js \
 .eslintignore \
-.git \
-.gitignore \
 .sass-cache \
 .travis.yml \
 .npmrc \
@@ -14,7 +26,6 @@ rm -rf \
 .eslines.json \
 .eslintcache \
 readme.md \
-.github \
 babel.config* \
 phpunit.xml.dist \
 dangerfile.js \
@@ -55,7 +66,6 @@ LICENSE.txt \
 modules/widgets/follow-button.php \
 modules/calypsoify/*.css.map \
 modules/calypsoify/*.scss \
-to-test.md \
 webpack.config* \
 .editorconfig \
 _inc/.eslintrc.js \
