@@ -1,0 +1,16 @@
+name: Build Milestone Artifact
+on:
+  push:
+    branches:
+      - try/actions-conditionals
+
+jobs:
+  build_master_job:
+    runs-on: ubuntu-latest
+    name: Build production version of master to master-built branch!
+    steps:
+      - name: Checkout Jetpack
+        uses: actions/checkout@master
+
+      - name: Build production version
+        run: echo ${{ github }}
