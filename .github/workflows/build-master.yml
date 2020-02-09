@@ -16,7 +16,7 @@ jobs:
         run: yarn build-production
 
       - name: Purge dev files
-        run: ./bin/purge-dev-files.sh
+        run: ./bin/purge-dev-files.sh --all
 
       - name: Upload build zip
         uses: actions/upload-artifact@v1
