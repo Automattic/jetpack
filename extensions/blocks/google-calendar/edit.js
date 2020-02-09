@@ -7,12 +7,11 @@ import {
 	Placeholder,
 	SandBox,
 	Button,
-	IconButton,
-	Toolbar,
 	Notice,
 	ExternalLink,
+	PanelBody,
 } from '@wordpress/components';
-import { BlockControls, BlockIcon } from '@wordpress/editor';
+import { BlockIcon, InspectorControls } from '@wordpress/block-editor';
 
 /**
  * Internal dependencies
@@ -106,16 +105,25 @@ class GoogleCalendarEdit extends Component {
 		);
 
 		const controls = (
-			<BlockControls>
-				<Toolbar>
-					<IconButton
-						className="components-toolbar__control"
-						label={ __( 'Edit URL', 'jetpack' ) }
-						icon="edit"
-						onClick={ () => this.setState( { editingUrl: true } ) }
-					/>
-				</Toolbar>
-			</BlockControls>
+			<>
+				<InspectorControls>
+					<PanelBody title={ __( 'Calendar Settings', 'jetpack' ) } initialOpen={ false }>
+						<form onSubmit={ this.setAttributes } className={ `${ className }-embed-form-sidebar` }>
+							<textarea
+								type="text"
+								value={ editedEmbed }
+								className="components-placeholder__input"
+								aria-label={ __( 'Google Calendar URL or iframe', 'jetpack' ) }
+								placeholder={ __( 'Enter URL or iframe to embed here…', 'jetpack' ) }
+								onChange={ event => this.setState( { editedEmbed: event.target.value } ) }
+							/>
+							<Button isSecondary isLarge type="submit">
+								{ _x( 'Embed', 'button label', 'jetpack' ) }
+							</Button>
+						</form>
+					</PanelBody>
+				</InspectorControls>
+			</>
 		);
 
 		if ( editingUrl || ! url ) {
@@ -149,7 +157,7 @@ class GoogleCalendarEdit extends Component {
 								value={ editedEmbed }
 								className="components-placeholder__input"
 								aria-label={ __( 'Google Calendar URL or iframe', 'jetpack' ) }
-								placeholder={ __( 'Enter URL or iframe to embed here…', 'jetpack' ) }
+								placeholder={ __( 'Enter embed code or URL here', 'jetpack' ) }
 								onChange={ event => this.setState( { editedEmbed: event.target.value } ) }
 							/>
 							<Button isSecondary isLarge type="submit">

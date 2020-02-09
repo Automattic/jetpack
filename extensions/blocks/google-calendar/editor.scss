@@ -4,9 +4,24 @@
 
  .wp-block-jetpack-google-calendar {
     
+    &-embed-form-sidebar {
+		textarea {
+            width: 100%;
+            height: 75px;
+        };
+		button {
+            margin-top: 8px;
+            display: block;
+        };
+    }
+
+    .components-placeholder__label {
+        margin-bottom: 19px;
+    }
+
     .components-placeholder {
         p {
-            margin: 10px;
+            margin: 0px 0px 19px 0px;
         }
     }
  }
