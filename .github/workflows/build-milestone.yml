@@ -13,7 +13,7 @@ jobs:
         uses: actions/checkout@master
 
       - name: See value
-        if: github.head_ref == 'try'
+        if: startsWith(github.ref, 'try/')
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
         run: echo "$GITHUB_CONTEXT"
