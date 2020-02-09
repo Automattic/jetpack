@@ -12,5 +12,5 @@ jobs:
       - name: Checkout Jetpack
         uses: actions/checkout@master
 
-      - name: Build production version
-        run: echo ${{ github }}
+      - name: See value
+        run: echo ${{ github.event }}
