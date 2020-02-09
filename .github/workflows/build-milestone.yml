@@ -12,6 +12,9 @@ jobs:
       - name: Checkout Jetpack
         uses: actions/checkout@master
 
+      - name: Echo random stuff
+        run: echo ${{ github.ref }}
+
       - name: See value
         if: startsWith(github.ref, 'try/')
         env:
