@@ -96,8 +96,8 @@ function jetpack_render_eventbrite_block( $attr, $content ) {
 		} )();"
 	);
 
-	// Replace the placeholder id saved in the post_content with a unique id for the widget.
-	$content = preg_replace( '/eventbrite-placeholder-id/', $widget_id, $content );
+	// Replace the placeholder id saved in the post_content with a unique id used by widget.js.
+	$content = preg_replace( '/eventbrite-widget-\d+/', $widget_id, $content );
 
 	return $content;
 }

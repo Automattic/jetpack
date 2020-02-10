@@ -51,7 +51,7 @@ function saveButton( attributes ) {
 				href={ url }
 				// Placeholder id, preg replaced with a unique id generated in PHP when the block is rendered.
 				// IMPORTANT: do not remove or change unless you also update the render function in eventbrite.php.
-				id="eventbrite-placeholder-id"
+				id={ `eventbrite-widget-${ ( Date.now() * Math.random() ).toFixed() }` }
 				rel="noopener noreferrer"
 				role="button"
 				style={ buttonStyle }
