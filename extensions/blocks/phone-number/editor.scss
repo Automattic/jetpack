@@ -6,13 +6,15 @@
     display: flex;
 
     &-label-input.block-editor-plain-text {
-        margin-right: 10px;
+        margin-right: 8px;
         text-align: right;
-        padding-right: 10px;
+        padding-right: 8px;
         width: 120px;
     }
-
+    a {
+        margin-left: 8px;
+    }
     &-number-input.block-editor-plain-text {
-        padding-left: 10px;
+        padding-left: 8px;
     }
 }

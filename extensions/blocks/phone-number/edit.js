@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies
  */
-import { __, _x } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -12,7 +12,6 @@ export default function PhoneNumber( { attributes, setAttributes, className, isS
 	if ( isSelected ) {
 		return (
 			<>
-				{ inspectorControls }
 				<div className={ className }>
 					<PlainText
 						className={ `${ className }-label-input` }
@@ -31,13 +30,12 @@ export default function PhoneNumber( { attributes, setAttributes, className, isS
 				</div>
 			</>
 		);
-	} else {
-		const href = `tel:${ attributes.phoneNumber }`;
-		return (
-			<div className={ className }>
-				<span>{ attributes.label }</span>
-				<a href={ href }>{ attributes.phoneNumber }</a>
-			</div>
-		);
 	}
+
+	const href = `tel:${ attributes.phoneNumber }`;
+	return (
+		<div className={ className }>
+			<span>{ attributes.label }</span> <a href={ href }>{ attributes.phoneNumber }</a>
+		</div>
+	);
 }
