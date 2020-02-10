@@ -14,6 +14,7 @@ import icon from './icon';
  * Style dependencies
  */
 import './editor.scss';
+import './view.scss';
 
 export const name = 'opentable';
 export const title = __( 'OpenTable', 'jetpack' );

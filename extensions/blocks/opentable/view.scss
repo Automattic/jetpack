@@ -1,4 +1,29 @@
 .wp-block-jetpack-opentable {
+
+	&-theme-standard {
+		height: 301px;
+
+		&.is-multi {
+			height: 361px;
+		}
+	}
+
+	&-theme-tall {
+		height: 490px;
+
+		&.is-multi {
+			height: 550px;
+		}
+	}
+
+	&-theme-wide {
+		height: 150px;
+	}
+
+	&-theme-button {
+		height: 113px;
+	}
+
 	.ot-dtp-picker {
 		box-sizing: content-box;
 
