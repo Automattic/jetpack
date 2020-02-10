@@ -1,5 +1,18 @@
 /**
- * Editor styles for Amazon
+ * Editor styles for Phone Number
  */
 
-.wp-block-jetpack-amazon { }
+.wp-block-jetpack-phone-number { 
+    display: flex;
+
+    &-label-input.block-editor-plain-text {
+        margin-right: 10px;
+        text-align: right;
+        padding-right: 10px;
+        width: 120px;
+    }
+
+    &-number-input.block-editor-plain-text {
+        padding-left: 10px;
+    }
+}

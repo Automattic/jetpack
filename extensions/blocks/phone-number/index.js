@@ -38,7 +38,7 @@ export const settings = {
 		},
 		label: {
 			type: 'string',
-			default: __( 'Phone', 'jetpack' ),
+			default: __( 'Phone:', 'jetpack' ),
 		},
 	},
 	supports: {
@@ -55,7 +55,7 @@ export const settings = {
 	save,
 	example: {
 		attributes: {
-			phoneNumber: '+0014568980',
+			phoneNumber: '+001-456-8980',
 		},
 	},
 };
