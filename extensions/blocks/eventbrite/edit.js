@@ -246,6 +246,8 @@ class EventbriteEdit extends Component {
 		);
 	}
 
+	// @todo Remove isDefault and isLarge from Button when the minimum WP version
+	// supported by JP uses Gutenberg > 7.2
 	renderEditEmbed() {
 		const { className } = this.props;
 		const { editedUrl } = this.state;
@@ -273,7 +275,7 @@ class EventbriteEdit extends Component {
 							placeholder={ __( 'Enter an event URL to embed here…', 'jetpack' ) }
 							onChange={ event => this.setState( { editedUrl: event.target.value } ) }
 						/>
-						<Button isLarge type="submit">
+						<Button isLarge isDefault isSecondary type="submit">
 							{ _x( 'Embed', 'submit button label', 'jetpack' ) }
 						</Button>
 						{ this.cannotEmbed() && (
