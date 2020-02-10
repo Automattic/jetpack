@@ -78,8 +78,9 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			$widget_options = end( $widget_options );
 		}
 
-		$filters = Jetpack_Search_Helpers::get_filters_from_widgets();
-		$widgets = array();
+		$overlay_widget_ids = get_option( 'sidebars_widgets', array() )['jetpack-instant-search-sidebar'];
+		$filters            = Jetpack_Search_Helpers::get_filters_from_widgets( $overlay_widget_ids );
+		$widgets            = array();
 		foreach ( $filters as $key => $filter ) {
 			if ( ! isset( $widgets[ $filter['widget_id'] ] ) ) {
 				$widgets[ $filter['widget_id'] ]['filters']   = array();

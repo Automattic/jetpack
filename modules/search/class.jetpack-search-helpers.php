@@ -148,9 +148,11 @@ class Jetpack_Search_Helpers {
 	 *
 	 * @since 5.8.0
 	 *
+	 * @param array|null $whitelisted_widget_ids array of whitelisted widget IDs.
+	 *
 	 * @return array Active filters.
 	 */
-	static function get_filters_from_widgets() {
+	public static function get_filters_from_widgets( $whitelisted_widget_ids = null ) {
 		$filters = array();
 
 		$widget_options = self::get_widgets_from_option();
@@ -161,6 +163,9 @@ class Jetpack_Search_Helpers {
 		foreach ( (array) $widget_options as $number => $settings ) {
 			$widget_id = self::build_widget_id( $number );
 			if ( ! self::is_active_widget( $widget_id ) || empty( $settings['filters'] ) ) {
+				continue;
+			}
+			if ( isset( $whitelisted_widget_ids ) && ! in_array( $widget_id, $whitelisted_widget_ids, true ) ) {
 				continue;
 			}
 
