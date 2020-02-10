@@ -543,10 +543,12 @@ class JITM {
 		 * Allow adding your own custom JITMs after a set of JITMs has been received.
 		 *
 		 * @since 6.9.0
+		 * @since 8.3.0 - Added Message path.
 		 *
-		 * @param array $envelopes array of existing JITMs.
+		 * @param array  $envelopes    array of existing JITMs.
+		 * @param string $message_path The message path to ask for.
 		 */
-		$envelopes = apply_filters( 'jetpack_jitm_received_envelopes', $envelopes );
+		$envelopes = apply_filters( 'jetpack_jitm_received_envelopes', $envelopes, $message_path );
 
 		foreach ( $envelopes as $idx => &$envelope ) {
 
