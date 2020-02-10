@@ -35,12 +35,15 @@ class Jetpack_Mapbox_Helper {
 			return self::format_access_token( $service_api_key );
 		}
 
+		$site_id = self::get_wpcom_site_id();
+
 		// If on WordPress.com, try to return the access token straight away.
 		if ( self::is_wpcom() && defined( 'WPCOM_MAPBOX_ACCESS_TOKEN' ) ) {
-			return self::format_access_token( WPCOM_MAPBOX_ACCESS_TOKEN, 'wpcom' );
+			jetpack_require_lib( 'mapbox-blacklist' );
+			return wpcom_is_site_blacklisted_from_map_block( $site_id )
+				? self::format_access_token()
+				: self::format_access_token( WPCOM_MAPBOX_ACCESS_TOKEN, 'wpcom' );
 		}
-
-		$site_id = self::get_wpcom_site_id();
 
 		// If not on WordPress.com, return an empty access token.
 		if ( ! $site_id || ( ! self::is_wpcom() && ! jetpack_is_atomic_site() ) ) {
