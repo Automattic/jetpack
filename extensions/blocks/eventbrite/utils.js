@@ -30,14 +30,3 @@ export function eventIdFromUrl( url ) {
 	const match = url.match( /(\d+)\/?(?:\?[^\/]*)?\s*$/ );
 	return match && match[ 1 ] ? parseInt( match[ 1 ], 10 ) : null;
 }
-
-/**
- * Creates an html id used to identify an embedded Eventbrite widget.
- *
- * @param   {string} blockId Block id.
- * @param   {string} eventId Event id.
- * @returns {string}         HTML id.
- */
-export function createWidgetId( blockId, eventId ) {
-	return `${ window.Jetpack_Block_Eventbrite_Settings.widget_slug }-${ blockId }-${ eventId }`;
-}

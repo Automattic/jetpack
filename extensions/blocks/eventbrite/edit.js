@@ -2,7 +2,6 @@
  * External dependencies
  */
 import classnames from 'classnames';
-import { filter, find } from 'lodash';
 import { __, _x } from '@wordpress/i18n';
 import { Component } from '@wordpress/element';
 import {
@@ -16,8 +15,7 @@ import {
 	ExternalLink,
 } from '@wordpress/components';
 import { BlockControls, BlockIcon } from '@wordpress/block-editor';
-import { compose } from '@wordpress/compose';
-import { withDispatch, withSelect } from '@wordpress/data';
+import { withDispatch } from '@wordpress/data';
 import { InspectorControls } from '@wordpress/editor';
 import apiFetch from '@wordpress/api-fetch';
 import { ENTER, SPACE } from '@wordpress/keycodes';
@@ -25,7 +23,7 @@ import { ENTER, SPACE } from '@wordpress/keycodes';
 /**
  * Internal dependencies
  */
-import { createWidgetId, convertToLink, eventIdFromUrl } from './utils';
+import { convertToLink, eventIdFromUrl } from './utils';
 import { icon, URL_REGEX } from '.';
 import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import ModalButtonPreview from './modal-button-preview';
@@ -58,13 +56,6 @@ class EventbriteEdit extends Component {
 	}
 
 	componentDidUpdate( prevProps, prevState ) {
-		const { attributes, isDuplicate, setAttributes } = this.props;
-
-		if ( ! attributes.blockId || isDuplicate ) {
-			// Use a random number to make the widget div more unique.
-			setAttributes( { blockId: ( new Date().getTime() * Math.random() ).toFixed() } );
-		}
-
 		// Check if an Eventbrite URL has been entered, so we need to resolve it.
 		if ( ! prevState.resolvingUrl && this.state.resolvingUrl ) {
 			this.resolveUrl();
@@ -308,13 +299,13 @@ class EventbriteEdit extends Component {
 
 	renderInlinePreview() {
 		const { className } = this.props;
-		const { blockId, eventId } = this.props.attributes;
+		const { eventId } = this.props.attributes;
 
 		if ( ! eventId ) {
 			return;
 		}
 
-		const widgetId = createWidgetId( blockId, eventId );
+		const widgetId = `eventbrite-widget-${ eventId }`;
 		const html = `
 			<script src="https://www.eventbrite.com/static/widgets/eb_widgets.js"></script>
 			<style>
@@ -388,35 +379,22 @@ class EventbriteEdit extends Component {
 	}
 }
 
-export default compose(
-	withSelect( ( select, ownProps ) => {
-		const { attributes, clientId } = ownProps;
-		const { blockId } = attributes;
-		const { getBlocks } = select( 'core/block-editor' );
-		const eventbriteBlocks = filter( getBlocks(), [ 'name', 'jetpack/eventbrite' ] );
-		const isDuplicate = !! find(
-			eventbriteBlocks,
-			block => block.clientId !== clientId && block.attributes.blockId === blockId
-		);
-		return { isDuplicate };
-	} ),
-	withDispatch( ( dispatch, { name }, { select } ) => {
-		const { getBlockStyles } = select( 'core/blocks' );
-		const styles = getBlockStyles( name );
-		return {
-			addModalButtonStyles() {
-				if ( styles.length < 1 ) {
-					dispatch( 'core/blocks' ).addBlockStyles( name, MODAL_BUTTON_STYLES );
-				}
-			},
-			removeModalButtonStyles() {
-				if ( styles.length > 0 ) {
-					dispatch( 'core/blocks' ).removeBlockStyles(
-						name,
-						MODAL_BUTTON_STYLES.map( style => style.name )
-					);
-				}
-			},
-		};
-	} )
-)( EventbriteEdit );
+export default withDispatch( ( dispatch, { name }, { select } ) => {
+	const { getBlockStyles } = select( 'core/blocks' );
+	const styles = getBlockStyles( name );
+	return {
+		addModalButtonStyles() {
+			if ( styles.length < 1 ) {
+				dispatch( 'core/blocks' ).addBlockStyles( name, MODAL_BUTTON_STYLES );
+			}
+		},
+		removeModalButtonStyles() {
+			if ( styles.length > 0 ) {
+				dispatch( 'core/blocks' ).removeBlockStyles(
+					name,
+					MODAL_BUTTON_STYLES.map( style => style.name )
+				);
+			}
+		},
+	};
+} )( EventbriteEdit );
