@@ -126,7 +126,7 @@ function load_assets( $attr, $content ) {
 		 */
 		if ( ! empty( $submit_button_text_color ) || ! empty( $submit_button_background_color ) ) {
 			$inline_styles = sprintf(
-				'.wp-block-jetpack-calendly .button{%1$s%2$s}',
+				'style="%1$s%2$s"',
 				! empty( $submit_button_text_color )
 					? 'color:#' . sanitize_hex_color_no_hash( $submit_button_text_color ) . ';'
 					: '',
@@ -134,13 +134,15 @@ function load_assets( $attr, $content ) {
 					? 'background-color:#' . sanitize_hex_color_no_hash( $submit_button_background_color ) . ';'
 					: ''
 			);
-			wp_add_inline_style( 'jetpack-calendly-external-css', $inline_styles );
+		} else {
+			$inline_styles = '';
 		}
 
 		$content = sprintf(
-			'<div class="%1$s"><a class="wp-block-button__link" role="button" onclick="Calendly.initPopupWidget({url:\'%2$s\'});return false;">%3$s</a></div>',
+			'<div class="%1$s"><a class="wp-block-button__link" role="button" onclick="Calendly.initPopupWidget({url:\'%2$s\'});return false;"%3$s>%4$s</a></div>',
 			esc_attr( $classes ),
 			esc_js( $url ),
+			$inline_styles,
 			wp_kses_post( $submit_button_text )
 		);
 	} else { // Inline style.
