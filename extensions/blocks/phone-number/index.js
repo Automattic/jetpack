@@ -10,6 +10,7 @@ import { Fragment } from '@wordpress/element';
  */
 import renderMaterialIcon from '../../shared/render-material-icon';
 import edit from './edit';
+import save from './save';
 
 /**
  * Style dependencies
@@ -20,49 +21,41 @@ export const name = 'phone-number';
 export const title = __( 'Phone number', 'jetpack' );
 export const settings = {
 	title,
-	description: (
-		<Fragment>
-			<p>{ __( 'Phone Number', 'jetpack' ) }</p>
-			<ExternalLink href="#">{ __( 'Learn more about Phone numbers', 'jetpack' ) }</ExternalLink>
-		</Fragment>
+	description: __(
+		'Add a hyperlinked phone number that will dial when clicked on mobile',
+		'jetpack'
 	),
-	/* @TODO Add the icon. You can use one of these https://material.io/tools/icons/?style=outline */
 	icon: renderMaterialIcon(
-		<Path d="M9 15h2V9H9v6zm1-10c-.5 0-1 .5-1 1s.5 1 1 1 1-.5 1-1-.5-1-1-1zm0-4c-5 0-9 4-9 9s4 9 9 9 9-4 9-9-4-9-9-9zm0 16c-3.9 0-7-3.1-7-7s3.1-7 7-7 7 3.1 7 7-3.1 7-7 7z" />
+		<Path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" />
 	),
 	category: 'jetpack',
 	keywords: [],
+	attributes: {
+		phoneNumber: {
+			type: 'string',
+			source: 'text',
+			selector: 'a',
+		},
+		label: {
+			type: 'string',
+			default: __( 'Phone', 'jetpack' ),
+		},
+	},
 	supports: {
-		// Support for block's alignment (left, center, right, wide, full). When true, it adds block controls to change block’s alignment.
-		align: false /* if set to true, the 'align' option below can be used*/,
-		// Pick which alignment options to display.
-		/*align: [ 'left', 'right', 'full' ],*/
-		// Support for wide alignment, that requires additional support in themes.
-		alignWide: true,
-		// When true, a new field in the block sidebar allows to define an id for the block and a button to copy the direct link.
+		align: true,
+		alignWide: false,
 		anchor: false,
-		// When true, a new field in the block sidebar allows to define a custom className for the block’s wrapper.
 		customClassName: true,
-		// When false, Gutenberg won't add a class like .wp-block-your-block-name to the root element of your saved markup
 		className: true,
-		// Setting this to false suppress the ability to edit a block’s markup individually. We often set this to false in Jetpack blocks.
 		html: false,
-		// Passing false hides this block in Gutenberg's visual inserter.
-		/*inserter: true,*/
-		// When false, user will only be able to insert the block once per post.
 		multiple: true,
-		// When false, the block won't be available to be converted into a reusable block.
 		reusable: true,
 	},
 	edit,
-	/* @TODO Write the block editor output */
-	save: () => null,
+	save,
 	example: {
 		attributes: {
-			phoneNumber: {
-				default: 12345,
-				type: 'number',
-			},
+			phoneNumber: '+0014568980',
 		},
 	},
 };

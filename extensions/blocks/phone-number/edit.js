@@ -1,59 +1,74 @@
 /**
- * External dependencies
+ * WordPress dependencies
  */
 import { __, _x } from '@wordpress/i18n';
-import { Component } from '@wordpress/element';
-import { Button } from '@wordpress/components';
+import { useState } from '@wordpress/element';
+import { InspectorControls } from '@wordpress/block-editor';
+import { Button, PanelBody } from '@wordpress/components';
+
 /**
  * Internal dependencies
  */
-import './editor.scss';
+import { PlainText } from '@wordpress/block-editor';
 
-class PhoneNumberEdit extends Component {
-	/**
-	 * Write the block editor UI.
-	 *
-	 * @returns {object} The UI displayed when user edits this block.
-	 */
-	parseNumber = event => {
-		// if ( ! event ) {
-		// 	setErrorNotice();
-		// 	return;
-		// }
+export default function PhoneNumber( { attributes, setAttributes, className, isSelected } ) {
+	const [ label, setLabel ] = useState( attributes.label );
+
+	const saveLabel = event => {
+		if ( ! event ) {
+			// setErrorNotice();
+			return;
+		}
 
 		event.preventDefault();
 
-		// const newAttributes = getAttributesFromEmbedCode( embedCode );
-		// if ( ! newAttributes ) {
-		// 	setErrorNotice();
-		// 	return;
-		// }
-
-		// const newValidatedAttributes = getValidatedAttributes( attributeDetails, newAttributes );
-
-		this.props.setAttributes( 12345 );
+		setAttributes( { label } );
 	};
-	render() {
-		return (
-			<>
-				<form onSubmit={ this.parseNumber }>
+
+	const inspectorControls = (
+		<InspectorControls>
+			<PanelBody title={ __( 'Phone number Settings', 'jetpack' ) } initialOpen={ false }>
+				<form onSubmit={ saveLabel } className={ `${ className }-embed-form-sidebar` }>
 					<input
 						type="text"
-						id="phoneNumber"
-						// onChange={ event => setEmbedCode( event.target.value ) }
-						placeholder={ __( 'Enter phone number', 'jetpack' ) }
-						value=""
+						id="label"
+						onChange={ event => setLabel( event.target.value ) }
+						placeholder={ __( 'Modify label', 'jetpack' ) }
+						value={ label }
 						className="components-placeholder__input"
 					/>
 					<div>
 						<Button isSecondary isLarge type="submit">
-							{ _x( 'Embed', 'button label', 'jetpack' ) }
+							{ _x( 'Save', 'button label', 'jetpack' ) }
 						</Button>
 					</div>
 				</form>
+			</PanelBody>
+		</InspectorControls>
+	);
+
+	if ( isSelected ) {
+		return (
+			<>
+				{ inspectorControls }
+				<div className={ className }>
+					<span> { label }: </span>
+					<PlainText
+						value={ attributes.phoneNumber }
+						onChange={ phoneNumber => setAttributes( { phoneNumber } ) }
+						placeholder={ __( 'Enter phone number' ) }
+						aria-label={ __( 'Phone Number' ) }
+					/>
+				</div>
 			</>
+		);
+	} else {
+		const href = `tel:${ attributes.phoneNumber }`;
+		return (
+			<div className={ className }>
+				<span>{ attributes.label }: </span>
+				<a href={ href }>{ attributes.phoneNumber }</a>
+			</div>
 		);
 	}
 }
-
-export default PhoneNumberEdit;
