@@ -21,11 +21,9 @@ export default {
 	},
 	submitButtonTextColor: {
 		type: 'string',
-		validator: colourValidator,
 	},
 	submitButtonBackgroundColor: {
 		type: 'string',
-		validator: colourValidator,
 	},
 	submitButtonClasses: { type: 'string' },
 	hideEventTypeDetails: {
