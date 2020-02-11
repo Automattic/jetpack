@@ -79,11 +79,6 @@ add_action( 'init', 'Jetpack\Calendly_Block\set_availability' );
  * @return string
  */
 function load_assets( $attr, $content ) {
-	if ( is_admin() ) {
-		return;
-	}
-	static $block_num = 0;
-	$block_num++;
 	$url = get_attribute( $attr, 'url' );
 	if ( empty( $url ) ) {
 		return;
@@ -155,18 +150,18 @@ function load_assets( $attr, $content ) {
 		);
 	} else { // Inline style.
 		$content = sprintf(
-			'<div class="%1$s" id="calendly-block-%2$d"></div>',
+			'<div class="%1$s" id="%2$s"></div>',
 			esc_attr( $classes ),
-			$block_num
+			$block_id
 		);
 		$script  = <<<JS_END
 Calendly.initInlineWidget({
 	url: '%s',
-	parentElement: document.getElementById('calendly-block-%d'),
+	parentElement: document.getElementById('%s'),
 	inlineStyles: false,
 });
 JS_END;
-		wp_add_inline_script( 'jetpack-calendly-external-js', sprintf( $script, esc_url( $url ), $block_num ) );
+		wp_add_inline_script( 'jetpack-calendly-external-js', sprintf( $script, esc_url( $url ), $block_id ) );
 	}
 
 	return $content;
