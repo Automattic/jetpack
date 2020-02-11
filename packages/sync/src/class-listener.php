@@ -298,7 +298,7 @@ class Listener {
 		 * Periodically check the size of the queue, and disable adding to it if
 		 * it exceeds some limit AND the oldest item exceeds the age limit (i.e. sending has stopped).
 		 */
-		if ( ! $this->can_add_to_queue( $queue ) ) {
+		if ( ! $this->can_add_to_queue( $queue ) && Settings::is_sync_enabled() ) {
 			if ( 'sync' === $queue->id ) {
 				$this->sync_data_loss( $queue );
 			}
