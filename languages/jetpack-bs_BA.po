@@ -23,205 +23,255 @@ msgstr ""
 msgid "Coming soon"
 msgstr ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgctxt "verb: e.g. register for an event."
 msgid "Register"
 msgstr ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "tickets"
 msgstr ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "events"
 msgstr ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "Embed Eventbrite event details and ticket checkout."
 msgstr ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "Learn more about Eventbrite embeds"
 msgstr ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgctxt "submit button label"
 msgid "Embed"
 msgstr ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "Enter an event URL to embed here…"
 msgstr ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "Eventbrite URL"
 msgstr ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "Paste a link to an Eventbrite event to embed ticket checkout."
 msgstr ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "Eventbrite Checkout"
 msgstr ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgctxt "option for how the embed displays on a page, e.g. inline or as a modal"
 msgid "Embed Type"
 msgstr ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "Modal Eventbrite checkout example"
 msgstr ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid " Button & Modal"
 msgstr ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "In page Eventbrite checkout example"
 msgstr ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "In-page Embed"
 msgstr ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "Outline"
 msgstr ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "Fill"
 msgstr ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "Border Radius"
 msgstr ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "Border Settings"
 msgstr ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "Follow these instructions to change the colors in this block."
 msgstr ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "Hide Event Type Details"
 msgstr ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "Calendar Settings"
 msgstr ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "Link"
 msgstr ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "Inline"
 msgstr ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "Enter your Calendly web address or embed code below."
 msgstr ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "Need help finding your embed code?"
 msgstr ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "Calendly web address or embed code…"
 msgstr ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "Your calendar couldn't be embedded. Please double check your URL or code."
 msgstr ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "appointments"
 msgstr ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "schedule"
 msgstr ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "calendar"
 msgstr ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "Embed a calendar for customers to schedule appointments"
 msgstr ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "Calendly"
 msgstr ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "Open in a new window"
 msgstr ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "Styles"
 msgstr ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "Load the widget in an iFrame (Recommended)"
 msgstr ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "Sign up for OpenTable"
 msgstr ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "Enter your restaurant name, or paste an OpenTable Reservation Widget embed code."
 msgstr ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "OpenTable Reservation"
 msgstr ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "Style"
 msgstr ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "Open Table Preview %s"
 msgstr ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "Please ensure this embed matches the one from your OpenTable account"
 msgstr ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "We ran into an issue"
 msgstr ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "restaurant"
 msgstr ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "reservation"
 msgstr ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "opentable"
 msgstr ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "Allow visitors to book a reservation with OpenTable"
 msgstr ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "OpenTable"
 msgstr ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "Embed"
 msgstr ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "Restaurant"
 msgid_plural "Restaurants"
@@ -229,18 +279,22 @@ msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "Button (210 x 113 pixels)"
 msgstr ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "Wide (840 x 350 pixels)"
 msgstr ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "Tall (288 x 490 pixels)"
 msgstr ""
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "Standard (224 x 301 pixels)"
 msgstr ""
@@ -249,7 +303,7 @@ msgstr ""
 msgid "The source of the API key. Defaults to \"site\""
 msgstr ""
 
-#: _inc/lib/core-api/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-resolve-redirect.php:105
+#: _inc/lib/core-api/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-resolve-redirect.php:104
 msgid "The status code of the URL's response."
 msgstr ""
 
@@ -313,11 +367,12 @@ msgstr ""
 msgid "You already have several pending email subscriptions. <br /> Approve or delete a few subscriptions at <a href=\"%1$s\" title=\"%2$s\" target=\"_blank\" rel=\"noopener noreferrer\">subscribe.wordpress.com</a> before continuing."
 msgstr ""
 
-#: extensions/blocks/eventbrite/eventbrite.php:51
+#: extensions/blocks/eventbrite/eventbrite.php:54
 msgid "Register on Eventbrite"
 msgstr ""
 
-#: extensions/blocks/calendly/calendly.php:172 _inc/blocks/editor-beta.js:2
+#: extensions/blocks/calendly/calendly.php:172 _inc/blocks/editor.js:2
+#: _inc/blocks/editor-experimental.js:2 _inc/blocks/editor-beta.js:2
 msgid "Schedule time with me"
 msgstr ""
 
@@ -531,7 +586,7 @@ msgstr ""
 msgid "Site purchases correctly received."
 msgstr ""
 
-#: _inc/lib/core-api/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-resolve-redirect.php:101
+#: _inc/lib/core-api/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-resolve-redirect.php:100
 msgid "The final destination of the URL being checked for redirects."
 msgstr ""
 
@@ -1131,8 +1186,8 @@ msgstr ""
 msgid "The number of times Jetpack has backed up your site and kept it safe"
 msgstr ""
 
-#: _inc/jetpack-strings.php:322
 #: _inc/lib/core-api/class.jetpack-core-api-site-endpoints.php:174
+#: _inc/jetpack-strings.php:322
 msgid "Jetpack Backup"
 msgstr ""
 
@@ -1225,7 +1280,7 @@ msgid "Open images in new tab?"
 msgstr ""
 
 #. translators: Placeholder is a link to a support document.
-#: jetpack.php:123
+#: jetpack.php:102
 msgid "Your installation of Jetpack is incomplete. If you installed Jetpack from GitHub, please refer to this document to set up your development environment: %1$s"
 msgstr ""
 
@@ -1516,7 +1571,7 @@ msgid "%s / month"
 msgstr ""
 
 #. translators: Placeholder is a link to a support document.
-#: jetpack.php:142
+#: jetpack.php:121
 msgid "Your installation of Jetpack is incomplete. If you installed Jetpack from GitHub, please refer to <a href=\"%1$s\" target=\"_blank\" rel=\"noopener noreferrer\">this document</a> to set up your development environment."
 msgstr ""
 
@@ -1758,8 +1813,8 @@ msgctxt "block search term"
 msgid "shop"
 msgstr ""
 
-#: _inc/blocks/editor.js:2 _inc/blocks/map/view.js:1
-#: _inc/blocks/editor-experimental.js:2 _inc/blocks/editor-beta.js:2
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
+#: _inc/blocks/editor-beta.js:2 _inc/blocks/map/view.js:1
 msgctxt "block search term"
 msgid "map"
 msgstr ""
@@ -1834,8 +1889,8 @@ msgctxt "block search term"
 msgid "feedback"
 msgstr ""
 
-#: _inc/blocks/editor.js:2 _inc/blocks/map/view.js:1
-#: _inc/blocks/editor-experimental.js:2 _inc/blocks/editor-beta.js:2
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
+#: _inc/blocks/editor-beta.js:2 _inc/blocks/map/view.js:1
 msgctxt "block search term"
 msgid "navigation"
 msgstr ""
@@ -1890,8 +1945,8 @@ msgid "add_test arguments changed in 7.3.0. Please reference inline documentatio
 msgstr ""
 
 #. translators: accessibility text
-#: _inc/lib/debugger/class-jetpack-debug-data.php:111
 #: _inc/lib/debugger/class-jetpack-cxn-test-base.php:391
+#: _inc/lib/debugger/class-jetpack-debug-data.php:111
 #: _inc/lib/debugger/debug-functions.php:76
 msgid "(opens in a new tab)"
 msgstr ""
@@ -2087,9 +2142,9 @@ msgstr ""
 msgid "Back to Jetpack Dashboard"
 msgstr ""
 
-#: _inc/jetpack-strings.php:621
-#: _inc/lib/admin-pages/class-jetpack-about-page.php:45
 #: _inc/lib/admin-pages/class.jetpack-admin-page.php:363
+#: _inc/lib/admin-pages/class-jetpack-about-page.php:45
+#: _inc/jetpack-strings.php:621
 msgid "About Jetpack"
 msgstr ""
 
@@ -3130,8 +3185,8 @@ msgstr ""
 msgid "TEST RESULTS:"
 msgstr ""
 
-#: _inc/lib/debugger/class-jetpack-cxn-tests.php:96
 #: _inc/lib/debugger/class-jetpack-cxn-test-base.php:325
+#: _inc/lib/debugger/class-jetpack-cxn-tests.php:96
 msgid "Jetpack is in Development Mode:"
 msgstr ""
 
@@ -3604,8 +3659,8 @@ msgctxt "block search term"
 msgid "direction"
 msgstr ""
 
-#: _inc/blocks/editor.js:2 _inc/blocks/map/view.js:1
-#: _inc/blocks/editor-experimental.js:2 _inc/blocks/editor-beta.js:2
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
+#: _inc/blocks/editor-beta.js:2 _inc/blocks/map/view.js:1
 msgctxt "block search term"
 msgid "location"
 msgstr ""
@@ -3685,28 +3740,28 @@ msgstr ""
 msgid "Add text…"
 msgstr ""
 
-#: _inc/blocks/editor.js:2 _inc/blocks/map/view.js:1
-#: _inc/blocks/editor-experimental.js:2 _inc/blocks/editor-beta.js:2
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
+#: _inc/blocks/editor-beta.js:2 _inc/blocks/map/view.js:1
 msgid "Terrain"
 msgstr ""
 
-#: _inc/blocks/editor.js:2 _inc/blocks/map/view.js:1
-#: _inc/blocks/editor-experimental.js:2 _inc/blocks/editor-beta.js:2
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
+#: _inc/blocks/editor-beta.js:2 _inc/blocks/map/view.js:1
 msgid "Satellite"
 msgstr ""
 
-#: _inc/blocks/editor.js:2 _inc/blocks/map/view.js:1
-#: _inc/blocks/editor-experimental.js:2 _inc/blocks/editor-beta.js:2
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
+#: _inc/blocks/editor-beta.js:2 _inc/blocks/map/view.js:1
 msgid "Black and white"
 msgstr ""
 
-#: _inc/blocks/editor.js:2 _inc/blocks/map/view.js:1
-#: _inc/blocks/editor-experimental.js:2 _inc/blocks/editor-beta.js:2
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
+#: _inc/blocks/editor-beta.js:2 _inc/blocks/map/view.js:1
 msgid "Basic"
 msgstr ""
 
-#: _inc/blocks/editor.js:2 _inc/blocks/map/view.js:1
-#: _inc/blocks/editor-experimental.js:2 _inc/blocks/editor-beta.js:2
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
+#: _inc/blocks/editor-beta.js:2 _inc/blocks/map/view.js:1
 msgid "Add an interactive map showing one or more locations."
 msgstr ""
 
@@ -3748,8 +3803,8 @@ msgstr ""
 msgid "To use the map block, you need an Access Token."
 msgstr ""
 
-#: _inc/blocks/editor.js:2 _inc/blocks/map/view.js:1
-#: _inc/blocks/editor-experimental.js:2 _inc/blocks/editor-beta.js:2
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
+#: _inc/blocks/editor-beta.js:2 _inc/blocks/map/view.js:1
 msgid "Map"
 msgstr ""
 
@@ -3788,18 +3843,18 @@ msgstr ""
 msgid "Map Theme"
 msgstr ""
 
-#: _inc/blocks/editor.js:2 _inc/blocks/map/view.js:1
-#: _inc/blocks/editor-experimental.js:2 _inc/blocks/editor-beta.js:2
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
+#: _inc/blocks/editor-beta.js:2 _inc/blocks/map/view.js:1
 msgid "Delete Marker"
 msgstr ""
 
-#: _inc/blocks/editor.js:2 _inc/blocks/map/view.js:1
-#: _inc/blocks/editor-experimental.js:2 _inc/blocks/editor-beta.js:2
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
+#: _inc/blocks/editor-beta.js:2 _inc/blocks/map/view.js:1
 msgid "Marker Caption"
 msgstr ""
 
-#: _inc/blocks/editor.js:2 _inc/blocks/map/view.js:1
-#: _inc/blocks/editor-experimental.js:2 _inc/blocks/editor-beta.js:2
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
+#: _inc/blocks/editor-beta.js:2 _inc/blocks/map/view.js:1
 msgid "Marker Title"
 msgstr ""
 
@@ -4750,7 +4805,7 @@ msgid "No sitemap found. Please try again later."
 msgstr ""
 
 #. translators: %s is a human_time_diff until next sitemap generation.
-#: modules/sitemaps/sitemaps.php:161 modules/sitemaps/sitemap-stylist.php:198
+#: modules/sitemaps/sitemap-stylist.php:198 modules/sitemaps/sitemaps.php:161
 msgid "No sitemap found. The system will try to build it again in %s."
 msgstr ""
 
@@ -4987,7 +5042,7 @@ msgstr "Spam filtriranje i prioritetna podrška."
 msgid "When ads are enabled, Jetpack automatically generates a custom ads.txt tailored for your site."
 msgstr "Kada su oglasi uključeni, Jetpack automatski generira korisnički ads.txt skrojen za vašu web-stranicu."
 
-#: _inc/jetpack-strings.php:456 _inc/lib/class.core-rest-api-endpoints.php:2163
+#: _inc/lib/class.core-rest-api-endpoints.php:2163 _inc/jetpack-strings.php:456
 msgid "Custom ads.txt entries"
 msgstr "Unosi korisničkog ads.txt"
 
@@ -5244,9 +5299,9 @@ msgstr "Mape stranice su zapisi koje koriste tražilice poput Google i Bing kako
 msgid "Configure related posts in the Customizer"
 msgstr "Konfigurirajte povezane objave u Prilagođivaču"
 
+#: _inc/lib/class.core-rest-api-endpoints.php:2070 _inc/jetpack-strings.php:469
+#: _inc/jetpack-strings.php:699
 #: modules/related-posts/jetpack-related-posts.php:599
-#: _inc/jetpack-strings.php:469 _inc/jetpack-strings.php:699
-#: _inc/lib/class.core-rest-api-endpoints.php:2070
 msgid "Highlight related content with a heading"
 msgstr "Istakni povezani sadržaj s zaglavljem"
 
@@ -5378,9 +5433,9 @@ msgstr "Novi vlasnik je isti kao trenutni korisnik"
 msgid "New owner is not admin"
 msgstr "Novi vlasnik nije admin"
 
+#: _inc/lib/class.core-rest-api-endpoints.php:2077 _inc/jetpack-strings.php:470
+#: _inc/jetpack-strings.php:700
 #: modules/related-posts/jetpack-related-posts.php:601
-#: _inc/jetpack-strings.php:470 _inc/jetpack-strings.php:700
-#: _inc/lib/class.core-rest-api-endpoints.php:2077
 msgid "Show a thumbnail image where available"
 msgstr "Prikaži sličicu gdje je to dostupno."
 
@@ -6150,8 +6205,8 @@ msgstr "Primarni jezik web-stranice."
 msgid "Design the perfect website"
 msgstr "Dizajnirajte savršenu web-stranicu"
 
-#: class.jetpack-connection-banner.php:294
-#: class.jetpack-connection-banner.php:341 _inc/jetpack-strings.php:606
+#: _inc/jetpack-strings.php:606 class.jetpack-connection-banner.php:294
+#: class.jetpack-connection-banner.php:341
 #: views/admin/must-connect-main-blog.php:10
 msgid "Set up Jetpack"
 msgstr "Postavite Jetpack"
@@ -6170,9 +6225,9 @@ msgctxt "label for formatting JSON"
 msgid "Pretty"
 msgstr "Pretty"
 
-#: 3rd-party/debug-bar/class.jetpack-search-debug-bar.php:26
 #: _inc/jetpack-strings.php:151 _inc/jetpack-strings.php:156
 #: _inc/jetpack-strings.php:220
+#: 3rd-party/debug-bar/class.jetpack-search-debug-bar.php:26
 msgid "Jetpack Search"
 msgstr "Jetpack pretraga"
 
@@ -6190,7 +6245,7 @@ msgctxt "displayed in search results when results are cached"
 msgid "cache hit"
 msgstr "predmemorirani hit"
 
-#: modules/widgets/search.php:821 modules/widgets/social-icons.php:353
+#: modules/widgets/social-icons.php:353 modules/widgets/search.php:821
 msgid "Remove"
 msgstr "Ukloni"
 
@@ -6322,8 +6377,8 @@ msgstr "VaultPress više nije potreban i deaktiviran je."
 msgid "Jetpack is now handling your backups."
 msgstr "Jetpack se sada brine za vaše sigurnosne kopije."
 
-#: _inc/jetpack-strings.php:619
 #: _inc/lib/admin-pages/class.jetpack-admin-page.php:360
+#: _inc/jetpack-strings.php:619
 msgid "Jetpack version"
 msgstr "Jetpack inačica"
 
@@ -6371,8 +6426,8 @@ msgstr "Testiranje konekcije za %s"
 msgid "Checking status for %s"
 msgstr "Provjera statusa za %s"
 
-#: modules/masterbar/masterbar.php:892 _inc/jetpack-strings.php:72
-#: _inc/jetpack-strings.php:211
+#: _inc/jetpack-strings.php:72 _inc/jetpack-strings.php:211
+#: modules/masterbar/masterbar.php:892
 msgid "Activity"
 msgstr "Aktivnost"
 
@@ -6825,11 +6880,11 @@ msgstr "Prikaži web-stranicu"
 msgid "Site features correctly received."
 msgstr "Uspješno primijenjene mogućnosti web-stranice."
 
+#: _inc/lib/class.core-rest-api-endpoints.php:549
 #: _inc/lib/core-api/class.jetpack-core-api-site-endpoints.php:34
 #: _inc/lib/core-api/class.jetpack-core-api-site-endpoints.php:46
 #: _inc/lib/core-api/class.jetpack-core-api-site-endpoints.php:75
 #: _inc/lib/core-api/class.jetpack-core-api-site-endpoints.php:87
-#: _inc/lib/class.core-rest-api-endpoints.php:549
 msgid "Unable to fetch the requested data."
 msgstr "Nije moguće dohvatiti tražene podatke."
 
@@ -7382,9 +7437,9 @@ msgstr "Strujanje"
 msgid "Reader"
 msgstr "Čitač"
 
-#: _inc/jetpack-strings.php:613
 #: _inc/lib/admin-pages/class.jetpack-admin-page.php:383
 #: _inc/lib/debugger/class-jetpack-debugger.php:248
+#: _inc/jetpack-strings.php:613
 msgid "Access the full list of Jetpack modules available on your site."
 msgstr "Pristupite cijeloj listi dostupnih Jetpack modula na vašoj web-stranici."
 
@@ -7401,12 +7456,12 @@ msgstr "Jetpack radi tako da se spoji s WordPress.com zbog puno mogućnosti. Pon
 msgid "A connection problem with WordPress.com."
 msgstr "Problem u spajanju s WordPress.com."
 
-#. translators: %1$s: Service Name (Facebook, Twitter, ...), %2$s: Username on
-#. Service (@jetpack, ...)
 #. Translators: the first variable is a module option or slug, or setting. The
 #. second is the error message .
-#: modules/publicize/ui.php:422
+#. translators: %1$s: Service Name (Facebook, Twitter, ...), %2$s: Username on
+#. Service (@jetpack, ...)
 #: _inc/lib/core-api/class.jetpack-core-api-module-endpoints.php:935
+#: modules/publicize/ui.php:422
 msgid "%1$s: %2$s"
 msgstr "%1$s: %2$s"
 
@@ -7821,8 +7876,8 @@ msgstr "Postavi"
 msgid "View your Email Followers"
 msgstr "Pregledajte svoje e-pošta pratitelje"
 
-#: modules/widgets/eu-cookie-law/form.php:210 _inc/jetpack-strings.php:165
-#: _inc/lib/class.core-rest-api-endpoints.php:1747
+#: _inc/lib/class.core-rest-api-endpoints.php:1747 _inc/jetpack-strings.php:165
+#: modules/widgets/eu-cookie-law/form.php:210
 msgid "Color scheme"
 msgstr "Paleta boja"
 
@@ -8017,7 +8072,7 @@ msgstr "Trebate navesti ID objave"
 msgid "Nothing is in the queue: %s"
 msgstr "Nema ničeg u redu za čekanje: %s"
 
-#: _inc/jetpack-strings.php:230 _inc/lib/class.core-rest-api-endpoints.php:2173
+#: _inc/lib/class.core-rest-api-endpoints.php:2173 _inc/jetpack-strings.php:230
 msgid "Google Analytics"
 msgstr "Google Analytics"
 
@@ -8182,7 +8237,7 @@ msgstr "Fokus nadogradnje: VideoPress za vjenčanja"
 msgid "{{span}}You can now also configure related posts in the Customizer. {{ExternalLink}}Try it out!{{/ExternalLink}}{{/span}}"
 msgstr "{{span}}Sada možete konfigurirati srodne objave u Prilagodniku. {{ExternalLink}}Isprobajte!{{/ExternalLink}}{{/span}}"
 
-#: modules/module-info.php:778 _inc/jetpack-strings.php:705
+#: _inc/jetpack-strings.php:705 modules/module-info.php:778
 msgid "By default ads are shown at the end of every page, post, or the first article on your front page. You can also add them to the top of your site and to any widget area to increase your earnings!"
 msgstr "Po izvornim postavkama oglasi su prikazani na kraju svake stranice, objave, ili prvog članka na vašoj početnoj stranici, Također, možete ih dodati na vrh vaše web-stranice i u bilo koje widget područje kako bi povećali zaradu!"
 
@@ -8412,10 +8467,10 @@ msgstr "Pisanje ne novo u Androidu s novom WordPress aplikacijom."
 
 #. translators: It refers to the category where a post was found. Used in an
 #. example preview.
+#: _inc/jetpack-strings.php:475 _inc/jetpack-strings.php:478
 #: modules/related-posts/jetpack-related-posts.php:1064
 #: modules/related-posts/jetpack-related-posts.php:1084
 #: modules/related-posts/jetpack-related-posts.php:1104
-#: _inc/jetpack-strings.php:475 _inc/jetpack-strings.php:478
 msgid "In \"Mobile\""
 msgstr "U \"Mobile\""
 
@@ -8671,8 +8726,8 @@ msgstr "Prikaži članove zajednice moje web-stranice"
 msgid "To get started, click on Add Media in your post editor and upload a video; we’ll take care of the rest!"
 msgstr "ZA početak, kliknite na 'Dodaj medijski zapis' u vašem uređivaču objava i prenesite video; mi ćemo se pobrinuti za ostalo!"
 
-#: _inc/jetpack-strings.php:206
 #: _inc/lib/core-api/class.jetpack-core-api-site-endpoints.php:221
+#: _inc/jetpack-strings.php:206
 msgid "Video Hosting"
 msgstr "Video Hosting"
 
@@ -8849,11 +8904,11 @@ msgstr "Neispravni SEO format naslova."
 msgid "Invalid SEO meta description value."
 msgstr "Nesipravna vrijednost SEO meta opisa."
 
+#: json-endpoints/class.wpcom-json-api-update-post-v1-1-endpoint.php:789
 #: json-endpoints/class.wpcom-json-api-site-settings-endpoint.php:734
 #: json-endpoints/class.wpcom-json-api-site-settings-endpoint.php:750
 #: json-endpoints/class.wpcom-json-api-update-post-endpoint.php:710
 #: json-endpoints/class.wpcom-json-api-update-post-v1-2-endpoint.php:760
-#: json-endpoints/class.wpcom-json-api-update-post-v1-1-endpoint.php:789
 msgid "SEO tools are not enabled for this site."
 msgstr "SEO alati nisu uključeni za ovu web-stranicu."
 
@@ -9063,13 +9118,13 @@ msgstr "Konfigurirajte Sigurnosna skeniranja"
 msgid "Subscriber"
 msgstr "Pretplatnik"
 
-#: modules/related-posts/jetpack-related-posts.php:1059
 #: _inc/jetpack-strings.php:473 _inc/jetpack-strings.php:694
+#: modules/related-posts/jetpack-related-posts.php:1059
 msgid "Big iPhone/iPad Update Now Available"
 msgstr "Veliko iPhone/iPad ažuriranje je sada dostupno"
 
-#: modules/related-posts/jetpack-related-posts.php:1079
 #: _inc/jetpack-strings.php:476 _inc/jetpack-strings.php:695
+#: modules/related-posts/jetpack-related-posts.php:1079
 msgid "The WordPress for Android App Gets a Big Facelift"
 msgstr "Aplikacija WordPress za Android dobila je veliko poboljšanje"
 
@@ -9240,8 +9295,8 @@ msgstr "Svi dodaci su ažurirani. Odličan posao!"
 msgid "Jetpack is monitoring your site. If we think your site is down, you will receive an email."
 msgstr "Jetpack nadzire vašu web-stranicu. Ako nam se učini da web-stranice nije online, poslati ćemo vam poruku e-poštom."
 
-#: modules/masterbar/masterbar.php:678 _inc/jetpack-strings.php:106
-#: _inc/jetpack-strings.php:389
+#: _inc/jetpack-strings.php:106 _inc/jetpack-strings.php:389
+#: modules/masterbar/masterbar.php:678
 msgid "Security"
 msgstr "Sigurnost"
 
@@ -9828,8 +9883,8 @@ msgstr "Neuspjelo učitavanje potrebnih dependency Sharing_Service."
 msgid "%s must be an array with visible and hidden items."
 msgstr "%s treba biti niz (array) s vidljivima i skrivenim stavkama."
 
-#: modules/plugin-search.php:131
 #: _inc/lib/class.core-rest-api-endpoints.php:2481
+#: modules/plugin-search.php:131
 msgid "%s must be an alphanumeric string."
 msgstr "%s mora biti alfanumerički niz."
 
@@ -10004,8 +10059,8 @@ msgstr "Nedostaje parametar \"notice\"."
 msgid "Invalid parameter \"notice\"."
 msgstr "Neispravni parametar \"notice\"."
 
-#: _inc/lib/core-api/wpcom-endpoints/service-api-keys.php:61
 #: _inc/lib/class.core-rest-api-endpoints.php:63
+#: _inc/lib/core-api/wpcom-endpoints/service-api-keys.php:61
 msgid ""
 "You do not have the correct user permissions to perform this action.\n"
 "\t\t\tPlease contact your site admin if you think this is a mistake."
@@ -10022,9 +10077,9 @@ msgid "You have JavaScript disabled"
 msgstr "JavaScript vam je onesposobljen"
 
 #: class.jetpack-network-sites-list-table.php:63
-#: modules/masterbar/masterbar.php:1304 _inc/jetpack-strings.php:680
 #: _inc/lib/admin-pages/class.jetpack-react-page.php:60
 #: _inc/lib/admin-pages/class.jetpack-admin-page.php:327
+#: _inc/jetpack-strings.php:680 modules/masterbar/masterbar.php:1304
 msgid "Dashboard"
 msgstr "Nadzorna ploča"
 
@@ -10037,8 +10092,8 @@ msgctxt "Shorthand for Privacy Policy."
 msgid "Privacy"
 msgstr ""
 
-#: _inc/jetpack-strings.php:625
 #: _inc/lib/admin-pages/class.jetpack-admin-page.php:369
+#: _inc/jetpack-strings.php:625
 msgid "Automattic's Privacy Policy"
 msgstr "Automattic Polica Privatnosti"
 
@@ -10047,8 +10102,8 @@ msgctxt "Shorthand for Terms of Service."
 msgid "Terms"
 msgstr ""
 
-#: _inc/jetpack-strings.php:623
 #: _inc/lib/admin-pages/class.jetpack-admin-page.php:366
+#: _inc/jetpack-strings.php:623
 msgid "WordPress.com Terms of Service"
 msgstr "WordPress.com Uvjeti Usluge"
 
@@ -10441,8 +10496,8 @@ msgstr "piksela"
 msgid "Start Video After"
 msgstr "Započni video nakon"
 
-#: modules/videopress/editor-media-view.php:42
 #: modules/widgets/eu-cookie-law/form.php:173
+#: modules/videopress/editor-media-view.php:42
 msgid "seconds"
 msgstr "sekundi"
 
@@ -10823,8 +10878,9 @@ msgstr "Započnite s Jetpack Multisite"
 msgid "Activated"
 msgstr "Aktivirano"
 
-#: modules/plugin-search.php:519 _inc/jetpack-strings.php:551
-#: _inc/jetpack-strings.php:745 _inc/jetpack-strings.php:746
+#: _inc/jetpack-strings.php:551 _inc/jetpack-strings.php:745
+#: _inc/jetpack-strings.php:746 modules/plugin-search.php:519
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "Learn more"
 msgstr "Saznaj Više"
@@ -11020,17 +11076,17 @@ msgstr "Crvena"
 msgid "Image Size:"
 msgstr "Veličina slike:"
 
-#: modules/widgets/rsslinks-widget.php:141 modules/widgets/flickr/form.php:99
-#: modules/widgets/social-icons.php:247
+#: modules/widgets/social-icons.php:247 modules/widgets/rsslinks-widget.php:141
+#: modules/widgets/flickr/form.php:99
 msgid "Large"
 msgstr "Velika"
 
-#: modules/widgets/rsslinks-widget.php:140 modules/widgets/flickr/form.php:88
-#: modules/widgets/social-icons.php:246
+#: modules/widgets/social-icons.php:246 modules/widgets/rsslinks-widget.php:140
+#: modules/widgets/flickr/form.php:88
 msgid "Medium"
 msgstr "Osrednje"
 
-#: modules/widgets/rsslinks-widget.php:139 modules/widgets/social-icons.php:245
+#: modules/widgets/social-icons.php:245 modules/widgets/rsslinks-widget.php:139
 msgid "Small"
 msgstr "Malo"
 
@@ -11058,8 +11114,8 @@ msgstr "Kanal(i) za prikazati:"
 msgid "Posts & Comments"
 msgstr "Objave i komentari"
 
-#: modules/widgets/rsslinks-widget.php:101
-#: modules/widgets/rsslinks-widget.php:177 _inc/jetpack-strings.php:449
+#: _inc/jetpack-strings.php:449 modules/widgets/rsslinks-widget.php:101
+#: modules/widgets/rsslinks-widget.php:177
 msgid "Posts"
 msgstr "Objave"
 
@@ -11320,17 +11376,16 @@ msgstr "Prikaži kartu"
 msgid "Address:"
 msgstr "Adresa:"
 
-#: modules/widgets/wordpress-post-widget/class.jetpack-display-posts-widget-base.php:224
-#: modules/widgets/rsslinks-widget.php:96 modules/widgets/goodreads.php:137
-#: modules/widgets/top-posts.php:92 modules/widgets/my-community.php:85
-#: modules/widgets/social-media-icons.php:246
+#: modules/widgets/social-icons.php:253 modules/widgets/rsslinks-widget.php:96
+#: modules/widgets/google-translate.php:173 modules/widgets/authors.php:223
 #: modules/widgets/twitter-timeline.php:340
-#: modules/widgets/google-translate.php:173
-#: modules/widgets/upcoming-events.php:42 modules/widgets/search.php:793
-#: modules/widgets/flickr/form.php:3 modules/widgets/blog-stats.php:93
-#: modules/widgets/social-icons.php:253
-#: modules/widgets/gallery/templates/form.php:2 modules/widgets/authors.php:223
-#: modules/widgets/contact-info.php:248
+#: modules/widgets/contact-info.php:248 modules/widgets/goodreads.php:137
+#: modules/widgets/flickr/form.php:3 modules/widgets/upcoming-events.php:42
+#: modules/widgets/wordpress-post-widget/class.jetpack-display-posts-widget-base.php:224
+#: modules/widgets/social-media-icons.php:246 modules/widgets/top-posts.php:92
+#: modules/widgets/blog-stats.php:93
+#: modules/widgets/gallery/templates/form.php:2 modules/widgets/search.php:793
+#: modules/widgets/my-community.php:85
 msgid "Title:"
 msgstr "Naslov:"
 
@@ -11474,8 +11529,8 @@ msgstr "Stranica arhive"
 msgid "Posts page"
 msgstr "Stranica objava"
 
-#: modules/widget-visibility/widget-conditions.php:109
 #: _inc/jetpack-strings.php:448
+#: modules/widget-visibility/widget-conditions.php:109
 msgid "Front page"
 msgstr "Početna stranica"
 
@@ -11595,8 +11650,8 @@ msgstr "%s greška"
 msgid "Website Verification Services"
 msgstr "Servis verifikacije web-stranice"
 
-#: modules/tiled-gallery/tiled-gallery.php:294
 #: _inc/lib/class.core-rest-api-endpoints.php:1796
+#: modules/tiled-gallery/tiled-gallery.php:294
 msgid "Display all your gallery pictures in a cool mosaic."
 msgstr "Prikaži sve moje slike galerija u cool mozaiku."
 
@@ -11794,13 +11849,13 @@ msgstr "Uvodni tekst poslan kada netko počne pratiti vaš blog. (Informacije o 
 msgid "These settings change emails sent from your blog to followers."
 msgstr "Ove postavke mijenjaju poruke e-pošte poslane s vašeg bloga sljedbenicima."
 
-#: modules/subscriptions.php:395
 #: _inc/lib/class.core-rest-api-endpoints.php:2054
+#: modules/subscriptions.php:395
 msgid "Show a <em>'follow comments'</em> option in the comment form"
 msgstr "Prikaži opciju <em>'prati komentare'</em> u komentar formi."
 
-#: modules/subscriptions.php:380
 #: _inc/lib/class.core-rest-api-endpoints.php:2047
+#: modules/subscriptions.php:380
 msgid "Show a <em>'follow blog'</em> option in the comment form"
 msgstr "Prikaži <em>'prati blog'</em> opciju u komentar formi."
 
@@ -11866,11 +11921,10 @@ msgstr "Najbolje objave"
 msgid "%1$s %2$s Views"
 msgstr "%1$s %2$s pregleda"
 
-#: modules/videopress/class.videopress-player.php:305
+#: modules/stats.php:1095 modules/contact-form/grunion-contact-form.php:1845
 #: modules/contact-form/grunion-editor-view.php:92
-#: modules/contact-form/grunion-contact-form.php:1845 modules/stats.php:1095
-#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
-#: _inc/blocks/editor-beta.js:2
+#: modules/videopress/class.videopress-player.php:305 _inc/blocks/editor.js:2
+#: _inc/blocks/editor-experimental.js:2 _inc/blocks/editor-beta.js:2
 msgid "Submit"
 msgstr "Pošalji"
 
@@ -11922,8 +11976,8 @@ msgstr "dan"
 msgid "Views over 48 hours. Click for more Site Stats."
 msgstr "Pregledi tijekom 48 sati. Kliknite za više Statistike stranice."
 
-#: modules/masterbar/masterbar.php:878 modules/stats.php:876
-#: modules/stats.php:1697
+#: modules/stats.php:876 modules/stats.php:1697
+#: modules/masterbar/masterbar.php:878
 msgid "Stats"
 msgstr "Statistika"
 
@@ -11963,11 +12017,11 @@ msgstr "Prijavite se s WordPress.com"
 msgid "Cannot deal with cookie redirects, as headers are already sent."
 msgstr "Nije moguće upravljati s preusmjeravanjem kolačića, jer su zaglavlja (headers) već poslana."
 
-#: modules/sso.php:281 _inc/lib/class.core-rest-api-endpoints.php:2038
+#: _inc/lib/class.core-rest-api-endpoints.php:2038 modules/sso.php:281
 msgid "Match by Email"
 msgstr "Spariti po e-pošti"
 
-#: modules/sso.php:251 _inc/lib/class.core-rest-api-endpoints.php:2031
+#: _inc/lib/class.core-rest-api-endpoints.php:2031 modules/sso.php:251
 msgid "Require Two-Step Authentication"
 msgstr "Uključi Two-Step Authentication"
 
@@ -12047,23 +12101,23 @@ msgstr "Ime servisa"
 msgid "Sharing label"
 msgstr "Oznaka Djeljenja"
 
-#: modules/sharedaddy/sharing.php:392
 #: _inc/lib/class.core-rest-api-endpoints.php:1971
+#: modules/sharedaddy/sharing.php:392
 msgid "Official buttons"
 msgstr "Službeni gumbi"
 
-#: modules/sharedaddy/sharing.php:391
 #: _inc/lib/class.core-rest-api-endpoints.php:1970
+#: modules/sharedaddy/sharing.php:391
 msgid "Text only"
 msgstr "Samo tekst"
 
-#: modules/sharedaddy/sharing.php:390
 #: _inc/lib/class.core-rest-api-endpoints.php:1969
+#: modules/sharedaddy/sharing.php:390
 msgid "Icon only"
 msgstr "Samo ikona"
 
-#: modules/sharedaddy/sharing.php:389
 #: _inc/lib/class.core-rest-api-endpoints.php:1968
+#: modules/sharedaddy/sharing.php:389
 msgid "Icon + text"
 msgstr "Ikona + tekst"
 
@@ -12146,7 +12200,7 @@ msgctxt "share to"
 msgid "Pinterest"
 msgstr "Pinterest"
 
-#: modules/sharedaddy/sharing-sources.php:1458 _inc/jetpack-strings.php:510
+#: _inc/jetpack-strings.php:510 modules/sharedaddy/sharing-sources.php:1458
 #: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "Pinterest"
@@ -12327,12 +12381,12 @@ msgstr "(Otvara se u novom prozoru)"
 msgid "Share"
 msgstr "Podijeli"
 
-#: modules/sharedaddy/sharing.php:329 modules/sharedaddy/sharing.php:365
 #: modules/sharedaddy/sharing-service.php:847
+#: modules/sharedaddy/sharing.php:329 modules/sharedaddy/sharing.php:365
 msgid "More"
 msgstr "Više"
 
-#: modules/sharedaddy/sharing.php:225 modules/sharedaddy/sharing-service.php:15
+#: modules/sharedaddy/sharing-service.php:15 modules/sharedaddy/sharing.php:225
 msgid "Share this:"
 msgstr "Podjeli ovo:"
 
@@ -12340,8 +12394,8 @@ msgstr "Podjeli ovo:"
 msgid "Advanced.  If this option is checked, you must include these files in your theme manually for the sharing links to work."
 msgstr "Napredno. Ako je uključena ova opcija, morate manualno uključiti ove datoteke u svoju temu kako bi poveznice za dijeljenje radile."
 
-#: modules/sharedaddy/sharedaddy.php:246
 #: _inc/lib/class.core-rest-api-endpoints.php:2003
+#: modules/sharedaddy/sharedaddy.php:246
 msgid "Disable CSS and JS"
 msgstr "Onemogući CSS i JS"
 
@@ -12400,8 +12454,8 @@ msgstr "U \"%s\""
 msgid "Untitled Post"
 msgstr "Objava bez naziva"
 
-#: modules/related-posts/jetpack-related-posts.php:635
 #: _inc/jetpack-strings.php:468
+#: modules/related-posts/jetpack-related-posts.php:635
 msgid "Show related content after posts"
 msgstr "Prikaži srodni sadržaj ispod objava"
 
@@ -12413,11 +12467,11 @@ msgstr "Sakrij srodni sadržaj ispod objave"
 msgid "Preview:"
 msgstr "Pretpregled:"
 
-#: modules/related-posts/class.related-posts-customize.php:178
+#: _inc/jetpack-strings.php:472
 #: modules/related-posts/jetpack-related-posts.php:492
 #: modules/related-posts/jetpack-related-posts.php:552
 #: modules/related-posts/jetpack-related-posts.php:661
-#: _inc/jetpack-strings.php:472
+#: modules/related-posts/class.related-posts-customize.php:178
 msgid "Related"
 msgstr "Srodno"
 
@@ -12580,8 +12634,8 @@ msgstr "Riješite ovaj matematički upit kako bi dokazali da niste bot. Nakon š
 msgid "<strong>You failed to correctly answer the math problem.</strong>  This is used to combat spam when the Protect API is unavailable.  Please use your browser's back button to return to the login form, press the \"refresh\" button to generate a new math problem, and try to log in again."
 msgstr "<strong>Niste točno odgovorili na matematički upit.</strong> Ovo se koristi za borbu protiv spama kada API Zaštite (Protect API) nije dostupan. Upotrijebite gumb s strelicom za nazad u vašem pregledniku kako bi se vratili na formu za prijavu, pritisnite gumb za osvježavanje kako bi se generirao novi matematički upit, i pokušajte se ponovno prijaviti."
 
-#: modules/sharedaddy/sharing-sources.php:1300
-#: modules/widgets/simple-payments/form.php:181 _inc/jetpack-strings.php:760
+#: _inc/jetpack-strings.php:760 modules/sharedaddy/sharing-sources.php:1300
+#: modules/widgets/simple-payments/form.php:181
 msgid "Save"
 msgstr "Spremi"
 
@@ -12605,11 +12659,11 @@ msgstr "Nije moguće regenerirati vašu adresu za Objavu putem e-pošte. Pokuša
 msgid "Unable to create your Post By Email address. Please try again later."
 msgstr "Nije moguće kreirati vašu adresu za Objavu putem e-pošte. Pokušajte kasnije."
 
-#: modules/post-by-email.php:120 modules/publicize/publicize-jetpack.php:87
+#: modules/publicize/publicize-jetpack.php:87 modules/post-by-email.php:120
 msgid "Link account with WordPress.com"
 msgstr "Povežite račun s WordPress.com"
 
-#: modules/post-by-email.php:117 modules/publicize/publicize-jetpack.php:81
+#: modules/publicize/publicize-jetpack.php:81 modules/post-by-email.php:117
 msgid "If you don't have a WordPress.com account yet, you can sign up for free in just a few seconds."
 msgstr "Ako još nemate WordPress.com račun, možete ga besplatno registrirati u nekoliko sekundi."
 
@@ -12634,9 +12688,10 @@ msgstr "Više informacija"
 msgid "Enable Post By Email"
 msgstr "Omogući objave e-poštom"
 
-#: modules/post-by-email.php:83 modules/subscriptions/views.php:571
-#: _inc/lib/class.core-rest-api-endpoints.php:1910 _inc/blocks/editor.js:2
-#: _inc/blocks/editor-experimental.js:2 _inc/blocks/editor-beta.js:2
+#: _inc/lib/class.core-rest-api-endpoints.php:1910
+#: modules/subscriptions/views.php:571 modules/post-by-email.php:83
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
+#: _inc/blocks/editor-beta.js:2
 msgid "Email Address"
 msgstr "Adresa e-pošte"
 
@@ -12650,9 +12705,9 @@ msgstr "Zadnja izmjena"
 #: modules/sitemaps/sitemap-stylist.php:307
 #: modules/sitemaps/sitemap-stylist.php:447
 #: modules/sitemaps/sitemap-stylist.php:588
-#: modules/widgets/milestone/milestone.php:596
 #: modules/widgets/gravatar-profile.php:277
 #: modules/widgets/facebook-likebox.php:154
+#: modules/widgets/milestone/milestone.php:596
 msgid "Title"
 msgstr "Naslov"
 
@@ -12672,8 +12727,8 @@ msgstr "Primi Monitor obavijesti e-poštom"
 msgid "Themes"
 msgstr "Teme"
 
-#: modules/masterbar/masterbar.php:1240
 #: modules/calypsoify/class.jetpack-calypsoify.php:286
+#: modules/masterbar/masterbar.php:1240
 msgid "Plugins"
 msgstr "Dodaci"
 
@@ -12726,14 +12781,14 @@ msgstr "LaTeX je moćan markup jezik za pisanje kompleksnih matematičkih jednad
 msgid "Notifications"
 msgstr "Obavijesti"
 
-#: modules/publicize/ui.php:97
 #: _inc/lib/core-api/class.jetpack-core-api-site-endpoints.php:240
+#: modules/publicize/ui.php:97
 msgid "Publicize"
 msgstr "Publicirati"
 
-#: modules/stats.php:423 modules/stats.php:566 modules/stats.php:975
-#: _inc/jetpack-strings.php:597 _inc/jetpack-strings.php:598
 #: _inc/lib/core-api/class.jetpack-core-api-site-endpoints.php:137
+#: _inc/jetpack-strings.php:597 _inc/jetpack-strings.php:598
+#: modules/stats.php:423 modules/stats.php:566 modules/stats.php:975
 msgid "Site Stats"
 msgstr "Statistike stranice"
 
@@ -12966,8 +13021,8 @@ msgstr "Vrtuljak"
 msgid "Show a promo for the WordPress mobile apps in the footer of the mobile theme."
 msgstr "Prikaži promo za WordPress mobilne app u podnožju mobilne teme."
 
-#: modules/theme-tools/content-options/customizer.php:291
 #: _inc/lib/class.core-rest-api-endpoints.php:1885
+#: modules/theme-tools/content-options/customizer.php:291
 msgid "Featured Images"
 msgstr "Istaknute slike"
 
@@ -13031,10 +13086,10 @@ msgstr "Odgovori"
 msgid "Your comment is awaiting moderation."
 msgstr "Vaš komentar čeka na moderiranje."
 
-#. translators: 1: date, 2: time
 #. translators: Date and time
-#: modules/minileven/theme/pub/minileven/inc/template-tags.php:61
+#. translators: 1: date, 2: time
 #: _inc/lib/icalendar-reader.php:824
+#: modules/minileven/theme/pub/minileven/inc/template-tags.php:61
 msgid "%1$s at %2$s"
 msgstr "%1$s u %2$s"
 
@@ -13072,8 +13127,8 @@ msgstr "<span class=\"entry-gallery\">&laquo; <a href=\"%1$s\" title=\"Povratak 
 msgid "Skip to primary content"
 msgstr "Skoči do primarnog sadržaja"
 
-#: modules/minileven/theme/pub/minileven/header.php:27
 #: modules/masterbar/masterbar.php:1318
+#: modules/minileven/theme/pub/minileven/header.php:27
 msgid "Menu"
 msgstr "Izbornik"
 
@@ -13141,22 +13196,22 @@ msgstr "Objavio"
 msgid "Featured"
 msgstr "Istaknuto"
 
-#: modules/minileven/theme/pub/minileven/content-gallery.php:76
 #: modules/minileven/theme/pub/minileven/content.php:49
 #: modules/minileven/theme/pub/minileven/image.php:90
+#: modules/minileven/theme/pub/minileven/content-gallery.php:76
 msgid "<b>%</b> Replies"
 msgstr "<b>%</b> Odgovora"
 
-#: modules/minileven/theme/pub/minileven/content-gallery.php:76
 #: modules/minileven/theme/pub/minileven/content.php:49
 #: modules/minileven/theme/pub/minileven/image.php:90
+#: modules/minileven/theme/pub/minileven/content-gallery.php:76
 msgid "<b>1</b> Reply"
 msgstr "<b>1</b> Odgovor"
 
-#: modules/minileven/theme/pub/minileven/content-gallery.php:70
 #: modules/minileven/theme/pub/minileven/content.php:41
 #: modules/minileven/theme/pub/minileven/image.php:74
 #: modules/minileven/theme/pub/minileven/page.php:32
+#: modules/minileven/theme/pub/minileven/content-gallery.php:70
 msgid "Pages:"
 msgstr "Stranice:"
 
@@ -13167,21 +13222,21 @@ msgstr[0] "Ova galerija sadrži <a %1$s>%2$s fotografiju</a>."
 msgstr[1] "Ova galerija sadrži <a %1$s>%2$s fotografije</a>."
 msgstr[2] "Ova galerija sadrži <a %1$s>%2$s fotografija</a>."
 
-#: modules/minileven/theme/pub/minileven/content-gallery.php:26
 #: modules/minileven/theme/pub/minileven/content.php:39
 #: modules/minileven/theme/pub/minileven/inc/tweaks.php:30
+#: modules/minileven/theme/pub/minileven/content-gallery.php:26
 msgid "Continue reading <span class=\"meta-nav\">&rarr;</span>"
 msgstr "Nastavi čitati <span class=\"meta-nav\">&rarr;</span>"
 
-#: modules/minileven/theme/pub/minileven/content-gallery.php:20
 #: modules/widgets/gallery.php:31
+#: modules/minileven/theme/pub/minileven/content-gallery.php:20
 msgid "Gallery"
 msgstr "Galerija"
 
-#: modules/minileven/theme/pub/minileven/content-gallery.php:16
-#: modules/minileven/theme/pub/minileven/content-gallery.php:63
 #: modules/minileven/theme/pub/minileven/content.php:13
 #: modules/minileven/theme/pub/minileven/page.php:24
+#: modules/minileven/theme/pub/minileven/content-gallery.php:16
+#: modules/minileven/theme/pub/minileven/content-gallery.php:63
 msgid "Permalink to %s"
 msgstr "Stalna veza na %s"
 
@@ -13221,8 +13276,8 @@ msgstr "Pregledaj Mobilnu web-stranicu"
 msgid "Markdown content"
 msgstr "Markdown sadržaj"
 
-#: modules/markdown/easy-markdown.php:290
 #: _inc/lib/class.core-rest-api-endpoints.php:1862
+#: modules/markdown/easy-markdown.php:290
 msgid "Use Markdown for comments."
 msgstr "Koristi Markdown za komentare."
 
@@ -13246,8 +13301,8 @@ msgstr "Markdown"
 msgid "<span>%d</span> bloggers like this:"
 msgstr "<span>%d</span> blogeri kao ovaj:"
 
-#: class.jetpack-connection-banner.php:182 modules/comment-likes.php:188
-#: modules/likes.php:473
+#: modules/comment-likes.php:188 modules/likes.php:473
+#: class.jetpack-connection-banner.php:182
 msgid "Loading..."
 msgstr "Učitavanje..."
 
@@ -13274,10 +13329,10 @@ msgstr "Gumbi za dijeljenje"
 msgid "Settings have been saved"
 msgstr "Postavke su spremljene"
 
-#: modules/sharedaddy/sharedaddy.php:143 modules/sharedaddy/sharing.php:100
-#: modules/publicize/ui.php:56 modules/masterbar/masterbar.php:1202
-#: modules/likes/jetpack-likes-settings.php:181 _inc/jetpack-strings.php:423
 #: _inc/lib/core-api/class.jetpack-core-api-site-endpoints.php:251
+#: _inc/jetpack-strings.php:423 modules/masterbar/masterbar.php:1202
+#: modules/sharedaddy/sharing.php:100 modules/sharedaddy/sharedaddy.php:143
+#: modules/publicize/ui.php:56 modules/likes/jetpack-likes-settings.php:181
 msgid "Sharing"
 msgstr "Dijeljenje "
 
@@ -13318,18 +13373,18 @@ msgstr "Prikaži Reblog gumb na objavama"
 msgid "WordPress.com Reblog Button"
 msgstr "WordPress.com Reblog gumb"
 
-#: modules/likes/jetpack-likes-settings.php:504
 #: _inc/lib/class.core-rest-api-endpoints.php:1847
+#: modules/likes/jetpack-likes-settings.php:504
 msgid "Turned on per post"
 msgstr "Zasebno uključena po objavi"
 
-#: modules/likes/jetpack-likes-settings.php:498
 #: _inc/lib/class.core-rest-api-endpoints.php:1846
+#: modules/likes/jetpack-likes-settings.php:498
 msgid "On for all posts"
 msgstr "Uključena za sve objave"
 
-#: modules/likes/jetpack-likes-settings.php:492
 #: _inc/lib/class.core-rest-api-endpoints.php:1838
+#: modules/likes/jetpack-likes-settings.php:492
 msgid "WordPress.com Likes are"
 msgstr "WordPress.com Lajkovi su"
 
@@ -13356,8 +13411,8 @@ msgstr "Prikaži gumbe za dijeljenje"
 msgid "Show likes."
 msgstr "Prikaži lajkove"
 
-#: modules/likes/jetpack-likes-settings.php:46
 #: modules/widgets/top-posts.php:105 modules/likes.php:431
+#: modules/likes/jetpack-likes-settings.php:46
 msgid "Likes"
 msgstr "Lajkovi"
 
@@ -13365,8 +13420,8 @@ msgstr "Lajkovi"
 msgid "Likes and Shares"
 msgstr "Lajkovi i dijeljenja"
 
-#: modules/infinite-scroll.php:76
 #: _inc/lib/class.core-rest-api-endpoints.php:1829
+#: modules/infinite-scroll.php:76
 msgid "Use Google Analytics with Infinite Scroll"
 msgstr "Upotrijebi Google Analytics s beskonačnim pomicanjem"
 
@@ -13406,8 +13461,8 @@ msgstr "U beskonačnost i dalje"
 msgid "Put your mouse over your Gravatar to check out your profile."
 msgstr "Postavite kursor miša na Gravatara kako biste pogledali svoj profil. "
 
-#: modules/gravatar-hovercards.php:60
 #: _inc/lib/class.core-rest-api-endpoints.php:1804
+#: modules/gravatar-hovercards.php:60
 msgid "View people's profiles when you mouse over their Gravatars"
 msgstr "Pregledajte informacije o osobama kada postavite kursor miša na njihove Gravatare "
 
@@ -13526,12 +13581,13 @@ msgstr "Uključi Preporuke za ovu web-stranicu."
 msgid "Your theme supports Testimonials"
 msgstr "Vaša tema podržava Preporuke"
 
-#: modules/masterbar/masterbar.php:1041 modules/masterbar/masterbar.php:1054
+#: _inc/jetpack-strings.php:519 modules/masterbar/masterbar.php:1041
+#: modules/masterbar/masterbar.php:1054
 #: modules/custom-post-types/testimonial.php:120
 #: modules/custom-post-types/testimonial.php:295
 #: modules/custom-post-types/testimonial.php:297
 #: modules/custom-post-types/testimonial.php:461
-#: modules/custom-post-types/testimonial.php:467 _inc/jetpack-strings.php:519
+#: modules/custom-post-types/testimonial.php:467
 msgid "Testimonials"
 msgstr "Preporuke"
 
@@ -13768,10 +13824,10 @@ msgstr "Dodaj ove nove stavke izbornika"
 msgid "New Row"
 msgstr "Novi red"
 
-#: modules/sitemaps/sitemap-stylist.php:449
+#: _inc/lib/icalendar-reader.php:775 modules/sitemaps/sitemap-stylist.php:449
 #: modules/widgets/milestone/milestone.php:601
 #: modules/widgets/simple-payments/form.php:103
-#: modules/custom-post-types/nova.php:956 _inc/lib/icalendar-reader.php:775
+#: modules/custom-post-types/nova.php:956
 msgid "Description"
 msgstr "Opis"
 
@@ -14114,9 +14170,9 @@ msgstr "Skica stripa je ažurirana. <a target=\"_blank\" href=\"%s\">Pretpregled
 
 #. translators: Publish box date format, see https://php.net/date
 #: modules/custom-post-types/comics.php:315
-#: modules/custom-post-types/nova.php:284
-#: modules/custom-post-types/testimonial.php:356
 #: modules/custom-post-types/portfolios.php:387
+#: modules/custom-post-types/testimonial.php:356
+#: modules/custom-post-types/nova.php:284
 msgid "M j, Y @ G:i"
 msgstr "j. F Y. @ H:i"
 
@@ -14146,16 +14202,16 @@ msgid "Comic updated."
 msgstr "Strip ažuriran."
 
 #: modules/custom-post-types/comics.php:306
-#: modules/custom-post-types/nova.php:270
-#: modules/custom-post-types/testimonial.php:347
 #: modules/custom-post-types/portfolios.php:378
+#: modules/custom-post-types/testimonial.php:347
+#: modules/custom-post-types/nova.php:270
 msgid "Custom field deleted."
 msgstr "Prilagodljivo polje izbrisano."
 
 #: modules/custom-post-types/comics.php:305
-#: modules/custom-post-types/nova.php:269
-#: modules/custom-post-types/testimonial.php:346
 #: modules/custom-post-types/portfolios.php:377
+#: modules/custom-post-types/testimonial.php:346
+#: modules/custom-post-types/nova.php:269
 msgid "Custom field updated."
 msgstr "Prilagodljivo polje ažurirano."
 
@@ -14193,8 +14249,8 @@ msgstr "Dodaj novi strip"
 
 #: modules/widgets/simple-payments/form.php:46
 #: modules/custom-post-types/comics.php:224
-#: modules/custom-post-types/testimonial.php:299
 #: modules/custom-post-types/portfolios.php:269
+#: modules/custom-post-types/testimonial.php:299
 msgid "Add New"
 msgstr "Dodaj novi"
 
@@ -14289,11 +14345,11 @@ msgstr "Dodatak"
 msgid "Mode:"
 msgstr "Način:"
 
-#: modules/custom-css/custom-css.php:1163
-#: modules/custom-css/custom-css.php:1168
 #: modules/custom-css/custom-css-4.7.php:757
-#: modules/widgets/image-widget.php:243 _inc/blocks/editor.js:2
-#: _inc/blocks/editor-experimental.js:2 _inc/blocks/editor-beta.js:2
+#: modules/custom-css/custom-css.php:1163
+#: modules/custom-css/custom-css.php:1168 modules/widgets/image-widget.php:243
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
+#: _inc/blocks/editor-beta.js:2
 msgid "None"
 msgstr "Nijedno"
 
@@ -14301,24 +14357,24 @@ msgstr "Nijedno"
 msgid "Preprocessor:"
 msgstr "Pretprocesor:"
 
-#: modules/minileven/minileven.php:301
-#: modules/sharedaddy/sharing-sources.php:606
-#: modules/contact-form/grunion-editor-view.php:290
+#: _inc/jetpack-strings.php:669 _inc/jetpack-strings.php:761
 #: modules/custom-css/custom-css.php:1089
 #: modules/custom-css/custom-css.php:1180
 #: modules/custom-css/custom-css.php:1221
-#: modules/widgets/simple-payments/form.php:182 _inc/jetpack-strings.php:669
-#: _inc/jetpack-strings.php:761 _inc/blocks/editor.js:2
+#: modules/sharedaddy/sharing-sources.php:606
+#: modules/widgets/simple-payments/form.php:182
+#: modules/minileven/minileven.php:301
+#: modules/contact-form/grunion-editor-view.php:290 _inc/blocks/editor.js:2
 #: _inc/blocks/editor-experimental.js:2 _inc/blocks/editor-beta.js:2
 msgid "Cancel"
 msgstr "Odustani"
 
-#: modules/minileven/minileven.php:300 modules/publicize/ui.php:625
-#: modules/publicize/ui.php:653 modules/publicize/publicize-jetpack.php:528
-#: modules/publicize/publicize-jetpack.php:631
 #: modules/custom-css/custom-css.php:1088
 #: modules/custom-css/custom-css.php:1179
-#: modules/custom-css/custom-css.php:1220
+#: modules/custom-css/custom-css.php:1220 modules/minileven/minileven.php:300
+#: modules/publicize/ui.php:625 modules/publicize/ui.php:653
+#: modules/publicize/publicize-jetpack.php:528
+#: modules/publicize/publicize-jetpack.php:631
 msgid "OK"
 msgstr "OK"
 
@@ -14333,8 +14389,8 @@ msgstr[2] "Izvorna širina sadržaja %s teme je %d piksela."
 msgid "%s px"
 msgstr "%s px"
 
-#: modules/theme-tools/content-options/customizer.php:74
 #: modules/custom-css/custom-css.php:1050
+#: modules/theme-tools/content-options/customizer.php:74
 #: modules/widgets/eu-cookie-law/form.php:14
 #: modules/widgets/eu-cookie-law/form.php:51
 msgid "Default"
@@ -14376,17 +14432,17 @@ msgstr "Stilski predložak spremljen."
 msgid "Custom CSS Stylesheet"
 msgstr "Prilagođeni CSS stilski predložak"
 
-#: modules/custom-css/custom-css.php:907
 #: modules/custom-css/custom-css-4.7.php:138
 #: modules/custom-css/custom-css-4.7.php:141
 #: modules/custom-css/custom-css-4.7.php:181
 #: modules/custom-css/custom-css-4.7.php:279
+#: modules/custom-css/custom-css.php:907
 msgid "CSS"
 msgstr "CSS"
 
-#: modules/custom-css/custom-css.php:894
 #: modules/custom-css/custom-css-4.7.php:138
 #: modules/custom-css/custom-css-4.7.php:141
+#: modules/custom-css/custom-css.php:894
 msgid "Edit CSS"
 msgstr "Uredi CSS"
 
@@ -14469,9 +14525,9 @@ msgstr "Opcije"
 msgid "Textarea"
 msgstr "Područja teksta"
 
+#: modules/contact-form/grunion-contact-form.php:2304
 #: modules/contact-form/grunion-form-view.php:218
-#: modules/contact-form/grunion-editor-view.php:218
-#: modules/contact-form/grunion-contact-form.php:2304 _inc/blocks/editor.js:2
+#: modules/contact-form/grunion-editor-view.php:218 _inc/blocks/editor.js:2
 #: _inc/blocks/editor-experimental.js:2 _inc/blocks/editor-beta.js:2
 msgid "Text"
 msgstr "Tekst"
@@ -14487,9 +14543,9 @@ msgstr "Radio"
 msgid "Drop down"
 msgstr "Padajući izbornik"
 
+#: modules/contact-form/grunion-contact-form.php:2318
 #: modules/contact-form/grunion-form-view.php:212
-#: modules/contact-form/grunion-editor-view.php:223
-#: modules/contact-form/grunion-contact-form.php:2318 _inc/blocks/editor.js:2
+#: modules/contact-form/grunion-editor-view.php:223 _inc/blocks/editor.js:2
 #: _inc/blocks/editor-experimental.js:2 _inc/blocks/editor-beta.js:2
 msgid "Checkbox"
 msgstr "Potvrdni okvir"
@@ -14647,13 +14703,13 @@ msgid "Name"
 msgstr "Ime"
 
 #: modules/minileven/minileven.php:291
-#: modules/contact-form/grunion-editor-view.php:156
 #: modules/contact-form/grunion-contact-form.php:3362
+#: modules/contact-form/grunion-editor-view.php:156
 msgid "Yes"
 msgstr "Da"
 
-#: modules/contact-form/grunion-editor-view.php:94
-#: modules/contact-form/grunion-contact-form.php:3454 _inc/blocks/editor.js:2
+#: modules/contact-form/grunion-contact-form.php:3454
+#: modules/contact-form/grunion-editor-view.php:94 _inc/blocks/editor.js:2
 #: _inc/blocks/editor-experimental.js:2 _inc/blocks/editor-beta.js:2
 msgid "(required)"
 msgstr "(obavezno)"
@@ -14710,9 +14766,9 @@ msgctxt "%1$s = blog name"
 msgid "%1$s Sidebar"
 msgstr "%1$s Bočna traka"
 
-#: modules/contact-form/grunion-form-view.php:56
 #: modules/contact-form/grunion-contact-form.php:888
 #: modules/contact-form/grunion-contact-form.php:1572
+#: modules/contact-form/grunion-form-view.php:56
 msgid "Contact Form"
 msgstr "Kontakt obrazac"
 
@@ -14817,21 +14873,19 @@ msgstr "Vrati"
 msgid "Restore this item from the Trash"
 msgstr "Vrati ovu stavku iz Smeća"
 
-#: modules/contact-form/grunion-editor-view.php:227
-#: modules/contact-form/admin.php:272
-#: modules/contact-form/grunion-contact-form.php:2312
 #: modules/widgets/milestone/milestone.php:606 modules/widgets/search.php:724
-#: modules/widgets/search.php:762
+#: modules/widgets/search.php:762 modules/contact-form/admin.php:272
+#: modules/contact-form/grunion-contact-form.php:2312
+#: modules/contact-form/grunion-editor-view.php:227
 msgid "Date"
 msgstr "Datum"
 
-#: modules/contact-form/grunion-editor-view.php:90
+#: _inc/lib/core-api/class.jetpack-core-api-module-endpoints.php:1062
 #: modules/contact-form/admin.php:271
 #: modules/contact-form/grunion-contact-form.php:1873
 #: modules/contact-form/grunion-contact-form.php:2316
-#: _inc/lib/core-api/class.jetpack-core-api-module-endpoints.php:1062
-#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
-#: _inc/blocks/editor-beta.js:2
+#: modules/contact-form/grunion-editor-view.php:90 _inc/blocks/editor.js:2
+#: _inc/blocks/editor-experimental.js:2 _inc/blocks/editor-beta.js:2
 msgid "Message"
 msgstr "Poruka"
 
@@ -14864,8 +14918,8 @@ msgstr "Označi kao spam"
 msgid "Delete Permanently"
 msgstr "Trajno izbrisati"
 
-#: modules/contact-form/grunion-editor-view.php:32
 #: modules/contact-form/admin.php:17
+#: modules/contact-form/grunion-editor-view.php:32
 msgid "Add Contact Form"
 msgstr "Dodaj kontakt obrazac"
 
@@ -14913,37 +14967,37 @@ msgstr "Podesite formu komentara s pametnim pozdravom i shemom boja."
 msgid "Color Scheme"
 msgstr "Shema Boja"
 
-#: modules/comments/admin.php:81
 #: _inc/lib/class.core-rest-api-endpoints.php:1740
+#: modules/comments/admin.php:81
 msgid "Greeting Text"
 msgstr "Tekst dobrodošlice"
 
-#: modules/masterbar/masterbar.php:1026 modules/comments/admin.php:72
+#: _inc/jetpack-strings.php:161 modules/masterbar/masterbar.php:1026
 #: modules/widgets/rsslinks-widget.php:102
-#: modules/widgets/rsslinks-widget.php:180 _inc/jetpack-strings.php:161
+#: modules/widgets/rsslinks-widget.php:180 modules/comments/admin.php:72
 msgid "Comments"
 msgstr "Komentari"
 
-#: modules/comments/admin.php:56
 #: _inc/lib/class.core-rest-api-endpoints.php:1758
+#: modules/comments/admin.php:56
 msgid "Transparent"
 msgstr "Transparentno"
 
-#: modules/comments/admin.php:55 modules/widgets/eu-cookie-law/form.php:232
-#: modules/widgets/twitter-timeline.php:499
 #: _inc/lib/class.core-rest-api-endpoints.php:1757
+#: modules/widgets/twitter-timeline.php:499
+#: modules/widgets/eu-cookie-law/form.php:232 modules/comments/admin.php:55
 msgid "Dark"
 msgstr "Tamna"
 
-#: modules/comments/admin.php:54 modules/widgets/eu-cookie-law/form.php:221
-#: modules/widgets/twitter-timeline.php:496
 #: _inc/lib/class.core-rest-api-endpoints.php:1756
+#: modules/widgets/twitter-timeline.php:496
+#: modules/widgets/eu-cookie-law/form.php:221 modules/comments/admin.php:54
 msgid "Light"
 msgstr "Svijetla"
 
+#: _inc/lib/class.core-rest-api-endpoints.php:1742
 #: modules/minileven/theme/pub/minileven/content-gallery.php:76
 #: modules/comments/admin.php:50 modules/comments/comments.php:247
-#: _inc/lib/class.core-rest-api-endpoints.php:1742
 msgid "Leave a Reply"
 msgstr "Odgovori"
 
@@ -14951,13 +15005,13 @@ msgstr "Odgovori"
 msgid "Display images in full-size carousel slideshow."
 msgstr "U vrtuljku prikaži slike pune veličine."
 
-#: modules/carousel/jetpack-carousel.php:816
 #: _inc/lib/class.core-rest-api-endpoints.php:1725
+#: modules/carousel/jetpack-carousel.php:816
 msgid "White"
 msgstr "Bijela"
 
-#: modules/carousel/jetpack-carousel.php:815
 #: _inc/lib/class.core-rest-api-endpoints.php:1724
+#: modules/carousel/jetpack-carousel.php:815
 msgid "Black"
 msgstr "Crna"
 
@@ -15025,29 +15079,27 @@ msgstr "Verifikacija za trenutnu upotrebu nije uspjela."
 msgid "Missing attachment ID."
 msgstr "Nedostaje ID priloga."
 
-#: modules/contact-form/grunion-form-view.php:220
-#: modules/contact-form/grunion-editor-view.php:89
-#: modules/contact-form/grunion-editor-view.php:221
+#: _inc/lib/core-api/class.jetpack-core-api-module-endpoints.php:1062
+#: modules/carousel/jetpack-carousel.php:298
 #: modules/contact-form/grunion-contact-form.php:1865
 #: modules/contact-form/grunion-contact-form.php:2310
-#: modules/carousel/jetpack-carousel.php:298
-#: _inc/lib/core-api/class.jetpack-core-api-module-endpoints.php:1062
-#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
-#: _inc/blocks/editor-beta.js:2
+#: modules/contact-form/grunion-form-view.php:220
+#: modules/contact-form/grunion-editor-view.php:89
+#: modules/contact-form/grunion-editor-view.php:221 _inc/blocks/editor.js:2
+#: _inc/blocks/editor-experimental.js:2 _inc/blocks/editor-beta.js:2
 msgid "Website"
 msgstr "Web-stranica"
 
-#: modules/contact-form/grunion-form-view.php:215
-#: modules/contact-form/grunion-editor-view.php:88
-#: modules/contact-form/grunion-editor-view.php:220
-#: modules/contact-form/grunion-contact-form.php:1864
-#: modules/contact-form/grunion-contact-form.php:2308
-#: modules/carousel/jetpack-carousel.php:294
+#: _inc/lib/core-api/class.jetpack-core-api-module-endpoints.php:1062
 #: modules/widgets/social-icons.php:565
 #: modules/widgets/simple-payments/form.php:147
-#: _inc/lib/core-api/class.jetpack-core-api-module-endpoints.php:1062
-#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
-#: _inc/blocks/editor-beta.js:2
+#: modules/carousel/jetpack-carousel.php:294
+#: modules/contact-form/grunion-contact-form.php:1864
+#: modules/contact-form/grunion-contact-form.php:2308
+#: modules/contact-form/grunion-form-view.php:215
+#: modules/contact-form/grunion-editor-view.php:88
+#: modules/contact-form/grunion-editor-view.php:220 _inc/blocks/editor.js:2
+#: _inc/blocks/editor-experimental.js:2 _inc/blocks/editor-beta.js:2
 msgid "Email"
 msgstr "E-pošta"
 
@@ -15131,6 +15183,7 @@ msgstr "Jetpack Vrtuljak je isključen, jer drugi dodataka ili tema koriste [gal
 msgid "Add"
 msgstr "Dodaj"
 
+#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "Language"
 msgstr "Jezik"
@@ -15233,10 +15286,10 @@ msgstr "Dodatak je već aktivan."
 msgid "The plugin is already installed"
 msgstr "Dodatak je već instaliran"
 
+#: _inc/lib/plugins.php:83
+#: json-endpoints/jetpack/class.jetpack-json-api-themes-new-endpoint.php:61
 #: json-endpoints/jetpack/class.jetpack-json-api-themes-install-endpoint.php:61
 #: json-endpoints/jetpack/class.jetpack-json-api-plugins-new-endpoint.php:114
-#: json-endpoints/jetpack/class.jetpack-json-api-themes-new-endpoint.php:61
-#: _inc/lib/plugins.php:83
 msgid "An unknown error occurred during installation"
 msgstr "Dogodila se nepoznata greška tijekom instalacije"
 
@@ -15252,8 +15305,8 @@ msgstr "Morate navesti dodatak za aktivaciju."
 msgid "This user is not authorized to manage plugins network wide."
 msgstr "Ovom korisniku nije dopušteno upravljanje dodacima širom mreže."
 
-#: json-endpoints/jetpack/class.jetpack-json-api-plugins-install-endpoint.php:82
 #: json-endpoints/jetpack/class.jetpack-json-api-plugins-endpoint.php:109
+#: json-endpoints/jetpack/class.jetpack-json-api-plugins-install-endpoint.php:82
 msgid "No plugins found."
 msgstr "Nije pronađen nijedan dodatak."
 
@@ -15314,8 +15367,8 @@ msgstr "Umjetnik"
 msgid "Comment cache problem?"
 msgstr "Problem s predmemorijom komentara?"
 
-#: json-endpoints/class.wpcom-json-api-post-endpoint.php:69
 #: sal/class.json-api-post-base.php:400
+#: json-endpoints/class.wpcom-json-api-post-endpoint.php:69
 msgid "This post is password protected."
 msgstr "Ova objava je zaštićena lozinkom."
 
@@ -15522,8 +15575,8 @@ msgstr "Jetpack zahtjeva WordPress inačicu %s ili noviju."
 msgid "You are currently running a development version of Jetpack. <a href=\"%s\" target=\"_blank\">Submit your feedback</a>"
 msgstr "Trenutno koristite razvojnu inačicu Jetpacka. <a href=\"%s\" target=\"_blank\">Javite svoje dojmove</a>"
 
-#: class.jetpack-twitter-cards.php:247
 #: _inc/lib/class.core-rest-api-endpoints.php:1995
+#: class.jetpack-twitter-cards.php:247
 msgid "The Twitter username of the owner of this site's domain."
 msgstr "Twitter korisničko ime vlasnika domene ove stranice."
 
@@ -15560,15 +15613,15 @@ msgstr "Web-stranice"
 msgid "Jetpack Sites"
 msgstr "Jetpack stranice"
 
-#: class.jetpack-network-sites-list-table.php:62
-#: modules/minileven/theme/pub/minileven/content-gallery.php:79
+#: class.jetpack-network-sites-list-table.php:62 _inc/jetpack-strings.php:764
+#: modules/custom-css/custom-css.php:1051
+#: modules/custom-css/custom-css.php:1164
+#: modules/custom-css/custom-css.php:1194 modules/minileven/minileven.php:292
 #: modules/minileven/theme/pub/minileven/content.php:51
 #: modules/minileven/theme/pub/minileven/image.php:92
 #: modules/minileven/theme/pub/minileven/page.php:36
-#: modules/minileven/minileven.php:292 modules/publicize/ui.php:517
-#: modules/publicize/ui.php:525 modules/custom-css/custom-css.php:1051
-#: modules/custom-css/custom-css.php:1164
-#: modules/custom-css/custom-css.php:1194 _inc/jetpack-strings.php:764
+#: modules/minileven/theme/pub/minileven/content-gallery.php:79
+#: modules/publicize/ui.php:517 modules/publicize/ui.php:525
 msgid "Edit"
 msgstr "Uredi"
 
@@ -15588,10 +15641,10 @@ msgstr "Naziv Web-stranice"
 msgid "No Modules Found"
 msgstr "Moduli nisu pronađeni"
 
-#: class.jetpack-modules-list-table.php:117
-#: class.jetpack-modules-list-table.php:216
-#: class.jetpack-modules-list-table.php:285 _inc/jetpack-strings.php:352
 #: _inc/lib/admin-pages/class-jetpack-about-page.php:352
+#: _inc/jetpack-strings.php:352 class.jetpack-modules-list-table.php:117
+#: class.jetpack-modules-list-table.php:216
+#: class.jetpack-modules-list-table.php:285
 msgid "Activate"
 msgstr "Aktiviraj"
 
@@ -15610,17 +15663,16 @@ msgstr "Pretraži module…"
 msgid "e-mail"
 msgstr "E-pošta"
 
-#: class.jetpack-modules-list-table.php:209
+#: _inc/lib/core-api/class.jetpack-core-api-module-endpoints.php:1062
+#: modules/carousel/jetpack-carousel.php:296
+#: modules/contact-form/grunion-contact-form.php:1863
+#: modules/contact-form/grunion-contact-form.php:2306
 #: modules/contact-form/grunion-form-view.php:216
 #: modules/contact-form/grunion-editor-view.php:87
 #: modules/contact-form/grunion-editor-view.php:219
-#: modules/contact-form/grunion-contact-form.php:1863
-#: modules/contact-form/grunion-contact-form.php:2306
-#: modules/carousel/jetpack-carousel.php:296
 #: modules/custom-post-types/nova.php:953
-#: _inc/lib/core-api/class.jetpack-core-api-module-endpoints.php:1062
-#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
-#: _inc/blocks/editor-beta.js:2
+#: class.jetpack-modules-list-table.php:209 _inc/blocks/editor.js:2
+#: _inc/blocks/editor-experimental.js:2 _inc/blocks/editor-beta.js:2
 msgid "Name"
 msgstr "Ime"
 
@@ -15807,8 +15859,8 @@ msgstr "Navedite valjani modul."
 msgid "%s is not a valid module."
 msgstr "%s nije valjani modul."
 
-#: class.jetpack-cli.php:329 class.jetpack-cli.php:337
-#: _inc/lib/class.core-rest-api-endpoints.php:1665
+#: _inc/lib/class.core-rest-api-endpoints.php:1665 class.jetpack-cli.php:329
+#: class.jetpack-cli.php:337
 msgid "Modules reset to default."
 msgstr "Reset modula na zadano."
 
@@ -15890,8 +15942,8 @@ msgstr "Jetpack trenutno nije povezan s WordPress.com"
 msgid "Jetpack Debugging Center"
 msgstr "Jetpack centar za ispravljanje grešaka"
 
-#: class.jetpack-admin.php:166 modules/plugin-search.php:215
-#: modules/plugin-search.php:499 modules/stats.php:575 modules/stats.php:1098
+#: class.jetpack-admin.php:166 modules/stats.php:575 modules/stats.php:1098
+#: modules/plugin-search.php:215 modules/plugin-search.php:499
 msgid "Configure"
 msgstr "Konfiguriraj"
 
@@ -15915,21 +15967,21 @@ msgstr "Abecedno"
 msgid "Sort by:"
 msgstr "Sortiraj po:"
 
-#: class.jetpack-cli.php:523
 #: _inc/lib/admin-pages/class.jetpack-settings-page.php:97
+#: class.jetpack-cli.php:523
 msgid "Inactive"
 msgstr "Neaktivno"
 
-#: class.jetpack-cli.php:522 modules/vaultpress.php:27
-#: _inc/jetpack-strings.php:372 _inc/jetpack-strings.php:397
-#: _inc/jetpack-strings.php:609
 #: _inc/lib/admin-pages/class.jetpack-settings-page.php:96
+#: _inc/jetpack-strings.php:372 _inc/jetpack-strings.php:397
+#: _inc/jetpack-strings.php:609 class.jetpack-cli.php:522
+#: modules/vaultpress.php:27
 msgid "Active"
 msgstr "Aktivno"
 
-#: class.jetpack-modules-list-table.php:144
-#: modules/widgets/upcoming-events.php:60
 #: _inc/lib/admin-pages/class.jetpack-settings-page.php:95
+#: modules/widgets/upcoming-events.php:60
+#: class.jetpack-modules-list-table.php:144
 msgid "All"
 msgstr "Svih"
 
@@ -15937,11 +15989,11 @@ msgstr "Svih"
 msgid "View:"
 msgstr "Prikaz:"
 
+#: _inc/lib/admin-pages/class.jetpack-settings-page.php:92
+#: modules/masterbar/masterbar.php:468 modules/widgets/search.php:68
 #: modules/minileven/theme/pub/minileven/searchform.php:9
 #: modules/minileven/theme/pub/minileven/searchform.php:10
 #: modules/minileven/theme/pub/minileven/searchform.php:11
-#: modules/masterbar/masterbar.php:468 modules/widgets/search.php:68
-#: _inc/lib/admin-pages/class.jetpack-settings-page.php:92
 #: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
 #: _inc/blocks/editor-beta.js:2
 msgid "Search"
@@ -15951,39 +16003,38 @@ msgstr "Pretraži"
 msgid "Jetpack Settings"
 msgstr "Jetpack postavke"
 
-#: modules/contact-form/grunion-form-view.php:191
+#: modules/calypsoify/class.jetpack-calypsoify.php:236
+#: modules/calypsoify/class.jetpack-calypsoify.php:286
 #: modules/contact-form/grunion-contact-form.php:172
 #: modules/contact-form/grunion-contact-form.php:173
 #: modules/contact-form/grunion-contact-form.php:919
 #: modules/contact-form/grunion-contact-form.php:937
 #: modules/contact-form/grunion-contact-form.php:1007
-#: modules/calypsoify/class.jetpack-calypsoify.php:236
-#: modules/calypsoify/class.jetpack-calypsoify.php:286
+#: modules/contact-form/grunion-form-view.php:191
 msgid "Feedback"
 msgstr "Povratne informacije"
 
-#: class.jetpack-network.php:298 modules/sharedaddy/sharedaddy.php:217
-#: modules/sharedaddy/sharedaddy.php:224 modules/publicize/ui.php:517
-#: modules/masterbar/masterbar.php:1291 class.jetpack.php:3874
-#: class.jetpack.php:3949 _inc/jetpack-strings.php:681
 #: _inc/lib/admin-pages/class.jetpack-react-page.php:73
-#: _inc/lib/admin-pages/class.jetpack-settings-page.php:22
 #: _inc/lib/admin-pages/class.jetpack-admin-page.php:331
-#: _inc/blocks/editor.js:2 _inc/blocks/editor-experimental.js:2
-#: _inc/blocks/editor-beta.js:2
+#: _inc/lib/admin-pages/class.jetpack-settings-page.php:22
+#: _inc/jetpack-strings.php:681 modules/masterbar/masterbar.php:1291
+#: modules/sharedaddy/sharedaddy.php:217 modules/sharedaddy/sharedaddy.php:224
+#: modules/publicize/ui.php:517 class.jetpack-network.php:298
+#: class.jetpack.php:3874 class.jetpack.php:3949 _inc/blocks/editor.js:2
+#: _inc/blocks/editor-experimental.js:2 _inc/blocks/editor-beta.js:2
 msgid "Settings"
 msgstr "Postavke"
 
-#: _inc/lib/debugger/class-jetpack-debug-data.php:103
 #: _inc/lib/debugger/class-jetpack-cxn-test-base.php:359
+#: _inc/lib/debugger/class-jetpack-debug-data.php:103
 #: _inc/lib/debugger/debug-functions.php:50
 msgid "Jetpack"
 msgstr "Jetpack"
 
-#: modules/custom-content-types.php:42 modules/sso.php:1124
-#: modules/custom-post-types/testimonial.php:155
-#: modules/custom-post-types/portfolios.php:140 modules/protect.php:189
 #: _inc/jetpack-strings.php:641 _inc/jetpack-strings.php:664
+#: modules/custom-content-types.php:42 modules/protect.php:189
+#: modules/sso.php:1124 modules/custom-post-types/portfolios.php:140
+#: modules/custom-post-types/testimonial.php:155
 msgid "Learn More"
 msgstr "Saznaj više"
 

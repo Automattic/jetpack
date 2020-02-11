@@ -770,14 +770,5 @@ __( "or", "jetpack" ), // _inc/client/traffic/verification-services/google.jsx:3
 __( "Manually Verify ", "jetpack" ), // _inc/client/traffic/verification-services/google.jsx:323
 /* translators: The price range for a particular product */
 __( "{{smallerPrice/}}-{{higherPrice/}}", "jetpack" ), // _inc/client/components/plans/plan-price/index.jsx:58
-__( "ms", "jetpack" ), // _inc/blocks/components.js:2
-__( "s", "jetpack" ), // _inc/blocks/components.js:2
-__( "m", "jetpack" ), // _inc/blocks/components.js:2
-__( "h", "jetpack" ), // _inc/blocks/components.js:2
-__( "d", "jetpack" ), // _inc/blocks/components.js:2
-__( "w", "jetpack" ), // _inc/blocks/components.js:2
-__( "M", "jetpack" ), // _inc/blocks/components.js:2
-__( "Q", "jetpack" ), // _inc/blocks/components.js:2
-__( "y", "jetpack" ), // _inc/blocks/components.js:2
 );
 /* THIS IS THE END OF THE GENERATED FILE */
