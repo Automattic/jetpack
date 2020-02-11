@@ -725,9 +725,9 @@ class Manager {
 		 *
 		 * @since 8.3.0
 		 *
-		 * @param Boolean $is_iframe_flow_used should the iframe flow be used, defaults to true.
+		 * @param Boolean $is_iframe_flow_used should the iframe flow be used, defaults to false.
 		 */
-		$iframe_flow = apply_filters( 'jetpack_use_iframe_authorization_flow', true );
+		$iframe_flow = apply_filters( 'jetpack_use_iframe_authorization_flow', false );
 
 		// Do not modify anything that is not related to authorize requests.
 		if ( 'authorize' === $relative_url && $iframe_flow ) {

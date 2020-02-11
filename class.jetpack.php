@@ -4654,8 +4654,8 @@ endif;
 		add_filter( 'jetpack_connect_redirect_url', array( __CLASS__, 'filter_connect_redirect_url' ) );
 		add_filter( 'jetpack_connect_processing_url', array( __CLASS__, 'filter_connect_processing_url' ) );
 
-		if ( ! $iframe ) {
-			add_filter( 'jetpack_use_iframe_authorization_flow', '__return_false' );
+		if ( $iframe ) {
+			add_filter( 'jetpack_use_iframe_authorization_flow', '__return_true' );
 		}
 
 		$c8n = self::connection();
@@ -4665,8 +4665,8 @@ endif;
 		remove_filter( 'jetpack_connect_redirect_url', array( __CLASS__, 'filter_connect_redirect_url' ) );
 		remove_filter( 'jetpack_connect_processing_url', array( __CLASS__, 'filter_connect_processing_url' ) );
 
-		if ( ! $iframe ) {
-			remove_filter( 'jetpack_use_iframe_authorization_flow', '__return_false' );
+		if ( $iframe ) {
+			remove_filter( 'jetpack_use_iframe_authorization_flow', '__return_true' );
 		}
 
 		return $url;
