@@ -14,8 +14,6 @@ jetpack_register_block(
 	)
 );
 
-const JETPACK_EVENTBRITE_WIDGET_SLUG = 'eventbrite-widget';
-
 /**
  * Eventbrite block registration/dependency delclaration.
  *
@@ -25,11 +23,11 @@ const JETPACK_EVENTBRITE_WIDGET_SLUG = 'eventbrite-widget';
  * @return string
  */
 function jetpack_render_eventbrite_block( $attr, $content ) {
-	if ( empty( $attr['eventId'] ) || empty( $attr['url'] ) ) {
+	if ( is_admin() || empty( $attr['eventId'] ) || empty( $attr['url'] ) ) {
 		return '';
 	}
 
-	$widget_id = JETPACK_EVENTBRITE_WIDGET_SLUG . '-' . $attr['eventId'];
+	$widget_id = wp_unique_id( 'eventbrite-widget-' );
 
 	wp_enqueue_script( 'eventbrite-widget', 'https://www.eventbrite.com/static/widgets/eb_widgets.js', array(), JETPACK__VERSION, true );
 
@@ -45,6 +43,13 @@ function jetpack_render_eventbrite_block( $attr, $content ) {
 				eventId: " . absint( $attr['eventId'] ) . ",
 				iframeContainerId: '" . esc_js( $widget_id ) . "',
 			} );"
+		);
+
+		// $content contains a fallback link to the event that's saved in the post_content.
+		// Append a div that will hold the iframe embed created by the Eventbrite widget.js.
+		$content .= sprintf(
+			'<div id="%s" class="eventbrite__in-page-checkout"></div>',
+			esc_attr( $widget_id )
 		);
 
 		return sprintf(
@@ -89,22 +94,8 @@ function jetpack_render_eventbrite_block( $attr, $content ) {
 		} )();"
 	);
 
+	// Replace the placeholder id saved in the post_content with a unique id used by widget.js.
+	$content = preg_replace( '/eventbrite-widget-\d+/', $widget_id, $content );
+
 	return $content;
 }
-
-/**
- * Share PHP block settings with js block code.
- *
- * @return void
- */
-function jetpack_eventbrite_block_editor_assets() {
-	wp_localize_script(
-		'jetpack-blocks-editor',
-		'Jetpack_Block_Eventbrite_Settings',
-		array(
-			'widget_slug' => JETPACK_EVENTBRITE_WIDGET_SLUG,
-		)
-	);
-}
-
-add_action( 'enqueue_block_editor_assets', 'jetpack_eventbrite_block_editor_assets' );

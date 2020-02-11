@@ -5,11 +5,6 @@ import classnames from 'classnames';
 import { RichText, getColorClassName } from '@wordpress/block-editor';
 
 /**
- * Internal dependencies
- */
-import { createWidgetId } from './utils';
-
-/**
  * Adapted button save function from @wordpress/block-library
  * (Using Gutenberg code that shipped with WordPress 5.3)
  *
@@ -55,7 +50,9 @@ function saveButton( attributes ) {
 			<RichText.Content
 				className={ buttonClasses }
 				href={ url }
-				id={ createWidgetId( eventId ) }
+				// Placeholder id, preg replaced with a unique id generated in PHP when the block is rendered.
+				// IMPORTANT: do not remove or change unless you also update the render function in eventbrite.php.
+				id={ `eventbrite-widget-${ eventId }` }
 				rel="noopener noreferrer"
 				role="button"
 				style={ buttonStyle }
@@ -79,12 +76,10 @@ export default function save( { attributes } ) {
 	}
 
 	return (
-		<div id={ createWidgetId( eventId ) }>
-			{ url && (
-				<a className="eventbrite__direct-link" href={ url }>
-					{ url }
-				</a>
-			) }
-		</div>
+		url && (
+			<a className="eventbrite__direct-link" href={ url }>
+				{ url }
+			</a>
+		)
 	);
 }
