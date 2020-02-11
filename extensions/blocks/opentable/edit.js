@@ -31,6 +31,7 @@ import { __, sprintf } from '@wordpress/i18n';
  */
 import './editor.scss';
 import icon from './icon';
+import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import RestaurantPicker from './restaurant-picker';
 import BlockStylesSelector from '../../shared/components/block-styles-selector';
 
@@ -216,6 +217,11 @@ export default function OpenTableEdit( { attributes, setAttributes, className, c
 		</>
 	);
 
+	const supportLink =
+		isSimpleSite() || isAtomicSite()
+			? 'https://en.support.wordpress.com/wordpress-editor/blocks/opentable-block/'
+			: 'https://jetpack.com/support/jetpack-blocks/opentable-block/';
+
 	const blockPlaceholder = (
 		<Placeholder
 			label={ __( 'OpenTable Reservation', 'jetpack' ) }
@@ -237,9 +243,7 @@ export default function OpenTableEdit( { attributes, setAttributes, className, c
 				<ExternalLink href="https://restaurant.opentable.com/get-started/">
 					{ __( 'Sign up for OpenTable', 'jetpack' ) }
 				</ExternalLink>
-				<ExternalLink href="https://en.support.wordpress.com/widgets/open-table-widget/">
-					{ __( 'Learn more', 'jetpack' ) }
-				</ExternalLink>
+				<ExternalLink href={ supportLink }>{ __( 'Learn more', 'jetpack' ) }</ExternalLink>
 			</div>
 		</Placeholder>
 	);

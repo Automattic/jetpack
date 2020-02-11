@@ -22,7 +22,7 @@ export const getStyleOptions = rid =>
 	compact( [
 		{ value: 'standard', label: __( 'Standard (224 x 301 pixels)', 'jetpack' ) },
 		{ value: 'tall', label: __( 'Tall (288 x 490 pixels)', 'jetpack' ) },
-		{ value: 'wide', label: __( 'Wide (840 x 350 pixels)', 'jetpack' ) },
+		{ value: 'wide', label: __( 'Wide (840 x 150 pixels)', 'jetpack' ) },
 		( ! rid || rid.length === 1 ) && {
 			value: 'button',
 			label: __( 'Button (210 x 113 pixels)', 'jetpack' ),
