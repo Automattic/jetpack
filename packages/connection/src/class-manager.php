@@ -1169,7 +1169,7 @@ class Manager {
 			 *
 			 * @param Callable a function or method that returns a secret string.
 			 */
-			$this->secret_callable = apply_filters( 'jetpack_connection_secret_generator', array( $this, 'secret_callable' ) );
+			$this->secret_callable = apply_filters( 'jetpack_connection_secret_generator', array( $this, 'secret_callable_method' ) );
 		}
 
 		return $this->secret_callable;
@@ -1182,7 +1182,7 @@ class Manager {
 	 *
 	 * @return String $secret value.
 	 */
-	private function secret_callable() {
+	private function secret_callable_method() {
 		return wp_generate_password( 32, false );
 	}
 
