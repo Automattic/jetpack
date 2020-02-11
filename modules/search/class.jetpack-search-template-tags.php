@@ -170,16 +170,14 @@ class Jetpack_Search_Template_Tags {
 		$tax_key   = '';
 		switch ( $filter['buckets'][0]['type'] ) {
 			case 'taxonomy':
-				$data_base = 'data-filter-type="' . $filter['buckets'][0]['type'] . '" ';
-				foreach ( $qv as $k => $v ) {
-					$tax_key = $k;
-				}
+				$data_base = 'data-filter-type="' . esc_attr( $filter['buckets'][0]['type'] ) . '" ';
+				$tax_key   = key( $qv );
 				if ( 'category_name' === $tax_key ) {
 					$data_base .= 'data-taxonomy="category"';
 				} elseif ( 'tag' === $tax_key ) {
 					$data_base .= 'data-taxonomy="post_tag"';
 				} else {
-					$data_base .= 'data-taxonomy="' . $tax_key . '"';
+					$data_base .= 'data-taxonomy="' . esc_attr( $tax_key ) . '"';
 				}
 				break;
 			case 'post_type':
@@ -204,10 +202,10 @@ class Jetpack_Search_Template_Tags {
 				$data_str = $data_base . ' ';
 				switch ( $filter['buckets'][0]['type'] ) {
 					case 'taxonomy':
-						$data_str .= 'data-val="' . $item['query_vars'][ $tax_key ] . '"';
+						$data_str .= 'data-val="' . esc_attr( $item['query_vars'][ $tax_key ] ) . '"';
 						break;
 					case 'post_type':
-						$data_str .= 'data-val="' . $item['query_vars']['post_type'] . '"';
+						$data_str .= 'data-val="' . esc_attr( $item['query_vars']['post_type'] ) . '"';
 						break;
 					case 'date_histogram':
 						if ( $item['query_vars']['monthnum'] ) {
@@ -215,7 +213,7 @@ class Jetpack_Search_Template_Tags {
 						} else {
 							$d = sprintf( '%d-01-01 00:00:00', $item['query_vars']['year'] );
 						}
-						$data_str .= 'data-val="' . $d . '" ';
+						$data_str .= 'data-val="' . esc_attr( $d ) . '" ';
 						break;
 				}
 				?>

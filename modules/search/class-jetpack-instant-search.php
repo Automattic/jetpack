@@ -265,7 +265,6 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		$transient_name = '_jetpack_instant_search_cache_' . md5( wp_json_encode( $args ) );
 		$cache          = get_transient( $transient_name );
 		if ( false !== $cache ) {
-			$end_time = microtime( true );
 			return $cache;
 		}
 
