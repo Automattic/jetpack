@@ -23,7 +23,7 @@ import { ENTER, SPACE } from '@wordpress/keycodes';
 /**
  * Internal dependencies
  */
-import { createWidgetId, convertToLink, eventIdFromUrl } from './utils';
+import { convertToLink, eventIdFromUrl } from './utils';
 import { icon, URL_REGEX } from '.';
 import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import ModalButtonPreview from './modal-button-preview';
@@ -307,7 +307,7 @@ class EventbriteEdit extends Component {
 			return;
 		}
 
-		const widgetId = createWidgetId( eventId );
+		const widgetId = `eventbrite-widget-${ eventId }`;
 		const html = `
 			<script src="https://www.eventbrite.com/static/widgets/eb_widgets.js"></script>
 			<style>
