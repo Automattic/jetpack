@@ -84,6 +84,9 @@ class Actions {
 		// Publicize filter to prevent publicizing blacklisted post types.
 		add_filter( 'publicize_should_publicize_published_post', array( __CLASS__, 'prevent_publicize_blacklisted_posts' ), 10, 2 );
 
+		// Full Sync Completed, Update Status
+		add_action( 'jetpack_full_sync_end', arra( __ClASS__, 'full_sync_end_update_status'), 10, 2 );
+
 		/**
 		 * Fires on every request before default loading sync listener code.
 		 * Return false to not load sync listener code that monitors common
@@ -560,6 +563,18 @@ class Actions {
 	public static function add_wp_super_cache_sync_module( $sync_modules ) {
 		$sync_modules[] = 'Automattic\\Jetpack\\Sync\\Modules\\WP_Super_Cache';
 		return $sync_modules;
+	}
+
+	/**
+	 * Update Sync Status if Full Sync ended of Posts
+	 *
+	 * @param $data empty string
+	 * @param $range Post/Comment Range
+	 */
+	public static function full_sync_end_update_status( $data, $range ) {
+		if( isset( $range['posts'] ) ) {
+			\Automattic\Jetpack\Sync\Status::update_status( \Automattic\Jetpack\Sync\Status::STATUS_IN_SYNC );
+		}
 	}
 
 	/**
