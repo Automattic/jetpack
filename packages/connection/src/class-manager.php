@@ -1169,10 +1169,21 @@ class Manager {
 			 *
 			 * @param Callable a function or method that returns a secret string.
 			 */
-			$this->secret_callable = apply_filters( 'jetpack_connection_secret_generator', 'wp_generate_password' );
+			$this->secret_callable = apply_filters( 'jetpack_connection_secret_generator', array( $this, 'secret_callable_method' ) );
 		}
 
 		return $this->secret_callable;
+	}
+
+	/**
+	 * Runs the wp_generate_password function with the required parameters. This is the
+	 * default implementation of the secret callable, can be overridden using the
+	 * jetpack_connection_secret_generator filter.
+	 *
+	 * @return String $secret value.
+	 */
+	private function secret_callable_method() {
+		return wp_generate_password( 32, false );
 	}
 
 	/**
