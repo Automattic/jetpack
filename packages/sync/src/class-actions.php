@@ -568,10 +568,10 @@ class Actions {
 	/**
 	 * Update Sync Status if Full Sync ended of Posts
 	 *
-	 * @param $data empty string
+	 * @param $checksum empty string
 	 * @param $range Post/Comment Range
 	 */
-	public static function full_sync_end_update_status( $data, $range ) {
+	public static function full_sync_end_update_status( $checksum, $range ) {
 		if( isset( $range['posts'] ) ) {
 			\Automattic\Jetpack\Sync\Status::update_status( \Automattic\Jetpack\Sync\Status::STATUS_IN_SYNC );
 		}
