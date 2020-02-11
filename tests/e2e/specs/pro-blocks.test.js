@@ -45,6 +45,8 @@ describe( 'Paid blocks', () => {
 	describe( 'Simple Payment', () => {
 		it( 'Can publish a post with a Simple Payments block', async () => {
 			const blockEditor = await BlockEditorPage.visit( page );
+			await blockEditor.waitForAvailableBlock( SimplePaymentBlock.name() );
+
 			const blockInfo = await blockEditor.insertBlock(
 				SimplePaymentBlock.name(),
 				SimplePaymentBlock.title()
@@ -65,7 +67,7 @@ describe( 'Paid blocks', () => {
 	describe( 'WordAds block', () => {
 		it( 'Can publish a post with a WordAds block', async () => {
 			const blockEditor = await BlockEditorPage.visit( page );
-			// await blockEditor.waitForAvailableBlock( WordAdsBlock.name() );
+			await blockEditor.waitForAvailableBlock( WordAdsBlock.name() );
 			const blockInfo = await blockEditor.insertBlock( WordAdsBlock.name(), WordAdsBlock.title() );
 			await blockEditor.focus();
 

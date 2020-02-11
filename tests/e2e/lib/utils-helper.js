@@ -81,6 +81,9 @@ export async function activateModule( page, module ) {
 		throw new Error( `${ module } is failed to activate` );
 	}
 
+	await page.waitFor( 1000 );
+	await page.reload( { waitFor: 'networkidle0' } );
+
 	return true;
 }
 
