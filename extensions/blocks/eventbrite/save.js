@@ -5,11 +5,6 @@ import classnames from 'classnames';
 import { RichText, getColorClassName } from '@wordpress/block-editor';
 
 /**
- * Internal dependencies
- */
-import { createWidgetId } from './utils';
-
-/**
  * Adapted button save function from @wordpress/block-library
  * (Using Gutenberg code that shipped with WordPress 5.3)
  *
@@ -19,12 +14,13 @@ import { createWidgetId } from './utils';
  * an external link.
  */
 
-function saveButton( eventId, attributes ) {
+function saveButton( attributes ) {
 	const {
 		backgroundColor,
 		borderRadius,
 		customBackgroundColor,
 		customTextColor,
+		eventId,
 		text,
 		textColor,
 		url,
@@ -47,21 +43,23 @@ function saveButton( eventId, attributes ) {
 		borderRadius: borderRadius ? borderRadius + 'px' : undefined,
 	};
 
+	// Saves link markup, but event handlers are added with inline javascript to prevent
+	// default link behavior (see the `jetpack_render_eventbrite_block` php function).
 	return (
-		<div>
+		<div className="wp-block-button">
 			<RichText.Content
-				id={ createWidgetId( eventId ) }
-				tagName="button"
 				className={ buttonClasses }
+				href={ url }
+				// Placeholder id, preg replaced with a unique id generated in PHP when the block is rendered.
+				// IMPORTANT: do not remove or change unless you also update the render function in eventbrite.php.
+				id={ `eventbrite-widget-${ eventId }` }
+				rel="noopener noreferrer"
+				role="button"
 				style={ buttonStyle }
+				tagName="a"
+				target="_blank"
 				value={ text }
-				type="button"
 			/>
-			{ url && (
-				<a className="eventbrite__direct-link" href={ url }>
-					{ url }
-				</a>
-			) }
 		</div>
 	);
 }
@@ -74,16 +72,14 @@ export default function save( { attributes } ) {
 	}
 
 	if ( useModal ) {
-		return saveButton( eventId, attributes );
+		return saveButton( attributes );
 	}
 
 	return (
-		<div id={ createWidgetId( eventId ) }>
-			{ url && (
-				<a className="eventbrite__direct-link" href={ url }>
-					{ url }
-				</a>
-			) }
-		</div>
+		url && (
+			<a className="eventbrite__direct-link" href={ url }>
+				{ url }
+			</a>
+		)
 	);
 }

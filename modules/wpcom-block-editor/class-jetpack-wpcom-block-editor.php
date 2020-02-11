@@ -409,8 +409,8 @@ class Jetpack_WPCOM_Block_Editor {
 			return;
 		}
 
-		add_action( 'set_auth_cookie', array( $this, 'set_samesite_auth_cookies' ), 10, 6 );
-		add_action( 'set_logged_in_cookie', array( $this, 'set_samesite_logged_in_cookies' ), 10, 6 );
+		add_action( 'set_auth_cookie', array( $this, 'set_samesite_auth_cookies' ), 10, 5 );
+		add_action( 'set_logged_in_cookie', array( $this, 'set_samesite_logged_in_cookies' ), 10, 4 );
 		add_action( 'clear_auth_cookie', array( $this, 'clear_auth_cookies' ) );
 		add_filter( 'send_auth_cookies', array( $this, 'disable_core_auth_cookies' ) );
 	}
@@ -418,11 +418,10 @@ class Jetpack_WPCOM_Block_Editor {
 	/**
 	 * Gets the SameSite attribute to use in auth cookies.
 	 *
-	 * @param  int $user_id User ID.
+	 * @param  bool $secure Whether the connection is secure.
 	 * @return string SameSite attribute to use on auth cookies.
 	 */
-	public function get_samesite_attr_for_auth_cookies( $user_id ) {
-		$secure   = apply_filters( 'secure_auth_cookie', is_ssl(), $user_id );
+	public function get_samesite_attr_for_auth_cookies( $secure ) {
 		$samesite = $secure ? 'None' : 'Lax';
 		/**
 		 * Filters the SameSite attribute to use in auth cookies.
@@ -446,9 +445,8 @@ class Jetpack_WPCOM_Block_Editor {
 	 *                            Default is 14 days from now.
 	 * @param int    $user_id     User ID.
 	 * @param string $scheme      Authentication scheme. Values include 'auth' or 'secure_auth'.
-	 * @param string $token       User's session token to use for this cookie.
 	 */
-	public function set_samesite_auth_cookies( $auth_cookie, $expire, $expiration, $user_id, $scheme, $token ) {
+	public function set_samesite_auth_cookies( $auth_cookie, $expire, $expiration, $user_id, $scheme ) {
 		if ( wp_startswith( $scheme, 'secure_' ) ) {
 			$secure           = true;
 			$auth_cookie_name = SECURE_AUTH_COOKIE;
@@ -456,7 +454,7 @@ class Jetpack_WPCOM_Block_Editor {
 			$secure           = false;
 			$auth_cookie_name = AUTH_COOKIE;
 		}
-		$samesite = $this->get_samesite_attr_for_auth_cookies( $user_id );
+		$samesite = $this->get_samesite_attr_for_auth_cookies( $secure );
 
 		jetpack_shim_setcookie(
 			$auth_cookie_name,
@@ -494,12 +492,20 @@ class Jetpack_WPCOM_Block_Editor {
 	 * @param int    $expiration       The time when the logged-in cookie expires as a UNIX timestamp.
 	 *                                 Default is 14 days from now.
 	 * @param int    $user_id          User ID.
-	 * @param string $scheme           Authentication scheme. Default 'logged_in'.
-	 * @param string $token            User's session token to use for this cookie.
 	 */
-	public function set_samesite_logged_in_cookies( $logged_in_cookie, $expire, $expiration, $user_id, $scheme, $token ) {
-		$secure   = apply_filters( 'secure_auth_cookie', is_ssl(), $user_id );
-		$samesite = $this->get_samesite_attr_for_auth_cookies( $user_id );
+	public function set_samesite_logged_in_cookies( $logged_in_cookie, $expire, $expiration, $user_id ) {
+		$secure = is_ssl();
+
+		// Front-end cookie is secure when the auth cookie is secure and the site's home URL is forced HTTPS.
+		$secure_logged_in_cookie = $secure && 'https' === wp_parse_url( get_option( 'home' ), PHP_URL_SCHEME );
+
+		/** This filter is documented in core/src/wp-includes/pluggable.php */
+		$secure = apply_filters( 'secure_auth_cookie', $secure, $user_id );
+
+		/** This filter is documented in core/src/wp-includes/pluggable.php */
+		$secure_logged_in_cookie = apply_filters( 'secure_logged_in_cookie', $secure_logged_in_cookie, $user_id, $secure );
+
+		$samesite = $this->get_samesite_attr_for_auth_cookies( $secure_logged_in_cookie );
 
 		jetpack_shim_setcookie(
 			LOGGED_IN_COOKIE,
@@ -508,7 +514,7 @@ class Jetpack_WPCOM_Block_Editor {
 				'expires'  => $expire,
 				'path'     => COOKIEPATH,
 				'domain'   => COOKIE_DOMAIN,
-				'secure'   => $secure,
+				'secure'   => $secure_logged_in_cookie,
 				'httponly' => true,
 				'samesite' => $samesite,
 			)
@@ -522,7 +528,7 @@ class Jetpack_WPCOM_Block_Editor {
 					'expires'  => $expire,
 					'path'     => SITECOOKIEPATH,
 					'domain'   => COOKIE_DOMAIN,
-					'secure'   => $secure,
+					'secure'   => $secure_logged_in_cookie,
 					'httponly' => true,
 					'samesite' => $samesite,
 				)

@@ -102,13 +102,14 @@ class ButtonEdit extends Component {
 
 		return (
 			<div
-				className={ classnames( className, 'is-modal-button' ) }
+				className={ classnames( className, 'wp-block-button is-modal-button' ) }
 				title={ title }
 				ref={ this.bindRef }
 			>
 				<RichText
 					placeholder={ placeholder || __( 'Add text…', 'jetpack' ) }
 					value={ text }
+					keepPlaceholderOnFocus={ true }
 					onChange={ value => setAttributes( { text: value } ) }
 					withoutInteractiveFormatting
 					className={ classnames( 'wp-block-button__link', {

@@ -14,8 +14,6 @@ jetpack_register_block(
 	)
 );
 
-const JETPACK_EVENTBRITE_WIDGET_SLUG = 'eventbrite-widget';
-
 /**
  * Eventbrite block registration/dependency delclaration.
  *
@@ -25,11 +23,11 @@ const JETPACK_EVENTBRITE_WIDGET_SLUG = 'eventbrite-widget';
  * @return string
  */
 function jetpack_render_eventbrite_block( $attr, $content ) {
-	if ( empty( $attr['eventId'] ) || empty( $attr['url'] ) ) {
+	if ( is_admin() || empty( $attr['eventId'] ) || empty( $attr['url'] ) ) {
 		return '';
 	}
 
-	$widget_id = JETPACK_EVENTBRITE_WIDGET_SLUG . '-' . $attr['eventId'];
+	$widget_id = wp_unique_id( 'eventbrite-widget-' );
 
 	wp_enqueue_script( 'eventbrite-widget', 'https://www.eventbrite.com/static/widgets/eb_widgets.js', array(), JETPACK__VERSION, true );
 
@@ -40,11 +38,18 @@ function jetpack_render_eventbrite_block( $attr, $content ) {
 	if ( empty( $attr['useModal'] ) ) {
 		wp_add_inline_script(
 			'eventbrite-widget',
-			"window.EBWidgets.createWidget({
+			"window.EBWidgets.createWidget( {
 				widgetType: 'checkout',
 				eventId: " . absint( $attr['eventId'] ) . ",
 				iframeContainerId: '" . esc_js( $widget_id ) . "',
-			});"
+			} );"
+		);
+
+		// $content contains a fallback link to the event that's saved in the post_content.
+		// Append a div that will hold the iframe embed created by the Eventbrite widget.js.
+		$content .= sprintf(
+			'<div id="%s" class="eventbrite__in-page-checkout"></div>',
+			esc_attr( $widget_id )
 		);
 
 		return sprintf(
@@ -58,34 +63,39 @@ function jetpack_render_eventbrite_block( $attr, $content ) {
 	// Show the modal version.
 	wp_add_inline_script(
 		'eventbrite-widget',
-		"window.EBWidgets.createWidget({
+		"window.EBWidgets.createWidget( {
 			widgetType: 'checkout',
 			eventId: " . absint( $attr['eventId'] ) . ",
 			modal: true,
 			modalTriggerElementId: '" . esc_js( $widget_id ) . "',
-		});"
+		} );"
 	);
 
-	return sprintf(
-		'<noscript><a href="%s" rel="noopener noreferrer" target="_blank"></noscript>%s<noscript></a></noscript>',
-		esc_url( $attr['url'] ),
-		$content
+	// Modal button is saved as an `<a>` element with `role="button"` because `<button>` is not allowed
+	// by WordPress.com wp_kses. This javascript adds the necessary event handling for button-like behavior.
+	// @link https://www.w3.org/TR/wai-aria-practices/examples/button/button.html.
+	wp_add_inline_script(
+		'eventbrite-widget',
+		"( function() {
+			var widget = document.getElementById( '" . esc_js( $widget_id ) . "' );
+			if ( widget ) {
+				widget.addEventListener( 'click', function( event ) {
+					event.preventDefault();
+				} );
+
+				widget.addEventListener( 'keydown', function( event ) {
+					// Enter and space keys.
+					if ( event.keyCode === 13 || event.keyCode === 32 ) {
+						event.preventDefault();
+						event.target && event.target.click();
+					}
+				} );
+			}
+		} )();"
 	);
+
+	// Replace the placeholder id saved in the post_content with a unique id used by widget.js.
+	$content = preg_replace( '/eventbrite-widget-\d+/', $widget_id, $content );
+
+	return $content;
 }
-
-/**
- * Share PHP block settings with js block code.
- *
- * @return void
- */
-function jetpack_eventbrite_block_editor_assets() {
-	wp_localize_script(
-		'jetpack-blocks-editor',
-		'Jetpack_Block_Eventbrite_Settings',
-		array(
-			'widget_slug' => JETPACK_EVENTBRITE_WIDGET_SLUG,
-		)
-	);
-}
-
-add_action( 'enqueue_block_editor_assets', 'jetpack_eventbrite_block_editor_assets' );
