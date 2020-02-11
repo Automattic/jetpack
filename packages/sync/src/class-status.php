@@ -19,10 +19,10 @@ class Status {
 	 *
 	 * @var string
 	 */
-	const STATUS_OPTION = 'jp_sync_health_status';
+	const STATUS_OPTION = 'sync_health_status';
 
 	/**
-	 * Status KEY in option array
+	 * Status key in option array.
 	 *
 	 * @access public
 	 *
@@ -31,7 +31,7 @@ class Status {
 	const OPTION_STATUS_KEY = 'status';
 
 	/**
-	 * Timestamp KEY in option array
+	 * Timestamp key in option array.
 	 *
 	 * @access public
 	 *
@@ -40,84 +40,64 @@ class Status {
 	const OPTION_TIMESTAMP_KEY = 'timestamp';
 
 	/**
-	 * Unknown Status
+	 * Unknown status code.
 	 *
 	 * @access public
 	 *
 	 * @var string
 	 */
-	const STATUS_UNKNOWN = 'Unknown';
+	const STATUS_UNKNOWN = 'unknown';
 
 	/**
-	 * Out of Sync Status
+	 * Out of sync status code.
 	 *
 	 * @access public
 	 *
 	 * @var string
 	 */
-	const STATUS_OUT_OF_SYNC = 'Out of Sync';
+	const STATUS_OUT_OF_SYNC = 'out_of_sync';
 
 	/**
-	 * In Sync Status
+	 * In sync status code.
 	 *
 	 * @access public
 	 *
 	 * @var string
 	 */
-	const STATUS_IN_SYNC = 'In Sync';
+	const STATUS_IN_SYNC = 'in_sync';
 
 	/**
-	 * get the raw Sync Health Status
-	 *
-	 * @return array|mixed
-	 */
-	public static function get_status_raw( ) {
-
-		$status = get_option( self::STATUS_OPTION, false );
-
-		return $status;
-
-	}
-
-	/**
-	 * get the Sync Health Status
+	 * Get a human-readable Sync Health Status.
 	 *
 	 * @return string Sync Health Status
 	 */
-	public static function get_status( ) {
+	public static function get_status() {
+		$status = \Jetpack_Options::get_option( self::STATUS_OPTION );
 
-		$status = get_option( self::STATUS_OPTION, false );
-
-		if ( false == $status || ! is_array( $status ) || empty( $status[ self::OPTION_STATUS_KEY ] ) ) {
+		if ( false === $status || ! is_array( $status ) || empty( $status[ self::OPTION_STATUS_KEY ] ) ) {
 			return self::STATUS_UNKNOWN;
 		}
 
-		// Return only valid Status
 		switch ( $status[ self::OPTION_STATUS_KEY ] ) {
-
 			case self::STATUS_OUT_OF_SYNC:
 			case self::STATUS_IN_SYNC:
 				return $status[ self::OPTION_STATUS_KEY ];
-				break;
-
-			default :
-				return STATUS_UNKNOWN;
-
+			default:
+				return self::STATUS_UNKNOWN;
 		}
 
 	}
 
 	/**
-	 * update Sync Health Status
+	 * Update Sync Health Status.
 	 *
-	 * @param string $status Sync Status
+	 * @param string $status Sync Status.
 	 */
 	public static function update_status( $status ) {
-
-		// Default Status Option
+		// Default Status Option.
 		$new_status = array(
-			self::OPTION_STATUS_KEY     => STATUS_UNKNOWN,
-			self::OPTION_TIMESTAMP_KEY  => microtime(true ),
+			self::OPTION_STATUS_KEY    => STATUS_UNKNOWN,
+			self::OPTION_TIMESTAMP_KEY => microtime( true ),
 		);
 
 		switch ( $status ) {
@@ -129,8 +109,7 @@ class Status {
 
 		}
 
-		update_option( self::STATUS_OPTION, $new_status );
-
+		\Jetpack_Options::update_option( self::STATUS_OPTION, $new_status );
 	}
 
 }
