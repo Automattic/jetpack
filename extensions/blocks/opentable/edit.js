@@ -43,6 +43,7 @@ import {
 	defaultAttributes,
 } from './attributes';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
+import { getAttributesFromEmbedCode } from './utils';
 
 export default function OpenTableEdit( { attributes, setAttributes, className, clientId } ) {
 	const validatedAttributes = getValidatedAttributes( defaultAttributes, attributes );
@@ -64,43 +65,10 @@ export default function OpenTableEdit( { attributes, setAttributes, className, c
 		);
 
 	const parseEmbedCode = embedCode => {
-		if ( ! embedCode ) {
+		const newAttributes = getAttributesFromEmbedCode( embedCode );
+		if ( ! newAttributes ) {
 			setErrorNotice();
-			return;
 		}
-
-		const scriptTagAttributes = embedCode.match( /< *script[^>]*src *= *["']?([^"']*)/i );
-		if ( ! scriptTagAttributes || ! scriptTagAttributes[ 1 ] ) {
-			setErrorNotice();
-			return;
-		}
-
-		let src = '';
-		if ( scriptTagAttributes[ 1 ].indexOf( 'http' ) === 0 ) {
-			src = new URL( scriptTagAttributes[ 1 ] );
-		} else {
-			src = new URL( 'http:' + scriptTagAttributes[ 1 ] );
-		}
-
-		if ( ! src.search ) {
-			setErrorNotice();
-			return;
-		}
-
-		const searchParams = new URLSearchParams( src.search );
-		let styleSetting = searchParams.get( 'theme' );
-		if ( searchParams.get( 'type' ) === 'button' ) {
-			styleSetting = searchParams.get( 'type' );
-		}
-
-		const newAttributes = {
-			rid: searchParams.getAll( 'rid' ),
-			iframe: Boolean( searchParams.get( 'iframe' ) ),
-			domain: searchParams.get( 'domain' ),
-			lang: searchParams.get( 'lang' ),
-			newtab: Boolean( searchParams.get( 'newtab' ) ),
-			style: styleSetting,
-		};
 
 		const validatedNewAttributes = getValidatedAttributes( defaultAttributes, newAttributes );
 		setAttributes( validatedNewAttributes );
