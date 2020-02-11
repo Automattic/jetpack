@@ -561,15 +561,6 @@ class Jetpack {
 		add_action( 'plugins_loaded', array( $this, 'configure' ), 1 );
 		add_action( 'plugins_loaded', array( $this, 'late_initialization' ), 90 );
 
-		add_filter(
-			'jetpack_connection_secret_generator',
-			function( $callable ) {
-				return function() {
-					return wp_generate_password( 32, false );
-				};
-			}
-		);
-
 		add_action( 'jetpack_verify_signature_error', array( $this, 'track_xmlrpc_error' ) );
 
 		add_filter(
