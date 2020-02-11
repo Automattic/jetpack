@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Sync\Health;
+use Automattic\Jetpack\Sync\Settings;
 
 class WP_Test_Jetpack_Sync_Health extends WP_Test_Jetpack_Sync_Base {
 	function test_update_status_should_default_to_unknown() {
@@ -33,6 +34,16 @@ class WP_Test_Jetpack_Sync_Health extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( Health::get_status(), Health::STATUS_INITIALIZING );
 	}
 
+	function test_initialization_status_disabled_on_activation() {
+		// When Jetpack is activated, health status should be set to disabled if
+		// sync is disabled.
+		Health::update_status( Health::STATUS_IN_SYNC );
+		$this->assertEquals( Health::get_status(), Health::STATUS_IN_SYNC );
+		Settings::update_settings( array( 'disable' => true ) );
+		Jetpack::plugin_activation( false );
+		$this->assertEquals( Health::get_status(), Health::STATUS_DISABLED );
+	}
+
 	function test_initialization_status_ignored_on_activation() {
 		// When Jetpack is activated, health status should be perserved if
 		// it's already been set.
@@ -40,4 +51,6 @@ class WP_Test_Jetpack_Sync_Health extends WP_Test_Jetpack_Sync_Base {
 		Jetpack::plugin_activation( false );
 		$this->assertEquals( Health::get_status(), Health::STATUS_IN_SYNC );
 	}
+
+
 }
