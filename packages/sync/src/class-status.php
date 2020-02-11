@@ -67,6 +67,15 @@ class Status {
 	const STATUS_IN_SYNC = 'in_sync';
 
 	/**
+	 * Initializing status code.
+	 *
+	 * @access public
+	 *
+	 * @var string
+	 */
+	const STATUS_INITIALIZING = 'initializing';
+
+	/**
 	 * Get a human-readable Sync Health Status.
 	 *
 	 * @return string Sync Health Status
@@ -81,6 +90,7 @@ class Status {
 		switch ( $status[ self::OPTION_STATUS_KEY ] ) {
 			case self::STATUS_OUT_OF_SYNC:
 			case self::STATUS_IN_SYNC:
+			case self::STATUS_INITIALIZING:
 				return $status[ self::OPTION_STATUS_KEY ];
 			default:
 				return self::STATUS_UNKNOWN;
@@ -104,6 +114,7 @@ class Status {
 
 			case self::STATUS_OUT_OF_SYNC:
 			case self::STATUS_IN_SYNC:
+			case self::STATUS_INITIALIZING:
 				$new_status[ self::OPTION_STATUS_KEY ] = $status;
 				break;
 
@@ -112,6 +123,11 @@ class Status {
 		\Jetpack_Options::update_option( self::STATUS_OPTION, $new_status );
 	}
 
+	/**
+	 * Check if Status has been previously set.
+	 *
+	 * @return bool is a Status defined
+	 */
 	public static function is_status_defined() {
 		$status = \Jetpack_Options::get_option( self::STATUS_OPTION );
 
