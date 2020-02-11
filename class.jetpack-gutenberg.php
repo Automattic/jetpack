@@ -31,6 +31,7 @@ function jetpack_register_block( $slug, $args = array() ) {
 			&& Jetpack_Gutenberg::is_block_version_gated( $args['version_requirements']['wp'], $args['version_requirements']['plugin'] ) ) {
 		return false;
 	}
+	unset( $args['version_requirements'] );
 
 	// Checking whether block is registered to ensure it isn't registered twice.
 	if ( Jetpack_Gutenberg::is_registered( $slug ) ) {
@@ -99,6 +100,8 @@ class Jetpack_Gutenberg {
 	 *
 	 * @param string $core_wp_version The minimum wp core version needed to run the block.
 	 * @param string $plugin_version The minimum gutenberg plugin version needed to run the block.
+	 *
+	 * @since 8.3.0
 	 *
 	 * @return boolean True if the block is gated due to current wp or plugin versions.
 	 */
