@@ -107,6 +107,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
+* Dashboard widget: clarify wording in Anti-spam and Protect sections.
 * Dashboard notices: allow permanent notices.
 
 **Improved compatibility**
