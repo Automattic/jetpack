@@ -34,7 +34,7 @@ const SearchSidebar = props => {
 					document.getElementById( `${ widget.widget_id }-wrapper` )
 				);
 			} ) }
-			{ props.showPoweredBy && <JetpackColophon /> }
+			{ props.showPoweredBy && <JetpackColophon locale={ props.locale } /> }
 		</div>
 	);
 };
