@@ -3162,6 +3162,11 @@ p {
 
 		update_option( 'jetpack_activation_source', self::get_activation_source( wp_get_referer() ) );
 
+		// Define Status as "Unknown"
+        if( false === \Automattic\Jetpack\Sync\Status::is_status_defined() ) {
+            \Automattic\Jetpack\Sync\Status::update_status( \Automattic\Jetpack\Sync\Status::STATUS_UNKNOWN );
+        }
+
 		self::plugin_initialize();
 	}
 

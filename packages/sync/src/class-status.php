@@ -112,4 +112,14 @@ class Status {
 		\Jetpack_Options::update_option( self::STATUS_OPTION, $new_status );
 	}
 
+	public static function is_status_defined() {
+		$status = \Jetpack_Options::get_option( self::STATUS_OPTION );
+
+		if ( false === $status || ! is_array( $status ) || empty( $status[ self::OPTION_STATUS_KEY ] ) ) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+
 }

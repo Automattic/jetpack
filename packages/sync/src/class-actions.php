@@ -726,6 +726,11 @@ class Actions {
 				)
 			);
 		}
+
+		// Define Status as "Unknown" if not defined
+		if( false === \Automattic\Jetpack\Sync\Status::is_status_defined() ) {
+			\Automattic\Jetpack\Sync\Status::update_status( \Automattic\Jetpack\Sync\Status::STATUS_UNKNOWN );
+		}
 	}
 
 	/**
