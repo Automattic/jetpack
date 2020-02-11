@@ -10,6 +10,7 @@ use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Sync\Functions;
+use Automattic\Jetpack\Sync\Health;
 use Automattic\Jetpack\Sync\Sender;
 use Automattic\Jetpack\Sync\Users;
 use Automattic\Jetpack\Terms_Of_Service;
@@ -3162,8 +3163,8 @@ p {
 
 		update_option( 'jetpack_activation_source', self::get_activation_source( wp_get_referer() ) );
 
-		if ( false === \Automattic\Jetpack\Sync\Status::is_status_defined() ) {
-			\Automattic\Jetpack\Sync\Status::update_status( \Automattic\Jetpack\Sync\Status::INITIALIZING );
+		if ( false === Health::is_status_defined() ) {
+			Health::update_status( Health::INITIALIZING );
 		}
 
 		self::plugin_initialize();

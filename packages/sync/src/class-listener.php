@@ -299,9 +299,8 @@ class Listener {
 		 * it exceeds some limit AND the oldest item exceeds the age limit (i.e. sending has stopped).
 		 */
 		if ( ! $this->can_add_to_queue( $queue ) ) {
-			// If sync queue, perform data loss routine
-			if( 'sync' === $queue->id ) {
-				$this->sync_data_loss($queue);
+			if ( 'sync' === $queue->id ) {
+				$this->sync_data_loss( $queue );
 			}
 			return;
 		}
@@ -364,17 +363,14 @@ class Listener {
 	 * @return boolean was send successful
 	 */
 	public function sync_data_loss( $queue ) {
+		Health::update_status( Health::STATUS_OUT_OF_SYNC );
 
-		Status::update_status( Status::STATUS_OUT_OF_SYNC );
-
-		// Generate Action Data
 		$data = array(
-			'timestamp' => microtime( true ),
+			'timestamp'  => microtime( true ),
 			'queue_size' => $queue->size(),
-			'queue_lag' => $queue->lag(),
+			'queue_lag'  => $queue->lag(),
 		);
 
-		// Send jetpack_sync_data_loss action
 		$sender = Sender::get_instance();
 		return $sender->send_action( 'jetpack_sync_data_loss', $data );
 	}

@@ -10,7 +10,7 @@ namespace Automattic\Jetpack\Sync;
 /**
  * Status class
  */
-class Status {
+class Health {
 
 	/**
 	 * Prefix of the blog lock transient.
@@ -106,7 +106,7 @@ class Status {
 	public static function update_status( $status ) {
 		// Default Status Option.
 		$new_status = array(
-			self::OPTION_STATUS_KEY    => STATUS_UNKNOWN,
+			self::OPTION_STATUS_KEY    => self::STATUS_UNKNOWN,
 			self::OPTION_TIMESTAMP_KEY => microtime( true ),
 		);
 

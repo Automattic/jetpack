@@ -10,8 +10,8 @@ namespace Automattic\Jetpack\Sync;
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Sync\Health;
 use Automattic\Jetpack\Sync\Modules;
-use Automattic\Jetpack\Sync\Status as Sync_Status;
 
 /**
  * The role of this class is to hook the Sync subsystem into WordPress - when to listen for actions,
@@ -574,7 +574,7 @@ class Actions {
 	 */
 	public static function full_sync_end_update_status( $checksum, $range ) {
 		if ( isset( $range['posts'] ) ) {
-			Sync_Status::update_status( Sync_Status::STATUS_IN_SYNC );
+			Health::update_status( Health::STATUS_IN_SYNC );
 		}
 	}
 
@@ -728,8 +728,8 @@ class Actions {
 			);
 		}
 
-		if ( false === Sync_Status::is_status_defined() ) {
-			Sync_Status::update_status( Sync_Status::STATUS_INITIALIZING );
+		if ( false === Health::is_status_defined() ) {
+			Health::update_status( Health::STATUS_INITIALIZING );
 		}
 	}
 
