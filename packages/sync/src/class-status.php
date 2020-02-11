@@ -19,7 +19,7 @@ class Status {
 	 *
 	 * @var string
 	 */
-	const STATUS_OPTION = 'jp_sync_health_status';
+	const STATUS_OPTION = 'sync_health_status';
 
 	/**
 	 * Status key in option array.
@@ -72,8 +72,7 @@ class Status {
 	 * @return string Sync Health Status
 	 */
 	public static function get_status() {
-
-		$status = get_option( self::STATUS_OPTION, false );
+		$status = \Jetpack_Options::get_option( self::STATUS_OPTION );
 
 		if ( false === $status || ! is_array( $status ) || empty( $status[ self::OPTION_STATUS_KEY ] ) ) {
 			return self::STATUS_UNKNOWN;
@@ -110,8 +109,7 @@ class Status {
 
 		}
 
-		update_option( self::STATUS_OPTION, $new_status );
-
+		\Jetpack_Options::update_option( self::STATUS_OPTION, $new_status );
 	}
 
 }
