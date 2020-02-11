@@ -273,9 +273,9 @@ INCLUDE_CLASSMAP;
 	private function getFileMap( array $autoloads, Filesystem $filesystem, $vendorPath, $basePath ) {
 		$fileMapString = '';
 		foreach ( $autoloads['files'] as $file_id => $package ) {
-			$key       = var_export( $file_id, true );
-			$pathCode        = $this->getPathCode( $filesystem, $basePath, $vendorPath, $package['path'] );
-			$versionCode     = var_export( $package['version'], true );
+			$key            = var_export( $file_id, true );
+			$pathCode       = $this->getPathCode( $filesystem, $basePath, $vendorPath, $package['path'] );
+			$versionCode    = var_export( $package['version'], true );
 			$fileMapString .= <<<FILE_CODE
 	$key => array(
 		'version' => $versionCode,
