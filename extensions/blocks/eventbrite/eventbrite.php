@@ -14,8 +14,6 @@ jetpack_register_block(
 	)
 );
 
-const JETPACK_EVENTBRITE_WIDGET_SLUG = 'eventbrite-widget';
-
 /**
  * Eventbrite block registration/dependency delclaration.
  *
