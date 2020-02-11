@@ -105,7 +105,7 @@ class ProStatus extends React.Component {
 						context: 'A caption for a small button to fix security issues.',
 					} );
 				} else {
-					action = __( 'See Threats', {
+					action = __( 'See threats', {
 						context: 'A caption for a small button to fix security issues.',
 					} );
 				}
