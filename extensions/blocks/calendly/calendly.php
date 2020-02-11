@@ -128,7 +128,7 @@ function load_assets( $attr, $content ) {
 		if ( ! empty( $submit_button_text_color ) || ! empty( $submit_button_background_color ) ) {
 			$inline_styles = sprintf(
 				'#%1$s .wp-block-button__link{%2$s%3$s}',
-				$block_id,
+				esc_attr( $block_id ),
 				! empty( $submit_button_text_color )
 					? 'color:#' . sanitize_hex_color_no_hash( $submit_button_text_color ) . ';'
 					: '',
@@ -142,7 +142,7 @@ function load_assets( $attr, $content ) {
 		$content = sprintf(
 			'<div class="%1$s" id="%2$s"><a class="wp-block-button__link" role="button" onclick="Calendly.initPopupWidget({url:\'%3$s\'});return false;">%4$s</a></div>',
 			esc_attr( $classes ),
-			$block_id,
+			esc_attr( $block_id ),
 			esc_js( $url ),
 			wp_kses_post( $submit_button_text )
 		);
