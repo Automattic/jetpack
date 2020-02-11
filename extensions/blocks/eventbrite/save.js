@@ -20,6 +20,7 @@ function saveButton( attributes ) {
 		borderRadius,
 		customBackgroundColor,
 		customTextColor,
+		eventId,
 		text,
 		textColor,
 		url,
@@ -51,7 +52,7 @@ function saveButton( attributes ) {
 				href={ url }
 				// Placeholder id, preg replaced with a unique id generated in PHP when the block is rendered.
 				// IMPORTANT: do not remove or change unless you also update the render function in eventbrite.php.
-				id={ `eventbrite-widget-${ ( Date.now() * Math.random() ).toFixed() }` }
+				id={ `eventbrite-widget-${ eventId }` }
 				rel="noopener noreferrer"
 				role="button"
 				style={ buttonStyle }
