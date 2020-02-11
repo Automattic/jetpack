@@ -11,6 +11,7 @@ use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Sync\Modules;
+use Automattic\Jetpack\Sync\Status as Sync_Status;
 
 /**
  * The role of this class is to hook the Sync subsystem into WordPress - when to listen for actions,
@@ -84,8 +85,8 @@ class Actions {
 		// Publicize filter to prevent publicizing blacklisted post types.
 		add_filter( 'publicize_should_publicize_published_post', array( __CLASS__, 'prevent_publicize_blacklisted_posts' ), 10, 2 );
 
-		// Full Sync Completed, Update Status
-		add_action( 'jetpack_full_sync_end', arra( __ClASS__, 'full_sync_end_update_status'), 10, 2 );
+		// When full sync completes, let's update the site's sync status.
+		add_action( 'jetpack_full_sync_end', array( __ClASS__, 'full_sync_end_update_status' ), 10, 2 );
 
 		/**
 		 * Fires on every request before default loading sync listener code.
@@ -568,12 +569,12 @@ class Actions {
 	/**
 	 * Update Sync Status if Full Sync ended of Posts
 	 *
-	 * @param $checksum empty string
-	 * @param $range Post/Comment Range
+	 * @param string $checksum The checksum that's currently being processed.
+	 * @param array  $range The ranges of object types being processed.
 	 */
 	public static function full_sync_end_update_status( $checksum, $range ) {
-		if( isset( $range['posts'] ) ) {
-			\Automattic\Jetpack\Sync\Status::update_status( \Automattic\Jetpack\Sync\Status::STATUS_IN_SYNC );
+		if ( isset( $range['posts'] ) ) {
+			Sync_Status::update_status( Sync_Status::STATUS_IN_SYNC );
 		}
 	}
 
@@ -727,9 +728,8 @@ class Actions {
 			);
 		}
 
-		// Define Status as "Unknown" if not defined
-		if( false === \Automattic\Jetpack\Sync\Status::is_status_defined() ) {
-			\Automattic\Jetpack\Sync\Status::update_status( \Automattic\Jetpack\Sync\Status::STATUS_UNKNOWN );
+		if ( false === Sync_Status::is_status_defined() ) {
+			Sync_Status::update_status( Sync_Status::STATUS_INITIALIZING );
 		}
 	}
 
