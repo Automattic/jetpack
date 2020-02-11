@@ -3164,7 +3164,7 @@ p {
 		update_option( 'jetpack_activation_source', self::get_activation_source( wp_get_referer() ) );
 
 		if ( false === Health::is_status_defined() ) {
-			Health::update_status( Health::INITIALIZING );
+			Health::update_status( Health::STATUS_INITIALIZING );
 		}
 
 		self::plugin_initialize();
