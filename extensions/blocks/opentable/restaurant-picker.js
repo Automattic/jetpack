@@ -17,6 +17,7 @@ import useRestaurantSearch from './use-restaurant-search';
 
 const MAX_SUGGESTIONS = 20;
 const embedRegex = /<script type=\'text\/javascript\' src=\'\/\/www.opentable\.(\w{2,3}\.)?\w+\/widget\/reservation\/loader\?[^']+\'><\/script>/;
+const linkRegex = /restref=([0-9]+)&/;
 
 export default function RestaurantPicker( props ) {
 	const [ input, setInput ] = useState( '' );
@@ -40,11 +41,26 @@ export default function RestaurantPicker( props ) {
 		.filter( restaurant => selectedRestaurants.indexOf( restaurant.rid.toString() ) )
 		.map( restaurant => restaurant.name + ` (#${ restaurant.rid })` );
 
+	const getRestaurantsToEmbed = () => {
+		if ( ! isEmpty( selectedRestaurants ) ) {
+			return selectedRestaurants;
+		}
+
+		if ( embedRegex.test( input ) ) {
+			return input;
+		}
+
+		const linkRegexMatches = input.match( linkRegex );
+		if ( linkRegexMatches ) {
+			return [ linkRegexMatches[ 1 ] ];
+		}
+
+		return input;
+	};
+
 	const onSubmit = event => {
 		event.preventDefault();
-		props.onSubmit(
-			isEmpty( selectedRestaurants ) && embedRegex.test( input ) ? input : selectedRestaurants
-		);
+		props.onSubmit( getRestaurantsToEmbed() );
 	};
 
 	const formInput = (
