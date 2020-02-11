@@ -1,7 +1,7 @@
-/**
- * @jsx h
+/** @jsx h
  * @jest-environment jsdom
  */
+/* global expect */
 
 /**
  * External dependencies
