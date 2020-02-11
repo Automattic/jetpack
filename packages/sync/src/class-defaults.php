@@ -395,6 +395,7 @@ class Defaults {
 		'snitch',
 		'vip-legacy-redirect',
 		'wp_automatic',
+		'wp-rest-api-log', // https://wordpress.org/plugins/wp-rest-api-log/
 		'wpephpcompat_jobs',
 		'wprss_feed_item',
 	);
