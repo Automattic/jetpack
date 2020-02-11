@@ -9,6 +9,8 @@
 
 use Automattic\Jetpack\Constants;
 
+require_once dirname( __FILE__ ) . '/class.jetpack-search-options.php';
+
 /**
  * Various helper functions for reuse throughout the Jetpack Search code.
  *
@@ -665,7 +667,7 @@ class Jetpack_Search_Helpers {
 	 * @return int
 	 */
 	public static function get_max_posts_per_page() {
-		return self::site_has_vip_index() ? 1000 : 100;
+		return Jetpack_Search_Options::site_has_vip_index() ? 1000 : 100;
 	}
 
 	/**
@@ -676,6 +678,6 @@ class Jetpack_Search_Helpers {
 	 * @return int
 	 */
 	public static function get_max_offset() {
-		return self::site_has_vip_index() ? 9000 : 1000;
+		return Jetpack_Search_Options::site_has_vip_index() ? 9000 : 1000;
 	}
 }
