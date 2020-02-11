@@ -412,7 +412,7 @@ class Jetpack_WPCOM_Block_Editor {
 		add_action( 'set_auth_cookie', array( $this, 'set_samesite_auth_cookies' ), 10, 5 );
 		add_action( 'set_logged_in_cookie', array( $this, 'set_samesite_logged_in_cookies' ), 10, 4 );
 		add_action( 'clear_auth_cookie', array( $this, 'clear_auth_cookies' ) );
-		add_filter( 'send_auth_cookies', array( $this, 'disable_core_auth_cookies' ) );
+		add_filter( 'send_auth_cookies', '__return_false' );
 	}
 
 	/**
@@ -534,15 +534,6 @@ class Jetpack_WPCOM_Block_Editor {
 				)
 			);
 		}
-	}
-
-	/**
-	 * Prevents the default core auth cookies from being generated so they don't collide with our cross-site cookies.
-	 *
-	 * @return bool Whether the default core auth cookies should be generated.
-	 */
-	public function disable_core_auth_cookies() {
-		return false;
 	}
 
 	/**
