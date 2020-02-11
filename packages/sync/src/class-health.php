@@ -49,6 +49,15 @@ class Health {
 	const STATUS_UNKNOWN = 'unknown';
 
 	/**
+	 * Disabled status code.
+	 *
+	 * @access public
+	 *
+	 * @var string
+	 */
+	const STATUS_DISABLED = 'disabled';
+
+	/**
 	 * Out of sync status code.
 	 *
 	 * @access public
@@ -76,7 +85,7 @@ class Health {
 	const STATUS_INITIALIZING = 'initializing';
 
 	/**
-	 * Get a human-readable Sync Health Status.
+	 * Gets health status code.
 	 *
 	 * @return string Sync Health Status
 	 */
@@ -88,6 +97,7 @@ class Health {
 		}
 
 		switch ( $status[ self::OPTION_STATUS_KEY ] ) {
+			case self::STATUS_DISABLED:
 			case self::STATUS_OUT_OF_SYNC:
 			case self::STATUS_IN_SYNC:
 			case self::STATUS_INITIALIZING:
@@ -99,7 +109,22 @@ class Health {
 	}
 
 	/**
-	 * Update Sync Health Status.
+	 * Sets sync health status to either STATUS_INITIALIZING or, if sync is disabled,
+	 * to STATUS_DISABLED. This method is hooked to Jetpack's plugin activation and
+	 * upgrade actions.
+	 */
+	public static function set_initial_status() {
+		if ( false === self::is_status_defined() ) {
+			self::update_status( self::STATUS_INITIALIZING );
+		}
+
+		if ( ! Settings::is_sync_enabled() ) {
+			self::update_status( self::STATUS_DISABLED );
+		}
+	}
+
+	/**
+	 * Updates sync health status with either a valid status, or an unknown status.
 	 *
 	 * @param string $status Sync Status.
 	 */
@@ -111,13 +136,12 @@ class Health {
 		);
 
 		switch ( $status ) {
-
+			case self::STATUS_DISABLED:
 			case self::STATUS_OUT_OF_SYNC:
 			case self::STATUS_IN_SYNC:
 			case self::STATUS_INITIALIZING:
 				$new_status[ self::OPTION_STATUS_KEY ] = $status;
 				break;
-
 		}
 
 		\Jetpack_Options::update_option( self::STATUS_OPTION, $new_status );

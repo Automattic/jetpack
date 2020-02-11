@@ -363,6 +363,9 @@ class Listener {
 	 * @return boolean was send successful
 	 */
 	public function sync_data_loss( $queue ) {
+		if ( ! Settings::is_sync_enabled() ) {
+			return;
+		}
 		Health::update_status( Health::STATUS_OUT_OF_SYNC );
 
 		$data = array(

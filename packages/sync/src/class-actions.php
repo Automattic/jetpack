@@ -728,9 +728,7 @@ class Actions {
 			);
 		}
 
-		if ( false === Health::is_status_defined() ) {
-			Health::update_status( Health::STATUS_INITIALIZING );
-		}
+		Health::set_initial_status();
 	}
 
 	/**
