@@ -26,5 +26,5 @@
 		"videopress",
 		"wordads"
 	],
-	"beta": [ "amazon", "seo", "google-calendar" ]
+	"beta": [ "amazon", "google-calendar", "revue", "seo" ]
 }
