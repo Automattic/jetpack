@@ -2,6 +2,7 @@
 
 use Automattic\Jetpack\Sync\Actions;
 use Automattic\Jetpack\Sync\Modules;
+use Automattic\Jetpack\Sync\Health;
 
 class WP_Test_Jetpack_Sync_Actions extends WP_UnitTestCase {
 	function test_get_sync_status() {
@@ -65,5 +66,20 @@ class WP_Test_Jetpack_Sync_Actions extends WP_UnitTestCase {
 		$initial_sync = Actions::do_initial_sync();
 
 		$this->assertNull( $initial_sync );
+	}
+
+	function test_initialization_status_on_upgrade() {
+		// When Jetpack is upgraded, health status should be set to initializing if
+		// it's never been set before.
+		Actions::cleanup_on_upgrade();
+		$this->assertEquals( Health::get_status(), Health::STATUS_INITIALIZING );
+	}
+
+	function test_initialization_status_ignored_on_upgrade() {
+		// When Jetpack is upgraded, health status should be perserved if
+		// it's already been set.
+		Health::update_status( Health::STATUS_IN_SYNC );
+		Actions::cleanup_on_upgrade();
+		$this->assertEquals( Health::get_status(), Health::STATUS_IN_SYNC );
 	}
 }
