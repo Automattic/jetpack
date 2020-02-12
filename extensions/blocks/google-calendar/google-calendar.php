@@ -44,11 +44,7 @@ function register_block() {
 		jetpack_register_block(
 			BLOCK_NAME,
 			array(
-				'render_callback'      => 'Jetpack\Google_Calendar_Block\load_assets',
-				'version_requirements' => array(
-					'wp'     => '5.4',
-					'plugin' => '7.2',
-				),
+				'render_callback' => 'Jetpack\Google_Calendar_Block\load_assets',
 			)
 		);
 	}
