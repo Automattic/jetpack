@@ -135,8 +135,13 @@ class Health {
 	 * Updates sync health status with either a valid status, or an unknown status.
 	 *
 	 * @param string $status Sync Status.
+	 *
+	 * @return bool True if an update occoured, or false if the status didn't change.
 	 */
 	public static function update_status( $status ) {
+		if ( self::get_status() === $status ) {
+			return false;
+		}
 		// Default Status Option.
 		$new_status = array(
 			self::OPTION_STATUS_KEY    => self::STATUS_UNKNOWN,
@@ -152,6 +157,7 @@ class Health {
 		}
 
 		\Jetpack_Options::update_option( self::STATUS_OPTION, $new_status );
+		return true;
 	}
 
 	/**

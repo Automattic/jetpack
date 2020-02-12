@@ -366,7 +366,11 @@ class Listener {
 		if ( ! Settings::is_sync_enabled() ) {
 			return;
 		}
-		Health::update_status( Health::STATUS_OUT_OF_SYNC );
+		$updated = Health::update_status( Health::STATUS_OUT_OF_SYNC );
+
+		if ( ! $updated ) {
+			return;
+		}
 
 		$data = array(
 			'timestamp'  => microtime( true ),
