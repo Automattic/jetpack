@@ -2,7 +2,17 @@
  * Editor styles for Google Calendar
  */
 
- .wp-block-jetpack-google-calendar {
+@media screen and ( min-width: 700px ) {
+    .block-editor__container {
+        .wp-block-jetpack-google-calendar {
+            iframe.components-sandbox { 
+                min-width: 600px; 
+            }
+        }
+    }
+}
+
+.wp-block-jetpack-google-calendar {
     
     &-embed-form-sidebar {
 		textarea {
