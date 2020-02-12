@@ -1,6 +1,6 @@
 <?php
 /**
- * Status class.
+ * Health class.
  *
  * @package automattic/jetpack-sync
  */
@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack\Sync;
 
 /**
- * Status class
+ * Health class.
  */
 class Health {
 
@@ -116,18 +116,29 @@ class Health {
 	}
 
 	/**
-	 * Sets sync health status to either STATUS_INITIALIZING or, if sync is disabled,
-	 * to STATUS_DISABLED. This method is hooked to Jetpack's plugin activation and
-	 * upgrade actions.
+	 * When the Jetpack plugin is upgraded, set status to disabled if sync is not enabled,
+	 * or to unknown, if the status has never been set before.
 	 */
-	public static function set_initial_status() {
-		if ( false === self::is_status_defined() ) {
-			self::update_status( self::STATUS_INITIALIZING );
-		}
-
+	public static function on_jetpack_upgraded() {
 		if ( ! Settings::is_sync_enabled() ) {
 			self::update_status( self::STATUS_DISABLED );
+			return;
 		}
+		if ( false === self::is_status_defined() ) {
+			self::update_status( self::STATUS_UNKNOWN );
+		}
+	}
+
+	/**
+	 * When the Jetpack plugin is activated, set status to disabled if sync is not enabled,
+	 * or to unknown.
+	 */
+	public static function on_jetpack_activated() {
+		if ( ! Settings::is_sync_enabled() ) {
+			self::update_status( self::STATUS_DISABLED );
+			return;
+		}
+		self::update_status( self::STATUS_UNKNOWN );
 	}
 
 	/**

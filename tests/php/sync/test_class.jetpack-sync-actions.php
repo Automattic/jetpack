@@ -69,16 +69,18 @@ class WP_Test_Jetpack_Sync_Actions extends WP_UnitTestCase {
 		$this->assertNull( $initial_sync );
 	}
 
-	function test_initialization_status_on_upgrade() {
-		// When Jetpack is upgraded, health status should be set to initializing if
-		// it's never been set before.
+	/**
+	 * When Jetpack is upgraded, and no health status has been set, it should default to unknown status.
+	 */
+	function test_unknown_health_on_upgrade() {
 		Actions::cleanup_on_upgrade();
-		$this->assertEquals( Health::get_status(), Health::STATUS_INITIALIZING );
+		$this->assertEquals( Health::get_status(), Health::STATUS_UNKNOWN );
 	}
 
+	/**
+	 * When Jetpack is upgraded, health status should be set to disabled if sync is not enabled.
+	 */
 	function test_initialization_status_disabled_on_upgrade() {
-		// When Jetpack is upgraded, health status should be set to disabled if
-		// sync is disabled.
 		Health::update_status( Health::STATUS_IN_SYNC );
 		$this->assertEquals( Health::get_status(), Health::STATUS_IN_SYNC );
 		Settings::update_settings( array( 'disable' => true ) );
@@ -86,9 +88,10 @@ class WP_Test_Jetpack_Sync_Actions extends WP_UnitTestCase {
 		$this->assertEquals( Health::get_status(), Health::STATUS_DISABLED );
 	}
 
+	/**
+	 * When Jetpack is upgraded, health status should be perserved if it's already set.
+	 */
 	function test_initialization_status_ignored_on_upgrade() {
-		// When Jetpack is upgraded, health status should be perserved if
-		// it's already been set.
 		Health::update_status( Health::STATUS_IN_SYNC );
 		Actions::cleanup_on_upgrade();
 		$this->assertEquals( Health::get_status(), Health::STATUS_IN_SYNC );

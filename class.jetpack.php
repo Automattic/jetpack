@@ -3163,7 +3163,7 @@ p {
 
 		update_option( 'jetpack_activation_source', self::get_activation_source( wp_get_referer() ) );
 
-		Health::set_initial_status();
+		Health::on_jetpack_activated();
 
 		self::plugin_initialize();
 	}

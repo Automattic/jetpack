@@ -713,7 +713,7 @@ class Actions {
 			);
 		}
 
-		Health::set_initial_status();
+		Health::on_jetpack_upgraded();
 	}
 
 	/**

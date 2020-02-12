@@ -27,16 +27,18 @@ class WP_Test_Jetpack_Sync_Health extends WP_Test_Jetpack_Sync_Base {
 		$this->assertFalse( Health::is_status_defined() );
 	}
 
+	/**
+	 * When Jetpack is activated, health status should be set to unknown if it's never been set before.
+	 */
 	function test_initialization_status_on_activation() {
-		// When Jetpack is activated, health status should be set to initializing if
-		// it's never been set before.
 		Jetpack::plugin_activation( false );
-		$this->assertEquals( Health::get_status(), Health::STATUS_INITIALIZING );
+		$this->assertEquals( Health::get_status(), Health::STATUS_UNKNOWN );
 	}
 
+	/**
+	 * When Jetpack is activated, health status should be set to disabled if sync is disabled.
+	 */
 	function test_initialization_status_disabled_on_activation() {
-		// When Jetpack is activated, health status should be set to disabled if
-		// sync is disabled.
 		Health::update_status( Health::STATUS_IN_SYNC );
 		$this->assertEquals( Health::get_status(), Health::STATUS_IN_SYNC );
 		Settings::update_settings( array( 'disable' => true ) );
@@ -44,12 +46,14 @@ class WP_Test_Jetpack_Sync_Health extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( Health::get_status(), Health::STATUS_DISABLED );
 	}
 
+	/**
+	 * When Jetpack is activated, health status should be set to unknown, even if it's already set.
+	 * We can't be fully sure what actions have happened during deactivation state.
+	 */
 	function test_initialization_status_ignored_on_activation() {
-		// When Jetpack is activated, health status should be perserved if
-		// it's already been set.
 		Health::update_status( Health::STATUS_IN_SYNC );
 		Jetpack::plugin_activation( false );
-		$this->assertEquals( Health::get_status(), Health::STATUS_IN_SYNC );
+		$this->assertEquals( Health::get_status(), Health::STATUS_UNKNOWN );
 	}
 
 
