@@ -84,6 +84,23 @@ class GoogleCalendarEdit extends Component {
 		} );
 	};
 
+	getEditForm = ( className, editedEmbed ) => {
+		return (
+			<form onSubmit={ this.handleEmbed } className={ className }>
+				<textarea
+					type="text"
+					value={ editedEmbed }
+					className="components-placeholder__input"
+					aria-label={ __( 'Google Calendar URL or iframe', 'jetpack' ) }
+					placeholder={ __( 'Enter URL or iframe to embed here…', 'jetpack' ) }
+					onChange={ event => this.setState( { editedEmbed: event.target.value } ) }
+				/>
+				<Button isSecondary isLarge type="submit">
+					{ _x( 'Embed', 'button label', 'jetpack' ) }
+				</Button>
+			</form>
+		);
+	};
 	/**
 	 * Render a preview of the Google Calendar embed.
 	 *
@@ -108,19 +125,7 @@ class GoogleCalendarEdit extends Component {
 			<>
 				<InspectorControls>
 					<PanelBody title={ __( 'Calendar Settings', 'jetpack' ) } initialOpen={ false }>
-						<form onSubmit={ this.handleEmbed } className={ `${ className }-embed-form-sidebar` }>
-							<textarea
-								type="text"
-								value={ editedEmbed }
-								className="components-placeholder__input"
-								aria-label={ __( 'Google Calendar URL or iframe', 'jetpack' ) }
-								placeholder={ __( 'Enter URL or iframe to embed here…', 'jetpack' ) }
-								onChange={ event => this.setState( { editedEmbed: event.target.value } ) }
-							/>
-							<Button isSecondary isLarge type="submit">
-								{ _x( 'Embed', 'button label', 'jetpack' ) }
-							</Button>
-						</form>
+						{ this.getEditForm( `${ className }-embed-form-sidebar`, editedEmbed ) }
 					</PanelBody>
 				</InspectorControls>
 			</>
@@ -151,19 +156,7 @@ class GoogleCalendarEdit extends Component {
 								'jetpack'
 							) }
 						</p>
-						<form onSubmit={ this.handleEmbed }>
-							<input
-								type="text"
-								value={ editedEmbed }
-								className="components-placeholder__input"
-								aria-label={ __( 'Google Calendar URL or iframe', 'jetpack' ) }
-								placeholder={ __( 'Enter embed code or URL here', 'jetpack' ) }
-								onChange={ event => this.setState( { editedEmbed: event.target.value } ) }
-							/>
-							<Button isSecondary isLarge type="submit">
-								{ _x( 'Embed', 'button label', 'jetpack' ) }
-							</Button>
-						</form>
+						{ this.getEditForm( `${ className }-embed-form-editor`, editedEmbed ) }
 					</Placeholder>
 				</div>
 			);
