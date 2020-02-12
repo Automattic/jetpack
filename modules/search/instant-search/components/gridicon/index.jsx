@@ -140,6 +140,12 @@ class Gridicon extends Component {
 						<path d="M10 19h4v-2h-4v2zm-4-6h12v-2H6v2zM3 5v2h18V5H3z" />
 					</g>
 				);
+			case 'gridicons-jetpack-search':
+				return (
+					<g>
+						<path d="M0 9.257C0 4.15 4.151 0 9.257 0c5.105 0 9.256 4.151 9.256 9.257a9.218 9.218 0 01-2.251 6.045l.034.033h1.053L24 22.01l-1.986 1.989-6.664-6.662v-1.055l-.033-.033a9.218 9.218 0 01-6.06 2.264C4.15 18.513 0 14.362 0 9.257zm4.169 1.537h4.61V1.82l-4.61 8.973zm5.547-3.092v8.974l4.61-8.974h-4.61z" />
+					</g>
+				);
 		}
 	}
 
@@ -159,10 +165,11 @@ class Gridicon extends Component {
 			<svg
 				className={ iconClass }
 				height={ size }
-				width={ size }
 				onClick={ this.props.onClick }
+				style={ { height: size, width: size } }
+				viewBox={ '0 0 ' + size + ' ' + size }
+				width={ size }
 				xmlns="http://www.w3.org/2000/svg"
-				viewBox="0 0 24 24"
 			>
 				{ this.getSVGTitle( icon ) }
 				{ this.renderIcon( icon ) }

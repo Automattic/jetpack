@@ -65,6 +65,7 @@ class SearchResults extends Component {
 					locale={ this.props.locale }
 					postTypes={ this.props.postTypes }
 					response={ this.props.response }
+					showLogo={ this.props.showLogo }
 					widgets={ this.props.widgets }
 				/>
 

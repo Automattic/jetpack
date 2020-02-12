@@ -54,9 +54,10 @@ class SearchForm extends Component {
 						enableFilters
 						onChangeQuery={ this.onChangeQuery }
 						query={ getSearchQuery() }
-						widget={ this.props.widget }
-						toggleFilters={ this.toggleFilters }
 						showFilters={ this.state.showFilters }
+						showLogo={ this.props.showLogo }
+						toggleFilters={ this.toggleFilters }
+						widget={ this.props.widget }
 					/>
 				</div>
 				{ this.state.showFilters && (
