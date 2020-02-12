@@ -10,6 +10,7 @@ use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Sync\Functions;
+use Automattic\Jetpack\Sync\Health;
 use Automattic\Jetpack\Sync\Sender;
 use Automattic\Jetpack\Sync\Users;
 use Automattic\Jetpack\Terms_Of_Service;
@@ -3152,6 +3153,8 @@ p {
 		set_transient( 'activated_jetpack', true, .1 * MINUTE_IN_SECONDS );
 
 		update_option( 'jetpack_activation_source', self::get_activation_source( wp_get_referer() ) );
+
+		Health::on_jetpack_activated();
 
 		self::plugin_initialize();
 	}
