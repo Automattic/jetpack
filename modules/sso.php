@@ -1100,7 +1100,7 @@ class Jetpack_SSO {
 		 */
 		if (
 			'wp:dashboard:admin_notices' !== $message_path
-			|| true != Jetpack_Options::get_option( 'sso_first_login' ) // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
+			|| true !== Jetpack_Options::get_option( 'sso_first_login' )
 		) {
 			return $envelopes;
 		}
