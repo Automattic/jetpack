@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Sync;
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Sync\Health;
 use Automattic\Jetpack\Sync\Modules;
 
 /**
@@ -711,6 +712,8 @@ class Actions {
 				)
 			);
 		}
+
+		Health::on_jetpack_upgraded();
 	}
 
 	/**

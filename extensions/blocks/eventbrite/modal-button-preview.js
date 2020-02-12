@@ -109,6 +109,7 @@ class ButtonEdit extends Component {
 				<RichText
 					placeholder={ placeholder || __( 'Add text…', 'jetpack' ) }
 					value={ text }
+					keepPlaceholderOnFocus={ true }
 					onChange={ value => setAttributes( { text: value } ) }
 					withoutInteractiveFormatting
 					className={ classnames( 'wp-block-button__link', {

@@ -23,7 +23,7 @@ import { ENTER, SPACE } from '@wordpress/keycodes';
 /**
  * Internal dependencies
  */
-import { createWidgetId, convertToLink, eventIdFromUrl } from './utils';
+import { convertToLink, eventIdFromUrl } from './utils';
 import { icon, URL_REGEX } from '.';
 import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import ModalButtonPreview from './modal-button-preview';
@@ -246,6 +246,8 @@ class EventbriteEdit extends Component {
 		);
 	}
 
+	// @todo Remove isDefault and isLarge from Button when the minimum WP version
+	// supported by JP uses Gutenberg > 7.2
 	renderEditEmbed() {
 		const { className } = this.props;
 		const { editedUrl } = this.state;
@@ -273,7 +275,7 @@ class EventbriteEdit extends Component {
 							placeholder={ __( 'Enter an event URL to embed here…', 'jetpack' ) }
 							onChange={ event => this.setState( { editedUrl: event.target.value } ) }
 						/>
-						<Button isLarge type="submit">
+						<Button isLarge isDefault isSecondary type="submit">
 							{ _x( 'Embed', 'submit button label', 'jetpack' ) }
 						</Button>
 						{ this.cannotEmbed() && (
@@ -305,7 +307,7 @@ class EventbriteEdit extends Component {
 			return;
 		}
 
-		const widgetId = createWidgetId( eventId );
+		const widgetId = `eventbrite-widget-${ eventId }`;
 		const html = `
 			<script src="https://www.eventbrite.com/static/widgets/eb_widgets.js"></script>
 			<style>

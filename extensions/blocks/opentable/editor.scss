@@ -70,30 +70,6 @@
 		z-index: 10;
 	}
 
-	&-theme-standard {
-		height: 301px;
-
-		&.is-multi {
-			height: 361px;
-		}
-	}
-
-	&-theme-tall {
-		height: 490px;
-
-		&.is-multi {
-			height: 550px;
-		}
-	}
-
-	&-theme-wide {
-		height: 350px;
-	}
-
-	&-theme-button {
-		height: 113px;
-	}
-
 	&-restaurant-picker {
 		margin-bottom: 1em;
 		position: relative;
@@ -134,6 +110,10 @@
 	}
 }
 
-.block-editor-block-preview__content [data-type='jetpack/opentable'] div[data-block] {
+// Display "table" is used because the preview container should only wrap the content and not take the full width.
+// Both selector rules needed because the block wrapper used in Gutenberg was removed in v7.3
+// @link https://github.com/WordPress/gutenberg/pull/19593
+.block-editor-block-preview__content [data-type='jetpack/opentable'] [data-block],
+.block-editor-block-preview__content [data-type='jetpack/opentable'][data-block] {
 	display: table;
 }
