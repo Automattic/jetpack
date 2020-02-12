@@ -3,7 +3,7 @@
  */
 import { createBlobURL } from '@wordpress/blob';
 import { createBlock } from '@wordpress/blocks';
-import { mediaUpload } from '@wordpress/block-editor';
+import { mediaUpload } from '@wordpress/editor';
 import { addFilter } from '@wordpress/hooks';
 import { every } from 'lodash';
 
