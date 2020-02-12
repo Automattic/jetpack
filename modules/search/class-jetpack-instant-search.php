@@ -83,7 +83,8 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			$widget_options = end( $widget_options );
 		}
 
-		$overlay_widget_ids = get_option( 'sidebars_widgets', array() )['jetpack-instant-search-sidebar'];
+		$overlay_widget_ids = array_key_exists( 'jetpack-instant-search-sidebar', get_option( 'sidebars_widgets', array() ) ) ?
+			get_option( 'sidebars_widgets', array() )['jetpack-instant-search-sidebar'] : array();
 		$filters            = Jetpack_Search_Helpers::get_filters_from_widgets( $overlay_widget_ids );
 		$widgets            = array();
 		foreach ( $filters as $key => $filter ) {
@@ -124,9 +125,9 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			'siteId'          => Jetpack::get_option( 'id' ),
 
 			// filtering.
-			'postTypeFilters' => $widget_options['post_types'],
+			'postTypeFilters' => isset( $widget_options['post_types'] ) ? $widget_options['post_types'] : array(),
 			'postTypes'       => $post_type_labels,
-			'sort'            => $widget_options['sort'],
+			'sort'            => isset( $widget_options['sort'] ) ? $widget_options['sort'] : null,
 			'widgets'         => array_values( $widgets ),
 		);
 
