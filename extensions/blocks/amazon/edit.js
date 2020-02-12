@@ -196,44 +196,46 @@ export default function AmazonEdit( {
 			} )
 			.toHexString();
 
+		if ( ! asin ) {
+			return null;
+		}
+
 		return (
-			asin && (
-				<div
-					style={ { backgroundColor: backgroundColor, color: textColor, width: imageWidthMedium } }
-				>
-					{ showImage && image }
-					{ showTitle && (
-						<div className={ `${ className }-title` }>
-							<a href={ detailPageUrl } style={ { color: buttonAndLinkColor } }>
-								{ title }
-							</a>
-						</div>
-					) }
-					{ showSeller && seller && (
-						<div className={ `${ className }-seller` }>
-							{ seller.length > 0 && typeof seller !== 'string'
-								? seller.map( singleSeller => singleSeller )
-								: seller }
-						</div>
-					) }
-					{ showPrice && <div className={ `${ className }-list-price` }>{ listPrice }</div> }
-					{ showPurchaseButton && (
-						<Button
-							href={ detailPageUrl }
-							icon={ icon }
-							isPrimary
-							className={ `${ className }-button` }
-							style={ {
-								color: buttonTextColor,
-								backgroundColor: buttonAndLinkColor,
-								borderColor: buttonAndLinkColor,
-							} }
-						>
-							{ __( 'Shop Now', 'jetpack' ) }
-						</Button>
-					) }
-				</div>
-			)
+			<div
+				style={ { backgroundColor: backgroundColor, color: textColor, width: imageWidthMedium } }
+			>
+				{ showImage && image }
+				{ showTitle && (
+					<div className={ `${ className }-title` }>
+						<a href={ detailPageUrl } style={ { color: buttonAndLinkColor } }>
+							{ title }
+						</a>
+					</div>
+				) }
+				{ showSeller && seller && (
+					<div className={ `${ className }-seller` }>
+						{ seller.length > 0 && typeof seller !== 'string'
+							? seller.map( singleSeller => singleSeller )
+							: seller }
+					</div>
+				) }
+				{ showPrice && <div className={ `${ className }-list-price` }>{ listPrice }</div> }
+				{ showPurchaseButton && (
+					<Button
+						href={ detailPageUrl }
+						icon={ icon }
+						isPrimary
+						className={ `${ className }-button` }
+						style={ {
+							color: buttonTextColor,
+							backgroundColor: buttonAndLinkColor,
+							borderColor: buttonAndLinkColor,
+						} }
+					>
+						{ __( 'Shop Now', 'jetpack' ) }
+					</Button>
+				) }
+			</div>
 		);
 	};
 
