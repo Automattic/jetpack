@@ -17,7 +17,12 @@ import './style.scss';
 
 class Gridicon extends Component {
 	needsOffset( icon, size ) {
-		const iconNeedsOffset = [ 'gridicons-calendar', 'gridicons-cart', 'gridicons-folder' ];
+		const iconNeedsOffset = [
+			'gridicons-calendar',
+			'gridicons-cart',
+			'gridicons-folder',
+			'gridicons-info',
+		];
 
 		if ( iconNeedsOffset.indexOf( icon ) >= 0 ) {
 			return size % 18 === 0;
@@ -30,19 +35,21 @@ class Gridicon extends Component {
 			default:
 				return null;
 			case 'gridicons-audio':
-				return <title>{ __( 'Has audio' ) }</title>;
+				return <title>{ __( 'Has audio.' ) }</title>;
 			case 'gridicons-calendar':
-				return <title>{ __( 'Is an event' ) }</title>;
+				return <title>{ __( 'Is an event.' ) }</title>;
 			case 'gridicons-cart':
-				return <title>{ __( 'Is a product' ) }</title>;
+				return <title>{ __( 'Is a product.' ) }</title>;
 			case 'gridicons-comment':
-				return <title>{ __( 'Matching comment' ) }</title>;
+				return <title>{ __( 'Matching comment.' ) }</title>;
+			case 'gridicons-cross':
+				return <title>{ __( 'Close search overlay' ) }</title>;
 			case 'gridicons-folder':
 				return <title>{ __( 'Category' ) }</title>;
 			case 'gridicons-image-multiple':
-				return <title>{ __( 'Has multiple images' ) }</title>;
+				return <title>{ __( 'Has multiple images.' ) }</title>;
 			case 'gridicons-image':
-				return <title>{ __( 'Has an image' ) }</title>;
+				return <title>{ __( 'Has an image.' ) }</title>;
 			case 'gridicons-page':
 				return <title>{ __( 'Page' ) }</title>;
 			case 'gridicons-jetpack-search':
@@ -51,7 +58,9 @@ class Gridicon extends Component {
 			case 'gridicons-tag':
 				return <title>{ __( 'Tag' ) }</title>;
 			case 'gridicons-video':
-				return <title>{ __( 'Has a video' ) }</title>;
+				return <title>{ __( 'Has a video.' ) }</title>;
+			case 'gridicons-filter':
+				return <title>{ __( 'Toggle search filters.' ) }</title>;
 		}
 	}
 
@@ -83,6 +92,12 @@ class Gridicon extends Component {
 						<path d="M3 6v9c0 1.105.895 2 2 2h9v5l5.325-3.804c1.05-.75 1.675-1.963 1.675-3.254V6c0-1.105-.895-2-2-2H5c-1.105 0-2 .895-2 2z" />
 					</g>
 				);
+			case 'gridicons-cross':
+				return (
+					<g>
+						<path d="M18.36 19.78L12 13.41l-6.36 6.37-1.42-1.42L10.59 12 4.22 5.64l1.42-1.42L12 10.59l6.36-6.36 1.41 1.41L13.41 12l6.36 6.36z" />
+					</g>
+				);
 			case 'gridicons-folder':
 				return (
 					<g>
@@ -93,6 +108,12 @@ class Gridicon extends Component {
 				return (
 					<g>
 						<path d="M15 7.5c0-.828.672-1.5 1.5-1.5s1.5.672 1.5 1.5S17.328 9 16.5 9 15 8.328 15 7.5zM4 20h14c0 1.105-.895 2-2 2H4c-1.1 0-2-.9-2-2V8c0-1.105.895-2 2-2v14zM22 4v12c0 1.105-.895 2-2 2H8c-1.105 0-2-.895-2-2V4c0-1.105.895-2 2-2h12c1.105 0 2 .895 2 2zM8 4v6.333L11 7l4.855 5.395.656-.73c.796-.886 2.183-.886 2.977 0l.513.57V4H8z" />
+					</g>
+				);
+			case 'gridicons-info':
+				return (
+					<g>
+						<path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
 					</g>
 				);
 			case 'gridicons-pages':
@@ -111,6 +132,12 @@ class Gridicon extends Component {
 				return (
 					<g>
 						<path d="M20 4v2h-2V4H6v2H4V4c-1.105 0-2 .895-2 2v12c0 1.105.895 2 2 2v-2h2v2h12v-2h2v2c1.105 0 2-.895 2-2V6c0-1.105-.895-2-2-2zM6 16H4v-3h2v3zm0-5H4V8h2v3zm4 4V9l4.5 3-4.5 3zm10 1h-2v-3h2v3zm0-5h-2V8h2v3z" />
+					</g>
+				);
+			case 'gridicons-filter':
+				return (
+					<g>
+						<path d="M10 19h4v-2h-4v2zm-4-6h12v-2H6v2zM3 5v2h18V5H3z" />
 					</g>
 				);
 		}

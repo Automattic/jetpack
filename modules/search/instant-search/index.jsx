@@ -13,12 +13,14 @@ import { getSearchQuery, determineDefaultSort } from './lib/query-string';
 import { getThemeOptions } from './lib/dom';
 import { SERVER_OBJECT_NAME } from './lib/constants';
 import { initializeTracks, identifySite, resetTrackingCookies } from './lib/tracks';
+import { buildFilterAggregations } from './lib/api';
 
-const injectSearchApp = grabFocus => {
+const injectSearchApp = () => {
 	render(
 		<SearchApp
-			grabFocus={ grabFocus }
+			aggregations={ buildFilterAggregations( window[ SERVER_OBJECT_NAME ].widgets ) }
 			initialHref={ window.location.href }
+			initialOverlayOptions={ window[ SERVER_OBJECT_NAME ].overlayOptions }
 			initialSort={ determineDefaultSort( window[ SERVER_OBJECT_NAME ].sort, getSearchQuery() ) }
 			isSearchPage={ getSearchQuery() !== '' }
 			options={ window[ SERVER_OBJECT_NAME ] }

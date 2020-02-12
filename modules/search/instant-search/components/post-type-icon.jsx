@@ -37,7 +37,7 @@ const POST_TYPE_TO_ICON_MAP = {
 	events: 'calendar',
 };
 
-const PostTypeIcon = ( { postType, shortcodeTypes, imageCount, iconSize = 18 } ) => {
+const PostTypeIcon = ( { postType, shortcodeTypes, iconSize = 18 } ) => {
 	// Do we have a special icon for this post type?
 	if ( Object.keys( POST_TYPE_TO_ICON_MAP ).includes( postType ) ) {
 		return <Gridicon icon={ POST_TYPE_TO_ICON_MAP[ postType ] } size={ iconSize } />;
@@ -58,7 +58,7 @@ const PostTypeIcon = ( { postType, shortcodeTypes, imageCount, iconSize = 18 } )
 		case 'page':
 			return <Gridicon icon="pages" size={ iconSize } />;
 		default:
-			if ( hasGallery || imageCount > 1 ) {
+			if ( hasGallery ) {
 				return <Gridicon icon="image-multiple" size={ iconSize } />;
 			}
 	}

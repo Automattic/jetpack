@@ -13,8 +13,27 @@ import get from 'lodash/get';
  * Internal dependencies
  */
 import SearchFilter from './search-filter';
+import { setFilterQuery, getFilterQuery, clearFiltersFromQuery } from '../lib/query-string';
 
 export default class SearchFilters extends Component {
+	onChangeFilter = ( filterName, filterValue ) => {
+		setFilterQuery( filterName, filterValue );
+	};
+
+	onClearFilters = () => {
+		clearFiltersFromQuery();
+	};
+
+	hasActiveFilters() {
+		return Object.keys( this.getFilters() )
+			.map( key => this.getFilters()[ key ] )
+			.some( value => Array.isArray( value ) && value.length );
+	}
+
+	getFilters() {
+		return getFilterQuery();
+	}
+
 	renderFilterComponent = ( { configuration, results } ) => {
 		switch ( configuration.type ) {
 			case 'date_histogram':
@@ -25,8 +44,8 @@ export default class SearchFilters extends Component {
 							configuration={ configuration }
 							locale={ this.props.locale }
 							type="date"
-							value={ this.props.filters[ `${ configuration.interval }_${ configuration.field }` ] }
-							onChange={ this.props.onChange }
+							value={ this.getFilters()[ `${ configuration.interval }_${ configuration.field }` ] }
+							onChange={ this.onChangeFilter }
 						/>
 					)
 				);
@@ -36,8 +55,8 @@ export default class SearchFilters extends Component {
 						<SearchFilter
 							aggregation={ results }
 							configuration={ configuration }
-							value={ this.props.filters[ configuration.taxonomy ] }
-							onChange={ this.props.onChange }
+							value={ this.getFilters()[ configuration.taxonomy ] }
+							onChange={ this.onChangeFilter }
 							type="taxonomy"
 						/>
 					)
@@ -48,8 +67,8 @@ export default class SearchFilters extends Component {
 						<SearchFilter
 							aggregation={ results }
 							configuration={ configuration }
-							value={ this.props.filters.post_types }
-							onChange={ this.props.onChange }
+							value={ this.getFilters().post_types }
+							onChange={ this.onChangeFilter }
 							postTypes={ this.props.postTypes }
 							type="postType"
 						/>
@@ -59,14 +78,26 @@ export default class SearchFilters extends Component {
 	};
 
 	render() {
+		if ( ! this.props.widget ) {
+			return null;
+		}
+
 		const aggregations = get( this.props.results, 'aggregations' );
 		const cls =
 			this.props.loading === true
-				? 'jetpack-instant-search__filters-widget jetpack-instant-search__is-loading'
-				: 'jetpack-instant-search__filters-widget';
+				? 'jetpack-instant-search__filters jetpack-instant-search__is-loading'
+				: 'jetpack-instant-search__filters';
 
 		return (
 			<div className={ cls }>
+				{ this.hasActiveFilters() && (
+					<button
+						class="jetpack-instant-search__clear-filters-button"
+						onClick={ this.onClearFilters }
+					>
+						Clear Filters
+					</button>
+				) }
 				{ get( this.props.widget, 'filters' )
 					.map( configuration =>
 						aggregations

@@ -3,22 +3,26 @@
  */
 import 'url-polyfill';
 import { decode, encode } from 'qss';
-// NOTE: We only import the get package here for to reduced bundle size.
-//       Do not import the entire lodash library!
-// eslint-disable-next-line lodash/import-scope
-import get from 'lodash/get';
 
 /**
  * Internal dependencies
  */
-import { SERVER_OBJECT_NAME, SORT_DIRECTION_ASC, SORT_DIRECTION_DESC } from './constants';
+import {
+	SERVER_OBJECT_NAME,
+	SORT_DIRECTION_ASC,
+	SORT_DIRECTION_DESC,
+	RESULT_FORMAT_MINIMAL,
+	RESULT_FORMAT_PRODUCT,
+} from './constants';
 import { getSortOption } from './sort';
+
+const knownResultFormats = [ RESULT_FORMAT_MINIMAL, RESULT_FORMAT_PRODUCT ];
 
 function getQuery() {
 	return decode( window.location.search.substring( 1 ) );
 }
 
-function pushQueryString( queryString ) {
+function pushQueryString( queryString, shouldEmitEvent = true ) {
 	if ( history.pushState ) {
 		const url = new window.URL( window.location.href );
 		if ( window[ SERVER_OBJECT_NAME ] && 'homeUrl' in window[ SERVER_OBJECT_NAME ] ) {
@@ -26,14 +30,7 @@ function pushQueryString( queryString ) {
 		}
 		url.search = queryString;
 		window.history.pushState( null, null, url.toString() );
-		window.dispatchEvent( new Event( 'queryStringChange' ) );
-	}
-}
-
-export function restorePreviousHref( initialHref ) {
-	if ( history.pushState ) {
-		window.history.pushState( null, null, initialHref );
-		window.dispatchEvent( new Event( 'queryStringChange' ) );
+		shouldEmitEvent && window.dispatchEvent( new Event( 'queryStringChange' ) );
 	}
 }
 
@@ -58,6 +55,26 @@ const DEFAULT_SORT_MAP = {
 	'relevance|DESC': 'score_default',
 };
 
+// Convert a sort option like date|DESC to a sort key like date_desc
+export function getSortKeyFromSortOption( sortOption ) {
+	if ( ! Object.keys( DEFAULT_SORT_MAP ).includes( sortOption ) ) {
+		return null;
+	}
+
+	return DEFAULT_SORT_MAP[ sortOption ];
+}
+
+// Convert a sort key like date_desc to a sort option like date|DESC
+export function getSortOptionFromSortKey( sortKey ) {
+	const sortKeyValues = Object.values( DEFAULT_SORT_MAP );
+
+	if ( ! sortKeyValues.includes( sortKey ) ) {
+		return null;
+	}
+
+	return Object.keys( DEFAULT_SORT_MAP )[ sortKeyValues.indexOf( sortKey ) ];
+}
+
 export function determineDefaultSort( initialSort, initialSearchString ) {
 	const query = getQuery();
 	if ( 'orderby' in query ) {
@@ -69,8 +86,9 @@ export function determineDefaultSort( initialSort, initialSearchString ) {
 		return 'date_desc';
 	}
 
-	if ( Object.keys( DEFAULT_SORT_MAP ).includes( initialSort ) ) {
-		return DEFAULT_SORT_MAP[ initialSort ];
+	const sortKeyFromSortOption = getSortKeyFromSortOption( initialSort );
+	if ( sortKeyFromSortOption ) {
+		return sortKeyFromSortOption;
 	}
 
 	return 'score_default';
@@ -123,7 +141,7 @@ export function setSortQuery( sortKey ) {
 
 function getFilterQueryByKey( filterKey ) {
 	const query = getQuery();
-	if ( ! ( filterKey in query ) ) {
+	if ( ! ( filterKey in query ) || query[ filterKey ] === '' ) {
 		return [];
 	}
 	if ( typeof query[ filterKey ] === 'string' ) {
@@ -148,16 +166,13 @@ export function getFilterKeys() {
 	];
 
 	// Extract taxonomy names from server widget data
-	const widgetFilters = get( window[ SERVER_OBJECT_NAME ], 'widgets[0].filters' );
-	if ( widgetFilters ) {
-		return [
-			...keys,
-			...widgetFilters
-				.filter( filter => filter.type === 'taxonomy' )
-				.map( filter => filter.taxonomy ),
-		];
-	}
-	return [ ...keys, 'category', 'post_tag' ];
+	const taxonomies = window[ SERVER_OBJECT_NAME ].widgets
+		.map( w => w.filters )
+		.filter( filters => Array.isArray( filters ) )
+		.reduce( ( filtersA, filtersB ) => filtersA.concat( filtersB ), [] )
+		.filter( filter => filter.type === 'taxonomy' )
+		.map( filter => filter.taxonomy );
+	return [ ...keys, ...taxonomies ];
 }
 
 export function getFilterQuery( filterKey ) {
@@ -174,17 +189,47 @@ export function getFilterQuery( filterKey ) {
 }
 
 export function hasFilter() {
-	const filter_keys = getFilterKeys();
-	for ( let i = 0; i < filter_keys.length; i++ ) {
-		if ( getFilterQueryByKey( filter_keys[ i ] ).length > 0 ) {
-			return true;
-		}
-	}
-	return false;
+	return getFilterKeys().some( key => getFilterQueryByKey( key ).length > 0 );
+}
+
+export function clearFiltersFromQuery() {
+	const query = getQuery();
+	getFilterKeys().forEach( key => delete query[ key ] );
+	pushQueryString( encode( query ) );
 }
 
 export function setFilterQuery( filterKey, filterValue ) {
 	const query = getQuery();
 	query[ filterKey ] = filterValue;
 	pushQueryString( encode( query ) );
+}
+
+export function getResultFormatQuery() {
+	const query = getQuery();
+
+	if ( knownResultFormats.includes( query.result_format ) ) {
+		return query.result_format;
+	}
+
+	return RESULT_FORMAT_MINIMAL;
+}
+
+export function restorePreviousHref( initialHref, callback ) {
+	if ( history.pushState ) {
+		window.history.pushState( null, null, initialHref );
+
+		const query = getQuery();
+		const keys = [ ...getFilterKeys(), 's' ];
+		// If initialHref has search or filter query values, clear them and reload.
+		if ( Object.keys( query ).some( key => keys.includes( key ) ) ) {
+			keys.forEach( key => delete query[ key ] );
+			pushQueryString( encode( query ), false );
+			window.location.reload( true );
+			return;
+		}
+
+		// Otherwise, invoke the callback and emit a QS change event
+		callback();
+		window.dispatchEvent( new Event( 'queryStringChange' ) );
+	}
 }
