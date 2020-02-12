@@ -3,20 +3,10 @@
  */
 import { __ } from '@wordpress/i18n';
 import { G, Path, Rect, SVG } from '@wordpress/components';
-import { createBlock } from '@wordpress/blocks';
-
-/**
- * Internal dependencies
- */
-import edit from './edit';
-import { pinType } from './utils';
-
-export const URL_REGEX = /^\s*https?:\/\/(?:www\.)?(?:[a-z]{2}\.)?(?:pinterest\.[a-z.]+|pin\.it)\/([^/]+)(\/[^/]+)?/i;
 
 export const name = 'pinterest';
-export const title = __( 'Pinterest', 'jetpack' );
 
-export const icon = (
+const icon = (
 	<SVG xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
 		<Rect x="0" fill="none" width="24" height="24" />
 		<G>
@@ -26,60 +16,17 @@ export const icon = (
 );
 
 export const settings = {
-	title,
-
-	description: __( 'Embed a Pinterest pin, board, or user.', 'jetpack' ),
-
-	icon,
-
-	category: 'jetpack',
-
-	supports: {
-		align: false,
-		html: false,
-	},
-
-	attributes: {
-		url: {
-			type: 'string',
-		},
-	},
-
-	edit,
-
-	save: ( { attributes, className } ) => {
-		const { url } = attributes;
-
-		const type = pinType( url );
-
-		if ( ! type ) {
-			return null;
-		}
-
-		return (
-			<div className={ className }>
-				<a data-pin-do={ pinType( url ) } href={ url } />
-			</div>
-		);
-	},
-
-	transforms: {
-		from: [
-			{
-				type: 'raw',
-				isMatch: node => node.nodeName === 'P' && URL_REGEX.test( node.textContent ),
-				transform: node => {
-					return createBlock( 'jetpack/pinterest', {
-						url: node.textContent.trim(),
-					} );
-				},
+	settings: {
+		title: __( 'Pinterest', 'jetpack' ),
+		icon,
+		description: __( 'Embed a Pinterest pin, board, or user.', 'jetpack' ),
+		example: {
+			attributes: {
+				url: 'https://pinterest.com/anapinskywalker/',
 			},
-		],
-	},
-
-	example: {
-		attributes: {
-			url: 'https://pinterest.com/anapinskywalker/',
 		},
 	},
+	patterns: [
+		/^\s*https?:\/\/(?:www\.)?(?:[a-z]{2}\.)?(?:pinterest\.[a-z.]+|pin\.it)\/([^/]+)(\/[^/]+)?/i,
+	],
 };

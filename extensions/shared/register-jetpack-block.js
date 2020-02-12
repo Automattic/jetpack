@@ -3,6 +3,7 @@
  */
 import { addFilter } from '@wordpress/hooks';
 import { registerBlockType } from '@wordpress/blocks';
+import { getEmbedBlockSettings } from '@wordpress/embed-block';
 
 /**
  * Internal dependencies
@@ -42,6 +43,19 @@ export default function registerJetpackBlock( name, settings, childBlocks = [] )
 			);
 		}
 		return false;
+	}
+
+	if ( settings.settings ) {
+		settings = {
+			name: `jetpack/${ name }`,
+			...getEmbedBlockSettings( {
+				title: betaExtensions.includes( name )
+					? `${ settings.settings.title } (beta)`
+					: settings.settings.title,
+				example: requiredPlan ? undefined : settings.settings.example,
+				...settings.settings,
+			} ),
+		};
 	}
 
 	const result = registerBlockType( `jetpack/${ name }`, {
