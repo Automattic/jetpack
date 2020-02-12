@@ -299,6 +299,9 @@ class Listener {
 		 * it exceeds some limit AND the oldest item exceeds the age limit (i.e. sending has stopped).
 		 */
 		if ( ! $this->can_add_to_queue( $queue ) ) {
+			if ( 'sync' === $queue->id ) {
+				$this->sync_data_loss( $queue );
+			}
 			return;
 		}
 
@@ -351,6 +354,32 @@ class Listener {
 				Actions::add_sender_shutdown();
 			}
 		}
+	}
+
+	/**
+	 * Sync Data Loss Handler
+	 *
+	 * @param Queue $queue Sync queue.
+	 * @return boolean was send successful
+	 */
+	public function sync_data_loss( $queue ) {
+		if ( ! Settings::is_sync_enabled() ) {
+			return;
+		}
+		$updated = Health::update_status( Health::STATUS_OUT_OF_SYNC );
+
+		if ( ! $updated ) {
+			return;
+		}
+
+		$data = array(
+			'timestamp'  => microtime( true ),
+			'queue_size' => $queue->size(),
+			'queue_lag'  => $queue->lag(),
+		);
+
+		$sender = Sender::get_instance();
+		return $sender->send_action( 'jetpack_sync_data_loss', $data );
 	}
 
 	/**

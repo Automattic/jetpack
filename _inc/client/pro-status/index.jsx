@@ -105,10 +105,9 @@ class ProStatus extends React.Component {
 						context: 'A caption for a small button to fix security issues.',
 					} );
 				} else {
-					message = __( 'Threats found!', {
-						context: 'Short warning message about new threats found.',
+					action = __( 'See threats', {
+						context: 'A caption for a small button to fix security issues.',
 					} );
-					action = __( 'FIX', { context: 'A caption for a small button to fix security issues.' } );
 				}
 				actionUrl = 'https://dashboard.vaultpress.com/';
 				break;

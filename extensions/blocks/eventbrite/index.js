@@ -57,6 +57,7 @@ export const settings = {
 		// Modal button attributes, used for Button & Modal embed type.
 		text: {
 			type: 'string',
+			default: _x( 'Register', 'verb: e.g. register for an event.', 'jetpack' ),
 		},
 		backgroundColor: {
 			type: 'string',
@@ -97,7 +98,6 @@ export const settings = {
 			url: 'https://www.eventbrite.com/e/test-event-tickets-123456789',
 			eventId: 123456789,
 			useModal: true,
-			text: _x( 'Register', 'verb: e.g. register for an event.', 'jetpack' ),
 		},
 	},
 };

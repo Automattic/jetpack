@@ -154,7 +154,7 @@ class MapEdit extends Component {
 					<Toolbar>
 						<IconButton
 							icon={ settings.markerIcon }
-							label="Add a marker"
+							label={ __( 'Add a marker', 'jetpack' ) }
 							onClick={ () => this.setState( { addPointVisibility: true } ) }
 						/>
 					</Toolbar>
@@ -179,7 +179,7 @@ class MapEdit extends Component {
 							{
 								value: markerColor,
 								onChange: value => setAttributes( { markerColor: value } ),
-								label: 'Marker Color',
+								label: __( 'Marker Color', 'jetpack' ),
 							},
 						] }
 					/>
