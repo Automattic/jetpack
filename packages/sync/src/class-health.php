@@ -85,6 +85,13 @@ class Health {
 	const STATUS_INITIALIZING = 'initializing';
 
 	/**
+	 * If sync is active, Health-related hooks will be initialized after plugins are loaded.
+	 */
+	public static function init() {
+		add_action( 'jetpack_full_sync_end', array( __ClASS__, 'full_sync_end_update_status' ), 10, 2 );
+	}
+
+	/**
 	 * Gets health status code.
 	 *
 	 * @return string Sync Health Status
@@ -159,6 +166,18 @@ class Health {
 			return false;
 		} else {
 			return true;
+		}
+	}
+
+	/**
+	 * Update Sync Status if Full Sync ended of Posts
+	 *
+	 * @param string $checksum The checksum that's currently being processed.
+	 * @param array  $range The ranges of object types being processed.
+	 */
+	public static function full_sync_end_update_status( $checksum, $range ) {
+		if ( isset( $range['posts'] ) ) {
+			self::update_status( self::STATUS_IN_SYNC );
 		}
 	}
 
