@@ -213,6 +213,16 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( Health::get_status(), Health::STATUS_OUT_OF_SYNC );
 	}
 
+	function test_data_loss_action_ignored_if_already_out_of_sync() {
+		Health::update_status( Health::STATUS_OUT_OF_SYNC );
+
+		$this->listener->sync_data_loss( $this->listener->get_sync_queue() );
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_data_loss' );
+
+		$this->assertFalse( $event );
+		$this->assertEquals( Health::get_status(), Health::STATUS_OUT_OF_SYNC );
+	}
+
 	function get_page_url() {
 		return 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . "{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
 	}

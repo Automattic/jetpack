@@ -56,5 +56,10 @@ class WP_Test_Jetpack_Sync_Health extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( Health::get_status(), Health::STATUS_UNKNOWN );
 	}
 
-
+	function test_update_returns_false_if_status_not_changed() {
+		$updated = Health::update_status( Health::STATUS_IN_SYNC );
+		$this->assertTrue( $updated );
+		$updated = Health::update_status( Health::STATUS_IN_SYNC );
+		$this->assertFalse( $updated );
+	}
 }
