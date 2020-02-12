@@ -2,7 +2,14 @@
  * WordPress dependencies
  */
 import { BlockControls } from '@wordpress/block-editor';
-import { Button, IconButton, Placeholder, TextControl, Toolbar } from '@wordpress/components';
+import {
+	Button,
+	Disabled,
+	IconButton,
+	Placeholder,
+	TextControl,
+	Toolbar,
+} from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
@@ -64,6 +71,23 @@ export default function RevueEdit( props ) {
 						</Toolbar>
 					</BlockControls>
 
+					<Disabled>
+						<TextControl
+							label={ __( 'Email address', 'jetpack' ) }
+							placeholder={ __( 'Your email address…', 'jetpack' ) }
+							value=""
+						/>
+						<TextControl
+							label={ __( 'First name', 'jetpack' ) }
+							placeholder={ __( 'First name… (Optional)', 'jetpack' ) }
+							value=""
+						/>
+						<TextControl
+							label={ __( 'Last name', 'jetpack' ) }
+							placeholder={ __( 'Last name… (Optional)', 'jetpack' ) }
+							value=""
+						/>
+					</Disabled>
 					<ButtonPreview { ...props } />
 				</>
 			) }
