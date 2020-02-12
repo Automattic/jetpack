@@ -264,6 +264,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	 * @return object|WP_Error The response from the public API, or a WP_Error.
 	 */
 	public function instant_api( array $args ) {
+		global $wp_version;
 		$start_time = microtime( true );
 
 		// Cache locally to avoid remote request slowing the page.
@@ -283,7 +284,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 
 		$request_args = array(
 			'timeout'    => 10,
-			'user-agent' => 'jetpack_search',
+			'user-agent' => "WordPress/{$wp_version} | Jetpack/" . constant( 'JETPACK__VERSION' ),
 		);
 
 		$request  = wp_remote_get( esc_url_raw( $service_url ), $request_args );
