@@ -331,10 +331,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 		}
 
 		$title = isset( $instance['title'] ) ? $instance['title'] : '';
-
-		if ( empty( $title ) ) {
-			$title = '';
-		}
+		$title = ! empty( $title ) ? $title : '';
 
 		/** This filter is documented in core/src/wp-includes/default-widgets.php */
 		$title = apply_filters( 'widget_title', $title, $instance, $this->id_base );

@@ -9,6 +9,11 @@
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Constants;
 
+/**
+ * Class to load Instant Search experience on the site.
+ *
+ * @since 8.3.0
+ */
 class Jetpack_Instant_Search extends Jetpack_Search {
 
 	/**
@@ -277,7 +282,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			'user-agent' => 'jetpack_search',
 		);
 
-		$request  = wp_remote_get( $service_url, $request_args );
+		$request  = wp_remote_get( esc_url_raw( $service_url ), $request_args );
 		$end_time = microtime( true );
 
 		if ( is_wp_error( $request ) ) {
