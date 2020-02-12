@@ -76,15 +76,6 @@ class Health {
 	const STATUS_IN_SYNC = 'in_sync';
 
 	/**
-	 * Initializing status code.
-	 *
-	 * @access public
-	 *
-	 * @var string
-	 */
-	const STATUS_INITIALIZING = 'initializing';
-
-	/**
 	 * If sync is active, Health-related hooks will be initialized after plugins are loaded.
 	 */
 	public static function init() {
@@ -107,7 +98,6 @@ class Health {
 			case self::STATUS_DISABLED:
 			case self::STATUS_OUT_OF_SYNC:
 			case self::STATUS_IN_SYNC:
-			case self::STATUS_INITIALIZING:
 				return $status[ self::OPTION_STATUS_KEY ];
 			default:
 				return self::STATUS_UNKNOWN;
@@ -157,7 +147,6 @@ class Health {
 			case self::STATUS_DISABLED:
 			case self::STATUS_OUT_OF_SYNC:
 			case self::STATUS_IN_SYNC:
-			case self::STATUS_INITIALIZING:
 				$new_status[ self::OPTION_STATUS_KEY ] = $status;
 				break;
 		}

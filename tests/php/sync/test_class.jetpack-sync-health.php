@@ -12,8 +12,8 @@ class WP_Test_Jetpack_Sync_Health extends WP_Test_Jetpack_Sync_Base {
 
 	function test_update_status_should_set_correct_status() {
 		// The status should be saved if a valid status is used.
-		Health::update_status( Health::STATUS_INITIALIZING );
-		$this->assertEquals( Health::get_status(), Health::STATUS_INITIALIZING );
+		Health::update_status( Health::STATUS_IN_SYNC );
+		$this->assertEquals( Health::get_status(), Health::STATUS_IN_SYNC );
 	}
 
 	function test_is_status_defined_should_be_true() {
