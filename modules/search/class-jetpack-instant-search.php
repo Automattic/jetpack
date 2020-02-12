@@ -267,7 +267,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		$start_time = microtime( true );
 
 		// Cache locally to avoid remote request slowing the page.
-		$transient_name = '_jetpack_instant_search_cache_' . md5( wp_json_encode( $args ) );
+		$transient_name = 'jetpack_instant_search_cache_' . md5( wp_json_encode( $args ) );
 		$cache          = get_transient( $transient_name );
 		if ( false !== $cache ) {
 			return $cache;
