@@ -273,9 +273,13 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			return $cache;
 		}
 
-		$endpoint     = sprintf( '/sites/%s/search', $this->jetpack_blog_id );
-		$query_params = urldecode( http_build_query( $args ) );
-		$service_url  = 'https://public-api.wordpress.com/rest/v1.3' . $endpoint . '?' . $query_params;
+		$service_url = add_query_arg(
+			$args,
+			sprintf(
+				'https://public-api.wordpress.com/rest/v1.3/sites/%d/search',
+				$this->jetpack_blog_id
+			)
+		);
 
 		$request_args = array(
 			'timeout'    => 10,
