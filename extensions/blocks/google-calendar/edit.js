@@ -52,7 +52,7 @@ class GoogleCalendarEdit extends Component {
 		this.setState( { interactive: true } );
 	};
 
-	setAttributes = event => {
+	handleEmbed = event => {
 		if ( event ) {
 			event.preventDefault();
 		}
@@ -108,7 +108,7 @@ class GoogleCalendarEdit extends Component {
 			<>
 				<InspectorControls>
 					<PanelBody title={ __( 'Calendar Settings', 'jetpack' ) } initialOpen={ false }>
-						<form onSubmit={ this.setAttributes } className={ `${ className }-embed-form-sidebar` }>
+						<form onSubmit={ this.handleEmbed } className={ `${ className }-embed-form-sidebar` }>
 							<textarea
 								type="text"
 								value={ editedEmbed }
@@ -151,7 +151,7 @@ class GoogleCalendarEdit extends Component {
 								'jetpack'
 							) }
 						</p>
-						<form onSubmit={ this.setAttributes }>
+						<form onSubmit={ this.handleEmbed }>
 							<input
 								type="text"
 								value={ editedEmbed }
@@ -173,11 +173,12 @@ class GoogleCalendarEdit extends Component {
 		// as far as the user is concerned. We're just catching the first click so that
 		// the block can be selected without interacting with the embed preview that the overlay covers.
 		/* eslint-disable jsx-a11y/no-static-element-interactions */
+		// @todo: remove the key prop from Sandbox below when fix for https://github.com/WordPress/gutenberg/issues/16831 is available
 		return (
 			<div className={ className }>
 				{ controls }
 				<div>
-					<SandBox html={ html } onFocus={ this.hideOverlay } />
+					<SandBox html={ html } onFocus={ this.hideOverlay } key={ html } />
 					{ ! interactive && (
 						<div
 							className="block-library-embed__interactive-overlay"
