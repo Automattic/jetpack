@@ -1,10 +1,18 @@
 .wp-block-jetpack-opentable {
 
+	&.aligncenter iframe {
+		margin: 0 auto;
+	}
+
 	&-theme-standard {
 		height: 301px;
 
 		&.is-multi {
 			height: 361px;
+		}
+
+		&.aligncenter iframe {
+			width: 224px !important;
 		}
 	}
 
@@ -14,14 +22,24 @@
 		&.is-multi {
 			height: 550px;
 		}
+
+		&.aligncenter iframe {
+			width: 288px !important;
+		}
 	}
 
 	&-theme-wide {
 		height: 150px;
+		&.aligncenter iframe {
+			width: 840px !important;
+		}
 	}
 
 	&-theme-button {
 		height: 113px;
+		&.aligncenter iframe {
+			width: 210px !important;
+		}
 	}
 
 	.ot-dtp-picker {
