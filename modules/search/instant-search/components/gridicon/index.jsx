@@ -166,8 +166,8 @@ class Gridicon extends Component {
 				className={ iconClass }
 				height={ size }
 				onClick={ this.props.onClick }
-				style={ { height: 24, width: 24 } }
-				viewBox="0 0 24 24"
+				style={ { height: size, width: size } }
+				viewBox={ '0 0 ' + size + ' ' + size }
 				width={ size }
 				xmlns="http://www.w3.org/2000/svg"
 			>
