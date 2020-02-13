@@ -46,7 +46,7 @@ const SearchBox = props => {
 			</label>
 			{ props.showLogo && (
 				<div className="jetpack-instant-search__box-gridicon">
-					<Gridicon icon="jetpack-search" size={ 28 } />
+					<Gridicon icon="jetpack-search" size={ 24 } />
 				</div>
 			) }
 			<input
