@@ -30,20 +30,10 @@
 		flex-direction: row;
 		flex-wrap: wrap;
 		justify-content: center;
+		margin-bottom: 10px;
 		max-width: 400px;
 		width: 100%;
 		z-index: 1;
-		.components-text-control__input {
-			height: 36px;
-		}
-		.components-base-control__label {
-			position: absolute;
-			top: -1000em;
-		}
-	}
-	.wp-block-jetpack-gif_input {
-		flex-grow: 1;
-		margin-right: 0.5em;
 	}
 	.wp-block-jetpack-gif_thumbnails-container {
 		display: flex;
