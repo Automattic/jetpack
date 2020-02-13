@@ -10,8 +10,8 @@ import {
 	InspectorControls,
 	MediaPlaceholder,
 	MediaUpload,
-	mediaUpload,
 } from '@wordpress/block-editor';
+import { mediaUpload } from '@wordpress/editor';
 import {
 	DropZone,
 	FormFileUpload,
