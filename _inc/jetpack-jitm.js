@@ -67,7 +67,7 @@ jQuery( document ).ready( function( $ ) {
 				html += '<div class="jitm-banner__action">';
 				html +=
 					'<a href="' +
-					( ajaxAction ? '#' : envelope.url ) +
+					envelope.url +
 					'" target="' +
 					( envelope.CTA.newWindow === false || ajaxAction ? '_self' : '_blank' ) +
 					'" rel="noopener noreferrer" title="' +
