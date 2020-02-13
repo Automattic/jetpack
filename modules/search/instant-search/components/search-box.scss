@@ -50,4 +50,11 @@ input.jetpack-instant-search__box-input.search-field {
 .jetpack-instant-search__box input,
 .jetpack-instant-search__box input[type='search'].jetpack-instant-search__box-input {
 	width: 100%;
+
+	&::-webkit-search-decoration,
+	&::-webkit-search-cancel-button,
+	&::-webkit-search-results-button,
+	&::-webkit-search-results-decoration {
+		-webkit-appearance: searchfield;
+	}
 }
