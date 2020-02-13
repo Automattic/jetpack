@@ -195,6 +195,16 @@ class MapEdit extends Component {
 					) : null }
 					<PanelBody title={ __( 'Mapbox Access Token', 'jetpack' ) } initialOpen={ false }>
 						<TextControl
+							help={
+								'wpcom' === apiKeySource && (
+									<>
+										{ __( 'You can optionally enter your own access token.', 'jetpack' ) }{' '}
+										<ExternalLink href="https://account.mapbox.com/access-tokens/">
+											{ __( 'Find it on Mapbox', 'jetpack' ) }
+										</ExternalLink>
+									</>
+								)
+							}
 							label={ __( 'Mapbox Access Token', 'jetpack' ) }
 							value={ apiKeyControl }
 							onChange={ value => this.setState( { apiKeyControl: value } ) }
