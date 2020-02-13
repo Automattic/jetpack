@@ -28,14 +28,28 @@ function jetpack_render_revue_block( $attributes ) {
 
 	Jetpack_Gutenberg::load_assets_as_required( 'revue' );
 
-	$form_action = sprintf( 'https://www.getrevue.co/profile/%s/add_subscriber', $attributes['revueUsername'] );
+	wp_localize_script(
+		'jetpack-block-revue',
+		'jetpackRevueBlock',
+		array(
+			'ajaxUrl'       => admin_url( 'admin-ajax.php' ),
+			'nonce'         => wp_create_nonce( 'jetpack-revue-subscribe' ),
+			'revueUsername' => $attributes['revueUsername'],
+		)
+	);
 
 	ob_start();
 	?>
 
 <div class="wp-block-jetpack-revue">
 	<form
-		action="<?php echo esc_url( $form_action ); ?>"
+		action="
+		<?php
+		echo esc_url(
+			sprintf( 'https://www.getrevue.co/profile/%s/add_subscriber', $attributes['revueUsername'] )
+		);
+		?>
+		"
 		method="post"
 		name="revue-form"
 		target="_blank"
@@ -45,6 +59,7 @@ function jetpack_render_revue_block( $attributes ) {
 				<?php esc_html_e( 'Email address', 'jetpack' ); ?>
 				<span class="required">*</span>
 				<input
+					class="wp-block-jetpack-revue__email"
 					name="member[email]"
 					placeholder="<?php esc_attr_e( 'Your email address…', 'jetpack' ); ?>"
 					required
@@ -56,6 +71,7 @@ function jetpack_render_revue_block( $attributes ) {
 			<label>
 				<?php esc_html_e( 'First name', 'jetpack' ); ?>
 				<input
+					class="wp-block-jetpack-revue__first-name"
 					name="member[first_name]"
 					placeholder="<?php esc_attr_e( 'First name… (Optional)', 'jetpack' ); ?>"
 					type="text"
@@ -66,6 +82,7 @@ function jetpack_render_revue_block( $attributes ) {
 			<label>
 				<?php esc_html_e( 'Last name', 'jetpack' ); ?>
 				<input
+					class="wp-block-jetpack-revue__last-name"
 					name="member[last_name]"
 					placeholder="<?php esc_attr_e( 'Last name… (Optional)', 'jetpack' ); ?>"
 					type="text"
@@ -167,4 +184,45 @@ function jetpack_get_revue_button( $attributes ) {
 
 	<?php
 	return ob_get_clean();
+}
+
+add_action( 'wp_ajax_jetpack_revue_subscribe', 'jetpack_ajax_revue_subscribe' );
+add_action( 'wp_ajax_nopriv_jetpack_revue_subscribe', 'jetpack_ajax_revue_subscribe' );
+
+/**
+ * Revue subscription AJAX callback.
+ */
+function jetpack_ajax_revue_subscribe() {
+	check_ajax_referer( 'jetpack-revue-subscribe' );
+
+	if ( empty( $_POST['revueUsername'] ) ) {
+		wp_send_json(
+			array(
+				'status'  => 'error',
+				'message' => __( 'Unexpected error, try again!', 'jetpack' ),
+			)
+		);
+		wp_die();
+	}
+	if ( empty( $_POST['member'] ) || empty( $_POST['member']['email'] ) ) {
+		wp_send_json(
+			array(
+				'status'  => 'error',
+				'message' => __( 'We really need the email address!', 'jetpack' ),
+			)
+		);
+		wp_die();
+	}
+
+	wp_remote_post(
+		sprintf( 'https://www.getrevue.co/profile/%s/add_subscriber', $_POST['revueUsername'] ),
+		array( 'body' => array( 'member' => $_POST['member'] ) )
+	);
+
+	wp_send_json(
+		array(
+			'status' => 'success',
+		)
+	);
+	wp_die();
 }
