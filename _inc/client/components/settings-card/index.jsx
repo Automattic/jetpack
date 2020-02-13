@@ -118,7 +118,7 @@ export const SettingsCard = props => {
 				);
 
 			case FEATURE_SECURITY_SCANNING_JETPACK:
-				if ( backupsEnabled || 'is-business-plan' === planClass || this.props.multisite ) {
+				if ( backupsEnabled || 'is-business-plan' === planClass || props.multisite ) {
 					return '';
 				}
 
