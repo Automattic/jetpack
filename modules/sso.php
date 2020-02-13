@@ -37,7 +37,7 @@ class Jetpack_SSO {
 		add_action( 'login_form_logout',               array( $this, 'store_wpcom_profile_cookies_on_logout' ) );
 		add_action( 'jetpack_unlinked_user',           array( $this, 'delete_connection_for_user') );
 		add_action( 'wp_login',                        array( 'Jetpack_SSO', 'clear_cookies_after_login' ) );
-		add_action( 'jetpack_jitm_received_envelopes', array( $this, 'inject_sso_jitm' ) );
+		add_action( 'jetpack_jitm_received_envelopes', array( $this, 'inject_sso_jitm' ), 10, 2 );
 
 		// Adding this action so that on login_init, the action won't be sanitized out of the $action global.
 		add_action( 'login_form_jetpack-sso', '__return_true' );
@@ -1087,13 +1087,21 @@ class Jetpack_SSO {
 	 *
 	 * @since 6.9.0
 	 *
-	 * @param array $envelopes Array of JITM messages received after API call.
+	 * @param array  $envelopes    Array of JITM messages received after API call.
+	 * @param string $message_path The message path to ask for.
 	 *
 	 * @return array $envelopes New array of JITM messages. May now contain only one message, about SSO.
 	 */
-	public function inject_sso_jitm( $envelopes ) {
-		// Bail early if that's not the first time the user uses SSO.
-		if ( true != Jetpack_Options::get_option( 'sso_first_login' ) ) {
+	public function inject_sso_jitm( $envelopes, $message_path = null) {
+		/*
+		 * Bail early if:
+		 * - the request does not originate from wp-admin main dashboard.
+		 * - that's not the first time the user uses SSO.
+		 */
+		if (
+			'wp:dashboard:admin_notices' !== $message_path
+			|| true !== Jetpack_Options::get_option( 'sso_first_login' )
+		) {
 			return $envelopes;
 		}
 
