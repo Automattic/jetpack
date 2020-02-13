@@ -2,7 +2,7 @@
 /**
  * Google Calendar Block.
  *
- * @since 8.0.0
+ * @since 8.3.0
  *
  * @package Jetpack
  */
@@ -88,16 +88,20 @@ function load_assets( $attr ) {
 	}
 
 	if ( class_exists( 'Jetpack_AMP_Support' ) && \Jetpack_AMP_Support::is_amp_request() ) {
-		return <<<EOT
-<div class="wp-block-jetpack-google-calendar ${align}">
-	<amp-iframe src="${url}" frameborder="0" style="border:0" scrolling="no" width="${width}" height="${height}" sandbox="allow-scripts allow-same-origin" layout="responsive"></amp-iframe>
-</div>
-EOT;
+		return sprintf(
+			'<div class="wp-block-jetpack-google-calendar %1$s"><amp-iframe src="%2$s" frameborder="0" style="border:0" scrolling="no" width="%3$d" height="%4$d" sandbox="allow-scripts allow-same-origin" layout="responsive"></amp-iframe></div>',
+			esc_attr( $align ),
+			esc_url( $url ),
+			absint( $width ),
+			absint( $height )
+		);
 	} else {
-		return <<<EOT
-<div class="wp-block-jetpack-google-calendar ${align}">
-	<iframe src="${url}" frameborder="0" style="border:0" scrolling="no" width="${width}" height="${height}"></iframe>
-</div>
-EOT;
+		return sprintf(
+			'<div class="wp-block-jetpack-google-calendar %1$s"><iframe src="%2$s" frameborder="0" style="border:0" scrolling="no" width="%3$d" height="%4$d"></iframe></div>',
+			esc_attr( $align ),
+			esc_url( $url ),
+			absint( $width ),
+			absint( $height )
+		);
 	}
 }

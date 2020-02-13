@@ -12,13 +12,14 @@ import {
 	PanelBody,
 } from '@wordpress/components';
 import { BlockIcon, InspectorControls } from '@wordpress/block-editor';
+import { withViewportMatch } from '@wordpress/viewport';
 
 /**
  * Internal dependencies
  */
-import { icon } from '.';
-import { isMobile } from '../../../_inc/client/lib/viewport';
+import icon from './icon';
 import { extractAttributesFromIframe, IFRAME_REGEX, URL_REGEX } from './utils';
+import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 
 class GoogleCalendarEdit extends Component {
 	constructor() {
@@ -111,13 +112,13 @@ class GoogleCalendarEdit extends Component {
 		const { url } = attributes;
 		const { editedEmbed, interactive, editingUrl } = this.state;
 
-		const height = isMobile() ? '300' : '500';
+		const height = this.props.isMobile ? '300' : '500';
 
 		const html = `<iframe src="${ url }" style="border:0" scrolling="no" frameborder="0" width="100%" height=${ height }></iframe>`;
 
 		const permissionsLink = (
 			<ExternalLink href="https://en.support.wordpress.com/google-calendar/">
-				{ __( 'Enable Permissions for the calender you want to share', 'jetpack' ) }
+				{ __( 'Enable Permissions for the calendar you want to share', 'jetpack' ) }
 			</ExternalLink>
 		);
 
@@ -132,6 +133,11 @@ class GoogleCalendarEdit extends Component {
 		);
 
 		if ( editingUrl || ! url ) {
+			const supportLink =
+				isSimpleSite() || isAtomicSite()
+					? 'https://en.support.wordpress.com/wordpress-editor/blocks/google-calendar/'
+					: 'https://jetpack.com/support/jetpack-blocks/google-calendar/';
+
 			return (
 				<div className={ className }>
 					{ controls }
@@ -157,6 +163,9 @@ class GoogleCalendarEdit extends Component {
 							) }
 						</p>
 						{ this.getEditForm( `${ className }-embed-form-editor`, editedEmbed ) }
+						<div className={ `${ className }-placeholder-links` }>
+							<ExternalLink href={ supportLink }>{ __( 'Learn more', 'jetpack' ) }</ExternalLink>
+						</div>
 					</Placeholder>
 				</div>
 			);
@@ -184,4 +193,4 @@ class GoogleCalendarEdit extends Component {
 	}
 }
 
-export default GoogleCalendarEdit;
+export default withViewportMatch( { isMobile: '< small' } )( GoogleCalendarEdit );
