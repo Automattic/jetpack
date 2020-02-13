@@ -26,7 +26,12 @@ import {
 	getPlanClass,
 } from 'lib/plans/constants';
 
-import { getSiteAdminUrl, userCanManageModules, getUpgradeUrl } from 'state/initial-state';
+import {
+	isMultisite,
+	getSiteAdminUrl,
+	userCanManageModules,
+	getUpgradeUrl,
+} from 'state/initial-state';
 import { isAkismetKeyValid, isCheckingAkismetKey, getVaultPressData } from 'state/at-a-glance';
 import { getSitePlan, isFetchingSiteData, getActiveFeatures } from 'state/site';
 import SectionHeader from 'components/section-header';
@@ -113,7 +118,7 @@ export const SettingsCard = props => {
 				);
 
 			case FEATURE_SECURITY_SCANNING_JETPACK:
-				if ( backupsEnabled || 'is-business-plan' === planClass ) {
+				if ( backupsEnabled || 'is-business-plan' === planClass || this.props.multisite ) {
 					return '';
 				}
 
@@ -364,5 +369,6 @@ export default connect( state => {
 		seoUpgradeUrl: getUpgradeUrl( state, 'settings-seo' ),
 		searchUpgradeUrl: getUpgradeUrl( state, 'settings-search' ),
 		spamUpgradeUrl: getUpgradeUrl( state, 'settings-spam' ),
+		multisite: isMultisite( state ),
 	};
 } )( SettingsCard );
