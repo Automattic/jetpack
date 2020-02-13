@@ -115,7 +115,7 @@ export class Map extends Component {
 		this.debouncedSizeMap.cancel();
 	}
 	componentDidUpdate( prevProps ) {
-		const { apiKey, children, points, mapStyle, mapDetails } = this.props;
+		const { apiKey, children, points, mapStyle, mapDetails, isSelected } = this.props;
 		const { map } = this.state;
 		if ( apiKey && apiKey.length > 0 && apiKey !== prevProps.apiKey ) {
 			this.loadMapLibraries();
@@ -133,6 +133,16 @@ export class Map extends Component {
 		}
 		if ( mapStyle !== prevProps.mapStyle || mapDetails !== prevProps.mapDetails ) {
 			map.setStyle( this.getMapStyle() );
+		}
+
+		// Only allow scroll zooming when the block is selected, so the block can't
+		// accidentally capture the pointer when scrolling through a post.
+		if ( isSelected !== prevProps.isSelected ) {
+			if ( isSelected ) {
+				map.scrollZoom.enable();
+			} else {
+				map.scrollZoom.disable();
+			}
 		}
 	}
 	/* Event handling */
@@ -277,7 +287,7 @@ export class Map extends Component {
 	}
 	initMap( mapCenter ) {
 		const { mapboxgl } = this.state;
-		const { zoom, onMapLoaded, onError, admin } = this.props;
+		const { zoom, onMapLoaded, onError, admin, isSelected } = this.props;
 		let map = null;
 		try {
 			map = new mapboxgl.Map( {
@@ -293,6 +303,12 @@ export class Map extends Component {
 			onError( 'mapbox_error', e.message );
 			return;
 		}
+
+		// If the map block doesn't have the focus right now, disable scroll zooming.
+		if ( ! isSelected ) {
+			map.scrollZoom.disable();
+		}
+
 		map.on( 'error', e => {
 			onError( 'mapbox_error', e.error.message );
 		} );

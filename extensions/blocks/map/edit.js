@@ -268,6 +268,7 @@ class MapEdit extends Component {
 				<div className={ className }>
 					<Map
 						ref={ this.mapRef }
+						isSelected={ isSelected }
 						mapStyle={ mapStyle }
 						mapDetails={ mapDetails }
 						points={ points }
