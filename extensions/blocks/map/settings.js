@@ -66,6 +66,10 @@ export const settings = {
 			type: 'boolean',
 			default: false,
 		},
+		scrollToZoom: {
+			type: 'boolean',
+			default: false,
+		},
 	},
 	supports: {
 		html: false,
