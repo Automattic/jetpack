@@ -45,7 +45,7 @@ class Jetpack_Mapbox_Helper {
 				: self::format_access_token( WPCOM_MAPBOX_ACCESS_TOKEN, 'wpcom' );
 		}
 
-		// If not on WordPress.com, return an empty access token.
+		// If not on WordPress.com or Atomic, return an empty access token.
 		if ( ! $site_id || ( ! self::is_wpcom() && ! jetpack_is_atomic_site() ) ) {
 			return self::format_access_token();
 		}
