@@ -1,4 +1,11 @@
 /**
+ * Please feel free to remove this file once the Core patch was merged and
+ * Jetpack only supports WordPress 5.4+.
+ *
+ * @see https://github.com/WordPress/gutenberg/pull/20224
+ */
+
+/**
  * External dependencies
  */
 import { addFilter } from '@wordpress/hooks';
@@ -42,5 +49,4 @@ function addBlockKeywords( settings, name ) {
 
 	return settings;
 }
-
 addFilter( 'blocks.registerBlockType', 'jetpack/block-keywords', addBlockKeywords );
