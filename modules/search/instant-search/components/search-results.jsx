@@ -53,7 +53,7 @@ class SearchResults extends Component {
 					// eslint-disable-next-line react/no-danger
 					dangerouslySetInnerHTML={ {
 						__html: `
-							.jetpack-instant-search__search-results mark { 
+							.jetpack-instant-search__search-results .jetpack-instant-search__search-results-primary mark { 
 								background-color: ${ this.props.highlightColor };
 							}
 						`,
