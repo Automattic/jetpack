@@ -1092,7 +1092,7 @@ class Jetpack_SSO {
 	 *
 	 * @return array $envelopes New array of JITM messages. May now contain only one message, about SSO.
 	 */
-	public function inject_sso_jitm( $envelopes, $message_path ) {
+	public function inject_sso_jitm( $envelopes, $message_path = null) {
 		/*
 		 * Bail early if:
 		 * - the request does not originate from wp-admin main dashboard.
