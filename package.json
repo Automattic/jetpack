@@ -181,7 +181,7 @@
 		"@wordpress/server-side-render": "1.0.0",
 		"babel-eslint": "10.0.2",
 		"chai": "4.2.0",
-		"commander": "3.0.2",
+		"commander": "4.1.1",
 		"config": "3.2.5",
 		"css-loader": "3.4.2",
 		"danger": "9.2.10",
