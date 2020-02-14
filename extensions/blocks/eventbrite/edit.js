@@ -23,7 +23,9 @@ import { ENTER, SPACE } from '@wordpress/keycodes';
 /**
  * Internal dependencies
  */
+import attributeDetails from './attributes';
 import { convertToLink, eventIdFromUrl } from './utils';
+import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import { icon, URL_REGEX } from '.';
 import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import ModalButtonPreview from './modal-button-preview';
@@ -116,10 +118,13 @@ class EventbriteEdit extends Component {
 			return;
 		}
 
-		this.props.setAttributes( {
+		const newAttributes = {
 			eventId: eventIdFromUrl( url ),
 			url,
-		} );
+		};
+		const validatedAttributes = getValidatedAttributes( attributeDetails, newAttributes );
+
+		this.props.setAttributes( validatedAttributes );
 
 		// Setting the `resolvingUrl` state here, then waiting for `componentDidUpdate()` to
 		// be called before actually resolving it ensures that the `editedUrl` state has also been
