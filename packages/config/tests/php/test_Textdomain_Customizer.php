@@ -59,22 +59,10 @@ class Test_Textdomain_Customizer extends TestCase {
 		);
 		$file_put_contents_spy->enable();
 
-		$test_package1 = new class() {
-
-			/**
-			 * Mocks the getName() method of the Composer\Package class.
-			 */
-			public function getName() { //phpcs:ignore WordPress.NamingConventions
-				return 'automattic/jetpack-test_package1';
-			}
-
-			/**
-			 * Mocks the getExtra() method of the Composer\Package class.
-			 */
-			public function getExtra() { //phpcs:ignore WordPress.NamingConventions
-				return array( 'translatable' => 'test1' );
-			}
-		};
+		$test_package1 = new Mock_Package(
+			'automattic/jetpack-test_package1',
+			array( 'translatable' => 'test1' )
+		);
 
 		$packages = array( $test_package1 );
 
@@ -115,4 +103,39 @@ class Test_Textdomain_Customizer extends TestCase {
 		$mock_function->enable();
 		return $mock_function;
 	}
+}
+
+//phpcs:disable Generic.Files.OneObjectStructurePerFile
+/**
+ *
+ * A class to create minimal mock Composers\Package objects for the unit tests.
+ * The class provides implementations for the getName() and getExtra() methods.
+ */
+class Mock_Package {
+	/**
+	 * The constructor.
+	 *
+	 * @param string $name The package name.
+	 * @param mixed  $extra The package extra.
+	 */
+	public function __construct( $name, $extra ) {
+		$this->name  = $name;
+		$this->extra = $extra;
+	}
+
+	//phpcs:disable WordPress.NamingConventions
+	/**
+	 * Returns the mock package's name.
+	 */
+	public function getName() {
+		return $this->name;
+	}
+
+	/**
+	 * Returns the mock package's extra value.
+	 */
+	public function getExtra() {
+		return $this->extra;
+	}
+
 }
