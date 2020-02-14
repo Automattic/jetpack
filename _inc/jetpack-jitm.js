@@ -196,6 +196,7 @@ jQuery( document ).ready( function( $ ) {
 				.fail( function() {
 					button.attr( 'disabled', false );
 				} );
+			return false;
 		} );
 	};
 
