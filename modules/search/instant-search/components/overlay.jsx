@@ -15,7 +15,11 @@ const closeOnEscapeKey = callback => event => {
 	event.key === 'Escape' && callback();
 };
 
-const Overlay = ( { children, closeColor, closeOverlay, colorTheme, isVisible, opacity } ) => {
+const onKeyPressHandler = event => {
+	event.preventDefault();
+};
+
+const Overlay = ( { children, closeOverlay, colorTheme, isVisible, opacity } ) => {
 	useEffect( () => {
 		window.addEventListener( 'keydown', closeOnEscapeKey( closeOverlay ) );
 		return () => {
@@ -33,13 +37,15 @@ const Overlay = ( { children, closeColor, closeOverlay, colorTheme, isVisible, o
 			].join( ' ' ) }
 			style={ { opacity: opacity / 100 } }
 		>
-			<button
+			<div
 				className="jetpack-instant-search__overlay-close"
 				onClick={ closeOverlay }
-				style={ { background: closeColor } }
+				onKeyPress={ onKeyPressHandler }
+				role="button"
+				tabIndex="0"
 			>
 				<Gridicon icon="cross" size="24" />
-			</button>
+			</div>
 			{ children }
 		</div>
 	);
