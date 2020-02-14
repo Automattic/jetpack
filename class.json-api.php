@@ -383,8 +383,7 @@ class WPCOM_JSON_API {
 
 		/* Add headers for form submission from <amp-form/> */
 		if ( $this->amp_source_origin ) {
-			$amp_source_origin = wp_unslash( $_GET['__amp_source_origin'] );
-			header( "Access-Control-Allow-Origin: " . $amp_source_origin );
+			header( "Access-Control-Allow-Origin: " . wp_unslash( $this->amp_source_origin ) );
 			header( 'Access-Control-Allow-Credentials: true' );
 		}
 
