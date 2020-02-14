@@ -37,8 +37,6 @@ class Jetpack_Calypsoify {
 
 		if ( $this->is_calypsoify_enabled ) {
 			add_action( 'admin_init', array( $this, 'setup_admin' ), 6 );
-			add_action( 'admin_menu', array( $this, 'remove_core_menus' ), 100 );
-			add_action( 'admin_menu', array( $this, 'add_custom_menus' ), 101 );
 		}
 
 		// Make this always available -- in case calypsoify gets toggled off.
@@ -47,22 +45,12 @@ class Jetpack_Calypsoify {
 	}
 
 	public function setup_admin() {
-		// Masterbar is currently required for this to work properly. Mock the instance of it
-		if ( ! Jetpack::is_module_active( 'masterbar' ) ) {
-			$this->mock_masterbar_activation();
-		}
-
 		if ( $this->is_page_gutenberg() ) {
 			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_for_gutenberg' ), 100 );
 			return;
 		}
 
-		add_action( 'admin_init', array( $this, 'check_page' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue' ), 100 );
-		add_action( 'in_admin_header', array( $this, 'insert_sidebar_html' ) );
-		add_action( 'wp_before_admin_bar_render', array( $this, 'modify_masterbar' ), 100000 );
-
-		add_filter( 'get_user_option_admin_color', array( $this, 'admin_color_override' ) );
 
 		add_action( 'manage_plugins_columns', array( $this, 'manage_plugins_columns_header' ) );
 		add_action( 'manage_plugins_custom_column', array( $this, 'manage_plugins_custom_column' ), 10, 2 );
@@ -194,69 +182,7 @@ class Jetpack_Calypsoify {
 		wp_send_json_success( $list );
 	}
 
-	public function admin_color_override( $color ) {
-		return 'fresh';
-	}
-
-	public function mock_masterbar_activation() {
-		include_once JETPACK__PLUGIN_DIR . 'modules/masterbar/masterbar.php';
-		new A8C_WPCOM_Masterbar;
-	}
-
-	public function remove_core_menus() {
-		remove_menu_page( 'edit.php?post_type=feedback' );
-		remove_menu_page( 'index.php' );
-		remove_menu_page( 'jetpack' );
-		remove_menu_page( 'edit.php' );
-		remove_menu_page( 'upload.php' );
-		remove_menu_page( 'edit.php?post_type=page' );
-		remove_menu_page( 'edit-comments.php' );
-		remove_menu_page( 'themes.php' );
-		remove_menu_page( 'plugins.php' );
-		remove_menu_page( 'users.php' );
-		remove_menu_page( 'tools.php' );
-		remove_menu_page( 'link-manager.php' );
-
-		// Core settings pages
-		remove_submenu_page( 'options-general.php', 'options-general.php' );
-		remove_submenu_page( 'options-general.php', 'options-writing.php' );
-		remove_submenu_page( 'options-general.php', 'options-reading.php' );
-		remove_submenu_page( 'options-general.php', 'options-discussion.php' );
-		remove_submenu_page( 'options-general.php', 'options-media.php' );
-		remove_submenu_page( 'options-general.php', 'options-permalink.php' );
-		remove_submenu_page( 'options-general.php', 'privacy.php' );
-		remove_submenu_page( 'options-general.php', 'sharing' );
-	}
-
-	public function add_custom_menus() {
-		global $menu, $submenu;
-
-		if ( isset( $_GET['post_type'] ) && 'feedback' === $_GET['post_type'] ) {
-			// there is currently no gridicon for feedback, so using dashicon.
-			add_menu_page( __( 'Feedback', 'jetpack' ), __( 'Feedback', 'jetpack' ), 'edit_pages', 'edit.php?post_type=feedback', '', 'dashicons-feedback', 1 );
-			remove_menu_page( 'options-general.php' );
-			remove_submenu_page( 'edit.php?post_type=feedback', 'feedback-export' );
-		} else {
-			add_menu_page( __( 'Manage Plugins', 'jetpack' ), __( 'Manage Plugins', 'jetpack' ), 'activate_plugins', 'plugins.php', '', $this->installed_plugins_icon(), 1 );
-			// Count the settings page submenus, if it's zero then don't show this.
-			if ( empty( $submenu['options-general.php'] ) ) {
-				remove_menu_page( 'options-general.php' );
-			} else {
-				// Rename and make sure the plugin settings menu is always last.
-				// Sneaky plugins seem to override this otherwise.
-				// Settings is always key 80.
-				$menu[80][0]                            = __( 'Plugin Settings', 'jetpack' );
-				$menu[ max( array_keys( $menu ) ) + 1 ] = $menu[80];
-				unset( $menu[80] );
-			}
-		}
-	}
-
 	public function enqueue() {
-		wp_enqueue_style( 'calypsoify_wpadminmods_css', plugin_dir_url( __FILE__ ) . 'style.min.css', false, JETPACK__VERSION );
-		wp_style_add_data( 'calypsoify_wpadminmods_css', 'rtl', 'replace' );
-        wp_style_add_data( 'calypsoify_wpadminmods_css', 'suffix', '.min' );
-
 		wp_enqueue_script( 'calypsoify_wpadminmods_js', plugin_dir_url( __FILE__ ) . 'mods.js', false, JETPACK__VERSION );
 		wp_localize_script( 'calypsoify_wpadminmods_js', 'CalypsoifyOpts', array(
 			'nonces' => array(
@@ -267,10 +193,6 @@ class Jetpack_Calypsoify {
 	}
 
 	public function enqueue_for_gutenberg() {
-		wp_enqueue_style( 'calypsoify_wpadminmods_css', plugin_dir_url( __FILE__ ) . 'style-gutenberg.min.css', false, JETPACK__VERSION );
-		wp_style_add_data( 'calypsoify_wpadminmods_css', 'rtl', 'replace' );
-        wp_style_add_data( 'calypsoify_wpadminmods_css', 'suffix', '.min' );
-
 		wp_enqueue_script( 'calypsoify_wpadminmods_js', plugin_dir_url( __FILE__ ) . 'mods-gutenberg.js', false, JETPACK__VERSION );
 		wp_localize_script(
 			'calypsoify_wpadminmods_js',
@@ -280,43 +202,6 @@ class Jetpack_Calypsoify {
 				'manageReusableBlocksUrl' => $this->get_calypso_origin() . '/types/wp_block' . $this->get_site_suffix(),
 			)
 		);
-	}
-
-	public function insert_sidebar_html() { 
-		$heading = ( isset( $_GET['post_type'] ) && 'feedback' === $_GET['post_type'] ) ? __( 'Feedback', 'jetpack' ) : __( 'Plugins', 'jetpack' );
-		?>
-		<a href="<?php echo esc_url( 'https://wordpress.com/stats/day/' . Jetpack::build_raw_urls( home_url() ) ); ?>" id="calypso-sidebar-header">
-			<svg class="gridicon gridicons-chevron-left" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M14 20l-8-8 8-8 1.414 1.414L8.828 12l6.586 6.586"></path></g></svg>
-
-			<ul>
-				<li id="calypso-sitename"><?php bloginfo( 'name' ); ?></li>
-				<li id="calypso-plugins"><?php echo esc_html( $heading ); ?></li>
-			</ul>
-		</a>
-		<?php
-	}
-
-	public function modify_masterbar() {
-		global $wp_admin_bar;
-
-		// Add proper links to masterbar top sections.
-		$my_sites_node       = (object) $wp_admin_bar->get_node( 'blog' );
-		$my_sites_node->href = 'https://wordpress.com/stats/day/' . Jetpack::build_raw_urls( home_url() );
-		$wp_admin_bar->add_node( $my_sites_node );
-
-		$reader_node       = (object) $wp_admin_bar->get_node( 'newdash' );
-		$reader_node->href = 'https://wordpress.com/read';
-		$wp_admin_bar->add_node( $reader_node );
-
-		$me_node       = (object) $wp_admin_bar->get_node( 'my-account' );
-		$me_node->href = 'https://wordpress.com/me';
-		$wp_admin_bar->add_node( $me_node );
-	}
-
-	private function installed_plugins_icon() {
-		$svg = '<svg class="gridicon gridicons-plugins" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 24"><g><path d="M16 8V3c0-.552-.448-1-1-1s-1 .448-1 1v5h-4V3c0-.552-.448-1-1-1s-1 .448-1 1v5H5v4c0 2.79 1.637 5.193 4 6.317V22h6v-3.683c2.363-1.124 4-3.527 4-6.317V8h-3z" fill="black"></path></g></svg>';
-
-		return 'data:image/svg+xml;base64,' . base64_encode( $svg );
 	}
 
 	/**
@@ -430,17 +315,6 @@ class Jetpack_Calypsoify {
 			$page = remove_query_arg( 'calypsoify', wp_basename( $_SERVER['REQUEST_URI'] ) );
 
 			wp_safe_redirect( admin_url( $page ) );
-		}
-	}
-
-	public function check_page() {
-		// If the user hits plain /wp-admin/ then disable Calypso styles.
-		$page = wp_basename( esc_url( $_SERVER['REQUEST_URI'] ) );
-
-		if ( false !== strpos( 'index.php', $page ) || false !== strpos( 'wp-admin', $page ) ) {
-			update_user_meta( get_current_user_id(), 'calypsoify', 0 );
-			wp_safe_redirect( admin_url() );
-			die;
 		}
 	}
 

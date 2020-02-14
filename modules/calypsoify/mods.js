@@ -3,19 +3,6 @@
 	$( window ).load( function() {
 		// On Plugins.php
 		if ( 'plugins' === pagenow ) {
-			// pagenow === $current_screen->id
-			// Remove | and () from the plugins filter bar
-			$.each( $( 'ul.subsubsub li' ), function( i, el ) {
-				var li = $( el );
-				li.html(
-					li
-						.html()
-						.replace( '|', '' )
-						.replace( '(', '' )
-						.replace( ')', '' )
-				);
-			} );
-
 			// Add in the AJAX-y goodness for toggling autoupdates.
 			$( 'input.autoupdate-toggle' ).change( function( event ) {
 				var el = event.target;
