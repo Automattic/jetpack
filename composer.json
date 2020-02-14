@@ -9,7 +9,7 @@
 	},
 	"require": {
 		"automattic/jetpack-logo": "1.1.4",
-		"automattic/jetpack-autoloader": "1.4.0"
+		"automattic/jetpack-autoloader": "1.4.1"
 	},
 	"require-dev": {
 		"automattic/jetpack-standards": "master-dev"
