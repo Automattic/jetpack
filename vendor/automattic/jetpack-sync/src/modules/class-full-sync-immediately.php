@@ -392,4 +392,13 @@ class Full_Sync_Immediately extends Module {
 		// Setting autoload to true means that it's faster to check whether we should continue enqueuing.
 		$this->update_status( array( 'finished' => time() ) );
 	}
+
+	/**
+	 * Empty Function as we don't close buffers on Immediate Full Sync.
+	 *
+	 * @param Array $actions an array of actions, ignored for queueless sync.
+	 */
+	public function update_sent_progress_action( $actions ) {
+		return;
+	}
 }

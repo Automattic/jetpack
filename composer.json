@@ -26,7 +26,7 @@
 		"automattic/jetpack-partner": "^1.0",
 		"automattic/jetpack-roles": "^1.0",
 		"automattic/jetpack-status": "^1.1",
-		"automattic/jetpack-sync": "^1.7",
+		"automattic/jetpack-sync": "dev-fork/jetpack-sync-v1.7.4+vip",
 		"automattic/jetpack-terms-of-service": "^1.0",
 		"automattic/jetpack-tracking": "^1.2"
 	},

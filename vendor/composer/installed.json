@@ -529,17 +529,17 @@
     },
     {
         "name": "automattic/jetpack-sync",
-        "version": "v1.7.4",
-        "version_normalized": "1.7.4.0",
+        "version": "dev-fork/jetpack-sync-v1.7.4+vip",
+        "version_normalized": "dev-fork/jetpack-sync-v1.7.4+vip",
         "source": {
             "type": "git",
             "url": "https://github.com/Automattic/jetpack-sync.git",
-            "reference": "1f36cf9e135e7be61dc5f0da5c74dd360f866a1d"
+            "reference": "26ab953f4b65d14597ade6c48f99e86f2796647a"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/Automattic/jetpack-sync/zipball/1f36cf9e135e7be61dc5f0da5c74dd360f866a1d",
-            "reference": "1f36cf9e135e7be61dc5f0da5c74dd360f866a1d",
+            "url": "https://api.github.com/repos/Automattic/jetpack-sync/zipball/26ab953f4b65d14597ade6c48f99e86f2796647a",
+            "reference": "26ab953f4b65d14597ade6c48f99e86f2796647a",
             "shasum": ""
         },
         "require": {
@@ -549,7 +549,7 @@
             "automattic/jetpack-roles": "@dev",
             "automattic/jetpack-status": "@dev"
         },
-        "time": "2020-01-21T17:02:00+00:00",
+        "time": "2020-02-14T13:35:39+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
