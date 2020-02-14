@@ -35,32 +35,32 @@ class Gridicon extends Component {
 			default:
 				return null;
 			case 'gridicons-audio':
-				return <title>{ __( 'Has audio.' ) }</title>;
+				return <title>{ __( 'Has audio.', 'jetpack' ) }</title>;
 			case 'gridicons-calendar':
-				return <title>{ __( 'Is an event.' ) }</title>;
+				return <title>{ __( 'Is an event.', 'jetpack' ) }</title>;
 			case 'gridicons-cart':
-				return <title>{ __( 'Is a product.' ) }</title>;
+				return <title>{ __( 'Is a product.', 'jetpack' ) }</title>;
 			case 'gridicons-comment':
-				return <title>{ __( 'Matching comment.' ) }</title>;
+				return <title>{ __( 'Matching comment.', 'jetpack' ) }</title>;
 			case 'gridicons-cross':
-				return <title>{ __( 'Close search overlay' ) }</title>;
+				return <title>{ __( 'Close search overlay', 'jetpack' ) }</title>;
 			case 'gridicons-folder':
-				return <title>{ __( 'Category' ) }</title>;
+				return <title>{ __( 'Category', 'jetpack' ) }</title>;
 			case 'gridicons-image-multiple':
-				return <title>{ __( 'Has multiple images.' ) }</title>;
+				return <title>{ __( 'Has multiple images.', 'jetpack' ) }</title>;
 			case 'gridicons-image':
-				return <title>{ __( 'Has an image.' ) }</title>;
+				return <title>{ __( 'Has an image.', 'jetpack' ) }</title>;
 			case 'gridicons-page':
-				return <title>{ __( 'Page' ) }</title>;
+				return <title>{ __( 'Page', 'jetpack' ) }</title>;
 			case 'gridicons-jetpack-search':
 			case 'gridicons-search':
-				return <title>{ __( 'Search' ) }</title>;
+				return <title>{ __( 'Search', 'jetpack' ) }</title>;
 			case 'gridicons-tag':
-				return <title>{ __( 'Tag' ) }</title>;
+				return <title>{ __( 'Tag', 'jetpack' ) }</title>;
 			case 'gridicons-video':
-				return <title>{ __( 'Has a video.' ) }</title>;
+				return <title>{ __( 'Has a video.', 'jetpack' ) }</title>;
 			case 'gridicons-filter':
-				return <title>{ __( 'Toggle search filters.' ) }</title>;
+				return <title>{ __( 'Toggle search filters.', 'jetpack' ) }</title>;
 		}
 	}
 
