@@ -1,4 +1,4 @@
-export const embedRegex = /< *script[^>]*src *= *["']?([^"']*)/i;
+export const embedRegex = /<\s*script[^>]*src\s*=\s*["']?([^"']*)/i;
 export const restRefRegex = /restref=([0-9]+)&/;
 export const ridRegex = /rid=([0-9]+)&/;
 
