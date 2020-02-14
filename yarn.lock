@@ -73,6 +73,11 @@
   dependencies:
     i18n-calypso "^4.0.0-alpha.1"
 
+"@automattic/viewport@1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@automattic/viewport/-/viewport-1.0.0.tgz#66cf793007058f9e63f89c50134d02287d6b5261"
+  integrity sha512-aSJRuZ80kds6kO+baIw8wK4nmlHG/e/sUPa7BDwalo8vBLtBnW07GsXm1zGgz9htgEogFuuxBdKR4IjO1z8phA==
+
 "@babel/code-frame@^7.0.0":
   version "7.0.0"
   resolved "https://registry.yarnpkg.com/@babel/code-frame/-/code-frame-7.0.0.tgz#06e2ab19bdb535385559aabb5ba59729482800f8"
@@ -9586,6 +9591,7 @@ min-indent@^1.0.0:
   resolved "https://codeload.github.com/Automattic/mini-css-extract-plugin-with-rtl/tar.gz/f48ce03f385390257bdacbfec4759d38df983361"
   dependencies:
     loader-utils "^1.1.0"
+    normalize-url "1.9.1"
     schema-utils "^1.0.0"
     webpack-sources "^1.1.0"
 
