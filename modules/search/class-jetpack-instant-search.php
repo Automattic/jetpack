@@ -1,14 +1,14 @@
 <?php
+
+use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Constants;
+
 /**
  * Jetpack Search: Instant Front-End Search and Filtering
  *
  * @since 8.3.0
  * @package jetpack
  */
-
-use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Constants;
-
 class Jetpack_Instant_Search extends Jetpack_Search {
 
 	/**
@@ -103,7 +103,6 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		$prefix  = Jetpack_Search_Options::OPTION_PREFIX;
 		$options = array(
 			'overlayOptions'  => array(
-				'closeColor'      => get_option( $prefix . 'close_color', '#BD3854' ),
 				'colorTheme'      => get_option( $prefix . 'color_theme', 'light' ),
 				'enableInfScroll' => (bool) get_option( $prefix . 'inf_scroll', false ),
 				'highlightColor'  => get_option( $prefix . 'highlight_color', '#FFC' ),
