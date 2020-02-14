@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8b5f34f4375c80893df6595244f65b9b",
+    "content-hash": "b25762dc094c0ff168ef5fca7d0266bc",
     "packages": [
         {
             "name": "automattic/jetpack-abtest",
@@ -506,16 +506,16 @@
         },
         {
             "name": "automattic/jetpack-sync",
-            "version": "v1.7.4",
+            "version": "dev-fork/jetpack-sync-v1.7.4+vip",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-sync.git",
-                "reference": "1f36cf9e135e7be61dc5f0da5c74dd360f866a1d"
+                "reference": "26ab953f4b65d14597ade6c48f99e86f2796647a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-sync/zipball/1f36cf9e135e7be61dc5f0da5c74dd360f866a1d",
-                "reference": "1f36cf9e135e7be61dc5f0da5c74dd360f866a1d",
+                "url": "https://api.github.com/repos/Automattic/jetpack-sync/zipball/26ab953f4b65d14597ade6c48f99e86f2796647a",
+                "reference": "26ab953f4b65d14597ade6c48f99e86f2796647a",
                 "shasum": ""
             },
             "require": {
@@ -536,7 +536,7 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Everything needed to allow syncing to the WP.com infrastructure.",
-            "time": "2020-01-21T17:02:00+00:00"
+            "time": "2020-02-14T13:35:39+00:00"
         },
         {
             "name": "automattic/jetpack-terms-of-service",
@@ -1039,7 +1039,9 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": [],
+    "stability-flags": {
+        "automattic/jetpack-sync": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
