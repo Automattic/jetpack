@@ -396,7 +396,7 @@ class Full_Sync_Immediately extends Module {
 	/**
 	 * Empty Function as we don't close buffers on Immediate Full Sync
 	 */
-	public function update_sent_progress_action($actions) {
+	public function update_sent_progress_action( $actions ) {
 		return;
 	}
 }
