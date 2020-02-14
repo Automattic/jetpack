@@ -27,6 +27,7 @@ export const settings = {
 	category: 'jetpack',
 	keywords: [
 		_x( 'map', 'block search term', 'jetpack' ),
+		_x( 'maps', 'block search term', 'jetpack' ),
 		_x( 'location', 'block search term', 'jetpack' ),
 		_x( 'navigation', 'block search term', 'jetpack' ),
 	],
