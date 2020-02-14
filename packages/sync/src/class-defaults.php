@@ -158,7 +158,6 @@ class Defaults {
 		'site_user_type',
 		'site_vertical',
 		'jetpack_excluded_extensions',
-		'amp-options',
 	);
 
 	/**
