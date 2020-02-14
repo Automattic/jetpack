@@ -727,8 +727,10 @@ class Actions {
 
 		$sync_module     = Modules::get_module( 'full-sync' );
 		$queue           = self::$sender->get_sync_queue();
-		$cron_timestamps = array_keys( _get_cron_array() );
-		$next_cron       = $cron_timestamps[0] - time();
+
+		// _get_cron_array can be false
+		$cron_timestamps = ( _get_cron_array() ) ? array_keys( _get_cron_array() ) : array();
+		$next_cron       = ( ! empty( $cron_timestamps ) ) ? $cron_timestamps[0] - time() : '';
 
 		$checksums = array();
 
@@ -767,7 +769,8 @@ class Actions {
 			)
 		);
 
-		if ( false === strpos( get_class( $sync_module ), 'Full_Sync_Immediately' ) ) {
+		// Verify $sync_module is not false
+		if ( ( $sync_module ) && false === strpos( get_class( $sync_module ), 'Full_Sync_Immediately' ) ) {
 			$result['full_queue_size'] = $full_queue->size();
 			$result['full_queue_lag']  = $full_queue->lag();
 		}
