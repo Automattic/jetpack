@@ -7,7 +7,16 @@ import { Component } from '@wordpress/element';
 class MapSave extends Component {
 	render() {
 		const { attributes } = this.props;
-		const { align, mapStyle, mapDetails, points, zoom, mapCenter, markerColor } = attributes;
+		const {
+			align,
+			mapStyle,
+			mapDetails,
+			points,
+			zoom,
+			mapCenter,
+			markerColor,
+			scrollToZoom,
+		} = attributes;
 		const pointsList = points.map( ( point, index ) => {
 			const { longitude, latitude } = point.coordinates;
 			const url = 'https://www.google.com/maps/search/?api=1&query=' + latitude + ',' + longitude;
@@ -28,6 +37,7 @@ class MapSave extends Component {
 				data-zoom={ zoom }
 				data-map-center={ JSON.stringify( mapCenter ) }
 				data-marker-color={ markerColor }
+				data-scroll-to-zoom={ scrollToZoom ? scrollToZoom : null }
 			>
 				{ points.length > 0 && <ul>{ pointsList }</ul> }
 			</div>
