@@ -10,28 +10,28 @@ const colourValidator = value => hexRegex.test( value );
 const urlValidator = url => ! url || url.startsWith( 'http' );
 
 const defaultAttributes = {
-    boolean: {
-        default: true,
-        type: 'boolean',
-    },
-    color: {
-        default: 'ffffff',
-        type: 'string',
-        validator: colourValidator,
-    },
-    language: {
-        default: 'en',
-        type: 'string',
-        validValues: [ 'en', 'fr', 'de', 'es', 'he', 'jp' ],
-    },
-    url: {
-        type: 'string',
-        validator: urlValidator,
-    },
-    freeform: {
-        default: 'one',
-        type: 'string',
-    },
+	boolean: {
+		default: true,
+		type: 'boolean',
+	},
+	color: {
+		default: 'ffffff',
+		type: 'string',
+		validator: colourValidator,
+	},
+	language: {
+		default: 'en',
+		type: 'string',
+		validValues: [ 'en', 'fr', 'de', 'es', 'he', 'jp' ],
+	},
+	url: {
+		type: 'string',
+		validator: urlValidator,
+	},
+	freeform: {
+		default: 'one',
+		type: 'string',
+	},
 };
 
 describe( 'getValidatedAttributes', () => {
