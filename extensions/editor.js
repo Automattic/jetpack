@@ -3,7 +3,6 @@
  */
 import './shared/public-path';
 import './shared/block-category';
-import './shared/block-keywords';
 import './shared/plan-upgrade-notification';
 import './shared/stripe-connection-notification';
 import analytics from '../_inc/client/lib/analytics';
