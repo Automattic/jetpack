@@ -10,7 +10,7 @@ const getAttributesFromUrl = url => {
 		src = new URL( 'http:' + url );
 	}
 
-	if ( ! src.search ) {
+	if ( ! src.host || src.host.indexOf( 'opentable' ) === -1 || ! src.search ) {
 		return;
 	}
 
