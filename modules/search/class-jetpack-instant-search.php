@@ -1,14 +1,14 @@
 <?php
-
-use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Constants;
-
 /**
  * Jetpack Search: Instant Front-End Search and Filtering
  *
  * @since 8.3.0
  * @package jetpack
  */
+
+use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Constants;
+
 class Jetpack_Instant_Search extends Jetpack_Search {
 
 	/**
