@@ -5,7 +5,7 @@ import classnames from 'classnames';
 import { __ } from '@wordpress/i18n';
 import { BACKSPACE, DELETE } from '@wordpress/keycodes';
 import { Component, createRef, Fragment } from '@wordpress/element';
-import { Button, Spinner } from '@wordpress/components';
+import { IconButton, Spinner } from '@wordpress/components';
 import { isBlobURL } from '@wordpress/blob';
 import { withSelect } from '@wordpress/data';
 
@@ -131,7 +131,7 @@ class GalleryImageEdit extends Component {
 				} ) }
 			>
 				<div className="tiled-gallery__item__move-menu">
-					<Button
+					<IconButton
 						icon={ leftArrow }
 						onClick={ isFirstItem ? undefined : onMoveBackward }
 						className="tiled-gallery__item__move-backward"
@@ -139,7 +139,7 @@ class GalleryImageEdit extends Component {
 						aria-disabled={ isFirstItem }
 						disabled={ ! isSelected }
 					/>
-					<Button
+					<IconButton
 						icon={ rightArrow }
 						onClick={ isLastItem ? undefined : onMoveForward }
 						className="tiled-gallery__item__move-forward"
@@ -149,7 +149,7 @@ class GalleryImageEdit extends Component {
 					/>
 				</div>
 				<div className="tiled-gallery__item__inline-menu">
-					<Button
+					<IconButton
 						icon={ close }
 						onClick={ onRemove }
 						className="tiled-gallery__item__remove"
