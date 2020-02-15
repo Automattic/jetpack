@@ -19,6 +19,7 @@ import { setFilterQuery, getFilterQuery, clearFiltersFromQuery } from '../lib/qu
 export default class SearchFilters extends Component {
 	onChangeFilter = ( filterName, filterValue ) => {
 		setFilterQuery( filterName, filterValue );
+		this.props.onChange && this.props.onChange();
 	};
 
 	onClearFilters = () => {
