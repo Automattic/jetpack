@@ -15,6 +15,7 @@ import {
 	LAYOUT_CIRCLE,
 	LAYOUT_COLUMN,
 	LAYOUT_DEFAULT,
+	LAYOUT_MASONRY,
 	LAYOUT_SQUARE,
 	LAYOUT_STYLES,
 } from './constants';
@@ -47,6 +48,7 @@ const styleNames = {
 	[ LAYOUT_DEFAULT ]: _x( 'Tiled mosaic', 'Tiled gallery layout', 'jetpack' ),
 	[ LAYOUT_CIRCLE ]: _x( 'Circles', 'Tiled gallery layout', 'jetpack' ),
 	[ LAYOUT_COLUMN ]: _x( 'Tiled columns', 'Tiled gallery layout', 'jetpack' ),
+	[ LAYOUT_MASONRY ]: _x( 'Masonry', 'Tiled gallery layout', 'jetpack' ),
 	[ LAYOUT_SQUARE ]: _x( 'Square tiles', 'Tiled gallery layout', 'jetpack' ),
 };
 const layoutStylesWithLabels = LAYOUT_STYLES.map( style => ( {

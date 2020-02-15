@@ -11,6 +11,7 @@ export const PHOTON_MAX_RESIZE = 2000;
 export const LAYOUT_CIRCLE = 'circle';
 export const LAYOUT_COLUMN = 'columns';
 export const LAYOUT_DEFAULT = 'rectangular';
+export const LAYOUT_MASONRY = 'masonry';
 export const LAYOUT_SQUARE = 'square';
 export const LAYOUT_STYLES = [
 	{
@@ -19,6 +20,9 @@ export const LAYOUT_STYLES = [
 	},
 	{
 		name: LAYOUT_CIRCLE,
+	},
+	{
+		name: LAYOUT_MASONRY,
 	},
 	{
 		name: LAYOUT_SQUARE,

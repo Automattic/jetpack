@@ -11,6 +11,7 @@ import classnames from 'classnames';
 import GalleryImageEdit from '../gallery-image/edit';
 import GalleryImageSave from '../gallery-image/save';
 import Mosaic from './mosaic';
+import Masonry from './masonry';
 import Square from './square';
 import { isSquareishLayout, photonizedImgProps } from '../utils';
 import { LAYOUT_CIRCLE, MAX_ROUNDED_CORNERS } from '../constants';
@@ -88,7 +89,16 @@ export default class Layout extends Component {
 			isSave,
 			columnWidths,
 		} = this.props;
-		const LayoutRenderer = isSquareishLayout( layoutStyle ) ? Square : Mosaic;
+		let LayoutRenderer;
+
+		if ( isSquareishLayout( layoutStyle ) ) {
+			LayoutRenderer = Square;
+		} else if ( layoutStyle === 'masonry' ) {
+			LayoutRenderer = Masonry;
+		} else {
+			LayoutRenderer = Mosaic;
+		}
+
 		const renderedImages = this.props.images.map( this.renderImage, this );
 		const roundedCornersValue =
 			layoutStyle !== LAYOUT_CIRCLE ? Math.min( roundedCorners, MAX_ROUNDED_CORNERS ) : 0;

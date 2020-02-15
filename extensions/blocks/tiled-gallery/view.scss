@@ -29,6 +29,7 @@ $tiled-gallery-max-rounded-corners: 20; // See constants.js for JS counterpart
 	}
 
 	&.is-style-columns,
+	&.is-style-masonry,
 	&.is-style-rectangular {
 		.tiled-gallery__item {
 			display: flex;
@@ -69,6 +70,13 @@ $tiled-gallery-max-rounded-corners: 20; // See constants.js for JS counterpart
 
 	& + & {
 		margin-left: $tiled-gallery-gutter;
+	}
+
+	// In Masronry, images are top-aligned and columns are equal width
+	.is-style-masonry & {
+		flex-basis: 0;
+		flex-grow: 1;
+		justify-content: start;
 	}
 }
 

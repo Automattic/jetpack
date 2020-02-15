@@ -39,7 +39,8 @@ function getGalleries() {
 	return Array.from(
 		document.querySelectorAll(
 			'.wp-block-jetpack-tiled-gallery.is-style-rectangular > .tiled-gallery__gallery,' +
-				'.wp-block-jetpack-tiled-gallery.is-style-columns > .tiled-gallery__gallery'
+				'.wp-block-jetpack-tiled-gallery.is-style-columns > .tiled-gallery__gallery' +
+				'.wp-block-jetpack-tiled-gallery.is-style-masonry > .tiled-gallery__gallery'
 		)
 	);
 }

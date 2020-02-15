@@ -46,7 +46,7 @@ const linkOptions = [
 
 // @TODO keep here or move to ./layout ?
 function layoutSupportsColumns( layout ) {
-	return [ 'columns', 'circle', 'square' ].includes( layout );
+	return [ 'columns', 'circle', 'masonry', 'square' ].includes( layout );
 }
 
 export function defaultColumnsNumber( attributes ) {
