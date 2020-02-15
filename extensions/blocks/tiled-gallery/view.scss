@@ -33,6 +33,12 @@ $tiled-gallery-max-column-count: 20;
 			display: flex;
 		}
 	}
+
+	@for $i from 1 through 20 {
+		&.has-rounded-corners-#{$i} .tiled-gallery__item img {
+			border-radius: #{$i}px;
+		}
+	}
 }
 
 .tiled-gallery__gallery {

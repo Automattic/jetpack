@@ -128,6 +128,10 @@ const blockAttributes = {
 		default: 'none',
 		type: 'string',
 	},
+	roundedCorners: {
+		type: 'integer',
+		default: 0,
+	},
 };
 
 const exampleAttributes = {

@@ -3,6 +3,7 @@
  */
 import { __, sprintf } from '@wordpress/i18n';
 import { Component } from '@wordpress/element';
+import classnames from 'classnames';
 
 /**
  * Internal dependencies
@@ -12,6 +13,7 @@ import GalleryImageSave from '../gallery-image/save';
 import Mosaic from './mosaic';
 import Square from './square';
 import { isSquareishLayout, photonizedImgProps } from '../utils';
+import { LAYOUT_CIRCLE, MAX_ROUNDED_CORNERS } from '../constants';
 
 export default class Layout extends Component {
 	// This is tricky:
@@ -65,14 +67,18 @@ export default class Layout extends Component {
 	}
 
 	render() {
-		const { align, children, className, columns, images, layoutStyle } = this.props;
-
+		const { align, children, className, columns, images, layoutStyle, roundedCorners } = this.props;
 		const LayoutRenderer = isSquareishLayout( layoutStyle ) ? Square : Mosaic;
-
 		const renderedImages = this.props.images.map( this.renderImage, this );
+		const rounderCornersValue =
+			layoutStyle !== LAYOUT_CIRCLE ? Math.min( roundedCorners, MAX_ROUNDED_CORNERS ) : 0;
 
 		return (
-			<div className={ className }>
+			<div
+				className={ classnames( className, {
+					[ `has-rounded-corners-${ rounderCornersValue }` ]: rounderCornersValue > 0,
+				} ) }
+			>
 				<LayoutRenderer
 					align={ align }
 					columns={ columns }
