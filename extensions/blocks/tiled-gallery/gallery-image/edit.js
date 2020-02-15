@@ -5,9 +5,14 @@ import classnames from 'classnames';
 import { __ } from '@wordpress/i18n';
 import { BACKSPACE, DELETE } from '@wordpress/keycodes';
 import { Component, createRef, Fragment } from '@wordpress/element';
-import { IconButton, Spinner } from '@wordpress/components';
+import { Button, Spinner } from '@wordpress/components';
 import { isBlobURL } from '@wordpress/blob';
 import { withSelect } from '@wordpress/data';
+
+/**
+ * Internal dependencies
+ */
+import { close, leftArrow, rightArrow } from '../icons';
 
 class GalleryImageEdit extends Component {
 	img = createRef();
@@ -63,9 +68,13 @@ class GalleryImageEdit extends Component {
 			height,
 			id,
 			imageFilter,
+			isFirstItem,
+			isLastItem,
 			isSelected,
 			link,
 			linkTo,
+			onMoveBackward,
+			onMoveForward,
 			onRemove,
 			origUrl,
 			srcSet,
@@ -121,16 +130,33 @@ class GalleryImageEdit extends Component {
 					[ `filter__${ imageFilter }` ]: !! imageFilter,
 				} ) }
 			>
-				{ isSelected && (
-					<div className="tiled-gallery__item__inline-menu">
-						<IconButton
-							icon="no-alt"
-							onClick={ onRemove }
-							className="tiled-gallery__item__remove"
-							label={ __( 'Remove Image', 'jetpack' ) }
-						/>
-					</div>
-				) }
+				<div className="tiled-gallery__item__move-menu">
+					<Button
+						icon={ leftArrow }
+						onClick={ isFirstItem ? undefined : onMoveBackward }
+						className="tiled-gallery__item__move-backward"
+						label={ __( 'Move image backward', 'jetpack' ) }
+						aria-disabled={ isFirstItem }
+						disabled={ ! isSelected }
+					/>
+					<Button
+						icon={ rightArrow }
+						onClick={ isLastItem ? undefined : onMoveForward }
+						className="tiled-gallery__item__move-forward"
+						label={ __( 'Move image forward', 'jetpack' ) }
+						aria-disabled={ isLastItem }
+						disabled={ ! isSelected }
+					/>
+				</div>
+				<div className="tiled-gallery__item__inline-menu">
+					<Button
+						icon={ close }
+						onClick={ onRemove }
+						className="tiled-gallery__item__remove"
+						label={ __( 'Remove image', 'jetpack' ) }
+						disabled={ ! isSelected }
+					/>
+				</div>
 				{ /* Keep the <a> HTML structure, but ensure there is no navigation from edit */
 				/* eslint-disable-next-line jsx-a11y/anchor-is-valid */ }
 				{ href ? <a>{ img }</a> : img }
