@@ -34,6 +34,7 @@ import EditButton from '../../shared/edit-button';
 
 const linkOptions = [
 	{ value: 'attachment', label: __( 'Attachment Page', 'jetpack' ) },
+	{ value: 'custom', label: __( 'Custom URL', 'jetpack' ) },
 	{ value: 'media', label: __( 'Media File', 'jetpack' ) },
 	{ value: 'none', label: __( 'None', 'jetpack' ) },
 ];
