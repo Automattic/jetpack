@@ -21,6 +21,7 @@ export default class Layout extends Component {
 	//   This is because the images are stored in an array in the block attributes.
 	renderImage( img, i ) {
 		const {
+			columns,
 			imageFilter,
 			images,
 			isSave,
@@ -48,6 +49,7 @@ export default class Layout extends Component {
 			<Image
 				alt={ img.alt }
 				aria-label={ ariaLabel }
+				columns={ columns }
 				height={ img.height }
 				id={ img.id }
 				imageFilter={ imageFilter }

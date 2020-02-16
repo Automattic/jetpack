@@ -12,7 +12,7 @@ import { withSelect } from '@wordpress/data';
 /**
  * Internal dependencies
  */
-import { close, leftArrow, rightArrow } from '../icons';
+import { close, downChevron, leftChevron, rightChevron, upChevron } from '../icons';
 
 class GalleryImageEdit extends Component {
 	img = createRef();
@@ -65,6 +65,7 @@ class GalleryImageEdit extends Component {
 		const {
 			'aria-label': ariaLabel,
 			alt,
+			columns,
 			height,
 			id,
 			imageFilter,
@@ -132,7 +133,7 @@ class GalleryImageEdit extends Component {
 			>
 				<div className="tiled-gallery__item__move-menu">
 					<IconButton
-						icon={ leftArrow }
+						icon={ columns === 1 ? upChevron : leftChevron }
 						onClick={ isFirstItem ? undefined : onMoveBackward }
 						className="tiled-gallery__item__move-backward"
 						label={ __( 'Move image backward', 'jetpack' ) }
@@ -140,7 +141,7 @@ class GalleryImageEdit extends Component {
 						disabled={ ! isSelected }
 					/>
 					<IconButton
-						icon={ rightArrow }
+						icon={ columns === 1 ? downChevron : rightChevron }
 						onClick={ isLastItem ? undefined : onMoveForward }
 						className="tiled-gallery__item__move-forward"
 						label={ __( 'Move image forward', 'jetpack' ) }
