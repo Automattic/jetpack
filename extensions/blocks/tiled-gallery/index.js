@@ -12,6 +12,7 @@ import { Path, SVG } from '@wordpress/components';
 import edit from './edit';
 import save from './save';
 import {
+	DEFAULT_GUTTER,
 	LAYOUT_CIRCLE,
 	LAYOUT_COLUMN,
 	LAYOUT_DEFAULT,
@@ -75,6 +76,10 @@ const blockAttributes = {
 	},
 	columns: {
 		type: 'number',
+	},
+	gutter: {
+		default: DEFAULT_GUTTER,
+		type: 'integer',
 	},
 	ids: {
 		default: [],

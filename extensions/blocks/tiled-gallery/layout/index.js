@@ -3,6 +3,7 @@
  */
 import { __, sprintf } from '@wordpress/i18n';
 import { Component } from '@wordpress/element';
+import classnames from 'classnames';
 
 /**
  * Internal dependencies
@@ -12,6 +13,7 @@ import GalleryImageSave from '../gallery-image/save';
 import Mosaic from './mosaic';
 import Square from './square';
 import { isSquareishLayout, photonizedImgProps } from '../utils';
+import { DEFAULT_GUTTER } from '../constants';
 
 export default class Layout extends Component {
 	// This is tricky:
@@ -65,17 +67,24 @@ export default class Layout extends Component {
 	}
 
 	render() {
-		const { align, children, className, columns, images, layoutStyle } = this.props;
-
-		const LayoutRenderer = isSquareishLayout( layoutStyle ) ? Square : Mosaic;
-
+		const { align, children, className, columns, gutter, images, layoutStyle } = this.props;
+		const isSquareish = isSquareishLayout( layoutStyle );
+		const LayoutRenderer = isSquareish ? Square : Mosaic;
 		const renderedImages = this.props.images.map( this.renderImage, this );
 
+		// Square & Circle layouts don't support any gutter customizations
+		const hasCustomGutter = gutter !== DEFAULT_GUTTER && ! isSquareish;
+
 		return (
-			<div className={ className }>
+			<div
+				className={ classnames( className, {
+					[ `has-gutter-${ gutter }` ]: hasCustomGutter,
+				} ) }
+			>
 				<LayoutRenderer
 					align={ align }
 					columns={ columns }
+					gutter={ gutter }
 					images={ images }
 					layoutStyle={ layoutStyle }
 					renderedImages={ renderedImages }

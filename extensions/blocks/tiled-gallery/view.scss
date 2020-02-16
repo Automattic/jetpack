@@ -2,7 +2,9 @@
 @import './variables.scss';
 @import './css-gram.scss';
 
+// Fixed in JS, see `constants.js`
 $tiled-gallery-max-column-count: 20;
+$tiled-gallery-max-gutter: 50;
 
 .wp-block-jetpack-tiled-gallery {
 	margin: 0 auto $jetpack-block-margin-bottom;
@@ -20,7 +22,8 @@ $tiled-gallery-max-column-count: 20;
 			@for $cols from 1 through $tiled-gallery-max-column-count {
 				&.columns-#{$cols} {
 					.tiled-gallery__col {
-						width: calc( ( 100% - #{ $tiled-gallery-gutter * ( $cols - 1 ) } ) / #{$cols} );
+						// Note: Square and Circle layouts don't support custom gutter size
+						width: calc( ( 100% - #{ $tiled-gallery-default-gutter * ( $cols - 1 ) } ) / #{$cols} );
 					}
 				}
 			}
@@ -49,9 +52,12 @@ $tiled-gallery-max-column-count: 20;
 	justify-content: center;
 	margin: 0;
 
+	// See also tiled-gallery.php render method if you modify this
+	/*
 	& + & {
-		margin-top: $tiled-gallery-gutter;
+		margin-top: $tiled-gallery-default-gutter;
 	}
+	*/
 }
 
 .tiled-gallery__col {
@@ -60,9 +66,12 @@ $tiled-gallery-max-column-count: 20;
 	justify-content: center;
 	margin: 0;
 
+	// See also tiled-gallery.php render method if you modify this
+	/*
 	& + & {
-		margin-left: $tiled-gallery-gutter;
+		margin-left: $tiled-gallery-default-gutter;
 	}
+	*/
 }
 
 .tiled-gallery__item {
@@ -92,9 +101,12 @@ $tiled-gallery-max-column-count: 20;
 		@include gingham;
 	}
 
+	// See also tiled-gallery.php render method if you modify this
+	/*
 	& + & {
-		margin-top: $tiled-gallery-gutter;
+		margin-top: $tiled-gallery-default-gutter;
 	}
+	*/
 
 	> img {
 		background-color: rgba( 0, 0, 0, 0.1 );
@@ -112,4 +124,14 @@ $tiled-gallery-max-column-count: 20;
 		padding: 0;
 		width: 100%;
 	}
+}
+
+// See also editor.scss for more custom gutter logic
+.tiled-gallery__item + .tiled-gallery__item,
+.tiled-gallery__row + .tiled-gallery__row {
+	margin-top: $tiled-gallery-default-gutter;
+}
+
+.tiled-gallery__col + .tiled-gallery__col {
+	margin-left: $tiled-gallery-default-gutter;
 }

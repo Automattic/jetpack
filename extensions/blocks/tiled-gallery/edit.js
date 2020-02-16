@@ -27,7 +27,7 @@ import {
  */
 import FilterToolbar from './filter-toolbar';
 import Layout from './layout';
-import { ALLOWED_MEDIA_TYPES, LAYOUT_STYLES, MAX_COLUMNS } from './constants';
+import { ALLOWED_MEDIA_TYPES, LAYOUT_STYLES, MAX_COLUMNS, MAX_GUTTER } from './constants';
 import { getActiveStyleName } from '../../shared/block-styles';
 import { icon } from '.';
 import EditButton from '../../shared/edit-button';
@@ -41,6 +41,10 @@ const linkOptions = [
 // @TODO keep here or move to ./layout ?
 function layoutSupportsColumns( layout ) {
 	return [ 'columns', 'circle', 'square' ].includes( layout );
+}
+
+function layoutSupportsGutter( layout ) {
+	return [ 'columns', 'rectangular' ].includes( layout );
 }
 
 export function defaultColumnsNumber( attributes ) {
@@ -130,6 +134,8 @@ class TiledGalleryEdit extends Component {
 
 	setColumnsNumber = value => this.setAttributes( { columns: value } );
 
+	setGutter = value => this.setAttributes( { gutter: value } );
+
 	setImageAttributes = index => attributes => {
 		const {
 			attributes: { images },
@@ -163,6 +169,7 @@ class TiledGalleryEdit extends Component {
 		const {
 			align,
 			columns = defaultColumnsNumber( attributes ),
+			gutter,
 			imageFilter,
 			images,
 			linkTo,
@@ -236,6 +243,15 @@ class TiledGalleryEdit extends Component {
 								max={ Math.min( MAX_COLUMNS, images.length ) }
 							/>
 						) }
+						{ layoutSupportsGutter( layoutStyle ) && images.length > 1 && (
+							<RangeControl
+								label={ __( 'Gutter', 'jetpack' ) }
+								value={ gutter }
+								onChange={ this.setGutter }
+								min={ 0 }
+								max={ MAX_GUTTER }
+							/>
+						) }
 						<SelectControl
 							label={ __( 'Link To', 'jetpack' ) }
 							value={ linkTo }
@@ -251,6 +267,7 @@ class TiledGalleryEdit extends Component {
 					align={ align }
 					className={ className }
 					columns={ columns }
+					gutter={ gutter }
 					imageFilter={ imageFilter }
 					images={ images }
 					layoutStyle={ layoutStyle }
