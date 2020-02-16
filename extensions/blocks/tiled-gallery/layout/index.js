@@ -70,13 +70,13 @@ export default class Layout extends Component {
 		const { align, children, className, columns, images, layoutStyle, roundedCorners } = this.props;
 		const LayoutRenderer = isSquareishLayout( layoutStyle ) ? Square : Mosaic;
 		const renderedImages = this.props.images.map( this.renderImage, this );
-		const rounderCornersValue =
+		const roundedCornersValue =
 			layoutStyle !== LAYOUT_CIRCLE ? Math.min( roundedCorners, MAX_ROUNDED_CORNERS ) : 0;
 
 		return (
 			<div
 				className={ classnames( className, {
-					[ `has-rounded-corners-${ rounderCornersValue }` ]: rounderCornersValue > 0,
+					[ `has-rounded-corners-${ roundedCornersValue }` ]: roundedCornersValue > 0,
 				} ) }
 			>
 				<LayoutRenderer
