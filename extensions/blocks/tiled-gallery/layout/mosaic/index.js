@@ -12,6 +12,7 @@ import Gallery from '../gallery';
 import Row from '../row';
 import { getGalleryRows, handleRowResize } from './resize';
 import { imagesToRatios, ratiosToColumns, ratiosToMosaicRows } from './ratios';
+import { LAYOUT_COLUMN, LAYOUT_STACKED } from '../../constants';
 
 export default class Mosaic extends Component {
 	gallery = createRef();
@@ -29,7 +30,10 @@ export default class Mosaic extends Component {
 	componentDidUpdate( prevProps ) {
 		if ( prevProps.images !== this.props.images || prevProps.align !== this.props.align ) {
 			this.triggerResize();
-		} else if ( 'columns' === this.props.layoutStyle && prevProps.columns !== this.props.columns ) {
+		} else if (
+			LAYOUT_COLUMN === this.props.layoutStyle &&
+			prevProps.columns !== this.props.columns
+		) {
 			this.triggerResize();
 		}
 	}
@@ -86,9 +90,9 @@ export default class Mosaic extends Component {
 	render() {
 		const { align, columns, images, layoutStyle, renderedImages, columnWidths } = this.props;
 
-		const columnsToRender = 'stacked' === layoutStyle ? 1 : columns;
+		const columnsToRender = LAYOUT_STACKED === layoutStyle ? 1 : columns;
 		const ratios = imagesToRatios( images );
-		const rows = [ 'columns', 'stacked' ].includes( layoutStyle )
+		const rows = [ LAYOUT_COLUMN, LAYOUT_STACKED ].includes( layoutStyle )
 			? ratiosToColumns( ratios, columnsToRender )
 			: ratiosToMosaicRows( ratios, { isWide: [ 'full', 'wide' ].includes( align ) } );
 
