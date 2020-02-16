@@ -115,7 +115,7 @@ class Jetpack_Gutenberg {
 	public static function is_block_version_gated( $core_wp_version, $plugin_version ) {
 		global $wp_version;
 
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM && ! jetpack_is_atomic_site() ) {
 			return false;
 		}
 
