@@ -95,6 +95,11 @@ const blockAttributes = {
 				selector: 'img',
 				source: 'attribute',
 			},
+			customLink: {
+				attribute: 'data-custom-link',
+				selector: 'img',
+				source: 'attribute',
+			},
 			height: {
 				attribute: 'data-height',
 				selector: 'img',

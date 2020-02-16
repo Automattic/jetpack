@@ -113,6 +113,19 @@ class TiledGalleryEdit extends Component {
 		} );
 	};
 
+	onChangeCustomLink = ( index, customLink ) => () => {
+		const images = this.props.attributes.images.map( ( img, i ) => {
+			if ( index === i ) {
+				return {
+					...img,
+					customLink,
+				};
+			}
+			return img;
+		} );
+		this.setAttributes( { images } );
+	};
+
 	onSelectImage = index => () => {
 		if ( this.state.selectedImage !== index ) {
 			this.setState( {
@@ -256,6 +269,7 @@ class TiledGalleryEdit extends Component {
 					images={ images }
 					layoutStyle={ layoutStyle }
 					linkTo={ linkTo }
+					onChangeCustomLink={ this.onChangeCustomLink }
 					onRemoveImage={ this.onRemoveImage }
 					onSelectImage={ this.onSelectImage }
 					selectedImage={ isSelected ? selectedImage : null }

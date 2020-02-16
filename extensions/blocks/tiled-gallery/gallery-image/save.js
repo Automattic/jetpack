@@ -5,7 +5,7 @@ import classnames from 'classnames';
 import { isBlobURL } from '@wordpress/blob';
 
 export default function GalleryImageSave( props ) {
-	const { alt, imageFilter, height, id, link, linkTo, origUrl, url, width } = props;
+	const { alt, customLink, imageFilter, height, id, link, linkTo, origUrl, url, width } = props;
 
 	if ( isBlobURL( origUrl ) ) {
 		return null;
@@ -20,11 +20,15 @@ export default function GalleryImageSave( props ) {
 		case 'attachment':
 			href = link;
 			break;
+		case 'custom':
+			href = customLink;
+			break;
 	}
 
 	const img = (
 		<img
 			alt={ alt }
+			data-custom-link={ customLink }
 			data-height={ height }
 			data-id={ id }
 			data-link={ link }

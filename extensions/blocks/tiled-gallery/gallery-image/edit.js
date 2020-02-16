@@ -29,13 +29,16 @@ class GalleryImageEdit extends Component {
 	};
 
 	componentDidUpdate() {
-		const { alt, height, image, link, url, width } = this.props;
+		const { alt, customLink, height, image, link, url, width } = this.props;
 
 		if ( image ) {
 			const nextAtts = {};
 
 			if ( ! alt && image.alt_text ) {
 				nextAtts.alt = image.alt_text;
+			}
+			if ( ! customLink && image.customLink ) {
+				nextAtts.customLink = image.customLink;
 			}
 			if ( ! height && image.media_details && image.media_details.height ) {
 				nextAtts.height = +image.media_details.height;
@@ -67,9 +70,11 @@ class GalleryImageEdit extends Component {
 			link,
 			linkTo,
 			onRemove,
+			onCustomLinkChange,
 			origUrl,
 			srcSet,
 			url,
+			customLink,
 			width,
 		} = this.props;
 
@@ -81,6 +86,9 @@ class GalleryImageEdit extends Component {
 				break;
 			case 'attachment':
 				href = link;
+				break;
+			case 'custom':
+				href = customLink;
 				break;
 		}
 
@@ -129,6 +137,11 @@ class GalleryImageEdit extends Component {
 							className="tiled-gallery__item__remove"
 							label={ __( 'Remove Image', 'jetpack' ) }
 						/>
+					</div>
+				) }
+				{ isSelected && linkTo === 'custom' && (
+					<div className="tiled-gallery__item__inline-menu">
+						<input onKeyPress={ onCustomLinkChange } type="url" value={ customLink } />
 					</div>
 				) }
 				{ /* Keep the <a> HTML structure, but ensure there is no navigation from edit */

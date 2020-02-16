@@ -24,8 +24,9 @@ export default class Layout extends Component {
 			imageFilter,
 			images,
 			isSave,
-			linkTo,
 			layoutStyle,
+			linkTo,
+			onChangeCustomLink,
 			onRemoveImage,
 			onSelectImage,
 			selectedImage,
@@ -53,6 +54,7 @@ export default class Layout extends Component {
 				key={ i }
 				link={ img.link }
 				linkTo={ linkTo }
+				onChangeCustomLink={ isSave ? undefined : onChangeCustomLink( i ) }
 				onRemove={ isSave ? undefined : onRemoveImage( i ) }
 				onSelect={ isSave ? undefined : onSelectImage( i ) }
 				origUrl={ img.url }
