@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { createBlock } from '@wordpress/blocks';
 
 /**
@@ -18,7 +18,10 @@ export const title = __( 'Google Calendar', 'jetpack' );
 export const settings = {
 	title,
 	description: __( 'Embed a Google Calendar', 'jetpack' ),
-	keywords: [ __( 'calendar', 'jetpack' ), __( 'events', 'jetpack' ), __( 'dates', 'jetpack' ) ],
+	keywords: [
+		_x( 'events', 'block search term', 'jetpack' ),
+		_x( 'dates', 'block search term', 'jetpack' ),
+	],
 	icon,
 	category: 'jetpack',
 	supports: {

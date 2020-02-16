@@ -153,15 +153,15 @@ class GoogleCalendarEdit extends Component {
 							)
 						}
 					>
-						<p>
-							{ __( 'Step 1)', 'jetpack' ) } { permissionsLink }
-						</p>
-						<p>
-							{ __(
-								'Step 2) Paste the embed code you copied from your Google Calendar below',
-								'jetpack'
-							) }
-						</p>
+						<ol className={ `${ className }-placeholder-instructions` }>
+							<li>{ permissionsLink }</li>
+							<li>
+								{ __(
+									'Paste the embed code you copied from your Google Calendar below',
+									'jetpack'
+								) }
+							</li>
+						</ol>
 						{ this.getEditForm( `${ className }-embed-form-editor`, editedEmbed ) }
 						<div className={ `${ className }-placeholder-links` }>
 							<ExternalLink href={ supportLink }>{ __( 'Learn more', 'jetpack' ) }</ExternalLink>
