@@ -102,6 +102,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
+* Block Editor: avoid errors when uploading additional media to the Slideshow, Tiled Gallery, and Video blocks.
 * Synchronization: address issues that would cause delayed synchronization of your posts to WordPress.com.
 
 = 8.2 =
