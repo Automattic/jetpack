@@ -9,11 +9,12 @@ import { h, Component, Fragment } from 'preact';
 /**
  * Internal dependencies
  */
-import SearchResult from './search-result';
+import Gridicon from './gridicon';
+import Notice from './notice';
 import ScrollButton from './scroll-button';
 import SearchForm from './search-form';
+import SearchResult from './search-result';
 import SearchSidebar from './search-sidebar';
-import Notice from './notice';
 
 class SearchResults extends Component {
 	getSearchTitle() {
@@ -141,6 +142,14 @@ class SearchResults extends Component {
 		);
 	}
 
+	closeOverlay = event => {
+		event.preventDefault();
+	};
+
+	onKeyPressHandler = event => {
+		event.preventDefault();
+	};
+
 	render() {
 		return (
 			<main
@@ -150,6 +159,15 @@ class SearchResults extends Component {
 					this.props.isLoading === true ? ' jetpack-instant-search__is-loading' : ''
 				}` }
 			>
+				<div
+					className="jetpack-instant-search__overlay-close"
+					onClick={ this.closeOverlay }
+					onKeyPress={ this.onKeyPressHandler }
+					role="button"
+					tabIndex="0"
+				>
+					<Gridicon icon="cross" size="24" />
+				</div>
 				<div className="jetpack-instant-search__search-results-primary">
 					{ this.renderPrimarySection() }
 				</div>
