@@ -18,6 +18,10 @@
 		mark {
 			background-color: #ffc;
 		}
+
+		.jetpack-instant-search__overlay-close svg {
+			fill: #000;
+		}
 	}
 
 	.jetpack-instant-search__overlay--dark & {
@@ -25,6 +29,10 @@
 
 		mark {
 			background-color: #324E85;
+		}
+
+		.jetpack-instant-search__overlay-close svg {
+			fill: #fff;
 		}
 	}
 
