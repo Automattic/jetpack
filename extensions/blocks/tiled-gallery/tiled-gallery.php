@@ -18,7 +18,6 @@ class Jetpack_Tiled_Gallery_Block {
 	const IMG_SRCSET_WIDTH_MAX  = 2000;
 	const IMG_SRCSET_WIDTH_MIN  = 600;
 	const IMG_SRCSET_WIDTH_STEP = 300;
-	const DEFAULT_COLUMNS       = 3;
 
 	/**
 	 * Register the block
