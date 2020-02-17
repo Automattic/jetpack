@@ -85,13 +85,13 @@ const SearchBox = props => {
 					</div>
 					<div className="jetpack-instant-search__box-filter-order">
 						<a class="jetpack-instant-search__box-filter-option is-selected" href="#">
-							Relevance
+							{ __( 'Relevance', 'jetpack' ) }
 						</a>
 						<a class="jetpack-instant-search__box-filter-option" href="#">
-							Newest
+							{ __( 'Newest', 'jetpack' ) }
 						</a>
 						<a class="jetpack-instant-search__box-filter-option" href="#">
-							Oldest
+							{ __( 'Oldest', 'jetpack' ) }
 						</a>
 					</div>
 				</div>
