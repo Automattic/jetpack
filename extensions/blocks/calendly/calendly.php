@@ -112,6 +112,7 @@ function load_assets( $attr, $content ) {
 	$submit_button_text_color       = get_attribute( $attr, 'customTextButtonColor' );
 	$submit_button_background_color = get_attribute( $attr, 'customBackgroundButtonColor' );
 	$classes                        = \Jetpack_Gutenberg::block_classes( 'calendly', $attr, array( 'calendly-style-' . $style ) );
+	$is_amp_request                 = class_exists( 'Jetpack_AMP_Support' ) && \Jetpack_AMP_Support::is_amp_request();
 	$block_id                       = wp_unique_id( 'calendly-block-' );
 
 	$url = add_query_arg(
@@ -146,8 +147,11 @@ function load_assets( $attr, $content ) {
 			wp_add_inline_style( 'jetpack-calendly-external-css', $inline_styles );
 		}
 
+		$markup  = $is_amp_request
+			? '<div class="%1$s" id="%2$s"><a class="%3$s" role="button" href="%3$s">%4$s</a></div>'
+			: '<div class="%1$s" id="%2$s"><a class="%3$s" role="button" onclick="Calendly.initPopupWidget({url:\'%3$s\'});return false;">%4$s</a></div>';
 		$content = sprintf(
-			'<div class="wp-block-button %1$s" id="%2$s"><a class="%3$s" role="button" onclick="Calendly.initPopupWidget({url:\'%4$s\'});return false;">%5$s</a></div>',
+			$markup,
 			esc_attr( $classes ),
 			esc_attr( $block_id ),
 			! empty( $submit_button_classes ) ? esc_attr( $submit_button_classes ) : 'wp-block-button__link',
