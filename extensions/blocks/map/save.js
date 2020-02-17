@@ -37,7 +37,7 @@ class MapSave extends Component {
 				data-zoom={ zoom }
 				data-map-center={ JSON.stringify( mapCenter ) }
 				data-marker-color={ markerColor }
-				data-scroll-to-zoom={ scrollToZoom ? scrollToZoom : null }
+				data-scroll-to-zoom={ scrollToZoom || null }
 			>
 				{ points.length > 0 && <ul>{ pointsList }</ul> }
 			</div>
