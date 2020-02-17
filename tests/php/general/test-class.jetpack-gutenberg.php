@@ -150,13 +150,19 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 		$this->assertNotContains( 'onion', $extensions );
 	}
 
-	function test_block_version_gated_if_core_wp_version_less_than_minimum() {
-		$version_gated = Jetpack_Gutenberg::is_block_version_gated( '999999', '999999');
-		$this->assertEquals( true, $version_gated );
+	function test_returns_false_if_core_wp_version_less_than_minimum() {
+		$version_gated = Jetpack_Gutenberg::is_editor_version_available(
+			array( 'wp' => '999999', 'plugin' => '999999' ),
+			'gated_block'
+		);
+		$this->assertEquals( false, $version_gated );
 	}
 
-	function test_block_not_version_gated_if_core_wp_version_greater_than_minimum() {
-		$version_gated = Jetpack_Gutenberg::is_block_version_gated( '0', '999999');
-		$this->assertEquals( false, $version_gated );
+	function test_returns_true_if_core_wp_version_greater_or_equal_to_minimum() {
+		$version_gated = Jetpack_Gutenberg::is_editor_version_available(
+			array( 'wp' => '0', 'plugin' => '999999' ),
+			'ungated_block'
+		);
+		$this->assertEquals( true, $version_gated );
 	}
 }
