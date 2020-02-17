@@ -108,7 +108,6 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 				'enableInfScroll' => (bool) get_option( $prefix . 'inf_scroll', false ),
 				'highlightColor'  => get_option( $prefix . 'highlight_color', '#FFC' ),
 				'opacity'         => (int) get_option( $prefix . 'opacity', 97 ),
-				'showLogo'        => (bool) get_option( $prefix . 'show_logo', true ),
 				'showPoweredBy'   => (bool) get_option( $prefix . 'show_powered_by', true ),
 			),
 
