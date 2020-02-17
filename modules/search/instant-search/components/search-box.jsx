@@ -3,7 +3,7 @@
 /**
  * External dependencies
  */
-import { h } from 'preact';
+import { h, Fragment } from 'preact';
 import { useState, useEffect, useRef } from 'preact/hooks';
 import { __ } from '@wordpress/i18n';
 // eslint-disable-next-line lodash/import-scope
@@ -39,44 +39,64 @@ const SearchBox = props => {
 	}, [] );
 
 	return (
-		<div className="jetpack-instant-search__box">
-			{ /* TODO: Add support for preserving label text */ }
-			<label htmlFor={ inputId } className="screen-reader-text">
-				{ __( 'Site Search', 'jetpack' ) }
-			</label>
-			{ props.showLogo && (
-				<div className="jetpack-instant-search__box-gridicon">
-					<Gridicon icon="jetpack-search" size={ 28 } />
-				</div>
-			) }
-			<input
-				id={ inputId }
-				className="search-field jetpack-instant-search__box-input"
-				onInput={ props.onChangeQuery }
-				ref={ inputRef }
-				placeholder={ __( 'Search…', 'jetpack' ) }
-				type="search"
-				value={ props.query }
-			/>
+		<Fragment>
+			<div className="jetpack-instant-search__box">
+				{ /* TODO: Add support for preserving label text */ }
+				<label htmlFor={ inputId } className="screen-reader-text">
+					{ __( 'Site Search', 'jetpack' ) }
+				</label>
+				{ props.showLogo && (
+					<div className="jetpack-instant-search__box-gridicon">
+						<Gridicon icon="jetpack-search" size={ 28 } />
+					</div>
+				) }
+				<input
+					id={ inputId }
+					className="search-field jetpack-instant-search__box-input"
+					onInput={ props.onChangeQuery }
+					ref={ inputRef }
+					placeholder={ __( 'Search…', 'jetpack' ) }
+					type="search"
+					value={ props.query }
+				/>
+				<button className="screen-reader-text">{ __( 'Search', 'jetpack' ) }</button>
+			</div>
 			{ props.enableFilters && ! props.widget && (
-				/* Using role='button' rather than button element so we retain control over styling */
-				<div
-					role="button"
-					onClick={ props.toggleFilters }
-					onKeyDown={ props.toggleFilters }
-					tabIndex="0"
-					className="jetpack-instant-search__box-filter-icon"
-				>
-					<Gridicon icon="filter" alt="Search filter icon" aria-hidden="true" />
-					<span class="screen-reader-text">
-						{ props.showFilters
-							? __( 'Hide filters', 'jetpack' )
-							: __( 'Show filters', 'jetpack' ) }
-					</span>
+				<div className="jetpack-instant-search__box-filter-area">
+					<div
+						role="button"
+						onClick={ props.toggleFilters }
+						onKeyDown={ props.toggleFilters }
+						tabIndex="0"
+						className="jetpack-instant-search__box-filter-button"
+					>
+						{ __( 'Filters', 'jetpack' ) }
+						<Gridicon
+							icon="chevron-down"
+							size={ 16 }
+							alt="Show search filters"
+							aria-hidden="true"
+						/>
+						<span class="screen-reader-text">
+							{ props.showFilters
+								? __( 'Hide filters', 'jetpack' )
+								: __( 'Show filters', 'jetpack' ) }
+						</span>
+					</div>
+					<div className="jetpack-instant-search__box-filter-order">
+						<a class="jetpack-instant-search__box-filter-option is-selected" href="#">
+							Relevance
+						</a>
+						<a class="jetpack-instant-search__box-filter-option" href="#">
+							Newest
+						</a>
+						<a class="jetpack-instant-search__box-filter-option" href="#">
+							Oldest
+						</a>
+					</div>
 				</div>
 			) }
-			<button className="screen-reader-text">{ __( 'Search', 'jetpack' ) }</button>
-		</div>
+		</Fragment>
 	);
 };
 
