@@ -16,6 +16,9 @@ import {
 	ToggleControl,
 	Toolbar,
 	withNotices,
+	ResizableBox,
+	RangeControl,
+	BaseControl,
 } from '@wordpress/components';
 import {
 	BlockAlignmentToolbar,
@@ -33,10 +36,23 @@ import Map from './component.js';
 import MapThemePicker from './map-theme-picker';
 import { settings } from './settings.js';
 import previewPlaceholder from './map-preview.jpg';
+import { compose } from '@wordpress/compose';
+import { withDispatch } from '@wordpress/data';
 
 const API_STATE_LOADING = 0;
 const API_STATE_FAILURE = 1;
 const API_STATE_SUCCESS = 2;
+
+const RESIZABLE_BOX_ENABLE_OPTION = {
+	top: false,
+	right: false,
+	bottom: true,
+	left: false,
+	topRight: false,
+	bottomRight: false,
+	bottomLeft: false,
+	topLeft: false,
+};
 
 class MapEdit extends Component {
 	constructor() {
@@ -124,7 +140,17 @@ class MapEdit extends Component {
 		noticeOperations.createErrorNotice( message );
 	};
 	render() {
-		const { className, setAttributes, attributes, noticeUI, notices, isSelected } = this.props;
+		const {
+			className,
+			setAttributes,
+			attributes,
+			noticeUI,
+			notices,
+			isSelected,
+			instanceId,
+			onResizeStart,
+			onResizeStop,
+		} = this.props;
 		const {
 			mapStyle,
 			mapDetails,
@@ -135,6 +161,7 @@ class MapEdit extends Component {
 			align,
 			preview,
 			scrollToZoom,
+			mapHeight,
 		} = attributes;
 		const {
 			addPointVisibility,
@@ -185,6 +212,51 @@ class MapEdit extends Component {
 						] }
 					/>
 					<PanelBody title={ __( 'Map Settings', 'jetpack' ) }>
+						<BaseControl
+							label={ __( 'Height in pixels' ) }
+							id={ `block-jetpack-map-height-input-${ instanceId }` }
+						>
+							<input
+								type="number"
+								id={ `block-jetpack-map-height-input-${ instanceId }` }
+								onChange={ event => {
+									let height = parseInt( event.target.value, 10 );
+									if ( isNaN( height ) ) {
+										// Set map height to default size and input box to empty string
+										height = null;
+									} else if ( height < 400 ) {
+										// Set map height to minimum size
+										height = 400;
+									}
+									setAttributes( {
+										mapHeight: height,
+									} );
+									setTimeout( this.mapRef.current.sizeMap, 0 );
+								} }
+								value={ mapHeight || '' }
+								min="400"
+								step="10"
+							/>
+						</BaseControl>
+						<RangeControl
+							label={ __( 'Zoom level', 'jetpack' ) }
+							help={
+								points.length > 1
+									? __(
+											'The default zoom level cannot be changed when there are two or more markers on the map.',
+											'jetpack'
+									  )
+									: ''
+							}
+							disabled={ points.length > 1 }
+							value={ zoom }
+							onChange={ value => {
+								setAttributes( { zoom: value } );
+								setTimeout( this.mapRef.current.updateZoom, 0 );
+							} }
+							min={ 0 }
+							max={ 22 }
+						/>
 						<ToggleControl
 							label={ __( 'Scroll to zoom', 'jetpack' ) }
 							help={ __( 'Allow the map to capture scrolling, and zoom in or out.', 'jetpack' ) }
@@ -271,40 +343,65 @@ class MapEdit extends Component {
 				</Fragment>
 			</Placeholder>
 		);
+		// Only scroll to zoom when the block is selected, and there's 1 or less points.
+		const allowScrollToZoom = isSelected && points.length <= 1;
 		const placeholderAPIStateSuccess = (
 			<Fragment>
 				{ inspectorControls }
 				<div className={ className }>
-					<Map
-						ref={ this.mapRef }
-						scrollToZoom={ isSelected } // Only scroll to zoom when the block is selected.
-						mapStyle={ mapStyle }
-						mapDetails={ mapDetails }
-						points={ points }
-						zoom={ zoom }
-						mapCenter={ mapCenter }
-						markerColor={ markerColor }
-						onSetZoom={ value => {
-							setAttributes( { zoom: value } );
+					<ResizableBox
+						size={ {
+							height: mapHeight || 'auto',
+							width: '100%',
 						} }
-						admin={ true }
-						apiKey={ apiKey }
-						onSetPoints={ value => setAttributes( { points: value } ) }
-						onSetMapCenter={ value => setAttributes( { mapCenter: value } ) }
-						onMapLoaded={ () => this.setState( { addPointVisibility: ! points.length } ) }
-						onMarkerClick={ () => this.setState( { addPointVisibility: false } ) }
-						onError={ this.onError }
+						showHandle={ isSelected }
+						minHeight="400"
+						enable={ RESIZABLE_BOX_ENABLE_OPTION }
+						onResizeStart={ onResizeStart }
+						onResizeStop={ ( event, direction, elt, delta ) => {
+							onResizeStop();
+							const height = parseInt(
+								this.mapRef.current.mapRef.current.offsetHeight + delta.height,
+								10
+							);
+							setAttributes( {
+								mapHeight: height,
+							} );
+							setTimeout( this.mapRef.current.sizeMap, 0 );
+						} }
 					>
-						{ isSelected && addPointVisibility && (
-							<AddPoint
-								onAddPoint={ this.addPoint }
-								onClose={ () => this.setState( { addPointVisibility: false } ) }
-								apiKey={ apiKey }
-								onError={ this.onError }
-								tagName="AddPoint"
-							/>
-						) }
-					</Map>
+						<Map
+							ref={ this.mapRef }
+							scrollToZoom={ allowScrollToZoom }
+							mapStyle={ mapStyle }
+							mapDetails={ mapDetails }
+							mapHeight={ mapHeight }
+							points={ points }
+							zoom={ zoom }
+							mapCenter={ mapCenter }
+							markerColor={ markerColor }
+							onSetZoom={ value => {
+								setAttributes( { zoom: value } );
+							} }
+							admin={ true }
+							apiKey={ apiKey }
+							onSetPoints={ value => setAttributes( { points: value } ) }
+							onSetMapCenter={ value => setAttributes( { mapCenter: value } ) }
+							onMapLoaded={ () => this.setState( { addPointVisibility: ! points.length } ) }
+							onMarkerClick={ () => this.setState( { addPointVisibility: false } ) }
+							onError={ this.onError }
+						>
+							{ isSelected && addPointVisibility && (
+								<AddPoint
+									onAddPoint={ this.addPoint }
+									onClose={ () => this.setState( { addPointVisibility: false } ) }
+									apiKey={ apiKey }
+									onError={ this.onError }
+									tagName="AddPoint"
+								/>
+							) }
+						</Map>
+					</ResizableBox>
 				</div>
 			</Fragment>
 		);
@@ -325,4 +422,14 @@ class MapEdit extends Component {
 	}
 }
 
-export default withNotices( MapEdit );
+export default compose( [
+	withNotices,
+	withDispatch( dispatch => {
+		const { toggleSelection } = dispatch( 'core/block-editor' );
+
+		return {
+			onResizeStart: () => toggleSelection( false ),
+			onResizeStop: () => toggleSelection( true ),
+		};
+	} ),
+] )( MapEdit );

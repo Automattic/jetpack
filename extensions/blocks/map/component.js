@@ -177,17 +177,29 @@ export class Map extends Component {
 	};
 	// Various map functions
 	sizeMap = () => {
+		const { mapHeight } = this.props;
 		const { map } = this.state;
 		const mapEl = this.mapRef.current;
-		const blockWidth = mapEl.offsetWidth;
-		const maxHeight =
-			window.location.search.indexOf( 'map-block-counter' ) > -1
-				? window.innerHeight
-				: window.innerHeight * 0.8;
-		const blockHeight = Math.min( blockWidth * ( 3 / 4 ), maxHeight );
-		mapEl.style.height = blockHeight + 'px';
+		if ( mapHeight ) {
+			mapEl.style.height = mapHeight + 'px';
+		} else {
+			const blockWidth = mapEl.offsetWidth;
+			const maxHeight =
+				window.location.search.indexOf( 'map-block-counter' ) > -1
+					? window.innerHeight
+					: window.innerHeight * 0.8;
+			const blockHeight = Math.min( blockWidth * ( 3 / 4 ), maxHeight );
+			mapEl.style.height = blockHeight + 'px';
+		}
 		map.resize();
 		this.setBoundsByMarkers();
+	};
+	updateZoom = () => {
+		const { zoom } = this.props;
+		const { map } = this.state;
+
+		map.setZoom( zoom );
+		map.updateZoom( zoom );
 	};
 	setBoundsByMarkers = () => {
 		const { admin, onSetMapCenter, onSetZoom, points, zoom } = this.props;
