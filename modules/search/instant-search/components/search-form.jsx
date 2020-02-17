@@ -49,7 +49,7 @@ class SearchForm extends Component {
 	render() {
 		return (
 			<form onSubmit={ noop } role="search" className={ this.props.className }>
-				<div className="search-form jetpack-instant-search__search-form">
+				<div className="jetpack-instant-search__search-form">
 					<SearchBox
 						enableFilters
 						onChangeQuery={ this.onChangeQuery }
