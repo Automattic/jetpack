@@ -9,14 +9,9 @@ import { useEffect } from 'preact/hooks';
 /**
  * Internal dependencies
  */
-import Gridicon from './gridicon';
 
 const closeOnEscapeKey = callback => event => {
 	event.key === 'Escape' && callback();
-};
-
-const onKeyPressHandler = event => {
-	event.preventDefault();
 };
 
 const Overlay = ( { children, closeOverlay, colorTheme, isVisible, opacity } ) => {
@@ -37,15 +32,6 @@ const Overlay = ( { children, closeOverlay, colorTheme, isVisible, opacity } ) =
 			].join( ' ' ) }
 			style={ { opacity: opacity / 100 } }
 		>
-			<div
-				className="jetpack-instant-search__overlay-close"
-				onClick={ closeOverlay }
-				onKeyPress={ onKeyPressHandler }
-				role="button"
-				tabIndex="0"
-			>
-				<Gridicon icon="cross" size="24" />
-			</div>
 			{ children }
 		</div>
 	);
