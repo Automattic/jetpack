@@ -134,6 +134,32 @@ class TiledGalleryEdit extends Component {
 		} );
 	};
 
+	onMove = ( oldIndex, newIndex ) => {
+		const images = [ ...this.props.attributes.images ];
+		images.splice( newIndex, 1, this.props.attributes.images[ oldIndex ] );
+		images.splice( oldIndex, 1, this.props.attributes.images[ newIndex ] );
+		this.setState( { selectedImage: newIndex } );
+		this.setAttributes( { images } );
+	};
+
+	onMoveForward = oldIndex => {
+		return () => {
+			if ( oldIndex === this.props.attributes.images.length - 1 ) {
+				return;
+			}
+			this.onMove( oldIndex, oldIndex + 1 );
+		};
+	};
+
+	onMoveBackward = oldIndex => {
+		return () => {
+			if ( oldIndex === 0 ) {
+				return;
+			}
+			this.onMove( oldIndex, oldIndex - 1 );
+		};
+	};
+
 	setColumnsNumber = value => this.setAttributes( { columns: value } );
 
 	setRoundedCorners = value => this.setAttributes( { roundedCorners: value } );
@@ -273,9 +299,11 @@ class TiledGalleryEdit extends Component {
 					images={ images }
 					layoutStyle={ layoutStyle }
 					linkTo={ linkTo }
-					roundedCorners={ roundedCorners }
+					onMoveBackward={ this.onMoveBackward }
+					onMoveForward={ this.onMoveForward }
 					onRemoveImage={ this.onRemoveImage }
 					onSelectImage={ this.onSelectImage }
+					roundedCorners={ roundedCorners }
 					selectedImage={ isSelected ? selectedImage : null }
 					setImageAttributes={ this.setImageAttributes }
 				>

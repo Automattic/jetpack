@@ -344,6 +344,7 @@ class JITM {
 		?>
 		<div class="jetpack-jitm-message"
 			data-nonce="<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ); ?>"
+			data-ajax-nonce="<?php echo esc_attr( wp_create_nonce( 'wp_ajax_action' ) ); ?>"
 			data-message-path="<?php echo esc_attr( $message_path ); ?>"
 			data-query="<?php echo urlencode_deep( $query_string ); ?>"
 			data-redirect="<?php echo urlencode_deep( $current_screen ); ?>"
