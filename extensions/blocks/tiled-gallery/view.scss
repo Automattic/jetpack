@@ -1,7 +1,6 @@
 @import '../../shared/styles/jetpack-variables.scss';
 @import './variables.scss';
 @import './css-gram.scss';
-@import '../../shared/styles/gutenberg-base-styles.scss';
 
 @mixin tiled-gallery-squareish-layout-col-width($gutter, $cols){
 	width: calc( ( 100% - #{ $gutter * ( $cols - 1 ) } ) / #{$cols} );
@@ -38,18 +37,6 @@
 						&.columns-#{$cols} {
 							.tiled-gallery__col {
 								@include tiled-gallery-squareish-layout-col-width($gutter-px, $cols);
-							}
-						}
-					}
-
-					@if $gutter-px > 0 {
-						// For small screens we shrink gutters half
-						// If you change `small` break to something else, change it also from `extensions/blocks/tiled-gallery/layout/index.js`
-						@media (max-width: #{ ($break-small) }) {
-							&.columns-#{$cols} {
-								.tiled-gallery__col {
-									@include tiled-gallery-squareish-layout-col-width($gutter-px/2, $cols);
-								}
 							}
 						}
 					}
@@ -154,21 +141,6 @@
 
 		.has-gutter-#{$gutter-size} .tiled-gallery__col + .tiled-gallery__col {
 			margin-left: #{$gutter-px};
-		}
-	}
-
-	@if $gutter-px > 0 {
-		// For small screens we shrink gutters half
-		// If you change `small` break to something else, change it also from `extensions/blocks/tiled-gallery/layout/index.js`
-		@media (max-width: #{ ($break-small) }) {
-			.has-gutter-#{$gutter-size} .tiled-gallery__item + .tiled-gallery__item,
-			.has-gutter-#{$gutter-size} .tiled-gallery__row + .tiled-gallery__row {
-				margin-top: #{$gutter-px/2};
-			}
-
-			.has-gutter-#{$gutter-size} .tiled-gallery__col + .tiled-gallery__col {
-				margin-left: #{$gutter-px/2};
-			}
 		}
 	}
 }

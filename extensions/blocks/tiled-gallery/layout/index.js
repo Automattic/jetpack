@@ -3,7 +3,6 @@
  */
 import { __, sprintf } from '@wordpress/i18n';
 import { Component } from '@wordpress/element';
-import { withViewportMatch } from '@wordpress/viewport';
 import classnames from 'classnames';
 
 /**
@@ -16,7 +15,7 @@ import Square from './square';
 import { isSquareishLayout, photonizedImgProps } from '../utils';
 import { DEFAULT_GUTTER, GUTTERS } from '../constants';
 
-class Layout extends Component {
+export default class Layout extends Component {
 	// This is tricky:
 	// - We need to "photonize" to resize the images at appropriate dimensions
 	// - The resize will depend on the image size and the layout in some cases
@@ -68,23 +67,9 @@ class Layout extends Component {
 	}
 
 	render() {
-		const {
-			align,
-			children,
-			className,
-			columns,
-			gutter,
-			images,
-			isSmallScreen,
-			layoutStyle,
-		} = this.props;
+		const { align, children, className, columns, gutter, images, layoutStyle } = this.props;
 		const LayoutRenderer = isSquareishLayout( layoutStyle ) ? Square : Mosaic;
 		const renderedImages = this.props.images.map( this.renderImage, this );
-
-		// Get gutter width in px by keyword stored in attributes
-		// For small screens we shrink gutters half
-		const gutterWidth =
-			isSmallScreen && gutter !== 'none' ? GUTTERS[ gutter ] / 2 : GUTTERS[ gutter ];
 
 		return (
 			<div
@@ -95,7 +80,7 @@ class Layout extends Component {
 				<LayoutRenderer
 					align={ align }
 					columns={ columns }
-					gutterWidth={ gutterWidth }
+					gutterWidth={ GUTTERS[ gutter ] }
 					images={ images }
 					layoutStyle={ layoutStyle }
 					renderedImages={ renderedImages }
@@ -105,6 +90,3 @@ class Layout extends Component {
 		);
 	}
 }
-
-// If you change `small` to something else, change it also from the media-query in `view.scss`
-export default withViewportMatch( { isSmallScreen: '< small' } )( Layout );
