@@ -156,25 +156,6 @@ class Jetpack_Search_Customize {
 			)
 		);
 
-		$id = $setting_prefix . 'show_logo';
-		$wp_customize->add_setting(
-			$id,
-			array(
-				'default'   => true,
-				'transport' => 'postMessage',
-				'type'      => 'option',
-			)
-		);
-
-		$wp_customize->add_control(
-			$id,
-			array(
-				'type'    => 'checkbox',
-				'section' => $section_id,
-				'label'   => __( 'Display Magnifying Glass Logo', 'jetpack' ),
-			)
-		);
-
 		$id = $setting_prefix . 'show_powered_by';
 		$wp_customize->add_setting(
 			$id,
