@@ -21,11 +21,14 @@ export default class Layout extends Component {
 	//   This is because the images are stored in an array in the block attributes.
 	renderImage( img, i ) {
 		const {
+			columns,
 			imageFilter,
 			images,
 			isSave,
 			linkTo,
 			layoutStyle,
+			onMoveBackward,
+			onMoveForward,
 			onRemoveImage,
 			onSelectImage,
 			selectedImage,
@@ -46,13 +49,18 @@ export default class Layout extends Component {
 			<Image
 				alt={ img.alt }
 				aria-label={ ariaLabel }
+				columns={ columns }
 				height={ img.height }
 				id={ img.id }
 				imageFilter={ imageFilter }
+				isFirstItem={ i === 0 }
+				isLastItem={ i + 1 === images.length }
 				isSelected={ selectedImage === i }
 				key={ i }
 				link={ img.link }
 				linkTo={ linkTo }
+				onMoveBackward={ isSave ? undefined : onMoveBackward( i ) }
+				onMoveForward={ isSave ? undefined : onMoveForward( i ) }
 				onRemove={ isSave ? undefined : onRemoveImage( i ) }
 				onSelect={ isSave ? undefined : onSelectImage( i ) }
 				origUrl={ img.url }
