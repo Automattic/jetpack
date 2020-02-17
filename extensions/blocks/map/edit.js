@@ -134,6 +134,7 @@ class MapEdit extends Component {
 			markerColor,
 			align,
 			preview,
+			scrollToZoom,
 		} = attributes;
 		const {
 			addPointVisibility,
@@ -183,6 +184,14 @@ class MapEdit extends Component {
 							},
 						] }
 					/>
+					<PanelBody title={ __( 'Map Settings', 'jetpack' ) }>
+						<ToggleControl
+							label={ __( 'Scroll to zoom', 'jetpack' ) }
+							help={ __( 'Allow the map to capture scrolling, and zoom in or out.', 'jetpack' ) }
+							checked={ scrollToZoom }
+							onChange={ value => setAttributes( { scrollToZoom: value } ) }
+						/>
+					</PanelBody>
 					{ points.length ? (
 						<PanelBody title={ __( 'Markers', 'jetpack' ) } initialOpen={ false }>
 							<Locations
@@ -268,6 +277,7 @@ class MapEdit extends Component {
 				<div className={ className }>
 					<Map
 						ref={ this.mapRef }
+						scrollToZoom={ isSelected } // Only scroll to zoom when the block is selected.
 						mapStyle={ mapStyle }
 						mapDetails={ mapDetails }
 						points={ points }
