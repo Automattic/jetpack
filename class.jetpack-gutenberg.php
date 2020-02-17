@@ -28,15 +28,7 @@ function jetpack_register_block( $slug, $args = array() ) {
 	}
 
 	if ( isset( $args['version_requirements'] )
-		&& Jetpack_Gutenberg::is_block_version_gated( $args['version_requirements']['wp'], $args['version_requirements']['plugin'] ) ) {
-		\Jetpack_Gutenberg::set_extension_unavailable(
-			$slug,
-			'incorrect_gutenberg_version',
-			array(
-				'required_feature' => $slug,
-				'required_version' => $args['version_requirements']['plugin'],
-			)
-		);
+		&& ! Jetpack_Gutenberg::is_editor_version_available( $args['version_requirements'], $slug ) ) {
 		return false;
 	}
 
@@ -105,25 +97,42 @@ class Jetpack_Gutenberg {
 	/**
 	 * Check to see if a block is able to run with current wp or gutenburg plugin versions
 	 *
-	 * @param string $core_wp_version The minimum wp core version needed to run the block.
-	 * @param string $plugin_version The minimum gutenberg plugin version needed to run the block.
+	 * @param array  $version_requirements An array containing wp and plugin version requirements.
+	 * @param string $extension_name The name of the block/plugin that has the version requirement.
 	 *
 	 * @since 8.4.0
 	 *
-	 * @return boolean True if the block is gated due to current wp or plugin versions.
+	 * @return boolean True if the version of gutenberg required by the plugin is available.
 	 */
-	public static function is_block_version_gated( $core_wp_version, $plugin_version ) {
+	public static function is_editor_version_available( $version_requirements, $extension_name ) {
 		global $wp_version;
 
 		if ( defined( 'GUTENBERG_DEVELOPMENT_MODE' ) && GUTENBERG_DEVELOPMENT_MODE ) {
-			return false;
+			return true;
 		}
 
 		if ( defined( 'GUTENBERG_VERSION' ) ) {
-			return GUTENBERG_VERSION < $plugin_version;
+			$version_available = GUTENBERG_VERSION >= $version_requirements['plugin'];
+		} else {
+			$version_available = version_compare( $wp_version, $version_requirements['wp'], '>=' );
 		}
 
-		return version_compare( $wp_version, $core_wp_version, '<' );
+		if ( ! $version_available ) {
+			self::set_extension_unavailable(
+				$extension_name,
+				'incorrect_gutenberg_version',
+				array(
+					'required_feature' => $extension_name,
+					'required_version' => $version_requirements,
+					'current_version'  => array(
+						'wp'             => $wp_version,
+						'plugin_version' => defined( 'GUTENBERG_VERSION' ) ? defined( 'GUTENBERG_VERSION' ) : null,
+					),
+				)
+			);
+		}
+
+		return $version_available;
 	}
 
 	/**
