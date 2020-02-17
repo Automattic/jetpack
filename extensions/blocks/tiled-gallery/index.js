@@ -79,7 +79,7 @@ const blockAttributes = {
 	},
 	gutter: {
 		default: DEFAULT_GUTTER,
-		type: 'integer',
+		type: 'string',
 	},
 	ids: {
 		default: [],

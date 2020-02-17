@@ -18,7 +18,6 @@ class Jetpack_Tiled_Gallery_Block {
 	const IMG_SRCSET_WIDTH_MAX  = 2000;
 	const IMG_SRCSET_WIDTH_MIN  = 600;
 	const IMG_SRCSET_WIDTH_STEP = 300;
-	const DEFAULT_GUTTER        = 4;
 	const DEFAULT_COLUMNS       = 3;
 
 	/**
@@ -50,23 +49,6 @@ class Jetpack_Tiled_Gallery_Block {
 		if ( class_exists( 'Jetpack_Plan' ) ) {
 			$jetpack_plan = Jetpack_Plan::get();
 			wp_localize_script( 'jetpack-gallery-settings', 'jetpack_plan', array( 'data' => $jetpack_plan['product_slug'] ) );
-		}
-
-		// Generate styles for non-default gutter.
-		if ( isset( $attr['gutter'] ) && absint( $attr['gutter'] ) !== self::DEFAULT_GUTTER && ! $is_squareish_layout ) {
-			$gutter     = absint( $attr['gutter'] );
-			$css_prefix = '.wp-block-jetpack-tiled-gallery.has-gutter-' . $gutter;
-
-			$gutter_css = sprintf(
-				'
-				%1$s .tiled-gallery__item + .tiled-gallery__item,
-				%1$s .tiled-gallery__row + .tiled-gallery__row { margin-top: %2$dpx; }
-				%1$s .tiled-gallery__col + .tiled-gallery__col { margin-left: %2$dpx; }',
-				$css_prefix,
-				$gutter
-			);
-
-			wp_add_inline_style( 'jetpack-block-tiled-gallery', $gutter_css );
 		}
 
 		if ( preg_match_all( '/<img [^>]+>/', $content, $images ) ) {

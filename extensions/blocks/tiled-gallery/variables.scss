@@ -1,2 +1,14 @@
-$tiled-gallery-default-gutter: 4px; // Fixed in JS, see `constants.js`
 $tiled-gallery-selection: #0085ba; // Gutenberg primary theme color (https://github.com/WordPress/gutenberg/blob/6928e41c8afd7daa3a709afdda7eee48218473b7/bin/packages/post-css-config.js#L4)
+
+// Fixed in JS, see `constants.js`
+$tiled-gallery-max-column-count: 20;
+
+// Gutters - fixed in JS, see `constants.js`
+$tiled-gallery-gutters: (
+	'none': 0,
+	'small': 4px,
+	'medium': 16px,
+	'large': 48px
+);
+$tiled-gallery-default-gutter-size: 'small';
+$tiled-gallery-default-gutter: map-get($tiled-gallery-gutters, $tiled-gallery-default-gutter-size);

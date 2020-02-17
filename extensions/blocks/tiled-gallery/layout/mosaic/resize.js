@@ -11,8 +11,8 @@ function adjustFit( parts, target ) {
 	return parts.map( p => p + partialDiff );
 }
 
-export function handleRowResize( row, width, gutter ) {
-	applyRowRatio( row, getRowRatio( row ), width, gutter );
+export function handleRowResize( row, width, gutterWidth ) {
+	applyRowRatio( row, getRowRatio( row ), width, gutterWidth );
 }
 
 function getRowRatio( row ) {
@@ -60,22 +60,22 @@ function getImageRatio( img ) {
 	return result;
 }
 
-function applyRowRatio( row, [ ratio, weightedRatio ], width, gutter ) {
+function applyRowRatio( row, [ ratio, weightedRatio ], width, gutterWidth ) {
 	const rawHeight =
-		( 1 / ratio ) * ( width - gutter * ( row.childElementCount - 1 ) - weightedRatio );
+		( 1 / ratio ) * ( width - gutterWidth * ( row.childElementCount - 1 ) - weightedRatio );
 
 	applyColRatio( row, {
-		gutter,
+		gutterWidth,
 		rawHeight,
-		rowWidth: width - gutter * ( row.childElementCount - 1 ),
+		rowWidth: width - gutterWidth * ( row.childElementCount - 1 ),
 	} );
 }
 
-function applyColRatio( row, { gutter, rawHeight, rowWidth } ) {
+function applyColRatio( row, { gutterWidth, rawHeight, rowWidth } ) {
 	const cols = getRowCols( row );
 
 	const colWidths = cols.map(
-		col => ( rawHeight - gutter * ( col.childElementCount - 1 ) ) * getColumnRatio( col )[ 0 ]
+		col => ( rawHeight - gutterWidth * ( col.childElementCount - 1 ) ) * getColumnRatio( col )[ 0 ]
 	);
 
 	const adjustedWidths = adjustFit( colWidths, rowWidth );
@@ -84,7 +84,7 @@ function applyColRatio( row, { gutter, rawHeight, rowWidth } ) {
 		const rawWidth = colWidths[ i ];
 		const width = adjustedWidths[ i ];
 		applyImgRatio( col, {
-			colHeight: rawHeight - gutter * ( col.childElementCount - 1 ),
+			colHeight: rawHeight - gutterWidth * ( col.childElementCount - 1 ),
 			width,
 			rawWidth,
 		} );

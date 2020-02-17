@@ -27,7 +27,11 @@ export default class Mosaic extends Component {
 	}
 
 	componentDidUpdate( prevProps ) {
-		if ( prevProps.images !== this.props.images || prevProps.align !== this.props.align ) {
+		if (
+			prevProps.images !== this.props.images ||
+			prevProps.align !== this.props.align ||
+			prevProps.gutterWidth !== this.props.gutterWidth
+		) {
 			this.triggerResize();
 		} else if ( 'columns' === this.props.layoutStyle && prevProps.columns !== this.props.columns ) {
 			this.triggerResize();
@@ -35,7 +39,7 @@ export default class Mosaic extends Component {
 	}
 
 	handleGalleryResize = entries => {
-		const { gutter } = this.props;
+		const { gutterWidth } = this.props;
 
 		if ( this.pendingRaf ) {
 			cancelAnimationFrame( this.pendingRaf );
@@ -44,7 +48,7 @@ export default class Mosaic extends Component {
 		this.pendingRaf = requestAnimationFrame( () => {
 			for ( const { contentRect, target } of entries ) {
 				const { width } = contentRect;
-				getGalleryRows( target ).forEach( row => handleRowResize( row, width, gutter ) );
+				getGalleryRows( target ).forEach( row => handleRowResize( row, width, gutterWidth ) );
 			}
 		} );
 	};

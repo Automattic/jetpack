@@ -1,9 +1,9 @@
 /**
  * External Dependencies
  */
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { Component, Fragment } from '@wordpress/element';
-import { filter, get, pick } from 'lodash';
+import { filter, get, map, pick } from 'lodash';
 import {
 	BlockControls,
 	BlockIcon,
@@ -13,6 +13,9 @@ import {
 } from '@wordpress/block-editor';
 import { mediaUpload } from '@wordpress/editor';
 import {
+	BaseControl,
+	Button,
+	ButtonGroup,
 	DropZone,
 	FormFileUpload,
 	PanelBody,
@@ -27,7 +30,7 @@ import {
  */
 import FilterToolbar from './filter-toolbar';
 import Layout from './layout';
-import { ALLOWED_MEDIA_TYPES, LAYOUT_STYLES, MAX_COLUMNS, MAX_GUTTER } from './constants';
+import { ALLOWED_MEDIA_TYPES, GUTTERS, LAYOUT_STYLES, MAX_COLUMNS } from './constants';
 import { getActiveStyleName } from '../../shared/block-styles';
 import { icon } from '.';
 import EditButton from '../../shared/edit-button';
@@ -38,13 +41,25 @@ const linkOptions = [
 	{ value: 'none', label: __( 'None', 'jetpack' ) },
 ];
 
+// Gutter names are translated. Avoid introducing an i18n dependency elsewhere (view)
+// by only including the labels here, the only place they're needed.
+//
+// Gutter names to labels and merge them together.
+const gutterLabels = {
+	[ 'none' ]: _x( 'None', 'Tiled gallery gutter name', 'jetpack' ),
+	[ 'small' ]: _x( 'Small', 'Tiled gallery gutter name', 'jetpack' ),
+	[ 'medium' ]: _x( 'Medium', 'Tiled gallery gutter name', 'jetpack' ),
+	[ 'large' ]: _x( 'Large', 'Tiled gallery gutter name', 'jetpack' ),
+};
+
+const gutterOptions = map( GUTTERS, ( gutterPx, gutterName ) => ( {
+	value: gutterName,
+	label: gutterLabels[ gutterName ],
+} ) );
+
 // @TODO keep here or move to ./layout ?
 function layoutSupportsColumns( layout ) {
 	return [ 'columns', 'circle', 'square' ].includes( layout );
-}
-
-function layoutSupportsGutter( layout ) {
-	return [ 'columns', 'rectangular' ].includes( layout );
 }
 
 export function defaultColumnsNumber( attributes ) {
@@ -243,15 +258,25 @@ class TiledGalleryEdit extends Component {
 								max={ Math.min( MAX_COLUMNS, images.length ) }
 							/>
 						) }
-						{ layoutSupportsGutter( layoutStyle ) && images.length > 1 && (
-							<RangeControl
-								label={ __( 'Gutter', 'jetpack' ) }
-								value={ gutter }
-								onChange={ this.setGutter }
-								min={ 0 }
-								max={ MAX_GUTTER }
-							/>
-						) }
+						<SelectControl
+							label={ __( 'Gutter', 'jetpack' ) }
+							value={ gutter }
+							onChange={ this.setGutter }
+							options={ gutterOptions }
+						/>
+						<BaseControl id="tiled-gallery-gutter" label={ __( 'Gutter', 'jetpack' ) }>
+							<ButtonGroup id="tiled-gallery-gutter">
+								{ map( GUTTERS, ( gutterPx, gutterName ) => (
+									<Button
+										isDefault={ gutter !== gutterName }
+										isPrimary={ gutter === gutterName }
+										onClick={ () => this.setGutter( gutterName ) }
+									>
+										{ gutterLabels[ gutterName ] }
+									</Button>
+								) ) }
+							</ButtonGroup>
+						</BaseControl>
 						<SelectControl
 							label={ __( 'Link To', 'jetpack' ) }
 							value={ linkTo }

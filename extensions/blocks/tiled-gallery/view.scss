@@ -1,10 +1,11 @@
 @import '../../shared/styles/jetpack-variables.scss';
 @import './variables.scss';
 @import './css-gram.scss';
+@import '../../shared/styles/gutenberg-base-styles.scss';
 
-// Fixed in JS, see `constants.js`
-$tiled-gallery-max-column-count: 20;
-$tiled-gallery-max-gutter: 50;
+@mixin tiled-gallery-squareish-layout-col-width($gutter, $cols){
+	width: calc( ( 100% - #{ $gutter * ( $cols - 1 ) } ) / #{$cols} );
+}
 
 .wp-block-jetpack-tiled-gallery {
 	margin: 0 auto $jetpack-block-margin-bottom;
@@ -19,11 +20,38 @@ $tiled-gallery-max-gutter: 50;
 			flex-grow: 1;
 			width: 100%;
 
+			// Default gutter for square'ish layouts for each column size
 			@for $cols from 1 through $tiled-gallery-max-column-count {
 				&.columns-#{$cols} {
 					.tiled-gallery__col {
-						// Note: Square and Circle layouts don't support custom gutter size
-						width: calc( ( 100% - #{ $tiled-gallery-default-gutter * ( $cols - 1 ) } ) / #{$cols} );
+						@include tiled-gallery-squareish-layout-col-width($tiled-gallery-default-gutter, $cols);
+					}
+				}
+			}
+
+			// Generate different size gutters for square'ish layouts for each column size
+			@for $cols from 1 through $tiled-gallery-max-column-count {
+				// When gutter size is set
+				@each $gutter-size, $gutter-px in $tiled-gallery-gutters {
+					// Small is default, hence no need to define it here since it's defined above
+					@if $gutter-size != $tiled-gallery-default-gutter-size {
+						&.columns-#{$cols} {
+							.tiled-gallery__col {
+								@include tiled-gallery-squareish-layout-col-width($gutter-px, $cols);
+							}
+						}
+					}
+
+					@if $gutter-px > 0 {
+						// For small screens we shrink gutters half
+						// If you change `small` break to something else, change it also from `extensions/blocks/tiled-gallery/layout/index.js`
+						@media (max-width: #{ ($break-small) }) {
+							&.columns-#{$cols} {
+								.tiled-gallery__col {
+									@include tiled-gallery-squareish-layout-col-width($gutter-px/2, $cols);
+								}
+							}
+						}
 					}
 				}
 			}
@@ -51,13 +79,6 @@ $tiled-gallery-max-gutter: 50;
 	flex-direction: row;
 	justify-content: center;
 	margin: 0;
-
-	// See also tiled-gallery.php render method if you modify this
-	/*
-	& + & {
-		margin-top: $tiled-gallery-default-gutter;
-	}
-	*/
 }
 
 .tiled-gallery__col {
@@ -65,13 +86,6 @@ $tiled-gallery-max-gutter: 50;
 	flex-direction: column;
 	justify-content: center;
 	margin: 0;
-
-	// See also tiled-gallery.php render method if you modify this
-	/*
-	& + & {
-		margin-left: $tiled-gallery-default-gutter;
-	}
-	*/
 }
 
 .tiled-gallery__item {
@@ -101,13 +115,6 @@ $tiled-gallery-max-gutter: 50;
 		@include gingham;
 	}
 
-	// See also tiled-gallery.php render method if you modify this
-	/*
-	& + & {
-		margin-top: $tiled-gallery-default-gutter;
-	}
-	*/
-
 	> img {
 		background-color: rgba( 0, 0, 0, 0.1 );
 	}
@@ -126,7 +133,7 @@ $tiled-gallery-max-gutter: 50;
 	}
 }
 
-// See also editor.scss for more custom gutter logic
+// Default gutter when not set
 .tiled-gallery__item + .tiled-gallery__item,
 .tiled-gallery__row + .tiled-gallery__row {
 	margin-top: $tiled-gallery-default-gutter;
@@ -134,4 +141,34 @@ $tiled-gallery-max-gutter: 50;
 
 .tiled-gallery__col + .tiled-gallery__col {
 	margin-left: $tiled-gallery-default-gutter;
+}
+
+// When gutter size is set
+@each $gutter-size, $gutter-px in $tiled-gallery-gutters {
+	// Small is default, hence no need to define it here since it's defined above
+	@if $gutter-size != $tiled-gallery-default-gutter-size {
+		.has-gutter-#{$gutter-size} .tiled-gallery__item + .tiled-gallery__item,
+		.has-gutter-#{$gutter-size} .tiled-gallery__row + .tiled-gallery__row {
+			margin-top: #{$gutter-px};
+		}
+
+		.has-gutter-#{$gutter-size} .tiled-gallery__col + .tiled-gallery__col {
+			margin-left: #{$gutter-px};
+		}
+	}
+
+	@if $gutter-px > 0 {
+		// For small screens we shrink gutters half
+		// If you change `small` break to something else, change it also from `extensions/blocks/tiled-gallery/layout/index.js`
+		@media (max-width: #{ ($break-small) }) {
+			.has-gutter-#{$gutter-size} .tiled-gallery__item + .tiled-gallery__item,
+			.has-gutter-#{$gutter-size} .tiled-gallery__row + .tiled-gallery__row {
+				margin-top: #{$gutter-px/2};
+			}
+
+			.has-gutter-#{$gutter-size} .tiled-gallery__col + .tiled-gallery__col {
+				margin-left: #{$gutter-px/2};
+			}
+		}
+	}
 }

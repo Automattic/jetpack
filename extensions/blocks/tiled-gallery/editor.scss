@@ -96,6 +96,12 @@
 		}
 	}
 
+	@each $gutter-size, $gutter-px in $tiled-gallery-gutters {
+		&.has-gutter-#{$gutter-size} .tiled-gallery__add-item {
+			margin-top: $gutter-px;
+		}
+	}
+
 	.tiled-gallery__item__inline-menu {
 		background-color: $tiled-gallery-selection;
 		display: inline-flex;
@@ -145,20 +151,5 @@
 	.components-menu-item__button.is-active {
 		color: $dark-gray-900;
 		box-shadow: 0 0 0 $active-item-outline-width $dark-gray-500 !important;
-	}
-}
-
-// To save bytes, this is re-generated via PHP for view-side.
-// See Jetpack_Tiled_Gallery_Block class' render method at tiled-gallery.php
-@for $gutter from 0 through $tiled-gallery-max-gutter {
-	.has-gutter-#{$gutter} {
-		.tiled-gallery__item + .tiled-gallery__item,
-		.tiled-gallery__row + .tiled-gallery__row {
-			margin-top: #{$gutter}px;
-		}
-
-		.tiled-gallery__col + .tiled-gallery__col {
-			margin-left: #{$gutter}px;
-		}
 	}
 }

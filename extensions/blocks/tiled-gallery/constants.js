@@ -1,7 +1,13 @@
 export const ALLOWED_MEDIA_TYPES = [ 'image' ];
 export const DEFAULT_GALLERY_WIDTH = 580;
-export const DEFAULT_GUTTER = 4;
-export const MAX_GUTTER = 50;
+export const DEFAULT_GUTTER = 'small';
+export const GUTTERS = {
+	// Fixed in CSS, see `variables.scss`
+	none: 0,
+	small: 4,
+	medium: 24,
+	large: 48,
+};
 export const MAX_COLUMNS = 20;
 export const PHOTON_MAX_RESIZE = 2000;
 
