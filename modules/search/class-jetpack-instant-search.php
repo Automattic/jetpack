@@ -9,6 +9,11 @@
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Constants;
 
+/**
+ * Class to load Instant Search experience on the site.
+ *
+ * @since 8.3.0
+ */
 class Jetpack_Instant_Search extends Jetpack_Search {
 
 	/**
@@ -78,7 +83,8 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			$widget_options = end( $widget_options );
 		}
 
-		$overlay_widget_ids = get_option( 'sidebars_widgets', array() )['jetpack-instant-search-sidebar'];
+		$overlay_widget_ids = array_key_exists( 'jetpack-instant-search-sidebar', get_option( 'sidebars_widgets', array() ) ) ?
+			get_option( 'sidebars_widgets', array() )['jetpack-instant-search-sidebar'] : array();
 		$filters            = Jetpack_Search_Helpers::get_filters_from_widgets( $overlay_widget_ids );
 		$widgets            = array();
 		foreach ( $filters as $key => $filter ) {
@@ -118,9 +124,9 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			'siteId'          => Jetpack::get_option( 'id' ),
 
 			// filtering.
-			'postTypeFilters' => $widget_options['post_types'],
+			'postTypeFilters' => isset( $widget_options['post_types'] ) ? $widget_options['post_types'] : array(),
 			'postTypes'       => $post_type_labels,
-			'sort'            => $widget_options['sort'],
+			'sort'            => isset( $widget_options['sort'] ) ? $widget_options['sort'] : null,
 			'widgets'         => array_values( $widgets ),
 		);
 
@@ -258,25 +264,30 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	 * @return object|WP_Error The response from the public API, or a WP_Error.
 	 */
 	public function instant_api( array $args ) {
+		global $wp_version;
 		$start_time = microtime( true );
 
 		// Cache locally to avoid remote request slowing the page.
-		$transient_name = '_jetpack_instant_search_cache_' . md5( wp_json_encode( $args ) );
+		$transient_name = 'jetpack_instant_search_cache_' . md5( wp_json_encode( $args ) );
 		$cache          = get_transient( $transient_name );
 		if ( false !== $cache ) {
 			return $cache;
 		}
 
-		$endpoint     = sprintf( '/sites/%s/search', $this->jetpack_blog_id );
-		$query_params = urldecode( http_build_query( $args ) );
-		$service_url  = 'https://public-api.wordpress.com/rest/v1.3' . $endpoint . '?' . $query_params;
+		$service_url = add_query_arg(
+			$args,
+			sprintf(
+				'https://public-api.wordpress.com/rest/v1.3/sites/%d/search',
+				$this->jetpack_blog_id
+			)
+		);
 
 		$request_args = array(
 			'timeout'    => 10,
-			'user-agent' => 'jetpack_search',
+			'user-agent' => "WordPress/{$wp_version} | Jetpack/" . constant( 'JETPACK__VERSION' ),
 		);
 
-		$request  = wp_remote_get( $service_url, $request_args );
+		$request  = wp_remote_get( esc_url_raw( $service_url ), $request_args );
 		$end_time = microtime( true );
 
 		if ( is_wp_error( $request ) ) {

@@ -35,6 +35,7 @@
 
 .jetpack-instant-search__search-results-primary {
 	flex: 5;
+	margin-bottom: 6em;
 
 	@include break-medium() {
 		margin-right: 4em;

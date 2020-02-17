@@ -67,7 +67,9 @@ const SearchBox = props => {
 				>
 					<Gridicon icon="filter" alt="Search filter icon" aria-hidden="true" />
 					<span class="screen-reader-text">
-						{ props.showFilters ? __( 'Hide filters' ) : __( 'Show filters ' ) }
+						{ props.showFilters
+							? __( 'Hide filters', 'jetpack' )
+							: __( 'Show filters', 'jetpack' ) }
 					</span>
 				</div>
 			) }
