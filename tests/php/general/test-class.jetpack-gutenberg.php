@@ -149,4 +149,32 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 		$this->assertNotEmpty( $extensions );
 		$this->assertNotContains( 'onion', $extensions );
 	}
+
+	function test_block_not_version_gated_on_wpcom() {
+		if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+			$this->markTestSkipped( 'wpcom only test' );
+			return;
+		};
+		
+		$version_gated = Jetpack_Gutenberg::is_block_version_gated( '999999', '999999');
+		$this->assertEquals( false, $version_gated );
+	}
+
+	function test_block_version_gated_if_core_wp_version_less_than_minimum() {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$this->markTestSkipped( 'atomic and jetpack only test' );
+			return;
+		};
+		$version_gated = Jetpack_Gutenberg::is_block_version_gated( '999999', '999999');
+		$this->assertEquals( true, $version_gated );
+	}
+
+	function test_block_not_version_gated_if_core_wp_version_greater_than_minimum() {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$this->markTestSkipped( 'atomic and jetpack only test' );
+			return;
+		};
+		$version_gated = Jetpack_Gutenberg::is_block_version_gated( '0', '999999');
+		$this->assertEquals( false, $version_gated );
+	}
 }
