@@ -40,6 +40,8 @@ class Gridicon extends Component {
 				return <title>{ __( 'Is an event.', 'jetpack' ) }</title>;
 			case 'gridicons-cart':
 				return <title>{ __( 'Is a product.', 'jetpack' ) }</title>;
+			case 'chevron-down':
+				return <title>{ __( 'Show filters', 'jetpack' ) }</title>;
 			case 'gridicons-comment':
 				return <title>{ __( 'Matching comment.', 'jetpack' ) }</title>;
 			case 'gridicons-cross':
@@ -84,6 +86,12 @@ class Gridicon extends Component {
 				return (
 					<g>
 						<path d="M9 20c0 1.1-.9 2-2 2s-1.99-.9-1.99-2S5.9 18 7 18s2 .9 2 2zm8-2c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2zm.396-5c.937 0 1.75-.65 1.952-1.566L21 5H7V4c0-1.105-.895-2-2-2H3v2h2v11c0 1.105.895 2 2 2h12c0-1.105-.895-2-2-2H7v-2h10.396z" />
+					</g>
+				);
+			case 'gridicons-chevron-down':
+				return (
+					<g>
+						<path d="M20 9l-8 8-8-8 1.414-1.414L12 14.172l6.586-6.586" />
 					</g>
 				);
 			case 'gridicons-comment':
