@@ -662,6 +662,21 @@ __( "You're fueled up and ready to go, Jetpack is now active.", "jetpack" ), // 
 __( "You're fueled up and ready to go.", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:213
 __( "Your server is misconfigured, which means that Jetpack Protect is unable to effectively protect your site.", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:217
 __( "Learn More", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:223
+__( "Disconnect Jetpack", "jetpack" ), // _inc/client/components/jetpack-termination-dialog/dialog.jsx:122
+__( "Disable Jetpack", "jetpack" ), // _inc/client/components/jetpack-termination-dialog/dialog.jsx:122
+__( "Are you sure you want to disconnect?", "jetpack" ), // _inc/client/components/jetpack-termination-dialog/dialog.jsx:138
+__( "Are you sure you want to disconnect and deactivate?", "jetpack" ), // _inc/client/components/jetpack-termination-dialog/dialog.jsx:139
+__( "Cancel", "jetpack" ), // _inc/client/components/jetpack-termination-dialog/dialog.jsx:142
+__( "Disconnect", "jetpack" ), // _inc/client/components/jetpack-termination-dialog/dialog.jsx:144
+__( "Disable", "jetpack" ), // _inc/client/components/jetpack-termination-dialog/dialog.jsx:144
+__( "Speed up your site and provide mobile-ready images with {{a}}our CDN{{/a}}", "jetpack" ), // _inc/client/components/jetpack-termination-dialog/features.jsx:30
+__( "Block {{a}}brute force attacks{{/a}} and get immediate notifications if your site is down", "jetpack" ), // _inc/client/components/jetpack-termination-dialog/features.jsx:49
+__( "Grow your traffic with automated social {{a}}publishing and sharing{{/a}}", "jetpack" ), // _inc/client/components/jetpack-termination-dialog/features.jsx:71
+__( "Jetpack is currently powering features on your site. Once you disconnect Jetpack, these features will no longer be available and your site may no longer function the same way.", "jetpack" ), // _inc/client/components/jetpack-termination-dialog/features.jsx:99
+__( "Jetpack is currently powering features on your site. Once you disable Jetpack, these features will no longer be available and your site may no longer function the same way.", "jetpack" ), // _inc/client/components/jetpack-termination-dialog/features.jsx:102
+__( " We’ve highlighted some of the features you rely on below.", "jetpack" ), // _inc/client/components/jetpack-termination-dialog/features.jsx:106
+__( "Jetpack has many powerful tools that can help you achieve your goals", "jetpack" ), // _inc/client/components/jetpack-termination-dialog/features.jsx:128
+__( "Have a question? We’d love to help! {{a}}Send a question to the Jetpack support team.{{/a}}", "jetpack" ), // _inc/client/components/jetpack-termination-dialog/features.jsx:139
 __( "Dashboard", "jetpack" ), // _inc/client/components/masthead/index.jsx:95
 __( "Settings", "jetpack" ), // _inc/client/components/masthead/index.jsx:103
 __( "Email me a link to log in to the app", "jetpack" ), // _inc/client/components/mobile-magic-link/index.jsx:52
@@ -705,21 +720,6 @@ _x( "Discussion", "Navigation item.", "jetpack" ), // _inc/client/components/nav
 _x( "Traffic", "Navigation item.", "jetpack" ), // _inc/client/components/navigation-settings/index.jsx:186
 _x( "Sharing", "Navigation item.", "jetpack" ), // _inc/client/components/navigation-settings/index.jsx:203
 _x( "Writing", "Navigation item.", "jetpack" ), // _inc/client/components/navigation-settings/index.jsx:217
-__( "Disconnect Jetpack", "jetpack" ), // _inc/client/components/jetpack-termination-dialog/dialog.jsx:122
-__( "Disable Jetpack", "jetpack" ), // _inc/client/components/jetpack-termination-dialog/dialog.jsx:122
-__( "Are you sure you want to disconnect?", "jetpack" ), // _inc/client/components/jetpack-termination-dialog/dialog.jsx:138
-__( "Are you sure you want to disconnect and deactivate?", "jetpack" ), // _inc/client/components/jetpack-termination-dialog/dialog.jsx:139
-__( "Cancel", "jetpack" ), // _inc/client/components/jetpack-termination-dialog/dialog.jsx:142
-__( "Disconnect", "jetpack" ), // _inc/client/components/jetpack-termination-dialog/dialog.jsx:144
-__( "Disable", "jetpack" ), // _inc/client/components/jetpack-termination-dialog/dialog.jsx:144
-__( "Speed up your site and provide mobile-ready images with {{a}}our CDN{{/a}}", "jetpack" ), // _inc/client/components/jetpack-termination-dialog/features.jsx:30
-__( "Block {{a}}brute force attacks{{/a}} and get immediate notifications if your site is down", "jetpack" ), // _inc/client/components/jetpack-termination-dialog/features.jsx:49
-__( "Grow your traffic with automated social {{a}}publishing and sharing{{/a}}", "jetpack" ), // _inc/client/components/jetpack-termination-dialog/features.jsx:71
-__( "Jetpack is currently powering features on your site. Once you disconnect Jetpack, these features will no longer be available and your site may no longer function the same way.", "jetpack" ), // _inc/client/components/jetpack-termination-dialog/features.jsx:99
-__( "Jetpack is currently powering features on your site. Once you disable Jetpack, these features will no longer be available and your site may no longer function the same way.", "jetpack" ), // _inc/client/components/jetpack-termination-dialog/features.jsx:102
-__( " We’ve highlighted some of the features you rely on below.", "jetpack" ), // _inc/client/components/jetpack-termination-dialog/features.jsx:106
-__( "Jetpack has many powerful tools that can help you achieve your goals", "jetpack" ), // _inc/client/components/jetpack-termination-dialog/features.jsx:128
-__( "Have a question? We’d love to help! {{a}}Send a question to the Jetpack support team.{{/a}}", "jetpack" ), // _inc/client/components/jetpack-termination-dialog/features.jsx:139
 __( "Manage Subscription", "jetpack" ), // _inc/client/components/product-card/index.jsx:100
 __( "Purchased on %s.", "jetpack" ), // _inc/client/components/product-expiration/index.jsx:35
 __( "Expired on %s.", "jetpack" ), // _inc/client/components/product-expiration/index.jsx:49
