@@ -27,7 +27,13 @@ import {
  */
 import FilterToolbar from './filter-toolbar';
 import Layout from './layout';
-import { ALLOWED_MEDIA_TYPES, LAYOUT_STYLES, MAX_COLUMNS } from './constants';
+import {
+	ALLOWED_MEDIA_TYPES,
+	LAYOUT_CIRCLE,
+	LAYOUT_STYLES,
+	MAX_COLUMNS,
+	MAX_ROUNDED_CORNERS,
+} from './constants';
 import { getActiveStyleName } from '../../shared/block-styles';
 import { icon } from '.';
 import EditButton from '../../shared/edit-button';
@@ -156,6 +162,8 @@ class TiledGalleryEdit extends Component {
 
 	setColumnsNumber = value => this.setAttributes( { columns: value } );
 
+	setRoundedCorners = value => this.setAttributes( { roundedCorners: value } );
+
 	setImageAttributes = index => attributes => {
 		const {
 			attributes: { images },
@@ -192,6 +200,7 @@ class TiledGalleryEdit extends Component {
 			imageFilter,
 			images,
 			linkTo,
+			roundedCorners,
 		} = attributes;
 
 		const dropZone = <DropZone onFilesDrop={ this.addFiles } />;
@@ -262,6 +271,15 @@ class TiledGalleryEdit extends Component {
 								max={ Math.min( MAX_COLUMNS, images.length ) }
 							/>
 						) }
+						{ layoutStyle !== LAYOUT_CIRCLE && (
+							<RangeControl
+								label={ __( 'Rounded corners', 'jetpack' ) }
+								value={ roundedCorners }
+								onChange={ this.setRoundedCorners }
+								min={ 0 }
+								max={ MAX_ROUNDED_CORNERS }
+							/>
+						) }
 						<SelectControl
 							label={ __( 'Link To', 'jetpack' ) }
 							value={ linkTo }
@@ -285,6 +303,7 @@ class TiledGalleryEdit extends Component {
 					onMoveForward={ this.onMoveForward }
 					onRemoveImage={ this.onRemoveImage }
 					onSelectImage={ this.onSelectImage }
+					roundedCorners={ roundedCorners }
 					selectedImage={ isSelected ? selectedImage : null }
 					setImageAttributes={ this.setImageAttributes }
 				>
