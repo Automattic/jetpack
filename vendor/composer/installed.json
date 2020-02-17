@@ -534,12 +534,12 @@
         "source": {
             "type": "git",
             "url": "https://github.com/Automattic/jetpack-sync.git",
-            "reference": "26ab953f4b65d14597ade6c48f99e86f2796647a"
+            "reference": "070a46e38d34a0ceba15b9d4b0de115fbe76b20f"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/Automattic/jetpack-sync/zipball/26ab953f4b65d14597ade6c48f99e86f2796647a",
-            "reference": "26ab953f4b65d14597ade6c48f99e86f2796647a",
+            "url": "https://api.github.com/repos/Automattic/jetpack-sync/zipball/070a46e38d34a0ceba15b9d4b0de115fbe76b20f",
+            "reference": "070a46e38d34a0ceba15b9d4b0de115fbe76b20f",
             "shasum": ""
         },
         "require": {
@@ -549,7 +549,7 @@
             "automattic/jetpack-roles": "@dev",
             "automattic/jetpack-status": "@dev"
         },
-        "time": "2020-02-14T13:35:39+00:00",
+        "time": "2020-02-14T17:53:00+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {
