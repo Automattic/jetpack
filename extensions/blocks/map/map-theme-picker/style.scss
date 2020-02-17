@@ -16,6 +16,9 @@
 		background-size: contain;
 		transform: scale( 1 );
 		transition: transform 0.2s ease;
+		&:first-child, &:last-child {
+			border-radius: 100%;
+		}
 		&:hover {
 			transform: scale( 1.1 );
 		}
