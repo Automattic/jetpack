@@ -184,7 +184,7 @@ class MapEdit extends Component {
 							},
 						] }
 					/>
-					<PanelBody title={ __( 'Settings', 'jetpack' ) }>
+					<PanelBody title={ __( 'Map Settings', 'jetpack' ) }>
 						<ToggleControl
 							label={ __( 'Scroll to zoom', 'jetpack' ) }
 							help={ __( 'Allow the map to capture scrolling, and zoom in or out.', 'jetpack' ) }
