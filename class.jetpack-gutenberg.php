@@ -115,37 +115,15 @@ class Jetpack_Gutenberg {
 	public static function is_block_version_gated( $core_wp_version, $plugin_version ) {
 		global $wp_version;
 
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		if ( defined( 'GUTENBERG_DEVELOPMENT_MODE' ) && GUTENBERG_DEVELOPMENT_MODE ) {
 			return false;
 		}
 
-		$current_plugin_version = self::get_plugin_version();
-
-		if ( ! empty( $current_plugin_version ) ) {
-			return $current_plugin_version < $plugin_version;
+		if ( defined( 'GUTENBERG_VERSION' ) ) {
+			return GUTENBERG_VERSION < $plugin_version;
 		}
 
 		return version_compare( $wp_version, $core_wp_version, '<' );
-	}
-
-	/**
-	 * Get the version of gutenberg plugin if it is installed
-	 *
-	 * @since 8.4.0
-	 *
-	 * @return string Verion number of installed gutenberg plugin.
-	 */
-	public static function get_plugin_version() {
-		if ( is_file( WP_PLUGIN_DIR . '/gutenberg/gutenberg.php' ) ) {
-			if ( ! function_exists( 'get_plugin_data' ) ) {
-				require_once ABSPATH . 'wp-admin/includes/plugin.php';
-			}
-			$plugin_data = get_plugin_data( WP_PLUGIN_DIR . '/gutenberg/gutenberg.php' );
-
-			if ( isset( $plugin_data['Version'] ) ) {
-				return $plugin_data['Version'];
-			}
-		}
 	}
 
 	/**
