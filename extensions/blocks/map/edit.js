@@ -144,6 +144,42 @@ class MapEdit extends Component {
 		noticeOperations.removeAllNotices();
 		noticeOperations.createErrorNotice( message );
 	};
+	onHeightChange = event => {
+		const { attributes, setAttributes } = this.props;
+		const { mapHeight } = attributes;
+
+		let height = parseInt( event.target.value, 10 );
+
+		if ( isNaN( height ) ) {
+			// Set map height to default size and input box to empty string
+			height = null;
+		} else if ( null == mapHeight ) {
+			// There was previously no height defined, so set the default.
+			height = this.mapRef.current.mapRef.current.offsetHeight;
+		} else if ( height < MIN_HEIGHT ) {
+			// Set map height to minimum size
+			height = MIN_HEIGHT;
+		}
+
+		setAttributes( {
+			mapHeight: height,
+		} );
+
+		setTimeout( this.mapRef.current.sizeMap, 0 );
+	};
+	onMapResize = ( event, direction, elt, delta ) => {
+		const { onResizeStop, setAttributes } = this.props;
+
+		onResizeStop();
+
+		const height = parseInt( this.mapRef.current.mapRef.current.offsetHeight + delta.height, 10 );
+
+		setAttributes( {
+			mapHeight: height,
+		} );
+
+		setTimeout( this.mapRef.current.sizeMap, 0 );
+	};
 	render() {
 		const {
 			className,
@@ -154,7 +190,6 @@ class MapEdit extends Component {
 			isSelected,
 			instanceId,
 			onResizeStart,
-			onResizeStop,
 		} = this.props;
 		const {
 			mapStyle,
@@ -224,23 +259,7 @@ class MapEdit extends Component {
 							<input
 								type="number"
 								id={ `block-jetpack-map-height-input-${ instanceId }` }
-								onChange={ event => {
-									let height = parseInt( event.target.value, 10 );
-									if ( isNaN( height ) ) {
-										// Set map height to default size and input box to empty string
-										height = null;
-									} else if ( null == mapHeight ) {
-										// There was previously no height defined, so set the default.
-										height = this.mapRef.current.mapRef.current.offsetHeight;
-									} else if ( height < MIN_HEIGHT ) {
-										// Set map height to minimum size
-										height = MIN_HEIGHT;
-									}
-									setAttributes( {
-										mapHeight: height,
-									} );
-									setTimeout( this.mapRef.current.sizeMap, 0 );
-								} }
+								onChange={ this.onHeightChange }
 								value={ mapHeight || '' }
 								min={ MIN_HEIGHT }
 								step="10"
@@ -366,21 +385,12 @@ class MapEdit extends Component {
 							height: mapHeight || 'auto',
 							width: '100%',
 						} }
+						grid={ [ 10, 10 ] }
 						showHandle={ isSelected }
 						minHeight={ MIN_HEIGHT }
 						enable={ RESIZABLE_BOX_ENABLE_OPTION }
 						onResizeStart={ onResizeStart }
-						onResizeStop={ ( event, direction, elt, delta ) => {
-							onResizeStop();
-							const height = parseInt(
-								this.mapRef.current.mapRef.current.offsetHeight + delta.height,
-								10
-							);
-							setAttributes( {
-								mapHeight: height,
-							} );
-							setTimeout( this.mapRef.current.sizeMap, 0 );
-						} }
+						onResizeStop={ this.onMapResize }
 					>
 						<Map
 							ref={ this.mapRef }
