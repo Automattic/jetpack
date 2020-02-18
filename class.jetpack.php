@@ -168,9 +168,6 @@ class Jetpack {
 			'Fast Secure Contact Form' => 'si-contact-form/si-contact-form.php',
 			'Ninja Forms'              => 'ninja-forms/ninja-forms.php',
 		),
-		'minileven'          => array(
-			'WPtouch' => 'wptouch/wptouch.php',
-		),
 		'latex'              => array(
 			'LaTeX for WordPress'     => 'latex/latex.php',
 			'Youngwhans Simple Latex' => 'youngwhans-simple-latex/yw-latex.php',
