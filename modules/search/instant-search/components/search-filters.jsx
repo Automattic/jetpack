@@ -24,6 +24,7 @@ export default class SearchFilters extends Component {
 
 	onClearFilters = () => {
 		clearFiltersFromQuery();
+		this.props.onChange && this.props.onChange();
 	};
 
 	hasActiveFilters() {
