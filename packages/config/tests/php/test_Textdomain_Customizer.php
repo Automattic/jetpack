@@ -27,9 +27,9 @@ class Test_Textdomain_Customizer extends TestCase {
 			->method( 'set_vendor_dir' )
 			->will( $this->returnValue( '' ) );
 
-		$this->mock_function( 'file_exists', true );
 		$this->mock_function( 'is_dir', false );
 		$this->mock_function( 'is_file', true );
+		$this->mock_function( 'realpath', true );
 	}
 
 	/**

@@ -127,7 +127,8 @@ class Textdomain_Customizer {
 	 * the composer config.
 	 */
 	protected function set_vendor_dir() {
-		$this->vendor_dir = $this->composer->getConfig()->get( 'vendor-dir' );
+		$vendor_dir       = $this->composer->getConfig()->get( 'vendor-dir' );
+		$this->vendor_dir = rtrim( $vendor_dir, '/' ) . '/';
 	}
 
 	/**
@@ -168,24 +169,40 @@ class Textdomain_Customizer {
 		}
 
 		foreach ( $files as $file ) {
-			$file_path = $this->vendor_dir . $file;
+			$file_path = realpath( $this->vendor_dir . $file );
 
-			if ( ! file_exists( $file_path ) ) {
+			if ( ! $file_path ) {
 				return;
 			}
 
 			if ( is_dir( $file_path ) ) {
-				$iterator = new \RecursiveDirectoryIterator(
-					$file_path,
-					\RecursiveDirectoryIterator::SKIP_DOTS
-				);
-
-				foreach ( new \RecursiveIteratorIterator( $iterator ) as $file_info ) {
-						self::customize_textdomain_in_file( $file_info->getRealPath() );
-				}
-			} elseif ( is_file( $file_path ) ) {
-				self::customize_textdomain_in_file( $file_path );
+				$this->customize_textdomain_in_dir( $file_path );
+			} else {
+				$this->customize_textdomain_in_file( $file_path );
 			}
+		}
+	}
+
+	/**
+	 * Recursively traverses the input directory and sets the textdomain in
+	 * all of the files.
+	 *
+	 * @param string $dir The path to the directory.
+	 */
+	private function customize_textdomain_in_dir( $dir ) {
+		$file_path = realpath( $dir );
+
+		if ( $file_path ) {
+			return;
+		}
+
+		$iterator = new \RecursiveDirectoryIterator(
+			$file_path,
+			\RecursiveDirectoryIterator::SKIP_DOTS
+		);
+
+		foreach ( new \RecursiveIteratorIterator( $iterator ) as $file_info ) {
+				$this->customize_textdomain_in_file( $file_info->getRealPath() );
 		}
 	}
 
@@ -196,7 +213,8 @@ class Textdomain_Customizer {
 	 * @param string $file_path The file path.
 	 */
 	private function customize_textdomain_in_file( $file_path ) {
-		if ( ! file_exists( $file_path ) ) {
+		$file_path = realpath( $file_path );
+		if ( ! $file_path ) {
 			return;
 		}
 
