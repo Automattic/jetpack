@@ -228,6 +228,9 @@ class MapEdit extends Component {
 									if ( isNaN( height ) ) {
 										// Set map height to default size and input box to empty string
 										height = null;
+									} else if ( null == mapHeight ) {
+										// There was previously no height defined, so set the default.
+										height = this.mapRef.current.mapRef.current.offsetHeight;
 									} else if ( height < MIN_HEIGHT ) {
 										// Set map height to minimum size
 										height = MIN_HEIGHT;
