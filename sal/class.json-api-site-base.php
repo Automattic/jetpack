@@ -651,8 +651,8 @@ abstract class SAL_Site {
 		return false;
 	}
 
-	function get_migration_status() {
-		return false;
+	function get_migration_meta() {
+		return null;
 	}
 
 	function get_site_segment() {

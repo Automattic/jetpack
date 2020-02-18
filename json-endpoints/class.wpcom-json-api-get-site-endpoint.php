@@ -52,7 +52,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'meta'              => '(object) Meta data',
 		'quota'             => '(array) An array describing how much space a user has left for uploads',
 		'launch_status'     => '(string) A string describing the launch status of a site',
-		'migration_status'  => '(string) A string describing the migration status of the site.',
+		'site_migration'    => '(array) Data about any migration into the site.',
 		'is_fse_active'     => '(bool) If the site has Full Site Editing active or not.',
 		'is_fse_eligible'   => '(bool) If the site is capable of Full Site Editing or not',
 	);
@@ -75,7 +75,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_following',
 		'meta',
 		'launch_status',
-		'migration_status',
+		'site_migration',
 		'is_fse_active',
 		'is_fse_eligible',
 	);
@@ -144,7 +144,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 	protected static $jetpack_response_field_additions = array(
 		'subscribers_count',
-		'migration_status',
+		'site_migration',
 	);
 
 	protected static $jetpack_response_field_member_additions = array(
@@ -391,8 +391,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			case 'launch_status' :
 				$response[ $key ] = $this->site->get_launch_status();
 				break;
-			case 'migration_status' :
-				$response[ $key ] = $this->site->get_migration_status();
+			case 'site_migration' :
+				$response[ $key ] = $this->site->get_migration_meta();
 				break;
 			case 'is_fse_active':
 				$response[ $key ] = $this->site->is_fse_active();
