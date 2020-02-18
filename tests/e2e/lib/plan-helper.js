@@ -236,7 +236,7 @@ function getPlanData(
 			space_available: 2100373225472,
 		},
 		launch_status: false,
-		migration_status: 'inactive',
+		site_migration: null,
 		is_fse_active: false,
 		is_fse_eligible: false,
 	};
