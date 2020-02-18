@@ -333,6 +333,7 @@ class Listener {
 					microtime( true ),
 					Settings::is_importing(),
 					$this->get_actor( $current_filter, $args ),
+					$queue->size(),
 				)
 			);
 		} else {
