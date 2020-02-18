@@ -43,6 +43,10 @@ const API_STATE_LOADING = 0;
 const API_STATE_FAILURE = 1;
 const API_STATE_SUCCESS = 2;
 
+// The minimum height that the map can be set to.
+const MIN_HEIGHT = 400;
+
+// Options for the map <ResizableBox> wrapper.
 const RESIZABLE_BOX_ENABLE_OPTION = {
 	top: false,
 	right: false,
@@ -224,9 +228,9 @@ class MapEdit extends Component {
 									if ( isNaN( height ) ) {
 										// Set map height to default size and input box to empty string
 										height = null;
-									} else if ( height < 400 ) {
+									} else if ( height < MIN_HEIGHT ) {
 										// Set map height to minimum size
-										height = 400;
+										height = MIN_HEIGHT;
 									}
 									setAttributes( {
 										mapHeight: height,
@@ -234,7 +238,7 @@ class MapEdit extends Component {
 									setTimeout( this.mapRef.current.sizeMap, 0 );
 								} }
 								value={ mapHeight || '' }
-								min="400"
+								min={ MIN_HEIGHT }
 								step="10"
 							/>
 						</BaseControl>
@@ -355,7 +359,7 @@ class MapEdit extends Component {
 							width: '100%',
 						} }
 						showHandle={ isSelected }
-						minHeight="400"
+						minHeight={ MIN_HEIGHT }
 						enable={ RESIZABLE_BOX_ENABLE_OPTION }
 						onResizeStart={ onResizeStart }
 						onResizeStop={ ( event, direction, elt, delta ) => {
