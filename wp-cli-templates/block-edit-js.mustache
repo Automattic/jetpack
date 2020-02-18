@@ -3,7 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { BlockIcon } from '@wordpress/block-editor';
-import { Notice, Placeholder} from '@wordpress/components';
+import { Notice, Placeholder } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 
 /**
@@ -20,7 +20,8 @@ export default function {{ className }}Edit( { attributes, className, setAttribu
 	 */
 	const [ notice, setNotice ] = useState();
 
-	const setErrorNotice = () => __( 'Put error message here.', 'jetpack' );
+	/* Call this function when you want to show an error in the placeholder. */
+	const setErrorNotice = () => setNotice( __( 'Put error message here.', 'jetpack' ) );
 
 	return (
 		<div className={ className }>

@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { __{{#hasKeywords}}, _x{{/hasKeywords}} } from '@wordpress/i18n';
-import { ExternalLink, Path } from '@wordpress/components';
+import { ExternalLink } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 
 /**
@@ -27,7 +27,6 @@ export const settings = {
 			<ExternalLink href="#">{ __( 'Learn more about {{ title }}', 'jetpack' ) }</ExternalLink>
 		</Fragment>
 	),
-	/* @TODO Add the icon. You can use one of these https://material.io/tools/icons/?style=outline */
 	icon,
 	category: 'jetpack',
 	keywords: [{{#keywords}}_x( '{{ keyword }}', 'block search term', 'jetpack' ), {{/keywords}}],
