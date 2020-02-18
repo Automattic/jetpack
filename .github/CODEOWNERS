@@ -9,9 +9,8 @@
 /modules/search/          @Automattic/jetpack-search
 
 # Other bits of the Codebase
-/class.jetpack-debugger.php @kraftbj
+/_inc/lib/debugger/ @kraftbj
 /_inc/lib/jetpack-wpes-query-builder/ @gibrown
-/class.jetpack-jitm.php @withinboredom
 
 # Functionality that is important to our partners
 /class.jetpack-cli.php @automattic/jetpack-infinity
@@ -22,6 +21,3 @@
 # Catch-all owners, the Jetpack Crew
 # Please leave this at the bottom of the list
 * @automattic/jetpack-crew
-
-/sync/ @automattic/poseidon @automattic/jetpack-crew
-/tests/php/sync/ @automattic/poseidon @automattic/jetpack-crew
