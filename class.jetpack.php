@@ -168,9 +168,6 @@ class Jetpack {
 			'Fast Secure Contact Form' => 'si-contact-form/si-contact-form.php',
 			'Ninja Forms'              => 'ninja-forms/ninja-forms.php',
 		),
-		'minileven'          => array(
-			'WPtouch' => 'wptouch/wptouch.php',
-		),
 		'latex'              => array(
 			'LaTeX for WordPress'     => 'latex/latex.php',
 			'Youngwhans Simple Latex' => 'youngwhans-simple-latex/yw-latex.php',
@@ -436,6 +433,20 @@ class Jetpack {
 				// Make sure Markdown for posts gets turned back on
 				if ( ! get_option( 'wpcom_publish_posts_with_markdown' ) ) {
 					update_option( 'wpcom_publish_posts_with_markdown', true );
+				}
+
+				// Minileven deprecation. 8.3.0.
+				if ( get_option( 'wp_mobile_custom_css' ) ) {
+					delete_option( 'wp_mobile_custom_css' );
+				}
+				if ( Jetpack_Options::get_option( 'wp_mobile_excerpt' ) ) {
+					Jetpack_Options::delete_option( 'wp_mobile_excerpt' );
+				}
+				if ( Jetpack_Options::get_option( 'wp_mobile_featured_images' ) ) {
+					Jetpack_Options::delete_option( 'wp_mobile_featured_images' );
+				}
+				if ( Jetpack_Options::get_option( 'wp_mobile_app_promos' ) ) {
+					Jetpack_Options::delete_option( 'wp_mobile_app_promos' );
 				}
 
 				if ( did_action( 'wp_loaded' ) ) {
@@ -2379,6 +2390,7 @@ class Jetpack {
 			'debug'            => null,  // Closed out and moved to the debugger library.
 			'wpcc'             => 'sso', // Closed out in 2.6 -- SSO provides the same functionality.
 			'gplus-authorship' => null,  // Closed out in 3.2 -- Google dropped support.
+			'minileven'        => null,  // Closed out in 8.3 -- Responsive themes are common now, and so is AMP.
 		);
 
 		// Don't activate SSO if they never completed activating WPCC.
@@ -6358,6 +6370,22 @@ endif;
 			// Removed in Jetpack 7.9.0
 			'jetpack_pwa_manifest'                         => null,
 			'jetpack_pwa_background_color'                 => null,
+			// Removed in Jetpack 8.3.0.
+			'jetpack_check_mobile'                         => null,
+			'jetpack_mobile_stylesheet'                    => null,
+			'jetpack_mobile_template'                      => null,
+			'mobile_reject_mobile'                         => null,
+			'mobile_force_mobile'                          => null,
+			'mobile_app_promo_download'                    => null,
+			'mobile_setup'                                 => null,
+			'jetpack_mobile_footer_before'                 => null,
+			'wp_mobile_theme_footer'                       => null,
+			'minileven_credits'                            => null,
+			'jetpack_mobile_header_before'                 => null,
+			'jetpack_mobile_header_after'                  => null,
+			'jetpack_mobile_theme_menu'                    => null,
+			'minileven_show_featured_images'               => null,
+			'minileven_attachment_size'                    => null,
 		);
 
 		// This is a silly loop depth. Better way?

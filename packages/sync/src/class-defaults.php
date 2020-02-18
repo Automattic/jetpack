@@ -110,9 +110,6 @@ class Defaults {
 		'gravatar_disable_hovercards',
 		'infinite_scroll',
 		'infinite_scroll_google_analytics',
-		'wp_mobile_excerpt',
-		'wp_mobile_featured_images',
-		'wp_mobile_app_promos',
 		'monitor_receive_notifications',
 		'post_by_email_address',
 		'jetpack_mailchimp',
@@ -395,7 +392,7 @@ class Defaults {
 		'snitch',
 		'vip-legacy-redirect',
 		'wp_automatic',
-		'wp-rest-api-log', // https://wordpress.org/plugins/wp-rest-api-log/
+		'wp-rest-api-log', // https://wordpress.org/plugins/wp-rest-api-log/.
 		'wpephpcompat_jobs',
 		'wprss_feed_item',
 	);
