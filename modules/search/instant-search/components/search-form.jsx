@@ -75,7 +75,7 @@ class SearchForm extends Component {
 								widget={ widget }
 							/>
 						) ) }
-						<JetpackColophon />
+						<JetpackColophon locale={ this.props.locale } />
 					</div>
 				) }
 			</form>
