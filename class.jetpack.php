@@ -578,7 +578,18 @@ class Jetpack {
 
 		$first_priority = array_shift( $taken_priorities );
 
-		add_action( 'plugins_loaded', array( $this, 'configure' ), $first_priority - 1 );
+		if ( defined( 'PHP_INT_MAX' ) && $first_priority <= PHP_INT_MAX ) {
+			trigger_error( // phpcs:ignore
+				/* translators: plugins_loaded is a filter name in WordPress, no need to translate. */
+				__( 'A plugin on your site is using the plugins_loaded filter with a priority that is too high. Jetpack does not support this, you may experience problems.', 'jetpack' ), // phpcs:ignore
+				E_USER_NOTICE
+			);
+			$new_priority = PHP_INT_MAX;
+		} else {
+			$new_priority = $first_priority - 1;
+		}
+
+		add_action( 'plugins_loaded', array( $this, 'configure' ), $new_priority );
 	}
 
 	/**
