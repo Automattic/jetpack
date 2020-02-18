@@ -101,7 +101,7 @@ class Textdomain_Customizer {
 			$current_package_prefix = substr( $package->getName(), 0, strlen( $jetpack_package_prefix ) );
 
 			if ( $jetpack_package_prefix !== $current_package_prefix ) {
-				// Not a Jetpack package, so bail.
+				// Not a Jetpack package, so skip.
 				continue;
 			}
 
@@ -190,7 +190,7 @@ class Textdomain_Customizer {
 	}
 
 	/**
-	 * Replaces all occurrences of the placeholder textdomain 'JETPACK_CUSTOMIZE_TEXTDOMAIN'
+	 * Replaces all occurrences of the placeholder textdomain JETPACK_CUSTOMIZE_TEXTDOMAIN
 	 * in the input file with the plugin's textdomain.
 	 *
 	 * @param string $file_path The file path.
@@ -203,7 +203,7 @@ class Textdomain_Customizer {
 		$file_contents = file_get_contents( $file_path );
 
 		$file_contents = str_replace(
-			'\'JETPACK_CUSTOMIZE_TEXTDOMAIN\'',
+			'JETPACK_CUSTOMIZE_TEXTDOMAIN',
 			'\'' . $this->textdomain . '\'',
 			$file_contents
 		);

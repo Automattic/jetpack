@@ -45,7 +45,7 @@ class Test_Textdomain_Customizer extends TestCase {
 	 */
 	public function test_customizer_textdomain_in_packages() {
 
-		$input  = "__( 'text to be translated', 'JETPACK_CUSTOMIZE_TEXTDOMAIN' )";
+		$input  = "__( 'text to be translated', JETPACK_CUSTOMIZE_TEXTDOMAIN )";
 		$output = "__( 'text to be translated', 'test_textdomain' )";
 
 		$this->mock_function( 'file_get_contents', $input );
