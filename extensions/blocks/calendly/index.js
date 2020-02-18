@@ -23,7 +23,7 @@ export const settings = {
 	title,
 	description: __( 'Embed a calendar for customers to schedule appointments', 'jetpack' ),
 	icon,
-	category: 'jetpack',
+	category: 'marketing',
 	keywords: [
 		__( 'calendar', 'jetpack' ),
 		__( 'schedule', 'jetpack' ),

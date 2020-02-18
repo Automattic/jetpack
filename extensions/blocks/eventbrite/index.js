@@ -40,7 +40,7 @@ export const settings = {
 	title,
 	description: __( 'Embed Eventbrite event details and ticket checkout.', 'jetpack' ),
 	icon,
-	category: 'jetpack',
+	category: 'embed',
 	keywords: [ __( 'events', 'jetpack' ), __( 'tickets', 'jetpack' ) ],
 	supports: {
 		html: false,

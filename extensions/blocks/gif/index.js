@@ -26,7 +26,7 @@ export const icon = (
 export const settings = {
 	title,
 	icon,
-	category: 'jetpack',
+	category: 'embed',
 	keywords: [
 		_x( 'animated', 'block search term', 'jetpack' ),
 		_x( 'giphy', 'block search term', 'jetpack' ),

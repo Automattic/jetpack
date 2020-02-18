@@ -28,7 +28,7 @@ export const settings = {
 			default: DEFAULT_THRESHOLD,
 		},
 	},
-	category: 'jetpack',
+	category: 'widget',
 	description: __(
 		'Control block visibility based on how often a visitor has viewed the page.',
 		'jetpack'

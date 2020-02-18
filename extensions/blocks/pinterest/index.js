@@ -32,7 +32,7 @@ export const settings = {
 
 	icon,
 
-	category: 'jetpack',
+	category: 'social',
 
 	keywords: [ _x( 'social', 'block search term', 'jetpack' ) ],
 

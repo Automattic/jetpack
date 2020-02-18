@@ -56,7 +56,7 @@ export const settings = {
 		attributes: {},
 	},
 
-	category: 'jetpack',
+	category: 'earn',
 
 	keywords: [ __( 'ads', 'jetpack' ), 'WordAds', __( 'Advertisement', 'jetpack' ) ],
 

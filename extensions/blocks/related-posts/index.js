@@ -23,7 +23,7 @@ export const settings = {
 		</SVG>
 	),
 
-	category: 'jetpack',
+	category: 'blog',
 
 	keywords: [
 		_x( 'Similar content', 'block search term', 'jetpack' ),

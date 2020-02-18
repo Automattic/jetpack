@@ -63,7 +63,7 @@ export const settings = {
 			<Circle cx="12" cy="9" r="2.5" />
 		</Fragment>
 	),
-	category: 'jetpack',
+	category: 'marketing',
 	attributes,
 	parent: [ 'jetpack/contact-info' ],
 	edit,

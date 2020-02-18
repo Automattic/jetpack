@@ -197,7 +197,7 @@ export const icon = (
 
 export const settings = {
 	attributes: blockAttributes,
-	category: 'jetpack',
+	category: 'layout',
 	description:
 		__( 'Display multiple images in an elegantly organized tiled layout.', 'jetpack' ) +
 		( ! isSimpleSite()

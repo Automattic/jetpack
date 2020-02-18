@@ -25,7 +25,7 @@ export const settings = {
 	title: __( 'Recurring Payments button', 'jetpack' ),
 	icon,
 	description: __( 'Button allowing you to sell subscription products.', 'jetpack' ),
-	category: 'jetpack',
+	category: 'earn',
 	keywords: [
 		_x( 'sell', 'block search term', 'jetpack' ),
 		_x( 'subscription', 'block search term', 'jetpack' ),

@@ -23,7 +23,7 @@ export const settings = {
 	title: __( 'Mailchimp', 'jetpack' ),
 	icon,
 	description: __( 'A form enabling readers to join a Mailchimp list.', 'jetpack' ),
-	category: 'jetpack',
+	category: 'marketing',
 	keywords: [
 		_x( 'email', 'block search term', 'jetpack' ),
 		_x( 'subscription', 'block search term', 'jetpack' ),

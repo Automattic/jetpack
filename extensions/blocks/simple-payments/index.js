@@ -42,10 +42,7 @@ export const settings = {
 				) }
 			</p>
 			<p>
-				{ __(
-					'Good for collecting donations or payments for products and services.',
-					'jetpack'
-				) }
+				{ __( 'Good for collecting donations or payments for products and services.', 'jetpack' ) }
 			</p>
 			<ExternalLink href={ supportLink }>{ __( 'Support reference', 'jetpack' ) }</ExternalLink>
 		</Fragment>
@@ -58,7 +55,7 @@ export const settings = {
 		</SVG>
 	),
 
-	category: 'jetpack',
+	category: 'earn',
 
 	keywords: [
 		_x( 'shop', 'block search term', 'jetpack' ),

@@ -57,7 +57,7 @@ export const settings = {
 		</SVG>
 	),
 
-	category: 'jetpack',
+	category: 'formatting',
 
 	keywords: [
 		_x( 'formatting', 'block search term', 'jetpack' ),

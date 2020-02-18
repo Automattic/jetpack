@@ -31,7 +31,7 @@ export const settings = {
 		_x( 'feedback', 'block search term', 'jetpack' ),
 		_x( 'contact form', 'block search term', 'jetpack' ),
 	],
-	category: 'jetpack',
+	category: 'marketing',
 	supports: {
 		html: false,
 	},
