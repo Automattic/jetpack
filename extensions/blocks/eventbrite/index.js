@@ -1,13 +1,14 @@
 /**
  * External dependencies
  */
-import { __, _x } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { G, Path, Rect, SVG } from '@wordpress/components';
 import { createBlock } from '@wordpress/blocks';
 
 /**
  * Internal dependencies
  */
+import attributes from './attributes';
 import edit from './edit';
 import save from './save';
 
@@ -44,37 +45,7 @@ export const settings = {
 	supports: {
 		html: false,
 	},
-	attributes: {
-		url: {
-			type: 'string',
-		},
-		eventId: {
-			type: 'number',
-		},
-		useModal: {
-			type: 'boolean',
-		},
-		// Modal button attributes, used for Button & Modal embed type.
-		text: {
-			type: 'string',
-			default: _x( 'Register', 'verb: e.g. register for an event.', 'jetpack' ),
-		},
-		backgroundColor: {
-			type: 'string',
-		},
-		textColor: {
-			type: 'string',
-		},
-		customBackgroundColor: {
-			type: 'string',
-		},
-		customTextColor: {
-			type: 'string',
-		},
-		borderRadius: {
-			type: 'number',
-		},
-	},
+	attributes,
 	edit,
 	save,
 	transforms: {
