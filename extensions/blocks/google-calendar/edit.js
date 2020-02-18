@@ -109,6 +109,7 @@ class GoogleCalendarEdit extends Component {
 	 */
 	render() {
 		const { attributes, className } = this.props;
+		const primaryClass = className.split( ' ', 1 );
 		const { url } = attributes;
 		const { editedEmbed, interactive, editingUrl } = this.state;
 
@@ -126,7 +127,7 @@ class GoogleCalendarEdit extends Component {
 			<>
 				<InspectorControls>
 					<PanelBody title={ __( 'Calendar Settings', 'jetpack' ) } initialOpen={ false }>
-						{ this.getEditForm( `${ className }-embed-form-sidebar`, editedEmbed ) }
+						{ this.getEditForm( `${ primaryClass }-embed-form-sidebar`, editedEmbed ) }
 					</PanelBody>
 				</InspectorControls>
 			</>
@@ -142,7 +143,7 @@ class GoogleCalendarEdit extends Component {
 				<div className={ className }>
 					{ controls }
 					<Placeholder
-						className="wp-block-jetpack-google-calendar"
+						className={ className }
 						label={ __( 'Google Calendar', 'jetpack' ) }
 						icon={ <BlockIcon icon={ icon } /> }
 						notices={
@@ -153,7 +154,7 @@ class GoogleCalendarEdit extends Component {
 							)
 						}
 					>
-						<ol className={ `${ className }-placeholder-instructions` }>
+						<ol className={ `${ primaryClass }-placeholder-instructions` }>
 							<li>{ permissionsLink }</li>
 							<li>
 								{ __(
@@ -162,8 +163,8 @@ class GoogleCalendarEdit extends Component {
 								) }
 							</li>
 						</ol>
-						{ this.getEditForm( `${ className }-embed-form-editor`, editedEmbed ) }
-						<div className={ `${ className }-placeholder-links` }>
+						{ this.getEditForm( `${ primaryClass }-embed-form-editor`, editedEmbed ) }
+						<div className={ `${ primaryClass }-placeholder-links` }>
 							<ExternalLink href={ supportLink }>{ __( 'Learn more', 'jetpack' ) }</ExternalLink>
 						</div>
 					</Placeholder>
