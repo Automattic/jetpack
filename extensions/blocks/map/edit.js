@@ -248,12 +248,11 @@ class MapEdit extends Component {
 						<RangeControl
 							label={ __( 'Zoom level', 'jetpack' ) }
 							help={
-								points.length > 1
-									? __(
-											'The default zoom level cannot be changed when there are two or more markers on the map.',
-											'jetpack'
-									  )
-									: ''
+								points.length > 1 &&
+								__(
+									'The default zoom level cannot be changed when there are two or more markers on the map.',
+									'jetpack'
+								)
 							}
 							disabled={ points.length > 1 }
 							value={ zoom }
