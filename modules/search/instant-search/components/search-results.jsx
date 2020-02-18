@@ -163,7 +163,7 @@ class SearchResults extends Component {
 					this.props.isLoading === true ? ' jetpack-instant-search__is-loading' : ''
 				}` }
 			>
-				<div
+				<a
 					className="jetpack-instant-search__overlay-close"
 					onClick={ this.closeOverlay }
 					onKeyPress={ this.onKeyPressHandler }
@@ -171,7 +171,7 @@ class SearchResults extends Component {
 					tabIndex="0"
 				>
 					<Gridicon icon="cross" size="24" />
-				</div>
+				</a>
 				<div className="jetpack-instant-search__search-results-primary">
 					{ this.renderPrimarySection() }
 				</div>
