@@ -18,7 +18,7 @@ export const getValidatedAttributes = ( attributeDetails, attributesToValidate )
 				attributeKey
 			];
 			if ( 'boolean' === type ) {
-				ret[ attributeKey ] = !! attribute;
+				ret[ attributeKey ] = attribute === 'false' ? false : !! attribute;
 			} else if ( validator ) {
 				ret[ attributeKey ] = validator( attribute ) ? attribute : defaultVal;
 			} else if ( validValues ) {

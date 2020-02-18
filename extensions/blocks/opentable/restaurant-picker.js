@@ -16,7 +16,6 @@ import { __, _n } from '@wordpress/i18n';
 import useRestaurantSearch, { possibleEmbed } from './use-restaurant-search';
 
 const MAX_SUGGESTIONS = 20;
-const embedRegex = /<script type=\'text\/javascript\' src=\'\/\/www.opentable\.(\w{2,3}\.)?\w+\/widget\/reservation\/loader\?[^']+\'><\/script>/;
 
 export default function RestaurantPicker( props ) {
 	const [ input, setInput ] = useState( '' );
@@ -42,9 +41,7 @@ export default function RestaurantPicker( props ) {
 
 	const onSubmit = event => {
 		event.preventDefault();
-		props.onSubmit(
-			isEmpty( selectedRestaurants ) && embedRegex.test( input ) ? input : selectedRestaurants
-		);
+		props.onSubmit( isEmpty( selectedRestaurants ) ? input : selectedRestaurants );
 	};
 
 	const formInput = (
