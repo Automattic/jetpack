@@ -144,6 +144,13 @@ class MapEdit extends Component {
 		noticeOperations.removeAllNotices();
 		noticeOperations.createErrorNotice( message );
 	};
+
+	/**
+	 * Change event handler for the map height sidebar control. Ensures the height is valid,
+	 * and updates both the height attribute, and the map component's height in the DOM.
+	 *
+	 * @param {Event} event The change event object.
+	 */
 	onHeightChange = event => {
 		const { attributes, setAttributes } = this.props;
 		const { mapHeight } = attributes;
@@ -167,6 +174,16 @@ class MapEdit extends Component {
 
 		setTimeout( this.mapRef.current.sizeMap, 0 );
 	};
+
+	/**
+	 * Event handler for the ResizableBox component. Updates both the height attribute,
+	 * and the map component's height in the DOM.
+	 *
+	 * @param {Event} event The event object.
+	 * @param {ResizeDirection} direction A string representing which resize handler was used.
+	 * @param {HtmlDivElement} elt A ref to the ResizeableBox's container element.
+	 * @param {NumberSize} delta Information about how far the element was resized.
+	 */
 	onMapResize = ( event, direction, elt, delta ) => {
 		const { onResizeStop, setAttributes } = this.props;
 
@@ -180,6 +197,7 @@ class MapEdit extends Component {
 
 		setTimeout( this.mapRef.current.sizeMap, 0 );
 	};
+
 	render() {
 		const {
 			className,
