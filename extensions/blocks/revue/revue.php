@@ -28,16 +28,6 @@ function jetpack_render_revue_block( $attributes ) {
 
 	Jetpack_Gutenberg::load_assets_as_required( 'revue' );
 
-	wp_localize_script(
-		'jetpack-block-revue',
-		'jetpackRevueBlock',
-		array(
-			'ajaxUrl'       => admin_url( 'admin-ajax.php' ),
-			'nonce'         => wp_create_nonce( 'jetpack-revue-subscribe' ),
-			'revueUsername' => $attributes['revueUsername'],
-		)
-	);
-
 	ob_start();
 	?>
 
@@ -57,7 +47,7 @@ function jetpack_render_revue_block( $attributes ) {
 		<div>
 			<label>
 				<?php esc_html_e( 'Email address', 'jetpack' ); ?>
-				<span class="required">*</span>
+				<span class="required"><?php esc_html_e( '(required)', 'jetpack' ); ?></span>
 				<input
 					class="wp-block-jetpack-revue__email"
 					name="member[email]"
@@ -102,6 +92,8 @@ function jetpack_render_revue_block( $attributes ) {
 
 /**
  * Create the Revue subscribe button.
+ *
+ * @see https://github.com/WordPress/gutenberg/blob/015555fcdf648b13af57e08cee60bf3f3501ff63/packages/block-library/src/navigation/index.php
  *
  * @param array $attributes Array containing the Revue block attributes.
  *
@@ -184,45 +176,4 @@ function jetpack_get_revue_button( $attributes ) {
 
 	<?php
 	return ob_get_clean();
-}
-
-add_action( 'wp_ajax_jetpack_revue_subscribe', 'jetpack_ajax_revue_subscribe' );
-add_action( 'wp_ajax_nopriv_jetpack_revue_subscribe', 'jetpack_ajax_revue_subscribe' );
-
-/**
- * Revue subscription AJAX callback.
- */
-function jetpack_ajax_revue_subscribe() {
-	check_ajax_referer( 'jetpack-revue-subscribe' );
-
-	if ( empty( $_POST['revueUsername'] ) ) {
-		wp_send_json(
-			array(
-				'status'  => 'error',
-				'message' => __( 'Unexpected error, try again!', 'jetpack' ),
-			)
-		);
-		wp_die();
-	}
-	if ( empty( $_POST['member'] ) || empty( $_POST['member']['email'] ) ) {
-		wp_send_json(
-			array(
-				'status'  => 'error',
-				'message' => __( 'We really need the email address!', 'jetpack' ),
-			)
-		);
-		wp_die();
-	}
-
-	wp_remote_post(
-		sprintf( 'https://www.getrevue.co/profile/%s/add_subscriber', $_POST['revueUsername'] ),
-		array( 'body' => array( 'member' => $_POST['member'] ) )
-	);
-
-	wp_send_json(
-		array(
-			'status' => 'success',
-		)
-	);
-	wp_die();
 }

@@ -14,37 +14,14 @@ import { __ } from '@wordpress/i18n';
  */
 import './view.scss';
 
-const revueSubscribe = event => {
-	event.preventDefault();
-	const form = event.target;
-	const { ajaxUrl, nonce, revueUsername } = window.jetpackRevueBlock;
-
-	const member = {
-		email: form.querySelector( '.wp-block-jetpack-revue__email' ).value,
-		first_name: form.querySelector( '.wp-block-jetpack-revue__first-name' ).value,
-		last_name: form.querySelector( '.wp-block-jetpack-revue__last-name' ).value,
-	};
-
-	jQuery.post(
-		ajaxUrl,
-		{
-			_ajax_nonce: nonce,
-			action: 'jetpack_revue_subscribe',
-			member,
-			revueUsername,
-		},
-		( { status, message } ) => {
-			const notice = document.createElement( 'div' );
-			if ( 'success' === status ) {
-				notice.innerHTML = __( 'Congratulations, you are subscribed!', 'jetpack' );
-				form.innerHTML = '';
-			} else {
-				notice.innerHTML = message;
-			}
-			form.prepend( notice );
-		}
-	);
-};
+const revueSubscribe = event =>
+	setTimeout( () => {
+		const form = event.target;
+		const notice = document.createElement( 'div' );
+		notice.innerHTML = __( 'You can complete your registration in the new page.', 'jetpack' );
+		form.innerHTML = '';
+		form.prepend( notice );
+	}, 1000 );
 
 if ( typeof window !== 'undefined' && window.jQuery ) {
 	domReady( function() {

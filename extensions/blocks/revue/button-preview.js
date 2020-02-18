@@ -1,3 +1,4 @@
+// @see https://github.com/WordPress/gutenberg/blob/015555fcdf648b13af57e08cee60bf3f3501ff63/packages/block-library/src/button/edit.js
 /**
  * External dependencies
  */

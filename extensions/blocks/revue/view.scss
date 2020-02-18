@@ -1,10 +1,20 @@
 .wp-block-jetpack-revue {
 	form {
 		> div {
-			margin-bottom: 2rem;
+			margin-bottom: 0.75em;
+		}
+		.wp-block-button {
+			margin-top: 0;
 		}
 		input {
-			margin-top: 0.5rem;
+			margin-top: 0.25em;
+		}
+		label {
+			font-weight: bold;
+		}
+		.required {
+			color: #aaaaaa;
+			font-weight: normal;
 		}
 	}
 }
