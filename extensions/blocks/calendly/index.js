@@ -9,6 +9,7 @@ import { createBlock } from '@wordpress/blocks';
  */
 import attributes from './attributes';
 import edit from './edit';
+import { SubmitButtonSave } from '../../shared/submit-button';
 import icon from './icon';
 import { getAttributesFromEmbedCode, REGEX } from './utils';
 
@@ -35,7 +36,11 @@ export const settings = {
 		html: false,
 	},
 	edit,
-	save: ( { attributes: { url } } ) => <a href={ url }>{ url }</a>,
+	save: function( { attributes: buttonAttributes } ) {
+		return (
+			<SubmitButtonSave className="wp-block-jetpack-calendly" attributes={ buttonAttributes } />
+		);
+	},
 	attributes,
 	example: {
 		attributes: {
@@ -57,4 +62,10 @@ export const settings = {
 			},
 		],
 	},
+	deprecated: [
+		{
+			attributes,
+			save: ( { attributes: { url } } ) => <a href={ url }>{ url }</a>,
+		},
+	],
 };

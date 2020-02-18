@@ -12,8 +12,9 @@ import {
 	ContrastChecker,
 	RichText,
 	withColors,
+	getColorClassName,
 } from '@wordpress/block-editor';
-import { isEqual, get } from 'lodash';
+import { isEqual, pick } from 'lodash';
 
 const { getComputedStyle } = window;
 
@@ -53,26 +54,64 @@ const applyFallbackStyles = withFallbackStyles( ( node, ownProps ) => {
 	};
 } );
 
+const getButtonClasses = ( { textButtonColor, backgroundButtonColor } ) => {
+	const textClass = getColorClassName( 'color', textButtonColor );
+	const backgroundClass = getColorClassName( 'background-color', backgroundButtonColor );
+	return classnames( 'wp-block-button__link', {
+		'has-text-color': textButtonColor,
+		[ textClass ]: textClass,
+		'has-background': backgroundButtonColor,
+		[ backgroundClass ]: backgroundClass,
+	} );
+};
+
+export function SubmitButtonSave( { className, attributes } ) {
+	const {
+		submitButtonText,
+		backgroundButtonColor,
+		textButtonColor,
+		customBackgroundButtonColor,
+		customTextButtonColor,
+		url,
+	} = attributes;
+
+	const buttonStyle = {
+		backgroundColor: backgroundButtonColor ? undefined : customBackgroundButtonColor,
+		color: textButtonColor ? undefined : customTextButtonColor,
+	};
+
+	const buttonClasses = getButtonClasses( { textButtonColor, backgroundButtonColor } );
+	return (
+		<div className={ classnames( 'wp-block-button', 'jetpack-submit-button', className ) }>
+			<RichText.Content
+				className={ buttonClasses }
+				href={ url }
+				data-id-attr="placeholder"
+				rel="noopener noreferrer"
+				role="button"
+				style={ buttonStyle }
+				tagName="a"
+				target="_blank"
+				value={ submitButtonText }
+			/>
+		</div>
+	);
+}
+
 class SubmitButton extends Component {
 	componentDidUpdate( prevProps ) {
 		if (
-			! isEqual( this.props.textButtonColor, prevProps.textButtonColor ) ||
-			! isEqual( this.props.backgroundButtonColor, prevProps.backgroundButtonColor )
+			! isEqual( this.props.attributes.textButtonColor, prevProps.attributes.textButtonColor ) ||
+			! isEqual(
+				this.props.attributes.backgroundButtonColor,
+				prevProps.attributes.backgroundButtonColor
+			)
 		) {
-			const buttonClasses = this.getButtonClasses();
+			const buttonClasses = getButtonClasses(
+				pick( this.props.attributes, [ 'textButtonColor', 'backgroundButtonColor' ] )
+			);
 			this.props.setAttributes( { submitButtonClasses: buttonClasses } );
 		}
-	}
-	getButtonClasses() {
-		const { textButtonColor, backgroundButtonColor } = this.props;
-		const textClass = get( textButtonColor, 'class' );
-		const backgroundClass = get( backgroundButtonColor, 'class' );
-		return classnames( 'wp-block-button__link', {
-			'has-text-color': textButtonColor.color,
-			[ textClass ]: textClass,
-			'has-background': backgroundButtonColor.color,
-			[ backgroundClass ]: backgroundClass,
-		} );
 	}
 	render() {
 		const {
@@ -86,10 +125,12 @@ class SubmitButton extends Component {
 			setTextButtonColor,
 		} = this.props;
 
-		const backgroundColor = backgroundButtonColor.color || fallbackBackgroundColor;
-		const color = textButtonColor.color || fallbackTextColor;
+		const backgroundColor = attributes.customBackgroundButtonColor || fallbackBackgroundColor;
+		const color = attributes.customTextButtonColor || fallbackTextColor;
 		const buttonStyle = { border: 'none', backgroundColor, color };
-		const buttonClasses = this.getButtonClasses();
+		const buttonClasses = getButtonClasses(
+			pick( this.attributes, [ 'backgroundButtonColor', 'textButtonColor' ] )
+		);
 
 		return (
 			<Fragment>
