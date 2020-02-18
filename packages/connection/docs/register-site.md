@@ -56,6 +56,8 @@ add_action( 'plugins_loaded', 'jpcs_load_plugin', 1 );
 ### Create admin_post endpoint
 
 ```php
+use Automattic\Jetpack\Manager;
+
 add_action( 'admin_post_register_site', 'your_plugin_register_site' );
 
 function your_plugin_register_site() {
@@ -87,6 +89,8 @@ And that's it! You've just created a button that will register a WordPress site 
 When disconnecting the site, we recommend also clearing the remaining user tokens, since those won't work anyway and may cause problems on reconnection. 
 
 ```php
+use Automattic\Jetpack\Manager;
+
 function your_plugin_disconnect_site() {
 	check_admin_referer( 'disconnect-site' );
 
