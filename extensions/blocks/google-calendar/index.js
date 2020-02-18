@@ -26,7 +26,7 @@ export const settings = {
 	category: 'jetpack',
 	supports: {
 		align: true,
-		alignWide: false,
+		alignWide: true,
 		html: false,
 	},
 	attributes: {
