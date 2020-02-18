@@ -20,7 +20,15 @@ const SearchBox = props => {
 	const [ inputId ] = useState( () => uniqueId( 'jetpack-instant-search__box-input-' ) );
 	const inputRef = useRef( null );
 
-	const cb = overlayElement => () => {
+	const cb = overlayElement => event => {
+		if (
+			event &&
+			event.target &&
+			! event.target.classList.contains( '.jetpack-instant-search__overlay' )
+		) {
+			return;
+		}
+
 		if ( ! overlayElement.classList.contains( 'is-hidden' ) ) {
 			initiallyFocusedElement = document.activeElement;
 			inputRef.current.focus();
