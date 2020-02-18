@@ -29,7 +29,10 @@ class SearchForm extends Component {
 	};
 
 	onChangeQuery = event => setSearchQuery( event.target.value );
-	onChangeSort = sort => setSortQuery( sort );
+	onChangeSort = sort => {
+		setSortQuery( sort );
+		this.hideFilters();
+	};
 
 	hideFilters = () => this.setState( () => ( { showFilters: false } ) );
 	toggleFilters = event => {
