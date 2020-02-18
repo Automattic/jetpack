@@ -435,6 +435,20 @@ class Jetpack {
 					update_option( 'wpcom_publish_posts_with_markdown', true );
 				}
 
+				// Minileven deprecation. 8.3.0.
+				if ( get_option( 'wp_mobile_custom_css' ) ) {
+					delete_option( 'wp_mobile_custom_css' );
+				}
+				if ( Jetpack_Options::get_option( 'wp_mobile_excerpt' ) ) {
+					Jetpack_Options::delete_option( 'wp_mobile_excerpt' );
+				}
+				if ( Jetpack_Options::get_option( 'wp_mobile_featured_images' ) ) {
+					Jetpack_Options::delete_option( 'wp_mobile_featured_images' );
+				}
+				if ( Jetpack_Options::get_option( 'wp_mobile_app_promos' ) ) {
+					Jetpack_Options::delete_option( 'wp_mobile_app_promos' );
+				}
+
 				if ( did_action( 'wp_loaded' ) ) {
 					self::upgrade_on_load();
 				} else {
