@@ -8,6 +8,8 @@ import { unionBy, throttle, isEmpty } from 'lodash';
  */
 import { useState, useEffect, useCallback } from '@wordpress/element';
 
+export const possibleEmbed = /^\s*(http[s]?:\/\/|\<script)/;
+
 export default function useRestaurantSearch( searchTerm, maxResults ) {
 	const [ restaurants, setRestaurants ] = useState( [] );
 
@@ -29,7 +31,7 @@ export default function useRestaurantSearch( searchTerm, maxResults ) {
 	] );
 
 	useEffect( () => {
-		if ( ! isEmpty( searchTerm ) && ! searchTerm.startsWith( '<script' ) ) {
+		if ( ! isEmpty( searchTerm ) && ! possibleEmbed.test( searchTerm ) ) {
 			throttledSearchRestaurants( searchTerm );
 		}
 	}, [ searchTerm ] );
