@@ -109,7 +109,7 @@ class GoogleCalendarEdit extends Component {
 	 */
 	render() {
 		const { attributes, className } = this.props;
-		const primaryClass = className.split( ' ', 1 );
+		const primaryClass = className ? className.split( ' ', 1 )[ 0 ] : '';
 		const { url } = attributes;
 		const { editedEmbed, interactive, editingUrl } = this.state;
 
