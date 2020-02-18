@@ -410,37 +410,39 @@ class MapEdit extends Component {
 						onResizeStart={ onResizeStart }
 						onResizeStop={ this.onMapResize }
 					>
-						<Map
-							ref={ this.mapRef }
-							scrollToZoom={ allowScrollToZoom }
-							mapStyle={ mapStyle }
-							mapDetails={ mapDetails }
-							mapHeight={ mapHeight }
-							points={ points }
-							zoom={ zoom }
-							mapCenter={ mapCenter }
-							markerColor={ markerColor }
-							onSetZoom={ value => {
-								setAttributes( { zoom: value } );
-							} }
-							admin={ true }
-							apiKey={ apiKey }
-							onSetPoints={ value => setAttributes( { points: value } ) }
-							onSetMapCenter={ value => setAttributes( { mapCenter: value } ) }
-							onMapLoaded={ () => this.setState( { addPointVisibility: ! points.length } ) }
-							onMarkerClick={ () => this.setState( { addPointVisibility: false } ) }
-							onError={ this.onError }
-						>
-							{ isSelected && addPointVisibility && (
-								<AddPoint
-									onAddPoint={ this.addPoint }
-									onClose={ () => this.setState( { addPointVisibility: false } ) }
-									apiKey={ apiKey }
-									onError={ this.onError }
-									tagName="AddPoint"
-								/>
-							) }
-						</Map>
+						<div className="wp-block-jetpack-map__map_wrapper">
+							<Map
+								ref={ this.mapRef }
+								scrollToZoom={ allowScrollToZoom }
+								mapStyle={ mapStyle }
+								mapDetails={ mapDetails }
+								mapHeight={ mapHeight }
+								points={ points }
+								zoom={ zoom }
+								mapCenter={ mapCenter }
+								markerColor={ markerColor }
+								onSetZoom={ value => {
+									setAttributes( { zoom: value } );
+								} }
+								admin={ true }
+								apiKey={ apiKey }
+								onSetPoints={ value => setAttributes( { points: value } ) }
+								onSetMapCenter={ value => setAttributes( { mapCenter: value } ) }
+								onMapLoaded={ () => this.setState( { addPointVisibility: ! points.length } ) }
+								onMarkerClick={ () => this.setState( { addPointVisibility: false } ) }
+								onError={ this.onError }
+							>
+								{ isSelected && addPointVisibility && (
+									<AddPoint
+										onAddPoint={ this.addPoint }
+										onClose={ () => this.setState( { addPointVisibility: false } ) }
+										apiKey={ apiKey }
+										onError={ this.onError }
+										tagName="AddPoint"
+									/>
+								) }
+							</Map>
+						</div>
 					</ResizableBox>
 				</div>
 			</Fragment>
