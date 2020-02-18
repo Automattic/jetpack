@@ -45,7 +45,7 @@ class WP_Test_Jetpack_Sync_Terms extends WP_Test_Jetpack_Sync_Base {
 	public function test_insert_term_is_synced() {
 		$terms        = $this->get_terms();
 		$server_terms = $this->server_replica_storage->get_terms( $this->taxonomy );
-		$this->assertEqualsObject( $terms, $server_terms );
+		$this->assertEqualsObject( $terms, $server_terms, 'Synced terms do not match local terms.' );
 
 		$event_data = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_add_term' );
 		$this->assertTrue( (bool) $event_data );
@@ -61,7 +61,7 @@ class WP_Test_Jetpack_Sync_Terms extends WP_Test_Jetpack_Sync_Base {
 
 		$terms        = $this->get_terms();
 		$server_terms = $this->server_replica_storage->get_terms( $this->taxonomy );
-		$this->assertEqualsObject( $terms, $server_terms );
+		$this->assertEqualsObject( $terms, $server_terms, 'Synced terms do not match local terms.' );
 	}
 
 	public function test_delete_term_is_synced() {
@@ -80,7 +80,7 @@ class WP_Test_Jetpack_Sync_Terms extends WP_Test_Jetpack_Sync_Base {
 
 		$object_terms        = get_the_terms( $this->post_id, $this->taxonomy );
 		$server_object_terms = $this->server_replica_storage->get_the_terms( $this->post_id, $this->taxonomy );
-		$this->assertEqualsObject( $object_terms, $server_object_terms );
+		$this->assertEqualsObject( $object_terms, $server_object_terms, 'Synced terms do not match local terms.' );
 	}
 
 	public function test_added_terms_to_post_is_synced_appended() {
@@ -94,7 +94,7 @@ class WP_Test_Jetpack_Sync_Terms extends WP_Test_Jetpack_Sync_Base {
 		$object_terms        = get_the_terms( $this->post_id, $this->taxonomy );
 		$server_object_terms = $this->server_replica_storage->get_the_terms( $this->post_id, $this->taxonomy );
 		$server_object_terms = array_reverse( $server_object_terms );
-		$this->assertEqualsObject( $object_terms, $server_object_terms );
+		$this->assertEqualsObject( $object_terms, $server_object_terms, 'Synced terms do not match local terms.' );
 	}
 
 	public function test_deleted_terms_to_post_is_synced() {
@@ -112,7 +112,7 @@ class WP_Test_Jetpack_Sync_Terms extends WP_Test_Jetpack_Sync_Base {
 		$server_object_terms = $this->server_replica_storage->get_the_terms( $this->post_id, $this->taxonomy );
 		$server_object_terms = array_reverse( $server_object_terms );
 
-		$this->assertEqualsObject( $object_terms, $server_object_terms );
+		$this->assertEqualsObject( $object_terms, $server_object_terms, 'Synced terms do not match local terms.' );
 	}
 
 	public function test_delete_object_term_relationships() {

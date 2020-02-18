@@ -200,6 +200,16 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' )->silent );
 	}
 
+	function test_does_listener_add_queue_size_to_events() {
+		$this->factory->post->create();
+		$this->sender->do_sync();
+	;
+		$this->assertObjectHasAttribute(
+			'queue_size',
+			$this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' )
+		);
+	}
+
 	function test_data_loss_action_sent_and_health_updated() {
 		Health::update_status( Health::STATUS_IN_SYNC );
 		$this->assertEquals( Health::get_status(), Health::STATUS_IN_SYNC );
