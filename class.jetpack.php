@@ -6370,6 +6370,22 @@ endif;
 			// Removed in Jetpack 7.9.0
 			'jetpack_pwa_manifest'                         => null,
 			'jetpack_pwa_background_color'                 => null,
+			// Removed in Jetpack 8.3.0.
+			'jetpack_check_mobile'                         => null,
+			'jetpack_mobile_stylesheet'                    => null,
+			'jetpack_mobile_template'                      => null,
+			'mobile_reject_mobile'                         => null,
+			'mobile_force_mobile'                          => null,
+			'mobile_app_promo_download'                    => null,
+			'mobile_setup'                                 => null,
+			'jetpack_mobile_footer_before'                 => null,
+			'wp_mobile_theme_footer'                       => null,
+			'minileven_credits'                            => null,
+			'jetpack_mobile_header_before'                 => null,
+			'jetpack_mobile_header_after'                  => null,
+			'jetpack_mobile_theme_menu'                    => null,
+			'minileven_show_featured_images'               => null,
+			'minileven_attachment_size'                    => null,
 		);
 
 		// This is a silly loop depth. Better way?
