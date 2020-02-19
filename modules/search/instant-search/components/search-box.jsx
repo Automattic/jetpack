@@ -20,7 +20,15 @@ const SearchBox = props => {
 	const [ inputId ] = useState( () => uniqueId( 'jetpack-instant-search__box-input-' ) );
 	const inputRef = useRef( null );
 
-	const cb = overlayElement => () => {
+	const cb = overlayElement => event => {
+		if (
+			event &&
+			event.target &&
+			! event.target.classList.contains( '.jetpack-instant-search__overlay' )
+		) {
+			return;
+		}
+
 		if ( ! overlayElement.classList.contains( 'is-hidden' ) ) {
 			initiallyFocusedElement = document.activeElement;
 			inputRef.current.focus();
@@ -41,23 +49,21 @@ const SearchBox = props => {
 	return (
 		<div className="jetpack-instant-search__box">
 			{ /* TODO: Add support for preserving label text */ }
-			<label htmlFor={ inputId } className="screen-reader-text">
-				{ __( 'Site Search', 'jetpack' ) }
-			</label>
-			{ props.showLogo && (
+			<label htmlFor={ inputId }>
+				<span className="screen-reader-text">{ __( 'Site Search', 'jetpack' ) }</span>
 				<div className="jetpack-instant-search__box-gridicon">
-					<Gridicon icon="jetpack-search" size={ 28 } />
+					<Gridicon icon="search" size={ 24 } />
 				</div>
-			) }
-			<input
-				id={ inputId }
-				className="search-field jetpack-instant-search__box-input"
-				onInput={ props.onChangeQuery }
-				ref={ inputRef }
-				placeholder={ __( 'Search…', 'jetpack' ) }
-				type="search"
-				value={ props.query }
-			/>
+				<input
+					id={ inputId }
+					className="search-field jetpack-instant-search__box-input"
+					onInput={ props.onChangeQuery }
+					ref={ inputRef }
+					placeholder={ __( 'Search…', 'jetpack' ) }
+					type="search"
+					value={ props.query }
+				/>
+			</label>
 			{ props.enableFilters && ! props.widget && (
 				/* Using role='button' rather than button element so we retain control over styling */
 				<div
