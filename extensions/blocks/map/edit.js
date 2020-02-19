@@ -278,7 +278,15 @@ class MapEdit extends Component {
 								type="number"
 								id={ `block-jetpack-map-height-input-${ instanceId }` }
 								className="wp-block-jetpack-map__height_input"
-								onChange={ this.onHeightChange }
+								onChange={ event => {
+									setAttributes( { mapHeight: event.target.value } );
+									// If this input isn't focussed, the onBlur handler won't be triggered
+									// to commit the map size, so we need to check for that.
+									if ( event.target !== document.activeElement ) {
+										setTimeout( this.mapRef.current.sizeMap, 0 );
+									}
+								} }
+								onBlur={ this.onHeightChange }
 								value={ mapHeight || '' }
 								min={ MIN_HEIGHT }
 								step="10"
