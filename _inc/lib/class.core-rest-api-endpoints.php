@@ -1039,7 +1039,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			|| ! openssl_verify(
 				$signature_data,
 				$signature,
-				Debugger::PUBLIC_KEY
+				Debugger_Tests::PUBLIC_KEY
 			)
 		) {
 			return false;
