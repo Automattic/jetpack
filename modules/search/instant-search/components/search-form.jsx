@@ -11,12 +11,10 @@ import { Component, h } from 'preact';
 import JetpackColophon from './jetpack-colophon';
 import SearchBox from './search-box';
 import SearchFilters from './search-filters';
-import SearchSort from './search-sort';
 
 import {
 	getFilterQuery,
 	getSearchQuery,
-	getSortQuery,
 	setFilterQuery,
 	setSearchQuery,
 	setSortQuery,
@@ -53,6 +51,7 @@ class SearchForm extends Component {
 					<SearchBox
 						enableFilters
 						onChangeQuery={ this.onChangeQuery }
+						onChangeSort={ this.onChangeSort }
 						query={ getSearchQuery() }
 						showFilters={ this.state.showFilters }
 						showLogo={ this.props.showLogo }
@@ -63,7 +62,6 @@ class SearchForm extends Component {
 				{ this.state.showFilters && (
 					<div className="jetpack-instant-search__search-form-filters">
 						<div className="jetpack-instant-search__search-form-filters-arrow" />
-						<SearchSort onChange={ this.onChangeSort } value={ getSortQuery() } />
 						{ this.props.widgets.map( widget => (
 							<SearchFilters
 								filters={ getFilterQuery() }

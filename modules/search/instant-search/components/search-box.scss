@@ -58,7 +58,6 @@ input.jetpack-instant-search__box-input.search-field {
 
 	.jetpack-instant-search__overlay--light & {
 		color: #000;
-		
 	}
 
 	.jetpack-instant-search__overlay--dark & {
@@ -85,13 +84,11 @@ input.jetpack-instant-search__box-input.search-field {
 	&:focus {
 		.jetpack-instant-search__overlay--light & {
 			background-color: #d2d2d2;
-			
 		}
 
 		.jetpack-instant-search__overlay--dark & {
 			background-color: #4f4f4f;
 		}
-		
 	}
 
 	.gridicon {
@@ -106,6 +103,7 @@ input.jetpack-instant-search__box-input.search-field {
 .jetpack-instant-search__box-filter-option {
 	border: 1px solid #8e8e8e;
 	border-right-width: 0;
+	cursor: pointer;
 
 	&:first-of-type {
 		border-top-left-radius: 5px;
@@ -123,7 +121,6 @@ input.jetpack-instant-search__box-input.search-field {
 	&:focus {
 		.jetpack-instant-search__overlay--light & {
 			background-color: #d2d2d2;
-			
 		}
 
 		.jetpack-instant-search__overlay--dark & {
@@ -132,10 +129,8 @@ input.jetpack-instant-search__box-input.search-field {
 	}
 
 	&.is-selected {
-
 		.jetpack-instant-search__overlay--light & {
 			border-color: #000;
-			
 		}
 
 		.jetpack-instant-search__overlay--dark & {
@@ -143,10 +138,8 @@ input.jetpack-instant-search__box-input.search-field {
 		}
 
 		& + .jetpack-instant-search__box-filter-option {
-
 			.jetpack-instant-search__overlay--light & {
 				border-left: 1px solid #000;
-				
 			}
 
 			.jetpack-instant-search__overlay--dark & {

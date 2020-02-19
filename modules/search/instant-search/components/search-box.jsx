@@ -13,6 +13,8 @@ import uniqueId from 'lodash/uniqueId';
  * Internal dependencies
  */
 import Gridicon from './gridicon';
+import SearchSort from './search-sort';
+import { getSortQuery } from '../lib/query-string';
 
 let initiallyFocusedElement = null;
 
@@ -83,17 +85,7 @@ const SearchBox = props => {
 								: __( 'Show filters', 'jetpack' ) }
 						</span>
 					</div>
-					<div className="jetpack-instant-search__box-filter-order">
-						<a class="jetpack-instant-search__box-filter-option is-selected" href="#">
-							{ __( 'Relevance', 'jetpack' ) }
-						</a>
-						<a class="jetpack-instant-search__box-filter-option" href="#">
-							{ __( 'Newest', 'jetpack' ) }
-						</a>
-						<a class="jetpack-instant-search__box-filter-option" href="#">
-							{ __( 'Oldest', 'jetpack' ) }
-						</a>
-					</div>
+					<SearchSort onChange={ props.onChangeSort } value={ getSortQuery() } />
 				</div>
 			) }
 		</Fragment>
