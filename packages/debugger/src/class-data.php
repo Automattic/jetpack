@@ -4,8 +4,9 @@
  *
  * @package Automattic/jetpack-debugger
  */
-namespace Automattic\Jetpack;
+namespace Automattic\Jetpack\Debugger;
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Functions;
 use Automattic\Jetpack\Sync\Sender;
@@ -17,7 +18,7 @@ use Automattic\Jetpack\Sync\Sender;
  *
  * @since 7.3.0
  */
-class Debug_Data {
+class Data {
 	/**
 	 * Determine the active plan and normalize it for the debugger results.
 	 *
@@ -26,7 +27,7 @@ class Debug_Data {
 	 * @return string The plan slug.
 	 */
 	public static function what_jetpack_plan() {
-		$plan = Jetpack_Plan::get();
+		$plan = \Jetpack_Plan::get();
 		return ! empty( $plan['class'] ) ? $plan['class'] : 'undefined';
 	}
 
@@ -94,7 +95,7 @@ class Debug_Data {
 	 * @return array $args Debug information in the same format as the initial argument.
 	 */
 	public static function core_debug_data( $debug ) {
-		$support_url = Jetpack::is_development_version()
+		$support_url = \Jetpack::is_development_version()
 			? 'https://jetpack.com/contact-support/beta-group/'
 			: 'https://jetpack.com/contact-support/';
 
@@ -135,32 +136,32 @@ class Debug_Data {
 		/* Add various important Jetpack options */
 		$debug_info['site_id']        = array(
 			'label'   => 'Jetpack Site ID',
-			'value'   => Jetpack_Options::get_option( 'id' ),
+			'value'   => \Jetpack_Options::get_option( 'id' ),
 			'private' => false,
 		);
 		$debug_info['ssl_cert']       = array(
 			'label'   => 'Jetpack SSL Verfication Bypass',
-			'value'   => ( Jetpack_Options::get_option( 'fallback_no_verify_ssl_certs' ) ) ? 'Yes' : 'No',
+			'value'   => ( \Jetpack_Options::get_option( 'fallback_no_verify_ssl_certs' ) ) ? 'Yes' : 'No',
 			'private' => false,
 		);
 		$debug_info['time_diff']      = array(
 			'label'   => "Offset between Jetpack server's time and this server's time.",
-			'value'   => Jetpack_Options::get_option( 'time_diff' ),
+			'value'   => \Jetpack_Options::get_option( 'time_diff' ),
 			'private' => false,
 		);
 		$debug_info['version_option'] = array(
 			'label'   => 'Current Jetpack Version Option',
-			'value'   => Jetpack_Options::get_option( 'version' ),
+			'value'   => \Jetpack_Options::get_option( 'version' ),
 			'private' => false,
 		);
 		$debug_info['old_version']    = array(
 			'label'   => 'Previous Jetpack Version',
-			'value'   => Jetpack_Options::get_option( 'old_version' ),
+			'value'   => \Jetpack_Options::get_option( 'old_version' ),
 			'private' => false,
 		);
 		$debug_info['public']         = array(
 			'label'   => 'Jetpack Site Public',
-			'value'   => ( Jetpack_Options::get_option( 'public' ) ) ? 'Public' : 'Private',
+			'value'   => ( \Jetpack_Options::get_option( 'public' ) ) ? 'Public' : 'Private',
 			'private' => false,
 		);
 		$debug_info['master_user']    = array(
@@ -179,8 +180,8 @@ class Debug_Data {
 		 * If a token does not contain a period, then it is malformed and we report it as such.
 		 */
 		$user_id    = get_current_user_id();
-		$blog_token = Jetpack_Data::get_access_token();
-		$user_token = Jetpack_Data::get_access_token( $user_id );
+		$blog_token = \Jetpack_Data::get_access_token();
+		$user_token = \Jetpack_Data::get_access_token( $user_id );
 
 		$tokenset = '';
 		if ( $blog_token ) {
@@ -336,17 +337,17 @@ class Debug_Data {
 		);
 		$debug_info['idc_error_option'] = array(
 			'label'   => 'IDC Error Option',
-			'value'   => wp_json_encode( Jetpack_Options::get_option( 'sync_error_idc' ) ),
+			'value'   => wp_json_encode( \Jetpack_Options::get_option( 'sync_error_idc' ) ),
 			'private' => false,
 		);
 		$debug_info['idc_optin']        = array(
 			'label'   => 'IDC Opt-in',
-			'value'   => Jetpack::sync_idc_optin(),
+			'value'   => \Jetpack::sync_idc_optin(),
 			'private' => false,
 		);
 
 		// @todo -- Add testing results?
-		$cxn_tests               = new Jetpack_Cxn_Tests();
+		$cxn_tests               = new Tests();
 		$debug_info['cxn_tests'] = array(
 			'label'   => 'Connection Tests',
 			'value'   => '',
@@ -367,13 +368,13 @@ class Debug_Data {
 	 * @return string
 	 */
 	private static function human_readable_master_user() {
-		$master_user = Jetpack_Options::get_option( 'master_user' );
+		$master_user = \Jetpack_Options::get_option( 'master_user' );
 
 		if ( ! $master_user ) {
 			return __( 'No master user set.', 'jetpack' );
 		}
 
-		$user = new WP_User( $master_user );
+		$user = new \WP_User( $master_user );
 
 		if ( ! $user ) {
 			return __( 'Master user no longer exists. Please disconnect and reconnect Jetpack.', 'jetpack' );
@@ -385,13 +386,98 @@ class Debug_Data {
 	/**
 	 * Return human readable string for a given user object.
 	 *
-	 * @param WP_User|int $user Object or ID.
+	 * @param \WP_User|int $user Object or ID.
 	 *
 	 * @return string
 	 */
 	private static function human_readable_user( $user ) {
-		$user = new WP_User( $user );
+		$user = new \WP_User( $user );
 
 		return sprintf( '#%1$d %2$s (%3$s)', $user->ID, $user->user_login, $user->user_email ); // Format: "#1 username (user@example.com)".
+	}
+
+	/**
+	 * Test runner for Core's Site Health module.
+	 *
+	 * @since 7.3.0
+	 */
+	public static function ajax_local_testing_suite() {
+		check_ajax_referer( 'health-check-site-status' );
+		if ( ! current_user_can( 'jetpack_manage_modules' ) ) {
+			wp_send_json_error();
+		}
+		$tests = new Tests();
+		wp_send_json_success( $tests->output_results_for_core_async_site_health() );
+	}
+	/**
+	 * Adds the Jetpack Local Testing Suite to the Core Site Health system.
+	 *
+	 * @since 7.3.0
+	 *
+	 * @param array $core_tests Array of tests from Core's Site Health.
+	 *
+	 * @return array $core_tests Array of tests for Core's Site Health.
+	 */
+	public static function site_status_tests( $core_tests ) {
+		$cxn_tests = new Tests();
+		$tests     = $cxn_tests->list_tests( 'direct' );
+		foreach ( $tests as $test ) {
+			$core_tests['direct'][ $test['name'] ] = array(
+				'label' => __( 'Jetpack: ', 'jetpack' ) . $test['name'],
+				'test'  => function() use ( $test, $cxn_tests ) { // phpcs:ignore PHPCompatibility.FunctionDeclarations.NewClosure.Found
+					$results = $cxn_tests->run_test( $test['name'] );
+					// Test names are, by default, `test__some_string_of_text`. Let's convert to "Some String Of Text" for humans.
+					$label = ucwords(
+						str_replace(
+							'_',
+							' ',
+							str_replace( 'test__', '', $test['name'] )
+						)
+					);
+					$return = array(
+						'label'       => $label,
+						'status'      => 'good',
+						'badge'       => array(
+							'label' => __( 'Jetpack', 'jetpack' ),
+							'color' => 'green',
+						),
+						'description' => sprintf(
+							'<p>%s</p>',
+							__( 'This test successfully passed!', 'jetpack' )
+						),
+						'actions'     => '',
+						'test'        => 'jetpack_' . $test['name'],
+					);
+					if ( is_wp_error( $results ) ) {
+						return;
+					}
+					if ( false === $results['pass'] ) {
+						$return['label'] = $results['message'];
+						$return['status']      = $results['severity'];
+						$return['description'] = sprintf(
+							'<p>%s</p>',
+							$results['resolution']
+						);
+						if ( ! empty( $results['action'] ) ) {
+							$return['actions'] = sprintf(
+								'<a class="button button-primary" href="%1$s" target="_blank" rel="noopener noreferrer">%2$s <span class="screen-reader-text">%3$s</span><span aria-hidden="true" class="dashicons dashicons-external"></span></a>',
+								esc_url( $results['action'] ),
+								__( 'Resolve', 'jetpack' ),
+								/* translators: accessibility text */
+								__( '(opens in a new tab)', 'jetpack' )
+							);
+						}
+					}
+
+					return $return;
+				},
+			);
+		}
+		$core_tests['async']['jetpack_test_suite'] = array(
+			'label' => __( 'Jetpack Tests', 'jetpack' ),
+			'test'  => 'jetpack_local_testing_suite',
+		);
+
+		return $core_tests;
 	}
 }

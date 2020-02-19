@@ -4,23 +4,24 @@
  *
  * @package Automattic/jetpack-debugger
  */
-namespace Automattic\Jetpack;
+namespace Automattic\Jetpack\Debugger;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Utils as Connection_Utils;
+use Automattic\Jetpack\Status;
 
 /**
- * Class Jetpack_Cxn_Tests contains all of the actual tests.
+ * Class Tests contains all of the actual tests.
  */
-class Debugger_Tests extends Debugger_Base {
+class Tests extends Base {
 
 	/**
-	 * Jetpack_Cxn_Tests constructor.
+	 * Tests constructor.
 	 */
 	public function __construct() {
 		parent::__construct();
 
-		$methods = get_class_methods( 'Jetpack_Cxn_Tests' );
+		$methods = get_class_methods( $this );
 
 		foreach ( $methods as $method ) {
 			if ( false === strpos( $method, 'test__' ) ) {
@@ -33,7 +34,7 @@ class Debugger_Tests extends Debugger_Base {
 		 * Fires after loading default Jetpack Connection tests.
 		 *
 		 * @since 7.1.0
-		 * @since 8.3.0 Passes the Jetpack_Cxn_Tests instance.
+		 * @since 8.3.0 Passes the Tests instance.
 		 */
 		do_action( 'jetpack_connection_tests_loaded', $this );
 
@@ -63,15 +64,15 @@ class Debugger_Tests extends Debugger_Base {
 	 * @return WP_User Jetpack's expected master user.
 	 */
 	protected function helper_retrieve_local_master_user() {
-		$master_user = Jetpack_Options::get_option( 'master_user' );
-		return new WP_User( $master_user );
+		$master_user = \Jetpack_Options::get_option( 'master_user' );
+		return new \WP_User( $master_user );
 	}
 
 	/**
 	 * Is Jetpack even connected and supposed to be talking to WP.com?
 	 */
 	protected function helper_is_jetpack_connected() {
-		return ( Jetpack::is_active() && ! ( new Status() )->is_development_mode() );
+		return ( \Jetpack::is_active() && ! ( new Status() )->is_development_mode() );
 	}
 
 	/**
@@ -242,7 +243,7 @@ class Debugger_Tests extends Debugger_Base {
 		if ( ! $this->helper_is_jetpack_connected() ) {
 			return self::skipped_test( $name, __( 'Jetpack is not connected.', 'jetpack' ) ); // Skip test.
 		}
-		$identity_crisis = Jetpack::check_identity_crisis();
+		$identity_crisis = \Jetpack::check_identity_crisis();
 
 		if ( ! $identity_crisis ) {
 			$result = self::passing_test( $name );
@@ -269,16 +270,16 @@ class Debugger_Tests extends Debugger_Base {
 		$name = __FUNCTION__;
 
 		$status = new Status();
-		if ( ! Jetpack::is_active() || $status->is_development_mode() || $status->is_staging_site() || ! $this->pass ) {
+		if ( ! \Jetpack::is_active() || $status->is_development_mode() || $status->is_staging_site() || ! $this->pass ) {
 			return self::skipped_test( $name );
 		}
 
-		add_filter( 'http_request_timeout', array( 'Jetpack_Cxn_Tests', 'increase_timeout' ) );
+		add_filter( 'http_request_timeout', array( 'Automattic\Jetpack\Debugger\Tests', 'increase_timeout' ) );
 		$response = Client::wpcom_json_api_request_as_blog(
-			sprintf( '/jetpack-blogs/%d/test-connection', Jetpack_Options::get_option( 'id' ) ),
+			sprintf( '/jetpack-blogs/%d/test-connection', \Jetpack_Options::get_option( 'id' ) ),
 			Client::WPCOM_JSON_API_VERSION
 		);
-		remove_filter( 'http_request_timeout', array( 'Jetpack_Cxn_Tests', 'increase_timeout' ) );
+		remove_filter( 'http_request_timeout', array( 'Automattic\Jetpack\Debugger\Tests', 'increase_timeout' ) );
 
 		if ( is_wp_error( $response ) ) {
 			/* translators: %1$s is the error code, %2$s is the error message */
@@ -376,7 +377,7 @@ class Debugger_Tests extends Debugger_Base {
 		$name = 'test__wpcom_self_test';
 
 		$status = new Status();
-		if ( ! Jetpack::is_active() || $status->is_development_mode() || $status->is_staging_site() || ! $this->pass ) {
+		if ( ! \Jetpack::is_active() || $status->is_development_mode() || $status->is_staging_site() || ! $this->pass ) {
 			return self::skipped_test( $name );
 		}
 
@@ -384,11 +385,11 @@ class Debugger_Tests extends Debugger_Base {
 
 		$testsite_url = Connection_Utils::fix_url_for_bad_hosts( JETPACK__API_BASE . 'testsite/1/?url=' );
 
-		add_filter( 'http_request_timeout', array( 'Jetpack_Cxn_Tests', 'increase_timeout' ) );
+		add_filter( 'http_request_timeout', array( 'Automattic\Jetpack\Debugger\Tests', 'increase_timeout' ) );
 
 		$response = wp_remote_get( $testsite_url . $self_xml_rpc_url );
 
-		remove_filter( 'http_request_timeout', array( 'Jetpack_Cxn_Tests', 'increase_timeout' ) );
+		remove_filter( 'http_request_timeout', array( 'Automattic\Jetpack\Debugger\Tests', 'increase_timeout' ) );
 
 		$error_msg = wp_kses(
 			sprintf(

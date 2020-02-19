@@ -78,7 +78,7 @@ class Jetpack_Signature {
 		$host_port = intval( $host_port );
 
 		/**
-		 * Note: This port logic is tested in the Jetpack_Cxn_Tests->test__server_port_value() test.
+		 * Note: This port logic is tested in the Debugger Tests->test__server_port_value() test.
 		 * Please update the test if any changes are made in this logic.
 		 */
 		if ( is_ssl() ) {

@@ -5,6 +5,7 @@ WP_CLI::add_command( 'jetpack', 'Jetpack_CLI' );
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Utils as Connection_Utils;
+use Automattic\Jetpack\Debugger\Tests;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Sync\Actions;
 use Automattic\Jetpack\Sync\Listener;
@@ -36,8 +37,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * wp jetpack status full
 	 */
 	public function status( $args, $assoc_args ) {
-		jetpack_require_lib( 'debugger' );
-
 		/* translators: %s is the site URL */
 		WP_CLI::line( sprintf( __( 'Checking status for %s', 'jetpack' ), esc_url( get_home_url() ) ) );
 
@@ -48,7 +47,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		$master_user_email = Jetpack::get_master_user_email();
 
-		$cxntests = new Jetpack_Cxn_Tests();
+		$cxntests = new Tests();
 
 		if ( $cxntests->pass() ) {
 			$cxntests->output_results_for_cli();

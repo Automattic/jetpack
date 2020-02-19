@@ -2,7 +2,7 @@
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Debugger;
+use Automattic\Jetpack\Debugger\Tests as Debugger_Tests;
 use Automattic\Jetpack\JITM;
 use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\Status;
@@ -999,7 +999,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return array|WP_Error WP_Error returned if connection test does not succeed.
 	 */
 	public static function jetpack_connection_test() {
-		$cxntests = new Debugger();
+		$cxntests = new Debugger_Tests();
 
 		if ( $cxntests->pass() ) {
 			return rest_ensure_response(
@@ -1061,7 +1061,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return array|mixed|object|WP_Error
 	 */
 	public static function jetpack_connection_test_for_external() {
-		$cxntests = new Debugger();
+		$cxntests = new Debugger_Tests();
 
 		if ( $cxntests->pass() ) {
 			$result = array(

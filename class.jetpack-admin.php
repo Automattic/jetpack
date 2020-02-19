@@ -250,7 +250,6 @@ class Jetpack_Admin {
 	}
 
 	function admin_menu_debugger() {
-		jetpack_require_lib( 'debugger' );
 		Jetpack_Debugger::disconnect_and_redirect();
 		$debugger_hook = add_submenu_page(
 			null,
@@ -272,7 +271,6 @@ class Jetpack_Admin {
 	}
 
 	function debugger_page() {
-		jetpack_require_lib( 'debugger' );
 		Jetpack_Debugger::jetpack_debug_display_handler();
 	}
 }

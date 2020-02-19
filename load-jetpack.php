@@ -62,7 +62,10 @@ require_once JETPACK__PLUGIN_DIR . 'class.jetpack-plan.php';
 
 if ( is_admin() ) {
 	require_once JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php';
-	jetpack_require_lib( 'debugger' );
+	require_once JETPACK__PLUGIN_DIR . 'class-jetpack-debugger.php';
+	add_filter( 'debug_information', array( 'Automattic\Jetpack\Debugger\Data', 'core_debug_data' ) );
+	add_filter( 'site_status_tests', array( 'Automattic\Jetpack\Debugger\Data', 'site_status_tests' ) );
+	add_action( 'wp_ajax_health-check-jetpack-local_testing_suite', array( 'Automattic\Jetpack\Debugger\Data', 'ajax_local_testing_suite' ) );
 }
 
 // Play nice with https://wp-cli.org/.

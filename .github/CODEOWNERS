@@ -9,7 +9,7 @@
 /modules/search/          @Automattic/jetpack-search
 
 # Other bits of the Codebase
-/_inc/lib/debugger/ @kraftbj
+/packages/debugger/ @kraftbj
 /_inc/lib/jetpack-wpes-query-builder/ @gibrown
 
 # Functionality that is important to our partners

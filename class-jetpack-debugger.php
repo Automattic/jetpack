@@ -25,7 +25,7 @@ class Jetpack_Debugger {
 	 * @return int 30
 	 */
 	public static function jetpack_increase_timeout() {
-		_deprecated_function( __METHOD__, 'jetpack-8.0', 'Jetpack_Cxn_Tests::increase_timeout' );
+		_deprecated_function( __METHOD__, 'jetpack-8.0', 'Tests::increase_timeout' );
 		return 30; // seconds.
 	}
 

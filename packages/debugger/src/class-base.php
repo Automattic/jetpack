@@ -12,20 +12,20 @@ use Automattic\Jetpack\Status;
  *
  * Framework for various "unit tests" against the Jetpack connection.
  *
- * Individual tests should be added to the class-debugger.php file.
+ * Individual tests should be added to the class-tests.php file.
  *
  * @author Brandon Kraft
  * @package Automattic/jetpack-debugger
  */
 
-namespace Automattic\Jetpack;
+namespace Automattic\Jetpack\Debugger;
 
 /**
  * "Unit Tests" for the Jetpack connection.
  *
  * @since Jetpack 7.1.0
  */
-class Debugger_Base {
+class Base {
 
 	const PUBLIC_KEY =
 		"\r\n" . '-----BEGIN PUBLIC KEY-----' . "\r\n"
