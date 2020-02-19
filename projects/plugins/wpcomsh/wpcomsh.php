@@ -280,6 +280,22 @@ function wpcomsh_managed_plugins_action_links() {
 }
 add_action( 'admin_init', 'wpcomsh_managed_plugins_action_links' );
 
+// Remove hooks that add the plugins autoupdate column. They are ineffective on Atomic sites.
+function wpcomsh_remove_plugin_autoupdates() {
+	if ( ! class_exists( 'Jetpack_Calypsoify' ) ) {
+		return;
+	}
+	remove_action( 'manage_plugins_columns', [ Jetpack_Calypsoify::getInstance(), 'manage_plugins_columns_header' ] );
+	remove_action( 'manage_plugins_custom_column', [ Jetpack_Calypsoify::getInstance(), 'manage_plugins_custom_column' ] );
+}
+add_action( 'admin_init', 'wpcomsh_remove_plugin_autoupdates' );
+
+// Removed unused capability (it was only used for the autoupdates columns).
+function wpcomsh_remove_autoupdates_meta_cap( $caps, $cap ) {
+	return 'jetpack_manage_autoupdates' === $cap ? array( 'do_not_allow' ) : $caps;
+}
+add_filter( 'map_meta_cap', 'wpcomsh_remove_autoupdates_meta_cap', 10, 2 );
+
 function wpcomsh_hide_update_notice_for_managed_plugins() {
 	$plugin_files = array_keys( get_plugins() );
 	foreach ( $plugin_files as $plugin ) {
