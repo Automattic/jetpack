@@ -5,7 +5,7 @@ import './shared/public-path';
 import './shared/block-category';
 import './shared/plan-upgrade-notification';
 import './shared/stripe-connection-notification';
-import './shared/videopress-plan-check.js';
+import './shared/videopress-plan-check';
 import analytics from '../_inc/client/lib/analytics';
 
 // @TODO Please make a shared analytics solution and remove this!
