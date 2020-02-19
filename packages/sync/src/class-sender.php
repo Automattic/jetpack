@@ -474,7 +474,7 @@ class Sender {
 			 * @param string $queue The queue used to send ('sync' or 'full_sync')
 			 * @param float  $checkout_duration The duration of the checkout operation.
 			 * @param float  $preprocess_duration The duration of the pre-process operation.
-			 * @param int    $queue_size The size of the queue after this action is processed.
+			 * @param int    $queue_size The size of the sync queue at the time of processing.
 			 */
 			Settings::set_is_sending( true );
 			$processed_item_ids = apply_filters( 'jetpack_sync_send_data', $items_to_send, $this->codec->name(), microtime( true ), $queue->id, $checkout_duration, $preprocess_duration, $queue->size() );
