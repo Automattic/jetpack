@@ -145,17 +145,17 @@ JetpackSlideshow.prototype.renderControls_ = function() {
 		a.href = '#';
 		switch ( i ) {
 			case 0:
-				a.className = jetpackSlideshowSettings.class_prev;
+				a.className = 'classic-jetpack-slideshow_button-previous';
 				a.setAttribute( 'aria-label', jetpackSlideshowSettings.label_prev );
 				break;
 
 			case 1:
-				a.className = jetpackSlideshowSettings.class_pause;
+				a.className = 'classic-jetpack-slideshow_button-pause';
 				a.setAttribute( 'aria-label', jetpackSlideshowSettings.label_pause );
 				break;
 
 			case 2:
-				a.className = jetpackSlideshowSettings.class_next;
+				a.className = 'classic-jetpack-slideshow_button-next';
 				a.setAttribute( 'aria-label', jetpackSlideshowSettings.label_next );
 				break;
 		}

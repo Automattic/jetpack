@@ -293,9 +293,6 @@ class Jetpack_Slideshow_Shortcode {
 				array(
 					'spinner'     => plugins_url( '/img/slideshow-loader.gif', __FILE__ ),
 					'speed'       => '4000',
-					'class_prev'  => 'classic-jetpack-slideshow_button-previous',
-					'class_pause' => 'classic-jetpack-slideshow_button-pause',
-					'class_next'  => 'classic-jetpack-slideshow_button-next',
 					'label_prev'  => __( 'Previous Slide', 'jetpack' ),
 					'label_pause' => __( 'Pause Slideshow', 'jetpack' ),
 					'label_next'  => __( 'Next Slide', 'jetpack' ),
