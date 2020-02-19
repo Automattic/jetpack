@@ -90,7 +90,15 @@ class Tests extends Base {
 		if ( 200 === intval( $code ) ) {
 			$result = self::passing_test( $name );
 		} else {
-			$result = self::failing_test( $name, sprintf( /* translators: URL Scheme, either http or https. */ __( 'Your server did not successfully connect to the Jetpack server using %s.', 'jetpack' ), $scheme ), 'outbound_requests' );
+			$result = self::failing_test(
+				$name,
+				sprintf(
+					/* translators: URL Scheme, either http or https. */
+					__( 'Your server did not successfully connect to the Jetpack server using %s.', 'jetpack' ),
+					$scheme
+				),
+				'outbound_requests'
+			);
 		}
 
 		return $result;
