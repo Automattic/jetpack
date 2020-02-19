@@ -61,17 +61,33 @@ function jetpack_debugger_site_status_tests( $core_tests ) {
 					return;
 				}
 				if ( false === $results['pass'] ) {
-					$return['label'] = $results['message'];
-					$return['status']      = $results['severity'];
-					$return['description'] = sprintf(
-						'<p>%s</p>',
-						$results['resolution']
-					);
+					if ( $results['label'] ) {
+						// `test__check_if_connected` is the only test that is properly using a label.
+						$return['label'] = $results['label'];
+					} else {
+						// All other tests pass message as label.
+						// TODO: fix it so all tests use label.
+						$return['label'] = $results['message'];
+					}
+
+					if ( $results['resolution'] ) {
+						// Most tests pass a `resolution` property to use as a description.
+						$return['description'] = sprintf(
+							'<p>%s</p>',
+							$results['resolution']
+						);
+					} else {
+						// `test__check_if_connected` uses 'message' property for description.
+						// TODO: remove 'resolution' property in favor of a consistent 'message' or even 'description'.
+						$return['description'] = $results['message'];
+					}
+
+					$return['status'] = $results['severity'];
 					if ( ! empty( $results['action'] ) ) {
 						$return['actions'] = sprintf(
-							'<a class="button button-primary" href="%1$s" target="_blank" rel="noopener noreferrer">%2$s <span class="screen-reader-text">%3$s</span><span aria-hidden="true" class="dashicons dashicons-external"></span></a>',
+							'<a href="%1$s" target="_blank" rel="noopener noreferrer">%2$s <span class="screen-reader-text">%3$s</span><span aria-hidden="true" class="dashicons dashicons-external"></span></a>',
 							esc_url( $results['action'] ),
-							__( 'Resolve', 'jetpack' ),
+							$results['action_label'],
 							/* translators: accessibility text */
 							__( '(opens in a new tab)', 'jetpack' )
 						);

@@ -294,12 +294,17 @@ class Jetpack_Cxn_Test_Base {
 	 * @param string $resolution Optional. Steps to resolve.
 	 * @param string $action Optional. URL to direct users to self-resolve.
 	 * @param string $severity Optional. "critical" or "recommended" for failure stats. "good" for passing.
+	 * @param string $label Optional. The label to use instead of the test name.
+	 * @param string $action_label Optional. The label for the action url instead of default 'Resolve'.
 	 *
 	 * @return array Test results.
 	 */
-	public static function failing_test( $name, $message, $resolution = false, $action = false, $severity = 'critical' ) {
+	public static function failing_test( $name, $message, $resolution = false, $action = false, $severity = 'critical', $label = false, $action_label = 'Resolve' ) {
 		// Provide standard resolutions steps, but allow pass-through of non-standard ones.
 		switch ( $resolution ) {
+			case 'connect_jetpack':
+				$resolution = false;
+				break;
 			case 'cycle_connection':
 				$resolution = __( 'Please disconnect and reconnect Jetpack.', 'jetpack' ); // @todo: Link.
 				break;
@@ -313,12 +318,14 @@ class Jetpack_Cxn_Test_Base {
 		}
 
 		return array(
-			'name'       => $name,
-			'pass'       => false,
-			'message'    => $message,
-			'resolution' => $resolution,
-			'action'     => $action,
-			'severity'   => $severity,
+			'name'         => $name,
+			'pass'         => false,
+			'message'      => $message,
+			'resolution'   => $resolution,
+			'action'       => $action,
+			'severity'     => $severity,
+			'label'        => $label,
+			'action_label' => $action_label,
 		);
 	}
 

@@ -101,7 +101,20 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 		} elseif ( ( new Status() )->is_development_mode() ) {
 			$result = self::skipped_test( $name, __( 'Jetpack is in Development Mode:', 'jetpack' ) . ' ' . Jetpack::development_mode_trigger_text(), __( 'Disable development mode.', 'jetpack' ) );
 		} else {
-			$result = self::failing_test( $name, __( 'Jetpack is not connected.', 'jetpack' ), 'cycle_connection' );
+			$result = self::failing_test(
+				$name,
+				sprintf(
+					'<p>%s</p><p>%s<strong>%s</strong></p>',
+					__( 'A healthy connection ensures Jetpack essential services are provided to your WordPress site, such as Stats and Site Security.', 'jetpack' ),
+					__( '❌ Your site is not connected to Jetpack.', 'jetpack' ),
+					__( 'We recommend connecting Jetpack.', 'jetpack' )
+				),
+				'connect_jetpack',
+				admin_url( 'admin.php?page=jetpack#/dashboard' ),
+				'critical',
+				__( 'Your site is not connected to Jetpack', 'jetpack' ),
+				__( 'Learn more about this process', 'jetpack' )
+			);
 		}
 
 		return $result;
