@@ -20,7 +20,7 @@ import './store';
 
 import './style.scss';
 
-export const UpgradeNudge = ( { planName, trackViewEvent, trackClickEvent, upgradeUrl } ) => {
+export const UpgradeNudge = ( { planName, trackViewEvent, trackClickEvent, upgradeUrl, subtitle } ) => {
 	useEffect( () => {
 		if ( planName ) {
 			trackViewEvent();
@@ -48,10 +48,14 @@ export const UpgradeNudge = ( { planName, trackViewEvent, trackClickEvent, upgra
 					  } )
 					: __( 'Upgrade to a paid plan to use this block on your site.', 'jetpack' )
 			}
-			subtitle={ __(
-				'You can try it out before upgrading, but only you will see it. It will be hidden from your visitors until you upgrade.',
-				'jetpack'
-			) }
+			subtitle={
+				subtitle
+					? subtitle
+					: __(
+							'You can try it out before upgrading, but only you will see it. It will be hidden from your visitors until you upgrade.',
+							'jetpack'
+					  )
+			}
 		/>
 	);
 };
