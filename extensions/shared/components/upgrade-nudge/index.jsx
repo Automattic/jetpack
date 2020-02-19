@@ -7,6 +7,7 @@ import { addQueryArgs } from '@wordpress/url';
 import { compact, get, startsWith } from 'lodash';
 import { compose } from '@wordpress/compose';
 import { withSelect } from '@wordpress/data';
+import { useEffect } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -19,33 +20,45 @@ import './store';
 
 import './style.scss';
 
-export const UpgradeNudge = ( { planName, trackEvent, upgradeUrl } ) => (
-	<BlockNudge
-		buttonLabel={ __( 'Upgrade', 'jetpack' ) }
-		icon={
-			<GridiconStar
-				className="jetpack-upgrade-nudge__icon"
-				size={ 18 }
-				aria-hidden="true"
-				role="img"
-				focusable="false"
-			/>
-		}
-		href={ upgradeUrl }
-		onClick={ trackEvent }
-		title={
-			planName
-				? sprintf( __( 'Upgrade to %(planName)s to use this block on your site.', 'jetpack' ), {
-						planName,
-				  } )
-				: __( 'Upgrade to a paid plan to use this block on your site.', 'jetpack' )
-		}
-		subtitle={ __(
-			'You can try it out before upgrading, but only you will see it. It will be hidden from your visitors until you upgrade.',
-			'jetpack'
-		) }
-	/>
-);
+export const UpgradeNudge = ( {
+	planName,
+	trackViewEvent,
+	trackClickEvent,
+	upgradeUrl,
+	blockName,
+} ) => {
+	useEffect( () => {
+		trackViewEvent( blockName );
+	}, [] );
+
+	return (
+		<BlockNudge
+			buttonLabel={ __( 'Upgrade', 'jetpack' ) }
+			icon={
+				<GridiconStar
+					className="jetpack-upgrade-nudge__icon"
+					size={ 18 }
+					aria-hidden="true"
+					role="img"
+					focusable="false"
+				/>
+			}
+			href={ upgradeUrl }
+			onClick={ trackClickEvent }
+			title={
+				planName
+					? sprintf( __( 'Upgrade to %(planName)s to use this block on your site.', 'jetpack' ), {
+							planName,
+					  } )
+					: __( 'Upgrade to a paid plan to use this block on your site.', 'jetpack' )
+			}
+			subtitle={ __(
+				'You can try it out before upgrading, but only you will see it. It will be hidden from your visitors until you upgrade.',
+				'jetpack'
+			) }
+		/>
+	);
+};
 
 export default compose( [
 	withSelect( ( select, { plan: planSlug } ) => {
@@ -91,7 +104,12 @@ export default compose( [
 			} );
 
 		return {
-			trackEvent: blockName =>
+			trackViewEvent: blockName =>
+				void analytics.tracks.recordEvent( 'jetpack_editor_block_upgrade_view', {
+					plan,
+					block: blockName,
+				} ),
+			trackClickEvent: blockName =>
 				void analytics.tracks.recordEvent( 'jetpack_editor_block_upgrade_click', {
 					plan,
 					block: blockName,
