@@ -96,6 +96,11 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
+= 8.2.2 =
+
+* Currently in beta. Incomplete changelog.
+* Loader: Corrects an issue when using the REST API and another plugin checks the current user before `plugins_loaded` priority 1.
+
 = 8.2.1 =
 
 * Release date: February 17, 2020
