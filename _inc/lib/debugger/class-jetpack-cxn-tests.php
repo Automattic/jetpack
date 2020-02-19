@@ -33,8 +33,9 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 		 * Fires after loading default Jetpack Connection tests.
 		 *
 		 * @since 7.1.0
+		 * @since 8.3.0 Passes the Jetpack_Cxn_Tests instance.
 		 */
-		do_action( 'jetpack_connection_tests_loaded' );
+		do_action( 'jetpack_connection_tests_loaded', $this );
 
 		/**
 		 * Determines if the WP.com testing suite should be included.
