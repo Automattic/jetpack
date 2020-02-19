@@ -45,6 +45,7 @@ export default function AmazonEdit( {
 		showPurchaseButton,
 	},
 	className,
+	name,
 	setAttributes,
 } ) {
 	const defaultClassName = getBlockDefaultClassName( name );
