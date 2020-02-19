@@ -296,9 +296,9 @@ class Jetpack_Slideshow_Shortcode {
 					'class_prev'  => 'classic-jetpack-slideshow_button-previous',
 					'class_pause' => 'classic-jetpack-slideshow_button-pause',
 					'class_next'  => 'classic-jetpack-slideshow_button-next',
-					'label_prev'  => 'Previous Slide',
-					'label_pause' => 'Pause Slideshow',
-					'label_next'  => 'Next Slide',
+					'label_prev'  => __( 'Previous Slide', 'jetpack' ),
+					'label_pause' => __( 'Pause Slideshow', 'jetpack' ),
+					'label_next'  => __( 'Next Slide', 'jetpack' ),
 				)
 			)
 		);
