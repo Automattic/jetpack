@@ -904,27 +904,41 @@ function wpcomsh_get_wp_die_handler() {
 // Disabling the die handler per p9F6qB-3TQ-p2
 //add_filter( 'wp_die_handler', 'wpcomsh_get_wp_die_handler' );
 
-function wpcomsh_display_disk_space_usage() {
+function wpcomsh_get_at_site_info() {
 	$at_site_info_file = sys_get_temp_dir() . '/.at-site-info';
 
 	if ( ! is_file( $at_site_info_file ) ) {
-		return;
+		return [];
 	}
 
 	$site_info_json = file_get_contents( $at_site_info_file );
 
 	if ( empty( $site_info_json ) ) {
-		return;
+		return [];
 	}
 
 	$site_info = json_decode( $site_info_json, true );
-	if ( empty( $site_info ) || empty( $site_info['space_used'] ) || empty( $site_info['space_quota'] ) ) {
+	if ( empty( $site_info ) ) {
+		return [];
+	}
+
+	if ( ! empty( $site_info['space_quota'] ) ) {
+		// Hardcode 200GB in bytes for now. Will update all space_quota soon.
+		$site_info['space_quota'] = 200 * GB_IN_BYTES;
+	}
+
+	return $site_info;
+}
+
+function wpcomsh_display_disk_space_usage() {
+	$site_info = wpcomsh_get_at_site_info();
+
+	if ( empty( $site_info['space_used'] ) || empty( $site_info['space_quota'] ) ) {
 		return;
 	}
 
 	$space_used = $site_info['space_used'];
-	// Hardcode 200GB in bytes for now. Will update all space_quota soon.
-	$space_quota = 200 * GB_IN_BYTES;
+	$space_quota = $site_info['space_quota'];
 
 	$message = sprintf(
 		__(
@@ -937,8 +951,35 @@ function wpcomsh_display_disk_space_usage() {
 
 	echo "<p>$message</p>";
 }
-
 add_action( 'pre-upload-ui', 'wpcomsh_display_disk_space_usage' );
+
+function wpcomsh_debug_information_disk_usage( $args ) {
+	if ( empty( $args['wp-paths-sizes']['fields'] ) ) {
+		return $args;
+	}
+
+	$site_info = wpcomsh_get_at_site_info();
+
+	if ( empty( $site_info['space_used'] ) || empty( $site_info['space_quota'] ) ) {
+		return $args;
+	}
+
+	$space_used = $site_info['space_used'];
+	$space_quota = $site_info['space_quota'];
+
+	unset( $args['wp-paths-sizes']['fields']['total_size'] );
+	$args['wp-paths-sizes']['fields']['wpcomsh-disk-space-used'] = array (
+		'label' => 'Disk space used',
+		'value' => size_format( $space_used, 1 ),
+	);
+	$args['wp-paths-sizes']['fields']['wpcomsh-disk-space-quota'] = array (
+		'label' => 'Disk space quota',
+		'value' => size_format( $space_quota, 1 ),
+	);
+
+	return $args;
+}
+add_filter( 'debug_information', 'wpcomsh_debug_information_disk_usage' );
 
 /**
  * WordPress 5.3 adds "big image" processing, for images over 2560px (by default).
