@@ -2,13 +2,13 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 2.4.69
+ * Version: 2.4.70
  * Author: Automattic
  * Author URI: http://automattic.com/
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.4.69' );
+define( 'WPCOMSH_VERSION', '2.4.70' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -51,6 +51,10 @@ require_once( 'widgets/music-player.php' );
 require_once( 'widgets/posts-i-like.php' );
 require_once( 'widgets/recent-comments-widget.php' );
 require_once( 'widgets/reservations.php' );
+
+// Override core tag cloud widget to add a settable `limit` parameter
+require_once( 'widgets/tag-cloud-widget.php' );
+
 require_once( 'widgets/tlkio/tlkio.php' );
 require_once( 'widgets/top-clicks.php' );
 require_once( 'widgets/top-rated.php' );
@@ -1038,23 +1042,3 @@ function wpcomsh_make_content_clickable($content) {
 
 add_filter( 'the_content', 'wpcomsh_make_content_clickable', 120 );
 add_filter( 'the_excerpt', 'wpcomsh_make_content_clickable', 120 );
-
-// Limit max number of records in widget to 75
-function wpcomsh_limit_widget_records( $args ) {
-	$tag_limit = 75;
-
-	if ( empty( $args['number'] ) ) {
-		$args['number'] = $tag_limit;
-	}
-
-	if ( ! empty( $args['number'] ) && intval( $args['number'] ) > $tag_limit ) {
-		$args['number'] = $tag_limit;
-	}
-
-	return $args;
-}
-// Categories Widget
-add_filter( 'widget_categories_args', 'wpcomsh_limit_widget_records', 9 );
-add_filter( 'widget_categories_dropdown_args', 'wpcomsh_limit_widget_records', 9 );
-// Tag Cloud Widget
-add_filter( 'widget_tag_cloud_args', 'wpcomsh_limit_widget_records', 9 );
