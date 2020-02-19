@@ -115,8 +115,17 @@ export class Map extends Component {
 		this.debouncedSizeMap.cancel();
 	}
 	componentDidUpdate( prevProps ) {
-		const { apiKey, children, points, mapStyle, mapDetails, scrollToZoom } = this.props;
-		const { map } = this.state;
+		const {
+			apiKey,
+			children,
+			points,
+			mapStyle,
+			mapDetails,
+			scrollToZoom,
+			showFullscreenButton,
+			admin,
+		} = this.props;
+		const { map, fullscreenControl } = this.state;
 		if ( apiKey && apiKey.length > 0 && apiKey !== prevProps.apiKey ) {
 			this.loadMapLibraries();
 		}
@@ -141,6 +150,16 @@ export class Map extends Component {
 				map.scrollZoom.enable();
 			} else {
 				map.scrollZoom.disable();
+			}
+		}
+		if ( showFullscreenButton !== prevProps.showFullscreenButton ) {
+			if ( showFullscreenButton ) {
+				map.addControl( fullscreenControl );
+				if ( admin && fullscreenControl._fullscreenButton ) {
+					fullscreenControl._fullscreenButton.disabled = true;
+				}
+			} else {
+				map.removeControl( fullscreenControl );
 			}
 		}
 	}
@@ -298,7 +317,7 @@ export class Map extends Component {
 	}
 	initMap( mapCenter ) {
 		const { mapboxgl } = this.state;
-		const { zoom, onMapLoaded, onError, scrollToZoom, admin } = this.props;
+		const { zoom, onMapLoaded, onError, scrollToZoom, showFullscreenButton, admin } = this.props;
 		let map = null;
 		try {
 			map = new mapboxgl.Map( {
@@ -321,6 +340,8 @@ export class Map extends Component {
 			map.scrollZoom.disable();
 		}
 
+		const fullscreenControl = new mapboxgl.FullscreenControl();
+
 		map.on( 'error', e => {
 			onError( 'mapbox_error', e.error.message );
 		} );
@@ -340,11 +361,14 @@ export class Map extends Component {
 		} );
 		/* Listen for clicks on the Map background, which hides the current popup. */
 		map.getCanvas().addEventListener( 'click', this.onMapClick );
-		this.setState( { map, zoomControl }, () => {
+		this.setState( { map, zoomControl, fullscreenControl }, () => {
 			this.debouncedSizeMap();
 			map.addControl( zoomControl );
-			if ( ! admin ) {
-				map.addControl( new mapboxgl.FullscreenControl() );
+			if ( showFullscreenButton ) {
+				map.addControl( fullscreenControl );
+				if ( admin && fullscreenControl._fullscreenButton ) {
+					fullscreenControl._fullscreenButton.disabled = true;
+				}
 			}
 			this.mapRef.current.addEventListener( 'alignmentChanged', this.debouncedSizeMap );
 			map.resize();

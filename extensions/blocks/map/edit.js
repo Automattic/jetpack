@@ -220,6 +220,7 @@ class MapEdit extends Component {
 			preview,
 			scrollToZoom,
 			mapHeight,
+			showFullscreenButton,
 		} = attributes;
 		const {
 			addPointVisibility,
@@ -315,6 +316,12 @@ class MapEdit extends Component {
 							help={ __( 'Allow the map to capture scrolling, and zoom in or out.', 'jetpack' ) }
 							checked={ scrollToZoom }
 							onChange={ value => setAttributes( { scrollToZoom: value } ) }
+						/>
+						<ToggleControl
+							label={ __( 'Show Fullscreen Button', 'jetpack' ) }
+							help={ __( 'Allow the user to display the map in fullscreen.', 'jetpack' ) }
+							checked={ showFullscreenButton }
+							onChange={ value => setAttributes( { showFullscreenButton: value } ) }
 						/>
 					</PanelBody>
 					{ points.length ? (
@@ -423,6 +430,7 @@ class MapEdit extends Component {
 							<Map
 								ref={ this.mapRef }
 								scrollToZoom={ allowScrollToZoom }
+								showFullscreenButton={ showFullscreenButton }
 								mapStyle={ mapStyle }
 								mapDetails={ mapDetails }
 								mapHeight={ mapHeight }

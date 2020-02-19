@@ -74,6 +74,10 @@ export const settings = {
 		mapHeight: {
 			type: 'integer',
 		},
+		showFullscreenButton: {
+			type: 'boolean',
+			default: true,
+		},
 	},
 	supports: {
 		html: false,
