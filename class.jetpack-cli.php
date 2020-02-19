@@ -1893,10 +1893,11 @@ class Jetpack_CLI extends WP_CLI_Command {
 			"$path/$slug.php"     => $this->render_block_file(
 				'block-register-php',
 				array(
-					'slug'            => $slug,
-					'title'           => $title,
-					'underscoredSlug' => str_replace( '-', '_', $slug ),
-					'jetpackVersion'  => substr( JETPACK__VERSION, 0, strpos( JETPACK__VERSION, '.' ) ) . '.x',
+					'slug'             => $slug,
+					'title'            => $title,
+					'underscoredSlug'  => str_replace( '-', '_', $slug ),
+					'underscoredTitle' => str_replace( ' ', '_', $title ),
+					'jetpackVersion'   => substr( JETPACK__VERSION, 0, strpos( JETPACK__VERSION, '.' ) ) . '.x',
 				)
 			),
 			"$path/index.js"      => $this->render_block_file(
