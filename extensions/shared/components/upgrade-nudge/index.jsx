@@ -105,7 +105,7 @@ export default compose( [
 
 		return {
 			trackViewEvent: blockName =>
-				void analytics.tracks.recordEvent( 'jetpack_editor_block_upgrade_view', {
+				void analytics.tracks.recordEvent( 'jetpack_editor_block_upgrade_nudge_impression', {
 					plan,
 					block: blockName,
 				} ),
