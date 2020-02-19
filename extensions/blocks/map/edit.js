@@ -271,7 +271,7 @@ class MapEdit extends Component {
 					/>
 					<PanelBody title={ __( 'Map Settings', 'jetpack' ) }>
 						<BaseControl
-							label={ __( 'Height in pixels' ) }
+							label={ __( 'Height in pixels', 'jetpack' ) }
 							id={ `block-jetpack-map-height-input-${ instanceId }` }
 						>
 							<input
