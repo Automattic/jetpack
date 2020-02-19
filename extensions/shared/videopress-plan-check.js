@@ -9,22 +9,30 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import UpgradeNudge from './components/upgrade-nudge';
+import getJetpackExtensionAvailability from './get-jetpack-extension-availability';
+//import isSimpleSite from './site-type-utils';
 
 const replaceMediaPlaceholder = createHigherOrderComponent(
 	OriginalPlaceholder => props => {
-		if ( 'wp-block-video' !== props.className ) {
+		const { isVideoPressAvailable, details } = getJetpackExtensionAvailability( 'videopress' );
+
+		if (
+			//! isSimpleSite || // Only show nudge on dotcom simple sites.
+			'wp-block-video' !== props.className || // Only show nudge on core video blocks.
+			isVideoPressAvailable // Don't show nudge when VideoPress is available.
+		) {
 			return <OriginalPlaceholder { ...props } />;
 		}
 
 		return (
 			<>
 				<UpgradeNudge
-					plan="premium-plan"
+					plan={ details.required_plan }
 					blockName="core/video"
 					subtitle={ __(
 						'Upload unlimited videos to your website and \
-							display them using a fast, unbranded, \
-							customizable player.',
+						display them using a fast, unbranded, \
+						customizable player.',
 						'jetpack'
 					) }
 				/>
