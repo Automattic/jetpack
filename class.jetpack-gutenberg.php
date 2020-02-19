@@ -28,7 +28,7 @@ function jetpack_register_block( $slug, $args = array() ) {
 	}
 
 	if ( isset( $args['version_requirements'] )
-		&& ! Jetpack_Gutenberg::is_editor_version_available( $args['version_requirements'], $slug ) ) {
+		&& ! Jetpack_Gutenberg::is_gutenberg_version_available( $args['version_requirements'], $slug ) ) {
 		return false;
 	}
 
@@ -95,38 +95,46 @@ class Jetpack_Gutenberg {
 	private static $availability = array();
 
 	/**
-	 * Check to see if a block is able to run with current wp or gutenburg plugin versions
+	 * Check to see if a minimum version of Gutenberg is available
 	 *
-	 * @param array  $version_requirements An array containing wp and plugin version requirements.
-	 * @param string $extension_name The name of the block/plugin that has the version requirement.
+	 * @param array  $version_requirements An array containing WordPress and Gutenberg plugin version requirements.
+	 * @param string $slug The slug of the block or plugin that has the gutenberg version requirement.
 	 *
-	 * @since 8.4.0
+	 * @since 8.3.0
 	 *
-	 * @return boolean True if the version of gutenberg required by the plugin is available.
+	 * @return boolean True if the version of gutenberg required by the block or plugin is available.
 	 */
-	public static function is_editor_version_available( $version_requirements, $extension_name ) {
+	public static function is_gutenberg_version_available( $version_requirements, $slug ) {
 		global $wp_version;
 
+		// Bail if the version requirements are not set correctly.
+		if ( empty( $version_requirements['gutenberg_plugin'] ) || empty( $version_requirements['wp'] ) ) {
+			return false;
+		}
+
+		// If running a local dev build of gutenberg plugin GUTENBERG_DEVELOPMENT_MODE is set so assume correct version.
 		if ( defined( 'GUTENBERG_DEVELOPMENT_MODE' ) && GUTENBERG_DEVELOPMENT_MODE ) {
 			return true;
 		}
 
+		// If running a production build of the gutenberg plugin then GUTENBERG_VERSION is set, otherwise check that
+		// we have a the minimum version of WordPress that was released with the required Gutenberg version.
 		if ( defined( 'GUTENBERG_VERSION' ) ) {
-			$version_available = GUTENBERG_VERSION >= $version_requirements['plugin'];
+			$version_available = version_compare( GUTENBERG_VERSION, $version_requirements['gutenberg_plugin'], '>=' );
 		} else {
 			$version_available = version_compare( $wp_version, $version_requirements['wp'], '>=' );
 		}
 
 		if ( ! $version_available ) {
 			self::set_extension_unavailable(
-				$extension_name,
+				$slug,
 				'incorrect_gutenberg_version',
 				array(
-					'required_feature' => $extension_name,
+					'required_feature' => $slug,
 					'required_version' => $version_requirements,
 					'current_version'  => array(
-						'wp'             => $wp_version,
-						'plugin_version' => defined( 'GUTENBERG_VERSION' ) ? defined( 'GUTENBERG_VERSION' ) : null,
+						'wp'                       => $wp_version,
+						'gutenberg_plugin_version' => defined( 'GUTENBERG_VERSION' ) ? GUTENBERG_VERSION : null,
 					),
 				)
 			);
