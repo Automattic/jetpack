@@ -14,6 +14,9 @@ export const getValidatedAttributes = ( attributeDetails, attributesToValidate )
 	reduce(
 		attributesToValidate,
 		( ret, attribute, attributeKey ) => {
+			if ( undefined === attributeDetails[ attributeKey ] ) {
+				return ret;
+			}
 			const { type, validator, validValues, default: defaultVal } = attributeDetails[
 				attributeKey
 			];

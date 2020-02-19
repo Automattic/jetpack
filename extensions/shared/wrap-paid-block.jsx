@@ -3,6 +3,7 @@
  */
 import { Fragment } from '@wordpress/element';
 import { createHigherOrderComponent } from '@wordpress/compose';
+import { get } from 'lodash';
 
 /**
  * Internal dependencies
@@ -14,7 +15,9 @@ export default ( { requiredPlan } ) =>
 		WrappedComponent => props => (
 			// Wraps the input component in a container, without mutating it. Good!
 			<Fragment>
-				<UpgradeNudge plan={ requiredPlan } blockName={ props.name } />
+				{ ! get( props, 'attributes.isBlockPreview', false ) && (
+					<UpgradeNudge plan={ requiredPlan } blockName={ props.name } />
+				) }
 				<WrappedComponent { ...props } />
 			</Fragment>
 		),
