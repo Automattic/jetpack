@@ -277,6 +277,7 @@ class MapEdit extends Component {
 							<input
 								type="number"
 								id={ `block-jetpack-map-height-input-${ instanceId }` }
+								className="wp-block-jetpack-map__height_input"
 								onChange={ this.onHeightChange }
 								value={ mapHeight || '' }
 								min={ MIN_HEIGHT }
