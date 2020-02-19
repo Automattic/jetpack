@@ -87,9 +87,8 @@ function latex_render( $latex, $fg, $bg, $s = 0 ) {
 	$url = "//s0.wp.com/latex.php?latex=" . urlencode( $latex ) . "&bg=" . $bg . "&fg=" . $fg . "&s=" . $s;
 	$url = esc_url( $url );
 	$alt = str_replace( '\\', '&#92;', esc_attr( $latex ) );
-	$style = 'display: inline;';
 
-	return '<img src="' . $url . '" style="' . $style . '" alt="' . $alt . '" title="' . $alt . '" class="latex" />';
+	return '<img src="' . $url . '" alt="' . $alt . '" title="' . $alt . '" class="latex" />';
 }
 
 /**
