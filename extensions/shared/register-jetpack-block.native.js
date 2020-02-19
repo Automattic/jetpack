@@ -48,6 +48,10 @@ export default function registerJetpackBlock( name, settings, childBlocks = [] )
 		example: requiredPlan ? undefined : settings.example,
 	} );
 
+	console.log(
+		`Block jetpack/${ name } registered.`
+	);
+
 	// Register child blocks. Using `registerBlockType()` directly avoids availability checks -- if
 	// their parent is available, we register them all, without checking for their individual availability.
 	childBlocks.forEach( childBlock =>
