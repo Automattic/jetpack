@@ -62,6 +62,11 @@ export default function AmazonEdit( {
 
 	const idRegex = /^(\d+)$|\(ASIN:(.+)\)$/;
 	const onChange = selectedProducts => {
+		// This code extracts the amazon ID from FormToken Field
+		// We have to match the ID because FormTokenField only returns the value
+		// of the field selected, rather than an associative key pair.
+		// TODO improve/replace FormTokenField so that we can associate data
+		// with each of the selected token.
 		const selectedIds = selectedProducts.map( selectedProduct => {
 			const parsed = idRegex.exec( selectedProduct );
 			const selectedId = parsed[ 1 ] || parsed[ 2 ];
