@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { __, sprintf } from '@wordpress/i18n';
 import { addFilter } from '@wordpress/hooks';
 import { registerBlockType } from '@wordpress/blocks';
 
@@ -44,9 +45,17 @@ export default function registerJetpackBlock( name, settings, childBlocks = [] )
 		return false;
 	}
 
+	let blockTitle = settings.title;
+	if ( requiredPlan ) {
+		blockTitle = sprintf( __( '%s (paid)', 'jetpack' ), blockTitle );
+	}
+	if ( betaExtensions.includes( name ) ) {
+		blockTitle = `${ blockTitle } (beta)`;
+	}
+
 	const result = registerBlockType( `jetpack/${ name }`, {
 		...settings,
-		title: betaExtensions.includes( name ) ? `${ settings.title } (beta)` : settings.title,
+		title: blockTitle,
 		edit: requiredPlan ? wrapPaidBlock( { requiredPlan } )( settings.edit ) : settings.edit,
 		example: requiredPlan ? undefined : settings.example,
 	} );
