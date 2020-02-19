@@ -15,6 +15,7 @@ import {
 } from '@wordpress/block-editor';
 import {
 	Button,
+	ExternalLink,
 	FormTokenField,
 	Notice,
 	PanelBody,
@@ -179,7 +180,7 @@ export default function AmazonEdit( {
 
 		// TODO - we have different image sizes in the API
 		const image = imageUrlMedium && (
-			<a href={ detailPageUrl }>
+			<a target="_blank" href={ detailPageUrl } rel="noopener noreferrer">
 				<img
 					alt={ title }
 					src={ imageUrlMedium }
@@ -207,9 +208,9 @@ export default function AmazonEdit( {
 				{ showImage && image }
 				{ showTitle && (
 					<div className={ `${ className }-title` }>
-						<a href={ detailPageUrl } style={ { color: buttonAndLinkColor } }>
+						<ExternalLink href={ detailPageUrl } style={ { color: buttonAndLinkColor } }>
 							{ title }
-						</a>
+						</ExternalLink>
 					</div>
 				) }
 				{ showSeller && seller && (
