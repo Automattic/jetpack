@@ -13,6 +13,7 @@ import {
 } from '@wordpress/components';
 import { BlockIcon, InspectorControls } from '@wordpress/block-editor';
 import { withViewportMatch } from '@wordpress/viewport';
+import { getBlockDefaultClassName } from '@wordpress/blocks';
 
 /**
  * Internal dependencies
@@ -108,8 +109,8 @@ class GoogleCalendarEdit extends Component {
 	 * @returns {object} The UI displayed when user edits this block.
 	 */
 	render() {
-		const { attributes, className } = this.props;
-		const primaryClass = className ? className.split( ' ', 1 )[ 0 ] : '';
+		const { attributes, className, name } = this.props;
+		const defaultClassName = getBlockDefaultClassName( name );
 		const { url } = attributes;
 		const { editedEmbed, interactive, editingUrl } = this.state;
 
@@ -127,7 +128,7 @@ class GoogleCalendarEdit extends Component {
 			<>
 				<InspectorControls>
 					<PanelBody title={ __( 'Calendar Settings', 'jetpack' ) } initialOpen={ false }>
-						{ this.getEditForm( `${ primaryClass }-embed-form-sidebar`, editedEmbed ) }
+						{ this.getEditForm( `${ defaultClassName }-embed-form-sidebar`, editedEmbed ) }
 					</PanelBody>
 				</InspectorControls>
 			</>
@@ -154,7 +155,7 @@ class GoogleCalendarEdit extends Component {
 							)
 						}
 					>
-						<ol className={ `${ primaryClass }-placeholder-instructions` }>
+						<ol className={ `${ defaultClassName }-placeholder-instructions` }>
 							<li>{ permissionsLink }</li>
 							<li>
 								{ __(
@@ -163,8 +164,8 @@ class GoogleCalendarEdit extends Component {
 								) }
 							</li>
 						</ol>
-						{ this.getEditForm( `${ primaryClass }-embed-form-editor`, editedEmbed ) }
-						<div className={ `${ primaryClass }-placeholder-links` }>
+						{ this.getEditForm( `${ defaultClassName }-embed-form-editor`, editedEmbed ) }
+						<div className={ `${ defaultClassName }-placeholder-links` }>
 							<ExternalLink href={ supportLink }>{ __( 'Learn more', 'jetpack' ) }</ExternalLink>
 						</div>
 					</Placeholder>
