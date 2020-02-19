@@ -4,6 +4,7 @@
  *
  * @package Automattic/jetpack-debugger
  */
+
 namespace Automattic\Jetpack\Debugger;
 
 use Automattic\Jetpack\Connection\Client;
@@ -73,6 +74,27 @@ class Tests extends Base {
 	 */
 	protected function helper_is_jetpack_connected() {
 		return ( \Jetpack::is_active() && ! ( new Status() )->is_development_mode() );
+	}
+
+	/**
+	 * Simple helper for an outbound connection.
+	 *
+	 * @param string $name Name of test.
+	 * @param string $url URL to request.
+	 */
+	protected function helper_outbound_request( $name, $url ) {
+		$request = wp_remote_get( $url );
+		$code    = wp_remote_retrieve_response_code( $request );
+		$scheme  = wp_parse_url( $url, PHP_URL_SCHEME );
+
+		if ( 200 === intval( $code ) ) {
+			$result = self::passing_test( $name );
+		} else {
+			$result = self::failing_test( $name, sprintf( /* translators: URL Scheme, either http or https. */ __( 'Your server did not successfully connect to the Jetpack server using %s.', 'jetpack' ), $scheme ), 'outbound_requests' );
+		}
+
+		return $result;
+
 	}
 
 	/**
@@ -201,17 +223,10 @@ class Tests extends Base {
 	 * @return array Test results.
 	 */
 	protected function test__outbound_http() {
-		$name    = __FUNCTION__;
-		$request = wp_remote_get( preg_replace( '/^https:/', 'http:', JETPACK__API_BASE ) . 'test/1/' );
-		$code    = wp_remote_retrieve_response_code( $request );
+		$name = __FUNCTION__;
+		$url  = preg_replace( '/^https:/', 'http:', JETPACK__API_BASE ) . 'test/1/';
 
-		if ( 200 === intval( $code ) ) {
-			$result = self::passing_test( $name );
-		} else {
-			$result = self::failing_test( $name, __( 'Your server did not successfully connect to the Jetpack server using HTTP', 'jetpack' ), 'outbound_requests' );
-		}
-
-		return $result;
+		return self::helper_outbound_request( $name, $url );
 	}
 
 	/**
@@ -220,17 +235,10 @@ class Tests extends Base {
 	 * @return array Test results.
 	 */
 	protected function test__outbound_https() {
-		$name    = __FUNCTION__;
-		$request = wp_remote_get( preg_replace( '/^http:/', 'https:', JETPACK__API_BASE ) . 'test/1/' );
-		$code    = wp_remote_retrieve_response_code( $request );
+		$name = __FUNCTION__;
+		$url  = preg_replace( '/^http:/', 'https:', JETPACK__API_BASE ) . 'test/1/';
 
-		if ( 200 === intval( $code ) ) {
-			$result = self::passing_test( $name );
-		} else {
-			$result = self::failing_test( $name, __( 'Your server did not successfully connect to the Jetpack server using HTTPS', 'jetpack' ), 'outbound_requests' );
-		}
-
-		return $result;
+		return self::helper_outbound_request( $name, $url );
 	}
 
 	/**
