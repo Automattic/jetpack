@@ -9,13 +9,12 @@ import { useEffect } from 'preact/hooks';
 /**
  * Internal dependencies
  */
-import Gridicon from './gridicon';
 
 const closeOnEscapeKey = callback => event => {
 	event.key === 'Escape' && callback();
 };
 
-const Overlay = ( { children, closeColor, closeOverlay, colorTheme, isVisible, opacity } ) => {
+const Overlay = ( { children, closeOverlay, colorTheme, isVisible, opacity } ) => {
 	useEffect( () => {
 		window.addEventListener( 'keydown', closeOnEscapeKey( closeOverlay ) );
 		return () => {
@@ -33,13 +32,6 @@ const Overlay = ( { children, closeColor, closeOverlay, colorTheme, isVisible, o
 			].join( ' ' ) }
 			style={ { opacity: opacity / 100 } }
 		>
-			<button
-				className="jetpack-instant-search__overlay-close"
-				onClick={ closeOverlay }
-				style={ { background: closeColor } }
-			>
-				<Gridicon icon="cross" size="24" />
-			</button>
 			{ children }
 		</div>
 	);

@@ -1,5 +1,4 @@
 const CUSTOMIZE_SETTINGS = [
-	'jetpack_search_close_color',
 	'jetpack_search_color_theme',
 	'jetpack_search_inf_scroll',
 	'jetpack_search_highlight_color',
@@ -8,7 +7,6 @@ const CUSTOMIZE_SETTINGS = [
 ];
 
 const SETTINGS_TO_STATE_MAP = new Map( [
-	[ 'jetpack_search_close_color', 'closeColor' ],
 	[ 'jetpack_search_color_theme', 'colorTheme' ],
 	[ 'jetpack_search_inf_scroll', 'enableInfScroll' ],
 	[ 'jetpack_search_highlight_color', 'highlightColor' ],

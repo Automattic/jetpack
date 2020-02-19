@@ -96,27 +96,6 @@ class Jetpack_Search_Customize {
 			)
 		);
 
-		$id = $setting_prefix . 'close_color';
-		$wp_customize->add_setting(
-			$id,
-			array(
-				'default'   => '#BD3854',
-				'transport' => 'postMessage',
-				'type'      => 'option',
-			)
-		);
-		$wp_customize->add_control(
-			new WP_Customize_Color_Control(
-				$wp_customize,
-				$id,
-				array(
-					'label'       => __( 'Close Button', 'jetpack' ),
-					'description' => __( 'Select a color and position for the close button.', 'jetpack' ),
-					'section'     => $section_id,
-				)
-			)
-		);
-
 		$id = $setting_prefix . 'highlight_color';
 		$wp_customize->add_setting(
 			$id,
