@@ -22,6 +22,7 @@ import {
 	Placeholder,
 	ToggleControl,
 } from '@wordpress/components';
+import { getBlockDefaultClassName } from '@wordpress/blocks';
 import { useState } from '@wordpress/element';
 
 /**
@@ -46,6 +47,7 @@ export default function AmazonEdit( {
 	className,
 	setAttributes,
 } ) {
+	const defaultClassName = getBlockDefaultClassName( name );
 	const notice = false; // TODO
 
 	const [ suggestions, setSuggestions ] = useState( [] );
@@ -207,26 +209,26 @@ export default function AmazonEdit( {
 			>
 				{ showImage && image }
 				{ showTitle && (
-					<div className={ `${ className }-title` }>
+					<div className={ `${ defaultClassName }-title` }>
 						<ExternalLink href={ detailPageUrl } style={ { color: buttonAndLinkColor } }>
 							{ title }
 						</ExternalLink>
 					</div>
 				) }
 				{ showSeller && seller && (
-					<div className={ `${ className }-seller` }>
+					<div className={ `${ defaultClassName }-seller` }>
 						{ seller.length > 0 && typeof seller !== 'string'
 							? seller.map( singleSeller => singleSeller )
 							: seller }
 					</div>
 				) }
-				{ showPrice && <div className={ `${ className }-list-price` }>{ listPrice }</div> }
+				{ showPrice && <div className={ `${ defaultClassName }-list-price` }>{ listPrice }</div> }
 				{ showPurchaseButton && (
 					<Button
 						href={ detailPageUrl }
 						icon={ icon }
 						isPrimary
-						className={ `${ className }-button` }
+						className={ `${ defaultClassName }-button` }
 						style={ {
 							color: buttonTextColor,
 							backgroundColor: buttonAndLinkColor,
