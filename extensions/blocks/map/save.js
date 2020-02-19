@@ -16,6 +16,7 @@ class MapSave extends Component {
 			mapCenter,
 			markerColor,
 			scrollToZoom,
+			mapHeight,
 		} = attributes;
 		const pointsList = points.map( ( point, index ) => {
 			const { longitude, latitude } = point.coordinates;
@@ -38,6 +39,7 @@ class MapSave extends Component {
 				data-map-center={ JSON.stringify( mapCenter ) }
 				data-marker-color={ markerColor }
 				data-scroll-to-zoom={ scrollToZoom || null }
+				data-map-height={ mapHeight || null }
 			>
 				{ points.length > 0 && <ul>{ pointsList }</ul> }
 			</div>

@@ -71,6 +71,9 @@ export const settings = {
 			type: 'boolean',
 			default: false,
 		},
+		mapHeight: {
+			type: 'integer',
+		},
 	},
 	supports: {
 		html: false,

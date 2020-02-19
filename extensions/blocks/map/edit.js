@@ -16,6 +16,9 @@ import {
 	ToggleControl,
 	Toolbar,
 	withNotices,
+	ResizableBox,
+	RangeControl,
+	BaseControl,
 } from '@wordpress/components';
 import {
 	BlockAlignmentToolbar,
@@ -23,6 +26,7 @@ import {
 	InspectorControls,
 	PanelColorSettings,
 } from '@wordpress/block-editor';
+import classnames from 'classnames';
 
 /**
  * Internal dependencies
@@ -33,10 +37,27 @@ import Map from './component.js';
 import MapThemePicker from './map-theme-picker';
 import { settings } from './settings.js';
 import previewPlaceholder from './map-preview.jpg';
+import { compose } from '@wordpress/compose';
+import { withDispatch } from '@wordpress/data';
 
 const API_STATE_LOADING = 0;
 const API_STATE_FAILURE = 1;
 const API_STATE_SUCCESS = 2;
+
+// The minimum height that the map can be set to.
+const MIN_HEIGHT = 400;
+
+// Options for the map <ResizableBox> wrapper.
+const RESIZABLE_BOX_ENABLE_OPTION = {
+	top: false,
+	right: false,
+	bottom: true,
+	left: false,
+	topRight: false,
+	bottomRight: false,
+	bottomLeft: false,
+	topLeft: false,
+};
 
 class MapEdit extends Component {
 	constructor() {
@@ -123,8 +144,71 @@ class MapEdit extends Component {
 		noticeOperations.removeAllNotices();
 		noticeOperations.createErrorNotice( message );
 	};
+
+	/**
+	 * Change event handler for the map height sidebar control. Ensures the height is valid,
+	 * and updates both the height attribute, and the map component's height in the DOM.
+	 *
+	 * @param {Event} event The change event object.
+	 */
+	onHeightChange = event => {
+		const { attributes, setAttributes } = this.props;
+		const { mapHeight } = attributes;
+
+		let height = parseInt( event.target.value, 10 );
+
+		if ( isNaN( height ) ) {
+			// Set map height to default size and input box to empty string
+			height = null;
+		} else if ( null == mapHeight ) {
+			// There was previously no height defined, so set the default.
+			height = this.mapRef.current.mapRef.current.offsetHeight;
+		} else if ( height < MIN_HEIGHT ) {
+			// Set map height to minimum size
+			height = MIN_HEIGHT;
+		}
+
+		setAttributes( {
+			mapHeight: height,
+		} );
+
+		setTimeout( this.mapRef.current.sizeMap, 0 );
+	};
+
+	/**
+	 * Event handler for the ResizableBox component. Updates both the height attribute,
+	 * and the map component's height in the DOM.
+	 *
+	 * @param {Event} event The event object.
+	 * @param {ResizeDirection} direction A string representing which resize handler was used.
+	 * @param {HtmlDivElement} elt A ref to the ResizeableBox's container element.
+	 * @param {NumberSize} delta Information about how far the element was resized.
+	 */
+	onMapResize = ( event, direction, elt, delta ) => {
+		const { onResizeStop, setAttributes } = this.props;
+
+		onResizeStop();
+
+		const height = parseInt( this.mapRef.current.mapRef.current.offsetHeight + delta.height, 10 );
+
+		setAttributes( {
+			mapHeight: height,
+		} );
+
+		setTimeout( this.mapRef.current.sizeMap, 0 );
+	};
+
 	render() {
-		const { className, setAttributes, attributes, noticeUI, notices, isSelected } = this.props;
+		const {
+			className,
+			setAttributes,
+			attributes,
+			noticeUI,
+			notices,
+			isSelected,
+			instanceId,
+			onResizeStart,
+		} = this.props;
 		const {
 			mapStyle,
 			mapDetails,
@@ -135,6 +219,7 @@ class MapEdit extends Component {
 			align,
 			preview,
 			scrollToZoom,
+			mapHeight,
 		} = attributes;
 		const {
 			addPointVisibility,
@@ -185,6 +270,46 @@ class MapEdit extends Component {
 						] }
 					/>
 					<PanelBody title={ __( 'Map Settings', 'jetpack' ) }>
+						<BaseControl
+							label={ __( 'Height in pixels', 'jetpack' ) }
+							id={ `block-jetpack-map-height-input-${ instanceId }` }
+						>
+							<input
+								type="number"
+								id={ `block-jetpack-map-height-input-${ instanceId }` }
+								className="wp-block-jetpack-map__height_input"
+								onChange={ event => {
+									setAttributes( { mapHeight: event.target.value } );
+									// If this input isn't focussed, the onBlur handler won't be triggered
+									// to commit the map size, so we need to check for that.
+									if ( event.target !== document.activeElement ) {
+										setTimeout( this.mapRef.current.sizeMap, 0 );
+									}
+								} }
+								onBlur={ this.onHeightChange }
+								value={ mapHeight || '' }
+								min={ MIN_HEIGHT }
+								step="10"
+							/>
+						</BaseControl>
+						<RangeControl
+							label={ __( 'Zoom level', 'jetpack' ) }
+							help={
+								points.length > 1 &&
+								__(
+									'The default zoom level cannot be changed when there are two or more markers on the map.',
+									'jetpack'
+								)
+							}
+							disabled={ points.length > 1 }
+							value={ zoom }
+							onChange={ value => {
+								setAttributes( { zoom: value } );
+								setTimeout( this.mapRef.current.updateZoom, 0 );
+							} }
+							min={ 0 }
+							max={ 22 }
+						/>
 						<ToggleControl
 							label={ __( 'Scroll to zoom', 'jetpack' ) }
 							help={ __( 'Allow the map to capture scrolling, and zoom in or out.', 'jetpack' ) }
@@ -271,40 +396,63 @@ class MapEdit extends Component {
 				</Fragment>
 			</Placeholder>
 		);
+		// Only scroll to zoom when the block is selected, and there's 1 or less points.
+		const allowScrollToZoom = isSelected && points.length <= 1;
 		const placeholderAPIStateSuccess = (
 			<Fragment>
 				{ inspectorControls }
 				<div className={ className }>
-					<Map
-						ref={ this.mapRef }
-						scrollToZoom={ isSelected } // Only scroll to zoom when the block is selected.
-						mapStyle={ mapStyle }
-						mapDetails={ mapDetails }
-						points={ points }
-						zoom={ zoom }
-						mapCenter={ mapCenter }
-						markerColor={ markerColor }
-						onSetZoom={ value => {
-							setAttributes( { zoom: value } );
+					<ResizableBox
+						className={
+							// @TODO: This can be removed when WP 5.4 is the minimum version, it's a fallback
+							// for prior to when the `showHandle` property was added.
+							classnames( { 'is-selected': isSelected } )
+						}
+						size={ {
+							height: mapHeight || 'auto',
+							width: '100%',
 						} }
-						admin={ true }
-						apiKey={ apiKey }
-						onSetPoints={ value => setAttributes( { points: value } ) }
-						onSetMapCenter={ value => setAttributes( { mapCenter: value } ) }
-						onMapLoaded={ () => this.setState( { addPointVisibility: ! points.length } ) }
-						onMarkerClick={ () => this.setState( { addPointVisibility: false } ) }
-						onError={ this.onError }
+						grid={ [ 10, 10 ] }
+						showHandle={ isSelected }
+						minHeight={ MIN_HEIGHT }
+						enable={ RESIZABLE_BOX_ENABLE_OPTION }
+						onResizeStart={ onResizeStart }
+						onResizeStop={ this.onMapResize }
 					>
-						{ isSelected && addPointVisibility && (
-							<AddPoint
-								onAddPoint={ this.addPoint }
-								onClose={ () => this.setState( { addPointVisibility: false } ) }
+						<div className="wp-block-jetpack-map__map_wrapper">
+							<Map
+								ref={ this.mapRef }
+								scrollToZoom={ allowScrollToZoom }
+								mapStyle={ mapStyle }
+								mapDetails={ mapDetails }
+								mapHeight={ mapHeight }
+								points={ points }
+								zoom={ zoom }
+								mapCenter={ mapCenter }
+								markerColor={ markerColor }
+								onSetZoom={ value => {
+									setAttributes( { zoom: value } );
+								} }
+								admin={ true }
 								apiKey={ apiKey }
+								onSetPoints={ value => setAttributes( { points: value } ) }
+								onSetMapCenter={ value => setAttributes( { mapCenter: value } ) }
+								onMapLoaded={ () => this.setState( { addPointVisibility: ! points.length } ) }
+								onMarkerClick={ () => this.setState( { addPointVisibility: false } ) }
 								onError={ this.onError }
-								tagName="AddPoint"
-							/>
-						) }
-					</Map>
+							>
+								{ isSelected && addPointVisibility && (
+									<AddPoint
+										onAddPoint={ this.addPoint }
+										onClose={ () => this.setState( { addPointVisibility: false } ) }
+										apiKey={ apiKey }
+										onError={ this.onError }
+										tagName="AddPoint"
+									/>
+								) }
+							</Map>
+						</div>
+					</ResizableBox>
 				</div>
 			</Fragment>
 		);
@@ -325,4 +473,14 @@ class MapEdit extends Component {
 	}
 }
 
-export default withNotices( MapEdit );
+export default compose( [
+	withNotices,
+	withDispatch( dispatch => {
+		const { toggleSelection } = dispatch( 'core/block-editor' );
+
+		return {
+			onResizeStart: () => toggleSelection( false ),
+			onResizeStop: () => toggleSelection( true ),
+		};
+	} ),
+] )( MapEdit );
