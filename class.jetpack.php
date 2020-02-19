@@ -550,6 +550,37 @@ class Jetpack {
 	}
 
 	/**
+	 * Adds a hook to plugins_loaded at a priority that's currently the earliest
+	 * available.
+	 */
+	public function add_configure_hook() {
+		global $wp_filter;
+
+		$current_priority = has_filter( 'plugins_loaded', array( $this, 'configure' ) );
+		if ( false !== $current_priority ) {
+			remove_action( 'plugins_loaded', array( $this, 'configure' ), $current_priority );
+		}
+
+		$taken_priorities = array_map( 'intval', array_keys( $wp_filter['plugins_loaded']->callbacks ) );
+		sort( $taken_priorities );
+
+		$first_priority = array_shift( $taken_priorities );
+
+		if ( defined( 'PHP_INT_MAX' ) && $first_priority <= - PHP_INT_MAX ) {
+			trigger_error( // phpcs:ignore
+				/* translators: plugins_loaded is a filter name in WordPress, no need to translate. */
+				__( 'A plugin on your site is using the plugins_loaded filter with a priority that is too high. Jetpack does not support this, you may experience problems.', 'jetpack' ), // phpcs:ignore
+				E_USER_NOTICE
+			);
+			$new_priority = - PHP_INT_MAX;
+		} else {
+			$new_priority = $first_priority - 1;
+		}
+
+		add_action( 'plugins_loaded', array( $this, 'configure' ), $new_priority );
+	}
+
+	/**
 	 * Constructor.  Initializes WordPress hooks
 	 */
 	private function __construct() {
@@ -558,7 +589,8 @@ class Jetpack {
 		 */
 		add_action( 'init', array( $this, 'deprecated_hooks' ) );
 
-		add_action( 'plugins_loaded', array( $this, 'configure' ), 1 );
+		// Note how this runs at an earlier plugin_loaded hook intentionally to accomodate for other plugins.
+		add_action( 'plugin_loaded', array( $this, 'add_configure_hook' ), 90 );
 		add_action( 'plugins_loaded', array( $this, 'late_initialization' ), 90 );
 
 		add_filter(
