@@ -76,6 +76,11 @@ function jetpack_debugger_site_status_tests( $core_tests ) {
 							__( '(opens in a new tab)', 'jetpack' )
 						);
 					}
+				} elseif ( true === $results['pass'] ) {
+					$return['description'] = $results['message'];
+					if ( $results['label'] ) {
+						$return['label'] = $results['label'];
+					}
 				}
 
 				return $return;

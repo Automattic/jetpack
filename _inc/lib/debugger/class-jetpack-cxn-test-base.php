@@ -1,4 +1,10 @@
 <?php
+/**
+ * Base class for Jetpack's debugging tests.
+ *
+ * @package Jetpack.
+ */
+
 use Automattic\Jetpack\Status;
 
 /**
@@ -239,17 +245,23 @@ class Jetpack_Cxn_Test_Base {
 	/**
 	 * Helper function to return consistent responses for a passing test.
 	 *
-	 * @param string $name Test name.
+	 * @param string      $name Test name.
+	 * @param string|bool $message Message to show when test passed.
+	 * @param string|bool $label Label to be used on Site Health card.
 	 *
 	 * @return array Test results.
 	 */
-	public static function passing_test( $name = 'Unnamed' ) {
+	public static function passing_test( $name = 'Unnamed', $message = false, $label = false ) {
+		if ( ! $message ) {
+			$message = __( 'Test Passed!', 'jetpack' );
+		}
 		return array(
 			'name'       => $name,
 			'pass'       => true,
-			'message'    => __( 'Test Passed!', 'jetpack' ),
+			'message'    => $message,
 			'resolution' => false,
 			'severity'   => false,
+			'label'      => $label,
 		);
 	}
 
