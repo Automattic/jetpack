@@ -35,7 +35,7 @@ const logoPath = (
 const logoSize = 12;
 
 const JetpackColophon = props => {
-	const locale_prefix = props.locale.split( '-', 1 )[ 0 ];
+	const locale_prefix = typeof props.locale === 'string' ? props.locale.split( '-', 1 )[ 0 ] : null;
 	const url =
 		locale_prefix && locale_prefix !== 'en'
 			? 'https://' + locale_prefix + '.jetpack.com/search'

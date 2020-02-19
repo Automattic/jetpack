@@ -17,7 +17,6 @@ import {
 	getFilterQuery,
 	getSearchQuery,
 	getSortQuery,
-	setFilterQuery,
 	setSearchQuery,
 	setSortQuery,
 } from '../lib/query-string';
@@ -29,10 +28,13 @@ class SearchForm extends Component {
 		showFilters: !! this.props.widget,
 	};
 
-	onChangeFilter = ( filterName, filterValue ) => setFilterQuery( filterName, filterValue );
 	onChangeQuery = event => setSearchQuery( event.target.value );
-	onChangeSort = sort => setSortQuery( sort );
+	onChangeSort = sort => {
+		setSortQuery( sort );
+		this.hideFilters();
+	};
 
+	hideFilters = () => this.setState( () => ( { showFilters: false } ) );
 	toggleFilters = event => {
 		if (
 			event.type === 'click' ||
@@ -68,7 +70,7 @@ class SearchForm extends Component {
 								filters={ getFilterQuery() }
 								loading={ this.props.isLoading }
 								locale={ this.props.locale }
-								onChange={ this.onChangeFilter }
+								onChange={ this.hideFilters }
 								postTypes={ this.props.postTypes }
 								results={ this.props.response }
 								widget={ widget }
