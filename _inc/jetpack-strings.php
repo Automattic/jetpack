@@ -350,6 +350,8 @@ _x( "Secure", "Short message informing user that the site is secure.", "jetpack"
 __( "ACTIVE", "jetpack" ), // _inc/client/pro-status/index.jsx:135
 _x( "Set up", "Caption for a button to set up a feature.", "jetpack" ), // _inc/client/pro-status/index.jsx:168
 __( "Activate", "jetpack" ), // _inc/client/searchable-modules/index.jsx:61
+__( "No search results found for %(term)s", "jetpack" ), // _inc/client/settings/index.jsx:37
+__( "Enter a search term to find settings or close search.", "jetpack" ), // _inc/client/settings/index.jsx:42
 __( "Checking your spam protection…", "jetpack" ), // _inc/client/security/antispam.jsx:88
 __( "Fetching key…", "jetpack" ), // _inc/client/security/antispam.jsx:92
 __( "Your site needs an Antispam key.", "jetpack" ), // _inc/client/security/antispam.jsx:97
@@ -418,8 +420,6 @@ __( "Allows registered users to log in to your site with their WordPress.com acc
 __( "Add an extra layer of security to your website by enabling WordPress.com login and secure authentication. If you have multiple sites with this option enabled, you will be able to log in to every one of them with the same credentials.", "jetpack" ), // _inc/client/security/sso.jsx:76
 __( "Match accounts using email addresses", "jetpack" ), // _inc/client/security/sso.jsx:104
 __( "Require accounts to use WordPress.com Two-Step Authentication", "jetpack" ), // _inc/client/security/sso.jsx:117
-__( "No search results found for %(term)s", "jetpack" ), // _inc/client/settings/index.jsx:37
-__( "Enter a search term to find settings or close search.", "jetpack" ), // _inc/client/settings/index.jsx:42
 __( "Sharing", "jetpack" ), // _inc/client/sharing/index.jsx:59
 __( "Share your content to social media, reaching new audiences and increasing engagement.", "jetpack" ), // _inc/client/sharing/index.jsx:60
 _x( "Like buttons", "Settings header", "jetpack" ), // _inc/client/sharing/likes.jsx:24
@@ -720,10 +720,10 @@ _x( "Discussion", "Navigation item.", "jetpack" ), // _inc/client/components/nav
 _x( "Traffic", "Navigation item.", "jetpack" ), // _inc/client/components/navigation-settings/index.jsx:186
 _x( "Sharing", "Navigation item.", "jetpack" ), // _inc/client/components/navigation-settings/index.jsx:203
 _x( "Writing", "Navigation item.", "jetpack" ), // _inc/client/components/navigation-settings/index.jsx:217
+__( "Manage Subscription", "jetpack" ), // _inc/client/components/product-card/index.jsx:100
 __( "Purchased on %s.", "jetpack" ), // _inc/client/components/product-expiration/index.jsx:35
 __( "Expired on %s.", "jetpack" ), // _inc/client/components/product-expiration/index.jsx:49
 __( "Renews on %s.", "jetpack" ), // _inc/client/components/product-expiration/index.jsx:53
-__( "Manage Subscription", "jetpack" ), // _inc/client/components/product-card/index.jsx:100
 _x( "Upgrade", "A caption for a button to upgrade an existing paid feature to a higher tier.", "jetpack" ), // _inc/client/components/settings-card/index.jsx:74
 __( "Host fast, high-quality, ad-free video.", "jetpack" ), // _inc/client/components/settings-card/index.jsx:86
 __( "Generate income with high-quality ads.", "jetpack" ), // _inc/client/components/settings-card/index.jsx:106
@@ -770,5 +770,14 @@ __( "or", "jetpack" ), // _inc/client/traffic/verification-services/google.jsx:3
 __( "Manually Verify ", "jetpack" ), // _inc/client/traffic/verification-services/google.jsx:323
 /* translators: The price range for a particular product */
 __( "{{smallerPrice/}}-{{higherPrice/}}", "jetpack" ), // _inc/client/components/plans/plan-price/index.jsx:58
+__( "ms", "jetpack" ), // _inc/blocks/components.js:14
+__( "s", "jetpack" ), // _inc/blocks/components.js:14
+__( "m", "jetpack" ), // _inc/blocks/components.js:14
+__( "h", "jetpack" ), // _inc/blocks/components.js:14
+__( "d", "jetpack" ), // _inc/blocks/components.js:14
+__( "w", "jetpack" ), // _inc/blocks/components.js:14
+__( "M", "jetpack" ), // _inc/blocks/components.js:14
+__( "Q", "jetpack" ), // _inc/blocks/components.js:14
+__( "y", "jetpack" ), // _inc/blocks/components.js:14
 );
 /* THIS IS THE END OF THE GENERATED FILE */
