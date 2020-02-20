@@ -106,12 +106,12 @@ export default compose( [
 		return {
 			trackViewEvent: () =>
 				void analytics.tracks.recordEvent( 'jetpack_editor_block_upgrade_nudge_impression', {
-					planName,
+					plan: planName,
 					block: blockName,
 				} ),
 			trackClickEvent: () =>
 				void analytics.tracks.recordEvent( 'jetpack_editor_block_upgrade_click', {
-					planName,
+					plan: planName,
 					block: blockName,
 				} ),
 			planName,
