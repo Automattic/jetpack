@@ -61,25 +61,21 @@ function jetpack_debugger_site_status_tests( $core_tests ) {
 					return;
 				}
 				if ( false === $results['pass'] ) {
+					$return['label'] = $results['message'];
 					if ( $results['label'] ) {
-						// `test__check_if_connected` is the only test that is properly using a label.
+						// Allow tests to override the strange message => label logic with an actual label.
 						$return['label'] = $results['label'];
-					} else {
-						// All other tests pass message as label.
-						// TODO: fix it so all tests use label.
-						$return['label'] = $results['message'];
 					}
 
-					if ( $results['resolution'] ) {
-						// Most tests pass a `resolution` property to use as a description.
-						$return['description'] = sprintf(
-							'<p>%s</p>',
-							$results['resolution']
-						);
-					} else {
-						// `test__check_if_connected` uses 'message' property for description.
-						// TODO: remove 'resolution' property in favor of a consistent 'message' or even 'description'.
-						$return['description'] = $results['message'];
+					// Most tests pass a `resolution` property to use as a description.
+					$return['description'] = sprintf(
+						'<p>%s</p>',
+						$results['resolution']
+					);
+
+					if ( $results['description'] ) {
+						// Allow tests to override 'resolution' with their own HTML description.
+						$return['description'] = $results['description'];
 					}
 
 					$return['status'] = $results['severity'];
