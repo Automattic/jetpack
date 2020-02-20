@@ -91,13 +91,13 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	protected function test__check_if_connected() {
 		$name = __FUNCTION__;
 		if ( $this->helper_is_jetpack_connected() ) {
-			$message = sprintf(
+			$description = sprintf(
 				'<p>%s</p><p>%s</p>',
 				__( 'A healthy connection ensures Jetpack essential services are provided to your WordPress site, such as Stats and Site Security.', 'jetpack' ),
 				__( '✅ Your site is connected to Jetpack.', 'jetpack' )
 			);
-			$label   = __( 'Your site is connected to Jetpack', 'jetpack' );
-			$result  = self::passing_test( $name, $message, $label );
+			$label       = __( 'Your site is connected to Jetpack', 'jetpack' );
+			$result      = self::passing_test( $name, false, $label, $description );
 		} elseif ( ( new Status() )->is_development_mode() ) {
 			$result = self::skipped_test( $name, __( 'Jetpack is in Development Mode:', 'jetpack' ) . ' ' . Jetpack::development_mode_trigger_text(), __( 'Disable development mode.', 'jetpack' ) );
 		} else {
@@ -248,7 +248,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	}
 
 	/**
-	 * Tests connection status against wp.com's test-connection endpoint
+	 * Tests connection status against wp.com's test-connection endpoint.
 	 *
 	 * @todo: Compare with the wpcom_self_test. We only need one of these.
 	 *

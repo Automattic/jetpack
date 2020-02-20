@@ -93,9 +93,13 @@ function jetpack_debugger_site_status_tests( $core_tests ) {
 						);
 					}
 				} elseif ( true === $results['pass'] ) {
-					$return['description'] = $results['message'];
+					// Passing tests can chose to override defaults.
 					if ( $results['label'] ) {
 						$return['label'] = $results['label'];
+					}
+
+					if ( $results['description'] ) {
+						$return['description'] = $results['description'];
 					}
 				}
 
