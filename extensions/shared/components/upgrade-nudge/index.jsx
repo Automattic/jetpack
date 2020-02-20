@@ -109,6 +109,7 @@ export default compose( [
 			} );
 
 		const planName = get( plan, [ 'product_name' ] );
+		console.log( blockName, planName );
 		return {
 			trackViewEvent: () =>
 				void analytics.tracks.recordEvent( 'jetpack_editor_block_upgrade_nudge_impression', {
