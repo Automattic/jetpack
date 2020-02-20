@@ -151,16 +151,16 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 	}
 
 	function test_returns_false_if_core_wp_version_less_than_minimum() {
-		$version_gated = Jetpack_Gutenberg::is_editor_version_available(
-			array( 'wp' => '999999', 'plugin' => '999999' ),
+		$version_gated = Jetpack_Gutenberg::is_gutenberg_version_available(
+			array( 'wp' => '999999', 'gutenberg_plugin' => '999999' ),
 			'gated_block'
 		);
 		$this->assertEquals( false, $version_gated );
 	}
 
 	function test_returns_true_if_core_wp_version_greater_or_equal_to_minimum() {
-		$version_gated = Jetpack_Gutenberg::is_editor_version_available(
-			array( 'wp' => '0', 'plugin' => '999999' ),
+		$version_gated = Jetpack_Gutenberg::is_gutenberg_version_available(
+			array( 'wp' => '0', 'gutenberg_plugin' => '999999' ),
 			'ungated_block'
 		);
 		$this->assertEquals( true, $version_gated );
