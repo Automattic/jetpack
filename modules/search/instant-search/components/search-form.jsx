@@ -12,13 +12,7 @@ import JetpackColophon from './jetpack-colophon';
 import SearchBox from './search-box';
 import SearchFilters from './search-filters';
 
-import {
-	getFilterQuery,
-	getSearchQuery,
-	setFilterQuery,
-	setSearchQuery,
-	setSortQuery,
-} from '../lib/query-string';
+import { getFilterQuery, getSearchQuery, setSearchQuery, setSortQuery } from '../lib/query-string';
 
 const noop = event => event.preventDefault();
 
@@ -27,10 +21,13 @@ class SearchForm extends Component {
 		showFilters: !! this.props.widget,
 	};
 
-	onChangeFilter = ( filterName, filterValue ) => setFilterQuery( filterName, filterValue );
 	onChangeQuery = event => setSearchQuery( event.target.value );
-	onChangeSort = sort => setSortQuery( sort );
+	onChangeSort = sort => {
+		setSortQuery( sort );
+		this.hideFilters();
+	};
 
+	hideFilters = () => this.setState( () => ( { showFilters: false } ) );
 	toggleFilters = event => {
 		if (
 			event.type === 'click' ||
@@ -54,7 +51,6 @@ class SearchForm extends Component {
 						onChangeSort={ this.onChangeSort }
 						query={ getSearchQuery() }
 						showFilters={ this.state.showFilters }
-						showLogo={ this.props.showLogo }
 						toggleFilters={ this.toggleFilters }
 						widget={ this.props.widget }
 					/>
@@ -67,13 +63,13 @@ class SearchForm extends Component {
 								filters={ getFilterQuery() }
 								loading={ this.props.isLoading }
 								locale={ this.props.locale }
-								onChange={ this.onChangeFilter }
+								onChange={ this.hideFilters }
 								postTypes={ this.props.postTypes }
 								results={ this.props.response }
 								widget={ widget }
 							/>
 						) ) }
-						<JetpackColophon />
+						<JetpackColophon locale={ this.props.locale } />
 					</div>
 				) }
 			</form>
