@@ -2,7 +2,7 @@
  * External dependencies
  */
 import GridiconStar from 'gridicons/dist/star';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _x, sprintf } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { compact, get, startsWith } from 'lodash';
 import { compose } from '@wordpress/compose';
@@ -20,7 +20,26 @@ import './store';
 
 import './style.scss';
 
-export const UpgradeNudge = ( { planName, trackViewEvent, trackClickEvent, upgradeUrl, subtitle } ) => {
+const getTitle = ( customTitle, planName ) => {
+	const title =
+		customTitle ||
+		_x(
+			'to use this block on your site.',
+			'Upgrade nudge title, preceeded by "Upgrade to [planname]"',
+			'jetpack'
+		);
+
+	return planName
+		? sprintf( __( 'Upgrade to %(planName)s %(title)s', 'jetpack' ), {
+				planName,
+				title,
+		  } )
+		: sprintf( __( 'Upgrade to a paid plan %(title)s', 'jetpack' ), {
+				title,
+		  } );
+};
+
+export const UpgradeNudge = ( { planName, trackViewEvent, trackClickEvent, upgradeUrl, title, subtitle } ) => {
 	useEffect( () => {
 		if ( planName ) {
 			trackViewEvent();
@@ -41,13 +60,7 @@ export const UpgradeNudge = ( { planName, trackViewEvent, trackClickEvent, upgra
 			}
 			href={ upgradeUrl }
 			onClick={ trackClickEvent }
-			title={
-				planName
-					? sprintf( __( 'Upgrade to %(planName)s to use this block on your site.', 'jetpack' ), {
-							planName,
-					  } )
-					: __( 'Upgrade to a paid plan to use this block on your site.', 'jetpack' )
-			}
+			title={ getTitle( title, planName ) }
 			subtitle={
 				subtitle
 					? subtitle

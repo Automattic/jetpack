@@ -1,0 +1,13 @@
+.no-videopress-media-placeholder {
+	.components-placeholder__fieldset {
+		button {
+			display: none;
+		}
+
+		.block-editor-media-placeholder__url-input-container {
+			button {
+				display: inline-flex;
+			}
+		}
+	}
+}
