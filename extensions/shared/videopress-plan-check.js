@@ -14,12 +14,12 @@ import getJetpackExtensionAvailability from './get-jetpack-extension-availabilit
 
 const replaceMediaPlaceholder = createHigherOrderComponent(
 	OriginalPlaceholder => props => {
-		const { isVideoPressAvailable, details } = getJetpackExtensionAvailability( 'videopress' );
+		const { available } = getJetpackExtensionAvailability( 'videopress' );
 
 		if (
 			//! isSimpleSite || // Only show nudge on dotcom simple sites.
 			'wp-block-video' !== props.className || // Only show nudge on core video blocks.
-			isVideoPressAvailable // Don't show nudge when VideoPress is available.
+			available // Don't show nudge when VideoPress is available.
 		) {
 			return <OriginalPlaceholder { ...props } />;
 		}
@@ -27,7 +27,7 @@ const replaceMediaPlaceholder = createHigherOrderComponent(
 		return (
 			<>
 				<UpgradeNudge
-					plan={ details.required_plan }
+					plan="value_bundle"
 					blockName="core/video"
 					subtitle={ __(
 						'Upload unlimited videos to your website and \
