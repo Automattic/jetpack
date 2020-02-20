@@ -49,9 +49,12 @@ export const UpgradeNudge = ( {
 			onClick={ trackClickEvent }
 			title={
 				planName
-					? sprintf( __( 'Upgrade to %(planName)s to use this block on your site.', 'jetpack' ), {
-							planName,
-					  } )
+					? sprintf(
+							__( 'Upgrade to %(planName)s to use this block on your site bob.', 'jetpack' ),
+							{
+								planName,
+							}
+					  )
 					: __( 'Upgrade to a paid plan to use this block on your site.', 'jetpack' )
 			}
 			subtitle={ __(
