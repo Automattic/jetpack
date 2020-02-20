@@ -28,10 +28,12 @@ export const UpgradeNudge = ( {
 	blockName,
 } ) => {
 	useEffect( () => {
-		if ( planName && blockName ) {
+		console.log(planName, blockName);
+		if ( planName ) {
+			console.log('fire-event');
 			trackViewEvent();
 		}
-	}, [ planName, blockName ] );
+	}, [ planName ] );
 
 	return (
 		<BlockNudge
