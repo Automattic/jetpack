@@ -97,7 +97,7 @@ class Jetpack_Gutenberg {
 	/**
 	 * Check to see if a minimum version of Gutenberg is available. Because a Gutenberg version is not available in
 	 * php if the Gutenberg plugin is not installed, we also need the minimum WordPress version that was released
-	 * with the required Gutenberg version
+	 * with the required Gutenberg version.
 	 *
 	 * @param array  $version_requirements An array containing the required Gutenberg version and the WordPress version that was released with this minimum version.
 	 * @param string $slug The slug of the block or plugin that has the gutenberg version requirement.
