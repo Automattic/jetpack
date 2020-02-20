@@ -104,20 +104,16 @@ export default compose( [
 
 		const planName = get( plan, [ 'product_name' ] );
 		return {
-			trackViewEvent: () => {
-				console.log( 'firing view event for - ', blockName, planName );
-				return void analytics.tracks.recordEvent( 'jetpack_editor_block_upgrade_nudge_impression', {
+			trackViewEvent: () =>
+				void analytics.tracks.recordEvent( 'jetpack_editor_block_upgrade_nudge_impression', {
 					planName,
 					block: blockName,
-				} );
-			},
-			trackClickEvent: () => {
-				console.log( 'firing view event for - ', blockName, planName );
-				return void analytics.tracks.recordEvent( 'jetpack_editor_block_upgrade_click', {
+				} ),
+			trackClickEvent: () =>
+				void analytics.tracks.recordEvent( 'jetpack_editor_block_upgrade_click', {
 					planName,
 					block: blockName,
-				} );
-			},
+				} ),
 			planName,
 			upgradeUrl,
 		};
