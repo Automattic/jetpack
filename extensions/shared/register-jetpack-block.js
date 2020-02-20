@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { addFilter } from '@wordpress/hooks';
 import { registerBlockType } from '@wordpress/blocks';
 
@@ -12,6 +12,11 @@ import extensionList from '../index.json';
 import getJetpackExtensionAvailability from './get-jetpack-extension-availability';
 import withHasWarningIsInteractiveClassNames from './with-has-warning-is-interactive-class-names';
 import wrapPaidBlock from './wrap-paid-block';
+
+const availableBlockTags = {
+	paid: __( 'paid', 'jetpack' ),
+	beta: __( 'beta', 'jetpack' ),
+};
 
 const betaExtensions = extensionList.beta || [];
 
@@ -53,11 +58,17 @@ export default function registerJetpackBlock( name, settings, childBlocks = [] )
 	}
 
 	let blockTitle = settings.title;
+	const blockTags = [];
+
 	if ( requiredPlan ) {
-		blockTitle = sprintf( __( '%s (paid)', 'jetpack' ), blockTitle );
+		blockTags.push( availableBlockTags.plan );
 	}
 	if ( betaExtensions.includes( name ) ) {
-		blockTitle = `${ blockTitle } (beta)`;
+		blockTags.push( availableBlockTags.beta );
+	}
+
+	if ( blockTags.length ) {
+		blockTitle = blockTitle + ` (${ blockTags.join( ', ' ) })`;
 	}
 
 	const result = registerBlockType( `jetpack/${ name }`, {
