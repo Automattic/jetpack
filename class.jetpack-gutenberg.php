@@ -95,9 +95,11 @@ class Jetpack_Gutenberg {
 	private static $availability = array();
 
 	/**
-	 * Check to see if a minimum version of Gutenberg is available
+	 * Check to see if a minimum version of Gutenberg is available. Because a Gutenberg version is not available in
+	 * php if the Gutenberg plugin is not installed, we also need the minimum WordPress version that was released
+	 * with the required Gutenberg version
 	 *
-	 * @param array  $version_requirements An array containing WordPress and Gutenberg plugin version requirements.
+	 * @param array  $version_requirements An array containing the required Gutenberg version and the WordPress version that was released with this minimum version.
 	 * @param string $slug The slug of the block or plugin that has the gutenberg version requirement.
 	 *
 	 * @since 8.3.0
@@ -108,7 +110,7 @@ class Jetpack_Gutenberg {
 		global $wp_version;
 
 		// Bail if the version requirements are not set correctly.
-		if ( empty( $version_requirements['gutenberg_plugin'] ) || empty( $version_requirements['wp'] ) ) {
+		if ( empty( $version_requirements['gutenberg'] ) || empty( $version_requirements['wp'] ) ) {
 			return false;
 		}
 
@@ -120,7 +122,7 @@ class Jetpack_Gutenberg {
 		// If running a production build of the gutenberg plugin then GUTENBERG_VERSION is set, otherwise check that
 		// we have a the minimum version of WordPress that was released with the required Gutenberg version.
 		if ( defined( 'GUTENBERG_VERSION' ) ) {
-			$version_available = version_compare( GUTENBERG_VERSION, $version_requirements['gutenberg_plugin'], '>=' );
+			$version_available = version_compare( GUTENBERG_VERSION, $version_requirements['gutenberg'], '>=' );
 		} else {
 			$version_available = version_compare( $wp_version, $version_requirements['wp'], '>=' );
 		}
@@ -133,8 +135,8 @@ class Jetpack_Gutenberg {
 					'required_feature' => $slug,
 					'required_version' => $version_requirements,
 					'current_version'  => array(
-						'wp'                       => $wp_version,
-						'gutenberg_plugin_version' => defined( 'GUTENBERG_VERSION' ) ? GUTENBERG_VERSION : null,
+						'wp'        => $wp_version,
+						'gutenberg' => defined( 'GUTENBERG_VERSION' ) ? GUTENBERG_VERSION : null,
 					),
 				)
 			);
