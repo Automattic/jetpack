@@ -13,6 +13,16 @@ import { BlockPreview } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
 import { ENTER, SPACE } from '@wordpress/keycodes';
 
+const addPreviewAttribute = block => {
+	return {
+		...block,
+		attributes: {
+			...block.attributes,
+			__isBlockPreview: true,
+		},
+	};
+};
+
 const StylePreview = ( { attributes, styleOption, viewportWidth, blockName } ) => {
 	const type = getBlockType( blockName );
 
@@ -20,14 +30,14 @@ const StylePreview = ( { attributes, styleOption, viewportWidth, blockName } ) =
 		<div className="block-editor-block-styles__item-preview">
 			<BlockPreview
 				viewportWidth={ viewportWidth }
-				blocks={
+				blocks={ addPreviewAttribute(
 					type.example
 						? getBlockFromExample( blockName, {
 								attributes: { ...type.example.attributes, style: styleOption.value },
 								innerBlocks: type.example.innerBlocks,
 						  } )
-						: createBlock( type, attributes )
-				}
+						: createBlock( blockName, attributes )
+				) }
 			/>
 		</div>
 	);
