@@ -28,8 +28,10 @@ export const UpgradeNudge = ( {
 	blockName,
 } ) => {
 	useEffect( () => {
-		trackViewEvent( blockName );
-	}, [] );
+		if ( planName && blockName ) {
+			trackViewEvent();
+		}
+	}, [ planName, blockName ] );
 
 	return (
 		<BlockNudge
@@ -61,7 +63,7 @@ export const UpgradeNudge = ( {
 };
 
 export default compose( [
-	withSelect( ( select, { plan: planSlug } ) => {
+	withSelect( ( select, { plan: planSlug, blockName } ) => {
 		const plan = select( 'wordpress-com/plans' ).getPlan( planSlug );
 
 		// WP.com plan objects have a dedicated `path_slug` field, Jetpack plan objects don't
@@ -103,18 +105,19 @@ export default compose( [
 				redirect_to,
 			} );
 
+		const planName = get( plan, [ 'product_name' ] );
 		return {
-			trackViewEvent: blockName =>
+			trackViewEvent: () =>
 				void analytics.tracks.recordEvent( 'jetpack_editor_block_upgrade_nudge_impression', {
-					plan,
+					planName,
 					block: blockName,
 				} ),
-			trackClickEvent: blockName =>
+			trackClickEvent: () =>
 				void analytics.tracks.recordEvent( 'jetpack_editor_block_upgrade_click', {
-					plan,
+					planName,
 					block: blockName,
 				} ),
-			planName: get( plan, [ 'product_name' ] ),
+			planName,
 			upgradeUrl,
 		};
 	} ),
