@@ -2,6 +2,21 @@
 
 **This is a list detailing changes for all the past Jetpack releases. For more information about the current release, see [the readme](https://github.com/Automattic/jetpack/blob/master/readme.txt).**
 
+= 8.2.2 =
+
+* Release date: February 20, 2020
+
+* General: fix compatibility issues with other plugins relying on the REST API to communicate with Jetpack, or on the Jetpack registration process.
+
+= 8.2.1 =
+
+* Release date: February 17, 2020
+
+**Bug fixes**
+
+* Block Editor: avoid errors when uploading additional media to the Slideshow, Tiled Gallery, and Video blocks.
+* Synchronization: address issues that would cause delayed synchronization of your posts to WordPress.com.
+
 = 8.2 =
 
 * Release date: February 11, 2020
