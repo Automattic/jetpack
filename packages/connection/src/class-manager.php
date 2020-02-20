@@ -2167,4 +2167,15 @@ class Manager {
 
 		return $role . ':' . hash_hmac( 'md5', "{$role}|{$user_id}", $token->secret );
 	}
+
+	/**
+	 * Returns the detailed connection error message for the given error code.
+	 *
+	 * @param string $error_code The error code.
+	 *
+	 * @return string The error message.
+	 */
+	public function get_error_message_from_code( $error_code ) {
+		return ( new Connection_Error_Handler() )->get_error_message_from_code( $error_code );
+	}
 }
