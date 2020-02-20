@@ -49,7 +49,7 @@ const SearchBox = props => {
 	return (
 		<div className="jetpack-instant-search__box">
 			{ /* TODO: Add support for preserving label text */ }
-			<label htmlFor={ inputId }>
+			<label className="jetpack-instant-search__box-label" htmlFor={ inputId }>
 				<span className="screen-reader-text">{ __( 'Site Search', 'jetpack' ) }</span>
 				<div className="jetpack-instant-search__box-gridicon">
 					<Gridicon icon="search" size={ 24 } />
