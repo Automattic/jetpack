@@ -66,7 +66,7 @@ class WPCOM_Tag_Cloud_Widget extends WP_Widget {
 				array(
 					'taxonomy' => $current_taxonomy,
 					'echo' => false,
-					'number' => $instance['max_tags'],
+					'number' => empty( $instance['max_tags'] ) ? 0 : $instance['max_tags'],
 					'show_count' => $show_count,
 				),
 				$instance
@@ -109,7 +109,7 @@ class WPCOM_Tag_Cloud_Widget extends WP_Widget {
 		$instance['title'] = sanitize_text_field( $new_instance['title'] );
 		$instance['count'] = ! empty( $new_instance['count'] ) ? 1 : 0;
 		$instance['taxonomy'] = stripslashes( $new_instance['taxonomy'] );
-		$instance['max_tags'] = (int) $new_instance['max_tags'];
+		$instance['max_tags'] = empty( $instance['max_tags'] ) ? 0 : $instance['max_tags'];
 
 		return $instance;
 	}
@@ -127,6 +127,7 @@ class WPCOM_Tag_Cloud_Widget extends WP_Widget {
 		$title_id = $this->get_field_id( 'title' );
 		$count = isset( $instance['count'] ) ? (bool) $instance['count'] : false;
 		$instance['title'] = ! empty( $instance['title'] ) ? esc_attr( $instance['title'] ) : '';
+		$max_tags = empty( $instance['max_tags'] ) ? 0 : $instance['max_tags'];
 
 		echo '<p><label for="' . $title_id . '">' . __( 'Title:' ) . '</label>
 			<input type="text" class="widefat" id="' . $title_id . '" name="' . $this->get_field_name( 'title' ) . '" value="' . $instance['title'] . '" />
@@ -134,7 +135,7 @@ class WPCOM_Tag_Cloud_Widget extends WP_Widget {
 
 		$max_tags_id = $this->get_field_id( 'max_tags' );
 		echo '<p><label for="' . $max_tags_id . '">' . __( 'Number of Tags:' ) . '</label>
-		     <input type="number" class="widefat" id="' . $max_tags_id . '" name="' . $this->get_field_name( 'max_tags' ) . '" value="' . esc_attr( $instance['max_tags'] ) . '" />
+		     <input type="number" class="widefat" id="' . $max_tags_id . '" name="' . $this->get_field_name( 'max_tags' ) . '" value="' . esc_attr( $max_tags ) . '" />
 		     <small>' . __( 'Maximum number of tags displayed' ) . '</small>
 		</p>';
 
