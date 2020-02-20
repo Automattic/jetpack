@@ -8,6 +8,9 @@ import { View } from 'react-native';
  * Internal dependencies
  */
 const ALLOWED_BLOCKS = [
+	'jetpack/address',
+	'jetpack/email',
+	'jetpack/phone',
 	'core/paragraph',
 	'core/image',
 	'core/heading',
@@ -25,7 +28,7 @@ const ALLOWED_BLOCKS = [
 	'core/video',
 ];
 
-const TEMPLATE = [ [ 'core/paragraph' ], [ 'core/paragraph' ], [ 'core/paragraph' ] ];
+const TEMPLATE = [ [ 'jetpack/email' ], [ 'jetpack/phone' ], [ 'jetpack/address' ] ];
 
 const ContactInfoEdit = () => {
 	return (
