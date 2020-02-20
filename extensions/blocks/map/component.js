@@ -116,6 +116,7 @@ export class Map extends Component {
 	}
 	componentDidUpdate( prevProps ) {
 		const {
+			admin,
 			apiKey,
 			children,
 			points,
@@ -123,7 +124,6 @@ export class Map extends Component {
 			mapDetails,
 			scrollToZoom,
 			showFullscreenButton,
-			admin,
 		} = this.props;
 		const { map, fullscreenControl } = this.state;
 		if ( apiKey && apiKey.length > 0 && apiKey !== prevProps.apiKey ) {

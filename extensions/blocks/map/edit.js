@@ -319,7 +319,7 @@ class MapEdit extends Component {
 						/>
 						<ToggleControl
 							label={ __( 'Show Fullscreen Button', 'jetpack' ) }
-							help={ __( 'Allow the user to display the map in fullscreen.', 'jetpack' ) }
+							help={ __( 'Allow your visitors to display the map in fullscreen.', 'jetpack' ) }
 							checked={ showFullscreenButton }
 							onChange={ value => setAttributes( { showFullscreenButton: value } ) }
 						/>
