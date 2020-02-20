@@ -20,17 +20,9 @@ import './store';
 
 import './style.scss';
 
-export const UpgradeNudge = ( {
-	planName,
-	trackViewEvent,
-	trackClickEvent,
-	upgradeUrl,
-	blockName,
-} ) => {
+export const UpgradeNudge = ( { planName, trackViewEvent, trackClickEvent, upgradeUrl } ) => {
 	useEffect( () => {
-		console.log(planName, blockName);
 		if ( planName ) {
-			console.log('fire-event');
 			trackViewEvent();
 		}
 	}, [ planName ] );
@@ -111,18 +103,21 @@ export default compose( [
 			} );
 
 		const planName = get( plan, [ 'product_name' ] );
-		console.log( blockName, planName );
 		return {
-			trackViewEvent: () =>
-				void analytics.tracks.recordEvent( 'jetpack_editor_block_upgrade_nudge_impression', {
+			trackViewEvent: () => {
+				console.log( 'firing view event for - ', blockName, planName );
+				return void analytics.tracks.recordEvent( 'jetpack_editor_block_upgrade_nudge_impression', {
 					planName,
 					block: blockName,
-				} ),
-			trackClickEvent: () =>
-				void analytics.tracks.recordEvent( 'jetpack_editor_block_upgrade_click', {
+				} );
+			},
+			trackClickEvent: () => {
+				console.log( 'firing view event for - ', blockName, planName );
+				return void analytics.tracks.recordEvent( 'jetpack_editor_block_upgrade_click', {
 					planName,
 					block: blockName,
-				} ),
+				} );
+			},
 			planName,
 			upgradeUrl,
 		};
