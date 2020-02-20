@@ -18,7 +18,7 @@ const addPreviewAttribute = block => {
 		...block,
 		attributes: {
 			...block.attributes,
-			isBlockPreview: true,
+			__isBlockPreview: true,
 		},
 	};
 };
