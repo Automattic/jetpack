@@ -15,7 +15,14 @@ import wrapPaidBlock from './wrap-paid-block';
 
 const betaExtensions = extensionList.beta || [];
 
-function requiresPlan( unavailableReason, details ) {
+/**
+ * Checks whether the block requires a paid plan or not.
+ *
+ * @param {string} unavailableReason The reason why block is unavailable
+ * @param {Object} details The block details
+ * @returns {string|boolean} Either false if the block doesn't require a paid plan, or the actual plan name it requires.
+ */
+function requiresPaidPlan( unavailableReason, details ) {
 	if ( unavailableReason === 'missing_plan' ) {
 		return details.required_plan;
 	}
@@ -33,7 +40,7 @@ function requiresPlan( unavailableReason, details ) {
 export default function registerJetpackBlock( name, settings, childBlocks = [] ) {
 	const { available, details, unavailableReason } = getJetpackExtensionAvailability( name );
 
-	const requiredPlan = requiresPlan( unavailableReason, details );
+	const requiredPlan = requiresPaidPlan( unavailableReason, details );
 
 	if ( ! available && ! requiredPlan ) {
 		if ( 'production' !== process.env.NODE_ENV ) {
