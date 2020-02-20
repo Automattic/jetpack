@@ -334,23 +334,41 @@ class MapEdit extends Component {
 							/>
 						</PanelBody>
 					) : null }
-					{ 'wpcom' !== apiKeySource && (
-						<PanelBody title={ __( 'Mapbox Access Token', 'jetpack' ) } initialOpen={ false }>
-							<TextControl
-								label={ __( 'Mapbox Access Token', 'jetpack' ) }
-								value={ apiKeyControl }
-								onChange={ value => this.setState( { apiKeyControl: value } ) }
-							/>
-							<ButtonGroup>
-								<Button type="button" onClick={ this.updateAPIKey } isDefault>
-									{ __( 'Update Token', 'jetpack' ) }
-								</Button>
-								<Button type="button" onClick={ this.removeAPIKey } isDefault>
-									{ __( 'Remove Token', 'jetpack' ) }
-								</Button>
-							</ButtonGroup>
-						</PanelBody>
-					) }
+					<PanelBody title={ __( 'Mapbox Access Token', 'jetpack' ) } initialOpen={ false }>
+						<TextControl
+							help={
+								'wpcom' === apiKeySource && (
+									<>
+										{ __( 'You can optionally enter your own access token.', 'jetpack' ) }{' '}
+										<ExternalLink href="https://account.mapbox.com/access-tokens/">
+											{ __( 'Find it on Mapbox', 'jetpack' ) }
+										</ExternalLink>
+									</>
+								)
+							}
+							label={ __( 'Mapbox Access Token', 'jetpack' ) }
+							value={ apiKeyControl }
+							onChange={ value => this.setState( { apiKeyControl: value } ) }
+						/>
+						<ButtonGroup>
+							<Button
+								type="button"
+								onClick={ this.updateAPIKey }
+								disabled={ ! apiKeyControl || apiKeyControl === apiKey }
+								isDefault
+							>
+								{ __( 'Update Token', 'jetpack' ) }
+							</Button>
+							<Button
+								type="button"
+								onClick={ this.removeAPIKey }
+								disabled={ 'wpcom' === apiKeySource }
+								isDefault
+							>
+								{ __( 'Remove Token', 'jetpack' ) }
+							</Button>
+						</ButtonGroup>
+					</PanelBody>
 				</InspectorControls>
 			</Fragment>
 		);
