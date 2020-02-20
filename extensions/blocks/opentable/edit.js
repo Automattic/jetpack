@@ -134,7 +134,7 @@ function OpenTableEdit( {
 		}
 	};
 
-	const inspectorControls = () => (
+	const inspectorControls = (
 		<>
 			<InspectorAdvancedControls>
 				<ToggleControl
@@ -204,7 +204,7 @@ function OpenTableEdit( {
 
 	return (
 		<div className={ editClasses }>
-			{ ! isEmpty( rid ) && <>{ inspectorControls() }</> }
+			{ ! isEmpty( rid ) && inspectorControls }
 			{ ! isEmpty( rid ) ? blockPreview() : blockPlaceholder }
 		</div>
 	);
