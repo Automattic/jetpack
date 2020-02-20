@@ -11,7 +11,6 @@ import { h, Component } from 'preact';
 import Gridicon from './gridicon';
 import PostTypeIcon from './post-type-icon';
 import SearchResultComments from './search-result-comments';
-import SearchResultDate from './search-result-date';
 
 class SearchResultMinimal extends Component {
 	getIconSize() {
@@ -87,7 +86,6 @@ class SearchResultMinimal extends Component {
 	}
 
 	render() {
-		const { locale } = this.props;
 		const { result_type, fields, highlight } = this.props.result;
 		if ( result_type !== 'post' ) {
 			return null;
@@ -106,7 +104,6 @@ class SearchResultMinimal extends Component {
 						dangerouslySetInnerHTML={ { __html: highlight.title } }
 					/>
 				</h3>
-				<SearchResultDate date={ fields.date } locale={ locale } />
 				{ noMatchingContent ? this.renderNoMatchingContent() : this.renderMatchingContent() }
 				<SearchResultComments comments={ highlight && highlight.comments } />
 			</li>

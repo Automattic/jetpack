@@ -4,6 +4,7 @@
  * External dependencies
  */
 import { h, Component } from 'preact';
+import { __ } from '@wordpress/i18n';
 // NOTE: We only import the get package here for to reduced bundle size.
 //       Do not import the entire lodash library!
 // eslint-disable-next-line lodash/import-scope
@@ -18,10 +19,12 @@ import { setFilterQuery, getFilterQuery, clearFiltersFromQuery } from '../lib/qu
 export default class SearchFilters extends Component {
 	onChangeFilter = ( filterName, filterValue ) => {
 		setFilterQuery( filterName, filterValue );
+		this.props.onChange && this.props.onChange();
 	};
 
 	onClearFilters = () => {
 		clearFiltersFromQuery();
+		this.props.onChange && this.props.onChange();
 	};
 
 	hasActiveFilters() {
@@ -95,7 +98,7 @@ export default class SearchFilters extends Component {
 						class="jetpack-instant-search__clear-filters-button"
 						onClick={ this.onClearFilters }
 					>
-						Clear Filters
+						{ __( 'Clear Filters', 'jetpack' ) }
 					</button>
 				) }
 				{ get( this.props.widget, 'filters' )

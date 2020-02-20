@@ -244,6 +244,7 @@ class SearchApp extends Component {
 				opacity={ this.state.overlayOptions.opacity }
 			>
 				<SearchResults
+					closeOverlay={ this.hideResults }
 					enableLoadOnScroll={ this.state.overlayOptions.enableInfScroll }
 					hasError={ this.state.hasError }
 					hasNextPage={ this.hasNextPage() }
