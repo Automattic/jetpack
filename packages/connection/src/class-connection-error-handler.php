@@ -53,6 +53,7 @@ class Connection_Error_Handler {
 				break;
 			case 'site_blacklisted':
 				$message = sprintf(
+					/* translators: URL to the WPCOM TOS page. */
 					__(
 						'This site can\'t be connected to WordPress.com because it violates our  <a %s>Terms of Service</a>.',
 						'jetpack'
