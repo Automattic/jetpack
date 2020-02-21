@@ -23,4 +23,9 @@ export const settings = {
 	attributes,
 	edit,
 	save: () => {},
+	example: {
+		attributes: {
+			revueUsername: 'example',
+		},
+	},
 };
