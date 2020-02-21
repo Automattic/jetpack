@@ -11,6 +11,7 @@ import {
 	Button,
 	CheckboxControl,
 	Disabled,
+	ExternalLink,
 	IconButton,
 	PanelBody,
 	Placeholder,
@@ -27,6 +28,8 @@ import defaultAttributes from './attributes';
 import ButtonPreview from './button-preview';
 import icon from './icon';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
+import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
+import './editor.scss';
 
 export default function RevueEdit( props ) {
 	const { attributes, className, setAttributes } = props;
@@ -53,6 +56,11 @@ export default function RevueEdit( props ) {
 		setAttributes( { revueUsername: username } );
 	};
 
+	const supportLink =
+		isSimpleSite() || isAtomicSite()
+			? 'http://support.wordpress.com/wordpress-editor/blocks/revue-block/'
+			: 'https://jetpack.com/support/jetpack-blocks/revue-block/';
+
 	return (
 		<div className={ className }>
 			{ ! revueUsername && (
@@ -75,6 +83,11 @@ export default function RevueEdit( props ) {
 							</Button>
 						</div>
 					</form>
+					<div className={ `components-placeholder__learn-more` }>
+						<ExternalLink href={ supportLink }>
+							{ __( 'Need help finding your Revue username?', 'jetpack' ) }
+						</ExternalLink>
+					</div>
 				</Placeholder>
 			) }
 
