@@ -1,4 +1,9 @@
 /**
+ * External dependencies
+ */
+import { isEqual } from 'lodash';
+
+/**
  * WordPress dependencies
  */
 import { BlockControls, BlockIcon, InspectorControls } from '@wordpress/block-editor';
@@ -18,11 +23,21 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import defaultAttributes from './attributes';
 import ButtonPreview from './button-preview';
 import icon from './icon';
+import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 
 export default function RevueEdit( props ) {
 	const { attributes, className, setAttributes } = props;
+
+	useEffect( () => {
+		const validatedAttributes = getValidatedAttributes( defaultAttributes, attributes );
+		if ( ! isEqual( validatedAttributes, attributes ) ) {
+			setAttributes( validatedAttributes );
+		}
+	}, [ attributes ] );
+
 	const { revueUsername, firstNameField, lastNameField } = attributes;
 
 	const [ username, setUsername ] = useState( '' );
