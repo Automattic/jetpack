@@ -1,7 +1,7 @@
 .widget_eu_cookie_law_widget {
+	animation: fadeIn 800ms;
 	border: none;
 	bottom: 1em;
-	display: none;
 	left: 1em;
 	margin: 0;
 	padding: 0;
@@ -9,6 +9,11 @@
 	right: 1em;
 	width: auto;
 	z-index: 50001;
+}
+
+@keyframes fadeIn {
+	from { opacity: 0; visibility: hidden; }
+	to { opacity: 1; visibility: visible; }
 }
 
 .widget_eu_cookie_law_widget.widget.top {
@@ -48,6 +53,12 @@
 	background-color: #000;
 	border: none;
 	color: #fff;
+}
+
+#eu-cookie-law.hide {
+	opacity: 0;
+	visibility: hidden;
+	transition: opacity 400ms, visibility 400ms;
 }
 
 /**
