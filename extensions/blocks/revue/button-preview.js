@@ -101,8 +101,9 @@ function ButtonPreview( {
 	};
 
 	return (
-		<>
+		<div className="wp-block-button">
 			<RichText
+				allowedFormats={ [] }
 				className={ classes }
 				onChange={ value => setAttributes( { text: value } ) }
 				placeholder={ __( 'Add text…', 'jetpack' ) }
@@ -174,7 +175,7 @@ function ButtonPreview( {
 				) }
 				<BorderPanel borderRadius={ borderRadius } setAttributes={ setAttributes } />
 			</InspectorControls>
-		</>
+		</div>
 	);
 }
 
