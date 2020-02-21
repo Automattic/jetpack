@@ -96,9 +96,12 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 				__( 'Test passed!', 'jetpack' ),
 				__( 'Your site is connected to Jetpack', 'jetpack' ),
 				sprintf(
-					'<p>%s</p><p>%s</p>',
+					'<p>%1$s</p>' .
+					'<p><span class="dashicons pass"><span class="screen-reader-text">%2$s</span></span> %3$s</p>',
 					__( 'A healthy connection ensures Jetpack essential services are provided to your WordPress site, such as Stats and Site Security.', 'jetpack' ),
-					__( '✅ Your site is connected to Jetpack.', 'jetpack' )
+					/* translators: Screen reader text indicating a test has passed */
+					__( 'Passed', 'jetpack' ),
+					__( 'Your site is connected to Jetpack.', 'jetpack' )
 				)
 			);
 		} elseif ( ( new Status() )->is_development_mode() ) {
@@ -113,9 +116,12 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 				__( 'Your site is not connected to Jetpack', 'jetpack' ),
 				__( 'Learn more about this process', 'jetpack' ),
 				sprintf(
-					'<p>%s</p><p>%s<strong>%s</strong></p>',
+					'<p>%1$s</p>' .
+					'<p><span class="dashicons fail"><span class="screen-reader-text">%2$s</span></span> %3$s<strong> %4$s</strong></p>',
 					__( 'A healthy connection ensures Jetpack essential services are provided to your WordPress site, such as Stats and Site Security.', 'jetpack' ),
-					__( '❌ Your site is not connected to Jetpack.', 'jetpack' ),
+					/* translators: screen reader text indicating a test failed */
+					__( 'Error', 'jetpack' ),
+					__( 'Your site is not connected to Jetpack.', 'jetpack' ),
 					__( 'We recommend connecting Jetpack.', 'jetpack' )
 				)
 			);

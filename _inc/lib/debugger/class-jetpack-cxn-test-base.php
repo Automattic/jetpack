@@ -297,12 +297,16 @@ class Jetpack_Cxn_Test_Base {
 	 * @param string      $action Optional. URL to direct users to self-resolve.
 	 * @param string      $severity Optional. "critical" or "recommended" for failure stats. "good" for passing.
 	 * @param string      $label Optional. The label to use instead of the test name.
-	 * @param string      $action_label Optional. The label for the action url instead of default 'Resolve'.
+	 * @param string|bool $action_label Optional. The label for the action url instead of default 'Resolve'.
 	 * @param string|bool $description Optional. An HTML description to override resolution.
 	 *
 	 * @return array Test results.
 	 */
-	public static function failing_test( $name, $message, $resolution = false, $action = false, $severity = 'critical', $label = false, $action_label = 'Resolve', $description = false ) {
+	public static function failing_test( $name, $message, $resolution = false, $action = false, $severity = 'critical', $label = false, $action_label = false, $description = false ) {
+		if ( ! $action_label ) {
+			/* translators: Resolve is used as a verb, a command that when invoked will lead to a problem's solution. */
+			$action_label = __( 'Resolve', 'jetpack' );
+		}
 		// Provide standard resolutions steps, but allow pass-through of non-standard ones.
 		switch ( $resolution ) {
 			case 'cycle_connection':
