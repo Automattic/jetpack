@@ -29,6 +29,14 @@ export const settings = {
 			type: 'string',
 			default: _x( 'Subscribe', 'verb: e.g. subscribe to a newsletter.', 'jetpack' ),
 		},
+		firstNameField: {
+			type: 'boolean',
+			default: true,
+		},
+		lastNameField: {
+			type: 'boolean',
+			default: true,
+		},
 		backgroundColor: {
 			type: 'string',
 		},

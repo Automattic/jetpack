@@ -1,11 +1,13 @@
 /**
  * WordPress dependencies
  */
-import { BlockControls, BlockIcon } from '@wordpress/block-editor';
+import { BlockControls, BlockIcon, InspectorControls } from '@wordpress/block-editor';
 import {
 	Button,
+	CheckboxControl,
 	Disabled,
 	IconButton,
+	PanelBody,
 	Placeholder,
 	TextControl,
 	Toolbar,
@@ -21,7 +23,7 @@ import icon from './icon';
 
 export default function RevueEdit( props ) {
 	const { attributes, className, setAttributes } = props;
-	const { revueUsername } = attributes;
+	const { revueUsername, firstNameField, lastNameField } = attributes;
 
 	const [ username, setUsername ] = useState( '' );
 
@@ -63,6 +65,25 @@ export default function RevueEdit( props ) {
 
 			{ revueUsername && (
 				<>
+					<InspectorControls>
+						<PanelBody title={ __( 'Form Settings', 'jetpack' ) }>
+							<CheckboxControl
+								label={ __( 'Show first name field.', 'jetpack' ) }
+								checked={ firstNameField }
+								onChange={ value => {
+									setAttributes( { firstNameField: value } );
+								} }
+							/>
+							<CheckboxControl
+								label={ __( 'Show last name field.', 'jetpack' ) }
+								checked={ lastNameField }
+								onChange={ value => {
+									setAttributes( { lastNameField: value } );
+								} }
+							/>
+						</PanelBody>
+					</InspectorControls>
+
 					<BlockControls>
 						<Toolbar>
 							<IconButton
@@ -80,16 +101,20 @@ export default function RevueEdit( props ) {
 							placeholder={ __( 'Your email address…', 'jetpack' ) }
 							value=""
 						/>
-						<TextControl
-							label={ __( 'First name', 'jetpack' ) }
-							placeholder={ __( 'First name… (Optional)', 'jetpack' ) }
-							value=""
-						/>
-						<TextControl
-							label={ __( 'Last name', 'jetpack' ) }
-							placeholder={ __( 'Last name… (Optional)', 'jetpack' ) }
-							value=""
-						/>
+						{ firstNameField && (
+							<TextControl
+								label={ __( 'First name', 'jetpack' ) }
+								placeholder={ __( 'First name… (Optional)', 'jetpack' ) }
+								value=""
+							/>
+						) }
+						{ lastNameField && (
+							<TextControl
+								label={ __( 'Last name', 'jetpack' ) }
+								placeholder={ __( 'Last name… (Optional)', 'jetpack' ) }
+								value=""
+							/>
+						) }
 					</Disabled>
 					<ButtonPreview { ...props } />
 				</>

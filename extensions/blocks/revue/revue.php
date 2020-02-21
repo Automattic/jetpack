@@ -26,6 +26,9 @@ function jetpack_render_revue_block( $attributes ) {
 		return '';
 	}
 
+	$first_name_field = array_key_exists( 'firstNameField', $attributes ) ? $attributes['firstNameField'] : true;
+	$last_name_field  = array_key_exists( 'lastNameField', $attributes ) ? $attributes['lastNameField'] : true;
+
 	Jetpack_Gutenberg::load_assets_as_required( 'revue' );
 
 	ob_start();
@@ -57,29 +60,35 @@ function jetpack_render_revue_block( $attributes ) {
 				/>
 			</label>
 		</div>
-		<div>
-			<label>
-				<?php esc_html_e( 'First name', 'jetpack' ); ?>
-				<input
-					class="wp-block-jetpack-revue__first-name"
-					name="member[first_name]"
-					placeholder="<?php esc_attr_e( 'First name… (Optional)', 'jetpack' ); ?>"
-					type="text"
-				/>
-			</label>
-		</div>
-		<div>
-			<label>
+		<?php if ( $first_name_field ) : ?>
+			<div>
+				<label>
+					<?php esc_html_e( 'First name', 'jetpack' ); ?>
+					<input
+						class="wp-block-jetpack-revue__first-name"
+						name="member[first_name]"
+						placeholder="<?php esc_attr_e( 'First name… (Optional)', 'jetpack' ); ?>"
+						type="text"
+					/>
+				</label>
+			</div>
+			<?php
+			endif;
+		if ( $last_name_field ) :
+			?>
+			<div>
+				<label>
 				<?php esc_html_e( 'Last name', 'jetpack' ); ?>
-				<input
-					class="wp-block-jetpack-revue__last-name"
-					name="member[last_name]"
-					placeholder="<?php esc_attr_e( 'Last name… (Optional)', 'jetpack' ); ?>"
-					type="text"
-				/>
-			</label>
-		</div>
-		<?php
+					<input
+						class="wp-block-jetpack-revue__last-name"
+						name="member[last_name]"
+						placeholder="<?php esc_attr_e( 'Last name… (Optional)', 'jetpack' ); ?>"
+						type="text"
+					/>
+				</label>
+			</div>
+			<?php
+			endif;
 			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			echo jetpack_get_revue_button( $attributes );
 		?>
