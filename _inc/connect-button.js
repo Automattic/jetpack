@@ -154,10 +154,16 @@ jQuery( document ).ready( function( $ ) {
 		},
 		handleAuthorizationComplete: function() {
 			jetpackConnectButton.isRegistering = false;
+
 			if ( jetpackConnectButton.isPaidPlan ) {
 				window.location.assign( jpConnect.dashboardUrl );
 			} else {
 				window.location.assign( jpConnect.plansPromptUrl );
+			}
+
+			// The Jetpack admin page has hashes in the URLs, so we need to reload the page after .assign()
+			if ( window.location.hash ) {
+				window.location.reload( true );
 			}
 		},
 		handleConnectionError: function( error ) {
