@@ -54,7 +54,7 @@ export default function RevueEdit( props ) {
 						/>
 						<div>
 							<Button disabled={ ! username } isDefault isLarge isSecondary type="submit">
-								{ __( 'Insert', 'jetpack' ) }
+								{ __( 'Add Form', 'jetpack' ) }
 							</Button>
 						</div>
 					</form>

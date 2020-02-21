@@ -17,9 +17,12 @@ import './view.scss';
 const revueSubscribe = event =>
 	setTimeout( () => {
 		const form = event.target;
-		const notice = document.createElement( 'div' );
-		notice.innerHTML = __( 'You can complete your registration in the new page.', 'jetpack' );
 		form.innerHTML = '';
+
+		const notice = document.createElement( 'div' );
+		notice.innerHTML = `<p><strong>${ __( 'Subscription received!', 'jetpack' ) }</strong></p>
+		<p>${ __( 'Please check your email to confirm your newsletter subscription.', 'jetpack' ) }</p>`;
+
 		form.prepend( notice );
 	}, 1000 );
 
