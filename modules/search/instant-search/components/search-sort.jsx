@@ -4,7 +4,6 @@
  * External dependencies
  */
 import { h, Component } from 'preact';
-import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -12,32 +11,38 @@ import { __ } from '@wordpress/i18n';
 import { getSortOptions } from '../lib/sort';
 
 export default class SearchSort extends Component {
-	handleChange = event => {
-		if ( this.props.value === event.target.value ) {
-			return;
+	handleKeyPress = event => {
+		if ( this.props.value !== event.target.value && event.key === 'Enter' ) {
+			event.preventDefault();
+			this.props.onChange( event.target.dataset.value );
 		}
-
-		this.props.onChange( event.target.value );
+	};
+	handleClick = event => {
+		if ( this.props.value !== event.target.value ) {
+			event.preventDefault();
+			this.props.onChange( event.target.dataset.value );
+		}
 	};
 
 	render() {
 		const sortOptions = getSortOptions();
 		return (
-			<div className="jetpack-instant-search__sort">
-				<label>
-					<span>{ __( 'Sort by', 'jetpack' ) }</span>
-					<select
-						className="jetpack-instant-search__sort-select"
-						onBlur={ this.handleChange }
-						onChange={ this.handleChange }
+			<div className="jetpack-instant-search__box-filter-order">
+				{ Object.keys( sortOptions ).map( sortKey => (
+					<a
+						class={ `jetpack-instant-search__box-filter-option ${
+							this.props.value === sortKey ? 'is-selected' : ''
+						}` }
+						data-value={ sortKey }
+						key={ sortKey }
+						onClick={ this.handleClick }
+						onKeyPress={ this.handleKeyPress }
+						role="button"
+						tabIndex={ 0 }
 					>
-						{ Object.keys( sortOptions ).map( sortKey => (
-							<option value={ sortKey } selected={ this.props.value === sortKey }>
-								{ sortOptions[ sortKey ].label }
-							</option>
-						) ) }
-					</select>
-				</label>
+						{ sortOptions[ sortKey ].label }
+					</a>
+				) ) }
 			</div>
 		);
 	}

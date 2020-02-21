@@ -11,15 +11,8 @@ import { Component, h } from 'preact';
 import JetpackColophon from './jetpack-colophon';
 import SearchBox from './search-box';
 import SearchFilters from './search-filters';
-import SearchSort from './search-sort';
 
-import {
-	getFilterQuery,
-	getSearchQuery,
-	getSortQuery,
-	setSearchQuery,
-	setSortQuery,
-} from '../lib/query-string';
+import { getFilterQuery, getSearchQuery, setSearchQuery, setSortQuery } from '../lib/query-string';
 
 const noop = event => event.preventDefault();
 
@@ -51,10 +44,11 @@ class SearchForm extends Component {
 	render() {
 		return (
 			<form onSubmit={ noop } role="search" className={ this.props.className }>
-				<div className="search-form jetpack-instant-search__search-form">
+				<div className="jetpack-instant-search__search-form">
 					<SearchBox
 						enableFilters
 						onChangeQuery={ this.onChangeQuery }
+						onChangeSort={ this.onChangeSort }
 						query={ getSearchQuery() }
 						showFilters={ this.state.showFilters }
 						toggleFilters={ this.toggleFilters }
@@ -64,7 +58,6 @@ class SearchForm extends Component {
 				{ this.state.showFilters && (
 					<div className="jetpack-instant-search__search-form-filters">
 						<div className="jetpack-instant-search__search-form-filters-arrow" />
-						<SearchSort onChange={ this.onChangeSort } value={ getSortQuery() } />
 						{ this.props.widgets.map( widget => (
 							<SearchFilters
 								filters={ getFilterQuery() }
