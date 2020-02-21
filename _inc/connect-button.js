@@ -154,13 +154,11 @@ jQuery( document ).ready( function( $ ) {
 		},
 		handleAuthorizationComplete: function() {
 			jetpackConnectButton.isRegistering = false;
-
 			if ( jetpackConnectButton.isPaidPlan ) {
 				window.location.assign( jpConnect.dashboardUrl );
 			} else {
 				window.location.assign( jpConnect.plansPromptUrl );
 			}
-			window.location.reload( true );
 		},
 		handleConnectionError: function( error ) {
 			jetpackConnectButton.isRegistering = false;
