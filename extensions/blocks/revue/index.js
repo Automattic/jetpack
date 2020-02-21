@@ -18,7 +18,7 @@ export const settings = {
 	description: __( 'Add a subscription form for your Revue newsletter.', 'jetpack' ),
 	icon,
 	category: 'jetpack',
-	support: {
+	supports: {
 		html: false,
 	},
 	attributes: {
