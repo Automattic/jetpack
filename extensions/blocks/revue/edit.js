@@ -45,15 +45,18 @@ export default function RevueEdit( props ) {
 					label={ __( 'Revue', 'jetpack' ) }
 				>
 					<form onSubmit={ saveUsername }>
-						<TextControl
+						<input
 							className="components-placeholder__input"
-							onChange={ setUsername }
+							onChange={ event => setUsername( event.target.value ) }
 							placeholder={ __( 'Enter your Revue username here…', 'jetpack' ) }
+							type="text"
 							value={ username }
 						/>
-						<Button disabled={ ! username } isLarge isDefault type="submit">
-							{ __( 'Insert', 'jetpack' ) }
-						</Button>
+						<div>
+							<Button disabled={ ! username } isDefault isLarge isSecondary type="submit">
+								{ __( 'Insert', 'jetpack' ) }
+							</Button>
+						</div>
 					</form>
 				</Placeholder>
 			) }
