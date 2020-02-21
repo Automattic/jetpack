@@ -2,7 +2,7 @@
  * External dependencies
  */
 import GridiconStar from 'gridicons/dist/star';
-import { __, _x, sprintf } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { compact, get, startsWith } from 'lodash';
 import { compose } from '@wordpress/compose';
@@ -21,22 +21,15 @@ import './store';
 import './style.scss';
 
 const getTitle = ( customTitle, planName ) => {
-	const title =
-		customTitle ||
-		_x(
-			'to use this block on your site.',
-			'Upgrade nudge title, preceeded by "Upgrade to [planname]"',
-			'jetpack'
-		);
+	if ( customTitle ) {
+		return planName ? sprintf( customTitle.knownPlan, { planName } ) : customTitle.unknownPlan;
+	}
 
 	return planName
-		? sprintf( __( 'Upgrade to %(planName)s %(title)s', 'jetpack' ), {
+		? sprintf( __( 'Upgrade to %(planName)s to use this block on your site.', 'jetpack' ), {
 				planName,
-				title,
 		  } )
-		: sprintf( __( 'Upgrade to a paid plan %(title)s', 'jetpack' ), {
-				title,
-		  } );
+		: __( 'Upgrade to a paid plan to use this block on your site.', 'jetpack' );
 };
 
 export const UpgradeNudge = ( { planName, trackViewEvent, trackClickEvent, upgradeUrl, title, subtitle } ) => {

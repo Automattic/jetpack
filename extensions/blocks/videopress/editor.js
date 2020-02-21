@@ -5,6 +5,8 @@ import { createBlobURL } from '@wordpress/blob';
 import { createBlock } from '@wordpress/blocks';
 import { mediaUpload } from '@wordpress/editor';
 import { addFilter } from '@wordpress/hooks';
+import { createHigherOrderComponent } from '@wordpress/compose';
+import { __ } from '@wordpress/i18n';
 import { every } from 'lodash';
 
 /**
@@ -14,6 +16,27 @@ import withVideoPressEdit from './edit';
 import withVideoPressSave from './save';
 import getJetpackExtensionAvailability from '../../shared/get-jetpack-extension-availability';
 import deprecatedV1 from './deprecated/v1';
+import wrapPaidBlock from '../../shared/wrap-paid-block';
+import './editor.scss';
+
+const videoPressNoPlanMediaPlaceholder = createHigherOrderComponent(
+	OriginalPlaceholder => props => {
+		return (
+			<OriginalPlaceholder
+				{ ...props }
+				disableDropZone={ true }
+				className="no-videopress-media-placeholder"
+				labels={ {
+					instructions: __(
+						'Insert a video from a URL. To upload a video file please purchase a paid plan using the upgrade button above.',
+						'jetpack'
+					),
+				} }
+			/>
+		);
+	},
+	'videoPressNoPlanMediaPlaceholder'
+);
 
 const addVideoPressSupport = ( settings, name ) => {
 	// Bail if this is not the video block or if the hook has been triggered by a deprecation.
@@ -22,12 +45,19 @@ const addVideoPressSupport = ( settings, name ) => {
 	}
 
 	const { attributes, deprecated, edit, save, supports, transforms } = settings;
-
 	const { available, unavailableReason } = getJetpackExtensionAvailability( 'videopress' );
+
+	// Check if VideoPress is unavailable and filter the mediaplaceholder to limit options
+	if ( [ 'missing_plan', 'unknown' ].includes( unavailableReason ) ) {
+		addFilter( 'editor.MediaPlaceholder', 'jetpack/videopress', videoPressNoPlanMediaPlaceholder );
+	}
 
 	// We customize the video block even if VideoPress it not available so we can support videos that were uploaded to
 	// VideoPress if it was available in the past (i.e. before a plan downgrade).
-	if ( available || [ 'missing_plan', 'missing_module' ].includes( unavailableReason ) ) {
+	if (
+		available ||
+		[ 'missing_plan', 'missing_module', 'unknown' ].includes( unavailableReason )
+	) {
 		return {
 			...settings,
 
@@ -106,7 +136,21 @@ const addVideoPressSupport = ( settings, name ) => {
 				reusable: false,
 			},
 
-			edit: withVideoPressEdit( edit ),
+			edit: [ 'missing_plan', 'unknown' ].includes( unavailableReason )
+				? wrapPaidBlock( {
+						requiredPlan: 'value_bundle',
+						customTitle: {
+							knownPlan: __( 'Upgrade to %(planName)s to upload videos.', 'jetpack' ),
+							unknownPlan: __( 'Upgrade to a paid plan to upload videos.', 'jetpack' ),
+						},
+						customSubTitle: __(
+							'Upload unlimited videos to your website and \
+						display them using a fast, unbranded, \
+						customizable player.',
+							'jetpack'
+						),
+				  } )( withVideoPressEdit( edit ) )
+				: withVideoPressEdit( edit ),
 
 			save: withVideoPressSave( save ),
 
