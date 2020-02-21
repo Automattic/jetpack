@@ -52,7 +52,7 @@ const SearchBox = props => {
 		<Fragment>
 			<div className="jetpack-instant-search__box">
 				{ /* TODO: Add support for preserving label text */ }
-				<label htmlFor={ inputId }>
+				<label className="jetpack-instant-search__box-label" htmlFor={ inputId }>
 					<span className="screen-reader-text">{ __( 'Site Search', 'jetpack' ) }</span>
 					<div className="jetpack-instant-search__box-gridicon">
 						<Gridicon icon="search" size={ 24 } />
@@ -87,7 +87,7 @@ const SearchBox = props => {
 							alt="Show search filters"
 							aria-hidden="true"
 						/>
-						<span class="screen-reader-text">
+						<span className="screen-reader-text">
 							{ props.showFilters
 								? __( 'Hide filters', 'jetpack' )
 								: __( 'Show filters', 'jetpack' ) }
