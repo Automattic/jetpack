@@ -20,7 +20,10 @@ import './view.scss';
 export const name = 'opentable';
 export const title = __( 'OpenTable', 'jetpack' );
 import { getAttributesFromEmbedCode, restRefRegex, ridRegex } from './utils';
-
+const supports = {
+	align: true,
+	html: false,
+};
 export const settings = {
 	title,
 	description: __( 'Allow visitors to book a reservation with OpenTable', 'jetpack' ),
@@ -31,10 +34,7 @@ export const settings = {
 		__( 'reservation', 'jetpack' ),
 		__( 'restaurant', 'jetpack' ),
 	],
-	supports: {
-		align: true,
-		html: false,
-	},
+	supports,
 	edit,
 	save: ( { attributes: { rid } } ) => (
 		<div>
@@ -71,4 +71,19 @@ export const settings = {
 			},
 		],
 	},
+	deprecated: [
+		{
+			attributes: defaultAttributes,
+			supports,
+			save: ( { attributes: { rid } } ) => (
+				<>
+					{ rid.map( restaurantId => (
+						<a href={ `https://www.opentable.com/restref/client/?rid=${ restaurantId }` }>
+							{ `https://www.opentable.com/restref/client/?rid=${ restaurantId }` }
+						</a>
+					) ) }
+				</>
+			),
+		},
+	],
 };
