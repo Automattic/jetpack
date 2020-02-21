@@ -32,7 +32,14 @@ const getTitle = ( customTitle, planName ) => {
 		: __( 'Upgrade to a paid plan to use this block on your site.', 'jetpack' );
 };
 
-export const UpgradeNudge = ( { planName, trackViewEvent, trackClickEvent, upgradeUrl, title, subtitle } ) => {
+export const UpgradeNudge = ( {
+	planName,
+	trackViewEvent,
+	trackClickEvent,
+	upgradeUrl,
+	title,
+	subtitle,
+} ) => {
 	useEffect( () => {
 		if ( planName ) {
 			trackViewEvent();

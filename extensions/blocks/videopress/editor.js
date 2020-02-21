@@ -21,6 +21,10 @@ import './editor.scss';
 
 const videoPressNoPlanMediaPlaceholder = createHigherOrderComponent(
 	OriginalPlaceholder => props => {
+		if ( props.className.indexOf( 'wp-block-video' ) === -1 ) {
+			return <OriginalPlaceholder { ...props } />;
+		}
+
 		return (
 			<OriginalPlaceholder
 				{ ...props }
