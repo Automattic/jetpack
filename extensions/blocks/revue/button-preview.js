@@ -52,7 +52,7 @@ function BorderPanel( { borderRadius = '', setAttributes } ) {
 		[ setAttributes ]
 	);
 	return (
-		<PanelBody title={ __( 'Border settings', 'jetpack' ) }>
+		<PanelBody title={ __( 'Button Border Settings', 'jetpack' ) }>
 			<RangeControl
 				value={ borderRadius }
 				label={ __( 'Border Radius', 'jetpack' ) }
@@ -114,7 +114,7 @@ function ButtonPreview( {
 			<InspectorControls>
 				{ isGradientAvailable && (
 					<PanelColorGradientSettings
-						title={ __( 'Background & Text Color', 'jetpack' ) }
+						title={ __( 'Button Background & Text Color', 'jetpack' ) }
 						settings={ [
 							{
 								colorValue: textColor.color,
@@ -145,7 +145,7 @@ function ButtonPreview( {
 				) }
 				{ ! isGradientAvailable && (
 					<PanelColorSettings
-						title={ __( 'Background & Text Color', 'jetpack' ) }
+						title={ __( 'Button Background & Text Color', 'jetpack' ) }
 						colorSettings={ [
 							{
 								value: textColor.color,
