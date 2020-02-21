@@ -161,9 +161,8 @@ function jetpack_og_tags() {
 			}
 		}
 	} elseif ( is_search() ) {
-		$query_param = get_query_var( 's', '' );
-		if ( '' !== $query_param ) {
-			$tags['og:title'] = __( 'Search results: ', 'jetpack' ) . $query_param;
+		if ( '' !== get_query_var( 's', '' ) ) {
+			$tags['og:title'] = wp_get_document_title();
 		}
 	}
 	/**
