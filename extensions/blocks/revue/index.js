@@ -15,7 +15,7 @@ export const title = __( 'Revue', 'jetpack' );
 
 export const settings = {
 	title,
-	description: __( 'Add a Revue signup form.', 'jetpack' ),
+	description: __( 'Add a subscription form for your Revue newsletter.', 'jetpack' ),
 	icon,
 	category: 'jetpack',
 	support: {
