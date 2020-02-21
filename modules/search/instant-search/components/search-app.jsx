@@ -257,7 +257,6 @@ class SearchApp extends Component {
 					query={ getSearchQuery() }
 					response={ this.state.response }
 					resultFormat={ getResultFormatQuery() }
-					showLogo={ this.state.overlayOptions.showLogo }
 					showPoweredBy={ this.state.overlayOptions.showPoweredBy }
 					widgets={ this.props.options.widgets }
 				/>
