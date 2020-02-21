@@ -2070,21 +2070,14 @@ abstract class WPCOM_JSON_API_Endpoint {
 	}
 
 	/**
-	 * Determine if endpoint has been called from amp-form
+	 * Get an array of all valid AMP origins for a blog's siteurl.
 	 *
-	 * @return bool
-	 */
-	public function is_amp_request() {
-		return ( isset( $_GET, $_GET['__amp_source_origin'] ) );
-	}
-
-	/**
-	 * Get an array of all valid AMP origins for a blog's siteurl 
-	 *
+	 * @param string $siteurl Origin url of the API request.
 	 * @return array
 	 */
 	public function get_amp_cache_origins( $siteurl ) {
 		$host = parse_url( $siteurl, PHP_URL_HOST );
+
 		/*
 		 * From AMP docs:
 		 * "When possible, the Google AMP Cache will create a subdomain for each AMP document's domain by first converting it
@@ -2096,9 +2089,9 @@ abstract class WPCOM_JSON_API_Endpoint {
 			// phpcs:ignore PHPCompatibility.Constants.RemovedConstants.intl_idna_variant_2003Deprecated
 			$host = idn_to_utf8( $host, IDNA_DEFAULT, defined( 'INTL_IDNA_VARIANT_UTS46' ) ? INTL_IDNA_VARIANT_UTS46 : INTL_IDNA_VARIANT_2003 );
 		}
-		$subdomain = str_replace( [ '-', '.' ], [ '--', '-' ], $host );
-		return [
-			$siteurl, 
+		$subdomain = str_replace( array( '-', '.' ), array( '--', '-' ), $host );
+		return array(
+			$siteurl,
 			// Google AMP Cache (legacy).
 			'https://cdn.ampproject.org',
 			// Google AMP Cache subdomain.
@@ -2107,45 +2100,20 @@ abstract class WPCOM_JSON_API_Endpoint {
 			sprintf( 'https://%s.amp.cloudflare.com', $subdomain ),
 			// Bing AMP Cache.
 			sprintf( 'https://%s.bing-amp.com', $subdomain ),
-		];
-	}
-
-	/**
-	 * Return the source origin for use in API response headers, or false if invalid.
-	 *
-	 * @return string|bool
-	 */
-	public function get_amp_source_origin( $siteurl ) {
-		if ( ! isset( $_GET['__amp_source_origin'], $_SERVER['HTTP_ORIGIN'] ) ) {
-			return false;
-		}
-
-		$source_origin = esc_url_raw( $_GET['__amp_source_origin'] );
-		$http_origin = esc_url_raw( $_SERVER['HTTP_ORIGIN'] );
-		
-		if ( $source_origin !== esc_url_raw( $siteurl ) ) {
-			return false;
-		}
-
-		$amp_urls = $this->get_amp_cache_origins( $siteurl );
-		if ( ! in_array( $http_origin, $amp_urls, true ) ) {
-			return false;
-		}
-
-		return wp_unslash( $source_origin );
+		);
 	}
 
 	/**
 	 * Return endpoint response
 	 *
-	 * @param ... determined by ->$path
+	 * @param string $path ... determined by ->$path.
 	 *
-	 * @return
+	 * @return array|WP_Error
 	 *  falsy: HTTP 500, no response body
 	 *  WP_Error( $error_code, $error_message, $http_status_code ): HTTP $status_code, json_encode( array( 'error' => $error_code, 'message' => $error_message ) ) response body
 	 *  $data: HTTP 200, json_encode( $data ) response body
 	 */
-	abstract function callback( $path = '' );
+	abstract public function callback( $path = '' );
 
 
 }
