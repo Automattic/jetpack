@@ -22,9 +22,16 @@ export default class SearchFilters extends Component {
 		this.props.onChange && this.props.onChange();
 	};
 
-	onClearFilters = () => {
-		clearFiltersFromQuery();
-		this.props.onChange && this.props.onChange();
+	onClearFilters = event => {
+		event.preventDefault();
+
+		if (
+			event.type === 'click' ||
+			( event.type === 'keydown' && ( event.key === 'Enter' || event.key === ' ' ) )
+		) {
+			clearFiltersFromQuery();
+			this.props.onChange && this.props.onChange();
+		}
 	};
 
 	hasActiveFilters() {
@@ -94,12 +101,16 @@ export default class SearchFilters extends Component {
 		return (
 			<div className={ cls }>
 				{ this.hasActiveFilters() && (
-					<button
-						class="jetpack-instant-search__clear-filters-button"
+					<a
+						class="jetpack-instant-search__clear-filters-link"
+						href="#"
 						onClick={ this.onClearFilters }
+						onKeyDown={ this.onClearFilters }
+						role="button"
+						tabIndex="0"
 					>
-						{ __( 'Clear Filters', 'jetpack' ) }
-					</button>
+						{ __( 'Clear filters', 'jetpack' ) }
+					</a>
 				) }
 				{ get( this.props.widget, 'filters' )
 					.map( configuration =>
