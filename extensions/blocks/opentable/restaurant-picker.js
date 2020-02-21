@@ -13,10 +13,9 @@ import { __, _n } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import useRestaurantSearch from './use-restaurant-search';
+import useRestaurantSearch, { possibleEmbed } from './use-restaurant-search';
 
 const MAX_SUGGESTIONS = 20;
-const embedRegex = /<script type=\'text\/javascript\' src=\'\/\/www.opentable\.(\w{2,3}\.)?\w+\/widget\/reservation\/loader\?[^']+\'><\/script>/;
 
 export default function RestaurantPicker( props ) {
 	const [ input, setInput ] = useState( '' );
@@ -42,15 +41,14 @@ export default function RestaurantPicker( props ) {
 
 	const onSubmit = event => {
 		event.preventDefault();
-		props.onSubmit(
-			isEmpty( selectedRestaurants ) && embedRegex.test( input ) ? input : selectedRestaurants
-		);
+		props.onSubmit( isEmpty( selectedRestaurants ) ? input : selectedRestaurants );
 	};
 
 	const formInput = (
 		<FormTokenField
 			value={ selectedRestaurants }
 			suggestions={ restaurantNames }
+			saveTransform={ token => ( possibleEmbed.test( token ) ? '' : token.trim() ) }
 			onInputChange={ setInput }
 			maxSuggestions={ MAX_SUGGESTIONS }
 			label={ _n( 'Restaurant', 'Restaurants', selectedRestaurants.length, 'jetpack' ) }

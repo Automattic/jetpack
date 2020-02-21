@@ -7,10 +7,23 @@
  * @package Jetpack
  */
 
-jetpack_register_block(
-	'jetpack/{{ slug }}',
-	array( 'render_callback' => 'jetpack_{{ underscoredSlug }}_block_load_assets' )
-);
+namespace Jetpack\{{ underscoredTitle }}_Block;
+
+const FEATURE_NAME = '{{ slug }}';
+const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
+
+/**
+ * Registers the block for use in Gutenberg
+ * This is done via an action so that we can disable
+ * registration if we need to.
+ */
+function register_block() {
+	jetpack_register_block(
+		BLOCK_NAME,
+		array( 'render_callback' => __NAMESPACE__ . '\load_assets' )
+	);
+}
+add_action( 'init', __NAMESPACE__ . '\register_block' );
 
 /**
  * {{ title }} block registration/dependency declaration.
@@ -20,7 +33,11 @@ jetpack_register_block(
  *
  * @return string
  */
-function jetpack_{{ underscoredSlug }}_block_load_assets( $attr, $content ) {
-	Jetpack_Gutenberg::load_assets_as_required( '{{ slug }}' );
+function load_assets( $attr, $content ) {
+	/*
+	 * Enqueue necessary scripts and styles.
+	 */
+	\Jetpack_Gutenberg::load_assets_as_required( '{{ slug }}' );
+
 	return $content;
 }

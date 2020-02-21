@@ -27,6 +27,7 @@ export const settings = {
 	category: 'jetpack',
 	keywords: [
 		_x( 'map', 'block search term', 'jetpack' ),
+		_x( 'maps', 'block search term', 'jetpack' ),
 		_x( 'location', 'block search term', 'jetpack' ),
 		_x( 'navigation', 'block search term', 'jetpack' ),
 	],
@@ -65,6 +66,17 @@ export const settings = {
 		preview: {
 			type: 'boolean',
 			default: false,
+		},
+		scrollToZoom: {
+			type: 'boolean',
+			default: false,
+		},
+		mapHeight: {
+			type: 'integer',
+		},
+		showFullscreenButton: {
+			type: 'boolean',
+			default: true,
 		},
 	},
 	supports: {

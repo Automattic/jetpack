@@ -37,7 +37,6 @@ describe( 'SettingsCard', () => {
 
 	const allCardsNonAdminCantAccess = [
 			'widget-visibility',
-			'minileven',
 			'contact-form',
 			'sitemaps',
 			'latex',

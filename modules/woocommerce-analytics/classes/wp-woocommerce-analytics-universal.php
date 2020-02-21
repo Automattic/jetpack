@@ -88,7 +88,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 			if ( ! empty( $data ) ) {
 				foreach ( $data as $data_instance ) {
 					$product = wc_get_product( $data_instance['product_id'] );
-					if ( ! $product ) {
+					if ( ! $product instanceof WC_Product ) {
 						continue;
 					}
 					$product_details = $this->get_product_details( $product );
@@ -328,7 +328,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		$referer_postid = isset( $_SERVER['HTTP_REFERER'] ) ? url_to_postid( $_SERVER['HTTP_REFERER'] ) : 0;
 		// if the referring post is not a product OR the product being added is not the same as post
 		// (eg. related product list on single product page) then include a product view event
-		if ( ! wc_get_product( $referer_postid ) || $product_id != $referer_postid ) {
+		$product_by_referer_postid = wc_get_product( $referer_postid );
+		if ( ! $product_by_referer_postid instanceof WC_Product || (int) $product_id !== $referer_postid ) {
 			$this->capture_event_in_session_data( $product_id, $quantity, 'woocommerceanalytics_product_view' );
 		}
 		// add cart event to the session data
@@ -343,7 +344,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	public function capture_event_in_session_data( $product_id, $quantity, $event ) {
 
 		$product = wc_get_product( $product_id );
-		if ( ! $product ) {
+		if ( ! $product instanceof WC_Product ) {
 			return;
 		}
 
@@ -380,7 +381,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	 */
 	public function get_product_categories_concatenated( $product ) {
 
-		if ( ! $product ) {
+		if ( ! $product instanceof WC_Product ) {
 			return '';
 		}
 

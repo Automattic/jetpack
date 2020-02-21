@@ -1890,16 +1890,17 @@ class Jetpack_CLI extends WP_CLI_Command {
 		$hasKeywords = isset( $assoc_args['keywords'] );
 
 		$files = array(
-			"$path/$slug.php"   => $this->render_block_file(
+			"$path/$slug.php"     => $this->render_block_file(
 				'block-register-php',
 				array(
-					'slug'            => $slug,
-					'title'           => $title,
-					'underscoredSlug' => str_replace( '-', '_', $slug ),
-					'jetpackVersion'  => substr( JETPACK__VERSION, 0, strpos( JETPACK__VERSION, '.' ) ) . '.x',
+					'slug'             => $slug,
+					'title'            => $title,
+					'underscoredSlug'  => str_replace( '-', '_', $slug ),
+					'underscoredTitle' => str_replace( ' ', '_', $title ),
+					'jetpackVersion'   => substr( JETPACK__VERSION, 0, strpos( JETPACK__VERSION, '.' ) ) . '.x',
 				)
 			),
-			"$path/index.js"    => $this->render_block_file(
+			"$path/index.js"      => $this->render_block_file(
 				'block-index-js',
 				array(
 					'slug'        => $slug,
@@ -1919,21 +1920,23 @@ class Jetpack_CLI extends WP_CLI_Command {
 					'hasKeywords' => $hasKeywords,
 				)
 			),
-			"$path/editor.js"   => $this->render_block_file( 'block-editor-js' ),
-			"$path/editor.scss" => $this->render_block_file(
+			"$path/editor.js"     => $this->render_block_file( 'block-editor-js' ),
+			"$path/editor.scss"   => $this->render_block_file(
 				'block-editor-scss',
 				array(
 					'slug'  => $slug,
 					'title' => $title,
 				)
 			),
-			"$path/edit.js"     => $this->render_block_file(
+			"$path/edit.js"       => $this->render_block_file(
 				'block-edit-js',
 				array(
 					'title'     => $title,
 					'className' => str_replace( ' ', '', ucwords( str_replace( '-', ' ', $slug ) ) ),
 				)
 			),
+			"$path/icon.js"       => $this->render_block_file( 'block-icon-js' ),
+			"$path/attributes.js" => $this->render_block_file( 'block-attributes-js' ),
 		);
 
 		$files_written = array();

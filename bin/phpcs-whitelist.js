@@ -11,6 +11,7 @@ module.exports = [
 	'functions.global.php',
 	'functions.opengraph.php',
 	'_inc/lib/admin-pages/class-jetpack-about-page.php',
+	'_inc/lib/class-jetpack-mapbox-helper.php',
 	'_inc/lib/class.jetpack-password-checker.php',
 	'_inc/lib/components.php',
 	'_inc/lib/core-api/class.jetpack-core-api-site-endpoints.php',
@@ -40,6 +41,7 @@ module.exports = [
 	'modules/widgets/contact-info.php',
 	'modules/widgets/social-icons.php',
 	'modules/wpcom-block-editor/class-jetpack-wpcom-block-editor.php',
+	'modules/wpcom-tos/wpcom-tos.php',
 	'packages',
 	'tests/e2e/plugins/e2e-plan-data-interceptor.php',
 ];

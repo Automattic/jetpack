@@ -2,14 +2,15 @@
  * External dependencies
  */
 import { __{{#hasKeywords}}, _x{{/hasKeywords}} } from '@wordpress/i18n';
-import { ExternalLink, Path } from '@wordpress/components';
+import { ExternalLink } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
-import renderMaterialIcon from '../../shared/render-material-icon';
+import attributes from './attributes';
 import edit from './edit';
+import icon from './icon';
 
 /**
  * Style dependencies
@@ -20,23 +21,15 @@ export const name = '{{ slug }}';
 export const title = __( '{{ title }}', 'jetpack' );
 export const settings = {
 	title,
-
 	description: (
 		<Fragment>
 			<p>{ __( '{{ description }}', 'jetpack' ) }</p>
 			<ExternalLink href="#">{ __( 'Learn more about {{ title }}', 'jetpack' ) }</ExternalLink>
 		</Fragment>
 	),
-
-	/* @TODO Add the icon. You can use one of these https://material.io/tools/icons/?style=outline */
-	icon: renderMaterialIcon(
-		<Path d="M9 15h2V9H9v6zm1-10c-.5 0-1 .5-1 1s.5 1 1 1 1-.5 1-1-.5-1-1-1zm0-4c-5 0-9 4-9 9s4 9 9 9 9-4 9-9-4-9-9-9zm0 16c-3.9 0-7-3.1-7-7s3.1-7 7-7 7 3.1 7 7-3.1 7-7 7z" />
-	),
-
+	icon,
 	category: 'jetpack',
-
 	keywords: [{{#keywords}}_x( '{{ keyword }}', 'block search term', 'jetpack' ), {{/keywords}}],
-
 	supports: {
 		// Support for block's alignment (left, center, right, wide, full). When true, it adds block controls to change block’s alignment.
 		align: false, /* if set to true, the 'align' option below can be used*/
@@ -59,12 +52,10 @@ export const settings = {
 		// When false, the block won't be available to be converted into a reusable block.
 		reusable: true,
 	},
-
 	edit,
-
 	/* @TODO Write the block editor output */
 	save: () => null,
-
+	attributes,
 	example: {
 		attributes: {
 			// @TODO: Add default values for block attributes, for generating the block preview.

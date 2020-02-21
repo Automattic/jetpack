@@ -32,12 +32,14 @@ class WPCOM_JSON_API {
 
 	public $extra_headers = array();
 
+	public $amp_source_origin = null;
+
 	/**
 	 * @return WPCOM_JSON_API instance
 	 */
 	static function init( $method = null, $url = null, $post_body = null ) {
 		if ( ! self::$self ) {
-			$class      = function_exists( 'get_called_class' ) ? get_called_class() : __CLASS__; // phpcs:ignore PHPCompatibility.FunctionUse.NewFunctions.get_called_classFound
+			$class      = function_exists( 'get_called_class' ) ? get_called_class() : __CLASS__; // phpcs:ignore PHPCompatibility.PHP.NewFunctions.get_called_classFound
 			self::$self = new $class( $method, $url, $post_body );
 		}
 		return self::$self;
@@ -378,6 +380,13 @@ class WPCOM_JSON_API {
 		if ( 404 == $status_code || 400 == $status_code ) {
 			header( 'Access-Control-Allow-Origin: *' );
 		}
+
+		/* Add headers for form submission from <amp-form/> */
+		if ( $this->amp_source_origin ) {
+			header( 'Access-Control-Allow-Origin: ' . wp_unslash( $this->amp_source_origin ) );
+			header( 'Access-Control-Allow-Credentials: true' );
+		}
+
 
 		if ( is_null( $response ) ) {
 			$response = new stdClass();
