@@ -161,7 +161,10 @@ function jetpack_og_tags() {
 			}
 		}
 	} elseif ( is_search() ) {
-		$tags['og:title'] = 'Search results: ' . get_query_var( 's', '(no title)' );
+		$query_param = get_query_var( 's', '' );
+		if ( '' !== $query_param ) {
+			$tags['og:title'] = __( 'Search results: ', 'jetpack' ) . $query_param;
+		}
 	}
 	/**
 	 * Allow plugins to inject additional template-specific Open Graph tags.
