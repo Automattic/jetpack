@@ -591,6 +591,8 @@ class Jetpack {
 
 		// Note how this runs at an earlier plugin_loaded hook intentionally to accomodate for other plugins.
 		add_action( 'plugin_loaded', array( $this, 'add_configure_hook' ), 90 );
+		add_action( 'network_plugin_loaded', array( $this, 'add_configure_hook' ), 90 );
+		add_action( 'mu_plugin_loaded', array( $this, 'add_configure_hook' ), 90 );
 		add_action( 'plugins_loaded', array( $this, 'late_initialization' ), 90 );
 
 		add_filter(
