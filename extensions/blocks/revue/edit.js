@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies
  */
-import { BlockControls } from '@wordpress/block-editor';
+import { BlockControls, BlockIcon } from '@wordpress/block-editor';
 import {
 	Button,
 	Disabled,
@@ -17,7 +17,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import ButtonPreview from './button-preview';
-import { icon } from './';
+import icon from './icon';
 
 export default function RevueEdit( props ) {
 	const { attributes, className, setAttributes } = props;
@@ -40,7 +40,7 @@ export default function RevueEdit( props ) {
 		<div className={ className }>
 			{ ! revueUsername && (
 				<Placeholder
-					icon={ icon }
+					icon={ <BlockIcon icon={ icon } /> }
 					instructions={ __( 'Enter your Revue username.', 'jetpack' ) }
 					label={ __( 'Revue', 'jetpack' ) }
 				>
