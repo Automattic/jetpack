@@ -7,12 +7,11 @@ import { __, _x } from '@wordpress/i18n';
  * Internal dependencies
  */
 import edit from './edit';
+import icon from './icon';
 
 export const name = 'revue';
 
 export const title = __( 'Revue', 'jetpack' );
-
-export const icon = 'email-alt';
 
 export const settings = {
 	title,
