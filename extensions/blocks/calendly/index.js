@@ -35,7 +35,11 @@ export const settings = {
 		html: false,
 	},
 	edit,
-	save: ( { attributes: { url } } ) => <a href={ url }>{ url }</a>,
+	save: ( { attributes: { url } } ) => (
+		<div>
+			<a href={ url }>{ url }</a>
+		</div>
+	),
 	attributes,
 	example: {
 		attributes: {
