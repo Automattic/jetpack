@@ -112,7 +112,7 @@ function jetpack_get_revue_button( $attributes ) {
 	$classes = array( 'wp-block-button__link' );
 	$styles  = array();
 
-	$has_text                    = array_key_exists( 'className', $attributes );
+	$has_text                    = array_key_exists( 'text', $attributes );
 	$has_class_name              = array_key_exists( 'className', $attributes );
 	$has_named_text_color        = array_key_exists( 'textColor', $attributes );
 	$has_custom_text_color       = array_key_exists( 'customTextColor', $attributes );
