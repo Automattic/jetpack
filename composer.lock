@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4e937b940bc9b0a04c479643cdbb5758",
+    "content-hash": "62e7741dab7ed63d186fc1ad40a9adfe",
     "packages": [
         {
             "name": "automattic/jetpack-abtest",
@@ -953,16 +953,16 @@
         },
         {
             "name": "wp-coding-standards/wpcs",
-            "version": "2.2.0",
+            "version": "2.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/WordPress/WordPress-Coding-Standards.git",
-                "reference": "f90e8692ce97b693633db7ab20bfa78d930f536a"
+                "reference": "b5a453203114cc2284b1a614c4953456fbe4f546"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/WordPress/WordPress-Coding-Standards/zipball/f90e8692ce97b693633db7ab20bfa78d930f536a",
-                "reference": "f90e8692ce97b693633db7ab20bfa78d930f536a",
+                "url": "https://api.github.com/repos/WordPress/WordPress-Coding-Standards/zipball/b5a453203114cc2284b1a614c4953456fbe4f546",
+                "reference": "b5a453203114cc2284b1a614c4953456fbe4f546",
                 "shasum": ""
             },
             "require": {
@@ -970,12 +970,12 @@
                 "squizlabs/php_codesniffer": "^3.3.1"
             },
             "require-dev": {
-                "dealerdirect/phpcodesniffer-composer-installer": "^0.5.0",
+                "dealerdirect/phpcodesniffer-composer-installer": "^0.5 || ^0.6",
                 "phpcompatibility/php-compatibility": "^9.0",
                 "phpunit/phpunit": "^4.0 || ^5.0 || ^6.0 || ^7.0"
             },
             "suggest": {
-                "dealerdirect/phpcodesniffer-composer-installer": "^0.5.0 || This Composer plugin will sort out the PHPCS 'installed_paths' automatically."
+                "dealerdirect/phpcodesniffer-composer-installer": "^0.6 || This Composer plugin will sort out the PHPCS 'installed_paths' automatically."
             },
             "type": "phpcodesniffer-standard",
             "notification-url": "https://packagist.org/downloads/",
@@ -994,7 +994,7 @@
                 "standards",
                 "wordpress"
             ],
-            "time": "2019-11-11T12:34:03+00:00"
+            "time": "2020-02-04T02:52:06+00:00"
         }
     ],
     "aliases": [],
