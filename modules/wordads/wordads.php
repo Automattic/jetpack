@@ -423,7 +423,7 @@ HTML;
 	}
 
 	/**
-	 * Special cases for inserting header unit via jQuery
+	 * Special cases for inserting header unit via JS
 	 *
 	 * @since 4.5.0
 	 */
@@ -459,7 +459,15 @@ HTML;
 		if ( ! self::is_amp() ) {
 			echo <<<HTML
 		<script type="text/javascript">
-			jQuery('.wpcnt-header').insertBefore('$selector');
+			(function ( selector ) {
+				var main = document.querySelector( selector );
+				var headerAd = document.querySelector('.wpcnt-header');
+
+				if ( main ) {
+					main.parentNode.insertBefore( headerAd, main );
+				}
+			})( '$selector' );
+
 		</script>
 HTML;
 		}
