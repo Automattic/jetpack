@@ -96,10 +96,10 @@ class Jetpack_Gutenberg {
 
 	/**
 	 * Check to see if a minimum version of Gutenberg is available. Because a Gutenberg version is not available in
-	 * php if the Gutenberg plugin is not installed, we also need the minimum WordPress version that was released
-	 * with the required Gutenberg version.
+	 * php if the Gutenberg plugin is not installed, if we know which minimum WP release has the required version we can
+	 * optionally fall back to that.
 	 *
-	 * @param array  $version_requirements An array containing the required Gutenberg version and the WordPress version that was released with this minimum version.
+	 * @param array  $version_requirements An array containing the required Gutenberg version and, if known, the WordPress version that was released with this minimum version.
 	 * @param string $slug The slug of the block or plugin that has the gutenberg version requirement.
 	 *
 	 * @since 8.3.0
@@ -109,8 +109,8 @@ class Jetpack_Gutenberg {
 	public static function is_gutenberg_version_available( $version_requirements, $slug ) {
 		global $wp_version;
 
-		// Bail if the version requirements are not set correctly.
-		if ( empty( $version_requirements['gutenberg'] ) || empty( $version_requirements['wp'] ) ) {
+		// Bail if we don't at least have the gutenberg version requirement, the WP version is optional.
+		if ( empty( $version_requirements['gutenberg'] ) ) {
 			return false;
 		}
 
@@ -119,11 +119,13 @@ class Jetpack_Gutenberg {
 			return true;
 		}
 
-		// If running a production build of the gutenberg plugin then GUTENBERG_VERSION is set, otherwise check that
-		// we have a the minimum version of WordPress that was released with the required Gutenberg version.
+		$version_available = false;
+
+		// If running a production build of the gutenberg plugin then GUTENBERG_VERSION is set, otherwise if WP version
+		// with required version of Gutenberg is known check that.
 		if ( defined( 'GUTENBERG_VERSION' ) ) {
 			$version_available = version_compare( GUTENBERG_VERSION, $version_requirements['gutenberg'], '>=' );
-		} else {
+		} elseif ( ! empty( $version_requirements['wp'] ) ) {
 			$version_available = version_compare( $wp_version, $version_requirements['wp'], '>=' );
 		}
 
