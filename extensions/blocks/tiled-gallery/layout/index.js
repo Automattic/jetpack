@@ -67,6 +67,7 @@ export default class Layout extends Component {
 				onSelect={ isSave ? undefined : onSelectImage( i ) }
 				origUrl={ img.url }
 				setAttributes={ isSave ? undefined : setImageAttributes( i ) }
+				showMovers={ images.length > 1 }
 				srcSet={ srcSet }
 				url={ src }
 				width={ img.width }
