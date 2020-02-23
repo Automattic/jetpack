@@ -29,16 +29,6 @@ function register_block() {
 add_action( 'init', 'Jetpack\Google_Calendar_Block\register_block' );
 
 /**
- * Set the availability of the block as the editor
- * is loaded
- */
-function set_availability() {
-	\Jetpack_Gutenberg::set_extension_available( BLOCK_NAME );
-}
-
-add_action( 'init', 'Jetpack\Google_Calendar_Block\set_availability' );
-
-/**
  * Google Calendar block registration/dependency declaration.
  *
  * @param array $attr Array containing the Google Calendar block attributes.
