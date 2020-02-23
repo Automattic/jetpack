@@ -9,7 +9,7 @@ import { isEqual } from 'lodash';
 import { BlockControls, BlockIcon, InspectorControls } from '@wordpress/block-editor';
 import {
 	Button,
-	CheckboxControl,
+	ToggleControl,
 	Disabled,
 	ExternalLink,
 	IconButton,
@@ -95,19 +95,15 @@ export default function RevueEdit( props ) {
 				<>
 					<InspectorControls>
 						<PanelBody title={ __( 'Form Settings', 'jetpack' ) }>
-							<CheckboxControl
+							<ToggleControl
 								label={ __( 'Show first name field.', 'jetpack' ) }
 								checked={ firstNameField }
-								onChange={ value => {
-									setAttributes( { firstNameField: value } );
-								} }
+								onChange={ () => setAttributes( { firstNameField: ! firstNameField } ) }
 							/>
-							<CheckboxControl
+							<ToggleControl
 								label={ __( 'Show last name field.', 'jetpack' ) }
 								checked={ lastNameField }
-								onChange={ value => {
-									setAttributes( { lastNameField: value } );
-								} }
+								onChange={ () => setAttributes( { lastNameField: ! lastNameField } ) }
 							/>
 						</PanelBody>
 					</InspectorControls>
