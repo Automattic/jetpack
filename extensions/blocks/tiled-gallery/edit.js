@@ -30,6 +30,9 @@ import Layout from './layout';
 import {
 	ALLOWED_MEDIA_TYPES,
 	LAYOUT_CIRCLE,
+	LAYOUT_COLUMN,
+	LAYOUT_MASONRY,
+	LAYOUT_SQUARE,
 	LAYOUT_STYLES,
 	MAX_COLUMNS,
 	MAX_ROUNDED_CORNERS,
@@ -46,7 +49,7 @@ const linkOptions = [
 
 // @TODO keep here or move to ./layout ?
 function layoutSupportsColumns( layout ) {
-	return [ 'columns', 'circle', 'masonry', 'square' ].includes( layout );
+	return [ LAYOUT_CIRCLE, LAYOUT_COLUMN, LAYOUT_MASONRY, LAYOUT_SQUARE ].includes( layout );
 }
 
 export function defaultColumnsNumber( attributes ) {
