@@ -76,6 +76,11 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 	$amp_form_action = sprintf( 'https://public-api.wordpress.com/rest/v1.1/sites/%s/email_follow/amp/subscribe/', $blog_id );
 	$is_amp_request  = class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request();
 
+	$button_classes = 'components-button is-button is-primary ';
+	if ( ! empty( $attr['submitButtonClasses'] ) ) {
+		$button_classes .= $attr['submitButtonClasses'];
+	}
+
 	ob_start();
 	?>
 
@@ -125,7 +130,7 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 					/>
 				<?php endif; ?>
 				<p>
-					<button type="submit" class="components-button is-button is-primary" style="<?php echo esc_attr( $button_styles ); ?>">
+					<button type="submit" class="<?php echo esc_attr( $button_classes ); ?>" style="<?php echo esc_attr( $button_styles ); ?>">
 						<?php echo wp_kses_post( $values['submitButtonText'] ); ?>
 					</button>
 				</p>
