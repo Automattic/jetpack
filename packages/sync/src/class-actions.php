@@ -260,18 +260,20 @@ class Actions {
 	 * @param string $queue_id               The queue the action belongs to, sync or full_sync.
 	 * @param float  $checkout_duration      Time spent retrieving queue items from the DB.
 	 * @param float  $preprocess_duration    Time spent converting queue items into data to send.
+	 * @param int    $queue_size             The size of the sync queue at the time of processing.
 	 * @return Jetpack_Error|mixed|WP_Error  The result of the sending request.
 	 */
-	public static function send_data( $data, $codec_name, $sent_timestamp, $queue_id, $checkout_duration, $preprocess_duration ) {
+	public static function send_data( $data, $codec_name, $sent_timestamp, $queue_id, $checkout_duration, $preprocess_duration, $queue_size = null ) {
 		$query_args = array(
-			'sync'      => '1',             // Add an extra parameter to the URL so we can tell it's a sync action.
-			'codec'     => $codec_name,
-			'timestamp' => $sent_timestamp,
-			'queue'     => $queue_id,
-			'home'      => Functions::home_url(),  // Send home url option to check for Identity Crisis server-side.
-			'siteurl'   => Functions::site_url(),  // Send siteurl option to check for Identity Crisis server-side.
-			'cd'        => sprintf( '%.4f', $checkout_duration ),
-			'pd'        => sprintf( '%.4f', $preprocess_duration ),
+			'sync'       => '1',             // Add an extra parameter to the URL so we can tell it's a sync action.
+			'codec'      => $codec_name,
+			'timestamp'  => $sent_timestamp,
+			'queue'      => $queue_id,
+			'home'       => Functions::home_url(),  // Send home url option to check for Identity Crisis server-side.
+			'siteurl'    => Functions::site_url(),  // Send siteurl option to check for Identity Crisis server-side.
+			'cd'         => sprintf( '%.4f', $checkout_duration ),
+			'pd'         => sprintf( '%.4f', $preprocess_duration ),
+			'queue_size' => $queue_size,
 		);
 
 		// Has the site opted in to IDC mitigation?
@@ -506,7 +508,7 @@ class Actions {
 	 */
 	public static function initialize_sender() {
 		self::$sender = Sender::get_instance();
-		add_filter( 'jetpack_sync_send_data', array( __CLASS__, 'send_data' ), 10, 6 );
+		add_filter( 'jetpack_sync_send_data', array( __CLASS__, 'send_data' ), 10, 7 );
 	}
 
 	/**
@@ -728,8 +730,8 @@ class Actions {
 	public static function get_sync_status( $fields = null ) {
 		self::initialize_sender();
 
-		$sync_module     = Modules::get_module( 'full-sync' );
-		$queue           = self::$sender->get_sync_queue();
+		$sync_module = Modules::get_module( 'full-sync' );
+		$queue       = self::$sender->get_sync_queue();
 
 		// _get_cron_array can be false
 		$cron_timestamps = ( _get_cron_array() ) ? array_keys( _get_cron_array() ) : array();
@@ -772,7 +774,7 @@ class Actions {
 			)
 		);
 
-		// Verify $sync_module is not false
+		// Verify $sync_module is not false.
 		if ( ( $sync_module ) && false === strpos( get_class( $sync_module ), 'Full_Sync_Immediately' ) ) {
 			$result['full_queue_size'] = $full_queue->size();
 			$result['full_queue_lag']  = $full_queue->lag();

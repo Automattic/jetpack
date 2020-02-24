@@ -8,10 +8,10 @@ class Jetpack_Sync_Server_Eventstore {
 	private $action_name = null;
 
 	function init() {
-		add_action( 'jetpack_sync_remote_action', array( $this, 'handle_remote_action' ), 10, 8 );
+		add_action( 'jetpack_sync_remote_action', array( $this, 'handle_remote_action' ), 10, 9 );
 	}
 
-	function handle_remote_action( $action_name, $args, $user_id, $silent, $timestamp, $sent_timestamp, $queue_id ) {
+	function handle_remote_action( $action_name, $args, $user_id, $silent, $timestamp, $sent_timestamp, $queue_id, $queue_size ) {
 		$this->events[ get_current_blog_id() ][] = (object) array(
 			'action'         => $action_name,
 			'args'           => $args,
@@ -20,6 +20,7 @@ class Jetpack_Sync_Server_Eventstore {
 			'timestamp'      => $timestamp,
 			'sent_timestamp' => $sent_timestamp,
 			'queue'          => $queue_id,
+			'queue_size'     => $queue_size
 		);
 	}
 
