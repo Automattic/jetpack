@@ -22,7 +22,14 @@ export const settings = {
 	},
 	attributes,
 	edit,
-	save: () => {},
+	save: ( { attributes: { revueUsername } } ) => {
+		const url = `https://www.getrevue.co/profile/${ revueUsername }`;
+		return (
+			<div>
+				<a href={ url }>{ url }</a>
+			</div>
+		);
+	},
 	example: {
 		attributes: {
 			revueUsername: 'example',

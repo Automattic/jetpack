@@ -14,7 +14,7 @@ import {
 	RichText,
 	withColors,
 	__experimentalPanelColorGradientSettings as PanelColorGradientSettings,
-	__experimentalUseGradient,
+	__experimentalUseGradient as useGradient,
 } from '@wordpress/block-editor';
 import { PanelBody, RangeControl, withFallbackStyles } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
@@ -23,7 +23,7 @@ import { __ } from '@wordpress/i18n';
 
 const { getComputedStyle } = window;
 
-const isGradientAvailable = !! __experimentalUseGradient;
+const isGradientAvailable = !! useGradient;
 
 const applyFallbackStyles = withFallbackStyles( ( node, ownProps ) => {
 	const { textColor, backgroundColor } = ownProps;
@@ -79,9 +79,7 @@ function ButtonPreview( {
 } ) {
 	const { borderRadius, text } = attributes;
 
-	const { gradientClass, gradientValue, setGradient } = isGradientAvailable
-		? __experimentalUseGradient()
-		: {};
+	const { gradientClass, gradientValue, setGradient } = isGradientAvailable ? useGradient() : {};
 
 	const classes = classnames( className, 'wp-block-button__link', {
 		'has-background': backgroundColor.color || gradientValue,

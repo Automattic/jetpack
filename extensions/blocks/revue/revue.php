@@ -188,7 +188,7 @@ function jetpack_get_revue_button( $attributes ) {
 		style="<?php echo esc_attr( implode( ' ', $styles ) ); ?>"
 		type="submit"
 	>
-		<?php echo $has_text ? esc_html( $attributes['text'] ) : esc_html__( 'Subscribe', 'jetpack' ); ?>
+		<?php echo $has_text ? wp_kses_post( $attributes['text'] ) : esc_html__( 'Subscribe', 'jetpack' ); ?>
 	</button>
 </div>
 
