@@ -10,7 +10,6 @@ import { BlockControls, BlockIcon, InspectorControls } from '@wordpress/block-ed
 import {
 	Button,
 	ToggleControl,
-	Disabled,
 	ExternalLink,
 	IconButton,
 	PanelBody,
@@ -26,6 +25,7 @@ import { __ } from '@wordpress/i18n';
  */
 import defaultAttributes from './attributes';
 import ButtonPreview from './button-preview';
+import JetpackFieldLabel from '../contact-form/components/jetpack-field-label';
 import icon from './icon';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
@@ -41,7 +41,17 @@ export default function RevueEdit( props ) {
 		}
 	}, [ attributes ] );
 
-	const { revueUsername, firstNameField, lastNameField } = attributes;
+	const {
+		revueUsername,
+		emailLabel,
+		emailPlaceholder,
+		firstNameLabel,
+		firstNamePlaceholder,
+		firstNameShow,
+		lastNameLabel,
+		lastNamePlaceholder,
+		lastNameShow,
+	} = attributes;
 
 	const [ username, setUsername ] = useState( '' );
 
@@ -97,13 +107,13 @@ export default function RevueEdit( props ) {
 						<PanelBody title={ __( 'Form Settings', 'jetpack' ) }>
 							<ToggleControl
 								label={ __( 'Show first name field.', 'jetpack' ) }
-								checked={ firstNameField }
-								onChange={ () => setAttributes( { firstNameField: ! firstNameField } ) }
+								checked={ firstNameShow }
+								onChange={ () => setAttributes( { firstNameShow: ! firstNameShow } ) }
 							/>
 							<ToggleControl
 								label={ __( 'Show last name field.', 'jetpack' ) }
-								checked={ lastNameField }
-								onChange={ () => setAttributes( { lastNameField: ! lastNameField } ) }
+								checked={ lastNameShow }
+								onChange={ () => setAttributes( { lastNameShow: ! lastNameShow } ) }
 							/>
 						</PanelBody>
 					</InspectorControls>
@@ -119,30 +129,47 @@ export default function RevueEdit( props ) {
 						</Toolbar>
 					</BlockControls>
 
-					<Disabled>
+					<TextControl
+						label={
+							<JetpackFieldLabel
+								label={ emailLabel }
+								labelFieldName={ 'emailLabel' }
+								required
+								setAttributes={ setAttributes }
+							/>
+						}
+						onChange={ value => setAttributes( { emailPlaceholder: value } ) }
+						placeholder={ emailPlaceholder }
+						value={ emailPlaceholder }
+					/>
+					{ firstNameShow && (
 						<TextControl
-							label={ __( 'Email address', 'jetpack' ) }
-							placeholder={ __( 'Your email address…', 'jetpack' ) }
-							value=""
+							label={
+								<JetpackFieldLabel
+									label={ firstNameLabel }
+									labelFieldName={ 'firstNameLabel' }
+									setAttributes={ setAttributes }
+								/>
+							}
+							onChange={ value => setAttributes( { firstNamePlaceholder: value } ) }
+							placeholder={ firstNamePlaceholder }
+							value={ firstNamePlaceholder }
 						/>
-						{ firstNameField && (
-							<TextControl
-								label={ __( 'First name', 'jetpack' ) }
-								placeholder={ __( 'First name… (Optional)', 'jetpack' ) }
-								value=""
-							/>
-						) }
-						{ lastNameField && (
-							<TextControl
-								label={ __( 'Last name', 'jetpack' ) }
-								placeholder={ __( 'Last name… (Optional)', 'jetpack' ) }
-								value=""
-							/>
-						) }
-						<div className="wp-block-jetpack-revue__disabled-watermark">
-							{ __( 'Preview Only', 'jetpack' ) }
-						</div>
-					</Disabled>
+					) }
+					{ lastNameShow && (
+						<TextControl
+							label={
+								<JetpackFieldLabel
+									label={ lastNameLabel }
+									labelFieldName={ 'lastNameLabel' }
+									setAttributes={ setAttributes }
+								/>
+							}
+							onChange={ value => setAttributes( { lastNamePlaceholder: value } ) }
+							placeholder={ lastNamePlaceholder }
+							value={ lastNamePlaceholder }
+						/>
+					) }
 					<ButtonPreview { ...props } />
 				</>
 			) }

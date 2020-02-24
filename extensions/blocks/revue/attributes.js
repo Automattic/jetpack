@@ -2,7 +2,7 @@
 /**
  * WordPress dependencies
  */
-import { _x } from '@wordpress/i18n';
+import { _x, __ } from '@wordpress/i18n';
 
 export default {
 	revueUsername: {
@@ -12,11 +12,35 @@ export default {
 		type: 'string',
 		default: _x( 'Subscribe', 'verb: e.g. subscribe to a newsletter.', 'jetpack' ),
 	},
-	firstNameField: {
+	emailLabel: {
+		type: 'string',
+		default: __( 'Email address', 'jetpack' ),
+	},
+	emailPlaceholder: {
+		type: 'string',
+		default: __( 'Your email address…', 'jetpack' ),
+	},
+	firstNameLabel: {
+		type: 'string',
+		default: __( 'First name', 'jetpack' ),
+	},
+	firstNamePlaceholder: {
+		type: 'string',
+		default: __( 'First name… (Optional)', 'jetpack' ),
+	},
+	firstNameShow: {
 		type: 'boolean',
 		default: true,
 	},
-	lastNameField: {
+	lastNameLabel: {
+		type: 'string',
+		default: __( 'Last name', 'jetpack' ),
+	},
+	lastNamePlaceholder: {
+		type: 'string',
+		default: __( 'Last name… (Optional)', 'jetpack' ),
+	},
+	lastNameShow: {
 		type: 'boolean',
 		default: true,
 	},
