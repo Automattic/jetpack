@@ -1,3 +1,20 @@
-.wp-block-jetpack-revue .components-placeholder__learn-more {
-	margin-top: 1em;
+.wp-block-jetpack-revue {
+	.components-placeholder__learn-more {
+		margin-top: 1em;
+	}
+
+	.components-disabled {
+		opacity: 0.5;
+		position: relative;
+	}
+
+	&-disabled-watermark {
+		font-size: 42px;
+		transform: rotate(-10deg);
+		top: 50%;
+		margin-top: -35px;
+		position: absolute;
+		width: 100%;
+		text-align: center;
+	}
 }
