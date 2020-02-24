@@ -160,7 +160,11 @@ jQuery( document ).ready( function( $ ) {
 			} else {
 				window.location.assign( jpConnect.plansPromptUrl );
 			}
-			window.location.reload( true );
+
+			// The Jetpack admin page has hashes in the URLs, so we need to reload the page after .assign()
+			if ( window.location.hash ) {
+				window.location.reload( true );
+			}
 		},
 		handleConnectionError: function( error ) {
 			jetpackConnectButton.isRegistering = false;
