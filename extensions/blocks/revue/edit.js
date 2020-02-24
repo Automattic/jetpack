@@ -139,7 +139,7 @@ export default function RevueEdit( props ) {
 								value=""
 							/>
 						) }
-						<div className="wp-block-jetpack-revue-disabled-watermark">
+						<div className="wp-block-jetpack-revue__disabled-watermark">
 							{ __( 'Preview Only', 'jetpack' ) }
 						</div>
 					</Disabled>
