@@ -114,7 +114,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 				admin_url( 'admin.php?page=jetpack#/dashboard' ),
 				'critical',
 				__( 'Your site is not connected to Jetpack', 'jetpack' ),
-				__( 'Learn more about this process', 'jetpack' ),
+				__( 'Reconnect your site now', 'jetpack' ),
 				sprintf(
 					'<p>%1$s</p>' .
 					'<p><span class="dashicons fail"><span class="screen-reader-text">%2$s</span></span> %3$s<strong> %4$s</strong></p>',
@@ -122,7 +122,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 					/* translators: screen reader text indicating a test failed */
 					__( 'Error', 'jetpack' ),
 					__( 'Your site is not connected to Jetpack.', 'jetpack' ),
-					__( 'We recommend connecting Jetpack.', 'jetpack' )
+					__( 'We recommend reconnecting Jetpack.', 'jetpack' )
 				)
 			);
 		}
