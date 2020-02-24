@@ -73,7 +73,6 @@ class SearchApp extends Component {
 		window.addEventListener( 'queryStringChange', this.onChangeQueryString );
 
 		document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( input => {
-			input.form.addEventListener( 'submit', this.handleSubmit );
 			input.addEventListener( 'input', this.handleInput );
 		} );
 
@@ -91,7 +90,6 @@ class SearchApp extends Component {
 		window.removeEventListener( 'queryStringChange', this.onChangeQueryString );
 
 		document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( input => {
-			input.form.removeEventListener( 'submit', this.handleSubmit );
 			input.removeEventListener( 'input', this.handleInput );
 		} );
 
@@ -119,11 +117,6 @@ class SearchApp extends Component {
 	hasNextPage() {
 		return !! this.state.response.page_handle && ! this.state.hasError;
 	}
-
-	handleSubmit = event => {
-		event.preventDefault();
-		this.showResults();
-	};
 
 	handleInput = event => {
 		setSearchQuery( event.target.value );
@@ -169,7 +162,11 @@ class SearchApp extends Component {
 	};
 
 	onChangeQueryString = () => {
-		this.getResults();
+		if ( !! getSearchQuery() || hasFilter() ) {
+			this.getResults().then( () => {
+				! this.state.showResults && this.showResults();
+			} );
+		}
 
 		document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( input => {
 			input.value = getSearchQuery();
@@ -178,6 +175,9 @@ class SearchApp extends Component {
 		document.querySelectorAll( this.props.themeOptions.searchSortSelector ).forEach( select => {
 			select.value = getSortOptionFromSortKey( getSortQuery() );
 		} );
+
+		// NOTE: This is necessary to ensure that the search query has been propagated to SearchBox
+		this.forceUpdate();
 	};
 
 	loadNextPage = () => {
