@@ -43,6 +43,7 @@ function jetpack_render_revue_block( $attributes ) {
 		);
 		?>
 		"
+		class="wp-block-jetpack-revue__form is-visible"
 		method="post"
 		name="revue-form"
 		target="_blank"
@@ -93,6 +94,14 @@ function jetpack_render_revue_block( $attributes ) {
 			echo jetpack_get_revue_button( $attributes );
 		?>
 	</form>
+	<div class="wp-block-jetpack-revue__message">
+		<p>
+			<strong><?php esc_html_e( 'Subscription received!', 'jetpack' ); ?></strong>
+		</p>
+		<p>
+			<?php esc_html_e( 'Please check your email to confirm your newsletter subscription.', 'jetpack' ); ?>
+		</p>
+	</div>
 </div>
 
 	<?php
