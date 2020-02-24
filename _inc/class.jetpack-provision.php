@@ -1,6 +1,7 @@
 <?php //phpcs:ignore
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Sync\Actions;
 
@@ -220,7 +221,7 @@ class Jetpack_Provision { //phpcs:ignore
 
 	private static function authorize_user( $user_id, $access_token ) {
 		// authorize user and enable SSO
-		Jetpack::update_user_token( $user_id, sprintf( '%s.%d', $access_token, $user_id ), true );
+		Connection_Utils::update_user_token( $user_id, sprintf( '%s.%d', $access_token, $user_id ), true );
 
 		/**
 		 * Auto-enable SSO module for new Jetpack Start connections

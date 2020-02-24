@@ -204,14 +204,14 @@ function sharing_meta_box_save( $post_id ) {
   	return $post_id;
 }
 
-function sharing_meta_box_protected( $protected, $meta_key, $meta_type ) {
+function sharing_meta_box_protected( $protected, $meta_key ) {
 	if ( 'sharing_disabled' == $meta_key )
 		$protected = true;
 
 	return $protected;
 }
 
-add_filter( 'is_protected_meta', 'sharing_meta_box_protected', 10, 3 );
+add_filter( 'is_protected_meta', 'sharing_meta_box_protected', 10, 2 );
 
 function sharing_plugin_settings( $links ) {
 	$settings_link = '<a href="options-general.php?page=sharing.php">'.__( 'Settings', 'jetpack' ).'</a>';

@@ -1,9 +1,10 @@
-@import '../../../shared/styles/gutenberg-colors.scss';
+@import '../../../shared/styles/gutenberg-base-styles.scss';
 
 .component__map-theme-picker__button {
+	.block-editor-block-inspector &,
+	// @todo: .edit-post-settings-sidebar__panel-block selector can be removed when WP 5.4 is the minimum.
 	.edit-post-settings-sidebar__panel-block & {
 		border: 1px solid $light-gray-500;
-		border-radius: 100%;
 		width: 56px;
 		height: 56px;
 		margin: 2px;
@@ -14,6 +15,9 @@
 		background-size: contain;
 		transform: scale( 1 );
 		transition: transform 0.2s ease;
+		&, &:first-child, &:last-child {
+			border-radius: 100%;
+		}
 		&:hover {
 			transform: scale( 1.1 );
 		}

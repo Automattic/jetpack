@@ -1,3 +1,5 @@
+@import '../../scss/calypso-colors';
+
 .jp-dash-item {
 	.jp-dash-item__content a {
 		font-style: italic;
@@ -33,7 +35,7 @@
 	font-weight: 500;
 	font-size: rem( 32px );
 	display: inline-block;
-	border: 1px solid $dashboard-number-border;
+	border: 1px solid $light-gray-700;
 	border-radius: 4px;
 	padding: 0px 4px;
 	min-width: 36px;
@@ -72,13 +74,14 @@
 .jp-dash-item {
 	.dops-section-header__actions {
 		.dops-notice {
-			margin-top: rem( 2px );
+			margin-top: rem( -1px );
+			margin-bottom: rem( -1px );
 		}
 	}
 }
 .jp-dash-item__active-label {
 	display: inline-block;
-	padding: rem( 6px ) 0;
+	padding: rem( 6px ) 0 0;
 	color: darken( $gray, 10% );
 	color: $gray;
 	font-size: rem( 12px );

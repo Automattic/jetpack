@@ -9,6 +9,8 @@
 
 use Automattic\Jetpack\Constants;
 
+require_once dirname( __FILE__ ) . '/class.jetpack-search-options.php';
+
 /**
  * Various helper functions for reuse throughout the Jetpack Search code.
  *
@@ -148,9 +150,11 @@ class Jetpack_Search_Helpers {
 	 *
 	 * @since 5.8.0
 	 *
+	 * @param array|null $whitelisted_widget_ids array of whitelisted widget IDs.
+	 *
 	 * @return array Active filters.
 	 */
-	static function get_filters_from_widgets() {
+	public static function get_filters_from_widgets( $whitelisted_widget_ids = null ) {
 		$filters = array();
 
 		$widget_options = self::get_widgets_from_option();
@@ -161,6 +165,9 @@ class Jetpack_Search_Helpers {
 		foreach ( (array) $widget_options as $number => $settings ) {
 			$widget_id = self::build_widget_id( $number );
 			if ( ! self::is_active_widget( $widget_id ) || empty( $settings['filters'] ) ) {
+				continue;
+			}
+			if ( isset( $whitelisted_widget_ids ) && ! in_array( $widget_id, $whitelisted_widget_ids, true ) ) {
 				continue;
 			}
 
@@ -653,31 +660,6 @@ class Jetpack_Search_Helpers {
 	}
 
 	/**
-	 * Returns a boolean for whether the current site has a VIP index.
-	 *
-	 * @since 5.8.0
-	 *
-	 * @return bool
-	 */
-	public static function site_has_vip_index() {
-		$has_vip_index = (
-			Constants::is_defined( 'JETPACK_SEARCH_VIP_INDEX' ) &&
-			Constants::get_constant( 'JETPACK_SEARCH_VIP_INDEX' )
-		);
-
-		/**
-		 * Allows developers to filter whether the current site has a VIP index.
-		 *
-		 * @module search
-		 *
-		 * @since  5.8.0
-		 *
-		 * @param bool $has_vip_index Whether the current site has a VIP index.
-		 */
-		return apply_filters( 'jetpack_search_has_vip_index', $has_vip_index );
-	}
-
-	/**
 	 * Returns the maximum posts per page for a search query.
 	 *
 	 * @since 5.8.0
@@ -685,7 +667,7 @@ class Jetpack_Search_Helpers {
 	 * @return int
 	 */
 	public static function get_max_posts_per_page() {
-		return self::site_has_vip_index() ? 1000 : 100;
+		return Jetpack_Search_Options::site_has_vip_index() ? 1000 : 100;
 	}
 
 	/**
@@ -696,6 +678,6 @@ class Jetpack_Search_Helpers {
 	 * @return int
 	 */
 	public static function get_max_offset() {
-		return self::site_has_vip_index() ? 9000 : 1000;
+		return Jetpack_Search_Options::site_has_vip_index() ? 9000 : 1000;
 	}
 }

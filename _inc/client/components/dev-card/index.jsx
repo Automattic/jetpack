@@ -202,6 +202,32 @@ export class DevCard extends React.Component {
 							Pro
 						</label>
 					</li>
+					<li>
+						<label htmlFor="jetpack_backup_daily">
+							<input
+								type="radio"
+								id="jetpack_backup_daily"
+								value="jetpack_backup_daily"
+								name="jetpack_backup_daily"
+								checked={ 'is-daily-backup-plan' === planClass }
+								onChange={ this.onPlanChange }
+							/>
+							Jetpack Backup Daily
+						</label>
+					</li>
+					<li>
+						<label htmlFor="jetpack_backup_realtime">
+							<input
+								type="radio"
+								id="jetpack_backup_realtime"
+								value="jetpack_backup_realtime"
+								name="jetpack_backup_realtime"
+								checked={ 'is-realtime-backup-plan' === planClass }
+								onChange={ this.onPlanChange }
+							/>
+							Jetpack Backup Reatime
+						</label>
+					</li>
 				</ul>
 				<hr />
 				<ul>

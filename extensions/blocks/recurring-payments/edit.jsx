@@ -20,7 +20,7 @@ import {
 	withNotices,
 	SelectControl,
 } from '@wordpress/components';
-import { InspectorControls, BlockIcon } from '@wordpress/editor';
+import { InspectorControls, BlockIcon } from '@wordpress/block-editor';
 import { Fragment, Component } from '@wordpress/element';
 
 /**
@@ -200,7 +200,7 @@ class MembershipsButtonEdit extends Component {
 		if ( this.state.addingMembershipAmount === PRODUCT_NOT_ADDING && ! forceShowForm ) {
 			return (
 				<Button
-					isDefault
+					isPrimary
 					isLarge
 					onClick={ () => this.setState( { addingMembershipAmount: PRODUCT_FORM } ) }
 				>
@@ -265,7 +265,7 @@ class MembershipsButtonEdit extends Component {
 				/>
 				<div>
 					<Button
-						isDefault
+						isPrimary
 						isLarge
 						className="membership-button__field-button membership-button__add-amount"
 						onClick={ this.saveProduct }
@@ -406,19 +406,15 @@ class MembershipsButtonEdit extends Component {
 							icon={ <BlockIcon icon={ icon } /> }
 							label={ __( 'Recurring Payments', 'jetpack' ) }
 							notices={ notices }
+							instructions={ __(
+								"You'll need to upgrade your plan to use the Recurring Payments button.",
+								'jetpack'
+							) }
 						>
-							<div className="components-placeholder__instructions">
-								<p>
-									{ __(
-										"You'll need to upgrade your plan to use the Recurring Payments button.",
-										'jetpack'
-									) }
-								</p>
-								<Button isDefault isLarge href={ this.state.upgradeURL } target="_blank">
-									{ __( 'Upgrade Your Plan', 'jetpack' ) }
-								</Button>
-								{ this.renderDisclaimer() }
-							</div>
+							<Button isSecondary isLarge href={ this.state.upgradeURL } target="_blank">
+								{ __( 'Upgrade Your Plan', 'jetpack' ) }
+							</Button>
+							{ this.renderDisclaimer() }
 						</Placeholder>
 					</div>
 				) }

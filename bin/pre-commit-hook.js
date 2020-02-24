@@ -58,7 +58,8 @@ function checkFailed() {
 		chalk.red( 'COMMIT ABORTED:' ),
 		'The linter reported some problems. ' +
 			'If you are aware of them and it is OK, ' +
-			'repeat the commit command with --no-verify to avoid this check.'
+			'repeat the commit command with --no-verify to avoid this check. ' +
+			"But please don't. Code is poetry."
 	);
 	exitCode = 1;
 }
@@ -110,6 +111,47 @@ function runJSLinter( toLintFiles ) {
 	} );
 
 	return lintResult.status;
+}
+
+/**
+ * Run phpcs-changed.
+ *
+ * @param {Array} phpFilesToCheck Array of PHP files changed.
+ */
+function runPHPCSChanged( phpFilesToCheck ) {
+	let phpChangedFail, phpFileChangedResult;
+	spawnSync( 'composer', [ 'install' ], {
+		shell: true,
+		stdio: 'inherit',
+	} );
+	if ( phpFilesToCheck.length > 0 ) {
+		process.env.PHPCS = 'vendor/bin/phpcs';
+
+		phpFilesToCheck.forEach( function( file ) {
+			phpFileChangedResult = spawnSync( 'composer', [ 'run', 'php:changed', file ], {
+				env: process.env,
+				shell: true,
+				stdio: 'inherit',
+			} );
+			if ( phpFileChangedResult && phpFileChangedResult.status ) {
+				phpChangedFail = true;
+			}
+		} );
+
+		if ( phpChangedFail ) {
+			checkFailed();
+		}
+	}
+}
+
+/**
+ * Exit
+ *
+ * @param {Number} exitCodePassed Shell exit code.
+ */
+function exit( exitCodePassed ) {
+	capturePreCommitDate();
+	process.exit( exitCodePassed );
 }
 
 dirtyFiles.forEach( file =>
@@ -179,11 +221,14 @@ if ( phpcsResult && phpcsResult.status ) {
 		phpcsStatus +
 			'If you are aware of them and it is OK, ' +
 			'repeat the commit command with --no-verify to avoid this check.\n' +
-			"But please don't. Code is poetry."
+			"But please don't. Code is poetry.\n\n" +
+			'Note: If there are additional PHPCS errors in files that are not yet fully PHPCS-compliant ' +
+			'they will be reported only after these issues are resolved.'
 	);
-	exitCode = 1;
+
+	// If we get here, whitelisted files have failed PHPCS. Let's return early and avoid the duplicate information.
+	exit( 1 );
 }
 
-capturePreCommitDate();
-
-process.exit( exitCode );
+runPHPCSChanged( phpFiles );
+exit( exitCode );

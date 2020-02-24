@@ -202,6 +202,10 @@ class Jetpack_Lazy_Images {
 			return $attributes;
 		}
 
+		if ( isset( $attributes['data-skip-lazy'] ) ) {
+			return $attributes;
+		}
+
 		/**
 		 * Allow plugins and themes to conditionally skip processing an image via its attributes.
 		 *

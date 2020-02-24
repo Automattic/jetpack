@@ -12,6 +12,7 @@ use Automattic\Jetpack\Connection\Client;
  */
 class Jetpack_Core_API_Site_Endpoint {
 
+
 	/**
 	 * Returns the result of `/sites/%s/features` endpoint call.
 	 *
@@ -56,6 +57,47 @@ class Jetpack_Core_API_Site_Endpoint {
 		);
 	}
 
+
+	/**
+	 * Returns the result of `/sites/%s/purchases` endpoint call.
+	 *
+	 * @return array of site purchases.
+	 */
+	public static function get_purchases() {
+		// Make the API request.
+		$request  = sprintf( '/sites/%d/purchases', Jetpack_Options::get_option( 'id' ) );
+		$response = Client::wpcom_json_api_request_as_blog( $request, '1.1' );
+
+		// Bail if there was an error or malformed response.
+		if ( is_wp_error( $response ) || ! is_array( $response ) || ! isset( $response['body'] ) ) {
+			return new WP_Error(
+				'failed_to_fetch_data',
+				esc_html__( 'Unable to fetch the requested data.', 'jetpack' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		// Decode the results.
+		$results = json_decode( $response['body'], true );
+
+		// Bail if there were no results or purchase details returned.
+		if ( ! is_array( $results ) ) {
+			return new WP_Error(
+				'failed_to_fetch_data',
+				esc_html__( 'Unable to fetch the requested data.', 'jetpack' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		return rest_ensure_response(
+			array(
+				'code'    => 'success',
+				'message' => esc_html__( 'Site purchases correctly received.', 'jetpack' ),
+				'data'    => wp_remote_retrieve_body( $response ),
+			)
+		);
+	}
+
 	/**
 	 * Check that the current user has permissions to request information about this site.
 	 *
@@ -66,7 +108,6 @@ class Jetpack_Core_API_Site_Endpoint {
 	public static function can_request() {
 		return current_user_can( 'jetpack_manage_modules' );
 	}
-
 
 	/**
 	 * Gets an array of data that show how Jetpack is currently being used to benefit the site.
@@ -94,7 +135,7 @@ class Jetpack_Core_API_Site_Endpoint {
 			$benefits[] = array(
 				'name'        => 'jetpack-stats',
 				'title'       => esc_html__( 'Site Stats', 'jetpack' ),
-				'description' => esc_html__( 'Visitors tracked by Jetpack this year', 'jetpack' ),
+				'description' => esc_html__( 'Visitors tracked by Jetpack', 'jetpack' ),
 				'value'       => absint( $stats->stats->visitors ),
 			);
 		}
@@ -127,7 +168,7 @@ class Jetpack_Core_API_Site_Endpoint {
 			$vaultpress = new VaultPress();
 			if ( $vaultpress->is_registered() ) {
 				$data = json_decode( base64_decode( $vaultpress->contact_service( 'plugin_data' ) ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
-				if ( $data->features->backups && $data->backups->stats->revisions > 0 ) {
+				if ( $data && $data->features->backups && ! empty( $data->backups->stats ) && $data->backups->stats->revisions > 0 ) {
 					$benefits[] = array(
 						'name'        => 'jetpack-backup',
 						'title'       => esc_html__( 'Jetpack Backup', 'jetpack' ),
@@ -172,14 +213,14 @@ class Jetpack_Core_API_Site_Endpoint {
 		// Number of VideoPress videos on the site.
 		$videopress_attachments = wp_count_attachments( 'video/videopress' );
 		if (
-			isset( $videopress_attachments->{ 'video/videopress' } )
-			&& $videopress_attachments->{ 'video/videopress' } > 0
+			isset( $videopress_attachments->{'video/videopress'} )
+			&& $videopress_attachments->{'video/videopress'} > 0
 		) {
 			$benefits[] = array(
 				'name'        => 'video-hosting',
 				'title'       => esc_html__( 'Video Hosting', 'jetpack' ),
 				'description' => esc_html__( 'Ad-free, lightning-fast videos delivered by Jetpack', 'jetpack' ),
-				'value'       => absint( $videopress_attachments->{ 'video/videopress' } ),
+				'value'       => absint( $videopress_attachments->{'video/videopress'} ),
 			);
 		}
 

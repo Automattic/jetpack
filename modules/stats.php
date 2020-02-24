@@ -41,6 +41,7 @@ function stats_load() {
 	add_action( 'wp_head', 'stats_admin_bar_head', 100 );
 
 	add_action( 'wp_head', 'stats_hide_smile_css' );
+	add_action( 'embed_head', 'stats_hide_smile_css' );
 
 	add_action( 'jetpack_admin_menu', 'stats_admin_menu' );
 
@@ -237,7 +238,7 @@ function stats_footer() {
 	} else {
 		stats_render_footer( $data );
 	}
-	
+
 }
 
 function stats_render_footer( $data ) {
@@ -903,7 +904,7 @@ function stats_update_blog() {
  * @return string
  */
 function stats_get_blog() {
-	$home = parse_url( trailingslashit( get_option( 'home' ) ) );
+	$home = wp_parse_url( trailingslashit( get_option( 'home' ) ) );
 	$blog = array(
 		'host'                => $home['host'],
 		'path'                => $home['path'],

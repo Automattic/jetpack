@@ -571,7 +571,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		wp_set_current_user( $user->ID );
 
 		// Build URL to compare scheme and host with the one in response
-		$admin_url = parse_url( admin_url() );
+		$admin_url = wp_parse_url( admin_url() );
 
 		// Create REST request in JSON format and dispatch
 		$response = $this->create_and_get_request( 'connection/url' );
@@ -580,7 +580,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$this->assertResponseStatus( 200, $response );
 
 		// Format data to test it
-		$response->data = parse_url( $response->data );
+		$response->data = wp_parse_url( $response->data );
 		parse_str( $response->data['query'], $response->data['query'] );
 
 		// It has a nonce
@@ -638,7 +638,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		// Success, URL was built
 		$this->assertResponseStatus( 200, $response );
 
-		$response->data = parse_url( $response->data );
+		$response->data = wp_parse_url( $response->data );
 		parse_str( $response->data['query'], $response->data['query'] );
 
 		// Because dotcom will not respond to a fake token, the method

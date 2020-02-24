@@ -25,7 +25,12 @@ import DashSearch from './search';
 import DashConnections from './connections';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import QuerySite from 'components/data/query-site';
-import { userCanManageModules, userCanViewStats, userIsSubscriber } from 'state/initial-state';
+import {
+	isMultisite,
+	userCanManageModules,
+	userCanViewStats,
+	userIsSubscriber,
+} from 'state/initial-state';
 import { isDevMode } from 'state/connection';
 import { getModuleOverride } from 'state/modules';
 
@@ -48,6 +53,7 @@ class AtAGlance extends Component {
 			updateOptions: this.props.updateOptions,
 			getOptionValue: this.props.getOptionValue,
 			isUpdating: this.props.isUpdating,
+			multisite: this.props.multisite,
 		};
 		const urls = {
 			siteAdminUrl: this.props.siteAdminUrl,
@@ -78,20 +84,25 @@ class AtAGlance extends Component {
 		);
 		// Status can be unavailable, active, provisioning, awaiting_credentials
 		const rewindStatus = get( this.props.rewindStatus, [ 'state' ], '' );
-		const securityCards = [
+		const securityCards = [];
+		securityCards.push(
 			<DashScan
 				{ ...settingsProps }
 				siteRawUrl={ this.props.siteRawUrl }
 				rewindStatus={ rewindStatus }
-			/>,
-			<DashBackups
-				{ ...settingsProps }
-				siteRawUrl={ this.props.siteRawUrl }
-				rewindStatus={ rewindStatus }
-			/>,
-			<DashAkismet { ...urls } />,
-			<DashPluginUpdates { ...settingsProps } { ...urls } />,
-		];
+			/>
+		);
+		if ( ! this.props.multisite ) {
+			securityCards.push(
+				<DashBackups
+					{ ...settingsProps }
+					siteRawUrl={ this.props.siteRawUrl }
+					rewindStatus={ rewindStatus }
+				/>
+			);
+		}
+		securityCards.push( <DashAkismet { ...urls } /> );
+		securityCards.push( <DashPluginUpdates { ...settingsProps } { ...urls } /> );
 
 		if ( 'inactive' !== this.props.getModuleOverride( 'protect' ) ) {
 			securityCards.push( <DashProtect { ...settingsProps } /> );
@@ -177,5 +188,6 @@ export default connect( state => {
 		userIsSubscriber: userIsSubscriber( state ),
 		isDevMode: isDevMode( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
+		multisite: isMultisite( state ),
 	};
 } )( withModuleSettingsFormHelpers( AtAGlance ) );

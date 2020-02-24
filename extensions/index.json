@@ -1,14 +1,19 @@
 {
 	"production": [
 		"business-hours",
+		"calendly",
 		"contact-form",
 		"contact-info",
+		"eventbrite",
 		"gif",
 		"likes",
 		"mailchimp",
 		"map",
 		"markdown",
+		"opentable",
+		"pinterest",
 		"publicize",
+		"rating-star",
 		"recurring-payments",
 		"related-posts",
 		"repeat-visitor",
@@ -21,5 +26,5 @@
 		"videopress",
 		"wordads"
 	],
-	"beta": [ "seo" ]
+	"beta": [ "amazon", "seo", "google-calendar" ]
 }

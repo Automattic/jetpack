@@ -17,8 +17,9 @@
 	margin: 0 0 17px 0;
 	background: $white;
 	box-sizing: border-box;
-	box-shadow: 0 0 0 1px transparentize( lighten( $gray, 20% ), .5 ),
-		0 1px 2px lighten( $gray, 30% );
+	box-shadow:
+		0 0 0 1px $light-gray-700,
+		0 1px 1px 1px  rgba(0,0,0,.04);
 
 	&.is-empty .dops-section-nav__panel {
 		visibility: hidden;
@@ -280,7 +281,7 @@
 
 	.is-selected & {
 		color: $white;
-		background-color: $blue-medium;
+		background-color: $blue-medium-dark;
 	}
 
 	&:focus {
@@ -300,9 +301,13 @@
 		}
 	}
 
+	&:hover {
+		color: $blue-grey-dark;
+	}
+
 	.notouch & {
 		&:hover {
-			color: $blue-medium;
+			color: $blue-medium-dark;
 		}
 	}
 
@@ -316,11 +321,11 @@
 		display: block;
 		width: auto;
 		padding: 16px 16px 14px 16px;
-		color: $blue-wordpress;
+		color: $blue-medium-dark;
 		font-weight: 400;
 
 		&:visited {
-			color: $blue-wordpress;
+			color: $blue-medium-dark;
 		}
 
 		.is-selected & {

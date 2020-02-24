@@ -42,11 +42,13 @@ jQuery( document ).ready( function( $ ) {
 			}
 		},
 		startConnectionFlow: function() {
-			var abTestName = 'jetpack_connect_in_place_v2';
+			var abTestName = 'jetpack_connect_in_place_v3';
+
 			$.ajax( {
 				url: 'https://public-api.wordpress.com/wpcom/v2/abtest/' + abTestName,
 				type: 'GET',
 				error: jetpackConnectButton.handleConnectionError,
+				data: jpConnect.identity,
 				xhrFields: {
 					withCredentials: true,
 				},
@@ -119,6 +121,13 @@ jQuery( document ).ready( function( $ ) {
 			} );
 			jetpackConnectIframe.hide();
 			$( '.jp-connect-full__button-container' ).after( jetpackConnectIframe );
+
+			// At this point we are pretty sure if things work out that we will be loading the admin script
+			var link = document.createElement( 'link' );
+			link.rel = 'preload';
+			link.as = 'script';
+			link.href = jpConnect.preFetchScript;
+			document.head.appendChild( link );
 		},
 		fetchPlanType: function() {
 			$.ajax( {
@@ -151,7 +160,11 @@ jQuery( document ).ready( function( $ ) {
 			} else {
 				window.location.assign( jpConnect.plansPromptUrl );
 			}
-			window.location.reload( true );
+
+			// The Jetpack admin page has hashes in the URLs, so we need to reload the page after .assign()
+			if ( window.location.hash ) {
+				window.location.reload( true );
+			}
 		},
 		handleConnectionError: function( error ) {
 			jetpackConnectButton.isRegistering = false;

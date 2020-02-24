@@ -6,6 +6,20 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	 * @var array When printing the submit button, what tags are allowed
 	 */
 	static $allowed_html_tags_for_submit_button = array( 'br' => array() );
+	/**
+	 * Use this variable when printing the message after submitting an email in subscription widgets
+	 *
+	 * @var array what tags are allowed
+	 */
+	public static $allowed_html_tags_for_message = array(
+		'a'  => array(
+			'href'   => array(),
+			'title'  => array(),
+			'rel'    => array(),
+			'target' => array(),
+		),
+		'br' => array(),
+	);
 
 	function __construct() {
 		$widget_ops = array(
@@ -150,6 +164,39 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 							__( 'Manage your email preferences.', 'jetpack' )
 						); ?></p>
 					<?php break;
+				case 'many_pending_subs':
+					?>
+					<p class="error">
+						<?php
+						printf(
+							wp_kses(
+								/* translators: 1: Link to Subscription Management page https://subscribe.wordpress.com/, 2: Description of this link */
+								__( 'You already have several pending email subscriptions. <br /> Approve or delete a few subscriptions at <a href="%1$s" title="%2$s" target="_blank" rel="noopener noreferrer">subscribe.wordpress.com</a> before continuing.', 'jetpack' ),
+								self::$allowed_html_tags_for_message
+							),
+							'https://subscribe.wordpress.com/',
+							esc_attr__( 'Manage your email preferences.', 'jetpack' )
+						);
+						?>
+					</p>
+					<?php break;
+				case 'pending':
+					?>
+					<p class="error">
+						<?php
+						printf(
+							wp_kses(
+								/* translators: 1: Link to Subscription Management page https://subscribe.wordpress.com/, 2: Description of this link */
+								__( 'You subscribed this site before but you have not clicked the confirmation link yet. Please check your inbox. <br /> Otherwise, you can manage your preferences at <a href="%1$s" title="%2$s" target="_blank" rel="noopener noreferrer">subscribe.wordpress.com</a>.', 'jetpack' ),
+								self::$allowed_html_tags_for_message
+							),
+							'https://subscribe.wordpress.com/',
+							esc_attr__( 'Manage your email preferences.', 'jetpack' )
+						);
+						?>
+					</p>
+					<?php
+					break;
 				case 'success' : ?>
                     <div class="success"><?php echo wpautop( str_replace( '[total-subscribers]', number_format_i18n( $subscribers_total['value'] ), $success_message ) ); ?></div>
 					<?php break;

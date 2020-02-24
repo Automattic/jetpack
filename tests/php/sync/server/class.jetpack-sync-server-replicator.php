@@ -219,6 +219,11 @@ class Jetpack_Sync_Server_Replicator {
 					$this->store->update_term( $term_object );
 				}
 				break;
+			case 'jetpack_full_sync_term_relationships':
+				foreach ( $args['term_relationships'] as $term_relationships ) {
+					$this->store->update_term_relationships( $term_relationships );
+				}
+				break;
 			case 'jetpack_full_sync_updates':
 				foreach ( $args as $update_name => $update_value ) {
 					$this->store->set_updates( $update_name, $update_value );

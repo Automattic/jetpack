@@ -28,6 +28,7 @@ $tools = array(
 	'theme-tools/site-breadcrumbs.php',
 	'theme-tools/social-menu.php',
 	'theme-tools/content-options.php',
+	'theme-tools/devicepx.php',
 	// Needed for SEO Tools.
 	'seo-tools/jetpack-seo-utils.php',
 	'seo-tools/jetpack-seo-titles.php',
@@ -45,6 +46,7 @@ $connected_tools = array(
 	'simple-payments/simple-payments.php',
 	'woocommerce-analytics/wp-woocommerce-analytics.php',
 	'wpcom-block-editor/class-jetpack-wpcom-block-editor.php',
+	'wpcom-tos/wpcom-tos.php',
 );
 
 // Add connected features to our existing list if the site is currently connected.

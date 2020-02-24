@@ -1,0 +1,20 @@
+.jetpack-instant-search__box {
+	display: flex;
+	align-items: center;
+	flex: 0 0 100%;
+}
+
+.jetpack-instant-search__box-filter-icon {
+	margin: 0 16px;
+	cursor: pointer;
+
+	@include break-medium() {
+		display: none;
+	}
+}
+
+/* apply to all the inputs to try and pick up any theme styling */
+.jetpack-instant-search__box input,
+.jetpack-instant-search__box input[type='search'].jetpack-instant-search__box-input {
+	width: 100%;
+}

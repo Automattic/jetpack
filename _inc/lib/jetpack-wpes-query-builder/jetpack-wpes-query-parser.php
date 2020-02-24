@@ -31,7 +31,7 @@
  * Example usage (from Search on Reader Manage):
  *
  *		require_lib( 'jetpack-wpes-query-builder/jetpack-wpes-search-query-parser' );
- *		$parser = new WPES_Search_Query_Parser( $args['q'], array( $lang ) );
+ *		$parser = new Jetpack_WPES_Search_Query_Parser( $args['q'], array( $lang ) );
  *
  *		//author
  *		$parser->author_field_filter( array(
@@ -123,6 +123,14 @@ class Jetpack_WPES_Search_Query_Parser extends Jetpack_WPES_Query_Builder {
 	}
 
 	protected $extracted_phrases = array();
+
+	public function get_current_query() {
+		return $this->current_query;
+	}
+
+	public function set_current_query( $q ) {
+		$this->current_query = $q;
+	}
 
 	///////////////////////////////////////////////////////
 	// Methods for Building arrays of multilingual fields

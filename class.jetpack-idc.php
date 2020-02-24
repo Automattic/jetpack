@@ -53,7 +53,6 @@ class Jetpack_IDC {
 
 	private function __construct() {
 		add_action( 'jetpack_sync_processed_actions', array( $this, 'maybe_clear_migrate_option' ) );
-
 		if ( false === $urls_in_crisis = Jetpack::check_identity_crisis() ) {
 			return;
 		}
@@ -717,4 +716,4 @@ class Jetpack_IDC {
 	}
 }
 
-Jetpack_IDC::init();
+add_action( 'plugins_loaded', array( 'Jetpack_IDC', 'init' ) );

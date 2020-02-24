@@ -4,7 +4,7 @@
 import { __ } from '@wordpress/i18n';
 import { BaseControl, PanelBody, TextControl, ToggleControl } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
-import { InspectorControls } from '@wordpress/editor';
+import { InspectorControls } from '@wordpress/block-editor';
 import { withInstanceId } from '@wordpress/compose';
 
 /**

@@ -76,9 +76,9 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		$title    = apply_filters( 'widget_title', $instance['title'] );
 		$page_url = set_url_scheme( $like_args['href'], 'https' );
 
-		$like_args['show_faces'] 		= (bool) $like_args['show_faces'] ? 'true' : 'false';
-		$like_args['stream']     		= (bool) $like_args['stream'] ? 'true' : 'false';
-		$like_args['cover']      		= (bool) $like_args['cover'] ? 'false' : 'true';
+    $like_args['show_faces'] = (bool) $like_args['show_faces'] ? 'true' : 'false';
+		$like_args['stream']     = (bool) $like_args['stream'] ? 'timeline' : 'false';
+		$like_args['cover']      = (bool) $like_args['cover'] ? 'false' : 'true';
 		$like_args['hide_cta']      	= (bool) $like_args['hide_cta'] ? 'true' : 'false';
 		$like_args['small_header']      = (bool) $like_args['small_header'] ? 'true' : 'false';
 
@@ -107,7 +107,7 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 
 		?>
 		<div id="fb-root"></div>
-		<div class="fb-page" data-href="<?php echo esc_url( $page_url ); ?>" data-width="<?php echo intval( $like_args['width'] ); ?>"  data-height="<?php echo intval( $like_args['height'] ); ?>" data-hide-cover="<?php echo esc_attr( $like_args['cover'] ); ?>" data-show-facepile="<?php echo esc_attr( $like_args['show_faces'] ); ?>" data-show-posts="<?php echo esc_attr( $like_args['stream'] ); ?>" data-hide-cta="<?php echo esc_attr( $like_args['hide_cta'] ); ?>" data-small-header="<?php echo esc_attr( $like_args['small_header'] ); ?>">
+		<div class="fb-page" data-href="<?php echo esc_url( $page_url ); ?>" data-width="<?php echo intval( $like_args['width'] ); ?>"  data-height="<?php echo intval( $like_args['height'] ); ?>" data-hide-cover="<?php echo esc_attr( $like_args['cover'] ); ?>" data-show-facepile="<?php echo esc_attr( $like_args['show_faces'] ); ?>" data-tabs="<?php echo esc_attr( $like_args['stream'] ); ?>" data-hide-cta="<?php echo esc_attr( $like_args['hide_cta'] ); ?>" data-small-header="<?php echo esc_attr( $like_args['small_header'] ); ?>">
 		<div class="fb-xfbml-parse-ignore"><blockquote cite="<?php echo esc_url( $page_url ); ?>"><a href="<?php echo esc_url( $page_url ); ?>"><?php echo esc_html( $title ); ?></a></blockquote></div>
 		</div>
 		<?php
@@ -197,7 +197,7 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		<p>
 			<label for="<?php echo esc_attr( $this->get_field_id( 'stream' ) ); ?>">
 				<input type="checkbox" name="<?php echo esc_attr( $this->get_field_name( 'stream' ) ); ?>" id="<?php echo esc_attr( $this->get_field_id( 'stream' ) ); ?>" <?php checked( $like_args['stream'] ); ?> />
-				<?php _e( 'Show Stream', 'jetpack' ); ?>
+				<?php _e( 'Show Timeline', 'jetpack' ); ?>
 				<br />
 				<small><?php _e( 'Show Page Posts.', 'jetpack' ); ?></small>
 			</label>

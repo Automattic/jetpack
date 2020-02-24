@@ -219,6 +219,23 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( parseJsonResponse )
 				.then( body => JSON.parse( body.data ) ),
 
+		fetchSitePurchases: () =>
+			getRequest( `${ apiRoot }jetpack/v4/site/purchases`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse )
+				.then( body => JSON.parse( body.data ) ),
+
+		fetchSiteBenefits: () =>
+			getRequest( `${ apiRoot }jetpack/v4/site/benefits`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse )
+				.then( body => JSON.parse( body.data ) ),
+
+		fetchProducts: () =>
+			getRequest( `${ apiRoot }jetpack/v4/products`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
 		fetchRewindStatus: () =>
 			getRequest( `${ apiRoot }jetpack/v4/rewind`, getParams )
 				.then( checkStatus )

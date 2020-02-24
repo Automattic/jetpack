@@ -26,17 +26,19 @@ class Jetpack_Sync_Server_Eventstore {
 	function get_all_events( $action_name = null, $blog_id = null ) {
 		$blog_id = isset( $blog_id ) ? $blog_id : get_current_blog_id();
 
+		if ( ! isset( $this->events, $this->events[ $blog_id ] ) ) {
+			return [];
+		}
+
 		if ( $action_name ) {
-			$events = array();
-			if ( ! isset( $this->events, $this->events[ $blog_id ] ) ) {
-				return $events;
-			}
+			$events = [];
 
 			foreach ( $this->events[ $blog_id ] as $event ) {
 				if ( $event->action === $action_name ) {
 					$events[] = $event;
 				}
 			}
+
 			return $events;
 		}
 
@@ -54,6 +56,6 @@ class Jetpack_Sync_Server_Eventstore {
 	}
 
 	function reset() {
-		$this->events[ get_current_blog_id() ] = array();
+		$this->events[ get_current_blog_id() ] = [];
 	}
 }

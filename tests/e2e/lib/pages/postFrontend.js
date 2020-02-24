@@ -2,10 +2,11 @@
  * Internal dependencies
  */
 import Page from './page';
+import { waitAndClick, waitForSelector } from '../page-helper';
 
 export default class PostFrontendPage extends Page {
 	constructor( page ) {
-		const expectedSelector = '#main article.post';
+		const expectedSelector = '.post';
 		super( page, { expectedSelector } );
 	}
 
@@ -15,5 +16,13 @@ export default class PostFrontendPage extends Page {
 	 */
 	async isRenderedBlockPresent( BlockClass ) {
 		return await BlockClass.isRendered( this.page );
+	}
+
+	async logout() {
+		const accountBarSelector = '#wp-admin-bar-my-account';
+		const logoutOptionSelector = '#wp-admin-bar-logout';
+		await waitForSelector( this.page, accountBarSelector );
+		await this.page.hover( accountBarSelector );
+		await waitAndClick( this.page, logoutOptionSelector );
 	}
 }

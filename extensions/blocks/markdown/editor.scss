@@ -1,5 +1,4 @@
-@import '../../shared/styles/gutenberg-colors.scss';
-@import '../../shared/styles/gutenberg-variables.scss';
+@import '../../shared/styles/gutenberg-base-styles.scss';
 
 .wp-block-jetpack-markdown__placeholder {
 	opacity: 0.62; // See https://github.com/WordPress/gutenberg/blob/db7decd27f7c476684bc8edde381ffab4c916cb2/packages/block-editor/src/components/rich-text/style.scss#L72
