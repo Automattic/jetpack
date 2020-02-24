@@ -150,10 +150,10 @@ class EventbriteEdit extends Component {
 	}
 
 	renderInspectorControls() {
-		const { url, style } = this.props.attributes;
+		const { style } = this.props.attributes;
 		const { attributes, clientId, setAttributes } = this.props;
 
-		if ( ! url ) {
+		if ( this.cannotEmbed() ) {
 			return;
 		}
 
