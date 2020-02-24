@@ -274,6 +274,13 @@ function JetpackRestApiClient( root, nonce ) {
 			postRequest( `${ apiRoot }jetpack/v4/mobile/send-login-email`, postParams )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
+
+		getPagespeedInsights: url =>
+			postRequest( `${ apiRoot }jetpack/v4/pagespeed`, postParams, {
+				body: JSON.stringify( { url } ),
+			} )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
 	};
 
 	function addCacheBuster( route ) {

@@ -494,6 +494,22 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
 			)
 		);
+
+		register_rest_route(
+			'jetpack/v4',
+			'/pagespeed',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => __CLASS__ . '::get_pagespeed_insights',
+				'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+				'args'                => array(
+					'url' => array(
+						'required' => true,
+						'type'     => 'text',
+					),
+				),
+			)
+		);
 	}
 
 	public static function get_plans( $request ) {
@@ -3257,5 +3273,34 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'code' => 'success',
 			)
 		);
+	}
+
+	/**
+	 * Proxies a request to WordPress.com to request the pagespeed insights for any page on the site
+	 *
+	 * @param WP_REST_REQUEST $request The request parameters.
+	 * @return bool|WP_Error
+	 */
+	public static function get_pagespeed_insights( $request ) {
+		$xml = new Jetpack_IXR_Client(
+			array(
+				'user_id' => get_current_user_id(),
+			)
+		);
+
+		// TODO: mobile/desktop, etc.
+		$xml->query( 'jetpack.getPagespeedInsights', array( $request['url'] ) );
+		if ( $xml->isError() ) {
+			return new WP_Error(
+				'error_getting_pagespeed_insights',
+				sprintf(
+					'%s: %s',
+					$xml->getErrorCode(),
+					$xml->getErrorMessage()
+				)
+			);
+		}
+
+		return rest_ensure_response( $xml->getResponse() );
 	}
 } // class end
