@@ -1,0 +1,30 @@
+.wp-block-jetpack-revue__form {
+	display: none;
+	&.is-visible {
+		display: block;
+	}
+
+	> div {
+		margin-bottom: 0.75em;
+	}
+	.wp-block-button {
+		margin-top: 0;
+	}
+	input {
+		margin-top: 0.25em;
+	}
+	label {
+		font-weight: bold;
+	}
+	.required {
+		color: #aaaaaa;
+		font-weight: normal;
+	}
+}
+
+.wp-block-jetpack-revue__message {
+	display: none;
+	&.is-visible {
+		display: block;
+	}
+}
