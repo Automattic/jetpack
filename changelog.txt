@@ -2,11 +2,12 @@
 
 **This is a list detailing changes for all the past Jetpack releases. For more information about the current release, see [the readme](https://github.com/Automattic/jetpack/blob/master/readme.txt).**
 
-= 8.2.2 =
+= 8.2.2 & 8.2.3 =
 
 * Release date: February 20, 2020
 
 * General: fix compatibility issues with other plugins relying on the REST API to communicate with Jetpack, or on the Jetpack registration process.
+* Multisite: resolve issue with Jetpack's loading sequence that would fatal subsites that did not have any individually activated plugins.
 
 = 8.2.1 =
 
