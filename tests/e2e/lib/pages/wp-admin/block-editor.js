@@ -68,7 +68,7 @@ export default class BlockEditorPage extends Page {
 			return true;
 		}
 		let count = 0;
-		while ( count > 20 || ! block ) {
+		while ( count < 20 && ! block ) {
 			await this.page.waitFor( 1000 ); // Trying to wait for plan data to be updated
 			await this.reload( { waitFor: 'networkidle0' } );
 			block = await this.findAvailableBlock( blockSlug );
