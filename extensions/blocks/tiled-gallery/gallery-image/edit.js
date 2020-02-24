@@ -78,6 +78,7 @@ class GalleryImageEdit extends Component {
 			onMoveForward,
 			onRemove,
 			origUrl,
+			showMovers,
 			srcSet,
 			url,
 			width,
@@ -131,24 +132,26 @@ class GalleryImageEdit extends Component {
 					[ `filter__${ imageFilter }` ]: !! imageFilter,
 				} ) }
 			>
-				<div className="tiled-gallery__item__move-menu">
-					<IconButton
-						icon={ columns === 1 ? upChevron : leftChevron }
-						onClick={ isFirstItem ? undefined : onMoveBackward }
-						className="tiled-gallery__item__move-backward"
-						label={ __( 'Move image backward', 'jetpack' ) }
-						aria-disabled={ isFirstItem }
-						disabled={ ! isSelected }
-					/>
-					<IconButton
-						icon={ columns === 1 ? downChevron : rightChevron }
-						onClick={ isLastItem ? undefined : onMoveForward }
-						className="tiled-gallery__item__move-forward"
-						label={ __( 'Move image forward', 'jetpack' ) }
-						aria-disabled={ isLastItem }
-						disabled={ ! isSelected }
-					/>
-				</div>
+				{ showMovers && (
+					<div className="tiled-gallery__item__move-menu">
+						<IconButton
+							icon={ columns === 1 ? upChevron : leftChevron }
+							onClick={ isFirstItem ? undefined : onMoveBackward }
+							className="tiled-gallery__item__move-backward"
+							label={ __( 'Move image backward', 'jetpack' ) }
+							aria-disabled={ isFirstItem }
+							disabled={ ! isSelected }
+						/>
+						<IconButton
+							icon={ columns === 1 ? downChevron : rightChevron }
+							onClick={ isLastItem ? undefined : onMoveForward }
+							className="tiled-gallery__item__move-forward"
+							label={ __( 'Move image forward', 'jetpack' ) }
+							aria-disabled={ isLastItem }
+							disabled={ ! isSelected }
+						/>
+					</div>
+				) }
 				<div className="tiled-gallery__item__inline-menu">
 					<IconButton
 						icon={ close }
