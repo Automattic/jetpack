@@ -34,17 +34,16 @@ function jetpack_render_revue_block( $attributes ) {
 	$last_name_label        = jetpack_get_revue_attribute( 'lastNameLabel', $attributes );
 	$last_name_placeholder  = jetpack_get_revue_attribute( 'lastNamePlaceholder', $attributes );
 	$last_name_show         = jetpack_get_revue_attribute( 'lastNameShow', $attributes );
-	$url                    = esc_url( sprintf( 'https://www.getrevue.co/profile/%s/add_subscriber', $attributes['revueUsername'] ) );
+	$url                    = sprintf( 'https://www.getrevue.co/profile/%s/add_subscriber', $attributes['revueUsername'] );
 
 	Jetpack_Gutenberg::load_assets_as_required( 'revue' );
 
 	ob_start();
-	// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- output escaped in the get functions
 	?>
 
 <div class="wp-block-jetpack-revue">
 	<form
-		action="<?php echo $url; ?>"
+		action="<?php echo esc_url( $url ); ?>"
 		class="wp-block-jetpack-revue__form is-visible"
 		method="post"
 		name="revue-form"
@@ -52,12 +51,12 @@ function jetpack_render_revue_block( $attributes ) {
 	>
 		<div>
 			<label>
-				<?php echo $email_label; ?>
+				<?php echo esc_html( $email_label ); ?>
 				<span class="required"><?php esc_html_e( '(required)', 'jetpack' ); ?></span>
 				<input
 					class="wp-block-jetpack-revue__email"
 					name="member[email]"
-					placeholder="<?php echo $email_placeholder; ?>"
+					placeholder="<?php echo esc_attr( $email_placeholder ); ?>"
 					required
 					type="email"
 				/>
@@ -66,11 +65,11 @@ function jetpack_render_revue_block( $attributes ) {
 		<?php if ( $first_name_show ) : ?>
 			<div>
 				<label>
-					<?php echo $first_name_label; ?>
+					<?php echo esc_html( $first_name_label ); ?>
 					<input
 						class="wp-block-jetpack-revue__first-name"
 						name="member[first_name]"
-						placeholder="<?php echo $first_name_placeholder; ?>"
+						placeholder="<?php echo esc_attr( $first_name_placeholder ); ?>"
 						type="text"
 					/>
 				</label>
@@ -81,17 +80,18 @@ function jetpack_render_revue_block( $attributes ) {
 			?>
 			<div>
 				<label>
-				<?php echo $last_name_label; ?>
+					<?php echo esc_html( $last_name_label ); ?>
 					<input
 						class="wp-block-jetpack-revue__last-name"
 						name="member[last_name]"
-						placeholder="<?php echo $last_name_placeholder; ?>"
+						placeholder="<?php echo esc_attr( $last_name_placeholder ); ?>"
 						type="text"
 					/>
 				</label>
 			</div>
 			<?php
 			endif;
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			echo jetpack_get_revue_button( $attributes );
 		?>
 	</form>
@@ -106,7 +106,6 @@ function jetpack_render_revue_block( $attributes ) {
 </div>
 
 	<?php
-	// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 	return ob_get_clean();
 }
 
@@ -212,14 +211,14 @@ function jetpack_get_revue_attribute( $attribute, $attributes ) {
 	}
 
 	$default_attributes = array(
-		'text'                 => esc_html__( 'Subscribe', 'jetpack' ),
-		'emailLabel'           => esc_html__( 'Email address', 'jetpack' ),
-		'emailPlaceholder'     => esc_html__( 'Your email address…', 'jetpack' ),
-		'firstNameLabel'       => esc_html__( 'First name', 'jetpack' ),
-		'firstNamePlaceholder' => esc_html__( 'First name… (Optional)', 'jetpack' ),
+		'text'                 => __( 'Subscribe', 'jetpack' ),
+		'emailLabel'           => __( 'Email address', 'jetpack' ),
+		'emailPlaceholder'     => __( 'Your email address…', 'jetpack' ),
+		'firstNameLabel'       => __( 'First name', 'jetpack' ),
+		'firstNamePlaceholder' => __( 'First name… (Optional)', 'jetpack' ),
 		'firstNameShow'        => true,
-		'lastNameLabel'        => esc_html__( 'Last name', 'jetpack' ),
-		'lastNamePlaceholder'  => esc_html__( 'Last name… (Optional)', 'jetpack' ),
+		'lastNameLabel'        => __( 'Last name', 'jetpack' ),
+		'lastNamePlaceholder'  => __( 'Last name… (Optional)', 'jetpack' ),
 		'lastNameShow'         => true,
 	);
 
