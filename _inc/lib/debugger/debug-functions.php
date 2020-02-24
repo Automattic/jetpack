@@ -62,19 +62,40 @@ function jetpack_debugger_site_status_tests( $core_tests ) {
 				}
 				if ( false === $results['pass'] ) {
 					$return['label'] = $results['message'];
-					$return['status']      = $results['severity'];
+					if ( $results['label'] ) {
+						// Allow tests to override the strange message => label logic with an actual label.
+						$return['label'] = $results['label'];
+					}
+
+					// Most tests pass a `resolution` property to use as a description.
 					$return['description'] = sprintf(
 						'<p>%s</p>',
 						$results['resolution']
 					);
+
+					if ( $results['description'] ) {
+						// Allow tests to override 'resolution' with their own HTML description.
+						$return['description'] = $results['description'];
+					}
+
+					$return['status'] = $results['severity'];
 					if ( ! empty( $results['action'] ) ) {
 						$return['actions'] = sprintf(
-							'<a class="button button-primary" href="%1$s" target="_blank" rel="noopener noreferrer">%2$s <span class="screen-reader-text">%3$s</span><span aria-hidden="true" class="dashicons dashicons-external"></span></a>',
+							'<a href="%1$s" target="_blank" rel="noopener noreferrer">%2$s <span class="screen-reader-text">%3$s</span><span aria-hidden="true" class="dashicons dashicons-external"></span></a>',
 							esc_url( $results['action'] ),
-							__( 'Resolve', 'jetpack' ),
+							$results['action_label'],
 							/* translators: accessibility text */
 							__( '(opens in a new tab)', 'jetpack' )
 						);
+					}
+				} elseif ( true === $results['pass'] ) {
+					// Passing tests can chose to override defaults.
+					if ( $results['label'] ) {
+						$return['label'] = $results['label'];
+					}
+
+					if ( $results['description'] ) {
+						$return['description'] = $results['description'];
 					}
 				}
 

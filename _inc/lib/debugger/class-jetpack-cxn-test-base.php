@@ -1,4 +1,10 @@
 <?php
+/**
+ * Base class for Jetpack's debugging tests.
+ *
+ * @package Jetpack.
+ */
+
 use Automattic\Jetpack\Status;
 
 /**
@@ -239,17 +245,25 @@ class Jetpack_Cxn_Test_Base {
 	/**
 	 * Helper function to return consistent responses for a passing test.
 	 *
-	 * @param string $name Test name.
+	 * @param string      $name Test name.
+	 * @param string|bool $message Plain text message to show when test passed.
+	 * @param string|bool $label Label to be used on Site Health card.
+	 * @param string|bool $description HTML description to be used in Site Health card.
 	 *
 	 * @return array Test results.
 	 */
-	public static function passing_test( $name = 'Unnamed' ) {
+	public static function passing_test( $name = 'Unnamed', $message = false, $label = false, $description = false ) {
+		if ( ! $message ) {
+			$message = __( 'Test Passed!', 'jetpack' );
+		}
 		return array(
-			'name'       => $name,
-			'pass'       => true,
-			'message'    => __( 'Test Passed!', 'jetpack' ),
-			'resolution' => false,
-			'severity'   => false,
+			'name'        => $name,
+			'pass'        => true,
+			'message'     => $message,
+			'description' => $description,
+			'resolution'  => false,
+			'severity'    => false,
+			'label'       => $label,
 		);
 	}
 
@@ -277,15 +291,22 @@ class Jetpack_Cxn_Test_Base {
 	 * @since 7.1.0
 	 * @since 7.3.0 Added $action for resolution action link, $severity for issue severity.
 	 *
-	 * @param string $name Test name.
-	 * @param string $message Message detailing the failure.
-	 * @param string $resolution Optional. Steps to resolve.
-	 * @param string $action Optional. URL to direct users to self-resolve.
-	 * @param string $severity Optional. "critical" or "recommended" for failure stats. "good" for passing.
+	 * @param string      $name Test name.
+	 * @param string      $message Message detailing the failure.
+	 * @param string      $resolution Optional. Steps to resolve.
+	 * @param string      $action Optional. URL to direct users to self-resolve.
+	 * @param string      $severity Optional. "critical" or "recommended" for failure stats. "good" for passing.
+	 * @param string      $label Optional. The label to use instead of the test name.
+	 * @param string|bool $action_label Optional. The label for the action url instead of default 'Resolve'.
+	 * @param string|bool $description Optional. An HTML description to override resolution.
 	 *
 	 * @return array Test results.
 	 */
-	public static function failing_test( $name, $message, $resolution = false, $action = false, $severity = 'critical' ) {
+	public static function failing_test( $name, $message, $resolution = false, $action = false, $severity = 'critical', $label = false, $action_label = false, $description = false ) {
+		if ( ! $action_label ) {
+			/* translators: Resolve is used as a verb, a command that when invoked will lead to a problem's solution. */
+			$action_label = __( 'Resolve', 'jetpack' );
+		}
 		// Provide standard resolutions steps, but allow pass-through of non-standard ones.
 		switch ( $resolution ) {
 			case 'cycle_connection':
@@ -301,12 +322,15 @@ class Jetpack_Cxn_Test_Base {
 		}
 
 		return array(
-			'name'       => $name,
-			'pass'       => false,
-			'message'    => $message,
-			'resolution' => $resolution,
-			'action'     => $action,
-			'severity'   => $severity,
+			'name'         => $name,
+			'pass'         => false,
+			'message'      => $message,
+			'resolution'   => $resolution,
+			'action'       => $action,
+			'severity'     => $severity,
+			'label'        => $label,
+			'action_label' => $action_label,
+			'description'  => $description,
 		);
 	}
 

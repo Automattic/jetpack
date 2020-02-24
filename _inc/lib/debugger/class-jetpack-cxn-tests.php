@@ -92,11 +92,40 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	protected function test__check_if_connected() {
 		$name = __FUNCTION__;
 		if ( $this->helper_is_jetpack_connected() ) {
-			$result = self::passing_test( $name );
+			$result = self::passing_test(
+				$name,
+				__( 'Test passed!', 'jetpack' ),
+				__( 'Your site is connected to Jetpack', 'jetpack' ),
+				sprintf(
+					'<p>%1$s</p>' .
+					'<p><span class="dashicons pass"><span class="screen-reader-text">%2$s</span></span> %3$s</p>',
+					__( 'A healthy connection ensures Jetpack essential services are provided to your WordPress site, such as Stats and Site Security.', 'jetpack' ),
+					/* translators: Screen reader text indicating a test has passed */
+					__( 'Passed', 'jetpack' ),
+					__( 'Your site is connected to Jetpack.', 'jetpack' )
+				)
+			);
 		} elseif ( ( new Status() )->is_development_mode() ) {
 			$result = self::skipped_test( $name, __( 'Jetpack is in Development Mode:', 'jetpack' ) . ' ' . Jetpack::development_mode_trigger_text(), __( 'Disable development mode.', 'jetpack' ) );
 		} else {
-			$result = self::failing_test( $name, __( 'Jetpack is not connected.', 'jetpack' ), 'cycle_connection' );
+			$result = self::failing_test(
+				$name,
+				__( 'Jetpack is not connected.', 'jetpack' ),
+				'connect_jetpack',
+				admin_url( 'admin.php?page=jetpack#/dashboard' ),
+				'critical',
+				__( 'Your site is not connected to Jetpack', 'jetpack' ),
+				__( 'Reconnect your site now', 'jetpack' ),
+				sprintf(
+					'<p>%1$s</p>' .
+					'<p><span class="dashicons fail"><span class="screen-reader-text">%2$s</span></span> %3$s<strong> %4$s</strong></p>',
+					__( 'A healthy connection ensures Jetpack essential services are provided to your WordPress site, such as Stats and Site Security.', 'jetpack' ),
+					/* translators: screen reader text indicating a test failed */
+					__( 'Error', 'jetpack' ),
+					__( 'Your site is not connected to Jetpack.', 'jetpack' ),
+					__( 'We recommend reconnecting Jetpack.', 'jetpack' )
+				)
+			);
 		}
 
 		return $result;
@@ -230,7 +259,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	}
 
 	/**
-	 * Tests connection status against wp.com's test-connection endpoint
+	 * Tests connection status against wp.com's test-connection endpoint.
 	 *
 	 * @todo: Compare with the wpcom_self_test. We only need one of these.
 	 *
