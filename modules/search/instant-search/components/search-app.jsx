@@ -244,10 +244,11 @@ class SearchApp extends Component {
 				opacity={ this.state.overlayOptions.opacity }
 			>
 				<SearchResults
+					closeOverlay={ this.hideResults }
 					enableLoadOnScroll={ this.state.overlayOptions.enableInfScroll }
 					hasError={ this.state.hasError }
 					hasNextPage={ this.hasNextPage() }
-					highlightColor={ this.props.options.highlightColor }
+					highlightColor={ this.state.overlayOptions.highlightColor }
 					isLoading={ this.state.isLoading }
 					isVisible={ this.state.showResults }
 					locale={ this.props.options.locale }

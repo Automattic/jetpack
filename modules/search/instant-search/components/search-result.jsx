@@ -32,6 +32,7 @@ class SearchResult extends Component {
 			railcar: this.props.railcar.railcar,
 			rec_blog_id: this.props.railcar.rec_blog_id,
 			rec_post_id: this.props.railcar.rec_post_id,
+			session_id: this.props.railcar.session_id,
 			// TODO: Add a way to differentiate between different result formats
 			ui_algo: 'jetpack-instant-search-ui/v1',
 			ui_position: this.props.index,

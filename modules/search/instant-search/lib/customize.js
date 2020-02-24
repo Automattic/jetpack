@@ -1,20 +1,16 @@
 const CUSTOMIZE_SETTINGS = [
-	'jetpack_search_close_color',
 	'jetpack_search_color_theme',
 	'jetpack_search_inf_scroll',
 	'jetpack_search_highlight_color',
 	'jetpack_search_opacity',
-	'jetpack_search_show_logo',
 	'jetpack_search_show_powered_by',
 ];
 
 const SETTINGS_TO_STATE_MAP = new Map( [
-	[ 'jetpack_search_close_color', 'closeColor' ],
 	[ 'jetpack_search_color_theme', 'colorTheme' ],
 	[ 'jetpack_search_inf_scroll', 'enableInfScroll' ],
 	[ 'jetpack_search_highlight_color', 'highlightColor' ],
 	[ 'jetpack_search_opacity', 'opacity' ],
-	[ 'jetpack_search_show_logo', 'showLogo' ],
 	[ 'jetpack_search_show_powered_by', 'showPoweredBy' ],
 ] );
 

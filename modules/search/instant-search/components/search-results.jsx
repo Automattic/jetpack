@@ -9,11 +9,12 @@ import { h, Component, Fragment } from 'preact';
 /**
  * Internal dependencies
  */
-import SearchResult from './search-result';
+import Gridicon from './gridicon';
+import Notice from './notice';
 import ScrollButton from './scroll-button';
 import SearchForm from './search-form';
+import SearchResult from './search-result';
 import SearchSidebar from './search-sidebar';
-import Notice from './notice';
 
 class SearchResults extends Component {
 	getSearchTitle() {
@@ -53,7 +54,7 @@ class SearchResults extends Component {
 					// eslint-disable-next-line react/no-danger
 					dangerouslySetInnerHTML={ {
 						__html: `
-							.jetpack-instant-search__search-results mark { 
+							.jetpack-instant-search__search-results .jetpack-instant-search__search-results-primary mark { 
 								background-color: ${ this.props.highlightColor };
 							}
 						`,
@@ -140,6 +141,18 @@ class SearchResults extends Component {
 		);
 	}
 
+	closeOverlay = event => {
+		event.preventDefault();
+		this.props.closeOverlay();
+	};
+
+	onKeyPressHandler = event => {
+		if ( event.key === 'Enter' ) {
+			event.preventDefault();
+			this.props.closeOverlay();
+		}
+	};
+
 	render() {
 		return (
 			<main
@@ -149,6 +162,15 @@ class SearchResults extends Component {
 					this.props.isLoading === true ? ' jetpack-instant-search__is-loading' : ''
 				}` }
 			>
+				<a
+					className="jetpack-instant-search__overlay-close"
+					onClick={ this.closeOverlay }
+					onKeyPress={ this.onKeyPressHandler }
+					role="button"
+					tabIndex="0"
+				>
+					<Gridicon icon="cross" size="24" />
+				</a>
 				<div className="jetpack-instant-search__search-results-primary">
 					{ this.renderPrimarySection() }
 				</div>

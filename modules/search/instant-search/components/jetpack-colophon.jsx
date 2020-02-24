@@ -34,11 +34,16 @@ const logoPath = (
 );
 const logoSize = 12;
 
-const JetpackColophon = () => {
+const JetpackColophon = props => {
+	const locale_prefix = typeof props.locale === 'string' ? props.locale.split( '-', 1 )[ 0 ] : null;
+	const url =
+		locale_prefix && locale_prefix !== 'en'
+			? 'https://' + locale_prefix + '.jetpack.com/search'
+			: 'https://jetpack.com/search';
 	return (
 		<div className="jetpack-instant-search__jetpack-colophon">
 			<a
-				href="https://jetpack.com/search"
+				href={ url }
 				rel="external noopener noreferrer"
 				target="_blank"
 				className="jetpack-instant-search__jetpack-colophon-link"

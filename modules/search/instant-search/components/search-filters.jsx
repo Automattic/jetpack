@@ -4,6 +4,7 @@
  * External dependencies
  */
 import { h, Component } from 'preact';
+import { __ } from '@wordpress/i18n';
 // NOTE: We only import the get package here for to reduced bundle size.
 //       Do not import the entire lodash library!
 // eslint-disable-next-line lodash/import-scope
@@ -18,10 +19,19 @@ import { setFilterQuery, getFilterQuery, clearFiltersFromQuery } from '../lib/qu
 export default class SearchFilters extends Component {
 	onChangeFilter = ( filterName, filterValue ) => {
 		setFilterQuery( filterName, filterValue );
+		this.props.onChange && this.props.onChange();
 	};
 
-	onClearFilters = () => {
-		clearFiltersFromQuery();
+	onClearFilters = event => {
+		event.preventDefault();
+
+		if (
+			event.type === 'click' ||
+			( event.type === 'keydown' && ( event.key === 'Enter' || event.key === ' ' ) )
+		) {
+			clearFiltersFromQuery();
+			this.props.onChange && this.props.onChange();
+		}
 	};
 
 	hasActiveFilters() {
@@ -91,12 +101,16 @@ export default class SearchFilters extends Component {
 		return (
 			<div className={ cls }>
 				{ this.hasActiveFilters() && (
-					<button
-						class="jetpack-instant-search__clear-filters-button"
+					<a
+						class="jetpack-instant-search__clear-filters-link"
+						href="#"
 						onClick={ this.onClearFilters }
+						onKeyDown={ this.onClearFilters }
+						role="button"
+						tabIndex="0"
 					>
-						Clear Filters
-					</button>
+						{ __( 'Clear filters', 'jetpack' ) }
+					</a>
 				) }
 				{ get( this.props.widget, 'filters' )
 					.map( configuration =>

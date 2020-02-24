@@ -11,16 +11,8 @@ import { Component, h } from 'preact';
 import JetpackColophon from './jetpack-colophon';
 import SearchBox from './search-box';
 import SearchFilters from './search-filters';
-import SearchSort from './search-sort';
 
-import {
-	getFilterQuery,
-	getSearchQuery,
-	getSortQuery,
-	setFilterQuery,
-	setSearchQuery,
-	setSortQuery,
-} from '../lib/query-string';
+import { getFilterQuery, getSearchQuery, setSearchQuery, setSortQuery } from '../lib/query-string';
 
 const noop = event => event.preventDefault();
 
@@ -29,10 +21,13 @@ class SearchForm extends Component {
 		showFilters: !! this.props.widget,
 	};
 
-	onChangeFilter = ( filterName, filterValue ) => setFilterQuery( filterName, filterValue );
 	onChangeQuery = event => setSearchQuery( event.target.value );
-	onChangeSort = sort => setSortQuery( sort );
+	onChangeSort = sort => {
+		setSortQuery( sort );
+		this.hideFilters();
+	};
 
+	hideFilters = () => this.setState( () => ( { showFilters: false } ) );
 	toggleFilters = event => {
 		if (
 			event.type === 'click' ||
@@ -49,32 +44,32 @@ class SearchForm extends Component {
 	render() {
 		return (
 			<form onSubmit={ noop } role="search" className={ this.props.className }>
-				<div className="search-form jetpack-instant-search__search-form">
+				<div className="jetpack-instant-search__search-form">
 					<SearchBox
 						enableFilters
 						onChangeQuery={ this.onChangeQuery }
+						onChangeSort={ this.onChangeSort }
 						query={ getSearchQuery() }
-						widget={ this.props.widget }
-						toggleFilters={ this.toggleFilters }
 						showFilters={ this.state.showFilters }
+						toggleFilters={ this.toggleFilters }
+						widget={ this.props.widget }
 					/>
 				</div>
 				{ this.state.showFilters && (
 					<div className="jetpack-instant-search__search-form-filters">
 						<div className="jetpack-instant-search__search-form-filters-arrow" />
-						<SearchSort onChange={ this.onChangeSort } value={ getSortQuery() } />
 						{ this.props.widgets.map( widget => (
 							<SearchFilters
 								filters={ getFilterQuery() }
 								loading={ this.props.isLoading }
 								locale={ this.props.locale }
-								onChange={ this.onChangeFilter }
+								onChange={ this.hideFilters }
 								postTypes={ this.props.postTypes }
 								results={ this.props.response }
 								widget={ widget }
 							/>
 						) ) }
-						<JetpackColophon />
+						<JetpackColophon locale={ this.props.locale } />
 					</div>
 				) }
 			</form>

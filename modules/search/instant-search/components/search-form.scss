@@ -2,8 +2,8 @@ $arrow-height: 10px;
 
 .jetpack-instant-search__search-form-filters {
 	position: absolute;
-	top: 52px;
-	right: 0;
+	top: 96px;
+	left: 0;
 	z-index: 10;
 	width: 100%;
 	margin: 12px 0 32px;
@@ -43,7 +43,7 @@ $arrow-height: 10px;
 .jetpack-instant-search__search-form-filters-arrow {
 	position: absolute;
 	top: ( $arrow-height + 1px ) * -1;
-	right: 16px;
+	left: 52px;
 	width: $arrow-height * 2;
 	height: $arrow-height;
 

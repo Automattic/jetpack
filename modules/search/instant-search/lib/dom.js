@@ -9,9 +9,8 @@ export function getThemeOptions( searchOptions ) {
 		searchInputSelector: [
 			'input[name="s"]',
 			'#searchform input.search-field',
-			'.search-form input.search-field',
+			'.search-form input.search-field:not(.jetpack-instant-search__box-input)',
 			'.searchform input.search-field',
-			'.jetpack-instant-search-wrapper input.search-field',
 		].join( ', ' ),
 		searchSortSelector: [ '.jetpack-search-sort' ],
 		filterInputSelector: [ 'a.jetpack-search-filter__link' ],

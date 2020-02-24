@@ -3,7 +3,7 @@
 /**
  * External dependencies
  */
-import { h } from 'preact';
+import { h, Fragment } from 'preact';
 import { useState, useEffect, useRef } from 'preact/hooks';
 import { __ } from '@wordpress/i18n';
 // eslint-disable-next-line lodash/import-scope
@@ -13,6 +13,8 @@ import uniqueId from 'lodash/uniqueId';
  * Internal dependencies
  */
 import Gridicon from './gridicon';
+import SearchSort from './search-sort';
+import { getSortQuery } from '../lib/query-string';
 
 let initiallyFocusedElement = null;
 
@@ -20,7 +22,15 @@ const SearchBox = props => {
 	const [ inputId ] = useState( () => uniqueId( 'jetpack-instant-search__box-input-' ) );
 	const inputRef = useRef( null );
 
-	const cb = overlayElement => () => {
+	const cb = overlayElement => event => {
+		if (
+			event &&
+			event.target &&
+			! event.target.classList.contains( '.jetpack-instant-search__overlay' )
+		) {
+			return;
+		}
+
 		if ( ! overlayElement.classList.contains( 'is-hidden' ) ) {
 			initiallyFocusedElement = document.activeElement;
 			inputRef.current.focus();
@@ -39,37 +49,54 @@ const SearchBox = props => {
 	}, [] );
 
 	return (
-		<div className="jetpack-instant-search__box">
-			{ /* TODO: Add support for preserving label text */ }
-			<label htmlFor={ inputId } className="screen-reader-text">
-				{ __( 'Site Search', 'jetpack' ) }
-			</label>
-			<input
-				id={ inputId }
-				className="search-field jetpack-instant-search__box-input"
-				onInput={ props.onChangeQuery }
-				ref={ inputRef }
-				placeholder={ __( 'Search…', 'jetpack' ) }
-				type="search"
-				value={ props.query }
-			/>
+		<Fragment>
+			<div className="jetpack-instant-search__box">
+				{ /* TODO: Add support for preserving label text */ }
+				<label className="jetpack-instant-search__box-label" htmlFor={ inputId }>
+					<span className="screen-reader-text">{ __( 'Site Search', 'jetpack' ) }</span>
+					<div className="jetpack-instant-search__box-gridicon">
+						<Gridicon icon="search" size={ 24 } />
+					</div>
+					<input
+						id={ inputId }
+						className="search-field jetpack-instant-search__box-input"
+						onInput={ props.onChangeQuery }
+						ref={ inputRef }
+						placeholder={ __( 'Search…', 'jetpack' ) }
+						type="search"
+						value={ props.query }
+					/>
+
+					<button className="screen-reader-text">{ __( 'Search', 'jetpack' ) }</button>
+				</label>
+			</div>
+
 			{ props.enableFilters && ! props.widget && (
-				/* Using role='button' rather than button element so we retain control over styling */
-				<div
-					role="button"
-					onClick={ props.toggleFilters }
-					onKeyDown={ props.toggleFilters }
-					tabIndex="0"
-					className="jetpack-instant-search__box-filter-icon"
-				>
-					<Gridicon icon="filter" alt="Search filter icon" aria-hidden="true" />
-					<span class="screen-reader-text">
-						{ props.showFilters ? __( 'Hide filters' ) : __( 'Show filters ' ) }
-					</span>
+				<div className="jetpack-instant-search__box-filter-area">
+					<div
+						role="button"
+						onClick={ props.toggleFilters }
+						onKeyDown={ props.toggleFilters }
+						tabIndex="0"
+						className="jetpack-instant-search__box-filter-button"
+					>
+						{ __( 'Filters', 'jetpack' ) }
+						<Gridicon
+							icon="chevron-down"
+							size={ 16 }
+							alt="Show search filters"
+							aria-hidden="true"
+						/>
+						<span className="screen-reader-text">
+							{ props.showFilters
+								? __( 'Hide filters', 'jetpack' )
+								: __( 'Show filters', 'jetpack' ) }
+						</span>
+					</div>
+					<SearchSort onChange={ props.onChangeSort } value={ getSortQuery() } />
 				</div>
 			) }
-			<button className="screen-reader-text">{ __( 'Search', 'jetpack' ) }</button>
-		</div>
+		</Fragment>
 	);
 };
 
