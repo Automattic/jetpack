@@ -25,6 +25,7 @@ import {
 } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { getBlockDefaultClassName } from '@wordpress/blocks';
 
 /**
  * Internal dependencies
@@ -45,7 +46,8 @@ import {
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import { getAttributesFromEmbedCode } from './utils';
 
-export default function OpenTableEdit( { attributes, setAttributes, className, clientId } ) {
+export default function OpenTableEdit( { attributes, setAttributes, name, className, clientId } ) {
+	const defaultClassName = getBlockDefaultClassName( name );
 	const validatedAttributes = getValidatedAttributes( defaultAttributes, attributes );
 
 	if ( ! isEqual( validatedAttributes, attributes ) ) {
@@ -102,7 +104,7 @@ export default function OpenTableEdit( { attributes, setAttributes, className, c
 		const [ type, theme ] = getTypeAndTheme( styleOveride ? styleOveride : style );
 		return (
 			<>
-				<div className={ `${ className }-overlay` }></div>
+				<div className={ `${ defaultClassName }-overlay` }></div>
 				<iframe
 					title={ sprintf( __( 'Open Table Preview %s', 'jetpack' ), clientId ) }
 					scrolling="no"
@@ -207,7 +209,7 @@ export default function OpenTableEdit( { attributes, setAttributes, className, c
 			}
 		>
 			<RestaurantPicker rids={ rid } onSubmit={ onPickerSubmit } />
-			<div className={ `${ className }-placeholder-links` }>
+			<div className={ `${ defaultClassName }-placeholder-links` }>
 				<ExternalLink href="https://restaurant.opentable.com/get-started/">
 					{ __( 'Sign up for OpenTable', 'jetpack' ) }
 				</ExternalLink>
@@ -217,7 +219,7 @@ export default function OpenTableEdit( { attributes, setAttributes, className, c
 	);
 
 	const editClasses = classnames( className, {
-		[ `${ className }-theme-${ style }` ]: ! isEmpty( rid ) && styleValues.includes( style ),
+		[ `${ defaultClassName }-theme-${ style }` ]: ! isEmpty( rid ) && styleValues.includes( style ),
 		'is-multi': 'multi' === getTypeAndTheme( style )[ 0 ],
 		[ `align${ align }` ]: align,
 	} );
