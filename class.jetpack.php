@@ -568,19 +568,21 @@ class Jetpack {
 	public function add_configure_hook() {
 		global $wp_filter;
 
-		if ( false === has_filter( 'plugins_loaded', [ $this, 'configure' ] ) ) {
-			add_action( 'plugins_loaded', [ $this, 'configure' ], - PHP_INT_MAX );
-		}
+		if ( isset( $wp_filter['plugins_loaded'] ) ) {
+			$highest_priority            = min( array_keys( $wp_filter['plugins_loaded']->callbacks ) );
+			$actions_on_highest_priority = $wp_filter['plugins_loaded']->callbacks[ $highest_priority ];
 
-		$our_action                = _wp_filter_build_unique_id( 'plugins_loaded', [ $this, 'configure' ], - PHP_INT_MAX );
-		$all_top_priority_actions  = array_keys( $wp_filter['plugins_loaded']->callbacks[ - PHP_INT_MAX ] );
-		$first_top_priority_action = reset( $all_top_priority_actions );
+			foreach ( $actions_on_highest_priority as $action ) {
+				remove_action( 'plugins_loaded', $action['function'], $highest_priority );
+			}
 
-		if ( $our_action !== $first_top_priority_action ) {
-			$wp_filter['plugins_loaded']->callbacks[ - PHP_INT_MAX ] = array_merge(
-				[ $our_action => $wp_filter['plugins_loaded']->callbacks[ - PHP_INT_MAX ][ $our_action ] ],
-				$wp_filter['plugins_loaded']->callbacks[ - PHP_INT_MAX ]
-			);
+			add_action( 'plugins_loaded', array( $this, 'configure' ), $highest_priority );
+
+			foreach ( $actions_on_highest_priority as $action ) {
+				add_action( 'plugins_loaded', $action['function'], $highest_priority, $action['accepted_args'] );
+			}
+		} else {
+			add_action( 'plugins_loaded', array( $this, 'configure' ), 0 );
 		}
 	}
 
