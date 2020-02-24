@@ -19,6 +19,26 @@ jetpack_register_block(
 );
 
 /**
+ * Record a Tracks event every time the Map block is loaded on WordPress.com and Atomic.
+ *
+ * @param string $access_token_source The Mapbox API access token source.
+ */
+function jetpack_record_mapbox_wpcom_load_event( $access_token_source ) {
+	if ( 'wpcom' !== $access_token_source ) {
+		return;
+	}
+
+	$event_name = 'map_block_mapbox_wpcom_key_load';
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		require_lib( 'tracks/client' );
+		tracks_record_event( wp_get_current_user(), $event_name );
+	} elseif ( jetpack_is_atomic_site() && Jetpack::is_active() ) {
+		$tracking = new Automattic\Jetpack\Tracking();
+		$tracking->record_user_event( $event_name );
+	}
+}
+
+/**
  * Map block registration/dependency declaration.
  *
  * @param array  $attr    Array containing the map block attributes.
@@ -28,6 +48,8 @@ jetpack_register_block(
  */
 function jetpack_map_block_load_assets( $attr, $content ) {
 	$access_token = Jetpack_Mapbox_Helper::get_access_token();
+
+	jetpack_record_mapbox_wpcom_load_event( $access_token['source'] );
 
 	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
 		static $map_block_counter = array();
