@@ -65,7 +65,6 @@ export const settings = {
 	deprecated: [
 		{
 			attributes,
-			supports,
 			save: ( { attributes: { url } } ) => <a href={ url }>{ url }</a>,
 		},
 	],

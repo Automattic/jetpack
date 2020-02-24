@@ -74,7 +74,6 @@ export const settings = {
 	deprecated: [
 		{
 			attributes: defaultAttributes,
-			supports,
 			save: ( { attributes: { rid } } ) => (
 				<>
 					{ rid.map( restaurantId => (
