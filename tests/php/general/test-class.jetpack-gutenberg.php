@@ -161,11 +161,14 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 		$this->assertEquals( false, $version_gated );
 	}
 
-	function test_returns_true_if_core_wp_version_greater_or_equal_to_minimum() {
+	/**
+	 * Tests whether the environment has the minimum Gutenberg/WordPress installation needed by a block
+	 */
+	public function test_returns_true_if_gutenberg_or_core_wp_version_greater_or_equal_to_minimum() {
 		$version_gated = Jetpack_Gutenberg::is_gutenberg_version_available(
 			array(
 				'wp'        => '1',
-				'gutenberg' => '999999',
+				'gutenberg' => '1',
 			),
 			'ungated_block'
 		);
