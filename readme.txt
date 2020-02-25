@@ -107,10 +107,11 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
-* Blocks: offer more embedding options for the OpenTable block.
 * Dashboard widget: clarify wording in Anti-spam and Protect sections.
 * Dashboard notices: allow permanent notices.
+* Map block: add an option for toggling zoom to scroll behaviour in the published post.
 * Mobile Theme: sunset feature. We originally created the mobile theme feature as a fall-back when the regular theme did not include a mobile view. Most themes include a mobile view by default now, so the feature is no longer necessary.
+* OpenTable block: offer more embedding options.
 
 **Improved compatibility**
 
@@ -118,7 +119,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
-* Blocks: avoid error when inserting some specific OpenTable embed codes.
+* Map block: prevent an unselected block from accidentally capturing scrolling.
+* OpenTable block: avoid error when inserting some specific embed codes.
 
 --------
 
