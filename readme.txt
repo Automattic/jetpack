@@ -126,6 +126,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Synchronization: increase reliability when synchronizing term IDs.
 * Tiled Gallery block: add a Rounded Corners option.
 * Tiled Gallery block: add an option to easily rearrange images within a gallery.
+* Cookies & Consents Banner widget: improve performance by removing reliance on jQuery.
 * Twitter widget: remove deprecated link color parameter.
 
 **Improved compatibility**
