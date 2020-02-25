@@ -122,6 +122,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
+* Dashboard: remove Backups information from the Jetpack dashboard when on a Multisite network. Those do not support the Backup feature at this point.
 * Map block: only show the Add Marker UI if there are no markers.
 * Map block: prevent an unselected block from accidentally capturing scrolling.
 * OpenTable block: avoid error when inserting some specific embed codes.
