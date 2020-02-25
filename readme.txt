@@ -119,6 +119,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * OpenTable block: offer more embedding options.
 * Search: improvements to layout options when using the Search widget.
 * Security Scanning tool: improve message about threats found in dashboard.
+* Sharing: improve Open Graph Meta Tags on search result pages.
 * Shortcodes: improve accessibility of navigation buttons for the Slideshow shortcode.
 * Synchronization: increase reliability of sync by not sending wp-rest-api-log posts.
 * Tiled Gallery block: add a Rounded Corners option.
