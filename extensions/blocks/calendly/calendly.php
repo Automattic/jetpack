@@ -82,8 +82,6 @@ function load_assets( $attr, $content ) {
 	if ( is_admin() ) {
 		return;
 	}
-	static $block_num = 0;
-	$block_num++;
 	$url = get_attribute( $attr, 'url' );
 	if ( empty( $url ) ) {
 		return;
@@ -157,7 +155,7 @@ function load_assets( $attr, $content ) {
 		$content = sprintf(
 			'<div class="%1$s" id="%2$s"></div>',
 			esc_attr( $classes ),
-			$block_id
+			esc_attr( $block_id )
 		);
 		$script  = <<<JS_END
 Calendly.initInlineWidget({
@@ -166,7 +164,7 @@ Calendly.initInlineWidget({
 	inlineStyles: false,
 });
 JS_END;
-		wp_add_inline_script( 'jetpack-calendly-external-js', sprintf( $script, esc_url( $url ), $block_id ) );
+		wp_add_inline_script( 'jetpack-calendly-external-js', sprintf( $script, esc_url( $url ), esc_js( $block_id ) ) );
 	}
 
 	return $content;
