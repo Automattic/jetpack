@@ -118,7 +118,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
-*
+* Blocks: avoid error when inserting some specific OpenTable embed codes.
 
 --------
 
