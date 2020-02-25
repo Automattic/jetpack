@@ -70,6 +70,7 @@ class WordAds {
 
 	/**
 	 * Checks for AMP support and returns true iff active & AMP request
+	 *
 	 * @return boolean True if supported AMP request
 	 *
 	 * @since 7.5.0
@@ -108,6 +109,7 @@ class WordAds {
 
 	/**
 	 * Returns the ad tag property array for supported ad types.
+	 *
 	 * @return array      array with ad tags
 	 *
 	 * @since 7.1.0
@@ -118,6 +120,7 @@ class WordAds {
 
 	/**
 	 * Returns the solo css for unit
+	 *
 	 * @return string the special css for solo units
 	 *
 	 * @since 7.1.0
@@ -423,7 +426,7 @@ HTML;
 	}
 
 	/**
-	 * Special cases for inserting header unit via jQuery
+	 * Special cases for inserting header unit via JS
 	 *
 	 * @since 4.5.0
 	 */
@@ -450,7 +453,7 @@ HTML;
 				$selector = '#main';
 				break;
 			case 'twentyfourteen':
-				$selector = 'article:first';
+				$selector = 'article';
 				break;
 		}
 
@@ -459,7 +462,15 @@ HTML;
 		if ( ! self::is_amp() ) {
 			echo <<<HTML
 		<script type="text/javascript">
-			jQuery('.wpcnt-header').insertBefore('$selector');
+			(function ( selector ) {
+				var main = document.querySelector( selector );
+				var headerAd = document.querySelector('.wpcnt-header');
+
+				if ( main ) {
+					main.parentNode.insertBefore( headerAd, main );
+				}
+			})( '$selector' );
+
 		</script>
 HTML;
 		}
@@ -588,7 +599,7 @@ HTML;
 
 		$ad_number = count( $this->ads ) . '-' . uniqid();
 		$data_tags = $this->params->cloudflare ? ' data-cfasync="false"' : '';
-		$css = esc_attr( $css );
+		$css       = esc_attr( $css );
 
 		$loc_id = 100;
 		if ( ! empty( self::$ad_location_ids[ $location ] ) ) {
@@ -617,10 +628,10 @@ HTML;
 	/**
 	 * Returns the complete ad div with snippet to be inserted into the page
 	 *
-	 * @param  string  $spot top, side, inline, or belowpost
-	 * @param  string  $snippet The snippet to insert into the div
-	 * @param  array  $css_classes
-	 * @return string The supporting ad unit div
+	 * @param  string $spot top, side, inline, or belowpost.
+	 * @param  string $snippet The snippet to insert into the div.
+	 * @param  array  $css_classes CSS classes.
+	 * @return string The supporting ad unit div.
 	 *
 	 * @since 7.1
 	 */
@@ -634,9 +645,9 @@ HTML;
 			$css_classes[] = 'wpcnt-header';
 		}
 
-		$spot = esc_attr( $spot );
+		$spot    = esc_attr( $spot );
 		$classes = esc_attr( implode( ' ', $css_classes ) );
-		$about  = esc_html__( 'Advertisements', 'jetpack' );
+		$about   = esc_html__( 'Advertisements', 'jetpack' );
 		return <<<HTML
 		<div class="$classes">
 			<div class="wpa">
