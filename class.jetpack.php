@@ -1188,7 +1188,7 @@ class Jetpack {
 			wp_register_script(
 				'jetpack-facebook-embed',
 				Assets::get_file_url_for_environment( '_inc/build/facebook-embed.min.js', '_inc/facebook-embed.js' ),
-				array( 'jquery' ),
+				array(),
 				null,
 				true
 			);
