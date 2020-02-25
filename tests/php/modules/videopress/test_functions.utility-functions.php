@@ -13,6 +13,93 @@
 class WP_Test_Jetpack_VideoPress_Utility_Functions extends WP_UnitTestCase {
 
 	/**
+	 * Tests a helper function to get the attachment ID, when there's no cached value.
+	 *
+	 * @covers ::videopress_get_attachment_id_by_url
+	 * @since 8.3.0
+	 */
+	public function test_non_cached_videopress_get_attachment_id_by_url() {
+		$expected_id = self::factory()->attachment->create_upload_object( DIR_TESTDATA . '/images/test-image.jpg', 0 );
+		$url         = wp_get_attachment_url( $expected_id );
+
+		$this->assertEquals( $expected_id, videopress_get_attachment_id_by_url( $url ) );
+	}
+
+	/**
+	 * Tests a helper function to get the attachment ID, when there is a cached value.
+	 *
+	 * @covers ::videopress_get_attachment_id_by_url
+	 * @since 8.3.0
+	 */
+	public function test_cached_videopress_get_attachment_id_by_url() {
+		$cached_id = 512351;
+		self::factory()->attachment->create_upload_object( DIR_TESTDATA . '/images/test-image.jpg', 0 );
+		$upload_dir  = wp_get_upload_dir();
+		$url         = trailingslashit( $upload_dir['url'] ) . 'random.jpg';
+		wp_cache_set( 'videopress_get_attachment_id_by_url_' . md5( $url ), $cached_id, 'videopress' );
+
+		$this->assertEquals( $cached_id, videopress_get_attachment_id_by_url( $url ) );
+	}
+
+	/**
+	 * Tests a helper function to get the post by guid, when there is no post found.
+	 *
+	 * @covers ::video_get_post_by_guid
+	 * @since 8.3.0
+	 */
+	public function test_no_post_found_video_get_post_by_guid() {
+		$this->assertFalse( video_get_post_by_guid( wp_generate_uuid4() ) );
+	}
+
+	/**
+	 * Tests a helper function to get the post by guid, when there's no cached value.
+	 *
+	 * @covers ::video_get_post_by_guid
+	 * @since 8.3.0
+	 */
+	public function test_non_cached_video_get_post_by_guid() {
+		$guid        = wp_generate_uuid4();
+		$expected_id = self::factory()->attachment->create_upload_object( DIR_TESTDATA . '/images/test-image.jpg', 0 );
+		wp_insert_attachment(
+			array(
+				'ID'             => $expected_id,
+				'post_mime_type' => 'video/videopress',
+			)
+		);
+		add_post_meta( $expected_id, 'videopress_guid', $guid );
+
+		$actual_post = video_get_post_by_guid( $guid );
+		$this->assertEquals( $expected_id, $actual_post->ID );
+	}
+
+	/**
+	 * Tests a helper function to get the post by guid, when there is a cached value.
+	 *
+	 * As long as there is a non-expired cache value,
+	 * this should return that instead of instantiating WP_Query.
+	 *
+	 * @covers ::video_get_post_by_guid
+	 * @since 8.3.0
+	 */
+	public function test_cached_video_get_post_by_guid() {
+		$attachment_id = self::factory()->attachment->create_upload_object( DIR_TESTDATA . '/images/test-image.jpg', 0 );
+		wp_insert_attachment(
+			array(
+				'ID'             => $attachment_id,
+				'post_mime_type' => 'video/videopress',
+			)
+		);
+		add_post_meta( $attachment_id, 'videopress_guid', wp_generate_uuid4() );
+
+		$cached_guid    = wp_generate_uuid4();
+		$cached_post_id = $this->factory()->post->create();
+		wp_cache_set( 'video_get_post_by_guid_' . $cached_guid, $cached_post_id, 'videopress' );
+
+		$actual_post = video_get_post_by_guid( $cached_guid );
+		$this->assertEquals( $cached_post_id, $actual_post->ID );
+	}
+
+	/**
 	 * Tests the VideoPress Flash to oEmbedable URL filter.
 	 *
 	 * @author kraftbj

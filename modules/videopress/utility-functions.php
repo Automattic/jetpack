@@ -73,8 +73,6 @@ function videopress_get_video_details( $guid ) {
  *
  * Modified from https://wpscholar.com/blog/get-attachment-id-from-wp-image-url/
  *
- * @todo: Add some caching in here.
- *
  * @param string $url
  *
  * @return int|bool Attachment ID on success, false on failure
@@ -87,13 +85,21 @@ function videopress_get_attachment_id_by_url( $url ) {
 	// Is URL in uploads directory?
 	if ( false !== strpos( $url, $dir ) ) {
 
-		$file = basename( $url );
+		$file        = basename( $url );
+		$cache_key   = 'videopress_get_attachment_id_by_url_' . md5( $url );
+		$cache_group = 'videopress';
+		$cached_id   = wp_cache_get( $cache_key, $cache_group );
+		if ( false !== $cached_id ) {
+			return $cached_id;
+		}
 
 		$query_args = array(
-			'post_type'   => 'attachment',
-			'post_status' => 'inherit',
-			'fields'      => 'ids',
-			'meta_query'  => array(
+			'post_type'              => 'attachment',
+			'post_status'            => 'inherit',
+			'fields'                 => 'ids',
+			'no_found_rows'          => true,
+			'update_post_term_cache' => false,
+			'meta_query'             => array(
 				array(
 					'key'     => '_wp_attachment_metadata',
 					'compare' => 'LIKE',
@@ -111,7 +117,9 @@ function videopress_get_attachment_id_by_url( $url ) {
 				$cropped_files = wp_list_pluck( $meta['sizes'], 'file' );
 
 				if ( $original_file === $file || in_array( $file, $cropped_files ) ) {
-					return (int) $attachment_id;
+					$attachment_id = (int) $attachment_id;
+					wp_cache_set( $cache_key, $attachment_id, $cache_group, HOUR_IN_SECONDS );
+					return $attachment_id;
 				}
 			}
 		}
@@ -637,13 +645,28 @@ function video_image_url_by_guid( $guid, $format ) {
  * Using a GUID, find a post.
  *
  * @param string $guid
- * @return WP_Post
+ * @return WP_Post|false The post for that guid, or false if none is found.
  */
 function video_get_post_by_guid( $guid ) {
+	$cache_key      = 'video_get_post_by_guid_' . $guid;
+	$cache_group    = 'videopress';
+	$cached_post_id = wp_cache_get( $cache_key, $cache_group );
+
+	if ( false !== $cached_post_id ) {
+		$cached_post = get_post( $cached_post_id );
+		if ( $cached_post ) {
+			return $cached_post;
+		} else {
+			// The cached post ID doesn't belong to a post, so delete it.
+			wp_cache_delete( $cache_key, $cache_group );
+		}
+	}
+
 	$args = array(
 		'post_type'      => 'attachment',
 		'post_mime_type' => 'video/videopress',
 		'post_status'    => 'inherit',
+		'no_found_rows'  => true,
 		'meta_query'     => array(
 			array(
 				'key'     => 'videopress_guid',
@@ -655,9 +678,13 @@ function video_get_post_by_guid( $guid ) {
 
 	$query = new WP_Query( $args );
 
-	$post = $query->next_post();
+	if ( $query->have_posts() ) {
+		$post = $query->next_post();
+		wp_cache_set( $cache_key, $post->ID, $cache_group, HOUR_IN_SECONDS );
+		return $post;
+	}
 
-	return $post;
+	return false;
 }
 
 /**
