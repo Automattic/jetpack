@@ -110,7 +110,6 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Dashboard widget: clarify wording in Anti-spam and Protect sections.
 * Dashboard notices: allow permanent notices.
 * Dashboard notices: add option to provide action button for a notice.
-* Debug tools: improve ability to add additional tests.
 * Map block: add the ability to set the size of the map.
 * Map block: add a zoom control to the block sidebar.
 * Map block: add a fullscreen option.
@@ -121,6 +120,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Security Scanning tool: improve message about threats found in dashboard.
 * Sharing: improve Open Graph Meta Tags on search result pages.
 * Shortcodes: improve accessibility of navigation buttons for the Slideshow shortcode.
+* Site Health Tests: improve ability to add additional tests.
+* Site Health Tests: Update Connection test with detailed descriptions and actions to resolve failing tests.
 * Synchronization: increase reliability of sync by not sending wp-rest-api-log posts.
 * Tiled Gallery block: add a Rounded Corners option.
 * Tiled Gallery block: add an option to easily rearrange images within a gallery.
