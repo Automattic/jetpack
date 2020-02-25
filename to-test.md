@@ -2,6 +2,10 @@
 
 ### Blocks
 
+#### Calendly / OpenTable / Eventbrite
+
+We've made some changes to those blocks to improve the display of each each when using the button style, but also to improve the way data is saved when creating or updating the block. If you've already used the blocks on your site before this Beta, make sure those existing blocks are not broken, and ensure you can use the different options in the blocks' sidebars.
+
 #### Google Calendar
 
 We've created a new Google Calendar block that will allow you to quickly embed calendars within your posts and pages. Give the block and its options a try, and let us know if you run into any issues.
