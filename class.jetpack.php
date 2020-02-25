@@ -435,18 +435,27 @@ class Jetpack {
 					update_option( 'wpcom_publish_posts_with_markdown', true );
 				}
 
-				// Minileven deprecation. 8.3.0.
-				if ( get_option( 'wp_mobile_custom_css' ) ) {
-					delete_option( 'wp_mobile_custom_css' );
-				}
-				if ( Jetpack_Options::get_option( 'wp_mobile_excerpt' ) ) {
-					Jetpack_Options::delete_option( 'wp_mobile_excerpt' );
-				}
-				if ( Jetpack_Options::get_option( 'wp_mobile_featured_images' ) ) {
-					Jetpack_Options::delete_option( 'wp_mobile_featured_images' );
-				}
-				if ( Jetpack_Options::get_option( 'wp_mobile_app_promos' ) ) {
-					Jetpack_Options::delete_option( 'wp_mobile_app_promos' );
+				/*
+				 * Minileven deprecation. 8.3.0.
+				 * Only delete options if not using
+				 * the replacement standalone Minileven plugin.
+				 */
+				if (
+					! self::is_plugin_active( 'minileven-master/minileven.php' )
+					&& ! self::is_plugin_active( 'minileven/minileven.php' )
+				) {
+					if ( get_option( 'wp_mobile_custom_css' ) ) {
+						delete_option( 'wp_mobile_custom_css' );
+					}
+					if ( get_option( 'wp_mobile_excerpt' ) ) {
+						delete_option( 'wp_mobile_excerpt' );
+					}
+					if ( get_option( 'wp_mobile_featured_images' ) ) {
+						delete_option( 'wp_mobile_featured_images' );
+					}
+					if ( get_option( 'wp_mobile_app_promos' ) ) {
+						delete_option( 'wp_mobile_app_promos' );
+					}
 				}
 
 				if ( did_action( 'wp_loaded' ) ) {
