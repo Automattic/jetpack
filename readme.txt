@@ -112,6 +112,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Map block: add an option for toggling zoom to scroll behaviour in the published post.
 * Mobile Theme: sunset feature. We originally created the mobile theme feature as a fall-back when the regular theme did not include a mobile view. Most themes include a mobile view by default now, so the feature is no longer necessary.
 * OpenTable block: offer more embedding options.
+* Tiled Gallery block: add a Rounded Corners option.
 
 **Improved compatibility**
 

@@ -8,6 +8,14 @@ We've made a lot of changes to the Map block in this release.
 
 We would encourage you to test all features offered by the block, including the new Zoom and Fullscreen options appearing in the block sidebar. Give those features a try in the editor, and check how the map looks like on your site's frontend as well.
 
+#### Tiled Gallery
+
+The Tiled Gallery block now comes with some new options:
+
+- You can choose rounded corners for your galleries.
+
+Give those features a try and let us know how it worked for you.
+
 ### Others
 
 - If you have the opportunity to test in an older browser like IE11, please do so. You may catch some interesting bugs!
