@@ -21,7 +21,11 @@ function register_block() {
 	jetpack_register_block(
 		BLOCK_NAME,
 		array(
-			'render_callback' => 'Jetpack\Google_Calendar_Block\load_assets',
+			'render_callback'      => 'Jetpack\Google_Calendar_Block\load_assets',
+			'version_requirements' => array(
+				'gutenberg' => '7.2',
+				'wp'        => '5.4',
+			),
 		)
 	);
 }
