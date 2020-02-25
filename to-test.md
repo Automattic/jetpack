@@ -16,6 +16,12 @@ We've made a lot of changes to the Map block in this release.
 
 We would encourage you to test all features offered by the block, including the new Zoom, height, and Fullscreen options appearing in the block sidebar. Give those features a try in the editor, and check how the map looks like on your site's frontend as well.
 
+#### Revue
+
+This new block allows you to add a Revue Newsletter signup block to your posts and pages. To get started, [create an account with Revue](https://www.getrevue.co/) if you don't already have one. You'll then be able to create a form in Jetpack.
+
+Let us know if you experience any issues with that form.
+
 #### Tiled Gallery
 
 The Tiled Gallery block now comes with some new options:
