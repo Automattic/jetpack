@@ -128,6 +128,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Dashboard: remove Backups information from the Jetpack dashboard when on a Multisite network. Those do not support the Backup feature at this point.
 * Map block: only show the Add Marker UI if there are no markers.
 * Map block: prevent an unselected block from accidentally capturing scrolling.
+* Mobile Apps: remove the edit post link when in app.
 * OpenTable block: avoid error when inserting some specific embed codes.
 * OpenTable block: fix alignment issues when center-aligning the block.
 * Secure Sign On: do not display feature message when logging in to WordPress.com's central dashboard.
