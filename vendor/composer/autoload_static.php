@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInitd1bd24c00212d0e265d73c0860db524b
+class ComposerStaticInitb7926bd355cfbc419fb1daab87e9359d
 {
     public static $files = array (
         'bce4ecd6aabb2a2948e06d0e2c4ea9a6' => __DIR__ . '/..' . '/automattic/jetpack-connection/legacy/load-ixr.php',
@@ -15,52 +15,14 @@ class ComposerStaticInitd1bd24c00212d0e265d73c0860db524b
     public static $prefixLengthsPsr4 = array (
         'A' => 
         array (
-            'Automattic\\Jetpack\\Sync\\Modules\\' => 32,
-            'Automattic\\Jetpack\\Sync\\' => 24,
-            'Automattic\\Jetpack\\Connection\\' => 30,
-            'Automattic\\Jetpack\\Backup\\' => 26,
             'Automattic\\Jetpack\\Autoloader\\' => 30,
-            'Automattic\\Jetpack\\Assets\\' => 26,
-            'Automattic\\Jetpack\\' => 19,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
-        'Automattic\\Jetpack\\Sync\\Modules\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/automattic/jetpack-sync/src/modules',
-        ),
-        'Automattic\\Jetpack\\Sync\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/automattic/jetpack-sync/src',
-        ),
-        'Automattic\\Jetpack\\Connection\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/automattic/jetpack-connection/src',
-        ),
-        'Automattic\\Jetpack\\Backup\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/automattic/jetpack-backup/src',
-        ),
         'Automattic\\Jetpack\\Autoloader\\' => 
         array (
             0 => __DIR__ . '/..' . '/automattic/jetpack-autoloader/src',
-        ),
-        'Automattic\\Jetpack\\Assets\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/automattic/jetpack-logo/src',
-        ),
-        'Automattic\\Jetpack\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/automattic/jetpack-error/src',
-            1 => __DIR__ . '/..' . '/automattic/jetpack-constants/src',
-            2 => __DIR__ . '/..' . '/automattic/jetpack-abtest/src',
-            3 => __DIR__ . '/..' . '/automattic/jetpack-status/src',
-            4 => __DIR__ . '/..' . '/automattic/jetpack-terms-of-service/src',
-            5 => __DIR__ . '/..' . '/automattic/jetpack-tracking/src',
-            6 => __DIR__ . '/..' . '/automattic/jetpack-assets/src',
-            7 => __DIR__ . '/..' . '/automattic/jetpack-jitm/src',
-            8 => __DIR__ . '/..' . '/automattic/jetpack-roles/src',
         ),
     );
 
@@ -147,9 +109,9 @@ class ComposerStaticInitd1bd24c00212d0e265d73c0860db524b
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInitd1bd24c00212d0e265d73c0860db524b::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInitd1bd24c00212d0e265d73c0860db524b::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInitd1bd24c00212d0e265d73c0860db524b::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInitb7926bd355cfbc419fb1daab87e9359d::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInitb7926bd355cfbc419fb1daab87e9359d::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInitb7926bd355cfbc419fb1daab87e9359d::$classMap;
 
         }, null, ClassLoader::class);
     }
