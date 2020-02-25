@@ -9,6 +9,10 @@
 	display: inline-block;
 	position: relative;
 
+	&-theme-wide {
+		display: block;
+	}
+
 	.components-base-control {
 		width: 100%;
 	}
