@@ -1,39 +1,37 @@
-## 8.2
+## 8.3
 
 ### Blocks
 
-#### Calendly
+#### Calendly / OpenTable / Eventbrite
 
-The Calendly block will be a useful tool for all coaches, consultants, therapists… Add the block to a post or page and anyone can then book appointments, meetings, and classes right from your website. 
+We've made some changes to those blocks to improve the display of each each when using the button style, but also to improve the way data is saved when creating or updating the block. If you've already used the blocks on your site before this Beta, make sure those existing blocks are not broken, and ensure you can use the different options in the blocks' sidebars.
 
-To test, you have 2 options:
+When using the button style for those blocks (as well as other blocks such as Subscriptions, Recurring Payments, or Mailchimp), you'll want to ensure you can use the colors offered by your theme for the button.
 
-1. You can [create a Calendly account here](https://calendly.com) and create your own form that you'll be able to embed on your site via the block.
-2. You can use an existing Calendly account like this one: `https://calendly.com/jeherve`. Paste the link into the block to get started.
+#### Google Calendar
 
-Add the block to a post or a page and make sure everything works as planned. If you have your own Calendly account, try different embedding methods and see that they work well.
-
-#### EventBrite
-
-The EventBrite block is an easy way for your visitors to register for events right from your site.
-
-To test, you can pick any event from [this page](https://www.eventbrite.com/) and add it to a new post on your site. Like the above, try to play with all options; we're looking for any feedback you may have about the block and the user experience around it.
+We've created a new Google Calendar block that will allow you to quickly embed calendars within your posts and pages. Give the block and its options a try, and let us know if you run into any issues.
 
 #### Map
 
-In this release we've made to the way the Mapbox access token is added to a map. If your site is hosted on WordPress.com, it's now easier than ever to get started adding maps to your post.
+We've made a lot of changes to the Map block in this release.
 
-This change should not impact self-hosted WordPress sites. To confirm this, I would invite you to try to add a new Map Block to a new post or page on your site, and make sure that everything works properly.
+We would encourage you to test all features offered by the block, including the new Zoom, height, and Fullscreen options appearing in the block sidebar. Give those features a try in the editor, and check how the map looks like on your site's frontend as well.
 
-#### OpenTable
+#### Revue
 
-As a restaurant owner, your ultimate goal getting online is to drive reservations to your property. The OpenTable block can help you achieve just that by facilitating visitors to quickly fill an online reservation form to book a table.
+This new block allows you to add a Revue Newsletter signup block to your posts and pages. To get started, [create an account with Revue](https://www.getrevue.co/) if you don't already have one. You'll then be able to create a form in Jetpack.
 
-Give it a try and let us know what you think.
+Let us know if you experience any issues with that form.
 
-### Sync
+#### Tiled Gallery
 
-This release brings in significant changes to "Sync", the synchronization process that keeps your site's data up to date with WordPress.com. The changes modify the initial Full Sync process and not the ongoing sync logic that powers features like Notifications, Publicize and Related Posts. Full Sync can be tested by requesting a Full Sync on WordPress.com: under Manage > Settings > General > Site Tools > Manage your connection.
+The Tiled Gallery block now comes with some new options:
+
+- You can choose rounded corners for your galleries.
+- You can reorder images within a gallery thanks to previous / next arrows appearing on each image.
+
+Give those features a try and let us know how it worked for you.
 
 ### Others
 
