@@ -2,6 +2,10 @@
 
 ### Blocks
 
+#### Google Calendar
+
+We've created a new Google Calendar block that will allow you to quickly embed calendars within your posts and pages. Give the block and its options a try, and let us know if you run into any issues.
+
 #### Map
 
 We've made a lot of changes to the Map block in this release.

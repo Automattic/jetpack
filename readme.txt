@@ -103,7 +103,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Major Enhancements**
 
-*
+* Google Calendar Block: a simple way to embed Google Calendars into your posts.
 
 **Enhancements**
 
