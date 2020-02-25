@@ -126,6 +126,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Improved compatibility**
 
 * Autoloader: avoid conflicts when other plugins rely on the Autoloader to load Jetpack packages.
+* Beautiful Math: avoid layout issues with inline images when using the Twenty Twenty theme.
 * Blocks: improve the layout of the blocks' placeholders when using the Gutenberg plugin.
 * Lazy Images: add option to skip images with the `data-skip-lazy` attribute.
 
