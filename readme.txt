@@ -130,6 +130,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * OpenTable block: avoid error when inserting some specific embed codes.
 * OpenTable block: fix alignment issues when center-aligning the block.
 * Secure Sign On: do not display feature message when logging in to WordPress.com's central dashboard.
+* WooCommerce Analytics: improve product checks to avoid errors on order pages.
 
 --------
 
