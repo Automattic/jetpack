@@ -118,7 +118,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Improved compatibility**
 
-*
+* Autoloader: avoid conflicts when other plugins rely on the Autoloader to load Jetpack packages.
 
 **Bug fixes**
 
