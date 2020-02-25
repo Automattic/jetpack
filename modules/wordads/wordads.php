@@ -450,7 +450,7 @@ HTML;
 				$selector = '#main';
 				break;
 			case 'twentyfourteen':
-				$selector = 'article:first';
+				$selector = 'article';
 				break;
 		}
 
@@ -723,3 +723,5 @@ add_action( 'jetpack_deactivate_module_wordads', array( 'WordAds_Cron', 'deactiv
 
 global $wordads;
 $wordads = new WordAds();
+
+
