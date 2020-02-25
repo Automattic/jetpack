@@ -60,6 +60,7 @@ module.exports = [
 	'modules/widgets/eu-cookie-law/widget-amp.php',
 	'modules/widgets/social-icons.php',
 	'modules/woocommerce-analytics.php',
+	'modules/wordads/',
 	'modules/wpcom-block-editor/class-jetpack-wpcom-block-editor.php',
 	'modules/wpcom-tos/wpcom-tos.php',
 	'packages',

@@ -12,17 +12,20 @@ class WordAds_Params {
 	public function __construct() {
 		// WordAds setting => default
 		$settings = array(
-			'wordads_approved'           => false,
-			'wordads_active'             => false,
-			'wordads_house'              => true,
-			'wordads_unsafe'             => false,
-			'enable_header_ad'           => true,
-			'wordads_second_belowpost'   => true,
-			'wordads_display_front_page' => true,
-			'wordads_display_post'       => true,
-			'wordads_display_page'       => true,
-			'wordads_display_archive'    => true,
-			'wordads_custom_adstxt'      => '',
+			'wordads_approved'                => false,
+			'wordads_active'                  => false,
+			'wordads_house'                   => true,
+			'wordads_unsafe'                  => false,
+			'enable_header_ad'                => true,
+			'wordads_second_belowpost'        => true,
+			'wordads_display_front_page'      => true,
+			'wordads_display_post'            => true,
+			'wordads_display_page'            => true,
+			'wordads_display_archive'         => true,
+			'wordads_custom_adstxt'           => '',
+			'wordads_custom_adstxt_enabled'   => false,
+			'wordads_ccpa_enabled'            => false,
+			'wordads_ccpa_privacy_policy_url' => '',
 		);
 
 		// grab settings, or set as default if it doesn't exist
@@ -31,11 +34,17 @@ class WordAds_Params {
 			$option = get_option( $setting, null );
 
 			if ( is_null( $option ) ) {
+
+				// Handle retroactively setting wordads_custom_adstxt_enabled to true if custom ads.txt content is already entered.
+				if ( 'wordads_custom_adstxt_enabled' === $setting ) {
+					$default = get_option( 'wordads_custom_adstxt' ) !== '';
+				}
+
 				update_option( $setting, $default, true );
 				$option = $default;
 			}
 
-			$this->options[ $setting ] = 'wordads_custom_adstxt' !== $setting ? (bool) $option : $option;
+			$this->options[ $setting ] = is_bool( $default ) ? (bool) $option : $option;
 		}
 
 		$host = 'localhost';
