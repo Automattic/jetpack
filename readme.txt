@@ -126,6 +126,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Map block: only show the Add Marker UI if there are no markers.
 * Map block: prevent an unselected block from accidentally capturing scrolling.
 * OpenTable block: avoid error when inserting some specific embed codes.
+* Secure Sign On: do not display feature message when logging in to WordPress.com's central dashboard.
 
 --------
 
