@@ -118,9 +118,9 @@ class SearchApp extends Component {
 		return !! this.state.response.page_handle && ! this.state.hasError;
 	}
 
-	handleInput = event => {
+	handleInput = debounce( event => {
 		setSearchQuery( event.target.value );
-	};
+	}, 350 );
 
 	handleSortChange = event => {
 		setSortQuery( getSortKeyFromSortOption( event.target.value ) );
