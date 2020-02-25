@@ -13,6 +13,7 @@ We would encourage you to test all features offered by the block, including the 
 The Tiled Gallery block now comes with some new options:
 
 - You can choose rounded corners for your galleries.
+- You can reorder images within a gallery thanks to previous / next arrows appearing on each image.
 
 Give those features a try and let us know how it worked for you.
 
