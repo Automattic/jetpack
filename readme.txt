@@ -123,6 +123,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Synchronization: increase reliability of sync by not sending wp-rest-api-log posts.
 * Tiled Gallery block: add a Rounded Corners option.
 * Tiled Gallery block: add an option to easily rearrange images within a gallery.
+* Twitter widget: remove deprecated link color parameter.
 
 **Improved compatibility**
 
