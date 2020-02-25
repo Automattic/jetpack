@@ -19,11 +19,6 @@ import './editor.scss';
 
 export const name = 'calendly';
 export const title = __( 'Calendly', 'jetpack' );
-const supports = {
-	align: true,
-	alignWide: false,
-	html: false,
-};
 export const settings = {
 	title,
 	description: __( 'Embed a calendar for customers to schedule appointments', 'jetpack' ),
@@ -34,13 +29,13 @@ export const settings = {
 		__( 'schedule', 'jetpack' ),
 		__( 'appointments', 'jetpack' ),
 	],
-	supports,
+	supports: {
+		align: true,
+		alignWide: false,
+		html: false,
+	},
 	edit,
-	save: ( { attributes: { url } } ) => (
-		<div>
-			<a href={ url }>{ url }</a>
-		</div>
-	),
+	save: ( { attributes: { url } } ) => <a href={ url }>{ url }</a>,
 	attributes,
 	example: {
 		attributes: {
@@ -62,10 +57,4 @@ export const settings = {
 			},
 		],
 	},
-	deprecated: [
-		{
-			attributes,
-			save: ( { attributes: { url } } ) => <a href={ url }>{ url }</a>,
-		},
-	],
 };
