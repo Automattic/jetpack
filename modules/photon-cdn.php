@@ -31,6 +31,7 @@ class Jetpack_Photon_Static_Assets_CDN {
 		add_action( 'admin_print_styles', array( __CLASS__, 'cdnize_assets' ) );
 		add_action( 'wp_footer', array( __CLASS__, 'cdnize_assets' ) );
 		add_filter( 'load_script_textdomain_relative_path', array( __CLASS__, 'fix_script_relative_path' ), 10, 2 );
+		add_filter( 'load_script_translation_file', array( __CLASS__, 'fix_local_script_translation_path' ), 10, 3 );
 	}
 
 	/**
@@ -113,10 +114,32 @@ class Jetpack_Photon_Static_Assets_CDN {
 
 		// We only treat URLs that have wp-includes in them. Cases like language textdomains
 		// can also use this filter, they don't need to be touched because they are local paths.
-		if ( false === $strpos ) {
-			return $relative;
+		if ( false !== $strpos ) {
+			return substr( $src, 1 + $strpos );
 		}
-		return substr( $src, 1 + $strpos );
+
+		// Reverse cdnize_plugin_assets for loading the path
+		if ( preg_match( '#' . preg_quote( self::CDN, '#' ) . 'p/[^/]+/[^/]+/(.*)$#', $src, $m ) ) {
+			return $m[1];
+		}
+
+		return $relative;
+	}
+
+	/**
+	 * Ensure use of the correct relative path when loading the JavaScript translation file.
+	 *
+	 * @param string $file   The path that's going to be loaded.
+	 * @param string $handle The script handle.
+	 * @param string $domain The text domain.
+	 * @return string The transformed local languages path.
+	 */
+	public static function fix_local_script_translation_path( $file, $handle, $domain ) {
+		switch ( $handle ) {
+			case 'jetpack-blocks-editor':
+				return str_replace( 'wp-content/languages/jetpack', 'wp-content/languages/plugins/jetpack', $file );
+		}
+		return $file;
 	}
 
 	/**
