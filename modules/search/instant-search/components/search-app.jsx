@@ -119,6 +119,10 @@ class SearchApp extends Component {
 	}
 
 	handleInput = debounce( event => {
+		// Reference: https://rawgit.com/w3c/input-events/v1/index.html#interface-InputEvent-Attributes
+		if ( event.inputType.includes( 'delete' ) || event.inputType.includes( 'format' ) ) {
+			return;
+		}
 		setSearchQuery( event.target.value );
 	}, 350 );
 
