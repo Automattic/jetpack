@@ -86,11 +86,11 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		 *
 		 * @module widgets
 		 *
-		 * @since 8.2.4
+		 * @since 8.4.0
 		 *
 		 * @param bool True value hides the call to action button
 		 */
-		$hide_cta = apply_filters( 'jetpack_fb_hide_cta', 'true' );
+		$hide_cta = apply_filters( 'jetpack_facebook_likebox_hide_cta', true );
 
 		echo $before_widget;
 
@@ -117,7 +117,7 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 
 		?>
 		<div id="fb-root"></div>
-		<div class="fb-page" data-href="<?php echo esc_url( $page_url ); ?>" data-width="<?php echo intval( $like_args['width'] ); ?>"  data-height="<?php echo intval( $like_args['height'] ); ?>" data-hide-cover="<?php echo esc_attr( $like_args['cover'] ); ?>" data-show-facepile="<?php echo esc_attr( $like_args['show_faces'] ); ?>" data-tabs="<?php echo esc_attr( $like_args['stream'] ); ?>" data-hide-cta="<?php echo esc_attr( $hide_cta ); ?>" data-small-header="<?php echo esc_attr( $like_args['small_header'] ); ?>">
+		<div class="fb-page" data-href="<?php echo esc_url( $page_url ); ?>" data-width="<?php echo intval( $like_args['width'] ); ?>"  data-height="<?php echo intval( $like_args['height'] ); ?>" data-hide-cover="<?php echo esc_attr( $like_args['cover'] ); ?>" data-show-facepile="<?php echo esc_attr( $like_args['show_faces'] ); ?>" data-tabs="<?php echo esc_attr( $like_args['stream'] ); ?>" data-hide-cta="<?php echo esc_attr( $hide_cta ? 'true' : 'false' ); ?>" data-small-header="<?php echo esc_attr( $like_args['small_header'] ); ?>">
 		<div class="fb-xfbml-parse-ignore"><blockquote cite="<?php echo esc_url( $page_url ); ?>"><a href="<?php echo esc_url( $page_url ); ?>"><?php echo esc_html( $title ); ?></a></blockquote></div>
 		</div>
 		<?php
@@ -239,7 +239,7 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 			'show_faces'   => 'true',
 			'stream'       => '',
 			'cover'        => 'true',
-			'small_header' => '',
+			'small_header' => 'true',
 		);
 
 		/**
