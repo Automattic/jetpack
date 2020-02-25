@@ -109,6 +109,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Dashboard widget: clarify wording in Anti-spam and Protect sections.
 * Dashboard notices: allow permanent notices.
+* Mobile Theme: sunset feature. We originally created the mobile theme feature as a fall-back when the regular theme did not include a mobile view. Most themes include a mobile view by default now, so the feature is no longer necessary.
 
 **Improved compatibility**
 
