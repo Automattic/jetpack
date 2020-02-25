@@ -73,6 +73,7 @@ class SearchApp extends Component {
 		window.addEventListener( 'queryStringChange', this.onChangeQueryString );
 
 		document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( input => {
+			input.form.addEventListener( 'submit', this.handleSubmit );
 			input.addEventListener( 'input', this.handleInput );
 		} );
 
@@ -90,6 +91,7 @@ class SearchApp extends Component {
 		window.removeEventListener( 'queryStringChange', this.onChangeQueryString );
 
 		document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( input => {
+			input.form.removeEventListener( 'submit', this.handleSubmit );
 			input.removeEventListener( 'input', this.handleInput );
 		} );
 
@@ -117,6 +119,13 @@ class SearchApp extends Component {
 	hasNextPage() {
 		return !! this.state.response.page_handle && ! this.state.hasError;
 	}
+
+	handleSubmit = event => {
+		event.preventDefault();
+		this.handleInput.flush();
+		setSearchQuery( event.target.elements.s.value );
+		this.showResults();
+	};
 
 	handleInput = debounce( event => {
 		// Reference: https://rawgit.com/w3c/input-events/v1/index.html#interface-InputEvent-Attributes
