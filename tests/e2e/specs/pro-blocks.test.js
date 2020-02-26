@@ -106,15 +106,15 @@ describe( 'Paid blocks', () => {
 	} );
 
 	describe( 'Eventbrite block', () => {
-		it( 'Can publish a post with an Eventbrite block', async () => {
+		it( 'Can publish a post with a Eventbrite block', async () => {
 			const blockEditor = await BlockEditorPage.visit( page );
 			const blockInfo = await blockEditor.insertBlock(
 				EventbriteBlock.name(),
 				EventbriteBlock.title()
 			);
 
-			const EventbriteBlock = new EventbriteBlock( blockInfo, page );
-			await EventbriteBlock.addEmbed();
+			const eventbriteBlock = new EventbriteBlock( blockInfo, page );
+			await eventbriteBlock.addEmbed();
 
 			await blockEditor.focus();
 			await blockEditor.publishPost();
