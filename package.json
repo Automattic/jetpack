@@ -151,7 +151,7 @@
 		"react-router": "3.2.4",
 		"react-router-redux": "4.0.8",
 		"react-tagsinput": "3.19.0",
-		"redux": "4.0.4",
+		"redux": "4.0.5",
 		"redux-thunk": "2.3.0",
 		"refx": "3.1.1",
 		"resize-observer-polyfill": "1.5.1",
