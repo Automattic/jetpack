@@ -133,7 +133,7 @@ class SearchApp extends Component {
 			return;
 		}
 		setSearchQuery( event.target.value );
-	}, 350 );
+	}, 200 );
 
 	handleSortChange = event => {
 		setSortQuery( getSortKeyFromSortOption( event.target.value ) );
