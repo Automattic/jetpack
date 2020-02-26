@@ -585,26 +585,35 @@ class Jetpack {
 	public function add_configure_hook() {
 		global $wp_filter;
 
-		if ( isset( $wp_filter['plugins_loaded'] ) ) {
-			$highest_priority            = min( array_keys( $wp_filter['plugins_loaded']->callbacks ) );
-			$actions_on_highest_priority = $wp_filter['plugins_loaded']->callbacks[ $highest_priority ];
-
-			if ( isset( $this->highest_priority ) && $this->highest_priority <= $highest_priority ) {
-				return;
-			}
-
-			foreach ( $actions_on_highest_priority as $action ) {
-				remove_action( 'plugins_loaded', $action['function'], $highest_priority );
-			}
-
-			$this->highest_priority = $highest_priority;
-			add_action( 'plugins_loaded', array( $this, 'configure' ), $highest_priority );
-
-			foreach ( $actions_on_highest_priority as $action ) {
-				add_action( 'plugins_loaded', $action['function'], $highest_priority, $action['accepted_args'] );
-			}
-		} else {
+		// If there is no handler set for the plugins_loaded hook yet, set it and return.
+		if ( ! isset( $wp_filter['plugins_loaded'] ) ) {
 			add_action( 'plugins_loaded', array( $this, 'configure' ), 0 );
+			return;
+		}
+
+		$highest_priority = min( array_keys( $wp_filter['plugins_loaded']->callbacks ) );
+
+		// If our hook is set, and it's still at highest priority, we don't need to do anything.
+		if (
+			isset( $this->highest_priority )
+
+			// Priority is in reverse order, so less is higher.
+			&& $this->highest_priority <= $highest_priority
+		) {
+			return;
+		}
+
+		$actions_on_highest_priority = $wp_filter['plugins_loaded']->callbacks[ $highest_priority ];
+
+		foreach ( $actions_on_highest_priority as $action ) {
+			remove_action( 'plugins_loaded', $action['function'], $highest_priority );
+		}
+
+		$this->highest_priority = $highest_priority;
+		add_action( 'plugins_loaded', array( $this, 'configure' ), $highest_priority );
+
+		foreach ( $actions_on_highest_priority as $action ) {
+			add_action( 'plugins_loaded', $action['function'], $highest_priority, $action['accepted_args'] );
 		}
 	}
 
