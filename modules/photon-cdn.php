@@ -127,7 +127,7 @@ class Jetpack_Photon_Static_Assets_CDN {
 	}
 
 	/**
-	 * Ensure use of the correct relative path when loading the JavaScript translation file.
+	 * Ensure use of the correct local path when loading the JavaScript translation file for a CDN'ed asset.
 	 *
 	 * @param string $file   The path that's going to be loaded.
 	 * @param string $handle The script handle.
@@ -135,9 +135,10 @@ class Jetpack_Photon_Static_Assets_CDN {
 	 * @return string The transformed local languages path.
 	 */
 	public static function fix_local_script_translation_path( $file, $handle, $domain ) {
-		switch ( $handle ) {
-			case 'jetpack-blocks-editor':
-				return str_replace( 'wp-content/languages/jetpack', 'wp-content/languages/plugins/jetpack', $file );
+		global $wp_scripts;
+		// This is a rewritten plugin URL, so load the language file from the plugins path.
+		if ( isset( $wp_scripts->registered[ $handle ] ) && wp_startswith( $wp_scripts->registered[ $handle ]->src, self::CDN . 'p' ) ) {
+			return WP_LANG_DIR . '/plugins/' . basename( $file );
 		}
 		return $file;
 	}
