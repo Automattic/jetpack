@@ -692,3 +692,37 @@ function videopress_get_attachment_url( $post_id ) {
 	// If the URL is a string, return it. Otherwise, we shouldn't to avoid errors downstream, so null.
 	return ( is_string( $return ) ) ? $return : null;
 }
+
+/**
+ * Converts VideoPress flash embeds into oEmbed-able URLs.
+ *
+ * Older VideoPress embed depended on Flash, which no longer work,
+ * so let us convert them to an URL that WordPress can oEmbed.
+ *
+ * Note that this file is always loaded via modules/module-extras.php and is not dependent on module status.
+ *
+ * @param string $content the content.
+ * @return string filtered content
+ */
+function jetpack_videopress_flash_embed_filter( $content ) {
+	$regex   = '%<embed[^>]*+>(?:\s*</embed>)?%i';
+	$content = preg_replace_callback(
+		$regex,
+		function( $matches, $orig_html = null ) {
+			$embed_code  = $matches[0];
+			$url_matches = array();
+
+			// get video ID from flash URL.
+			$url_matched = preg_match( '/src="http:\/\/v.wordpress.com\/([^"]+)"/', $embed_code, $url_matches );
+
+			if ( $url_matched ) {
+				$video_id = $url_matches[1];
+				return "https://videopress.com/v/$video_id";
+			}
+		},
+		$content
+	);
+	return $content;
+}
+
+add_filter( 'the_content', 'jetpack_videopress_flash_embed_filter', 7 ); // Needs to be priority 7 to allow Core to oEmbed.

@@ -87,11 +87,18 @@ function modify_svnignore {
 function create_new_release_branches {
 
 	# Prompt for version number.
-	read -p "What version are you releasing? Please write in x.x syntax. Example: 4.9 - " version
+	read -p "What version are you releasing? Example: 4.9 - " version
 
 	# Declare the new branch names.
-	NEW_UNBUILT_BRANCH="branch-$version"
-	NEW_BUILT_BRANCH="branch-$version-built"
+	TARGET_VERSION=$(./tools/version-update.sh -v $version -n)
+	if [[ $TARGET_VERSION =~ "-" ]]; then
+		NUMERIC_VERSION=$(echo $TARGET_VERSION | cut -d'-' -f 1)
+		NEW_UNBUILT_BRANCH="branch-$NUMERIC_VERSION"
+		NEW_BUILT_BRANCH="branch-$NUMERIC_VERSION-built"
+	else
+		NEW_UNBUILT_BRANCH="branch-$TARGET_VERSION"
+		NEW_BUILT_BRANCH="branch-$TARGET_VERSION-built"
+	fi
 
 	# Check if branch already exists, if not, create new branch named "branch-x.x"
 	if [[ -n $( git branch -r | grep "$NEW_UNBUILT_BRANCH" ) ]]; then
@@ -106,6 +113,8 @@ function create_new_release_branches {
 
 		# Create new branch, push to repo
 		git checkout -b $NEW_UNBUILT_BRANCH
+
+		./tools/version-update.sh -v $TARGET_VERSION
 
 		git push -u origin $NEW_UNBUILT_BRANCH
 		echo ""
@@ -170,6 +179,12 @@ elif [[ 'update' = $COMMAND || '-u' = $COMMAND ]]; then
 		UPDATE_BUILT_BRANCH=$branch
 	else
 		UPDATE_BUILT_BRANCH=$2
+	fi
+
+	# Ask if they want to update the file versions.
+	read -p "Do you want to update the version in files? [y/N]" reply
+	if [[ 'y' == $reply || 'Y' == $reply ]]; then
+		./tools/version-update.sh
 	fi
 else
 	usage

@@ -152,16 +152,19 @@ function jetpack_og_tags() {
 			$tags['og:description'] = wp_kses( trim( convert_chars( wptexturize( $tags['og:description'] ) ) ), array() );
 		}
 
-		$tags['article:published_time'] = date( 'c', strtotime( $data->post_date_gmt ) );
-		$tags['article:modified_time']  = date( 'c', strtotime( $data->post_modified_gmt ) );
+		$tags['article:published_time'] = gmdate( 'c', strtotime( $data->post_date_gmt ) );
+		$tags['article:modified_time']  = gmdate( 'c', strtotime( $data->post_modified_gmt ) );
 		if ( post_type_supports( get_post_type( $data ), 'author' ) && isset( $data->post_author ) ) {
 			$publicize_facebook_user = get_post_meta( $data->ID, '_publicize_facebook_user', true );
 			if ( ! empty( $publicize_facebook_user ) ) {
 				$tags['article:author'] = esc_url( $publicize_facebook_user );
 			}
 		}
+	} elseif ( is_search() ) {
+		if ( '' !== get_query_var( 's', '' ) ) {
+			$tags['og:title'] = wp_get_document_title();
+		}
 	}
-
 	/**
 	 * Allow plugins to inject additional template-specific Open Graph tags.
 	 *

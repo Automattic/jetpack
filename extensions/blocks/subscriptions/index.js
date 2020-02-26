@@ -44,12 +44,21 @@ export const settings = {
 			type: 'string',
 			default: __( 'Subscribe', 'jetpack' ),
 		},
+		backgroundButtonColor: {
+			type: 'string',
+		},
+		textButtonColor: {
+			type: 'string',
+		},
 		customBackgroundButtonColor: { type: 'string' },
 		customTextButtonColor: { type: 'string' },
 		submitButtonClasses: { type: 'string' },
 	},
 	edit,
 	save,
+	example: {
+		attributes: {},
+	},
 	deprecated: [
 		{
 			attributes: {

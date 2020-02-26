@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Roles;
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Tracking;
 
 require_once( JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-helpers.php' );
@@ -16,7 +17,7 @@ require_once( JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-notices.php' 
  * Auto Activate: No
  * Module Tags: Developers
  * Feature: Security
- * Additional Search Queries: sso, single sign on, login, log in
+ * Additional Search Queries: sso, single sign on, login, log in, 2fa, two-factor
  */
 
 class Jetpack_SSO {
@@ -36,7 +37,7 @@ class Jetpack_SSO {
 		add_action( 'login_form_logout',               array( $this, 'store_wpcom_profile_cookies_on_logout' ) );
 		add_action( 'jetpack_unlinked_user',           array( $this, 'delete_connection_for_user') );
 		add_action( 'wp_login',                        array( 'Jetpack_SSO', 'clear_cookies_after_login' ) );
-		add_action( 'jetpack_jitm_received_envelopes', array( $this, 'inject_sso_jitm' ) );
+		add_action( 'jetpack_jitm_received_envelopes', array( $this, 'inject_sso_jitm' ), 10, 2 );
 
 		// Adding this action so that on login_init, the action won't be sanitized out of the $action global.
 		add_action( 'login_form_jetpack-sso', '__return_true' );
@@ -148,7 +149,7 @@ class Jetpack_SSO {
 		// Always add the jetpack-sso class so that we can add SSO specific styling even when the SSO form isn't being displayed.
 		$classes[] = 'jetpack-sso';
 
-		if ( ! Jetpack::is_staging_site() ) {
+		if ( ! ( new Status() )->is_staging_site() ) {
 			/**
 			 * Should we show the SSO login form?
 			 *
@@ -352,7 +353,7 @@ class Jetpack_SSO {
 				$this->handle_login();
 				$this->display_sso_login_form();
 			} else {
-				if ( Jetpack::is_staging_site() ) {
+				if ( ( new Status() )->is_staging_site() ) {
 					add_filter( 'login_message', array( 'Jetpack_SSO_Notices', 'sso_not_allowed_in_staging' ) );
 				} else {
 					// Is it wiser to just use wp_redirect than do this runaround to wp_safe_redirect?
@@ -401,7 +402,7 @@ class Jetpack_SSO {
 		add_filter( 'login_body_class', array( $this, 'login_body_class' ) );
 		add_action( 'login_head',       array( $this, 'print_inline_admin_css' ) );
 
-		if ( Jetpack::is_staging_site() ) {
+		if ( ( new Status() )->is_staging_site() ) {
 			add_filter( 'login_message', array( 'Jetpack_SSO_Notices', 'sso_not_allowed_in_staging' ) );
 			return;
 		}
@@ -1086,13 +1087,21 @@ class Jetpack_SSO {
 	 *
 	 * @since 6.9.0
 	 *
-	 * @param array $envelopes Array of JITM messages received after API call.
+	 * @param array  $envelopes    Array of JITM messages received after API call.
+	 * @param string $message_path The message path to ask for.
 	 *
 	 * @return array $envelopes New array of JITM messages. May now contain only one message, about SSO.
 	 */
-	public function inject_sso_jitm( $envelopes ) {
-		// Bail early if that's not the first time the user uses SSO.
-		if ( true != Jetpack_Options::get_option( 'sso_first_login' ) ) {
+	public function inject_sso_jitm( $envelopes, $message_path = null) {
+		/*
+		 * Bail early if:
+		 * - the request does not originate from wp-admin main dashboard.
+		 * - that's not the first time the user uses SSO.
+		 */
+		if (
+			'wp:dashboard:admin_notices' !== $message_path
+			|| true !== Jetpack_Options::get_option( 'sso_first_login' )
+		) {
 			return $envelopes;
 		}
 

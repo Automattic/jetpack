@@ -38,16 +38,43 @@ class Jetpack_Keyring_Service_Helper {
 		)
 	);
 
+	/**
+	 * Constructor
+	 */
 	private function __construct() {
+		add_action( 'admin_menu', array( __CLASS__, 'add_sharing_menu' ), 21 );
+
 		add_action( 'load-settings_page_sharing', array( __CLASS__, 'admin_page_load' ), 9 );
 	}
 
-	function get_services( $filter = 'all' ) {
-		$services = array(
+	/**
+	 * We need a `sharing` submenu page to be able to connect and disconnect services.
+	 */
+	public static function add_sharing_menu() {
+		global $submenu;
 
+		if (
+			! isset( $submenu['options-general.php'] )
+			|| ! is_array( $submenu['options-general.php'] )
+		) {
+			return;
+		}
+
+		$general_settings_names = array_map(
+			function ( $menu ) {
+				return array_values( $menu )[0];
+			},
+			$submenu['options-general.php']
 		);
+		if ( ! in_array( 'Sharing', $general_settings_names, true ) ) {
+			add_submenu_page( 'options-general.php', '', '', 'manage_options', 'sharing', '__return_empty_string' );
+		}
+	}
 
-		if ( 'all' == $filter ) {
+	function get_services( $filter = 'all' ) {
+		$services = array();
+
+		if ( 'all' === $filter ) {
 			return $services;
 		} else {
 			$connected_services = array();

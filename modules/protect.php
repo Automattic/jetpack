@@ -13,6 +13,7 @@
  */
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 
 include_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
 
@@ -865,7 +866,7 @@ class Jetpack_Protect_Module {
 		}
 
 		//Check to see if we can use SSL
-		$this->api_endpoint = Jetpack::fix_url_for_bad_hosts( JETPACK_PROTECT__API_HOST );
+		$this->api_endpoint = Connection_Utils::fix_url_for_bad_hosts( JETPACK_PROTECT__API_HOST );
 
 		return $this->api_endpoint;
 	}
@@ -881,14 +882,14 @@ class Jetpack_Protect_Module {
 			$uri = network_home_url();
 		}
 
-		$uridata = parse_url( $uri );
+		$uridata = wp_parse_url( $uri );
 
 		$domain = $uridata['host'];
 
 		// If we still don't have the site_url, get it
 		if ( ! $domain ) {
 			$uri     = get_site_url( 1 );
-			$uridata = parse_url( $uri );
+			$uridata = wp_parse_url( $uri );
 			$domain  = $uridata['host'];
 		}
 

@@ -5,7 +5,7 @@ import del from 'del';
 import deleteLines from 'gulp-rm-lines';
 import fs from 'fs';
 import gulp from 'gulp';
-import i18n_calypso from 'i18n-calypso/cli';
+import i18n_calypso from 'i18n-calypso-cli';
 import json_transform from 'gulp-json-transform';
 import log from 'fancy-log';
 import po2json from 'gulp-po2json';

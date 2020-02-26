@@ -1,0 +1,14 @@
+.eventbrite__direct-link {
+	display: none;
+}
+
+// Make sure the widget embed container is always as tall as the
+// default/minimum value set by Eventbrite (425px), by overriding
+// the container's inline height (set by Eventbrite, sometimes incorrectly as 0px),
+// and setting the default height directly to the iframe.
+.eventbrite__in-page-checkout {
+	height: auto !important;
+	iframe {
+		height: 425px;
+	}
+}

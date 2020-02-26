@@ -10,7 +10,7 @@ use Automattic\Jetpack\Sync\Functions;
 class Jetpack_AMP_Support {
 
 	/**
-	 * Apply custom AMP changes onthe frontend.
+	 * Apply custom AMP changes on the front-end.
 	 */
 	public static function init() {
 
@@ -21,6 +21,12 @@ class Jetpack_AMP_Support {
 		) {
 			add_action( 'amp_post_template_footer', array( 'Jetpack_AMP_Support', 'add_stats_pixel' ) );
 		}
+
+		/**
+		 * Remove this during the init hook in case users have enabled it during
+		 * the after_setup_theme hook, which triggers before init.
+		 */
+		remove_theme_support( 'jetpack-devicepx' );
 
 		// Sharing.
 		add_filter( 'jetpack_sharing_display_markup', array( 'Jetpack_AMP_Support', 'render_sharing_html' ), 10, 2 );
@@ -40,6 +46,9 @@ class Jetpack_AMP_Support {
 
 		// Filter photon image args for AMP Stories.
 		add_filter( 'jetpack_photon_post_image_args', array( 'Jetpack_AMP_Support', 'filter_photon_post_image_args_for_stories' ), 10, 2 );
+
+		// Sync the amp-options.
+		add_filter( 'jetpack_options_whitelist', array( 'Jetpack_AMP_Support', 'filter_jetpack_options_whitelist' ) );
 	}
 
 	/**
@@ -435,6 +444,19 @@ class Jetpack_AMP_Support {
 		}
 
 		return $args;
+	}
+
+	/**
+	 *  Adds amp-options to the list of options to sync, if AMP is available
+	 *
+	 * @param array $options_whitelist Whitelist of options to sync.
+	 * @return array Updated options whitelist
+	 */
+	public static function filter_jetpack_options_whitelist( $options_whitelist ) {
+		if ( function_exists( 'is_amp_endpoint' ) ) {
+			$options_whitelist[] = 'amp-options';
+		}
+		return $options_whitelist;
 	}
 }
 

@@ -24,6 +24,10 @@ export const PLAN_JETPACK_PERSONAL = 'jetpack_personal';
 export const PLAN_JETPACK_PREMIUM_MONTHLY = 'jetpack_premium_monthly';
 export const PLAN_JETPACK_BUSINESS_MONTHLY = 'jetpack_business_monthly';
 export const PLAN_JETPACK_PERSONAL_MONTHLY = 'jetpack_personal_monthly';
+export const PLAN_JETPACK_BACKUP_DAILY = 'jetpack_backup_daily';
+export const PLAN_JETPACK_BACKUP_DAILY_MONTHLY = 'jetpack_backup_daily_monthly';
+export const PLAN_JETPACK_BACKUP_REALTIME = 'jetpack_backup_realtime';
+export const PLAN_JETPACK_BACKUP_REALTIME_MONTHLY = 'jetpack_backup_realtime_monthly';
 export const PLAN_HOST_BUNDLE = 'host-bundle';
 export const PLAN_WPCOM_ENTERPRISE = 'wpcom-enterprise';
 export const PLAN_VIP = 'vip';
@@ -35,6 +39,13 @@ export const JETPACK_MONTHLY_PLANS = [
 	PLAN_JETPACK_PREMIUM_MONTHLY,
 	PLAN_JETPACK_BUSINESS_MONTHLY,
 	PLAN_JETPACK_PERSONAL_MONTHLY,
+];
+
+export const JETPACK_BACKUP_PRODUCTS = [
+	PLAN_JETPACK_BACKUP_DAILY,
+	PLAN_JETPACK_BACKUP_DAILY_MONTHLY,
+	PLAN_JETPACK_BACKUP_REALTIME,
+	PLAN_JETPACK_BACKUP_REALTIME_MONTHLY,
 ];
 
 export const PLAN_MONTHLY_PERIOD = 31;
@@ -115,6 +126,10 @@ export function isNew( plan ) {
 	return includes( NEW_PLANS, plan );
 }
 
+export function isJetpackBackup( product ) {
+	return includes( JETPACK_BACKUP_PRODUCTS, product );
+}
+
 export function getPlanClass( plan ) {
 	switch ( plan ) {
 		case PLAN_JETPACK_FREE:
@@ -142,6 +157,12 @@ export function getPlanClass( plan ) {
 		case PLAN_ECOMMERCE_2_YEARS:
 		case PLAN_ECOMMERCE_MONTHLY:
 			return 'is-business-plan';
+		case PLAN_JETPACK_BACKUP_DAILY:
+		case PLAN_JETPACK_BACKUP_DAILY_MONTHLY:
+			return 'is-daily-backup-plan';
+		case PLAN_JETPACK_BACKUP_REALTIME:
+		case PLAN_JETPACK_BACKUP_REALTIME_MONTHLY:
+			return 'is-realtime-backup-plan';
 		default:
 			return '';
 	}

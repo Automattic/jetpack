@@ -1,5 +1,6 @@
 <?php
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Tracking;
 
 /**
@@ -15,6 +16,8 @@ if (
 	Jetpack::is_active() &&
 	/** This filter is documented in _inc/lib/admin-pages/class.jetpack-react-page.php */
 	apply_filters( 'jetpack_show_promotions', true ) &&
+	// Disable feature hints when plugins cannot be installed.
+	! Constants::is_true( 'DISALLOW_FILE_MODS' ) &&
 	jetpack_is_psh_active()
 ) {
 	Jetpack_Plugin_Search::init();
@@ -411,23 +414,6 @@ class Jetpack_Plugin_Search {
 	 */
 	private function by_sorting_option( $m1, $m2 ) {
 		return $m1['sort'] - $m2['sort'];
-	}
-
-	/**
-	 * Builds a URL to purchase and upgrade inserting the site fragment and the affiliate code if it exists.
-	 *
-	 * @param string $feature Module slug (or forged one for extra features).
-	 *
-	 * @since 7.1.0
-	 *
-	 * @return string URL to upgrade.
-	 */
-	private function get_upgrade_url( $feature ) {
-		$site_raw_url = Jetpack::build_raw_urls( get_home_url() );
-		$affiliateCode = Jetpack_Affiliate::init()->get_affiliate_code();
-		$user = wp_get_current_user()->ID;
-		return "https://jetpack.com/redirect/?source=plugin-hint-upgrade-$feature&site=$site_raw_url&u=$user" .
-		       ( $affiliateCode ? "&aff=$affiliateCode" : '' );
 	}
 
 	/**

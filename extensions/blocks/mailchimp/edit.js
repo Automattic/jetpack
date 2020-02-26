@@ -14,13 +14,14 @@ import {
 	TextControl,
 	withNotices,
 } from '@wordpress/components';
-import { InspectorControls, RichText } from '@wordpress/editor';
+import { InspectorControls, RichText } from '@wordpress/block-editor';
 import { Fragment, Component } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
 import { icon } from '.';
+import MailchimpGroups from './mailchimp-groups';
 
 const API_STATE_LOADING = 0;
 const API_STATE_CONNECTED = 1;
@@ -130,7 +131,17 @@ class MailchimpSubscribeEdit extends Component {
 	render = () => {
 		const { attributes, className, notices, noticeUI, setAttributes } = this.props;
 		const { audition, connected, connectURL } = this.state;
-		const { emailPlaceholder, consentText, processingLabel, successLabel, errorLabel } = attributes;
+		const {
+			emailPlaceholder,
+			consentText,
+			interests,
+			processingLabel,
+			successLabel,
+			errorLabel,
+			preview,
+			signupFieldTag,
+			signupFieldValue,
+		} = attributes;
 		const classPrefix = 'wp-block-jetpack-mailchimp_';
 		const waiting = (
 			<Placeholder icon={ icon } notices={ notices }>
@@ -138,23 +149,24 @@ class MailchimpSubscribeEdit extends Component {
 			</Placeholder>
 		);
 		const placeholder = (
-			<Placeholder icon={ icon } label={ __( 'Mailchimp', 'jetpack' ) } notices={ notices }>
-				<div className="components-placeholder__instructions">
-					{ __(
-						'You need to connect your Mailchimp account and choose a list in order to start collecting Email subscribers.',
-						'jetpack'
-					) }
-					<br />
-					<br />
+			<Placeholder
+				className="wp-block-jetpack-mailchimp"
+				icon={ icon }
+				label={ __( 'Mailchimp', 'jetpack' ) }
+				notices={ notices }
+				instructions={ __(
+					'You need to connect your Mailchimp account and choose a list in order to start collecting Email subscribers.',
+					'jetpack'
+				) }
+			>
+				<div>
 					<Button isDefault isLarge href={ connectURL } target="_blank">
 						{ __( 'Set up Mailchimp form', 'jetpack' ) }
 					</Button>
-					<br />
-					<br />
-					<Button isLink onClick={ this.apiCall }>
-						{ __( 'Re-check Connection', 'jetpack' ) }
-					</Button>
 				</div>
+				<Button isLink onClick={ this.apiCall }>
+					{ __( 'Re-check Connection', 'jetpack' ) }
+				</Button>
 			</Placeholder>
 		);
 		const inspectorControls = (
@@ -182,6 +194,42 @@ class MailchimpSubscribeEdit extends Component {
 						value={ errorLabel }
 						onChange={ this.updateErrorText }
 					/>
+				</PanelBody>
+				<PanelBody title={ __( 'Mailchimp Groups', 'jetpack' ) }>
+					<MailchimpGroups
+						interests={ interests }
+						onChange={ ( id, checked ) => {
+							// Create a Set to insure no duplicate interests
+							const deDupedInterests = [ ...new Set( [ ...interests, id ] ) ];
+							// Filter the clicked interest based on checkbox's state.
+							const updatedInterests = deDupedInterests.filter( item =>
+								item === id && ! checked ? false : item
+							);
+							setAttributes( {
+								interests: updatedInterests,
+							} );
+						} }
+					/>
+					<ExternalLink href="https://mailchimp.com/help/send-groups-audience/">
+						{ __( 'Learn about groups', 'jetpack' ) }
+					</ExternalLink>
+				</PanelBody>
+				<PanelBody title={ __( 'Signup Location Tracking', 'jetpack' ) }>
+					<TextControl
+						label={ __( 'Signup Field Tag', 'jetpack' ) }
+						placeholder={ __( 'SIGNUP' ) }
+						value={ signupFieldTag }
+						onChange={ value => setAttributes( { signupFieldTag: value } ) }
+					/>
+					<TextControl
+						label={ __( 'Signup Field Value', 'jetpack' ) }
+						placeholder={ __( 'website' ) }
+						value={ signupFieldValue }
+						onChange={ value => setAttributes( { signupFieldValue: value } ) }
+					/>
+					<ExternalLink href="https://mailchimp.com/help/determine-webpage-signup-location/">
+						{ __( 'Learn about signup location tracking', 'jetpack' ) }
+					</ExternalLink>
 				</PanelBody>
 				<PanelBody title={ __( 'Mailchimp Connection', 'jetpack' ) }>
 					<ExternalLink href={ connectURL }>{ __( 'Manage Connection', 'jetpack' ) }</ExternalLink>
@@ -220,13 +268,16 @@ class MailchimpSubscribeEdit extends Component {
 				) }
 			</div>
 		);
+		const previewUI = blockContent;
+
 		return (
 			<Fragment>
 				{ noticeUI }
-				{ connected === API_STATE_LOADING && waiting }
-				{ connected === API_STATE_NOTCONNECTED && placeholder }
-				{ connected === API_STATE_CONNECTED && inspectorControls }
-				{ connected === API_STATE_CONNECTED && blockContent }
+				{ preview && previewUI }
+				{ ! preview && connected === API_STATE_LOADING && waiting }
+				{ ! preview && connected === API_STATE_NOTCONNECTED && placeholder }
+				{ ! preview && connected === API_STATE_CONNECTED && inspectorControls }
+				{ ! preview && connected === API_STATE_CONNECTED && blockContent }
 			</Fragment>
 		);
 	};

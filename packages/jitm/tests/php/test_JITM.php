@@ -10,6 +10,7 @@ use PHPUnit\Framework\TestCase;
 
 class Test_Jetpack_JITM extends TestCase {
 	public function setUp() {
+		$this->mock_add_get_current_screen();
 		$this->mock_add_action();
 		$this->mock_do_action();
 		$this->mock_wp_enqueue_script();
@@ -97,8 +98,7 @@ class Test_Jetpack_JITM extends TestCase {
 		$builder->setNamespace( __NAMESPACE__ )
 			->setName( 'apply_filters' )
 			->setFunction(
-				function() {
-					$current_args = func_get_args();
+				function( ...$current_args ) {
 					foreach ( $this->mocked_filters as $filter ) {
 						if ( array_slice( $filter, 0, -1 ) === $current_args ) {
 							return array_pop( $filter );
@@ -113,6 +113,16 @@ class Test_Jetpack_JITM extends TestCase {
 	protected function clear_mock_filters() {
 		$this->apply_filters_mock->disable();
 		unset( $this->mocked_filters );
+	}
+
+	protected function mock_add_get_current_screen() {
+		$builder = new MockBuilder();
+		$builder->setNamespace( __NAMESPACE__ )
+			->setName( 'get_current_screen' )
+			->setFunction( function() {
+				return new \stdClass;
+			} );
+		$builder->build()->enable();
 	}
 
 	protected function mock_add_action() {
@@ -140,9 +150,8 @@ class Test_Jetpack_JITM extends TestCase {
 		$builder = new MockBuilder();
 		$builder->setNamespace( __NAMESPACE__ )
 			->setName( 'do_action' )
-			->setFunction( function() {
+			->setFunction( function( ...$args ) {
 				global $actions;
-				$args = func_get_args();
 				$name = array_shift( $args );
 
 				if ( is_null( $actions ) ) {

@@ -1,33 +1,56 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Installs and activates the WooCommerce Services plugin.
+ */
 class WC_Services_Installer {
 
 	/**
+	 * The instance of the Jetpack class.
+	 *
 	 * @var Jetpack
-	 **/
+	 */
 	private $jetpack;
 
 	/**
+	 * The singleton instance of this class.
+	 *
 	 * @var WC_Services_Installer
-	 **/
+	 */
 	private static $instance = null;
 
-	static function init() {
+	/**
+	 * Returns the singleton instance of this class.
+	 *
+	 * @return object The WC_Services_Installer object.
+	 */
+	public static function init() {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new WC_Services_Installer();
 		}
 		return self::$instance;
 	}
 
+	/**
+	 * Constructor
+	 */
 	public function __construct() {
-		$this->jetpack = Jetpack::init();
-
+		add_action( 'jetpack_loaded', array( $this, 'on_jetpack_loaded' ) );
 		add_action( 'admin_init', array( $this, 'add_error_notice' ) );
 		add_action( 'admin_init', array( $this, 'try_install' ) );
+	}
+
+	/**
+	 * Runs on Jetpack being ready to load its packages.
+	 *
+	 * @param Jetpack $jetpack object.
+	 */
+	public function on_jetpack_loaded( $jetpack ) {
+		$this->jetpack = $jetpack;
 	}
 
 	/**
@@ -60,7 +83,11 @@ class WC_Services_Installer {
 				break;
 		}
 
-		$redirect = isset( $_GET['redirect'] ) ? admin_url( $_GET['redirect'] ) : wp_get_referer();
+		if ( isset( $_GET['redirect'] ) ) {
+			$redirect = home_url( esc_url_raw( wp_unslash( $_GET['redirect'] ) ) );
+		} else {
+			$redirect = admin_url();
+		}
 
 		if ( $result ) {
 			$this->jetpack->stat( 'jitm', 'wooservices-activated-' . JETPACK__VERSION );
@@ -77,7 +104,7 @@ class WC_Services_Installer {
 	 * Set up installation error admin notice.
 	 */
 	public function add_error_notice() {
-		if ( ! empty( $_GET['wc-services-install-error'] ) ) {
+		if ( ! empty( $_GET['wc-services-install-error'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			add_action( 'admin_notices', array( $this, 'error_notice' ) );
 		}
 	}
@@ -88,7 +115,7 @@ class WC_Services_Installer {
 	public function error_notice() {
 		?>
 		<div class="notice notice-error is-dismissible">
-			<p><?php _e( 'There was an error installing WooCommerce Services.', 'jetpack' ); ?></p>
+			<p><?php esc_html_e( 'There was an error installing WooCommerce Services.', 'jetpack' ); ?></p>
 		</div>
 		<?php
 	}
@@ -99,11 +126,11 @@ class WC_Services_Installer {
 	 * @return bool result of installation
 	 */
 	private function install() {
-		include_once( ABSPATH . '/wp-admin/includes/admin.php' );
-		include_once( ABSPATH . '/wp-admin/includes/plugin-install.php' );
-		include_once( ABSPATH . '/wp-admin/includes/plugin.php' );
-		include_once( ABSPATH . '/wp-admin/includes/class-wp-upgrader.php' );
-		include_once( ABSPATH . '/wp-admin/includes/class-plugin-upgrader.php' );
+		include_once ABSPATH . '/wp-admin/includes/admin.php';
+		include_once ABSPATH . '/wp-admin/includes/plugin-install.php';
+		include_once ABSPATH . '/wp-admin/includes/plugin.php';
+		include_once ABSPATH . '/wp-admin/includes/class-wp-upgrader.php';
+		include_once ABSPATH . '/wp-admin/includes/class-plugin-upgrader.php';
 
 		$api = plugins_api( 'plugin_information', array( 'slug' => 'woocommerce-services' ) );
 
@@ -125,7 +152,7 @@ class WC_Services_Installer {
 	private function activate() {
 		$result = activate_plugin( 'woocommerce-services/woocommerce-services.php' );
 
-		// activate_plugin() returns null on success
+		// Activate_plugin() returns null on success.
 		return is_null( $result );
 	}
 }

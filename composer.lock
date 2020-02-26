@@ -4,11 +4,11 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "bacc30aa6929a0ba176b0a01ecc6bfa7",
+    "content-hash": "62e7741dab7ed63d186fc1ad40a9adfe",
     "packages": [
         {
             "name": "automattic/jetpack-abtest",
-            "version": "dev-master",
+            "version": "dev-retry/phpcs-changed",
             "dist": {
                 "type": "path",
                 "url": "./packages/abtest",
@@ -42,7 +42,7 @@
         },
         {
             "name": "automattic/jetpack-assets",
-            "version": "dev-master",
+            "version": "dev-retry/phpcs-changed",
             "dist": {
                 "type": "path",
                 "url": "./packages/assets",
@@ -75,7 +75,7 @@
         },
         {
             "name": "automattic/jetpack-autoloader",
-            "version": "dev-master",
+            "version": "dev-retry/phpcs-changed",
             "dist": {
                 "type": "path",
                 "url": "./packages/autoloader",
@@ -109,8 +109,31 @@
             "description": "Creates a custom autoloader for a plugin or theme."
         },
         {
+            "name": "automattic/jetpack-backup",
+            "version": "dev-retry/phpcs-changed",
+            "dist": {
+                "type": "path",
+                "url": "./packages/backup",
+                "reference": "3dd44f29c9c6ab41cc2492675078ba8b808caea7",
+                "shasum": null
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "actions.php"
+                ],
+                "psr-4": {
+                    "Automattic\\Jetpack\\Backup\\": "src/"
+                }
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Tools to assist with backing up Jetpack sites."
+        },
+        {
             "name": "automattic/jetpack-compat",
-            "version": "dev-master",
+            "version": "dev-retry/phpcs-changed",
             "dist": {
                 "type": "path",
                 "url": "./packages/compat",
@@ -142,8 +165,28 @@
             "description": "Compatibility layer with previous versions of Jetpack"
         },
         {
+            "name": "automattic/jetpack-config",
+            "version": "dev-add/deterministic-init",
+            "dist": {
+                "type": "path",
+                "url": "./packages/config",
+                "reference": "09edd078205d6fee2f8a46eaf0f736fd4ade1473",
+                "shasum": null
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Jetpack configuration package that initializes other packages and configures Jetpack's functionality. Can be used as a base for all variants of Jetpack package usage."
+        },
+        {
             "name": "automattic/jetpack-connection",
-            "version": "dev-master",
+            "version": "dev-retry/phpcs-changed",
             "dist": {
                 "type": "path",
                 "url": "./packages/connection",
@@ -183,7 +226,7 @@
         },
         {
             "name": "automattic/jetpack-constants",
-            "version": "dev-master",
+            "version": "dev-retry/phpcs-changed",
             "dist": {
                 "type": "path",
                 "url": "./packages/constants",
@@ -212,7 +255,7 @@
         },
         {
             "name": "automattic/jetpack-error",
-            "version": "dev-master",
+            "version": "dev-retry/phpcs-changed",
             "dist": {
                 "type": "path",
                 "url": "./packages/error",
@@ -241,7 +284,7 @@
         },
         {
             "name": "automattic/jetpack-jitm",
-            "version": "dev-master",
+            "version": "dev-retry/phpcs-changed",
             "dist": {
                 "type": "path",
                 "url": "./packages/jitm",
@@ -280,7 +323,7 @@
         },
         {
             "name": "automattic/jetpack-logo",
-            "version": "dev-master",
+            "version": "dev-retry/phpcs-changed",
             "dist": {
                 "type": "path",
                 "url": "./packages/logo",
@@ -310,7 +353,7 @@
         },
         {
             "name": "automattic/jetpack-options",
-            "version": "dev-master",
+            "version": "dev-retry/phpcs-changed",
             "dist": {
                 "type": "path",
                 "url": "./packages/options",
@@ -336,8 +379,40 @@
             "description": "A wrapper for wp-options to manage specific Jetpack options."
         },
         {
+            "name": "automattic/jetpack-partner",
+            "version": "dev-add/upgrade-url-subsidiary-id",
+            "dist": {
+                "type": "path",
+                "url": "./packages/partner",
+                "reference": "d0174e06e76927cefcedcded30c38405357ddea6",
+                "shasum": null
+            },
+            "require-dev": {
+                "brain/monkey": "^2.4",
+                "mockery/mockery": "^1.2",
+                "php-mock/php-mock": "^2.1",
+                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Support functions for Jetpack hosting partners."
+        },
+        {
             "name": "automattic/jetpack-roles",
-            "version": "dev-master",
+            "version": "dev-retry/phpcs-changed",
             "dist": {
                 "type": "path",
                 "url": "./packages/roles",
@@ -367,7 +442,7 @@
         },
         {
             "name": "automattic/jetpack-status",
-            "version": "dev-master",
+            "version": "dev-retry/phpcs-changed",
             "dist": {
                 "type": "path",
                 "url": "./packages/status",
@@ -397,7 +472,7 @@
         },
         {
             "name": "automattic/jetpack-sync",
-            "version": "dev-master",
+            "version": "dev-retry/phpcs-changed",
             "dist": {
                 "type": "path",
                 "url": "./packages/sync",
@@ -424,16 +499,52 @@
             "description": "Everything needed to allow syncing to the WP.com infrastructure."
         },
         {
-            "name": "automattic/jetpack-tracking",
-            "version": "dev-master",
+            "name": "automattic/jetpack-terms-of-service",
+            "version": "dev-retry/phpcs-changed",
             "dist": {
                 "type": "path",
-                "url": "./packages/tracking",
-                "reference": "b2c79c42a8ccd728db9450818aa95fd6d51afc85",
+                "url": "./packages/terms-of-service",
+                "reference": "6f53f2987be1c025edcd7820759df50c134065e6",
                 "shasum": null
             },
             "require": {
-                "automattic/jetpack-options": "@dev"
+                "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-options": "@dev",
+                "automattic/jetpack-status": "@dev"
+            },
+            "require-dev": {
+                "php-mock/php-mock": "^2.1",
+                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Automattic\\Jetpack\\": "src/"
+                }
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Everything need to manage the terms of service state"
+        },
+        {
+            "name": "automattic/jetpack-tracking",
+            "version": "dev-retry/phpcs-changed",
+            "dist": {
+                "type": "path",
+                "url": "./packages/tracking",
+                "reference": "fd194dfc4f01a66de9c5b9caf239cdd806a8d3eb",
+                "shasum": null
+            },
+            "require": {
+                "automattic/jetpack-options": "@dev",
+                "automattic/jetpack-terms-of-service": "@dev"
             },
             "require-dev": {
                 "php-mock/php-mock": "^2.1",
@@ -463,16 +574,16 @@
     "packages-dev": [
         {
             "name": "dealerdirect/phpcodesniffer-composer-installer",
-            "version": "v0.5.0",
+            "version": "v0.6.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Dealerdirect/phpcodesniffer-composer-installer.git",
-                "reference": "e749410375ff6fb7a040a68878c656c2e610b132"
+                "reference": "8001af8eb107fbfcedc31a8b51e20b07d85b457a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Dealerdirect/phpcodesniffer-composer-installer/zipball/e749410375ff6fb7a040a68878c656c2e610b132",
-                "reference": "e749410375ff6fb7a040a68878c656c2e610b132",
+                "url": "https://api.github.com/repos/Dealerdirect/phpcodesniffer-composer-installer/zipball/8001af8eb107fbfcedc31a8b51e20b07d85b457a",
+                "reference": "8001af8eb107fbfcedc31a8b51e20b07d85b457a",
                 "shasum": ""
             },
             "require": {
@@ -525,20 +636,20 @@
                 "stylecheck",
                 "tests"
             ],
-            "time": "2018-10-26T13:21:45+00:00"
+            "time": "2020-01-29T20:22:20+00:00"
         },
         {
             "name": "phpcompatibility/php-compatibility",
-            "version": "9.3.1",
+            "version": "9.3.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPCompatibility/PHPCompatibility.git",
-                "reference": "9999344e47e7af6b00e1a898eacc4e4368fb7196"
+                "reference": "1f37659196e4f3113ea506a7efba201c52303bf1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPCompatibility/PHPCompatibility/zipball/9999344e47e7af6b00e1a898eacc4e4368fb7196",
-                "reference": "9999344e47e7af6b00e1a898eacc4e4368fb7196",
+                "url": "https://api.github.com/repos/PHPCompatibility/PHPCompatibility/zipball/1f37659196e4f3113ea506a7efba201c52303bf1",
+                "reference": "1f37659196e4f3113ea506a7efba201c52303bf1",
                 "shasum": ""
             },
             "require": {
@@ -583,20 +694,20 @@
                 "phpcs",
                 "standards"
             ],
-            "time": "2019-09-05T18:36:49+00:00"
+            "time": "2019-11-15T04:12:02+00:00"
         },
         {
             "name": "phpcompatibility/phpcompatibility-paragonie",
-            "version": "1.1.0",
+            "version": "1.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPCompatibility/PHPCompatibilityParagonie.git",
-                "reference": "b1bb79a7cab1fb856b56f1b5cf110b6e52d8e936"
+                "reference": "b862bc32f7e860d0b164b199bd995e690b4b191c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPCompatibility/PHPCompatibilityParagonie/zipball/b1bb79a7cab1fb856b56f1b5cf110b6e52d8e936",
-                "reference": "b1bb79a7cab1fb856b56f1b5cf110b6e52d8e936",
+                "url": "https://api.github.com/repos/PHPCompatibility/PHPCompatibilityParagonie/zipball/b862bc32f7e860d0b164b199bd995e690b4b191c",
+                "reference": "b862bc32f7e860d0b164b199bd995e690b4b191c",
                 "shasum": ""
             },
             "require": {
@@ -635,7 +746,7 @@
                 "polyfill",
                 "standards"
             ],
-            "time": "2019-08-28T15:58:19+00:00"
+            "time": "2019-11-04T15:17:54+00:00"
         },
         {
             "name": "phpcompatibility/phpcompatibility-wp",
@@ -688,29 +799,83 @@
             "time": "2019-08-28T14:22:28+00:00"
         },
         {
-            "name": "sirbrillig/phpcs-variable-analysis",
-            "version": "v2.7.0",
+            "name": "sirbrillig/phpcs-changed",
+            "version": "v2.2.7",
             "source": {
                 "type": "git",
-                "url": "https://github.com/sirbrillig/phpcs-variable-analysis.git",
-                "reference": "1b1b2b503a19bb56fa75f4a2d959b12c8ed28c12"
+                "url": "https://github.com/sirbrillig/phpcs-changed.git",
+                "reference": "4fd30eda5c91862ea28023c2762d3b57aae8f5e4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sirbrillig/phpcs-variable-analysis/zipball/1b1b2b503a19bb56fa75f4a2d959b12c8ed28c12",
-                "reference": "1b1b2b503a19bb56fa75f4a2d959b12c8ed28c12",
+                "url": "https://api.github.com/repos/sirbrillig/phpcs-changed/zipball/4fd30eda5c91862ea28023c2762d3b57aae8f5e4",
+                "reference": "4fd30eda5c91862ea28023c2762d3b57aae8f5e4",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.6.0"
+                "php": "^7.1"
             },
             "require-dev": {
                 "dealerdirect/phpcodesniffer-composer-installer": "^0.4.4",
                 "limedeck/phpunit-detailed-printer": "^3.1",
-                "phpstan/phpstan": "^0.11.8",
-                "phpunit/phpunit": "^6.5",
-                "sirbrillig/phpcs-import-detection": "^1.1",
+                "phpstan/phpstan": "^0.11.12",
+                "phpunit/phpunit": "^6.4",
+                "sirbrillig/phpcs-import-detection": "^1.1.1",
+                "sirbrillig/phpcs-variable-analysis": "^2.1.3",
+                "squizlabs/php_codesniffer": "^3.2.1"
+            },
+            "bin": [
+                "bin/phpcs-changed"
+            ],
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "PhpcsChanged\\": "PhpcsChanged/"
+                },
+                "files": [
+                    "PhpcsChanged/Cli.php",
+                    "PhpcsChanged/SvnWorkflow.php",
+                    "PhpcsChanged/GitWorkflow.php",
+                    "PhpcsChanged/functions.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Payton Swick",
+                    "email": "payton@foolord.com"
+                }
+            ],
+            "description": "Run phpcs on files, but only report warnings/errors from lines which were changed.",
+            "time": "2019-11-21T17:09:44+00:00"
+        },
+        {
+            "name": "sirbrillig/phpcs-variable-analysis",
+            "version": "v2.8.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/sirbrillig/phpcs-variable-analysis.git",
+                "reference": "5be26b4d719acaf7a433d1cad469159cbf034f2a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/sirbrillig/phpcs-variable-analysis/zipball/5be26b4d719acaf7a433d1cad469159cbf034f2a",
+                "reference": "5be26b4d719acaf7a433d1cad469159cbf034f2a",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.6.0",
                 "squizlabs/php_codesniffer": "^3.1"
+            },
+            "require-dev": {
+                "dealerdirect/phpcodesniffer-composer-installer": "^0.4.4 || ^0.5 || ^0.6",
+                "limedeck/phpunit-detailed-printer": "^3.1",
+                "phpstan/phpstan": "^0.11.8",
+                "phpunit/phpunit": "^5.0 || ^6.5",
+                "sirbrillig/phpcs-import-detection": "^1.1"
             },
             "type": "phpcodesniffer-standard",
             "autoload": {
@@ -724,29 +889,29 @@
             ],
             "authors": [
                 {
-                    "name": "Payton Swick",
-                    "email": "payton@foolord.com"
-                },
-                {
                     "name": "Sam Graham",
                     "email": "php-codesniffer-variableanalysis@illusori.co.uk"
+                },
+                {
+                    "name": "Payton Swick",
+                    "email": "payton@foolord.com"
                 }
             ],
             "description": "A PHPCS sniff to detect problems with variables.",
-            "time": "2019-06-24T23:57:11+00:00"
+            "time": "2020-02-11T22:18:48+00:00"
         },
         {
             "name": "squizlabs/php_codesniffer",
-            "version": "3.5.0",
+            "version": "3.5.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/squizlabs/PHP_CodeSniffer.git",
-                "reference": "0afebf16a2e7f1e434920fa976253576151effe9"
+                "reference": "dceec07328401de6211037abbb18bda423677e26"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/0afebf16a2e7f1e434920fa976253576151effe9",
-                "reference": "0afebf16a2e7f1e434920fa976253576151effe9",
+                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/dceec07328401de6211037abbb18bda423677e26",
+                "reference": "dceec07328401de6211037abbb18bda423677e26",
                 "shasum": ""
             },
             "require": {
@@ -784,20 +949,20 @@
                 "phpcs",
                 "standards"
             ],
-            "time": "2019-09-26T23:12:26+00:00"
+            "time": "2020-01-30T22:20:29+00:00"
         },
         {
             "name": "wp-coding-standards/wpcs",
-            "version": "2.1.1",
+            "version": "2.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/WordPress/WordPress-Coding-Standards.git",
-                "reference": "bd9c33152115e6741e3510ff7189605b35167908"
+                "reference": "b5a453203114cc2284b1a614c4953456fbe4f546"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/WordPress/WordPress-Coding-Standards/zipball/bd9c33152115e6741e3510ff7189605b35167908",
-                "reference": "bd9c33152115e6741e3510ff7189605b35167908",
+                "url": "https://api.github.com/repos/WordPress/WordPress-Coding-Standards/zipball/b5a453203114cc2284b1a614c4953456fbe4f546",
+                "reference": "b5a453203114cc2284b1a614c4953456fbe4f546",
                 "shasum": ""
             },
             "require": {
@@ -805,12 +970,12 @@
                 "squizlabs/php_codesniffer": "^3.3.1"
             },
             "require-dev": {
-                "dealerdirect/phpcodesniffer-composer-installer": "^0.5.0",
+                "dealerdirect/phpcodesniffer-composer-installer": "^0.5 || ^0.6",
                 "phpcompatibility/php-compatibility": "^9.0",
                 "phpunit/phpunit": "^4.0 || ^5.0 || ^6.0 || ^7.0"
             },
             "suggest": {
-                "dealerdirect/phpcodesniffer-composer-installer": "^0.5.0 || This Composer plugin will sort out the PHPCS 'installed_paths' automatically."
+                "dealerdirect/phpcodesniffer-composer-installer": "^0.6 || This Composer plugin will sort out the PHPCS 'installed_paths' automatically."
             },
             "type": "phpcodesniffer-standard",
             "notification-url": "https://packagist.org/downloads/",
@@ -820,7 +985,7 @@
             "authors": [
                 {
                     "name": "Contributors",
-                    "homepage": "https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards/graphs/contributors"
+                    "homepage": "https://github.com/WordPress/WordPress-Coding-Standards/graphs/contributors"
                 }
             ],
             "description": "PHP_CodeSniffer rules (sniffs) to enforce WordPress coding conventions",
@@ -829,32 +994,37 @@
                 "standards",
                 "wordpress"
             ],
-            "time": "2019-05-21T02:50:00+00:00"
+            "time": "2020-02-04T02:52:06+00:00"
         }
     ],
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
         "automattic/jetpack-abtest": 20,
+        "automattic/jetpack-assets": 20,
+        "automattic/jetpack-autoloader": 20,
+        "automattic/jetpack-backup": 20,
+        "automattic/jetpack-compat": 20,
+        "automattic/jetpack-config": 20,
         "automattic/jetpack-connection": 20,
-        "automattic/jetpack-options": 20,
-        "automattic/jetpack-logo": 20,
         "automattic/jetpack-constants": 20,
         "automattic/jetpack-error": 20,
         "automattic/jetpack-jitm": 20,
-        "automattic/jetpack-assets": 20,
+        "automattic/jetpack-logo": 20,
+        "automattic/jetpack-options": 20,
+        "automattic/jetpack-partner": 20,
         "automattic/jetpack-roles": 20,
+        "automattic/jetpack-status": 20,
         "automattic/jetpack-sync": 20,
-        "automattic/jetpack-tracking": 20,
-        "automattic/jetpack-autoloader": 20,
-        "automattic/jetpack-compat": 20
+        "automattic/jetpack-terms-of-service": 20,
+        "automattic/jetpack-tracking": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
-        "ext-openssl": "*",
         "ext-fileinfo": "*",
-        "ext-json": "*"
+        "ext-json": "*",
+        "ext-openssl": "*"
     },
     "platform-dev": []
 }

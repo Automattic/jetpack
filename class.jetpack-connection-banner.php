@@ -154,7 +154,7 @@ class Jetpack_Connection_Banner {
 			)
 		);
 
-		$jetpackApiUrl = parse_url( Jetpack::connection()->api_url( '' ) );
+		$jetpackApiUrl = wp_parse_url( Jetpack::connection()->api_url( '' ) );
 
 		// Due to the limitation in how 3rd party cookies are handled in Safari,
 		// we're falling back to the original flow on Safari desktop and mobile.
@@ -167,6 +167,9 @@ class Jetpack_Connection_Banner {
 		} else {
 			$force_variation = null;
 		}
+
+		$tracking = new Automattic\Jetpack\Tracking();
+		$identity = $tracking->tracks_get_identity( get_current_user_id() );
 
 		wp_localize_script(
 			'jetpack-connect-button',
@@ -182,6 +185,8 @@ class Jetpack_Connection_Banner {
 				'connectInPlaceUrl'     => Jetpack::admin_url( 'page=jetpack#/setup' ),
 				'dashboardUrl'          => Jetpack::admin_url( 'page=jetpack#/dashboard' ),
 				'plansPromptUrl'        => Jetpack::admin_url( 'page=jetpack#/plans-prompt' ),
+				'identity'              => $identity,
+				'preFetchScript'        => plugins_url( '_inc/build/admin.js', JETPACK__PLUGIN_FILE ) . '?ver=' . JETPACK__VERSION,
 			)
 		);
 	}

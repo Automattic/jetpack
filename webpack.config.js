@@ -4,7 +4,7 @@
 const getBaseWebpackConfig = require( '@automattic/calypso-build/webpack.config.js' );
 const path = require( 'path' );
 const StaticSiteGeneratorPlugin = require( 'static-site-generator-webpack-plugin' );
-const WordPressExternalDependenciesPlugin = require( '@automattic/wordpress-external-dependencies-plugin' );
+const DependencyExtractionWebpackPlugin = require( '@wordpress/dependency-extraction-webpack-plugin' );
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -38,7 +38,10 @@ module.exports = [
 		// that is used to generate the script file.
 		// The key is used as the name of the script.
 		entry: { admin: path.join( __dirname, './_inc/client/admin.js' ) },
-		plugins: [ ...sharedWebpackConfig.plugins, new WordPressExternalDependenciesPlugin() ],
+		plugins: [
+			...sharedWebpackConfig.plugins,
+			new DependencyExtractionWebpackPlugin( { injectPolyfill: true } ),
+		],
 	},
 	{
 		...sharedWebpackConfig,
@@ -73,25 +76,5 @@ module.exports = [
 				},
 			} ),
 		],
-	},
-	{
-		...sharedWebpackConfig,
-		entry: { search: path.join( __dirname, './modules/search/instant-search/index.jsx' ) },
-		output: {
-			...sharedWebpackConfig.output,
-			path: path.join( __dirname, '_inc/build/instant-search' ),
-			filename: 'jp-search.bundle.js',
-		},
-		performance: isDevelopment
-			? {
-					maxAssetSize: 120000,
-					maxEntrypointSize: 120000,
-					hints: 'error',
-			  }
-			: {
-					maxAssetSize: 32000,
-					maxEntrypointSize: 32000,
-					hints: 'error',
-			  },
 	},
 ];

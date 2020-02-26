@@ -14,7 +14,7 @@ export default name =>
 		BlockListBlock => props => (
 			<BlockListBlock
 				{ ...props }
-				className={ props.name === name ? 'has-warning is-interactive' : '' }
+				className={ props.name === name ? 'has-warning is-interactive' : props.className }
 			/>
 		),
 		'withHasWarningIsInteractiveClassNames'

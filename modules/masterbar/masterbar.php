@@ -1,6 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Connection\Client;
 
 require_once dirname( __FILE__ ) . '/rtl-admin-bar.php';
 
@@ -428,7 +429,7 @@ class A8C_WPCOM_Masterbar {
 
 		$following_title = $this->create_menu_item_pair(
 			array(
-				'url'   => 'https://wordpress.com/',
+				'url'   => 'https://wordpress.com/read',
 				'id'    => 'wp-admin-bar-followed-sites',
 				'label' => esc_html__( 'Followed Sites', 'jetpack' ),
 			),
@@ -865,6 +866,8 @@ class A8C_WPCOM_Masterbar {
 				)
 			);
 		}
+
+		$this->add_my_home_submenu_item( $wp_admin_bar );
 
 		// Stats.
 		if ( Jetpack::is_module_active( 'stats' ) && current_user_can( 'view_stats' ) ) {
@@ -1324,6 +1327,66 @@ class A8C_WPCOM_Masterbar {
 			 * @since 5.4.0
 			 */
 			do_action( 'jetpack_masterbar' );
+		}
+	}
+
+	/**
+	 * Calls the wpcom API to get the creation date of the site
+	 * and determine if it's eligible for the 'My Home' page.
+	 *
+	 * @return bool Whether the site has 'My Home' enabled.
+	 */
+	private function is_my_home_enabled() {
+		$my_home_enabled = get_transient( 'jetpack_my_home_enabled' );
+
+		if ( false === $my_home_enabled ) {
+			$site_id       = Jetpack_Options::get_option( 'id' );
+			$site_response = Client::wpcom_json_api_request_as_blog(
+				sprintf( '/sites/%d', $site_id ) . '?force=wpcom&options=created_at',
+				'1.1'
+			);
+
+			if ( is_wp_error( $site_response ) ) {
+				return false;
+			}
+
+			$site_data = json_decode( wp_remote_retrieve_body( $site_response ) );
+
+			$my_home_enabled = $site_data &&
+					isset( $site_data->options->created_at ) &&
+					( new Datetime( '2019-08-06 00:00:00.000' ) ) <= ( new Datetime( $site_data->options->created_at ) )
+				? 1
+				: 0;
+
+			set_transient( 'jetpack_my_home_enabled', $my_home_enabled );
+		}
+
+		return (bool) $my_home_enabled;
+	}
+
+	/**
+	 * Adds "My Home" submenu item to sites that are eligible.
+	 *
+	 * @param WP_Admin_Bar $wp_admin_bar Admin Bar instance.
+	 * @return void
+	 */
+	private function add_my_home_submenu_item( &$wp_admin_bar ) {
+		if ( ! current_user_can( 'manage_options' ) || ! jetpack_is_atomic_site() ) {
+			return;
+		}
+
+		if ( $this->is_my_home_enabled() ) {
+			$wp_admin_bar->add_menu(
+				array(
+					'parent' => 'blog',
+					'id'     => 'my-home',
+					'title'  => __( 'My Home', 'jetpack' ),
+					'href'   => 'https://wordpress.com/home/' . esc_attr( $this->primary_site_slug ),
+					'meta'   => array(
+						'class' => 'mb-icon',
+					),
+				)
+			);
 		}
 	}
 }

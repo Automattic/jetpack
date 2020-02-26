@@ -1,31 +1,27 @@
 /**
  * External dependencies
  */
-import React from 'react';
-import { connect } from 'react-redux';
+import React, { Fragment } from 'react';
 
 /**
  * Internal dependencies
  */
-import { getSiteConnectionStatus } from 'state/connection';
-import PlanGrid from './plan-grid';
+import QueryProducts from 'components/data/query-products';
 import QuerySite from 'components/data/query-site';
+import PlanGrid from './plan-grid';
+import ProductSelector from './product-selector';
 
 export class Plans extends React.Component {
 	render() {
 		return (
-			<div>
+			<Fragment>
+				<QueryProducts />
 				<QuerySite />
-				<div>
-					<PlanGrid />
-				</div>
-			</div>
+				<PlanGrid />
+				<ProductSelector />
+			</Fragment>
 		);
 	}
 }
 
-export default connect( state => {
-	return {
-		getSiteConnectionStatus: () => getSiteConnectionStatus( state ),
-	};
-} )( Plans );
+export default Plans;

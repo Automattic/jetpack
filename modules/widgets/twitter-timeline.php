@@ -123,7 +123,6 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 			'width',
 			'height',
 			'theme',
-			'link-color',
 			'border-color',
 			'tweet-limit',
 			'lang',
@@ -258,12 +257,9 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 
 		$instance['widget-id'] = sanitize_text_field( $new_instance['widget-id'] );
 
-		$hex_regex = '/#([a-f]|[A-F]|[0-9]){3}(([a-f]|[A-F]|[0-9]){3})?\b/';
-		foreach ( array( 'link-color', 'border-color' ) as $color ) {
-			$new_color = sanitize_text_field( $new_instance[ $color ] );
-			if ( preg_match( $hex_regex, $new_color ) ) {
-				$instance[ $color ] = $new_color;
-			}
+		$new_border_color = sanitize_hex_color( $new_instance['border-color'] );
+		if ( ! empty( $new_border_color ) ) {
+			$instance['border-color'] = $new_border_color;
 		}
 
 		$instance['type'] = 'profile';
@@ -319,7 +315,6 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 			'height'       => '400',
 			'type'         => 'profile',
 			'widget-id'    => '',
-			'link-color'   => '#f96e5b',
 			'border-color' => '#e8e8e8',
 			'theme'        => 'light',
 			'chrome'       => array(),
@@ -455,19 +450,6 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 			<label for="<?php echo $this->get_field_id( 'chrome-transparent' ); ?>">
 				<?php esc_html_e( 'Transparent Background', 'jetpack' ); ?>
 			</label>
-		</p>
-
-		<p>
-			<label for="<?php echo $this->get_field_id( 'link-color' ); ?>">
-				<?php _e( 'Link Color (hex):', 'jetpack' ); ?>
-			</label>
-			<input
-				class="widefat"
-				id="<?php echo $this->get_field_id( 'link-color' ); ?>"
-				name="<?php echo $this->get_field_name( 'link-color' ); ?>"
-				type="text"
-				value="<?php echo esc_attr( $instance['link-color'] ); ?>"
-			/>
 		</p>
 
 		<p>

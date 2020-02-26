@@ -172,6 +172,10 @@ export class Footer extends React.Component {
 			? this.props.siteAdminUrl + 'admin.php?page=jetpack_about'
 			: 'https://jetpack.com';
 
+		const privacyUrl = this.props.siteConnectionStatus
+			? this.props.siteAdminUrl + 'admin.php?page=jetpack#/privacy'
+			: 'https://automattic.com/privacy/';
+
 		return (
 			<div className={ classes }>
 				<div className="jp-footer__a8c-attr-container">
@@ -230,7 +234,7 @@ export class Footer extends React.Component {
 					<li className="jp-footer__link-item">
 						<a
 							onClick={ this.trackPrivacyClick }
-							href="#/privacy"
+							href={ privacyUrl }
 							rel="noopener noreferrer"
 							title={ __( "Automattic's Privacy Policy" ) }
 							className="jp-footer__link"

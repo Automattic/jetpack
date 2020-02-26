@@ -158,7 +158,7 @@ class Jetpack_Likes {
 	static function is_post_likeable( $post_id = 0 ) {
 		_deprecated_function( __METHOD__, 'jetpack-5.4', 'Jetpack_Likes_Settings()->is_post_likeable' );
 		$settings = new Jetpack_Likes_Settings();
-		return $settings->is_post_likeable();
+		return $settings->is_post_likeable( $post_id );
 	}
 
 	/**
