@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { Button } from '@wordpress/components';
 import { createBlobURL } from '@wordpress/blob';
 import { createBlock } from '@wordpress/blocks';
 import { mediaUpload } from '@wordpress/editor';
@@ -32,13 +33,23 @@ const videoPressNoPlanMediaPlaceholder = createHigherOrderComponent(
 				{ ...props }
 				disableDropZone={ true }
 				className="no-videopress-media-placeholder"
-				labels={ {
-					instructions: __(
-						'Insert a video from a URL. To upload a video file please purchase a paid plan using the upgrade button above.',
-						'jetpack'
-					),
-				} }
-			/>
+			>
+				<Button
+					disabled={ true }
+					className="components-button no-videopress-disabled-button"
+					isTertiary
+				>
+					{ __( 'Media Library', 'jetpack' ) }
+				</Button>
+
+				<Button
+					disabled={ true }
+					className="components-button no-videopress-disabled-button"
+					isPrimary
+				>
+					{ __( 'Upload', 'jetpack' ) }
+				</Button>
+			</OriginalPlaceholder>
 		);
 	},
 	'videoPressNoPlanMediaPlaceholder'
