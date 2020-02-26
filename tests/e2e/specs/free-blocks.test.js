@@ -7,7 +7,7 @@ import { connectThroughWPAdminIfNeeded } from '../lib/flows/jetpack-connect';
 import { resetWordpressInstall, getNgrokSiteUrl, activateModule } from '../lib/utils-helper';
 import PinterestBlock from '../lib/blocks/pinterest';
 
-describe( 'Paid blocks', () => {
+describe( 'Free blocks', () => {
 	beforeAll( async () => {
 		await resetWordpressInstall();
 		const url = getNgrokSiteUrl();
@@ -36,6 +36,26 @@ describe( 'Paid blocks', () => {
 
 			const frontend = await PostFrontendPage.init( page );
 			await frontend.isRenderedBlockPresent( PinterestBlock );
+		} );
+	} );
+
+	describe( 'Eventbrite block', () => {
+		it( 'Can publish a post with a Eventbrite block', async () => {
+			const blockEditor = await BlockEditorPage.visit( page );
+			const blockInfo = await blockEditor.insertBlock(
+				EventbriteBlock.name(),
+				EventbriteBlock.title()
+			);
+
+			const eventbriteBlock = new EventbriteBlock( blockInfo, page );
+			await eventbriteBlock.addEmbed();
+
+			await blockEditor.focus();
+			await blockEditor.publishPost();
+			await blockEditor.viewPost();
+
+			const frontend = await PostFrontendPage.init( page );
+			await frontend.isRenderedBlockPresent( EventbriteBlock );
 		} );
 	} );
 } );
