@@ -28,24 +28,35 @@ function handleIframeResult( eventFromIframe ) {
 	}
 }
 
+function whenScrollToFinished( callback ) {
+	const checkIfScrollToIsFinished = setInterval( () => {
+		if ( 0 === window.pageYOffset ) {
+			clearInterval( checkIfScrollToIsFinished );
+			callback();
+		}
+	}, 25 );
+}
+
 function activateSubscription( block, blogId, planId, lang ) {
 	block.addEventListener( 'click', () => {
 		window.scrollTo( 0, 0 );
-		tb_show(
-			null,
-			'https://subscribe.wordpress.com/memberships/?blog=' +
-				blogId +
-				'&plan=' +
-				planId +
-				'&lang=' +
-				lang +
-				'&display=alternate' +
-				'TB_iframe=true',
-			null
-		);
-		window.addEventListener( 'message', handleIframeResult, false );
-		const tbWindow = document.querySelector( '#TB_window' );
-		tbWindow.classList.add( 'jetpack-memberships-modal' );
+		whenScrollToFinished( () => {
+			tb_show(
+				null,
+				'https://subscribe.wordpress.com/memberships/?blog=' +
+					blogId +
+					'&plan=' +
+					planId +
+					'&lang=' +
+					lang +
+					'&display=alternate' +
+					'TB_iframe=true',
+				null
+			);
+			window.addEventListener( 'message', handleIframeResult, false );
+			const tbWindow = document.querySelector( '#TB_window' );
+			tbWindow.classList.add( 'jetpack-memberships-modal' );
+		} );
 	} );
 }
 
