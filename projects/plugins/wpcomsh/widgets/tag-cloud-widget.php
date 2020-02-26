@@ -109,7 +109,7 @@ class WPCOM_Tag_Cloud_Widget extends WP_Widget {
 		$instance['title'] = sanitize_text_field( $new_instance['title'] );
 		$instance['count'] = ! empty( $new_instance['count'] ) ? 1 : 0;
 		$instance['taxonomy'] = stripslashes( $new_instance['taxonomy'] );
-		$instance['max_tags'] = empty( $instance['max_tags'] ) ? 0 : $instance['max_tags'];
+		$instance['max_tags'] = empty( $new_instance['max_tags'] ) ? 0 : (int) $new_instance['max_tags'];
 
 		return $instance;
 	}
