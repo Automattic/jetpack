@@ -116,8 +116,6 @@ class SubmitButton extends Component {
 	render() {
 		const {
 			attributes,
-			backgroundButtonColor,
-			textButtonColor,
 			fallbackBackgroundColor,
 			fallbackTextColor,
 			setAttributes,
