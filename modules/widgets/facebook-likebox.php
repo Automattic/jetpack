@@ -79,7 +79,7 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		$like_args['show_faces']   = (bool) $like_args['show_faces'] ? 'true' : 'false';
 		$like_args['stream']       = (bool) $like_args['stream'] ? 'timeline' : 'false';
 		$like_args['cover']        = (bool) $like_args['cover'] ? 'false' : 'true';
-		$like_args['small_header'] = (bool) $like_args['small_header'] ? 'true' : 'false';
+		$like_args['small_header'] = (bool) $like_args['small_header'] ? 'false' : 'true';
 
 		/**
 		 * Filter Facebook Likebox's widget call to action button
@@ -90,7 +90,7 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		 *
 		 * @param bool True value hides the call to action button
 		 */
-		$hide_cta = apply_filters( 'jetpack_facebook_likebox_hide_cta', true );
+		$hide_cta = apply_filters( 'jetpack_facebook_likebox_hide_cta', false );
 
 		echo $before_widget;
 
@@ -239,7 +239,7 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 			'show_faces'   => 'true',
 			'stream'       => '',
 			'cover'        => 'true',
-			'small_header' => 'true',
+			'small_header' => 'false',
 		);
 
 		/**
