@@ -17,7 +17,7 @@ import withVideoPressSave from './save';
 import getJetpackExtensionAvailability from '../../shared/get-jetpack-extension-availability';
 import deprecatedV1 from './deprecated/v1';
 import wrapPaidBlock from '../../shared/wrap-paid-block';
-import isSimpleSite from '../../shared/site-type-utils';
+import { isSimpleSite } from '../../shared/site-type-utils';
 import withHasWarningIsInteractiveClassNames from '../../shared/with-has-warning-is-interactive-class-names';
 import './editor.scss';
 
@@ -54,7 +54,7 @@ const addVideoPressSupport = ( settings, name ) => {
 	const { available, unavailableReason } = getJetpackExtensionAvailability( 'videopress' );
 
 	// Check if VideoPress is unavailable and filter the mediaplaceholder to limit options
-	if ( isSimpleSite && [ 'missing_plan', 'unknown' ].includes( unavailableReason ) ) {
+	if ( isSimpleSite() && [ 'missing_plan', 'unknown' ].includes( unavailableReason ) ) {
 		addFilter( 'editor.MediaPlaceholder', 'jetpack/videopress', videoPressNoPlanMediaPlaceholder );
 		addFilter(
 			'editor.BlockListBlock',
@@ -148,7 +148,7 @@ const addVideoPressSupport = ( settings, name ) => {
 			},
 
 			edit:
-				isSimpleSite && [ 'missing_plan', 'unknown' ].includes( unavailableReason )
+				isSimpleSite() && [ 'missing_plan', 'unknown' ].includes( unavailableReason )
 					? wrapPaidBlock( {
 							requiredPlan: 'value_bundle',
 							customTitle: {
