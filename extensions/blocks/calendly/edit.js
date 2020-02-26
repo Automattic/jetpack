@@ -26,6 +26,7 @@ import { getBlockDefaultClassName } from '@wordpress/blocks';
  * Internal dependencies
  */
 import './editor.scss';
+import './view.scss';
 import icon from './icon';
 import attributeDetails from './attributes';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
@@ -147,7 +148,6 @@ export default function CalendlyEdit( props ) {
 				frameBorder="0"
 				data-origwidth="100%"
 				data-origheight="100%"
-				style={ { minWidth: '320px', height: '630px', width: '100%' } }
 				title="Calendly"
 			></iframe>
 		</>
@@ -257,8 +257,10 @@ export default function CalendlyEdit( props ) {
 		</InspectorControls>
 	);
 
+	const classes = `${ className } calendly-style-${ style }`;
+
 	return (
-		<div className={ className }>
+		<div className={ classes }>
 			{ inspectorControls }
 			{ blockControls }
 			{ url ? blockPreview( style ) : blockPlaceholder }

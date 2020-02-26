@@ -79,6 +79,9 @@ add_action( 'init', 'Jetpack\Calendly_Block\set_availability' );
  * @return string
  */
 function load_assets( $attr, $content ) {
+	if ( is_admin() ) {
+		return;
+	}
 	$url = get_attribute( $attr, 'url' );
 	if ( empty( $url ) ) {
 		return;
@@ -93,7 +96,7 @@ function load_assets( $attr, $content ) {
 		'https://assets.calendly.com/assets/external/widget.js',
 		null,
 		JETPACK__VERSION,
-		false
+		true
 	);
 
 	$style                          = get_attribute( $attr, 'style' );
@@ -105,7 +108,7 @@ function load_assets( $attr, $content ) {
 	$submit_button_classes          = get_attribute( $attr, 'submitButtonClasses' );
 	$submit_button_text_color       = get_attribute( $attr, 'customTextButtonColor' );
 	$submit_button_background_color = get_attribute( $attr, 'customBackgroundButtonColor' );
-	$classes                        = \Jetpack_Gutenberg::block_classes( 'calendly', $attr );
+	$classes                        = \Jetpack_Gutenberg::block_classes( 'calendly', $attr, array( 'calendly-style-' . $style ) );
 	$block_id                       = wp_unique_id( 'calendly-block-' );
 
 	$url = add_query_arg(
@@ -150,10 +153,18 @@ function load_assets( $attr, $content ) {
 		);
 	} else { // Inline style.
 		$content = sprintf(
-			'<div class="calendly-inline-widget %1$s" data-url="%2$s" style="min-width:320px;height:630px;"></div>',
+			'<div class="%1$s" id="%2$s"></div>',
 			esc_attr( $classes ),
-			esc_url( $url )
+			esc_attr( $block_id )
 		);
+		$script  = <<<JS_END
+Calendly.initInlineWidget({
+	url: '%s',
+	parentElement: document.getElementById('%s'),
+	inlineStyles: false,
+});
+JS_END;
+		wp_add_inline_script( 'jetpack-calendly-external-js', sprintf( $script, esc_url( $url ), esc_js( $block_id ) ) );
 	}
 
 	return $content;
