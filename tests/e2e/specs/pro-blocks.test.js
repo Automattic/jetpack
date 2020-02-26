@@ -84,24 +84,4 @@ describe( 'Paid blocks', () => {
 			await frontend.isRenderedBlockPresent( WordAdsBlock );
 		} );
 	} );
-
-	describe( 'Pinterest block', () => {
-		it( 'Can publish a post with a Pinterest block', async () => {
-			const blockEditor = await BlockEditorPage.visit( page );
-			const blockInfo = await blockEditor.insertBlock(
-				PinterestBlock.name(),
-				PinterestBlock.title()
-			);
-
-			const pinterestBlock = new PinterestBlock( blockInfo, page );
-			await pinterestBlock.addEmbed();
-
-			await blockEditor.focus();
-			await blockEditor.publishPost();
-			await blockEditor.viewPost();
-
-			const frontend = await PostFrontendPage.init( page );
-			await frontend.isRenderedBlockPresent( PinterestBlock );
-		} );
-	} );
 } );
