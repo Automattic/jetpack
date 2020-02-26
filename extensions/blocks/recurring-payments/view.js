@@ -29,7 +29,8 @@ function handleIframeResult( eventFromIframe ) {
 }
 
 function activateSubscription( block, checkoutURL ) {
-	block.addEventListener( 'click', () => {
+	block.addEventListener( 'click', event => {
+		event.preventDefault();
 		window.scrollTo( 0, 0 );
 		tb_show( null, checkoutURL + '&display=alternate&TB_iframe=true', null );
 		window.addEventListener( 'message', handleIframeResult, false );
