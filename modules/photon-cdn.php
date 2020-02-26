@@ -118,8 +118,8 @@ class Jetpack_Photon_Static_Assets_CDN {
 			return substr( $src, 1 + $strpos );
 		}
 
-		// Reverse cdnize_plugin_assets for loading the path
-		if ( preg_match( '#' . preg_quote( self::CDN, '#' ) . 'p/[^/]+/[^/]+/(.*)$#', $src, $m ) ) {
+		// Get the local path from a URL which was CDN'ed by cdnize_plugin_assets().
+		if ( preg_match( '#^' . preg_quote( self::CDN, '#' ) . 'p/[^/]+/[^/]+/(.*)$#', $src, $m ) ) {
 			return $m[1];
 		}
 
