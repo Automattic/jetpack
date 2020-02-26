@@ -16,7 +16,7 @@ class WP_Test_Jetpack_VideoPress_Utility_Functions extends WP_UnitTestCase {
 	 * Tests a helper function to get the attachment ID, when there's no cached value.
 	 *
 	 * @covers ::videopress_get_attachment_id_by_url
-	 * @since 8.3.0
+	 * @since 8.4.0
 	 */
 	public function test_non_cached_videopress_get_attachment_id_by_url() {
 		$expected_id = self::factory()->attachment->create_upload_object( DIR_TESTDATA . '/images/test-image.jpg', 0 );
@@ -29,7 +29,7 @@ class WP_Test_Jetpack_VideoPress_Utility_Functions extends WP_UnitTestCase {
 	 * Tests a helper function to get the attachment ID, when there is a cached value.
 	 *
 	 * @covers ::videopress_get_attachment_id_by_url
-	 * @since 8.3.0
+	 * @since 8.4.0
 	 */
 	public function test_cached_videopress_get_attachment_id_by_url() {
 		$cached_id = 512351;
@@ -45,7 +45,7 @@ class WP_Test_Jetpack_VideoPress_Utility_Functions extends WP_UnitTestCase {
 	 * Tests a helper function to get the post by guid, when there is no post found.
 	 *
 	 * @covers ::video_get_post_by_guid
-	 * @since 8.3.0
+	 * @since 8.4.0
 	 */
 	public function test_no_post_found_video_get_post_by_guid() {
 		$this->assertFalse( video_get_post_by_guid( wp_generate_uuid4() ) );
@@ -55,7 +55,7 @@ class WP_Test_Jetpack_VideoPress_Utility_Functions extends WP_UnitTestCase {
 	 * Tests a helper function to get the post by guid, when there's no cached value.
 	 *
 	 * @covers ::video_get_post_by_guid
-	 * @since 8.3.0
+	 * @since 8.4.0
 	 */
 	public function test_non_cached_video_get_post_by_guid() {
 		$guid        = wp_generate_uuid4();
@@ -79,7 +79,7 @@ class WP_Test_Jetpack_VideoPress_Utility_Functions extends WP_UnitTestCase {
 	 * this should return that instead of instantiating WP_Query.
 	 *
 	 * @covers ::video_get_post_by_guid
-	 * @since 8.3.0
+	 * @since 8.4.0
 	 */
 	public function test_cached_video_get_post_by_guid() {
 		$attachment_id = self::factory()->attachment->create_upload_object( DIR_TESTDATA . '/images/test-image.jpg', 0 );
