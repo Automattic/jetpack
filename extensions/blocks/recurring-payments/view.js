@@ -51,7 +51,7 @@ function activateSubscription( block, blogId, planId, lang ) {
 
 const initializeMembershipButtonBlocks = () => {
 	const membershipButtonBlocks = Array.prototype.slice.call(
-		document.querySelectorAll( '.' + blockClassName )
+		document.querySelectorAll( '.' + blockClassName + ' a' )
 	);
 	membershipButtonBlocks.forEach( block => {
 		const blogId = block.getAttribute( 'data-blog-id' );
