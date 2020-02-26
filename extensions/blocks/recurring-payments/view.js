@@ -46,6 +46,7 @@ function activateSubscription( block, blogId, planId, lang ) {
 		window.addEventListener( 'message', handleIframeResult, false );
 		const tbWindow = document.querySelector( '#TB_window' );
 		tbWindow.classList.add( 'jetpack-memberships-modal' );
+		window.scrollTo( 0, 0 );
 	} );
 }
 
