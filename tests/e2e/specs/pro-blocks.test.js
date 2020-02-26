@@ -9,6 +9,7 @@ import { resetWordpressInstall, getNgrokSiteUrl, activateModule } from '../lib/u
 import SimplePaymentBlock from '../lib/blocks/simple-payments';
 import WordAdsBlock from '../lib/blocks/word-ads';
 import PinterestBlock from '../lib/blocks/pinterest';
+import EventbriteBlock from '../lib/blocks/eventbrite';
 
 describe( 'Paid blocks', () => {
 	beforeAll( async () => {
@@ -101,6 +102,26 @@ describe( 'Paid blocks', () => {
 
 			const frontend = await PostFrontendPage.init( page );
 			await frontend.isRenderedBlockPresent( PinterestBlock );
+		} );
+	} );
+
+	describe( 'Eventbrite block', () => {
+		it( 'Can publish a post with an Eventbrite block', async () => {
+			const blockEditor = await BlockEditorPage.visit( page );
+			const blockInfo = await blockEditor.insertBlock(
+				EventbriteBlock.name(),
+				EventbriteBlock.title()
+			);
+
+			const EventbriteBlock = new EventbriteBlock( blockInfo, page );
+			await EventbriteBlock.addEmbed();
+
+			await blockEditor.focus();
+			await blockEditor.publishPost();
+			await blockEditor.viewPost();
+
+			const frontend = await PostFrontendPage.init( page );
+			await frontend.isRenderedBlockPresent( EventbriteBlock );
 		} );
 	} );
 } );
