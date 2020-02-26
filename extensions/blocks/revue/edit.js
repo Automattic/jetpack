@@ -6,16 +6,14 @@ import { isEqual } from 'lodash';
 /**
  * WordPress dependencies
  */
-import { BlockControls, BlockIcon, InspectorControls } from '@wordpress/block-editor';
+import { BlockIcon, InspectorControls } from '@wordpress/block-editor';
 import {
 	Button,
 	ToggleControl,
 	ExternalLink,
-	IconButton,
 	PanelBody,
 	Placeholder,
 	TextControl,
-	Toolbar,
 } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -63,7 +61,7 @@ export default function RevueEdit( props ) {
 
 	const saveUsername = event => {
 		event.preventDefault();
-		setAttributes( { revueUsername: username } );
+		setAttributes( { revueUsername: username.trim() } );
 	};
 
 	const supportLink =
@@ -82,7 +80,7 @@ export default function RevueEdit( props ) {
 					<form onSubmit={ saveUsername }>
 						<input
 							className="components-placeholder__input"
-							onChange={ event => setUsername( event.target.value ) }
+							onChange={ event => setUsername( event.target.value.trim() ) }
 							placeholder={ __( 'Enter your Revue username here…', 'jetpack' ) }
 							type="text"
 							value={ username }
@@ -104,7 +102,7 @@ export default function RevueEdit( props ) {
 			{ revueUsername && (
 				<>
 					<InspectorControls>
-						<PanelBody title={ __( 'Form Settings', 'jetpack' ) }>
+						<PanelBody title={ __( 'Settings', 'jetpack' ) }>
 							<ToggleControl
 								label={ __( 'Show first name field.', 'jetpack' ) }
 								checked={ firstNameShow }
@@ -115,19 +113,16 @@ export default function RevueEdit( props ) {
 								checked={ lastNameShow }
 								onChange={ () => setAttributes( { lastNameShow: ! lastNameShow } ) }
 							/>
+							<TextControl
+								label={ __( 'Revue Username', 'jetpack' ) }
+								onChange={ value => {
+									setUsername( value.trim() );
+									setAttributes( { revueUsername: value.trim() } );
+								} }
+								value={ revueUsername }
+							/>
 						</PanelBody>
 					</InspectorControls>
-
-					<BlockControls>
-						<Toolbar>
-							<IconButton
-								className="components-toolbar__control"
-								label={ __( 'Edit Username', 'jetpack' ) }
-								icon="edit"
-								onClick={ () => setAttributes( { revueUsername: undefined } ) }
-							/>
-						</Toolbar>
-					</BlockControls>
 
 					<TextControl
 						label={

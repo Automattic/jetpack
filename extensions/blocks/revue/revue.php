@@ -35,16 +35,18 @@ function jetpack_render_revue_block( $attributes ) {
 	$last_name_placeholder  = jetpack_get_revue_attribute( 'lastNamePlaceholder', $attributes );
 	$last_name_show         = jetpack_get_revue_attribute( 'lastNameShow', $attributes );
 	$url                    = sprintf( 'https://www.getrevue.co/profile/%s/add_subscriber', $attributes['revueUsername'] );
+	$base_class             = Jetpack_Gutenberg::block_classes( 'revue', array() ) . '__';
+	$classes                = Jetpack_Gutenberg::block_classes( 'revue', $attributes );
 
 	Jetpack_Gutenberg::load_assets_as_required( 'revue' );
 
 	ob_start();
 	?>
 
-<div class="wp-block-jetpack-revue">
+<div class="<?php echo esc_attr( $classes ); ?>">
 	<form
 		action="<?php echo esc_url( $url ); ?>"
-		class="wp-block-jetpack-revue__form is-visible"
+		class="<?php echo esc_attr( $base_class . 'form is-visible' ); ?>"
 		method="post"
 		name="revue-form"
 		target="_blank"
@@ -54,7 +56,7 @@ function jetpack_render_revue_block( $attributes ) {
 				<?php echo esc_html( $email_label ); ?>
 				<span class="required"><?php esc_html_e( '(required)', 'jetpack' ); ?></span>
 				<input
-					class="wp-block-jetpack-revue__email"
+					class="<?php echo esc_attr( $base_class . 'email' ); ?>"
 					name="member[email]"
 					placeholder="<?php echo esc_attr( $email_placeholder ); ?>"
 					required
@@ -67,7 +69,7 @@ function jetpack_render_revue_block( $attributes ) {
 				<label>
 					<?php echo esc_html( $first_name_label ); ?>
 					<input
-						class="wp-block-jetpack-revue__first-name"
+						class="<?php echo esc_attr( $base_class . 'first-name' ); ?>"
 						name="member[first_name]"
 						placeholder="<?php echo esc_attr( $first_name_placeholder ); ?>"
 						type="text"
@@ -82,7 +84,7 @@ function jetpack_render_revue_block( $attributes ) {
 				<label>
 					<?php echo esc_html( $last_name_label ); ?>
 					<input
-						class="wp-block-jetpack-revue__last-name"
+						class="<?php echo esc_attr( $base_class . 'last-name' ); ?>"
 						name="member[last_name]"
 						placeholder="<?php echo esc_attr( $last_name_placeholder ); ?>"
 						type="text"
@@ -95,7 +97,7 @@ function jetpack_render_revue_block( $attributes ) {
 			echo jetpack_get_revue_button( $attributes );
 		?>
 	</form>
-	<div class="wp-block-jetpack-revue__message">
+	<div class="<?php echo esc_attr( $base_class . 'message' ); ?>">
 		<p>
 			<strong><?php esc_html_e( 'Subscription received!', 'jetpack' ); ?></strong>
 		</p>
