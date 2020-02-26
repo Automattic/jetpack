@@ -379,6 +379,14 @@ class Jetpack {
 	public static $plugin_upgrade_lock_key = 'jetpack_upgrade_lock';
 
 	/**
+	 * The highest action hook priority that was used for the plugins_loaded event.
+	 * Used in the `add_configure_hook' method.
+	 *
+	 * @var Integer the priority value.
+	 */
+	protected $highest_priority = null;
+
+	/**
 	 * Holds the singleton instance of this class
 	 *
 	 * @since 2.3.3
@@ -581,10 +589,15 @@ class Jetpack {
 			$highest_priority            = min( array_keys( $wp_filter['plugins_loaded']->callbacks ) );
 			$actions_on_highest_priority = $wp_filter['plugins_loaded']->callbacks[ $highest_priority ];
 
+			if ( isset( $this->highest_priority ) && $this->highest_priority <= $highest_priority ) {
+				return;
+			}
+
 			foreach ( $actions_on_highest_priority as $action ) {
 				remove_action( 'plugins_loaded', $action['function'], $highest_priority );
 			}
 
+			$this->highest_priority = $highest_priority;
 			add_action( 'plugins_loaded', array( $this, 'configure' ), $highest_priority );
 
 			foreach ( $actions_on_highest_priority as $action ) {
