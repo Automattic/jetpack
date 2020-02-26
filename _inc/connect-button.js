@@ -42,7 +42,7 @@ jQuery( document ).ready( function( $ ) {
 			}
 		},
 		startConnectionFlow: function() {
-			var abTestName = 'jetpack_connect_in_place_v3';
+			var abTestName = 'jetpack_connect_in_place_v4';
 
 			$.ajax( {
 				url: 'https://public-api.wordpress.com/wpcom/v2/abtest/' + abTestName,
