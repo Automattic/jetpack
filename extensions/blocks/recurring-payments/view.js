@@ -28,21 +28,10 @@ function handleIframeResult( eventFromIframe ) {
 	}
 }
 
-function activateSubscription( block, blogId, planId, lang ) {
+function activateSubscription( block, checkoutURL ) {
 	block.addEventListener( 'click', () => {
 		window.scrollTo( 0, 0 );
-		tb_show(
-			null,
-			'https://subscribe.wordpress.com/memberships/?blog=' +
-				blogId +
-				'&plan=' +
-				planId +
-				'&lang=' +
-				lang +
-				'&display=alternate' +
-				'TB_iframe=true',
-			null
-		);
+		tb_show( null, checkoutURL + '&display=alternate&TB_iframe=true', null );
 		window.addEventListener( 'message', handleIframeResult, false );
 		const tbWindow = document.querySelector( '#TB_window' );
 		tbWindow.classList.add( 'jetpack-memberships-modal' );
@@ -57,14 +46,12 @@ const initializeMembershipButtonBlocks = () => {
 		document.querySelectorAll( '.' + blockClassName + ' a' )
 	);
 	membershipButtonBlocks.forEach( block => {
-		const blogId = block.getAttribute( 'data-blog-id' );
-		const planId = block.getAttribute( 'data-plan-id' );
-		const lang = block.getAttribute( 'data-lang' );
+		const checkoutURL = block.getAttribute( 'href' );
 		try {
-			activateSubscription( block, blogId, planId, lang );
+			activateSubscription( block, checkoutURL );
 		} catch ( err ) {
 			// eslint-disable-next-line no-console
-			console.error( 'Problem activating Recurring Payments ' + planId, err );
+			console.error( 'Problem activating Recurring Payments ' + checkoutURL, err );
 		}
 	} );
 };

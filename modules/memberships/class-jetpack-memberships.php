@@ -250,16 +250,18 @@ class Jetpack_Memberships {
 		}
 		$button_styles = implode( ';', $button_styles );
 		add_thickbox();
+		global $wp;
 		return sprintf(
-			'<div class="wp-block-button %1$s"><a role="button" data-blog-id="%2$d" data-powered-text="%3$s" data-plan-id="%4$d" data-lang="%5$s" class="%6$s" style="%7$s">%8$s</a></div>',
+			'<div class="wp-block-button %1$s"><a role="button" href="https://subscribe.wordpress.com/memberships/?blog=%2$d&plan=%4$d&lang=%5$s&redirect=%3$s&p=%9$d" class="%6$s" style="%7$s">%8$s</a></div>',
 			esc_attr( Jetpack_Gutenberg::block_classes( self::$button_block_name, $attrs ) ),
 			esc_attr( $data['blog_id'] ),
-			esc_attr( $data['powered_text'] ),
+			esc_attr( rawurlencode( home_url( $wp->request ) ) ), // Needed for redirect back in case of redirect-based flow.
 			esc_attr( $data['id'] ),
 			esc_attr( get_locale() ),
 			isset( $attrs['submitButtonClasses'] ) ? esc_attr( $attrs['submitButtonClasses'] ) : 'wp-block-button__link',
 			esc_attr( $button_styles ),
-			wp_kses( $data['button_label'], self::$tags_allowed_in_the_button )
+			wp_kses( $data['button_label'], self::$tags_allowed_in_the_button ),
+			esc_attr( get_the_ID() ) // Needed for analytics purposes.
 		);
 	}
 
