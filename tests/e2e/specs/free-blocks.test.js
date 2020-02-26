@@ -6,6 +6,7 @@ import PostFrontendPage from '../lib/pages/postFrontend';
 import { connectThroughWPAdminIfNeeded } from '../lib/flows/jetpack-connect';
 import { resetWordpressInstall, getNgrokSiteUrl, activateModule } from '../lib/utils-helper';
 import PinterestBlock from '../lib/blocks/pinterest';
+import EventbriteBlock from '../lib/blocks/eventbrite';
 
 describe( 'Free blocks', () => {
 	beforeAll( async () => {
