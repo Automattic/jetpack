@@ -8,6 +8,7 @@ import queryString from 'query-string';
 /**
  * WordPress dependencies
  */
+import apiFetch from '@wordpress/api-fetch';
 import { BlockControls, BlockIcon, InspectorControls } from '@wordpress/block-editor';
 import {
 	Button,
@@ -15,11 +16,12 @@ import {
 	Notice,
 	PanelBody,
 	Placeholder,
+	Spinner,
 	ToggleControl,
 	Toolbar,
 	withNotices,
 } from '@wordpress/components';
-import { useState } from '@wordpress/element';
+import { useEffect, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { getBlockDefaultClassName } from '@wordpress/blocks';
 
@@ -62,6 +64,7 @@ function CalendlyEdit( props ) {
 		url,
 	} = validatedAttributes;
 	const [ embedCode, setEmbedCode ] = useState( '' );
+	const [ resolvingUrl, setResolveUrl ] = useState( false );
 
 	const setErrorNotice = () => {
 		noticeOperations.removeAllNotices();
@@ -69,6 +72,25 @@ function CalendlyEdit( props ) {
 			__( "Your calendar couldn't be embedded. Please double check your URL or code.", 'jetpack' )
 		);
 	};
+
+	useEffect( () => {
+		if ( ! url || 'link' === style ) {
+			return;
+		}
+		setResolveUrl( true );
+		apiFetch( { path: `/wpcom/v2/resolve-redirect/${ url }` } ).then(
+			response => {
+				setResolveUrl( false );
+
+				const resolvedStatusCode = response.status ? parseInt( response.status, 10 ) : null;
+				if ( resolvedStatusCode && resolvedStatusCode >= 400 ) {
+					setAttributes( { url: undefined } );
+					setErrorNotice();
+				}
+			},
+			() => setResolveUrl( false )
+		);
+	}, [ url ] );
 
 	const parseEmbedCode = event => {
 		if ( ! event ) {
@@ -84,10 +106,25 @@ function CalendlyEdit( props ) {
 			return;
 		}
 
-		const newValidatedAttributes = getValidatedAttributes( attributeDetails, newAttributes );
+		setResolveUrl( true );
 
-		setAttributes( newValidatedAttributes );
-		noticeOperations.removeAllNotices();
+		apiFetch( { path: `/wpcom/v2/resolve-redirect/${ newAttributes.url }` } ).then(
+			response => {
+				setResolveUrl( false );
+
+				const resolvedStatusCode = response.status ? parseInt( response.status, 10 ) : null;
+				if ( resolvedStatusCode && resolvedStatusCode >= 400 ) {
+					setAttributes( { url: undefined } );
+					setErrorNotice();
+					return;
+				}
+
+				const newValidatedAttributes = getValidatedAttributes( attributeDetails, newAttributes );
+				setAttributes( newValidatedAttributes );
+				noticeOperations.removeAllNotices();
+			},
+			() => setResolveUrl( false )
+		);
 	};
 
 	const embedCodeForm = (
@@ -113,6 +150,13 @@ function CalendlyEdit( props ) {
 				</ExternalLink>
 			</div>
 		</>
+	);
+
+	const blockEmbedding = (
+		<div className="wp-block-embed is-loading">
+			<Spinner />
+			<p>{ __( 'Embedding…', 'jetpack' ) }</p>
+		</div>
 	);
 
 	const blockPlaceholder = (
@@ -256,6 +300,10 @@ function CalendlyEdit( props ) {
 			) }
 		</InspectorControls>
 	);
+
+	if ( resolvingUrl ) {
+		return blockEmbedding;
+	}
 
 	const classes = `${ className } calendly-style-${ style }`;
 
