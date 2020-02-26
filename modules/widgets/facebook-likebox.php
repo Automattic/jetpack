@@ -239,7 +239,7 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 			'show_faces'   => 'true',
 			'stream'       => '',
 			'cover'        => 'true',
-			'small_header' => 'false',
+			'small_header' => '',
 		);
 
 		/**
