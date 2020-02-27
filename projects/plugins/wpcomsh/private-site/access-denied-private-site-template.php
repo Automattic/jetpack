@@ -40,9 +40,9 @@ header( 'Content-Type: ' . get_bloginfo( 'html_type' ) . '; charset=' . get_blog
 	<h1><a href="<?php echo esc_url( $login_link ); ?>" tabindex="-1"><?php bloginfo( 'name' ); ?></a></h1>
 	<div class="message" style="overflow: auto;">
 		<p>
-			<?php esc_html_e( 'You need to be logged in as a user who has permission to view this site.' ); ?><br>
+			<?php esc_html_e( 'You need to be logged in as a user who has permission to view this site.', 'wpcomsh' ); ?><br>
 			<br>
-			<a class="button-primary" href="<?php echo esc_url( $login_link ); ?>"><?php is_user_logged_in() ? esc_html_e( 'Switch user' ) : esc_html_e( 'Log in' ); ?></a>
+			<a class="button-primary" href="<?php echo esc_url( $login_link ); ?>"><?php is_user_logged_in() ? esc_html_e( 'Switch user', 'wpcomsh' ) : esc_html_e( 'Log in', 'wpcomsh' ); ?></a>
 		</p>
 	</div>
 	<?php wp_footer(); ?>

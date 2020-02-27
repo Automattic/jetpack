@@ -7,8 +7,8 @@
 class PD_Top_Rated extends WP_Widget {
 
     function __construct() {
-        $widget_ops = array( 'classname' => 'top_rated', 'description' => __('A list of your top rated posts, pages or comments.') );
-        parent::__construct( 'PD_Top_Rated', __('Top Rated'), $widget_ops );
+        $widget_ops = array( 'classname' => 'top_rated', 'description' => __( 'A list of your top rated posts, pages or comments.', 'wpcomsh' ) );
+        parent::__construct( 'PD_Top_Rated', __( 'Top Rated', 'wpcomsh' ), $widget_ops );
     }
 
     function PD_Top_Rated() {
@@ -29,7 +29,7 @@ class PD_Top_Rated extends WP_Widget {
         extract( $args, EXTR_SKIP );
 
         echo $before_widget;
-        $title = empty( $instance['title'] ) ? __( 'Top Rated' ) : apply_filters( 'widget_title', $instance['title'] );
+        $title = empty( $instance['title'] ) ? __( 'Top Rated', 'wpcomsh' ) : apply_filters( 'widget_title', $instance['title'] );
         $posts_rating_id = (int) get_option( 'pd-rating-posts-id' );
         $pages_rating_id = (int) get_option( 'pd-rating-pages-id' );
         $comments_rating_id = (int) get_option( 'pd-rating-comments-id' );
@@ -112,33 +112,33 @@ class PD_Top_Rated extends WP_Widget {
 	        $filter_by_category = (int) $instance['filter_by_category'];
 	        $item_count = (int) $instance['item_count'];
 	?>
-            <p><label for="<?php echo $this->get_field_id('title'); ?>"><?php _e('Title:'); ?><input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo esc_attr( $title ); ?>" /></label></p>
+            <p><label for="<?php echo $this->get_field_id('title'); ?>"><?php _e( 'Title:', 'wpcomsh' ); ?><input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo esc_attr( $title ); ?>" /></label></p>
             <p>
                 <label for="<?php echo $this->get_field_id( 'show_posts' ); ?>">
                 <input type="checkbox" class="checkbox"  id="<?php echo $this->get_field_id( 'show_posts' ); ?>" name="<?php echo $this->get_field_name( 'show_posts' ); ?>" value="1" <?php echo $show_posts == 1 ? 'checked="checked"':''; ?> />
-                     <?php _e('Show for posts'); ?>
+                     <?php _e( 'Show for posts', 'wpcomsh' ); ?>
                 </label>
             </p>
 	            <p>
 	                <label for="<?php echo $this->get_field_id( 'show_pages' ); ?>">
 	                <input type="checkbox" class="checkbox"  id="<?php echo $this->get_field_id( 'show_pages' ); ?>" name="<?php echo $this->get_field_name( 'show_pages' ); ?>" value="1" <?php echo $show_pages == 1 ? 'checked="checked"':''; ?> />
-	                     <?php _e('Show for pages'); ?>
+	                     <?php _e( 'Show for pages', 'wpcomsh' ); ?>
 	                </label>
 	            </p>
 	            <p>
 	                <label for="<?php echo $this->get_field_id( 'show_comments' ); ?>">
 	                        <input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id( 'show_comments' ); ?>" name="<?php echo $this->get_field_name( 'show_comments' ); ?>" value="1" <?php echo $show_comments == 1 ? 'checked="checked"':''; ?>/>
-	                     <?php _e('Show for comments'); ?>
+	                     <?php _e( 'Show for comments', 'wpcomsh' ); ?>
 	                </label>
 	            </p>
 	            <p>
 	                <label for="<?php echo $this->get_field_id( 'filter_by_category' ); ?>">
 	                        <input type="checkbox" class="checkbox" id="<?php echo $this->get_field_id( 'filter_by_category' ); ?>" name="<?php echo $this->get_field_name( 'filter_by_category' ); ?>" value="1" <?php echo $filter_by_category == 1 ? 'checked="checked"':''; ?>/>
-	                     <?php _e('Filter by category'); ?>
+	                     <?php _e( 'Filter by category', 'wpcomsh' ); ?>
 	            </label>
 	        </p>
 	            <p>
-	                <label for="rss-items-<?php echo $item_count; ?>"><?php _e('How many items would you like to display?'); ?>
+	                <label for="rss-items-<?php echo $item_count; ?>"><?php _e( 'How many items would you like to display?', 'wpcomsh' ); ?>
 	                        <select id="<?php echo $this->get_field_id( 'item_count' ); ?>" name="<?php echo $this->get_field_name( 'item_count' ); ?>">
 	                    <?php
 	                        for ( $i = 1; $i <= 20; ++$i )

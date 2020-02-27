@@ -49,7 +49,7 @@ class Atomic_Record_Jetpack_Token_Errors {
 			return false;
 		}
 		// Simple UA check to filter out most
-		if ( false === stripos( $_SERVER[ 'HTTP_USER_AGENT' ], 'jetpack' ) ) {
+		if ( false === stripos( $_SERVER[ 'HTTP_USER_AGENT' ], 'wpcomsh' ) ) {
 			return false;
 		}
 		// If has a valid-looking UA, check the remote IP

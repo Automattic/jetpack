@@ -28,9 +28,9 @@ function jetpack_i_voted_widget_init() {
 class Jetpack_I_Voted_Widget extends WP_Widget {
 
 	function __construct() {
-		$widget_ops = array( 'classname' => 'widget_i_voted', 'description' => __( 'Show your readers that you voted with an "I Voted" sticker.' ) );
+		$widget_ops = array( 'classname' => 'widget_i_voted', 'description' => __( 'Show your readers that you voted with an "I Voted" sticker.', 'wpcomsh' ) );
 
-		parent::__construct( 'i_voted', __( 'I Voted' ), $widget_ops );
+		parent::__construct( 'i_voted', __( 'I Voted', 'wpcomsh' ), $widget_ops );
 	}
 
 	function widget( $args, $instance ) {
@@ -62,7 +62,7 @@ class Jetpack_I_Voted_Widget extends WP_Widget {
 
 		$title = esc_attr( $instance['title'] );
 
-		echo '<p><label for="' . $this->get_field_id( 'title' ) . '">' . esc_html__( 'Title:' ) . '
+		echo '<p><label for="' . $this->get_field_id( 'title' ) . '">' . esc_html__( 'Title:', 'wpcomsh' ) . '
 		<input class="widefat" id="' . $this->get_field_id( 'title' ) . '" name="' . $this->get_field_name( 'title' ) . '" type="text" value="' . $title . '" />
 		</label></p>';
 	}

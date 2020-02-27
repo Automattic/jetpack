@@ -22,8 +22,8 @@ class Tlkio_Widget extends WP_Widget {
 	private $defaults =  array( 'title' => '', 'channel' => 'lobby', 'height' => '400' );	
 
 	function __construct() {
-		$widget_ops = array( 'classname'   => 'tlkio-widget', 'description' => __( 'Add a tlk.io webchat.' ) );
-		parent::__construct( 'tlkio_widget', __( 'tlk.io Webchat' ), $widget_ops );
+		$widget_ops = array( 'classname'   => 'tlkio-widget', 'description' => __( 'Add a tlk.io webchat.', 'wpcomsh' ) );
+		parent::__construct( 'tlkio_widget', __( 'tlk.io Webchat', 'wpcomsh' ), $widget_ops );
 	}
 
 	function widget( $args, $instance ) {
@@ -48,15 +48,15 @@ class Tlkio_Widget extends WP_Widget {
 		$instance = wp_parse_args( (array) $instance, $this->defaults );
 	?>
 		<p>
-			<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"><?php esc_html_e( 'Title:' ); ?></label>
+			<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"><?php esc_html_e( 'Title:', 'wpcomsh' ); ?></label>
 			<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" type="text" value="<?php echo esc_attr( $instance['title'] ); ?>" />
 		</p>
 		<p>
-			<label for="<?php echo esc_attr( $this->get_field_id( 'channel' ) ); ?>"><?php esc_html_e( 'Channel:' ); ?></label>
+			<label for="<?php echo esc_attr( $this->get_field_id( 'channel' ) ); ?>"><?php esc_html_e( 'Channel:', 'wpcomsh' ); ?></label>
 			<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'channel' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'channel' ) ); ?>" type="text" value="<?php echo esc_attr( $instance['channel'] ); ?>" />
 		</p>
 		<p>
-			<label for="<?php echo esc_attr( $this->get_field_id( 'height' ) ); ?>"><?php esc_html_e( 'Height (in pixel):' ); ?></label>
+			<label for="<?php echo esc_attr( $this->get_field_id( 'height' ) ); ?>"><?php esc_html_e( 'Height (in pixel):', 'wpcomsh' ); ?></label>
 			<input id="<?php echo esc_attr( $this->get_field_id( 'height' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'height' ) ); ?>" type="text" value="<?php echo esc_attr( $instance['height'] ); ?>" size="3" />
 		</p>
 	<?php

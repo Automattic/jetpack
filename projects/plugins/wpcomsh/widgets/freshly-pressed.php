@@ -5,9 +5,9 @@
 class WPCOM_Freshly_Pressed_Widget extends WP_Widget {
 
 	function __construct() {
-		$widget_ops = array( 'classname' => 'widget_freshly_pressed', 'description' => __( 'Display a Freshly Pressed badge in your sidebar' ) );
+		$widget_ops = array( 'classname' => 'widget_freshly_pressed', 'description' => __( 'Display a Freshly Pressed badge in your sidebar', 'wpcomsh' ) );
 		$control_ops = array( 'width' => 250 );
-		parent::__construct( 'freshly_pressed', __( 'Freshly Pressed' ), $widget_ops, $control_ops);
+		parent::__construct( 'freshly_pressed', __( 'Freshly Pressed', 'wpcomsh' ), $widget_ops, $control_ops);
 	}
 
 	function widget( $args, $instance ) {
@@ -53,11 +53,11 @@ class WPCOM_Freshly_Pressed_Widget extends WP_Widget {
 		$title = esc_attr( $instance['title'] );
 		$badge = esc_attr( $instance['badge'] );
 
-		echo '<p><label for="' . $this->get_field_id( 'title' ) . '">' . esc_html__( 'Title:' ) . '
+		echo '<p><label for="' . $this->get_field_id( 'title' ) . '">' . esc_html__( 'Title:', 'wpcomsh' ) . '
 		<input class="widefat" id="' . $this->get_field_id( 'title' ) . '" name="' . $this->get_field_name( 'title' ) . '" type="text" value="' . $title . '" />
 		</label></p>
 
-		<p>' . __( 'Choose an image to display in your sidebar:' ) . '<br /><br />';
+		<p>' . __( 'Choose an image to display in your sidebar:', 'wpcomsh' ) . '<br /><br />';
 
 		foreach ( $this->badges() as $badge_name => $badge_ops ) {
 			echo '<input type="radio" name="' . $this->get_field_name( 'badge' ) . '" value="' . esc_attr( $badge_name ) . '" ' . checked( $badge_name, $badge, false ) . '/> <img src="' . $this->get_badge_url( $badge_name ) . '" width="' . intval( $badge_ops['width'] ) . 'px" height="' . intval( $badge_ops['height'] ) . 'px" style="vertical-align: middle" /><br /><br />';

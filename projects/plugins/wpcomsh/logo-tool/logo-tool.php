@@ -57,7 +57,7 @@ function add_logotool_button( $wp_customize ) {
 		return;
 	}
 
-	$logo_control->description = __( 'Add a logo to display on your site. No logo? Buy a pro one from Looka — Click “Create logo” to start.' );
+	$logo_control->description = __( 'Add a logo to display on your site. No logo? Buy a pro one from Looka — Click “Create logo” to start.', 'wpcomsh' );
 	// Adding it back just overwrites the previous control instance.
 	$wp_customize->add_control( $logo_control );
 
@@ -67,7 +67,7 @@ function add_logotool_button( $wp_customize ) {
 
 		wp_enqueue_script( 'wpcom-logo-tool', plugins_url( 'js/customizer.js', __FILE__ ), [ 'customize-controls' ], '20191003', true );
 		wp_localize_script( 'wpcom-logo-tool', '_LogoTool_', [
-			'l10n' => [ 'create' => __( 'Create logo' ) ],
+			'l10n' => [ 'create' => __( 'Create logo', 'wpcomsh' ) ],
 			'controlId' => $logo_control->id,
 		] );
 	} );

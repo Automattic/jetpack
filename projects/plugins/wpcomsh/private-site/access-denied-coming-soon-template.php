@@ -137,9 +137,9 @@ header( 'Content-Type: ' . get_bloginfo( 'html_type' ) . '; charset=' . get_blog
 <div class="container">
 	<div class="inner">
 		<div class="name"><?php echo esc_html( get_bloginfo( 'name' ) ) ?></div>
-		<div class="description"><?php echo esc_html( __( 'Something new is coming.' ) ) ?></div>
+		<div class="description"><?php echo esc_html( __( 'Something new is coming.', 'wpcomsh' ) ) ?></div>
 		<?php if ( ! is_user_logged_in() ) : ?>
-			<p class="wp-core-ui"><a class="button button-primary" href="<?php echo esc_url( $login_link ) ?>" style="float: none;"><?php esc_html_e( 'Log in here' ) ?></a></p>
+			<p class="wp-core-ui"><a class="button button-primary" href="<?php echo esc_url( $login_link ) ?>" style="float: none;"><?php esc_html_e( 'Log in here', 'wpcomsh' ) ?></a></p>
 		<?php endif; ?>
 	</div>
 	<div class="image">

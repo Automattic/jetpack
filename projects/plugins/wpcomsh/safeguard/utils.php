@@ -55,7 +55,7 @@ function request_check_plugin( $slug, $body ) {
 	if ( ! is_array( $request ) || ! isset( $request['body'] ) ) {
 		return new WP_Error(
 			'failed_to_fetch_data',
-			esc_html__( 'Unable to fetch the requested data.', 'jetpack' ),
+			esc_html__( 'Unable to fetch the requested data.', 'wpcomsh' ),
 			array( 'status' => 500 )
 		);
 	}

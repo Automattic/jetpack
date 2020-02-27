@@ -1,0 +1,721 @@
+# Translation of WordPress.com - Site Helper in Norwegian
+# This file is distributed under the same license as the WordPress.com - Site Helper package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2020-02-26 14:05:43+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: GlotPress/2.4.0-alpha\n"
+"Language: no\n"
+"Project-Id-Version: WordPress.com - Site Helper\n"
+
+#: wpcomsh.php:909
+msgid "You are currently using <strong>%1$s</strong> out of <strong>%2$s</strong> upload limit (%3$s%%)."
+msgstr "Du bruker <strong>%1$s</strong> av totalt <strong>%2$s</strong> (%3$s%%)."
+
+#: widgets/twitter.php:412
+msgid "Text to display between Tweet and timestamp:"
+msgstr "Teksten som skal vises mellom tvitringen og tidsstemplet:"
+
+#: widgets/twitter.php:406
+msgid "Display Follow Button"
+msgstr "Vis følgeknapp"
+
+#: widgets/twitter.php:399
+msgid "Include retweets"
+msgstr "Inkluder retweets"
+
+#: widgets/twitter.php:392
+msgid "Hide Tweets pushed by Publicize"
+msgstr "Skjul tvitringer dyttet frem av Publicize"
+
+#: widgets/twitter.php:385
+msgid "Hide replies"
+msgstr "Skjul svar"
+
+#: widgets/twitter.php:371
+msgid "Maximum number of Tweets to show:"
+msgstr "Maks antall tvitringer å vise:"
+
+#: widgets/twitter.php:364
+msgid "Twitter username:"
+msgstr "Twitter-brukernavn:"
+
+#: widgets/twitter.php:353
+msgid "Please switch to the 'Twitter Timeline' widget. This widget will be going away in the future and the new widget allows for more customization."
+msgstr ""
+
+#: widgets/twitter.php:289
+msgid "Error: Please make sure the Twitter account is %1$spublic%2$s."
+msgstr "Feil: Vennligst sørg for at Twitter-kontoen er %1$soffentlig%2$s."
+
+#: widgets/twitter.php:262 widgets/twitter.php:275 widgets/twitter.php:296
+msgid "Error: Twitter did not respond. Please wait a few minutes and refresh this page."
+msgstr "Feil: Twitter svarte ikke. Vennligst vent noen minutter og last denne siden på nytt."
+
+#: widgets/twitter.php:61
+msgid "Twitter Updates"
+msgstr "Twitter-oppdateringer"
+
+#: widgets/twitter.php:51
+msgid "Please configure your Twitter username for the <a href=\"%s\">Twitter Widget</a>."
+msgstr "Vennligst sett opp ditt Twitter-brukernavn for <a href=\"%s\">Twitter-modulen</a>."
+
+#: widgets/twitter.php:29
+msgid "Display your Tweets from Twitter"
+msgstr "Vis dine tvitringer fra Twitter"
+
+#: widgets/twitter.php:26
+msgid "Twitter"
+msgstr "Twitter"
+
+#: widgets/tag-cloud-widget.php:177
+msgid "Taxonomy:"
+msgstr "Taksonomi:"
+
+#: widgets/tag-cloud-widget.php:159
+msgid "The tag cloud will not be displayed since there are no taxonomies that support the tag cloud widget."
+msgstr "Stikkordskyen vises ikke fordi det ikke er noen taksonomier som støtter stikkordsky-widgeten."
+
+#: widgets/tag-cloud-widget.php:152
+msgid "Show tag counts"
+msgstr "Vis antall stikkord"
+
+#: widgets/tag-cloud-widget.php:139
+msgid "Maximum number of tags displayed"
+msgstr "Maks antall stikkord vist"
+
+#: widgets/tag-cloud-widget.php:137
+msgid "Number of Tags:"
+msgstr "Antall stikkord:"
+
+#: widgets/tag-cloud-widget.php:41
+msgid "Tags"
+msgstr "Emner"
+
+#: widgets/tag-cloud-widget.php:21
+msgid "Tag Cloud"
+msgstr "Stikkordsky"
+
+#: widgets/tag-cloud-widget.php:18
+msgid "A cloud of your most used tags."
+msgstr "En sky med de mest brukte stikkordene."
+
+#: widgets/instagram/instagram.php:245
+msgid "New images may take up to %d minutes to show up on your site."
+msgstr "Nye bilder kan kanskje ta opp til %d minutter før de dukker opp på ditt nettsted."
+
+#: widgets/instagram/instagram.php:237
+msgid "Number of columns:"
+msgstr "Antall kolonner:"
+
+#: widgets/instagram/instagram.php:236
+msgid "Layout"
+msgstr "Layout"
+
+#: widgets/instagram/instagram.php:226
+msgid "Number to display:"
+msgstr "Nummer som skal vises:"
+
+#: widgets/instagram/instagram.php:225
+msgid "Images"
+msgstr "Bilder"
+
+#: widgets/instagram/instagram.php:221
+msgid "Widget Title"
+msgstr "Modultittel"
+
+#: widgets/instagram/instagram.php:189
+msgid "No Instagram images were found."
+msgstr "Ingen Instagram bilder ble funnet."
+
+#: widgets/instagram/instagram.php:186
+msgid "There was an error retrieving images from Instagram. An attempt will be remade in a few minutes."
+msgstr ""
+
+#: widgets/instagram/instagram.php:30
+msgid "Display your latest Instagram photos."
+msgstr "Vis dine seneste Instagram bilder."
+
+#: widgets/instagram/instagram.php:28 widgets/instagram/instagram.php:43
+msgid "Instagram"
+msgstr "Instagram"
+
+#: widgets/aboutme.php:148
+msgid "Apps"
+msgstr "Apper"
+
+#: widgets/aboutme.php:141
+msgid "Biography"
+msgstr "Biografi"
+
+#: widgets/aboutme.php:134
+msgid "Headline"
+msgstr "Overskrift"
+
+#: widgets/aboutme.php:127
+msgid "Photo"
+msgstr "Foto"
+
+#: widgets/aboutme.php:123
+msgid "Don't Display Name"
+msgstr "Ikke vis navn"
+
+#: widgets/aboutme.php:121
+msgid "Display Small"
+msgstr "Visning liten"
+
+#: widgets/aboutme.php:119
+msgid "Display Medium"
+msgstr "Visning middels"
+
+#: widgets/aboutme.php:117
+msgid "Display Large"
+msgstr "Visning stor"
+
+#: widgets/aboutme.php:115
+msgid "Display X-Large"
+msgstr "Visning ekstra stor"
+
+#: widgets/aboutme.php:104
+msgid "Your about.me URL"
+msgstr "Din about.me URL"
+
+#: widgets/aboutme.php:97
+msgid "Widget title"
+msgstr "Widget-tittel"
+
+#: widgets/aboutme.php:90
+msgid "The about.me widget will no longer be available after July 1, 2016. After this date, the widget will display a simple text link to your about.me profile. Please remove this widget."
+msgstr ""
+
+#: widgets/aboutme.php:37
+msgid "The about.me widget is no longer available. To remove this widget, <a href=\"%s\">visit your settings</a>. This message is not shown to visitors to your site."
+msgstr ""
+
+#: widgets/aboutme.php:20
+msgid "About.me Widget"
+msgstr "About.me Widget"
+
+#: widgets/aboutme.php:18
+msgid "Display your about.me profile with thumbnail"
+msgstr "Viser din about.me-profil med småbilde"
+
+#: safeguard/utils.php:58
+msgid "Unable to fetch the requested data."
+msgstr ""
+
+#: private-site/access-denied-coming-soon-template.php:142
+msgid "Log in here"
+msgstr "Logg inn her"
+
+#: footer-credit/theme-optimizations.php:37
+msgid "Create a free website or blog at WordPress.com"
+msgstr "Opprett en gratis blogg eller et nettsted på WordPress.com"
+
+#: footer-credit/theme-optimizations.php:32
+msgid "Create a free website at WordPress.com"
+msgstr "Lag et gratis nettsted på WordPress.com"
+
+#: footer-credit/footer-credit/footer-credit.php:101
+msgid "Powered by WordPress.com"
+msgstr "Drevet av WordPress.com"
+
+#: footer-credit/footer-credit/footer-credit.php:98
+#: footer-credit/theme-optimizations.php:30
+#: footer-credit/theme-optimizations.php:35
+msgid "Blog at WordPress.com"
+msgstr "Blogg på WordPress.com"
+
+#: footer-credit/footer-credit/footer-credit.php:97
+msgid "A WordPress.com Website"
+msgstr "Et WordPress.com-nettsted"
+
+#: footer-credit/footer-credit/footer-credit.php:96
+msgid "WordPress.com Logo"
+msgstr "WordPress.com-logo"
+
+#: footer-credit/footer-credit/footer-credit.php:41
+#: footer-credit/footer-credit/footer-credit.php:205
+msgid "Create a website or blog at WordPress.com"
+msgstr "Lag et nettsted eller blogg på WordPress.com"
+
+#: footer-credit/footer-credit/customizer.php:85
+msgid "Footer Credit"
+msgstr "Bunntekstkreditering"
+
+#: footer-credit/footer-credit/customizer.php:62
+msgid "Upgrade to Business"
+msgstr "Oppgrader til Business"
+
+#: footer-credit/footer-credit/customizer.php:54
+msgid "Hide (Business Plan Required)"
+msgstr "Skjul (Business-pakken er nødvendig)"
+
+#: footer-credit/footer-credit/customizer.php:52
+msgid "Hide"
+msgstr "Skjul"
+
+#: footer-credit/footer-credit/customizer.php:41
+msgid "Default"
+msgstr "Standard"
+
+#: footer-credit/footer-credit-optimizations.php:159
+msgid "Design by"
+msgstr "Utforming av"
+
+#: footer-credit/footer-credit-optimizations.php:147
+msgid "by"
+msgstr "av"
+
+#: footer-credit/footer-credit-optimizations.php:130
+msgid "Theme"
+msgstr "Tema"
+
+#: footer-credit/footer-credit-optimizations.php:114
+msgid "Proudly powered by WordPress"
+msgstr "Stolt drevet av WordPress"
+
+#: customizer-fixes/customizer-fixes.php:13
+msgid "Save Settings"
+msgstr "Lagre innstillinger"
+
+#: customizer-fixes/customizer-fixes.php:12
+msgid "Are you sure you want to discard your unsaved changes?"
+msgstr ""
+
+#: customizer-fixes/customizer-fixes.php:11
+msgid "Saved"
+msgstr "Lagret"
+
+#: customizer-fixes/customizer-fixes.php:10
+msgid "Save Changes"
+msgstr "Lagre endringer"
+
+#: customizer-fixes/customizer-fixes.php:9
+msgid "Save"
+msgstr "Lagre"
+
+#: customizer-fixes/customizer-fixes.php:8
+msgid "Activate &amp; Save"
+msgstr ""
+
+#: private-site/private-site.php:123
+msgid "Manage your site visibility settings"
+msgstr ""
+
+#: private-site/access-denied-coming-soon-template.php:140
+msgid "Something new is coming."
+msgstr ""
+
+#: wpcomsh.php:338
+msgid "This plugin was installed by WordPress.com and provides features offered in your plan subscription."
+msgstr ""
+
+#: wpcomsh.php:335
+msgid "%s is automatically managed for you."
+msgstr ""
+
+#: widgets/top-rated.php:141
+msgid "How many items would you like to display?"
+msgstr "Hvor mange elementer vil du vise?"
+
+#: widgets/top-rated.php:137
+msgid "Filter by category"
+msgstr "Filtrer etter kategori"
+
+#: widgets/top-rated.php:131
+msgid "Show for comments"
+msgstr "Vis for kommentarer"
+
+#: widgets/top-rated.php:125
+msgid "Show for pages"
+msgstr "Vis for sider"
+
+#: widgets/top-rated.php:119
+msgid "Show for posts"
+msgstr "Vis for innlegg"
+
+#: widgets/top-rated.php:11 widgets/top-rated.php:32
+msgid "Top Rated"
+msgstr "Topprangert"
+
+#: widgets/top-rated.php:10
+msgid "A list of your top rated posts, pages or comments."
+msgstr "En liste over dine topprangerte innlegg, sider eller kommentarer."
+
+#: widgets/top-clicks.php:61
+msgid "Top Clicks are calculated from 48-72 hours of stats. They take a while to change."
+msgstr "Top Clicks blir beregnet fra 48-72 timer med statistikk. Det tar en stund før de endrer seg."
+
+#: widgets/top-clicks.php:53
+msgid "URLs to show:"
+msgstr "URLer som skal vises:"
+
+#: widgets/top-clicks.php:47
+msgid "Display length:"
+msgstr "Visningslengde:"
+
+#: widgets/top-clicks.php:14
+msgid "List the most-clicked links on your blog."
+msgstr "List opp de mestklikkede lenkene på bloggen din."
+
+#: widgets/top-clicks.php:13 widgets/top-clicks.php:22
+#: widgets/top-clicks.php:66
+msgid "Top Clicks"
+msgstr "Topp klikk"
+
+#: widgets/tlkio/tlkio.php:59
+msgid "Height (in pixel):"
+msgstr "Høyde (i piksler):"
+
+#: widgets/tlkio/tlkio.php:55
+msgid "Channel:"
+msgstr "Kanal:"
+
+#: widgets/tlkio/tlkio.php:26
+msgid "tlk.io Webchat"
+msgstr "tlk.io nettchat"
+
+#: widgets/tlkio/tlkio.php:25
+msgid "Add a tlk.io webchat."
+msgstr "Legg til en tlk.io-nettchat."
+
+#: widgets/reservations.php:55
+msgid "Show:"
+msgstr "Vis:"
+
+#: widgets/reservations.php:50
+msgid "E-mail Subject:"
+msgstr "E-posttema:"
+
+#: widgets/reservations.php:44
+msgid "Recipient E-mail Address:"
+msgstr "Mottakerens E-postadresse:"
+
+#: widgets/reservations.php:29
+msgid "Departure"
+msgstr "Avgang"
+
+#: widgets/reservations.php:28
+msgid "Arrival"
+msgstr "Ankomst"
+
+#: widgets/reservations.php:27
+msgid "# Children"
+msgstr "# Underoppføringer"
+
+#: widgets/reservations.php:26
+msgid "# Adults"
+msgstr "# Overoppføringer"
+
+#: widgets/reservations.php:25
+msgid "Message"
+msgstr "Beskjed"
+
+#: widgets/reservations.php:24
+msgid "Phone"
+msgstr "Telefon"
+
+#: widgets/reservations.php:23
+msgid "Email"
+msgstr "E-post"
+
+#: widgets/aboutme.php:111 widgets/reservations.php:22
+msgid "Name"
+msgstr "Navn"
+
+#: widgets/reservations.php:16
+msgid "Reservation Inquiry"
+msgstr "Reservasjonsgjennomgang"
+
+#: widgets/reservations.php:10 widgets/reservations.php:15
+msgid "Reservations"
+msgstr "Reservasjoner"
+
+#: widgets/recent-comments-widget.php:384
+msgid "Show comments from:"
+msgstr "Vis kommentarer fra:"
+
+#: widgets/recent-comments-widget.php:379
+msgid "Text background color:"
+msgstr "Bakgrunnsfarge for tekst:"
+
+#: widgets/recent-comments-widget.php:373
+msgid "Avatar background color:"
+msgstr "Bakgrunnsfarge for Avataren:"
+
+#: widgets/recent-comments-widget.php:362
+msgid "No Avatars"
+msgstr "Ingen Avatarer"
+
+#: widgets/recent-comments-widget.php:355
+msgid "(at most 15)"
+msgstr "(maks 15)"
+
+#: widgets/recent-comments-widget.php:349
+msgid "Number of comments to show:"
+msgstr "Antall kommentarer å vise:"
+
+#: widgets/recent-comments-widget.php:284
+msgid "There are no public comments available to display."
+msgstr "Det er ingen offentlige kommentarer som kan vises."
+
+#. translators: comments widget: 1: comment author, 2: post link
+#: widgets/recent-comments-widget.php:275
+#: widgets/recent-comments-widget.php:308
+msgctxt "widgets"
+msgid "%1$s on %2$s"
+msgstr "%1$s til %2$s"
+
+#: widgets/recent-comments-widget.php:252
+msgid "Anonymous"
+msgstr "Anonym"
+
+#: widgets/recent-comments-widget.php:30
+msgid "Display your site's most recent comments"
+msgstr "Vis ditt nettsteds nyeste kommentarer"
+
+#: widgets/recent-comments-widget.php:29 widgets/recent-comments-widget.php:146
+msgid "Recent Comments"
+msgstr "Nyeste kommentarer"
+
+#: widgets/posts-i-like.php:269
+msgid "You have not recently liked any posts. Once you do, this <a href=\"%s\">Posts I Like</a> widget will display them."
+msgstr ""
+
+#: widgets/posts-i-like.php:259
+msgid "on"
+msgstr "den"
+
+#: widgets/posts-i-like.php:236
+msgctxt "1: Post Title, 2: Blog Name"
+msgid "%1$s on %2$s"
+msgstr "%1$s på %2$s"
+
+#: widgets/posts-i-like.php:113
+msgid "Author's likes to display:"
+msgstr "Forfatterens likinger som skal vises:"
+
+#: widgets/posts-i-like.php:98
+msgid "Grid"
+msgstr "Rutenett"
+
+#: widgets/posts-i-like.php:97
+msgid "List"
+msgstr "Liste"
+
+#: widgets/posts-i-like.php:95
+msgid "Display as:"
+msgstr "Vis som:"
+
+#: widgets/posts-i-like.php:90
+msgid "Number of posts to show (1 to 15):"
+msgstr "Antall innlegg å vise (1 til 15):"
+
+#: widgets/posts-i-like.php:27
+msgid "A list of the posts I most recently liked"
+msgstr "En liste over innleggene jeg mest nylig har likt"
+
+#: widgets/posts-i-like.php:25 widgets/posts-i-like.php:32
+msgid "Posts I Like"
+msgstr "Innlegg jeg har likt"
+
+#: widgets/music-player.php:82
+msgid "Choose songs"
+msgstr "Velg sanger"
+
+#: widgets/music-player.php:16 widgets/music-player.php:87
+msgid "Music Player"
+msgstr "Musikkspiller"
+
+#: widgets/music-player.php:15
+msgid "A multi-song music player"
+msgstr "En flersangers musikkspiller"
+
+#: widgets/i-voted.php:33
+msgid "I Voted"
+msgstr ""
+
+#: widgets/i-voted.php:31
+msgid "Show your readers that you voted with an \"I Voted\" sticker."
+msgstr ""
+
+#: widgets/gravatar.php:144
+msgid "You can modify your Gravatar from your <a href=\"/wp-admin/profile.php\">profile page</a>."
+msgstr "Du kan modifisere din Gravatar fra din <a href=\"/wp-admin/profile.php\">profilside</a>."
+
+#: widgets/gravatar.php:143
+msgid "Text displayed after Gravatar. This is optional and can be used to describe yourself or what your blog is about."
+msgstr ""
+
+#: widgets/gravatar.php:142
+msgid "Gravatar link. This is an optional URL that will be used when anyone clicks on your Gravatar:"
+msgstr "Gravatar-lenke. Dette er en valgfritt URL som vil bli brukt når noen klikker på din Gravatar:"
+
+#: widgets/gravatar.php:134
+msgid "Gravatar alignment:"
+msgstr "Gravatar-justering:"
+
+#: widgets/gravatar.php:125
+msgid "Size:"
+msgstr "Størrelse:"
+
+#: widgets/gravatar.php:122
+msgid "Custom Email Address:"
+msgstr "Tilpasset E-postadresse:"
+
+#: widgets/gravatar.php:119
+msgid "Select a user or pick \"custom\" and enter a custom email address."
+msgstr "Velg en bruker eller velg \"tilpasset\" og skriv inn en tilpasset E-postadresse."
+
+#: widgets/gravatar.php:115
+msgid "Center"
+msgstr "Senter"
+
+#: widgets/gravatar.php:115
+msgid "Right"
+msgstr "Høyre"
+
+#: widgets/gravatar.php:115
+msgid "Left"
+msgstr "Venstre"
+
+#: widgets/gravatar.php:115 widgets/top-clicks.php:108
+msgid "None"
+msgstr "Ingen"
+
+#: widgets/gravatar.php:114
+msgid "Extra Large (256 pixels)"
+msgstr "Ekstra stor (256 piksler)"
+
+#: widgets/gravatar.php:114
+msgid "Large (128 pixels)"
+msgstr "Stor (128 piksler)"
+
+#: widgets/gravatar.php:114
+msgid "Medium (96 pixels)"
+msgstr "Middels (96 piksler)"
+
+#: widgets/gravatar.php:114
+msgid "Small (64 pixels)"
+msgstr "Liten (64 piksler)"
+
+#: widgets/gravatar.php:84
+msgid "You need to pick a user or enter an email address in your <a href=\"%s\">Gravatar Widget</a> settings."
+msgstr "Du må velge en bruker eller skrive inn en E-postadresse i dine <a href=\"%s\">Gravatar-modul</a>innstillinger."
+
+#: widgets/gravatar.php:22
+msgid "Gravatar"
+msgstr "Gravatar"
+
+#: widgets/gravatar.php:20
+msgid "Insert a Gravatar image"
+msgstr "Sett inn et Gravatar bilde"
+
+#: widgets/freshly-pressed.php:60
+msgid "Choose an image to display in your sidebar:"
+msgstr "Velg et bilde som skal vises i din sidelinje:"
+
+#: widgets/freshly-pressed.php:10
+msgid "Freshly Pressed"
+msgstr "Nettopp publisert"
+
+#: widgets/freshly-pressed.php:8
+msgid "Display a Freshly Pressed badge in your sidebar"
+msgstr "Vis et Nypresset skilt i din sidelinje"
+
+#: widgets/author-grid.php:102 widgets/recent-comments-widget.php:360
+msgid "Avatar Size (px):"
+msgstr "Størrelse (px) på avatar:"
+
+#: widgets/author-grid.php:97
+msgid "Display all authors (including those who have not written any posts)"
+msgstr "Vis alle forfatterere (inkludert de som ikke har skrevet noe innlegg)"
+
+#: widgets/author-grid.php:91 widgets/freshly-pressed.php:56
+#: widgets/gravatar.php:117 widgets/i-voted.php:65 widgets/music-player.php:73
+#: widgets/posts-i-like.php:85 widgets/recent-comments-widget.php:343
+#: widgets/reservations.php:38 widgets/tag-cloud-widget.php:132
+#: widgets/tlkio/tlkio.php:51 widgets/top-clicks.php:41
+#: widgets/top-rated.php:115 widgets/twitter.php:357
+msgid "Title:"
+msgstr "Tittel:"
+
+#: widgets/author-grid.php:44
+msgid "Authors"
+msgstr "Forfattere"
+
+#: widgets/author-grid.php:12
+msgid "Show a grid of author avatar images."
+msgstr "Vis en netting av forfatter-avatarbilder."
+
+#: widgets/author-grid.php:11
+msgid "Author Grid"
+msgstr "Forfatter-netting"
+
+#: private-site/private-site.php:369
+msgid "Private Site"
+msgstr ""
+
+#: private-site/private-site.php:227 private-site/private-site.php:324
+#: private-site/private-site.php:468
+msgid "This site is private."
+msgstr "Dette nettstedet er privat."
+
+#: private-site/access-denied-private-site-template.php:45
+msgid "Log in"
+msgstr "Logg inn"
+
+#: private-site/access-denied-private-site-template.php:45
+msgid "Switch user"
+msgstr ""
+
+#: private-site/access-denied-private-site-template.php:43
+msgid "You need to be logged in as a user who has permission to view this site."
+msgstr ""
+
+#: privacy/participating-plugins.php:144
+msgid ""
+"Please note - this tool only displays privacy policy information provided by\n"
+"WordPress and participating plugins. It does not include privacy policy\n"
+"information for non-participating plugins. It is your responsibility to\n"
+"obtain privacy policy information for non-participating plugins separately."
+msgstr ""
+
+#: privacy/participating-plugins.php:94
+msgid ""
+"Please note - this tool only exports the personal data stored by WordPress and\n"
+"participating plugins. It does not export personal data stored by\n"
+"non-participating plugins. It is your responsibility to export personal data\n"
+"stored by non-participating plugins separately. The personal data exported\n"
+"includes only the following items at this time:"
+msgstr ""
+
+#: privacy/participating-plugins.php:47
+msgid ""
+"Please note - this tool only erases the personal data stored by WordPress and\n"
+"participating plugins. It does not delete registered users, nor does it erase\n"
+"personal data stored by non-participating plugins. It is your responsibility\n"
+"to delete registered users as well as personal data stored by non-participating\n"
+"plugins. The personal data erased includes only the following items at this\n"
+"time:"
+msgstr ""
+
+#: logo-tool/logo-tool.php:70
+msgid "Create logo"
+msgstr "Lag logo"
+
+#: logo-tool/logo-tool.php:60
+msgid "Add a logo to display on your site. No logo? Buy a pro one from Looka — Click “Create logo” to start."
+msgstr ""
+
+#. Description of the plugin
+msgid "WordPress.com provided functionality & tools"
+msgstr ""
+
+#. Plugin Name of the plugin
+msgid "WP.com Site Helper"
+msgstr ""

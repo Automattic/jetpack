@@ -1,0 +1,721 @@
+# Translation of WordPress.com - Site Helper in Chinese (Taiwan)
+# This file is distributed under the same license as the WordPress.com - Site Helper package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2020-02-26 14:05:41+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: GlotPress/2.4.0-alpha\n"
+"Language: zh_TW\n"
+"Project-Id-Version: WordPress.com - Site Helper\n"
+
+#: wpcomsh.php:909
+msgid "You are currently using <strong>%1$s</strong> out of <strong>%2$s</strong> upload limit (%3$s%%)."
+msgstr ""
+
+#: widgets/twitter.php:412
+msgid "Text to display between Tweet and timestamp:"
+msgstr "要在推文與時間戳記之間顯示的文字："
+
+#: widgets/twitter.php:406
+msgid "Display Follow Button"
+msgstr "顯示關注按鈕"
+
+#: widgets/twitter.php:399
+msgid "Include retweets"
+msgstr "納入轉推"
+
+#: widgets/twitter.php:392
+msgid "Hide Tweets pushed by Publicize"
+msgstr "隱藏 Publicize 推播的推文"
+
+#: widgets/twitter.php:385
+msgid "Hide replies"
+msgstr "隱藏回覆"
+
+#: widgets/twitter.php:371
+msgid "Maximum number of Tweets to show:"
+msgstr "推文顯示數上限："
+
+#: widgets/twitter.php:364
+msgid "Twitter username:"
+msgstr "Twitter 使用者名稱︰"
+
+#: widgets/twitter.php:353
+msgid "Please switch to the 'Twitter Timeline' widget. This widget will be going away in the future and the new widget allows for more customization."
+msgstr "請切換至「Twitter Timeline」小工具。這個小工具即將停用，新的小工具可讓您進行更多自訂設定。"
+
+#: widgets/twitter.php:289
+msgid "Error: Please make sure the Twitter account is %1$spublic%2$s."
+msgstr "錯誤：請確認 Twitter 帳號已設為%1$s公開%2$s。"
+
+#: widgets/twitter.php:262 widgets/twitter.php:275 widgets/twitter.php:296
+msgid "Error: Twitter did not respond. Please wait a few minutes and refresh this page."
+msgstr "錯誤：Twitter 沒有回應。請等待幾分鐘並重整此頁。"
+
+#: widgets/twitter.php:61
+msgid "Twitter Updates"
+msgstr "Twitter 更新"
+
+#: widgets/twitter.php:51
+msgid "Please configure your Twitter username for the <a href=\"%s\">Twitter Widget</a>."
+msgstr "請為 <a href=\"%s\">Twitter 小工具</a>設定你的 Twitter 使用者名稱。"
+
+#: widgets/twitter.php:29
+msgid "Display your Tweets from Twitter"
+msgstr "顯示你的 Twitter 推文"
+
+#: widgets/twitter.php:26
+msgid "Twitter"
+msgstr "Twitter "
+
+#: widgets/tag-cloud-widget.php:177
+msgid "Taxonomy:"
+msgstr "分類法："
+
+#: widgets/tag-cloud-widget.php:159
+msgid "The tag cloud will not be displayed since there are no taxonomies that support the tag cloud widget."
+msgstr "此標籤雲將不會顯示，因為沒有分類法支援標籤雲小工具。"
+
+#: widgets/tag-cloud-widget.php:152
+msgid "Show tag counts"
+msgstr "顯示標籤數量"
+
+#: widgets/tag-cloud-widget.php:139
+msgid "Maximum number of tags displayed"
+msgstr ""
+
+#: widgets/tag-cloud-widget.php:137
+msgid "Number of Tags:"
+msgstr ""
+
+#: widgets/tag-cloud-widget.php:41
+msgid "Tags"
+msgstr "標籤"
+
+#: widgets/tag-cloud-widget.php:21
+msgid "Tag Cloud"
+msgstr "標籤雲"
+
+#: widgets/tag-cloud-widget.php:18
+msgid "A cloud of your most used tags."
+msgstr "你最常使用的標籤雲。"
+
+#: widgets/instagram/instagram.php:245
+msgid "New images may take up to %d minutes to show up on your site."
+msgstr "新圖片可能需要 %d 分鐘才會在你的網站上顯示。"
+
+#: widgets/instagram/instagram.php:237
+msgid "Number of columns:"
+msgstr "欄位數："
+
+#: widgets/instagram/instagram.php:236
+msgid "Layout"
+msgstr "版面形式"
+
+#: widgets/instagram/instagram.php:226
+msgid "Number to display:"
+msgstr "顯示數："
+
+#: widgets/instagram/instagram.php:225
+msgid "Images"
+msgstr "圖片"
+
+#: widgets/instagram/instagram.php:221
+msgid "Widget Title"
+msgstr "小工具標題"
+
+#: widgets/instagram/instagram.php:189
+msgid "No Instagram images were found."
+msgstr "沒有找到 Instagram 圖片。"
+
+#: widgets/instagram/instagram.php:186
+msgid "There was an error retrieving images from Instagram. An attempt will be remade in a few minutes."
+msgstr "從 Instagram 擷取圖片時發生錯誤。幾分鐘後會自動再試一次。"
+
+#: widgets/instagram/instagram.php:30
+msgid "Display your latest Instagram photos."
+msgstr "顯示最新的 Instagram 相片。"
+
+#: widgets/instagram/instagram.php:28 widgets/instagram/instagram.php:43
+msgid "Instagram"
+msgstr "Instagram"
+
+#: widgets/aboutme.php:148
+msgid "Apps"
+msgstr "應用程式"
+
+#: widgets/aboutme.php:141
+msgid "Biography"
+msgstr "個人簡介"
+
+#: widgets/aboutme.php:134
+msgid "Headline"
+msgstr "標題"
+
+#: widgets/aboutme.php:127
+msgid "Photo"
+msgstr "照片"
+
+#: widgets/aboutme.php:123
+msgid "Don't Display Name"
+msgstr "不要顯示名稱"
+
+#: widgets/aboutme.php:121
+msgid "Display Small"
+msgstr "顯示小型"
+
+#: widgets/aboutme.php:119
+msgid "Display Medium"
+msgstr "顯示中型"
+
+#: widgets/aboutme.php:117
+msgid "Display Large"
+msgstr "顯示大型"
+
+#: widgets/aboutme.php:115
+msgid "Display X-Large"
+msgstr "顯示超大型"
+
+#: widgets/aboutme.php:104
+msgid "Your about.me URL"
+msgstr ""
+
+#: widgets/aboutme.php:97
+msgid "Widget title"
+msgstr "小工具標題"
+
+#: widgets/aboutme.php:90
+msgid "The about.me widget will no longer be available after July 1, 2016. After this date, the widget will display a simple text link to your about.me profile. Please remove this widget."
+msgstr ""
+
+#: widgets/aboutme.php:37
+msgid "The about.me widget is no longer available. To remove this widget, <a href=\"%s\">visit your settings</a>. This message is not shown to visitors to your site."
+msgstr ""
+
+#: widgets/aboutme.php:20
+msgid "About.me Widget"
+msgstr ""
+
+#: widgets/aboutme.php:18
+msgid "Display your about.me profile with thumbnail"
+msgstr ""
+
+#: safeguard/utils.php:58
+msgid "Unable to fetch the requested data."
+msgstr ""
+
+#: private-site/access-denied-coming-soon-template.php:142
+msgid "Log in here"
+msgstr "請由此登入"
+
+#: footer-credit/theme-optimizations.php:37
+msgid "Create a free website or blog at WordPress.com"
+msgstr "在 WordPress.com 建立免費網站或網誌"
+
+#: footer-credit/theme-optimizations.php:32
+msgid "Create a free website at WordPress.com"
+msgstr "在 WordPress.com 建立免費網站"
+
+#: footer-credit/footer-credit/footer-credit.php:101
+msgid "Powered by WordPress.com"
+msgstr "由 WordPress.com 建置"
+
+#: footer-credit/footer-credit/footer-credit.php:98
+#: footer-credit/theme-optimizations.php:30
+#: footer-credit/theme-optimizations.php:35
+msgid "Blog at WordPress.com"
+msgstr "在WordPress.com寫網誌"
+
+#: footer-credit/footer-credit/footer-credit.php:97
+msgid "A WordPress.com Website"
+msgstr ""
+
+#: footer-credit/footer-credit/footer-credit.php:96
+msgid "WordPress.com Logo"
+msgstr "WordPress.com 標誌"
+
+#: footer-credit/footer-credit/footer-credit.php:41
+#: footer-credit/footer-credit/footer-credit.php:205
+msgid "Create a website or blog at WordPress.com"
+msgstr ""
+
+#: footer-credit/footer-credit/customizer.php:85
+msgid "Footer Credit"
+msgstr "頁尾版權宣告"
+
+#: footer-credit/footer-credit/customizer.php:62
+msgid "Upgrade to Business"
+msgstr "升級至商用版"
+
+#: footer-credit/footer-credit/customizer.php:54
+msgid "Hide (Business Plan Required)"
+msgstr ""
+
+#: footer-credit/footer-credit/customizer.php:52
+msgid "Hide"
+msgstr "隱藏"
+
+#: footer-credit/footer-credit/customizer.php:41
+msgid "Default"
+msgstr "預設"
+
+#: footer-credit/footer-credit-optimizations.php:159
+msgid "Design by"
+msgstr "設計者："
+
+#: footer-credit/footer-credit-optimizations.php:147
+msgid "by"
+msgstr "由"
+
+#: footer-credit/footer-credit-optimizations.php:130
+msgid "Theme"
+msgstr "佈景主題"
+
+#: footer-credit/footer-credit-optimizations.php:114
+msgid "Proudly powered by WordPress"
+msgstr "由 WordPress 提供絕佳技術支援"
+
+#: customizer-fixes/customizer-fixes.php:13
+msgid "Save Settings"
+msgstr "儲存設定"
+
+#: customizer-fixes/customizer-fixes.php:12
+msgid "Are you sure you want to discard your unsaved changes?"
+msgstr ""
+
+#: customizer-fixes/customizer-fixes.php:11
+msgid "Saved"
+msgstr "已儲存"
+
+#: customizer-fixes/customizer-fixes.php:10
+msgid "Save Changes"
+msgstr "儲存變更"
+
+#: customizer-fixes/customizer-fixes.php:9
+msgid "Save"
+msgstr "儲存"
+
+#: customizer-fixes/customizer-fixes.php:8
+msgid "Activate &amp; Save"
+msgstr ""
+
+#: private-site/private-site.php:123
+msgid "Manage your site visibility settings"
+msgstr ""
+
+#: private-site/access-denied-coming-soon-template.php:140
+msgid "Something new is coming."
+msgstr "即將推出全新項目。"
+
+#: wpcomsh.php:338
+msgid "This plugin was installed by WordPress.com and provides features offered in your plan subscription."
+msgstr ""
+
+#: wpcomsh.php:335
+msgid "%s is automatically managed for you."
+msgstr ""
+
+#: widgets/top-rated.php:141
+msgid "How many items would you like to display?"
+msgstr "你想要顯示多少項目？"
+
+#: widgets/top-rated.php:137
+msgid "Filter by category"
+msgstr "依分類篩選"
+
+#: widgets/top-rated.php:131
+msgid "Show for comments"
+msgstr "針對留言顯示"
+
+#: widgets/top-rated.php:125
+msgid "Show for pages"
+msgstr "針對網頁顯示"
+
+#: widgets/top-rated.php:119
+msgid "Show for posts"
+msgstr "針對文章顯示"
+
+#: widgets/top-rated.php:11 widgets/top-rated.php:32
+msgid "Top Rated"
+msgstr "最高評分"
+
+#: widgets/top-rated.php:10
+msgid "A list of your top rated posts, pages or comments."
+msgstr "你評分最高的文章、網頁或留言清單。"
+
+#: widgets/top-clicks.php:61
+msgid "Top Clicks are calculated from 48-72 hours of stats. They take a while to change."
+msgstr "最多人點選是根據過去48～72小時之內的統計數據計算而成，需要一段時間才會更新。"
+
+#: widgets/top-clicks.php:53
+msgid "URLs to show:"
+msgstr "顯示網址："
+
+#: widgets/top-clicks.php:47
+msgid "Display length:"
+msgstr "顯示長度："
+
+#: widgets/top-clicks.php:14
+msgid "List the most-clicked links on your blog."
+msgstr "列出你網誌中點擊次數最多的連結。"
+
+#: widgets/top-clicks.php:13 widgets/top-clicks.php:22
+#: widgets/top-clicks.php:66
+msgid "Top Clicks"
+msgstr "最多人點選"
+
+#: widgets/tlkio/tlkio.php:59
+msgid "Height (in pixel):"
+msgstr "高度 (像素)："
+
+#: widgets/tlkio/tlkio.php:55
+msgid "Channel:"
+msgstr "頻道："
+
+#: widgets/tlkio/tlkio.php:26
+msgid "tlk.io Webchat"
+msgstr "tlk.io Webchat"
+
+#: widgets/tlkio/tlkio.php:25
+msgid "Add a tlk.io webchat."
+msgstr "新增 tlk.io 網路聊天室。"
+
+#: widgets/reservations.php:55
+msgid "Show:"
+msgstr "顯示："
+
+#: widgets/reservations.php:50
+msgid "E-mail Subject:"
+msgstr "電子郵件主旨："
+
+#: widgets/reservations.php:44
+msgid "Recipient E-mail Address:"
+msgstr "收件人電子郵件地址："
+
+#: widgets/reservations.php:29
+msgid "Departure"
+msgstr "離開時間"
+
+#: widgets/reservations.php:28
+msgid "Arrival"
+msgstr "抵達時間"
+
+#: widgets/reservations.php:27
+msgid "# Children"
+msgstr "# 位小孩"
+
+#: widgets/reservations.php:26
+msgid "# Adults"
+msgstr "# 位大人"
+
+#: widgets/reservations.php:25
+msgid "Message"
+msgstr "訊息"
+
+#: widgets/reservations.php:24
+msgid "Phone"
+msgstr "電話號碼"
+
+#: widgets/reservations.php:23
+msgid "Email"
+msgstr "電子郵件"
+
+#: widgets/aboutme.php:111 widgets/reservations.php:22
+msgid "Name"
+msgstr "名稱"
+
+#: widgets/reservations.php:16
+msgid "Reservation Inquiry"
+msgstr "訂位詢問"
+
+#: widgets/reservations.php:10 widgets/reservations.php:15
+msgid "Reservations"
+msgstr "訂位"
+
+#: widgets/recent-comments-widget.php:384
+msgid "Show comments from:"
+msgstr "顯示下列來源的留言："
+
+#: widgets/recent-comments-widget.php:379
+msgid "Text background color:"
+msgstr "文字的背景色："
+
+#: widgets/recent-comments-widget.php:373
+msgid "Avatar background color:"
+msgstr "頭像的背景顏色："
+
+#: widgets/recent-comments-widget.php:362
+msgid "No Avatars"
+msgstr "沒有頭像"
+
+#: widgets/recent-comments-widget.php:355
+msgid "(at most 15)"
+msgstr "（最多 15 篇）"
+
+#: widgets/recent-comments-widget.php:349
+msgid "Number of comments to show:"
+msgstr "顯示幾篇迴響："
+
+#: widgets/recent-comments-widget.php:284
+msgid "There are no public comments available to display."
+msgstr "沒有可顯示的公開留言。"
+
+#. translators: comments widget: 1: comment author, 2: post link
+#: widgets/recent-comments-widget.php:275
+#: widgets/recent-comments-widget.php:308
+msgctxt "widgets"
+msgid "%1$s on %2$s"
+msgstr "%1$s 在 %2$s"
+
+#: widgets/recent-comments-widget.php:252
+msgid "Anonymous"
+msgstr "匿名"
+
+#: widgets/recent-comments-widget.php:30
+msgid "Display your site's most recent comments"
+msgstr "顯示你的網站裡最近的留言"
+
+#: widgets/recent-comments-widget.php:29 widgets/recent-comments-widget.php:146
+msgid "Recent Comments"
+msgstr "近期迴響"
+
+#: widgets/posts-i-like.php:269
+msgid "You have not recently liked any posts. Once you do, this <a href=\"%s\">Posts I Like</a> widget will display them."
+msgstr "你最近尚未對任何文章說讚。按讚以後，這個<a href=\"%s\">我按讚的文章</a>小工具就會顯示這些內容。"
+
+#: widgets/posts-i-like.php:259
+msgid "on"
+msgstr "於"
+
+#: widgets/posts-i-like.php:236
+msgctxt "1: Post Title, 2: Blog Name"
+msgid "%1$s on %2$s"
+msgstr "「%1$s」對「%2$s」留言"
+
+#: widgets/posts-i-like.php:113
+msgid "Author's likes to display:"
+msgstr "顯示作者的讚："
+
+#: widgets/posts-i-like.php:98
+msgid "Grid"
+msgstr "網格"
+
+#: widgets/posts-i-like.php:97
+msgid "List"
+msgstr "列表"
+
+#: widgets/posts-i-like.php:95
+msgid "Display as:"
+msgstr "顯示為："
+
+#: widgets/posts-i-like.php:90
+msgid "Number of posts to show (1 to 15):"
+msgstr "文章顯示數 (1 到 15)："
+
+#: widgets/posts-i-like.php:27
+msgid "A list of the posts I most recently liked"
+msgstr "我最近按讚的文章清單"
+
+#: widgets/posts-i-like.php:25 widgets/posts-i-like.php:32
+msgid "Posts I Like"
+msgstr "我按讚的文章"
+
+#: widgets/music-player.php:82
+msgid "Choose songs"
+msgstr "選擇歌曲"
+
+#: widgets/music-player.php:16 widgets/music-player.php:87
+msgid "Music Player"
+msgstr "音樂播放器"
+
+#: widgets/music-player.php:15
+msgid "A multi-song music player"
+msgstr "多首歌曲音樂播放器"
+
+#: widgets/i-voted.php:33
+msgid "I Voted"
+msgstr ""
+
+#: widgets/i-voted.php:31
+msgid "Show your readers that you voted with an \"I Voted\" sticker."
+msgstr ""
+
+#: widgets/gravatar.php:144
+msgid "You can modify your Gravatar from your <a href=\"/wp-admin/profile.php\">profile page</a>."
+msgstr "你可以從<a href=\"/wp-admin/profile.php\">個人檔案頁面</a>修改你的 Gravatar。"
+
+#: widgets/gravatar.php:143
+msgid "Text displayed after Gravatar. This is optional and can be used to describe yourself or what your blog is about."
+msgstr "顯示在 Gravatar 之後的文字。此為選填，可用來描述你自己或網誌內容。"
+
+#: widgets/gravatar.php:142
+msgid "Gravatar link. This is an optional URL that will be used when anyone clicks on your Gravatar:"
+msgstr "Gravatar 連結。此 URL 為選填，以供有人點擊你的 Gravatar 時使用："
+
+#: widgets/gravatar.php:134
+msgid "Gravatar alignment:"
+msgstr "Gravatar 對齊："
+
+#: widgets/gravatar.php:125
+msgid "Size:"
+msgstr "大小:"
+
+#: widgets/gravatar.php:122
+msgid "Custom Email Address:"
+msgstr "自訂 Email 地址："
+
+#: widgets/gravatar.php:119
+msgid "Select a user or pick \"custom\" and enter a custom email address."
+msgstr "選擇一個使用者或挑選 \"自定義\" ，然後輸入一個自定的 email 地址。"
+
+#: widgets/gravatar.php:115
+msgid "Center"
+msgstr "置中"
+
+#: widgets/gravatar.php:115
+msgid "Right"
+msgstr "靠右"
+
+#: widgets/gravatar.php:115
+msgid "Left"
+msgstr "靠左"
+
+#: widgets/gravatar.php:115 widgets/top-clicks.php:108
+msgid "None"
+msgstr "無"
+
+#: widgets/gravatar.php:114
+msgid "Extra Large (256 pixels)"
+msgstr "超大型 (256 像素)"
+
+#: widgets/gravatar.php:114
+msgid "Large (128 pixels)"
+msgstr "大型 (128 像素)"
+
+#: widgets/gravatar.php:114
+msgid "Medium (96 pixels)"
+msgstr "中型 (96 像素)"
+
+#: widgets/gravatar.php:114
+msgid "Small (64 pixels)"
+msgstr "小型 (64 像素)"
+
+#: widgets/gravatar.php:84
+msgid "You need to pick a user or enter an email address in your <a href=\"%s\">Gravatar Widget</a> settings."
+msgstr "你需要在 <a href=\"%s\">Gravatar 小工具</a>設定中挑選使用者或輸入電子郵件地址。"
+
+#: widgets/gravatar.php:22
+msgid "Gravatar"
+msgstr ""
+
+#: widgets/gravatar.php:20
+msgid "Insert a Gravatar image"
+msgstr "插入一張 Gravatar 影像"
+
+#: widgets/freshly-pressed.php:60
+msgid "Choose an image to display in your sidebar:"
+msgstr "在你的側欄中選擇一張圖片："
+
+#: widgets/freshly-pressed.php:10
+msgid "Freshly Pressed"
+msgstr "熱門文章"
+
+#: widgets/freshly-pressed.php:8
+msgid "Display a Freshly Pressed badge in your sidebar"
+msgstr "在側欄中顯示「最新發表」的徽章"
+
+#: widgets/author-grid.php:102 widgets/recent-comments-widget.php:360
+msgid "Avatar Size (px):"
+msgstr "大頭貼尺寸 (像素)："
+
+#: widgets/author-grid.php:97
+msgid "Display all authors (including those who have not written any posts)"
+msgstr "顯示所有作者 (包括沒有撰寫任何文章的作者)"
+
+#: widgets/author-grid.php:91 widgets/freshly-pressed.php:56
+#: widgets/gravatar.php:117 widgets/i-voted.php:65 widgets/music-player.php:73
+#: widgets/posts-i-like.php:85 widgets/recent-comments-widget.php:343
+#: widgets/reservations.php:38 widgets/tag-cloud-widget.php:132
+#: widgets/tlkio/tlkio.php:51 widgets/top-clicks.php:41
+#: widgets/top-rated.php:115 widgets/twitter.php:357
+msgid "Title:"
+msgstr "標題："
+
+#: widgets/author-grid.php:44
+msgid "Authors"
+msgstr "作者"
+
+#: widgets/author-grid.php:12
+msgid "Show a grid of author avatar images."
+msgstr "顯示作者頭像圖片網格。"
+
+#: widgets/author-grid.php:11
+msgid "Author Grid"
+msgstr "作者網格"
+
+#: private-site/private-site.php:369
+msgid "Private Site"
+msgstr ""
+
+#: private-site/private-site.php:227 private-site/private-site.php:324
+#: private-site/private-site.php:468
+msgid "This site is private."
+msgstr ""
+
+#: private-site/access-denied-private-site-template.php:45
+msgid "Log in"
+msgstr "登入"
+
+#: private-site/access-denied-private-site-template.php:45
+msgid "Switch user"
+msgstr ""
+
+#: private-site/access-denied-private-site-template.php:43
+msgid "You need to be logged in as a user who has permission to view this site."
+msgstr ""
+
+#: privacy/participating-plugins.php:144
+msgid ""
+"Please note - this tool only displays privacy policy information provided by\n"
+"WordPress and participating plugins. It does not include privacy policy\n"
+"information for non-participating plugins. It is your responsibility to\n"
+"obtain privacy policy information for non-participating plugins separately."
+msgstr ""
+
+#: privacy/participating-plugins.php:94
+msgid ""
+"Please note - this tool only exports the personal data stored by WordPress and\n"
+"participating plugins. It does not export personal data stored by\n"
+"non-participating plugins. It is your responsibility to export personal data\n"
+"stored by non-participating plugins separately. The personal data exported\n"
+"includes only the following items at this time:"
+msgstr ""
+
+#: privacy/participating-plugins.php:47
+msgid ""
+"Please note - this tool only erases the personal data stored by WordPress and\n"
+"participating plugins. It does not delete registered users, nor does it erase\n"
+"personal data stored by non-participating plugins. It is your responsibility\n"
+"to delete registered users as well as personal data stored by non-participating\n"
+"plugins. The personal data erased includes only the following items at this\n"
+"time:"
+msgstr ""
+
+#: logo-tool/logo-tool.php:70
+msgid "Create logo"
+msgstr "建立標誌"
+
+#: logo-tool/logo-tool.php:60
+msgid "Add a logo to display on your site. No logo? Buy a pro one from Looka — Click “Create logo” to start."
+msgstr ""
+
+#. Description of the plugin
+msgid "WordPress.com provided functionality & tools"
+msgstr ""
+
+#. Plugin Name of the plugin
+msgid "WP.com Site Helper"
+msgstr ""

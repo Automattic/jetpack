@@ -120,7 +120,7 @@ function privatize_blog_priv_selector() {
 	} else {
 		$site_slug = Jetpack::build_raw_urls( get_home_url() );
 		$settings_url = esc_url_raw( sprintf( 'https://wordpress.com/settings/general/%s#site-privacy-settings', $site_slug ) );
-		$manage_label = __( 'Manage your site visibility settings' );
+		$manage_label = __( 'Manage your site visibility settings', 'wpcomsh' );
 		$escaped_content = '<a target="_blank" href="' . esc_url( $settings_url ) . '">' . esc_html( $manage_label ) . '</a>';
 	}
 
@@ -224,7 +224,7 @@ function send_access_denied_error_response() {
 	if ( ( defined( 'DOING_AJAX' ) && DOING_AJAX ) ||
 		 'admin-ajax.php' === ( $wp->query_vars['pagename'] ?? '' )
 	) {
-		wp_send_json_error( [ 'code' => 'private_site', 'message' => __( 'This site is private.' ) ] );
+		wp_send_json_error( [ 'code' => 'private_site', 'message' => __( 'This site is private.', 'wpcomsh' ) ] );
 	}
 
 	require access_denied_template_path();
@@ -321,7 +321,7 @@ function rest_dispatch_request( $dispatch_result, $request, $route, $handler ) {
 	}
 
 	if ( should_prevent_site_access() ) {
-		return new WP_Error( 'private_site', __( 'This site is private.' ), [ 'status' => 403 ] );
+		return new WP_Error( 'private_site', __( 'This site is private.', 'wpcomsh' ), [ 'status' => 403 ] );
 	}
 
 	return null;
@@ -366,7 +366,7 @@ function is_private_blog_user() {
  */
 function mask_site_name( $value, $what ) {
 	if ( should_prevent_site_access() && in_array( $what, [ 'name', 'title' ], true ) ) {
-		return __( 'Private Site' );
+		return __( 'Private Site', 'wpcomsh' );
 	}
 
 	return $value;
@@ -465,7 +465,7 @@ function hide_opml() {
 	if ( should_prevent_site_access() ) {
 		status_header( 403 );
 ?>
-		<error><?php esc_html_e( 'This site is private.' ) ?></error>
+		<error><?php esc_html_e( 'This site is private.', 'wpcomsh' ) ?></error>
 	</head>
 </opml>
 <?php

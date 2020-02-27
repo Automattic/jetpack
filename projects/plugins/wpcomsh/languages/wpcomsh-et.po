@@ -1,0 +1,721 @@
+# Translation of WordPress.com - Site Helper in Estonian
+# This file is distributed under the same license as the WordPress.com - Site Helper package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2020-02-26 14:05:04+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: GlotPress/2.4.0-alpha\n"
+"Language: et_EE\n"
+"Project-Id-Version: WordPress.com - Site Helper\n"
+
+#: wpcomsh.php:909
+msgid "You are currently using <strong>%1$s</strong> out of <strong>%2$s</strong> upload limit (%3$s%%)."
+msgstr ""
+
+#: widgets/twitter.php:412
+msgid "Text to display between Tweet and timestamp:"
+msgstr ""
+
+#: widgets/twitter.php:406
+msgid "Display Follow Button"
+msgstr ""
+
+#: widgets/twitter.php:399
+msgid "Include retweets"
+msgstr ""
+
+#: widgets/twitter.php:392
+msgid "Hide Tweets pushed by Publicize"
+msgstr ""
+
+#: widgets/twitter.php:385
+msgid "Hide replies"
+msgstr ""
+
+#: widgets/twitter.php:371
+msgid "Maximum number of Tweets to show:"
+msgstr ""
+
+#: widgets/twitter.php:364
+msgid "Twitter username:"
+msgstr ""
+
+#: widgets/twitter.php:353
+msgid "Please switch to the 'Twitter Timeline' widget. This widget will be going away in the future and the new widget allows for more customization."
+msgstr ""
+
+#: widgets/twitter.php:289
+msgid "Error: Please make sure the Twitter account is %1$spublic%2$s."
+msgstr ""
+
+#: widgets/twitter.php:262 widgets/twitter.php:275 widgets/twitter.php:296
+msgid "Error: Twitter did not respond. Please wait a few minutes and refresh this page."
+msgstr ""
+
+#: widgets/twitter.php:61
+msgid "Twitter Updates"
+msgstr ""
+
+#: widgets/twitter.php:51
+msgid "Please configure your Twitter username for the <a href=\"%s\">Twitter Widget</a>."
+msgstr ""
+
+#: widgets/twitter.php:29
+msgid "Display your Tweets from Twitter"
+msgstr ""
+
+#: widgets/twitter.php:26
+msgid "Twitter"
+msgstr "Twitter"
+
+#: widgets/tag-cloud-widget.php:177
+msgid "Taxonomy:"
+msgstr "Taksonoomia:"
+
+#: widgets/tag-cloud-widget.php:159
+msgid "The tag cloud will not be displayed since there are no taxonomies that support the tag cloud widget."
+msgstr "Sildipilve ei kuvata, kuna puuduvad sildipilvemoodulit toetavad taksonoomiad."
+
+#: widgets/tag-cloud-widget.php:152
+msgid "Show tag counts"
+msgstr "Kuva siltide arv"
+
+#: widgets/tag-cloud-widget.php:139
+msgid "Maximum number of tags displayed"
+msgstr ""
+
+#: widgets/tag-cloud-widget.php:137
+msgid "Number of Tags:"
+msgstr ""
+
+#: widgets/tag-cloud-widget.php:41
+msgid "Tags"
+msgstr "Sildid"
+
+#: widgets/tag-cloud-widget.php:21
+msgid "Tag Cloud"
+msgstr "Sildipilv"
+
+#: widgets/tag-cloud-widget.php:18
+msgid "A cloud of your most used tags."
+msgstr "Viimati kasutatud siltide pilv."
+
+#: widgets/instagram/instagram.php:245
+msgid "New images may take up to %d minutes to show up on your site."
+msgstr ""
+
+#: widgets/instagram/instagram.php:237
+msgid "Number of columns:"
+msgstr ""
+
+#: widgets/instagram/instagram.php:236
+msgid "Layout"
+msgstr "Ülesehitus"
+
+#: widgets/instagram/instagram.php:226
+msgid "Number to display:"
+msgstr ""
+
+#: widgets/instagram/instagram.php:225
+msgid "Images"
+msgstr "Pildid"
+
+#: widgets/instagram/instagram.php:221
+msgid "Widget Title"
+msgstr ""
+
+#: widgets/instagram/instagram.php:189
+msgid "No Instagram images were found."
+msgstr ""
+
+#: widgets/instagram/instagram.php:186
+msgid "There was an error retrieving images from Instagram. An attempt will be remade in a few minutes."
+msgstr ""
+
+#: widgets/instagram/instagram.php:30
+msgid "Display your latest Instagram photos."
+msgstr ""
+
+#: widgets/instagram/instagram.php:28 widgets/instagram/instagram.php:43
+msgid "Instagram"
+msgstr "Instagram"
+
+#: widgets/aboutme.php:148
+msgid "Apps"
+msgstr ""
+
+#: widgets/aboutme.php:141
+msgid "Biography"
+msgstr ""
+
+#: widgets/aboutme.php:134
+msgid "Headline"
+msgstr ""
+
+#: widgets/aboutme.php:127
+msgid "Photo"
+msgstr ""
+
+#: widgets/aboutme.php:123
+msgid "Don't Display Name"
+msgstr ""
+
+#: widgets/aboutme.php:121
+msgid "Display Small"
+msgstr ""
+
+#: widgets/aboutme.php:119
+msgid "Display Medium"
+msgstr ""
+
+#: widgets/aboutme.php:117
+msgid "Display Large"
+msgstr ""
+
+#: widgets/aboutme.php:115
+msgid "Display X-Large"
+msgstr ""
+
+#: widgets/aboutme.php:104
+msgid "Your about.me URL"
+msgstr ""
+
+#: widgets/aboutme.php:97
+msgid "Widget title"
+msgstr ""
+
+#: widgets/aboutme.php:90
+msgid "The about.me widget will no longer be available after July 1, 2016. After this date, the widget will display a simple text link to your about.me profile. Please remove this widget."
+msgstr ""
+
+#: widgets/aboutme.php:37
+msgid "The about.me widget is no longer available. To remove this widget, <a href=\"%s\">visit your settings</a>. This message is not shown to visitors to your site."
+msgstr ""
+
+#: widgets/aboutme.php:20
+msgid "About.me Widget"
+msgstr ""
+
+#: widgets/aboutme.php:18
+msgid "Display your about.me profile with thumbnail"
+msgstr ""
+
+#: safeguard/utils.php:58
+msgid "Unable to fetch the requested data."
+msgstr ""
+
+#: private-site/access-denied-coming-soon-template.php:142
+msgid "Log in here"
+msgstr ""
+
+#: footer-credit/theme-optimizations.php:37
+msgid "Create a free website or blog at WordPress.com"
+msgstr ""
+
+#: footer-credit/theme-optimizations.php:32
+msgid "Create a free website at WordPress.com"
+msgstr ""
+
+#: footer-credit/footer-credit/footer-credit.php:101
+msgid "Powered by WordPress.com"
+msgstr ""
+
+#: footer-credit/footer-credit/footer-credit.php:98
+#: footer-credit/theme-optimizations.php:30
+#: footer-credit/theme-optimizations.php:35
+msgid "Blog at WordPress.com"
+msgstr ""
+
+#: footer-credit/footer-credit/footer-credit.php:97
+msgid "A WordPress.com Website"
+msgstr ""
+
+#: footer-credit/footer-credit/footer-credit.php:96
+msgid "WordPress.com Logo"
+msgstr ""
+
+#: footer-credit/footer-credit/footer-credit.php:41
+#: footer-credit/footer-credit/footer-credit.php:205
+msgid "Create a website or blog at WordPress.com"
+msgstr ""
+
+#: footer-credit/footer-credit/customizer.php:85
+msgid "Footer Credit"
+msgstr ""
+
+#: footer-credit/footer-credit/customizer.php:62
+msgid "Upgrade to Business"
+msgstr ""
+
+#: footer-credit/footer-credit/customizer.php:54
+msgid "Hide (Business Plan Required)"
+msgstr ""
+
+#: footer-credit/footer-credit/customizer.php:52
+msgid "Hide"
+msgstr "Peida"
+
+#: footer-credit/footer-credit/customizer.php:41
+msgid "Default"
+msgstr "Vaikimisi"
+
+#: footer-credit/footer-credit-optimizations.php:159
+msgid "Design by"
+msgstr ""
+
+#: footer-credit/footer-credit-optimizations.php:147
+msgid "by"
+msgstr "kirjutas"
+
+#: footer-credit/footer-credit-optimizations.php:130
+msgid "Theme"
+msgstr "Teema"
+
+#: footer-credit/footer-credit-optimizations.php:114
+msgid "Proudly powered by WordPress"
+msgstr ""
+
+#: customizer-fixes/customizer-fixes.php:13
+msgid "Save Settings"
+msgstr "Salvesta seaded"
+
+#: customizer-fixes/customizer-fixes.php:12
+msgid "Are you sure you want to discard your unsaved changes?"
+msgstr ""
+
+#: customizer-fixes/customizer-fixes.php:11
+msgid "Saved"
+msgstr "Salvestatud"
+
+#: customizer-fixes/customizer-fixes.php:10
+msgid "Save Changes"
+msgstr "Salvesta muudatused"
+
+#: customizer-fixes/customizer-fixes.php:9
+msgid "Save"
+msgstr "Salvesta"
+
+#: customizer-fixes/customizer-fixes.php:8
+msgid "Activate &amp; Save"
+msgstr ""
+
+#: private-site/private-site.php:123
+msgid "Manage your site visibility settings"
+msgstr ""
+
+#: private-site/access-denied-coming-soon-template.php:140
+msgid "Something new is coming."
+msgstr ""
+
+#: wpcomsh.php:338
+msgid "This plugin was installed by WordPress.com and provides features offered in your plan subscription."
+msgstr ""
+
+#: wpcomsh.php:335
+msgid "%s is automatically managed for you."
+msgstr ""
+
+#: widgets/top-rated.php:141
+msgid "How many items would you like to display?"
+msgstr "Kui mitut postitust soovid näidata?"
+
+#: widgets/top-rated.php:137
+msgid "Filter by category"
+msgstr "Filtreeri rubriigi järgi"
+
+#: widgets/top-rated.php:131
+msgid "Show for comments"
+msgstr ""
+
+#: widgets/top-rated.php:125
+msgid "Show for pages"
+msgstr ""
+
+#: widgets/top-rated.php:119
+msgid "Show for posts"
+msgstr ""
+
+#: widgets/top-rated.php:11 widgets/top-rated.php:32
+msgid "Top Rated"
+msgstr ""
+
+#: widgets/top-rated.php:10
+msgid "A list of your top rated posts, pages or comments."
+msgstr ""
+
+#: widgets/top-clicks.php:61
+msgid "Top Clicks are calculated from 48-72 hours of stats. They take a while to change."
+msgstr ""
+
+#: widgets/top-clicks.php:53
+msgid "URLs to show:"
+msgstr ""
+
+#: widgets/top-clicks.php:47
+msgid "Display length:"
+msgstr ""
+
+#: widgets/top-clicks.php:14
+msgid "List the most-clicked links on your blog."
+msgstr ""
+
+#: widgets/top-clicks.php:13 widgets/top-clicks.php:22
+#: widgets/top-clicks.php:66
+msgid "Top Clicks"
+msgstr ""
+
+#: widgets/tlkio/tlkio.php:59
+msgid "Height (in pixel):"
+msgstr ""
+
+#: widgets/tlkio/tlkio.php:55
+msgid "Channel:"
+msgstr ""
+
+#: widgets/tlkio/tlkio.php:26
+msgid "tlk.io Webchat"
+msgstr ""
+
+#: widgets/tlkio/tlkio.php:25
+msgid "Add a tlk.io webchat."
+msgstr ""
+
+#: widgets/reservations.php:55
+msgid "Show:"
+msgstr "Näita:"
+
+#: widgets/reservations.php:50
+msgid "E-mail Subject:"
+msgstr ""
+
+#: widgets/reservations.php:44
+msgid "Recipient E-mail Address:"
+msgstr ""
+
+#: widgets/reservations.php:29
+msgid "Departure"
+msgstr ""
+
+#: widgets/reservations.php:28
+msgid "Arrival"
+msgstr ""
+
+#: widgets/reservations.php:27
+msgid "# Children"
+msgstr ""
+
+#: widgets/reservations.php:26
+msgid "# Adults"
+msgstr ""
+
+#: widgets/reservations.php:25
+msgid "Message"
+msgstr "Sõnum"
+
+#: widgets/reservations.php:24
+msgid "Phone"
+msgstr "Telefon"
+
+#: widgets/reservations.php:23
+msgid "Email"
+msgstr "E-post"
+
+#: widgets/aboutme.php:111 widgets/reservations.php:22
+msgid "Name"
+msgstr "Nimi"
+
+#: widgets/reservations.php:16
+msgid "Reservation Inquiry"
+msgstr ""
+
+#: widgets/reservations.php:10 widgets/reservations.php:15
+msgid "Reservations"
+msgstr ""
+
+#: widgets/recent-comments-widget.php:384
+msgid "Show comments from:"
+msgstr ""
+
+#: widgets/recent-comments-widget.php:379
+msgid "Text background color:"
+msgstr "Teksti taustavärv"
+
+#: widgets/recent-comments-widget.php:373
+msgid "Avatar background color:"
+msgstr ""
+
+#: widgets/recent-comments-widget.php:362
+msgid "No Avatars"
+msgstr ""
+
+#: widgets/recent-comments-widget.php:355
+msgid "(at most 15)"
+msgstr "(ülempiir 15)"
+
+#: widgets/recent-comments-widget.php:349
+msgid "Number of comments to show:"
+msgstr "Näidatavate kommentaaride arv:"
+
+#: widgets/recent-comments-widget.php:284
+msgid "There are no public comments available to display."
+msgstr ""
+
+#. translators: comments widget: 1: comment author, 2: post link
+#: widgets/recent-comments-widget.php:275
+#: widgets/recent-comments-widget.php:308
+msgctxt "widgets"
+msgid "%1$s on %2$s"
+msgstr "%1$s, %2$s"
+
+#: widgets/recent-comments-widget.php:252
+msgid "Anonymous"
+msgstr "Anonüümne"
+
+#: widgets/recent-comments-widget.php:30
+msgid "Display your site's most recent comments"
+msgstr ""
+
+#: widgets/recent-comments-widget.php:29 widgets/recent-comments-widget.php:146
+msgid "Recent Comments"
+msgstr "Värsked kommentaarid"
+
+#: widgets/posts-i-like.php:269
+msgid "You have not recently liked any posts. Once you do, this <a href=\"%s\">Posts I Like</a> widget will display them."
+msgstr ""
+
+#: widgets/posts-i-like.php:259
+msgid "on"
+msgstr "&emdash;"
+
+#: widgets/posts-i-like.php:236
+msgctxt "1: Post Title, 2: Blog Name"
+msgid "%1$s on %2$s"
+msgstr ""
+
+#: widgets/posts-i-like.php:113
+msgid "Author's likes to display:"
+msgstr ""
+
+#: widgets/posts-i-like.php:98
+msgid "Grid"
+msgstr "Ruutpesiti"
+
+#: widgets/posts-i-like.php:97
+msgid "List"
+msgstr "Nimistu"
+
+#: widgets/posts-i-like.php:95
+msgid "Display as:"
+msgstr ""
+
+#: widgets/posts-i-like.php:90
+msgid "Number of posts to show (1 to 15):"
+msgstr ""
+
+#: widgets/posts-i-like.php:27
+msgid "A list of the posts I most recently liked"
+msgstr ""
+
+#: widgets/posts-i-like.php:25 widgets/posts-i-like.php:32
+msgid "Posts I Like"
+msgstr ""
+
+#: widgets/music-player.php:82
+msgid "Choose songs"
+msgstr ""
+
+#: widgets/music-player.php:16 widgets/music-player.php:87
+msgid "Music Player"
+msgstr ""
+
+#: widgets/music-player.php:15
+msgid "A multi-song music player"
+msgstr ""
+
+#: widgets/i-voted.php:33
+msgid "I Voted"
+msgstr ""
+
+#: widgets/i-voted.php:31
+msgid "Show your readers that you voted with an \"I Voted\" sticker."
+msgstr ""
+
+#: widgets/gravatar.php:144
+msgid "You can modify your Gravatar from your <a href=\"/wp-admin/profile.php\">profile page</a>."
+msgstr ""
+
+#: widgets/gravatar.php:143
+msgid "Text displayed after Gravatar. This is optional and can be used to describe yourself or what your blog is about."
+msgstr ""
+
+#: widgets/gravatar.php:142
+msgid "Gravatar link. This is an optional URL that will be used when anyone clicks on your Gravatar:"
+msgstr ""
+
+#: widgets/gravatar.php:134
+msgid "Gravatar alignment:"
+msgstr ""
+
+#: widgets/gravatar.php:125
+msgid "Size:"
+msgstr ""
+
+#: widgets/gravatar.php:122
+msgid "Custom Email Address:"
+msgstr ""
+
+#: widgets/gravatar.php:119
+msgid "Select a user or pick \"custom\" and enter a custom email address."
+msgstr ""
+
+#: widgets/gravatar.php:115
+msgid "Center"
+msgstr "Keskel"
+
+#: widgets/gravatar.php:115
+msgid "Right"
+msgstr "Paremal"
+
+#: widgets/gravatar.php:115
+msgid "Left"
+msgstr "Vasakul"
+
+#: widgets/gravatar.php:115 widgets/top-clicks.php:108
+msgid "None"
+msgstr "Puudub"
+
+#: widgets/gravatar.php:114
+msgid "Extra Large (256 pixels)"
+msgstr ""
+
+#: widgets/gravatar.php:114
+msgid "Large (128 pixels)"
+msgstr ""
+
+#: widgets/gravatar.php:114
+msgid "Medium (96 pixels)"
+msgstr ""
+
+#: widgets/gravatar.php:114
+msgid "Small (64 pixels)"
+msgstr ""
+
+#: widgets/gravatar.php:84
+msgid "You need to pick a user or enter an email address in your <a href=\"%s\">Gravatar Widget</a> settings."
+msgstr ""
+
+#: widgets/gravatar.php:22
+msgid "Gravatar"
+msgstr ""
+
+#: widgets/gravatar.php:20
+msgid "Insert a Gravatar image"
+msgstr ""
+
+#: widgets/freshly-pressed.php:60
+msgid "Choose an image to display in your sidebar:"
+msgstr ""
+
+#: widgets/freshly-pressed.php:10
+msgid "Freshly Pressed"
+msgstr ""
+
+#: widgets/freshly-pressed.php:8
+msgid "Display a Freshly Pressed badge in your sidebar"
+msgstr ""
+
+#: widgets/author-grid.php:102 widgets/recent-comments-widget.php:360
+msgid "Avatar Size (px):"
+msgstr "Avatari suurus (pikslites):"
+
+#: widgets/author-grid.php:97
+msgid "Display all authors (including those who have not written any posts)"
+msgstr "Näita kõiki autoreid (ka neid, kes pole ühtki postitust teinud)"
+
+#: widgets/author-grid.php:91 widgets/freshly-pressed.php:56
+#: widgets/gravatar.php:117 widgets/i-voted.php:65 widgets/music-player.php:73
+#: widgets/posts-i-like.php:85 widgets/recent-comments-widget.php:343
+#: widgets/reservations.php:38 widgets/tag-cloud-widget.php:132
+#: widgets/tlkio/tlkio.php:51 widgets/top-clicks.php:41
+#: widgets/top-rated.php:115 widgets/twitter.php:357
+msgid "Title:"
+msgstr "Pealkiri:"
+
+#: widgets/author-grid.php:44
+msgid "Authors"
+msgstr "Autorid"
+
+#: widgets/author-grid.php:12
+msgid "Show a grid of author avatar images."
+msgstr ""
+
+#: widgets/author-grid.php:11
+msgid "Author Grid"
+msgstr ""
+
+#: private-site/private-site.php:369
+msgid "Private Site"
+msgstr ""
+
+#: private-site/private-site.php:227 private-site/private-site.php:324
+#: private-site/private-site.php:468
+msgid "This site is private."
+msgstr ""
+
+#: private-site/access-denied-private-site-template.php:45
+msgid "Log in"
+msgstr "Logi sisse"
+
+#: private-site/access-denied-private-site-template.php:45
+msgid "Switch user"
+msgstr ""
+
+#: private-site/access-denied-private-site-template.php:43
+msgid "You need to be logged in as a user who has permission to view this site."
+msgstr ""
+
+#: privacy/participating-plugins.php:144
+msgid ""
+"Please note - this tool only displays privacy policy information provided by\n"
+"WordPress and participating plugins. It does not include privacy policy\n"
+"information for non-participating plugins. It is your responsibility to\n"
+"obtain privacy policy information for non-participating plugins separately."
+msgstr ""
+
+#: privacy/participating-plugins.php:94
+msgid ""
+"Please note - this tool only exports the personal data stored by WordPress and\n"
+"participating plugins. It does not export personal data stored by\n"
+"non-participating plugins. It is your responsibility to export personal data\n"
+"stored by non-participating plugins separately. The personal data exported\n"
+"includes only the following items at this time:"
+msgstr ""
+
+#: privacy/participating-plugins.php:47
+msgid ""
+"Please note - this tool only erases the personal data stored by WordPress and\n"
+"participating plugins. It does not delete registered users, nor does it erase\n"
+"personal data stored by non-participating plugins. It is your responsibility\n"
+"to delete registered users as well as personal data stored by non-participating\n"
+"plugins. The personal data erased includes only the following items at this\n"
+"time:"
+msgstr ""
+
+#: logo-tool/logo-tool.php:70
+msgid "Create logo"
+msgstr ""
+
+#: logo-tool/logo-tool.php:60
+msgid "Add a logo to display on your site. No logo? Buy a pro one from Looka — Click “Create logo” to start."
+msgstr ""
+
+#. Description of the plugin
+msgid "WordPress.com provided functionality & tools"
+msgstr ""
+
+#. Plugin Name of the plugin
+msgid "WP.com Site Helper"
+msgstr ""

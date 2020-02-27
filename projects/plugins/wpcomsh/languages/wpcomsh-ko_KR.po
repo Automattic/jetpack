@@ -1,0 +1,721 @@
+# Translation of WordPress.com - Site Helper in Korean
+# This file is distributed under the same license as the WordPress.com - Site Helper package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2020-02-26 14:05:43+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: GlotPress/2.4.0-alpha\n"
+"Language: ko_KR\n"
+"Project-Id-Version: WordPress.com - Site Helper\n"
+
+#: wpcomsh.php:909
+msgid "You are currently using <strong>%1$s</strong> out of <strong>%2$s</strong> upload limit (%3$s%%)."
+msgstr ""
+
+#: widgets/twitter.php:412
+msgid "Text to display between Tweet and timestamp:"
+msgstr "트윗과 타임스탬프 사이에 표시할 텍스트:"
+
+#: widgets/twitter.php:406
+msgid "Display Follow Button"
+msgstr "팔로우 버튼 표시"
+
+#: widgets/twitter.php:399
+msgid "Include retweets"
+msgstr "리트윗 포함"
+
+#: widgets/twitter.php:392
+msgid "Hide Tweets pushed by Publicize"
+msgstr "배포 기능으로 푸시된 트윗 숨기기"
+
+#: widgets/twitter.php:385
+msgid "Hide replies"
+msgstr "답글 숨기기"
+
+#: widgets/twitter.php:371
+msgid "Maximum number of Tweets to show:"
+msgstr "표시할 트윗의 최대 수:"
+
+#: widgets/twitter.php:364
+msgid "Twitter username:"
+msgstr "Twitter 사용자 이름:"
+
+#: widgets/twitter.php:353
+msgid "Please switch to the 'Twitter Timeline' widget. This widget will be going away in the future and the new widget allows for more customization."
+msgstr "'트위터 타임라인' 위젯으로 전환하세요. 이 위젯은 이후에 사라지고 새 위젯이 더 많은 사용자 정의를 허용합니다."
+
+#: widgets/twitter.php:289
+msgid "Error: Please make sure the Twitter account is %1$spublic%2$s."
+msgstr "오류: 트위터 계정이 %1$s공개%2$s인지 확인하세요."
+
+#: widgets/twitter.php:262 widgets/twitter.php:275 widgets/twitter.php:296
+msgid "Error: Twitter did not respond. Please wait a few minutes and refresh this page."
+msgstr "오류: Twitter가 응답하지 않습니다. 몇 분 기다리신 후 이 페이지를 새로고침하세요."
+
+#: widgets/twitter.php:61
+msgid "Twitter Updates"
+msgstr "트위터 업데이트"
+
+#: widgets/twitter.php:51
+msgid "Please configure your Twitter username for the <a href=\"%s\">Twitter Widget</a>."
+msgstr "<a href=\"%s\">트위터 위젯</a>에 대한 트위터 사용자명을 구성하세요."
+
+#: widgets/twitter.php:29
+msgid "Display your Tweets from Twitter"
+msgstr "Twitter의 트윗 표시"
+
+#: widgets/twitter.php:26
+msgid "Twitter"
+msgstr "트위터"
+
+#: widgets/tag-cloud-widget.php:177
+msgid "Taxonomy:"
+msgstr "분류:"
+
+#: widgets/tag-cloud-widget.php:159
+msgid "The tag cloud will not be displayed since there are no taxonomies that support the tag cloud widget."
+msgstr "택소노미가 태그 클라우드 위젯을 지원하지 않기 때문에 태그 클라우드가 표시되지 않습니다."
+
+#: widgets/tag-cloud-widget.php:152
+msgid "Show tag counts"
+msgstr "태그 수 보이기"
+
+#: widgets/tag-cloud-widget.php:139
+msgid "Maximum number of tags displayed"
+msgstr ""
+
+#: widgets/tag-cloud-widget.php:137
+msgid "Number of Tags:"
+msgstr ""
+
+#: widgets/tag-cloud-widget.php:41
+msgid "Tags"
+msgstr "태그"
+
+#: widgets/tag-cloud-widget.php:21
+msgid "Tag Cloud"
+msgstr "태그 구름"
+
+#: widgets/tag-cloud-widget.php:18
+msgid "A cloud of your most used tags."
+msgstr "가장 많이 사용한 태그 클라우드."
+
+#: widgets/instagram/instagram.php:245
+msgid "New images may take up to %d minutes to show up on your site."
+msgstr "새 이미지를 사이트에 표시하는 데 최대 %d분이 걸릴 수 있습니다."
+
+#: widgets/instagram/instagram.php:237
+msgid "Number of columns:"
+msgstr "열 수:"
+
+#: widgets/instagram/instagram.php:236
+msgid "Layout"
+msgstr "레이아웃"
+
+#: widgets/instagram/instagram.php:226
+msgid "Number to display:"
+msgstr "표시할 수:"
+
+#: widgets/instagram/instagram.php:225
+msgid "Images"
+msgstr "이미지"
+
+#: widgets/instagram/instagram.php:221
+msgid "Widget Title"
+msgstr "위젯 제목"
+
+#: widgets/instagram/instagram.php:189
+msgid "No Instagram images were found."
+msgstr "Instagram 이미지가 없습니다."
+
+#: widgets/instagram/instagram.php:186
+msgid "There was an error retrieving images from Instagram. An attempt will be remade in a few minutes."
+msgstr "Instagram에서 이미지를 가져오는 동안 오류가 발생했습니다. 잠시 후에 다시 시도하세요."
+
+#: widgets/instagram/instagram.php:30
+msgid "Display your latest Instagram photos."
+msgstr "최신 Instagram 사진을 표시합니다."
+
+#: widgets/instagram/instagram.php:28 widgets/instagram/instagram.php:43
+msgid "Instagram"
+msgstr "Instagram"
+
+#: widgets/aboutme.php:148
+msgid "Apps"
+msgstr "앱"
+
+#: widgets/aboutme.php:141
+msgid "Biography"
+msgstr "인물 소개"
+
+#: widgets/aboutme.php:134
+msgid "Headline"
+msgstr "헤드라인"
+
+#: widgets/aboutme.php:127
+msgid "Photo"
+msgstr "사진"
+
+#: widgets/aboutme.php:123
+msgid "Don't Display Name"
+msgstr "이름 표시 안 함"
+
+#: widgets/aboutme.php:121
+msgid "Display Small"
+msgstr "작게 표시"
+
+#: widgets/aboutme.php:119
+msgid "Display Medium"
+msgstr "보통으로 표시"
+
+#: widgets/aboutme.php:117
+msgid "Display Large"
+msgstr "크게 표시"
+
+#: widgets/aboutme.php:115
+msgid "Display X-Large"
+msgstr "매우 크게 표시"
+
+#: widgets/aboutme.php:104
+msgid "Your about.me URL"
+msgstr ""
+
+#: widgets/aboutme.php:97
+msgid "Widget title"
+msgstr "위젯 제목"
+
+#: widgets/aboutme.php:90
+msgid "The about.me widget will no longer be available after July 1, 2016. After this date, the widget will display a simple text link to your about.me profile. Please remove this widget."
+msgstr ""
+
+#: widgets/aboutme.php:37
+msgid "The about.me widget is no longer available. To remove this widget, <a href=\"%s\">visit your settings</a>. This message is not shown to visitors to your site."
+msgstr ""
+
+#: widgets/aboutme.php:20
+msgid "About.me Widget"
+msgstr ""
+
+#: widgets/aboutme.php:18
+msgid "Display your about.me profile with thumbnail"
+msgstr ""
+
+#: safeguard/utils.php:58
+msgid "Unable to fetch the requested data."
+msgstr ""
+
+#: private-site/access-denied-coming-soon-template.php:142
+msgid "Log in here"
+msgstr "여기에서 로그인"
+
+#: footer-credit/theme-optimizations.php:37
+msgid "Create a free website or blog at WordPress.com"
+msgstr "WordPress.com에서 무료 웹사이트 또는 블로그 만들기"
+
+#: footer-credit/theme-optimizations.php:32
+msgid "Create a free website at WordPress.com"
+msgstr "WordPress.com에서 무료 웹사이트 만들기"
+
+#: footer-credit/footer-credit/footer-credit.php:101
+msgid "Powered by WordPress.com"
+msgstr "Powered by 워드프레스닷컴"
+
+#: footer-credit/footer-credit/footer-credit.php:98
+#: footer-credit/theme-optimizations.php:30
+#: footer-credit/theme-optimizations.php:35
+msgid "Blog at WordPress.com"
+msgstr "WordPress.com 제공"
+
+#: footer-credit/footer-credit/footer-credit.php:97
+msgid "A WordPress.com Website"
+msgstr ""
+
+#: footer-credit/footer-credit/footer-credit.php:96
+msgid "WordPress.com Logo"
+msgstr "WordPress.com 로고"
+
+#: footer-credit/footer-credit/footer-credit.php:41
+#: footer-credit/footer-credit/footer-credit.php:205
+msgid "Create a website or blog at WordPress.com"
+msgstr ""
+
+#: footer-credit/footer-credit/customizer.php:85
+msgid "Footer Credit"
+msgstr "푸터 크레딧"
+
+#: footer-credit/footer-credit/customizer.php:62
+msgid "Upgrade to Business"
+msgstr "비즈니스로 업그레이드"
+
+#: footer-credit/footer-credit/customizer.php:54
+msgid "Hide (Business Plan Required)"
+msgstr ""
+
+#: footer-credit/footer-credit/customizer.php:52
+msgid "Hide"
+msgstr "숨기기"
+
+#: footer-credit/footer-credit/customizer.php:41
+msgid "Default"
+msgstr "기본"
+
+#: footer-credit/footer-credit-optimizations.php:159
+msgid "Design by"
+msgstr "디자인:"
+
+#: footer-credit/footer-credit-optimizations.php:147
+msgid "by"
+msgstr "by"
+
+#: footer-credit/footer-credit-optimizations.php:130
+msgid "Theme"
+msgstr "테마"
+
+#: footer-credit/footer-credit-optimizations.php:114
+msgid "Proudly powered by WordPress"
+msgstr "WordPress가 지원합니다"
+
+#: customizer-fixes/customizer-fixes.php:13
+msgid "Save Settings"
+msgstr "설정 저장"
+
+#: customizer-fixes/customizer-fixes.php:12
+msgid "Are you sure you want to discard your unsaved changes?"
+msgstr ""
+
+#: customizer-fixes/customizer-fixes.php:11
+msgid "Saved"
+msgstr "저장함"
+
+#: customizer-fixes/customizer-fixes.php:10
+msgid "Save Changes"
+msgstr "변경 사항 저장"
+
+#: customizer-fixes/customizer-fixes.php:9
+msgid "Save"
+msgstr "저장하기"
+
+#: customizer-fixes/customizer-fixes.php:8
+msgid "Activate &amp; Save"
+msgstr ""
+
+#: private-site/private-site.php:123
+msgid "Manage your site visibility settings"
+msgstr ""
+
+#: private-site/access-denied-coming-soon-template.php:140
+msgid "Something new is coming."
+msgstr "새로운 서비스를 선보일 예정입니다."
+
+#: wpcomsh.php:338
+msgid "This plugin was installed by WordPress.com and provides features offered in your plan subscription."
+msgstr ""
+
+#: wpcomsh.php:335
+msgid "%s is automatically managed for you."
+msgstr ""
+
+#: widgets/top-rated.php:141
+msgid "How many items would you like to display?"
+msgstr "얼마나 많은 내용을 표시하시겠습니까?"
+
+#: widgets/top-rated.php:137
+msgid "Filter by category"
+msgstr "카테고리별 필터"
+
+#: widgets/top-rated.php:131
+msgid "Show for comments"
+msgstr "댓글 표시"
+
+#: widgets/top-rated.php:125
+msgid "Show for pages"
+msgstr "페이지에 표시"
+
+#: widgets/top-rated.php:119
+msgid "Show for posts"
+msgstr "글 표시"
+
+#: widgets/top-rated.php:11 widgets/top-rated.php:32
+msgid "Top Rated"
+msgstr "최고 등급"
+
+#: widgets/top-rated.php:10
+msgid "A list of your top rated posts, pages or comments."
+msgstr "점수가 높은 글, 페이지 또는 댓글의 목록."
+
+#: widgets/top-clicks.php:61
+msgid "Top Clicks are calculated from 48-72 hours of stats. They take a while to change."
+msgstr "상위 클릭 수는 48-72시간 동안의 통계로부터 계산됩니다. 변경되는 데는 약간의 시간이 걸립니다."
+
+#: widgets/top-clicks.php:53
+msgid "URLs to show:"
+msgstr "표시할 URL:"
+
+#: widgets/top-clicks.php:47
+msgid "Display length:"
+msgstr "표시 길이:"
+
+#: widgets/top-clicks.php:14
+msgid "List the most-clicked links on your blog."
+msgstr "블로그에서 사람들이 가장 많이 클릭한 링크를 나열합니다."
+
+#: widgets/top-clicks.php:13 widgets/top-clicks.php:22
+#: widgets/top-clicks.php:66
+msgid "Top Clicks"
+msgstr "상위 클릭 수"
+
+#: widgets/tlkio/tlkio.php:59
+msgid "Height (in pixel):"
+msgstr "높이(픽셀):"
+
+#: widgets/tlkio/tlkio.php:55
+msgid "Channel:"
+msgstr "채널:"
+
+#: widgets/tlkio/tlkio.php:26
+msgid "tlk.io Webchat"
+msgstr "tlk.io Webchat"
+
+#: widgets/tlkio/tlkio.php:25
+msgid "Add a tlk.io webchat."
+msgstr "tlk.io webchat을 추가합니다."
+
+#: widgets/reservations.php:55
+msgid "Show:"
+msgstr "보이기:"
+
+#: widgets/reservations.php:50
+msgid "E-mail Subject:"
+msgstr "이메일 제목:"
+
+#: widgets/reservations.php:44
+msgid "Recipient E-mail Address:"
+msgstr "받는 사람 이메일 주소:"
+
+#: widgets/reservations.php:29
+msgid "Departure"
+msgstr "출발"
+
+#: widgets/reservations.php:28
+msgid "Arrival"
+msgstr "도착"
+
+#: widgets/reservations.php:27
+msgid "# Children"
+msgstr "어린이 수"
+
+#: widgets/reservations.php:26
+msgid "# Adults"
+msgstr "성인 수"
+
+#: widgets/reservations.php:25
+msgid "Message"
+msgstr "메시지"
+
+#: widgets/reservations.php:24
+msgid "Phone"
+msgstr "전화"
+
+#: widgets/reservations.php:23
+msgid "Email"
+msgstr "이메일"
+
+#: widgets/aboutme.php:111 widgets/reservations.php:22
+msgid "Name"
+msgstr "이름"
+
+#: widgets/reservations.php:16
+msgid "Reservation Inquiry"
+msgstr "예약 문의"
+
+#: widgets/reservations.php:10 widgets/reservations.php:15
+msgid "Reservations"
+msgstr "예약"
+
+#: widgets/recent-comments-widget.php:384
+msgid "Show comments from:"
+msgstr "댓글 보기:"
+
+#: widgets/recent-comments-widget.php:379
+msgid "Text background color:"
+msgstr "텍스트 배경 색깔:"
+
+#: widgets/recent-comments-widget.php:373
+msgid "Avatar background color:"
+msgstr "아바타 배경 색깔:"
+
+#: widgets/recent-comments-widget.php:362
+msgid "No Avatars"
+msgstr "아바타 없음"
+
+#: widgets/recent-comments-widget.php:355
+msgid "(at most 15)"
+msgstr "(최대 15개)"
+
+#: widgets/recent-comments-widget.php:349
+msgid "Number of comments to show:"
+msgstr "보여줄 댓글의 수:"
+
+#: widgets/recent-comments-widget.php:284
+msgid "There are no public comments available to display."
+msgstr "표시할 수 있는 공개 댓글이 없습니다."
+
+#. translators: comments widget: 1: comment author, 2: post link
+#: widgets/recent-comments-widget.php:275
+#: widgets/recent-comments-widget.php:308
+msgctxt "widgets"
+msgid "%1$s on %2$s"
+msgstr "%1$s (%2$s)"
+
+#: widgets/recent-comments-widget.php:252
+msgid "Anonymous"
+msgstr "익명"
+
+#: widgets/recent-comments-widget.php:30
+msgid "Display your site's most recent comments"
+msgstr "사이트의 가장 최근 댓글 표시"
+
+#: widgets/recent-comments-widget.php:29 widgets/recent-comments-widget.php:146
+msgid "Recent Comments"
+msgstr "최근 댓글"
+
+#: widgets/posts-i-like.php:269
+msgid "You have not recently liked any posts. Once you do, this <a href=\"%s\">Posts I Like</a> widget will display them."
+msgstr "최근에 어떤 글도 좋아요를 표시하지 않았습니다. 좋아요를 표시하면 <a href=\"%s\">좋아하는 블로그</a> 위젯에 표시됩니다."
+
+#: widgets/posts-i-like.php:259
+msgid "on"
+msgstr "/"
+
+#: widgets/posts-i-like.php:236
+msgctxt "1: Post Title, 2: Blog Name"
+msgid "%1$s on %2$s"
+msgstr "%2$s의 %1$s"
+
+#: widgets/posts-i-like.php:113
+msgid "Author's likes to display:"
+msgstr "표시할 작성자의 좋아요 수:"
+
+#: widgets/posts-i-like.php:98
+msgid "Grid"
+msgstr "그리드"
+
+#: widgets/posts-i-like.php:97
+msgid "List"
+msgstr "목록"
+
+#: widgets/posts-i-like.php:95
+msgid "Display as:"
+msgstr "다음으로 표시하기:"
+
+#: widgets/posts-i-like.php:90
+msgid "Number of posts to show (1 to 15):"
+msgstr "표시할 글 수(1~15개):"
+
+#: widgets/posts-i-like.php:27
+msgid "A list of the posts I most recently liked"
+msgstr "최근에 연결한 글 목록"
+
+#: widgets/posts-i-like.php:25 widgets/posts-i-like.php:32
+msgid "Posts I Like"
+msgstr "좋아하는 블로그"
+
+#: widgets/music-player.php:82
+msgid "Choose songs"
+msgstr "노래 선택"
+
+#: widgets/music-player.php:16 widgets/music-player.php:87
+msgid "Music Player"
+msgstr "뮤직 플레이어"
+
+#: widgets/music-player.php:15
+msgid "A multi-song music player"
+msgstr "여러 노래 음악 플레이어"
+
+#: widgets/i-voted.php:33
+msgid "I Voted"
+msgstr ""
+
+#: widgets/i-voted.php:31
+msgid "Show your readers that you voted with an \"I Voted\" sticker."
+msgstr ""
+
+#: widgets/gravatar.php:144
+msgid "You can modify your Gravatar from your <a href=\"/wp-admin/profile.php\">profile page</a>."
+msgstr "<a href=\"/wp-admin/profile.php\">프로필 페이지</a>에서 Gravatar를 변경할 수 있습니다."
+
+#: widgets/gravatar.php:143
+msgid "Text displayed after Gravatar. This is optional and can be used to describe yourself or what your blog is about."
+msgstr "Gravatar 다음에 표시되는 텍스트. 이것은 선택사항이며 자기소개 또는 블로그 소개에 사용할 수 있습니다."
+
+#: widgets/gravatar.php:142
+msgid "Gravatar link. This is an optional URL that will be used when anyone clicks on your Gravatar:"
+msgstr "Gravatar 링크. 이것은 다른 사람이 Gravatar를 클릭할 때 사용되는 선택적인 URL입니다:"
+
+#: widgets/gravatar.php:134
+msgid "Gravatar alignment:"
+msgstr "Gravatar 정렬:"
+
+#: widgets/gravatar.php:125
+msgid "Size:"
+msgstr "크기:"
+
+#: widgets/gravatar.php:122
+msgid "Custom Email Address:"
+msgstr "사용자 정의 이메일 주소:"
+
+#: widgets/gravatar.php:119
+msgid "Select a user or pick \"custom\" and enter a custom email address."
+msgstr "사용자를 선택하거나 \"custom\"을 선택하고 사용자 정의 이메일 주소를 입력하세요."
+
+#: widgets/gravatar.php:115
+msgid "Center"
+msgstr "중앙"
+
+#: widgets/gravatar.php:115
+msgid "Right"
+msgstr "오른쪽"
+
+#: widgets/gravatar.php:115
+msgid "Left"
+msgstr "왼쪽"
+
+#: widgets/gravatar.php:115 widgets/top-clicks.php:108
+msgid "None"
+msgstr "없음"
+
+#: widgets/gravatar.php:114
+msgid "Extra Large (256 pixels)"
+msgstr "특대(256픽셀)"
+
+#: widgets/gravatar.php:114
+msgid "Large (128 pixels)"
+msgstr "Large(128픽셀)"
+
+#: widgets/gravatar.php:114
+msgid "Medium (96 pixels)"
+msgstr "Medium(96픽셀)"
+
+#: widgets/gravatar.php:114
+msgid "Small (64 pixels)"
+msgstr "작음 (64 픽셀)"
+
+#: widgets/gravatar.php:84
+msgid "You need to pick a user or enter an email address in your <a href=\"%s\">Gravatar Widget</a> settings."
+msgstr "<a href=\"%s\">그라바타 위젯</a> 설정에서 사용자를 선택하거나 이메일 주소를 입력해야 합니다."
+
+#: widgets/gravatar.php:22
+msgid "Gravatar"
+msgstr "Gravatar"
+
+#: widgets/gravatar.php:20
+msgid "Insert a Gravatar image"
+msgstr "Gravatar 이미지 삽입"
+
+#: widgets/freshly-pressed.php:60
+msgid "Choose an image to display in your sidebar:"
+msgstr "사이드바에 표시할 이미지 선택:"
+
+#: widgets/freshly-pressed.php:10
+msgid "Freshly Pressed"
+msgstr "최근 등록된 글"
+
+#: widgets/freshly-pressed.php:8
+msgid "Display a Freshly Pressed badge in your sidebar"
+msgstr "사이트바에 최근에 등록된 글 뱃지 표시"
+
+#: widgets/author-grid.php:102 widgets/recent-comments-widget.php:360
+msgid "Avatar Size (px):"
+msgstr "아바타 크기(px):"
+
+#: widgets/author-grid.php:97
+msgid "Display all authors (including those who have not written any posts)"
+msgstr "모든 작성자 표시(글을 쓰지 않은 사람 포함)"
+
+#: widgets/author-grid.php:91 widgets/freshly-pressed.php:56
+#: widgets/gravatar.php:117 widgets/i-voted.php:65 widgets/music-player.php:73
+#: widgets/posts-i-like.php:85 widgets/recent-comments-widget.php:343
+#: widgets/reservations.php:38 widgets/tag-cloud-widget.php:132
+#: widgets/tlkio/tlkio.php:51 widgets/top-clicks.php:41
+#: widgets/top-rated.php:115 widgets/twitter.php:357
+msgid "Title:"
+msgstr "타이틀:"
+
+#: widgets/author-grid.php:44
+msgid "Authors"
+msgstr "글쓴이"
+
+#: widgets/author-grid.php:12
+msgid "Show a grid of author avatar images."
+msgstr "작성자 아바타 이미지의 그리드를 표시합니다."
+
+#: widgets/author-grid.php:11
+msgid "Author Grid"
+msgstr "작성자 그리드"
+
+#: private-site/private-site.php:369
+msgid "Private Site"
+msgstr ""
+
+#: private-site/private-site.php:227 private-site/private-site.php:324
+#: private-site/private-site.php:468
+msgid "This site is private."
+msgstr "이 사이트는 비공개 상태입니다."
+
+#: private-site/access-denied-private-site-template.php:45
+msgid "Log in"
+msgstr "로그인"
+
+#: private-site/access-denied-private-site-template.php:45
+msgid "Switch user"
+msgstr ""
+
+#: private-site/access-denied-private-site-template.php:43
+msgid "You need to be logged in as a user who has permission to view this site."
+msgstr ""
+
+#: privacy/participating-plugins.php:144
+msgid ""
+"Please note - this tool only displays privacy policy information provided by\n"
+"WordPress and participating plugins. It does not include privacy policy\n"
+"information for non-participating plugins. It is your responsibility to\n"
+"obtain privacy policy information for non-participating plugins separately."
+msgstr ""
+
+#: privacy/participating-plugins.php:94
+msgid ""
+"Please note - this tool only exports the personal data stored by WordPress and\n"
+"participating plugins. It does not export personal data stored by\n"
+"non-participating plugins. It is your responsibility to export personal data\n"
+"stored by non-participating plugins separately. The personal data exported\n"
+"includes only the following items at this time:"
+msgstr ""
+
+#: privacy/participating-plugins.php:47
+msgid ""
+"Please note - this tool only erases the personal data stored by WordPress and\n"
+"participating plugins. It does not delete registered users, nor does it erase\n"
+"personal data stored by non-participating plugins. It is your responsibility\n"
+"to delete registered users as well as personal data stored by non-participating\n"
+"plugins. The personal data erased includes only the following items at this\n"
+"time:"
+msgstr ""
+
+#: logo-tool/logo-tool.php:70
+msgid "Create logo"
+msgstr "로고 만들기"
+
+#: logo-tool/logo-tool.php:60
+msgid "Add a logo to display on your site. No logo? Buy a pro one from Looka — Click “Create logo” to start."
+msgstr ""
+
+#. Description of the plugin
+msgid "WordPress.com provided functionality & tools"
+msgstr ""
+
+#. Plugin Name of the plugin
+msgid "WP.com Site Helper"
+msgstr ""

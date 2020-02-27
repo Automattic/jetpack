@@ -37,7 +37,7 @@ class Jetpack_Plugin_Compatibility {
 			}
 			deactivate_plugins( $plugin );
 			$deactivated_plugin = explode( "/", $plugin )[ 0 ];
-			$this->admin_notices[] = '<div class="notice notice-error is-dismissible"><p><strong>' . esc_html__( $message ) . '</strong></p></div>';
+			$this->admin_notices[] = '<div class="notice notice-error is-dismissible"><p><strong>' . esc_html( $message ) . '</strong></p></div>';
 			if ( isset( $_GET['activate'] ) ) {
 				unset( $_GET['activate'] );
 			}

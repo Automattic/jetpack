@@ -22,14 +22,14 @@ class Jetpack_Posts_I_Like_Widget extends WP_Widget {
 	function __construct() {
 		parent::__construct(
 			'jetpack_posts_i_like',          // Base ID
-			__( 'Posts I Like', 'jetpack' ), // Name
+			__( 'Posts I Like', 'wpcomsh' ), // Name
 			array(
-				'description' => __( 'A list of the posts I most recently liked', 'jetpack' ),
+				'description' => __( 'A list of the posts I most recently liked', 'wpcomsh' ),
 			)
 		);
 
 		$this->defaults = array(
-			'title' => __( 'Posts I Like', 'jetpack'),
+			'title' => __( 'Posts I Like', 'wpcomsh'),
 			'liker' => 0,
 			'number' => 5,
 			'display' => 'list'
@@ -82,20 +82,20 @@ class Jetpack_Posts_I_Like_Widget extends WP_Widget {
 
 		?>
 		<p>
-			<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php esc_html_e( 'Title:', 'jetpack' ); ?></label>
+			<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php esc_html_e( 'Title:', 'wpcomsh' ); ?></label>
 			<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>" />
 		</p>
 
 		<p>
-			<label for="<?php echo $this->get_field_id( 'number' ); ?>"><?php esc_html_e( 'Number of posts to show (1 to 15):', 'jetpack' ); ?></label>
+			<label for="<?php echo $this->get_field_id( 'number' ); ?>"><?php esc_html_e( 'Number of posts to show (1 to 15):', 'wpcomsh' ); ?></label>
 			<input id="<?php echo $this->get_field_id( 'number' ); ?>" name="<?php echo $this->get_field_name( 'number' ); ?>" type="number" value="<?php echo $number; ?>" min="1" max="15" />
 		</p>
 
 		<p>
-			<label><?php esc_html_e( 'Display as:', 'jetpack' ); ?></label>
+			<label><?php esc_html_e( 'Display as:', 'wpcomsh' ); ?></label>
 				<ul>
-					<li><label><input id="<?php echo $this->get_field_id( 'display' ); ?>-list" name="<?php echo $this->get_field_name( 'display' ); ?>" type="radio" value="list" <?php checked( 'list', $display ); ?> /> <?php esc_html_e( 'List', 'jetpack' ); ?></label></li>
-					<li><label><input id="<?php echo $this->get_field_id( 'display' ); ?>-grid" name="<?php echo $this->get_field_name( 'display' ); ?>" type="radio" value="grid" <?php checked( 'grid', $display ); ?> /> <?php esc_html_e( 'Grid', 'jetpack' ); ?></label></li>
+					<li><label><input id="<?php echo $this->get_field_id( 'display' ); ?>-list" name="<?php echo $this->get_field_name( 'display' ); ?>" type="radio" value="list" <?php checked( 'list', $display ); ?> /> <?php esc_html_e( 'List', 'wpcomsh' ); ?></label></li>
+					<li><label><input id="<?php echo $this->get_field_id( 'display' ); ?>-grid" name="<?php echo $this->get_field_name( 'display' ); ?>" type="radio" value="grid" <?php checked( 'grid', $display ); ?> /> <?php esc_html_e( 'Grid', 'wpcomsh' ); ?></label></li>
 				</ul>
 		</p>
 		<?php
@@ -110,7 +110,7 @@ class Jetpack_Posts_I_Like_Widget extends WP_Widget {
 
 		if ( $liker_dropdown ) : ?>
 			<p>
-				<label for="<?php echo $this->get_field_id( 'liker' ); ?>"><?php esc_html_e( "Author's likes to display:", 'jetpack' ); ?></label>
+				<label for="<?php echo $this->get_field_id( 'liker' ); ?>"><?php esc_html_e( "Author's likes to display:", 'wpcomsh' ); ?></label>
 				<?php echo $liker_dropdown; ?>
 			</p>
 		<?php else : ?>
@@ -233,7 +233,7 @@ class Jetpack_Posts_I_Like_Widget extends WP_Widget {
 
 				foreach ( $posts_i_like as $post ) {
 					$hover_text = sprintf(
-						_x( '%1$s on %2$s', '1: Post Title, 2: Blog Name', 'jetpack' ),
+						_x( '%1$s on %2$s', '1: Post Title, 2: Blog Name', 'wpcomsh' ),
 						wp_kses( $post->post_title, array() ),
 						wp_kses( $post->blog_name, array() )
 					);
@@ -256,7 +256,7 @@ class Jetpack_Posts_I_Like_Widget extends WP_Widget {
 					echo "<li>";
 					echo "<img src='" . esc_url( $post->post_image ) . "' class='widgets-list-layout-blavatar' />";
 					echo "<div class='widgets-list-layout-links'><a href='" . esc_url( $post->post_permalink ) . "' class='bump-view' data-bump-view='pil'>" . esc_html( $post->post_title ) . "</a> ";
-					echo "<span>" . __( 'on', 'jetpack' );
+					echo "<span>" . __( 'on', 'wpcomsh' );
 					echo "&nbsp;<a href='". esc_url( $post->blog_url ) . "' class='bump-view' data-bump-view='pil'>" . esc_html( $post->blog_name ) . "</a>";
 					echo "</span></div>";
 					echo "</li>";
@@ -266,7 +266,7 @@ class Jetpack_Posts_I_Like_Widget extends WP_Widget {
 			}
 		} elseif ( $current_user_controls_widget ) {
 			echo '<p>' . sprintf(
-				__( 'You have not recently liked any posts. Once you do, this <a href="%s">Posts I Like</a> widget will display them.' ),
+				__( 'You have not recently liked any posts. Once you do, this <a href="%s">Posts I Like</a> widget will display them.', 'wpcomsh' ),
 				admin_url( 'widgets.php' )
 			) . '</p>';
 		}

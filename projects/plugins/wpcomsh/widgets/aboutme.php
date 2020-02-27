@@ -15,9 +15,9 @@ class Aboutme_Widget extends WP_Widget {
 	public function __construct() {
 		$widget_ops = array(
 			'classname'   => 'aboutme_widget',
-			'description' => __( 'Display your about.me profile with thumbnail', 'jetpack' )
+			'description' => __( 'Display your about.me profile with thumbnail', 'wpcomsh' )
 		);
-		parent::__construct( 'aboutme_widget', __( 'About.me Widget', 'jetpack' ), $widget_ops );
+		parent::__construct( 'aboutme_widget', __( 'About.me Widget', 'wpcomsh' ), $widget_ops );
 	}
 
 	/**
@@ -36,7 +36,7 @@ class Aboutme_Widget extends WP_Widget {
 				<?php printf( wp_kses( __(
 					'The about.me widget is no longer available. To remove this widget, ' .
 					'<a href="%s">visit your settings</a>. This message is not shown to visitors to your site.',
-					'jetpack' ),
+					'wpcomsh' ),
 					array( 'a' => array( 'href' => array() ) ) ), admin_url( 'widgets.php' )
 				); ?>
 			</h2>
@@ -89,63 +89,63 @@ class Aboutme_Widget extends WP_Widget {
 			<strong style="color: #ff6347;">
 				<?php _e( 'The about.me widget will no longer be available after July 1, 2016. ' .
 				          'After this date, the widget will display a simple text link to your about.me profile. ' .
-				          'Please remove this widget.', 'jetpack' );
+				          'Please remove this widget.', 'wpcomsh' );
 				?>
 			</strong>
 		</p>
 		<p>
-			<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Widget title', 'jetpack' ); ?>
+			<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Widget title', 'wpcomsh' ); ?>
 				:</label>
 			<input id="<?php echo $this->get_field_id( 'title' ); ?>"
 			       name="<?php echo $this->get_field_name( 'title' ); ?>" type="text"
 			       value="<?php echo esc_attr( $title ); ?>"/>
 		</p>
 		<p>
-			<label for="<?php echo $this->get_field_id( 'username' ); ?>"><?php _e( 'Your about.me URL', 'jetpack' ); ?>
+			<label for="<?php echo $this->get_field_id( 'username' ); ?>"><?php _e( 'Your about.me URL', 'wpcomsh' ); ?>
 				:</label>
 			<input id="<?php echo $this->get_field_id( 'username' ); ?>"
 			       name="<?php echo $this->get_field_name( 'username' ); ?>" value="<?php echo esc_url( $username ); ?>"
 			       style="width: 100%;" type="text"/>
 		</p>
 		<p>
-			<label for="<?php echo $this->get_field_id( 'fontsize' ); ?>"><?php _e( 'Name', 'jetpack' ); ?>:</label>
+			<label for="<?php echo $this->get_field_id( 'fontsize' ); ?>"><?php _e( 'Name', 'wpcomsh' ); ?>:</label>
 			<select id="<?php echo $this->get_field_id( 'fontsize' ); ?>"
 			        name="<?php echo $this->get_field_name( 'fontsize' ); ?>">
 				<option
-					value='x-large' <?php selected( $fontsize, 'x-large' ); ?>><?php _e( 'Display X-Large', 'jetpack' ) ?></option>
+					value='x-large' <?php selected( $fontsize, 'x-large' ); ?>><?php _e( 'Display X-Large', 'wpcomsh' ) ?></option>
 				<option
-					value='large' <?php selected( $fontsize, 'large' ); ?>><?php _e( 'Display Large', 'jetpack' ) ?></option>
+					value='large' <?php selected( $fontsize, 'large' ); ?>><?php _e( 'Display Large', 'wpcomsh' ) ?></option>
 				<option
-					value='medium' <?php selected( $fontsize, 'medium' ); ?>><?php _e( 'Display Medium', 'jetpack' ) ?></option>
+					value='medium' <?php selected( $fontsize, 'medium' ); ?>><?php _e( 'Display Medium', 'wpcomsh' ) ?></option>
 				<option
-					value='small' <?php selected( $fontsize, 'small' ); ?>><?php _e( 'Display Small', 'jetpack' ) ?></option>
+					value='small' <?php selected( $fontsize, 'small' ); ?>><?php _e( 'Display Small', 'wpcomsh' ) ?></option>
 				<option
-					value='no-name' <?php selected( $fontsize, 'no-name' ); ?>><?php _e( "Don't Display Name", 'jetpack' ) ?></option>
+					value='no-name' <?php selected( $fontsize, 'no-name' ); ?>><?php _e( "Don't Display Name", 'wpcomsh' ) ?></option>
 			</select>
 		</p>
 		<p>
-			<label for="<?php echo $this->get_field_id( 'photo' ); ?>"><?php _e( 'Photo', 'jetpack' ); ?>:
+			<label for="<?php echo $this->get_field_id( 'photo' ); ?>"><?php _e( 'Photo', 'wpcomsh' ); ?>:
 				<input type="checkbox" id="<?php echo $this->get_field_id( 'photo' ); ?>"
 				       name="<?php echo $this->get_field_name( 'photo' ); ?>"
 				       value="background" <?php checked( $photo, 'background' ); ?> />
 			</label>
 		</p>
 		<p>
-			<label for="<?php echo $this->get_field_id( 'headline' ); ?>"><?php _e( 'Headline', 'jetpack' ); ?>:
+			<label for="<?php echo $this->get_field_id( 'headline' ); ?>"><?php _e( 'Headline', 'wpcomsh' ); ?>:
 				<input type="checkbox" id="<?php echo $this->get_field_id( 'headline' ); ?>"
 				       name="<?php echo $this->get_field_name( 'headline' ); ?>"
 				       value="1" <?php checked( $headline, '1' ); ?> />
 			</label>
 		</p>
 		<p>
-			<label for="<?php echo $this->get_field_id( 'biography' ); ?>"><?php _e( 'Biography', 'jetpack' ); ?>:
+			<label for="<?php echo $this->get_field_id( 'biography' ); ?>"><?php _e( 'Biography', 'wpcomsh' ); ?>:
 				<input type="checkbox" id="<?php echo $this->get_field_id( 'biography' ); ?>"
 				       name="<?php echo $this->get_field_name( 'biography' ); ?>"
 				       value="1" <?php checked( $biography, '1' ); ?> />
 			</label>
 		</p>
 		<p>
-			<label for="<?php echo $this->get_field_id( 'apps' ); ?>"><?php _e( 'Apps', 'jetpack' ); ?>:
+			<label for="<?php echo $this->get_field_id( 'apps' ); ?>"><?php _e( 'Apps', 'wpcomsh' ); ?>:
 				<input type="checkbox" id="<?php echo $this->get_field_id( 'apps' ); ?>"
 				       name="<?php echo $this->get_field_name( 'apps' ); ?>"
 				       value="1" <?php checked( $apps, '1' ); ?> />

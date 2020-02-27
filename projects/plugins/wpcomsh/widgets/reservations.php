@@ -7,26 +7,26 @@ class WPCOM_Widget_Reservations extends WP_Widget {
 	public function __construct() {
 		parent::__construct(
 			'reservations',
-			__( 'Reservations' ),
+			__( 'Reservations', 'wpcomsh' ),
 			array( 'description' => 'Allow visitors to submit a reservation inquiry.' )
 		);
 
 		$this->defaults = array(
-			'title'    => __( 'Reservations' ),
-			'subject'  => __( 'Reservation Inquiry' ),
+			'title'    => __( 'Reservations', 'wpcomsh' ),
+			'subject'  => __( 'Reservation Inquiry', 'wpcomsh' ),
 			'email_to' => get_option( 'admin_email' ),
 			'show'     => array( 'name', 'email', 'adults', 'children', 'arrival', 'departure', 'message' ),
 		);
 
 		$this->fields = array(
-			'name'      => __( 'Name' ),
-			'email'     => __( 'Email' ),
-			'phone'     => __( 'Phone' ),
-			'message'   => __( 'Message' ),
-			'adults'    => __( '# Adults' ),
-			'children'  => __( '# Children' ),
-			'arrival'   => __( 'Arrival' ),
-			'departure' => __( 'Departure' ),
+			'name'      => __( 'Name', 'wpcomsh' ),
+			'email'     => __( 'Email', 'wpcomsh' ),
+			'phone'     => __( 'Phone', 'wpcomsh' ),
+			'message'   => __( 'Message', 'wpcomsh' ),
+			'adults'    => __( '# Adults', 'wpcomsh' ),
+			'children'  => __( '# Children', 'wpcomsh' ),
+			'arrival'   => __( 'Arrival', 'wpcomsh' ),
+			'departure' => __( 'Departure', 'wpcomsh' ),
 		);
 	}
 
@@ -35,24 +35,24 @@ class WPCOM_Widget_Reservations extends WP_Widget {
 		?>
 		<p>
 			<label>
-				<?php esc_html_e( 'Title:' ); ?>
+				<?php esc_html_e( 'Title:', 'wpcomsh' ); ?>
 				<input type="text" class="widefat" name="<?php echo $this->get_field_name( 'title' ); ?>" value="<?php echo esc_attr( $instance['title'] ); ?>" />
 			</label>
 		</p>
 		<p>
 			<label>
-				<?php esc_html_e( 'Recipient E-mail Address:' ); ?>
+				<?php esc_html_e( 'Recipient E-mail Address:', 'wpcomsh' ); ?>
 				<input type="text" class="widefat" name="<?php echo $this->get_field_name( 'email_to' ); ?>" value="<?php echo esc_attr( $instance['email_to'] ); ?>" />
 			</label>
 		</p>
 		<p>
 			<label>
-				<?php esc_html_e( 'E-mail Subject:' ); ?>
+				<?php esc_html_e( 'E-mail Subject:', 'wpcomsh' ); ?>
 				<input type="text" class="widefat" name="<?php echo $this->get_field_name( 'subject' ); ?>" value="<?php echo esc_attr( $instance['subject'] ); ?>" />
 			</label>
 		</p>
 		<p>
-			<?php esc_html_e( 'Show:' ); ?>
+			<?php esc_html_e( 'Show:', 'wpcomsh' ); ?>
 			<fieldset style="padding: 0 10px;">
 				<?php foreach ( $this->fields as $key => $label ) { ?>
 					<label style="display: block; float: left; width: 50%; margin-bottom: 5px;">

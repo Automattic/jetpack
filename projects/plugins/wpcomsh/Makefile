@@ -103,6 +103,13 @@ $(BUILD_DST):
 ## build
 build: check $(BUILD_DST)/$(BUILD_FILE)
 
+## i18n
+i18n:
+	@ /bin/bash $(BUILD_SRC)/bin/i18n/generate-pot.sh
+	@ /bin/bash $(BUILD_SRC)/bin/i18n/update-translations.sh
+	@ git add $(BUILD_SRC)/languages
+	@ git commit $(BUILD_SRC)/languages -m "Update language files"
+
 ## tag
 tag: checkbeforetag
 	$(shell git tag v$(PLUGIN_VERSION_STRING))

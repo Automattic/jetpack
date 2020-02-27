@@ -1,0 +1,720 @@
+# Translation of WordPress.com - Site Helper in Greek (Polytonic)
+# This file is distributed under the same license as the WordPress.com - Site Helper package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2020-02-26 14:05:45+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: GlotPress/2.4.0-alpha\n"
+"Project-Id-Version: WordPress.com - Site Helper\n"
+
+#: wpcomsh.php:909
+msgid "You are currently using <strong>%1$s</strong> out of <strong>%2$s</strong> upload limit (%3$s%%)."
+msgstr "Αὐτὴν τὴν στιγμὴ χρησιμοποιεῖτε <strong>%1$s</strong> ἀπὸ <strong>%2$s</strong> ποὺ μπορεῖτε νὰ ἀνεβάσετε (%3$s%%)."
+
+#: widgets/twitter.php:412
+msgid "Text to display between Tweet and timestamp:"
+msgstr "Κείμενο μεταξὺ μηνύματος Twitter καὶ χρονικῆς σήμανσης:"
+
+#: widgets/twitter.php:406
+msgid "Display Follow Button"
+msgstr "Προβάλετε πλῆκτρο \"Follow\" (Παρακολουθῆστε)"
+
+#: widgets/twitter.php:399
+msgid "Include retweets"
+msgstr "Νὰ συμπεριλάβετε καὶ ἀναμεταδιδόμενα μηνύματα Twitter"
+
+#: widgets/twitter.php:392
+msgid "Hide Tweets pushed by Publicize"
+msgstr "Ἀποκρύψτε Tweets προωθούμενα ἀπὸ τὴν ὑπηρεσία δημοσιοποίησης"
+
+#: widgets/twitter.php:385
+msgid "Hide replies"
+msgstr "Κρύψτε τὶς ἀπαντήσεις"
+
+#: widgets/twitter.php:371
+msgid "Maximum number of Tweets to show:"
+msgstr "Μέγιστος ἀριθμὸς προβληθησομένων μηνυμάτων Twitter:"
+
+#: widgets/twitter.php:364
+msgid "Twitter username:"
+msgstr "Ὄνομα χρήστη στὸ Twitter:"
+
+#: widgets/twitter.php:353
+msgid "Please switch to the 'Twitter Timeline' widget. This widget will be going away in the future and the new widget allows for more customization."
+msgstr ""
+
+#: widgets/twitter.php:289
+msgid "Error: Please make sure the Twitter account is %1$spublic%2$s."
+msgstr ""
+
+#: widgets/twitter.php:262 widgets/twitter.php:275 widgets/twitter.php:296
+msgid "Error: Twitter did not respond. Please wait a few minutes and refresh this page."
+msgstr "Σφάλμα: Τὸ Τουΐτερ δὲν ἀπήντησε. Παρακαλοῦμε περιμένετε λίγα λεπτὰ καὶ μετὰ ἀνανεῶστε αὐτὴν τὴν σελίδα."
+
+#: widgets/twitter.php:61
+msgid "Twitter Updates"
+msgstr "Ἐνημερώσεις Twitter"
+
+#: widgets/twitter.php:51
+msgid "Please configure your Twitter username for the <a href=\"%s\">Twitter Widget</a>."
+msgstr ""
+
+#: widgets/twitter.php:29
+msgid "Display your Tweets from Twitter"
+msgstr "Προβάλετε μηνύματά ἀπὸ τὸ Twitter"
+
+#: widgets/twitter.php:26
+msgid "Twitter"
+msgstr "Twitter"
+
+#: widgets/tag-cloud-widget.php:177
+msgid "Taxonomy:"
+msgstr ""
+
+#: widgets/tag-cloud-widget.php:159
+msgid "The tag cloud will not be displayed since there are no taxonomies that support the tag cloud widget."
+msgstr ""
+
+#: widgets/tag-cloud-widget.php:152
+msgid "Show tag counts"
+msgstr ""
+
+#: widgets/tag-cloud-widget.php:139
+msgid "Maximum number of tags displayed"
+msgstr "Μέγιστος ἀριθμὸς προβαλλομένων ἐτικεττῶν"
+
+#: widgets/tag-cloud-widget.php:137
+msgid "Number of Tags:"
+msgstr "Ἀριθμὸς ἐτικεττῶν:"
+
+#: widgets/tag-cloud-widget.php:41
+msgid "Tags"
+msgstr "Ἐτικέττες"
+
+#: widgets/tag-cloud-widget.php:21
+msgid "Tag Cloud"
+msgstr "Νέφος ἐτικεττῶν"
+
+#: widgets/tag-cloud-widget.php:18
+msgid "A cloud of your most used tags."
+msgstr "Νέφος τῶν πλέον χρησιμοποιουμένων ἐτικεττῶν σας."
+
+#: widgets/instagram/instagram.php:245
+msgid "New images may take up to %d minutes to show up on your site."
+msgstr "Οἱ νέες εἰκόνες μπορεῖ νὰ χρειασθοῦν μέχρι καὶ %d λεπτὰ γιὰ νὰ φανοῦν στὸν ἱστότοπό σας."
+
+#: widgets/instagram/instagram.php:237
+msgid "Number of columns:"
+msgstr "Ἀριθμὸς στηλῶν"
+
+#: widgets/instagram/instagram.php:236
+msgid "Layout"
+msgstr "Διάταξη "
+
+#: widgets/instagram/instagram.php:226
+msgid "Number to display:"
+msgstr ""
+
+#: widgets/instagram/instagram.php:225
+msgid "Images"
+msgstr "Εἰκόνες"
+
+#: widgets/instagram/instagram.php:221
+msgid "Widget Title"
+msgstr "Τίτλος προσθήκης"
+
+#: widgets/instagram/instagram.php:189
+msgid "No Instagram images were found."
+msgstr "Δὲν εὑρέθησαν εἰκόνες Instagram."
+
+#: widgets/instagram/instagram.php:186
+msgid "There was an error retrieving images from Instagram. An attempt will be remade in a few minutes."
+msgstr ""
+
+#: widgets/instagram/instagram.php:30
+msgid "Display your latest Instagram photos."
+msgstr "Προβάλετε τὶς τελευταῖες φωτογραφίες σας ἀπὸ τὸ Instagram."
+
+#: widgets/instagram/instagram.php:28 widgets/instagram/instagram.php:43
+msgid "Instagram"
+msgstr ""
+
+#: widgets/aboutme.php:148
+msgid "Apps"
+msgstr "Ἐφαρμογές"
+
+#: widgets/aboutme.php:141
+msgid "Biography"
+msgstr "Βιογραφία"
+
+#: widgets/aboutme.php:134
+msgid "Headline"
+msgstr "Ἐπικεφαλίδα"
+
+#: widgets/aboutme.php:127
+msgid "Photo"
+msgstr "Φωτογραφία"
+
+#: widgets/aboutme.php:123
+msgid "Don't Display Name"
+msgstr "Μὴν προβάλλετε ὄνομα"
+
+#: widgets/aboutme.php:121
+msgid "Display Small"
+msgstr ""
+
+#: widgets/aboutme.php:119
+msgid "Display Medium"
+msgstr ""
+
+#: widgets/aboutme.php:117
+msgid "Display Large"
+msgstr ""
+
+#: widgets/aboutme.php:115
+msgid "Display X-Large"
+msgstr ""
+
+#: widgets/aboutme.php:104
+msgid "Your about.me URL"
+msgstr "Ἡ URL τῆς περὶ ὑμῶν σελίδας"
+
+#: widgets/aboutme.php:97
+msgid "Widget title"
+msgstr "Τίτλος προσθήκης"
+
+#: widgets/aboutme.php:90
+msgid "The about.me widget will no longer be available after July 1, 2016. After this date, the widget will display a simple text link to your about.me profile. Please remove this widget."
+msgstr ""
+
+#: widgets/aboutme.php:37
+msgid "The about.me widget is no longer available. To remove this widget, <a href=\"%s\">visit your settings</a>. This message is not shown to visitors to your site."
+msgstr ""
+
+#: widgets/aboutme.php:20
+msgid "About.me Widget"
+msgstr ""
+
+#: widgets/aboutme.php:18
+msgid "Display your about.me profile with thumbnail"
+msgstr "Ἐμφανίστε μὲ μικρογραφία τὰ στοιχεῖα τοῦ προφίλ σας"
+
+#: safeguard/utils.php:58
+msgid "Unable to fetch the requested data."
+msgstr ""
+
+#: private-site/access-denied-coming-soon-template.php:142
+msgid "Log in here"
+msgstr ""
+
+#: footer-credit/theme-optimizations.php:37
+msgid "Create a free website or blog at WordPress.com"
+msgstr "Δημιουργῆστε δωρεὰν ἱστότοπο ἢ ἱστολόγιο στὸ WordPress.com"
+
+#: footer-credit/theme-optimizations.php:32
+msgid "Create a free website at WordPress.com"
+msgstr "Δημιουργῆστε στὸ WordPress.com δωρεὰν ἱστοσελίδα"
+
+#: footer-credit/footer-credit/footer-credit.php:101
+msgid "Powered by WordPress.com"
+msgstr "Λειτουργεῖ μὲ τὴν βοήθεια τοῦ WordPress.com"
+
+#: footer-credit/footer-credit/footer-credit.php:98
+#: footer-credit/theme-optimizations.php:30
+#: footer-credit/theme-optimizations.php:35
+msgid "Blog at WordPress.com"
+msgstr "Ἱστολογῆστε στὸ WordPress.com "
+
+#: footer-credit/footer-credit/footer-credit.php:97
+msgid "A WordPress.com Website"
+msgstr "Ἱστότοπος τοῦ WordPress.com"
+
+#: footer-credit/footer-credit/footer-credit.php:96
+msgid "WordPress.com Logo"
+msgstr "Λογότυπος τοῦ WordPress.com"
+
+#: footer-credit/footer-credit/footer-credit.php:41
+#: footer-credit/footer-credit/footer-credit.php:205
+msgid "Create a website or blog at WordPress.com"
+msgstr "Δημιουργῆστε ἱστότοπο ἢ ἱστολόγιο στὸ WordPress.com"
+
+#: footer-credit/footer-credit/customizer.php:85
+msgid "Footer Credit"
+msgstr "Εὐχαριστίες στὸ ὑποσέλιδο"
+
+#: footer-credit/footer-credit/customizer.php:62
+msgid "Upgrade to Business"
+msgstr "Ἀναβαθμίστε στὸ ἐπιχειρηματικὸ πακέτο"
+
+#: footer-credit/footer-credit/customizer.php:54
+msgid "Hide (Business Plan Required)"
+msgstr "Ἀποκρύψτε (ἀπαιτεῖται τὸ ἐπιχειρηματικὸ πακέτο)"
+
+#: footer-credit/footer-credit/customizer.php:52
+msgid "Hide"
+msgstr "Ἀποκρύψτε"
+
+#: footer-credit/footer-credit/customizer.php:41
+msgid "Default"
+msgstr "Κατὰ παραδοχήν (default)"
+
+#: footer-credit/footer-credit-optimizations.php:159
+msgid "Design by"
+msgstr "Σχεδιάσθηκε ἀπὸ τὸν/τὴν"
+
+#: footer-credit/footer-credit-optimizations.php:147
+msgid "by"
+msgstr "ἀπὸ"
+
+#: footer-credit/footer-credit-optimizations.php:130
+msgid "Theme"
+msgstr "Θέμα ἐμφάνισης"
+
+#: footer-credit/footer-credit-optimizations.php:114
+msgid "Proudly powered by WordPress"
+msgstr "Λειτουργεῖ μὲ τὴν βοήθεια τοῦ WordPress"
+
+#: customizer-fixes/customizer-fixes.php:13
+msgid "Save Settings"
+msgstr "Ἀποθήκευση ρυθμίσεων"
+
+#: customizer-fixes/customizer-fixes.php:12
+msgid "Are you sure you want to discard your unsaved changes?"
+msgstr "Εἶσθε βέβαιος/-α ὅτι θέλετε νὰ χάσετε τὶς ἀλλαγὲς ποὺ δὲν ἔχετε ἀποθηκεύσει;"
+
+#: customizer-fixes/customizer-fixes.php:11
+msgid "Saved"
+msgstr "Ἀποθηκεύθηκε"
+
+#: customizer-fixes/customizer-fixes.php:10
+msgid "Save Changes"
+msgstr "Ἀποθήκευση ἀλλαγῶν"
+
+#: customizer-fixes/customizer-fixes.php:9
+msgid "Save"
+msgstr "Ἀποθήκευση"
+
+#: customizer-fixes/customizer-fixes.php:8
+msgid "Activate &amp; Save"
+msgstr "Ἐνεργοποιῆστε &amp; Ἀποθηκεῦστε"
+
+#: private-site/private-site.php:123
+msgid "Manage your site visibility settings"
+msgstr ""
+
+#: private-site/access-denied-coming-soon-template.php:140
+msgid "Something new is coming."
+msgstr ""
+
+#: wpcomsh.php:338
+msgid "This plugin was installed by WordPress.com and provides features offered in your plan subscription."
+msgstr ""
+
+#: wpcomsh.php:335
+msgid "%s is automatically managed for you."
+msgstr ""
+
+#: widgets/top-rated.php:141
+msgid "How many items would you like to display?"
+msgstr "Πόσα ἀντικείμενα θὰ θέλατε νὰ προβάλλετε;"
+
+#: widgets/top-rated.php:137
+msgid "Filter by category"
+msgstr "Διαχωρίστε ἀνὰ κατηγορία"
+
+#: widgets/top-rated.php:131
+msgid "Show for comments"
+msgstr "Προβάλλετε γιὰ σχόλια"
+
+#: widgets/top-rated.php:125
+msgid "Show for pages"
+msgstr "Προβάλλετε γιὰ σελίδες"
+
+#: widgets/top-rated.php:119
+msgid "Show for posts"
+msgstr "Προβάλλετε γιὰ ἄρθρα"
+
+#: widgets/top-rated.php:11 widgets/top-rated.php:32
+msgid "Top Rated"
+msgstr "Ἦρθαν πρῶτα"
+
+#: widgets/top-rated.php:10
+msgid "A list of your top rated posts, pages or comments."
+msgstr "Κατάλογος ἄρθρων, σελίδων ἢ σχολίων μὲ κορυφαία βαθμολογία."
+
+#: widgets/top-clicks.php:61
+msgid "Top Clicks are calculated from 48-72 hours of stats. They take a while to change."
+msgstr "Οἱ σύνδεσμοι ποὺ πατήθηκαν περισσότερο ὑπολογίζονται βάσει στατιστικῶν δεδομένων 48-72 ὡρῶν. Γιὰ νὰ ἀλλάξουν χρειάζονται κάποιον χρόνο. "
+
+#: widgets/top-clicks.php:53
+msgid "URLs to show:"
+msgstr "URL πρὸς ἐμφάνισιν:"
+
+#: widgets/top-clicks.php:47
+msgid "Display length:"
+msgstr "Δεῖξτε τὸ μῆκος:"
+
+#: widgets/top-clicks.php:14
+msgid "List the most-clicked links on your blog."
+msgstr "Ἐμφανίστε τοὺς συχνότερα πατημένους συνδέσμους τοῦ ἱστολογίου σας."
+
+#: widgets/top-clicks.php:13 widgets/top-clicks.php:22
+#: widgets/top-clicks.php:66
+msgid "Top Clicks"
+msgstr "Συχνότερα πατημένοι σύνδεσμοι"
+
+#: widgets/tlkio/tlkio.php:59
+msgid "Height (in pixel):"
+msgstr "Ὕψος (σὲ εἰκονοστοιχεῖα - pixel):"
+
+#: widgets/tlkio/tlkio.php:55
+msgid "Channel:"
+msgstr ""
+
+#: widgets/tlkio/tlkio.php:26
+msgid "tlk.io Webchat"
+msgstr "Διαδικτυακὴ συζήτηση tlk.io"
+
+#: widgets/tlkio/tlkio.php:25
+msgid "Add a tlk.io webchat."
+msgstr "Προσθέστε διαδικτυακὴ συζήτηση tlk.io"
+
+#: widgets/reservations.php:55
+msgid "Show:"
+msgstr "Προβάλετε: "
+
+#: widgets/reservations.php:50
+msgid "E-mail Subject:"
+msgstr ""
+
+#: widgets/reservations.php:44
+msgid "Recipient E-mail Address:"
+msgstr "Ἠλ. διεύθυνση ἀποδέκτη:"
+
+#: widgets/reservations.php:29
+msgid "Departure"
+msgstr ""
+
+#: widgets/reservations.php:28
+msgid "Arrival"
+msgstr ""
+
+#: widgets/reservations.php:27
+msgid "# Children"
+msgstr "# Παιδιά"
+
+#: widgets/reservations.php:26
+msgid "# Adults"
+msgstr "# Ἐνήλικες"
+
+#: widgets/reservations.php:25
+msgid "Message"
+msgstr "Μήνυμα"
+
+#: widgets/reservations.php:24
+msgid "Phone"
+msgstr "Τηλέφωνο"
+
+#: widgets/reservations.php:23
+msgid "Email"
+msgstr "Ἠλ. διεύθυνση"
+
+#: widgets/aboutme.php:111 widgets/reservations.php:22
+msgid "Name"
+msgstr "Ὄνομα"
+
+#: widgets/reservations.php:16
+msgid "Reservation Inquiry"
+msgstr ""
+
+#: widgets/reservations.php:10 widgets/reservations.php:15
+msgid "Reservations"
+msgstr ""
+
+#: widgets/recent-comments-widget.php:384
+msgid "Show comments from:"
+msgstr "Προβάλετε σχόλια ἀπό:"
+
+#: widgets/recent-comments-widget.php:379
+msgid "Text background color:"
+msgstr "Χρῶμα φόντου κειμένου:"
+
+#: widgets/recent-comments-widget.php:373
+msgid "Avatar background color:"
+msgstr "Χρῶμα ὑποβάθρου τοῦ ἄβαταρ:"
+
+#: widgets/recent-comments-widget.php:362
+msgid "No Avatars"
+msgstr "Χωρὶς ἄβαταρ"
+
+#: widgets/recent-comments-widget.php:355
+msgid "(at most 15)"
+msgstr "(κατὰ μέγιστον 15)"
+
+#: widgets/recent-comments-widget.php:349
+msgid "Number of comments to show:"
+msgstr "Ἀριθμὸς σχολίων πρὸς ἐμφάνισιν:"
+
+#: widgets/recent-comments-widget.php:284
+msgid "There are no public comments available to display."
+msgstr "Δὲν ὑπάρχουν δημόσια σχόλια."
+
+#. translators: comments widget: 1: comment author, 2: post link
+#: widgets/recent-comments-widget.php:275
+#: widgets/recent-comments-widget.php:308
+msgctxt "widgets"
+msgid "%1$s on %2$s"
+msgstr "%1$s στὸ %2$s"
+
+#: widgets/recent-comments-widget.php:252
+msgid "Anonymous"
+msgstr "Ἀνώνυμος "
+
+#: widgets/recent-comments-widget.php:30
+msgid "Display your site's most recent comments"
+msgstr "Προβάλετε τὰ πιὸ πρόσφατα σχόλια τοῦ ἱστοτόπου σας"
+
+#: widgets/recent-comments-widget.php:29 widgets/recent-comments-widget.php:146
+msgid "Recent Comments"
+msgstr "Πρόσφατα Σχόλια"
+
+#: widgets/posts-i-like.php:269
+msgid "You have not recently liked any posts. Once you do, this <a href=\"%s\">Posts I Like</a> widget will display them."
+msgstr "Δὲν ἔχετε προσφάτως δηλώσει ὅτι σᾶς ἀρέσουν κάποια ἄρθρα.  Μόλις τὸ κάνετε, ἡ προσθήκη \"<a href=\"%s\">Ἄρθρα ποὺ μ' ἀρέσουν</a>\" θὰ τὰ ἐμφανίσει."
+
+#: widgets/posts-i-like.php:259
+msgid "on"
+msgstr "στὶς "
+
+#: widgets/posts-i-like.php:236
+msgctxt "1: Post Title, 2: Blog Name"
+msgid "%1$s on %2$s"
+msgstr "%1$s ἀπὸ τὸ ἱστολόγιο %2$s"
+
+#: widgets/posts-i-like.php:113
+msgid "Author's likes to display:"
+msgstr "Νὰ ἐμφανίζονται οἱ δηλώσεις ἀρεσκείας τοῦ συγγραφέως"
+
+#: widgets/posts-i-like.php:98
+msgid "Grid"
+msgstr "Πλέγμα"
+
+#: widgets/posts-i-like.php:97
+msgid "List"
+msgstr "Κατάλογος"
+
+#: widgets/posts-i-like.php:95
+msgid "Display as:"
+msgstr "Προβάλετε ὡς:"
+
+#: widgets/posts-i-like.php:90
+msgid "Number of posts to show (1 to 15):"
+msgstr ""
+
+#: widgets/posts-i-like.php:27
+msgid "A list of the posts I most recently liked"
+msgstr "Κατάλογος ἄρθρων ποὺ τελευταίως μοῦ ἄρεσαν περισσότερο"
+
+#: widgets/posts-i-like.php:25 widgets/posts-i-like.php:32
+msgid "Posts I Like"
+msgstr "Ἄρθρα ποὺ μοῦ ἀρέσουν"
+
+#: widgets/music-player.php:82
+msgid "Choose songs"
+msgstr "Διαλέξτε τραγούδια"
+
+#: widgets/music-player.php:16 widgets/music-player.php:87
+msgid "Music Player"
+msgstr "Ἀναπαραγωγὴ μουσικῆς"
+
+#: widgets/music-player.php:15
+msgid "A multi-song music player"
+msgstr ""
+
+#: widgets/i-voted.php:33
+msgid "I Voted"
+msgstr ""
+
+#: widgets/i-voted.php:31
+msgid "Show your readers that you voted with an \"I Voted\" sticker."
+msgstr ""
+
+#: widgets/gravatar.php:144
+msgid "You can modify your Gravatar from your <a href=\"/wp-admin/profile.php\">profile page</a>."
+msgstr "Μπορεῖτε νὰ ἀλλάξετε τὸ γκράβατάρ σας ἀπὸ τὴν <a href=\"/wp-admin/profile.php\">σελίδα τοῦ προφίλ σας</a>. "
+
+#: widgets/gravatar.php:143
+msgid "Text displayed after Gravatar. This is optional and can be used to describe yourself or what your blog is about."
+msgstr "Τὸ κείμενο ποὺ θὰ προβάλλεται μετὰ τὸ γκράβαταρ. Εἶναι προαιρετικὸ καὶ μπορεῖ νὰ χρησιμεύσει ὠς περιγραφὴ δική σας ἢ τοῦ ἱστολογίου σας."
+
+#: widgets/gravatar.php:142
+msgid "Gravatar link. This is an optional URL that will be used when anyone clicks on your Gravatar:"
+msgstr "Σύνδεσμος γκράβαταρ. Μιὰ προαιρετικὴ URL ποὺ θὰ ἐνεργοποιηθεῖ ὅταν κάποιος πατήσει πάνω στὸ γκράβατάρ σας."
+
+#: widgets/gravatar.php:134
+msgid "Gravatar alignment:"
+msgstr "Εὐθυγράμμιση γκράβαταρ:"
+
+#: widgets/gravatar.php:125
+msgid "Size:"
+msgstr "Μέγεθος:"
+
+#: widgets/gravatar.php:122
+msgid "Custom Email Address:"
+msgstr "Δική σας ἠλεκτρονικὴ διεύθυνση:"
+
+#: widgets/gravatar.php:119
+msgid "Select a user or pick \"custom\" and enter a custom email address."
+msgstr "Διαλέξτε χρήστη ἢ ἐπιλέξτε \"Ἄλλο\" καὶ δῶστε μιὰ δική σας ἠλεκτρονικὴ διεύθυνση."
+
+#: widgets/gravatar.php:115
+msgid "Center"
+msgstr "Κέντρο"
+
+#: widgets/gravatar.php:115
+msgid "Right"
+msgstr "Δεξιά"
+
+#: widgets/gravatar.php:115
+msgid "Left"
+msgstr "Ἀριστερά"
+
+#: widgets/gravatar.php:115 widgets/top-clicks.php:108
+msgid "None"
+msgstr "Τίποτα"
+
+#: widgets/gravatar.php:114
+msgid "Extra Large (256 pixels)"
+msgstr "Πολὺ μεγάλο (256 pixels)"
+
+#: widgets/gravatar.php:114
+msgid "Large (128 pixels)"
+msgstr "Μεγάλο (128 pixels)"
+
+#: widgets/gravatar.php:114
+msgid "Medium (96 pixels)"
+msgstr "Μεσαῖο (96 pixels)"
+
+#: widgets/gravatar.php:114
+msgid "Small (64 pixels)"
+msgstr "Μικρό (64 pixels)"
+
+#: widgets/gravatar.php:84
+msgid "You need to pick a user or enter an email address in your <a href=\"%s\">Gravatar Widget</a> settings."
+msgstr ""
+
+#: widgets/gravatar.php:22
+msgid "Gravatar"
+msgstr "Γκράβαταρ"
+
+#: widgets/gravatar.php:20
+msgid "Insert a Gravatar image"
+msgstr "Εἰσαγάγετε εἰκόνα γκράβαταρ"
+
+#: widgets/freshly-pressed.php:60
+msgid "Choose an image to display in your sidebar:"
+msgstr "Ἐπιλέξτε εἰκόνα πρὸς ἐμφάνισιν στὴν πλαϊνή σας στήλη:"
+
+#: widgets/freshly-pressed.php:10
+msgid "Freshly Pressed"
+msgstr "Νέες ἀναρτήσεις"
+
+#: widgets/freshly-pressed.php:8
+msgid "Display a Freshly Pressed badge in your sidebar"
+msgstr ""
+
+#: widgets/author-grid.php:102 widgets/recent-comments-widget.php:360
+msgid "Avatar Size (px):"
+msgstr "Μέγεθος ἄβαταρ (px):"
+
+#: widgets/author-grid.php:97
+msgid "Display all authors (including those who have not written any posts)"
+msgstr "Προβάλετε ὅλους τοὺς χρῆστες (μαζὶ κι ἐκείνους ποὺ δὲν ἔχουν γράψει τίποτε)"
+
+#: widgets/author-grid.php:91 widgets/freshly-pressed.php:56
+#: widgets/gravatar.php:117 widgets/i-voted.php:65 widgets/music-player.php:73
+#: widgets/posts-i-like.php:85 widgets/recent-comments-widget.php:343
+#: widgets/reservations.php:38 widgets/tag-cloud-widget.php:132
+#: widgets/tlkio/tlkio.php:51 widgets/top-clicks.php:41
+#: widgets/top-rated.php:115 widgets/twitter.php:357
+msgid "Title:"
+msgstr "Τίτλος:"
+
+#: widgets/author-grid.php:44
+msgid "Authors"
+msgstr "Συγγραφεῖς"
+
+#: widgets/author-grid.php:12
+msgid "Show a grid of author avatar images."
+msgstr "Προβάλετε ἕναν κάνναβο μὲ εἰκόνες-ἄβαταρ τῶν συγγραφέων τοῦ ἱστολογίου."
+
+#: widgets/author-grid.php:11
+msgid "Author Grid"
+msgstr "Κάνναβος συγγραφέων"
+
+#: private-site/private-site.php:369
+msgid "Private Site"
+msgstr ""
+
+#: private-site/private-site.php:227 private-site/private-site.php:324
+#: private-site/private-site.php:468
+msgid "This site is private."
+msgstr "Ἰδιωτικό ἱστολόγιο."
+
+#: private-site/access-denied-private-site-template.php:45
+msgid "Log in"
+msgstr "Εἴσοδος"
+
+#: private-site/access-denied-private-site-template.php:45
+msgid "Switch user"
+msgstr ""
+
+#: private-site/access-denied-private-site-template.php:43
+msgid "You need to be logged in as a user who has permission to view this site."
+msgstr ""
+
+#: privacy/participating-plugins.php:144
+msgid ""
+"Please note - this tool only displays privacy policy information provided by\n"
+"WordPress and participating plugins. It does not include privacy policy\n"
+"information for non-participating plugins. It is your responsibility to\n"
+"obtain privacy policy information for non-participating plugins separately."
+msgstr ""
+
+#: privacy/participating-plugins.php:94
+msgid ""
+"Please note - this tool only exports the personal data stored by WordPress and\n"
+"participating plugins. It does not export personal data stored by\n"
+"non-participating plugins. It is your responsibility to export personal data\n"
+"stored by non-participating plugins separately. The personal data exported\n"
+"includes only the following items at this time:"
+msgstr ""
+
+#: privacy/participating-plugins.php:47
+msgid ""
+"Please note - this tool only erases the personal data stored by WordPress and\n"
+"participating plugins. It does not delete registered users, nor does it erase\n"
+"personal data stored by non-participating plugins. It is your responsibility\n"
+"to delete registered users as well as personal data stored by non-participating\n"
+"plugins. The personal data erased includes only the following items at this\n"
+"time:"
+msgstr ""
+
+#: logo-tool/logo-tool.php:70
+msgid "Create logo"
+msgstr ""
+
+#: logo-tool/logo-tool.php:60
+msgid "Add a logo to display on your site. No logo? Buy a pro one from Looka — Click “Create logo” to start."
+msgstr ""
+
+#. Description of the plugin
+msgid "WordPress.com provided functionality & tools"
+msgstr ""
+
+#. Plugin Name of the plugin
+msgid "WP.com Site Helper"
+msgstr ""

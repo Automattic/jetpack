@@ -25,9 +25,9 @@ class WPcom_Instagram_Widget extends WP_Widget {
 	function __construct() {
 		parent::__construct(
 			self::ID_BASE,
-			__( 'Instagram', 'wpcom-instagram-widget' ),
+			__( 'Instagram', 'wpcomsh' ),
 			array(
-				'description' => __( 'Display your latest Instagram photos.', 'wpcom-instagram-widget' ),
+				'description' => __( 'Display your latest Instagram photos.', 'wpcomsh' ),
 			)
 		);
 
@@ -40,7 +40,7 @@ class WPcom_Instagram_Widget extends WP_Widget {
 
 		$this->defaults = array(
 			'token_id' => null,
-			'title'    => __( 'Instagram', 'wpcom-instagram-widget' ),
+			'title'    => __( 'Instagram', 'wpcomsh' ),
 			'columns'  => 2,
 			'count'    => 6,
 		);
@@ -88,7 +88,7 @@ class WPcom_Instagram_Widget extends WP_Widget {
 		}
 
 		$cache_time = MINUTE_IN_SECONDS;
-		$transient_key = implode( '|', array( 'wpcom-instagram-widget', $instance['token_id'], $instance['count'] ) );
+		$transient_key = implode( '|', array( 'wpcomsh', $instance['token_id'], $instance['count'] ) );
 		$cached_images = get_transient( $transient_key );
 		if ( $cached_images ) {
 			return $cached_images;
@@ -183,10 +183,10 @@ class WPcom_Instagram_Widget extends WP_Widget {
 			$images = $this->get_images( $instance );
 
 			if ( ! is_array( $images ) ) {
-				echo '<p>' . __( 'There was an error retrieving images from Instagram. An attempt will be remade in a few minutes.', 'wpcom-instagram-widget' ) . '</p>';
+				echo '<p>' . __( 'There was an error retrieving images from Instagram. An attempt will be remade in a few minutes.', 'wpcomsh' ) . '</p>';
 			}
 			elseif ( ! $images ) {
-				echo '<p>' . __( 'No Instagram images were found.', 'wpcom-instagram-widget' ) . '</p>';
+				echo '<p>' . __( 'No Instagram images were found.', 'wpcomsh' ) . '</p>';
 			}
 			else {
 				echo '<div class="' . esc_attr( 'wpcom-instagram-images wpcom-instagram-columns-' . (int) $instance['columns'] ) . '">' . "\n";
@@ -218,12 +218,12 @@ class WPcom_Instagram_Widget extends WP_Widget {
 		echo '<p><strong>NOTE:</strong> This widget is temporarily unable to make new connections, so delete it at your own risk!</p>';
 
 		// Title
-		echo '<p><label><strong>' . __( 'Widget Title', 'wpcom-instagram-widget' ) . '</strong> <input type="text" id="' . esc_attr( $this->get_field_id( 'title' ) ) . '" name="' . esc_attr( $this->get_field_name( 'title' ) ) . '" value="' . esc_attr( $instance['title'] ) . '" class="widefat" /></label></p>';
+		echo '<p><label><strong>' . __( 'Widget Title', 'wpcomsh' ) . '</strong> <input type="text" id="' . esc_attr( $this->get_field_id( 'title' ) ) . '" name="' . esc_attr( $this->get_field_name( 'title' ) ) . '" value="' . esc_attr( $instance['title'] ) . '" class="widefat" /></label></p>';
 
 		// Number of images to show
 		echo '<p><label>';
-			echo '<strong>' . __( 'Images', 'wpcom-instagram-widget' ) . '</strong><br />';
-			echo __( 'Number to display:', 'wpcom-instagram-widget' ) . ' ';
+			echo '<strong>' . __( 'Images', 'wpcomsh' ) . '</strong><br />';
+			echo __( 'Number to display:', 'wpcomsh' ) . ' ';
 			echo '<select name="' . esc_attr( $this->get_field_name( 'count' ) ) . '">';
 			for ( $i = 1; $i <= $this->valid_options['max_count']; $i++ ) {
 				echo '<option value="' . esc_attr( $i ) . '"' . selected( $i, $instance['count'], false ) . '>' . $i . '</option>';
@@ -233,8 +233,8 @@ class WPcom_Instagram_Widget extends WP_Widget {
 
 		// Columns
 		echo '<p><label>';
-			echo '<strong>' . __( 'Layout', 'wpcom-instagram-widget' ) . '</strong><br />';
-			echo __( 'Number of columns:', 'wpcom-instagram-widget' ) . ' ';
+			echo '<strong>' . __( 'Layout', 'wpcomsh' ) . '</strong><br />';
+			echo __( 'Number of columns:', 'wpcomsh' ) . ' ';
 			echo '<select name="' . esc_attr( $this->get_field_name( 'columns' ) ) . '">';
 			for ( $i = 1; $i <= $this->valid_options['max_columns']; $i++ ) {
 				echo '<option value="' . esc_attr( $i ) . '"' . selected( $i, $instance['columns'], false ) . '>' . $i . '</option>';
@@ -242,7 +242,7 @@ class WPcom_Instagram_Widget extends WP_Widget {
 			echo '</select>';
 		echo '</label></p>';
 
-		echo '<p><small>' . sprintf( __( 'New images may take up to %d minutes to show up on your site.', 'wpcom-instagram-widget' ), 20 ) . '</small></p>';
+		echo '<p><small>' . sprintf( __( 'New images may take up to %d minutes to show up on your site.', 'wpcomsh' ), 20 ) . '</small></p>';
 	}
 
 	/**

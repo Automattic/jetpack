@@ -26,8 +26,8 @@ class WPCOM_Widget_Recent_Comments extends WP_Widget {
 	public function __construct() {
 		parent::__construct(
 			'recent-comments',
-			__( 'Recent Comments' ),
-			array( 'classname' => 'widget_recent_comments', 'description' => __( 'Display your site\'s most recent comments' ) )
+			__( 'Recent Comments', 'wpcomsh' ),
+			array( 'classname' => 'widget_recent_comments', 'description' => __( 'Display your site\'s most recent comments', 'wpcomsh' ) )
 		);
 
 		if ( is_active_widget( null, null, 'recent-comments', false ) ) {
@@ -143,7 +143,7 @@ class WPCOM_Widget_Recent_Comments extends WP_Widget {
 		$instance = wp_parse_args( $instance, self::$widget_defaults );
 
 		if ( empty( $instance['title'] ) )
-			$instance['title'] = __( 'Recent Comments' );
+			$instance['title'] = __( 'Recent Comments', 'wpcomsh' );
 		else
 			$instance['title'] = apply_filters( 'widget_title', $instance['title'] );
 
@@ -249,7 +249,7 @@ class WPCOM_Widget_Recent_Comments extends WP_Widget {
 						echo '<td class="' . ( $comment_index == 0 ? 'recentcommentstexttop' : 'recentcommentstextend' ) . '" style="'.$text_bg.'">';
 
 						if ( $comment->comment_author == '' )
-							$comment->comment_author = __( 'Anonymous' );
+							$comment->comment_author = __( 'Anonymous', 'wpcomsh' );
 
 						$author = $comment->comment_author;
 						$excerpt = wp_html_excerpt( $author, 20 );
@@ -272,7 +272,7 @@ class WPCOM_Widget_Recent_Comments extends WP_Widget {
 							$post_title = '&hellip;';
 
 						/* translators: comments widget: 1: comment author, 2: post link */
-						printf( esc_html_x( '%1$s on %2$s', 'widgets' ), $authorlink, '<a href="' . get_comment_link( $comment ) . "\">$post_title</a>" );
+						printf( esc_html_x( '%1$s on %2$s', 'widgets', 'wpcomsh' ), $authorlink, '<a href="' . get_comment_link( $comment ) . "\">$post_title</a>" );
 
 						echo '</td></tr>';
 
@@ -281,7 +281,7 @@ class WPCOM_Widget_Recent_Comments extends WP_Widget {
 
 					if ( 0 == $comments_printed ) {
 						echo '<tr><td class="recentcommentstexttop" style="'.$text_bg.'">';
-						esc_html_e( 'There are no public comments available to display.' );
+						esc_html_e( 'There are no public comments available to display.', 'wpcomsh' );
 						echo '</td></tr>';
 					}
 
@@ -305,7 +305,7 @@ class WPCOM_Widget_Recent_Comments extends WP_Widget {
 
 							printf(
 								/* translators: comments widget: 1: comment author, 2: post link */
-								_x( '%1$s on %2$s', 'widgets' ),
+								_x( '%1$s on %2$s', 'widgets', 'wpcomsh' ),
 								get_comment_author_link( $comment->comment_ID ),
 								'<a href="' . esc_url( get_comment_link( $comment ) ) . '">' . get_the_title( $comment->comment_post_ID ) . '</a>'
 							);
@@ -340,26 +340,26 @@ class WPCOM_Widget_Recent_Comments extends WP_Widget {
 		?>
 		<p>
 			<label>
-				<?php esc_html_e( 'Title:' ); ?>
+				<?php esc_html_e( 'Title:', 'wpcomsh' ); ?>
 				<input class="widefat" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $instance['title'] ); ?>" />
 			</label>
 		</p>
 		<p>
 			<label>
-				<?php esc_html_e( 'Number of comments to show:' ); ?>
+				<?php esc_html_e( 'Number of comments to show:', 'wpcomsh' ); ?>
 				<select name="<?php echo $this->get_field_name( 'number' ); ?>">
 					<?php for ( $i = 1; $i <= 15; $i++ ): ?>
 						<option value="<?php echo $i; ?>" <?php selected( $instance['number'], $i ); ?>><?php echo $i; ?></option>
 					<?php endfor; ?>
 				</select>
-				<small><?php esc_html_e( '(at most 15)' ); ?></small>
+				<small><?php esc_html_e( '(at most 15)', 'wpcomsh' ); ?></small>
 			</label>
 		</p>
 		<p>
 			<label>
-				<?php esc_html_e( 'Avatar Size (px):' ); ?>
+				<?php esc_html_e( 'Avatar Size (px):', 'wpcomsh' ); ?>
 				<select name="<?php echo $this->get_field_name( 'avatar_size' ); ?>">
-					<option value="1" <?php selected( $instance['avatar_size'], 1 ); ?>><?php esc_html_e( 'No Avatars' ); ?></option>
+					<option value="1" <?php selected( $instance['avatar_size'], 1 ); ?>><?php esc_html_e( 'No Avatars', 'wpcomsh' ); ?></option>
 					<option value="16" <?php selected( $instance['avatar_size'], 16 ); ?>>16x16</option>
 					<option value="32" <?php selected( $instance['avatar_size'], 32 ); ?>>32x32</option>
 					<option value="48" <?php selected( $instance['avatar_size'], 48 ); ?>>48x48</option>
@@ -370,18 +370,18 @@ class WPCOM_Widget_Recent_Comments extends WP_Widget {
 		</p>
 		<p>
 			<label>
-				<?php esc_html_e( 'Avatar background color:' ); ?>
+				<?php esc_html_e( 'Avatar background color:', 'wpcomsh' ); ?>
 				<input name="<?php echo $this->get_field_name( 'avatar_bg' ); ?>" type="text" value="<?php echo esc_attr( $instance['avatar_bg'] ); ?>" size="3" />
 			</label>
 		</p>
 		<p>
 			<label>
-				<?php esc_html_e( 'Text background color:' ); ?>
+				<?php esc_html_e( 'Text background color:', 'wpcomsh' ); ?>
 				<input name="<?php echo $this->get_field_name( 'text_bg' ); ?>" type="text" value="<?php echo esc_attr( $instance['text_bg'] ); ?>" size="3" />
 			</label>
 		</p>
 		<p>
-			<label><?php esc_html_e( 'Show comments from:' ); ?></label><br />
+			<label><?php esc_html_e( 'Show comments from:', 'wpcomsh' ); ?></label><br />
 
 			<?php foreach ( $this->get_allowed_post_types() as $post_type => $label ) : ?>
 				<input type="checkbox" name="<?php echo esc_attr( $this->get_field_name( 'post_types' )); ?>[]" id="<?php echo esc_attr( $this->get_field_id( 'post_types' )); ?>-<?php echo esc_attr( $post_type ); ?>" value="<?php echo esc_attr( $post_type ); ?>"<?php checked( true, in_array( $post_type, $instance['post_types'] ) ); ?> /> <label for="<?php echo esc_attr( $this->get_field_id( 'post_types' )); ?>-<?php echo esc_attr( $post_type ); ?>"><?php echo $label; // Don't translate as it's already translated. ?></label><br />

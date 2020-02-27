@@ -5,12 +5,12 @@ function customizer_fixes_scripts() {
 	// This is to avoid confusion between saving site changes and publishing or launching a site
 	wp_register_script( 'customizer-labels-site-not-launched', plugin_dir_url( __FILE__ ) . 'customizer-labels-site-not-launched.js', array( 'customize-controls' ), '20200206' );
 	wp_localize_script( 'customizer-labels-site-not-launched', '_wpCustomizeControlsL10nSitePrivate', array(
-			'activate'        => __( 'Activate &amp; Save' ),
-			'save'            => __( 'Save' ),
-			'publish'         => __( 'Save Changes' ),
-			'published'       => __( 'Saved' ),
-			'trashConfirm'    => __( 'Are you sure you want to discard your unsaved changes?' ),
-			'publishSettings' => __( 'Save Settings' ),
+			'activate'        => __( 'Activate &amp; Save', 'wpcomsh' ),
+			'save'            => __( 'Save', 'wpcomsh' ),
+			'publish'         => __( 'Save Changes', 'wpcomsh' ),
+			'published'       => __( 'Saved', 'wpcomsh' ),
+			'trashConfirm'    => __( 'Are you sure you want to discard your unsaved changes?', 'wpcomsh' ),
+			'publishSettings' => __( 'Save Settings', 'wpcomsh' ),
 		)
 	);
 	wp_enqueue_script( 'customizer-labels-site-not-launched' );

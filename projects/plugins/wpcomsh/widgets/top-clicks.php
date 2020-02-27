@@ -10,8 +10,8 @@ class Widget_Top_Clicks extends WP_Widget {
 	public function __construct() {
 		parent::__construct(
 			'top-clicks',
-			__( 'Top Clicks' ),
-			array( 'description' => __( 'List the most-clicked links on your blog.' ) )
+			__( 'Top Clicks', 'wpcomsh' ),
+			array( 'description' => __( 'List the most-clicked links on your blog.', 'wpcomsh' ) )
 		);
 	}
 
@@ -19,7 +19,7 @@ class Widget_Top_Clicks extends WP_Widget {
 		$instance = wp_parse_args( $instance, $this->defaults );
 
 		if ( empty( $instance['title'] ) )
-			$instance['title'] = __( 'Top Clicks' );
+			$instance['title'] = __( 'Top Clicks', 'wpcomsh' );
 
 		$instance['count'] = isset( $instance['count'] ) ? intval( $instance['count'] ) : null;
 		if ( empty( $instance['count'] ) || $instance['count'] < 1 || 10 < $instance['count'] )
@@ -38,19 +38,19 @@ class Widget_Top_Clicks extends WP_Widget {
 		?>
 		<p>
 			<label>
-				<?php esc_html_e( 'Title:' ); ?>
+				<?php esc_html_e( 'Title:', 'wpcomsh' ); ?>
 				<input class="widefat" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $instance['title'] ); ?>" />
 			</label>
 		</p>
 		<p>
 			<label>
-				<?php esc_html_e( 'Display length:' ); ?>
+				<?php esc_html_e( 'Display length:', 'wpcomsh' ); ?>
 				<input style="width: 60px;" name="<?php echo $this->get_field_name( 'len' ); ?>" type="text" value="<?php echo esc_attr( $instance['len'] ); ?>" />
 			</label>
 		</p>
 		<p>
 			<label>
-				<?php esc_html_e( 'URLs to show:' ); ?>
+				<?php esc_html_e( 'URLs to show:', 'wpcomsh' ); ?>
 				<select name="<?php echo $this->get_field_name( 'count' ); ?>">
 					<?php for ( $i = 1; $i <= 12; ++$i ) { ?>
 						<option value="<?php echo esc_attr( $i ); ?>" <?php selected( $i, $instance['count'] ); ?>><?php echo esc_html( $i ); ?></option>
@@ -58,12 +58,12 @@ class Widget_Top_Clicks extends WP_Widget {
 				</select>
 			</label>
 		</p>
-		<p><?php esc_html_e( 'Top Clicks are calculated from 48-72 hours of stats. They take a while to change.'); ?></p>
+		<p><?php esc_html_e( 'Top Clicks are calculated from 48-72 hours of stats. They take a while to change.','wpcomsh' ); ?></p>
 		<?php
 	}
 
 	public function update( $new_instance, $old_instance ) {
-		$new_instance = wp_parse_args( $new_instance, array( 'title' => __( 'Top Clicks' ), 'count' => 10, 'len' => 25 ) );
+		$new_instance = wp_parse_args( $new_instance, array( 'title' => __( 'Top Clicks', 'wpcomsh' ), 'count' => 10, 'len' => 25 ) );
 		$new_instance['title'] = strip_tags( $new_instance['title'] );
 		$new_instance['count'] = intval( $new_instance['count'] );
 		$new_instance['len'] = intval( $new_instance['len'] );
@@ -105,7 +105,7 @@ class Widget_Top_Clicks extends WP_Widget {
 					$html .= "<li>" . $this->shrink_link( $url, $len ) . "</li>";
 				}
 			} else {
-				$html .= '<li>' . __('None') . '</li>';
+				$html .= '<li>' . __( 'None', 'wpcomsh' ) . '</li>';
 			}
 			$html .= '</ul>';
 			$html = preg_replace( '|<a (.+?)>|', "<a $1 rel='nofollow'>", $html );

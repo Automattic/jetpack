@@ -1,0 +1,721 @@
+# Translation of WordPress.com - Site Helper in Japanese
+# This file is distributed under the same license as the WordPress.com - Site Helper package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2020-02-26 14:05:45+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: GlotPress/2.4.0-alpha\n"
+"Language: ja_JP\n"
+"Project-Id-Version: WordPress.com - Site Helper\n"
+
+#: wpcomsh.php:909
+msgid "You are currently using <strong>%1$s</strong> out of <strong>%2$s</strong> upload limit (%3$s%%)."
+msgstr "現在 <strong>%1$s</strong> (容量上限 <strong>%2$s</strong> の %3$s%%) を利用中です。"
+
+#: widgets/twitter.php:412
+msgid "Text to display between Tweet and timestamp:"
+msgstr "ツイートとタイムスタンプの間に表示するテキスト:"
+
+#: widgets/twitter.php:406
+msgid "Display Follow Button"
+msgstr "フォローボタンを表示"
+
+#: widgets/twitter.php:399
+msgid "Include retweets"
+msgstr "リツィートを含める"
+
+#: widgets/twitter.php:392
+msgid "Hide Tweets pushed by Publicize"
+msgstr "パブリサイズ共有で送信されたツイートを表示しない"
+
+#: widgets/twitter.php:385
+msgid "Hide replies"
+msgstr "返信を隠す"
+
+#: widgets/twitter.php:371
+msgid "Maximum number of Tweets to show:"
+msgstr "表示するツイートの上限:"
+
+#: widgets/twitter.php:364
+msgid "Twitter username:"
+msgstr "Twitter ユーザー名:"
+
+#: widgets/twitter.php:353
+msgid "Please switch to the 'Twitter Timeline' widget. This widget will be going away in the future and the new widget allows for more customization."
+msgstr "お手数ですが、「Twitter タイムライン」ウィジェットへの変更をお願いします。より高度なカスタマイズができる新しいウィジェットへの移行につき、このウィジェットは将来使えなくなる予定です。"
+
+#: widgets/twitter.php:289
+msgid "Error: Please make sure the Twitter account is %1$spublic%2$s."
+msgstr "エラー: Twitter アカウントが%1$s公開%2$sされているか確認してください。"
+
+#: widgets/twitter.php:262 widgets/twitter.php:275 widgets/twitter.php:296
+msgid "Error: Twitter did not respond. Please wait a few minutes and refresh this page."
+msgstr "エラー: Twitter からの反応がありません。数分待ってページを再読み込みしてください。"
+
+#: widgets/twitter.php:61
+msgid "Twitter Updates"
+msgstr "Twitter アップデート"
+
+#: widgets/twitter.php:51
+msgid "Please configure your Twitter username for the <a href=\"%s\">Twitter Widget</a>."
+msgstr "<a href=\"%s\">Twitter ウィジェット</a>の Twitter ユーザー名を設定してください。"
+
+#: widgets/twitter.php:29
+msgid "Display your Tweets from Twitter"
+msgstr "Twitter のツイートを表示"
+
+#: widgets/twitter.php:26
+msgid "Twitter"
+msgstr "Twitter"
+
+#: widgets/tag-cloud-widget.php:177
+msgid "Taxonomy:"
+msgstr "分類:"
+
+#: widgets/tag-cloud-widget.php:159
+msgid "The tag cloud will not be displayed since there are no taxonomies that support the tag cloud widget."
+msgstr "タグクラウドウィジェットをサポートしているタクソノミーが存在してないため、タグクラウドは表示できません。"
+
+#: widgets/tag-cloud-widget.php:152
+msgid "Show tag counts"
+msgstr "タグの数を表示"
+
+#: widgets/tag-cloud-widget.php:139
+msgid "Maximum number of tags displayed"
+msgstr "表示するタグの最大数"
+
+#: widgets/tag-cloud-widget.php:137
+msgid "Number of Tags:"
+msgstr "タグの数:"
+
+#: widgets/tag-cloud-widget.php:41
+msgid "Tags"
+msgstr "タグ"
+
+#: widgets/tag-cloud-widget.php:21
+msgid "Tag Cloud"
+msgstr "タグクラウド"
+
+#: widgets/tag-cloud-widget.php:18
+msgid "A cloud of your most used tags."
+msgstr "タグクラウド"
+
+#: widgets/instagram/instagram.php:245
+msgid "New images may take up to %d minutes to show up on your site."
+msgstr "新規画像がサイトに表示されるまでに最長%d分かかる場合があります。"
+
+#: widgets/instagram/instagram.php:237
+msgid "Number of columns:"
+msgstr "カラムの数:"
+
+#: widgets/instagram/instagram.php:236
+msgid "Layout"
+msgstr "レイアウト"
+
+#: widgets/instagram/instagram.php:226
+msgid "Number to display:"
+msgstr "表示する数:"
+
+#: widgets/instagram/instagram.php:225
+msgid "Images"
+msgstr "画像"
+
+#: widgets/instagram/instagram.php:221
+msgid "Widget Title"
+msgstr "ウィジェット名"
+
+#: widgets/instagram/instagram.php:189
+msgid "No Instagram images were found."
+msgstr "Instagram の画像が見つかりませんでした。"
+
+#: widgets/instagram/instagram.php:186
+msgid "There was an error retrieving images from Instagram. An attempt will be remade in a few minutes."
+msgstr "画像を Instagram から取得する際にエラーが発生しました。数分後に再試行します。"
+
+#: widgets/instagram/instagram.php:30
+msgid "Display your latest Instagram photos."
+msgstr "最新の Instagram の写真を表示"
+
+#: widgets/instagram/instagram.php:28 widgets/instagram/instagram.php:43
+msgid "Instagram"
+msgstr "Instagram"
+
+#: widgets/aboutme.php:148
+msgid "Apps"
+msgstr "アプリ"
+
+#: widgets/aboutme.php:141
+msgid "Biography"
+msgstr "バイオグラフィー"
+
+#: widgets/aboutme.php:134
+msgid "Headline"
+msgstr "ヘッドライン"
+
+#: widgets/aboutme.php:127
+msgid "Photo"
+msgstr "写真"
+
+#: widgets/aboutme.php:123
+msgid "Don't Display Name"
+msgstr "名前を表示しない"
+
+#: widgets/aboutme.php:121
+msgid "Display Small"
+msgstr "小サイズで表示"
+
+#: widgets/aboutme.php:119
+msgid "Display Medium"
+msgstr "中サイズで表示"
+
+#: widgets/aboutme.php:117
+msgid "Display Large"
+msgstr "大サイズで表示"
+
+#: widgets/aboutme.php:115
+msgid "Display X-Large"
+msgstr "特大サイズで表示"
+
+#: widgets/aboutme.php:104
+msgid "Your about.me URL"
+msgstr "about.me URL"
+
+#: widgets/aboutme.php:97
+msgid "Widget title"
+msgstr "ウィジェット名"
+
+#: widgets/aboutme.php:90
+msgid "The about.me widget will no longer be available after July 1, 2016. After this date, the widget will display a simple text link to your about.me profile. Please remove this widget."
+msgstr ""
+
+#: widgets/aboutme.php:37
+msgid "The about.me widget is no longer available. To remove this widget, <a href=\"%s\">visit your settings</a>. This message is not shown to visitors to your site."
+msgstr ""
+
+#: widgets/aboutme.php:20
+msgid "About.me Widget"
+msgstr "About.me ウィジェット"
+
+#: widgets/aboutme.php:18
+msgid "Display your about.me profile with thumbnail"
+msgstr "about.me プロフィールをサムネイル付きで表示"
+
+#: safeguard/utils.php:58
+msgid "Unable to fetch the requested data."
+msgstr ""
+
+#: private-site/access-denied-coming-soon-template.php:142
+msgid "Log in here"
+msgstr "ここからログイン"
+
+#: footer-credit/theme-optimizations.php:37
+msgid "Create a free website or blog at WordPress.com"
+msgstr "WordPress.com で無料サイトやブログを作成"
+
+#: footer-credit/theme-optimizations.php:32
+msgid "Create a free website at WordPress.com"
+msgstr "WordPress.com で無料サイトを作成"
+
+#: footer-credit/footer-credit/footer-credit.php:101
+msgid "Powered by WordPress.com"
+msgstr "WordPress.com ホスティング"
+
+#: footer-credit/footer-credit/footer-credit.php:98
+#: footer-credit/theme-optimizations.php:30
+#: footer-credit/theme-optimizations.php:35
+msgid "Blog at WordPress.com"
+msgstr "WordPress.com Blog"
+
+#: footer-credit/footer-credit/footer-credit.php:97
+msgid "A WordPress.com Website"
+msgstr "WordPress.com サイト"
+
+#: footer-credit/footer-credit/footer-credit.php:96
+msgid "WordPress.com Logo"
+msgstr "WordPress.com ロゴ"
+
+#: footer-credit/footer-credit/footer-credit.php:41
+#: footer-credit/footer-credit/footer-credit.php:205
+msgid "Create a website or blog at WordPress.com"
+msgstr "WordPress.com でサイトを作成"
+
+#: footer-credit/footer-credit/customizer.php:85
+msgid "Footer Credit"
+msgstr "フッタークレジット"
+
+#: footer-credit/footer-credit/customizer.php:62
+msgid "Upgrade to Business"
+msgstr "ビジネスへアップグレード"
+
+#: footer-credit/footer-credit/customizer.php:54
+msgid "Hide (Business Plan Required)"
+msgstr "非表示 (要ビジネスプラン)"
+
+#: footer-credit/footer-credit/customizer.php:52
+msgid "Hide"
+msgstr "非表示"
+
+#: footer-credit/footer-credit/customizer.php:41
+msgid "Default"
+msgstr "デフォルト"
+
+#: footer-credit/footer-credit-optimizations.php:159
+msgid "Design by"
+msgstr "Design by"
+
+#: footer-credit/footer-credit-optimizations.php:147
+msgid "by"
+msgstr "by"
+
+#: footer-credit/footer-credit-optimizations.php:130
+msgid "Theme"
+msgstr "テーマ"
+
+#: footer-credit/footer-credit-optimizations.php:114
+msgid "Proudly powered by WordPress"
+msgstr "Proudly powered by WordPress"
+
+#: customizer-fixes/customizer-fixes.php:13
+msgid "Save Settings"
+msgstr "設定を保存"
+
+#: customizer-fixes/customizer-fixes.php:12
+msgid "Are you sure you want to discard your unsaved changes?"
+msgstr ""
+
+#: customizer-fixes/customizer-fixes.php:11
+msgid "Saved"
+msgstr "保存しました"
+
+#: customizer-fixes/customizer-fixes.php:10
+msgid "Save Changes"
+msgstr "変更の保存"
+
+#: customizer-fixes/customizer-fixes.php:9
+msgid "Save"
+msgstr "保存"
+
+#: customizer-fixes/customizer-fixes.php:8
+msgid "Activate &amp; Save"
+msgstr ""
+
+#: private-site/private-site.php:123
+msgid "Manage your site visibility settings"
+msgstr ""
+
+#: private-site/access-denied-coming-soon-template.php:140
+msgid "Something new is coming."
+msgstr "新しいものがやってきます。"
+
+#: wpcomsh.php:338
+msgid "This plugin was installed by WordPress.com and provides features offered in your plan subscription."
+msgstr ""
+
+#: wpcomsh.php:335
+msgid "%s is automatically managed for you."
+msgstr ""
+
+#: widgets/top-rated.php:141
+msgid "How many items would you like to display?"
+msgstr "フィード内の項目をいくつ表示しますか ?"
+
+#: widgets/top-rated.php:137
+msgid "Filter by category"
+msgstr "カテゴリーで絞り込み"
+
+#: widgets/top-rated.php:131
+msgid "Show for comments"
+msgstr "コメント上に表示"
+
+#: widgets/top-rated.php:125
+msgid "Show for pages"
+msgstr "固定ページ上に表示"
+
+#: widgets/top-rated.php:119
+msgid "Show for posts"
+msgstr "投稿上に表示"
+
+#: widgets/top-rated.php:11 widgets/top-rated.php:32
+msgid "Top Rated"
+msgstr "高評価"
+
+#: widgets/top-rated.php:10
+msgid "A list of your top rated posts, pages or comments."
+msgstr "高評価の投稿、固定ページ、コメントの一覧"
+
+#: widgets/top-clicks.php:61
+msgid "Top Clicks are calculated from 48-72 hours of stats. They take a while to change."
+msgstr "上位クリック数は過去24〜48時間内の統計情報をもとに算出されます。反映には少し時間がかかります。"
+
+#: widgets/top-clicks.php:53
+msgid "URLs to show:"
+msgstr "表示 URL:"
+
+#: widgets/top-clicks.php:47
+msgid "Display length:"
+msgstr "表示する長さ:"
+
+#: widgets/top-clicks.php:14
+msgid "List the most-clicked links on your blog."
+msgstr "最もクリックされたリンクの一覧"
+
+#: widgets/top-clicks.php:13 widgets/top-clicks.php:22
+#: widgets/top-clicks.php:66
+msgid "Top Clicks"
+msgstr "人気リンク"
+
+#: widgets/tlkio/tlkio.php:59
+msgid "Height (in pixel):"
+msgstr "高さ (ピクセル単位):"
+
+#: widgets/tlkio/tlkio.php:55
+msgid "Channel:"
+msgstr "チャンネル:"
+
+#: widgets/tlkio/tlkio.php:26
+msgid "tlk.io Webchat"
+msgstr "tlk.io Web チャット"
+
+#: widgets/tlkio/tlkio.php:25
+msgid "Add a tlk.io webchat."
+msgstr "tlk.io Web チャットを追加"
+
+#: widgets/reservations.php:55
+msgid "Show:"
+msgstr "表示:"
+
+#: widgets/reservations.php:50
+msgid "E-mail Subject:"
+msgstr "メールの件名:"
+
+#: widgets/reservations.php:44
+msgid "Recipient E-mail Address:"
+msgstr "受信者 メールアドレス:"
+
+#: widgets/reservations.php:29
+msgid "Departure"
+msgstr "出発"
+
+#: widgets/reservations.php:28
+msgid "Arrival"
+msgstr "到着"
+
+#: widgets/reservations.php:27
+msgid "# Children"
+msgstr "子供の人数"
+
+#: widgets/reservations.php:26
+msgid "# Adults"
+msgstr "大人の人数"
+
+#: widgets/reservations.php:25
+msgid "Message"
+msgstr "本文"
+
+#: widgets/reservations.php:24
+msgid "Phone"
+msgstr "電話"
+
+#: widgets/reservations.php:23
+msgid "Email"
+msgstr "メール"
+
+#: widgets/aboutme.php:111 widgets/reservations.php:22
+msgid "Name"
+msgstr "名前"
+
+#: widgets/reservations.php:16
+msgid "Reservation Inquiry"
+msgstr "予約お問合せ"
+
+#: widgets/reservations.php:10 widgets/reservations.php:15
+msgid "Reservations"
+msgstr "予約"
+
+#: widgets/recent-comments-widget.php:384
+msgid "Show comments from:"
+msgstr "以下のコメントを表示:"
+
+#: widgets/recent-comments-widget.php:379
+msgid "Text background color:"
+msgstr "テキスト背景色:"
+
+#: widgets/recent-comments-widget.php:373
+msgid "Avatar background color:"
+msgstr "アバターの背景色"
+
+#: widgets/recent-comments-widget.php:362
+msgid "No Avatars"
+msgstr "アバター画像なし"
+
+#: widgets/recent-comments-widget.php:355
+msgid "(at most 15)"
+msgstr "(最大 15)"
+
+#: widgets/recent-comments-widget.php:349
+msgid "Number of comments to show:"
+msgstr "表示するコメント数:"
+
+#: widgets/recent-comments-widget.php:284
+msgid "There are no public comments available to display."
+msgstr "現在表示できる公開コメントがありません。"
+
+#. translators: comments widget: 1: comment author, 2: post link
+#: widgets/recent-comments-widget.php:275
+#: widgets/recent-comments-widget.php:308
+msgctxt "widgets"
+msgid "%1$s on %2$s"
+msgstr "%2$s に %1$s より"
+
+#: widgets/recent-comments-widget.php:252
+msgid "Anonymous"
+msgstr "匿名"
+
+#: widgets/recent-comments-widget.php:30
+msgid "Display your site's most recent comments"
+msgstr "サイトの最新のコメントを表示"
+
+#: widgets/recent-comments-widget.php:29 widgets/recent-comments-widget.php:146
+msgid "Recent Comments"
+msgstr "最近のコメント"
+
+#: widgets/posts-i-like.php:269
+msgid "You have not recently liked any posts. Once you do, this <a href=\"%s\">Posts I Like</a> widget will display them."
+msgstr "最近「いいね」を付けた投稿はありません。「いいね」を付けると、<a href=\"%s\">「いいね」した投稿</a>ウィジェットにそれらが表示されるようになります。"
+
+#: widgets/posts-i-like.php:259
+msgid "on"
+msgstr ": "
+
+#: widgets/posts-i-like.php:236
+msgctxt "1: Post Title, 2: Blog Name"
+msgid "%1$s on %2$s"
+msgstr "%1$s (%2$s)"
+
+#: widgets/posts-i-like.php:113
+msgid "Author's likes to display:"
+msgstr "表示する投稿者の「いいね」:"
+
+#: widgets/posts-i-like.php:98
+msgid "Grid"
+msgstr "グリッド"
+
+#: widgets/posts-i-like.php:97
+msgid "List"
+msgstr "リスト"
+
+#: widgets/posts-i-like.php:95
+msgid "Display as:"
+msgstr "表示形式:"
+
+#: widgets/posts-i-like.php:90
+msgid "Number of posts to show (1 to 15):"
+msgstr "表示する投稿数 (1〜15):"
+
+#: widgets/posts-i-like.php:27
+msgid "A list of the posts I most recently liked"
+msgstr "最近「いいね」をつけた投稿一覧"
+
+#: widgets/posts-i-like.php:25 widgets/posts-i-like.php:32
+msgid "Posts I Like"
+msgstr "「いいね」した投稿"
+
+#: widgets/music-player.php:82
+msgid "Choose songs"
+msgstr "曲を選択"
+
+#: widgets/music-player.php:16 widgets/music-player.php:87
+msgid "Music Player"
+msgstr "音楽プレーヤー"
+
+#: widgets/music-player.php:15
+msgid "A multi-song music player"
+msgstr "複数の曲を含むミュージックプレーヤー"
+
+#: widgets/i-voted.php:33
+msgid "I Voted"
+msgstr "投票済み"
+
+#: widgets/i-voted.php:31
+msgid "Show your readers that you voted with an \"I Voted\" sticker."
+msgstr "「投票済み」ステッカーで、あなたが投票済みであることを読者に示しましょう。"
+
+#: widgets/gravatar.php:144
+msgid "You can modify your Gravatar from your <a href=\"/wp-admin/profile.php\">profile page</a>."
+msgstr "<a href=\"/wp-admin/profile.php\">プロフィールページ</a>から Gravatar を編集できます。"
+
+#: widgets/gravatar.php:143
+msgid "Text displayed after Gravatar. This is optional and can be used to describe yourself or what your blog is about."
+msgstr "Gravatar の後に表示するテキスト。入力は必須ではありませんが、あなた自身やブログについて説明するのに使えます。"
+
+#: widgets/gravatar.php:142
+msgid "Gravatar link. This is an optional URL that will be used when anyone clicks on your Gravatar:"
+msgstr "Gravatar リンク。あなたの Gravatar をクリックしたときに表示されるリンク先です (オプション)。"
+
+#: widgets/gravatar.php:134
+msgid "Gravatar alignment:"
+msgstr "Gravatar 配置:"
+
+#: widgets/gravatar.php:125
+msgid "Size:"
+msgstr "サイズ:"
+
+#: widgets/gravatar.php:122
+msgid "Custom Email Address:"
+msgstr "カスタムメールアドレス:"
+
+#: widgets/gravatar.php:119
+msgid "Select a user or pick \"custom\" and enter a custom email address."
+msgstr "ユーザーを選択するか、「カスタム」を選んでメールアドレスを入力します。"
+
+#: widgets/gravatar.php:115
+msgid "Center"
+msgstr "中央"
+
+#: widgets/gravatar.php:115
+msgid "Right"
+msgstr "右"
+
+#: widgets/gravatar.php:115
+msgid "Left"
+msgstr "左"
+
+#: widgets/gravatar.php:115 widgets/top-clicks.php:108
+msgid "None"
+msgstr "なし"
+
+#: widgets/gravatar.php:114
+msgid "Extra Large (256 pixels)"
+msgstr "特大 (256ピクセル)"
+
+#: widgets/gravatar.php:114
+msgid "Large (128 pixels)"
+msgstr "大 (128ピクセル)"
+
+#: widgets/gravatar.php:114
+msgid "Medium (96 pixels)"
+msgstr "中 (96ピクセル)"
+
+#: widgets/gravatar.php:114
+msgid "Small (64 pixels)"
+msgstr "小 (64ピクセル)"
+
+#: widgets/gravatar.php:84
+msgid "You need to pick a user or enter an email address in your <a href=\"%s\">Gravatar Widget</a> settings."
+msgstr "ユーザーを選択するか、<a href=\"%s\">Gravatar ウィジェット</a>設定でメールアドレスを入力する必要があります。"
+
+#: widgets/gravatar.php:22
+msgid "Gravatar"
+msgstr "Gravatar"
+
+#: widgets/gravatar.php:20
+msgid "Insert a Gravatar image"
+msgstr "Gravatar 画像を挿入"
+
+#: widgets/freshly-pressed.php:60
+msgid "Choose an image to display in your sidebar:"
+msgstr "サイドバーに表示する画像を選択:"
+
+#: widgets/freshly-pressed.php:10
+msgid "Freshly Pressed"
+msgstr "注目の記事"
+
+#: widgets/freshly-pressed.php:8
+msgid "Display a Freshly Pressed badge in your sidebar"
+msgstr "Freshly Pressed バッジをサイドバーに表示"
+
+#: widgets/author-grid.php:102 widgets/recent-comments-widget.php:360
+msgid "Avatar Size (px):"
+msgstr "アバター画像サイズ (ピクセル):"
+
+#: widgets/author-grid.php:97
+msgid "Display all authors (including those who have not written any posts)"
+msgstr "すべての投稿者を表示 (まだ投稿がない人も含む)"
+
+#: widgets/author-grid.php:91 widgets/freshly-pressed.php:56
+#: widgets/gravatar.php:117 widgets/i-voted.php:65 widgets/music-player.php:73
+#: widgets/posts-i-like.php:85 widgets/recent-comments-widget.php:343
+#: widgets/reservations.php:38 widgets/tag-cloud-widget.php:132
+#: widgets/tlkio/tlkio.php:51 widgets/top-clicks.php:41
+#: widgets/top-rated.php:115 widgets/twitter.php:357
+msgid "Title:"
+msgstr "タイトル:"
+
+#: widgets/author-grid.php:44
+msgid "Authors"
+msgstr "投稿者"
+
+#: widgets/author-grid.php:12
+msgid "Show a grid of author avatar images."
+msgstr "投稿者アバター画像一覧を表示"
+
+#: widgets/author-grid.php:11
+msgid "Author Grid"
+msgstr "投稿者グリッド"
+
+#: private-site/private-site.php:369
+msgid "Private Site"
+msgstr ""
+
+#: private-site/private-site.php:227 private-site/private-site.php:324
+#: private-site/private-site.php:468
+msgid "This site is private."
+msgstr "このサイトはプライベート設定です。"
+
+#: private-site/access-denied-private-site-template.php:45
+msgid "Log in"
+msgstr "ログイン"
+
+#: private-site/access-denied-private-site-template.php:45
+msgid "Switch user"
+msgstr ""
+
+#: private-site/access-denied-private-site-template.php:43
+msgid "You need to be logged in as a user who has permission to view this site."
+msgstr ""
+
+#: privacy/participating-plugins.php:144
+msgid ""
+"Please note - this tool only displays privacy policy information provided by\n"
+"WordPress and participating plugins. It does not include privacy policy\n"
+"information for non-participating plugins. It is your responsibility to\n"
+"obtain privacy policy information for non-participating plugins separately."
+msgstr ""
+
+#: privacy/participating-plugins.php:94
+msgid ""
+"Please note - this tool only exports the personal data stored by WordPress and\n"
+"participating plugins. It does not export personal data stored by\n"
+"non-participating plugins. It is your responsibility to export personal data\n"
+"stored by non-participating plugins separately. The personal data exported\n"
+"includes only the following items at this time:"
+msgstr ""
+
+#: privacy/participating-plugins.php:47
+msgid ""
+"Please note - this tool only erases the personal data stored by WordPress and\n"
+"participating plugins. It does not delete registered users, nor does it erase\n"
+"personal data stored by non-participating plugins. It is your responsibility\n"
+"to delete registered users as well as personal data stored by non-participating\n"
+"plugins. The personal data erased includes only the following items at this\n"
+"time:"
+msgstr ""
+
+#: logo-tool/logo-tool.php:70
+msgid "Create logo"
+msgstr "ロゴを作成"
+
+#: logo-tool/logo-tool.php:60
+msgid "Add a logo to display on your site. No logo? Buy a pro one from Looka — Click “Create logo” to start."
+msgstr ""
+
+#. Description of the plugin
+msgid "WordPress.com provided functionality & tools"
+msgstr ""
+
+#. Plugin Name of the plugin
+msgid "WP.com Site Helper"
+msgstr ""

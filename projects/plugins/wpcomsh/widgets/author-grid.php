@@ -8,8 +8,8 @@ class Widget_Authors_Grid extends WP_Widget {
 	public function __construct() {
 		parent::__construct(
 			'author_grid',
-			__( 'Author Grid' ),
-			array( 'classname' => 'widget_author_grid', 'description' => __( 'Show a grid of author avatar images.' ) )
+			__( 'Author Grid', 'wpcomsh' ),
+			array( 'classname' => 'widget_author_grid', 'description' => __( 'Show a grid of author avatar images.', 'wpcomsh' ) )
 		);
 
 		add_action( 'publish_post', array( __CLASS__, 'flush_cache' ) );
@@ -41,7 +41,7 @@ class Widget_Authors_Grid extends WP_Widget {
 			ob_start();
 		}
 
-		$instance = wp_parse_args( $instance, array( 'title' => __( 'Authors' ), 'all' => false, 'avatar_size' => 32 ) );
+		$instance = wp_parse_args( $instance, array( 'title' => __( 'Authors', 'wpcomsh' ), 'all' => false, 'avatar_size' => 32 ) );
 
 		$authors = get_users( array(
 			'fields' => 'all',
@@ -88,18 +88,18 @@ class Widget_Authors_Grid extends WP_Widget {
 		?>
 		<p>
 			<label>
-				<?php _e( 'Title:' ); ?>
+				<?php _e( 'Title:', 'wpcomsh' ); ?>
 				<input class="widefat" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $instance['title'] ); ?>" />
 			</label>
 		</p>
 		<p>
 			<label class="widget_form-author_grid-checkbox-label">
-				<input class="checkbox" type="checkbox" <?php checked( $instance['all'] ); ?> name="<?php echo $this->get_field_name( 'all' ); ?>" /><?php _e( 'Display all authors (including those who have not written any posts)' ); ?>
+				<input class="checkbox" type="checkbox" <?php checked( $instance['all'] ); ?> name="<?php echo $this->get_field_name( 'all' ); ?>" /><?php _e( 'Display all authors (including those who have not written any posts)', 'wpcomsh' ); ?>
 			</label>
 		</p>
 		<p>
 			<label>
-				<?php _e( 'Avatar Size (px):' ); ?>
+				<?php _e( 'Avatar Size (px):', 'wpcomsh' ); ?>
 				<select name="<?php echo $this->get_field_name( 'avatar_size' ); ?>">
 					<?php foreach ( array( '16' => '16x16', '32' => '32x32', '48' => '48x48', '96' => '96x96', '128' => '128x128' ) as $value => $label ) { ?>
 						<option value="<?php echo esc_attr( $value ); ?>" <?php selected( $value, $instance['avatar_size'] ); ?>><?php echo esc_html( $label ); ?></option>

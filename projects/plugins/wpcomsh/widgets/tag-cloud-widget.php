@@ -15,10 +15,10 @@ class WPCOM_Tag_Cloud_Widget extends WP_Widget {
 	 */
 	public function __construct() {
 		$widget_ops = array(
-			'description' => __( 'A cloud of your most used tags.' ),
+			'description' => __( 'A cloud of your most used tags.', 'wpcomsh' ),
 			'customize_selective_refresh' => true,
 		);
-		parent::__construct( 'tag_cloud', __( 'Tag Cloud' ), $widget_ops );
+		parent::__construct( 'tag_cloud', __( 'Tag Cloud', 'wpcomsh' ), $widget_ops );
 	}
 
 	/**
@@ -38,7 +38,7 @@ class WPCOM_Tag_Cloud_Widget extends WP_Widget {
 			$title = $instance['title'];
 		} else {
 			if ( 'post_tag' === $current_taxonomy ) {
-				$title = __( 'Tags' );
+				$title = __( 'Tags', 'wpcomsh' );
 			} else {
 				$tax = get_taxonomy( $current_taxonomy );
 				$title = $tax->labels->name;
@@ -129,14 +129,14 @@ class WPCOM_Tag_Cloud_Widget extends WP_Widget {
 		$instance['title'] = ! empty( $instance['title'] ) ? esc_attr( $instance['title'] ) : '';
 		$max_tags = empty( $instance['max_tags'] ) ? 0 : $instance['max_tags'];
 
-		echo '<p><label for="' . $title_id . '">' . __( 'Title:' ) . '</label>
+		echo '<p><label for="' . $title_id . '">' . __( 'Title:', 'wpcomsh' ) . '</label>
 			<input type="text" class="widefat" id="' . $title_id . '" name="' . $this->get_field_name( 'title' ) . '" value="' . $instance['title'] . '" />
 		</p>';
 
 		$max_tags_id = $this->get_field_id( 'max_tags' );
-		echo '<p><label for="' . $max_tags_id . '">' . __( 'Number of Tags:' ) . '</label>
+		echo '<p><label for="' . $max_tags_id . '">' . __( 'Number of Tags:', 'wpcomsh' ) . '</label>
 		     <input type="number" class="widefat" id="' . $max_tags_id . '" name="' . $this->get_field_name( 'max_tags' ) . '" value="' . esc_attr( $max_tags ) . '" />
-		     <small>' . __( 'Maximum number of tags displayed' ) . '</small>
+		     <small>' . __( 'Maximum number of tags displayed', 'wpcomsh' ) . '</small>
 		</p>';
 
 		$taxonomies = get_taxonomies( array( 'show_tagcloud' => true ), 'object' );
@@ -149,14 +149,14 @@ class WPCOM_Tag_Cloud_Widget extends WP_Widget {
 			$this->get_field_id( 'count' ),
 			$this->get_field_name( 'count' ),
 			checked( $count, true, false ),
-			__( 'Show tag counts' )
+			__( 'Show tag counts', 'wpcomsh' )
 		);
 
 		switch ( count( $taxonomies ) ) {
 
 			// No tag cloud supporting taxonomies found, display error message.
 			case 0:
-				echo '<p>' . __( 'The tag cloud will not be displayed since there are no taxonomies that support the tag cloud widget.' ) . '</p>';
+				echo '<p>' . __( 'The tag cloud will not be displayed since there are no taxonomies that support the tag cloud widget.', 'wpcomsh' ) . '</p>';
 				printf( $input, '' );
 				break;
 
@@ -174,7 +174,7 @@ class WPCOM_Tag_Cloud_Widget extends WP_Widget {
 					'<p><label for="%1$s">%2$s</label>' .
 					'<select class="widefat" id="%1$s" name="%3$s">',
 					$id,
-					__( 'Taxonomy:' ),
+					__( 'Taxonomy:', 'wpcomsh' ),
 					$name
 				);
 

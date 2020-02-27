@@ -1,0 +1,721 @@
+# Translation of WordPress.com - Site Helper in Persian
+# This file is distributed under the same license as the WordPress.com - Site Helper package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2020-02-26 14:05:45+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: GlotPress/2.4.0-alpha\n"
+"Language: fa\n"
+"Project-Id-Version: WordPress.com - Site Helper\n"
+
+#: wpcomsh.php:909
+msgid "You are currently using <strong>%1$s</strong> out of <strong>%2$s</strong> upload limit (%3$s%%)."
+msgstr "شما هم‌اکنون در حال استفاده از <strong>%1$s</strong> از <strong>%2$s</strong> محدودیت بارگذاری (%3$s%%) استفاده می‌کنید."
+
+#: widgets/twitter.php:412
+msgid "Text to display between Tweet and timestamp:"
+msgstr "متنی برای نمایش بین توییت و برچسب زمان:"
+
+#: widgets/twitter.php:406
+msgid "Display Follow Button"
+msgstr "نمایش دکمه دنبال‌کردن"
+
+#: widgets/twitter.php:399
+msgid "Include retweets"
+msgstr "دربرگرفتن ری‌توییت‌ها"
+
+#: widgets/twitter.php:392
+msgid "Hide Tweets pushed by Publicize"
+msgstr "پنهان کردن توییت‌هایی که با اطلاع‌رسانی نوشته شده‌اند"
+
+#: widgets/twitter.php:385
+msgid "Hide replies"
+msgstr "پنهان کردن پاسخ‌ها"
+
+#: widgets/twitter.php:371
+msgid "Maximum number of Tweets to show:"
+msgstr "بیشینهٔ توییت‌های نمایش داده شده:"
+
+#: widgets/twitter.php:364
+msgid "Twitter username:"
+msgstr "نام کاربری توییتر:"
+
+#: widgets/twitter.php:353
+msgid "Please switch to the 'Twitter Timeline' widget. This widget will be going away in the future and the new widget allows for more customization."
+msgstr ""
+
+#: widgets/twitter.php:289
+msgid "Error: Please make sure the Twitter account is %1$spublic%2$s."
+msgstr ""
+
+#: widgets/twitter.php:262 widgets/twitter.php:275 widgets/twitter.php:296
+msgid "Error: Twitter did not respond. Please wait a few minutes and refresh this page."
+msgstr "خطا: توییتر پاسخ نداد. خواهشمندیم چند دقیقه صبر کنید و این صفحه را بازآوری نمایید."
+
+#: widgets/twitter.php:61
+msgid "Twitter Updates"
+msgstr "به‌روزرسانی‌های توییتر"
+
+#: widgets/twitter.php:51
+msgid "Please configure your Twitter username for the <a href=\"%s\">Twitter Widget</a>."
+msgstr ""
+
+#: widgets/twitter.php:29
+msgid "Display your Tweets from Twitter"
+msgstr "توییت‌های خود را از توییتر نمایش دهید"
+
+#: widgets/twitter.php:26
+msgid "Twitter"
+msgstr "توییتر"
+
+#: widgets/tag-cloud-widget.php:177
+msgid "Taxonomy:"
+msgstr "رده‌بندی:"
+
+#: widgets/tag-cloud-widget.php:159
+msgid "The tag cloud will not be displayed since there are no taxonomies that support the tag cloud widget."
+msgstr "تا زمانی که هیچ رده‌ای از ابرچسب پشتیبانی نکند، ابرچسب نمی‌تواند نمایش داده شود."
+
+#: widgets/tag-cloud-widget.php:152
+msgid "Show tag counts"
+msgstr "نمایش تعداد برچسب‌ها"
+
+#: widgets/tag-cloud-widget.php:139
+msgid "Maximum number of tags displayed"
+msgstr "بیشینهٔ شمار برچسب‌های نمایش‌داده‌شده"
+
+#: widgets/tag-cloud-widget.php:137
+msgid "Number of Tags:"
+msgstr "شمار برچسب‌ها:"
+
+#: widgets/tag-cloud-widget.php:41
+msgid "Tags"
+msgstr "برچسب‌ها"
+
+#: widgets/tag-cloud-widget.php:21
+msgid "Tag Cloud"
+msgstr "ابر برچسب"
+
+#: widgets/tag-cloud-widget.php:18
+msgid "A cloud of your most used tags."
+msgstr "ابری از برچسب‌هایی که بیشتر استفاده کرده‌اید."
+
+#: widgets/instagram/instagram.php:245
+msgid "New images may take up to %d minutes to show up on your site."
+msgstr ""
+
+#: widgets/instagram/instagram.php:237
+msgid "Number of columns:"
+msgstr "تعداد ستون‌ها:"
+
+#: widgets/instagram/instagram.php:236
+msgid "Layout"
+msgstr "طرح"
+
+#: widgets/instagram/instagram.php:226
+msgid "Number to display:"
+msgstr "تعدادی که نمایش داده شود:"
+
+#: widgets/instagram/instagram.php:225
+msgid "Images"
+msgstr "تصاویر"
+
+#: widgets/instagram/instagram.php:221
+msgid "Widget Title"
+msgstr "عنوان ابزارک"
+
+#: widgets/instagram/instagram.php:189
+msgid "No Instagram images were found."
+msgstr ""
+
+#: widgets/instagram/instagram.php:186
+msgid "There was an error retrieving images from Instagram. An attempt will be remade in a few minutes."
+msgstr ""
+
+#: widgets/instagram/instagram.php:30
+msgid "Display your latest Instagram photos."
+msgstr "نمایش آخرین تصاویر اینستاگرام شما."
+
+#: widgets/instagram/instagram.php:28 widgets/instagram/instagram.php:43
+msgid "Instagram"
+msgstr "اینستاگرام"
+
+#: widgets/aboutme.php:148
+msgid "Apps"
+msgstr ""
+
+#: widgets/aboutme.php:141
+msgid "Biography"
+msgstr ""
+
+#: widgets/aboutme.php:134
+msgid "Headline"
+msgstr "سرصفحه"
+
+#: widgets/aboutme.php:127
+msgid "Photo"
+msgstr "عکس"
+
+#: widgets/aboutme.php:123
+msgid "Don't Display Name"
+msgstr "نمایش‌ندادن نام"
+
+#: widgets/aboutme.php:121
+msgid "Display Small"
+msgstr "نمایش کوچک"
+
+#: widgets/aboutme.php:119
+msgid "Display Medium"
+msgstr "نمایش متوسط"
+
+#: widgets/aboutme.php:117
+msgid "Display Large"
+msgstr "نمایش بزرگ"
+
+#: widgets/aboutme.php:115
+msgid "Display X-Large"
+msgstr ""
+
+#: widgets/aboutme.php:104
+msgid "Your about.me URL"
+msgstr "نشانی وب about.me شما"
+
+#: widgets/aboutme.php:97
+msgid "Widget title"
+msgstr "عنوان ابزارک"
+
+#: widgets/aboutme.php:90
+msgid "The about.me widget will no longer be available after July 1, 2016. After this date, the widget will display a simple text link to your about.me profile. Please remove this widget."
+msgstr ""
+
+#: widgets/aboutme.php:37
+msgid "The about.me widget is no longer available. To remove this widget, <a href=\"%s\">visit your settings</a>. This message is not shown to visitors to your site."
+msgstr ""
+
+#: widgets/aboutme.php:20
+msgid "About.me Widget"
+msgstr "About.me ابزارک"
+
+#: widgets/aboutme.php:18
+msgid "Display your about.me profile with thumbnail"
+msgstr "نمایش شناسنامۀ about.me شما با تصویر بندانگشتی"
+
+#: safeguard/utils.php:58
+msgid "Unable to fetch the requested data."
+msgstr ""
+
+#: private-site/access-denied-coming-soon-template.php:142
+msgid "Log in here"
+msgstr ""
+
+#: footer-credit/theme-optimizations.php:37
+msgid "Create a free website or blog at WordPress.com"
+msgstr "ساخت یک وب‌گاه یا وب‌نوشت رایگان در وردپرس.کام"
+
+#: footer-credit/theme-optimizations.php:32
+msgid "Create a free website at WordPress.com"
+msgstr "ساخت یک وب‌گاه رایگان در وردپرس.کام"
+
+#: footer-credit/footer-credit/footer-credit.php:101
+msgid "Powered by WordPress.com"
+msgstr ""
+
+#: footer-credit/footer-credit/footer-credit.php:98
+#: footer-credit/theme-optimizations.php:30
+#: footer-credit/theme-optimizations.php:35
+msgid "Blog at WordPress.com"
+msgstr "وب‌نوشت روی وردپرس.کام"
+
+#: footer-credit/footer-credit/footer-credit.php:97
+msgid "A WordPress.com Website"
+msgstr ""
+
+#: footer-credit/footer-credit/footer-credit.php:96
+msgid "WordPress.com Logo"
+msgstr "نشان‌وارهٔ وردپرس.کام"
+
+#: footer-credit/footer-credit/footer-credit.php:41
+#: footer-credit/footer-credit/footer-credit.php:205
+msgid "Create a website or blog at WordPress.com"
+msgstr ""
+
+#: footer-credit/footer-credit/customizer.php:85
+msgid "Footer Credit"
+msgstr "اعتباردهی پسایند"
+
+#: footer-credit/footer-credit/customizer.php:62
+msgid "Upgrade to Business"
+msgstr "ارتقا به تجاری"
+
+#: footer-credit/footer-credit/customizer.php:54
+msgid "Hide (Business Plan Required)"
+msgstr ""
+
+#: footer-credit/footer-credit/customizer.php:52
+msgid "Hide"
+msgstr "پنهانیدن"
+
+#: footer-credit/footer-credit/customizer.php:41
+msgid "Default"
+msgstr "پیش‌فرض"
+
+#: footer-credit/footer-credit-optimizations.php:159
+msgid "Design by"
+msgstr ""
+
+#: footer-credit/footer-credit-optimizations.php:147
+msgid "by"
+msgstr "توسط"
+
+#: footer-credit/footer-credit-optimizations.php:130
+msgid "Theme"
+msgstr "پوشته"
+
+#: footer-credit/footer-credit-optimizations.php:114
+msgid "Proudly powered by WordPress"
+msgstr "با افتخار نیرو گرفته از وردپرس"
+
+#: customizer-fixes/customizer-fixes.php:13
+msgid "Save Settings"
+msgstr "ذخیره تنظیمات"
+
+#: customizer-fixes/customizer-fixes.php:12
+msgid "Are you sure you want to discard your unsaved changes?"
+msgstr ""
+
+#: customizer-fixes/customizer-fixes.php:11
+msgid "Saved"
+msgstr "ذخیره شد."
+
+#: customizer-fixes/customizer-fixes.php:10
+msgid "Save Changes"
+msgstr "ذخیره تغییرات"
+
+#: customizer-fixes/customizer-fixes.php:9
+msgid "Save"
+msgstr "ذخیره"
+
+#: customizer-fixes/customizer-fixes.php:8
+msgid "Activate &amp; Save"
+msgstr ""
+
+#: private-site/private-site.php:123
+msgid "Manage your site visibility settings"
+msgstr ""
+
+#: private-site/access-denied-coming-soon-template.php:140
+msgid "Something new is coming."
+msgstr ""
+
+#: wpcomsh.php:338
+msgid "This plugin was installed by WordPress.com and provides features offered in your plan subscription."
+msgstr ""
+
+#: wpcomsh.php:335
+msgid "%s is automatically managed for you."
+msgstr ""
+
+#: widgets/top-rated.php:141
+msgid "How many items would you like to display?"
+msgstr "دوست دارید چند مورد نمایش داده شود؟"
+
+#: widgets/top-rated.php:137
+msgid "Filter by category"
+msgstr "پالایش بر اساس دسته"
+
+#: widgets/top-rated.php:131
+msgid "Show for comments"
+msgstr "نمایش برای دیدگاه‌ها"
+
+#: widgets/top-rated.php:125
+msgid "Show for pages"
+msgstr "نمایش برای صفحه‌ها"
+
+#: widgets/top-rated.php:119
+msgid "Show for posts"
+msgstr "نمایش برای نوشته‌ها"
+
+#: widgets/top-rated.php:11 widgets/top-rated.php:32
+msgid "Top Rated"
+msgstr "بالاترین امتیازها"
+
+#: widgets/top-rated.php:10
+msgid "A list of your top rated posts, pages or comments."
+msgstr "فهرستی از نوشته‌ها، صفحه‌ها یا دیدگاه‌ها که بالاترین امتیاز را دارند."
+
+#: widgets/top-clicks.php:61
+msgid "Top Clicks are calculated from 48-72 hours of stats. They take a while to change."
+msgstr "بیشترین کلیک شده‌ها از روی آمار 24-48 ساعت تعیین می‌شوند. ممکن است مدتی طول بکشد  که تغییر کنند."
+
+#: widgets/top-clicks.php:53
+msgid "URLs to show:"
+msgstr "تعداد نشانی‌های اینترنتی برای نمایش:"
+
+#: widgets/top-clicks.php:47
+msgid "Display length:"
+msgstr "طول نمایش:"
+
+#: widgets/top-clicks.php:14
+msgid "List the most-clicked links on your blog."
+msgstr ""
+
+#: widgets/top-clicks.php:13 widgets/top-clicks.php:22
+#: widgets/top-clicks.php:66
+msgid "Top Clicks"
+msgstr "بیشترین کلیک شده‌ها"
+
+#: widgets/tlkio/tlkio.php:59
+msgid "Height (in pixel):"
+msgstr ""
+
+#: widgets/tlkio/tlkio.php:55
+msgid "Channel:"
+msgstr "کانال:"
+
+#: widgets/tlkio/tlkio.php:26
+msgid "tlk.io Webchat"
+msgstr ""
+
+#: widgets/tlkio/tlkio.php:25
+msgid "Add a tlk.io webchat."
+msgstr ""
+
+#: widgets/reservations.php:55
+msgid "Show:"
+msgstr "نمایش:"
+
+#: widgets/reservations.php:50
+msgid "E-mail Subject:"
+msgstr ""
+
+#: widgets/reservations.php:44
+msgid "Recipient E-mail Address:"
+msgstr "رایانشانی دریافت‌کننده:"
+
+#: widgets/reservations.php:29
+msgid "Departure"
+msgstr ""
+
+#: widgets/reservations.php:28
+msgid "Arrival"
+msgstr ""
+
+#: widgets/reservations.php:27
+msgid "# Children"
+msgstr "# کودکان"
+
+#: widgets/reservations.php:26
+msgid "# Adults"
+msgstr "# بزرگسالان"
+
+#: widgets/reservations.php:25
+msgid "Message"
+msgstr "پیغام"
+
+#: widgets/reservations.php:24
+msgid "Phone"
+msgstr "تلفن"
+
+#: widgets/reservations.php:23
+msgid "Email"
+msgstr "رایانشانی"
+
+#: widgets/aboutme.php:111 widgets/reservations.php:22
+msgid "Name"
+msgstr "نام"
+
+#: widgets/reservations.php:16
+msgid "Reservation Inquiry"
+msgstr ""
+
+#: widgets/reservations.php:10 widgets/reservations.php:15
+msgid "Reservations"
+msgstr ""
+
+#: widgets/recent-comments-widget.php:384
+msgid "Show comments from:"
+msgstr "نمایش دیدگاه‌هایِ:"
+
+#: widgets/recent-comments-widget.php:379
+msgid "Text background color:"
+msgstr "رنگ پس‌زمینهٔ متن:"
+
+#: widgets/recent-comments-widget.php:373
+msgid "Avatar background color:"
+msgstr "رنگ پیش‌زمینهٔ چهرک:"
+
+#: widgets/recent-comments-widget.php:362
+msgid "No Avatars"
+msgstr "چهرکی وجود ندارد"
+
+#: widgets/recent-comments-widget.php:355
+msgid "(at most 15)"
+msgstr "(بیشینه: 15)"
+
+#: widgets/recent-comments-widget.php:349
+msgid "Number of comments to show:"
+msgstr "تعداد دیدگاه‌ها برای نمایش."
+
+#: widgets/recent-comments-widget.php:284
+msgid "There are no public comments available to display."
+msgstr ""
+
+#. translators: comments widget: 1: comment author, 2: post link
+#: widgets/recent-comments-widget.php:275
+#: widgets/recent-comments-widget.php:308
+msgctxt "widgets"
+msgid "%1$s on %2$s"
+msgstr "%1$s در %2$s"
+
+#: widgets/recent-comments-widget.php:252
+msgid "Anonymous"
+msgstr "ناشناس"
+
+#: widgets/recent-comments-widget.php:30
+msgid "Display your site's most recent comments"
+msgstr ""
+
+#: widgets/recent-comments-widget.php:29 widgets/recent-comments-widget.php:146
+msgid "Recent Comments"
+msgstr "دیدگاه‌های اخیر"
+
+#: widgets/posts-i-like.php:269
+msgid "You have not recently liked any posts. Once you do, this <a href=\"%s\">Posts I Like</a> widget will display them."
+msgstr ""
+
+#: widgets/posts-i-like.php:259
+msgid "on"
+msgstr "در"
+
+#: widgets/posts-i-like.php:236
+msgctxt "1: Post Title, 2: Blog Name"
+msgid "%1$s on %2$s"
+msgstr "%1$s در %2$s"
+
+#: widgets/posts-i-like.php:113
+msgid "Author's likes to display:"
+msgstr "دوست‌داشتن‌های نویسنده که نمایش داده شود:"
+
+#: widgets/posts-i-like.php:98
+msgid "Grid"
+msgstr "دستگاه مختصات"
+
+#: widgets/posts-i-like.php:97
+msgid "List"
+msgstr "فهرست"
+
+#: widgets/posts-i-like.php:95
+msgid "Display as:"
+msgstr "نمایش به صورت:"
+
+#: widgets/posts-i-like.php:90
+msgid "Number of posts to show (1 to 15):"
+msgstr ""
+
+#: widgets/posts-i-like.php:27
+msgid "A list of the posts I most recently liked"
+msgstr ""
+
+#: widgets/posts-i-like.php:25 widgets/posts-i-like.php:32
+msgid "Posts I Like"
+msgstr "نوشته‌هایی که دوست دارم"
+
+#: widgets/music-player.php:82
+msgid "Choose songs"
+msgstr "ترانه‌ها را برگزینید"
+
+#: widgets/music-player.php:16 widgets/music-player.php:87
+msgid "Music Player"
+msgstr "پخش‌کننده موسیقی"
+
+#: widgets/music-player.php:15
+msgid "A multi-song music player"
+msgstr ""
+
+#: widgets/i-voted.php:33
+msgid "I Voted"
+msgstr ""
+
+#: widgets/i-voted.php:31
+msgid "Show your readers that you voted with an \"I Voted\" sticker."
+msgstr ""
+
+#: widgets/gravatar.php:144
+msgid "You can modify your Gravatar from your <a href=\"/wp-admin/profile.php\">profile page</a>."
+msgstr "می‌توانید گراواتار خود را از <a href=\"/wp-admin/profile.php\">صفحهٔ شناس‌نامه</a> تغییر دهید."
+
+#: widgets/gravatar.php:143
+msgid "Text displayed after Gravatar. This is optional and can be used to describe yourself or what your blog is about."
+msgstr "متن نمایش داده شده پس از گراواتار. دلبخواه است و می‌تواند برای معرفی خودتان یا وب‌نوشتتان استفاده شود."
+
+#: widgets/gravatar.php:142
+msgid "Gravatar link. This is an optional URL that will be used when anyone clicks on your Gravatar:"
+msgstr "پیوند گراواتار. این یک نشانی وب دلخواه است که هرگاه کسی روی گراواتار شما کلیک کند، استفاده خواهد شد:"
+
+#: widgets/gravatar.php:134
+msgid "Gravatar alignment:"
+msgstr "چینش گراواتار:"
+
+#: widgets/gravatar.php:125
+msgid "Size:"
+msgstr "اندازه:"
+
+#: widgets/gravatar.php:122
+msgid "Custom Email Address:"
+msgstr "رایانشانی سفارشی:"
+
+#: widgets/gravatar.php:119
+msgid "Select a user or pick \"custom\" and enter a custom email address."
+msgstr "کاربری را گزینش کنید و یا «سفارشی» را برگزینید و یک رایانشانی سفارشی وارد نمایید."
+
+#: widgets/gravatar.php:115
+msgid "Center"
+msgstr "میان‌چین"
+
+#: widgets/gravatar.php:115
+msgid "Right"
+msgstr "راست"
+
+#: widgets/gravatar.php:115
+msgid "Left"
+msgstr "چپ"
+
+#: widgets/gravatar.php:115 widgets/top-clicks.php:108
+msgid "None"
+msgstr "هیچکدام"
+
+#: widgets/gravatar.php:114
+msgid "Extra Large (256 pixels)"
+msgstr "بسیار بزرگ (256 پیکسل)"
+
+#: widgets/gravatar.php:114
+msgid "Large (128 pixels)"
+msgstr "بزرگ (۱۲۸ پیکسل)"
+
+#: widgets/gravatar.php:114
+msgid "Medium (96 pixels)"
+msgstr "میانه (۹۶ پیکسل)"
+
+#: widgets/gravatar.php:114
+msgid "Small (64 pixels)"
+msgstr "کوچک (64 پیکسلی)"
+
+#: widgets/gravatar.php:84
+msgid "You need to pick a user or enter an email address in your <a href=\"%s\">Gravatar Widget</a> settings."
+msgstr ""
+
+#: widgets/gravatar.php:22
+msgid "Gravatar"
+msgstr "گراواتار"
+
+#: widgets/gravatar.php:20
+msgid "Insert a Gravatar image"
+msgstr "قرار دادن یک تصویر گراواتار"
+
+#: widgets/freshly-pressed.php:60
+msgid "Choose an image to display in your sidebar:"
+msgstr "تصویری برای نمایش در نوار کناری‌تان برگزینید:"
+
+#: widgets/freshly-pressed.php:10
+msgid "Freshly Pressed"
+msgstr "به تازگی منتشر شده"
+
+#: widgets/freshly-pressed.php:8
+msgid "Display a Freshly Pressed badge in your sidebar"
+msgstr ""
+
+#: widgets/author-grid.php:102 widgets/recent-comments-widget.php:360
+msgid "Avatar Size (px):"
+msgstr "اندازهٔ چهرک (پیکسل):"
+
+#: widgets/author-grid.php:97
+msgid "Display all authors (including those who have not written any posts)"
+msgstr "نمایش همهٔ نویسنده‌ها (همراه با آن‌هایی که چیزی ننوشته‌اند)"
+
+#: widgets/author-grid.php:91 widgets/freshly-pressed.php:56
+#: widgets/gravatar.php:117 widgets/i-voted.php:65 widgets/music-player.php:73
+#: widgets/posts-i-like.php:85 widgets/recent-comments-widget.php:343
+#: widgets/reservations.php:38 widgets/tag-cloud-widget.php:132
+#: widgets/tlkio/tlkio.php:51 widgets/top-clicks.php:41
+#: widgets/top-rated.php:115 widgets/twitter.php:357
+msgid "Title:"
+msgstr "عنوان :"
+
+#: widgets/author-grid.php:44
+msgid "Authors"
+msgstr "نویسندگان"
+
+#: widgets/author-grid.php:12
+msgid "Show a grid of author avatar images."
+msgstr "نمایش شبکه‌ای از تصاویر چهرک نویسندگان"
+
+#: widgets/author-grid.php:11
+msgid "Author Grid"
+msgstr "شبکهٔ نویسندگان"
+
+#: private-site/private-site.php:369
+msgid "Private Site"
+msgstr ""
+
+#: private-site/private-site.php:227 private-site/private-site.php:324
+#: private-site/private-site.php:468
+msgid "This site is private."
+msgstr "این وب‌گاه خصوصی است."
+
+#: private-site/access-denied-private-site-template.php:45
+msgid "Log in"
+msgstr "ورود"
+
+#: private-site/access-denied-private-site-template.php:45
+msgid "Switch user"
+msgstr ""
+
+#: private-site/access-denied-private-site-template.php:43
+msgid "You need to be logged in as a user who has permission to view this site."
+msgstr ""
+
+#: privacy/participating-plugins.php:144
+msgid ""
+"Please note - this tool only displays privacy policy information provided by\n"
+"WordPress and participating plugins. It does not include privacy policy\n"
+"information for non-participating plugins. It is your responsibility to\n"
+"obtain privacy policy information for non-participating plugins separately."
+msgstr ""
+
+#: privacy/participating-plugins.php:94
+msgid ""
+"Please note - this tool only exports the personal data stored by WordPress and\n"
+"participating plugins. It does not export personal data stored by\n"
+"non-participating plugins. It is your responsibility to export personal data\n"
+"stored by non-participating plugins separately. The personal data exported\n"
+"includes only the following items at this time:"
+msgstr ""
+
+#: privacy/participating-plugins.php:47
+msgid ""
+"Please note - this tool only erases the personal data stored by WordPress and\n"
+"participating plugins. It does not delete registered users, nor does it erase\n"
+"personal data stored by non-participating plugins. It is your responsibility\n"
+"to delete registered users as well as personal data stored by non-participating\n"
+"plugins. The personal data erased includes only the following items at this\n"
+"time:"
+msgstr ""
+
+#: logo-tool/logo-tool.php:70
+msgid "Create logo"
+msgstr ""
+
+#: logo-tool/logo-tool.php:60
+msgid "Add a logo to display on your site. No logo? Buy a pro one from Looka — Click “Create logo” to start."
+msgstr ""
+
+#. Description of the plugin
+msgid "WordPress.com provided functionality & tools"
+msgstr ""
+
+#. Plugin Name of the plugin
+msgid "WP.com Site Helper"
+msgstr ""

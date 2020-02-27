@@ -2,19 +2,20 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 2.4.76
+ * Version: 2.4.77
  * Author: Automattic
  * Author URI: http://automattic.com/
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.4.76' );
+define( 'WPCOMSH_VERSION', '2.4.77' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
 
 require_once( 'constants.php' );
 require_once( 'functions.php' );
+require_once( 'i18n.php' );
 
 require_once( 'plugin-hotfixes.php' );
 
@@ -348,10 +349,10 @@ function wpcomsh_show_plugin_auto_managed_notice( $file, $plugin_data ) {
 		$plugin_name = $plugin_data['Name'];
 	}
 
-	$message = sprintf( __( '%s is automatically managed for you.' ), $plugin_name );
+	$message = sprintf( __( '%s is automatically managed for you.', 'wpcomsh' ), $plugin_name );
 
 	if ( in_array( $file, WPCOM_FEATURE_PLUGINS, true ) ) {
-		$message = esc_html__( 'This plugin was installed by WordPress.com and provides features offered in your plan subscription.' );
+		$message = esc_html__( 'This plugin was installed by WordPress.com and provides features offered in your plan subscription.', 'wpcomsh' );
 	}
 
 	echo '<tr class="plugin-update-tr' . $active . '">' .
@@ -795,62 +796,6 @@ function wpcomsh_google_maps_api_key( $api_key ) {
 }
 add_filter( 'jetpack_google_maps_api_key', 'wpcomsh_google_maps_api_key' );
 
-
-/**
- * Provides a fallback mofile that uses wpcom locale slugs instead of wporg locale slugs
- * This is needed for WP.COM themes that have their translations bundled with the theme.
- *
- * @see p8yzl4-4c-p2
- *
- * @param string $mofile .mo language file being loaded by load_textdomain()
- * @return string $mofile same or alternate mo file
- */
-function wpcomsh_wporg_to_wpcom_locale_mo_file( $mofile ) {
-	if ( file_exists( $mofile ) ) {
-		return $mofile;
-	}
-
-	if ( ! class_exists( 'GP_Locales' ) ) {
-		if ( ! defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) || ! file_exists( JETPACK__GLOTPRESS_LOCALES_PATH ) ) {
-			return $mofile;
-		}
-
-		require JETPACK__GLOTPRESS_LOCALES_PATH;
-	}
-
-	$locale_slug = basename( $mofile, '.mo' );
-	$actual_locale_slug = $locale_slug;
-
-	// These locales are not in our GP_Locales file, so rewrite them.
-	$locale_mappings = array(
-		'de_DE_formal' => 'de_DE', // formal German
-	);
-
-	if ( isset( $locale_mappings[ $locale_slug ] ) ) {
-		$locale_slug = $locale_mappings[ $locale_slug ];
-	}
-
-	$locale_object = GP_Locales::by_field( 'wp_locale', $locale_slug );
-	if ( ! $locale_object ) {
-		return $mofile;
-	}
-
-	$locale_slug = $locale_object->slug;
-
-	// For these languages we have a different slug than WordPress.org.
-	$locale_mappings = array(
-		'nb' => 'no', // Norwegian Bokmål
-	);
-
-	if ( isset( $locale_mappings[ $locale_slug ] ) ) {
-		$locale_slug = $locale_mappings[ $locale_slug ];
-	}
-
-	$mofile = preg_replace( '/' . preg_quote( $actual_locale_slug ) . '\.mo$/', $locale_slug . '.mo', $mofile );
-	return $mofile;
-}
-add_filter( 'load_textdomain_mofile', 'wpcomsh_wporg_to_wpcom_locale_mo_file', 9999 );
-
 /**
  * Links were removed in 3.5 core, but we've kept them active on dotcom.
  * This will expose both the Links section, and the widget.
@@ -961,7 +906,8 @@ function wpcomsh_display_disk_space_usage() {
 
 	$message = sprintf(
 		__(
-			'You are currently using <strong>%1$s</strong> out of <strong>%2$s</strong> upload limit (%3$s%%).'
+			'You are currently using <strong>%1$s</strong> out of <strong>%2$s</strong> upload limit (%3$s%%).',
+			'wpcomsh'
 		),
 		size_format( $space_used, 1 ),
 		size_format( $space_quota, 1 ),

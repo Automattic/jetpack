@@ -12,8 +12,8 @@ class Music_Player_Widget extends WP_Widget {
      * @return void
      **/
 	function __construct() {
-		$widget_ops = array( 'classname' => 'music-player', 'description' => __('A multi-song music player', 'music-player-widget' ) );
-		parent::__construct( 'music-player', __( 'Music Player', 'music-player-widget'  ), $widget_ops );
+		$widget_ops = array( 'classname' => 'music-player', 'description' => __( 'A multi-song music player', 'wpcomsh' ) );
+		parent::__construct( 'music-player', __( 'Music Player', 'wpcomsh'  ), $widget_ops );
 		add_action( 'admin_enqueue_scripts', array( $this, 'widget_scripts' ) );
 	}
 
@@ -70,7 +70,7 @@ class Music_Player_Widget extends WP_Widget {
 		$instance = wp_parse_args( (array) $instance, array( 'title' => '', 'shortcode' => '' ) );
 		printf(
 			'<p><label>%s <input type="text" value="%s" name="%s" id="%s" /></label></p>',
-			__( 'Title:' ),
+			__( 'Title:', 'wpcomsh' ),
 			esc_attr( $instance['title'] ),
 			$this->get_field_name( 'title' ),
 			$this->get_field_id( 'title' )
@@ -79,12 +79,12 @@ class Music_Player_Widget extends WP_Widget {
 		printf(
 			'<p><a class="music-player-edit" data-widget_id="%s" href="#">%s</a></p>',
 			$this->get_field_id( 'shortcode' ),
-			__( 'Choose songs' )
+			__( 'Choose songs', 'wpcomsh' )
 		);
 
 		printf(
 			'<p><label>%s <input class="widefat" name="%s" id="%s" value="%s" /></label>',
-			__( 'Music Player' ),
+			__( 'Music Player', 'wpcomsh' ),
 			$this->get_field_name( 'shortcode' ),
 			$this->get_field_id( 'shortcode' ),
 			esc_attr( $instance['shortcode'] )
