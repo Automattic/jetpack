@@ -3,6 +3,8 @@
  */
 
 .wp-block-jetpack-calendly {
+	position: relative;
+
 	&-overlay {
 		position: absolute;
 		width: 100%;
