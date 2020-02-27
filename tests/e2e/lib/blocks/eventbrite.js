@@ -24,7 +24,7 @@ export default class EventbriteBlock {
 	}
 
 	static embedUrl() {
-		return `https://www.eventbrite.co.nz/e/${ EventbriteBlock.eventId }`;
+		return `https://www.eventbrite.co.nz/e/${ EventbriteBlock.eventId() }`;
 	}
 
 	async addEmbed() {
@@ -46,7 +46,7 @@ export default class EventbriteBlock {
 	 * @param {Page} page Puppeteer page instance
 	 */
 	static async isRendered( page ) {
-		const containerSelector = `.entry-content iframe[data-automation='checkout-widget-iframe-${ EventbriteBlock.eventId }']`;
+		const containerSelector = `.entry-content iframe[data-automation='checkout-widget-iframe-${ EventbriteBlock.eventId() }']`;
 
 		await waitForSelector( page, containerSelector );
 	}
