@@ -138,6 +138,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Blocks: improve the layout of the blocks' placeholders when using the Gutenberg plugin.
 * Blocks: allow defining a minimum WordPress version or minimum Gutenberg plugin version when registering a block.
 * Lazy Images: add option to skip images with the `data-skip-lazy` attribute.
+* SSO: Add error argument for compatibility with a WordPress 5.4 hook change.
 
 **Bug fixes**
 
