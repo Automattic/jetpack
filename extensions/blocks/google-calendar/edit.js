@@ -118,12 +118,12 @@ class GoogleCalendarEdit extends Component {
 	render() {
 		const { attributes, className, name, noticeUI } = this.props;
 		const defaultClassName = getBlockDefaultClassName( name );
-		const { url } = attributes;
+		const { url, height } = attributes;
 		const { editedEmbed, interactive, editingUrl } = this.state;
 
-		const height = this.props.isMobile ? '300' : '500';
+		const iframeHeight = this.props.isMobile ? '300' : height;
 
-		const html = `<iframe src="${ url }" style="border:0" scrolling="no" frameborder="0" width="100%" height=${ height }></iframe>`;
+		const html = `<iframe src="${ url }" style="border:0" scrolling="no" frameborder="0" height="${ iframeHeight }"></iframe>`;
 
 		const permissionsLink = (
 			<ExternalLink href="https://en.support.wordpress.com/google-calendar/">
