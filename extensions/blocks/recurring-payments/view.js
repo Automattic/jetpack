@@ -46,6 +46,9 @@ function activateSubscription( block, blogId, planId, lang ) {
 		window.addEventListener( 'message', handleIframeResult, false );
 		const tbWindow = document.querySelector( '#TB_window' );
 		tbWindow.classList.add( 'jetpack-memberships-modal' );
+
+		// This line has to come after the Thickbox has opened otherwise Firefox doesn't scroll to the top.
+		window.scrollTo( 0, 0 );
 	} );
 }
 
