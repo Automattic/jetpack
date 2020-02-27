@@ -15,6 +15,7 @@ import get from 'lodash/get';
  */
 import SearchFilter from './search-filter';
 import { setFilterQuery, getFilterQuery, clearFiltersFromQuery } from '../lib/query-string';
+import { mapFilterToFilterKey } from '../lib/filters';
 
 export default class SearchFilters extends Component {
 	onChangeFilter = ( filterName, filterValue ) => {
@@ -54,7 +55,7 @@ export default class SearchFilters extends Component {
 							configuration={ configuration }
 							locale={ this.props.locale }
 							type="date"
-							value={ this.getFilters()[ `${ configuration.interval }_${ configuration.field }` ] }
+							value={ this.getFilters()[ mapFilterToFilterKey( configuration ) ] }
 							onChange={ this.onChangeFilter }
 						/>
 					)
@@ -65,7 +66,7 @@ export default class SearchFilters extends Component {
 						<SearchFilter
 							aggregation={ results }
 							configuration={ configuration }
-							value={ this.getFilters()[ configuration.taxonomy ] }
+							value={ this.getFilters()[ mapFilterToFilterKey( configuration ) ] }
 							onChange={ this.onChangeFilter }
 							type="taxonomy"
 						/>
@@ -77,7 +78,7 @@ export default class SearchFilters extends Component {
 						<SearchFilter
 							aggregation={ results }
 							configuration={ configuration }
-							value={ this.getFilters().post_types }
+							value={ this.getFilters()[ mapFilterToFilterKey( configuration ) ] }
 							onChange={ this.onChangeFilter }
 							postTypes={ this.props.postTypes }
 							type="postType"
