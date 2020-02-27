@@ -384,7 +384,7 @@ class Jetpack {
 	 *
 	 * @var Integer the priority value.
 	 */
-	protected $highest_priority = null;
+	public $configure_hook_priority = null;
 
 	/**
 	 * Holds the singleton instance of this class
@@ -588,6 +588,7 @@ class Jetpack {
 		// If there is no handler set for the plugins_loaded hook yet, set it and return.
 		if ( ! isset( $wp_filter['plugins_loaded'] ) ) {
 			add_action( 'plugins_loaded', array( $this, 'configure' ), 0 );
+			$this->configure_hook_priority = 0;
 			return;
 		}
 
@@ -595,10 +596,10 @@ class Jetpack {
 
 		// If our hook is set, and it's still at highest priority, we don't need to do anything.
 		if (
-			isset( $this->highest_priority )
+			isset( $this->configure_hook_priority )
 
 			// Priority is in reverse order, so less is higher.
-			&& $this->highest_priority <= $highest_priority
+			&& $this->configure_hook_priority <= $highest_priority
 		) {
 			return;
 		}
@@ -608,8 +609,9 @@ class Jetpack {
 		foreach ( $actions_on_highest_priority as $action ) {
 			remove_action( 'plugins_loaded', $action['function'], $highest_priority );
 		}
+		remove_action( 'plugins_loaded', array( $this, 'configure' ), $this->configure_hook_priority );
 
-		$this->highest_priority = $highest_priority;
+		$this->configure_hook_priority = $highest_priority;
 		add_action( 'plugins_loaded', array( $this, 'configure' ), $highest_priority );
 
 		foreach ( $actions_on_highest_priority as $action ) {

@@ -1130,6 +1130,98 @@ EXPECTED;
 	}
 
 	/**
+	 * Tests whether add_configure_hook saves the priority in case there were no hooks at all.
+	 *
+	 * @covers Jetpack::add_configure_hook
+	 */
+	public function test_add_configure_hook_saves_priority_on_no_hooks_present() {
+		global $wp_filter;
+
+		foreach ( $wp_filter['plugins_loaded']->callbacks as $priority => $callbacks ) {
+			foreach ( $callbacks as $action ) {
+				remove_action( 'plugins_loaded', $action['function'], $priority );
+			}
+		}
+
+		$this->assertArrayNotHasKey( 'plugins_loaded', $wp_filter );
+
+		$jetpack = Jetpack::init();
+		$jetpack->add_configure_hook();
+
+		$this->assertArrayHasKey( 'plugins_loaded', $wp_filter );
+		$this->assertSame( 0, $jetpack->configure_hook_priority );
+	}
+
+	/**
+	 * Tests whether add_configure_hook adds the default priority hook.
+	 *
+	 * @covers Jetpack::add_configure_hook
+	 */
+	public function test_add_configure_hook_adds_default_hook() {
+		$jetpack = Jetpack::init();
+		$jetpack->add_configure_hook();
+
+		$current_priority = has_filter( 'plugins_loaded', array( $jetpack, 'configure' ) );
+		$this->assertSame( 0, $current_priority );
+	}
+
+	/**
+	 * Tests whether add_configure_hook resets the hook to a higher priority in case it's needed.
+	 *
+	 * @dataProvider plugins_loaded_hook_provider
+	 * @param Integer $first_priority    the first hook priority.
+	 * @param Integer $new_priority      the following hook priority.
+	 * @param Integer $expected_priority what we expect the priority to be in the end.
+	 */
+	public function test_add_configure_resets_hook_to_higher_priority( $first_priority, $new_priority, $expected_priority ) {
+		$jetpack = Jetpack::init();
+
+		add_action( 'plugins_loaded', '__return_true', $first_priority );
+		$jetpack->add_configure_hook();
+		add_action( 'plugins_loaded', '__return_true', $new_priority );
+		$jetpack->add_configure_hook();
+
+		$current_priority = has_action( 'plugins_loaded', array( $jetpack, 'configure' ) );
+
+		$this->assertEquals( $expected_priority, $current_priority );
+
+		// Making sure the previous action was removed.
+		remove_action( 'plugins_loaded', array( $jetpack, 'configure' ), $expected_priority );
+
+		$current_priority = has_action( 'plugins_loaded', array( $jetpack, 'configure' ) );
+
+		$this->assertSame( false, $current_priority );
+	}
+
+	/**
+	 * Provides test values for plugins_loaded hooks.
+	 */
+	public function plugins_loaded_hook_provider() {
+		return array(
+			array(
+				-50,
+				-100,
+				-100,
+			),
+			array(
+				200,
+				-200,
+				-200,
+			),
+			array(
+				-500,
+				500,
+				-500,
+			),
+			array(
+				- PHP_INT_MAX,
+				0,
+				- PHP_INT_MAX,
+			),
+		);
+	}
+
+	/**
 	 * Tests if Partner codes are added to the connect url.
 	 *
 	 * @dataProvider partner_code_provider
