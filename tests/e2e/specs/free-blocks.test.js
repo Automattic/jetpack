@@ -4,7 +4,7 @@
 import BlockEditorPage from '../lib/pages/wp-admin/block-editor';
 import PostFrontendPage from '../lib/pages/postFrontend';
 import { connectThroughWPAdminIfNeeded } from '../lib/flows/jetpack-connect';
-import { resetWordpressInstall, getNgrokSiteUrl, activateModule } from '../lib/utils-helper';
+import { resetWordpressInstall, getNgrokSiteUrl } from '../lib/utils-helper';
 import PinterestBlock from '../lib/blocks/pinterest';
 import EventbriteBlock from '../lib/blocks/eventbrite';
 
@@ -14,10 +14,7 @@ describe( 'Free blocks', () => {
 		const url = getNgrokSiteUrl();
 		console.log( 'NEW SITE URL: ' + url );
 
-		await connectThroughWPAdminIfNeeded( { mockPlanData: false } );
-
-		await activateModule( page, 'publicize' );
-		await activateModule( page, 'wordads' );
+		await connectThroughWPAdminIfNeeded( { mockPlanData: true } );
 	} );
 
 	describe( 'Pinterest block', () => {
