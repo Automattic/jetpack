@@ -56,24 +56,30 @@ add_filter( 'load_textdomain_mofile', 'wpcomsh_wporg_to_wpcom_locale_mo_file', 9
 
 // Load translations for wpcomsh itself via MO file
 add_action( 'plugins_loaded', function() {
-	load_muplugin_textdomain( 'wpcomsh', basename( dirname( __FILE__ ) ) . '/languages' );
+	load_muplugin_textdomain( 'wpcomsh', 'wpcomsh/languages' );
 } );
 
 // Early deploy of this fix in Jetpack: https://github.com/Automattic/jetpack/pull/14797
 // To be removed after the release of 8.5 (but things won't break with the Jetpack fix shipped).
 add_filter( 'load_script_textdomain_relative_path', function( $relative, $src ) {
-	// Get the local path from a URL which was CDN'ed by cdnize_plugin_assets().
-	if ( preg_match( '#^' . preg_quote( Jetpack_Photon_Static_Assets_CDN::CDN, '#' ) . 'p/[^/]+/[^/]+/(.*)$#', $src, $m ) ) {
-		return $m[1];
+	if ( class_exists( 'Jetpack_Photon_Static_Assets_CDN' ) ) {
+		// Get the local path from a URL which was CDN'ed by cdnize_plugin_assets().
+		if ( preg_match( '#^' . preg_quote( Jetpack_Photon_Static_Assets_CDN::CDN, '#' ) . 'p/[^/]+/[^/]+/(.*)$#', $src, $m ) ) {
+			return $m[1];
+		}
 	}
+
+	return $relative;
 }, 10, 2);
 
 // Ensure use of the correct local path when loading the JavaScript translation file for a CDN'ed asset.
 add_filter( 'load_script_translation_file', function( $file, $handle, $domain ) {
 	global $wp_scripts;
-	// This is a rewritten plugin URL, so load the language file from the plugins path.
-	if ( isset( $wp_scripts->registered[ $handle ] ) && wp_startswith( $wp_scripts->registered[ $handle ]->src, Jetpack_Photon_Static_Assets_CDN::CDN . 'p' ) ) {
-		return WP_LANG_DIR . '/plugins/' . basename( $file );
+	if ( class_exists( 'Jetpack_Photon_Static_Assets_CDN' ) ) {
+		// This is a rewritten plugin URL, so load the language file from the plugins path.
+		if ( isset( $wp_scripts->registered[ $handle ] ) && wp_startswith( $wp_scripts->registered[ $handle ]->src, Jetpack_Photon_Static_Assets_CDN::CDN . 'p' ) ) {
+			return WP_LANG_DIR . '/plugins/' . basename( $file );
+		}
 	}
 	return $file;
 }, 10, 3 );
