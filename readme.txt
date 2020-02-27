@@ -144,6 +144,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Blocks: fix layout issues with previews in block sidebar.
 * Blocks: fix layout issues when using a custom CSS class for a block using the option in the block sidebar.
+* Calendly block: fix overlay to render properly in the editor.
 * Dashboard: remove Backups information from the Jetpack dashboard when on a Multisite network. Those do not support the Backup feature at this point.
 * Map block: only show the Add Marker UI if there are no markers.
 * Map block: prevent an unselected block from accidentally capturing scrolling.
@@ -154,7 +155,6 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Secure Sign On: do not display feature message when logging in to WordPress.com's central dashboard.
 * Stats: hide Stats smiley in post embeds.
 * WooCommerce Analytics: improve product checks to avoid errors on order pages.
-* Calendly block: fix overlay to render properly in the editor.
 
 --------
 
