@@ -73,6 +73,8 @@ function videopress_get_video_details( $guid ) {
  *
  * Modified from https://wpscholar.com/blog/get-attachment-id-from-wp-image-url/
  *
+ * @todo: Add some caching in here.
+ *
  * @param string $url
  *
  * @return int|bool Attachment ID on success, false on failure
@@ -85,21 +87,13 @@ function videopress_get_attachment_id_by_url( $url ) {
 	// Is URL in uploads directory?
 	if ( false !== strpos( $url, $dir ) ) {
 
-		$file        = basename( $url );
-		$cache_key   = 'videopress_get_attachment_id_by_url_' . md5( $url );
-		$cache_group = 'videopress';
-		$cached_id   = wp_cache_get( $cache_key, $cache_group );
-		if ( false !== $cached_id ) {
-			return $cached_id;
-		}
+		$file = basename( $url );
 
 		$query_args = array(
-			'post_type'              => 'attachment',
-			'post_status'            => 'inherit',
-			'fields'                 => 'ids',
-			'no_found_rows'          => true,
-			'update_post_term_cache' => false,
-			'meta_query'             => array(
+			'post_type'   => 'attachment',
+			'post_status' => 'inherit',
+			'fields'      => 'ids',
+			'meta_query'  => array(
 				array(
 					'key'     => '_wp_attachment_metadata',
 					'compare' => 'LIKE',
@@ -117,9 +111,7 @@ function videopress_get_attachment_id_by_url( $url ) {
 				$cropped_files = wp_list_pluck( $meta['sizes'], 'file' );
 
 				if ( $original_file === $file || in_array( $file, $cropped_files ) ) {
-					$attachment_id = (int) $attachment_id;
-					wp_cache_set( $cache_key, $attachment_id, $cache_group, HOUR_IN_SECONDS );
-					return $attachment_id;
+					return (int) $attachment_id;
 				}
 			}
 		}

@@ -13,35 +13,6 @@
 class WP_Test_Jetpack_VideoPress_Utility_Functions extends WP_UnitTestCase {
 
 	/**
-	 * Tests a helper function to get the attachment ID, when there's no cached value.
-	 *
-	 * @covers ::videopress_get_attachment_id_by_url
-	 * @since 8.4.0
-	 */
-	public function test_non_cached_videopress_get_attachment_id_by_url() {
-		$expected_id = self::factory()->attachment->create_upload_object( DIR_TESTDATA . '/images/test-image.jpg', 0 );
-		$url         = wp_get_attachment_url( $expected_id );
-
-		$this->assertEquals( $expected_id, videopress_get_attachment_id_by_url( $url ) );
-	}
-
-	/**
-	 * Tests a helper function to get the attachment ID, when there is a cached value.
-	 *
-	 * @covers ::videopress_get_attachment_id_by_url
-	 * @since 8.4.0
-	 */
-	public function test_cached_videopress_get_attachment_id_by_url() {
-		$cached_id = 512351;
-		self::factory()->attachment->create_upload_object( DIR_TESTDATA . '/images/test-image.jpg', 0 );
-		$upload_dir  = wp_get_upload_dir();
-		$url         = trailingslashit( $upload_dir['url'] ) . 'random.jpg';
-		wp_cache_set( 'videopress_get_attachment_id_by_url_' . md5( $url ), $cached_id, 'videopress' );
-
-		$this->assertEquals( $cached_id, videopress_get_attachment_id_by_url( $url ) );
-	}
-
-	/**
 	 * Tests a helper function to get the post by guid, when there is no post found.
 	 *
 	 * @covers ::video_get_post_by_guid
