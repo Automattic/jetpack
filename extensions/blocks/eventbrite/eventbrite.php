@@ -41,7 +41,7 @@ function jetpack_render_eventbrite_block( $attr, $content ) {
 	Jetpack_Gutenberg::load_assets_as_required( 'eventbrite' );
 
 	// Show the embedded version.
-	if ( empty( $attr['useModal'] ) ) {
+	if ( empty( $attr['useModal'] ) && 'modal' !== $attr['style'] ) {
 		wp_add_inline_script(
 			'eventbrite-widget',
 			"window.EBWidgets.createWidget( {
