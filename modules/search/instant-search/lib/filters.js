@@ -62,3 +62,13 @@ export function mapFilterToFilterKey( filter ) {
 	}
 	return null;
 }
+
+export function mapFilterToType( filter ) {
+	if ( filter.type === 'date_histogram' ) {
+		return 'date';
+	} else if ( filter.type === 'taxonomy' ) {
+		return 'taxonomy';
+	} else if ( filter.type === 'post_type' ) {
+		return 'postType';
+	}
+}
