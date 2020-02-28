@@ -19,7 +19,13 @@ import { getBlockDefaultClassName } from '@wordpress/blocks';
  * Internal dependencies
  */
 import icon from './icon';
-import { extractAttributesFromIframe, IFRAME_REGEX, URL_REGEX } from './utils';
+import {
+	extractAttributesFromIframe,
+	convertShareableUrl,
+	IFRAME_REGEX,
+	URL_REGEX,
+	SHAREABLE_REGEX,
+} from './utils';
 import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 
 class GoogleCalendarEdit extends Component {
@@ -64,6 +70,8 @@ class GoogleCalendarEdit extends Component {
 
 		if ( IFRAME_REGEX.test( embedString ) ) {
 			attributes = extractAttributesFromIframe( embedString );
+		} else if ( SHAREABLE_REGEX.test( embedString ) ) {
+			attributes = { url: convertShareableUrl( embedString ) };
 		} else {
 			attributes = { url: embedString };
 		}
