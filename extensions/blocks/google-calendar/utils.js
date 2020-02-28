@@ -1,4 +1,4 @@
-const url_regex_string = 's*https?://calendar.google.com/';
+const url_regex_string = 's*https?://calendar.google.com/calendar/embed';
 export const URL_REGEX = new RegExp( `^${ url_regex_string }`, 'i' );
 export const IFRAME_REGEX = new RegExp(
 	`<iframe((?:\\s+\\w+=(['"]).*?\\2)*)\\s+src=(["'])(${ url_regex_string }.*?)\\3((?:\\s+\\w+=(['"]).*?\\6)*)`,
