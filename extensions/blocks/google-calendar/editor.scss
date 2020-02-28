@@ -27,8 +27,11 @@
 	}
 
 	ol.wp-block-jetpack-google-calendar-placeholder-instructions {
-		margin: 0;
 		font-family: inherit;
+		list-style-position: inside;
+		margin: 0;
+		padding: 0;
+
 		li {
 			margin-bottom: 19px;
 			text-align: left;
