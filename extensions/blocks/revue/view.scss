@@ -7,15 +7,25 @@
 	> div {
 		margin-bottom: 0.75em;
 	}
+
 	.wp-block-button {
 		margin-top: 0;
 	}
+
 	input {
+		display: block;
 		margin-top: 0.25em;
+		width: 100%;
+		@media screen and ( min-width: 600px ) {
+			width: 50%;
+		}
 	}
+
 	label {
+		display: block;
 		font-weight: bold;
 	}
+
 	.required {
 		color: #aaaaaa;
 		font-weight: normal;

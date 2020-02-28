@@ -687,8 +687,10 @@ class Jetpack_SSO {
 				'error_message' => 'error_msg_enable_two_step'
 			) );
 
+			$error = new WP_Error( 'two_step_required', __( 'You must have Two-Step Authentication enabled on your WordPress.com account.', 'jetpack' ) );
+
 			/** This filter is documented in core/src/wp-includes/pluggable.php */
-			do_action( 'wp_login_failed', $user_data->login );
+			do_action( 'wp_login_failed', $user_data->login, $error );
 			add_filter( 'login_message', array( 'Jetpack_SSO_Notices', 'error_msg_enable_two_step' ) );
 			return;
 		}
@@ -831,8 +833,11 @@ class Jetpack_SSO {
 		) );
 
 		$this->user_data = $user_data;
+
+		$error = new WP_Error( 'account_not_found', __( 'Account not found. If you already have an account, make sure you have connected to WordPress.com.', 'jetpack' ) );
+
 		/** This filter is documented in core/src/wp-includes/pluggable.php */
-		do_action( 'wp_login_failed', $user_data->login );
+		do_action( 'wp_login_failed', $user_data->login, $error );
 		add_filter( 'login_message', array( 'Jetpack_SSO_Notices', 'cant_find_user' ) );
 	}
 

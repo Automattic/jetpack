@@ -6,6 +6,7 @@
 		"contact-info",
 		"eventbrite",
 		"gif",
+		"google-calendar",
 		"likes",
 		"mailchimp",
 		"map",
@@ -17,6 +18,7 @@
 		"recurring-payments",
 		"related-posts",
 		"repeat-visitor",
+		"revue",
 		"sharing",
 		"shortlinks",
 		"simple-payments",
@@ -26,5 +28,5 @@
 		"videopress",
 		"wordads"
 	],
-	"beta": [ "amazon", "google-calendar", "revue", "seo" ]
+	"beta": [ "amazon", "seo" ]
 }
