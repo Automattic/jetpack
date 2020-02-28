@@ -32,7 +32,7 @@ const cardCredentials = config.get( 'testCardCredentials' );
  * @param {Object} o Optional object with params such as `wpcomUser` and expected Jetpack plan
  */
 export async function connectThroughWPAdminIfNeeded( {
-	wpcomUser = 'defaultUser2',
+	wpcomUser = 'defaultUser',
 	plan = 'pro',
 	mockPlanData = false,
 } = {} ) {
@@ -109,7 +109,7 @@ export async function connectThroughWPAdminIfNeeded( {
 }
 
 export async function connectThroughJetpackStart( {
-	wpcomUser = 'defaultUser2',
+	wpcomUser = 'defaultUser',
 	plan = 'pro',
 } = {} ) {
 	// remove Sandbox cookie

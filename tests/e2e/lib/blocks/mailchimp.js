@@ -40,7 +40,7 @@ export default class MailchimpBlock {
 		global.page = loginTab;
 
 		if ( ! isLoggedIn ) {
-			await ( await LoginPage.init( loginTab ) ).login( 'defaultUser2' );
+			await ( await LoginPage.init( loginTab ) ).login( 'defaultUser' );
 		}
 
 		// Hacky way to force-sync Publicize activation. The first attempt is always get redirected to stats page.
