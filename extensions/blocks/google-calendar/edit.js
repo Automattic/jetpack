@@ -80,7 +80,7 @@ class GoogleCalendarEdit extends Component {
 	setErrorNotice = () => {
 		this.setState( {
 			notice: __(
-				"Your calendar couldn't be embedded. Please double check your URL or code.",
+				"Your calendar couldn't be embedded. Please double check your URL or Embed Code. Please note, you need to use the 'Public URL' or 'Embed Code', the 'Shareable Link' will not work.",
 				'jetpack'
 			),
 		} );
