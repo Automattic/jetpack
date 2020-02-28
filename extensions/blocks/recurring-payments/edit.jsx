@@ -144,8 +144,7 @@ class MembershipsButtonEdit extends Component {
 		}
 		if (
 			! this.state.editedProductPrice ||
-			isNaN( this.state.editedProductPrice ) ||
-			this.state.editedProductPrice < 5
+			! isPriceValid( this.state.editedProductCurrency, this.state.editedProductPrice )
 		) {
 			this.setState( { editedProductPriceValid: false } );
 			return;
