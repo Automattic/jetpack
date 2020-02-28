@@ -40,6 +40,15 @@ class WP_Test_Jetpack extends WP_UnitTestCase {
 	public function tearDown() {
 		parent::tearDown();
 		Constants::clear_constants();
+
+		// Resetting the Jetpack singleton.
+		$singleton  = Jetpack::init();
+		$reflection = new ReflectionClass( $singleton );
+		$instance   = $reflection->getProperty( 'instance' );
+
+		$instance->setAccessible( true ); // Now we can modify the instance.
+		$instance->setValue( null, null ); // Removing the instance.
+		$instance->setAccessible( false ); // Clean up.
 	}
 
 	/**

@@ -592,7 +592,9 @@ class Jetpack {
 			return;
 		}
 
+		// Highest priority is 0 or lower, we don't need values higher than 0.
 		$highest_priority = min( array_keys( $wp_filter['plugins_loaded']->callbacks ) );
+		$highest_priority = $highest_priority > 0 ? 0 : $highest_priority;
 
 		// If our hook is set, and it's still at highest priority, we don't need to do anything.
 		if (
@@ -604,7 +606,12 @@ class Jetpack {
 			return;
 		}
 
-		$actions_on_highest_priority = $wp_filter['plugins_loaded']->callbacks[ $highest_priority ];
+		// If the priority is defaulted to 0, it can happen so that there are no hooks set on 0.
+		if ( isset( $wp_filter['plugins_loaded']->callbacks[ $highest_priority ] ) ) {
+			$actions_on_highest_priority = $wp_filter['plugins_loaded']->callbacks[ $highest_priority ];
+		} else {
+			$actions_on_highest_priority = array();
+		}
 
 		foreach ( $actions_on_highest_priority as $action ) {
 			remove_action( 'plugins_loaded', $action['function'], $highest_priority );
