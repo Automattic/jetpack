@@ -712,10 +712,10 @@ _x( "Discussion", "Navigation item.", "jetpack" ), // _inc/client/components/nav
 _x( "Traffic", "Navigation item.", "jetpack" ), // _inc/client/components/navigation-settings/index.jsx:185
 _x( "Sharing", "Navigation item.", "jetpack" ), // _inc/client/components/navigation-settings/index.jsx:202
 _x( "Writing", "Navigation item.", "jetpack" ), // _inc/client/components/navigation-settings/index.jsx:216
-__( "Manage Subscription", "jetpack" ), // _inc/client/components/product-card/index.jsx:100
 __( "Purchased on %s.", "jetpack" ), // _inc/client/components/product-expiration/index.jsx:35
 __( "Expired on %s.", "jetpack" ), // _inc/client/components/product-expiration/index.jsx:49
 __( "Renews on %s.", "jetpack" ), // _inc/client/components/product-expiration/index.jsx:53
+__( "Manage Subscription", "jetpack" ), // _inc/client/components/product-card/index.jsx:100
 _x( "Upgrade", "A caption for a button to upgrade an existing paid feature to a higher tier.", "jetpack" ), // _inc/client/components/settings-card/index.jsx:79
 __( "Host fast, high-quality, ad-free video.", "jetpack" ), // _inc/client/components/settings-card/index.jsx:91
 __( "Generate income with high-quality ads.", "jetpack" ), // _inc/client/components/settings-card/index.jsx:111
@@ -762,14 +762,5 @@ __( "or", "jetpack" ), // _inc/client/traffic/verification-services/google.jsx:3
 __( "Manually Verify ", "jetpack" ), // _inc/client/traffic/verification-services/google.jsx:323
 /* translators: The price range for a particular product */
 __( "{{smallerPrice/}}-{{higherPrice/}}", "jetpack" ), // _inc/client/components/plans/plan-price/index.jsx:58
-__( "ms", "jetpack" ), // _inc/blocks/components.js:2
-__( "s", "jetpack" ), // _inc/blocks/components.js:2
-__( "m", "jetpack" ), // _inc/blocks/components.js:2
-__( "h", "jetpack" ), // _inc/blocks/components.js:2
-__( "d", "jetpack" ), // _inc/blocks/components.js:2
-__( "w", "jetpack" ), // _inc/blocks/components.js:2
-__( "M", "jetpack" ), // _inc/blocks/components.js:2
-__( "Q", "jetpack" ), // _inc/blocks/components.js:2
-__( "y", "jetpack" ), // _inc/blocks/components.js:2
 );
 /* THIS IS THE END OF THE GENERATED FILE */
