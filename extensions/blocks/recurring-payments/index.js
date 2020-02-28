@@ -87,7 +87,6 @@ export const SUPPORTED_CURRENCIES = {
 	INR: 0.5,
 	JPY: 50,
 	MXN: 10,
-	MYR: 2,
 	NOK: 3.0,
 	NZD: 0.5,
 	PLN: 2.0,
