@@ -184,7 +184,7 @@
 		"babel-eslint": "10.0.2",
 		"chai": "4.2.0",
 		"commander": "4.1.1",
-		"config": "3.2.5",
+		"config": "3.3.0",
 		"css-loader": "3.4.2",
 		"danger": "9.2.10",
 		"eslint": "5.16.0",
