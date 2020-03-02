@@ -252,7 +252,7 @@ class Jetpack_Memberships {
 		add_thickbox();
 		global $wp;
 		return sprintf(
-			'<div class="wp-block-button %1$s"><a role="button" href="https://subscribe.wordpress.com/memberships/?blog=%2$d&plan=%4$d&lang=%5$s&pid=%9$d&redirect=%3$s" class="%6$s" style="%7$s">%8$s</a></div>',
+			'<div class="wp-block-button %1$s"><a role="button" target="_blank" href="https://subscribe.wordpress.com/memberships/?blog=%2$d&plan=%4$d&lang=%5$s&pid=%9$d&redirect=%3$s" class="%6$s" style="%7$s">%8$s</a></div>',
 			esc_attr( Jetpack_Gutenberg::block_classes( self::$button_block_name, $attrs ) ),
 			esc_attr( $data['blog_id'] ),
 			esc_attr( rawurlencode( home_url( $wp->request ) ) ), // Needed for redirect back in case of redirect-based flow.
