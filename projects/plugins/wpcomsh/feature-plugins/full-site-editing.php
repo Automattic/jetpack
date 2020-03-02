@@ -4,37 +4,8 @@
  */
 
 /**
- * Filters whether Starter Page Templates should be disabled.
- *
- * @param bool $should_disable Whether the feature should be disabled.
- * @return bool
- */
-function wpcomsh_maybe_disable_spt( $should_disable ) {
-	// `environment-id` is added to Gutenframe `iframe` query args
-	// within the Calypso repo
-	$is_horizon = ( ! empty( $_GET['environment-id'] ) && $_GET['environment-id'] === 'horizon' );
-
-	// Never disable on Horizon.
-	if ( $is_horizon ) {
-		return false;
-	}
-
-	/**
-	 * Only support a limited subset of Themes.
-	 *
-	 * Disabled for sites with themes that have page templates.
-	 */
-	if ( ! empty( wp_get_theme()->get_page_templates() ) ) {
-		return true;
-	}
-
-	return $should_disable;
-}
-add_filter( 'a8c_disable_starter_page_templates', 'wpcomsh_maybe_disable_spt' );
-
-/**
  * Disables Full Site Editing if the eligability option does not exist.
- * 
+ *
  * @return bool true if FSE should be disabled, false if FSE should be enabled
  */
 function wpcomsh_maybe_disable_fse() {
