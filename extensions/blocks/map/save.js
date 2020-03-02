@@ -9,7 +9,6 @@ class MapSave extends Component {
 		const { attributes } = this.props;
 		const {
 			align,
-			mapStyle,
 			mapDetails,
 			points,
 			zoom,
@@ -33,7 +32,6 @@ class MapSave extends Component {
 		return (
 			<div
 				className={ alignClassName }
-				data-map-style={ mapStyle }
 				data-map-details={ mapDetails }
 				data-points={ JSON.stringify( points ) }
 				data-zoom={ zoom }
