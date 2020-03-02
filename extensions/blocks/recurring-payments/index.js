@@ -30,6 +30,7 @@ export const settings = {
 		_x( 'sell', 'block search term', 'jetpack' ),
 		_x( 'subscription', 'block search term', 'jetpack' ),
 		'stripe',
+		_x( 'membership', 'block search term', 'jetpack' ),
 	],
 	attributes: {
 		planId: {

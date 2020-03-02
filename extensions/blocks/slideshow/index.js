@@ -116,6 +116,7 @@ export const settings = {
 		_x( 'image', 'block search term', 'jetpack' ),
 		_x( 'gallery', 'block search term', 'jetpack' ),
 		_x( 'slider', 'block search term', 'jetpack' ),
+		_x( 'carousel', 'block search term', 'jetpack' ),
 	],
 	description: __( 'Add an interactive slideshow.', 'jetpack' ),
 	attributes,

@@ -28,6 +28,8 @@ export const settings = {
 		_x( 'calendar', 'block search term', 'jetpack' ),
 		_x( 'schedule', 'block search term', 'jetpack' ),
 		_x( 'appointments', 'block search term', 'jetpack' ),
+		_x( 'events', 'block search term', 'jetpack' ),
+		_x( 'dates', 'block search term', 'jetpack' ),
 	],
 	supports: {
 		align: true,
