@@ -71,6 +71,8 @@ abstract class SAL_Site {
 
 	abstract public function is_private();
 
+	abstract public function is_coming_soon();
+
 	abstract public function is_following();
 
 	abstract public function get_subscribers_count();
