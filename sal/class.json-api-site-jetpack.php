@@ -139,7 +139,25 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	}
 
 	function is_private() {
-		return false;
+		return $this->get_cloud_site_option( 'blog_public' ) == -1;
+	}
+
+	function is_coming_soon() {
+		return $this->is_private() && $this->get_cloud_site_option( 'wpcom_coming_soon' ) == 1;
+	}
+
+	function get_cloud_site_option( $option ) {
+		$jetpack = Jetpack::init();
+		if ( ! method_exists( $jetpack, 'get_cloud_site_options' ) ) {
+			return false;
+		}
+
+		$result = $jetpack->get_cloud_site_options( [ $option ] );
+		if ( ! array_key_exists( $option, $result ) ) {
+			return false;
+		}
+
+		return $result[ $option ];
 	}
 
 	function get_plan() {
