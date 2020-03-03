@@ -47,7 +47,7 @@ function jetpack_render_eventbrite_block( $attr, $content ) {
 
 		// $content contains a fallback link to the event that's saved in the post_content.
 		// Append a div that will hold the iframe embed created by the Eventbrite widget.js.
-		$classes = \Jetpack_Gutenberg::block_classes( 'eventbrite__in-page-checkout', $attr );
+		$classes = \Jetpack_Gutenberg::block_classes( 'eventbrite', $attr );
 
 		$content .= sprintf(
 			'<div id="%1$s" class="%2$s"></div>',
