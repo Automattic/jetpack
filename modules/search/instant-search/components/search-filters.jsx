@@ -93,13 +93,8 @@ export default class SearchFilters extends Component {
 		}
 
 		const aggregations = get( this.props.results, 'aggregations' );
-		const cls =
-			this.props.loading === true
-				? 'jetpack-instant-search__filters jetpack-instant-search__is-loading'
-				: 'jetpack-instant-search__filters';
-
 		return (
-			<div className={ cls }>
+			<div className="jetpack-instant-search__filters">
 				{ this.hasActiveFilters() && (
 					<a
 						class="jetpack-instant-search__clear-filters-link"

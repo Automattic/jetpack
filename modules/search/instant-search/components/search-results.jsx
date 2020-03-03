@@ -23,6 +23,9 @@ class SearchResults extends Component {
 		const hasCorrectedQuery = corrected_query !== false;
 		const num = new Intl.NumberFormat().format( total );
 
+		if ( this.props.isLoading ) {
+			return sprintf( __( 'Looking for "%s"', 'jetpack' ), this.props.query );
+		}
 		if ( total === 0 || this.props.hasError ) {
 			return sprintf( __( 'No results for "%s".', 'jetpack' ), this.props.query );
 		}
@@ -99,9 +102,7 @@ class SearchResults extends Component {
 				) }
 				{ hasResults && ! this.props.hasError && (
 					<ol
-						className={ `jetpack-instant-search__search-results-list is-format-${
-							this.props.resultFormat
-						}${ this.props.isLoading === true ? ' jetpack-instant-search__is-loading' : '' }` }
+						className={ `jetpack-instant-search__search-results-list is-format-${ this.props.resultFormat }` }
 					>
 						{ results.map( ( result, index ) => (
 							<SearchResult
@@ -158,9 +159,7 @@ class SearchResults extends Component {
 			<main
 				aria-hidden={ this.props.isLoading === true }
 				aria-live="polite"
-				className={ `jetpack-instant-search__search-results ${
-					this.props.isLoading === true ? ' jetpack-instant-search__is-loading' : ''
-				}` }
+				className="jetpack-instant-search__search-results"
 			>
 				<a
 					className="jetpack-instant-search__overlay-close"

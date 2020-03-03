@@ -26,10 +26,6 @@ $grid-size-large: 16px;
 @import './components/search-result-product.scss';
 @import './components/search-sidebar.scss';
 
-.jetpack-instant-search__is-loading {
-	opacity: 0.2;
-}
-
 .jetpack-search-filters-widget__filter-list {
 	list-style-type: none;
 }
