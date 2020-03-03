@@ -33,7 +33,11 @@ export const settings = {
 	example: mapSettings.example,
 	deprecated: [
 		{
-			attributes: omit( mapSettings.attributes, 'showFullscreenButton' ),
+			attributes: omit( mapSettings.attributes, [
+				'mapHeight',
+				'scrollToZoom',
+				'showFullscreenButton',
+			] ),
 			migrate: attributes => ( { ...attributes, showFullscreenButton: true } ),
 			save,
 		},
