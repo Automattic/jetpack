@@ -24,25 +24,25 @@ class SearchResults extends Component {
 		const num = new Intl.NumberFormat().format( total );
 
 		if ( this.props.isLoading ) {
-			return sprintf( __( 'Looking for "%s"', 'jetpack' ), this.props.query );
+			return sprintf( __( 'Searching…', 'jetpack' ), this.props.query );
 		}
 		if ( total === 0 || this.props.hasError ) {
-			return sprintf( __( 'No results for "%s".', 'jetpack' ), this.props.query );
+			return sprintf( __( 'No results found', 'jetpack' ), this.props.query );
 		}
 		if ( hasQuery && hasCorrectedQuery ) {
 			return sprintf(
-				_n( 'Showing %s result for "%s"', 'Showing %s results for "%s"', total, 'jetpack' ),
+				_n( 'Found %s result for "%s"', 'Found %s results for "%s"', total, 'jetpack' ),
 				num,
 				corrected_query
 			);
 		} else if ( hasQuery ) {
 			return sprintf(
-				_n( '%s result for "%s"', '%s results for "%s"', total, 'jetpack' ),
+				_n( 'Found %s result', 'Found %s results', total, 'jetpack' ),
 				num,
 				this.props.query
 			);
 		}
-		return sprintf( _n( '%s result', '%s results', total, 'jetpack' ), num );
+		return sprintf( _n( 'Found %s result', 'Found %s results', total, 'jetpack' ), num );
 	}
 
 	renderPrimarySection() {
@@ -72,13 +72,7 @@ class SearchResults extends Component {
 					widgets={ this.props.widgets }
 				/>
 
-				<div
-					className={
-						hasResults
-							? 'jetpack-instant-search__search-results-real-query'
-							: 'jetpack-instant-search__search-results-empty'
-					}
-				>
+				<div className="jetpack-instant-search__search-results-title">
 					{ this.getSearchTitle() }
 				</div>
 
