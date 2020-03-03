@@ -27,6 +27,12 @@ function jetpack_render_eventbrite_block( $attr, $content ) {
 		return '';
 	}
 
+	$attr['url'] = Jetpack_Gutenberg::validate_block_embed_url(
+		$attr['url'],
+		array( '#^https?:\/\/(?:[0-9a-z]+\.)?eventbrite\.(?:com|co\.uk|com\.ar|com\.au|be|com\.br|ca|cl|co|dk|de|es|fi|fr|hk|ie|it|com\.mx|nl|co\.nz|at|com\.pe|pt|ch|sg|se)\/e\/[^\/]*?(?:\d+)\/?(?:\?[^\/]*)?$#' ),
+		true
+	);
+
 	$widget_id = wp_unique_id( 'eventbrite-widget-' );
 
 	wp_enqueue_script( 'eventbrite-widget', 'https://www.eventbrite.com/static/widgets/eb_widgets.js', array(), JETPACK__VERSION, true );
