@@ -155,6 +155,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Secure Sign On: do not display feature message when logging in to WordPress.com's central dashboard.
 * Stats: hide Stats smiley in post embeds.
 * WooCommerce Analytics: improve product checks to avoid errors on order pages.
+* Wufoo shortcode: Security fix return early when invalid parameters.
 
 --------
 
