@@ -253,7 +253,7 @@ class Jetpack_Likes {
 	}
 
 	function action_init() {
-		if ( is_admin() ) {
+		if ( is_admin() || ! $this->settings->is_likes_visible() ) {
 			return;
 		}
 
