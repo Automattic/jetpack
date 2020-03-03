@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { addFilter } from '@wordpress/hooks';
 import { registerBlockType } from '@wordpress/blocks';
 
@@ -14,7 +14,7 @@ import withHasWarningIsInteractiveClassNames from './with-has-warning-is-interac
 import wrapPaidBlock from './wrap-paid-block';
 
 const availableBlockTags = {
-	paid: __( 'paid', 'jetpack' ),
+	paid: _x( 'paid', 'Short label appearing near a block requiring a paid plan', 'jetpack' ),
 	beta: __( 'beta', 'jetpack' ),
 };
 
