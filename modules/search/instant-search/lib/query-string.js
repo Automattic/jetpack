@@ -220,8 +220,7 @@ export function restorePreviousHref( initialHref, callback ) {
 			return;
 		}
 
-		// Otherwise, invoke the callback and emit a QS change event
+		// Otherwise, invoke the callback
 		callback();
-		window.dispatchEvent( new Event( 'queryStringChange' ) );
 	}
 }

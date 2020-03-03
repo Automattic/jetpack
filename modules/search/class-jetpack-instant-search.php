@@ -128,7 +128,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 
 			// core config.
 			'homeUrl'               => home_url(),
-			'locale'                => str_replace( '_', '-', get_locale() ),
+			'locale'                => str_replace( '_', '-', Jetpack_Search_Helpers::is_valid_locale( get_locale() ) ? get_locale() : 'en_US' ),
 			'postsPerPage'          => get_option( 'posts_per_page' ),
 			'siteId'                => Jetpack::get_option( 'id' ),
 
