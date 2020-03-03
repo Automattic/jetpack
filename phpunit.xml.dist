@@ -27,6 +27,9 @@
 		<testsuite name="infinite-scroll">
 			<directory prefix="test_" suffix=".php">tests/php/modules/infinite-scroll</directory>
 		</testsuite>
+		<testsuite name="comment-likes">
+			<directory prefix="test" suffix=".php">tests/php/modules/comment-likes</directory>
+		</testsuite>
 		<testsuite name="likes">
 			<directory prefix="test_" suffix=".php">tests/php/modules/likes</directory>
 		</testsuite>
