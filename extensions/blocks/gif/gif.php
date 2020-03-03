@@ -24,7 +24,9 @@ jetpack_register_block(
 function jetpack_gif_block_render( $attr ) {
 	$padding_top = isset( $attr['paddingTop'] ) ? $attr['paddingTop'] : 0;
 	$style       = 'padding-top:' . $padding_top;
-	$giphy_url   = isset( $attr['giphyUrl'] ) ? $attr['giphyUrl'] : null;
+	$giphy_url   = isset( $attr['giphyUrl'] )
+		? Jetpack_Gutenberg::validate_block_embed_url( $attr['giphyUrl'], array( 'giphy.com' ) )
+		: null;
 	$search_text = isset( $attr['searchText'] ) ? $attr['searchText'] : '';
 	$caption     = isset( $attr['caption'] ) ? $attr['caption'] : null;
 

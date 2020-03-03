@@ -79,7 +79,10 @@ add_action( 'init', 'Jetpack\Calendly_Block\set_availability' );
  * @return string
  */
 function load_assets( $attr, $content ) {
-	$url = get_attribute( $attr, 'url' );
+	$url = \Jetpack_Gutenberg::validate_block_embed_url(
+		get_attribute( $attr, 'url' ),
+		array( 'calendly.com' )
+	);
 	if ( empty( $url ) ) {
 		return;
 	}
