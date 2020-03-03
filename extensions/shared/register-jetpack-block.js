@@ -61,7 +61,7 @@ export default function registerJetpackBlock( name, settings, childBlocks = [] )
 	const blockTags = [];
 
 	if ( requiredPlan ) {
-		blockTags.push( availableBlockTags.plan );
+		blockTags.push( availableBlockTags.paid );
 	}
 	if ( betaExtensions.includes( name ) ) {
 		blockTags.push( availableBlockTags.beta );
