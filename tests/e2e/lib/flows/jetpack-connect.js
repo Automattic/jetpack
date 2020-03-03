@@ -89,7 +89,7 @@ export async function connectThroughWPAdminIfNeeded( {
 
 	jetpackPage = await JetpackPage.init( page );
 
-	if ( ! mockPlanData ) {
+	if ( ! mockPlanData && plan !== 'free' ) {
 		await jetpackPage.reload( { waitFor: 'networkidle0' } );
 
 		await page.waitForResponse(

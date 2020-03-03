@@ -14,7 +14,7 @@ describe( 'Free blocks', () => {
 		const url = getNgrokSiteUrl();
 		console.log( 'NEW SITE URL: ' + url );
 
-		await connectThroughWPAdminIfNeeded( { mockPlanData: true } );
+		await connectThroughWPAdminIfNeeded( { mockPlanData: false } );
 	} );
 
 	describe( 'Pinterest block', () => {
