@@ -37,7 +37,9 @@ add_action( 'init', 'Jetpack\Google_Calendar_Block\register_block' );
 function load_assets( $attr ) {
 	$width   = isset( $attr['width'] ) ? $attr['width'] : '800';
 	$height  = isset( $attr['height'] ) ? $attr['height'] : '600';
-	$url     = isset( $attr['url'] ) ? $attr['url'] : '';
+	$url     = isset( $attr['url'] )
+		? \Jetpack_Gutenberg::validate_block_embed_url( $attr['url'], array( 'calendar.google.com' ) ) :
+		'';
 	$classes = \Jetpack_Gutenberg::block_classes( 'google-calendar', $attr );
 
 	if ( empty( $url ) ) {
