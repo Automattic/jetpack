@@ -15,6 +15,7 @@ import get from 'lodash/get';
  */
 import SearchFilter from './search-filter';
 import { setFilterQuery, getFilterQuery, clearFiltersFromQuery } from '../lib/query-string';
+import { mapFilterToFilterKey, mapFilterToType } from '../lib/filters';
 
 export default class SearchFilters extends Component {
 	onChangeFilter = ( filterName, filterValue ) => {
@@ -44,48 +45,18 @@ export default class SearchFilters extends Component {
 		return getFilterQuery();
 	}
 
-	renderFilterComponent = ( { configuration, results } ) => {
-		switch ( configuration.type ) {
-			case 'date_histogram':
-				return (
-					results && (
-						<SearchFilter
-							aggregation={ results }
-							configuration={ configuration }
-							locale={ this.props.locale }
-							type="date"
-							value={ this.getFilters()[ `${ configuration.interval }_${ configuration.field }` ] }
-							onChange={ this.onChangeFilter }
-						/>
-					)
-				);
-			case 'taxonomy':
-				return (
-					results && (
-						<SearchFilter
-							aggregation={ results }
-							configuration={ configuration }
-							value={ this.getFilters()[ configuration.taxonomy ] }
-							onChange={ this.onChangeFilter }
-							type="taxonomy"
-						/>
-					)
-				);
-			case 'post_type':
-				return (
-					results && (
-						<SearchFilter
-							aggregation={ results }
-							configuration={ configuration }
-							value={ this.getFilters().post_types }
-							onChange={ this.onChangeFilter }
-							postTypes={ this.props.postTypes }
-							type="postType"
-						/>
-					)
-				);
-		}
-	};
+	renderFilterComponent = ( { configuration, results } ) =>
+		results && (
+			<SearchFilter
+				aggregation={ results }
+				configuration={ configuration }
+				locale={ this.props.locale }
+				onChange={ this.onChangeFilter }
+				postTypes={ this.props.postTypes }
+				type={ mapFilterToType( configuration ) }
+				value={ this.getFilters()[ mapFilterToFilterKey( configuration ) ] }
+			/>
+		);
 
 	render() {
 		if ( ! this.props.widget ) {

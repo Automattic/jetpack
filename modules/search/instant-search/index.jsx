@@ -18,7 +18,10 @@ import { buildFilterAggregations } from './lib/api';
 const injectSearchApp = () => {
 	render(
 		<SearchApp
-			aggregations={ buildFilterAggregations( window[ SERVER_OBJECT_NAME ].widgets ) }
+			aggregations={ buildFilterAggregations( [
+				...window[ SERVER_OBJECT_NAME ].widgets,
+				...window[ SERVER_OBJECT_NAME ].widgetsOutsideOverlay,
+			] ) }
 			initialHref={ window.location.href }
 			initialOverlayOptions={ window[ SERVER_OBJECT_NAME ].overlayOptions }
 			initialSort={ determineDefaultSort( window[ SERVER_OBJECT_NAME ].sort, getSearchQuery() ) }

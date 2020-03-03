@@ -28,9 +28,6 @@ function getDateOptions( interval ) {
 // TODO: Fix this in the API
 // TODO: Remove once format is fixed in the API
 function fixDateFormat( dateString ) {
-	if ( dateString[ dateString.length - 1 ] !== 'Z' ) {
-		dateString += 'Z';
-	}
 	return dateString.split( ' ' ).join( 'T' );
 }
 
@@ -77,7 +74,7 @@ export default class SearchFilter extends Component {
 					{ new Date( fixDateFormat( key ) ).toLocaleString(
 						locale,
 						getDateOptions( this.props.configuration.interval )
-					) }{' '}
+					) }{ ' ' }
 					({ count })
 				</label>
 			</div>

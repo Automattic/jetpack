@@ -13,6 +13,7 @@ import SearchBox from './search-box';
 import SearchFilters from './search-filters';
 
 import { getFilterQuery, getSearchQuery, setSearchQuery, setSortQuery } from '../lib/query-string';
+import PreselectedSearchFilters from './preselected-search-filters';
 
 const noop = event => event.preventDefault();
 
@@ -58,6 +59,14 @@ class SearchForm extends Component {
 				{ this.state.showFilters && (
 					<div className="jetpack-instant-search__search-form-filters">
 						<div className="jetpack-instant-search__search-form-filters-arrow" />
+						<PreselectedSearchFilters
+							loading={ this.props.isLoading }
+							locale={ this.props.locale }
+							postTypes={ this.props.postTypes }
+							results={ this.props.response }
+							widgets={ this.props.widgets }
+							widgetsOutsideOverlay={ this.props.widgetsOutsideOverlay }
+						/>
 						{ this.props.widgets.map( widget => (
 							<SearchFilters
 								filters={ getFilterQuery() }

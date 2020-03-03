@@ -67,6 +67,7 @@ class SearchResults extends Component {
 					postTypes={ this.props.postTypes }
 					response={ this.props.response }
 					widgets={ this.props.widgets }
+					widgetsOutsideOverlay={ this.props.widgetsOutsideOverlay }
 				/>
 
 				<div
@@ -137,6 +138,7 @@ class SearchResults extends Component {
 				response={ this.props.response }
 				showPoweredBy={ this.props.showPoweredBy }
 				widgets={ this.props.widgets }
+				widgetsOutsideOverlay={ this.props.widgetsOutsideOverlay }
 			/>
 		);
 	}

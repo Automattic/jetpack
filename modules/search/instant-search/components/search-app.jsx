@@ -272,6 +272,7 @@ class SearchApp extends Component {
 					resultFormat={ getResultFormatQuery() }
 					showPoweredBy={ this.state.overlayOptions.showPoweredBy }
 					widgets={ this.props.options.widgets }
+					widgetsOutsideOverlay={ this.props.options.widgetsOutsideOverlay }
 				/>
 			</Overlay>,
 			document.body
