@@ -680,4 +680,24 @@ class Jetpack_Search_Helpers {
 	public static function get_max_offset() {
 		return Jetpack_Search_Options::site_has_vip_index() ? 9000 : 1000;
 	}
+
+	/**
+	 * Returns the maximum offset for a search query.
+	 *
+	 * @since 8.4.0
+	 * @param string $locale    A potentially valid locale string.
+	 *
+	 * @return bool
+	 */
+	public static function is_valid_locale( $locale ) {
+		if ( ! class_exists( 'GP_Locales' ) ) {
+			if ( defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) && file_exists( JETPACK__GLOTPRESS_LOCALES_PATH ) ) {
+				require JETPACK__GLOTPRESS_LOCALES_PATH;
+			} else {
+				// Assume locale to be valid if we can't check with GlotPress.
+				return true;
+			}
+		}
+		return false !== GP_Locales::by_field( 'wp_locale', $locale );
+	}
 }
