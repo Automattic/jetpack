@@ -56,9 +56,9 @@ export function mapFilterToFilterKey( filter ) {
 	if ( filter.type === 'date_histogram' ) {
 		return `${ filter.interval }_${ filter.field }`;
 	} else if ( filter.type === 'taxonomy' ) {
-		return `${ filter.taxonomy }`;
+		return 'taxonomy';
 	} else if ( filter.type === 'post_type' ) {
-		return `${ filter.post_types }`;
+		return 'post_types';
 	}
 	return null;
 }
