@@ -34,11 +34,11 @@ class WP_Test_Comment_Likes extends WP_UnitTestCase {
 	 * @since 8.4.0
 	 */
 	public function test_load_styles_register_scripts_likes_visible() {
-		add_filter( 'wpl_is_likes_visible', '__return_false' );
+		add_filter( 'wpl_is_likes_visible', '__return_true' );
 		$instance = Jetpack_Comment_Likes::init();
 		$instance->load_styles_register_scripts();
 
-		$this->assertFalse( wp_style_is( 'jetpack_likes' ) );
-		$this->assertFalse( wp_script_is( 'postmessage' ) );
+		$this->assertTrue( wp_style_is( 'jetpack_likes' ) );
+		$this->assertTrue( wp_script_is( 'postmessage' ) );
 	}
 }
