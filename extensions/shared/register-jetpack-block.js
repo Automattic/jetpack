@@ -68,7 +68,7 @@ export default function registerJetpackBlock( name, settings, childBlocks = [] )
 	}
 
 	if ( blockTags.length ) {
-		blockTitle = blockTitle + ` (${ blockTags.join( ', ' ) })`;
+		blockTitle = `${ blockTitle } (${ blockTags.join( ', ' ) })`;
 	}
 
 	const result = registerBlockType( `jetpack/${ name }`, {
