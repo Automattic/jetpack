@@ -262,7 +262,7 @@ class Jetpack_Memberships {
 			esc_attr( $button_styles ),
 			wp_kses( $data['button_label'], self::$tags_allowed_in_the_button ),
 			esc_attr( get_the_ID() ), // Needed for analytics purposes.
-			isset( $attrs['submitButtonAttributes'] ) ? wp_kses( $attrs['submitButtonAttributes'] ) : ''
+			isset( $attrs['submitButtonAttributes'] ) ? wp_kses( $attrs['submitButtonAttributes'] ) : '' // Needed for arbitrary target=_blank on WPCOM VIP.
 		);
 	}
 
