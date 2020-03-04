@@ -14,13 +14,15 @@ jobs:
 
       - name: get changed files
         id: getfile
-        run: git diff-tree --no-commit-id --name-only -r ${{ github.sha }}
-
-      - name: echo steps
-        run: echo ${{ toJson(jobs.get_changed_files.steps) }}
+        run: |
+          echo "::set-output name=files::$(git diff-tree --no-commit-id --name-only -r ${{ github.sha }} | xargs)"
 
       - name: echo output
-        run: ${{ jobs.get_changed_files.steps.getfile }}
+        run: |
+          echo ${{ toJson(steps.getfile.outputs) }}
+
+      - name: echo output
+        run: ${{ steps.getfile.outputs }}
 
       - name: echo output2
         run: $CHANGED_FILES
