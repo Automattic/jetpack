@@ -11,7 +11,7 @@ namespace Automattic\Jetpack\Connection;
  * The Jetpack Connection Error Handler class is used to handle the errors
  * generated during the connection process.
  */
-class Connection_Error_Handler {
+class Error_Handler {
 
 	/**
 	 * Returns the detailed error message for an error code.
