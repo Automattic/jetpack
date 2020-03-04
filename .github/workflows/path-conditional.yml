@@ -15,14 +15,14 @@ jobs:
       - name: get changed files
         id: getfile
         env:
-          CHANGED_FILES: $( git diff-tree --no-commit-id --name-only -r ${{ github.sha }} )
-        run: git diff-tree --no-commit-id --name-only -r ${{ github.sha }}
+          CHANGED_FILES: $( echo git diff-tree --no-commit-id --name-only -r ${{ github.sha }} )
+        run: echo git diff-tree --no-commit-id --name-only -r ${{ github.sha }}
 
       - name: echo steps
         run: echo ${{ steps }}
 
       - name: echo output
-        run: echo ${{ steps.getfile }}
+        run: ${{ steps.getfile }}
 
       - name: echo output2
-        run: echo $CHANGED_FILES
+        run: $CHANGED_FILES
