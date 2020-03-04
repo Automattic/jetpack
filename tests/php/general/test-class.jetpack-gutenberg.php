@@ -242,6 +242,18 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests whether a schemeless URL can be used in a block.
+	 */
+	public function test_validate_block_embed_scheme() {
+		$url           = 'wordpress.com';
+		$allowed_hosts = array( 'wordpress.com' );
+
+		$validated_url = Jetpack_Gutenberg::validate_block_embed_url( $url, $allowed_hosts );
+
+		$this->assertFalse( $validated_url );
+	}
+
+	/**
 	 * Tests whether a URL belonging to a whitelisted list can be used in a block.
 	 */
 	public function test_validate_block_embed_url() {
