@@ -1,0 +1,25 @@
+name: Conditional if commit touches file
+on:
+  push:
+    branches:
+      - try/actions-conditionals
+
+jobs:
+  build_milestone_artifact:
+    runs-on: ubuntu-latest
+    name: Build production version of master to master-built branch!
+    steps:
+      - name: Checkout Jetpack
+        uses: actions/checkout@master
+
+      - name: Echo github.ref
+        run: echo ${{ github.ref }}
+
+      - name: List files touched in this commit
+        run: echo "$GITHUB_SHA"
+
+      - name: See value
+        if: startsWith(github.ref, 'refs/heads/try/')
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
