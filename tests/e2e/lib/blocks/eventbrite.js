@@ -41,6 +41,7 @@ export default class EventbriteBlock {
 	/**
 	 * Checks whether block is rendered on frontend
 	 * @param {Page} page Puppeteer page instance
+	 * @param {Object} args An object of any additional required instance values
 	 */
 	static async isRendered( page, args ) {
 		const containerSelector = `.entry-content iframe[data-automation='checkout-widget-iframe-${ args.eventId }']`;
