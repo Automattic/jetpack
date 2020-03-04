@@ -7,10 +7,11 @@ import {
 	Placeholder,
 	SandBox,
 	Button,
-	Notice,
 	ExternalLink,
 	PanelBody,
+	withNotices,
 } from '@wordpress/components';
+import { compose } from '@wordpress/compose';
 import { BlockIcon, InspectorControls } from '@wordpress/block-editor';
 import { withViewportMatch } from '@wordpress/viewport';
 import { getBlockDefaultClassName } from '@wordpress/blocks';
@@ -36,7 +37,6 @@ class GoogleCalendarEdit extends Component {
 			editedEmbed: this.props.attributes.url || '',
 			editingUrl: false,
 			interactive: false,
-			notice: null,
 		};
 	}
 
@@ -64,6 +64,7 @@ class GoogleCalendarEdit extends Component {
 		if ( event ) {
 			event.preventDefault();
 		}
+		const { noticeOperations, setAttributes } = this.props;
 		const { editedEmbed } = this.state;
 		const embedString = editedEmbed.trim();
 		let attributes;
@@ -77,21 +78,19 @@ class GoogleCalendarEdit extends Component {
 		}
 
 		if ( ! URL_REGEX.test( attributes.url ) ) {
-			this.setErrorNotice();
+			noticeOperations.removeAllNotices();
+			noticeOperations.createErrorNotice(
+				__(
+					"Your calendar couldn't be embedded. Please double check your URL or Embed Code. Please note, you need to use the 'Public URL' or 'Embed Code', the 'Shareable Link' will not work.",
+					'jetpack'
+				)
+			);
 			return;
 		}
 
-		this.props.setAttributes( attributes );
-		this.setState( { editingUrl: false, notice: null } );
-	};
-
-	setErrorNotice = () => {
-		this.setState( {
-			notice: __(
-				"Your calendar couldn't be embedded. Please double check your URL or Embed Code. Please note, you need to use the 'Public URL' or 'Embed Code', the 'Shareable Link' will not work.",
-				'jetpack'
-			),
-		} );
+		setAttributes( attributes );
+		this.setState( { editingUrl: false } );
+		noticeOperations.removeAllNotices();
 	};
 
 	getEditForm = ( className, editedEmbed ) => {
@@ -117,7 +116,7 @@ class GoogleCalendarEdit extends Component {
 	 * @returns {object} The UI displayed when user edits this block.
 	 */
 	render() {
-		const { attributes, className, name } = this.props;
+		const { attributes, className, name, noticeUI } = this.props;
 		const defaultClassName = getBlockDefaultClassName( name );
 		const { url } = attributes;
 		const { editedEmbed, interactive, editingUrl } = this.state;
@@ -166,13 +165,7 @@ class GoogleCalendarEdit extends Component {
 								</li>
 							</ol>
 						}
-						notices={
-							this.state.notice && (
-								<Notice status="error" isDismissible={ false }>
-									{ this.state.notice }
-								</Notice>
-							)
-						}
+						notices={ noticeUI }
 					>
 						{ this.getEditForm( `${ defaultClassName }-embed-form-editor`, editedEmbed ) }
 						<div className={ `${ defaultClassName }-placeholder-links` }>
@@ -205,4 +198,7 @@ class GoogleCalendarEdit extends Component {
 	}
 }
 
-export default withViewportMatch( { isMobile: '< small' } )( GoogleCalendarEdit );
+export default compose(
+	withNotices,
+	withViewportMatch( { isMobile: '< small' } )
+)( GoogleCalendarEdit );
