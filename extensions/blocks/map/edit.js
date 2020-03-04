@@ -222,6 +222,7 @@ class MapEdit extends Component {
 			onResizeStart,
 		} = this.props;
 		const {
+			mapStyle,
 			mapDetails,
 			points,
 			zoom,
@@ -232,7 +233,6 @@ class MapEdit extends Component {
 			scrollToZoom,
 			mapHeight,
 			showFullscreenButton,
-			mapStyle,
 		} = attributes;
 		const {
 			addPointVisibility,
@@ -242,7 +242,6 @@ class MapEdit extends Component {
 			apiState,
 			apiRequestOutstanding,
 		} = this.state;
-
 		const inspectorControls = (
 			<Fragment>
 				<BlockControls>
