@@ -39,13 +39,14 @@ describe( 'Free blocks', () => {
 
 	describe( 'Eventbrite block', () => {
 		it( 'Can publish a post with a Eventbrite block', async () => {
+			const eventId = '96820156695';
 			const blockEditor = await BlockEditorPage.visit( page );
 			const blockInfo = await blockEditor.insertBlock(
 				EventbriteBlock.name(),
 				EventbriteBlock.title()
 			);
 
-			const eventbriteBlock = new EventbriteBlock( blockInfo, page );
+			const eventbriteBlock = new EventbriteBlock( blockInfo, page, eventId );
 			await eventbriteBlock.addEmbed();
 
 			await blockEditor.focus();
@@ -53,7 +54,7 @@ describe( 'Free blocks', () => {
 			await blockEditor.viewPost();
 
 			const frontend = await PostFrontendPage.init( page );
-			await frontend.isRenderedBlockPresent( EventbriteBlock );
+			await frontend.isRenderedBlockPresent( EventbriteBlock, { eventId } );
 		} );
 	} );
 } );
