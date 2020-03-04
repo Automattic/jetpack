@@ -35,6 +35,41 @@ function requiresPaidPlan( unavailableReason, details ) {
 }
 
 /**
+ * Builds an array of tags associated with this block, such as ["paid", "beta"].
+ *
+ * @param {string} name The block's name.
+ * @param {string|boolean} requiredPlan  Does this block require a paid plan?
+ * @returns {array} Array of tags associated with this block
+ */
+function buildBlockTags( name, requiredPlan ) {
+	const blockTags = [];
+
+	if ( requiredPlan ) {
+		blockTags.push( availableBlockTags.paid );
+	}
+	if ( betaExtensions.includes( name ) ) {
+		blockTags.push( availableBlockTags.beta );
+	}
+
+	return blockTags;
+}
+
+/**
+ * Takes a block title string and optionally appends comma separated block tags in parentheses.
+ *
+ * @param {string} blockTitle The block's title
+ * @param {array} blockTags The tags you want appended in parentheses (tags, show, here)
+ * @returns {string} Block title
+ */
+function buildBlockTitle( blockTitle, blockTags = [] ) {
+	if ( blockTags.length ) {
+		blockTitle = `${ blockTitle } (${ blockTags.join( ', ' ) })`;
+	}
+
+	return blockTitle;
+}
+
+/**
  * Registers a gutenberg block if the availability requirements are met.
  *
  * @param {string} name The block's name.
@@ -57,23 +92,9 @@ export default function registerJetpackBlock( name, settings, childBlocks = [] )
 		return false;
 	}
 
-	let blockTitle = settings.title;
-	const blockTags = [];
-
-	if ( requiredPlan ) {
-		blockTags.push( availableBlockTags.paid );
-	}
-	if ( betaExtensions.includes( name ) ) {
-		blockTags.push( availableBlockTags.beta );
-	}
-
-	if ( blockTags.length ) {
-		blockTitle = `${ blockTitle } (${ blockTags.join( ', ' ) })`;
-	}
-
 	const result = registerBlockType( `jetpack/${ name }`, {
 		...settings,
-		title: blockTitle,
+		title: buildBlockTitle( settings.title, buildBlockTags( name, requiredPlan ) ),
 		edit: requiredPlan ? wrapPaidBlock( { requiredPlan } )( settings.edit ) : settings.edit,
 		example: requiredPlan ? undefined : settings.example,
 	} );
