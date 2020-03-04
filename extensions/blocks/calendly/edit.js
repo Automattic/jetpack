@@ -91,7 +91,7 @@ function CalendlyEdit( props ) {
 			},
 			() => setResolveUrl( false )
 		);
-	}, [ url ] );
+	}, [] );
 
 	const parseEmbedCode = event => {
 		if ( ! event ) {
