@@ -17,40 +17,19 @@ import SearchSort from './search-sort';
 import { getSortQuery } from '../lib/query-string';
 
 let initiallyFocusedElement = null;
-
-const cb = ( overlayElement, inputElement ) => event => {
-	if (
-		event &&
-		event.target &&
-		! event.target.classList.contains( 'jetpack-instant-search__overlay' )
-	) {
-		return;
-	}
-
-	if ( ! overlayElement.classList.contains( 'is-hidden' ) ) {
-		initiallyFocusedElement = document.activeElement;
-		inputElement.focus();
-		return;
-	}
-	initiallyFocusedElement && initiallyFocusedElement.focus();
+const stealFocusWithInput = inputElement => () => {
+	initiallyFocusedElement = document.activeElement;
+	inputElement.focus();
 };
+const restoreFocus = () => initiallyFocusedElement && initiallyFocusedElement.focus();
 
 const SearchBox = props => {
 	const [ inputId ] = useState( () => uniqueId( 'jetpack-instant-search__box-input-' ) );
 	const inputRef = useRef( null );
 
 	useEffect( () => {
-		const overlayElement = document.querySelector( '.jetpack-instant-search__overlay' );
-		overlayElement.addEventListener(
-			'transitionend',
-			cb( overlayElement, inputRef.current ),
-			true
-		);
-		cb( overlayElement, inputRef.current )(); // invoke focus if page loads with overlay already present
-		return () => {
-			overlayElement.removeEventListener( 'transitionend', cb );
-		};
-	}, [] );
+		props.isVisible ? stealFocusWithInput( inputRef.current )() : restoreFocus();
+	}, [ props.isVisible ] );
 
 	return (
 		<Fragment>
