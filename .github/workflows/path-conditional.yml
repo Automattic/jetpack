@@ -11,6 +11,8 @@ jobs:
     steps:
       - name: Checkout Jetpack
         uses: actions/checkout@master
+        with:
+          fetch-depth: 0
 
       - name: echo paths
         run: git diff-tree --no-commit-id --name-only -r ${{ github.sha }}
@@ -21,6 +23,5 @@ jobs:
           echo "::set-output name=files::$(git diff-tree --no-commit-id --name-only -r ${{ github.sha }})"
 
       - name: echo output
-        env:
-          STEPS_CONTEXT: ${{ toJson(steps) }}
-        run: echo "$STEPS_CONTEXT"
+        run: |
+          echo ${{ steps.getfile.outputs.files }}
