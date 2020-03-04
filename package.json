@@ -161,7 +161,7 @@
 		"tinycolor2": "1.4.1",
 		"uglify-save-license": "0.4.1",
 		"unfetch": "4.1.0",
-		"url-polyfill": "1.1.7",
+		"url-polyfill": "1.1.8",
 		"webpack": "4.41.5",
 		"webpack-cli": "3.3.10"
 	},
