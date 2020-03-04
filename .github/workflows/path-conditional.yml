@@ -12,6 +12,9 @@ jobs:
       - name: Checkout Jetpack
         uses: actions/checkout@master
 
+      - name: echo paths
+        run: git diff-tree --no-commit-id --name-only -r ${{ github.sha }}
+
       - name: get changed files
         id: getfile
         run: |
