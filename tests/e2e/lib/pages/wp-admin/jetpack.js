@@ -43,7 +43,7 @@ export default class JetpackPage extends Page {
 	async isPlan( plan ) {
 		switch ( plan ) {
 			case 'free':
-				return await this.isPremium();
+				return await this.isFree();
 			case 'premium':
 				return await this.isPremium();
 			case 'pro':
