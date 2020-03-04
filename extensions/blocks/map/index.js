@@ -24,6 +24,7 @@ export const settings = {
 	attributes: mapSettings.attributes,
 	supports: mapSettings.supports,
 	styles: mapSettings.styles,
+	allowDefaultStyle: false,
 	getEditWrapperProps( attributes ) {
 		const { align } = attributes;
 		if ( -1 !== mapSettings.validAlignments.indexOf( align ) ) {
