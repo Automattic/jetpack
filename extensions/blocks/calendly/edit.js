@@ -159,7 +159,7 @@ export default function CalendlyEdit( props ) {
 			'backgroundButtonColor',
 			'textButtonColor',
 			'customBackgroundButtonColor',
-			'customBackgroundButtonColor',
+			'customTextButtonColor',
 		] ),
 		setAttributes,
 	};
