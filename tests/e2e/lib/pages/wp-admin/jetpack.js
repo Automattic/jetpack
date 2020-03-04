@@ -21,8 +21,8 @@ export default class JetpackPage extends Page {
 	}
 
 	async isFree() {
-		const premiumPlanImage = ".my-plan-card__icon img[src*='free']";
-		return await isEventuallyVisible( this.page, premiumPlanImage, 20000 );
+		const freePlanImage = ".my-plan-card__icon img[src*='free']";
+		return await isEventuallyVisible( this.page, freePlanImage, 20000 );
 	}
 
 	async isPremium() {
