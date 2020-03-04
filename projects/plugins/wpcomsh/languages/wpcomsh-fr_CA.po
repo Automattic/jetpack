@@ -284,7 +284,7 @@ msgstr "Enregistrer les Réglages"
 
 #: customizer-fixes/customizer-fixes.php:12
 msgid "Are you sure you want to discard your unsaved changes?"
-msgstr ""
+msgstr " Êtes-vous sûr de vouloir supprimer vos modifications non enregistrées?"
 
 #: customizer-fixes/customizer-fixes.php:11
 msgid "Saved"
@@ -316,7 +316,7 @@ msgstr ""
 
 #: wpcomsh.php:335
 msgid "%s is automatically managed for you."
-msgstr "%s est automatiquement géré pour vous."
+msgstr "%s est géré automatiquement pour vous."
 
 #: widgets/top-rated.php:141
 msgid "How many items would you like to display?"
@@ -671,11 +671,11 @@ msgstr "Ouvrir une session"
 
 #: private-site/access-denied-private-site-template.php:45
 msgid "Switch user"
-msgstr ""
+msgstr "Changer d'utilisateur"
 
 #: private-site/access-denied-private-site-template.php:43
 msgid "You need to be logged in as a user who has permission to view this site."
-msgstr ""
+msgstr "Vous devez vous connecter avec des identifiants utilisateur permettant de voir ce site."
 
 #: privacy/participating-plugins.php:144
 msgid ""
@@ -684,6 +684,10 @@ msgid ""
 "information for non-participating plugins. It is your responsibility to\n"
 "obtain privacy policy information for non-participating plugins separately."
 msgstr ""
+"Note : cet outil n’affiche que les informations de politique de confidentialité fournies par\n"
+"WordPress et les extensions participantes. Il n’inclut pas les informations de politique\n"
+"de confidentialité des extensions non participantes. Il est de votre responsabilité d’obtenir\n"
+"des informations de politique de confidentialité pour les extensions non participantes séparément."
 
 #: privacy/participating-plugins.php:94
 msgid ""
@@ -693,6 +697,11 @@ msgid ""
 "stored by non-participating plugins separately. The personal data exported\n"
 "includes only the following items at this time:"
 msgstr ""
+"Note : cet outil exporte uniquement les données personnelles stockées par WordPress et\n"
+"les extensions participantes. Il n’exporte pas les données personnelles stockées par\n"
+"les extensions non participantes. Il est de votre responsabilité d’exporter les données personnelles\n"
+"stockées par des extensions non participantes séparément. Les données personnelles exportées\n"
+"n’incluent que les éléments suivants à ce stade :"
 
 #: privacy/participating-plugins.php:47
 msgid ""
@@ -703,6 +712,12 @@ msgid ""
 "plugins. The personal data erased includes only the following items at this\n"
 "time:"
 msgstr ""
+"Note : cet outil efface uniquement les données personnelles stockées par WordPress et\n"
+"les extensions participantes. Il ne supprime pas les utilisateurs enregistrés et il n’efface pas\n"
+"les données personnelles stockées par des extensions non participantes. Il est de votre responsabilité\n"
+"de supprimer les utilisateurs enregistrés ainsi que les données personnelles stockées par des extensions\n"
+"non participantes. Les données personnelles effacées n’incluent que les éléments suivants à ce\n"
+"stade :"
 
 #: logo-tool/logo-tool.php:70
 msgid "Create logo"
@@ -714,8 +729,8 @@ msgstr "Ajoutez un logo à afficher sur votre site. Vous n'avez pas de logo ? Cl
 
 #. Description of the plugin
 msgid "WordPress.com provided functionality & tools"
-msgstr ""
+msgstr "Fonctionnalité et outils fournis par WordPress.com"
 
 #. Plugin Name of the plugin
 msgid "WP.com Site Helper"
-msgstr ""
+msgstr "Assistance du site WP.com"

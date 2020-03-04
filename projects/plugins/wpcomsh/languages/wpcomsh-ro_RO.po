@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-02-26 14:05:44+0000\n"
+"PO-Revision-Date: 2020-03-03 12:48:11+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -205,7 +205,7 @@ msgstr "Afișează-ți profilul about.me cu miniatură"
 
 #: safeguard/utils.php:58
 msgid "Unable to fetch the requested data."
-msgstr ""
+msgstr "Nu am putut aduce datele cerute."
 
 #: private-site/access-denied-coming-soon-template.php:142
 msgid "Log in here"
@@ -280,7 +280,7 @@ msgstr "Propulsat cu mândrie de WordPress"
 
 #: customizer-fixes/customizer-fixes.php:13
 msgid "Save Settings"
-msgstr "Salvează setări"
+msgstr "Salvează setările"
 
 #: customizer-fixes/customizer-fixes.php:12
 msgid "Are you sure you want to discard your unsaved changes?"
@@ -292,11 +292,11 @@ msgstr "Salvat"
 
 #: customizer-fixes/customizer-fixes.php:10
 msgid "Save Changes"
-msgstr "Salvează modificări"
+msgstr "Salvează modificările"
 
 #: customizer-fixes/customizer-fixes.php:9
 msgid "Save"
-msgstr "Salvare"
+msgstr "Salvează"
 
 #: customizer-fixes/customizer-fixes.php:8
 msgid "Activate &amp; Save"
@@ -304,7 +304,7 @@ msgstr "Activează și salvează"
 
 #: private-site/private-site.php:123
 msgid "Manage your site visibility settings"
-msgstr ""
+msgstr "Administrează setările pentru vizibilitate site."
 
 #: private-site/access-denied-coming-soon-template.php:140
 msgid "Something new is coming."
@@ -312,11 +312,11 @@ msgstr "Va apărea ceva nou."
 
 #: wpcomsh.php:338
 msgid "This plugin was installed by WordPress.com and provides features offered in your plan subscription."
-msgstr ""
+msgstr "Acest modul a fost instalat de WordPress.com și furnizează funcționalitățile oferite în abonamentul la planul tău."
 
 #: wpcomsh.php:335
 msgid "%s is automatically managed for you."
-msgstr ""
+msgstr "%s este administrat automat pentru tine."
 
 #: widgets/top-rated.php:141
 msgid "How many items would you like to display?"
@@ -356,7 +356,7 @@ msgstr "URL-uri de arătat:"
 
 #: widgets/top-clicks.php:47
 msgid "Display length:"
-msgstr "Afișează lungime:"
+msgstr "Afișează lungimea:"
 
 #: widgets/top-clicks.php:14
 msgid "List the most-clicked links on your blog."
@@ -421,7 +421,7 @@ msgstr "Telefon"
 
 #: widgets/reservations.php:23
 msgid "Email"
-msgstr "e-mail"
+msgstr "Email"
 
 #: widgets/aboutme.php:111 widgets/reservations.php:22
 msgid "Name"
@@ -457,7 +457,7 @@ msgstr "(cel mult 15)"
 
 #: widgets/recent-comments-widget.php:349
 msgid "Number of comments to show:"
-msgstr "Numărul de comentarii de arătat:"
+msgstr "Număr de comentarii de arătat:"
 
 #: widgets/recent-comments-widget.php:284
 msgid "There are no public comments available to display."
@@ -537,11 +537,11 @@ msgstr "Un player muzical cu mai multe melodii"
 
 #: widgets/i-voted.php:33
 msgid "I Voted"
-msgstr ""
+msgstr "Am votat"
 
 #: widgets/i-voted.php:31
 msgid "Show your readers that you voted with an \"I Voted\" sticker."
-msgstr ""
+msgstr "Arată-le cititorilor că ai votat cu un autocolant „Am votat”."
 
 #: widgets/gravatar.php:144
 msgid "You can modify your Gravatar from your <a href=\"/wp-admin/profile.php\">profile page</a>."
@@ -569,7 +569,7 @@ msgstr "Adresă email personalizată:"
 
 #: widgets/gravatar.php:119
 msgid "Select a user or pick \"custom\" and enter a custom email address."
-msgstr "Selectează un utilizator sau alege \"personalizat\" și introdu o adresă de mail personalizată."
+msgstr "Selectează un utilizator sau alege „personalizat” și introdu o adresă de mail personalizată."
 
 #: widgets/gravatar.php:115
 msgid "Center"
@@ -658,7 +658,7 @@ msgstr "Grilă autor"
 
 #: private-site/private-site.php:369
 msgid "Private Site"
-msgstr ""
+msgstr "Site privat"
 
 #: private-site/private-site.php:227 private-site/private-site.php:324
 #: private-site/private-site.php:468
@@ -671,11 +671,11 @@ msgstr "Autentificare"
 
 #: private-site/access-denied-private-site-template.php:45
 msgid "Switch user"
-msgstr ""
+msgstr "Comută utilizatorul"
 
 #: private-site/access-denied-private-site-template.php:43
 msgid "You need to be logged in as a user who has permission to view this site."
-msgstr ""
+msgstr "Trebuie să fii  autentificat ca un utilizator care are permisiunea de a vizualiza acest site."
 
 #: privacy/participating-plugins.php:144
 msgid ""
@@ -684,6 +684,11 @@ msgid ""
 "information for non-participating plugins. It is your responsibility to\n"
 "obtain privacy policy information for non-participating plugins separately."
 msgstr ""
+"Te rog reține - acest instrument afișează numai informațiile despre politica de\n"
+"confidențialitate\n"
+"furnizate de WordPress și modulele participante. El nu include informațiile despre politica de\n"
+"confidențialitate pentru modulele care nu participă. Este responsabilitatea ta să obții separat\n"
+"informațiile despre politica de confidențialitate pentru modulele care nu participă (ne-participante)."
 
 #: privacy/participating-plugins.php:94
 msgid ""
@@ -693,6 +698,11 @@ msgid ""
 "stored by non-participating plugins separately. The personal data exported\n"
 "includes only the following items at this time:"
 msgstr ""
+"Te rog reține - acest instrument exportă numai datele cu caracter personal stocate de WordPress și\n"
+"modulele participante. El nu exportă datele cu caracter personal stocate de modulele care nu participă.\n"
+"Este responsabilitatea ta să exporți separat datele cu caracter personal stocate de modulele care\n"
+"nu participă (ne-participante). Datele cu caracter personal exportate includ în acest moment numai\n"
+"următoarele elemente:"
 
 #: privacy/participating-plugins.php:47
 msgid ""
@@ -703,6 +713,11 @@ msgid ""
 "plugins. The personal data erased includes only the following items at this\n"
 "time:"
 msgstr ""
+"Te rog reține - acest instrument șterge numai datele cu caracter personal stocate de WordPress și\n"
+"modulele participante. El nu șterge utilizatorii înregistrați și nici datele cu caracter personal\n"
+"stocate de modulele care nu participă. Este responsabilitatea ta să ștergi separat utilizatorii\n"
+"înregistrați și datele cu caracter personal stocate de modulele care nu participă (ne-participante).\n"
+"Datele cu caracter personal șterse includ în acest moment numai următoarele elemente:"
 
 #: logo-tool/logo-tool.php:70
 msgid "Create logo"
@@ -714,8 +729,8 @@ msgstr "Adaugă un logo pentru a-l afișa pe site-ul tău. Nu ai un logo? Cumpă
 
 #. Description of the plugin
 msgid "WordPress.com provided functionality & tools"
-msgstr ""
+msgstr "WordPress.com a oferit funcționalități și unelte"
 
 #. Plugin Name of the plugin
 msgid "WP.com Site Helper"
-msgstr ""
+msgstr "Site Helper de WP.com"

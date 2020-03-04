@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-02-26 14:05:41+0000\n"
+"PO-Revision-Date: 2020-02-28 00:54:04+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -312,11 +312,11 @@ msgstr "شيء جديد قادم."
 
 #: wpcomsh.php:338
 msgid "This plugin was installed by WordPress.com and provides features offered in your plan subscription."
-msgstr ""
+msgstr "تم تثبيت هذه الإضافة بواسطة ووردبريس.كوم، كما أنَّها توفِّر ميزات معروضة في اشتراك خطتك."
 
 #: wpcomsh.php:335
 msgid "%s is automatically managed for you."
-msgstr ""
+msgstr "تتم إدارة %s تلقائيًا من أجلك."
 
 #: widgets/top-rated.php:141
 msgid "How many items would you like to display?"
@@ -537,11 +537,11 @@ msgstr "مشغل موسيقى متعدد الأغنيات"
 
 #: widgets/i-voted.php:33
 msgid "I Voted"
-msgstr ""
+msgstr "أصَوِّت"
 
 #: widgets/i-voted.php:31
 msgid "Show your readers that you voted with an \"I Voted\" sticker."
-msgstr ""
+msgstr "وضِّح لقرائك أنَّك صَوَّت باستخدام ملصق \"صَوَّت\"."
 
 #: widgets/gravatar.php:144
 msgid "You can modify your Gravatar from your <a href=\"/wp-admin/profile.php\">profile page</a>."
@@ -658,12 +658,12 @@ msgstr "شبكة المؤلف"
 
 #: private-site/private-site.php:369
 msgid "Private Site"
-msgstr ""
+msgstr "موقع خاص"
 
 #: private-site/private-site.php:227 private-site/private-site.php:324
 #: private-site/private-site.php:468
 msgid "This site is private."
-msgstr ""
+msgstr "هذا الموقع خاص."
 
 #: private-site/access-denied-private-site-template.php:45
 msgid "Log in"
@@ -671,11 +671,11 @@ msgstr "تسجيل الدخول"
 
 #: private-site/access-denied-private-site-template.php:45
 msgid "Switch user"
-msgstr ""
+msgstr "تبديل المستخدم"
 
 #: private-site/access-denied-private-site-template.php:43
 msgid "You need to be logged in as a user who has permission to view this site."
-msgstr ""
+msgstr "يجب عليك تسجيل الدخول كمستخدم لديه صلاحية عرض هذا الموقع."
 
 #: privacy/participating-plugins.php:144
 msgid ""
@@ -684,6 +684,10 @@ msgid ""
 "information for non-participating plugins. It is your responsibility to\n"
 "obtain privacy policy information for non-participating plugins separately."
 msgstr ""
+"يرجى ملاحظة أنَّ هذه الأداة تُظهِر معلومات سياسة الخصوصية فقط المتوافرة بواسطة\n"
+"ووردبريس والإضافات المشارِكة. لا يُضمِّن معلومات سياسة الخصوصية\n"
+"للإضافات غير المشارِكة. تقع على عاتقك مسؤولية\n"
+"الحصول على معلومات سياسة الخصوصية للإضافات غير المشارِكة بشكل منفصل."
 
 #: privacy/participating-plugins.php:94
 msgid ""
@@ -693,6 +697,11 @@ msgid ""
 "stored by non-participating plugins separately. The personal data exported\n"
 "includes only the following items at this time:"
 msgstr ""
+"يرجى ملاحظة أنَّ هذه الأداة تقوم بتصدير البيانات الشخصية فقط المخزَّنة بواسطة ووردبريس\n"
+"والإضافات المشارِكة. لا يقم بتصدير البيانات الشخصية المخزَّنة بواسطة\n"
+"الإضافات غير المشارِكة. تقع على عاتقك مسؤولية تصدير البيانات الشخصية\n"
+"المخزَّنة بواسطة الإضافات غير المشارِكة بشكل منفصل. تتضمن البيانات الشخصية التي تم تصديرها\n"
+"العناصر الآتية فقط في هذا الوقت:"
 
 #: privacy/participating-plugins.php:47
 msgid ""
@@ -703,6 +712,12 @@ msgid ""
 "plugins. The personal data erased includes only the following items at this\n"
 "time:"
 msgstr ""
+"يرجى ملاحظة أنَّ هذه الأداة تمحو البيانات الشخصية المخزَّنة بواسطة ووردبريس\n"
+"والإضافات المشارِكة. لا يحذف المستخدمين المسجِّلين، ولا يمحو\n"
+"البيانات الشخصية المخزَّنة بواسطة الإضافات غير المشارِكة. تقع على عاتقك مسؤولية\n"
+"حذف المستخدمين المسجَّلين فضلاً عن البيانات المخزَّنة بواسطة الإضافات\n"
+"غير المشارِكة. تتضمن البيانات الشخصية التي تم محوها العناصر الآتية فقط في هذا\n"
+"الوقت:"
 
 #: logo-tool/logo-tool.php:70
 msgid "Create logo"
@@ -710,12 +725,12 @@ msgstr "إنشاء شعار"
 
 #: logo-tool/logo-tool.php:60
 msgid "Add a logo to display on your site. No logo? Buy a pro one from Looka — Click “Create logo” to start."
-msgstr ""
+msgstr "أضف شعارًا لعرضه على موقعك. ألا يوجد شعار؟ اشترِ شعارًا احترافيًا من Looka — انقر على \"إنشاء شعار\" للبدء."
 
 #. Description of the plugin
 msgid "WordPress.com provided functionality & tools"
-msgstr ""
+msgstr "قَدَّم ووردبريس.كوم وظائف وأدوات"
 
 #. Plugin Name of the plugin
 msgid "WP.com Site Helper"
-msgstr ""
+msgstr "مساعد موقع ووردبريس.كوم"

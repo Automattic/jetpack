@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-02-26 14:05:45+0000\n"
+"PO-Revision-Date: 2020-02-29 00:54:03+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -312,11 +312,11 @@ msgstr "新しいものがやってきます。"
 
 #: wpcomsh.php:338
 msgid "This plugin was installed by WordPress.com and provides features offered in your plan subscription."
-msgstr ""
+msgstr "このプラグインは、WordPress.com によってインストールされました。ご利用のサブスクリプションプランに付帯した機能を提供します。"
 
 #: wpcomsh.php:335
 msgid "%s is automatically managed for you."
-msgstr ""
+msgstr "%s は自動的に管理されます。"
 
 #: widgets/top-rated.php:141
 msgid "How many items would you like to display?"
@@ -658,7 +658,7 @@ msgstr "投稿者グリッド"
 
 #: private-site/private-site.php:369
 msgid "Private Site"
-msgstr ""
+msgstr "非公開サイト"
 
 #: private-site/private-site.php:227 private-site/private-site.php:324
 #: private-site/private-site.php:468
@@ -671,11 +671,11 @@ msgstr "ログイン"
 
 #: private-site/access-denied-private-site-template.php:45
 msgid "Switch user"
-msgstr ""
+msgstr "ユーザーを切り替える"
 
 #: private-site/access-denied-private-site-template.php:43
 msgid "You need to be logged in as a user who has permission to view this site."
-msgstr ""
+msgstr "このサイトを表示する権限を持つユーザーとしてログインする必要があります。"
 
 #: privacy/participating-plugins.php:144
 msgid ""
@@ -684,6 +684,10 @@ msgid ""
 "information for non-participating plugins. It is your responsibility to\n"
 "obtain privacy policy information for non-participating plugins separately."
 msgstr ""
+"このツールでは、以下によるプライバシーポリシー情報のみが表示されます。\n"
+"WordPress と参加プラグイン。参加していないプラグインの\n"
+"プライバシーポリシー情報は表示されません。参加していないプラグインのプライバシーポリシー情報は、\n"
+"別途入手してください。"
 
 #: privacy/participating-plugins.php:94
 msgid ""
@@ -693,6 +697,11 @@ msgid ""
 "stored by non-participating plugins separately. The personal data exported\n"
 "includes only the following items at this time:"
 msgstr ""
+"このツールでは、WordPress と参加プラグインによって保存された\n"
+"個人データのみがエクスポートされます。参加していないプラグインによって\n"
+"保存された個人データはエクスポートされません。参加していないプラグインによって保存された\n"
+"個人データは、別途エクスポートする必要があります。現時点で個人データのエクスポートに\n"
+"含まれるアイテムは以下のとおりです。"
 
 #: privacy/participating-plugins.php:47
 msgid ""
@@ -703,6 +712,12 @@ msgid ""
 "plugins. The personal data erased includes only the following items at this\n"
 "time:"
 msgstr ""
+"このツールでは、WordPress と参加プラグインによって保存された\n"
+"個人データのみが消去されます。登録ユーザーを消去したり、参加していないプラグインによって\n"
+"保存された個人情報を消去したりすることはありません。登録ユーザーや参加していないプラグインによって\n"
+"保存された個人データは、別途消去する必要が\n"
+"あります。現時点で消去される個人データは\n"
+"以下のとおりです。"
 
 #: logo-tool/logo-tool.php:70
 msgid "Create logo"
@@ -710,12 +725,12 @@ msgstr "ロゴを作成"
 
 #: logo-tool/logo-tool.php:60
 msgid "Add a logo to display on your site. No logo? Buy a pro one from Looka — Click “Create logo” to start."
-msgstr ""
+msgstr "サイトに表示するロゴを追加します。ロゴがない場合Looka でプロが作ったロゴを購入する — 「ロゴを作成」をクリックして開始します。"
 
 #. Description of the plugin
 msgid "WordPress.com provided functionality & tools"
-msgstr ""
+msgstr "WordPress.com が提供する機能とツール"
 
 #. Plugin Name of the plugin
 msgid "WP.com Site Helper"
-msgstr ""
+msgstr "WP.com Site Helper"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WP.com Site Helper\n"
 "Report-Msgid-Bugs-To: help@wordpress.com\n"
-"POT-Creation-Date: 2020-02-26 15:47+0100\n"
+"POT-Creation-Date: 2020-03-04 13:18+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -768,6 +768,14 @@ msgstr ""
 msgid ""
 "You are currently using <strong>%1$s</strong> out of <strong>%2$s</strong> "
 "upload limit (%3$s%%)."
+msgstr ""
+
+#: wpcomsh.php:937
+msgid "Disk space used"
+msgstr ""
+
+#: wpcomsh.php:941
+msgid "Disk space quota"
 msgstr ""
 
 

@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-02-26 14:05:43+0000\n"
+"PO-Revision-Date: 2020-02-28 00:54:04+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -312,11 +312,11 @@ msgstr "새로운 서비스를 선보일 예정입니다."
 
 #: wpcomsh.php:338
 msgid "This plugin was installed by WordPress.com and provides features offered in your plan subscription."
-msgstr ""
+msgstr "이 플러그인은 워드프레스닷컴에서 설치되었으며 요금제 구독에 포함된 기능을 제공합니다."
 
 #: wpcomsh.php:335
 msgid "%s is automatically managed for you."
-msgstr ""
+msgstr "%s은(는) 자동으로 관리됩니다."
 
 #: widgets/top-rated.php:141
 msgid "How many items would you like to display?"
@@ -537,11 +537,11 @@ msgstr "여러 노래 음악 플레이어"
 
 #: widgets/i-voted.php:33
 msgid "I Voted"
-msgstr ""
+msgstr "투표 완료"
 
 #: widgets/i-voted.php:31
 msgid "Show your readers that you voted with an \"I Voted\" sticker."
-msgstr ""
+msgstr "\"투표 완료” 스티커로 투표했다는 것을 독자에게 보여 주세요."
 
 #: widgets/gravatar.php:144
 msgid "You can modify your Gravatar from your <a href=\"/wp-admin/profile.php\">profile page</a>."
@@ -658,7 +658,7 @@ msgstr "작성자 그리드"
 
 #: private-site/private-site.php:369
 msgid "Private Site"
-msgstr ""
+msgstr "비공개 사이트"
 
 #: private-site/private-site.php:227 private-site/private-site.php:324
 #: private-site/private-site.php:468
@@ -671,11 +671,11 @@ msgstr "로그인"
 
 #: private-site/access-denied-private-site-template.php:45
 msgid "Switch user"
-msgstr ""
+msgstr "사용자 전환"
 
 #: private-site/access-denied-private-site-template.php:43
 msgid "You need to be logged in as a user who has permission to view this site."
-msgstr ""
+msgstr "이 사이트를 볼 수 있는 권한을 가진 사용자로 로그인해야 합니다."
 
 #: privacy/participating-plugins.php:144
 msgid ""
@@ -684,6 +684,10 @@ msgid ""
 "information for non-participating plugins. It is your responsibility to\n"
 "obtain privacy policy information for non-participating plugins separately."
 msgstr ""
+"참고: 이 도구에는 워드프레스 및 참여하는 플러그인에서 제공하는\n"
+"개인정보 보호정책 정보만 표시됩니다. 참여하지 않는 플러그인의 개인정보 보호정책\n"
+"정보는 포함되지 않습니다. 참여하지 않는 플러그인의\n"
+"개인정보 보호정책 정보를 별도로 가져오는 것은 회원님의 책임입니다."
 
 #: privacy/participating-plugins.php:94
 msgid ""
@@ -693,6 +697,11 @@ msgid ""
 "stored by non-participating plugins separately. The personal data exported\n"
 "includes only the following items at this time:"
 msgstr ""
+"참고: 이 도구에서는 워드프레스 및 참여하는 플러그인에서 저장된 개인 데이터만\n"
+"내보냅니다. 참여하지 않는 플러그인에서 저장된 개인 데이터는\n"
+"내보내지 않습니다. 참여하지 않는 플러그인에서 저장된 개인 데이터를\n"
+"별도로 내보내는 것은 회원님의 책임입니다. 현재 내보낸 개인 데이터에는\n"
+"다음 항목만 포함됩니다."
 
 #: privacy/participating-plugins.php:47
 msgid ""
@@ -703,6 +712,12 @@ msgid ""
 "plugins. The personal data erased includes only the following items at this\n"
 "time:"
 msgstr ""
+"참고: 이 도구에서는 워드프레스 및 참여하는 플러그인에서 저장된 개인 데이터만\n"
+"지웁니다. 등록된 사용자는 삭제하지 않고, 참여하지 않는\n"
+"플러그인에서 저장된 개인 데이터도 지우지 않습니다. 등록된 사용자 및\n"
+"참여하지 않는 플러그인에서 저장된 개인 데이터를 삭제하는 것은 회원님의\n"
+"책임입니다. 현재 지워지는 개인 데이터에는 다음 항목만\n"
+"포함됩니다."
 
 #: logo-tool/logo-tool.php:70
 msgid "Create logo"
@@ -710,12 +725,12 @@ msgstr "로고 만들기"
 
 #: logo-tool/logo-tool.php:60
 msgid "Add a logo to display on your site. No logo? Buy a pro one from Looka — Click “Create logo” to start."
-msgstr ""
+msgstr "사이트에 표시할 로고를 추가하세요. 로고가 없나요? Looka에서 전문 로고를 구입할 수 있습니다. 시작하려면 “로고 만들기”를 클릭하세요."
 
 #. Description of the plugin
 msgid "WordPress.com provided functionality & tools"
-msgstr ""
+msgstr "워드프레스닷컴에서 제공하는 기능 및 도구"
 
 #. Plugin Name of the plugin
 msgid "WP.com Site Helper"
-msgstr ""
+msgstr "WP.com 사이트 도우미"

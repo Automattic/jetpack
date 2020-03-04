@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-02-26 14:05:41+0000\n"
+"PO-Revision-Date: 2020-02-28 00:54:04+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -312,11 +312,11 @@ msgstr "即將推出全新項目。"
 
 #: wpcomsh.php:338
 msgid "This plugin was installed by WordPress.com and provides features offered in your plan subscription."
-msgstr ""
+msgstr "此外掛程式已由 WordPress.com 安裝，並提供方案訂閱應有的功能。"
 
 #: wpcomsh.php:335
 msgid "%s is automatically managed for you."
-msgstr ""
+msgstr "系統將自動為你管理%s。"
 
 #: widgets/top-rated.php:141
 msgid "How many items would you like to display?"
@@ -537,11 +537,11 @@ msgstr "多首歌曲音樂播放器"
 
 #: widgets/i-voted.php:33
 msgid "I Voted"
-msgstr ""
+msgstr "我投票了"
 
 #: widgets/i-voted.php:31
 msgid "Show your readers that you voted with an \"I Voted\" sticker."
-msgstr ""
+msgstr "使用「我投票了」貼紙，向讀者表明你已投票。"
 
 #: widgets/gravatar.php:144
 msgid "You can modify your Gravatar from your <a href=\"/wp-admin/profile.php\">profile page</a>."
@@ -609,7 +609,7 @@ msgstr "你需要在 <a href=\"%s\">Gravatar 小工具</a>設定中挑選使用�
 
 #: widgets/gravatar.php:22
 msgid "Gravatar"
-msgstr ""
+msgstr "Gravatar"
 
 #: widgets/gravatar.php:20
 msgid "Insert a Gravatar image"
@@ -658,12 +658,12 @@ msgstr "作者網格"
 
 #: private-site/private-site.php:369
 msgid "Private Site"
-msgstr ""
+msgstr "私人網站"
 
 #: private-site/private-site.php:227 private-site/private-site.php:324
 #: private-site/private-site.php:468
 msgid "This site is private."
-msgstr ""
+msgstr "此網站已設為私人。"
 
 #: private-site/access-denied-private-site-template.php:45
 msgid "Log in"
@@ -671,11 +671,11 @@ msgstr "登入"
 
 #: private-site/access-denied-private-site-template.php:45
 msgid "Switch user"
-msgstr ""
+msgstr "切換使用者"
 
 #: private-site/access-denied-private-site-template.php:43
 msgid "You need to be logged in as a user who has permission to view this site."
-msgstr ""
+msgstr "你必須以具有檢視此網站之權限的使用者身分登入。"
 
 #: privacy/participating-plugins.php:144
 msgid ""
@@ -684,6 +684,10 @@ msgid ""
 "information for non-participating plugins. It is your responsibility to\n"
 "obtain privacy policy information for non-participating plugins separately."
 msgstr ""
+"請注意 - 此工具只會顯示由 WordPress 和參與外掛程式提供的隱私政策資訊\n"
+"。非參與外掛程式的隱私權政策資訊不包含在內\n"
+"。你有責任\n"
+"個別取得非參與外掛程式的隱私權政策資訊。"
 
 #: privacy/participating-plugins.php:94
 msgid ""
@@ -693,6 +697,11 @@ msgid ""
 "stored by non-participating plugins separately. The personal data exported\n"
 "includes only the following items at this time:"
 msgstr ""
+"請注意 - 此工具只會匯出 WordPress 和參與外掛程式儲存的個人資料\n"
+"，不會匯出由非參與外掛程式儲存的個人資料\n"
+"。你有責任匯出由非參與外掛程式個別儲存的個人資料\n"
+"。匯出的個人資料目前只包含以下項目\n"
+"："
 
 #: privacy/participating-plugins.php:47
 msgid ""
@@ -703,6 +712,12 @@ msgid ""
 "plugins. The personal data erased includes only the following items at this\n"
 "time:"
 msgstr ""
+"請注意 - 此工具只會清除 WordPress 和參與外掛程式的個人資料\n"
+"，不會刪除註冊使用者，也不會清除非參與外掛程式儲存的個人資料\n"
+"。你有責任\n"
+"刪除註冊使用者及非參與外掛程式儲存的個人資料\n"
+"。目前清除的個人資料只包含以下項目\n"
+"："
 
 #: logo-tool/logo-tool.php:70
 msgid "Create logo"
@@ -710,12 +725,12 @@ msgstr "建立標誌"
 
 #: logo-tool/logo-tool.php:60
 msgid "Add a logo to display on your site. No logo? Buy a pro one from Looka — Click “Create logo” to start."
-msgstr ""
+msgstr "新增在網站顯示的標誌。沒有標誌嗎？從 Looka 購買專業設計標誌，按一下「建立標誌」即可開始。"
 
 #. Description of the plugin
 msgid "WordPress.com provided functionality & tools"
-msgstr ""
+msgstr "WordPress.com 提供的功能和工具"
 
 #. Plugin Name of the plugin
 msgid "WP.com Site Helper"
-msgstr ""
+msgstr "WP.com 網站協助程式"

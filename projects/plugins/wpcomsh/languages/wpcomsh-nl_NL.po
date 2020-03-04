@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-02-26 14:05:45+0000\n"
+"PO-Revision-Date: 2020-02-27 00:54:04+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -312,11 +312,11 @@ msgstr "Je kunt binnenkort genieten van iets nieuws."
 
 #: wpcomsh.php:338
 msgid "This plugin was installed by WordPress.com and provides features offered in your plan subscription."
-msgstr ""
+msgstr "Deze plugin is geïnstalleerd door WordPress.com en biedt de functies van je abonnement."
 
 #: wpcomsh.php:335
 msgid "%s is automatically managed for you."
-msgstr ""
+msgstr "%s wordt automatisch voor je beheerd."
 
 #: widgets/top-rated.php:141
 msgid "How many items would you like to display?"
@@ -541,7 +541,7 @@ msgstr "Ik heb gestemd"
 
 #: widgets/i-voted.php:31
 msgid "Show your readers that you voted with an \"I Voted\" sticker."
-msgstr ""
+msgstr "Laat je lezers zien dat je gestemd hebt met een 'Ik heb gestemd'-sticker."
 
 #: widgets/gravatar.php:144
 msgid "You can modify your Gravatar from your <a href=\"/wp-admin/profile.php\">profile page</a>."
@@ -658,7 +658,7 @@ msgstr "Auteur raster"
 
 #: private-site/private-site.php:369
 msgid "Private Site"
-msgstr ""
+msgstr "Privésite"
 
 #: private-site/private-site.php:227 private-site/private-site.php:324
 #: private-site/private-site.php:468
@@ -671,11 +671,11 @@ msgstr "Inloggen"
 
 #: private-site/access-denied-private-site-template.php:45
 msgid "Switch user"
-msgstr ""
+msgstr "Van gebruiker wisselen"
 
 #: private-site/access-denied-private-site-template.php:43
 msgid "You need to be logged in as a user who has permission to view this site."
-msgstr ""
+msgstr "Je moet zijn ingelogd als een gebruiker die toestemming heeft om deze site te bekijken."
 
 #: privacy/participating-plugins.php:144
 msgid ""
@@ -684,6 +684,10 @@ msgid ""
 "information for non-participating plugins. It is your responsibility to\n"
 "obtain privacy policy information for non-participating plugins separately."
 msgstr ""
+"Opmerking: deze tool geeft alleen privacybeleidgegevens weer van\n"
+"WordPress en deelnemende plugins. Hieronder vallen niet de privacybeleidgegevens\n"
+"voor niet-deelnemende plugins. Het is jouw verantwoordelijkheid om\n"
+"privacybeleidgegevens voor niet-deelnemende plugins afzonderlijk te verkrijgen."
 
 #: privacy/participating-plugins.php:94
 msgid ""
@@ -693,6 +697,11 @@ msgid ""
 "stored by non-participating plugins separately. The personal data exported\n"
 "includes only the following items at this time:"
 msgstr ""
+"Opmerking: deze tool exporteert uitsluitend de persoonsgegevens die WordPress en\n"
+"deelnemende plugins hebben opgeslagen. De persoonsgegevens die niet-deelnemende plugins hebben opgeslagen\n"
+"worden niet geëxporteerd. Het is jouw verantwoordelijkheid om persoonsgegevens die\n"
+"niet-deelnemende plugins hebben opgeslagen afzonderlijk te exporteren. De geëxporteerde persoonsgegevens\n"
+"bevatten op dit moment alleen de volgende items:"
 
 #: privacy/participating-plugins.php:47
 msgid ""
@@ -703,6 +712,12 @@ msgid ""
 "plugins. The personal data erased includes only the following items at this\n"
 "time:"
 msgstr ""
+"Opmerking: deze tool wist uitsluitend de persoonsgegevens die WordPress en\n"
+"deelnemende plugins hebben opgeslagen. De geregistreerde gebruikers en persoonsgegevens die\n"
+"niet-deelnemende plugins hebben opgeslagen worden niet gewist. Het is jouw verantwoordelijkheid om\n"
+"geregistreerde gebruikers en persoonsgegevens die niet-deelnemende\n"
+"plugins hebben opgeslagen te wissen. De gewiste persoonsgegevens bevatten op dit moment alleen de volgende\n"
+"items:"
 
 #: logo-tool/logo-tool.php:70
 msgid "Create logo"
@@ -714,8 +729,8 @@ msgstr "Voeg een logo toe aan je site. Heb je geen logo? Koop een professioneel 
 
 #. Description of the plugin
 msgid "WordPress.com provided functionality & tools"
-msgstr ""
+msgstr "Functies en tools van WordPress.com"
 
 #. Plugin Name of the plugin
 msgid "WP.com Site Helper"
-msgstr ""
+msgstr "Sitehulp van WP.com"

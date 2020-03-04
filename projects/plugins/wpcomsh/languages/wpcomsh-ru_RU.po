@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-02-26 14:05:41+0000\n"
+"PO-Revision-Date: 2020-03-04 00:54:04+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -13,7 +13,7 @@ msgstr ""
 
 #: wpcomsh.php:909
 msgid "You are currently using <strong>%1$s</strong> out of <strong>%2$s</strong> upload limit (%3$s%%)."
-msgstr ""
+msgstr "Использовано <strong>%1$s</strong> из <strong>%2$s</strong>, доступных для загрузки (%3$s%%)."
 
 #: widgets/twitter.php:412
 msgid "Text to display between Tweet and timestamp:"
@@ -85,11 +85,11 @@ msgstr "Показать количество меток"
 
 #: widgets/tag-cloud-widget.php:139
 msgid "Maximum number of tags displayed"
-msgstr ""
+msgstr "Максимальное количество отображаемых тегов"
 
 #: widgets/tag-cloud-widget.php:137
 msgid "Number of Tags:"
-msgstr ""
+msgstr "Количество тегов:"
 
 #: widgets/tag-cloud-widget.php:41
 msgid "Tags"
@@ -189,23 +189,23 @@ msgstr "Заголовок виджета"
 
 #: widgets/aboutme.php:90
 msgid "The about.me widget will no longer be available after July 1, 2016. After this date, the widget will display a simple text link to your about.me profile. Please remove this widget."
-msgstr ""
+msgstr "Мы прекращаем поддержку виджета \"about.me\" с 1 июля 2016 года. Начиная с этого дня в виджете будет отображаться обычная текстовая ссылка на ваш профиль about.me. Удалите виджет."
 
 #: widgets/aboutme.php:37
 msgid "The about.me widget is no longer available. To remove this widget, <a href=\"%s\">visit your settings</a>. This message is not shown to visitors to your site."
-msgstr ""
+msgstr "Виджет about.me больше недоступен. Чтобы удалить виджет, <a href=\"%s\">перейдите в настройки</a>. Посетители вашего сайта не видят это сообщение."
 
 #: widgets/aboutme.php:20
 msgid "About.me Widget"
-msgstr ""
+msgstr "Виджет about.me"
 
 #: widgets/aboutme.php:18
 msgid "Display your about.me profile with thumbnail"
-msgstr ""
+msgstr "Отображать профиль about.me с эскизом"
 
 #: safeguard/utils.php:58
 msgid "Unable to fetch the requested data."
-msgstr ""
+msgstr "Не удалось получить запрошенные данные."
 
 #: private-site/access-denied-coming-soon-template.php:142
 msgid "Log in here"
@@ -231,7 +231,7 @@ msgstr "Блог на WordPress.com"
 
 #: footer-credit/footer-credit/footer-credit.php:97
 msgid "A WordPress.com Website"
-msgstr ""
+msgstr "Веб-сайт WordPress.com"
 
 #: footer-credit/footer-credit/footer-credit.php:96
 msgid "WordPress.com Logo"
@@ -240,7 +240,7 @@ msgstr "Логотип WordPress.com"
 #: footer-credit/footer-credit/footer-credit.php:41
 #: footer-credit/footer-credit/footer-credit.php:205
 msgid "Create a website or blog at WordPress.com"
-msgstr ""
+msgstr "Создайте сайт или блог на WordPress.com"
 
 #: footer-credit/footer-credit/customizer.php:85
 msgid "Footer Credit"
@@ -252,7 +252,7 @@ msgstr "Приобрести платную услугу «Бизнес»"
 
 #: footer-credit/footer-credit/customizer.php:54
 msgid "Hide (Business Plan Required)"
-msgstr ""
+msgstr "Скрыть (требуется тарифный план Business)"
 
 #: footer-credit/footer-credit/customizer.php:52
 msgid "Hide"
@@ -284,7 +284,7 @@ msgstr "Сохранить настройки"
 
 #: customizer-fixes/customizer-fixes.php:12
 msgid "Are you sure you want to discard your unsaved changes?"
-msgstr ""
+msgstr "Удалить несохраненные изменения?"
 
 #: customizer-fixes/customizer-fixes.php:11
 msgid "Saved"
@@ -300,11 +300,11 @@ msgstr "Сохранить"
 
 #: customizer-fixes/customizer-fixes.php:8
 msgid "Activate &amp; Save"
-msgstr ""
+msgstr "Активировать и сохранить"
 
 #: private-site/private-site.php:123
 msgid "Manage your site visibility settings"
-msgstr ""
+msgstr "Управляйте настройками видимости своего сайта"
 
 #: private-site/access-denied-coming-soon-template.php:140
 msgid "Something new is coming."
@@ -312,11 +312,11 @@ msgstr "Ожидается обновление."
 
 #: wpcomsh.php:338
 msgid "This plugin was installed by WordPress.com and provides features offered in your plan subscription."
-msgstr ""
+msgstr "Этот плагин был установлен сайтом WordPress.com и предоставляет функции, предлагаемые в вашем плане подписки."
 
 #: wpcomsh.php:335
 msgid "%s is automatically managed for you."
-msgstr ""
+msgstr "%s управляется автоматически."
 
 #: widgets/top-rated.php:141
 msgid "How many items would you like to display?"
@@ -537,11 +537,11 @@ msgstr "Музыкальный плеер с поддержкой воспрои
 
 #: widgets/i-voted.php:33
 msgid "I Voted"
-msgstr ""
+msgstr "Я голосую"
 
 #: widgets/i-voted.php:31
 msgid "Show your readers that you voted with an \"I Voted\" sticker."
-msgstr ""
+msgstr "Покажите вашим читателям, за что вы проголосовали, показав им наклейку \"Я голосую\"."
 
 #: widgets/gravatar.php:144
 msgid "You can modify your Gravatar from your <a href=\"/wp-admin/profile.php\">profile page</a>."
@@ -658,12 +658,12 @@ msgstr "Список авторов в виде сетки"
 
 #: private-site/private-site.php:369
 msgid "Private Site"
-msgstr ""
+msgstr "Закрытый сайт"
 
 #: private-site/private-site.php:227 private-site/private-site.php:324
 #: private-site/private-site.php:468
 msgid "This site is private."
-msgstr ""
+msgstr "Это закрытый сайт."
 
 #: private-site/access-denied-private-site-template.php:45
 msgid "Log in"
@@ -671,11 +671,11 @@ msgstr "Войти"
 
 #: private-site/access-denied-private-site-template.php:45
 msgid "Switch user"
-msgstr ""
+msgstr "Сменить пользователя"
 
 #: private-site/access-denied-private-site-template.php:43
 msgid "You need to be logged in as a user who has permission to view this site."
-msgstr ""
+msgstr "Войдите в качестве пользователя, у которого есть разрешение на просмотр этого сайта."
 
 #: privacy/participating-plugins.php:144
 msgid ""
@@ -684,6 +684,10 @@ msgid ""
 "information for non-participating plugins. It is your responsibility to\n"
 "obtain privacy policy information for non-participating plugins separately."
 msgstr ""
+"Обратите внимание — этот инструмент отображает только информацию о политике конфиденциальности, предоставленную\n"
+"WordPress и соответствующими плагинами. Не включает информацию о политике конфиденциальности\n"
+"для не участвующих плагинов. Вы несете ответственность\n"
+"получите отдельную информацию о политике конфиденциальности для не участвующих плагинов."
 
 #: privacy/participating-plugins.php:94
 msgid ""
@@ -693,6 +697,11 @@ msgid ""
 "stored by non-participating plugins separately. The personal data exported\n"
 "includes only the following items at this time:"
 msgstr ""
+"Обратите внимание - этот инструмент экспортирует только личные данные, хранящиеся в WordPress и\n"
+"участвующих плагинах. Он не экспортирует личные данные, хранящиеся в\n"
+"не участвующих плагинах. Вы несете личную ответственность за экспорт персональных данных,\n"
+"хранящихся в плагинах, не участвующих в программе. Экспортируемые персональные данные\n"
+"включают в себя только следующие элементы:"
 
 #: privacy/participating-plugins.php:47
 msgid ""
@@ -703,6 +712,12 @@ msgid ""
 "plugins. The personal data erased includes only the following items at this\n"
 "time:"
 msgstr ""
+"Обратите внимание — этот инструмент стирает только личные данные, сохраненные сайтом WordPress и\n"
+"участвующими плагинами. Он не удаляет зарегистрированных пользователей и не стирает\n"
+"личные данные, сохраненные для не участвующих плагинов. Вы несете ответственность\n"
+"за удаление зарегистрированных пользователей, а также личных данных, хранящихся в не участвующих\n"
+"плагинах. Удаляемые персональные данные включают только следующие\n"
+"время:"
 
 #: logo-tool/logo-tool.php:70
 msgid "Create logo"
@@ -710,12 +725,12 @@ msgstr "Создать логотип"
 
 #: logo-tool/logo-tool.php:60
 msgid "Add a logo to display on your site. No logo? Buy a pro one from Looka — Click “Create logo” to start."
-msgstr ""
+msgstr "Добавьте логотип для отображения на вашем сайте. Нет логотипа? Купите профессиональный логотип от Looka — нажмите «Создать логотип», чтобы приступить к его созданию."
 
 #. Description of the plugin
 msgid "WordPress.com provided functionality & tools"
-msgstr ""
+msgstr "WordPress.com предоставляет функциональность и инструменты"
 
 #. Plugin Name of the plugin
 msgid "WP.com Site Helper"
-msgstr ""
+msgstr "Справка по сайту WP.com"

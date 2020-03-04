@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-02-26 14:05:43+0000\n"
+"PO-Revision-Date: 2020-02-29 00:54:03+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -312,11 +312,11 @@ msgstr "Yeni bir şey geliyor."
 
 #: wpcomsh.php:338
 msgid "This plugin was installed by WordPress.com and provides features offered in your plan subscription."
-msgstr ""
+msgstr "Bu eklenti, Wordpress.com tarafından yüklenmiştir ve paket aboneliğinizde sunulan özellikleri sunar."
 
 #: wpcomsh.php:335
 msgid "%s is automatically managed for you."
-msgstr ""
+msgstr "%s, sizin için otomatik olarak yönetilir."
 
 #: widgets/top-rated.php:141
 msgid "How many items would you like to display?"
@@ -541,7 +541,7 @@ msgstr "Oyladım"
 
 #: widgets/i-voted.php:31
 msgid "Show your readers that you voted with an \"I Voted\" sticker."
-msgstr ""
+msgstr "Okuyucularınıza “Oy Verdim” etiketiyle oy verdiğinizi gösterin."
 
 #: widgets/gravatar.php:144
 msgid "You can modify your Gravatar from your <a href=\"/wp-admin/profile.php\">profile page</a>."
@@ -609,7 +609,7 @@ msgstr "Bir kullanıcı seçmeli veya <a href=\"%s\">Gravatar Bileşen</a> ayarl
 
 #: widgets/gravatar.php:22
 msgid "Gravatar"
-msgstr ""
+msgstr "Gravatar"
 
 #: widgets/gravatar.php:20
 msgid "Insert a Gravatar image"
@@ -658,7 +658,7 @@ msgstr "Yazar Tablosu"
 
 #: private-site/private-site.php:369
 msgid "Private Site"
-msgstr ""
+msgstr "Özel Site"
 
 #: private-site/private-site.php:227 private-site/private-site.php:324
 #: private-site/private-site.php:468
@@ -671,11 +671,11 @@ msgstr "Giriş"
 
 #: private-site/access-denied-private-site-template.php:45
 msgid "Switch user"
-msgstr ""
+msgstr "Kullanıcı değiştir"
 
 #: private-site/access-denied-private-site-template.php:43
 msgid "You need to be logged in as a user who has permission to view this site."
-msgstr ""
+msgstr "Bu siteyi görüntüleme izni olan bir kullanıcı olarak oturum açmanız gerekir."
 
 #: privacy/participating-plugins.php:144
 msgid ""
@@ -684,6 +684,10 @@ msgid ""
 "information for non-participating plugins. It is your responsibility to\n"
 "obtain privacy policy information for non-participating plugins separately."
 msgstr ""
+"Lütfen bu aracın yalnızca WordPress ve katılımcı eklentiler\n"
+"tarafından sağlanan gizlilik politikası bilgilerini görüntülediğini unutmayın. Katılımcı olmayan eklentiler için\n"
+"gizlilik politikası bilgileri içermez. Katılımcı olmayan eklentiler için\n"
+"gizlilik politikası bilgilerini ayrı ayrı edinmek sizin sorumluluğunuzdadır."
 
 #: privacy/participating-plugins.php:94
 msgid ""
@@ -693,6 +697,11 @@ msgid ""
 "stored by non-participating plugins separately. The personal data exported\n"
 "includes only the following items at this time:"
 msgstr ""
+"Lütfen bu aracın yalnızca WordPress ve katılımcı eklentiler tarafından\n"
+"saklanan kişisel verileri dışa aktardığını unutmayın. Katılımcı olmayan eklentiler tarafından saklanan\n"
+"kişisel verileri dışa aktarmaz. Katılımcı olmayan eklentiler tarafından saklanan\n"
+"kişisel verileri ayrı ayrı dışa aktarmak sizin sorumluluğunuzdadır. Dışa aktarılan kişisel veriler şu anda yalnızca\n"
+"aşağıdaki öğeleri içermektedir:"
 
 #: privacy/participating-plugins.php:47
 msgid ""
@@ -703,6 +712,12 @@ msgid ""
 "plugins. The personal data erased includes only the following items at this\n"
 "time:"
 msgstr ""
+"Lütfen bu aracın yalnızca WordPress ve katılımcı eklentiler\n"
+"tarafından saklanan kişisel verileri sildiğini unutmayın. Kayıtlı kullanıcıları veya katılımcı olmayan eklentiler\n"
+"tarafından saklanan kişisel verileri silmez. Kayıtlı kullanıcıları ve katılımcı olmayan\n"
+"eklentiler tarafından saklanan kişisel verileri silmek sizin\n"
+"sorumluluğunuzdadır. Silinen kişisel veriler şu anda yalnızca aşağıdaki\n"
+"öğeleri içermektedir:"
 
 #: logo-tool/logo-tool.php:70
 msgid "Create logo"
@@ -710,12 +725,12 @@ msgstr "Logo oluştur"
 
 #: logo-tool/logo-tool.php:60
 msgid "Add a logo to display on your site. No logo? Buy a pro one from Looka — Click “Create logo” to start."
-msgstr ""
+msgstr "Sitenize bir logo ekleyin. Logonuz yok mu? Looka'dan profesyonel bir logo satın alın. Başlamak için “Logo oluştur” seçeneğine tıklayın."
 
 #. Description of the plugin
 msgid "WordPress.com provided functionality & tools"
-msgstr ""
+msgstr "WordPress.com tarafından sağlanan işlev ve araçlar"
 
 #. Plugin Name of the plugin
 msgid "WP.com Site Helper"
-msgstr ""
+msgstr "WP.com Site Yardımcısı"

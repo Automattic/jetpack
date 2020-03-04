@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-02-26 14:05:42+0000\n"
+"PO-Revision-Date: 2020-03-04 03:54:10+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -13,7 +13,7 @@ msgstr ""
 
 #: wpcomsh.php:909
 msgid "You are currently using <strong>%1$s</strong> out of <strong>%2$s</strong> upload limit (%3$s%%)."
-msgstr ""
+msgstr "您当前使用的 <strong>%1$s</strong> 超出了 <strong>%2$s</strong> 的上传限制 (%3$s%%)。"
 
 #: widgets/twitter.php:412
 msgid "Text to display between Tweet and timestamp:"
@@ -85,11 +85,11 @@ msgstr "显示标签计数"
 
 #: widgets/tag-cloud-widget.php:139
 msgid "Maximum number of tags displayed"
-msgstr ""
+msgstr "显示的最大标签数量"
 
 #: widgets/tag-cloud-widget.php:137
 msgid "Number of Tags:"
-msgstr ""
+msgstr "标签数量："
 
 #: widgets/tag-cloud-widget.php:41
 msgid "Tags"
@@ -181,7 +181,7 @@ msgstr "显示 X 大图"
 
 #: widgets/aboutme.php:104
 msgid "Your about.me URL"
-msgstr ""
+msgstr "您的 about.me URL"
 
 #: widgets/aboutme.php:97
 msgid "Widget title"
@@ -189,23 +189,23 @@ msgstr "小工具标题"
 
 #: widgets/aboutme.php:90
 msgid "The about.me widget will no longer be available after July 1, 2016. After this date, the widget will display a simple text link to your about.me profile. Please remove this widget."
-msgstr ""
+msgstr "自 2016 年 7 月 1 日起，about.me 小组件将无法再使用。在此日期之后，该小组件将显示一个简单的文本链接，指向您的 about.me 个人资料。请删除此小组件。"
 
 #: widgets/aboutme.php:37
 msgid "The about.me widget is no longer available. To remove this widget, <a href=\"%s\">visit your settings</a>. This message is not shown to visitors to your site."
-msgstr ""
+msgstr "about.me 小组件无法再使用。要删除此小组件，请<a href=\"%s\">访问您的设置</a>。此消息不会向您站点的访客显示。"
 
 #: widgets/aboutme.php:20
 msgid "About.me Widget"
-msgstr ""
+msgstr "about.me 小组件"
 
 #: widgets/aboutme.php:18
 msgid "Display your about.me profile with thumbnail"
-msgstr ""
+msgstr "以缩略图形式显示您的 about.me 个人资料"
 
 #: safeguard/utils.php:58
 msgid "Unable to fetch the requested data."
-msgstr ""
+msgstr "无法提取所请求的数据。"
 
 #: private-site/access-denied-coming-soon-template.php:142
 msgid "Log in here"
@@ -231,7 +231,7 @@ msgstr "在WordPress.com的博客"
 
 #: footer-credit/footer-credit/footer-credit.php:97
 msgid "A WordPress.com Website"
-msgstr ""
+msgstr "WordPress.com 站点"
 
 #: footer-credit/footer-credit/footer-credit.php:96
 msgid "WordPress.com Logo"
@@ -240,7 +240,7 @@ msgstr "WordPress.com 徽标"
 #: footer-credit/footer-credit/footer-credit.php:41
 #: footer-credit/footer-credit/footer-credit.php:205
 msgid "Create a website or blog at WordPress.com"
-msgstr ""
+msgstr "在 WordPress.com 上创建免费网站或博客"
 
 #: footer-credit/footer-credit/customizer.php:85
 msgid "Footer Credit"
@@ -252,7 +252,7 @@ msgstr "升级至企业版"
 
 #: footer-credit/footer-credit/customizer.php:54
 msgid "Hide (Business Plan Required)"
-msgstr ""
+msgstr "隐藏（需订阅商务版套餐）"
 
 #: footer-credit/footer-credit/customizer.php:52
 msgid "Hide"
@@ -284,7 +284,7 @@ msgstr "保存设置"
 
 #: customizer-fixes/customizer-fixes.php:12
 msgid "Are you sure you want to discard your unsaved changes?"
-msgstr ""
+msgstr "您是否确定要丢弃未保存的更改？"
 
 #: customizer-fixes/customizer-fixes.php:11
 msgid "Saved"
@@ -300,11 +300,11 @@ msgstr "保存"
 
 #: customizer-fixes/customizer-fixes.php:8
 msgid "Activate &amp; Save"
-msgstr ""
+msgstr "激活并保存"
 
 #: private-site/private-site.php:123
 msgid "Manage your site visibility settings"
-msgstr ""
+msgstr "管理您的站点可见性设置"
 
 #: private-site/access-denied-coming-soon-template.php:140
 msgid "Something new is coming."
@@ -312,11 +312,11 @@ msgstr "即将推出新内容。"
 
 #: wpcomsh.php:338
 msgid "This plugin was installed by WordPress.com and provides features offered in your plan subscription."
-msgstr ""
+msgstr "此插件通过 WordPress.com 安装，提供套餐订阅中的功能。"
 
 #: wpcomsh.php:335
 msgid "%s is automatically managed for you."
-msgstr ""
+msgstr "系统会自动为您管理 %s。"
 
 #: widgets/top-rated.php:141
 msgid "How many items would you like to display?"
@@ -537,11 +537,11 @@ msgstr "多歌曲音乐播放器"
 
 #: widgets/i-voted.php:33
 msgid "I Voted"
-msgstr ""
+msgstr "我已投票"
 
 #: widgets/i-voted.php:31
 msgid "Show your readers that you voted with an \"I Voted\" sticker."
-msgstr ""
+msgstr "向您的读者展示您已使用“我已投票”贴纸投票。"
 
 #: widgets/gravatar.php:144
 msgid "You can modify your Gravatar from your <a href=\"/wp-admin/profile.php\">profile page</a>."
@@ -658,12 +658,12 @@ msgstr "作者网格"
 
 #: private-site/private-site.php:369
 msgid "Private Site"
-msgstr ""
+msgstr "私人站点"
 
 #: private-site/private-site.php:227 private-site/private-site.php:324
 #: private-site/private-site.php:468
 msgid "This site is private."
-msgstr ""
+msgstr "此站点是私人站点。"
 
 #: private-site/access-denied-private-site-template.php:45
 msgid "Log in"
@@ -671,11 +671,11 @@ msgstr "登录"
 
 #: private-site/access-denied-private-site-template.php:45
 msgid "Switch user"
-msgstr ""
+msgstr "切换用户"
 
 #: private-site/access-denied-private-site-template.php:43
 msgid "You need to be logged in as a user who has permission to view this site."
-msgstr ""
+msgstr "您需要以有权查看此站点的用户身份登录。"
 
 #: privacy/participating-plugins.php:144
 msgid ""
@@ -684,6 +684,10 @@ msgid ""
 "information for non-participating plugins. It is your responsibility to\n"
 "obtain privacy policy information for non-participating plugins separately."
 msgstr ""
+"请注意 - 此工具仅显示由 WordPress 和所用插件\n"
+"提供的隐私政策信息，不包括未使用插件的\n"
+"隐私政策信息。您需要自行\n"
+"单独获取未使用插件的隐私政策信息。"
 
 #: privacy/participating-plugins.php:94
 msgid ""
@@ -693,6 +697,11 @@ msgid ""
 "stored by non-participating plugins separately. The personal data exported\n"
 "includes only the following items at this time:"
 msgstr ""
+"请注意 - 此工具仅导出由 WordPress 和所用插件\n"
+"存储的个人数据，不会导出由未使用插件\n"
+"存储的个人数据。您需要自行单独导出由未使用插件\n"
+"存储的个人数据。导出的个人数据\n"
+"目前仅包含以下项目："
 
 #: privacy/participating-plugins.php:47
 msgid ""
@@ -703,6 +712,12 @@ msgid ""
 "plugins. The personal data erased includes only the following items at this\n"
 "time:"
 msgstr ""
+"请注意 - 此工具仅擦除由 WordPress 和所用插件\n"
+"存储的个人数据，不会删除注册用户，也不会擦除\n"
+"由未使用插件存储的个人数据。您需要自行\n"
+"删除注册用户以及由未使用插件\n"
+"存储的个人数据。擦除的个人数据目前仅包含以下\n"
+"项目："
 
 #: logo-tool/logo-tool.php:70
 msgid "Create logo"
@@ -710,12 +725,12 @@ msgstr "创建徽标"
 
 #: logo-tool/logo-tool.php:60
 msgid "Add a logo to display on your site. No logo? Buy a pro one from Looka — Click “Create logo” to start."
-msgstr ""
+msgstr "添加要在站点上显示的徽标。还没有徽标?在 Looka 中购买专业徽标 - 点击“创建徽标”即可开始创建。"
 
 #. Description of the plugin
 msgid "WordPress.com provided functionality & tools"
-msgstr ""
+msgstr "WordPress.com 提供了功能和工具"
 
 #. Plugin Name of the plugin
 msgid "WP.com Site Helper"
-msgstr ""
+msgstr "WP.com Site Helper"

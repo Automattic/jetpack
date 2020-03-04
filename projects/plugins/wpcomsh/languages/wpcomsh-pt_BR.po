@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-02-26 14:05:45+0000\n"
+"PO-Revision-Date: 2020-03-04 00:54:03+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -205,7 +205,7 @@ msgstr "Exibir seu perfil about.me com miniatura"
 
 #: safeguard/utils.php:58
 msgid "Unable to fetch the requested data."
-msgstr ""
+msgstr "Não foi possível obter os dados solicitados."
 
 #: private-site/access-denied-coming-soon-template.php:142
 msgid "Log in here"
@@ -284,7 +284,7 @@ msgstr "Salvar configurações"
 
 #: customizer-fixes/customizer-fixes.php:12
 msgid "Are you sure you want to discard your unsaved changes?"
-msgstr ""
+msgstr "Tem certeza de que deseja descartar as alterações não salvas?"
 
 #: customizer-fixes/customizer-fixes.php:11
 msgid "Saved"
@@ -300,11 +300,11 @@ msgstr "Salvar"
 
 #: customizer-fixes/customizer-fixes.php:8
 msgid "Activate &amp; Save"
-msgstr ""
+msgstr "Ativar e salvar"
 
 #: private-site/private-site.php:123
 msgid "Manage your site visibility settings"
-msgstr ""
+msgstr "Gerencie as configurações de visibilidade do seu site"
 
 #: private-site/access-denied-coming-soon-template.php:140
 msgid "Something new is coming."
@@ -312,11 +312,11 @@ msgstr "Algo novo está a caminho."
 
 #: wpcomsh.php:338
 msgid "This plugin was installed by WordPress.com and provides features offered in your plan subscription."
-msgstr ""
+msgstr "Este plugin foi instalado pelo WordPress.com e fornece as funcionalidades oferecidas na assinatura do plano."
 
 #: wpcomsh.php:335
 msgid "%s is automatically managed for you."
-msgstr ""
+msgstr "%s é gerenciado automaticamente para você."
 
 #: widgets/top-rated.php:141
 msgid "How many items would you like to display?"
@@ -537,11 +537,11 @@ msgstr "Um reprodutor de música multi-música"
 
 #: widgets/i-voted.php:33
 msgid "I Voted"
-msgstr ""
+msgstr "Eu votei"
 
 #: widgets/i-voted.php:31
 msgid "Show your readers that you voted with an \"I Voted\" sticker."
-msgstr ""
+msgstr "Mostre a seus leitores que você votou com um adesivo \"Eu votei\"."
 
 #: widgets/gravatar.php:144
 msgid "You can modify your Gravatar from your <a href=\"/wp-admin/profile.php\">profile page</a>."
@@ -658,7 +658,7 @@ msgstr "Grade de Autores"
 
 #: private-site/private-site.php:369
 msgid "Private Site"
-msgstr ""
+msgstr "Site privado"
 
 #: private-site/private-site.php:227 private-site/private-site.php:324
 #: private-site/private-site.php:468
@@ -671,11 +671,11 @@ msgstr "Fazer login"
 
 #: private-site/access-denied-private-site-template.php:45
 msgid "Switch user"
-msgstr ""
+msgstr "Trocar usuário"
 
 #: private-site/access-denied-private-site-template.php:43
 msgid "You need to be logged in as a user who has permission to view this site."
-msgstr ""
+msgstr "É necessário ter o login de um usuário com permissão para visualizar este site."
 
 #: privacy/participating-plugins.php:144
 msgid ""
@@ -684,6 +684,10 @@ msgid ""
 "information for non-participating plugins. It is your responsibility to\n"
 "obtain privacy policy information for non-participating plugins separately."
 msgstr ""
+"Essa ferramenta exibe apenas as informações da política de privacidade fornecidas pelo\n"
+"WordPress e plugins participantes. Ela não inclui informações de política\n"
+"de privacidade para plugins não participantes. É de sua responsabilidade\n"
+"obter informações sobre a política de privacidade de plugins não participantes separadamente."
 
 #: privacy/participating-plugins.php:94
 msgid ""
@@ -693,6 +697,11 @@ msgid ""
 "stored by non-participating plugins separately. The personal data exported\n"
 "includes only the following items at this time:"
 msgstr ""
+"Essa ferramenta apenas exporta os dados pessoais armazenados pelo WordPress e\n"
+"plugins participantes. Ela não exporta dados pessoais armazenados por\n"
+"plugins não participantes. É de sua responsabilidade exportar dados pessoais\n"
+"armazenados por plugins não participantes separadamente. Os dados pessoais exportados\n"
+"incluem apenas os seguintes itens no momento:"
 
 #: privacy/participating-plugins.php:47
 msgid ""
@@ -703,6 +712,12 @@ msgid ""
 "plugins. The personal data erased includes only the following items at this\n"
 "time:"
 msgstr ""
+"Essa ferramenta apaga apenas os dados pessoais armazenados pelo WordPress e\n"
+"plugins participantes. Ela não exclui usuários registrados, assim como não apaga\n"
+"dados pessoais armazenados por plugins não participantes. É de sua responsabilidade\n"
+"excluir usuários registrados, bem como dados pessoais armazenados por plugins\n"
+"não participantes. Os dados pessoais apagados incluem apenas os seguintes itens\n"
+"no momento:"
 
 #: logo-tool/logo-tool.php:70
 msgid "Create logo"
@@ -710,12 +725,12 @@ msgstr "Criar logotipo"
 
 #: logo-tool/logo-tool.php:60
 msgid "Add a logo to display on your site. No logo? Buy a pro one from Looka — Click “Create logo” to start."
-msgstr ""
+msgstr "Adicione um logotipo para exibir no seu site. Não tem um logotipo? Compre um logotipo profissional da Looka. Clique em \"Criar logotipo\" para começar."
 
 #. Description of the plugin
 msgid "WordPress.com provided functionality & tools"
-msgstr ""
+msgstr "Funcionalidade e ferramentas fornecidas pelo WordPress.com"
 
 #. Plugin Name of the plugin
 msgid "WP.com Site Helper"
-msgstr ""
+msgstr "WP.com Site Helper"

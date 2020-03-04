@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-02-26 14:05:44+0000\n"
+"PO-Revision-Date: 2020-03-03 16:49:04+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -29,7 +29,7 @@ msgstr "Përfshi ricicërimat"
 
 #: widgets/twitter.php:392
 msgid "Hide Tweets pushed by Publicize"
-msgstr ""
+msgstr "Fshihi cicërimat e botuara përmes Publicize-it"
 
 #: widgets/twitter.php:385
 msgid "Hide replies"
@@ -61,7 +61,7 @@ msgstr "Përditësime Twitter"
 
 #: widgets/twitter.php:51
 msgid "Please configure your Twitter username for the <a href=\"%s\">Twitter Widget</a>."
-msgstr ""
+msgstr "Ju lutemi, formësoni emrin tuaj të përdoruesit Twitter për <a href=\"%s\">Twitter Widget</a>."
 
 #: widgets/twitter.php:29
 msgid "Display your Tweets from Twitter"
@@ -205,7 +205,7 @@ msgstr "Shfaqni profilin tuaj about.me me një miniaturë"
 
 #: safeguard/utils.php:58
 msgid "Unable to fetch the requested data."
-msgstr ""
+msgstr "S’arrihet të sillen të dhënat e domosdoshme."
 
 #: private-site/access-denied-coming-soon-template.php:142
 msgid "Log in here"
@@ -284,7 +284,7 @@ msgstr "Ruaji Rregullimet"
 
 #: customizer-fixes/customizer-fixes.php:12
 msgid "Are you sure you want to discard your unsaved changes?"
-msgstr ""
+msgstr "Jeni i sigurt se doni të hidhen tej ndryshimet tuaja të paruajtura?"
 
 #: customizer-fixes/customizer-fixes.php:11
 msgid "Saved"
@@ -300,23 +300,23 @@ msgstr "Ruaje"
 
 #: customizer-fixes/customizer-fixes.php:8
 msgid "Activate &amp; Save"
-msgstr ""
+msgstr "Aktivizoje &amp; Ruaje"
 
 #: private-site/private-site.php:123
 msgid "Manage your site visibility settings"
-msgstr ""
+msgstr "Administroni rregullimet tuaja për dukshmëri sajti"
 
 #: private-site/access-denied-coming-soon-template.php:140
 msgid "Something new is coming."
-msgstr ""
+msgstr "Diçka e re po vjen."
 
 #: wpcomsh.php:338
 msgid "This plugin was installed by WordPress.com and provides features offered in your plan subscription."
-msgstr ""
+msgstr "Kjo shtojcë qe instaluar nga WordPress.com dhe sjell veçori të ofruara në planin tuaj të pajtimit."
 
 #: wpcomsh.php:335
 msgid "%s is automatically managed for you."
-msgstr ""
+msgstr "%s administrohet automatikisht për ju."
 
 #: widgets/top-rated.php:141
 msgid "How many items would you like to display?"
@@ -537,11 +537,11 @@ msgstr "Një lojtës muzike për shumë pjesë"
 
 #: widgets/i-voted.php:33
 msgid "I Voted"
-msgstr ""
+msgstr "Votova"
 
 #: widgets/i-voted.php:31
 msgid "Show your readers that you voted with an \"I Voted\" sticker."
-msgstr ""
+msgstr "Shpalosuni lexuesve tuaj se votuat, me një ngjitës “Votova”."
 
 #: widgets/gravatar.php:144
 msgid "You can modify your Gravatar from your <a href=\"/wp-admin/profile.php\">profile page</a>."
@@ -658,7 +658,7 @@ msgstr "Rrjetë Autorësh"
 
 #: private-site/private-site.php:369
 msgid "Private Site"
-msgstr ""
+msgstr "Sajt Privat"
 
 #: private-site/private-site.php:227 private-site/private-site.php:324
 #: private-site/private-site.php:468
@@ -671,11 +671,11 @@ msgstr "Hyni"
 
 #: private-site/access-denied-private-site-template.php:45
 msgid "Switch user"
-msgstr ""
+msgstr "Këmbe përdorues"
 
 #: private-site/access-denied-private-site-template.php:43
 msgid "You need to be logged in as a user who has permission to view this site."
-msgstr ""
+msgstr "Duhet të jeni i futur si një përdorues i cili ka leje të shohë këtë sajt."
 
 #: privacy/participating-plugins.php:144
 msgid ""
@@ -684,6 +684,10 @@ msgid ""
 "information for non-participating plugins. It is your responsibility to\n"
 "obtain privacy policy information for non-participating plugins separately."
 msgstr ""
+"Ju lutemi, mbani parasysh se - ky mjet shfaq vetëm të dhëna rregullash\n"
+"privatësie të sjella nga WordPress dhe shtojcat pjesëmarrëse. S’përfshin\n"
+"të dhëna rregullash privatësie për shtojca jopjesëmarrëse. Është përgjegjësi\n"
+"e juaja të merrni veçmas të dhëna rregullash privatësie për këto të fundit."
 
 #: privacy/participating-plugins.php:94
 msgid ""
@@ -693,6 +697,11 @@ msgid ""
 "stored by non-participating plugins separately. The personal data exported\n"
 "includes only the following items at this time:"
 msgstr ""
+"Ju lutemi, mbani parasysh se - ky mjet eksporton vetëm të dhëna personale\n"
+"të depozituara nga WordPress-i dhe shtojcat pjesëmarrëse. S’eksporton të dhëna\n"
+"personale të depozituara nga shtojca jopjesëmarrëse. Është përgjegjësi e juaja\n"
+"të eksportoni veçmas të dhëna personale të depozituara nga shtojca jopjesëmarrëse.\n"
+"Në këtë kohë të dhënat personale të eksportuara përfshijnë vetëm objektet vijuese:"
 
 #: privacy/participating-plugins.php:47
 msgid ""
@@ -703,6 +712,12 @@ msgid ""
 "plugins. The personal data erased includes only the following items at this\n"
 "time:"
 msgstr ""
+"Ju lutemi, mbani parasysh se - ky mjet fshin vetëm të dhëna personale\n"
+"të depozituara nga WordPress-i dhe shtojcat pjesëmarrëse. S’fshin përdorues\n"
+"të regjistruar, as fshin të dhëna personale të depozituara nga shtojca\n"
+"jopjesëmarrëse. Është përgjegjësi e juaja të fshini përdorues të regjistruar, si dhe\n"
+"të dhëna personale të depozituara nga shtojca jopjesëmarrëse. Në këtë kohë, në\n"
+"të dhënat personale të fshira përfshihen vetëm objektet vijuese:"
 
 #: logo-tool/logo-tool.php:70
 msgid "Create logo"
@@ -710,12 +725,12 @@ msgstr "Krijoni stemë"
 
 #: logo-tool/logo-tool.php:60
 msgid "Add a logo to display on your site. No logo? Buy a pro one from Looka — Click “Create logo” to start."
-msgstr ""
+msgstr "Shtoni një stemë për ta shfaqur te sajti juaj. S’ka stemë? Blini një të tillë profesionale nga Looka — Që t’ia fillohet, klikoni mbi “Krijoni stemë”."
 
 #. Description of the plugin
 msgid "WordPress.com provided functionality & tools"
-msgstr ""
+msgstr "Mjete & funksione dhënë nga WordPress.com"
 
 #. Plugin Name of the plugin
 msgid "WP.com Site Helper"
-msgstr ""
+msgstr "Ndihmës Sajti WP.com"

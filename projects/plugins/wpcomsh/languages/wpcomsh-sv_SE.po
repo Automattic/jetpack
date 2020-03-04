@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-02-26 14:05:44+0000\n"
+"PO-Revision-Date: 2020-02-29 11:16:20+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -312,7 +312,7 @@ msgstr "Något nytt är på väg."
 
 #: wpcomsh.php:338
 msgid "This plugin was installed by WordPress.com and provides features offered in your plan subscription."
-msgstr ""
+msgstr "Plugin-programmet installerades av WordPress.com och erbjuder funktioner som finns i din paketprenumeration."
 
 #: wpcomsh.php:335
 msgid "%s is automatically managed for you."
@@ -565,11 +565,11 @@ msgstr "Storlek:"
 
 #: widgets/gravatar.php:122
 msgid "Custom Email Address:"
-msgstr "Anpassa Epostadress:"
+msgstr "Anpassad e-postadress:"
 
 #: widgets/gravatar.php:119
 msgid "Select a user or pick \"custom\" and enter a custom email address."
-msgstr "Välj en användare eller \"anpassad\" och ange en egen e-postadress."
+msgstr "Välj en användare eller välj ”anpassad” och ange en anpassad e-postadress."
 
 #: widgets/gravatar.php:115
 msgid "Center"
@@ -629,7 +629,7 @@ msgstr "Visa en Freshly Pressed-skylt på din sidopanel"
 
 #: widgets/author-grid.php:102 widgets/recent-comments-widget.php:360
 msgid "Avatar Size (px):"
-msgstr "Avatarens storlek (px):"
+msgstr "Profilbildens storlek (px):"
 
 #: widgets/author-grid.php:97
 msgid "Display all authors (including those who have not written any posts)"
@@ -650,11 +650,11 @@ msgstr "Författare"
 
 #: widgets/author-grid.php:12
 msgid "Show a grid of author avatar images."
-msgstr "Visa ett rutnät av avatarer."
+msgstr "Visa profilbilder i ett rutnät av författare."
 
 #: widgets/author-grid.php:11
 msgid "Author Grid"
-msgstr "Författarvy"
+msgstr "Författar-rutnät"
 
 #: private-site/private-site.php:369
 msgid "Private Site"
@@ -684,6 +684,10 @@ msgid ""
 "information for non-participating plugins. It is your responsibility to\n"
 "obtain privacy policy information for non-participating plugins separately."
 msgstr ""
+"Observera – det här verktyget visar enbart sekretesspolicyinformation från\n"
+"WordPress och deltagande plugin-program. Det inkluderar inte sekretesspolicy-\n"
+"information från plugin-program som inte deltar. Du ansvarar själv att\n"
+"separat ta del av sekretesspolicyinformationen från plugin-program som inte deltar."
 
 #: privacy/participating-plugins.php:94
 msgid ""
@@ -693,6 +697,11 @@ msgid ""
 "stored by non-participating plugins separately. The personal data exported\n"
 "includes only the following items at this time:"
 msgstr ""
+"Observera – det här verktyget exporterar enbart personliga data som lagras av WordPress och\n"
+"deltagande plugin-program. Det exporterar inte personliga data som lagrats av\n"
+"plugin-program som inte deltar. Du ansvarar själv att separat exportera personliga data\n"
+"som lagrats av plugin-program som inte deltar. De personliga data som exporteras\n"
+"innefattar enbart följande detaljer för tillfället:"
 
 #: privacy/participating-plugins.php:47
 msgid ""
@@ -703,6 +712,12 @@ msgid ""
 "plugins. The personal data erased includes only the following items at this\n"
 "time:"
 msgstr ""
+"Observera – det här verktyget raderar enbart personliga data som lagras av WordPress och\n"
+"deltagande plugin-program. Det tar inte bort registrerade användare eller\n"
+"personliga data som lagrats av plugin-program som inte deltar. Du ansvarar själv att\n"
+"ta bort registerade användare samt personliga data som lagrats av plugin-program som\n"
+"inte deltar. De personliga data som raderar innefattar enbart följande detaljer för\n"
+"tillfället:"
 
 #: logo-tool/logo-tool.php:70
 msgid "Create logo"
@@ -710,11 +725,11 @@ msgstr "Skapa en logga"
 
 #: logo-tool/logo-tool.php:60
 msgid "Add a logo to display on your site. No logo? Buy a pro one from Looka — Click “Create logo” to start."
-msgstr ""
+msgstr "Lägg till en logotyp att visa på din webbplats. Ingen logga? Köp en proffsig från Looka – Klicka på ”Skapa logotyp” för att komma igång."
 
 #. Description of the plugin
 msgid "WordPress.com provided functionality & tools"
-msgstr ""
+msgstr "WordPress.com ger dig funktionalitet och verktyg"
 
 #. Plugin Name of the plugin
 msgid "WP.com Site Helper"

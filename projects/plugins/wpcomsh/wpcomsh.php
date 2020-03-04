@@ -2,13 +2,13 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 2.4.79
+ * Version: 2.4.80
  * Author: Automattic
  * Author URI: http://automattic.com/
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.4.79' );
+define( 'WPCOMSH_VERSION', '2.4.80' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -934,11 +934,11 @@ function wpcomsh_debug_information_disk_usage( $args ) {
 
 	unset( $args['wp-paths-sizes']['fields']['total_size'] );
 	$args['wp-paths-sizes']['fields']['wpcomsh-disk-space-used'] = array (
-		'label' => 'Disk space used',
+		'label' => __( 'Disk space used', 'wpcomsh' ),
 		'value' => size_format( $space_used, 1 ),
 	);
 	$args['wp-paths-sizes']['fields']['wpcomsh-disk-space-quota'] = array (
-		'label' => 'Disk space quota',
+		'label' => __( 'Disk space quota', 'wpcomsh' ),
 		'value' => size_format( $space_quota, 1 ),
 	);
 

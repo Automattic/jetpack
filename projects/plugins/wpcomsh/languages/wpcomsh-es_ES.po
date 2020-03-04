@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-02-26 14:05:45+0000\n"
+"PO-Revision-Date: 2020-02-27 00:54:04+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -312,11 +312,11 @@ msgstr "Están a punto de llegar novedades."
 
 #: wpcomsh.php:338
 msgid "This plugin was installed by WordPress.com and provides features offered in your plan subscription."
-msgstr ""
+msgstr "WordPress.com instaló este plugin e incluye las funciones que se ofrecen en la suscripción de tu plan."
 
 #: wpcomsh.php:335
 msgid "%s is automatically managed for you."
-msgstr ""
+msgstr "%s se gestiona automáticamente para ti."
 
 #: widgets/top-rated.php:141
 msgid "How many items would you like to display?"
@@ -537,11 +537,11 @@ msgstr "Un reproductor de múltiples canciones"
 
 #: widgets/i-voted.php:33
 msgid "I Voted"
-msgstr ""
+msgstr "He votado"
 
 #: widgets/i-voted.php:31
 msgid "Show your readers that you voted with an \"I Voted\" sticker."
-msgstr ""
+msgstr "Muestra a tus lectores que has votado con una pegatina \"He votado\"."
 
 #: widgets/gravatar.php:144
 msgid "You can modify your Gravatar from your <a href=\"/wp-admin/profile.php\">profile page</a>."
@@ -658,7 +658,7 @@ msgstr "Cuadrícula de autor"
 
 #: private-site/private-site.php:369
 msgid "Private Site"
-msgstr ""
+msgstr "Sitio privado"
 
 #: private-site/private-site.php:227 private-site/private-site.php:324
 #: private-site/private-site.php:468
@@ -671,11 +671,11 @@ msgstr "Acceder"
 
 #: private-site/access-denied-private-site-template.php:45
 msgid "Switch user"
-msgstr ""
+msgstr "Cambiar de usuario"
 
 #: private-site/access-denied-private-site-template.php:43
 msgid "You need to be logged in as a user who has permission to view this site."
-msgstr ""
+msgstr "Debes estar conectado como un usuario que tiene permiso para ver este sitio."
 
 #: privacy/participating-plugins.php:144
 msgid ""
@@ -684,6 +684,10 @@ msgid ""
 "information for non-participating plugins. It is your responsibility to\n"
 "obtain privacy policy information for non-participating plugins separately."
 msgstr ""
+"Ten en cuenta que esta herramienta solo muestra información de la política de privacidad proporcionada por\n"
+"WordPress y los plugins participantes. No incluye información de la política de privacidad\n"
+"de los plugins no participantes. Eres el responsable de\n"
+"obtener la información de la política de privacidad de los plugins no participantes por separado."
 
 #: privacy/participating-plugins.php:94
 msgid ""
@@ -693,6 +697,11 @@ msgid ""
 "stored by non-participating plugins separately. The personal data exported\n"
 "includes only the following items at this time:"
 msgstr ""
+"Ten en cuenta que esta herramienta solo exporta los datos personales almacenados por WordPress y\n"
+"los plugins participantes. No exporta los datos personales almacenados por\n"
+"los plugins no participantes. Eres el responsable de exportar los datos personales\n"
+"almacenados por los plugins no participantes por separado. Los datos personales exportados\n"
+"solo incluyen los siguientes elementos en estos momentos:"
 
 #: privacy/participating-plugins.php:47
 msgid ""
@@ -703,6 +712,12 @@ msgid ""
 "plugins. The personal data erased includes only the following items at this\n"
 "time:"
 msgstr ""
+"Ten en cuenta que esta herramienta solo borra los datos personales almacenados por WordPress y\n"
+"los plugins participantes. No elimina los usuarios registrados, ni borra\n"
+"datos personales almacenados por los plugins no participantes. Eres el responsable de\n"
+"eliminar los usuarios registrados, así como los datos personales almacenados por los plugins\n"
+"no participantes. Los datos personales borrados solo incluyen los siguientes elementos\n"
+"en estos momentos:"
 
 #: logo-tool/logo-tool.php:70
 msgid "Create logo"
@@ -714,8 +729,8 @@ msgstr "Añade un logo para mostrarlo en tu sitio web. ¿No tienes logo? Compra 
 
 #. Description of the plugin
 msgid "WordPress.com provided functionality & tools"
-msgstr ""
+msgstr "Funciones y herramientas proporcionadas por WordPress.com"
 
 #. Plugin Name of the plugin
 msgid "WP.com Site Helper"
-msgstr ""
+msgstr "Asistente del sitio de WP.com"
