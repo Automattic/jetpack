@@ -197,6 +197,7 @@
 		"eslint-plugin-lodash": "6.0.0",
 		"eslint-plugin-react": "7.19.0",
 		"eslint-plugin-wpcalypso": "4.1.0",
+		"enzyme": "3.11.0",
 		"glob": "7.1.6",
 		"husky": "2.7.0",
 		"jest": "24.9.0",
