@@ -44,7 +44,7 @@ export const settings = {
 	keywords: [ __( 'events', 'jetpack' ), __( 'tickets', 'jetpack' ) ],
 	supports: {
 		html: false,
-		align: [ 'left', 'center', 'right' ],
+		align: true,
 	},
 	attributes,
 	edit,
