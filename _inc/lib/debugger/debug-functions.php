@@ -103,4 +103,3 @@ function jetpack_debugger_site_status_tests( $core_tests ) {
 
 	return $core_tests;
 }
-

@@ -495,6 +495,48 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	}
 
 	/**
+	 * If Sync is enabled, this test will be skipped. If Sync is disabled, the test will fail.
+	 * Eventually, we'll make this test more robust with additional states. Here is the plan for possible Sync states,
+	 * including states that are planned but not yet implemented.
+	 *
+	 * Enabled: Skips test
+	 * Disabled: Results in a failing test
+	 * Healthy: @todo
+	 * In Progress: @todo
+	 * Delayed: @todo
+	 * Error: @todo
+	 */
+	protected function test__sync_health() {
+		$name = __FUNCTION__;
+		if ( ! $this->helper_is_jetpack_connected() ) {
+			// If the site is not connected, there is no point in testing Sync health.
+			return self::skipped_test( array( 'name' => $name, 'show_in_site_health' => false ) );
+		}
+		if ( Sync_Settings::is_sync_enabled() ) {
+			return self::skipped_test( array( 'name' => $name ) );
+		}
+		return self::failing_test( array(
+			'name' => $name,
+			'label' => __( 'Jetpack Sync has been disabled on your site.', 'jetpack' ),
+			'severity' => 'recommended',
+			'action' => 'https://github.com/Automattic/jetpack/blob/master/packages/sync/src/class-settings.php',
+			'action_label' => __( 'See Github for more on Sync Settings', 'jetpack' ),
+			'short_description' => __( 'Jetpack Sync has been disabled on your site.', 'jetpack' ),
+			'long_description' => sprintf(
+				'<p>%1$s</p>' .
+				'<p>%2$s</p>' .
+				'<p><span class="dashicons fail"><span class="screen-reader-text">%3$s</span></span> %4$s<strong> %5$s</strong></p>',
+				__( 'The information synced by Jetpack ensures that Jetpack Search, Related Posts and other features are aligned with your site’s current content.', 'jetpack' ),
+				__( 'Developers may enable / disable syncing using the Sync Settings API.', 'jetpack' ),
+				/* translators: screen reader text indicating a test failed */
+				__( 'Error', 'jetpack' ),
+				__( 'Jetpack Sync has been disabled on your site. Without it, certain Jetpack features will not work.', 'jetpack' ),
+				__( 'We recommend enabling Sync.', 'jetpack' )
+			)
+		) );
+	}
+
+	/**
 	 * Calls to WP.com to run the connection diagnostic testing suite.
 	 *
 	 * Intentionally added last as it will be skipped if any local failed conditions exist.
