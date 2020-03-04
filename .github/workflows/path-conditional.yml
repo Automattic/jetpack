@@ -21,8 +21,5 @@ jobs:
         run: |
           echo ${{ toJson(steps.getfile.outputs) }}
 
-      - name: echo output
-        run: ${{ steps.getfile.outputs }}
-
       - name: echo output2
-        run: $CHANGED_FILES
+        run: ${{ steps.getfile.outputs }}
