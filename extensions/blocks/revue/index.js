@@ -21,6 +21,7 @@ export const settings = {
 		_x( 'email', 'block search term', 'jetpack' ),
 		_x( 'subscription', 'block search term', 'jetpack' ),
 		_x( 'newsletter', 'block search term', 'jetpack' ),
+		_x( 'mailing list', 'block search term', 'jetpack' ),
 	],
 	supports: {
 		html: false,

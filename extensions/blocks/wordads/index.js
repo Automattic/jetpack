@@ -61,7 +61,7 @@ export const settings = {
 	keywords: [
 		_x( 'ads', 'block search term', 'jetpack' ),
 		'WordAds',
-		_x( 'Advertisement', 'block search term', 'jetpack' ),
+		_x( 'advertisement', 'block search term', 'jetpack' ),
 	],
 
 	supports: {

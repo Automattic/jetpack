@@ -60,6 +60,7 @@ export const settings = {
 	keywords: [
 		_x( 'buy', 'block search term', 'jetpack' ),
 		_x( 'commerce', 'block search term', 'jetpack' ),
+		_x( 'products', 'block search term', 'jetpack' ),
 		_x( 'purchase', 'block search term', 'jetpack' ),
 		_x( 'sell', 'block search term', 'jetpack' ),
 		_x( 'shop', 'block search term', 'jetpack' ),
