@@ -22,4 +22,4 @@ jobs:
 
       - name: echo output
         run: |
-          echo ${{ steps.getfile.outputs.files }}
+          echo ${{ toJson(steps) }}
