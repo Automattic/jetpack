@@ -230,13 +230,7 @@ class MapEdit extends Component {
 			apiRequestOutstanding,
 		} = this.state;
 
-		const mapStyle = settings.styles.reduce( ( previewObject, styleObject ) => {
-			if ( className.includes( styleObject.name ) ) {
-				return styleObject;
-			}
-
-			return previewObject;
-		}, null );
+		const mapStyle = settings.styles.find( styleObject => className.includes( styleObject.name ) );
 
 		const inspectorControls = (
 			<Fragment>
