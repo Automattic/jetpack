@@ -21,5 +21,6 @@ jobs:
           echo "::set-output name=files::$(git diff-tree --no-commit-id --name-only -r ${{ github.sha }})"
 
       - name: echo output
-        run: |
-          echo ${{ toJson(steps) }}
+        env:
+          STEPS_CONTEXT: ${{ toJson(steps) }}
+        run: echo "$STEPS_CONTEXT"
