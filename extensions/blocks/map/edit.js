@@ -68,6 +68,18 @@ class MapEdit extends Component {
 		this.mapRef = createRef();
 	}
 
+	componentDidUpdate( prevProps ) {
+		const { prevClassName } = prevProps;
+		const { className, setAttributes } = this.props;
+
+		if ( prevClassName !== className ) {
+			const mapStyleObject = settings.styles.find( styleObject =>
+				className.includes( styleObject.name )
+			);
+			setAttributes( { mapStyle: mapStyleObject.name } );
+		}
+	}
+
 	addPoint = point => {
 		const { attributes, setAttributes } = this.props;
 		const { points } = attributes;
@@ -220,6 +232,7 @@ class MapEdit extends Component {
 			scrollToZoom,
 			mapHeight,
 			showFullscreenButton,
+			mapStyle,
 		} = attributes;
 		const {
 			addPointVisibility,
@@ -229,8 +242,6 @@ class MapEdit extends Component {
 			apiState,
 			apiRequestOutstanding,
 		} = this.state;
-
-		const mapStyle = settings.styles.find( styleObject => className.includes( styleObject.name ) );
 
 		const inspectorControls = (
 			<Fragment>
@@ -444,7 +455,7 @@ class MapEdit extends Component {
 								ref={ this.mapRef }
 								scrollToZoom={ allowScrollToZoom }
 								showFullscreenButton={ showFullscreenButton }
-								mapStyle={ mapStyle ? mapStyle.name : 'default' }
+								mapStyle={ mapStyle || 'default' }
 								mapDetails={ mapDetails }
 								mapHeight={ mapHeight }
 								points={ points }
@@ -477,11 +488,12 @@ class MapEdit extends Component {
 				</div>
 			</Fragment>
 		);
+		const mapStyleObject = settings.styles.find( styleObject => styleObject.name === mapStyle );
 		const placholderPreview = (
 			<div>
 				<img
 					alt={ __( 'Map Preview', 'jetpack' ) }
-					src={ mapStyle ? mapStyle.preview : previewPlaceholder }
+					src={ mapStyleObject ? mapStyleObject.preview : previewPlaceholder }
 				/>
 			</div>
 		);
