@@ -351,7 +351,7 @@ class Jetpack_Lazy_Images {
 				'_inc/build/lazy-images/js/lazy-images.min.js',
 				'modules/lazy-images/js/lazy-images.js'
 			),
-			array( 'jquery' ),
+			array(),
 			JETPACK__VERSION,
 			true
 		);

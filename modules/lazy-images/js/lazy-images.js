@@ -1,6 +1,6 @@
-/* globals IntersectionObserver, jQuery */
+/* globals IntersectionObserver */
 
-var jetpackLazyImagesModule = function( $ ) {
+var jetpackLazyImagesModule = function() {
 	var images,
 		config = {
 			// If the image gets within 200px in the Y axis, start the download.
@@ -12,15 +12,19 @@ var jetpackLazyImagesModule = function( $ ) {
 		image,
 		i;
 
-	$( document ).ready( function() {
-		lazy_load_init();
 
+
+	lazy_load_init();
+
+	var bodyEl = document.querySelector( 'body' );
+	if ( bodyEl ) {
 		// Lazy load images that are brought in from Infinite Scroll
-		$( 'body' ).bind( 'post-load', lazy_load_init );
+		bodyEl.addEventListener( 'post-load', lazy_load_init );
 
 		// Add event to provide optional compatibility for other code.
-		$( 'body' ).bind( 'jetpack-lazy-images-load', lazy_load_init );
-	} );
+		bodyEl.addEventListener( 'jetpack-lazy-images-load', lazy_load_init );
+	}
+
 
 	function lazy_load_init() {
 		images = document.querySelectorAll( 'img.jetpack-lazy-image:not(.jetpack-lazy-image--handled)' );
@@ -96,40 +100,50 @@ var jetpackLazyImagesModule = function( $ ) {
 	 * @param {object} image The image object.
 	 */
 	function applyImage( image ) {
-		var theImage = $( image ),
-			srcset,
+		var srcset,
 			sizes,
-			theClone;
+			imageClone,
+			lazyLoadedImageEvent;
 
-		if ( ! theImage.length ) {
+		if ( ! image instanceof HTMLImageElement ) {
 			return;
 		}
 
-		srcset = theImage.attr( 'data-lazy-srcset' );
-		sizes = theImage.attr( 'data-lazy-sizes' );
-		theClone = theImage.clone(true);
+		srcset = image.getAttribute( 'data-lazy-srcset' );
+		sizes = image.getAttribute( 'data-lazy-sizes' );
+		imageClone = image.cloneNode();
 
 		// Remove lazy attributes from the clone.
-		theClone.removeAttr( 'data-lazy-srcset' ),
-		theClone.removeAttr( 'data-lazy-sizes' );
-		theClone.removeAttr( 'data-lazy-src' );
+		imageClone.removeAttribute( 'data-lazy-srcset' ),
+		imageClone.removeAttribute( 'data-lazy-sizes' );
+		imageClone.removeAttribute( 'data-lazy-src' );
 
 		// Add the attributes we want on the finished image.
-		theClone.addClass( 'jetpack-lazy-image--handled' );
-		theClone.attr( 'data-lazy-loaded', 1 );
+		imageClone.classList.add( 'jetpack-lazy-image--handled' );
+		imageClone.setAttribute( 'data-lazy-loaded', 1 );
 		if ( ! srcset ) {
-			theClone.removeAttr( 'srcset' );
+			imageClone.removeAttribute( 'srcset' );
 		} else {
-			theClone.attr( 'srcset', srcset );
+			imageClone.setAttribute( 'srcset', srcset );
 		}
 		if ( sizes ) {
-			theClone.attr( 'sizes', sizes );
+			imageClone.setAttribute( 'sizes', sizes );
 		}
 
-		theImage.replaceWith( theClone );
+		image.parentNode.replaceChild( imageClone, image );
 
 		// Fire an event so that third-party code can perform actions after an image is loaded.
-		theClone.trigger( 'jetpack-lazy-loaded-image' );
+		try {
+			lazyLoadedImageEvent = new Event( 'jetpack-lazy-loaded-image', {
+				bubbles: true,
+				cancelable: true
+			} );
+		} catch ( e ) {
+			lazyLoadedImageEvent = document.createEvent( 'Event' )
+			lazyLoadedImageEvent.initEvent( 'jetpack-lazy-loaded-image', true, true );
+		}
+
+		imageClone.dispatchEvent( lazyLoadedImageEvent );
 	}
 };
 
@@ -865,4 +879,8 @@ var jetpackLazyImagesModule = function( $ ) {
 	}(window, document));
 
 // Let's kick things off now
-jetpackLazyImagesModule( jQuery );
+if ( document.readyState === 'interactive' || document.readyState === "complete" ) {
+	jetpackLazyImagesModule();
+} else {
+	document.addEventListener( 'DOMContentLoaded', jetpackLazyImagesModule );
+}
