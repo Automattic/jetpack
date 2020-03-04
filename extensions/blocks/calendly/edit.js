@@ -36,6 +36,7 @@ import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import SubmitButton from '../../shared/submit-button';
 import { getAttributesFromEmbedCode } from './utils';
 import BlockStylesSelector from '../../shared/components/block-styles-selector';
+import { CALENDLY_EXAMPLE_URL } from './';
 
 function CalendlyEdit( props ) {
 	const {
@@ -74,7 +75,7 @@ function CalendlyEdit( props ) {
 	};
 
 	useEffect( () => {
-		if ( ! url || 'link' === style ) {
+		if ( ! url || CALENDLY_EXAMPLE_URL === url || 'link' === style ) {
 			return;
 		}
 		setResolveUrl( true );
