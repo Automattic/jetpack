@@ -54,8 +54,8 @@ export async function waitForSelector( page, selector, options = {} ) {
  * @param {Object} options Custom options to modify function behavior.
  */
 export async function waitAndClick( page, selector, options = { visible: true } ) {
-	const element = await waitForSelector( page, selector, options );
-	return await element.click( options );
+	await waitForSelector( page, selector, options );
+	return await page.click( selector, options );
 }
 
 /**
