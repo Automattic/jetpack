@@ -39,5 +39,10 @@ export const settings = {
 			migrate: attributes => ( { ...attributes, showFullscreenButton: true } ),
 			save,
 		},
+		{
+			attributes: mapSettings.attributes,
+			migrate: attributes => omit( attributes, 'mapStyle' ),
+			save,
+		},
 	],
 };

@@ -38,6 +38,7 @@ import { settings } from './settings.js';
 import previewPlaceholder from './map-preview.jpg';
 import { compose } from '@wordpress/compose';
 import { withDispatch } from '@wordpress/data';
+import { getActiveStyleName } from '../../shared/block-styles';
 
 const API_STATE_LOADING = 0;
 const API_STATE_FAILURE = 1;
@@ -66,18 +67,6 @@ class MapEdit extends Component {
 			apiState: API_STATE_LOADING,
 		};
 		this.mapRef = createRef();
-	}
-
-	componentDidUpdate( prevProps ) {
-		const { prevClassName } = prevProps;
-		const { className, setAttributes } = this.props;
-
-		if ( prevClassName !== className ) {
-			const mapStyleObject = settings.styles.find( styleObject =>
-				className.includes( styleObject.name )
-			);
-			setAttributes( { mapStyle: mapStyleObject.name } );
-		}
 	}
 
 	addPoint = point => {
@@ -222,7 +211,6 @@ class MapEdit extends Component {
 			onResizeStart,
 		} = this.props;
 		const {
-			mapStyle,
 			mapDetails,
 			points,
 			zoom,
@@ -428,6 +416,7 @@ class MapEdit extends Component {
 		);
 		// Only scroll to zoom when the block is selected, and there's 1 or less points.
 		const allowScrollToZoom = isSelected && points.length <= 1;
+		const mapStyle = getActiveStyleName( settings.styles, attributes.className );
 		const placeholderAPIStateSuccess = (
 			<Fragment>
 				{ inspectorControls }
