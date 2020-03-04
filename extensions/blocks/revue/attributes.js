@@ -18,7 +18,7 @@ export default {
 	},
 	emailPlaceholder: {
 		type: 'string',
-		default: __( 'Your email address…', 'jetpack' ),
+		default: __( 'Enter your email address', 'jetpack' ),
 	},
 	firstNameLabel: {
 		type: 'string',
@@ -26,7 +26,7 @@ export default {
 	},
 	firstNamePlaceholder: {
 		type: 'string',
-		default: __( 'First name… (Optional)', 'jetpack' ),
+		default: __( 'Enter your first name', 'jetpack' ),
 	},
 	firstNameShow: {
 		type: 'boolean',
@@ -38,7 +38,7 @@ export default {
 	},
 	lastNamePlaceholder: {
 		type: 'string',
-		default: __( 'Last name… (Optional)', 'jetpack' ),
+		default: __( 'Enter your last name', 'jetpack' ),
 	},
 	lastNameShow: {
 		type: 'boolean',
