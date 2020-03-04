@@ -18,6 +18,10 @@ import { setFilterQuery, getFilterQuery, clearFiltersFromQuery } from '../lib/qu
 import { mapFilterToFilterKey, mapFilterToType } from '../lib/filters';
 
 export default class SearchFilters extends Component {
+	static defaultProps = {
+		showClearFiltersButton: true,
+	};
+
 	onChangeFilter = ( filterName, filterValue ) => {
 		setFilterQuery( filterName, filterValue );
 		this.props.onChange && this.props.onChange();
@@ -66,7 +70,7 @@ export default class SearchFilters extends Component {
 		const aggregations = get( this.props.results, 'aggregations' );
 		return (
 			<div className="jetpack-instant-search__filters">
-				{ this.hasActiveFilters() && (
+				{ this.props.showClearFiltersButton && this.hasActiveFilters() && (
 					<a
 						class="jetpack-instant-search__clear-filters-link"
 						href="#"
