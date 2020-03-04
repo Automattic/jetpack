@@ -77,7 +77,7 @@ export async function connectThroughWPAdminIfNeeded( {
 	// await ( await JetpackUserTypePage.init( page ) ).selectUserType( 'creator' );
 
 	if ( mockPlanData ) {
-		await persistPlanData();
+		await persistPlanData( 'jetpack_free' );
 		await ( await PickAPlanPage.init( page ) ).selectFreePlan();
 	} else {
 		await ( await PickAPlanPage.init( page ) ).selectBusinessPlan();
