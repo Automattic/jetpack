@@ -272,16 +272,18 @@ class Jetpack_Cxn_Test_Base {
 	 *
 	 * @param string $name Test name.
 	 * @param string $message Reason for skipping the test. Optional.
+	 * @param bool   $show_in_site_health True if we should show the skipped test on the site health page.
 	 *
 	 * @return array Test results.
 	 */
-	public static function skipped_test( $name = 'Unnamed', $message = false ) {
+	public static function skipped_test( $name = 'Unnamed', $message = false, $show_in_site_health = true ) {
 		return array(
-			'name'       => $name,
-			'pass'       => 'skipped',
-			'message'    => $message,
-			'resolution' => false,
-			'severity'   => false,
+			'name'                => $name,
+			'pass'                => 'skipped',
+			'message'             => $message,
+			'resolution'          => false,
+			'severity'            => false,
+			'show_in_site_health' => $show_in_site_health,
 		);
 	}
 

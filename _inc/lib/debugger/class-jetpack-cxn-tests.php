@@ -8,6 +8,7 @@
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Connection\Utils as Connection_Utils;
+use Automattic\Jetpack\Sync\Settings as Sync_Settings;
 
 /**
  * Class Jetpack_Cxn_Tests contains all of the actual tests.
@@ -360,6 +361,47 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 			$resolution = __( 'Try adding the following to your wp-config.php file:', 'jetpack' ) . " define( '$needed_constant', $server_port );";
 			return self::failing_test( $name, $message, $resolution );
 		}
+	}
+
+	/**
+	 * If Sync is enabled, this test will be skipped. If Sync is disabled, the test will fail.
+	 * Eventually, we'll make this test more robust with additional states. Here is the plan for possible Sync states,
+	 * including states that are planned but not yet implemented.
+	 *
+	 * Enabled: Skips test
+	 * Disabled: Results in a failing test
+	 * Healthy: @todo
+	 * In Progress: @todo
+	 * Delayed: @todo
+	 * Error: @todo
+	 */
+	protected function test__sync_health() {
+		$name = __FUNCTION__;
+		if ( ! $this->helper_is_jetpack_connected() ) {
+			// If the site is not connected, there is no point in testing Sync health.
+			return self::skipped_test( $name, false, false );
+		}
+		if ( Sync_Settings::is_sync_enabled() ) {
+			return self::skipped_test( $name, false, false );
+		}
+		return self::failing_test(
+			$name,
+			__( 'Jetpack Sync has been disabled on your site.', 'jetpack' ),
+			'enable_sync',
+			admin_url( '#' ),
+			'recommended',
+			__( 'Jetpack Sync has been disabled on your site.', 'jetpack' ),
+			__( 'Learn more about enabling Sync', 'jetpack' ),
+			sprintf(
+				'<p>%1$s</p>' .
+				'<p><span class="dashicons fail"><span class="screen-reader-text">%2$s</span></span> %3$s<strong> %4$s</strong></p>',
+				__( 'The information synced by Jetpack ensures that Jetpack Search, Related Posts and other features are aligned with your site’s current content.', 'jetpack' ),
+				/* translators: screen reader text indicating a test failed */
+				__( 'Error', 'jetpack' ),
+				__( 'Jetpack Sync has been disabled on your site. Without it, certain Jetpack features will not work.', 'jetpack' ),
+				__( 'We recommend enabling Sync.', 'jetpack' )
+			)
+		);
 	}
 
 	/**

@@ -31,10 +31,15 @@ function jetpack_debugger_site_status_tests( $core_tests ) {
 	$cxn_tests = new Jetpack_Cxn_Tests();
 	$tests     = $cxn_tests->list_tests( 'direct' );
 	foreach ( $tests as $test ) {
+
 		$core_tests['direct'][ $test['name'] ] = array(
 			'label' => __( 'Jetpack: ', 'jetpack' ) . $test['name'],
 			'test'  => function() use ( $test, $cxn_tests ) { // phpcs:ignore PHPCompatibility.FunctionDeclarations.NewClosure.Found
 				$results = $cxn_tests->run_test( $test['name'] );
+
+				if ( isset( $results['show_in_site_health'] ) && false === $results['show_in_site_health'] ) {
+					return;
+				}
 				// Test names are, by default, `test__some_string_of_text`. Let's convert to "Some String Of Text" for humans.
 				$label = ucwords(
 					str_replace(
