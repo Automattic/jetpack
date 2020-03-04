@@ -19,7 +19,7 @@ jobs:
         run: echo git diff-tree --no-commit-id --name-only -r ${{ github.sha }}
 
       - name: echo steps
-        run: echo ${{ steps }}
+        run: echo ${{ toJson(steps) }}
 
       - name: echo output
         run: ${{ steps.getfile }}
