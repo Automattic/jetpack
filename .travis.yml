@@ -94,7 +94,6 @@ matrix:
     env: LEGACY_FULL_SYNC=1 WP_BRANCH=latest
 
   allow_failures:
-    - name: "E2E tests"
     - name: "PHP Nightly"
     - name: "Spell check Markdown files"
     - name: "Code Coverage"
