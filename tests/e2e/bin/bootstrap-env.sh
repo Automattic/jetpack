@@ -7,3 +7,5 @@ DOCKER=${DOCKER-false}
 DOCKER_ENV=${DOCKER_ENV-ci}
 WP_SITE_URL=${WP_SITE_URL-localhost}
 DOCKER_COMPOSE_FILE_OPTIONS="-f $(dirname "$0")/docker-compose.yml"
+
+DC="docker-compose $DOCKER_COMPOSE_FILE_OPTIONS"

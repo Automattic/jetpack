@@ -171,6 +171,16 @@ start_ngrok() {
 	fi
 }
 
+restart_tunnel() {
+	curl -X "DELETE" localhost:4040/api/tunnels/command_line
+	curl -X "DELETE" "localhost:4040/api/tunnels/command_line%20(http)"
+
+	curl -X POST -H "Content-Type: application/json" -d '{"name":"command_line","addr":"http://localhost:8889","proto":"http"}' localhost:4040/api/tunnels
+
+	sleep 3
+	WP_SITE_URL=$(get_ngrok_url)
+}
+
 get_ngrok_url() {
 	echo $(curl -s localhost:4040/api/tunnels/command_line | jq --raw-output .public_url)
 }
