@@ -318,6 +318,9 @@ class Jetpack_Cxn_Test_Base {
 				$resolution = __( 'Please ask your hosting provider to confirm your server can make outbound requests to jetpack.com.', 'jetpack' );
 				break;
 			case 'support':
+			case 'enable_sync':
+				$resolution = __( 'We recommend enabling Sync.', 'jetpack' );
+				break;
 			case false:
 				$resolution = __( 'Please contact Jetpack support.', 'jetpack' ); // @todo: Link to support.
 				break;
