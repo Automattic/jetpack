@@ -9,10 +9,9 @@ import { omit } from 'lodash';
 import { settings as mapSettings } from './settings.js';
 import edit from './edit';
 import save from './save';
-import saveDeprecatedV1 from './save-deprecated-v1';
+import deprecatedV1 from './deprecated/v1';
 import './style.scss';
 import './editor.scss';
-
 export const { name } = mapSettings;
 
 export const settings = {
@@ -39,15 +38,6 @@ export const settings = {
 			migrate: attributes => ( { ...attributes, showFullscreenButton: true } ),
 			save,
 		},
-		{
-			attributes: Object.assign( {}, mapSettings.attributes, {
-				mapStyle: {
-					type: 'string',
-					default: 'default',
-				},
-			} ),
-			migrate: attributes => omit( attributes, 'mapStyle' ),
-			save: saveDeprecatedV1,
-		},
+		deprecatedV1,
 	],
 };
