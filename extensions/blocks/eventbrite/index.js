@@ -47,6 +47,7 @@ export const settings = {
 	],
 	supports: {
 		html: false,
+		align: true,
 	},
 	attributes,
 	edit,
