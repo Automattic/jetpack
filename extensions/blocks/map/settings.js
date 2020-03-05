@@ -88,6 +88,7 @@ export const settings = {
 		},
 	},
 	supports: {
+		defaultStyle: false,
 		html: false,
 	},
 	styles: [
