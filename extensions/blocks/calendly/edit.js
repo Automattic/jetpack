@@ -8,7 +8,6 @@ import queryString from 'query-string';
 /**
  * WordPress dependencies
  */
-import apiFetch from '@wordpress/api-fetch';
 import { BlockControls, BlockIcon, InspectorControls } from '@wordpress/block-editor';
 import {
 	Button,
@@ -37,6 +36,7 @@ import SubmitButton from '../../shared/submit-button';
 import { getAttributesFromEmbedCode } from './utils';
 import BlockStylesSelector from '../../shared/components/block-styles-selector';
 import { CALENDLY_EXAMPLE_URL } from './';
+import testEmbedUrl from '../../shared/test-embed-url';
 
 function CalendlyEdit( props ) {
 	const {
@@ -65,7 +65,7 @@ function CalendlyEdit( props ) {
 		url,
 	} = validatedAttributes;
 	const [ embedCode, setEmbedCode ] = useState( '' );
-	const [ resolvingUrl, setResolveUrl ] = useState( false );
+	const [ isResolvingUrl, setIsResolvingUrl ] = useState( false );
 
 	const setErrorNotice = () => {
 		noticeOperations.removeAllNotices();
@@ -78,19 +78,10 @@ function CalendlyEdit( props ) {
 		if ( ! url || CALENDLY_EXAMPLE_URL === url || 'link' === style ) {
 			return;
 		}
-		setResolveUrl( true );
-		apiFetch( { path: `/wpcom/v2/resolve-redirect/${ url }` } ).then(
-			response => {
-				setResolveUrl( false );
-
-				const resolvedStatusCode = response.status ? parseInt( response.status, 10 ) : null;
-				if ( resolvedStatusCode && resolvedStatusCode >= 400 ) {
-					setAttributes( { url: undefined } );
-					setErrorNotice();
-				}
-			},
-			() => setResolveUrl( false )
-		);
+		testEmbedUrl( url, setIsResolvingUrl ).catch( () => {
+			setAttributes( { url: undefined } );
+			setErrorNotice();
+		} );
 	}, [] );
 
 	const parseEmbedCode = event => {
@@ -107,25 +98,16 @@ function CalendlyEdit( props ) {
 			return;
 		}
 
-		setResolveUrl( true );
-
-		apiFetch( { path: `/wpcom/v2/resolve-redirect/${ newAttributes.url }` } ).then(
-			response => {
-				setResolveUrl( false );
-
-				const resolvedStatusCode = response.status ? parseInt( response.status, 10 ) : null;
-				if ( resolvedStatusCode && resolvedStatusCode >= 400 ) {
-					setAttributes( { url: undefined } );
-					setErrorNotice();
-					return;
-				}
-
+		testEmbedUrl( newAttributes.url, setIsResolvingUrl )
+			.then( () => {
 				const newValidatedAttributes = getValidatedAttributes( attributeDetails, newAttributes );
 				setAttributes( newValidatedAttributes );
 				noticeOperations.removeAllNotices();
-			},
-			() => setResolveUrl( false )
-		);
+			} )
+			.catch( () => {
+				setAttributes( { url: undefined } );
+				setErrorNotice();
+			} );
 	};
 
 	const embedCodeForm = (
@@ -302,7 +284,7 @@ function CalendlyEdit( props ) {
 		</InspectorControls>
 	);
 
-	if ( resolvingUrl ) {
+	if ( isResolvingUrl ) {
 		return blockEmbedding;
 	}
 
