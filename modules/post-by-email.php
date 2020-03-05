@@ -12,6 +12,8 @@
  * Additional Search Queries: post by email, email
  */
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+
 add_action( 'jetpack_modules_loaded', array( 'Jetpack_Post_By_Email', 'init' ) );
 
 Jetpack::enable_module_configurable( __FILE__ );
@@ -46,11 +48,7 @@ class Jetpack_Post_By_Email {
 	function profile_scripts() {
 		wp_enqueue_script( 'post-by-email', plugins_url( 'post-by-email/post-by-email.js', __FILE__ ), array( 'jquery' ) );
 		wp_localize_script( 'post-by-email', 'pbeVars', array(
-			'nonces' => array(
-				'enable'     => wp_create_nonce( 'jetpack.createPostByEmailAddress' ),
-				'regenerate' => wp_create_nonce( 'jetpack.regeneratePostByEmailAddress' ),
-				'disable'    => wp_create_nonce( 'jetpack.deletePostByEmailAddress' ),
-			),
+			'rest_nonce' => wp_create_nonce( 'wp_rest' ),
 		));
 		wp_enqueue_style( 'post-by-email', plugins_url( 'post-by-email/post-by-email.css', __FILE__ ) );
 		wp_style_add_data( 'post-by-email', 'jetpack-inline', true );
@@ -59,7 +57,8 @@ class Jetpack_Post_By_Email {
 	}
 
 	function check_user_connection() {
-		$user_token = Jetpack_Data::get_access_token( get_current_user_id() );
+		$user_token = ( new Connection_Manager() )->get_access_token( get_current_user_id() );
+
 		$is_user_connected = $user_token && !is_wp_error( $user_token );
 
 		// If the user is already connected via Jetpack, then we're good
@@ -129,9 +128,8 @@ class Jetpack_Post_By_Email {
 	}
 
 	function get_post_by_email_address() {
-		$xml = new Jetpack_IXR_Client( array(
-			'user_id' => get_current_user_id(),
-		) );
+		$xml = $this->init_rest_connection();
+
 		$xml->query( 'jetpack.getPostByEmailAddress' );
 
 		if ( $xml->isError() )
@@ -144,34 +142,91 @@ class Jetpack_Post_By_Email {
 		return $response;
 	}
 
+	/**
+	 * Process the REST API request to modify the "Post by Email" settings.
+	 *
+	 * @param string $action Allowed values: 'create', 'regenerate', 'delete'.
+	 *
+	 * @return array|false
+	 */
+	public function process_api_request( $action ) {
+		$endpoint      = null;
+		$error_message = esc_html__( 'Please try again later.', 'jetpack' );
+		$result        = false;
+
+		switch ( $action ) {
+			case 'create':
+				$endpoint      = 'jetpack.createPostByEmailAddress';
+				$error_message = esc_html__( 'Unable to create the Post by Email address. Please try again later.', 'jetpack' );
+				break;
+			case 'regenerate':
+				$endpoint      = 'jetpack.regeneratePostByEmailAddress';
+				$error_message = esc_html__( 'Unable to regenerate the Post by Email address. Please try again later.', 'jetpack' );
+				break;
+			case 'delete':
+				$endpoint      = 'jetpack.deletePostByEmailAddress';
+				$error_message = esc_html__( 'Unable to delete the Post by Email address. Please try again later.', 'jetpack' );
+				break;
+		}
+
+		if ( $endpoint ) {
+			$result = $this->process_rest_proxy_request( $endpoint, $error_message );
+		}
+
+		return $result;
+	}
+
 	function create_post_by_email_address() {
-		self::__process_ajax_proxy_request(
+		_doing_it_wrong( __METHOD__, esc_html__( "Use REST API endpoint '/wp-json/jetpack/v4/settings' instead.", 'jetpack' ), 'jetpack-8.4' );
+
+		self::process_ajax_proxy_request(
 			'jetpack.createPostByEmailAddress',
 			__( 'Unable to create your Post By Email address. Please try again later.', 'jetpack' )
 		);
 	}
 
 	function regenerate_post_by_email_address() {
-		self::__process_ajax_proxy_request(
+		_doing_it_wrong( __METHOD__, esc_html__( "Use REST API endpoint '/wp-json/jetpack/v4/settings' instead.", 'jetpack' ), 'jetpack-8.4' );
+
+		self::process_ajax_proxy_request(
 			'jetpack.regeneratePostByEmailAddress',
 			__( 'Unable to regenerate your Post By Email address. Please try again later.', 'jetpack' )
 		);
 	}
 
 	function delete_post_by_email_address() {
-		self::__process_ajax_proxy_request(
+		_doing_it_wrong( __METHOD__, esc_html__( "Use REST API endpoint '/wp-json/jetpack/v4/settings' instead.", 'jetpack' ), 'jetpack-8.4' );
+
+		self::process_ajax_proxy_request(
 			'jetpack.deletePostByEmailAddress',
 			__( 'Unable to disable your Post By Email address. Please try again later.', 'jetpack' )
 		);
 	}
 
 	/**
-	 * Back end function to abstract the xmlrpc function calls to wpcom.
+	 * The AJAX proxying method for backward compatibility.
+	 * To be removed in the upcoming versions.
 	 *
-	 * @param $endpoint
-	 * @param $error_message
+	 * @param string $endpoint Jetpack API endpoint.
+	 * @param string $error_message Error message to be returned if something goes wrong.
+	 *
+	 * @deprecated
 	 */
 	function __process_ajax_proxy_request( $endpoint, $error_message ) { // phpcs:ignore
+		$this->process_ajax_proxy_request( $endpoint, $error_message );
+	}
+
+	/**
+	 * Back end function to abstract the xmlrpc function calls to wpcom.
+	 *
+	 * @param string $endpoint Jetpack API endpoint.
+	 * @param string $error_message Error message to be returned if something goes wrong.
+	 *
+	 * @deprecated
+	 */
+	private function process_ajax_proxy_request( $endpoint, $error_message ) {
+		_deprecated_function( __METHOD__, 'jetpack-8.4', '_process_rest_proxy_request' );
+
 		if ( ! current_user_can( 'edit_posts' ) ) {
 			wp_send_json_error( $error_message );
 		}
@@ -179,9 +234,7 @@ class Jetpack_Post_By_Email {
 			wp_send_json_error( $error_message );
 		}
 
-		$xml = new Jetpack_IXR_Client( array(
-			'user_id' => get_current_user_id(),
-		) );
+		$xml = $this->init_rest_connection();
 		$xml->query( $endpoint );
 
 		if ( $xml->isError() ) {
@@ -198,4 +251,48 @@ class Jetpack_Post_By_Email {
 
 		wp_send_json_success( $response );
 	}
+
+	/**
+	 * Calls WPCOM through authenticated request to create, regenerate or delete the Post by Email address.
+	 *
+	 * @since 4.3.0
+	 *
+	 * @param string $endpoint Process to call on WPCOM to create, regenerate or delete the Post by Email address.
+	 * @param string $error    Error message to return.
+	 *
+	 * @return array
+	 */
+	private function process_rest_proxy_request( $endpoint, $error ) {
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			return array( 'message' => $error );
+		}
+
+		$xml = $this->init_rest_connection();
+
+		$xml->query( $endpoint );
+
+		if ( $xml->isError() ) {
+			return array( 'message' => $error );
+		}
+
+		$response = $xml->getResponse();
+		if ( empty( $response ) ) {
+			return array( 'message' => $error );
+		}
+
+		// Used only in Jetpack_Core_Json_Api_Endpoints::get_remote_value.
+		update_option( 'post_by_email_address' . get_current_user_id(), $response );
+
+		return $response;
+	}
+
+	/**
+	 * Initialize the IXR client
+	 *
+	 * @return Jetpack_IXR_Client
+	 */
+	private function init_rest_connection() {
+		return new Jetpack_IXR_Client( array( 'user_id' => get_current_user_id() ) );
+	}
+
 }
