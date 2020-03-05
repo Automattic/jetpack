@@ -180,6 +180,10 @@ export function getPreselectedFilters( widgetsInOverlay, widgetsOutsideOverlay )
 		.filter( filter => keys.includes( mapFilterToFilterKey( filter ) ) );
 }
 
+export function hasPreselectedFilters( widgetsInOverlay, widgetsOutsideOverlay ) {
+	return getPreselectedFilters( widgetsInOverlay, widgetsOutsideOverlay ).length > 0;
+}
+
 export function hasFilter() {
 	return getFilterKeys().some( key => getFilterQueryByKey( key ).length > 0 );
 }

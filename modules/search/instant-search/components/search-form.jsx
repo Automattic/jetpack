@@ -12,7 +12,13 @@ import JetpackColophon from './jetpack-colophon';
 import SearchBox from './search-box';
 import SearchFilters from './search-filters';
 
-import { getFilterQuery, getSearchQuery, setSearchQuery, setSortQuery } from '../lib/query-string';
+import {
+	getFilterQuery,
+	getSearchQuery,
+	hasPreselectedFilters,
+	setSearchQuery,
+	setSortQuery,
+} from '../lib/query-string';
 import PreselectedSearchFilters from './preselected-search-filters';
 
 const noop = event => event.preventDefault();
@@ -68,7 +74,7 @@ class SearchForm extends Component {
 							widgets={ this.props.widgets }
 							widgetsOutsideOverlay={ this.props.widgetsOutsideOverlay }
 						/>
-						{ this.props.widgets.map( widget => (
+						{ this.props.widgets.map( ( widget, index ) => (
 							<SearchFilters
 								filters={ getFilterQuery() }
 								loading={ this.props.isLoading }
@@ -76,6 +82,10 @@ class SearchForm extends Component {
 								onChange={ this.hideFilters }
 								postTypes={ this.props.postTypes }
 								results={ this.props.response }
+								showClearFiltersButton={
+									! hasPreselectedFilters( this.props.widgets, this.props.widgetsOutsideOverlay ) &&
+									index === 0
+								}
 								widget={ widget }
 							/>
 						) ) }
