@@ -78,4 +78,7 @@ docker-compose $DOCKER_COMPOSE_FILE_OPTIONS run --rm -u 33 $CLI config set JETPA
 
 echo -e $(status_message "Activating Jetpack...")
 docker-compose $DOCKER_COMPOSE_FILE_OPTIONS run --rm -u 33 $CLI plugin activate jetpack
+
+docker-compose $DOCKER_COMPOSE_FILE_OPTIONS run --rm $CONTAINER cp wp-content/plugins/jetpack/tests/e2e/plugins/e2e-plan-data-interceptor.php wp-content/plugins/e2e-plan-data-interceptor.php
+
 docker-compose $DOCKER_COMPOSE_FILE_OPTIONS run --rm -u 33 $CLI plugin activate e2e-plan-data-interceptor.php
