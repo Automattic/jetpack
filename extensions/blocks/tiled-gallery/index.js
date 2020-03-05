@@ -205,9 +205,13 @@ export const settings = {
 			: '' ),
 	icon,
 	keywords: [
+		_x( 'columns', 'block search term', 'jetpack' ),
 		_x( 'images', 'block search term', 'jetpack' ),
 		_x( 'photos', 'block search term', 'jetpack' ),
 		_x( 'pictures', 'block search term', 'jetpack' ),
+		_x( 'square', 'block search term', 'jetpack' ),
+		_x( 'circle', 'block search term', 'jetpack' ),
+		_x( 'mosaic', 'block search term', 'jetpack' ),
 	],
 	styles: layoutStylesWithLabels,
 	supports: {

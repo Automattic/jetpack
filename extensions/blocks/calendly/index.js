@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { createBlock } from '@wordpress/blocks';
 
 /**
@@ -25,9 +25,11 @@ export const settings = {
 	icon,
 	category: 'jetpack',
 	keywords: [
-		__( 'calendar', 'jetpack' ),
-		__( 'schedule', 'jetpack' ),
-		__( 'appointments', 'jetpack' ),
+		_x( 'calendar', 'block search term', 'jetpack' ),
+		_x( 'schedule', 'block search term', 'jetpack' ),
+		_x( 'appointments', 'block search term', 'jetpack' ),
+		_x( 'events', 'block search term', 'jetpack' ),
+		_x( 'dates', 'block search term', 'jetpack' ),
 	],
 	supports: {
 		align: true,
