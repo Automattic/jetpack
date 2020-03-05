@@ -3,9 +3,10 @@
  */
 import { __ } from '@wordpress/i18n';
 
-const hexRegex = /^#?[A-Fa-f0-9]{6}$/;
-
-const colourValidator = value => hexRegex.test( value );
+/**
+ * Internal dependencies
+ */
+import colorValidator from '../../shared/colorValidator';
 
 const urlValidator = url => ! url || url.startsWith( 'https://calendly.com/' );
 
@@ -13,7 +14,7 @@ export default {
 	backgroundColor: {
 		type: 'string',
 		default: 'ffffff',
-		validator: colourValidator,
+		validator: colorValidator,
 	},
 	submitButtonText: {
 		type: 'string',
@@ -33,12 +34,12 @@ export default {
 	primaryColor: {
 		type: 'string',
 		default: '00A2FF',
-		validator: colourValidator,
+		validator: colorValidator,
 	},
 	textColor: {
 		type: 'string',
 		default: '4D5055',
-		validator: colourValidator,
+		validator: colorValidator,
 	},
 	style: {
 		type: 'string',
@@ -57,10 +58,10 @@ export default {
 	},
 	customBackgroundButtonColor: {
 		type: 'string',
-		validator: colourValidator,
+		validator: colorValidator,
 	},
 	customTextButtonColor: {
 		type: 'string',
-		validator: colourValidator,
+		validator: colorValidator,
 	},
 };
