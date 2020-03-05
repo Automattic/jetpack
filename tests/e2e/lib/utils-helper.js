@@ -32,7 +32,7 @@ export function getNgrokSiteUrl() {
 }
 
 export async function resetWordpressInstall() {
-	let cmd = './tests/e2e/docker/setup-travis-e2e-tests.sh reset';
+	let cmd = './tests/e2e/bin/docker-e2e-cli.sh reset';
 	if ( process.env.CI ) {
 		cmd = './tests/e2e/bin/setup-e2e-travis.sh reset_wp';
 	}
@@ -89,7 +89,7 @@ export async function activateModule( page, module ) {
 
 export async function execWpCommand( wpCmd, suffix = null ) {
 	// NOTE: Uncommited cli for dockerized local dev environment. Will update once dockerized PR is merged.
-	let cmd = `./tests/e2e/docker/whatever.sh cli "${ wpCmd }"`;
+	let cmd = `./tests/e2e/bin/docker-e2e-cli.sh cli "${ wpCmd }"`;
 	if ( process.env.CI ) {
 		cmd = `${ wpCmd } --path="/home/travis/wordpress"`;
 	}

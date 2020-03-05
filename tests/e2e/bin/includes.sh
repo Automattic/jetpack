@@ -152,6 +152,7 @@ install_ngrok() {
 }
 
 start_ngrok() {
+	echo -e $(status_message "Starting ngrok...")
 	install_ngrok
 
 	echo -e $(status_message "Killing any rogue ngrok instances just in case...")
@@ -171,7 +172,8 @@ start_ngrok() {
 	fi
 }
 
-restart_tunnel() {
+restart_ngrok() {
+	echo -e $(status_message "Resetting ngrok...")
 	curl -X "DELETE" localhost:4040/api/tunnels/command_line
 	curl -X "DELETE" "localhost:4040/api/tunnels/command_line%20(http)"
 
@@ -189,8 +191,18 @@ kill_ngrok() {
 	ps aux | grep -i ngrok | awk '{print $2}' | xargs kill -9 || true
 }
 
-reset_wordpress() {
-	. "$(dirname "$0")/install-wordpress.sh"
+setup_env() {
+	echo -e $(status_message "Setting up docker environment...")
 	start_ngrok
-	get_ngrok_url
+	. "$(dirname "$0")/setup-docker-env.sh"
+}
+
+reset_env() {
+	echo -e $(status_message "Resetting docker environment...")
+	restart_ngrok
+	. "$(dirname "$0")/setup-docker-env.sh"
+}
+
+stop_docker() {
+	$DC stop
 }

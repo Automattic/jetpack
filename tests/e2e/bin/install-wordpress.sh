@@ -76,9 +76,9 @@ echo -e $(status_message "Configuring site constants...")
 docker-compose $DOCKER_COMPOSE_FILE_OPTIONS run --rm -u 33 $CLI config set JETPACK_SHOULD_USE_CONNECTION_IFRAME false --raw --type=constant --quiet
 
 
-echo -e $(status_message "Activating Jetpack...")
-docker-compose $DOCKER_COMPOSE_FILE_OPTIONS run --rm -u 33 $CLI plugin activate jetpack
+echo -e $(status_message "Activating Jetpack and test plugins..")
+docker-compose $DOCKER_COMPOSE_FILE_OPTIONS run --rm -u 33 $CLI plugin activate jetpack --quiet
 
 docker-compose $DOCKER_COMPOSE_FILE_OPTIONS run --rm $CONTAINER cp wp-content/plugins/jetpack/tests/e2e/plugins/e2e-plan-data-interceptor.php wp-content/plugins/e2e-plan-data-interceptor.php
 
-docker-compose $DOCKER_COMPOSE_FILE_OPTIONS run --rm -u 33 $CLI plugin activate e2e-plan-data-interceptor.php
+docker-compose $DOCKER_COMPOSE_FILE_OPTIONS run --rm -u 33 $CLI plugin activate e2e-plan-data-interceptor.php --quiet
