@@ -30,7 +30,7 @@ const Overlay = ( { children, closeOverlay, colorTheme, isVisible, opacity } ) =
 				`jetpack-instant-search__overlay--${ colorTheme }`,
 				isVisible ? '' : 'is-hidden',
 			].join( ' ' ) }
-			style={ { opacity: isVisible ? opacity / 100 : 0 } }
+			style={ { opacity: opacity / 100 } }
 		>
 			{ children }
 		</div>
