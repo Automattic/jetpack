@@ -311,6 +311,9 @@ class Jetpack_Cxn_Test_Base {
 		}
 		// Provide standard resolutions steps, but allow pass-through of non-standard ones.
 		switch ( $resolution ) {
+			case 'connect_jetpack':
+				$resolution = __( 'Reconnect your site now.', 'jetpack' );
+				break;
 			case 'cycle_connection':
 				$resolution = __( 'Please disconnect and reconnect Jetpack.', 'jetpack' ); // @todo: Link.
 				break;
