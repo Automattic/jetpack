@@ -17,10 +17,10 @@ import {
 	Button,
 	ExternalLink,
 	FormTokenField,
-	Notice,
 	PanelBody,
 	Placeholder,
 	ToggleControl,
+	withNotices,
 } from '@wordpress/components';
 import { getBlockDefaultClassName } from '@wordpress/blocks';
 import { useState } from '@wordpress/element';
@@ -32,7 +32,7 @@ import icon from './icon';
 import data from './dummy-data';
 import './editor.scss';
 
-export default function AmazonEdit( {
+function AmazonEdit( {
 	attributes: {
 		backgroundColor,
 		textColor,
@@ -46,10 +46,10 @@ export default function AmazonEdit( {
 	},
 	className,
 	name,
+	noticeUI,
 	setAttributes,
 } ) {
 	const defaultClassName = getBlockDefaultClassName( name );
-	const notice = false; // TODO
 
 	const [ suggestions, setSuggestions ] = useState( [] );
 	const onInputChange = () => {
@@ -81,13 +81,7 @@ export default function AmazonEdit( {
 			label={ __( 'Amazon', 'jetpack' ) }
 			instructions={ __( 'Search by entering an Amazon product name or ID below.', 'jetpack' ) }
 			icon={ <BlockIcon icon={ icon } /> }
-			notices={
-				notice && (
-					<Notice status="error" isDismissible={ false }>
-						{ notice }
-					</Notice>
-				)
-			}
+			notices={ noticeUI } // TODO
 		>
 			<form>
 				<FormTokenField
@@ -255,3 +249,5 @@ export default function AmazonEdit( {
 		</div>
 	);
 }
+
+export default withNotices( AmazonEdit );
