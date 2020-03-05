@@ -215,12 +215,12 @@ function jetpack_get_revue_attribute( $attribute, $attributes ) {
 	$default_attributes = array(
 		'text'                 => __( 'Subscribe', 'jetpack' ),
 		'emailLabel'           => __( 'Email address', 'jetpack' ),
-		'emailPlaceholder'     => __( 'Your email address…', 'jetpack' ),
+		'emailPlaceholder'     => __( 'Enter your email address', 'jetpack' ),
 		'firstNameLabel'       => __( 'First name', 'jetpack' ),
-		'firstNamePlaceholder' => __( 'First name… (Optional)', 'jetpack' ),
+		'firstNamePlaceholder' => __( 'Enter your first name', 'jetpack' ),
 		'firstNameShow'        => true,
 		'lastNameLabel'        => __( 'Last name', 'jetpack' ),
-		'lastNamePlaceholder'  => __( 'Last name… (Optional)', 'jetpack' ),
+		'lastNamePlaceholder'  => __( 'Enter your last name', 'jetpack' ),
 		'lastNameShow'         => true,
 	);
 
