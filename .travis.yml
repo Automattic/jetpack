@@ -12,7 +12,7 @@ php:
 - "7.0"
 - "7.2"
 - "7.3"
-- "7.4"
+# 7.4 can not be included here until 5.3 is the "previous" version of WP.
 
 env:
   # Global variable is re-defined in matrix-include -list
@@ -51,6 +51,9 @@ matrix:
 
   - php: "nightly"
     name: "PHP Nightly"
+  - php: "7.4snapshot"
+    env: WP_BRANCH=master SIMPLE_AND_MULTISITE=1
+    # add a new entry for "latest" WP once 5.3 has shipped. Remove snapshot once 7.4 is GA.
 
   # Code Climate code coverage.
   - php: "7.3"
