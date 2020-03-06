@@ -129,4 +129,4 @@ The heart of CI infrastructure is a [`setup-e2e-travis.sh`](./bin/setup-e2e-trav
 - Installs and sets-up WordPress installation
 - Activates Jetpack plugin
 
-You disable e2e tests in Travis by setting Travis env variable `RUN_E2E` to false (or just removing it completely) in on project's [settings page](https://travis-ci.org/Automattic/jetpack/settings). To re-enable them - just set it to `true`
+You can disable e2e tests in Travis by setting Travis env variable `RUN_E2E` to false (or just removing it completely) in project's [settings page](https://travis-ci.org/Automattic/jetpack/settings). To re-enable them - just set it to `true`
