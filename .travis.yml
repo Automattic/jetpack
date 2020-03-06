@@ -71,6 +71,7 @@ matrix:
     after_script:
       - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT -t clover -p /tmp/wordpress-previous/src/wp-content/plugins/jetpack
 
+
   - if: env(RUN_E2E) IS present AND branch !~ /(^branch-.*-built)/
     php: "7.3"
     name: "E2E tests"
