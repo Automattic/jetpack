@@ -12,7 +12,7 @@ use Automattic\Jetpack\Sync\Actions;
  *
  * @deprecated Use Automattic\Jetpack\Sync\Actions
  */
-class Jetpack_Sync_Actions extends Automattic\Jetpack\Sync\Actions {
+class Jetpack_Sync_Actions {
 
 	/**
 	 * Initializes the class.
