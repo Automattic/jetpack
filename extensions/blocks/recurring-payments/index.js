@@ -132,3 +132,28 @@ export function minimumTransactionAmountForCurrency( currency_code ) {
 export function isPriceValid( currency, price ) {
 	return ! isNaN( price ) && price >= minimumTransactionAmountForCurrency( currency );
 }
+
+/**
+ * Removes products with prices below their minimums.
+ *
+ * TS compatible typedef, but JSDoc lint doesn't like it.
+ * typedef {{
+ *   buyer_can_change_amount: ?boolean
+ *   connected_account_product_id: string
+ *   connected_destination_account_id: string
+ *   currency: string
+ *   description: string
+ *   id: number
+ *   interval: string
+ *   multiple_per_user: ?boolean
+ *   price: string
+ *   site_id: string
+ *   title: string
+ * }} Product
+ *
+ * @param {Array<Product>} products List of membership products.
+ * @return {Array<Product>} List of producits with invalid products removed.
+ */
+export function removeInvalidProducts( products ) {
+	return products.filter( product => isPriceValid( product.currency, product.price ) );
+}

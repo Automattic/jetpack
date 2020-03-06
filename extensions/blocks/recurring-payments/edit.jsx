@@ -28,7 +28,13 @@ import { Fragment, Component } from '@wordpress/element';
  */
 import getJetpackExtensionAvailability from '../../shared/get-jetpack-extension-availability';
 import StripeNudge from '../../shared/components/stripe-nudge';
-import { icon, isPriceValid, minimumTransactionAmountForCurrency, CURRENCY_OPTIONS } from '.';
+import {
+	icon,
+	isPriceValid,
+	minimumTransactionAmountForCurrency,
+	removeInvalidProducts,
+	CURRENCY_OPTIONS,
+} from '.';
 
 const API_STATE_LOADING = 0;
 const API_STATE_CONNECTED = 1;
@@ -99,7 +105,14 @@ class MembershipsButtonEdit extends Component {
 				const connected = result.connected_account_id
 					? API_STATE_CONNECTED
 					: API_STATE_NOTCONNECTED;
-				this.setState( { connected, connectURL, products, shouldUpgrade, upgradeURL, siteSlug } );
+				this.setState( {
+					connected,
+					connectURL,
+					shouldUpgrade,
+					upgradeURL,
+					siteSlug,
+					products: removeInvalidProducts( products ),
+				} );
 			},
 			result => {
 				const connectURL = null;
