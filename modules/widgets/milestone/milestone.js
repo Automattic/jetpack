@@ -2,7 +2,7 @@
 
 var Milestone = ( function() {
 	var Milestone = function( args ) {
-		var widget = document.getElementById( args.id ),
+		var widget_content = document.getElementById( args.content_id ),
 			id = args.id,
 			refresh = args.refresh * 1000;
 
@@ -17,7 +17,7 @@ var Milestone = ( function() {
 						'undefined' !== typeof response.message && 'undefined' !== typeof response.refresh;
 
 				if ( httpCheck && responseCheck ) {
-					var countdownElement = widget.querySelector( '.milestone-countdown' );
+					var countdownElement = widget_content.querySelector( '.milestone-countdown' );
 
 					countdownElement.outerHTML = response.message;
 					refresh = response.refresh * 1000;
