@@ -86,7 +86,7 @@ class Milestone_Widget extends WP_Widget {
 				'_inc/build/widgets/milestone/milestone.min.js',
 				'modules/widgets/milestone/milestone.js'
 			),
-			array( 'jquery' ),
+			array(),
 			'20160520',
 			true
 		);
