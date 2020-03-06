@@ -75,7 +75,7 @@ matrix:
     name: "E2E tests"
     # if: env(RUN_E2E) = true
     # if: branch !~ /(^branch-.*-built)/
-    if: env("RUN_E2E") = "true" AND branch !~ /(^branch-.*-built)/
+    if: env(RUN_E2E) = yes AND branch !~ /(^branch-.*-built)/
     before_script:
     # Enable user namespace cloning
     - if [ $RUN_E2E = true ]; then echo "true"; fi
@@ -92,6 +92,12 @@ matrix:
           - nginx
           # This is required to run new chrome on old trusty
           - libnss3
+  - php: "7.3"
+    name: "E2E tests 2"
+    if: env(E2E) = true
+    script:
+    - if [ $RUN_E2E = true ]; then echo "true"; fi
+
   - php: "7.0"
     name: "Legacy full sync"
     env: LEGACY_FULL_SYNC=1 WP_BRANCH=latest
