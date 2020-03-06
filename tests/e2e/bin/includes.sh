@@ -133,8 +133,17 @@ command_exists() {
 	type -t "$1" >/dev/null 2>&1
 }
 
-# download and install ngrok
-install_ngrok() {
+check_for_jq() {
+	if $(command_exists "jq"); then
+			return
+	fi
+
+	echo -e $(error_message "`jq` is not installed. Please install it before moving forward. Instructions: https://stedolan.github.io/jq/download/")
+	exit 1
+}
+
+# check if ngrok is installed
+check_for_ngrok() {
 	if $(command_exists "ngrok"); then
 			NGROK_CMD="ngrok"
 			return
@@ -144,18 +153,12 @@ install_ngrok() {
 		echo -e $(error_message "Please install ngrok on your machine. Instructions: https://ngrok.com/download")
 		exit 1
 	fi
-
-	echo -e $(status_message "Installing ngrok in CI...")
-	curl -s https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip > ngrok.zip
-	unzip ngrok.zip
-	NGROK_CMD="./ngrok"
 }
 
+# Starts ngrok tunnel. Uses ngrok auth key if available as `$NGROK_KEY`
 start_ngrok() {
 	echo -e $(status_message "Starting ngrok...")
-	install_ngrok
-
-	echo -e $(status_message "Killing any rogue ngrok instances just in case...")
+	# Killing any rogue ngrok instances just in case
 	kill_ngrok
 
 	if [ ! -z "$NGROK_KEY" ]; then
@@ -172,6 +175,7 @@ start_ngrok() {
 	fi
 }
 
+# Removes all opened tunnels and starts a new one
 restart_ngrok() {
 	echo -e $(status_message "Resetting ngrok...")
 	curl -X "DELETE" localhost:4040/api/tunnels/command_line
@@ -187,12 +191,16 @@ get_ngrok_url() {
 	echo $(curl -s localhost:4040/api/tunnels/command_line | jq --raw-output .public_url)
 }
 
+# terminates ngrok process
 kill_ngrok() {
 	ps aux | grep -i ngrok | awk '{print $2}' | xargs kill -9 || true
 }
 
 setup_env() {
 	echo -e $(status_message "Setting up docker environment...")
+	check_for_ngrok
+	check_for_jq
+
 	start_ngrok
 	. "$(dirname "$0")/setup-docker-env.sh"
 }
