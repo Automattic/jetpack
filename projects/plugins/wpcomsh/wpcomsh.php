@@ -291,6 +291,8 @@ function wpcomsh_remove_plugin_autoupdates() {
 	}
 	remove_action( 'manage_plugins_columns', [ Jetpack_Calypsoify::getInstance(), 'manage_plugins_columns_header' ] );
 	remove_action( 'manage_plugins_custom_column', [ Jetpack_Calypsoify::getInstance(), 'manage_plugins_custom_column' ] );
+	remove_action( 'bulk_actions-plugins', [ Jetpack_Calypsoify::getInstance(), 'bulk_actions_plugins' ] );
+	remove_action( 'handle_bulk_actions-plugins', [ Jetpack_Calypsoify::getInstance(), 'handle_bulk_actions_plugins' ] );
 }
 add_action( 'admin_init', 'wpcomsh_remove_plugin_autoupdates' );
 
