@@ -9,9 +9,10 @@ import { resetWordpressInstall, getNgrokSiteUrl, activateModule } from '../lib/u
 import SimplePaymentBlock from '../lib/blocks/simple-payments';
 import WordAdsBlock from '../lib/blocks/word-ads';
 import PinterestBlock from '../lib/blocks/pinterest';
+import { catchBeforeAll } from '../lib/jest.test.failure';
 
 describe( 'Paid blocks', () => {
-	beforeAll( async () => {
+	catchBeforeAll( async () => {
 		await resetWordpressInstall();
 		const url = getNgrokSiteUrl();
 		console.log( 'NEW SITE URL: ' + url );
