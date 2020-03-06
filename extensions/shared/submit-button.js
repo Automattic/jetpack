@@ -116,6 +116,8 @@ class SubmitButton extends Component {
 	render() {
 		const {
 			attributes,
+			backgroundButtonColor,
+			textButtonColor,
 			fallbackBackgroundColor,
 			fallbackTextColor,
 			setAttributes,
@@ -123,8 +125,8 @@ class SubmitButton extends Component {
 			setTextButtonColor,
 		} = this.props;
 
-		const backgroundColor = attributes.customBackgroundButtonColor || fallbackBackgroundColor;
-		const color = attributes.customTextButtonColor || fallbackTextColor;
+		const backgroundColor = backgroundButtonColor.color || fallbackBackgroundColor;
+		const color = textButtonColor.color || fallbackTextColor;
 		const buttonStyle = { border: 'none', backgroundColor, color };
 		const buttonClasses = getButtonClasses(
 			pick( this.attributes, [ 'backgroundButtonColor', 'textButtonColor' ] )
@@ -160,6 +162,7 @@ class SubmitButton extends Component {
 						] }
 					/>
 					<ContrastChecker
+						isLargeText={ false }
 						textColor={ color }
 						backgroundColor={ backgroundColor }
 						fallbackBackgroundColor
