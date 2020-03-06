@@ -2,13 +2,13 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 2.4.84
+ * Version: 2.4.85
  * Author: Automattic
  * Author URI: http://automattic.com/
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.4.84' );
+define( 'WPCOMSH_VERSION', '2.4.85' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -53,6 +53,8 @@ require_once( 'widgets/posts-i-like.php' );
 require_once( 'widgets/recent-comments-widget.php' );
 require_once( 'widgets/reservations.php' );
 
+// WP.com Category Cloud widget
+require_once( 'widgets/category-cloud.php' );
 // Override core tag cloud widget to add a settable `limit` parameter
 require_once( 'widgets/tag-cloud-widget.php' );
 

@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-02-29 00:54:03+0000\n"
+"PO-Revision-Date: 2020-03-05 00:54:04+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -85,7 +85,7 @@ msgstr "Tampilkan jumlah tag"
 
 #: widgets/tag-cloud-widget.php:139
 msgid "Maximum number of tags displayed"
-msgstr ""
+msgstr "Jumlah tag maksimum yang ditampilkan"
 
 #: widgets/tag-cloud-widget.php:137
 msgid "Number of Tags:"
@@ -181,7 +181,7 @@ msgstr "Tampilkan Ekstra Besar"
 
 #: widgets/aboutme.php:104
 msgid "Your about.me URL"
-msgstr ""
+msgstr "URL tentang.saya milik Anda"
 
 #: widgets/aboutme.php:97
 msgid "Widget title"
@@ -189,23 +189,23 @@ msgstr "Judul widget"
 
 #: widgets/aboutme.php:90
 msgid "The about.me widget will no longer be available after July 1, 2016. After this date, the widget will display a simple text link to your about.me profile. Please remove this widget."
-msgstr ""
+msgstr "Widget tentang.saya tidak akan tersedia lagi setelah 1 Juli 2016. Setelah tanggal tersebut, widget akan menampilkan tautan teks sederhana ke profil tentang.saya milik Anda. Silakan hapus widget ini."
 
 #: widgets/aboutme.php:37
 msgid "The about.me widget is no longer available. To remove this widget, <a href=\"%s\">visit your settings</a>. This message is not shown to visitors to your site."
-msgstr ""
+msgstr "Widget tentang.saya tidak lagi tersedia. Untuk menghapus widget ini, <a href=\"%s\">kunjungi pengaturan Anda</a>. Pesan ini tidak ditampilkan ke pengunjung di situs Anda."
 
 #: widgets/aboutme.php:20
 msgid "About.me Widget"
-msgstr ""
+msgstr "Widget tentang.saya"
 
 #: widgets/aboutme.php:18
 msgid "Display your about.me profile with thumbnail"
-msgstr ""
+msgstr "Tampilkan profil tentang.saya dengan gambar mini"
 
 #: safeguard/utils.php:58
 msgid "Unable to fetch the requested data."
-msgstr ""
+msgstr "Tidak bisa mengambil data yang diminta."
 
 #: private-site/access-denied-coming-soon-template.php:142
 msgid "Log in here"
@@ -252,7 +252,7 @@ msgstr "Upgrade Ke Business"
 
 #: footer-credit/footer-credit/customizer.php:54
 msgid "Hide (Business Plan Required)"
-msgstr ""
+msgstr "Sembunyikan (Memerlukan Paket Business)"
 
 #: footer-credit/footer-credit/customizer.php:52
 msgid "Hide"
@@ -284,7 +284,7 @@ msgstr "Simpan Pengaturan"
 
 #: customizer-fixes/customizer-fixes.php:12
 msgid "Are you sure you want to discard your unsaved changes?"
-msgstr ""
+msgstr "Anda yakin ingin membuang perubahan yang belum tersimpan?"
 
 #: customizer-fixes/customizer-fixes.php:11
 msgid "Saved"
@@ -300,11 +300,11 @@ msgstr "Simpan"
 
 #: customizer-fixes/customizer-fixes.php:8
 msgid "Activate &amp; Save"
-msgstr ""
+msgstr "Aktifkan & Simpan"
 
 #: private-site/private-site.php:123
 msgid "Manage your site visibility settings"
-msgstr ""
+msgstr "Kelola pengaturan visibilitas situs Anda"
 
 #: private-site/access-denied-coming-soon-template.php:140
 msgid "Something new is coming."

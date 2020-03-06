@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-02-29 11:16:20+0000\n"
+"PO-Revision-Date: 2020-03-06 00:54:35+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -189,11 +189,11 @@ msgstr "Widgettitel"
 
 #: widgets/aboutme.php:90
 msgid "The about.me widget will no longer be available after July 1, 2016. After this date, the widget will display a simple text link to your about.me profile. Please remove this widget."
-msgstr ""
+msgstr "Widgeten about.me kommer inte längre att vara tillgänglig efter 1 juli 2016. Efter detta datum kommer widgeten att visa en enkel textlänk till din about.me-profil. Ta bort den här widgeten."
 
 #: widgets/aboutme.php:37
 msgid "The about.me widget is no longer available. To remove this widget, <a href=\"%s\">visit your settings</a>. This message is not shown to visitors to your site."
-msgstr ""
+msgstr "Widgeten about.me är inte längre tillgänglig. Om du vill ta bort den här widgeten <a href=\"%s\">går du till inställningarna</a>. Det här meddelandet visas inte för besökare på webbplatsen."
 
 #: widgets/aboutme.php:20
 msgid "About.me Widget"
@@ -205,7 +205,7 @@ msgstr "Visa din about.me-profil med miniatyr"
 
 #: safeguard/utils.php:58
 msgid "Unable to fetch the requested data."
-msgstr ""
+msgstr "Det gick inte att hämta begärda data."
 
 #: private-site/access-denied-coming-soon-template.php:142
 msgid "Log in here"
@@ -304,7 +304,7 @@ msgstr "Aktivera och spara"
 
 #: private-site/private-site.php:123
 msgid "Manage your site visibility settings"
-msgstr ""
+msgstr "Hantera inställningarna för webbplatssynlighet"
 
 #: private-site/access-denied-coming-soon-template.php:140
 msgid "Something new is coming."

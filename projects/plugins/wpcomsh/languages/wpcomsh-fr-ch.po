@@ -205,7 +205,7 @@ msgstr "Votre profil About.me avec une miniature"
 
 #: safeguard/utils.php:58
 msgid "Unable to fetch the requested data."
-msgstr ""
+msgstr "Impossible d’extraire les données demandées."
 
 #: private-site/access-denied-coming-soon-template.php:142
 msgid "Log in here"
@@ -300,11 +300,11 @@ msgstr "Enregistrer"
 
 #: customizer-fixes/customizer-fixes.php:8
 msgid "Activate &amp; Save"
-msgstr ""
+msgstr "Activer & Enregistrer"
 
 #: private-site/private-site.php:123
 msgid "Manage your site visibility settings"
-msgstr ""
+msgstr "Gérer les paramètres de visibilité de votre site"
 
 #: private-site/access-denied-coming-soon-template.php:140
 msgid "Something new is coming."

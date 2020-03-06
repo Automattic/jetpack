@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-03-04 03:54:10+0000\n"
+"PO-Revision-Date: 2020-03-05 00:54:03+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -13,7 +13,7 @@ msgstr ""
 
 #: wpcomsh.php:909
 msgid "You are currently using <strong>%1$s</strong> out of <strong>%2$s</strong> upload limit (%3$s%%)."
-msgstr "您当前使用的 <strong>%1$s</strong> 超出了 <strong>%2$s</strong> 的上传限制 (%3$s%%)。"
+msgstr "您目前使用了 <strong>%1$s</strong>，上传限制为 <strong>%2$s</strong>，即占上传限制的 %3$s%%。"
 
 #: widgets/twitter.php:412
 msgid "Text to display between Tweet and timestamp:"

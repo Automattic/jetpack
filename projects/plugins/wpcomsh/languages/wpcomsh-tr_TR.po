@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-02-29 00:54:03+0000\n"
+"PO-Revision-Date: 2020-03-06 00:54:34+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -205,7 +205,7 @@ msgstr "about.me profilini küçük resim ile görüntüle"
 
 #: safeguard/utils.php:58
 msgid "Unable to fetch the requested data."
-msgstr ""
+msgstr "İstenen veriler alınamıyor."
 
 #: private-site/access-denied-coming-soon-template.php:142
 msgid "Log in here"
@@ -284,7 +284,7 @@ msgstr "Ayarları Kaydet"
 
 #: customizer-fixes/customizer-fixes.php:12
 msgid "Are you sure you want to discard your unsaved changes?"
-msgstr ""
+msgstr "Kaydedilmemiş değişikliklerinizi iptal etmek istediğinizden emin misiniz?"
 
 #: customizer-fixes/customizer-fixes.php:11
 msgid "Saved"
@@ -300,11 +300,11 @@ msgstr "Kaydet"
 
 #: customizer-fixes/customizer-fixes.php:8
 msgid "Activate &amp; Save"
-msgstr ""
+msgstr "Etkinleştirin ve Tasarruf Edin"
 
 #: private-site/private-site.php:123
 msgid "Manage your site visibility settings"
-msgstr ""
+msgstr "Sitenizin görünürlük ayarlarını yönetin"
 
 #: private-site/access-denied-coming-soon-template.php:140
 msgid "Something new is coming."

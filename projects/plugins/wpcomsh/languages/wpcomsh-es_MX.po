@@ -189,11 +189,11 @@ msgstr "Nombre de Widget"
 
 #: widgets/aboutme.php:90
 msgid "The about.me widget will no longer be available after July 1, 2016. After this date, the widget will display a simple text link to your about.me profile. Please remove this widget."
-msgstr ""
+msgstr "El widget about.me dejará de estar disponible a partir del 1 de julio de 2016. A partir del entonces, el widget mostrará un simple enlace de texto a tu perfil de about.me. Elimina este widget."
 
 #: widgets/aboutme.php:37
 msgid "The about.me widget is no longer available. To remove this widget, <a href=\"%s\">visit your settings</a>. This message is not shown to visitors to your site."
-msgstr ""
+msgstr "El widget about.me ya no está disponible. Para eliminarlo, <a href=\"%s\">revisa los ajustes</a>. Este mensaje no se muestra a los visitantes de tu sitio."
 
 #: widgets/aboutme.php:20
 msgid "About.me Widget"
@@ -205,7 +205,7 @@ msgstr "Mostrar tu perfil de about.me en miniatura"
 
 #: safeguard/utils.php:58
 msgid "Unable to fetch the requested data."
-msgstr ""
+msgstr "No se pueden recuperar los datos solicitados."
 
 #: private-site/access-denied-coming-soon-template.php:142
 msgid "Log in here"
@@ -252,7 +252,7 @@ msgstr "Actualiza a la versión Business"
 
 #: footer-credit/footer-credit/customizer.php:54
 msgid "Hide (Business Plan Required)"
-msgstr ""
+msgstr "Ocultar (se necesita un plan Business)"
 
 #: footer-credit/footer-credit/customizer.php:52
 msgid "Hide"
@@ -284,7 +284,7 @@ msgstr "Guardar ajustes"
 
 #: customizer-fixes/customizer-fixes.php:12
 msgid "Are you sure you want to discard your unsaved changes?"
-msgstr ""
+msgstr "¿Estás seguro de que quieres deshacer los cambios no guardados?"
 
 #: customizer-fixes/customizer-fixes.php:11
 msgid "Saved"
@@ -300,11 +300,11 @@ msgstr "Guardar"
 
 #: customizer-fixes/customizer-fixes.php:8
 msgid "Activate &amp; Save"
-msgstr ""
+msgstr "Activar y guardar"
 
 #: private-site/private-site.php:123
 msgid "Manage your site visibility settings"
-msgstr ""
+msgstr "Gestiona los ajustes de visibilidad de tu sitio"
 
 #: private-site/access-denied-coming-soon-template.php:140
 msgid "Something new is coming."

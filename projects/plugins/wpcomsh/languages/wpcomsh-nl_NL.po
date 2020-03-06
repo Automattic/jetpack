@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-02-27 00:54:04+0000\n"
+"PO-Revision-Date: 2020-03-05 00:54:04+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -85,11 +85,11 @@ msgstr "Aantal tags tonen"
 
 #: widgets/tag-cloud-widget.php:139
 msgid "Maximum number of tags displayed"
-msgstr ""
+msgstr "Maximumaantal weergegeven tags"
 
 #: widgets/tag-cloud-widget.php:137
 msgid "Number of Tags:"
-msgstr ""
+msgstr "Aantal tags:"
 
 #: widgets/tag-cloud-widget.php:41
 msgid "Tags"
@@ -189,11 +189,11 @@ msgstr "Widgettitel"
 
 #: widgets/aboutme.php:90
 msgid "The about.me widget will no longer be available after July 1, 2016. After this date, the widget will display a simple text link to your about.me profile. Please remove this widget."
-msgstr ""
+msgstr "De widget about.me is niet meer beschikbaar na 1 juli 2016. Na deze datum geeft de widget een simpele tekstlink weer naar het about.me-profiel. Verwijder deze widget."
 
 #: widgets/aboutme.php:37
 msgid "The about.me widget is no longer available. To remove this widget, <a href=\"%s\">visit your settings</a>. This message is not shown to visitors to your site."
-msgstr ""
+msgstr "De widget about.me is niet meer beschikbaar. <a href=\"%s\">Ga naar je instellingen</a> om deze widget te verwijderen. Deze melding wordt niet getoond aan bezoekers van je site."
 
 #: widgets/aboutme.php:20
 msgid "About.me Widget"
@@ -205,7 +205,7 @@ msgstr "Toon je over.mij profiel met miniatuurweergave"
 
 #: safeguard/utils.php:58
 msgid "Unable to fetch the requested data."
-msgstr ""
+msgstr "Kan de aangevraagde gegevens niet ophalen."
 
 #: private-site/access-denied-coming-soon-template.php:142
 msgid "Log in here"
@@ -284,7 +284,7 @@ msgstr "Instellingen opslaan"
 
 #: customizer-fixes/customizer-fixes.php:12
 msgid "Are you sure you want to discard your unsaved changes?"
-msgstr ""
+msgstr "Weet je zeker dat je niet-opgeslagen wijzigingen wilt verwerpen?"
 
 #: customizer-fixes/customizer-fixes.php:11
 msgid "Saved"
@@ -300,11 +300,11 @@ msgstr "Opslaan"
 
 #: customizer-fixes/customizer-fixes.php:8
 msgid "Activate &amp; Save"
-msgstr ""
+msgstr "Activeren en opslaan"
 
 #: private-site/private-site.php:123
 msgid "Manage your site visibility settings"
-msgstr ""
+msgstr "De zichtbaarheidsinstellingen van je site beheren"
 
 #: private-site/access-denied-coming-soon-template.php:140
 msgid "Something new is coming."

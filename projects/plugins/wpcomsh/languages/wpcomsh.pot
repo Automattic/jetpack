@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WP.com Site Helper\n"
 "Report-Msgid-Bugs-To: help@wordpress.com\n"
-"POT-Creation-Date: 2020-03-04 13:18+0100\n"
+"POT-Creation-Date: 2020-03-06 16:28+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -273,8 +273,9 @@ msgstr ""
 msgid "Authors"
 msgstr ""
 
-#: widgets/author-grid.php:91 widgets/freshly-pressed.php:56
-#: widgets/gravatar.php:117 widgets/i-voted.php:65 widgets/music-player.php:73
+#: widgets/author-grid.php:91 widgets/category-cloud.php:127
+#: widgets/freshly-pressed.php:56 widgets/gravatar.php:117
+#: widgets/i-voted.php:65 widgets/music-player.php:73
 #: widgets/posts-i-like.php:85 widgets/recent-comments-widget.php:343
 #: widgets/reservations.php:38 widgets/tag-cloud-widget.php:132
 #: widgets/tlkio/tlkio.php:51 widgets/top-clicks.php:41
@@ -288,6 +289,49 @@ msgstr ""
 
 #: widgets/author-grid.php:102 widgets/recent-comments-widget.php:360
 msgid "Avatar Size (px):"
+msgstr ""
+
+#: widgets/category-cloud.php:16 widgets/category-cloud.php:42
+msgid "Category Cloud"
+msgstr ""
+
+#: widgets/category-cloud.php:18
+msgid "Your most used categories in cloud format."
+msgstr ""
+
+#: widgets/category-cloud.php:108
+#, php-format
+msgid ""
+"If you use more <a href=\"%s\">categories</a> on your site, they will appear "
+"here."
+msgstr ""
+
+#: widgets/category-cloud.php:134
+msgid "Maximum number of categories to show:"
+msgstr ""
+
+#: widgets/category-cloud.php:141
+msgid "Exclude:"
+msgstr ""
+
+#: widgets/category-cloud.php:144
+msgid "Category IDs, separated by commas"
+msgstr ""
+
+#: widgets/category-cloud.php:149
+msgid "Minimum font percentage:"
+msgstr ""
+
+#: widgets/category-cloud.php:156
+msgid "Maximum font percentage:"
+msgstr ""
+
+#: widgets/category-cloud.php:166
+msgid "Count items in sub-categories toward parent total."
+msgstr ""
+
+#: widgets/category-cloud.php:167
+msgid "Click for more information"
 msgstr ""
 
 #: widgets/freshly-pressed.php:8
@@ -752,29 +796,29 @@ msgstr ""
 msgid "Text to display between Tweet and timestamp:"
 msgstr ""
 
-#: wpcomsh.php:352
+#: wpcomsh.php:354
 #, php-format
 msgid "%s is automatically managed for you."
 msgstr ""
 
-#: wpcomsh.php:355
+#: wpcomsh.php:357
 msgid ""
 "This plugin was installed by WordPress.com and provides features offered in "
 "your plan subscription."
 msgstr ""
 
-#: wpcomsh.php:909
+#: wpcomsh.php:911
 #, php-format
 msgid ""
 "You are currently using <strong>%1$s</strong> out of <strong>%2$s</strong> "
 "upload limit (%3$s%%)."
 msgstr ""
 
-#: wpcomsh.php:937
+#: wpcomsh.php:939
 msgid "Disk space used"
 msgstr ""
 
-#: wpcomsh.php:941
+#: wpcomsh.php:943
 msgid "Disk space quota"
 msgstr ""
 

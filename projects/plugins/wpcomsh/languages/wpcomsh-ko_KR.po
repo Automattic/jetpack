@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-02-28 00:54:04+0000\n"
+"PO-Revision-Date: 2020-03-05 00:54:04+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -13,7 +13,7 @@ msgstr ""
 
 #: wpcomsh.php:909
 msgid "You are currently using <strong>%1$s</strong> out of <strong>%2$s</strong> upload limit (%3$s%%)."
-msgstr ""
+msgstr "현재 업로드 제한 <strong>%2$s</strong> 중 <strong>%1$s</strong>을(를) 사용하고 있습니다(%3$s%%)."
 
 #: widgets/twitter.php:412
 msgid "Text to display between Tweet and timestamp:"
@@ -85,11 +85,11 @@ msgstr "태그 수 보이기"
 
 #: widgets/tag-cloud-widget.php:139
 msgid "Maximum number of tags displayed"
-msgstr ""
+msgstr "표시된 최대 태그 수"
 
 #: widgets/tag-cloud-widget.php:137
 msgid "Number of Tags:"
-msgstr ""
+msgstr "태그 수:"
 
 #: widgets/tag-cloud-widget.php:41
 msgid "Tags"
@@ -181,7 +181,7 @@ msgstr "매우 크게 표시"
 
 #: widgets/aboutme.php:104
 msgid "Your about.me URL"
-msgstr ""
+msgstr "내 about.me URL"
 
 #: widgets/aboutme.php:97
 msgid "Widget title"
@@ -189,23 +189,23 @@ msgstr "위젯 제목"
 
 #: widgets/aboutme.php:90
 msgid "The about.me widget will no longer be available after July 1, 2016. After this date, the widget will display a simple text link to your about.me profile. Please remove this widget."
-msgstr ""
+msgstr "2016년 7월 1일 이후에는 about.me 위젯을 더 이상 사용할 수 없습니다. 이후 이 위젯에는 about.me 프로필로 연결되는 간단한 텍스트 링크가 표시됩니다. 이 위젯을 제거하세요."
 
 #: widgets/aboutme.php:37
 msgid "The about.me widget is no longer available. To remove this widget, <a href=\"%s\">visit your settings</a>. This message is not shown to visitors to your site."
-msgstr ""
+msgstr "더 이상 about.me 위젯을 사용할 수 없습니다. 이 위젯을 제거하려면 <a href=\"%s\">설정으로 이동</a>하세요. 이 메시지는 사이트 방문자에게는 표시되지 않습니다."
 
 #: widgets/aboutme.php:20
 msgid "About.me Widget"
-msgstr ""
+msgstr "About.me 위젯"
 
 #: widgets/aboutme.php:18
 msgid "Display your about.me profile with thumbnail"
-msgstr ""
+msgstr "about.me 프로필을 썸네일과 함께 표시"
 
 #: safeguard/utils.php:58
 msgid "Unable to fetch the requested data."
-msgstr ""
+msgstr "요청한 데이터를 가져올 수 없습니다."
 
 #: private-site/access-denied-coming-soon-template.php:142
 msgid "Log in here"
@@ -231,7 +231,7 @@ msgstr "WordPress.com 제공"
 
 #: footer-credit/footer-credit/footer-credit.php:97
 msgid "A WordPress.com Website"
-msgstr ""
+msgstr "워드프레스닷컴 웹사이트"
 
 #: footer-credit/footer-credit/footer-credit.php:96
 msgid "WordPress.com Logo"
@@ -240,7 +240,7 @@ msgstr "WordPress.com 로고"
 #: footer-credit/footer-credit/footer-credit.php:41
 #: footer-credit/footer-credit/footer-credit.php:205
 msgid "Create a website or blog at WordPress.com"
-msgstr ""
+msgstr "워드프레스닷컴에서 웹사이트 또는 블로그 만들기"
 
 #: footer-credit/footer-credit/customizer.php:85
 msgid "Footer Credit"
@@ -252,7 +252,7 @@ msgstr "비즈니스로 업그레이드"
 
 #: footer-credit/footer-credit/customizer.php:54
 msgid "Hide (Business Plan Required)"
-msgstr ""
+msgstr "숨기기(비즈니스 요금제 필요)"
 
 #: footer-credit/footer-credit/customizer.php:52
 msgid "Hide"
@@ -284,7 +284,7 @@ msgstr "설정 저장"
 
 #: customizer-fixes/customizer-fixes.php:12
 msgid "Are you sure you want to discard your unsaved changes?"
-msgstr ""
+msgstr "저장되지 않은 변경사항을 삭제하시겠습니까?"
 
 #: customizer-fixes/customizer-fixes.php:11
 msgid "Saved"
@@ -300,11 +300,11 @@ msgstr "저장하기"
 
 #: customizer-fixes/customizer-fixes.php:8
 msgid "Activate &amp; Save"
-msgstr ""
+msgstr "활성화 및 저장"
 
 #: private-site/private-site.php:123
 msgid "Manage your site visibility settings"
-msgstr ""
+msgstr "사이트 공개 설정 관리"
 
 #: private-site/access-denied-coming-soon-template.php:140
 msgid "Something new is coming."
