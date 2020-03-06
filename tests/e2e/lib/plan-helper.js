@@ -242,6 +242,9 @@ function getPlanData(
 	};
 }
 
+/*
+ * @todo Share the mock data with methods in jetpack/tests/php/general/test_class.jetpack-plan.php somehow
+ */
 function getPlan( type ) {
 	if ( type === 'jetpack_business' ) {
 		return {
