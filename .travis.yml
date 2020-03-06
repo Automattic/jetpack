@@ -75,7 +75,7 @@ matrix:
     name: "E2E tests"
     # if: env(RUN_E2E) = true
     # if: branch !~ /(^branch-.*-built)/
-    if: env(RUN_E2E) IS present AND NOT IS false AND branch !~ /(^branch-.*-built)/
+    if: env(RUN_E2E) IS present AND branch !~ /(^branch-.*-built)/
     before_script:
     # Enable user namespace cloning
     - if [ $RUN_E2E = true ]; then echo "true"; fi
