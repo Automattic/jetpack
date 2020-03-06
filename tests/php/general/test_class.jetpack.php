@@ -1175,6 +1175,22 @@ EXPECTED;
 	}
 
 	/**
+	 * Tests whether add_configure_hook adds the default priority hook even when
+	 * the property has some other value. This tests for a case when some other code
+	 * deregisters all handlers for any reason.
+	 *
+	 * @covers Jetpack::add_configure_hook
+	 */
+	public function test_add_configure_hook_adds_default_hook_even_if_the_property_is_set() {
+		$jetpack                          = Jetpack::init();
+		$jetpack->configure_hook_priority = -100;
+		$jetpack->add_configure_hook();
+
+		$current_priority = has_filter( 'plugins_loaded', array( $jetpack, 'configure' ) );
+		$this->assertSame( 0, $current_priority );
+	}
+
+	/**
 	 * Tests whether add_configure_hook resets the hook to a higher priority in case it's needed.
 	 *
 	 * @dataProvider plugins_loaded_hook_provider

@@ -598,7 +598,8 @@ class Jetpack {
 
 		// If our hook is set, and it's still at highest priority, we don't need to do anything.
 		if (
-			isset( $this->configure_hook_priority )
+			false !== has_filter( 'plugins_loaded', array( $this, 'configure' ) )
+			&& isset( $this->configure_hook_priority )
 
 			// Priority is in reverse order, so less is higher.
 			&& $this->configure_hook_priority <= $highest_priority
