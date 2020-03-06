@@ -314,6 +314,17 @@ class Jetpack_Gutenberg {
 		}
 
 		/**
+		 * Alternative to `JETPACK_EXPERIMENTAL_BLOCKS`, set to `true` to load Experimental Blocks.
+		 *
+		 * @since 8.4.0
+		 *
+		 * @param boolean
+		 */
+		if ( apply_filters( 'jetpack_load_experimental_blocks', false ) ) {
+			Constants::set_constant( 'JETPACK_EXPERIMENTAL_BLOCKS', true );
+		}
+
+		/**
 		 * Filter the whitelist of block editor extensions that are available through Jetpack.
 		 *
 		 * @since 7.0.0
