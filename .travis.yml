@@ -72,10 +72,10 @@ matrix:
     after_script:
       - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT -t clover -p /tmp/wordpress-previous/src/wp-content/plugins/jetpack
 
-  - php: "7.3"
+  - if: env(RUN_E2E) = true AND branch !~ /(^branch-.*-built)/
+    php: "7.3"
     name: "E2E tests"
     # if: env(RUN_E2E) = true
-    if: env(RUN_E2E) = true AND branch !~ /(^branch-.*-built)/
     before_script:
     # Enable user namespace cloning
     - if [ $RUN_E2E = true ]; then echo "true"; fi
