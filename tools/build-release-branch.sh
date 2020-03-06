@@ -74,11 +74,34 @@ function create_release_gitignore {
 	git commit .gitignore -m "updated .gitignore"
 }
 
-# Remove stuff from .svnignore for releases
-function modify_svnignore {
-	awk '!/.eslintrc.js/' .svnignore > temp && mv temp .svnignore
-	awk '!/.eslintignore/' .svnignore > temp && mv temp .svnignore
-	git commit .svnignore -m "Updated .svnignore"
+# Build a clean built branch
+# without any development or non-prod files
+function purge_dev_files {
+	echo "Purging paths included in .svnignore"
+
+	# We'll be making some exceptions.
+	for file in $( cat .svnignore 2>/dev/null ); do
+		# We want to keep testing instructions.
+		if [[ $file == "to-test.md" ]]; then
+			continue;
+		fi
+
+		# Let's keep .git for now, since we'll be committing into that branch later on.
+		if [[ $file == ".git" ]]; then
+			continue;
+		fi
+
+		# Let's keep tools. We use them within the release branches.
+		if [[ $file == "tools" ]]; then
+			continue;
+		fi
+
+		rm -rf $file
+	done
+
+	git commit -am "Remove non-prod files from built"
+
+	echo "Done!"
 }
 
 # This function will create a new set of release branches.
@@ -134,8 +157,8 @@ function create_new_release_branches {
 			echo ""
 			create_release_gitignore
 
-			# Remove stuff from svnignore
-			modify_svnignore
+			# Remove non-prod files
+			purge_dev_files
 
 			git checkout $NEW_UNBUILT_BRANCH
 

@@ -41,6 +41,9 @@ class Jetpack_AMP_Support {
 		// Post rendering changes for legacy AMP.
 		add_action( 'pre_amp_render_post', array( 'Jetpack_AMP_Support', 'amp_disable_the_content_filters' ) );
 
+		// Transitional mode AMP should not have comment likes.
+		add_action( 'the_content', array( 'Jetpack_AMP_Support', 'disable_comment_likes_before_the_content' ) );
+
 		// Add post template metadata for legacy AMP.
 		add_filter( 'amp_post_template_metadata', array( 'Jetpack_AMP_Support', 'amp_post_template_metadata' ), 10, 2 );
 
@@ -49,6 +52,28 @@ class Jetpack_AMP_Support {
 
 		// Sync the amp-options.
 		add_filter( 'jetpack_options_whitelist', array( 'Jetpack_AMP_Support', 'filter_jetpack_options_whitelist' ) );
+
+		// Show admin bar.
+		add_filter( 'show_admin_bar', array( 'Jetpack_AMP_Support', 'show_admin_bar' ) );
+		add_filter( 'jetpack_comment_likes_enabled', array( 'Jetpack_AMP_Support', 'comment_likes_enabled' ) );
+	}
+
+	/**
+	 * Disable the admin bar on AMP views.
+	 *
+	 * @param Whether bool $show the admin bar should be shown. Default false.
+	 */
+	public static function show_admin_bar( $show ) {
+		return $show && ! self::is_amp_request();
+	}
+
+	/**
+	 * Disable the Comment Likes feature on AMP views.
+	 *
+	 * @param bool $enabled Should comment likes be enabled.
+	 */
+	public static function comment_likes_enabled( $enabled ) {
+		return $enabled && ! self::is_amp_request();
 	}
 
 	/**
@@ -99,6 +124,18 @@ class Jetpack_AMP_Support {
 
 		remove_filter( 'pre_kses', array( 'Filter_Embedded_HTML_Objects', 'filter' ), 11 );
 		remove_filter( 'pre_kses', array( 'Filter_Embedded_HTML_Objects', 'maybe_create_links' ), 100 );
+	}
+
+	/**
+	 * Do not add comment likes on AMP requests.
+	 *
+	 * @param string $content Post content.
+	 */
+	public static function disable_comment_likes_before_the_content( $content ) {
+		if ( self::is_amp_request() ) {
+			remove_filter( 'comment_text', 'comment_like_button', 12, 2 );
+		}
+		return $content;
 	}
 
 	/**

@@ -30,11 +30,11 @@ yarn
 
 #### Test Configuration
 
-Gutenpack E2E tests relies on encrypted configuration file, which is included in this repo as [`encrypted.enc`](./config/encrypted.enc). To be able to run tests - that file should be decrypted first.
+Jetpack E2E tests relies on encrypted configuration file, which is included in this repo as [`encrypted.enc`](./config/encrypted.enc). To be able to run tests - that file should be decrypted first.
 
 To decrypt the config file (a8c only):
 
-- Find a decryption key. Search the `SS` for "E2E Gutenpack CONFIG_KEY"
+- Find a decryption key. Search the `SS` for "E2E Jetpack CONFIG_KEY"
 - Run `CONFIG_KEY=YOUR_KEY yarn test-decrypt-config`. This command should create a new file  [`local-test.js`](./config/local-test.js)
 
 #### WP Site Configuration

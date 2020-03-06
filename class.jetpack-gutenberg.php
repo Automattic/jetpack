@@ -859,4 +859,71 @@ class Jetpack_Gutenberg {
 
 		return $preset_extensions;
 	}
+
+	/**
+	 * Validate a URL used in a SSR block.
+	 *
+	 * @since 8.3.0
+	 *
+	 * @param string $url      URL saved as an attribute in block.
+	 * @param array  $allowed  Array of allowed hosts for that block, or regexes to check against.
+	 * @param bool   $is_regex Array of regexes matching the URL that could be used in block.
+	 *
+	 * @return bool|string
+	 */
+	public static function validate_block_embed_url( $url, $allowed = array(), $is_regex = false ) {
+		if (
+			empty( $url )
+			|| ! is_array( $allowed )
+			|| empty( $allowed )
+		) {
+			return false;
+		}
+
+		$url_components = wp_parse_url( $url );
+
+		// Bail early if we cannot find a host.
+		if ( empty( $url_components['host'] ) ) {
+			return false;
+		}
+
+		// Normalize URL.
+		$url = sprintf(
+			'%s://%s%s%s',
+			$url_components['scheme'],
+			$url_components['host'],
+			$url_components['path'] ? $url_components['path'] : '/',
+			$url_components['query'] ? '?' . $url_components['query'] : ''
+		);
+
+		if ( ! empty( $url_components['fragment'] ) ) {
+			$url = $url . '#' . rawurlencode( $url_components['fragment'] );
+		}
+
+		/*
+		 * If we're using a whitelist of hosts,
+		 * check if the URL belongs to one of the domains allowed for that block.
+		 */
+		if (
+			false === $is_regex
+			&& in_array( $url_components['host'], $allowed, true )
+		) {
+			return $url;
+		}
+
+		/*
+		 * If we are using an array of regexes to check against,
+		 * loop through that.
+		 */
+		if ( true === $is_regex ) {
+			foreach ( $allowed as $regex ) {
+				if ( 1 === preg_match( $regex, $url ) ) {
+					return $url;
+				}
+			}
+		}
+
+		return false;
+	}
+
 }

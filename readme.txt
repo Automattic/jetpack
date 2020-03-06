@@ -138,11 +138,13 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Blocks: improve the layout of the blocks' placeholders when using the Gutenberg plugin.
 * Blocks: allow defining a minimum WordPress version or minimum Gutenberg plugin version when registering a block.
 * Lazy Images: add option to skip images with the `data-skip-lazy` attribute.
+* SSO: Add error argument for compatibility with a WordPress 5.4 hook change.
 
 **Bug fixes**
 
 * Blocks: fix layout issues with previews in block sidebar.
 * Blocks: fix layout issues when using a custom CSS class for a block using the option in the block sidebar.
+* Calendly block: fix overlay to render properly in the editor.
 * Dashboard: remove Backups information from the Jetpack dashboard when on a Multisite network. Those do not support the Backup feature at this point.
 * Map block: only show the Add Marker UI if there are no markers.
 * Map block: prevent an unselected block from accidentally capturing scrolling.
@@ -153,6 +155,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Secure Sign On: do not display feature message when logging in to WordPress.com's central dashboard.
 * Stats: hide Stats smiley in post embeds.
 * WooCommerce Analytics: improve product checks to avoid errors on order pages.
+* Wufoo shortcode: Security fix return early when invalid parameters.
 
 --------
 

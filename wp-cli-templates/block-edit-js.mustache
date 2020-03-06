@@ -3,7 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { BlockIcon } from '@wordpress/block-editor';
-import { Notice, Placeholder } from '@wordpress/components';
+import { Placeholder, withNotices } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 
 /**
@@ -12,7 +12,7 @@ import { useState } from '@wordpress/element';
 import './editor.scss';
 import icon from './icon';
 
-export default function {{ className }}Edit( { attributes, className, setAttributes } ) {
+function {{ className }}Edit( { attributes, className, noticeOperations, noticeUI, setAttributes } ) {
 	/**
 	 * Write the block editor UI.
 	 *
@@ -21,7 +21,10 @@ export default function {{ className }}Edit( { attributes, className, setAttribu
 	const [ notice, setNotice ] = useState();
 
 	/* Call this function when you want to show an error in the placeholder. */
-	const setErrorNotice = () => setNotice( __( 'Put error message here.', 'jetpack' ) );
+	const setErrorNotice = () => {
+		noticeOperations.removeAllNotices();
+		noticeOperations.createErrorNotice( __( 'Put error message here.', 'jetpack' ) );
+	};
 
 	return (
 		<div className={ className }>
@@ -29,16 +32,12 @@ export default function {{ className }}Edit( { attributes, className, setAttribu
 				label={ __( '{{ title }}', 'jetpack' ) }
 				instructions={ __( 'Instructions go here.', 'jetpack' ) }
 				icon={ <BlockIcon icon={ icon } /> }
-				notices={
-					notice && (
-						<Notice status="error" isDismissible={ false }>
-							{ notice }
-						</Notice>
-					)
-				}
+				notices={ noticeUI }
 			>
 				{ __( 'User input goes here?', 'jetpack' ) }
 			</Placeholder>
 		</div>
 	);
 }
+
+export default {{ className }}Edit;

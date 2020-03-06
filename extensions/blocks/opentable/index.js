@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { createBlock } from '@wordpress/blocks';
 
 /**
@@ -27,9 +27,9 @@ export const settings = {
 	icon,
 	category: 'jetpack',
 	keywords: [
-		__( 'opentable', 'jetpack' ),
-		__( 'reservation', 'jetpack' ),
-		__( 'restaurant', 'jetpack' ),
+		_x( 'booking', 'block search term', 'jetpack' ),
+		_x( 'reservation', 'block search term', 'jetpack' ),
+		_x( 'restaurant', 'block search term', 'jetpack' ),
 	],
 	supports: {
 		align: true,

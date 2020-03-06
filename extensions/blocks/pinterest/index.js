@@ -34,7 +34,11 @@ export const settings = {
 
 	category: 'jetpack',
 
-	keywords: [ _x( 'social', 'block search term', 'jetpack' ) ],
+	keywords: [
+		_x( 'social', 'block search term', 'jetpack' ),
+		_x( 'pinboard', 'block search term', 'jetpack' ),
+		_x( 'pins', 'block search term', 'jetpack' ),
+	],
 
 	supports: {
 		align: false,

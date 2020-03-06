@@ -27,6 +27,12 @@ function jetpack_render_eventbrite_block( $attr, $content ) {
 		return '';
 	}
 
+	$attr['url'] = Jetpack_Gutenberg::validate_block_embed_url(
+		$attr['url'],
+		array( '#^https?:\/\/(?:[0-9a-z]+\.)?eventbrite\.(?:com|co\.uk|com\.ar|com\.au|be|com\.br|ca|cl|co|dk|de|es|fi|fr|hk|ie|it|com\.mx|nl|co\.nz|at|com\.pe|pt|ch|sg|se)\/e\/[^\/]*?(?:\d+)\/?(?:\?[^\/]*)?$#' ),
+		true
+	);
+
 	$widget_id = wp_unique_id( 'eventbrite-widget-' );
 
 	wp_enqueue_script( 'eventbrite-widget', 'https://www.eventbrite.com/static/widgets/eb_widgets.js', array(), JETPACK__VERSION, true );
@@ -47,9 +53,12 @@ function jetpack_render_eventbrite_block( $attr, $content ) {
 
 		// $content contains a fallback link to the event that's saved in the post_content.
 		// Append a div that will hold the iframe embed created by the Eventbrite widget.js.
+		$classes = \Jetpack_Gutenberg::block_classes( 'eventbrite', $attr );
+
 		$content .= sprintf(
-			'<div id="%s" class="eventbrite__in-page-checkout"></div>',
-			esc_attr( $widget_id )
+			'<div id="%1$s" class="%2$s"></div>',
+			esc_attr( $widget_id ),
+			esc_attr( $classes )
 		);
 
 		return sprintf(

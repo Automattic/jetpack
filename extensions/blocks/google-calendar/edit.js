@@ -7,10 +7,11 @@ import {
 	Placeholder,
 	SandBox,
 	Button,
-	Notice,
 	ExternalLink,
 	PanelBody,
+	withNotices,
 } from '@wordpress/components';
+import { compose } from '@wordpress/compose';
 import { BlockIcon, InspectorControls } from '@wordpress/block-editor';
 import { withViewportMatch } from '@wordpress/viewport';
 import { getBlockDefaultClassName } from '@wordpress/blocks';
@@ -19,7 +20,13 @@ import { getBlockDefaultClassName } from '@wordpress/blocks';
  * Internal dependencies
  */
 import icon from './icon';
-import { extractAttributesFromIframe, IFRAME_REGEX, URL_REGEX } from './utils';
+import {
+	extractAttributesFromIframe,
+	convertShareableUrl,
+	IFRAME_REGEX,
+	URL_REGEX,
+	SHAREABLE_REGEX,
+} from './utils';
 import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 
 class GoogleCalendarEdit extends Component {
@@ -30,7 +37,6 @@ class GoogleCalendarEdit extends Component {
 			editedEmbed: this.props.attributes.url || '',
 			editingUrl: false,
 			interactive: false,
-			notice: null,
 		};
 	}
 
@@ -58,32 +64,33 @@ class GoogleCalendarEdit extends Component {
 		if ( event ) {
 			event.preventDefault();
 		}
+		const { noticeOperations, setAttributes } = this.props;
 		const { editedEmbed } = this.state;
 		const embedString = editedEmbed.trim();
 		let attributes;
 
 		if ( IFRAME_REGEX.test( embedString ) ) {
 			attributes = extractAttributesFromIframe( embedString );
+		} else if ( SHAREABLE_REGEX.test( embedString ) ) {
+			attributes = { url: convertShareableUrl( embedString ) };
 		} else {
 			attributes = { url: embedString };
 		}
 
 		if ( ! URL_REGEX.test( attributes.url ) ) {
-			this.setErrorNotice();
+			noticeOperations.removeAllNotices();
+			noticeOperations.createErrorNotice(
+				__(
+					"Your calendar couldn't be embedded. Please double check your URL or Embed Code. Please note, you need to use the 'Public URL' or 'Embed Code', the 'Shareable Link' will not work.",
+					'jetpack'
+				)
+			);
 			return;
 		}
 
-		this.props.setAttributes( attributes );
-		this.setState( { editingUrl: false, notice: null } );
-	};
-
-	setErrorNotice = () => {
-		this.setState( {
-			notice: __(
-				"Your calendar couldn't be embedded. Please double check your URL or code.",
-				'jetpack'
-			),
-		} );
+		setAttributes( attributes );
+		this.setState( { editingUrl: false } );
+		noticeOperations.removeAllNotices();
 	};
 
 	getEditForm = ( className, editedEmbed ) => {
@@ -109,7 +116,7 @@ class GoogleCalendarEdit extends Component {
 	 * @returns {object} The UI displayed when user edits this block.
 	 */
 	render() {
-		const { attributes, className, name } = this.props;
+		const { attributes, className, name, noticeUI } = this.props;
 		const defaultClassName = getBlockDefaultClassName( name );
 		const { url } = attributes;
 		const { editedEmbed, interactive, editingUrl } = this.state;
@@ -147,23 +154,19 @@ class GoogleCalendarEdit extends Component {
 						className={ className }
 						label={ __( 'Google Calendar', 'jetpack' ) }
 						icon={ <BlockIcon icon={ icon } /> }
-						notices={
-							this.state.notice && (
-								<Notice status="error" isDismissible={ false }>
-									{ this.state.notice }
-								</Notice>
-							)
+						instructions={
+							<ol className={ `${ defaultClassName }-placeholder-instructions` }>
+								<li>{ permissionsLink }</li>
+								<li>
+									{ __(
+										'Paste the embed code you copied from your Google Calendar below',
+										'jetpack'
+									) }
+								</li>
+							</ol>
 						}
+						notices={ noticeUI }
 					>
-						<ol className={ `${ defaultClassName }-placeholder-instructions` }>
-							<li>{ permissionsLink }</li>
-							<li>
-								{ __(
-									'Paste the embed code you copied from your Google Calendar below',
-									'jetpack'
-								) }
-							</li>
-						</ol>
 						{ this.getEditForm( `${ defaultClassName }-embed-form-editor`, editedEmbed ) }
 						<div className={ `${ defaultClassName }-placeholder-links` }>
 							<ExternalLink href={ supportLink }>{ __( 'Learn more', 'jetpack' ) }</ExternalLink>
@@ -195,4 +198,7 @@ class GoogleCalendarEdit extends Component {
 	}
 }
 
-export default withViewportMatch( { isMobile: '< small' } )( GoogleCalendarEdit );
+export default compose(
+	withNotices,
+	withViewportMatch( { isMobile: '< small' } )
+)( GoogleCalendarEdit );

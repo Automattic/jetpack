@@ -26,9 +26,9 @@ export const settings = {
 	category: 'jetpack',
 
 	keywords: [
-		_x( 'Similar content', 'block search term', 'jetpack' ),
-		_x( 'Linked', 'block search term', 'jetpack' ),
-		_x( 'Connected', 'block search term', 'jetpack' ),
+		_x( 'similar content', 'block search term', 'jetpack' ),
+		_x( 'linked', 'block search term', 'jetpack' ),
+		_x( 'connected', 'block search term', 'jetpack' ),
 	],
 
 	attributes: {

@@ -1,18 +1,20 @@
-const hexRegex = /^#?[A-Fa-f0-9]{6}$/;
-const colourValidator = value => hexRegex.test( value );
+/**
+ * Internal dependencies
+ */
+import colorValidator from '../../shared/colorValidator';
 
 export default {
 	backgroundColor: {
 		type: 'string',
-		validator: colourValidator,
+		validator: colorValidator,
 	},
 	textColor: {
 		type: 'string',
-		validator: colourValidator,
+		validator: colorValidator,
 	},
 	buttonAndLinkColor: {
 		type: 'string',
-		validator: colourValidator,
+		validator: colorValidator,
 	},
 	style: {
 		type: 'string',

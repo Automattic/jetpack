@@ -17,6 +17,7 @@ import {
 	Placeholder,
 	ToggleControl,
 	Toolbar,
+	withNotices,
 } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
@@ -34,8 +35,16 @@ import SubmitButton from '../../shared/submit-button';
 import { getAttributesFromEmbedCode } from './utils';
 import BlockStylesSelector from '../../shared/components/block-styles-selector';
 
-export default function CalendlyEdit( props ) {
-	const { attributes, name, className, clientId, setAttributes } = props;
+function CalendlyEdit( props ) {
+	const {
+		attributes,
+		className,
+		clientId,
+		name,
+		noticeOperations,
+		noticeUI,
+		setAttributes,
+	} = props;
 	const defaultClassName = getBlockDefaultClassName( name );
 	const validatedAttributes = getValidatedAttributes( attributeDetails, attributes );
 
@@ -53,17 +62,13 @@ export default function CalendlyEdit( props ) {
 		url,
 	} = validatedAttributes;
 	const [ embedCode, setEmbedCode ] = useState( '' );
-	const [ notice, setNotice ] = useState();
 
-	const setErrorNotice = () =>
-		setNotice(
-			<>
-				{ __(
-					"Your calendar couldn't be embedded. Please double check your URL or code.",
-					'jetpack'
-				) }
-			</>
+	const setErrorNotice = () => {
+		noticeOperations.removeAllNotices();
+		noticeOperations.createErrorNotice(
+			__( "Your calendar couldn't be embedded. Please double check your URL or code.", 'jetpack' )
 		);
+	};
 
 	const parseEmbedCode = event => {
 		if ( ! event ) {
@@ -82,6 +87,7 @@ export default function CalendlyEdit( props ) {
 		const newValidatedAttributes = getValidatedAttributes( attributeDetails, newAttributes );
 
 		setAttributes( newValidatedAttributes );
+		noticeOperations.removeAllNotices();
 	};
 
 	const embedCodeForm = (
@@ -114,13 +120,7 @@ export default function CalendlyEdit( props ) {
 			label={ __( 'Calendly', 'jetpack' ) }
 			instructions={ __( 'Enter your Calendly web address or embed code below.', 'jetpack' ) }
 			icon={ <BlockIcon icon={ icon } /> }
-			notices={
-				notice && (
-					<Notice status="error" isDismissible={ false }>
-						{ notice }
-					</Notice>
-				)
-			}
+			notices={ noticeUI }
 		>
 			{ embedCodeForm }
 		</Placeholder>
@@ -267,3 +267,5 @@ export default function CalendlyEdit( props ) {
 		</div>
 	);
 }
+
+export default withNotices( CalendlyEdit );

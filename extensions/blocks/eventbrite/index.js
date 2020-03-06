@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { G, Path, Rect, SVG } from '@wordpress/components';
 import { createBlock } from '@wordpress/blocks';
 
@@ -41,9 +41,13 @@ export const settings = {
 	description: __( 'Embed Eventbrite event details and ticket checkout.', 'jetpack' ),
 	icon,
 	category: 'jetpack',
-	keywords: [ __( 'events', 'jetpack' ), __( 'tickets', 'jetpack' ) ],
+	keywords: [
+		_x( 'events', 'block search term', 'jetpack' ),
+		_x( 'tickets', 'block search term', 'jetpack' ),
+	],
 	supports: {
 		html: false,
+		align: true,
 	},
 	attributes,
 	edit,

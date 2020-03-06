@@ -1,5 +1,9 @@
-.wp-block-jetpack-eventbrite .components-placeholder__learn-more {
-	margin-top: 1em;
+.wp-block-jetpack-eventbrite {
+	position: relative;
+
+	.components-placeholder__learn-more {
+		margin-top: 1em;
+	}
 }
 
 // Styles needed to display block style options correctly when using Button & Modal embed type.
