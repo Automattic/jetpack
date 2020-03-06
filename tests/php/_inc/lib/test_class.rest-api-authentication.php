@@ -6,9 +6,11 @@ require_once JETPACK__PLUGIN_DIR . '/tests/php/lib/class-wp-test-spy-rest-server
 /**
  * Test class for Jetpack
  *
+ * @backupGlobals enabled
  * @covers Jetpack
  */
 class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testcase {
+	protected $backupGlobalsBlacklist = array( 'wpdb' ); // phpcs:ignore
 	protected static $admin_id;
 
 	protected $request;
