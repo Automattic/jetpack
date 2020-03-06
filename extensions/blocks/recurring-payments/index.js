@@ -72,7 +72,7 @@ export const settings = {
  *
  * https://stripe.com/docs/currencies#minimum-and-maximum-charge-amounts
  *
- * @type { [currenty: string]: number }
+ * @type { [currency: string]: number }
  */
 export const SUPPORTED_CURRENCIES = {
 	USD: 0.5,
