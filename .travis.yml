@@ -18,7 +18,6 @@ env:
   # Global variable is re-defined in matrix-include -list
   global:
   - WP_TRAVISCI=phpunit
-  - RUN_E2E=true
   # Run phpunit in Travis matrix for these combinations
   matrix:
   - WP_BRANCH=master SIMPLE_AND_MULTISITE=1 # SIMPLE_AND_MULTISITE is just a way to explicitly mention that we run both suites
@@ -75,7 +74,6 @@ matrix:
   - if: env(RUN_E2E) = true AND branch !~ /(^branch-.*-built)/
     php: "7.3"
     name: "E2E tests"
-    # if: env(RUN_E2E) = true
     before_script:
     # Enable user namespace cloning
     - if [ $RUN_E2E = true ]; then echo "true"; fi
