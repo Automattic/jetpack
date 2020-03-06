@@ -75,7 +75,6 @@ matrix:
   - php: "7.3"
     name: "E2E tests"
     # if: env(RUN_E2E) = true
-    # if: branch !~ /(^branch-.*-built)/
     if: env(RUN_E2E) = true AND branch !~ /(^branch-.*-built)/
     before_script:
     # Enable user namespace cloning
