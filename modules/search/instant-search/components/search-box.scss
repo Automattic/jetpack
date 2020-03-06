@@ -10,25 +10,47 @@
 }
 
 input.jetpack-instant-search__box-input.search-field {
-	background: #fff;
 	border-radius: 5px;
 	border-style: solid;
 	border-width: 2px;
-	border-color: #b8b8b8;
-	color: black;
 	font-size: 18px;
 	line-height: 1;
 	margin: 0;
 	padding: 4px 14px;
 	text-indent: 32px;
 	vertical-align: middle;
+	transition: all 0.15s ease-in-out;
 
-	&:hover {
-		border-color: #8E8E8E;
+	.jetpack-instant-search__overlay--light & {
+		color: #666666;
+		background: #ffffff;
+		border-color: #b8b8b8;
+
+		&:hover {
+			color: #000000;
+			border-color: #8e8e8e;
+		}
+
+		&:focus {
+			color: #000000;
+			border-color: #5A5A5A;
+		}
 	}
 
-	&:focus {
-		border-color: #5A5A5A;
+	.jetpack-instant-search__overlay--dark & {
+		color: #b0b0b0;
+		background: #000000;
+		border-color: #5a5a5a;
+
+		&:hover {
+			color: #ffffff;
+			border-color: #8e8e8e;
+		}
+
+		&:focus {
+			color: #ffffff;
+			border-color: #c8c8c8;
+		}
 	}
 }
 
