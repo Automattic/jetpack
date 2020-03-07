@@ -5,21 +5,20 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"automattic/jetpack-constants": "@dev",
-		"automattic/jetpack-options": "@dev"
+		"automattic/jetpack-options": "@dev",
+		"automattic/jetpack-roles": "@dev"
 	},
 	"require-dev": {
 		"phpunit/phpunit": "^5.7 || ^6.5 || ^7.5",
 		"php-mock/php-mock": "^2.1"
 	},
 	"autoload": {
-		"psr-4": {
-			"Automattic\\Jetpack\\Connection\\": "src"
-		},
 		"files": [
 			"legacy/load-ixr.php"
 		],
 		"classmap": [
-			"legacy"
+			"legacy",
+			"src/"
 		]
 	},
 	"scripts": {

@@ -226,18 +226,6 @@ class Jetpack_Memberships {
 			'powered_text' => __( 'Powered by WordPress.com', 'jetpack' ),
 		);
 
-		$classes = Jetpack_Gutenberg::block_classes(
-			self::$button_block_name,
-			$attrs,
-			array(
-				'wp-block-button__link',
-				'components-button',
-				'is-primary',
-				'is-button',
-				self::$css_classname_prefix . '-' . $data['id'],
-			)
-		);
-
 		if ( isset( $attrs['submitButtonText'] ) ) {
 			$data['button_label'] = $attrs['submitButtonText'];
 		}
@@ -263,12 +251,13 @@ class Jetpack_Memberships {
 		$button_styles = implode( ';', $button_styles );
 		add_thickbox();
 		return sprintf(
-			'<button data-blog-id="%d" data-powered-text="%s" data-plan-id="%d" data-lang="%s" class="%s" style="%s">%s</button>',
+			'<div class="wp-block-button %1$s"><a role="button" data-blog-id="%2$d" data-powered-text="%3$s" data-plan-id="%4$d" data-lang="%5$s" class="%6$s" style="%7$s">%8$s</a></div>',
+			esc_attr( Jetpack_Gutenberg::block_classes( self::$button_block_name, $attrs ) ),
 			esc_attr( $data['blog_id'] ),
 			esc_attr( $data['powered_text'] ),
 			esc_attr( $data['id'] ),
 			esc_attr( get_locale() ),
-			esc_attr( $classes ),
+			isset( $attrs['submitButtonClasses'] ) ? esc_attr( $attrs['submitButtonClasses'] ) : 'wp-block-button__link',
 			esc_attr( $button_styles ),
 			wp_kses( $data['button_label'], self::$tags_allowed_in_the_button )
 		);

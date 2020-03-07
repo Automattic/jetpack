@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { createHigherOrderComponent } from '@wordpress/compose';
-import { RichText } from '@wordpress/editor';
+import { RichText } from '@wordpress/block-editor';
 
 /**
  * Internal dependencies

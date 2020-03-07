@@ -1,6 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Connection\Client;
 
 require_once dirname( __FILE__ ) . '/rtl-admin-bar.php';
 
@@ -209,7 +210,13 @@ class A8C_WPCOM_Masterbar {
 	 * Remove the default Admin Bar CSS.
 	 */
 	public function remove_core_styles() {
-		wp_dequeue_style( 'admin-bar' );
+		/*
+		 * Notifications need the admin bar styles,
+		 * so let's not remove them when the module is active.
+		 */
+		if ( ! Jetpack::is_module_active( 'notes' ) ) {
+			wp_dequeue_style( 'admin-bar' );
+		}
 	}
 
 	/**
@@ -422,7 +429,7 @@ class A8C_WPCOM_Masterbar {
 
 		$following_title = $this->create_menu_item_pair(
 			array(
-				'url'   => 'https://wordpress.com/',
+				'url'   => 'https://wordpress.com/read',
 				'id'    => 'wp-admin-bar-followed-sites',
 				'label' => esc_html__( 'Followed Sites', 'jetpack' ),
 			),
@@ -859,6 +866,8 @@ class A8C_WPCOM_Masterbar {
 				)
 			);
 		}
+
+		$this->add_my_home_submenu_item( $wp_admin_bar );
 
 		// Stats.
 		if ( Jetpack::is_module_active( 'stats' ) && current_user_can( 'view_stats' ) ) {
@@ -1319,5 +1328,29 @@ class A8C_WPCOM_Masterbar {
 			 */
 			do_action( 'jetpack_masterbar' );
 		}
+	}
+
+	/**
+	 * Adds "My Home" submenu item to sites that are eligible.
+	 *
+	 * @param WP_Admin_Bar $wp_admin_bar Admin Bar instance.
+	 * @return void
+	 */
+	private function add_my_home_submenu_item( &$wp_admin_bar ) {
+		if ( ! current_user_can( 'manage_options' ) || ! jetpack_is_atomic_site() ) {
+			return;
+		}
+
+		$wp_admin_bar->add_menu(
+			array(
+				'parent' => 'blog',
+				'id'     => 'my-home',
+				'title'  => __( 'My Home', 'jetpack' ),
+				'href'   => 'https://wordpress.com/home/' . esc_attr( $this->primary_site_slug ),
+				'meta'   => array(
+					'class' => 'mb-icon',
+				),
+			)
+		);
 	}
 }

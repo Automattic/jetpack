@@ -1,31 +1,42 @@
-## 7.8
-
-### Admin Page
-
-We've made some changes to simplify the Jetpack Dashboard interface when your user is not connected to WordPress.com yet. You can check this by adding a new admin (or any other role) user to your site, logging in with that user, and going to Jetpack > Dashboard. You should only see things that you can act on, depending on your role.
+## 8.3
 
 ### Blocks
 
-We've made some changes to ensure that blocks are properly translated in the block editor. If you switch to a language that offers language packs, like French or Spanish, you should see that Jetpack Blocks will now be translated in the editor.
+#### Calendly / OpenTable / Eventbrite
 
-### Carousel
+We've made some changes to those blocks to improve the display of each each when using the button style, but also to improve the way data is saved when creating or updating the block. If you've already used the blocks on your site before this Beta, make sure those existing blocks are not broken, and ensure you can use the different options in the blocks' sidebars.
 
-In this release, we've made some changes to how the Carousel metadata was added to each gallery. To test this:
+When using the button style for those blocks (as well as other blocks such as Subscriptions, Recurring Payments, or Mailchimp), you'll want to ensure you can use the colors offered by your theme for the button.
 
-* In a new post, insert a variety of blocks:
-	- A classic block with a gallery
-	- A classic block with a tiled gallery
-	- A gallery block
-	- A Tiled Gallery block
-	- A column block with some text
-	- A column block with a gallery block in it.
-* Publish your post
-* When moving your mouse over each block, make sure the cursor only becomes a pointer when the element can be expanded to a Carousel modal.
+#### Google Calendar
+
+We've created a new Google Calendar block that will allow you to quickly embed calendars within your posts and pages. Give the block and its options a try, and let us know if you run into any issues.
+
+#### Map
+
+We've made a lot of changes to the Map block in this release.
+
+We would encourage you to test all features offered by the block, including the new Zoom, height, and Fullscreen options appearing in the block sidebar. Give those features a try in the editor, and check how the map looks like on your site's frontend as well.
+
+#### Revue
+
+This new block allows you to add a Revue Newsletter signup block to your posts and pages. To get started, [create an account with Revue](https://www.getrevue.co/) if you don't already have one. You'll then be able to create a form in Jetpack.
+
+Let us know if you experience any issues with that form.
+
+#### Tiled Gallery
+
+The Tiled Gallery block now comes with some new options:
+
+- You can choose rounded corners for your galleries.
+- You can reorder images within a gallery thanks to previous / next arrows appearing on each image.
+
+Give those features a try and let us know how it worked for you.
 
 ### Others
 
 - If you have the opportunity to test in an older browser like IE11, please do so. You may catch some interesting bugs!
 - **At any point during your testing, remember to [check your browser's JavaScript console](https://codex.wordpress.org/Using_Your_Browser_to_Diagnose_JavaScript_Errors#Step_3:_Diagnosis) and see if there are any errors reported by Jetpack there.**
-- Use "Debug Bar" or "Query Monitor" to help make PHP notices and warnings more noticible and report anything you see.
+- Use "Debug Bar" or "Query Monitor" to help make PHP notices and warnings more noticeable and report anything you see.
 
 **Thank you for all your help!**

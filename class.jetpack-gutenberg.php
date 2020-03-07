@@ -7,6 +7,7 @@
  */
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Status;
 
 /**
  * Wrapper function to safely register a gutenberg block type
@@ -24,6 +25,11 @@ function jetpack_register_block( $slug, $args = array() ) {
 	if ( 0 !== strpos( $slug, 'jetpack/' ) && ! strpos( $slug, '/' ) ) {
 		_doing_it_wrong( 'jetpack_register_block', 'Prefix the block with jetpack/ ', '7.1.0' );
 		$slug = 'jetpack/' . $slug;
+	}
+
+	if ( isset( $args['version_requirements'] )
+		&& ! Jetpack_Gutenberg::is_gutenberg_version_available( $args['version_requirements'], $slug ) ) {
+		return false;
 	}
 
 	// Checking whether block is registered to ensure it isn't registered twice.
@@ -87,6 +93,59 @@ class Jetpack_Gutenberg {
 	 * @var array Extensions availability information
 	 */
 	private static $availability = array();
+
+	/**
+	 * Check to see if a minimum version of Gutenberg is available. Because a Gutenberg version is not available in
+	 * php if the Gutenberg plugin is not installed, if we know which minimum WP release has the required version we can
+	 * optionally fall back to that.
+	 *
+	 * @param array  $version_requirements An array containing the required Gutenberg version and, if known, the WordPress version that was released with this minimum version.
+	 * @param string $slug The slug of the block or plugin that has the gutenberg version requirement.
+	 *
+	 * @since 8.3.0
+	 *
+	 * @return boolean True if the version of gutenberg required by the block or plugin is available.
+	 */
+	public static function is_gutenberg_version_available( $version_requirements, $slug ) {
+		global $wp_version;
+
+		// Bail if we don't at least have the gutenberg version requirement, the WP version is optional.
+		if ( empty( $version_requirements['gutenberg'] ) ) {
+			return false;
+		}
+
+		// If running a local dev build of gutenberg plugin GUTENBERG_DEVELOPMENT_MODE is set so assume correct version.
+		if ( defined( 'GUTENBERG_DEVELOPMENT_MODE' ) && GUTENBERG_DEVELOPMENT_MODE ) {
+			return true;
+		}
+
+		$version_available = false;
+
+		// If running a production build of the gutenberg plugin then GUTENBERG_VERSION is set, otherwise if WP version
+		// with required version of Gutenberg is known check that.
+		if ( defined( 'GUTENBERG_VERSION' ) ) {
+			$version_available = version_compare( GUTENBERG_VERSION, $version_requirements['gutenberg'], '>=' );
+		} elseif ( ! empty( $version_requirements['wp'] ) ) {
+			$version_available = version_compare( $wp_version, $version_requirements['wp'], '>=' );
+		}
+
+		if ( ! $version_available ) {
+			self::set_extension_unavailable(
+				$slug,
+				'incorrect_gutenberg_version',
+				array(
+					'required_feature' => $slug,
+					'required_version' => $version_requirements,
+					'current_version'  => array(
+						'wp'        => $wp_version,
+						'gutenberg' => defined( 'GUTENBERG_VERSION' ) ? GUTENBERG_VERSION : null,
+					),
+				)
+			);
+		}
+
+		return $version_available;
+	}
 
 	/**
 	 * Prepend the 'jetpack/' prefix to a block name
@@ -191,18 +250,22 @@ class Jetpack_Gutenberg {
 		if (
 			// Extensions that require a plan may be eligible for upgrades.
 			'missing_plan' === $reason
-			/**
-			 * Filter 'jetpack_block_editor_enable_upgrade_nudge' with `true` to enable or `false`
-			 * to disable paid feature upgrade nudges in the block editor.
-			 *
-			 * When this is changed to default to `true`, you should also update `modules/memberships/class-jetpack-memberships.php`
-			 * See https://github.com/Automattic/jetpack/pull/13394#pullrequestreview-293063378
-			 *
-			 * @since 7.7.0
-			 *
-			 * @param boolean
-			 */
-			&& ! apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false )
+			&& (
+				/**
+				 * Filter 'jetpack_block_editor_enable_upgrade_nudge' with `true` to enable or `false`
+				 * to disable paid feature upgrade nudges in the block editor.
+				 *
+				 * When this is changed to default to `true`, you should also update `modules/memberships/class-jetpack-memberships.php`
+				 * See https://github.com/Automattic/jetpack/pull/13394#pullrequestreview-293063378
+				 *
+				 * @since 7.7.0
+				 *
+				 * @param boolean
+				 */
+				! apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false )
+				/** This filter is documented in _inc/lib/admin-pages/class.jetpack-react-page.php */
+				|| ! apply_filters( 'jetpack_show_promotions', true )
+			)
 		) {
 			// The block editor may apply an upgrade nudge if `missing_plan` is the reason.
 			// Add a descriptive suffix to disable behavior but provide informative reason.
@@ -248,6 +311,17 @@ class Jetpack_Gutenberg {
 		 */
 		if ( apply_filters( 'jetpack_load_beta_blocks', false ) ) {
 			Constants::set_constant( 'JETPACK_BETA_BLOCKS', true );
+		}
+
+		/**
+		 * Alternative to `JETPACK_EXPERIMENTAL_BLOCKS`, set to `true` to load Experimental Blocks.
+		 *
+		 * @since 8.4.0
+		 *
+		 * @param boolean
+		 */
+		if ( apply_filters( 'jetpack_load_experimental_blocks', false ) ) {
+			Constants::set_constant( 'JETPACK_EXPERIMENTAL_BLOCKS', true );
 		}
 
 		/**
@@ -341,16 +415,12 @@ class Jetpack_Gutenberg {
 	 * @return array A list of blocks: eg [ 'publicize', 'markdown' ]
 	 */
 	public static function get_jetpack_gutenberg_extensions_whitelist() {
-		$preset_extensions_manifest = self::preset_exists( 'index' ) ? self::get_preset( 'index' ) : (object) array();
+		$preset_extensions_manifest = self::preset_exists( 'index' )
+			? self::get_preset( 'index' )
+			: (object) array();
+		$blocks_variation           = self::blocks_variation();
 
-		$preset_extensions = isset( $preset_extensions_manifest->production ) ? (array) $preset_extensions_manifest->production : array();
-
-		if ( Constants::is_true( 'JETPACK_BETA_BLOCKS' ) ) {
-			$beta_extensions = isset( $preset_extensions_manifest->beta ) ? (array) $preset_extensions_manifest->beta : array();
-			return array_unique( array_merge( $preset_extensions, $beta_extensions ) );
-		}
-
-		return $preset_extensions;
+		return self::get_extensions_preset_for_variation( $preset_extensions_manifest, $blocks_variation );
 	}
 
 	/**
@@ -441,7 +511,7 @@ class Jetpack_Gutenberg {
 	 * @return bool
 	 */
 	public static function should_load() {
-		if ( ! Jetpack::is_active() && ! Jetpack::is_development_mode() ) {
+		if ( ! Jetpack::is_active() && ! ( new Status() )->is_development_mode() ) {
 			return false;
 		}
 
@@ -519,13 +589,12 @@ class Jetpack_Gutenberg {
 
 		// Enqueue script.
 		$script_relative_path = self::get_blocks_directory() . $type . '/view.js';
-		$script_deps_path     = JETPACK__PLUGIN_DIR . self::get_blocks_directory() . $type . '/view.deps.json';
-
-		$script_dependencies = file_exists( $script_deps_path )
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-			? json_decode( file_get_contents( $script_deps_path ) )
-			: array();
-		$script_dependencies = array_merge( $script_dependencies, $dependencies, array( 'wp-polyfill' ) );
+		$script_deps_path     = JETPACK__PLUGIN_DIR . self::get_blocks_directory() . $type . '/view.asset.php';
+		$script_dependencies  = array( 'wp-polyfill' );
+		if ( file_exists( $script_deps_path ) ) {
+			$asset_manifest      = include $script_deps_path;
+			$script_dependencies = $asset_manifest['dependencies'];
+		}
 
 		if ( ( ! class_exists( 'Jetpack_AMP_Support' ) || ! Jetpack_AMP_Support::is_amp_request() ) && self::block_has_asset( $script_relative_path ) ) {
 			$script_version = self::get_asset_version( $script_relative_path );
@@ -577,23 +646,29 @@ class Jetpack_Gutenberg {
 		}
 
 		// Required for Analytics. See _inc/lib/admin-pages/class.jetpack-admin-page.php.
-		if ( ! Jetpack::is_development_mode() && Jetpack::is_active() ) {
+		if ( ! ( new Status() )->is_development_mode() && Jetpack::is_active() ) {
 			wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 		}
 
-		$rtl        = is_rtl() ? '.rtl' : '';
-		$beta       = Constants::is_true( 'JETPACK_BETA_BLOCKS' ) ? '-beta' : '';
-		$blocks_dir = self::get_blocks_directory();
+		$rtl              = is_rtl() ? '.rtl' : '';
+		$blocks_dir       = self::get_blocks_directory();
+		$blocks_variation = self::blocks_variation();
 
-		$editor_script = plugins_url( "{$blocks_dir}editor{$beta}.js", JETPACK__PLUGIN_FILE );
-		$editor_style  = plugins_url( "{$blocks_dir}editor{$beta}{$rtl}.css", JETPACK__PLUGIN_FILE );
+		if ( 'production' !== $blocks_variation ) {
+			$blocks_env = '-' . esc_attr( $blocks_variation );
+		} else {
+			$blocks_env = '';
+		}
 
-		$editor_deps_path = JETPACK__PLUGIN_DIR . $blocks_dir . "editor{$beta}.deps.json";
-		$editor_deps      = file_exists( $editor_deps_path )
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-			? json_decode( file_get_contents( $editor_deps_path ) )
-			: array();
-		$editor_deps[] = 'wp-polyfill';
+		$editor_script = plugins_url( "{$blocks_dir}editor{$blocks_env}.js", JETPACK__PLUGIN_FILE );
+		$editor_style  = plugins_url( "{$blocks_dir}editor{$blocks_env}{$rtl}.css", JETPACK__PLUGIN_FILE );
+
+		$editor_deps_path = JETPACK__PLUGIN_DIR . $blocks_dir . "editor{$blocks_env}.asset.php";
+		$editor_deps      = array( 'wp-polyfill' );
+		if ( file_exists( $editor_deps_path ) ) {
+			$asset_manifest = include $editor_deps_path;
+			$editor_deps    = $asset_manifest['dependencies'];
+		}
 
 		$version = Jetpack::is_development_version() && file_exists( JETPACK__PLUGIN_DIR . $blocks_dir . 'editor.js' )
 			? filemtime( JETPACK__PLUGIN_DIR . $blocks_dir . 'editor.js' )
@@ -713,4 +788,153 @@ class Jetpack_Gutenberg {
 
 		return implode( ' ', $classes );
 	}
+
+	/**
+	 * Determine whether a site should use the default set of blocks, or a custom set.
+	 * Possible variations are currently beta, experimental, and production.
+	 *
+	 * @since 8.1.0
+	 *
+	 * @return string $block_varation production|beta|experimental
+	 */
+	public static function blocks_variation() {
+		// Default to production blocks.
+		$block_varation = 'production';
+
+		if ( Constants::is_true( 'JETPACK_BETA_BLOCKS' ) ) {
+			$block_varation = 'beta';
+		}
+
+		/*
+		 * Switch to experimental blocks if you use the JETPACK_EXPERIMENTAL_BLOCKS constant.
+		 */
+		if ( Constants::is_true( 'JETPACK_EXPERIMENTAL_BLOCKS' ) ) {
+			$block_varation = 'experimental';
+		}
+
+		/**
+		 * Allow customizing the variation of blocks in use on a site.
+		 *
+		 * @since 8.1.0
+		 *
+		 * @param string $block_variation Can be beta, experimental, and production. Defaults to production.
+		 */
+		return apply_filters( 'jetpack_blocks_variation', $block_varation );
+	}
+
+	/**
+	 * Get a list of extensions available for the variation you chose.
+	 *
+	 * @since 8.1.0
+	 *
+	 * @param obj    $preset_extensions_manifest List of extensions available in Jetpack.
+	 * @param string $blocks_variation           Subset of blocks. production|beta|experimental.
+	 *
+	 * @return array $preset_extensions Array of extensions for that variation
+	 */
+	public static function get_extensions_preset_for_variation( $preset_extensions_manifest, $blocks_variation ) {
+		$preset_extensions = isset( $preset_extensions_manifest->{ $blocks_variation } )
+				? (array) $preset_extensions_manifest->{ $blocks_variation }
+				: array();
+
+		/*
+		 * Experimental and Beta blocks need the production blocks as well.
+		 */
+		if (
+			'experimental' === $blocks_variation
+			|| 'beta' === $blocks_variation
+		) {
+			$production_extensions = isset( $preset_extensions_manifest->production )
+				? (array) $preset_extensions_manifest->production
+				: array();
+
+			$preset_extensions = array_unique( array_merge( $preset_extensions, $production_extensions ) );
+		}
+
+		/*
+		 * Beta blocks need the experimental blocks as well.
+		 *
+		 * If you've chosen to see Beta blocks,
+		 * we want to make all blocks available to you:
+		 * - Production
+		 * - Experimental
+		 * - Beta
+		 */
+		if ( 'beta' === $blocks_variation ) {
+			$production_extensions = isset( $preset_extensions_manifest->experimental )
+				? (array) $preset_extensions_manifest->experimental
+				: array();
+
+			$preset_extensions = array_unique( array_merge( $preset_extensions, $production_extensions ) );
+		}
+
+		return $preset_extensions;
+	}
+
+	/**
+	 * Validate a URL used in a SSR block.
+	 *
+	 * @since 8.3.0
+	 *
+	 * @param string $url      URL saved as an attribute in block.
+	 * @param array  $allowed  Array of allowed hosts for that block, or regexes to check against.
+	 * @param bool   $is_regex Array of regexes matching the URL that could be used in block.
+	 *
+	 * @return bool|string
+	 */
+	public static function validate_block_embed_url( $url, $allowed = array(), $is_regex = false ) {
+		if (
+			empty( $url )
+			|| ! is_array( $allowed )
+			|| empty( $allowed )
+		) {
+			return false;
+		}
+
+		$url_components = wp_parse_url( $url );
+
+		// Bail early if we cannot find a host.
+		if ( empty( $url_components['host'] ) ) {
+			return false;
+		}
+
+		// Normalize URL.
+		$url = sprintf(
+			'%s://%s%s%s',
+			$url_components['scheme'],
+			$url_components['host'],
+			$url_components['path'] ? $url_components['path'] : '/',
+			$url_components['query'] ? '?' . $url_components['query'] : ''
+		);
+
+		if ( ! empty( $url_components['fragment'] ) ) {
+			$url = $url . '#' . rawurlencode( $url_components['fragment'] );
+		}
+
+		/*
+		 * If we're using a whitelist of hosts,
+		 * check if the URL belongs to one of the domains allowed for that block.
+		 */
+		if (
+			false === $is_regex
+			&& in_array( $url_components['host'], $allowed, true )
+		) {
+			return $url;
+		}
+
+		/*
+		 * If we are using an array of regexes to check against,
+		 * loop through that.
+		 */
+		if ( true === $is_regex ) {
+			foreach ( $allowed as $regex ) {
+				if ( 1 === preg_match( $regex, $url ) ) {
+					return $url;
+				}
+			}
+		}
+
+		return false;
+	}
+
 }

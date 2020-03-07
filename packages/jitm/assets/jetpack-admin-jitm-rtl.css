@@ -26,41 +26,33 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 https://github.com/thoughtbot/bourbon
 */
 .jitm-button {
-  background: white;
-  border-color: #d5d5d5;
+  background: #f3f5f6;
+  border-color: #0071a1;
   border-style: solid;
-  border-width: 1px 1px 2px;
-  color: #414141;
+  border-width: 1px;
+  color: #0071a1;
   cursor: pointer;
   display: inline-block;
   margin: 0;
   outline: 0;
   overflow: hidden;
-  font-weight: 500;
+  font-size: 14px;
   text-overflow: ellipsis;
   text-decoration: none;
   vertical-align: top;
   box-sizing: border-box;
-  font-size: 0.875rem;
-  line-height: 1.3125rem;
-  border-radius: 0.25rem;
-  padding: 0.4375rem 0.875rem 0.5625rem;
+  font-size: 14px;
+  border-radius: 4px;
+  padding: 7px 14px 9px;
   -webkit-appearance: none;
-     -moz-appearance: none;
-          appearance: none;
+  -moz-appearance: none;
+       appearance: none;
 }
 
 .jitm-button:hover {
-  border-color: #bbbbbb;
-  color: #414141;
-}
-
-.jitm-button:active {
-  border-width: 2px 1px 1px;
-}
-
-.jitm-button:visited {
-  color: #414141;
+  background: #f1f1f1;
+  border-color: #016087;
+  color: #016087;
 }
 
 .jitm-button[disabled], .jitm-button:disabled {
@@ -70,25 +62,38 @@ https://github.com/thoughtbot/bourbon
   cursor: default;
 }
 
-.jitm-button[disabled]:active, .jitm-button:disabled:active {
-  border-width: 1px 1px 2px;
-}
-
 .jitm-button:focus {
-  outline: 0;
-  border-color: #00aadc;
-  box-shadow: 0 0 0 2px #78dcfa;
+  background: white;
+  border-color: #0071a1;
+  box-shadow: 0 0 0 1px #0071a1;
 }
 
 .jitm-button.is-compact {
-  padding: 0.4375rem;
-  color: #888888;
-  font-size: 0.75rem;
+  padding: 7px;
+  font-size: 11px;
   line-height: 1;
+  text-transform: uppercase;
 }
 
 .jitm-button.is-compact:disabled {
   color: #eeeeee;
+}
+
+.jitm-button.is-compact .gridicon {
+  top: 4px;
+  margin-top: -8px;
+}
+
+.jitm-button.is-compact .gridicons-plus-small {
+  margin-right: -4px;
+}
+
+.jitm-button.is-compact .gridicons-plus-small:last-of-type {
+  margin-right: 0;
+}
+
+.jitm-button.is-compact .gridicons-plus-small + .gridicon {
+  margin-right: -4px;
 }
 
 .jitm-button.hidden {
@@ -96,14 +101,19 @@ https://github.com/thoughtbot/bourbon
 }
 
 .jitm-button.is-primary {
-  background: #00aadc;
-  border-color: #0087be;
+  background: #007cba;
+  border-color: #007cba;
   color: white;
 }
 
 .jitm-button.is-primary:hover, .jitm-button.is-primary:focus {
-  border-color: #005082;
+  border-color: #0071a1;
+  background: #0071a1;
   color: white;
+}
+
+.jitm-button.is-primary:focus {
+  box-shadow: 0 0 0 1px white, 0 0 0 3px #0071a1;
 }
 
 .jitm-button.is-primary[disabled], .jitm-button.is-primary:disabled {
@@ -114,6 +124,7 @@ https://github.com/thoughtbot/bourbon
 
 .jitm-button.is-primary.is-compact {
   color: white;
+  white-space: nowrap;
 }
 
 .jitm-card {
@@ -124,7 +135,7 @@ https://github.com/thoughtbot/bourbon
   padding: 1rem;
   box-sizing: border-box;
   background: white;
-  box-shadow: 0 0 0 1px rgba(213, 213, 213, 0.5), 0 1px 2px #eeeeee;
+  box-shadow: 0 0 0 1px #ccd0d4, 0 1px 1px 1px rgba(0, 0, 0, 0.04);
 }
 
 .jitm-card:after {

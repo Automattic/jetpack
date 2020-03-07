@@ -3,39 +3,54 @@
 /**
  * External dependencies
  */
-import { sprintf, _n } from '@wordpress/i18n';
 import { h, Component } from 'preact';
-import strip from 'strip';
+
+/**
+ * Internal dependencies
+ */
+import SearchResultMinimal from './search-result-minimal';
+import SearchResultProduct from './search-result-product';
+import { recordTrainTracksRender, recordTrainTracksInteract } from '../lib/tracks';
+import { RESULT_FORMAT_PRODUCT } from '../lib/constants';
 
 class SearchResult extends Component {
+	componentDidMount() {
+		!! this.props.railcar && recordTrainTracksRender( this.getCommonTrainTracksProps() );
+	}
+
+	componentDidUpdate( prevProps ) {
+		if ( this.props.railcar !== prevProps.railcar ) {
+			!! this.props.railcar && recordTrainTracksRender( this.getCommonTrainTracksProps() );
+		}
+	}
+
+	getCommonTrainTracksProps() {
+		return {
+			fetch_algo: this.props.railcar.fetch_algo,
+			fetch_position: this.props.railcar.fetch_position,
+			fetch_query: this.props.railcar.fetch_query,
+			railcar: this.props.railcar.railcar,
+			rec_blog_id: this.props.railcar.rec_blog_id,
+			rec_post_id: this.props.railcar.rec_post_id,
+			session_id: this.props.railcar.session_id,
+			// TODO: Add a way to differentiate between different result formats
+			ui_algo: 'jetpack-instant-search-ui/v1',
+			ui_position: this.props.index,
+		};
+	}
+
+	onClick = () => {
+		// Send out analytics call
+		!! this.props.railcar &&
+			recordTrainTracksInteract( { ...this.getCommonTrainTracksProps(), action: 'click' } );
+	};
+
 	render() {
-		return (
-			<div className="jetpack-instant-search__result">
-				<a
-					href={ `//${ this.props.result.fields[ 'permalink.url.raw' ] }` }
-					target="_blank"
-					rel="noopener noreferrer"
-					className="jetpack-instant-search__result-title"
-				>
-					{ strip( this.props.result.fields.title_html ) || 'Unknown Title' }
-				</a>{' '}
-				<div className="jetpack-instant-search__result-author-and-date">
-					{ strip( this.props.result.fields.author ) }{' '}
-					<span className="jetpack-instant-search__result-date">
-						{ strip( this.props.result.fields.date ).split( ' ' )[ 0 ] }
-					</span>
-				</div>
-				<div className="jetpack-instant-search__result-excerpt">
-					{ strip( this.props.result.fields.excerpt_html ) }
-				</div>
-				<div>
-					{ sprintf(
-						_n( '%d comment', '%d comments', this.props.result.fields.comment_count, 'jetpack' ),
-						this.props.result.fields.comment_count
-					) }
-				</div>
-			</div>
-		);
+		if ( this.props.resultFormat === RESULT_FORMAT_PRODUCT ) {
+			return <SearchResultProduct onClick={ this.onClick } { ...this.props } />;
+		}
+
+		return <SearchResultMinimal onClick={ this.onClick } { ...this.props } />;
 	}
 }
 

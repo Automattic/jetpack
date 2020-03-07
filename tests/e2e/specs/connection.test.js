@@ -6,13 +6,7 @@ import Sidebar from '../lib/pages/wp-admin/sidebar';
 import PluginsPage from '../lib/pages/wp-admin/plugins';
 import DashboardPage from '../lib/pages/wp-admin/dashboard';
 import JetpackPage from '../lib/pages/wp-admin/jetpack';
-import { execShellCommand, getNgrokSiteUrl } from '../lib/utils-helper';
-
-jest.setTimeout( 600000 );
-
-async function resetWordpressInstall() {
-	await execShellCommand( './tests/e2e/bin/setup-e2e-travis.sh reset_wp' );
-}
+import { resetWordpressInstall, getNgrokSiteUrl } from '../lib/utils-helper';
 
 describe( 'Jetpack connection', () => {
 	beforeAll( async () => {

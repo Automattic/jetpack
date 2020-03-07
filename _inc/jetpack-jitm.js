@@ -62,12 +62,14 @@ jQuery( document ).ready( function( $ ) {
 					ctaClasses += ' is-primary';
 				}
 
+				var ajaxAction = envelope.CTA.ajax_action;
+
 				html += '<div class="jitm-banner__action">';
 				html +=
 					'<a href="' +
 					envelope.url +
 					'" target="' +
-					( envelope.CTA.newWindow === false ? '_self' : '_blank' ) +
+					( envelope.CTA.newWindow === false || ajaxAction ? '_self' : '_blank' ) +
 					'" rel="noopener noreferrer" title="' +
 					envelope.CTA.message +
 					'" data-module="' +
@@ -76,15 +78,19 @@ jQuery( document ).ready( function( $ ) {
 					ctaClasses +
 					'" data-jptracks-name="nudge_click" data-jptracks-prop="jitm-' +
 					envelope.id +
-					'">' +
+					'" ' +
+					( ajaxAction ? 'data-ajax-action="' + ajaxAction + '"' : '' ) +
+					'>' +
 					envelope.CTA.message +
 					'</a>';
 				html += '</div>';
 			}
-			html +=
-				'<a href="#" data-module="' +
-				envelope.feature_class +
-				'" class="jitm-banner__dismiss"></a>';
+			if ( envelope.is_dismissible ) {
+				html +=
+					'<a href="#" data-module="' +
+					envelope.feature_class +
+					'" class="jitm-banner__dismiss"></a>';
+			}
 			html += '</div>';
 			html += '</div>';
 
@@ -173,6 +179,24 @@ jQuery( document ).ready( function( $ ) {
 					$template.fadeOut( 'slow' );
 				}, 2000 );
 			} );
+		} );
+
+		// Handle CTA ajax actions.
+		$template.find( '.jitm-button[data-ajax-action]' ).click( function( e ) {
+			e.preventDefault();
+			var button = $( this );
+			button.attr( 'disabled', true );
+			$.post( window.ajaxurl, {
+				action: button.data( 'ajax-action' ),
+				_nonce: $el.data( 'ajax-nonce' ),
+			} )
+				.done( function() {
+					$template.fadeOut( 'slow' );
+				} )
+				.fail( function() {
+					button.attr( 'disabled', false );
+				} );
+			return false;
 		} );
 	};
 

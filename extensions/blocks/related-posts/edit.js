@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { BlockControls, InspectorControls } from '@wordpress/editor';
+import { BlockControls, InspectorControls } from '@wordpress/block-editor';
 import { PanelBody, RangeControl, ToggleControl, Toolbar, Path, SVG } from '@wordpress/components';
 import { Component, Fragment } from '@wordpress/element';
 import { get } from 'lodash';

@@ -14,8 +14,7 @@ export default class LoginPage extends Page {
 	constructor( page ) {
 		const expectedSelector = '.wp-login__container';
 		const url = 'https://wordpress.com/log-in';
-		super( page, { expectedSelector, url } );
-		this.explicitWaitMS = 45000;
+		super( page, { expectedSelector, url, explicitWaitMS: 45000 } );
 	}
 
 	async login( wpcomUser ) {
@@ -36,7 +35,11 @@ export default class LoginPage extends Page {
 		await waitAndType( this.page, passwordSelector, password );
 		await waitAndClick( this.page, submitButtonSelector );
 
-		await waitForSelector( this.page, passwordSelector, { hidden: true, timeout: 60000 } );
+		// NOTE: here we waiting for the redirect. For some reason it might take quite some time
+		await waitForSelector( this.page, passwordSelector, {
+			hidden: true,
+			timeout: 3 * 60000 /* 3 minutes */,
+		} );
 		await this.page.waitForNavigation( { waitFor: 'networkidle2' } );
 	}
 

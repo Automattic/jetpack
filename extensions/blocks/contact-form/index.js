@@ -5,7 +5,7 @@ import { __, _x } from '@wordpress/i18n';
 import { getBlockType, createBlock } from '@wordpress/blocks';
 import { Path, Circle } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
-import { InnerBlocks } from '@wordpress/editor';
+import { InnerBlocks } from '@wordpress/block-editor';
 
 /**
  * Internal dependencies
@@ -17,6 +17,7 @@ import JetpackFieldTextarea from './components/jetpack-field-textarea';
 import JetpackFieldCheckbox from './components/jetpack-field-checkbox';
 import JetpackFieldMultiple from './components/jetpack-field-multiple';
 import renderMaterialIcon from '../../shared/render-material-icon';
+import colorValidator from '../../shared/colorValidator';
 
 export const name = 'contact-form';
 
@@ -29,11 +30,10 @@ export const settings = {
 	keywords: [
 		_x( 'email', 'block search term', 'jetpack' ),
 		_x( 'feedback', 'block search term', 'jetpack' ),
-		_x( 'contact', 'block search term', 'jetpack' ),
+		_x( 'contact form', 'block search term', 'jetpack' ),
 	],
 	category: 'jetpack',
 	supports: {
-		reusable: false,
 		html: false,
 	},
 	attributes: {
@@ -49,12 +49,36 @@ export const settings = {
 			type: 'string',
 			default: __( 'Submit', 'jetpack' ),
 		},
-		customBackgroundButtonColor: { type: 'string' },
-		customTextButtonColor: { type: 'string' },
+		backgroundButtonColor: {
+			type: 'string',
+		},
+		textButtonColor: {
+			type: 'string',
+		},
+		customBackgroundButtonColor: {
+			type: 'string',
+			validator: colorValidator,
+		},
+		customTextButtonColor: {
+			type: 'string',
+			validator: colorValidator,
+		},
 		submitButtonClasses: { type: 'string' },
 		hasFormSettingsSet: {
 			type: 'string',
 			default: null,
+		},
+		customThankyou: {
+			type: 'string',
+			default: '',
+		},
+		customThankyouMessage: {
+			type: 'string',
+			default: '',
+		},
+		customThankyouRedirect: {
+			type: 'string',
+			default: '',
 		},
 
 		// Deprecated
@@ -70,6 +94,40 @@ export const settings = {
 
 	edit: JetpackContactForm,
 	save: () => <InnerBlocks.Content />,
+	example: {
+		attributes: {
+			hasFormSettingsSet: true,
+			submitButtonText: __( 'Submit', 'jetpack' ),
+		},
+		innerBlocks: [
+			{
+				name: 'jetpack/field-name',
+				attributes: {
+					label: __( 'Name', 'jetpack' ),
+					required: true,
+				},
+			},
+			{
+				name: 'jetpack/field-email',
+				attributes: {
+					label: __( 'Email', 'jetpack' ),
+					required: true,
+				},
+			},
+			{
+				name: 'jetpack/field-url',
+				attributes: {
+					label: __( 'Website', 'jetpack' ),
+				},
+			},
+			{
+				name: 'jetpack/field-textarea',
+				attributes: {
+					label: __( 'Message', 'jetpack' ),
+				},
+			},
+		],
+	},
 	deprecated: [
 		{
 			attributes: {
@@ -101,7 +159,10 @@ export const settings = {
 
 			isEligible: attr => {
 				// when the deprecated, snake_case values are default, no need to migrate
-				if ( ! attr.has_form_settings_set && attr.submit_button_text === 'Submit' ) {
+				if (
+					! attr.has_form_settings_set &&
+					( ! attr.submit_button_text || attr.submit_button_text === 'Submit' )
+				) {
 					return false;
 				}
 				return true;

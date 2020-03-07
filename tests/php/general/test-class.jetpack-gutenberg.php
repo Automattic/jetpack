@@ -149,4 +149,29 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 		$this->assertNotEmpty( $extensions );
 		$this->assertNotContains( 'onion', $extensions );
 	}
+
+	function test_returns_false_if_core_wp_version_less_than_minimum() {
+		$version_gated = Jetpack_Gutenberg::is_gutenberg_version_available(
+			array(
+				'wp'        => '999999',
+				'gutenberg' => '999999',
+			),
+			'gated_block'
+		);
+		$this->assertEquals( false, $version_gated );
+	}
+
+	/**
+	 * Tests whether the environment has the minimum Gutenberg/WordPress installation needed by a block
+	 */
+	public function test_returns_true_if_gutenberg_or_core_wp_version_greater_or_equal_to_minimum() {
+		$version_gated = Jetpack_Gutenberg::is_gutenberg_version_available(
+			array(
+				'wp'        => '1',
+				'gutenberg' => '1',
+			),
+			'ungated_block'
+		);
+		$this->assertEquals( true, $version_gated );
+	}
 }

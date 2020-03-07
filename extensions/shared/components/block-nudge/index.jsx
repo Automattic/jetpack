@@ -4,7 +4,7 @@
 import { Button } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
 import { withDispatch } from '@wordpress/data';
-import { Warning } from '@wordpress/editor';
+import { Warning } from '@wordpress/block-editor';
 
 import './style.scss';
 

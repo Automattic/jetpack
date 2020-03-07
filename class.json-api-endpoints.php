@@ -127,6 +127,11 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 */
 	public $allow_upload_token_auth = false;
 
+	/**
+	 * @var bool Set to true if the endpoint should require auth from a Rewind auth token.
+	 */
+	public $require_rewind_auth = false;
+
 	function __construct( $args ) {
 		$defaults = array(
 			'in_testing'                 => false,
@@ -194,6 +199,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$this->allow_unauthorized_request = (bool) $args['allow_unauthorized_request'];
 		$this->allow_jetpack_site_auth    = (bool) $args['allow_jetpack_site_auth'];
 		$this->allow_upload_token_auth    = (bool) $args['allow_upload_token_auth'];
+		$this->require_rewind_auth        = isset( $args['require_rewind_auth'] ) ? (bool) $args['require_rewind_auth'] : false;
 
 		$this->version = $args['version'];
 
@@ -1533,16 +1539,17 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 * relative to now and will convert it to local time using either the
 	 * timezone set in the options table for the blog or the GMT offset.
 	 *
-	 * @param datetime string
+	 * @param datetime string $date_string Date to parse.
 	 *
 	 * @return array( $local_time_string, $gmt_time_string )
 	 */
-	function parse_date( $date_string ) {
+	public function parse_date( $date_string ) {
 		$date_string_info = date_parse( $date_string );
 		if ( is_array( $date_string_info ) && 0 === $date_string_info['error_count'] ) {
 			// Check if it's already localized. Can't just check is_localtime because date_parse('oppossum') returns true; WTF, PHP.
 			if ( isset( $date_string_info['zone'] ) && true === $date_string_info['is_localtime'] ) {
-				$dt_local = clone $dt_utc = new DateTime( $date_string );
+				$dt_utc   = new DateTime( $date_string );
+				$dt_local = clone $dt_utc;
 				$dt_utc->setTimezone( new DateTimeZone( 'UTC' ) );
 				return array(
 					(string) $dt_local->format( 'Y-m-d H:i:s' ),
@@ -1550,30 +1557,17 @@ abstract class WPCOM_JSON_API_Endpoint {
 				);
 			}
 
-			// It's parseable but no TZ info so assume UTC
-			$dt_local = clone $dt_utc = new DateTime( $date_string, new DateTimeZone( 'UTC' ) );
+			// It's parseable but no TZ info so assume UTC.
+			$dt_utc   = new DateTime( $date_string, new DateTimeZone( 'UTC' ) );
+			$dt_local = clone $dt_utc;
 		} else {
-			// Could not parse time, use now in UTC
-			$dt_local = clone $dt_utc = new DateTime( 'now', new DateTimeZone( 'UTC' ) );
+			// Could not parse time, use now in UTC.
+			$dt_utc   = new DateTime( 'now', new DateTimeZone( 'UTC' ) );
+			$dt_local = clone $dt_utc;
 		}
 
-		// First try to use timezone as it's daylight savings aware.
-		$timezone_string = get_option( 'timezone_string' );
-		if ( $timezone_string ) {
-			$tz = timezone_open( $timezone_string );
-			if ( $tz ) {
-				$dt_local->setTimezone( $tz );
-				return array(
-					(string) $dt_local->format( 'Y-m-d H:i:s' ),
-					(string) $dt_utc->format( 'Y-m-d H:i:s' ),
-				);
-			}
-		}
+		$dt_local->setTimezone( wp_timezone() );
 
-		// Fallback to GMT offset (in hours)
-		// NOTE: TZ of $dt_local is still UTC, we simply modified the timestamp with an offset.
-		$gmt_offset_seconds = intval( get_option( 'gmt_offset' ) * 3600 );
-		$dt_local->modify( "+{$gmt_offset_seconds} seconds" );
 		return array(
 			(string) $dt_local->format( 'Y-m-d H:i:s' ),
 			(string) $dt_utc->format( 'Y-m-d H:i:s' ),
@@ -1923,7 +1917,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		}
 
 		// if we didn't get a URL, let's bail
-		$parsed = @parse_url( $url );
+		$parsed = wp_parse_url( $url );
 		if ( empty( $parsed ) ) {
 			return false;
 		}
@@ -1942,7 +1936,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		// emulate a $_FILES entry
 		$file_array = array(
-			'name'     => basename( parse_url( $url, PHP_URL_PATH ) ),
+			'name'     => basename( wp_parse_url( $url, PHP_URL_PATH ) ),
 			'tmp_name' => $tmp,
 		);
 
@@ -2076,16 +2070,50 @@ abstract class WPCOM_JSON_API_Endpoint {
 	}
 
 	/**
+	 * Get an array of all valid AMP origins for a blog's siteurl.
+	 *
+	 * @param string $siteurl Origin url of the API request.
+	 * @return array
+	 */
+	public function get_amp_cache_origins( $siteurl ) {
+		$host = parse_url( $siteurl, PHP_URL_HOST );
+
+		/*
+		 * From AMP docs:
+		 * "When possible, the Google AMP Cache will create a subdomain for each AMP document's domain by first converting it
+		 * from IDN (punycode) to UTF-8. The caches replaces every - (dash) with -- (2 dashes) and replace every . (dot) with
+		 * - (dash). For example, pub.com will map to pub-com.cdn.ampproject.org."
+		 */
+		if ( function_exists( 'idn_to_utf8' ) ) {
+			// The third parameter is set explicitly to prevent issues with newer PHP versions compiled with an old ICU version.
+			// phpcs:ignore PHPCompatibility.Constants.RemovedConstants.intl_idna_variant_2003Deprecated
+			$host = idn_to_utf8( $host, IDNA_DEFAULT, defined( 'INTL_IDNA_VARIANT_UTS46' ) ? INTL_IDNA_VARIANT_UTS46 : INTL_IDNA_VARIANT_2003 );
+		}
+		$subdomain = str_replace( array( '-', '.' ), array( '--', '-' ), $host );
+		return array(
+			$siteurl,
+			// Google AMP Cache (legacy).
+			'https://cdn.ampproject.org',
+			// Google AMP Cache subdomain.
+			sprintf( 'https://%s.cdn.ampproject.org', $subdomain ),
+			// Cloudflare AMP Cache.
+			sprintf( 'https://%s.amp.cloudflare.com', $subdomain ),
+			// Bing AMP Cache.
+			sprintf( 'https://%s.bing-amp.com', $subdomain ),
+		);
+	}
+
+	/**
 	 * Return endpoint response
 	 *
-	 * @param ... determined by ->$path
+	 * @param string $path ... determined by ->$path.
 	 *
-	 * @return
+	 * @return array|WP_Error
 	 *  falsy: HTTP 500, no response body
 	 *  WP_Error( $error_code, $error_message, $http_status_code ): HTTP $status_code, json_encode( array( 'error' => $error_code, 'message' => $error_message ) ) response body
 	 *  $data: HTTP 200, json_encode( $data ) response body
 	 */
-	abstract function callback( $path = '' );
+	abstract public function callback( $path = '' );
 
 
 }

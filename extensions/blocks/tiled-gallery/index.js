@@ -18,6 +18,7 @@ import {
 	LAYOUT_SQUARE,
 	LAYOUT_STYLES,
 } from './constants';
+import { isSimpleSite } from '../../shared/site-type-utils';
 
 /**
  * Style dependencies
@@ -127,6 +128,10 @@ const blockAttributes = {
 		default: 'none',
 		type: 'string',
 	},
+	roundedCorners: {
+		type: 'integer',
+		default: 0,
+	},
 };
 
 const exampleAttributes = {
@@ -193,15 +198,20 @@ export const icon = (
 export const settings = {
 	attributes: blockAttributes,
 	category: 'jetpack',
-	description: __(
-		"Display multiple images in an elegantly organized tiled layout. Serves images using Jetpack's fast global network of servers.",
-		'jetpack'
-	),
+	description:
+		__( 'Display multiple images in an elegantly organized tiled layout.', 'jetpack' ) +
+		( ! isSimpleSite()
+			? ' ' + __( "Serves images using Jetpack's fast global network of servers.", 'jetpack' )
+			: '' ),
 	icon,
 	keywords: [
+		_x( 'columns', 'block search term', 'jetpack' ),
 		_x( 'images', 'block search term', 'jetpack' ),
 		_x( 'photos', 'block search term', 'jetpack' ),
 		_x( 'pictures', 'block search term', 'jetpack' ),
+		_x( 'square', 'block search term', 'jetpack' ),
+		_x( 'circle', 'block search term', 'jetpack' ),
+		_x( 'mosaic', 'block search term', 'jetpack' ),
 	],
 	styles: layoutStylesWithLabels,
 	supports: {

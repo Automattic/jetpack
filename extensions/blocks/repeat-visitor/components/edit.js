@@ -4,7 +4,7 @@
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Notice, TextControl, RadioControl, Placeholder } from '@wordpress/components';
 import { Component } from '@wordpress/element';
-import { InnerBlocks } from '@wordpress/editor';
+import { InnerBlocks } from '@wordpress/block-editor';
 import { withSelect } from '@wordpress/data';
 import classNames from 'classnames';
 
@@ -107,7 +107,7 @@ class RepeatVisitorEdit extends Component {
 }
 
 export default withSelect( ( select, ownProps ) => {
-	const { isBlockSelected, hasSelectedInnerBlock } = select( 'core/editor' );
+	const { isBlockSelected, hasSelectedInnerBlock } = select( 'core/block-editor' );
 	return {
 		isSelected: isBlockSelected( ownProps.clientId ) || hasSelectedInnerBlock( ownProps.clientId ),
 	};

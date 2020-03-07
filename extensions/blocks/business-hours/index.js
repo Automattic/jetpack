@@ -90,6 +90,7 @@ export const settings = {
 		_x( 'opening hours', 'block search term', 'jetpack' ),
 		_x( 'closing time', 'block search term', 'jetpack' ),
 		_x( 'schedule', 'block search term', 'jetpack' ),
+		_x( 'working day', 'block search term', 'jetpack' ),
 	],
 	attributes: {
 		days: {

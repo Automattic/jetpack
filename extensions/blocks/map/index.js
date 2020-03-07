@@ -1,6 +1,11 @@
 /**
  * Internal dependencies
  */
+import { omit } from 'lodash';
+
+/**
+ * Internal dependencies
+ */
 import { settings as mapSettings } from './settings.js';
 import edit from './edit';
 import save from './save';
@@ -25,4 +30,12 @@ export const settings = {
 	},
 	edit,
 	save,
+	example: mapSettings.example,
+	deprecated: [
+		{
+			attributes: omit( mapSettings.attributes, 'showFullscreenButton' ),
+			migrate: attributes => ( { ...attributes, showFullscreenButton: true } ),
+			save,
+		},
+	],
 };

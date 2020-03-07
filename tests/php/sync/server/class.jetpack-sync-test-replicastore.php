@@ -22,6 +22,7 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 	private $callable;
 	private $network_options;
 	private $terms;
+	private $term_relationships;
 	private $object_terms;
 	private $users;
 	private $users_locale;
@@ -43,6 +44,7 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 		$this->callable[ get_current_blog_id() ]        = array();
 		$this->network_options[ get_current_blog_id() ] = array();
 		$this->terms[ get_current_blog_id() ]           = array();
+		$this->term_relationships[ get_current_blog_id() ] = array();
 		$this->object_terms[ get_current_blog_id() ]    = array();
 		$this->users[ get_current_blog_id() ]           = array();
 		$this->users_locale[ get_current_blog_id() ]    = array();
@@ -522,6 +524,10 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 		}
 	}
 
+	function update_term_relationships( $term_relationships ) {
+		$this->term_relationships[ get_current_blog_id() ][] = $term_relationships;
+	}
+
 	function user_count() {
 		return count( $this->users[ get_current_blog_id() ] );
 	}
@@ -713,6 +719,10 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 		$item_array = array_merge( array(''), $values );
 
 		return crc32( implode( '#', $item_array ) );
+	}
+
+	public function get_term_relationships() {
+		return $this->term_relationships[ get_current_blog_id() ];
 	}
 
 }

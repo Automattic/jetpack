@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Status;
+
 // Shared logic between Jetpack admin pages
 abstract class Jetpack_Admin_Page {
 	// Add page specific actions given the page hook
@@ -28,8 +30,21 @@ abstract class Jetpack_Admin_Page {
 	 */
 	function additional_styles() {}
 
-	function __construct() {
-		$this->jetpack                      = Jetpack::init();
+	/**
+	 * The constructor.
+	 */
+	public function __construct() {
+		add_action( 'jetpack_loaded', array( $this, 'on_jetpack_loaded' ) );
+	}
+
+	/**
+	 * Runs on Jetpack being ready to load its packages.
+	 *
+	 * @param Jetpack $jetpack object.
+	 */
+	public function on_jetpack_loaded( $jetpack ) {
+		$this->jetpack = $jetpack;
+
 		self::$block_page_rendering_for_idc = (
 			Jetpack::validate_sync_error_idc_option() && ! Jetpack_Options::get_option( 'safe_mode_confirmed' )
 		);
@@ -38,13 +53,14 @@ abstract class Jetpack_Admin_Page {
 	function add_actions() {
 		global $pagenow;
 
+		$is_development_mode = ( new Status() )->is_development_mode();
 		// If user is not an admin and site is in Dev Mode or not connected yet then don't do anything.
-		if ( ! current_user_can( 'manage_options' ) && ( Jetpack::is_development_mode() || ! Jetpack::is_active() ) ) {
+		if ( ! current_user_can( 'manage_options' ) && ( $is_development_mode || ! Jetpack::is_active() ) ) {
 			return;
 		}
 
 		// Don't add in the modules page unless modules are available!
-		if ( $this->dont_show_if_not_active && ! Jetpack::is_active() && ! Jetpack::is_development_mode() ) {
+		if ( $this->dont_show_if_not_active && ! Jetpack::is_active() && ! $is_development_mode ) {
 			return;
 		}
 
@@ -66,7 +82,7 @@ abstract class Jetpack_Admin_Page {
 			( 'admin.php' === $pagenow && isset( $_GET['page'] ) && 'jetpack' === $_GET['page'] )
 			&& ! Jetpack::is_active()
 			&& current_user_can( 'jetpack_connect' )
-			&& ! Jetpack::is_development_mode()
+			&& ! $is_development_mode
 		) {
 			add_action( 'admin_enqueue_scripts', array( 'Jetpack_Connection_Banner', 'enqueue_banner_scripts' ) );
 			add_action( 'admin_enqueue_scripts', array( 'Jetpack_Connection_Banner', 'enqueue_connect_button_scripts' ) );
@@ -80,7 +96,7 @@ abstract class Jetpack_Admin_Page {
 			( 'index.php' === $pagenow || 'plugins.php' === $pagenow )
 			&& ! Jetpack::is_active()
 			&& current_user_can( 'jetpack_connect' )
-			&& ! Jetpack::is_development_mode()
+			&& ! $is_development_mode
 		) {
 			add_action( 'admin_enqueue_scripts', array( 'Jetpack_Connection_Banner', 'enqueue_connect_button_scripts' ) );
 		}
@@ -158,7 +174,7 @@ abstract class Jetpack_Admin_Page {
 	 */
 	function check_plan_deactivate_modules( $page ) {
 		if (
-			Jetpack::is_development_mode()
+			( new Status() )->is_development_mode()
 			|| ! in_array(
 				$page->base,
 				array(
@@ -263,6 +279,10 @@ abstract class Jetpack_Admin_Page {
 			? admin_url( 'admin.php?page=jetpack_about' )
 			: 'https://jetpack.com';
 
+		$jetpack_privacy_url = ( Jetpack::is_active() || Jetpack::is_development_mode() )
+			? $jetpack_admin_url . '#/privacy'
+			: 'https://automattic.com/privacy/';
+
 		?>
 		<div id="jp-plugin-container" class="
 		<?php
@@ -328,6 +348,7 @@ abstract class Jetpack_Admin_Page {
 			echo $callback_ui;
 			?>
 			<!-- END OF CALLBACK -->
+
 			<div class="jp-footer">
 				<div class="jp-footer__a8c-attr-container">
 					<a href="<?php echo esc_url( $jetpack_about_url ); ?>">
@@ -345,7 +366,7 @@ abstract class Jetpack_Admin_Page {
 						<a href="https://wordpress.com/tos/" target="_blank" rel="noopener noreferrer" title="<?php esc_html__( 'WordPress.com Terms of Service', 'jetpack' ); ?>" class="jp-footer__link"><?php echo esc_html_x( 'Terms', 'Navigation item', 'jetpack' ); ?></a>
 					</li>
 					<li class="jp-footer__link-item">
-						<a href="<?php echo esc_url( $jetpack_admin_url . '#/privacy' ); ?>" rel="noopener noreferrer" title="<?php esc_html_e( "Automattic's Privacy Policy", 'jetpack' ); ?>" class="jp-footer__link"><?php echo esc_html_x( 'Privacy', 'Navigation item', 'jetpack' ); ?></a>
+						<a href="<?php echo esc_url( $jetpack_privacy_url ); ?>" rel="noopener noreferrer" title="<?php esc_html_e( "Automattic's Privacy Policy", 'jetpack' ); ?>" class="jp-footer__link"><?php echo esc_html_x( 'Privacy', 'Navigation item', 'jetpack' ); ?></a>
 					</li>
 					<?php if ( is_multisite() && current_user_can( 'jetpack_network_sites_page' ) ) { ?>
 						<li class="jp-footer__link-item">

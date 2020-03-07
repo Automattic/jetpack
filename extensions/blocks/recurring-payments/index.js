@@ -28,14 +28,24 @@ export const settings = {
 	category: 'jetpack',
 	keywords: [
 		_x( 'sell', 'block search term', 'jetpack' ),
-		_x( 'subscription', 'block search term', 'jetpack' ),
+		_x( 'subscriptions', 'block search term', 'jetpack' ),
 		'stripe',
+		_x( 'memberships', 'block search term', 'jetpack' ),
 	],
 	attributes: {
 		planId: {
 			type: 'integer',
 		},
 		submitButtonText: {
+			type: 'string',
+		},
+		submitButtonClasses: {
+			type: 'string',
+		},
+		backgroundButtonColor: {
+			type: 'string',
+		},
+		textButtonColor: {
 			type: 'string',
 		},
 		customBackgroundButtonColor: {

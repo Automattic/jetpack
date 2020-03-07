@@ -8,9 +8,15 @@ import { Fragment } from '@wordpress/element';
 /**
  * Internal dependencies
  */
+import { DEFAULT_CURRENCY } from './constants';
+import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import edit from './edit';
 import save from './save';
-import { DEFAULT_CURRENCY } from './constants';
+
+/**
+ * Example image
+ */
+import simplePaymentsExample1 from './simple-payments_example-1.jpg';
 
 /**
  * Styles
@@ -19,6 +25,11 @@ import './editor.scss';
 
 export const name = 'simple-payments';
 
+const supportLink =
+	isSimpleSite() || isAtomicSite()
+		? 'https://support.wordpress.com/simple-payments/'
+		: 'https://jetpack.com/support/jetpack-blocks/simple-payments-block/';
+
 export const settings = {
 	title: __( 'Simple Payments button', 'jetpack' ),
 
@@ -26,13 +37,14 @@ export const settings = {
 		<Fragment>
 			<p>
 				{ __(
-					'Lets you create and embed credit and debit card payment buttons with minimal setup.',
+					'Lets you add credit and debit card payment buttons with minimal setup.',
 					'jetpack'
 				) }
 			</p>
-			<ExternalLink href="https://support.wordpress.com/simple-payments/">
-				{ __( 'Support reference', 'jetpack' ) }
-			</ExternalLink>
+			<p>
+				{ __( 'Good for collecting donations or payments for products and services.', 'jetpack' ) }
+			</p>
+			<ExternalLink href={ supportLink }>{ __( 'Support reference', 'jetpack' ) }</ExternalLink>
 		</Fragment>
 	),
 
@@ -46,8 +58,12 @@ export const settings = {
 	category: 'jetpack',
 
 	keywords: [
-		_x( 'shop', 'block search term', 'jetpack' ),
+		_x( 'buy', 'block search term', 'jetpack' ),
+		_x( 'commerce', 'block search term', 'jetpack' ),
+		_x( 'products', 'block search term', 'jetpack' ),
+		_x( 'purchase', 'block search term', 'jetpack' ),
 		_x( 'sell', 'block search term', 'jetpack' ),
+		_x( 'shop', 'block search term', 'jetpack' ),
 		'PayPal',
 	],
 
@@ -119,6 +135,19 @@ export const settings = {
 	edit,
 
 	save,
+
+	example: {
+		attributes: {
+			price: 25.0,
+			title: __( 'Jetpack t-shirt', 'jetpack' ),
+			content: __(
+				'Take flight in ultimate comfort with ths stylish t-shirt featuring the Jetpack logo.',
+				'jetpack'
+			),
+			email: 'jetpack@jetpack.com',
+			featuredMediaUrl: simplePaymentsExample1,
+		},
+	},
 
 	supports: {
 		className: false,

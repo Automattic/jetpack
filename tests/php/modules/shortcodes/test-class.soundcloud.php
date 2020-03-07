@@ -116,4 +116,40 @@ class WP_Test_Jetpack_Shortcodes_Soundcloud extends WP_UnitTestCase {
 
 		$this->assertEquals( $shortcode_content, '<a href="https://player.soundcloud.com/player.swf?url=http://api.soundcloud.com/tracks/70198773">https://player.soundcloud.com/player.swf?url=http://api.soundcloud.com/tracks/70198773</a>' );
 	}
+
+	/**
+	 * Tests the shortcode output on an AMP endpoint.
+	 *
+	 * @covers ::soundcloud_shortcode
+	 * @since 8.0.0
+	 */
+	public function tests_shortcodes_soundcloud_amp() {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			self::markTestSkipped( 'WordPress.com does not run the latest version of the AMP plugin yet.' );
+			return;
+		}
+
+		// Simulate the oEmbed filter in the AMP plugin that should run on calling $wp_embed->shortcode().
+		$oembed_markup = '<amp-soundcloud></amp-soundcloud>';
+		add_filter(
+			'embed_oembed_html',
+			static function( $cache ) use ( $oembed_markup ) {
+				unset( $cache );
+				return $oembed_markup;
+			}
+		);
+
+		$content_with_url       = '[soundcloud url="https://soundcloud.com/necmusic/mozart-concerto-for-piano-no-2"]';
+		$content_with_empty_url = '[soundcloud url=""]';
+
+		// If the URL is empty, the AMP logic should not run.
+		$this->assertNotContains( $oembed_markup, do_shortcode( $content_with_empty_url ) );
+
+		// This is still not an AMP endpoint, so the AMP logic should not run.
+		$this->assertNotContains( $oembed_markup, do_shortcode( $content_with_url ) );
+
+		// Now that this is an AMP endpoint with a URL value, the AMP logic should run.
+		add_filter( 'jetpack_is_amp_request', '__return_true' );
+		$this->assertEquals( $oembed_markup, do_shortcode( $content_with_url ) );
+	}
 }
