@@ -171,7 +171,7 @@
 	},
 	"devDependencies": {
 		"@automattic/color-studio": "2.2.1",
-		"@slack/web-api": "5.7.0",
+		"@slack/web-api": "5.8.0",
 		"@testing-library/jest-dom": "4.2.4",
 		"@testing-library/preact": "1.0.2",
 		"@wordpress/components": "8.0.0",
