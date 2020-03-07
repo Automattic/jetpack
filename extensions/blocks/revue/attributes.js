@@ -4,13 +4,14 @@
  */
 import { _x, __ } from '@wordpress/i18n';
 
+/**
+ * Internal dependencies
+ */
+import { getButtonAttributes } from '../../shared/components/button';
+
 export default {
 	revueUsername: {
 		type: 'string',
-	},
-	text: {
-		type: 'string',
-		default: _x( 'Subscribe', 'verb: e.g. subscribe to a newsletter.', 'jetpack' ),
 	},
 	emailLabel: {
 		type: 'string',
@@ -44,25 +45,7 @@ export default {
 		type: 'boolean',
 		default: true,
 	},
-	backgroundColor: {
-		type: 'string',
-	},
-	textColor: {
-		type: 'string',
-	},
-	customBackgroundColor: {
-		type: 'string',
-	},
-	customTextColor: {
-		type: 'string',
-	},
-	borderRadius: {
-		type: 'number',
-	},
-	gradient: {
-		type: 'string',
-	},
-	customGradient: {
-		type: 'string',
-	},
+	...getButtonAttributes( {
+		defaultText: _x( 'Subscribe', 'verb: e.g. subscribe to a newsletter.', 'jetpack' ),
+	} ),
 };
