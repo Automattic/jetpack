@@ -7,6 +7,7 @@ export default function getButtonAttributes( {
 	defaultPlaceholder,
 	defaultText,
 	hasPlaceholder,
+	hasUrl,
 } = {} ) {
 	return {
 		buttonText: {
@@ -17,6 +18,11 @@ export default function getButtonAttributes( {
 			buttonPlaceholder: {
 				type: 'string',
 				default: defaultPlaceholder,
+			},
+		} ),
+		...( hasUrl && {
+			buttonUrl: {
+				type: 'string',
 			},
 		} ),
 		buttonTextColor: {
