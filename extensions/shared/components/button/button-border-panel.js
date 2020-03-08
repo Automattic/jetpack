@@ -1,4 +1,3 @@
-/* eslint-disable wpcalypso/import-docblock */
 /**
  * WordPress dependencies
  */
@@ -6,9 +5,14 @@ import { PanelBody, RangeControl } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
-const MIN_BORDER_RADIUS_VALUE = 0;
-const MAX_BORDER_RADIUS_VALUE = 50;
-const INITIAL_BORDER_RADIUS_POSITION = 5;
+/**
+ * Internal dependencies
+ */
+import {
+	INITIAL_BORDER_RADIUS_POSITION,
+	MAX_BORDER_RADIUS_VALUE,
+	MIN_BORDER_RADIUS_VALUE,
+} from './constants';
 
 export default function ButtonBorderPanel( { buttonBorderRadius = '', setAttributes } ) {
 	const setButtonBorderRadius = useCallback(
