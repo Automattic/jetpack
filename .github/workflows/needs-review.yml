@@ -1,0 +1,14 @@
+name: "Needs Review Label Actions"
+on:
+  pull_request
+    branches:
+      - add/action-reply-to-needs-review
+    types: [labeled]
+
+jobs:
+  comment:
+    steps:
+      - name: Comment on Needs Review label
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
