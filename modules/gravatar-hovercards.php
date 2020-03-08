@@ -213,14 +213,22 @@ function grofiles_admin_cards() {
 }
 
 function grofiles_extra_data() {
+	$authors = grofiles_gravatars_to_append();
+
+	if ( ! $authors ) {
+		wp_dequeue_script( 'grofiles-cards' );
+		wp_dequeue_script( 'wpgroho' );
+	} else {
 ?>
 	<div style="display:none">
 <?php
-	foreach ( grofiles_gravatars_to_append() as $author )
-		grofiles_hovercards_data_html( $author );
+		foreach ( $authors as $author ) {
+			grofiles_hovercards_data_html( $author );
+		}
 ?>
 	</div>
 <?php
+	}
 }
 
 /**
