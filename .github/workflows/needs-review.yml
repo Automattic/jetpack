@@ -1,6 +1,6 @@
 name: "Needs Review Label Actions"
 on:
-  pull_request
+  pull_request:
     branches:
       - add/action-reply-to-needs-review
     types: [labeled]
