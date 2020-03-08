@@ -5,8 +5,10 @@ on:
 
 jobs:
   comment:
+    runs-on: ubuntu-latest
+    name: Comment on Needs Review label
     steps:
-      - name: Comment on Needs Review label
+      - name: Get context
         env:
           GITHUB_CONTEXT: ${{ toJson(github) }}
         run: echo "$GITHUB_CONTEXT"
