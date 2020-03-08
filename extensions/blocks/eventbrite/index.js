@@ -9,7 +9,7 @@ import { createBlock } from '@wordpress/blocks';
  * Internal dependencies
  */
 import attributes from './attributes';
-import deprecated from './deprecated';
+import deprecated from './deprecated/v1';
 import edit from './edit';
 import save from './save';
 
