@@ -1,4 +1,3 @@
-/* eslint-disable wpcalypso/import-docblock */
 /**
  * WordPress dependencies
  */
@@ -9,7 +8,10 @@ import {
 } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
 
-const isGradientAvailable = !! PanelColorGradientSettings;
+/**
+ * Internal dependencies
+ */
+import { IS_GRADIENT_AVAILABLE } from './constants';
 
 export default function ButtonColorsPanel( {
 	buttonBackgroundColor,
@@ -35,7 +37,7 @@ export default function ButtonColorsPanel( {
 		/>
 	);
 
-	if ( isGradientAvailable ) {
+	if ( IS_GRADIENT_AVAILABLE ) {
 		return (
 			<PanelColorGradientSettings
 				settings={ [

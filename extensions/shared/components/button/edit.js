@@ -13,6 +13,7 @@ import {
 	withColors,
 } from '@wordpress/block-editor';
 import { compose } from '@wordpress/compose';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -20,9 +21,7 @@ import { compose } from '@wordpress/compose';
 import applyFallbackStyles from './apply-fallback-styles';
 import ButtonBorderPanel from './button-border-panel';
 import ButtonColorsPanel from './button-colors-panel';
-import { __ } from '@wordpress/i18n';
-
-const isGradientAvailable = !! useGradient;
+import { IS_GRADIENT_AVAILABLE } from './constants';
 
 const ButtonEdit = ( {
 	attributes,
@@ -41,7 +40,7 @@ const ButtonEdit = ( {
 		gradientClass: buttonGradientClass,
 		gradientValue: buttonGradientValue,
 		setGradient: setButtonGradient,
-	} = isGradientAvailable
+	} = IS_GRADIENT_AVAILABLE
 		? useGradient( {
 				gradientAttribute: 'buttonGradient',
 				customGradientAttribute: 'customButtonGradient',

@@ -12,7 +12,10 @@ import {
 	RichText,
 } from '@wordpress/block-editor';
 
-const isGradientAvailable = !! getGradientClass;
+/**
+ * Internal dependencies
+ */
+import { IS_GRADIENT_AVAILABLE } from './constants';
 
 export default function ButtonSave( attributes, uniqueId ) {
 	const {
@@ -29,7 +32,9 @@ export default function ButtonSave( attributes, uniqueId ) {
 	} = attributes;
 
 	const buttonBackgroundClass = getColorClassName( 'background-color', buttonBackgroundColor );
-	const buttonGradientClass = isGradientAvailable ? getGradientClass( buttonGradient ) : undefined;
+	const buttonGradientClass = IS_GRADIENT_AVAILABLE
+		? getGradientClass( buttonGradient )
+		: undefined;
 	const buttonTextClass = getColorClassName( 'color', buttonTextColor );
 
 	const buttonClasses = classnames( 'wp-block-button__link', {
