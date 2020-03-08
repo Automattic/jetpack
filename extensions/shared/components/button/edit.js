@@ -48,7 +48,9 @@ const ButtonEdit = ( {
 		  } )
 		: {};
 
-	const buttonClasses = classnames( className, 'wp-block-button__link', {
+	const blockClasses = classnames( 'wp-block-button', className );
+
+	const buttonClasses = classnames( 'wp-block-button__link', {
 		'has-background': buttonBackgroundColor.color || buttonGradientValue,
 		[ buttonBackgroundColor.class ]: ! buttonGradientValue && buttonBackgroundColor.class,
 		'has-text-color': buttonTextColor.color,
@@ -66,7 +68,7 @@ const ButtonEdit = ( {
 	};
 
 	return (
-		<div className="wp-block-button">
+		<div className={ blockClasses }>
 			<RichText
 				allowedFormats={ [] }
 				className={ buttonClasses }
