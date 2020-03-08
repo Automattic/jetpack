@@ -9,7 +9,14 @@ jobs:
     name: Comment on Needs Review label
     if: github.event.label.name == '[Status] Needs Review'
     steps:
-      - name: Get context
-        env:
-          GITHUB_CONTEXT: ${{ toJson(github) }}
-        run: echo "$GITHUB_CONTEXT"
+      - name: Comment
+        uses: actions/github-script@0.8.0
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '👋 Needs review comment!'
+            })
