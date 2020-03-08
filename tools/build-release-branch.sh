@@ -261,12 +261,11 @@ yarn cache clean
 COMPOSER_MIRROR_PATH_REPOS=1 yarn run build-production
 echo "Done"
 
-# Remove composer dependencies listing.
+echo "Remove composer dependencies listing"
 # Workaround for https://github.com/Automattic/jetpack/issues/13497
 # TODO: Keep dependencies away from built branches and fetch them before publishing on WP-org plugins repository.
-awk '!/automattic\/jetpack-/' composer.json > temp && mv temp composer.json
-sed 's/openssl": "\*",/openssl": "\*"/' composer.json > temp && mv temp composer.json
-rm -f composer.lock
+composer remove "automattic/*" --no-update
+echo "Done"
 
 # Prep a home to drop our new files in. Just make it in /tmp so we can start fresh each time.
 rm -rf TMP_REMOTE_BUILT_VERSION
