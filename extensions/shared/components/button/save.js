@@ -14,7 +14,7 @@ import {
 
 const isGradientAvailable = !! getGradientClass;
 
-export default function ButtonSave( { attributes, className } ) {
+export default function ButtonSave( attributes, uniqueId ) {
 	const {
 		buttonBackgroundColor,
 		buttonBorderRadius,
@@ -22,6 +22,7 @@ export default function ButtonSave( { attributes, className } ) {
 		buttonText,
 		buttonTextColor,
 		buttonUrl,
+		className,
 		customButtonBackgroundColor,
 		customButtonGradient,
 		customButtonTextColor,
@@ -56,10 +57,12 @@ export default function ButtonSave( { attributes, className } ) {
 
 	return (
 		<div className={ classnames( 'wp-block-button', 'jetpack-submit-button', className ) }>
-			<RichText
+			<RichText.Content
 				className={ buttonClasses }
-				data-id-attr="placeholder"
+				data-id-attr={ uniqueId }
 				href={ buttonUrl }
+				id={ uniqueId }
+				rel="noopener noreferrer"
 				role="button"
 				style={ buttonStyle }
 				tagName="a"
