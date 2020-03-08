@@ -304,6 +304,7 @@ echo "Done! Branch $BUILD_TARGET has been updated."
 
 echo "Cleaning up the mess"
 cd $DIR
+git checkout -- composer.json
 rm -rf TMP_REMOTE_BUILT_VERSION
 rm -rf TMP_LOCAL_BUILT_VERSION
 echo "All clean!"
