@@ -251,17 +251,30 @@ class Jetpack_Memberships {
 		$button_styles = implode( ';', $button_styles );
 		add_thickbox();
 		global $wp;
+
+		$button_url = add_query_arg(
+			array(
+				'blog'     => esc_attr( $data['blog_id'] ),
+				'plan'     => esc_attr( $data['id'] ),
+				'lang'     => esc_attr( get_locale() ),
+				'pid'      => esc_attr( get_the_ID() ), // Needed for analytics purposes.
+				'redirect' => esc_attr( rawurlencode( home_url( $wp->request ) ) ), // Needed for redirect back in case of redirect-based flow.
+			),
+			'https://subscribe.wordpress.com/memberships/'
+		);
 		return sprintf(
-			'<div class="wp-block-button %1$s"><a role="button" %10$s href="https://subscribe.wordpress.com/memberships/?blog=%2$d&plan=%4$d&lang=%5$s&pid=%9$d&redirect=%3$s" class="%6$s" style="%7$s">%8$s</a></div>',
-			esc_attr( Jetpack_Gutenberg::block_classes( self::$button_block_name, $attrs ) ),
-			esc_attr( $data['blog_id'] ),
-			esc_attr( rawurlencode( home_url( $wp->request ) ) ), // Needed for redirect back in case of redirect-based flow.
-			esc_attr( $data['id'] ),
-			esc_attr( get_locale() ),
+			'<div class="%1$s"><a role="button" %6$s href="%2$s" class="%3$s" style="%4$s">%5$s</a></div>',
+			esc_attr(
+				Jetpack_Gutenberg::block_classes(
+					self::$button_block_name,
+					$attrs,
+					array( 'wp-block-button' )
+				)
+			),
+			esc_url( $button_url ),
 			isset( $attrs['submitButtonClasses'] ) ? esc_attr( $attrs['submitButtonClasses'] ) : 'wp-block-button__link',
 			esc_attr( $button_styles ),
 			wp_kses( $data['button_label'], self::$tags_allowed_in_the_button ),
-			esc_attr( get_the_ID() ), // Needed for analytics purposes.
 			isset( $attrs['submitButtonAttributes'] ) ? sanitize_text_field( $attrs['submitButtonAttributes'] ) : '' // Needed for arbitrary target=_blank on WPCOM VIP.
 		);
 	}
