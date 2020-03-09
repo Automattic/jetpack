@@ -10,7 +10,7 @@ import { Fragment } from '@wordpress/element';
  */
 import attributes from './attributes';
 import edit from './edit';
-import icon from './icon';
+import { queueMusic } from './icons/';
 
 /**
  * Style dependencies
@@ -27,7 +27,7 @@ export const settings = {
 			<ExternalLink href="#">{ __( 'Learn more about Podcast Episodes', 'jetpack' ) }</ExternalLink>
 		</Fragment>
 	),
-	icon,
+	icon: queueMusic,
 	category: 'jetpack',
 	keywords: [],
 	supports: {
