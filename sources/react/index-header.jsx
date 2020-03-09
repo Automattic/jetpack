@@ -27,14 +27,12 @@ export default class SocialLogo extends PureComponent {
 	};
 
 	render() {
-		const { size, onClick, icon: iconProp, className, ...otherProps } = this.props;
-		const icon = 'social-logo-' + iconProp;
-
+		const { size, onClick, icon, className, ...otherProps } = this.props;
 		let svg;
 
 		const iconClass = [
 			'social-logo',
-			icon,
+			'social-logo-' + icon,
 			className,
 		].filter( Boolean ).join( ' ' );
 
