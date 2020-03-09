@@ -19,7 +19,6 @@ input.jetpack-instant-search__box-input.search-field {
 	padding: 4px 14px;
 	text-indent: 32px;
 	vertical-align: middle;
-	transition: all 0.15s ease-in-out;
 
 	.jetpack-instant-search__overlay--light & {
 		color: #666666;
@@ -180,8 +179,8 @@ input.jetpack-instant-search__box-input.search-field {
 .jetpack-instant-search__box input,
 .jetpack-instant-search__box input[type='search'].jetpack-instant-search__box-input {
 	width: 100%;
-  height: 52px;
-	transition: color, border-color 0.25s ease-in-out;
+	height: 52px;
+	transition: color 0.15s ease-in-out, border-color 0.25s ease-in-out;
 
 	&::-webkit-search-decoration,
 	&::-webkit-search-cancel-button,
