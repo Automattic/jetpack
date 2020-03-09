@@ -72,6 +72,10 @@ function load_assets( $attributes, $content ) {
 			$list_item['thumb']['src'] = $list_item['image']['src'];
 		}
 
+		if ( ! empty( $episode->data['child']['']['enclosure'][0]['attribs']['']['length'] ) ) {
+			$list_item['meta']['length_formatted'] = date_i18n( 'H:i:s', $episode->data['child']['http://www.itunes.com/dtds/podcast-1.0.dtd']['duration'][0]['data'] );
+		}
+
 		$list_item['title'] = esc_html( trim( wp_strip_all_tags( $episode->get_title() ) ) );
 		if ( empty( $list_item['title'] ) ) {
 			$list_item['title'] = __( '(no title)', 'jetpack' );
