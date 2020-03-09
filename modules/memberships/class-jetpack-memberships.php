@@ -210,8 +210,8 @@ class Jetpack_Memberships {
 		if ( empty( $attrs['planId'] ) ) {
 			return;
 		}
-		$id      = intval( $attrs['planId'] );
-		$product = get_post( $id );
+		$plan_id = intval( $attrs['planId'] );
+		$product = get_post( $plan_id );
 		if ( ! $product || is_wp_error( $product ) ) {
 			return;
 		}
@@ -221,9 +221,8 @@ class Jetpack_Memberships {
 
 		$data = array(
 			'blog_id'      => self::get_blog_id(),
-			'id'           => $id,
+			'plan_id'      => $plan_id,
 			'button_label' => __( 'Your contribution', 'jetpack' ),
-			'powered_text' => __( 'Powered by WordPress.com', 'jetpack' ),
 		);
 
 		if ( isset( $attrs['submitButtonText'] ) ) {
@@ -255,7 +254,7 @@ class Jetpack_Memberships {
 		$button_url = add_query_arg(
 			array(
 				'blog'     => esc_attr( $data['blog_id'] ),
-				'plan'     => esc_attr( $data['id'] ),
+				'plan'     => esc_attr( $data['plan_id'] ),
 				'lang'     => esc_attr( get_locale() ),
 				'pid'      => esc_attr( get_the_ID() ), // Needed for analytics purposes.
 				'redirect' => esc_attr( rawurlencode( home_url( $wp->request ) ) ), // Needed for redirect back in case of redirect-based flow.
