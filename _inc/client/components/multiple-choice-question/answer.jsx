@@ -61,14 +61,29 @@ class MultipleChoiceAnswer extends Component {
 		} );
 	};
 
+	renderTextInput() {
+		const {
+			disabled,
+			answer: { textInputPrompt },
+		} = this.props;
+		const { value } = this.state;
+		return (
+			<FormTextInput
+				className="multiple-choice-question__answer-item-text-input"
+				value={ value }
+				onChange={ this.handleTextChange }
+				placeholder={ textInputPrompt ? textInputPrompt : '' }
+				disabled={ disabled }
+			/>
+		);
+	}
+
 	render() {
 		const {
 			disabled,
-			answer: { id, answerText, textInput, textInputPrompt, children },
+			answer: { id, answerText, textInput, children },
 			isSelected,
 		} = this.props;
-
-		const { value } = this.state;
 
 		return (
 			<FormLabel>
@@ -80,15 +95,7 @@ class MultipleChoiceAnswer extends Component {
 				/>
 				<span>{ answerText }</span>
 				<div className="multiple-choice-question__answer-item-content">
-					{ textInput && (
-						<FormTextInput
-							className="multiple-choice-question__answer-item-text-input"
-							value={ value }
-							onChange={ this.handleTextChange }
-							placeholder={ textInputPrompt ? textInputPrompt : '' }
-							disabled={ disabled }
-						/>
-					) }
+					{ textInput && this.renderTextInput() }
 					{ children }
 				</div>
 			</FormLabel>
