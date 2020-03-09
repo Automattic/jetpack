@@ -8,6 +8,28 @@ import {
 	JETPACK_MARKETING_SUBMIT_SURVEY_FAIL,
 } from 'state/action-types';
 
+const dispatchSurvey = surveyResponse => dispatch => {
+	dispatch( {
+		type: JETPACK_MARKETING_SUBMIT_SURVEY,
+	} );
+
+	return restApi
+		.submitSurvey( surveyResponse )
+		.then( data => {
+			dispatch( {
+				type: JETPACK_MARKETING_SUBMIT_SURVEY_SUCCESS,
+			} );
+
+			return data;
+		} )
+		.catch( error => {
+			dispatch( {
+				type: JETPACK_MARKETING_SUBMIT_SURVEY_FAIL,
+				error: error.response,
+			} );
+		} );
+};
+
 export const submitSurvey = ( siteId, sitePlan, surveyAnswerId, surveyAnswerText, location ) => {
 	const surveyResponse = {
 		survey_id: 'calypso-disconnect-jetpack-july2019',
@@ -27,25 +49,5 @@ export const submitSurvey = ( siteId, sitePlan, surveyAnswerId, surveyAnswerText
 		surveyResponse.survey_responses[ 'why-cancel' ].text = surveyAnswerText;
 	}
 
-	return dispatch => {
-		dispatch( {
-			type: JETPACK_MARKETING_SUBMIT_SURVEY,
-		} );
-
-		return restApi
-			.submitSurvey( surveyResponse )
-			.then( data => {
-				dispatch( {
-					type: JETPACK_MARKETING_SUBMIT_SURVEY_SUCCESS,
-				} );
-
-				return data;
-			} )
-			.catch( error => {
-				dispatch( {
-					type: JETPACK_MARKETING_SUBMIT_SURVEY_FAIL,
-					error: error.response,
-				} );
-			} );
-	};
+	return dispatchSurvey( surveyResponse );
 };
