@@ -1,3 +1,12 @@
+const urlValidator = url => ! url || url.startsWith( 'http' );
+
 export default {
-	// @TODO - Add block attributes here
+	url: {
+		type: 'string',
+		validator: urlValidator,
+	},
+	itemsToShow: {
+		type: 'integer',
+		default: 5,
+	},
 };
