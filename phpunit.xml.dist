@@ -36,6 +36,9 @@
 		<testsuite name="publicize">
 			<directory prefix="test_" suffix=".php">tests/php/modules/publicize</directory>
 		</testsuite>
+		<testsuite name="post-by-email">
+			<directory prefix="test" suffix=".php">tests/php/modules/post-by-email</directory>
+		</testsuite>
 		<testsuite name="related-posts">
 			<directory prefix="test_" suffix=".php">tests/php/modules/related-posts</directory>
 		</testsuite>
