@@ -242,8 +242,11 @@ function getPlanData(
 	};
 }
 
-/*
- * @todo Share the mock data with methods in jetpack/tests/php/general/test_class.jetpack-plan.php somehow.
+/**
+ * Returns a JSON representation of Jetpack plan data.
+ * TODO: Share the mock data with methods in jetpack/tests/php/general/test_class.jetpack-plan.php somehow.
+ * @param {string} type Jetpack plan slug.
+ * @return {JSON} JSON Jetpack plan object.
  */
 function getPlan( type ) {
 	if ( type === 'jetpack_business' ) {
