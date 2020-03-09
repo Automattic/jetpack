@@ -17,7 +17,8 @@ export const BlockNudge = ( { autosaveAndRedirect, buttonLabel, href, icon, subt
 					href={ href } // Only for server-side rendering, since onClick doesn't work there.
 					onClick={ autosaveAndRedirect }
 					target="_top"
-					isDefault
+					isSecondary
+					isLarge
 				>
 					{ buttonLabel }
 				</Button>,

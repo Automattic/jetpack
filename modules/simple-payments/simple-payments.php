@@ -157,7 +157,7 @@ class Jetpack_Simple_Payments {
 
 		if ( ! $this->is_enabled_jetpack_simple_payments() ) {
 			if ( ! is_feed() ) {
-				$this->output_admin_warning( $data );
+				return $this->output_admin_warning( $data );
 			}
 			return;
 		}
