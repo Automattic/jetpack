@@ -17,6 +17,7 @@ import { getValidatedAttributes } from '../../get-validated-attributes';
  */
 export default function getButtonEditProps( props, attributesDefinition = {} ) {
 	const { attributes, className, setAttributes } = props;
+
 	const validatedAttributes = isEmpty( attributesDefinition )
 		? attributes
 		: getValidatedAttributes( attributesDefinition, attributes );
@@ -24,26 +25,19 @@ export default function getButtonEditProps( props, attributesDefinition = {} ) {
 	const buttonAttributes = pick( validatedAttributes, [
 		'buttonBackgroundColor',
 		'buttonBorderRadius',
-		'buttonFallbackBackgroundColor',
-		'buttonFallbackTextColor',
+		'buttonGradient',
 		'buttonPlaceholder',
 		'buttonText',
 		'buttonTextColor',
-	] );
-
-	const buttonProps = pick( props, [
-		'buttonBackgroundColor',
-		'buttonFallbackBackgroundColor',
-		'buttonFallbackTextColor',
-		'buttonTextColor',
-		'setButtonBackgroundColor',
-		'setButtonTextColor',
+		'buttonUrl',
+		'customButtonBackgroundColor',
+		'customButtonGradient',
+		'customButtonTextColor',
 	] );
 
 	return {
 		attributes: buttonAttributes,
 		className,
 		setAttributes,
-		...buttonProps,
 	};
 }
