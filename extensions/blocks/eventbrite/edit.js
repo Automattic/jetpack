@@ -28,7 +28,7 @@ import { convertToLink, eventIdFromUrl } from './utils';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import { icon, URL_REGEX } from '.';
 import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
-import ModalButtonPreview from './modal-button-preview';
+import { ButtonEdit, getButtonEditProps } from '../../shared/components/button';
 import EventbriteInPageExample from './eventbrite-in-page-example.png';
 import EventbriteModalExample from './eventbrite-modal-example.png';
 import './editor.scss';
@@ -372,7 +372,11 @@ class EventbriteEdit extends Component {
 			component = (
 				<>
 					{ this.renderBlockControls() }
-					{ useModal ? <ModalButtonPreview { ...this.props } /> : this.renderInlinePreview() }
+					{ useModal ? (
+						<ButtonEdit { ...getButtonEditProps( this.props, attributeDetails ) } />
+					) : (
+						this.renderInlinePreview()
+					) }
 				</>
 			);
 		}

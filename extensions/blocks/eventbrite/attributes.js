@@ -3,6 +3,11 @@
  */
 import { _x } from '@wordpress/i18n';
 
+/**
+ * Internal dependencies
+ */
+import { getButtonAttributes } from '../../shared/components/button';
+
 const urlValidator = url => ! url || url.startsWith( 'http' );
 
 export default {
@@ -16,24 +21,7 @@ export default {
 	useModal: {
 		type: 'boolean',
 	},
-	// Modal button attributes, used for Button & Modal embed type.
-	text: {
-		type: 'string',
-		default: _x( 'Register', 'verb: e.g. register for an event.', 'jetpack' ),
-	},
-	backgroundColor: {
-		type: 'string',
-	},
-	textColor: {
-		type: 'string',
-	},
-	customBackgroundColor: {
-		type: 'string',
-	},
-	customTextColor: {
-		type: 'string',
-	},
-	borderRadius: {
-		type: 'number',
-	},
+	...getButtonAttributes( {
+		defaultText: _x( 'Register', 'verb: e.g. register for an event.', 'jetpack' ),
+	} ),
 };
