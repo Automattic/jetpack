@@ -130,13 +130,13 @@ if ( ! function_exists( __NAMESPACE__ . '\file_loader' ) ) {
 	}
 }
 
-if ( ! function_exists( __NAMESPACE__ . '\autoloader' ) ) {
+if ( ! function_exists( __NAMESPACE__ . '\autoload' ) ) {
 	/**
 	 * Used for autoloading jetpack packages.
 	 *
 	 * @param string $class_name Class Name to load.
 	 */
-	function autoloader( $class_name ) {
+	function autoload( $class_name ) {
 		global $jetpack_packages_classes;
 
 		if ( isset( $jetpack_packages_classes[ $class_name ] ) ) {
@@ -150,5 +150,5 @@ if ( ! function_exists( __NAMESPACE__ . '\autoloader' ) ) {
 	}
 
 	// Add the jetpack autoloader.
-	spl_autoload_register( __NAMESPACE__ . '\autoloader' );
+	spl_autoload_register( __NAMESPACE__ . '\autoload' );
 }
