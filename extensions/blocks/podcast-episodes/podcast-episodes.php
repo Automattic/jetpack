@@ -59,31 +59,29 @@ function load_assets( $attributes, $content ) {
 	$list_items = array();
 
 	foreach ( $episodes as $episode ) {
-		$list_item = array(
-			'src'         => esc_url( $episode->data['child']['']['enclosure'][0]['attribs']['']['url'] ),
-			'type'        => esc_attr( $episode->data['child']['']['enclosure'][0]['attribs']['']['type'] ),
+		$episode_meta = $episode->get_enclosure();
+		$list_item    = array(
+			'src'         => esc_url( $episode_meta->link ),
+			'type'        => esc_attr( $episode_meta->type ),
 			'caption'     => '',
 			'description' => wp_kses_post( $episode->get_description() ),
 			'meta'        => array(),
 		);
 
-		if ( ! empty( $episode->data['child']['http://www.itunes.com/dtds/podcast-1.0.dtd']['image'][0]['attribs']['']['href'] ) ) {
-			$list_item['image']['src'] = esc_url( $episode->data['child']['http://www.itunes.com/dtds/podcast-1.0.dtd']['image'][0]['attribs']['']['href'] );
-			$list_item['thumb']['src'] = $list_item['image']['src'];
+		if ( ! empty( $episode_meta->thumbnails[0] ) ) {
+			$list_item['image']['src'] = esc_url( $episode_meta->thumbnails[0] );
+			$list_item['thumb']['src'] = esc_url( $episode_meta->thumbnails[0] );
+		} elseif ( ! empty( $episode->get_item_tags( SIMPLEPIE_NAMESPACE_ITUNES, 'image' )[0]['attribs']['']['href'] ) ) {
+			$list_item['image']['src'] = esc_url( $episode->get_item_tags( SIMPLEPIE_NAMESPACE_ITUNES, 'image' )[0]['attribs']['']['href'] );
+			$list_item['thumb']['src'] = esc_url( $episode->get_item_tags( SIMPLEPIE_NAMESPACE_ITUNES, 'image' )[0]['attribs']['']['href'] );
 		}
 
-		if ( ! empty( $episode->data['child']['']['enclosure'][0]['attribs']['']['length'] ) ) {
-			if ( false !== strpos( $episode->data['child']['http://www.itunes.com/dtds/podcast-1.0.dtd']['duration'][0]['data'], ':' ) ) {
-				$list_item['meta']['length_formatted'] = esc_html( $episode->data['child']['http://www.itunes.com/dtds/podcast-1.0.dtd']['duration'][0]['data'] );
-			} else {
-				$list_item['meta']['length_formatted'] = esc_html( date_i18n( 'H:i:s', $episode->data['child']['http://www.itunes.com/dtds/podcast-1.0.dtd']['duration'][0]['data'] ) );
-			}
+		if ( ! empty( $episode_meta->duration ) ) {
+			$list_item['meta']['length_formatted'] = esc_html( date_i18n( 'H:i:s', $episode_meta->duration ) );
 		}
 
-		if ( ! empty( $episode->data['child']['http://www.itunes.com/dtds/podcast-1.0.dtd']['author'][0]['data'] ) ) {
-			$list_item['meta']['artist'] = esc_html( $episode->data['child']['http://www.itunes.com/dtds/podcast-1.0.dtd']['author'][0]['data'] );
-		} elseif ( ! empty( $episode->data['child']['http://purl.org/dc/elements/1.1/']['creator'][0]['data'] ) ) {
-			$list_item['meta']['artist'] = esc_html( $episode->data['child']['http://purl.org/dc/elements/1.1/']['creator'][0]['data'] );
+		if ( ! empty( $episode->get_author()->name ) ) {
+			$list_item['meta']['artist'] = esc_html( $episode->get_author()->name );
 		}
 
 		$list_item['title'] = esc_html( trim( wp_strip_all_tags( $episode->get_title() ) ) );
