@@ -17,7 +17,7 @@ import JetpackFieldTextarea from './components/jetpack-field-textarea';
 import JetpackFieldCheckbox from './components/jetpack-field-checkbox';
 import JetpackFieldMultiple from './components/jetpack-field-multiple';
 import renderMaterialIcon from '../../shared/render-material-icon';
-import colorValidator from '../../shared/colorValidator';
+import { getButtonAttributes } from '../../shared/components/button';
 
 export const name = 'contact-form';
 
@@ -45,25 +45,6 @@ export const settings = {
 			type: 'string',
 			default: '',
 		},
-		submitButtonText: {
-			type: 'string',
-			default: __( 'Submit', 'jetpack' ),
-		},
-		backgroundButtonColor: {
-			type: 'string',
-		},
-		textButtonColor: {
-			type: 'string',
-		},
-		customBackgroundButtonColor: {
-			type: 'string',
-			validator: colorValidator,
-		},
-		customTextButtonColor: {
-			type: 'string',
-			validator: colorValidator,
-		},
-		submitButtonClasses: { type: 'string' },
 		hasFormSettingsSet: {
 			type: 'string',
 			default: null,
@@ -80,16 +61,9 @@ export const settings = {
 			type: 'string',
 			default: '',
 		},
-
-		// Deprecated
-		has_form_settings_set: {
-			type: 'string',
-			default: null,
-		},
-		submit_button_text: {
-			type: 'string',
-			default: __( 'Submit', 'jetpack' ),
-		},
+		...getButtonAttributes( {
+			defaultText: __( 'Submit', 'jetpack' ),
+		} ),
 	},
 
 	edit: JetpackContactForm,
@@ -97,7 +71,6 @@ export const settings = {
 	example: {
 		attributes: {
 			hasFormSettingsSet: true,
-			submitButtonText: __( 'Submit', 'jetpack' ),
 		},
 		innerBlocks: [
 			{

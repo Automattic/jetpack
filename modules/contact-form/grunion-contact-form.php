@@ -2040,10 +2040,8 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$r .= $form->body;
 			$r .= "\t<p class='contact-submit'>\n";
 
-			$gutenberg_submit_button_classes = '';
-			if ( ! empty( $attributes['submitButtonClasses'] ) ) {
-				$gutenberg_submit_button_classes = ' ' . $attributes['submitButtonClasses'];
-			}
+			jetpack_require_lib( 'functions.jetpack-button-helper' );
+			$gutenberg_submit_button_classes = jetpack_get_button_classes( $attributes );
 
 			/**
 			 * Filter the contact form submit button class attribute.
@@ -2056,15 +2054,10 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			 */
 			$submit_button_class = apply_filters( 'jetpack_contact_form_submit_button_class', 'pushbutton-wide' . $gutenberg_submit_button_classes );
 
-			$submit_button_styles = '';
-			if ( ! empty( $attributes['customBackgroundButtonColor'] ) ) {
-				$submit_button_styles .= 'background-color: ' . $attributes['customBackgroundButtonColor'] . '; ';
-			}
-			if ( ! empty( $attributes['customTextButtonColor'] ) ) {
-				$submit_button_styles .= 'color: ' . $attributes['customTextButtonColor'] . ';';
-			}
-			if ( ! empty( $attributes['submitButtonText'] ) ) {
-				$submit_button_text = $attributes['submitButtonText'];
+			$submit_button_styles = jetpack_get_button_styles( $attributes );
+
+			if ( ! empty( $attributes['buttonText'] ) ) {
+				$submit_button_text = $attributes['buttonText'];
 			} else {
 				$submit_button_text = $form->get_attribute( 'submit_button_text' );
 			}

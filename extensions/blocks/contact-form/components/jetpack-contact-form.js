@@ -23,7 +23,7 @@ import { InnerBlocks, InspectorControls, URLInput } from '@wordpress/block-edito
  */
 import HelpMessage from '../../../shared/help-message';
 import renderMaterialIcon from '../../../shared/render-material-icon';
-import SubmitButton from '../../../shared/submit-button';
+import { ButtonEdit, getButtonEditProps } from '../../../shared/components/button';
 
 const ALLOWED_BLOCKS = [
 	'jetpack/markdown',
@@ -306,7 +306,7 @@ class JetpackContactForm extends Component {
 							] }
 						/>
 					) }
-					{ hasFormSettingsSet && <SubmitButton { ...this.props } /> }
+					{ hasFormSettingsSet && <ButtonEdit { ...getButtonEditProps( this.props ) } /> }
 				</div>
 			</Fragment>
 		);
