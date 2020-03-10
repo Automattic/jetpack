@@ -7,11 +7,11 @@ import fs from 'fs';
  */
 import { getNgrokSiteUrl, execWpCommand, execShellCommand } from './utils-helper';
 
-export async function persistPlanData() {
+export async function persistPlanData( planType = 'jetpack_business' ) {
 	const planDataOption = 'e2e_jetpack_plan_data';
 	const siteUrl = getNgrokSiteUrl();
 	const siteId = await getSiteId();
-	const planData = getPlanData( siteId, siteUrl );
+	const planData = getPlanData( siteId, siteUrl, planType );
 
 	fs.writeFileSync( 'plan-data.txt', JSON.stringify( planData ) );
 
@@ -37,7 +37,7 @@ async function getSiteId() {
 function getPlanData(
 	id,
 	siteUrl,
-	planType = 'jetpack_business',
+	planType,
 	siteName = 'Whatever',
 	description = 'Just another WordPress site'
 ) {
@@ -242,6 +242,12 @@ function getPlanData(
 	};
 }
 
+/**
+ * Returns a JSON representation of Jetpack plan data.
+ * TODO: Share the mock data with methods in jetpack/tests/php/general/test_class.jetpack-plan.php somehow.
+ * @param {string} type Jetpack plan slug.
+ * @return {JSON} JSON Jetpack plan object.
+ */
 function getPlan( type ) {
 	if ( type === 'jetpack_business' ) {
 		return {
@@ -314,6 +320,67 @@ function getPlan( type ) {
 			},
 		};
 	}
+
+	if ( type === 'jetpack_free' ) {
+		return {
+			product_id: 2002,
+			product_slug: 'jetpack_free',
+			product_name: 'Jetpack Free',
+			product_name_short: 'Free',
+			expired: false,
+			user_is_owner: false,
+			is_free: true,
+			features: {
+				active: [ 'akismet' ],
+				available: {
+					akismet: [
+						'jetpack_free',
+						'jetpack_premium',
+						'jetpack_personal',
+						'jetpack_premium_monthly',
+						'jetpack_business_monthly',
+						'jetpack_personal_monthly',
+					],
+					'vaultpress-backups': [
+						'jetpack_premium',
+						'jetpack_premium_monthly',
+						'jetpack_business_monthly',
+					],
+					'vaultpress-backup-archive': [
+						'jetpack_premium',
+						'jetpack_premium_monthly',
+						'jetpack_business_monthly',
+					],
+					'vaultpress-storage-space': [
+						'jetpack_premium',
+						'jetpack_premium_monthly',
+						'jetpack_business_monthly',
+					],
+					'vaultpress-automated-restores': [
+						'jetpack_premium',
+						'jetpack_premium_monthly',
+						'jetpack_business_monthly',
+					],
+					'simple-payments': [
+						'jetpack_premium',
+						'jetpack_premium_monthly',
+						'jetpack_business_monthly',
+					],
+					support: [
+						'jetpack_premium',
+						'jetpack_personal',
+						'jetpack_premium_monthly',
+						'jetpack_business_monthly',
+						'jetpack_personal_monthly',
+					],
+					'premium-themes': [ 'jetpack_business_monthly' ],
+					'vaultpress-security-scanning': [ 'jetpack_business_monthly' ],
+					polldaddy: [ 'jetpack_business_monthly' ],
+				},
+			},
+		};
+	}
+
 	throw new Error( `${ type } is not yet supported. Add it yourself!` );
 }
 
