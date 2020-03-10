@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { pick } from 'lodash';
+import { isEmpty, pick } from 'lodash';
 
 /**
  * Internal dependencies
@@ -12,12 +12,14 @@ import { getValidatedAttributes } from '../../get-validated-attributes';
  * Given the block props, return only those needed for the ButtonEdit component.
  *
  * @param {Object} props The block props.
- * @param {Object} attributesDefinition The block attributes definition.
+ * @param {Object} [attributesDefinition] The block attributes definition.
  * @returns {Object} The props to be used by ButtonEdit.
  */
-export default function getButtonEditProps( props, attributesDefinition ) {
+export default function getButtonEditProps( props, attributesDefinition = {} ) {
 	const { attributes, className, setAttributes } = props;
-	const validatedAttributes = getValidatedAttributes( attributesDefinition, attributes );
+	const validatedAttributes = isEmpty( attributesDefinition )
+		? attributes
+		: getValidatedAttributes( attributesDefinition, attributes );
 
 	const buttonAttributes = pick( validatedAttributes, [
 		'buttonBackgroundColor',
