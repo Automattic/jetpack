@@ -32,7 +32,7 @@
     "grunt-contrib-clean": "2.0.0",
     "grunt-contrib-copy": "1.0.0",
     "grunt-rename": "0.1.4",
-    "grunt-svgmin": "2.0.1",
+    "grunt-svgmin": "6.0.0",
     "grunt-svgstore": "2.0.0",
     "grunt-webfont": "1.7.2",
     "husky": "4.2.3",
