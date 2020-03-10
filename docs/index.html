@@ -187,14 +187,14 @@ window.onload = function () {
         rows[i].onclick = function () {
             var cssClass = this.getAttribute( 'class' );
             var iconID = cssClass.split(' ')[1];
-            var suggestion = '<SocialIcon icon="'+ iconID +'" />';
+            var suggestion = '<SocialLogo icon="'+ iconID +'" />';
             window.prompt( 'Copy this, paste in your React component.', suggestion );
         }
     }
 }
 
 function toggleSize() {
-  var icons = document.querySelectorAll( '.gridicon' );
+  var icons = document.querySelectorAll( '.social-logo' );
   for ( var i = 0; i < icons.length; i++ ) {
     icons[i].classList.toggle( "is-small" );
   }
