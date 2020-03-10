@@ -328,6 +328,13 @@
   dependencies:
     "@babel/types" "^7.8.3"
 
+"@babel/helper-module-imports@^7.7.4":
+  version "7.7.4"
+  resolved "https://registry.yarnpkg.com/@babel/helper-module-imports/-/helper-module-imports-7.7.4.tgz#e5a92529f8888bf319a6376abfbd1cebc491ad91"
+  integrity sha512-dGcrX6K9l8258WFjyDLJwuVKxR4XZfU0/vTUgOQYWEnRD8mgr+p4d6fCUMq/ys0h4CCt/S5JhbvtyErjWouAUQ==
+  dependencies:
+    "@babel/types" "^7.7.4"
+
 "@babel/helper-module-transforms@^7.8.3":
   version "7.8.3"
   resolved "https://registry.yarnpkg.com/@babel/helper-module-transforms/-/helper-module-transforms-7.8.3.tgz#d305e35d02bee720fbc2c3c3623aa0c316c01590"
@@ -1073,6 +1080,13 @@
   dependencies:
     regenerator-runtime "^0.13.4"
 
+"@babel/runtime@^7.7.2", "@babel/runtime@^7.8.3", "@babel/runtime@^7.8.7":
+  version "7.8.7"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.8.7.tgz#8fefce9802db54881ba59f90bb28719b4996324d"
+  integrity sha512-+AATMUFppJDw6aiR5NVPHqIQBlV/Pj8wY/EZH+lmvRdUo9xBaz/rF3alAwFJQavvKfeOlPE7oaaDHVbcySbCsg==
+  dependencies:
+    regenerator-runtime "^0.13.4"
+
 "@babel/template@^7.1.0", "@babel/template@^7.4.0", "@babel/template@^7.4.4":
   version "7.4.4"
   resolved "https://registry.yarnpkg.com/@babel/template/-/template-7.4.4.tgz#f4b88d1225689a08f5bc3a17483545be9e4ed237"
@@ -1713,6 +1727,11 @@
   resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.1.0.tgz#09a7a352a40508156e1256efdc015593feca28e0"
   integrity sha512-ntN5t5spqhQv28cLfmmt1dYabsudzR5A7PU15gr/gzcT/gzqAOnYFQPaLPFraDa7ZCJG2eJ1JsO7pgXbYXGIrw==
 
+"@popperjs/core@^2.0.5":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.1.0.tgz#09a7a352a40508156e1256efdc015593feca28e0"
+  integrity sha512-ntN5t5spqhQv28cLfmmt1dYabsudzR5A7PU15gr/gzcT/gzqAOnYFQPaLPFraDa7ZCJG2eJ1JsO7pgXbYXGIrw==
+
 "@romainberger/css-diff@^1.0.3":
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/@romainberger/css-diff/-/css-diff-1.0.3.tgz#ced387535d4f42a42ac1fe13c09de97f5ae1344c"
@@ -2220,6 +2239,14 @@
     "@wordpress/i18n" "^3.9.0"
     "@wordpress/url" "^2.11.0"
 
+"@wordpress/a11y@^2.7.0":
+  version "2.7.0"
+  resolved "https://registry.yarnpkg.com/@wordpress/a11y/-/a11y-2.7.0.tgz#eaf4bdaf8fc32fbbd2e97619abc765abaa6fba7a"
+  integrity sha512-slmpj1Dyb8oGkDRkmfkvR/KOvRMTvRFuc/yMk7omuNspj4MsLimKhpQnu16NycelC6IGg+Rzp/6ziYIAMi/1sw==
+  dependencies:
+    "@babel/runtime" "^7.8.3"
+    "@wordpress/dom-ready" "^2.7.0"
+
 "@wordpress/api-fetch@^3.3.0":
   version "3.3.0"
   resolved "https://registry.yarnpkg.com/@wordpress/api-fetch/-/api-fetch-3.3.0.tgz#87ae2637bce490b4023e49d4eec91cfc8dd72774"
@@ -2323,7 +2350,11 @@
   resolved "https://registry.yarnpkg.com/@wordpress/browserslist-config/-/browserslist-config-2.6.0.tgz#00074a1cb1ba979ba7ac5afc4e322bc8447035d1"
   integrity sha512-vRgzGoxhcNVChBP30XZlyK4w6r/9ZpO+Fi1dzmButp31lUEb1pT5WBxTIQl3HE0JZ9YTEJ00WWGO5sjGi5MHZA==
 
+<<<<<<< HEAD
 "@wordpress/components@9.2.3", "@wordpress/components@^9.2.3":
+=======
+"@wordpress/components@9.2.3":
+>>>>>>> upgrade our version of the wordpress/components package
   version "9.2.3"
   resolved "https://registry.yarnpkg.com/@wordpress/components/-/components-9.2.3.tgz#5208de29577ec5cc97ba2dabe6425f82a5d61254"
   integrity sha512-+rtsUUM2ciqA0H6w1tXzLnCbp+6jS5sazpLhuMgfeqobWGMyAxTh1CB4NrWh7zJ1gp9kA4+6I38Z+/my/LLAcQ==
@@ -2446,6 +2477,17 @@
     lodash "^4.17.15"
     mousetrap "^1.6.2"
 
+"@wordpress/compose@^3.11.0":
+  version "3.11.0"
+  resolved "https://registry.yarnpkg.com/@wordpress/compose/-/compose-3.11.0.tgz#ffc130fa391559295c5c1d14955ddd46918b1beb"
+  integrity sha512-CNbLn9NtG2A0X71wjEux126uEHpWp3v546FtSgMoWlq73z3LEEBDoEeS2glIPAbIK6e1X2UibsKrn5Tn651tlg==
+  dependencies:
+    "@babel/runtime" "^7.8.3"
+    "@wordpress/element" "^2.11.0"
+    "@wordpress/is-shallow-equal" "^1.8.0"
+    lodash "^4.17.15"
+    mousetrap "^1.6.2"
+
 "@wordpress/compose@^3.4.0":
   version "3.4.0"
   resolved "https://registry.yarnpkg.com/@wordpress/compose/-/compose-3.4.0.tgz#2098ccfa0681f728f3327955458d5dd7792ce27e"
@@ -2479,6 +2521,26 @@
     "@wordpress/data" "^4.14.1"
 
 "@wordpress/data@4.14.1", "@wordpress/data@^4.13.0", "@wordpress/data@^4.14.1":
+  version "4.14.1"
+  resolved "https://registry.yarnpkg.com/@wordpress/data/-/data-4.14.1.tgz#dc5ae1a65404c57ad302433ff812496d47f62e09"
+  integrity sha512-i+uB2QnnA13nCuEXOqav7BkL2xby6q6APpZdRQHKi3aEOO5bI92+Je/gh2OS0VxelBMxcdwSXCoInyzPlyvzEg==
+  dependencies:
+    "@babel/runtime" "^7.8.3"
+    "@wordpress/compose" "^3.11.0"
+    "@wordpress/deprecated" "^2.7.0"
+    "@wordpress/element" "^2.11.0"
+    "@wordpress/is-shallow-equal" "^1.8.0"
+    "@wordpress/priority-queue" "^1.5.1"
+    "@wordpress/redux-routine" "^3.7.0"
+    equivalent-key-map "^0.2.2"
+    is-promise "^2.1.0"
+    lodash "^4.17.15"
+    memize "^1.0.5"
+    redux "^4.0.0"
+    turbo-combine-reducers "^1.0.2"
+    use-memo-one "^1.1.1"
+
+"@wordpress/data@^4.14.1":
   version "4.14.1"
   resolved "https://registry.yarnpkg.com/@wordpress/data/-/data-4.14.1.tgz#dc5ae1a65404c57ad302433ff812496d47f62e09"
   integrity sha512-i+uB2QnnA13nCuEXOqav7BkL2xby6q6APpZdRQHKi3aEOO5bI92+Je/gh2OS0VxelBMxcdwSXCoInyzPlyvzEg==
@@ -2551,6 +2613,28 @@
     "@babel/runtime" "^7.8.3"
     "@wordpress/hooks" "^2.7.0"
 
+<<<<<<< HEAD
+"@wordpress/dom-ready@^2.7.0":
+  version "2.7.0"
+  resolved "https://registry.yarnpkg.com/@wordpress/dom-ready/-/dom-ready-2.7.0.tgz#0fe9a9f7e3fddf6db81f970b173a2be996d1e324"
+  integrity sha512-YTx/M3hpF4hJx5xFE5eECUalruIl/xvW8mJaqDRqCL22ktVDpWwyUtQkHtiVkNi2B8lYln8y57CB4q+7R3xIwg==
+=======
+"@wordpress/deprecated@^2.7.0":
+  version "2.7.0"
+  resolved "https://registry.yarnpkg.com/@wordpress/deprecated/-/deprecated-2.7.0.tgz#9e9702795b468e79f7d7aa7fe98af6cd256bf636"
+  integrity sha512-Pq5r2/p0+3BgwkinSRMTky+iNerm34qPQeil0UCtFxNP5usJaK2ZI0W/pv6DokomOtxTNZyv2lMRlUoXmglDuQ==
+  dependencies:
+    "@babel/runtime" "^7.8.3"
+    "@wordpress/hooks" "^2.7.0"
+
+"@wordpress/dom-ready@^2.4.0":
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/@wordpress/dom-ready/-/dom-ready-2.4.0.tgz#86269b12e73a0285710c2938d672ff990dda38b8"
+  integrity sha512-0v4cPfghB8QAKaquQP7p3zrA1KxcYvZkGKw3X6mnWvnRUM2D6e5QQPzQ/QmmHtcFKkEw9bWcP7ItoC90xjIoFg==
+>>>>>>> upgrade our version of the wordpress/components package
+  dependencies:
+    "@babel/runtime" "^7.8.3"
+
 "@wordpress/dom-ready@^2.7.0":
   version "2.7.0"
   resolved "https://registry.yarnpkg.com/@wordpress/dom-ready/-/dom-ready-2.7.0.tgz#0fe9a9f7e3fddf6db81f970b173a2be996d1e324"
@@ -2574,10 +2658,17 @@
     "@babel/runtime" "^7.8.3"
     lodash "^4.17.15"
 
+<<<<<<< HEAD
 "@wordpress/e2e-test-utils@2.4.3":
   version "2.4.3"
   resolved "https://registry.yarnpkg.com/@wordpress/e2e-test-utils/-/e2e-test-utils-2.4.3.tgz#a8a4fbdb71efc898ce1768e6d5285972dbe5942a"
   integrity sha512-I/83+QhF1E4anCMy+ZqkX8S9v6TKhDvitbYgx2DQNfRFPsf07KWFun2lttWI7+apZ081JRSBKT+5SCoU121iSA==
+=======
+"@wordpress/e2e-test-utils@2.2.0":
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/@wordpress/e2e-test-utils/-/e2e-test-utils-2.2.0.tgz#9ee4e759ed44ecd7ee5acf44d7fb23b7f32a6aa4"
+  integrity sha512-7MKwyxJKzjz3vB6DgUK8dVkWAYfjicnb9a7T5x1vme1Oub4ZU3cxEawdMdWCe0nSjXQYgatfD1Eff32whWB+Gw==
+>>>>>>> upgrade our version of the wordpress/components package
   dependencies:
     "@babel/runtime" "^7.4.4"
     "@wordpress/keycodes" "^2.6.2"
@@ -2645,17 +2736,67 @@
     react "^16.8.4"
     react-dom "^16.8.4"
 
+<<<<<<< HEAD
 "@wordpress/escape-html@^1.4.0", "@wordpress/escape-html@^1.7.0":
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/@wordpress/escape-html/-/escape-html-1.7.0.tgz#8f3e1798a23c16deac7bd0e416f11b90f3f31e89"
+  integrity sha512-xDOBo0P3Jnbdbb/UypsQaplsD2k4UXgd/EpKhMAKhDa2m20GxWWmEKW9IB3/5bS4Rh2YZjVM9WL4JyWPUo4hEA==
+=======
+"@wordpress/element@^2.11.0":
+  version "2.11.0"
+  resolved "https://registry.yarnpkg.com/@wordpress/element/-/element-2.11.0.tgz#7bd6bad7bc90cca88746cb333d0c79c870e2064b"
+  integrity sha512-56ZO8a+E7QEsYwiqS+3BQPSHrCPsOAIEz5smXzntb2f6BjvOKeA64pup40mdn1pNGexe06LBA8cjoZVdLBHB1w==
+  dependencies:
+    "@babel/runtime" "^7.8.3"
+    "@wordpress/escape-html" "^1.7.0"
+    lodash "^4.17.15"
+    react "^16.9.0"
+    react-dom "^16.9.0"
+
+"@wordpress/element@^2.6.0":
+  version "2.6.0"
+  resolved "https://registry.yarnpkg.com/@wordpress/element/-/element-2.6.0.tgz#ef50e1392d4d2f27b518bb59e99555c2589a8339"
+  integrity sha512-t7BgD+gRvC0gOubElsiXhp0H5Dq1yAu2/J8aeok4Fcg1anUXcmjo9M7uL/C17e1AbDVIFQvCyhgOg9ltc/rgEA==
+  dependencies:
+    "@babel/runtime" "^7.4.4"
+    "@wordpress/escape-html" "^1.5.0"
+    lodash "^4.17.14"
+    react "^16.8.4"
+    react-dom "^16.8.4"
+
+"@wordpress/escape-html@^1.4.0":
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/@wordpress/escape-html/-/escape-html-1.4.0.tgz#d4c33b04ccdb7e3d19bb5355e16df0dab744bd9b"
+  integrity sha512-WkpSumSZPSsopZtUJImHPyhlf/ZFHbbAm9zIsPFwHM7Dlh437p3Yiu3+tuAiE2Rs6XzElP0tD8eEULpkxPeFFA==
+  dependencies:
+    "@babel/runtime" "^7.4.4"
+
+"@wordpress/escape-html@^1.5.0":
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/@wordpress/escape-html/-/escape-html-1.5.0.tgz#f56b89a45f2051cec7c7b1c51937411f27cf5b6b"
+  integrity sha512-9jGwPbpdJ309EP4Acf6/zwHWeuYi0Bi5RAZx9q+BIYC7bjxLs3oFDS5QkEAi2mzrVAhIz+BbEWBGRg70U1RLlA==
+>>>>>>> upgrade our version of the wordpress/components package
+  dependencies:
+    "@babel/runtime" "^7.8.3"
+
+<<<<<<< HEAD
+"@wordpress/eslint-plugin@2.4.0":
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/@wordpress/eslint-plugin/-/eslint-plugin-2.4.0.tgz#6d4dc22489c43c26b78320d830fb50cbbd708509"
+  integrity sha512-FOsNM6cCKZKug/sXKAum1lceGiULm4sKZlBCHUHRNiGSbOlWs+kjoATQOuid9nGYVK/uzvQOCN1xwZJbQ9XjDw==
+=======
+"@wordpress/escape-html@^1.7.0":
   version "1.7.0"
   resolved "https://registry.yarnpkg.com/@wordpress/escape-html/-/escape-html-1.7.0.tgz#8f3e1798a23c16deac7bd0e416f11b90f3f31e89"
   integrity sha512-xDOBo0P3Jnbdbb/UypsQaplsD2k4UXgd/EpKhMAKhDa2m20GxWWmEKW9IB3/5bS4Rh2YZjVM9WL4JyWPUo4hEA==
   dependencies:
     "@babel/runtime" "^7.8.3"
 
-"@wordpress/eslint-plugin@2.4.0":
-  version "2.4.0"
-  resolved "https://registry.yarnpkg.com/@wordpress/eslint-plugin/-/eslint-plugin-2.4.0.tgz#6d4dc22489c43c26b78320d830fb50cbbd708509"
-  integrity sha512-FOsNM6cCKZKug/sXKAum1lceGiULm4sKZlBCHUHRNiGSbOlWs+kjoATQOuid9nGYVK/uzvQOCN1xwZJbQ9XjDw==
+"@wordpress/eslint-plugin@2.3.0":
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/@wordpress/eslint-plugin/-/eslint-plugin-2.3.0.tgz#6dda6f912b22a6304f3beb572b9ce05bfe37cda3"
+  integrity sha512-1X1uvBfwx96dxz0NmLB22JhSNaJQCYP3bYAnaR5qMV+O9t6gwbdPl+1kpYhe2sSKFm72y6Tfi8CKRWsyKRCHUg==
+>>>>>>> upgrade our version of the wordpress/components package
   dependencies:
     babel-eslint "^10.0.1"
     eslint-plugin-jsx-a11y "^6.2.1"
@@ -2669,6 +2810,13 @@
   integrity sha512-z3+8Yq4IQ3DOvUF4VsXOfntdyk1fJ8RZBYlZTW8WfmHV7VKTDbX3LfHXmC2VCjXhVkeWQVKozi2weoEYopfGKA==
   dependencies:
     "@babel/runtime" "^7.4.4"
+
+"@wordpress/hooks@^2.7.0":
+  version "2.7.0"
+  resolved "https://registry.yarnpkg.com/@wordpress/hooks/-/hooks-2.7.0.tgz#34f8b612c1804a2332ab4c6906bf1695545f6a97"
+  integrity sha512-Cr8uGEVxuGLkMq9UsbfAQqSTFVGBDhP8PagyIYJRUX6OkLiUF72OyT3xox7aM+ZlSr3INle2mEO+ZLPw0ieIPg==
+  dependencies:
+    "@babel/runtime" "^7.8.3"
 
 "@wordpress/hooks@^2.7.0":
   version "2.7.0"
@@ -2703,6 +2851,21 @@
     sprintf-js "^1.1.1"
     tannin "^1.1.0"
 
+<<<<<<< HEAD
+=======
+"@wordpress/i18n@^3.9.0":
+  version "3.9.0"
+  resolved "https://registry.yarnpkg.com/@wordpress/i18n/-/i18n-3.9.0.tgz#a81e23a32f0957f0bb2922f6cdb79a40a45a2b87"
+  integrity sha512-ACpLPvdzAosAPqSLUaYQSX7fB5yAV5dFy8Y37FWLsZrv4NhUQ+rfDLdrXrCWm19LEZ5nTFfZUT0TIbYKekqIug==
+  dependencies:
+    "@babel/runtime" "^7.8.3"
+    gettext-parser "^1.3.1"
+    lodash "^4.17.15"
+    memize "^1.0.5"
+    sprintf-js "^1.1.1"
+    tannin "^1.1.0"
+
+>>>>>>> upgrade our version of the wordpress/components package
 "@wordpress/icons@^1.1.0":
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/@wordpress/icons/-/icons-1.1.0.tgz#d76ad05a097f133f1055a71752dadaf53794d50d"
@@ -2726,6 +2889,13 @@
   dependencies:
     "@babel/runtime" "^7.8.3"
 
+"@wordpress/is-shallow-equal@^1.8.0":
+  version "1.8.0"
+  resolved "https://registry.yarnpkg.com/@wordpress/is-shallow-equal/-/is-shallow-equal-1.8.0.tgz#905f31599df92201e4d7601a42a45d430eb666f2"
+  integrity sha512-OV3qJqP9LhjuOzt85TsyBwv+//CvC8Byf/81D3NmjPKlstLaD/bBCC5nBhH6dKAv4bShYtQ2Hmut+V4dZnOM1A==
+  dependencies:
+    "@babel/runtime" "^7.8.3"
+
 "@wordpress/keycodes@^2.4.0":
   version "2.4.0"
   resolved "https://registry.yarnpkg.com/@wordpress/keycodes/-/keycodes-2.4.0.tgz#b2fcca9880d685bca297a92cfc6a883affb6e623"
@@ -2736,6 +2906,15 @@
     lodash "^4.17.11"
 
 "@wordpress/keycodes@^2.6.2", "@wordpress/keycodes@^2.9.0":
+  version "2.9.0"
+  resolved "https://registry.yarnpkg.com/@wordpress/keycodes/-/keycodes-2.9.0.tgz#896f8cfe6520d732aeb75ef4f6a8e67173df8c62"
+  integrity sha512-m9SO9eYbzuGv5kNZLimL2O7khDddb+uNAkCJC7juD9K/a+l2LiXSLJRm6gAmnBdrGP8UrTudR0oLaPZLcKXYZA==
+  dependencies:
+    "@babel/runtime" "^7.8.3"
+    "@wordpress/i18n" "^3.9.0"
+    lodash "^4.17.15"
+
+"@wordpress/keycodes@^2.9.0":
   version "2.9.0"
   resolved "https://registry.yarnpkg.com/@wordpress/keycodes/-/keycodes-2.9.0.tgz#896f8cfe6520d732aeb75ef4f6a8e67173df8c62"
   integrity sha512-m9SO9eYbzuGv5kNZLimL2O7khDddb+uNAkCJC7juD9K/a+l2LiXSLJRm6gAmnBdrGP8UrTudR0oLaPZLcKXYZA==
@@ -2805,6 +2984,13 @@
   dependencies:
     "@babel/runtime" "^7.8.3"
 
+"@wordpress/priority-queue@^1.5.1":
+  version "1.5.1"
+  resolved "https://registry.yarnpkg.com/@wordpress/priority-queue/-/priority-queue-1.5.1.tgz#de07b2bc2567f50b451aa99cf3369cb97d5018b4"
+  integrity sha512-zVT9rHhIRa6JJWu7SwXkzk4S/5DbErJYFAm+1M90yE+X4vsZW12xG3mtA5Vw5CgWY1Ie24pevcZLkmFRKpP6og==
+  dependencies:
+    "@babel/runtime" "^7.8.3"
+
 "@wordpress/redux-routine@^3.4.0":
   version "3.4.0"
   resolved "https://registry.yarnpkg.com/@wordpress/redux-routine/-/redux-routine-3.4.0.tgz#632dcf7a0b3c3bfd9601ff0236b6ec2110d8df41"
@@ -2824,6 +3010,19 @@
     lodash "^4.17.15"
     rungen "^0.3.2"
 
+<<<<<<< HEAD
+=======
+"@wordpress/redux-routine@^3.7.0":
+  version "3.7.0"
+  resolved "https://registry.yarnpkg.com/@wordpress/redux-routine/-/redux-routine-3.7.0.tgz#6f5a9e19da5e082a951b7ecfa0a580ee51377a94"
+  integrity sha512-dnt/NA4bgXDdkoTlmZrb5QFSgYoVH/lHrJEpy32KyIkxgF8SCvu8aU5lz08hQaV2MQ3OCJA8WtLIAMw0nCidPg==
+  dependencies:
+    "@babel/runtime" "^7.8.3"
+    is-promise "^2.1.0"
+    lodash "^4.17.15"
+    rungen "^0.3.2"
+
+>>>>>>> upgrade our version of the wordpress/components package
 "@wordpress/rich-text@^3.12.1":
   version "3.12.1"
   resolved "https://registry.yarnpkg.com/@wordpress/rich-text/-/rich-text-3.12.1.tgz#74065a64c40d3cb332160d6d4da7a55123573118"
@@ -2905,6 +3104,11 @@
     "@wordpress/compose" "^3.11.0"
     "@wordpress/data" "^4.14.1"
     lodash "^4.17.15"
+
+"@wordpress/warning@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@wordpress/warning/-/warning-1.0.0.tgz#a1c94b55894ca1ffe185df612669595a14c47c5c"
+  integrity sha512-/xa3e4GuXdMhxKtGYbwkCvOJLRkFgRexhsJpq5xFHz/7jSFdBdIY/eiOIVk1jhnjQpS+w3jL9VSAsE1R2AlV7A==
 
 "@wordpress/warning@^1.0.0":
   version "1.0.0"
@@ -7310,11 +7514,14 @@ graceful-fs@^4.1.4, graceful-fs@^4.2.2:
   resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.2.2.tgz#6f0952605d0140c1cfdb138ed005775b92d67b02"
   integrity sha512-IItsdsea19BoLC7ELy13q1iJFNmd7ofZH5+X/pJr90/nRoPEX0DJo1dHDbgtYWOhJhcCgMDTOw84RZ72q6lB+Q==
 
+<<<<<<< HEAD
 graceful-fs@^4.2.0:
   version "4.2.3"
   resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.2.3.tgz#4a12ff1b60376ef09862c2093edd908328be8423"
   integrity sha512-a30VEBm4PEdx1dRB7MFK7BejejvCvBronbLjht+sHuGYj8PHs7M/5Z+rt5lw551vZ7yfTCj4Vuyy3mSJytDWRQ==
 
+=======
+>>>>>>> upgrade our version of the wordpress/components package
 gradient-parser@^0.1.5:
   version "0.1.5"
   resolved "https://registry.yarnpkg.com/gradient-parser/-/gradient-parser-0.1.5.tgz#0c7e2179559e5ce7d8d71f4423af937100b2248c"
@@ -12448,15 +12655,26 @@ react-dom@16.13.0, react-dom@^16.9.0:
     prop-types "^15.6.2"
     scheduler "^0.13.6"
 
+<<<<<<< HEAD
 react-dom@^16.8.4:
   version "16.13.1"
   resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-16.13.1.tgz#c1bd37331a0486c078ee54c4740720993b2e0e7f"
   integrity sha512-81PIMmVLnCNLO/fFOQxdQkvEq/+Hfpv24XNJfpyZhTRfO0QcmQIF/PgCa1zCOj2w1hrn12MFLyaJ/G0+Mxtfag==
+=======
+react-dom@^16.9.0:
+  version "16.13.0"
+  resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-16.13.0.tgz#cdde54b48eb9e8a0ca1b3dc9943d9bb409b81866"
+  integrity sha512-y09d2c4cG220DzdlFkPTnVvGTszVvNpC73v+AaLGLHbkpy3SSgvYq8x0rNwPJ/Rk/CicTNgk0hbHNw1gMEZAXg==
+>>>>>>> upgrade our version of the wordpress/components package
   dependencies:
     loose-envify "^1.1.0"
     object-assign "^4.1.1"
     prop-types "^15.6.2"
+<<<<<<< HEAD
     scheduler "^0.19.1"
+=======
+    scheduler "^0.19.0"
+>>>>>>> upgrade our version of the wordpress/components package
 
 react-is@^16.10.2, react-is@^16.9.0:
   version "16.11.0"
@@ -12628,10 +12846,17 @@ react@16.13.0, react@^16.9.0:
     prop-types "^15.6.2"
     scheduler "^0.13.6"
 
+<<<<<<< HEAD
 react@^16.8.4:
   version "16.13.1"
   resolved "https://registry.yarnpkg.com/react/-/react-16.13.1.tgz#2e818822f1a9743122c063d6410d85c1e3afe48e"
   integrity sha512-YMZQQq32xHLX0bz5Mnibv1/LHb3Sqzngu7xstSM+vrkE5Kzr9xE0yMByK5kMoTK30YVJE61WfbxIFFvfeDKT1w==
+=======
+react@^16.9.0:
+  version "16.13.0"
+  resolved "https://registry.yarnpkg.com/react/-/react-16.13.0.tgz#d046eabcdf64e457bbeed1e792e235e1b9934cf7"
+  integrity sha512-TSavZz2iSLkq5/oiE7gnFzmURKZMltmi193rm5HEoUDAXpzT9Kzw6oNZnGoai/4+fUnm7FqS5dwgUL34TujcWQ==
+>>>>>>> upgrade our version of the wordpress/components package
   dependencies:
     loose-envify "^1.1.0"
     object-assign "^4.1.1"
@@ -13388,6 +13613,7 @@ scheduler@^0.19.0:
     loose-envify "^1.1.0"
     object-assign "^4.1.1"
 
+<<<<<<< HEAD
 scheduler@^0.19.1:
   version "0.19.1"
   resolved "https://registry.yarnpkg.com/scheduler/-/scheduler-0.19.1.tgz#4f3e2ed2c1a7d65681f4c854fa8c5a1ccb40f196"
@@ -13396,6 +13622,8 @@ scheduler@^0.19.1:
     loose-envify "^1.1.0"
     object-assign "^4.1.1"
 
+=======
+>>>>>>> upgrade our version of the wordpress/components package
 schema-utils@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/schema-utils/-/schema-utils-1.0.0.tgz#0b79a93204d7b600d4b2850d1f66c2a34951c770"
@@ -15530,9 +15758,15 @@ yallist@^4.0.0:
   integrity sha512-3wdGidZyq5PB084XLES5TpOSRA3wjXAlIWMhum2kRcv/41Sn2emQ0dycQW4uZXLejwKvg6EsvbdlVL+FYEct7A==
 
 yaml@^1.7.2:
+<<<<<<< HEAD
   version "1.8.2"
   resolved "https://registry.yarnpkg.com/yaml/-/yaml-1.8.2.tgz#a29c03f578faafd57dcb27055f9a5d569cb0c3d9"
   integrity sha512-omakb0d7FjMo3R1D2EbTKVIk6dAVLRxFXdLZMEUToeAvuqgG/YuHMuQOZ5fgk+vQ8cx+cnGKwyg+8g8PNT0xQg==
+=======
+  version "1.8.0"
+  resolved "https://registry.yarnpkg.com/yaml/-/yaml-1.8.0.tgz#169fbcfa2081302dc9441d02b0b6fe667e4f74c9"
+  integrity sha512-6qI/tTx7OVtA4qNqD0OyutbM6Z9EKu4rxWm/2Y3FDEBQ4/2X2XAnyuRXMzAE2+1BPyqzksJZtrIwblOHg0IEzA==
+>>>>>>> upgrade our version of the wordpress/components package
   dependencies:
     "@babel/runtime" "^7.8.7"
 

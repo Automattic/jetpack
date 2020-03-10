@@ -13,6 +13,7 @@ import {
 } from '@wordpress/block-editor';
 import { mediaUpload } from '@wordpress/editor';
 import {
+	Button,
 	DropZone,
 	FormFileUpload,
 	PanelBody,
@@ -36,7 +37,6 @@ import {
 } from './constants';
 import { getActiveStyleName } from '../../shared/block-styles';
 import { icon } from '.';
-import EditButton from '../../shared/edit-button';
 
 const linkOptions = [
 	{ value: 'attachment', label: __( 'Attachment Page', 'jetpack' ) },
@@ -217,7 +217,7 @@ class TiledGalleryEdit extends Component {
 								gallery
 								value={ images.map( img => img.id ) }
 								render={ ( { open } ) => (
-									<EditButton label={ __( 'Edit Gallery', 'jetpack' ) } onClick={ open } />
+									<Button label={ __( 'Edit Gallery', 'jetpack' ) } icon="edit" onClick={ open } />
 								) }
 							/>
 						</Toolbar>

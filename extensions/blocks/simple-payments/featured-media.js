@@ -5,12 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { BlockControls, MediaPlaceholder, MediaUpload } from '@wordpress/block-editor';
 import { Fragment } from '@wordpress/element';
 import { get } from 'lodash';
-import { Toolbar, ToolbarButton } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
-import EditButton from '../../shared/edit-button';
+import { Button, Toolbar, ToolbarButton } from '@wordpress/components';
 
 const onSelectMedia = setAttributes => media =>
 	setAttributes( {
@@ -44,7 +39,7 @@ export default ( { featuredMediaId, featuredMediaUrl, featuredMediaTitle, setAtt
 							allowedTypes={ [ 'image' ] }
 							value={ featuredMediaId }
 							render={ ( { open } ) => (
-								<EditButton label={ __( 'Edit Image', 'jetpack' ) } onClick={ open } />
+								<Button label={ __( 'Edit Image', 'jetpack' ) } icon="edit" onClick={ open } />
 							) }
 						/>
 						<ToolbarButton

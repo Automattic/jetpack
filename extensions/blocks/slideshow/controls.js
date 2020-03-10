@@ -3,6 +3,7 @@
  */
 import { BlockControls, InspectorControls, MediaUpload } from '@wordpress/block-editor';
 import {
+	Button,
 	PanelBody,
 	RangeControl,
 	SelectControl,
@@ -12,11 +13,6 @@ import {
 import { __, _x } from '@wordpress/i18n';
 import { isEmpty } from 'lodash';
 import { Fragment } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
-import EditButton from '../../shared/edit-button';
 
 export default ( {
 	allowedMediaTypes,
@@ -98,7 +94,7 @@ export default ( {
 							gallery
 							value={ images.map( img => img.id ) }
 							render={ ( { open } ) => (
-								<EditButton label={ __( 'Edit Slideshow', 'jetpack' ) } onClick={ open } />
+								<Button label={ __( 'Edit Slideshow', 'jetpack' ) } icon="edit" onClick={ open } />
 							) }
 						/>
 					</Toolbar>
