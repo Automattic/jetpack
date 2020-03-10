@@ -4,4 +4,3 @@ svg/output/
 npm-debug.log
 build/
 .DS_Store
-package-lock.json
