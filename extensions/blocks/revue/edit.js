@@ -22,12 +22,14 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import defaultAttributes from './attributes';
-import ButtonPreview from './button-preview';
+//import ButtonPreview from './button-preview';
 import JetpackFieldLabel from '../contact-form/components/jetpack-field-label';
 import icon from './icon';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import './editor.scss';
+
+import { ButtonEdit, getButtonEditProps } from '../../shared/components/button';
 
 export default function RevueEdit( props ) {
 	const { attributes, className, setAttributes } = props;
@@ -165,7 +167,7 @@ export default function RevueEdit( props ) {
 							value={ lastNamePlaceholder }
 						/>
 					) }
-					<ButtonPreview { ...props } />
+					<ButtonEdit { ...getButtonEditProps( props, defaultAttributes ) } />
 				</>
 			) }
 		</div>

@@ -121,74 +121,19 @@ function jetpack_render_revue_block( $attributes ) {
  * @return string
  */
 function jetpack_get_revue_button( $attributes ) {
-	$classes = array( 'wp-block-button__link' );
-	$styles  = array();
-
-	$text                        = jetpack_get_revue_attribute( 'text', $attributes );
-	$has_class_name              = array_key_exists( 'className', $attributes );
-	$has_named_text_color        = array_key_exists( 'textColor', $attributes );
-	$has_custom_text_color       = array_key_exists( 'customTextColor', $attributes );
-	$has_named_background_color  = array_key_exists( 'backgroundColor', $attributes );
-	$has_custom_background_color = array_key_exists( 'customBackgroundColor', $attributes );
-	$has_named_gradient          = array_key_exists( 'gradient', $attributes );
-	$has_custom_gradient         = array_key_exists( 'customGradient', $attributes );
-	$has_border_radius           = array_key_exists( 'borderRadius', $attributes );
-
-	if ( $has_class_name ) {
-		$classes[] = $attributes['className'];
-	}
-
-	if ( $has_named_text_color || $has_custom_text_color ) {
-		$classes[] = 'has-text-color';
-	}
-	if ( $has_named_text_color ) {
-		$classes[] = sprintf( 'has-%s-color', $attributes['textColor'] );
-	} elseif ( $has_custom_text_color ) {
-		$styles[] = sprintf( 'color: %s;', $attributes['customTextColor'] );
-	}
-
-	if (
-		$has_named_background_color ||
-		$has_custom_background_color ||
-		$has_named_gradient ||
-		$has_custom_gradient
-	) {
-		$classes[] = 'has-background';
-	}
-	if ( $has_named_background_color && ! $has_custom_gradient ) {
-		$classes[] = sprintf( 'has-%s-background-color', $attributes['backgroundColor'] );
-	}
-	if ( $has_named_gradient ) {
-		$classes[] = sprintf( 'has-%s-gradient-background', $attributes['gradient'] );
-	} elseif ( $has_custom_gradient ) {
-		$styles[] = sprintf( 'background: %s;', $attributes['customGradient'] );
-	}
-	if (
-		$has_custom_background_color &&
-		! $has_named_background_color &&
-		! $has_named_gradient &&
-		! $has_custom_gradient
-	) {
-		$styles[] = sprintf( 'background-color: %s;', $attributes['customBackgroundColor'] );
-	}
-
-	if ( $has_border_radius ) {
-		// phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
-		if ( 0 == $attributes['borderRadius'] ) {
-			$classes[] = 'no-border-radius';
-		} else {
-			$styles[] = sprintf( 'border-radius: %spx;', $attributes['borderRadius'] );
-		}
-	}
+	jetpack_require_lib( 'functions.jetpack-button-helper' );
+	$classes = jetpack_get_button_classes( $attributes );
+	$styles  = jetpack_get_button_styles( $attributes );
+	$text    = jetpack_get_revue_attribute( 'buttonText', $attributes );
 
 	ob_start();
 	?>
 
 <div class="wp-block-button">
 	<button
-		class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>"
+		class="<?php echo esc_attr( $classes ); ?>"
 		name="member[subscribe]"
-		style="<?php echo esc_attr( implode( ' ', $styles ) ); ?>"
+		style="<?php echo esc_attr( $styles ); ?>"
 		type="submit"
 	>
 		<?php echo wp_kses_post( $text ); ?>
@@ -213,7 +158,7 @@ function jetpack_get_revue_attribute( $attribute, $attributes ) {
 	}
 
 	$default_attributes = array(
-		'text'                 => __( 'Subscribe', 'jetpack' ),
+		'buttonText'           => __( 'Subscribe', 'jetpack' ),
 		'emailLabel'           => __( 'Email address', 'jetpack' ),
 		'emailPlaceholder'     => __( 'Enter your email address', 'jetpack' ),
 		'firstNameLabel'       => __( 'First name', 'jetpack' ),
