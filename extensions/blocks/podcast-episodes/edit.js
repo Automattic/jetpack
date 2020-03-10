@@ -1,3 +1,5 @@
+/* eslint-disable no-unused-vars */
+
 /**
  * External dependencies
  */
