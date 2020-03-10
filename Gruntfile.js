@@ -108,18 +108,15 @@ module.exports = function( grunt ) {
 			options: {
 				sourceMap: false,
 				presets: [
-					'es2015',
-					'stage-2',
-					'babili'
+					'@babel/env',
+					'minify'
 				],
 				comments: false,
 				plugins: [
-					'transform-class-properties',
-					'transform-export-extensions',
-					'add-module-exports',
-					'syntax-jsx',
-					'transform-react-jsx',
-					'transform-react-display-name'
+					'@babel/plugin-proposal-class-properties',
+					'@babel/plugin-syntax-jsx',
+					'@babel/plugin-transform-react-jsx',
+					'@babel/plugin-transform-react-display-name'
 				]
 			},
 			dist: {
