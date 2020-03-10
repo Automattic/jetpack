@@ -404,9 +404,6 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			case 'quota' :
 				$response[ $key ] = $this->site->get_quota();
 				break;
-			case 'launch_status' :
-				$response[ $key ] = $this->site->get_launch_status();
-				break;
 			case 'site_migration' :
 				$response[ $key ] = $this->site->get_migration_meta();
 				break;
