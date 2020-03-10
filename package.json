@@ -1,11 +1,7 @@
 {
   "name": "social-logos",
   "version": "2.1.1",
-  "main": "build/index.js",
-  "scripts": {
-    "build": "grunt --verbose",
-    "prepublish": "npm run build"
-  },
+  "main": "react/index.js",
   "peerDependencies": {
     "react": "^15.3.0 || ^16.0.0 "
   },
@@ -15,8 +11,8 @@
   },
   "license": "GPL-2.0+",
   "files": [
-    "build/index.js",
-    "build/example.js",
+    "react/index.js",
+    "react/example.js",
     "svg-sprite/social-logos.svg"
   ],
   "dependencies": {
@@ -39,11 +35,21 @@
     "grunt-contrib-copy": "1.0.0",
     "grunt-rename": "0.1.4",
     "grunt-svgmin": "2.0.1",
-    "grunt-webfont": "1.7.2",
     "grunt-svgstore": "2.0.0",
+    "grunt-webfont": "1.7.2",
+    "husky": "4.2.3",
     "jit-grunt": "0.10.0",
     "load-grunt-tasks": "5.1.0",
-    "xml2js": "0.4.23",
-    "svg-to-pdfkit": "0.1.8"
+    "svg-to-pdfkit": "0.1.8",
+    "xml2js": "0.4.23"
+  },
+  "scripts": {
+    "build": "grunt",
+    "prepublish": "npm run build"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "grunt babel && git add --update"
+    }
   }
 }
