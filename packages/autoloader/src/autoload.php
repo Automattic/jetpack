@@ -140,33 +140,8 @@ if ( ! function_exists( __NAMESPACE__ . '\autoloader' ) ) {
 		global $jetpack_packages_classes;
 
 		if ( isset( $jetpack_packages_classes[ $class_name ] ) ) {
-			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				// TODO ideally we shouldn't skip any of these, see: https://github.com/Automattic/jetpack/pull/12646.
-				$ignore = in_array(
-					$class_name,
-					array(
-						'Automattic\Jetpack\Connection\Manager',
-					),
-					true
-				);
-
-				if ( ! $ignore && function_exists( 'did_action' ) && ! did_action( 'plugins_loaded' ) ) {
-					_doing_it_wrong(
-						esc_html( $class_name ),
-						sprintf(
-						/* translators: %s Name of a PHP Class */
-							esc_html__( 'Not all plugins have loaded yet but we requested the class %s', 'jetpack' ),
-							// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-							$class_name
-						),
-						esc_html( $jetpack_packages_classes[ $class_name ]['version'] )
-					);
-				}
-			}
-
 			if ( file_exists( $jetpack_packages_classes[ $class_name ]['path'] ) ) {
 				require_once $jetpack_packages_classes[ $class_name ]['path'];
-
 				return true;
 			}
 		}
