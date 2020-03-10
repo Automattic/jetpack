@@ -1,0 +1,19 @@
+name: Update a package when it is updated in the monorepo
+on:
+  push:
+    branches:
+      - master # Every time a PR is merged to master.
+    paths:
+      - 'packages/**' # Only when package files are modified.
+
+jobs:
+  update_package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Keep Jetpack Packages up to date
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+        run: |
+          sh ./bin/update-package.sh
