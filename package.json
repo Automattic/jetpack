@@ -40,6 +40,7 @@
     "husky": "4.2.3",
     "jit-grunt": "0.10.0",
     "load-grunt-tasks": "5.1.0",
+    "pdfkit": "0.8.3",
     "svg-to-pdfkit": "0.1.8",
     "xml2js": "0.4.23"
   },
