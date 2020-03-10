@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "cfdfd75661445f07cd177589d9586566",
+    "content-hash": "fdadc473453530a8cd99c09f2a3adcc2",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -102,16 +102,16 @@
         },
         {
             "name": "automattic/wc-calypso-bridge",
-            "version": "v1.1.3",
+            "version": "v1.1.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/wc-calypso-bridge.git",
-                "reference": "2e4c7cb7d7480f91e840ef85eb429c96b79eb06b"
+                "reference": "f9a60e7fe1f5702297dcca6471d90a79cb966e7a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/2e4c7cb7d7480f91e840ef85eb429c96b79eb06b",
-                "reference": "2e4c7cb7d7480f91e840ef85eb429c96b79eb06b",
+                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/f9a60e7fe1f5702297dcca6471d90a79cb966e7a",
+                "reference": "f9a60e7fe1f5702297dcca6471d90a79cb966e7a",
                 "shasum": ""
             },
             "require": {
@@ -139,20 +139,20 @@
                     "phpcbf -p"
                 ]
             },
-            "time": "2019-12-18T13:37:54+00:00"
+            "time": "2020-03-09T17:47:41+00:00"
         },
         {
             "name": "composer/installers",
-            "version": "v1.7.0",
+            "version": "v1.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/installers.git",
-                "reference": "141b272484481432cda342727a427dc1e206bfa0"
+                "reference": "7d610d50aae61ae7ed6675e58efeabdf279bb5e3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/installers/zipball/141b272484481432cda342727a427dc1e206bfa0",
-                "reference": "141b272484481432cda342727a427dc1e206bfa0",
+                "url": "https://api.github.com/repos/composer/installers/zipball/7d610d50aae61ae7ed6675e58efeabdf279bb5e3",
+                "reference": "7d610d50aae61ae7ed6675e58efeabdf279bb5e3",
                 "shasum": ""
             },
             "require": {
@@ -200,6 +200,7 @@
                 "Kanboard",
                 "Lan Management System",
                 "MODX Evo",
+                "MantisBT",
                 "Mautic",
                 "Maya",
                 "OXID",
@@ -254,6 +255,7 @@
                 "shopware",
                 "silverstripe",
                 "sydes",
+                "sylius",
                 "symfony",
                 "typo3",
                 "wordpress",
@@ -261,7 +263,7 @@
                 "zend",
                 "zikula"
             ],
-            "time": "2019-08-12T15:00:31+00:00"
+            "time": "2020-02-07T10:39:20+00:00"
         }
     ],
     "packages-dev": [],
