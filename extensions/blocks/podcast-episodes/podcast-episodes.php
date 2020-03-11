@@ -9,6 +9,8 @@
 
 namespace Jetpack\Podcast_Episodes_Block;
 
+use WP_Error;
+
 const FEATURE_NAME = 'podcast-episodes';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 
