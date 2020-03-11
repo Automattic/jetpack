@@ -11,7 +11,7 @@ import React, { Component } from 'react';
  */
 import { getSiteBenefits, getSiteID, getSitePlan } from 'state/site';
 import { isDevVersion } from 'state/initial-state';
-import { submitSurvey as submitSurveyAction } from 'state/survey/actions';
+import { submitSurvey as submitSurveyAction } from 'state/disconnect-survey/actions';
 import analytics from 'lib/analytics';
 import Button from 'components/button';
 import Card from 'components/card';

@@ -3,28 +3,28 @@
  */
 import restApi from 'rest-api';
 import {
-	JETPACK_MARKETING_SUBMIT_SURVEY,
-	JETPACK_MARKETING_SUBMIT_SURVEY_SUCCESS,
-	JETPACK_MARKETING_SUBMIT_SURVEY_FAIL,
+	JETPACK_MARKETING_SUBMIT_DISCONNECT_SURVEY,
+	JETPACK_MARKETING_SUBMIT_DISCONNECT_SURVEY_SUCCESS,
+	JETPACK_MARKETING_SUBMIT_DISCONNECT_SURVEY_FAIL,
 } from 'state/action-types';
 
 const dispatchSurvey = surveyResponse => dispatch => {
 	dispatch( {
-		type: JETPACK_MARKETING_SUBMIT_SURVEY,
+		type: JETPACK_MARKETING_SUBMIT_DISCONNECT_SURVEY,
 	} );
 
 	return restApi
 		.submitSurvey( surveyResponse )
 		.then( data => {
 			dispatch( {
-				type: JETPACK_MARKETING_SUBMIT_SURVEY_SUCCESS,
+				type: JETPACK_MARKETING_SUBMIT_DISCONNECT_SURVEY_SUCCESS,
 			} );
 
 			return data;
 		} )
 		.catch( error => {
 			dispatch( {
-				type: JETPACK_MARKETING_SUBMIT_SURVEY_FAIL,
+				type: JETPACK_MARKETING_SUBMIT_DISCONNECT_SURVEY_FAIL,
 				error: error.response,
 			} );
 		} );

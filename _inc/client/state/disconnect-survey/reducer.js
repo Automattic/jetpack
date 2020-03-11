@@ -8,9 +8,9 @@ import { assign, get } from 'lodash';
  * Internal dependencies
  */
 import {
-	JETPACK_MARKETING_SUBMIT_SURVEY,
-	JETPACK_MARKETING_SUBMIT_SURVEY_SUCCESS,
-	JETPACK_MARKETING_SUBMIT_SURVEY_FAIL,
+	JETPACK_MARKETING_SUBMIT_DISCONNECT_SURVEY,
+	JETPACK_MARKETING_SUBMIT_DISCONNECT_SURVEY_SUCCESS,
+	JETPACK_MARKETING_SUBMIT_DISCONNECT_SURVEY_FAIL,
 } from 'state/action-types';
 
 export const disconnectSurvey = (
@@ -18,17 +18,17 @@ export const disconnectSurvey = (
 	action
 ) => {
 	switch ( action.type ) {
-		case JETPACK_MARKETING_SUBMIT_SURVEY:
+		case JETPACK_MARKETING_SUBMIT_DISCONNECT_SURVEY:
 			return assign( {}, state, {
 				submitting: true,
 			} );
-		case JETPACK_MARKETING_SUBMIT_SURVEY_SUCCESS:
+		case JETPACK_MARKETING_SUBMIT_DISCONNECT_SURVEY_SUCCESS:
 			return assign( {}, state, {
 				submitting: false,
 				submitted: true,
 				error: null,
 			} );
-		case JETPACK_MARKETING_SUBMIT_SURVEY_FAIL:
+		case JETPACK_MARKETING_SUBMIT_DISCONNECT_SURVEY_FAIL:
 			return assign( {}, state, {
 				submitting: false,
 				submitted: false,
@@ -49,7 +49,7 @@ export const reducer = combineReducers( {
  * @param  {Object}  state Global state tree
  * @return {Boolean}       Whether email is being sent
  */
-export function isSubmittingSurvey( state ) {
+export function isSubmittingDisconnectSurvey( state ) {
 	return get( state, 'jetpack.disconnectSurvey.submitting', false );
 }
 
@@ -59,7 +59,7 @@ export function isSubmittingSurvey( state ) {
  * @param {Object}  state Global state tree.
  * @return {Boolean}      Whether email has been sent.
  */
-export function hasSubmittedSurvey( state ) {
+export function hasSubmittedDisconnectSurvey( state ) {
 	return get( state, 'jetpack.disconnectSurvey.submitted', false );
 }
 
@@ -69,6 +69,6 @@ export function hasSubmittedSurvey( state ) {
  * @param {Object}  state Global state tree.
  * @return {Object|null}  The error object if there is one.
  */
-export function getSurveySubmitError( state ) {
+export function getDisconnectSurveySubmitError( state ) {
 	return get( state, 'jetpack.disconnectSurvey.error', null );
 }
