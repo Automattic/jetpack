@@ -17,7 +17,7 @@ import {
  */
 import { IS_GRADIENT_AVAILABLE } from './constants';
 
-export default function ButtonSave( attributes, blockName, uniqueId ) {
+export default function ButtonSave( { attributes, blockName, uniqueId } ) {
 	const {
 		buttonBackgroundColor,
 		buttonBorderRadius,
@@ -68,7 +68,7 @@ export default function ButtonSave( attributes, blockName, uniqueId ) {
 		<div className={ blockClasses }>
 			<RichText.Content
 				className={ buttonClasses }
-				data-id-attr={ uniqueId }
+				data-id-attr={ uniqueId || 'placeholder' }
 				href={ buttonUrl }
 				id={ uniqueId }
 				rel="noopener noreferrer"
