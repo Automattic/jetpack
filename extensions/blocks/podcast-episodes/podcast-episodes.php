@@ -47,7 +47,6 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * @return string
  */
 function render_block( $attributes, $content ) {
-	global $content_width;
 
 	if ( empty( $attributes['url'] ) ) {
 		return;
@@ -58,6 +57,18 @@ function render_block( $attributes, $content ) {
 	if ( is_wp_error( $track_list ) ) {
 		return '<p>Unable to retrieve track list. Please check your Podcast feed URL.</p>';
 	}
+
+	return render_player( $track_list );
+}
+
+/**
+ * Renders the HTML for the Podcast player and tracklist.
+ *
+ * @param array $track_list the list of podcast tracks.
+ * @return string the HTML for the podcast player.
+ */
+function render_player( $track_list ) {
+	global $content_width;
 
 	$data = array(
 		'type'         => 'audio',
