@@ -148,7 +148,7 @@ function get_track_list( $feed, $quantity = 5 ) {
 
 	return array_map(
 		function( $episode ) {
-			$list_item = array(
+			$track = array(
 				'src'         => esc_url( $episode->data['child']['']['enclosure'][0]['attribs']['']['url'] ),
 				'type'        => esc_attr( $episode->data['child']['']['enclosure'][0]['attribs']['']['type'] ),
 				'caption'     => '',
@@ -156,11 +156,11 @@ function get_track_list( $feed, $quantity = 5 ) {
 				'meta'        => array(),
 			);
 
-			$list_item['title'] = esc_html( trim( wp_strip_all_tags( $episode->get_title() ) ) );
-			if ( empty( $list_item['title'] ) ) {
-				$list_item['title'] = __( '(no title)', 'jetpack' );
+			$track['title'] = esc_html( trim( wp_strip_all_tags( $episode->get_title() ) ) );
+			if ( empty( $track['title'] ) ) {
+				$track['title'] = __( '(no title)', 'jetpack' );
 			}
-			return $list_item;
+			return $track;
 		},
 		$episodes
 	);
