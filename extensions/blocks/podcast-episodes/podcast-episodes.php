@@ -49,11 +49,15 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
 function render_block( $attributes, $content ) {
 	global $content_width;
 
-	if ( ! isset( $attributes['url'] ) ) {
+	if ( empty( $attributes['url'] ) ) {
 		return;
 	}
 
 	$track_list = get_track_list( $attributes['url'], $attributes['itemsToShow'] );
+
+	if ( is_wp_error( $track_list ) ) {
+		return '<p>Unable to retrieve track list. Please check your Podcast feed URL.</p>';
+	}
 
 	$data = array(
 		'type'         => 'audio',
@@ -122,7 +126,7 @@ function get_track_list( $feed, $quantity = 5 ) {
 	$rss = fetch_feed( $feed );
 
 	if ( is_wp_error( $rss ) ) {
-		return $rss;
+		return $rss; // returns the WP_Error object.
 	}
 
 	if ( ! $rss->get_item_quantity() ) {
