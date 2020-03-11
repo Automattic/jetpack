@@ -139,7 +139,36 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	}
 
 	function is_private() {
-		return false;
+		return $this->get_cloud_site_option( 'blog_public' ) === -1;
+	}
+
+	/**
+	 * Return site's launch status.
+	 *
+	 * @return string|boolean  Launch status ('launched', 'unlaunched', or false).
+	 */
+	public function get_launch_status() {
+		return $this->get_cloud_site_option( 'launch-status' );
+	}
+
+	/**
+	 * Returns an option value from the current site's cloud site.
+	 *
+	 * @param string $option  Option name.
+	 * @return mixed  Option value.
+	 */
+	private function get_cloud_site_option( $option ) {
+		$jetpack = Jetpack::init();
+		if ( ! method_exists( $jetpack, 'get_cloud_site_options' ) ) {
+			return false;
+		}
+
+		$result = $jetpack->get_cloud_site_options( array( $option ) );
+		if ( ! array_key_exists( $option, $result ) ) {
+			return false;
+		}
+
+		return $result[ $option ];
 	}
 
 	function get_plan() {
