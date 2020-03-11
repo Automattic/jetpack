@@ -942,4 +942,26 @@ class Jetpack_Gutenberg {
 		return false;
 	}
 
+	/**
+	 * Output an UpgradeNudge Component on the frontend of a site.
+	 *
+	 * @since 8.4.0
+	 *
+	 * @param string $plan The plan that users need to purchase to make the block work.
+	 *
+	 * @return string
+	 */
+	public static function upgrade_nudge( $plan ) {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		jetpack_require_lib( 'components' );
+		return Jetpack_Components::render_upgrade_nudge(
+			array(
+				'plan' => $plan,
+			)
+		);
+	}
+
 }

@@ -11,8 +11,9 @@ namespace Automattic\Jetpack\Extensions\Calendly;
 
 use Jetpack_Gutenberg;
 
-const FEATURE_NAME = 'calendly';
-const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
+const FEATURE_NAME  = 'calendly';
+const BLOCK_NAME    = 'jetpack/' . FEATURE_NAME;
+const REQUIRED_PLAN = 'value_bundle';
 
 /**
  * Check if the block should be available on the site.
@@ -43,12 +44,10 @@ function is_available() {
  * registration if we need to.
  */
 function register_block() {
-	if ( is_available() ) {
-		jetpack_register_block(
-			BLOCK_NAME,
-			array( 'render_callback' => __NAMESPACE__ . '\load_assets' )
-		);
-	}
+	jetpack_register_block(
+		BLOCK_NAME,
+		array( 'render_callback' => __NAMESPACE__ . '\load_assets' )
+	);
 }
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 
@@ -65,7 +64,7 @@ function set_availability() {
 			'missing_plan',
 			array(
 				'required_feature' => 'calendly',
-				'required_plan'    => 'value_bundle',
+				'required_plan'    => REQUIRED_PLAN,
 			)
 		);
 	}
@@ -81,6 +80,10 @@ add_action( 'init', __NAMESPACE__ . '\set_availability' );
  * @return string
  */
 function load_assets( $attr, $content ) {
+	if ( ! is_available() ) {
+		return \Jetpack_Gutenberg::upgrade_nudge( REQUIRED_PLAN );
+	}
+
 	if ( is_admin() ) {
 		return;
 	}
