@@ -138,7 +138,8 @@ jQuery( document ).ready( function( $ ) {
 				},
 				success: function( data ) {
 					var siteData = JSON.parse( data.data );
-					jetpackConnectButton.isPaidPlan = siteData.is_pending_plan || ! siteData.plan.is_free;
+					jetpackConnectButton.isPaidPlan =
+						siteData.options.is_pending_plan || ! siteData.plan.is_free;
 				},
 			} );
 		},
