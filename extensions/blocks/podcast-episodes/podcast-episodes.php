@@ -144,25 +144,24 @@ function get_track_list( $feed, $quantity = 5 ) {
 		return new WP_Error( 'no_tracks', __( 'Podcast audio RSS feed has no tracks.', 'jetpack' ) );
 	}
 
-	$episodes   = $rss->get_items( 0, $quantity );
-	$track_list = array();
+	$episodes = $rss->get_items( 0, $quantity );
 
-	foreach ( $episodes as $episode ) {
-		$list_item = array(
-			'src'         => esc_url( $episode->data['child']['']['enclosure'][0]['attribs']['']['url'] ),
-			'type'        => esc_attr( $episode->data['child']['']['enclosure'][0]['attribs']['']['type'] ),
-			'caption'     => '',
-			'description' => wp_kses_post( $episode->get_description() ),
-			'meta'        => array(),
-		);
+	return array_map(
+		function( $episode ) {
+			$list_item = array(
+				'src'         => esc_url( $episode->data['child']['']['enclosure'][0]['attribs']['']['url'] ),
+				'type'        => esc_attr( $episode->data['child']['']['enclosure'][0]['attribs']['']['type'] ),
+				'caption'     => '',
+				'description' => wp_kses_post( $episode->get_description() ),
+				'meta'        => array(),
+			);
 
-		$list_item['title'] = esc_html( trim( wp_strip_all_tags( $episode->get_title() ) ) );
-		if ( empty( $list_item['title'] ) ) {
-			$list_item['title'] = __( '(no title)', 'jetpack' );
-		}
-
-		$track_list[] = $list_item;
-	}
-
-	return $track_list;
+			$list_item['title'] = esc_html( trim( wp_strip_all_tags( $episode->get_title() ) ) );
+			if ( empty( $list_item['title'] ) ) {
+				$list_item['title'] = __( '(no title)', 'jetpack' );
+			}
+			return $list_item;
+		},
+		$episodes
+	);
 }
