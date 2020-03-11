@@ -49,9 +49,9 @@ class PodcastEpisodesEdit extends Component {
 
 	render() {
 		const { url, itemsToShow } = this.props.attributes;
-		const { setAttributes } = this.props;
+		const { attributes, setAttributes } = this.props;
 
-		if ( ! this.props.attributes.url ) {
+		if ( ! url ) {
 			return (
 				<Placeholder
 					icon={ <BlockIcon icon={ queueMusic } /> }
@@ -114,7 +114,7 @@ class PodcastEpisodesEdit extends Component {
 				<Disabled>
 					<ServerSideRender
 						block="jetpack/podcast-episodes"
-						attributes={ this.props.attributes }
+						attributes={ attributes }
 						EmptyResponsePlaceholder={ handleSSRError }
 						ErrorResponsePlaceholder={ handleSSRError }
 						LoadingResponsePlaceholder={ handleSSRLoading }
