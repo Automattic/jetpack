@@ -70,7 +70,7 @@ function render_block( $attributes, $content ) {
 function render_player( $track_list ) {
 	global $content_width;
 
-	$data = array(
+	$player_data = array(
 		'type'         => 'audio',
 		// Don't pass strings to JSON, will be truthy in JS.
 		'tracklist'    => true,
@@ -116,7 +116,7 @@ function render_player( $track_list ) {
 				?>
 			</ol>
 		</noscript>
-		<script type="application/json" class="wp-playlist-script"><?php echo wp_json_encode( $data ); ?></script>
+		<script type="application/json" class="wp-playlist-script"><?php echo wp_json_encode( $player_data ); ?></script>
 	</div>
 	<?php
 	/*
