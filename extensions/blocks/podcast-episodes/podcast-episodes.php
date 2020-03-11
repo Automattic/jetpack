@@ -13,7 +13,7 @@ use WP_Error;
 
 const FEATURE_NAME = 'podcast-episodes';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
-
+const BLOG_SLUG    = 'jetpack-' . FEATURE_NAME;
 /**
  * Registers the block for use in Gutenberg
  * This is done via an action so that we can disable
@@ -97,7 +97,7 @@ function render_player( $track_list ) {
 	do_action( 'wp_playlist_scripts', 'audio', 'light' );
 
 	?>
-	<div class="wp-playlist wp-audio-playlist wp-playlist-light">
+	<div class="wp-block-<?php echo esc_attr( BLOG_SLUG ); ?> wp-playlist wp-audio-playlist wp-playlist-light">
 		<div class="wp-playlist-current-item"></div>
 		<audio src="<?php echo esc_url( $track_list[0]['src'] ); ?>" controls="controls" preload="none" width="<?php echo esc_attr( (int) $theme_width ); ?>"></audio>
 		<div class="wp-playlist-next"></div>
