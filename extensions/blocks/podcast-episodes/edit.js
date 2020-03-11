@@ -30,11 +30,6 @@ const DEFAULT_MAX_ITEMS = 10;
 class PodcastEpisodesEdit extends Component {
 	constructor() {
 		super( ...arguments );
-
-		this.state = {
-			editing: ! this.props.attributes.url,
-		};
-
 		this.toggleAttribute = this.toggleAttribute.bind( this );
 		this.onSubmitURL = this.onSubmitURL.bind( this );
 	}
@@ -50,17 +45,13 @@ class PodcastEpisodesEdit extends Component {
 
 	onSubmitURL( event ) {
 		event.preventDefault();
-
-		if ( this.props.attributes.url ) {
-			this.setState( { editing: false } );
-		}
 	}
 
 	render() {
 		const { url, itemsToShow } = this.props.attributes;
 		const { setAttributes } = this.props;
 
-		if ( this.state.editing ) {
+		if ( ! this.props.attributes.url ) {
 			return (
 				<Placeholder
 					icon={ <BlockIcon icon={ queueMusic } /> }
@@ -95,6 +86,14 @@ class PodcastEpisodesEdit extends Component {
 			},
 		];
 
+		const handleSSRError = () => {
+			return <p>Failed to load Block</p>;
+		};
+
+		const handleSSRLoading = () => {
+			return <p>Loading...</p>;
+		};
+
 		return (
 			<>
 				<BlockControls>
@@ -113,7 +112,13 @@ class PodcastEpisodesEdit extends Component {
 					</PanelBody>
 				</InspectorControls>
 				<Disabled>
-					<ServerSideRender block="jetpack/podcast-episodes" attributes={ this.props.attributes } />
+					<ServerSideRender
+						block="jetpack/podcast-episodes"
+						attributes={ this.props.attributes }
+						EmptyResponsePlaceholder={ handleSSRError }
+						ErrorResponsePlaceholder={ handleSSRError }
+						LoadingResponsePlaceholder={ handleSSRLoading }
+					/>
 				</Disabled>
 			</>
 		);
