@@ -7,12 +7,12 @@
 
 namespace Automattic\Jetpack\Autoloader;
 
-$class_map = require_once $vendorPath . '/composer/autoload_classmap_package.php'; // phpcs:ignore
+$class_map = require_once $vendorPath . '/composer/autoload_classmap.php'; // phpcs:ignore
 foreach ( $class_map as $class_name => $class_info ) {
 	enqueue_package_class( $class_name, $class_info['version'], $class_info['path'] );
 }
 
-$autoload_file = $vendorPath . '/composer/autoload_files_package.php'; // phpcs:ignore
+$autoload_file = $vendorPath . '/composer/autoload_filemap.php'; // phpcs:ignore
 
 $include_files = file_exists( $autoload_file ) ? require $autoload_file : array();
 

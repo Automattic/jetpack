@@ -83,11 +83,11 @@ class AutoloadGenerator extends BaseGenerator {
 		$fileMap  = $this->getFileMap( $autoloads, $filesystem, $vendorPath, $basePath );
 
 		// Generate the files.
-		file_put_contents( $targetDir . '/autoload_classmap_package.php', $this->getAutoloadClassmapPackagesFile( $classMap ) );
-		$this->io->writeError( '<info>Generated ' . $targetDir . '/autoload_classmap_package.php</info>', true );
+		file_put_contents( $targetDir . '/autoload_classmap.php', $this->getAutoloadClassmapPackagesFile( $classMap ) );
+		$this->io->writeError( '<info>Generated ' . $targetDir . '/autoload_classmap.php</info>', true );
 
-		file_put_contents( $targetDir . '/autoload_files_package.php', $this->getAutoloadFilesPackagesFile( $fileMap ) );
-		$this->io->writeError( '<info>Generated ' . $targetDir . '/autoload_files_package.php</info>', true );
+		file_put_contents( $targetDir . '/autoload_filemap.php', $this->getAutoloadFilesPackagesFile( $fileMap ) );
+		$this->io->writeError( '<info>Generated ' . $targetDir . '/autoload_filemap.php</info>', true );
 
 		file_put_contents( $vendorPath . '/autoload_packages.php', $this->getAutoloadPackageFile() );
 		$this->io->writeError( '<info>Generated ' . $vendorPath . '/autoload_packages.php</info>', true );
