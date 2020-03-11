@@ -126,10 +126,25 @@
 	 * Renders the results from a successful response.
 	 */
 	Scroller.prototype.render = function( response ) {
+		var postLoadEvent;
+
 		this.body.addClass( 'infinity-success' );
 
 		// Check if we can wrap the html
 		this.element.append( response.html );
+
+		try {
+			postLoadEvent = new CustomEvent( 'post-load', {
+				bubbles: true,
+				cancelable: true,
+				detail: response,
+			} );
+		} catch ( e ) {
+			postLoadEvent = document.createEvent( 'CustomEvent' );
+			postLoadEvent.initCustomEvent( 'post-load', true, true, response );
+		}
+
+		this.body.get( 0 ).dispatchEvent( postLoadEvent );
 		this.body.trigger( 'post-load', response );
 		this.ready = true;
 	};
