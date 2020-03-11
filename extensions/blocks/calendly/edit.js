@@ -2,7 +2,7 @@
  * External Dependencies
  */
 import 'url-polyfill';
-import { isEqual, pick } from 'lodash';
+import { isEqual } from 'lodash';
 import queryString from 'query-string';
 
 /**
@@ -31,9 +31,9 @@ import './view.scss';
 import icon from './icon';
 import attributeDetails from './attributes';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
-import SubmitButton from '../../shared/submit-button';
 import { getAttributesFromEmbedCode } from './utils';
 import BlockStylesSelector from '../../shared/components/block-styles-selector';
+import { ButtonEdit, getButtonEditProps } from '../../shared/components/button';
 
 function CalendlyEdit( props ) {
 	const {
@@ -153,17 +153,7 @@ function CalendlyEdit( props ) {
 		</>
 	);
 
-	const submitButtonProps = {
-		attributes: pick( validatedAttributes, [
-			'submitButtonText',
-			'backgroundButtonColor',
-			'textButtonColor',
-			'customBackgroundButtonColor',
-			'customBackgroundButtonColor',
-		] ),
-		setAttributes,
-	};
-	const submitButtonPreview = <SubmitButton { ...submitButtonProps } />;
+	const submitButtonPreview = <ButtonEdit { ...getButtonEditProps( props, attributeDetails ) } />;
 
 	const linkPreview = (
 		<>

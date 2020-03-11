@@ -7,10 +7,11 @@ import { createBlock } from '@wordpress/blocks';
 /**
  * Internal dependencies
  */
-import attributes from './attributes';
+import attributesDefinition from './attributes';
 import edit from './edit';
 import icon from './icon';
 import { getAttributesFromEmbedCode, REGEX } from './utils';
+import { ButtonSave } from '../../shared/components/button';
 
 /**
  * Style dependencies
@@ -37,8 +38,10 @@ export const settings = {
 		html: false,
 	},
 	edit,
-	save: ( { attributes: { url } } ) => <a href={ url }>{ url }</a>,
-	attributes,
+	save: ( { attributes } ) => (
+		<ButtonSave attributes={ { ...attributes, buttonUrl: attributes.url } } blockName="calendly" />
+	),
+	attributes: attributesDefinition,
 	example: {
 		attributes: {
 			submitButtonText: __( 'Schedule time with me', 'jetpack' ),
