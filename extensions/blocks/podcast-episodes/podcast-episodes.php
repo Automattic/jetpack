@@ -105,8 +105,8 @@ function render_player( $track_list ) {
 		<noscript>
 			<ol>
 				<?php
-				foreach ( $track_list as $att_id => $attachment ) :
-					printf( '<li>%s</li>', esc_url( $attachment['src'] ) );
+				foreach ( $track_list as $track ) :
+					printf( '<li>%s</li>', esc_url( $track['src'] ) );
 				endforeach;
 				?>
 			</ol>
