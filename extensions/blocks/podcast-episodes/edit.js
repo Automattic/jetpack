@@ -23,6 +23,7 @@ import ServerSideRender from '@wordpress/server-side-render';
  */
 import './editor.scss';
 import { edit, queueMusic } from './icons/';
+import { translate } from 'i18n-calypso';
 
 const DEFAULT_MIN_ITEMS = 1;
 const DEFAULT_MAX_ITEMS = 10;
@@ -91,7 +92,7 @@ class PodcastEpisodesEdit extends Component {
 		};
 
 		const handleSSRLoading = () => {
-			return <p>Loading...</p>;
+			return <p>{ translate( 'Loading…', 'jetpack' ) }</p>;
 		};
 
 		return (
