@@ -13,6 +13,7 @@ import { queueMusic } from './icons/';
 /**
  * Style dependencies
  */
+import './style.scss';
 import './editor.scss';
 
 export const name = 'podcast-player';

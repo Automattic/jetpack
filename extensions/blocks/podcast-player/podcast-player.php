@@ -95,11 +95,27 @@ function render_player( $track_list, $attributes ) {
 	$block_classname = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attributes );
 
 	ob_start();
+	$initial_track_src = ! empty( $track_list[0]['src'] ) ? $track_list[0]['src'] : '';
 
+	wp_enqueue_script( 'wp-mediaelement' );
+
+	$block_classname = 'wp-block-' . esc_attr( BLOG_SLUG );
 	?>
 	<div class="<?php echo esc_attr( $block_classname ); ?>">
-		<?php // Placeholder: block markup is being handled in https://github.com/Automattic/jetpack/pull/14952. ?>
-		<script type="application/json" class="wp-playlist-script"><?php echo wp_json_encode( $player_data ); ?></script>
+		<div class="<?php echo esc_attr( $block_classname ); ?>-current-item"></div>
+		<audio src="<?php echo esc_attr( $initial_track_src ); ?>" controls="controls" preload="none" width="<?php echo esc_attr( (int) $theme_width ); ?>"></audio>
+		<div class="<?php echo esc_attr( $block_classname ); ?>-next"></div>
+		<div class="<?php echo esc_attr( $block_classname ); ?>-prev"></div>
+		<noscript>
+			<ol>
+				<?php
+				foreach ( $track_list as $att_id => $attachment ) :
+					printf( '<li><a href="%1$s">%2$s</a></li>', esc_url( $attachment['src'] ), esc_html( $attachment['title'] ) );
+				endforeach;
+				?>
+			</ol>
+		</noscript>
+		<script type="application/json" class="<?php echo esc_attr( $block_classname ); ?>-script"><?php echo wp_json_encode( $player_data ); ?></script>
 	</div>
 	<?php
 	/*
