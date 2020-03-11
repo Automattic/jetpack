@@ -4,16 +4,16 @@ git_setup()
 {
   cat <<- EOF > "$HOME/.netrc"
 		machine github.com
-			login $GITHUB_ACTOR
+			login matticbot
 			password $GITHUB_TOKEN
 		machine api.github.com
-			login $GITHUB_ACTOR
+			login matticbot
 			password $GITHUB_TOKEN
 EOF
   chmod 600 "$HOME/.netrc"
 
-  git config --global user.email "$GITHUB_ACTOR@users.noreply.github.com"
-  git config --global user.name "$GITHUB_ACTOR"
+  git config --global user.email "matticbot@users.noreply.github.com"
+  git config --global user.name "matticbot"
 }
 
 # Halt on error
@@ -24,9 +24,7 @@ git_setup
 BASE=$(pwd)
 MONOREPO_COMMIT_MESSAGE=$(git show -s --format=%B $GITHUB_SHA)
 COMMIT_MESSAGE=$( echo "${MONOREPO_COMMIT_MESSAGE}\n\nCommitted via a GitHub action: https://github.com/automattic/jetpack/runs/${GITHUB_RUN_ID}" )
-
-git config --global user.email "$GITHUB_ACTOR@users.noreply.github.com"
-git config --global user.name "$GITHUB_ACTOR"
+COMMIT_ORIGINAL_AUTHOR="${GITHUB_ACTOR} <${GITHUB_ACTOR}@users.noreply.github.com>"
 
 echo "Cloning folders in /packages and pushing to Automattic package repos"
 
@@ -66,7 +64,7 @@ for package in packages/*; do
 	if [ -n "$(git status --porcelain)" ]; then
 		echo  "  Committing $NAME to $NAME's mirror repository"
 		git add -A
-		git commit -m "${COMMIT_MESSAGE}"
+		git commit --author="${COMMIT_ORIGINAL_AUTHOR}" -m "${COMMIT_MESSAGE}"
 		git push origin master
 		echo  "  Completed $NAME"
 		else
