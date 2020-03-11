@@ -47,7 +47,7 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
 function render_block( $attributes, $content ) {
 	global $content_width;
 
-	$track_list = get_track_list( 'https://anchor.fm/s/9400d7c/podcast/rss', $attributes['itemsToShow'] );
+	$track_list = get_track_list( $attributes['url'], $attributes['itemsToShow'] );
 
 	$data = array(
 		'type'         => 'audio',
