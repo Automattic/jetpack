@@ -30,7 +30,7 @@ function register_block() {
 					'default' => 5,
 				),
 			),
-			'render_callback' => __NAMESPACE__ . '\load_assets',
+			'render_callback' => __NAMESPACE__ . '\render_block',
 		)
 	);
 }
@@ -40,42 +40,14 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * Podcast Episodes block registration/dependency declaration.
  *
  * @param array  $attributes Array containing the Podcast Episodes block attributes.
- * @param string $content String containing the Podcast Episodes block content.
+ * @param string $content    String containing the Podcast Episodes block content.
  *
  * @return string
  */
-function load_assets( $attributes, $content ) {
-	$rss = fetch_feed( 'https://anchor.fm/s/9400d7c/podcast/rss' );
-
-	if ( is_wp_error( $rss ) ) {
-		return '<div class="components-placeholder"><div class="notice notice-error"><strong>' . __( 'RSS Error:', 'jetpack' ) . '</strong> ' . $rss->get_error_message() . '</div></div>';
-	}
-
-	if ( ! $rss->get_item_quantity() ) {
-		return '<div class="components-placeholder"><div class="notice notice-error">' . __( 'An error has occurred, which probably means the feed is down. Try again later.', 'jetpack' ) . '</div></div>';
-	}
-
-	$episodes   = $rss->get_items( 0, $attributes['itemsToShow'] );
-	$list_items = array();
-
-	foreach ( $episodes as $episode ) {
-		$list_item = array(
-			'src'         => esc_url( $episode->data['child']['']['enclosure'][0]['attribs']['']['url'] ),
-			'type'        => esc_attr( $episode->data['child']['']['enclosure'][0]['attribs']['']['type'] ),
-			'caption'     => '',
-			'description' => wp_kses_post( $episode->get_description() ),
-			'meta'        => array(),
-		);
-
-		$list_item['title'] = esc_html( trim( wp_strip_all_tags( $episode->get_title() ) ) );
-		if ( empty( $list_item['title'] ) ) {
-			$list_item['title'] = __( '(no title)', 'jetpack' );
-		}
-
-		$list_items[] = $list_item;
-	}
-
+function render_block( $attributes, $content ) {
 	global $content_width;
+
+	$track_list = get_track_list( 'https://anchor.fm/s/9400d7c/podcast/rss', $attributes['itemsToShow'] );
 
 	$data = array(
 		'type'         => 'audio',
@@ -84,7 +56,7 @@ function load_assets( $attributes, $content ) {
 		'tracknumbers' => true,
 		'images'       => true,
 		'artists'      => true,
-		'tracks'       => $list_items,
+		'tracks'       => $track_list,
 	);
 
 	$outer         = 22; // Default padding and border of wrapper.
@@ -112,7 +84,7 @@ function load_assets( $attributes, $content ) {
 		<noscript>
 			<ol>
 				<?php
-				foreach ( $list_items as $att_id => $attachment ) :
+				foreach ( $track_list as $att_id => $attachment ) :
 					printf( '<li>%s</li>', esc_url( $attachment['src'] ) );
 				endforeach;
 				?>
@@ -122,9 +94,54 @@ function load_assets( $attributes, $content ) {
 	</div>
 	<?php
 	/*
-	 * Enqueue necessary scripts and styles.
-	 */
+	* Enqueue necessary scripts and styles.
+	*/
 	\Jetpack_Gutenberg::load_assets_as_required( 'podcast-episodes' );
 
 	return ob_get_clean();
+}
+
+/**
+ * Gets a list of tracks for the supplied RSS feed.
+ *
+ * @param string $feed the RSS feed to load and list tracks for.
+ * @param int    $quantity the number of tracks to return.
+ * @return array|WP_Error the feed's tracks or a error object.
+ */
+function get_track_list( $feed, $quantity = 5 ) {
+	if ( empty( $feed ) ) {
+		return new WP_Error( 'missing_feed', __( 'Podcast audio RSS feed missing.', 'jetpack' ) );
+	}
+
+	$rss = fetch_feed( $feed );
+
+	if ( is_wp_error( $rss ) ) {
+		return $rss;
+	}
+
+	if ( ! $rss->get_item_quantity() ) {
+		return new WP_Error( 'no_tracks', __( 'Podcast audio RSS feed has no tracks.', 'jetpack' ) );
+	}
+
+	$episodes   = $rss->get_items( 0, $quantity );
+	$track_list = array();
+
+	foreach ( $episodes as $episode ) {
+		$list_item = array(
+			'src'         => esc_url( $episode->data['child']['']['enclosure'][0]['attribs']['']['url'] ),
+			'type'        => esc_attr( $episode->data['child']['']['enclosure'][0]['attribs']['']['type'] ),
+			'caption'     => '',
+			'description' => wp_kses_post( $episode->get_description() ),
+			'meta'        => array(),
+		);
+
+		$list_item['title'] = esc_html( trim( wp_strip_all_tags( $episode->get_title() ) ) );
+		if ( empty( $list_item['title'] ) ) {
+			$list_item['title'] = __( '(no title)', 'jetpack' );
+		}
+
+		$track_list[] = $list_item;
+	}
+
+	return $track_list;
 }
