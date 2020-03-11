@@ -146,22 +146,37 @@ function get_track_list( $feed, $quantity = 5 ) {
 
 	$episodes = $rss->get_items( 0, $quantity );
 
-	return array_map(
+	$track_list = array_map(
 		function( $episode ) {
+
+			$url  = ! empty( $episode->data['child']['']['enclosure'][0]['attribs']['']['url'] ) ? $episode->data['child']['']['enclosure'][0]['attribs']['']['url'] : null;
+			$type = ! empty( $episode->data['child']['']['enclosure'][0]['attribs']['']['type'] ) ? $episode->data['child']['']['enclosure'][0]['attribs']['']['type'] : null;
+
+			// If there is no type return an empty array as the array entry. We will filter out later.
+			if ( ! $url ) {
+				return array();
+			}
+
+			// Build track data.
 			$track = array(
-				'src'         => esc_url( $episode->data['child']['']['enclosure'][0]['attribs']['']['url'] ),
-				'type'        => esc_attr( $episode->data['child']['']['enclosure'][0]['attribs']['']['type'] ),
+				'src'         => $url,
+				'type'        => $type,
 				'caption'     => '',
 				'description' => wp_kses_post( $episode->get_description() ),
 				'meta'        => array(),
 			);
 
 			$track['title'] = esc_html( trim( wp_strip_all_tags( $episode->get_title() ) ) );
+
 			if ( empty( $track['title'] ) ) {
 				$track['title'] = __( '(no title)', 'jetpack' );
 			}
+
 			return $track;
 		},
 		$episodes
 	);
+
+	// Remove empty tracks.
+	return \array_filter( $track_list );
 }
