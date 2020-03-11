@@ -84,7 +84,7 @@ function render_block( $attributes, $content ) {
 	?>
 	<div class="wp-playlist wp-audio-playlist wp-playlist-light">
 		<div class="wp-playlist-current-item"></div>
-		<audio controls="controls" preload="none" width="<?php echo (int) $theme_width; ?>"></audio>
+		<audio src="<?php echo esc_url( $track_list[0]['src'] ); ?>" controls="controls" preload="none" width="<?php echo esc_attr( (int) $theme_width ); ?>"></audio>
 		<div class="wp-playlist-next"></div>
 		<div class="wp-playlist-prev"></div>
 		<noscript>
