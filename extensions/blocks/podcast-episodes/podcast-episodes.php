@@ -127,10 +127,11 @@ function load_assets( $attributes, $content ) {
 		<div class="wp-playlist-next"></div>
 		<div class="wp-playlist-prev"></div>
 		<noscript>
+
 			<ol>
 				<?php
 				foreach ( $list_items as $att_id => $attachment ) :
-					printf( '<li>%s</li>', esc_url( $attachment['src'] ) );
+					printf( '<li><a href="%1$s">%2$s</a></li>', esc_url( $attachment['src'] ), esc_html( $attachment['title'] ) );
 				endforeach;
 				?>
 			</ol>
