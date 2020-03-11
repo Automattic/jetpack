@@ -1,6 +1,6 @@
-@import '../scss/mixin_breakpoint';
-@import '../scss/variables/_colors.scss';
-@import '../scss/calypso-colors.scss';
+@import 'scss/mixin_breakpoint';
+@import 'scss/variables/_colors.scss';
+@import 'scss/calypso-colors.scss';
 
 // Plan radio button
 .plan-radio-button {
@@ -9,7 +9,7 @@
 	& + & {
 		margin-top: 16px;
 
-		@include breakpoint( ">660px" ) {
+		@include breakpoint( '>660px' ) {
 			margin-top: 0;
 		}
 	}
@@ -22,7 +22,7 @@
 	width: 100%;
 	margin-left: 8px;
 
-	@include breakpoint( ">660px" ) {
+	@include breakpoint( '>660px' ) {
 		flex-flow: column nowrap;
 		align-items: flex-start;
 	}
@@ -97,7 +97,7 @@ input[type='radio'].plan-radio-button__input {
 	flex-flow: column nowrap;
 	margin-bottom: 21px;
 
-	@include breakpoint( ">660px" ) {
+	@include breakpoint( '>660px' ) {
 		flex-flow: row wrap;
 		justify-content: space-around; // IE11 fallback.
 		justify-content: space-evenly;
@@ -120,7 +120,8 @@ input[type='radio'].plan-radio-button__input {
 	margin-top: 24px;
 	margin-bottom: 8px;
 
-	.plan-price, .plan-price__currency-symbol {
+	.plan-price,
+	.plan-price__currency-symbol {
 		color: $white;
 	}
 }
@@ -137,7 +138,7 @@ input[type='radio'].plan-radio-button__input {
 	margin: -16px -16px 16px;
 	border-bottom: solid 2px $alert-green;
 
-	@include breakpoint( ">480px" ) {
+	@include breakpoint( '>480px' ) {
 		padding: 8px 24px;
 		margin: -24px -24px 24px;
 	}
@@ -162,8 +163,8 @@ input[type='radio'].plan-radio-button__input {
 	position: absolute;
 	left: -1rem;
 	top: -1.5rem;
-	transform: rotate(-10deg);
-	background-image: url( '../../../images/green-star.svg' );
+	transform: rotate( -10deg );
+	background-image: url( '../../../../images/green-star.svg' );
 	padding: 35px 20px;
 	color: $white;
 	font-weight: bold;

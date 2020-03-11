@@ -13,7 +13,7 @@ import analytics from 'lib/analytics';
 import ExternalLink from 'components/external-link';
 import ProductCard from 'components/product-card';
 import ProductExpiration from 'components/product-expiration';
-import { SingleProductBackup } from './single-product-backup';
+import SingleProductBackup from './single-product-backup';
 import { getPlanClass } from '../lib/plans/constants';
 import {
 	getActiveSitePurchases,
@@ -188,18 +188,8 @@ class ProductSelector extends Component {
 	}
 
 	renderSingleProductContent() {
-		const {
-			dailyBackupUpgradeUrl,
-			isFetchingData,
-			multisite,
-			products,
-			realtimeBackupUpgradeUrl,
-			sitePlan,
-		} = this.props;
-		const { selectedBackupType } = this.state;
-
 		// Jetpack Backup does not support Multisite yet.
-		if ( multisite ) {
+		if ( this.props.multisite ) {
 			return null;
 		}
 
@@ -213,24 +203,19 @@ class ProductSelector extends Component {
 			);
 		}
 
-		const plan = get( sitePlan, 'product_slug' );
-
 		// Don't show the product card for paid plans.
-		if ( ! isFetchingData && 'jetpack_free' !== plan ) {
+		const planSlug = get( this.props.sitePlan, 'product_slug' );
+		if ( ! this.props.isFetchingData && 'jetpack_free' !== planSlug ) {
 			return null;
 		}
 
-		const upgradeLinks = {
-			daily: dailyBackupUpgradeUrl,
-			'real-time': realtimeBackupUpgradeUrl,
-		};
-
 		return (
 			<SingleProductBackup
-				isFetching={ isFetchingData }
-				products={ products }
-				upgradeLinks={ upgradeLinks }
-				selectedBackupType={ selectedBackupType }
+				isFetching={ this.props.isFetchingData }
+				products={ this.props.products }
+				upgradeLinkDaily={ this.props.dailyBackupUpgradeUrl }
+				upgradeLinkRealtime={ this.props.realtimeBackupUpgradeUrl }
+				selectedBackupType={ this.state.selectedBackupType }
 				setSelectedBackupType={ this.setSelectedBackupType }
 			/>
 		);
