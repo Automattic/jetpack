@@ -84,6 +84,11 @@ function render_player( $track_list ) {
 	$default_width = 640;
 	$theme_width   = empty( $content_width ) ? $default_width : ( $content_width - $outer );
 
+	// If there are no tracks (it is possible) then display appropriate user facing error message.
+	if ( empty( $track_list ) ) {
+		return '<p>No tracks available to play.</p>';
+	}
+
 	ob_start();
 	wp_playlist_scripts( 'audio' );
 	/**
