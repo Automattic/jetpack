@@ -12,7 +12,7 @@ import {
 	Placeholder,
 	RangeControl,
 	TextControl,
-	ToolbarGroup,
+	Toolbar,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { BlockControls, BlockIcon, InspectorControls } from '@wordpress/block-editor';
@@ -97,7 +97,7 @@ class PodcastEpisodesEdit extends Component {
 		return (
 			<>
 				<BlockControls>
-					<ToolbarGroup controls={ toolbarControls } />
+					<Toolbar controls={ toolbarControls } />
 				</BlockControls>
 				<InspectorControls>
 					<PanelBody title={ __( 'Podcast settings', 'jetpack' ) }>
