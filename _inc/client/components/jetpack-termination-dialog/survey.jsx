@@ -21,9 +21,9 @@ const answers = [
 	{ id: 'troubleshooting', answerText: __( "Troubleshooting - I'll be reconnecting afterwards." ) },
 	{
 		id: 'other',
-		answerText: 'Other:',
+		answerText: __( 'Other:' ),
 		textInput: true,
-		textInputPrompt: 'share your experience',
+		textInputPrompt: __( 'share your experience' ),
 		doNotShuffle: true,
 	},
 ];
