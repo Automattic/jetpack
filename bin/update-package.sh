@@ -22,7 +22,8 @@ set -e
 git_setup
 
 BASE=$(pwd)
-COMMIT_MESSAGE=$(git show -s --format=%B $GITHUB_SHA)
+MONOREPO_COMMIT_MESSAGE=$(git show -s --format=%B $GITHUB_SHA)
+COMMIT_MESSAGE=$( echo "${MONOREPO_COMMIT_MESSAGE}\n\nCommitted via a GitHub action: https://github.com/automattic/jetpack/runs/${GITHUB_RUN_ID}" )
 
 git config --global user.email "$GITHUB_ACTOR@users.noreply.github.com"
 git config --global user.name "$GITHUB_ACTOR"
