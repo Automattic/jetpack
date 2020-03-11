@@ -101,10 +101,23 @@ function render_player( $track_list, $attributes ) {
 	ob_start();
 	?>
 	<div class="<?php echo esc_attr( $block_classname ); ?>" id="<?php echo esc_attr( $instance_id ); ?>">
-		<ol>
+		<ol class="podcast-player__episodes">
 			<?php
 			foreach ( $track_list as $attachment ) :
-				printf( '<li><a href="%1$s" data-jetpack-podcast-audio="%2$s">%3$s</a></li>', esc_url( $attachment['link'] ), esc_url( $attachment['src'] ), esc_html( $attachment['title'] ) );
+				?>
+				<li class="podcast-player__episode">
+					<a
+						class="podcast-player__episode-link"
+						href="<?php echo esc_url( $attachment['link'] ); ?>"
+						data-jetpack-podcast-audio="<?php echo esc_url( $attachment['src'] ); ?>"
+						role="button"
+						aria-pressed="false"
+					>
+						<span class="podcast-player__episode-title"><?php echo esc_html( $attachment['title'] ); ?></span>
+						<time class="podcast-player__episode-duration"><?php echo esc_html( $attachment['meta']['length_formatted'] ); ?></time>
+					</a>
+				</li>
+				<?php
 			endforeach;
 			?>
 		</ol>
@@ -112,11 +125,12 @@ function render_player( $track_list, $attributes ) {
 	</div>
 	<script>window.jetpackPodcastPlayers=(window.jetpackPodcastPlayers||[]);window.jetpackPodcastPlayers.push( <?php echo wp_json_encode( $instance_id ); ?> );</script>
 	<?php
-	/*
+	/**
 	 * Enqueue necessary scripts and styles.
 	 */
-	wp_enqueue_style( 'wp-mediaelement' );
-	Jetpack_Gutenberg::load_assets_as_required( 'podcast-player', array( 'wp-mediaelement' ) );
+	wp_enqueue_script( 'mediaelement' );
+	wp_enqueue_style( 'mediaelement' );
+	Jetpack_Gutenberg::load_assets_as_required( 'podcast-player' );
 
 	return ob_get_clean();
 }
@@ -173,6 +187,11 @@ function setup_tracks_callback( \SimplePie_Item $episode ) {
 
 	if ( empty( $track['title'] ) ) {
 		$track['title'] = esc_html__( '(no title)', 'jetpack' );
+	}
+
+	if ( ! empty( $enclosure->duration ) ) {
+		$format                            = $enclosure->duration > 3600 ? 'H:i:s' : 'i:s';
+		$track['meta']['length_formatted'] = esc_html( date_i18n( $format, $enclosure->duration ) );
 	}
 
 	return $track;

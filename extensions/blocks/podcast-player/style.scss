@@ -1,11 +1,139 @@
 /**
- * Frontend (site) styles for Podcast Episodes
+ * Podcast Player block shared styles (editor & front-end).
  */
 
+$episode-v-padding: 15px;
+$episode-h-padding: 10px;
+$episode-status-icon-size: 22px;
+$text-color: #92959a;
+$text-color-hover: #000;
+$text-color-active: $text-color-hover;
+$text-color-error: #db5051;
+$block-bg-color: #fff;
+$block-border-color: $text-color;
+$font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+$font-size: 16px;
+
+/**
+ * Player's (block) parent element
+ */
 .wp-block-jetpack-podcast-player {
-	border: 1px solid;
+	border: 1px solid $text-color;
+	background-color: $block-bg-color;
+
+	// Player's state classes added to this element:
+	// &.is-playing {} // When audio starts playing
+	// &.is-paused {}  // When audio is paused
+	// &.is-error {}   // When playback error occured
+
+	audio {
+		display: none;
+	}
 }
 
-.wp-block-jetpack-podcast-player audio {
+.podcast-player__episodes {
+	list-style-type: none;
+	display: flex;
+	flex-direction: column;
+
+	margin: 0;
+	padding: $episode-v-padding 0;
+}
+
+.podcast-player__episode {
+	margin: 0;
+	color: $text-color;
+
+	&:hover {
+		color: $text-color-hover;
+	}
+
+	/**
+     * When episode "is-active", it means that it's been clicked by a user to
+     * start playback. Combine this class with the Player's state classes (see
+     * above) to apply styling for different scenarios.
+     */
+	&.is-active {
+		color: $text-color-hover;
+		font-weight: bold;
+	}
+}
+
+.podcast-player__episode-link {
+	display: flex;
+	flex-flow: row nowrap;
+	justify-content: space-between;
+	padding: $episode-h-padding $episode-v-padding;
+	font-family: $font-family;
+	font-size: $font-size;
+
+	text-decoration: none;
+	color: inherit;
+
+	.podcast-player__episode.is-active & {
+		.wp-block-jetpack-podcast-player.is-error {
+			padding-bottom: 0; // Make space for the error element that will be appended.
+		}
+	}
+
+	&:before {
+		content: '';
+		width: $episode-status-icon-size;
+
+		background-repeat: no-repeat;
+		background-position: center top;
+
+		.podcast-player__episode.is-active & {
+			.wp-block-jetpack-podcast-player.is-paused & {
+				background-image: none; // (How) do we want paused state indication?
+			}
+			.wp-block-jetpack-podcast-player.is-playing & {
+				/**
+                 * Removing the hash from color string in order to provide it
+                 * for the escaped value of the SVG fill color in the URL below:
+				 */
+				$color-unhashed: str-slice( quote( $text-color-active ), 2, 7 );
+				background-image: url( "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='24' viewBox='0 0 24 24' width='24'%3E%3Cpath d='M0 0h24v24H0V0z' fill='none'/%3E%3Cpath fill='%23#{$color-unhashed}' d='M3 9v6h4l5 5V4L7 9H3zm7-.17v6.34L7.83 13H5v-2h2.83L10 8.83zM16.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77 0-4.28-2.99-7.86-7-8.77z'/%3E%3C/svg%3E" );
+			}
+			.wp-block-jetpack-podcast-player.is-error & {
+				$color-unhashed: str-slice( quote( $text-color-error ), 2, 7 );
+				background-image: url( "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='24' viewBox='0 0 24 24' width='24'%3E%3Cpath d='M0 0h24v24H0V0z' fill='none'/%3E%3Cpath fill='%23#{$color-unhashed}' d='M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z'/%3E%3C/svg%3E" );
+			}
+		}
+	}
+}
+
+.podcast-player__episode-title {
+	flex-grow: 1;
+	padding: 0 $episode-v-padding;
+}
+
+.podcast-player__episode-duration {
+	word-break: normal;
+}
+
+/**
+ * Error element, appended as the last child of the Episode element
+ * (.podcast-player__episode) when Player's error has been caught.
+ */
+.podcast-player__episode-error {
 	display: none;
+	margin-left: 2 * $episode-v-padding + $episode-status-icon-size;
+	margin-bottom: $episode-h-padding;
+	color: $text-color-error;
+	font-family: $font-family;
+	font-size: 0.8 * $font-size;
+	font-weight: normal;
+
+	.wp-block-jetpack-podcast-player.is-error & {
+		display: block; // Show only when error occurs
+	}
+
+	span {
+		color: $text-color;
+	}
+
+	a {
+		color: inherit;
+	}
 }
