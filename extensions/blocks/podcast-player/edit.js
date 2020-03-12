@@ -43,24 +43,31 @@ const PodcastPlayerEdit = ( { attributes, setAttributes } ) => {
 	const [ editing, setEditing ] = useState( false );
 	const [ urlError, setUrlError ] = useState( '' );
 
-	const onSubmitURL = event => {
+	/**
+	 * Check if the current URL of the Podcast RSS feed
+	 * is valid. If so, set the block attribute and changes
+	 * the edition mode.
+	 * This function is bound to the onSubmit event for the form.
+	 *
+	 * @param {object} event Form on submit event object.
+	 */
+	const checkPodcastLink = event => {
 		event.preventDefault();
 
-		if ( editedUrl ) {
-			const isValidURL = isURL( editedUrl );
+		if ( ! editedUrl ) {
+			return;
+		}
+		const isValidURL = isURL( editedUrl );
 
-			setUrlError(
-				! isValidURL
-					? __( 'The URL you entered is invalid. Please check and try again.', 'jetpack' )
-					: ''
-			);
+		setUrlError(
+			! isValidURL
+				? __( 'The URL you entered is invalid. Please check and try again.', 'jetpack' )
+				: ''
+		);
 
-			if ( isValidURL ) {
-				setAttributes( {
-					url: editedUrl,
-				} );
-				setEditing( false );
-			}
+		if ( isValidURL ) {
+			setAttributes( { url: editedUrl } );
+			setEditing( false );
 		}
 	};
 
@@ -76,7 +83,7 @@ const PodcastPlayerEdit = ( { attributes, setAttributes } ) => {
 				label={ __( 'Podcast Player', 'jetpack' ) }
 				instructions={ __( 'Paste a link to your Podcast RSS feed.', 'jetpack' ) }
 			>
-				<form onSubmit={ onSubmitURL }>
+				<form onSubmit={ checkPodcastLink }>
 					{ urlError && <Notice>{ urlError }</Notice> }
 					<TextControl
 						type="url"
