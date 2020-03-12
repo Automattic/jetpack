@@ -83,11 +83,11 @@ class AutoloadGenerator extends BaseGenerator {
 		$fileMap  = $this->getFileMap( $autoloads, $filesystem, $vendorPath, $basePath );
 
 		// Generate the files.
-		file_put_contents( $targetDir . '/autoload_classmap.php', $this->getAutoloadClassmapPackagesFile( $classMap ) );
-		$this->io->writeError( '<info>Generated ' . $targetDir . '/autoload_classmap.php</info>', true );
+		file_put_contents( $targetDir . '/jetpack_autoload_classmap.php', $this->getAutoloadClassmapPackagesFile( $classMap ) );
+		$this->io->writeError( '<info>Generated ' . $targetDir . '/jetpack_autoload_classmap.php</info>', true );
 
-		file_put_contents( $targetDir . '/autoload_filemap.php', $this->getAutoloadFilesPackagesFile( $fileMap ) );
-		$this->io->writeError( '<info>Generated ' . $targetDir . '/autoload_filemap.php</info>', true );
+		file_put_contents( $targetDir . '/jetpack_autoload_filemap.php', $this->getAutoloadFilesPackagesFile( $fileMap ) );
+		$this->io->writeError( '<info>Generated ' . $targetDir . '/jetpack_autoload_filemap.php</info>', true );
 
 		file_put_contents( $vendorPath . '/autoload_packages.php', $this->getAutoloadPackageFile() );
 		$this->io->writeError( '<info>Generated ' . $vendorPath . '/autoload_packages.php</info>', true );
@@ -320,7 +320,7 @@ INCLUDE_FILEMAP;
 /**
  * Prepare all the classes for autoloading.
  */
-\$vendorPath = dirname( __FILE__ );
+\$vendor_path = dirname( __FILE__ );
 require_once dirname( __FILE__ ) . '/automattic/jetpack-autoloader/src/function-enqueue-packages.php';
 
 INCLUDE_FILES;
