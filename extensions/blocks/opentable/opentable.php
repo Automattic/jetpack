@@ -63,8 +63,8 @@ function set_availability() {
 			BLOCK_NAME,
 			'missing_plan',
 			array(
-				'required_feature' => 'opentable',
-				'required_plan'    => 'value_bundle',
+				'required_feature' => FEATURE_NAME,
+				'required_plan'    => REQUIRED_PLAN,
 			)
 		);
 	}

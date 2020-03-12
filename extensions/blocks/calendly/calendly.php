@@ -63,7 +63,7 @@ function set_availability() {
 			BLOCK_NAME,
 			'missing_plan',
 			array(
-				'required_feature' => 'calendly',
+				'required_feature' => FEATURE_NAME,
 				'required_plan'    => REQUIRED_PLAN,
 			)
 		);
