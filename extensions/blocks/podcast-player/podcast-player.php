@@ -56,7 +56,7 @@ function render_block( $attributes, $content ) {
 	$track_list = get_track_list( $attributes['url'], $attributes['itemsToShow'] );
 
 	if ( is_wp_error( $track_list ) ) {
-		return '<p>' . __( 'Unable to retrieve track list. Please check your Podcast feed URL.', 'jetpack' ) . '</p>';
+		return '<p>' . $track_list->get_error_message() . '</p>';
 	}
 
 	return render_player( $track_list, $attributes );
@@ -141,7 +141,7 @@ function get_track_list( $feed, $quantity = 5 ) {
 	$rss = fetch_feed( $feed );
 
 	if ( is_wp_error( $rss ) ) {
-		return $rss; // returns the WP_Error object.
+		return new WP_Error( 'invalid_url', __( 'The provided URL is not valid.', 'jetpack' ) );
 	}
 
 	if ( ! $rss->get_item_quantity() ) {
