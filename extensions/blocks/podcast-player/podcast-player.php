@@ -93,14 +93,8 @@ function render_player( $track_list, $attributes ) {
 
 	ob_start();
 	wp_playlist_scripts( 'audio' );
-	/**
-	 * Prints and enqueues playlist scripts, styles, and JavaScript templates.
-	 *
-	 * @since 3.9.0
-	 *
-	 * @param string $type  Type of playlist. Possible values are 'audio' or 'video'.
-	 * @param string $style The 'theme' for the playlist. Core provides 'light' and 'dark'.
-	 */
+
+	/** This action is documented in core/src/wp-includes/media.php */
 	do_action( 'wp_playlist_scripts', 'audio', 'light' );
 
 	$initial_track_src = ! empty( $track_list[0]['src'] ) ? $track_list[0]['src'] : '';
