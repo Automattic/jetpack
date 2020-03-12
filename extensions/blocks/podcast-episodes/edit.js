@@ -55,6 +55,10 @@ class PodcastEpisodesEdit extends Component {
 		}
 	}
 
+	handleSSRError = () => {
+		return <p>{ __( 'Failed to load Block', 'jetpack' ) }</p>;
+	};
+
 	render() {
 		const { url, itemsToShow } = this.props.attributes;
 		const { attributes, setAttributes } = this.props;
@@ -94,10 +98,6 @@ class PodcastEpisodesEdit extends Component {
 			},
 		];
 
-		const handleSSRError = () => {
-			return <p>{ __( 'Failed to load Block', 'jetpack' ) }</p>;
-		};
-
 		return (
 			<>
 				<BlockControls>
@@ -119,8 +119,8 @@ class PodcastEpisodesEdit extends Component {
 					<ServerSideRender
 						block="jetpack/podcast-episodes"
 						attributes={ attributes }
-						EmptyResponsePlaceholder={ handleSSRError }
-						ErrorResponsePlaceholder={ handleSSRError }
+						EmptyResponsePlaceholder={ this.handleSSRError }
+						ErrorResponsePlaceholder={ this.handleSSRError }
 					/>
 				</Disabled>
 			</>
