@@ -2,4 +2,8 @@
  * Frontend (site) styles for Podcast Episodes
  */
 
- .wp-block-jetpack-podcast-episodes { }
+.wp-block-jetpack-podcast-player { }
+
+.wp-block-jetpack-podcast-player audio {
+    width: 100%;
+}
