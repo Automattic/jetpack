@@ -109,15 +109,13 @@ function render_player( $track_list, $attributes ) {
 		<audio src="<?php echo esc_attr( $initial_track_src ); ?>" controls="controls" preload="none" width="<?php echo esc_attr( (int) $theme_width ); ?>"></audio>
 		<div class="<?php echo esc_attr( $block_classname ); ?>-next"></div>
 		<div class="<?php echo esc_attr( $block_classname ); ?>-prev"></div>
-		<noscript>
-			<ol>
-				<?php
-				foreach ( $track_list as $att_id => $attachment ) :
-					printf( '<li><a href="%1$s">%2$s</a></li>', esc_url( $attachment['src'] ), esc_html( $attachment['title'] ) );
-				endforeach;
-				?>
-			</ol>
-		</noscript>
+		<ol>
+			<?php
+			foreach ( $track_list as $att_id => $attachment ) :
+				printf( '<li><a href="%1$s">%2$s</a></li>', esc_url( $attachment['src'] ), esc_html( $attachment['title'] ) );
+			endforeach;
+			?>
+		</ol>
 		<script type="application/json" class="<?php echo esc_attr( $block_classname ); ?>-script"><?php echo wp_json_encode( $player_data ); ?></script>
 	</div>
 	<?php
