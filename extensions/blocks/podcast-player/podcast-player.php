@@ -14,7 +14,7 @@ use Jetpack_Gutenberg;
 
 const FEATURE_NAME = 'podcast-player';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
-const BLOG_SLUG    = 'jetpack-' . FEATURE_NAME;
+
 /**
  * Registers the block for use in Gutenberg
  * This is done via an action so that we can disable
@@ -48,7 +48,6 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * @return string
  */
 function render_block( $attributes, $content ) {
-
 	if ( empty( $attributes['url'] ) ) {
 		return;
 	}
@@ -140,7 +139,6 @@ function get_track_list( $feed, $quantity = 5 ) {
 	}
 
 	$rss = fetch_feed( $feed );
-
 	if ( is_wp_error( $rss ) ) {
 		return new WP_Error( 'invalid_url', __( 'That RSS feed could not be found. Double check the URL you entered.', 'jetpack' ) );
 	}
