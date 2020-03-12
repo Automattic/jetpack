@@ -25,6 +25,7 @@ import { isURL } from '@wordpress/url';
  */
 import './editor.scss';
 import { edit, queueMusic } from './icons/';
+import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 
 const DEFAULT_MIN_ITEMS = 1;
 const DEFAULT_MAX_ITEMS = 10;
@@ -56,6 +57,11 @@ const PodcastPlayerEdit = ( { attributes, setAttributes } ) => {
 		}
 	};
 
+	const supportLink =
+		isSimpleSite() || isAtomicSite()
+			? 'https://en.support.wordpress.com/?page_id=163160'
+			: 'https://jetpack.com/?post_type=jetpack_support&p=95361';
+
 	if ( editing ) {
 		return (
 			<Placeholder
@@ -77,7 +83,7 @@ const PodcastPlayerEdit = ( { attributes, setAttributes } ) => {
 					</Button>
 				</form>
 				<div className="components-placeholder__learn-more">
-					<ExternalLink href={ __( 'https://wordpress.org/support/article/embeds/' ) }>
+					<ExternalLink href={ supportLink }>
 						{ __( 'Learn more about embeds', 'jetpack' ) }
 					</ExternalLink>
 				</div>
