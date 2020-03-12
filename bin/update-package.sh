@@ -60,14 +60,18 @@ for package in packages/*; do
 
 	cp -r $BASE/packages/$NAME/. .
 
-	# Commit if there is anything to
-	if [ -n "$(git status --porcelain)" ]; then
+	# Before we commit any changes, ensure that the repo has the basics we need for any package.
+	if [ ! -f "composer.json" -o ! -d "src" ]; then
+		echo "  Those changes remove essential parts of the package. They will not be committed."
+	# Commit if there is any change that could be committed
+	elif [ -n "$(git status --porcelain)" ]; then
+
 		echo  "  Committing $NAME to $NAME's mirror repository"
 		git add -A
 		git commit --author="${COMMIT_ORIGINAL_AUTHOR}" -m "${COMMIT_MESSAGE}"
 		git push origin master
 		echo  "  Completed $NAME"
-		else
+	else
 		echo "  No changes, skipping $NAME"
 	fi
 
