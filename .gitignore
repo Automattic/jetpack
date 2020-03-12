@@ -2,6 +2,4 @@ node_modules/
 svg/output/
 .idea/
 npm-debug.log
-build/
 .DS_Store
-package-lock.json

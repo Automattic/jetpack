@@ -78,7 +78,7 @@ module.exports = function( grunt ) {
 				dest: 'docs/social-logos.svg'
 			}
 		},
-    
+
 		webfont: {
 			icons: {
 				src: 'svg-min/*.svg',
@@ -108,24 +108,21 @@ module.exports = function( grunt ) {
 			options: {
 				sourceMap: false,
 				presets: [
-					'es2015',
-					'stage-2',
-					'babili'
+					'@babel/env',
+					'minify'
 				],
 				comments: false,
 				plugins: [
-					'transform-class-properties',
-					'transform-export-extensions',
-					'add-module-exports',
-					'syntax-jsx',
-					'transform-react-jsx',
-					'transform-react-display-name'
+					'@babel/plugin-proposal-class-properties',
+					'@babel/plugin-syntax-jsx',
+					'@babel/plugin-transform-react-jsx',
+					'@babel/plugin-transform-react-display-name'
 				]
 			},
 			dist: {
 				files: {
-					"build/index.js": "build/index.jsx",
-					"build/example.js": "build/example.jsx"
+					"react/index.js": "react/index.jsx",
+					"react/example.js": "react/example.jsx"
 				}
 			}
 		},
@@ -168,7 +165,7 @@ module.exports = function( grunt ) {
           cwd: 'svg-min-react/',
           src: [ '**/*.svg' ],
           filter: 'isFile',
-          dest: 'build/'
+          dest: 'react/'
         }]
       }
     },

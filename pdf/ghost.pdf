@@ -1,101 +1,73 @@
 %PDF-1.3
 %ˇˇˇˇ
-8 0 obj
+6 0 obj
 <<
 /Type /ExtGState
 /ca 1
 >>
 endobj
-7 0 obj
+5 0 obj
 <<
 /Type /Page
 /Parent 1 0 R
 /MediaBox [0 0 24 24]
-/Contents 5 0 R
-/Resources 6 0 R
->>
-endobj
-6 0 obj
-<<
-/ProcSet [/PDF /Text /ImageB /ImageC /ImageI]
-/ExtGState <<
-/Gs1 8 0 R
->>
->>
-endobj
-5 0 obj
-<<
-/Length 217
-/Filter /FlateDecode
->>
-stream
-xúmQKÇ@›˜ΩÄC;√œ≠1a≠@PL¿ƒêx~;ùèd»ÙΩÚ^?Åë‰X.[b?√XS·ñô¶RúÅ™<ò¡Y	ìÚNí‘0¬_¿∆È ≠…ø6ó}jó(Œ√ÁŸ◊ÓÑ˝¢.˝äna|,¿d,9¥dé«∆Ogà™DßHπ1NiToyñè†0;f`gZ≤+G‡Ÿı[ûı±bãæïü/Ä…)ïÌñ—˙9Ù{∏º^`iª⁄‘ ¢tCìV·\F∆+Û%…%¢¸ôÔÚ∑¬˘°:p∑
-endstream
-endobj
-10 0 obj
-(PDFKit)
-endobj
-11 0 obj
-(PDFKit)
-endobj
-12 0 obj
-()
-endobj
-9 0 obj
-<<
-/Producer 10 0 R
-/Creator 11 0 R
-/CreationDate 12 0 R
+/Contents 3 0 R
+/Resources 4 0 R
 >>
 endobj
 4 0 obj
 <<
+/ProcSet [/PDF /Text /ImageB /ImageC /ImageI]
+/ExtGState <<
+/Gs1 6 0 R
+>>
 >>
 endobj
-3 0 obj
+7 0 obj
+<<
+/Producer (PDFKit)
+/Creator (PDFKit)
+/CreationDate ()
+>>
+endobj
+2 0 obj
 <<
 /Type /Catalog
 /Pages 1 0 R
-/Names 2 0 R
 >>
 endobj
 1 0 obj
 <<
 /Type /Pages
 /Count 1
-/Kids [7 0 R]
+/Kids [5 0 R]
 >>
 endobj
-2 0 obj
+3 0 obj
 <<
-/Dests <<
-  /Names [
-]
+/Length 222
+/Filter /FlateDecode
 >>
->>
+stream
+xúmQ]Œ¬@|Á\@ÑEm˜’ò¯¨/†—Ø_“öò&û_ˆWmÌ6À`HŸŒJÏrÏFxÄƒT∫-¡‘l#Æ ™AùÖ!{K∆–√Ô §ÒIÌ>…Ø1ßejëXÆœˇÓz>Ó±õ¢∆©ª√˙8	˛M Léì˜MpGÃ€BáL•!ı≠—¨ûÛ*Ô!¬Z1Ç(µÏ>*ØY?ÁUü;∂F	(5ﬁóöv…ì∞O3√.ZWL¨l∏£ªbOÁ¥hÕå‘6fq√RøeZ*›|7∏Ÿ_KÁG˘r\
+endstream
 endobj
 xref
-0 13
+0 8
 0000000000 65535 f 
-0000000772 00000 n 
-0000000829 00000 n 
-0000000710 00000 n 
-0000000689 00000 n 
-0000000256 00000 n 
+0000000380 00000 n 
+0000000331 00000 n 
+0000000437 00000 n 
 0000000161 00000 n 
 0000000059 00000 n 
 0000000015 00000 n 
-0000000614 00000 n 
-0000000545 00000 n 
-0000000570 00000 n 
-0000000595 00000 n 
+0000000256 00000 n 
 trailer
 <<
-/Size 13
-/Root 3 0 R
-/Info 9 0 R
-/ID [<9f4c91e9995bf3fffb0b8e1590134dd1> <9f4c91e9995bf3fffb0b8e1590134dd1>]
+/Size 8
+/Root 2 0 R
+/Info 7 0 R
 >>
 startxref
-876
+731
 %%EOF
