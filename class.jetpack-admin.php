@@ -15,6 +15,12 @@ class Jetpack_Admin {
 			add_filter( 'nocache_headers', array( 'Jetpack_Admin', 'add_no_store_header' ), 100 );
 		}
 
+		// Suppress wpadmin stuffs when rendering iframes.
+		if ( isset( $_GET['iframe_request'] ) && $_GET['iframe_request'] && ! defined( 'IFRAME_REQUEST' ) ) {
+			add_action( 'admin_enqueue_scripts', array( 'Jetpack_Admin', 'hide_admin_notices' ) );
+			define( 'IFRAME_REQUEST', true );
+		}
+
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new Jetpack_Admin();
 		}
@@ -24,6 +30,10 @@ class Jetpack_Admin {
 	static function add_no_store_header( $headers ) {
 		$headers['Cache-Control'] .= ', no-store';
 		return $headers;
+	}
+
+	static function hide_admin_notices() {
+		echo '<style>.notice { display: none; }</style>';
 	}
 
 	private function __construct() {

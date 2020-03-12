@@ -1,0 +1,30 @@
+.jetpack-disconnect-modal {
+	#TB_title {
+		float: left;
+		height: 1px;
+	}
+
+	#TB_closeWindowButton {
+		left: auto;
+		right: -30px;
+		color: #eee;
+
+		&:after {
+			content: '\f335';
+			font: normal 32px/29px dashicons;
+			-webkit-font-smoothing: antialiased;
+			-moz-osx-font-smoothing: grayscale;
+		}
+
+		&:hover,
+		&:focus {
+			color: #00a0d2;
+			outline: none;
+			box-shadow: none;
+		}
+	}
+
+	.tb-close-icon {
+		display: none;
+	}
+}

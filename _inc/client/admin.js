@@ -13,9 +13,9 @@ import { assign, get } from 'lodash';
 import accessibleFocus from 'lib/accessible-focus';
 import store from 'state/redux-store';
 import i18n from 'i18n-calypso';
+import JetpackDeactivateModal from 'components/jetpack-termination-dialog/deactivate-modal.jsx';
 import Main from 'main';
 import * as actionTypes from 'state/action-types';
-import JetpackDeactivateModal from 'components/jetpack-termination-dialog/deactivate-modal';
 
 // Initialize the accessibile focus to allow styling specifically for keyboard navigation
 accessibleFocus();

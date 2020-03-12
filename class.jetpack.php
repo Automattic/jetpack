@@ -3752,6 +3752,8 @@ p {
 
 		add_action( 'load-plugins.php', array( $this, 'intercept_plugin_error_scrape_init' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_menu_css' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'deactivate_dialog' ) );
+
 		add_filter( 'plugin_action_links_' . plugin_basename( JETPACK__PLUGIN_DIR . 'jetpack.php' ), array( $this, 'plugin_action_links' ) );
 
 		if ( self::is_active() || $is_development_mode ) {
@@ -6094,6 +6096,24 @@ endif;
 		);
 	}
 
+
+	function deactivate_dialog() {
+ 		if ( Jetpack::is_active() ) {
+ 			add_thickbox();
+ 			wp_enqueue_script(
+ 				'jetpack-deactivate-dialog-js',
+ 				Assets::get_file_url_for_environment(
+ 					'_inc/build/jetpack-deactivate-dialog.min.js',
+ 					'_inc/jetpack-deactivate-dialog.js'
+ 				),
+ 				array( 'jquery' ),
+ 				JETPACK__VERSION,
+ 				true
+ 			);
+ 			wp_enqueue_style( 'jetpack-deactivate-dialog', plugins_url( 'css/jetpack-deactivate-dialog.css', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
+
+  		}
+ 	}
 
 	/**
 	 * Verifies the request by checking the signature
