@@ -58,26 +58,22 @@ export default function SingleProductBackupCard( props ) {
 		[ products, upgradeLinkDaily, upgradeLinkRealtime ]
 	);
 
-	return (
-		<div className="plans-section__single-product">
-			{ props.isFetching ? (
-				<div className="plans-section__single-product-skeleton is-placeholder" />
-			) : (
-				<div className="single-product-backup__accented-card dops-card">
-					<div className="single-product-backup__accented-card-header">
-						<h3 className="single-product-backup__header-title">{ __( 'Jetpack Backup' ) }</h3>
-					</div>
-					<div className="single-product-backup__accented-card-body">
-						<SingleProductBackupBody
-							billingTimeFrame={ billingTimeFrame }
-							currencyCode={ currencyCode }
-							backupOptions={ backupOptions }
-							selectedBackupType={ selectedBackupType }
-							setSelectedBackupType={ setSelectedBackupType }
-						/>
-					</div>
-				</div>
-			) }
+	return props.isFetching ? (
+		<div className="plans-section__single-product-skeleton is-placeholder" />
+	) : (
+		<div className="single-product-backup__accented-card dops-card">
+			<div className="single-product-backup__accented-card-header">
+				<h3 className="single-product-backup__header-title">{ __( 'Jetpack Backup' ) }</h3>
+			</div>
+			<div className="single-product-backup__accented-card-body">
+				<SingleProductBackupBody
+					billingTimeFrame={ billingTimeFrame }
+					currencyCode={ currencyCode }
+					backupOptions={ backupOptions }
+					selectedBackupType={ selectedBackupType }
+					setSelectedBackupType={ setSelectedBackupType }
+				/>
+			</div>
 		</div>
 	);
 }

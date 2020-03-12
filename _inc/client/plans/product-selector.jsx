@@ -122,9 +122,7 @@ class ProductSelector extends Component {
 		}
 	}
 
-	findPrioritizedPurchase() {
-		const { activeSitePurchases } = this.props;
-
+	findPrioritizedPurchaseForBackup() {
 		// Note: the order here is important, as it resolves cases where a site
 		// has both a plan and a product at the same time.
 		const planClasses = [
@@ -136,7 +134,7 @@ class ProductSelector extends Component {
 		];
 
 		for ( const planClass of planClasses ) {
-			const purchase = activeSitePurchases.find(
+			const purchase = this.props.activeSitePurchases.find(
 				item => getPlanClass( item.product_slug ) === planClass
 			);
 			if ( undefined !== purchase ) {
@@ -161,14 +159,12 @@ class ProductSelector extends Component {
 
 	renderTitleSection() {
 		const { backupInfoUrl, isFetchingData } = this.props;
-		const purchase = this.findPrioritizedPurchase();
-
 		return (
 			<Fragment>
 				<h1 className="plans-section__header">{ __( 'Solutions' ) }</h1>
 				<h2 className="plans-section__subheader">
 					{ __( "Just looking for backups? We've got you covered." ) }
-					{ ! isFetchingData && ! purchase && (
+					{ ! isFetchingData && ! this.findPrioritizedPurchaseForBackup() && (
 						<>
 							<br />
 							<ExternalLink
@@ -188,19 +184,19 @@ class ProductSelector extends Component {
 	}
 
 	renderSingleProductContent() {
+		return <div className="plans-section__single-product">{ this.renderBackupProduct() }</div>;
+	}
+
+	renderBackupProduct() {
 		// Jetpack Backup does not support Multisite yet.
 		if ( this.props.multisite ) {
 			return null;
 		}
 
-		const purchase = this.findPrioritizedPurchase();
+		const purchase = this.findPrioritizedPurchaseForBackup();
 		if ( purchase ) {
 			const productCardProps = this.getProductCardPropsForPurchase( purchase );
-			return (
-				<div className="plans-section__single-product">
-					<ProductCard { ...productCardProps } />
-				</div>
-			);
+			return <ProductCard { ...productCardProps } />;
 		}
 
 		// Don't show the product card for paid plans.
