@@ -125,6 +125,15 @@
 	}
 }
 
+.admin-bar .dops-modal-wrapper {
+	@media only screen and (min-width: 600px) {
+		top: 46px;
+	}
+	@media only screen and (min-width: 782px) {
+		top: 32px;
+	}
+}
+
 .jetpack-termination-dialog__button-row {
 	display: flex;
 	flex-direction: column;
