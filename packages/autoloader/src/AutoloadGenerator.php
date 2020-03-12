@@ -56,7 +56,7 @@ class AutoloadGenerator extends BaseGenerator {
 	 * @param InstallationManager          $installationManager Manager for installing packages.
 	 * @param string                       $targetDir Path to the current target directory.
 	 * @param bool                         $scanPsr0Packages Whether to search for packages. Currently hard coded to always be false.
-	 * @param string                       $suffix The autoloader suffix, ignored since we want our autoloader to only be included once.
+	 * @param string                       $suffix The autoloader suffix.
 	 */
 	public function dump(
 		Config $config,
@@ -89,7 +89,7 @@ class AutoloadGenerator extends BaseGenerator {
 		file_put_contents( $targetDir . '/jetpack_autoload_filemap.php', $this->getAutoloadFilesPackagesFile( $fileMap ) );
 		$this->io->writeError( '<info>Generated ' . $targetDir . '/jetpack_autoload_filemap.php</info>', true );
 
-		file_put_contents( $vendorPath . '/autoload_packages.php', $this->getAutoloadPackageFile() );
+		file_put_contents( $vendorPath . '/autoload_packages.php', $this->getAutoloadPackageFile( $suffix ) );
 		$this->io->writeError( '<info>Generated ' . $vendorPath . '/autoload_packages.php</info>', true );
 	}
 
@@ -311,19 +311,19 @@ INCLUDE_FILEMAP;
 	/**
 	 * Generate the PHP that will be used in the autoload_packages.php files.
 	 *
+	 * @param String $suffix  Unique suffix added to the jetpack_enqueue_packages function.
+	 *
 	 * @return string
 	 */
-	private function getAutoloadPackageFile() {
-		$sourceLoader   = fopen( __DIR__ . '/autoload.php', 'r' );
-		$file_contents  = stream_get_contents( $sourceLoader );
-		$file_contents .= <<<INCLUDE_FILES
-/**
- * Prepare all the classes for autoloading.
- */
-\$vendor_path = dirname( __FILE__ );
-require_once dirname( __FILE__ ) . '/automattic/jetpack-autoloader/src/function-enqueue-packages.php';
+	private function getAutoloadPackageFile( $suffix ) {
+		$sourceLoader  = fopen( __DIR__ . '/autoload.php', 'r' );
+		$file_contents = stream_get_contents( $sourceLoader );
 
-INCLUDE_FILES;
+		$file_contents = str_replace(
+			'Automattic\\Jetpack\\Autoloader;',
+			'Automattic\\Jetpack\\Autoloader\\jp' . $suffix . ';',
+			$file_contents
+		);
 
 		return $file_contents;
 	}
