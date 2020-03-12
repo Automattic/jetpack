@@ -318,12 +318,17 @@ INCLUDE_FILEMAP;
 	private function getAutoloadPackageFile( $suffix ) {
 		$sourceLoader  = fopen( __DIR__ . '/autoload.php', 'r' );
 		$file_contents = stream_get_contents( $sourceLoader );
-
 		$file_contents = str_replace(
 			'Automattic\\Jetpack\\Autoloader;',
 			'Automattic\\Jetpack\\Autoloader\\jp' . $suffix . ';',
 			$file_contents
 		);
+
+		$file_contents .= <<<INCLUDE_AUTOLOAD
+
+enqueue_files();
+
+INCLUDE_AUTOLOAD;
 
 		return $file_contents;
 	}
