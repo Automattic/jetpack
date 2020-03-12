@@ -150,6 +150,7 @@ spl_autoload_register( __NAMESPACE__ . '\autoloader' );
  * Used for running the code that initializes class and file maps.
  */
 function enqueue_files() {
+	// TODO: Needs to traverse through the classmaps/filemaps of all of the active plugins.
 	$class_map = require dirname( __FILE__ ) . '/composer/jetpack_autoload_classmap.php';
 
 	foreach ( $class_map as $class_name => $class_info ) {
@@ -179,5 +180,63 @@ function enqueue_files() {
 		|| did_action( 'plugins_loaded' )
 	) {
 		file_loader(); // Either WordPress is not loaded or plugin is doing it wrong. Either way we'll load the files so nothing breaks.
+	}
+}
+
+/**
+ * Find the latest installed autoloader and set up the classmap and filemap.
+ */
+function set_up_autoloader() {
+	global $latest_autoloader_version;
+
+	// TODO: The classmap and filemap globals need new names.
+	global $jetpack_packages_classes;
+
+	$classmap_file       = trailingslashit( dirname( __FILE__ ) ) . 'composer/jetpack_autoload_classmap.php';
+	$autoloader_packages = require $classmap_file;
+
+	$loaded_autoloader_version = $autoloader_packages['Automattic\\Jetpack\\Autoloader\\AutoloadGenerator']['version'];
+
+	$autoloader_version = $loaded_autoloader_version;
+	$autoloader_path    = __FILE__;
+
+	// Find the latest autoloader.
+	if ( ! $latest_autoloader_version ) {
+		$active_plugins = (array) get_option( 'active_plugins', array() );
+
+		foreach ( $active_plugins as $plugin ) {
+			$plugin_path   = plugin_dir_path( trailingslashit( WP_PLUGIN_DIR ) . $plugin );
+			$classmap_path = trailingslashit( $plugin_path ) . 'vendor/composer/jetpack_autoload_classmap.php';
+			if ( file_exists( $classmap_path ) ) {
+				$packages = require $classmap_path;
+
+				$current_version = $packages['Automattic\\Jetpack\\Autoloader\\AutoloadGenerator']['version'];
+
+				// TODO: This comparison needs to properly handle dev versions.
+				if ( version_compare( $autoloader_version, $current_version, '<' ) ) {
+					$autoloader_version = $current_version;
+					$autoloader_path    = trailingslashit( $plugin_path ) . 'vendor/autoload_packages.php';
+				}
+			}
+		}
+
+		$latest_autoloader_version = $autoloader_version;
+		if ( __FILE__ !== $autoloader_path ) {
+			require $autoloader_path;
+		}
+	}
+
+	// This is the latest autoloader, so generate the classmap and filemap and register the autoloader function.
+	if ( empty( $jetpack_packages_classes ) && $loaded_autoloader_version === $latest_autoloader_version ) {
+		enqueue_files();
+
+		spl_autoload_register( __NAMESPACE__ . '\autoloader' );
+
+		$autoload_chain = spl_autoload_functions();
+		if ( in_array( 'Automattic\Jetpack\Autoloader\autoloader', $autoload_chain, true ) ) {
+			// Move the old autoloader function to the end of the spl autoloader chaain.
+			spl_autoload_unregister( 'Automattic\Jetpack\Autoloader\autoloader' );
+			spl_autoload_register( 'Automattic\Jetpack\Autoloader\autoloader' );
+		}
 	}
 }

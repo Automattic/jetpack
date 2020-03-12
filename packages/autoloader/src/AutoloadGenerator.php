@@ -326,7 +326,7 @@ INCLUDE_FILEMAP;
 
 		$file_contents .= <<<INCLUDE_AUTOLOAD
 
-enqueue_files();
+set_up_autoloader();
 
 INCLUDE_AUTOLOAD;
 
