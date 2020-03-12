@@ -458,6 +458,11 @@ class Jetpack {
 					}
 				}
 
+				// Upgrade to 8.4.0.
+				if ( Jetpack_Options::get_option( 'ab_connect_banner_green_bar' ) ) {
+					Jetpack_Options::delete_option( 'ab_connect_banner_green_bar' );
+				}
+
 				if ( did_action( 'wp_loaded' ) ) {
 					self::upgrade_on_load();
 				} else {
