@@ -39,7 +39,6 @@ import AppsCard from 'components/apps-card';
 import NonAdminView from 'components/non-admin-view';
 import JetpackNotices from 'components/jetpack-notices';
 import AdminNotices from 'components/admin-notices';
-import JetpackDeactivateModal from 'components/jetpack-termination-dialog/deactivate-modal';
 import Tracker from 'components/tracker';
 import analytics from 'lib/analytics';
 import restApi from 'rest-api';
