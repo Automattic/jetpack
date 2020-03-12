@@ -55,7 +55,7 @@ function render_block( $attributes, $content ) {
 	$track_list = get_track_list( $attributes['url'], $attributes['itemsToShow'] );
 
 	if ( is_wp_error( $track_list ) ) {
-		return '<p>Unable to retrieve track list. Please check your Podcast feed URL.</p>';
+		return '<p>' . __( 'Unable to retrieve track list. Please check your Podcast feed URL.', 'jetpack' ) . '</p>';
 	}
 
 	return render_player( $track_list );
@@ -86,7 +86,7 @@ function render_player( $track_list ) {
 
 	// If there are no tracks (it is possible) then display appropriate user facing error message.
 	if ( empty( $track_list ) ) {
-		return '<p>No tracks available to play.</p>';
+		return '<p>' . __( 'No tracks available to play.', 'jetpack' ) . '</p>';
 	}
 
 	ob_start();
@@ -101,8 +101,10 @@ function render_player( $track_list ) {
 	 */
 	do_action( 'wp_playlist_scripts', 'audio', 'light' );
 
+	$initial_track_src = ! empty( $track_list[0]['src'] ) ? $track_list[0]['src'] : '';
+
 	?>
-	<div class="wp-block-<?php echo esc_attr( BLOG_SLUG ); ?> wp-playlist wp-audio-playlist wp-playlist-light">
+	<div class="wp-block-<?php echo esc_attr( $initial_track_src ); ?> wp-playlist wp-audio-playlist wp-playlist-light">
 		<div class="wp-playlist-current-item"></div>
 		<audio src="<?php echo esc_url( $track_list[0]['src'] ); ?>" controls="controls" preload="none" width="<?php echo esc_attr( (int) $theme_width ); ?>"></audio>
 		<div class="wp-playlist-next"></div>
