@@ -27,7 +27,7 @@ class Release {
 		$release = new Release();
 		error_log( 'Doing stuff...' );
 		$root = Dependency_Tree::generate();
-		error_log( $root );
+		error_log( print_r( $root, 1 ) ); // phpcs:ignore
 
 		$list = $release->get_package_dependencies_to_update( $root );
 
