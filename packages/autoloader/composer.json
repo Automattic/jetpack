@@ -10,9 +10,6 @@
 		"phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
 	},
 	"autoload": {
-		"files": [
-			"src/function-enqueue-packages.php"
-		],
 		"psr-4": {
 			"Automattic\\Jetpack\\Autoloader\\": "src"
 		}
