@@ -15,7 +15,7 @@ foreach ( $class_map as $class_name => $class_info ) {
 	enqueue_package_class( $class_name, $class_info['version'], $class_info['path'] );
 }
 
-$autoload_file = $vendor_path . '/composer/autoload_filemap.php'; // phpcs:ignore
+$autoload_file = $vendor_path . '/composer/jetpack_autoload_filemap.php'; // phpcs:ignore
 
 $include_files = file_exists( $autoload_file ) ? require $autoload_file : array();
 
