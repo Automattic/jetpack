@@ -39,8 +39,6 @@ const PodcastEpisodesEdit = ( { attributes, setAttributes } ) => {
 	const [ editing, setEditing ] = useState( ! url );
 	const [ urlError, setUrlError ] = useState();
 
-	const toggleAttribute = name => () => setAttributes( { [ name ]: ! attributes[ name ] } );
-
 	const onSubmitURL = event => {
 		event.preventDefault();
 
