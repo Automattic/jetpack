@@ -32,21 +32,12 @@ const DEFAULT_MAX_ITEMS = 10;
 class PodcastPlayerEdit extends Component {
 	constructor() {
 		super( ...arguments );
-		this.toggleAttribute = this.toggleAttribute.bind( this );
+
 		this.onSubmitURL = this.onSubmitURL.bind( this );
 
 		this.state = {
 			editing: ! this.props.attributes.url,
 			urlError: '',
-		};
-	}
-
-	toggleAttribute( propName ) {
-		return () => {
-			const value = this.props.attributes[ propName ];
-			const { setAttributes } = this.props;
-
-			setAttributes( { [ propName ]: ! value } );
 		};
 	}
 
