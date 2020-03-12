@@ -10,6 +10,7 @@
 namespace Jetpack\Podcast_Episodes_Block;
 
 use WP_Error;
+use Jetpack_Gutenberg;
 
 const FEATURE_NAME = 'podcast-player';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
@@ -58,16 +59,17 @@ function render_block( $attributes, $content ) {
 		return '<p>' . __( 'Unable to retrieve track list. Please check your Podcast feed URL.', 'jetpack' ) . '</p>';
 	}
 
-	return render_player( $track_list );
+	return render_player( $track_list, $attributes );
 }
 
 /**
  * Renders the HTML for the Podcast player and tracklist.
  *
  * @param array $track_list the list of podcast tracks.
+ * @param array $attributes Array containing the Podcast Player block attributes.
  * @return string the HTML for the podcast player.
  */
-function render_player( $track_list ) {
+function render_player( $track_list, $attributes ) {
 	global $content_width;
 
 	$player_data = array(
@@ -102,9 +104,10 @@ function render_player( $track_list ) {
 	do_action( 'wp_playlist_scripts', 'audio', 'light' );
 
 	$initial_track_src = ! empty( $track_list[0]['src'] ) ? $track_list[0]['src'] : '';
+	$css_class         = Jetpack_Gutenberg::block_classes( BLOG_SLUG, $attributes );
 
 	?>
-	<div class="wp-block-<?php echo esc_attr( BLOG_SLUG ); ?> wp-playlist wp-audio-playlist wp-playlist-light">
+	<div class="wp-block-<?php echo esc_attr( $css_class ); ?> wp-playlist wp-audio-playlist wp-playlist-light">
 		<div class="wp-playlist-current-item"></div>
 		<audio src="<?php echo esc_attr( $initial_track_src ); ?>" controls="controls" preload="none" width="<?php echo esc_attr( (int) $theme_width ); ?>"></audio>
 		<div class="wp-playlist-next"></div>
@@ -124,7 +127,7 @@ function render_player( $track_list ) {
 	/*
 	* Enqueue necessary scripts and styles.
 	*/
-	\Jetpack_Gutenberg::load_assets_as_required( 'podcast-player' );
+	Jetpack_Gutenberg::load_assets_as_required( 'podcast-player' );
 
 	return ob_get_clean();
 }
