@@ -128,42 +128,40 @@ class Jetpack_Notifications {
 
 		$this->print_js();
 
-		// attempt to use core or plugin libraries if registered
-		$script_handles = array();
-		if ( !wp_script_is( 'mustache', 'registered' ) ) {
-			wp_register_script( 'mustache', $this->wpcom_static_url( '/wp-content/js/mustache.js' ), null, JETPACK_NOTES__CACHE_BUSTER );
-		}
-		$script_handles[] = 'mustache';
-		if ( !wp_script_is( 'underscore', 'registered' ) ) {
-			wp_register_script( 'underscore', $this->wpcom_static_url( '/wp-includes/js/underscore.min.js' ), null, JETPACK_NOTES__CACHE_BUSTER );
-		}
-		$script_handles[] = 'underscore';
-		if ( !wp_script_is( 'backbone', 'registered' ) ) {
-			wp_register_script( 'backbone', $this->wpcom_static_url( '/wp-includes/js/backbone.min.js' ), array( 'underscore' ), JETPACK_NOTES__CACHE_BUSTER );
-		}
-		$script_handles[] = 'backbone';
+		wp_enqueue_script( 'wpcom-notes-common', $this->wpcom_static_url( '/wp-content/mu-plugins/notes/notes-common-v2.js' ), array( 'jquery', 'underscore', 'backbone', 'mustache' ), JETPACK_NOTES__CACHE_BUSTER, true );
+		wp_enqueue_script( 'wpcom-notes-admin-bar', $this->wpcom_static_url( '/wp-content/mu-plugins/notes/admin-bar-v2.js' ), array( 'wpcom-notes-common' ), JETPACK_NOTES__CACHE_BUSTER, true );
 
-		wp_register_script( 'wpcom-notes-common', $this->wpcom_static_url( '/wp-content/mu-plugins/notes/notes-common-v2.js' ), array( 'jquery', 'underscore', 'backbone', 'mustache' ), JETPACK_NOTES__CACHE_BUSTER );
-		$script_handles[] = 'wpcom-notes-common';
-		$script_handles[] = 'jquery';
-		$script_handles[] = 'jquery-migrate';
-		$script_handles[] = 'jquery-core';
-		wp_enqueue_script( 'wpcom-notes-admin-bar', $this->wpcom_static_url( '/wp-content/mu-plugins/notes/admin-bar-v2.js' ), array( 'wpcom-notes-common' ), JETPACK_NOTES__CACHE_BUSTER );
-		$script_handles[] = 'wpcom-notes-admin-bar';
+		$script_handles = array(
+			'mustache',
+			'underscore',
+			'backbone',
+			'jquery',
+			'jquery-migrate',
+			'jquery-core',
+			'wpcom-notes-common',
+			'wpcom-notes-admin-bar',
+		);
 
-		if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
-			add_filter(
-				'script_loader_tag',
-				function ( $tag, $handle ) use ( $script_handles ) {
-					if ( in_array( $handle, $script_handles, true ) ) {
-						$tag = preg_replace( '/(?<=<script)(?=\s|>)/i', ' data-ampdevmode', $tag );
-					}
-					return $tag;
-				},
-				10,
-				2
-			);
-		}
+		$is_amp_request = class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request();
+
+		add_filter(
+			'script_loader_tag',
+			function ( $tag, $handle ) use ( $is_amp_request, $script_handles ) {
+				if ( $is_amp_request && in_array( $handle, $script_handles, true ) ) {
+					return preg_replace( '/(?<=<script)(?=\s|>)/i', ' data-ampdevmode', $tag );
+				}
+				if ( 'underscore' === $handle ) {
+					return $tag . PHP_EOL . '<script>
+						(function(_AtLoad){
+							console.log({_AtLoad: _AtLoad});
+						})(window._);
+					</script>';
+				}
+				return $tag;
+			},
+			10,
+			2
+		);
 	}
 
 	function admin_bar_menu() {
