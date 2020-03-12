@@ -55,6 +55,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'site_migration'    => '(array) Data about any migration into the site.',
 		'is_fse_active'     => '(bool) If the site has Full Site Editing active or not.',
 		'is_fse_eligible'   => '(bool) If the site is capable of Full Site Editing or not',
+		'is_core_site_editor_enabled'	=> '(bool) If the site has the core site editor enabled.',
 	);
 
 	protected static $no_member_fields = array(
@@ -78,6 +79,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'site_migration',
 		'is_fse_active',
 		'is_fse_eligible',
+		'is_core_site_editor_enabled',
 	);
 
 	protected static $site_options_format = array(
@@ -416,6 +418,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			case 'is_fse_eligible':
 				$response[ $key ] = $this->site->is_fse_eligible();
 				break;
+			case 'is_core_site_editor_enabled':
+				$response[ $key ] = $this->site->is_core_site_editor_enabled();
 		}
 
 		do_action( 'post_render_site_response_key', $key );

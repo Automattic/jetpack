@@ -52,6 +52,7 @@ class WPCOM_JSON_API_GET_Site_V1_2_Endpoint extends WPCOM_JSON_API_GET_Site_Endp
 		'site_migration'    => '(array) Data about any migration into the site.',
 		'is_fse_active'     => '(bool) If the site has Full Site Editing active or not.',
 		'is_fse_eligible'   => '(bool) If the site is capable of Full Site Editing or not',
+		'is_core_site_editor_enabled'	=> '(bool) If the site has the core site editor enabled.',
 	);
 
 
