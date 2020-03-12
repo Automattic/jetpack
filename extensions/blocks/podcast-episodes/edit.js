@@ -3,7 +3,7 @@
 /**
  * External dependencies
  */
-import { Component } from '@wordpress/element';
+import { useState } from '@wordpress/element';
 import {
 	Button,
 	Disabled,
@@ -29,113 +29,95 @@ import { edit, queueMusic } from './icons/';
 const DEFAULT_MIN_ITEMS = 1;
 const DEFAULT_MAX_ITEMS = 10;
 
-class PodcastEpisodesEdit extends Component {
-	constructor() {
-		super( ...arguments );
-		this.toggleAttribute = this.toggleAttribute.bind( this );
-		this.onSubmitURL = this.onSubmitURL.bind( this );
+const handleSSRError = () => {
+	return <p>{ __( 'Failed to load Block', 'jetpack' ) }</p>;
+};
 
-		this.state = {
-			editing: ! this.props.attributes.url,
-			urlError: '',
-		};
-	}
+const PodcastEpisodesEdit = ( { attributes, setAttributes } ) => {
+	const { url, itemsToShow } = attributes;
 
-	toggleAttribute( propName ) {
-		return () => {
-			const value = this.props.attributes[ propName ];
-			const { setAttributes } = this.props;
+	const [ editing, setEditing ] = useState( ! url );
+	const [ urlError, setUrlError ] = useState();
 
-			setAttributes( { [ propName ]: ! value } );
-		};
-	}
+	const toggleAttribute = name => () => setAttributes( { [ name ]: ! attributes[ name ] } );
 
-	onSubmitURL( event ) {
+	const onSubmitURL = event => {
 		event.preventDefault();
 
-		if ( this.props.attributes.url ) {
-			const isValidURL = isURL( this.props.attributes.url );
-			this.setState( {
-				editing: ! isValidURL,
-				urlError: ! isValidURL
+		if ( url ) {
+			const isValidURL = isURL( attributes.url );
+			setEditing( ! isValidURL );
+			setUrlError(
+				! isValidURL
 					? __( 'The URL you entered is invalid. Please check and try again.', 'jetpack' )
-					: '',
-			} );
-		}
-	}
-
-	handleSSRError = () => {
-		return <p>{ __( 'Failed to load Block', 'jetpack' ) }</p>;
-	};
-
-	render() {
-		const { url, itemsToShow } = this.props.attributes;
-		const { attributes, setAttributes } = this.props;
-
-		if ( this.state.editing ) {
-			return (
-				<Placeholder
-					icon={ <BlockIcon icon={ queueMusic } /> }
-					label={ __( 'Podcast Episodes', 'jetpack' ) }
-					instructions={ __( 'Paste a link to your Podcast RSS feed.', 'jetpack' ) }
-				>
-					<form onSubmit={ this.onSubmitURL }>
-						{ this.state.urlError && <Notice>{ this.state.urlError }</Notice> }
-						<TextControl
-							placeholder={ __( 'Enter URL here…', 'jetpack' ) }
-							value={ url || '' }
-							onChange={ value => setAttributes( { url: value } ) }
-							className={ 'components-placeholder__input' }
-						/>
-						<Button isSecondary type="submit">
-							{ __( 'Embed', 'jetpack' ) }
-						</Button>
-					</form>
-					<div className="components-placeholder__learn-more">
-						<ExternalLink href={ __( 'https://wordpress.org/support/article/embeds/' ) }>
-							{ __( 'Learn more about embeds', 'jetpack' ) }
-						</ExternalLink>
-					</div>
-				</Placeholder>
+					: ''
 			);
 		}
+	};
 
-		const toolbarControls = [
-			{
-				icon: edit,
-				title: __( 'Edit Podcast Feed URL', 'jetpack' ),
-				onClick: () => this.setState( { editing: true } ),
-			},
-		];
-
+	if ( editing ) {
 		return (
-			<>
-				<BlockControls>
-					<Toolbar controls={ toolbarControls } />
-				</BlockControls>
-				<InspectorControls>
-					<PanelBody title={ __( 'Podcast settings', 'jetpack' ) }>
-						<RangeControl
-							label={ __( 'Number of items', 'jetpack' ) }
-							value={ itemsToShow }
-							onChange={ value => setAttributes( { itemsToShow: value } ) }
-							min={ DEFAULT_MIN_ITEMS }
-							max={ DEFAULT_MAX_ITEMS }
-							required
-						/>
-					</PanelBody>
-				</InspectorControls>
-				<Disabled>
-					<ServerSideRender
-						block="jetpack/podcast-episodes"
-						attributes={ attributes }
-						EmptyResponsePlaceholder={ this.handleSSRError }
-						ErrorResponsePlaceholder={ this.handleSSRError }
+			<Placeholder
+				icon={ <BlockIcon icon={ queueMusic } /> }
+				label={ __( 'Podcast Episodes', 'jetpack' ) }
+				instructions={ __( 'Paste a link to your Podcast RSS feed.', 'jetpack' ) }
+			>
+				<form onSubmit={ onSubmitURL }>
+					{ urlError && <Notice>{ urlError }</Notice> }
+					<TextControl
+						placeholder={ __( 'Enter URL here…', 'jetpack' ) }
+						value={ url || '' }
+						onChange={ value => setAttributes( { url: value } ) }
+						className={ 'components-placeholder__input' }
 					/>
-				</Disabled>
-			</>
+					<Button isSecondary type="submit">
+						{ __( 'Embed', 'jetpack' ) }
+					</Button>
+				</form>
+				<div className="components-placeholder__learn-more">
+					<ExternalLink href={ __( 'https://wordpress.org/support/article/embeds/' ) }>
+						{ __( 'Learn more about embeds', 'jetpack' ) }
+					</ExternalLink>
+				</div>
+			</Placeholder>
 		);
 	}
-}
+
+	const toolbarControls = [
+		{
+			icon: edit,
+			title: __( 'Edit Podcast Feed URL', 'jetpack' ),
+			onClick: () => setEditing( true ),
+		},
+	];
+
+	return (
+		<>
+			<BlockControls>
+				<Toolbar controls={ toolbarControls } />
+			</BlockControls>
+			<InspectorControls>
+				<PanelBody title={ __( 'Podcast settings', 'jetpack' ) }>
+					<RangeControl
+						label={ __( 'Number of items', 'jetpack' ) }
+						value={ itemsToShow }
+						onChange={ value => setAttributes( { itemsToShow: value } ) }
+						min={ DEFAULT_MIN_ITEMS }
+						max={ DEFAULT_MAX_ITEMS }
+						required
+					/>
+				</PanelBody>
+			</InspectorControls>
+			<Disabled>
+				<ServerSideRender
+					block="jetpack/podcast-episodes"
+					attributes={ attributes }
+					EmptyResponsePlaceholder={ handleSSRError }
+					ErrorResponsePlaceholder={ handleSSRError }
+				/>
+			</Disabled>
+		</>
+	);
+};
 
 export default PodcastEpisodesEdit;
