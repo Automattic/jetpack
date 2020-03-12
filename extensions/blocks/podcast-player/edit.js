@@ -73,6 +73,7 @@ class PodcastPlayerEdit extends Component {
 					<form onSubmit={ this.onSubmitURL }>
 						{ this.state.urlError && <Notice>{ this.state.urlError }</Notice> }
 						<TextControl
+							type="url"
 							placeholder={ __( 'Enter URL here…', 'jetpack' ) }
 							value={ url || '' }
 							onChange={ value => setAttributes( { url: value } ) }
