@@ -164,12 +164,7 @@ class JetpackTerminationDialog extends Component {
 				{ __( 'Continue' ) }
 			</Button>
 		) : (
-			<Button
-				scary
-				primary
-				onClick={ this.handleTerminationClick }
-				disabled={ null === surveyAnswerId }
-			>
+			<Button scary primary onClick={ this.handleTerminationClick }>
 				{ purpose === 'disconnect' ? __( 'Disconnect' ) : __( 'Disable' ) }
 			</Button>
 		);
