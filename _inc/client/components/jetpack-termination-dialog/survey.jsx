@@ -12,6 +12,8 @@ import PropTypes from 'prop-types';
 import MultiChoiceQuestion from 'components/multiple-choice-question';
 
 // these answers should line up exactly with the options in Calypso
+// see any changes at
+// https://github.com/Automattic/wp-calypso/blob/master/client/my-sites/site-settings/disconnect-site/confirm.jsx
 const answers = [
 	{ id: 'cannot-work', answerText: __( "I can't get it to work." ) },
 	{ id: 'slow', answerText: __( 'It slowed down my site.' ) },
