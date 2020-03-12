@@ -1,9 +1,12 @@
-const urlValidator = url => ! url || url.startsWith( 'http' );
+/**
+ * External dependencies
+ */
+import { isUrl } from '@wordpress/url';
 
 export default {
 	url: {
 		type: 'string',
-		validator: urlValidator,
+		validator: isUrl,
 	},
 	itemsToShow: {
 		type: 'integer',

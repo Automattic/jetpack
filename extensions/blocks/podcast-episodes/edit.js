@@ -13,10 +13,12 @@ import {
 	RangeControl,
 	TextControl,
 	Toolbar,
+	Notice,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { BlockControls, BlockIcon, InspectorControls } from '@wordpress/block-editor';
 import ServerSideRender from '@wordpress/server-side-render';
+import { isURL } from '@wordpress/url';
 
 /**
  * Internal dependencies
@@ -35,6 +37,7 @@ class PodcastEpisodesEdit extends Component {
 
 		this.state = {
 			editing: ! this.props.attributes.url,
+			urlError: '',
 		};
 	}
 
@@ -51,7 +54,13 @@ class PodcastEpisodesEdit extends Component {
 		event.preventDefault();
 
 		if ( this.props.attributes.url ) {
-			this.setState( { editing: false } );
+			const isValidURL = isURL( this.props.attributes.url );
+			this.setState( {
+				editing: ! isValidURL,
+				urlError: ! isValidURL
+					? __( 'The URL you entered is invalid. Please check and try again.', 'jetpack' )
+					: '',
+			} );
 		}
 	}
 
@@ -71,6 +80,7 @@ class PodcastEpisodesEdit extends Component {
 					instructions={ __( 'Paste a link to your Podcast RSS feed.', 'jetpack' ) }
 				>
 					<form onSubmit={ this.onSubmitURL }>
+						{ this.state.urlError && <Notice>{ this.state.urlError }</Notice> }
 						<TextControl
 							placeholder={ __( 'Enter URL here…', 'jetpack' ) }
 							value={ url || '' }
