@@ -39,21 +39,28 @@ const PodcastPlayerEdit = ( { attributes, setAttributes } ) => {
 	const { url, itemsToShow } = attributes;
 
 	// State.
-	const [ editing, setEditing ] = useState( ! url );
+	const [ editedUrl, setEditedUrl ] = useState( url || '' );
+	const [ editing, setEditing ] = useState( false );
 	const [ urlError, setUrlError ] = useState( '' );
 
 	const onSubmitURL = event => {
 		event.preventDefault();
 
-		if ( url ) {
-			const isValidURL = isURL( url );
+		if ( editedUrl ) {
+			const isValidURL = isURL( editedUrl );
 
-			setEditing( ! isValidURL );
 			setUrlError(
 				! isValidURL
 					? __( 'The URL you entered is invalid. Please check and try again.', 'jetpack' )
 					: ''
 			);
+
+			if ( isValidURL ) {
+				setAttributes( {
+					url: editedUrl,
+				} );
+				setEditing( false );
+			}
 		}
 	};
 
@@ -62,7 +69,7 @@ const PodcastPlayerEdit = ( { attributes, setAttributes } ) => {
 			? 'https://en.support.wordpress.com/?page_id=163160'
 			: 'https://jetpack.com/?post_type=jetpack_support&p=95361';
 
-	if ( editing ) {
+	if ( editing || ! url ) {
 		return (
 			<Placeholder
 				icon={ <BlockIcon icon={ queueMusic } /> }
@@ -74,8 +81,8 @@ const PodcastPlayerEdit = ( { attributes, setAttributes } ) => {
 					<TextControl
 						type="url"
 						placeholder={ __( 'Enter URL here…', 'jetpack' ) }
-						value={ url || '' }
-						onChange={ value => setAttributes( { url: value } ) }
+						value={ editedUrl || '' }
+						onChange={ value => setEditedUrl( value ) }
 						className={ 'components-placeholder__input' }
 					/>
 					<Button isPrimary type="submit">
