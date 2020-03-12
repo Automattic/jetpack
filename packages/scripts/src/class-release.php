@@ -7,8 +7,6 @@
 
 namespace Automattic\Jetpack\Scripts;
 
-// phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_error_log
-
 /**
  * Package release handler
  */
@@ -21,13 +19,20 @@ class Release {
 	private $update_statuses = array();
 
 	/**
+	 * Sets a logger
+	 */
+	public function __construct() {
+		$this->logger = new Logger();
+	}
+
+	/**
 	 * Class entry point. Called externally via composer script
 	 */
 	public static function run() {
 		$release = new Release();
-		error_log( 'Doing stuff...' );
+		Logger::info( 'Doing stuff...' );
 		$root = Dependency_Tree::generate();
-		error_log( print_r( $root, 1 ) ); // phpcs:ignore
+		Logger::log( $root );
 
 		$list = $release->get_package_dependencies_to_update( $root );
 
@@ -37,7 +42,7 @@ class Release {
 
 		$release->handle_package_update( $root['name'] );
 
-		error_log( 'Done with running!' );
+		Logger::info( 'Done with running!' );
 	}
 
 	/**
@@ -66,11 +71,11 @@ class Release {
 	 * @param String $diff short diff of unreleased changes.
 	 */
 	public function is_update_requested( $name, $tag, $diff ) {
-		error_log( "Updating $name" );
-		error_log( "Latest stable version: $tag" );
-		error_log( "Unreleased changes: $diff" );
+		Logger::log( "Package name: $name", 'blue' );
+		Logger::log( "Latest stable version: $tag", 'blue' );
+		Logger::log( "Unreleased changes: $diff", 'blue' );
 
-		return $this->handle_polar_question( "Do you want to update $name [y/n]? " );
+		return $this->handle_polar_question( 'Do you want to update this package [y/n]? ' );
 	}
 
 	/**
@@ -79,8 +84,8 @@ class Release {
 	 * @param Array $list list of dependencies.
 	 */
 	public function handle_dependencies_updates( $list ) {
-		error_log( 'Here is the list of dependencies with some unreleased changes:' );
-		error_log( $list );
+		Logger::info( 'Here is the list of dependencies with some unreleased changes:' );
+		Logger::log( $list, 1 );
 
 		foreach ( $list as $dep ) {
 			if ( $this->is_update_requested( $dep[0], $dep[2], $dep[1] ) ) {
@@ -96,9 +101,14 @@ class Release {
 	 * @throws \Exception Invalid provided version.
 	 */
 	public function do_dependency_update( $name ) {
-		error_log( "Updating dependency: $name" );
+		Logger::info( "Updating dependency: $name" );
 
-		$version = readline( 'Please provide a version number that should be used for new release in SemVer format (x.x.x): ' );
+		$prompt = $this->logger->get_colored_string(
+			'Please provide a version number that should be used for new release in SemVer format (x.x.x): ',
+			'green'
+		);
+
+		$version = readline( $prompt );
 
 		if ( 3 !== count( explode( '.', $version ) ) ) {
 			throw new \Exception( "$version is not in a SemVer format" );
@@ -121,7 +131,7 @@ class Release {
 	 * @throws \Exception Invalid response.
 	 */
 	public function handle_polar_question( $prompt ) {
-		$in = readline( $prompt );
+		$in = readline( $this->logger->get_colored_string( $prompt, 'green' ) );
 
 		if ( 'y' === $in || 'Y' === $in ) {
 			return true;

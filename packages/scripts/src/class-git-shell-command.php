@@ -71,7 +71,7 @@ class Git_Shell_Command {
 	 * @param String $branch branch name.
 	 */
 	public function checkout_new_branch( $branch ) {
-		$cmd    = "git $this->dir_arg checkout -b release-$branch 2>&1";
+		$cmd    = "git $this->dir_arg checkout -b $branch 2>&1";
 		$result = Cmd::run( $cmd );
 
 		return $result['output'];
