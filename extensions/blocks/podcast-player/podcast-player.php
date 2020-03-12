@@ -104,10 +104,10 @@ function render_player( $track_list, $attributes ) {
 	do_action( 'wp_playlist_scripts', 'audio', 'light' );
 
 	$initial_track_src = ! empty( $track_list[0]['src'] ) ? $track_list[0]['src'] : '';
-	$css_class         = Jetpack_Gutenberg::block_classes( BLOG_SLUG, $attributes );
+	$css_class         = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attributes );
 
 	?>
-	<div class="wp-block-<?php echo esc_attr( $css_class ); ?> wp-playlist wp-audio-playlist wp-playlist-light">
+	<div class="wp-block-<?php echo esc_attr( $css_class ); ?>
 		<div class="wp-playlist-current-item"></div>
 		<audio src="<?php echo esc_attr( $initial_track_src ); ?>" controls="controls" preload="none" width="<?php echo esc_attr( (int) $theme_width ); ?>"></audio>
 		<div class="wp-playlist-next"></div>
