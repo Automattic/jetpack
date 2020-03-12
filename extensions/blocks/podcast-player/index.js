@@ -17,14 +17,14 @@ import { queueMusic } from './icons/';
  */
 import './editor.scss';
 
-export const name = 'podcast-episodes';
-export const title = __( 'Podcast Episodes', 'jetpack' );
+export const name = 'podcast-player';
+export const title = __( 'Podcast Player', 'jetpack' );
 export const settings = {
 	title,
 	description: (
 		<Fragment>
-			<p>{ __( 'Podcast Episodes', 'jetpack' ) }</p>
-			<ExternalLink href="#">{ __( 'Learn more about Podcast Episodes', 'jetpack' ) }</ExternalLink>
+			<p>{ __( 'Podcast Player', 'jetpack' ) }</p>
+			<ExternalLink href="#">{ __( 'Learn more about Podcast Player', 'jetpack' ) }</ExternalLink>
 		</Fragment>
 	),
 	icon: queueMusic,

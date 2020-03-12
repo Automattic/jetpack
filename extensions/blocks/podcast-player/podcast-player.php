@@ -1,6 +1,6 @@
 <?php
 /**
- * Podcast Episodes Block.
+ * Podcast Player Block.
  *
  * @since 8.x
  *
@@ -11,7 +11,7 @@ namespace Jetpack\Podcast_Episodes_Block;
 
 use WP_Error;
 
-const FEATURE_NAME = 'podcast-episodes';
+const FEATURE_NAME = 'podcast-player';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 const BLOG_SLUG    = 'jetpack-' . FEATURE_NAME;
 /**
@@ -39,10 +39,10 @@ function register_block() {
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 
 /**
- * Podcast Episodes block registration/dependency declaration.
+ * Podcast Player block registration/dependency declaration.
  *
- * @param array  $attributes Array containing the Podcast Episodes block attributes.
- * @param string $content    String containing the Podcast Episodes block content.
+ * @param array  $attributes Array containing the Podcast Player block attributes.
+ * @param string $content    String containing the Podcast Player block content.
  *
  * @return string
  */
@@ -124,7 +124,7 @@ function render_player( $track_list ) {
 	/*
 	* Enqueue necessary scripts and styles.
 	*/
-	\Jetpack_Gutenberg::load_assets_as_required( 'podcast-episodes' );
+	\Jetpack_Gutenberg::load_assets_as_required( 'podcast-player' );
 
 	return ob_get_clean();
 }
