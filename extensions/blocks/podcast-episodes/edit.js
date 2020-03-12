@@ -59,7 +59,7 @@ class PodcastEpisodesEdit extends Component {
 		const { url, itemsToShow } = this.props.attributes;
 		const { attributes, setAttributes } = this.props;
 
-		if ( ! this.props.attributes.url ) {
+		if ( this.state.editing ) {
 			return (
 				<Placeholder
 					icon={ <BlockIcon icon={ queueMusic } /> }
