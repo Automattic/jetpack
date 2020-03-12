@@ -10,6 +10,9 @@
 		"automattic/jetpack-roles": "@dev",
 		"automattic/jetpack-status": "@dev"
 	},
+	"require-dev": {
+		"automattic/jetpack-scripts": "@dev"
+	},
 	"autoload": {
 		"classmap": [
 			"src/"
@@ -21,6 +24,9 @@
 			"url": "../*"
 		}
 	],
+	"scripts": {
+		"run-release-script": "Automattic\\Jetpack\\Scripts\\Release::run"
+	},
 	"minimum-stability": "dev",
 	"prefer-stable": true
 }
