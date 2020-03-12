@@ -95,11 +95,7 @@ class PodcastEpisodesEdit extends Component {
 		];
 
 		const handleSSRError = () => {
-			return <p>Failed to load Block</p>;
-		};
-
-		const handleSSRLoading = () => {
-			return <p>{ __( 'Loading…', 'jetpack' ) }</p>;
+			return <p>{ __( 'Failed to load Block', 'jetpack' ) }</p>;
 		};
 
 		return (
@@ -125,7 +121,6 @@ class PodcastEpisodesEdit extends Component {
 						attributes={ attributes }
 						EmptyResponsePlaceholder={ handleSSRError }
 						ErrorResponsePlaceholder={ handleSSRError }
-						LoadingResponsePlaceholder={ handleSSRLoading }
 					/>
 				</Disabled>
 			</>
