@@ -23,7 +23,7 @@ import {
 } from 'state/connection';
 import { getSiteRawUrl } from 'state/initial-state';
 import onKeyDownCallback from 'utils/onkeydown-callback';
-import JetpackDisconnectDialogModal from 'components/jetpack-termination-dialog/modal';
+import JetpackDisconnectModal from 'components/jetpack-termination-dialog/disconnect-modal';
 
 import './style.scss';
 
@@ -164,7 +164,7 @@ export class ConnectButton extends React.Component {
 				) }
 				{ this.renderContent() }
 				{ this.props.children }
-				<JetpackDisconnectDialogModal
+				<JetpackDisconnectModal
 					show={ this.state.showModal }
 					toggleModal={ this.toggleVisibility }
 				/>
