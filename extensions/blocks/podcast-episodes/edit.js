@@ -32,6 +32,10 @@ class PodcastEpisodesEdit extends Component {
 		super( ...arguments );
 		this.toggleAttribute = this.toggleAttribute.bind( this );
 		this.onSubmitURL = this.onSubmitURL.bind( this );
+
+		this.state = {
+			editing: ! this.props.attributes.url,
+		};
 	}
 
 	toggleAttribute( propName ) {
@@ -45,13 +49,17 @@ class PodcastEpisodesEdit extends Component {
 
 	onSubmitURL( event ) {
 		event.preventDefault();
+
+		if ( this.props.attributes.url ) {
+			this.setState( { editing: false } );
+		}
 	}
 
 	render() {
 		const { url, itemsToShow } = this.props.attributes;
 		const { attributes, setAttributes } = this.props;
 
-		if ( ! url ) {
+		if ( ! this.props.attributes.url ) {
 			return (
 				<Placeholder
 					icon={ <BlockIcon icon={ queueMusic } /> }
