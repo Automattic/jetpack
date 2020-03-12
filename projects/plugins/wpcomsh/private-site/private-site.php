@@ -50,7 +50,7 @@ function admin_init() {
 	}
 
 	// Many AJAX actions do not execute the `parse_request` action. Catch them here.
-	if ( should_prevent_site_access() ) {
+	if ( should_prevent_site_access() && ! is_jetpack_admin_ajax_request() ) {
 		send_access_denied_error_response();
 	}
 }
@@ -72,7 +72,7 @@ function init() {
 	add_filter( 'rest_dispatch_request', '\Private_Site\rest_dispatch_request', 10, 4 );
 
 	// Update `wpcom_coming_soon` cached value when it's updated on WP.com
-	add_filter( 'rest_api_update_site_settings', '\Private_Site\cache_coming_soon_on_update_site_settings', 10, 2 );
+	add_filter( 'rest_api_update_site_settings', '\Private_Site\cache_option_on_update_site_settings', 10, 2 );
 
 	// Prevent Pinterest pinning
 	add_action( 'wp_head', '\Private_Site\private_no_pinning' );
@@ -97,6 +97,7 @@ function init() {
 
 	// Prevent Jetpack certain modules from running while the site is private
 	add_filter( 'jetpack_active_modules', '\Private_Site\filter_jetpack_active_modules', 0 );
+	add_filter( 'jetpack_force_disable_site_accelerator', '__return_true' );
 
 	// Only allow Jetpack XMLRPC methods -- Jetpack handles verifying the token, request signature, etc.
 	add_filter( 'xmlrpc_methods', '\Private_Site\xmlrpc_methods_limit_to_jetpack' );
@@ -104,12 +105,16 @@ function init() {
 	// Lift the blog name mask prior to Jetpack sync activity
 	add_action( 'jetpack_sync_before_send_queue_full_sync', '\Private_Site\remove_mask_site_name_filter' );
 	add_action( 'jetpack_sync_before_send_queue_sync', '\Private_Site\remove_mask_site_name_filter' );
+
+	// Logged-in blog users for an 'unlaunched' or 'coming soon' site see a banner.
+	require __DIR__ . '/logged-in-banner.php';
+	add_action( 'wp_head', '\Private_Site\show_logged_in_banner', -1000 );
 }
 add_action( 'init', '\Private_Site\init' );
 
 /**
- * Replaces the 'Site Visibility' privacy options selector with a Calypso link
- **/
+ * Replaces the 'Site Visibility' privacy options selector with a Calypso link.
+ */
 function privatize_blog_priv_selector() {
 	$has_jetpack_connection = is_jetpack_connected();
 
@@ -141,6 +146,27 @@ function privatize_blog_priv_selector() {
 }
 
 /**
+ * Fetches an option from the Jetpack cloud site.
+ *
+ * @param $option  String  Name of option to be retrieved.
+ *
+ * @return mixed  Option value.
+ */
+function fetch_option_from_wpcom( $option ) {
+	if ( ! is_jetpack_connected() ) {
+		return false;
+	}
+
+	$jetpack = Jetpack::init();
+	if ( ! method_exists( $jetpack, 'get_cloud_site_options' ) ) {
+		return false;
+	}
+	$options = $jetpack->get_cloud_site_options( [ $option ] );
+
+	return $options[$option];
+}
+
+/**
  * The site is determined to be "coming soon" when both:
  * - The site is private (@see site_is_private)
  * - The `wpcom_coming_soon` option on the "cloud site" is truthy
@@ -152,26 +178,47 @@ function site_is_coming_soon() : bool {
 	if ( ! site_is_private() ) {
 		return false;
 	}
+
 	$wpcom_coming_soon = wp_cache_get( 'wpcom_coming_soon', 'wpcomsh' );
+
 	if ( false === $wpcom_coming_soon ) {
-		$wpcom_coming_soon = fetch_coming_soon_from_wp_com();
+		$wpcom_coming_soon = (int) fetch_option_from_wpcom( 'wpcom_coming_soon' );
 		wp_cache_set( 'wpcom_coming_soon', $wpcom_coming_soon, 'wpcomsh' );
 	}
+
 	return (bool) $wpcom_coming_soon;
 }
 
-function fetch_coming_soon_from_wp_com() : int {
-	if ( ! is_jetpack_connected() ) {
-		return 0;
+/**
+ * Sites are created as "unlaunched" and can only be launched once.
+ *
+ * @return string
+ */
+function site_launch_status() : string {
+	if ( ! site_is_private() ) {
+		return '';
 	}
 
-	$jetpack = Jetpack::init();
-	if ( ! method_exists( $jetpack, 'get_cloud_site_options' ) ) {
-		return 0;
-	}
-	$options = $jetpack->get_cloud_site_options( [ 'wpcom_coming_soon' ] );
+	$launch_status = wp_cache_get( 'wpcom_launch_status', 'wpcomsh' );
 
-	return (int) $options['wpcom_coming_soon'];
+	if ( ! $launch_status ) {
+		$launch_status = (string) fetch_option_from_wpcom( 'launch-status' );
+		wp_cache_set( 'wpcom_launch_status', $launch_status, 'wpcomsh' );
+	}
+
+	return (string) $launch_status;
+}
+
+function is_launched() {
+	return 'launched' === site_launch_status();
+}
+
+function get_launch_banner_status() {
+	return get_option( 'wpcom_private_sites_module_launch_banner' );
+}
+
+function set_launch_banner_status( $status = 'hide' ) {
+	update_option( 'wpcom_private_sites_module_launch_banner', $status );
 }
 
 /**
@@ -215,6 +262,21 @@ function should_prevent_site_access() {
 }
 
 /**
+ * Checks if current request is a request sent to admin-ajax.php and initiated by remote
+ * Jetpack API.
+ *
+ * @return bool
+ */
+function is_jetpack_admin_ajax_request() {
+	return (
+		substr( $_SERVER['REQUEST_URI'], 0, 24 ) === '/wp-admin/admin-ajax.php' &&
+		substr( $_SERVER['HTTP_AUTHORIZATION'], 0, 9 ) === 'X_JETPACK' &&
+		array_key_exists( 'action', $_POST ) &&
+		substr( $_POST['action'], 0, 8 ) === 'jetpack_'
+	);
+}
+
+/**
  * Tell the client that the site is private and they do not have access.
  * This function always exits PHP (`wp_send_json_error` calls `wp_die` / `die`)
  */
@@ -255,17 +317,22 @@ function original_request_url() {
 /**
  * Hooked into `rest_api_update_site_settings` filter.
  *
- * This filter updates the cached value of `wpcom_coming_soon` whenever `wpcom_coming_soon` option
- * is changed on WP.com and this plugin is notified via Jetpack-WPCOM REST API bridge.
+ * This filter updates the cached value of `wpcom_coming_soon` or `launch-status`
+ * whenever `wpcom_coming_soon` option is changed on WP.com and this plugin
+ * is notified via Jetpack-WPCOM REST API bridge.
  *
  * @param $input Filtered POST input
  * @param $unfiltered_input Raw and unfiltered POST input
  *
  * @return mixed
  */
-function cache_coming_soon_on_update_site_settings( $input, $unfiltered_input ) {
+function cache_option_on_update_site_settings( $input, $unfiltered_input ) {
 	if ( array_key_exists( 'wpcom_coming_soon', $unfiltered_input ) ) {
 		wp_cache_set( 'wpcom_coming_soon', $unfiltered_input['wpcom_coming_soon'], 'wpcomsh' );
+	}
+
+	if ( array_key_exists( 'launch-status', $unfiltered_input ) ) {
+		wp_cache_set( 'wpcom_launch_status', $unfiltered_input['launch-status'], 'wpcomsh' );
 	}
 
 	return $input;
@@ -337,23 +404,38 @@ function xmlrpc_methods_limit_to_jetpack( $methods ) {
 }
 
 /**
- * Does not check whether the blog is private. Works on current blog & user.
- * Returns true for super admins.
+ * Checks if the current user is a member of the current site.
  *
  * @return bool
  */
 function is_private_blog_user() {
+	return (bool) blog_user_can( 'read' );
+}
+
+/**
+ * Checks the current user's capabilities for the current site.
+ *
+ * Does not check whether the blog is private. Works on current blog & user.
+ * Returns true for super admins.
+ *
+ * @param $capability string  Capability name.
+ * @return bool
+ */
+function blog_user_can( $capability = 'read' ) {
 	$user = wp_get_current_user();
 	if ( ! $user->ID ) {
 		return false;
 	}
 
 	$blog_id = get_current_blog_id();
+	if ( ! $blog_id ) {
+		return false;
+	}
 
 	// check if the user has read permissions
-	$the_user = wp_clone( $user );
+	$the_user = clone( $user );
 	$the_user->for_site( $blog_id );
-	return $the_user->has_cap( 'read' );
+	return (bool) $the_user->has_cap( $capability );
 }
 
 /**
@@ -365,7 +447,7 @@ function is_private_blog_user() {
  * @return string The potentially modified bloginfo value
  */
 function mask_site_name( $value, $what ) {
-	if ( should_prevent_site_access() && in_array( $what, [ 'name', 'title' ], true ) ) {
+	if ( ! site_is_coming_soon() && should_prevent_site_access() && in_array( $what, [ 'name', 'title' ], true ) ) {
 		return __( 'Private Site', 'wpcomsh' );
 	}
 
@@ -383,6 +465,8 @@ function remove_mask_site_name_filter() {
  * Filters new comments so that users can't comment on private blogs
  *
  * @param array $comment Documented in wp-includes/comment.php.
+ *
+ * @return array
  */
 function preprocess_comment( $comment ) {
 	if ( should_prevent_site_access() ) {
@@ -489,6 +573,7 @@ function filter_jetpack_active_modules( $modules ) {
 		'enhanced-distribution',
 		'google-analytics',
 		'photon',
+		'photon-cdn',
 		'sitemaps',
 		'verification-tools',
 		'wordads',
