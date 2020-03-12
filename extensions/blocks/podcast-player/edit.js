@@ -72,7 +72,7 @@ const PodcastPlayerEdit = ( { attributes, setAttributes } ) => {
 						onChange={ value => setAttributes( { url: value } ) }
 						className={ 'components-placeholder__input' }
 					/>
-					<Button isSecondary type="submit">
+					<Button isPrimary type="submit">
 						{ __( 'Embed', 'jetpack' ) }
 					</Button>
 				</form>
