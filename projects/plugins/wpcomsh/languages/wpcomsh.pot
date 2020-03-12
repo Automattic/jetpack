@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WP.com Site Helper\n"
 "Report-Msgid-Bugs-To: help@wordpress.com\n"
-"POT-Creation-Date: 2020-03-06 16:28+0100\n"
+"POT-Creation-Date: 2020-03-12 13:30+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -39,6 +39,22 @@ msgstr ""
 
 #: customizer-fixes/customizer-fixes.php:13
 msgid "Save Settings"
+msgstr ""
+
+#: footer-credit/footer-credit-optimizations.php:114
+msgid "Proudly powered by WordPress"
+msgstr ""
+
+#: footer-credit/footer-credit-optimizations.php:130
+msgid "Theme"
+msgstr ""
+
+#: footer-credit/footer-credit-optimizations.php:147
+msgid "by"
+msgstr ""
+
+#: footer-credit/footer-credit-optimizations.php:159
+msgid "Design by"
 msgstr ""
 
 #: footer-credit/footer-credit/customizer.php:41
@@ -82,22 +98,6 @@ msgstr ""
 
 #: footer-credit/footer-credit/footer-credit.php:101
 msgid "Powered by WordPress.com"
-msgstr ""
-
-#: footer-credit/footer-credit-optimizations.php:114
-msgid "Proudly powered by WordPress"
-msgstr ""
-
-#: footer-credit/footer-credit-optimizations.php:130
-msgid "Theme"
-msgstr ""
-
-#: footer-credit/footer-credit-optimizations.php:147
-msgid "by"
-msgstr ""
-
-#: footer-credit/footer-credit-optimizations.php:159
-msgid "Design by"
 msgstr ""
 
 #: footer-credit/theme-optimizations.php:32
@@ -427,6 +427,14 @@ msgid ""
 "\">profile page</a>."
 msgstr ""
 
+#: widgets/i-voted.php:31
+msgid "Show your readers that you voted with an \"I Voted\" sticker."
+msgstr ""
+
+#: widgets/i-voted.php:33
+msgid "I Voted"
+msgstr ""
+
 #: widgets/instagram/instagram.php:28 widgets/instagram/instagram.php:43
 msgid "Instagram"
 msgstr ""
@@ -468,14 +476,6 @@ msgstr ""
 #: widgets/instagram/instagram.php:245
 #, php-format
 msgid "New images may take up to %d minutes to show up on your site."
-msgstr ""
-
-#: widgets/i-voted.php:31
-msgid "Show your readers that you voted with an \"I Voted\" sticker."
-msgstr ""
-
-#: widgets/i-voted.php:33
-msgid "I Voted"
 msgstr ""
 
 #: widgets/music-player.php:15
@@ -796,29 +796,29 @@ msgstr ""
 msgid "Text to display between Tweet and timestamp:"
 msgstr ""
 
-#: wpcomsh.php:354
+#: wpcomsh.php:356
 #, php-format
 msgid "%s is automatically managed for you."
 msgstr ""
 
-#: wpcomsh.php:357
+#: wpcomsh.php:359
 msgid ""
 "This plugin was installed by WordPress.com and provides features offered in "
 "your plan subscription."
 msgstr ""
 
-#: wpcomsh.php:911
+#: wpcomsh.php:913
 #, php-format
 msgid ""
 "You are currently using <strong>%1$s</strong> out of <strong>%2$s</strong> "
 "upload limit (%3$s%%)."
 msgstr ""
 
-#: wpcomsh.php:939
+#: wpcomsh.php:941
 msgid "Disk space used"
 msgstr ""
 
-#: wpcomsh.php:943
+#: wpcomsh.php:945
 msgid "Disk space quota"
 msgstr ""
 

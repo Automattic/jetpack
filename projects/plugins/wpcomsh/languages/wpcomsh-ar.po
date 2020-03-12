@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-02-28 00:54:04+0000\n"
+"PO-Revision-Date: 2020-03-07 00:55:05+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -13,7 +13,7 @@ msgstr ""
 
 #: wpcomsh.php:909
 msgid "You are currently using <strong>%1$s</strong> out of <strong>%2$s</strong> upload limit (%3$s%%)."
-msgstr ""
+msgstr "تَستخدم حاليًا <strong>%1$s</strong> من أصل <strong>%2$s</strong> من حد الرفع (%3$s%%)."
 
 #: widgets/twitter.php:412
 msgid "Text to display between Tweet and timestamp:"
@@ -85,11 +85,11 @@ msgstr "اظهار عدد الأوسمة"
 
 #: widgets/tag-cloud-widget.php:139
 msgid "Maximum number of tags displayed"
-msgstr ""
+msgstr "الحد الأقصى لعدد الوسوم المعروضة"
 
 #: widgets/tag-cloud-widget.php:137
 msgid "Number of Tags:"
-msgstr ""
+msgstr "عدد الوسوم:"
 
 #: widgets/tag-cloud-widget.php:41
 msgid "Tags"
@@ -141,7 +141,7 @@ msgstr "اعرض أحدث صورك على إنستغرام."
 
 #: widgets/instagram/instagram.php:28 widgets/instagram/instagram.php:43
 msgid "Instagram"
-msgstr ""
+msgstr "إنستغرام"
 
 #: widgets/aboutme.php:148
 msgid "Apps"
@@ -181,7 +181,7 @@ msgstr "عرض بحجم كبير جدًا"
 
 #: widgets/aboutme.php:104
 msgid "Your about.me URL"
-msgstr ""
+msgstr "عنوان URL الخاص بـ about.me المخصص لك"
 
 #: widgets/aboutme.php:97
 msgid "Widget title"
@@ -189,23 +189,23 @@ msgstr "عنوان المربع الجانبي"
 
 #: widgets/aboutme.php:90
 msgid "The about.me widget will no longer be available after July 1, 2016. After this date, the widget will display a simple text link to your about.me profile. Please remove this widget."
-msgstr ""
+msgstr "لن يتوافر المربع الجانبي about.me بعد 1 يوليو 2016. سيعرض المربع الجانبي بعد هذا التاريخ رابطًا نصيًا بسيطًا لملفك الشخصي about.me. يرجى إزالة هذا المربع الجانبي."
 
 #: widgets/aboutme.php:37
 msgid "The about.me widget is no longer available. To remove this widget, <a href=\"%s\">visit your settings</a>. This message is not shown to visitors to your site."
-msgstr ""
+msgstr "لا يتوافر المربع الجانبي about.me بعد الآن. لإزالة هذا المربع الجانبي، <a href=\"%s\">انتقل إلى إعداداتك</a>. لا تظهر هذه الرسالة أمام زائري موقعك."
 
 #: widgets/aboutme.php:20
 msgid "About.me Widget"
-msgstr ""
+msgstr "المربع الجانبي About.me"
 
 #: widgets/aboutme.php:18
 msgid "Display your about.me profile with thumbnail"
-msgstr ""
+msgstr "عرض ملفك الشخصي about.me مع صورة مصغَّرة"
 
 #: safeguard/utils.php:58
 msgid "Unable to fetch the requested data."
-msgstr ""
+msgstr "يتعذَّر إحضار البيانات المطلوبة."
 
 #: private-site/access-denied-coming-soon-template.php:142
 msgid "Log in here"
@@ -231,7 +231,7 @@ msgstr "المدونة لدى وردبرس.كوم"
 
 #: footer-credit/footer-credit/footer-credit.php:97
 msgid "A WordPress.com Website"
-msgstr ""
+msgstr "موقع ووردبريس.كوم على الويب"
 
 #: footer-credit/footer-credit/footer-credit.php:96
 msgid "WordPress.com Logo"
@@ -240,7 +240,7 @@ msgstr "شعار وردبرس.كوم"
 #: footer-credit/footer-credit/footer-credit.php:41
 #: footer-credit/footer-credit/footer-credit.php:205
 msgid "Create a website or blog at WordPress.com"
-msgstr ""
+msgstr "إنشاء موقع على الويب أو مدونة على ووردبريس.كوم"
 
 #: footer-credit/footer-credit/customizer.php:85
 msgid "Footer Credit"
@@ -252,7 +252,7 @@ msgstr "الترقية إلى إصدار الشركات"
 
 #: footer-credit/footer-credit/customizer.php:54
 msgid "Hide (Business Plan Required)"
-msgstr ""
+msgstr "إخفاء (خطة الأعمال مطلوبة)"
 
 #: footer-credit/footer-credit/customizer.php:52
 msgid "Hide"
@@ -284,7 +284,7 @@ msgstr "احفظ التغييرات"
 
 #: customizer-fixes/customizer-fixes.php:12
 msgid "Are you sure you want to discard your unsaved changes?"
-msgstr ""
+msgstr "هل تريد بالتأكيد تجاهل تغييراتك غير المحفوظة؟"
 
 #: customizer-fixes/customizer-fixes.php:11
 msgid "Saved"
@@ -300,11 +300,11 @@ msgstr "حفظ"
 
 #: customizer-fixes/customizer-fixes.php:8
 msgid "Activate &amp; Save"
-msgstr ""
+msgstr "تفعيل وحفظ"
 
 #: private-site/private-site.php:123
 msgid "Manage your site visibility settings"
-msgstr ""
+msgstr "إدارة إعدادات رؤية موقعك"
 
 #: private-site/access-denied-coming-soon-template.php:140
 msgid "Something new is coming."
