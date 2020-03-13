@@ -61,7 +61,7 @@ const PodcastPlayerEdit = ( { attributes, setAttributes } ) => {
 
 		setUrlError(
 			! isValidURL
-				? __( 'The URL you entered is invalid. Please check and try again.', 'jetpack' )
+				? __( 'Your podcast couldn't be embedded. Please double check your URL.', 'jetpack' )
 				: ''
 		);
 
