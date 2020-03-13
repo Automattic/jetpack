@@ -19,11 +19,15 @@ const initializeBlock = function( id ) {
 	const player = {
 		id,
 		block,
-		audio: block.querySelector( 'audio' ),
 		currentTrack: 0,
 	};
 
 	// Initialize player UI.
+	player.audio = document.createElement( 'audio' );
+	player.audio.src = block
+		.querySelector( '[data-jetpack-podcast-audio]' )
+		.getAttribute( 'data-jetpack-podcast-audio' );
+	block.insertBefore( player.audio, block.firstChild );
 	player.mediaElement = new MediaElementPlayer( player.audio, meJsSettings );
 
 	// Save instance to the list of active ones.

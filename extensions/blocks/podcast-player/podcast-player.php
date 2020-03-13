@@ -97,10 +97,8 @@ function render_player( $track_list, $attributes ) {
 	$block_classname = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attributes );
 
 	ob_start();
-	$initial_track_src = ! empty( $track_list[0]['src'] ) ? $track_list[0]['src'] : '';
 	?>
 	<div class="<?php echo esc_attr( $block_classname ); ?>" id="<?php echo esc_attr( $instance_id ); ?>">
-		<audio src="<?php echo esc_attr( $initial_track_src ); ?>" preload="none"></audio>
 		<ol>
 			<?php
 			foreach ( $track_list as $att_id => $attachment ) :
