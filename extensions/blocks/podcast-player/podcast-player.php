@@ -107,7 +107,6 @@ function render_player( $track_list, $attributes ) {
 
 	?>
 	<div class="<?php echo esc_attr( $block_classname ); ?>" id="<?php echo esc_attr( $instance_id ); ?>">
-		<div class="<?php echo esc_attr( $block_classname ); ?>-current-item"></div>
 		<audio src="<?php echo esc_attr( $initial_track_src ); ?>" preload="none"></audio>
 		<ol>
 			<?php
@@ -116,7 +115,7 @@ function render_player( $track_list, $attributes ) {
 			endforeach;
 			?>
 		</ol>
-		<script type="application/json" class="<?php echo esc_attr( $block_classname ); ?>-script"><?php echo wp_json_encode( $player_data ); ?></script>
+		<script type="application/json"><?php echo wp_json_encode( $player_data ); ?></script>
 	</div>
 	<script>window.jetpackPodcastPlayers=(window.jetpackPodcastPlayers||[]);window.jetpackPodcastPlayers.push( <?php echo wp_json_encode( $instance_id ); ?> );</script>
 	<?php
