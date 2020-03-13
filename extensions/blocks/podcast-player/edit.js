@@ -18,11 +18,13 @@ import {
 	withNotices,
 	ToggleControl,
 } from '@wordpress/components';
+import { compose } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import {
 	BlockControls,
 	BlockIcon,
 	InspectorControls,
+	withColors,
 	__experimentalUseColors as useColors,
 } from '@wordpress/block-editor';
 import ServerSideRender from '@wordpress/server-side-render';
@@ -37,6 +39,7 @@ import './editor.scss';
 import { edit, queueMusic } from './icons/';
 import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import attributesValidation from './attributes';
+import { applyFallbackStyles } from '../../shared/apply-fallback-styles';
 
 // Check if useColors is available.
 const isUseColorsAvailable = !! useColors;
@@ -178,4 +181,10 @@ const PodcastPlayerEdit = ( {
 	);
 };
 
-export default withNotices( PodcastPlayerEdit );
+export default ! isUseColorsAvailable
+	? compose( [
+			withColors( 'backgroundColor', { textColor: 'color' } ),
+			withNotices,
+			applyFallbackStyles,
+	  ] )( PodcastPlayerEdit )
+	: withNotices( PodcastPlayerEdit );
