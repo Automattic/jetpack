@@ -48,11 +48,6 @@ class Jetpack_Connection_Banner {
 			false,
 			sprintf( 'connect-banner-%s-%s', $jp_version_banner_added, $current_screen->base )
 		);
-		// Add a tracks event corresponding to the A/B version displayed
-		$ab_test = Jetpack_Options::get_option( 'ab_connect_banner_green_bar' );
-		if ( in_array( $ab_test, array( 'a', 'b' ), true ) ) {
-			$url = add_query_arg( 'ab_connect_banner_green_bar', $ab_test, $url );
-		}
 		return add_query_arg( 'auth_approved', 'true', $url );
 	}
 
@@ -192,33 +187,6 @@ class Jetpack_Connection_Banner {
 	}
 
 	/**
-	 * Performs an A/B test showing or hiding the green bar at the top of the connection dialog displayed in Dashboard or Plugins.
-	 * We save which version we're showing so we always show the same to the same user.
-	 * The "A" version displays the green bar at the top.
-	 * The "B" version doesn't display it.
-	 *
-	 * @return void
-	 */
-	function get_ab_banner_top_bar() {
-		$ab_test = Jetpack_Options::get_option( 'ab_connect_banner_green_bar' );
-		// If it doesn't exist yet, generate it for later use and save it, so we always show the same to this user
-		if ( ! $ab_test ) {
-			$ab_test = 1 === rand( 1, 2 ) ? 'a' : 'b';
-			Jetpack_Options::update_option( 'ab_connect_banner_green_bar', $ab_test );
-		}
-		if ( 'a' === $ab_test ) {
-			?>
-			<div class="jp-wpcom-connect__container-top-text">
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="0" fill="none" width="24" height="24"/><g><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm1 15h-2v-2h2v2zm0-4h-2l-.5-6h3l-.5 6z"/></g></svg>
-				<span>
-					<?php esc_html_e( 'You’re almost done. Set up Jetpack to enable powerful security and performance tools for WordPress.', 'jetpack' ); ?>
-				</span>
-			</div>
-			<?php
-		}
-	}
-
-	/**
 	 * Renders the new connection banner as of 4.4.0.
 	 *
 	 * @since 7.2   Copy and visual elements reduced to show the new focus of Jetpack on Security and Performance.
@@ -227,7 +195,12 @@ class Jetpack_Connection_Banner {
 	function render_banner() {
 		?>
 		<div id="message" class="updated jp-wpcom-connect__container">
-			<?php $this->get_ab_banner_top_bar(); ?>
+			<div class="jp-wpcom-connect__container-top-text">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect x="0" fill="none" width="24" height="24"/><g><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm1 15h-2v-2h2v2zm0-4h-2l-.5-6h3l-.5 6z"/></g></svg>
+				<span>
+					<?php esc_html_e( 'You’re almost done. Set up Jetpack to enable powerful security and performance tools for WordPress.', 'jetpack' ); ?>
+				</span>
+			</div>
 			<div class="jp-wpcom-connect__inner-container">
 				<span
 					class="notice-dismiss connection-banner-dismiss"
