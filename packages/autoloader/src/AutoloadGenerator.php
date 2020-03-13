@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:disable WordPress.Files.FileName.NotHyphenatedLowercase
 /**
  * Autoloader Generator.
  *
@@ -11,7 +11,6 @@
 // phpcs:disable PHPCompatibility.Keywords.NewKeywords.t_namespaceFound
 // phpcs:disable PHPCompatibility.Keywords.NewKeywords.t_dirFound
 // phpcs:disable WordPress.Files.FileName.InvalidClassFileName
-// phpcs:disable WordPress.Files.FileName.NotHyphenatedLowercase
 // phpcs:disable WordPress.Files.FileName.InvalidClassFileName
 // phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_var_export
 // phpcs:disable WordPress.WP.AlternativeFunctions.file_system_read_file_put_contents
@@ -57,7 +56,7 @@ class AutoloadGenerator extends BaseGenerator {
 	 * @param InstallationManager          $installationManager Manager for installing packages.
 	 * @param string                       $targetDir Path to the current target directory.
 	 * @param bool                         $scanPsr0Packages Whether to search for packages. Currently hard coded to always be false.
-	 * @param string                       $suffix The autoloader suffix, ignored since we want our autoloader to only be included once.
+	 * @param string                       $suffix The autoloader suffix.
 	 */
 	public function dump(
 		Config $config,
@@ -84,15 +83,14 @@ class AutoloadGenerator extends BaseGenerator {
 		$fileMap  = $this->getFileMap( $autoloads, $filesystem, $vendorPath, $basePath );
 
 		// Generate the files.
-		file_put_contents( $targetDir . '/autoload_classmap_package.php', $this->getAutoloadClassmapPackagesFile( $classMap ) );
-		$this->io->writeError( '<info>Generated ' . $targetDir . '/autoload_classmap_package.php</info>', true );
+		file_put_contents( $targetDir . '/jetpack_autoload_classmap.php', $this->getAutoloadClassmapPackagesFile( $classMap ) );
+		$this->io->writeError( '<info>Generated ' . $targetDir . '/jetpack_autoload_classmap.php</info>', true );
 
-		file_put_contents( $targetDir . '/autoload_files_package.php', $this->getAutoloadFilesPackagesFile( $fileMap ) );
-		$this->io->writeError( '<info>Generated ' . $targetDir . '/autoload_files_package.php</info>', true );
+		file_put_contents( $targetDir . '/jetpack_autoload_filemap.php', $this->getAutoloadFilesPackagesFile( $fileMap ) );
+		$this->io->writeError( '<info>Generated ' . $targetDir . '/jetpack_autoload_filemap.php</info>', true );
 
 		file_put_contents( $vendorPath . '/autoload_packages.php', $this->getAutoloadPackageFile( $suffix ) );
 		$this->io->writeError( '<info>Generated ' . $vendorPath . '/autoload_packages.php</info>', true );
-
 	}
 
 	/**
@@ -156,7 +154,7 @@ class AutoloadGenerator extends BaseGenerator {
 					$paths = is_array( $paths ) ? $paths : array( $paths );
 					foreach ( $paths as $path ) {
 						$relativePath = empty( $installPath ) ? ( empty( $path ) ? '.' : $path ) : $installPath . '/' . $path;
-						$autoloads[ $this->getFileIdentifier( $package, $path ) ]  = array(
+						$autoloads[ $this->getFileIdentifier( $package, $path ) ] = array(
 							'path'    => $relativePath,
 							'version' => $package->getVersion(), // Version of the file comes from the package - should we try to parse it?
 						);
@@ -313,44 +311,24 @@ INCLUDE_FILEMAP;
 	/**
 	 * Generate the PHP that will be used in the autoload_packages.php files.
 	 *
-	 * @param string $suffix  Unique suffix added to the jetpack_enqueue_packages function.
+	 * @param String $suffix  Unique suffix added to the jetpack_enqueue_packages function.
 	 *
 	 * @return string
 	 */
 	private function getAutoloadPackageFile( $suffix ) {
-		$sourceLoader   = fopen( __DIR__ . '/autoload.php', 'r' );
-		$file_contents  = stream_get_contents( $sourceLoader );
-		$file_contents .= <<<INCLUDE_FILES
-/**
- * Prepare all the classes for autoloading.
- */
-function enqueue_packages_$suffix() {
-	\$class_map = require_once dirname( __FILE__ ) . '/composer/autoload_classmap_package.php';
-	foreach ( \$class_map as \$class_name => \$class_info ) {
-		enqueue_package_class( \$class_name, \$class_info['version'], \$class_info['path'] );
-	}
+		$sourceLoader  = fopen( __DIR__ . '/autoload.php', 'r' );
+		$file_contents = stream_get_contents( $sourceLoader );
+		$file_contents = str_replace(
+			'Automattic\\Jetpack\\Autoloader;',
+			'Automattic\\Jetpack\\Autoloader\\jp' . $suffix . ';',
+			$file_contents
+		);
 
-	\$autoload_file = __DIR__ . '/composer/autoload_files_package.php';
+		$file_contents .= <<<INCLUDE_AUTOLOAD
 
-	\$includeFiles = file_exists( \$autoload_file )
-		? require \$autoload_file
-		: array();
+enqueue_files();
 
-	foreach ( \$includeFiles as \$fileIdentifier => \$file_data ) {
-		enqueue_package_file( \$fileIdentifier, \$file_data[ 'version' ], \$file_data[ 'path' ] );
-	}
-
-	if ( function_exists( 'has_action') && function_exists( 'did_action' ) && ! did_action( 'plugins_loaded' ) && false === has_action( 'plugins_loaded', __NAMESPACE__ . '\\file_loader' ) ) {
-		// Add action if it has not been added and has not happened yet.
-		// Priority -10 to load files as early as possible in case plugins try to use them during `plugins_loaded`.
-		add_action( 'plugins_loaded', __NAMESPACE__ . '\\file_loader', 0, -10 );
-	} elseif( ! function_exists( 'did_action' ) || did_action( 'plugins_loaded' ) ) {
-		file_loader(); // Either WordPress is not loaded or plugin is doing it wrong. Either way we'll load the files so nothing breaks.
-	}
-}
-enqueue_packages_$suffix();
-
-INCLUDE_FILES;
+INCLUDE_AUTOLOAD;
 
 		return $file_contents;
 	}
