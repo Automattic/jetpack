@@ -40,18 +40,48 @@ class Release {
 			$release->handle_dependencies_updates( $list );
 		}
 
-		$release->handle_package_update( $root['name'] );
+		$release->handle_package_update( $root );
 
 		Logger::info( 'Done with running!' );
 	}
 
 	/**
+	 * Handles composer dependencies updates
+	 *
+	 * @param Array $package package as associative array.
+	 */
+	public function handle_composer_dependencies( $package ) {
+		$name   = $package['name'];
+		$answer = $this->handle_polar_question( "Do you want to update composer dependencies for $name [y/n]? " );
+
+		if ( false === $answer ) {
+			Logger::log( 'As you wish. skipping composer updates', 'dark_gray' );
+			return false;
+		}
+
+		$dependencies = array_map(
+			function ( $require ) {
+				return $require['name'];
+			},
+			$package['requires']
+		);
+
+		$folder = explode( '/', $package['name'] )[1];
+
+		foreach ( $dependencies as $dep ) {
+			Cmd::run( "composer --working-dir=$folder require $dep 2>&1" );
+		}
+		return true;
+	}
+
+	/**
 	 * Handles root package update
 	 *
-	 * @param String $name package name.
+	 * @param String $package package name.
 	 */
-	public function handle_package_update( $name ) {
-		$sh = new Git_Shell_Command( $name );
+	public function handle_package_update( $package ) {
+		$name = $package['name'];
+		$sh   = new Git_Shell_Command( $name );
 
 		$sh->clone_repository();
 
@@ -59,23 +89,8 @@ class Release {
 		$diff = $sh->get_diff_between( $tag, 'master' );
 
 		if ( $this->is_update_requested( $name, $tag, $diff ) ) {
-			$this->do_dependency_update( $name );
+			$this->do_package_update( $package );
 		}
-	}
-
-	/**
-	 * Checks if user requested an update
-	 *
-	 * @param String $name repo name.
-	 * @param String $tag latest released version.
-	 * @param String $diff short diff of unreleased changes.
-	 */
-	public function is_update_requested( $name, $tag, $diff ) {
-		Logger::log( "Package name: $name", 'blue' );
-		Logger::log( "Latest stable version: $tag", 'blue' );
-		Logger::log( "Unreleased changes: $diff", 'blue' );
-
-		return $this->handle_polar_question( 'Do you want to update this package [y/n]? ' );
 	}
 
 	/**
@@ -89,7 +104,7 @@ class Release {
 
 		foreach ( $list as $dep ) {
 			if ( $this->is_update_requested( $dep[0], $dep[2], $dep[1] ) ) {
-				$this->do_dependency_update( $dep[0] );
+				$this->do_package_update( $dep[3] );
 			}
 		}
 	}
@@ -97,11 +112,12 @@ class Release {
 	/**
 	 * Run an actual package update
 	 *
-	 * @param String $name package name.
+	 * @param String $package package name.
 	 * @throws \Exception Invalid provided version.
 	 */
-	public function do_dependency_update( $name ) {
-		Logger::info( "Updating dependency: $name" );
+	public function do_package_update( $package ) {
+		$name = $package['name'];
+		Logger::info( "Updating package: $name" );
 
 		$prompt = $this->logger->get_colored_string(
 			'Please provide a version number that should be used for new release in SemVer format (x.x.x): ',
@@ -121,7 +137,42 @@ class Release {
 		$sh->clone_repository();
 		$sh->checkout_new_branch( $branch );
 
+		$is_updated = $this->handle_composer_dependencies( $package );
+
+		// If composer deps were updated, we need to commit changed composer.json.
+		if ( $is_updated ) {
+			$git_status = $sh->status();
+			if ( 0 !== strlen( $git_status ) ) {
+				Logger::info( 'Git directory is not clean' );
+				Logger::info( $git_status );
+
+				$answer = $this->handle_polar_question( 'Do you want to commit these changes [y/n]? ' );
+
+				if ( true === $answer ) {
+					$sh->commit();
+				}
+			}
+		}
+
+		$sh->tag_new_version( $version );
+		$sh->push_to_remote( $branch );
+
 		return true;
+	}
+
+	/**
+	 * Checks if user requested an update
+	 *
+	 * @param String $name repo name.
+	 * @param String $tag latest released version.
+	 * @param String $diff short diff of unreleased changes.
+	 */
+	public function is_update_requested( $name, $tag, $diff ) {
+		Logger::log( "Package name: $name", 'blue' );
+		Logger::log( "Latest stable version: $tag", 'blue' );
+		Logger::log( "Unreleased changes: $diff", 'blue' );
+
+		return $this->handle_polar_question( 'Do you want to update this package [y/n]? ' );
 	}
 
 	/**
@@ -192,7 +243,7 @@ class Release {
 			// Check if we need to update this package.
 			$update = $this->is_update_possible( $dependency['name'] );
 			if ( $update['status'] ) {
-				array_unshift( $deps_to_update, array( $dependency['name'], $update['diff'], $update['tag'] ) );
+				array_unshift( $deps_to_update, array( $dependency['name'], $update['diff'], $update['tag'], $dependency ) );
 				if ( array_key_exists( 'requires', $dependency ) ) {
 					// $dependency have dependencies, lets recursively go through them too.
 					$deps = $this->get_package_dependencies_to_update( $dependency );
