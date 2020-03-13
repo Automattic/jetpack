@@ -102,7 +102,6 @@ function render_player( $track_list, $attributes ) {
 	wp_enqueue_script( 'wp-mediaelement' );
 	wp_enqueue_style( 'wp-mediaelement' );
 
-	$block_classname = 'wp-block-' . esc_attr( BLOG_SLUG );
 	?>
 	<div class="<?php echo esc_attr( $block_classname ); ?>" id="<?php echo esc_attr( $instance_id ); ?>">
 		<div class="<?php echo esc_attr( $block_classname ); ?>-current-item"></div>
