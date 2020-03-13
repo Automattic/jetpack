@@ -1,7 +1,10 @@
 name: "Needs Review Label Actions"
 on:
-  pull_request:
-    types: [labeled]
+  push:
+    branches-ignore:
+      - '**'
+  #pull_request:
+    #types: [labeled]
 
 jobs:
   comment:
