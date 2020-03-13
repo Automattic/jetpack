@@ -77,7 +77,8 @@ export async function connectThroughWPAdminIfNeeded( {
 	// await ( await JetpackUserTypePage.init( page ) ).selectUserType( 'creator' );
 
 	if ( mockPlanData ) {
-		await persistPlanData();
+		const planType = plan === 'free' ? 'jetpack_free' : 'jetpack_business';
+		await persistPlanData( planType );
 		await ( await PickAPlanPage.init( page ) ).selectFreePlan();
 	} else {
 		await ( await PickAPlanPage.init( page ) ).selectBusinessPlan();
@@ -88,7 +89,6 @@ export async function connectThroughWPAdminIfNeeded( {
 	await ( await MyPlanPage.init( page ) ).returnToWPAdmin();
 
 	jetpackPage = await JetpackPage.init( page );
-
 	if ( ! mockPlanData ) {
 		await jetpackPage.reload( { waitFor: 'networkidle0' } );
 

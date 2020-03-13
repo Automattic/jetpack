@@ -1,0 +1,22 @@
+name: "Needs Review Label Actions"
+on:
+  pull_request:
+    types: [labeled]
+
+jobs:
+  comment:
+    runs-on: ubuntu-latest
+    name: Comment on Needs Review label
+    if: github.event.label.name == '[Status] Needs Review'
+    steps:
+      - name: Comment
+        uses: actions/github-script@0.8.0
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: 'Howdy! The Jetpack team has disappeared for a few days to a secret island lair to concoct new ways to make Jetpack one hundred billion percent better. As a result, your Pull Request may not be reviewed right away. Do not worry, we will be back next week to look at your work! Thank you for your understanding.'
+            })

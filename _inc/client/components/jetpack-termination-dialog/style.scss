@@ -51,6 +51,7 @@
 
 	.jetpack-termination-dialog__feature {
 		width: calc( 100% - 2em );
+
 		@include breakpoint( '>660px' ) {
 			width: calc( 50% - 2em );
 		}
@@ -113,10 +114,23 @@
 	font-weight: normal;
 	line-height: 24px;
 	margin-top: 29px;
+	margin-bottom: 120px;
 
 	// replicates behavior from .dops-card and keeps this centered
 	@include breakpoint( '>480px' ) {
 		margin-top: 37px;
+	}
+	@include breakpoint( '>680px' ) {
+		margin-bottom: 0;
+	}
+}
+
+.admin-bar .dops-modal-wrapper {
+	@media only screen and ( min-width: 600px ) {
+		top: 46px;
+	}
+	@media only screen and ( min-width: 782px ) {
+		top: 32px;
 	}
 }
 
@@ -124,14 +138,31 @@
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
+	position: fixed;
+	background: $white;
+	bottom: 0;
+	margin-left: -16px;
+	width: 100%;
+	padding: 10px 16px;
+	border-top: 1px solid $gray;
+	box-sizing: border-box;
 
 	p {
 		text-align: center;
 		margin-top: 0;
 	}
 
+	@include breakpoint( '>480px' ) {
+		margin-left: -24px;
+		padding: 10px 24px;
+	}
+
 	@include breakpoint( '>660px' ) {
 		flex-direction: row;
+		position: relative;
+		margin-left: 0;
+		padding: 0;
+		border-top: none;
 
 		p {
 			text-align: auto;

@@ -21,8 +21,8 @@ export default class JetpackPage extends Page {
 	}
 
 	async isFree() {
-		const premiumPlanImage = ".my-plan-card__icon img[src*='free']";
-		return await isEventuallyVisible( this.page, premiumPlanImage, 20000 );
+		const freePlanImage = ".my-plan-card__icon img[src*='free']";
+		return await isEventuallyVisible( this.page, freePlanImage, 20000 );
 	}
 
 	async isPremium() {
@@ -43,7 +43,7 @@ export default class JetpackPage extends Page {
 	async isPlan( plan ) {
 		switch ( plan ) {
 			case 'free':
-				return await this.isPremium();
+				return await this.isFree();
 			case 'premium':
 				return await this.isPremium();
 			case 'pro':

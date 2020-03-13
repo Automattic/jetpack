@@ -8,7 +8,6 @@ import { connectThroughWPAdminIfNeeded } from '../lib/flows/jetpack-connect';
 import { resetWordpressInstall, getNgrokSiteUrl, activateModule } from '../lib/utils-helper';
 import SimplePaymentBlock from '../lib/blocks/simple-payments';
 import WordAdsBlock from '../lib/blocks/word-ads';
-import PinterestBlock from '../lib/blocks/pinterest';
 import { catchBeforeAll } from '../lib/jest.test.failure';
 
 describe( 'Paid blocks', () => {
@@ -82,26 +81,6 @@ describe( 'Paid blocks', () => {
 
 			const frontend = await PostFrontendPage.init( page );
 			await frontend.isRenderedBlockPresent( WordAdsBlock );
-		} );
-	} );
-
-	describe( 'Pinterest block', () => {
-		it( 'Can publish a post with a Pinterest block', async () => {
-			const blockEditor = await BlockEditorPage.visit( page );
-			const blockInfo = await blockEditor.insertBlock(
-				PinterestBlock.name(),
-				PinterestBlock.title()
-			);
-
-			const pinterestBlock = new PinterestBlock( blockInfo, page );
-			await pinterestBlock.addEmbed();
-
-			await blockEditor.focus();
-			await blockEditor.publishPost();
-			await blockEditor.viewPost();
-
-			const frontend = await PostFrontendPage.init( page );
-			await frontend.isRenderedBlockPresent( PinterestBlock );
 		} );
 	} );
 } );
