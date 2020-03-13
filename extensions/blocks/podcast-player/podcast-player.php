@@ -51,7 +51,7 @@ function render_block( $attributes, $content ) {
 
 	// Test for empty URLS.
 	if ( empty( $attributes['url'] ) ) {
-		return;
+		return '<p>' . esc_html__( 'No Podcast URL provided. Please enter a valid Podcast RSS feed URL.', 'jetpack' ) . '</p>';
 	}
 
 	// Test for invalid URLs.
