@@ -65,7 +65,7 @@ function render_block( $attributes, $content ) {
 	$track_list = get_track_list( $attributes['url'], $attributes['itemsToShow'] );
 
 	if ( is_wp_error( $track_list ) ) {
-		return '<p>' . $track_list->get_error_message() . '</p>';
+		return '<p>' . esc_html( $track_list->get_error_message() ) . '</p>';
 	}
 
 	return render_player( $track_list, $attributes );
@@ -94,7 +94,7 @@ function render_player( $track_list, $attributes ) {
 
 	// If there are no tracks (it is possible) then display appropriate user facing error message.
 	if ( empty( $track_list ) ) {
-		return '<p>' . __( 'No tracks available to play.', 'jetpack' ) . '</p>';
+		return '<p>' . esc_html__( 'No tracks available to play.', 'jetpack' ) . '</p>';
 	}
 
 	ob_start();
@@ -160,7 +160,7 @@ function get_track_list( $feed, $quantity = 5 ) {
 			$track['title'] = esc_html( trim( wp_strip_all_tags( $episode->get_title() ) ) );
 
 			if ( empty( $track['title'] ) ) {
-				$track['title'] = __( '(no title)', 'jetpack' );
+				$track['title'] = esc_html__( '(no title)', 'jetpack' );
 			}
 
 			return $track;
