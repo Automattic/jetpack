@@ -19,7 +19,12 @@ import {
 	ToggleControl,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { BlockControls, BlockIcon, InspectorControls } from '@wordpress/block-editor';
+import {
+	BlockControls,
+	BlockIcon,
+	InspectorControls,
+	__experimentalUseColors as useColors,
+} from '@wordpress/block-editor';
 import ServerSideRender from '@wordpress/server-side-render';
 import { isURL } from '@wordpress/url';
 
@@ -32,6 +37,9 @@ import './editor.scss';
 import { edit, queueMusic } from './icons/';
 import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import attributesValidation from './attributes';
+
+// Check if useColors is available.
+const isUseColorsAvailable = !! useColors;
 
 const DEFAULT_MIN_ITEMS = 1;
 const DEFAULT_MAX_ITEMS = 10;
