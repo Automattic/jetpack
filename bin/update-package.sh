@@ -63,9 +63,14 @@ for package in packages/*; do
 	# Before we commit any changes, ensure that the repo has the basics we need for any package.
 	if [ ! -f "composer.json" -o ! -d "src" ]; then
 		echo "  Those changes remove essential parts of the package. They will not be committed."
-	# Commit if there is any change that could be committed
-	elif [ -n "$(git status --porcelain)" ]; then
+		continue
+	fi
 
+	# Let's make sure composer.json is valid.
+	$( composer validate -n >/dev/null 2>&1 ) || continue
+
+	# Commit if there is any change that could be committed
+	if [ -n "$(git status --porcelain)" ]; then
 		echo  "  Committing $NAME to $NAME's mirror repository"
 		git add -A
 		git commit --author="${COMMIT_ORIGINAL_AUTHOR}" -m "${COMMIT_MESSAGE}"
