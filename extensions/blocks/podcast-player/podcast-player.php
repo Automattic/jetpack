@@ -98,6 +98,7 @@ function render_player( $track_list, $attributes ) {
 	$initial_track_src = ! empty( $track_list[0]['src'] ) ? $track_list[0]['src'] : '';
 
 	wp_enqueue_script( 'wp-mediaelement' );
+	wp_enqueue_style( 'wp-mediaelement' );
 
 	$block_classname = 'wp-block-' . esc_attr( BLOG_SLUG );
 	?>
