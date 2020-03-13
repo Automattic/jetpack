@@ -81,6 +81,8 @@ function render_player( $track_list, $attributes ) {
 	if ( empty( $track_list ) ) {
 		return '<p>' . esc_html__( 'No tracks available to play.', 'jetpack' ) . '</p>';
 	}
+	static $counter = 0;
+	$instance_id    = FEATURE_NAME . '-' . ( $counter++ );
 
 	$player_data = array(
 		'type'         => 'audio',
@@ -102,7 +104,7 @@ function render_player( $track_list, $attributes ) {
 
 	$block_classname = 'wp-block-' . esc_attr( BLOG_SLUG );
 	?>
-	<div class="<?php echo esc_attr( $block_classname ); ?>">
+	<div class="<?php echo esc_attr( $block_classname ); ?>" id="<?php echo esc_attr( $instance_id ); ?>">
 		<div class="<?php echo esc_attr( $block_classname ); ?>-current-item"></div>
 		<audio src="<?php echo esc_attr( $initial_track_src ); ?>" controls="controls" preload="none"></audio>
 		<div class="<?php echo esc_attr( $block_classname ); ?>-next"></div>
