@@ -109,9 +109,7 @@ function render_player( $track_list, $attributes ) {
 	?>
 	<div class="<?php echo esc_attr( $block_classname ); ?>" id="<?php echo esc_attr( $instance_id ); ?>">
 		<div class="<?php echo esc_attr( $block_classname ); ?>-current-item"></div>
-		<audio src="<?php echo esc_attr( $initial_track_src ); ?>" controls="controls" preload="none"></audio>
-		<div class="<?php echo esc_attr( $block_classname ); ?>-next"></div>
-		<div class="<?php echo esc_attr( $block_classname ); ?>-prev"></div>
+		<audio src="<?php echo esc_attr( $initial_track_src ); ?>" preload="none"></audio>
 		<ol>
 			<?php
 			foreach ( $track_list as $att_id => $attachment ) :
