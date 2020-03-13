@@ -44,7 +44,7 @@ window.addEventListener( 'click', function( e ) {
 	const audioUrl = e.target.getAttribute( 'data-podcast-audio' );
 	if ( audioUrl ) {
 		const block = e.target.closest( '.wp-block-jetpack-podcast-player' );
-		const player = playerInstances[ block.id ];
+		const player = block && playerInstances[ block.id ];
 		if ( player ) {
 			player.audio.pause();
 			player.audio.src = audioUrl;
