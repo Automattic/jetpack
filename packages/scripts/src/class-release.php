@@ -155,7 +155,11 @@ class Release {
 		}
 
 		$sh->tag_new_version( $version );
-		$sh->push_to_remote( $branch );
+
+		$answer = $this->handle_polar_question( 'All set! We are ready to push a new release. Proceed [y/n]? ' );
+		if ( true === $answer ) {
+			$sh->push_to_remote( $branch );
+		}
 
 		return true;
 	}
