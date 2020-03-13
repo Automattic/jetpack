@@ -101,10 +101,6 @@ function render_player( $track_list, $attributes ) {
 
 	ob_start();
 	$initial_track_src = ! empty( $track_list[0]['src'] ) ? $track_list[0]['src'] : '';
-
-	wp_enqueue_script( 'wp-mediaelement' );
-	wp_enqueue_style( 'wp-mediaelement' );
-
 	?>
 	<div class="<?php echo esc_attr( $block_classname ); ?>" id="<?php echo esc_attr( $instance_id ); ?>">
 		<audio src="<?php echo esc_attr( $initial_track_src ); ?>" preload="none"></audio>
@@ -122,6 +118,8 @@ function render_player( $track_list, $attributes ) {
 	/*
 	* Enqueue necessary scripts and styles.
 	*/
+	wp_enqueue_script( 'wp-mediaelement' );
+	wp_enqueue_style( 'wp-mediaelement' );
 	Jetpack_Gutenberg::load_assets_as_required( 'podcast-player' );
 
 	return ob_get_clean();
