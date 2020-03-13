@@ -41,7 +41,7 @@ window.addEventListener( 'click', function( e ) {
 	}
 
 	// Check if the clicked element was episode link.
-	const audioUrl = e.target.getAttribute( 'data-podcast-audio' );
+	const audioUrl = e.target.getAttribute( 'data-jetpack-podcast-audio' );
 	if ( audioUrl ) {
 		const block = e.target.closest( '.wp-block-jetpack-podcast-player' );
 		const player = block && playerInstances[ block.id ];
