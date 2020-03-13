@@ -35,6 +35,12 @@ const handleSSRError = () => {
 	return <p>{ __( 'Failed to load Block', 'jetpack' ) }</p>;
 };
 
+// Support page link.
+const supportLink =
+	isSimpleSite() || isAtomicSite()
+		? 'http://en.support.wordpress.com/wordpress-editor/blocks/podcast-player-block/'
+		: 'https://jetpack.com/support/jetpack-blocks/podcast-player-block/';
+
 const PodcastPlayerEdit = ( {
 	attributes,
 	setAttributes,
@@ -77,11 +83,6 @@ const PodcastPlayerEdit = ( {
 		setAttributes( { url: editedUrl } );
 		setIsEditing( false );
 	};
-
-	const supportLink =
-		isSimpleSite() || isAtomicSite()
-			? 'http://en.support.wordpress.com/wordpress-editor/blocks/podcast-player-block/'
-			: 'https://jetpack.com/support/jetpack-blocks/podcast-player-block/';
 
 	if ( isEditing || ! url ) {
 		return (
