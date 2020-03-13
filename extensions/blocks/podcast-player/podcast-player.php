@@ -48,9 +48,19 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * @return string
  */
 function render_block( $attributes, $content ) {
+
+	// Test for empty URLS.
 	if ( empty( $attributes['url'] ) ) {
 		return;
 	}
+
+	// Test for invalid URLs.
+	if ( ! wp_http_validate_url( $attributes['url'] ) ) {
+		return '<p>' . esc_html__( 'Invalid Podcast URL. Please double check the URL you entered.', 'jetpack' ) . '</p>';
+	}
+
+	// Sanitize the URL.
+	$attributes['url'] = esc_url_raw( $attributes['url'] );
 
 	$track_list = get_track_list( $attributes['url'], $attributes['itemsToShow'] );
 
