@@ -1,4 +1,9 @@
 /**
+ * External dependencies
+ */
+import { noop } from 'lodash';
+
+/**
  * WordPress dependencies
  */
 import { useState } from '@wordpress/element';
@@ -45,17 +50,26 @@ const supportLink =
  * Control component used either inside of the Podcast block
  * as well as into the InspectorControls section (sidebar)
  *
- * @param {string}   url         Podcast Feed URL
- * @param {Function} setUrlValue onChange text handler.
- * @return {*} React component
+ * @param {string}   url                    Podcast Feed URL
+ * @param {Function} setUrlValue            onChange text handler.
+ * @param {Function} triggerOnEnterKeyPress onChange text handler.
+ * @param {Function} triggerOnBlur          onBlur element handler.
+ * @return {*}                              React component
  */
-const FeedURLControl = ( { url, onUrlChange: setUrlValue } ) => (
+const FeedURLControl = ( {
+	url,
+	onUrlChange: setUrlValue,
+	onEnterKeyPress: triggerOnEnterKeyPress = noop,
+	onBlur: triggerOnBlur = noop,
+} ) => (
 	<TextControl
 		type="url"
 		placeholder={ __( 'Enter URL here…', 'jetpack' ) }
 		value={ url || '' }
-		onChange={ setUrlValue }
 		className={ 'components-placeholder__input' }
+		onChange={ setUrlValue }
+		onKeyPress={ ev => ( ev.key === 'Enter' ? triggerOnEnterKeyPress( ev ) : noop ) }
+		onBlur={ triggerOnBlur }
 	/>
 );
 
@@ -140,6 +154,13 @@ const PodcastPlayerEdit = ( {
 			</BlockControls>
 			<InspectorControls>
 				<PanelBody title={ __( 'Podcast settings', 'jetpack' ) }>
+					<FeedURLControl
+						url={ editedUrl || '' }
+						onUrlChange={ setEditedUrl }
+						onEnterKeyPress={ checkPodcastLink }
+						onBlur={ checkPodcastLink }
+					/>
+
 					<RangeControl
 						label={ __( 'Number of items', 'jetpack' ) }
 						value={ itemsToShow }
