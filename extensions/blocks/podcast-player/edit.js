@@ -52,6 +52,7 @@ const supportLink =
  * as well as into the InspectorControls section (sidebar)
  *
  * @param {string}   url                    Podcast Feed URL
+ * @param {string}   label                  Input field label (optional)
  * @param {Function} setUrlValue            onChange text handler.
  * @param {Function} triggerOnEnterKeyPress onChange text handler.
  * @param {Function} triggerOnBlur          onBlur element handler.
@@ -59,11 +60,13 @@ const supportLink =
  */
 const FeedURLControl = ( {
 	url,
+	label = null,
 	onUrlChange: setUrlValue,
 	onEnterKeyPress: triggerOnEnterKeyPress = noop,
 	onBlur: triggerOnBlur = noop,
 } ) => (
 	<TextControl
+		label={ label }
 		type="url"
 		placeholder={ __( 'Enter URL here…', 'jetpack' ) }
 		value={ url || '' }
@@ -159,6 +162,7 @@ const PodcastPlayerEdit = ( {
 			<InspectorControls>
 				<PanelBody title={ __( 'Podcast settings', 'jetpack' ) }>
 					<FeedURLControl
+						label={ __( 'RSS Feed URL', 'jetpack' ) }
 						url={ editedUrl || '' }
 						onUrlChange={ setEditedUrl }
 						onEnterKeyPress={ checkPodcastLink }
