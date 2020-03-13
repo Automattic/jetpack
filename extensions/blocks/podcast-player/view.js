@@ -20,13 +20,6 @@ const initializeBlock = function( id ) {
 
 		// Initialize player UI.
 		player.mediaElement = new MediaElementPlayer( player.audio, meJsSettings );
-
-		// // Load track data.
-		// try {
-		// 	player.meta = block.querySelector( 'script[type="application/json"]' ).innerHTML;
-		// } catch ( e ) {
-		// 	player.meta = {};
-		// }
 	}
 };
 
