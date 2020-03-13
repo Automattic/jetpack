@@ -1125,7 +1125,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return new WP_Error( 'site_id_missing' );
 		}
 
-		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/rewind', $site_id ) .'?force=wpcom', '2', array(), null, 'wpcom' );
+		$response = Client::wpcom_json_api_request_as_user( sprintf( '/sites/%d/rewind', $site_id ) .'?force=wpcom', '2', array(), null, 'wpcom' );
 
 		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
 			return new WP_Error( 'rewind_data_fetch_failed' );
@@ -1453,7 +1453,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			$args['headers']['Cookie'] = "store_sandbox=$secret;";
 		}
 
-		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d', $site_id ) .'?force=wpcom', '1.1', $args );
+		$response = Client::wpcom_json_api_request_as_user( sprintf( '/sites/%d', $site_id ) .'?force=wpcom', '1.1', $args );
 
 		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
 			return new WP_Error( 'site_data_fetch_failed' );
