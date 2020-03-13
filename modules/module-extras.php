@@ -47,6 +47,7 @@ $connected_tools = array(
 	'woocommerce-analytics/wp-woocommerce-analytics.php',
 	'wpcom-block-editor/class-jetpack-wpcom-block-editor.php',
 	'wpcom-tos/wpcom-tos.php',
+	'widgets/instagram/instagram.php',
 );
 
 // Add connected features to our existing list if the site is currently connected.
