@@ -118,6 +118,7 @@ function render_player( $track_list, $attributes ) {
 		</ol>
 		<script type="application/json" class="<?php echo esc_attr( $block_classname ); ?>-script"><?php echo wp_json_encode( $player_data ); ?></script>
 	</div>
+	<script>window.jetpackPodcastPlayers=(window.jetpackPodcastPlayers||[]);window.jetpackPodcastPlayers.push( <?php echo wp_json_encode( $instance_id ); ?> );</script>
 	<?php
 	/*
 	* Enqueue necessary scripts and styles.
