@@ -56,7 +56,7 @@ function render_block( $attributes, $content ) {
 
 	// Test for invalid URLs.
 	if ( ! wp_http_validate_url( $attributes['url'] ) ) {
-		return '<p>' . esc_html__( 'Invalid Podcast URL. Please double check the URL you entered.', 'jetpack' ) . '</p>';
+		return '<p>' . esc_html__( 'Your podcast URL is invalid and couldn\'t be embedded. Please double check your URL.', 'jetpack' ) . '</p>';
 	}
 
 	// Sanitize the URL.
@@ -126,8 +126,9 @@ function get_track_list( $feed, $quantity = 5 ) {
 	}
 
 	$rss = fetch_feed( $feed );
+
 	if ( is_wp_error( $rss ) ) {
-		return new WP_Error( 'invalid_url', __( 'Your podcast couldn't be embedded. Please double check your URL.', 'jetpack' ) );
+		return new WP_Error( 'invalid_url', __( 'Your podcast couldn\'t be embedded. Please double check your URL.', 'jetpack' ) );
 	}
 
 	if ( ! $rss->get_item_quantity() ) {
