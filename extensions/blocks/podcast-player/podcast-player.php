@@ -127,7 +127,7 @@ function get_track_list( $feed, $quantity = 5 ) {
 
 	$rss = fetch_feed( $feed );
 	if ( is_wp_error( $rss ) ) {
-		return new WP_Error( 'invalid_url', __( 'That RSS feed could not be found. Double check the URL you entered.', 'jetpack' ) );
+		return new WP_Error( 'invalid_url', __( 'Your podcast couldn't be embedded. Please double check your URL.', 'jetpack' ) );
 	}
 
 	if ( ! $rss->get_item_quantity() ) {
