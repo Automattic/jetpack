@@ -13,15 +13,6 @@ use PHPUnit\Framework\TestCase;
 class WP_Test_File_Loader extends TestCase {
 
 	/**
-	 * Setup runs before each test.
-	 */
-	public function setup() {
-		parent::setup();
-
-		spl_autoload_register( 'autoloader' );
-	}
-
-	/**
 	 * Tests whether enqueueing adds a file to the global array.
 	 */
 	public function test_enqueueing_adds_to_the_global_array() {
