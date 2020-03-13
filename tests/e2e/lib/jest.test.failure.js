@@ -17,7 +17,7 @@ import { logHTML, logDebugLog } from './page-helper';
 let currentBlock;
 const { CI, E2E_DEBUG, E2E_LOG_HTML } = process.env;
 
-export const defaultErrorHandler = async error => {
+export const defaultErrorHandler = async ( error, name ) => {
 	// If running tests in CI
 	if ( CI ) {
 		const filePath = await takeScreenshot( currentBlock, name );
@@ -45,7 +45,7 @@ export const catchBeforeAll = async ( callback, errorHandler = defaultErrorHandl
 		try {
 			await callback();
 		} catch ( error ) {
-			await errorHandler( error );
+			await errorHandler( error, 'beforeAll' );
 		}
 	} );
 };
@@ -65,7 +65,7 @@ global.it = async ( name, func ) => {
 		try {
 			await func();
 		} catch ( error ) {
-			await defaultErrorHandler( error );
+			await defaultErrorHandler( error, name );
 		}
 	} );
 };
