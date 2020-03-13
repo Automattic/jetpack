@@ -315,6 +315,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				// This option is stored on wp.com for both simple and atomic sites. @see mu-plugins/private-blog.php
 				$response[ $key ] = $this->site->is_coming_soon();;
 				break;
+			case 'launch_status' :
+				$response[ $key ] = $this->site->get_launch_status();
+				break;
 			case 'visible' :
 				$response[ $key ] = $this->site->is_visible();
 				break;
@@ -387,9 +390,6 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				break;
 			case 'quota' :
 				$response[ $key ] = $this->site->get_quota();
-				break;
-			case 'launch_status' :
-				$response[ $key ] = $this->site->get_launch_status();
 				break;
 			case 'site_migration' :
 				$response[ $key ] = $this->site->get_migration_meta();
