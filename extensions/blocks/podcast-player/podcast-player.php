@@ -7,7 +7,7 @@
  * @package Jetpack
  */
 
-namespace Jetpack\Podcast_Episodes_Block;
+namespace Jetpack\Podcast_Player_Block;
 
 use WP_Error;
 use Jetpack_Gutenberg;
