@@ -293,7 +293,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 					echo $this->build_map( $instance['address'], $apikey ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				} elseif ( true !== $instance['goodmap'] && ! empty( $instance['goodmap'] ) ) {
 					printf(
-						'<span class="notice notice-warning" style="display: block;">%s</span>',
+						'<span class="button-link-delete">%s</span>',
 						esc_html( $instance['goodmap'] )
 					);
 				}
