@@ -69,7 +69,6 @@ function render_block( $attributes, $content ) {
  * @return string the HTML for the podcast player.
  */
 function render_player( $track_list, $attributes ) {
-	global $content_width;
 
 	$player_data = array(
 		'type'         => 'audio',
@@ -81,9 +80,7 @@ function render_player( $track_list, $attributes ) {
 		'tracks'       => $track_list,
 	);
 
-	$outer         = 22; // Default padding and border of wrapper.
-	$default_width = 640;
-	$theme_width   = empty( $content_width ) ? $default_width : ( $content_width - $outer );
+	$block_classname = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attributes );
 
 	// If there are no tracks (it is possible) then display appropriate user facing error message.
 	if ( empty( $track_list ) ) {
@@ -92,29 +89,9 @@ function render_player( $track_list, $attributes ) {
 
 	ob_start();
 
-	$initial_track_src = ! empty( $track_list[0]['src'] ) ? $track_list[0]['src'] : '';
-	$block_classname   = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attributes );
-
-	wp_enqueue_script( 'wp-mediaelement' );
-
 	?>
 	<div class="<?php echo esc_attr( $block_classname ); ?>">
-		<div class="<?php echo esc_attr( $block_classname ); ?>-current-item"></div>
-		<audio
-				src="<?php echo esc_attr( $initial_track_src ); ?>"
-				controls="controls"
-				preload="none"
-				width="<?php echo esc_attr( (int) $theme_width ); ?>">
-		</audio>
-		<div class="<?php echo esc_attr( $block_classname ); ?>-next"></div>
-		<div class="<?php echo esc_attr( $block_classname ); ?>-prev"></div>
-		<ol>
-			<?php
-			foreach ( $track_list as $att_id => $attachment ) :
-				printf( '<li><a href="%1$s" data-podcast-audio="%2$s">%3$s</a></li>', esc_url( $attachment['link'] ), esc_url( $attachment['src'] ), esc_html( $attachment['title'] ) );
-			endforeach;
-			?>
-		</ol>
+		<?php // Placeholder: block markup is being handled in https://github.com/Automattic/jetpack/pull/14952. ?>
 		<script type="application/json" class="wp-playlist-script"><?php echo wp_json_encode( $player_data ); ?></script>
 	</div>
 	<?php
