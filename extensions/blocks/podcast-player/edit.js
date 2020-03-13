@@ -51,19 +51,19 @@ const supportLink =
  * Control component used either inside of the Podcast block
  * as well as into the InspectorControls section (sidebar)
  *
- * @param {string}   url                    Podcast Feed URL
- * @param {string}   label                  Input field label (optional)
- * @param {Function} setUrlValue            onChange text handler.
- * @param {Function} triggerOnEnterKeyPress onChange text handler.
- * @param {Function} triggerOnBlur          onBlur element handler.
- * @return {*}                              React component
+ * @param {string}      url             Podcast Feed URL
+ * @param {string|Null} label           Input field label. Optional.
+ * @param {Function}    onUrlChange     onChange text handler.
+ * @param {Function}    onEnterKeyPress on Enter key input event handler. Optional.
+ * @param {Function}    onBlur          onBlur input handler. Optional.
+ * @return {*}                          React component
  */
 const FeedURLControl = ( {
 	url,
 	label = null,
-	onUrlChange: setUrlValue,
-	onEnterKeyPress: triggerOnEnterKeyPress = noop,
-	onBlur: triggerOnBlur = noop,
+	onUrlChange,
+	onEnterKeyPress = noop,
+	onBlur = noop,
 } ) => (
 	<TextControl
 		label={ label }
@@ -71,9 +71,9 @@ const FeedURLControl = ( {
 		placeholder={ __( 'Enter URL here…', 'jetpack' ) }
 		value={ url || '' }
 		className={ 'components-placeholder__input' }
-		onChange={ setUrlValue }
-		onKeyPress={ ev => ( ev.key === 'Enter' ? triggerOnEnterKeyPress( ev ) : noop ) }
-		onBlur={ triggerOnBlur }
+		onChange={ onUrlChange }
+		onKeyPress={ ev => ( ev.key === 'Enter' ? onEnterKeyPress( ev ) : noop ) }
+		onBlur={ onBlur }
 	/>
 );
 
