@@ -73,8 +73,8 @@ const PodcastPlayerEdit = ( { attributes, setAttributes } ) => {
 
 	const supportLink =
 		isSimpleSite() || isAtomicSite()
-			? 'https://en.support.wordpress.com/?page_id=163160'
-			: 'https://jetpack.com/?post_type=jetpack_support&p=95361';
+			? 'http://en.support.wordpress.com/wordpress-editor/blocks/podcast-player-block/'
+			: 'https://jetpack.com/support/jetpack-blocks/podcast-player-block/';
 
 	if ( editing || ! url ) {
 		return (
