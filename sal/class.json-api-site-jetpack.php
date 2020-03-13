@@ -138,12 +138,31 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 		return $allowed_file_types;
 	}
 
+	/**
+	 * Return site's privacy status.
+	 *
+	 * @return boolean  Is site private?
+	 */
 	function is_private() {
 		return (int) $this->get_atomic_cloud_site_option( 'blog_public' ) === -1;
 	}
 
+	/**
+	 * Return site's coming soon status.
+	 *
+	 * @return boolean  Is site "Coming soon"?
+	 */
 	function is_coming_soon() {
 		return $this->is_private() && (int) $this->get_atomic_cloud_site_option( 'wpcom_coming_soon' ) === 1;
+	}
+	
+	/**
+	 * Return site's launch status.
+	 *
+	 * @return string|boolean  Launch status ('launched', 'unlaunched', or false).
+	 */
+	function get_launch_status() {
+		return $this->get_cloud_site_option( 'launch-status' );
 	}
 
 	function get_atomic_cloud_site_option( $option ) {
