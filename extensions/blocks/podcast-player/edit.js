@@ -23,7 +23,9 @@ import { __ } from '@wordpress/i18n';
 import {
 	BlockControls,
 	BlockIcon,
+	ContrastChecker,
 	InspectorControls,
+	PanelColorSettings,
 	withColors,
 	__experimentalUseColors as useColors,
 } from '@wordpress/block-editor';
@@ -60,8 +62,16 @@ const supportUrl =
 const PodcastPlayerEdit = ( {
 	attributes,
 	setAttributes,
+
 	noticeOperations: { createErrorNotice, removeAllNotices },
 	noticeUI,
+
+	textColor,
+	setTextColor,
+	fallbackTextColor,
+	backgroundColor,
+	setBackgroundColor,
+	fallbackBackgroundColor,
 } ) => {
 	// Validated attributes.
 	const { url, itemsToShow, showCoverArt, showEpisodeDescription } = getValidatedAttributes(
@@ -168,6 +178,36 @@ const PodcastPlayerEdit = ( {
 						onChange={ value => setAttributes( { showEpisodeDescription: value } ) }
 					/>
 				</PanelBody>
+
+				{ ! isUseColorsAvailable && (
+					<PanelColorSettings
+						title={ __( 'Color Settings', 'jetpack' ) }
+						colorSettings={ [
+							{
+								value: textColor.color,
+								onChange: setTextColor,
+								label: __( 'Text Color', 'jetpack' ),
+							},
+							{
+								value: backgroundColor.color,
+								onChange: setBackgroundColor,
+								label: __( 'Background', 'jetpack' ),
+							},
+						] }
+					>
+						<ContrastChecker
+							{ ...{
+								// Text is considered large if font size is greater or equal to 18pt or 24px,
+								// currently that's not the case for button.
+								isLargeText: false,
+								textColor: textColor.color,
+								backgroundColor: backgroundColor.color,
+								fallbackBackgroundColor,
+								fallbackTextColor,
+							} }
+						/>
+					</PanelColorSettings>
+				) }
 			</InspectorControls>
 			<Disabled>
 				<ServerSideRender
