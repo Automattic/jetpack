@@ -40,7 +40,7 @@ const PodcastPlayerEdit = ( { attributes, setAttributes } ) => {
 
 	// State.
 	const [ editedUrl, setEditedUrl ] = useState( url || '' );
-	const [ editing, setEditing ] = useState( false );
+	const [ isEditing, setIsEditing ] = useState( false );
 	const [ urlError, setUrlError ] = useState( '' );
 
 	/**
@@ -67,7 +67,7 @@ const PodcastPlayerEdit = ( { attributes, setAttributes } ) => {
 
 		if ( isValidURL ) {
 			setAttributes( { url: editedUrl } );
-			setEditing( false );
+			setIsEditing( false );
 		}
 	};
 
@@ -76,7 +76,7 @@ const PodcastPlayerEdit = ( { attributes, setAttributes } ) => {
 			? 'http://en.support.wordpress.com/wordpress-editor/blocks/podcast-player-block/'
 			: 'https://jetpack.com/support/jetpack-blocks/podcast-player-block/';
 
-	if ( editing || ! url ) {
+	if ( isEditing || ! url ) {
 		return (
 			<Placeholder
 				icon={ <BlockIcon icon={ queueMusic } /> }
@@ -109,7 +109,7 @@ const PodcastPlayerEdit = ( { attributes, setAttributes } ) => {
 		{
 			icon: edit,
 			title: __( 'Edit Podcast Feed URL', 'jetpack' ),
-			onClick: () => setEditing( true ),
+			onClick: () => setIsEditing( true ),
 		},
 	];
 
