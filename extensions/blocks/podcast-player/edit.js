@@ -61,7 +61,7 @@ const PodcastPlayerEdit = ( { attributes, setAttributes } ) => {
 
 		setUrlError(
 			! isValidURL
-				? __( 'Your podcast couldn't be embedded. Please double check your URL.', 'jetpack' )
+				? __( "Your podcast couldn't be embedded. Please double check your URL.", 'jetpack' )
 				: ''
 		);
 
@@ -81,7 +81,7 @@ const PodcastPlayerEdit = ( { attributes, setAttributes } ) => {
 			<Placeholder
 				icon={ <BlockIcon icon={ queueMusic } /> }
 				label={ __( 'Podcast Player', 'jetpack' ) }
-				instructions={ __( 'Paste a link to your Podcast RSS feed.', 'jetpack' ) }
+				instructions={ __( 'Enter your podcast RSS feed URL.', 'jetpack' ) }
 			>
 				<form onSubmit={ checkPodcastLink }>
 					{ urlError && <Notice>{ urlError }</Notice> }
