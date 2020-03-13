@@ -23,6 +23,7 @@ import {
 } from '../state/site';
 import { getSiteRawUrl, getUpgradeUrl, isMultisite } from '../state/initial-state';
 import { getProducts, isFetchingProducts } from '../state/products';
+import './single-products.scss';
 
 class ProductSelector extends Component {
 	state = {

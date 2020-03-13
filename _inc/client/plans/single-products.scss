@@ -2,42 +2,6 @@
 @import 'scss/variables/_colors.scss';
 @import 'scss/calypso-colors.scss';
 
-// Plan radio button
-.plan-radio-button {
-	display: flex;
-
-	& + & {
-		margin-top: 16px;
-
-		@include breakpoint( '>660px' ) {
-			margin-top: 0;
-		}
-	}
-}
-
-.plan-radio-button__label {
-	display: flex;
-	flex-flow: row wrap;
-	align-items: center;
-	width: 100%;
-	margin-left: 8px;
-
-	@include breakpoint( '>660px' ) {
-		flex-flow: column nowrap;
-		align-items: flex-start;
-	}
-}
-
-input[type='radio'].plan-radio-button__input {
-	flex: 0 0 auto;
-	margin-top: 2px;
-}
-
-.plan-radio-button__title {
-	font-weight: 600;
-	flex: 1;
-}
-
 // Single product backup
 .single-product-backup__header-title {
 	margin: 5px 20px 5px 0;
@@ -149,45 +113,6 @@ input[type='radio'].plan-radio-button__input {
 	font-size: 14px;
 	color: $gray-text-min;
 	text-align: center;
-}
-
-.single-product-backup__promo {
-	background-color: $gray-light;
-	border-radius: 16px;
-	position: relative;
-	padding: 7px 0;
-	margin-top: 24px;
-}
-
-.single-product-backup__promo-star {
-	position: absolute;
-	left: -1rem;
-	top: -1.5rem;
-	transform: rotate( -10deg );
-	background-image: url( '../../../../images/green-star.svg' );
-	padding: 35px 20px;
-	color: $white;
-	font-weight: bold;
-	text-align: center;
-	line-height: 17px;
-	width: 105px;
-	height: 105px;
-	box-sizing: border-box;
-}
-
-.single-product-backup__promo-header {
-	font-weight: normal;
-	font-size: 12px;
-	text-transform: uppercase;
-	color: $gray-text-min;
-	margin: 0 0 0 100px;
-}
-
-.single-product-backup__promo-header strong {
-	font-size: 14px;
-	color: $wpui-header-dark;
-	display: block;
-	text-transform: none;
 }
 
 .single-product-backup__savings {

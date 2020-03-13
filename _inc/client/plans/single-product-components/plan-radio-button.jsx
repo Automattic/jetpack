@@ -7,6 +7,7 @@ import React from 'react';
  * Internal dependencies
  */
 import PriceGroup from './price-group';
+import './plan-radio-button.scss';
 
 export default function PlanRadioButton( props ) {
 	return (

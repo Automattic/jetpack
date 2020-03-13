@@ -9,7 +9,6 @@ import { get } from 'lodash';
  * Internal dependencies
  */
 import SingleProductBackupBody from './body';
-import './style.scss';
 
 function generateBackupOptions( { products, upgradeLinkDaily, upgradeLinkRealtime } ) {
 	const priceDailyMonthly = get( products, [ 'jetpack_backup_daily_monthly', 'cost' ], '' );

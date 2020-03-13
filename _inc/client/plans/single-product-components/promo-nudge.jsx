@@ -4,6 +4,11 @@
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
 
+/**
+ * Internal dependencies
+ */
+import './promo-nudge.scss';
+
 export default function PromoNudge() {
 	return (
 		<div className="single-product-backup__promo">
