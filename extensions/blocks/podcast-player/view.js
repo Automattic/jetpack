@@ -9,18 +9,25 @@ const meJsSettings = typeof _wpmejsSettings !== undefined ? _wpmejsSettings : {}
 
 const initializeBlock = function( id ) {
 	const block = document.getElementById( id );
-	if ( block ) {
-		const player = {
-			id,
-			block,
-			audio: block.querySelector( 'audio' ),
-			currentTrack: 0,
-		};
-		playerInstances[ id ] = player;
 
-		// Initialize player UI.
-		player.mediaElement = new MediaElementPlayer( player.audio, meJsSettings );
+	// Check if we can find the block and required dependency.
+	if ( ! block || ! MediaElementPlayer ) {
+		return;
 	}
+
+	// Create player instance.
+	const player = {
+		id,
+		block,
+		audio: block.querySelector( 'audio' ),
+		currentTrack: 0,
+	};
+
+	// Initialize player UI.
+	player.mediaElement = new MediaElementPlayer( player.audio, meJsSettings );
+
+	// Save instance to the list of active ones.
+	playerInstances[ id ] = player;
 };
 
 // Initialze queued players.
