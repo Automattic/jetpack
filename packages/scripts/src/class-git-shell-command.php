@@ -19,7 +19,7 @@ class Git_Shell_Command {
 	public function __construct( $name ) {
 		$this->name    = $name;
 		$this->path    = explode( '/', $name )[1];
-		$this->dir_arg = "--git-dir=$this->path/.git";
+		$this->dir_arg = "--git-dir=$this->path/.git --work-tree=$this->path";
 	}
 
 	/**
@@ -71,7 +71,52 @@ class Git_Shell_Command {
 	 * @param String $branch branch name.
 	 */
 	public function checkout_new_branch( $branch ) {
-		$cmd    = "git $this->dir_arg checkout -b $branch 2>&1";
+		$cmd    = "git $this->dir_arg checkout -q -b $branch 2>&1";
+		$result = Cmd::run( $cmd );
+
+		return $result['output'];
+	}
+
+	/**
+	 * Tag new version
+	 *
+	 * @param String $name tag name.
+	 */
+	public function tag_new_version( $name ) {
+		$cmd    = "git $this->dir_arg tag -a $name -m 'New release for $name' 2>&1";
+		$result = Cmd::run( $cmd );
+
+		return $result['output'];
+	}
+
+	/**
+	 * Get status
+	 */
+	public function status() {
+		$result = Cmd::run( "git $this->dir_arg status --porcelain --untracked-files=no" );
+
+		return $result['output'];
+	}
+
+	/**
+	 * Commit all changes
+	 */
+	public function commit() {
+		$result = Cmd::run( "git $this->dir_arg commit -a -m 'Add changes'" );
+
+		return $result['output'];
+	}
+
+	/**
+	 * Checkout to a new branch
+	 *
+	 * @param String $branch branch name.
+	 */
+	public function push_to_remote( $branch ) {
+		$cmd    = "git $this->dir_arg push --set-upstream origin $branch 2>&1";
+		$result = Cmd::run( $cmd );
+
+		$cmd    = "git $this->dir_arg push origin --tags 2>&1";
 		$result = Cmd::run( $cmd );
 
 		return $result['output'];
