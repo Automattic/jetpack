@@ -14,15 +14,15 @@
 
 namespace Automattic\Jetpack\Autoloader; // Will be amended with a suffix in the generated file.
 
-global $jetpack_packages_classes;
-global $jetpack_packages_files;
+global $jetpack_packages_classmap;
+global $jetpack_packages_filemap;
 
-if ( ! is_array( $jetpack_packages_classes ) ) {
-	$jetpack_packages_classes = array();
+if ( ! is_array( $jetpack_packages_classmap ) ) {
+	$jetpack_packages_classmap = array();
 }
 
-if ( ! is_array( $jetpack_packages_files ) ) {
-	$jetpack_packages_files = array();
+if ( ! is_array( $jetpack_packages_filemap ) ) {
+	$jetpack_packages_filemap = array();
 }
 
 /**
@@ -34,10 +34,10 @@ if ( ! is_array( $jetpack_packages_files ) ) {
  * @param string $path Absolute path to the class so that we can load it.
  */
 function enqueue_package_class( $class_name, $version, $path ) {
-	global $jetpack_packages_classes;
+	global $jetpack_packages_classmap;
 
-	if ( ! isset( $jetpack_packages_classes[ $class_name ] ) ) {
-		$jetpack_packages_classes[ $class_name ] = array(
+	if ( ! isset( $jetpack_packages_classmap[ $class_name ] ) ) {
+		$jetpack_packages_classmap[ $class_name ] = array(
 			'version' => $version,
 			'path'    => $path,
 		);
@@ -45,14 +45,14 @@ function enqueue_package_class( $class_name, $version, $path ) {
 		return;
 	}
 	// If we have a @dev version set always use that one!
-	if ( 'dev-' === substr( $jetpack_packages_classes[ $class_name ]['version'], 0, 4 ) ) {
+	if ( 'dev-' === substr( $jetpack_packages_classmap[ $class_name ]['version'], 0, 4 ) ) {
 		return;
 	}
 
 	// Always favour the @dev version. Since that version is the same as bleeding edge.
 	// We need to make sure that we don't do this in production!
 	if ( 'dev-' === substr( $version, 0, 4 ) ) {
-		$jetpack_packages_classes[ $class_name ] = array(
+		$jetpack_packages_classmap[ $class_name ] = array(
 			'version' => $version,
 			'path'    => $path,
 		);
@@ -60,8 +60,8 @@ function enqueue_package_class( $class_name, $version, $path ) {
 		return;
 	}
 	// Set the latest version!
-	if ( version_compare( $jetpack_packages_classes[ $class_name ]['version'], $version, '<' ) ) {
-		$jetpack_packages_classes[ $class_name ] = array(
+	if ( version_compare( $jetpack_packages_classmap[ $class_name ]['version'], $version, '<' ) ) {
+		$jetpack_packages_classmap[ $class_name ] = array(
 			'version' => $version,
 			'path'    => $path,
 		);
@@ -69,7 +69,7 @@ function enqueue_package_class( $class_name, $version, $path ) {
 }
 
 /**
- * Adds the version of a package file to the $jetpack_packages_files global array so that
+ * Adds the version of a package file to the $jetpack_packages_filemap global array so that
  * we can load the most recent version after 'plugins_loaded'.
  *
  * @param string $file_identifier Unique id to file assigned by composer based on package name and filename.
@@ -77,10 +77,10 @@ function enqueue_package_class( $class_name, $version, $path ) {
  * @param string $path Absolute path to the file so that we can load it.
  */
 function enqueue_package_file( $file_identifier, $version, $path ) {
-	global $jetpack_packages_files;
+	global $jetpack_packages_filemap;
 
-	if ( ! isset( $jetpack_packages_files[ $file_identifier ] ) ) {
-		$jetpack_packages_files[ $file_identifier ] = array(
+	if ( ! isset( $jetpack_packages_filemap[ $file_identifier ] ) ) {
+		$jetpack_packages_filemap[ $file_identifier ] = array(
 			'version' => $version,
 			'path'    => $path,
 		);
@@ -88,14 +88,14 @@ function enqueue_package_file( $file_identifier, $version, $path ) {
 		return;
 	}
 	// If we have a @dev version set always use that one!
-	if ( 'dev-' === substr( $jetpack_packages_files[ $file_identifier ]['version'], 0, 4 ) ) {
+	if ( 'dev-' === substr( $jetpack_packages_filemap[ $file_identifier ]['version'], 0, 4 ) ) {
 		return;
 	}
 
 	// Always favour the @dev version. Since that version is the same as bleeding edge.
 	// We need to make sure that we don't do this in production!
 	if ( 'dev-' === substr( $version, 0, 4 ) ) {
-		$jetpack_packages_files[ $file_identifier ] = array(
+		$jetpack_packages_filemap[ $file_identifier ] = array(
 			'version' => $version,
 			'path'    => $path,
 		);
@@ -103,8 +103,8 @@ function enqueue_package_file( $file_identifier, $version, $path ) {
 		return;
 	}
 	// Set the latest version!
-	if ( version_compare( $jetpack_packages_files[ $file_identifier ]['version'], $version, '<' ) ) {
-		$jetpack_packages_files[ $file_identifier ] = array(
+	if ( version_compare( $jetpack_packages_filemap[ $file_identifier ]['version'], $version, '<' ) ) {
+		$jetpack_packages_filemap[ $file_identifier ] = array(
 			'version' => $version,
 			'path'    => $path,
 		);
@@ -115,8 +115,8 @@ function enqueue_package_file( $file_identifier, $version, $path ) {
  * Include latest version of all enqueued files. Should be called after all plugins are loaded.
  */
 function file_loader() {
-	global $jetpack_packages_files;
-	foreach ( $jetpack_packages_files as $file_identifier => $file_data ) {
+	global $jetpack_packages_filemap;
+	foreach ( $jetpack_packages_filemap as $file_identifier => $file_data ) {
 		if ( empty( $GLOBALS['__composer_autoload_files'][ $file_identifier ] ) ) {
 			require $file_data['path'];
 
@@ -131,20 +131,17 @@ function file_loader() {
  * @param string $class_name Class Name to load.
  */
 function autoloader( $class_name ) {
-	global $jetpack_packages_classes;
+	global $jetpack_packages_classmap;
 
-	if ( isset( $jetpack_packages_classes[ $class_name ] ) ) {
-		if ( file_exists( $jetpack_packages_classes[ $class_name ]['path'] ) ) {
-			require_once $jetpack_packages_classes[ $class_name ]['path'];
+	if ( isset( $jetpack_packages_classmap[ $class_name ] ) ) {
+		if ( file_exists( $jetpack_packages_classmap[ $class_name ]['path'] ) ) {
+			require_once $jetpack_packages_classmap[ $class_name ]['path'];
 			return true;
 		}
 	}
 
 	return false;
 }
-
-// Add the jetpack autoloader.
-spl_autoload_register( __NAMESPACE__ . '\autoloader' );
 
 /**
  * Used for running the code that initializes class and file maps.
@@ -165,6 +162,7 @@ function enqueue_files() {
 		enqueue_package_file( $file_identifier, $file_data['version'], $file_data['path'] );
 	}
 
+	//TODO: The plugins_loaded action checks aren't necessary anymore.
 	if (
 		function_exists( 'has_action' )
 		&& function_exists( 'did_action' )
@@ -188,9 +186,7 @@ function enqueue_files() {
  */
 function set_up_autoloader() {
 	global $latest_autoloader_version;
-
-	// TODO: The classmap and filemap globals need new names.
-	global $jetpack_packages_classes;
+	global $jetpack_packages_classmap;
 
 	$classmap_file       = trailingslashit( dirname( __FILE__ ) ) . 'composer/jetpack_autoload_classmap.php';
 	$autoloader_packages = require $classmap_file;
@@ -227,7 +223,7 @@ function set_up_autoloader() {
 	}
 
 	// This is the latest autoloader, so generate the classmap and filemap and register the autoloader function.
-	if ( empty( $jetpack_packages_classes ) && $loaded_autoloader_version === $latest_autoloader_version ) {
+	if ( empty( $jetpack_packages_classmap ) && $loaded_autoloader_version === $latest_autoloader_version ) {
 		enqueue_files();
 
 		spl_autoload_register( __NAMESPACE__ . '\autoloader' );
