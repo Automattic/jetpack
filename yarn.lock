@@ -6994,10 +6994,10 @@ gulp-rm-lines@0.0.10:
   dependencies:
     through2 "^2.0.3"
 
-gulp-rtlcss@1.4.0:
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/gulp-rtlcss/-/gulp-rtlcss-1.4.0.tgz#a1e4caef39182af03778cb9c18add9d3ee5e1c97"
-  integrity sha512-66UmUSacTzdV3L0KcsdwzExEu1+dTfNlq3emUZGgHPLgUaCrsZUgZwjsgKjPwkYJUZOucLpjOxAkB37k+H80Kw==
+gulp-rtlcss@1.4.1:
+  version "1.4.1"
+  resolved "https://registry.yarnpkg.com/gulp-rtlcss/-/gulp-rtlcss-1.4.1.tgz#c772dd1e4c8b16b7238c846e52371e3defb5e0ef"
+  integrity sha512-xXqTnmNbcjA6K9ogR36i2SaN8E5CWTCtRQGSY2k0W3cOISGnNkBTAt0GNThlq9iJT0ttR759kopDGn5PZTH4kg==
   dependencies:
     plugin-error "^1.0.1"
     rtlcss "^2.4.0"
