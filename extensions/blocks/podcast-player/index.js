@@ -2,32 +2,26 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { ExternalLink } from '@wordpress/components';
-import { Fragment } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
 import attributes from './attributes';
 import edit from './edit';
-import icon from './icon';
+import { queueMusic } from './icons/';
 
 /**
  * Style dependencies
  */
 import './editor.scss';
 
-export const name = 'podcast-episodes';
-export const title = __( 'Podcast Episodes', 'jetpack' );
+export const name = 'podcast-player';
+export const namespaceName = `jetpack/${ name }`;
+export const title = __( 'Podcast Player', 'jetpack' );
 export const settings = {
 	title,
-	description: (
-		<Fragment>
-			<p>{ __( 'Podcast Episodes', 'jetpack' ) }</p>
-			<ExternalLink href="#">{ __( 'Learn more about Podcast Episodes', 'jetpack' ) }</ExternalLink>
-		</Fragment>
-	),
-	icon,
+	description: __( 'Select and play episodes from a single podcast.', 'jetpack' ),
+	icon: queueMusic,
 	category: 'jetpack',
 	keywords: [],
 	supports: {
