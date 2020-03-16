@@ -121,10 +121,6 @@ function render_player( $track_list, $attributes ) {
  * @return array|WP_Error the feed's tracks or a error object.
  */
 function get_track_list( $feed, $quantity = 5 ) {
-	if ( empty( $feed ) ) {
-		return new WP_Error( 'missing_feed', __( 'Podcast audio RSS feed missing.', 'jetpack' ) );
-	}
-
 	$rss = fetch_feed( $feed );
 
 	if ( is_wp_error( $rss ) ) {
