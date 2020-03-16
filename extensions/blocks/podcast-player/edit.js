@@ -26,19 +26,10 @@ import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import './editor.scss';
 import { edit, queueMusic } from './icons/';
 import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
+import attributesValidation from './attributes';
 
 const DEFAULT_MIN_ITEMS = 1;
 const DEFAULT_MAX_ITEMS = 10;
-
-const attributesValidation = {
-	itemsToShow: {
-		type: 'number',
-	},
-	url: {
-		type: 'string',
-		validator: isURL,
-	},
-};
 
 const handleSSRError = () => {
 	return <p>{ __( 'Failed to load Block', 'jetpack' ) }</p>;
