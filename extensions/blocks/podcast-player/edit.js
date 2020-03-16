@@ -11,7 +11,7 @@ import {
 	RangeControl,
 	TextControl,
 	Toolbar,
-	Notice,
+	withNotices,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { BlockControls, BlockIcon, InspectorControls } from '@wordpress/block-editor';
@@ -32,11 +32,15 @@ const handleSSRError = () => {
 	return <p>{ __( 'Failed to load Block', 'jetpack' ) }</p>;
 };
 
-const PodcastPlayerEdit = ( { attributes: { url, itemsToShow }, setAttributes } ) => {
+const PodcastPlayerEdit = ( {
+	attributes: { url, itemsToShow },
+	setAttributes,
+	noticeOperations: { createErrorNotice },
+	noticeUI,
+} ) => {
 	// State.
 	const [ editedUrl, setEditedUrl ] = useState( url || '' );
 	const [ isEditing, setIsEditing ] = useState( false );
-	const [ urlError, setUrlError ] = useState( '' );
 
 	/**
 	 * Check if the current URL of the Podcast RSS feed
@@ -54,7 +58,7 @@ const PodcastPlayerEdit = ( { attributes: { url, itemsToShow }, setAttributes } 
 		}
 		const isValidURL = isURL( editedUrl );
 
-		setUrlError(
+		createErrorNotice(
 			! isValidURL
 				? __( "Your podcast couldn't be embedded. Please double check your URL.", 'jetpack' )
 				: ''
@@ -79,7 +83,7 @@ const PodcastPlayerEdit = ( { attributes: { url, itemsToShow }, setAttributes } 
 				instructions={ __( 'Enter your podcast RSS feed URL.', 'jetpack' ) }
 			>
 				<form onSubmit={ checkPodcastLink }>
-					{ urlError && <Notice>{ urlError }</Notice> }
+					{ noticeUI }
 					<TextControl
 						type="url"
 						placeholder={ __( 'Enter URL here…', 'jetpack' ) }
@@ -137,4 +141,4 @@ const PodcastPlayerEdit = ( { attributes: { url, itemsToShow }, setAttributes } 
 	);
 };
 
-export default PodcastPlayerEdit;
+export default withNotices( PodcastPlayerEdit );
