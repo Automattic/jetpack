@@ -31,18 +31,42 @@ function jetpack_debugger_site_status_tests( $core_tests ) {
 	$cxn_tests = new Jetpack_Cxn_Tests();
 	$tests     = $cxn_tests->list_tests( 'direct' );
 	foreach ( $tests as $test ) {
+
 		$core_tests['direct'][ $test['name'] ] = array(
 			'label' => __( 'Jetpack: ', 'jetpack' ) . $test['name'],
 			'test'  => function() use ( $test, $cxn_tests ) { // phpcs:ignore PHPCompatibility.FunctionDeclarations.NewClosure.Found
 				$results = $cxn_tests->run_test( $test['name'] );
-				// Test names are, by default, `test__some_string_of_text`. Let's convert to "Some String Of Text" for humans.
-				$label = ucwords(
-					str_replace(
-						'_',
-						' ',
-						str_replace( 'test__', '', $test['name'] )
-					)
-				);
+				if ( is_wp_error( $results ) ) {
+					return;
+				}
+
+				if ( isset( $results['show_in_site_health'] ) && false === $results['show_in_site_health'] ) {
+					return;
+				}
+
+				$label = $results['label'] ?
+					$results['label'] :
+					ucwords(
+						str_replace(
+							'_',
+							' ',
+							str_replace( 'test__', '', $test['name'] )
+						)
+					);
+				if ( $results['long_description'] ) {
+					$description = $results['long_description'];
+				} elseif ( $results['short_description'] ) {
+					$description = sprintf(
+						'<p>%s</p>',
+						$results['short_description']
+					);
+				} else {
+					$description = sprintf(
+						'<p>%s</p>',
+						__( 'This test successfully passed!', 'jetpack' )
+					);
+				}
+
 				$return = array(
 					'label'       => $label,
 					'status'      => 'good',
@@ -50,34 +74,12 @@ function jetpack_debugger_site_status_tests( $core_tests ) {
 						'label' => __( 'Jetpack', 'jetpack' ),
 						'color' => 'green',
 					),
-					'description' => sprintf(
-						'<p>%s</p>',
-						__( 'This test successfully passed!', 'jetpack' )
-					),
+					'description' => $description,
 					'actions'     => '',
 					'test'        => 'jetpack_' . $test['name'],
 				);
-				if ( is_wp_error( $results ) ) {
-					return;
-				}
+
 				if ( false === $results['pass'] ) {
-					$return['label'] = $results['message'];
-					if ( $results['label'] ) {
-						// Allow tests to override the strange message => label logic with an actual label.
-						$return['label'] = $results['label'];
-					}
-
-					// Most tests pass a `resolution` property to use as a description.
-					$return['description'] = sprintf(
-						'<p>%s</p>',
-						$results['resolution']
-					);
-
-					if ( $results['description'] ) {
-						// Allow tests to override 'resolution' with their own HTML description.
-						$return['description'] = $results['description'];
-					}
-
 					$return['status'] = $results['severity'];
 					if ( ! empty( $results['action'] ) ) {
 						$return['actions'] = sprintf(
@@ -87,15 +89,6 @@ function jetpack_debugger_site_status_tests( $core_tests ) {
 							/* translators: accessibility text */
 							__( '(opens in a new tab)', 'jetpack' )
 						);
-					}
-				} elseif ( true === $results['pass'] ) {
-					// Passing tests can chose to override defaults.
-					if ( $results['label'] ) {
-						$return['label'] = $results['label'];
-					}
-
-					if ( $results['description'] ) {
-						$return['description'] = $results['description'];
 					}
 				}
 
