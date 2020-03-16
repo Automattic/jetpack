@@ -79,6 +79,10 @@ function render_block( $attributes, $content ) {
  * @return string the HTML for the podcast player.
  */
 function render_player( $track_list, $attributes ) {
+	// If there are no tracks (it is possible) then display appropriate user facing error message.
+	if ( empty( $track_list ) ) {
+		return '<p>' . esc_html__( 'No tracks available to play.', 'jetpack' ) . '</p>';
+	}
 
 	$player_data = array(
 		'type'         => 'audio',
@@ -91,11 +95,6 @@ function render_player( $track_list, $attributes ) {
 	);
 
 	$block_classname = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attributes );
-
-	// If there are no tracks (it is possible) then display appropriate user facing error message.
-	if ( empty( $track_list ) ) {
-		return '<p>' . esc_html__( 'No tracks available to play.', 'jetpack' ) . '</p>';
-	}
 
 	ob_start();
 
