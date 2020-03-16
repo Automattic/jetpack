@@ -42,12 +42,10 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
 /**
  * Podcast Player block registration/dependency declaration.
  *
- * @param array  $attributes Array containing the Podcast Player block attributes.
- * @param string $content    String containing the Podcast Player block content.
- *
+ * @param array $attributes Array containing the Podcast Player block attributes.
  * @return string
  */
-function render_block( $attributes, $content ) {
+function render_block( $attributes ) {
 
 	// Test for empty URLS.
 	if ( empty( $attributes['url'] ) ) {
@@ -130,40 +128,43 @@ function get_track_list( $feed, $quantity = 10 ) {
 		return new WP_Error( 'no_tracks', __( 'Podcast audio RSS feed has no tracks.', 'jetpack' ) );
 	}
 
-	$episodes = $rss->get_items( 0, $quantity );
-
-	$track_list = array_map(
-		function( $episode ) {
-			$enclosure = $episode->get_enclosure();
-			$url       = ! empty( $enclosure->link ) ? $enclosure->link : null;
-			$type      = ! empty( $enclosure->type ) ? $enclosure->type : null;
-
-			// If there is no type return an empty array as the array entry. We will filter out later.
-			if ( ! $url ) {
-				return array();
-			}
-
-			// Build track data.
-			$track = array(
-				'link'        => esc_url( $episode->get_link() ),
-				'src'         => esc_url( $url ),
-				'type'        => $type,
-				'caption'     => '',
-				'description' => wp_kses_post( $episode->get_description() ),
-				'meta'        => array(),
-			);
-
-			$track['title'] = esc_html( trim( wp_strip_all_tags( $episode->get_title() ) ) );
-
-			if ( empty( $track['title'] ) ) {
-				$track['title'] = esc_html__( '(no title)', 'jetpack' );
-			}
-
-			return $track;
-		},
-		$episodes
-	);
+	$track_list = array_map( __NAMESPACE__ . '\setup_tracks_callback', $rss->get_items( 0, $quantity ) );
 
 	// Remove empty tracks.
 	return \array_filter( $track_list );
+}
+
+/**
+ * Prepares Episode data to be used with MediaElement.js.
+ *
+ * @param \SimplePie_Item $episode SimplePie_Item object, representing a podcast episode.
+ * @return array
+ */
+function setup_tracks_callback( \SimplePie_Item $episode ) {
+	$enclosure = $episode->get_enclosure();
+	$url       = ! empty( $enclosure->link ) ? $enclosure->link : null;
+	$type      = ! empty( $enclosure->type ) ? $enclosure->type : null;
+
+	// If there is no type return an empty array as the array entry. We will filter out later.
+	if ( ! $url ) {
+		return array();
+	}
+
+	// Build track data.
+	$track = array(
+		'link'        => esc_url( $episode->get_link() ),
+		'src'         => esc_url( $url ),
+		'type'        => $type,
+		'caption'     => '',
+		'description' => wp_kses_post( $episode->get_description() ),
+		'meta'        => array(),
+	);
+
+	$track['title'] = esc_html( trim( wp_strip_all_tags( $episode->get_title() ) ) );
+
+	if ( empty( $track['title'] ) ) {
+		$track['title'] = esc_html__( '(no title)', 'jetpack' );
+	}
+
+	return $track;
 }
