@@ -13,7 +13,7 @@ import analytics from 'lib/analytics';
 import ExternalLink from 'components/external-link';
 import ProductCard from 'components/product-card';
 import ProductExpiration from 'components/product-expiration';
-import { SingleProductBackup } from './single-product-backup';
+import SingleProductBackup from './single-product-backup';
 import { getPlanClass } from '../lib/plans/constants';
 import {
 	getActiveSitePurchases,
@@ -23,6 +23,7 @@ import {
 } from '../state/site';
 import { getSiteRawUrl, getUpgradeUrl, isMultisite } from '../state/initial-state';
 import { getProducts, isFetchingProducts } from '../state/products';
+import './single-products.scss';
 
 class ProductSelector extends Component {
 	state = {
@@ -122,9 +123,7 @@ class ProductSelector extends Component {
 		}
 	}
 
-	findPrioritizedPurchase() {
-		const { activeSitePurchases } = this.props;
-
+	findPrioritizedPurchaseForBackup() {
 		// Note: the order here is important, as it resolves cases where a site
 		// has both a plan and a product at the same time.
 		const planClasses = [
@@ -136,7 +135,7 @@ class ProductSelector extends Component {
 		];
 
 		for ( const planClass of planClasses ) {
-			const purchase = activeSitePurchases.find(
+			const purchase = this.props.activeSitePurchases.find(
 				item => getPlanClass( item.product_slug ) === planClass
 			);
 			if ( undefined !== purchase ) {
@@ -161,14 +160,12 @@ class ProductSelector extends Component {
 
 	renderTitleSection() {
 		const { backupInfoUrl, isFetchingData } = this.props;
-		const purchase = this.findPrioritizedPurchase();
-
 		return (
 			<Fragment>
 				<h1 className="plans-section__header">{ __( 'Solutions' ) }</h1>
 				<h2 className="plans-section__subheader">
 					{ __( "Just looking for backups? We've got you covered." ) }
-					{ ! isFetchingData && ! purchase && (
+					{ ! isFetchingData && ! this.findPrioritizedPurchaseForBackup() && (
 						<>
 							<br />
 							<ExternalLink
@@ -188,49 +185,34 @@ class ProductSelector extends Component {
 	}
 
 	renderSingleProductContent() {
-		const {
-			dailyBackupUpgradeUrl,
-			isFetchingData,
-			multisite,
-			products,
-			realtimeBackupUpgradeUrl,
-			sitePlan,
-		} = this.props;
-		const { selectedBackupType } = this.state;
+		return <div className="plans-section__single-product">{ this.renderBackupProduct() }</div>;
+	}
 
+	renderBackupProduct() {
 		// Jetpack Backup does not support Multisite yet.
-		if ( multisite ) {
+		if ( this.props.multisite ) {
 			return null;
 		}
 
-		const purchase = this.findPrioritizedPurchase();
+		const purchase = this.findPrioritizedPurchaseForBackup();
 		if ( purchase ) {
 			const productCardProps = this.getProductCardPropsForPurchase( purchase );
-			return (
-				<div className="plans-section__single-product">
-					<ProductCard { ...productCardProps } />
-				</div>
-			);
+			return <ProductCard { ...productCardProps } />;
 		}
-
-		const plan = get( sitePlan, 'product_slug' );
 
 		// Don't show the product card for paid plans.
-		if ( ! isFetchingData && 'jetpack_free' !== plan ) {
+		const planSlug = get( this.props.sitePlan, 'product_slug' );
+		if ( ! this.props.isFetchingData && 'jetpack_free' !== planSlug ) {
 			return null;
 		}
-
-		const upgradeLinks = {
-			daily: dailyBackupUpgradeUrl,
-			'real-time': realtimeBackupUpgradeUrl,
-		};
 
 		return (
 			<SingleProductBackup
-				isFetching={ isFetchingData }
-				products={ products }
-				upgradeLinks={ upgradeLinks }
-				selectedBackupType={ selectedBackupType }
+				isFetching={ this.props.isFetchingData }
+				products={ this.props.products }
+				upgradeLinkDaily={ this.props.dailyBackupUpgradeUrl }
+				upgradeLinkRealtime={ this.props.realtimeBackupUpgradeUrl }
+				selectedBackupType={ this.state.selectedBackupType }
 				setSelectedBackupType={ this.setSelectedBackupType }
 			/>
 		);
