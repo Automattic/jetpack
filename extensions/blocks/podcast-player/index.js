@@ -18,6 +18,7 @@ import { queueMusic } from './icons/';
 import './editor.scss';
 
 export const name = 'podcast-player';
+export const namespaceName = `jetpack/${ name }`;
 export const title = __( 'Podcast Player', 'jetpack' );
 export const settings = {
 	title,

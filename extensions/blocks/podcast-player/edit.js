@@ -21,6 +21,7 @@ import { isURL } from '@wordpress/url';
 /**
  * Internal dependencies
  */
+import { namespaceName } from './index';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import './editor.scss';
 import { edit, queueMusic } from './icons/';
@@ -145,7 +146,7 @@ const PodcastPlayerEdit = ( {
 			</InspectorControls>
 			<Disabled>
 				<ServerSideRender
-					block="jetpack/podcast-player"
+					block={ namespaceName }
 					attributes={ { url, itemsToShow } }
 					EmptyResponsePlaceholder={ handleSSRError }
 					ErrorResponsePlaceholder={ handleSSRError }
