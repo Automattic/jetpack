@@ -429,9 +429,9 @@ class Jetpack_Cxn_Test_Base {
 				}
 			} else {
 				$result['description'] .= sprintf(
-					                          '<p>%s</p>',
-					                          __( 'There was another problem:', 'jetpack' )
-				                          ) . ' ' . $fail['message'] . ': ' . $fail['resolution'];
+					'<p>%s</p>',
+					__( 'There was another problem:', 'jetpack' )
+				) . ' ' . $fail['message'] . ': ' . $fail['resolution'];
 				if ( 'critical' === $fail['severity'] ) { // In case the initial failure is only "recommended".
 					$result['status'] = 'critical';
 				}
