@@ -1,5 +1,3 @@
-/* eslint-disable no-unused-vars */
-
 /**
  * External dependencies
  */
@@ -34,10 +32,7 @@ const handleSSRError = () => {
 	return <p>{ __( 'Failed to load Block', 'jetpack' ) }</p>;
 };
 
-const PodcastPlayerEdit = ( { attributes, setAttributes } ) => {
-	// Block attributes.
-	const { url, itemsToShow } = attributes;
-
+const PodcastPlayerEdit = ( { attributes: { url, itemsToShow }, setAttributes } ) => {
 	// State.
 	const [ editedUrl, setEditedUrl ] = useState( url || '' );
 	const [ isEditing, setIsEditing ] = useState( false );
@@ -133,7 +128,7 @@ const PodcastPlayerEdit = ( { attributes, setAttributes } ) => {
 			<Disabled>
 				<ServerSideRender
 					block="jetpack/podcast-player"
-					attributes={ attributes }
+					attributes={ { url, itemsToShow } }
 					EmptyResponsePlaceholder={ handleSSRError }
 					ErrorResponsePlaceholder={ handleSSRError }
 				/>
