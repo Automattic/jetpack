@@ -25,12 +25,20 @@ function register_block() {
 		BLOCK_NAME,
 		array(
 			'attributes'      => array(
-				'url'         => array(
+				'url'                    => array(
 					'type' => 'url',
 				),
-				'itemsToShow' => array(
+				'itemsToShow'            => array(
 					'type'    => 'integer',
 					'default' => 5,
+				),
+				'showCoverArt'           => array(
+					'type'    => 'boolean',
+					'default' => true,
+				),
+				'showEpisodeDescription' => array(
+					'type'    => 'boolean',
+					'default' => true,
 				),
 			),
 			'render_callback' => __NAMESPACE__ . '\render_block',

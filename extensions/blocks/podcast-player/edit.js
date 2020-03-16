@@ -17,6 +17,7 @@ import {
 	TextControl,
 	Toolbar,
 	withNotices,
+	ToggleControl,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { BlockControls, BlockIcon, InspectorControls } from '@wordpress/block-editor';
@@ -80,7 +81,10 @@ const PodcastPlayerEdit = ( {
 	noticeUI,
 } ) => {
 	// Validated attributes.
-	const { url, itemsToShow } = getValidatedAttributes( attributesValidation, attributes );
+	const { url, itemsToShow, showCoverArt, showEpisodeDescription } = getValidatedAttributes(
+		attributesValidation,
+		attributes
+	);
 
 	// State.
 	const [ editedUrl, setEditedUrl ] = useState( url || '' );
@@ -168,6 +172,18 @@ const PodcastPlayerEdit = ( {
 						min={ DEFAULT_MIN_ITEMS }
 						max={ DEFAULT_MAX_ITEMS }
 						required
+					/>
+
+					<ToggleControl
+						label={ __( 'Show Cover Art', 'jetpack' ) }
+						checked={ showCoverArt }
+						onChange={ value => setAttributes( { showCoverArt: value } ) }
+					/>
+
+					<ToggleControl
+						label={ __( 'Show Episode Description', 'jetpack' ) }
+						checked={ showEpisodeDescription }
+						onChange={ value => setAttributes( { showEpisodeDescription: value } ) }
 					/>
 				</PanelBody>
 			</InspectorControls>
