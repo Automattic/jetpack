@@ -9,7 +9,6 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Constants;
 
 require_once dirname( __FILE__ ) . '/class.jetpack-search-options.php';
 
