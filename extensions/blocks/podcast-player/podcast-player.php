@@ -2,7 +2,7 @@
 /**
  * Podcast Player Block.
  *
- * @since 8.x
+ * @since 8.4.0
  *
  * @package Jetpack
  */
@@ -62,7 +62,7 @@ function render_block( $attributes, $content ) {
 	// Sanitize the URL.
 	$attributes['url'] = esc_url_raw( $attributes['url'] );
 
-	$track_list = get_track_list( $attributes['url'], $attributes['itemsToShow'] );
+	$track_list = get_track_list( $attributes['url'], 10 );
 
 	if ( is_wp_error( $track_list ) ) {
 		return '<p>' . esc_html( $track_list->get_error_message() ) . '</p>';
@@ -120,7 +120,7 @@ function render_player( $track_list, $attributes ) {
  * @param int    $quantity the number of tracks to return.
  * @return array|WP_Error the feed's tracks or a error object.
  */
-function get_track_list( $feed, $quantity = 5 ) {
+function get_track_list( $feed, $quantity = 10 ) {
 	$rss = fetch_feed( $feed );
 
 	if ( is_wp_error( $rss ) ) {
