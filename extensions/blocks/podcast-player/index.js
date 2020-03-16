@@ -2,8 +2,6 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { ExternalLink } from '@wordpress/components';
-import { Fragment } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -22,12 +20,7 @@ export const namespaceName = `jetpack/${ name }`;
 export const title = __( 'Podcast Player', 'jetpack' );
 export const settings = {
 	title,
-	description: (
-		<Fragment>
-			<p>{ __( 'Podcast Player', 'jetpack' ) }</p>
-			<ExternalLink href="#">{ __( 'Learn more about Podcast Player', 'jetpack' ) }</ExternalLink>
-		</Fragment>
-	),
+	description: __( 'Select and play episodes from a single podcast.', 'jetpack' ),
 	icon: queueMusic,
 	category: 'jetpack',
 	keywords: [],
