@@ -134,37 +134,41 @@ function autoloader( $class_name ) {
  * Used for running the code that initializes class and file maps.
  */
 function enqueue_files() {
-	// TODO: Needs to traverse through the classmaps/filemaps of all of the active plugins.
-	$class_map = require dirname( __FILE__ ) . '/composer/jetpack_autoload_classmap.php';
+	$active_plugins = (array) get_option( 'active_plugins', array() );
 
-	foreach ( $class_map as $class_name => $class_info ) {
-		enqueue_package_class( $class_name, $class_info['version'], $class_info['path'] );
-	}
+	foreach ( $active_plugins as $plugin ) {
+		$plugin_path   = plugin_dir_path( trailingslashit( WP_PLUGIN_DIR ) . $plugin );
+		$classmap_path = trailingslashit( $plugin_path ) . 'vendor/composer/jetpack_autoload_classmap.php';
+		if ( is_readable( $classmap_path ) ) {
+			$class_map = require $classmap_path;
 
-	$autoload_file = dirname( __FILE__ ) . '/composer/jetpack_autoload_filemap.php';
+			foreach ( $class_map as $class_name => $class_info ) {
+				enqueue_package_class( $class_name, $class_info['version'], $class_info['path'] );
+			}
+		}
 
-	$include_files = file_exists( $autoload_file ) ? require $autoload_file : array();
+		$autoload_file = trailingslashit( $plugin_path ) . '/vendor/composer/jetpack_autoload_filemap.php';
 
-	foreach ( $include_files as $file_identifier => $file_data ) {
-		enqueue_package_file( $file_identifier, $file_data['version'], $file_data['path'] );
-	}
+		$include_files = file_exists( $autoload_file ) ? require $autoload_file : array();
 
-	// TODO: The plugins_loaded action checks aren't necessary anymore.
-	if (
-		function_exists( 'has_action' )
-		&& function_exists( 'did_action' )
-		&& ! did_action( 'plugins_loaded' )
-		&& false === has_action( 'plugins_loaded', __NAMESPACE__ . '\file_loader' )
-	) {
-		// Add action if it has not been added and has not happened yet.
-		// Priority -10 to load files as early as possible in case plugins try to use them during `plugins_loaded`.
-		add_action( 'plugins_loaded', __NAMESPACE__ . '\file_loader', 0, -10 );
+		foreach ( $include_files as $file_identifier => $file_data ) {
+			enqueue_package_file( $file_identifier, $file_data['version'], $file_data['path'] );
+		}
 
-	} elseif (
-		! function_exists( 'did_action' )
-		|| did_action( 'plugins_loaded' )
-	) {
-		file_loader(); // Either WordPress is not loaded or plugin is doing it wrong. Either way we'll load the files so nothing breaks.
+		// TODO: The plugins_loaded action checks aren't necessary anymore.
+		if (
+			function_exists( 'has_action' )
+			&& function_exists( 'did_action' )
+			&& ! did_action( 'plugins_loaded' )
+			&& false === has_action( 'plugins_loaded', __NAMESPACE__ . '\file_loader' )
+		) {
+			// Add action if it has not been added and has not happened yet.
+			// Priority -10 to load files as early as possible in case plugins try to use them during `plugins_loaded`.
+			add_action( 'plugins_loaded', __NAMESPACE__ . '\file_loader', 0, -10 );
+
+		} elseif ( ! function_exists( 'did_action' ) || did_action( 'plugins_loaded' ) ) {
+			file_loader(); // Either WordPress is not loaded or plugin is doing it wrong. Either way we'll load the files so nothing breaks.
+		}
 	}
 }
 
