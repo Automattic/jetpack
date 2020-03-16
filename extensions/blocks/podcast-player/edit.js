@@ -38,7 +38,7 @@ const handleSSRError = () => {
 const PodcastPlayerEdit = ( {
 	attributes,
 	setAttributes,
-	noticeOperations: { createErrorNotice },
+	noticeOperations: { createErrorNotice, removeAllNotices },
 	noticeUI,
 } ) => {
 	// Validated attributes.
@@ -58,22 +58,24 @@ const PodcastPlayerEdit = ( {
 	 */
 	const checkPodcastLink = event => {
 		event.preventDefault();
+		removeAllNotices();
 
 		if ( ! editedUrl ) {
 			return;
 		}
+
 		const isValidURL = isURL( editedUrl );
-
-		createErrorNotice(
-			! isValidURL
-				? __( "Your podcast couldn't be embedded. Please double check your URL.", 'jetpack' )
-				: ''
-		);
-
-		if ( isValidURL ) {
-			setAttributes( { url: editedUrl } );
-			setIsEditing( false );
+		if ( ! isValidURL ) {
+			createErrorNotice(
+				! isValidURL
+					? __( "Your podcast couldn't be embedded. Please double check your URL.", 'jetpack' )
+					: ''
+			);
+			return;
 		}
+
+		setAttributes( { url: editedUrl } );
+		setIsEditing( false );
 	};
 
 	const supportLink =
