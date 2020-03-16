@@ -151,7 +151,7 @@ function get_track_list( $feed, $quantity = 5 ) {
 			// Build track data.
 			$track = array(
 				'link'        => esc_url( $episode->get_link() ),
-				'src'         => $url,
+				'src'         => esc_url( $url ),
 				'type'        => $type,
 				'caption'     => '',
 				'description' => wp_kses_post( $episode->get_description() ),
