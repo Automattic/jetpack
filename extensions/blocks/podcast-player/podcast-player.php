@@ -134,9 +134,9 @@ function get_track_list( $feed, $quantity = 10 ) {
 
 	$track_list = array_map(
 		function( $episode ) {
-
-			$url  = ! empty( $episode->data['child']['']['enclosure'][0]['attribs']['']['url'] ) ? $episode->data['child']['']['enclosure'][0]['attribs']['']['url'] : null;
-			$type = ! empty( $episode->data['child']['']['enclosure'][0]['attribs']['']['type'] ) ? $episode->data['child']['']['enclosure'][0]['attribs']['']['type'] : null;
+			$enclosure = $episode->get_enclosure();
+			$url       = ! empty( $enclosure->link ) ? $enclosure->link : null;
+			$type      = ! empty( $enclosure->type ) ? $enclosure->type : null;
 
 			// If there is no type return an empty array as the array entry. We will filter out later.
 			if ( ! $url ) {
