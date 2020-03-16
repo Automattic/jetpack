@@ -122,12 +122,18 @@ class SearchApp extends Component {
 
 	handleSubmit = event => {
 		event.preventDefault();
+		this.handleInput.flush();
+		setSearchQuery( event.target.elements.s.value );
 		this.showResults();
 	};
 
-	handleInput = event => {
+	handleInput = debounce( event => {
+		// Reference: https://rawgit.com/w3c/input-events/v1/index.html#interface-InputEvent-Attributes
+		if ( event.inputType.includes( 'delete' ) || event.inputType.includes( 'format' ) ) {
+			return;
+		}
 		setSearchQuery( event.target.value );
-	};
+	}, 200 );
 
 	handleSortChange = event => {
 		setSortQuery( getSortKeyFromSortOption( event.target.value ) );
@@ -169,7 +175,11 @@ class SearchApp extends Component {
 	};
 
 	onChangeQueryString = () => {
-		this.getResults();
+		if ( !! getSearchQuery() || hasFilter() ) {
+			this.getResults().then( () => {
+				! this.state.showResults && this.showResults();
+			} );
+		}
 
 		document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( input => {
 			input.value = getSearchQuery();
@@ -178,6 +188,9 @@ class SearchApp extends Component {
 		document.querySelectorAll( this.props.themeOptions.searchSortSelector ).forEach( select => {
 			select.value = getSortOptionFromSortKey( getSortQuery() );
 		} );
+
+		// NOTE: This is necessary to ensure that the search query has been propagated to SearchBox
+		this.forceUpdate();
 	};
 
 	loadNextPage = () => {
@@ -193,45 +206,45 @@ class SearchApp extends Component {
 	} = {} ) => {
 		const requestId = this.state.requestId + 1;
 
-		this.setState( { requestId, isLoading: true }, () => {
-			search( {
-				// Skip aggregations when requesting for paged results
-				aggregations: !! pageHandle ? {} : this.props.aggregations,
-				filter,
-				pageHandle,
-				query,
-				resultFormat,
-				siteId: this.props.options.siteId,
-				sort,
-				postsPerPage: this.props.options.postsPerPage,
+		this.setState( { requestId, isLoading: true } );
+		return search( {
+			// Skip aggregations when requesting for paged results
+			aggregations: !! pageHandle ? {} : this.props.aggregations,
+			filter,
+			pageHandle,
+			query,
+			resultFormat,
+			siteId: this.props.options.siteId,
+			sort,
+			postsPerPage: this.props.options.postsPerPage,
+		} )
+			.then( newResponse => {
+				if ( this.state.requestId === requestId ) {
+					const response = { ...newResponse };
+					if ( !! pageHandle ) {
+						response.aggregations = {
+							...( 'aggregations' in this.state.response && ! Array.isArray( this.state.response )
+								? this.state.response.aggregations
+								: {} ),
+							...( ! Array.isArray( newResponse.aggregations ) ? newResponse.aggregations : {} ),
+						};
+						response.results = [
+							...( 'results' in this.state.response ? this.state.response.results : [] ),
+							...newResponse.results,
+						];
+					}
+					this.setState( { response, hasError: false, isLoading: false } );
+					return;
+				}
+				this.setState( { isLoading: false } );
 			} )
-				.then( newResponse => {
-					if ( this.state.requestId === requestId ) {
-						const response = { ...newResponse };
-						if ( !! pageHandle ) {
-							response.aggregations = {
-								...( 'aggregations' in this.state.response && ! Array.isArray( this.state.response )
-									? this.state.response.aggregations
-									: {} ),
-								...( ! Array.isArray( newResponse.aggregations ) ? newResponse.aggregations : {} ),
-							};
-							response.results = [
-								...( 'results' in this.state.response ? this.state.response.results : [] ),
-								...newResponse.results,
-							];
-						}
-						this.setState( { response, hasError: false } );
-					}
-					this.setState( { isLoading: false } );
-				} )
-				.catch( error => {
-					if ( error instanceof ProgressEvent ) {
-						this.setState( { isLoading: false, hasError: true } );
-						return;
-					}
-					throw error;
-				} );
-		} );
+			.catch( error => {
+				if ( error instanceof ProgressEvent ) {
+					this.setState( { isLoading: false, hasError: true } );
+					return;
+				}
+				throw error;
+			} );
 	};
 
 	render() {
@@ -259,6 +272,7 @@ class SearchApp extends Component {
 					resultFormat={ getResultFormatQuery() }
 					showPoweredBy={ this.state.overlayOptions.showPoweredBy }
 					widgets={ this.props.options.widgets }
+					widgetsOutsideOverlay={ this.props.options.widgetsOutsideOverlay }
 				/>
 			</Overlay>,
 			document.body

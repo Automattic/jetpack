@@ -14,6 +14,7 @@ import {
 	RESULT_FORMAT_MINIMAL,
 	RESULT_FORMAT_PRODUCT,
 } from './constants';
+import { getFilterKeys, getUnselectableFilterKeys, mapFilterToFilterKey } from './filters';
 import { getSortOption } from './sort';
 
 const knownResultFormats = [ RESULT_FORMAT_MINIMAL, RESULT_FORMAT_PRODUCT ];
@@ -151,31 +152,6 @@ function getFilterQueryByKey( filterKey ) {
 	return query[ filterKey ];
 }
 
-export function getFilterKeys() {
-	const keys = [
-		// Post types
-		'post_types',
-		// Date filters
-		'month_post_date',
-		'month_post_date_gmt',
-		'month_post_modified',
-		'month_post_modified_gmt',
-		'year_post_date',
-		'year_post_date_gmt',
-		'year_post_modified',
-		'year_post_modified_gmt',
-	];
-
-	// Extract taxonomy names from server widget data
-	const taxonomies = window[ SERVER_OBJECT_NAME ].widgets
-		.map( w => w.filters )
-		.filter( filters => Array.isArray( filters ) )
-		.reduce( ( filtersA, filtersB ) => filtersA.concat( filtersB ), [] )
-		.filter( filter => filter.type === 'taxonomy' )
-		.map( filter => filter.taxonomy );
-	return [ ...keys, ...taxonomies ];
-}
-
 export function getFilterQuery( filterKey ) {
 	if ( filterKey ) {
 		return getFilterQueryByKey( filterKey );
@@ -187,6 +163,25 @@ export function getFilterQuery( filterKey ) {
 			[ key ]: getFilterQueryByKey( key ),
 		} ) )
 	);
+}
+
+// These filter keys have been activated/selected outside of the overlay sidebar
+export function getPreselectedFilterKeys( overlayWidgets ) {
+	return getUnselectableFilterKeys( overlayWidgets ).filter(
+		key => Array.isArray( getFilterQueryByKey( key ) ) && getFilterQueryByKey( key ).length > 0
+	);
+}
+
+export function getPreselectedFilters( widgetsInOverlay, widgetsOutsideOverlay ) {
+	const keys = getPreselectedFilterKeys( widgetsInOverlay );
+	return widgetsOutsideOverlay
+		.map( widget => widget.filters )
+		.reduce( ( prev, current ) => prev.concat( current ), [] )
+		.filter( filter => keys.includes( mapFilterToFilterKey( filter ) ) );
+}
+
+export function hasPreselectedFilters( widgetsInOverlay, widgetsOutsideOverlay ) {
+	return getPreselectedFilters( widgetsInOverlay, widgetsOutsideOverlay ).length > 0;
 }
 
 export function hasFilter() {
@@ -229,8 +224,7 @@ export function restorePreviousHref( initialHref, callback ) {
 			return;
 		}
 
-		// Otherwise, invoke the callback and emit a QS change event
+		// Otherwise, invoke the callback
 		callback();
-		window.dispatchEvent( new Event( 'queryStringChange' ) );
 	}
 }

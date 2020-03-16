@@ -12,12 +12,22 @@ import WidgetAreaContainer from './widget-area-container';
  * Internal dependencies
  */
 import JetpackColophon from './jetpack-colophon';
+import PreselectedSearchFilters from './preselected-search-filters';
+import { hasPreselectedFilters } from '../lib/query-string';
 
 const SearchSidebar = props => {
 	return (
 		<div className="jetpack-instant-search__sidebar">
+			<PreselectedSearchFilters
+				loading={ props.isLoading }
+				locale={ props.locale }
+				postTypes={ props.postTypes }
+				results={ props.response }
+				widgets={ props.widgets }
+				widgetsOutsideOverlay={ props.widgetsOutsideOverlay }
+			/>
 			<WidgetAreaContainer />
-			{ props.widgets.map( widget => {
+			{ props.widgets.map( ( widget, index ) => {
 				return createPortal(
 					<div
 						id={ `${ widget.widget_id }-portaled-wrapper` }
@@ -28,6 +38,9 @@ const SearchSidebar = props => {
 							locale={ props.locale }
 							postTypes={ props.postTypes }
 							results={ props.response }
+							showClearFiltersButton={
+								! hasPreselectedFilters( props.widgets, props.widgetsOutsideOverlay ) && index === 0
+							}
 							widget={ widget }
 						/>
 					</div>,

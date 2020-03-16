@@ -10,7 +10,7 @@ import Cache from 'cache';
 /**
  * Internal dependencies
  */
-import { getFilterKeys } from './query-string';
+import { getFilterKeys } from './filters';
 import { MINUTE_IN_MILLISECONDS } from './constants';
 
 const isLengthyArray = array => Array.isArray( array ) && array.length > 0;

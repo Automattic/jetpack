@@ -12,7 +12,14 @@ import JetpackColophon from './jetpack-colophon';
 import SearchBox from './search-box';
 import SearchFilters from './search-filters';
 
-import { getFilterQuery, getSearchQuery, setSearchQuery, setSortQuery } from '../lib/query-string';
+import {
+	getFilterQuery,
+	getSearchQuery,
+	hasPreselectedFilters,
+	setSearchQuery,
+	setSortQuery,
+} from '../lib/query-string';
+import PreselectedSearchFilters from './preselected-search-filters';
 
 const noop = event => event.preventDefault();
 
@@ -47,6 +54,7 @@ class SearchForm extends Component {
 				<div className="jetpack-instant-search__search-form">
 					<SearchBox
 						enableFilters
+						isVisible={ this.props.isVisible }
 						onChangeQuery={ this.onChangeQuery }
 						onChangeSort={ this.onChangeSort }
 						query={ getSearchQuery() }
@@ -58,7 +66,15 @@ class SearchForm extends Component {
 				{ this.state.showFilters && (
 					<div className="jetpack-instant-search__search-form-filters">
 						<div className="jetpack-instant-search__search-form-filters-arrow" />
-						{ this.props.widgets.map( widget => (
+						<PreselectedSearchFilters
+							loading={ this.props.isLoading }
+							locale={ this.props.locale }
+							postTypes={ this.props.postTypes }
+							results={ this.props.response }
+							widgets={ this.props.widgets }
+							widgetsOutsideOverlay={ this.props.widgetsOutsideOverlay }
+						/>
+						{ this.props.widgets.map( ( widget, index ) => (
 							<SearchFilters
 								filters={ getFilterQuery() }
 								loading={ this.props.isLoading }
@@ -66,6 +82,10 @@ class SearchForm extends Component {
 								onChange={ this.hideFilters }
 								postTypes={ this.props.postTypes }
 								results={ this.props.response }
+								showClearFiltersButton={
+									! hasPreselectedFilters( this.props.widgets, this.props.widgetsOutsideOverlay ) &&
+									index === 0
+								}
 								widget={ widget }
 							/>
 						) ) }

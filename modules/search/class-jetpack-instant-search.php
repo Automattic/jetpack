@@ -83,19 +83,29 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			$widget_options = end( $widget_options );
 		}
 
-		$overlay_widget_ids = array_key_exists( 'jetpack-instant-search-sidebar', get_option( 'sidebars_widgets', array() ) ) ?
+		$overlay_widget_ids      = array_key_exists( 'jetpack-instant-search-sidebar', get_option( 'sidebars_widgets', array() ) ) ?
 			get_option( 'sidebars_widgets', array() )['jetpack-instant-search-sidebar'] : array();
-		$filters            = Jetpack_Search_Helpers::get_filters_from_widgets( $overlay_widget_ids );
-		$widgets            = array();
-		foreach ( $filters as $key => $filter ) {
-			if ( ! isset( $widgets[ $filter['widget_id'] ] ) ) {
-				$widgets[ $filter['widget_id'] ]['filters']   = array();
-				$widgets[ $filter['widget_id'] ]['widget_id'] = $filter['widget_id'];
+		$filters                 = Jetpack_Search_Helpers::get_filters_from_widgets();
+		$widgets                 = array();
+		$widgets_outside_overlay = array();
+		foreach ( $filters as $key => &$filter ) {
+			$filter['filter_id'] = $key;
+
+			if ( in_array( $filter['widget_id'], $overlay_widget_ids, true ) ) {
+				if ( ! isset( $widgets[ $filter['widget_id'] ] ) ) {
+					$widgets[ $filter['widget_id'] ]['filters']   = array();
+					$widgets[ $filter['widget_id'] ]['widget_id'] = $filter['widget_id'];
+				}
+				$widgets[ $filter['widget_id'] ]['filters'][] = $filter;
+			} else {
+				if ( ! isset( $widgets_outside_overlay[ $filter['widget_id'] ] ) ) {
+					$widgets_outside_overlay[ $filter['widget_id'] ]['filters']   = array();
+					$widgets_outside_overlay[ $filter['widget_id'] ]['widget_id'] = $filter['widget_id'];
+				}
+				$widgets_outside_overlay[ $filter['widget_id'] ]['filters'][] = $filter;
 			}
-			$new_filter                                   = $filter;
-			$new_filter['filter_id']                      = $key;
-			$widgets[ $filter['widget_id'] ]['filters'][] = $new_filter;
 		}
+		unset( $filter );
 
 		$post_type_objs   = get_post_types( array(), 'objects' );
 		$post_type_labels = array();
@@ -108,7 +118,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 
 		$prefix  = Jetpack_Search_Options::OPTION_PREFIX;
 		$options = array(
-			'overlayOptions'  => array(
+			'overlayOptions'        => array(
 				'colorTheme'      => get_option( $prefix . 'color_theme', 'light' ),
 				'enableInfScroll' => (bool) get_option( $prefix . 'inf_scroll', false ),
 				'highlightColor'  => get_option( $prefix . 'highlight_color', '#FFC' ),
@@ -117,16 +127,17 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			),
 
 			// core config.
-			'homeUrl'         => home_url(),
-			'locale'          => str_replace( '_', '-', get_locale() ),
-			'postsPerPage'    => get_option( 'posts_per_page' ),
-			'siteId'          => Jetpack::get_option( 'id' ),
+			'homeUrl'               => home_url(),
+			'locale'                => str_replace( '_', '-', Jetpack_Search_Helpers::is_valid_locale( get_locale() ) ? get_locale() : 'en_US' ),
+			'postsPerPage'          => get_option( 'posts_per_page' ),
+			'siteId'                => Jetpack::get_option( 'id' ),
 
 			// filtering.
-			'postTypeFilters' => isset( $widget_options['post_types'] ) ? $widget_options['post_types'] : array(),
-			'postTypes'       => $post_type_labels,
-			'sort'            => isset( $widget_options['sort'] ) ? $widget_options['sort'] : null,
-			'widgets'         => array_values( $widgets ),
+			'postTypeFilters'       => isset( $widget_options['post_types'] ) ? $widget_options['post_types'] : array(),
+			'postTypes'             => $post_type_labels,
+			'sort'                  => isset( $widget_options['sort'] ) ? $widget_options['sort'] : null,
+			'widgets'               => array_values( $widgets ),
+			'widgetsOutsideOverlay' => array_values( $widgets_outside_overlay ),
 		);
 
 		/**
