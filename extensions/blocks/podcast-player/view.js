@@ -34,7 +34,7 @@ const initializeBlock = function( id ) {
 	playerInstances[ id ] = player;
 };
 
-// Initialze queued players.
+// Initialize queued players.
 if ( window.jetpackPodcastPlayers !== undefined ) {
 	jetpackPodcastPlayers.forEach( initializeBlock );
 }
