@@ -6266,7 +6266,7 @@ endif;
 		}
 
 		/**
-		 * Allows sites to optin to IDC mitigation which blocks the site from syncing to WordPress.com when the home
+		 * Allows sites to opt in to IDC mitigation which blocks the site from syncing to WordPress.com when the home
 		 * URL or site URL do not match what WordPress.com expects. The default value is either false, or the value of
 		 * JETPACK_SYNC_IDC_OPTIN constant if set.
 		 *
