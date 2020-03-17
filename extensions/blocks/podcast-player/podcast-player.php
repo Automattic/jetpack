@@ -152,15 +152,17 @@ function get_track_list( $feed, $quantity = 10 ) {
 function setup_tracks_callback( \SimplePie_Item $episode ) {
 	$enclosure = $episode->get_enclosure();
 
+	$url = ! empty( $episode->data['child']['']['enclosure'][0]['attribs']['']['url'] ) ? $episode->data['child']['']['enclosure'][0]['attribs']['']['url'] : null;
+
 	// If there is no link return an empty array. We will filter out later.
-	if ( ! $enclosure->link ) {
+	if ( ! $url ) {
 		return array();
 	}
 
 	// Build track data.
 	$track = array(
 		'link'        => esc_url( $episode->get_link() ),
-		'src'         => esc_url( $enclosure->link ),
+		'src'         => esc_url( $url ),
 		'type'        => $enclosure->type,
 		'caption'     => '',
 		'description' => wp_kses_post( $episode->get_description() ),
