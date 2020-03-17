@@ -20,13 +20,29 @@ const initializeBlock = function( id ) {
 		id,
 		block,
 		currentTrack: 0,
+		tracks: [],
+		attributes: {},
 	};
+
+	// Load data from the embedded JSON.
+	const dataContainer = block.querySelector( 'script[type="application/json"]' );
+	if ( dataContainer ) {
+		try {
+			const data = JSON.parse( dataContainer.text );
+			player.tracks = data.tracks;
+			player.attributes = data.attributes;
+		} catch ( e ) {
+			return;
+		}
+	}
+
+	if ( ! player.tracks.length ) {
+		return;
+	}
 
 	// Initialize player UI.
 	player.audio = document.createElement( 'audio' );
-	player.audio.src = block
-		.querySelector( '[data-jetpack-podcast-audio]' )
-		.getAttribute( 'data-jetpack-podcast-audio' );
+	player.audio.src = player.tracks[ 0 ].src;
 	block.insertBefore( player.audio, block.firstChild );
 	player.mediaElement = new MediaElementPlayer( player.audio, meJsSettings );
 
@@ -42,6 +58,7 @@ if ( window.jetpackPodcastPlayers !== undefined ) {
 // Replace the queue with an immediate initialization for async loaded players.
 window.jetpackPodcastPlayers = {
 	push: initializeBlock,
+	playerInstances,
 };
 
 // Add global handler for clicks.
