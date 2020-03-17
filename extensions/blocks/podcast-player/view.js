@@ -48,6 +48,16 @@ const initializeBlock = function( id ) {
 	block.insertBefore( player.audio, block.firstChild );
 	player.mediaElement = new MediaElementPlayer( player.audio, meJsSettings );
 
+	player.mediaElement.media.addEventListener( 'play', function() {
+		handlePlay( getActiveEpisodeEl() );
+	} );
+	player.mediaElement.media.addEventListener( 'pause', function() {
+		handlePause( getActiveEpisodeEl() );
+	} );
+	player.mediaElement.media.addEventListener( 'error', function() {
+		handleError( getActiveEpisodeEl() );
+	} );
+
 	// Save instance to the list of active ones.
 	playerInstances[ id ] = player;
 };
@@ -112,56 +122,40 @@ function handleEpisodeLinkClick( episodeLinkEl ) {
 		return renderEpisodeError( episodeEl );
 	}
 
-	// Get episode's state icon container element
-	const iconContainerEl = episodeEl.querySelector( '.podcast-player__episode-status-icon' );
-	if ( ! iconContainerEl ) {
-		return renderEpisodeError( episodeEl );
-	}
-
 	// Get player instance by block id
 	const player = playerInstances[ blockEl.id ];
 	if ( ! player ) {
 		return renderEpisodeError( episodeEl );
 	}
 
-	// Pause the player and set the state classes
-	player.audio.pause();
-	blockEl.classList.remove( 'is-playing' );
-	blockEl.classList.add( 'is-paused' );
-	iconContainerEl.innerHTML = ''; // remove the icon
-
 	// Get currently active episode element
-	const activeEpisodeEl = blockEl.querySelector( '.is-active' );
-
+	const activeEpisodeEl = document.querySelector( '.podcast-player__episode.is-active' );
 	if ( activeEpisodeEl ) {
-		activeEpisodeEl.querySelector( '.podcast-player__episode-status-icon' ).innerHTML = '';
+		if ( activeEpisodeEl.isSameNode( episodeEl ) ) {
+			if ( player.audio.paused ) {
+				player.audio.play();
+				handlePlay( activeEpisodeEl );
+			} else {
+				player.audio.pause();
+				handlePause( activeEpisodeEl );
+			}
+			return;
+		}
+		// Make episode inactive
 		activeEpisodeEl.classList.remove( 'is-active' );
 		activeEpisodeEl
 			.querySelector( '[aria-pressed="true"]' )
 			.setAttribute( 'aria-pressed', 'false' );
+
+		handlePause( activeEpisodeEl );
 	}
 
 	player.audio.src = audioUrl;
 
 	player.audio
 		.play()
-		.then( function() {
-			blockEl.classList.remove( 'is-paused', 'is-error' );
-			blockEl.classList.add( 'is-playing' );
-			iconContainerEl.innerHTML =
-				'<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M3 9v6h4l5 5V4L7 9H3zm7-.17v6.34L7.83 13H5v-2h2.83L10 8.83zM16.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77 0-4.28-2.99-7.86-7-8.77z"/></svg>';
-		} )
-		.catch( function() {
-			blockEl.classList.remove( 'is-playing', 'is-paused' );
-			blockEl.classList.add( 'is-error' );
-			iconContainerEl.innerHTML =
-				'<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/></svg>';
-			renderEpisodeError( episodeEl );
-		} );
-
-	// Episode should be active regardless of the Player state.
-	episodeEl.classList.add( 'is-active' );
-	episodeLinkEl.setAttribute( 'aria-pressed', 'true' );
+		.then( () => handlePlay( episodeEl ) )
+		.catch( () => handleError( episodeEl ) );
 }
 
 function renderEpisodeError( episodeEl ) {
@@ -173,6 +167,7 @@ function renderEpisodeError( episodeEl ) {
 	}
 
 	const episodeLinkEl = episodeEl.querySelector( '.podcast-player__episode-link' );
+
 	// ToDo: make error template translatable
 	const errorTemplate = `
 		<div class="podcast-player__episode-error">
@@ -186,4 +181,90 @@ function renderEpisodeError( episodeEl ) {
 
 	// Render the element
 	episodeEl.appendChild( errorEl );
+}
+
+function handlePlay( episodeEl ) {
+	if ( ! episodeEl ) {
+		return;
+	}
+
+	// Get episode's parent block element
+	const blockEl = episodeEl.closest( '.wp-block-jetpack-podcast-player' );
+	if ( ! blockEl ) {
+		return renderEpisodeError( episodeEl );
+	}
+
+	// Get episode's link element
+	const episodeLinkEl = episodeEl.querySelector( '.podcast-player__episode-link' );
+	if ( ! episodeLinkEl ) {
+		return renderEpisodeError( episodeEl );
+	}
+
+	// Get episode's state icon container element
+	const iconContainerEl = episodeEl.querySelector( '.podcast-player__episode-status-icon' );
+	if ( ! iconContainerEl ) {
+		return renderEpisodeError( episodeEl );
+	}
+
+	blockEl.classList.remove( 'is-paused', 'is-error' );
+	blockEl.classList.add( 'is-playing' );
+	iconContainerEl.innerHTML =
+		'<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M3 9v6h4l5 5V4L7 9H3zm7-.17v6.34L7.83 13H5v-2h2.83L10 8.83zM16.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77 0-4.28-2.99-7.86-7-8.77z"/></svg>';
+	episodeEl.classList.add( 'is-active' );
+	episodeLinkEl.setAttribute( 'aria-pressed', 'true' );
+}
+
+function handlePause( episodeEl ) {
+	if ( ! episodeEl ) {
+		return;
+	}
+
+	// Get episode's parent block
+	const episodeBlockEl = episodeEl.closest( '.wp-block-jetpack-podcast-player' );
+	if ( ! episodeBlockEl ) {
+		return renderEpisodeError( episodeEl );
+	}
+
+	// Set parent block classes
+	episodeBlockEl.classList.remove( 'is-playing' );
+	episodeBlockEl.classList.add( 'is-paused' );
+
+	// Remove the episode state icon
+	episodeEl.querySelector( '.podcast-player__episode-status-icon' ).innerHTML = '';
+}
+
+function handleError( episodeEl ) {
+	if ( ! episodeEl ) {
+		return;
+	}
+
+	// Get episode's link element
+	const episodeLinkEl = episodeEl.querySelector( '.podcast-player__episode-link' );
+	if ( ! episodeLinkEl ) {
+		return renderEpisodeError( episodeEl );
+	}
+
+	// Get episode's parent block element
+	const blockEl = episodeEl.closest( '.wp-block-jetpack-podcast-player' );
+	if ( ! blockEl ) {
+		return renderEpisodeError( episodeEl );
+	}
+
+	// Get episode's state icon container element
+	const iconContainerEl = episodeEl.querySelector( '.podcast-player__episode-status-icon' );
+	if ( ! iconContainerEl ) {
+		return renderEpisodeError( episodeEl );
+	}
+
+	blockEl.classList.remove( 'is-playing', 'is-paused' );
+	blockEl.classList.add( 'is-error' );
+	iconContainerEl.innerHTML =
+		'<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/></svg>';
+	episodeEl.classList.add( 'is-active' );
+	episodeLinkEl.setAttribute( 'aria-pressed', 'true' );
+	renderEpisodeError( episodeEl );
+}
+
+function getActiveEpisodeEl() {
+	return document.querySelector( '.podcast-player__episode.is-active' );
 }
