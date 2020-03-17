@@ -48,10 +48,6 @@ const initializeBlock = function( id ) {
 	block.insertBefore( player.audio, block.firstChild );
 	player.mediaElement = new MediaElementPlayer( player.audio, meJsSettings );
 
-	player.mediaElement.media.addEventListener( 'play', handleMediaPlay );
-	player.mediaElement.media.addEventListener( 'pause', handleMediaPause );
-	player.mediaElement.media.addEventListener( 'error', handleMediaError );
-
 	// Save instance to the list of active ones.
 	playerInstances[ id ] = player;
 };
@@ -65,40 +61,6 @@ if ( window.jetpackPodcastPlayers !== undefined ) {
 window.jetpackPodcastPlayers = {
 	push: initializeBlock,
 };
-
-function handleMediaPlay( e ) {
-	const audioEl = e.detail.target;
-	const parentBlockEl = audioEl.closest( '.wp-block-jetpack-podcast-player' );
-	if ( ! parentBlockEl ) {
-		return;
-	}
-
-	// Clean up any error indication if present
-	const episodeErrorEl = parentBlockEl.querySelector( '.podcast-player__episode-error' );
-	if ( episodeErrorEl ) {
-		parentBlockEl.classList.remove( 'is-error' );
-		episodeErrorEl.remove();
-	}
-
-	parentBlockEl.classList.remove( 'is-paused' );
-	parentBlockEl.classList.add( 'is-playing' );
-}
-
-function handleMediaPause( e ) {
-	const audioEl = e.detail.target;
-	const parentBlockEl = audioEl.closest( '.wp-block-jetpack-podcast-player' );
-
-	parentBlockEl.classList.remove( 'is-playing' );
-	parentBlockEl.classList.add( 'is-paused' );
-}
-
-function handleMediaError( e ) {
-	const audioEl = e.detail.target;
-	const parentBlockEl = audioEl.closest( '.wp-block-jetpack-podcast-player' );
-	const activeEpisodeLinkEl = parentBlockEl.querySelector( '.is-active > a' );
-
-	renderEpisodeError( activeEpisodeLinkEl );
-}
 
 const episodeLinkEls = document.querySelectorAll( '[data-jetpack-podcast-audio]' );
 
@@ -126,37 +88,49 @@ function handleEpisodeLinkClick( e ) {
 
 	const episodeLinkEl = e.currentTarget;
 
+	// Get clicked episode element
+	const episodeEl = episodeLinkEl.closest( '.podcast-player__episode' );
+	if ( ! episodeEl ) {
+		// Append the error to closest parent if episode element is not present.
+		return renderEpisodeError( episodeLinkEl.closest( '*' ) );
+	}
+
 	// Get clicked episode audio URL
 	const audioUrl = episodeLinkEl.getAttribute( 'data-jetpack-podcast-audio' );
 	if ( ! audioUrl ) {
-		return renderEpisodeError( episodeLinkEl );
-	}
-
-	// Get clicked episode element
-	const episodeEl = episodeLinkEl.closest( '.podcast-player__episode' );
-	if ( ! episodeLinkEls ) {
-		return renderEpisodeError( episodeLinkEl );
+		return renderEpisodeError( episodeEl );
 	}
 
 	// Get episode's parent block element
 	const blockEl = episodeEl.closest( '.wp-block-jetpack-podcast-player' );
 	if ( ! blockEl ) {
-		return renderEpisodeError( episodeLinkEl );
+		return renderEpisodeError( episodeEl );
+	}
+
+	// Get episode's state icon container element
+	const iconContainerEl = episodeEl.querySelector( '.podcast-player__episode-status-icon' );
+	if ( ! iconContainerEl ) {
+		return renderEpisodeError( episodeEl );
 	}
 
 	// Get player instance by block id
 	const player = playerInstances[ blockEl.id ];
 	if ( ! player ) {
-		return renderEpisodeError( episodeLinkEl );
+		return renderEpisodeError( episodeEl );
 	}
 
+	// Pause the player and set the state classes
 	player.audio.pause();
+	blockEl.classList.remove( 'is-playing' );
+	blockEl.classList.add( 'is-paused' );
+	iconContainerEl.innerHTML = ''; // remove the icon
 
+	// Get currently active episode element
 	const activeEpisodeEl = blockEl.querySelector( '.is-active' );
 
 	if ( activeEpisodeEl ) {
+		activeEpisodeEl.querySelector( '.podcast-player__episode-status-icon' ).innerHTML = '';
 		activeEpisodeEl.classList.remove( 'is-active' );
-		renderEpisodeStatusIcon( activeEpisodeEl );
 		activeEpisodeEl
 			.querySelector( '[aria-pressed="true"]' )
 			.setAttribute( 'aria-pressed', 'false' );
@@ -167,41 +141,34 @@ function handleEpisodeLinkClick( e ) {
 	player.audio
 		.play()
 		.then( function() {
-			renderEpisodeStatusIcon( episodeEl );
+			blockEl.classList.remove( 'is-paused', 'is-error' );
+			blockEl.classList.add( 'is-playing' );
+			iconContainerEl.innerHTML =
+				'<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M3 9v6h4l5 5V4L7 9H3zm7-.17v6.34L7.83 13H5v-2h2.83L10 8.83zM16.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77 0-4.28-2.99-7.86-7-8.77z"/></svg>';
 		} )
 		.catch( function() {
-			renderEpisodeError( episodeLinkEl );
+			blockEl.classList.remove( 'is-playing', 'is-paused' );
+			blockEl.classList.add( 'is-error' );
+			iconContainerEl.innerHTML =
+				'<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/></svg>';
+			renderEpisodeError( episodeEl );
 		} );
 
+	// Episode should be active regardless of the Player state.
 	episodeEl.classList.add( 'is-active' );
 	episodeLinkEl.setAttribute( 'aria-pressed', 'true' );
 }
 
-function renderEpisodeError( episodeLinkEl ) {
-	if ( ! episodeLinkEl ) {
-		return;
-	}
-
-	// Find parent block element
-	const parentBlockEl = episodeLinkEl.closest( '.wp-block-jetpack-podcast-player' );
-	if ( ! parentBlockEl ) {
-		return;
-	}
-
-	parentBlockEl.classList.remove( 'is-playing', 'is-paused' );
-	parentBlockEl.classList.add( 'is-error' );
+function renderEpisodeError( episodeEl ) {
+	const parentBlockEl = episodeEl.closest( '.wp-block-jetpack-podcast-player' );
 
 	// Don't render if already rendered
 	if ( parentBlockEl.querySelector( '.podcast-player__episode-error' ) ) {
 		return;
 	}
 
-	// Get parent episode element
-	const parentEpisodeEl = episodeLinkEl.closest( '.podcast-player__episode' );
-	if ( ! parentEpisodeEl ) {
-		return;
-	}
-
+	const episodeLinkEl = episodeEl.querySelector( '.podcast-player__episode-link' );
+	// ToDo: make error template translatable
 	const errorTemplate = `
 		<div class="podcast-player__episode-error">
 			Episode unavailable <span>(<a href="{{episodeUrl}}" rel="noopener noreferrer nofollow" target="_blank">Open in new tab</a>)</span>
@@ -212,36 +179,6 @@ function renderEpisodeError( episodeLinkEl ) {
 	const compiledTemplate = errorTemplate.replace( '{{episodeUrl}}', episodeLinkEl.href );
 	const errorEl = new DOMParser().parseFromString( compiledTemplate, 'text/html' ).body.firstChild;
 
-	// Render the element & the status icon
-	parentEpisodeEl.appendChild( errorEl );
-	renderEpisodeStatusIcon( parentEpisodeEl );
-}
-
-function renderEpisodeStatusIcon( episodeEl ) {
-	const iconContainerEl = episodeEl.querySelector( '.podcast-player__episode-status-icon' );
-
-	// Remove the icon if the episode is not active.
-	if ( ! episodeEl.classList.contains( 'is-active' ) ) {
-		iconContainerEl.innerHTML = '';
-		return;
-	}
-
-	const parentBlockEl = episodeEl.closest( '.wp-block-jetpack-podcast-player' );
-
-	if ( parentBlockEl.classList.contains( 'is-error' ) ) {
-		iconContainerEl.innerHTML =
-			'<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/></svg>';
-		return;
-	}
-
-	if ( parentBlockEl.classList.contains( 'is-playing' ) ) {
-		iconContainerEl.innerHTML =
-			'<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M3 9v6h4l5 5V4L7 9H3zm7-.17v6.34L7.83 13H5v-2h2.83L10 8.83zM16.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77 0-4.28-2.99-7.86-7-8.77z"/></svg>';
-		return;
-	}
-
-	if ( parentBlockEl.classList.contains( 'is-paused' ) ) {
-		iconContainerEl.innerHTML = '';
-		return;
-	}
+	// Render the element
+	episodeEl.appendChild( errorEl );
 }
