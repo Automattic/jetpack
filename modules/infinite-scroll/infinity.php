@@ -441,7 +441,7 @@ class The_Neverending_Home_Page {
 				'modules/infinite-scroll/infinity.js'
 			),
 			array(),
-			'4.0.0',
+			'8.4.0',
 			true
 		);
 
