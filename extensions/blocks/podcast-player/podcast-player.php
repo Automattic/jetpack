@@ -131,7 +131,7 @@ function render_player( $track_list, $attributes ) {
  * Gets a list of tracks for the supplied RSS feed.
  *
  * @param string $feed     The RSS feed to load and list tracks for.
- * @param int    $quantity Optional. The number of tracks to return. Default 5.
+ * @param int    $quantity Optional. The number of tracks to return.
  * @return array|WP_Error The feed's tracks or a error object.
  */
 function get_track_list( $feed, $quantity = 5 ) {
