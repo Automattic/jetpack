@@ -288,21 +288,4 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 
 		$this->assertFalse( $validated_url );
 	}
-
-	/**
-	 * Tests that passed dependencies are included.
-	 *
-	 * @covers Jetpack_Gutenberg::load_scripts_as_required
-	 * @author kraftbj
-	 * @see https://github.com/Automattic/jetpack/pull/14958
-	 */
-	public function test_passed_dependencies_are_included() {
-		// Setup a fake script.
-		wp_register_script( 'example-apple', 'example-apple.js', array(), '1.0', true );
-
-		// calendly used as an example. Needs to be a real block that has a `view.asset.php` file when built.
-		Jetpack_Gutenberg::load_scripts_as_required( 'calendly', array( 'example-apple' ) );
-
-		$this->assertTrue( wp_script_is( 'example-apple', 'enqueued' ) );
-	}
 }
