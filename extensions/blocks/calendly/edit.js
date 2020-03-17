@@ -15,11 +15,12 @@ import {
 	Notice,
 	PanelBody,
 	Placeholder,
+	Spinner,
 	ToggleControl,
 	Toolbar,
 	withNotices,
 } from '@wordpress/components';
-import { useState } from '@wordpress/element';
+import { useEffect, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { getBlockDefaultClassName } from '@wordpress/blocks';
 
@@ -34,6 +35,8 @@ import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import SubmitButton from '../../shared/submit-button';
 import { getAttributesFromEmbedCode } from './utils';
 import BlockStylesSelector from '../../shared/components/block-styles-selector';
+import { CALENDLY_EXAMPLE_URL } from './';
+import testEmbedUrl from '../../shared/test-embed-url';
 
 function CalendlyEdit( props ) {
 	const {
@@ -62,6 +65,7 @@ function CalendlyEdit( props ) {
 		url,
 	} = validatedAttributes;
 	const [ embedCode, setEmbedCode ] = useState( '' );
+	const [ isResolvingUrl, setIsResolvingUrl ] = useState( false );
 
 	const setErrorNotice = () => {
 		noticeOperations.removeAllNotices();
@@ -69,6 +73,16 @@ function CalendlyEdit( props ) {
 			__( "Your calendar couldn't be embedded. Please double check your URL or code.", 'jetpack' )
 		);
 	};
+
+	useEffect( () => {
+		if ( ! url || CALENDLY_EXAMPLE_URL === url || 'link' === style ) {
+			return;
+		}
+		testEmbedUrl( url, setIsResolvingUrl ).catch( () => {
+			setAttributes( { url: undefined } );
+			setErrorNotice();
+		} );
+	}, [] );
 
 	const parseEmbedCode = event => {
 		if ( ! event ) {
@@ -84,10 +98,16 @@ function CalendlyEdit( props ) {
 			return;
 		}
 
-		const newValidatedAttributes = getValidatedAttributes( attributeDetails, newAttributes );
-
-		setAttributes( newValidatedAttributes );
-		noticeOperations.removeAllNotices();
+		testEmbedUrl( newAttributes.url, setIsResolvingUrl )
+			.then( () => {
+				const newValidatedAttributes = getValidatedAttributes( attributeDetails, newAttributes );
+				setAttributes( newValidatedAttributes );
+				noticeOperations.removeAllNotices();
+			} )
+			.catch( () => {
+				setAttributes( { url: undefined } );
+				setErrorNotice();
+			} );
 	};
 
 	const embedCodeForm = (
@@ -113,6 +133,13 @@ function CalendlyEdit( props ) {
 				</ExternalLink>
 			</div>
 		</>
+	);
+
+	const blockEmbedding = (
+		<div className="wp-block-embed is-loading">
+			<Spinner />
+			<p>{ __( 'Embedding…', 'jetpack' ) }</p>
+		</div>
 	);
 
 	const blockPlaceholder = (
@@ -256,6 +283,10 @@ function CalendlyEdit( props ) {
 			) }
 		</InspectorControls>
 	);
+
+	if ( isResolvingUrl ) {
+		return blockEmbedding;
+	}
 
 	const classes = `${ className } calendly-style-${ style }`;
 
