@@ -163,7 +163,7 @@ const PodcastPlayerEdit = ( {
 				<PanelBody title={ __( 'Podcast settings', 'jetpack' ) }>
 					<FeedURLControl
 						label={ __( 'RSS Feed URL', 'jetpack' ) }
-						url={ editedUrl || '' }
+						url={ editedUrl  }
 						onUrlChange={ setEditedUrl }
 						onEnterKeyPress={ checkPodcastLink }
 						onBlur={ checkPodcastLink }
