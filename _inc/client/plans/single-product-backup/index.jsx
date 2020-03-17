@@ -60,11 +60,11 @@ export default function SingleProductBackupCard( props ) {
 	return props.isFetching ? (
 		<div className="plans-section__single-product-skeleton is-placeholder" />
 	) : (
-		<div className="single-product-backup__accented-card dops-card">
-			<div className="single-product-backup__accented-card-header">
+		<div className="single-product__accented-card dops-card">
+			<div className="single-product__accented-card-header">
 				<h3 className="single-product-backup__header-title">{ __( 'Jetpack Backup' ) }</h3>
 			</div>
-			<div className="single-product-backup__accented-card-body">
+			<div className="single-product__accented-card-body">
 				<SingleProductBackupBody
 					billingTimeFrame={ billingTimeFrame }
 					currencyCode={ currencyCode }
