@@ -22,9 +22,9 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import defaultAttributes from './attributes';
-import ButtonPreview from './button-preview';
 import JetpackFieldLabel from '../contact-form/components/jetpack-field-label';
 import icon from './icon';
+import { ButtonEdit, getButtonEditProps } from '../../shared/components/button';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import './editor.scss';
@@ -165,7 +165,7 @@ export default function RevueEdit( props ) {
 							value={ lastNamePlaceholder }
 						/>
 					) }
-					<ButtonPreview { ...props } />
+					<ButtonEdit { ...getButtonEditProps( props, defaultAttributes ) } />
 				</>
 			) }
 		</div>
