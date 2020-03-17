@@ -81,8 +81,7 @@ function render_player( $track_list, $attributes ) {
 	if ( empty( $track_list ) ) {
 		return '<p>' . esc_html__( 'No tracks available to play.', 'jetpack' ) . '</p>';
 	}
-	static $counter = 0;
-	$instance_id    = FEATURE_NAME . '-' . ( $counter++ );
+	$instance_id = wp_unique_id( 'podcast-player-block-' );
 
 	$player_data = array(
 		'type'         => 'audio',
