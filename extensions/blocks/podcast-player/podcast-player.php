@@ -152,20 +152,18 @@ function get_track_list( $feed, $quantity = 10 ) {
  * @return array
  */
 function setup_tracks_callback( \SimplePie_Item $episode ) {
-	$enclosure = $episode->get_enclosure();
-
-	$url = ! empty( $episode->data['child']['']['enclosure'][0]['attribs']['']['url'] ) ? $episode->data['child']['']['enclosure'][0]['attribs']['']['url'] : null;
+	$enclosure = get_audio_enclosure( $episode );
 
 	// If there is no link return an empty array. We will filter out later.
-	if ( ! $url ) {
+	if ( empty( $enclosure->link ) ) {
 		return array();
 	}
 
 	// Build track data.
 	$track = array(
 		'link'        => esc_url( $episode->get_link() ),
-		'src'         => esc_url( $url ),
-		'type'        => $enclosure->type,
+		'src'         => esc_url( $enclosure->link ),
+		'type'        => esc_attr( $enclosure->type ),
 		'caption'     => '',
 		'description' => wp_kses_post( $episode->get_description() ),
 		'meta'        => array(),
@@ -178,4 +176,21 @@ function setup_tracks_callback( \SimplePie_Item $episode ) {
 	}
 
 	return $track;
+}
+
+/**
+ * Retrieves an audio enclosure.
+ *
+ * @param \SimplePie_Item $episode SimplePie_Item object, representing a podcast episode.
+ * @return \SimplePie_Enclosure|null
+ */
+function get_audio_enclosure( \SimplePie_Item $episode ) {
+	foreach ( $episode->get_enclosures() as $enclosure ) {
+		if ( 0 === strpos( $enclosure->type, 'audio/' ) ) {
+			return $enclosure;
+		}
+	}
+
+	// Default to empty SimplePie_Enclosure object.
+	return $episode->get_enclosure();
 }
