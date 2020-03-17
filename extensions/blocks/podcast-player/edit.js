@@ -1,7 +1,11 @@
 /**
  * External dependencies
  */
-import { useState } from '@wordpress/element';
+
+/**
+ * WordPress dependencies
+ */
+import { useState, useCallback } from '@wordpress/element';
 import {
 	Button,
 	Disabled,
@@ -12,6 +16,7 @@ import {
 	TextControl,
 	Toolbar,
 	withNotices,
+	ToggleControl,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { BlockControls, BlockIcon, InspectorControls } from '@wordpress/block-editor';
@@ -35,6 +40,12 @@ const handleSSRError = () => {
 	return <p>{ __( 'Failed to load Block', 'jetpack' ) }</p>;
 };
 
+// Support page link.
+const supportUrl =
+	isSimpleSite() || isAtomicSite()
+		? 'http://en.support.wordpress.com/wordpress-editor/blocks/podcast-player-block/'
+		: 'https://jetpack.com/support/jetpack-blocks/podcast-player-block/';
+
 const PodcastPlayerEdit = ( {
 	attributes,
 	setAttributes,
@@ -42,7 +53,10 @@ const PodcastPlayerEdit = ( {
 	noticeUI,
 } ) => {
 	// Validated attributes.
-	const { url, itemsToShow } = getValidatedAttributes( attributesValidation, attributes );
+	const { url, itemsToShow, showCoverArt, showEpisodeDescription } = getValidatedAttributes(
+		attributesValidation,
+		attributes
+	);
 
 	// State.
 	const [ editedUrl, setEditedUrl ] = useState( url || '' );
@@ -56,7 +70,7 @@ const PodcastPlayerEdit = ( {
 	 *
 	 * @param {object} event Form on submit event object.
 	 */
-	const checkPodcastLink = event => {
+	const checkPodcastLink = useCallback( event => {
 		event.preventDefault();
 		removeAllNotices();
 
@@ -76,12 +90,7 @@ const PodcastPlayerEdit = ( {
 
 		setAttributes( { url: editedUrl } );
 		setIsEditing( false );
-	};
-
-	const supportLink =
-		isSimpleSite() || isAtomicSite()
-			? 'http://en.support.wordpress.com/wordpress-editor/blocks/podcast-player-block/'
-			: 'https://jetpack.com/support/jetpack-blocks/podcast-player-block/';
+	} );
 
 	if ( isEditing || ! url ) {
 		return (
@@ -96,15 +105,15 @@ const PodcastPlayerEdit = ( {
 						type="url"
 						placeholder={ __( 'Enter URL here…', 'jetpack' ) }
 						value={ editedUrl || '' }
-						onChange={ setEditedUrl }
 						className={ 'components-placeholder__input' }
+						onChange={ setEditedUrl }
 					/>
 					<Button isPrimary type="submit">
 						{ __( 'Embed', 'jetpack' ) }
 					</Button>
 				</form>
 				<div className="components-placeholder__learn-more">
-					<ExternalLink href={ supportLink }>
+					<ExternalLink href={ supportUrl }>
 						{ __( 'Learn more about embeds', 'jetpack' ) }
 					</ExternalLink>
 				</div>
@@ -134,6 +143,18 @@ const PodcastPlayerEdit = ( {
 						min={ DEFAULT_MIN_ITEMS }
 						max={ DEFAULT_MAX_ITEMS }
 						required
+					/>
+
+					<ToggleControl
+						label={ __( 'Show Cover Art', 'jetpack' ) }
+						checked={ showCoverArt }
+						onChange={ value => setAttributes( { showCoverArt: value } ) }
+					/>
+
+					<ToggleControl
+						label={ __( 'Show Episode Description', 'jetpack' ) }
+						checked={ showEpisodeDescription }
+						onChange={ value => setAttributes( { showEpisodeDescription: value } ) }
 					/>
 				</PanelBody>
 			</InspectorControls>

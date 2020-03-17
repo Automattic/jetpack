@@ -12,4 +12,12 @@ export default {
 		type: 'integer',
 		default: 5,
 	},
+	showCoverArt: {
+		type: 'boolean',
+		default: true,
+	},
+	showEpisodeDescription: {
+		type: 'boolean',
+		default: true,
+	},
 };

@@ -25,12 +25,20 @@ function register_block() {
 		BLOCK_NAME,
 		array(
 			'attributes'      => array(
-				'url'         => array(
+				'url'                    => array(
 					'type' => 'url',
 				),
-				'itemsToShow' => array(
+				'itemsToShow'            => array(
 					'type'    => 'integer',
 					'default' => 5,
+				),
+				'showCoverArt'           => array(
+					'type'    => 'boolean',
+					'default' => true,
+				),
+				'showEpisodeDescription' => array(
+					'type'    => 'boolean',
+					'default' => true,
 				),
 			),
 			'render_callback' => __NAMESPACE__ . '\render_block',
@@ -60,7 +68,7 @@ function render_block( $attributes ) {
 	// Sanitize the URL.
 	$attributes['url'] = esc_url_raw( $attributes['url'] );
 
-	$track_list = get_track_list( $attributes['url'], 10 );
+	$track_list = get_track_list( $attributes['url'], absint( $attributes['itemsToShow'] ) );
 
 	if ( is_wp_error( $track_list ) ) {
 		return '<p>' . esc_html( $track_list->get_error_message() ) . '</p>';
@@ -72,9 +80,9 @@ function render_block( $attributes ) {
 /**
  * Renders the HTML for the Podcast player and tracklist.
  *
- * @param array $track_list the list of podcast tracks.
+ * @param array $track_list The list of podcast tracks.
  * @param array $attributes Array containing the Podcast Player block attributes.
- * @return string the HTML for the podcast player.
+ * @return string The HTML for the podcast player.
  */
 function render_player( $track_list, $attributes ) {
 	// If there are no tracks (it is possible) then display appropriate user facing error message.
@@ -110,8 +118,8 @@ function render_player( $track_list, $attributes ) {
 	<script>window.jetpackPodcastPlayers=(window.jetpackPodcastPlayers||[]);window.jetpackPodcastPlayers.push( <?php echo wp_json_encode( $instance_id ); ?> );</script>
 	<?php
 	/*
-	* Enqueue necessary scripts and styles.
-	*/
+	 * Enqueue necessary scripts and styles.
+	 */
 	wp_enqueue_style( 'wp-mediaelement' );
 	Jetpack_Gutenberg::load_assets_as_required( 'podcast-player', array( 'wp-mediaelement' ) );
 
@@ -121,9 +129,9 @@ function render_player( $track_list, $attributes ) {
 /**
  * Gets a list of tracks for the supplied RSS feed.
  *
- * @param string $feed the RSS feed to load and list tracks for.
- * @param int    $quantity the number of tracks to return.
- * @return array|WP_Error the feed's tracks or a error object.
+ * @param string $feed     The RSS feed to load and list tracks for.
+ * @param int    $quantity Optional. The number of tracks to return.
+ * @return array|WP_Error The feed's tracks or a error object.
  */
 function get_track_list( $feed, $quantity = 10 ) {
 	$rss = fetch_feed( $feed );
