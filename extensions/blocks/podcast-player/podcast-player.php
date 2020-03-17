@@ -68,7 +68,7 @@ function render_block( $attributes ) {
 	// Sanitize the URL.
 	$attributes['url'] = esc_url_raw( $attributes['url'] );
 
-	$track_list = get_track_list( $attributes['url'], $attributes['itemsToShow'] );
+	$track_list = get_track_list( $attributes['url'], absint( $attributes['itemsToShow'] ) );
 
 	if ( is_wp_error( $track_list ) ) {
 		return '<p>' . esc_html( $track_list->get_error_message() ) . '</p>';
