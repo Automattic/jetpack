@@ -20,6 +20,7 @@ module.exports = [
 	'_inc/lib/core-api/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-resolve-redirect.php',
 	'_inc/lib/core-api/wpcom-endpoints/memberships.php',
 	'_inc/lib/debugger/',
+	'_inc/lib/functions.jetpack-button-helper.php',
 	'_inc/lib/plans.php',
 	'jetpack.php',
 	'json-endpoints/jetpack/class-jetpack-json-api-delete-backup-helper-script-endpoint.php',
