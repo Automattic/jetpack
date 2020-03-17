@@ -126,7 +126,7 @@ const PodcastPlayerEdit = ( {
 			title: __( 'Edit Podcast Feed URL', 'jetpack' ),
 			onClick: () => setIsEditing( true ),
 			extraProps: {
-				children: __( 'Update', 'jetpack' ),
+				children: __( 'Replace', 'jetpack' ),
 			},
 		},
 	];
