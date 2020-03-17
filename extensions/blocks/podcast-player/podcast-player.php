@@ -102,25 +102,21 @@ function render_player( $track_list, $attributes ) {
 	?>
 	<div class="<?php echo esc_attr( $block_classname ); ?>" id="<?php echo esc_attr( $instance_id ); ?>">
 		<ol class="podcast-player__episodes">
-			<?php
-			foreach ( $track_list as $attachment ) :
-				?>
-				<li class="podcast-player__episode">
-					<a
-						class="podcast-player__episode-link"
-						href="<?php echo esc_url( $attachment['link'] ); ?>"
-						data-jetpack-podcast-audio="<?php echo esc_url( $attachment['src'] ); ?>"
-						role="button"
-						aria-pressed="false"
-					>
-						<span class="podcast-player__episode-status-icon"></span>
-						<span class="podcast-player__episode-title"><?php echo esc_html( $attachment['title'] ); ?></span>
-						<time class="podcast-player__episode-duration"><?php echo esc_html( $attachment['meta']['length_formatted'] ); ?></time>
-					</a>
-				</li>
-				<?php
-			endforeach;
-			?>
+			<?php foreach ( $track_list as $attachment ) : ?>
+			<li class="podcast-player__episode">
+				<a
+					class="podcast-player__episode-link"
+					href="<?php echo esc_url( $attachment['link'] ); ?>"
+					data-jetpack-podcast-audio="<?php echo esc_url( $attachment['src'] ); ?>"
+					role="button"
+					aria-pressed="false"
+				>
+					<span class="podcast-player__episode-status-icon"></span>
+					<span class="podcast-player__episode-title"><?php echo esc_html( $attachment['title'] ); ?></span>
+					<time class="podcast-player__episode-duration"><?php echo esc_html( $attachment['duration'] ); ?></time>
+				</a>
+			</li>
+			<?php endforeach; ?>
 		</ol>
 		<script type="application/json"><?php echo wp_json_encode( $player_data ); ?></script>
 	</div>
@@ -179,9 +175,7 @@ function setup_tracks_callback( \SimplePie_Item $episode ) {
 		'link'        => esc_url( $episode->get_link() ),
 		'src'         => esc_url( $enclosure->link ),
 		'type'        => esc_attr( $enclosure->type ),
-		'caption'     => '',
 		'description' => wp_kses_post( $episode->get_description() ),
-		'meta'        => array(),
 	);
 
 	$track['title'] = esc_html( trim( wp_strip_all_tags( $episode->get_title() ) ) );
@@ -191,8 +185,8 @@ function setup_tracks_callback( \SimplePie_Item $episode ) {
 	}
 
 	if ( ! empty( $enclosure->duration ) ) {
-		$format                            = $enclosure->duration > 3600 ? 'H:i:s' : 'i:s';
-		$track['meta']['length_formatted'] = esc_html( date_i18n( $format, $enclosure->duration ) );
+		$format            = $enclosure->duration > HOUR_IN_SECONDS ? 'H:i:s' : 'i:s';
+		$track['duration'] = esc_html( date_i18n( $format, $enclosure->duration ) );
 	}
 
 	return $track;
