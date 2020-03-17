@@ -420,6 +420,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				break;
 			case 'is_core_site_editor_enabled':
 				$response[ $key ] = $this->site->is_core_site_editor_enabled();
+				break;
 		}
 
 		do_action( 'post_render_site_response_key', $key );
