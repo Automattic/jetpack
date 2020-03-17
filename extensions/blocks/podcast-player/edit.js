@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { noop } from 'lodash';
 
 /**
  * WordPress dependencies
@@ -46,36 +45,6 @@ const supportUrl =
 	isSimpleSite() || isAtomicSite()
 		? 'http://en.support.wordpress.com/wordpress-editor/blocks/podcast-player-block/'
 		: 'https://jetpack.com/support/jetpack-blocks/podcast-player-block/';
-
-/**
- * Control component used either inside of the Podcast block
- * as well as into the InspectorControls section (sidebar)
- *
- * @param {string}      url             Podcast Feed URL
- * @param {string|Null} label           Input field label. Optional.
- * @param {Function}    onUrlChange     onChange text handler.
- * @param {Function}    onEnterKeyPress on Enter key input event handler. Optional.
- * @param {Function}    onBlur          onBlur input handler. Optional.
- * @return {*}                          React component
- */
-const FeedURLControl = ( {
-	url,
-	label = null,
-	onUrlChange,
-	onEnterKeyPress = noop,
-	onBlur = noop,
-} ) => (
-	<TextControl
-		label={ label }
-		type="url"
-		placeholder={ __( 'Enter URL here…', 'jetpack' ) }
-		value={ url || '' }
-		className={ 'components-placeholder__input' }
-		onChange={ onUrlChange }
-		onKeyPress={ ev => ( ev.key === 'Enter' ? onEnterKeyPress( ev ) : noop ) }
-		onBlur={ onBlur }
-	/>
-);
 
 const PodcastPlayerEdit = ( {
 	attributes,
@@ -132,7 +101,13 @@ const PodcastPlayerEdit = ( {
 			>
 				<form onSubmit={ checkPodcastLink }>
 					{ noticeUI }
-					<FeedURLControl url={ editedUrl } onUrlChange={ setEditedUrl } />
+					<TextControl
+						type="url"
+						placeholder={ __( 'Enter URL here…', 'jetpack' ) }
+						value={ editedUrl || '' }
+						className={ 'components-placeholder__input' }
+						onChange={ setEditedUrl }
+					/>
 					<Button isPrimary type="submit">
 						{ __( 'Embed', 'jetpack' ) }
 					</Button>
@@ -161,14 +136,6 @@ const PodcastPlayerEdit = ( {
 			</BlockControls>
 			<InspectorControls>
 				<PanelBody title={ __( 'Podcast settings', 'jetpack' ) }>
-					<FeedURLControl
-						label={ __( 'RSS Feed URL', 'jetpack' ) }
-						url={ editedUrl }
-						onUrlChange={ setEditedUrl }
-						onEnterKeyPress={ checkPodcastLink }
-						onBlur={ checkPodcastLink }
-					/>
-
 					<RangeControl
 						label={ __( 'Number of items', 'jetpack' ) }
 						value={ itemsToShow }
