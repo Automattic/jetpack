@@ -240,5 +240,6 @@ export default connect( state => {
 		isFetchingData:
 			isFetchingSiteData( state ) || isFetchingProducts( state ) || ! getAvailablePlans( state ),
 		backupInfoUrl: getUpgradeUrl( state, 'aag-backups' ), // Redirect to https://jetpack.com/upgrade/backup/
+		isInstantSearchEnabled: !! get( state, 'jetpack.initialState.isInstantSearchEnabled', false ),
 	};
 } )( ProductSelector );
