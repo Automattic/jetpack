@@ -68,7 +68,7 @@ function render_block( $attributes ) {
 	// Sanitize the URL.
 	$attributes['url'] = esc_url_raw( $attributes['url'] );
 
-	$track_list = get_track_list( $attributes['url'], 10 );
+	$track_list = get_track_list( $attributes['url'], $attributes['itemsToShow'] );
 
 	if ( is_wp_error( $track_list ) ) {
 		return '<p>' . esc_html( $track_list->get_error_message() ) . '</p>';
@@ -130,11 +130,11 @@ function render_player( $track_list, $attributes ) {
 /**
  * Gets a list of tracks for the supplied RSS feed.
  *
- * @param string $feed the RSS feed to load and list tracks for.
- * @param int    $quantity the number of tracks to return.
- * @return array|WP_Error the feed's tracks or a error object.
+ * @param string $feed     The RSS feed to load and list tracks for.
+ * @param int    $quantity Optional. The number of tracks to return. Default 5.
+ * @return array|WP_Error The feed's tracks or a error object.
  */
-function get_track_list( $feed, $quantity = 10 ) {
+function get_track_list( $feed, $quantity = 5 ) {
 	$rss = fetch_feed( $feed );
 
 	if ( is_wp_error( $rss ) ) {
