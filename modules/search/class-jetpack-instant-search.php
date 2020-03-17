@@ -119,11 +119,12 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		$prefix  = Jetpack_Search_Options::OPTION_PREFIX;
 		$options = array(
 			'overlayOptions'        => array(
-				'colorTheme'      => get_option( $prefix . 'color_theme', 'light' ),
-				'enableInfScroll' => (bool) get_option( $prefix . 'inf_scroll', false ),
-				'highlightColor'  => get_option( $prefix . 'highlight_color', '#FFC' ),
-				'opacity'         => (int) get_option( $prefix . 'opacity', 97 ),
-				'showPoweredBy'   => (bool) get_option( $prefix . 'show_powered_by', true ),
+				'colorTheme'       => get_option( $prefix . 'color_theme', 'light' ),
+				'enableInfScroll'  => (bool) get_option( $prefix . 'inf_scroll', false ),
+				'enableTransition' => (bool) get_option( $prefix . 'overlay_transition', false ),
+				'highlightColor'   => get_option( $prefix . 'highlight_color', '#FFC' ),
+				'opacity'          => (int) get_option( $prefix . 'opacity', 97 ),
+				'showPoweredBy'    => (bool) get_option( $prefix . 'show_powered_by', true ),
 			),
 
 			// core config.

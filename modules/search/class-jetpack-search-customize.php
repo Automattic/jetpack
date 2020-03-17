@@ -117,6 +117,24 @@ class Jetpack_Search_Customize {
 			)
 		);
 
+		$id = $setting_prefix . 'overlay_transition';
+		$wp_customize->add_setting(
+			$id,
+			array(
+				'default'   => true,
+				'transport' => 'postMessage',
+				'type'      => 'option',
+			)
+		);
+		$wp_customize->add_control(
+			$id,
+			array(
+				'type'    => 'checkbox',
+				'section' => $section_id,
+				'label'   => __( 'Fade overlay in and out', 'jetpack' ),
+			)
+		);
+
 		$id = $setting_prefix . 'inf_scroll';
 		$wp_customize->add_setting(
 			$id,

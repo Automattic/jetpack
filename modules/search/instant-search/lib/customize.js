@@ -3,6 +3,7 @@ const CUSTOMIZE_SETTINGS = [
 	'jetpack_search_inf_scroll',
 	'jetpack_search_highlight_color',
 	'jetpack_search_opacity',
+	'jetpack_search_overlay_transition',
 	'jetpack_search_show_powered_by',
 ];
 
@@ -11,6 +12,7 @@ const SETTINGS_TO_STATE_MAP = new Map( [
 	[ 'jetpack_search_inf_scroll', 'enableInfScroll' ],
 	[ 'jetpack_search_highlight_color', 'highlightColor' ],
 	[ 'jetpack_search_opacity', 'opacity' ],
+	[ 'jetpack_search_overlay_transition', 'enableTransition' ],
 	[ 'jetpack_search_show_powered_by', 'showPoweredBy' ],
 ] );
 
