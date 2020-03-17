@@ -42,7 +42,6 @@
 		this.google_analytics = settings.google_analytics;
 		this.history = settings.history;
 		this.origURL = window.location.href;
-		this.pageCache = {};
 
 		// Handle element
 		this.handle = document.createElement( 'div' );
@@ -183,8 +182,10 @@
 	Scroller.prototype.render = function( response ) {
 		this.body.classList.add( 'infinity-success' );
 
-		// Check if we can wrap the html
-		this.element.append( response.html );
+		// Render the retrieved nodes.
+		for ( var i = 0; i < response.fragment.childNodes.length; i++ ) {
+			this.element.appendChild( response.fragment.childNodes[ i ] );
+		}
 
 		this.trigger( this.body.get( 0 ), 'is.post-load', {
 			jqueryEventName: 'post-load',
@@ -471,8 +472,10 @@
 				} );
 			}
 
-			// stash the response in the page cache
-			self.pageCache[ self.page + self.offset ] = response;
+			// Convert the response.html to a fragment element.
+			// Using a div instead of DocumentFragment, because the latter doesn't support innerHTML.
+			response.fragment = document.createElement( 'div' );
+			response.fragment.innerHTML = response.html;
 
 			// Increment the page number
 			self.page++;
@@ -748,39 +751,6 @@
 				setsHidden.push( { id: id, top: setTop, bottom: setBottom, pageNum: setPageNum } );
 			}
 		}
-
-		setsHidden.forEach( function( set ) {
-			var setEl = document.getElementById( set.id );
-
-			if ( setEl.classList.contains( 'is--replaced' ) ) {
-				return;
-			}
-			self.pageCache[ set.pageNum ].html = setEl.innerHTML;
-
-			setEl.style.minHeight = set.bottom - set.top + 'px';
-			setEl.classList.add( 'is--replaced' );
-
-			while ( setEl.firstChild ) {
-				setEl.removeChild( setEl.firstChild );
-			}
-		} );
-
-		setsInView.forEach( function( set ) {
-			var setEl = document.getElementById( set.id );
-
-			if ( setEl.classList.contains( 'is--replaced' ) ) {
-				setEl.style.minHeight = '';
-				setEl.classList.remove( 'is--replaced' );
-
-				if ( this.pageNum in self.pageCache ) {
-					$set.html( self.pageCache[ this.pageNum ].html );
-					self.trigger( self.body.get( 0 ), 'is.post-load', {
-						jqueryEventName: 'post-load',
-						data: self.pageCache[ this.pageNum ],
-					} );
-				}
-			}
-		} );
 
 		// Parse number of sets found in view in an attempt to update the URL to match the set that comprises the majority of the window.
 		if ( 0 == setsInView.length ) {
