@@ -185,7 +185,7 @@ function setup_tracks_callback( \SimplePie_Item $episode ) {
  * @return \SimplePie_Enclosure|null
  */
 function get_audio_enclosure( \SimplePie_Item $episode ) {
-	foreach ( $episode->get_enclosures() as $enclosure ) {
+	foreach ( (array) $episode->get_enclosures() as $enclosure ) {
 		if ( 0 === strpos( $enclosure->type, 'audio/' ) ) {
 			return $enclosure;
 		}
