@@ -131,18 +131,43 @@ function autoloader( $class_name ) {
 }
 
 /**
+ * Creates an array containing the paths to the classmap and filemap for the given plugin.
+ *
+ * @param String $plugin The plugin string.
+ * @return Array An array containing the paths to the plugin's classmap and filemap.
+ */
+function create_map_path_array( $plugin ) {
+	$plugin_path = plugin_dir_path( trailingslashit( WP_PLUGIN_DIR ) . $plugin );
+
+	return array(
+		'class' => trailingslashit( $plugin_path ) . 'vendor/composer/jetpack_autoload_classmap.php',
+		'file'  => trailingslashit( $plugin_path ) . 'vendor/composer/jetpack_autoload_filemap.php',
+	);
+}
+
+/**
  * Used for running the code that initializes class and file maps.
  */
 function enqueue_files() {
-	$active_plugins = (array) get_option( 'active_plugins', array() );
+	$current_paths = array();
 
-	foreach ( $active_plugins as $plugin ) {
-		$plugin_path = plugin_dir_path( trailingslashit( WP_PLUGIN_DIR ) . $plugin );
+	/*
+	 * Add the paths to this plugin's maps. This is done separately in case the plugin
+	 * has just been activated and isn't in the active plugins list yet.
+	 */
+	$current_paths[] = array(
+		'class' => trailingslashit( dirname( __FILE__ ) ) . 'composer/jetpack_autoload_classmap.php',
+		'file'  => trailingslashit( dirname( __FILE__ ) ) . 'composer/jetpack_autoload_filemap.php',
+	);
 
-		$classmap_path = trailingslashit( $plugin_path ) . 'vendor/composer/jetpack_autoload_classmap.php';
+	$active_plugins       = (array) get_option( 'active_plugins', array() );
+	$active_plugins_paths = array_map( __NAMESPACE__ . '\create_map_path_array', $active_plugins );
 
-		if ( is_readable( $classmap_path ) ) {
-			$class_map = require $classmap_path;
+	$paths = array_merge( $current_paths, $active_plugins_paths );
+
+	foreach ( $paths as $path ) {
+		if ( is_readable( $path['class'] ) ) {
+			$class_map = require $path['class'];
 
 			if ( is_array( $class_map ) ) {
 				foreach ( $class_map as $class_name => $class_info ) {
@@ -151,10 +176,8 @@ function enqueue_files() {
 			}
 		}
 
-		$filemap_path = trailingslashit( $plugin_path ) . 'vendor/composer/jetpack_autoload_filemap.php';
-
-		if ( is_readable( $filemap_path ) ) {
-			$file_map = require $filemap_path;
+		if ( is_readable( $path['file'] ) ) {
+			$file_map = require $path['file'];
 
 			if ( is_array( $file_map ) ) {
 				foreach ( $file_map as $file_identifier => $file_data ) {
@@ -206,6 +229,12 @@ function set_up_autoloader() {
 		if ( __FILE__ !== $autoloader_path ) {
 			require $autoloader_path;
 		}
+	}
+
+	// A plugin with a newer autoloader has been activated. Reset the classmap and set the latest version.
+	if ( version_compare( $latest_autoloader_version, $loaded_autoloader_version, '<' ) ) {
+		$jetpack_packages_classmap = array();
+		$latest_autoloader_version = $loaded_autoloader_version;
 	}
 
 	// This is the latest autoloader, so generate the classmap and filemap and register the autoloader function.
