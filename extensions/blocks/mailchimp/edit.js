@@ -159,14 +159,14 @@ class MailchimpSubscribeEdit extends Component {
 					'jetpack'
 				) }
 			>
+				<Button isDefault isLarge href={ connectURL } target="_blank">
+					{ __( 'Set up Mailchimp form', 'jetpack' ) }
+				</Button>
 				<div>
-					<Button isDefault isLarge href={ connectURL } target="_blank">
-						{ __( 'Set up Mailchimp form', 'jetpack' ) }
+					<Button isLink onClick={ this.apiCall }>
+						{ __( 'Re-check Connection', 'jetpack' ) }
 					</Button>
 				</div>
-				<Button isLink onClick={ this.apiCall }>
-					{ __( 'Re-check Connection', 'jetpack' ) }
-				</Button>
 			</Placeholder>
 		);
 		const inspectorControls = (
