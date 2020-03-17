@@ -113,6 +113,7 @@ function render_player( $track_list, $attributes ) {
 						role="button"
 						aria-pressed="false"
 					>
+						<span class="podcast-player__episode-status-icon"></span>
 						<span class="podcast-player__episode-title"><?php echo esc_html( $attachment['title'] ); ?></span>
 						<time class="podcast-player__episode-duration"><?php echo esc_html( $attachment['meta']['length_formatted'] ); ?></time>
 					</a>
