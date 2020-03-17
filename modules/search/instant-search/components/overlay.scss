@@ -9,13 +9,10 @@
 	background: rgba(255, 255, 255, 0.975);
 	overflow-y: auto;
 	overflow-x: hidden;
+	transition: opacity 0.15s ease-in-out;
 
 	&.is-hidden {
 		transform: translateX( 100vw );
-	}
-
-	&.has-transition {
-		transition: opacity 0.15s ease-in-out;
 	}
 
 	&.jetpack-instant-search__overlay--light {

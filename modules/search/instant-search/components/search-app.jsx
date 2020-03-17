@@ -253,7 +253,6 @@ class SearchApp extends Component {
 				closeColor={ this.state.overlayOptions.closeColor }
 				closeOverlay={ this.hideResults }
 				colorTheme={ this.state.overlayOptions.colorTheme }
-				enableTransition={ this.state.overlayOptions.enableTransition }
 				isVisible={ this.state.showResults }
 				opacity={ this.state.overlayOptions.opacity }
 			>

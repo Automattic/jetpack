@@ -14,14 +14,7 @@ const closeOnEscapeKey = callback => event => {
 	event.key === 'Escape' && callback();
 };
 
-const Overlay = ( {
-	children,
-	closeOverlay,
-	colorTheme,
-	enableTransition,
-	isVisible,
-	opacity,
-} ) => {
+const Overlay = ( { children, closeOverlay, colorTheme, isVisible, opacity } ) => {
 	useEffect( () => {
 		window.addEventListener( 'keydown', closeOnEscapeKey( closeOverlay ) );
 		return () => {
@@ -36,7 +29,6 @@ const Overlay = ( {
 				'jetpack-instant-search__overlay',
 				`jetpack-instant-search__overlay--${ colorTheme }`,
 				isVisible ? '' : 'is-hidden',
-				enableTransition ? 'has-transition' : '',
 			].join( ' ' ) }
 			style={ { opacity: isVisible ? opacity / 100 : 0 } }
 		>
