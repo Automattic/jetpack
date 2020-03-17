@@ -81,6 +81,7 @@ function render_player( $track_list, $attributes ) {
 	if ( empty( $track_list ) ) {
 		return '<p>' . esc_html__( 'No tracks available to play.', 'jetpack' ) . '</p>';
 	}
+	$instance_id = wp_unique_id( 'podcast-player-block-' );
 
 	$player_data = array(
 		'type'         => 'audio',
@@ -95,17 +96,24 @@ function render_player( $track_list, $attributes ) {
 	$block_classname = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attributes );
 
 	ob_start();
-
 	?>
-	<div class="<?php echo esc_attr( $block_classname ); ?>">
-		<?php // Placeholder: block markup is being handled in https://github.com/Automattic/jetpack/pull/14952. ?>
-		<script type="application/json" class="wp-playlist-script"><?php echo wp_json_encode( $player_data ); ?></script>
+	<div class="<?php echo esc_attr( $block_classname ); ?>" id="<?php echo esc_attr( $instance_id ); ?>">
+		<ol>
+			<?php
+			foreach ( $track_list as $attachment ) :
+				printf( '<li><a href="%1$s" data-jetpack-podcast-audio="%2$s">%3$s</a></li>', esc_url( $attachment['link'] ), esc_url( $attachment['src'] ), esc_html( $attachment['title'] ) );
+			endforeach;
+			?>
+		</ol>
+		<script type="application/json"><?php echo wp_json_encode( $player_data ); ?></script>
 	</div>
+	<script>window.jetpackPodcastPlayers=(window.jetpackPodcastPlayers||[]);window.jetpackPodcastPlayers.push( <?php echo wp_json_encode( $instance_id ); ?> );</script>
 	<?php
 	/*
 	* Enqueue necessary scripts and styles.
 	*/
-	Jetpack_Gutenberg::load_assets_as_required( 'podcast-player' );
+	wp_enqueue_style( 'wp-mediaelement' );
+	Jetpack_Gutenberg::load_assets_as_required( 'podcast-player', array( 'wp-mediaelement' ) );
 
 	return ob_get_clean();
 }
@@ -143,15 +151,17 @@ function get_track_list( $feed, $quantity = 10 ) {
 function setup_tracks_callback( \SimplePie_Item $episode ) {
 	$enclosure = $episode->get_enclosure();
 
+	$url = ! empty( $episode->data['child']['']['enclosure'][0]['attribs']['']['url'] ) ? $episode->data['child']['']['enclosure'][0]['attribs']['']['url'] : null;
+
 	// If there is no link return an empty array. We will filter out later.
-	if ( ! $enclosure->link ) {
+	if ( ! $url ) {
 		return array();
 	}
 
 	// Build track data.
 	$track = array(
 		'link'        => esc_url( $episode->get_link() ),
-		'src'         => esc_url( $enclosure->link ),
+		'src'         => esc_url( $url ),
 		'type'        => $enclosure->type,
 		'caption'     => '',
 		'description' => wp_kses_post( $episode->get_description() ),
