@@ -42,7 +42,7 @@ const handleSSRError = () => {
 };
 
 // Support page link.
-const supportLink =
+const supportUrl =
 	isSimpleSite() || isAtomicSite()
 		? 'http://en.support.wordpress.com/wordpress-editor/blocks/podcast-player-block/'
 		: 'https://jetpack.com/support/jetpack-blocks/podcast-player-block/';
@@ -132,13 +132,13 @@ const PodcastPlayerEdit = ( {
 			>
 				<form onSubmit={ checkPodcastLink }>
 					{ noticeUI }
-					<FeedURLControl url={ editedUrl  } onUrlChange={ setEditedUrl } />
+					<FeedURLControl url={ editedUrl } onUrlChange={ setEditedUrl } />
 					<Button isPrimary type="submit">
 						{ __( 'Embed', 'jetpack' ) }
 					</Button>
 				</form>
 				<div className="components-placeholder__learn-more">
-					<ExternalLink href={ supportLink }>
+					<ExternalLink href={ supportUrl }>
 						{ __( 'Learn more about embeds', 'jetpack' ) }
 					</ExternalLink>
 				</div>
@@ -163,7 +163,7 @@ const PodcastPlayerEdit = ( {
 				<PanelBody title={ __( 'Podcast settings', 'jetpack' ) }>
 					<FeedURLControl
 						label={ __( 'RSS Feed URL', 'jetpack' ) }
-						url={ editedUrl  }
+						url={ editedUrl }
 						onUrlChange={ setEditedUrl }
 						onEnterKeyPress={ checkPodcastLink }
 						onBlur={ checkPodcastLink }
