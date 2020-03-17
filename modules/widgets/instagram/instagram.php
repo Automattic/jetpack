@@ -213,6 +213,153 @@ class WPcom_Instagram_Widget extends WP_Widget {
 	public function form( $instance ) {
 		$instance = wp_parse_args( $instance, $this->defaults );
 
+		// If coming back to the widgets page from an action, expand this widget
+		if ( isset( $_GET['instagram_widget_id'] ) && $_GET['instagram_widget_id'] == $this->number ) {
+			echo '<script type="text/javascript">jQuery(document).ready(function($){ $(\'.widget[id$="wpcom_instagram_widget-' . esc_js( $this->number ) . '"] .widget-inside\').slideDown(\'fast\'); });</script>';
+		}
+
+		// If coming back from an OAuth authentication, validate and use the one in the URL
+		if ( isset( $_GET['instagram_widget_id'] ) && $_GET['instagram_widget_id'] == $this->number
+			&& ! empty( $_GET['instagram_widget'] ) && 'connection_verified' == $_GET['instagram_widget']
+			&& ! empty( $_GET['token_id'] ) && $instance['token_id'] !== (int) $_GET['token_id'] ) {
+			//$token_store = Keyring::init()->get_token_store();
+			//$token = $token_store->get_token( array( 'type' => 'access', 'id' => (int) $_GET['token_id'] ) );
+
+			// Make sure the user owns the token ID that was passed through before using it
+			//if ( get_current_user_id() == $token->meta['user_id'] ) {
+			//	$old_token = $instance['token_id'];
+				$instance['token_id'] = (int) $_GET['token_id'];
+
+				$this->update_widget_token_id( $instance['token_id'] );
+
+			//	if ( $old_token ) {
+					//error_log( "Now delete the token: $old_token" );
+			//		$token_store->delete( array( 'type' => 'access', 'id' => $old_token ) );
+			//	}
+			//}
+		}
+		// If removing the widget's stored token ID
+		elseif ( $instance['token_id'] && isset( $_GET['instagram_widget_id'] ) && $_GET['instagram_widget_id'] == $this->number && ! empty( $_GET['instagram_widget'] ) && 'remove_token' == $_GET['instagram_widget'] ) {
+			if ( empty( $_GET['nonce'] ) || ! wp_verify_nonce( $_GET['nonce'], 'instagram-widget-remove-token-' . $this->number . '-' . $instance['token_id'] ) )
+				wp_die( __( 'Missing or invalid security nonce.', 'wpcom-instagram-widget' ) );
+
+			Keyring::init()->get_token_store()->delete( array( 'type' => 'access', 'id' => $instance['token_id'] ) );
+			$instance['token_id'] = $this->defaults['token_id'];
+
+			$this->update_widget_token_id( $instance['token_id'] );
+		}
+		// If a token ID is stored, make sure it's still valid
+		elseif ( $instance['token_id'] ) {
+			//$token = Keyring::init()->get_token_store()->get_token( array( 'type' => 'access', 'id' => $instance['token_id'] ) );
+
+			//if ( ! $token ) {
+			//	$instance['token_id'] = $this->defaults['token_id'];
+
+				$this->update_widget_token_id( $instance['token_id'] );
+			//}
+		}
+
+		// No connection, or a legacy API token? Display a connection link.
+		if ( ! $instance['token_id'] ) {
+			//$connect_url = add_query_arg( array( 'instagram_widget_id' => $this->number, 'is_customizer' => is_customize_preview() ), wpcom_keyring_get_connect_url( 'instagram_basic_display', 'instagram-widget' ) );
+
+			//echo '<p>' . __( '<strong>Important: You must first click Publish to activate this widget <em>before</em> connecting your account.</strong> After saving the widget, click the button below to authorize your Instagram account.', 'wpcom-instagram-widget' ) . '</p>';
+			//echo '<p style="text-align:center"><a class="button-primary" target="_top" href="' . esc_url( $connect_url ) . '">' . __( 'Authorize Instagram Access', 'wpcom-instagram-widget' ) . '</a></p>';
+			//echo '<p><small>' . sprintf( __( 'Having trouble? Try <a href="%s" target="_blank">logging into the correct account</a> on Instagram.com first.', 'wpcom-instagram-widget' ), 'https://instagram.com/accounts/login/' ) . '</small></p>';
+
+
+			$jetpack_blog_id = Jetpack::get_option( 'id' );
+			$response = Client::wpcom_json_api_request_as_user(
+				sprintf( '/sites/%d/external-services', $jetpack_blog_id )
+			);
+			$body = json_decode( $response['body'] );
+			$connect_URL = $body->services->instagram->connect_URL;
+			$url = add_query_arg(
+				array(
+					'siteurl' => site_url() . '/wp-admin/widgets.php',
+					'jetpack' => true,
+					'instagram_widget_id' => $this->number,
+				),
+				$connect_URL
+			);
+			echo '<a class="button-primary" href="' . $url . '">Authorize Instagram Access</a>';
+
+			return;
+		}
+
+		// Connected account
+		$page = ( is_customize_preview() ) ? 'customize.php' : 'widgets.php';
+		$query_args = array(
+			'instagram_widget_id' => $this->number,
+			'instagram_widget'    => 'remove_token',
+			'nonce'               => wp_create_nonce( 'instagram-widget-remove-token-' . $this->number . '-' . $instance['token_id'] ),
+		);
+
+		if ( is_customize_preview() ) {
+			$query_args['autofocus[panel]'] = 'widgets';
+		}
+
+		$remove_token_id_url = add_query_arg( $query_args, admin_url( $page ) );
+/*
+		// A legacy API connection, prompt user to delete connection and reconnect
+		if ( $this->is_legacy_token( $instance['token_id'] ) ) {
+			//$connect_url = add_query_arg( array( 'instagram_widget_id' => $this->number, 'is_customizer' => is_customize_preview() ), wpcom_keyring_get_connect_url( 'instagram_basic_display', 'instagram-widget' ) );
+			//echo '<p>' . __( '<strong>Your current connection will stop working on 30 March 2020 due to changes in Instagram\'s service. <br /><br />Please reconnect to Instagram in order to continue using this widget</strong>', 'wpcom-instagram-widget' ) . '</p>';
+			//echo '<p style="text-align:center"><a class="button-primary" target="_top" href="' . esc_url( $connect_url ) . '">' . __( 'Authorize Instagram Access', 'wpcom-instagram-widget' ) . '</a></p>';
+
+
+			$jetpack_blog_id = Jetpack::get_option( 'id' );
+			$response = Client::wpcom_json_api_request_as_user(
+				sprintf( '/sites/%d/external-services', $jetpack_blog_id )
+			);
+			$body = json_decode( $response['body'] );
+			$connect_URL = $body->services->instagram->connect_URL;
+			$url = add_query_arg(
+				array(
+					'siteurl' => site_url() . '/wp-admin/widgets.php',
+					'jetpack' => true,
+					'instagram_widget_id' => $this->number,
+				),
+				$connect_URL
+			);
+			echo '<a class="button-primary" href="' . $url . '">Authorize Instagram Access</a>';
+
+
+			return;
+		}*/
+
+		echo '<p>' . sprintf( __( '<strong>Authorized Account</strong><br /> <a href="%1$s">%2$s</a> | <a href="%3$s">remove</a>', 'wpcom-instagram-widget' ), $instance['token_id'], $instance['token_id'], $instance['token_id'] ) . '</p>';
+		//echo '<p>' . sprintf( __( '<strong>Authorized Account</strong><br /> <a href="%1$s">%2$s</a> | <a href="%3$s">remove</a>', 'wpcom-instagram-widget' ), esc_url( 'http://instagram.com/' . $token->meta['external_name'] ), esc_html( $token->meta['external_name'] ), esc_url( $remove_token_id_url ) ) . '</p>';
+
+		// Title
+		echo '<p><label><strong>' . __( 'Widget Title', 'wpcom-instagram-widget' ) . '</strong> <input type="text" id="' . esc_attr( $this->get_field_id( 'title' ) ) . '" name="' . esc_attr( $this->get_field_name( 'title' ) ) . '" value="' . esc_attr( $instance['title'] ) . '" class="widefat" /></label></p>';
+
+		// Number of images to show
+		echo '<p><label>';
+		echo '<strong>' . __( 'Images', 'wpcom-instagram-widget' ) . '</strong><br />';
+		echo __( 'Number to display:', 'wpcom-instagram-widget' ) . ' ';
+		echo '<select name="' . esc_attr( $this->get_field_name( 'count' ) ) . '">';
+		for ( $i = 1; $i <= $this->valid_options['max_count']; $i++ ) {
+			echo '<option value="' . esc_attr( $i ) . '"' . selected( $i, $instance['count'], false ) . '>' . $i . '</option>';
+		}
+		echo '</select>';
+		echo '</label></p>';
+
+		// Columns
+		echo '<p><label>';
+		echo '<strong>' . __( 'Layout', 'wpcom-instagram-widget' ) . '</strong><br />';
+		echo __( 'Number of columns:', 'wpcom-instagram-widget' ) . ' ';
+		echo '<select name="' . esc_attr( $this->get_field_name( 'columns' ) ) . '">';
+		for ( $i = 1; $i <= $this->valid_options['max_columns']; $i++ ) {
+			echo '<option value="' . esc_attr( $i ) . '"' . selected( $i, $instance['columns'], false ) . '>' . $i . '</option>';
+		}
+		echo '</select>';
+		echo '</label></p>';
+
+		echo '<p><small>' . sprintf( __( 'New images may take up to %d minutes to show up on your site.', 'wpcom-instagram-widget' ), 15 ) . '</small></p>';
+
+		/* Old code $instance = wp_parse_args( $instance, $this->defaults );
+
 		// No connection.
 		if ( ! $instance['token_id'] ) {
 			echo 'This widget cannot make new connections to Instagram. You can install and use a third-party Instagram plugin instead. Please <a href="https://wordpress.com/help/contact/">contact us if you need help</a> setting this up.';
@@ -261,7 +408,7 @@ class WPcom_Instagram_Widget extends WP_Widget {
 			echo '</select>';
 		echo '</label></p>';
 
-		echo '<p><small>' . sprintf( __( 'New images may take up to %d minutes to show up on your site.', 'wpcomsh' ), 20 ) . '</small></p>';
+		echo '<p><small>' . sprintf( __( 'New images may take up to %d minutes to show up on your site.', 'wpcomsh' ), 20 ) . '</small></p>';*/
 	}
 
 	/**
