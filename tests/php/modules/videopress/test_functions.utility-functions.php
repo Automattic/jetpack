@@ -72,7 +72,7 @@ class WP_Test_Jetpack_VideoPress_Utility_Functions extends WP_UnitTestCase {
 
 		$_wp_using_ext_object_cache = $is_external_object_cache_enabled;
 		$guid                       = wp_generate_uuid4();
-		$expected_id                = $this->create_videopress_attachment( $guid );
+		$expected_id                = videopress_create_new_media_item( 'Example', $guid );
 		$expected_post              = get_post( $expected_id );
 		$actual_post                = video_get_post_by_guid( $guid );
 
@@ -132,7 +132,7 @@ class WP_Test_Jetpack_VideoPress_Utility_Functions extends WP_UnitTestCase {
 
 		$_wp_using_ext_object_cache = $is_external_object_cache_enabled;
 		$guid                       = wp_generate_uuid4();
-		$attachment_id              = $this->create_videopress_attachment( $guid );
+		$attachment_id              = videopress_create_new_media_item( 'Example Title', $guid );
 		$attachment_post            = get_post( $attachment_id );
 		$post_to_cache              = $should_cache_object ? $attachment_post : $attachment_id;
 		$caching_args               = array( 'video_get_post_by_guid_' . $guid, $post_to_cache );
@@ -181,7 +181,7 @@ class WP_Test_Jetpack_VideoPress_Utility_Functions extends WP_UnitTestCase {
 
 		$_wp_using_ext_object_cache = true;
 		$guid                       = wp_generate_uuid4();
-		$attachment_id              = $this->create_videopress_attachment( $guid );
+		$attachment_id              = videopress_create_new_media_item( 'Example Title', $guid );
 
 		wp_cache_set( 'video_get_post_by_guid_' . $guid, $invalid_cached_value, 'videopress' );
 
@@ -205,26 +205,6 @@ class WP_Test_Jetpack_VideoPress_Utility_Functions extends WP_UnitTestCase {
 		$filtered = jetpack_videopress_flash_embed_filter( $content );
 
 		$this->assertContains( $contains, $filtered );
-	}
-
-	/**
-	 * Creates a videopress attachment (video), given a guid.
-	 *
-	 * @param string $guid The guid to create an attachment for.
-	 * @return int|WP_Error The attachment ID that was created, or WP_Error.
-	 */
-	public function create_videopress_attachment( $guid ) {
-		$attachment_id = self::factory()->attachment->create_upload_object( DIR_TESTDATA . '/images/test-image.jpg', 0 );
-
-		wp_insert_attachment(
-			array(
-				'ID'             => $attachment_id,
-				'post_mime_type' => 'video/videopress',
-			)
-		);
-		add_post_meta( $attachment_id, 'videopress_guid', $guid );
-
-		return $attachment_id;
 	}
 
 }
