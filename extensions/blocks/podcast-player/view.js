@@ -67,7 +67,6 @@ const episodeLinkEls = document.querySelectorAll( '[data-jetpack-podcast-audio]'
 Array.prototype.forEach.call( episodeLinkEls, buildEpisodeLinkClickHandler );
 
 function buildEpisodeLinkClickHandler( episodeLinkEl ) {
-	episodeLinkEl.addEventListener( 'click', handleEpisodeLinkClick );
 	episodeLinkEl.addEventListener( 'keydown', handleEpisodeLinkKeydown );
 }
 
@@ -78,16 +77,21 @@ function handleEpisodeLinkKeydown( e ) {
 	}
 }
 
-function handleEpisodeLinkClick( e ) {
-	// Prevent handling clicks if a modifier is in use.
-	if ( e.shiftKey || e.metaKey || e.altKey ) {
-		return;
+document.addEventListener( 'click', function( e ) {
+	const episodeLinkEl = e.target.closest( '[data-jetpack-podcast-audio]' );
+
+	if ( episodeLinkEl ) {
+		// Prevent handling clicks if a modifier is in use.
+		if ( e.shiftKey || e.metaKey || e.altKey ) {
+			return;
+		}
+
+		e.preventDefault();
+		handleEpisodeLinkClick( episodeLinkEl );
 	}
+} );
 
-	e.preventDefault();
-
-	const episodeLinkEl = e.currentTarget;
-
+function handleEpisodeLinkClick( episodeLinkEl ) {
 	// Get clicked episode element
 	const episodeEl = episodeLinkEl.closest( '.podcast-player__episode' );
 	if ( ! episodeEl ) {
