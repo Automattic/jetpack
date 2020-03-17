@@ -132,7 +132,7 @@ const PodcastPlayerEdit = ( {
 			>
 				<form onSubmit={ checkPodcastLink }>
 					{ noticeUI }
-					<FeedURLControl url={ editedUrl || '' } onUrlChange={ setEditedUrl } />
+					<FeedURLControl url={ editedUrl  } onUrlChange={ setEditedUrl } />
 					<Button isPrimary type="submit">
 						{ __( 'Embed', 'jetpack' ) }
 					</Button>
