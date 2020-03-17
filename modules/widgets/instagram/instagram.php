@@ -218,12 +218,19 @@ class WPcom_Instagram_Widget extends WP_Widget {
 			echo 'This widget cannot make new connections to Instagram. You can install and use a third-party Instagram plugin instead. Please <a href="https://wordpress.com/help/contact/">contact us if you need help</a> setting this up.';
 			$jetpack_blog_id = Jetpack::get_option( 'id' );
 			$response = Client::wpcom_json_api_request_as_user(
-				sprintf( '/sites/%d/external-services', $jetpack_blog_id ),
+				sprintf( '/sites/%d/external-services', $jetpack_blog_id )
 			);
 			$body = json_decode( $response['body'] );
 			$connect_URL = $body->services->instagram->connect_URL;
-
-			echo '<a class="button-primary" target="_top" href="' . $connect_URL . '">Authorize Instagram Access</a>';
+			$url = add_query_arg(
+				array(
+					'siteurl' => site_url() . '/wp-admin/widgets.php',
+					'jetpack' => true,
+					'instagram_widget_id' => $this->number,
+				),
+				$connect_URL
+			);
+			echo '<a class="button-primary" href="' . $url . '">Authorize Instagram Access</a>';
 			return;
 		}
 
