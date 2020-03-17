@@ -117,7 +117,6 @@ function render_player( $track_list, $attributes ) {
 	</div>
 	<script>window.jetpackPodcastPlayers=(window.jetpackPodcastPlayers||[]);window.jetpackPodcastPlayers.push( <?php echo wp_json_encode( $instance_id ); ?> );</script>
 	<?php
-
 	/*
 	 * Enqueue necessary scripts and styles.
 	 */
@@ -134,7 +133,7 @@ function render_player( $track_list, $attributes ) {
  * @param int    $quantity Optional. The number of tracks to return.
  * @return array|WP_Error The feed's tracks or a error object.
  */
-function get_track_list( $feed, $quantity = 5 ) {
+function get_track_list( $feed, $quantity = 10 ) {
 	$rss = fetch_feed( $feed );
 
 	if ( is_wp_error( $rss ) ) {
