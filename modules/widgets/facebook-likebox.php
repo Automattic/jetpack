@@ -79,7 +79,7 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		$like_args['show_faces']   = (bool) $like_args['show_faces'] ? 'true' : 'false';
 		$like_args['stream']       = (bool) $like_args['stream'] ? 'timeline' : 'false';
 		$like_args['cover']        = (bool) $like_args['cover'] ? 'false' : 'true';
-		$like_args['small_header'] = (bool) $like_args['small_header'] ? 'false' : 'true';
+		$like_args['small_header'] = (bool) $like_args['small_header'] ? 'true' : 'false';
 
 		/**
 		 * Filter Facebook Likebox's widget call to action button
