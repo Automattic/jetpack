@@ -4,6 +4,7 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
+import classNames from 'classnames';
 import { get } from 'lodash';
 
 /**
@@ -14,6 +15,7 @@ import ExternalLink from 'components/external-link';
 import ProductCard from 'components/product-card';
 import ProductExpiration from 'components/product-expiration';
 import SingleProductBackup from './single-product-backup';
+import SingleProductSearch from './single-product-search';
 import { getPlanClass } from '../lib/plans/constants';
 import {
 	getActiveSitePurchases,
@@ -185,7 +187,16 @@ class ProductSelector extends Component {
 	}
 
 	renderSingleProductContent() {
-		return <div className="plans-section__single-product">{ this.renderBackupProduct() }</div>;
+		return (
+			<div
+				className={ classNames( 'plans-section__single-product', {
+					'plans-section__single-product--with-search': this.props.isInstantSearchEnabled,
+				} ) }
+			>
+				{ this.renderBackupProduct() }
+				{ this.props.isInstantSearchEnabled && this.renderSearchProduct() }
+			</div>
+		);
 	}
 
 	renderBackupProduct() {
@@ -218,6 +229,16 @@ class ProductSelector extends Component {
 		);
 	}
 
+	renderSearchProduct() {
+		return (
+			<SingleProductSearch
+				isFetching={ this.props.isFetchingData }
+				products={ this.props.products }
+				searchUpgradeUrl={ this.props.searchUpgradeUrl }
+			/>
+		);
+	}
+
 	render() {
 		return (
 			<Fragment>
@@ -235,10 +256,12 @@ export default connect( state => {
 		multisite: isMultisite( state ),
 		products: getProducts( state ),
 		realtimeBackupUpgradeUrl: getUpgradeUrl( state, 'jetpack-backup-realtime' ),
+		searchUpgradeUrl: getUpgradeUrl( state, 'jetpack-search' ),
 		sitePlan: getSitePlan( state ),
 		siteRawlUrl: getSiteRawUrl( state ),
 		isFetchingData:
 			isFetchingSiteData( state ) || isFetchingProducts( state ) || ! getAvailablePlans( state ),
 		backupInfoUrl: getUpgradeUrl( state, 'aag-backups' ), // Redirect to https://jetpack.com/upgrade/backup/
+		isInstantSearchEnabled: !! get( state, 'jetpack.initialState.isInstantSearchEnabled', false ),
 	};
 } )( ProductSelector );
