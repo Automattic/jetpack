@@ -47,6 +47,9 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			add_action( 'wp_footer', array( $this, 'print_instant_search_sidebar' ) );
 		} else {
 			add_action( 'update_option', array( $this, 'track_widget_updates' ), 10, 3 );
+			if ( isset( $_GET['jpsearch_autoconfig'] ) ) {
+				add_action( 'init', array( $this, 'auto_config_search' ) );
+			}
 		}
 
 		add_action( 'widgets_init', array( $this, 'register_jetpack_instant_sidebar' ) );
@@ -371,7 +374,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	/**
 	 * Get the raw Aggregation results from the Elasticsearch response.
 	 *
-	 * @since  8.3.0
+	 * @since  8.4.0
 	 *
 	 * @return array Array of Aggregations performed on the search.
 	 */
@@ -383,5 +386,127 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		return $this->search_result['aggregations'];
 	}
 
+	/**
+	 * Autoconfig search by adding filter widgets
+	 *
+	 * @since  8.3.0
+	 */
+	public function auto_config_search() {
+		if ( ! current_user_can( 'edit_theme_options' ) ) {
+			return;
+		}
+
+		global $wp_registered_sidebars;
+		$sidebars = get_option( 'sidebars_widgets', array() );
+		$slug     = Jetpack_Search_Helpers::FILTER_WIDGET_BASE;
+
+		foreach ( (array) $sidebars['jetpack-instant-search-sidebar'] as $widget_id ) {
+			if ( 0 === strpos( $widget_id, $slug ) ) {
+				// Already configured.
+				return;
+			}
+		}
+
+		$has_sidebar           = isset( $wp_registered_sidebars['sidebar-1'] );
+		$sidebar_id            = false;
+		$sidebar_searchbox_idx = false;
+		if ( $has_sidebar ) {
+			foreach ( (array) $sidebars['sidebar-1'] as $idx => $widget_id ) {
+				if ( 0 === strpos( $widget_id, 'search-' ) ) {
+					$sidebar_searchbox_idx = $idx;
+				}
+				if ( 0 === strpos( $widget_id, $slug ) ) {
+					$sidebar_id = (int) str_replace( Jetpack_Search_Helpers::FILTER_WIDGET_BASE . '-', '', $widget_id );
+					break;
+				}
+			}
+		}
+
+		$next_id         = 1;
+		$widget_opt_name = Jetpack_Search_Helpers::get_widget_option_name();
+		$widget_options  = get_option( $widget_opt_name, array() );
+		foreach ( $widget_options as $id => $w ) {
+			if ( $id >= $next_id ) {
+				$next_id = $id + 1;
+			}
+		}
+
+		// Copy sidebar settings to overlay.
+		if ( ( false !== $sidebar_id ) && isset( $widget_options[ $sidebar_id ] ) ) {
+			$widget_options[ $next_id ] = $widget_options[ $sidebar_id ];
+			update_option( $widget_opt_name, $widget_options );
+
+			if ( ! isset( $sidebars['jetpack-instant-search-sidebar'] ) ) {
+				$sidebars['jetpack-instant-search-sidebar'] = array();
+			}
+			array_unshift( $sidebars['jetpack-instant-search-sidebar'], Jetpack_Search_Helpers::build_widget_id( $next_id ) );
+			update_option( 'sidebars_widgets', $sidebars );
+
+			return;
+		}
+
+		// Configure overlay and sidebar (if it exists).
+		$preconfig_opts = $this->get_preconfig_widget_options();
+		if ( ! isset( $sidebars['jetpack-instant-search-sidebar'] ) ) {
+			$sidebars['jetpack-instant-search-sidebar'] = array();
+		}
+		if ( $has_sidebar ) {
+			$widget_options[ $next_id ] = $preconfig_opts;
+			if ( false !== $sidebar_searchbox_idx ) {
+				// Replace Core search box.
+				$sidebars['sidebar-1'][ $sidebar_searchbox_idx ] = Jetpack_Search_Helpers::build_widget_id( $next_id );
+			} else {
+				// Add to top.
+				array_unshift( $sidebars['sidebar-1'], Jetpack_Search_Helpers::build_widget_id( $next_id ) );
+			}
+			$next_id++;
+		}
+		$widget_options[ $next_id ] = $preconfig_opts;
+		array_unshift( $sidebars['jetpack-instant-search-sidebar'], Jetpack_Search_Helpers::build_widget_id( $next_id ) );
+
+		update_option( $widget_opt_name, $widget_options );
+		update_option( 'sidebars_widgets', $sidebars );
+	}
+
+	/**
+	 * Autoconfig search by adding filter widgets
+	 *
+	 * @since  8.4.0
+	 *
+	 * @return array Array of config settings for search widget.
+	 */
+	protected function get_preconfig_widget_options() {
+		return array(
+			'title'              => '',
+			'search_box_enabled' => 1,
+			'user_sort_enabled'  => 0,
+			'filters'            => array(
+				array(
+					'name'  => '',
+					'type'  => 'post_type',
+					'count' => 5,
+				),
+				array(
+					'name'     => '',
+					'type'     => 'taxonomy',
+					'taxonomy' => 'category',
+					'count'    => 5,
+				),
+				array(
+					'name'     => '',
+					'type'     => 'taxonomy',
+					'taxonomy' => 'post_tag',
+					'count'    => 5,
+				),
+				array(
+					'name'     => '',
+					'type'     => 'date_histogram',
+					'count'    => 5,
+					'field'    => 'post_date',
+					'interval' => 'year',
+				),
+			),
+		);
+	}
 
 }
