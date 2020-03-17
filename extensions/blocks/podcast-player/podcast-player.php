@@ -100,7 +100,7 @@ function render_player( $track_list, $attributes ) {
 	<div class="<?php echo esc_attr( $block_classname ); ?>" id="<?php echo esc_attr( $instance_id ); ?>">
 		<ol>
 			<?php
-			foreach ( $track_list as $att_id => $attachment ) :
+			foreach ( $track_list as $attachment ) :
 				printf( '<li><a href="%1$s" data-jetpack-podcast-audio="%2$s">%3$s</a></li>', esc_url( $attachment['link'] ), esc_url( $attachment['src'] ), esc_html( $attachment['title'] ) );
 			endforeach;
 			?>
