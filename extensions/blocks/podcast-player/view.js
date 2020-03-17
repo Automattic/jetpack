@@ -5,7 +5,7 @@
 import './style.scss';
 
 const playerInstances = {};
-const meJsSettings = typeof _wpmejsSettings !== undefined ? _wpmejsSettings : {};
+const meJsSettings = typeof _wpmejsSettings !== 'undefined' ? _wpmejsSettings : {};
 
 const initializeBlock = function( id ) {
 	const block = document.getElementById( id );
