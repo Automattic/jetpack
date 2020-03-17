@@ -127,6 +127,17 @@
 	text-align: center;
 }
 
+.single-product__accented-card-header-primary {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	svg {
+		margin-right: 8px;
+		fill: $alert-green;
+	}
+}
+
 .single-product-backup__savings {
 	font-style: italic;
 }
