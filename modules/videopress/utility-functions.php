@@ -74,7 +74,6 @@ function videopress_get_video_details( $guid ) {
  * Modified from https://wpscholar.com/blog/get-attachment-id-from-wp-image-url/
  *
  * @deprecated since 8.4.0
- * @todo: Add some caching in here.
  *
  * @param string $url
  *
@@ -643,17 +642,21 @@ function video_image_url_by_guid( $guid, $format ) {
  * @return WP_Post|false The post for that guid, or false if none is found.
  */
 function video_get_post_by_guid( $guid ) {
-	$cache_key      = 'video_get_post_by_guid_' . $guid;
-	$cache_group    = 'videopress';
-	$cached_post_id = wp_cache_get( $cache_key, $cache_group );
+	$cache_key          = 'video_get_post_by_guid_' . $guid;
+	$cache_group        = 'videopress';
+	$is_using_obj_cache = wp_using_ext_object_cache();
+	$cached_post        = $is_using_obj_cache ? wp_cache_get( $cache_key, $cache_group ) : get_transient( $cache_key );
 
-	if ( false !== $cached_post_id ) {
-		$cached_post = get_post( $cached_post_id );
-		if ( $cached_post ) {
+	if ( false !== $cached_post ) {
+		if ( is_object( $cached_post ) && 'WP_Post' === get_class( $cached_post ) ) {
 			return $cached_post;
-		} else {
-			// The cached post ID doesn't belong to a post, so delete it.
-			wp_cache_delete( $cache_key, $cache_group );
+		}
+
+		if ( is_int( $cached_post ) ) {
+			$post = get_post( $cached_post );
+			if ( $post ) {
+				return $post;
+			}
 		}
 	}
 
@@ -675,7 +678,13 @@ function video_get_post_by_guid( $guid ) {
 
 	if ( $query->have_posts() ) {
 		$post = $query->next_post();
-		wp_cache_set( $cache_key, $post->ID, $cache_group, HOUR_IN_SECONDS );
+		if ( $is_using_obj_cache ) {
+			wp_cache_set( $cache_key, $post, $cache_group, HOUR_IN_SECONDS );
+		} else {
+			// Only store the ID, to prevent filling the database.
+			set_transient( $cache_key, $post->ID );
+		}
+
 		return $post;
 	}
 
