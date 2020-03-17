@@ -5207,7 +5207,7 @@ endif;
 	 * @return Automattic\Jetpack\Connection\Manager
 	 */
 	public static function connection() {
-		$jetpack = self::init();
+		$jetpack = static::init();
 
 		// If the connection manager hasn't been instantiated, do that now.
 		if ( ! $jetpack->connection_manager ) {

@@ -8,6 +8,27 @@ use Automattic\Jetpack\Status;
 
 // Extend with a public constructor so that can be mocked in tests
 class MockJetpack extends Jetpack {
+
+	/**
+	 * Holds the singleton instance of this class
+	 *
+	 * @var MockJetpack
+	 */
+	public static $instance = false;
+
+	/**
+	 * We are redefining this to overcome the lack of late static binding in the parent Jetpack class.
+	 *
+	 * @static
+	 */
+	public static function init() {
+		if ( ! self::$instance ) {
+			self::$instance = new self();
+		}
+
+		return self::$instance;
+	}
+
 	public function __construct() {
 		$this->connection_manager = new Connection_Manager();
 	}
@@ -40,6 +61,14 @@ class WP_Test_Jetpack extends WP_UnitTestCase {
 	public function tearDown() {
 		parent::tearDown();
 		Constants::clear_constants();
+	}
+
+	/**
+	 * Make sure that MockJetpack creates separate instances of `Jetpack` and `Automattic\Jetpack\Connection\Manager`.
+	 */
+	public function test_static_binding() {
+		$this->assertNotEquals( spl_object_hash( MockJetpack::init() ), spl_object_hash( Jetpack::init() ) );
+		$this->assertNotEquals( spl_object_hash( MockJetpack::connection() ), spl_object_hash( Jetpack::connection() ) );
 	}
 
 	/**
