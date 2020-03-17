@@ -191,11 +191,11 @@ class WPcom_Instagram_Widget extends WP_Widget {
 			}
 			elseif ( ! $images ) {
 				echo '<p>' . __( 'No Instagram images were found.', 'wpcomsh' ) . '</p>';
-			}
-			else {
+			} else {
+
 				echo '<div class="' . esc_attr( 'wpcom-instagram-images wpcom-instagram-columns-' . (int) $instance['columns'] ) . '">' . "\n";
 				foreach ( $images as $image ) {
-					echo '<a href="' . esc_url( $image['link'] ) . '"><img src="' . esc_url( set_url_scheme( $image['url'] ) ) . '" width="' . esc_attr( (int) $image['width'] ) . '" height="' . esc_attr( (int) $image['height'] ) . '" alt="' . esc_attr( $image['title'] ) . '" title="' . esc_attr( $image['title'] ) . '" /></a>' . "\n";
+					echo '<a href="' . esc_url( $image['link'] ) . '" target="' . esc_attr( apply_filters( 'wpcom_instagram_widget_target', '_self' ) ) . '"><div class="sq-bg-image" style="background-image: url(' . esc_url( set_url_scheme( $image['url'] ) ) . ')"><span class="screen-reader-text">' . esc_attr( $image['title'] ) . '</span></div></a>' . "\n";
 				}
 				echo "</div>\n";
 			}
@@ -358,7 +358,8 @@ class WPcom_Instagram_Widget extends WP_Widget {
 
 		echo '<p><small>' . sprintf( __( 'New images may take up to %d minutes to show up on your site.', 'wpcom-instagram-widget' ), 15 ) . '</small></p>';
 
-		/* Old code $instance = wp_parse_args( $instance, $this->defaults );
+		/* Old code
+		$instance = wp_parse_args( $instance, $this->defaults );
 
 		// No connection.
 		if ( ! $instance['token_id'] ) {
