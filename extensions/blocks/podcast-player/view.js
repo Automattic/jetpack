@@ -62,22 +62,19 @@ window.jetpackPodcastPlayers = {
 	push: initializeBlock,
 };
 
-const episodeLinkEls = document.querySelectorAll( '[data-jetpack-podcast-audio]' );
-
-Array.prototype.forEach.call( episodeLinkEls, buildEpisodeLinkClickHandler );
-
-function buildEpisodeLinkClickHandler( episodeLinkEl ) {
-	episodeLinkEl.addEventListener( 'keydown', handleEpisodeLinkKeydown );
-}
-
 function handleEpisodeLinkKeydown( e ) {
-	// we only need to track spacebar, as Enter is already handled by the browser since it's an `<a>` element
-	if ( event.key === ' ' ) {
-		handleEpisodeLinkClick( e );
+	// early return as quickly as possible to prevent potential performance issues.
+	// we only care about the spacebar
+	if ( event.key !== ' ' || ! e.target.classList.contains( 'podcast-player__episode-link' ) ) {
+		return;
 	}
+
+	e.stopPropagation();
+
+	handleEpisodeLinkEvent( e );
 }
 
-document.addEventListener( 'click', function( e ) {
+function handleEpisodeLinkEvent( e ) {
 	const episodeLinkEl = e.target.closest( '[data-jetpack-podcast-audio]' );
 
 	if ( episodeLinkEl ) {
@@ -89,7 +86,11 @@ document.addEventListener( 'click', function( e ) {
 		e.preventDefault();
 		handleEpisodeLinkClick( episodeLinkEl );
 	}
-} );
+}
+
+// Add document event listeners
+document.addEventListener( 'click', handleEpisodeLinkEvent );
+document.addEventListener( 'keydown', handleEpisodeLinkKeydown );
 
 function handleEpisodeLinkClick( episodeLinkEl ) {
 	// Get clicked episode element
