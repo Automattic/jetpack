@@ -84,13 +84,8 @@ function render_player( $track_list, $attributes ) {
 	$instance_id = wp_unique_id( 'podcast-player-block-' );
 
 	$player_data = array(
-		'type'         => 'audio',
-		// Don't pass strings to JSON, will be truthy in JS.
-		'tracklist'    => true,
-		'tracknumbers' => true,
-		'images'       => true,
-		'artists'      => true,
-		'tracks'       => $track_list,
+		'tracks'     => $track_list,
+		'attributes' => $attributes,
 	);
 
 	$block_classname = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attributes );
