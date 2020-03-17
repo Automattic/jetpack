@@ -174,4 +174,118 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 		);
 		$this->assertEquals( true, $version_gated );
 	}
+
+	/**
+	 * Test that known invalid urls are normalized during validation.
+	 *
+	 * @dataProvider provider_invalid_urls
+	 *
+	 * @param string $url               Original URL.
+	 * @param string $validated_url     Expected URL after validation.
+	 */
+	public function test_validate_normalizes_invalid_domain_url( $url, $validated_url ) {
+		$allowed_hosts = array( 'calendar.google.com' );
+
+		$url = Jetpack_Gutenberg::validate_block_embed_url( $url, $allowed_hosts );
+
+		$this->assertEquals( $validated_url, $url );
+	}
+
+	/**
+	 * Provides Original URL and Expected Validated URL values.
+	 *
+	 * @return array Array of Test Data
+	 */
+	public function provider_invalid_urls() {
+		return array(
+			array(
+				'https://calendar.google.com#@evil.com',
+				'https://calendar.google.com/#%40evil.com',
+			),
+			array(
+				'https://foo@evil.com:80@calendar.google.com',
+				'https://calendar.google.com/',
+			),
+			array(
+				'https://foo@127.0.0.1 @calendar.google.com',
+				'https://calendar.google.com/',
+			),
+			array(
+				'https://calendar.google.com/\xFF\x2E\xFF\x2E/passwd',
+				'https://calendar.google.com/\xFF\x2E\xFF\x2E/passwd',
+			),
+		);
+	}
+
+	/**
+	 * Tests whether a third-party domain can be used in a block.
+	 */
+	public function test_validate_block_embed_third_party_url() {
+		$url           = 'https://example.org';
+		$allowed_hosts = array( 'wordpress.com' );
+
+		$validated_url = Jetpack_Gutenberg::validate_block_embed_url( $url, $allowed_hosts );
+
+		$this->assertFalse( $validated_url );
+	}
+
+	/**
+	 * Tests whether a random string (not a URL) can be used in a block.
+	 */
+	public function test_validate_block_embed_string() {
+		$url           = 'apple';
+		$allowed_hosts = array( 'wordpress.com' );
+
+		$validated_url = Jetpack_Gutenberg::validate_block_embed_url( $url, $allowed_hosts );
+
+		$this->assertFalse( $validated_url );
+	}
+
+	/**
+	 * Tests whether a schemeless URL can be used in a block.
+	 */
+	public function test_validate_block_embed_scheme() {
+		$url           = 'wordpress.com';
+		$allowed_hosts = array( 'wordpress.com' );
+
+		$validated_url = Jetpack_Gutenberg::validate_block_embed_url( $url, $allowed_hosts );
+
+		$this->assertFalse( $validated_url );
+	}
+
+	/**
+	 * Tests whether a URL belonging to a whitelisted list can be used in a block.
+	 */
+	public function test_validate_block_embed_url() {
+		$url           = 'https://wordpress.com/tos/';
+		$allowed_hosts = array( 'wordpress.com' );
+
+		$validated_url = Jetpack_Gutenberg::validate_block_embed_url( $url, $allowed_hosts );
+
+		$this->assertEquals( $url, $validated_url );
+	}
+
+	/**
+	 * Tests whether a URL matches a specific regex.
+	 */
+	public function test_validate_block_embed_regex() {
+		$url     = 'https://wordpress.com/tos/';
+		$allowed = array( '#^https?:\/\/(www.)?wordpress\.com(\/)?([^\/]+)?(\/)?$#' );
+
+		$validated_url = Jetpack_Gutenberg::validate_block_embed_url( $url, $allowed, true );
+
+		$this->assertEquals( $url, $validated_url );
+	}
+
+	/**
+	 * Tests whether a URL does not match a specific regex.
+	 */
+	public function test_validate_block_embed_regex_mismatch() {
+		$url     = 'https://www.facebook.com/WordPresscom/';
+		$allowed = array( '#^https?:\/\/(www.)?wordpress\.com(\/)?([^\/]+)?(\/)?$#' );
+
+		$validated_url = Jetpack_Gutenberg::validate_block_embed_url( $url, $allowed, true );
+
+		$this->assertFalse( $validated_url );
+	}
 }

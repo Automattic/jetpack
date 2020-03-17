@@ -901,10 +901,10 @@ class Jetpack_Gutenberg {
 		// Normalize URL.
 		$url = sprintf(
 			'%s://%s%s%s',
-			$url_components['scheme'],
+			isset( $url_components['scheme'] ) ? $url_components['scheme'] : 'https',
 			$url_components['host'],
-			$url_components['path'] ? $url_components['path'] : '/',
-			$url_components['query'] ? '?' . $url_components['query'] : ''
+			isset( $url_components['path'] ) ? $url_components['path'] : '/',
+			isset( $url_components['query'] ) ? '?' . $url_components['query'] : ''
 		);
 
 		if ( ! empty( $url_components['fragment'] ) ) {
