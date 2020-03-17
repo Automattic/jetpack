@@ -80,9 +80,9 @@ function render_block( $attributes ) {
 /**
  * Renders the HTML for the Podcast player and tracklist.
  *
- * @param array $track_list the list of podcast tracks.
+ * @param array $track_list The list of podcast tracks.
  * @param array $attributes Array containing the Podcast Player block attributes.
- * @return string the HTML for the podcast player.
+ * @return string The HTML for the podcast player.
  */
 function render_player( $track_list, $attributes ) {
 	// If there are no tracks (it is possible) then display appropriate user facing error message.
@@ -117,9 +117,10 @@ function render_player( $track_list, $attributes ) {
 	</div>
 	<script>window.jetpackPodcastPlayers=(window.jetpackPodcastPlayers||[]);window.jetpackPodcastPlayers.push( <?php echo wp_json_encode( $instance_id ); ?> );</script>
 	<?php
+
 	/*
-	* Enqueue necessary scripts and styles.
-	*/
+	 * Enqueue necessary scripts and styles.
+	 */
 	wp_enqueue_style( 'wp-mediaelement' );
 	Jetpack_Gutenberg::load_assets_as_required( 'podcast-player', array( 'wp-mediaelement' ) );
 
