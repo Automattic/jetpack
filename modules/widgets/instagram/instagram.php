@@ -180,9 +180,7 @@ class WPcom_Instagram_Widget extends WP_Widget {
 			echo $args['before_title'] . esc_html( $instance['title'] ) . $args['after_title'];
 
 		if ( ! $instance['token_id'] ) {
-			echo 'This widget cannot make new connections to Instagram. You can install and use a third-party Instagram plugin instead. Please <a href="https://wordpress.com/help/contact/">contact us if you need help</a> setting this up.';
-			echo '<p><em>This notice is only shown to you.</em></p>';
-			echo '<a class="button-primary" target="_top" href="https://public-api.wordpress.com/connect/?action=request&amp;kr_nonce=25051df3f2&amp;nonce=84e239e897&amp;for=instagram-widget&amp;service=instagram&amp;blog=105567107&amp;kr_blog_nonce=217ce9172b&amp;magic=keyring&amp;instagram_widget_id=8">' . __( 'Connect Instagram Account', 'jetpack' ) . '</a>';
+			echo '<a class="button-primary" target="_top" href="' . $this->get_connect_url() . '">' . __( 'Connect Instagram Account', 'jetpack' ) . '</a>';
 		} else {
 			$images = $this->get_images( $instance );
 
@@ -202,6 +200,36 @@ class WPcom_Instagram_Widget extends WP_Widget {
 		}
 
 		echo $args['after_widget'];
+	}
+
+	private function get_connect_url() {
+		$jetpack_blog_id = Jetpack::get_option( 'id' );
+		$response = Client::wpcom_json_api_request_as_user(
+			sprintf( '/sites/%d/external-services', $jetpack_blog_id )
+		);
+
+		if ( is_wp_error( $response ) ) {
+			do_action( 'wpcomsh_log', 'Instagram widget: failed to connect to API via wpcom api.' );
+
+			echo '<p>' . __( 'Instagram is currently experiencing connectivity issues, please try again later to connect.' ) . '</p>';
+			return;
+		}
+
+		$body = json_decode( $response['body'] );
+		$connect_URL = $body->services->instagram->connect_URL;
+		$page = ( is_customize_preview() ) ? 'customize.php' : 'widgets.php';
+		$query_params = array(
+			'siteurl' => site_url() . '/wp-admin/' . $page,
+			'jetpack' => true,
+			'instagram_widget_id' => $this->number,
+			'is_customizer' => is_customize_preview(),
+		);
+		$query_params['hash'] = $this->get_paramater_hash( $query_params );
+		$url = add_query_arg(
+			$query_params,
+			$connect_URL
+		);
+		return $url;
 	}
 
 	/**
@@ -270,39 +298,9 @@ class WPcom_Instagram_Widget extends WP_Widget {
 
 		// No connection, or a legacy API token? Display a connection link.
 		if ( ! $instance['token_id'] ) {
-			//$connect_url = add_query_arg( array( 'instagram_widget_id' => $this->number, 'is_customizer' => is_customize_preview() ), wpcom_keyring_get_connect_url( 'instagram_basic_display', 'instagram-widget' ) );
-
-			//echo '<p>' . __( '<strong>Important: You must first click Publish to activate this widget <em>before</em> connecting your account.</strong> After saving the widget, click the button below to authorize your Instagram account.', 'wpcom-instagram-widget' ) . '</p>';
-			//echo '<p style="text-align:center"><a class="button-primary" target="_top" href="' . esc_url( $connect_url ) . '">' . __( 'Authorize Instagram Access', 'wpcom-instagram-widget' ) . '</a></p>';
-			//echo '<p><small>' . sprintf( __( 'Having trouble? Try <a href="%s" target="_blank">logging into the correct account</a> on Instagram.com first.', 'wpcom-instagram-widget' ), 'https://instagram.com/accounts/login/' ) . '</small></p>';
-
-
-			$jetpack_blog_id = Jetpack::get_option( 'id' );
-			$response = Client::wpcom_json_api_request_as_user(
-				sprintf( '/sites/%d/external-services', $jetpack_blog_id )
-			);
-
-			if ( is_wp_error( $response ) ) {
-				do_action( 'wpcomsh_log', 'Instagram widget: failed to connect to API via wpcom api.' );
-
-				echo '<p>' . __( 'Instagram is currently experiencing connectivity issues, please try again later to connect.' ) . '</p>';
-				return;
-			}
-
-			$body = json_decode( $response['body'] );
-			$connect_URL = $body->services->instagram->connect_URL;
-			$query_params = array(
-				'siteurl' => site_url() . '/wp-admin/widgets.php',
-				'jetpack' => true,
-				'instagram_widget_id' => $this->number,
-			);
-			$query_params['hash'] = $this->get_paramater_hash( $query_params );
-			$url = add_query_arg(
-				$query_params,
-				$connect_URL
-			);
-			echo '<p><a class="button-primary" href="' . $url . '">' . __( 'Connect Instagram Account', 'jetpack' ) . '</a></p>';
-
+			echo '<p>' . __( '<strong>Important: You must first click Save to activate this widget <em>before</em> connecting your account.</strong> After saving the widget, click the button below to authorize your Instagram account.', 'wpcom-instagram-widget' ) . '</p>';
+			echo '<p style="text-align:center"><a class="button-primary" target="_top" href="' . esc_url( $this->get_connect_url() ) . '">' . __( 'Connect Instagram Account', 'wpcom-instagram-widget' ) . '</a></p>';
+			echo '<p><small>' . sprintf( __( 'Having trouble? Try <a href="%s" target="_blank">logging into the correct account</a> on Instagram.com first.', 'wpcom-instagram-widget' ), 'https://instagram.com/accounts/login/' ) . '</small></p>';
 			return;
 		}
 
