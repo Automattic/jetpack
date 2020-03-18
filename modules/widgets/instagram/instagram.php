@@ -182,7 +182,7 @@ class WPcom_Instagram_Widget extends WP_Widget {
 		if ( ! $instance['token_id'] ) {
 			echo 'This widget cannot make new connections to Instagram. You can install and use a third-party Instagram plugin instead. Please <a href="https://wordpress.com/help/contact/">contact us if you need help</a> setting this up.';
 			echo '<p><em>This notice is only shown to you.</em></p>';
-			echo '<a class="button-primary" target="_top" href="https://public-api.wordpress.com/connect/?action=request&amp;kr_nonce=25051df3f2&amp;nonce=84e239e897&amp;for=instagram-widget&amp;service=instagram&amp;blog=105567107&amp;kr_blog_nonce=217ce9172b&amp;magic=keyring&amp;instagram_widget_id=8">Connect Instagram Account</a>';
+			echo '<a class="button-primary" target="_top" href="https://public-api.wordpress.com/connect/?action=request&amp;kr_nonce=25051df3f2&amp;nonce=84e239e897&amp;for=instagram-widget&amp;service=instagram&amp;blog=105567107&amp;kr_blog_nonce=217ce9172b&amp;magic=keyring&amp;instagram_widget_id=8">' . __( 'Connect Instagram Account', 'jetpack' ) . '</a>';
 		} else {
 			$images = $this->get_images( $instance );
 
@@ -283,7 +283,7 @@ class WPcom_Instagram_Widget extends WP_Widget {
 			);
 
 			if ( is_wp_error( $response ) ) {
-				do_action( 'wpcomsh_log', 'Instagram widget: failed to remove keyring token: API returned code ' . $response_code );
+				do_action( 'wpcomsh_log', 'Instagram widget: failed to connect to API via wpcom api.' );
 
 				echo '<p>' . __( 'Instagram is currently experiencing connectivity issues, please try again later to connect.' ) . '</p>';
 				return;
@@ -301,7 +301,7 @@ class WPcom_Instagram_Widget extends WP_Widget {
 				$query_params,
 				$connect_URL
 			);
-			echo '<p><a class="button-primary" href="' . $url . '">' . __( 'Connect Instagram Account' ) . '</a></p>';
+			echo '<p><a class="button-primary" href="' . $url . '">' . __( 'Connect Instagram Account', 'jetpack' ) . '</a></p>';
 
 			return;
 		}
