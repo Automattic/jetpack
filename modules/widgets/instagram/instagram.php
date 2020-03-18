@@ -84,7 +84,7 @@ class WPcom_Instagram_Widget extends WP_Widget {
 	 * @param array $instance A widget $instance, as passed to a widget's widget() method.
 	 * @return string|array A string on error, an array of images on success.
 	 */
-	public function get_images( $instance ) {
+	public function get_data( $instance ) {
 		if ( empty( $instance['token_id'] ) ) {
 			do_action( 'wpcomsh_log', 'Instagram widget: failed to get images: no token_id present' );
 			return 'ERROR';
@@ -115,10 +115,9 @@ class WPcom_Instagram_Widget extends WP_Widget {
 			return 'ERROR';
 		}
 
-		$images = $data['images'];
 		$cache_time = 20 * MINUTE_IN_SECONDS;
-		set_transient( $transient_key, $images, $cache_time );
-		return $images;
+		set_transient( $transient_key, $data, $cache_time );
+		return $data;
 	}
 
 	private function wpcom_json_api_request_as_blog( $path, $version = 1, $args = array(), $body = null, $base_api_path = 'rest' ) {
@@ -180,9 +179,10 @@ class WPcom_Instagram_Widget extends WP_Widget {
 			echo $args['before_title'] . esc_html( $instance['title'] ) . $args['after_title'];
 
 		if ( ! $instance['token_id'] ) {
-			echo '<a class="button-primary" target="_top" href="' . $this->get_connect_url() . '">' . __( 'Connect Instagram Account', 'jetpack' ) . '</a>';
+			echo '<a class="button-primary" target="_top" href="' . $this->get_connect_url() . '">' . __( 'Connect Instagram Account', 'wpcom-instagram-widget' ) . '</a>';
 		} else {
-			$images = $this->get_images( $instance );
+			$data   = $this->get_data( $instance );
+			$images = $data['images'];
 
 			if ( ! is_array( $images ) ) {
 				echo '<p>' . __( 'There was an error retrieving images from Instagram. An attempt will be remade in a few minutes.', 'wpcomsh' ) . '</p>';
@@ -322,8 +322,8 @@ class WPcom_Instagram_Widget extends WP_Widget {
 
 		$remove_token_id_url = add_query_arg( $query_args, admin_url( $page ) );
 
-		echo '<p>' . sprintf( __( '<strong>Connected Instagram Account</strong><br /> <a href="%1$s">%2$s</a> | <a href="%3$s">remove</a>', 'wpcom-instagram-widget' ), $instance['token_id'], $instance['token_id'], esc_url( $remove_token_id_url ) ) . '</p>';
-		//echo '<p>' . sprintf( __( '<strong>Authorized Account</strong><br /> <a href="%1$s">%2$s</a> | <a href="%3$s">remove</a>', 'wpcom-instagram-widget' ), esc_url( 'http://instagram.com/' . $token->meta['external_name'] ), esc_html( $token->meta['external_name'] ), esc_url( $remove_token_id_url ) ) . '</p>';
+		$data = $this->get_data( $instance );
+		echo '<p>' . sprintf( __( '<strong>Connected Instagram Account</strong><br /> <a href="%1$s">%2$s</a> | <a href="%3$s">remove</a>', 'wpcom-instagram-widget' ), esc_url( 'http://instagram.com/' . $data['external_name'] ), esc_html( $data['external_name'] ), esc_url( $remove_token_id_url ) ) . '</p>';
 
 		// Title
 		echo '<p><label><strong>' . __( 'Widget Title', 'wpcom-instagram-widget' ) . '</strong> <input type="text" id="' . esc_attr( $this->get_field_id( 'title' ) ) . '" name="' . esc_attr( $this->get_field_name( 'title' ) ) . '" value="' . esc_attr( $instance['title'] ) . '" class="widefat" /></label></p>';
