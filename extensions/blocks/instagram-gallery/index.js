@@ -22,9 +22,10 @@ export const settings = {
 		_x( 'pictures', 'block search term', 'jetpack' ),
 	],
 	supports: {
+		align: [ 'wide', 'full' ],
 		html: false,
 	},
 	attributes,
 	edit,
-	save: () => <div>Hi!</div>,
+	save: () => {},
 };
