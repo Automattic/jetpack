@@ -125,9 +125,8 @@ function render_player( $track_list, $attributes ) {
 	/**
 	 * Enqueue necessary scripts and styles.
 	 */
-	wp_enqueue_script( 'mediaelement' );
 	wp_enqueue_style( 'mediaelement' );
-	Jetpack_Gutenberg::load_assets_as_required( 'podcast-player' );
+	Jetpack_Gutenberg::load_assets_as_required( 'podcast-player', array( 'mediaelement' ) );
 
 	return ob_get_clean();
 }
