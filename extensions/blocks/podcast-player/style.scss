@@ -71,7 +71,7 @@ $font-size: 16px;
 	color: inherit;
 
 	.podcast-player__episode.is-active & {
-		.wp-block-jetpack-podcast-player.is-error {
+		.wp-block-jetpack-podcast-player.is-error & {
 			padding-bottom: 0; // Make space for the error element that will be appended.
 		}
 	}
