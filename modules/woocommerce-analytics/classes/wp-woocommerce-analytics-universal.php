@@ -93,9 +93,9 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	 *
 	 * @param string  $event_name The name of the event to record.
 	 * @param integer $product_id The id of the product relating to the event.
-	 * @param array   $properties Array of key => value event properties.
+	 * @param array   $properties Optional array of (key => value) event properties.
 	 */
-	public function record_event( $event_name, $product_id, $properties ) {
+	public function record_event( $event_name, $product_id, $properties = array() ) {
 		$product = wc_get_product( $product_id );
 		if ( ! $product instanceof WC_Product ) {
 			return;
