@@ -205,10 +205,10 @@ class WPcom_Instagram_Widget extends WP_Widget {
 	private function get_query_params() {
 		$page = ( is_customize_preview() ) ? 'customize.php' : 'widgets.php';
 		return array(
-			'siteurl' => site_url() . '/wp-admin/' . $page,
-			'jetpack' => true,
+			'siteurl'             => site_url() . '/wp-admin/' . $page,
+			'jetpack'             => true,
 			'instagram_widget_id' => $this->number,
-			'is_customizer' => is_customize_preview(),
+			'is_customizer'       => is_customize_preview(),
 		);
 	}
 
