@@ -11,20 +11,23 @@ $text-color-active: $text-color-hover;
 $text-color-error: #db5051;
 $block-bg-color: #fff;
 $block-border-color: $text-color;
-$font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+$font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell,
+	'Helvetica Neue', sans-serif;
 $font-size: 16px;
 
 /**
- * Player's (block) parent element
+ * Player's (block) parent element.
  */
 .wp-block-jetpack-podcast-player {
 	border: 1px solid $text-color;
 	background-color: $block-bg-color;
 
-	// Player's state classes added to this element:
-	// &.is-playing {} // When audio starts playing
-	// &.is-paused {}  // When audio is paused
-	// &.is-error {}   // When playback error occured
+	/**
+	 * Player's state classes added to this element:
+	 * &.is-playing {} // When audio starts playing.
+	 * &.is-paused {}  // When audio is paused.
+	 * &.is-error {}   // When playback error occured.
+	 */
 
 	audio {
 		display: none;
@@ -43,16 +46,19 @@ $font-size: 16px;
 .podcast-player__episode {
 	margin: 0;
 	color: $text-color;
+	font-family: $font-family;
+	font-size: $font-size;
 
-	&:hover {
+	&:hover,
+	&:focus {
 		color: $text-color-hover;
 	}
 
 	/**
-     * When episode "is-active", it means that it's been clicked by a user to
-     * start playback. Combine this class with the Player's state classes (see
-     * above) to apply styling for different scenarios.
-     */
+	 * When episode "is-active", it means that it's been clicked by a user to
+	 * start playback. Combine this class with the Player's state classes (see
+	 * above) to apply styling for different scenarios.
+	 */
 	&.is-active {
 		color: $text-color-hover;
 		font-weight: bold;
@@ -64,11 +70,9 @@ $font-size: 16px;
 	flex-flow: row nowrap;
 	justify-content: space-between;
 	padding: $episode-h-padding $episode-v-padding;
-	font-family: $font-family;
-	font-size: $font-size;
-
 	text-decoration: none;
 	color: inherit;
+	transition: none;
 
 	.podcast-player__episode.is-active & {
 		.wp-block-jetpack-podcast-player.is-error & {
@@ -77,9 +81,12 @@ $font-size: 16px;
 	}
 }
 
-// Fixes a chrome where in 2020 and other themes that apply a path { transition: ____} definition, 
-// our svg specified colors do not get applied as this definition gets applied to the symbol definitions 
-// and we can't override them since we're applying via the shadow DOM
+/**
+ * Fixes a Chrome bug where in TwentyTwenty and other themes that apply a
+ * transition to a path element, our svg specified colors do not get applied as
+ * this definition gets applied to the symbol definitions and we can't override
+ * them since we're applying via the shadow DOM.
+ */
 .podcast-player-icons path {
 	transition: none;
 }
@@ -111,7 +118,7 @@ $font-size: 16px;
 }
 
 .podcast-player__episode-duration {
-	word-break: normal;
+	word-break: normal; // Prevents the time breaking into multiple lines.
 }
 
 /**
@@ -124,11 +131,11 @@ $font-size: 16px;
 	margin-bottom: $episode-h-padding;
 	color: $text-color-error;
 	font-family: $font-family;
-	font-size: 0.8 * $font-size;
+	font-size: 0.8em;
 	font-weight: normal;
 
-	.wp-block-jetpack-podcast-player.is-error & {
-		display: block; // Show only when error occurs
+	.wp-block-jetpack-podcast-player.is-error .podcast-player__episode.is-active & {
+		display: block; // Show only when error occurs.
 	}
 
 	span {
