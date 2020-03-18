@@ -110,11 +110,16 @@ function render_player( $track_list, $attributes ) {
 
 	$colors          = get_colors( $attributes );
 	$block_classname = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attributes, $colors['css_classes'] );
+	$block_style     = $colors['style'];
 	$title_classname = 'podcast-player__episode' . $colors['text_class_name'];
 
 	ob_start();
 	?>
-	<div class="<?php echo esc_attr( $block_classname ); ?>" id="<?php echo esc_attr( $instance_id ); ?>">
+	<div
+		<?php echo empty( $block_style ) ? '' : 'style="' . esc_attr( $block_style ) . '"'; ?>
+		class="<?php echo esc_attr( $block_classname ); ?>"
+		id="<?php echo esc_attr( $instance_id ); ?>"
+	>
 		<ol class="podcast-player__episodes">
 			<?php foreach ( $track_list as $attachment ) : ?>
 
