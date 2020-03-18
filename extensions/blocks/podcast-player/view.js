@@ -42,9 +42,7 @@ const initializeBlock = function( id ) {
 
 	// Initialize player UI.
 	player.audio = document.createElement( 'audio' );
-	player.audio.src = block
-		.querySelector( '[data-jetpack-podcast-audio]' )
-		.getAttribute( 'data-jetpack-podcast-audio' );
+	player.audio.src = player.tracks[ 0 ].src;
 	block.insertBefore( player.audio, block.firstChild );
 	player.mediaElement = new MediaElementPlayer( player.audio, meJsSettings );
 
