@@ -77,6 +77,13 @@ $font-size: 16px;
 	}
 }
 
+// Fixes a chrome where in 2020 and other themes that apply a path { transition: ____} definition, 
+// our svg specified colors do not get applied as this definition gets applied to the symbol definitions 
+// and we can't override them since we're applying via the shadow DOM
+.podcast-player-icons path {
+	transition: none;
+}
+
 .podcast-player__episode-status-icon {
 	width: $episode-status-icon-size;
 

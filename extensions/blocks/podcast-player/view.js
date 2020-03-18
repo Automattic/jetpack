@@ -63,6 +63,7 @@ window.jetpackPodcastPlayers = {
 
 function createSVGs() {
 	const svgTemplate = document.createElementNS( 'http://www.w3.org/2000/svg', 'svg' );
+	svgTemplate.classList.add( 'podcast-player-icons' );
 	svgTemplate.setAttribute( 'style', 'position: absolute; width: 0; height: 0; overflow: hidden;' );
 	svgTemplate.setAttribute( 'version', '1.1' );
 	svgTemplate.setAttribute( 'xmlns', 'http://www.w3.org/2000/svg' );
@@ -291,9 +292,9 @@ function handleError( episodeEl ) {
 }
 
 function getSoundIconHTML() {
-	return '<svg><use xlink:href="#podcast-player-icon__sound"></use></svg>';
+	return '<svg><use xlink:href="#podcast-player-icon__sound" /></svg>';
 }
 
 function getErrorIconHTML() {
-	return '<svg><use xlink:href="#podcast-player-icon__error"></use></svg>';
+	return '<svg><use xlink:href="#podcast-player-icon__error" /></svg>';
 }
