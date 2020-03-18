@@ -102,7 +102,6 @@ var jetpackLazyImagesModule = function() {
 	function applyImage( image ) {
 		var srcset,
 			sizes,
-			imageClone,
 			lazyLoadedImageEvent;
 
 		if ( ! image instanceof HTMLImageElement ) {
@@ -111,26 +110,25 @@ var jetpackLazyImagesModule = function() {
 
 		srcset = image.getAttribute( 'data-lazy-srcset' );
 		sizes = image.getAttribute( 'data-lazy-sizes' );
-		imageClone = image.cloneNode();
 
-		// Remove lazy attributes from the clone.
-		imageClone.removeAttribute( 'data-lazy-srcset' ),
-		imageClone.removeAttribute( 'data-lazy-sizes' );
-		imageClone.removeAttribute( 'data-lazy-src' );
+		// Remove lazy attributes.
+		image.removeAttribute( 'data-lazy-srcset' ),
+		image.removeAttribute( 'data-lazy-sizes' );
+		image.removeAttribute( 'data-lazy-src' );
 
-		// Add the attributes we want on the finished image.
-		imageClone.classList.add( 'jetpack-lazy-image--handled' );
-		imageClone.setAttribute( 'data-lazy-loaded', 1 );
-		if ( ! srcset ) {
-			imageClone.removeAttribute( 'srcset' );
-		} else {
-			imageClone.setAttribute( 'srcset', srcset );
-		}
+		// Add the attributes we want.
+		image.classList.add( 'jetpack-lazy-image--handled' );
+		image.setAttribute( 'data-lazy-loaded', 1 );
+
 		if ( sizes ) {
-			imageClone.setAttribute( 'sizes', sizes );
+			image.setAttribute( 'sizes', sizes );
 		}
 
-		image.parentNode.replaceChild( imageClone, image );
+		if ( ! srcset ) {
+			image.removeAttribute( 'srcset' );
+		} else {
+			image.setAttribute( 'srcset', srcset );
+		}
 
 		// Fire an event so that third-party code can perform actions after an image is loaded.
 		try {
@@ -143,7 +141,7 @@ var jetpackLazyImagesModule = function() {
 			lazyLoadedImageEvent.initEvent( 'jetpack-lazy-loaded-image', true, true );
 		}
 
-		imageClone.dispatchEvent( lazyLoadedImageEvent );
+		image.dispatchEvent( lazyLoadedImageEvent );
 	}
 };
 
