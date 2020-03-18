@@ -254,21 +254,9 @@ class WPcom_Instagram_Widget extends WP_Widget {
 		if ( isset( $_GET['instagram_widget_id'] ) && $_GET['instagram_widget_id'] == $this->number
 			&& ! empty( $_GET['instagram_widget'] ) && 'connection_verified' == $_GET['instagram_widget']
 			&& ! empty( $_GET['token_id'] ) && $instance['token_id'] !== (int) $_GET['token_id'] && $this->validate_parameters() ) {
-			//$token_store = Keyring::init()->get_token_store();
-			//$token = $token_store->get_token( array( 'type' => 'access', 'id' => (int) $_GET['token_id'] ) );
-
-			// Make sure the user owns the token ID that was passed through before using it
-			//if ( get_current_user_id() == $token->meta['user_id'] ) {
-			//	$old_token = $instance['token_id'];
 				$instance['token_id'] = (int) $_GET['token_id'];
 
-				$this->update_widget_token_id( $instance['token_id'] );
-
-			//	if ( $old_token ) {
-					//error_log( "Now delete the token: $old_token" );
-			//		$token_store->delete( array( 'type' => 'access', 'id' => $old_token ) );
-			//	}
-			//}
+			$this->update_widget_token_id( $instance['token_id'] );
 		}
 		// If removing the widget's stored token ID
 		elseif ( $instance['token_id'] && isset( $_GET['instagram_widget_id'] ) && $_GET['instagram_widget_id'] == $this->number && ! empty( $_GET['instagram_widget'] ) && 'remove_token' == $_GET['instagram_widget'] ) {
@@ -291,13 +279,7 @@ class WPcom_Instagram_Widget extends WP_Widget {
 		}
 		// If a token ID is stored, make sure it's still valid
 		elseif ( $instance['token_id'] ) {
-			//$token = Keyring::init()->get_token_store()->get_token( array( 'type' => 'access', 'id' => $instance['token_id'] ) );
-
-			//if ( ! $token ) {
-			//	$instance['token_id'] = $this->defaults['token_id'];
-
-				$this->update_widget_token_id( $instance['token_id'] );
-			//}
+			$this->update_widget_token_id( $instance['token_id'] );
 		}
 
 		// No connection, or a legacy API token? Display a connection link.
