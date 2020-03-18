@@ -12,12 +12,12 @@ jQuery( document ).ready( function( $ ) {
 	connectButton.on( 'click', function( event ) {
 		event.preventDefault();
 
-		var searchParams =
-			'undefined' !== typeof URLSearchParams
-				? new URLSearchParams( $( this ).prop( 'search' ) )
-				: null;
-
-		connectButtonFrom = searchParams && searchParams.get( 'from' );
+		if ( 'undefined' === typeof URLSearchParams ) {
+			connectButtonFrom = '';
+		} else {
+			var searchParams = new URLSearchParams( $( this ).prop( 'search' ) );
+			connectButtonFrom = searchParams && searchParams.get( 'from' );
+		}
 
 		if ( connectionHelpSections.length ) {
 			connectionHelpSections.fadeOut( 600 );
