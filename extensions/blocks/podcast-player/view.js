@@ -3,6 +3,7 @@
  * Internal dependencies
  */
 import './style.scss';
+import { __ } from '@wordpress/i18n';
 
 const playerInstances = {};
 const meJsSettings = typeof _wpmejsSettings !== 'undefined' ? _wpmejsSettings : {};
@@ -182,16 +183,21 @@ function renderEpisodeError( episodeEl ) {
 
 	const episodeLinkEl = episodeEl.querySelector( '.podcast-player__episode-link' );
 
-	// ToDo: make error template translatable
-	const errorTemplate = `
-		<div class="podcast-player__episode-error">
-			Episode unavailable <span>(<a href="{{episodeUrl}}" rel="noopener noreferrer nofollow" target="_blank">Open in new tab</a>)</span>
-		</div>
-	`;
+	const linkEl = document.createElement( 'a' );
+	linkEl.rel = 'noopener noreferrer nofollow';
+	linkEl.target = '_blank';
+	linkEl.href = episodeLinkEl.href;
+	linkEl.innerText = __( 'Open in a new tab', 'jetpack' );
 
-	// Compile error template and create the element
-	const compiledTemplate = errorTemplate.replace( '{{episodeUrl}}', episodeLinkEl.href );
-	const errorEl = new DOMParser().parseFromString( compiledTemplate, 'text/html' ).body.firstChild;
+	const spanEl = document.createElement( 'span' );
+	spanEl.appendChild( new Text( '(' ) );
+	spanEl.appendChild( linkEl );
+	spanEl.appendChild( new Text( ')' ) );
+
+	const errorEl = document.createElement( 'div' );
+	errorEl.classList.add( 'podcast-player__episode-error' );
+	errorEl.appendChild( new Text( __( 'Episode unavailable', 'jetpack' ) + ' ' ) );
+	errorEl.appendChild( spanEl );
 
 	// Render the element
 	episodeEl.appendChild( errorEl );
