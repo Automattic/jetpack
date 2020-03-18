@@ -77,38 +77,62 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	}
 
 	/**
+	 * Record an event with optional custom properties.
+	 *
+	 * @param string  $event_name The name of the event to record.
+	 * @param integer $product_id The id of the product relating to the event.
+	 * @param array   $properties Array of key => value event properties.
+	 */
+	public function record_event( $event_name, $product_id, $properties ) {
+		$blogid = Jetpack::get_option( 'id' );
+
+		$product = wc_get_product( $product_id );
+		if ( ! $product instanceof WC_Product ) {
+			return;
+		}
+		$product_details = $this->get_product_details( $product );
+
+		$extra_properties = '';
+		foreach ( $properties as $key => $value ) {
+			$extra_properties = $extra_properties . "'$key': '" . esc_js( $value ) . "', ";
+		}
+
+		wc_enqueue_js(
+			"_wca.push( {
+					'_en': '" . esc_js( $event_name ) . "',
+					'blog_id': '" . esc_js( $blogid ) . "',
+					'pi': '" . esc_js( $product_id ) . "',
+					'pn': '" . esc_js( $product_details['name'] ) . "',
+					'pc': '" . esc_js( $product_details['category'] ) . "',
+					'pp': '" . esc_js( $product_details['price'] ) . "',
+					'pt': '" . esc_js( $product_details['type'] ) . "',
+					'ui': '" . esc_js( $this->get_user_id() ) . "',
+					'url': '" . esc_js( home_url() ) . "',
+					'woo_version': '" . esc_js( WC()->version ) . "',
+					" . $extra_properties . '
+				} );'
+		);
+	}
+
+
+	/**
 	 * On product lists or other non-product pages, add an event listener to "Add to Cart" button click
 	 */
 	public function loop_session_events() {
-		$blogid = Jetpack::get_option( 'id' );
-
-		// check for previous add-to-cart cart events
+		// Check for previous events queued in session data.
 		if ( is_object( WC()->session ) ) {
 			$data = WC()->session->get( 'wca_session_data' );
 			if ( ! empty( $data ) ) {
 				foreach ( $data as $data_instance ) {
-					$product = wc_get_product( $data_instance['product_id'] );
-					if ( ! $product instanceof WC_Product ) {
-						continue;
-					}
-					$product_details = $this->get_product_details( $product );
-					wc_enqueue_js(
-						"_wca.push( {
-								'_en': '" . esc_js( $data_instance['event'] ) . "',
-								'blog_id': '" . esc_js( $blogid ) . "',
-								'pi': '" . esc_js( $data_instance['product_id'] ) . "',
-								'pn': '" . esc_js( $product_details['name'] ) . "',
-								'pc': '" . esc_js( $product_details['category'] ) . "',
-								'pp': '" . esc_js( $product_details['price'] ) . "',
-								'pq': '" . esc_js( $data_instance['quantity'] ) . "',
-								'pt': '" . esc_js( $product_details['type'] ) . "',
-								'ui': '" . esc_js( $this->get_user_id() ) . "',
-								'url': '" . esc_js( home_url() ) . "',
-								'woo_version': '" . esc_js( WC()->version ) . "',
-							} );"
+					$this->record_event(
+						$data_instance['event'],
+						$data_instance['product_id'],
+						array(
+							'pq' => $data_instance['quantity'],
+						)
 					);
 				}
-				// clear data
+				// Clear data, now that these events have been recorded.
 				WC()->session->set( 'wca_session_data', '' );
 			}
 		}
