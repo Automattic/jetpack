@@ -1,0 +1,9 @@
+/**
+ * Shared Editor and Front End styles for Google Calendar
+ */
+.wp-block-jetpack-google-calendar {
+	min-width: 420px;
+	iframe {
+		width: 100%;
+	}
+}
