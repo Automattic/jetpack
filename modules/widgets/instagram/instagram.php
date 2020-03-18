@@ -28,9 +28,9 @@ class WPcom_Instagram_Widget extends WP_Widget {
 	function __construct() {
 		parent::__construct(
 			self::ID_BASE,
-			__( 'Instagram', 'wpcomsh' ),
+			__( 'Instagram', 'wpcom-instagram-widget' ),
 			array(
-				'description' => __( 'Display your latest Instagram photos.', 'wpcomsh' ),
+				'description' => __( 'Display your latest Instagram photos.', 'wpcom-instagram-widget' ),
 			)
 		);
 
@@ -43,7 +43,7 @@ class WPcom_Instagram_Widget extends WP_Widget {
 
 		$this->defaults = array(
 			'token_id' => null,
-			'title'    => __( 'Instagram', 'wpcomsh' ),
+			'title'    => __( 'Instagram', 'wpcom-instagram-widget' ),
 			'columns'  => 2,
 			'count'    => 6,
 		);
@@ -185,10 +185,10 @@ class WPcom_Instagram_Widget extends WP_Widget {
 			$images = $data['images'];
 
 			if ( ! is_array( $images ) ) {
-				echo '<p>' . __( 'There was an error retrieving images from Instagram. An attempt will be remade in a few minutes.', 'wpcomsh' ) . '</p>';
+				echo '<p>' . __( 'There was an error retrieving images from Instagram. An attempt will be remade in a few minutes.', 'wpcom-instagram-widget' ) . '</p>';
 			}
 			elseif ( ! $images ) {
-				echo '<p>' . __( 'No Instagram images were found.', 'wpcomsh' ) . '</p>';
+				echo '<p>' . __( 'No Instagram images were found.', 'wpcom-instagram-widget' ) . '</p>';
 			} else {
 
 				echo '<div class="' . esc_attr( 'wpcom-instagram-images wpcom-instagram-columns-' . (int) $instance['columns'] ) . '">' . "\n";
@@ -221,7 +221,7 @@ class WPcom_Instagram_Widget extends WP_Widget {
 		if ( is_wp_error( $response ) ) {
 			do_action( 'wpcomsh_log', 'Instagram widget: failed to connect to API via wpcom api.' );
 
-			echo '<p>' . __( 'Instagram is currently experiencing connectivity issues, please try again later to connect.' ) . '</p>';
+			echo '<p>' . __( 'Instagram is currently experiencing connectivity issues, please try again later to connect.', 'wpcom-instagram-widget' ) . '</p>';
 			return;
 		}
 
