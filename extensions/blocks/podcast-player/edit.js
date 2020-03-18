@@ -74,10 +74,8 @@ const PodcastPlayerEdit = ( {
 	fallbackBackgroundColor,
 } ) => {
 	// Validated attributes.
-	const { url, itemsToShow, showCoverArt, showEpisodeDescription } = getValidatedAttributes(
-		attributesValidation,
-		attributes
-	);
+	const validatedAttributes = getValidatedAttributes( attributesValidation, attributes );
+	const { url, itemsToShow, showCoverArt, showEpisodeDescription } = validatedAttributes;
 
 	// State.
 	const [ editedUrl, setEditedUrl ] = useState( url || '' );
@@ -212,7 +210,7 @@ const PodcastPlayerEdit = ( {
 			<Disabled>
 				<ServerSideRender
 					block={ namespaceName }
-					attributes={ { url, itemsToShow } }
+					attributes={ validatedAttributes }
 					EmptyResponsePlaceholder={ handleSSRError }
 					ErrorResponsePlaceholder={ handleSSRError }
 				/>
