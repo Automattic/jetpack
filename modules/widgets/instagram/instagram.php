@@ -182,7 +182,7 @@ class WPcom_Instagram_Widget extends WP_Widget {
 		if ( ! $instance['token_id'] ) {
 			echo 'This widget cannot make new connections to Instagram. You can install and use a third-party Instagram plugin instead. Please <a href="https://wordpress.com/help/contact/">contact us if you need help</a> setting this up.';
 			echo '<p><em>This notice is only shown to you.</em></p>';
-			echo '<a class="button-primary" target="_top" href="https://public-api.wordpress.com/connect/?action=request&amp;kr_nonce=25051df3f2&amp;nonce=84e239e897&amp;for=instagram-widget&amp;service=instagram&amp;blog=105567107&amp;kr_blog_nonce=217ce9172b&amp;magic=keyring&amp;instagram_widget_id=8">Authorize Instagram Access</a>';
+			echo '<a class="button-primary" target="_top" href="https://public-api.wordpress.com/connect/?action=request&amp;kr_nonce=25051df3f2&amp;nonce=84e239e897&amp;for=instagram-widget&amp;service=instagram&amp;blog=105567107&amp;kr_blog_nonce=217ce9172b&amp;magic=keyring&amp;instagram_widget_id=8">Connect Instagram Account</a>';
 		} else {
 			$images = $this->get_images( $instance );
 
@@ -246,7 +246,7 @@ class WPcom_Instagram_Widget extends WP_Widget {
 			$site = Jetpack_Options::get_option( 'id' );
 			$path = sprintf( '/sites/%s/instagram/%s/remove', $site, $instance['token_id'] );
 			$result = $this->wpcom_json_api_request_as_blog( $path, 2, array( 'headers' => array( 'content-type' => 'application/json' ) ), null, 'wpcom' );
-		
+
 			$response_code = wp_remote_retrieve_response_code( $result );
 
 			if ( 200 !== $response_code ) {
@@ -281,6 +281,14 @@ class WPcom_Instagram_Widget extends WP_Widget {
 			$response = Client::wpcom_json_api_request_as_user(
 				sprintf( '/sites/%d/external-services', $jetpack_blog_id )
 			);
+
+			if ( is_wp_error( $response ) ) {
+				do_action( 'wpcomsh_log', 'Instagram widget: failed to remove keyring token: API returned code ' . $response_code );
+
+				echo '<p>' . __( 'Instagram is currently experiencing connectivity issues, please try again later to connect.' ) . '</p>';
+				return;
+			}
+
 			$body = json_decode( $response['body'] );
 			$connect_URL = $body->services->instagram->connect_URL;
 			$query_params = array(
@@ -293,7 +301,7 @@ class WPcom_Instagram_Widget extends WP_Widget {
 				$query_params,
 				$connect_URL
 			);
-			echo '<a class="button-primary" href="' . $url . '">Authorize Instagram Access</a>';
+			echo '<p><a class="button-primary" href="' . $url . '">' . __( 'Connect Instagram Account' ) . '</a></p>';
 
 			return;
 		}
@@ -339,7 +347,7 @@ class WPcom_Instagram_Widget extends WP_Widget {
 			return;
 		}*/
 
-		echo '<p>' . sprintf( __( '<strong>Authorized Account</strong><br /> <a href="%1$s">%2$s</a> | <a href="%3$s">remove</a>', 'wpcom-instagram-widget' ), $instance['token_id'], $instance['token_id'], esc_url( $remove_token_id_url ) ) . '</p>';
+		echo '<p>' . sprintf( __( '<strong>Connected Instagram Account</strong><br /> <a href="%1$s">%2$s</a> | <a href="%3$s">remove</a>', 'wpcom-instagram-widget' ), $instance['token_id'], $instance['token_id'], esc_url( $remove_token_id_url ) ) . '</p>';
 		//echo '<p>' . sprintf( __( '<strong>Authorized Account</strong><br /> <a href="%1$s">%2$s</a> | <a href="%3$s">remove</a>', 'wpcom-instagram-widget' ), esc_url( 'http://instagram.com/' . $token->meta['external_name'] ), esc_html( $token->meta['external_name'] ), esc_url( $remove_token_id_url ) ) . '</p>';
 
 		// Title
@@ -464,12 +472,12 @@ class WPcom_Instagram_Widget extends WP_Widget {
 		if ( empty( $_GET['hash'] ) ) {
 			return false;
 		}
- 
-		return $_GET['hash'] === $this->get_paramater_hash( array( 
+
+		return $_GET['hash'] === $this->get_paramater_hash( array(
 				'siteurl' => urldecode( $_GET['siteurl'] ),
 				'jetpack' => true,
 				'instagram_widget_id' => $_GET['instagram_widget_id'],
-			) 
+			)
 		);
 
 	}
