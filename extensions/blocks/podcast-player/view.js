@@ -134,12 +134,12 @@ function handleEpisodeLinkClick( episodeLinkEl ) {
 	}
 
 	// Get currently active episode element
-	const activeEpisodeEl = document.querySelector( '.podcast-player__episode.is-active' );
+	const activeEpisodeEl = blockEl.querySelector( '.podcast-player__episode.is-active' );
+
 	if ( activeEpisodeEl ) {
 		if ( activeEpisodeEl.isSameNode( episodeEl ) ) {
 			if ( player.audio.paused ) {
-				player.audio.play();
-				handlePlay( activeEpisodeEl );
+				player.audio.play().then( () => handlePlay( activeEpisodeEl ) );
 			} else {
 				player.audio.pause();
 				handlePause( activeEpisodeEl );
@@ -196,6 +196,14 @@ function renderEpisodeError( episodeEl ) {
 function handlePlay( episodeEl ) {
 	if ( ! episodeEl ) {
 		return;
+	}
+
+	// Check if there's any other episode playing and pause it.
+	const playingEpisodeEl = document.querySelector(
+		'.wp-block-jetpack-podcast-player.is-playing .podcast-player__episode.is-active'
+	);
+	if ( playingEpisodeEl ) {
+		handlePause( playingEpisodeEl );
 	}
 
 	// Get episode's parent block element
