@@ -216,5 +216,5 @@ function get_audio_enclosure( \SimplePie_Item $episode ) {
 function format_track_duration( $duration ) {
 	$format = $duration > HOUR_IN_SECONDS ? 'H:i:s' : 'i:s';
 
-	return esc_html( date_i18n( $format, $duration ) );
+	return date_i18n( $format, $duration );
 }
