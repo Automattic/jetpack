@@ -28,6 +28,8 @@ export const PLAN_JETPACK_BACKUP_DAILY = 'jetpack_backup_daily';
 export const PLAN_JETPACK_BACKUP_DAILY_MONTHLY = 'jetpack_backup_daily_monthly';
 export const PLAN_JETPACK_BACKUP_REALTIME = 'jetpack_backup_realtime';
 export const PLAN_JETPACK_BACKUP_REALTIME_MONTHLY = 'jetpack_backup_realtime_monthly';
+export const PLAN_JETPACK_SEARCH = 'jetpack_search';
+export const PLAN_JETPACK_SEARCH_MONTHLY = 'jetpack_search_monthly';
 export const PLAN_HOST_BUNDLE = 'host-bundle';
 export const PLAN_WPCOM_ENTERPRISE = 'wpcom-enterprise';
 export const PLAN_VIP = 'vip';
@@ -163,6 +165,9 @@ export function getPlanClass( plan ) {
 		case PLAN_JETPACK_BACKUP_REALTIME:
 		case PLAN_JETPACK_BACKUP_REALTIME_MONTHLY:
 			return 'is-realtime-backup-plan';
+		case PLAN_JETPACK_SEARCH:
+		case PLAN_JETPACK_SEARCH_MONTHLY:
+			return 'is-search-plan';
 		default:
 			return '';
 	}
