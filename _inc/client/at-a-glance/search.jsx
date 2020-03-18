@@ -6,7 +6,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import { noop } from 'lodash';
-import { getPlanClass, PLAN_JETPACK_PREMIUM } from 'lib/plans/constants';
+import { getPlanClass, PLAN_JETPACK_SEARCH } from 'lib/plans/constants';
 
 /**
  * Internal dependencies
@@ -67,7 +67,7 @@ class DashSearch extends Component {
 		} );
 	}
 
-	activateSearch = () => this.props.updateOptions( { search: true } );
+	activateSearch = () => this.props.updateOptions( { search: true, instant_search_enabled: true } );
 
 	render() {
 		const hasPro = 'is-business-plan' === this.props.planClass;
@@ -90,13 +90,13 @@ class DashSearch extends Component {
 					<JetpackBanner
 						callToAction={ __( 'Upgrade' ) }
 						title={ __(
-							"Replace your site's basic search with customizable search that helps visitors find answers faster."
+							'Help visitors quickly find answers with highly relevant instant search results and powerful filtering.'
 						) }
 						disableHref="false"
 						href={ this.props.upgradeUrl }
 						eventFeature="search"
 						path="dashboard"
-						plan={ PLAN_JETPACK_PREMIUM }
+						plan={ PLAN_JETPACK_SEARCH }
 						icon="search"
 					/>
 				),
@@ -107,11 +107,11 @@ class DashSearch extends Component {
 			return (
 				<div className="jp-dash-item">
 					<DashItem
-						label={ __( 'Jetpack Search' ) }
+						label={ __( 'Search' ) }
 						module="search"
 						support={ {
 							text: __(
-								'Jetpack Search is a powerful replacement for the search capability built into WordPress.'
+								'Jetpack Search helps visitors quickly find answers with highly relevant instant search results and powerful filtering.'
 							),
 							link: 'https://jetpack.com/support/search/',
 						} }
@@ -126,9 +126,9 @@ class DashSearch extends Component {
 					<Card
 						compact
 						className="jp-search-config-aag"
-						href="customize.php?autofocus[panel]=widgets"
+						href="customize.php?autofocus[section]=jetpack_search"
 					>
-						{ __( 'Add Search (Jetpack) Widget' ) }
+						{ __( 'Customize' ) }
 					</Card>
 				</div>
 			);
@@ -138,7 +138,7 @@ class DashSearch extends Component {
 			className: 'jp-dash-item__is-inactive',
 			pro_inactive: false,
 			content: __(
-				'{{a}}Activate{{/a}} to replace the WordPress built-in search with Jetpack Search, an advanced search experience.',
+				'{{a}}Activate{{/a}} to help visitors quickly find answers with highly relevant instant search results and powerful filtering.',
 				{
 					components: {
 						a: <a href="javascript:void(0)" onClick={ this.activateSearch } />,
