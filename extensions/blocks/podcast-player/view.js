@@ -146,6 +146,7 @@ async function handleEpisodeLinkClick( episodeLinkEl ) {
 			} catch ( _error ) {
 				return handleError( episodeEl );
 			}
+			handlePlay( episodeEl );
 		} else {
 			player.audio.pause();
 			handlePause( activeEpisodeEl );
