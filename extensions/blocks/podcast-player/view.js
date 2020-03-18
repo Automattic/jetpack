@@ -136,31 +136,31 @@ function handleEpisodeLinkClick( episodeLinkEl ) {
 	// Get currently active episode element
 	const activeEpisodeEl = blockEl.querySelector( '.podcast-player__episode.is-active' );
 
-	if ( activeEpisodeEl ) {
-		if ( activeEpisodeEl.isSameNode( episodeEl ) ) {
-			if ( player.audio.paused ) {
-				player.audio.play().then( () => handlePlay( activeEpisodeEl ) );
-			} else {
-				player.audio.pause();
-				handlePause( activeEpisodeEl );
-			}
-			return;
+	if ( activeEpisodeEl && activeEpisodeEl.isSameNode( episodeEl ) ) {
+		if ( player.audio.paused ) {
+			player.audio.play().then( () => handlePlay( activeEpisodeEl ) );
+		} else {
+			player.audio.pause();
+			handlePause( activeEpisodeEl );
 		}
-		// Make episode inactive
-		activeEpisodeEl.classList.remove( 'is-active' );
-		activeEpisodeEl
-			.querySelector( '[aria-pressed="true"]' )
-			.setAttribute( 'aria-pressed', 'false' );
+	} else {
+		if ( activeEpisodeEl ) {
+			// Make episode inactive
+			activeEpisodeEl.classList.remove( 'is-active' );
+			activeEpisodeEl
+				.querySelector( '[aria-pressed="true"]' )
+				.setAttribute( 'aria-pressed', 'false' );
 
-		handlePause( activeEpisodeEl );
+			handlePause( activeEpisodeEl );
+		}
+
+		player.audio.src = audioUrl;
+
+		player.audio
+			.play()
+			.then( () => handlePlay( episodeEl ) )
+			.catch( () => handleError( episodeEl ) );
 	}
-
-	player.audio.src = audioUrl;
-
-	player.audio
-		.play()
-		.then( () => handlePlay( episodeEl ) )
-		.catch( () => handleError( episodeEl ) );
 }
 
 function renderEpisodeError( episodeEl ) {
