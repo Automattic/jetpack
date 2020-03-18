@@ -70,7 +70,9 @@ matrix:
 
   - php: "7.0"
     name: "E2E tests"
-    if: branch !~ /(^branch-.*-built)/ AND env(RUN_E2E) = true
+    # Since build secrets are not available for forks, we would not be able to (and don't want) decrypt the config file
+    # so we just skip the E2E job all together
+    if: branch !~ /(^branch-.*-built)/ AND env(RUN_E2E) = true AND env(CONFIG_KEY) IS present
     before_script:
     # Enable user namespace cloning
     - "sysctl kernel.unprivileged_userns_clone=1"
