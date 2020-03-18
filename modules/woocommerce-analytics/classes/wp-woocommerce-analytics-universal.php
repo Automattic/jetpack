@@ -214,24 +214,10 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	 * Track a product page view
 	 */
 	public function capture_product_view() {
-
 		global $product;
-		$blogid          = Jetpack::get_option( 'id' );
-		$product_details = $this->get_product_details( $product );
-
-		wc_enqueue_js(
-			"_wca.push( {
-				'_en': 'woocommerceanalytics_product_view',
-				'blog_id': '" . esc_js( $blogid ) . "',
-				'pi': '" . esc_js( $product_details['id'] ) . "',
-				'pn': '" . esc_js( $product_details['name'] ) . "',
-				'pc': '" . esc_js( $product_details['category'] ) . "',
-				'pp': '" . esc_js( $product_details['price'] ) . "',
-				'pt': '" . esc_js( $product_details['type'] ) . "',
-				'ui': '" . esc_js( $this->get_user_id() ) . "',
-				'url': '" . esc_js( home_url() ) . "',
-				'woo_version': '" . esc_js( WC()->version ) . "',
-			} );"
+		$this->record_event(
+			'woocommerceanalytics_product_view',
+			$product->get_id()
 		);
 	}
 
@@ -239,10 +225,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	 * On the Checkout page, trigger an event for each product in the cart
 	 */
 	public function checkout_process() {
-
-		$universal_commands = array();
-		$cart               = WC()->cart->get_cart();
-		$blogid             = Jetpack::get_option( 'id' );
+		$cart = WC()->cart->get_cart();
 
 		foreach ( $cart as $cart_item_key => $cart_item ) {
 			/**
@@ -254,24 +237,14 @@ class Jetpack_WooCommerce_Analytics_Universal {
 				continue;
 			}
 
-			$product_details = $this->get_product_details( $product );
-
-			$universal_commands[] = "_wca.push( {
-				'_en': 'woocommerceanalytics_product_checkout',
-				'blog_id': '" . esc_js( $blogid ) . "',
-				'pi': '" . esc_js( $product_details['id'] ) . "',
-				'pn': '" . esc_js( $product_details['name'] ) . "',
-				'pc': '" . esc_js( $product_details['category'] ) . "',
-				'pp': '" . esc_js( $product_details['price'] ) . "',
-				'pq': '" . esc_js( $cart_item['quantity'] ) . "',
-				'pt': '" . esc_js( $product_details['type'] ) . "',
-				'ui': '" . esc_js( $this->get_user_id() ) . "',
-				'url': '" . esc_js( home_url() ) . "',
-				'woo_version': '" . esc_js( WC()->version ) . "',
-			} );";
+			$this->record_event(
+				'woocommerceanalytics_product_checkout',
+				$product->get_id(),
+				array(
+					'pq' => $cart_item['quantity'],
+				)
+			);
 		}
-
-		wc_enqueue_js( implode( "\r\n", $universal_commands ) );
 	}
 
 	/**
@@ -280,33 +253,21 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	 * @param string $order_id Order Id.
 	 */
 	public function order_process( $order_id ) {
-		$order              = wc_get_order( $order_id );
-		$universal_commands = array();
-		$blogid             = Jetpack::get_option( 'id' );
+		$order = wc_get_order( $order_id );
 
 		// loop through products in the order and queue a purchase event.
 		foreach ( $order->get_items() as $order_item_id => $order_item ) {
 			$product = $order->get_product_from_item( $order_item );
 
-			$product_details = $this->get_product_details( $product );
-
-			$universal_commands[] = "_wca.push( {
-				'_en': 'woocommerceanalytics_product_purchase',
-				'blog_id': '" . esc_js( $blogid ) . "',
-				'pi': '" . esc_js( $product_details['id'] ) . "',
-				'pn': '" . esc_js( $product_details['name'] ) . "',
-				'pc': '" . esc_js( $product_details['category'] ) . "',
-				'pp': '" . esc_js( $product_details['price'] ) . "',
-				'pq': '" . esc_js( $order_item->get_quantity() ) . "',
-				'pt': '" . esc_js( $product_details['type'] ) . "',
-				'oi': '" . esc_js( $order->get_order_number() ) . "',
-				'ui': '" . esc_js( $this->get_user_id() ) . "',
-				'url': '" . esc_js( home_url() ) . "',
-				'woo_version': '" . esc_js( WC()->version ) . "',
-			} );";
+			$this->record_event(
+				'woocommerceanalytics_product_purchase',
+				$product->get_id(),
+				array(
+					'oi' => $order->get_order_number(),
+					'pq' => $order_item->get_quantity(),
+				)
+			);
 		}
-
-		wc_enqueue_js( implode( "\r\n", $universal_commands ) );
 	}
 
 	/**
