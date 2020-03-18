@@ -476,37 +476,67 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	 * @return array Array of config settings for search widget.
 	 */
 	protected function get_preconfig_widget_options() {
-		return array(
+		$settings = array(
 			'title'              => '',
 			'search_box_enabled' => 1,
 			'user_sort_enabled'  => 0,
-			'filters'            => array(
+			'filters'            => array(),
+		);
+
+		$post_types = get_post_types(
+			array(
+				'public'   => true,
+				'_builtin' => false,
+			)
+		);
+
+		if ( ! empty( $post_types ) ) {
+			$settings['filters'][] = array(
 				array(
 					'name'  => '',
 					'type'  => 'post_type',
 					'count' => 5,
 				),
-				array(
-					'name'     => '',
-					'type'     => 'taxonomy',
-					'taxonomy' => 'category',
-					'count'    => 5,
-				),
-				array(
-					'name'     => '',
-					'type'     => 'taxonomy',
-					'taxonomy' => 'post_tag',
-					'count'    => 5,
-				),
-				array(
-					'name'     => '',
-					'type'     => 'date_histogram',
-					'count'    => 5,
-					'field'    => 'post_date',
-					'interval' => 'year',
-				),
-			),
+			);
+		}
+
+		$taxonomies = get_taxonomies(
+			array(
+				'public'   => true,
+				'_builtin' => false,
+			)
 		);
+
+		foreach ( $taxonomies as $t ) {
+			$settings['filters'][] = array(
+				'name'     => '',
+				'type'     => 'taxonomy',
+				'taxonomy' => $t,
+				'count'    => 5,
+			);
+		}
+
+		$settings['filters'][] = array(
+			'name'     => '',
+			'type'     => 'taxonomy',
+			'taxonomy' => 'category',
+			'count'    => 5,
+		);
+		$settings['filters'][] = array(
+			'name'     => '',
+			'type'     => 'taxonomy',
+			'taxonomy' => 'post_tag',
+			'count'    => 5,
+		);
+		$settings['filters'][] = array(
+			'name'     => '',
+			'type'     => 'date_histogram',
+			'count'    => 5,
+			'field'    => 'post_date',
+			'interval' => 'year',
+		);
+
+		return $settings;
 	}
 
 }
