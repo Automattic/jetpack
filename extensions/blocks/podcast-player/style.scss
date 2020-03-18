@@ -30,6 +30,13 @@ $block-border-color: $dark-gray-100;
 	audio {
 		display: none;
 	}
+
+	// Anchors inherit text color from the main class,
+	// if they have defined background and/or text color.
+	&.has-text-color .podcast-player__episode-link,
+	&.has-background .podcast-player__episode-link {
+		color: inherit;
+	}
 }
 
 .podcast-player__episodes {
@@ -143,4 +150,3 @@ $block-border-color: $dark-gray-100;
 		color: inherit;
 	}
 }
-
