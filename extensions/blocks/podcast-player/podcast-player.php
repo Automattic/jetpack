@@ -110,13 +110,15 @@ function render_player( $track_list, $attributes ) {
 
 	$colors          = get_colors( $attributes );
 	$block_classname = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attributes, $colors['css_classes'] );
+	$title_classname = 'podcast-player__episode' . $colors['text_class_name'];
 
 	ob_start();
 	?>
 	<div class="<?php echo esc_attr( $block_classname ); ?>" id="<?php echo esc_attr( $instance_id ); ?>">
 		<ol class="podcast-player__episodes">
 			<?php foreach ( $track_list as $attachment ) : ?>
-			<li class="podcast-player__episode">
+
+				<li class="<?php echo esc_attr( $title_classname ); ?>">
 				<a
 					class="podcast-player__episode-link"
 					href="<?php echo esc_url( $attachment['link'] ); ?>"
@@ -242,9 +244,11 @@ function format_track_duration( $duration ) {
  */
 function get_colors( $attributes ) {
 	$colors = array(
-		'css_classes' => array(),
-		'style'       => '',
-		'class_name'  => '',
+		'css_classes'      => array(),
+		'css_text_classes' => array(),
+		'style'            => '',
+		'class_name'       => '',
+		'text_class_name'  => '',
 	);
 
 	// Text color.
@@ -254,12 +258,14 @@ function get_colors( $attributes ) {
 	// If has text color.
 	if ( $has_custom_text_color || $has_named_text_color ) {
 		// Add has-text-color class.
-		$colors['css_classes'][] = 'has-text-color';
+		$colors['css_classes'][]      = 'has-text-color';
+		$colors['css_text_classes'][] = 'has-text-color';
 	}
 
 	if ( $has_named_text_color ) {
 		// Add the color class.
-		$colors['css_classes'][] = sprintf( 'has-%s-color', $attributes['textColor'] );
+		$colors['css_classes'][]      = sprintf( 'has-%s-color', $attributes['textColor'] );
+		$colors['css_text_classes'][] = sprintf( 'has-%s-color', $attributes['textColor'] );
 	} elseif ( $has_custom_text_color ) {
 		// Add the custom color inline style.
 		$colors['style'] .= sprintf( 'color: %s;', $attributes['customTextColor'] );
@@ -285,6 +291,10 @@ function get_colors( $attributes ) {
 
 	if ( ! empty( $colors['css_classes'] ) ) {
 		$colors['class_name'] = implode( ' ', $colors['css_classes'] );
+	}
+
+	if ( ! empty( $colors['css_text_classes'] ) ) {
+		$colors['text_class_name'] = ' ' . implode( ' ', $colors['css_text_classes'] );
 	}
 
 	return $colors;
