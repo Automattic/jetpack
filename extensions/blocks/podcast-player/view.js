@@ -112,7 +112,7 @@ function handleEpisodeLinkClick( episodeLinkEl ) {
 	const episodeEl = episodeLinkEl.closest( '.podcast-player__episode' );
 	if ( ! episodeEl ) {
 		// Append the error to closest parent if episode element is not present.
-		return handleError( episodeLinkEl.closest( '*' ) );
+		return handleError( episodeLinkEl.parentNode );
 	}
 
 	// Get clicked episode audio URL
