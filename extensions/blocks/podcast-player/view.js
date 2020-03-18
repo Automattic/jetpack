@@ -47,16 +47,6 @@ const initializeBlock = function( id ) {
 	block.insertBefore( player.audio, block.firstChild );
 	player.mediaElement = new MediaElementPlayer( player.audio, meJsSettings );
 
-	player.mediaElement.media.addEventListener( 'play', function() {
-		handlePlay( getActiveEpisodeEl() );
-	} );
-	player.mediaElement.media.addEventListener( 'pause', function() {
-		handlePause( getActiveEpisodeEl() );
-	} );
-	player.mediaElement.media.addEventListener( 'error', function() {
-		handleError( getActiveEpisodeEl() );
-	} );
-
 	// Save instance to the list of active ones.
 	playerInstances[ id ] = player;
 };
@@ -77,9 +67,9 @@ function createSVGs() {
 	svgTemplate.setAttribute( 'style', 'position: absolute; width: 0; height: 0; overflow: hidden;' );
 
 	const soundIcon =
-		'<symbol id="podcast-player-sound" viewBox="0 0 24 24"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M3 9v6h4l5 5V4L7 9H3zm7-.17v6.34L7.83 13H5v-2h2.83L10 8.83zM16.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77 0-4.28-2.99-7.86-7-8.77z"/></symbol>';
+		'<symbol id="podcast-player-icon__sound" viewBox="0 0 24 24"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M3 9v6h4l5 5V4L7 9H3zm7-.17v6.34L7.83 13H5v-2h2.83L10 8.83zM16.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77 0-4.28-2.99-7.86-7-8.77z"/></symbol>';
 	const errorIcon =
-		'<symbol id="podcast-player-error" viewBox="0 0 24 24"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/></symbol>';
+		'<symbol id="podcast-player-icon__error" viewBox="0 0 24 24"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/></symbol>';
 	svgTemplate.innerHTML = `<svg style="position: absolute; width: 0; height: 0; overflow: hidden;" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><defs>${ soundIcon }${ errorIcon }</defs></svg>`;
 	// put it in the body
 	document.body.appendChild( svgTemplate );
@@ -122,25 +112,25 @@ function handleEpisodeLinkClick( episodeLinkEl ) {
 	const episodeEl = episodeLinkEl.closest( '.podcast-player__episode' );
 	if ( ! episodeEl ) {
 		// Append the error to closest parent if episode element is not present.
-		return renderEpisodeError( episodeLinkEl.closest( '*' ) );
+		return handleError( episodeLinkEl.closest( '*' ) );
 	}
 
 	// Get clicked episode audio URL
 	const audioUrl = episodeLinkEl.getAttribute( 'data-jetpack-podcast-audio' );
 	if ( ! audioUrl ) {
-		return renderEpisodeError( episodeEl );
+		return handleError( episodeEl );
 	}
 
 	// Get episode's parent block element
 	const blockEl = episodeEl.closest( '.wp-block-jetpack-podcast-player' );
 	if ( ! blockEl ) {
-		return renderEpisodeError( episodeEl );
+		return handleError( episodeEl );
 	}
 
 	// Get player instance by block id
 	const player = playerInstances[ blockEl.id ];
 	if ( ! player ) {
-		return renderEpisodeError( episodeEl );
+		return handleError( episodeEl );
 	}
 
 	// Get currently active episode element
@@ -211,19 +201,19 @@ function handlePlay( episodeEl ) {
 	// Get episode's parent block element
 	const blockEl = episodeEl.closest( '.wp-block-jetpack-podcast-player' );
 	if ( ! blockEl ) {
-		return renderEpisodeError( episodeEl );
+		return handleError( episodeEl );
 	}
 
 	// Get episode's link element
 	const episodeLinkEl = episodeEl.querySelector( '.podcast-player__episode-link' );
 	if ( ! episodeLinkEl ) {
-		return renderEpisodeError( episodeEl );
+		return handleError( episodeEl );
 	}
 
 	// Get episode's state icon container element
 	const iconContainerEl = episodeEl.querySelector( '.podcast-player__episode-status-icon' );
 	if ( ! iconContainerEl ) {
-		return renderEpisodeError( episodeEl );
+		return handleError( episodeEl );
 	}
 
 	blockEl.classList.remove( 'is-paused', 'is-error' );
@@ -241,7 +231,7 @@ function handlePause( episodeEl ) {
 	// Get episode's parent block
 	const episodeBlockEl = episodeEl.closest( '.wp-block-jetpack-podcast-player' );
 	if ( ! episodeBlockEl ) {
-		return renderEpisodeError( episodeEl );
+		return handleError( episodeEl );
 	}
 
 	// Set parent block classes
@@ -283,14 +273,10 @@ function handleError( episodeEl ) {
 	renderEpisodeError( episodeEl );
 }
 
-function getActiveEpisodeEl() {
-	return document.querySelector( '.podcast-player__episode.is-active' );
-}
-
 function getSoundIconHTML() {
-	return '<svg><use xlink:href="#podcast-player-sound"></use></svg>';
+	return '<svg><use xlink:href="#podcast-player-icon__sound"></use></svg>';
 }
 
 function getErrorIconHTML() {
-	return '<svg><use xlink:href="#podcast-player-error"></use></svg>';
+	return '<svg><use xlink:href="#podcast-player-icon__error"></use></svg>';
 }
