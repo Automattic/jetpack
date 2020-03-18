@@ -1,25 +1,23 @@
 /**
  * Podcast Player block shared styles (editor & front-end).
  */
+ @import '../../shared/styles/gutenberg-base-styles.scss';
 
 $episode-v-padding: 15px;
 $episode-h-padding: 10px;
 $episode-status-icon-size: 22px;
-$text-color: #92959a;
-$text-color-hover: #000;
+$text-color: $dark-gray-300; // Lightest gray that can be used for AA text contrast.
+$text-color-hover: $black;
 $text-color-active: $text-color-hover;
-$text-color-error: #db5051;
-$block-bg-color: #fff;
-$block-border-color: $text-color;
-$font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell,
-	'Helvetica Neue', sans-serif;
-$font-size: 16px;
+$block-bg-color: $white;
+$block-border-color: $dark-gray-100;
+
 
 /**
  * Player's (block) parent element.
  */
 .wp-block-jetpack-podcast-player {
-	border: 1px solid $text-color;
+	border: 1px solid $block-border-color;
 	background-color: $block-bg-color;
 
 	/**
@@ -38,7 +36,6 @@ $font-size: 16px;
 	list-style-type: none;
 	display: flex;
 	flex-direction: column;
-
 	margin: 0;
 	padding: $episode-v-padding 0;
 }
@@ -46,8 +43,8 @@ $font-size: 16px;
 .podcast-player__episode {
 	margin: 0;
 	color: $text-color;
-	font-family: $font-family;
-	font-size: $font-size;
+	font-family: $default-font;
+	font-size: $editor-font-size;
 
 	&:hover,
 	&:focus {
@@ -107,7 +104,7 @@ $font-size: 16px;
 			fill: $text-color-active;
 		}
 		.wp-block-jetpack-podcast-player.is-error & {
-			fill: $text-color-error;
+			fill: $alert-red;
 		}
 	}
 }
@@ -129,8 +126,8 @@ $font-size: 16px;
 	display: none;
 	margin-left: 2 * $episode-v-padding + $episode-status-icon-size;
 	margin-bottom: $episode-h-padding;
-	color: $text-color-error;
-	font-family: $font-family;
+	color: $alert-red;
+	font-family: $default-font;
 	font-size: 0.8em;
 	font-weight: normal;
 
