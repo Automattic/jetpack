@@ -103,6 +103,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 								'pq': '" . esc_js( $data_instance['quantity'] ) . "',
 								'pt': '" . esc_js( $product_details['type'] ) . "',
 								'ui': '" . esc_js( $this->get_user_id() ) . "',
+								'url': '" . esc_js( home_url() ) . "',
+								'woo_version': '" . esc_js( WC()->version ) . "',
 							} );"
 					);
 				}
@@ -135,6 +137,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 					'pi': productDetails.id,
 					'pq': productDetails.quantity,
 					'ui': '" . esc_js( $this->get_user_id() ) . "',
+					'url': '" . esc_js( home_url() ) . "',
+					'woo_version': '" . esc_js( WC()->version ) . "',
 				} );
 			} );"
 		);
@@ -200,6 +204,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 				'pp': '" . esc_js( $product_details['price'] ) . "',
 				'pt': '" . esc_js( $product_details['type'] ) . "',
 				'ui': '" . esc_js( $this->get_user_id() ) . "',
+				'url': '" . esc_js( home_url() ) . "',
+				'woo_version': '" . esc_js( WC()->version ) . "',
 			} );"
 		);
 	}
@@ -235,6 +241,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 				'pq': '" . esc_js( $cart_item['quantity'] ) . "',
 				'pt': '" . esc_js( $product_details['type'] ) . "',
 				'ui': '" . esc_js( $this->get_user_id() ) . "',
+				'url': '" . esc_js( home_url() ) . "',
+				'woo_version': '" . esc_js( WC()->version ) . "',
 			} );";
 		}
 
@@ -268,6 +276,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 				'pt': '" . esc_js( $product_details['type'] ) . "',
 				'oi': '" . esc_js( $order->get_order_number() ) . "',
 				'ui': '" . esc_js( $this->get_user_id() ) . "',
+				'url': '" . esc_js( home_url() ) . "',
+				'woo_version': '" . esc_js( WC()->version ) . "',
 			} );";
 		}
 
@@ -294,6 +304,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 							'blog_id': '" . esc_js( $blogid ) . "',
 							'pi': productID,
 							'ui': '" . esc_js( $this->get_user_id() ) . "',
+							'url': '" . esc_js( home_url() ) . "',
+							'woo_version': '" . esc_js( WC()->version ) . "',
 						} );
 					}
 				} );
