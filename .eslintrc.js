@@ -77,7 +77,6 @@ module.exports = {
 			},
 		],
 		'template-curly-spacing': [ 2, 'always' ],
-		'valid-jsdoc': [ 2, { requireReturn: false } ],
 		'wpcalypso/i18n-ellipsis': 2,
 		'wpcalypso/i18n-no-collapsible-whitespace': 2,
 		'wpcalypso/i18n-no-this-translate': 2,
