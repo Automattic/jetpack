@@ -193,6 +193,7 @@
 		"eslint-loader": "2.2.1",
 		"eslint-plugin-es5": "1.5.0",
 		"eslint-plugin-jest": "22.21.0",
+		"eslint-plugin-jsdoc": "22.1.0",
 		"eslint-plugin-jsx-a11y": "6.2.3",
 		"eslint-plugin-lodash": "6.0.0",
 		"eslint-plugin-react": "7.19.0",
