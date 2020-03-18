@@ -319,33 +319,6 @@ class WPcom_Instagram_Widget extends WP_Widget {
 		}
 
 		$remove_token_id_url = add_query_arg( $query_args, admin_url( $page ) );
-/*
-		// A legacy API connection, prompt user to delete connection and reconnect
-		if ( $this->is_legacy_token( $instance['token_id'] ) ) {
-			//$connect_url = add_query_arg( array( 'instagram_widget_id' => $this->number, 'is_customizer' => is_customize_preview() ), wpcom_keyring_get_connect_url( 'instagram_basic_display', 'instagram-widget' ) );
-			//echo '<p>' . __( '<strong>Your current connection will stop working on 30 March 2020 due to changes in Instagram\'s service. <br /><br />Please reconnect to Instagram in order to continue using this widget</strong>', 'wpcom-instagram-widget' ) . '</p>';
-			//echo '<p style="text-align:center"><a class="button-primary" target="_top" href="' . esc_url( $connect_url ) . '">' . __( 'Authorize Instagram Access', 'wpcom-instagram-widget' ) . '</a></p>';
-
-
-			$jetpack_blog_id = Jetpack::get_option( 'id' );
-			$response = Client::wpcom_json_api_request_as_user(
-				sprintf( '/sites/%d/external-services', $jetpack_blog_id )
-			);
-			$body = json_decode( $response['body'] );
-			$connect_URL = $body->services->instagram->connect_URL;
-			$url = add_query_arg(
-				array(
-					'siteurl' => site_url() . '/wp-admin/widgets.php',
-					'jetpack' => true,
-					'instagram_widget_id' => $this->number,
-				),
-				$connect_URL
-			);
-			echo '<a class="button-primary" href="' . $url . '">Authorize Instagram Access</a>';
-
-
-			return;
-		}*/
 
 		echo '<p>' . sprintf( __( '<strong>Connected Instagram Account</strong><br /> <a href="%1$s">%2$s</a> | <a href="%3$s">remove</a>', 'wpcom-instagram-widget' ), $instance['token_id'], $instance['token_id'], esc_url( $remove_token_id_url ) ) . '</p>';
 		//echo '<p>' . sprintf( __( '<strong>Authorized Account</strong><br /> <a href="%1$s">%2$s</a> | <a href="%3$s">remove</a>', 'wpcom-instagram-widget' ), esc_url( 'http://instagram.com/' . $token->meta['external_name'] ), esc_html( $token->meta['external_name'] ), esc_url( $remove_token_id_url ) ) . '</p>';
@@ -376,59 +349,6 @@ class WPcom_Instagram_Widget extends WP_Widget {
 		echo '</label></p>';
 
 		echo '<p><small>' . sprintf( __( 'New images may take up to %d minutes to show up on your site.', 'wpcom-instagram-widget' ), 15 ) . '</small></p>';
-
-		/* Old code
-		$instance = wp_parse_args( $instance, $this->defaults );
-
-		// No connection.
-		if ( ! $instance['token_id'] ) {
-			echo 'This widget cannot make new connections to Instagram. You can install and use a third-party Instagram plugin instead. Please <a href="https://wordpress.com/help/contact/">contact us if you need help</a> setting this up.';
-			$jetpack_blog_id = Jetpack::get_option( 'id' );
-			$response = Client::wpcom_json_api_request_as_user(
-				sprintf( '/sites/%d/external-services', $jetpack_blog_id )
-			);
-			$body = json_decode( $response['body'] );
-			$connect_URL = $body->services->instagram->connect_URL;
-			$url = add_query_arg(
-				array(
-					'siteurl' => site_url() . '/wp-admin/widgets.php',
-					'jetpack' => true,
-					'instagram_widget_id' => $this->number,
-				),
-				$connect_URL
-			);
-			echo '<a class="button-primary" href="' . $url . '">Authorize Instagram Access</a>';
-			return;
-		}
-
-		echo '<p><strong>NOTE:</strong> This widget is temporarily unable to make new connections, so delete it at your own risk!</p>';
-
-		// Title
-		echo '<p><label><strong>' . __( 'Widget Title', 'wpcomsh' ) . '</strong> <input type="text" id="' . esc_attr( $this->get_field_id( 'title' ) ) . '" name="' . esc_attr( $this->get_field_name( 'title' ) ) . '" value="' . esc_attr( $instance['title'] ) . '" class="widefat" /></label></p>';
-
-		// Number of images to show
-		echo '<p><label>';
-			echo '<strong>' . __( 'Images', 'wpcomsh' ) . '</strong><br />';
-			echo __( 'Number to display:', 'wpcomsh' ) . ' ';
-			echo '<select name="' . esc_attr( $this->get_field_name( 'count' ) ) . '">';
-			for ( $i = 1; $i <= $this->valid_options['max_count']; $i++ ) {
-				echo '<option value="' . esc_attr( $i ) . '"' . selected( $i, $instance['count'], false ) . '>' . $i . '</option>';
-			}
-			echo '</select>';
-		echo '</label></p>';
-
-		// Columns
-		echo '<p><label>';
-			echo '<strong>' . __( 'Layout', 'wpcomsh' ) . '</strong><br />';
-			echo __( 'Number of columns:', 'wpcomsh' ) . ' ';
-			echo '<select name="' . esc_attr( $this->get_field_name( 'columns' ) ) . '">';
-			for ( $i = 1; $i <= $this->valid_options['max_columns']; $i++ ) {
-				echo '<option value="' . esc_attr( $i ) . '"' . selected( $i, $instance['columns'], false ) . '>' . $i . '</option>';
-			}
-			echo '</select>';
-		echo '</label></p>';
-
-		echo '<p><small>' . sprintf( __( 'New images may take up to %d minutes to show up on your site.', 'wpcomsh' ), 20 ) . '</small></p>';*/
 	}
 
 	/**
