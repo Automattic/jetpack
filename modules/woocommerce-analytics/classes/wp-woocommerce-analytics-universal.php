@@ -77,6 +77,18 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	}
 
 	/**
+	 * Render common default properties as a js args string.
+	 */
+	public function get_common_properties() {
+		$blogid = Jetpack::get_option( 'id' );
+
+		return "'blog_id': '" . esc_js( $blogid ) . "',
+			'ui': '" . esc_js( $this->get_user_id() ) . "',
+			'url': '" . esc_js( home_url() ) . "',
+			'woo_version': '" . esc_js( WC()->version ) . "',";
+	}
+
+	/**
 	 * Record an event with optional custom properties.
 	 *
 	 * @param string  $event_name The name of the event to record.
@@ -84,8 +96,6 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	 * @param array   $properties Array of key => value event properties.
 	 */
 	public function record_event( $event_name, $product_id, $properties ) {
-		$blogid = Jetpack::get_option( 'id' );
-
 		$product = wc_get_product( $product_id );
 		if ( ! $product instanceof WC_Product ) {
 			return;
@@ -100,20 +110,15 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		wc_enqueue_js(
 			"_wca.push( {
 					'_en': '" . esc_js( $event_name ) . "',
-					'blog_id': '" . esc_js( $blogid ) . "',
 					'pi': '" . esc_js( $product_id ) . "',
 					'pn': '" . esc_js( $product_details['name'] ) . "',
 					'pc': '" . esc_js( $product_details['category'] ) . "',
 					'pp': '" . esc_js( $product_details['price'] ) . "',
-					'pt': '" . esc_js( $product_details['type'] ) . "',
-					'ui': '" . esc_js( $this->get_user_id() ) . "',
-					'url': '" . esc_js( home_url() ) . "',
-					'woo_version': '" . esc_js( WC()->version ) . "',
-					" . $extra_properties . '
+					'pt': '" . esc_js( $product_details['type'] ) . "'," .
+					$extra_properties . $this->get_common_properties() . '
 				} );'
 		);
 	}
-
 
 	/**
 	 * On product lists or other non-product pages, add an event listener to "Add to Cart" button click
@@ -146,7 +151,6 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		// We listen at div.woocommerce because the cart 'form' contents get forcibly
 		// updated and subsequent removals from cart would then not have this click
 		// handler attached.
-		$blogid = Jetpack::get_option( 'id' );
 		wc_enqueue_js(
 			"jQuery( 'div.woocommerce' ).on( 'click', 'a.remove', function() {
 				var productID = jQuery( this ).data( 'product_id' );
@@ -157,14 +161,11 @@ class Jetpack_WooCommerce_Analytics_Universal {
 				};
 				_wca.push( {
 					'_en': 'woocommerceanalytics_remove_from_cart',
-					'blog_id': '" . esc_js( $blogid ) . "',
 					'pi': productDetails.id,
-					'pq': productDetails.quantity,
-					'ui': '" . esc_js( $this->get_user_id() ) . "',
-					'url': '" . esc_js( home_url() ) . "',
-					'woo_version': '" . esc_js( WC()->version ) . "',
+					'pq': productDetails.quantity, " .
+					$this->get_common_properties() . '
 				} );
-			} );"
+			} );'
 		);
 	}
 
@@ -326,15 +327,12 @@ class Jetpack_WooCommerce_Analytics_Universal {
 						_wca.push( {
 							'_en': 'woocommerceanalytics_remove_from_cart',
 							'blog_id': '" . esc_js( $blogid ) . "',
-							'pi': productID,
-							'ui': '" . esc_js( $this->get_user_id() ) . "',
-							'url': '" . esc_js( home_url() ) . "',
-							'woo_version': '" . esc_js( WC()->version ) . "',
+							'pi': productID, " .
+							$this->get_common_properties() . '
 						} );
 					}
 				} );
-			} );
-		"
+			} );'
 		);
 	}
 
