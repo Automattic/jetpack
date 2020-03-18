@@ -202,6 +202,16 @@ class WPcom_Instagram_Widget extends WP_Widget {
 		echo $args['after_widget'];
 	}
 
+	private function get_query_params() {
+		$page = ( is_customize_preview() ) ? 'customize.php' : 'widgets.php';
+		return array(
+			'siteurl' => site_url() . '/wp-admin/' . $page,
+			'jetpack' => true,
+			'instagram_widget_id' => $this->number,
+			'is_customizer' => is_customize_preview(),
+		);
+	}
+
 	private function get_connect_url() {
 		$jetpack_blog_id = Jetpack::get_option( 'id' );
 		$response = Client::wpcom_json_api_request_as_user(
@@ -217,13 +227,7 @@ class WPcom_Instagram_Widget extends WP_Widget {
 
 		$body = json_decode( $response['body'] );
 		$connect_URL = $body->services->instagram->connect_URL;
-		$page = ( is_customize_preview() ) ? 'customize.php' : 'widgets.php';
-		$query_params = array(
-			'siteurl' => site_url() . '/wp-admin/' . $page,
-			'jetpack' => true,
-			'instagram_widget_id' => $this->number,
-			'is_customizer' => is_customize_preview(),
-		);
+		$query_params = $this->get_query_params();
 		$query_params['hash'] = $this->get_paramater_hash( $query_params );
 		$url = add_query_arg(
 			$query_params,
@@ -249,7 +253,7 @@ class WPcom_Instagram_Widget extends WP_Widget {
 		// If coming back from an OAuth authentication, validate and use the one in the URL
 		if ( isset( $_GET['instagram_widget_id'] ) && $_GET['instagram_widget_id'] == $this->number
 			&& ! empty( $_GET['instagram_widget'] ) && 'connection_verified' == $_GET['instagram_widget']
-			&& ! empty( $_GET['token_id'] ) && $instance['token_id'] !== (int) $_GET['token_id'] /*&& $this->validate_parameters() */) {
+			&& ! empty( $_GET['token_id'] ) && $instance['token_id'] !== (int) $_GET['token_id'] && $this->validate_parameters() ) {
 			//$token_store = Keyring::init()->get_token_store();
 			//$token = $token_store->get_token( array( 'type' => 'access', 'id' => (int) $_GET['token_id'] ) );
 
@@ -391,12 +395,7 @@ class WPcom_Instagram_Widget extends WP_Widget {
 			return false;
 		}
 
-		return $_GET['hash'] === $this->get_paramater_hash( array(
-				'siteurl' => urldecode( $_GET['siteurl'] ),
-				'jetpack' => true,
-				'instagram_widget_id' => $_GET['instagram_widget_id'],
-			)
-		);
+		return $_GET['hash'] === $this->get_paramater_hash( $this->get_query_params() );
 
 	}
 }
