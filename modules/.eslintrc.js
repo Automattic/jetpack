@@ -1,4 +1,5 @@
 module.exports = {
+	root: true,
 	plugins: [ 'es5' ],
 	extends: [ 'eslint:recommended', 'plugin:es5/no-es2015' ],
 	env: {
