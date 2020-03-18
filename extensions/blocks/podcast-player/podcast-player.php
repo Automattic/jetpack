@@ -241,8 +241,9 @@ function format_track_duration( $duration ) {
  */
 function get_colors( $attributes ) {
 	$colors = array(
-			'css_classes'   => array(),
-			'inline_styles' => '',
+		'css_classes' => array(),
+		'style'       => '',
+		'class_name'  => '',
 	);
 
 	// Text color.
@@ -260,7 +261,7 @@ function get_colors( $attributes ) {
 		$colors['css_classes'][] = sprintf( 'has-%s-color', $attributes['textColor'] );
 	} elseif ( $has_custom_text_color ) {
 		// Add the custom color inline style.
-		$colors['inline_styles'] .= sprintf( 'color: %s;', $attributes['customTextColor'] );
+		$colors['style'] .= sprintf( 'color: %s;', $attributes['customTextColor'] );
 	}
 
 	// Background color.
@@ -278,7 +279,11 @@ function get_colors( $attributes ) {
 		$colors['css_classes'][] = sprintf( 'has-%s-background-color', $attributes['backgroundColor'] );
 	} elseif ( $has_custom_background_color ) {
 		// Add the custom background-color inline style.
-		$colors['inline_styles'] .= sprintf( 'background-color: %s;', $attributes['customBackgroundColor'] );
+		$colors['style'] .= sprintf( 'background-color: %s;', $attributes['customBackgroundColor'] );
+	}
+
+	if ( ! empty( $colors['css_classes'] ) ) {
+		$colors['class_name'] = implode( ' ', $colors['css_classes'] );
 	}
 
 	return $colors;
