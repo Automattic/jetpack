@@ -109,7 +109,7 @@ function handleEpisodeLinkEvent( e ) {
 document.addEventListener( 'click', handleEpisodeLinkEvent );
 document.addEventListener( 'keydown', handleEpisodeLinkKeydown );
 
-function handleEpisodeLinkClick( episodeLinkEl ) {
+async function handleEpisodeLinkClick( episodeLinkEl ) {
 	// Get clicked episode element
 	const episodeEl = episodeLinkEl.closest( '.podcast-player__episode' );
 	if ( ! episodeEl ) {
@@ -140,7 +140,11 @@ function handleEpisodeLinkClick( episodeLinkEl ) {
 
 	if ( activeEpisodeEl && activeEpisodeEl.isSameNode( episodeEl ) ) {
 		if ( player.audio.paused ) {
-			player.audio.play().then( () => handlePlay( activeEpisodeEl ) );
+			try {
+				await player.audio.play();
+			} catch ( _error ) {
+				return handleError( episodeEl );
+			}
 		} else {
 			player.audio.pause();
 			handlePause( activeEpisodeEl );
@@ -158,10 +162,13 @@ function handleEpisodeLinkClick( episodeLinkEl ) {
 
 		player.audio.src = audioUrl;
 
-		player.audio
-			.play()
-			.then( () => handlePlay( episodeEl ) )
-			.catch( () => handleError( episodeEl ) );
+		try {
+			await player.audio.play();
+		} catch ( _error ) {
+			return handleError( episodeEl );
+		}
+
+		handlePlay( episodeEl );
 	}
 }
 
