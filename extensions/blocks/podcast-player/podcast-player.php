@@ -108,7 +108,8 @@ function render_player( $track_list, $attributes ) {
 		'attributes' => $attributes,
 	);
 
-	$block_classname = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attributes );
+	$colors          = get_colors( $attributes );
+	$block_classname = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attributes, $colors['css_classes'] );
 
 	ob_start();
 	?>
