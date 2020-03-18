@@ -221,7 +221,7 @@ class WPcom_Instagram_Widget extends WP_Widget {
 		// If coming back from an OAuth authentication, validate and use the one in the URL
 		if ( isset( $_GET['instagram_widget_id'] ) && $_GET['instagram_widget_id'] == $this->number
 			&& ! empty( $_GET['instagram_widget'] ) && 'connection_verified' == $_GET['instagram_widget']
-			&& ! empty( $_GET['token_id'] ) && $instance['token_id'] !== (int) $_GET['token_id'] ) {
+			&& ! empty( $_GET['token_id'] ) && $instance['token_id'] !== (int) $_GET['token_id'] /*&& $this->validate_parameters() */) {
 			//$token_store = Keyring::init()->get_token_store();
 			//$token = $token_store->get_token( array( 'type' => 'access', 'id' => (int) $_GET['token_id'] ) );
 
@@ -240,10 +240,19 @@ class WPcom_Instagram_Widget extends WP_Widget {
 		}
 		// If removing the widget's stored token ID
 		elseif ( $instance['token_id'] && isset( $_GET['instagram_widget_id'] ) && $_GET['instagram_widget_id'] == $this->number && ! empty( $_GET['instagram_widget'] ) && 'remove_token' == $_GET['instagram_widget'] ) {
-			if ( empty( $_GET['nonce'] ) || ! wp_verify_nonce( $_GET['nonce'], 'instagram-widget-remove-token-' . $this->number . '-' . $instance['token_id'] ) )
+			if ( empty( $_GET['nonce'] ) || ! wp_verify_nonce( $_GET['nonce'], 'instagram-widget-remove-token-' . $this->number . '-' . $instance['token_id'] ) ) {
 				wp_die( __( 'Missing or invalid security nonce.', 'wpcom-instagram-widget' ) );
+			}
+			$site = Jetpack_Options::get_option( 'id' );
+			$path = sprintf( '/sites/%s/instagram/%s/remove', $site, $instance['token_id'] );
+			$result = $this->wpcom_json_api_request_as_blog( $path, 2, array( 'headers' => array( 'content-type' => 'application/json' ) ), null, 'wpcom' );
+		
+			$response_code = wp_remote_retrieve_response_code( $result );
 
-			Keyring::init()->get_token_store()->delete( array( 'type' => 'access', 'id' => $instance['token_id'] ) );
+			if ( 200 !== $response_code ) {
+				do_action( 'wpcomsh_log', 'Instagram widget: failed to remove keyring token: API returned code ' . $response_code );
+				return 'ERROR';
+			}
 			$instance['token_id'] = $this->defaults['token_id'];
 
 			$this->update_widget_token_id( $instance['token_id'] );
@@ -274,12 +283,14 @@ class WPcom_Instagram_Widget extends WP_Widget {
 			);
 			$body = json_decode( $response['body'] );
 			$connect_URL = $body->services->instagram->connect_URL;
+			$query_params = array(
+				'siteurl' => site_url() . '/wp-admin/widgets.php',
+				'jetpack' => true,
+				'instagram_widget_id' => $this->number,
+			);
+			$query_params['hash'] = $this->get_paramater_hash( $query_params );
 			$url = add_query_arg(
-				array(
-					'siteurl' => site_url() . '/wp-admin/widgets.php',
-					'jetpack' => true,
-					'instagram_widget_id' => $this->number,
-				),
+				$query_params,
 				$connect_URL
 			);
 			echo '<a class="button-primary" href="' . $url . '">Authorize Instagram Access</a>';
@@ -328,7 +339,7 @@ class WPcom_Instagram_Widget extends WP_Widget {
 			return;
 		}*/
 
-		echo '<p>' . sprintf( __( '<strong>Authorized Account</strong><br /> <a href="%1$s">%2$s</a> | <a href="%3$s">remove</a>', 'wpcom-instagram-widget' ), $instance['token_id'], $instance['token_id'], $instance['token_id'] ) . '</p>';
+		echo '<p>' . sprintf( __( '<strong>Authorized Account</strong><br /> <a href="%1$s">%2$s</a> | <a href="%3$s">remove</a>', 'wpcom-instagram-widget' ), $instance['token_id'], $instance['token_id'], esc_url( $remove_token_id_url ) ) . '</p>';
 		//echo '<p>' . sprintf( __( '<strong>Authorized Account</strong><br /> <a href="%1$s">%2$s</a> | <a href="%3$s">remove</a>', 'wpcom-instagram-widget' ), esc_url( 'http://instagram.com/' . $token->meta['external_name'] ), esc_html( $token->meta['external_name'] ), esc_url( $remove_token_id_url ) ) . '</p>';
 
 		// Title
@@ -431,6 +442,36 @@ class WPcom_Instagram_Widget extends WP_Widget {
 		$instance['count'] = max( 1, min( $this->valid_options['max_count'], (int) $new_instance['count'] ) );
 
 		return $instance;
+	}
+
+	/**
+	 * Get an sha256 hash of a seialized array of parameters
+	 *
+	 * @param string $serialized_parameters A serialized string of a parameter array.
+	 * @return string An sha256 hash
+	 */
+	function get_paramater_hash( $parameters ) {
+		return hash_hmac( 'sha256', serialize( $parameters ), NONCE_KEY );
+	}
+
+	/**
+	 * Validates that a hash of the parameter array matches the included hash parameter
+	 *
+	 * @param array $parameters An array of query parameters.
+	 * @return array An array of the parameters minus the hash
+	 */
+	function validate_parameters() {
+		if ( empty( $_GET['hash'] ) ) {
+			return false;
+		}
+ 
+		return $_GET['hash'] === $this->get_paramater_hash( array( 
+				'siteurl' => urldecode( $_GET['siteurl'] ),
+				'jetpack' => true,
+				'instagram_widget_id' => $_GET['instagram_widget_id'],
+			) 
+		);
+
 	}
 }
 
