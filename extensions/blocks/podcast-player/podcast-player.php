@@ -184,8 +184,7 @@ function setup_tracks_callback( \SimplePie_Item $episode ) {
 	}
 
 	if ( ! empty( $enclosure->duration ) ) {
-		$format            = $enclosure->duration > HOUR_IN_SECONDS ? 'H:i:s' : 'i:s';
-		$track['duration'] = esc_html( date_i18n( $format, $enclosure->duration ) );
+		$track['duration'] = format_track_duration( $enclosure->duration );
 	}
 
 	return $track;
@@ -206,4 +205,16 @@ function get_audio_enclosure( \SimplePie_Item $episode ) {
 
 	// Default to empty SimplePie_Enclosure object.
 	return $episode->get_enclosure();
+}
+
+/**
+ * Returns the track duration as a formatted string.
+ *
+ * @param number $duration of the track in seconds.
+ * @return string
+ */
+function format_track_duration( $duration ) {
+	$format = $duration > HOUR_IN_SECONDS ? 'H:i:s' : 'i:s';
+
+	return esc_html( date_i18n( $format, $duration ) );
 }
