@@ -123,7 +123,7 @@ $block-border-color: $dark-gray-100;
  * (.podcast-player__episode) when Player's error has been caught.
  */
 .podcast-player__episode-error {
-	display: none;
+	display: block;
 	margin-left: 2 * $episode-v-padding + $episode-status-icon-size;
 	margin-bottom: $episode-h-padding;
 	color: $alert-red;
@@ -132,7 +132,8 @@ $block-border-color: $dark-gray-100;
 	font-weight: normal;
 
 	.wp-block-jetpack-podcast-player.is-error .podcast-player__episode.is-active & {
-		display: block; // Show only when error occurs.
+		// TODO: improve state management between pause/error
+		// display: block; // Show only when error occurs
 	}
 
 	& > span {

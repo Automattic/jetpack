@@ -1,51 +1,15 @@
-/* global _wpmejsSettings, MediaElementPlayer, jetpackPodcastPlayers */
+/* global jetpackPodcastPlayers */
 /**
  * Internal dependencies
  */
 import './style.scss';
-import { __ } from '@wordpress/i18n';
+import PodcastPlayer from './podcast-player';
 
 const playerInstances = {};
-const meJsSettings = typeof _wpmejsSettings !== 'undefined' ? _wpmejsSettings : {};
 
 const initializeBlock = function( id ) {
-	const block = document.getElementById( id );
-
-	// Check if we can find the block and required dependency.
-	if ( ! block || ! MediaElementPlayer ) {
-		return;
-	}
-
 	// Create player instance.
-	const player = {
-		id,
-		block,
-		currentTrack: 0,
-		tracks: [],
-		attributes: {},
-	};
-
-	// Load data from the embedded JSON.
-	const dataContainer = block.querySelector( 'script[type="application/json"]' );
-	if ( dataContainer ) {
-		try {
-			const data = JSON.parse( dataContainer.text );
-			player.tracks = data.tracks;
-			player.attributes = data.attributes;
-		} catch ( e ) {
-			return;
-		}
-	}
-
-	if ( ! player.tracks.length ) {
-		return;
-	}
-
-	// Initialize player UI.
-	player.audio = document.createElement( 'audio' );
-	player.audio.src = player.tracks[ 0 ].src;
-	block.insertBefore( player.audio, block.firstChild );
-	player.mediaElement = new MediaElementPlayer( player.audio, meJsSettings );
+	const player = new PodcastPlayer( id );
 
 	// Save instance to the list of active ones.
 	playerInstances[ id ] = player;
@@ -59,6 +23,7 @@ if ( window.jetpackPodcastPlayers !== undefined ) {
 // Replace the queue with an immediate initialization for async loaded players.
 window.jetpackPodcastPlayers = {
 	push: initializeBlock,
+	playerInstances,
 };
 
 function createSVGs() {
@@ -178,35 +143,7 @@ async function handleEpisodeLinkClick( episodeLinkEl ) {
 	}
 }
 
-function renderEpisodeError( episodeEl ) {
-	const parentBlockEl = episodeEl.closest( '.wp-block-jetpack-podcast-player' );
-
-	// Don't render if already rendered
-	if ( parentBlockEl.querySelector( '.podcast-player__episode-error' ) ) {
-		return;
-	}
-
-	const episodeLinkEl = episodeEl.querySelector( '.podcast-player__episode-link' );
-
-	const linkEl = document.createElement( 'a' );
-	linkEl.rel = 'noopener noreferrer nofollow';
-	linkEl.target = '_blank';
-	linkEl.href = episodeLinkEl.href;
-	linkEl.innerText = __( 'Open in a new tab', 'jetpack' );
-
-	const spanEl = document.createElement( 'span' );
-	spanEl.appendChild( new Text( '(' ) );
-	spanEl.appendChild( linkEl );
-	spanEl.appendChild( new Text( ')' ) );
-
-	const errorEl = document.createElement( 'div' );
-	errorEl.classList.add( 'podcast-player__episode-error' );
-	errorEl.appendChild( new Text( __( 'Episode unavailable', 'jetpack' ) + ' ' ) );
-	errorEl.appendChild( spanEl );
-
-	// Render the element
-	episodeEl.appendChild( errorEl );
-}
+function renderEpisodeError() {}
 
 function handlePlay( episodeEl ) {
 	if ( ! episodeEl ) {
