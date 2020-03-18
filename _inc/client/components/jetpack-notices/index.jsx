@@ -23,6 +23,7 @@ import {
 } from 'state/connection';
 import { isDevVersion, userCanConnectSite, userIsSubscriber } from 'state/initial-state';
 import DismissableNotices from './dismissable';
+import SearchNotice from './search-notice';
 import JetpackBanner from 'components/jetpack-banner';
 import { JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
 import PlanConflictWarning from './plan-conflict-warning';
@@ -216,6 +217,7 @@ class JetpackNotices extends React.Component {
 						) }
 					/>
 				) }
+				<SearchNotice />
 			</div>
 		);
 	}
