@@ -218,3 +218,56 @@ function format_track_duration( $duration ) {
 
 	return date_i18n( $format, $duration );
 }
+
+/**
+ * Build an array with CSS classes and inline styles defining the colors
+ * which will be applied to player either in the editor-canvas
+ * as well as in the front-end side.
+ *
+ * @param  array $attributes block attributes.
+ * @return array Colors CSS classes and inline styles.
+ */
+function get_colors( $attributes ) {
+	$colors = array(
+			'css_classes'   => array(),
+			'inline_styles' => '',
+	);
+
+	// Text color.
+	$has_named_text_color  = isset( $attributes['textColor'] );
+	$has_custom_text_color = isset( $attributes['customTextColor'] );
+
+	// If has text color.
+	if ( $has_custom_text_color || $has_named_text_color ) {
+		// Add has-text-color class.
+		$colors['css_classes'][] = 'has-text-color';
+	}
+
+	if ( $has_named_text_color ) {
+		// Add the color class.
+		$colors['css_classes'][] = sprintf( 'has-%s-color', $attributes['textColor'] );
+	} elseif ( $has_custom_text_color ) {
+		// Add the custom color inline style.
+		$colors['inline_styles'] .= sprintf( 'color: %s;', $attributes['customTextColor'] );
+	}
+
+	// Background color.
+	$has_named_background_color  = isset( $attributes['backgroundColor'] );
+	$has_custom_background_color = isset( $attributes['customBackgroundColor'] );
+
+	// If has background color.
+	if ( $has_custom_background_color || $has_named_background_color ) {
+		// Add has-background class.
+		$colors['css_classes'][] = 'has-background';
+	}
+
+	if ( $has_named_background_color ) {
+		// Add the background-color class.
+		$colors['css_classes'][] = sprintf( 'has-%s-background-color', $attributes['backgroundColor'] );
+	} elseif ( $has_custom_background_color ) {
+		// Add the custom background-color inline style.
+		$colors['inline_styles'] .= sprintf( 'background-color: %s;', $attributes['customBackgroundColor'] );
+	}
+
+	return $colors;
+}
