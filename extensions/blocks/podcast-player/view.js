@@ -3,6 +3,7 @@
  * Internal dependencies
  */
 import './style.scss';
+import './closest-shim';
 import PodcastPlayer from './podcast-player';
 
 const playerInstances = {};
