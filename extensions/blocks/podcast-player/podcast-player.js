@@ -14,6 +14,8 @@ const STATE_PLAYING = 'is-playing';
 const STATE_ERROR = 'is-error';
 const STATE_PAUSED = 'is-paused';
 
+const noop = function() {};
+
 /** Class Podcast Player */
 class PodcastPlayer {
 	id = null;
@@ -118,8 +120,8 @@ class PodcastPlayer {
 	 * @public
 	 */
 	play() {
-		this.audio.play();
-		// TODO: UI state
+		// Ignoring exceptions as they are handled globally from the audio element.
+		this.audio.play().catch( noop );
 	}
 
 	/**
@@ -128,7 +130,6 @@ class PodcastPlayer {
 	 */
 	pause() {
 		this.audio.pause();
-		// TODO: UI state
 	}
 
 	/**
