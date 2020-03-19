@@ -25,6 +25,8 @@ class WP_Test_Jetpack_VideoPress_Utility_Functions extends WP_UnitTestCase {
 	/**
 	 * Gets the test data for test_non_cached_video_get_post_by_guid().
 	 *
+	 * @since 8.4.0
+	 *
 	 * @return array The test data.
 	 */
 	public function get_data_test_video_non_cached() {
@@ -79,6 +81,8 @@ class WP_Test_Jetpack_VideoPress_Utility_Functions extends WP_UnitTestCase {
 	/**
 	 * Gets the test data for test_cached_video_get_post_by_guid().
 	 *
+	 * @since 8.4.0
+	 *
 	 * @return array The test data.
 	 */
 	public function get_data_test_video_cached() {
@@ -131,6 +135,8 @@ class WP_Test_Jetpack_VideoPress_Utility_Functions extends WP_UnitTestCase {
 
 	/**
 	 * Gets the test data for test_cached_invalid_video_get_post_by_guid().
+	 *
+	 * @since 8.4.0
 	 *
 	 * @return array The test data.
 	 */

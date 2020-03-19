@@ -666,6 +666,7 @@ function video_get_post_by_guid( $guid ) {
 /**
  * Using a GUID, find the associated post ID.
  *
+ * @since 8.4.0
  * @param string $guid The guid to look for the post ID of.
  * @return int|false The post ID for that guid, or false if none is found.
  */
