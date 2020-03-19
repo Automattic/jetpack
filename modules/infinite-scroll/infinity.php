@@ -441,7 +441,7 @@ class The_Neverending_Home_Page {
 				'modules/infinite-scroll/infinity.js'
 			),
 			array(),
-			'8.4.0',
+			JETPACK__VERSION,
 			true
 		);
 
@@ -480,7 +480,7 @@ class The_Neverending_Home_Page {
 				'modules/infinite-scroll/infinity-customizer.js'
 			),
 			array( 'customize-base' ),
-			'8.4.0',
+			JETPACK__VERSION,
 			true
 		);
 

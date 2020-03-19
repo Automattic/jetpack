@@ -667,7 +667,7 @@
 			self.ready = true;
 			self.refresh();
 		} else {
-			self.body.addEventListener( 'post-load', self.checkViewportOnLoadBound );
+			self.body.removeEventListener( 'post-load', self.checkViewportOnLoadBound );
 		}
 	};
 
@@ -699,7 +699,6 @@
 			windowBottom = windowTop + this.window.innerHeight,
 			windowSize = windowBottom - windowTop,
 			setsInView = [],
-			setsHidden = [],
 			pageNum = false,
 			currentFullScreenState = fullscreenState(),
 			wrapperEls;
@@ -747,8 +746,6 @@
 			} else if ( setBottom > windowTop && setBottom < windowBottom ) {
 				// bottom of set is between top (gt) and bottom (lt)
 				setsInView.push( { id: id, top: setTop, bottom: setBottom, pageNum: setPageNum } );
-			} else {
-				setsHidden.push( { id: id, top: setTop, bottom: setBottom, pageNum: setPageNum } );
 			}
 		}
 
