@@ -1,11 +1,145 @@
 /**
- * Frontend (site) styles for Podcast Episodes
+ * Podcast Player block shared styles (editor & front-end).
  */
+ @import '../../shared/styles/gutenberg-base-styles.scss';
 
+$episode-v-padding: 15px;
+$episode-h-padding: 10px;
+$episode-status-icon-size: 22px;
+$text-color: $dark-gray-300; // Lightest gray that can be used for AA text contrast.
+$text-color-hover: $black;
+$text-color-active: $text-color-hover;
+$block-bg-color: $white;
+$block-border-color: $dark-gray-100;
+
+
+/**
+ * Player's (block) parent element.
+ */
 .wp-block-jetpack-podcast-player {
-	border: 1px solid;
+	border: 1px solid $block-border-color;
+	background-color: $block-bg-color;
+
+	/**
+	 * Player's state classes added to this element:
+	 * &.is-playing {} // When audio starts playing.
+	 * &.is-paused {}  // When audio is paused.
+	 * &.is-error {}   // When playback error occured.
+	 */
+
+	audio {
+		display: none;
+	}
 }
 
-.wp-block-jetpack-podcast-player audio {
+.podcast-player__episodes {
+	list-style-type: none;
+	display: flex;
+	flex-direction: column;
+	margin: 0;
+	padding: $episode-v-padding 0;
+}
+
+.podcast-player__episode {
+	margin: 0;
+	color: $text-color;
+	font-family: $default-font;
+	font-size: $editor-font-size;
+
+	&:hover,
+	&:focus {
+		color: $text-color-hover;
+	}
+
+	/**
+	 * When episode "is-active", it means that it's been clicked by a user to
+	 * start playback. Combine this class with the Player's state classes (see
+	 * above) to apply styling for different scenarios.
+	 */
+	&.is-active {
+		color: $text-color-hover;
+		font-weight: bold;
+	}
+}
+
+.podcast-player__episode-link {
+	display: flex;
+	flex-flow: row nowrap;
+	justify-content: space-between;
+	padding: $episode-h-padding $episode-v-padding;
+	text-decoration: none;
+	color: inherit;
+	transition: none;
+
+	.podcast-player__episode.is-active & {
+		.wp-block-jetpack-podcast-player.is-error & {
+			padding-bottom: 0; // Make space for the error element that will be appended.
+		}
+	}
+}
+
+/**
+ * Fixes a Chrome bug where in TwentyTwenty and other themes that apply a
+ * transition to a path element, our svg specified colors do not get applied as
+ * this definition gets applied to the symbol definitions and we can't override
+ * them since we're applying via the shadow DOM.
+ */
+.podcast-player-icons path {
+	transition: none;
+}
+
+.podcast-player__episode-status-icon {
+	width: $episode-status-icon-size;
+
+	svg {
+		width: $episode-status-icon-size;
+		height: $episode-status-icon-size;
+	}
+
+	.podcast-player__episode.is-active & {
+		.wp-block-jetpack-podcast-player.is-paused & {
+			fill: none; // Currently there's no icon for paused state.
+		}
+		.wp-block-jetpack-podcast-player.is-playing & {
+			fill: $text-color-active;
+		}
+		.wp-block-jetpack-podcast-player.is-error & {
+			fill: $alert-red;
+		}
+	}
+}
+
+.podcast-player__episode-title {
+	flex-grow: 1;
+	padding: 0 $episode-v-padding;
+}
+
+.podcast-player__episode-duration {
+	word-break: normal; // Prevents the time breaking into multiple lines.
+}
+
+/**
+ * Error element, appended as the last child of the Episode element
+ * (.podcast-player__episode) when Player's error has been caught.
+ */
+.podcast-player__episode-error {
 	display: none;
+	margin-left: 2 * $episode-v-padding + $episode-status-icon-size;
+	margin-bottom: $episode-h-padding;
+	color: $alert-red;
+	font-family: $default-font;
+	font-size: 0.8em;
+	font-weight: normal;
+
+	.wp-block-jetpack-podcast-player.is-error .podcast-player__episode.is-active & {
+		display: block; // Show only when error occurs.
+	}
+
+	& > span {
+		color: $text-color;
+	}
+
+	& > span > a {
+		color: inherit;
+	}
 }

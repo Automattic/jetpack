@@ -101,22 +101,32 @@ function render_player( $track_list, $attributes ) {
 	ob_start();
 	?>
 	<div class="<?php echo esc_attr( $block_classname ); ?>" id="<?php echo esc_attr( $instance_id ); ?>">
-		<ol>
-			<?php
-			foreach ( $track_list as $attachment ) :
-				printf( '<li><a href="%1$s" data-jetpack-podcast-audio="%2$s">%3$s</a></li>', esc_url( $attachment['link'] ), esc_url( $attachment['src'] ), esc_html( $attachment['title'] ) );
-			endforeach;
-			?>
+		<ol class="podcast-player__episodes">
+			<?php foreach ( $track_list as $attachment ) : ?>
+			<li class="podcast-player__episode">
+				<a
+					class="podcast-player__episode-link"
+					href="<?php echo esc_url( $attachment['link'] ); ?>"
+					data-jetpack-podcast-audio="<?php echo esc_url( $attachment['src'] ); ?>"
+					role="button"
+					aria-pressed="false"
+				>
+					<span class="podcast-player__episode-status-icon"></span>
+					<span class="podcast-player__episode-title"><?php echo esc_html( $attachment['title'] ); ?></span>
+					<time class="podcast-player__episode-duration"><?php echo ( ! empty( $attachment['duration'] ) ? esc_html( $attachment['duration'] ) : '' ); ?></time>
+				</a>
+			</li>
+			<?php endforeach; ?>
 		</ol>
 		<script type="application/json"><?php echo wp_json_encode( $player_data ); ?></script>
 	</div>
 	<script>window.jetpackPodcastPlayers=(window.jetpackPodcastPlayers||[]);window.jetpackPodcastPlayers.push( <?php echo wp_json_encode( $instance_id ); ?> );</script>
 	<?php
-	/*
+	/**
 	 * Enqueue necessary scripts and styles.
 	 */
-	wp_enqueue_style( 'wp-mediaelement' );
-	Jetpack_Gutenberg::load_assets_as_required( 'podcast-player', array( 'wp-mediaelement' ) );
+	wp_enqueue_style( 'mediaelement' );
+	Jetpack_Gutenberg::load_assets_as_required( 'podcast-player', array( 'mediaelement' ) );
 
 	return ob_get_clean();
 }
@@ -164,15 +174,17 @@ function setup_tracks_callback( \SimplePie_Item $episode ) {
 		'link'        => esc_url( $episode->get_link() ),
 		'src'         => esc_url( $enclosure->link ),
 		'type'        => esc_attr( $enclosure->type ),
-		'caption'     => '',
 		'description' => wp_kses_post( $episode->get_description() ),
-		'meta'        => array(),
 	);
 
 	$track['title'] = esc_html( trim( wp_strip_all_tags( $episode->get_title() ) ) );
 
 	if ( empty( $track['title'] ) ) {
 		$track['title'] = esc_html__( '(no title)', 'jetpack' );
+	}
+
+	if ( ! empty( $enclosure->duration ) ) {
+		$track['duration'] = format_track_duration( $enclosure->duration );
 	}
 
 	return $track;
@@ -193,4 +205,16 @@ function get_audio_enclosure( \SimplePie_Item $episode ) {
 
 	// Default to empty SimplePie_Enclosure object.
 	return $episode->get_enclosure();
+}
+
+/**
+ * Returns the track duration as a formatted string.
+ *
+ * @param number $duration of the track in seconds.
+ * @return string
+ */
+function format_track_duration( $duration ) {
+	$format = $duration > HOUR_IN_SECONDS ? 'H:i:s' : 'i:s';
+
+	return date_i18n( $format, $duration );
 }
