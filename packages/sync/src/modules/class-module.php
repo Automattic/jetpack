@@ -11,6 +11,7 @@ use Automattic\Jetpack\Sync\Listener;
 use Automattic\Jetpack\Sync\Replicastore;
 use Automattic\Jetpack\Sync\Sender;
 use Automattic\Jetpack\Sync\Settings;
+use PHP_CodeSniffer\Standards\PSR12\Sniffs\Functions\NullableTypeDeclarationSniff;
 
 /**
  * Basic methods implemented by Jetpack Sync extensions.
@@ -26,6 +27,15 @@ abstract class Module {
 	 * @var int
 	 */
 	const ARRAY_CHUNK_SIZE = 10;
+
+	/**
+	 *  An estimate of how many rows per second can be synced during a full sync.
+	 *
+	 * @access public
+	 *
+	 * @var int|null Null if speed is not important in a full sync.
+	 */
+	public $sync_speed = null;
 
 	/**
 	 * Sync module name.
@@ -276,11 +286,11 @@ abstract class Module {
 		global $wpdb;
 		return $wpdb->get_col(
 			<<<SQL
-SELECT {$this->id_field()} 
-FROM {$wpdb->{$this->table_name()}} 
+SELECT {$this->id_field()}
+FROM {$wpdb->{$this->table_name()}}
 WHERE {$this->get_where_sql( $config )}
 AND {$this->id_field()} < {$status['last_sent']}
-ORDER BY {$this->id_field()} 
+ORDER BY {$this->id_field()}
 DESC LIMIT {$chunk_size}
 SQL
 		);
@@ -579,4 +589,14 @@ SQL
 		return '1=1';
 	}
 
+	/**
+	 * Gets the sync speed of a module.
+	 *
+	 * @access public
+	 *
+	 * @return int|null
+	 */
+	public function get_sync_speed() {
+		return $this->sync_speed;
+	}
 }

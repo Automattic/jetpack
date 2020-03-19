@@ -11,6 +11,7 @@ namespace Automattic\Jetpack\Sync\Modules;
  * Class to handle sync for attachments.
  */
 class Attachments extends Module {
+
 	/**
 	 * Sync module name.
 	 *

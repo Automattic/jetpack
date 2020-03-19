@@ -14,7 +14,14 @@ use Automattic\Jetpack\Sync\Settings;
  * Class to handle sync for terms.
  */
 class Terms extends Module {
-
+	/**
+	 *  An estimate of how many rows per second can be synced during a full sync.
+	 *
+	 * @access public
+	 *
+	 * @var int|null Null if speed is not important in a full sync.
+	 */
+	public $sync_speed = 769;
 	/**
 	 * Sync module name.
 	 *

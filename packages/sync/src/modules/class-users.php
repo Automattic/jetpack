@@ -15,6 +15,14 @@ use Automattic\Jetpack\Sync\Defaults;
  */
 class Users extends Module {
 	/**
+	 *  An estimate of how many rows per second can be synced during a full sync.
+	 *
+	 * @access public
+	 *
+	 * @var int|null Null if speed is not important in a full sync.
+	 */
+	public $sync_speed = 50;
+	/**
 	 * Maximum number of users to sync initially.
 	 *
 	 * @var int

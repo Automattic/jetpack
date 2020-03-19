@@ -758,8 +758,7 @@ class Actions {
 		}
 
 		$full_sync_status = ( $sync_module ) ? $sync_module->get_status() : array();
-
-		$full_queue = self::$sender->get_full_sync_queue();
+		$full_queue       = self::$sender->get_full_sync_queue();
 
 		$result = array_merge(
 			$full_sync_status,

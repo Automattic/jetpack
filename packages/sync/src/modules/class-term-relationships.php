@@ -14,7 +14,14 @@ use Automattic\Jetpack\Sync\Settings;
  * Class to handle sync for term relationships.
  */
 class Term_Relationships extends Module {
-
+	/**
+	 *  An estimate of how many rows per second can be synced during a full sync.
+	 *
+	 * @access public
+	 *
+	 * @var int|null Null if speed is not important in a full sync.
+	 */
+	public $sync_speed = 14;
 	/**
 	 * Max terms to return in one single query
 	 *
@@ -164,10 +171,10 @@ class Term_Relationships extends Module {
 
 		return $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT object_id, term_taxonomy_id 
-				FROM $wpdb->term_relationships 
-				WHERE ( object_id = %d AND term_taxonomy_id < %d ) OR ( object_id < %d ) 
-				ORDER BY object_id DESC, term_taxonomy_id 
+				"SELECT object_id, term_taxonomy_id
+				FROM $wpdb->term_relationships
+				WHERE ( object_id = %d AND term_taxonomy_id < %d ) OR ( object_id < %d )
+				ORDER BY object_id DESC, term_taxonomy_id
 				DESC LIMIT %d",
 				$status['last_sent']['object_id'],
 				$status['last_sent']['term_taxonomy_id'],

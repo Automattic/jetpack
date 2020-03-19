@@ -216,6 +216,7 @@ class Full_Sync_Immediately extends Module {
 				'total'    => $module->total( $config ),
 				'sent'     => 0,
 				'finished' => false,
+				'speed'    => $module->get_sync_speed(),
 			);
 		}
 
