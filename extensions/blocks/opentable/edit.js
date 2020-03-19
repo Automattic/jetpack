@@ -222,6 +222,7 @@ function OpenTableEdit( {
 
 	const editClasses = classnames( className, {
 		[ `${ defaultClassName }-theme-${ style }` ]: ! isEmpty( rid ) && styleValues.includes( style ),
+		'is-placeholder': isEmpty( rid ),
 		'is-multi': 'multi' === getTypeAndTheme( style )[ 0 ],
 		[ `align${ align }` ]: align,
 	} );
