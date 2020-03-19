@@ -58,10 +58,8 @@ const supportUrl =
 const PodcastPlayerEdit = ( {
 	attributes,
 	setAttributes,
-
 	noticeOperations: { createErrorNotice, removeAllNotices },
 	noticeUI,
-
 	textColor,
 	setTextColor,
 	fallbackTextColor,
