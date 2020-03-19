@@ -17,6 +17,7 @@ import JetpackDisconnectModal from 'components/jetpack-termination-dialog/discon
 
 <JetpackDisconnectDialogModal
 	show={ this.state.showModal }
+	showSurvey
 	toggleModal={ this.toggleVisibility }
 />
 ```

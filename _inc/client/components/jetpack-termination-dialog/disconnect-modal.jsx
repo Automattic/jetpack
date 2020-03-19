@@ -16,11 +16,13 @@ import Modal from 'components/modal';
 class JetpackDisconnectModal extends Component {
 	static propTypes = {
 		show: PropTypes.bool,
+		showSurvey: PropTypes.bool,
 		toggleModal: PropTypes.func,
 	};
 
 	static defaultProps = {
 		show: false,
+		showSurvey: false,
 		toggleModal: noop,
 	};
 
@@ -29,16 +31,17 @@ class JetpackDisconnectModal extends Component {
 	};
 
 	render() {
-		const { show, toggleModal } = this.props;
+		const { show, showSurvey, toggleModal } = this.props;
 
 		return (
 			show && (
 				<Modal className="jp-connection-settings__modal" onRequestClose={ toggleModal }>
 					<JetpackTerminationDialog
 						closeDialog={ toggleModal }
-						terminateJetpack={ this.disconnectJetpack }
 						location={ 'dashboard' }
 						purpose={ 'disconnect' }
+						showSurvey={ showSurvey }
+						terminateJetpack={ this.disconnectJetpack }
 					/>
 				</Modal>
 			)
@@ -46,13 +49,10 @@ class JetpackDisconnectModal extends Component {
 	}
 }
 
-export default connect(
-	null,
-	dispatch => {
-		return {
-			disconnectSite: () => {
-				return dispatch( disconnectSite( true ) );
-			},
-		};
-	}
-)( JetpackDisconnectModal );
+export default connect( null, dispatch => {
+	return {
+		disconnectSite: () => {
+			return dispatch( disconnectSite( true ) );
+		},
+	};
+} )( JetpackDisconnectModal );

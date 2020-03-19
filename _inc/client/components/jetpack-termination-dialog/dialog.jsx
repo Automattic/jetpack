@@ -76,6 +76,7 @@ class JetpackTerminationDialog extends Component {
 		isDevVersion: PropTypes.bool,
 		location: PropTypes.oneOf( [ 'plugins', 'dashboard' ] ).isRequired,
 		purpose: PropTypes.oneOf( [ 'disconnect', 'disable' ] ).isRequired,
+		showSurvey: PropTypes.bool.isRequired,
 		siteBenefits: PropTypes.array,
 		submitSurvey: PropTypes.func,
 		terminateJetpack: PropTypes.func.isRequired,
@@ -153,9 +154,9 @@ class JetpackTerminationDialog extends Component {
 	}
 
 	renderPrimaryButton() {
-		const { purpose } = this.props;
+		const { purpose, showSurvey } = this.props;
 		const { step } = this.state;
-		return step === JetpackTerminationDialog.FEATURE_STEP ? (
+		return showSurvey && step === JetpackTerminationDialog.FEATURE_STEP ? (
 			<Button primary onClick={ this.handleContinueClick }>
 				{ __( 'Continue' ) }
 			</Button>
@@ -167,7 +168,7 @@ class JetpackTerminationDialog extends Component {
 	}
 
 	render() {
-		const { purpose, location } = this.props;
+		const { location, purpose, showSurvey } = this.props;
 		const { step } = this.state;
 
 		return (
@@ -188,7 +189,7 @@ class JetpackTerminationDialog extends Component {
 						) }
 					</div>
 				</Card>
-				{ step === JetpackTerminationDialog.FEATURE_STEP
+				{ ! showSurvey || step === JetpackTerminationDialog.FEATURE_STEP
 					? this.renderFeatures()
 					: this.renderSurvey() }
 				<Card>
