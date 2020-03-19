@@ -177,11 +177,8 @@ function get_active_plugins() {
 		$active_plugins[] = $current_plugin;
 	}
 
-	// If the activating plugin is not the current plugin, add it to the list.
-	$activating_plugin = get_activating_plugin();
-	if ( $activating_plugin && $current_plugin !== $activating_plugin ) {
-		$active_plugins[] = $activating_plugin;
-	}
+	// If the activating plugin is not the only activating plugin, we need to add others too.
+	$active_plugins = array_merge( $active_plugins, get_activating_plugins() );
 
 	return $active_plugins;
 }
@@ -217,15 +214,33 @@ function is_current_plugin_active() {
 /**
  * Returns the name of activating plugin if a plugin is activating via a request.
  *
- * @return String The name of the activating plugin.
+ * @return Array The array of the activating plugins or empty array.
  */
-function get_activating_plugin() {
+function get_activating_plugins() {
+
 	// phpcs:disable WordPress.Security.NonceVerification.Recommended
-	if ( isset( $_REQUEST['action'] ) && 'activate' === $_REQUEST['action'] ) {
+
+	// In case of a single plugin activation there will be a plugin slug.
+	if (
+		isset( $_REQUEST['action'] )
+		&& 'activate' === $_REQUEST['action']
+	) {
 		$activating_plugin = isset( $_REQUEST['plugin'] ) ? wp_unslash( $_REQUEST['plugin'] ) : null;
-		return $activating_plugin;
+		return array( $activating_plugin );
+	}
+
+	// In case of bulk activation there will be an array of plugins.
+	if (
+		isset( $_REQUEST['action'] )
+		&& 'activate-selected' === $_REQUEST['action']
+	) {
+		return ( isset( $_REQUEST['checked'] ) && is_array( $_REQUEST['checked'] ) )
+			? array_map( 'wp_unslash', $_REQUEST['checked'] )
+			: array();
 	}
 	// phpcs:enable WordPress.Security.NonceVerification.Recommended
+
+	return array();
 }
 
 /**
