@@ -134,6 +134,7 @@ class PodcastPlayer {
 
 	/**
 	 * Pause handler for audio.
+	 * @private
 	 */
 	handlePause() {
 		// Ignore pauses if we are showing an error.
