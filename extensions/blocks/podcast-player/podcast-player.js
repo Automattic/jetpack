@@ -18,6 +18,7 @@ const noop = function() {};
 
 /** Class Podcast Player */
 class PodcastPlayer {
+	playerState = null;
 	id = null;
 	block = null;
 	currentTrack = -1;
@@ -88,7 +89,7 @@ class PodcastPlayer {
 		this.audio = document.createElement( 'audio' );
 		this.audio.src = this.getTrack( 0 ).src;
 		this.audio.addEventListener( 'play', () => this.handlePlay() );
-		this.audio.addEventListener( 'pause', () => this.setPlayerState( STATE_PAUSED ) );
+		this.audio.addEventListener( 'pause', () => this.handlePause() );
 		this.audio.addEventListener( 'error', () => this.handleError() );
 
 		// Insert player into the DOM.
@@ -129,6 +130,18 @@ class PodcastPlayer {
 			this.currentTrack = 0;
 			this.setTrackState( this.currentTrack, true );
 		}
+	}
+
+	/**
+	 * Pause handler for audio.
+	 */
+	handlePause() {
+		// Ignore pauses if we are showing an error.
+		if ( this.playerState === STATE_ERROR ) {
+			return;
+		}
+
+		this.setPlayerState( STATE_PAUSED );
 	}
 
 	/**
@@ -197,6 +210,7 @@ class PodcastPlayer {
 	 * @param {string} state Player state.
 	 */
 	setPlayerState( state ) {
+		this.playerState = state;
 		this.block.classList.remove( STATE_ERROR, STATE_PAUSED, STATE_PLAYING );
 		this.block.classList.add( state );
 	}
