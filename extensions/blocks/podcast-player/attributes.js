@@ -20,4 +20,16 @@ export default {
 		type: 'boolean',
 		default: true,
 	},
+	textColor: {
+		type: 'string',
+	},
+	backgroundColor: {
+		type: 'string',
+	},
+	customTextColor: {
+		type: 'string',
+	},
+	customBackgroundColor: {
+		type: 'string',
+	},
 };
