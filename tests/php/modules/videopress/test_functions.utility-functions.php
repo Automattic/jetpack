@@ -38,7 +38,7 @@ class WP_Test_Jetpack_VideoPress_Utility_Functions extends WP_UnitTestCase {
 			'external_object_cache_is_not_enabled' => array(
 				'get_transient',
 				false,
-				'video_get_post_id_by_guid_',
+				'videopress_get_post_id_by_guid_',
 			),
 		);
 	}
@@ -170,20 +170,20 @@ class WP_Test_Jetpack_VideoPress_Utility_Functions extends WP_UnitTestCase {
 	/**
 	 * Tests a helper function to get the post id by guid.
 	 *
-	 * @covers ::video_get_post_id_by_guid
+	 * @covers ::videopress_get_post_id_by_guid
 	 * @since 8.4.0
 	 */
-	public function test_non_cached_video_get_post_id_by_guid() {
+	public function test_non_cached_videopress_get_post_id_by_guid() {
 		$guid           = wp_generate_uuid4();
 		$expected_id    = videopress_create_new_media_item( 'Example', $guid );
-		$actual_post_id = video_get_post_id_by_guid( $guid );
+		$actual_post_id = videopress_get_post_id_by_guid( $guid );
 
 		$this->assertEquals( $expected_id, $actual_post_id );
 
 		// The function should have cached the value.
 		$this->assertEquals(
 			$expected_id,
-			get_transient( 'video_get_post_id_by_guid_' . $guid )
+			get_transient( 'videopress_get_post_id_by_guid_' . $guid )
 		);
 	}
 

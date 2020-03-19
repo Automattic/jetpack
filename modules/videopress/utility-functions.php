@@ -74,7 +74,7 @@ function videopress_get_video_details( $guid ) {
  * Modified from https://wpscholar.com/blog/get-attachment-id-from-wp-image-url/
  *
  * @deprecated since 8.4.0
- * @see video_get_post_id_by_guid()
+ * @see videopress_get_post_id_by_guid()
  *
  * @param string $url
  *
@@ -651,7 +651,7 @@ function video_get_post_by_guid( $guid ) {
 		return $cached_post;
 	}
 
-	$post_id = video_get_post_id_by_guid( $guid );
+	$post_id = videopress_get_post_id_by_guid( $guid );
 
 	if ( is_int( $post_id ) ) {
 		$post = get_post( $post_id );
@@ -669,8 +669,8 @@ function video_get_post_by_guid( $guid ) {
  * @param string $guid The guid to look for the post ID of.
  * @return int|false The post ID for that guid, or false if none is found.
  */
-function video_get_post_id_by_guid( $guid ) {
-	$cache_key = 'video_get_post_id_by_guid_' . $guid;
+function videopress_get_post_id_by_guid( $guid ) {
+	$cache_key = 'videopress_get_post_id_by_guid_' . $guid;
 	$cached_id = get_transient( $cache_key );
 
 	if ( is_int( $cached_id ) ) {
@@ -682,6 +682,7 @@ function video_get_post_id_by_guid( $guid ) {
 		'post_mime_type' => 'video/videopress',
 		'post_status'    => 'inherit',
 		'no_found_rows'  => true,
+		'fields'         => 'ids',
 		'meta_query'     => array(
 			array(
 				'key'     => 'videopress_guid',
@@ -694,11 +695,11 @@ function video_get_post_id_by_guid( $guid ) {
 	$query = new WP_Query( $args );
 
 	if ( $query->have_posts() ) {
-		$post = $query->next_post();
+		$post_id = $query->next_post();
 		// Only store the ID, to prevent filling the database.
-		set_transient( $cache_key, $post->ID, HOUR_IN_SECONDS );
+		set_transient( $cache_key, $post_id, HOUR_IN_SECONDS );
 
-		return $post->ID;
+		return $post_id;
 	}
 
 	return false;
