@@ -15,7 +15,6 @@ import analytics from 'lib/analytics';
 import DashItem from 'components/dash-item';
 import Card from 'components/card';
 import JetpackBanner from 'components/jetpack-banner';
-import { isModuleFound } from 'state/search';
 import { isDevMode } from 'state/connection';
 import { getSitePlan } from 'state/site';
 import { getUpgradeUrl } from 'state/initial-state';
@@ -67,11 +66,14 @@ class DashSearch extends Component {
 		} );
 	}
 
-	activateSearch = () => this.props.updateOptions( { search: true, instant_search_enabled: true } );
+	activateSearch = () => {
+		this.props.updateOptions( {
+			search: true,
+			...( this.props.isSearchPlan ? { instant_search_enabled: true } : {} ),
+		} );
+	};
 
 	render() {
-		const hasPro = 'is-business-plan' === this.props.planClass;
-
 		if ( this.props.isDevMode ) {
 			return renderCard( {
 				className: 'jp-dash-item__is-inactive',
@@ -81,7 +83,7 @@ class DashSearch extends Component {
 			} );
 		}
 
-		if ( ! hasPro ) {
+		if ( ! this.props.isBusinessPlan && ! this.props.isSearchPlan ) {
 			return renderCard( {
 				className: 'jp-dash-item__is-inactive',
 				status: 'no-pro-uninstalled-or-inactive',
@@ -123,13 +125,23 @@ class DashSearch extends Component {
 							{ __( 'Jetpack Search is powering search on your site.' ) }
 						</p>
 					</DashItem>
-					<Card
-						compact
-						className="jp-search-config-aag"
-						href="customize.php?autofocus[section]=jetpack_search"
-					>
-						{ __( 'Customize' ) }
-					</Card>
+					{ this.props.isSearchPlan ? (
+						<Card
+							compact
+							className="jp-search-config-aag"
+							href="customize.php?autofocus[section]=jetpack_search"
+						>
+							{ __( 'Customize' ) }
+						</Card>
+					) : (
+						<Card
+							compact
+							className="jp-search-config-aag"
+							href="customize.php?autofocus[panel]=widgets"
+						>
+							{ __( 'Add Search (Jetpack) Widget' ) }
+						</Card>
+					) }
 				</div>
 			);
 		}
@@ -150,10 +162,11 @@ class DashSearch extends Component {
 }
 
 export default connect( state => {
+	const planClass = getPlanClass( getSitePlan( state ).product_slug );
 	return {
-		foundSearch: isModuleFound( state, 'search' ),
-		planClass: getPlanClass( getSitePlan( state ).product_slug ),
+		isBusinessPlan: 'is-business-plan' === planClass,
 		isDevMode: isDevMode( state ),
+		isSearchPlan: 'is-search-plan' === planClass,
 		upgradeUrl: getUpgradeUrl( state, 'aag-search' ),
 	};
 } )( DashSearch );

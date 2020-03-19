@@ -14,34 +14,22 @@ import { withModuleSettingsFormHelpers } from 'components/module-settings/with-m
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import { getSiteAdminUrl } from 'state/initial-state';
-import { getSitePlan, isFetchingSiteData } from 'state/site';
+import { getSitePlan } from 'state/site';
 import { FormFieldset } from 'components/forms';
 import CompactFormToggle from 'components/form/form-toggle/compact';
 
-function toggleModuleFactory( {
-	// Destructure component props
-	toggleModuleNow: toggleModule,
-	sitePlan: { product_slug: productSlug },
-	getOptionValue,
-	updateOptions,
-} ) {
+function toggleModuleFactory( { getOptionValue, isSearchPlan, toggleModuleNow, updateOptions } ) {
 	return module => {
-		toggleModule( module );
-		if ( 'is-search-plan' === getPlanClass( productSlug ) && getOptionValue( 'search' ) ) {
+		toggleModuleNow( module );
+		if ( isSearchPlan && getOptionValue( 'search' ) ) {
 			updateOptions( { instant_search_enabled: true } );
 		}
 	};
 }
 
-function toggleInstantSearchFactory( {
-	// Destructure component props
-	sitePlan: { product_slug: productSlug },
-	getOptionValue,
-	updateOptions,
-} ) {
+function toggleInstantSearchFactory( { isSearchPlan, getOptionValue, updateOptions } ) {
 	return () => {
-		if ( 'is-search-plan' === getPlanClass( productSlug ) && getOptionValue( 'search' ) ) {
+		if ( isSearchPlan && getOptionValue( 'search' ) ) {
 			updateOptions( {
 				instant_search_enabled: ! getOptionValue( 'instant_search_enabled', 'search' ),
 			} );
@@ -50,20 +38,18 @@ function toggleInstantSearchFactory( {
 }
 
 function Search( props ) {
-	const isBusinessPlan = 'is-business-plan' === getPlanClass( props.sitePlan.product_slug );
-	const isSearchPlan = 'is-search-plan' === getPlanClass( props.sitePlan.product_slug );
 	const isModuleEnabled = props.getOptionValue( 'search' );
 	const isInstantSearchEnabled = props.getOptionValue( 'instant_search_enabled', 'search' );
 
 	const toggleModule = useMemo( () => toggleModuleFactory( props ), [
-		props.toggleModuleNow,
-		props.sitePlan.product_slug,
 		props.getOptionValue,
+		props.isSearchPlan,
+		props.toggleModuleNow,
 		props.updateOptions,
 	] );
 	const toggleInstantSearch = useMemo( () => toggleInstantSearchFactory( props ), [
-		props.sitePlan.product_slug,
 		props.getOptionValue,
+		props.isSearchPlan,
 		props.updateOptions,
 	] );
 
@@ -82,7 +68,7 @@ function Search( props ) {
 						'Help visitors quickly find answers with highly relevant instant search results and powerful filtering hosted in the WordPress.com cloud.'
 					) }{ ' ' }
 				</p>
-				{ ( isBusinessPlan || isSearchPlan ) && (
+				{ ( props.isBusinessPlan || props.isSearchPlan ) && (
 					<Fragment>
 						<ModuleToggle
 							activated={ isModuleEnabled }
@@ -96,7 +82,7 @@ function Search( props ) {
 						<FormFieldset>
 							<CompactFormToggle
 								checked={ isInstantSearchEnabled }
-								disabled={ ! isSearchPlan || ! isModuleEnabled }
+								disabled={ ! props.isSearchPlan || ! isModuleEnabled }
 								onChange={ toggleInstantSearch }
 								toggling={ props.isSavingAnyOption( 'instant_search_enabled' ) }
 							>
@@ -114,7 +100,18 @@ function Search( props ) {
 					</Fragment>
 				) }
 			</SettingsGroup>
-			{ isSearchPlan && isModuleEnabled && isInstantSearchEnabled && (
+			{ ( props.isBusinessPlan || props.isSearchPlan ) &&
+				isModuleEnabled &&
+				! isInstantSearchEnabled && (
+					<Card
+						compact
+						className="jp-settings-card__configure-link"
+						href="customize.php?autofocus[panel]=widgets"
+					>
+						{ __( 'Add Jetpack Search Widget' ) }
+					</Card>
+				) }
+			{ props.isSearchPlan && isModuleEnabled && isInstantSearchEnabled && (
 				<Card
 					className="jp-settings-card__configure-link"
 					compact
@@ -128,9 +125,9 @@ function Search( props ) {
 }
 
 export default connect( state => {
+	const planClass = getPlanClass( getSitePlan( state ).product_slug );
 	return {
-		siteAdminUrl: getSiteAdminUrl( state ),
-		sitePlan: getSitePlan( state ),
-		fetchingSiteData: isFetchingSiteData( state ),
+		isBusinessPlan: 'is-business-plan' === planClass,
+		isSearchPlan: 'is-search-plan' === planClass,
 	};
 } )( withModuleSettingsFormHelpers( Search ) );
