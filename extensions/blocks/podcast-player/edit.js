@@ -27,7 +27,6 @@ import {
 	InspectorControls,
 	PanelColorSettings,
 	withColors,
-	__experimentalUseColors as useColors,
 } from '@wordpress/block-editor';
 import ServerSideRender from '@wordpress/server-side-render';
 import { isURL } from '@wordpress/url';
@@ -42,9 +41,6 @@ import { edit, queueMusic } from './icons/';
 import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import attributesValidation from './attributes';
 import { applyFallbackStyles } from '../../shared/apply-fallback-styles';
-
-// Check if useColors is available.
-const isUseColorsAvailable = !! useColors;
 
 const DEFAULT_MIN_ITEMS = 1;
 const DEFAULT_MAX_ITEMS = 10;
@@ -177,35 +173,33 @@ const PodcastPlayerEdit = ( {
 					/>
 				</PanelBody>
 
-				{ ! isUseColorsAvailable && (
-					<PanelColorSettings
-						title={ __( 'Color Settings', 'jetpack' ) }
-						colorSettings={ [
-							{
-								value: textColor.color,
-								onChange: setTextColor,
-								label: __( 'Text Color', 'jetpack' ),
-							},
-							{
-								value: backgroundColor.color,
-								onChange: setBackgroundColor,
-								label: __( 'Background', 'jetpack' ),
-							},
-						] }
-					>
-						<ContrastChecker
-							{ ...{
-								// Text is considered large if font size is greater or equal to 18pt or 24px,
-								// currently that's not the case for button.
-								isLargeText: false,
-								textColor: textColor.color,
-								backgroundColor: backgroundColor.color,
-								fallbackBackgroundColor,
-								fallbackTextColor,
-							} }
-						/>
-					</PanelColorSettings>
-				) }
+				<PanelColorSettings
+					title={ __( 'Color Settings', 'jetpack' ) }
+					colorSettings={ [
+						{
+							value: textColor.color,
+							onChange: setTextColor,
+							label: __( 'Text Color', 'jetpack' ),
+						},
+						{
+							value: backgroundColor.color,
+							onChange: setBackgroundColor,
+							label: __( 'Background', 'jetpack' ),
+						},
+					] }
+				>
+					<ContrastChecker
+						{ ...{
+							// Text is considered large if font size is greater or equal to 18pt or 24px,
+							// currently that's not the case for button.
+							isLargeText: false,
+							textColor: textColor.color,
+							backgroundColor: backgroundColor.color,
+							fallbackBackgroundColor,
+							fallbackTextColor,
+						} }
+					/>
+				</PanelColorSettings>
 			</InspectorControls>
 			<Disabled>
 				<ServerSideRender
@@ -219,10 +213,8 @@ const PodcastPlayerEdit = ( {
 	);
 };
 
-export default ! isUseColorsAvailable
-	? compose( [
-			withColors( 'backgroundColor', { textColor: 'color' } ),
-			withNotices,
-			applyFallbackStyles,
-	  ] )( PodcastPlayerEdit )
-	: withNotices( PodcastPlayerEdit );
+export default compose( [
+	withColors( 'backgroundColor', { textColor: 'color' } ),
+	withNotices,
+	applyFallbackStyles,
+] )( PodcastPlayerEdit );
