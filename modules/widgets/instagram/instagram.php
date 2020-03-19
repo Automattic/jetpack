@@ -35,6 +35,7 @@ class WPcom_Instagram_Widget extends WP_Widget {
 		);
 
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_css' ) );
+		add_action( 'wp_ajax_wpcom_instagram_widget_update_widget_token_id', array( $this, 'ajax_update_widget_token_id' ) );
 
 		$this->valid_options = array(
 			'max_columns' => 3,
@@ -74,6 +75,22 @@ class WPcom_Instagram_Widget extends WP_Widget {
 		$widget_options[ $this->number ]['token_id'] = (int) $token_id;
 
 		$this->save_settings( $widget_options );
+	}
+
+	/**
+	 * Updates the widget's option in the database to have the passed Keyring token ID.
+	 * Same as the function above, but AJAX-flavoured!
+	 */
+	public function ajax_update_widget_token_id() {
+		if (
+			empty( $_POST['nonce'] ) ||
+			! wp_verify_nonce( $_POST['nonce'], 'instagram-widget-create-token-' . $this->number )
+		) {
+			wp_die();
+		}
+
+		$this->update_widget_token_id( (int) $_POST['keyring_id'] );
+		wp_die();
 	}
 
 	/**
@@ -254,7 +271,7 @@ class WPcom_Instagram_Widget extends WP_Widget {
 			&& ! empty( $_GET['instagram_widget'] ) && 'connection_verified' == $_GET['instagram_widget']
 			&& ! empty( $_GET['token_id'] ) && $instance['token_id'] !== (int) $_GET['token_id']  ) {
 			$instance['token_id'] = (int) $_GET['token_id'];
-			
+
 			// check the nonce
 			$site = Jetpack_Options::get_option( 'id' );
 			$path = sprintf( '/sites/%s/instagram/verify-nonce/%s/%s', $site, $_GET['wpcom_nonce'], $_GET['blog'] );
@@ -315,7 +332,17 @@ class WPcom_Instagram_Widget extends WP_Widget {
 						'toolbar=0,location=0,menubar=0,' + getScreenCenterSpecs( 700, 700 )
 					);
 					window.onmessage = function( { data } ) {
-						console.log( data );
+						if ( !! data.keyring_id ) {
+							const payload = {
+								action: 'wpcom_instagram_widget_update_widget_token_id',
+								nonce: '<?php echo esc_js( wp_create_nonce( 'instagram-widget-create-token-' . $this->number ) ); ?>',
+								keyring_id: data.keyring_id,
+							};
+							jQuery.post( ajaxurl, payload, function( response ) {
+								const widget = jQuery( 'div[id$="<?php echo esc_js( $this->id ); ?>"]' );
+								wpWidgets.save( widget, 0, 1, 1 );
+							} );
+						}
 					};
 				}
 			</script>
