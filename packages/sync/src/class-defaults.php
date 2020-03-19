@@ -658,6 +658,7 @@ class Defaults {
 		'network_site_upload_space'           => array( 'Jetpack', 'network_site_upload_space' ),
 		'network_upload_file_types'           => array( 'Jetpack', 'network_upload_file_types' ),
 		'network_enable_administration_menus' => array( 'Jetpack', 'network_enable_administration_menus' ),
+		'main_network_site_wpcom_id'          => array( 'Automattic\\Jetpack\\Sync\\Functions', 'main_network_site_wpcom_id' ),
 	);
 
 	/**

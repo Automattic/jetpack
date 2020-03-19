@@ -111,6 +111,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			$callables['network_site_upload_space']           = Jetpack::network_site_upload_space();
 			$callables['network_upload_file_types']           = Jetpack::network_upload_file_types();
 			$callables['network_enable_administration_menus'] = Jetpack::network_enable_administration_menus();
+			$callables['main_network_site_wpcom_id']          = Functions::main_network_site_wpcom_id();
 		}
 
 		$this->sender->do_sync();
@@ -1116,6 +1117,38 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		// Get hosting provider by known function.
 		$this->assertEquals( $functions->get_hosting_provider_by_known_function(), 'wpe' );
+	}
+
+	/**
+	 * Test getting the main network site wpcom ID
+	 *
+	 * @return void
+	 */
+	public function test_get_main_network_site_wpcom_id() {
+		if ( ! is_multisite() ) {
+			$this->markTestSkipped( 'Only used on multisite' );
+		}
+
+		// set the Jetpack ID for this site.
+		$main_network_wpcom_id = 12345;
+		\Jetpack_Options::update_option( 'id', $main_network_wpcom_id );
+
+		$user_id = $this->factory->user->create();
+
+		// NOTE this is necessary because WPMU causes certain assumptions about transients.
+		// to be wrong, and tests to explode. @see: https://github.com/sheabunge/WordPress/commit/ff4f1bb17095c6af8a0f35ac304f79074f3c3ff6 .
+		global $wpdb;
+
+		$suppress      = $wpdb->suppress_errors();
+		$other_blog_id = wpmu_create_blog( 'foo.com', '', 'My Blog', $user_id );
+		$wpdb->suppress_errors( $suppress );
+
+		switch_to_blog( $other_blog_id );
+
+		$functions = new Functions();
+		$this->assertEquals( $main_network_wpcom_id, $functions->main_network_site_wpcom_id() );
+
+		restore_current_blog();
 	}
 
 }
