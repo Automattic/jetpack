@@ -697,7 +697,6 @@ function videopress_get_post_id_by_guid( $guid ) {
 
 	if ( $query->have_posts() ) {
 		$post_id = $query->next_post();
-		// Only store the ID, to prevent filling the database.
 		set_transient( $cache_key, $post_id, HOUR_IN_SECONDS );
 
 		return $post_id;
