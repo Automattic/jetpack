@@ -87,7 +87,7 @@ class PodcastPlayer {
 		// Construct audio element.
 		this.audio = document.createElement( 'audio' );
 		this.audio.src = this.getTrack( 0 ).src;
-		this.audio.addEventListener( 'play', () => this.setPlayerState( STATE_PLAYING ) );
+		this.audio.addEventListener( 'play', () => this.handlePlay() );
 		this.audio.addEventListener( 'pause', () => this.setPlayerState( STATE_PAUSED ) );
 		this.audio.addEventListener( 'error', () => this.handleError() );
 
@@ -116,6 +116,18 @@ class PodcastPlayer {
 		this.setPlayerState( STATE_ERROR );
 		if ( this.currentTrack > -1 ) {
 			this.setTrackState( this.currentTrack, true, true );
+		}
+	}
+
+	/**
+	 * Play handler for audio.
+	 * @private
+	 */
+	handlePlay() {
+		this.setPlayerState( STATE_PLAYING );
+		if ( this.currentTrack === -1 ) {
+			this.currentTrack = 0;
+			this.setTrackState( this.currentTrack, true );
 		}
 	}
 
