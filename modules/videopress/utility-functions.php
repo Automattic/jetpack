@@ -74,6 +74,7 @@ function videopress_get_video_details( $guid ) {
  * Modified from https://wpscholar.com/blog/get-attachment-id-from-wp-image-url/
  *
  * @deprecated since 8.4.0
+ * @see video_get_post_id_by_guid()
  *
  * @param string $url
  *
