@@ -28,9 +28,9 @@ class WPcom_Instagram_Widget extends WP_Widget {
 	function __construct() {
 		parent::__construct(
 			self::ID_BASE,
-			__( 'Instagram', 'wpcomsh' ),
+			__( 'Instagram', 'wpcom-instagram-widget' ),
 			array(
-				'description' => __( 'Display your latest Instagram photos.', 'wpcomsh' ),
+				'description' => __( 'Display your latest Instagram photos.', 'wpcom-instagram-widget' ),
 			)
 		);
 
@@ -43,7 +43,7 @@ class WPcom_Instagram_Widget extends WP_Widget {
 
 		$this->defaults = array(
 			'token_id' => null,
-			'title'    => __( 'Instagram', 'wpcomsh' ),
+			'title'    => __( 'Instagram', 'wpcom-instagram-widget' ),
 			'columns'  => 2,
 			'count'    => 6,
 		);
@@ -185,10 +185,10 @@ class WPcom_Instagram_Widget extends WP_Widget {
 			$images = $data['images'];
 
 			if ( ! is_array( $images ) ) {
-				echo '<p>' . __( 'There was an error retrieving images from Instagram. An attempt will be remade in a few minutes.', 'wpcomsh' ) . '</p>';
+				echo '<p>' . __( 'There was an error retrieving images from Instagram. An attempt will be remade in a few minutes.', 'wpcom-instagram-widget' ) . '</p>';
 			}
 			elseif ( ! $images ) {
-				echo '<p>' . __( 'No Instagram images were found.', 'wpcomsh' ) . '</p>';
+				echo '<p>' . __( 'No Instagram images were found.', 'wpcom-instagram-widget' ) . '</p>';
 			} else {
 
 				echo '<div class="' . esc_attr( 'wpcom-instagram-images wpcom-instagram-columns-' . (int) $instance['columns'] ) . '">' . "\n";
@@ -221,14 +221,13 @@ class WPcom_Instagram_Widget extends WP_Widget {
 		if ( is_wp_error( $response ) ) {
 			do_action( 'wpcomsh_log', 'Instagram widget: failed to connect to API via wpcom api.' );
 
-			echo '<p>' . __( 'Instagram is currently experiencing connectivity issues, please try again later to connect.' ) . '</p>';
+			echo '<p>' . __( 'Instagram is currently experiencing connectivity issues, please try again later to connect.', 'wpcom-instagram-widget' ) . '</p>';
 			return;
 		}
 
 		$body = json_decode( $response['body'] );
 		$connect_URL = $body->services->instagram->connect_URL;
 		$query_params = $this->get_query_params();
-		$query_params['hash'] = $this->get_paramater_hash( $query_params );
 		$url = add_query_arg(
 			$query_params,
 			$connect_URL
@@ -253,8 +252,18 @@ class WPcom_Instagram_Widget extends WP_Widget {
 		// If coming back from an OAuth authentication, validate and use the one in the URL
 		if ( isset( $_GET['instagram_widget_id'] ) && $_GET['instagram_widget_id'] == $this->number
 			&& ! empty( $_GET['instagram_widget'] ) && 'connection_verified' == $_GET['instagram_widget']
-			&& ! empty( $_GET['token_id'] ) && $instance['token_id'] !== (int) $_GET['token_id'] && $this->validate_parameters() ) {
-				$instance['token_id'] = (int) $_GET['token_id'];
+			&& ! empty( $_GET['token_id'] ) && $instance['token_id'] !== (int) $_GET['token_id']  ) {
+			$instance['token_id'] = (int) $_GET['token_id'];
+			
+			// check the nonce
+			$site = Jetpack_Options::get_option( 'id' );
+			$path = sprintf( '/sites/%s/instagram/verify-nonce/%s/%s', $site, $_GET['wpcom_nonce'], $_GET['blog'] );
+			$result = $this->wpcom_json_api_request_as_blog( $path, 2, array( 'headers' => array( 'content-type' => 'application/json' ) ), null, 'wpcom' );
+			$response_code = wp_remote_retrieve_response_code( $result );
+			if ( 200 !== $response_code ) {
+				do_action( 'wpcomsh_log', 'Instagram widget: failed to verify nonce: API returned code ' . $response_code );
+				return 'ERROR';
+			}
 
 			$this->update_widget_token_id( $instance['token_id'] );
 		}
@@ -273,6 +282,7 @@ class WPcom_Instagram_Widget extends WP_Widget {
 				do_action( 'wpcomsh_log', 'Instagram widget: failed to remove keyring token: API returned code ' . $response_code );
 				return 'ERROR';
 			}
+
 			$instance['token_id'] = $this->defaults['token_id'];
 
 			$this->update_widget_token_id( $instance['token_id'] );
@@ -379,31 +389,6 @@ class WPcom_Instagram_Widget extends WP_Widget {
 		$instance['count'] = max( 1, min( $this->valid_options['max_count'], (int) $new_instance['count'] ) );
 
 		return $instance;
-	}
-
-	/**
-	 * Get an sha256 hash of a seialized array of parameters
-	 *
-	 * @param string $serialized_parameters A serialized string of a parameter array.
-	 * @return string An sha256 hash
-	 */
-	function get_paramater_hash( $parameters ) {
-		return hash_hmac( 'sha256', serialize( $parameters ), NONCE_KEY );
-	}
-
-	/**
-	 * Validates that a hash of the parameter array matches the included hash parameter
-	 *
-	 * @param array $parameters An array of query parameters.
-	 * @return array An array of the parameters minus the hash
-	 */
-	function validate_parameters() {
-		if ( empty( $_GET['hash'] ) ) {
-			return false;
-		}
-
-		return $_GET['hash'] === $this->get_paramater_hash( $this->get_query_params() );
-
 	}
 }
 
