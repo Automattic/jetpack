@@ -737,7 +737,7 @@
 		/**
 		 * Emit the event in a jQuery way for backwards compatibility where necessary.
 		 */
-		if ( opts.jqueryEventName && jQuery ) {
+		if ( opts.jqueryEventName && 'undefined' !== typeof jQuery ) {
 			jQuery( el ).trigger( opts.jqueryEventName, opts.data || null );
 		}
 
