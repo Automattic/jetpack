@@ -107,7 +107,6 @@ function render_player( $track_list, $attributes ) {
 				<a
 					class="podcast-player__episode-link"
 					href="<?php echo esc_url( $attachment['link'] ); ?>"
-					data-jetpack-podcast-audio="<?php echo esc_url( $attachment['src'] ); ?>"
 					role="button"
 					aria-pressed="false"
 				>
