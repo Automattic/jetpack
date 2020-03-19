@@ -49,9 +49,13 @@ $block-border-color: $dark-gray-100;
 
 .podcast-player__episode {
 	margin: 0;
-	color: $text-color;
 	font-family: $default-font;
 	font-size: $editor-font-size;
+
+	// Apply text color only if hasn't been by the user.
+	&:not(.has-text-color) {
+		color: $text-color;
+	}
 
 	&:hover,
 	&:focus {
