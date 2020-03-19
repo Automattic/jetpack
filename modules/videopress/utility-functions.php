@@ -695,7 +695,7 @@ function video_get_post_id_by_guid( $guid ) {
 	if ( $query->have_posts() ) {
 		$post = $query->next_post();
 		// Only store the ID, to prevent filling the database.
-		set_transient( $cache_key, $post->ID );
+		set_transient( $cache_key, $post->ID, HOUR_IN_SECONDS );
 
 		return $post->ID;
 	}
