@@ -4,6 +4,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
+import { soundIcon, errorIcon } from './icons';
 
 const debug = debugFactory( 'jetpack:podcast-player' );
 
@@ -227,6 +228,19 @@ class PodcastPlayer {
 			el.appendChild( this.renderErrorWithLink( trackData && trackData.link ) );
 		} else if ( ! isError && errorEl ) {
 			errorEl.remove();
+		}
+
+		const iconEl = el.querySelector( '.podcast-player__episode-status-icon' );
+		if ( iconEl ) {
+			if ( isActive ) {
+				if ( isError ) {
+					iconEl.innerHTML = errorIcon;
+				} else {
+					iconEl.innerHTML = soundIcon;
+				}
+			} else {
+				iconEl.innerHTML = '';
+			}
 		}
 	}
 
