@@ -89,7 +89,7 @@
 
 			// Ensure that enough posts are loaded to fill the initial viewport, to compensate for short posts and large displays.
 			self.ensureFilledViewport();
-			this.body.addEventListener( 'post-load', self.checkViewportOnLoadBound );
+			this.body.addEventListener( 'is.post-load', self.checkViewportOnLoadBound );
 		} else if ( type == 'click' ) {
 			if ( this.click_handle ) {
 				this.element.appendChild( this.handle );
@@ -107,28 +107,7 @@
 		}
 
 		// Initialize any Core audio or video players loaded via IS
-		this.body.addEventListener( 'post-load', self.initializeMejs );
-	};
-
-	Scroller.prototype.triggerEvent = function( eventName, el, data ) {
-		var e;
-
-		try {
-			var evtOptions = {
-				bubbles: true,
-				cancelable: true,
-			};
-
-			if ( data ) {
-				evtOptions.detail = data;
-			}
-			e = new CustomEvent( eventName, evtOptions );
-		} catch ( err ) {
-			e = document.createEvent( 'CustomEvent' );
-			e.initCustomEvent( eventName, true, true, data || null );
-		}
-
-		el.dispatchEvent( e );
+		this.body.addEventListener( 'is.post-load', self.initializeMejs );
 	};
 
 	/**
@@ -187,7 +166,7 @@
 			this.element.appendChild( response.fragment.childNodes[ i ] );
 		}
 
-		this.trigger( this.body.get( 0 ), 'is.post-load', {
+		this.trigger( this.body, 'is.post-load', {
 			jqueryEventName: 'post-load',
 			data: response,
 		} );
@@ -431,7 +410,7 @@
 
 					// If MediaElement.js is loaded in by item set of posts, don't initialize the players a second time as it breaks them all
 					if ( 'wp-mediaelement' === item.handle ) {
-						self.body.removeEventListener( 'post-load', self.initializeMejs );
+						self.body.removeEventListener( 'is.post-load', self.initializeMejs );
 					}
 
 					if ( 'wp-mediaelement' === item.handle && 'undefined' === typeof mejs ) {
@@ -506,13 +485,13 @@
 						self.body.classList.add( 'infinity-end' );
 						self.body.classList.remove( 'infinity-success' );
 					} else {
-						self.triggerEvent( 'infinite-scroll-posts-end', this.body, null );
+						self.trigger( this.body, 'infinite-scroll-posts-end' );
 					}
 				} else {
 					if ( self.click_handle ) {
 						self.element.appendChild( self.handle );
 					} else {
-						self.triggerEvent( 'infinite-scroll-posts-more', this.body, null );
+						self.trigger( this.body, 'infinite-scroll-posts-more' );
 					}
 				}
 			} else if ( response.lastbatch ) {
@@ -560,7 +539,7 @@
 			this.wpMediaelement = null;
 
 			// Ensure any subsequent IS loads initialize the players
-			this.body.addEventListener( 'post-load', this.initializeMejs );
+			this.body.addEventListener( 'is.post-load', this.initializeMejs );
 		}
 	};
 
@@ -645,7 +624,7 @@
 			}
 
 			if ( postsHeight === 0 ) {
-				self.body.addEventListener( 'post-load', self.checkViewportOnLoadBound );
+				self.body.addEventListener( 'is.post-load', self.checkViewportOnLoadBound );
 				return;
 			}
 		}
@@ -667,7 +646,7 @@
 			self.ready = true;
 			self.refresh();
 		} else {
-			self.body.removeEventListener( 'post-load', self.checkViewportOnLoadBound );
+			self.body.removeEventListener( 'is.post-load', self.checkViewportOnLoadBound );
 		}
 	};
 
