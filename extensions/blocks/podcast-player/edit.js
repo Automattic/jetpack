@@ -29,7 +29,7 @@ import { isURL } from '@wordpress/url';
 import { namespaceName } from './index';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import './editor.scss';
-import { edit, queueMusic } from './icons/';
+import { queueMusic } from './icons/';
 import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import attributesValidation from './attributes';
 
@@ -123,9 +123,11 @@ const PodcastPlayerEdit = ( {
 
 	const toolbarControls = [
 		{
-			icon: edit,
 			title: __( 'Edit Podcast Feed URL', 'jetpack' ),
 			onClick: () => setIsEditing( true ),
+			extraProps: {
+				children: __( 'Replace', 'jetpack' ),
+			},
 		},
 	];
 
