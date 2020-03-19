@@ -23,26 +23,6 @@ class WP_Test_Jetpack_VideoPress_Utility_Functions extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests a helper function to get the post by guid, when there's initially no cached value.
-	 *
-	 * @covers ::video_get_post_by_guid
-	 * @since 8.4.0
-	 */
-	public function test_non_cached_video_get_post_id_by_guid() {
-		$guid           = wp_generate_uuid4();
-		$expected_id    = videopress_create_new_media_item( 'Example', $guid );
-		$actual_post_id = video_get_post_id_by_guid( $guid );
-
-		$this->assertEquals( $expected_id, $actual_post_id );
-
-		// The function should have cached the value.
-		$this->assertEquals(
-			$expected_id,
-			get_transient( 'video_get_post_id_by_guid_' . $guid )
-		);
-	}
-
-	/**
 	 * Gets the test data for test_cached_video_get_post_by_guid().
 	 *
 	 * @return array The test data.
@@ -184,6 +164,26 @@ class WP_Test_Jetpack_VideoPress_Utility_Functions extends WP_UnitTestCase {
 		$this->assertEquals(
 			get_post( $attachment_id ),
 			video_get_post_by_guid( $guid )
+		);
+	}
+
+	/**
+	 * Tests a helper function to get the post id by guid.
+	 *
+	 * @covers ::video_get_post_id_by_guid
+	 * @since 8.4.0
+	 */
+	public function test_non_cached_video_get_post_id_by_guid() {
+		$guid           = wp_generate_uuid4();
+		$expected_id    = videopress_create_new_media_item( 'Example', $guid );
+		$actual_post_id = video_get_post_id_by_guid( $guid );
+
+		$this->assertEquals( $expected_id, $actual_post_id );
+
+		// The function should have cached the value.
+		$this->assertEquals(
+			$expected_id,
+			get_transient( 'video_get_post_id_by_guid_' . $guid )
 		);
 	}
 
