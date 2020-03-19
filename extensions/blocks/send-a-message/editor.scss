@@ -1,0 +1,44 @@
+/**
+ * Editor styles for Send A Message
+ */
+
+.wp-block-jetpack-send-a-message {
+	input.components-text-control__input {
+    	padding: 5px 8px;
+    	margin-left: 3px;
+	}
+
+	select.components-select-control__input {
+		width: 95px;
+		min-height: 30px;
+		padding-left: 10px;
+	}
+
+	button.components-button.is-large {
+		margin-left: 7px;
+	}
+
+	.components-placeholder__label svg {
+		margin-right: 6px;
+	}
+}
+
+.whatsapp-phonenumber-invalid {
+	.components-popover__content {
+		background: #B40000;
+		color: white;
+		padding: 6px 10px;
+		border-radius: 6px;
+		border: none;
+	}
+
+	&:not(.is-without-arrow):not(.is-mobile):after {
+		border-color: #B40000;
+	}
+
+	svg.dashicon {
+		vertical-align: top;
+		margin-right: 4px;
+		margin-top: -1px;
+	}
+}

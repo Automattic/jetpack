@@ -32,7 +32,7 @@
 		"videopress",
 		"wordads"
 	],
-	"beta": [ "amazon" ],
+	"beta": [ "amazon", "send-a-message" ],
 	"experimental": [ "seo" ],
 	"no-post-editor": [
 		"business-hours",
