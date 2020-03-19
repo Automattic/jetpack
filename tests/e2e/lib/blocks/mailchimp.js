@@ -32,9 +32,8 @@ export default class MailchimpBlock {
 	 */
 	async connect( isLoggedIn = true ) {
 		const setupFormSelector = this.getSelector( "a[href*='marketing/connections']" );
-		const hrefProperty = await (
-			await waitForSelector( this.page, setupFormSelector )
-		 ).getProperty( 'href' );
+		const formSelector = await waitForSelector( this.page, setupFormSelector );
+		const hrefProperty = await formSelector.getProperty( 'href' );
 		const connectionsUrl = await hrefProperty.jsonValue();
 		const loginTab = await clickAndWaitForNewPage( this.page, setupFormSelector );
 		global.page = loginTab;
