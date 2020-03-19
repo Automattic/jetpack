@@ -642,22 +642,38 @@ function video_image_url_by_guid( $guid, $format ) {
  * @return WP_Post|false The post for that guid, or false if none is found.
  */
 function video_get_post_by_guid( $guid ) {
-	$cache_key          = 'video_get_post_by_guid_' . $guid;
-	$cache_group        = 'videopress';
-	$is_using_obj_cache = wp_using_ext_object_cache();
-	$cached_post        = $is_using_obj_cache ? wp_cache_get( $cache_key, $cache_group ) : get_transient( $cache_key );
+	$cache_key   = 'video_get_post_by_guid_' . $guid;
+	$cache_group = 'videopress';
+	$cached_post = wp_cache_get( $cache_key, $cache_group );
 
-	if ( false !== $cached_post ) {
-		if ( is_object( $cached_post ) && 'WP_Post' === get_class( $cached_post ) ) {
-			return $cached_post;
-		}
+	if ( is_object( $cached_post ) && 'WP_Post' === get_class( $cached_post ) ) {
+		return $cached_post;
+	}
 
-		if ( is_int( $cached_post ) ) {
-			$post = get_post( $cached_post );
-			if ( $post ) {
-				return $post;
-			}
-		}
+	$post_id = video_get_post_id_by_guid( $guid );
+
+	if ( is_int( $post_id ) ) {
+		$post = get_post( $post_id );
+		wp_cache_set( $cache_key, $post, $cache_group, HOUR_IN_SECONDS );
+
+		return $post;
+	}
+
+	return false;
+}
+
+/**
+ * Using a GUID, find the associated post ID.
+ *
+ * @param string $guid The guid to look for the post ID of.
+ * @return int|false The post ID for that guid, or false if none is found.
+ */
+function video_get_post_id_by_guid( $guid ) {
+	$cache_key = 'video_get_post_id_by_guid_' . $guid;
+	$cached_id = get_transient( $cache_key );
+
+	if ( is_int( $cached_id ) ) {
+		return $cached_id;
 	}
 
 	$args = array(
@@ -678,14 +694,10 @@ function video_get_post_by_guid( $guid ) {
 
 	if ( $query->have_posts() ) {
 		$post = $query->next_post();
-		if ( $is_using_obj_cache ) {
-			wp_cache_set( $cache_key, $post, $cache_group, HOUR_IN_SECONDS );
-		} else {
-			// Only store the ID, to prevent filling the database.
-			set_transient( $cache_key, $post->ID );
-		}
+		// Only store the ID, to prevent filling the database.
+		set_transient( $cache_key, $post->ID );
 
-		return $post;
+		return $post->ID;
 	}
 
 	return false;
