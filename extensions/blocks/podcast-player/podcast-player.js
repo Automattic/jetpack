@@ -54,8 +54,12 @@ class PodcastPlayer {
 		// Initialize player UI.
 		this.initializeAudio();
 
-		// Store track elements.
-		this.trackElements = block.querySelector( '.podcast-player__episodes' ).children;
+		// Store track elements and cast as Array.
+		this.trackElements = [ ...block.querySelector( '.podcast-player__episodes' ).children ];
+
+		// Attach event handlers.
+		this.block.addEventListener( 'click', this.handleClick.bind( this ), false );
+		this.block.addEventListener( 'keydown', this.handleKeyDown.bind( this ), false );
 	}
 
 	/**
@@ -271,6 +275,70 @@ class PodcastPlayer {
 		}
 
 		return errorEl;
+	}
+
+	/**
+	 * Walk the DOM tree up and check whether it is inside
+	 * an element representing a track.
+	 * @private
+	 * @param {Element} el Element to check
+	 * @returns {mumber} The track number or -1
+	 */
+	getTrackFromElement( el ) {
+		const track = el.closest( '.podcast-player__episode' );
+		return track ? this.trackElements.indexOf( track ) : -1;
+	}
+
+	/**
+	 * Handle pressing a key.
+	 * @private
+	 * @param {KeyboardEvent} e The event
+	 */
+	handleKeyDown( e ) {
+		// Only handle the Space key.
+		if ( event.key !== ' ' ) {
+			return;
+		}
+
+		// Check if we are inside a track element and which one.
+		const track = this.getTrackFromElement( e.target );
+		if ( track === -1 ) {
+			return;
+		}
+
+		this.selectTrack( track );
+
+		// Prevent default behavior (scrolling one page down).
+		e.stopPropagation();
+		e.preventDefault();
+	}
+
+	/**
+	 * Handle a click event.
+	 * @private
+	 * @param {MouseEvent} e The event
+	 */
+	handleClick( e ) {
+		// Prevent handling clicks if a modifier is in use.
+		const isModifierUsed = e.shiftKey || e.metaKey || e.altKey;
+
+		// Check if we are inside an episode link.
+		const isOutsideLink = ! e.target.closest( '.podcast-player__episode-link' );
+
+		// Check which track was selected.
+		const track = this.getTrackFromElement( e.target );
+
+		// Return if we are not interested in handling this.
+		if ( isModifierUsed || isOutsideLink || track === -1 ) {
+			return;
+		}
+
+		// Prevent default behavior (opening a link).
+		e.stopPropagation();
+		e.preventDefault();
+
+		// Select the track.
+		this.selectTrack( track );
 	}
 }
 
