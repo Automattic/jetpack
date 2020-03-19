@@ -12,19 +12,16 @@ var jetpackLazyImagesModule = function() {
 		image,
 		i;
 
-
-
 	lazy_load_init();
 
 	var bodyEl = document.querySelector( 'body' );
 	if ( bodyEl ) {
 		// Lazy load images that are brought in from Infinite Scroll
-		bodyEl.addEventListener( 'post-load', lazy_load_init );
+		bodyEl.addEventListener( 'is.post-load', lazy_load_init );
 
 		// Add event to provide optional compatibility for other code.
 		bodyEl.addEventListener( 'jetpack-lazy-images-load', lazy_load_init );
 	}
-
 
 	function lazy_load_init() {
 		images = document.querySelectorAll( 'img.jetpack-lazy-image:not(.jetpack-lazy-image--handled)' );
