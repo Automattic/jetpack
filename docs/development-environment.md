@@ -1,5 +1,95 @@
 # Development Environment
 
+## Table of contents
+
+1. [Setting up your environment](#section-setting-up-env)
+   * [Overview](#section-overview)
+   * [Running Jetpack locally](#section-running-local-jetpack)
+      * [Docker](#setup-env-docker)
+      * [VVV](#setup-env-vvv)
+      * [Local web and database servers](#setup-env-local-web-server)
+   * [Installing development tools](#setup-development-tools)
+      * NodeJS
+      * Yarn package manager
+      * PHP
+      * Composer
+      * PHPUnit
+2. Start development
+   * Run a development build
+   * Run production build
+3. Unit Testing
+   * PHP unit testing
+   * JavaScript unit testing
+      * Jetpack WP-Admin page unit tests
+      * Jetpack modules unit tests
+
+      
+<a name="section-setting-up-env"></a>
+# Setting up your environment
+<a name="section-overview"></a>
+## Overview 
+
+In order to start developing the Jetpack plugin you want to have access to a WordPress installation where you can install the plugin and work on it. 
+
+To do that you need to set up a WordPress site and give it the ability to run your local build of the Jetpack plugin code repository.
+
+There are several ways to achieve this, listed in the next section.
+
+<a name="section-running-local-jetpack"></a>
+## Running Jetpack locally
+
+To get a local WordPress site up and running you need a web server (Apache, Nginx), PHP and MySQL (or MariaDB).
+
+For easier and more organized development, there are several ways to achieve that:
+
+<a name="setup-env-docker"></a>
+### Docker 
+
+This would be the easiest and most straight-forward way to start your journey in Jetpack development. Docker offers a containerized install of WordPress with all of its dependencies installed and set up. You just need to start working on the plugin code. 
+
+To set up your environment with Docker, follow the [Docker environment for Jetpack Development guide](../docker/README.md).
+
+<a name="setup-env-vvv"></a>
+### VVV - TODO 
+
+VVV is similar to Docker in how it works, but instead of setting up separate containers for the different parts it uses a single Linux virtual machine to set everything up with a nice interface.
+
+*...This section is still under development...*
+
+<a name="setup-env-local-web-server"></a>
+### Local web and database servers 
+
+This is the most involved set up way among the three. Since the installation steps are very dependent on the operating system and it's flavor, we're not going to cover them here for the time being. You can refer to the [WordPress recommended system requirements](https://wordpress.org/about/requirements/) to see what you need to install to get WordPress up and running on your system.
+
+<a name="setup-development-tools"></a>
+## Installing development tools
+
+### Node.js
+
+Node.js is used in the build process of the Jetpack plugin. If it's not already installed on your system, you can [visit the Node.js website and install the latest Long Term Support (LTS) version.](https://nodejs.org/).
+
+### Yarn
+
+Yarn is a Node.js package manager and it's used to install packages that are required to build the Jetpack plugin. To install it, you can [visit the Installation page of the project](https://classic.yarnpkg.com/en/docs/install) and follow the instructions for your operating system.
+
+### PHP
+
+PHP is a popular general-purpose scripting language that is especially suited to web development and it's at the core of the Jetpack plugin. 
+
+There are multiple ways to install PHP on your operating system, but as it's very dependend on your operating system and it's flavor, we're not going to cover it in this document at this time. 
+
+You can check out the [official installation instructions from the project website.](https://www.php.net/manual/en/install.php).
+
+### Composer
+
+Composer, similarlly to Yarn is a package manager, but for PHP packages. It will help you manage and install the PHP package dependencies for the Jetpack plugin. To install Composer, you can [visit the project website](https://getcomposer.org/) and follow the instructions for you operating system.
+
+### PHPUnit
+
+PHPUnit is the unit test framework we use in Jetpack. You can install it by v[isitng the official project web site](https://phpunit.de/) and follow the installation instructions there. 
+
+# ===============================================
+
 The JavaScript and CSS components of this plugin's admin interface need to be built in order to get the run time bundle (`_inc/build/admin.js`)
 
 ## Before moving forward
@@ -38,7 +128,7 @@ $ yarn distclean
 
 ### Start Development
 
-1. Make sure you have `git`, `node`, `npm`, and a working WordPress installation.
+1. Make sure you have `git`, `node`, `yarn`, and a working WordPress installation.
 2. Clone this repository inside your Plugins directory.
 
 	```sh
