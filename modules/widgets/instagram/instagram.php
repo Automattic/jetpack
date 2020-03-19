@@ -285,7 +285,32 @@ class WPcom_Instagram_Widget extends WP_Widget {
 		// No connection, or a legacy API token? Display a connection link.
 		if ( ! $instance['token_id'] ) {
 			echo '<p>' . __( '<strong>Important: You must first click Save to activate this widget <em>before</em> connecting your account.</strong> After saving the widget, click the button below to authorize your Instagram account.', 'wpcom-instagram-widget' ) . '</p>';
-			echo '<p style="text-align:center"><a class="button-primary" target="_top" href="' . esc_url( $this->get_connect_url() ) . '">' . __( 'Connect Instagram Account', 'wpcom-instagram-widget' ) . '</a></p>';
+			?>
+			<script type="text/javascript">
+				function getScreenCenterSpecs( width, height ) {
+					const screenTop = typeof window.screenTop !== 'undefined' ? window.screenTop : window.screenY,
+						screenLeft = typeof window.screenLeft !== 'undefined' ? window.screenLeft : window.screenX;
+
+					return [
+						'width=' + width,
+						'height=' + height,
+						'top=' + ( screenTop + window.innerHeight / 2 - height / 2 ),
+						'left=' + ( screenLeft + window.innerWidth / 2 - width / 2 ),
+					].join();
+				};
+				function openWindow() {
+					window.open(
+						'<?php echo $this->get_connect_url(); ?>',
+						'_blank',
+						'toolbar=0,location=0,menubar=0,' + getScreenCenterSpecs( 700, 700 )
+					);
+					window.onmessage = function( { data } ) {
+						console.log( data );
+					};
+				}
+			</script>
+			<p style="text-align:center"><button class="button-primary" onclick="openWindow(); return false;"><?php echo __( 'Connect Instagram Account', 'wpcom-instagram-widget' ); ?></button></p>
+			<?php
 			echo '<p><small>' . sprintf( __( 'Having trouble? Try <a href="%s" target="_blank">logging into the correct account</a> on Instagram.com first.', 'wpcom-instagram-widget' ), 'https://instagram.com/accounts/login/' ) . '</small></p>';
 			return;
 		}
