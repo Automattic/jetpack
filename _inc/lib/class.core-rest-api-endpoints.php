@@ -2059,7 +2059,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			),
 
 			// Search.
-			'instant_search_enabled'               => array(
+			'instant_search_enabled' => array(
 				'description'       => esc_html__( 'Enable Instant Search', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 0,
