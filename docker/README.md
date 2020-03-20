@@ -238,7 +238,7 @@ If you use one-off domains, you'll have to re-install WordPress and re-connect J
 
 If you're developing Jetpack often you'll want to reserve a domain you can keep using.
 
-If you are an Automattician, sign up on Ngrok.com using your A8C Google account; you'll be automatically added to the Automattic team. That will enable you to re-use domains, reserve your custom domains and reserve TCP ports.
+If you are an Automattician, we no longer have SSO access to Ngrok. To get the ability to re-use domains, reserve your custom domains, and reserve TCP ports, you'll need to sign up for the plan you need and expense the yearly fee.
 
 [Go to this page to reserve a permanent domain](https://dashboard.ngrok.com/reserved).
 
