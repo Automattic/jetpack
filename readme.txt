@@ -108,6 +108,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Enhancements**
 
 * Blocks: improve discoverability of multiple blocks by reviewing keywords used in the block search.
+* Blocks: improve the display of error notices in Jetpack's embed blocks.
 * Gravatar Hovercards: avoid loading Gravatar assets when not needed on the page.
 * Likes: improve performance when loading resources used by the Likes feature on the front-end of your site.
 * Protect: improve detection of IP on servers using custom IP Headers.
