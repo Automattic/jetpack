@@ -89,7 +89,7 @@ $block-border-color: $dark-gray-100;
 }
 
 .podcast-player__episode-status-icon {
-	width: $episode-status-icon-size;
+	flex: $episode-status-icon-size 0 0;
 
 	svg {
 		width: $episode-status-icon-size;
