@@ -206,7 +206,7 @@ class WPcom_Instagram_Widget extends WP_Widget {
 			echo $args['before_title'] . esc_html( $instance['title'] ) . $args['after_title'];
 
 		if ( ! $instance['token_id'] ) {
-			echo '<a class="button-primary" target="_top" href="' . $this->get_connect_url() . '">' . __( 'Connect Instagram Account', 'wpcom-instagram-widget' ) . '</a>';
+			echo 'Connect this widget to display your Instagram photos here.';
 		} else {
 			$data   = $this->get_data( $instance );
 			$images = $data['images'];
