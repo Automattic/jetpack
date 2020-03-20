@@ -57,6 +57,7 @@ Generally, all new extensions should start out as a beta.
 - In the `wp-config.php` for your Docker environment (`docker/wordpress/wp-config.php`) or in your custom mu-plugins file (`docker/mu-plugins/yourfile.php`), enable beta extensions with the following snippet: `define( 'JETPACK_BETA_BLOCKS', true );`
 - When you use this constant, you'll get all blocks: Beta blocks, Experimental blocks, and Production blocks.
 - In the WordPress.com environment, Automatticians will be able to see beta extensions with no further configuration
+- In a Jurassic Ninja site, you must go to Settings > Jetpack Constants, and enable the `JETPACK_BETA_BLOCKS` option there.
 - Once you've successfully beta tested your new extension, you can open new PR to make your extension live!
 - Simply move the extension's slug out of the beta array and into the production array in `extensions/index.json`.
 
