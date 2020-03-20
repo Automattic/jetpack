@@ -31,7 +31,7 @@ const supportLink =
 		: 'https://jetpack.com/support/jetpack-blocks/simple-payments-block/';
 
 export const settings = {
-	title: __( 'Simple Payments button', 'jetpack' ),
+	title: __( 'Simple Payments', 'jetpack' ),
 
 	description: (
 		<Fragment>
