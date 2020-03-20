@@ -107,7 +107,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
-*
+* Widgets: improve performance of the Search and Milestone widgets.
 
 **Improved compatibility**
 
