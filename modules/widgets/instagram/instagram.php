@@ -289,25 +289,6 @@ class WPcom_Instagram_Widget extends WP_Widget {
 			echo '<script type="text/javascript">jQuery(document).ready(function($){ $(\'.widget[id$="wpcom_instagram_widget-' . esc_js( $this->number ) . '"] .widget-inside\').slideDown(\'fast\'); });</script>';
 		}
 
-		// If coming back from an OAuth authentication, validate and use the one in the URL
-		if ( isset( $_GET['instagram_widget_id'] ) && $_GET['instagram_widget_id'] == $this->number
-			&& ! empty( $_GET['instagram_widget'] ) && 'connection_verified' == $_GET['instagram_widget']
-			&& ! empty( $_GET['token_id'] ) && $instance['token_id'] !== (int) $_GET['token_id']  ) {
-			$instance['token_id'] = (int) $_GET['token_id'];
-
-			// check the nonce
-			$site = Jetpack_Options::get_option( 'id' );
-			$path = sprintf( '/sites/%s/instagram/verify-nonce/%s/%s', $site, $_GET['wpcom_nonce'], $_GET['blog'] );
-			$result = $this->wpcom_json_api_request_as_blog( $path, 2, array( 'headers' => array( 'content-type' => 'application/json' ) ), null, 'wpcom' );
-			$response_code = wp_remote_retrieve_response_code( $result );
-			if ( 200 !== $response_code ) {
-				do_action( 'wpcomsh_log', 'Instagram widget: failed to verify nonce: API returned code ' . $response_code );
-				return 'ERROR';
-			}
-
-			$this->update_widget_token_id( $instance['token_id'] );
-			$this->update_widget_token_legacy_status( false );
-		}
 		// If removing the widget's stored token ID
 		elseif ( $instance['token_id'] && isset( $_GET['instagram_widget_id'] ) && $_GET['instagram_widget_id'] == $this->number && ! empty( $_GET['instagram_widget'] ) && 'remove_token' == $_GET['instagram_widget'] ) {
 			if ( empty( $_GET['nonce'] ) || ! wp_verify_nonce( $_GET['nonce'], 'instagram-widget-remove-token-' . $this->number . '-' . $instance['token_id'] ) ) {
