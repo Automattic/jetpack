@@ -212,7 +212,9 @@ class PodcastPlayer {
 	 */
 	setPlayerState( state ) {
 		this.playerState = state;
-		this.block.classList.remove( STATE_ERROR, STATE_PAUSED, STATE_PLAYING );
+		this.block.classList.remove( STATE_ERROR );
+		this.block.classList.remove( STATE_PAUSED );
+		this.block.classList.remove( STATE_PLAYING );
 		this.block.classList.add( state );
 	}
 
