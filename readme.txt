@@ -111,7 +111,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Improved compatibility**
 
-*
+* General: Jetpack now requires WordPress 5.3 and newer.
 
 **Bug fixes**
 
