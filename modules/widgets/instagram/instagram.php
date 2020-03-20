@@ -78,6 +78,21 @@ class WPcom_Instagram_Widget extends WP_Widget {
 	}
 
 	/**
+	 * Updates the widget's option in the database to show if it is for legacy API or not.
+	 *
+	 * @param bool $is_legacy_token A flag to indicate if a token is for the legacy Instagram API.
+	 */
+	public function update_widget_token_legacy_status( $is_legacy_token ) {
+		$widget_options = $this->get_settings();
+
+		if ( ! is_array( $widget_options[ $this->number ] ) )
+			$widget_options[ $this->number ] = $this->defaults;
+
+		$widget_options[ $this->number ]['is_legacy_token'] = $is_legacy_token;
+		$this->save_settings( $widget_options );
+	}
+	
+	/**
 	 * Updates the widget's option in the database to have the passed Keyring token ID.
 	 * Same as the function above, but AJAX-flavoured!
 	 */
@@ -247,6 +262,19 @@ class WPcom_Instagram_Widget extends WP_Widget {
 		return $url;
 	}
 
+	private function is_legacy_token( $token_id ) {
+		$site = Jetpack_Options::get_option( 'id' );
+		$path = sprintf( '/sites/%s/instagram/%s/check-legacy', $site, $token_id );
+		$result = $this->wpcom_json_api_request_as_blog( $path, 2, array( 'headers' => array( 'content-type' => 'application/json' ) ), null, 'wpcom' );
+		$response_code = wp_remote_retrieve_response_code( $result );
+		if ( 200 !== $response_code ) {
+			do_action( 'wpcomsh_log', 'Instagram widget: failed to verify if token is for legacy API: API returned code ' . $response_code );
+			return 'ERROR';
+		}
+		$body = json_decode( $result['body'] );
+		return $body->legacy;
+	}
+
 	/**
 	 * Outputs the widget configuration form for the widget administration page.
 	 * Allows the user to add new Instagram Keyring tokens and more.
@@ -278,6 +306,7 @@ class WPcom_Instagram_Widget extends WP_Widget {
 			}
 
 			$this->update_widget_token_id( $instance['token_id'] );
+			$this->update_widget_token_legacy_status( false );
 		}
 		// If removing the widget's stored token ID
 		elseif ( $instance['token_id'] && isset( $_GET['instagram_widget_id'] ) && $_GET['instagram_widget_id'] == $this->number && ! empty( $_GET['instagram_widget'] ) && 'remove_token' == $_GET['instagram_widget'] ) {
@@ -298,14 +327,18 @@ class WPcom_Instagram_Widget extends WP_Widget {
 			$instance['token_id'] = $this->defaults['token_id'];
 
 			$this->update_widget_token_id( $instance['token_id'] );
+			$this->update_widget_token_legacy_status( false );
 		}
-		// If a token ID is stored, make sure it's still valid
+		// If a token ID is stored, make sure it's still valid, and if we know if it is a legacy API token or not
 		elseif ( $instance['token_id'] ) {
+			if ( ! isset( $instance['is_legacy_token'] ) ) {
+				$this->update_widget_token_legacy_status( $this->is_legacy_token( $instance['token_id'] ) );
+			} 
 			$this->update_widget_token_id( $instance['token_id'] );
 		}
 
 		// No connection, or a legacy API token? Display a connection link.
-		if ( ! $instance['token_id'] ) {
+		if ( ! $instance['token_id'] ||  ( isset( $instance['is_legacy_token'] ) && $instance['is_legacy_token'] === true ) ) {
 			echo '<p>' . __( '<strong>Important: You must first click Save to activate this widget <em>before</em> connecting your account.</strong> After saving the widget, click the button below to authorize your Instagram account.', 'wpcom-instagram-widget' ) . '</p>';
 			?>
 			<script type="text/javascript">
