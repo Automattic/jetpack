@@ -7,9 +7,10 @@ import PluginsPage from '../lib/pages/wp-admin/plugins';
 import DashboardPage from '../lib/pages/wp-admin/dashboard';
 import JetpackPage from '../lib/pages/wp-admin/jetpack';
 import { resetWordpressInstall, getNgrokSiteUrl } from '../lib/utils-helper';
+import { catchBeforeAll } from '../lib/jest.test.failure';
 
 describe( 'Jetpack connection', () => {
-	beforeAll( async () => {
+	catchBeforeAll( async () => {
 		await resetWordpressInstall();
 		const url = getNgrokSiteUrl();
 		await ( await WPLoginPage.visit( page, url + '/wp-login.php' ) ).login();

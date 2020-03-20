@@ -45,7 +45,7 @@ export default class LoginPage extends Page {
 	}
 
 	async isLoggedIn() {
-		const publishSelector = '#header .masterbar__publish';
-		return await isEventuallyVisible( this.page, publishSelector, 4000 );
+		const continueAsUserSelector = '#content .continue-as-user';
+		return await isEventuallyVisible( this.page, continueAsUserSelector, 4000 );
 	}
 }
