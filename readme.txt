@@ -115,7 +115,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
-*
+* Widgets: fix conflicts between some themes and the live countdown feature in the Milestone Widget.
 
 --------
 
