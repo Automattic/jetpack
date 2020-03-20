@@ -290,13 +290,17 @@ class WPcom_Instagram_Widget extends WP_Widget {
 		}
 
 		// If removing the widget's stored token ID
-		if ( $instance['token_id'] && isset( $_GET['instagram_widget_id'] ) && $_GET['instagram_widget_id'] == $this->number && ! empty( $_GET['instagram_widget'] ) && 'remove_token' == $_GET['instagram_widget'] ) {
+		if ( $instance['token_id'] && isset( $_GET['instagram_widget_id'] ) && $_GET['instagram_widget_id'] == $this->number && ! empty( $_GET['instagram_widget'] ) && 'remove_token' === $_GET['instagram_widget'] ) {
 			if ( empty( $_GET['nonce'] ) || ! wp_verify_nonce( $_GET['nonce'], 'instagram-widget-remove-token-' . $this->number . '-' . $instance['token_id'] ) ) {
 				wp_die( __( 'Missing or invalid security nonce.', 'wpcom-instagram-widget' ) );
 			}
 			$site = Jetpack_Options::get_option( 'id' );
-			$path = sprintf( '/sites/%s/instagram/%s/remove', $site, $instance['token_id'] );
-			$result = $this->wpcom_json_api_request_as_blog( $path, 2, array( 'headers' => array( 'content-type' => 'application/json' ) ), null, 'wpcom' );
+			$path = sprintf( '/sites/%s/instagram/%s', $site, $instance['token_id'] );
+
+			$result = $this->wpcom_json_api_request_as_blog( $path, 2, array(
+				'headers' => array( 'content-type' => 'application/json' ),
+				'method' => 'DELETE'
+			), null, 'wpcom' );
 
 			$response_code = wp_remote_retrieve_response_code( $result );
 
