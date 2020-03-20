@@ -65,7 +65,7 @@ function Search( props ) {
 			>
 				<p>
 					{ __(
-						'Help visitors quickly find answers with highly relevant instant search results and powerful filtering hosted in the WordPress.com cloud.'
+						'Help visitors quickly find answers with highly relevant instant search results and powerful filtering. Powered by the WordPress.com cloud.'
 					) }{ ' ' }
 				</p>
 				{ ( props.isBusinessPlan || props.isSearchPlan ) && (
@@ -92,7 +92,7 @@ function Search( props ) {
 							</CompactFormToggle>
 							<p className="jp-form-setting-explanation jp-form-search-setting-explanation">
 								{ __(
-									'Instant Search will allow your visitors to get search results as soon as they start typing. ' +
+									'Instant search will allow your visitors to get search results as soon as they start typing. ' +
 										'If deactivated, Jetpack Search will still optimize your search results but visitors will have to submit a search query before seeing any results.'
 								) }
 							</p>
