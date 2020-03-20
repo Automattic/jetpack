@@ -18,11 +18,11 @@ class Posts extends Module {
 	/**
 	 *  An estimate of how many rows per second can be synced during a full sync.
 	 *
-	 * @access public
+	 * @access static
 	 *
 	 * @var int|null Null if speed is not important in a full sync.
 	 */
-	public $sync_speed = 7;
+	static $sync_speed = 7;
 	/**
 	 * The post IDs of posts that were just published but not synced yet.
 	 *
@@ -675,5 +675,16 @@ class Posts extends Module {
 	 */
 	public function get_min_max_object_ids_for_batches( $batch_size, $where_sql = false ) {
 		return parent::get_min_max_object_ids_for_batches( $batch_size, $this->get_where_sql( $where_sql ) );
+	}
+
+	/**
+	 * Gets the sync speed of a module.
+	 *
+	 * @access public
+	 *
+	 * @return int
+	 */
+	public function get_sync_speed() {
+		return self::$sync_speed;
 	}
 }

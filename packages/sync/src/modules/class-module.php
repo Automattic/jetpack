@@ -35,7 +35,7 @@ abstract class Module {
 	 *
 	 * @var int|null Null if speed is not important in a full sync.
 	 */
-	public $sync_speed = null;
+	static $sync_speed;
 
 	/**
 	 * Sync module name.
@@ -597,6 +597,6 @@ SQL
 	 * @return int|null
 	 */
 	public function get_sync_speed() {
-		return $this->sync_speed;
+		return null;
 	}
 }

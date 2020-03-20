@@ -17,11 +17,11 @@ class Users extends Module {
 	/**
 	 *  An estimate of how many rows per second can be synced during a full sync.
 	 *
-	 * @access public
+	 * @access static
 	 *
 	 * @var int|null Null if speed is not important in a full sync.
 	 */
-	public $sync_speed = 50;
+	static $sync_speed = 50;
 	/**
 	 * Maximum number of users to sync initially.
 	 *
@@ -869,5 +869,16 @@ class Users extends Module {
 			}
 		}
 		return false;
+	}
+	
+	/**
+	 * Gets the sync speed of a module.
+	 *
+	 * @access public
+	 *
+	 * @return int
+	 */
+	public function get_sync_speed() {
+		return self::$sync_speed;
 	}
 }
