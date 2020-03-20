@@ -55,10 +55,6 @@
 			<directory prefix="test_" suffix=".php">php/sync</directory>
 			<exclude>php/sync/test_class.jetpack-sync-full.php</exclude>
 		</testsuite>
-		<testsuite name="legacy-full-sync">
-			<file>php/sync/test_class.jetpack-sync-base.php</file>
-			<file>php/sync/test_class.jetpack-sync-full.php</file>
-		</testsuite>
 		<testsuite name="theme-tools">
 			<directory prefix="test_" suffix=".php">php/modules/theme-tools</directory>
 		</testsuite>
