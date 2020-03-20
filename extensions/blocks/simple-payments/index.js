@@ -141,7 +141,7 @@ export const settings = {
 			price: 25.0,
 			title: __( 'Jetpack t-shirt', 'jetpack' ),
 			content: __(
-				'Take flight in ultimate comfort with ths stylish t-shirt featuring the Jetpack logo.',
+				'Take flight in ultimate comfort with this stylish t-shirt featuring the Jetpack logo.',
 				'jetpack'
 			),
 			email: 'jetpack@jetpack.com',
