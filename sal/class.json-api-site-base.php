@@ -658,4 +658,13 @@ abstract class SAL_Site {
 	function get_site_segment() {
 		return false;
 	}
+
+	/**
+	 * Determines if the site setup checklist has been completed.
+	 *
+	 * @return bool Whether the checklist is complete.
+	 */
+	public function is_checklist_complete() {
+		return null;
+	}
 }
