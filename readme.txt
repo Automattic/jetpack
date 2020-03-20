@@ -111,6 +111,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Blocks: improve the display of error notices in Jetpack's embed blocks.
 * Calendly block: display an error when the embed URL is not found.
 * Eventbrite Block: offer additional alignment options.
+* Facebook Embeds and Facebook Page Plugin Widget: improve performance and compatibility with caching plugins.
 * Gravatar Hovercards: avoid loading Gravatar assets when not needed on the page.
 * Likes: improve performance when loading resources used by the Likes feature on the front-end of your site.
 * Protect: improve detection of IP on servers using custom IP Headers.
