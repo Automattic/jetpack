@@ -622,7 +622,7 @@ function video_format_done( $info, $format ) {
  */
 function video_image_url_by_guid( $guid, $format ) {
 
-	$post = video_get_post_by_guid( $guid );
+	$post = videopress_get_post_by_guid( $guid );
 
 	if ( is_wp_error( $post ) ) {
 		return null;
@@ -639,11 +639,11 @@ function video_image_url_by_guid( $guid, $format ) {
 /**
  * Using a GUID, find a post.
  *
- * @param string $guid
+ * @param string $guid The post guid.
  * @return WP_Post|false The post for that guid, or false if none is found.
  */
-function video_get_post_by_guid( $guid ) {
-	$cache_key   = 'video_get_post_by_guid_' . $guid;
+function videopress_get_post_by_guid( $guid ) {
+	$cache_key   = 'get_post_by_guid_' . $guid;
 	$cache_group = 'videopress';
 	$cached_post = wp_cache_get( $cache_key, $cache_group );
 
@@ -661,6 +661,22 @@ function video_get_post_by_guid( $guid ) {
 	}
 
 	return false;
+}
+
+/**
+ * Using a GUID, find a post.
+ *
+ * Kept for backward compatibility. Use videopress_get_post_by_guid() instead.
+ *
+ * @deprecated since 8.4.0
+ * @see videopress_get_post_by_guid()
+ *
+ * @param string $guid The post guid.
+ * @return WP_Post|false The post for that guid, or false if none is found.
+ */
+function video_get_post_by_guid( $guid ) {
+	_deprecated_function( __FUNCTION__, 'jetpack-8.4' );
+	return videopress_get_post_by_guid( $guid );
 }
 
 /**
