@@ -96,7 +96,7 @@ function init() {
 	/** Jetpack-specific hooks **/
 
 	// Prevent Jetpack certain modules from running while the site is private
-	add_filter( 'jetpack_active_modules', '\Private_Site\filter_jetpack_active_modules', 0 );
+	add_filter( 'jetpack_get_available_modules', '\Private_Site\filter_jetpack_get_available_modules' );
 	add_filter( 'jetpack_force_disable_site_accelerator', '__return_true' );
 
 	// Only allow Jetpack XMLRPC methods -- Jetpack handles verifying the token, request signature, etc.
@@ -564,7 +564,7 @@ function hide_opml() {
  *
  * @return array Array of modules after filtering.
  */
-function filter_jetpack_active_modules( $modules ) {
+function filter_jetpack_get_available_modules( $modules ) {
 	$disabled_modules = [
 		'publicize',
 		'sharedaddy',
@@ -576,13 +576,11 @@ function filter_jetpack_active_modules( $modules ) {
 		'photon-cdn',
 		'sitemaps',
 		'verification-tools',
+		'videopress',
 		'wordads',
 	];
-	foreach ( $disabled_modules as $module_slug ) {
-		$found = array_search( $module_slug, $modules, true );
-		if ( false !== $found ) {
-			unset( $modules[ $found ] );
-		}
-	}
-	return $modules;
+
+	return array_filter( $modules, function( $module_name ) use ( $disabled_modules ) {
+		return ! in_array( $module_name, $disabled_modules );
+	}, ARRAY_FILTER_USE_KEY );
 }
