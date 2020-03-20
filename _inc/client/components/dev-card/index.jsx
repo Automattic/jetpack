@@ -228,6 +228,19 @@ export class DevCard extends React.Component {
 							Jetpack Backup Reatime
 						</label>
 					</li>
+					<li>
+						<label htmlFor="jetpack_search">
+							<input
+								type="radio"
+								id="jetpack_search"
+								value="jetpack_search"
+								name="jetpack_search"
+								checked={ 'is-search-plan' === planClass }
+								onChange={ this.onPlanChange }
+							/>
+							Search
+						</label>
+					</li>
 				</ul>
 				<hr />
 				<ul>
