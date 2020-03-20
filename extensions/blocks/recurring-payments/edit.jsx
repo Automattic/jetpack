@@ -382,7 +382,7 @@ class MembershipsButtonEdit extends Component {
 						label={ __( 'Payment plan', 'jetpack' ) }
 						value={ this.props.attributes.planId }
 						onChange={ this.setMembershipAmount }
-						options={ this.state.products.map( product => ( {
+						options={ products.map( product => ( {
 							label: this.renderAmount( product ),
 							value: product.id,
 							key: product.id,
@@ -476,7 +476,7 @@ class MembershipsButtonEdit extends Component {
 							</Placeholder>
 						</div>
 					) }
-				{ this.state.products && inspectorControls }
+				{ products.length > 0 && inspectorControls }
 				{ ( ( ( this.hasUpgradeNudge || ! this.state.shouldUpgrade ) &&
 					connected !== API_STATE_LOADING ) ||
 					this.props.attributes.planId ) && (
