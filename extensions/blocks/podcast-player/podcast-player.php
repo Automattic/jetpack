@@ -101,22 +101,24 @@ function render_player( $track_list, $attributes ) {
 	ob_start();
 	?>
 	<div class="<?php echo esc_attr( $block_classname ); ?>" id="<?php echo esc_attr( $instance_id ); ?>">
-		<ol class="podcast-player__episodes">
-			<?php foreach ( $track_list as $attachment ) : ?>
-			<li class="podcast-player__episode">
-				<a
-					class="podcast-player__episode-link"
-					href="<?php echo esc_url( $attachment['link'] ); ?>"
-					role="button"
-					aria-pressed="false"
-				>
-					<span class="podcast-player__episode-status-icon"></span>
-					<span class="podcast-player__episode-title"><?php echo esc_html( $attachment['title'] ); ?></span>
-					<time class="podcast-player__episode-duration"><?php echo ( ! empty( $attachment['duration'] ) ? esc_html( $attachment['duration'] ) : '' ); ?></time>
-				</a>
-			</li>
-			<?php endforeach; ?>
-		</ol>
+		<noscript>
+			<ol class="podcast-player__episodes">
+				<?php foreach ( $track_list as $attachment ) : ?>
+				<li class="podcast-player__episode">
+					<a
+						class="podcast-player__episode-link"
+						href="<?php echo esc_url( $attachment['link'] ); ?>"
+						role="button"
+						aria-pressed="false"
+					>
+						<span class="podcast-player__episode-status-icon"></span>
+						<span class="podcast-player__episode-title"><?php echo esc_html( $attachment['title'] ); ?></span>
+						<time class="podcast-player__episode-duration"><?php echo ( ! empty( $attachment['duration'] ) ? esc_html( $attachment['duration'] ) : '' ); ?></time>
+					</a>
+				</li>
+				<?php endforeach; ?>
+			</ol>
+		</noscript>
 		<script type="application/json"><?php echo wp_json_encode( $player_data ); ?></script>
 	</div>
 	<script>window.jetpackPodcastPlayers=(window.jetpackPodcastPlayers||[]);window.jetpackPodcastPlayers.push( <?php echo wp_json_encode( $instance_id ); ?> );</script>
@@ -170,6 +172,7 @@ function setup_tracks_callback( \SimplePie_Item $episode ) {
 
 	// Build track data.
 	$track = array(
+		'id'          => wp_unique_id( 'podcast-track-' ),
 		'link'        => esc_url( $episode->get_link() ),
 		'src'         => esc_url( $enclosure->link ),
 		'type'        => esc_attr( $enclosure->type ),
