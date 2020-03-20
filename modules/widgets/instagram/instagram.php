@@ -352,6 +352,8 @@ class WPcom_Instagram_Widget extends WP_Widget {
 						'_blank',
 						'toolbar=0,location=0,menubar=0,' + getScreenCenterSpecs( 700, 700 )
 					);
+					button.innerText = '<?php _e( 'Connecting…', 'wpcom-instagram-widget' ); ?>';
+					button.disabled = true;
 					window.onmessage = function( { data } ) {
 						if ( !! data.keyring_id ) {
 							const payload = {
@@ -371,7 +373,7 @@ class WPcom_Instagram_Widget extends WP_Widget {
 					};
 				}
 			</script>
-			<p style="text-align:center"><button class="button-primary" onclick="openWindow(this); return false;" data-connecturl="<?php echo esc_attr( $this->get_connect_url() ); ?>"><?php echo esc_html( __( 'Connect Instagram Account', 'jetpack' ) ); ?></button></p>
+			<p style="text-align:center"><button class="button-primary" onclick="openWindow(this); return false;" data-connecturl="<?php echo esc_attr( $this->get_connect_url() ); ?>"><?php echo esc_html( __( 'Connect Instagram Account', 'wpcom-instagram-widget' ) ); ?></button></p>
 			<?php
 			echo '<p><small>' . sprintf( __( 'Having trouble? Try <a href="%s" target="_blank">logging into the correct account</a> on Instagram.com first.', 'wpcom-instagram-widget' ), 'https://instagram.com/accounts/login/' ) . '</small></p>';
 			return;
