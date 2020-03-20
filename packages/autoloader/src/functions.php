@@ -169,7 +169,12 @@ function enqueue_files() {
  * @return Array An array of plugin names as strings.
  */
 function get_active_plugins() {
-	$active_plugins = (array) get_option( 'active_plugins', array() );
+	$active_plugins = array_merge(
+		is_multisite()
+			? array_keys( get_site_option( 'active_sitewide_plugins', array() ) )
+			: array(),
+		(array) get_option( 'active_plugins', array() )
+	);
 	$current_plugin = get_current_plugin();
 
 	if ( ! in_array( $current_plugin, $active_plugins, true ) ) {
@@ -178,7 +183,7 @@ function get_active_plugins() {
 	}
 
 	// If the activating plugin is not the only activating plugin, we need to add others too.
-	$active_plugins = array_merge( $active_plugins, get_activating_plugins() );
+	$active_plugins = array_unique( array_merge( $active_plugins, get_activating_plugins() ) );
 
 	return $active_plugins;
 }
