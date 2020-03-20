@@ -166,8 +166,8 @@
 		"webpack-cli": "3.3.10"
 	},
 	"optionalDependencies": {
-		"react": "16.8.6",
-		"react-dom": "16.8.6"
+		"react": "16.13.0",
+		"react-dom": "16.13.0"
 	},
 	"devDependencies": {
 		"@automattic/color-studio": "2.2.1",
@@ -209,7 +209,7 @@
 		"node-wp-i18n": "1.2.3",
 		"prettier": "npm:wp-prettier@1.19.1",
 		"puppeteer": "1.20.0",
-		"react-test-renderer": "16.8.6",
+		"react-test-renderer": "16.13.0",
 		"sass-loader": "7.3.1",
 		"sinon": "7.5.0",
 		"sinon-chai": "3.5.0",
