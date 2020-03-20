@@ -354,6 +354,10 @@ class WPcom_Instagram_Widget extends WP_Widget {
 					].join();
 				};
 				function openWindow(button) {
+					// let's just double check that we aren't getting an unknown random domain injected in here somehow
+					if (! /^https:\/\/public-api.wordpress.com\/connect\//.test(button.dataset.connecturl) ) {
+						return;
+					}
 					window.open(
 						button.dataset.connecturl, //TODO: Check if this needs validation it could be a XSS problem. Check the domain maybe?
 						'_blank',
