@@ -121,6 +121,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Connection: ensure that the "Disconnect" button is easily accessible on mobile.
 * Connection: fix connection issues for sites with a plan in a "pending" state.
+* Shortcodes: Fix Crowdsignal poll embeds when using the P2 theme.
 * Site Logo: avoid PHP notices in the Customizer, when no logo is set yet.
 * Widgets: fix conflicts between some themes and the live countdown feature in the Milestone Widget.
 
