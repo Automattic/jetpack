@@ -5,6 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import SimpleNotice from 'components/notice';
 import { translate as __ } from 'i18n-calypso';
+import { decode } from 'qss';
 
 /**
  * Internal dependencies
@@ -20,6 +21,12 @@ export class SearchNotice extends React.Component {
 	static displayName = 'SearchActive';
 
 	render() {
+		const query = decode( window.location.search.substring( 1 ) );
+
+		if ( ! ( 'search-thank-you' in query ) ) {
+			return null;
+		}
+
 		return (
 			<SimpleNotice
 				showDismiss={ true }
