@@ -115,6 +115,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
+* Connection: fix connection issues for sites with a plan in a "pending" state.
 * Widgets: fix conflicts between some themes and the live countdown feature in the Milestone Widget.
 
 --------
