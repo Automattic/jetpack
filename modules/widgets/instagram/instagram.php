@@ -82,12 +82,7 @@ class WPcom_Instagram_Widget extends WP_Widget {
 	 * Same as the function above, but AJAX-flavoured!
 	 */
 	public function ajax_update_widget_token_id() {
-		if (
-			empty( $_POST['nonce'] ) ||
-			! wp_verify_nonce( $_POST['nonce'], 'instagram-widget-create-token-' . $this->number )
-		) {
-			wp_die();
-		}
+		check_ajax_referer( 'instagram-widget-save-token', 'savetoken' );
 
 		$this->update_widget_token_id( (int) $_POST['keyring_id'] );
 		wp_die();
@@ -325,9 +320,9 @@ class WPcom_Instagram_Widget extends WP_Widget {
 						'left=' + ( screenLeft + window.innerWidth / 2 - width / 2 ),
 					].join();
 				};
-				function openWindow() {
+				function openWindow(button) {
 					window.open(
-						'<?php echo $this->get_connect_url(); ?>',
+						button.dataset.connecturl, //TODO: Check if this needs validation it could be a XSS problem. Check the domain maybe?
 						'_blank',
 						'toolbar=0,location=0,menubar=0,' + getScreenCenterSpecs( 700, 700 )
 					);
@@ -335,18 +330,22 @@ class WPcom_Instagram_Widget extends WP_Widget {
 						if ( !! data.keyring_id ) {
 							const payload = {
 								action: 'wpcom_instagram_widget_update_widget_token_id',
-								nonce: '<?php echo esc_js( wp_create_nonce( 'instagram-widget-create-token-' . $this->number ) ); ?>',
+								savetoken: '<?php echo esc_js( wp_create_nonce( 'instagram-widget-save-token' ) ); ?>',
 								keyring_id: data.keyring_id,
 							};
 							jQuery.post( ajaxurl, payload, function( response ) {
-								const widget = jQuery( 'div[id$="<?php echo esc_js( $this->id ); ?>"]' );
-								wpWidgets.save( widget, 0, 1, 1 );
+								const widget = jQuery(button).closest('div.widget');
+								if ( ! window.wpWidgets ) {
+									window.location.reload(false);
+								} else {
+									wpWidgets.save( widget, 0, 1, 1 );
+								}
 							} );
 						}
 					};
 				}
 			</script>
-			<p style="text-align:center"><button class="button-primary" onclick="openWindow(); return false;"><?php echo __( 'Connect Instagram Account', 'wpcom-instagram-widget' ); ?></button></p>
+			<p style="text-align:center"><button class="button-primary" onclick="openWindow(this); return false;" data-connecturl="<?php echo esc_attr( $this->get_connect_url() ); ?>"><?php echo esc_html( __( 'Connect Instagram Account', 'jetpack' ) ); ?></button></p>
 			<?php
 			echo '<p><small>' . sprintf( __( 'Having trouble? Try <a href="%s" target="_blank">logging into the correct account</a> on Instagram.com first.', 'wpcom-instagram-widget' ), 'https://instagram.com/accounts/login/' ) . '</small></p>';
 			return;
