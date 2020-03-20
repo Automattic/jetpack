@@ -309,25 +309,19 @@ class WPcom_Instagram_Widget extends WP_Widget {
 
 			$this->update_widget_token_id( $instance['token_id'] );
 			$this->update_widget_token_legacy_status( false );
-			?>
-			<script type="text/javascript">
-				jQuery(document).ready(function(){ 
-					window.history.replaceState( {}, 'RemoveDeleteParam', '<?php echo $_SERVER['PHP_SELF'] ?>?instagram_widget_id=<?php echo $this->number ?>' );
-			 	});
-			</script>
-			<?php
 		}
 		// If a token ID is stored, make sure it's still valid, and if we know if it is a legacy API token or not
 		elseif ( $instance['token_id'] ) {
-			if ( ! isset( $instance['is_legacy_token'] ) ) {
+			if ( ! isset( $instance['is_legacy_token'] ) || 'ERROR' !== $instance['is_legacy_token'] ) {
 				$this->update_widget_token_legacy_status( $this->is_legacy_token( $instance['token_id'] ) );
 			} 
 			$this->update_widget_token_id( $instance['token_id'] );
 		}
 
 		// No connection, or a legacy API token? Display a connection link.
-		if ( ! $instance['token_id'] ||  ( isset( $instance['is_legacy_token'] ) && $instance['is_legacy_token'] === true ) ) {
-			if ( $instance['is_legacy_token'] ) {
+		$is_legacy_token = ( isset( $instance['is_legacy_token'] ) && $instance['is_legacy_token'] === true );
+		if ( ! $instance['token_id'] || $is_legacy_token ) {
+			if ( $is_legacy_token ) {
 				echo '<p><strong>' . __( 'Your current connection will stop working on 30 March 2020 due to changes in Instagram\'s service. <br /><br />Please reconnect to Instagram in order to continue using this widget', 'wpcom-instagram-widget' ) . '</strong></p>';
 			}
 			echo '<p>' . __( '<strong>Important: You must first click Save to activate this widget <em>before</em> connecting your account.</strong> After saving the widget, click the button below to authorize your Instagram account.', 'wpcom-instagram-widget' ) . '</p>';
@@ -364,7 +358,7 @@ class WPcom_Instagram_Widget extends WP_Widget {
 							jQuery.post( ajaxurl, payload, function( response ) {
 								const widget = jQuery(button).closest('div.widget');
 								if ( ! window.wpWidgets ) {
-									window.location.reload(false);
+									window.location = '<?php echo esc_js( add_query_arg( array( 'autofocus[panel]' => 'widgets' ), admin_url( 'customize.php' ) ) ); ?>';
 								} else {
 									wpWidgets.save( widget, 0, 1, 1 );
 								}
