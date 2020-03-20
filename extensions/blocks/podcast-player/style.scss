@@ -84,7 +84,7 @@ $block-border-color: $dark-gray-100;
  * this definition gets applied to the symbol definitions and we can't override
  * them since we're applying via the shadow DOM.
  */
-.podcast-player-icons path {
+#jetpack-player-podcast-icons path {
 	transition: none;
 }
 

@@ -11,7 +11,6 @@ function createSVGs() {
 
 	const svgTemplate = document.createElementNS( 'http://www.w3.org/2000/svg', 'svg' );
 	svgTemplate.id = 'jetpack-player-podcast-icons';
-	svgTemplate.classList.add( 'podcast-player-icons' );
 	svgTemplate.setAttribute( 'style', 'position: absolute; width: 0; height: 0; overflow: hidden;' );
 	svgTemplate.setAttribute( 'version', '1.1' );
 	svgTemplate.setAttribute( 'xmlns', 'http://www.w3.org/2000/svg' );
