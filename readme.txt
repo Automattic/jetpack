@@ -103,7 +103,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Major Enhancements**
 
-*
+* This release introduces a new Podcast Player block to list and play your favorite podcasts.
 
 **Enhancements**
 

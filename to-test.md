@@ -1,5 +1,11 @@
 ## 8.4
 
+### Blocks
+
+#### Podcast Player
+
+We've created a new Podcast Player block that will allow you to quickly embed and play podcasts within your posts and pages. Give the block and its options a try, and let us know if you run into any issues.
+
 ### Others
 
 - If you have the opportunity to test in an older browser like IE11, please do so. You may catch some interesting bugs!
