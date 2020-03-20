@@ -107,6 +107,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
+* Gravatar Hovercards: avoid loading Gravatar assets when not needed on the page.
 * Widgets: improve performance of the Search and Milestone widgets.
 
 **Improved compatibility**
