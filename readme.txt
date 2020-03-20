@@ -108,11 +108,12 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Enhancements**
 
 * Gravatar Hovercards: avoid loading Gravatar assets when not needed on the page.
+* Likes: improve performance when loading resources used by the Likes feature on the front-end of your site.
 * Widgets: improve performance of the Search and Milestone widgets.
 
 **Improved compatibility**
 
-* Comment Likes / AMP Plugin: avoid loading Likes on AMP views.
+* Comment Likes / AMP PluginF: avoid loading Likes on AMP views.
 * General: Jetpack now requires WordPress 5.3 and newer.
 
 **Bug fixes**
