@@ -1,10 +1,10 @@
 .jetpack-contact-info-block {
 	/* css class added to increase specificity */
-	.editor-plain-text.editor-plain-text:focus {
+	.block-editor-plain-text.block-editor-plain-text:focus {
 		box-shadow: none;
 	}
 
-	.editor-plain-text {
+	.block-editor-plain-text {
 		flex-grow: 1;
 		min-height: unset;
 		padding: 0;

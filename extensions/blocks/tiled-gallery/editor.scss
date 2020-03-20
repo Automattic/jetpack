@@ -179,8 +179,8 @@
 	}
 
 	// Hide upload buttons in style picker preview
-	.editor-block-preview__content & {
-		.editor-media-placeholder {
+	.block-editor-block-preview__content & {
+		.block-editor-media-placeholder {
 			display: none;
 		}
 	}
