@@ -189,7 +189,7 @@
 		"danger": "9.2.10",
 		"eslint": "5.16.0",
 		"eslint-config-prettier": "6.10.0",
-		"eslint-config-wpcalypso": "4.0.1",
+		"eslint-config-wpcalypso": "5.0.0",
 		"eslint-loader": "2.2.1",
 		"eslint-plugin-es5": "1.5.0",
 		"eslint-plugin-jest": "22.21.0",
