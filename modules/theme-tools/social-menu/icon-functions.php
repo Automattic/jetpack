@@ -148,6 +148,7 @@ if ( ! function_exists( 'jetpack_social_menu_social_links_icons' ) ) :
 			'instagram.com'     => 'instagram',
 			'linkedin.com'      => 'linkedin',
 			'mailto:'           => 'mail',
+			'mastodon.social'   => 'mastodon',
 			'meetup.com'        => 'meetup',
 			'medium.com'        => 'medium',
 			'pinterest.'        => 'pinterest',
