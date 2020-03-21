@@ -565,6 +565,11 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 				'label' => __( 'Email', 'jetpack' ),
 			),
 			array(
+				'url'   => array( 'mastodon.social' ),
+				'icon'  => 'mastodon',
+				'label' => 'Mastodon',
+			),
+			array(
 				'url'   => array( 'meetup.com' ),
 				'icon'  => 'meetup',
 				'label' => 'Meetup',
