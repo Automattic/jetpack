@@ -77,15 +77,31 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	}
 
 	/**
-	 * Render common default properties as a js args string.
+	 * Default event properties which should be included with all events.
+	 *
+	 * @return array Array of standard event props.
 	 */
 	public function get_common_properties() {
-		$blogid = Jetpack::get_option( 'id' );
+		return array(
+			'blog_id'     => Jetpack::get_option( 'id' ),
+			'ui'          => $this->get_user_id(),
+			'url'         => home_url(),
+			'woo_version' => WC()->version,
+		);
+	}
 
-		return "'blog_id': '" . esc_js( $blogid ) . "',
-			'ui': '" . esc_js( $this->get_user_id() ) . "',
-			'url': '" . esc_js( home_url() ) . "',
-			'woo_version': '" . esc_js( WC()->version ) . "',";
+	/**
+	 * Render tracks event properties as string of JavaScript object props.
+	 *
+	 * @param  array $properties Array of key/value pairs.
+	 * @return string String of the form "key1: value1, key2: value2, " (etc).
+	 */
+	private function render_properties_as_js( $properties ) {
+		$js_args_string = '';
+		foreach ( $properties as $key => $value ) {
+			$js_args_string = $js_args_string . "'$key': '" . esc_js( $value ) . "', ";
+		}
+		return $js_args_string;
 	}
 
 	/**
@@ -102,10 +118,10 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		}
 		$product_details = $this->get_product_details( $product );
 
-		$extra_properties = '';
-		foreach ( $properties as $key => $value ) {
-			$extra_properties = $extra_properties . "'$key': '" . esc_js( $value ) . "', ";
-		}
+		$all_props = array_merge(
+			$properties,
+			$this->get_common_properties()
+		);
 
 		wc_enqueue_js(
 			"_wca.push( {
@@ -115,7 +131,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 					'pc': '" . esc_js( $product_details['category'] ) . "',
 					'pp': '" . esc_js( $product_details['price'] ) . "',
 					'pt': '" . esc_js( $product_details['type'] ) . "'," .
-					$extra_properties . $this->get_common_properties() . '
+					$this->render_properties_as_js( $all_props ) . '
 				} );'
 		);
 	}
@@ -147,6 +163,9 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	 * On the cart page, add an event listener for removal of product click
 	 */
 	public function remove_from_cart() {
+		$common_props = $this->render_properties_as_js(
+			$this->get_common_properties()
+		);
 
 		// We listen at div.woocommerce because the cart 'form' contents get forcibly
 		// updated and subsequent removals from cart would then not have this click
@@ -163,7 +182,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 					'_en': 'woocommerceanalytics_remove_from_cart',
 					'pi': productDetails.id,
 					'pq': productDetails.quantity, " .
-					$this->get_common_properties() . '
+					$common_props . '
 				} );
 			} );'
 		);
@@ -275,7 +294,9 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	 * updating its quantity to zero
 	 */
 	public function remove_from_cart_via_quantity() {
-		$blogid = Jetpack::get_option( 'id' );
+		$common_props = $this->render_properties_as_js(
+			$this->get_common_properties()
+		);
 
 		wc_enqueue_js(
 			"
@@ -287,9 +308,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 						var productID = jQuery( this ).find( '.product-remove a' ).data( 'product_id' );
 						_wca.push( {
 							'_en': 'woocommerceanalytics_remove_from_cart',
-							'blog_id': '" . esc_js( $blogid ) . "',
 							'pi': productID, " .
-							$this->get_common_properties() . '
+							$common_props . '
 						} );
 					}
 				} );
