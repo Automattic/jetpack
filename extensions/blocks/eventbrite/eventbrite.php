@@ -7,7 +7,7 @@
  * @package Jetpack
  */
 
-namespace Automattic\Jetpack\Eventbrite_Block;
+namespace Automattic\Jetpack\Extensions\Eventbrite;
 
 use Jetpack_Gutenberg;
 

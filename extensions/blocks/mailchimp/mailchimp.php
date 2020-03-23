@@ -7,7 +7,7 @@
  * @package Jetpack
  */
 
-namespace Automattic\Jetpack\Mailchimp_Block;
+namespace Automattic\Jetpack\Extensions\Mailchimp;
 
 use Jetpack;
 use Jetpack_AMP_Support;

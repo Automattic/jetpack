@@ -7,7 +7,7 @@
  * @package Jetpack
  */
 
-namespace Automattic\Jetpack\Amazon_Block;
+namespace Automattic\Jetpack\Extensions\Amazon;
 
 use Jetpack_Gutenberg;
 

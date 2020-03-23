@@ -7,7 +7,7 @@
  * @package Jetpack
  */
 
-namespace Automattic\Jetpack\Repeat_Visitor_Block;
+namespace Automattic\Jetpack\Extensions\Repeat_Visitor;
 
 use Jetpack_Gutenberg;
 

@@ -7,7 +7,7 @@
  * @package Jetpack
  */
 
-namespace Automattic\Jetpack\Slideshow_Block;
+namespace Automattic\Jetpack\Extensions\Slideshow;
 
 use Jetpack_AMP_Support;
 use Jetpack_Gutenberg;

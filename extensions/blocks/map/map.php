@@ -7,7 +7,7 @@
  * @package Jetpack
  */
 
-namespace Automattic\Jetpack\Map_Block;
+namespace Automattic\Jetpack\Extensions\Map;
 
 use Automattic\Jetpack\Tracking;
 use Jetpack;

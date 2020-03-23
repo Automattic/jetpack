@@ -7,7 +7,7 @@
  * @package Jetpack
  */
 
-namespace Automattic\Jetpack\Pinterest_Block;
+namespace Automattic\Jetpack\Extensions\Pinterest;
 
 const FEATURE_NAME = 'pinterest';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;

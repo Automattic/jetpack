@@ -1,5 +1,4 @@
 <?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
-
 /**
  * Tiled Gallery block.
  * Relies on Photon, but can be used even when the module is not active.
@@ -9,14 +8,14 @@
  * @package Jetpack
  */
 
-namespace Automattic\Jetpack;
+namespace Automattic\Jetpack\Extensions;
 
 /**
  * Jetpack Tiled Gallery Block class
  *
  * @since 7.3
  */
-class Tiled_Gallery_Block {
+class Tiled_Gallery {
 	const FEATURE_NAME = 'tiled-gallery';
 	const BLOCK_NAME   = 'jetpack/' . self::FEATURE_NAME;
 
@@ -175,4 +174,4 @@ class Tiled_Gallery_Block {
 	}
 }
 
-Tiled_Gallery_Block::register();
+Tiled_Gallery::register();

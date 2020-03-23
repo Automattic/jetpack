@@ -7,7 +7,7 @@
  * @package Jetpack
  */
 
-namespace Automattic\Jetpack\Instagram_Block;
+namespace Automattic\Jetpack\Extensions\Instagram_Gallery;
 
 const FEATURE_NAME = 'instagram-gallery';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;

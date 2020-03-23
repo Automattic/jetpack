@@ -7,7 +7,7 @@
  * @package Jetpack
  */
 
-namespace Automattic\Jetpack\Google_Calendar_Block;
+namespace Automattic\Jetpack\Extensions\Google_Calendar;
 
 use Jetpack_AMP_Support;
 use Jetpack_Gutenberg;

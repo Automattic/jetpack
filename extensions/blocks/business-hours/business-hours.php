@@ -7,7 +7,7 @@
  * @package Jetpack
  */
 
-namespace Automattic\Jetpack\Business_Hours_Block;
+namespace Automattic\Jetpack\Extensions\Business_Hours;
 
 use Jetpack_Gutenberg;
 

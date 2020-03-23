@@ -7,7 +7,7 @@
  * @package Jetpack
  */
 
-namespace Jetpack\OpenTable_Block;
+namespace Automattic\Jetpack\Extensions\OpenTable;
 
 use Jetpack_Gutenberg;
 

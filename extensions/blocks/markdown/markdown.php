@@ -7,7 +7,7 @@
  * @package Jetpack
  */
 
-namespace Jetpack\Markdown_Block;
+namespace Automattic\Jetpack\Extensions\Markdown;
 
 const FEATURE_NAME = 'markdown';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;

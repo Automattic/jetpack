@@ -7,7 +7,7 @@
  * @package Jetpack
  */
 
-namespace Automattic\Jetpack\Revue_Block;
+namespace Automattic\Jetpack\Extensions\Revue;
 
 use Jetpack_Gutenberg;
 

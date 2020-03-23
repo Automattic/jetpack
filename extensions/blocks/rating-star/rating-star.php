@@ -7,7 +7,7 @@
  * @package Jetpack
  */
 
-namespace Automattic\Jetpack\Rating_Star_Block;
+namespace Automattic\Jetpack\Extensions\Rating_Star;
 
 use Jetpack_Gutenberg;
 

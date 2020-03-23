@@ -7,7 +7,7 @@
  * @package Jetpack
  */
 
-namespace Automattic\Jetpack;
+namespace Automattic\Jetpack\Extensions;
 
 use Jetpack;
 use Jetpack_Gutenberg;
@@ -17,7 +17,7 @@ use Jetpack_Gutenberg;
  *
  * @since 7.1.0
  */
-class WordAds_Block {
+class WordAds {
 	const FEATURE_NAME = 'wordads';
 	const BLOCK_NAME   = 'jetpack/' . self::FEATURE_NAME;
 
@@ -127,5 +127,5 @@ class WordAds_Block {
 	}
 }
 
-add_action( 'init', array( 'Automattic\\Jetpack\\WordAds_Block', 'register' ) );
-add_action( 'jetpack_register_gutenberg_extensions', array( 'Automattic\\Jetpack\\WordAds_Block', 'set_availability' ) );
+add_action( 'init', array( 'Automattic\\Jetpack\\Extensions\\WordAds', 'register' ) );
+add_action( 'jetpack_register_gutenberg_extensions', array( 'Automattic\\Jetpack\\Extensions\\WordAds', 'set_availability' ) );

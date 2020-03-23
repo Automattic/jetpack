@@ -7,7 +7,7 @@
  * @package Jetpack
  */
 
-namespace Automattic\Jetpack\Gif_Block;
+namespace Automattic\Jetpack\Extensions\Gif;
 
 use Jetpack_AMP_Support;
 use Jetpack_Gutenberg;

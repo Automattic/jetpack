@@ -7,7 +7,7 @@
  * @package Jetpack
  */
 
-namespace Automattic\Jetpack\Calendly_Block;
+namespace Automattic\Jetpack\Extensions\Calendly;
 
 use Jetpack_Gutenberg;
 
