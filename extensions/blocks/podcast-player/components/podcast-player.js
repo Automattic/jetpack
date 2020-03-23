@@ -139,7 +139,7 @@ export class PodcastPlayer extends Component {
 
 		return (
 			<div className={ playerState }>
-				<Header track={ currentTrack ? this.getTrack( currentTrack ) : null }>
+				<Header track={ this.getTrack( currentTrack ) }>
 					<AudioPlayer
 						initialTrackSource={ this.getTrack( 0 ).src }
 						handlePlay={ this.handlePlay }
