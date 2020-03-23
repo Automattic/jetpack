@@ -1,18 +1,63 @@
 /* global jetpackPodcastPlayers */
 /**
+ * External dependencies
+ */
+import debugFactory from 'debug';
+import { render, createElement } from '@wordpress/element';
+
+/**
  * Internal dependencies
  */
 import './style.scss';
-import PodcastPlayer from './podcast-player';
+import PodcastPlayer from './components/podcast-player';
 
+const debug = debugFactory( 'jetpack:podcast-player' );
 const playerInstances = {};
 
+/**
+ * Initialize player instance.
+ * @param {string} id The id of the block element in document.
+ */
 const initializeBlock = function( id ) {
-	// Create player instance.
-	const player = new PodcastPlayer( id );
+	// Find DOM node.
+	const block = document.getElementById( id );
+	debug( 'constructing', id, block );
+
+	// Check if we can find the block.
+	if ( ! block ) {
+		return;
+	}
+
+	// Load data from the embedded JSON.
+	const dataContainer = block.querySelector( 'script[type="application/json"]' );
+	if ( ! dataContainer ) {
+		return;
+	}
+	let data;
+	try {
+		data = JSON.parse( dataContainer.text );
+	} catch ( e ) {
+		debug( 'error parsing json', e );
+		return;
+	}
+
+	// Abort if not tracks found.
+	if ( ! data || ! data.tracks.length ) {
+		return;
+	}
+
+	// Prepare component.
+	const component = createElement( PodcastPlayer, {
+		...data,
+	} );
+
+	// Mount.
+	const div = document.createElement( 'div' );
+	block.appendChild( div );
+	render( component, div );
 
 	// Save instance to the list of active ones.
-	playerInstances[ id ] = player;
+	playerInstances[ id ] = component;
 };
 
 // Initialize queued players.
