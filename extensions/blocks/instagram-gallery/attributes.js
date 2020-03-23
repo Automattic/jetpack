@@ -1,7 +1,14 @@
 export default {
+	accessToken: {
+		type: 'string',
+	},
 	columns: {
 		type: 'number',
 		default: 3,
+	},
+	images: {
+		type: 'array',
+		default: [],
 	},
 	photosPadding: {
 		type: 'number',

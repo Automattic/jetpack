@@ -8,6 +8,7 @@ import { __, _x } from '@wordpress/i18n';
  */
 import attributes from './attributes';
 import edit from './edit';
+import save from './save';
 
 export const name = 'instagram-gallery';
 
@@ -27,5 +28,5 @@ export const settings = {
 	},
 	attributes,
 	edit,
-	save: () => {},
+	save,
 };

@@ -1,61 +1,151 @@
-/* eslint-disable wpcalypso/import-docblock */
+/**
+ * External dependencies
+ */
+import classnames from 'classnames';
+import { isEqual } from 'lodash';
+
 /**
  * WordPress dependencies
  */
+import apiFetch from '@wordpress/api-fetch';
 import { InspectorControls } from '@wordpress/block-editor';
 import {
 	Button,
-	Dashicon,
 	ExternalLink,
 	PanelBody,
+	PanelRow,
 	Placeholder,
 	RangeControl,
+	TextControl,
 } from '@wordpress/components';
+import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { addQueryArgs } from '@wordpress/url';
+
+/**
+ * Internal dependencies
+ */
+import defaultAttributes from './attributes';
+import { getValidatedAttributes } from '../../shared/get-validated-attributes';
+import './editor.scss';
 
 export default function InstagramGalleryEdit( props ) {
 	const { attributes, className, setAttributes } = props;
-	const { columns, photosPadding, photosToShow } = attributes;
+	const { accessToken, columns, images, photosPadding, photosToShow } = attributes;
+	const [ accessTokenField, setAccessTokenField ] = useState( '' );
+	const [ instagramUsername, setInstagramUsername ] = useState();
+
+	useEffect( () => {
+		const validatedAttributes = getValidatedAttributes( defaultAttributes, attributes );
+		if ( ! isEqual( validatedAttributes, attributes ) ) {
+			setAttributes( validatedAttributes );
+		}
+	}, [ attributes ] );
+
+	useEffect( () => {
+		apiFetch( {
+			path: addQueryArgs( '/wpcom/v2/instagram-gallery', {
+				access_token: accessToken,
+				count: photosToShow,
+			} ),
+		} ).then( response => {
+			setInstagramUsername( response.external_name );
+			setAttributes( { images: response.images } );
+		} );
+	}, [ accessToken, photosToShow ] );
+
+	const saveUsername = event => {
+		event.preventDefault();
+		setAttributes( { accessToken: accessTokenField.trim() } );
+	};
+
+	const gridClasses = classnames(
+		'wp-block-jetpack-instagram-gallery__grid',
+		`wp-block-jetpack-instagram-gallery__grid-columns-${ columns }`
+	);
 
 	return (
 		<div className={ className }>
-			<Placeholder icon="instagram" label={ __( 'Instagram Gallery', 'jetpack' ) }>
-				<Button isLarge isPrimary>
-					{ __( 'Connect your Instagram account', 'jetpack' ) }
-				</Button>
-			</Placeholder>
-			<InspectorControls>
-				<PanelBody title={ __( 'Settings', 'jetpack' ) }>
-					<p>
-						Account: <ExternalLink href="#">@test</ExternalLink>
-						<br />
-						<Button isDestructive isLink>
-							Disconnect your account <Dashicon icon="arrow-right-alt" size={ 13 } />
-						</Button>
-					</p>
-					<RangeControl
-						label={ __( 'Number of Posts', 'jetpack' ) }
-						value={ photosToShow }
-						onChange={ value => setAttributes( { photosToShow: value } ) }
-						min={ 1 }
-						max={ 30 }
-					/>
-					<RangeControl
-						label={ __( 'Number of Columns', 'jetpack' ) }
-						value={ columns }
-						onChange={ value => setAttributes( { columns: value } ) }
-						min={ 1 }
-						max={ 6 }
-					/>
-					<RangeControl
-						label={ __( 'Padding Between Posts (in pixel)', 'jetpack' ) }
-						value={ photosPadding }
-						onChange={ value => setAttributes( { photosPadding: value } ) }
-						min={ 1 }
-						max={ 50 }
-					/>
-				</PanelBody>
-			</InspectorControls>
+			{ ! accessToken && (
+				<Placeholder icon="instagram" label={ __( 'Instagram Gallery', 'jetpack' ) }>
+					<Button disabled isLarge isPrimary>
+						{ __( 'Connect your Instagram account', 'jetpack' ) }
+					</Button>
+					<form onSubmit={ saveUsername }>
+						<input
+							className="components-placeholder__input"
+							onChange={ event => setAccessTokenField( event.target.value.trim() ) }
+							placeholder={ __( 'Enter your Instagram Keyring access token', 'jetpack' ) }
+							type="text"
+							value={ accessTokenField }
+						/>
+						<div>
+							<Button disabled={ ! accessTokenField } isDefault isLarge isSecondary type="submit">
+								{ __( 'Submit', 'jetpack' ) }
+							</Button>
+						</div>
+					</form>
+				</Placeholder>
+			) }
+
+			{ accessToken && (
+				<>
+					<div className={ gridClasses }>
+						{ images &&
+							images.map( image => (
+								<img
+									alt={ image.title || image.url }
+									key={ image.title || image.link }
+									src={ image.url }
+								/>
+							) ) }
+					</div>
+					<InspectorControls>
+						<PanelBody title={ __( 'Settings', 'jetpack' ) }>
+							<PanelRow>
+								<span>{ __( 'Account', 'jetpack' ) }</span>
+								<ExternalLink href={ `https://www.instagram.com/${ instagramUsername } /` }>
+									@{ instagramUsername }
+								</ExternalLink>
+							</PanelRow>
+							<PanelRow>
+								<Button isDestructive isLink>
+									{ __( 'Disconnect your account', 'jetpack' ) }
+								</Button>
+							</PanelRow>
+							<PanelRow>
+								<TextControl
+									help="FOR TESTING PURPOSES ONLY"
+									label={ __( 'Instagram Keyring Access Token', 'jetpack' ) }
+									value={ accessToken }
+									onChange={ value => setAttributes( { accessToken: value } ) }
+								/>
+							</PanelRow>
+							<RangeControl
+								label={ __( 'Number of Posts', 'jetpack' ) }
+								value={ photosToShow }
+								onChange={ value => setAttributes( { photosToShow: value } ) }
+								min={ 1 }
+								max={ 30 }
+							/>
+							<RangeControl
+								label={ __( 'Number of Columns', 'jetpack' ) }
+								value={ columns }
+								onChange={ value => setAttributes( { columns: value } ) }
+								min={ 1 }
+								max={ 6 }
+							/>
+							<RangeControl
+								label={ __( 'Padding Between Posts (in pixel)', 'jetpack' ) }
+								value={ photosPadding }
+								onChange={ value => setAttributes( { photosPadding: value } ) }
+								min={ 1 }
+								max={ 50 }
+							/>
+						</PanelBody>
+					</InspectorControls>
+				</>
+			) }
 		</div>
 	);
 }

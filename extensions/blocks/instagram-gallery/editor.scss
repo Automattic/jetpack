@@ -1,0 +1,11 @@
+.wp-block-jetpack-instagram-gallery__grid {
+	display: grid;
+	grid-gap: 0.5rem;
+	grid-auto-columns: 1fr;
+}
+
+@for $i from 1 through 6 {
+	.wp-block-jetpack-instagram-gallery__grid-columns-#{$i} {
+		grid-template-columns: repeat( $i, 1fr );
+	}
+}
