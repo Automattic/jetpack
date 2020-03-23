@@ -9,7 +9,7 @@
 /**
  * Fetch podcast feeds and parse data for the Podcast Player block.
  *
- * @since 8.0.0
+ * @since 8.4.0
  */
 class WPCOM_REST_API_V2_Endpoint_Podcast_Player extends WP_REST_Controller {
 	/**
