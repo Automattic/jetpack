@@ -5,18 +5,19 @@
 1. [Setting up your environment](#section-setting-up-env)
    * [Overview](#section-overview)
    * [Running Jetpack locally](#section-running-local-jetpack)
-      * [Docker](#setup-env-docker)
+      * [Docker (Recommended)](#setup-env-docker)
       * [VVV](#setup-env-vvv)
       * [Local web and database servers](#setup-env-local-web-server)
    * [Installing development tools](#setup-development-tools)
-      * NodeJS
-      * Yarn package manager
-      * PHP
-      * Composer
-      * PHPUnit
-2. Start development
-   * Run a development build
-   * Run production build
+	  * [Quick way to check if your environment is ready for Jetpack development](#setup-development-tools-autoscript)
+      * [NodeJS](#setup-development-tools-nodejs)
+      * [Yarn package manager](#setup-development-tools-yarn)
+      * [PHP](#setup-development-tools-php)
+      * [Composer](#setup-development-tools-composer)
+      * [PHPUnit](#setup-development-tools-phpunit)
+2. [Start development](#jetpack-development)
+   * [Run a development build](#jetpack-development-dev)
+   * [Run production build](#jetpack-development-prod)
 3. Unit Testing
    * PHP unit testing
    * JavaScript unit testing
@@ -43,7 +44,7 @@ To get a local WordPress site up and running you need a web server (Apache, Ngin
 For easier and more organized development, there are several ways to achieve that:
 
 <a name="setup-env-docker"></a>
-### Docker 
+### Docker (Recommended)
 
 This would be the easiest and most straight-forward way to start your journey in Jetpack development. Docker offers a containerized install of WordPress with all of its dependencies installed and set up. You just need to start working on the plugin code. 
 
@@ -64,14 +65,40 @@ This is the most involved set up way among the three. Since the installation ste
 <a name="setup-development-tools"></a>
 ## Installing development tools
 
+### Minimum required versions
+ * Node.js - LTS
+ * Yarn - 1.7
+ * PHP - 7.4 (in case you're running WordPress locally)
+
+---
+<a name="setup-development-autoscript"></a>
+### Quick way to check if your environment is ready for Jetpack development
+
+We provide a script to help you in assessing if everything's ready on your system to contribute to Jetpack.
+
+```sh
+tools/check-development-environment.sh
+```
+
+Running the script will tell you if you have your environment already set up and what you need to do in order to get it ready for Jetpack development.
+
+If you're ready to start, you should see all green `SUCCESS` messages. If the script detect issues, you will see a a red `FAILED` note and a link that will help you figure out what you need to change/fix to address the issue.
+
+
+---
+<a name="setup-development-tools-nodejs"></a>
 ### Node.js
 
 Node.js is used in the build process of the Jetpack plugin. If it's not already installed on your system, you can [visit the Node.js website and install the latest Long Term Support (LTS) version.](https://nodejs.org/).
 
+---
+<a name="setup-development-tools-yarn"></a>
 ### Yarn
 
 Yarn is a Node.js package manager and it's used to install packages that are required to build the Jetpack plugin. To install it, you can [visit the Installation page of the project](https://classic.yarnpkg.com/en/docs/install) and follow the instructions for your operating system.
 
+---
+<a name="setup-development-tools-php"></a>
 ### PHP
 
 PHP is a popular general-purpose scripting language that is especially suited to web development and it's at the core of the Jetpack plugin. 
@@ -80,38 +107,100 @@ There are multiple ways to install PHP on your operating system, but as it's ver
 
 You can check out the [official installation instructions from the project website.](https://www.php.net/manual/en/install.php).
 
+---
+<a name="setup-development-tools-composer"></a>
 ### Composer
 
-Composer, similarlly to Yarn is a package manager, but for PHP packages. It will help you manage and install the PHP package dependencies for the Jetpack plugin. To install Composer, you can [visit the project website](https://getcomposer.org/) and follow the instructions for you operating system.
+Jetpack includes a number of packages such as the `jetpack-logo` and to use these packages you need Composer, the PHP package manager.
 
+It's also necessary to use the PHP CodeSniffer that ensures your code follows code standards. 
+
+ * #### Installing Composer on macOS
+
+	Composer can be installed using [Homebrew](https://brew.sh/). If you don't have Homebrew, install it with
+	
+	```
+	/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+	```
+
+	And then install Composer:
+
+	```
+	brew install composer
+	```
+
+ * #### Installing Composer on other systems
+
+	We recommend visiting the [official Composer download instructions](https://getcomposer.org/download/) to install composer on other operating systems. 
+	
+	Most Linux distributions may have an older version of Composer as an installable package, but installing from the official source ensures you have the most up to date version.
+	Note that [we recommend using the Windows Subsystem for Linux](#developing-and-contributing-code-to-jetpack-from-a-windows-machine) to run Composer and PHP.
+
+---
+<a name="setup-development-tools-phpunit"></a>
 ### PHPUnit
 
-PHPUnit is the unit test framework we use in Jetpack. You can install it by v[isitng the official project web site](https://phpunit.de/) and follow the installation instructions there. 
+PHPUnit is the unit test framework we use in Jetpack. You can install it by [visitng the official project web site](https://phpunit.de/) and follow the installation instructions there. 
+
+<a name="jetpack-development"></a>
+# Development workflow
+
+To start work on the Jetpack plugin you need to follow these steps:
+
+1. [Clone the repository](#jetpack-development-repository)
+2. [Install the development tools](#setup-development-tools)
+3. Make sure Jetpack is enabled on your WordPress site
+4. [Build Jetpack](#jetpack-development-build)
+5. Open `/wp-admin/admin.php?page=jetpack` in your browser.
+
+<a name="jetpack-development-repository"></a>
+## Clone the repository
+
+Make sure you have `git`, `node`, `yarn`, and a working WordPress installation.
+Clone this repository inside your Plugins directory.
+	
+```sh
+git clone git@github.com:Automattic/jetpack.git
+cd jetpack
+```
+	
+ You'll need to have a public SSH key setup with GitHub, which is more secure than saving your password in your keychain.
+ There are more details about [setting up a public key on GitHub.com](https://help.github.com/en/articles/adding-a-new-ssh-key-to-your-github-account).
+
+<a name="jetpack-development-build"></a>
+## Building Jetpack
+
+To work on Jetpack you need to build the JavaScript and CSS components of the plugin's admin interface. This will generate the run time bundle (`_inc/build/admin.js`)
+
+There are three types of builds:
+
+* ### Development build
+	The standard development build will create unminified versions of the JavaScript and CSS files. To build Jetpack like this run:
+	
+	```sh
+	yarn build
+	```
+	
+* ### Continuous Development build
+	By default the development build above will run once and if you change any of the files, you need to run `yarn build` again to see the changes on the site. If you want to avoid that, you can run a continous build that will rebuild anytime it sees any changes on your local filesystem. To run it, use:
+	
+	```sh
+	yarn watch
+	```	
+	
+* ### Production build
+	The production build will generate minified files without duplicated code (resulting from dependencies) and will also generate the matching source map and language files. To build it use:
+	
+	```sh
+	NODE_ENV=production yarn build-client
+	```
+
+
+
+---
+
 
 # ===============================================
-
-The JavaScript and CSS components of this plugin's admin interface need to be built in order to get the run time bundle (`_inc/build/admin.js`)
-
-## Before moving forward
-
-In most cases you want to have accessible an WordPress installation for Jetpack development. We suggest to use a `Docker` container which we provide. Follow [this guide](../docker/README.md#to-get-started) to configure your Docker development environment.
-
-**Recommended Environment:**
-
-* Node.js 10
-* Yarn 1.7
-* PHP 7.4 (in case you are running WordPress locally)
-* Composer
-
-## Script for checking if your environment is ready for contributing to Jetpack
-
-We provide a script to help you in assessing if everything's ready on your system to contribute to Jetpack.
-
-```sh
-tools/check-development-environment.sh
-```
-
-You should expect to get no red `FAILED` check messages. If there happens to be one, you can follow the link mentioned in the status check to see what's needed to address the issue.
 
 ## A note on Node versions used for the build tasks
 
@@ -126,55 +215,6 @@ run this command before building again. Otherwise you may experience errors on t
 $ yarn distclean
 ```
 
-### Start Development
-
-1. Make sure you have `git`, `node`, `yarn`, and a working WordPress installation.
-2. Clone this repository inside your Plugins directory.
-
-	```sh
-	$ git clone git@github.com:Automattic/jetpack.git
-	$ cd jetpack
-	```
- You'll need to have a public SSH key setup with GitHub, which is more secure than saving your password in your keychain.
- There are more details about [setting up a public key on GitHub.com](https://help.github.com/en/articles/adding-a-new-ssh-key-to-your-github-account).
-
-3. [Install Composer](#installing-composer).
-4. Install Yarn. Please, refer to Yarn's [Installation Documentation](https://yarnpkg.com/getting-started/install).
-
-5. Make sure the Jetpack plugin is active and run
-
-	```
-	$ yarn build
-	```
-
-	This will install npm dependencies and then build the files.
-
-6. Open `/wp-admin/admin.php?page=jetpack` in your browser.
-
-## Development build
-
-The development build will create a build without minifying or de-duping code. It will also install dependencies for you, so you don't need to `yarn` before it.
-
-```
-$ yarn build
-```
-
-## Development build with changes monitoring (watch)
-
-You can run a watch process, which will continuously watch the front-end JS and CSS/Sass for changes and rebuild accordingly.
-Instead of `yarn build` you'd use `yarn watch`. `yarn watch` will fully build Jetpack and update the React-powered admin and CSS/SASS.
-
-```
-$ yarn watch
-```
-
-## Production build
-
-The production build will generate minified files without duplicated code (resulting from dependencies) and will also generate the matching source map and language files.
-
-```
-$ NODE_ENV=production yarn build-client
-```
 
 ## Unit-testing
 
@@ -250,32 +290,6 @@ To use a custom reporter, pass the argument `-R, --reporter <name>`:
 $ yarn test-client -R 'my_reporter'
 ```
 
-## Installing Composer
-
-Jetpack includes a number of packages such as the `jetpack-logo` and to use these packages you need Composer, the PHP package manager.
-
-It's also necessary to use the PHP CodeSniffer that ensures your code follows code standards. 
-
-### Installing Composer on macOS
-
-Composer can be installed using [Homebrew](https://brew.sh/). If you don't have Homebrew, install it with
-
-```
-/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-```
-
-And then install Composer:
-
-```
-brew install composer
-```
-
-### Installing Composer on other systems
-
-We recommend visiting the [official Composer download instructions](https://getcomposer.org/download/) to install composer on other operating systems. 
-
-Most Linux distributions may have an older version of Composer as an installable package, but installing from the official source ensures you have the most up to date version.
-Note that [we recommend using the Windows Subsystem for Linux](#developing-and-contributing-code-to-jetpack-from-a-windows-machine) to run Composer and PHP.
 
 ## Use PHP CodeSniffer and ESLint to make sure your code respects coding standards
 
