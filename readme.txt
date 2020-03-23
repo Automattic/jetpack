@@ -123,6 +123,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Improved compatibility**
 
+* Blocks: ensure that all blocks are displayed nicely, even when using the latest version of the Gutenberg plugin.
 * Blocks on International sites: ensure that blocks can be translated when using Jetpack's Site Accelerator feature.
 * Comment Likes / AMP Plugin: avoid loading Likes on AMP views.
 * General: Jetpack now requires WordPress 5.3 and newer.
