@@ -91,9 +91,15 @@ function render_player( $track_list, $attributes ) {
 	}
 	$instance_id = wp_unique_id( 'podcast-player-block-' );
 
-	$player_data = array(
-		'tracks'     => $track_list,
-		'attributes' => $attributes,
+	// Generate object to be used as props for PodcastPlayer.
+	$player_data = array_merge(
+		// Make all attributes available.
+		$attributes,
+		// And add some computed properties.
+		array(
+			'tracks'   => $track_list,
+			'coverArt' => '',
+		)
 	);
 
 	$block_classname = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attributes );
