@@ -7,7 +7,9 @@
  * @package Jetpack
  */
 
-namespace Jetpack\Calendly_Block;
+namespace Automattic\Jetpack\Calendly_Block;
+
+use Jetpack_Gutenberg;
 
 const FEATURE_NAME = 'calendly';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
@@ -44,11 +46,11 @@ function register_block() {
 	if ( is_available() ) {
 		jetpack_register_block(
 			BLOCK_NAME,
-			array( 'render_callback' => 'Jetpack\Calendly_Block\load_assets' )
+			array( 'render_callback' => __NAMESPACE__ . '\load_assets' )
 		);
 	}
 }
-add_action( 'init', 'Jetpack\Calendly_Block\register_block' );
+add_action( 'init', __NAMESPACE__ . '\register_block' );
 
 /**
  * Set the availability of the block as the editor
@@ -56,9 +58,9 @@ add_action( 'init', 'Jetpack\Calendly_Block\register_block' );
  */
 function set_availability() {
 	if ( is_available() ) {
-		\Jetpack_Gutenberg::set_extension_available( BLOCK_NAME );
+		Jetpack_Gutenberg::set_extension_available( BLOCK_NAME );
 	} else {
-		\Jetpack_Gutenberg::set_extension_unavailable(
+		Jetpack_Gutenberg::set_extension_unavailable(
 			BLOCK_NAME,
 			'missing_plan',
 			array(
@@ -68,7 +70,7 @@ function set_availability() {
 		);
 	}
 }
-add_action( 'init', 'Jetpack\Calendly_Block\set_availability' );
+add_action( 'init', __NAMESPACE__ . '\set_availability' );
 
 /**
  * Calendly block registration/dependency declaration.
@@ -82,7 +84,7 @@ function load_assets( $attr, $content ) {
 	if ( is_admin() ) {
 		return;
 	}
-	$url = \Jetpack_Gutenberg::validate_block_embed_url(
+	$url = Jetpack_Gutenberg::validate_block_embed_url(
 		get_attribute( $attr, 'url' ),
 		array( 'calendly.com' )
 	);
@@ -93,7 +95,7 @@ function load_assets( $attr, $content ) {
 	/*
 	 * Enqueue necessary scripts and styles.
 	 */
-	\Jetpack_Gutenberg::load_assets_as_required( 'calendly' );
+	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 	wp_enqueue_script(
 		'jetpack-calendly-external-js',
 		'https://assets.calendly.com/assets/external/widget.js',
@@ -111,7 +113,7 @@ function load_assets( $attr, $content ) {
 	$submit_button_classes          = get_attribute( $attr, 'submitButtonClasses' );
 	$submit_button_text_color       = get_attribute( $attr, 'customTextButtonColor' );
 	$submit_button_background_color = get_attribute( $attr, 'customBackgroundButtonColor' );
-	$classes                        = \Jetpack_Gutenberg::block_classes( 'calendly', $attr, array( 'calendly-style-' . $style ) );
+	$classes                        = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attr, array( 'calendly-style-' . $style ) );
 	$block_id                       = wp_unique_id( 'calendly-block-' );
 
 	$url = add_query_arg(

@@ -1,19 +1,25 @@
 <?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 /**
- * Tiled Gallery block. Depends on the Photon module.
+ * Tiled Gallery block.
+ * Relies on Photon, but can be used even when the module is not active.
  *
  * @since 6.9.0
  *
  * @package Jetpack
  */
 
+namespace Automattic\Jetpack;
+
 /**
  * Jetpack Tiled Gallery Block class
  *
  * @since 7.3
  */
-class Jetpack_Tiled_Gallery_Block {
+class Tiled_Gallery_Block {
+	const FEATURE_NAME = 'tiled-gallery';
+	const BLOCK_NAME   = 'jetpack/' . self::FEATURE_NAME;
+
 	/* Values for building srcsets */
 	const IMG_SRCSET_WIDTH_MAX  = 2000;
 	const IMG_SRCSET_WIDTH_MIN  = 600;
@@ -24,7 +30,7 @@ class Jetpack_Tiled_Gallery_Block {
 	 */
 	public static function register() {
 		jetpack_register_block(
-			'jetpack/tiled-gallery',
+			self::BLOCK_NAME,
 			array(
 				'render_callback' => array( __CLASS__, 'render' ),
 			)
@@ -40,7 +46,7 @@ class Jetpack_Tiled_Gallery_Block {
 	 * @return string
 	 */
 	public static function render( $attr, $content ) {
-		Jetpack_Gutenberg::load_assets_as_required( 'tiled-gallery' );
+		Jetpack_Gutenberg::load_assets_as_required( self::FEATURE_NAME );
 
 		$is_squareish_layout = self::is_squareish_layout( $attr );
 
@@ -169,4 +175,4 @@ class Jetpack_Tiled_Gallery_Block {
 	}
 }
 
-Jetpack_Tiled_Gallery_Block::register();
+Tiled_Gallery_Block::register();
