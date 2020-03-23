@@ -110,6 +110,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Blocks: improve discoverability of multiple blocks by reviewing keywords used in the block search.
 * Blocks: improve the display of error notices in Jetpack's embed blocks.
 * Calendly block: display an error when the embed URL is not found.
+* Contact Info Widget: improve the display of Map API key notices.
 * Eventbrite Block: offer additional alignment options.
 * Facebook Embeds and Facebook Page Plugin Widget: improve performance and compatibility with caching plugins.
 * Gravatar Hovercards: avoid loading Gravatar assets when not needed on the page.
