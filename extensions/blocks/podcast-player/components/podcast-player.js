@@ -10,6 +10,7 @@ import { noop } from 'lodash';
 import { STATE_PLAYING, STATE_ERROR, STATE_PAUSED } from '../constants';
 import Playlist from './playlist';
 import AudioPlayer from './audio-player';
+import Header from './header';
 
 // const debug = debugFactory( 'jetpack:podcast-player' );
 
@@ -138,19 +139,18 @@ export class PodcastPlayer extends Component {
 
 		return (
 			<div className={ playerState }>
-				player: { playerState }
-				<br />
-				track: { currentTrack }
-				<AudioPlayer
-					initialTrackSource={ this.getTrack( 0 ).src }
-					handlePlay={ this.handlePlay }
-					handlePause={ this.handlePause }
-					handleError={ this.handleError }
-					ref={ this.playerRef }
-				/>
+				<Header track={ currentTrack ? this.getTrack( currentTrack ) : null }>
+					<AudioPlayer
+						initialTrackSource={ this.getTrack( 0 ).src }
+						handlePlay={ this.handlePlay }
+						handlePause={ this.handlePause }
+						handleError={ this.handleError }
+						ref={ this.playerRef }
+					/>
+				</Header>
 				<Playlist
-					playerState={ this.state.playerState }
-					currentTrack={ this.state.currentTrack }
+					playerState={ playerState }
+					currentTrack={ currentTrack }
 					tracks={ tracksToDisplay }
 					selectTrack={ this.selectTrack }
 				/>
