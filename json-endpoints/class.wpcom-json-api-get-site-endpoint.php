@@ -140,7 +140,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'site_goals',
 		'site_segment',
 		'import_engine',
-		'is_checklist_complete',
+		'is_site_setup_complete',
 	);
 
 	protected static $jetpack_response_field_additions = array(
@@ -168,7 +168,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		// and defaults to `0000-00-00T00:00:00+00:00` from the Jetpack site.
 		// See https://github.com/Automattic/jetpack/blob/58638f46094b36f5df9cbc4570006544f0ad300c/sal/class.json-api-site-base.php#L387.
 		'created_at',
-		'is_checklist_complete',
+		'is_site_setup_complete',
 	);
 
 	private $site;
@@ -620,8 +620,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'import_engine':
 					$options[ $key ] = $site->get_import_engine();
 					break;
-				case 'is_checklist_complete':
-					$options[ $key ] = $site->is_checklist_complete();
+				case 'is_site_setup_complete':
+					$options[ $key ] = $site->is_site_setup_complete();
 					break;
 			}
 		}
