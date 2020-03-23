@@ -10,6 +10,9 @@
 
 namespace Automattic\Jetpack\Extensions;
 
+use Jetpack_Gutenberg;
+use Jetpack_Plan;
+
 /**
  * Jetpack Tiled Gallery Block class
  *
