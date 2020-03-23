@@ -5,10 +5,9 @@
 /**
  * WordPress dependencies
  */
-import { useState, useCallback } from '@wordpress/element';
+import { useState, useCallback, useEffect } from '@wordpress/element';
 import {
 	Button,
-	Disabled,
 	ExternalLink,
 	PanelBody,
 	Placeholder,
@@ -20,25 +19,21 @@ import {
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { BlockControls, BlockIcon, InspectorControls } from '@wordpress/block-editor';
-import ServerSideRender from '@wordpress/server-side-render';
+import apiFetch from '@wordpress/api-fetch';
 import { isURL } from '@wordpress/url';
 
 /**
  * Internal dependencies
  */
-import { namespaceName } from './index';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import './editor.scss';
 import { queueMusic } from './icons/';
 import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import attributesValidation from './attributes';
+import PodcastPlayer from './components/podcast-player';
 
 const DEFAULT_MIN_ITEMS = 1;
 const DEFAULT_MAX_ITEMS = 10;
-
-const handleSSRError = () => {
-	return <p>{ __( 'Failed to load Block', 'jetpack' ) }</p>;
-};
 
 // Support page link.
 const supportUrl =
@@ -61,6 +56,21 @@ const PodcastPlayerEdit = ( {
 	// State.
 	const [ editedUrl, setEditedUrl ] = useState( url || '' );
 	const [ isEditing, setIsEditing ] = useState( false );
+	const [ tracks, setTracks ] = useState( [] );
+
+	useEffect( () => {
+		setTracks( [] );
+		apiFetch( {
+			path: '/wpcom/v2/podcast-player?url=' + url,
+		} ).then(
+			data => {
+				setTracks( data.tracks );
+			},
+			() => {
+				// TODO: error.
+			}
+		);
+	}, [ url ] );
 
 	/**
 	 * Check if the current URL of the Podcast RSS feed
@@ -131,6 +141,10 @@ const PodcastPlayerEdit = ( {
 		},
 	];
 
+	if ( ! tracks.length ) {
+		return 'loading';
+	}
+
 	return (
 		<>
 			<BlockControls>
@@ -160,14 +174,7 @@ const PodcastPlayerEdit = ( {
 					/>
 				</PanelBody>
 			</InspectorControls>
-			<Disabled>
-				<ServerSideRender
-					block={ namespaceName }
-					attributes={ { url, itemsToShow } }
-					EmptyResponsePlaceholder={ handleSSRError }
-					ErrorResponsePlaceholder={ handleSSRError }
-				/>
-			</Disabled>
+			<PodcastPlayer itemsToShow={ itemsToShow } tracks={ tracks } />
 		</>
 	);
 };

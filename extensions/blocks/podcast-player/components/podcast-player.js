@@ -131,8 +131,10 @@ export class PodcastPlayer extends Component {
 	setAudioSource = noop;
 
 	render() {
-		const { tracks } = this.props;
+		const { tracks, itemsToShow } = this.props;
 		const { playerState, currentTrack } = this.state;
+
+		const tracksToDisplay = tracks.slice( 0, itemsToShow );
 
 		return (
 			<div className={ playerState }>
@@ -149,7 +151,7 @@ export class PodcastPlayer extends Component {
 				<Playlist
 					playerState={ this.state.playerState }
 					currentTrack={ this.state.currentTrack }
-					tracks={ tracks }
+					tracks={ tracksToDisplay }
 					selectTrack={ this.selectTrack }
 				/>
 			</div>
@@ -159,7 +161,10 @@ export class PodcastPlayer extends Component {
 
 PodcastPlayer.defaultProps = {
 	tracks: [],
-	attributes: {},
+	url: null,
+	itemsToShow: 5,
+	showCoverArt: true,
+	showEpisodeDescription: true,
 };
 
 export default PodcastPlayer;
