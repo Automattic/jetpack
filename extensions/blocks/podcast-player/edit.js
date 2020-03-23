@@ -16,6 +16,7 @@ import {
 	Toolbar,
 	withNotices,
 	ToggleControl,
+	Spinner,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { BlockControls, BlockIcon, InspectorControls } from '@wordpress/block-editor';
@@ -42,6 +43,7 @@ const supportUrl =
 		: 'https://jetpack.com/support/jetpack-blocks/podcast-player-block/';
 
 const PodcastPlayerEdit = ( {
+	className,
 	attributes,
 	setAttributes,
 	noticeOperations: { createErrorNotice, removeAllNotices },
@@ -58,16 +60,18 @@ const PodcastPlayerEdit = ( {
 	const [ isEditing, setIsEditing ] = useState( false );
 	const [ tracks, setTracks ] = useState( [] );
 
+	// Load RSS feed.
 	useEffect( () => {
 		setTracks( [] );
 		apiFetch( {
 			path: '/wpcom/v2/podcast-player?url=' + url,
 		} ).then(
 			data => {
+				// TODO: handle more data from endpoint (cover art).
 				setTracks( data.tracks );
 			},
 			() => {
-				// TODO: error.
+				// TODO: error handling.
 			}
 		);
 	}, [ url ] );
@@ -141,8 +145,13 @@ const PodcastPlayerEdit = ( {
 		},
 	];
 
+	// Loading state for fetching the feed.
 	if ( ! tracks.length ) {
-		return 'loading';
+		return (
+			<Placeholder>
+				<Spinner />
+			</Placeholder>
+		);
 	}
 
 	return (
@@ -174,7 +183,15 @@ const PodcastPlayerEdit = ( {
 					/>
 				</PanelBody>
 			</InspectorControls>
-			<PodcastPlayer itemsToShow={ itemsToShow } tracks={ tracks } />
+			<div className={ className }>
+				<PodcastPlayer
+					tracks={ tracks }
+					coverArt={ null }
+					itemsToShow={ itemsToShow }
+					showEpisodeDescription={ showEpisodeDescription }
+					showCoverArt={ showCoverArt }
+				/>
+			</div>
 		</>
 	);
 };
