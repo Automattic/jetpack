@@ -17,7 +17,7 @@ export default class LoginPage extends Page {
 		super( page, { expectedSelector, url, explicitWaitMS: 45000 } );
 	}
 
-	async login( wpcomUser ) {
+	async login( wpcomUser, { retry = true } = {} ) {
 		const [ username, password ] = getAccountCredentials( wpcomUser );
 
 		const usernameSelector = '#usernameOrEmail';
@@ -34,13 +34,23 @@ export default class LoginPage extends Page {
 		this.page.waitFor( 2000 );
 
 		await waitAndType( this.page, passwordSelector, password );
-		await waitAndClick( this.page, submitButtonSelector );
+		// await waitAndClick( this.page, submitButtonSelector );
 
-		// NOTE: here we waiting for the redirect. For some reason it might take quite some time
-		await waitForSelector( this.page, passwordSelector, {
-			hidden: true,
-			timeout: 3 * 60000 /* 3 minutes */,
-		} );
+		const submitButton = await waitForSelector( this.page, submitButtonSelector );
+		await submitButton.press( 'Enter' );
+
+		try {
+			await waitForSelector( this.page, passwordSelector, {
+				hidden: true,
+				timeout: 60000 /* 1 minute */,
+			} );
+		} catch ( e ) {
+			if ( retry === true ) {
+				return await this.login( wpcomUser, { retry: false } );
+			}
+			throw e;
+		}
+
 		await this.page.waitForNavigation( { waitFor: 'networkidle2' } );
 	}
 
