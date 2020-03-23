@@ -140,6 +140,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Dashboard: clarify wording for all plans in the Backup & Scan cards.
 * Form Block: fix button colors not saving correctly.
 * Google Calendar Block: ensure calendars are properly displayed regardless of the width option picked in block styles.
+* OpenTable Block: fix layout issue when using Wide and Full-width sizes.
 * Recurring Payments Block: ensure that the minimum payment option respects the chosen currency for the button.
 * Shortcodes: Fix Crowdsignal poll embeds when using the P2 theme.
 * Site Logo: avoid PHP notices in the Customizer, when no logo is set yet.
