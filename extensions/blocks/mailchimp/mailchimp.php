@@ -7,14 +7,35 @@
  * @package Jetpack
  */
 
-if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Jetpack::is_active() ) {
-	jetpack_register_block(
-		'jetpack/mailchimp',
-		array(
-			'render_callback' => 'jetpack_mailchimp_block_load_assets',
-		)
-	);
+namespace Automattic\Jetpack\Extensions\Mailchimp;
+
+use Jetpack;
+use Jetpack_AMP_Support;
+use Jetpack_Gutenberg;
+use Jetpack_Options;
+
+const FEATURE_NAME = 'mailchimp';
+const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
+
+/**
+ * Registers the block for use in Gutenberg
+ * This is done via an action so that we can disable
+ * registration if we need to.
+ */
+function register_block() {
+	if (
+		( defined( 'IS_WPCOM' ) && IS_WPCOM )
+		|| Jetpack::is_active()
+	) {
+		jetpack_register_block(
+			BLOCK_NAME,
+			array(
+				'render_callback' => __NAMESPACE__ . '\load_assets',
+			)
+		);
+	}
 }
+add_action( 'init', __NAMESPACE__ . '\register_block' );
 
 /**
  * Mailchimp block registration/dependency declaration.
@@ -23,9 +44,9 @@ if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Jetpack::is_active() ) {
  *
  * @return string
  */
-function jetpack_mailchimp_block_load_assets( $attr ) {
+function load_assets( $attr ) {
 
-	if ( ! jetpack_mailchimp_verify_connection() ) {
+	if ( ! verify_connection() ) {
 		return null;
 	}
 
@@ -33,7 +54,7 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 	$blog_id = ( defined( 'IS_WPCOM' ) && IS_WPCOM )
 		? get_current_blog_id()
 		: Jetpack_Options::get_option( 'id' );
-	Jetpack_Gutenberg::load_assets_as_required( 'mailchimp' );
+	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 	$defaults = array(
 		'emailPlaceholder' => esc_html__( 'Enter your email', 'jetpack' ),
 		'submitButtonText' => esc_html__( 'Join my email list', 'jetpack' ),
@@ -51,7 +72,7 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
 
 	$values['submitButtonText'] = empty( $values['submitButtonText'] ) ? $defaults['submitButtonText'] : $values['submitButtonText'];
 
-	$classes = Jetpack_Gutenberg::block_classes( 'mailchimp', $attr );
+	$classes = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attr );
 
 	$button_styles = array();
 	if ( ! empty( $attr['customBackgroundButtonColor'] ) ) {
@@ -190,7 +211,7 @@ function jetpack_mailchimp_block_load_assets( $attr ) {
  *
  * @return boolean
  */
-function jetpack_mailchimp_verify_connection() {
+function verify_connection() {
 	$option = get_option( 'jetpack_mailchimp' );
 	if ( ! $option ) {
 		return false;

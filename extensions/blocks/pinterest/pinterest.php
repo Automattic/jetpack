@@ -7,10 +7,23 @@
  * @package Jetpack
  */
 
-jetpack_register_block(
-	'jetpack/pinterest',
-	array( 'render_callback' => 'jetpack_pinterest_block_load_assets' )
-);
+namespace Automattic\Jetpack\Extensions\Pinterest;
+
+const FEATURE_NAME = 'pinterest';
+const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
+
+/**
+ * Registers the block for use in Gutenberg
+ * This is done via an action so that we can disable
+ * registration if we need to.
+ */
+function register_block() {
+	jetpack_register_block(
+		BLOCK_NAME,
+		array( 'render_callback' => __NAMESPACE__ . '\load_assets' )
+	);
+}
+add_action( 'init', __NAMESPACE__ . '\register_block' );
 
 /**
  * Pinterest block registration/dependency declaration.
@@ -20,7 +33,7 @@ jetpack_register_block(
  *
  * @return string
  */
-function jetpack_pinterest_block_load_assets( $attr, $content ) {
+function load_assets( $attr, $content ) {
 	wp_enqueue_script( 'pinterest-pinit', 'https://assets.pinterest.com/js/pinit.js', array(), JETPACK__VERSION, true );
 	return $content;
 }

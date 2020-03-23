@@ -7,12 +7,25 @@
  * @package Jetpack
  */
 
-jetpack_register_block(
-	'jetpack/revue',
-	array(
-		'render_callback' => 'jetpack_render_revue_block',
-	)
-);
+namespace Automattic\Jetpack\Extensions\Revue;
+
+use Jetpack_Gutenberg;
+
+const FEATURE_NAME = 'revue';
+const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
+
+/**
+ * Registers the block for use in Gutenberg
+ * This is done via an action so that we can disable
+ * registration if we need to.
+ */
+function register_block() {
+	jetpack_register_block(
+		BLOCK_NAME,
+		array( 'render_callback' => __NAMESPACE__ . '\render_block' )
+	);
+}
+add_action( 'init', __NAMESPACE__ . '\register_block' );
 
 /**
  * Revue block render callback.
@@ -21,24 +34,24 @@ jetpack_register_block(
  *
  * @return string
  */
-function jetpack_render_revue_block( $attributes ) {
+function render_block( $attributes ) {
 	if ( ! array_key_exists( 'revueUsername', $attributes ) ) {
 		return '';
 	}
 
-	$email_label            = jetpack_get_revue_attribute( 'emailLabel', $attributes );
-	$email_placeholder      = jetpack_get_revue_attribute( 'emailPlaceholder', $attributes );
-	$first_name_label       = jetpack_get_revue_attribute( 'firstNameLabel', $attributes );
-	$first_name_placeholder = jetpack_get_revue_attribute( 'firstNamePlaceholder', $attributes );
-	$first_name_show        = jetpack_get_revue_attribute( 'firstNameShow', $attributes );
-	$last_name_label        = jetpack_get_revue_attribute( 'lastNameLabel', $attributes );
-	$last_name_placeholder  = jetpack_get_revue_attribute( 'lastNamePlaceholder', $attributes );
-	$last_name_show         = jetpack_get_revue_attribute( 'lastNameShow', $attributes );
+	$email_label            = get_revue_attribute( 'emailLabel', $attributes );
+	$email_placeholder      = get_revue_attribute( 'emailPlaceholder', $attributes );
+	$first_name_label       = get_revue_attribute( 'firstNameLabel', $attributes );
+	$first_name_placeholder = get_revue_attribute( 'firstNamePlaceholder', $attributes );
+	$first_name_show        = get_revue_attribute( 'firstNameShow', $attributes );
+	$last_name_label        = get_revue_attribute( 'lastNameLabel', $attributes );
+	$last_name_placeholder  = get_revue_attribute( 'lastNamePlaceholder', $attributes );
+	$last_name_show         = get_revue_attribute( 'lastNameShow', $attributes );
 	$url                    = sprintf( 'https://www.getrevue.co/profile/%s/add_subscriber', $attributes['revueUsername'] );
-	$base_class             = Jetpack_Gutenberg::block_classes( 'revue', array() ) . '__';
-	$classes                = Jetpack_Gutenberg::block_classes( 'revue', $attributes );
+	$base_class             = Jetpack_Gutenberg::block_classes( FEATURE_NAME, array() ) . '__';
+	$classes                = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attributes );
 
-	Jetpack_Gutenberg::load_assets_as_required( 'revue' );
+	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 
 	ob_start();
 	?>
@@ -94,7 +107,7 @@ function jetpack_render_revue_block( $attributes ) {
 			<?php
 			endif;
 			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			echo jetpack_get_revue_button( $attributes );
+			echo get_revue_button( $attributes );
 		?>
 	</form>
 	<div class="<?php echo esc_attr( $base_class . 'message' ); ?>">
@@ -120,11 +133,11 @@ function jetpack_render_revue_block( $attributes ) {
  *
  * @return string
  */
-function jetpack_get_revue_button( $attributes ) {
+function get_revue_button( $attributes ) {
 	$classes = array( 'wp-block-button__link' );
 	$styles  = array();
 
-	$text                        = jetpack_get_revue_attribute( 'text', $attributes );
+	$text                        = get_revue_attribute( 'text', $attributes );
 	$has_class_name              = array_key_exists( 'className', $attributes );
 	$has_named_text_color        = array_key_exists( 'textColor', $attributes );
 	$has_custom_text_color       = array_key_exists( 'customTextColor', $attributes );
@@ -207,7 +220,7 @@ function jetpack_get_revue_button( $attributes ) {
  *
  * @return mixed
  */
-function jetpack_get_revue_attribute( $attribute, $attributes ) {
+function get_revue_attribute( $attribute, $attributes ) {
 	if ( array_key_exists( $attribute, $attributes ) ) {
 		return $attributes[ $attribute ];
 	}

@@ -7,7 +7,7 @@
  * @package Jetpack
  */
 
-namespace Jetpack\Podcast_Player_Block;
+namespace Automattic\Jetpack\Extensions\Podcast_Player;
 
 use WP_Error;
 use Jetpack_Gutenberg;
@@ -125,7 +125,7 @@ function render_player( $track_list, $attributes ) {
 	 * Enqueue necessary scripts and styles.
 	 */
 	wp_enqueue_style( 'mediaelement' );
-	Jetpack_Gutenberg::load_assets_as_required( 'podcast-player', array( 'mediaelement' ) );
+	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME, array( 'mediaelement' ) );
 
 	return ob_get_clean();
 }

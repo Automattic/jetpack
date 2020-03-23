@@ -7,12 +7,26 @@
  * @package Jetpack
  */
 
-jetpack_register_block(
-	'jetpack/gif',
-	array(
-		'render_callback' => 'jetpack_gif_block_render',
-	)
-);
+namespace Automattic\Jetpack\Extensions\Gif;
+
+use Jetpack_AMP_Support;
+use Jetpack_Gutenberg;
+
+const FEATURE_NAME = 'gif';
+const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
+
+/**
+ * Registers the block for use in Gutenberg
+ * This is done via an action so that we can disable
+ * registration if we need to.
+ */
+function register_block() {
+	jetpack_register_block(
+		BLOCK_NAME,
+		array( 'render_callback' => __NAMESPACE__ . '\render_block' )
+	);
+}
+add_action( 'init', __NAMESPACE__ . '\register_block' );
 
 /**
  * Gif block registration/dependency declaration.
@@ -21,7 +35,7 @@ jetpack_register_block(
  *
  * @return string
  */
-function jetpack_gif_block_render( $attr ) {
+function render_block( $attr ) {
 	$padding_top = isset( $attr['paddingTop'] ) ? $attr['paddingTop'] : 0;
 	$style       = 'padding-top:' . $padding_top;
 	$giphy_url   = isset( $attr['giphyUrl'] )
@@ -34,7 +48,7 @@ function jetpack_gif_block_render( $attr ) {
 		return null;
 	}
 
-	$classes = Jetpack_Gutenberg::block_classes( 'gif', $attr );
+	$classes = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attr );
 
 	$placeholder = sprintf( '<a href="%s">%s</a>', esc_url( $giphy_url ), esc_attr( $search_text ) );
 
@@ -61,7 +75,7 @@ function jetpack_gif_block_render( $attr ) {
 	<?php
 	$html = ob_get_clean();
 
-	Jetpack_Gutenberg::load_assets_as_required( 'gif' );
+	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 
 	return $html;
 }
