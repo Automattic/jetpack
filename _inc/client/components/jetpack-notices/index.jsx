@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import SimpleNotice from 'components/notice';
+import SearchOnboarding from 'components/search-onboarding';
 import NoticeAction from 'components/notice/notice-action.jsx';
 import { translate as __ } from 'i18n-calypso';
 import NoticesList from 'components/global-notices';
@@ -23,7 +24,6 @@ import {
 } from 'state/connection';
 import { isDevVersion, userCanConnectSite, userIsSubscriber } from 'state/initial-state';
 import DismissableNotices from './dismissable';
-import SearchNotice from './search-notice';
 import JetpackBanner from 'components/jetpack-banner';
 import { JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
 import PlanConflictWarning from './plan-conflict-warning';
@@ -217,7 +217,7 @@ class JetpackNotices extends React.Component {
 						) }
 					/>
 				) }
-				<SearchNotice />
+				<SearchOnboarding />
 			</div>
 		);
 	}

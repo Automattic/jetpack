@@ -1,0 +1,29 @@
+.jp-search-onboarding {
+	margin: rem( 32px ) 0;
+
+	.dops-button {
+		margin: rem( 4px );
+	}
+}
+
+.jp-search-onboarding__dismiss {
+	position: absolute;
+	top: 8px;
+	right: 8px;
+
+	&.dops-button.is-compact {
+		padding: 8px 8px 2px 8px;
+	}
+}
+
+.jp-search-onboarding__image {
+	display: none;
+	float: right;
+	max-width: 25%;
+	margin-top: rem( -24px );
+	margin-left: rem( 24px );
+
+	@include breakpoint( '>480px' ) {
+		display: block;
+	}
+}

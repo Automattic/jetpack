@@ -190,3 +190,12 @@ export function appsCardDismissed( state ) {
 export function emptyStatsCardDismissed( state ) {
 	return get( state.jetpack.settings.items, 'dismiss_empty_stats_card', false );
 }
+
+/**
+ * Returns true if search onboarding card has been dismissed.
+ * @param  {Object}  state Global state tree
+ * @return {Boolean}  Whether the card has been dismissed
+ */
+export function searchOnboardingDismissed( state ) {
+	return get( state.jetpack.settings.items, 'dismiss_search_onboarding_card', false );
+}
