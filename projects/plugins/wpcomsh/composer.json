@@ -8,7 +8,8 @@
     "automattic/custom-fonts": "1.0.1",
     "automattic/custom-fonts-typekit": "1.0.3",
     "automattic/text-media-widget-styles": "~1.0",
-    "automattic/wc-calypso-bridge": "1.1.5"
+    "automattic/wc-calypso-bridge": "1.1.5",
+    "wordpress/classic-editor-plugin": "1.5"
   },
   "require-dev": {
     "php": ">=7.0.0"
@@ -38,6 +39,25 @@
       "type": "vcs",
       "no-api": true,
       "url": "https://github.com/Automattic/wc-calypso-bridge.git"
+    },
+    {
+      "type": "package",
+      "package": {
+        "name": "wordpress/classic-editor-plugin",
+        "version": "1.5",
+        "dist": {
+          "url": "https://downloads.wordpress.org/plugin/classic-editor.1.5.zip",
+          "type": "zip"
+        },
+        "source": {
+          "url": "https://plugins.svn.wordpress.org/classic-editor/",
+          "type": "svn",
+          "reference": "tags/1.5/"
+        },
+        "autoload": {
+          "classmap": []
+        }
+      }
     }
   ]
 }

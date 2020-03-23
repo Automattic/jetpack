@@ -45,12 +45,14 @@ function admin_init() {
 		add_action( 'whitelist_options', '\Private_Site\remove_privacy_option_from_whitelist' );
 	}
 
-	if ( ! site_is_private() ) {
-		return;
+	if ( should_override_editor_with_classic_editor() ) {
+		// Classic editor for private+atomic users is now handled in wp-admin instead of Calypso. @see use_classic_editor_if_requested
+		add_action( 'load-post.php', '\Private_Site\use_classic_editor_if_requested', - 1000 );
+		add_action( 'load-post-new.php', '\Private_Site\use_classic_editor_if_requested', - 1000 );
 	}
 
 	// Many AJAX actions do not execute the `parse_request` action. Catch them here.
-	if ( should_prevent_site_access() && ! is_jetpack_admin_ajax_request() ) {
+	if ( site_is_private() && should_prevent_site_access() && ! is_jetpack_admin_ajax_request() ) {
 		send_access_denied_error_response();
 	}
 }
@@ -583,4 +585,106 @@ function filter_jetpack_get_available_modules( $modules ) {
 	return array_filter( $modules, function( $module_name ) use ( $disabled_modules ) {
 		return ! in_array( $module_name, $disabled_modules );
 	}, ARRAY_FILTER_USE_KEY );
+}
+
+/**
+ * Classic editor in calypso don't support displaying private media files because of CORS issues. Adding
+ * a support would be super complex and probably not worth it considering that we're phasing out the classical
+ * editor altogether. Classic editor in wp-admin handles private files out of the box so we're redirecting all
+ * private+atomic+classic editor users from calypso to wp-admin with ?classic_editor.
+ *
+ * This hook ensures that all requests to post.php and post-new.php will show classic editor when ?classic_editor query
+ * parameter is present.
+ */
+function use_classic_editor_if_requested() {
+	if ( ! is_module_active() ) {
+		return;
+	}
+
+	if ( ! should_override_editor_with_classic_editor() ) {
+		return;
+	}
+
+	if ( class_exists( '\Classic_Editor' ) ) {
+		// This should never happen since we disabled the plugin in another filter
+		return;
+	}
+
+	add_action( 'classic_editor_plugin_settings', function () {
+		return [
+			'editor' => 'classic',
+			'allow-users' => false,
+		];
+	} );
+
+	require dirname( __DIR__ ) . '/vendor/wordpress/classic-editor-plugin/classic-editor.php';
+	\Classic_Editor::init_actions();
+
+	// Classic editor registers itself to plugins_loaded action. By now it was already executed, but
+	// let's remove it just to be safe.
+	remove_action( 'plugins_loaded', array( 'Classic_Editor', 'init_actions' ) );
+
+	// In allow-users => false mode, these redirection helpers aren't used. Let's
+	// apply them manually
+	add_filter( 'get_edit_post_link', array( 'Classic_Editor', 'get_edit_post_link' ) );
+	add_filter( 'redirect_post_location', array( 'Classic_Editor', 'redirect_location' ) );
+	add_action( 'edit_form_top', array( 'Classic_Editor', 'add_redirect_helper' ) );
+	add_action( 'admin_head-edit.php', array( 'Classic_Editor', 'add_edit_php_inline_style' ) );
+
+	// Let's disable Calypsoify - it gets triggered when the user:
+	// 1. Opens Gutenberg
+	// 2. Clicks "Switch to classic editor"
+	// 3. Clicks "Use Classic editor" in the prompt
+	add_filter( 'get_user_metadata', function( $value, $object_id, $meta_key, $single ) {
+		if ( $meta_key === 'calypsoify' ) {
+			return 0;
+		}
+
+		return $value;
+	}, 10, 4 );
+}
+
+function disable_classic_editor_plugin_when_needed( $plugins ) {
+	if ( ! is_module_active() ) {
+		return $plugins;
+	}
+
+	if ( ! should_override_editor_with_classic_editor() ) {
+		return $plugins;
+	}
+
+	$key = array_search( 'classic-editor/classic-editor.php', $plugins );
+	if ( false !== $key ) {
+		unset( $plugins[ $key ] );
+	}
+
+	return $plugins;
+}
+
+add_filter( 'option_active_plugins', '\Private_Site\disable_classic_editor_plugin_when_needed', 1000 );
+
+function should_override_editor_with_classic_editor() {
+	if ( ! site_is_private() ) {
+		return false;
+	}
+
+	global $pagenow;
+	if ( empty( $pagenow ) ) {
+		return false;
+	}
+
+
+	if ( $pagenow !== "post.php" && $pagenow !== "post-new.php" ) {
+		return false;
+	}
+
+	if ( ! array_key_exists( 'classic-editor', $_REQUEST ) ) {
+		return false;
+	}
+
+	if ( array_key_exists( 'classic-editor__forget', $_REQUEST ) ) {
+		return false;
+	}
+
+	return true;
 }
