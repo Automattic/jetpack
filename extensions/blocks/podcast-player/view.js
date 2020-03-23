@@ -51,13 +51,12 @@ const initializeBlock = function( id ) {
 		...data,
 	} );
 
-	// Mount.
+	// Prepare mount point.
 	const div = document.createElement( 'div' );
 	block.appendChild( div );
-	render( component, div );
 
-	// Save instance to the list of active ones.
-	playerInstances[ id ] = component;
+	// Render and save instance to the list of active ones.
+	playerInstances[ id ] = render( component, div );
 };
 
 // Initialize queued players.
