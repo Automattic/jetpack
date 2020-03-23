@@ -120,6 +120,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Likes: improve performance when loading resources used by the Likes feature on the front-end of your site.
 * Protect: improve detection of IP on servers using custom IP Headers.
 * Revue Block: update the layout of the default placeholder appearing when you first insert the block.
+* Site Health: add new card informing you of your site's synchronization status with WordPress.com.
 * Widgets: improve performance of the Search and Milestone widgets.
 * WordAds: improve performance of the display of all ads.
 * WordPress.com Toolbar: log user out of WordPress.com when attempting to log out from the site.
