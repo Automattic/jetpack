@@ -165,7 +165,11 @@ const PodcastPlayerEdit = ( {
 	// Loading state for fetching the feed.
 	if ( ! feedData.tracks || ! feedData.tracks.length ) {
 		return (
-			<Placeholder>
+			<Placeholder
+				icon={ <BlockIcon icon={ queueMusic } /> }
+				label={ __( 'Podcast Player', 'jetpack' ) }
+				instructions={ __( 'Loading podcast feed…', 'jetpack' ) }
+			>
 				<Spinner />
 			</Placeholder>
 		);
