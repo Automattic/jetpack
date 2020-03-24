@@ -225,24 +225,30 @@ function get_activating_plugins() {
 
 	// phpcs:disable WordPress.Security.NonceVerification.Recommended
 
+	$action = isset( $_REQUEST['action'] ) ? $_REQUEST['action'] : false;
+	$plugin = isset( $_REQUEST['plugin'] ) ? $_REQUEST['plugin'] : false;
+	$nonce  = isset( $_REQUEST['_wpnonce'] ) ? $_REQUEST['_wpnonce'] : false;
+
+	/**
+	 * Note: we're not actually checking the nonce here becase it's too early
+	 * in the execution. The pluggable functions are not yet loaded to give
+	 * plugins a chance to plug their versions. Therefore we're doing the bare
+	 * minimum: checking whether the nonce exists and it's in the right place.
+	 * The request will fail later if the nonce doesn't pass the check.
+	 */
+
 	// In case of a single plugin activation there will be a plugin slug.
-	if (
-		isset( $_REQUEST['action'] )
-		&& 'activate' === $_REQUEST['action']
-	) {
-		$activating_plugin = isset( $_REQUEST['plugin'] ) ? wp_unslash( $_REQUEST['plugin'] ) : null;
-		return array( $activating_plugin );
+	if ( 'activate' === $action && ! empty( $nonce ) ) {
+		return array( wp_unslash( $plugin ) );
 	}
 
+	$plugins = isset( $_REQUEST['checked'] ) ? $_REQUEST['checked'] : array();
+
 	// In case of bulk activation there will be an array of plugins.
-	if (
-		isset( $_REQUEST['action'] )
-		&& 'activate-selected' === $_REQUEST['action']
-	) {
-		return ( isset( $_REQUEST['checked'] ) && is_array( $_REQUEST['checked'] ) )
-			? array_map( 'wp_unslash', $_REQUEST['checked'] )
-			: array();
+	if ( 'activate-selected' === $action && ! empty( $nonce ) ) {
+		return array_map( 'wp_unslash', $plugins );
 	}
+
 	// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 	return array();
