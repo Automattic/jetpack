@@ -65,33 +65,22 @@ class ProductCard extends Component {
 			title,
 			translate,
 		} = this.props;
-		const cardClassNames = classNames( 'product-card', {
+		const cardClassNames = classNames( 'single-product__accented-card', {
 			'is-placeholder': isPlaceholder,
 			'is-purchased': !! purchase,
 		} );
 
 		return (
 			<Card className={ cardClassNames }>
-				<div className="product-card__header">
+				<div className="single-product__accented-card-header">
 					{ title && (
-						<div className="product-card__header-primary">
+						<div className="single-product__accented-card-header-primary">
 							{ purchase && <Gridicon icon="checkmark" size={ 18 } /> }
-							<h3 className="product-card__title">{ title }</h3>
+							<h3 className="single-product-backup__header-title">{ title }</h3>
 						</div>
 					) }
-					<div className="product-card__header-secondary">
-						{ subtitle && <div className="product-card__subtitle">{ subtitle }</div> }
-						{ ! purchase && (
-							<ProductCardPriceGroup
-								billingTimeFrame={ billingTimeFrame }
-								currencyCode={ currencyCode }
-								discountedPrice={ discountedPrice }
-								fullPrice={ fullPrice }
-							/>
-						) }
-					</div>
 				</div>
-				<div className="product-card__description">
+				<div className="single-product__accented-card-body">
 					{ description && <p>{ description }</p> }
 					{ purchase && isCurrent && (
 						<ProductCardAction
@@ -99,6 +88,15 @@ class ProductCard extends Component {
 							href={ this.getManagePurchaseLink( purchase.domain, purchase.ID ) }
 							label={ translate( 'Manage Subscription' ) }
 							primary={ false }
+						/>
+					) }
+					{ subtitle && <div className="product-card__subtitle">{ subtitle }</div> }
+					{ ! purchase && (
+						<ProductCardPriceGroup
+							billingTimeFrame={ billingTimeFrame }
+							currencyCode={ currencyCode }
+							discountedPrice={ discountedPrice }
+							fullPrice={ fullPrice }
 						/>
 					) }
 				</div>
