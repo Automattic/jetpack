@@ -18,6 +18,8 @@ $tools = array(
 	'custom-post-types/testimonial.php',
 	'custom-post-types/nova.php',
 	'geo-location.php',
+	// Those oEmbed providers are always available.
+	'shortcodes/others.php',
 	'theme-tools.php',
 	'theme-tools/social-links.php',
 	'theme-tools/random-redirect.php',
