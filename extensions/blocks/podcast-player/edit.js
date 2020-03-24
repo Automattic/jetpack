@@ -20,7 +20,9 @@ import {
 } from '@wordpress/components';
 import { compose, withInstanceId } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
-import { BlockControls, BlockIcon, InspectorControls } from '@wordpress/block-editor';
+import { BlockControls, BlockIcon, InspectorControls, withColors } from '@wordpress/block-editor';
+import { compose } from '@wordpress/compose';
+
 import apiFetch from '@wordpress/api-fetch';
 import { isURL } from '@wordpress/url';
 import debugFactory from 'debug';
@@ -34,6 +36,7 @@ import { queueMusic } from './icons/';
 import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import attributesValidation from './attributes';
 import PodcastPlayer from './components/podcast-player';
+import { applyFallbackStyles } from '../../shared/apply-fallback-styles';
 
 const DEFAULT_MIN_ITEMS = 1;
 const DEFAULT_MAX_ITEMS = 10;
@@ -224,4 +227,9 @@ const PodcastPlayerEdit = ( {
 	);
 };
 
-export default compose( [ withInstanceId, withNotices ] )( PodcastPlayerEdit );
+export default compose( [
+	withColors( 'backgroundColor', { textColor: 'color' } ),
+	withNotices,
+	withInstanceId,
+	applyFallbackStyles,
+] )( PodcastPlayerEdit );
