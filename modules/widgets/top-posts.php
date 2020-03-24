@@ -290,7 +290,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		}
 
 		if ( ! $posts ) {
-			$posts = $this->get_fallback_posts();
+			$posts = $this->get_fallback_posts( $count, $types );
 		}
 
 		echo $args['before_widget'];
@@ -579,21 +579,28 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 	/**
 	 * Get some posts if no posts are found in the stats API
 	 *
+	 * @param int   $count The maximum number of posts to be returned.
+	 * @param array $types The post types that should be returned.
 	 * @return array
 	 */
-	public function get_fallback_posts() {
+	public function get_fallback_posts( $count, $types ) {
 		if ( current_user_can( 'edit_theme_options' ) ) {
 			return array();
 		}
 
-		$post_query = new WP_Query;
+		$post_query = new WP_Query();
+
+		if ( ! is_array( $types ) || empty( $types ) ) {
+			$types = array( 'post', 'page' );
+		}
 
 		$posts = $post_query->query(
 			array(
-				'posts_per_page' => 1,
+				'posts_per_page' => $count,
 				'post_status'    => 'publish',
-				'post_type'      => array( 'post', 'page' ),
+				'post_type'      => $types,
 				'no_found_rows'  => true,
+				'fields'         => 'ids',
 			)
 		);
 
@@ -601,9 +608,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			return array();
 		}
 
-		$post = array_pop( $posts );
-
-		return $this->get_posts( $post->ID, 1 );
+		return $this->get_posts( $posts, $count, $types );
 	}
 
 	/**
