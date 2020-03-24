@@ -73,7 +73,7 @@ const Track = memo( ( { track, isActive, isPlaying, isError, selectTrack, index 
 					selectTrack( index );
 				} }
 			>
-				<span className="jetpack-podcast-player__episode-status-icon">
+				<span className="jetpack-podcast-player__episode-status-icon" aria-hidden={ ! isActive }>
 					{ isActive && renderEpisodeIcon( isPlaying, isError ) }
 				</span>
 				<span className="jetpack-podcast-player__episode-title">{ track.title }</span>
