@@ -2,13 +2,13 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 2.4.91
+ * Version: 2.4.92
  * Author: Automattic
  * Author URI: http://automattic.com/
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.4.91' );
+define( 'WPCOMSH_VERSION', '2.4.92' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -44,9 +44,7 @@ require_once( 'widgets/aboutme.php' );
 require_once( 'widgets/author-grid.php' );
 require_once( 'widgets/freshly-pressed.php' );
 require_once( 'widgets/gravatar.php' );
-if ( is_active_widget( false, false, 'wpcom_instagram_widget' ) ) {
-	require_once( 'widgets/instagram/instagram.php' );
-}
+require_once( 'widgets/instagram/instagram.php' );
 require_once( 'widgets/i-voted.php' );
 require_once( 'widgets/music-player.php' );
 require_once( 'widgets/posts-i-like.php' );
