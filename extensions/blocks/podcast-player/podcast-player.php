@@ -139,7 +139,8 @@ function render_player( $track_list, $attributes ) {
 }
 
 /**
- * Gets a list of tracks for the supplied RSS feed.
+ * Gets a list of tracks for the supplied RSS feed. This function is used
+ * in both server-side block rendering and in API `WPCOM_REST_API_V2_Endpoint_Podcast_Player`.
  *
  * @param string $feed     The RSS feed to load and list tracks for.
  * @param int    $quantity Optional. The number of tracks to return.
