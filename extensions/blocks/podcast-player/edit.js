@@ -22,6 +22,7 @@ import { __ } from '@wordpress/i18n';
 import { BlockControls, BlockIcon, InspectorControls } from '@wordpress/block-editor';
 import apiFetch from '@wordpress/api-fetch';
 import { isURL } from '@wordpress/url';
+import debugFactory from 'debug';
 
 /**
  * Internal dependencies
@@ -35,6 +36,8 @@ import PodcastPlayer from './components/podcast-player';
 
 const DEFAULT_MIN_ITEMS = 1;
 const DEFAULT_MAX_ITEMS = 10;
+
+const debug = debugFactory( 'jetpack:podcast-player:ui' );
 
 // Support page link.
 const supportUrl =
@@ -58,20 +61,34 @@ const PodcastPlayerEdit = ( {
 	// State.
 	const [ editedUrl, setEditedUrl ] = useState( url || '' );
 	const [ isEditing, setIsEditing ] = useState( false );
-	const [ tracks, setTracks ] = useState( [] );
+	const [ feedData, setFeedData ] = useState( {} );
 
 	// Load RSS feed.
 	useEffect( () => {
-		setTracks( [] );
+		// Clean state.
+		setFeedData( {} );
+		removeAllNotices();
+
+		// Don't do anything if no url is set.
+		if ( ! url ) {
+			return;
+		}
+
+		// Load feed data.
 		apiFetch( {
 			path: '/wpcom/v2/podcast-player?url=' + url,
 		} ).then(
 			data => {
-				// TODO: handle more data from endpoint (cover art).
-				setTracks( data.tracks );
+				// Store feed data.
+				setFeedData( data );
 			},
-			() => {
-				// TODO: error handling.
+			err => {
+				// Show error and allow to edit URL.
+				debug( 'feed error', err );
+				createErrorNotice(
+					__( "Your podcast couldn't be embedded. Please double check your URL.", 'jetpack' )
+				);
+				setIsEditing( true );
 			}
 		);
 	}, [ url ] );
@@ -146,7 +163,7 @@ const PodcastPlayerEdit = ( {
 	];
 
 	// Loading state for fetching the feed.
-	if ( ! tracks.length ) {
+	if ( ! feedData.tracks || ! feedData.tracks.length ) {
 		return (
 			<Placeholder>
 				<Spinner />
@@ -185,8 +202,8 @@ const PodcastPlayerEdit = ( {
 			</InspectorControls>
 			<div className={ className }>
 				<PodcastPlayer
-					tracks={ tracks }
-					coverArt={ null }
+					tracks={ feedData.tracks }
+					coverArt={ feedData.coverArt }
 					itemsToShow={ itemsToShow }
 					showEpisodeDescription={ showEpisodeDescription }
 					showCoverArt={ showCoverArt }
