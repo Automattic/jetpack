@@ -660,8 +660,6 @@ class Jetpack {
 
 		add_action( 'wp_loaded', array( $this, 'register_assets' ) );
 
-		add_action( 'plugins_loaded', array( $this, 'extra_oembed_providers' ), 100 );
-
 		/**
 		 * These actions run checks to load additional files.
 		 * They check for external files or plugins, so they need to run as late as possible.
@@ -1863,20 +1861,6 @@ class Jetpack {
 		}
 
 		return ! empty( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : '';
-	}
-
-	/**
-	 * Add any extra oEmbed providers that we know about and use on wpcom for feature parity.
-	 */
-	function extra_oembed_providers() {
-		// Cloudup: https://dev.cloudup.com/#oembed
-		wp_oembed_add_provider( 'https://cloudup.com/*', 'https://cloudup.com/oembed' );
-		wp_oembed_add_provider( 'https://me.sh/*', 'https://me.sh/oembed?format=json' );
-		wp_oembed_add_provider( '#https?://(www\.)?gfycat\.com/.*#i', 'https://api.gfycat.com/v1/oembed', true );
-		wp_oembed_add_provider( '#https?://[^.]+\.(wistia\.com|wi\.st)/(medias|embed)/.*#', 'https://fast.wistia.com/oembed', true );
-		wp_oembed_add_provider( '#https?://sketchfab\.com/.*#i', 'https://sketchfab.com/oembed', true );
-		wp_oembed_add_provider( '#https?://(www\.)?icloud\.com/keynote/.*#i', 'https://iwmb.icloud.com/iwmb/oembed', true );
-		wp_oembed_add_provider( 'https://song.link/*', 'https://song.link/oembed', false );
 	}
 
 	/**
