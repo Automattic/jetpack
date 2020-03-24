@@ -46,8 +46,6 @@ new WPCOM_JSON_API_Site_Settings_Endpoint( array(
 		'jetpack_relatedposts_show_thumbnails' => '(bool) Show thumbnails in related posts?',
 		'jetpack_protect_whitelist'    => '(array) List of IP addresses to whitelist',
 		'jetpack_search_enabled'       => '(bool) Enable Jetpack Search',
-		'instant_search_enabled'       => '(bool) Enable Jetpack Instant Search',
-		'instant_search_auto_config'   => '(bool) Trigger auto config of instant search',
 		'jetpack_search_supported'     => '(bool) Jetpack Search is supported',
 		'infinite_scroll'              => '(bool) Support infinite scroll of posts?',
 		'default_category'             => '(int) Default post category',
@@ -343,7 +341,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'jetpack_relatedposts_show_headline' => (bool) isset( $jetpack_relatedposts_options[ 'show_headline' ] ) ? $jetpack_relatedposts_options[ 'show_headline' ] : false,
 					'jetpack_relatedposts_show_thumbnails' => (bool) isset( $jetpack_relatedposts_options[ 'show_thumbnails' ] ) ? $jetpack_relatedposts_options[ 'show_thumbnails' ] : false,
 					'jetpack_search_enabled'  => (bool) $jetpack_search_active,
-					'instant_search_enabled'  => (bool) get_option( 'instant_search_enabled' ),
 					'jetpack_search_supported'=> (bool) $jetpack_search_supported,
 					'default_category'        => (int) get_option('default_category'),
 					'post_categories'         => (array) $post_categories,
@@ -551,19 +548,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 							: Jetpack::deactivate_module( 'search' );
 					}
 					$updated[ $key ] = (bool) $value;
-					break;
-				case 'instant_search_auto_config':
-					if ( ! is_jetpack_module_active( 'search', $blog_id ) ) {
-						break;
-					}
-					if ( ! $value ) {
-						break; // nothing to trigger.
-					}
-					$inst = Jetpack_Search::instance();
-					if ( ! method_exists( $inst, 'auto_config_search' ) ) {
-						break;
-					}
-					$inst->auto_config_search();
 					break;
 				case 'jetpack_relatedposts_enabled':
 				case 'jetpack_relatedposts_show_thumbnails':
