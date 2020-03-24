@@ -56,13 +56,16 @@ class WPCOM_REST_API_V2_Endpoint_Podcast_Player extends WP_REST_Controller {
 	 * @return WP_REST_Response The REST API response.
 	 */
 	public function get_player_data( $request ) {
+		if ( ! class_exists( 'Jetpack_Podcast_Helper' ) ) {
+			jetpack_require_lib( 'class-jetpack-podcast-helper' );
+		}
+
 		return rest_ensure_response(
 			array(
-				'tracks' => \Automattic\Jetpack\Extensions\Podcast_Player\get_track_list( $request['url'] ),
+				'tracks' => Jetpack_Podcast_Helper::get_track_list( $request['url'] ),
 				'cover'  => '', // TODO: parse podcast cover image.
 			)
 		);
 	}
 }
-
 wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Podcast_Player' );

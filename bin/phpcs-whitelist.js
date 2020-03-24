@@ -12,6 +12,7 @@ module.exports = [
 	'functions.opengraph.php',
 	'_inc/lib/admin-pages/class-jetpack-about-page.php',
 	'_inc/lib/class-jetpack-mapbox-helper.php',
+	'_inc/lib/class-jetpack-podcast-helper.php',
 	'_inc/lib/class.jetpack-password-checker.php',
 	'_inc/lib/components.php',
 	'_inc/lib/core-api/class.jetpack-core-api-site-endpoints.php',
