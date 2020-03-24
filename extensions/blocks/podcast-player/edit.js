@@ -76,7 +76,7 @@ const PodcastPlayerEdit = ( {
 
 		// Load feed data.
 		apiFetch( {
-			path: '/wpcom/v2/podcast-player?url=' + url,
+			path: `/wpcom/v2/podcast-player?url=${ encodeURIComponent( url ) }`,
 		} ).then(
 			data => {
 				// Store feed data.
