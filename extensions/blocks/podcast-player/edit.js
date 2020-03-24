@@ -27,8 +27,8 @@ import {
 	withColors,
 	PanelColorSettings,
 	ContrastChecker,
+	getColorClassName,
 } from '@wordpress/block-editor';
-import { compose } from '@wordpress/compose';
 
 import apiFetch from '@wordpress/api-fetch';
 import { isURL } from '@wordpress/url';
@@ -44,6 +44,7 @@ import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import attributesValidation from './attributes';
 import PodcastPlayer from './components/podcast-player';
 import { applyFallbackStyles } from '../../shared/apply-fallback-styles';
+import classnames from 'classnames';
 
 const DEFAULT_MIN_ITEMS = 1;
 const DEFAULT_MAX_ITEMS = 10;
@@ -63,18 +64,24 @@ const PodcastPlayerEdit = ( {
 	setAttributes,
 	noticeOperations: { createErrorNotice, removeAllNotices },
 	noticeUI,
-	textColor,
+	textColor: textColorProp,
 	setTextColor,
 	fallbackTextColor,
-	backgroundColor,
+	backgroundColor: backgroundColorProp,
 	setBackgroundColor,
 	fallbackBackgroundColor,
 } ) => {
 	// Validated attributes.
-	const { url, itemsToShow, showCoverArt, showEpisodeDescription } = getValidatedAttributes(
-		attributesValidation,
-		attributes
-	);
+	const {
+		url,
+		itemsToShow,
+		showCoverArt,
+		showEpisodeDescription,
+		textColor,
+		customTextColor,
+		backgroundColor,
+		customBackgroundColor,
+	} = getValidatedAttributes( attributesValidation, attributes );
 
 	const playerId = `jetpack-podcast-player-block-${ instanceId }`;
 
@@ -195,6 +202,17 @@ const PodcastPlayerEdit = ( {
 		);
 	}
 
+	// Set CSS classes string.
+	const textClass = getColorClassName( 'color', textColor );
+	const backgroundClass = getColorClassName( 'background-color', backgroundColor );
+
+	const cssClassesName = classnames( className, {
+		'has-text-color': textColor || customTextColor,
+		[ textClass ]: textClass,
+		'has-background': backgroundColor || customBackgroundColor,
+		[ backgroundClass ]: backgroundClass,
+	} );
+
 	return (
 		<>
 			<BlockControls>
@@ -227,12 +245,12 @@ const PodcastPlayerEdit = ( {
 					title={ __( 'Color Settings', 'jetpack' ) }
 					colorSettings={ [
 						{
-							value: textColor.color,
+							value: textColorProp.color,
 							onChange: setTextColor,
 							label: __( 'Text Color', 'jetpack' ),
 						},
 						{
-							value: backgroundColor.color,
+							value: backgroundColorProp.color,
 							onChange: setBackgroundColor,
 							label: __( 'Background', 'jetpack' ),
 						},
@@ -243,15 +261,15 @@ const PodcastPlayerEdit = ( {
 							// Text is considered large if font size is greater or equal to 18pt or 24px,
 							// currently that's not the case for button.
 							isLargeText: false,
-							textColor: textColor.color,
-							backgroundColor: backgroundColor.color,
+							textColor: textColorProp.color,
+							backgroundColor: backgroundColorProp.color,
 							fallbackBackgroundColor,
 							fallbackTextColor,
 						} }
 					/>
 				</PanelColorSettings>
 			</InspectorControls>
-			<div id={ playerId } className={ className }>
+			<div id={ playerId } className={ cssClassesName }>
 				<PodcastPlayer
 					playerId={ playerId }
 					tracks={ feedData.tracks }
