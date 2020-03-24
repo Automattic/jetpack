@@ -213,6 +213,11 @@ const PodcastPlayerEdit = ( {
 		[ backgroundClass ]: backgroundClass,
 	} );
 
+	const inlineStyles = {
+		backgroundColor: backgroundClass ? undefined : customBackgroundColor,
+		color: textClass ? undefined : customTextColor,
+	};
+
 	return (
 		<>
 			<BlockControls>
@@ -269,7 +274,12 @@ const PodcastPlayerEdit = ( {
 					/>
 				</PanelColorSettings>
 			</InspectorControls>
-			<div id={ playerId } className={ cssClassesName }>
+
+			<div
+				id={ playerId }
+				className={ cssClassesName }
+				style={ Object.keys( inlineStyles ).length ? inlineStyles : null }
+			>
 				<PodcastPlayer
 					playerId={ playerId }
 					tracks={ feedData.tracks }
