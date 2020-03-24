@@ -58,7 +58,7 @@ class WPCOM_REST_API_V2_Endpoint_Podcast_Player extends WP_REST_Controller {
 	public function get_player_data( $request ) {
 		return rest_ensure_response(
 			array(
-				'tracks' => \Automattic\Jetpack\Podcast_Player_Block\get_track_list( $request['url'] ),
+				'tracks' => \Automattic\Jetpack\Extensions\Podcast_Player\get_track_list( $request['url'] ),
 				'cover'  => '', // TODO: parse podcast cover image.
 			)
 		);
