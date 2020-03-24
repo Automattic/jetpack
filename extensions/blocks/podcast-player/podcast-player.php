@@ -91,9 +91,15 @@ function render_player( $track_list, $attributes ) {
 	}
 	$instance_id = wp_unique_id( 'podcast-player-block-' );
 
-	$player_data = array(
-		'tracks'     => $track_list,
-		'attributes' => $attributes,
+	// Generate object to be used as props for PodcastPlayer.
+	$player_data = array_merge(
+		// Make all attributes available.
+		$attributes,
+		// And add some computed properties.
+		array(
+			'tracks'   => $track_list,
+			'coverArt' => '',
+		)
 	);
 
 	$block_classname = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attributes );
@@ -101,22 +107,24 @@ function render_player( $track_list, $attributes ) {
 	ob_start();
 	?>
 	<div class="<?php echo esc_attr( $block_classname ); ?>" id="<?php echo esc_attr( $instance_id ); ?>">
-		<ol class="podcast-player__episodes">
-			<?php foreach ( $track_list as $attachment ) : ?>
-			<li class="podcast-player__episode">
-				<a
-					class="podcast-player__episode-link"
-					href="<?php echo esc_url( $attachment['link'] ); ?>"
-					role="button"
-					aria-pressed="false"
-				>
-					<span class="podcast-player__episode-status-icon"></span>
-					<span class="podcast-player__episode-title"><?php echo esc_html( $attachment['title'] ); ?></span>
-					<time class="podcast-player__episode-duration"><?php echo ( ! empty( $attachment['duration'] ) ? esc_html( $attachment['duration'] ) : '' ); ?></time>
-				</a>
-			</li>
-			<?php endforeach; ?>
-		</ol>
+		<noscript>
+			<ol class="podcast-player__episodes">
+				<?php foreach ( $track_list as $attachment ) : ?>
+				<li class="podcast-player__episode">
+					<a
+						class="podcast-player__episode-link"
+						href="<?php echo esc_url( $attachment['link'] ); ?>"
+						role="button"
+						aria-pressed="false"
+					>
+						<span class="podcast-player__episode-status-icon"></span>
+						<span class="podcast-player__episode-title"><?php echo esc_html( $attachment['title'] ); ?></span>
+						<time class="podcast-player__episode-duration"><?php echo ( ! empty( $attachment['duration'] ) ? esc_html( $attachment['duration'] ) : '' ); ?></time>
+					</a>
+				</li>
+				<?php endforeach; ?>
+			</ol>
+		</noscript>
 		<script type="application/json"><?php echo wp_json_encode( $player_data ); ?></script>
 	</div>
 	<script>window.jetpackPodcastPlayers=(window.jetpackPodcastPlayers||[]);window.jetpackPodcastPlayers.push( <?php echo wp_json_encode( $instance_id ); ?> );</script>
@@ -131,7 +139,8 @@ function render_player( $track_list, $attributes ) {
 }
 
 /**
- * Gets a list of tracks for the supplied RSS feed.
+ * Gets a list of tracks for the supplied RSS feed. This function is used
+ * in both server-side block rendering and in API `WPCOM_REST_API_V2_Endpoint_Podcast_Player`.
  *
  * @param string $feed     The RSS feed to load and list tracks for.
  * @param int    $quantity Optional. The number of tracks to return.
@@ -170,13 +179,13 @@ function setup_tracks_callback( \SimplePie_Item $episode ) {
 
 	// Build track data.
 	$track = array(
+		'id'          => wp_unique_id( 'podcast-track-' ),
 		'link'        => esc_url( $episode->get_link() ),
 		'src'         => esc_url( $enclosure->link ),
 		'type'        => esc_attr( $enclosure->type ),
 		'description' => wp_kses_post( $episode->get_description() ),
+		'title'       => esc_html( trim( wp_strip_all_tags( $episode->get_title() ) ) ),
 	);
-
-	$track['title'] = esc_html( trim( wp_strip_all_tags( $episode->get_title() ) ) );
 
 	if ( empty( $track['title'] ) ) {
 		$track['title'] = esc_html__( '(no title)', 'jetpack' );

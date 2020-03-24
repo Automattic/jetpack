@@ -5,10 +5,9 @@
 /**
  * WordPress dependencies
  */
-import { useState, useCallback } from '@wordpress/element';
+import { useState, useCallback, useEffect } from '@wordpress/element';
 import {
 	Button,
-	Disabled,
 	ExternalLink,
 	PanelBody,
 	Placeholder,
@@ -17,28 +16,28 @@ import {
 	Toolbar,
 	withNotices,
 	ToggleControl,
+	Spinner,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { BlockControls, BlockIcon, InspectorControls } from '@wordpress/block-editor';
-import ServerSideRender from '@wordpress/server-side-render';
+import apiFetch from '@wordpress/api-fetch';
 import { isURL } from '@wordpress/url';
+import debugFactory from 'debug';
 
 /**
  * Internal dependencies
  */
-import { namespaceName } from './index';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import './editor.scss';
 import { queueMusic } from './icons/';
 import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import attributesValidation from './attributes';
+import PodcastPlayer from './components/podcast-player';
 
 const DEFAULT_MIN_ITEMS = 1;
 const DEFAULT_MAX_ITEMS = 10;
 
-const handleSSRError = () => {
-	return <p>{ __( 'Failed to load Block', 'jetpack' ) }</p>;
-};
+const debug = debugFactory( 'jetpack:podcast-player:edit' );
 
 // Support page link.
 const supportUrl =
@@ -47,6 +46,7 @@ const supportUrl =
 		: 'https://jetpack.com/support/jetpack-blocks/podcast-player-block/';
 
 const PodcastPlayerEdit = ( {
+	className,
 	attributes,
 	setAttributes,
 	noticeOperations: { createErrorNotice, removeAllNotices },
@@ -61,6 +61,37 @@ const PodcastPlayerEdit = ( {
 	// State.
 	const [ editedUrl, setEditedUrl ] = useState( url || '' );
 	const [ isEditing, setIsEditing ] = useState( false );
+	const [ feedData, setFeedData ] = useState( {} );
+
+	// Load RSS feed.
+	useEffect( () => {
+		// Clean state.
+		setFeedData( {} );
+		removeAllNotices();
+
+		// Don't do anything if no url is set.
+		if ( ! url ) {
+			return;
+		}
+
+		// Load feed data.
+		apiFetch( {
+			path: `/wpcom/v2/podcast-player?url=${ encodeURIComponent( url ) }`,
+		} ).then(
+			data => {
+				// Store feed data.
+				setFeedData( data );
+			},
+			err => {
+				// Show error and allow to edit URL.
+				debug( 'feed error', err );
+				createErrorNotice(
+					__( "Your podcast couldn't be embedded. Please double check your URL.", 'jetpack' )
+				);
+				setIsEditing( true );
+			}
+		);
+	}, [ url ] );
 
 	/**
 	 * Check if the current URL of the Podcast RSS feed
@@ -131,6 +162,19 @@ const PodcastPlayerEdit = ( {
 		},
 	];
 
+	// Loading state for fetching the feed.
+	if ( ! feedData.tracks || ! feedData.tracks.length ) {
+		return (
+			<Placeholder
+				icon={ <BlockIcon icon={ queueMusic } /> }
+				label={ __( 'Podcast Player', 'jetpack' ) }
+				instructions={ __( 'Loading podcast feed…', 'jetpack' ) }
+			>
+				<Spinner />
+			</Placeholder>
+		);
+	}
+
 	return (
 		<>
 			<BlockControls>
@@ -160,14 +204,15 @@ const PodcastPlayerEdit = ( {
 					/>
 				</PanelBody>
 			</InspectorControls>
-			<Disabled>
-				<ServerSideRender
-					block={ namespaceName }
-					attributes={ { url, itemsToShow } }
-					EmptyResponsePlaceholder={ handleSSRError }
-					ErrorResponsePlaceholder={ handleSSRError }
+			<div className={ className }>
+				<PodcastPlayer
+					tracks={ feedData.tracks }
+					coverArt={ feedData.coverArt }
+					itemsToShow={ itemsToShow }
+					showEpisodeDescription={ showEpisodeDescription }
+					showCoverArt={ showCoverArt }
 				/>
-			</Disabled>
+			</div>
 		</>
 	);
 };
