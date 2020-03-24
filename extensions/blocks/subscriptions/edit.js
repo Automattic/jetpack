@@ -4,7 +4,8 @@
 import apiFetch from '@wordpress/api-fetch';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Component } from '@wordpress/element';
-import { TextControl, ToggleControl } from '@wordpress/components';
+import { TextControl, ToggleControl, PanelBody } from '@wordpress/components';
+import { InspectorControls } from '@wordpress/block-editor';
 
 /**
  * Internal dependencies
@@ -22,34 +23,26 @@ class SubscriptionEdit extends Component {
 	}
 
 	render() {
-		const { attributes, className, isSelected, setAttributes } = this.props;
+		const { attributes, className, setAttributes } = this.props;
 		const { subscribePlaceholder, showSubscribersTotal } = attributes;
-
-		if ( isSelected ) {
-			return (
-				<div className={ className } role="form">
-					<ToggleControl
-						label={ __( 'Show total subscribers', 'jetpack' ) }
-						checked={ showSubscribersTotal }
-						onChange={ () => {
-							setAttributes( { showSubscribersTotal: ! showSubscribersTotal } );
-						} }
-					/>
-					<TextControl
-						placeholder={ subscribePlaceholder }
-						disabled={ true }
-						onChange={ () => {} }
-					/>
-					<SubmitButton { ...this.props } />
-				</div>
-			);
-		}
 
 		return (
 			<div className={ className } role="form">
-				{ showSubscribersTotal && <p role="heading">{ this.state.subscriberCountString }</p> }
-				<TextControl placeholder={ subscribePlaceholder } />
+				<InspectorControls>
+					<PanelBody title={ __( 'Display Settings' ) }>
+						<ToggleControl
+							label={ __( 'Show subscriber count', 'jetpack' ) }
+							checked={ showSubscribersTotal }
+							onChange={ () => {
+								setAttributes( { showSubscribersTotal: ! showSubscribersTotal } );
+							} }
+						/>
+					</PanelBody>
+				</InspectorControls>
 
+				{ showSubscribersTotal && <p role="heading">{ this.state.subscriberCountString }</p> }
+
+				<TextControl placeholder={ subscribePlaceholder } disabled={ true } onChange={ () => {} } />
 				<SubmitButton { ...this.props } />
 			</div>
 		);
