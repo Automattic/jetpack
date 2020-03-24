@@ -47,9 +47,6 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			add_action( 'wp_footer', array( $this, 'print_instant_search_sidebar' ) );
 		} else {
 			add_action( 'update_option', array( $this, 'track_widget_updates' ), 10, 3 );
-			if ( isset( $_GET['jpsearch_autoconfig'] ) ) {
-				add_action( 'init', array( $this, 'auto_config_search' ) );
-			}
 		}
 
 		add_action( 'widgets_init', array( $this, 'register_jetpack_instant_sidebar' ) );
