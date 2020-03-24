@@ -11,9 +11,14 @@ namespace Automattic\Jetpack\Extensions\Podcast_Player;
 
 use WP_Error;
 use Jetpack_Gutenberg;
+use Jetpack_Podcast_Helper;
 
 const FEATURE_NAME = 'podcast-player';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
+
+if ( ! class_exists( 'Jetpack_Podcast_Helper' ) ) {
+	\jetpack_require_lib( 'class-jetpack-podcast-helper' );
+}
 
 /**
  * Registers the block for use in Gutenberg
@@ -68,7 +73,7 @@ function render_block( $attributes ) {
 	// Sanitize the URL.
 	$attributes['url'] = esc_url_raw( $attributes['url'] );
 
-	$track_list = get_track_list( $attributes['url'], absint( $attributes['itemsToShow'] ) );
+	$track_list = Jetpack_Podcast_Helper::get_track_list( $attributes['url'], absint( $attributes['itemsToShow'] ) );
 
 	if ( is_wp_error( $track_list ) ) {
 		return '<p>' . esc_html( $track_list->get_error_message() ) . '</p>';
@@ -136,93 +141,4 @@ function render_player( $track_list, $attributes ) {
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME, array( 'mediaelement' ) );
 
 	return ob_get_clean();
-}
-
-/**
- * Gets a list of tracks for the supplied RSS feed. This function is used
- * in both server-side block rendering and in API `WPCOM_REST_API_V2_Endpoint_Podcast_Player`.
- *
- * @param string $feed     The RSS feed to load and list tracks for.
- * @param int    $quantity Optional. The number of tracks to return.
- * @return array|WP_Error The feed's tracks or a error object.
- */
-function get_track_list( $feed, $quantity = 10 ) {
-	$rss = fetch_feed( $feed );
-
-	if ( is_wp_error( $rss ) ) {
-		return new WP_Error( 'invalid_url', __( 'Your podcast couldn\'t be embedded. Please double check your URL.', 'jetpack' ) );
-	}
-
-	if ( ! $rss->get_item_quantity() ) {
-		return new WP_Error( 'no_tracks', __( 'Podcast audio RSS feed has no tracks.', 'jetpack' ) );
-	}
-
-	$track_list = array_map( __NAMESPACE__ . '\setup_tracks_callback', $rss->get_items( 0, $quantity ) );
-
-	// Remove empty tracks.
-	return \array_filter( $track_list );
-}
-
-/**
- * Prepares Episode data to be used with MediaElement.js.
- *
- * @param \SimplePie_Item $episode SimplePie_Item object, representing a podcast episode.
- * @return array
- */
-function setup_tracks_callback( \SimplePie_Item $episode ) {
-	$enclosure = get_audio_enclosure( $episode );
-
-	// If there is no link return an empty array. We will filter out later.
-	if ( empty( $enclosure->link ) ) {
-		return array();
-	}
-
-	// Build track data.
-	$track = array(
-		'id'          => wp_unique_id( 'podcast-track-' ),
-		'link'        => esc_url( $episode->get_link() ),
-		'src'         => esc_url( $enclosure->link ),
-		'type'        => esc_attr( $enclosure->type ),
-		'description' => wp_kses_post( $episode->get_description() ),
-		'title'       => esc_html( trim( wp_strip_all_tags( $episode->get_title() ) ) ),
-	);
-
-	if ( empty( $track['title'] ) ) {
-		$track['title'] = esc_html__( '(no title)', 'jetpack' );
-	}
-
-	if ( ! empty( $enclosure->duration ) ) {
-		$track['duration'] = format_track_duration( $enclosure->duration );
-	}
-
-	return $track;
-}
-
-/**
- * Retrieves an audio enclosure.
- *
- * @param \SimplePie_Item $episode SimplePie_Item object, representing a podcast episode.
- * @return \SimplePie_Enclosure|null
- */
-function get_audio_enclosure( \SimplePie_Item $episode ) {
-	foreach ( (array) $episode->get_enclosures() as $enclosure ) {
-		if ( 0 === strpos( $enclosure->type, 'audio/' ) ) {
-			return $enclosure;
-		}
-	}
-
-	// Default to empty SimplePie_Enclosure object.
-	return $episode->get_enclosure();
-}
-
-/**
- * Returns the track duration as a formatted string.
- *
- * @param number $duration of the track in seconds.
- * @return string
- */
-function format_track_duration( $duration ) {
-	$format = $duration > HOUR_IN_SECONDS ? 'H:i:s' : 'i:s';
-
-	return date_i18n( $format, $duration );
 }
