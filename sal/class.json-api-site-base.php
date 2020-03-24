@@ -664,7 +664,7 @@ abstract class SAL_Site {
 	 *
 	 * @return bool Whether the checklist is complete.
 	 */
-	public function is_site_setup_complete() {
+	public function is_wpcom_site_setup_complete() {
 		return null;
 	}
 }
