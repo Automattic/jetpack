@@ -84,7 +84,7 @@ export const settings = {
 		},
 	},
 	supports: {
-		defaultStyle: false,
+		defaultStylePicker: false,
 		html: false,
 	},
 	styles: [
