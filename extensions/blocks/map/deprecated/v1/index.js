@@ -58,6 +58,9 @@ const attributes = {
 
 export default {
 	attributes,
-	migrate: oldAttributes => omit( oldAttributes, 'mapStyle' ),
+	migrate: oldAttributes => ( {
+		...omit( oldAttributes, 'mapStyle' ),
+		className: `${ oldAttributes.className } is-style-${ oldAttributes.mapStyle }`,
+	} ),
 	save,
 };
