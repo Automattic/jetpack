@@ -81,6 +81,7 @@ function render_block( $attributes ) {
 
 	return render_player( $track_list, $attributes );
 }
+
 /**
  * Renders the HTML for the Podcast player and tracklist.
  *
