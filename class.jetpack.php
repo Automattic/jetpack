@@ -7159,11 +7159,6 @@ endif;
 
 		// Since this is a fresh connection, be sure to clear out IDC options
 		Jetpack_IDC::clear_all_idc_options();
-		Jetpack_Options::delete_raw_option( 'jetpack_last_connect_url_check' );
-
-		// Start nonce cleaner
-		wp_clear_scheduled_hook( 'jetpack_clean_nonces' );
-		wp_schedule_event( time(), 'hourly', 'jetpack_clean_nonces' );
 
 		if ( $send_state_messages ) {
 			self::state( 'message', 'authorized' );

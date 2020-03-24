@@ -1807,6 +1807,12 @@ class Manager {
 		 */
 		do_action( 'jetpack_authorize_ending_authorized', $data );
 
+		\Jetpack_Options::delete_raw_option( 'jetpack_last_connect_url_check' );
+
+		// Start nonce cleaner.
+		wp_clear_scheduled_hook( 'jetpack_clean_nonces' );
+		wp_schedule_event( time(), 'hourly', 'jetpack_clean_nonces' );
+
 		return 'authorized';
 	}
 
