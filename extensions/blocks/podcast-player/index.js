@@ -25,12 +25,6 @@ export const settings = {
 	icon: queueMusic,
 	category: 'jetpack',
 	keywords: [],
-
-	styles: [
-		{ name: 'small', label: __( 'Small' ), isDefault: true },
-		{ name: 'large', label: __( 'Large' ) },
-	],
-
 	supports: {
 		// Support for block's alignment (left, center, right, wide, full). When true, it adds block controls to change block’s alignment.
 		align: false /* if set to true, the 'align' option below can be used*/,
