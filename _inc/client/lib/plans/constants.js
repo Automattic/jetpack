@@ -50,6 +50,8 @@ export const JETPACK_BACKUP_PRODUCTS = [
 	PLAN_JETPACK_BACKUP_REALTIME_MONTHLY,
 ];
 
+export const JETPACK_SEARCH_PRODUCTS = [ PLAN_JETPACK_SEARCH, PLAN_JETPACK_SEARCH_MONTHLY ];
+
 export const PLAN_MONTHLY_PERIOD = 31;
 export const PLAN_ANNUAL_PERIOD = 365;
 
@@ -130,6 +132,10 @@ export function isNew( plan ) {
 
 export function isJetpackBackup( product ) {
 	return includes( JETPACK_BACKUP_PRODUCTS, product );
+}
+
+export function isJetpackSearch( product ) {
+	return includes( JETPACK_SEARCH_PRODUCTS, product );
 }
 
 export function getPlanClass( plan ) {

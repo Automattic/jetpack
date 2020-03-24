@@ -62,11 +62,6 @@ class MyPlanBody extends React.Component {
 		this.trackPlansClick( 'activate_publicize' );
 	};
 
-	activateSearch = () => {
-		this.props.activateModule( 'search' );
-		this.trackPlansClick( 'activate_search' );
-	};
-
 	activateVideoPress = () => {
 		this.props.activateFeature( 'videopress' );
 		this.trackPlansClick( 'activate_videopress' );
@@ -231,6 +226,34 @@ class MyPlanBody extends React.Component {
 			} );
 		}
 
+		const getSearchCard = () => {
+			return (
+				<div className="jp-landing__plan-features-card">
+					<div className="jp-landing__plan-features-img">
+						<img
+							src={ imagePath + '/jetpack-search-icon.svg' }
+							className="jp-landing__plan-features-icon"
+							alt={ __( 'A Jetpack Site with the power of Jetpack Search' ) }
+						/>
+					</div>
+					<div className="jp-landing__plan-features-text">
+						<h3 className="jp-landing__plan-features-title">
+							{ __( 'Instant Search and Filtering' ) }
+						</h3>
+						<p>
+							{ __( 'Relevant search results and filtering tightly integrated with your theme.' ) }
+						</p>
+						<Button
+							onClick={ this.handleButtonClickForTracking( 'view_search_customizer' ) }
+							href={ this.props.siteAdminUrl + 'customize.php?autofocus[section]=jetpack_search' }
+						>
+							{ __( 'Customize Search' ) }
+						</Button>
+					</div>
+				</div>
+			);
+		};
+
 		switch ( planClass ) {
 			case 'is-personal-plan':
 			case 'is-premium-plan':
@@ -242,6 +265,8 @@ class MyPlanBody extends React.Component {
 						{ 'is-premium-plan' === planClass && getRewindVaultPressCard() }
 
 						{ 'is-business-plan' === planClass && getRewindVaultPressCard() }
+
+						{ 'is-search-plan' === planClass && getSearchCard() }
 
 						<div className="jp-landing__plan-features-card">
 							<div className="jp-landing__plan-features-img">
@@ -401,43 +426,6 @@ class MyPlanBody extends React.Component {
 								</div>
 							) }
 
-						{ 'is-business-plan' === planClass &&
-							! this.props.getModuleOverride( 'search' ) &&
-							'inactive' !== this.props.getModuleOverride( 'search' ) && (
-								<div className="jp-landing__plan-features-card">
-									<div className="jp-landing__plan-features-img">
-										<img
-											src={ imagePath + '/jetpack-search-icon.svg' }
-											className="jp-landing__plan-features-icon"
-											alt={ __( 'A hand holding a loupe' ) }
-										/>
-									</div>
-									<div className="jp-landing__plan-features-text">
-										<h3 className="jp-landing__plan-features-title">{ __( 'Jetpack Search' ) }</h3>
-										<p>
-											{ __(
-												'Replace the default WordPress search with better results and filtering powered by Elasticsearch.'
-											) }
-										</p>
-										{ this.props.isModuleActivated( 'search' ) ? (
-											<Button
-												onClick={ this.handleButtonClickForTracking( 'search_customize' ) }
-												href={ this.props.siteAdminUrl + 'widgets.php' }
-											>
-												{ __( 'Customize Search Widget' ) }
-											</Button>
-										) : (
-											<Button
-												onClick={ this.activateSearch }
-												disabled={ this.props.isActivatingModule( 'search' ) }
-											>
-												{ __( 'Activate Jetpack Search' ) }
-											</Button>
-										) }
-									</div>
-								</div>
-							) }
-
 						{ ( 'is-business-plan' === planClass || 'is-premium-plan' === planClass ) &&
 							'inactive' !== this.props.getModuleOverride( 'seo-tools' ) && (
 								<div className="jp-landing__plan-features-card">
@@ -584,10 +572,12 @@ class MyPlanBody extends React.Component {
 			case 'is-free-plan':
 			case 'is-daily-backup-plan':
 			case 'is-realtime-backup-plan':
+			case 'is-search-plan':
 			case 'dev':
 				planCard = (
 					<div className="jp-landing__plan-features">
 						{ jetpackBackupCard }
+						{ 'is-search-plan' === planClass && getSearchCard() }
 						<div className="jp-landing__plan-features-card">
 							<div className="jp-landing__plan-features-img">
 								<img
@@ -742,25 +732,27 @@ class MyPlanBody extends React.Component {
 							</div>
 						</div>
 
-						<div className="jp-landing__plan-features-card">
-							<div className="jp-landing__plan-features-text">
-								<h3 className="jp-landing__plan-features-title">
-									{ __( 'Take your site to the next level!' ) }
-								</h3>
-								<ul className="jp-landing__plan-features-list">
-									<li>{ __( 'Expand your audience with pro SEO tools.' ) }</li>
-									<li>{ __( 'Customize your social posting schedule.' ) }</li>
-									<li>{ __( 'Monetize your site by running high quality ads.' ) }</li>
-								</ul>
-								<Button
-									className="is-primary"
-									onClick={ this.handleButtonClickForTracking( 'free_explore_jetpack_plans' ) }
-									href={ '#/plans' }
-								>
-									{ __( 'Upgrade Jetpack now' ) }
-								</Button>
+						{ 'is-free-plan' === planClass && (
+							<div className="jp-landing__plan-features-card">
+								<div className="jp-landing__plan-features-text">
+									<h3 className="jp-landing__plan-features-title">
+										{ __( 'Take your site to the next level!' ) }
+									</h3>
+									<ul className="jp-landing__plan-features-list">
+										<li>{ __( 'Expand your audience with pro SEO tools.' ) }</li>
+										<li>{ __( 'Customize your social posting schedule.' ) }</li>
+										<li>{ __( 'Monetize your site by running high quality ads.' ) }</li>
+									</ul>
+									<Button
+										className="is-primary"
+										onClick={ this.handleButtonClickForTracking( 'free_explore_jetpack_plans' ) }
+										href={ '#/plans' }
+									>
+										{ __( 'Upgrade Jetpack now' ) }
+									</Button>
+								</div>
 							</div>
-						</div>
+						) }
 					</div>
 				);
 				break;

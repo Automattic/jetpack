@@ -15,7 +15,7 @@ import ChecklistProgress from './checklist-progress-card';
 import MyPlanCard from '../my-plan-card';
 import UpgradeLink from 'components/upgrade-link';
 import ProductExpiration from 'components/product-expiration';
-import { getPlanClass, isJetpackBackup } from 'lib/plans/constants';
+import { getPlanClass, isJetpackBackup, isJetpackSearch } from 'lib/plans/constants';
 import { getUpgradeUrl, getSiteRawUrl, showBackups } from 'state/initial-state';
 import { getSitePurchases } from 'state/site';
 import { imagePath } from 'constants/urls';
@@ -118,6 +118,18 @@ class MyPlanHeader extends React.Component {
 					} ),
 				};
 
+			case 'is-search-plan':
+				return {
+					details: expiration,
+					icon: imagePath + '/products/product-jetpack-search.svg',
+					tagLine: __( 'Fast, highly relevant search results and powerful filtering.' ),
+					title: __( 'Jetpack Search', {
+						components: {
+							em: <em />,
+						},
+					} ),
+				};
+
 			default:
 				return {
 					isPlaceholder: true,
@@ -139,7 +151,11 @@ class MyPlanHeader extends React.Component {
 
 	renderProducts() {
 		const { purchases } = this.props;
-		const products = filter( purchases, purchase => isJetpackBackup( purchase.product_slug ) );
+		const products = filter(
+			purchases,
+			purchase =>
+				isJetpackBackup( purchase.product_slug ) || isJetpackSearch( purchase.product_slug )
+		);
 
 		if ( isEmpty( products ) ) {
 			return null;
