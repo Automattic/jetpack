@@ -184,9 +184,8 @@ function setup_tracks_callback( \SimplePie_Item $episode ) {
 		'src'         => esc_url( $enclosure->link ),
 		'type'        => esc_attr( $enclosure->type ),
 		'description' => wp_kses_post( $episode->get_description() ),
+		'title'       => esc_html( trim( wp_strip_all_tags( $episode->get_title() ) ) ),
 	);
-
-	$track['title'] = esc_html( trim( wp_strip_all_tags( $episode->get_title() ) ) );
 
 	if ( empty( $track['title'] ) ) {
 		$track['title'] = esc_html__( '(no title)', 'jetpack' );
