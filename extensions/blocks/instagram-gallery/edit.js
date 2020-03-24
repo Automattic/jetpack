@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import classnames from 'classnames';
 import { isEqual } from 'lodash';
 
 /**
@@ -26,6 +25,7 @@ import { addQueryArgs } from '@wordpress/url';
  * Internal dependencies
  */
 import defaultAttributes from './attributes';
+import { getGalleryCssAttributes } from './utils';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import './editor.scss';
 
@@ -59,10 +59,7 @@ export default function InstagramGalleryEdit( props ) {
 		setAttributes( { accessToken: accessTokenField.trim() } );
 	};
 
-	const gridClasses = classnames(
-		'wp-block-jetpack-instagram-gallery__grid',
-		`wp-block-jetpack-instagram-gallery__grid-columns-${ columns }`
-	);
+	const { gridClasses, gridStyle, photoStyle } = getGalleryCssAttributes( columns, photosPadding );
 
 	return (
 		<div className={ className }>
@@ -90,14 +87,16 @@ export default function InstagramGalleryEdit( props ) {
 
 			{ accessToken && (
 				<>
-					<div className={ gridClasses }>
+					<div className={ gridClasses } style={ gridStyle }>
 						{ images &&
 							images.map( image => (
-								<img
-									alt={ image.title || image.url }
+								<span
+									className="wp-block-jetpack-instagram-gallery__grid-post"
 									key={ image.title || image.link }
-									src={ image.url }
-								/>
+									style={ photoStyle }
+								>
+									<img alt={ image.title || image.url } src={ image.url } />
+								</span>
 							) ) }
 					</div>
 					<InspectorControls>
@@ -139,7 +138,7 @@ export default function InstagramGalleryEdit( props ) {
 								label={ __( 'Padding Between Posts (in pixel)', 'jetpack' ) }
 								value={ photosPadding }
 								onChange={ value => setAttributes( { photosPadding: value } ) }
-								min={ 1 }
+								min={ 0 }
 								max={ 50 }
 							/>
 						</PanelBody>

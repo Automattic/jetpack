@@ -5,6 +5,8 @@ export default {
 	columns: {
 		type: 'number',
 		default: 3,
+		min: 1,
+		max: 6,
 	},
 	images: {
 		type: 'array',
@@ -13,9 +15,13 @@ export default {
 	photosPadding: {
 		type: 'number',
 		default: 10,
+		min: 0,
+		max: 50,
 	},
 	photosToShow: {
 		type: 'number',
 		default: 9,
+		min: 1,
+		max: 30,
 	},
 };
