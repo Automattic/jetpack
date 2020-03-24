@@ -13,106 +13,6 @@ if ( ! is_array( $jetpack_packages_filemap ) ) {
 }
 
 /**
- * Adds the version of a package to the $jetpack_packages global array so that
- * the autoloader is able to find it.
- *
- * @param string $class_name Name of the class that you want to autoload.
- * @param string $version Version of the class.
- * @param string $path Absolute path to the class so that we can load it.
- */
-function enqueue_package_class( $class_name, $version, $path ) {
-	global $jetpack_packages_classmap;
-
-	if ( ! isset( $jetpack_packages_classmap[ $class_name ] ) ) {
-		$jetpack_packages_classmap[ $class_name ] = array(
-			'version' => $version,
-			'path'    => $path,
-		);
-
-		return;
-	}
-	// If we have a @dev version set always use that one!
-	if ( 'dev-' === substr( $jetpack_packages_classmap[ $class_name ]['version'], 0, 4 ) ) {
-		return;
-	}
-
-	// Always favour the @dev version. Since that version is the same as bleeding edge.
-	// We need to make sure that we don't do this in production!
-	if ( 'dev-' === substr( $version, 0, 4 ) ) {
-		$jetpack_packages_classmap[ $class_name ] = array(
-			'version' => $version,
-			'path'    => $path,
-		);
-
-		return;
-	}
-	// Set the latest version!
-	if ( version_compare( $jetpack_packages_classmap[ $class_name ]['version'], $version, '<' ) ) {
-		$jetpack_packages_classmap[ $class_name ] = array(
-			'version' => $version,
-			'path'    => $path,
-		);
-	}
-}
-
-/**
- * Adds the version of a package file to the $jetpack_packages_filemap global array so that
- * we can load the most recent version after 'plugins_loaded'.
- *
- * @param string $file_identifier Unique id to file assigned by composer based on package name and filename.
- * @param string $version Version of the file.
- * @param string $path Absolute path to the file so that we can load it.
- */
-function enqueue_package_file( $file_identifier, $version, $path ) {
-	global $jetpack_packages_filemap;
-
-	if ( ! isset( $jetpack_packages_filemap[ $file_identifier ] ) ) {
-		$jetpack_packages_filemap[ $file_identifier ] = array(
-			'version' => $version,
-			'path'    => $path,
-		);
-
-		return;
-	}
-	// If we have a @dev version set always use that one!
-	if ( 'dev-' === substr( $jetpack_packages_filemap[ $file_identifier ]['version'], 0, 4 ) ) {
-		return;
-	}
-
-	// Always favour the @dev version. Since that version is the same as bleeding edge.
-	// We need to make sure that we don't do this in production!
-	if ( 'dev-' === substr( $version, 0, 4 ) ) {
-		$jetpack_packages_filemap[ $file_identifier ] = array(
-			'version' => $version,
-			'path'    => $path,
-		);
-
-		return;
-	}
-	// Set the latest version!
-	if ( version_compare( $jetpack_packages_filemap[ $file_identifier ]['version'], $version, '<' ) ) {
-		$jetpack_packages_filemap[ $file_identifier ] = array(
-			'version' => $version,
-			'path'    => $path,
-		);
-	}
-}
-
-/**
- * Include latest version of all enqueued files. Should be called after all plugins are loaded.
- */
-function file_loader() {
-	global $jetpack_packages_filemap;
-	foreach ( $jetpack_packages_filemap as $file_identifier => $file_data ) {
-		if ( empty( $GLOBALS['__composer_autoload_files'][ $file_identifier ] ) ) {
-			require_once $file_data['path'];
-
-			$GLOBALS['__composer_autoload_files'][ $file_identifier ] = true;
-		}
-	}
-}
-
-/**
  * Used for autoloading jetpack packages.
  *
  * @param string $class_name Class Name to load.
@@ -132,199 +32,52 @@ function autoloader( $class_name ) {
 
 /**
  * Used for running the code that initializes class and file maps.
- */
-function enqueue_files() {
-	$active_plugins = get_active_plugins();
-	$paths          = array_map( __NAMESPACE__ . '\create_map_path_array', $active_plugins );
-
-	foreach ( $paths as $path ) {
-		if ( is_readable( $path['class'] ) ) {
-			$class_map = require $path['class'];
-
-			if ( is_array( $class_map ) ) {
-				foreach ( $class_map as $class_name => $class_info ) {
-					enqueue_package_class( $class_name, $class_info['version'], $class_info['path'] );
-				}
-			}
-		}
-
-		if ( is_readable( $path['file'] ) ) {
-			$file_map = require $path['file'];
-
-			if ( is_array( $file_map ) ) {
-				foreach ( $file_map as $file_identifier => $file_data ) {
-					enqueue_package_file( $file_identifier, $file_data['version'], $file_data['path'] );
-				}
-			}
-		}
-	}
-
-	file_loader();
-}
-
-/**
- * Returns an array containing the active plugins. If plugin is activating, it
- * is included in the array.
  *
- * @return Array An array of plugin names as strings.
+ * @param Plugins_Handler $plugins_handler The Plugins_Handler object.
  */
-function get_active_plugins() {
-	$active_plugins = array_merge(
-		is_multisite()
-			? array_keys( get_site_option( 'active_sitewide_plugins', array() ) )
-			: array(),
-		(array) get_option( 'active_plugins', array() )
-	);
-	$current_plugin = get_current_plugin();
+function enqueue_files( $plugins_handler ) {
+	require_once __DIR__ . '/class-classes-handler.php';
+	require_once __DIR__ . '/class-files-handler.php';
 
-	if ( ! in_array( $current_plugin, $active_plugins, true ) ) {
-		// The current plugin isn't active, so it must be activating. Add it to the list.
-		$active_plugins[] = $current_plugin;
-	}
+	$classes_handler = new Classes_Handler( $plugins_handler );
+	$classes_handler->set_class_paths();
 
-	// If the activating plugin is not the only activating plugin, we need to add others too.
-	$active_plugins = array_unique( array_merge( $active_plugins, get_activating_plugins() ) );
+	$files_handler = new Files_Handler( $plugins_handler );
+	$files_handler->set_file_paths();
 
-	return $active_plugins;
+	$files_handler->file_loader();
 }
 
 /**
- * Creates an array containing the paths to the classmap and filemap for the given plugin.
- * The filenames are the names of the files generated by the Jetpack Autoloader version >2.0.
- *
- * @param String $plugin The plugin string.
- * @return Array An array containing the paths to the plugin's classmap and filemap.
- */
-function create_map_path_array( $plugin ) {
-	$plugin_path = plugin_dir_path( trailingslashit( WP_PLUGIN_DIR ) . $plugin );
-
-	return array(
-		'class' => trailingslashit( $plugin_path ) . 'vendor/composer/jetpack_autoload_classmap.php',
-		'file'  => trailingslashit( $plugin_path ) . 'vendor/composer/jetpack_autoload_filemap.php',
-	);
-}
-
-/**
- * Checks whether the current plugin is active.
- *
- * @return Boolean True if the current plugin is active, else false.
- */
-function is_current_plugin_active() {
-	$active_plugins = (array) get_option( 'active_plugins', array() );
-	$current_plugin = get_current_plugin();
-
-	return in_array( $current_plugin, $active_plugins, true );
-}
-
-/**
- * Returns the name of activating plugin if a plugin is activating via a request.
- *
- * @return Array The array of the activating plugins or empty array.
- */
-function get_activating_plugins() {
-
-	// phpcs:disable WordPress.Security.NonceVerification.Recommended
-
-	$action = isset( $_REQUEST['action'] ) ? $_REQUEST['action'] : false;
-	$plugin = isset( $_REQUEST['plugin'] ) ? $_REQUEST['plugin'] : false;
-	$nonce  = isset( $_REQUEST['_wpnonce'] ) ? $_REQUEST['_wpnonce'] : false;
-
-	/**
-	 * Note: we're not actually checking the nonce here becase it's too early
-	 * in the execution. The pluggable functions are not yet loaded to give
-	 * plugins a chance to plug their versions. Therefore we're doing the bare
-	 * minimum: checking whether the nonce exists and it's in the right place.
-	 * The request will fail later if the nonce doesn't pass the check.
-	 */
-
-	// In case of a single plugin activation there will be a plugin slug.
-	if ( 'activate' === $action && ! empty( $nonce ) ) {
-		return array( wp_unslash( $plugin ) );
-	}
-
-	$plugins = isset( $_REQUEST['checked'] ) ? $_REQUEST['checked'] : array();
-
-	// In case of bulk activation there will be an array of plugins.
-	if ( 'activate-selected' === $action && ! empty( $nonce ) ) {
-		return array_map( 'wp_unslash', $plugins );
-	}
-
-	// phpcs:enable WordPress.Security.NonceVerification.Recommended
-
-	return array();
-}
-
-/**
- * Returns the name of the current plugin.
- *
- * @return String The name of the current plugin.
- */
-function get_current_plugin() {
-	if ( ! function_exists( 'get_plugins' ) ) {
-		require_once ABSPATH . 'wp-admin/includes/plugin.php';
-	}
-
-	$dir  = explode( '/', plugin_basename( __FILE__ ) )[0];
-	$file = array_keys( get_plugins( "/$dir" ) )[0];
-	return "$dir/$file";
-}
-
-/**
- * Find the latest installed autoloader and set up the classmap and filemap.
+ * Finds the latest installed autoloader. If this is the latest autoloader, sets
+ * up the classmap and filemap.
  */
 function set_up_autoloader() {
-	global $latest_autoloader_version;
+	global $jetpack_autoloader_latest_version;
 	global $jetpack_packages_classmap;
 
-	if ( ! is_current_plugin_active() ) {
+	require_once __DIR__ . '/class-plugins-handler.php';
+	require_once __DIR__ . '/class-autoloader-handler.php';
+
+	$plugins_handler    = new Plugins_Handler();
+	$autoloader_handler = new Autoloader_Handler( $plugins_handler );
+
+	if ( ! $plugins_handler->is_current_plugin_active() ) {
 		// The current plugin is activating, so reset the autoloader.
-		$latest_autoloader_version = null;
-		$jetpack_packages_classmap = array();
+		$jetpack_autoloader_latest_version = null;
+		$jetpack_packages_classmap         = array();
 	}
-
-	$classmap_file       = trailingslashit( dirname( __FILE__ ) ) . 'composer/jetpack_autoload_classmap.php';
-	$autoloader_packages = require $classmap_file;
-
-	$current_autoloader_version = $autoloader_packages['Automattic\\Jetpack\\Autoloader\\AutoloadGenerator']['version'];
-	$current_autoloader_path    = trailingslashit( dirname( __FILE__ ) ) . 'autoload_packages.php';
 
 	// Find the latest autoloader.
-	if ( ! $latest_autoloader_version ) {
-		$autoloader_version = $current_autoloader_version;
-		$autoloader_path    = $current_autoloader_path;
-		$current_plugin     = get_current_plugin();
-
-		$active_plugins = get_active_plugins();
-
-		foreach ( $active_plugins as $plugin ) {
-			if ( $current_plugin === $plugin ) {
-				continue;
-			}
-
-			$plugin_path   = plugin_dir_path( trailingslashit( WP_PLUGIN_DIR ) . $plugin );
-			$classmap_path = trailingslashit( $plugin_path ) . 'vendor/composer/jetpack_autoload_classmap.php';
-			if ( file_exists( $classmap_path ) ) {
-				$packages = require $classmap_path;
-
-				$current_version = $packages['Automattic\\Jetpack\\Autoloader\\AutoloadGenerator']['version'];
-
-				// TODO: This comparison needs to properly handle dev versions.
-				if ( version_compare( $autoloader_version, $current_version, '<' ) ) {
-					$autoloader_version = $current_version;
-					$autoloader_path    = trailingslashit( $plugin_path ) . 'vendor/autoload_packages.php';
-				}
-			}
-		}
-
-		$latest_autoloader_version = $autoloader_version;
-		if ( $current_autoloader_path !== $autoloader_path ) {
-			require $autoloader_path;
-		}
+	if ( ! $jetpack_autoloader_latest_version ) {
+		$autoloader_handler->find_latest_autoloader();
 	}
 
+	$current_autoloader_version = $autoloader_handler->get_current_autoloader_version();
+
 	// This is the latest autoloader, so generate the classmap and filemap and register the autoloader function.
-	if ( empty( $jetpack_packages_classmap ) && $current_autoloader_version === $latest_autoloader_version ) {
-		enqueue_files();
+	if ( empty( $jetpack_packages_classmap ) && $current_autoloader_version === $jetpack_autoloader_latest_version ) {
+		enqueue_files( $plugins_handler );
 
 		spl_autoload_register( __NAMESPACE__ . '\autoloader' );
 

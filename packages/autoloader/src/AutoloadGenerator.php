@@ -103,6 +103,18 @@ AUTOLOADER_COMMENT;
 
 		file_put_contents( $vendorPath . '/autoload_functions.php', $this->getAutoloadPackageFile( 'functions.php', $suffix ) );
 		$this->io->writeError( '<info>Generated ' . $vendorPath . '/autoload_functions.php</info>', true );
+
+		file_put_contents( $vendorPath . '/class-autoloader-handler.php', $this->getAutoloadPackageFile( 'class-autoloader-handler.php', $suffix ) );
+		$this->io->writeError( '<info>Generated ' . $vendorPath . '/class-autoloader-handler.php</info>', true );
+
+		file_put_contents( $vendorPath . '/class-classes-handler.php', $this->getAutoloadPackageFile( 'class-classes-handler.php', $suffix ) );
+		$this->io->writeError( '<info>Generated ' . $vendorPath . '/class-classes-handler.php</info>', true );
+
+		file_put_contents( $vendorPath . '/class-files-handler.php', $this->getAutoloadPackageFile( 'class-files-handler.php', $suffix ) );
+		$this->io->writeError( '<info>Generated ' . $vendorPath . '/class-files-handler.php</info>', true );
+
+		file_put_contents( $vendorPath . '/class-plugins-handler.php', $this->getAutoloadPackageFile( 'class-plugins-handler.php', $suffix ) );
+		$this->io->writeError( '<info>Generated ' . $vendorPath . '/class-plugins-handler.php</info>', true );
 	}
 
 	/**
@@ -330,7 +342,7 @@ INCLUDE_FILEMAP;
 	 */
 	private function getAutoloadPackageFile( $filename, $suffix ) {
 		$header  = self::COMMENT;
-		$header .= PHP_EOL . PHP_EOL;
+		$header .= PHP_EOL;
 		$header .= 'namespace Automattic\Jetpack\Autoloader\jp' . $suffix . ';';
 		$header .= PHP_EOL . PHP_EOL;
 
