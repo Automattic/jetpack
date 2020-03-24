@@ -37,7 +37,7 @@ import PodcastPlayer from './components/podcast-player';
 const DEFAULT_MIN_ITEMS = 1;
 const DEFAULT_MAX_ITEMS = 10;
 
-const debug = debugFactory( 'jetpack:podcast-player:ui' );
+const debug = debugFactory( 'jetpack:podcast-player:edit' );
 
 // Support page link.
 const supportUrl =
