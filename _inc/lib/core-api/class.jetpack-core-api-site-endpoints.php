@@ -11,7 +11,18 @@ use Automattic\Jetpack\Connection\Client;
  * This is the endpoint class for `/site` endpoints.
  */
 class Jetpack_Core_API_Site_Endpoint {
-
+	/**
+	 * Returns commonly used WP_Error indicating failure to fetch data
+	 *
+	 * @return WP_Error that denotes our inability to fetch the requested data
+	 */
+	private static function get_failed_fetch_error() {
+		return new WP_Error(
+			'failed_to_fetch_data',
+			esc_html__( 'Unable to fetch the requested data.', 'jetpack' ),
+			array( 'status' => 500 )
+		);
+	}
 
 	/**
 	 * Returns the result of `/sites/%s/features` endpoint call.
@@ -22,18 +33,13 @@ class Jetpack_Core_API_Site_Endpoint {
 	 *                     of plan slugs that enable these features
 	 */
 	public static function get_features() {
-
 		// Make the API request.
 		$request  = sprintf( '/sites/%d/features', Jetpack_Options::get_option( 'id' ) );
 		$response = Client::wpcom_json_api_request_as_blog( $request, '1.1' );
 
 		// Bail if there was an error or malformed response.
 		if ( is_wp_error( $response ) || ! is_array( $response ) || ! isset( $response['body'] ) ) {
-			return new WP_Error(
-				'failed_to_fetch_data',
-				esc_html__( 'Unable to fetch the requested data.', 'jetpack' ),
-				array( 'status' => 500 )
-			);
+			return self::get_failed_fetch_error();
 		}
 
 		// Decode the results.
@@ -41,11 +47,7 @@ class Jetpack_Core_API_Site_Endpoint {
 
 		// Bail if there were no results or plan details returned.
 		if ( ! is_array( $results ) ) {
-			return new WP_Error(
-				'failed_to_fetch_data',
-				esc_html__( 'Unable to fetch the requested data.', 'jetpack' ),
-				array( 'status' => 500 )
-			);
+			return self::get_failed_fetch_error();
 		}
 
 		return rest_ensure_response(
@@ -70,11 +72,7 @@ class Jetpack_Core_API_Site_Endpoint {
 
 		// Bail if there was an error or malformed response.
 		if ( is_wp_error( $response ) || ! is_array( $response ) || ! isset( $response['body'] ) ) {
-			return new WP_Error(
-				'failed_to_fetch_data',
-				esc_html__( 'Unable to fetch the requested data.', 'jetpack' ),
-				array( 'status' => 500 )
-			);
+			return self::get_failed_fetch_error();
 		}
 
 		// Decode the results.
@@ -82,11 +80,7 @@ class Jetpack_Core_API_Site_Endpoint {
 
 		// Bail if there were no results or purchase details returned.
 		if ( ! is_array( $results ) ) {
-			return new WP_Error(
-				'failed_to_fetch_data',
-				esc_html__( 'Unable to fetch the requested data.', 'jetpack' ),
-				array( 'status' => 500 )
-			);
+			return self::get_failed_fetch_error();
 		}
 
 		return rest_ensure_response(
@@ -94,6 +88,33 @@ class Jetpack_Core_API_Site_Endpoint {
 				'code'    => 'success',
 				'message' => esc_html__( 'Site purchases correctly received.', 'jetpack' ),
 				'data'    => wp_remote_retrieve_body( $response ),
+			)
+		);
+	}
+
+	/**
+	 * Returns the result of `/sites/%d/products` endpoint call.
+	 *
+	 * @return array of site products.
+	 */
+	public static function get_products() {
+		$url      = sprintf( '/sites/%d/products?locale=%s&type=jetpack', Jetpack_Options::get_option( 'id' ), get_user_locale() );
+		$response = Client::wpcom_json_api_request_as_blog( $url, '1.1' );
+
+		if ( is_wp_error( $response ) || ! is_array( $response ) || ! isset( $response['body'] ) ) {
+			return self::get_failed_fetch_error();
+		}
+
+		$results = json_decode( wp_remote_retrieve_body( $response ), true );
+		if ( ! is_array( $results ) ) {
+			return self::get_failed_fetch_error();
+		}
+
+		return rest_ensure_response(
+			array(
+				'code'    => 'success',
+				'message' => esc_html__( 'Site products correctly received.', 'jetpack' ),
+				'data'    => $results,
 			)
 		);
 	}

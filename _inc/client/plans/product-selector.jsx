@@ -26,6 +26,7 @@ import {
 import { getSiteRawUrl, getUpgradeUrl, isMultisite } from '../state/initial-state';
 import { getProducts, isFetchingProducts } from '../state/products';
 import './single-products.scss';
+import { isFetchingSiteProducts, getSiteProducts } from '../state/site-products';
 
 class ProductSelector extends Component {
 	state = {
@@ -232,8 +233,9 @@ class ProductSelector extends Component {
 	renderSearchProduct() {
 		return (
 			<SingleProductSearch
-				isFetching={ this.props.isFetchingData }
+				isFetching={ this.props.isFetchingDataForSearch }
 				products={ this.props.products }
+				siteProducts={ this.props.siteProducts }
 				searchUpgradeUrl={ this.props.searchUpgradeUrl }
 			/>
 		);
@@ -250,6 +252,8 @@ class ProductSelector extends Component {
 }
 
 export default connect( state => {
+	const isFetchingData =
+		isFetchingSiteData( state ) || isFetchingProducts( state ) || ! getAvailablePlans( state );
 	return {
 		activeSitePurchases: getActiveSitePurchases( state ),
 		dailyBackupUpgradeUrl: getUpgradeUrl( state, 'jetpack-backup-daily' ),
@@ -258,9 +262,10 @@ export default connect( state => {
 		realtimeBackupUpgradeUrl: getUpgradeUrl( state, 'jetpack-backup-realtime' ),
 		searchUpgradeUrl: getUpgradeUrl( state, 'jetpack-search' ),
 		sitePlan: getSitePlan( state ),
+		siteProducts: getSiteProducts( state ),
 		siteRawlUrl: getSiteRawUrl( state ),
-		isFetchingData:
-			isFetchingSiteData( state ) || isFetchingProducts( state ) || ! getAvailablePlans( state ),
+		isFetchingData,
+		isFetchingDataForSearch: isFetchingData || isFetchingSiteProducts( state ),
 		backupInfoUrl: getUpgradeUrl( state, 'aag-backups' ), // Redirect to https://jetpack.com/upgrade/backup/
 		isInstantSearchEnabled: !! get( state, 'jetpack.initialState.isInstantSearchEnabled', false ),
 	};
