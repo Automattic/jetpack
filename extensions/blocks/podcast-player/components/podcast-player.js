@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { Component } from '@wordpress/element';
-import { noop } from 'lodash';
 
 /**
  * Internal dependencies
@@ -13,6 +12,7 @@ import AudioPlayer from './audio-player';
 import Header from './header';
 
 // const debug = debugFactory( 'jetpack:podcast-player' );
+const noop = () => {};
 
 export class PodcastPlayer extends Component {
 	state = {
