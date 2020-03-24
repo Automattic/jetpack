@@ -58,9 +58,14 @@ const attributes = {
 
 export default {
 	attributes,
-	migrate: oldAttributes => ( {
-		...omit( oldAttributes, 'mapStyle' ),
-		className: `${ oldAttributes.className } is-style-${ oldAttributes.mapStyle }`,
-	} ),
+	migrate: oldAttributes => {
+		const className =
+			oldAttributes.className.replace( /is-style-[^ ]+/, '' ) +
+			`is-style-${ oldAttributes.mapStyle }`;
+		return {
+			...omit( oldAttributes, 'mapStyle' ),
+			className,
+		};
+	},
 	save,
 };
