@@ -10,7 +10,7 @@
       * [Local web and database servers](#setup-env-local-web-server)
       * [Developing and contributing code to Jetpack from a Windows machine](#setup-env-windows)
    * [Installing development tools](#setup-development-tools)
-	  * [Quick way to check if your environment is ready for Jetpack development](#setup-development-tools-autoscript)
+	  * [Quick way to check if your environment is ready for Jetpack development](#setup-development-autoscript)
       * [NodeJS](#setup-development-tools-nodejs)
       * [Yarn package manager](#setup-development-tools-yarn)
       * [PHP](#setup-development-tools-php)
@@ -83,7 +83,9 @@ For easier and more organized development, there are several ways to achieve tha
  * PHP - 7.4 (in case you're running WordPress locally)
 
 ---
+
 <a name="setup-development-autoscript"></a>
+
 ### Quick way to check if your environment is ready for Jetpack development
 
 We provide a script to help you in assessing if everything's ready on your system to contribute to Jetpack.
@@ -97,62 +99,65 @@ Running the script will tell you if you have your environment already set up and
 If you're ready to start, you should see all green `SUCCESS` messages. If the script detect issues, you will see a a red `FAILED` note and a link that will help you figure out what you need to change/fix to address the issue.
 
 
----
 <a name="setup-development-tools-nodejs"></a>
-### Node.js
 
-Node.js is used in the build process of the Jetpack plugin. If it's not already installed on your system, you can [visit the Node.js website and install the latest Long Term Support (LTS) version.](https://nodejs.org/).
+## Tools
 
----
+* ### Node.js
+
+	Node.js is used in the build process of the Jetpack plugin. If it's not already installed on your system, you can [visit the Node.js website and install the latest Long Term Support (LTS) version.](https://nodejs.org/).
+
 <a name="setup-development-tools-yarn"></a>
-### Yarn
 
-Yarn is a Node.js package manager and it's used to install packages that are required to build the Jetpack plugin. To install it, you can [visit the Installation page of the project](https://classic.yarnpkg.com/en/docs/install) and follow the instructions for your operating system.
+* ### Yarn
 
----
+	Yarn is a Node.js package manager and it's used to install packages that are required to build the Jetpack plugin. To install it, you can [visit the Installation page of the project](https://classic.yarnpkg.com/en/docs/install) and follow the instructions for your operating system.
+
 <a name="setup-development-tools-php"></a>
-### PHP
 
-PHP is a popular general-purpose scripting language that is especially suited to web development and it's at the core of the Jetpack plugin. 
+* ### PHP
 
-There are multiple ways to install PHP on your operating system, but as it's very dependend on your operating system and it's flavor, we're not going to cover it in this document at this time. 
+	PHP is a popular general-purpose scripting language that is especially suited to web development and it's at the core of the Jetpack plugin. 
+	
+	There are multiple ways to install PHP on your operating system, but as it's very dependend on your operating system and it's flavor, we're not going to cover it in this document at this time. 
+	
+	You can check out the [official installation instructions from the project website.](https://www.php.net/manual/en/install.php).
 
-You can check out the [official installation instructions from the project website.](https://www.php.net/manual/en/install.php).
-
----
 <a name="setup-development-tools-composer"></a>
-### Composer
 
-Jetpack includes a number of packages such as the `jetpack-logo` and to use these packages you need Composer, the PHP package manager.
+* ### Composer
 
-It's also necessary to use the PHP CodeSniffer that ensures your code follows code standards. 
-
- * #### Installing Composer on macOS
-
-	Composer can be installed using [Homebrew](https://brew.sh/). If you don't have Homebrew, install it with
+	Jetpack includes a number of packages such as the `jetpack-logo` and to use these packages you need Composer, the PHP package manager.
 	
-	```
-	/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-	```
-
-	And then install Composer:
-
-	```
-	brew install composer
-	```
-
- * #### Installing Composer on other systems
-
-	We recommend visiting the [official Composer download instructions](https://getcomposer.org/download/) to install composer on other operating systems. 
+	It's also necessary to use the PHP CodeSniffer that ensures your code follows code standards. 
 	
-	Most Linux distributions may have an older version of Composer as an installable package, but installing from the official source ensures you have the most up to date version.
-	Note that [we recommend using the Windows Subsystem for Linux](#developing-and-contributing-code-to-jetpack-from-a-windows-machine) to run Composer and PHP.
+	 * #### Installing Composer on macOS
+	
+		Composer can be installed using [Homebrew](https://brew.sh/). If you don't have Homebrew, install it with
+		
+		```
+		/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+		```
+	
+		And then install Composer:
+	
+		```
+		brew install composer
+		```
+	
+	 * #### Installing Composer on other systems
+	
+		We recommend visiting the [official Composer download instructions](https://getcomposer.org/download/) to install composer on other operating systems. 
+		
+		Most Linux distributions may have an older version of Composer as an installable package, but installing from the official source ensures you have the most up to date version.
+		Note that [we recommend using the Windows Subsystem for Linux](#developing-and-contributing-code-to-jetpack-from-a-windows-machine) to run Composer and PHP.
 
----
+
 <a name="setup-development-tools-phpunit"></a>
-### PHPUnit
 
-PHPUnit is the unit test framework we use in Jetpack. You can install it by [visitng the official project web site](https://phpunit.de/) and follow the installation instructions there. 
+* ### PHPUnit
+
+	PHPUnit is the unit test framework we use in Jetpack. You can install it by [visitng the official project web site](https://phpunit.de/) and follow the installation instructions there. 
 
 <a name="jetpack-development"></a>
 # Development workflow
@@ -206,8 +211,6 @@ There are three types of builds:
 	```sh
 	NODE_ENV=production yarn build-client
 	```
-	
----
 
 ### A note on building Jetpack and Node.js versions
 
@@ -343,7 +346,7 @@ We strongly recommend that you install tools to review your code in your IDE. It
 <a name="jetpack-linting-codestandards-code-linting"></a>
 ## Linting
 
-* ### Linting Jetpack's PHP
+* ### Linting Jetpack's PHP code
 
 	You can easily run these commands to set up all the rulesets and then lint Jetpack's PHP code. You need Composer to run this tool so check how to [install Composer](#installing-composer) if you don't have it yet.
 	
