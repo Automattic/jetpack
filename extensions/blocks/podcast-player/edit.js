@@ -18,6 +18,7 @@ import {
 	ToggleControl,
 	Spinner,
 } from '@wordpress/components';
+import { useInstanceId } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import { BlockControls, BlockIcon, InspectorControls } from '@wordpress/block-editor';
 import apiFetch from '@wordpress/api-fetch';
@@ -57,6 +58,7 @@ const PodcastPlayerEdit = ( {
 		attributesValidation,
 		attributes
 	);
+	const instanceId = `jetpack-podcast-player-block-${ useInstanceId( PodcastPlayerEdit ) }`;
 
 	// State.
 	const [ editedUrl, setEditedUrl ] = useState( url || '' );
@@ -204,8 +206,9 @@ const PodcastPlayerEdit = ( {
 					/>
 				</PanelBody>
 			</InspectorControls>
-			<div className={ className }>
+			<div id={ instanceId } className={ className }>
 				<PodcastPlayer
+					playerId={ instanceId }
 					tracks={ feedData.tracks }
 					cover={ feedData.cover }
 					title={ feedData.title }

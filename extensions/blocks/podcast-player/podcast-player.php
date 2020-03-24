@@ -104,7 +104,8 @@ function render_player( $player_data, $attributes ) {
 
 	// Genereate a unique id for the block instance.
 	$instance_id = wp_unique_id( 'jetpack-podcast-player-block-' );
-
+	$player_data['playerId'] = $instance_id;
+	
 	// Generate object to be used as props for PodcastPlayer.
 	$player_props = array_merge(
 		// Make all attributes available.

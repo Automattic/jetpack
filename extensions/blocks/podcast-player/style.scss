@@ -5,6 +5,7 @@
 
 $episode-v-padding: 15px;
 $episode-h-padding: 10px;
+$player-grid-spacing: 24px;
 $episode-status-icon-size: 22px;
 $text-color: $dark-gray-300; // Lightest gray that can be used for AA text contrast.
 $text-color-hover: $black;
@@ -13,6 +14,15 @@ $block-bg-color: $white;
 $block-border-color: $dark-gray-100;
 
 
+.jetpack-podcast-player--visually-hidden {
+	position: absolute !important;
+	height: 1px; 
+	width: 1px;
+	overflow: hidden;
+	clip: rect(1px, 1px, 1px, 1px);
+	white-space: nowrap; /* added line */
+}
+
 /**
  * Player's (block) parent element.
  */
@@ -20,6 +30,7 @@ $block-border-color: $dark-gray-100;
 	border: 1px solid $block-border-color;
 	background-color: $block-bg-color;
 	overflow: hidden;
+	font-family: $default-font;
 
 	/**
 	 * Player's state classes added to this element:
@@ -31,6 +42,81 @@ $block-border-color: $dark-gray-100;
 	audio {
 		display: none;
 	}
+}
+
+/**
+ * Podcast Player Header
+ */
+.jetpack-podcast-player__header-wrapper {
+	display: flex;
+	flex-direction: column;
+	position: relative;
+
+	&:after {
+		content: '';
+		background: $light-gray-700;
+		position: absolute;
+		height: 2px;
+		bottom: 0;
+		left: $player-grid-spacing;
+		right: $player-grid-spacing;
+	}
+}
+
+.jetpack-podcast-player__track-description {
+	order: 99; // high number to make it always appear after the audio player
+	padding: 0 $player-grid-spacing;
+	margin-bottom: $player-grid-spacing;
+	color: $dark-gray-500;
+	font-size: 16px;
+	line-height: 1.6;
+}
+
+.jetpack-podcast-player__header {
+	display: flex;
+	padding: $player-grid-spacing;
+}
+
+.jetpack-podcast-player__track-image-wrapper {
+	width: 80px;
+	margin-right: $player-grid-spacing;
+	flex-shrink: 0;
+}
+
+.jetpack-podcast-player__track-image {
+	width: 80px;
+	height: 80px;
+}
+
+.jetpack-podcast-player__titles { 
+	display: flex;
+	flex-direction: column;
+	
+}
+
+.jetpack-podcast-player__track-title {
+	font-size: 24px;
+	margin: 0 0 10px;
+}
+
+.jetpack-podcast-player__title {
+	font-size: 16px;
+	color: $text-color;
+	margin: 0;
+}
+
+.jetpack-podcast-player__title-link {
+	text-decoration: none;
+	color: $text-color;
+
+	&:hover,
+	&:focus {
+		color: $text-color-hover;
+	}
+}
+
+.jetpack-podcast-player__audio-player {
+	margin-bottom: $player-grid-spacing;
 }
 
 .jetpack-podcast-player__episodes {
