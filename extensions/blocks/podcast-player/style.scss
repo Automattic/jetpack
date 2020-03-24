@@ -33,7 +33,7 @@ $block-border-color: $dark-gray-100;
 	}
 }
 
-.podcast-player__episodes {
+.jetpack-podcast-player__episodes {
 	list-style-type: none;
 	display: flex;
 	flex-direction: column;
@@ -41,7 +41,7 @@ $block-border-color: $dark-gray-100;
 	padding: $episode-v-padding 0;
 }
 
-.podcast-player__episode {
+.jetpack-podcast-player__episode {
 	margin: 0;
 	color: $text-color;
 	font-family: $default-font;
@@ -63,7 +63,7 @@ $block-border-color: $dark-gray-100;
 	}
 }
 
-.podcast-player__episode-link {
+.jetpack-podcast-player__episode-link {
 	display: flex;
 	flex-flow: row nowrap;
 	justify-content: space-between;
@@ -72,7 +72,7 @@ $block-border-color: $dark-gray-100;
 	color: inherit;
 	transition: none;
 
-	.podcast-player__episode.is-active & {
+	.jetpack-podcast-player__episode.is-active & {
 		.is-error & {
 			padding-bottom: 0; // Make space for the error element that will be appended.
 		}
@@ -89,7 +89,7 @@ $block-border-color: $dark-gray-100;
 	transition: none;
 }
 
-.podcast-player__episode-status-icon {
+.jetpack-podcast-player__episode-status-icon {
 	flex: $episode-status-icon-size 0 0;
 
 	svg {
@@ -97,7 +97,7 @@ $block-border-color: $dark-gray-100;
 		height: $episode-status-icon-size;
 	}
 
-	.podcast-player__episode.is-active & {
+	.jetpack-podcast-player__episode.is-active & {
 		.is-paused & {
 			fill: none; // Currently there's no icon for paused state.
 		}
@@ -110,20 +110,20 @@ $block-border-color: $dark-gray-100;
 	}
 }
 
-.podcast-player__episode-title {
+.jetpack-podcast-player__episode-title {
 	flex-grow: 1;
 	padding: 0 $episode-v-padding;
 }
 
-.podcast-player__episode-duration {
+.jetpack-podcast-player__episode-duration {
 	word-break: normal; // Prevents the time breaking into multiple lines.
 }
 
 /**
  * Error element, appended as the last child of the Episode element
- * (.podcast-player__episode) when Player's error has been caught.
+ * (.jetpack-podcast-player__episode) when Player's error has been caught.
  */
-.podcast-player__episode-error {
+.jetpack-podcast-player__episode-error {
 	display: block;
 	margin-left: 2 * $episode-v-padding + $episode-status-icon-size;
 	margin-bottom: $episode-h-padding;
