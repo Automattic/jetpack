@@ -8,7 +8,18 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { STATE_ERROR } from '../constants';
+import { episodePlayingIcon, episodeErrorIcon } from '../icons';
+import { STATE_ERROR, STATE_PLAYING } from '../constants';
+
+const renderEpisodeIcon = ( isPlaying, isError ) => {
+	if ( isError ) {
+		return episodeErrorIcon;
+	}
+
+	if ( isPlaying ) {
+		return episodePlayingIcon;
+	}
+};
 
 const TrackError = memo( ( { link } ) => (
 	<div className="jetpack-podcast-player__episode-error">
@@ -25,7 +36,7 @@ const TrackError = memo( ( { link } ) => (
 	</div>
 ) );
 
-const Track = memo( ( { track, isActive, isError, selectTrack, index } ) => {
+const Track = memo( ( { track, isActive, isPlaying, isError, selectTrack, index } ) => {
 	return (
 		<li
 			className={ classnames( 'jetpack-podcast-player__episode', {
@@ -62,7 +73,9 @@ const Track = memo( ( { track, isActive, isError, selectTrack, index } ) => {
 					selectTrack( index );
 				} }
 			>
-				<span className="jetpack-podcast-player__episode-status-icon"></span>
+				<span className="jetpack-podcast-player__episode-status-icon">
+					{ isActive && renderEpisodeIcon( isPlaying, isError ) }
+				</span>
 				<span className="jetpack-podcast-player__episode-title">{ track.title }</span>
 				{ track.duration && (
 					<time className="jetpack-podcast-player__episode-duration">{ track.duration }</time>
@@ -76,16 +89,21 @@ const Track = memo( ( { track, isActive, isError, selectTrack, index } ) => {
 const Playlist = memo( ( { tracks, selectTrack, currentTrack, playerState } ) => {
 	return (
 		<ol className="jetpack-podcast-player__episodes">
-			{ tracks.map( ( track, index ) => (
-				<Track
-					key={ track.id }
-					index={ index }
-					track={ track }
-					selectTrack={ selectTrack }
-					isActive={ currentTrack === index }
-					isError={ currentTrack === index && playerState === STATE_ERROR }
-				/>
-			) ) }
+			{ tracks.map( ( track, index ) => {
+				const isActive = currentTrack === index;
+
+				return (
+					<Track
+						key={ track.id }
+						index={ index }
+						track={ track }
+						selectTrack={ selectTrack }
+						isActive={ isActive }
+						isPlaying={ isActive && playerState === STATE_PLAYING }
+						isError={ isActive && playerState === STATE_ERROR }
+					/>
+				);
+			} ) }
 		</ol>
 	);
 } );

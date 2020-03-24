@@ -187,6 +187,8 @@ $block-border-color: $dark-gray-100;
 	flex: $episode-status-icon-size 0 0;
 
 	svg {
+		display: inline-block;
+		vertical-align: middle;
 		width: $episode-status-icon-size;
 		height: $episode-status-icon-size;
 	}
