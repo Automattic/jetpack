@@ -32,9 +32,12 @@ class WPCOM_REST_API_V2_Endpoint_Podcast_Player extends WP_REST_Controller {
 			'/' . $this->rest_base,
 			array(
 				array(
-					'methods'  => WP_REST_Server::READABLE,
-					'callback' => array( $this, 'get_player_data' ),
-					'args'     => array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_player_data' ),
+					'permission_callback' => function () {
+						return current_user_can( 'edit_posts' );
+					},
+					'args'                => array(
 						'url' => array(
 							'description'       => __( 'The Podcast RSS feed URL.', 'jetpack' ),
 							'type'              => 'string',
@@ -60,12 +63,10 @@ class WPCOM_REST_API_V2_Endpoint_Podcast_Player extends WP_REST_Controller {
 			jetpack_require_lib( 'class-jetpack-podcast-helper' );
 		}
 
-		return rest_ensure_response(
-			array(
-				'tracks' => Jetpack_Podcast_Helper::get_track_list( $request['url'] ),
-				'cover'  => '', // TODO: parse podcast cover image.
-			)
-		);
+		$player_data = Jetpack_Podcast_Helper::get_player_data( $request['url'] );
+		// $player_data can be the actual data or WP_Error.
+		// rest_ensure_response handles both.
+		return rest_ensure_response( $player_data );
 	}
 }
 wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Podcast_Player' );
