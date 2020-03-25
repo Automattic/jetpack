@@ -45,8 +45,7 @@ const Header = memo( ( { playerId, title, cover, link, track, children } ) => (
 				id={ `${ playerId }__track-description` }
 				className="jetpack-podcast-player__track-description"
 			>
-				This is the track description that will need to be escaped and rendered via HTML or the
-				like, since that's how the RSS feed delivers it.
+				{ track.description }
 			</div>
 		) : null }
 

@@ -173,9 +173,9 @@ export class PodcastPlayer extends Component {
 }
 
 PodcastPlayer.defaultProps = {
-	title: 'Podcast Title',
-	cover: 'https://placekitten.com/100/100',
-	link: '#',
+	title: '',
+	cover: '',
+	link: '',
 	tracks: [],
 	url: null,
 	itemsToShow: 5,
