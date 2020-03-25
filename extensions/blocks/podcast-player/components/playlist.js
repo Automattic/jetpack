@@ -8,16 +8,16 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { episodePlayingIcon, episodeErrorIcon } from '../icons';
+import * as episodeIcons from '../icons/episode-icons';
 import { STATE_ERROR, STATE_PLAYING } from '../constants';
 
 const renderEpisodeIcon = ( isPlaying, isError ) => {
 	if ( isError ) {
-		return episodeErrorIcon;
+		return episodeIcons.error;
 	}
 
 	if ( isPlaying ) {
-		return episodePlayingIcon;
+		return episodeIcons.playing;
 	}
 };
 
