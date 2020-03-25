@@ -2,6 +2,9 @@ export default {
 	accessToken: {
 		type: 'string',
 	},
+	instagramUser: {
+		type: 'string',
+	},
 	columns: {
 		type: 'number',
 		default: 3,
