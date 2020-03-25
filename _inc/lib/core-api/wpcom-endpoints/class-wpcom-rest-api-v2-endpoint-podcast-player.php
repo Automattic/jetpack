@@ -32,9 +32,12 @@ class WPCOM_REST_API_V2_Endpoint_Podcast_Player extends WP_REST_Controller {
 			'/' . $this->rest_base,
 			array(
 				array(
-					'methods'  => WP_REST_Server::READABLE,
-					'callback' => array( $this, 'get_player_data' ),
-					'args'     => array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'get_player_data' ),
+					'permission_callback' => function () {
+						return current_user_can( 'edit_posts' );
+					},
+					'args'                => array(
 						'url' => array(
 							'description'       => __( 'The Podcast RSS feed URL.', 'jetpack' ),
 							'type'              => 'string',
