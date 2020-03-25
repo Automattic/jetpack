@@ -162,7 +162,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	 * @return string|boolean  Launch status ('launched', 'unlaunched', or false).
 	 */
 	function get_launch_status() {
-		return $this->get_cloud_site_option( 'launch-status' );
+		return $this->get_atomic_cloud_site_option( 'launch-status' );
 	}
 
 	function get_atomic_cloud_site_option( $option ) {
