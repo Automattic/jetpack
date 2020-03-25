@@ -11,14 +11,27 @@ import { __ } from '@wordpress/i18n';
 import * as episodeIcons from '../icons/episode-icons';
 import { STATE_ERROR, STATE_PLAYING } from '../constants';
 
-const renderEpisodeIcon = ( { isPlaying, isError } ) => {
+const TrackIcon = ( { isPlaying, isError, className } ) => {
+	let name;
+
 	if ( isError ) {
-		return episodeIcons.error;
+		name = 'error';
+	} else if ( isPlaying ) {
+		name = 'playing';
 	}
 
-	if ( isPlaying ) {
-		return episodeIcons.playing;
+	const icon = episodeIcons[ name ];
+
+	if ( ! icon ) {
+		// Return empty element - we need it for layout purposes.
+		return <span className={ className } aria-hidden="true" />;
 	}
+
+	return (
+		<span className={ `${ className } ${ className }--${ name }` } aria-hidden="false">
+			{ icon }
+		</span>
+	);
 };
 
 const TrackError = memo( ( { link } ) => (
@@ -37,8 +50,6 @@ const TrackError = memo( ( { link } ) => (
 ) );
 
 const Track = memo( ( { track, isActive, isPlaying, isError, selectTrack, index } ) => {
-	const episodeIcon = isActive && renderEpisodeIcon( { isPlaying, isError } );
-
 	return (
 		<li
 			className={ classnames( 'jetpack-podcast-player__episode', {
@@ -75,9 +86,11 @@ const Track = memo( ( { track, isActive, isPlaying, isError, selectTrack, index 
 					selectTrack( index );
 				} }
 			>
-				<span className="jetpack-podcast-player__episode-status-icon" aria-hidden={ ! episodeIcon }>
-					{ episodeIcon }
-				</span>
+				<TrackIcon
+					className="jetpack-podcast-player__episode-status-icon"
+					isPlaying={ isPlaying }
+					isError={ isError }
+				/>
 				<span className="jetpack-podcast-player__episode-title">{ track.title }</span>
 				{ track.duration && (
 					<time className="jetpack-podcast-player__episode-duration">{ track.duration }</time>
