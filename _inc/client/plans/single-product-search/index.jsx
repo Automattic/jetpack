@@ -22,21 +22,19 @@ import {
 function getTierLabel( priceTierSlug, recordCount ) {
 	switch ( priceTierSlug ) {
 		case JETPACK_SEARCH_TIER_UP_TO_100_RECORDS:
-			return __( 'Tier 1: Up to 100 records' );
+			return __( 'Tier: Up to 100 records' );
 		case JETPACK_SEARCH_TIER_UP_TO_1K_RECORDS:
-			return __( 'Tier 2: Up to 1,000 records' );
+			return __( 'Tier: Up to 1,000 records' );
 		case JETPACK_SEARCH_TIER_UP_TO_10K_RECORDS:
-			return __( 'Tier 3: Up to 10,000 records' );
+			return __( 'Tier: Up to 10,000 records' );
 		case JETPACK_SEARCH_TIER_UP_TO_100K_RECORDS:
-			return __( 'Tier 4: Up to 100,000 records' );
+			return __( 'Tier: Up to 100,000 records' );
 		case JETPACK_SEARCH_TIER_UP_TO_1M_RECORDS:
-			return __( 'Tier 5: Up to 1,000,000 records' );
+			return __( 'Tier: Up to 1,000,000 records' );
 		case JETPACK_SEARCH_TIER_MORE_THAN_1M_RECORDS:
-			// NOTE: 5 === number of defined tiers
-			const tierNumber = 5 + Math.floor( recordCount / 1000000 );
 			const tierMaximumRecords = 1000000 * Math.ceil( recordCount / 1000000 );
-			return __( 'Tier %(tierNumber)d: Up to %(tierMaximumRecords)s records', {
-				args: { tierNumber, tierMaximumRecords: numberFormat( tierMaximumRecords ) },
+			return __( 'Tier: Up to %(tierMaximumRecords)s records', {
+				args: { tierMaximumRecords: numberFormat( tierMaximumRecords ) },
 			} );
 		default:
 			return null;
