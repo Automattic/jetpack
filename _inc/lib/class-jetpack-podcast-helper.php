@@ -28,9 +28,14 @@ class Jetpack_Podcast_Helper {
 		$tracks = self::get_track_list( $rss );
 
 		// Get podcast meta.
-		$cover = $rss->get_image_url();
 		$title = $rss->get_title();
-		$link  = $rss->get_link();
+		$title = self::get_plain_text( $title );
+
+		$cover = $rss->get_image_url();
+		$cover = ! empty( $cover ) ? esc_url( $cover ) : null;
+
+		$link = $rss->get_link();
+		$link = ! empty( $link ) ? esc_url( $link ) : null;
 
 		return array(
 			'title'  => $title,
@@ -52,6 +57,30 @@ class Jetpack_Podcast_Helper {
 
 		// Remove empty tracks.
 		return array_filter( $track_list );
+	}
+
+	/**
+	 * Formats string as pure plaintext, with no HTML tags or entities present.
+	 * This is ready to be used in React, innerText but needs to be escaped
+	 * using standard `esc_html` when generating markup on server.
+	 *
+	 * @param string $str Input string.
+	 * @return string Plain text string.
+	 */
+	private static function get_plain_text( $str ) {
+		// Trim string and return if empty.
+		$str = trim( (string) $str );
+		if ( empty( $str ) ) {
+			return '';
+		}
+
+		// Replace all entities with their characters, including all types of quotes.
+		$str = wp_specialchars_decode( $str, ENT_QUOTES );
+
+		// Make sure there are no tags.
+		$str = wp_strip_all_tags( $str );
+
+		return $str;
 	}
 
 	/**
@@ -94,8 +123,8 @@ class Jetpack_Podcast_Helper {
 			'link'        => esc_url( $episode->get_link() ),
 			'src'         => esc_url( $enclosure->link ),
 			'type'        => esc_attr( $enclosure->type ),
-			'description' => wp_kses_post( $episode->get_description() ),
-			'title'       => esc_html( trim( wp_strip_all_tags( $episode->get_title() ) ) ),
+			'description' => self::get_plain_text( $episode->get_description() ),
+			'title'       => self::get_plain_text( $episode->get_title() ),
 		);
 
 		if ( empty( $track['title'] ) ) {
@@ -103,7 +132,7 @@ class Jetpack_Podcast_Helper {
 		}
 
 		if ( ! empty( $enclosure->duration ) ) {
-			$track['duration'] = self::format_track_duration( $enclosure->duration );
+			$track['duration'] = esc_html( self::format_track_duration( $enclosure->duration ) );
 		}
 
 		return $track;
