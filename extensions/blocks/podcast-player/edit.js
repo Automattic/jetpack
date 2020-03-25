@@ -66,6 +66,8 @@ const PodcastPlayerEdit = ( {
 	noticeUI,
 	primaryColor: primaryColorProp,
 	setPrimaryColor,
+	secondaryColor: secondaryColorProp,
+	setSecondaryColor,
 	fallbackTextColor,
 	backgroundColor: backgroundColorProp,
 	setBackgroundColor,
@@ -255,6 +257,11 @@ const PodcastPlayerEdit = ( {
 							label: __( 'Primary Color', 'jetpack' ),
 						},
 						{
+							value: secondaryColorProp.color,
+							onChange: setSecondaryColor,
+							label: __( 'Secondary Color', 'jetpack' ),
+						},
+						{
 							value: backgroundColorProp.color,
 							onChange: setBackgroundColor,
 							label: __( 'Background Color', 'jetpack' ),
@@ -296,7 +303,7 @@ const PodcastPlayerEdit = ( {
 };
 
 export default compose( [
-	withColors( 'backgroundColor', { primaryColor: 'color' } ),
+	withColors( 'backgroundColor', { primaryColor: 'color' }, { secondaryColor: 'color' } ),
 	withNotices,
 	withInstanceId,
 	applyFallbackStyles,

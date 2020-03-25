@@ -26,6 +26,12 @@ export default {
 	customPrimaryColor: {
 		type: 'string',
 	},
+	secondaryColor: {
+		type: 'string',
+	},
+	customSecondaryColor: {
+		type: 'string',
+	},
 	backgroundColor: {
 		type: 'string',
 	},
