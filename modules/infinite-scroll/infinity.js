@@ -130,7 +130,12 @@
 
 		// Check if we can wrap the html
 		this.element.append( response.html );
-		this.body.trigger( 'post-load', response );
+
+		this.trigger( this.body.get( 0 ), 'is.post-load', {
+			jqueryEventName: 'post-load',
+			data: response,
+		} );
+
 		this.ready = true;
 	};
 
@@ -619,7 +624,10 @@
 				$set.css( 'min-height', '' ).removeClass( 'is--replaced' );
 				if ( this.pageNum in self.pageCache ) {
 					$set.html( self.pageCache[ this.pageNum ].html );
-					self.body.trigger( 'post-load', self.pageCache[ this.pageNum ] );
+					self.trigger( self.body.get( 0 ), 'is.post-load', {
+						jqueryEventName: 'post-load',
+						data: self.pageCache[ this.pageNum ],
+					} );
 				}
 			}
 		} );
@@ -714,6 +722,40 @@
 	 */
 	Scroller.prototype.resume = function() {
 		this.disabled = false;
+	};
+
+	/**
+	 * Emits custom JS events.
+	 *
+	 * @param {Node}   el
+	 * @param {string} eventName
+	 * @param {*}      data
+	 */
+	Scroller.prototype.trigger = function( el, eventName, opts ) {
+		opts = opts || {};
+
+		/**
+		 * Emit the event in a jQuery way for backwards compatibility where necessary.
+		 */
+		if ( opts.jqueryEventName && 'undefined' !== typeof jQuery ) {
+			jQuery( el ).trigger( opts.jqueryEventName, opts.data || null );
+		}
+
+		/**
+		 * Emit the event in a standard way.
+		 */
+		var e;
+		try {
+			e = new CustomEvent( eventName, {
+				bubbles: true,
+				cancelable: true,
+				detail: opts.data || null,
+			} );
+		} catch ( err ) {
+			e = document.createEvent( 'CustomEvent' );
+			e.initCustomEvent( eventName, true, true, opts.data || null );
+		}
+		el.dispatchEvent( e );
 	};
 
 	/**
