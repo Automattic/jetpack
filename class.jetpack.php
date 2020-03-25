@@ -641,6 +641,9 @@ class Jetpack {
 
 		add_action( 'jetpack_event_log', array( 'Jetpack', 'log' ), 10, 2 );
 
+		add_filter( 'login_url', array( $this, 'login_url' ), 10, 2 );
+		add_action( 'login_init', array( $this, 'login_init' ) );
+
 		add_filter( 'determine_current_user', array( $this, 'wp_rest_authenticate' ) );
 		add_filter( 'rest_authentication_errors', array( $this, 'wp_rest_authentication_errors' ) );
 
@@ -4017,6 +4020,45 @@ p {
 		}
 
 		return array_merge( $jetpack_home, $actions );
+	}
+
+	/**
+	 * Filters the login URL to include the registration flow in case the user isn't logged in.
+	 *
+	 * @param string $login_url The wp-login URL.
+	 * @param string $redirect  URL to redirect users after logging in.
+	 * @since Jetpack 8.4
+	 * @return string
+	 */
+	public function login_url( $login_url, $redirect ) {
+		parse_str( wp_parse_url( $redirect, PHP_URL_QUERY ), $redirect_parts );
+		if ( ! empty( $redirect_parts['connect_login_redirect'] ) ) {
+			$login_url = add_query_arg( 'connect_login_redirect', 'true', $login_url );
+		}
+		return $login_url;
+	}
+
+	/**
+	 * Redirects non-authenticated users to authenticate with Calypso if redirect flag is set.
+	 *
+	 * @since Jetpack 8.4
+	 */
+	public function login_init() {
+		// phpcs:ignore WordPress.Security.NonceVerification
+		if ( ! empty( $_GET['connect_login_redirect'] ) ) {
+			add_filter( 'allowed_redirect_hosts', array( &$this, 'allow_wpcom_environments' ) );
+			wp_safe_redirect(
+				add_query_arg(
+					array(
+						'forceInstall' => 1,
+						'url'          => rawurlencode( get_site_url() ),
+					),
+					// @todo provide way to go to specific calypso env.
+					'https://wordpress.com/jetpack/connect'
+				)
+			);
+			exit;
+		}
 	}
 
 	/*
