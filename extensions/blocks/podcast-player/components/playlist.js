@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
 import * as episodeIcons from '../icons/episode-icons';
 import { STATE_ERROR, STATE_PLAYING } from '../constants';
 
-const renderEpisodeIcon = ( isPlaying, isError ) => {
+const renderEpisodeIcon = ( { isPlaying, isError } ) => {
 	if ( isError ) {
 		return episodeIcons.error;
 	}
@@ -37,6 +37,8 @@ const TrackError = memo( ( { link } ) => (
 ) );
 
 const Track = memo( ( { track, isActive, isPlaying, isError, selectTrack, index } ) => {
+	const episodeIcon = isActive && renderEpisodeIcon( { isPlaying, isError } );
+
 	return (
 		<li
 			className={ classnames( 'jetpack-podcast-player__episode', {
@@ -73,8 +75,8 @@ const Track = memo( ( { track, isActive, isPlaying, isError, selectTrack, index 
 					selectTrack( index );
 				} }
 			>
-				<span className="jetpack-podcast-player__episode-status-icon" aria-hidden={ ! isActive }>
-					{ isActive && renderEpisodeIcon( isPlaying, isError ) }
+				<span className="jetpack-podcast-player__episode-status-icon" aria-hidden={ ! episodeIcon }>
+					{ episodeIcon }
 				</span>
 				<span className="jetpack-podcast-player__episode-title">{ track.title }</span>
 				{ track.duration && (
