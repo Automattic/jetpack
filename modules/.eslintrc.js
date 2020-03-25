@@ -37,5 +37,12 @@ module.exports = {
 		// 'one-var': [ 'error', 'always' ],
 		quotes: [ 'warn', 'single', { avoidEscape: true } ],
 		'wrap-iife': [ 'error', 'any' ],
+
+		// eslint 6.x migration
+		'no-redeclare': 1,
+		'no-prototype-builtins': 1,
+		'no-shadow-restricted-names': 1,
+		'no-undef': 1,
+		'no-extra-boolean-cast': 1,
 	},
 };

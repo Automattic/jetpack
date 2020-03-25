@@ -17,5 +17,6 @@ module.exports = {
 		'arrow-parens': [ 0, 'as-needed' ],
 		'wpcalypso/import-docblock': 0,
 		'no-console': 0,
+		'jest/no-jasmine-globals': 0,
 	},
 };
