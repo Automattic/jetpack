@@ -79,14 +79,27 @@ class WPcom_Instagram_Widget extends WP_Widget {
 
 	/**
 	 * Updates the widget's option in the database to have the passed Keyring token ID.
-	 * Same as the function above, but AJAX-flavoured!
+	 *
+	 * Sends a json success or error response.
 	 */
 	public function ajax_update_widget_token_id() {
 		check_ajax_referer( 'instagram-widget-save-token', 'savetoken' );
 
-		$this->update_widget_token_id( (int) $_POST['keyring_id'] );
+		$token_id = (int) $_POST['keyring_id'];
+
+		// From Atomic sites, this check is done via the api: wpcom/v2/instagram/<token_id>.
+		// https://wpcom.trac.automattic.com/browser/trunk/wp-content/rest-api-plugins/endpoints/sites-instagram.php?rev=204654#L88
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$token = Keyring::init()->get_token_store()->get_token( array( 'type' => 'access', 'id' => $token_id ) );
+			if ( get_current_user_id() !== (int) $token->meta['user_id'] ) {
+				return wp_send_json_error( array( 'message' => 'not_authorized' ), 403 );
+			}
+		}
+
+		$this->update_widget_token_id( $token_id );
 		$this->update_widget_token_legacy_status( false );
-		wp_die();
+
+		return wp_send_json_success( null, 200 );
 	}
 
 	/**
