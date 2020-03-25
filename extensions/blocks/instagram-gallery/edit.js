@@ -43,6 +43,9 @@ export default function InstagramGalleryEdit( props ) {
 	}, [ attributes ] );
 
 	useEffect( () => {
+		if ( ! accessToken ) {
+			return;
+		}
 		apiFetch( {
 			path: addQueryArgs( '/wpcom/v2/instagram-gallery', {
 				access_token: accessToken,
