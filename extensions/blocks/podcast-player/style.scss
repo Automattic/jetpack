@@ -6,6 +6,12 @@
 $episode-v-padding: 15px;
 $episode-h-padding: 10px;
 $player-grid-spacing: 24px;
+$cover-image-size: 80px;
+$track-title-font-size: 24px;
+$track-title-b-margin: 10px;
+$podcast-title-font-size: 16px;
+$description-font-size: 16px;
+$player-divider-height: 2px;
 $episode-status-icon-size: 22px;
 $text-color: $dark-gray-300; // Lightest gray that can be used for AA text contrast.
 $text-color-hover: $black;
@@ -80,7 +86,7 @@ $block-border-color: $dark-gray-100;
 		content: '';
 		background: $light-gray-700;
 		position: absolute;
-		height: 2px;
+		height: $player-divider-height;
 		bottom: 0;
 		left: $player-grid-spacing;
 		right: $player-grid-spacing;
@@ -92,7 +98,7 @@ $block-border-color: $dark-gray-100;
 	padding: 0 $player-grid-spacing;
 	margin-bottom: $player-grid-spacing;
 	color: $dark-gray-500;
-	font-size: 16px;
+	font-size: $description-font-size;
 	line-height: 1.6;
 }
 
@@ -102,23 +108,23 @@ $block-border-color: $dark-gray-100;
 }
 
 .jetpack-podcast-player__track-image-wrapper {
-	width: 80px;
+	width: $cover-image-size;
 	margin-right: $player-grid-spacing;
 	flex-shrink: 0;
 }
 
 .jetpack-podcast-player__track-image {
-	width: 80px;
-	height: 80px;
+	width: $cover-image-size;
+	height: $cover-image-size;
 }
 
 .jetpack-podcast-player__track-title {
-	font-size: 24px;
-	margin: 0 0 10px;
+	font-size: $track-title-font-size;
+	margin: 0 0 $track-title-b-margin;
 }
 
 .jetpack-podcast-player__title {
-	font-size: 16px;
+	font-size: $podcast-title-font-size;
 	color: $text-color;
 	margin: 0;
 }
