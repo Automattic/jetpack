@@ -236,7 +236,6 @@ class ProductSelector extends Component {
 				isFetching={ this.props.isFetchingDataForSearch }
 				products={ this.props.products }
 				siteProducts={ this.props.siteProducts }
-				searchUpgradeUrl={ this.props.searchUpgradeUrl }
 			/>
 		);
 	}
@@ -260,7 +259,6 @@ export default connect( state => {
 		multisite: isMultisite( state ),
 		products: getProducts( state ),
 		realtimeBackupUpgradeUrl: getUpgradeUrl( state, 'jetpack-backup-realtime' ),
-		searchUpgradeUrl: getUpgradeUrl( state, 'jetpack-search' ),
 		sitePlan: getSitePlan( state ),
 		siteProducts: getSiteProducts( state ),
 		siteRawlUrl: getSiteRawUrl( state ),

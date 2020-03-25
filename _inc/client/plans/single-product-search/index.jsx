@@ -1,9 +1,10 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { useState } from 'react';
+import { connect } from 'react-redux';
 import { translate as __, numberFormat } from 'i18n-calypso';
-import { get, noop } from 'lodash';
+import { get } from 'lodash';
 
 /**
  * Internal dependencies
@@ -18,6 +19,7 @@ import {
 	JETPACK_SEARCH_TIER_UP_TO_1M_RECORDS,
 	JETPACK_SEARCH_TIER_MORE_THAN_1M_RECORDS,
 } from '../../lib/plans/constants';
+import { getUpgradeUrl } from '../../state/initial-state';
 
 function getTierLabel( priceTierSlug, recordCount ) {
 	switch ( priceTierSlug ) {
@@ -41,10 +43,15 @@ function getTierLabel( priceTierSlug, recordCount ) {
 	}
 }
 
-const BILLING_TIMEFRAME = 'yearly';
+function handleSelectedTimeframeChangeFactory( setTimeframe ) {
+	return event => setTimeframe( event.target.value );
+}
 
-export default function SingleProductSearchCard( props ) {
+export function SingleProductSearchCard( props ) {
+	const [ timeframe, setTimeframe ] = useState( 'yearly' );
+	const handleSelectedTimeframeChange = handleSelectedTimeframeChangeFactory( setTimeframe );
 	const currencyCode = get( props.products, 'jetpack_search.currency_code', '' );
+	const monthlyPrice = get( props.products, 'jetpack_search_monthly.cost', '' );
 	const yearlyPrice = get( props.products, 'jetpack_search.cost', '' );
 	const recordCount = get( props.siteProducts, 'jetpack_search.price_tier_usage_quantity', '0' );
 
@@ -71,23 +78,37 @@ export default function SingleProductSearchCard( props ) {
 						'Your current site record size: %s records',
 						{ args: recordCount, count: recordCount }
 					) }
+					<br />
+					{ getTierLabel(
+						get( props.siteProducts, 'jetpack_search.price_tier_slug' ),
+						recordCount
+					) }
 				</h4>
 				<div className="single-product-search__radio-buttons-container">
 					<PlanRadioButton
-						billingTimeFrame={ BILLING_TIMEFRAME }
-						checked={ true }
+						billingTimeFrame="monthly"
+						checked={ timeframe === 'monthly' }
+						currencyCode={ currencyCode }
+						fullPrice={ monthlyPrice }
+						onChange={ handleSelectedTimeframeChange }
+						planName="Monthly"
+						radioValue="monthly"
+					/>
+					<PlanRadioButton
+						billingTimeFrame="yearly"
+						checked={ timeframe === 'yearly' }
 						currencyCode={ currencyCode }
 						fullPrice={ yearlyPrice }
-						onChange={ noop }
-						planName={ getTierLabel(
-							get( props.siteProducts, 'jetpack_search.price_tier_slug' ),
-							recordCount
-						) }
-						radioValue={ yearlyPrice }
+						onChange={ handleSelectedTimeframeChange }
+						planName="Annual"
+						radioValue="yearly"
 					/>
 				</div>
 				<div className="single-product-search__upgrade-button-container">
-					<Button href={ props.searchUpgradeUrl } primary>
+					<Button
+						href={ timeframe === 'yearly' ? props.searchUpgradeUrl : props.searchUpgradeMonthlyUrl }
+						primary
+					>
 						{ __( 'Get Jetpack Search' ) }
 					</Button>
 				</div>
@@ -95,3 +116,8 @@ export default function SingleProductSearchCard( props ) {
 		</div>
 	);
 }
+
+export default connect( state => ( {
+	searchUpgradeUrl: getUpgradeUrl( state, 'jetpack-search' ),
+	searchUpgradeMonthlyUrl: getUpgradeUrl( state, 'jetpack-search-monthly' ),
+} ) )( SingleProductSearchCard );
