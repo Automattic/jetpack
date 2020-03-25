@@ -102,6 +102,8 @@ class WPcom_Instagram_Widget extends WP_Widget {
 
 		$widget_options[ $this->number ]['is_legacy_token'] = $is_legacy_token;
 		$this->save_settings( $widget_options );
+
+		return $is_legacy_token;
 	}
 
 	private function is_legacy_token( $token_id ) {
@@ -335,7 +337,7 @@ class WPcom_Instagram_Widget extends WP_Widget {
 			}
 
 			if ( ! isset( $instance['is_legacy_token'] ) || 'ERROR' === $instance['is_legacy_token'] ) {
-				$this->update_widget_token_legacy_status( $this->is_legacy_token( $instance['token_id'] ) );
+				$instance['is_legacy_token'] = $this->update_widget_token_legacy_status( $this->is_legacy_token( $instance['token_id'] ) );
 			}
 			$this->update_widget_token_id( $instance['token_id'] );
 		}
