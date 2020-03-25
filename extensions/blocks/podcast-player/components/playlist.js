@@ -27,11 +27,7 @@ const TrackIcon = ( { isPlaying, isError, className } ) => {
 		return <span className={ className } aria-hidden="true" />;
 	}
 
-	return (
-		<span className={ `${ className } ${ className }--${ name }` } aria-hidden="false">
-			{ icon }
-		</span>
-	);
+	return <span className={ `${ className } ${ className }--${ name }` }>{ icon }</span>;
 };
 
 const TrackError = memo( ( { link } ) => (
