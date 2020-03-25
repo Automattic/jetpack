@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
 import { STATE_ERROR } from '../constants';
 
 const TrackError = memo( ( { link } ) => (
-	<div className="podcast-player__episode-error">
+	<div className="jetpack-podcast-player__episode-error">
 		{ __( 'Episode unavailable', 'jetpack' ) }{ ' ' }
 		{ link && (
 			<span>
@@ -28,12 +28,12 @@ const TrackError = memo( ( { link } ) => (
 const Track = memo( ( { track, isActive, isError, selectTrack, index } ) => {
 	return (
 		<li
-			className={ classnames( 'podcast-player__episode', {
+			className={ classnames( 'jetpack-podcast-player__episode', {
 				'is-active': isActive,
 			} ) }
 		>
 			<a
-				className="podcast-player__episode-link"
+				className="jetpack-podcast-player__episode-link"
 				href={ track.link }
 				role="button"
 				aria-pressed="false"
@@ -62,10 +62,10 @@ const Track = memo( ( { track, isActive, isError, selectTrack, index } ) => {
 					selectTrack( index );
 				} }
 			>
-				<span className="podcast-player__episode-status-icon"></span>
-				<span className="podcast-player__episode-title">{ track.title }</span>
+				<span className="jetpack-podcast-player__episode-status-icon"></span>
+				<span className="jetpack-podcast-player__episode-title">{ track.title }</span>
 				{ track.duration && (
-					<time className="podcast-player__episode-duration">{ track.duration }</time>
+					<time className="jetpack-podcast-player__episode-duration">{ track.duration }</time>
 				) }
 			</a>
 			{ isActive && isError && <TrackError link={ track.link } /> }
@@ -75,7 +75,7 @@ const Track = memo( ( { track, isActive, isError, selectTrack, index } ) => {
 
 const Playlist = memo( ( { tracks, selectTrack, currentTrack, playerState } ) => {
 	return (
-		<ol className="podcast-player__episodes">
+		<ol className="jetpack-podcast-player__episodes">
 			{ tracks.map( ( track, index ) => (
 				<Track
 					key={ track.id }

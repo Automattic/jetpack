@@ -94,7 +94,7 @@ function render_player( $track_list, $attributes ) {
 	if ( empty( $track_list ) ) {
 		return '<p>' . esc_html__( 'No tracks available to play.', 'jetpack' ) . '</p>';
 	}
-	$instance_id = wp_unique_id( 'podcast-player-block-' );
+	$instance_id = wp_unique_id( 'jetpack-podcast-player-block-' );
 
 	// Generate object to be used as props for PodcastPlayer.
 	$player_data = array_merge(
@@ -113,18 +113,18 @@ function render_player( $track_list, $attributes ) {
 	?>
 	<div class="<?php echo esc_attr( $block_classname ); ?>" id="<?php echo esc_attr( $instance_id ); ?>">
 		<noscript>
-			<ol class="podcast-player__episodes">
+			<ol class="jetpack-podcast-player__episodes">
 				<?php foreach ( $track_list as $attachment ) : ?>
-				<li class="podcast-player__episode">
+				<li class="jetpack-podcast-player__episode">
 					<a
-						class="podcast-player__episode-link"
+						class="jetpack-podcast-player__episode-link"
 						href="<?php echo esc_url( $attachment['link'] ); ?>"
 						role="button"
 						aria-pressed="false"
 					>
-						<span class="podcast-player__episode-status-icon"></span>
-						<span class="podcast-player__episode-title"><?php echo esc_html( $attachment['title'] ); ?></span>
-						<time class="podcast-player__episode-duration"><?php echo ( ! empty( $attachment['duration'] ) ? esc_html( $attachment['duration'] ) : '' ); ?></time>
+						<span class="jetpack-podcast-player__episode-status-icon"></span>
+						<span class="jetpack-podcast-player__episode-title"><?php echo esc_html( $attachment['title'] ); ?></span>
+						<time class="jetpack-podcast-player__episode-duration"><?php echo ( ! empty( $attachment['duration'] ) ? esc_html( $attachment['duration'] ) : '' ); ?></time>
 					</a>
 				</li>
 				<?php endforeach; ?>
