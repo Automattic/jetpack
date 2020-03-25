@@ -2,13 +2,25 @@
 	display: flex;
 	align-items: top;
 
-	.wp-block-jetpack-subscriptions__email-field {
-		flex-grow: 1;
-		margin-right: 10px;
+	.wp-block-jetpack-subscriptions__textfield .components-text-control__input,
+	.wp-block-jetpack-subscriptions__button {
+		padding: 15px;
+		line-height: initial;
+	}
 
-		input {
-			font-size: 20px;
-			padding: 17px;
+	.wp-block-jetpack-subscriptions__textfield {
+		margin-right: 10px;
+		flex-grow: 1;
+		background: transparent !important;
+
+		.components-base-control__field, .components-text-control__input {
+			margin: 0;
+			border: none;
+		}
+
+		.components-text-control__input::placeholder,
+		.components-text-control__input:-ms-input-placeholder {
+			opacity: 0.7;
 		}
 	}
 }

@@ -1,22 +1,96 @@
 /**
  * External dependencies
  */
+import classnames from 'classnames';
 import apiFetch from '@wordpress/api-fetch';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { TextControl, ToggleControl, PanelBody } from '@wordpress/components';
-import { InspectorControls } from '@wordpress/block-editor';
+import {
+	TextControl,
+	ToggleControl,
+	PanelBody,
+	RangeControl,
+	withFallbackStyles,
+} from '@wordpress/components';
+import {
+	InspectorControls,
+	ContrastChecker,
+	PanelColorSettings,
+	RichText,
+	withColors,
+	FontSizePicker,
+	withFontSizes,
+	__experimentalPanelColorGradientSettings as PanelColorGradientSettings,
+	__experimentalUseGradient as useGradient,
+} from '@wordpress/block-editor';
 import { useEffect, useState } from '@wordpress/element';
+import { compose } from '@wordpress/compose';
 
 /**
  * Internal dependencies
  */
-import SubmitButton from '../../shared/submit-button';
+//import SubmitButton from '../../shared/submit-button';
 import './editor.scss';
 
-export default function SubscriptionEdit( props ) {
-	const { attributes, className, setAttributes } = props;
-	const { subscribePlaceholder, showSubscribersTotal } = attributes;
+const { getComputedStyle } = window;
+const isGradientAvailable = !! useGradient;
+
+const applyFallbackStyles = withFallbackStyles( ( node, ownProps ) => {
+	const { textColor, backgroundColor } = ownProps;
+	const backgroundColorValue = backgroundColor && backgroundColor.color;
+	const textColorValue = textColor && textColor.color;
+	//avoid the use of querySelector if textColor color is known and verify if node is available.
+	const textNode =
+		! textColorValue && node ? node.querySelector( '[contenteditable="true"]' ) : null;
+	return {
+		fallbackBackgroundColor:
+			backgroundColorValue || ! node ? undefined : getComputedStyle( node ).backgroundColor,
+		fallbackTextColor:
+			textColorValue || ! textNode ? undefined : getComputedStyle( textNode ).color,
+	};
+} );
+
+const MIN_BORDER_RADIUS_VALUE = 0;
+const MAX_BORDER_RADIUS_VALUE = 50;
+const INITIAL_BORDER_RADIUS_POSITION = 5;
+
+function SubscriptionEdit( props ) {
+	const {
+		className,
+		attributes,
+		setAttributes,
+		backgroundColor,
+		fallbackBackgroundColor,
+		fallbackTextColor,
+		setBackgroundColor,
+		setTextColor,
+		textColor,
+		fontSize,
+		setFontSize,
+	} = props;
+
+	const { borderRadius, submitButtonText, subscribePlaceholder, showSubscribersTotal } = attributes;
+
 	const [ subscriberCountString, setSubscriberCountString ] = useState( '' );
+	const { gradientClass, gradientValue, setGradient } = isGradientAvailable ? useGradient() : {};
+
+	const classes = {
+		'has-background': backgroundColor.color || gradientValue,
+		[ backgroundColor.class ]: ! gradientValue && backgroundColor.class,
+		'has-text-color': textColor.color,
+		[ textColor.class ]: textColor.class,
+		[ gradientClass ]: gradientClass,
+		'no-border-radius': borderRadius === 0,
+		[ fontSize.class ]: fontSize.class,
+	};
+
+	const styles = {
+		...( ! backgroundColor.color && gradientValue
+			? { background: gradientValue }
+			: { backgroundColor: backgroundColor.color } ),
+		color: textColor.color,
+		borderRadius: borderRadius ? borderRadius + 'px' : undefined,
+		fontSize: fontSize.size ? fontSize.size + 'px' : undefined,
+	};
 
 	const get_subscriber_count = () => {
 		apiFetch( { path: '/wpcom/v2/subscribers/count' } ).then( count => {
@@ -41,6 +115,79 @@ export default function SubscriptionEdit( props ) {
 	return (
 		<>
 			<InspectorControls>
+				<PanelBody title={ __( 'Text Settings' ) } initialOpen={ false }>
+					<FontSizePicker value={ fontSize.size } onChange={ setFontSize } />
+				</PanelBody>
+				{ isGradientAvailable && (
+					<PanelColorGradientSettings
+						title={ __( 'Color Settings', 'jetpack' ) }
+						settings={ [
+							{
+								colorValue: textColor.color,
+								onColorChange: setTextColor,
+								label: __( 'Text Color', 'jetpack' ),
+							},
+							{
+								colorValue: backgroundColor.color,
+								onColorChange: setBackgroundColor,
+								gradientValue,
+								onGradientChange: setGradient,
+								label: __( 'Background', 'jetpack' ),
+							},
+						] }
+						initialOpen={ false }
+					>
+						<ContrastChecker
+							{ ...{
+								fontSize: fontSize.size,
+								textColor: textColor.color,
+								backgroundColor: backgroundColor.color,
+								fallbackBackgroundColor,
+								fallbackTextColor,
+							} }
+						/>
+					</PanelColorGradientSettings>
+				) }
+				{ ! isGradientAvailable && (
+					<PanelColorSettings
+						title={ __( 'Color Settings', 'jetpack' ) }
+						colorSettings={ [
+							{
+								value: textColor.color,
+								onChange: setTextColor,
+								label: __( 'Text Color', 'jetpack' ),
+							},
+							{
+								value: backgroundColor.color,
+								onChange: setBackgroundColor,
+								label: __( 'Background', 'jetpack' ),
+							},
+						] }
+						initialOpen={ false }
+					>
+						<ContrastChecker
+							{ ...{
+								fontSize: fontSize.size,
+								textColor: textColor.color,
+								backgroundColor: backgroundColor.color,
+								fallbackBackgroundColor,
+								fallbackTextColor,
+							} }
+						/>
+					</PanelColorSettings>
+				) }
+
+				<PanelBody title={ __( 'Border Settings', 'jetpack' ) } initialOpen={ false }>
+					<RangeControl
+						value={ borderRadius }
+						label={ __( 'Border Radius', 'jetpack' ) }
+						min={ MIN_BORDER_RADIUS_VALUE }
+						max={ MAX_BORDER_RADIUS_VALUE }
+						initialPosition={ INITIAL_BORDER_RADIUS_POSITION }
+						allowReset
+						onChange={ newBorderRadius => setAttributes( { borderRadius: newBorderRadius } ) }
+					/>
+				</PanelBody>
 				<PanelBody title={ __( 'Display Settings' ) }>
 					<ToggleControl
 						label={ __( 'Show subscriber count', 'jetpack' ) }
@@ -58,10 +205,26 @@ export default function SubscriptionEdit( props ) {
 				<TextControl
 					placeholder={ subscribePlaceholder }
 					disabled={ true }
-					className="wp-block-jetpack-subscriptions__email-field"
+					className={ classnames( classes, 'wp-block-jetpack-subscriptions__textfield' ) }
+					style={ styles }
 				/>
-				<SubmitButton { ...props } />
+
+				<RichText
+					allowedFormats={ [] }
+					className={ classnames( classes, 'wp-block-jetpack-subscriptions__button' ) }
+					onChange={ value => setAttributes( { submitButtonText: value } ) }
+					placeholder={ __( 'Add text…', 'jetpack' ) }
+					style={ styles }
+					value={ submitButtonText }
+					withoutInteractiveFormatting
+				/>
 			</div>
 		</>
 	);
 }
+
+export default compose( [
+	withColors( 'backgroundColor', { textColor: 'color' } ),
+	withFontSizes( 'fontSize' ),
+	applyFallbackStyles,
+] )( SubscriptionEdit );
