@@ -73,7 +73,7 @@ function render_block( $attributes ) {
 	// Sanitize the URL.
 	$attributes['url'] = esc_url_raw( $attributes['url'] );
 
-	$player_data = Jetpack_Podcast_Helper::get_player_data( $attributes['url'], absint( $attributes['itemsToShow'] ) );
+	$player_data = Jetpack_Podcast_Helper::get_player_data( $attributes['url'] );
 
 	if ( is_wp_error( $player_data ) ) {
 		return '<p>' . esc_html( $player_data->get_error_message() ) . '</p>';
@@ -94,6 +94,15 @@ function render_player( $player_data, $attributes ) {
 	if ( empty( $player_data['tracks'] ) ) {
 		return '<p>' . esc_html__( 'No tracks available to play.', 'jetpack' ) . '</p>';
 	}
+
+	// Only use the amount of tracks requested.
+	$player_data['tracks'] = array_slice(
+		$player_data['tracks'],
+		0,
+		absint( $attributes['itemsToShow'] )
+	);
+
+	// Genereate a unique id for the block instance.
 	$instance_id = wp_unique_id( 'jetpack-podcast-player-block-' );
 
 	// Generate object to be used as props for PodcastPlayer.

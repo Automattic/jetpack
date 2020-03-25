@@ -13,47 +13,62 @@ class Jetpack_Podcast_Helper {
 	 * Gets podcast data formatted to be used by the Podcast Player block in both server-side
 	 * block rendering and in API `WPCOM_REST_API_V2_Endpoint_Podcast_Player`.
 	 *
+	 * The result is cached for one hour.
+	 *
 	 * @param string $feed     The RSS feed to load and list tracks for.
-	 * @param int    $quantity Optional. The number of tracks to return.
 	 * @return array|WP_Error The player data or a error object.
 	 */
-	public static function get_player_data( $feed, $quantity = 10 ) {
-		// Load feed.
-		$rss = self::load_feed( $feed );
-		if ( is_wp_error( $rss ) ) {
-			return $rss;
+	public static function get_player_data( $feed ) {
+		$feed = esc_url_raw( $feed );
+
+		// Try loading data from the cache.
+		$transient_key = 'jetpack_podcast_' . md5( $feed );
+		$player_data   = get_transient( $transient_key );
+
+		// Fetch data if we don't have any cached.
+		if ( false === $player_data ) {
+			// Load feed.
+			$rss = self::load_feed( $feed );
+			if ( is_wp_error( $rss ) ) {
+				return $rss;
+			}
+
+			// Get tracks.
+			$tracks = self::get_track_list( $rss );
+
+			// Get podcast meta.
+			$title = $rss->get_title();
+			$title = self::get_plain_text( $title );
+
+			$cover = $rss->get_image_url();
+			$cover = ! empty( $cover ) ? esc_url( $cover ) : null;
+
+			$link = $rss->get_link();
+			$link = ! empty( $link ) ? esc_url( $link ) : null;
+
+			$player_data = array(
+				'title'  => $title,
+				'link'   => $link,
+				'cover'  => $cover,
+				'tracks' => $tracks,
+			);
+
+			// Cache for 1 hour.
+			set_transient( $transient_key, $player_data, HOUR_IN_SECONDS );
 		}
 
-		// Get tracks.
-		$tracks = self::get_track_list( $rss );
-
-		// Get podcast meta.
-		$title = $rss->get_title();
-		$title = self::get_plain_text( $title );
-
-		$cover = $rss->get_image_url();
-		$cover = ! empty( $cover ) ? esc_url( $cover ) : null;
-
-		$link = $rss->get_link();
-		$link = ! empty( $link ) ? esc_url( $link ) : null;
-
-		return array(
-			'title'  => $title,
-			'link'   => $link,
-			'cover'  => $cover,
-			'tracks' => $tracks,
-		);
+		return $player_data;
 	}
 
 	/**
 	 * Gets a list of tracks for the supplied RSS feed.
 	 *
 	 * @param string $rss      The RSS feed to load and list tracks for.
-	 * @param int    $quantity Optional. The number of tracks to return.
 	 * @return array|WP_Error The feed's tracks or a error object.
 	 */
-	private static function get_track_list( $rss, $quantity = 10 ) {
-		$track_list = array_map( array( __CLASS__, 'setup_tracks_callback' ), $rss->get_items( 0, $quantity ) );
+	private static function get_track_list( $rss ) {
+		// Get first ten items and format them.
+		$track_list = array_map( array( __CLASS__, 'setup_tracks_callback' ), $rss->get_items( 0, 10 ) );
 
 		// Remove empty tracks.
 		return array_filter( $track_list );
