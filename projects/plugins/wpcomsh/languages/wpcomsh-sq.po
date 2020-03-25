@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-03-03 16:49:04+0000\n"
+"PO-Revision-Date: 2020-03-14 07:41:12+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -45,7 +45,7 @@ msgstr "Emër përdoruesi Twitter:"
 
 #: widgets/twitter.php:353
 msgid "Please switch to the 'Twitter Timeline' widget. This widget will be going away in the future and the new widget allows for more customization."
-msgstr ""
+msgstr "Ju lutemi, kaloni te widget-i “Twitter Timeline”. Ky <em>widget</em> do të hiqet në të ardhmen dhe widget-i i ri lejon më tepër përshtatje."
 
 #: widgets/twitter.php:289
 msgid "Error: Please make sure the Twitter account is %1$spublic%2$s."

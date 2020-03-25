@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WP.com Site Helper\n"
 "Report-Msgid-Bugs-To: help@wordpress.com\n"
-"POT-Creation-Date: 2020-03-21 01:15+0000\n"
+"POT-Creation-Date: 2020-03-25 19:12+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -39,6 +39,73 @@ msgstr ""
 
 #: customizer-fixes/customizer-fixes.php:13
 msgid "Save Settings"
+msgstr ""
+
+#: footer-credit/footer-credit/customizer.php:41
+msgid "Default"
+msgstr ""
+
+#: footer-credit/footer-credit/customizer.php:52
+msgid "Hide"
+msgstr ""
+
+#: footer-credit/footer-credit/customizer.php:54
+msgid "Hide (Business Plan Required)"
+msgstr ""
+
+#: footer-credit/footer-credit/customizer.php:62
+msgid "Upgrade to Business"
+msgstr ""
+
+#: footer-credit/footer-credit/customizer.php:85
+msgid "Footer Credit"
+msgstr ""
+
+#: footer-credit/footer-credit/footer-credit.php:41
+#: footer-credit/footer-credit/footer-credit.php:205
+msgid "Create a website or blog at WordPress.com"
+msgstr ""
+
+#: footer-credit/footer-credit/footer-credit.php:96
+msgid "WordPress.com Logo"
+msgstr ""
+
+#: footer-credit/footer-credit/footer-credit.php:97
+msgid "A WordPress.com Website"
+msgstr ""
+
+#: footer-credit/footer-credit/footer-credit.php:98
+#: footer-credit/theme-optimizations.php:30
+#: footer-credit/theme-optimizations.php:35
+msgid "Blog at WordPress.com"
+msgstr ""
+
+#: footer-credit/footer-credit/footer-credit.php:101
+msgid "Powered by WordPress.com"
+msgstr ""
+
+#: footer-credit/footer-credit-optimizations.php:114
+msgid "Proudly powered by WordPress"
+msgstr ""
+
+#: footer-credit/footer-credit-optimizations.php:130
+msgid "Theme"
+msgstr ""
+
+#: footer-credit/footer-credit-optimizations.php:147
+msgid "by"
+msgstr ""
+
+#: footer-credit/footer-credit-optimizations.php:159
+msgid "Design by"
+msgstr ""
+
+#: footer-credit/theme-optimizations.php:32
+msgid "Create a free website at WordPress.com"
+msgstr ""
+
+#: footer-credit/theme-optimizations.php:37
+msgid "Create a free website or blog at WordPress.com"
 msgstr ""
 
 #: logo-tool/logo-tool.php:60
@@ -133,16 +200,16 @@ msgstr ""
 msgid "Update visibility"
 msgstr ""
 
-#: private-site/private-site.php:128
+#: private-site/private-site.php:130
 msgid "Manage your site visibility settings"
 msgstr ""
 
-#: private-site/private-site.php:289 private-site/private-site.php:391
-#: private-site/private-site.php:552
+#: private-site/private-site.php:291 private-site/private-site.php:393
+#: private-site/private-site.php:554
 msgid "This site is private."
 msgstr ""
 
-#: private-site/private-site.php:451
+#: private-site/private-site.php:453
 msgid "Private Site"
 msgstr ""
 
@@ -387,55 +454,115 @@ msgid ""
 "\">profile page</a>."
 msgstr ""
 
+#: widgets/instagram/instagram.php:31 widgets/instagram/instagram.php:47
+msgid "Instagram"
+msgstr ""
+
+#: widgets/instagram/instagram.php:33
+msgid "Display your latest Instagram photos."
+msgstr ""
+
+#: widgets/instagram/instagram.php:247
+#, php-format
+msgid ""
+"In order to continue using this Instagram widget after %s, you must <a href="
+"\"%s\">re-connect</a>."
+msgstr ""
+
+#: widgets/instagram/instagram.php:254
+#, php-format
+msgid ""
+"In order to use this Instagram widget, you must <a href=\"%s\">configure it</"
+"a> first."
+msgstr ""
+
+#: widgets/instagram/instagram.php:257
+msgid ""
+"There was an error retrieving images from Instagram. An attempt will be "
+"remade in a few minutes."
+msgstr ""
+
+#: widgets/instagram/instagram.php:260
+msgid "No Instagram images were found."
+msgstr ""
+
+#: widgets/instagram/instagram.php:315
+msgid "Missing or invalid security nonce."
+msgstr ""
+
+#: widgets/instagram/instagram.php:362
+msgid ""
+"Your current connection will stop working on 31 March 2020 due to changes in "
+"Instagram's service. <br /><br />Please reconnect to Instagram in order to "
+"continue using this widget"
+msgstr ""
+
+#: widgets/instagram/instagram.php:366
+msgid ""
+"<strong>Important: You must first click Save to activate this widget "
+"<em>before</em> connecting your account.</strong> After saving the widget, "
+"click the button below to connect your Instagram account."
+msgstr ""
+
+#: widgets/instagram/instagram.php:393
+msgid "Connecting…"
+msgstr ""
+
+#: widgets/instagram/instagram.php:417 widgets/instagram/instagram.php:451
+msgid ""
+"Instagram is currently experiencing connectivity issues, please try again "
+"later to connect."
+msgstr ""
+
+#: widgets/instagram/instagram.php:421
+msgid "Connect Instagram Account"
+msgstr ""
+
+#: widgets/instagram/instagram.php:429
+#, php-format
+msgid ""
+"Having trouble? Try <a href=\"%s\" target=\"_blank\">logging into the "
+"correct account</a> on Instagram.com first."
+msgstr ""
+
+#: widgets/instagram/instagram.php:454
+#, php-format
+msgid ""
+"<strong>Connected Instagram Account</strong><br /> <a href=\"%1$s\">%2$s</a> "
+"| <a href=\"%3$s\">remove</a>"
+msgstr ""
+
+#: widgets/instagram/instagram.php:457
+msgid "Widget Title"
+msgstr ""
+
+#: widgets/instagram/instagram.php:461
+msgid "Images"
+msgstr ""
+
+#: widgets/instagram/instagram.php:462
+msgid "Number to display:"
+msgstr ""
+
+#: widgets/instagram/instagram.php:472
+msgid "Layout"
+msgstr ""
+
+#: widgets/instagram/instagram.php:473
+msgid "Number of columns:"
+msgstr ""
+
+#: widgets/instagram/instagram.php:481
+#, php-format
+msgid "New images may take up to %d minutes to show up on your site."
+msgstr ""
+
 #: widgets/i-voted.php:31
 msgid "Show your readers that you voted with an \"I Voted\" sticker."
 msgstr ""
 
 #: widgets/i-voted.php:33
 msgid "I Voted"
-msgstr ""
-
-#: widgets/instagram/instagram.php:28 widgets/instagram/instagram.php:43
-msgid "Instagram"
-msgstr ""
-
-#: widgets/instagram/instagram.php:30
-msgid "Display your latest Instagram photos."
-msgstr ""
-
-#: widgets/instagram/instagram.php:186
-msgid ""
-"There was an error retrieving images from Instagram. An attempt will be "
-"remade in a few minutes."
-msgstr ""
-
-#: widgets/instagram/instagram.php:189
-msgid "No Instagram images were found."
-msgstr ""
-
-#: widgets/instagram/instagram.php:221
-msgid "Widget Title"
-msgstr ""
-
-#: widgets/instagram/instagram.php:225
-msgid "Images"
-msgstr ""
-
-#: widgets/instagram/instagram.php:226
-msgid "Number to display:"
-msgstr ""
-
-#: widgets/instagram/instagram.php:236
-msgid "Layout"
-msgstr ""
-
-#: widgets/instagram/instagram.php:237
-msgid "Number of columns:"
-msgstr ""
-
-#: widgets/instagram/instagram.php:245
-#, php-format
-msgid "New images may take up to %d minutes to show up on your site."
 msgstr ""
 
 #: widgets/music-player.php:15
@@ -756,29 +883,29 @@ msgstr ""
 msgid "Text to display between Tweet and timestamp:"
 msgstr ""
 
-#: wpcomsh.php:356
+#: wpcomsh.php:354
 #, php-format
 msgid "%s is automatically managed for you."
 msgstr ""
 
-#: wpcomsh.php:359
+#: wpcomsh.php:357
 msgid ""
 "This plugin was installed by WordPress.com and provides features offered in "
 "your plan subscription."
 msgstr ""
 
-#: wpcomsh.php:913
+#: wpcomsh.php:911
 #, php-format
 msgid ""
 "You are currently using <strong>%1$s</strong> out of <strong>%2$s</strong> "
 "upload limit (%3$s%%)."
 msgstr ""
 
-#: wpcomsh.php:941
+#: wpcomsh.php:939
 msgid "Disk space used"
 msgstr ""
 
-#: wpcomsh.php:945
+#: wpcomsh.php:943
 msgid "Disk space quota"
 msgstr ""
 

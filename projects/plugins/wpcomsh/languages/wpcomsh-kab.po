@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-02-26 14:04:56+0000\n"
+"PO-Revision-Date: 2020-03-25 18:03:57+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -13,35 +13,35 @@ msgstr ""
 
 #: wpcomsh.php:909
 msgid "You are currently using <strong>%1$s</strong> out of <strong>%2$s</strong> upload limit (%3$s%%)."
-msgstr ""
+msgstr "Akka tura aql-ak tseqdaceḍ <strong>%1$s</strong> beṛṛa <strong>%2$s</strong> talast n usali (%3$s%%)."
 
 #: widgets/twitter.php:412
 msgid "Text to display between Tweet and timestamp:"
-msgstr ""
+msgstr "Aḍris ara d-yettwaskanen gar atwit d uzemezakud:"
 
 #: widgets/twitter.php:406
 msgid "Display Follow Button"
-msgstr ""
+msgstr "Sken taqeffilt n uḍfar"
 
 #: widgets/twitter.php:399
 msgid "Include retweets"
-msgstr ""
+msgstr "Rnu itwiten nniḍen"
 
 #: widgets/twitter.php:392
 msgid "Hide Tweets pushed by Publicize"
-msgstr ""
+msgstr "Ffer itwiten i d-ikecmen seg usezyez"
 
 #: widgets/twitter.php:385
 msgid "Hide replies"
-msgstr ""
+msgstr "Ffer tiririyin"
 
 #: widgets/twitter.php:371
 msgid "Maximum number of Tweets to show:"
-msgstr ""
+msgstr "Amur ameqqran n yitwiten ara d-yettwaskanen"
 
 #: widgets/twitter.php:364
 msgid "Twitter username:"
-msgstr ""
+msgstr "Isem n useqdac Twitter:"
 
 #: widgets/twitter.php:353
 msgid "Please switch to the 'Twitter Timeline' widget. This widget will be going away in the future and the new widget allows for more customization."
@@ -57,7 +57,7 @@ msgstr ""
 
 #: widgets/twitter.php:61
 msgid "Twitter Updates"
-msgstr ""
+msgstr "Ileqman n Twitter"
 
 #: widgets/twitter.php:51
 msgid "Please configure your Twitter username for the <a href=\"%s\">Twitter Widget</a>."
@@ -69,7 +69,7 @@ msgstr ""
 
 #: widgets/twitter.php:26
 msgid "Twitter"
-msgstr ""
+msgstr "Twitter"
 
 #: widgets/tag-cloud-widget.php:177
 msgid "Taxonomy:"
@@ -89,7 +89,7 @@ msgstr ""
 
 #: widgets/tag-cloud-widget.php:137
 msgid "Number of Tags:"
-msgstr ""
+msgstr "Amḍan n tebzimin:"
 
 #: widgets/tag-cloud-widget.php:41
 msgid "Tags"
@@ -105,11 +105,11 @@ msgstr "Tagut n tebzimin-inek i yettwasqedcen s waṭas."
 
 #: widgets/instagram/instagram.php:245
 msgid "New images may take up to %d minutes to show up on your site."
-msgstr ""
+msgstr "Tugniwin timaynutin zemrent ad qqiment alamma d %d n tesdatin ara d-banent deg usmel-inek."
 
 #: widgets/instagram/instagram.php:237
 msgid "Number of columns:"
-msgstr ""
+msgstr "Amḍan n tgejda:"
 
 #: widgets/instagram/instagram.php:236
 msgid "Layout"
@@ -117,7 +117,7 @@ msgstr "Asettef"
 
 #: widgets/instagram/instagram.php:226
 msgid "Number to display:"
-msgstr ""
+msgstr "Amḍan ara yettwaseknen:"
 
 #: widgets/instagram/instagram.php:225
 msgid "Images"
@@ -125,11 +125,11 @@ msgstr "Tugniwin"
 
 #: widgets/instagram/instagram.php:221
 msgid "Widget Title"
-msgstr ""
+msgstr "Azwel n yiwiǧit"
 
 #: widgets/instagram/instagram.php:189
 msgid "No Instagram images were found."
-msgstr ""
+msgstr "Ulac tugna n Instagram yellan."
 
 #: widgets/instagram/instagram.php:186
 msgid "There was an error retrieving images from Instagram. An attempt will be remade in a few minutes."
@@ -137,11 +137,11 @@ msgstr ""
 
 #: widgets/instagram/instagram.php:30
 msgid "Display your latest Instagram photos."
-msgstr ""
+msgstr "Sken tawleft-inek taneggarut deg Instagram"
 
 #: widgets/instagram/instagram.php:28 widgets/instagram/instagram.php:43
 msgid "Instagram"
-msgstr ""
+msgstr "Instagram"
 
 #: widgets/aboutme.php:148
 msgid "Apps"
@@ -149,7 +149,7 @@ msgstr "Isnasen"
 
 #: widgets/aboutme.php:141
 msgid "Biography"
-msgstr ""
+msgstr "Tameddurt"
 
 #: widgets/aboutme.php:134
 msgid "Headline"
@@ -161,11 +161,11 @@ msgstr "Tawlaft"
 
 #: widgets/aboutme.php:123
 msgid "Don't Display Name"
-msgstr ""
+msgstr "Ur d-skanay ara isem"
 
 #: widgets/aboutme.php:121
 msgid "Display Small"
-msgstr ""
+msgstr "Askan ameẓẓyan"
 
 #: widgets/aboutme.php:119
 msgid "Display Medium"
@@ -173,19 +173,19 @@ msgstr ""
 
 #: widgets/aboutme.php:117
 msgid "Display Large"
-msgstr ""
+msgstr "Askan meqqren"
 
 #: widgets/aboutme.php:115
 msgid "Display X-Large"
-msgstr ""
+msgstr "Askan X-meqqren"
 
 #: widgets/aboutme.php:104
 msgid "Your about.me URL"
-msgstr ""
+msgstr "URL inek about.me"
 
 #: widgets/aboutme.php:97
 msgid "Widget title"
-msgstr ""
+msgstr "Azwel n yiwiǧit"
 
 #: widgets/aboutme.php:90
 msgid "The about.me widget will no longer be available after July 1, 2016. After this date, the widget will display a simple text link to your about.me profile. Please remove this widget."
@@ -197,62 +197,62 @@ msgstr ""
 
 #: widgets/aboutme.php:20
 msgid "About.me Widget"
-msgstr ""
+msgstr "Awiǧit about.me"
 
 #: widgets/aboutme.php:18
 msgid "Display your about.me profile with thumbnail"
-msgstr ""
+msgstr "Sken amaɣun-inek about.me s tenfult"
 
 #: safeguard/utils.php:58
 msgid "Unable to fetch the requested data."
-msgstr ""
+msgstr "D awezɣi ad d-tawiḍ isefka tesriḍ."
 
 #: private-site/access-denied-coming-soon-template.php:142
 msgid "Log in here"
-msgstr ""
+msgstr "Kcem dagi"
 
 #: footer-credit/theme-optimizations.php:37
 msgid "Create a free website or blog at WordPress.com"
-msgstr ""
+msgstr "Xleq-d asmel n web neɣ ablug baṭel deg WordPress.com"
 
 #: footer-credit/theme-optimizations.php:32
 msgid "Create a free website at WordPress.com"
-msgstr ""
+msgstr "Xleq-d asmel n web batel deg WordPress.com"
 
 #: footer-credit/footer-credit/footer-credit.php:101
 msgid "Powered by WordPress.com"
-msgstr ""
+msgstr "Ittusumer-d sɣur WordPress.com"
 
 #: footer-credit/footer-credit/footer-credit.php:98
 #: footer-credit/theme-optimizations.php:30
 #: footer-credit/theme-optimizations.php:35
 msgid "Blog at WordPress.com"
-msgstr ""
+msgstr "Ablug deg WordPress.com"
 
 #: footer-credit/footer-credit/footer-credit.php:97
 msgid "A WordPress.com Website"
-msgstr ""
+msgstr "Asmel n web deg WordPress.com"
 
 #: footer-credit/footer-credit/footer-credit.php:96
 msgid "WordPress.com Logo"
-msgstr ""
+msgstr "Alugu WordPress.com"
 
 #: footer-credit/footer-credit/footer-credit.php:41
 #: footer-credit/footer-credit/footer-credit.php:205
 msgid "Create a website or blog at WordPress.com"
-msgstr ""
+msgstr "Snulfu-d asmel n web neɣ ablug deg WordPress.com"
 
 #: footer-credit/footer-credit/customizer.php:85
 msgid "Footer Credit"
-msgstr ""
+msgstr "Imttekki n uḍar"
 
 #: footer-credit/footer-credit/customizer.php:62
 msgid "Upgrade to Business"
-msgstr ""
+msgstr "Leqqem ɣer umahil"
 
 #: footer-credit/footer-credit/customizer.php:54
 msgid "Hide (Business Plan Required)"
-msgstr ""
+msgstr "Ffer (aɣawas n umahil yettusran)"
 
 #: footer-credit/footer-credit/customizer.php:52
 msgid "Hide"
@@ -280,11 +280,11 @@ msgstr ""
 
 #: customizer-fixes/customizer-fixes.php:13
 msgid "Save Settings"
-msgstr ""
+msgstr "Ḥrez iɣewwaren"
 
 #: customizer-fixes/customizer-fixes.php:12
 msgid "Are you sure you want to discard your unsaved changes?"
-msgstr ""
+msgstr "Tebɣiḍ s tidet ad tekkseḍ isenfal ur nettwsekles ara?"
 
 #: customizer-fixes/customizer-fixes.php:11
 msgid "Saved"
@@ -300,15 +300,15 @@ msgstr "Sekles"
 
 #: customizer-fixes/customizer-fixes.php:8
 msgid "Activate &amp; Save"
-msgstr ""
+msgstr "Rmed & ḥrez"
 
 #: private-site/private-site.php:123
 msgid "Manage your site visibility settings"
-msgstr ""
+msgstr "Sefrek iɣewwaren n ubani n usmel-inek"
 
 #: private-site/access-denied-coming-soon-template.php:140
 msgid "Something new is coming."
-msgstr ""
+msgstr "Yella umaynut i d-iteddun"
 
 #: wpcomsh.php:338
 msgid "This plugin was installed by WordPress.com and provides features offered in your plan subscription."
@@ -316,7 +316,7 @@ msgstr ""
 
 #: wpcomsh.php:335
 msgid "%s is automatically managed for you."
-msgstr ""
+msgstr "%s yettusefrek s wudem awurman i kečč"
 
 #: widgets/top-rated.php:141
 msgid "How many items would you like to display?"
@@ -328,23 +328,23 @@ msgstr "Fren s taggayt"
 
 #: widgets/top-rated.php:131
 msgid "Show for comments"
-msgstr ""
+msgstr "Sken iwenniten"
 
 #: widgets/top-rated.php:125
 msgid "Show for pages"
-msgstr ""
+msgstr "Sken i yisebtar"
 
 #: widgets/top-rated.php:119
 msgid "Show for posts"
-msgstr ""
+msgstr "Sken i tsuffeɣ"
 
 #: widgets/top-rated.php:11 widgets/top-rated.php:32
 msgid "Top Rated"
-msgstr ""
+msgstr "Ittwazemlen i d-yufraren"
 
 #: widgets/top-rated.php:10
 msgid "A list of your top rated posts, pages or comments."
-msgstr ""
+msgstr "Umuɣ n tsuf̣f̣eɣ-inek ittwazemlen s waṭas."
 
 #: widgets/top-clicks.php:61
 msgid "Top Clicks are calculated from 48-72 hours of stats. They take a while to change."
@@ -352,24 +352,24 @@ msgstr ""
 
 #: widgets/top-clicks.php:53
 msgid "URLs to show:"
-msgstr ""
+msgstr "URLs i uskan:"
 
 #: widgets/top-clicks.php:47
 msgid "Display length:"
-msgstr ""
+msgstr "Teɣzi n uskan:"
 
 #: widgets/top-clicks.php:14
 msgid "List the most-clicked links on your blog."
-msgstr ""
+msgstr "Umuɣ n yiseɣzan i yettwasiten fell-asen s waṭas deg ublug-inek."
 
 #: widgets/top-clicks.php:13 widgets/top-clicks.php:22
 #: widgets/top-clicks.php:66
 msgid "Top Clicks"
-msgstr ""
+msgstr "Isiten i d-yufraren"
 
 #: widgets/tlkio/tlkio.php:59
 msgid "Height (in pixel):"
-msgstr ""
+msgstr "Teɣzi (s yipiksilen):"
 
 #: widgets/tlkio/tlkio.php:55
 msgid "Channel:"
@@ -377,31 +377,31 @@ msgstr "Abadu:"
 
 #: widgets/tlkio/tlkio.php:26
 msgid "tlk.io Webchat"
-msgstr ""
+msgstr "Adiwenni usrid n web tlk.io"
 
 #: widgets/tlkio/tlkio.php:25
 msgid "Add a tlk.io webchat."
-msgstr ""
+msgstr "Rnu adiwenni usrid n web tlk.io"
 
 #: widgets/reservations.php:55
 msgid "Show:"
-msgstr ""
+msgstr "Sken:"
 
 #: widgets/reservations.php:50
 msgid "E-mail Subject:"
-msgstr ""
+msgstr "Asentel n yimayl:"
 
 #: widgets/reservations.php:44
 msgid "Recipient E-mail Address:"
-msgstr ""
+msgstr "Tansa n yimayl n unermas:"
 
 #: widgets/reservations.php:29
 msgid "Departure"
-msgstr ""
+msgstr "Tuffɣa"
 
 #: widgets/reservations.php:28
 msgid "Arrival"
-msgstr ""
+msgstr "Awwaḍ"
 
 #: widgets/reservations.php:27
 msgid "# Children"
@@ -409,7 +409,7 @@ msgstr "# Arrac"
 
 #: widgets/reservations.php:26
 msgid "# Adults"
-msgstr ""
+msgstr "# Imengaḍ"
 
 #: widgets/reservations.php:25
 msgid "Message"
@@ -429,31 +429,31 @@ msgstr "Isem"
 
 #: widgets/reservations.php:16
 msgid "Reservation Inquiry"
-msgstr ""
+msgstr "Asuter n uḥeṛṛi"
 
 #: widgets/reservations.php:10 widgets/reservations.php:15
 msgid "Reservations"
-msgstr ""
+msgstr "Iḥeṛṛiyen"
 
 #: widgets/recent-comments-widget.php:384
 msgid "Show comments from:"
-msgstr ""
+msgstr "Sken iwenniten seg:"
 
 #: widgets/recent-comments-widget.php:379
 msgid "Text background color:"
-msgstr ""
+msgstr "Ini n ugilal n uḍris:"
 
 #: widgets/recent-comments-widget.php:373
 msgid "Avatar background color:"
-msgstr ""
+msgstr "Ini n ugilal n avatar:"
 
 #: widgets/recent-comments-widget.php:362
 msgid "No Avatars"
-msgstr ""
+msgstr "Ulac ivataṛen"
 
 #: widgets/recent-comments-widget.php:355
 msgid "(at most 15)"
-msgstr ""
+msgstr "(ma aṭas 15)"
 
 #: widgets/recent-comments-widget.php:349
 msgid "Number of comments to show:"
@@ -461,7 +461,7 @@ msgstr "Amḍan n iwenniten ara yettwabeqqeḍen :"
 
 #: widgets/recent-comments-widget.php:284
 msgid "There are no public comments available to display."
-msgstr ""
+msgstr "Ulac iwenniten izayazen ara d-yettwaskanen."
 
 #. translators: comments widget: 1: comment author, 2: post link
 #: widgets/recent-comments-widget.php:275
@@ -476,7 +476,7 @@ msgstr "Warisem"
 
 #: widgets/recent-comments-widget.php:30
 msgid "Display your site's most recent comments"
-msgstr ""
+msgstr "Askan n yiwenniten ineggura n usmel-inek"
 
 #: widgets/recent-comments-widget.php:29 widgets/recent-comments-widget.php:146
 msgid "Recent Comments"
@@ -488,7 +488,7 @@ msgstr ""
 
 #: widgets/posts-i-like.php:259
 msgid "on"
-msgstr ""
+msgstr "ɣef"
 
 #: widgets/posts-i-like.php:236
 msgctxt "1: Post Title, 2: Blog Name"
@@ -509,31 +509,31 @@ msgstr "Liste"
 
 #: widgets/posts-i-like.php:95
 msgid "Display as:"
-msgstr ""
+msgstr "Sken am:"
 
 #: widgets/posts-i-like.php:90
 msgid "Number of posts to show (1 to 15):"
-msgstr ""
+msgstr "Amḍan n tsuffeɣ ara yettwaskanen (1 ar 15):"
 
 #: widgets/posts-i-like.php:27
 msgid "A list of the posts I most recently liked"
-msgstr ""
+msgstr "Umuɣ n tsuffeɣ tineggura i yi-iɛeǧben"
 
 #: widgets/posts-i-like.php:25 widgets/posts-i-like.php:32
 msgid "Posts I Like"
-msgstr ""
+msgstr "Tisuffeɣ i yi-iɛeǧben"
 
 #: widgets/music-player.php:82
 msgid "Choose songs"
-msgstr ""
+msgstr "Fren tizlatin"
 
 #: widgets/music-player.php:16 widgets/music-player.php:87
 msgid "Music Player"
-msgstr ""
+msgstr "Ameɣri n uẓawan"
 
 #: widgets/music-player.php:15
 msgid "A multi-song music player"
-msgstr ""
+msgstr "Ameɣri n uẓawan n waṭas n tezlatin yemgaraden"
 
 #: widgets/i-voted.php:33
 msgid "I Voted"
@@ -557,7 +557,7 @@ msgstr ""
 
 #: widgets/gravatar.php:134
 msgid "Gravatar alignment:"
-msgstr ""
+msgstr "Areyyec n Gravatar"
 
 #: widgets/gravatar.php:125
 msgid "Size:"
@@ -565,15 +565,15 @@ msgstr "Teɣzi:"
 
 #: widgets/gravatar.php:122
 msgid "Custom Email Address:"
-msgstr ""
+msgstr "Tansa n yimayl tudmawant:"
 
 #: widgets/gravatar.php:119
 msgid "Select a user or pick \"custom\" and enter a custom email address."
-msgstr ""
+msgstr "Fren aseqdac neɣ fren \"udmawan\" syen sekcem tansa n yimayl tudmawant."
 
 #: widgets/gravatar.php:115
 msgid "Center"
-msgstr "Talmast"
+msgstr "Talemmast"
 
 #: widgets/gravatar.php:115
 msgid "Right"
@@ -589,19 +589,19 @@ msgstr "Ulac"
 
 #: widgets/gravatar.php:114
 msgid "Extra Large (256 pixels)"
-msgstr ""
+msgstr "Meqqer aṭas (256 ipiksilen)"
 
 #: widgets/gravatar.php:114
 msgid "Large (128 pixels)"
-msgstr ""
+msgstr "Meqqer (128 ipiksilen)"
 
 #: widgets/gravatar.php:114
 msgid "Medium (96 pixels)"
-msgstr ""
+msgstr "D alemmas (96 ipiksilen)"
 
 #: widgets/gravatar.php:114
 msgid "Small (64 pixels)"
-msgstr ""
+msgstr "Mecṭuḥ (64 ipiksilen)"
 
 #: widgets/gravatar.php:84
 msgid "You need to pick a user or enter an email address in your <a href=\"%s\">Gravatar Widget</a> settings."
@@ -609,19 +609,19 @@ msgstr ""
 
 #: widgets/gravatar.php:22
 msgid "Gravatar"
-msgstr ""
+msgstr "Gravatar"
 
 #: widgets/gravatar.php:20
 msgid "Insert a Gravatar image"
-msgstr ""
+msgstr "Senni tugna Gravatar"
 
 #: widgets/freshly-pressed.php:60
 msgid "Choose an image to display in your sidebar:"
-msgstr ""
+msgstr "Fren tugna ara d-tsekneḍ deg ugalis-inek adisan:"
 
 #: widgets/freshly-pressed.php:10
 msgid "Freshly Pressed"
-msgstr ""
+msgstr "Asiti aneggaru"
 
 #: widgets/freshly-pressed.php:8
 msgid "Display a Freshly Pressed badge in your sidebar"
@@ -629,11 +629,11 @@ msgstr ""
 
 #: widgets/author-grid.php:102 widgets/recent-comments-widget.php:360
 msgid "Avatar Size (px):"
-msgstr ""
+msgstr "Teɣzi n avatar (pks):"
 
 #: widgets/author-grid.php:97
 msgid "Display all authors (including those who have not written any posts)"
-msgstr ""
+msgstr "Sken akk imeskar (seddu-d ula d wid ur d-nuri acemma)"
 
 #: widgets/author-grid.php:91 widgets/freshly-pressed.php:56
 #: widgets/gravatar.php:117 widgets/i-voted.php:65 widgets/music-player.php:73
@@ -646,24 +646,24 @@ msgstr "Azwel:"
 
 #: widgets/author-grid.php:44
 msgid "Authors"
-msgstr "Auteurs"
+msgstr "Imeskar"
 
 #: widgets/author-grid.php:12
 msgid "Show a grid of author avatar images."
-msgstr ""
+msgstr "Sken iẓiki n tugniwin n avatar n yimeskar"
 
 #: widgets/author-grid.php:11
 msgid "Author Grid"
-msgstr ""
+msgstr "Iẓiki n umeskar"
 
 #: private-site/private-site.php:369
 msgid "Private Site"
-msgstr ""
+msgstr "Asmel uslig"
 
 #: private-site/private-site.php:227 private-site/private-site.php:324
 #: private-site/private-site.php:468
 msgid "This site is private."
-msgstr ""
+msgstr "Asmel-agi d uslig"
 
 #: private-site/access-denied-private-site-template.php:45
 msgid "Log in"
@@ -671,11 +671,11 @@ msgstr "Tuqqna"
 
 #: private-site/access-denied-private-site-template.php:45
 msgid "Switch user"
-msgstr ""
+msgstr "Beddel aseqdac"
 
 #: private-site/access-denied-private-site-template.php:43
 msgid "You need to be logged in as a user who has permission to view this site."
-msgstr ""
+msgstr "Ilaq-ak ad tiliḍ d aseqdac yesɛan azref ad yekcem ɣer usmel-agi."
 
 #: privacy/participating-plugins.php:144
 msgid ""
@@ -706,7 +706,7 @@ msgstr ""
 
 #: logo-tool/logo-tool.php:70
 msgid "Create logo"
-msgstr ""
+msgstr "Snulfu-d alugu"
 
 #: logo-tool/logo-tool.php:60
 msgid "Add a logo to display on your site. No logo? Buy a pro one from Looka — Click “Create logo” to start."
@@ -714,8 +714,8 @@ msgstr ""
 
 #. Description of the plugin
 msgid "WordPress.com provided functionality & tools"
-msgstr ""
+msgstr "WordPress.com imudd-d timahilin d yifecka"
 
 #. Plugin Name of the plugin
 msgid "WP.com Site Helper"
-msgstr ""
+msgstr "Asmel azɣaray n WP.com"
