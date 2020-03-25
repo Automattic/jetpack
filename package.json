@@ -186,7 +186,7 @@
 		"commander": "4.1.1",
 		"config": "3.3.0",
 		"css-loader": "3.4.2",
-		"danger": "9.2.10",
+		"danger": "9.4.0",
 		"eslint": "5.16.0",
 		"eslint-config-prettier": "6.10.0",
 		"eslint-config-wpcalypso": "4.0.1",
