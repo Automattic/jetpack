@@ -17,7 +17,6 @@ import UpgradeLink from 'components/upgrade-link';
 import ProductExpiration from 'components/product-expiration';
 import { getPlanClass, isJetpackBackup, isJetpackSearch } from 'lib/plans/constants';
 import { getUpgradeUrl, getSiteRawUrl, showBackups } from 'state/initial-state';
-import { getSitePurchases } from 'state/site';
 import { imagePath } from 'constants/urls';
 import PropTypes from 'prop-types';
 
@@ -209,6 +208,5 @@ export default connect( state => {
 		siteSlug: getSiteRawUrl( state ),
 		displayBackups: showBackups( state ),
 		plansMainTopUpgradeUrl: getUpgradeUrl( state, 'plans-main-top' ),
-		purchases: getSitePurchases( state ),
 	};
 } )( MyPlanHeader );

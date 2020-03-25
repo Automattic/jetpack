@@ -261,13 +261,9 @@ class MyPlanBody extends React.Component {
 				planCard = (
 					<div className="jp-landing__plan-features">
 						{ 'is-personal-plan' === planClass && getRewindVaultPressCard() }
-
 						{ 'is-premium-plan' === planClass && getRewindVaultPressCard() }
-
 						{ 'is-business-plan' === planClass && getRewindVaultPressCard() }
-
-						{ 'is-search-plan' === planClass && getSearchCard() }
-
+						{ this.props.hasSearchProduct && getSearchCard() }
 						<div className="jp-landing__plan-features-card">
 							<div className="jp-landing__plan-features-img">
 								<img
@@ -572,12 +568,11 @@ class MyPlanBody extends React.Component {
 			case 'is-free-plan':
 			case 'is-daily-backup-plan':
 			case 'is-realtime-backup-plan':
-			case 'is-search-plan':
 			case 'dev':
 				planCard = (
 					<div className="jp-landing__plan-features">
 						{ jetpackBackupCard }
-						{ 'is-search-plan' === planClass && getSearchCard() }
+						{ this.props.hasSearchProduct && getSearchCard() }
 						<div className="jp-landing__plan-features-card">
 							<div className="jp-landing__plan-features-img">
 								<img
