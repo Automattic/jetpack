@@ -135,7 +135,7 @@ export default function InstagramGalleryEdit( props ) {
 								max={ 6 }
 							/>
 							<RangeControl
-								label={ __( 'Padding Between Posts (in pixel)', 'jetpack' ) }
+								label={ __( 'Image Spacing (px)', 'jetpack' ) }
 								value={ photosPadding }
 								onChange={ value => setAttributes( { photosPadding: value } ) }
 								min={ 0 }
