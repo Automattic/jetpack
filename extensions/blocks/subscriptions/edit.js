@@ -11,6 +11,7 @@ import { InspectorControls } from '@wordpress/block-editor';
  * Internal dependencies
  */
 import SubmitButton from '../../shared/submit-button';
+import './editor.scss';
 
 class SubscriptionEdit extends Component {
 	state = {
@@ -42,7 +43,11 @@ class SubscriptionEdit extends Component {
 
 				{ showSubscribersTotal && <p role="heading">{ this.state.subscriberCountString }</p> }
 
-				<TextControl placeholder={ subscribePlaceholder } disabled={ true } onChange={ () => {} } />
+				<TextControl
+					placeholder={ subscribePlaceholder }
+					disabled={ true }
+					className="wp-block-jetpack-subscriptions__email-field"
+				/>
 				<SubmitButton { ...this.props } />
 			</div>
 		);
@@ -64,10 +69,6 @@ class SubscriptionEdit extends Component {
 				} );
 			}
 		} );
-	}
-
-	onChangeSubmit( submitButtonText ) {
-		this.props.setAttributes( { submitButtonText } );
 	}
 }
 

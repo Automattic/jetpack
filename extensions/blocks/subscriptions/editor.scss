@@ -1,0 +1,14 @@
+.wp-block-jetpack-subscriptions {
+	display: flex;
+	align-items: top;
+
+	.wp-block-jetpack-subscriptions__email-field {
+		flex-grow: 1;
+		margin-right: 10px;
+
+		input {
+			font-size: 20px;
+			padding: 17px;
+		}
+	}
+}

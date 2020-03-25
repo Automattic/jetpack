@@ -38,22 +38,47 @@ export const settings = {
 	],
 
 	attributes: {
-		subscribePlaceholder: { type: 'string', default: __( 'Email Address', 'jetpack' ) },
-		subscribeButton: { type: 'string', default: __( 'Subscribe', 'jetpack' ) },
-		showSubscribersTotal: { type: 'boolean', default: false },
+		subscribePlaceholder: {
+			type: 'string',
+			default: __( 'Email Address', 'jetpack' ),
+		},
+		showSubscribersTotal: {
+			type: 'boolean',
+			default: false,
+		},
+
+		// Submit button attributes
 		submitButtonText: {
 			type: 'string',
 			default: __( 'Subscribe', 'jetpack' ),
 		},
-		backgroundButtonColor: {
+		backgroundColor: {
 			type: 'string',
 		},
-		textButtonColor: {
+		textColor: {
 			type: 'string',
 		},
-		customBackgroundButtonColor: { type: 'string' },
-		customTextButtonColor: { type: 'string' },
-		submitButtonClasses: { type: 'string' },
+		customBackgroundColor: {
+			type: 'string',
+		},
+		customTextColor: {
+			type: 'string',
+		},
+		borderRadius: {
+			type: 'number',
+		},
+		gradient: {
+			type: 'string',
+		},
+		customGradient: {
+			type: 'string',
+		},
+		fontSize: {
+			type: 'number',
+		},
+		customFontSize: {
+			type: 'number',
+		},
 	},
 	edit,
 	save,
