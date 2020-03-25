@@ -10,15 +10,58 @@
  */
 class Jetpack_Podcast_Helper {
 	/**
-	 * Gets a list of tracks for the supplied RSS feed. This function is used
-	 * in both server-side block rendering and in API `WPCOM_REST_API_V2_Endpoint_Podcast_Player`.
+	 * Gets podcast data formatted to be used by the Podcast Player block in both server-side
+	 * block rendering and in API `WPCOM_REST_API_V2_Endpoint_Podcast_Player`.
 	 *
 	 * @param string $feed     The RSS feed to load and list tracks for.
 	 * @param int    $quantity Optional. The number of tracks to return.
+	 * @return array|WP_Error The player data or a error object.
+	 */
+	public static function get_player_data( $feed, $quantity = 10 ) {
+		// Load feed.
+		$rss = self::load_feed( $feed );
+		if ( is_wp_error( $rss ) ) {
+			return $rss;
+		}
+
+		// Get tracks.
+		$tracks = self::get_track_list( $rss );
+
+		// Get podcast meta.
+		$cover = $rss->get_image_url();
+		$title = $rss->get_title();
+		$link  = $rss->get_link();
+
+		return array(
+			'title'  => $title,
+			'link'   => $link,
+			'cover'  => $cover,
+			'tracks' => $tracks,
+		);
+	}
+
+	/**
+	 * Gets a list of tracks for the supplied RSS feed.
+	 *
+	 * @param string $rss      The RSS feed to load and list tracks for.
+	 * @param int    $quantity Optional. The number of tracks to return.
 	 * @return array|WP_Error The feed's tracks or a error object.
 	 */
-	public static function get_track_list( $feed, $quantity = 10 ) {
-		$rss = fetch_feed( $feed );
+	private static function get_track_list( $rss, $quantity = 10 ) {
+		$track_list = array_map( array( __CLASS__, 'setup_tracks_callback' ), $rss->get_items( 0, $quantity ) );
+
+		// Remove empty tracks.
+		return array_filter( $track_list );
+	}
+
+	/**
+	 * Loads an RSS feed using `fetch_feed`.
+	 *
+	 * @param string $feed        The RSS feed URL to load.
+	 * @return SimplePie|WP_Error The RSS object or error.
+	 */
+	private static function load_feed( $feed ) {
+		$rss = fetch_feed( esc_url_raw( $feed ) );
 
 		if ( is_wp_error( $rss ) ) {
 			return new WP_Error( 'invalid_url', __( 'Your podcast couldn\'t be embedded. Please double check your URL.', 'jetpack' ) );
@@ -28,14 +71,11 @@ class Jetpack_Podcast_Helper {
 			return new WP_Error( 'no_tracks', __( 'Podcast audio RSS feed has no tracks.', 'jetpack' ) );
 		}
 
-		$track_list = array_map( array( __CLASS__, 'setup_tracks_callback' ), $rss->get_items( 0, $quantity ) );
-
-		// Remove empty tracks.
-		return array_filter( $track_list );
+		return $rss;
 	}
 
 	/**
-	 * Prepares Episode data to be used with MediaElement.js.
+	 * Prepares Episode data to be used by the Podcast Player block.
 	 *
 	 * @param SimplePie_Item $episode SimplePie_Item object, representing a podcast episode.
 	 * @return array
