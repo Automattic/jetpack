@@ -73,38 +73,35 @@ function render_block( $attributes ) {
 	// Sanitize the URL.
 	$attributes['url'] = esc_url_raw( $attributes['url'] );
 
-	$track_list = Jetpack_Podcast_Helper::get_track_list( $attributes['url'], absint( $attributes['itemsToShow'] ) );
+	$player_data = Jetpack_Podcast_Helper::get_player_data( $attributes['url'], absint( $attributes['itemsToShow'] ) );
 
-	if ( is_wp_error( $track_list ) ) {
-		return '<p>' . esc_html( $track_list->get_error_message() ) . '</p>';
+	if ( is_wp_error( $player_data ) ) {
+		return '<p>' . esc_html( $player_data->get_error_message() ) . '</p>';
 	}
 
-	return render_player( $track_list, $attributes );
+	return render_player( $player_data, $attributes );
 }
 
 /**
  * Renders the HTML for the Podcast player and tracklist.
  *
- * @param array $track_list The list of podcast tracks.
+ * @param array $player_data The player data details.
  * @param array $attributes Array containing the Podcast Player block attributes.
  * @return string The HTML for the podcast player.
  */
-function render_player( $track_list, $attributes ) {
+function render_player( $player_data, $attributes ) {
 	// If there are no tracks (it is possible) then display appropriate user facing error message.
-	if ( empty( $track_list ) ) {
+	if ( empty( $player_data['tracks'] ) ) {
 		return '<p>' . esc_html__( 'No tracks available to play.', 'jetpack' ) . '</p>';
 	}
 	$instance_id = wp_unique_id( 'jetpack-podcast-player-block-' );
 
 	// Generate object to be used as props for PodcastPlayer.
-	$player_data = array_merge(
+	$player_props = array_merge(
 		// Make all attributes available.
 		$attributes,
-		// And add some computed properties.
-		array(
-			'tracks'   => $track_list,
-			'coverArt' => '',
-		)
+		// Add all player data.
+		$player_data
 	);
 
 	$block_classname = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attributes );
@@ -114,7 +111,7 @@ function render_player( $track_list, $attributes ) {
 	<div class="<?php echo esc_attr( $block_classname ); ?>" id="<?php echo esc_attr( $instance_id ); ?>">
 		<noscript>
 			<ol class="jetpack-podcast-player__episodes">
-				<?php foreach ( $track_list as $attachment ) : ?>
+				<?php foreach ( $player_data['tracks'] as $attachment ) : ?>
 				<li class="jetpack-podcast-player__episode">
 					<a
 						class="jetpack-podcast-player__episode-link"
@@ -130,7 +127,7 @@ function render_player( $track_list, $attributes ) {
 				<?php endforeach; ?>
 			</ol>
 		</noscript>
-		<script type="application/json"><?php echo wp_json_encode( $player_data ); ?></script>
+		<script type="application/json"><?php echo wp_json_encode( $player_props ); ?></script>
 	</div>
 	<script>window.jetpackPodcastPlayers=(window.jetpackPodcastPlayers||[]);window.jetpackPodcastPlayers.push( <?php echo wp_json_encode( $instance_id ); ?> );</script>
 	<?php
