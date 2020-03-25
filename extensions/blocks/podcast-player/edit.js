@@ -207,7 +207,9 @@ const PodcastPlayerEdit = ( {
 			<div className={ className }>
 				<PodcastPlayer
 					tracks={ feedData.tracks }
-					coverArt={ feedData.coverArt }
+					cover={ feedData.cover }
+					title={ feedData.title }
+					link={ feedData.link }
 					itemsToShow={ itemsToShow }
 					showEpisodeDescription={ showEpisodeDescription }
 					showCoverArt={ showCoverArt }
