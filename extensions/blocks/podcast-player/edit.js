@@ -64,8 +64,8 @@ const PodcastPlayerEdit = ( {
 	setAttributes,
 	noticeOperations: { createErrorNotice, removeAllNotices },
 	noticeUI,
-	textColor: textColorProp,
-	setTextColor,
+	primaryColor: primaryColorProp,
+	setPrimaryColor,
 	fallbackTextColor,
 	backgroundColor: backgroundColorProp,
 	setBackgroundColor,
@@ -77,8 +77,8 @@ const PodcastPlayerEdit = ( {
 		itemsToShow,
 		showCoverArt,
 		showEpisodeDescription,
-		textColor,
-		customTextColor,
+		primaryColor,
+		customPrimaryColor,
 		backgroundColor,
 		customBackgroundColor,
 	} = getValidatedAttributes( attributesValidation, attributes );
@@ -203,19 +203,19 @@ const PodcastPlayerEdit = ( {
 	}
 
 	// Set CSS classes string.
-	const textClass = getColorClassName( 'color', textColor );
-	const backgroundClass = getColorClassName( 'background-color', backgroundColor );
+	const primaryColorClass = getColorClassName( 'color', primaryColor );
+	const backgroundColorClass = getColorClassName( 'background-color', backgroundColor );
 
 	const cssClassesName = classnames( className, {
-		'has-text-color': textColor || customTextColor,
-		[ textClass ]: textClass,
+		'has-primary': primaryColor || customPrimaryColor,
+		[ primaryColorClass ]: primaryColorClass,
 		'has-background': backgroundColor || customBackgroundColor,
-		[ backgroundClass ]: backgroundClass,
+		[ backgroundColorClass ]: backgroundColorClass,
 	} );
 
 	const inlineStyles = {
-		backgroundColor: backgroundClass ? undefined : customBackgroundColor,
-		color: textClass ? undefined : customTextColor,
+		backgroundColor: backgroundColorClass ? undefined : customBackgroundColor,
+		color: primaryColorClass ? undefined : customPrimaryColor,
 	};
 
 	return (
@@ -250,14 +250,14 @@ const PodcastPlayerEdit = ( {
 					title={ __( 'Color Settings', 'jetpack' ) }
 					colorSettings={ [
 						{
-							value: textColorProp.color,
-							onChange: setTextColor,
-							label: __( 'Text Color', 'jetpack' ),
+							value: primaryColorProp.color,
+							onChange: setPrimaryColor,
+							label: __( 'Primary Color', 'jetpack' ),
 						},
 						{
 							value: backgroundColorProp.color,
 							onChange: setBackgroundColor,
-							label: __( 'Background', 'jetpack' ),
+							label: __( 'Background Color', 'jetpack' ),
 						},
 					] }
 				>
@@ -266,7 +266,7 @@ const PodcastPlayerEdit = ( {
 							// Text is considered large if font size is greater or equal to 18pt or 24px,
 							// currently that's not the case for button.
 							isLargeText: false,
-							textColor: textColorProp.color,
+							primaryColor: primaryColorProp.color,
 							backgroundColor: backgroundColorProp.color,
 							fallbackBackgroundColor,
 							fallbackTextColor,
@@ -296,7 +296,7 @@ const PodcastPlayerEdit = ( {
 };
 
 export default compose( [
-	withColors( 'backgroundColor', { textColor: 'color' } ),
+	withColors( 'backgroundColor', { primaryColor: 'color' } ),
 	withNotices,
 	withInstanceId,
 	applyFallbackStyles,

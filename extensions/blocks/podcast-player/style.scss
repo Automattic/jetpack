@@ -222,14 +222,14 @@ $block-border-color: $dark-gray-100;
  * Styles and colors.
  */
 // No-colors styles.
-.wp-block-jetpack-podcast-player:not(.has-text-color) {
+.wp-block-jetpack-podcast-player:not(.has-primary) {
 	.podcast-player__episodes .podcast-player__episode {
 		color: $text-color;
 	}
 }
 
 // Colored styles.
-.wp-block-jetpack-podcast-player.has-text-color {
+.wp-block-jetpack-podcast-player.has-primary {
 	.podcast-player__episode-link {
 		color: inherit;
 	}

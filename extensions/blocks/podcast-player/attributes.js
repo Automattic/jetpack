@@ -20,13 +20,13 @@ export default {
 		type: 'boolean',
 		default: true,
 	},
-	textColor: {
+	primaryColor: {
+		type: 'string',
+	},
+	customPrimaryColor: {
 		type: 'string',
 	},
 	backgroundColor: {
-		type: 'string',
-	},
-	customTextColor: {
 		type: 'string',
 	},
 	customBackgroundColor: {
