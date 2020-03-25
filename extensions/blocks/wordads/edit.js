@@ -2,9 +2,9 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { BlockControls } from '@wordpress/block-editor';
+import { BlockControls, InspectorControls } from '@wordpress/block-editor';
 import { Component, Fragment } from '@wordpress/element';
-import { ToggleControl } from '@wordpress/components';
+import { PanelBody, ToggleControl } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -32,12 +32,19 @@ class WordAdsEdit extends Component {
 		const { format, hideMobile } = attributes;
 		const selectedFormatObject = AD_FORMATS.filter( ( { tag } ) => tag === format )[ 0 ];
 		const adControls = (
-			<ToggleControl
-				className="jetpack-wordads__mobile-visibility"
-				checked={ Boolean( hideMobile ) }
-				label={ __( 'Hide ad on mobile views', 'jetpack' ) }
-				onChange={ this.handleHideMobileChange }
-			/>
+			<Fragment>
+				<InspectorControls>
+					<PanelBody title={ __( 'Visibility', 'jetpack' ) }>
+						<ToggleControl
+							className="jetpack-wordads__mobile-visibility"
+							checked={ Boolean( hideMobile ) }
+							label={ __( 'Hide on mobile', 'jetpack' ) }
+							help={ __( 'Hides this block for site visitors on mobile devices.', 'jetpack' ) }
+							onChange={ this.handleHideMobileChange }
+						/>
+					</PanelBody>
+				</InspectorControls>
+			</Fragment>
 		);
 		function getExampleAd( formatting ) {
 			switch ( formatting ) {
