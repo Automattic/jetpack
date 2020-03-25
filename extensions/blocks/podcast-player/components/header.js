@@ -13,30 +13,11 @@ const Header = memo( ( { playerId, title, cover, link, track, children } ) => (
 				</div>
 			) : null }
 
-			<div className="jetpack-podcast-player__titles">
-				{ /* The track title and player title are bundled together here in one <h3> so that it looks like "Track title - Podcast Title" for the aria-labelledby and screen reader headings */ }
-				{ title || ( track && track.title ) ? (
-					<h2 id={ `${ playerId }__title` } className="jetpack-podcast-player__titles">
-						{ track && track.title ? (
-							<span className="jetpack-podcast-player__track-title">{ track.title }</span>
-						) : null }
-
-						{ /* Adds a visually hidden - when both a track and title are present */ }
-						{ track && track.title && title ? (
-							<span className="jetpack-podcast-player--visually-hidden"> - </span>
-						) : null }
-						{ title && link ? (
-							<span className="jetpack-podcast-player__title">
-								<a className="jetpack-podcast-player__title-link" href={ link }>
-									{ title }
-								</a>
-							</span>
-						) : (
-							<span className="jetpack-podcast-player__title">{ title }</span>
-						) }
-					</h2>
-				) : null }
-			</div>
+			{ title || ( track && track.title ) ? (
+				<div className="jetpack-podcast-player__titles">
+					<Title playerId={ playerId } title={ title } link={ link } track={ track } />
+				</div>
+			) : null }
 		</div>
 
 		{ /* putting this above the audio player for source order HTML with screen readers, then visually switching it with the audio player via flex */ }
@@ -53,5 +34,36 @@ const Header = memo( ( { playerId, title, cover, link, track, children } ) => (
 		{ children }
 	</div>
 ) );
+
+const Title = ( { playerId, title, link, track } ) => {
+	return (
+		<h2 id={ `${ playerId }__title` } className="jetpack-podcast-player__titles">
+			{ track && track.title ? (
+				<span className="jetpack-podcast-player__track-title">{ track.title }</span>
+			) : null }
+
+			{ /* Adds a visually hidden - when both a track and title are present */ }
+			{ track && track.title && title ? (
+				<span className="jetpack-podcast-player--visually-hidden"> - </span>
+			) : null }
+
+			{ title ? <PodcastTitle title={ title } link={ link } /> : null }
+		</h2>
+	);
+};
+
+const PodcastTitle = ( { title, link } ) => {
+	return (
+		<span className="jetpack-podcast-player__title">
+			{ link ? (
+				<a className="jetpack-podcast-player__title-link" href={ link }>
+					{ title }
+				</a>
+			) : (
+				title
+			) }
+		</span>
+	);
+};
 
 export default Header;
