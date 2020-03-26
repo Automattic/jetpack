@@ -114,7 +114,10 @@ class DashStatsBottom extends Component {
 										<Button
 											onClick={ this.trackViewWpcomStats }
 											className="is-primary"
-											href={ 'https://wordpress.com/stats/insights/' + this.props.siteRawUrl }
+											href={
+												'https://jetpack.com/redirect/?source=calypso-stats-insights&site=' +
+												this.props.siteRawUrl
+											}
 										/>
 									),
 								},

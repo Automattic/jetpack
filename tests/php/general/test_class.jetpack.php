@@ -1208,4 +1208,16 @@ EXPECTED;
 		);
 	}
 
+	/**
+	 * @group build_redirect_url
+	 */
+	public function test_build_redirect_url() {
+
+		$url = \Jetpack::build_redirect_url('simple');
+		$this->assertEquals( esc_url( 'https://jetpack.com/redirect?source=simple' ), $url );
+
+		//TODO: extend tests
+
+	}
+
 } // end class

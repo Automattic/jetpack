@@ -915,33 +915,39 @@ class Jetpack {
 		// Mapping the allowed CPTs on WordPress.com to corresponding paths in Calypso.
 		// https://en.support.wordpress.com/custom-post-types/
 		$allowed_post_types = array(
-			'post'                => 'post',
-			'page'                => 'page',
-			'jetpack-portfolio'   => 'edit/jetpack-portfolio',
-			'jetpack-testimonial' => 'edit/jetpack-testimonial',
+			'post',
+			'page',
+			'jetpack-portfolio',
+			'jetpack-testimonial',
 		);
 
-		if ( ! in_array( $post_type, array_keys( $allowed_post_types ) ) ) {
+		if ( ! in_array( $post_type, $allowed_post_types, true ) ) {
 			return $default_url;
 		}
 
-		$path_prefix = $allowed_post_types[ $post_type ];
-
 		$site_slug = self::build_raw_urls( get_home_url() );
 
-		return esc_url( sprintf( 'https://wordpress.com/%s/%s/%d', $path_prefix, $site_slug, $post_id ) );
+		return self::build_redirect_url(
+			'calypso-edit-' . $post_type,
+			array(
+				'site' => $site_slug,
+				'path' => $post_id,
+			)
+		);
 	}
 
 	function point_edit_comment_links_to_calypso( $url ) {
 		// Take the `query` key value from the URL, and parse its parts to the $query_args. `amp;c` matches the comment ID.
 		wp_parse_str( wp_parse_url( $url, PHP_URL_QUERY ), $query_args );
-		return esc_url(
-			sprintf(
-				'https://wordpress.com/comment/%s/%d',
-				self::build_raw_urls( get_home_url() ),
-				$query_args['amp;c']
+
+		return self::build_redirect_url(
+			'calypso-edit-comment',
+			array(
+				'site' => self::build_raw_urls( get_home_url() ),
+				'path' => $query_args['amp;c'],
 			)
 		);
+
 	}
 
 	function jetpack_track_last_sync_callback( $params ) {
@@ -6780,6 +6786,52 @@ endif;
 		$url        = preg_replace( $strip_http, '', $url );
 		$url        = str_replace( '/', '::', $url );
 		return $url;
+	}
+
+	/**
+	 * Builds an URL using the jetpack.com/redirect service
+	 *
+	 * @param string        $source The URL handler registered in the server
+	 * @param array|string  $args {
+	 *
+	 * 		Additional arguments to build the url
+	 *
+	 * 		@param string $site URL of the current site
+	 * 		@param string $path Additional path to be appended to the URL
+	 * 		@param string $query Query parameters to be added to the URL
+	 * 		@param string $anchor Anchor to be added to the URL
+
+	 * }
+	 *
+	 *
+	 * @return void
+	 */
+	public static function build_redirect_url( $source, $args = array() ) {
+
+		$url = 'https://jetpack.com/redirect';
+
+		$args = wp_parse_args($args);
+		$accepted = array( 'site', 'path', 'query', 'anchor' );
+
+		$add = array(
+			'source' => urlencode( $source )
+		);
+
+		foreach ( $args as $k => $arg ) {
+
+			if ( ! in_array( $k, $accepted, true ) || empty( $arg ) ) {
+				continue;
+			}
+
+			$add[$k] = urlencode( $arg );
+
+		}
+
+		if ( ! empty( $add ) ) {
+			$url = add_query_arg( $add, $url );
+		}
+
+		return esc_url( $url );
 	}
 
 	/**

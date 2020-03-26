@@ -288,7 +288,7 @@ if ( ! function_exists( 'wp_notify_moderator' ) && Jetpack::is_active() ) :
 		/* translators: Comment moderation. 1: Comment action URL */
 		$notify_message .= sprintf(
 			__( 'Approve it: %s' ), $moderate_on_wpcom
-			? "https://wordpress.com/comment/{$primary_site_slug}/{$comment_id}?action=approve"
+			? \Jetpack::build_redirect_url( 'calypso-edit-comment', array( 'site' => $primary_site_slug, 'path' => $comment_id, 'query' => 'action=approve' ) )
 			: admin_url( "comment.php?action=approve&c={$comment_id}#wpbody-content" )
 		) . "\r\n";
 
@@ -296,14 +296,14 @@ if ( ! function_exists( 'wp_notify_moderator' ) && Jetpack::is_active() ) :
 			/* translators: Comment moderation. 1: Comment action URL */
 			$notify_message .= sprintf(
 				__( 'Trash it: %s' ), $moderate_on_wpcom
-				? "https://wordpress.com/comment/{$primary_site_slug}/{$comment_id}?action=trash"
+				? \Jetpack::build_redirect_url( 'calypso-edit-comment', array( 'site' => $primary_site_slug, 'path' => $comment_id, 'query' => 'action=trash' ) )
 				: admin_url( "comment.php?action=trash&c={$comment_id}#wpbody-content" )
 			) . "\r\n";
 		} else {
 			/* translators: Comment moderation. 1: Comment action URL */
 			$notify_message .= sprintf(
 				__( 'Delete it: %s' ), $moderate_on_wpcom
-				? "https://wordpress.com/comment/{$primary_site_slug}/{$comment_id}?action=delete"
+				? \Jetpack::build_redirect_url( 'calypso-edit-comment', array( 'site' => $primary_site_slug, 'path' => $comment_id, 'query' => 'action=delete' ) )
 				: admin_url( "comment.php?action=delete&c={$comment_id}#wpbody-content" )
 			) . "\r\n";
 		}
@@ -311,7 +311,7 @@ if ( ! function_exists( 'wp_notify_moderator' ) && Jetpack::is_active() ) :
 		/* translators: Comment moderation. 1: Comment action URL */
 		$notify_message .= sprintf(
 			__( 'Spam it: %s' ), $moderate_on_wpcom
-			? "https://wordpress.com/comment/{$primary_site_slug}/{$comment_id}?action=spam"
+			? \Jetpack::build_redirect_url( 'calypso-edit-comment', array( 'site' => $primary_site_slug, 'path' => $comment_id, 'query' => 'action=spam' ) )
 			: admin_url( "comment.php?action=spam&c={$comment_id}#wpbody-content" )
 		) . "\r\n";
 
@@ -324,7 +324,7 @@ if ( ! function_exists( 'wp_notify_moderator' ) && Jetpack::is_active() ) :
 		) . "\r\n";
 
 		$notify_message .= $moderate_on_wpcom
-			? "https://wordpress.com/comments/pending/{$primary_site_slug}/"
+			? \Jetpack::build_redirect_url( 'calypso-pending-comments', array( 'site' => $primary_site_slug, ) )
 			: admin_url( 'edit-comments.php?comment_status=moderated#wpbody-content' ) . "\r\n";
 
 		/* translators: Comment moderation notification email subject. 1: Site name, 2: Post title */
