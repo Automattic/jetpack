@@ -20,13 +20,21 @@ const debug = debugFactory( 'jetpack:podcast-player' );
 const playerInstances = {};
 
 /**
+ * Downgrades the block to use the static markup as rendered on the server.
+ * @param {Element} block The root element of the block.
+ */
+const downgradeBlockToStatic = function( block ) {
+	block.classList.add( 'no-js' );
+};
+
+/**
  * Initialize player instance.
  * @param {string} id The id of the block element in document.
  */
 const initializeBlock = function( id ) {
 	// Find DOM node.
 	const block = document.getElementById( id );
-	debug( 'constructing', id, block );
+	debug( 'initializing', id, block );
 
 	// Check if we can find the block.
 	if ( ! block ) {
@@ -36,6 +44,7 @@ const initializeBlock = function( id ) {
 	// Load data from the embedded JSON.
 	const dataContainer = block.querySelector( 'script[type="application/json"]' );
 	if ( ! dataContainer ) {
+		downgradeBlockToStatic( block );
 		return;
 	}
 	let data;
@@ -43,25 +52,29 @@ const initializeBlock = function( id ) {
 		data = JSON.parse( dataContainer.text );
 	} catch ( e ) {
 		debug( 'error parsing json', e );
+		downgradeBlockToStatic( block );
 		return;
 	}
 
 	// Abort if not tracks found.
 	if ( ! data || ! data.tracks.length ) {
+		debug( 'no tracks found' );
+		downgradeBlockToStatic( block );
 		return;
 	}
 
-	// Prepare component.
-	const component = createElement( PodcastPlayer, {
-		...data,
-	} );
+	try {
+		// Prepare component.
+		const component = createElement( PodcastPlayer, {
+			...data,
+		} );
 
-	// Prepare mount point.
-	const div = document.createElement( 'div' );
-	block.appendChild( div );
-
-	// Render and save instance to the list of active ones.
-	playerInstances[ id ] = render( component, div );
+		// Render and save instance to the list of active ones.
+		playerInstances[ id ] = render( component, block );
+	} catch ( err ) {
+		debug( 'unable to render', err );
+		downgradeBlockToStatic( block );
+	}
 };
 
 // Initialize queued players.
