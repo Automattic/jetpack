@@ -15,7 +15,7 @@ import { STATE_PLAYING, STATE_ERROR, STATE_PAUSED } from '../constants';
 import Playlist from './playlist';
 import AudioPlayer from './audio-player';
 import Header from './header';
-import { getColorClassName } from '../util';
+import { getColorClassName } from '../utils';
 
 // const debug = debugFactory( 'jetpack:podcast-player' );
 const noop = () => {};
