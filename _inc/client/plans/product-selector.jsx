@@ -233,7 +233,7 @@ class ProductSelector extends Component {
 	renderSearchProduct() {
 		return (
 			<SingleProductSearch
-				isFetching={ this.props.isFetchingDataForSearch }
+				isFetching={ this.props.isFetchingData }
 				siteProducts={ this.props.siteProducts }
 			/>
 		);
@@ -250,8 +250,6 @@ class ProductSelector extends Component {
 }
 
 export default connect( state => {
-	const isFetchingData =
-		isFetchingSiteData( state ) || isFetchingProducts( state ) || ! getAvailablePlans( state );
 	return {
 		activeSitePurchases: getActiveSitePurchases( state ),
 		dailyBackupUpgradeUrl: getUpgradeUrl( state, 'jetpack-backup-daily' ),
@@ -261,8 +259,11 @@ export default connect( state => {
 		sitePlan: getSitePlan( state ),
 		siteProducts: getSiteProducts( state ),
 		siteRawlUrl: getSiteRawUrl( state ),
-		isFetchingData,
-		isFetchingDataForSearch: isFetchingData || isFetchingSiteProducts( state ),
+		isFetchingData:
+			isFetchingSiteData( state ) ||
+			isFetchingProducts( state ) ||
+			! getAvailablePlans( state ) ||
+			isFetchingSiteProducts( state ),
 		backupInfoUrl: getUpgradeUrl( state, 'aag-backups' ), // Redirect to https://jetpack.com/upgrade/backup/
 		isInstantSearchEnabled: !! get( state, 'jetpack.initialState.isInstantSearchEnabled', false ),
 	};
