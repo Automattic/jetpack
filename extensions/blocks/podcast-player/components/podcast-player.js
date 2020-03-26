@@ -1,7 +1,13 @@
 /**
  * External dependencies
  */
+import classnames from 'classnames';
+
+/**
+ * WordPress dependencies
+ */
 import { Component } from '@wordpress/element';
+import { getColorClassName } from '@wordpress/block-editor';
 
 /**
  * Internal dependencies
@@ -132,24 +138,35 @@ export class PodcastPlayer extends Component {
 	setAudioSource = noop;
 
 	render() {
+		const { playerId, title, link, cover, tracks, attributes } = this.props;
 		const {
-			playerId,
-			title,
-			link,
-			cover,
-			tracks,
 			itemsToShow,
+			secondaryColor,
+			customSecondaryColor,
+			backgroundColor,
+			customBackgroundColor,
 			showCoverArt,
 			showEpisodeDescription,
-		} = this.props;
+		} = attributes;
 		const { playerState, currentTrack } = this.state;
 
 		const tracksToDisplay = tracks.slice( 0, itemsToShow );
 		const track = this.getTrack( currentTrack );
 
+		// Set CSS classes string.
+		const secondaryColorClass = getColorClassName( 'color', secondaryColor );
+		const backgroundColorClass = getColorClassName( 'background-color', backgroundColor );
+
+		const cssClassesName = classnames( playerState, {
+			'has-primary': ! secondaryColorClass && ! customSecondaryColor,
+			[ secondaryColorClass ]: secondaryColorClass,
+			'has-background': backgroundColor && ! customBackgroundColor,
+			[ backgroundColorClass ]: backgroundColorClass,
+		} );
+
 		return (
 			<section
-				className={ playerState }
+				className={ cssClassesName }
 				aria-labelledby={ title || ( track && track.title ) ? `${ playerId }__title` : undefined }
 				aria-describedby={
 					track && track.description ? `${ playerId }__track-description` : undefined
