@@ -51,9 +51,9 @@ function handleSelectedTimeframeChangeFactory( setTimeframe ) {
 export function SingleProductSearchCard( props ) {
 	const [ timeframe, setTimeframe ] = useState( 'yearly' );
 	const handleSelectedTimeframeChange = handleSelectedTimeframeChangeFactory( setTimeframe );
-	const currencyCode = get( props.products, 'jetpack_search.currency_code', '' );
-	const monthlyPrice = get( props.products, 'jetpack_search_monthly.cost', '' );
-	const yearlyPrice = get( props.products, 'jetpack_search.cost', '' );
+	const currencyCode = get( props.siteProducts, 'jetpack_search.currency_code', '' );
+	const monthlyPrice = get( props.siteProducts, 'jetpack_search_monthly.cost', '' );
+	const yearlyPrice = get( props.siteProducts, 'jetpack_search.cost', '' );
 	const recordCount = get( props.siteProducts, 'jetpack_search.price_tier_usage_quantity', '0' );
 
 	return props.isFetching ? (

@@ -234,7 +234,6 @@ class ProductSelector extends Component {
 		return (
 			<SingleProductSearch
 				isFetching={ this.props.isFetchingDataForSearch }
-				products={ this.props.products }
 				siteProducts={ this.props.siteProducts }
 			/>
 		);
