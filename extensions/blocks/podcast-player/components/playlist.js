@@ -64,24 +64,34 @@ const Track = memo(
 		const secondaryColorClass = getColorClassName( 'color', secondaryColor );
 		const trackClassName = classnames( 'jetpack-podcast-player__episode', {
 			'is-active': isActive,
-			'has-primary': isActive && primaryColor && ! customPrimaryColor,
+			'has-primary': isActive && ( primaryColor || customPrimaryColor ),
 			[ primaryColorClass ]: isActive && !! primaryColorClass,
-			'has-secondary': ! isActive && secondaryColor && ! customSecondaryColor,
-			[ secondaryColorClass ]: ! isActive && !! primaryColorClass,
+			'has-secondary': ! isActive && ( secondaryColor && customSecondaryColor ),
+			[ secondaryColorClass ]: ! isActive && !! secondaryColorClass,
 		} );
 
-	return (
-		<li className={ trackClassName }>
-			<a
-				className="jetpack-podcast-player__episode-link"
-				href={ track.link }
-				role="button"
-				aria-pressed="false"
-				onClick={ e => {
-					// Prevent handling clicks if a modifier is in use.
-					if ( e.shiftKey || e.metaKey || e.altKey ) {
-						return;
-					}
+		const inlineStyle = {};
+		if ( isActive && customPrimaryColor && ! primaryColorClass ) {
+			inlineStyle.color = customPrimaryColor;
+		} else if ( ! isActive && customSecondaryColor && ! secondaryColorClass ) {
+			inlineStyle.color = customSecondaryColor;
+		}
+
+		return (
+			<li
+				className={ trackClassName }
+				style={ Object.keys( inlineStyle ).length ? inlineStyle : null }
+			>
+				<a
+					className="jetpack-podcast-player__episode-link"
+					href={ track.link }
+					role="button"
+					aria-pressed="false"
+					onClick={ e => {
+						// Prevent handling clicks if a modifier is in use.
+						if ( e.shiftKey || e.metaKey || e.altKey ) {
+							return;
+						}
 
 					// Prevent default behavior (opening a link).
 					e.preventDefault();
