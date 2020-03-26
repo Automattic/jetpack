@@ -15,6 +15,7 @@ const EpisodeIcon = ( { name, title, children } ) => {
 			xmlns="http://www.w3.org/2000/svg"
 			role="img"
 			aria-labelledby={ id }
+			aria-hidden={ undefined }
 		>
 			<title id={ id }>{ title }</title>
 			{ children }
