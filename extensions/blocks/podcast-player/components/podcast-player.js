@@ -203,10 +203,16 @@ export class PodcastPlayer extends Component {
 					currentTrack={ currentTrack }
 					tracks={ tracksToDisplay }
 					selectTrack={ this.selectTrack }
-					primaryColor={ primaryColor }
-					customPrimaryColor={ customPrimaryColor }
-					secondaryColor={ secondaryColor }
-					customSecondaryColor={ customSecondaryColor }
+					colors={ {
+						primary: {
+							name: primaryColor,
+							custom: customPrimaryColor,
+						},
+						secondary: {
+							name: secondaryColor,
+							custom: customSecondaryColor,
+						},
+					} }
 				/>
 			</section>
 		);

@@ -59,27 +59,27 @@ const Track = memo(
 		isError,
 		selectTrack,
 		index,
-		primaryColor,
-		customPrimaryColor,
-		secondaryColor,
-		customSecondaryColor,
+		colors = {
+			primary: {},
+			secondary: {},
+		},
 	} ) => {
 		// Set CSS classes string.
-		const primaryColorClass = getColorClassName( 'color', primaryColor );
-		const secondaryColorClass = getColorClassName( 'color', secondaryColor );
+		const primaryColorClass = getColorClassName( 'color', colors.primary.name );
+		const secondaryColorClass = getColorClassName( 'color', colors.secondary.name );
 		const trackClassName = classnames( 'jetpack-podcast-player__episode', {
 			'is-active': isActive,
-			'has-primary': isActive && ( primaryColor || customPrimaryColor ),
+			'has-primary': isActive && ( colors.primary.name || colors.primary.custom ),
 			[ primaryColorClass ]: isActive && !! primaryColorClass,
-			'has-secondary': ! isActive && ( secondaryColor || customSecondaryColor ),
+			'has-secondary': ! isActive && ( colors.secondary.name || colors.secondary.custom ),
 			[ secondaryColorClass ]: ! isActive && !! secondaryColorClass,
 		} );
 
 		const inlineStyle = {};
-		if ( isActive && customPrimaryColor && ! primaryColorClass ) {
-			inlineStyle.color = customPrimaryColor;
-		} else if ( ! isActive && customSecondaryColor && ! secondaryColorClass ) {
-			inlineStyle.color = customSecondaryColor;
+		if ( isActive && colors.primary.custom && ! primaryColorClass ) {
+			inlineStyle.color = colors.primary.custom;
+		} else if ( ! isActive && colors.secondary.custom && ! secondaryColorClass ) {
+			inlineStyle.color = colors.secondary.custom;
 		}
 
 		return (
@@ -138,10 +138,7 @@ const Playlist = memo(
 		selectTrack,
 		currentTrack,
 		playerState,
-		primaryColor,
-		customPrimaryColor,
-		secondaryColor,
-		customSecondaryColor,
+		colors,
 	} ) => {
 		return (
 			<ol className="jetpack-podcast-player__episodes">
@@ -157,10 +154,7 @@ const Playlist = memo(
 						isActive={ isActive }
 						isPlaying={ isActive && playerState === STATE_PLAYING }
 						isError={ isActive && playerState === STATE_ERROR }
-						primaryColor={ primaryColor }
-						customPrimaryColor={ customPrimaryColor }
-						secondaryColor={ secondaryColor }
-						customSecondaryColor={ customSecondaryColor }
+						colors={ colors }
 					/>
 				);
 			} ) }
