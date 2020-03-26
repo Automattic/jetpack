@@ -20,6 +20,16 @@
 		}
 	}
 
+	&.wp-block-jetpack-subscriptions__newline {
+		.wp-block-jetpack-subscriptions__form {
+			display: block;
+		}
+
+		.wp-block-jetpack-subscriptions__button {
+			display: inline-block;
+		}
+	}
+
 	.wp-block-jetpack-subscriptions__subscount {
 		margin: 5px 0 0 5px;
 	}

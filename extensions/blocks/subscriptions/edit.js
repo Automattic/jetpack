@@ -77,6 +77,7 @@ function SubscriptionEdit( props ) {
 		submitButtonText,
 		subscribePlaceholder,
 		showSubscribersTotal,
+		buttonOnNewLine,
 	} = attributes;
 
 	const MIN_BORDER_RADIUS_VALUE = 0;
@@ -153,10 +154,10 @@ function SubscriptionEdit( props ) {
 		...( ! buttonBackgroundColor.color && buttonGradient.gradientValue
 			? { background: buttonGradient.gradientValue }
 			: { backgroundColor: buttonBackgroundColor.color } ),
-		marginLeft: spacing + 'px',
+		...( buttonOnNewLine ? { marginTop: spacing + 'px' } : { marginLeft: spacing + 'px' } ),
 	};
 
-	const get_subscriber_count = () => {
+	const getSubscriberCount = () => {
 		apiFetch( { path: '/wpcom/v2/subscribers/count' } ).then( count => {
 			// Handle error condition
 			if ( ! count.hasOwnProperty( 'count' ) ) {
@@ -172,8 +173,16 @@ function SubscriptionEdit( props ) {
 		} );
 	};
 
+	const getBlockClassName = () => {
+		if ( buttonOnNewLine ) {
+			return classnames( className, 'wp-block-jetpack-subscriptions__newline' );
+		}
+
+		return className;
+	};
+
 	useEffect( () => {
-		get_subscriber_count();
+		getSubscriberCount();
 	}, [] );
 
 	return (
@@ -247,7 +256,7 @@ function SubscriptionEdit( props ) {
 					initialOpen={ false }
 					className="wp-block-jetpack-subscriptions__textpanel"
 				>
-					<FontSizePicker value={ fontSize.size } onChange={ setFontSize } withSlider={ true } />
+					<FontSizePicker value={ fontSize.size } onChange={ setFontSize } />
 
 					<PanelColorSettings
 						title={ __( '', 'jetpack' ) }
@@ -341,15 +350,15 @@ function SubscriptionEdit( props ) {
 
 					<ToggleControl
 						label={ __( 'Place button on new line', 'jetpack' ) }
-						checked={ showSubscribersTotal }
+						checked={ buttonOnNewLine }
 						onChange={ () => {
-							setAttributes( { showSubscribersTotal: ! showSubscribersTotal } );
+							setAttributes( { buttonOnNewLine: ! buttonOnNewLine } );
 						} }
 					/>
 				</PanelBody>
 			</InspectorControls>
 
-			<div className={ className }>
+			<div className={ getBlockClassName() }>
 				<div className="wp-block-jetpack-subscriptions__form" role="form">
 					<TextControl
 						placeholder={ subscribePlaceholder }

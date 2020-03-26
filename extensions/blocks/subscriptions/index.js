@@ -45,6 +45,10 @@ export const settings = {
 			type: 'boolean',
 			default: false,
 		},
+		buttonOnNewLine: {
+			type: 'boolean',
+			default: false,
+		},
 		submitButtonText: {
 			type: 'string',
 			default: __( 'Sign Up', 'jetpack' ),
