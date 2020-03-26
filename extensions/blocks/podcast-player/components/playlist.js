@@ -24,7 +24,7 @@ const TrackIcon = ( { isPlaying, isError, className } ) => {
 
 	if ( ! icon ) {
 		// Return empty element - we need it for layout purposes.
-		return <span className={ className } aria-hidden="true" />;
+		return <span className={ className } />;
 	}
 
 	return <span className={ `${ className } ${ className }--${ name }` }>{ icon }</span>;
