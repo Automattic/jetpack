@@ -7,7 +7,6 @@ import classnames from 'classnames';
  * WordPress dependencies
  */
 import { Component } from '@wordpress/element';
-import { getColorClassName } from '../util';
 
 /**
  * Internal dependencies
@@ -16,6 +15,7 @@ import { STATE_PLAYING, STATE_ERROR, STATE_PAUSED } from '../constants';
 import Playlist from './playlist';
 import AudioPlayer from './audio-player';
 import Header from './header';
+import { getColorClassName } from '../util';
 
 // const debug = debugFactory( 'jetpack:podcast-player' );
 const noop = () => {};

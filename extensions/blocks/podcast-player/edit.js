@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import debugFactory from 'debug';
 
 /**
  * WordPress dependencies
@@ -31,7 +32,6 @@ import {
 
 import apiFetch from '@wordpress/api-fetch';
 import { isURL } from '@wordpress/url';
-import debugFactory from 'debug';
 
 /**
  * Internal dependencies

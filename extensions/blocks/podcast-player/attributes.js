@@ -1,6 +1,10 @@
 /**
  * External dependencies
  */
+
+/**
+ * WordPress dependencies
+ */
 import { isUrl } from '@wordpress/url';
 
 export default {

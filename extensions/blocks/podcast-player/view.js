@@ -3,13 +3,18 @@
  * External dependencies
  */
 import debugFactory from 'debug';
+
+/**
+ * WordPress dependencies
+ */
 import { render, createElement } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
-import './style.scss';
 import PodcastPlayer from './components/podcast-player';
+
+import './style.scss';
 
 const debug = debugFactory( 'jetpack:podcast-player' );
 const playerInstances = {};

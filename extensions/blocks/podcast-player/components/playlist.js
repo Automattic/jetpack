@@ -1,10 +1,13 @@
 /**
- * WordPress dependencies
+ * External dependencies
  */
 import classnames from 'classnames';
+
+/**
+ * WordPress dependencies
+ */
 import { memo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { getColorClassName } from '../util';
 
 /**
  * Internal dependencies
@@ -30,6 +33,8 @@ const TrackIcon = ( { isPlaying, isError, className } ) => {
 
 	return <span className={ `${ className } ${ className }--${ name }` }>{ icon }</span>;
 };
+
+import { getColorClassName } from '../util';
 
 const TrackError = memo( ( { link } ) => (
 	<div className="jetpack-podcast-player__episode-error">
