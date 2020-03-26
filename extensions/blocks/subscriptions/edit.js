@@ -50,14 +50,6 @@ const applyFallbackStyles = withFallbackStyles( ( node, ownProps ) => {
 	};
 } );
 
-const MIN_BORDER_RADIUS_VALUE = 0;
-const MAX_BORDER_RADIUS_VALUE = 50;
-const INITIAL_BORDER_RADIUS_POSITION = 5;
-
-const MIN_BORDER_WEIGHT_VALUE = 0;
-const MAX_BORDER_WEIGHT_VALUE = 15;
-const INITIAL_BORDER_WEIGHT_POSITION = 5;
-
 function SubscriptionEdit( props ) {
 	const {
 		className,
@@ -80,10 +72,21 @@ function SubscriptionEdit( props ) {
 	const {
 		borderRadius,
 		borderWeight,
+		padding,
+		spacing,
 		submitButtonText,
 		subscribePlaceholder,
 		showSubscribersTotal,
 	} = attributes;
+
+	const MIN_BORDER_RADIUS_VALUE = 0;
+	const MAX_BORDER_RADIUS_VALUE = 50;
+	const MIN_BORDER_WEIGHT_VALUE = 0;
+	const MAX_BORDER_WEIGHT_VALUE = 15;
+	const MIN_PADDING_VALUE = 5;
+	const MAX_PADDING_VALUE = 50;
+	const MIN_SPACING_VALUE = 0;
+	const MAX_SPACING_VALUE = 50;
 
 	const [ subscriberCountString, setSubscriberCountString ] = useState( '' );
 	const emailFieldGradient = isGradientAvailable
@@ -124,9 +127,10 @@ function SubscriptionEdit( props ) {
 	const sharedStyles = {
 		color: textColor.color,
 		borderColor: borderColor.color,
-		borderRadius: borderRadius ? borderRadius + 'px' : 0,
-		borderWidth: borderWeight ? borderWeight + 'px' : 0,
-		fontSize: fontSize.size ? fontSize.size + 'px' : undefined,
+		borderRadius: borderRadius + 'px',
+		borderWidth: borderWeight + 'px',
+		fontSize: fontSize.size + 'px',
+		padding: padding + 'px',
 	};
 
 	const emailFieldStyles = {
@@ -141,6 +145,7 @@ function SubscriptionEdit( props ) {
 		...( ! buttonBackgroundColor.color && buttonGradient.gradientValue
 			? { background: buttonGradient.gradientValue }
 			: { backgroundColor: buttonBackgroundColor.color } ),
+		marginLeft: spacing + 'px',
 	};
 
 	const get_subscriber_count = () => {
@@ -259,7 +264,7 @@ function SubscriptionEdit( props ) {
 						label={ __( 'Border Radius', 'jetpack' ) }
 						min={ MIN_BORDER_RADIUS_VALUE }
 						max={ MAX_BORDER_RADIUS_VALUE }
-						initialPosition={ INITIAL_BORDER_RADIUS_POSITION }
+						initialPosition={ borderRadius.default }
 						allowReset
 						onChange={ newBorderRadius => setAttributes( { borderRadius: newBorderRadius } ) }
 					/>
@@ -269,7 +274,7 @@ function SubscriptionEdit( props ) {
 						label={ __( 'Border Weight', 'jetpack' ) }
 						min={ MIN_BORDER_WEIGHT_VALUE }
 						max={ MAX_BORDER_WEIGHT_VALUE }
-						initialPosition={ INITIAL_BORDER_WEIGHT_POSITION }
+						initialPosition={ borderWeight.default }
 						allowReset
 						onChange={ newBorderWeight => setAttributes( { borderWeight: newBorderWeight } ) }
 					/>
@@ -293,23 +298,23 @@ function SubscriptionEdit( props ) {
 					className="wp-block-jetpack-subscriptions__spacingpanel"
 				>
 					<RangeControl
-						value={ borderRadius }
+						value={ padding }
 						label={ __( 'Space Inside', 'jetpack' ) }
-						min={ MIN_BORDER_RADIUS_VALUE }
-						max={ MAX_BORDER_RADIUS_VALUE }
-						initialPosition={ INITIAL_BORDER_RADIUS_POSITION }
+						min={ MIN_PADDING_VALUE }
+						max={ MAX_PADDING_VALUE }
+						initialPosition={ padding.default }
 						allowReset
-						onChange={ newBorderRadius => setAttributes( { borderRadius: newBorderRadius } ) }
+						onChange={ newPaddingValue => setAttributes( { padding: newPaddingValue } ) }
 					/>
 
 					<RangeControl
-						value={ borderRadius }
+						value={ spacing }
 						label={ __( 'Space Between', 'jetpack' ) }
-						min={ MIN_BORDER_RADIUS_VALUE }
-						max={ MAX_BORDER_RADIUS_VALUE }
-						initialPosition={ INITIAL_BORDER_RADIUS_POSITION }
+						min={ MIN_SPACING_VALUE }
+						max={ MAX_SPACING_VALUE }
+						initialPosition={ spacing.default }
 						allowReset
-						onChange={ newBorderRadius => setAttributes( { borderRadius: newBorderRadius } ) }
+						onChange={ newSpacingValue => setAttributes( { spacing: newSpacingValue } ) }
 					/>
 				</PanelBody>
 

@@ -84,18 +84,29 @@ export const settings = {
 		},
 		customFontSize: {
 			type: 'number',
+			default: 20,
 		},
 		borderRadius: {
 			type: 'number',
+			default: 6,
 		},
 		borderWeight: {
 			type: 'number',
+			default: 2,
 		},
 		borderColor: {
 			type: 'string',
 		},
 		customBorderColor: {
 			type: 'string',
+		},
+		padding: {
+			type: 'number',
+			default: 15,
+		},
+		spacing: {
+			type: 'number',
+			default: 10,
 		},
 	},
 	edit,
