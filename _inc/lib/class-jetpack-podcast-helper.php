@@ -133,6 +133,9 @@ class Jetpack_Podcast_Helper {
 	private static function setup_tracks_callback( SimplePie_Item $episode ) {
 		$enclosure = self::get_audio_enclosure( $episode );
 
+		// If the audio enclosure is empty then it is not playable.
+		// We therefore return an empty array for this track.
+		// It will be filtered out later.
 		if ( is_wp_error( $enclosure ) ) {
 			return array();
 		}
