@@ -61,9 +61,12 @@ export default {
 	migrate: oldAttributes => {
 		// If the old block has classNames set, clean up any old "is-style-*" classes
 		// that will clash with the new one we're adding.
-		const className =
+		const className = (
 			( oldAttributes.className || '' ).replace( /is-style-[^ ]+/, '' ) +
-			` is-style-${ oldAttributes.mapStyle }`;
+			` is-style-${ oldAttributes.mapStyle }`
+		)
+			.replace( /\s+/g, ' ' )
+			.trim();
 		return {
 			...omit( oldAttributes, 'mapStyle' ),
 			className,
