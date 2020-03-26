@@ -243,15 +243,11 @@ const PodcastPlayerEdit = ( {
 					] }
 				>
 					<ContrastChecker
-						{ ...{
-							// Text is considered large if font size is greater or equal to 18pt or 24px,
-							// currently that's not the case for button.
-							isLargeText: false,
-							primaryColor: primaryColorProp.color,
-							backgroundColor: backgroundColorProp.color,
-							fallbackBackgroundColor,
-							fallbackTextColor,
-						} }
+						isLargeText={ false }
+						textColor={ secondaryColorProp.color }
+						backgroundColor={ backgroundColorProp.color }
+						fallbackBackgroundColor
+						fallbackTextColor
 					/>
 				</PanelColorSettings>
 			</InspectorControls>
