@@ -132,7 +132,16 @@ export class PodcastPlayer extends Component {
 	setAudioSource = noop;
 
 	render() {
-		const { playerId, title, link, cover, tracks, itemsToShow } = this.props;
+		const {
+			playerId,
+			title,
+			link,
+			cover,
+			tracks,
+			itemsToShow,
+			showCoverArt,
+			showEpisodeDescription,
+		} = this.props;
 		const { playerState, currentTrack } = this.state;
 
 		const tracksToDisplay = tracks.slice( 0, itemsToShow );
@@ -152,6 +161,8 @@ export class PodcastPlayer extends Component {
 					link={ link }
 					cover={ cover }
 					track={ this.getTrack( currentTrack ) }
+					showCoverArt={ showCoverArt }
+					showEpisodeDescription={ showEpisodeDescription }
 				>
 					<AudioPlayer
 						initialTrackSource={ this.getTrack( 0 ).src }

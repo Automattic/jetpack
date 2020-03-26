@@ -3,37 +3,39 @@
  */
 import { memo } from '@wordpress/element';
 
-const Header = memo( ( { playerId, title, cover, link, track, children } ) => (
-	<div className="jetpack-podcast-player__header-wrapper">
-		<div className="jetpack-podcast-player__header" aria-live="polite">
-			{ cover ? (
-				<div className="jetpack-podcast-player__track-image-wrapper">
-					{ /* alt="" will prevent the src from being announced. Ideally we'd have a cover.alt, but we can't get that from the RSS */ }
-					<img className="jetpack-podcast-player__track-image" src={ cover } alt="" />
-				</div>
-			) : null }
+const Header = memo(
+	( { playerId, title, cover, link, track, children, showCoverArt, showEpisodeDescription } ) => (
+		<div className="jetpack-podcast-player__header-wrapper">
+			<div className="jetpack-podcast-player__header" aria-live="polite">
+				{ showCoverArt && cover ? (
+					<div className="jetpack-podcast-player__track-image-wrapper">
+						{ /* alt="" will prevent the src from being announced. Ideally we'd have a cover.alt, but we can't get that from the RSS */ }
+						<img className="jetpack-podcast-player__track-image" src={ cover } alt="" />
+					</div>
+				) : null }
 
-			{ title || ( track && track.title ) ? (
-				<div className="jetpack-podcast-player__titles">
-					<Title playerId={ playerId } title={ title } link={ link } track={ track } />
-				</div>
-			) : null }
-		</div>
-
-		{ /* putting this above the audio player for source order HTML with screen readers, then visually switching it with the audio player via flex */ }
-		{ track && track.description ? (
-			<div
-				id={ `${ playerId }__track-description` }
-				className="jetpack-podcast-player__track-description"
-			>
-				{ track.description }
+				{ title || ( track && track.title ) ? (
+					<div className="jetpack-podcast-player__titles">
+						<Title playerId={ playerId } title={ title } link={ link } track={ track } />
+					</div>
+				) : null }
 			</div>
-		) : null }
 
-		{ /* children contains the audio player */ }
-		{ children }
-	</div>
-) );
+			{ /* putting this above the audio player for source order HTML with screen readers, then visually switching it with the audio player via flex */ }
+			{ showEpisodeDescription && track && track.description ? (
+				<div
+					id={ `${ playerId }__track-description` }
+					className="jetpack-podcast-player__track-description"
+				>
+					{ track.description }
+				</div>
+			) : null }
+
+			{ /* children contains the audio player */ }
+			{ children }
+		</div>
+	)
+);
 
 const Title = memo( ( { playerId, title, link, track } ) => (
 	<h2 id={ `${ playerId }__title` } className="jetpack-podcast-player__titles">
