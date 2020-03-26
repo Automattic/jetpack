@@ -58,12 +58,14 @@ class Plugins_Handler {
 	}
 
 	/**
-	 * Checks whether the current plugin is active.
+	 * Checks whether the current plugin is active or activating via a request. Note that
+	 * this method will return false if the plugin is activating via a direct call to
+	 * activate_plugin().
 	 *
 	 * @return Boolean True if the current plugin is active, else False.
 	 */
 	public function is_current_plugin_active() {
-		$active_plugins = (array) get_option( 'active_plugins', array() );
+		$active_plugins = $this->get_active_plugins();
 		$current_plugin = $this->get_current_plugin();
 
 		return in_array( $current_plugin, $active_plugins, true );
