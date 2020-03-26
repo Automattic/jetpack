@@ -137,7 +137,13 @@ function render_player( $player_data, $attributes ) {
 		</ol>
 		<script type="application/json"><?php echo wp_json_encode( $player_props ); ?></script>
 	</div>
-	<script>window.jetpackPodcastPlayers=(window.jetpackPodcastPlayers||[]);window.jetpackPodcastPlayers.push( <?php echo wp_json_encode( $instance_id ); ?> );</script>
+	<script>
+		( function( instanceId ) {
+			document.getElementById( instanceId ).classList.remove( 'no-js' );
+			window.jetpackPodcastPlayers=(window.jetpackPodcastPlayers||[]);
+			window.jetpackPodcastPlayers.push( instanceId );
+		} )( <?php echo wp_json_encode( $instance_id ); ?> );
+	</script>
 	<?php
 	/**
 	 * Enqueue necessary scripts and styles.
