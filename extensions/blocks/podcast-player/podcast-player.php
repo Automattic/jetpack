@@ -161,3 +161,19 @@ function render_player( $player_data, $attributes ) {
 
 	return ob_get_clean();
 }
+
+/**
+ * Returns a CSS class based on the context a color is being used and its slug.
+ *
+ * @param string $color_context_name Context/place where color is being used e.g: background, text etc...
+ * @param string $color_slug         Slug of the color.
+ *
+ * @return string String with the class corresponding to the color in the provided context.
+ */
+function get_color_class_name( $color_context_name, $color_slug ) {
+	if ( ! isset( $color_context_name ) || ! isset( $color_slug ) ) {
+		return '';
+	}
+
+	return "has-${color_slug}-${color_context_name}";
+}
