@@ -309,28 +309,15 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			case 'user_can_manage' :
 				$response[ $key ] = $this->site->user_can_manage();
 			case 'is_private' :
-				/**
-				 * Filters the value of `is_private` value about the site to return.
-				 *
-				 * @module json-api
-				 *
-				 * @since 8.4.0
-				 *
-				 * @param bool $is_private Is site private.
-				 */
-				$response[ $key ] = apply_filters( 'sites_site_is_private', $this->site->is_private() );
+				$response[ $key ] = $this->site->is_private();
 				break;
 			case 'is_coming_soon' :
-				/**
-				 * Filters the value of `is_coming_soon` value about the site to return.
-				 *
-				 * @module json-api
-				 *
-				 * @since 8.4.0
-				 *
-				 * @param bool $is_coming_soon Is site in the Coming Soon mode.
-				 */
-				$response[ $key ] = apply_filters( 'sites_site_is_coming_soon', false );
+				// This option is stored on wp.com for both simple and atomic sites. @see mu-plugins/private-blog.php
+				$response[ $key ] = $this->site->is_coming_soon();;
+				break;
+			case 'launch_status' :
+				$response[ $key ] = $this->site->get_launch_status();
+				break;
 			case 'visible' :
 				$response[ $key ] = $this->site->is_visible();
 				break;
@@ -403,9 +390,6 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				break;
 			case 'quota' :
 				$response[ $key ] = $this->site->get_quota();
-				break;
-			case 'launch_status' :
-				$response[ $key ] = $this->site->get_launch_status();
 				break;
 			case 'site_migration' :
 				$response[ $key ] = $this->site->get_migration_meta();
