@@ -157,6 +157,7 @@ $block-border-color: $dark-gray-100;
 		color: $text-color-hover;
 	}
 
+
 	.jetpack-podcast-player__episode-link {
 		display: flex;
 		flex-flow: row nowrap;
@@ -173,8 +174,8 @@ $block-border-color: $dark-gray-100;
 	}
 
 
-	&.is-active.has-primary .podcast-player__episode-link,
-	&.has-secondary .podcast-player__episode-link {
+	&.is-active.has-primary .jetpack-podcast-player__episode-link,
+	&.has-secondary .jetpack-podcast-player__episode-link {
 		color: inherit;
 	}
 }

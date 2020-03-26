@@ -66,7 +66,7 @@ const Track = memo(
 			'is-active': isActive,
 			'has-primary': isActive && ( primaryColor || customPrimaryColor ),
 			[ primaryColorClass ]: isActive && !! primaryColorClass,
-			'has-secondary': ! isActive && secondaryColor && customSecondaryColor,
+			'has-secondary': ! isActive && ( secondaryColor || customSecondaryColor ),
 			[ secondaryColorClass ]: ! isActive && !! secondaryColorClass,
 		} );
 
