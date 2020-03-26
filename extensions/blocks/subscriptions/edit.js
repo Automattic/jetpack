@@ -337,8 +337,6 @@ function SubscriptionEdit( props ) {
 			</InspectorControls>
 
 			<div className={ className } role="form">
-				{ showSubscribersTotal && <p role="heading">{ subscriberCountString }</p> }
-
 				<TextControl
 					placeholder={ subscribePlaceholder }
 					disabled={ true }
@@ -355,6 +353,8 @@ function SubscriptionEdit( props ) {
 					value={ submitButtonText }
 					withoutInteractiveFormatting
 				/>
+
+				{ showSubscribersTotal && <p role="heading">{ subscriberCountString }</p> }
 			</div>
 		</>
 	);
