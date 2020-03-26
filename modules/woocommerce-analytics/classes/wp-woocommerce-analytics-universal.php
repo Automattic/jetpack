@@ -431,7 +431,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	public static function post_contains_text( $post_id, $text ) {
 		global $wpdb;
 
-			// Search for the text anywhere in the post.
+		// Search for the text anywhere in the post.
 		$wildcarded = "%{$text}%";
 
 		$result = $wpdb->get_var(
@@ -459,7 +459,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	 * @return array
 	 */
 	public static function get_cart_checkout_info() {
-		$info = get_transient( 'jetpack-woocommerce-analytics-cart-checkout-info-cache' );
+		$info = get_transient( 'jetpack_woocommerce_analytics_cart_checkout_info_cache' );
 
 		if ( false === $info ) {
 			$cart_page_id     = wc_get_page_id( 'cart' );
