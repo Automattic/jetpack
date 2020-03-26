@@ -26,7 +26,7 @@ class Jetpack_Podcast_Helper {
 		$player_data   = get_transient( $transient_key );
 
 		// Fetch data if we don't have any cached.
-		if ( false === $player_data ) {
+		if ( false === $player_data || ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ) {
 			// Load feed.
 			$rss = self::load_feed( $feed );
 			if ( is_wp_error( $rss ) ) {
@@ -70,8 +70,15 @@ class Jetpack_Podcast_Helper {
 		// Get first ten items and format them.
 		$track_list = array_map( array( __CLASS__, 'setup_tracks_callback' ), $rss->get_items( 0, 10 ) );
 
+		$audio_extensions = wp_get_audio_extensions();
+
 		// Remove empty tracks.
-		return array_filter( $track_list );
+		return array_filter(
+			$track_list,
+			function( $track ) use ( $audio_extensions ) {
+				return ! empty( $track['url'] ) && in_array( wp_check_filetype( $track['url'] ), $audio_extensions, true );
+			}
+		);
 	}
 
 	/**
