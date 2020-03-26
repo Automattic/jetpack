@@ -166,9 +166,16 @@ export class PodcastPlayer extends Component {
 			[ backgroundColorClass ]: backgroundColorClass,
 		} );
 
+		const inlineStyle = {
+			color: customSecondaryColor && ! secondaryColorClass ? customSecondaryColor : null,
+			backgroundColor:
+				customBackgroundColor && ! backgroundColorClass ? customBackgroundColor : null,
+		};
+
 		return (
 			<section
 				className={ cssClassesName }
+				style={ Object.keys( inlineStyle ).length ? inlineStyle : null }
 				aria-labelledby={ title || ( track && track.title ) ? `${ playerId }__title` : undefined }
 				aria-describedby={
 					track && track.description ? `${ playerId }__track-description` : undefined
