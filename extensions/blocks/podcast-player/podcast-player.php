@@ -118,25 +118,23 @@ function render_player( $player_data, $attributes ) {
 
 	ob_start();
 	?>
-	<div class="<?php echo esc_attr( $block_classname ); ?>" id="<?php echo esc_attr( $instance_id ); ?>">
-		<noscript>
-			<ol class="jetpack-podcast-player__episodes">
-				<?php foreach ( $player_data['tracks'] as $attachment ) : ?>
-				<li class="jetpack-podcast-player__episode">
-					<a
-						class="jetpack-podcast-player__episode-link"
-						href="<?php echo esc_url( $attachment['link'] ); ?>"
-						role="button"
-						aria-pressed="false"
-					>
-						<span class="jetpack-podcast-player__episode-status-icon"></span>
-						<span class="jetpack-podcast-player__episode-title"><?php echo esc_html( $attachment['title'] ); ?></span>
-						<time class="jetpack-podcast-player__episode-duration"><?php echo ( ! empty( $attachment['duration'] ) ? esc_html( $attachment['duration'] ) : '' ); ?></time>
-					</a>
-				</li>
-				<?php endforeach; ?>
-			</ol>
-		</noscript>
+	<div class="<?php echo esc_attr( $block_classname ); ?> no-js" id="<?php echo esc_attr( $instance_id ); ?>">
+		<ol class="jetpack-podcast-player__episodes">
+			<?php foreach ( $player_data['tracks'] as $attachment ) : ?>
+			<li class="jetpack-podcast-player__episode">
+				<a
+					class="jetpack-podcast-player__episode-link"
+					href="<?php echo esc_url( $attachment['link'] ); ?>"
+					role="button"
+					aria-pressed="false"
+				>
+					<span class="jetpack-podcast-player__episode-status-icon"></span>
+					<span class="jetpack-podcast-player__episode-title"><?php echo esc_html( $attachment['title'] ); ?></span>
+					<time class="jetpack-podcast-player__episode-duration"><?php echo ( ! empty( $attachment['duration'] ) ? esc_html( $attachment['duration'] ) : '' ); ?></time>
+				</a>
+			</li>
+			<?php endforeach; ?>
+		</ol>
 		<script type="application/json"><?php echo wp_json_encode( $player_props ); ?></script>
 	</div>
 	<script>window.jetpackPodcastPlayers=(window.jetpackPodcastPlayers||[]);window.jetpackPodcastPlayers.push( <?php echo wp_json_encode( $instance_id ); ?> );</script>
