@@ -609,7 +609,7 @@ class JITM {
 			switch ( $envelope->content->icon ) {
 				case 'jetpack':
 					$jetpack_logo            = new Jetpack_Logo();
-					$envelope->content->icon = '<div class="jp-emblem">' . ( ( $full_jp_logo_exists ) ? $jetpack_logo->get_jp_emblem() : $jetpack_logo->get_jp_emblem_header() ) . '</div>';
+					$envelope->content->icon = '<div class="jp-emblem">' . ( ( $full_jp_logo_exists ) ? $jetpack_logo->get_jp_emblem() : $jetpack_logo->get_jp_emblem_larger() ) . '</div>';
 					break;
 				case 'woocommerce':
 					$envelope->content->icon = '<div class="jp-emblem"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0px" y="0px" viewBox="0 0 168 100" xml:space="preserve" enable-background="new 0 0 168 100" width="50" height="30"><style type="text/css">

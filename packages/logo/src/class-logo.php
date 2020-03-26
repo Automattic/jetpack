@@ -52,7 +52,7 @@ class Logo {
 	 * @return string
 	 */
 	public function get_jp_emblem( $logotype = false ) {
-		$logo_text = $this->get_jp_logo_text();
+		$logo_text = $this->get_jp_logo_parts();
 		return sprintf(
 			'<svg id="jetpack-logo__icon" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 %1$s 32">%2$s</svg>',
 			( true === $logotype ? '118' : '32' ),
@@ -65,8 +65,8 @@ class Logo {
 	 *
 	 * @return string
 	 */
-	public function get_jp_emblem_header() {
-		$logo_text = $this->get_jp_logo_text();
+	public function get_jp_emblem_larger() {
+		$logo_text = $this->get_jp_logo_parts();
 		return '<svg class="jitm-jp-logo" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" height="32" viewBox="0 0 118 32">' . $logo_text['logo'] . $logo_text['text'] . '</svg>';
 	}
 
@@ -75,7 +75,7 @@ class Logo {
 	 *
 	 * @return array
 	 */
-	private function get_jp_logo_text() {
+	private function get_jp_logo_parts() {
 		return array(
 			'logo' => '<path fill="#00BE28" d="M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16c8.8,0,16-7.2,16-16S24.8,0,16,0z M15.2,18.7h-8l8-15.5V18.7z M16.8,28.8 V13.3h8L16.8,28.8z"/>',
 			'text' => '<path d="M41.3,26.6c-0.5-0.7-0.9-1.4-1.3-2.1c2.3-1.4,3-2.5,3-4.6V8h-3V6h6v13.4C46,22.8,45,24.8,41.3,26.6z" />
