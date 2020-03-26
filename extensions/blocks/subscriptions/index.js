@@ -39,7 +39,7 @@ export const settings = {
 	attributes: {
 		subscribePlaceholder: {
 			type: 'string',
-			default: __( 'Email Address', 'jetpack' ),
+			default: __( 'Enter your email here', 'jetpack' ),
 		},
 		showSubscribersTotal: {
 			type: 'boolean',
@@ -47,7 +47,7 @@ export const settings = {
 		},
 		submitButtonText: {
 			type: 'string',
-			default: __( 'Subscribe', 'jetpack' ),
+			default: __( 'Sign Up', 'jetpack' ),
 		},
 		emailFieldBackgroundColor: {
 			type: 'string',

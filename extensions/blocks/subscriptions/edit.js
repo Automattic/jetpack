@@ -130,7 +130,15 @@ function SubscriptionEdit( props ) {
 		borderRadius: borderRadius + 'px',
 		borderWidth: borderWeight + 'px',
 		fontSize: fontSize.size + 'px',
-		padding: padding + 'px',
+		padding:
+			padding +
+			'px ' +
+			Math.round( padding * 1.5 ) +
+			'px ' +
+			padding +
+			'px ' +
+			Math.round( padding * 1.5 ) +
+			'px',
 	};
 
 	const emailFieldStyles = {
