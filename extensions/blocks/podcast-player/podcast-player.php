@@ -124,20 +124,25 @@ function render_player( $player_data, $attributes ) {
 	$secondary_color_class  = get_color_class_name( 'color', $secondary_color );
 	$background_color_class = get_color_class_name( 'background-color', $background_color );
 
-	$podcast_player_classes_name = array();
+	$secondary_classes_name = array();
 	if ( isset( $secondary_color_class ) || isset( $custom_secondary_color ) ) {
-		array_push( $podcast_player_classes_name, 'has-secondary' );
+		array_push( $secondary_classes_name, 'has-secondary' );
 		if ( isset( $secondary_color_class ) ) {
-			array_push( $podcast_player_classes_name, $secondary_color_class );
+			array_push( $secondary_classes_name, $secondary_color_class );
 		}
 	}
+	$secondary_classes_name = implode( ' ', $secondary_classes_name );
+
+	$background_classes_name = array();
 	if ( isset( $background_color_class ) || isset( $custom_background_color ) ) {
-		array_push( $podcast_player_classes_name, 'has-background' );
+		array_push( $background_classes_name, 'has-background' );
 		if ( isset( $background_color_class ) ) {
-			array_push( $podcast_player_classes_name, $background_color_class );
+			array_push( $background_classes_name, $background_color_class );
 		}
 	}
-	$podcast_player_classes_name = implode( ' ', $podcast_player_classes_name );
+	$background_classes_name = implode( ' ', $background_classes_name );
+
+	$podcast_player_classes_name = trim( $secondary_classes_name . ' ' . $background_classes_name );
 
 	$block_classname = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attributes, array( 'is-default' ) );
 	$is_amp          = ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() );
@@ -154,7 +159,7 @@ function render_player( $player_data, $attributes ) {
 		>
 			<ol class="jetpack-podcast-player__episodes">
 				<?php foreach ( $player_data['tracks'] as $attachment ) : ?>
-				<li class="jetpack-podcast-player__episode">
+				<li class="jetpack-podcast-player__episode <?php echo esc_attr( $secondary_classes_name ); ?>">
 					<a
 						class="jetpack-podcast-player__episode-link"
 						href="<?php echo esc_url( $attachment['link'] ); ?>"
