@@ -112,13 +112,13 @@ If you're ready to start, you should see all green `SUCCESS` messages. If the sc
 	
 		Composer can be installed using [Homebrew](https://brew.sh/). If you don't have Homebrew, install it with
 		
-		```
+		```sh
 		/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 		```
 	
 		And then install Composer:
 	
-		```
+		```sh
 		brew install composer
 		```
 	
@@ -175,7 +175,7 @@ There are three types of builds:
 	```sh
 	yarn watch
 	```	
-	
+
 * ### Production build
 	The production build will generate minified files without duplicated code (resulting from dependencies) and will also generate the matching source map and language files. To build it use:
 	
@@ -192,8 +192,8 @@ We recommend usage of [nvm](https://github.com/nvm-sh/nvm/) for managing differe
 **Note:** If you have previously run the Jetpack build tasks (e.g. `yarn build`), and didn't come back to it for a long time, you can
 run this command before building again. Otherwise you may experience errors on the command line while trying to build.
 
-```
-$ yarn distclean
+```sh
+yarn distclean
 ```
 
 ---
@@ -235,7 +235,7 @@ To get started, there are several ways to run the unit tests, depending on how y
 	
 	Otherwise you'll need to manually install the `wordpress-develop` branch, as follows:
 	
-	```
+	```sh
 	svn co https://develop.svn.wordpress.org/trunk/ /tmp/wordpress-develop
 	cd /tmp/wordpress-develop
 	cp wp-tests-config-sample.php wp-tests-config.php
@@ -247,19 +247,19 @@ To get started, there are several ways to run the unit tests, depending on how y
 	
 	To run WooCommerce integration tests, you'll need the WooCommerce plugin installed alongside Jetpack (in `../woocommerce`), and you can run:
 	
-	```
+	```sh
 	JETPACK_TEST_WOOCOMMERCE=1 phpunit
 	```
 	
 	To run multisite tests, run:
 	
-	```
+	```sh
 	phpunit -c tests/php.multisite.xml
 	```
 	
 	To filter and run just a particular test, you can run:
 	
-	```
+	```sh
 	phpunit --filter my_test_name
 	```
 
@@ -272,31 +272,31 @@ To execute them in your local environment, you can use the following commands.
 
 	Standing on your jetpack directory, run
 	
-	```
-	$ yarn
-	$ yarn test-client
-	$ yarn test-gui
+	```sh
+	yarn
+	yarn test-client
+	yarn test-gui
 	```
 
 * ### Jetpack modules unit tests
 
 	Standing on your jetpack directory, run
 	
-	```
-	$ yarn
-	$ yarn test-modules
+	```sh
+	yarn
+	yarn test-modules
 	```
 	
 	You can also only run tests matching a specific pattern. To do that, use the argument `-g, --grep <pattern>`:
 	
-	```
-	$ yarn test-gui -g 'my custom pattern to filter tests'
+	```sh
+	yarn test-gui -g 'my custom pattern to filter tests'
 	```
 	
 	To use a custom reporter, pass the argument `-R, --reporter <name>`:
 	
-	```
-	$ yarn test-client -R 'my_reporter'
+	```sh
+	yarn test-client -R 'my_reporter'
 	```
 
 # Good code - linting, standards, compatibilty, etc.
@@ -317,7 +317,7 @@ We strongly recommend that you install tools to review your code in your IDE. It
 	This will install all the CodeSniffer rulesets we need for linting Jetpack's PHP code. You may need to do this only once.
 	
 	```sh
-	$ composer install
+	composer install
 	```
 	
 	This runs the actual linting task.
@@ -342,7 +342,7 @@ We strongly recommend that you install tools to review your code in your IDE. It
 	* All the JavaScript present in the Admin Page Single Page App for Jetpack.
 	
 	```sh
-	$ yarn lint
+	yarn lint
 	```
 	
 	_If you haven't done it yet, you may need to run `yarn` before `yarn lint` for installing node modules for this task_.
