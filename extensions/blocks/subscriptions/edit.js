@@ -28,7 +28,6 @@ import { compose } from '@wordpress/compose';
 /**
  * Internal dependencies
  */
-//import SubmitButton from '../../shared/submit-button';
 import './editor.scss';
 
 const { getComputedStyle } = window;
@@ -38,9 +37,10 @@ const applyFallbackStyles = withFallbackStyles( ( node, ownProps ) => {
 	const { textColor, backgroundColor } = ownProps;
 	const backgroundColorValue = backgroundColor && backgroundColor.color;
 	const textColorValue = textColor && textColor.color;
-	//avoid the use of querySelector if textColor color is known and verify if node is available.
+
 	const textNode =
 		! textColorValue && node ? node.querySelector( '[contenteditable="true"]' ) : null;
+
 	return {
 		fallbackBackgroundColor:
 			backgroundColorValue || ! node ? undefined : getComputedStyle( node ).backgroundColor,
@@ -53,6 +53,10 @@ const MIN_BORDER_RADIUS_VALUE = 0;
 const MAX_BORDER_RADIUS_VALUE = 50;
 const INITIAL_BORDER_RADIUS_POSITION = 5;
 
+const MIN_BORDER_WEIGHT_VALUE = 0;
+const MAX_BORDER_WEIGHT_VALUE = 15;
+const INITIAL_BORDER_WEIGHT_POSITION = 5;
+
 function SubscriptionEdit( props ) {
 	const {
 		className,
@@ -60,15 +64,23 @@ function SubscriptionEdit( props ) {
 		setAttributes,
 		backgroundColor,
 		fallbackBackgroundColor,
-		fallbackTextColor,
 		setBackgroundColor,
-		setTextColor,
 		textColor,
+		fallbackTextColor,
+		setTextColor,
+		borderColor,
+		setBorderColor,
 		fontSize,
 		setFontSize,
 	} = props;
 
-	const { borderRadius, submitButtonText, subscribePlaceholder, showSubscribersTotal } = attributes;
+	const {
+		borderRadius,
+		borderWeight,
+		submitButtonText,
+		subscribePlaceholder,
+		showSubscribersTotal,
+	} = attributes;
 
 	const [ subscriberCountString, setSubscriberCountString ] = useState( '' );
 	const { gradientClass, gradientValue, setGradient } = isGradientAvailable ? useGradient() : {};
@@ -88,7 +100,9 @@ function SubscriptionEdit( props ) {
 			? { background: gradientValue }
 			: { backgroundColor: backgroundColor.color } ),
 		color: textColor.color,
-		borderRadius: borderRadius ? borderRadius + 'px' : undefined,
+		borderColor: borderColor.color,
+		borderRadius: borderRadius ? borderRadius + 'px' : 0,
+		borderWidth: borderWeight ? borderWeight + 'px' : 0,
 		fontSize: fontSize.size ? fontSize.size + 'px' : undefined,
 	};
 
@@ -135,6 +149,7 @@ function SubscriptionEdit( props ) {
 								label: __( 'Button', 'jetpack' ),
 							},
 						] }
+						initialOpen={ false }
 					>
 						<ContrastChecker
 							{ ...{
@@ -158,6 +173,7 @@ function SubscriptionEdit( props ) {
 								label: __( 'Background', 'jetpack' ),
 							},
 						] }
+						initialOpen={ false }
 					>
 						<ContrastChecker
 							{ ...{
@@ -193,7 +209,7 @@ function SubscriptionEdit( props ) {
 
 				<PanelBody
 					title={ __( 'Border Settings', 'jetpack' ) }
-					initialOpen={ false }
+					initialOpen={ true }
 					className="wp-block-jetpack-subscriptions__borderpanel"
 				>
 					<RangeControl
@@ -207,13 +223,13 @@ function SubscriptionEdit( props ) {
 					/>
 
 					<RangeControl
-						value={ borderRadius }
+						value={ borderWeight }
 						label={ __( 'Border Weight', 'jetpack' ) }
-						min={ MIN_BORDER_RADIUS_VALUE }
-						max={ MAX_BORDER_RADIUS_VALUE }
-						initialPosition={ INITIAL_BORDER_RADIUS_POSITION }
+						min={ MIN_BORDER_WEIGHT_VALUE }
+						max={ MAX_BORDER_WEIGHT_VALUE }
+						initialPosition={ INITIAL_BORDER_WEIGHT_POSITION }
 						allowReset
-						onChange={ newBorderRadius => setAttributes( { borderRadius: newBorderRadius } ) }
+						onChange={ newBorderWeight => setAttributes( { borderWeight: newBorderWeight } ) }
 					/>
 
 					<PanelColorSettings
@@ -221,8 +237,8 @@ function SubscriptionEdit( props ) {
 						className="wp-block-jetpack-subscriptions__bordercolorpanel"
 						colorSettings={ [
 							{
-								value: textColor.color,
-								onChange: setTextColor,
+								value: borderColor.color,
+								onChange: setBorderColor,
 								label: __( 'Border Color', 'jetpack' ),
 							},
 						] }
@@ -303,7 +319,7 @@ function SubscriptionEdit( props ) {
 }
 
 export default compose( [
-	withColors( 'backgroundColor', { textColor: 'color' } ),
+	withColors( 'backgroundColor', 'borderColor', { textColor: 'color' } ),
 	withFontSizes( 'fontSize' ),
 	applyFallbackStyles,
 ] )( SubscriptionEdit );

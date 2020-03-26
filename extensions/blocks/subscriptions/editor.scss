@@ -6,6 +6,8 @@
 	.wp-block-jetpack-subscriptions__button {
 		padding: 15px;
 		line-height: initial;
+		border-color: black;
+		border-style: solid;
 	}
 
 	.wp-block-jetpack-subscriptions__textfield {
@@ -15,7 +17,6 @@
 
 		.components-base-control__field, .components-text-control__input {
 			margin: 0;
-			border: none;
 		}
 	}
 }

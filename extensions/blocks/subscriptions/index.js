@@ -64,13 +64,22 @@ export const settings = {
 		customTextColor: {
 			type: 'string',
 		},
-		borderRadius: {
-			type: 'number',
-		},
 		gradient: {
 			type: 'string',
 		},
 		customGradient: {
+			type: 'string',
+		},
+		borderRadius: {
+			type: 'number',
+		},
+		borderWeight: {
+			type: 'number',
+		},
+		borderColor: {
+			type: 'string',
+		},
+		customBorderColor: {
 			type: 'string',
 		},
 		fontSize: {
