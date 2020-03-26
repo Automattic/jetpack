@@ -4054,7 +4054,7 @@ p {
 						'url'          => rawurlencode( get_site_url() ),
 					),
 					// @todo provide way to go to specific calypso env.
-					'https://wordpress.com/jetpack/connect'
+					self::get_calypso_host() . 'jetpack/connect'
 				)
 			);
 			exit;
@@ -7160,6 +7160,28 @@ endif;
 		}
 
 		return '';
+	}
+
+	/**
+	 * Returns the hostname with protocol for Calypso.
+	 * Used for developing Jetpack with Calypso.
+	 *
+	 * @since 8.4.0
+	 *
+	 * @return string Calypso host.
+	 */
+	public static function get_calypso_host() {
+		$calypso_env = self::get_calypso_env();
+		switch ( $calypso_env ) {
+			case 'development':
+				return 'http://calypso.localhost:3000/';
+			case 'wpcalypso':
+				return 'https://wpcalypso.wordpress.com/';
+			case 'horizon':
+				return 'https://horizon.wordpress.com/';
+			default:
+				return 'https://wordpress.com/';
+		}
 	}
 
 	/**
