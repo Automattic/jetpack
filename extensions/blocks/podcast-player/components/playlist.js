@@ -4,7 +4,7 @@
 import classnames from 'classnames';
 import { memo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { getColorClassName } from '@wordpress/block-editor';
+import { getColorClassName } from '../util';
 
 /**
  * Internal dependencies
@@ -66,7 +66,7 @@ const Track = memo(
 			'is-active': isActive,
 			'has-primary': isActive && ( primaryColor || customPrimaryColor ),
 			[ primaryColorClass ]: isActive && !! primaryColorClass,
-			'has-secondary': ! isActive && ( secondaryColor && customSecondaryColor ),
+			'has-secondary': ! isActive && secondaryColor && customSecondaryColor,
 			[ secondaryColorClass ]: ! isActive && !! secondaryColorClass,
 		} );
 
@@ -93,20 +93,20 @@ const Track = memo(
 							return;
 						}
 
-					// Prevent default behavior (opening a link).
-					e.preventDefault();
+						// Prevent default behavior (opening a link).
+						e.preventDefault();
 
-					// Select track.
-					selectTrack( index );
-				} }
-				onKeyDown={ e => {
-					// Only handle the Space key.
-					if ( event.key !== ' ' ) {
-						return;
-					}
+						// Select track.
+						selectTrack( index );
+					} }
+					onKeyDown={ e => {
+						// Only handle the Space key.
+						if ( event.key !== ' ' ) {
+							return;
+						}
 
-					// Prevent default behavior (scrolling one page down).
-					e.preventDefault();
+						// Prevent default behavior (scrolling one page down).
+						e.preventDefault();
 
 					// Select track.
 					selectTrack( index );

@@ -7,7 +7,7 @@ import classnames from 'classnames';
  * WordPress dependencies
  */
 import { Component } from '@wordpress/element';
-import { getColorClassName } from '@wordpress/block-editor';
+import { getColorClassName } from '../util';
 
 /**
  * Internal dependencies
