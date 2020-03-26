@@ -149,9 +149,12 @@ $block-border-color: $dark-gray-100;
 	 * start playback. Combine this class with the Player's state classes (see
 	 * above) to apply styling for different scenarios.
 	 */
-	&.is-active:not(.has-primary) {
-		color: $text-color-hover;
+	&.is-active {
 		font-weight: bold;
+	}
+	&.is-active:not(.has-primary),
+	&:not(.is-active):not(.has-secondary) {
+		color: $text-color-hover;
 	}
 
 	.jetpack-podcast-player__episode-link {
@@ -169,7 +172,9 @@ $block-border-color: $dark-gray-100;
 		}
 	}
 
-	&.is-active.has-primary .podcast-player__episode-link {
+
+	&.is-active.has-primary .podcast-player__episode-link,
+	&.has-secondary .podcast-player__episode-link {
 		color: inherit;
 	}
 }
@@ -217,23 +222,6 @@ $block-border-color: $dark-gray-100;
 	}
 
 	& > span > a {
-		color: inherit;
-	}
-}
-
-/*
- * Styles and colors.
- */
-// No-colors styles.
-.wp-block-jetpack-podcast-player:not(.has-primary) {
-	.podcast-player__episodes .podcast-player__episode {
-		color: $text-color;
-	}
-}
-
-// Colored styles.
-.wp-block-jetpack-podcast-player.has-primary {
-	.podcast-player__episode-link {
 		color: inherit;
 	}
 }

@@ -198,6 +198,8 @@ export class PodcastPlayer extends Component {
 					selectTrack={ this.selectTrack }
 					primaryColor={ primaryColor }
 					customPrimaryColor={ customPrimaryColor }
+					secondaryColor={ secondaryColor }
+					customSecondaryColor={ customSecondaryColor }
 				/>
 			</section>
 		);

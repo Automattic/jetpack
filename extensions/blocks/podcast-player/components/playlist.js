@@ -46,13 +46,29 @@ const TrackError = memo( ( { link } ) => (
 	</div>
 ) );
 
-const Track = memo( ( { track, isActive, isPlaying, isError, selectTrack, index, primaryColor, customPrimaryColor } ) => {
-	const primaryColorClass = getColorClassName( 'color', primaryColor );
-	const trackClassName = classnames( 'jetpack-podcast-player__episode', {
-		'is-active': isActive,
-		'has-primary': isActive && primaryColor && ! customPrimaryColor,
-		[ primaryColorClass ]: isActive && !! primaryColorClass,
-	} );
+const Track = memo(
+	( {
+		track,
+		isActive,
+		isPlaying,
+		isError,
+		selectTrack,
+		index,
+		primaryColor,
+		customPrimaryColor,
+		secondaryColor,
+		customSecondaryColor,
+	} ) => {
+		// Set CSS classes string.
+		const primaryColorClass = getColorClassName( 'color', primaryColor );
+		const secondaryColorClass = getColorClassName( 'color', secondaryColor );
+		const trackClassName = classnames( 'jetpack-podcast-player__episode', {
+			'is-active': isActive,
+			'has-primary': isActive && primaryColor && ! customPrimaryColor,
+			[ primaryColorClass ]: isActive && !! primaryColorClass,
+			'has-secondary': ! isActive && secondaryColor && ! customSecondaryColor,
+			[ secondaryColorClass ]: ! isActive && !! primaryColorClass,
+		} );
 
 	return (
 		<li className={ trackClassName }>
@@ -101,10 +117,20 @@ const Track = memo( ( { track, isActive, isPlaying, isError, selectTrack, index,
 	);
 } );
 
-const Playlist = memo( ( { tracks, selectTrack, currentTrack, playerState, primaryColor, customPrimaryColor } ) => {
-	return (
-		<ol className="jetpack-podcast-player__episodes">
-			{ tracks.map( ( track, index ) => {
+const Playlist = memo(
+	( {
+		tracks,
+		selectTrack,
+		currentTrack,
+		playerState,
+		primaryColor,
+		customPrimaryColor,
+		secondaryColor,
+		customSecondaryColor,
+	} ) => {
+		return (
+			<ol className="jetpack-podcast-player__episodes">
+				{ tracks.map( ( track, index ) => {
 				const isActive = currentTrack === index;
 
 				return (
@@ -118,6 +144,8 @@ const Playlist = memo( ( { tracks, selectTrack, currentTrack, playerState, prima
 						isError={ isActive && playerState === STATE_ERROR }
 						primaryColor={ primaryColor }
 						customPrimaryColor={ customPrimaryColor }
+						secondaryColor={ secondaryColor }
+						customSecondaryColor={ customSecondaryColor }
 					/>
 				);
 			} ) }
