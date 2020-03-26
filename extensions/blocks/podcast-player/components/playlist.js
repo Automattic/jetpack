@@ -34,7 +34,7 @@ const TrackIcon = ( { isPlaying, isError, className } ) => {
 	return <span className={ `${ className } ${ className }--${ name }` }>{ icon }</span>;
 };
 
-import { getColorClassName } from '../util';
+import { getColorClassName } from '../utils';
 
 const TrackError = memo( ( { link } ) => (
 	<div className="jetpack-podcast-player__episode-error">
