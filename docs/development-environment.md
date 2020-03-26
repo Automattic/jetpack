@@ -5,7 +5,7 @@
 * [Setting up your environment](#setting-up-your-environment)
    * [Overview](#overview)
    * [Running Jetpack locally](#running-jetpack-locally)
-      * [Docker (Recommended)](#docker-recommended)
+      * [Docker (Recommended)](#docker-supported-recommended)
       * [VVV](#vvv)
       * [Local web and database servers](#local-web-and-database-servers)
       * [Developing and contributing code to Jetpack from a Windows machine](#developing-and-contributing-code-to-jetpack-from-a-windows-machine)
@@ -196,6 +196,13 @@ run this command before building again. Otherwise you may experience errors on t
 yarn distclean
 ```
 
+### Building additional Jetpack extensions
+
+Jetpack contains several extensions that have a separate build process. You can find information how to build them below: 
+
+* Jetpack Instant Search - [build instructions](../extensions/README.md)
+* Jetpack Block Editor Extensions - [build instructions](../modules/search/instant-search/README.md)
+
 ---
 
 # Unit-testing
@@ -312,7 +319,7 @@ We strongly recommend that you install tools to review your code in your IDE. It
 
 * ### Linting Jetpack's PHP code
 
-	You can easily run these commands to set up all the rulesets and then lint Jetpack's PHP code. You need Composer to run this tool so check how to [install Composer](#installing-composer) if you don't have it yet.
+	You can easily run these commands to set up all the rulesets and then lint Jetpack's PHP code. You need Composer to run this tool so check how to [install Composer](#composer) if you don't have it yet.
 	
 	This will install all the CodeSniffer rulesets we need for linting Jetpack's PHP code. You may need to do this only once.
 	
