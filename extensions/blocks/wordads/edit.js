@@ -32,19 +32,17 @@ class WordAdsEdit extends Component {
 		const { format, hideMobile } = attributes;
 		const selectedFormatObject = AD_FORMATS.filter( ( { tag } ) => tag === format )[ 0 ];
 		const adControls = (
-			<Fragment>
-				<InspectorControls>
-					<PanelBody title={ __( 'Visibility', 'jetpack' ) }>
-						<ToggleControl
-							className="jetpack-wordads__mobile-visibility"
-							checked={ Boolean( hideMobile ) }
-							label={ __( 'Hide on mobile', 'jetpack' ) }
-							help={ __( 'Hides this block for site visitors on mobile devices.', 'jetpack' ) }
-							onChange={ this.handleHideMobileChange }
-						/>
-					</PanelBody>
-				</InspectorControls>
-			</Fragment>
+			<InspectorControls>
+				<PanelBody title={ __( 'Visibility', 'jetpack' ) }>
+					<ToggleControl
+						className="jetpack-wordads__mobile-visibility"
+						checked={ Boolean( hideMobile ) }
+						label={ __( 'Hide on mobile', 'jetpack' ) }
+						help={ __( 'Hides this block for site visitors on mobile devices.', 'jetpack' ) }
+						onChange={ this.handleHideMobileChange }
+					/>
+				</PanelBody>
+			</InspectorControls>
 		);
 		function getExampleAd( formatting ) {
 			switch ( formatting ) {
