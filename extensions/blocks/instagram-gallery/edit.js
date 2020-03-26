@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { isEqual } from 'lodash';
+import { isEmpty, isEqual } from 'lodash';
 
 /**
  * WordPress dependencies
@@ -16,6 +16,7 @@ import {
 	Placeholder,
 	RangeControl,
 	Spinner,
+	withNotices,
 } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -29,8 +30,8 @@ import { getGalleryCssAttributes, getScreenCenterSpecs } from './utils';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import './editor.scss';
 
-export default function InstagramGalleryEdit( props ) {
-	const { attributes, className, setAttributes } = props;
+export function InstagramGalleryEdit( props ) {
+	const { attributes, className, noticeOperations, noticeUI, setAttributes } = props;
 	const { accessToken, columns, images, instagramUser, photosPadding, photosToShow } = attributes;
 
 	const [ isConnectingToInstagram, setIsConnectingToInstagram ] = useState( false );
@@ -47,7 +48,8 @@ export default function InstagramGalleryEdit( props ) {
 		if ( ! accessToken ) {
 			return;
 		}
-		if ( ! images.length ) {
+		noticeOperations.removeAllNotices();
+		if ( ! isEmpty( images ) ) {
 			setIsLoadingGallery( true );
 		}
 		apiFetch( {
@@ -57,6 +59,14 @@ export default function InstagramGalleryEdit( props ) {
 			} ),
 		} ).then( response => {
 			setIsLoadingGallery( false );
+
+			if ( isEmpty( response.images ) ) {
+				noticeOperations.createErrorNotice(
+					__( 'No images were found in your Instagram account.', 'jetpack' )
+				);
+				return;
+			}
+
 			setAttributes( { images: response.images, instagramUser: response.external_name } );
 		} );
 	}, [ accessToken, photosToShow ] );
@@ -95,12 +105,21 @@ export default function InstagramGalleryEdit( props ) {
 		} );
 	};
 
+	const showPlaceholder = ! accessToken || isEmpty( images );
+	const showSidebar = ! showPlaceholder;
+	const showLoadingSpinner = accessToken && isLoadingGallery;
+	const showGallery = ! showPlaceholder && ! isLoadingGallery;
+
 	const { gridClasses, gridStyle, photoStyle } = getGalleryCssAttributes( columns, photosPadding );
 
 	return (
 		<div className={ className }>
-			{ ! accessToken && (
-				<Placeholder icon="instagram" label={ __( 'Instagram Gallery', 'jetpack' ) }>
+			{ showPlaceholder && (
+				<Placeholder
+					icon="instagram"
+					label={ __( 'Instagram Gallery', 'jetpack' ) }
+					notices={ noticeUI }
+				>
 					<Button
 						disabled={ isConnectingToInstagram }
 						isLarge
@@ -114,34 +133,33 @@ export default function InstagramGalleryEdit( props ) {
 				</Placeholder>
 			) }
 
-			{ accessToken && isLoadingGallery && (
+			{ showLoadingSpinner && (
 				<div className="wp-block-embed is-loading">
 					<Spinner />
 					<p>{ __( 'Embedding…', 'jetpack' ) }</p>
 				</div>
 			) }
 
-			{ accessToken && ! isLoadingGallery && (
+			{ showGallery && (
 				<div className={ gridClasses } style={ gridStyle }>
-					{ images &&
-						images.map( image => (
-							<span
-								className="wp-block-jetpack-instagram-gallery__grid-post"
-								key={ image.title || image.link }
-								style={ photoStyle }
-							>
-								<img alt={ image.title || image.url } src={ image.url } />
-							</span>
-						) ) }
+					{ images.map( image => (
+						<span
+							className="wp-block-jetpack-instagram-gallery__grid-post"
+							key={ image.title || image.link }
+							style={ photoStyle }
+						>
+							<img alt={ image.title || image.url } src={ image.url } />
+						</span>
+					) ) }
 				</div>
 			) }
 
-			{ accessToken && (
+			{ showSidebar && (
 				<InspectorControls>
 					<PanelBody title={ __( 'Account Settings', 'jetpack' ) }>
 						<PanelRow>
 							<span>{ __( 'Account', 'jetpack' ) }</span>
-							<ExternalLink href={ `https://www.instagram.com/${ instagramUser } /` }>
+							<ExternalLink href={ `https://www.instagram.com/${ instagramUser }/` }>
 								@{ instagramUser }
 							</ExternalLink>
 						</PanelRow>
@@ -179,3 +197,5 @@ export default function InstagramGalleryEdit( props ) {
 		</div>
 	);
 }
+
+export default withNotices( InstagramGalleryEdit );
