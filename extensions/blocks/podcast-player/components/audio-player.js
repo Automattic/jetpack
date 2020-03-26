@@ -65,7 +65,7 @@ class AudioPlayer extends Component {
 	};
 
 	render() {
-		return <div ref={ this.audioRef }></div>;
+		return <div ref={ this.audioRef } className="jetpack-podcast-player__audio-player"></div>;
 	}
 }
 

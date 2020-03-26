@@ -5,6 +5,13 @@
 
 $episode-v-padding: 15px;
 $episode-h-padding: 10px;
+$player-grid-spacing: 24px;
+$cover-image-size: 80px;
+$track-title-font-size: 24px;
+$track-title-b-margin: 10px;
+$podcast-title-font-size: 16px;
+$description-font-size: 16px;
+$player-divider-height: 2px;
 $episode-status-icon-size: 22px;
 $text-color: $dark-gray-300; // Lightest gray that can be used for AA text contrast.
 $text-color-hover: $black;
@@ -13,6 +20,15 @@ $block-bg-color: $white;
 $block-border-color: $dark-gray-100;
 
 
+.jetpack-podcast-player--visually-hidden {
+	position: absolute !important;
+	height: 1px; 
+	width: 1px;
+	overflow: hidden;
+	clip: rect(1px, 1px, 1px, 1px);
+	white-space: nowrap; /* added line */
+}
+
 /**
  * Player's (block) parent element.
  */
@@ -20,6 +36,7 @@ $block-border-color: $dark-gray-100;
 	border: 1px solid $block-border-color;
 	background-color: $block-bg-color;
 	overflow: hidden;
+	font-family: $default-font;
 
 	/**
 	 * Player's state classes added to this element:
@@ -31,14 +48,89 @@ $block-border-color: $dark-gray-100;
 	audio {
 		display: none;
 	}
+
+	.jetpack-podcast-player__titles { 
+		display: flex;
+		flex-direction: column;
+		margin: 0;
+	}
+
+	.jetpack-podcast-player__title-link {
+		text-decoration: none;
+		color: $text-color;
+	
+		&:hover,
+		&:focus {
+			color: $text-color-hover;
+		}
+	}
+	
+	.jetpack-podcast-player__episodes {
+		list-style-type: none;
+		display: flex;
+		flex-direction: column;
+		margin: 0;
+		padding: $episode-v-padding 0;
+	}
 }
 
-.jetpack-podcast-player__episodes {
-	list-style-type: none;
+/**
+ * Podcast Player Header
+ */
+.jetpack-podcast-player__header-wrapper {
 	display: flex;
 	flex-direction: column;
+	position: relative;
+
+	&:after {
+		content: '';
+		background: $light-gray-700;
+		position: absolute;
+		height: $player-divider-height;
+		bottom: 0;
+		left: $player-grid-spacing;
+		right: $player-grid-spacing;
+	}
+}
+
+.jetpack-podcast-player__track-description {
+	order: 99; // high number to make it always appear after the audio player
+	padding: 0 $player-grid-spacing;
+	margin-bottom: $player-grid-spacing;
+	color: $dark-gray-500;
+	font-size: $description-font-size;
+	line-height: 1.6;
+}
+
+.jetpack-podcast-player__header {
+	display: flex;
+	padding: $player-grid-spacing;
+}
+
+.jetpack-podcast-player__track-image-wrapper {
+	width: $cover-image-size;
+	margin-right: $player-grid-spacing;
+	flex-shrink: 0;
+}
+
+.jetpack-podcast-player__track-image {
+	width: $cover-image-size;
+	height: $cover-image-size;
+}
+
+.jetpack-podcast-player__track-title {
+	font-size: $track-title-font-size;
+	margin: 0 0 $track-title-b-margin;
+}
+
+.jetpack-podcast-player__title {
+	font-size: $podcast-title-font-size;
+	color: $text-color;
 	margin: 0;
-	padding: $episode-v-padding 0;
+}
+
+.jetpack-podcast-player__audio-player {
+	margin-bottom: $player-grid-spacing;
 }
 
 .jetpack-podcast-player__episode {
@@ -61,23 +153,25 @@ $block-border-color: $dark-gray-100;
 		color: $text-color-hover;
 		font-weight: bold;
 	}
-}
 
-.jetpack-podcast-player__episode-link {
-	display: flex;
-	flex-flow: row nowrap;
-	justify-content: space-between;
-	padding: $episode-h-padding $episode-v-padding;
-	text-decoration: none;
-	color: inherit;
-	transition: none;
-
-	.jetpack-podcast-player__episode.is-active & {
-		.is-error & {
-			padding-bottom: 0; // Make space for the error element that will be appended.
+	.jetpack-podcast-player__episode-link {
+		display: flex;
+		flex-flow: row nowrap;
+		justify-content: space-between;
+		padding: $episode-h-padding $episode-v-padding;
+		text-decoration: none;
+		color: inherit;
+		transition: none;
+	
+		.jetpack-podcast-player__episode.is-active & {
+			.is-error & {
+				padding-bottom: 0; // Make space for the error element that will be appended.
+			}
 		}
 	}
 }
+
+
 
 /**
  * Fixes a Chrome bug where in TwentyTwenty and other themes that apply a

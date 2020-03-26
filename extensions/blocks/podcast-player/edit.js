@@ -18,6 +18,7 @@ import {
 	ToggleControl,
 	Spinner,
 } from '@wordpress/components';
+import { compose, withInstanceId } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import { BlockControls, BlockIcon, InspectorControls } from '@wordpress/block-editor';
 import apiFetch from '@wordpress/api-fetch';
@@ -46,6 +47,7 @@ const supportUrl =
 		: 'https://jetpack.com/support/jetpack-blocks/podcast-player-block/';
 
 const PodcastPlayerEdit = ( {
+	instanceId,
 	className,
 	attributes,
 	setAttributes,
@@ -57,6 +59,8 @@ const PodcastPlayerEdit = ( {
 		attributesValidation,
 		attributes
 	);
+
+	const playerId = `jetpack-podcast-player-block-${ instanceId }`;
 
 	// State.
 	const [ editedUrl, setEditedUrl ] = useState( url || '' );
@@ -204,8 +208,9 @@ const PodcastPlayerEdit = ( {
 					/>
 				</PanelBody>
 			</InspectorControls>
-			<div className={ className }>
+			<div id={ playerId } className={ className }>
 				<PodcastPlayer
+					playerId={ playerId }
 					tracks={ feedData.tracks }
 					cover={ feedData.cover }
 					title={ feedData.title }
@@ -219,4 +224,4 @@ const PodcastPlayerEdit = ( {
 	);
 };
 
-export default withNotices( PodcastPlayerEdit );
+export default compose( [ withInstanceId, withNotices ] )( PodcastPlayerEdit );

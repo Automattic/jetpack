@@ -132,14 +132,38 @@ export class PodcastPlayer extends Component {
 	setAudioSource = noop;
 
 	render() {
-		const { tracks, itemsToShow } = this.props;
+		const {
+			playerId,
+			title,
+			link,
+			cover,
+			tracks,
+			itemsToShow,
+			showCoverArt,
+			showEpisodeDescription,
+		} = this.props;
 		const { playerState, currentTrack } = this.state;
 
 		const tracksToDisplay = tracks.slice( 0, itemsToShow );
+		const track = this.getTrack( currentTrack );
 
 		return (
-			<div className={ playerState }>
-				<Header track={ this.getTrack( currentTrack ) }>
+			<section
+				className={ playerState }
+				aria-labelledby={ title || ( track && track.title ) ? `${ playerId }__title` : undefined }
+				aria-describedby={
+					track && track.description ? `${ playerId }__track-description` : undefined
+				}
+			>
+				<Header
+					playerId={ playerId }
+					title={ title }
+					link={ link }
+					cover={ cover }
+					track={ this.getTrack( currentTrack ) }
+					showCoverArt={ showCoverArt }
+					showEpisodeDescription={ showEpisodeDescription }
+				>
 					<AudioPlayer
 						initialTrackSource={ this.getTrack( 0 ).src }
 						handlePlay={ this.handlePlay }
@@ -154,12 +178,15 @@ export class PodcastPlayer extends Component {
 					tracks={ tracksToDisplay }
 					selectTrack={ this.selectTrack }
 				/>
-			</div>
+			</section>
 		);
 	}
 }
 
 PodcastPlayer.defaultProps = {
+	title: '',
+	cover: '',
+	link: '',
 	tracks: [],
 	url: null,
 	itemsToShow: 5,
