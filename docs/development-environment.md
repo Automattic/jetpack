@@ -2,35 +2,33 @@
 
 ## Table of contents
 
-* [Setting up your environment](#section-setting-up-env)
-   * [Overview](#section-overview)
-   * [Running Jetpack locally](#section-running-local-jetpack)
-      * [Docker (Recommended)](#setup-env-docker)
-      * [VVV](#setup-env-vvv)
-      * [Local web and database servers](#setup-env-local-web-server)
-      * [Developing and contributing code to Jetpack from a Windows machine](#setup-env-windows)
-   * [Installing development tools](#setup-development-tools)
-	  * [Quick way to check if your environment is ready for Jetpack development](#setup-development-autoscript)
-      * [NodeJS](#setup-development-tools-nodejs)
-      * [Yarn package manager](#setup-development-tools-yarn)
-      * [PHP](#setup-development-tools-php)
-      * [Composer](#setup-development-tools-composer)
-      * [PHPUnit](#setup-development-tools-phpunit)
-* [Start development](#jetpack-development)
-   * [Run a development build](#jetpack-development-dev)
-   * [Run production build](#jetpack-development-prod)
+* [Setting up your environment](#setting-up-your-environment)
+   * [Overview](#overview)
+   * [Running Jetpack locally](#running-jetpack-locally)
+      * [Docker (Recommended)](#docker-recommended)
+      * [VVV](#vvv)
+      * [Local web and database servers](#local-web-and-database-servers)
+      * [Developing and contributing code to Jetpack from a Windows machine](#developing-and-contributing-code-to-jetpack-from-a-windows-machine)
+   * [Installing development tools](#installing-development-tools)
+	  * [Quick way to check if your environment is ready for Jetpack development](#quick-way-to-check-if-your-environment-is-ready-for-jetpack-development)
+      * [NodeJS](#nodejs)
+      * [Yarn package manager](#yarn)
+      * [PHP](#php)
+      * [Composer](#composer)
+      * [PHPUnit](#phpunit)
+* [Start development](#development-workflow)
+   * [Run a development build](#development-build)
+   * [Run production build](#production-build)
 * [Unit Testing](#unit-testing)
-   * [PHP unit testing](#unit-testing-php)
-   * [JavaScript unit testing](#unit-testing-js)
-* [Good code - linting, standards, compatibilty, etc.](#jetpack-linting-codestandards)
-	* [Coding standards](#jetpack-linting-codestandards-code-standards)
-	* [Linting](#jetpack-linting-codestandards-code-linting)
-* [Standard development & debugging tools](#devtools)
+   * [PHP unit testing](#php-unit-tests)
+   * [JavaScript unit testing](#javascript-unit-tests)
+* [Good code - linting, standards, compatibilty, etc.](#good-code---linting-standards-compatibilty-etc)
+	* [Coding standards](#coding-standards)
+	* [Linting](#linting)
+* [Standard development & debugging tools](#standard-development--debugging-tools)
 
-      
-<a name="section-setting-up-env"></a>
 # Setting up your environment
-<a name="section-overview"></a>
+
 ## Overview 
 
 In order to start developing the Jetpack plugin you want to have access to a WordPress installation where you can install the plugin and work on it. 
@@ -39,22 +37,17 @@ To do that you need to set up a WordPress site and give it the ability to run yo
 
 There are several ways to achieve this, listed in the next section.
 
-<a name="section-running-local-jetpack"></a>
 ## Running Jetpack locally
 
 To get a local WordPress site up and running you need a web server (Apache, Nginx), PHP and MySQL (or MariaDB).
 
 For easier and more organized development, there are several ways to achieve that:
 
-<a name="setup-env-docker"></a>
-
 * ### Docker (Recommended)
 
 	This would be the easiest and most straight-forward way to start your journey in Jetpack development. Docker offers a containerized install of WordPress with all of its dependencies installed and set up. You just need to start working on the plugin code. 
 	
 	To set up your environment with Docker, follow the [Docker environment for Jetpack Development guide](../docker/README.md).
-	
-<a name="setup-env-vvv"></a>
 
 * ### VVV
 
@@ -62,19 +55,14 @@ For easier and more organized development, there are several ways to achieve tha
 	
 	*...This section is still under development...*
 	
-<a name="setup-env-local-web-server"></a>
-
 * ### Local web and database servers 
 	
 	This is the most involved set up way among the three. Since the installation steps are very dependent on the operating system and it's flavor, we're not going to cover them here for the time being. You can refer to the [WordPress recommended system requirements](https://wordpress.org/about/requirements/) to see what you need to install to get WordPress up and running on your system.
 
-<a name="setup-env-windows"></a>
-
 * ### Developing and contributing code to Jetpack from a Windows machine
 	
 	When working on a Windows machine, you can use [Windows Subsystem for Linux](https://en.wikipedia.org/wiki/Windows_Subsystem_for_Linux). You may, however, run into issues when you want to commit your changes. In this case, and if you use an IDE like PHPStorm, you can follow the recommendations in [this post](https://alex.blog/2018/02/21/guide-to-having-phpstorm-use-windows-subsystem-for-linux-git/) to have PhpStorm Use Windows Subsystem For Linux’s Git.
-	
-<a name="setup-development-tools"></a>
+
 ## Installing development tools
 
 ### Minimum required versions
@@ -83,8 +71,6 @@ For easier and more organized development, there are several ways to achieve tha
  * PHP - 7.4 (in case you're running WordPress locally)
 
 ---
-
-<a name="setup-development-autoscript"></a>
 
 ### Quick way to check if your environment is ready for Jetpack development
 
@@ -98,22 +84,15 @@ Running the script will tell you if you have your environment already set up and
 
 If you're ready to start, you should see all green `SUCCESS` messages. If the script detect issues, you will see a a red `FAILED` note and a link that will help you figure out what you need to change/fix to address the issue.
 
-
-<a name="setup-development-tools-nodejs"></a>
-
 ## Tools
 
 * ### Node.js
 
 	Node.js is used in the build process of the Jetpack plugin. If it's not already installed on your system, you can [visit the Node.js website and install the latest Long Term Support (LTS) version.](https://nodejs.org/).
 
-<a name="setup-development-tools-yarn"></a>
-
 * ### Yarn
 
 	Yarn is a Node.js package manager and it's used to install packages that are required to build the Jetpack plugin. To install it, you can [visit the Installation page of the project](https://classic.yarnpkg.com/en/docs/install) and follow the instructions for your operating system.
-
-<a name="setup-development-tools-php"></a>
 
 * ### PHP
 
@@ -122,8 +101,6 @@ If you're ready to start, you should see all green `SUCCESS` messages. If the sc
 	There are multiple ways to install PHP on your operating system, but as it's very dependend on your operating system and it's flavor, we're not going to cover it in this document at this time. 
 	
 	You can check out the [official installation instructions from the project website.](https://www.php.net/manual/en/install.php).
-
-<a name="setup-development-tools-composer"></a>
 
 * ### Composer
 
@@ -152,25 +129,20 @@ If you're ready to start, you should see all green `SUCCESS` messages. If the sc
 		Most Linux distributions may have an older version of Composer as an installable package, but installing from the official source ensures you have the most up to date version.
 		Note that [we recommend using the Windows Subsystem for Linux](#developing-and-contributing-code-to-jetpack-from-a-windows-machine) to run Composer and PHP.
 
-
-<a name="setup-development-tools-phpunit"></a>
-
 * ### PHPUnit
 
 	PHPUnit is the unit test framework we use in Jetpack. You can install it by [visitng the official project web site](https://phpunit.de/) and follow the installation instructions there. 
 
-<a name="jetpack-development"></a>
 # Development workflow
 
 To start work on the Jetpack plugin you need to follow these steps:
 
-1. [Clone the repository](#jetpack-development-repository)
-2. [Install the development tools](#setup-development-tools)
+1. [Clone the repository](#clone-the-repository)
+2. [Install the development tools](#installing-development-tools)
 3. Make sure Jetpack is enabled on your WordPress site
-4. [Build Jetpack](#jetpack-development-build)
+4. [Build Jetpack](#building-jetpack)
 5. Open `/wp-admin/admin.php?page=jetpack` in your browser.
 
-<a name="jetpack-development-repository"></a>
 ## Clone the repository
 
 Make sure you have `git`, `node`, `yarn`, and a working WordPress installation.
@@ -184,7 +156,6 @@ cd jetpack
  You'll need to have a public SSH key setup with GitHub, which is more secure than saving your password in your keychain.
  There are more details about [setting up a public key on GitHub.com](https://help.github.com/en/articles/adding-a-new-ssh-key-to-your-github-account).
 
-<a name="jetpack-development-build"></a>
 ## Building Jetpack
 
 To work on Jetpack you need to build the JavaScript and CSS components of the plugin's admin interface. This will generate the run time bundle (`_inc/build/admin.js`)
@@ -226,7 +197,7 @@ $ yarn distclean
 ```
 
 ---
-<a name="unit-testing"></a>
+
 # Unit-testing
 
 
@@ -235,8 +206,6 @@ Jetpack includes several [unit tests](https://github.com/Automattic/jetpack/tree
 If you're not familiar with PHP Unit Testing, you can also check [this tutorial](https://pippinsplugins.com/series/unit-tests-wordpress-plugins/)
 
 To get started, there are several ways to run the unit tests, depending on how you set up your development environment.
-
-<a name="unit-testing-php"></a>
 
 ## PHP unit tests
 
@@ -293,7 +262,6 @@ To get started, there are several ways to run the unit tests, depending on how y
 	```
 	phpunit --filter my_test_name
 	```
-<a name="unit-testing-js"></a>
 
 ## JavaScript unit tests
 
@@ -331,11 +299,8 @@ To execute them in your local environment, you can use the following commands.
 	$ yarn test-client -R 'my_reporter'
 	```
 
-<a name="jetpack-linting-codestandards"></a>
-
 # Good code - linting, standards, compatibilty, etc.
 
-<a name="jetpack-linting-codestandards-code-standards"></a>
 ## Coding standards
 
 We strongly recommend that you install tools to review your code in your IDE. It will make it easier for you to notice any missing documentation or coding standards you should respect. Most IDEs display warnings and notices inside the editor, making it even easier.
@@ -343,7 +308,6 @@ We strongly recommend that you install tools to review your code in your IDE. It
 - You can find [Code Sniffer rules for WordPress Coding Standards](https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards#installation) here. Once you've installed these rulesets, you can [follow the instructions here](https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards#how-to-use) to configure your IDE.
 - For JavaScript, we recommend installing ESLint. Most IDEs come with an ESLint plugin that you can use. Jetpack includes a `.eslintrc.js` file that defines our coding standards.
 
-<a name="jetpack-linting-codestandards-code-linting"></a>
 ## Linting
 
 * ### Linting Jetpack's PHP code
@@ -396,8 +360,6 @@ We strongly recommend that you install tools to review your code in your IDE. It
 	_If you haven't done it yet, you may need to run `yarn` before `yarn lint` for installing node modules for this task_.
 
 ---
-
-<a name="devtools"></a>
 
 # Standard development & debugging tools
 
