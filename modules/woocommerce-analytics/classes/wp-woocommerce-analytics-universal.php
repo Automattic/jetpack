@@ -426,7 +426,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	 *
 	 * @param integer $post_id The id of the post to search.
 	 * @param string  $text    The text to search for.
-	 * @return string 'Yes' if post contains $text (otherwise 'No').
+	 * @return integer 1 if post contains $text (otherwise 0).
 	 */
 	public static function post_contains_text( $post_id, $text ) {
 		global $wpdb;
@@ -445,7 +445,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 			)
 		);
 
-		return ( '0' !== $result ) ? 'Yes' : 'No';
+		return ( '0' !== $result ) ? 1 : 0;
 	}
 
 	/**
