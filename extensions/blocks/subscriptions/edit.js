@@ -208,7 +208,7 @@ function SubscriptionEdit( props ) {
 								label: __( 'Button', 'jetpack' ),
 							},
 						] }
-						initialOpen={ false }
+						initialOpen={ true }
 					>
 						<ContrastChecker
 							{ ...{
@@ -273,7 +273,7 @@ function SubscriptionEdit( props ) {
 
 				<PanelBody
 					title={ __( 'Border Settings', 'jetpack' ) }
-					initialOpen={ true }
+					initialOpen={ false }
 					className="wp-block-jetpack-subscriptions__borderpanel"
 				>
 					<RangeControl
