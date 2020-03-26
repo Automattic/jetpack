@@ -41,9 +41,9 @@ There are several ways to achieve this, listed in the next section.
 
 To get a local WordPress site up and running you need a web server (Apache, Nginx), PHP and MySQL (or MariaDB).
 
-For easier and more organized development, there are several ways to achieve that:
+**Important:** Docker is the only solution that we recommend and can provide support for. The others are listed here as reference if you want to try something different. We won't be able to provide support for them 
 
-* ### Docker (Recommended)
+* ### Docker (Supported Recommended)
 
 	This would be the easiest and most straight-forward way to start your journey in Jetpack development. Docker offers a containerized install of WordPress with all of its dependencies installed and set up. You just need to start working on the plugin code. 
 	
@@ -53,7 +53,7 @@ For easier and more organized development, there are several ways to achieve tha
 
 	VVV is similar to Docker in how it works, but instead of setting up separate containers for the different parts it uses a single Linux virtual machine to set everything up with a nice interface.
 	
-	*...This section is still under development...*
+	You can read up more about setting up VVV on [the project's official page](https://varyingvagrantvagrants.org/). 
 	
 * ### Local web and database servers 
 	
@@ -180,7 +180,7 @@ There are three types of builds:
 	The production build will generate minified files without duplicated code (resulting from dependencies) and will also generate the matching source map and language files. To build it use:
 	
 	```sh
-	NODE_ENV=production yarn build-client
+	yarn build-production-client
 	```
 
 ### A note on building Jetpack and Node.js versions
@@ -323,13 +323,7 @@ We strongly recommend that you install tools to review your code in your IDE. It
 	This runs the actual linting task.
 	
 	```sh
-	$ composer php:lint
-	```
-	
-	_There's also a handy `yarn php:lint` that will run `composer php:lint` if you prefer_.
-	
-	```sh
-	$ yarn php:lint
+	yarn php:lint
 	```
 
 * ### Checking Jetpack's PHP for compatibility with different versions of PHP since 5.6
@@ -337,13 +331,7 @@ We strongly recommend that you install tools to review your code in your IDE. It
 	We have a handy `composer` script that will just run the PHP CodeSniffer `PHPCompatibilityWP` ruleset checking for code not compatible with PHP 5.6
 	
 	```sh
-	$ composer php:compatibility .
-	```
-	
-	_There's also a handy `yarn php:compatibility` that will run `composer php:compatibility` if you prefer_.
-	
-	```sh
-	$ yarn php:compatibility .
+	yarn php:compatibility
 	```
 
 * ### Linting Jetpack's JavaScript
