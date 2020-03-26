@@ -11,20 +11,20 @@ export default {
 		min: 1,
 		max: 6,
 	},
-	images: {
-		type: 'array',
-		default: [],
-	},
-	photosPadding: {
-		type: 'number',
-		default: 10,
-		min: 0,
-		max: 50,
-	},
-	photosToShow: {
+	count: {
 		type: 'number',
 		default: 9,
 		min: 1,
 		max: 30,
+	},
+	images: {
+		type: 'array',
+		default: [],
+	},
+	spacing: {
+		type: 'number',
+		default: 10,
+		min: 0,
+		max: 50,
 	},
 };

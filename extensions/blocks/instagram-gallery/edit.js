@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { isEmpty, isEqual } from 'lodash';
+import { debounce, isEmpty, isEqual } from 'lodash';
 
 /**
  * WordPress dependencies
@@ -32,7 +32,7 @@ import './editor.scss';
 
 export function InstagramGalleryEdit( props ) {
 	const { attributes, className, noticeOperations, noticeUI, setAttributes } = props;
-	const { accessToken, columns, images, instagramUser, photosPadding, photosToShow } = attributes;
+	const { accessToken, columns, count, images, instagramUser, spacing } = attributes;
 
 	const [ isConnectingToInstagram, setIsConnectingToInstagram ] = useState( false );
 	const [ isLoadingGallery, setIsLoadingGallery ] = useState( false );
@@ -55,7 +55,7 @@ export function InstagramGalleryEdit( props ) {
 		apiFetch( {
 			path: addQueryArgs( '/wpcom/v2/instagram/gallery', {
 				access_token: accessToken,
-				count: photosToShow,
+				count,
 			} ),
 		} ).then( response => {
 			setIsLoadingGallery( false );
@@ -69,7 +69,7 @@ export function InstagramGalleryEdit( props ) {
 
 			setAttributes( { images: response.images, instagramUser: response.external_name } );
 		} );
-	}, [ accessToken, photosToShow ] );
+	}, [ accessToken, count ] );
 
 	const connectToInstagram = () => {
 		setIsConnectingToInstagram( true );
@@ -105,12 +105,14 @@ export function InstagramGalleryEdit( props ) {
 		} );
 	};
 
+	const debouncedSetNumberOfPosts = debounce( value => setAttributes( { count: value } ), 500 );
+
 	const showPlaceholder = ! accessToken || isEmpty( images );
 	const showSidebar = ! showPlaceholder;
 	const showLoadingSpinner = accessToken && isLoadingGallery;
 	const showGallery = ! showPlaceholder && ! isLoadingGallery;
 
-	const { gridClasses, gridStyle, photoStyle } = getGalleryCssAttributes( columns, photosPadding );
+	const { gridClasses, gridStyle, photoStyle } = getGalleryCssAttributes( columns, spacing );
 
 	return (
 		<div className={ className }>
@@ -172,8 +174,8 @@ export function InstagramGalleryEdit( props ) {
 					<PanelBody title={ __( 'Gallery Settings', 'jetpack' ) }>
 						<RangeControl
 							label={ __( 'Number of Posts', 'jetpack' ) }
-							value={ photosToShow }
-							onChange={ value => setAttributes( { photosToShow: value } ) }
+							value={ count }
+							onChange={ debouncedSetNumberOfPosts }
 							min={ 1 }
 							max={ 30 }
 						/>
@@ -186,8 +188,8 @@ export function InstagramGalleryEdit( props ) {
 						/>
 						<RangeControl
 							label={ __( 'Image Spacing (px)', 'jetpack' ) }
-							value={ photosPadding }
-							onChange={ value => setAttributes( { photosPadding: value } ) }
+							value={ spacing }
+							onChange={ value => setAttributes( { spacing: value } ) }
 							min={ 0 }
 							max={ 50 }
 						/>

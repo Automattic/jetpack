@@ -4,13 +4,13 @@
 import { getGalleryCssAttributes } from './utils';
 
 export default function save( { attributes } ) {
-	const { columns, images, photosPadding } = attributes;
+	const { columns, images, spacing } = attributes;
 
 	if ( ! images.length ) {
 		return null;
 	}
 
-	const { gridClasses, gridStyle, photoStyle } = getGalleryCssAttributes( columns, photosPadding );
+	const { gridClasses, gridStyle, photoStyle } = getGalleryCssAttributes( columns, spacing );
 
 	return (
 		<div className={ gridClasses } style={ gridStyle }>
