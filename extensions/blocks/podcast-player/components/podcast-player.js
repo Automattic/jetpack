@@ -141,6 +141,8 @@ export class PodcastPlayer extends Component {
 		const { playerId, title, link, cover, tracks, attributes } = this.props;
 		const {
 			itemsToShow,
+			primaryColor,
+			customPrimaryColor,
 			secondaryColor,
 			customSecondaryColor,
 			backgroundColor,
@@ -158,7 +160,7 @@ export class PodcastPlayer extends Component {
 		const backgroundColorClass = getColorClassName( 'background-color', backgroundColor );
 
 		const cssClassesName = classnames( playerState, {
-			'has-primary': ! secondaryColorClass && ! customSecondaryColor,
+			'has-secondary': ! secondaryColorClass && ! customSecondaryColor,
 			[ secondaryColorClass ]: secondaryColorClass,
 			'has-background': backgroundColor && ! customBackgroundColor,
 			[ backgroundColorClass ]: backgroundColorClass,
@@ -194,6 +196,8 @@ export class PodcastPlayer extends Component {
 					currentTrack={ currentTrack }
 					tracks={ tracksToDisplay }
 					selectTrack={ this.selectTrack }
+					primaryColor={ primaryColor }
+					customPrimaryColor={ customPrimaryColor }
 				/>
 			</section>
 		);
