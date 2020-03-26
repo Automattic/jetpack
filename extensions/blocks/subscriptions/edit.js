@@ -115,27 +115,26 @@ function SubscriptionEdit( props ) {
 	return (
 		<>
 			<InspectorControls>
-				<PanelBody title={ __( 'Text Settings' ) } initialOpen={ false }>
-					<FontSizePicker value={ fontSize.size } onChange={ setFontSize } />
-				</PanelBody>
 				{ isGradientAvailable && (
 					<PanelColorGradientSettings
-						title={ __( 'Color Settings', 'jetpack' ) }
+						title={ __( 'Background Colors', 'jetpack' ) }
+						className="wp-block-jetpack-subscriptions__backgroundpanel"
 						settings={ [
 							{
-								colorValue: textColor.color,
-								onColorChange: setTextColor,
-								label: __( 'Text Color', 'jetpack' ),
+								colorValue: backgroundColor.color,
+								onColorChange: setBackgroundColor,
+								gradientValue,
+								onGradientChange: setGradient,
+								label: __( 'Email Field', 'jetpack' ),
 							},
 							{
 								colorValue: backgroundColor.color,
 								onColorChange: setBackgroundColor,
 								gradientValue,
 								onGradientChange: setGradient,
-								label: __( 'Background', 'jetpack' ),
+								label: __( 'Button', 'jetpack' ),
 							},
 						] }
-						initialOpen={ false }
 					>
 						<ContrastChecker
 							{ ...{
@@ -150,20 +149,15 @@ function SubscriptionEdit( props ) {
 				) }
 				{ ! isGradientAvailable && (
 					<PanelColorSettings
-						title={ __( 'Color Settings', 'jetpack' ) }
+						title={ __( 'Background Colors', 'jetpack' ) }
+						className="wp-block-jetpack-subscriptions__backgroundpanel"
 						colorSettings={ [
-							{
-								value: textColor.color,
-								onChange: setTextColor,
-								label: __( 'Text Color', 'jetpack' ),
-							},
 							{
 								value: backgroundColor.color,
 								onChange: setBackgroundColor,
 								label: __( 'Background', 'jetpack' ),
 							},
 						] }
-						initialOpen={ false }
 					>
 						<ContrastChecker
 							{ ...{
@@ -177,7 +171,31 @@ function SubscriptionEdit( props ) {
 					</PanelColorSettings>
 				) }
 
-				<PanelBody title={ __( 'Border Settings', 'jetpack' ) } initialOpen={ false }>
+				<PanelBody
+					title={ __( 'Text Settings' ) }
+					initialOpen={ false }
+					className="wp-block-jetpack-subscriptions__textpanel"
+				>
+					<FontSizePicker value={ fontSize.size } onChange={ setFontSize } withSlider={ true } />
+
+					<PanelColorSettings
+						title={ __( '', 'jetpack' ) }
+						className="wp-block-jetpack-subscriptions__textcolorpanel"
+						colorSettings={ [
+							{
+								value: textColor.color,
+								onChange: setTextColor,
+								label: __( 'Button Text Color', 'jetpack' ),
+							},
+						] }
+					/>
+				</PanelBody>
+
+				<PanelBody
+					title={ __( 'Border Settings', 'jetpack' ) }
+					initialOpen={ false }
+					className="wp-block-jetpack-subscriptions__borderpanel"
+				>
 					<RangeControl
 						value={ borderRadius }
 						label={ __( 'Border Radius', 'jetpack' ) }
@@ -187,10 +205,71 @@ function SubscriptionEdit( props ) {
 						allowReset
 						onChange={ newBorderRadius => setAttributes( { borderRadius: newBorderRadius } ) }
 					/>
+
+					<RangeControl
+						value={ borderRadius }
+						label={ __( 'Border Weight', 'jetpack' ) }
+						min={ MIN_BORDER_RADIUS_VALUE }
+						max={ MAX_BORDER_RADIUS_VALUE }
+						initialPosition={ INITIAL_BORDER_RADIUS_POSITION }
+						allowReset
+						onChange={ newBorderRadius => setAttributes( { borderRadius: newBorderRadius } ) }
+					/>
+
+					<PanelColorSettings
+						title={ __( '', 'jetpack' ) }
+						className="wp-block-jetpack-subscriptions__bordercolorpanel"
+						colorSettings={ [
+							{
+								value: textColor.color,
+								onChange: setTextColor,
+								label: __( 'Border Color', 'jetpack' ),
+							},
+						] }
+					/>
 				</PanelBody>
-				<PanelBody title={ __( 'Display Settings' ) }>
+
+				<PanelBody
+					title={ __( 'Spacing Settings', 'jetpack' ) }
+					initialOpen={ false }
+					className="wp-block-jetpack-subscriptions__spacingpanel"
+				>
+					<RangeControl
+						value={ borderRadius }
+						label={ __( 'Space Inside', 'jetpack' ) }
+						min={ MIN_BORDER_RADIUS_VALUE }
+						max={ MAX_BORDER_RADIUS_VALUE }
+						initialPosition={ INITIAL_BORDER_RADIUS_POSITION }
+						allowReset
+						onChange={ newBorderRadius => setAttributes( { borderRadius: newBorderRadius } ) }
+					/>
+
+					<RangeControl
+						value={ borderRadius }
+						label={ __( 'Space Between', 'jetpack' ) }
+						min={ MIN_BORDER_RADIUS_VALUE }
+						max={ MAX_BORDER_RADIUS_VALUE }
+						initialPosition={ INITIAL_BORDER_RADIUS_POSITION }
+						allowReset
+						onChange={ newBorderRadius => setAttributes( { borderRadius: newBorderRadius } ) }
+					/>
+				</PanelBody>
+
+				<PanelBody
+					title={ __( 'Display Settings' ) }
+					initialOpen={ false }
+					className="wp-block-jetpack-subscriptions__displaypanel"
+				>
 					<ToggleControl
 						label={ __( 'Show subscriber count', 'jetpack' ) }
+						checked={ showSubscribersTotal }
+						onChange={ () => {
+							setAttributes( { showSubscribersTotal: ! showSubscribersTotal } );
+						} }
+					/>
+
+					<ToggleControl
+						label={ __( 'Place button on new line', 'jetpack' ) }
 						checked={ showSubscribersTotal }
 						onChange={ () => {
 							setAttributes( { showSubscribersTotal: ! showSubscribersTotal } );

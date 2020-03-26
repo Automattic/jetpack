@@ -17,10 +17,21 @@
 			margin: 0;
 			border: none;
 		}
+	}
+}
 
-		.components-text-control__input::placeholder,
-		.components-text-control__input:-ms-input-placeholder {
-			opacity: 0.7;
-		}
+.wp-block-jetpack-subscriptions__textcolorpanel,
+.wp-block-jetpack-subscriptions__bordercolorpanel {
+	&.components-panel__body {
+		border: none;
+		padding: 0;
+	}
+
+	.components-panel__body-title {
+		display: none;
+	}
+
+	.components-circular-option-picker {
+		margin-top: 0;
 	}
 }
