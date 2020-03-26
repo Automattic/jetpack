@@ -10,7 +10,6 @@ import { RawHTML } from '@wordpress/element';
  * Internal dependencies
  */
 import edit from './edit';
-import save from './save';
 import renderMaterialIcon from '../../shared/render-material-icon';
 import { supportsCollections } from '../../shared/block-category';
 
@@ -100,7 +99,7 @@ export const settings = {
 		},
 	},
 	edit,
-	save,
+	save: () => {},
 	example: {
 		attributes: {},
 	},
