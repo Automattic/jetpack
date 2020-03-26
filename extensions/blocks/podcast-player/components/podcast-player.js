@@ -187,11 +187,13 @@ PodcastPlayer.defaultProps = {
 	title: '',
 	cover: '',
 	link: '',
+	attributes: {
+		url: null,
+		itemsToShow: 5,
+		showCoverArt: true,
+		showEpisodeDescription: true,
+	},
 	tracks: [],
-	url: null,
-	itemsToShow: 5,
-	showCoverArt: true,
-	showEpisodeDescription: true,
 };
 
 export default PodcastPlayer;
