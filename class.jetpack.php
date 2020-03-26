@@ -379,6 +379,14 @@ class Jetpack {
 	public static $plugin_upgrade_lock_key = 'jetpack_upgrade_lock';
 
 	/**
+	 * Constant for login redirect key.
+	 *
+	 * @var string
+	 * @since 8.4.0
+	 */
+	protected static $jetpack_redirect_login = 'jetpack_connect_login_redirect';
+
+	/**
 	 * Holds the singleton instance of this class
 	 *
 	 * @since 2.3.3
@@ -4032,8 +4040,8 @@ p {
 	 */
 	public function login_url( $login_url, $redirect ) {
 		parse_str( wp_parse_url( $redirect, PHP_URL_QUERY ), $redirect_parts );
-		if ( ! empty( $redirect_parts['connect_login_redirect'] ) ) {
-			$login_url = add_query_arg( 'connect_login_redirect', 'true', $login_url );
+		if ( ! empty( $redirect_parts[ self::$jetpack_redirect_login ] ) ) {
+			$login_url = add_query_arg( self::$jetpack_redirect_login, 'true', $login_url );
 		}
 		return $login_url;
 	}
@@ -4045,7 +4053,7 @@ p {
 	 */
 	public function login_init() {
 		// phpcs:ignore WordPress.Security.NonceVerification
-		if ( ! empty( $_GET['connect_login_redirect'] ) ) {
+		if ( ! empty( $_GET[ self::$jetpack_redirect_login ] ) ) {
 			add_filter( 'allowed_redirect_hosts', array( &$this, 'allow_wpcom_environments' ) );
 			wp_safe_redirect(
 				add_query_arg(
