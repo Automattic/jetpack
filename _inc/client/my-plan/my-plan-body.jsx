@@ -568,6 +568,7 @@ class MyPlanBody extends React.Component {
 			case 'is-free-plan':
 			case 'is-daily-backup-plan':
 			case 'is-realtime-backup-plan':
+			case 'is-search-plan':
 			case 'dev':
 				planCard = (
 					<div className="jp-landing__plan-features">
