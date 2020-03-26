@@ -27,7 +27,6 @@ import {
 	withColors,
 	PanelColorSettings,
 	ContrastChecker,
-	getColorClassName,
 } from '@wordpress/block-editor';
 
 import apiFetch from '@wordpress/api-fetch';
@@ -44,7 +43,6 @@ import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import attributesValidation from './attributes';
 import PodcastPlayer from './components/podcast-player';
 import { applyFallbackStyles } from '../../shared/apply-fallback-styles';
-import classnames from 'classnames';
 
 const DEFAULT_MIN_ITEMS = 1;
 const DEFAULT_MAX_ITEMS = 10;
@@ -74,16 +72,8 @@ const PodcastPlayerEdit = ( {
 	fallbackBackgroundColor,
 } ) => {
 	// Validated attributes.
-	const {
-		url,
-		itemsToShow,
-		showCoverArt,
-		showEpisodeDescription,
-		primaryColor,
-		customPrimaryColor,
-		backgroundColor,
-		customBackgroundColor,
-	} = getValidatedAttributes( attributesValidation, attributes );
+	const validatedAttributes = getValidatedAttributes( attributesValidation, attributes );
+	const { url, itemsToShow, showCoverArt, showEpisodeDescription } = validatedAttributes;
 
 	const playerId = `jetpack-podcast-player-block-${ instanceId }`;
 
@@ -204,22 +194,6 @@ const PodcastPlayerEdit = ( {
 		);
 	}
 
-	// Set CSS classes string.
-	const primaryColorClass = getColorClassName( 'color', primaryColor );
-	const backgroundColorClass = getColorClassName( 'background-color', backgroundColor );
-
-	const cssClassesName = classnames( className, {
-		'has-primary': primaryColor || customPrimaryColor,
-		[ primaryColorClass ]: primaryColorClass,
-		'has-background': backgroundColor || customBackgroundColor,
-		[ backgroundColorClass ]: backgroundColorClass,
-	} );
-
-	const inlineStyles = {
-		backgroundColor: backgroundColorClass ? undefined : customBackgroundColor,
-		color: primaryColorClass ? undefined : customPrimaryColor,
-	};
-
 	return (
 		<>
 			<BlockControls>
@@ -282,20 +256,15 @@ const PodcastPlayerEdit = ( {
 				</PanelColorSettings>
 			</InspectorControls>
 
-			<div
-				id={ playerId }
-				className={ cssClassesName }
-				style={ Object.keys( inlineStyles ).length ? inlineStyles : null }
-			>
+			<div id={ playerId } className={ className }>
 				<PodcastPlayer
 					playerId={ playerId }
+					attributes={ validatedAttributes }
 					tracks={ feedData.tracks }
 					cover={ feedData.cover }
 					title={ feedData.title }
 					link={ feedData.link }
-					itemsToShow={ itemsToShow }
-					showEpisodeDescription={ showEpisodeDescription }
-					showCoverArt={ showCoverArt }
+					coverArt={ feedData.coverArt }
 				/>
 			</div>
 		</>
