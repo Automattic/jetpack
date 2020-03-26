@@ -1,9 +1,10 @@
 /**
- * External dependencies
+ * WordPress dependencies
  */
 import classnames from 'classnames';
 import { memo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { getColorClassName } from '@wordpress/block-editor';
 
 /**
  * Internal dependencies
@@ -45,13 +46,16 @@ const TrackError = memo( ( { link } ) => (
 	</div>
 ) );
 
-const Track = memo( ( { track, isActive, isPlaying, isError, selectTrack, index } ) => {
+const Track = memo( ( { track, isActive, isPlaying, isError, selectTrack, index, primaryColor, customPrimaryColor } ) => {
+	const primaryColorClass = getColorClassName( 'color', primaryColor );
+	const trackClassName = classnames( 'jetpack-podcast-player__episode', {
+		'is-active': isActive,
+		'has-primary': isActive && primaryColor && ! customPrimaryColor,
+		[ primaryColorClass ]: isActive && !! primaryColorClass,
+	} );
+
 	return (
-		<li
-			className={ classnames( 'jetpack-podcast-player__episode', {
-				'is-active': isActive,
-			} ) }
-		>
+		<li className={ trackClassName }>
 			<a
 				className="jetpack-podcast-player__episode-link"
 				href={ track.link }
@@ -97,7 +101,7 @@ const Track = memo( ( { track, isActive, isPlaying, isError, selectTrack, index 
 	);
 } );
 
-const Playlist = memo( ( { tracks, selectTrack, currentTrack, playerState } ) => {
+const Playlist = memo( ( { tracks, selectTrack, currentTrack, playerState, primaryColor, customPrimaryColor } ) => {
 	return (
 		<ol className="jetpack-podcast-player__episodes">
 			{ tracks.map( ( track, index ) => {
@@ -112,6 +116,8 @@ const Playlist = memo( ( { tracks, selectTrack, currentTrack, playerState } ) =>
 						isActive={ isActive }
 						isPlaying={ isActive && playerState === STATE_PLAYING }
 						isError={ isActive && playerState === STATE_ERROR }
+						primaryColor={ primaryColor }
+						customPrimaryColor={ customPrimaryColor }
 					/>
 				);
 			} ) }
