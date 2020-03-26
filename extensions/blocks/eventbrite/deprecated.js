@@ -1,3 +1,5 @@
+import { _x } from '@wordpress/i18n';
+
 /**
  * External dependencies
  */
@@ -64,22 +66,82 @@ function saveButton( attributes ) {
 	);
 }
 
-export default function save( { attributes } ) {
-	const { eventId, style, url } = attributes;
+export default [
+	{
+		attributes: {
+			url: {
+				type: 'string',
+			},
+			eventId: {
+				type: 'number',
+			},
+			useModal: {
+				type: 'boolean',
+			},
+			// Modal button attributes, used for Button & Modal embed type.
+			text: {
+				type: 'string',
+				default: _x( 'Register', 'verb: e.g. register for an event.', 'jetpack' ),
+			},
+			backgroundColor: {
+				type: 'string',
+			},
+			textColor: {
+				type: 'string',
+			},
+			customBackgroundColor: {
+				type: 'string',
+			},
+			customTextColor: {
+				type: 'string',
+			},
+			borderRadius: {
+				type: 'number',
+			},
+		},
 
-	if ( ! eventId ) {
-		return;
-	}
+		migrate: ( {
+			url,
+			eventId,
+			useModal,
+			text,
+			backgroundColor,
+			textColor,
+			customBackgroundColor,
+			customTextColor,
+			borderRadius,
+		} ) => {
+			return {
+				url,
+				eventId,
+				text,
+				backgroundColor,
+				textColor,
+				customBackgroundColor,
+				customTextColor,
+				borderRadius,
+				style: useModal ? 'modal' : 'inline',
+			};
+		},
 
-	if ( style === 'modal' ) {
-		return saveButton( attributes );
-	}
+		save: function save( { attributes } ) {
+			const { eventId, useModal, url } = attributes;
 
-	return (
-		url && (
-			<a className="eventbrite__direct-link" href={ url }>
-				{ url }
-			</a>
-		)
-	);
-}
+			if ( ! eventId ) {
+				return;
+			}
+
+			if ( useModal ) {
+				return saveButton( attributes );
+			}
+
+			return (
+				url && (
+					<a className="eventbrite__direct-link" href={ url }>
+						{ url }
+					</a>
+				)
+			);
+		},
+	},
+];
