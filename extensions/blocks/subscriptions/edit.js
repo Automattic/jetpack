@@ -33,16 +33,17 @@ import './editor.scss';
 const { getComputedStyle } = window;
 const isGradientAvailable = !! useGradient;
 
+// TODO Update this to support fallback for new colors
 const applyFallbackStyles = withFallbackStyles( ( node, ownProps ) => {
-	const { textColor, backgroundColor } = ownProps;
-	const backgroundColorValue = backgroundColor && backgroundColor.color;
+	const { textColor, emailFieldBackgroundColor } = ownProps;
+	const backgroundColorValue = emailFieldBackgroundColor && emailFieldBackgroundColor.color;
 	const textColorValue = textColor && textColor.color;
 
 	const textNode =
 		! textColorValue && node ? node.querySelector( '[contenteditable="true"]' ) : null;
 
 	return {
-		fallbackBackgroundColor:
+		fallbackEmailFieldBackgroundColor:
 			backgroundColorValue || ! node ? undefined : getComputedStyle( node ).backgroundColor,
 		fallbackTextColor:
 			textColorValue || ! textNode ? undefined : getComputedStyle( textNode ).color,
@@ -62,9 +63,11 @@ function SubscriptionEdit( props ) {
 		className,
 		attributes,
 		setAttributes,
-		backgroundColor,
-		fallbackBackgroundColor,
-		setBackgroundColor,
+		emailFieldBackgroundColor,
+		setEmailFieldBackgroundColor,
+		buttonBackgroundColor,
+		fallbackButtonBackgroundColor,
+		setButtonBackgroundColor,
 		textColor,
 		fallbackTextColor,
 		setTextColor,
@@ -83,22 +86,69 @@ function SubscriptionEdit( props ) {
 	} = attributes;
 
 	const [ subscriberCountString, setSubscriberCountString ] = useState( '' );
-	const { gradientClass, gradientValue, setGradient } = isGradientAvailable ? useGradient() : {};
+	const emailFieldGradient = isGradientAvailable
+		? useGradient( {
+				gradientAttribute: 'emailFieldGradient',
+				customGradientAttribute: 'customEmailFieldGradient',
+		  } )
+		: {};
+	const buttonGradient = isGradientAvailable
+		? useGradient( {
+				gradientAttribute: 'buttonGradient',
+				customGradientAttribute: 'customButtonGradient',
+		  } )
+		: {};
 
-	const classes = {
-		'has-background': backgroundColor.color || gradientValue,
-		[ backgroundColor.class ]: ! gradientValue && backgroundColor.class,
-		'has-text-color': textColor.color,
-		[ textColor.class ]: textColor.class,
-		[ gradientClass ]: gradientClass,
+	const sharedClasses = {
 		'no-border-radius': borderRadius === 0,
 		[ fontSize.class ]: fontSize.class,
 	};
 
-	const styles = {
-		...( ! backgroundColor.color && gradientValue
-			? { background: gradientValue }
-			: { backgroundColor: backgroundColor.color } ),
+	const emailFieldClasses = {
+		...sharedClasses,
+		'has-background': emailFieldBackgroundColor.color || emailFieldGradient.gradientValue,
+		[ emailFieldBackgroundColor.class ]:
+			! emailFieldGradient.gradientValue && emailFieldBackgroundColor.class,
+		'has-text-color': textColor.color,
+		[ textColor.class ]: textColor.class,
+		[ emailFieldGradient.gradientClass ]: emailFieldGradient.gradientClass,
+	};
+
+	const buttonClasses = {
+		...sharedClasses,
+		'has-background': buttonBackgroundColor.color || buttonGradient.gradientValue,
+		[ buttonBackgroundColor.class ]: ! buttonGradient.gradientValue && buttonBackgroundColor.class,
+		'has-text-color': textColor.color,
+		[ textColor.class ]: textColor.class,
+		[ buttonGradient.gradientClass ]: buttonGradient.gradientClass,
+		'no-border-radius': borderRadius === 0,
+		[ fontSize.class ]: fontSize.class,
+	};
+
+	const sharedStyles = {
+		borderColor: borderColor.color,
+		borderRadius: borderRadius ? borderRadius + 'px' : 0,
+		borderWidth: borderWeight ? borderWeight + 'px' : 0,
+		fontSize: fontSize.size ? fontSize.size + 'px' : undefined,
+	};
+
+	const emailFieldStyles = {
+		...sharedStyles,
+		...( ! emailFieldBackgroundColor.color && emailFieldGradient.gradientValue
+			? { background: emailFieldGradient.gradientValue }
+			: { backgroundColor: emailFieldBackgroundColor.color } ),
+		color: textColor.color,
+		borderColor: borderColor.color,
+		borderRadius: borderRadius ? borderRadius + 'px' : 0,
+		borderWidth: borderWeight ? borderWeight + 'px' : 0,
+		fontSize: fontSize.size ? fontSize.size + 'px' : undefined,
+	};
+
+	const buttonStyles = {
+		...sharedStyles,
+		...( ! buttonBackgroundColor.color && buttonGradient.gradientValue
+			? { background: buttonGradient.gradientValue }
+			: { backgroundColor: buttonBackgroundColor.color } ),
 		color: textColor.color,
 		borderColor: borderColor.color,
 		borderRadius: borderRadius ? borderRadius + 'px' : 0,
@@ -135,17 +185,17 @@ function SubscriptionEdit( props ) {
 						className="wp-block-jetpack-subscriptions__backgroundpanel"
 						settings={ [
 							{
-								colorValue: backgroundColor.color,
-								onColorChange: setBackgroundColor,
-								gradientValue,
-								onGradientChange: setGradient,
+								colorValue: emailFieldBackgroundColor.color,
+								onColorChange: setEmailFieldBackgroundColor,
+								gradientValue: emailFieldGradient.gradientValue,
+								onGradientChange: emailFieldGradient.setGradient,
 								label: __( 'Email Field', 'jetpack' ),
 							},
 							{
-								colorValue: backgroundColor.color,
-								onColorChange: setBackgroundColor,
-								gradientValue,
-								onGradientChange: setGradient,
+								colorValue: buttonBackgroundColor.color,
+								onColorChange: setButtonBackgroundColor,
+								gradientValue: buttonGradient.gradientValue,
+								onGradientChange: buttonGradient.setGradient,
 								label: __( 'Button', 'jetpack' ),
 							},
 						] }
@@ -155,8 +205,8 @@ function SubscriptionEdit( props ) {
 							{ ...{
 								fontSize: fontSize.size,
 								textColor: textColor.color,
-								backgroundColor: backgroundColor.color,
-								fallbackBackgroundColor,
+								backgroundColor: emailFieldBackgroundColor.color,
+								fallbackButtonBackgroundColor,
 								fallbackTextColor,
 							} }
 						/>
@@ -168,9 +218,14 @@ function SubscriptionEdit( props ) {
 						className="wp-block-jetpack-subscriptions__backgroundpanel"
 						colorSettings={ [
 							{
-								value: backgroundColor.color,
-								onChange: setBackgroundColor,
-								label: __( 'Background', 'jetpack' ),
+								value: emailFieldBackgroundColor.color,
+								onChange: setEmailFieldBackgroundColor,
+								label: __( 'Email Field', 'jetpack' ),
+							},
+							{
+								value: buttonBackgroundColor.color,
+								onChange: setButtonBackgroundColor,
+								label: __( 'Button', 'jetpack' ),
 							},
 						] }
 						initialOpen={ false }
@@ -179,8 +234,8 @@ function SubscriptionEdit( props ) {
 							{ ...{
 								fontSize: fontSize.size,
 								textColor: textColor.color,
-								backgroundColor: backgroundColor.color,
-								fallbackBackgroundColor,
+								backgroundColor: emailFieldBackgroundColor.color,
+								fallbackButtonBackgroundColor,
 								fallbackTextColor,
 							} }
 						/>
@@ -300,16 +355,16 @@ function SubscriptionEdit( props ) {
 				<TextControl
 					placeholder={ subscribePlaceholder }
 					disabled={ true }
-					className={ classnames( classes, 'wp-block-jetpack-subscriptions__textfield' ) }
-					style={ styles }
+					className={ classnames( emailFieldClasses, 'wp-block-jetpack-subscriptions__textfield' ) }
+					style={ emailFieldStyles }
 				/>
 
 				<RichText
 					allowedFormats={ [] }
-					className={ classnames( classes, 'wp-block-jetpack-subscriptions__button' ) }
+					className={ classnames( buttonClasses, 'wp-block-jetpack-subscriptions__button' ) }
 					onChange={ value => setAttributes( { submitButtonText: value } ) }
 					placeholder={ __( 'Add text…', 'jetpack' ) }
-					style={ styles }
+					style={ buttonStyles }
 					value={ submitButtonText }
 					withoutInteractiveFormatting
 				/>
@@ -319,7 +374,12 @@ function SubscriptionEdit( props ) {
 }
 
 export default compose( [
-	withColors( 'backgroundColor', 'borderColor', { textColor: 'color' } ),
+	withColors(
+		{ emailFieldBackgroundColor: 'backgroundColor' },
+		{ buttonBackgroundColor: 'backgroundColor' },
+		{ textColor: 'color' },
+		'borderColor'
+	),
 	withFontSizes( 'fontSize' ),
 	applyFallbackStyles,
 ] )( SubscriptionEdit );
