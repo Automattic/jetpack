@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import classnames from 'classnames';
 import { debounce, isEmpty, isEqual } from 'lodash';
 
 /**
@@ -32,7 +33,7 @@ import './editor.scss';
 
 export function InstagramGalleryEdit( props ) {
 	const { attributes, className, noticeOperations, noticeUI, setAttributes } = props;
-	const { accessToken, columns, count, images, instagramUser, spacing } = attributes;
+	const { accessToken, align, columns, count, images, instagramUser, spacing } = attributes;
 
 	const [ isConnectingToInstagram, setIsConnectingToInstagram ] = useState( false );
 	const [ isLoadingGallery, setIsLoadingGallery ] = useState( false );
@@ -112,10 +113,11 @@ export function InstagramGalleryEdit( props ) {
 	const showLoadingSpinner = accessToken && isLoadingGallery;
 	const showGallery = ! showPlaceholder && ! isLoadingGallery;
 
+	const blockClasses = classnames( className, { [ `align${ align }` ]: align } );
 	const { gridClasses, gridStyle, photoStyle } = getGalleryCssAttributes( columns, spacing );
 
 	return (
-		<div className={ className }>
+		<div className={ blockClasses }>
 			{ showPlaceholder && (
 				<Placeholder
 					icon="instagram"

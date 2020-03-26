@@ -23,7 +23,7 @@ export const settings = {
 		_x( 'pictures', 'block search term', 'jetpack' ),
 	],
 	supports: {
-		align: [ 'wide', 'full' ],
+		align: true,
 		html: false,
 	},
 	attributes,
