@@ -98,7 +98,7 @@ If you're ready to start, you should see all green `SUCCESS` messages. If the sc
 
 	PHP is a popular general-purpose scripting language that is especially suited to web development and it's at the core of the Jetpack plugin. 
 	
-	There are multiple ways to install PHP on your operating system, but as it's very dependend on your operating system and it's flavor, we're not going to cover it in this document at this time. 
+	There are multiple ways to install PHP on your operating system, but as it's very dependent on your operating system and it's flavor, we're not going to cover it in this document at this time. 
 	
 	You can check out the [official installation instructions from the project website.](https://www.php.net/manual/en/install.php).
 
@@ -131,7 +131,7 @@ If you're ready to start, you should see all green `SUCCESS` messages. If the sc
 
 * ### PHPUnit
 
-	PHPUnit is the unit test framework we use in Jetpack. You can install it by [visitng the official project web site](https://phpunit.de/) and follow the installation instructions there. 
+	PHPUnit is the unit test framework we use in Jetpack. You can install it by [visiting the official project web site](https://phpunit.de/) and follow the installation instructions there. 
 
 # Development workflow
 
@@ -163,14 +163,14 @@ To work on Jetpack you need to build the JavaScript and CSS components of the pl
 There are three types of builds:
 
 * ### Development build
-	The standard development build will create unminified versions of the JavaScript and CSS files. To build Jetpack like this run:
+	The standard development build will create un-minified versions of the JavaScript and CSS files. To build Jetpack like this run:
 	
 	```sh
 	yarn build
 	```
 	
 * ### Continuous Development build
-	By default the development build above will run once and if you change any of the files, you need to run `yarn build` again to see the changes on the site. If you want to avoid that, you can run a continous build that will rebuild anytime it sees any changes on your local filesystem. To run it, use:
+	By default the development build above will run once and if you change any of the files, you need to run `yarn build` again to see the changes on the site. If you want to avoid that, you can run a continuous build that will rebuild anytime it sees any changes on your local filesystem. To run it, use:
 	
 	```sh
 	yarn watch
@@ -306,7 +306,7 @@ To execute them in your local environment, you can use the following commands.
 	yarn test-client -R 'my_reporter'
 	```
 
-# Good code - linting, standards, compatibilty, etc.
+# Good code - linting, standards, compatibility, etc.
 
 ## Coding standards
 
