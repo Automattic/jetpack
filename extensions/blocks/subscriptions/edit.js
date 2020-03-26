@@ -102,6 +102,8 @@ function SubscriptionEdit( props ) {
 	const sharedClasses = {
 		'no-border-radius': borderRadius === 0,
 		[ fontSize.class ]: fontSize.class,
+		'has-text-color': textColor.color,
+		[ textColor.class ]: textColor.class,
 	};
 
 	const emailFieldClasses = {
@@ -109,8 +111,6 @@ function SubscriptionEdit( props ) {
 		'has-background': emailFieldBackgroundColor.color || emailFieldGradient.gradientValue,
 		[ emailFieldBackgroundColor.class ]:
 			! emailFieldGradient.gradientValue && emailFieldBackgroundColor.class,
-		'has-text-color': textColor.color,
-		[ textColor.class ]: textColor.class,
 		[ emailFieldGradient.gradientClass ]: emailFieldGradient.gradientClass,
 	};
 
@@ -118,14 +118,11 @@ function SubscriptionEdit( props ) {
 		...sharedClasses,
 		'has-background': buttonBackgroundColor.color || buttonGradient.gradientValue,
 		[ buttonBackgroundColor.class ]: ! buttonGradient.gradientValue && buttonBackgroundColor.class,
-		'has-text-color': textColor.color,
-		[ textColor.class ]: textColor.class,
 		[ buttonGradient.gradientClass ]: buttonGradient.gradientClass,
-		'no-border-radius': borderRadius === 0,
-		[ fontSize.class ]: fontSize.class,
 	};
 
 	const sharedStyles = {
+		color: textColor.color,
 		borderColor: borderColor.color,
 		borderRadius: borderRadius ? borderRadius + 'px' : 0,
 		borderWidth: borderWeight ? borderWeight + 'px' : 0,
@@ -137,11 +134,6 @@ function SubscriptionEdit( props ) {
 		...( ! emailFieldBackgroundColor.color && emailFieldGradient.gradientValue
 			? { background: emailFieldGradient.gradientValue }
 			: { backgroundColor: emailFieldBackgroundColor.color } ),
-		color: textColor.color,
-		borderColor: borderColor.color,
-		borderRadius: borderRadius ? borderRadius + 'px' : 0,
-		borderWidth: borderWeight ? borderWeight + 'px' : 0,
-		fontSize: fontSize.size ? fontSize.size + 'px' : undefined,
 	};
 
 	const buttonStyles = {
@@ -149,11 +141,6 @@ function SubscriptionEdit( props ) {
 		...( ! buttonBackgroundColor.color && buttonGradient.gradientValue
 			? { background: buttonGradient.gradientValue }
 			: { backgroundColor: buttonBackgroundColor.color } ),
-		color: textColor.color,
-		borderColor: borderColor.color,
-		borderRadius: borderRadius ? borderRadius + 'px' : 0,
-		borderWidth: borderWeight ? borderWeight + 'px' : 0,
-		fontSize: fontSize.size ? fontSize.size + 'px' : undefined,
 	};
 
 	const get_subscriber_count = () => {
