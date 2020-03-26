@@ -115,28 +115,60 @@ function render_player( $player_data, $attributes ) {
 		$player_data
 	);
 
+	// Set CSS classes for `secondary` and `background` colors.
+	$secondary_color         = isset( $attributes['secondaryColor'] ) ? $attributes['secondaryColor'] : null;
+	$custom_secondary_color  = isset( $attributes['customSecondaryColor'] ) ? $attributes['customSecondaryColor'] : null;
+	$background_color        = isset( $attributes['backgroundColor'] ) ? $attributes['backgroundColor'] : null;
+	$custom_background_color = isset( $attributes['customBackgroundColor'] ) ? $attributes['customBackgroundColor'] : null;
+
+	$secondary_color_class  = get_color_class_name( 'color', $secondary_color );
+	$background_color_class = get_color_class_name( 'background-color', $background_color );
+
+	$podcast_player_classes_name = array();
+	if ( isset( $secondary_color_class ) || isset( $custom_secondary_color ) ) {
+		array_push( $podcast_player_classes_name, 'has-secondary' );
+		if ( isset( $secondary_color_class ) ) {
+			array_push( $podcast_player_classes_name, $secondary_color_class );
+		}
+	}
+	if ( isset( $background_color_class ) || isset( $custom_background_color ) ) {
+		array_push( $podcast_player_classes_name, 'has-background' );
+		if ( isset( $background_color_class ) ) {
+			array_push( $podcast_player_classes_name, $background_color_class );
+		}
+	}
+	$podcast_player_classes_name = implode( ' ', $podcast_player_classes_name );
+
 	$block_classname = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attributes, array( 'is-default' ) );
 	$is_amp          = ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() );
 
 	ob_start();
 	?>
 	<div class="<?php echo esc_attr( $block_classname ); ?>" id="<?php echo esc_attr( $instance_id ); ?>">
-		<ol class="jetpack-podcast-player__episodes">
-			<?php foreach ( $player_data['tracks'] as $attachment ) : ?>
-			<li class="jetpack-podcast-player__episode">
-				<a
-					class="jetpack-podcast-player__episode-link"
-					href="<?php echo esc_url( $attachment['link'] ); ?>"
-					role="button"
-					aria-pressed="false"
-				>
-					<span class="jetpack-podcast-player__episode-status-icon"></span>
-					<span class="jetpack-podcast-player__episode-title"><?php echo esc_html( $attachment['title'] ); ?></span>
-					<time class="jetpack-podcast-player__episode-duration"><?php echo ( ! empty( $attachment['duration'] ) ? esc_html( $attachment['duration'] ) : '' ); ?></time>
-				</a>
-			</li>
-			<?php endforeach; ?>
-		</ol>
+		<div
+			<?php
+			echo ! empty( $podcast_player_classes_name )
+				? ' class="' . esc_attr( $podcast_player_classes_name ) . '"'
+				: '';
+			?>
+		>
+			<ol class="jetpack-podcast-player__episodes">
+				<?php foreach ( $player_data['tracks'] as $attachment ) : ?>
+				<li class="jetpack-podcast-player__episode">
+					<a
+						class="jetpack-podcast-player__episode-link"
+						href="<?php echo esc_url( $attachment['link'] ); ?>"
+						role="button"
+						aria-pressed="false"
+					>
+						<span class="jetpack-podcast-player__episode-status-icon"></span>
+						<span class="jetpack-podcast-player__episode-title"><?php echo esc_html( $attachment['title'] ); ?></span>
+						<time class="jetpack-podcast-player__episode-duration"><?php echo ( ! empty( $attachment['duration'] ) ? esc_html( $attachment['duration'] ) : '' ); ?></time>
+					</a>
+				</li>
+				<?php endforeach; ?>
+			</ol>
+		</div>
 		<?php if ( ! $is_amp ) : ?>
 		<script type="application/json"><?php echo wp_json_encode( $player_props ); ?></script>
 		<?php endif; ?>
