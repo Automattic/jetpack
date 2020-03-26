@@ -35,35 +35,31 @@ const Header = memo( ( { playerId, title, cover, link, track, children } ) => (
 	</div>
 ) );
 
-const Title = ( { playerId, title, link, track } ) => {
-	return (
-		<h2 id={ `${ playerId }__title` } className="jetpack-podcast-player__titles">
-			{ track && track.title ? (
-				<span className="jetpack-podcast-player__track-title">{ track.title }</span>
-			) : null }
+const Title = memo( ( { playerId, title, link, track } ) => (
+	<h2 id={ `${ playerId }__title` } className="jetpack-podcast-player__titles">
+		{ track && track.title ? (
+			<span className="jetpack-podcast-player__track-title">{ track.title }</span>
+		) : null }
 
-			{ /* Adds a visually hidden - when both a track and title are present */ }
-			{ track && track.title && title ? (
-				<span className="jetpack-podcast-player--visually-hidden"> - </span>
-			) : null }
+		{ /* Adds a visually hidden dash when both a track and a podcast titles are present */ }
+		{ track && track.title && title ? (
+			<span className="jetpack-podcast-player--visually-hidden"> - </span>
+		) : null }
 
-			{ title ? <PodcastTitle title={ title } link={ link } /> : null }
-		</h2>
-	);
-};
+		{ title ? <PodcastTitle title={ title } link={ link } /> : null }
+	</h2>
+) );
 
-const PodcastTitle = ( { title, link } ) => {
-	return (
-		<span className="jetpack-podcast-player__title">
-			{ link ? (
-				<a className="jetpack-podcast-player__title-link" href={ link }>
-					{ title }
-				</a>
-			) : (
-				title
-			) }
-		</span>
-	);
-};
+const PodcastTitle = memo( ( { title, link } ) => (
+	<span className="jetpack-podcast-player__title">
+		{ link ? (
+			<a className="jetpack-podcast-player__title-link" href={ link }>
+				{ title }
+			</a>
+		) : (
+			title
+		) }
+	</span>
+) );
 
 export default Header;
