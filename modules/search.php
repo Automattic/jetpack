@@ -2,7 +2,7 @@
 
 /**
  * Module Name: Search
- * Module Description: Enhanced search, powered by Elasticsearch, a powerful replacement for WordPress search.
+ * Module Description: Help visitors quickly find answers with highly relevant instant search results and powerful filtering.
  * First Introduced: 5.0
  * Sort Order: 34
  * Free: false
