@@ -164,11 +164,9 @@ if ( ! function_exists( __NAMESPACE__ . '\autoloader' ) ) {
 				}
 			}
 
-			if ( file_exists( $jetpack_packages_classes[ $class_name ]['path'] ) ) {
-				require_once $jetpack_packages_classes[ $class_name ]['path'];
+			require_once $jetpack_packages_classes[ $class_name ]['path'];
 
-				return true;
-			}
+			return true;
 		}
 
 		return false;
