@@ -1,21 +1,27 @@
 .wp-block-jetpack-subscriptions {
-	display: flex;
-	align-items: top;
+	.wp-block-jetpack-subscriptions__form {
+		display: flex;
+		align-items: top;
 
-	.wp-block-jetpack-subscriptions__textfield .components-text-control__input,
-	.wp-block-jetpack-subscriptions__button {
-		padding: 15px;
-		line-height: initial;
-		border-style: solid;
+		.wp-block-jetpack-subscriptions__textfield .components-text-control__input,
+		.wp-block-jetpack-subscriptions__button {
+			padding: 15px;
+			line-height: initial;
+			border-style: solid;
+		}
+
+		.wp-block-jetpack-subscriptions__textfield {
+			flex-grow: 1;
+			background: transparent !important;
+
+			.components-base-control__field, .components-text-control__input {
+				margin: 0;
+			}
+		}
 	}
 
-	.wp-block-jetpack-subscriptions__textfield {
-		flex-grow: 1;
-		background: transparent !important;
-
-		.components-base-control__field, .components-text-control__input {
-			margin: 0;
-		}
+	.wp-block-jetpack-subscriptions__subscount {
+		margin: 5px 0 0 5px;
 	}
 }
 

@@ -349,23 +349,32 @@ function SubscriptionEdit( props ) {
 				</PanelBody>
 			</InspectorControls>
 
-			<div className={ className } role="form">
-				<TextControl
-					placeholder={ subscribePlaceholder }
-					disabled={ true }
-					className={ classnames( emailFieldClasses, 'wp-block-jetpack-subscriptions__textfield' ) }
-					style={ emailFieldStyles }
-				/>
+			<div className={ className }>
+				<div className="wp-block-jetpack-subscriptions__form" role="form">
+					<TextControl
+						placeholder={ subscribePlaceholder }
+						disabled={ true }
+						className={ classnames(
+							emailFieldClasses,
+							'wp-block-jetpack-subscriptions__textfield'
+						) }
+						style={ emailFieldStyles }
+					/>
 
-				<RichText
-					className={ classnames( buttonClasses, 'wp-block-jetpack-subscriptions__button' ) }
-					onChange={ value => setAttributes( { submitButtonText: value } ) }
-					style={ buttonStyles }
-					value={ submitButtonText }
-					withoutInteractiveFormatting
-				/>
+					<RichText
+						className={ classnames( buttonClasses, 'wp-block-jetpack-subscriptions__button' ) }
+						onChange={ value => setAttributes( { submitButtonText: value } ) }
+						style={ buttonStyles }
+						value={ submitButtonText }
+						withoutInteractiveFormatting
+					/>
+				</div>
 
-				{ showSubscribersTotal && <p role="heading">{ subscriberCountString }</p> }
+				{ showSubscribersTotal && (
+					<p className="wp-block-jetpack-subscriptions__subscount has-small-font-size">
+						{ subscriberCountString }
+					</p>
+				) }
 			</div>
 		</>
 	);
