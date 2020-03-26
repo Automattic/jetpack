@@ -384,7 +384,7 @@ class Jetpack {
 	 * @var string
 	 * @since 8.4.0
 	 */
-	protected static $jetpack_redirect_login = 'jetpack_connect_login_redirect';
+	public static $jetpack_redirect_login = 'jetpack_connect_login_redirect';
 
 	/**
 	 * Holds the singleton instance of this class

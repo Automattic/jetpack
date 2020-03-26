@@ -1208,4 +1208,78 @@ EXPECTED;
 		);
 	}
 
+	/**
+	 * Tests login URL only adds redirect param when redirect param is in original request.
+	 *
+	 * @since 8.4.0
+	 * @return void
+	 */
+	public function test_login_url_add_redirect() {
+		$login_url = wp_login_url( '/wp-admin' );
+		$this->assertStringNotContainsString( $login_url, Jetpack::$jetpack_redirect_login );
+
+		$login_url = wp_login_url( '/wp-admin?' . Jetpack::$jetpack_redirect_login . '=true' );
+		parse_str( wp_parse_url( $login_url, PHP_URL_QUERY ), $login_parts );
+		$this->assertArraySubset( array( Jetpack::$jetpack_redirect_login => 'true' ), $login_parts, true );
+	}
+
+	/**
+	 * Tests login redirect sending users to Calypso when redirect param is set.
+	 *
+	 * @since 8.4.0
+	 * @return void
+	 */
+	public function test_login_init_redirect() {
+		tests_add_filter(
+			'wp_redirect',
+			function( $location ) {
+				$expected_location = add_query_arg(
+					array(
+						'forceInstall' => 1,
+						'url'          => rawurlencode( get_site_url() ),
+					),
+					'https://wordpress.com/jetpack/connect'
+				);
+				$this->assertEquals( $location, $expected_location );
+				throw new Exception(); // Cause an exception, as we don't want to run exit.
+			}
+		);
+
+		// Remove core filters that add headers.
+		remove_filter( 'login_init', 'wp_admin_headers' );
+		remove_filter( 'login_init', 'send_frame_options_header' );
+
+		// Run it once and no exception is thrown.
+		do_action( 'login_init' );
+
+		$this->expectException( Exception::class );
+		$_GET[ Jetpack::$jetpack_redirect_login ] = 'true';
+		do_action( 'login_init' ); // Now expect an exception.
+	}
+
+	/**
+	 * Tests getting the correct Calypso host.
+	 *
+	 * @since 8.4.0
+	 * @return void
+	 */
+	public function test_get_calypso_host() {
+		// No env.
+		$this->assertEquals( 'https://wordpress.com/', Jetpack::get_calypso_host() );
+
+		$_GET['calypso_env'] = 'development';
+		$this->assertEquals( 'http://calypso.localhost:3000/', Jetpack::get_calypso_host() );
+
+		$_GET['calypso_env'] = 'wpcalypso';
+		$this->assertEquals( 'https://wpcalypso.wordpress.com/', Jetpack::get_calypso_host() );
+
+		$_GET['calypso_env'] = 'horizon';
+		$this->assertEquals( 'https://horizon.wordpress.com/', Jetpack::get_calypso_host() );
+
+		$_GET['calypso_env'] = 'stage';
+		$this->assertEquals( 'https://wordpress.com/', Jetpack::get_calypso_host() );
+
+		$_GET['calypso_env'] = 'production';
+		$this->assertEquals( 'https://wordpress.com/', Jetpack::get_calypso_host() );
+	}
 } // end class
