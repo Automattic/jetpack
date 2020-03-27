@@ -6808,13 +6808,12 @@ endif;
 	 */
 	public static function build_redirect_url( $source, $args = array() ) {
 
-		$url = 'https://jetpack.com/redirect';
-
-		$args = wp_parse_args($args);
+		$url           = 'https://jetpack.com/redirect';
+		$args          = wp_parse_args( $args );
 		$accepted_args = array( 'site', 'path', 'query', 'anchor' );
 
 		$to_be_added = array(
-			'source' => urlencode( $source )
+			'source' => rawurlencode( $source ),
 		);
 
 		foreach ( $args as $arg_name => $arg_value ) {
@@ -6823,7 +6822,7 @@ endif;
 				continue;
 			}
 
-			$to_be_added[$arg_name] = urlencode( $arg_value );
+			$to_be_added[ $arg_name ] = rawurlencode( $arg_value );
 
 		}
 
