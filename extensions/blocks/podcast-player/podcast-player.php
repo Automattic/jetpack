@@ -118,7 +118,7 @@ function render_player( $player_data, $attributes ) {
 
 	ob_start();
 	?>
-	<div class="<?php echo esc_attr( $block_classname ); ?> no-js" id="<?php echo esc_attr( $instance_id ); ?>">
+	<div class="<?php echo esc_attr( $block_classname ); ?> is-default" id="<?php echo esc_attr( $instance_id ); ?>">
 		<ol class="jetpack-podcast-player__episodes">
 			<?php foreach ( $player_data['tracks'] as $attachment ) : ?>
 			<li class="jetpack-podcast-player__episode">
@@ -139,7 +139,7 @@ function render_player( $player_data, $attributes ) {
 	</div>
 	<script>
 		( function( instanceId ) {
-			document.getElementById( instanceId ).classList.remove( 'no-js' );
+			document.getElementById( instanceId ).classList.remove( 'is-default' );
 			window.jetpackPodcastPlayers=(window.jetpackPodcastPlayers||[]);
 			window.jetpackPodcastPlayers.push( instanceId );
 		} )( <?php echo wp_json_encode( $instance_id ); ?> );

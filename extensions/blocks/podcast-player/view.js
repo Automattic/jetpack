@@ -24,7 +24,7 @@ const playerInstances = {};
  * @param {Element} block The root element of the block.
  */
 const downgradeBlockToStatic = function( block ) {
-	block.classList.add( 'no-js' );
+	block.classList.add( 'is-default' );
 };
 
 /**
