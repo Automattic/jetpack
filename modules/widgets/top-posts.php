@@ -582,11 +582,13 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 	/**
 	 * Get some posts if no posts are found in the stats API
 	 *
+	 * @since 8.4.0 Added $count and $types
+	 *
 	 * @param int   $count The maximum number of posts to be returned.
 	 * @param array $types The post types that should be returned.
 	 * @return array
 	 */
-	public function get_fallback_posts( $count, $types ) {
+	public function get_fallback_posts( $count = 10, $types = array( 'post', 'page' ) ) {
 		if ( current_user_can( 'edit_theme_options' ) ) {
 			return array();
 		}
