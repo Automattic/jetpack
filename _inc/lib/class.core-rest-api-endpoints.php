@@ -2077,6 +2077,14 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'jp_group'          => 'search',
 			),
 
+			'has_jetpack_search_product'           => array(
+				'description'       => esc_html__( 'Has an active Jetpack Search product purchase', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'search',
+			),
+
 			// Verification Tools
 			'google' => array(
 				'description'       => esc_html__( 'Google Search Console', 'jetpack' ),

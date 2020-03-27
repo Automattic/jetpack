@@ -21,7 +21,7 @@ function jetpack_search_widget_init() {
 	}
 
 	require_once JETPACK__PLUGIN_DIR . 'modules/search/class.jetpack-search-helpers.php';
-	require_once JETPACK__PLUGIN_DIR . 'modules/search/class.jetpack-search-options.php';
+	require_once JETPACK__PLUGIN_DIR . 'modules/search/class-jetpack-search-options.php';
 
 	register_widget( 'Jetpack_Search_Widget' );
 }

@@ -10,7 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-require_once dirname( __FILE__ ) . '/class.jetpack-search-options.php';
+require_once dirname( __FILE__ ) . '/class-jetpack-search-options.php';
 
 /**
  * Class to customize search on the site.
