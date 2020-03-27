@@ -6811,24 +6811,24 @@ endif;
 		$url = 'https://jetpack.com/redirect';
 
 		$args = wp_parse_args($args);
-		$accepted = array( 'site', 'path', 'query', 'anchor' );
+		$accepted_args = array( 'site', 'path', 'query', 'anchor' );
 
-		$add = array(
+		$to_be_added = array(
 			'source' => urlencode( $source )
 		);
 
-		foreach ( $args as $k => $arg ) {
+		foreach ( $args as $arg_name => $arg_value ) {
 
-			if ( ! in_array( $k, $accepted, true ) || empty( $arg ) ) {
+			if ( ! in_array( $arg_name, $accepted_args, true ) || empty( $arg_value ) ) {
 				continue;
 			}
 
-			$add[$k] = urlencode( $arg );
+			$to_be_added[$arg_name] = urlencode( $arg_value );
 
 		}
 
-		if ( ! empty( $add ) ) {
-			$url = add_query_arg( $add, $url );
+		if ( ! empty( $to_be_added ) ) {
+			$url = add_query_arg( $to_be_added, $url );
 		}
 
 		return esc_url( $url );
