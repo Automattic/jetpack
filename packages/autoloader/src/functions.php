@@ -86,14 +86,6 @@ function set_up_autoloader() {
 	// This is the latest autoloader, so generate the classmap and filemap and register the autoloader function.
 	if ( empty( $jetpack_packages_classmap ) && $current_autoloader_version === $jetpack_autoloader_latest_version ) {
 		enqueue_files( $plugins_handler );
-
-		spl_autoload_register( __NAMESPACE__ . '\autoloader' );
-
-		$autoload_chain = spl_autoload_functions();
-		if ( in_array( 'Automattic\Jetpack\Autoloader\autoloader', $autoload_chain, true ) ) {
-			// Move the old autoloader function to the end of the spl autoloader chaain.
-			spl_autoload_unregister( 'Automattic\Jetpack\Autoloader\autoloader' );
-			spl_autoload_register( 'Automattic\Jetpack\Autoloader\autoloader' );
-		}
+		$autoloader_handler->update_autoloader_chain();
 	}
 }
