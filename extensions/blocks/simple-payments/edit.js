@@ -91,8 +91,10 @@ class SimplePaymentsEdit extends Component {
 		if ( this.emailInput.current ) {
 			this.emailInput.current.removeEventListener( 'paste', this.trapEmailFieldEvents );
 			this.emailInput.current.removeEventListener( 'cut', this.trapEmailFieldEvents );
+			this.emailInput.current.removeEventListener( 'copy', this.trapEmailFieldEvents );
 			this.emailInput.current.addEventListener( 'paste', this.trapEmailFieldEvents );
 			this.emailInput.current.addEventListener( 'cut', this.trapEmailFieldEvents );
+			this.emailInput.current.addEventListener( 'copy', this.trapEmailFieldEvents );
 		}
 	}
 
