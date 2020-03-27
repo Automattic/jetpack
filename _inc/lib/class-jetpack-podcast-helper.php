@@ -179,7 +179,7 @@ class Jetpack_Podcast_Helper {
 			}
 		}
 
-		return new \WP_Error( 'invalid_audio', 'Podcast audio is an invalid type.' );
+		return new WP_Error( 'invalid_audio', __( 'Podcast audio is an invalid type.', 'jetpack' ) );
 	}
 
 	/**
