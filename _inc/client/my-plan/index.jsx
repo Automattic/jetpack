@@ -3,7 +3,6 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import { find } from 'lodash';
 
 /**
  * Internal dependencies
@@ -11,15 +10,12 @@ import { find } from 'lodash';
 import { getSitePlan, getSitePurchases, getAvailableFeatures, getActiveFeatures } from 'state/site';
 import QuerySite from 'components/data/query-site';
 import { getSiteConnectionStatus } from 'state/connection';
-import { isJetpackSearch } from 'lib/plans/constants';
 
 import MyPlanHeader from './my-plan-header';
 import MyPlanBody from './my-plan-body';
+import { getActiveProductPurchases, hasSearchPurchase } from '../state/site/reducer';
 
 export function MyPlan( props ) {
-	const hasSearchProduct = !! find( props.purchases, purchase =>
-		isJetpackSearch( purchase.product_slug )
-	);
 	let sitePlan = props.sitePlan.product_slug || '',
 		availableFeatures = props.availableFeatures,
 		activeFeatures = props.activeFeatures;
@@ -33,6 +29,7 @@ export function MyPlan( props ) {
 		<React.Fragment>
 			<QuerySite />
 			<MyPlanHeader
+				activeProducts={ props.activeProducts }
 				plan={ sitePlan }
 				purchases={ props.purchases }
 				siteRawUrl={ props.siteRawUrl }
@@ -40,7 +37,7 @@ export function MyPlan( props ) {
 			<MyPlanBody
 				activeFeatures={ activeFeatures }
 				availableFeatures={ availableFeatures }
-				hasSearchProduct={ hasSearchProduct }
+				hasSearchPurchase={ props.hasSearchPurchase }
 				plan={ sitePlan }
 				rewindStatus={ props.rewindStatus }
 				siteAdminUrl={ props.siteAdminUrl }
@@ -52,10 +49,12 @@ export function MyPlan( props ) {
 
 export default connect( state => {
 	return {
+		activeFeatures: getActiveFeatures( state ),
+		activeProducts: getActiveProductPurchases( state ),
+		availableFeatures: getAvailableFeatures( state ),
 		getSiteConnectionStatus: () => getSiteConnectionStatus( state ),
+		hasSearchPurchase: hasSearchPurchase( state ),
 		purchases: getSitePurchases( state ),
 		sitePlan: getSitePlan( state ),
-		availableFeatures: getAvailableFeatures( state ),
-		activeFeatures: getActiveFeatures( state ),
 	};
 } )( MyPlan );

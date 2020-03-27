@@ -16,6 +16,7 @@ import {
 	PLAN_JETPACK_PREMIUM,
 	PLAN_JETPACK_BUSINESS,
 	PLAN_JETPACK_PERSONAL,
+	PLAN_JETPACK_SEARCH,
 	FEATURE_SECURITY_SCANNING_JETPACK,
 	FEATURE_SEO_TOOLS_JETPACK,
 	FEATURE_VIDEO_HOSTING_JETPACK,
@@ -33,7 +34,7 @@ import {
 	getUpgradeUrl,
 } from 'state/initial-state';
 import { isAkismetKeyValid, isCheckingAkismetKey, getVaultPressData } from 'state/at-a-glance';
-import { getSitePlan, isFetchingSiteData, getActiveFeatures } from 'state/site';
+import { getSitePlan, isFetchingSiteData, getActiveFeatures, hasSearchPurchase } from 'state/site';
 import SectionHeader from 'components/section-header';
 import ProStatus from 'pro-status';
 import JetpackBanner from 'components/jetpack-banner';
@@ -182,7 +183,7 @@ export const SettingsCard = props => {
 				);
 
 			case FEATURE_SEARCH_JETPACK:
-				if ( 'is-business-plan' === planClass ) {
+				if ( props.hasSearchPurchase ) {
 					return '';
 				}
 
@@ -190,9 +191,9 @@ export const SettingsCard = props => {
 					<JetpackBanner
 						callToAction={ upgradeLabel }
 						title={ __(
-							'Add faster, more advanced searching to your site with Jetpack Professional.'
+							'Help visitors quickly find answers with highly relevant instant search results and powerful filtering.'
 						) }
-						plan={ PLAN_JETPACK_BUSINESS }
+						plan={ PLAN_JETPACK_SEARCH }
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
 						href={ props.searchUpgradeUrl }
@@ -367,8 +368,9 @@ export default connect( state => {
 		securityPremiumUpgradeUrl: getUpgradeUrl( state, 'settings-security-premium' ),
 		gaUpgradeUrl: getUpgradeUrl( state, 'settings-ga' ),
 		seoUpgradeUrl: getUpgradeUrl( state, 'settings-seo' ),
-		searchUpgradeUrl: getUpgradeUrl( state, 'settings-search' ),
+		searchUpgradeUrl: getUpgradeUrl( state, 'jetpack-search' ),
 		spamUpgradeUrl: getUpgradeUrl( state, 'settings-spam' ),
 		multisite: isMultisite( state ),
+		hasSearchPurchase: hasSearchPurchase( state ),
 	};
 } )( SettingsCard );

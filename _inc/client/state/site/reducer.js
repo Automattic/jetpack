@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { combineReducers } from 'redux';
-import { assign, get, merge } from 'lodash';
+import { assign, find, get, merge } from 'lodash';
 
 /**
  * Internal dependencies
@@ -24,6 +24,7 @@ import {
 	JETPACK_SITE_PURCHASES_FETCH_RECEIVE,
 	JETPACK_SITE_PURCHASES_FETCH_FAIL,
 } from 'state/action-types';
+import { isJetpackProduct, isJetpackSearch } from 'lib/plans/constants';
 
 export const data = ( state = {}, action ) => {
 	switch ( action.type ) {
@@ -190,6 +191,18 @@ export function getSitePurchases( state ) {
  */
 export function getActiveSitePurchases( state ) {
 	return getSitePurchases( state ).filter( purchase => '1' === purchase.active );
+}
+
+export function getActiveProductPurchases( state ) {
+	return getActiveSitePurchases( state ).filter( purchase =>
+		isJetpackProduct( purchase.product_slug )
+	);
+}
+
+export function hasSearchPurchase( state ) {
+	return !! find( getActiveProductPurchases( state ), product =>
+		isJetpackSearch( product.product_slug )
+	);
 }
 
 export function getSiteID( state ) {
