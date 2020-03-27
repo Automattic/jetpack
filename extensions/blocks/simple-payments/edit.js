@@ -88,6 +88,7 @@ class SimplePaymentsEdit extends Component {
 
 		// currently the Gutenberg paste handler isn't bypassed for inputs with type="email" which breaks
 		// the block on cut or paste, so this prevents the cut and paste events bubbling up for now
+		// TODO: remove this and the related emailInput ref once email inputs are ignored by Gutenberg paste handler
 		if ( this.emailInput.current ) {
 			this.emailInput.current.removeEventListener( 'paste', this.trapEmailFieldEvents );
 			this.emailInput.current.removeEventListener( 'cut', this.trapEmailFieldEvents );
