@@ -15,7 +15,6 @@ import ButtonGroup from 'components/button-group';
 import { getSiteRawUrl, getUpgradeUrl, getUserId, showBackups } from 'state/initial-state';
 import { getSitePlan, getAvailablePlans, isFetchingSiteData } from 'state/site/reducer';
 import { getPlanClass } from 'lib/plans/constants';
-import { isFetchingProducts } from '../state/products';
 import { translate as __ } from 'i18n-calypso';
 import TopButton from './top-button';
 import FeatureItem from './feture-item';
@@ -409,19 +408,16 @@ class PlanGrid extends React.Component {
 	}
 }
 
-export default connect(
-	state => {
-		const userId = getUserId( state );
-		return {
-			plans: getAvailablePlans( state ),
-			siteRawUrl: getSiteRawUrl( state ),
-			sitePlan: getSitePlan( state ),
-			userId,
-			showBackups: showBackups( state ),
-			plansUpgradeUrl: planType => getUpgradeUrl( state, `plans-${ planType }`, userId ),
-			plansLearnMoreUpgradeUrl: getUpgradeUrl( state, 'plans-learn-more', userId ),
-			isFetchingData: isFetchingSiteData( state ) || isFetchingProducts( state ),
-		};
-	},
-	null
-)( PlanGrid );
+export default connect( state => {
+	const userId = getUserId( state );
+	return {
+		plans: getAvailablePlans( state ),
+		siteRawUrl: getSiteRawUrl( state ),
+		sitePlan: getSitePlan( state ),
+		userId,
+		showBackups: showBackups( state ),
+		plansUpgradeUrl: planType => getUpgradeUrl( state, `plans-${ planType }`, userId ),
+		plansLearnMoreUpgradeUrl: getUpgradeUrl( state, 'plans-learn-more', userId ),
+		isFetchingData: isFetchingSiteData( state ),
+	};
+}, null )( PlanGrid );

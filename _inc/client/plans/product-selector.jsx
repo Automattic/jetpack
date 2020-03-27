@@ -9,23 +9,23 @@ import { get } from 'lodash';
 /**
  * Internal dependencies
  */
-import analytics from 'lib/analytics';
+import QuerySiteProducts from 'components/data/query-site-products';
 import ExternalLink from 'components/external-link';
 import ProductCard from 'components/product-card';
 import ProductExpiration from 'components/product-expiration';
-import SingleProductBackup from './single-product-backup';
-import SingleProductSearch from './single-product-search';
-import { getPlanClass } from '../lib/plans/constants';
+import analytics from 'lib/analytics';
+import { getPlanClass } from 'lib/plans/constants';
+import { getSiteRawUrl, getUpgradeUrl, isMultisite } from 'state/initial-state';
 import {
 	getActiveSitePurchases,
 	getAvailablePlans,
 	getSitePlan,
 	isFetchingSiteData,
-} from '../state/site';
-import { getSiteRawUrl, getUpgradeUrl, isMultisite } from '../state/initial-state';
-import { getProducts, isFetchingProducts } from '../state/products';
+} from 'state/site';
+import { isFetchingSiteProducts, getSiteProducts } from 'state/site-products';
+import SingleProductBackup from './single-product-backup';
+import SingleProductSearch from './single-product-search';
 import './single-products.scss';
-import { isFetchingSiteProducts, getSiteProducts } from '../state/site-products';
 
 class ProductSelector extends Component {
 	state = {
@@ -216,7 +216,7 @@ class ProductSelector extends Component {
 		return (
 			<SingleProductBackup
 				isFetching={ this.props.isFetchingData }
-				products={ this.props.products }
+				products={ this.props.siteProducts }
 				upgradeLinkDaily={ this.props.dailyBackupUpgradeUrl }
 				upgradeLinkRealtime={ this.props.realtimeBackupUpgradeUrl }
 				selectedBackupType={ this.state.selectedBackupType }
@@ -237,6 +237,7 @@ class ProductSelector extends Component {
 	render() {
 		return (
 			<Fragment>
+				<QuerySiteProducts />
 				{ this.renderTitleSection() }
 				{ this.renderSingleProductContent() }
 			</Fragment>
@@ -249,14 +250,12 @@ export default connect( state => {
 		activeSitePurchases: getActiveSitePurchases( state ),
 		dailyBackupUpgradeUrl: getUpgradeUrl( state, 'jetpack-backup-daily' ),
 		multisite: isMultisite( state ),
-		products: getProducts( state ),
 		realtimeBackupUpgradeUrl: getUpgradeUrl( state, 'jetpack-backup-realtime' ),
 		sitePlan: getSitePlan( state ),
 		siteProducts: getSiteProducts( state ),
 		siteRawlUrl: getSiteRawUrl( state ),
 		isFetchingData:
 			isFetchingSiteData( state ) ||
-			isFetchingProducts( state ) ||
 			! getAvailablePlans( state ) ||
 			isFetchingSiteProducts( state ),
 		backupInfoUrl: getUpgradeUrl( state, 'aag-backups' ), // Redirect to https://jetpack.com/upgrade/backup/
