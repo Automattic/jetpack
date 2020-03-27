@@ -92,7 +92,7 @@ If you're ready to start, you should see all green `SUCCESS` messages. If the sc
 
 * ### Yarn
 
-	Yarn is a Node.js package manager and it's used to install packages that are required to build the Jetpack plugin. To install it, you can [visit the Installation page of the project](https://classic.yarnpkg.com/en/docs/install) and follow the instructions for your operating system.
+	Yarn is a Node.js package manager and it's used to install packages that are required to build the Jetpack plugin. To install it, you can [visit the Installation page of the project](https://yarnpkg.com/getting-started/install) and follow the instructions for your operating system.
 
 * ### PHP
 
