@@ -4,7 +4,7 @@
 import classNames from 'classnames';
 import emailValidator from 'email-validator';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { Component } from '@wordpress/element';
+import { Component, createRef } from '@wordpress/element';
 import { compose, withInstanceId } from '@wordpress/compose';
 import { dispatch, withSelect } from '@wordpress/data';
 import { get, isEmpty, isEqual, pick, trimEnd } from 'lodash';
@@ -28,8 +28,14 @@ import { decimalPlaces, formatPrice } from './utils';
 import { SIMPLE_PAYMENTS_PRODUCT_POST_TYPE, SUPPORTED_CURRENCY_LIST } from './constants';
 
 class SimplePaymentsEdit extends Component {
+	constructor( props ) {
+		super( props );
+		this.emailInput = createRef();
+	}
+
 	state = {
 		fieldEmailError: null,
+		fieldEmailPasteListenerAdded: false,
 		fieldPriceError: null,
 		fieldTitleError: null,
 		isSavingProduct: false,
@@ -79,6 +85,19 @@ class SimplePaymentsEdit extends Component {
 			// Validate on block deselect
 			this.validateAttributes();
 		}
+
+		// currently the Gutenberg paste handler isn't bypassed for inputs with type="email" which breaks
+		// the block on cut or paste, so this prevents the cut and paste events bubbling up for now
+		if ( this.emailInput.current ) {
+			this.emailInput.current.removeEventListener( 'paste', this.trapEmailFieldEvents );
+			this.emailInput.current.removeEventListener( 'cut', this.trapEmailFieldEvents );
+			this.emailInput.current.addEventListener( 'paste', this.trapEmailFieldEvents );
+			this.emailInput.current.addEventListener( 'cut', this.trapEmailFieldEvents );
+		}
+	}
+
+	trapEmailFieldEvents( event ) {
+		event.stopPropagation();
 	}
 
 	injectPaymentAttributes() {
@@ -514,19 +533,21 @@ class SimplePaymentsEdit extends Component {
 							onChange={ this.handleMultipleChange }
 						/>
 					</div>
-
-					<TextControl
-						aria-describedby={ `${ instanceId }-email-${ fieldEmailError ? 'error' : 'help' }` }
-						className={ classNames( 'simple-payments__field', 'simple-payments__field-email', {
-							'simple-payments__field-has-error': fieldEmailError,
-						} ) }
-						label={ __( 'Email', 'jetpack' ) }
-						onChange={ this.handleEmailChange }
-						placeholder={ __( 'Email', 'jetpack' ) }
-						required
-						type="email"
-						value={ email }
-					/>
+					{ /* temporary wrapper until Gutenberg paste handler is bypassed for inputs with type="email" */ }
+					<div ref={ this.emailInput }>
+						<TextControl
+							aria-describedby={ `${ instanceId }-email-${ fieldEmailError ? 'error' : 'help' }` }
+							className={ classNames( 'simple-payments__field', 'simple-payments__field-email', {
+								'simple-payments__field-has-error': fieldEmailError,
+							} ) }
+							label={ __( 'Email', 'jetpack' ) }
+							onChange={ this.handleEmailChange }
+							placeholder={ __( 'Email', 'jetpack' ) }
+							required
+							type="email"
+							value={ email }
+						/>
+					</div>
 					<HelpMessage id={ `${ instanceId }-email-error` } isError>
 						{ fieldEmailError }
 					</HelpMessage>
@@ -573,7 +594,4 @@ const mapSelectToProps = withSelect( ( select, props ) => {
 	};
 } );
 
-export default compose(
-	mapSelectToProps,
-	withInstanceId
-)( SimplePaymentsEdit );
+export default compose( mapSelectToProps, withInstanceId )( SimplePaymentsEdit );
