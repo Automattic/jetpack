@@ -31,7 +31,7 @@ import {
 } from '@wordpress/block-editor';
 
 import apiFetch from '@wordpress/api-fetch';
-import { isURL } from '@wordpress/url';
+import { isURL, prependHTTP } from '@wordpress/url';
 
 /**
  * Internal dependencies
@@ -128,7 +128,12 @@ const PodcastPlayerEdit = ( {
 			return;
 		}
 
-		const isValidURL = isURL( editedUrl );
+		// Setting HTML `inputmode` to "url" allows non-http URLs whilst still
+		// allowing the user to see the most suitable keyboard on their device
+		// for entering URLs. However, this means we need to manually prepend
+		// "http" to any entry before attempting validation.
+		const isValidURL = isURL( prependHTTP( editedUrl ) );
+
 		if ( ! isValidURL ) {
 			createErrorNotice(
 				! isValidURL
@@ -138,7 +143,9 @@ const PodcastPlayerEdit = ( {
 			return;
 		}
 
-		setAttributes( { url: editedUrl } );
+		// Ensure URL has `http` appended to it (if it doesn't already) before
+		// we accept it as the entered URL.
+		setAttributes( { url: prependHTTP( editedUrl ) } );
 		setIsEditing( false );
 	} );
 
@@ -152,7 +159,8 @@ const PodcastPlayerEdit = ( {
 				<form onSubmit={ checkPodcastLink }>
 					{ noticeUI }
 					<TextControl
-						type="url"
+						type="text"
+						inputMode="url"
 						placeholder={ __( 'Enter URL here…', 'jetpack' ) }
 						value={ editedUrl || '' }
 						className={ 'components-placeholder__input' }
