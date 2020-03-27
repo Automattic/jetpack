@@ -95,14 +95,21 @@ class Autoloader_Handler {
 		$autoload_chain = spl_autoload_functions();
 
 		foreach ( $autoload_chain as $autoloader ) {
+			if ( ! is_string( $autoloader ) ) {
+				/*
+				 * The Jetpack Autoloader functions are registered as strings, so
+				 * just continue if $autoloader isn't a string.
+				 */
+				continue;
+			}
+
 			if ( self::V1_AUTOLOADER_NAME === $autoloader ) {
 				// Move the v1.* autoloader function to the end of the spl autoloader chain.
 				spl_autoload_unregister( $autoloader );
 				spl_autoload_register( $autoloader );
 
 			} elseif (
-				is_string( $autoloader )
-				&& self::V2_AUTOLOADER_BASE === substr( $autoloader, 0, strlen( self::V2_AUTOLOADER_BASE ) )
+				self::V2_AUTOLOADER_BASE === substr( $autoloader, 0, strlen( self::V2_AUTOLOADER_BASE ) )
 				&& __NAMESPACE__ !== substr( $autoloader, 0, strlen( __NAMESPACE__ ) )
 			) {
 				// Unregister any other v2.* autoloader functions if they're in the chain.
