@@ -1,7 +1,7 @@
 /* globals infiniteScroll, _wpmejsSettings, ga, _gaq, WPCOM_sharing_counts, MediaElementPlayer */
 ( function() {
-	// Open closure
-	// Local vars
+	// Open closure.
+	// Local vars.
 	var Scroller, ajaxurl, stats, type, text, totop;
 
 	// IE requires special handling
