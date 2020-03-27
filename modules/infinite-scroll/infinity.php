@@ -441,7 +441,7 @@ class The_Neverending_Home_Page {
 				'modules/infinite-scroll/infinity.js'
 			),
 			array(),
-			JETPACK__VERSION,
+			JETPACK__VERSION . '-is5.0.0', // Added for ability to cachebust on WP.com.
 			true
 		);
 
@@ -480,7 +480,7 @@ class The_Neverending_Home_Page {
 				'modules/infinite-scroll/infinity-customizer.js'
 			),
 			array( 'customize-base' ),
-			JETPACK__VERSION,
+			JETPACK__VERSION . '-is5.0.0', // Added for ability to cachebust on WP.com.
 			true
 		);
 
