@@ -45,11 +45,11 @@ function show_logged_in_banner() {
 			<div class="launch-banner-text">
 				<?php
 				if ( ! $is_site_launched ) {
-					_e( "Your site hasn't been launched yet. Only you can see it until it is launched." );
+					_e( "Your site hasn't been launched yet. Only you can see it until it is launched.", 'wpcomsh' );
 				} elseif ( $is_site_launched && site_is_coming_soon() ) {
-					_e( "Your site is marked as \"Coming Soon\" and hidden from visitors until it's ready." );
+					_e( "Your site is marked as \"Coming Soon\" and hidden from visitors until it's ready.", 'wpcomsh' );
 				} else {
-					_e( "Your site has been launched; now you can share it with the world!" );
+					_e( "Your site has been launched; now you can share it with the world!", 'wpcomsh' );
 				}
 				?>
 			</div>
@@ -59,13 +59,13 @@ function show_logged_in_banner() {
 					<button class="dismiss-button" onclick="javascript:document.getElementById('launch-banner').style.display='none'"><?php _e( "Dismiss" ); ?></button>
 					<?php
 					$site_slug = \Jetpack::build_raw_urls( get_home_url() );
-					$button_text = ! $is_site_launched ? __( 'Launch site' ) : __( 'Update visibility' );
+					$button_text = ! $is_site_launched ? __( 'Launch site', 'wpcomsh' ) : __( 'Update visibility', 'wpcomsh' );
 
 					if ( ! $is_site_launched || site_is_coming_soon() ) {
 						$site_privacy_settings_url = 'https://wordpress.com/start/launch-site?siteSlug=' . $site_slug . '&returnTo=home';
 						?>
 						<a target="_parent" href='<?php echo esc_url( $site_privacy_settings_url ); ?>' rel="noopener noreferrer" >
-							<input type="button" class="launch-site-button" value="<? echo esc_attr( $button_text ) ?>" />
+							<input type="button" class="launch-site-button" value="<?php echo esc_attr( $button_text ) ?>" />
 						</a>
 						<?php
 					}
@@ -89,5 +89,5 @@ function show_logged_in_banner() {
 				}
 			} );
 		})()</script>
-	<?
+	<?php
 }

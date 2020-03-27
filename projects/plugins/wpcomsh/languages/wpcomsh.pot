@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WP.com Site Helper\n"
 "Report-Msgid-Bugs-To: help@wordpress.com\n"
-"POT-Creation-Date: 2020-03-25 19:12+0100\n"
+"POT-Creation-Date: 2020-03-27 12:28+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -39,6 +39,22 @@ msgstr ""
 
 #: customizer-fixes/customizer-fixes.php:13
 msgid "Save Settings"
+msgstr ""
+
+#: footer-credit/footer-credit-optimizations.php:114
+msgid "Proudly powered by WordPress"
+msgstr ""
+
+#: footer-credit/footer-credit-optimizations.php:130
+msgid "Theme"
+msgstr ""
+
+#: footer-credit/footer-credit-optimizations.php:147
+msgid "by"
+msgstr ""
+
+#: footer-credit/footer-credit-optimizations.php:159
+msgid "Design by"
 msgstr ""
 
 #: footer-credit/footer-credit/customizer.php:41
@@ -82,22 +98,6 @@ msgstr ""
 
 #: footer-credit/footer-credit/footer-credit.php:101
 msgid "Powered by WordPress.com"
-msgstr ""
-
-#: footer-credit/footer-credit-optimizations.php:114
-msgid "Proudly powered by WordPress"
-msgstr ""
-
-#: footer-credit/footer-credit-optimizations.php:130
-msgid "Theme"
-msgstr ""
-
-#: footer-credit/footer-credit-optimizations.php:147
-msgid "by"
-msgstr ""
-
-#: footer-credit/footer-credit-optimizations.php:159
-msgid "Design by"
 msgstr ""
 
 #: footer-credit/theme-optimizations.php:32
@@ -198,6 +198,12 @@ msgstr ""
 
 #: private-site/logged-in-banner.php:62
 msgid "Update visibility"
+msgstr ""
+
+#: private-site/private-site.php:124
+msgid ""
+"Jetpack is disconnected & site is private. Reconnect Jetpack to manage site "
+"visibility settings."
 msgstr ""
 
 #: private-site/private-site.php:130
@@ -454,6 +460,14 @@ msgid ""
 "\">profile page</a>."
 msgstr ""
 
+#: widgets/i-voted.php:31
+msgid "Show your readers that you voted with an \"I Voted\" sticker."
+msgstr ""
+
+#: widgets/i-voted.php:33
+msgid "I Voted"
+msgstr ""
+
 #: widgets/instagram/instagram.php:31 widgets/instagram/instagram.php:47
 msgid "Instagram"
 msgstr ""
@@ -555,14 +569,6 @@ msgstr ""
 #: widgets/instagram/instagram.php:481
 #, php-format
 msgid "New images may take up to %d minutes to show up on your site."
-msgstr ""
-
-#: widgets/i-voted.php:31
-msgid "Show your readers that you voted with an \"I Voted\" sticker."
-msgstr ""
-
-#: widgets/i-voted.php:33
-msgid "I Voted"
 msgstr ""
 
 #: widgets/music-player.php:15

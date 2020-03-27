@@ -121,7 +121,7 @@ function privatize_blog_priv_selector() {
 	$has_jetpack_connection = is_jetpack_connected();
 
 	if ( ! $has_jetpack_connection && site_is_private() ) {
-		$escaped_content = 'Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings.';
+		$escaped_content = __( 'Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings.', 'wpcomsh' );
 	} else if ( ! $has_jetpack_connection || ! is_callable( 'Jetpack::build_raw_urls' ) ) {
 		return;
 	} else {
