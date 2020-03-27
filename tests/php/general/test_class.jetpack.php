@@ -1209,14 +1209,46 @@ EXPECTED;
 	}
 
 	/**
+	 *
+	 * Basic tests to build_redirect_url function.
+	 *
 	 * @group build_redirect_url
 	 */
 	public function test_build_redirect_url() {
 
-		$url = \Jetpack::build_redirect_url('simple');
+		$url = \Jetpack::build_redirect_url( 'simple' );
 		$this->assertEquals( esc_url( 'https://jetpack.com/redirect?source=simple' ), $url );
 
-		//TODO: extend tests
+		// Test invalid parameter.
+		$url = \Jetpack::build_redirect_url( 'simple', array( 'invalid' => 'value' ) );
+		$this->assertEquals( esc_url( 'https://jetpack.com/redirect?source=simple' ), $url );
+
+		// Test path.
+		$url = \Jetpack::build_redirect_url( 'simple', array( 'path' => 'value' ) );
+		$this->assertEquals( esc_url( 'https://jetpack.com/redirect?source=simple&path=value' ), $url );
+
+		// Test path special chars.
+		$url = \Jetpack::build_redirect_url( 'simple', array( 'path' => 'weird value!' ) );
+		$v   = rawurlencode( 'weird value!' );
+		$this->assertEquals( esc_url( 'https://jetpack.com/redirect?source=simple&path=' . $v ), $url );
+
+		// Test query.
+		$url = \Jetpack::build_redirect_url( 'simple', array( 'query' => 'value' ) );
+		$this->assertEquals( esc_url( 'https://jetpack.com/redirect?source=simple&query=value' ), $url );
+
+		// Test query special chars.
+		$url = \Jetpack::build_redirect_url( 'simple', array( 'query' => 'key=value&key2=value2' ) );
+		$v   = rawurlencode( 'key=value&key2=value2' );
+		$this->assertEquals( esc_url( 'https://jetpack.com/redirect?source=simple&query=' . $v ), $url );
+
+		// Test anchor.
+		$url = \Jetpack::build_redirect_url( 'simple', array( 'anchor' => 'value' ) );
+		$this->assertEquals( esc_url( 'https://jetpack.com/redirect?source=simple&anchor=value' ), $url );
+
+		// Test anchor special chars.
+		$url = \Jetpack::build_redirect_url( 'simple', array( 'anchor' => 'key=value&key2=value2' ) );
+		$v   = rawurlencode( 'key=value&key2=value2' );
+		$this->assertEquals( esc_url( 'https://jetpack.com/redirect?source=simple&anchor=' . $v ), $url );
 
 	}
 
