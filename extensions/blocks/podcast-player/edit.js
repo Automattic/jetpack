@@ -260,7 +260,6 @@ const PodcastPlayerEdit = ( {
 					cover={ feedData.cover }
 					title={ feedData.title }
 					link={ feedData.link }
-					coverArt={ feedData.coverArt }
 				/>
 			</div>
 		</>
