@@ -49,7 +49,7 @@ $ yarn distclean
  There are more details about [setting up a public key on GitHub.com](https://help.github.com/en/articles/adding-a-new-ssh-key-to-your-github-account).
 
 3. [Install Composer](#installing-composer).
-4. Install Yarn. Please, refer to Yarn's [Installation Documentation](https://yarnpkg.com/docs/install/).
+4. Install Yarn. Please, refer to Yarn's [Installation Documentation](https://yarnpkg.com/getting-started/install).
 
 5. Make sure the Jetpack plugin is active and run
 
