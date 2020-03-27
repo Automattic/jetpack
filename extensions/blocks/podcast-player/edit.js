@@ -246,8 +246,8 @@ const PodcastPlayerEdit = ( {
 						isLargeText={ false }
 						textColor={ secondaryColorProp.color }
 						backgroundColor={ backgroundColorProp.color }
-						fallbackBackgroundColor
-						fallbackTextColor
+						fallbackBackgroundColor={ fallbackBackgroundColor }
+						fallbackTextColor={ fallbackTextColor }
 					/>
 				</PanelColorSettings>
 			</InspectorControls>
