@@ -7,6 +7,8 @@ import classnames from 'classnames';
  * WordPress dependencies
  */
 import { Component } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
+import { speak } from '@wordpress/a11y';
 
 /**
  * Internal dependencies
@@ -67,8 +69,16 @@ export class PodcastPlayer extends Component {
 		if ( ! trackData ) {
 			return;
 		}
+
 		this.setState( { currentTrack: track } );
 		this.setAudioSource( trackData.src );
+
+		// Read that we're loading the track and its description. This is dismissible via ctrl on VoiceOver.
+		speak(
+			`${ sprintf( __( 'Loading: %s', 'jetpack' ), trackData.title ) } ${ trackData.description }`,
+			'assertive'
+		);
+
 		this.play();
 	};
 
@@ -88,6 +98,11 @@ export class PodcastPlayer extends Component {
 	 */
 	handleError = () => {
 		this.setState( { playerState: STATE_ERROR } );
+
+		speak(
+			`${ sprintf( __( 'Error: Episode unavailable. (Open in a new tab)', 'jetpack' ) ) }`,
+			'assertive'
+		);
 	};
 
 	/**
@@ -176,9 +191,9 @@ export class PodcastPlayer extends Component {
 			<section
 				className={ cssClassesName }
 				style={ Object.keys( inlineStyle ).length ? inlineStyle : null }
-				aria-labelledby={ title || ( track && track.title ) ? `${ playerId }__title` : undefined }
+				aria-labelledby={ title || ( track && track.title ) ? playerId + '__title' : undefined }
 				aria-describedby={
-					track && track.description ? `${ playerId }__track-description` : undefined
+					track && track.description ? playerId + '__track-description' : undefined
 				}
 				// The following line ensures compatibility with Calypso previews (jetpack-iframe-embed.js).
 				data-jetpack-iframe-ignore
@@ -200,7 +215,21 @@ export class PodcastPlayer extends Component {
 						ref={ this.playerRef }
 					/>
 				</Header>
+
+				<h4
+					id={ 'jetpack-podcast-player__tracklist-title--' + playerId }
+					className="jetpack-podcast-player--visually-hidden"
+				>
+					{ sprintf( __( 'Playlist: %s', 'jetpack' ), title ) }
+				</h4>
+				<p
+					id={ 'jetpack-podcast-player__tracklist-description--' + playerId }
+					className="jetpack-podcast-player--visually-hidden"
+				>
+					{ __( 'Select an episode to play it in the audio player.', 'jetpack' ) }
+				</p>
 				<Playlist
+					playerId={ playerId }
 					playerState={ playerState }
 					currentTrack={ currentTrack }
 					tracks={ tracksToDisplay }
