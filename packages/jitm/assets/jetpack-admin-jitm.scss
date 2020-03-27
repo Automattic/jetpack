@@ -301,6 +301,12 @@ $blue-medium-dark:       #0071a1;
 			width: rem( 32px );
 			fill: $green-primary;
 		}
+
+		.jitm-jp-logo {
+			height: inherit;
+			width: 6rem;
+			fill: inherit;
+		}
 	}
 
 	@include breakpoint( ">480px" ) {
