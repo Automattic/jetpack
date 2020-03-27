@@ -108,8 +108,8 @@ function render_player( $player_data, $attributes ) {
 
 	// Generate object to be used as props for PodcastPlayer.
 	$player_props = array_merge(
-		// Make all attributes available.
-		$attributes,
+		// Add all attributes.
+		array( 'attributes' => $attributes ),
 		// Add all player data.
 		$player_data
 	);

@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import debugFactory from 'debug';
 
 /**
  * WordPress dependencies
@@ -20,10 +21,17 @@ import {
 } from '@wordpress/components';
 import { compose, withInstanceId } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
-import { BlockControls, BlockIcon, InspectorControls } from '@wordpress/block-editor';
+import {
+	BlockControls,
+	BlockIcon,
+	InspectorControls,
+	withColors,
+	PanelColorSettings,
+	ContrastChecker,
+} from '@wordpress/block-editor';
+
 import apiFetch from '@wordpress/api-fetch';
 import { isURL } from '@wordpress/url';
-import debugFactory from 'debug';
 
 /**
  * Internal dependencies
@@ -34,6 +42,7 @@ import { queueMusic } from './icons/';
 import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import attributesValidation from './attributes';
 import PodcastPlayer from './components/podcast-player';
+import { applyFallbackStyles } from '../../shared/apply-fallback-styles';
 
 const DEFAULT_MIN_ITEMS = 1;
 const DEFAULT_MAX_ITEMS = 10;
@@ -53,12 +62,18 @@ const PodcastPlayerEdit = ( {
 	setAttributes,
 	noticeOperations: { createErrorNotice, removeAllNotices },
 	noticeUI,
+	primaryColor: primaryColorProp,
+	setPrimaryColor,
+	secondaryColor: secondaryColorProp,
+	setSecondaryColor,
+	fallbackTextColor,
+	backgroundColor: backgroundColorProp,
+	setBackgroundColor,
+	fallbackBackgroundColor,
 } ) => {
 	// Validated attributes.
-	const { url, itemsToShow, showCoverArt, showEpisodeDescription } = getValidatedAttributes(
-		attributesValidation,
-		attributes
-	);
+	const validatedAttributes = getValidatedAttributes( attributesValidation, attributes );
+	const { url, itemsToShow, showCoverArt, showEpisodeDescription } = validatedAttributes;
 
 	const playerId = `jetpack-podcast-player-block-${ instanceId }`;
 
@@ -207,21 +222,53 @@ const PodcastPlayerEdit = ( {
 						onChange={ value => setAttributes( { showEpisodeDescription: value } ) }
 					/>
 				</PanelBody>
+				<PanelColorSettings
+					title={ __( 'Color Settings', 'jetpack' ) }
+					colorSettings={ [
+						{
+							value: primaryColorProp.color,
+							onChange: setPrimaryColor,
+							label: __( 'Primary Color', 'jetpack' ),
+						},
+						{
+							value: secondaryColorProp.color,
+							onChange: setSecondaryColor,
+							label: __( 'Secondary Color', 'jetpack' ),
+						},
+						{
+							value: backgroundColorProp.color,
+							onChange: setBackgroundColor,
+							label: __( 'Background Color', 'jetpack' ),
+						},
+					] }
+				>
+					<ContrastChecker
+						isLargeText={ false }
+						textColor={ secondaryColorProp.color }
+						backgroundColor={ backgroundColorProp.color }
+						fallbackBackgroundColor={ fallbackBackgroundColor }
+						fallbackTextColor={ fallbackTextColor }
+					/>
+				</PanelColorSettings>
 			</InspectorControls>
+
 			<div id={ playerId } className={ className }>
 				<PodcastPlayer
 					playerId={ playerId }
+					attributes={ validatedAttributes }
 					tracks={ feedData.tracks }
 					cover={ feedData.cover }
 					title={ feedData.title }
 					link={ feedData.link }
-					itemsToShow={ itemsToShow }
-					showEpisodeDescription={ showEpisodeDescription }
-					showCoverArt={ showCoverArt }
 				/>
 			</div>
 		</>
 	);
 };
 
-export default compose( [ withInstanceId, withNotices ] )( PodcastPlayerEdit );
+export default compose( [
+	withColors( 'backgroundColor', { primaryColor: 'color' }, { secondaryColor: 'color' } ),
+	withNotices,
+	withInstanceId,
+	applyFallbackStyles,
+] )( PodcastPlayerEdit );

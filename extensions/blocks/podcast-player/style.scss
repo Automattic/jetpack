@@ -136,7 +136,6 @@ $block-border-color: $dark-gray-100;
 
 .jetpack-podcast-player__episode {
 	margin: 0;
-	color: $text-color;
 	font-family: $default-font;
 	font-size: $editor-font-size;
 
@@ -151,8 +150,15 @@ $block-border-color: $dark-gray-100;
 	 * above) to apply styling for different scenarios.
 	 */
 	&.is-active {
-		color: $text-color-hover;
 		font-weight: bold;
+	}
+
+	// Applies default color to:
+	// - the active podcast only if it doesn't have defined a custom color.
+	// - the other podcasts only if they don't have defined a custom color.
+	&.is-active:not(.has-primary),
+	&:not(.is-active):not(.has-secondary) {
+		color: $text-color-hover;
 	}
 
 	.jetpack-podcast-player__episode-link {
@@ -161,7 +167,6 @@ $block-border-color: $dark-gray-100;
 		justify-content: space-between;
 		padding: $episode-h-padding $episode-v-padding;
 		text-decoration: none;
-		color: inherit;
 		transition: none;
 
 		.jetpack-podcast-player__episode.is-active & {
@@ -169,6 +174,14 @@ $block-border-color: $dark-gray-100;
 				padding-bottom: 0; // Make space for the error element that will be appended.
 			}
 		}
+	}
+
+	// Inherits colors if:
+	// - active podcast has defined a custom color.
+	// - the other podcasts if they have defined a custom color.
+	&.is-active.has-primary .jetpack-podcast-player__episode-link,
+	&.has-secondary .jetpack-podcast-player__episode-link {
+		color: inherit;
 	}
 }
 

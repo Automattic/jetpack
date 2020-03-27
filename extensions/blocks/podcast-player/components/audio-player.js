@@ -2,12 +2,15 @@
 /**
  * External dependencies
  */
+
+/**
+ * WordPress dependencies
+ */
 import { Component } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
-
 const meJsSettings = typeof _wpmejsSettings !== 'undefined' ? _wpmejsSettings : {};
 
 class AudioPlayer extends Component {
