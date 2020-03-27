@@ -12,6 +12,7 @@ namespace Automattic\Jetpack\Extensions\Podcast_Player;
 use WP_Error;
 use Jetpack_Gutenberg;
 use Jetpack_Podcast_Helper;
+use Jetpack_AMP_Support;
 
 const FEATURE_NAME = 'podcast-player';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
@@ -115,6 +116,7 @@ function render_player( $player_data, $attributes ) {
 	);
 
 	$block_classname = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attributes, array( 'is-default' ) );
+	$is_amp          = ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() );
 
 	ob_start();
 	?>
@@ -135,8 +137,11 @@ function render_player( $player_data, $attributes ) {
 			</li>
 			<?php endforeach; ?>
 		</ol>
+		<?php if ( ! $is_amp ) : ?>
 		<script type="application/json"><?php echo wp_json_encode( $player_props ); ?></script>
+		<?php endif; ?>
 	</div>
+	<?php if ( ! $is_amp ) : ?>
 	<script>
 		( function( instanceId ) {
 			document.getElementById( instanceId ).classList.remove( 'is-default' );
@@ -144,11 +149,14 @@ function render_player( $player_data, $attributes ) {
 			window.jetpackPodcastPlayers.push( instanceId );
 		} )( <?php echo wp_json_encode( $instance_id ); ?> );
 	</script>
+	<?php endif; ?>
 	<?php
 	/**
 	 * Enqueue necessary scripts and styles.
 	 */
-	wp_enqueue_style( 'mediaelement' );
+	if ( ! $is_amp ) {
+		wp_enqueue_style( 'mediaelement' );
+	}
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME, array( 'mediaelement' ) );
 
 	return ob_get_clean();
