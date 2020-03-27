@@ -154,7 +154,9 @@ function render_player( $player_data, $attributes ) {
 	/**
 	 * Enqueue necessary scripts and styles.
 	 */
-	wp_enqueue_style( 'mediaelement' );
+	if ( ! $is_amp ) {
+		wp_enqueue_style( 'mediaelement' );
+	}
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME, array( 'mediaelement' ) );
 
 	return ob_get_clean();
