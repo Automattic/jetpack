@@ -459,8 +459,9 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	 * @return array
 	 */
 	public static function get_cart_checkout_info() {
-		$info = get_transient( 'jetpack_woocommerce_analytics_cart_checkout_info_cache' );
+		$transient_name = 'jetpack_woocommerce_analytics_cart_checkout_info_cache';
 
+		$info = get_transient( $transient_name );
 		if ( false === $info ) {
 			$cart_page_id     = wc_get_page_id( 'cart' );
 			$checkout_page_id = wc_get_page_id( 'checkout' );
@@ -484,7 +485,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 				),
 			);
 
-			set_transient( 'jetpack-woocommerce-analytics-cart-checkout-info-cache', $info, DAY_IN_SECONDS );
+			set_transient( $transient_name, $info, DAY_IN_SECONDS );
 		}
 
 		return $info;
