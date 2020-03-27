@@ -12,6 +12,7 @@ namespace Automattic\Jetpack\Extensions\Podcast_Player;
 use WP_Error;
 use Jetpack_Gutenberg;
 use Jetpack_Podcast_Helper;
+use Jetpack_AMP_Support;
 
 const FEATURE_NAME = 'podcast-player';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
@@ -114,37 +115,48 @@ function render_player( $player_data, $attributes ) {
 		$player_data
 	);
 
-	$block_classname = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attributes );
+	$block_classname = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attributes, array( 'is-default' ) );
+	$is_amp          = ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() );
 
 	ob_start();
 	?>
 	<div class="<?php echo esc_attr( $block_classname ); ?>" id="<?php echo esc_attr( $instance_id ); ?>">
-		<noscript>
-			<ol class="jetpack-podcast-player__episodes">
-				<?php foreach ( $player_data['tracks'] as $attachment ) : ?>
-				<li class="jetpack-podcast-player__episode">
-					<a
-						class="jetpack-podcast-player__episode-link"
-						href="<?php echo esc_url( $attachment['link'] ); ?>"
-						role="button"
-						aria-pressed="false"
-					>
-						<span class="jetpack-podcast-player__episode-status-icon"></span>
-						<span class="jetpack-podcast-player__episode-title"><?php echo esc_html( $attachment['title'] ); ?></span>
-						<time class="jetpack-podcast-player__episode-duration"><?php echo ( ! empty( $attachment['duration'] ) ? esc_html( $attachment['duration'] ) : '' ); ?></time>
-					</a>
-				</li>
-				<?php endforeach; ?>
-			</ol>
-		</noscript>
+		<ol class="jetpack-podcast-player__episodes">
+			<?php foreach ( $player_data['tracks'] as $attachment ) : ?>
+			<li class="jetpack-podcast-player__episode">
+				<a
+					class="jetpack-podcast-player__episode-link"
+					href="<?php echo esc_url( $attachment['link'] ); ?>"
+					role="button"
+					aria-pressed="false"
+				>
+					<span class="jetpack-podcast-player__episode-status-icon"></span>
+					<span class="jetpack-podcast-player__episode-title"><?php echo esc_html( $attachment['title'] ); ?></span>
+					<time class="jetpack-podcast-player__episode-duration"><?php echo ( ! empty( $attachment['duration'] ) ? esc_html( $attachment['duration'] ) : '' ); ?></time>
+				</a>
+			</li>
+			<?php endforeach; ?>
+		</ol>
+		<?php if ( ! $is_amp ) : ?>
 		<script type="application/json"><?php echo wp_json_encode( $player_props ); ?></script>
+		<?php endif; ?>
 	</div>
-	<script>window.jetpackPodcastPlayers=(window.jetpackPodcastPlayers||[]);window.jetpackPodcastPlayers.push( <?php echo wp_json_encode( $instance_id ); ?> );</script>
+	<?php if ( ! $is_amp ) : ?>
+	<script>
+		( function( instanceId ) {
+			document.getElementById( instanceId ).classList.remove( 'is-default' );
+			window.jetpackPodcastPlayers=(window.jetpackPodcastPlayers||[]);
+			window.jetpackPodcastPlayers.push( instanceId );
+		} )( <?php echo wp_json_encode( $instance_id ); ?> );
+	</script>
+	<?php endif; ?>
 	<?php
 	/**
 	 * Enqueue necessary scripts and styles.
 	 */
-	wp_enqueue_style( 'mediaelement' );
+	if ( ! $is_amp ) {
+		wp_enqueue_style( 'mediaelement' );
+	}
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME, array( 'mediaelement' ) );
 
 	return ob_get_clean();
