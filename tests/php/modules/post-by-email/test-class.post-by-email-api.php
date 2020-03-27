@@ -232,7 +232,7 @@ class WP_Test_Post_By_Email_API extends WP_Test_Jetpack_REST_Testcase {
 	 */
 	public function mock_jetpack_api_response_create( $response, $args, $url ) {
 		$this->assertEquals( 'POST', $args['method'] );
-		$this->assertStringContainsStringIgnoringCase( '<methodName>jetpack.createPostByEmailAddress</methodName>', $args['body'] );
+		$this->assertNotFalse( strpos( $args['body'], '<methodName>jetpack.createPostByEmailAddress</methodName>' ) );
 		$this->assertStringStartsWith( 'https://jetpack.wordpress.com/xmlrpc.php', $url );
 		$this->request_validated = true;
 
@@ -257,7 +257,7 @@ class WP_Test_Post_By_Email_API extends WP_Test_Jetpack_REST_Testcase {
 	 */
 	public function mock_jetpack_api_response_regenerate( $response, $args, $url ) {
 		$this->assertEquals( 'POST', $args['method'] );
-		$this->assertStringContainsStringIgnoringCase( '<methodName>jetpack.regeneratePostByEmailAddress</methodName>', $args['body'] );
+		$this->assertNotFalse( strpos( $args['body'], '<methodName>jetpack.regeneratePostByEmailAddress</methodName>' ) );
 		$this->assertStringStartsWith( 'https://jetpack.wordpress.com/xmlrpc.php', $url );
 		$this->request_validated = true;
 
@@ -282,7 +282,7 @@ class WP_Test_Post_By_Email_API extends WP_Test_Jetpack_REST_Testcase {
 	 */
 	public function mock_jetpack_api_response_delete( $response, $args, $url ) {
 		$this->assertEquals( 'POST', $args['method'] );
-		$this->assertStringContainsStringIgnoringCase( '<methodName>jetpack.deletePostByEmailAddress</methodName>', $args['body'] );
+		$this->assertNotFalse( strpos( $args['body'], '<methodName>jetpack.deletePostByEmailAddress</methodName>' ) );
 		$this->assertStringStartsWith( 'https://jetpack.wordpress.com/xmlrpc.php', $url );
 		$this->request_validated = true;
 
