@@ -95,24 +95,37 @@ function init() {
 
 	// @TODO add "lock" toolbar item when private
 
-	/** Jetpack-specific hooks **/
-
-	// Prevent Jetpack certain modules from running while the site is private
-	add_filter( 'jetpack_get_available_modules', '\Private_Site\filter_jetpack_get_available_modules' );
-	add_filter( 'jetpack_force_disable_site_accelerator', '__return_true' );
-
-	// Only allow Jetpack XMLRPC methods -- Jetpack handles verifying the token, request signature, etc.
-	add_filter( 'xmlrpc_methods', '\Private_Site\xmlrpc_methods_limit_to_jetpack' );
-
-	// Lift the blog name mask prior to Jetpack sync activity
-	add_action( 'jetpack_sync_before_send_queue_full_sync', '\Private_Site\remove_mask_site_name_filter' );
-	add_action( 'jetpack_sync_before_send_queue_sync', '\Private_Site\remove_mask_site_name_filter' );
-
 	// Logged-in blog users for an 'unlaunched' or 'coming soon' site see a banner.
 	require __DIR__ . '/logged-in-banner.php';
 	add_action( 'wp_head', '\Private_Site\show_logged_in_banner', -1000 );
 }
 add_action( 'init', '\Private_Site\init' );
+
+/** Jetpack-specific hooks **/
+function muplugins_loaded() {
+	if ( ! is_module_active() ) {
+		return;
+	}
+
+	if ( ! site_is_private() ) {
+		return;
+	}
+
+	// Only allow Jetpack XMLRPC methods -- Jetpack handles verifying the token, request signature, etc.
+	add_filter( 'xmlrpc_methods', '\Private_Site\xmlrpc_methods_limit_to_jetpack' );
+
+	// Register additional Jetpack XMLRPC methods
+	add_filter( 'jetpack_xmlrpc_methods', '\Private_Site\register_additional_jetpack_xmlrpc_methods' );
+
+	// Lift the blog name mask prior to Jetpack sync activity
+	add_action( 'jetpack_sync_before_send_queue_full_sync', '\Private_Site\remove_mask_site_name_filter' );
+	add_action( 'jetpack_sync_before_send_queue_sync', '\Private_Site\remove_mask_site_name_filter' );
+
+	// Prevent Jetpack certain modules from running while the site is private
+	add_filter( 'jetpack_get_available_modules', '\Private_Site\filter_jetpack_get_available_modules' );
+	add_filter( 'jetpack_force_disable_site_accelerator', '__return_true' );
+}
+add_action( 'muplugins_loaded', '\Private_Site\muplugins_loaded' );
 
 /**
  * Replaces the 'Site Visibility' privacy options selector with a Calypso link.
@@ -261,6 +274,27 @@ function should_prevent_site_access() {
 	}
 
 	return $cached = ! is_private_blog_user();
+}
+
+function register_additional_jetpack_xmlrpc_methods( $methods ) {
+	return array_merge( $methods, [
+		'jetpack.getClosestThumbnailSizeUrl' => '\Private_Site\get_closest_thumbnail_size_url',
+	] );
+}
+
+function get_closest_thumbnail_size_url( $args ) {
+	[ $url, $width, $height ] = $args;
+	$id = attachment_url_to_postid( $url );
+	if ( ! $id ) {
+		return false;
+	}
+
+	$result = wp_get_attachment_image_src( $id, [ $width, $height ] );
+	if ( ! $result ) {
+		return false;
+	}
+
+	return $result;
 }
 
 /**
