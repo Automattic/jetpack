@@ -60,7 +60,7 @@ class Jetpack_IDC {
 	 * @return string
 	 */
 	public static function get_safe_mod_doc_url() {
-		return \Jetpack::build_redirect_url( 'jp-support-safe-mode' );
+		return \Jetpack::build_redirect_url( 'jetpack-support-safe-mode' );
 	}
 
 	/**
