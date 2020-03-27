@@ -88,7 +88,7 @@ class MyPlanHeader extends React.Component {
 					details: expiration,
 					icon: imagePath + '/plans/plan-business.svg',
 					tagLine: __(
-						'Full security suite, marketing and revenue automation tools, unlimited video hosting, unlimited themes, enhanced search, and priority support.'
+						'Full security suite, marketing and revenue automation tools, unlimited video hosting, unlimited themes, and priority support.'
 					),
 					title: __( 'Jetpack Professional' ),
 				};
