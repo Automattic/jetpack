@@ -509,10 +509,11 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 	 * @since 8.4.0 Added $types param
 	 *
 	 * @param int   $count The maximum number of posts to be returned.
-	 * @param array $types The post types that should be returned.
+	 * @param array $types The post types that should be returned. Optional. Defaults to 'post' and 'page'.
+	 *
 	 * @return array array of posts.
 	 */
-	public function get_by_likes( $count, $types ) {
+	public function get_by_likes( $count, $types = array( 'post', 'page' ) ) {
 		$post_likes = wpl_get_blogs_most_liked_posts();
 		if ( ! $post_likes ) {
 			return array();
@@ -581,8 +582,6 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 	/**
 	 * Get some posts if no posts are found in the stats API
 	 *
-	 * @since 8.4.0 Added $count and $types parameters
-	 *
 	 * @param int   $count The maximum number of posts to be returned.
 	 * @param array $types The post types that should be returned.
 	 * @return array
@@ -618,12 +617,14 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 	/**
 	 * Get posts from an array of IDs
 	 *
+	 * @since 8.4.0 Added $count and $types parameters
+	 *
 	 * @param array $post_ids The post IDs.
 	 * @param int   $count The maximum number of posts to return.
-	 * @param array $types The post types that should be returned.
+	 * @param array $types The post types that should be returned. Optional. Defaults to 'post', 'page'.
 	 * @return array
 	 */
-	public function get_posts( $post_ids, $count, $types ) {
+	public function get_posts( $post_ids, $count, $types = array( 'post', 'page' ) ) {
 		$counter = 0;
 
 		if ( ! is_array( $types ) || empty( $types ) ) {
