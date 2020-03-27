@@ -26,15 +26,20 @@ class Jetpack_Podcast_Helper {
 		$player_data   = get_transient( $transient_key );
 
 		// Fetch data if we don't have any cached.
-		if ( false === $player_data ) {
+		if ( false === $player_data || ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ) {
 			// Load feed.
 			$rss = self::load_feed( $feed );
+
 			if ( is_wp_error( $rss ) ) {
 				return $rss;
 			}
 
 			// Get tracks.
 			$tracks = self::get_track_list( $rss );
+
+			if ( empty( $tracks ) ) {
+				return new WP_Error( 'no_tracks', __( 'Your Podcast couldn\'t be embedded as it doesn\'t contain any tracks. Please double check your URL.', 'jetpack' ) );
+			}
 
 			// Get podcast meta.
 			$title = $rss->get_title();
@@ -70,8 +75,9 @@ class Jetpack_Podcast_Helper {
 		// Get first ten items and format them.
 		$track_list = array_map( array( __CLASS__, 'setup_tracks_callback' ), $rss->get_items( 0, 10 ) );
 
-		// Remove empty tracks.
-		return array_filter( $track_list );
+		// Filter out any tracks that are empty.
+		// Reset the array indicies.
+		return array_values( array_filter( $track_list ) );
 	}
 
 	/**
@@ -127,6 +133,13 @@ class Jetpack_Podcast_Helper {
 	private static function setup_tracks_callback( SimplePie_Item $episode ) {
 		$enclosure = self::get_audio_enclosure( $episode );
 
+		// If the audio enclosure is empty then it is not playable.
+		// We therefore return an empty array for this track.
+		// It will be filtered out later.
+		if ( is_wp_error( $enclosure ) ) {
+			return array();
+		}
+
 		// If there is no link return an empty array. We will filter out later.
 		if ( empty( $enclosure->link ) ) {
 			return array();
@@ -166,8 +179,7 @@ class Jetpack_Podcast_Helper {
 			}
 		}
 
-		// Default to empty SimplePie_Enclosure object.
-		return $episode->get_enclosure();
+		return new WP_Error( 'invalid_audio', __( 'Podcast audio is an invalid type.', 'jetpack' ) );
 	}
 
 	/**
