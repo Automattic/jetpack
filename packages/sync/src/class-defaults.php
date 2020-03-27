@@ -268,6 +268,7 @@ class Defaults {
 		'is_main_network'                  => array( __CLASS__, 'is_multi_network' ),
 		'is_multi_site'                    => 'is_multisite',
 		'main_network_site'                => array( 'Automattic\\Jetpack\\Sync\\Functions', 'main_network_site_url' ),
+		'main_network_site_wpcom_id'       => array( 'Automattic\\Jetpack\\Sync\\Functions', 'main_network_site_wpcom_id' ),
 		'site_url'                         => array( 'Automattic\\Jetpack\\Sync\\Functions', 'site_url' ),
 		'home_url'                         => array( 'Automattic\\Jetpack\\Sync\\Functions', 'home_url' ),
 		'single_user_site'                 => array( 'Jetpack', 'is_single_user_site' ),
@@ -658,7 +659,6 @@ class Defaults {
 		'network_site_upload_space'           => array( 'Jetpack', 'network_site_upload_space' ),
 		'network_upload_file_types'           => array( 'Jetpack', 'network_upload_file_types' ),
 		'network_enable_administration_menus' => array( 'Jetpack', 'network_enable_administration_menus' ),
-		'main_network_site_wpcom_id'          => array( 'Automattic\\Jetpack\\Sync\\Functions', 'main_network_site_wpcom_id' ),
 	);
 
 	/**

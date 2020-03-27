@@ -385,7 +385,7 @@ class Functions {
 	 */
 	public static function main_network_site_wpcom_id() {
 		if ( ! is_multisite() ) {
-			return;
+			return false;
 		}
 
 		$current_network = get_network();
