@@ -33,7 +33,7 @@ class Autoloader_Handler {
 		$selected_autoloader_version = null;
 		$selected_autoloader_path    = null;
 
-		$active_plugins = $this->plugins_handler->get_active_plugins();
+		$active_plugins = $this->plugins_handler->get_all_active_plugins();
 
 		foreach ( $active_plugins as $plugin ) {
 			$plugin_path   = plugin_dir_path( trailingslashit( WP_PLUGIN_DIR ) . $plugin );

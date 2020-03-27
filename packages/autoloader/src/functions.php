@@ -3,6 +3,7 @@
 
 global $jetpack_packages_classmap;
 global $jetpack_packages_filemap;
+global $jetpack_autoloader_activating_plugins;
 
 if ( ! is_array( $jetpack_packages_classmap ) ) {
 	$jetpack_packages_classmap = array();
@@ -10,6 +11,10 @@ if ( ! is_array( $jetpack_packages_classmap ) ) {
 
 if ( ! is_array( $jetpack_packages_filemap ) ) {
 	$jetpack_packages_filemap = array();
+}
+
+if ( ! is_array( $jetpack_autoloader_activating_plugins ) ) {
+	$jetpack_autoloader_activating_plugins = array();
 }
 
 /**
@@ -62,8 +67,11 @@ function set_up_autoloader() {
 	$plugins_handler    = new Plugins_Handler();
 	$autoloader_handler = new Autoloader_Handler( $plugins_handler );
 
-	if ( ! $plugins_handler->is_current_plugin_active() ) {
-		// The current plugin is activating, so reset the autoloader.
+	if ( $plugins_handler->should_autoloader_reset() ) {
+		/*
+		 * The autoloader must be reset when an activating plugin that was
+		 * previously unknown is detected.
+		 */
 		$jetpack_autoloader_latest_version = null;
 		$jetpack_packages_classmap         = array();
 	}

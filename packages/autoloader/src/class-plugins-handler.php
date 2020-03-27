@@ -7,29 +7,22 @@
 class Plugins_Handler {
 
 	/**
-	 * Returns an array containing the active plugins. If any plugins are activating,
-	 * they are included in the array.
+	 * Returns an array containing all active plugins and all known activating
+	 * plugins.
 	 *
 	 * @return Array An array of plugin names as strings.
 	 */
-	public function get_active_plugins() {
+	public function get_all_active_plugins() {
 		$active_plugins = array_merge(
 			is_multisite()
 				? array_keys( get_site_option( 'active_sitewide_plugins', array() ) )
 				: array(),
 			(array) get_option( 'active_plugins', array() )
 		);
-		$current_plugin = $this->get_current_plugin();
 
-		if ( ! in_array( $current_plugin, $active_plugins, true ) ) {
-			// The current plugin isn't active, so it must be activating. Add it to the list.
-			$active_plugins[] = $current_plugin;
-		}
+		$plugins = array_unique( array_merge( $active_plugins, $this->get_all_activating_plugins() ) );
 
-		// If the activating plugin is not the only activating plugin, we need to add others too.
-		$active_plugins = array_unique( array_merge( $active_plugins, $this->get_activating_plugins() ) );
-
-		return $active_plugins;
+		return $plugins;
 	}
 
 	/**
@@ -53,22 +46,35 @@ class Plugins_Handler {
 	 * Returns an array containing the paths to the classmap and filemap for the active plugins.
 	 */
 	public function get_active_plugins_paths() {
-		$active_plugins = $this->get_active_plugins();
+		$active_plugins = $this->get_all_active_plugins();
 		return array_map( array( $this, 'create_map_path_array' ), $active_plugins );
 	}
 
 	/**
-	 * Checks whether the current plugin is active or activating via a request. Note that
-	 * this method will return false if the plugin is activating via a direct call to
-	 * activate_plugin().
+	 * Checks whether the autoloader should be reset. The autoloader should be reset
+	 * when a plugin is activating via a method other than a request, for example
+	 * using WP-CLI. When this occurs, the activating plugin was not known when
+	 * the autoloader selected the package versions for the classmap and filemap
+	 * globals, so the autoloader must reselect the versions.
 	 *
-	 * @return Boolean True if the current plugin is active, else False.
+	 * If the current plugin is not already known, this method will add it to the
+	 * $jetpack_autoloader_activating_plugins global.
+	 *
+	 * @return Boolean True if the autoloder must be reset, else false.
 	 */
-	public function is_current_plugin_active() {
-		$active_plugins = $this->get_active_plugins();
-		$current_plugin = $this->get_current_plugin();
+	public function should_autoloader_reset() {
+		global $jetpack_autoloader_activating_plugins;
 
-		return in_array( $current_plugin, $active_plugins, true );
+		$plugins        = $this->get_all_active_plugins();
+		$current_plugin = $this->get_current_plugin();
+		$plugin_unknown = ! in_array( $current_plugin, $plugins, true );
+
+		if ( $plugin_unknown ) {
+			// If the current plugin isn't known, add it to the activating plugins list.
+			$jetpack_autoloader_activating_plugins[] = $current_plugin;
+		}
+
+		return $plugin_unknown;
 	}
 
 	/**
@@ -76,7 +82,7 @@ class Plugins_Handler {
 	 *
 	 * @return Array The array of the activating plugins or empty array.
 	 */
-	public function get_activating_plugins() {
+	private function get_plugins_activating_via_request() {
 
 		 // phpcs:disable WordPress.Security.NonceVerification.Recommended
 
@@ -107,7 +113,20 @@ class Plugins_Handler {
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		return array();
+	}
 
+	/**
+	 * Returns an array of the names of all known activating plugins. This includes
+	 * plugins activating via a request and plugins that are activating via other
+	 * methods.
+	 *
+	 * @return Array The array of all activating plugins or empty array.
+	 */
+	private function get_all_activating_plugins() {
+		global $jetpack_autoloader_activating_plugins;
+
+		$activating_plugins = $this->get_plugins_activating_via_request();
+		return array_unique( array_merge( $activating_plugins, $jetpack_autoloader_activating_plugins ) );
 	}
 
 	/**
