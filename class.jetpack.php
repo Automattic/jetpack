@@ -4282,7 +4282,9 @@ p {
 
 		switch ( $message_code ) {
 			case 'jetpack-manage':
-				$this->message = '<strong>' . sprintf( __( 'You are all set! Your site can now be managed from <a href="%s" target="_blank">wordpress.com/sites</a>.', 'jetpack' ), 'https://wordpress.com/sites' ) . '</strong>';
+				$sites_url = self::build_redirect_url( 'calypso-sites' );
+				// translators: %s is the URL to the "Sites" panel on wordpress.com.
+				$this->message = '<strong>' . sprintf( __( 'You are all set! Your site can now be managed from <a href="%s" target="_blank">wordpress.com/sites</a>.', 'jetpack' ), $sites_url ) . '</strong>';
 				if ( $activated_manage ) {
 					$this->message .= '<br /><strong>' . __( 'Manage has been activated for you!', 'jetpack' ) . '</strong>';
 				}
