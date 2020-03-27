@@ -74,7 +74,7 @@ class ProductSelector extends Component {
 			<Fragment>
 				<h1 className="plans-section__header">{ __( 'Solutions' ) }</h1>
 				<h2 className="plans-section__subheader">
-					{ __( "Just looking for backups? We've got you covered." ) }
+					{ __( "Looking for specific features? We've got you covered." ) }
 					{ ! isFetchingData && ! this.findPrioritizedPurchaseForBackup() && (
 						<>
 							<br />
