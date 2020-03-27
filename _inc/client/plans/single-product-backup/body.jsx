@@ -65,9 +65,9 @@ class SingleProductBackupBody extends React.Component {
 					) ) }
 				</div>
 				<ProductSavings
-					selectedBackup={ selectedBackup }
 					billingTimeFrame={ billingTimeFrame }
 					currencyCode={ currencyCode }
+					potentialSavings={ selectedBackup.potentialSavings }
 				/>
 				<UpgradeButton
 					selectedUpgrade={ selectedBackup }

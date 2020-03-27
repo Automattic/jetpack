@@ -138,17 +138,6 @@
 	}
 }
 
-.single-product-backup__savings {
-	font-style: italic;
-}
-
-.single-product-backup__annual-savings {
-	&,
-	.plan-price__integer {
-		color: $gray-text-min;
-	}
-}
-
 .single-product-search__radio-buttons-container,
 .single-product-backup__radio-buttons-container {
 	display: flex;

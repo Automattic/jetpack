@@ -22,6 +22,7 @@ import { reducer as rewind } from 'state/rewind/reducer';
 import { reducer as search } from 'state/search/reducer';
 import { reducer as settings } from 'state/settings/reducer';
 import { reducer as siteData } from 'state/site/reducer';
+import { reducer as siteProducts } from 'state/site-products/reducer';
 import { reducer as siteVerify } from 'state/site-verify/reducer';
 import { reducer as disconnectSurvey } from 'state/disconnect-survey/reducer';
 import { reducer as trackingSettings } from 'state/tracking/reducer';
@@ -42,6 +43,7 @@ const jetpackReducer = combineReducers( {
 	search,
 	settings,
 	siteData,
+	siteProducts,
 	siteVerify,
 	disconnectSurvey,
 	trackingSettings,
