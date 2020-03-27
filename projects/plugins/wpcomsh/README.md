@@ -222,6 +222,7 @@ wpcomsh includes [WP CLI](http://wp-cli.org/) commands. They are located in the 
 
 - `wp wpcomsh deactivate-user-plugins`: Bulk deactivate user installed plugins. Supports an `--interactive` mode that asks for each plugin.
 - `wp wpcomsh reactivate-user-plugins`: Bulk re-activate user installed plugins. Supports an `--interactive` mode that asks for each plugin.
+- `wp wpcomsh post-titles-data-migration`: Updates post titles containing certain escaped characters to the unescaped version. Defaults to a dry run, use `--for-real` mode to update post titles in the database. This command will be removed at a later stage when it is no longer needed.
 
 To learn more about writing WP CLI commands consult the [Commands Cookbook](https://make.wordpress.org/cli/handbook/commands-cookbook/).
 

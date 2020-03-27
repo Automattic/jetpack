@@ -211,6 +211,70 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 		}
 
 	}
+
+	/**
+	 * Updates post titles containing certain escaped characters to the unescaped version
+	 *
+	 * Defaults to a dry-run, listing out the titles that would be updated
+	 *
+	 * @see https://github.com/lodash/lodash/blob/3f585df/escape.js#L3-L7
+	 * @see ./feature-plugins/post-titles-data-migration.php
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--for-real]
+	 * : Run the command for real, updating each post in the database
+	 *
+	 * [--write-to-csv=<filename>]
+	 * : Filename to ouput CSV formatted list of blog id, post id, original and updated titles
+	 * ---
+	 *
+	 * ## EXAMPLES
+	 *
+	 * wp wpcomsh post-titles-data-migration
+	 *
+	 * wp wpcomsh post-titles-data-migration --for-real
+	 *
+	 * wp wpcomsh post-titles-data-migration --write-to-csv=./output.csv
+	 *
+	 * @when after_wp_load
+	 * @subcommand post-titles-data-migration
+	 */
+	function post_titles_data_migration_cleanup( $args, $assoc_args = array() ) {
+
+		require_once( __DIR__ . '/feature-plugins/post-titles-data-migration.php' );
+
+		$is_for_real = WP_CLI\Utils\get_flag_value( $assoc_args, 'for-real', false );
+
+		$filename = null;
+		if ( is_string( $assoc_args['write-to-csv'] ) ) {
+			$filename = $assoc_args['write-to-csv'];
+		} else if ( isset( $assoc_args['write-to-csv'] ) ) {
+			$filename = '/tmp/post-titles-data-migration-stats.csv';
+		}
+
+		$blog_id = get_current_blog_id();
+
+		if ( $is_for_real ) {
+			if ( ! defined( 'WP_IMPORTING' ) ) {
+				define( 'WP_IMPORTING' , TRUE );
+			}
+			$success = WPCOM_Post_Titles_Migration_Helper::migrate_infected_posts( $blog_id, false, $filename );
+		} else {
+			WP_CLI::log( 'Dry run: no data will be updated.' );
+			$success = WPCOM_Post_Titles_Migration_Helper::migrate_infected_posts( $blog_id, true, $filename );
+		}
+
+		if ( $success ) {
+			if ( $is_for_real ) {
+				WP_CLI::success( sprintf( 'Complete! Updated infected post(s).' ) );
+			} else {
+				WP_CLI::success( sprintf( 'Complete! Would have updated infected post(s)' ) );
+			}
+		} else {
+			WP_CLI::error( "Failed to update infected posts." );
+		}
+	}
 }
 /*
  * This works just like plugin verify-checksums except it filters language translation files.
