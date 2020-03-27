@@ -48,10 +48,7 @@
 		},
 
 		regenerate: function() {
-			$pbeRegenerate.attr( 'disabled', 'disabled' );
-			$pbeDisable.attr( 'disabled', 'disabled' );
-			$pbeError.fadeOut();
-			$pbeSpinner.fadeIn();
+			jetpack_post_by_email.before_request();
 
 			jetpack_post_by_email.send_request(
 				{ post_by_email_address: 'regenerate' },
@@ -76,10 +73,7 @@
 		},
 
 		disable: function() {
-			$pbeRegenerate.attr( 'disabled', 'disabled' );
-			$pbeDisable.attr( 'disabled', 'disabled' );
-			$pbeError.fadeOut();
-			$pbeSpinner.fadeIn();
+			jetpack_post_by_email.before_request();
 
 			jetpack_post_by_email.send_request(
 				{ post_by_email_address: 'delete' },
@@ -107,30 +101,31 @@
 		},
 
 		send_request: function( data, callback ) {
-			jQuery
-				.ajax( {
-					url: '/wp-json/jetpack/v4/settings/',
-					method: 'post',
-					beforeSend: function( xhr ) {
-						xhr.setRequestHeader( 'X-WP-Nonce', pbeVars.rest_nonce );
-					},
-					data: JSON.stringify( data ),
-					contentType: 'application/json',
-					dataType: 'json',
-				} )
-				.always( callback );
+			var request = new XMLHttpRequest();
+			request.open( 'POST', '/wp-json/jetpack/v4/settings/' );
+			request.setRequestHeader( 'Content-Type', 'application/json' );
+			request.setRequestHeader( 'X-WP-Nonce', pbeVars.rest_nonce );
+			request.onreadystatechange = function() {
+				if ( this.readyState === XMLHttpRequest.DONE ) {
+					callback( JSON.parse( this.response ) );
+				}
+			};
+			request.send( JSON.stringify( data ) );
 		},
 
-		parse_error_message: function( response ) {
-			if ( response.responseText ) {
-				var data = JSON.parse( response.responseText );
-
-				if ( data.message ) {
-					return data.message.replace( /^.*?:/, '' );
-				}
+		parse_error_message: function( data ) {
+			if ( data.message ) {
+				return data.message.replace( /^.*?:/, '' );
 			}
 
 			return '';
+		},
+
+		before_request: function() {
+			$pbeRegenerate.attr( 'disabled', 'disabled' );
+			$pbeDisable.attr( 'disabled', 'disabled' );
+			$pbeError.fadeOut();
+			$pbeSpinner.fadeIn();
 		},
 	};
 
