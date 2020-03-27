@@ -141,18 +141,10 @@
 	 * Check whether we should fetch any additional posts.
 	 */
 	Scroller.prototype.check = function() {
-		var container = this.element.getBoundingClientRect();
-		var top = container.top + this.getScrollTop();
+		var wrapperMeasurements = this.measure( this.element, [ this.wrapperClass ] );
 
-		// If the container can't be found, stop otherwise errors result
-		if ( 'object' !== typeof container ) {
-			return false;
-		}
-
-		var bottom = this.getScrollTop() + this.window.innerHeight,
-			threshold = top + this.element.offsetHeight - this.window.innerHeight * 2;
-
-		return bottom > threshold;
+		// Fetch more posts when we're less than 2 screens away from the bottom.
+		return wrapperMeasurements.bottom < 2 * this.window.innerHeight;
 	};
 
 	/**
@@ -604,49 +596,78 @@
 	};
 
 	/**
+	 * Get element measurements relative to the viewport.
+	 *
+	 * @returns {object}
+	 */
+	Scroller.prototype.measure = function( element, expandClasses ) {
+		expandClasses = expandClasses || [];
+
+		var childrenToTest = Array.prototype.slice.call( element.children );
+		var currentChild,
+			minTop = Number.MAX_VALUE,
+			maxBottom = 0,
+			currentChildRect,
+			i;
+
+		while ( childrenToTest.length > 0 ) {
+			currentChild = childrenToTest.shift();
+
+			for ( i = 0; i < expandClasses.length; i++ ) {
+				// Expand (= measure) child elements of nodes with class names from expandClasses.
+				if ( currentChild.classList.contains( expandClasses[ i ] ) ) {
+					childrenToTest = childrenToTest.concat(
+						Array.prototype.slice.call( currentChild.children )
+					);
+					break;
+				}
+			}
+			currentChildRect = currentChild.getBoundingClientRect();
+
+			minTop = Math.min( minTop, currentChildRect.top );
+			maxBottom = Math.max( maxBottom, currentChildRect.bottom );
+		}
+
+		var viewportMiddle = Math.round( window.innerHeight / 2 );
+
+		// isActive = does the middle of the viewport cross the element?
+		var isActive = minTop <= viewportMiddle && maxBottom >= viewportMiddle;
+
+		/**
+		 * Factor = percentage of viewport above the middle line occupied by the element.
+		 *
+		 * Negative factors are assigned for elements below the middle line. That's on purpose
+		 * to only allow "page 2" to change the URL once it's in the middle of the viewport.
+		 */
+		var factor = ( Math.min( maxBottom, viewportMiddle ) - Math.max( minTop, 0 ) ) / viewportMiddle;
+
+		return {
+			top: minTop,
+			bottom: maxBottom,
+			height: maxBottom - minTop,
+			factor: factor,
+			isActive: isActive,
+		};
+	};
+
+	/**
 	 * Trigger IS to load additional posts if the initial posts don't fill the window.
-	 * On large displays, or when posts are very short, the viewport may not be filled with posts, so we overcome this by loading additional posts when IS initializes.
+	 *
+	 * On large displays, or when posts are very short, the viewport may not be filled with posts,
+	 * so we overcome this by loading additional posts when IS initializes.
 	 */
 	Scroller.prototype.ensureFilledViewport = function() {
 		var self = this,
 			windowHeight = self.window.innerHeight,
-			postsHeight = self.element.offsetHeight,
-			aveSetHeight = 0,
-			wrapperQty = 0,
-			elChildNodes = self.element.childNodes,
-			wrapperEls = document.querySelectorAll( '.' + self.wrapperClass ),
-			i;
+			wrapperMeasurements = self.measure( self.element, [ self.wrapperClass ] );
 
-		// Account for situations where postsHeight is 0 because child list elements are floated
-		if ( postsHeight === 0 ) {
-			for ( i = 0; elChildNodes.length; i++ ) {
-				postsHeight += elChildNodes[ i ].offsetHeight;
-			}
+		// Only load more posts once. This prevents infinite loops when there are no more posts.
+		self.body.removeEventListener( 'is.post-load', self.checkViewportOnLoadBound );
 
-			if ( postsHeight === 0 ) {
-				self.body.addEventListener( 'is.post-load', self.checkViewportOnLoadBound );
-				return;
-			}
-		}
-
-		// Calculate average height of a set of posts to prevent more posts than needed from being loaded.
-		for ( i = 0; i < wrapperEls.length; i++ ) {
-			aveSetHeight += wrapperEls[ i ].offsetHeight;
-			wrapperQty++;
-		}
-
-		if ( wrapperQty > 0 ) {
-			aveSetHeight = aveSetHeight / wrapperQty;
-		} else {
-			aveSetHeight = 0;
-		}
-
-		// Load more posts if space permits, otherwise stop checking for a full viewport
-		if ( postsHeight < windowHeight && postsHeight + aveSetHeight < windowHeight ) {
+		// Load more posts if space permits, otherwise stop checking for a full viewport.
+		if ( wrapperMeasurements.bottom < windowHeight ) {
 			self.ready = true;
 			self.refresh();
-		} else {
-			self.body.removeEventListener( 'is.post-load', self.checkViewportOnLoadBound );
 		}
 	};
 
@@ -674,13 +695,10 @@
 	 */
 	Scroller.prototype.determineURL = function() {
 		var self = this,
-			windowTop = self.getScrollTop(),
-			windowBottom = windowTop + this.window.innerHeight,
-			windowSize = windowBottom - windowTop,
-			setsInView = [],
-			pageNum = false,
+			pageNum = -1,
 			currentFullScreenState = fullscreenState(),
-			wrapperEls;
+			wrapperEls,
+			maxFactor = 0;
 
 		// xor - check if the state has changed
 		if ( previousFullScrenState ^ currentFullScreenState ) {
@@ -693,92 +711,28 @@
 			return;
 		}
 		previousFullScrenState = currentFullScreenState;
-
 		wrapperEls = document.querySelectorAll( '.' + self.wrapperClass );
+
 		for ( var i = 0; i < wrapperEls.length; i++ ) {
-			var id = wrapperEls[ i ].getAttribute( 'id' ),
-				setTop,
-				setHeight = wrapperEls[ i ].offsetHeight,
-				setBottom = 0,
-				setPageNum = wrapperEls[ i ].dataset.pageNum;
+			var setMeasurements = self.measure( wrapperEls[ i ] );
 
-			setTop = wrapperEls[ i ].getBoundingClientRect();
-			setTop = setTop.top + self.getScrollTop();
-
-			// Account for containers that have no height because their children are floated elements.
-			if ( 0 === setHeight ) {
-				for ( var j = 0; j < wrapperEls[ i ].childNodes.length; j++ ) {
-					setHeight += wrapperEls[ i ].childNodes[ j ].offsetHeight;
-				}
+			// If it exists, pick a set that is crossed by the middle of the viewport.
+			if ( setMeasurements.isActive ) {
+				pageNum = parseInt( wrapperEls[ i ].dataset.pageNum, 10 );
+				break;
 			}
 
-			// Determine position of bottom of set by adding its height to the scroll position of its top.
-			setBottom = setTop + setHeight;
-
-			// Populate setsInView object. While this logic could all be combined into a single conditional statement, this is easier to understand.
-			if ( setTop < windowTop && setBottom > windowBottom ) {
-				// top of set is above window, bottom is below
-				setsInView.push( { id: id, top: setTop, bottom: setBottom, pageNum: setPageNum } );
-			} else if ( setTop > windowTop && setTop < windowBottom ) {
-				// top of set is between top (gt) and bottom (lt)
-				setsInView.push( { id: id, top: setTop, bottom: setBottom, pageNum: setPageNum } );
-			} else if ( setBottom > windowTop && setBottom < windowBottom ) {
-				// bottom of set is between top (gt) and bottom (lt)
-				setsInView.push( { id: id, top: setTop, bottom: setBottom, pageNum: setPageNum } );
+			// If there is such a set, pick the one that occupies the most space
+			// above the middle of the viewport.
+			if ( setMeasurements.factor > maxFactor ) {
+				pageNum = parseInt( wrapperEls[ i ].dataset.pageNum, 10 );
+				maxFactor = setMeasurements.factor;
 			}
+
+			// Otherwise default to -1
 		}
 
-		// Parse number of sets found in view in an attempt to update the URL to match the set that comprises the majority of the window.
-		if ( 0 == setsInView.length ) {
-			pageNum = -1;
-		} else if ( 1 == setsInView.length ) {
-			var setData = setsInView.pop();
-
-			// If the first set of IS posts is in the same view as the posts loaded in the template by WordPress, determine how much of the view is comprised of IS-loaded posts
-			if ( ( windowBottom - setData.top ) / windowSize < 0.5 ) {
-				pageNum = -1;
-			} else {
-				pageNum = setData.pageNum;
-			}
-		} else {
-			var majorityPercentageInView = 0;
-
-			// Identify the IS set that comprises the majority of the current window and set the URL to it.
-			setsInView.forEach( function( setData ) {
-				var topInView = 0,
-					bottomInView = 0,
-					percentOfView = 0;
-
-				// Figure percentage of view the current set represents
-				if ( setData.top > windowTop && setData.top < windowBottom ) {
-					topInView = ( windowBottom - setData.top ) / windowSize;
-				}
-
-				if ( setData.bottom > windowTop && setData.bottom < windowBottom ) {
-					bottomInView = ( setData.bottom - windowTop ) / windowSize;
-				}
-
-				// Figure out largest percentage of view for current set
-				if ( topInView >= bottomInView ) {
-					percentOfView = topInView;
-				} else if ( bottomInView >= topInView ) {
-					percentOfView = bottomInView;
-				}
-
-				// Does current set's percentage of view supplant the largest previously-found set?
-				if ( percentOfView > majorityPercentageInView ) {
-					pageNum = setData.pageNum;
-					majorityPercentageInView = percentOfView;
-				}
-			} );
-		}
-
-		// If a page number could be determined, update the URL
-		// -1 indicates that the original requested URL should be used.
-		pageNum = parseInt( pageNum, 10 );
-		if ( pageNum ) {
-			self.updateURL( pageNum );
-		}
+		self.updateURL( pageNum );
 	};
 
 	/**
