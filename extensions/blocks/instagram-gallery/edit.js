@@ -26,8 +26,9 @@ import { addQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies
  */
+import PopupMonitor from 'lib/popup-monitor';
 import defaultAttributes from './attributes';
-import { getGalleryCssAttributes, getScreenCenterSpecs } from './utils';
+import { getGalleryCssAttributes } from './utils';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import './editor.scss';
 
@@ -35,7 +36,7 @@ export function InstagramGalleryEdit( props ) {
 	const { attributes, className, noticeOperations, noticeUI, setAttributes } = props;
 	const { accessToken, align, columns, count, images, instagramUser, spacing } = attributes;
 
-	const [ isConnectingToInstagram, setIsConnectingToInstagram ] = useState( false );
+	const [ isConnecting, setIsConnecting ] = useState( false );
 	const [ isLoadingGallery, setIsLoadingGallery ] = useState( false );
 
 	useEffect( () => {
@@ -50,7 +51,7 @@ export function InstagramGalleryEdit( props ) {
 			return;
 		}
 		noticeOperations.removeAllNotices();
-		if ( ! isEmpty( images ) ) {
+		if ( isEmpty( images ) ) {
 			setIsLoadingGallery( true );
 		}
 		apiFetch( {
@@ -73,30 +74,40 @@ export function InstagramGalleryEdit( props ) {
 	}, [ accessToken, count ] );
 
 	const connectToInstagram = () => {
-		setIsConnectingToInstagram( true );
+		setIsConnecting( true );
 		apiFetch( { path: '/wpcom/v2/instagram/connect-url' } ).then( connectUrl => {
-			window.open(
+			const popupMonitor = new PopupMonitor();
+
+			popupMonitor.open(
 				connectUrl,
-				'_blank',
-				'toolbar=0,location=0,menubar=0,' + getScreenCenterSpecs( 700, 700 )
+				'connect-to-instagram-popup',
+				'toolbar=0,location=0,menubar=0,' + popupMonitor.getScreenCenterSpecs( 700, 700 )
 			);
-			window.onmessage = ( { data } ) => {
-				setIsConnectingToInstagram( false );
-				if ( ! data.keyring_id ) {
-					return;
+
+			popupMonitor.on( 'message', ( { keyring_id } ) => {
+				setIsConnecting( false );
+				if ( keyring_id ) {
+					setAttributes( { accessToken: keyring_id.toString() } );
 				}
-				setAttributes( { accessToken: data.keyring_id.toString() } );
-			};
+			} );
+
+			popupMonitor.on( 'close', name => {
+				if ( 'connect-to-instagram-popup' === name ) {
+					setIsConnecting( false );
+				}
+			} );
 		} );
 	};
 
 	const disconnectFromInstagram = () => {
+		setIsConnecting( true );
 		apiFetch( {
 			path: addQueryArgs( '/wpcom/v2/instagram/delete-access-token', {
 				access_token: accessToken,
 			} ),
 			method: 'DELETE',
 		} ).then( responseCode => {
+			setIsConnecting( false );
 			if ( 200 === responseCode ) {
 				setAttributes( {
 					accessToken: undefined,
@@ -108,7 +119,7 @@ export function InstagramGalleryEdit( props ) {
 
 	const debouncedSetNumberOfPosts = debounce( value => setAttributes( { count: value } ), 500 );
 
-	const showPlaceholder = ! accessToken || isEmpty( images );
+	const showPlaceholder = ! isLoadingGallery && ( ! accessToken || isEmpty( images ) );
 	const showSidebar = ! showPlaceholder;
 	const showLoadingSpinner = accessToken && isLoadingGallery;
 	const showGallery = ! showPlaceholder && ! isLoadingGallery;
@@ -124,13 +135,8 @@ export function InstagramGalleryEdit( props ) {
 					label={ __( 'Instagram Gallery', 'jetpack' ) }
 					notices={ noticeUI }
 				>
-					<Button
-						disabled={ isConnectingToInstagram }
-						isLarge
-						isPrimary
-						onClick={ connectToInstagram }
-					>
-						{ isConnectingToInstagram
+					<Button disabled={ isConnecting } isLarge isPrimary onClick={ connectToInstagram }>
+						{ isConnecting
 							? __( 'Connecting…', 'jetpack' )
 							: __( 'Connect your Instagram account', 'jetpack' ) }
 					</Button>
@@ -168,8 +174,15 @@ export function InstagramGalleryEdit( props ) {
 							</ExternalLink>
 						</PanelRow>
 						<PanelRow>
-							<Button isDestructive isLink onClick={ disconnectFromInstagram }>
-								{ __( 'Disconnect your account', 'jetpack' ) }
+							<Button
+								disabled={ isConnecting }
+								isDestructive
+								isLink
+								onClick={ disconnectFromInstagram }
+							>
+								{ isConnecting
+									? __( 'Disonnecting…', 'jetpack' )
+									: __( 'Disconnect your account', 'jetpack' ) }
 							</Button>
 						</PanelRow>
 					</PanelBody>
