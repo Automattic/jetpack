@@ -1216,7 +1216,7 @@ EXPECTED;
 	 */
 	public function test_login_url_add_redirect() {
 		$login_url = wp_login_url( '/wp-admin' );
-		$this->assertStringNotContainsString( $login_url, Jetpack::$jetpack_redirect_login );
+		$this->assertFalse( strpos( $login_url, Jetpack::$jetpack_redirect_login ) );
 
 		$login_url = wp_login_url( '/wp-admin?' . Jetpack::$jetpack_redirect_login . '=true' );
 		parse_str( wp_parse_url( $login_url, PHP_URL_QUERY ), $login_parts );
