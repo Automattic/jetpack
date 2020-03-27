@@ -619,7 +619,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 	/**
 	 * Get posts from an array of IDs
 	 *
-	 * @since 8.4.0 Added $count and $types parameters
+	 * @since 8.4.0 Added $types parameters
 	 *
 	 * @param array $post_ids The post IDs.
 	 * @param int   $count The maximum number of posts to return.
