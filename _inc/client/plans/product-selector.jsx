@@ -4,7 +4,6 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
-import classNames from 'classnames';
 import { get } from 'lodash';
 
 /**
@@ -189,13 +188,9 @@ class ProductSelector extends Component {
 
 	renderSingleProductContent() {
 		return (
-			<div
-				className={ classNames( 'plans-section__single-product', {
-					'plans-section__single-product--with-search': this.props.isInstantSearchEnabled,
-				} ) }
-			>
+			<div className="plans-section__single-product plans-section__single-product--with-search">
 				{ this.renderBackupProduct() }
-				{ this.props.isInstantSearchEnabled && this.renderSearchProduct() }
+				{ this.renderSearchProduct() }
 			</div>
 		);
 	}
@@ -265,6 +260,5 @@ export default connect( state => {
 			! getAvailablePlans( state ) ||
 			isFetchingSiteProducts( state ),
 		backupInfoUrl: getUpgradeUrl( state, 'aag-backups' ), // Redirect to https://jetpack.com/upgrade/backup/
-		isInstantSearchEnabled: !! get( state, 'jetpack.initialState.isInstantSearchEnabled', false ),
 	};
 } )( ProductSelector );
