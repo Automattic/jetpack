@@ -199,10 +199,14 @@ export function getActiveProductPurchases( state ) {
 	);
 }
 
-export function hasSearchPurchase( state ) {
-	return !! find( getActiveProductPurchases( state ), product =>
+export function getActiveSearchPurchase( state ) {
+	return find( getActiveProductPurchases( state ), product =>
 		isJetpackSearch( product.product_slug )
 	);
+}
+
+export function hasSearchPurchase( state ) {
+	return !! getActiveSearchPurchase( state );
 }
 
 export function getSiteID( state ) {

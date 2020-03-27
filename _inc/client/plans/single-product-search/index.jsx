@@ -10,8 +10,6 @@ import { get } from 'lodash';
  * Internal dependencies
  */
 import Button from 'components/button';
-import PlanRadioButton from '../single-product-components/plan-radio-button';
-import ProductSavings from '../single-product-components/product-savings';
 import {
 	JETPACK_SEARCH_TIER_UP_TO_100_RECORDS,
 	JETPACK_SEARCH_TIER_UP_TO_1K_RECORDS,
@@ -19,8 +17,11 @@ import {
 	JETPACK_SEARCH_TIER_UP_TO_100K_RECORDS,
 	JETPACK_SEARCH_TIER_UP_TO_1M_RECORDS,
 	JETPACK_SEARCH_TIER_MORE_THAN_1M_RECORDS,
-} from '../../lib/plans/constants';
-import { getUpgradeUrl } from '../../state/initial-state';
+} from 'lib/plans/constants';
+import { getUpgradeUrl } from 'state/initial-state';
+import { SEARCH_DESCRIPTION, SEARCH_TITLE } from '../constants';
+import PlanRadioButton from '../single-product-components/plan-radio-button';
+import ProductSavings from '../single-product-components/product-savings';
 
 function getTierLabel( priceTierSlug, recordCount ) {
 	switch ( priceTierSlug ) {
@@ -61,14 +62,11 @@ export function SingleProductSearchCard( props ) {
 	) : (
 		<div className="single-product__accented-card dops-card">
 			<div className="single-product__accented-card-header">
-				<h3 className="single-product-backup__header-title">{ __( 'Jetpack Search' ) }</h3>
+				<h3 className="single-product-backup__header-title">{ SEARCH_TITLE }</h3>
 			</div>
 			<div className="single-product__accented-card-body">
 				<p>
-					{ __(
-						'Enhanced Search for your WordPress site that provides more relevant results using modern ' +
-							'ranking algorithms, boosting of specific results, advanced filtering and faceting, and more. '
-					) }
+					{ SEARCH_DESCRIPTION }
 					<a href="https://jetpack.com/search" target="_blank" rel="noopener noreferrer">
 						{ __( 'Learn More' ) }
 					</a>
