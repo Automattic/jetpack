@@ -70,6 +70,13 @@ export function InstagramGalleryEdit( props ) {
 			}
 
 			setAttributes( { images: response.images, instagramUser: response.external_name } );
+
+			// If Instagram sends back less images than the requested amount,
+			// this prevents showing placeholder for non existent images.
+			// Note: this will trigger an additional Instagram call.
+			if ( response.images.length < count ) {
+				setAttributes( { count: response.images.length } );
+			}
 		} );
 	}, [ accessToken, count ] );
 
