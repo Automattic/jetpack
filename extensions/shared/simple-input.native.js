@@ -9,15 +9,14 @@ const simpleInput = ( type, props, label, view, onChange ) => {
 	const value = props.attributes[ type ];
 	return (
 		<View>
-			{ ! isSelected && value !== '' && view( props ) }
-			{ ( isSelected || value === '' ) && (
+			{/* { ( isSelected || value === '' ) && ( */}
 				<PlainText
 					value={ value }
 					placeholder={ label }
 					aria-label={ label }
 					onChange={ onChange }
 				/>
-			) }
+			{/* ) } */}
 		</View>
 	);
 };

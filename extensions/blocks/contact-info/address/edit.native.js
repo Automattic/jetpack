@@ -58,8 +58,8 @@ class AddressEdit extends Component {
 
 		return (
 			<View>
-				{ ! isSelected && hasContent && save( this.props ) }
-				{ ( isSelected || ! hasContent ) && (
+				{/* { ! isSelected && hasContent && save( this.props ) }
+				{ ( isSelected || ! hasContent ) && ( */}
 					<Fragment>
 						<PlainText
 							value={ address }
@@ -112,7 +112,7 @@ class AddressEdit extends Component {
 						/>
 						{ externalLink }
 					</Fragment>
-				) }
+				{/* ) } */}
 			</View>
 		);
 	}
