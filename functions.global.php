@@ -129,8 +129,8 @@ function jetpack_render_tos_blurb() {
 				'strong' => true,
 			)
 		),
-		'https://wordpress.com/tos',
-		'https://jetpack.com/support/what-data-does-jetpack-sync'
+		esc_html( \Jetpack::build_redirect_url( 'wpcom-tos' ) ),
+		esc_html( \Jetpack::build_redirect_url( 'jetpack-support-what-data-does-jetpack-sync' ) )
 	);
 }
 
