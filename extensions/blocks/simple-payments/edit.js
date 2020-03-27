@@ -35,7 +35,6 @@ class SimplePaymentsEdit extends Component {
 
 	state = {
 		fieldEmailError: null,
-		fieldEmailPasteListenerAdded: false,
 		fieldPriceError: null,
 		fieldTitleError: null,
 		isSavingProduct: false,
