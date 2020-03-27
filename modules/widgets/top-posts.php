@@ -506,6 +506,8 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 	 *
 	 * ONLY TO BE USED IN WPCOM
 	 *
+	 * @since 8.4.0 Added $types param
+	 *
 	 * @param int   $count The maximum number of posts to be returned.
 	 * @param array $types The post types that should be returned.
 	 * @return array array of posts.
@@ -578,6 +580,8 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 
 	/**
 	 * Get some posts if no posts are found in the stats API
+	 *
+	 * @since 8.4.0 Added $count and $types parameters
 	 *
 	 * @param int   $count The maximum number of posts to be returned.
 	 * @param array $types The post types that should be returned.
