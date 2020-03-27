@@ -114,11 +114,11 @@ function render_player( $player_data, $attributes ) {
 		$player_data
 	);
 
-	$block_classname = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attributes );
+	$block_classname = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attributes, array( 'is-default' ) );
 
 	ob_start();
 	?>
-	<div class="<?php echo esc_attr( $block_classname ); ?> is-default" id="<?php echo esc_attr( $instance_id ); ?>">
+	<div class="<?php echo esc_attr( $block_classname ); ?>" id="<?php echo esc_attr( $instance_id ); ?>">
 		<ol class="jetpack-podcast-player__episodes">
 			<?php foreach ( $player_data['tracks'] as $attachment ) : ?>
 			<li class="jetpack-podcast-player__episode">
