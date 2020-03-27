@@ -12,12 +12,14 @@ import * as episodeIcons from '../icons/episode-icons';
 import { STATE_ERROR, STATE_PLAYING } from '../constants';
 
 const TrackIcon = ( { isPlaying, isError, className } ) => {
-	let name;
+	let hiddenText, name;
 
 	if ( isError ) {
 		name = 'error';
+		hiddenText = __( 'Error' );
 	} else if ( isPlaying ) {
 		name = 'playing';
+		hiddenText = __( 'Playing' );
 	}
 
 	const icon = episodeIcons[ name ];
@@ -27,7 +29,12 @@ const TrackIcon = ( { isPlaying, isError, className } ) => {
 		return <span className={ className } />;
 	}
 
-	return <span className={ `${ className } ${ className }--${ name }` }>{ icon }</span>;
+	return (
+		<span className={ `${ className } ${ className }--${ name }` }>
+			<span className="jetpack-podcast-player--visually-hidden">{ hiddenText }</span>
+			{ icon }
+		</span>
+	);
 };
 
 const TrackError = memo( ( { link } ) => (
