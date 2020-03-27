@@ -2,6 +2,7 @@
  * External dependencies
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import { translate as __ } from 'i18n-calypso';
 import { connect } from 'react-redux';
 import { find, isEmpty } from 'lodash';
@@ -9,16 +10,15 @@ import { find, isEmpty } from 'lodash';
 /**
  * Internal dependencies
  */
+import { imagePath } from 'constants/urls';
 import Card from 'components/card';
+import ProductExpiration from 'components/product-expiration';
+import UpgradeLink from 'components/upgrade-link';
+import { getPlanClass } from 'lib/plans/constants';
+import { getUpgradeUrl, getSiteRawUrl, showBackups } from 'state/initial-state';
 import ChecklistCta from './checklist-cta';
 import ChecklistProgress from './checklist-progress-card';
 import MyPlanCard from '../my-plan-card';
-import UpgradeLink from 'components/upgrade-link';
-import ProductExpiration from 'components/product-expiration';
-import { getPlanClass } from 'lib/plans/constants';
-import { getUpgradeUrl, getSiteRawUrl, showBackups } from 'state/initial-state';
-import { imagePath } from 'constants/urls';
-import PropTypes from 'prop-types';
 
 class MyPlanHeader extends React.Component {
 	getProductProps( productSlug ) {

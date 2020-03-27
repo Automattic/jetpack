@@ -7,6 +7,7 @@ import { assign, find, get, merge } from 'lodash';
 /**
  * Internal dependencies
  */
+import { isJetpackProduct, isJetpackSearch } from 'lib/plans/constants';
 import {
 	JETPACK_SITE_DATA_FETCH,
 	JETPACK_SITE_DATA_FETCH_RECEIVE,
@@ -24,7 +25,6 @@ import {
 	JETPACK_SITE_PURCHASES_FETCH_RECEIVE,
 	JETPACK_SITE_PURCHASES_FETCH_FAIL,
 } from 'state/action-types';
-import { isJetpackProduct, isJetpackSearch } from 'lib/plans/constants';
 
 export const data = ( state = {}, action ) => {
 	switch ( action.type ) {

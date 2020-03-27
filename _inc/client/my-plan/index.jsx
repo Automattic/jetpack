@@ -7,13 +7,19 @@ import { connect } from 'react-redux';
 /**
  * Internal dependencies
  */
-import { getSitePlan, getSitePurchases, getAvailableFeatures, getActiveFeatures } from 'state/site';
+import {
+	getActiveFeatures,
+	getActiveProductPurchases,
+	getAvailableFeatures,
+	getSitePlan,
+	getSitePurchases,
+	hasSearchPurchase,
+} from 'state/site';
 import QuerySite from 'components/data/query-site';
 import { getSiteConnectionStatus } from 'state/connection';
 
 import MyPlanHeader from './my-plan-header';
 import MyPlanBody from './my-plan-body';
-import { getActiveProductPurchases, hasSearchPurchase } from '../state/site/reducer';
 
 export function MyPlan( props ) {
 	let sitePlan = props.sitePlan.product_slug || '',
