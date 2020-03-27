@@ -66,13 +66,16 @@ class WPcom_Instagram_Widget extends WP_Widget {
 	 *
 	 * @param int $token_id A Keyring token ID.
 	 */
-	public function update_widget_token_id( $token_id ) {
+	public function update_widget_token_id( $token_id, $number = null ) {
 		$widget_options = $this->get_settings();
 
-		if ( ! is_array( $widget_options[ $this->number ] ) )
-			$widget_options[ $this->number ] = $this->defaults;
+		if ( empty( $number ) ) {
+			$number = $this->number;
+		}
+		if ( ! is_array( $widget_options[ $number ] ) )
+			$widget_options[ $number ] = $this->defaults;
 
-		$widget_options[ $this->number ]['token_id'] = (int) $token_id;
+		$widget_options[ $number ]['token_id'] = (int) $token_id;
 
 		$this->save_settings( $widget_options );
 	}
@@ -86,6 +89,7 @@ class WPcom_Instagram_Widget extends WP_Widget {
 		check_ajax_referer( 'instagram-widget-save-token', 'savetoken' );
 
 		$token_id = (int) $_POST['keyring_id'];
+		$widget_id = (int) $_POST['instagram_widget_id'];
 
 		// From Atomic sites, this check is done via the api: wpcom/v2/instagram/<token_id>.
 		// https://wpcom.trac.automattic.com/browser/trunk/wp-content/rest-api-plugins/endpoints/sites-instagram.php?rev=204654#L88
@@ -96,7 +100,7 @@ class WPcom_Instagram_Widget extends WP_Widget {
 			}
 		}
 
-		$this->update_widget_token_id( $token_id );
+		$this->update_widget_token_id( $token_id, $widget_id );
 		$this->update_widget_token_legacy_status( false );
 
 		return wp_send_json_success( null, 200 );
@@ -398,6 +402,7 @@ class WPcom_Instagram_Widget extends WP_Widget {
 								action: 'wpcom_instagram_widget_update_widget_token_id',
 								savetoken: '<?php echo esc_js( wp_create_nonce( 'instagram-widget-save-token' ) ); ?>',
 								keyring_id: data.keyring_id,
+								instagram_widget_id: button.dataset.widgetid,
 							};
 							jQuery.post( ajaxurl, payload, function( response ) {
 								var widget = jQuery(button).closest('div.widget');
@@ -418,7 +423,7 @@ class WPcom_Instagram_Widget extends WP_Widget {
 				return;
 			}
 			?>
-			<p style="text-align:center"><button class="button-primary" onclick="openWindow(this); return false;" data-connecturl="<?php echo esc_attr( $connect_url ); ?>"><?php echo esc_html( __( 'Connect Instagram Account', 'wpcomsh' ) ); ?></button></p>
+			<p style="text-align:center"><button class="button-primary" onclick="openWindow(this); return false;" data-widgetid="<?php echo esc_attr( $this->number ) ?>" data-connecturl="<?php echo esc_attr( $connect_url ); ?>"><?php echo esc_html( __( 'Connect Instagram Account', 'wpcomsh' ) ); ?></button></p>
 
 			<?php // Include hidden fields for the widget settings before a connection is made, otherwise the default settings are lost after connecting ?>
 			<input type="hidden" id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" value="<?php echo esc_attr( $instance['title'] ); ?>" />
