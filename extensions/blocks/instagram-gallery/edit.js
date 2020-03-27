@@ -2,7 +2,7 @@
  * External dependencies
  */
 import classnames from 'classnames';
-import { debounce, isEmpty, isEqual } from 'lodash';
+import { debounce, isEmpty, isEqual, take, times } from 'lodash';
 
 /**
  * WordPress dependencies
@@ -117,7 +117,12 @@ export function InstagramGalleryEdit( props ) {
 		} );
 	};
 
-	const debouncedSetNumberOfPosts = debounce( value => setAttributes( { count: value } ), 500 );
+	const debouncedSetNumberOfPosts = debounce( value => {
+		if ( value < images.length ) {
+			setAttributes( { images: take( images, value ) } );
+		}
+		setAttributes( { count: value } );
+	}, 500 );
 
 	const showPlaceholder = ! isLoadingGallery && ( ! accessToken || isEmpty( images ) );
 	const showSidebar = ! showPlaceholder;
@@ -161,6 +166,19 @@ export function InstagramGalleryEdit( props ) {
 							<img alt={ image.title || image.url } src={ image.url } />
 						</span>
 					) ) }
+					{ count > images.length &&
+						times( count - images.length, index => (
+							<span
+								className="wp-block-jetpack-instagram-gallery__grid-post"
+								key={ `instagram-gallery-placeholder-${ index }` }
+								style={ photoStyle }
+							>
+								<img
+									alt={ __( 'Instagram Gallery placeholder', 'jetpack' ) }
+									src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNMyc2tBwAEOgG/c94mJwAAAABJRU5ErkJggg=="
+								/>
+							</span>
+						) ) }
 				</div>
 			) }
 
