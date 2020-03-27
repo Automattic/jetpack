@@ -11631,6 +11631,14 @@ postcss-custom-properties@9.0.2:
     postcss "^7.0.17"
     postcss-values-parser "^3.0.5"
 
+postcss-custom-properties@9.1.1:
+  version "9.1.1"
+  resolved "https://registry.yarnpkg.com/postcss-custom-properties/-/postcss-custom-properties-9.1.1.tgz#55822d70ff48004f6d307a338ba64a7fb0a4bfff"
+  integrity sha512-GVu+j7vwMTKUGhGXckYAFAAG5tTJUkSt8LuSyimtZdVVmdAEZYYqserkAgX8vwMhgGDPA4vJtWt7VgFxgiooDA==
+  dependencies:
+    postcss "^7.0.17"
+    postcss-values-parser "^3.0.5"
+
 postcss-discard-comments@^4.0.2:
   version "4.0.2"
   resolved "https://registry.yarnpkg.com/postcss-discard-comments/-/postcss-discard-comments-4.0.2.tgz#1fbabd2c246bff6aaad7997b2b0918f4d7af4033"
