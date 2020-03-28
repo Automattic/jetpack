@@ -758,16 +758,38 @@ function jetpack_do_subscription_form( $instance ) {
 	$show_only_email_and_button             = isset( $instance['show_only_email_and_button'] ) ? $instance['show_only_email_and_button'] : false;
 	$submit_button_text                     = isset( $instance['submit_button_text'] ) ? $instance['submit_button_text'] : '';
 
-
-
 	// Build up a string with the submit button's classes and styles and set it on the instance
 	$submit_button_classes = isset( $instance['submit_button_classes'] ) ? $instance['submit_button_classes'] : '';
 	$submit_button_styles = '';
-	if ( isset( $instance['custom_background_button_color'] ) ) {
-		$submit_button_styles .= 'background-color: ' . $instance['custom_background_button_color'] . '; ';
+	if ( isset( $instance['custom_background_button_color'] ) && 'undefined' !== $instance['custom_background_button_color'] ) {
+		$submit_button_styles .= 'background: ' . $instance['custom_background_button_color'] . '; ';
 	}
-	if ( isset( $instance['custom_text_button_color'] ) ) {
-		$submit_button_styles .= 'color: ' . $instance['custom_text_button_color'] . ';';
+	if ( isset( $instance['custom_text_button_color'] ) && 'undefined' !== $instance['custom_text_button_color'] ) {
+		$submit_button_styles .= 'color: ' . $instance['custom_text_button_color'] . '; ';
+	}
+	if ( isset( $instance['custom_font_size'] ) && 'undefined' !== $instance['custom_font_size'] ) {
+		$submit_button_styles .= 'font-size: ' . $instance['custom_font_size'] . 'px; ';
+	}
+	if ( isset( $instance['custom_padding'] ) && 'undefined' !== $instance['custom_padding'] ) {
+		$submit_button_styles .= 'padding: ' .
+			$instance['custom_padding'] . 'px; ' .
+			round( $instance['custom_padding'] * 1.5 ) . 'px; ' .
+			$instance['custom_padding'] . 'px; ' .
+			round( $instance['custom_padding'] * 1.5 ) . 'px; ';
+	}
+	if ( isset( $instance['custom_spacing'] ) && 'undefined' !== $instance['custom_spacing'] ) {
+		$submit_button_styles .= 'margin-left: ' . $instance['custom_spacing'] . 'px; ';
+	}
+	if ( isset( $instance['custom_border_radius'] ) && 'undefined' !== $instance['custom_border_radius'] ) {
+		$submit_button_styles .= 'border-radius: ' . $instance['custom_border_radius'] . 'px; ';
+	}
+	if ( isset( $instance['custom_border_weight'] ) && 'undefined' !== $instance['custom_border_weight'] ) {
+		$submit_button_styles .= 'border-width: ' . $instance['custom_border_weight'] . 'px; ';
+	}
+	if ( isset( $instance['custom_border_color'] ) && 'undefined' !== $instance['custom_border_color'] ) {
+		$submit_button_styles .=
+			'border-color: ' . $instance['custom_border_color'] . '; ' .
+			'border-style: solid;';
 	}
 
 	$instance = shortcode_atts(
@@ -783,7 +805,7 @@ function jetpack_do_subscription_form( $instance ) {
 		$instance['submit_button_classes'] = $submit_button_classes;
 	}
 	if ( ! empty ( $submit_button_styles ) ) {
-		$instance['submit_button_styles'] = $submit_button_styles;
+		$instance['submit_button_styles'] = trim( $submit_button_styles );
 	}
 
 	$args = array(

@@ -1,7 +1,14 @@
 /**
  * External dependencies
  */
+import { select } from '@wordpress/data';
 import { RawHTML } from '@wordpress/element';
+import {
+	getColorClassName,
+	getColorObjectByAttributeValues,
+	__experimentalGetGradientClass as getGradientClass,
+	getFontSizeClass,
+} from '@wordpress/block-editor';
 import classnames from 'classnames';
 
 export default function Save( { attributes } ) {
@@ -21,31 +28,69 @@ export default function Save( { attributes } ) {
 		textColor,
 		customTextColor,
 		fontSize,
+		customFontSize,
 		borderRadius,
 		borderWeight,
 		borderColor,
+		customBorderColor,
 		padding,
 		spacing,
 	} = attributes;
 
+	const editorSettings = select( 'core/editor' ).getEditorSettings();
+
+	const textColorClass = getColorClassName( 'color', textColor );
+	const fontSizeClass = getFontSizeClass( fontSize );
+	const borderClass = getColorClassName( 'border-color', borderColor );
+
+	const buttonBackgroundClass = getColorClassName( 'background-color', buttonBackgroundColor );
+	const buttonGradientClass = getGradientClass( buttonGradient );
+
+	const emailFieldBackgroundClass = getColorClassName(
+		'background-color',
+		emailFieldBackgroundColor
+	);
+	const emailFieldGradientClass = getGradientClass( emailFieldGradient );
+
+	const sharedClasses = classnames(
+		borderRadius === 0 ? 'no-border-radius' : undefined,
+		fontSizeClass,
+		borderClass
+	);
+
+	const submitButtonClasses = classnames(
+		...sharedClasses,
+		textColor ? 'has-text-color' : undefined,
+		textColorClass,
+		buttonBackgroundColor || buttonGradient ? 'has-background' : undefined,
+		buttonBackgroundClass,
+		buttonGradientClass
+	);
+
+	const emailFieldClasses = classnames(
+		...sharedClasses,
+		emailFieldBackgroundClass,
+		emailFieldGradientClass
+	);
+
 	const emailFieldBackgroundStyle =
-		! customEmailFieldBackgroundColor && customEmailFieldGradient
+		! emailFieldBackgroundClass && customEmailFieldGradient
 			? customEmailFieldGradient
 			: customEmailFieldBackgroundColor;
 
 	const buttonBackgroundStyle =
-		! customButtonBackgroundColor && customButtonGradient
+		! buttonBackgroundClass && customButtonGradient
 			? customButtonGradient
 			: customButtonBackgroundColor;
 
-	// TODO: Check each background color for classname of not undefined, and add to classlist
-	const submitButtonClasses = classnames(
-		emailFieldBackgroundColor,
-		emailFieldGradient,
-		buttonBackgroundColor,
-		buttonGradient,
-		textColor
-	);
+	const fontSizeStyle = fontSizeClass ? undefined : customFontSize;
+
+	// Themes don't regularly support border color classes, so pass the hex to styles either way.
+	const customBorderColorStyle = getColorObjectByAttributeValues(
+		editorSettings.colors,
+		borderColor,
+		customBorderColor
+	).color;
 
 	return (
 		<RawHTML>
@@ -58,13 +103,14 @@ export default function Save( { attributes } ) {
 				custom_background_emailfield_color="${ emailFieldBackgroundStyle }"
 				custom_background_button_color="${ buttonBackgroundStyle }"
 				custom_text_button_color="${ customTextColor }"
-				custom_font_size="${ fontSize }"
+				custom_font_size="${ fontSizeStyle }"
 				custom_border_radius="${ borderRadius }"
 				custom_border_weight="${ borderWeight }"
-				custom_border_color="${ borderColor }"
+				custom_border_color="${ customBorderColorStyle }"
 				custom_padding="${ padding }"
 				custom_spacing="${ spacing }"
 				submit_button_classes="${ submitButtonClasses }"
+				email_field_classes="${ emailFieldClasses }"
 				show_only_email_and_button="true"
 			]` }
 		</RawHTML>
