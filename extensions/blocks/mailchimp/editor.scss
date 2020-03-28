@@ -38,6 +38,10 @@
 		display: block;
 		flex-direction: unset;
 		flex-wrap: unset;
+
+		.components-button {
+			margin-bottom: 0;
+		}
 	}
 
 }
