@@ -10,7 +10,9 @@ import { connect } from 'react-redux';
 import { fetchSiteProducts, isFetchingSiteProducts } from 'state/site-products';
 
 export function QuerySiteProducts( props ) {
-	useEffect( () => ! props.isFetchingSiteProducts && props.fetchSiteProducts(), [] );
+	useEffect( () => {
+		! props.isFetchingSiteProducts && props.fetchSiteProducts();
+	}, [] );
 	return null;
 }
 
