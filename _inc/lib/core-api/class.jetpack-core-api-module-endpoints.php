@@ -70,7 +70,7 @@ class Jetpack_Core_API_Module_Toggle_Endpoint
 			);
 		}
 
-		if ( ! Jetpack_Plan::supports( $module_slug ) || ( 'search' === $module_slug && get_option( 'has_jetpack_search_product' ) ) ) {
+		if ( ! ( Jetpack_Plan::supports( $module_slug ) || ( 'search' === $module_slug && get_option( 'has_jetpack_search_product' ) ) ) ) {
 			return new WP_Error(
 				'not_supported',
 				esc_html__( 'The requested Jetpack module is not supported by your plan.', 'jetpack' ),
