@@ -123,7 +123,7 @@
 		"gulp-minify": "3.1.0",
 		"gulp-modify-css-urls": "2.0.0",
 		"gulp-po2json": "1.0.0",
-		"gulp-rename": "1.4.0",
+		"gulp-rename": "2.0.0",
 		"gulp-rm-lines": "0.0.10",
 		"gulp-rtlcss": "1.4.1",
 		"gulp-sass": "4.0.2",
