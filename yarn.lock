@@ -7486,12 +7486,12 @@ gulp-sourcemaps@2.6.5:
     strip-bom-string "1.X"
     through2 "2.X"
 
-gulp-tap@0.4.2:
-  version "0.4.2"
-  resolved "https://registry.yarnpkg.com/gulp-tap/-/gulp-tap-0.4.2.tgz#558b302e6b66cf752142a33104c387081a6d5cec"
-  integrity sha1-VYswLmtmz3UhQqMxBMOHCBptXOw=
+gulp-tap@2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/gulp-tap/-/gulp-tap-2.0.0.tgz#6f66b79870dcbfc364cf4ebe0735b6008473200f"
+  integrity sha512-U5/v1bTozx672QHzrvzPe6fPl2io7Wqyrx2y30AG53eMU/idH4BrY/b2yikOkdyhjDqGgPoMUMnpBg9e9LK8Nw==
   dependencies:
-    through2 "^2.0.3"
+    through2 "^3.0.1"
 
 gulp@4.0.2:
   version "4.0.2"
