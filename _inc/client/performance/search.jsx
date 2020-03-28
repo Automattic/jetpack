@@ -16,7 +16,7 @@ import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import {
 	getSitePlan,
-	hasSearchProducPurchase as selectHasSearchPurchase,
+	hasActiveSearchPurchase as selectHasActiveSearchPurchase,
 	isFetchingSitePurchases,
 } from 'state/site';
 import { FormFieldset } from 'components/forms';
@@ -24,21 +24,21 @@ import CompactFormToggle from 'components/form/form-toggle/compact';
 
 function toggleModuleFactory( {
 	getOptionValue,
-	hasSearchPurchase,
+	hasActiveSearchPurchase,
 	toggleModuleNow,
 	updateOptions,
 } ) {
 	return module => {
 		toggleModuleNow( module );
-		if ( hasSearchPurchase && getOptionValue( 'search' ) ) {
+		if ( hasActiveSearchPurchase && getOptionValue( 'search' ) ) {
 			updateOptions( { instant_search_enabled: true } );
 		}
 	};
 }
 
-function toggleInstantSearchFactory( { hasSearchPurchase, getOptionValue, updateOptions } ) {
+function toggleInstantSearchFactory( { hasActiveSearchPurchase, getOptionValue, updateOptions } ) {
 	return () => {
-		if ( hasSearchPurchase && getOptionValue( 'search' ) ) {
+		if ( hasActiveSearchPurchase && getOptionValue( 'search' ) ) {
 			updateOptions( {
 				instant_search_enabled: ! getOptionValue( 'instant_search_enabled', 'search' ),
 			} );
@@ -52,13 +52,13 @@ function Search( props ) {
 
 	const toggleModule = useMemo( () => toggleModuleFactory( props ), [
 		props.getOptionValue,
-		props.hasSearchPurchase,
+		props.hasActiveSearchPurchase,
 		props.toggleModuleNow,
 		props.updateOptions,
 	] );
 	const toggleInstantSearch = useMemo( () => toggleInstantSearchFactory( props ), [
 		props.getOptionValue,
-		props.hasSearchPurchase,
+		props.hasActiveSearchPurchase,
 		props.updateOptions,
 	] );
 
@@ -78,7 +78,7 @@ function Search( props ) {
 					) }{ ' ' }
 				</p>
 				{ props.isLoading && __( 'Loading…' ) }
-				{ ! props.isLoading && ( props.isBusinessPlan || props.hasSearchPurchase ) && (
+				{ ! props.isLoading && ( props.isBusinessPlan || props.hasActiveSearchPurchase ) && (
 					// TODO: There's a known bug preventing Jetpack Search from being enabled here for Search product purchases
 					<Fragment>
 						<ModuleToggle
@@ -93,7 +93,7 @@ function Search( props ) {
 						<FormFieldset>
 							<CompactFormToggle
 								checked={ isInstantSearchEnabled }
-								disabled={ ! props.hasSearchPurchase || ! isModuleEnabled }
+								disabled={ ! props.hasActiveSearchPurchase || ! isModuleEnabled }
 								onChange={ toggleInstantSearch }
 								toggling={ props.isSavingAnyOption( 'instant_search_enabled' ) }
 							>
@@ -112,7 +112,7 @@ function Search( props ) {
 				) }
 			</SettingsGroup>
 			{ ! props.isLoading &&
-				( props.isBusinessPlan || props.hasSearchPurchase ) &&
+				( props.isBusinessPlan || props.hasActiveSearchPurchase ) &&
 				isModuleEnabled &&
 				! isInstantSearchEnabled && (
 					<Card
@@ -123,7 +123,7 @@ function Search( props ) {
 						{ __( 'Add Jetpack Search Widget' ) }
 					</Card>
 				) }
-			{ props.hasSearchPurchase && isModuleEnabled && isInstantSearchEnabled && (
+			{ props.hasActiveSearchPurchase && isModuleEnabled && isInstantSearchEnabled && (
 				<Card
 					className="jp-settings-card__configure-link"
 					compact
@@ -140,7 +140,7 @@ export default connect( state => {
 	const planClass = getPlanClass( getSitePlan( state ).product_slug );
 	return {
 		isLoading: isFetchingSitePurchases( state ),
-		hasSearchPurchase: selectHasSearchPurchase( state ),
+		hasActiveSearchPurchase: selectHasActiveSearchPurchase( state ),
 		isBusinessPlan: 'is-business-plan' === planClass,
 	};
 } )( withModuleSettingsFormHelpers( Search ) );

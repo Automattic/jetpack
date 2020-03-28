@@ -16,7 +16,7 @@ import DashItem from 'components/dash-item';
 import Card from 'components/card';
 import JetpackBanner from 'components/jetpack-banner';
 import { isDevMode } from 'state/connection';
-import { getSitePlan, hasSearchPurchase, isFetchingSitePurchases } from 'state/site';
+import { getSitePlan, hasActiveSearchPurchase, isFetchingSitePurchases } from 'state/site';
 import { getUpgradeUrl } from 'state/initial-state';
 
 /**
@@ -173,7 +173,7 @@ export default connect( state => {
 		isBusinessPlan: 'is-business-plan' === getPlanClass( getSitePlan( state ).product_slug ),
 		isDevMode: isDevMode( state ),
 		isFetching: isFetchingSitePurchases( state ),
-		hasSearchProduct: hasSearchPurchase( state ),
+		hasSearchProduct: hasActiveSearchPurchase( state ),
 		upgradeUrl: getUpgradeUrl( state, 'aag-search' ),
 	};
 } )( DashSearch );

@@ -154,14 +154,14 @@ export default connect( state => {
 	return {
 		activeSitePurchases: getActiveSitePurchases( state ),
 		backupInfoUrl: getUpgradeUrl( state, 'aag-backups' ), // Redirect to https://jetpack.com/upgrade/backup/
+		isFetchingData:
+			isFetchingSiteData( state ) ||
+			! getAvailablePlans( state ) ||
+			isFetchingSiteProducts( state ),
 		multisite: isMultisite( state ),
 		searchPurchase: getActiveSearchPurchase( state ),
 		sitePlan: getSitePlan( state ),
 		siteProducts: getSiteProducts( state ),
 		siteRawlUrl: getSiteRawUrl( state ),
-		isFetchingData:
-			isFetchingSiteData( state ) ||
-			! getAvailablePlans( state ) ||
-			isFetchingSiteProducts( state ),
 	};
 } )( ProductSelector );

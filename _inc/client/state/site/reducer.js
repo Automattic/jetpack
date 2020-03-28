@@ -205,7 +205,7 @@ export function getActiveSearchPurchase( state ) {
 	);
 }
 
-export function hasSearchPurchase( state ) {
+export function hasActiveSearchPurchase( state ) {
 	return !! getActiveSearchPurchase( state );
 }
 

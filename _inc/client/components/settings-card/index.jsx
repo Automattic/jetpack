@@ -34,7 +34,12 @@ import {
 	getUpgradeUrl,
 } from 'state/initial-state';
 import { isAkismetKeyValid, isCheckingAkismetKey, getVaultPressData } from 'state/at-a-glance';
-import { getSitePlan, isFetchingSiteData, getActiveFeatures, hasSearchPurchase } from 'state/site';
+import {
+	getActiveFeatures,
+	getSitePlan,
+	hasActiveSearchPurchase,
+	isFetchingSiteData,
+} from 'state/site';
 import SectionHeader from 'components/section-header';
 import ProStatus from 'pro-status';
 import JetpackBanner from 'components/jetpack-banner';
@@ -183,7 +188,7 @@ export const SettingsCard = props => {
 				);
 
 			case FEATURE_SEARCH_JETPACK:
-				if ( props.hasSearchPurchase ) {
+				if ( props.hasActiveSearchPurchase ) {
 					return '';
 				}
 
@@ -371,6 +376,6 @@ export default connect( state => {
 		searchUpgradeUrl: getUpgradeUrl( state, 'jetpack-search' ),
 		spamUpgradeUrl: getUpgradeUrl( state, 'settings-spam' ),
 		multisite: isMultisite( state ),
-		hasSearchPurchase: hasSearchPurchase( state ),
+		hasActiveSearchPurchase: hasActiveSearchPurchase( state ),
 	};
 } )( SettingsCard );
