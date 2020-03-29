@@ -7,13 +7,19 @@
  * @package Jetpack
  */
 
-namespace Jetpack\Podcast_Player_Block;
+namespace Automattic\Jetpack\Extensions\Podcast_Player;
 
 use WP_Error;
 use Jetpack_Gutenberg;
+use Jetpack_Podcast_Helper;
+use Jetpack_AMP_Support;
 
 const FEATURE_NAME = 'podcast-player';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
+
+if ( ! class_exists( 'Jetpack_Podcast_Helper' ) ) {
+	\jetpack_require_lib( 'class-jetpack-podcast-helper' );
+}
 
 /**
  * Registers the block for use in Gutenberg
@@ -25,12 +31,20 @@ function register_block() {
 		BLOCK_NAME,
 		array(
 			'attributes'      => array(
-				'url'         => array(
+				'url'                    => array(
 					'type' => 'url',
 				),
-				'itemsToShow' => array(
+				'itemsToShow'            => array(
 					'type'    => 'integer',
 					'default' => 5,
+				),
+				'showCoverArt'           => array(
+					'type'    => 'boolean',
+					'default' => true,
+				),
+				'showEpisodeDescription' => array(
+					'type'    => 'boolean',
+					'default' => true,
 				),
 			),
 			'render_callback' => __NAMESPACE__ . '\render_block',
@@ -60,109 +74,90 @@ function render_block( $attributes ) {
 	// Sanitize the URL.
 	$attributes['url'] = esc_url_raw( $attributes['url'] );
 
-	$track_list = get_track_list( $attributes['url'], 10 );
+	$player_data = Jetpack_Podcast_Helper::get_player_data( $attributes['url'] );
 
-	if ( is_wp_error( $track_list ) ) {
-		return '<p>' . esc_html( $track_list->get_error_message() ) . '</p>';
+	if ( is_wp_error( $player_data ) ) {
+		return '<p>' . esc_html( $player_data->get_error_message() ) . '</p>';
 	}
 
-	return render_player( $track_list, $attributes );
+	return render_player( $player_data, $attributes );
 }
 
 /**
  * Renders the HTML for the Podcast player and tracklist.
  *
- * @param array $track_list the list of podcast tracks.
+ * @param array $player_data The player data details.
  * @param array $attributes Array containing the Podcast Player block attributes.
- * @return string the HTML for the podcast player.
+ * @return string The HTML for the podcast player.
  */
-function render_player( $track_list, $attributes ) {
+function render_player( $player_data, $attributes ) {
 	// If there are no tracks (it is possible) then display appropriate user facing error message.
-	if ( empty( $track_list ) ) {
+	if ( empty( $player_data['tracks'] ) ) {
 		return '<p>' . esc_html__( 'No tracks available to play.', 'jetpack' ) . '</p>';
 	}
 
-	$player_data = array(
-		'type'         => 'audio',
-		// Don't pass strings to JSON, will be truthy in JS.
-		'tracklist'    => true,
-		'tracknumbers' => true,
-		'images'       => true,
-		'artists'      => true,
-		'tracks'       => $track_list,
+	// Only use the amount of tracks requested.
+	$player_data['tracks'] = array_slice(
+		$player_data['tracks'],
+		0,
+		absint( $attributes['itemsToShow'] )
 	);
 
-	$block_classname = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attributes );
+	// Genereate a unique id for the block instance.
+	$instance_id             = wp_unique_id( 'jetpack-podcast-player-block-' );
+	$player_data['playerId'] = $instance_id;
+
+	// Generate object to be used as props for PodcastPlayer.
+	$player_props = array_merge(
+		// Add all attributes.
+		array( 'attributes' => $attributes ),
+		// Add all player data.
+		$player_data
+	);
+
+	$block_classname = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attributes, array( 'is-default' ) );
+	$is_amp          = ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() );
 
 	ob_start();
-
 	?>
-	<div class="<?php echo esc_attr( $block_classname ); ?>">
-		<?php // Placeholder: block markup is being handled in https://github.com/Automattic/jetpack/pull/14952. ?>
-		<script type="application/json" class="wp-playlist-script"><?php echo wp_json_encode( $player_data ); ?></script>
+	<div class="<?php echo esc_attr( $block_classname ); ?>" id="<?php echo esc_attr( $instance_id ); ?>">
+		<ol class="jetpack-podcast-player__episodes">
+			<?php foreach ( $player_data['tracks'] as $attachment ) : ?>
+			<li class="jetpack-podcast-player__episode">
+				<a
+					class="jetpack-podcast-player__episode-link"
+					href="<?php echo esc_url( $attachment['link'] ); ?>"
+					role="button"
+					aria-pressed="false"
+				>
+					<span class="jetpack-podcast-player__episode-status-icon"></span>
+					<span class="jetpack-podcast-player__episode-title"><?php echo esc_html( $attachment['title'] ); ?></span>
+					<time class="jetpack-podcast-player__episode-duration"><?php echo ( ! empty( $attachment['duration'] ) ? esc_html( $attachment['duration'] ) : '' ); ?></time>
+				</a>
+			</li>
+			<?php endforeach; ?>
+		</ol>
+		<?php if ( ! $is_amp ) : ?>
+		<script type="application/json"><?php echo wp_json_encode( $player_props ); ?></script>
+		<?php endif; ?>
 	</div>
+	<?php if ( ! $is_amp ) : ?>
+	<script>
+		( function( instanceId ) {
+			document.getElementById( instanceId ).classList.remove( 'is-default' );
+			window.jetpackPodcastPlayers=(window.jetpackPodcastPlayers||[]);
+			window.jetpackPodcastPlayers.push( instanceId );
+		} )( <?php echo wp_json_encode( $instance_id ); ?> );
+	</script>
+	<?php endif; ?>
 	<?php
-	/*
-	* Enqueue necessary scripts and styles.
-	*/
-	Jetpack_Gutenberg::load_assets_as_required( 'podcast-player' );
+	/**
+	 * Enqueue necessary scripts and styles.
+	 */
+	if ( ! $is_amp ) {
+		wp_enqueue_style( 'mediaelement' );
+	}
+	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME, array( 'mediaelement' ) );
 
 	return ob_get_clean();
-}
-
-/**
- * Gets a list of tracks for the supplied RSS feed.
- *
- * @param string $feed the RSS feed to load and list tracks for.
- * @param int    $quantity the number of tracks to return.
- * @return array|WP_Error the feed's tracks or a error object.
- */
-function get_track_list( $feed, $quantity = 10 ) {
-	$rss = fetch_feed( $feed );
-
-	if ( is_wp_error( $rss ) ) {
-		return new WP_Error( 'invalid_url', __( 'Your podcast couldn\'t be embedded. Please double check your URL.', 'jetpack' ) );
-	}
-
-	if ( ! $rss->get_item_quantity() ) {
-		return new WP_Error( 'no_tracks', __( 'Podcast audio RSS feed has no tracks.', 'jetpack' ) );
-	}
-
-	$track_list = array_map( __NAMESPACE__ . '\setup_tracks_callback', $rss->get_items( 0, $quantity ) );
-
-	// Remove empty tracks.
-	return \array_filter( $track_list );
-}
-
-/**
- * Prepares Episode data to be used with MediaElement.js.
- *
- * @param \SimplePie_Item $episode SimplePie_Item object, representing a podcast episode.
- * @return array
- */
-function setup_tracks_callback( \SimplePie_Item $episode ) {
-	$enclosure = $episode->get_enclosure();
-
-	// If there is no link return an empty array. We will filter out later.
-	if ( ! $enclosure->link ) {
-		return array();
-	}
-
-	// Build track data.
-	$track = array(
-		'link'        => esc_url( $episode->get_link() ),
-		'src'         => esc_url( $enclosure->link ),
-		'type'        => $enclosure->type,
-		'caption'     => '',
-		'description' => wp_kses_post( $episode->get_description() ),
-		'meta'        => array(),
-	);
-
-	$track['title'] = esc_html( trim( wp_strip_all_tags( $episode->get_title() ) ) );
-
-	if ( empty( $track['title'] ) ) {
-		$track['title'] = esc_html__( '(no title)', 'jetpack' );
-	}
-
-	return $track;
 }

@@ -182,7 +182,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 		wp_enqueue_script(
 			'jetpack-search-widget',
 			plugins_url( 'search/js/search-widget.js', __FILE__ ),
-			array( 'jquery' ),
+			array(),
 			JETPACK__VERSION,
 			true
 		);
@@ -552,39 +552,46 @@ class Jetpack_Search_Widget extends WP_Widget {
 		if ( ! empty( $instance['user_sort_enabled'] ) ) :
 		?>
 		<script type="text/javascript">
-				jQuery( document ).ready( function( $ ) {
-					var orderByDefault = '<?php echo 'date' === $orderby ? 'date' : 'relevance'; ?>',
-						orderDefault   = '<?php echo 'ASC' === $order ? 'ASC' : 'DESC'; ?>',
-						widgetId       = decodeURIComponent( '<?php echo rawurlencode( $this->id ); ?>' ),
-						searchQuery    = decodeURIComponent( '<?php echo rawurlencode( get_query_var( 's', '' ) ); ?>' ),
-						isSearch       = <?php echo (int) is_search(); ?>;
+			var jetpackSearchModuleSorting = function() {
+				var orderByDefault = '<?php echo 'date' === $orderby ? 'date' : 'relevance'; ?>',
+					orderDefault   = '<?php echo 'ASC' === $order ? 'ASC' : 'DESC'; ?>',
+					widgetId       = decodeURIComponent( '<?php echo rawurlencode( $this->id ); ?>' ),
+					searchQuery    = decodeURIComponent( '<?php echo rawurlencode( get_query_var( 's', '' ) ); ?>' ),
+					isSearch       = <?php echo (int) is_search(); ?>;
 
-					var container = $( '#' + widgetId + '-wrapper' ),
-						form = container.find('.jetpack-search-form form'),
-						orderBy = form.find( 'input[name=orderby]'),
-						order = form.find( 'input[name=order]'),
-						searchInput = form.find( 'input[name="s"]' );
+				var container = document.getElementById( widgetId + '-wrapper' ),
+					form = container.querySelector( '.jetpack-search-form form' ),
+					orderBy = form.querySelector( 'input[name=orderby]' ),
+					order = form.querySelector( 'input[name=order]' ),
+					searchInput = form.querySelector( 'input[name="s"]' ),
+					sortSelectInput = container.querySelector( '.jetpack-search-sort' );
 
-					orderBy.val( orderByDefault );
-					order.val( orderDefault );
+				orderBy.value = orderByDefault;
+				order.value = orderDefault;
 
-					// Some themes don't set the search query, which results in the query being lost
-					// when doing a sort selection. So, if the query isn't set, let's set it now. This approach
-					// is chosen over running a regex over HTML for every search query performed.
-					if ( isSearch && ! searchInput.val() ) {
-						searchInput.val( searchQuery );
-					}
+				// Some themes don't set the search query, which results in the query being lost
+				// when doing a sort selection. So, if the query isn't set, let's set it now. This approach
+				// is chosen over running a regex over HTML for every search query performed.
+				if ( isSearch && ! searchInput.value ) {
+					searchInput.value = searchQuery;
+				}
 
-					searchInput.addClass( 'show-placeholder' );
+				searchInput.classList.add( 'show-placeholder' );
 
-					container.find( '.jetpack-search-sort' ).change( function( event ) {
-						var values  = event.target.value.split( '|' );
-						orderBy.val( values[0] );
-						order.val( values[1] );
+				sortSelectInput.addEventListener( 'change', function( event ) {
+					var values  = event.target.value.split( '|' );
+					orderBy.value = values[0];
+					order.value = values[1];
 
-						form.submit();
-					});
+					form.submit();
 				} );
+			}
+
+			if ( document.readyState === 'interactive' || document.readyState === 'complete' ) {
+				jetpackSearchModuleSorting();
+			} else {
+				document.addEventListener( 'DOMContentLoaded', jetpackSearchModuleSorting );
+			}
 			</script>
 		<?php
 		endif;

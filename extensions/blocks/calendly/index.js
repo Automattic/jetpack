@@ -17,6 +17,8 @@ import { getAttributesFromEmbedCode, REGEX } from './utils';
  */
 import './editor.scss';
 
+export const CALENDLY_EXAMPLE_URL = 'https://calendly.com/wordpresscom/jetpack-block-example';
+
 export const name = 'calendly';
 export const title = __( 'Calendly', 'jetpack' );
 export const settings = {
@@ -44,7 +46,7 @@ export const settings = {
 			submitButtonText: __( 'Schedule time with me', 'jetpack' ),
 			hideEventTypeDetails: false,
 			style: 'inline',
-			url: 'https://calendly.com/wordpresscom/jetpack-block-example',
+			url: CALENDLY_EXAMPLE_URL,
 		},
 	},
 	transforms: {

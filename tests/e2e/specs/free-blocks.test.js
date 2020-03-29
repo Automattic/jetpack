@@ -7,9 +7,10 @@ import { connectThroughWPAdminIfNeeded } from '../lib/flows/jetpack-connect';
 import { resetWordpressInstall, getNgrokSiteUrl } from '../lib/utils-helper';
 import PinterestBlock from '../lib/blocks/pinterest';
 import EventbriteBlock from '../lib/blocks/eventbrite';
+import { catchBeforeAll } from '../lib/jest.test.failure';
 
 describe( 'Free blocks', () => {
-	beforeAll( async () => {
+	catchBeforeAll( async () => {
 		await resetWordpressInstall();
 		const url = getNgrokSiteUrl();
 		console.log( 'NEW SITE URL: ' + url );

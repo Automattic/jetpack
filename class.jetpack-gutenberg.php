@@ -574,26 +574,26 @@ class Jetpack_Gutenberg {
 	 * Only enqueue block scripts when needed.
 	 *
 	 * @param string $type Slug of the block.
-	 * @param array  $dependencies Script dependencies. Will be merged with automatically
+	 * @param array  $script_dependencies Script dependencies. Will be merged with automatically
 	 *                             detected script dependencies from the webpack build.
 	 *
 	 * @since 7.2.0
 	 *
 	 * @return void
 	 */
-	public static function load_scripts_as_required( $type, $dependencies = array() ) {
+	public static function load_scripts_as_required( $type, $script_dependencies = array() ) {
 		if ( is_admin() ) {
 			// A block's view assets will not be required in wp-admin.
 			return;
 		}
 
 		// Enqueue script.
-		$script_relative_path = self::get_blocks_directory() . $type . '/view.js';
-		$script_deps_path     = JETPACK__PLUGIN_DIR . self::get_blocks_directory() . $type . '/view.asset.php';
-		$script_dependencies  = array( 'wp-polyfill' );
+		$script_relative_path  = self::get_blocks_directory() . $type . '/view.js';
+		$script_deps_path      = JETPACK__PLUGIN_DIR . self::get_blocks_directory() . $type . '/view.asset.php';
+		$script_dependencies[] = 'wp-polyfill';
 		if ( file_exists( $script_deps_path ) ) {
 			$asset_manifest      = include $script_deps_path;
-			$script_dependencies = $asset_manifest['dependencies'];
+			$script_dependencies = array_unique( array_merge( $script_dependencies, $asset_manifest['dependencies'] ) );
 		}
 
 		if ( ( ! class_exists( 'Jetpack_AMP_Support' ) || ! Jetpack_AMP_Support::is_amp_request() ) && self::block_has_asset( $script_relative_path ) ) {
@@ -901,10 +901,10 @@ class Jetpack_Gutenberg {
 		// Normalize URL.
 		$url = sprintf(
 			'%s://%s%s%s',
-			$url_components['scheme'],
+			isset( $url_components['scheme'] ) ? $url_components['scheme'] : 'https',
 			$url_components['host'],
-			$url_components['path'] ? $url_components['path'] : '/',
-			$url_components['query'] ? '?' . $url_components['query'] : ''
+			isset( $url_components['path'] ) ? $url_components['path'] : '/',
+			isset( $url_components['query'] ) ? '?' . $url_components['query'] : ''
 		);
 
 		if ( ! empty( $url_components['fragment'] ) ) {

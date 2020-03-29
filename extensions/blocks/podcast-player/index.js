@@ -1,6 +1,10 @@
 /**
  * External dependencies
  */
+
+/**
+ * WordPress dependencies
+ */
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -13,6 +17,7 @@ import { queueMusic } from './icons/';
 /**
  * Style dependencies
  */
+import './style.scss';
 import './editor.scss';
 
 export const name = 'podcast-player';

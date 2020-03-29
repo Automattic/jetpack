@@ -166,6 +166,7 @@ export class ConnectButton extends React.Component {
 				{ this.props.children }
 				<JetpackDisconnectModal
 					show={ this.state.showModal }
+					showSurvey={ false }
 					toggleModal={ this.toggleVisibility }
 				/>
 			</div>

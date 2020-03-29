@@ -1,4 +1,9 @@
 <?php
+/**
+ * Functionality that is executed when Jetpack is uninstalled via built-in WordPress commands.
+ *
+ * @package Jetpack
+ */
 
 use Automattic\Jetpack\Sync\Sender;
 use Automattic\Jetpack\Backup\Helper_Script_Manager;

@@ -602,7 +602,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return array();
 		}
 
-		return $jitm->get_messages( $request['message_path'], urldecode_deep( $request['query'] ) );
+		return $jitm->get_messages( $request['message_path'], urldecode_deep( $request['query'] ), 'true' === $request['full_jp_logo_exists'] ? true : false );
 	}
 
 	/**

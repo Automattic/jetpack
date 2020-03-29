@@ -379,6 +379,14 @@ class Jetpack {
 	public static $plugin_upgrade_lock_key = 'jetpack_upgrade_lock';
 
 	/**
+	 * Constant for login redirect key.
+	 *
+	 * @var string
+	 * @since 8.4.0
+	 */
+	public static $jetpack_redirect_login = 'jetpack_connect_login_redirect';
+
+	/**
 	 * Holds the singleton instance of this class
 	 *
 	 * @since 2.3.3
@@ -641,6 +649,9 @@ class Jetpack {
 
 		add_action( 'jetpack_event_log', array( 'Jetpack', 'log' ), 10, 2 );
 
+		add_filter( 'login_url', array( $this, 'login_url' ), 10, 2 );
+		add_action( 'login_init', array( $this, 'login_init' ) );
+
 		add_filter( 'determine_current_user', array( $this, 'wp_rest_authenticate' ) );
 		add_filter( 'rest_authentication_errors', array( $this, 'wp_rest_authentication_errors' ) );
 
@@ -659,8 +670,6 @@ class Jetpack {
 		add_action( 'wp_ajax_jetpack_connection_banner', array( $this, 'jetpack_connection_banner_callback' ) );
 
 		add_action( 'wp_loaded', array( $this, 'register_assets' ) );
-
-		add_action( 'plugins_loaded', array( $this, 'extra_oembed_providers' ), 100 );
 
 		/**
 		 * These actions run checks to load additional files.
@@ -1188,7 +1197,7 @@ class Jetpack {
 			wp_register_script(
 				'jetpack-facebook-embed',
 				Assets::get_file_url_for_environment( '_inc/build/facebook-embed.min.js', '_inc/facebook-embed.js' ),
-				array( 'jquery' ),
+				array(),
 				null,
 				true
 			);
@@ -1863,20 +1872,6 @@ class Jetpack {
 		}
 
 		return ! empty( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : '';
-	}
-
-	/**
-	 * Add any extra oEmbed providers that we know about and use on wpcom for feature parity.
-	 */
-	function extra_oembed_providers() {
-		// Cloudup: https://dev.cloudup.com/#oembed
-		wp_oembed_add_provider( 'https://cloudup.com/*', 'https://cloudup.com/oembed' );
-		wp_oembed_add_provider( 'https://me.sh/*', 'https://me.sh/oembed?format=json' );
-		wp_oembed_add_provider( '#https?://(www\.)?gfycat\.com/.*#i', 'https://api.gfycat.com/v1/oembed', true );
-		wp_oembed_add_provider( '#https?://[^.]+\.(wistia\.com|wi\.st)/(medias|embed)/.*#', 'https://fast.wistia.com/oembed', true );
-		wp_oembed_add_provider( '#https?://sketchfab\.com/.*#i', 'https://sketchfab.com/oembed', true );
-		wp_oembed_add_provider( '#https?://(www\.)?icloud\.com/keynote/.*#i', 'https://iwmb.icloud.com/iwmb/oembed', true );
-		wp_oembed_add_provider( 'https://song.link/*', 'https://song.link/oembed', false );
 	}
 
 	/**
@@ -4035,6 +4030,45 @@ p {
 		return array_merge( $jetpack_home, $actions );
 	}
 
+	/**
+	 * Filters the login URL to include the registration flow in case the user isn't logged in.
+	 *
+	 * @param string $login_url The wp-login URL.
+	 * @param string $redirect  URL to redirect users after logging in.
+	 * @since Jetpack 8.4
+	 * @return string
+	 */
+	public function login_url( $login_url, $redirect ) {
+		parse_str( wp_parse_url( $redirect, PHP_URL_QUERY ), $redirect_parts );
+		if ( ! empty( $redirect_parts[ self::$jetpack_redirect_login ] ) ) {
+			$login_url = add_query_arg( self::$jetpack_redirect_login, 'true', $login_url );
+		}
+		return $login_url;
+	}
+
+	/**
+	 * Redirects non-authenticated users to authenticate with Calypso if redirect flag is set.
+	 *
+	 * @since Jetpack 8.4
+	 */
+	public function login_init() {
+		// phpcs:ignore WordPress.Security.NonceVerification
+		if ( ! empty( $_GET[ self::$jetpack_redirect_login ] ) ) {
+			add_filter( 'allowed_redirect_hosts', array( &$this, 'allow_wpcom_environments' ) );
+			wp_safe_redirect(
+				add_query_arg(
+					array(
+						'forceInstall' => 1,
+						'url'          => rawurlencode( get_site_url() ),
+					),
+					// @todo provide way to go to specific calypso env.
+					self::get_calypso_host() . 'jetpack/connect'
+				)
+			);
+			exit;
+		}
+	}
+
 	/*
 	 * Registration flow:
 	 * 1 - ::admin_page_load() action=register
@@ -5207,7 +5241,7 @@ endif;
 	 * @return Automattic\Jetpack\Connection\Manager
 	 */
 	public static function connection() {
-		$jetpack = self::init();
+		$jetpack = static::init();
 
 		// If the connection manager hasn't been instantiated, do that now.
 		if ( ! $jetpack->connection_manager ) {
@@ -7137,6 +7171,28 @@ endif;
 	}
 
 	/**
+	 * Returns the hostname with protocol for Calypso.
+	 * Used for developing Jetpack with Calypso.
+	 *
+	 * @since 8.4.0
+	 *
+	 * @return string Calypso host.
+	 */
+	public static function get_calypso_host() {
+		$calypso_env = self::get_calypso_env();
+		switch ( $calypso_env ) {
+			case 'development':
+				return 'http://calypso.localhost:3000/';
+			case 'wpcalypso':
+				return 'https://wpcalypso.wordpress.com/';
+			case 'horizon':
+				return 'https://horizon.wordpress.com/';
+			default:
+				return 'https://wordpress.com/';
+		}
+	}
+
+	/**
 	 * Checks whether or not TOS has been agreed upon.
 	 * Will return true if a user has clicked to register, or is already connected.
 	 */
@@ -7175,11 +7231,6 @@ endif;
 
 		// Since this is a fresh connection, be sure to clear out IDC options
 		Jetpack_IDC::clear_all_idc_options();
-		Jetpack_Options::delete_raw_option( 'jetpack_last_connect_url_check' );
-
-		// Start nonce cleaner
-		wp_clear_scheduled_hook( 'jetpack_clean_nonces' );
-		wp_schedule_event( time(), 'hourly', 'jetpack_clean_nonces' );
 
 		if ( $send_state_messages ) {
 			self::state( 'message', 'authorized' );

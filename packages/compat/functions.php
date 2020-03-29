@@ -17,9 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Load necessary functions.
  */
 function jetpack_compat_require_defined_functions() {
-	jetpack_require_lib( 'tracks/client' );
+	require_once __DIR__ . '/lib/tracks/client.php';
 }
 
 add_action( 'plugins_loaded', 'jetpack_compat_require_defined_functions' );
-
-

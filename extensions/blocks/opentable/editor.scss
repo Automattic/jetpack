@@ -9,7 +9,8 @@
 	display: inline-block;
 	position: relative;
 
-	&-theme-wide {
+	&-theme-wide,
+	&.is-placeholder {
 		display: block;
 	}
 

@@ -250,10 +250,10 @@ export class Map extends Component {
 		if ( points.length > 1 ) {
 			map.fitBounds( bounds, {
 				padding: {
-					top: 40,
-					bottom: 40,
-					left: 20,
-					right: 20,
+					top: 80,
+					bottom: 80,
+					left: 40,
+					right: 40,
 				},
 			} );
 			this.setState( { boundsSetProgrammatically: true } );

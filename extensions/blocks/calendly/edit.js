@@ -8,18 +8,18 @@ import queryString from 'query-string';
 /**
  * WordPress dependencies
  */
-import { BlockControls, BlockIcon, InspectorControls } from '@wordpress/block-editor';
+import { BlockIcon, InspectorControls } from '@wordpress/block-editor';
 import {
 	Button,
 	ExternalLink,
 	Notice,
 	PanelBody,
 	Placeholder,
+	Spinner,
 	ToggleControl,
-	Toolbar,
 	withNotices,
 } from '@wordpress/components';
-import { useState } from '@wordpress/element';
+import { useEffect, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { getBlockDefaultClassName } from '@wordpress/blocks';
 
@@ -34,6 +34,8 @@ import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import SubmitButton from '../../shared/submit-button';
 import { getAttributesFromEmbedCode } from './utils';
 import BlockStylesSelector from '../../shared/components/block-styles-selector';
+import { CALENDLY_EXAMPLE_URL } from './';
+import testEmbedUrl from '../../shared/test-embed-url';
 
 function CalendlyEdit( props ) {
 	const {
@@ -62,6 +64,7 @@ function CalendlyEdit( props ) {
 		url,
 	} = validatedAttributes;
 	const [ embedCode, setEmbedCode ] = useState( '' );
+	const [ isResolvingUrl, setIsResolvingUrl ] = useState( false );
 
 	const setErrorNotice = () => {
 		noticeOperations.removeAllNotices();
@@ -69,6 +72,16 @@ function CalendlyEdit( props ) {
 			__( "Your calendar couldn't be embedded. Please double check your URL or code.", 'jetpack' )
 		);
 	};
+
+	useEffect( () => {
+		if ( ! url || CALENDLY_EXAMPLE_URL === url || 'link' === style ) {
+			return;
+		}
+		testEmbedUrl( url, setIsResolvingUrl ).catch( () => {
+			setAttributes( { url: undefined } );
+			setErrorNotice();
+		} );
+	}, [] );
 
 	const parseEmbedCode = event => {
 		if ( ! event ) {
@@ -84,10 +97,16 @@ function CalendlyEdit( props ) {
 			return;
 		}
 
-		const newValidatedAttributes = getValidatedAttributes( attributeDetails, newAttributes );
-
-		setAttributes( newValidatedAttributes );
-		noticeOperations.removeAllNotices();
+		testEmbedUrl( newAttributes.url, setIsResolvingUrl )
+			.then( () => {
+				const newValidatedAttributes = getValidatedAttributes( attributeDetails, newAttributes );
+				setAttributes( newValidatedAttributes );
+				noticeOperations.removeAllNotices();
+			} )
+			.catch( () => {
+				setAttributes( { url: undefined } );
+				setErrorNotice();
+			} );
 	};
 
 	const embedCodeForm = (
@@ -113,6 +132,13 @@ function CalendlyEdit( props ) {
 				</ExternalLink>
 			</div>
 		</>
+	);
+
+	const blockEmbedding = (
+		<div className="wp-block-embed is-loading">
+			<Spinner />
+			<p>{ __( 'Embedding…', 'jetpack' ) }</p>
+		</div>
 	);
 
 	const blockPlaceholder = (
@@ -190,79 +216,62 @@ function CalendlyEdit( props ) {
 		{ value: 'link', label: __( 'Link', 'jetpack' ) },
 	];
 
-	const blockControls = (
-		<BlockControls>
-			{ url && (
-				<Toolbar
-					isCollapsed={ true }
-					icon="admin-appearance"
-					label={ __( 'Style', 'jetpack' ) }
-					controls={ styleOptions.map( styleOption => ( {
-						title: styleOption.label,
-						isActive: styleOption.value === style,
-						onClick: () => setAttributes( { style: styleOption.value } ),
-					} ) ) }
-					popoverProps={ { className: 'is-calendly' } }
-				/>
-			) }
-		</BlockControls>
-	);
-
 	const inspectorControls = (
-		<InspectorControls>
+		<>
 			{ url && (
-				<>
-					<PanelBody title={ __( 'Styles', 'jetpack' ) }>
-						<BlockStylesSelector
-							clientId={ clientId }
-							styleOptions={ styleOptions }
-							onSelectStyle={ setAttributes }
-							activeStyle={ style }
-							attributes={ attributes }
-							viewportWidth={ 500 }
-						/>
-					</PanelBody>
-				</>
-			) }
-			<PanelBody title={ __( 'Calendar Settings', 'jetpack' ) } initialOpen={ false }>
-				<form onSubmit={ parseEmbedCode } className={ `${ defaultClassName }-embed-form-sidebar` }>
-					<input
-						type="text"
-						id="embedCode"
-						onChange={ event => setEmbedCode( event.target.value ) }
-						placeholder={ __( 'Calendly web address or embed code…', 'jetpack' ) }
-						value={ embedCode }
-						className="components-placeholder__input"
-					/>
-					<div>
-						<Button isSecondary isLarge type="submit">
-							{ _x( 'Embed', 'button label', 'jetpack' ) }
-						</Button>
-					</div>
-				</form>
-
-				<ToggleControl
-					label={ __( 'Hide Event Type Details', 'jetpack' ) }
-					checked={ hideEventTypeDetails }
-					onChange={ () => setAttributes( { hideEventTypeDetails: ! hideEventTypeDetails } ) }
+				<BlockStylesSelector
+					clientId={ clientId }
+					styleOptions={ styleOptions }
+					onSelectStyle={ setAttributes }
+					activeStyle={ style }
+					attributes={ attributes }
+					viewportWidth={ 500 }
 				/>
-			</PanelBody>
-			{ url && (
-				<Notice className={ `${ defaultClassName }-color-notice` } isDismissible={ false }>
-					<ExternalLink href="https://help.calendly.com/hc/en-us/community/posts/360033166114-Embed-Widget-Color-Customization-Available-Now-">
-						{ __( 'Follow these instructions to change the colors in this block.', 'jetpack' ) }
-					</ExternalLink>
-				</Notice>
 			) }
-		</InspectorControls>
+			<InspectorControls>
+				<PanelBody title={ __( 'Calendar Settings', 'jetpack' ) } initialOpen={ false }>
+					<form onSubmit={ parseEmbedCode } className={ `${ defaultClassName }-embed-form-sidebar` }>
+						<input
+							type="text"
+							id="embedCode"
+							onChange={ event => setEmbedCode( event.target.value ) }
+							placeholder={ __( 'Calendly web address or embed code…', 'jetpack' ) }
+							value={ embedCode }
+							className="components-placeholder__input"
+						/>
+						<div>
+							<Button isSecondary isLarge type="submit">
+								{ _x( 'Embed', 'button label', 'jetpack' ) }
+							</Button>
+						</div>
+					</form>
+
+					<ToggleControl
+						label={ __( 'Hide Event Type Details', 'jetpack' ) }
+						checked={ hideEventTypeDetails }
+						onChange={ () => setAttributes( { hideEventTypeDetails: ! hideEventTypeDetails } ) }
+					/>
+				</PanelBody>
+				{ url && (
+					<Notice className={ `${ defaultClassName }-color-notice` } isDismissible={ false }>
+						<ExternalLink href="https://help.calendly.com/hc/en-us/community/posts/360033166114-Embed-Widget-Color-Customization-Available-Now-">
+							{ __( 'Follow these instructions to change the colors in this block.', 'jetpack' ) }
+						</ExternalLink>
+					</Notice>
+				) }
+			</InspectorControls>
+		</>
 	);
+
+	if ( isResolvingUrl ) {
+		return blockEmbedding;
+	}
 
 	const classes = `${ className } calendly-style-${ style }`;
 
 	return (
 		<div className={ classes }>
 			{ inspectorControls }
-			{ blockControls }
 			{ url ? blockPreview( style ) : blockPlaceholder }
 		</div>
 	);

@@ -5,6 +5,7 @@ import './style.scss';
 import component from './component.js';
 import { settings } from './settings.js';
 import FrontendManagement from '../../shared/frontend-management.js';
+import { getActiveStyleName } from '../../shared/block-styles';
 
 typeof window !== 'undefined' &&
 	window.addEventListener( 'load', function() {
@@ -24,6 +25,7 @@ typeof window !== 'undefined' &&
 						...settings,
 						attributes: {
 							...settings.attributes,
+							mapStyle: getActiveStyleName( settings.styles, settings.className ),
 							apiKey,
 						},
 					},

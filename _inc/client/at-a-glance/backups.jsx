@@ -7,7 +7,6 @@ import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
 import { translate as __ } from 'i18n-calypso';
 import { get, isEmpty, noop } from 'lodash';
-import { PLAN_JETPACK_PREMIUM } from 'lib/plans/constants';
 
 /**
  * Internal dependencies
@@ -15,6 +14,7 @@ import { PLAN_JETPACK_PREMIUM } from 'lib/plans/constants';
 import Card from 'components/card';
 import JetpackBanner from 'components/jetpack-banner';
 import QueryVaultPressData from 'components/data/query-vaultpress-data';
+import { getPlanClass, PLAN_JETPACK_PREMIUM } from 'lib/plans/constants';
 import { getSitePlan } from 'state/site';
 import { isPluginInstalled } from 'state/site/plugins';
 import { getVaultPressData } from 'state/at-a-glance';
@@ -154,7 +154,7 @@ class DashBackups extends Component {
 	}
 
 	getRewindContent() {
-		const { rewindStatus, siteRawUrl } = this.props;
+		const { planClass, rewindStatus, siteRawUrl } = this.props;
 		const buildAction = ( url, message ) => (
 			<Card compact key="manage-backups" className="jp-dash-item__manage-in-wpcom" href={ url }>
 				{ message }
@@ -188,9 +188,13 @@ class DashBackups extends Component {
 					</React.Fragment>
 				);
 			case 'active':
+				const message = [ 'is-business-plan', 'is-realtime-backup-plan' ].includes( planClass )
+					? __( 'We are backing up your site in real-time.' )
+					: __( 'We are backing up your site daily.' );
+
 				return (
 					<React.Fragment>
-						{ buildCard( __( 'We are backing up your site in real-time.' ) ) }
+						{ buildCard( message ) }
 						{ buildAction(
 							`https://wordpress.com/activity-log/${ siteRawUrl }?group=rewind`,
 							__( "View your site's backups" )
@@ -233,9 +237,12 @@ class DashBackups extends Component {
 }
 
 export default connect( state => {
+	const sitePlan = getSitePlan( state );
+
 	return {
 		vaultPressData: getVaultPressData( state ),
-		sitePlan: getSitePlan( state ),
+		sitePlan,
+		planClass: getPlanClass( sitePlan ),
 		isDevMode: isDevMode( state ),
 		isVaultPressInstalled: isPluginInstalled( state, 'vaultpress/vaultpress.php' ),
 		showBackups: showBackups( state ),

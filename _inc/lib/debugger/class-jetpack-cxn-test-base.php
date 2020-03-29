@@ -318,7 +318,7 @@ class Jetpack_Cxn_Test_Base {
 	 * - pass: bool|string True if the test passed. Default false.
 	 * - short_description: bool|string A brief, non-html description that will appear in CLI results, and as headings in admin UIs. Default 'Test failed!'.
 	 * - long_description: bool|string An html description that will appear in the site health page. Default false.
-	 * - severity: bool|string 'critical', 'recommended', or 'good'. Default: false.
+	 * - severity: bool|string 'critical', 'recommended', or 'good'. Default: 'critical'.
 	 * - action: bool|string A URL for the recommended action. Default: false.
 	 * - action_label: bool|string The label for the recommended action. Default: false.
 	 * - show_in_site_health: bool True if the test should be shown on the Site Health page. Default: true

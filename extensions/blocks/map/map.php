@@ -7,23 +7,43 @@
  * @package Jetpack
  */
 
+namespace Automattic\Jetpack\Extensions\Map;
+
+use Automattic\Jetpack\Tracking;
+use Jetpack;
+use Jetpack_AMP_Support;
+use Jetpack_Gutenberg;
+use Jetpack_Mapbox_Helper;
+use Jetpack_Options;
+
+const FEATURE_NAME = 'map';
+const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
+
 if ( ! class_exists( 'Jetpack_Mapbox_Helper' ) ) {
-	jetpack_require_lib( 'class-jetpack-mapbox-helper' );
+	\jetpack_require_lib( 'class-jetpack-mapbox-helper' );
 }
 
-jetpack_register_block(
-	'jetpack/map',
-	array(
-		'render_callback' => 'jetpack_map_block_load_assets',
-	)
-);
+/**
+ * Registers the block for use in Gutenberg
+ * This is done via an action so that we can disable
+ * registration if we need to.
+ */
+function register_block() {
+	jetpack_register_block(
+		BLOCK_NAME,
+		array(
+			'render_callback' => __NAMESPACE__ . '\load_assets',
+		)
+	);
+}
+add_action( 'init', __NAMESPACE__ . '\register_block' );
 
 /**
  * Record a Tracks event every time the Map block is loaded on WordPress.com and Atomic.
  *
  * @param string $access_token_source The Mapbox API access token source.
  */
-function jetpack_record_mapbox_wpcom_load_event( $access_token_source ) {
+function wpcom_load_event( $access_token_source ) {
 	if ( 'wpcom' !== $access_token_source ) {
 		return;
 	}
@@ -33,7 +53,7 @@ function jetpack_record_mapbox_wpcom_load_event( $access_token_source ) {
 		require_lib( 'tracks/client' );
 		tracks_record_event( wp_get_current_user(), $event_name );
 	} elseif ( jetpack_is_atomic_site() && Jetpack::is_active() ) {
-		$tracking = new Automattic\Jetpack\Tracking();
+		$tracking = new Tracking();
 		$tracking->record_user_event( $event_name );
 	}
 }
@@ -46,10 +66,10 @@ function jetpack_record_mapbox_wpcom_load_event( $access_token_source ) {
  *
  * @return string
  */
-function jetpack_map_block_load_assets( $attr, $content ) {
+function load_assets( $attr, $content ) {
 	$access_token = Jetpack_Mapbox_Helper::get_access_token();
 
-	jetpack_record_mapbox_wpcom_load_event( $access_token['source'] );
+	wpcom_load_event( $access_token['source'] );
 
 	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
 		static $map_block_counter = array();
@@ -79,7 +99,7 @@ function jetpack_map_block_load_assets( $attr, $content ) {
 		);
 	}
 
-	Jetpack_Gutenberg::load_assets_as_required( 'map' );
+	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 
 	return preg_replace( '/<div /', '<div data-api-key="' . esc_attr( $access_token['key'] ) . '" ', $content, 1 );
 }
@@ -87,7 +107,7 @@ function jetpack_map_block_load_assets( $attr, $content ) {
 /**
  * Render a page containing only a single Map block.
  */
-function jetpack_map_block_render_single_block_page() {
+function render_single_block_page() {
 	// phpcs:ignore WordPress.Security.NonceVerification
 	$map_block_counter = isset( $_GET, $_GET['map-block-counter'] ) ? absint( $_GET['map-block-counter'] ) : null;
 	// phpcs:ignore WordPress.Security.NonceVerification
@@ -104,7 +124,7 @@ function jetpack_map_block_render_single_block_page() {
 		return;
 	}
 
-	$post_html = new DOMDocument();
+	$post_html = new \DOMDocument();
 	/** This filter is already documented in core/wp-includes/post-template.php */
 	$content = apply_filters( 'the_content', $post->post_content );
 
@@ -113,7 +133,7 @@ function jetpack_map_block_render_single_block_page() {
 	@$post_html->loadHTML( $content ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 	libxml_use_internal_errors( false );
 
-	$xpath     = new DOMXPath( $post_html );
+	$xpath     = new \DOMXPath( $post_html );
 	$container = $xpath->query( '//div[ contains( @class, "wp-block-jetpack-map" ) ]' )->item( $map_block_counter - 1 );
 
 	/* Check that we have a block matching the counter position */
@@ -126,7 +146,7 @@ function jetpack_map_block_render_single_block_page() {
 
 	add_filter( 'jetpack_is_amp_request', '__return_false' );
 
-	Jetpack_Gutenberg::load_assets_as_required( 'map' );
+	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 	wp_scripts()->do_items();
 	wp_styles()->do_items();
 
@@ -145,5 +165,4 @@ function jetpack_map_block_render_single_block_page() {
 	echo $page_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	exit;
 }
-
-add_action( 'wp', 'jetpack_map_block_render_single_block_page' );
+add_action( 'wp', __NAMESPACE__ . '\render_single_block_page' );

@@ -35,10 +35,6 @@ export const settings = {
 		url: {
 			type: 'string',
 		},
-		width: {
-			type: 'integer',
-			default: 800,
-		},
 		height: {
 			type: 'integer',
 			default: 600,
@@ -76,8 +72,8 @@ export const settings = {
 				type: 'raw',
 				isMatch: node => node.nodeName === 'FIGURE' && IFRAME_REGEX.test( node.innerHTML ),
 				transform: node => {
-					const { url, width, height } = extractAttributesFromIframe( node.innerHTML.trim() );
-					return createBlock( 'jetpack/google-calendar', { url, width, height } );
+					const { url, height } = extractAttributesFromIframe( node.innerHTML.trim() );
+					return createBlock( 'jetpack/google-calendar', { url, height } );
 				},
 			},
 		],

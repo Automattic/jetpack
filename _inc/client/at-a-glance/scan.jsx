@@ -96,7 +96,7 @@ class DashScan extends Component {
 				if ( threats !== 0 ) {
 					return renderCard( {
 						content: [
-							<h3>
+							<h3 className="jp-dash-item__title jp-dash-item__title_fullwidth jp-dash-item__title_top">
 								{ __( 'Uh oh, %(number)s threat found.', 'Uh oh, %(number)s threats found.', {
 									count: threats,
 									args: { number: numberFormat( threats ) },
