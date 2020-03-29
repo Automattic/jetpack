@@ -297,6 +297,8 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		$subscribe_placeholder      = isset( $instance['subscribe_placeholder'] ) ? stripslashes( $instance['subscribe_placeholder'] ) : '';
 		$submit_button_classes      = isset( $instance['submit_button_classes'] ) ? $instance['submit_button_classes'] : '';
 		$submit_button_styles       = isset( $instance['submit_button_styles'] ) ? $instance['submit_button_styles'] : '';
+		$email_field_classes        = isset( $instance['email_field_classes'] ) ? $instance['email_field_classes'] : '';
+		$email_field_styles         = isset( $instance['email_field_styles'] ) ? $instance['email_field_styles'] : '';
 
 		if ( self::is_wpcom() && ! self::wpcom_has_status_message() ) {
 			global $current_blog;
@@ -319,7 +321,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 					}
 					if ( $show_subscribers_total && $subscribers_total ) {
 						/* translators: %s: number of folks following the blog */
-						echo wpautop( sprintf( _n( 'Join %s other follower', 'Join %s other followers', $subscribers_total ), number_format_i18n( $subscribers_total ) ) );
+						echo wpautop( '<div class="subscribe-count">' . sprintf( _n( 'Join %s other follower', 'Join %s other followers', $subscribers_total ), number_format_i18n( $subscribers_total ) ) . '</div>' ) ;
 					}
 					?>
 				<?php else : ?>
@@ -329,21 +331,36 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 					}
 					if ( $show_subscribers_total && $subscribers_total ) {
 						/* translators: %s: number of folks following the blog */
-						echo wpautop( sprintf( _n( 'Join %s other follower', 'Join %s other followers', $subscribers_total ), number_format_i18n( $subscribers_total ) ) );
+						echo wpautop( '<div class="subscribe-count">' . sprintf( _n( 'Join %s other follower', 'Join %s other followers', $subscribers_total ), number_format_i18n( $subscribers_total ) ) . '</div>' );
 					}
 					$email_field_id = 'subscribe-field' . self::$instance_count > 1
 						? '-' . self::$instance_count
 						: '';
 					?>
-					<p>
-						<input
-							type="text"
-							name="email"
-							style="width: 95%; padding: 1px 10px"
-							placeholder="<?php esc_attr_e( 'Enter your email address', 'jetpack' ); ?>"
-							value=""
-							id="<?php echo esc_attr( $email_field_id ); ?>"
-						/>
+					<p id="subscribe-email">
+						<?php
+						printf(
+							'<input
+								type="text"
+								name="email"
+								%1$s
+								style="%2$s"
+								placeholder="%3$s"
+								value=""
+								id="%4$s
+							/>',
+							( ! empty( $email_field_classes )
+								? 'class="' . esc_attr( $email_field_classes ) . '"'
+								: ''
+							),
+							( ! empty( $email_field_styles )
+								? esc_attr( $email_field_styles )
+								: 'width: 95%; padding: 1px 2px'
+							),
+							esc_attr__( 'Enter your email address' ), // phpcs:ignore WordPress.WP.I18n.MissingArgDomain -- This is only used on WordPress.com.
+							esc_attr( $email_field_id )
+						);
+						?>
 					</p>
 				<?php endif; ?>
 
@@ -396,7 +413,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 
 				if ( $show_subscribers_total && 0 < $subscribers_total['value'] ) {
 					/* translators: %s: number of folks following the blog */
-					echo wpautop( sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $subscribers_total['value'], 'jetpack' ), number_format_i18n( $subscribers_total['value'] ) ) );
+					echo wpautop( '<div class="subscribe-count">' . sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $subscribers_total['value'], 'jetpack' ), number_format_i18n( $subscribers_total['value'] ) ) . '</div>' );
 				}
 				if ( ! isset ( $_GET['subscribe'] ) || 'success' != $_GET['subscribe'] ) { ?>
                     <p id="subscribe-email">
@@ -405,10 +422,17 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
                                for="<?php echo esc_attr( $subscribe_field_id ) . '-' . esc_attr( $widget_id ); ?>">
 							<?php echo ! empty( $subscribe_placeholder ) ? esc_html( $subscribe_placeholder ) : esc_html__( 'Email Address:', 'jetpack' ); ?>
                         </label>
-                        <input type="email" name="email" required="required" class="required"
-                               value="<?php echo esc_attr( $subscribe_email ); ?>"
-                               id="<?php echo esc_attr( $subscribe_field_id ) . '-' . esc_attr( $widget_id ); ?>"
-                               placeholder="<?php echo esc_attr( $subscribe_placeholder ); ?>"/>
+                        <input type="email" name="email" required="required"
+                        	<?php if ( ! empty( $email_field_classes ) ) { ?>
+	                            class="<?php echo esc_attr( $email_field_classes ); ?> required"
+                            <?php }; ?>
+		                    <?php if ( ! empty( $email_field_styles ) ) { ?>
+			                    style="<?php echo esc_attr( $email_field_styles ); ?>"
+		                    <?php }; ?>
+                            value="<?php echo esc_attr( $subscribe_email ); ?>"
+                            id="<?php echo esc_attr( $subscribe_field_id ) . '-' . esc_attr( $widget_id ); ?>"
+                            placeholder="<?php echo esc_attr( $subscribe_placeholder ); ?>"
+                        />
                     </p>
 
                     <p id="subscribe-submit">
@@ -760,34 +784,42 @@ function jetpack_do_subscription_form( $instance ) {
 
 	// Build up a string with the submit button's classes and styles and set it on the instance
 	$submit_button_classes = isset( $instance['submit_button_classes'] ) ? $instance['submit_button_classes'] : '';
+	$email_field_classes = isset( $instance['email_field_classes'] ) ? $instance['email_field_classes'] : '';
 	$submit_button_styles = '';
+	$email_field_styles = '';
+
 	if ( isset( $instance['custom_background_button_color'] ) && 'undefined' !== $instance['custom_background_button_color'] ) {
 		$submit_button_styles .= 'background: ' . $instance['custom_background_button_color'] . '; ';
 	}
 	if ( isset( $instance['custom_text_button_color'] ) && 'undefined' !== $instance['custom_text_button_color'] ) {
 		$submit_button_styles .= 'color: ' . $instance['custom_text_button_color'] . '; ';
 	}
+
 	if ( isset( $instance['custom_font_size'] ) && 'undefined' !== $instance['custom_font_size'] ) {
-		$submit_button_styles .= 'font-size: ' . $instance['custom_font_size'] . 'px; ';
+		$submit_button_styles .= $email_field_styles .= 'font-size: ' . $instance['custom_font_size'] . 'px; ';
 	}
 	if ( isset( $instance['custom_padding'] ) && 'undefined' !== $instance['custom_padding'] ) {
-		$submit_button_styles .= 'padding: ' .
-			$instance['custom_padding'] . 'px; ' .
-			round( $instance['custom_padding'] * 1.5 ) . 'px; ' .
-			$instance['custom_padding'] . 'px; ' .
+		$submit_button_styles .= $email_field_styles .= 'padding: ' .
+			$instance['custom_padding'] . 'px ' .
+			round( $instance['custom_padding'] * 1.5 ) . 'px ' .
+			$instance['custom_padding'] . 'px ' .
 			round( $instance['custom_padding'] * 1.5 ) . 'px; ';
 	}
 	if ( isset( $instance['custom_spacing'] ) && 'undefined' !== $instance['custom_spacing'] ) {
-		$submit_button_styles .= 'margin-left: ' . $instance['custom_spacing'] . 'px; ';
+		if ( isset( $instance['button_on_newline'] ) && 'true' === $instance['button_on_newline'] ) {
+			$submit_button_styles .= 'margin-top: ' . $instance['custom_spacing'] . 'px; ';
+		} else {
+			$submit_button_styles .= 'margin-left: ' . $instance['custom_spacing'] . 'px; ';
+		}
 	}
 	if ( isset( $instance['custom_border_radius'] ) && 'undefined' !== $instance['custom_border_radius'] ) {
-		$submit_button_styles .= 'border-radius: ' . $instance['custom_border_radius'] . 'px; ';
+		$submit_button_styles .= $email_field_styles .= 'border-radius: ' . $instance['custom_border_radius'] . 'px; ';
 	}
 	if ( isset( $instance['custom_border_weight'] ) && 'undefined' !== $instance['custom_border_weight'] ) {
-		$submit_button_styles .= 'border-width: ' . $instance['custom_border_weight'] . 'px; ';
+		$submit_button_styles .= $email_field_styles .= 'border-width: ' . $instance['custom_border_weight'] . 'px; ';
 	}
 	if ( isset( $instance['custom_border_color'] ) && 'undefined' !== $instance['custom_border_color'] ) {
-		$submit_button_styles .=
+		$submit_button_styles .= $email_field_styles .=
 			'border-color: ' . $instance['custom_border_color'] . '; ' .
 			'border-style: solid;';
 	}
@@ -804,8 +836,15 @@ function jetpack_do_subscription_form( $instance ) {
 	if ( ! empty( $submit_button_classes ) ) {
 		$instance['submit_button_classes'] = $submit_button_classes;
 	}
+	if ( ! empty( $email_field_classes ) ) {
+		$instance['email_field_classes'] = $email_field_classes;
+	}
+
 	if ( ! empty ( $submit_button_styles ) ) {
 		$instance['submit_button_styles'] = trim( $submit_button_styles );
+	}
+	if ( ! empty ( $email_field_styles ) ) {
+		$instance['email_field_styles'] = trim( $email_field_styles );
 	}
 
 	$args = array(

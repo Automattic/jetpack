@@ -11,7 +11,7 @@ import {
 } from '@wordpress/block-editor';
 import classnames from 'classnames';
 
-export default function Save( { attributes } ) {
+export default function Save( { className, attributes } ) {
 	const {
 		subscribePlaceholder,
 		showSubscribersTotal,
@@ -92,9 +92,18 @@ export default function Save( { attributes } ) {
 		customBorderColor
 	).color;
 
+	const getBlockClassName = () => {
+		return classnames(
+			className,
+			buttonOnNewLine ? 'wp-block-jetpack-subscriptions__newline' : undefined,
+			showSubscribersTotal ? 'wp-block-jetpack-subscriptions__showsubs' : undefined
+		);
+	};
+
 	return (
-		<RawHTML>
-			{ `
+		<div className={ getBlockClassName() }>
+			<RawHTML>
+				{ `
 			[jetpack_subscription_form
 				subscribe_placeholder="${ subscribePlaceholder }"
 				show_subscribers_total="${ showSubscribersTotal }"
@@ -113,6 +122,7 @@ export default function Save( { attributes } ) {
 				email_field_classes="${ emailFieldClasses }"
 				show_only_email_and_button="true"
 			]` }
-		</RawHTML>
+			</RawHTML>
+		</div>
 	);
 }

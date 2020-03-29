@@ -28,7 +28,7 @@ import { compose } from '@wordpress/compose';
 /**
  * Internal dependencies
  */
-import './editor.scss';
+import './shared.scss';
 
 const { getComputedStyle } = window;
 const isGradientAvailable = !! useGradient;
@@ -174,11 +174,11 @@ function SubscriptionEdit( props ) {
 	};
 
 	const getBlockClassName = () => {
-		if ( buttonOnNewLine ) {
-			return classnames( className, 'wp-block-jetpack-subscriptions__newline' );
-		}
-
-		return className;
+		return classnames(
+			className,
+			buttonOnNewLine ? 'wp-block-jetpack-subscriptions__newline' : undefined,
+			showSubscribersTotal ? 'wp-block-jetpack-subscriptions__showsubs' : undefined
+		);
 	};
 
 	useEffect( () => {
@@ -380,9 +380,7 @@ function SubscriptionEdit( props ) {
 				</div>
 
 				{ showSubscribersTotal && (
-					<p className="wp-block-jetpack-subscriptions__subscount has-small-font-size">
-						{ subscriberCountString }
-					</p>
+					<p className="wp-block-jetpack-subscriptions__subscount">{ subscriberCountString }</p>
 				) }
 			</div>
 		</>

@@ -1,0 +1,79 @@
+.wp-block-jetpack-subscriptions {
+	position: relative;
+
+	.wp-block-jetpack-subscriptions__form,
+	form {
+		display: flex;
+		align-items: start;
+
+		.wp-block-jetpack-subscriptions__textfield .components-text-control__input,
+		.wp-block-jetpack-subscriptions__button,
+		input[type="email"],
+		button {
+			line-height: initial;
+			border-style: solid;
+		}
+
+		.wp-block-jetpack-subscriptions__textfield, p#subscribe-email {
+			flex-grow: 1;
+			background: transparent !important;
+
+			.components-base-control__field,
+			.components-text-control__input,
+			input[type="email"] {
+				width: 100%;
+				margin: 0;
+			}
+		}
+
+		p#subscribe-submit {
+			margin: 0;
+		}
+	}
+
+	&.wp-block-jetpack-subscriptions__showsubs {
+		padding-bottom: 32px;
+
+		.wp-block-jetpack-subscriptions__subscount,
+		.subscribe-count p {
+			position: absolute;
+			bottom: 0;
+			right: 0;
+			margin: 0;
+			font-size: 16px;
+		}
+	}
+
+	&.wp-block-jetpack-subscriptions__newline {
+		.wp-block-jetpack-subscriptions__form,
+		form {
+			display: block;
+		}
+
+		.wp-block-jetpack-subscriptions__button,
+		button {
+			display: inline-block;
+		}
+
+		.wp-block-jetpack-subscriptions__subscount,
+		.subscribe-count p {
+			left: 0;
+		}
+	}
+}
+
+.wp-block-jetpack-subscriptions__textcolorpanel,
+.wp-block-jetpack-subscriptions__bordercolorpanel {
+	&.components-panel__body {
+		border: none;
+		padding: 0;
+	}
+
+	.components-panel__body-title {
+		display: none;
+	}
+
+	.components-circular-option-picker {
+		margin-top: 0;
+	}
+}
