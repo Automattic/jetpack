@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { Fragment, useMemo } from 'react';
+import React, { Fragment, useMemo, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import Card from 'components/card';
@@ -21,6 +21,8 @@ import {
 } from 'state/site';
 import { FormFieldset } from 'components/forms';
 import CompactFormToggle from 'components/form/form-toggle/compact';
+import { hasUpdatedSetting } from 'state/settings';
+import { isSettingActivated, isUpdatingSetting } from '../state/settings/reducer';
 
 function toggleModuleFactory( {
 	getOptionValue,
@@ -51,16 +53,18 @@ function Search( props ) {
 	const isInstantSearchEnabled = props.getOptionValue( 'instant_search_enabled', 'search' );
 
 	const toggleModule = useMemo( () => toggleModuleFactory( props ), [
-		props.getOptionValue,
 		props.hasActiveSearchPurchase,
-		props.toggleModuleNow,
-		props.updateOptions,
 	] );
 	const toggleInstantSearch = useMemo( () => toggleInstantSearchFactory( props ), [
-		props.getOptionValue,
 		props.hasActiveSearchPurchase,
-		props.updateOptions,
 	] );
+
+	useEffect( () => {
+		if ( props.failedToEnableSearch && props.hasActiveSearchPurchase ) {
+			props.updateOptions( { has_jetpack_search_product: true } );
+			toggleModule( 'search' );
+		}
+	}, [ props.failedToEnableSearch, props.hasActiveSearchPurchase ] );
 
 	return (
 		<SettingsCard { ...props } module="search" feature={ FEATURE_SEARCH_JETPACK } hideButton>
@@ -142,5 +146,9 @@ export default connect( state => {
 		isLoading: isFetchingSitePurchases( state ),
 		hasActiveSearchPurchase: selectHasActiveSearchPurchase( state ),
 		isBusinessPlan: 'is-business-plan' === planClass,
+		failedToEnableSearch:
+			! isSettingActivated( state, 'search' ) &&
+			! isUpdatingSetting( state, 'search' ) &&
+			false === hasUpdatedSetting( state, 'search' ),
 	};
 } )( withModuleSettingsFormHelpers( Search ) );
