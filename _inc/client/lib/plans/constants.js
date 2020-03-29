@@ -146,6 +146,10 @@ export function isJetpackSearch( product ) {
 	return includes( JETPACK_SEARCH_PRODUCTS, product );
 }
 
+export function isJetpackProduct( product ) {
+	return isJetpackBackup( product ) || isJetpackSearch( product );
+}
+
 export function getPlanClass( plan ) {
 	switch ( plan ) {
 		case PLAN_JETPACK_FREE:

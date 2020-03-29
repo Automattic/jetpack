@@ -2,12 +2,15 @@
  * External dependencies
  */
 import React, { useMemo } from 'react';
+import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import { get } from 'lodash';
 
 /**
  * Internal dependencies
  */
+import { getUpgradeUrl } from 'state/initial-state';
+import { BACKUP_TITLE } from '../constants';
 import SingleProductBackupBody from './body';
 
 function generateBackupOptions( { products, upgradeLinkDaily, upgradeLinkRealtime } ) {
@@ -42,7 +45,7 @@ function generateBackupOptions( { products, upgradeLinkDaily, upgradeLinkRealtim
 	];
 }
 
-export default function SingleProductBackupCard( props ) {
+function SingleProductBackupCard( props ) {
 	const {
 		products,
 		upgradeLinkDaily,
@@ -62,7 +65,7 @@ export default function SingleProductBackupCard( props ) {
 	) : (
 		<div className="single-product__accented-card dops-card">
 			<div className="single-product__accented-card-header">
-				<h3 className="single-product-backup__header-title">{ __( 'Jetpack Backup' ) }</h3>
+				<h3 className="single-product-backup__header-title">{ BACKUP_TITLE }</h3>
 			</div>
 			<div className="single-product__accented-card-body">
 				<SingleProductBackupBody
@@ -76,3 +79,8 @@ export default function SingleProductBackupCard( props ) {
 		</div>
 	);
 }
+
+export default connect( state => ( {
+	upgradeLinkDaily: getUpgradeUrl( state, 'jetpack-backup-daily' ),
+	upgradeLinkRealtime: getUpgradeUrl( state, 'jetpack-backup-realtime' ),
+} ) )( SingleProductBackupCard );

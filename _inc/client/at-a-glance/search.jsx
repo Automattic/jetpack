@@ -16,7 +16,7 @@ import DashItem from 'components/dash-item';
 import Card from 'components/card';
 import JetpackBanner from 'components/jetpack-banner';
 import { isDevMode } from 'state/connection';
-import { getSitePlan } from 'state/site';
+import { getSitePlan, hasActiveSearchPurchase, isFetchingSitePurchases } from 'state/site';
 import { getUpgradeUrl } from 'state/initial-state';
 
 /**
@@ -69,11 +69,18 @@ class DashSearch extends Component {
 	activateSearch = () => {
 		this.props.updateOptions( {
 			search: true,
-			...( this.props.isSearchPlan ? { instant_search_enabled: true } : {} ),
+			...( this.props.hasSearchProduct ? { instant_search_enabled: true } : {} ),
 		} );
 	};
 
 	render() {
+		if ( this.props.isFetching ) {
+			return renderCard( {
+				status: '',
+				content: __( 'Loading…' ),
+			} );
+		}
+
 		if ( this.props.isDevMode ) {
 			return renderCard( {
 				className: 'jp-dash-item__is-inactive',
@@ -83,7 +90,7 @@ class DashSearch extends Component {
 			} );
 		}
 
-		if ( ! this.props.isBusinessPlan && ! this.props.isSearchPlan ) {
+		if ( ! this.props.isBusinessPlan && ! this.props.hasSearchProduct ) {
 			return renderCard( {
 				className: 'jp-dash-item__is-inactive',
 				status: 'no-pro-uninstalled-or-inactive',
@@ -125,7 +132,7 @@ class DashSearch extends Component {
 							{ __( 'Jetpack Search is powering search on your site.' ) }
 						</p>
 					</DashItem>
-					{ this.props.isSearchPlan ? (
+					{ this.props.hasSearchProduct ? (
 						<Card
 							compact
 							className="jp-search-config-aag"
@@ -162,11 +169,11 @@ class DashSearch extends Component {
 }
 
 export default connect( state => {
-	const planClass = getPlanClass( getSitePlan( state ).product_slug );
 	return {
-		isBusinessPlan: 'is-business-plan' === planClass,
+		isBusinessPlan: 'is-business-plan' === getPlanClass( getSitePlan( state ).product_slug ),
 		isDevMode: isDevMode( state ),
-		isSearchPlan: 'is-search-plan' === planClass,
+		isFetching: isFetchingSitePurchases( state ),
+		hasSearchProduct: hasActiveSearchPurchase( state ),
 		upgradeUrl: getUpgradeUrl( state, 'aag-search' ),
 	};
 } )( DashSearch );

@@ -2,23 +2,23 @@
  * External dependencies
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import { translate as __ } from 'i18n-calypso';
 import { connect } from 'react-redux';
-import { find, filter, isEmpty } from 'lodash';
+import { find, isEmpty } from 'lodash';
 
 /**
  * Internal dependencies
  */
+import { imagePath } from 'constants/urls';
 import Card from 'components/card';
+import ProductExpiration from 'components/product-expiration';
+import UpgradeLink from 'components/upgrade-link';
+import { getPlanClass } from 'lib/plans/constants';
+import { getUpgradeUrl, getSiteRawUrl, showBackups } from 'state/initial-state';
 import ChecklistCta from './checklist-cta';
 import ChecklistProgress from './checklist-progress-card';
 import MyPlanCard from '../my-plan-card';
-import UpgradeLink from 'components/upgrade-link';
-import ProductExpiration from 'components/product-expiration';
-import { getPlanClass, isJetpackBackup, isJetpackSearch } from 'lib/plans/constants';
-import { getUpgradeUrl, getSiteRawUrl, showBackups } from 'state/initial-state';
-import { imagePath } from 'constants/urls';
-import PropTypes from 'prop-types';
 
 class MyPlanHeader extends React.Component {
 	getProductProps( productSlug ) {
@@ -88,7 +88,7 @@ class MyPlanHeader extends React.Component {
 					details: expiration,
 					icon: imagePath + '/plans/plan-business.svg',
 					tagLine: __(
-						'Full security suite, marketing and revenue automation tools, unlimited video hosting, unlimited themes, enhanced search, and priority support.'
+						'Full security suite, marketing and revenue automation tools, unlimited video hosting, unlimited themes, and priority support.'
 					),
 					title: __( 'Jetpack Professional' ),
 				};
@@ -137,37 +137,25 @@ class MyPlanHeader extends React.Component {
 	}
 
 	renderPlan() {
-		const { plan } = this.props;
-		const planProps = this.getProductProps( plan );
-
 		return (
 			<Card compact>
 				{ this.renderHeader( __( 'My Plan' ) ) }
-				<MyPlanCard { ...planProps } />
+				<MyPlanCard { ...this.getProductProps( this.props.plan ) } />
 			</Card>
 		);
 	}
 
 	renderProducts() {
-		const { purchases } = this.props;
-		const products = filter(
-			purchases,
-			purchase =>
-				isJetpackBackup( purchase.product_slug ) || isJetpackSearch( purchase.product_slug )
-		);
-
-		if ( isEmpty( products ) ) {
+		if ( isEmpty( this.props.activeProducts ) ) {
 			return null;
 		}
 
 		return (
 			<Card compact>
 				{ this.renderHeader( __( 'My Products' ) ) }
-				{ products.map( ( { ID, product_slug } ) => {
-					const productProps = this.getProductProps( product_slug );
-
-					return <MyPlanCard key={ 'product-card-' + ID } { ...productProps } />;
-				} ) }
+				{ this.props.activeProducts.map( ( { ID, product_slug } ) => (
+					<MyPlanCard key={ 'product-card-' + ID } { ...this.getProductProps( product_slug ) } />
+				) ) }
 			</Card>
 		);
 	}

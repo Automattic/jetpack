@@ -306,7 +306,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'lastPostUrl'                 => esc_url( $last_post ),
 			'externalServicesConnectUrls' => $this->get_external_services_connect_urls(),
 			'calypsoEnv'                  => Jetpack::get_calypso_env(),
-			'isInstantSearchEnabled'      => (bool) Constants::is_true( 'JETPACK_SEARCH_PROTOTYPE' ),
 		);
 	}
 
