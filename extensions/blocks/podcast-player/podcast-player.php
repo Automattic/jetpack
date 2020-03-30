@@ -126,8 +126,8 @@ function render_player( $player_data, $attributes ) {
 
 	$secondary_classes_name = '';
 	$secondary_inline_style = '';
-	if ( ! empty( $secondary_color_class ) || isset( $custom_secondary_color ) ) {
-		$secondary_classes_name .= 'has-secondary ';
+	if ( isset( $secondary_color_class ) || isset( $custom_secondary_color ) ) {
+		$secondary_classes_name .= ' has-secondary';
 		if ( isset( $secondary_color_class ) ) {
 			$secondary_classes_name .= $secondary_color_class;
 		} elseif ( isset( $custom_secondary_color ) ) {
@@ -138,7 +138,7 @@ function render_player( $player_data, $attributes ) {
 	$background_classes_name = '';
 	$background_inline_style = '';
 	if ( isset( $background_color_class ) || isset( $custom_background_color ) ) {
-		$background_classes_name .= 'has-background ';
+		$background_classes_name .= ' has-background';
 		if ( isset( $background_color_class ) ) {
 			$background_classes_name .= $background_color_class;
 		} elseif ( isset( $custom_background_color ) ) {
@@ -146,7 +146,7 @@ function render_player( $player_data, $attributes ) {
 		}
 	}
 
-	$podcast_player_classes_name = trim( $secondary_classes_name . ' ' . $background_classes_name );
+	$podcast_player_classes_name = trim( $secondary_classes_name . $background_classes_name );
 	$podcast_player_inline_style = trim( $secondary_inline_style . ' ' . $background_inline_style );
 
 	$block_classname = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attributes, array( 'is-default' ) );
