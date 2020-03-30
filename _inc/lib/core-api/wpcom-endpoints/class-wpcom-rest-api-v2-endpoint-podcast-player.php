@@ -65,9 +65,37 @@ class WPCOM_REST_API_V2_Endpoint_Podcast_Player extends WP_REST_Controller {
 		}
 
 		$player_data = Jetpack_Podcast_Helper::get_player_data( $request['url'] );
-		// $player_data can be the actual data or WP_Error.
-		// rest_ensure_response handles both.
+
+		if ( is_wp_error( $player_data ) ) {
+			return rest_ensure_response( $player_data );
+		}
+
+		$player_data = $this->prepare_for_response( $player_data, $request );
 		return rest_ensure_response( $player_data );
+	}
+
+	/**
+	 * Filters out data based on ?_fields= request parameter
+	 *
+	 * @param array           $player_data Data for the player.
+	 * @param WP_REST_Request $request The request.
+	 * @return array filtered $player_data
+	 */
+	public function prepare_for_response( $player_data, $request ) {
+		if ( ! is_callable( array( $this, 'get_fields_for_response' ) ) ) {
+			return $player_data;
+		}
+
+		$fields = $this->get_fields_for_response( $request );
+
+		$response_data = array();
+		foreach ( $player_data as $field => $value ) {
+			if ( in_array( $field, $fields, true ) ) {
+				$response_data[ $field ] = $value;
+			}
+		}
+
+		return $response_data;
 	}
 
 	/**
@@ -78,7 +106,7 @@ class WPCOM_REST_API_V2_Endpoint_Podcast_Player extends WP_REST_Controller {
 	public function get_item_schema() {
 		$schema = array(
 			'$schema'    => 'http://json-schema.org/draft-04/schema#',
-			'title'      => 'podcast-player',
+			'title'      => 'jetpack-podcast-player',
 			'type'       => 'object',
 			'properties' => array(
 				'title'  => array(
