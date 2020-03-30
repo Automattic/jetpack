@@ -142,7 +142,7 @@ class MailchimpSubscribeEdit extends Component {
 			signupFieldTag,
 			signupFieldValue,
 		} = attributes;
-		const classPrefix = 'wp-block-jetpack-mailchimp_';
+		const classPrefix = 'wp-block-jetpack-mailchimp';
 		const waiting = (
 			<Placeholder icon={ icon } notices={ notices }>
 				<Spinner />
@@ -159,14 +159,14 @@ class MailchimpSubscribeEdit extends Component {
 					'jetpack'
 				) }
 			>
-				<div>
-					<Button isDefault isLarge href={ connectURL } target="_blank">
-						{ __( 'Set up Mailchimp form', 'jetpack' ) }
+				<Button isDefault isLarge href={ connectURL } target="_blank">
+					{ __( 'Set up Mailchimp form', 'jetpack' ) }
+				</Button>
+				<div className={ `${ classPrefix }-recheck` }>
+					<Button isLink onClick={ this.apiCall }>
+						{ __( 'Re-check Connection', 'jetpack' ) }
 					</Button>
 				</div>
-				<Button isLink onClick={ this.apiCall }>
-					{ __( 'Re-check Connection', 'jetpack' ) }
-				</Button>
 			</Placeholder>
 		);
 		const inspectorControls = (
@@ -237,7 +237,7 @@ class MailchimpSubscribeEdit extends Component {
 			</InspectorControls>
 		);
 		const blockClasses = classnames( className, {
-			[ `${ classPrefix }notication-audition` ]: audition,
+			[ `${ classPrefix }_notication-audition` ]: audition,
 		} );
 		const blockContent = (
 			<div className={ blockClasses }>
@@ -260,7 +260,7 @@ class MailchimpSubscribeEdit extends Component {
 				/>
 				{ audition && (
 					<div
-						className={ `${ classPrefix }notification ${ classPrefix }${ audition }` }
+						className={ `${ classPrefix }_notification ${ classPrefix }_${ audition }` }
 						role={ this.roleForAuditionType( audition ) }
 					>
 						{ this.labelForAuditionType( audition ) }
