@@ -8,9 +8,9 @@ const Header = memo(
 		<div className="jetpack-podcast-player__header-wrapper">
 			<div className="jetpack-podcast-player__header" aria-live="polite">
 				{ showCoverArt && cover && (
-					<div className="jetpack-podcast-player__header-image-wrapper">
+					<div className="jetpack-podcast-player__header-image">
 						{ /* alt="" will prevent the src from being announced. Ideally we'd have a cover.alt, but we can't get that from the RSS */ }
-						<img className="jetpack-podcast-player__header-image" src={ cover } alt="" />
+						<img src={ cover } alt="" />
 					</div>
 				) }
 

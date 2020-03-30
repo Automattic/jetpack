@@ -113,15 +113,15 @@ $player-float-background: $light-gray-200;
 	padding: $player-grid-spacing;
 }
 
-.jetpack-podcast-player__header-image-wrapper {
+.jetpack-podcast-player__header-image {
 	width: $cover-image-size;
 	margin-right: $player-grid-spacing;
 	flex-shrink: 0;
-}
 
-.jetpack-podcast-player__header-image {
-	width: $cover-image-size;
-	height: $cover-image-size;
+	& > img {
+		width: $cover-image-size;
+		height: $cover-image-size;
+	}
 }
 
 .jetpack-podcast-player__header-track-title {
