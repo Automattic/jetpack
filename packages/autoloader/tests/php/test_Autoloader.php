@@ -18,7 +18,7 @@ class WP_Test_Autoloader extends TestCase {
 	 */
 	public function setup() {
 		parent::setup();
-
+		$this->classes_handler = new Classes_Handler( new Plugins_Handler() );
 		spl_autoload_register( 'autoloader' );
 	}
 
@@ -26,7 +26,7 @@ class WP_Test_Autoloader extends TestCase {
 	 * Tests whether enqueueing adds a class to the global array.
 	 */
 	public function test_enqueueing_adds_to_the_global_array() {
-		enqueue_package_class( 'className', '1', 'path_to_class' );
+		$this->classes_handler->enqueue_package_class( 'className', '1', 'path_to_class' );
 
 		global $jetpack_packages_classmap;
 		$this->assertTrue( isset( $jetpack_packages_classmap['className'] ) );
@@ -38,8 +38,8 @@ class WP_Test_Autoloader extends TestCase {
 	 * Tests whether enqueueing adds the latest class version to the global array.
 	 */
 	public function test_enqueueing_adds_the_latest_version_to_the_global_array() {
-		enqueue_package_class( 'className', '1', 'path_to_class' );
-		enqueue_package_class( 'className', '2', 'path_to_class_v2' );
+		$this->classes_handler->enqueue_package_class( 'className', '1', 'path_to_class' );
+		$this->classes_handler->enqueue_package_class( 'className', '2', 'path_to_class_v2' );
 
 		global $jetpack_packages_classmap;
 		$this->assertTrue( isset( $jetpack_packages_classmap['className'] ) );
@@ -53,9 +53,9 @@ class WP_Test_Autoloader extends TestCase {
 	 */
 	public function test_enqueueing_always_adds_the_dev_version_to_the_global_array() {
 
-		enqueue_package_class( 'className', '1', 'path_to_class' );
-		enqueue_package_class( 'className', 'dev-howdy', 'path_to_class_dev' );
-		enqueue_package_class( 'className', '2', 'path_to_class_v2' );
+		$this->classes_handler->enqueue_package_class( 'className', '1', 'path_to_class' );
+		$this->classes_handler->enqueue_package_class( 'className', 'dev-howdy', 'path_to_class_dev' );
+		$this->classes_handler->enqueue_package_class( 'className', '2', 'path_to_class_v2' );
 
 		global $jetpack_packages_classmap;
 		$this->assertTrue( isset( $jetpack_packages_classmap['className'] ) );
@@ -67,7 +67,7 @@ class WP_Test_Autoloader extends TestCase {
 	 * Tests whether enqueueing works with autoloading.
 	 */
 	public function test_enqueue_class_to_autoload_works_as_expected() {
-		enqueue_package_class( 'Jetpack\TestCase_ABC\className_ABC', '1', dirname( __FILE__ ) . '/path_to_class.php' );
+		$this->classes_handler->enqueue_package_class( 'Jetpack\TestCase_ABC\className_ABC', '1', dirname( __FILE__ ) . '/path_to_class.php' );
 
 		$class = new className_ABC();
 
