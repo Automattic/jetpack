@@ -115,40 +115,11 @@ function render_player( $player_data, $attributes ) {
 		$player_data
 	);
 
-	// Color attributes.
-	$secondary_color         = isset( $attributes['secondaryColor'] ) ? $attributes['secondaryColor'] : null;
-	$custom_secondary_color  = isset( $attributes['customSecondaryColor'] ) ? $attributes['customSecondaryColor'] : null;
-	$background_color        = isset( $attributes['backgroundColor'] ) ? $attributes['backgroundColor'] : null;
-	$custom_background_color = isset( $attributes['customBackgroundColor'] ) ? $attributes['customBackgroundColor'] : null;
+	$secondary_colors  = get_colors( 'secondary', $attributes, 'color' );
+	$background_colors = get_colors( 'background', $attributes, 'background-color' );
 
-	// `secondary` color.
-	$secondary_classes_name = '';
-	$secondary_inline_style = '';
-	$secondary_color_class  = get_color_class_name( 'color', $secondary_color );
-	if ( $secondary_color_class || $custom_secondary_color ) {
-		$secondary_classes_name .= ' has-secondary';
-		if ( $secondary_color_class ) {
-			$secondary_classes_name .= " {$secondary_color_class}";
-		} elseif ( $custom_secondary_color ) {
-			$secondary_inline_style .= "color: $custom_secondary_color;";
-		}
-	}
-
-	// `background` color.
-	$background_classes_name = '';
-	$background_inline_style = '';
-	$background_color_class  = get_color_class_name( 'background-color', $background_color );
-	if ( $background_color_class || $custom_background_color ) {
-		$background_classes_name .= ' has-background';
-		if ( $background_color_class ) {
-			$background_classes_name .= " {$background_color_class}";
-		} elseif ( $custom_background_color ) {
-			$background_inline_style .= "background-color: $custom_background_color;";
-		}
-	}
-
-	$podcast_player_classes_name = trim( $secondary_classes_name . $background_classes_name );
-	$podcast_player_inline_style = trim( $secondary_inline_style . ' ' . $background_inline_style );
+	$player_classes_name = trim( "{$secondary_colors['class']} {$background_colors['class']}" );
+	$player_inline_style = trim( "{$secondary_colors['style']} ${background_colors['style']}" );
 
 	$block_classname = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attributes, array( 'is-default' ) );
 	$is_amp          = ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() );
@@ -157,14 +128,14 @@ function render_player( $player_data, $attributes ) {
 	?>
 	<div class="<?php echo esc_attr( $block_classname ); ?>" id="<?php echo esc_attr( $instance_id ); ?>">
 		<section
-			class="<?php echo esc_attr( $podcast_player_classes_name ); ?>"
-			style="<?php echo esc_attr( $podcast_player_inline_style ); ?>"
+			class="<?php echo esc_attr( $player_classes_name ); ?>"
+			style="<?php echo esc_attr( $player_inline_style ); ?>"
 		>
 			<ol class="jetpack-podcast-player__episodes">
 				<?php foreach ( $player_data['tracks'] as $attachment ) : ?>
 				<li
-					class="jetpack-podcast-player__episode <?php echo esc_attr( $secondary_classes_name ); ?>"
-					style="<?php echo esc_attr( $secondary_inline_style ); ?>"
+					class="jetpack-podcast-player__episode <?php echo esc_attr( $secondary_colors['class'] ); ?>"
+					style="<?php echo esc_attr( $secondary_colors['style'] ); ?>"
 				>
 					<a
 						class="jetpack-podcast-player__episode-link"
@@ -219,4 +190,45 @@ function get_color_class_name( $color_context_name, $color_slug ) {
 	}
 
 	return "has-{$color_slug}-{$color_context_name}";
+}
+
+/**
+ * Given the color name, bock attributes and the CSS property,
+ * the function will return an array with the `class` and `style`
+ * HTML attributes to be used straight in the markup.
+ *
+ * @example
+ * $color = get_colors( 'secondary', $attributes, 'border-color'
+ *  => array( 'class' => 'has-secondary', 'style' => 'border-color: #333' )
+ *
+ * @param string $name     Color attribute name, for instance `primary`, `secondary`, ...
+ * @param array  $attrs     Block attributes.
+ * @param string $property Color CSS property, fo instance `color`, `background-color`, ...
+ * @return array           Colors array.
+ */
+function get_colors( $name, $attrs, $property ) {
+	$attr_color  = "{$name}Color";
+	$attr_custom = 'custom' . ucfirst( $attr_color );
+
+	$color        = isset( $attrs[ $attr_color ] ) ? $attrs[ $attr_color ] : null;
+	$custom_color = isset( $attrs[ $attr_custom ] ) ? $attrs[ $attr_custom ] : null;
+
+	// `secondary` color.
+	$colors = array(
+		'class' => '',
+		'style' => '',
+	);
+
+	if ( $color || $custom_color ) {
+		$colors['class'] .= " has-{$name}";
+
+		if ( $color ) {
+			$colors['class'] .= ' ' . get_color_class_name( $property, $color );
+		} elseif ( $custom_color ) {
+			$colors['style'] .= "{$property}: {$custom_color};";
+		}
+	}
+
+	$colors['class'] = trim( $colors['class'] );
+	return $colors;
 }
