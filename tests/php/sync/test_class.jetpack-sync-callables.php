@@ -1120,11 +1120,11 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	/**
-	 * Test getting the main network site wpcom ID
+	 * Test getting the main network site wpcom ID in multisite installs
 	 *
 	 * @return void
 	 */
-	public function test_get_main_network_site_wpcom_id() {
+	public function test_get_main_network_site_wpcom_id_multisite() {
 		if ( ! is_multisite() ) {
 			$this->markTestSkipped( 'Only used on multisite' );
 		}
@@ -1149,6 +1149,24 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $main_network_wpcom_id, $functions->main_network_site_wpcom_id() );
 
 		restore_current_blog();
+	}
+
+	/**
+	 * Test getting the main network site wpcom ID in single site installs
+	 *
+	 * @return void
+	 */
+	public function test_get_main_network_site_wpcom_id_single() {
+		if ( is_multisite() ) {
+			$this->markTestSkipped( 'Only test on single site' );
+		}
+
+		// set the Jetpack ID for this site.
+		$main_network_wpcom_id = 7891011;
+		\Jetpack_Options::update_option( 'id', $main_network_wpcom_id );
+
+		$functions = new Functions();
+		$this->assertEquals( $main_network_wpcom_id, $functions->main_network_site_wpcom_id() );
 	}
 
 }
