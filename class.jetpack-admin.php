@@ -191,6 +191,20 @@ class Jetpack_Admin {
 			return false;
 		}
 
+		/*
+		 * WooCommerce Analytics should only be available
+		 * when running WooCommerce 3+
+		 */
+		if (
+			'woocommerce-analytics' === $module['module']
+			&& (
+				! class_exists( 'WooCommerce' )
+				|| version_compare( WC_VERSION, '3.0', '<' )
+			)
+		) {
+			return false;
+		}
+
 		if ( ( new Status() )->is_development_mode() ) {
 			return ! ( $module['requires_connection'] );
 		} else {
