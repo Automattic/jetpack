@@ -155,7 +155,7 @@ function render_player( $player_data, $attributes ) {
 	ob_start();
 	?>
 	<div class="<?php echo esc_attr( $block_classname ); ?>" id="<?php echo esc_attr( $instance_id ); ?>">
-		<div
+		<section
 			<?php
 			echo ! empty( $podcast_player_classes_name )
 				? ' class="' . esc_attr( $podcast_player_classes_name ) . '"'
@@ -189,7 +189,7 @@ function render_player( $player_data, $attributes ) {
 				</li>
 				<?php endforeach; ?>
 			</ol>
-		</div>
+		</section>
 		<?php if ( ! $is_amp ) : ?>
 		<script type="application/json"><?php echo wp_json_encode( $player_props ); ?></script>
 		<?php endif; ?>
