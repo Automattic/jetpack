@@ -22,23 +22,61 @@ class UtilsTest extends TestCase {
 		Constants::clear_constants();
 	}
 
+
 	/**
-	 * Utils::get_jetpack_api_version should return the JETPACK__API_VERSION
-	 * constant when the constant is defined.
+	 * Tests the Utils::jetpack_api_constant_filter() method.
 	 *
-	 *  @covers Automattic\Jetpack\Connection\Utils::get_jetpack_api_version
+	 * @covers Automattic\Jetpack\Connection\Utils::jetpack_api_constant_filter
+	 * @dataProvider jetpack_api_constant_filter_data_provider
+	 *
+	 * @param mixed  $constant_value The constant value.
+	 * @param string $constant_name The constant name.
+	 * @param mixed  $expected_output The expected output of Utils::get_jetpack_api_constant.
 	 */
-	public function test_get_jetpack_api_version_with_constant() {
-		$test_constant_value = 3;
-		Constants::set_constant( 'JETPACK__API_VERSION', $test_constant_value );
-		$this->assertEquals( $test_constant_value, Utils::get_jetpack_api_version() );
+	public function test_jetpack_api_constant_filter( $constant_value, $constant_name, $expected_output ) {
+		$this->assertEquals( $expected_output, Utils::jetpack_api_constant_filter( $constant_value, $constant_name ) );
 	}
 
 	/**
-	 * Utils::get_jetpack_api_version should return the default Jetpack API version
-	 * value when the JETPACK__API_VERSION constant is not defined.
+	 * Data provider for test_jetpack_api_constant_filter.
+	 *
+	 * The test data arrays have the format:
+	 *    'constant_value'  => The value that the constant will be set to. Null if the constant will not be set.
+	 *    'constant_name'   => The name of the constant.
+	 *    'expected_output' => The expected output of Utils::jetpack_api_constant_filter().
 	 */
-	public function test_get_jetpack_api_version_without_constant() {
-		$this->assertEquals( Utils::DEFAULT_JETPACK_API_VERSION, Utils::get_jetpack_api_version() );
+	public function jetpack_api_constant_filter_data_provider() {
+		return array(
+			'jetpack__api_base_without_constant'     =>
+				array(
+					'constant_value'  => null,
+					'constant_name'   => 'JETPACK__API_BASE',
+					'expected_output' => Utils::DEFAULT_JETPACK__API_BASE,
+				),
+			'jetpack__api_version_without_constant'  =>
+				array(
+					'constant_value'  => null,
+					'constant_name'   => 'JETPACK__API_VERSION',
+					'expected_output' => Utils::DEFAULT_JETPACK__API_VERSION,
+				),
+			'no_default_value_in_utils'              =>
+				array(
+					'constant_value'  => null,
+					'constant_name'   => 'JETPACK__TEST',
+					'expected_output' => null,
+				),
+			'jetpack__api_base_with_constant_set'    =>
+				array(
+					'constant_value'  => 'https://example.com/api/base.',
+					'constant_name'   => 'JETPACK__API_BASE',
+					'expected_output' => 'https://example.com/api/base.',
+				),
+			'jetpack__api_version_with_constant_set' =>
+				array(
+					'constant_value'  => 20,
+					'constant_name'   => 'JETPACK__API_VERSION',
+					'expected_output' => 20,
+				),
+		);
 	}
 }

@@ -7,6 +7,7 @@ use phpmock\MockBuilder;
 use PHPUnit\Framework\TestCase;
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Connection\Utils;
 
 class ManagerTest extends TestCase {
 
@@ -14,8 +15,8 @@ class ManagerTest extends TestCase {
 
 	public function setUp() {
 		$this->manager = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
-		                      ->setMethods( [ 'get_access_token' ] )
-		                      ->getMock();
+							  ->setMethods( array( 'get_access_token' ) )
+							  ->getMock();
 
 		$builder = new MockBuilder();
 		$builder->setNamespace( __NAMESPACE__ )
@@ -56,8 +57,8 @@ class ManagerTest extends TestCase {
 			'external_user_id' => 1,
 		];
 		$this->manager->expects( $this->once() )
-		              ->method( 'get_access_token' )
-		              ->will( $this->returnValue( $access_token ) );
+					  ->method( 'get_access_token' )
+					  ->will( $this->returnValue( $access_token ) );
 
 		$this->assertTrue( $this->manager->is_active() );
 	}
@@ -67,14 +68,15 @@ class ManagerTest extends TestCase {
 	 */
 	public function test_is_active_when_not_connected() {
 		$this->manager->expects( $this->once() )
-		              ->method( 'get_access_token' )
-		              ->will( $this->returnValue( false ) );
+					  ->method( 'get_access_token' )
+					  ->will( $this->returnValue( false ) );
 
 		$this->assertFalse( $this->manager->is_active() );
 	}
 
 	public function test_api_url_defaults() {
 		$this->apply_filters->enable();
+		$this->set_up_api_constant_filter_mocks();
 
 		$this->assertEquals(
 			'https://jetpack.wordpress.com/jetpack.something/1/',
@@ -93,6 +95,7 @@ class ManagerTest extends TestCase {
 	 */
 	public function test_api_url_uses_constants_and_filters() {
 		$this->apply_filters->enable();
+		$this->set_up_api_constant_filter_mocks();
 
 		Constants::set_constant( 'JETPACK__API_BASE', 'https://example.com/api/base.' );
 		$this->assertEquals(
@@ -165,8 +168,8 @@ class ManagerTest extends TestCase {
 	public function test_is_user_connected_with_user_id_logged_out_not_connected() {
 		$this->mock_function( 'absint', 1 );
 		$this->manager->expects( $this->once() )
-		              ->method( 'get_access_token' )
-		              ->will( $this->returnValue( false ) );
+					  ->method( 'get_access_token' )
+					  ->will( $this->returnValue( false ) );
 
 		$this->assertFalse( $this->manager->is_user_connected( 1 ) );
 	}
@@ -182,8 +185,8 @@ class ManagerTest extends TestCase {
 			'external_user_id' => 1,
 		];
 		$this->manager->expects( $this->once() )
-		              ->method( 'get_access_token' )
-		              ->will( $this->returnValue( $access_token ) );
+					  ->method( 'get_access_token' )
+					  ->will( $this->returnValue( $access_token ) );
 
 		$this->assertTrue( $this->manager->is_user_connected() );
 	}
@@ -198,8 +201,8 @@ class ManagerTest extends TestCase {
 			'external_user_id' => 1,
 		];
 		$this->manager->expects( $this->once() )
-		              ->method( 'get_access_token' )
-		              ->will( $this->returnValue( $access_token ) );
+					  ->method( 'get_access_token' )
+					  ->will( $this->returnValue( $access_token ) );
 
 		$this->assertTrue( $this->manager->is_user_connected( 1 ) );
 	}
@@ -219,5 +222,38 @@ class ManagerTest extends TestCase {
 				return $return_value;
 			} );
 		return $builder->build()->enable();
+	}
+
+	protected function set_up_api_constant_filter_mocks() {
+		$add_filter_builder = new MockBuilder();
+		$add_filter_builder->setNamespace( 'Automattic\Jetpack\Connection' )
+			->setName( 'add_filter' )
+			->setFunction(
+				function() {
+					return null;
+				}
+			);
+		$add_filter_builder->build()->enable();
+
+		$remove_filter_builder = new MockBuilder();
+		$remove_filter_builder->setNamespace( 'Automattic\Jetpack\Connection' )
+			->setName( 'remove_filter' )
+			->setFunction(
+				function() {
+					return null;
+				}
+			);
+		$remove_filter_builder->build()->enable();
+
+		// Mock the apply_filters() call in Constants::get_constant().
+		$apply_filters_builder = new MockBuilder();
+		$apply_filters_builder->setNamespace( 'Automattic\Jetpack' )
+				->setName( 'apply_filters' )
+				->setFunction(
+					function( $filter_name, $value, $name ) {
+						return constant( "Automattic\Jetpack\Connection\Utils::DEFAULT_{$name}" );
+					}
+				);
+		$apply_filters_builder->build()->enable();
 	}
 }

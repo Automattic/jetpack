@@ -72,7 +72,11 @@ class Constants {
 			return self::$set_constants[ $name ];
 		}
 
-		return defined( $name ) ? constant( $name ) : null;
+		if ( defined( $name ) ) {
+			return constant( $name );
+		}
+
+		return apply_filters( "jetpack_constant_$name", null, $name );
 	}
 
 	/**

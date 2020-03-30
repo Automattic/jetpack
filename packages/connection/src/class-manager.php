@@ -334,11 +334,17 @@ class Manager {
 		@list( $token_key, $version, $user_id ) = explode( ':', wp_unslash( $_GET['token'] ) );
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
+		$api_version_hook = 'jetpack_constant_JETPACK__API_VERSION';
+		$api_filter_name  = __NAMESPACE__ . '\Utils::jetpack_api_constant_filter';
+
+		add_filter( $api_version_hook, $api_filter_name, 10, 2 );
+		$jetpack_api_version = Constants::get_constant( 'JETPACK__API_VERSION' );
+		remove_filter( $api_version_hook, $api_filter_name, 10 );
+
 		if (
 			empty( $token_key )
 		||
-			empty( $version ) || strval( Utils::get_jetpack_api_version() ) !== $version
-		) {
+			empty( $version ) || strval( $jetpack_api_version ) !== $version ) {
 			return new \WP_Error( 'malformed_token', 'Malformed token in request', compact( 'signature_details' ) );
 		}
 
@@ -715,9 +721,18 @@ class Manager {
 	 * @return String API URL.
 	 */
 	public function api_url( $relative_url ) {
+		$api_base_hook   = 'jetpack_constant_JETPACK__API_BASE';
+		$api_filter_name = __NAMESPACE__ . '\Utils::jetpack_api_constant_filter';
+
+		add_filter( $api_base_hook, $api_filter_name, 10, 2 );
 		$api_base = Constants::get_constant( 'JETPACK__API_BASE' );
-		$api_base = $api_base ? $api_base : 'https://jetpack.wordpress.com/jetpack.';
-		$version  = '/' . Utils::get_jetpack_api_version() . '/';
+		remove_filter( $api_base_hook, $api_filter_name, 10 );
+
+		$api_version_hook = 'jetpack_constant_JETPACK__API_VERSION';
+
+		add_filter( $api_version_hook, $api_filter_name, 10, 2 );
+		$api_version = '/' . Constants::get_constant( 'JETPACK__API_VERSION' ) . '/';
+		remove_filter( $api_version_hook, $api_filter_name, 10 );
 
 		/**
 		 * Filters whether the connection manager should use the iframe authorization
@@ -742,14 +757,14 @@ class Manager {
 		 * @param String $url the generated URL.
 		 * @param String $relative_url the relative URL that was passed as an argument.
 		 * @param String $api_base the API base string that is being used.
-		 * @param String $version the version string that is being used.
+		 * @param String $api_version the API version string that is being used.
 		 */
 		return apply_filters(
 			'jetpack_api_url',
-			rtrim( $api_base . $relative_url, '/\\' ) . $version,
+			rtrim( $api_base . $relative_url, '/\\' ) . $api_version,
 			$relative_url,
 			$api_base,
-			$version
+			$api_version
 		);
 	}
 
@@ -759,10 +774,17 @@ class Manager {
 	 * @return String XMLRPC API URL.
 	 */
 	public function xmlrpc_api_url() {
+		$api_base_hook   = 'jetpack_constant_JETPACK__API_BASE';
+		$api_filter_name = __NAMESPACE__ . '\Utils::jetpack_api_constant_filter';
+
+		add_filter( $api_base_hook, $api_filter_name, 10, 2 );
+		$api_base = Constants::get_constant( 'JETPACK__API_BASE' );
+		remove_filter( $api_base_hook, $api_filter_name, 10 );
+
 		$base = preg_replace(
 			'#(https?://[^?/]+)(/?.*)?$#',
 			'\\1',
-			Constants::get_constant( 'JETPACK__API_BASE' )
+			$api_base
 		);
 		return untrailingslashit( $base ) . '/xmlrpc.php';
 	}

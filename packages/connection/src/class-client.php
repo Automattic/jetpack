@@ -67,10 +67,17 @@ class Client {
 			return new \WP_Error( 'malformed_token' );
 		}
 
+		$api_version_hook = 'jetpack_constant_JETPACK__API_VERSION';
+		$api_filter_name  = __NAMESPACE__ . '\Utils::jetpack_api_constant_filter';
+
+		add_filter( $api_version_hook, $api_filter_name, 10, 2 );
+		$jetpack_api_version = Constants::get_constant( 'JETPACK__API_VERSION' );
+		remove_filter( $api_version_hook, $api_filter_name, 10 );
+
 		$token_key = sprintf(
 			'%s:%d:%d',
 			$token_key,
-			Utils::get_jetpack_api_version(),
+			$jetpack_api_version,
 			$token->external_user_id
 		);
 
