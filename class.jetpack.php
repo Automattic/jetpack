@@ -6810,7 +6810,7 @@ endif;
 	 * }
 	 *
 	 *
-	 * @return void
+	 * @return string The built URL
 	 */
 	public static function build_redirect_url( $source, $args = array() ) {
 
