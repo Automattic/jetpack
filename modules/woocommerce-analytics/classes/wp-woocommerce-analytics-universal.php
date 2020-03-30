@@ -82,12 +82,14 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	 * @return array Array of standard event props.
 	 */
 	public function get_common_properties() {
-		return array(
+		$site_info          = array(
 			'blog_id'     => Jetpack::get_option( 'id' ),
 			'ui'          => $this->get_user_id(),
 			'url'         => home_url(),
 			'woo_version' => WC()->version,
 		);
+		$cart_checkout_info = self::get_cart_checkout_info();
+		return array_merge( $site_info, $cart_checkout_info );
 	}
 
 	/**
@@ -416,4 +418,76 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		return $line;
 	}
 
+	/**
+	 * Search a specific post for text content.
+	 *
+	 * Note: similar code is in a WooCommerce core PR:
+	 * https://github.com/woocommerce/woocommerce/pull/25932
+	 *
+	 * @param integer $post_id The id of the post to search.
+	 * @param string  $text    The text to search for.
+	 * @return integer 1 if post contains $text (otherwise 0).
+	 */
+	public static function post_contains_text( $post_id, $text ) {
+		global $wpdb;
+
+		// Search for the text anywhere in the post.
+		$wildcarded = "%{$text}%";
+
+		$result = $wpdb->get_var(
+			$wpdb->prepare(
+				"
+				SELECT COUNT( * ) FROM {$wpdb->prefix}posts
+				WHERE ID=%d
+				AND {$wpdb->prefix}posts.post_content LIKE %s
+				",
+				array( $post_id, $wildcarded )
+			)
+		);
+
+		return ( '0' !== $result ) ? 1 : 0;
+	}
+
+	/**
+	 * Get info about the cart & checkout pages, in particular
+	 * whether the store is using shortcodes or Gutenberg blocks.
+	 * This info is cached in a transient.
+	 *
+	 * Note: similar code is in a WooCommerce core PR:
+	 * https://github.com/woocommerce/woocommerce/pull/25932
+	 *
+	 * @return array
+	 */
+	public static function get_cart_checkout_info() {
+		$transient_name = 'jetpack_woocommerce_analytics_cart_checkout_info_cache';
+
+		$info = get_transient( $transient_name );
+		if ( false === $info ) {
+			$cart_page_id     = wc_get_page_id( 'cart' );
+			$checkout_page_id = wc_get_page_id( 'checkout' );
+
+			$info = array(
+				'cart_page_contains_cart_block'         => self::post_contains_text(
+					$cart_page_id,
+					'<!-- wp:woocommerce/cart'
+				),
+				'cart_page_contains_cart_shortcode'     => self::post_contains_text(
+					$cart_page_id,
+					'[woocommerce_cart]'
+				),
+				'checkout_page_contains_checkout_block' => self::post_contains_text(
+					$checkout_page_id,
+					'<!-- wp:woocommerce/checkout'
+				),
+				'checkout_page_contains_checkout_shortcode' => self::post_contains_text(
+					$checkout_page_id,
+					'[woocommerce_checkout]'
+				),
+			);
+
+			set_transient( $transient_name, $info, DAY_IN_SECONDS );
+		}
+
+		return $info;
+	}
 }

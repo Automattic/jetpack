@@ -104,6 +104,9 @@
 		<testsuite name="deprecation">
 			<file>tests/php/test_deprecation.php</file>
 		</testsuite>
+		<testsuite name="extensions">
+			<directory prefix="test" suffix=".php">tests/php/extensions</directory>
+		</testsuite>
 	</testsuites>
 	<groups>
 		<exclude>

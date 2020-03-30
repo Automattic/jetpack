@@ -8,6 +8,7 @@
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Connection\Utils as Connection_Utils;
+use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Settings as Sync_Settings;
 
 /**
@@ -510,30 +511,73 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 		$name = __FUNCTION__;
 		if ( ! $this->helper_is_jetpack_connected() ) {
 			// If the site is not connected, there is no point in testing Sync health.
-			return self::skipped_test( array( 'name' => $name, 'show_in_site_health' => false ) );
+			return self::skipped_test(
+				array(
+					'name'                => $name,
+					'show_in_site_health' => false,
+				)
+			);
 		}
-		if ( Sync_Settings::is_sync_enabled() ) {
-			return self::skipped_test( array( 'name' => $name ) );
+
+		if ( ! Sync_Settings::is_sync_enabled() ) {
+			// If sync is not enabled, show a warning in test results.
+			return self::failing_test(
+				array(
+					'name'              => $name,
+					'label'             => __( 'Jetpack Sync has been disabled on your site.', 'jetpack' ),
+					'severity'          => 'recommended',
+					'action'            => 'https://github.com/Automattic/jetpack/blob/master/packages/sync/src/class-settings.php',
+					'action_label'      => __( 'See Github for more on Sync Settings', 'jetpack' ),
+					'short_description' => __( 'Jetpack Sync has been disabled on your site.', 'jetpack' ),
+					'long_description'  => sprintf(
+						'<p>%1$s</p>' .
+						'<p>%2$s</p>' .
+						'<p><span class="dashicons fail"><span class="screen-reader-text">%3$s</span></span> %4$s<strong> %5$s</strong></p>',
+						__( 'The information synced by Jetpack ensures that Jetpack Search, Related Posts and other features are aligned with your site’s current content.', 'jetpack' ),
+						__( 'Developers may enable / disable syncing using the Sync Settings API.', 'jetpack' ),
+						/* translators: screen reader text indicating a test failed */
+						__( 'Error', 'jetpack' ),
+						__( 'Jetpack Sync has been disabled on your site. Without it, certain Jetpack features will not work.', 'jetpack' ),
+						__( 'We recommend enabling Sync.', 'jetpack' )
+					),
+				)
+			);
 		}
-		return self::failing_test( array(
-			'name' => $name,
-			'label' => __( 'Jetpack Sync has been disabled on your site.', 'jetpack' ),
-			'severity' => 'recommended',
-			'action' => 'https://github.com/Automattic/jetpack/blob/master/packages/sync/src/class-settings.php',
-			'action_label' => __( 'See Github for more on Sync Settings', 'jetpack' ),
-			'short_description' => __( 'Jetpack Sync has been disabled on your site.', 'jetpack' ),
-			'long_description' => sprintf(
-				'<p>%1$s</p>' .
-				'<p>%2$s</p>' .
-				'<p><span class="dashicons fail"><span class="screen-reader-text">%3$s</span></span> %4$s<strong> %5$s</strong></p>',
-				__( 'The information synced by Jetpack ensures that Jetpack Search, Related Posts and other features are aligned with your site’s current content.', 'jetpack' ),
-				__( 'Developers may enable / disable syncing using the Sync Settings API.', 'jetpack' ),
-				/* translators: screen reader text indicating a test failed */
-				__( 'Error', 'jetpack' ),
-				__( 'Jetpack Sync has been disabled on your site. Without it, certain Jetpack features will not work.', 'jetpack' ),
-				__( 'We recommend enabling Sync.', 'jetpack' )
+
+		$full_sync_module = Modules::get_module( 'full-sync' );
+		$progress_percent = $full_sync_module ? $full_sync_module->get_sync_progress_percentage() : null;
+		if ( $progress_percent ) {
+			return self::failing_test(
+				array(
+					'name'              => $name,
+					'label'             => __( 'Jetpack is performing a sync of your site', 'jetpack' ),
+					'severity'          => 'recommended',
+					'short_description' => __( 'Jetpack is performing a sync of your site', 'jetpack' ),
+					'long_description'  => sprintf(
+						'<p>%1$s</p>' .
+						'<p><span class="dashicons dashicons-update"><span class="screen-reader-text">%2$s</span></span> %3$s</p>' .
+						'<div class="jetpack-sync-progress-ui"><div class="jetpack-sync-progress-label"></div><div class="jetpack-sync-progress-bar"></div></div>',
+						__( 'The information synced by Jetpack ensures that Jetpack Search, Related Posts and other features are aligned with your site’s current content.', 'jetpack' ),
+						/* translators: screen reader text indicating data is updating. */
+						__( 'Updating', 'jetpack' ),
+						__( 'Jetpack is currently performing a full sync of your site data.', 'jetpack' )
+					),
+				)
+			);
+		}
+
+		// If we've reached this point, we know that:
+		// 1) Sync is enabled
+		// 2) There is not a full sync in progress
+		// We cannot yet return a passing test. We'll still need to test for lag and data loss.
+		// We'll address those in future iterations, for now we'll just skip the test.
+		// See p6TEKc-3t2-p2 for more information.
+		return self::skipped_test(
+			array(
+				'name'                => $name,
+				'show_in_site_health' => false,
 			)
-		) );
+		);
 	}
 
 	/**
