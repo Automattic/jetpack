@@ -220,7 +220,8 @@ function render_title( $player_id, $title, $link, $track ) {
  * @param array $attributes Block attributes.
  */
 function render_podcast_header( $data, $attributes ) {
-	$show_cover_art = (bool) $attributes['showCoverArt'];
+	$show_cover_art   = (bool) $attributes['showCoverArt'];
+	$show_description = (bool) $attributes['showEpisodeDescription'];
 
 	$player_id = $data['playerId'];
 	$title     = $data['title'];
@@ -247,7 +248,7 @@ function render_podcast_header( $data, $attributes ) {
 			<?php endif; ?>
 		</div>
 
-		<?php if ( isset( $track['description'] ) ) : ?>
+		<?php if ( isset( $track['description'] ) && $show_description ) : ?>
 			<div
 				id="<?php echo esc_attr( "${player_id}__track-description" ); ?>"
 				class="jetpack-podcast-player__track-description"
