@@ -111,13 +111,24 @@ function jetpack_debugger_site_status_tests( $core_tests ) {
  * @param string $hook The current admin page hook.
  */
 function jetpack_debugger_enqueue_site_health_scripts( $hook ) {
+	$full_sync_module = Modules::get_module( 'full-sync' );
+	$progress_percent = $full_sync_module ? $full_sync_module->get_sync_progress_percentage() : false;
 	if ( 'site-health.php' === $hook ) {
+		$wp_scripts = wp_scripts();
+		wp_enqueue_script( 'jquery-ui-progressbar' );
 		wp_enqueue_script(
 			'jetpack_debug_site_health',
 			plugins_url( 'jetpack-debugger-site-health.js', __FILE__ ),
 			array( 'jquery-ui-progressbar' ),
 			JETPACK__VERSION,
-			true
+			false
+		);
+		wp_enqueue_style(
+			'plugin_name-admin-ui-css',
+			'http://ajax.googleapis.com/ajax/libs/jqueryui/' . $wp_scripts->registered['jquery-ui-core']->ver . '/themes/smoothness/jquery-ui.css',
+			false,
+			JETPACK__VERSION,
+			false
 		);
 		wp_localize_script(
 			'jetpack_debug_site_health',
@@ -125,6 +136,7 @@ function jetpack_debugger_enqueue_site_health_scripts( $hook ) {
 			array(
 				'ajaxUrl'             => admin_url( 'admin-ajax.php' ),
 				'syncProgressHeading' => __( 'Jetpack is performing a sync of your site', 'jetpack' ),
+				'progressPercent'     => $progress_percent,
 			)
 		);
 	}
@@ -138,6 +150,7 @@ function jetpack_debugger_sync_progress_ajax() {
 	$progress_percent = $full_sync_module ? $full_sync_module->get_sync_progress_percentage() : null;
 	if ( ! $progress_percent ) {
 		echo 'done';
+		wp_die();
 	}
 	echo intval( $progress_percent );
 	wp_die();

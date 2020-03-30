@@ -1,0 +1,13 @@
+.jetpack-sync-progress-bar{
+	margin-bottom:20px;
+}
+.ui-progressbar {
+	position: relative;
+}
+.progress-label {
+	color:#000;
+	font-weight: bold;
+	left: 50%;
+	position: absolute;
+	top: 4px;
+}
