@@ -161,3 +161,93 @@ function render_player( $player_data, $attributes ) {
 
 	return ob_get_clean();
 }
+
+/**
+ * Helper function to render the podcast title.
+ *
+ * @param string $title Podcast title.
+ * @param string $link  Podcast link.
+ */
+function render_podcast_title( $title, $link ) {
+	?>
+	<span class="jetpack-podcast-player__title">
+		<?php if ( isset( $link ) ) : ?>
+			<a class="jetpack-podcast-player__title-link" href="<?php echo esc_url( $link ); ?>">
+				<?php echo esc_attr( $title ); ?>
+			</a>
+		<?php else : ?>
+			<?php echo esc_attr( $title ); ?>
+		<?php endif; ?>
+	</span>
+	<?php
+};
+
+/**
+ * Render the poscast title.
+ *
+ * @param string $player_id Podcast player instance ID.
+ * @param string $title     Podcast title.
+ * @param string $link      Podcast link.
+ * @param array  $track     Track array. Usually it expects the first one.
+ */
+function render_title( $player_id, $title, $link, $track ) {
+	?>
+	<h2 id="<?php echo esc_attr( "${player_id}__title" ); ?>" class="jetpack-podcast-player__titles">
+		<?php if ( isset( $track ) && isset( $track['title'] ) ) : ?>
+			<span class="jetpack-podcast-player__track-title">
+				<?php echo esc_attr( $track['title'] ); ?>
+			</span>
+		<?php endif; ?>
+
+
+		<?php if ( isset( $track ) && isset( $track['title'] ) && isset( $title ) ) : ?>
+			<span class="jetpack-podcast-player--visually-hidden"> - </span>
+		<?php endif; ?>
+
+		<?php if ( isset( $title ) ) : ?>
+			<?php render_podcast_title( $title, $link ); ?>
+		<?php endif; ?>
+	</h2>
+	<?php
+};
+
+/**
+ * Render the podcast header.
+ *
+ * @param string $player_id    Podcast player instance ID.
+ * @param string $title        Podcast title.
+ * @param string $link         Podcast link.
+ * @param bool   $show_cover_art Attribute which defines if it should show the cover.
+ * @param string $cover        Podcast art cover.
+ * @param array  $track         Track array. Usually it expects the first one.
+ */
+function render_podcast_header( $player_id, $title, $link, $show_cover_art, $cover, $track ) {
+	?>
+	<div class="jetpack-podcast-player__header-wrapper">
+		<div class="jetpack-podcast-player__header" aria-live="polite">
+			<?php if ( isset( $show_cover_art ) && isset( $cover ) ) : ?>
+				<div class="jetpack-podcast-player__track-image-wrapper">
+					<img
+						class="jetpack-podcast-player__track-image"
+						src=<?php echo esc_attr( $cover ); ?>
+						alt=""
+					/>
+				</div>
+			<?php endif; ?>
+
+			<?php if ( isset( $title ) || ( isset( $track ) && isset( $track['title'] ) ) ) : ?>
+				<div class="jetpack-podcast-player__titles">
+					<?php render_title( $player_id, $title, $link, $track ); ?>
+				</div>
+			<?php endif; ?>
+		</div>
+
+		<div
+			id="<?php echo esc_attr( "${player_id}__track-description" ); ?>"
+			class="jetpack-podcast-player__track-description"
+		>
+			<?php echo esc_attr( $track['description'] ); ?>
+		</div>
+	</div>
+	<?php
+}
