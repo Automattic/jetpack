@@ -103,7 +103,7 @@ function render_player( $player_data, $attributes ) {
 		absint( $attributes['itemsToShow'] )
 	);
 
-	// Genereate a unique id for the block instance.
+	// Generate a unique id for the block instance.
 	$instance_id             = wp_unique_id( 'jetpack-podcast-player-block-' );
 	$player_data['playerId'] = $instance_id;
 
