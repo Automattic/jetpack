@@ -80,7 +80,13 @@ class WPCOM_REST_API_V2_Endpoint_Mailchimp extends WP_REST_Controller {
 				403
 			);
 		}
-		$connect_url = sprintf( 'https://wordpress.com/marketing/connections/%s?mailchimp', rawurlencode( $site_id ) );
+		$connect_url = \Jetpack::build_redirect_url(
+			'wpcom-marketing-connections',
+			array(
+				'site'  => rawurlencode( $site_id ),
+				'query' => 'mailchimp',
+			)
+		);
 		return array(
 			'code'        => $this->is_connected() ? 'connected' : 'not_connected',
 			'connect_url' => $connect_url,
