@@ -31,7 +31,7 @@ import {
 } from '@wordpress/block-editor';
 
 import apiFetch from '@wordpress/api-fetch';
-import { isURL } from '@wordpress/url';
+import { isURL, prependHTTP } from '@wordpress/url';
 
 /**
  * Internal dependencies
@@ -110,7 +110,7 @@ const PodcastPlayerEdit = ( {
 				setIsEditing( true );
 			}
 		);
-	}, [ url ] );
+	}, [ createErrorNotice, removeAllNotices, url ] );
 
 	/**
 	 * Check if the current URL of the Podcast RSS feed
@@ -118,7 +118,7 @@ const PodcastPlayerEdit = ( {
 	 * the edition mode.
 	 * This function is bound to the onSubmit event for the form.
 	 *
-	 * @param {object} event Form on submit event object.
+	 * @param {object} event - Form on submit event object.
 	 */
 	const checkPodcastLink = useCallback( event => {
 		event.preventDefault();
@@ -128,7 +128,14 @@ const PodcastPlayerEdit = ( {
 			return;
 		}
 
-		const isValidURL = isURL( editedUrl );
+		// Setting HTML `inputmode` to "url" allows non-http URLs whilst still
+		// allowing the user to see the most suitable keyboard on their device
+		// for entering URLs. However, this means we need to manually prepend
+		// "http" to any entry before attempting validation.
+		const prependedURL = prependHTTP( editedUrl );
+
+		const isValidURL = isURL( prependedURL );
+
 		if ( ! isValidURL ) {
 			createErrorNotice(
 				! isValidURL
@@ -138,7 +145,14 @@ const PodcastPlayerEdit = ( {
 			return;
 		}
 
-		setAttributes( { url: editedUrl } );
+		// Ensure URL has `http` appended to it (if it doesn't already) before
+		// we accept it as the entered URL.
+		setAttributes( { url: prependedURL } );
+
+		// Also update the temporary `input` value in order that clicking
+		// `Replace` in the UI will show the "corrected" version of the URL
+		// (ie: with `http` prepended if it wasn't originally present).
+		setEditedUrl( prependedURL );
 		setIsEditing( false );
 	} );
 
@@ -152,7 +166,8 @@ const PodcastPlayerEdit = ( {
 				<form onSubmit={ checkPodcastLink }>
 					{ noticeUI }
 					<TextControl
-						type="url"
+						type="text"
+						inputMode="url"
 						placeholder={ __( 'Enter URL here…', 'jetpack' ) }
 						value={ editedUrl || '' }
 						className={ 'components-placeholder__input' }
