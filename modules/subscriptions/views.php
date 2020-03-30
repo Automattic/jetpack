@@ -320,8 +320,16 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 						echo wpautop( $subscribe_logged_in );
 					}
 					if ( $show_subscribers_total && $subscribers_total ) {
-						/* translators: %s: number of folks following the blog */
-						echo wpautop( '<div class="subscribe-count">' . sprintf( _n( 'Join %s other follower', 'Join %s other followers', $subscribers_total ), number_format_i18n( $subscribers_total ) ) . '</div>' ) ;
+						?>
+						<div class="subscribe-count">
+							<p>
+							<?php
+							/* translators: %s: number of folks following the blog */
+							echo esc_html( sprintf( _n( 'Join %s other follower', 'Join %s other followers', $subscribers_total, 'jetpack' ), number_format_i18n( $subscribers_total ) ) );
+							?>
+							</p>
+						</div>
+						<?php
 					}
 					?>
 				<?php else : ?>
@@ -330,8 +338,16 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 						echo wpautop( $subscribe_text );
 					}
 					if ( $show_subscribers_total && $subscribers_total ) {
-						/* translators: %s: number of folks following the blog */
-						echo wpautop( '<div class="subscribe-count">' . sprintf( _n( 'Join %s other follower', 'Join %s other followers', $subscribers_total ), number_format_i18n( $subscribers_total ) ) . '</div>' );
+						?>
+						<div class="subscribe-count">
+							<p>
+							<?php
+							/* translators: %s: number of folks following the blog */
+							echo esc_html( sprintf( _n( 'Join %s other follower', 'Join %s other followers', $subscribers_total, 'jetpack' ), number_format_i18n( $subscribers_total ) ) );
+							?>
+							</p>
+						</div>
+						<?php
 					}
 					$email_field_id = 'subscribe-field' . self::$instance_count > 1
 						? '-' . self::$instance_count
@@ -412,8 +428,16 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 				}
 
 				if ( $show_subscribers_total && 0 < $subscribers_total['value'] ) {
-					/* translators: %s: number of folks following the blog */
-					echo wpautop( '<div class="subscribe-count">' . sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $subscribers_total['value'], 'jetpack' ), number_format_i18n( $subscribers_total['value'] ) ) . '</div>' );
+					?>
+					<div class="subscribe-count">
+						<p>
+						<?php
+						/* translators: %s: number of folks following the blog */
+						echo esc_html( sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $subscribers_total['value'], 'jetpack' ), number_format_i18n( $subscribers_total['value'] ) ) );
+						?>
+						</p>
+					</div>
+					<?php
 				}
 				if ( ! isset ( $_GET['subscribe'] ) || 'success' != $_GET['subscribe'] ) { ?>
                     <p id="subscribe-email">
@@ -784,9 +808,9 @@ function jetpack_do_subscription_form( $instance ) {
 
 	// Build up a string with the submit button's classes and styles and set it on the instance
 	$submit_button_classes = isset( $instance['submit_button_classes'] ) ? $instance['submit_button_classes'] : '';
-	$email_field_classes = isset( $instance['email_field_classes'] ) ? $instance['email_field_classes'] : '';
-	$submit_button_styles = '';
-	$email_field_styles = '';
+	$email_field_classes   = isset( $instance['email_field_classes'] ) ? $instance['email_field_classes'] : '';
+	$submit_button_styles  = '';
+	$email_field_styles    = '';
 
 	if ( isset( $instance['custom_background_button_color'] ) && 'undefined' !== $instance['custom_background_button_color'] ) {
 		$submit_button_styles .= 'background: ' . $instance['custom_background_button_color'] . '; ';
@@ -840,10 +864,10 @@ function jetpack_do_subscription_form( $instance ) {
 		$instance['email_field_classes'] = $email_field_classes;
 	}
 
-	if ( ! empty ( $submit_button_styles ) ) {
+	if ( ! empty( $submit_button_styles ) ) {
 		$instance['submit_button_styles'] = trim( $submit_button_styles );
 	}
-	if ( ! empty ( $email_field_styles ) ) {
+	if ( ! empty( $email_field_styles ) ) {
 		$instance['email_field_styles'] = trim( $email_field_styles );
 	}
 

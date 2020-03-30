@@ -59,7 +59,7 @@ export default function Save( { className, attributes } ) {
 	);
 
 	const submitButtonClasses = classnames(
-		...sharedClasses,
+		sharedClasses,
 		textColor ? 'has-text-color' : undefined,
 		textColorClass,
 		buttonBackgroundColor || buttonGradient ? 'has-background' : undefined,
@@ -68,7 +68,7 @@ export default function Save( { className, attributes } ) {
 	);
 
 	const emailFieldClasses = classnames(
-		...sharedClasses,
+		sharedClasses,
 		emailFieldBackgroundClass,
 		emailFieldGradientClass
 	);
