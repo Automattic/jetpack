@@ -122,28 +122,49 @@ if ( ! function_exists( 'wp_notify_postauthor' ) && Jetpack::is_active() ) :
 		}
 
 		$notify_message .= $moderate_on_wpcom
-			? "https://wordpress.com/comments/all/{$primary_site_slug}/{$comment->comment_post_ID}/\r\n\r\n"
+			? \Jetpack::build_redirect_url(
+				'calypso-all-comments',
+				array(
+					'site' => $primary_site_slug,
+					'path' => $comment->comment_post_ID,
+				)
+			) . "/\r\n\r\n"
 			: get_permalink( $comment->comment_post_ID ) . "#comments\r\n\r\n";
 
 		$notify_message .= sprintf( __( 'Permalink: %s' ), get_comment_link( $comment ) ) . "\r\n";
 
+		$base_wpcom_edit_comment_url = \Jetpack::build_redirect_url(
+			'calypso-edit-comment',
+			array(
+				'site'  => $primary_site_slug,
+				'path'  => $comment_id,
+				'query' => 'action=__action__',
+			)
+		);
+
 		if ( user_can( $post->post_author, 'edit_comment', $comment->comment_ID ) ) {
 			if ( EMPTY_TRASH_DAYS ) {
 				$notify_message .= sprintf(
-					__( 'Trash it: %s' ), $moderate_on_wpcom
-					? "https://wordpress.com/comment/{$primary_site_slug}/{$comment_id}?action=trash"
+					/* translators: Placeholder is the edit URL */
+					__( 'Trash it: %s' ), // phpcs:disable WordPress.WP.I18n.MissingArgDomain reason: WP Core string.
+					$moderate_on_wpcom
+					? str_replace( '__action__', 'trash', $base_wpcom_edit_comment_url )
 					: admin_url( "comment.php?action=trash&c={$comment->comment_ID}#wpbody-content" )
 				) . "\r\n";
 			} else {
 				$notify_message .= sprintf(
-					__( 'Delete it: %s' ), $moderate_on_wpcom
-					? "https://wordpress.com/comment/{$primary_site_slug}/{$comment_id}?action=delete"
+					/* translators: Placeholder is the edit URL */
+					__( 'Delete it: %s' ), // phpcs:disable WordPress.WP.I18n.MissingArgDomain reason: WP Core string.
+					$moderate_on_wpcom
+					? str_replace( '__action__', 'delete', $base_wpcom_edit_comment_url )
 					: admin_url( "comment.php?action=delete&c={$comment->comment_ID}#wpbody-content" )
 				) . "\r\n";
 			}
 			$notify_message .= sprintf(
-				__( 'Spam it: %s' ), $moderate_on_wpcom ?
-				"https://wordpress.com/comment/{$primary_site_slug}/{$comment_id}?action=spam"
+				/* translators: Placeholder is the edit URL */
+				__( 'Spam it: %s' ), // phpcs:disable WordPress.WP.I18n.MissingArgDomain reason: WP Core string.
+				$moderate_on_wpcom
+				? str_replace( '__action__', 'spam', $base_wpcom_edit_comment_url )
 				: admin_url( "comment.php?action=spam&c={$comment->comment_ID}#wpbody-content" )
 			) . "\r\n";
 		}
@@ -285,42 +306,57 @@ if ( ! function_exists( 'wp_notify_moderator' ) && Jetpack::is_active() ) :
 
 		$primary_site_slug = Jetpack::build_raw_urls( get_home_url() );
 
-		/* translators: Comment moderation. 1: Comment action URL */
+		$base_wpcom_edit_comment_url = \Jetpack::build_redirect_url(
+			'calypso-edit-comment',
+			array(
+				'site'  => $primary_site_slug,
+				'path'  => $comment_id,
+				'query' => 'action=__action__',
+			)
+		);
+
 		$notify_message .= sprintf(
-			__( 'Approve it: %s' ), $moderate_on_wpcom
-			? \Jetpack::build_redirect_url( 'calypso-edit-comment', array( 'site' => $primary_site_slug, 'path' => $comment_id, 'query' => 'action=approve' ) )
+			/* translators: Comment moderation. 1: Comment action URL */
+			__( 'Approve it: %s' ), // phpcs:disable WordPress.WP.I18n.MissingArgDomain reason: WP Core string.
+			$moderate_on_wpcom
+			? str_replace( '__action__', 'approve', $base_wpcom_edit_comment_url )
 			: admin_url( "comment.php?action=approve&c={$comment_id}#wpbody-content" )
 		) . "\r\n";
 
 		if ( EMPTY_TRASH_DAYS ) {
-			/* translators: Comment moderation. 1: Comment action URL */
 			$notify_message .= sprintf(
-				__( 'Trash it: %s' ), $moderate_on_wpcom
-				? \Jetpack::build_redirect_url( 'calypso-edit-comment', array( 'site' => $primary_site_slug, 'path' => $comment_id, 'query' => 'action=trash' ) )
+				/* translators: Comment moderation. 1: Comment action URL */
+				__( 'Trash it: %s' ), // phpcs:disable WordPress.WP.I18n.MissingArgDomain reason: WP Core string.
+				$moderate_on_wpcom
+				? str_replace( '__action__', 'trash', $base_wpcom_edit_comment_url )
 				: admin_url( "comment.php?action=trash&c={$comment_id}#wpbody-content" )
 			) . "\r\n";
 		} else {
-			/* translators: Comment moderation. 1: Comment action URL */
 			$notify_message .= sprintf(
-				__( 'Delete it: %s' ), $moderate_on_wpcom
-				? \Jetpack::build_redirect_url( 'calypso-edit-comment', array( 'site' => $primary_site_slug, 'path' => $comment_id, 'query' => 'action=delete' ) )
+				/* translators: Comment moderation. 1: Comment action URL */
+				__( 'Delete it: %s' ), // phpcs:disable WordPress.WP.I18n.MissingArgDomain reason: WP Core string.
+				$moderate_on_wpcom
+				? str_replace( '__action__', 'delete', $base_wpcom_edit_comment_url )
 				: admin_url( "comment.php?action=delete&c={$comment_id}#wpbody-content" )
 			) . "\r\n";
 		}
 
-		/* translators: Comment moderation. 1: Comment action URL */
 		$notify_message .= sprintf(
-			__( 'Spam it: %s' ), $moderate_on_wpcom
-			? \Jetpack::build_redirect_url( 'calypso-edit-comment', array( 'site' => $primary_site_slug, 'path' => $comment_id, 'query' => 'action=spam' ) )
+			/* translators: Comment moderation. 1: Comment action URL */
+			__( 'Spam it: %s' ), // phpcs:disable WordPress.WP.I18n.MissingArgDomain reason: WP Core string.
+			$moderate_on_wpcom
+			? str_replace( '__action__', 'spam', $base_wpcom_edit_comment_url )
 			: admin_url( "comment.php?action=spam&c={$comment_id}#wpbody-content" )
 		) . "\r\n";
 
-		/* translators: Comment moderation. 1: Number of comments awaiting approval */
 		$notify_message .= sprintf(
+			/* translators: Comment moderation. 1: Number of comments awaiting approval */
 			_n(
 				'Currently %s comment is waiting for approval. Please visit the moderation panel:',
-				'Currently %s comments are waiting for approval. Please visit the moderation panel:', $comments_waiting
-			), number_format_i18n( $comments_waiting )
+				'Currently %s comments are waiting for approval. Please visit the moderation panel:',
+				$comments_waiting
+			),
+			number_format_i18n( $comments_waiting )
 		) . "\r\n";
 
 		$notify_message .= $moderate_on_wpcom
