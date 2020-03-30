@@ -106,6 +106,6 @@ function SingleProductBackupCard( props ) {
 
 export default connect( state => ( {
 	planDuration: getPlanDuration( state ),
-	upgradeLinkDaily: getUpgradeUrl( state, 'jetpack-backup-daily' ),
-	upgradeLinkRealtime: getUpgradeUrl( state, 'jetpack-backup-realtime' ),
+	upgradeLinkDaily: getUpgradeUrl( state, 'jetpack-backup-daily', '', true ),
+	upgradeLinkRealtime: getUpgradeUrl( state, 'jetpack-backup-realtime', '', true ),
 } ) )( SingleProductBackupCard );
