@@ -4,7 +4,7 @@
  */
 
 jQuery( document ).ready( function( $ ) {
-	const JetpackSync = {
+	var JetpackSync = {
 		inProgress: false,
 		progressPercent: 0,
 		interval: false,
