@@ -429,20 +429,42 @@ class Jetpack_Plugin_Search {
 	 *
 	 */
 	private function get_configure_url( $feature, $configure_url ) {
-		$siteFragment = Jetpack::build_raw_urls( get_home_url() );
+		$site_fragment = Jetpack::build_raw_urls( get_home_url() );
 		switch ( $feature ) {
 			case 'sharing':
 			case 'publicize':
-				$configure_url = "https://wordpress.com/marketing/connections/$siteFragment";
+				$configure_url = \Jetpack::build_redirect_url(
+					'wpcom-marketing-connections',
+					array(
+						'site' => rawurlencode( $site_fragment ),
+					)
+				);
 				break;
 			case 'seo-tools':
-				$configure_url = "https://wordpress.com/marketing/traffic/$siteFragment#seo";
+				$configure_url = \Jetpack::build_redirect_url(
+					'wpcom-marketing-traffic',
+					array(
+						'site'   => rawurlencode( $site_fragment ),
+						'anchor' => 'seo',
+					)
+				);
 				break;
 			case 'google-analytics':
-				$configure_url = "https://wordpress.com/marketing/traffic/$siteFragment#analytics";
+				$configure_url = \Jetpack::build_redirect_url(
+					'wpcom-marketing-traffic',
+					array(
+						'site'   => rawurlencode( $site_fragment ),
+						'anchor' => 'analytics',
+					)
+				);
 				break;
 			case 'wordads':
-				$configure_url = "https://wordpress.com/ads/settings/$siteFragment";
+				$configure_url = \Jetpack::build_redirect_url(
+					'wpcom-ads-settings',
+					array(
+						'site' => rawurlencode( $site_fragment ),
+					)
+				);
 				break;
 		}
 		return $configure_url;
