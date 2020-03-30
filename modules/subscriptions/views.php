@@ -809,6 +809,7 @@ function jetpack_do_subscription_form( $instance ) {
 	// Build up a string with the submit button's classes and styles and set it on the instance
 	$submit_button_classes = isset( $instance['submit_button_classes'] ) ? $instance['submit_button_classes'] : '';
 	$email_field_classes   = isset( $instance['email_field_classes'] ) ? $instance['email_field_classes'] : '';
+	$style                 = '';
 	$submit_button_styles  = '';
 	$email_field_styles    = '';
 
@@ -820,14 +821,19 @@ function jetpack_do_subscription_form( $instance ) {
 	}
 
 	if ( isset( $instance['custom_font_size'] ) && 'undefined' !== $instance['custom_font_size'] ) {
-		$submit_button_styles .= $email_field_styles .= 'font-size: ' . $instance['custom_font_size'] . 'px; ';
+		$style                 = 'font-size: ' . $instance['custom_font_size'] . 'px; ';
+		$submit_button_styles .= $style;
+		$email_field_styles   .= $style;
 	}
 	if ( isset( $instance['custom_padding'] ) && 'undefined' !== $instance['custom_padding'] ) {
-		$submit_button_styles .= $email_field_styles .= 'padding: ' .
+		$style = 'padding: ' .
 			$instance['custom_padding'] . 'px ' .
 			round( $instance['custom_padding'] * 1.5 ) . 'px ' .
 			$instance['custom_padding'] . 'px ' .
 			round( $instance['custom_padding'] * 1.5 ) . 'px; ';
+
+		$submit_button_styles .= $style;
+		$email_field_styles   .= $style;
 	}
 	if ( isset( $instance['custom_spacing'] ) && 'undefined' !== $instance['custom_spacing'] ) {
 		if ( isset( $instance['button_on_newline'] ) && 'true' === $instance['button_on_newline'] ) {
@@ -837,15 +843,22 @@ function jetpack_do_subscription_form( $instance ) {
 		}
 	}
 	if ( isset( $instance['custom_border_radius'] ) && 'undefined' !== $instance['custom_border_radius'] ) {
-		$submit_button_styles .= $email_field_styles .= 'border-radius: ' . $instance['custom_border_radius'] . 'px; ';
+		$style                 = 'border-radius: ' . $instance['custom_border_radius'] . 'px; ';
+		$submit_button_styles .= $style;
+		$email_field_styles   .= $style;
 	}
 	if ( isset( $instance['custom_border_weight'] ) && 'undefined' !== $instance['custom_border_weight'] ) {
-		$submit_button_styles .= $email_field_styles .= 'border-width: ' . $instance['custom_border_weight'] . 'px; ';
+		$style                 = 'border-width: ' . $instance['custom_border_weight'] . 'px; ';
+		$submit_button_styles .= $style;
+		$email_field_styles   .= $style;
 	}
 	if ( isset( $instance['custom_border_color'] ) && 'undefined' !== $instance['custom_border_color'] ) {
-		$submit_button_styles .= $email_field_styles .=
+		$style =
 			'border-color: ' . $instance['custom_border_color'] . '; ' .
 			'border-style: solid;';
+
+		$submit_button_styles .= $style;
+		$email_field_styles   .= $style;
 	}
 
 	$instance = shortcode_atts(
