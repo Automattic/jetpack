@@ -66,7 +66,7 @@ export function SingleProductSearchCard( props ) {
 			</div>
 			<div className="single-product__accented-card-body">
 				<p>
-					{ SEARCH_DESCRIPTION }
+					{ SEARCH_DESCRIPTION }{ ' ' }
 					<a href="https://jetpack.com/search" target="_blank" rel="noopener noreferrer">
 						{ __( 'Learn More' ) }
 					</a>
