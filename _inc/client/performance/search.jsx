@@ -10,6 +10,7 @@ import Card from 'components/card';
  * Internal dependencies
  */
 import { FEATURE_SEARCH_JETPACK, getPlanClass } from 'lib/plans/constants';
+import { SEARCH_DESCRIPTION, SEARCH_CUSTOMIZE_CTA, SEARCH_SUPPORT } from 'plans/constants';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
@@ -72,15 +73,11 @@ function Search( props ) {
 				hasChild
 				module={ { module: 'search' } }
 				support={ {
-					text: __( 'Jetpack Search supports many customizations.' ),
+					text: SEARCH_SUPPORT,
 					link: 'https://jetpack.com/support/search',
 				} }
 			>
-				<p>
-					{ __(
-						'Help visitors quickly find answers with highly relevant instant search results and powerful filtering. Powered by the WordPress.com cloud.'
-					) }{ ' ' }
-				</p>
+				<p>{ SEARCH_DESCRIPTION } </p>
 				{ props.isLoading && __( 'Loading…' ) }
 				{ ! props.isLoading && ( props.isBusinessPlan || props.hasActiveSearchPurchase ) && (
 					// TODO: There's a known bug preventing Jetpack Search from being enabled here for Search product purchases
@@ -92,7 +89,7 @@ function Search( props ) {
 							toggleModule={ toggleModule }
 							toggling={ props.isSavingAnyOption( 'search' ) }
 						>
-							{ __( 'Enable Jetpack Search' ) }
+							{ __( 'Enable Search' ) }
 						</ModuleToggle>
 						<FormFieldset>
 							<CompactFormToggle
@@ -133,7 +130,7 @@ function Search( props ) {
 					compact
 					href="customize.php?autofocus[section]=jetpack_search"
 				>
-					{ __( 'Configure your Jetpack Search experience in the customizer' ) }
+					{ SEARCH_CUSTOMIZE_CTA }
 				</Card>
 			) }
 		</SettingsCard>
