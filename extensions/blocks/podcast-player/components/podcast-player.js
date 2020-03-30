@@ -160,9 +160,9 @@ export class PodcastPlayer extends Component {
 		const backgroundColorClass = getColorClassName( 'background-color', backgroundColor );
 
 		const cssClassesName = classnames( playerState, {
-			'has-secondary': ! secondaryColorClass && ! customSecondaryColor,
+			'has-secondary': secondaryColor || customSecondaryColor,
 			[ secondaryColorClass ]: secondaryColorClass,
-			'has-background': backgroundColor && ! customBackgroundColor,
+			'has-background': backgroundColor || customBackgroundColor,
 			[ backgroundColorClass ]: backgroundColorClass,
 		} );
 

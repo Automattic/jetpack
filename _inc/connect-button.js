@@ -7,9 +7,17 @@ jQuery( document ).ready( function( $ ) {
 	var connectionHelpSections = $(
 		'#jetpack-connection-cards, .jp-connect-full__dismiss-paragraph'
 	);
+	var connectButtonFrom = '';
 
 	connectButton.on( 'click', function( event ) {
 		event.preventDefault();
+
+		if ( 'undefined' === typeof URLSearchParams ) {
+			connectButtonFrom = '';
+		} else {
+			var searchParams = new URLSearchParams( $( this ).prop( 'search' ) );
+			connectButtonFrom = searchParams && searchParams.get( 'from' );
+		}
 
 		if ( connectionHelpSections.length ) {
 			connectionHelpSections.fadeOut( 600 );
@@ -114,7 +122,7 @@ jQuery( document ).ready( function( $ ) {
 		handleConnectionSuccess: function( data ) {
 			jetpackConnectButton.fetchPlanType();
 			window.addEventListener( 'message', jetpackConnectButton.receiveData );
-			jetpackConnectIframe.attr( 'src', data.authorizeUrl );
+			jetpackConnectIframe.attr( 'src', data.authorizeUrl + '&from=' + connectButtonFrom );
 			jetpackConnectIframe.on( 'load', function() {
 				jetpackConnectIframe.show();
 				$( '.jp-connect-full__button-container' ).hide();
