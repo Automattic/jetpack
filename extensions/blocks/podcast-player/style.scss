@@ -55,13 +55,13 @@ $player-float-background: $light-gray-200;
 		display: none;
 	}
 
-	.jetpack-podcast-player__header-title {
+	.jetpack-podcast-player__title {
 		display: flex;
 		flex-direction: column;
 		margin: 0;
 	}
 
-	a.jetpack-podcast-player__header-podcast-title {
+	a.jetpack-podcast-player__podcast-title {
 		text-decoration: none;
 		color: $text-color;
 
@@ -83,7 +83,7 @@ $player-float-background: $light-gray-200;
 /**
  * Podcast Player Header
  */
-.jetpack-podcast-player__header-wrapper {
+.jetpack-podcast-player__header {
 	display: flex;
 	flex-direction: column;
 	position: relative;
@@ -99,7 +99,7 @@ $player-float-background: $light-gray-200;
 	}
 }
 
-.jetpack-podcast-player__header-track-description {
+.jetpack-podcast-player__track-description {
 	order: 99; // high number to make it always appear after the audio player
 	padding: 0 $player-grid-spacing;
 	margin-bottom: $player-grid-spacing;
@@ -108,12 +108,12 @@ $player-float-background: $light-gray-200;
 	line-height: 1.6;
 }
 
-.jetpack-podcast-player__header {
+.jetpack-podcast-player__cover-wrapper {
 	display: flex;
 	padding: $player-grid-spacing;
 }
 
-.jetpack-podcast-player__header-image {
+.jetpack-podcast-player__cover {
 	width: $cover-image-size;
 	margin-right: $player-grid-spacing;
 	flex-shrink: 0;
@@ -124,12 +124,12 @@ $player-float-background: $light-gray-200;
 	}
 }
 
-.jetpack-podcast-player__header-track-title {
+.jetpack-podcast-player__current-track-title {
 	font-size: $track-title-font-size;
 	margin: 0 0 $track-title-b-margin;
 }
 
-.jetpack-podcast-player__header-podcast-title {
+.jetpack-podcast-player__podcast-title {
 	font-size: $podcast-title-font-size;
 	color: $text-color;
 	margin: 0;

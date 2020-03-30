@@ -5,10 +5,10 @@ import { memo } from '@wordpress/element';
 
 const Header = memo(
 	( { playerId, title, cover, link, track, children, showCoverArt, showEpisodeDescription } ) => (
-		<div className="jetpack-podcast-player__header-wrapper">
-			<div className="jetpack-podcast-player__header" aria-live="polite">
+		<div className="jetpack-podcast-player__header">
+			<div className="jetpack-podcast-player__cover-wrapper" aria-live="polite">
 				{ showCoverArt && cover && (
-					<div className="jetpack-podcast-player__header-image">
+					<div className="jetpack-podcast-player__cover">
 						{ /* alt="" will prevent the src from being announced. Ideally we'd have a cover.alt, but we can't get that from the RSS */ }
 						<img src={ cover } alt="" />
 					</div>
@@ -22,8 +22,8 @@ const Header = memo(
 			{ /* putting this above the audio player for source order HTML with screen readers, then visually switching it with the audio player via flex */ }
 			{ showEpisodeDescription && track && track.description && (
 				<div
-					id={ `${ playerId }__header-track-description` }
-					className="jetpack-podcast-player__header-track-description"
+					id={ `${ playerId }__track-description` }
+					className="jetpack-podcast-player__track-description"
 				>
 					{ track.description }
 				</div>
@@ -36,9 +36,9 @@ const Header = memo(
 );
 
 const Title = memo( ( { playerId, title, link, track } ) => (
-	<h2 id={ `${ playerId }__title` } className="jetpack-podcast-player__header-title">
+	<h2 id={ `${ playerId }__title` } className="jetpack-podcast-player__title">
 		{ track && track.title && (
-			<span className="jetpack-podcast-player__header-track-title">{ track.title }</span>
+			<span className="jetpack-podcast-player__current-track-title">{ track.title }</span>
 		) }
 
 		{ /* Adds a visually hidden dash when both a track and a podcast titles are present */ }
@@ -51,7 +51,7 @@ const Title = memo( ( { playerId, title, link, track } ) => (
 ) );
 
 const PodcastTitle = memo( ( { title, link } ) => {
-	const className = 'jetpack-podcast-player__header-podcast-title';
+	const className = 'jetpack-podcast-player__podcast-title';
 
 	if ( link ) {
 		return (

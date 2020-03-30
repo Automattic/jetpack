@@ -178,7 +178,7 @@ export class PodcastPlayer extends Component {
 				style={ Object.keys( inlineStyle ).length ? inlineStyle : null }
 				aria-labelledby={ title || ( track && track.title ) ? `${ playerId }__title` : undefined }
 				aria-describedby={
-					track && track.description ? `${ playerId }__header-track-description` : undefined
+					track && track.description ? `${ playerId }__track-description` : undefined
 				}
 				// The following line ensures compatibility with Calypso previews (jetpack-iframe-embed.js).
 				data-jetpack-iframe-ignore
