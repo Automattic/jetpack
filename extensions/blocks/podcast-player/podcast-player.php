@@ -177,22 +177,6 @@ function render_player( $player_data, $attributes ) {
 }
 
 /**
- * Returns a CSS class based on the context a color is being used and its slug.
- *
- * @param string $color_context_name Context/place where color is being used e.g: background, text etc...
- * @param string $color_slug         Slug of the color.
- *
- * @return string String with the class corresponding to the color in the provided context.
- */
-function get_color_class_name( $color_context_name, $color_slug ) {
-	if ( ! isset( $color_context_name ) || ! isset( $color_slug ) ) {
-		return null;
-	}
-
-	return "has-{$color_slug}-{$color_context_name}";
-}
-
-/**
  * Given the color name, bock attributes and the CSS property,
  * the function will return an array with the `class` and `style`
  * HTML attributes to be used straight in the markup.
@@ -213,7 +197,6 @@ function get_colors( $name, $attrs, $property ) {
 	$color        = isset( $attrs[ $attr_color ] ) ? $attrs[ $attr_color ] : null;
 	$custom_color = isset( $attrs[ $attr_custom ] ) ? $attrs[ $attr_custom ] : null;
 
-	// `secondary` color.
 	$colors = array(
 		'class' => '',
 		'style' => '',
@@ -223,7 +206,7 @@ function get_colors( $name, $attrs, $property ) {
 		$colors['class'] .= " has-{$name}";
 
 		if ( $color ) {
-			$colors['class'] .= ' ' . get_color_class_name( $property, $color );
+			$colors['class'] .= ' ' . "has-{$property}-{$color}";
 		} elseif ( $custom_color ) {
 			$colors['style'] .= "{$property}: {$custom_color};";
 		}
