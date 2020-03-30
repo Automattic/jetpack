@@ -466,6 +466,11 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					);
 					break;
 
+				case 'search_auto_config':
+					// Only writable.
+					$response[ $setting ] = 1;
+					break;
+
 				default:
 					$response[ $setting ] = Jetpack_Core_Json_Api_Endpoints::cast_value( get_option( $setting ), $settings[ $setting ] );
 					break;
@@ -740,6 +745,24 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 					// If option value was the same, consider it done.
 					$updated = $grouped_options_current != $grouped_options ? Jetpack_Options::update_option( 'relatedposts', $grouped_options ) : true;
+					break;
+
+				case 'search_auto_config':
+					if ( ! $value ) {
+						$updated = true;
+					} elseif ( class_exists( 'Jetpack_Search' ) ) {
+						$jps = Jetpack_Search::instance();
+						if ( is_a( $jps, 'Jetpack_Instant_Search' ) ) {
+							$jps->auto_config_search();
+							$updated = true;
+						} else {
+							$updated = new WP_Error( 'instant_search_disabled', 'Instant Search Disabled', array( 'status' => 400 ) );
+							$error   = $updated->get_error_message();
+						}
+					} else {
+						$updated = new WP_Error( 'search_disabled', 'Search Disabled', array( 'status' => 400 ) );
+						$error   = $updated->get_error_message();
+					}
 					break;
 
 				case 'google':
