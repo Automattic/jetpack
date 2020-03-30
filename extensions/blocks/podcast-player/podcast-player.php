@@ -121,16 +121,7 @@ function render_player( $player_data, $attributes ) {
 	ob_start();
 	?>
 	<div class="<?php echo esc_attr( $block_classname ); ?>" id="<?php echo esc_attr( $instance_id ); ?>">
-		<?php
-		render_podcast_header(
-			$instance_id,
-			$player_data['title'],
-			$player_data['link'],
-			(bool) $attributes['showCoverArt'],
-			$player_data['cover'],
-			$player_data['tracks'][0]
-		);
-		?>
+		<?php render_podcast_header( $player_data, $attributes ); ?>
 
 		<ol class="jetpack-podcast-player__episodes">
 			<?php foreach ( $player_data['tracks'] as $attachment ) : ?>
@@ -182,7 +173,7 @@ function render_player( $player_data, $attributes ) {
 function render_podcast_title( $title, $link ) {
 	?>
 	<span class="jetpack-podcast-player__title">
-		<?php if ( isset( $link ) ) : ?>
+		<?php if ( $link ) : ?>
 			<a class="jetpack-podcast-player__title-link" href="<?php echo esc_url( $link ); ?>">
 				<?php echo esc_html( $title ); ?>
 			</a>
@@ -211,11 +202,11 @@ function render_title( $player_id, $title, $link, $track ) {
 		<?php endif; ?>
 
 
-		<?php if ( ! empty( $track ) && isset( $track['title'] ) && ! isset( $title ) ) : ?>
+		<?php if ( ! empty( $track ) && isset( $track['title'] ) && ! $title ) : ?>
 			<span class="jetpack-podcast-player--visually-hidden"> - </span>
 		<?php endif; ?>
 
-		<?php if ( isset( $title ) ) : ?>
+		<?php if ( $title ) : ?>
 			<?php render_podcast_title( $title, $link ); ?>
 		<?php endif; ?>
 	</h2>
@@ -225,18 +216,21 @@ function render_title( $player_id, $title, $link, $track ) {
 /**
  * Render the podcast header.
  *
- * @param string $player_id      Podcast player instance ID.
- * @param string $title          Podcast title.
- * @param string $link           Podcast link.
- * @param bool   $show_cover_art Attribute which defines if it should show the cover.
- * @param string $cover          Podcast art cover.
- * @param array  $track          Track array. Usually it expects the first one.
+ * @param array $data       Player data.
+ * @param array $attributes Block attributes.
  */
-function render_podcast_header( $player_id, $title, $link, $show_cover_art, $cover, $track ) {
+function render_podcast_header( $data, $attributes ) {
+	$show_cover_art = (bool) $attributes['showCoverArt'];
+
+	$player_id = $data['playerId'];
+	$title     = $data['title'];
+	$link      = $data['link'];
+	$cover     = $data['cover'];
+	$track     = $data['tracks'] && ! empty( $data['tracks'][0] ) ? $data['tracks'][0] : array();
 	?>
 	<div class="jetpack-podcast-player__header-wrapper">
 		<div class="jetpack-podcast-player__header" aria-live="polite">
-			<?php if ( $show_cover_art && isset( $cover ) ) : ?>
+			<?php if ( $show_cover_art && $cover ) : ?>
 				<div class="jetpack-podcast-player__track-image-wrapper">
 					<img
 						class="jetpack-podcast-player__track-image"
@@ -246,19 +240,21 @@ function render_podcast_header( $player_id, $title, $link, $show_cover_art, $cov
 				</div>
 			<?php endif; ?>
 
-			<?php if ( isset( $title ) || ( ! empty( $track ) && isset( $track['title'] ) ) ) : ?>
+			<?php if ( $title && ! empty( $track ) && isset( $track['title'] ) ) : ?>
 				<div class="jetpack-podcast-player__titles">
 					<?php render_title( $player_id, $title, $link, $track ); ?>
 				</div>
 			<?php endif; ?>
 		</div>
 
-		<div
-			id="<?php echo esc_attr( "${player_id}__track-description" ); ?>"
-			class="jetpack-podcast-player__track-description"
-		>
-			<?php echo esc_attr( $track['description'] ); ?>
-		</div>
+		<?php if ( isset( $track['description'] ) ) : ?>
+			<div
+				id="<?php echo esc_attr( "${player_id}__track-description" ); ?>"
+				class="jetpack-podcast-player__track-description"
+			>
+				<?php echo esc_attr( $track['description'] ); ?>
+			</div>
+		<?php endif; ?>
 	</div>
 	<?php
 }
