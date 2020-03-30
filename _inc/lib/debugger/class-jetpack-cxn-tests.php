@@ -9,6 +9,8 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use Automattic\Jetpack\Sync\Settings as Sync_Settings;
+use Automattic\Jetpack\Sync\Health as Sync_Health;
+use Automattic\Jetpack\Sync\Sender as Sync_Sender;
 
 /**
  * Class Jetpack_Cxn_Tests contains all of the actual tests.
@@ -507,33 +509,103 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	 * Error: @todo
 	 */
 	protected function test__sync_health() {
+
 		$name = __FUNCTION__;
+
 		if ( ! $this->helper_is_jetpack_connected() ) {
 			// If the site is not connected, there is no point in testing Sync health.
-			return self::skipped_test( array( 'name' => $name, 'show_in_site_health' => false ) );
+			return self::skipped_test(
+				array(
+					'name'                => $name,
+					'show_in_site_health' => false,
+				)
+			);
 		}
+
+		// Sync is enabled.
 		if ( Sync_Settings::is_sync_enabled() ) {
-			return self::skipped_test( array( 'name' => $name ) );
+
+			// Sync has experienced Data Loss.
+			if ( Sync_Health::get_status() === Sync_Health::STATUS_OUT_OF_SYNC ) {
+
+				return self::failing_test(
+					array(
+						'name'              => $name,
+						'label'             => __( 'Jetpack has detected an error syncing your site.', 'jetpack' ),
+						'severity'          => 'critical',
+						'action'            => 'https://jetpack.com/contact-support/',
+						'action_label'      => __( 'Contact Jetpack Support', 'jetpack' ),
+						'short_description' => __( 'Jetpack has detected an error syncing your site.', 'jetpack' ),
+						'long_description'  => sprintf(
+							'<p>%1$s</p><p><span class="dashicons fail"><span class="screen-reader-text">%2$s</span></span> %3$s<strong> %4$s</strong></p>',
+							__( 'The information synced by Jetpack ensures that Jetpack Search, Related Posts and other features are aligned with your site’s current content.', 'jetpack' ),
+							__( 'Error', 'jetpack' ),
+							__( 'Jetpack has detected an error while syncing your site', 'jetpack' ), /* translators: screen reader text indicating a test failed */
+							__( 'We recommend a full sync to align Jetpack with your site data.', 'jetpack' )
+						),
+					)
+				);
+
+			} else {
+
+				// Get the Sync Queue.
+				$sender     = Sync_Sender::get_instance();
+				$sync_queue = $sender->get_sync_queue();
+
+				// lag exceeds 5 minutes.
+				if ( $sync_queue->lag() > 5 * MINUTE_IN_SECONDS ) {
+
+					return self::failing_test(
+						array(
+							'name'              => $name,
+							'label'             => __( 'Jetpack is experiencing a delay syncing your site.', 'jetpack' ),
+							'severity'          => 'recommended',
+							'action'            => null,
+							'action_label'      => null,
+							'short_description' => __( 'Jetpack is experiencing a delay syncing your site.', 'jetpack' ),
+							'long_description'  => sprintf(
+								'<p>%1$s</p><p><span class="dashicons dashicons-clock" style="color: orange;"><span class="screen-reader-text">%2$s</span></span> %3$s <strong>%4$s %5$d %6$s</strong></p>',
+								__( 'The information synced by Jetpack ensures that Jetpack Search, Related Posts and other features are aligned with your site’s current content.', 'jetpack' ),
+								__( 'Clock', 'jetpack' ),
+								__( 'Jetpack has identified a delay while syncing individual content updates. Certain features might be slower than usual, but this is only temporary while sync catches up with recent changes to your site.', 'jetpack' ), /* translators: screen reader text indicating a test failed */
+								__( 'We’re seeing a current delay of', 'jetpack' ),
+								intval( $sync_queue->lag() / MINUTE_IN_SECONDS ),
+								__( 'minutes.', 'jetpack' )
+							),
+						)
+					);
+
+				} else {
+
+					// Sync is Healthy.
+					return self::skipped_test( array( 'name' => $name ) );
+
+				}
+			}
+		} else {
+
+			// Sync is disabled.
+			return self::failing_test(
+				array(
+					'name'              => $name,
+					'label'             => __( 'Jetpack Sync has been disabled on your site.', 'jetpack' ),
+					'severity'          => 'recommended',
+					'action'            => 'https://github.com/Automattic/jetpack/blob/master/packages/sync/src/class-settings.php',
+					'action_label'      => __( 'See Github for more on Sync Settings', 'jetpack' ),
+					'short_description' => __( 'Jetpack Sync has been disabled on your site.', 'jetpack' ),
+					'long_description'  => sprintf(
+						'<p>%1$s</p><p>%2$s</p><p><span class="dashicons fail"><span class="screen-reader-text">%3$s</span></span> %4$s<strong> %5$s</strong></p>',
+						__( 'The information synced by Jetpack ensures that Jetpack Search, Related Posts and other features are aligned with your site’s current content.', 'jetpack' ),
+						__( 'Developers may enable / disable syncing using the Sync Settings API.', 'jetpack' ), /* translators: screen reader text indicating a test failed */
+						__( 'Error', 'jetpack' ),
+						__( 'Jetpack Sync has been disabled on your site. Without it, certain Jetpack features will not work.', 'jetpack' ),
+						__( 'We recommend enabling Sync.', 'jetpack' )
+					),
+				)
+			);
+
 		}
-		return self::failing_test( array(
-			'name' => $name,
-			'label' => __( 'Jetpack Sync has been disabled on your site.', 'jetpack' ),
-			'severity' => 'recommended',
-			'action' => 'https://github.com/Automattic/jetpack/blob/master/packages/sync/src/class-settings.php',
-			'action_label' => __( 'See Github for more on Sync Settings', 'jetpack' ),
-			'short_description' => __( 'Jetpack Sync has been disabled on your site.', 'jetpack' ),
-			'long_description' => sprintf(
-				'<p>%1$s</p>' .
-				'<p>%2$s</p>' .
-				'<p><span class="dashicons fail"><span class="screen-reader-text">%3$s</span></span> %4$s<strong> %5$s</strong></p>',
-				__( 'The information synced by Jetpack ensures that Jetpack Search, Related Posts and other features are aligned with your site’s current content.', 'jetpack' ),
-				__( 'Developers may enable / disable syncing using the Sync Settings API.', 'jetpack' ),
-				/* translators: screen reader text indicating a test failed */
-				__( 'Error', 'jetpack' ),
-				__( 'Jetpack Sync has been disabled on your site. Without it, certain Jetpack features will not work.', 'jetpack' ),
-				__( 'We recommend enabling Sync.', 'jetpack' )
-			)
-		) );
+
 	}
 
 	/**
