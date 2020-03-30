@@ -18,6 +18,7 @@ import JetpackFieldCheckbox from './components/jetpack-field-checkbox';
 import JetpackFieldMultiple from './components/jetpack-field-multiple';
 import renderMaterialIcon from '../../shared/render-material-icon';
 import colorValidator from '../../shared/colorValidator';
+import { supportsCollections } from '../../shared/block-category';
 
 export const name = 'contact-form';
 
@@ -32,7 +33,7 @@ export const settings = {
 		_x( 'feedback', 'block search term', 'jetpack' ),
 		_x( 'contact form', 'block search term', 'jetpack' ),
 	],
-	category: 'jetpack',
+	category: supportsCollections() ? 'widgets' : 'jetpack',
 	supports: {
 		html: false,
 	},

@@ -12,6 +12,7 @@ import edit from './edit';
 // Ordering is important! Editor overrides style!
 import './style.scss';
 import './editor.scss';
+import { supportsCollections } from '../../shared/block-category';
 
 export const name = 'gif';
 export const title = __( 'GIF', 'jetpack' );
@@ -26,7 +27,7 @@ export const icon = (
 export const settings = {
 	title,
 	icon,
-	category: 'jetpack',
+	category: supportsCollections() ? 'formatting' : 'jetpack',
 	keywords: [
 		_x( 'animated', 'block search term', 'jetpack' ),
 		_x( 'giphy', 'block search term', 'jetpack' ),

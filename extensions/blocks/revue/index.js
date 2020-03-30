@@ -9,6 +9,7 @@ import { __, _x } from '@wordpress/i18n';
 import attributes from './attributes';
 import edit from './edit';
 import icon from './icon';
+import { supportsCollections } from '../../shared/block-category';
 
 export const name = 'revue';
 
@@ -16,7 +17,7 @@ export const settings = {
 	title: __( 'Revue', 'jetpack' ),
 	description: __( 'Add a subscription form for your Revue newsletter.', 'jetpack' ),
 	icon,
-	category: 'jetpack',
+	category: supportsCollections() ? 'widgets' : 'jetpack',
 	keywords: [
 		_x( 'email', 'block search term', 'jetpack' ),
 		_x( 'subscription', 'block search term', 'jetpack' ),
