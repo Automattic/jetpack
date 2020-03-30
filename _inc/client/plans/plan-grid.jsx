@@ -14,16 +14,14 @@ import Button from 'components/button';
 import ButtonGroup from 'components/button-group';
 import { getSiteRawUrl, getUpgradeUrl, getUserId, showBackups } from 'state/initial-state';
 import { getSitePlan, getAvailablePlans, isFetchingSiteData } from 'state/site/reducer';
+import { setPlanDuration } from 'state/period-toggle/actions';
+import { getPlanDuration } from 'state/period-toggle/reducer';
 import { getPlanClass } from 'lib/plans/constants';
 import { translate as __ } from 'i18n-calypso';
 import TopButton from './top-button';
 import FeatureItem from './feture-item';
 
 class PlanGrid extends React.Component {
-	state = {
-		period: 'yearly',
-	};
-
 	/**
 	 * Memoized storage for plans to display according to highlighted features
 	 */
@@ -34,7 +32,7 @@ class PlanGrid extends React.Component {
 	}
 
 	handlePeriodChange( newPeriod ) {
-		if ( newPeriod === this.state.period ) {
+		if ( newPeriod === this.props.planDuration ) {
 			return null;
 		}
 
@@ -43,10 +41,7 @@ class PlanGrid extends React.Component {
 				target: 'change-period-' + newPeriod,
 				feature: 'plans-grid',
 			} );
-
-			this.setState( {
-				period: newPeriod,
-			} );
+			this.props.setPlanDuration( newPeriod );
 		};
 	}
 
@@ -113,7 +108,7 @@ class PlanGrid extends React.Component {
 	}
 
 	renderPlanPeriodToggle() {
-		const { period } = this.state;
+		const { planDuration } = this.props;
 		const periods = {
 			monthly: __( 'Monthly' ),
 			yearly: __( 'Yearly' ),
@@ -125,7 +120,7 @@ class PlanGrid extends React.Component {
 					{ map( periods, ( periodLabel, periodName ) => (
 						<Button
 							key={ 'plan-period-button-' + periodName }
-							primary={ periodName === period }
+							primary={ periodName === planDuration }
 							onClick={ this.handlePeriodChange( periodName ) }
 							compact
 						>
@@ -239,6 +234,7 @@ class PlanGrid extends React.Component {
 	 * @return {ReactElement} needed <td>s for prices
 	 */
 	renderPrices() {
+		const { planDuration } = this.props;
 		return map( this.getPlans(), ( plan, type ) => {
 			const className = classNames( 'plan-features__table-item', 'plan-price' );
 
@@ -260,7 +256,7 @@ class PlanGrid extends React.Component {
 				<td key={ 'price-' + type } className={ className }>
 					<span
 						className="plan-price__yearly"
-						dangerouslySetInnerHTML={ { __html: plan.price[ this.state.period ].per } }
+						dangerouslySetInnerHTML={ { __html: plan.price[ planDuration ].per } }
 					/>
 				</td>
 			);
@@ -285,12 +281,13 @@ class PlanGrid extends React.Component {
 	 * @return {ReactElement} <td>s with buttons
 	 */
 	renderTopButtons() {
+		const { planDuration } = this.props.planDuration;
 		return map( this.getPlans(), ( plan, planType ) => {
 			const { siteRawUrl, plansUpgradeUrl, sitePlan } = this.props;
 			const isActivePlan = this.isCurrentPlanType( planType );
 			const buttonText = isActivePlan ? plan.strings.manage : plan.strings.upgrade;
 			let planTypeWithPeriod = planType;
-			if ( 'monthly' === this.state.period ) {
+			if ( planDuration === 'monthly' ) {
 				planTypeWithPeriod += '-monthly';
 			}
 
@@ -408,16 +405,21 @@ class PlanGrid extends React.Component {
 	}
 }
 
-export default connect( state => {
-	const userId = getUserId( state );
-	return {
-		plans: getAvailablePlans( state ),
-		siteRawUrl: getSiteRawUrl( state ),
-		sitePlan: getSitePlan( state ),
-		userId,
-		showBackups: showBackups( state ),
-		plansUpgradeUrl: planType => getUpgradeUrl( state, `plans-${ planType }`, userId ),
-		plansLearnMoreUpgradeUrl: getUpgradeUrl( state, 'plans-learn-more', userId ),
-		isFetchingData: isFetchingSiteData( state ),
-	};
-}, null )( PlanGrid );
+export default connect(
+	state => {
+		const userId = getUserId( state );
+
+		return {
+			plans: getAvailablePlans( state ),
+			siteRawUrl: getSiteRawUrl( state ),
+			sitePlan: getSitePlan( state ),
+			userId,
+			showBackups: showBackups( state ),
+			planDuration: getPlanDuration( state ),
+			plansUpgradeUrl: planType => getUpgradeUrl( state, `plans-${ planType }`, userId ),
+			plansLearnMoreUpgradeUrl: getUpgradeUrl( state, 'plans-learn-more', userId ),
+			isFetchingData: isFetchingSiteData( state ),
+		};
+	},
+	{ setPlanDuration }
+)( PlanGrid );

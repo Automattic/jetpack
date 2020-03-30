@@ -12,6 +12,7 @@ import { get } from 'lodash';
 import { getUpgradeUrl } from 'state/initial-state';
 import { BACKUP_TITLE } from '../constants';
 import SingleProductBackupBody from './body';
+import { getPlanDuration } from '../../state/period-toggle';
 
 function generateBackupOptions( { products, upgradeLinkDaily, upgradeLinkRealtime } ) {
 	const priceDailyMonthly = get( products, [ 'jetpack_backup_daily_monthly', 'cost' ], '' );
@@ -52,8 +53,9 @@ function SingleProductBackupCard( props ) {
 		upgradeLinkRealtime,
 		selectedBackupType,
 		setSelectedBackupType,
+		planDuration,
 	} = props;
-	const billingTimeFrame = 'yearly';
+	const billingTimeFrame = planDuration ? planDuration : 'yearly';
 	const currencyCode = get( products, [ 'jetpack_backup_daily', 'currency_code' ], '' );
 	const backupOptions = useMemo(
 		() => generateBackupOptions( { products, upgradeLinkDaily, upgradeLinkRealtime } ),
@@ -81,6 +83,7 @@ function SingleProductBackupCard( props ) {
 }
 
 export default connect( state => ( {
+	planDuration: getPlanDuration( state ),
 	upgradeLinkDaily: getUpgradeUrl( state, 'jetpack-backup-daily' ),
 	upgradeLinkRealtime: getUpgradeUrl( state, 'jetpack-backup-realtime' ),
 } ) )( SingleProductBackupCard );

@@ -13,6 +13,7 @@ import { dashboard } from 'state/at-a-glance/reducer';
 import { default as checklist } from 'state/checklist/reducer';
 import { reducer as connection } from 'state/connection/reducer';
 import { reducer as devCard } from 'state/dev-version/reducer';
+import { reducer as planDuration } from 'state/period-toggle/reducer';
 import { reducer as jetpackNotices } from 'state/jetpack-notices/reducer';
 import { reducer as modules } from 'state/modules/reducer';
 import { reducer as pluginsData } from 'state/site/plugins/reducer';
@@ -36,6 +37,7 @@ const jetpackReducer = combineReducers( {
 	initialState,
 	jetpackNotices,
 	modules,
+	planDuration,
 	pluginsData,
 	products,
 	publicize,
