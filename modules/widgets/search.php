@@ -21,7 +21,7 @@ function jetpack_search_widget_init() {
 	}
 
 	require_once JETPACK__PLUGIN_DIR . 'modules/search/class.jetpack-search-helpers.php';
-	require_once JETPACK__PLUGIN_DIR . 'modules/search/class.jetpack-search-options.php';
+	require_once JETPACK__PLUGIN_DIR . 'modules/search/class-jetpack-search-options.php';
 
 	register_widget( 'Jetpack_Search_Widget' );
 }
@@ -74,7 +74,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 			apply_filters( 'jetpack_widget_name', $name ),
 			array(
 				'classname'   => 'jetpack-filters widget_search',
-				'description' => __( 'Replaces the default search with an Elasticsearch-powered search interface and filters.', 'jetpack' ),
+				'description' => __( 'Instant search and filtering to help visitors quickly find relevant answers and explore your site.', 'jetpack' ),
 			)
 		);
 

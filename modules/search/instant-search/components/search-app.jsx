@@ -175,11 +175,11 @@ class SearchApp extends Component {
 	};
 
 	onChangeQueryString = () => {
-		if ( !! getSearchQuery() || hasFilter() ) {
-			this.getResults().then( () => {
-				! this.state.showResults && this.showResults();
-			} );
-		}
+		this.getResults().then( () => {
+			if ( ( !! getSearchQuery() || hasFilter() ) && ! this.state.showResults ) {
+				this.showResults();
+			}
+		} );
 
 		document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( input => {
 			input.value = getSearchQuery();

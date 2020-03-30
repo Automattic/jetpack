@@ -40,7 +40,7 @@ class Jetpack_Search_Options {
 	 * @return bool
 	 */
 	public static function is_instant_enabled() {
-		return Constants::is_true( 'JETPACK_SEARCH_PROTOTYPE' );
+		return true === (bool) get_option( 'instant_search_enabled' );
 	}
 
 

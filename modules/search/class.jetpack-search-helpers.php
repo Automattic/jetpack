@@ -9,7 +9,7 @@
 
 use Automattic\Jetpack\Constants;
 
-require_once dirname( __FILE__ ) . '/class.jetpack-search-options.php';
+require_once dirname( __FILE__ ) . '/class-jetpack-search-options.php';
 
 /**
  * Various helper functions for reuse throughout the Jetpack Search code.

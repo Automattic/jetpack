@@ -139,7 +139,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'search' => array(
 				'name' => _x( 'Search', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Enhanced search, powered by Elasticsearch, a powerful replacement for WordPress search.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Help visitors quickly find answers with highly relevant instant search results and powerful filtering.', 'Module Description', 'jetpack' ),
 			),
 
 			'seo-tools' => array(

@@ -2,11 +2,12 @@
  * External dependencies
  */
 import { combineReducers } from 'redux';
-import { assign, get, merge } from 'lodash';
+import { assign, find, get, merge } from 'lodash';
 
 /**
  * Internal dependencies
  */
+import { isJetpackProduct, isJetpackSearch } from 'lib/plans/constants';
 import {
 	JETPACK_SITE_DATA_FETCH,
 	JETPACK_SITE_DATA_FETCH_RECEIVE,
@@ -190,6 +191,22 @@ export function getSitePurchases( state ) {
  */
 export function getActiveSitePurchases( state ) {
 	return getSitePurchases( state ).filter( purchase => '1' === purchase.active );
+}
+
+export function getActiveProductPurchases( state ) {
+	return getActiveSitePurchases( state ).filter( purchase =>
+		isJetpackProduct( purchase.product_slug )
+	);
+}
+
+export function getActiveSearchPurchase( state ) {
+	return find( getActiveProductPurchases( state ), product =>
+		isJetpackSearch( product.product_slug )
+	);
+}
+
+export function hasActiveSearchPurchase( state ) {
+	return !! getActiveSearchPurchase( state );
 }
 
 export function getSiteID( state ) {

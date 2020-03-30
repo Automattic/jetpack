@@ -10,7 +10,7 @@
 
 use Automattic\Jetpack\Connection\Client;
 
-require_once dirname( __FILE__ ) . '/class.jetpack-search-options.php';
+require_once dirname( __FILE__ ) . '/class-jetpack-search-options.php';
 
 /**
  * The main class for the Jetpack Search module.
