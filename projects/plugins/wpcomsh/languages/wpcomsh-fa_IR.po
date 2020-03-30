@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-03-27 11:20:44+0000\n"
+"PO-Revision-Date: 2020-03-27 11:39:30+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -165,7 +165,7 @@ msgstr ""
 
 #: widgets/twitter.php:289
 msgid "Error: Please make sure the Twitter account is %1$spublic%2$s."
-msgstr ""
+msgstr "خطا: لطفاُ مطمئن شوید که حساب کاربری توییتر %1$sعمومی%2$s است."
 
 #: widgets/twitter.php:262 widgets/twitter.php:275 widgets/twitter.php:296
 msgid "Error: Twitter did not respond. Please wait a few minutes and refresh this page."
@@ -221,7 +221,7 @@ msgstr "ابری از برچسب‌هایی که بیشتر استفاده کر�
 
 #: widgets/instagram/instagram.php:245
 msgid "New images may take up to %d minutes to show up on your site."
-msgstr ""
+msgstr "تصاویر جدید ممکن است تا %d دقیقه طول بکشد تا در وب‌گاه شما نشان داده شود."
 
 #: widgets/instagram/instagram.php:237
 msgid "Number of columns:"
@@ -245,7 +245,7 @@ msgstr "عنوان ابزارک"
 
 #: widgets/instagram/instagram.php:189
 msgid "No Instagram images were found."
-msgstr ""
+msgstr "هیچ تصویر اینستاگرامی پیدا نشد."
 
 #: widgets/instagram/instagram.php:186
 msgid "There was an error retrieving images from Instagram. An attempt will be remade in a few minutes."
@@ -261,11 +261,11 @@ msgstr "اینستاگرام"
 
 #: widgets/aboutme.php:148
 msgid "Apps"
-msgstr ""
+msgstr "برنامه‌ها"
 
 #: widgets/aboutme.php:141
 msgid "Biography"
-msgstr ""
+msgstr "زندگی‌نامه"
 
 #: widgets/aboutme.php:134
 msgid "Headline"
@@ -293,7 +293,7 @@ msgstr "نمایش بزرگ"
 
 #: widgets/aboutme.php:115
 msgid "Display X-Large"
-msgstr ""
+msgstr "نمایش تصویر بزرگ"
 
 #: widgets/aboutme.php:104
 msgid "Your about.me URL"
@@ -325,7 +325,7 @@ msgstr ""
 
 #: private-site/access-denied-coming-soon-template.php:142
 msgid "Log in here"
-msgstr ""
+msgstr "ورود از اینجا"
 
 #: footer-credit/theme-optimizations.php:37
 msgid "Create a free website or blog at WordPress.com"
@@ -337,7 +337,7 @@ msgstr "ساخت یک وب‌گاه رایگان در وردپرس.کام"
 
 #: footer-credit/footer-credit/footer-credit.php:101
 msgid "Powered by WordPress.com"
-msgstr ""
+msgstr "نیرو گرفته از WordPress.com"
 
 #: footer-credit/footer-credit/footer-credit.php:98
 #: footer-credit/theme-optimizations.php:30
@@ -629,7 +629,7 @@ msgstr "نمایش به صورت:"
 
 #: widgets/posts-i-like.php:90
 msgid "Number of posts to show (1 to 15):"
-msgstr ""
+msgstr "تعداد نوشته‌ها برای نمایش (۱ تا ۱۵):"
 
 #: widgets/posts-i-like.php:27
 msgid "A list of the posts I most recently liked"
@@ -775,7 +775,7 @@ msgstr "شبکهٔ نویسندگان"
 
 #: private-site/private-site.php:453
 msgid "Private Site"
-msgstr ""
+msgstr "وب‌گاه خصوصی"
 
 #: private-site/private-site.php:291 private-site/private-site.php:393
 #: private-site/private-site.php:554
@@ -788,7 +788,7 @@ msgstr "ورود"
 
 #: private-site/access-denied-private-site-template.php:45
 msgid "Switch user"
-msgstr ""
+msgstr "تغییر کاربر"
 
 #: private-site/access-denied-private-site-template.php:43
 msgid "You need to be logged in as a user who has permission to view this site."
@@ -823,7 +823,7 @@ msgstr ""
 
 #: logo-tool/logo-tool.php:70
 msgid "Create logo"
-msgstr ""
+msgstr "ساخت نشان‌واره"
 
 #: logo-tool/logo-tool.php:60
 msgid "Add a logo to display on your site. No logo? Buy a pro one from Looka — Click “Create logo” to start."
@@ -835,4 +835,4 @@ msgstr ""
 
 #. Plugin Name of the plugin
 msgid "WP.com Site Helper"
-msgstr ""
+msgstr "راهنمای وب‌گاه WP.com"
