@@ -156,7 +156,7 @@ export default class PlanIcon extends Component {
 				version="1.1"
 				x="0"
 				y="0"
-				viewBox="0 0 124 124"
+				viewBox="0 0 64 64"
 			>
 				<circle className="dops-plan-icon__search-0" cx="32" cy="32" r="32" fill="#2fb41f" />
 				<path
