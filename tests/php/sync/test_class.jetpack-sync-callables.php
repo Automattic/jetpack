@@ -98,6 +98,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			'available_jetpack_blocks'         => Jetpack_Gutenberg::get_availability(),
 			'paused_themes'                    => Functions::get_paused_themes(),
 			'paused_plugins'                   => Functions::get_paused_plugins(),
+			'main_network_site_wpcom_id'       => Functions::main_network_site_wpcom_id(),
 		);
 
 		if ( function_exists( 'wp_cache_is_enabled' ) ) {
@@ -111,7 +112,6 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			$callables['network_site_upload_space']           = Jetpack::network_site_upload_space();
 			$callables['network_upload_file_types']           = Jetpack::network_upload_file_types();
 			$callables['network_enable_administration_menus'] = Jetpack::network_enable_administration_menus();
-			$callables['main_network_site_wpcom_id']          = Functions::main_network_site_wpcom_id();
 		}
 
 		$this->sender->do_sync();
@@ -1157,10 +1157,6 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	 * @return void
 	 */
 	public function test_get_main_network_site_wpcom_id_single() {
-		if ( is_multisite() ) {
-			$this->markTestSkipped( 'Only test on single site' );
-		}
-
 		// set the Jetpack ID for this site.
 		$main_network_wpcom_id = 7891011;
 		\Jetpack_Options::update_option( 'id', $main_network_wpcom_id );
