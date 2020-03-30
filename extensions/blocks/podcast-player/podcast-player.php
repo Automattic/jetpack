@@ -177,7 +177,7 @@ function render_player( $player_data, $attributes ) {
 }
 
 /**
- * Given the color name, bock attributes and the CSS property,
+ * Given the color name, block attributes and the CSS property,
  * the function will return an array with the `class` and `style`
  * HTML attributes to be used straight in the markup.
  *
@@ -186,7 +186,7 @@ function render_player( $player_data, $attributes ) {
  *  => array( 'class' => 'has-secondary', 'style' => 'border-color: #333' )
  *
  * @param string $name     Color attribute name, for instance `primary`, `secondary`, ...
- * @param array  $attrs     Block attributes.
+ * @param array  $attrs    Block attributes.
  * @param string $property Color CSS property, fo instance `color`, `background-color`, ...
  * @return array           Colors array.
  */
@@ -206,12 +206,11 @@ function get_colors( $name, $attrs, $property ) {
 		$colors['class'] .= " has-{$name}";
 
 		if ( $color ) {
-			$colors['class'] .= ' ' . "has-{$property}-{$color}";
+			$colors['class'] .= " has-{$color}-{$property}";
 		} elseif ( $custom_color ) {
 			$colors['style'] .= "{$property}: {$custom_color};";
 		}
 	}
 
-	$colors['class'] = trim( $colors['class'] );
-	return $colors;
+	return array_map( 'trim', $colors );
 }
