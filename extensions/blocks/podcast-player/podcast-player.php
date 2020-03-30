@@ -203,7 +203,7 @@ function get_colors( $name, $attrs, $property ) {
 	);
 
 	if ( $color || $custom_color ) {
-		$colors['class'] .= " has-{$name}";
+		$colors['class'] .= "has-{$name}";
 
 		if ( $color ) {
 			$colors['class'] .= " has-{$color}-{$property}";
@@ -212,5 +212,5 @@ function get_colors( $name, $attrs, $property ) {
 		}
 	}
 
-	return array_map( 'trim', $colors );
+	return $colors;
 }
