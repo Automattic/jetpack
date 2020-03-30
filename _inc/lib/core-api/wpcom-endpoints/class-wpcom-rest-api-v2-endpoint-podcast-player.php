@@ -47,6 +47,7 @@ class WPCOM_REST_API_V2_Endpoint_Podcast_Player extends WP_REST_Controller {
 							},
 						),
 					),
+					'schema'              => array( $this, 'get_public_item_schema' ),
 				),
 			)
 		);
@@ -67,6 +68,68 @@ class WPCOM_REST_API_V2_Endpoint_Podcast_Player extends WP_REST_Controller {
 		// $player_data can be the actual data or WP_Error.
 		// rest_ensure_response handles both.
 		return rest_ensure_response( $player_data );
+	}
+
+	/**
+	 * Retrieves the response schema, conforming to JSON Schema.
+	 *
+	 * @return array
+	 */
+	public function get_item_schema() {
+		$schema = array(
+			'$schema'    => 'http://json-schema.org/draft-04/schema#',
+			'title'      => 'podcast-player',
+			'type'       => 'object',
+			'properties' => array(
+				'title'  => array(
+					'description' => __( 'The title of the podcast.', 'jetpack' ),
+					'type'        => 'string',
+				),
+				'link'   => array(
+					'description' => __( 'The URL of the podcast website.', 'jetpack' ),
+					'type'        => 'string',
+				),
+				'cover'  => array(
+					'description' => __( 'The URL of the podcast cover image.', 'jetpack' ),
+					'type'        => 'string',
+				),
+				'tracks' => array(
+					'description' => __( 'Latest episodes of the podcast.', 'jetpack' ),
+					'type'        => 'array',
+					'items'       => array(
+						'type'       => 'object',
+						'properties' => array(
+							'id'          => array(
+								'description' => __( 'The episode id. Generated per request, not globally unique.', 'jetpack' ),
+								'type'        => 'string',
+							),
+							'link'        => array(
+								'description' => __( 'The external link for the episode.', 'jetpack' ),
+								'type'        => 'string',
+							),
+							'src'         => array(
+								'description' => __( 'The audio file URL of the episode.', 'jetpack' ),
+								'type'        => 'string',
+							),
+							'type'        => array(
+								'description' => __( 'The mime type of the episode.', 'jetpack' ),
+								'type'        => 'string',
+							),
+							'description' => array(
+								'description' => __( 'The episode description, in plaintext.', 'jetpack' ),
+								'type'        => 'string',
+							),
+							'title'       => array(
+								'description' => __( 'The episode title.', 'jetpack' ),
+								'type'        => 'string',
+							),
+						),
+					),
+				),
+			),
+		);
+
+		return $schema;
 	}
 }
 wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Podcast_Player' );
