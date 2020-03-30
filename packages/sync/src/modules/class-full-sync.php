@@ -407,6 +407,49 @@ class Full_Sync extends Module {
 	}
 
 	/**
+	 * Returns the progress percentage of a full sync.
+	 *
+	 * @access public
+	 *
+	 * @return int|null
+	 */
+	public function get_sync_progress_percentage() {
+		if ( ! $this->is_started() || $this->is_finished() ) {
+			return null;
+		}
+		$status = $this->get_status();
+		if ( ! $status['queue'] || ! $status['sent'] || ! $status['total'] ) {
+			return null;
+		}
+		$queued_multiplier = 0.1;
+		$sent_multiplier   = 0.9;
+		$count_queued      = array_reduce(
+			$status['queue'],
+			function ( $sum, $value ) {
+				return $sum + $value;
+			},
+			0
+		);
+		$count_sent        = array_reduce(
+			$status['sent'],
+			function ( $sum, $value ) {
+				return $sum + $value;
+			},
+			0
+		);
+		$count_total       = array_reduce(
+			$status['total'],
+			function ( $sum, $value ) {
+				return $sum + $value;
+			},
+			0
+		);
+		$percent_queued    = ( $count_queued / $count_total ) * $queued_multiplier * 100;
+		$percent_sent      = ( $count_sent / $count_total ) * $sent_multiplier * 100;
+		return ceil( $percent_queued + $percent_sent );
+	}
+
+	/**
 	 * Get the name of the action for an item in the sync queue.
 	 *
 	 * @access public
