@@ -6793,6 +6793,10 @@ endif;
 	/**
 	 * Builds an URL using the jetpack.com/redirect service
 	 *
+	 * Note to WP.com: Changes to this method must be synced to wpcom
+	 *
+	 * @since 8.4.0
+	 *
 	 * @param string        $source The URL handler registered in the server
 	 * @param array|string  $args {
 	 *
