@@ -156,25 +156,14 @@ function render_player( $player_data, $attributes ) {
 	?>
 	<div class="<?php echo esc_attr( $block_classname ); ?>" id="<?php echo esc_attr( $instance_id ); ?>">
 		<section
-			<?php
-			echo ! empty( $podcast_player_classes_name )
-				? ' class="' . esc_attr( $podcast_player_classes_name ) . '"'
-				: '';
-
-			echo ! empty( $podcast_player_inline_style )
-				? ' style="' . esc_attr( $podcast_player_inline_style ) . '"'
-				: '';
-			?>
+			class="<?php echo esc_attr( $podcast_player_classes_name ); ?>"
+			style="<?php echo esc_attr( $podcast_player_inline_style ); ?>"
 		>
 			<ol class="jetpack-podcast-player__episodes">
 				<?php foreach ( $player_data['tracks'] as $attachment ) : ?>
 				<li
 					class="jetpack-podcast-player__episode <?php echo esc_attr( $secondary_classes_name ); ?>"
-					<?php
-					echo ! empty( $secondary_inline_style )
-						? ' style="' . esc_attr( $secondary_inline_style ) . '"'
-						: '';
-					?>
+					style="<?php echo esc_attr( $secondary_inline_style ); ?>"
 				>
 					<a
 						class="jetpack-podcast-player__episode-link"
@@ -228,5 +217,5 @@ function get_color_class_name( $color_context_name, $color_slug ) {
 		return null;
 	}
 
-	return "has-${color_slug}-${color_context_name}";
+	return "has-{$color_slug}-{$color_context_name}";
 }
