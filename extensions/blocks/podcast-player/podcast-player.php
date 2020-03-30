@@ -115,33 +115,34 @@ function render_player( $player_data, $attributes ) {
 		$player_data
 	);
 
-	// Set CSS classes for `secondary` and `background` colors.
+	// Color attributes.
 	$secondary_color         = isset( $attributes['secondaryColor'] ) ? $attributes['secondaryColor'] : null;
 	$custom_secondary_color  = isset( $attributes['customSecondaryColor'] ) ? $attributes['customSecondaryColor'] : null;
 	$background_color        = isset( $attributes['backgroundColor'] ) ? $attributes['backgroundColor'] : null;
 	$custom_background_color = isset( $attributes['customBackgroundColor'] ) ? $attributes['customBackgroundColor'] : null;
 
-	$secondary_color_class  = get_color_class_name( 'color', $secondary_color );
-	$background_color_class = get_color_class_name( 'background-color', $background_color );
-
+	// `secondary` color.
 	$secondary_classes_name = '';
 	$secondary_inline_style = '';
-	if ( isset( $secondary_color_class ) || isset( $custom_secondary_color ) ) {
+	$secondary_color_class  = get_color_class_name( 'color', $secondary_color );
+	if ( $secondary_color_class || $custom_secondary_color ) {
 		$secondary_classes_name .= ' has-secondary';
-		if ( isset( $secondary_color_class ) ) {
-			$secondary_classes_name .= $secondary_color_class;
-		} elseif ( isset( $custom_secondary_color ) ) {
+		if ( $secondary_color_class ) {
+			$secondary_classes_name .= " {$secondary_color_class}";
+		} elseif ( $custom_secondary_color ) {
 			$secondary_inline_style .= "color: $custom_secondary_color;";
 		}
 	}
 
+	// `background` color.
 	$background_classes_name = '';
 	$background_inline_style = '';
-	if ( isset( $background_color_class ) || isset( $custom_background_color ) ) {
+	$background_color_class  = get_color_class_name( 'background-color', $background_color );
+	if ( $background_color_class || $custom_background_color ) {
 		$background_classes_name .= ' has-background';
-		if ( isset( $background_color_class ) ) {
-			$background_classes_name .= $background_color_class;
-		} elseif ( isset( $custom_background_color ) ) {
+		if ( $background_color_class ) {
+			$background_classes_name .= " {$background_color_class}";
+		} elseif ( $custom_background_color ) {
 			$background_inline_style .= "background-color: $custom_background_color;";
 		}
 	}
