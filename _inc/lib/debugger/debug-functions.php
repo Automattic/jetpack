@@ -117,29 +117,29 @@ function jetpack_debugger_enqueue_site_health_scripts( $hook ) {
 		$wp_scripts = wp_scripts();
 		wp_enqueue_script( 'jquery-ui-progressbar' );
 		wp_enqueue_script(
-			'jetpack_debug_site_health',
+			'jetpack_debug_site_health_script',
 			plugins_url( 'jetpack-debugger-site-health.js', __FILE__ ),
 			array( 'jquery-ui-progressbar' ),
 			JETPACK__VERSION,
 			false
 		);
-		/* WordPress is not bundled with jquery UI styles - we need to grab them from the Google API. */
 		wp_enqueue_style(
-			'plugin_name-admin-ui-css',
+			'jetpack_debug_site_health_styles',
 			plugins_url( 'jetpack-debugger-site-health.css', __FILE__ ),
 			false,
 			JETPACK__VERSION,
 			false
 		);
+		/* WordPress is not bundled with jquery UI styles - we need to grab them from the Google API. */
 		wp_enqueue_style(
-			'jetpack_sync_site_health',
-			'http://ajax.googleapis.com/ajax/libs/jqueryui/' . $wp_scripts->registered['jquery-ui-core']->ver . '/themes/smoothness/jquery-ui.css',
+			'jetpack-jquery-ui-styles',
+			'https://code.jquery.com/ui/' . $wp_scripts->registered['jquery-ui-core']->ver . '/themes/smoothness/jquery-ui.min.css',
 			false,
 			JETPACK__VERSION,
 			false
 		);
 		wp_localize_script(
-			'jetpack_debug_site_health',
+			'jetpack_debug_site_health_script',
 			'jetpackSiteHealth',
 			array(
 				'ajaxUrl'             => admin_url( 'admin-ajax.php' ),
