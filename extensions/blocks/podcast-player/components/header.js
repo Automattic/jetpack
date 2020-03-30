@@ -50,16 +50,18 @@ const Title = memo( ( { playerId, title, link, track } ) => (
 	</h2>
 ) );
 
-const PodcastTitle = memo( ( { title, link } ) => (
-	<span className="jetpack-podcast-player__header-podcast-title">
-		{ link ? (
-			<a className="jetpack-podcast-player__header-podcast-title-link" href={ link }>
+const PodcastTitle = memo( ( { title, link } ) => {
+	const className = 'jetpack-podcast-player__header-podcast-title';
+
+	if ( link ) {
+		return (
+			<a className={ className } href={ link } target="_blank" rel="noopener noreferrer nofollow">
 				{ title }
 			</a>
-		) : (
-			title
-		) }
-	</span>
-) );
+		);
+	}
+
+	return <span className={ className }>{ title }</span>;
+} );
 
 export default Header;
