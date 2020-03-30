@@ -121,6 +121,17 @@ function render_player( $player_data, $attributes ) {
 	ob_start();
 	?>
 	<div class="<?php echo esc_attr( $block_classname ); ?>" id="<?php echo esc_attr( $instance_id ); ?>">
+		<?php
+		render_podcast_header(
+			$instance_id,
+			$player_data['title'],
+			$player_data['link'],
+			$attributes['showCoverArt'],
+			$player_data['cover'],
+			$player_data['tracks'][0]
+		);
+		?>
+
 		<ol class="jetpack-podcast-player__episodes">
 			<?php foreach ( $player_data['tracks'] as $attachment ) : ?>
 			<li class="jetpack-podcast-player__episode">
