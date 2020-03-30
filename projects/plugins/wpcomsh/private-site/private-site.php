@@ -604,7 +604,6 @@ function filter_jetpack_get_available_modules( $modules ) {
 	$disabled_modules = [
 		'publicize',
 		'sharedaddy',
-		'subscriptions',
 		'json-api',
 		'enhanced-distribution',
 		'google-analytics',
