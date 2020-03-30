@@ -43,5 +43,10 @@ function jetpack_sharedaddy_configuration_url() {
 	}
 
 	$site_suffix = Jetpack::build_raw_urls( get_home_url() );
-	return 'https://wordpress.com/marketing/sharing-buttons/' . $site_suffix;
+	return \Jetpack::build_redirect_url(
+		'wpcom-marketing-sharing-buttons',
+		array(
+			'site' => rawurlencode( $site_suffix ),
+		)
+	);
 }
