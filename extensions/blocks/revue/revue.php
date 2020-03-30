@@ -140,7 +140,7 @@ function get_revue_button( $attributes ) {
 	jetpack_require_lib( 'functions.jetpack-button-helper' );
 	$classes = jetpack_get_button_classes( $attributes );
 	$styles  = jetpack_get_button_styles( $attributes );
-	$text    = jetpack_get_revue_attribute( 'buttonText', $attributes );
+	$text    = get_revue_attribute( 'buttonText', $attributes );
 
 	ob_start();
 	?>
