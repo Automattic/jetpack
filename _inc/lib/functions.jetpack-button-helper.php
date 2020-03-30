@@ -102,3 +102,43 @@ if ( ! function_exists( 'jetpack_get_button_styles' ) ) {
 		return implode( ' ', $styles );
 	}
 }
+
+if ( ! function_exists( 'jetpack_resolve_button_deprecations' ) ) {
+	/**
+	 * Convert expected deprecated attributes into their corresponding valid ones.
+	 *
+	 * @param array $attributes Array containing the block attributes.
+	 *
+	 * @return array
+	 */
+	function jetpack_resolve_button_deprecations( $attributes ) {
+		$deprecation_map = array(
+			'submitButtonText'                  => 'buttonText',
+			'text'                              => 'buttonText',
+			'submitButtonBackgroundColor'       => 'buttonBackgroundColor',
+			'backgroundButtonColor'             => 'buttonBackgroundColor',
+			'backgroundColor'                   => 'buttonBackgroundColor',
+			'customSubmitButtonBackgroundColor' => 'customButtonBackgroundColor',
+			'customBackgroundButtonColor'       => 'customButtonBackgroundColor',
+			'customBackgroundColor'             => 'customButtonBackgroundColor',
+			'submitButtonTextColor'             => 'buttonTextColor',
+			'textButtonColor'                   => 'buttonTextColor',
+			'textColor'                         => 'buttonTextColor',
+			'customSubmitButtonTextColor'       => 'customButtonTextColor',
+			'customTextButtonColor'             => 'customButtonTextColor',
+			'customTextColor'                   => 'customButtonTextColor',
+			'gradient'                          => 'buttonGradient',
+			'customGradient'                    => 'customButtonGradient',
+			'borderRadius'                      => 'buttonBorderRadius',
+		);
+
+		foreach ( $deprecation_map as $deprecated => $valid ) {
+			if ( isset( $attributes[ $deprecated ] ) && empty( $attributes[ $valid ] ) ) {
+				$attributes[ $valid ] = $attributes[ $deprecated ];
+				unset( $attributes[ $deprecated ] );
+			}
+		}
+
+		return $attributes;
+	}
+}

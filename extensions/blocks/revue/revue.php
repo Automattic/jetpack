@@ -39,6 +39,9 @@ function render_block( $attributes ) {
 		return '';
 	}
 
+	jetpack_require_lib( 'functions.jetpack-button-helper' );
+	$attributes = jetpack_resolve_button_deprecations( $attributes );
+
 	$email_label            = get_revue_attribute( 'emailLabel', $attributes );
 	$email_placeholder      = get_revue_attribute( 'emailPlaceholder', $attributes );
 	$first_name_label       = get_revue_attribute( 'firstNameLabel', $attributes );
