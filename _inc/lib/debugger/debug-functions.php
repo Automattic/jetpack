@@ -5,6 +5,7 @@
  * @package Jetpack.
  */
 
+use Automattic\Jetpack\Sync\Modules;
 /**
  * Test runner for Core's Site Health module.
  *
@@ -104,3 +105,40 @@ function jetpack_debugger_site_status_tests( $core_tests ) {
 	return $core_tests;
 }
 
+/**
+ * Loads site health scripts if we are on the site health page.
+ *
+ * @param string $hook The current admin page hook.
+ */
+function jetpack_debugger_enqueue_site_health_scripts( $hook ) {
+	if ( 'site-health.php' === $hook ) {
+		wp_enqueue_script(
+			'jetpack_debug_site_health',
+			plugins_url( 'jetpack-debugger-site-health.js', __FILE__ ),
+			array( 'jquery-ui-progressbar' ),
+			JETPACK__VERSION,
+			true
+		);
+		wp_localize_script(
+			'jetpack_debug_site_health',
+			'jetpackSiteHealth',
+			array(
+				'ajaxUrl'             => admin_url( 'admin-ajax.php' ),
+				'syncProgressHeading' => __( 'Jetpack is performing a sync of your site', 'jetpack' ),
+			)
+		);
+	}
+}
+
+/**
+ * Responds to ajax calls from the site health page. Echos a full sync percantage to update progress bar.
+ */
+function jetpack_debugger_sync_progress_ajax() {
+	$full_sync_module = Modules::get_module( 'full-sync' );
+	$progress_percent = $full_sync_module ? $full_sync_module->get_sync_progress_percentage() : null;
+	if ( ! $progress_percent ) {
+		echo 'done';
+	}
+	echo intval( $progress_percent );
+	wp_die();
+}
