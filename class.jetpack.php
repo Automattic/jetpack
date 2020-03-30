@@ -927,11 +927,13 @@ class Jetpack {
 
 		$site_slug = self::build_raw_urls( get_home_url() );
 
-		return self::build_redirect_url(
-			'calypso-edit-' . $post_type,
-			array(
-				'site' => $site_slug,
-				'path' => $post_id,
+		return esc_url(
+			self::build_redirect_url(
+				'calypso-edit-' . $post_type,
+				array(
+					'site' => $site_slug,
+					'path' => $post_id,
+				)
 			)
 		);
 	}
@@ -940,11 +942,13 @@ class Jetpack {
 		// Take the `query` key value from the URL, and parse its parts to the $query_args. `amp;c` matches the comment ID.
 		wp_parse_str( wp_parse_url( $url, PHP_URL_QUERY ), $query_args );
 
-		return self::build_redirect_url(
-			'calypso-edit-comment',
-			array(
-				'site' => self::build_raw_urls( get_home_url() ),
-				'path' => $query_args['amp;c'],
+		return esc_url(
+			self::build_redirect_url(
+				'calypso-edit-comment',
+				array(
+					'site' => self::build_raw_urls( get_home_url() ),
+					'path' => $query_args['amp;c'],
+				)
 			)
 		);
 
@@ -4282,7 +4286,7 @@ p {
 
 		switch ( $message_code ) {
 			case 'jetpack-manage':
-				$sites_url = self::build_redirect_url( 'calypso-sites' );
+				$sites_url = esc_url( self::build_redirect_url( 'calypso-sites' ) );
 				// translators: %s is the URL to the "Sites" panel on wordpress.com.
 				$this->message = '<strong>' . sprintf( __( 'You are all set! Your site can now be managed from <a href="%s" target="_blank">wordpress.com/sites</a>.', 'jetpack' ), $sites_url ) . '</strong>';
 				if ( $activated_manage ) {
@@ -6836,7 +6840,7 @@ endif;
 			$url = add_query_arg( $to_be_added, $url );
 		}
 
-		return esc_url( $url );
+		return $url;
 	}
 
 	/**
