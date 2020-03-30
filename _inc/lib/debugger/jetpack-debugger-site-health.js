@@ -65,4 +65,14 @@ jQuery( document ).ready( function( $ ) {
 	if ( jetpackSiteHealth.progressPercent ) {
 		JetpackSync.init();
 	}
+
+	$( 'body' ).on( 'click', '#full_sync_request_link', function() {
+		var data = {
+			action: 'jetpack_debugger_full_sync_start',
+			'site-health-nonce': jetpackSiteHealth.fullSyncNonce,
+		};
+		$.post( jetpackSiteHealth.ajaxUrl, data, function( response ) {
+			window.location.reload( true );
+		} );
+	} );
 } );

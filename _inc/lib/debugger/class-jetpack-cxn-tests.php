@@ -560,11 +560,13 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 						'action_label'      => __( 'Contact Jetpack Support', 'jetpack' ),
 						'short_description' => __( 'Jetpack has detected an error syncing your site.', 'jetpack' ),
 						'long_description'  => sprintf(
-							'<p>%1$s</p><p><span class="dashicons fail"><span class="screen-reader-text">%2$s</span></span> %3$s<strong> %4$s</strong></p>',
+							'<p>%1$s</p><p><span class="dashicons fail"><span class="screen-reader-text">%2$s</span></span> %3$s<strong> %4$s <a id="full_sync_request_link" href="#">%5$s</a> %6$s</strong></p>',
 							__( 'The information synced by Jetpack ensures that Jetpack Search, Related Posts and other features are aligned with your site’s current content.', 'jetpack' ),
 							__( 'Error', 'jetpack' ),
 							__( 'Jetpack has detected an error while syncing your site', 'jetpack' ), /* translators: screen reader text indicating a test failed */
-							__( 'We recommend a full sync to align Jetpack with your site data.', 'jetpack' )
+							__( 'We recommend', 'jetpack' ),
+							__( 'full sync', 'jetpack' ),
+							__( 'to align Jetpack with your site data.', 'jetpack' )
 						),
 					)
 				);
