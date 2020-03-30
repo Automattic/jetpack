@@ -3,7 +3,6 @@
  */
 import { __, _x } from '@wordpress/i18n';
 import { Path } from '@wordpress/components';
-import { registerBlockCollection } from '@wordpress/blocks';
 
 /**
  * Internal dependencies
@@ -12,6 +11,7 @@ import './editor.scss';
 import './style.scss';
 import BusinessHours from './edit';
 import renderMaterialIcon from '../../shared/render-material-icon';
+import { supportsCollections } from '../../shared/block-category';
 
 /**
  * Block Registrations:
@@ -83,7 +83,7 @@ export const settings = {
 	title: __( 'Business Hours', 'jetpack' ),
 	description: __( 'Display opening hours for your business.', 'jetpack' ),
 	icon,
-	category: typeof registerBlockCollection === 'function' ? 'widgets' : 'jetpack',
+	category: supportsCollections() ? 'widgets' : 'jetpack',
 	supports: {
 		html: true,
 	},

@@ -8,7 +8,19 @@ import { getCategories, setCategories, registerBlockCollection } from '@wordpres
  */
 import JetpackLogo from '../shared/jetpack-logo';
 
-if ( typeof registerBlockCollection === 'function' ) {
+/**
+ * Return bool depending on registerBlockCollection compatibility.
+ *
+ * @return {boolean} Value to indicate function support.
+ */
+export const supportsCollections = () => {
+	if ( typeof registerBlockCollection === 'function' ) {
+		return true;
+	}
+	return false;
+};
+
+if ( supportsCollections() ) {
 	registerBlockCollection( 'jetpack', {
 		title: 'Jetpack',
 		icon: <JetpackLogo />,
