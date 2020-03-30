@@ -55,13 +55,13 @@ $player-float-background: $light-gray-200;
 		display: none;
 	}
 
-	.jetpack-podcast-player__titles {
+	.jetpack-podcast-player__header-title {
 		display: flex;
 		flex-direction: column;
 		margin: 0;
 	}
 
-	.jetpack-podcast-player__title-link {
+	.jetpack-podcast-player__header-podcast-title-link {
 		text-decoration: none;
 		color: $text-color;
 
@@ -99,7 +99,7 @@ $player-float-background: $light-gray-200;
 	}
 }
 
-.jetpack-podcast-player__track-description {
+.jetpack-podcast-player__header-track-description {
 	order: 99; // high number to make it always appear after the audio player
 	padding: 0 $player-grid-spacing;
 	margin-bottom: $player-grid-spacing;
@@ -113,23 +113,23 @@ $player-float-background: $light-gray-200;
 	padding: $player-grid-spacing;
 }
 
-.jetpack-podcast-player__track-image-wrapper {
+.jetpack-podcast-player__header-image-wrapper {
 	width: $cover-image-size;
 	margin-right: $player-grid-spacing;
 	flex-shrink: 0;
 }
 
-.jetpack-podcast-player__track-image {
+.jetpack-podcast-player__header-image {
 	width: $cover-image-size;
 	height: $cover-image-size;
 }
 
-.jetpack-podcast-player__track-title {
+.jetpack-podcast-player__header-track-title {
 	font-size: $track-title-font-size;
 	margin: 0 0 $track-title-b-margin;
 }
 
-.jetpack-podcast-player__title {
+.jetpack-podcast-player__header-podcast-title {
 	font-size: $podcast-title-font-size;
 	color: $text-color;
 	margin: 0;
