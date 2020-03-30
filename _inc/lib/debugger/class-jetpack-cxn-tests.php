@@ -550,15 +550,13 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 			return self::failing_test(
 				array(
 					'name'              => $name,
-
-					/* translators: %d An integer indicating the progress of syncronation progress. */
-					'label'             => sprintf( __( 'Jetpack is performing a sync of your site - %d%%', 'jetpack' ), $progress_percent ),
+					'label'             => __( 'Jetpack is performing a sync of your site', 'jetpack' ),
 					'severity'          => 'recommended',
 					'short_description' => __( 'Jetpack is performing a sync of your site', 'jetpack' ),
 					'long_description'  => sprintf(
 						'<p>%1$s</p>' .
 						'<p><span class="dashicons dashicons-update"><span class="screen-reader-text">%2$s</span></span> %3$s</p>' .
-						'<div class="jetpack-sync-progress-bar"><div class="progress-label"></div></div>',
+						'<div class="jetpack-sync-progress-ui"><div class="jetpack-sync-progress-label"></div><div class="jetpack-sync-progress-bar"></div></div>',
 						__( 'The information synced by Jetpack ensures that Jetpack Search, Related Posts and other features are aligned with your site’s current content.', 'jetpack' ),
 						/* translators: screen reader text indicating data is updating. */
 						__( 'Updating', 'jetpack' ),

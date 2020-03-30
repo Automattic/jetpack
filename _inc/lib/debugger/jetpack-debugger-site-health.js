@@ -9,8 +9,9 @@ jQuery( document ).ready( function( $ ) {
 		progressPercent: 0,
 		interval: false,
 		init: function() {
-			JetpackSync.interval = setInterval( JetpackSync.progressCheck, 3000 );
-			JetpackSync.progressPercent = jetpackSiteHealth.progressPercent;
+			JetpackSync.progressPercent = parseInt( jetpackSiteHealth.progressPercent );
+			JetpackSync.setProgress();
+			JetpackSync.interval = setInterval( JetpackSync.checkProgress, 3000 );
 			$( 'body' ).on(
 				'click',
 				'[aria-controls=health-check-accordion-block-jetpack_test__sync_health]',
@@ -23,7 +24,7 @@ jQuery( document ).ready( function( $ ) {
 		accordionIsOpen: function() {
 			return JetpackSync.accordionButton().attr( 'aria-expanded' );
 		},
-		progressCheck: function() {
+		checkProgress: function() {
 			$.post( jetpackSiteHealth.ajaxUrl, { action: 'jetpack_sync_progress_check' }, function(
 				response
 			) {
@@ -43,11 +44,15 @@ jQuery( document ).ready( function( $ ) {
 		},
 		setProgress: function() {
 			if ( 'true' === JetpackSync.accordionIsOpen() ) {
+				// When the accordion is open, we remove the progress percentage from the accordion heading,
+				// and show a progress bar in the accordion body.
 				$( '.jetpack-sync-progress-bar' ).progressbar( { value: JetpackSync.progressPercent } );
+				$( '.jetpack-sync-progress-label' ).text( JetpackSync.progressPercent + '%' );
 				JetpackSync.accordionButton()
 					.find( '.title' )
 					.text( jetpackSiteHealth.syncProgressHeading );
 			} else {
+				// When the accordion is closed, we show the progress percentage in the accordion heading.
 				JetpackSync.accordionButton()
 					.find( '.title' )
 					.text(

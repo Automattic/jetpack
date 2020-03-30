@@ -123,8 +123,16 @@ function jetpack_debugger_enqueue_site_health_scripts( $hook ) {
 			JETPACK__VERSION,
 			false
 		);
+		/* WordPress is not bundled with jquery UI styles - we need to grab them from the Google API. */
 		wp_enqueue_style(
 			'plugin_name-admin-ui-css',
+			plugins_url( 'jetpack-debugger-site-health.css', __FILE__ ),
+			false,
+			JETPACK__VERSION,
+			false
+		);
+		wp_enqueue_style(
+			'jetpack_sync_site_health',
 			'http://ajax.googleapis.com/ajax/libs/jqueryui/' . $wp_scripts->registered['jquery-ui-core']->ver . '/themes/smoothness/jquery-ui.css',
 			false,
 			JETPACK__VERSION,
