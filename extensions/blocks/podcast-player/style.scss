@@ -148,11 +148,6 @@ $player-float-background: $light-gray-200;
 		font-family: $default-font;
 		font-size: $editor-font-size;
 
-		&:hover,
-		&:focus {
-			color: $text-color-hover;
-		}
-
 		/**
 		 * When track "is-active", it means that it's been clicked by a user to
 		 * start playback. Combine this class with the Player's state classes (see
@@ -162,14 +157,22 @@ $player-float-background: $light-gray-200;
 			font-weight: bold;
 		}
 
-		/**
-		 * Applies default color to:
-		 * - The active podcast only if it doesn't have defined a custom color.
-		 * - The other podcasts only if they don't have defined a custom color.
-		 */
-		&.is-active:not( .has-primary ),
+		// Apply default colors only if custom ones are not defined.
 		&:not( .is-active ):not( .has-secondary ) {
-			color: $text-color-hover;
+			color: $text-color;
+
+			&:hover,
+			&:focus {
+				color: $text-color-hover;
+			}
+		}
+		&.is-active:not( .has-primary ) {
+			color: $text-color-active;
+
+			&:hover,
+			&:focus {
+				color: $text-color-active;
+			}
 		}
 	}
 
@@ -181,21 +184,12 @@ $player-float-background: $light-gray-200;
 		padding: $track-h-padding $track-v-padding;
 		text-decoration: none;
 		transition: none;
+		color: inherit;
 
 		&:hover,
 		&:focus {
-			color: $text-color-hover;
+			color: inherit;
 		}
-	}
-
-	/**
-	 * Inherits colors if:
-	 * - Active podcast has defined a custom color.
-	 * - The other podcasts if they have defined a custom color.
-	 */
-	.jetpack-podcast-player__track.is-active.has-primary .jetpack-podcast-player__track-link,
-	.jetpack-podcast-player__track.has-secondary .jetpack-podcast-player__track-link {
-		color: inherit;
 	}
 
 	// Make space for the error element that will be appended.
