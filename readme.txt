@@ -147,6 +147,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Blocks on International sites: ensure that blocks can be translated when using Jetpack's Site Accelerator feature.
 * Comment Likes / AMP Plugin: avoid loading Likes on AMP views.
 * General: Jetpack now requires WordPress 5.3 and newer.
+* Multisite Networks: better detect the main site of a network when synchronizing data with WordPress.com.
 * Recurring Payments Block: implement AMP view for full compatibility with the AMP plugin.
 
 **Bug fixes**
