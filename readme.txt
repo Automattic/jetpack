@@ -111,6 +111,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Blocks: improve discoverability of multiple blocks by reviewing keywords used in the block search.
 * Blocks: improve the display of error notices in Jetpack's embed blocks.
 * Blocks: better differentiate paid blocks from free ones.
+* Blocks: improve layout of block style previews.
 * Calendly block: display an error when the embed URL is not found.
 * Comment Likes: improve performance by removing dependency on Noticons.
 * Contact Info Widget: improve the display of Map API key notices.
