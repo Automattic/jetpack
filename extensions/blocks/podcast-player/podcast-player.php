@@ -103,7 +103,7 @@ function render_player( $player_data, $attributes ) {
 		absint( $attributes['itemsToShow'] )
 	);
 
-	// Genereate a unique id for the block instance.
+	// Generate a unique id for the block instance.
 	$instance_id             = wp_unique_id( 'jetpack-podcast-player-block-' );
 	$player_data['playerId'] = $instance_id;
 
@@ -115,28 +115,42 @@ function render_player( $player_data, $attributes ) {
 		$player_data
 	);
 
+	$secondary_colors  = get_colors( 'secondary', $attributes, 'color' );
+	$background_colors = get_colors( 'background', $attributes, 'background-color' );
+
+	$player_classes_name = trim( "{$secondary_colors['class']} {$background_colors['class']}" );
+	$player_inline_style = trim( "{$secondary_colors['style']} ${background_colors['style']}" );
+
 	$block_classname = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attributes, array( 'is-default' ) );
 	$is_amp          = ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() );
 
 	ob_start();
 	?>
 	<div class="<?php echo esc_attr( $block_classname ); ?>" id="<?php echo esc_attr( $instance_id ); ?>">
-		<ol class="jetpack-podcast-player__episodes">
-			<?php foreach ( $player_data['tracks'] as $attachment ) : ?>
-			<li class="jetpack-podcast-player__episode">
-				<a
-					class="jetpack-podcast-player__episode-link"
-					href="<?php echo esc_url( $attachment['link'] ); ?>"
-					role="button"
-					aria-pressed="false"
+		<section
+			class="<?php echo esc_attr( $player_classes_name ); ?>"
+			style="<?php echo esc_attr( $player_inline_style ); ?>"
+		>
+			<ol class="jetpack-podcast-player__episodes">
+				<?php foreach ( $player_data['tracks'] as $attachment ) : ?>
+				<li
+					class="jetpack-podcast-player__episode <?php echo esc_attr( $secondary_colors['class'] ); ?>"
+					style="<?php echo esc_attr( $secondary_colors['style'] ); ?>"
 				>
-					<span class="jetpack-podcast-player__episode-status-icon"></span>
-					<span class="jetpack-podcast-player__episode-title"><?php echo esc_html( $attachment['title'] ); ?></span>
-					<time class="jetpack-podcast-player__episode-duration"><?php echo ( ! empty( $attachment['duration'] ) ? esc_html( $attachment['duration'] ) : '' ); ?></time>
-				</a>
-			</li>
-			<?php endforeach; ?>
-		</ol>
+					<a
+						class="jetpack-podcast-player__episode-link"
+						href="<?php echo esc_url( $attachment['link'] ); ?>"
+						role="button"
+						aria-pressed="false"
+					>
+						<span class="jetpack-podcast-player__episode-status-icon"></span>
+						<span class="jetpack-podcast-player__episode-title"><?php echo esc_html( $attachment['title'] ); ?></span>
+						<time class="jetpack-podcast-player__episode-duration"><?php echo ( ! empty( $attachment['duration'] ) ? esc_html( $attachment['duration'] ) : '' ); ?></time>
+					</a>
+				</li>
+				<?php endforeach; ?>
+			</ol>
+		</section>
 		<?php if ( ! $is_amp ) : ?>
 		<script type="application/json"><?php echo wp_json_encode( $player_props ); ?></script>
 		<?php endif; ?>
@@ -160,4 +174,43 @@ function render_player( $player_data, $attributes ) {
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME, array( 'mediaelement' ) );
 
 	return ob_get_clean();
+}
+
+/**
+ * Given the color name, block attributes and the CSS property,
+ * the function will return an array with the `class` and `style`
+ * HTML attributes to be used straight in the markup.
+ *
+ * @example
+ * $color = get_colors( 'secondary', $attributes, 'border-color'
+ *  => array( 'class' => 'has-secondary', 'style' => 'border-color: #333' )
+ *
+ * @param string $name     Color attribute name, for instance `primary`, `secondary`, ...
+ * @param array  $attrs    Block attributes.
+ * @param string $property Color CSS property, fo instance `color`, `background-color`, ...
+ * @return array           Colors array.
+ */
+function get_colors( $name, $attrs, $property ) {
+	$attr_color  = "{$name}Color";
+	$attr_custom = 'custom' . ucfirst( $attr_color );
+
+	$color        = isset( $attrs[ $attr_color ] ) ? $attrs[ $attr_color ] : null;
+	$custom_color = isset( $attrs[ $attr_custom ] ) ? $attrs[ $attr_custom ] : null;
+
+	$colors = array(
+		'class' => '',
+		'style' => '',
+	);
+
+	if ( $color || $custom_color ) {
+		$colors['class'] .= "has-{$name}";
+
+		if ( $color ) {
+			$colors['class'] .= " has-{$color}-{$property}";
+		} elseif ( $custom_color ) {
+			$colors['style'] .= "{$property}: {$custom_color};";
+		}
+	}
+
+	return $colors;
 }
