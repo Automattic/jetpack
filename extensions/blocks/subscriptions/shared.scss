@@ -11,7 +11,12 @@
 		input[type="email"],
 		button {
 			line-height: initial;
+		}
+
+		.wp-block-jetpack-subscriptions__button,
+		button {
 			border-style: solid;
+			border-color: transparent;
 		}
 
 		.wp-block-jetpack-subscriptions__textfield, p#subscribe-email {
