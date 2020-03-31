@@ -31,7 +31,7 @@ function JetpackRestApiClient( root, nonce ) {
 		},
 		getParams = {
 			credentials: 'same-origin',
-			headers: headers,
+			headers,
 		},
 		postParams = {
 			method: 'post',
@@ -218,6 +218,11 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse )
 				.then( body => JSON.parse( body.data ) ),
+
+		fetchSiteProducts: () =>
+			getRequest( `${ apiRoot }jetpack/v4/site/products`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
 
 		fetchSitePurchases: () =>
 			getRequest( `${ apiRoot }jetpack/v4/site/purchases`, getParams )

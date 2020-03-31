@@ -205,6 +205,11 @@ class Jetpack_Plan {
 	 * @return bool True if plan supports feature, false if not
 	 */
 	public static function supports( $feature ) {
+		// Search product bypasses plan feature check.
+		if ( 'search' === $feature && (bool) get_option( 'has_jetpack_search_product' ) ) {
+			return true;
+		}
+
 		$plan = self::get();
 
 		// Manually mapping WordPress.com features to Jetpack module slugs.

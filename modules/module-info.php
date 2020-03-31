@@ -784,7 +784,7 @@ add_action( 'jetpack_module_more_info_google-analytics', 'jetpack_google_analyti
  * WooCommerce Analytics support link.
  */
 function jetpack_woocommerce_analytics_more_link() {
-	echo 'https://jetpack.com/support/';
+	echo 'https://jetpack.com/support/woocommerce-analytics/';
 }
 add_action( 'jetpack_learn_more_button_woocommerce-analytics', 'jetpack_woocommerce_analytics_more_link' );
 
@@ -812,7 +812,7 @@ add_action( 'jetpack_learn_more_button_search', 'jetpack_search_more_link' );
  */
 function jetpack_search_more_info() {
 	esc_html_e(
-		'Enhanced search, powered by Elasticsearch, a powerful replacement for WordPress search.',
+		'Help visitors quickly find answers with highly relevant instant search results and powerful filtering.',
 		'jetpack'
 	);
 }

@@ -1,7 +1,7 @@
 /**
  **** WARNING: No ES6 modules here. Not transpiled! ****
  */
-/* eslint-disable import/no-nodejs-modules, lodash/import-scope */
+/* eslint-disable lodash/import-scope */
 
 /**
  * External dependencies

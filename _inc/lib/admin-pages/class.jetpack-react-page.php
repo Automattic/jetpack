@@ -1,4 +1,5 @@
 <?php
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Partner;
 
@@ -170,7 +171,8 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		}
 
 		// Add objects to be passed to the initial state of the app.
-		wp_localize_script( 'react-plugin', 'Initial_State', $this->get_initial_state() );
+		// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
+		wp_add_inline_script( 'react-plugin', 'var Initial_State=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( $this->get_initial_state() ) ) . '"));', 'before' );
 	}
 
 	function get_initial_state() {

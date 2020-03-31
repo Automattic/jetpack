@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import debugFactory from 'debug';
 
 /**
  * WordPress dependencies
@@ -18,11 +19,19 @@ import {
 	ToggleControl,
 	Spinner,
 } from '@wordpress/components';
+import { compose, withInstanceId } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
-import { BlockControls, BlockIcon, InspectorControls } from '@wordpress/block-editor';
+import {
+	BlockControls,
+	BlockIcon,
+	InspectorControls,
+	withColors,
+	PanelColorSettings,
+	ContrastChecker,
+} from '@wordpress/block-editor';
+
 import apiFetch from '@wordpress/api-fetch';
-import { isURL } from '@wordpress/url';
-import debugFactory from 'debug';
+import { isURL, prependHTTP } from '@wordpress/url';
 
 /**
  * Internal dependencies
@@ -33,6 +42,7 @@ import { queueMusic } from './icons/';
 import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import attributesValidation from './attributes';
 import PodcastPlayer from './components/podcast-player';
+import { applyFallbackStyles } from '../../shared/apply-fallback-styles';
 
 const DEFAULT_MIN_ITEMS = 1;
 const DEFAULT_MAX_ITEMS = 10;
@@ -46,17 +56,26 @@ const supportUrl =
 		: 'https://jetpack.com/support/jetpack-blocks/podcast-player-block/';
 
 const PodcastPlayerEdit = ( {
+	instanceId,
 	className,
 	attributes,
 	setAttributes,
 	noticeOperations: { createErrorNotice, removeAllNotices },
 	noticeUI,
+	primaryColor: primaryColorProp,
+	setPrimaryColor,
+	secondaryColor: secondaryColorProp,
+	setSecondaryColor,
+	fallbackTextColor,
+	backgroundColor: backgroundColorProp,
+	setBackgroundColor,
+	fallbackBackgroundColor,
 } ) => {
 	// Validated attributes.
-	const { url, itemsToShow, showCoverArt, showEpisodeDescription } = getValidatedAttributes(
-		attributesValidation,
-		attributes
-	);
+	const validatedAttributes = getValidatedAttributes( attributesValidation, attributes );
+	const { url, itemsToShow, showCoverArt, showEpisodeDescription } = validatedAttributes;
+
+	const playerId = `jetpack-podcast-player-block-${ instanceId }`;
 
 	// State.
 	const [ editedUrl, setEditedUrl ] = useState( url || '' );
@@ -91,7 +110,7 @@ const PodcastPlayerEdit = ( {
 				setIsEditing( true );
 			}
 		);
-	}, [ url ] );
+	}, [ createErrorNotice, removeAllNotices, url ] );
 
 	/**
 	 * Check if the current URL of the Podcast RSS feed
@@ -99,7 +118,7 @@ const PodcastPlayerEdit = ( {
 	 * the edition mode.
 	 * This function is bound to the onSubmit event for the form.
 	 *
-	 * @param {object} event Form on submit event object.
+	 * @param {object} event - Form on submit event object.
 	 */
 	const checkPodcastLink = useCallback( event => {
 		event.preventDefault();
@@ -109,17 +128,27 @@ const PodcastPlayerEdit = ( {
 			return;
 		}
 
-		const isValidURL = isURL( editedUrl );
-		if ( ! isValidURL ) {
+		// Setting HTML `inputmode` to "url" allows non-http URLs whilst still
+		// allowing the user to see the most suitable keyboard on their device
+		// for entering URLs. However, this means we need to manually prepend
+		// "http" to any entry before attempting validation.
+		const prependedURL = prependHTTP( editedUrl );
+
+		if ( ! isURL( prependedURL ) ) {
 			createErrorNotice(
-				! isValidURL
-					? __( "Your podcast couldn't be embedded. Please double check your URL.", 'jetpack' )
-					: ''
+				__( "Your podcast couldn't be embedded. Please double check your URL.", 'jetpack' )
 			);
 			return;
 		}
 
-		setAttributes( { url: editedUrl } );
+		// Ensure URL has `http` appended to it (if it doesn't already) before
+		// we accept it as the entered URL.
+		setAttributes( { url: prependedURL } );
+
+		// Also update the temporary `input` value in order that clicking
+		// `Replace` in the UI will show the "corrected" version of the URL
+		// (ie: with `http` prepended if it wasn't originally present).
+		setEditedUrl( prependedURL );
 		setIsEditing( false );
 	} );
 
@@ -133,7 +162,8 @@ const PodcastPlayerEdit = ( {
 				<form onSubmit={ checkPodcastLink }>
 					{ noticeUI }
 					<TextControl
-						type="url"
+						type="text"
+						inputMode="url"
 						placeholder={ __( 'Enter URL here…', 'jetpack' ) }
 						value={ editedUrl || '' }
 						className={ 'components-placeholder__input' }
@@ -203,20 +233,53 @@ const PodcastPlayerEdit = ( {
 						onChange={ value => setAttributes( { showEpisodeDescription: value } ) }
 					/>
 				</PanelBody>
+				<PanelColorSettings
+					title={ __( 'Color Settings', 'jetpack' ) }
+					colorSettings={ [
+						{
+							value: primaryColorProp.color,
+							onChange: setPrimaryColor,
+							label: __( 'Primary Color', 'jetpack' ),
+						},
+						{
+							value: secondaryColorProp.color,
+							onChange: setSecondaryColor,
+							label: __( 'Secondary Color', 'jetpack' ),
+						},
+						{
+							value: backgroundColorProp.color,
+							onChange: setBackgroundColor,
+							label: __( 'Background Color', 'jetpack' ),
+						},
+					] }
+				>
+					<ContrastChecker
+						isLargeText={ false }
+						textColor={ secondaryColorProp.color }
+						backgroundColor={ backgroundColorProp.color }
+						fallbackBackgroundColor={ fallbackBackgroundColor }
+						fallbackTextColor={ fallbackTextColor }
+					/>
+				</PanelColorSettings>
 			</InspectorControls>
-			<div className={ className }>
+
+			<div id={ playerId } className={ className }>
 				<PodcastPlayer
+					playerId={ playerId }
+					attributes={ validatedAttributes }
 					tracks={ feedData.tracks }
 					cover={ feedData.cover }
 					title={ feedData.title }
 					link={ feedData.link }
-					itemsToShow={ itemsToShow }
-					showEpisodeDescription={ showEpisodeDescription }
-					showCoverArt={ showCoverArt }
 				/>
 			</div>
 		</>
 	);
 };
 
-export default withNotices( PodcastPlayerEdit );
+export default compose( [
+	withColors( 'backgroundColor', { primaryColor: 'color' }, { secondaryColor: 'color' } ),
+	withNotices,
+	withInstanceId,
+	applyFallbackStyles,
+] )( PodcastPlayerEdit );

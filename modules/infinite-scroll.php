@@ -215,23 +215,6 @@ class Jetpack_Infinite_Scroll_Extras {
 		if ( Jetpack::is_module_active( 'tiled-gallery' ) ) {
 			Jetpack_Tiled_Gallery::default_scripts_and_styles();
 		}
-
-		// Core's Audio and Video Shortcodes
-		if (
-			/** This filter is already documented in core/wp-includes/media.php */
-			'mediaelement' === apply_filters( 'wp_audio_shortcode_library', 'mediaelement' )
-		) {
-			wp_enqueue_style( 'wp-mediaelement' );
-			wp_enqueue_script( 'wp-mediaelement' );
-		}
-
-		if (
-			/** This filter is already documented in core/wp-includes/media.php */
-			'mediaelement' === apply_filters( 'wp_video_shortcode_library', 'mediaelement' )
-		) {
-			wp_enqueue_style( 'wp-mediaelement' );
-			wp_enqueue_script( 'wp-mediaelement' );
-		}
 	}
 }
 Jetpack_Infinite_Scroll_Extras::instance();

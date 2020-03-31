@@ -2,12 +2,15 @@
 /**
  * External dependencies
  */
+
+/**
+ * WordPress dependencies
+ */
 import { Component } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
-
 const meJsSettings = typeof _wpmejsSettings !== 'undefined' ? _wpmejsSettings : {};
 
 class AudioPlayer extends Component {
@@ -65,7 +68,7 @@ class AudioPlayer extends Component {
 	};
 
 	render() {
-		return <div ref={ this.audioRef }></div>;
+		return <div ref={ this.audioRef } className="jetpack-podcast-player__audio-player"></div>;
 	}
 }
 

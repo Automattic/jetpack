@@ -42,6 +42,7 @@ module.exports = [
 	'modules/verification-tools.php',
 	'modules/widgets/contact-info.php',
 	'modules/widgets/social-icons.php',
+	'modules/woocommerce-analytics.php',
 	'modules/wpcom-block-editor/class-jetpack-wpcom-block-editor.php',
 	'modules/wpcom-tos/wpcom-tos.php',
 	'packages',

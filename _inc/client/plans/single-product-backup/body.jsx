@@ -10,6 +10,7 @@ import { withRouter } from 'react-router';
  * Internal dependencies
  */
 import analytics from 'lib/analytics';
+import { BACKUP_DESCRIPTION } from '../constants';
 import PlanRadioButton from '../single-product-components/plan-radio-button';
 import ProductSavings from '../single-product-components/product-savings';
 import UpgradeButton from '../single-product-components/upgrade-button';
@@ -44,7 +45,7 @@ class SingleProductBackupBody extends React.Component {
 
 		return (
 			<React.Fragment>
-				<p>{ __( 'Always-on backups ensure you never lose your site.' ) }</p>
+				<p>{ BACKUP_DESCRIPTION }</p>
 				<PromoNudge />
 				<h4 className="single-product-backup__options-header">
 					{ __( 'Select a backup option:' ) }
@@ -65,9 +66,9 @@ class SingleProductBackupBody extends React.Component {
 					) ) }
 				</div>
 				<ProductSavings
-					selectedBackup={ selectedBackup }
 					billingTimeFrame={ billingTimeFrame }
 					currencyCode={ currencyCode }
+					potentialSavings={ selectedBackup.potentialSavings }
 				/>
 				<UpgradeButton
 					selectedUpgrade={ selectedBackup }

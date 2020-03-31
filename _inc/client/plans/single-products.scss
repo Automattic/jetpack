@@ -2,7 +2,6 @@
 @import 'scss/variables/_colors.scss';
 @import 'scss/calypso-colors.scss';
 
-// Single product backup
 .single-product-backup__header-title {
 	margin: 5px 20px 5px 0;
 	font-size: 17px;
@@ -47,6 +46,18 @@
 	display: flex;
 	justify-content: center;
 	margin: 24px auto 40px;
+
+	&.plans-section__single-product--with-search {
+		.single-product__accented-card,
+		.plans-section__single-product-skeleton {
+			&:first-child {
+				margin-right: 0.5em;
+			}
+			&:last-child {
+				margin-left: 0.5em;
+			}
+		}
+	}
 }
 
 .plans-section__single-product-skeleton {
@@ -79,6 +90,7 @@
 	}
 }
 
+.single-product-search__upgrade-button-container,
 .single-product-backup__upgrade-button-container {
 	text-align: center;
 	margin-top: 24px;
@@ -91,13 +103,13 @@
 }
 
 // Accented card
-.single-product-backup__accented-card {
+.single-product__accented-card {
 	max-width: 518px;
 	width: 100%;
 	font-size: 14px;
 }
 
-.single-product-backup__accented-card-header {
+.single-product__accented-card-header {
 	padding: 8px 16px;
 	margin: -16px -16px 16px;
 	border-bottom: solid 2px $alert-green;
@@ -108,20 +120,50 @@
 	}
 }
 
-.single-product-backup__accented-card-body p {
+.single-product__accented-card-body p {
 	margin-top: 14px;
 	font-size: 14px;
 	color: $gray-text-min;
 	text-align: center;
 }
 
-.single-product-backup__savings {
-	font-style: italic;
+.single-product__accented-card-header-primary {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	svg {
+		margin-right: 8px;
+		fill: $alert-green;
+	}
 }
 
-.single-product-backup__annual-savings {
-	&,
-	.plan-price__integer {
-		color: $gray-text-min;
+.single-product-search__radio-buttons-container,
+.single-product-backup__radio-buttons-container {
+	display: flex;
+	flex-flow: column nowrap;
+	margin-bottom: 21px;
+
+	@include breakpoint( '>660px' ) {
+		flex-flow: row wrap;
+		justify-content: space-around; // IE11 fallback.
+		justify-content: space-evenly;
+		position: relative;
 	}
+}
+
+.single-product-search__radio-buttons-container {
+	.plan-price {
+		margin-right: 0.25em;
+	}
+}
+
+.single-product-backup__radio-buttons-container::before {
+	display: block;
+	border-left: 1px solid $light-gray-700;
+	position: absolute;
+	content: '';
+	height: 100%;
+	width: 0;
+	order: 2;
 }

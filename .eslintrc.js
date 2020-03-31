@@ -1,4 +1,5 @@
 module.exports = {
+	root: true,
 	parser: 'babel-eslint',
 	extends: [ 'wpcalypso/react', 'plugin:jsx-a11y/recommended', 'prettier', 'prettier/react' ],
 	env: {
@@ -14,7 +15,7 @@ module.exports = {
 			jsx: true,
 		},
 	},
-	plugins: [ 'jsx-a11y', 'lodash' ],
+	plugins: [ 'jsx-a11y', 'lodash', 'jsdoc' ],
 	rules: {
 		// REST API objects include underscores
 		camelcase: 0,
@@ -76,7 +77,6 @@ module.exports = {
 			},
 		],
 		'template-curly-spacing': [ 2, 'always' ],
-		'valid-jsdoc': [ 2, { requireReturn: false } ],
 		'wpcalypso/i18n-ellipsis': 2,
 		'wpcalypso/i18n-no-collapsible-whitespace': 2,
 		'wpcalypso/i18n-no-this-translate': 2,
@@ -98,5 +98,42 @@ module.exports = {
 		'jsx-a11y/anchor-has-content': 0,
 		'react/no-string-refs': 0,
 		'jsx-a11y/anchor-is-valid': 0,
+
+		// JSDoc plugin overrides
+		'jsdoc/check-alignment': 1, // Recommended
+		'jsdoc/check-examples': 1,
+		'jsdoc/check-indentation': 1,
+		'jsdoc/check-param-names': 1, // Recommended
+		'jsdoc/check-syntax': 1,
+		'jsdoc/check-tag-names': 1, // Recommended
+		'jsdoc/check-types': 1, // Recommended
+		'jsdoc/implements-on-classes': 1, // Recommended
+		'jsdoc/match-description': 1,
+		'jsdoc/newline-after-description': 1, // Recommended
+		'jsdoc/no-types': 1,
+		'jsdoc/no-undefined-types': 1, // Recommended
+		'jsdoc/require-description': 1,
+		'jsdoc/require-description-complete-sentence': 0,
+		'jsdoc/require-example': 1,
+		'jsdoc/require-hyphen-before-param-description': 1,
+		'jsdoc/require-jsdoc': 1, // Recommended
+		'jsdoc/require-param': 1, // Recommended
+		'jsdoc/require-param-description': 1, // Recommended
+		'jsdoc/require-param-name': 1, // Recommended
+		'jsdoc/require-param-type': 1, // Recommended
+		'jsdoc/require-returns': 1, // Recommended
+		'jsdoc/require-returns-check': 1, // Recommended
+		'jsdoc/require-returns-description': 1, // Recommended
+		'jsdoc/require-returns-type': 1, // Recommended
+		'jsdoc/valid-types': 1, // Recommended
+		'jsdoc/check-values': 1,
+
+		// eslint 6.x migration
+		'no-unused-vars': 1,
+		'no-useless-escape': 1,
+		'no-extra-boolean-cast': 1,
+		'no-case-declarations': 1,
+		'no-class-assign': 1,
+		'no-redeclare': 1,
 	},
 };

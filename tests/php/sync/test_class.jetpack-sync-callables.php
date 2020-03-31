@@ -98,6 +98,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			'available_jetpack_blocks'         => Jetpack_Gutenberg::get_availability(),
 			'paused_themes'                    => Functions::get_paused_themes(),
 			'paused_plugins'                   => Functions::get_paused_plugins(),
+			'main_network_site_wpcom_id'       => Functions::main_network_site_wpcom_id(),
 		);
 
 		if ( function_exists( 'wp_cache_is_enabled' ) ) {
@@ -1116,6 +1117,52 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		// Get hosting provider by known function.
 		$this->assertEquals( $functions->get_hosting_provider_by_known_function(), 'wpe' );
+	}
+
+	/**
+	 * Test getting the main network site wpcom ID in multisite installs
+	 *
+	 * @return void
+	 */
+	public function test_get_main_network_site_wpcom_id_multisite() {
+		if ( ! is_multisite() ) {
+			$this->markTestSkipped( 'Only used on multisite' );
+		}
+
+		// set the Jetpack ID for this site.
+		$main_network_wpcom_id = 12345;
+		\Jetpack_Options::update_option( 'id', $main_network_wpcom_id );
+
+		$user_id = $this->factory->user->create();
+
+		// NOTE this is necessary because WPMU causes certain assumptions about transients.
+		// to be wrong, and tests to explode. @see: https://github.com/sheabunge/WordPress/commit/ff4f1bb17095c6af8a0f35ac304f79074f3c3ff6 .
+		global $wpdb;
+
+		$suppress      = $wpdb->suppress_errors();
+		$other_blog_id = wpmu_create_blog( 'foo.com', '', 'My Blog', $user_id );
+		$wpdb->suppress_errors( $suppress );
+
+		switch_to_blog( $other_blog_id );
+
+		$functions = new Functions();
+		$this->assertEquals( $main_network_wpcom_id, $functions->main_network_site_wpcom_id() );
+
+		restore_current_blog();
+	}
+
+	/**
+	 * Test getting the main network site wpcom ID in single site installs
+	 *
+	 * @return void
+	 */
+	public function test_get_main_network_site_wpcom_id_single() {
+		// set the Jetpack ID for this site.
+		$main_network_wpcom_id = 7891011;
+		\Jetpack_Options::update_option( 'id', $main_network_wpcom_id );
+
+		$functions = new Functions();
+		$this->assertEquals( $main_network_wpcom_id, $functions->main_network_site_wpcom_id() );
 	}
 
 }

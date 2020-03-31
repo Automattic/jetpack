@@ -28,5 +28,6 @@
 		"videopress",
 		"wordads"
 	],
-	"beta": [ "amazon", "instagram-gallery", "podcast-player", "seo" ]
+	"beta": [ "amazon", "instagram-gallery", "podcast-player" ],
+	"experimental": [ "seo" ]
 }

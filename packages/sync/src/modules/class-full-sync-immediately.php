@@ -145,6 +145,38 @@ class Full_Sync_Immediately extends Module {
 	}
 
 	/**
+	 * Returns the progress percentage of a full sync.
+	 *
+	 * @access public
+	 *
+	 * @return int|null
+	 */
+	public function get_sync_progress_percentage() {
+		if ( ! $this->is_started() || $this->is_finished() ) {
+			return null;
+		}
+		$status = $this->get_status();
+		if ( empty( $status['progress'] ) ) {
+			return null;
+		}
+		$total_items = array_reduce(
+			array_values( $status['progress'] ),
+			function ( $sum, $sync_item ) {
+				return isset( $sync_item['total'] ) ? ( $sum + intval( $sync_item['total'] ) ) : $sum;
+			},
+			0
+		);
+		$total_sent  = array_reduce(
+			array_values( $status['progress'] ),
+			function ( $sum, $sync_item ) {
+				return isset( $sync_item['sent'] ) ? ( $sum + intval( $sync_item['sent'] ) ) : $sum;
+			},
+			0
+		);
+		return floor( ( $total_sent / $total_items ) * 100 );
+	}
+
+	/**
 	 * Whether full sync has finished.
 	 *
 	 * @access public

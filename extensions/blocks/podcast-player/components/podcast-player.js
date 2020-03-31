@@ -1,6 +1,11 @@
 /**
  * External dependencies
  */
+import classnames from 'classnames';
+
+/**
+ * WordPress dependencies
+ */
 import { Component } from '@wordpress/element';
 
 /**
@@ -10,6 +15,7 @@ import { STATE_PLAYING, STATE_ERROR, STATE_PAUSED } from '../constants';
 import Playlist from './playlist';
 import AudioPlayer from './audio-player';
 import Header from './header';
+import { getColorClassName } from '../utils';
 
 // const debug = debugFactory( 'jetpack:podcast-player' );
 const noop = () => {};
@@ -132,14 +138,60 @@ export class PodcastPlayer extends Component {
 	setAudioSource = noop;
 
 	render() {
-		const { tracks, itemsToShow } = this.props;
+		const { playerId, title, link, cover, tracks, attributes } = this.props;
+		const {
+			itemsToShow,
+			primaryColor,
+			customPrimaryColor,
+			secondaryColor,
+			customSecondaryColor,
+			backgroundColor,
+			customBackgroundColor,
+			showCoverArt,
+			showEpisodeDescription,
+		} = attributes;
 		const { playerState, currentTrack } = this.state;
 
 		const tracksToDisplay = tracks.slice( 0, itemsToShow );
+		const track = this.getTrack( currentTrack );
+
+		// Set CSS classes string.
+		const secondaryColorClass = getColorClassName( 'color', secondaryColor );
+		const backgroundColorClass = getColorClassName( 'background-color', backgroundColor );
+
+		const cssClassesName = classnames( playerState, {
+			'has-secondary': secondaryColor || customSecondaryColor,
+			[ secondaryColorClass ]: secondaryColorClass,
+			'has-background': backgroundColor || customBackgroundColor,
+			[ backgroundColorClass ]: backgroundColorClass,
+		} );
+
+		const inlineStyle = {
+			color: customSecondaryColor && ! secondaryColorClass ? customSecondaryColor : null,
+			backgroundColor:
+				customBackgroundColor && ! backgroundColorClass ? customBackgroundColor : null,
+		};
 
 		return (
-			<div className={ playerState }>
-				<Header track={ this.getTrack( currentTrack ) }>
+			<section
+				className={ cssClassesName }
+				style={ Object.keys( inlineStyle ).length ? inlineStyle : null }
+				aria-labelledby={ title || ( track && track.title ) ? `${ playerId }__title` : undefined }
+				aria-describedby={
+					track && track.description ? `${ playerId }__track-description` : undefined
+				}
+				// The following line ensures compatibility with Calypso previews (jetpack-iframe-embed.js).
+				data-jetpack-iframe-ignore
+			>
+				<Header
+					playerId={ playerId }
+					title={ title }
+					link={ link }
+					cover={ cover }
+					track={ this.getTrack( currentTrack ) }
+					showCoverArt={ showCoverArt }
+					showEpisodeDescription={ showEpisodeDescription }
+				>
 					<AudioPlayer
 						initialTrackSource={ this.getTrack( 0 ).src }
 						handlePlay={ this.handlePlay }
@@ -153,18 +205,33 @@ export class PodcastPlayer extends Component {
 					currentTrack={ currentTrack }
 					tracks={ tracksToDisplay }
 					selectTrack={ this.selectTrack }
+					colors={ {
+						primary: {
+							name: primaryColor,
+							custom: customPrimaryColor,
+						},
+						secondary: {
+							name: secondaryColor,
+							custom: customSecondaryColor,
+						},
+					} }
 				/>
-			</div>
+			</section>
 		);
 	}
 }
 
 PodcastPlayer.defaultProps = {
+	title: '',
+	cover: '',
+	link: '',
+	attributes: {
+		url: null,
+		itemsToShow: 5,
+		showCoverArt: true,
+		showEpisodeDescription: true,
+	},
 	tracks: [],
-	url: null,
-	itemsToShow: 5,
-	showCoverArt: true,
-	showEpisodeDescription: true,
 };
 
 export default PodcastPlayer;

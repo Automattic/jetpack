@@ -65,13 +65,13 @@ function saveButton( attributes ) {
 }
 
 export default function save( { attributes } ) {
-	const { eventId, useModal, url } = attributes;
+	const { eventId, style, url } = attributes;
 
 	if ( ! eventId ) {
 		return;
 	}
 
-	if ( useModal ) {
+	if ( style === 'modal' ) {
 		return saveButton( attributes );
 	}
 

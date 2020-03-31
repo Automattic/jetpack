@@ -217,9 +217,12 @@ jQuery( document ).ready( function( $ ) {
 				);
 			}
 
+			var full_jp_logo_exists = $( '.jetpack-logo__masthead' ).length ? true : false;
+
 			$.get( window.jitm_config.api_root + 'jetpack/v4/jitm', {
 				message_path: message_path,
 				query: query,
+				full_jp_logo_exists: full_jp_logo_exists,
 				_wpnonce: $el.data( 'nonce' ),
 			} ).then( function( response ) {
 				if ( 'object' === typeof response && response[ '1' ] ) {

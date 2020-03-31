@@ -32,6 +32,11 @@ class WP_Test_Jetpack_Sync_Term_Relationships extends WP_Test_Jetpack_Sync_Base 
 	 * Verify full sync syncs term relationships that are present on the site, but missing on WP.com.
 	 */
 	public function test_missing_term_relationships_are_synced_on_full_sync() {
+
+		// Test needs to be reviewed and revised.
+		$this->markTestSkipped( 'Needs Revision' );
+		return;
+
 		// Retrieve the original categories of the post.
 		$post_terms = $this->server_replica_storage->get_the_terms( $this->post_id, $this->taxonomy );
 
@@ -65,6 +70,11 @@ class WP_Test_Jetpack_Sync_Term_Relationships extends WP_Test_Jetpack_Sync_Base 
 	 * Verify full sync removes term relationships that are missing on the site, but still present on WP.com.
 	 */
 	public function test_obsolete_term_relationships_are_deleted_on_full_sync() {
+
+		// Test needs to be reviewed and revised.
+		$this->markTestSkipped( 'Needs Revision' );
+		return;
+
 		// Create an additional term relationship.
 		wp_set_object_terms( $this->post_id, array( $this->term_object->term_id ), $this->taxonomy, true );
 

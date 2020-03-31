@@ -34,11 +34,11 @@ import classnames from 'classnames';
 import AddPoint from './add-point';
 import Locations from './locations';
 import Map from './component.js';
-import MapThemePicker from './map-theme-picker';
 import { settings } from './settings.js';
 import previewPlaceholder from './map-preview.jpg';
 import { compose } from '@wordpress/compose';
 import { withDispatch } from '@wordpress/data';
+import { getActiveStyleName } from '../../shared/block-styles';
 
 const API_STATE_LOADING = 0;
 const API_STATE_FAILURE = 1;
@@ -68,6 +68,7 @@ class MapEdit extends Component {
 		};
 		this.mapRef = createRef();
 	}
+
 	addPoint = point => {
 		const { attributes, setAttributes } = this.props;
 		const { points } = attributes;
@@ -210,7 +211,6 @@ class MapEdit extends Component {
 			onResizeStart,
 		} = this.props;
 		const {
-			mapStyle,
 			mapDetails,
 			points,
 			zoom,
@@ -247,18 +247,6 @@ class MapEdit extends Component {
 					</Toolbar>
 				</BlockControls>
 				<InspectorControls>
-					<PanelBody title={ __( 'Map Theme', 'jetpack' ) }>
-						<MapThemePicker
-							value={ mapStyle }
-							onChange={ value => setAttributes( { mapStyle: value } ) }
-							options={ settings.mapStyleOptions }
-						/>
-						<ToggleControl
-							label={ __( 'Show street names', 'jetpack' ) }
-							checked={ mapDetails }
-							onChange={ value => setAttributes( { mapDetails: value } ) }
-						/>
-					</PanelBody>
 					<PanelColorSettings
 						title={ __( 'Colors', 'jetpack' ) }
 						initialOpen={ true }
@@ -312,6 +300,11 @@ class MapEdit extends Component {
 							max={ 22 }
 						/>
 						<ToggleControl
+							label={ __( 'Show street names', 'jetpack' ) }
+							checked={ mapDetails }
+							onChange={ value => setAttributes( { mapDetails: value } ) }
+						/>
+						<ToggleControl
 							label={ __( 'Scroll to zoom', 'jetpack' ) }
 							help={ __( 'Allow the map to capture scrolling, and zoom in or out.', 'jetpack' ) }
 							checked={ scrollToZoom }
@@ -339,7 +332,7 @@ class MapEdit extends Component {
 							help={
 								'wpcom' === apiKeySource && (
 									<>
-										{ __( 'You can optionally enter your own access token.', 'jetpack' ) }{' '}
+										{ __( 'You can optionally enter your own access token.', 'jetpack' ) }{ ' ' }
 										<ExternalLink href="https://account.mapbox.com/access-tokens/">
 											{ __( 'Find it on Mapbox', 'jetpack' ) }
 										</ExternalLink>
@@ -423,6 +416,7 @@ class MapEdit extends Component {
 		);
 		// Only scroll to zoom when the block is selected, and there's 1 or less points.
 		const allowScrollToZoom = isSelected && points.length <= 1;
+		const mapStyle = getActiveStyleName( settings.styles, attributes.className );
 		const placeholderAPIStateSuccess = (
 			<Fragment>
 				{ inspectorControls }
@@ -449,7 +443,7 @@ class MapEdit extends Component {
 								ref={ this.mapRef }
 								scrollToZoom={ allowScrollToZoom }
 								showFullscreenButton={ showFullscreenButton }
-								mapStyle={ mapStyle }
+								mapStyle={ mapStyle || 'default' }
 								mapDetails={ mapDetails }
 								mapHeight={ mapHeight }
 								points={ points }
@@ -482,9 +476,13 @@ class MapEdit extends Component {
 				</div>
 			</Fragment>
 		);
+		const mapStyleObject = settings.styles.find( styleObject => styleObject.name === mapStyle );
 		const placholderPreview = (
 			<div>
-				<img alt={ __( 'Map Preview', 'jetpack' ) } src={ previewPlaceholder } />
+				<img
+					alt={ __( 'Map Preview', 'jetpack' ) }
+					src={ mapStyleObject ? mapStyleObject.preview : previewPlaceholder }
+				/>
 			</div>
 		);
 		return (

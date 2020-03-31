@@ -4,12 +4,18 @@
 
 import { Component } from '@wordpress/element';
 
+/**
+ * Internal dependencies
+ */
+import { settings } from './settings.js';
+import { getActiveStyleName } from '../../shared/block-styles';
+
 class MapSave extends Component {
 	render() {
 		const { attributes } = this.props;
 		const {
 			align,
-			mapStyle,
+			className,
 			mapDetails,
 			points,
 			zoom,
@@ -19,6 +25,7 @@ class MapSave extends Component {
 			mapHeight,
 			showFullscreenButton,
 		} = attributes;
+		const mapStyle = getActiveStyleName( settings.styles, className );
 		const pointsList = points.map( ( point, index ) => {
 			const { longitude, latitude } = point.coordinates;
 			const url = 'https://www.google.com/maps/search/?api=1&query=' + latitude + ',' + longitude;
