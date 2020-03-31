@@ -19,6 +19,7 @@ export const REALTIME_BACKUP_TITLE = __( 'Jetpack Backup {{em}}Real-Time{{/em}}'
 
 export const SEARCH_TITLE = __( 'Jetpack Search' );
 export const SEARCH_DESCRIPTION = __(
-	'Enhanced Search for more relevant results using modern ranking algorithms, ' +
-		'boosting of specific results, advanced filtering and faceting, and more. '
+	'Incredibly powerful and customizable, Jetpack Search helps your visitors instantly find the right content – right when they need it.'
 );
+export const SEARCH_CUSTOMIZE_CTA = __( 'Customize your Search experience.' );
+export const SEARCH_SUPPORT = __( 'Search supports many customizations. ' );

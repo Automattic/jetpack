@@ -7,6 +7,7 @@ import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import { noop } from 'lodash';
 import { getPlanClass, PLAN_JETPACK_SEARCH } from 'lib/plans/constants';
+import { SEARCH_DESCRIPTION, SEARCH_CUSTOMIZE_CTA, SEARCH_SUPPORT } from 'plans/constants';
 
 /**
  * Internal dependencies
@@ -27,12 +28,10 @@ import { getUpgradeUrl } from 'state/initial-state';
  */
 const renderCard = props => (
 	<DashItem
-		label={ __( 'Jetpack Search' ) }
+		label={ __( 'Search' ) }
 		module="search"
 		support={ {
-			text: __(
-				'Jetpack Search is a powerful replacement for the search capability built into WordPress.'
-			),
+			text: SEARCH_SUPPORT,
 			link: 'https://jetpack.com/support/search/',
 		} }
 		className={ props.className }
@@ -98,9 +97,7 @@ class DashSearch extends Component {
 				overrideContent: (
 					<JetpackBanner
 						callToAction={ __( 'Upgrade' ) }
-						title={ __(
-							'Help visitors quickly find answers with highly relevant instant search results and powerful filtering.'
-						) }
+						title={ SEARCH_DESCRIPTION }
 						disableHref="false"
 						href={ this.props.upgradeUrl }
 						eventFeature="search"
@@ -119,9 +116,7 @@ class DashSearch extends Component {
 						label={ __( 'Search' ) }
 						module="search"
 						support={ {
-							text: __(
-								'Jetpack Search helps visitors quickly find answers with highly relevant instant search results and powerful filtering.'
-							),
+							text: SEARCH_SUPPORT,
 							link: 'https://jetpack.com/support/search/',
 						} }
 						className="jp-dash-item__is-active"
@@ -138,7 +133,7 @@ class DashSearch extends Component {
 							className="jp-search-config-aag"
 							href="customize.php?autofocus[section]=jetpack_search"
 						>
-							{ __( 'Customize' ) }
+							{ SEARCH_CUSTOMIZE_CTA }
 						</Card>
 					) : (
 						<Card
