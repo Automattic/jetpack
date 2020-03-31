@@ -129,6 +129,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Widgets: add Ravelry support to Social Icons widget.
 * Widgets: improve performance of the Search and Milestone widgets.
 * WooCommerce Analytics: add URL and WooCommerce version to events.
+* WordAds: update ad loader support for Google Chrome.
 * WordAds: improve performance of the display of all ads.
 * WordPress.com Toolbar: log user out of WordPress.com when attempting to log out from the site.
 
