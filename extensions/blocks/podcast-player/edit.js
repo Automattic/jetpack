@@ -82,6 +82,30 @@ const PodcastPlayerEdit = ( {
 	const [ isEditing, setIsEditing ] = useState( false );
 	const [ feedData, setFeedData ] = useState( {} );
 
+	const fetchFeed = useCallback(
+		urlToFetch => {
+			const encodedURL = encodeURIComponent( urlToFetch );
+
+			apiFetch( {
+				path: '/wpcom/v2/podcast-player?url=' + encodedURL,
+			} ).then(
+				data => {
+					// Store feed data.
+					setFeedData( data );
+				},
+				err => {
+					// Show error and allow to edit URL.
+					debug( 'feed error', err );
+					createErrorNotice(
+						__( "Your podcast couldn't be embedded. Please double check your URL.", 'jetpack' )
+					);
+					setIsEditing( true );
+				}
+			);
+		},
+		[ createErrorNotice ]
+	);
+
 	// Load RSS feed.
 	useEffect( () => {
 		// Clean state.
@@ -93,24 +117,8 @@ const PodcastPlayerEdit = ( {
 			return;
 		}
 
-		// Load feed data.
-		apiFetch( {
-			path: `/wpcom/v2/podcast-player?url=${ encodeURIComponent( url ) }`,
-		} ).then(
-			data => {
-				// Store feed data.
-				setFeedData( data );
-			},
-			err => {
-				// Show error and allow to edit URL.
-				debug( 'feed error', err );
-				createErrorNotice(
-					__( "Your podcast couldn't be embedded. Please double check your URL.", 'jetpack' )
-				);
-				setIsEditing( true );
-			}
-		);
-	}, [ createErrorNotice, removeAllNotices, url ] );
+		fetchFeed( url );
+	}, [ fetchFeed, removeAllNotices, url ] );
 
 	/**
 	 * Check if the current URL of the Podcast RSS feed
@@ -141,9 +149,25 @@ const PodcastPlayerEdit = ( {
 			return;
 		}
 
-		// Ensure URL has `http` appended to it (if it doesn't already) before
-		// we accept it as the entered URL.
-		setAttributes( { url: prependedURL } );
+		// If the URL is the same then it's likely it's being resubmitted via
+		// the UI due to the first attempt to fetch the feed erroring (eg: due
+		// to a network issue). However as the "new" `url` value matches the
+		// existing `url` attribute the `useEffect` call with `url` as a
+		// dependency will not be retriggered. Therefore in the case the values
+		// match we need to force a refetch.
+		// Note we could reset the `url` attribute on fetch failure. However,
+		// if the initial request to fetch the feedb from the URL fails the
+		// `url` attribute still needs to retained. This because if a block is
+		// inserted which already has a `url` attribute and the fetch fails we
+		// don't want that attribute to be wiped.
+		if ( prependedURL === url ) {
+			fetchFeed( url ); // force attempt to re-fetch the existing URL
+		} else {
+			// Update the attribute as usual and allow `useEffect` to handle fetching.
+			// Ensure URL has `http` appended to it (if it doesn't already) before
+			// we accept it as the entered URL.
+			setAttributes( { url: prependedURL } );
+		}
 
 		// Also update the temporary `input` value in order that clicking
 		// `Replace` in the UI will show the "corrected" version of the URL
