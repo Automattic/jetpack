@@ -1,0 +1,33 @@
+{
+	"production": [
+		"business-hours",
+		"calendly",
+		"contact-form",
+		"contact-info",
+		"eventbrite",
+		"gif",
+		"google-calendar",
+		"likes",
+		"mailchimp",
+		"map",
+		"markdown",
+		"opentable",
+		"pinterest",
+		"publicize",
+		"rating-star",
+		"recurring-payments",
+		"related-posts",
+		"repeat-visitor",
+		"revue",
+		"sharing",
+		"shortlinks",
+		"simple-payments",
+		"slideshow",
+		"subscriptions",
+		"tiled-gallery",
+		"videopress",
+		"wordads"
+	],
+	"beta": [ "amazon", "instagram-gallery", "podcast-player" ],
+	"experimental": [ "seo" ]
+}
