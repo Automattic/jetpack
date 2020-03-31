@@ -12,7 +12,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import * as episodeIcons from '../icons/episode-icons';
+import * as trackIcons from '../icons/track-icons';
 import { STATE_ERROR, STATE_PLAYING } from '../constants';
 
 const TrackIcon = ( { isPlaying, isError, className } ) => {
@@ -24,7 +24,7 @@ const TrackIcon = ( { isPlaying, isError, className } ) => {
 		name = 'playing';
 	}
 
-	const icon = episodeIcons[ name ];
+	const icon = trackIcons[ name ];
 
 	if ( ! icon ) {
 		// Return empty element - we need it for layout purposes.
@@ -37,7 +37,7 @@ const TrackIcon = ( { isPlaying, isError, className } ) => {
 import { getColorClassName } from '../utils';
 
 const TrackError = memo( ( { link } ) => (
-	<div className="jetpack-podcast-player__episode-error">
+	<div className="jetpack-podcast-player__track-error">
 		{ __( 'Episode unavailable', 'jetpack' ) }{ ' ' }
 		{ link && (
 			<span>
@@ -67,7 +67,7 @@ const Track = memo(
 		// Set CSS classes string.
 		const primaryColorClass = getColorClassName( 'color', colors.primary.name );
 		const secondaryColorClass = getColorClassName( 'color', colors.secondary.name );
-		const trackClassName = classnames( 'jetpack-podcast-player__episode', {
+		const trackClassName = classnames( 'jetpack-podcast-player__track', {
 			'is-active': isActive,
 			'has-primary': isActive && ( colors.primary.name || colors.primary.custom ),
 			[ primaryColorClass ]: isActive && !! primaryColorClass,
@@ -88,7 +88,7 @@ const Track = memo(
 				style={ Object.keys( inlineStyle ).length ? inlineStyle : null }
 			>
 				<a
-					className="jetpack-podcast-player__episode-link"
+					className="jetpack-podcast-player__track-link"
 					href={ track.link }
 					role="button"
 					aria-pressed="false"
@@ -113,36 +113,30 @@ const Track = memo(
 						// Prevent default behavior (scrolling one page down).
 						e.preventDefault();
 
-					// Select track.
-					selectTrack( index );
-				} }
-			>
-				<TrackIcon
-					className="jetpack-podcast-player__episode-status-icon"
-					isPlaying={ isPlaying }
-					isError={ isError }
-				/>
-				<span className="jetpack-podcast-player__episode-title">{ track.title }</span>
-				{ track.duration && (
-					<time className="jetpack-podcast-player__episode-duration">{ track.duration }</time>
-				) }
-			</a>
-			{ isActive && isError && <TrackError link={ track.link } /> }
-		</li>
-	);
-} );
+						// Select track.
+						selectTrack( index );
+					} }
+				>
+					<TrackIcon
+						className="jetpack-podcast-player__track-status-icon"
+						isPlaying={ isPlaying }
+						isError={ isError }
+					/>
+					<span className="jetpack-podcast-player__track-title">{ track.title }</span>
+					{ track.duration && (
+						<time className="jetpack-podcast-player__track-duration">{ track.duration }</time>
+					) }
+				</a>
+				{ isActive && isError && <TrackError link={ track.link } /> }
+			</li>
+		);
+	}
+);
 
-const Playlist = memo(
-	( {
-		tracks,
-		selectTrack,
-		currentTrack,
-		playerState,
-		colors,
-	} ) => {
-		return (
-			<ol className="jetpack-podcast-player__episodes">
-				{ tracks.map( ( track, index ) => {
+const Playlist = memo( ( { tracks, selectTrack, currentTrack, playerState, colors } ) => {
+	return (
+		<ol className="jetpack-podcast-player__tracks">
+			{ tracks.map( ( track, index ) => {
 				const isActive = currentTrack === index;
 
 				return (

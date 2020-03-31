@@ -31,14 +31,14 @@ function register_block() {
 		BLOCK_NAME,
 		array(
 			'attributes'      => array(
-				'url'                    => array(
+				'url'                  => array(
 					'type' => 'url',
 				),
-				'itemsToShow'            => array(
+				'itemsToShow'          => array(
 					'type'    => 'integer',
 					'default' => 5,
 				),
-				'showCoverArt'           => array(
+				'showCoverArt'         => array(
 					'type'    => 'boolean',
 					'default' => true,
 				),
@@ -131,21 +131,21 @@ function render_player( $player_data, $attributes ) {
 			class="<?php echo esc_attr( $player_classes_name ); ?>"
 			style="<?php echo esc_attr( $player_inline_style ); ?>"
 		>
-			<ol class="jetpack-podcast-player__episodes">
+			<ol class="jetpack-podcast-player__tracks">
 				<?php foreach ( $player_data['tracks'] as $attachment ) : ?>
 				<li
-					class="jetpack-podcast-player__episode <?php echo esc_attr( $secondary_colors['class'] ); ?>"
+					class="jetpack-podcast-player__track <?php echo esc_attr( $secondary_colors['class'] ); ?>"
 					style="<?php echo esc_attr( $secondary_colors['style'] ); ?>"
 				>
 					<a
-						class="jetpack-podcast-player__episode-link"
+						class="jetpack-podcast-player__track-link"
 						href="<?php echo esc_url( $attachment['link'] ); ?>"
 						role="button"
 						aria-pressed="false"
 					>
-						<span class="jetpack-podcast-player__episode-status-icon"></span>
-						<span class="jetpack-podcast-player__episode-title"><?php echo esc_html( $attachment['title'] ); ?></span>
-						<time class="jetpack-podcast-player__episode-duration"><?php echo ( ! empty( $attachment['duration'] ) ? esc_html( $attachment['duration'] ) : '' ); ?></time>
+						<span class="jetpack-podcast-player__track-status-icon"></span>
+						<span class="jetpack-podcast-player__track-title"><?php echo esc_html( $attachment['title'] ); ?></span>
+						<time class="jetpack-podcast-player__track-duration"><?php echo ( ! empty( $attachment['duration'] ) ? esc_html( $attachment['duration'] ) : '' ); ?></time>
 					</a>
 				</li>
 				<?php endforeach; ?>
