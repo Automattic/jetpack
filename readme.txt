@@ -123,6 +123,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Protect: improve detection of IP on servers using custom IP Headers.
 * Revue Block: update the layout of the default placeholder appearing when you first insert the block.
 * Site Health: add new card informing you of your site's synchronization status with WordPress.com.
+* Social Menus: add Ravelry support.
+* Widgets: add Ravelry support to Social Icons widget.
 * Widgets: improve performance of the Search and Milestone widgets.
 * WooCommerce Analytics: add URL and WooCommerce version to events.
 * WordAds: improve performance of the display of all ads.
