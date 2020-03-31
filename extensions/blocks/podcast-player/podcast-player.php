@@ -131,6 +131,7 @@ function render_player( $player_data, $attributes ) {
 			class="<?php echo esc_attr( $player_classes_name ); ?>"
 			style="<?php echo esc_attr( $player_inline_style ); ?>"
 		>
+			<?php render( 'podcast-header', $player_props ); ?>
 			<ol class="jetpack-podcast-player__tracks">
 				<?php foreach ( $player_data['tracks'] as $attachment ) : ?>
 				<li
@@ -239,7 +240,7 @@ function render( $name, $data = array(), $print = true ) {
 	ob_end_clean();
 
 	if ( $print ) {
-		echo esc_attr( $markup );
+		echo $markup;
 	}
 	return $markup;
 }
