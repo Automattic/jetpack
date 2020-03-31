@@ -1,6 +1,6 @@
 == Changelog ==
 
-**This is a list detailing changes for all the past Jetpack releases. For more information about the current release, see [the readme](https://github.com/Automattic/jetpack/blob/master/readme.txt).**
+**This is a list detailing changes for all Jetpack releases.**
 
 = 8.4 =
 
