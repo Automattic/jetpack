@@ -20,6 +20,6 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 function register_block() {
 	jetpack_register_block( BLOCK_NAME );
 
-	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
+	Jetpack_Gutenberg::load_styles_as_required( FEATURE_NAME );
 }
 add_action( 'init', __NAMESPACE__ . '\register_block' );
