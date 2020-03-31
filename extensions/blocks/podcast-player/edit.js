@@ -134,13 +134,9 @@ const PodcastPlayerEdit = ( {
 		// "http" to any entry before attempting validation.
 		const prependedURL = prependHTTP( editedUrl );
 
-		const isValidURL = isURL( prependedURL );
-
-		if ( ! isValidURL ) {
+		if ( ! isURL( prependedURL ) ) {
 			createErrorNotice(
-				! isValidURL
-					? __( "Your podcast couldn't be embedded. Please double check your URL.", 'jetpack' )
-					: ''
+				__( "Your podcast couldn't be embedded. Please double check your URL.", 'jetpack' )
 			);
 			return;
 		}
