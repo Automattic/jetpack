@@ -31,7 +31,7 @@ export default function testEmbedUrl( url, setIsResolvingUrl = noop ) {
 			if ( responseStatusCode && responseStatusCode >= 400 ) {
 				reject();
 			} else {
-				resolve();
+				resolve( response.url || url );
 			}
 		} catch ( error ) {
 			setIsResolvingUrl( false );
