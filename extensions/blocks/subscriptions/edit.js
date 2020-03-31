@@ -35,18 +35,18 @@ const isGradientAvailable = !! useGradient;
 
 // TODO Update this to support fallback for new colors
 const applyFallbackStyles = withFallbackStyles( ( node, ownProps ) => {
-	const { textColor, emailFieldBackgroundColor } = ownProps;
-	const backgroundColorValue = emailFieldBackgroundColor && emailFieldBackgroundColor.color;
+	const { buttonBackgroundColor, textColor } = ownProps;
+	const buttonBackgroundColorValue = buttonBackgroundColor && buttonBackgroundColor.color;
 	const textColorValue = textColor && textColor.color;
 
-	const textNode =
-		! textColorValue && node ? node.querySelector( '[contenteditable="true"]' ) : null;
+	const buttonNode = node.querySelector( '[contenteditable="true"]' );
 
 	return {
-		fallbackEmailFieldBackgroundColor:
-			backgroundColorValue || ! node ? undefined : getComputedStyle( node ).backgroundColor,
-		fallbackTextColor:
-			textColorValue || ! textNode ? undefined : getComputedStyle( textNode ).color,
+		fallbackButtonBackgroundColor:
+			buttonBackgroundColorValue || ! node
+				? undefined
+				: getComputedStyle( buttonNode ).backgroundColor,
+		fallbackTextColor: textColorValue || ! node ? undefined : getComputedStyle( buttonNode ).color,
 	};
 } );
 
@@ -58,8 +58,8 @@ function SubscriptionEdit( props ) {
 		emailFieldBackgroundColor,
 		//setEmailFieldBackgroundColor,
 		buttonBackgroundColor,
-		fallbackButtonBackgroundColor,
 		setButtonBackgroundColor,
+		fallbackButtonBackgroundColor,
 		textColor,
 		fallbackTextColor,
 		setTextColor,
