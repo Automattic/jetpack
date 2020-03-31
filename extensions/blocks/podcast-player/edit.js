@@ -136,10 +136,8 @@ const PodcastPlayerEdit = ( {
 			return;
 		}
 
-		// Setting HTML `inputmode` to "url" allows non-http URLs whilst still
-		// allowing the user to see the most suitable keyboard on their device
-		// for entering URLs. However, this means we need to manually prepend
-		// "http" to any entry before attempting validation.
+		// Ensure URL has `http` appended to it (if it doesn't already) before
+		// we accept it as the entered URL.
 		const prependedURL = prependHTTP( editedUrl );
 
 		if ( ! isURL( prependedURL ) ) {
@@ -149,23 +147,13 @@ const PodcastPlayerEdit = ( {
 			return;
 		}
 
-		// If the URL is the same then it's likely it's being resubmitted via
-		// the UI due to the first attempt to fetch the feed erroring (eg: due
-		// to a network issue). However as the "new" `url` value matches the
-		// existing `url` attribute the `useEffect` call with `url` as a
-		// dependency will not be retriggered. Therefore in the case the values
-		// match we need to force a refetch.
-		// Note we could reset the `url` attribute on fetch failure. However,
-		// if the initial request to fetch the feedb from the URL fails the
-		// `url` attribute still needs to retained. This because if a block is
-		// inserted which already has a `url` attribute and the fetch fails we
-		// don't want that attribute to be wiped.
+		/*
+		 * Short-circuit feed fetching if we tried before, use useEffect otherwise.
+		 * @see {@link https://github.com/Automattic/jetpack/pull/15213}
+		 */
 		if ( prependedURL === url ) {
-			fetchFeed( url ); // force attempt to re-fetch the existing URL
+			fetchFeed( url );
 		} else {
-			// Update the attribute as usual and allow `useEffect` to handle fetching.
-			// Ensure URL has `http` appended to it (if it doesn't already) before
-			// we accept it as the entered URL.
 			setAttributes( { url: prependedURL } );
 		}
 
