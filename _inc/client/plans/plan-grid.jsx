@@ -14,7 +14,7 @@ import Button from 'components/button';
 import ButtonGroup from 'components/button-group';
 import { getSiteRawUrl, getUpgradeUrl, getUserId, showBackups } from 'state/initial-state';
 import { getSitePlan, getAvailablePlans, isFetchingSiteData } from 'state/site/reducer';
-import { setPlanDuration, getPlanDuration } from 'state/period-toggle';
+import { setPlanDuration, getPlanDuration } from 'state/plans';
 import { getPlanClass } from 'lib/plans/constants';
 import { translate as __ } from 'i18n-calypso';
 import TopButton from './top-button';

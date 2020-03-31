@@ -7,7 +7,7 @@ import { assign, get, merge } from 'lodash';
  * Internal dependencies
  */
 import { JETPACK_SET_INITIAL_STATE, MOCK_SWITCH_USER_PERMISSIONS } from 'state/action-types';
-import { getPlanDuration } from 'state/period-toggle/reducer';
+import { getPlanDuration } from 'state/plans/reducer';
 
 export const initialState = ( state = window.Initial_State, action ) => {
 	switch ( action.type ) {

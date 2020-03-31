@@ -22,7 +22,7 @@ import {
 	isFetchingSiteData,
 } from 'state/site';
 import { isFetchingSiteProducts, getSiteProducts } from 'state/site-products';
-import { getPlanDuration } from 'state/period-toggle/reducer';
+import { getPlanDuration } from 'state/plans/reducer';
 import PurchasedProductCard from './single-product-components/purchased-product-card';
 import SingleProductBackup from './single-product-backup';
 import SingleProductSearch from './single-product-search';

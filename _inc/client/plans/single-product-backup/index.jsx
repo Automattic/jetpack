@@ -12,7 +12,7 @@ import { get } from 'lodash';
 import { getUpgradeUrl } from 'state/initial-state';
 import { BACKUP_TITLE } from '../constants';
 import SingleProductBackupBody from './body';
-import { getPlanDuration } from '../../state/period-toggle';
+import { getPlanDuration } from '../../state/plans';
 
 function generateBackupOptions( {
 	products,

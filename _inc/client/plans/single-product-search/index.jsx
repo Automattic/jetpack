@@ -18,7 +18,7 @@ import {
 	JETPACK_SEARCH_TIER_UP_TO_1M_RECORDS,
 	JETPACK_SEARCH_TIER_MORE_THAN_1M_RECORDS,
 } from 'lib/plans/constants';
-import { getPlanDuration } from 'state/period-toggle/reducer';
+import { getPlanDuration } from 'state/plans/reducer';
 import { getUpgradeUrl } from 'state/initial-state';
 import { SEARCH_DESCRIPTION, SEARCH_TITLE } from '../constants';
 import PlanRadioButton from '../single-product-components/plan-radio-button';
