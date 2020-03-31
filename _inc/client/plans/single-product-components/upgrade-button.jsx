@@ -28,7 +28,7 @@ export default function UpgradeButton( {
 	return (
 		<div className="single-product-backup__upgrade-button-container">
 			<Button href={ link } onClick={ onClickHandler( type ) } primary>
-				{ __( 'Upgrade to %(name)s for {{price/}} %(billingTimeFrame)s', {
+				{ __( 'Upgrade to %(name)s', {
 					components: { price },
 					args: { name, billingTimeFrame: getBillingTimeFrameString( billingTimeFrame ) },
 					comment:
