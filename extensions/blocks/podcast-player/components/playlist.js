@@ -7,7 +7,7 @@ import classnames from 'classnames';
  * WordPress dependencies
  */
 import { memo } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -20,10 +20,18 @@ const TrackIcon = ( { isPlaying, isError, className } ) => {
 
 	if ( isError ) {
 		name = 'error';
-		hiddenText = __( 'Error:', 'jetpack' );
+		hiddenText = _x(
+			'Error: ',
+			'Text to describe the current state. This will go before the track title, such as "Error: The title of the track"',
+			'jetpack'
+		);
 	} else if ( isPlaying ) {
 		name = 'playing';
-		hiddenText = __( 'Playing: ', 'jetpack' );
+		hiddenText = _x(
+			'Playing: ',
+			'Text to describe the current state. This will go before the track title, such as "Playing: The title of the track"',
+			'jetpack'
+		);
 	}
 
 	const icon = trackIcons[ name ];
@@ -99,7 +107,15 @@ const Track = memo(
 					className="jetpack-podcast-player__track-link"
 					href={ track.link }
 					role="button"
-					aria-current={ isActive ? __( 'track' ) : undefined }
+					aria-current={
+						isActive
+							? _x(
+									'track',
+									'This needs to be a single word with no spaces. It describes the current item in the group. A screen reader will announce it as "[track title], current track"',
+									'jetpack'
+							  )
+							: undefined
+					}
 					onClick={ e => {
 						// Prevent handling clicks if a modifier is in use.
 						if ( e.shiftKey || e.metaKey || e.altKey ) {
@@ -132,7 +148,9 @@ const Track = memo(
 					/>
 					<span className="jetpack-podcast-player__track-title">{ track.title }</span>
 					{ track.duration && (
-						<time className="jetpack-podcast-player__track-duration" dateTime={ track.duration }>{ track.duration }</time>
+						<time className="jetpack-podcast-player__track-duration" dateTime={ track.duration }>
+							{ track.duration }
+						</time>
 					) }
 				</a>
 				{ isActive && isError && <TrackError link={ track.link } title={ track.title } /> }

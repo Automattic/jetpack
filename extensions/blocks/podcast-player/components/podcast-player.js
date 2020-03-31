@@ -7,7 +7,7 @@ import classnames from 'classnames';
  * WordPress dependencies
  */
 import { Component } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _x, sprintf } from '@wordpress/i18n';
 import { speak } from '@wordpress/a11y';
 
 /**
@@ -75,7 +75,14 @@ export class PodcastPlayer extends Component {
 
 		// Read that we're loading the track and its description. This is dismissible via ctrl on VoiceOver.
 		speak(
-			`${ sprintf( __( 'Loading: %s', 'jetpack' ), trackData.title ) } ${ trackData.description }`,
+			`${ sprintf(
+				_x(
+					'Loading: %s',
+					'Describes the current state of the track as "Loading: [track title]"',
+					'jetpack'
+				),
+				trackData.title
+			) } ${ trackData.description }`,
 			'assertive'
 		);
 
@@ -220,7 +227,14 @@ export class PodcastPlayer extends Component {
 					id={ 'jetpack-podcast-player__tracklist-title--' + playerId }
 					className="jetpack-podcast-player--visually-hidden"
 				>
-					{ sprintf( __( 'Playlist: %s', 'jetpack' ), title ) }
+					{ sprintf(
+						_x(
+							'Playlist: %s',
+							'Describes what the playlist goes with, like "Playlist: [name of the podcast]"',
+							'jetpack'
+						),
+						title
+					) }
 				</h4>
 				<p
 					id={ 'jetpack-podcast-player__tracklist-description--' + playerId }
