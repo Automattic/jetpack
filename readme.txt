@@ -119,6 +119,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Facebook Page Plugin Widget: add new layout options (Cover Photo and Call To Action).
 * Gravatar Hovercards: avoid loading Gravatar assets when not needed on the page.
 * Jetpack Videos: improve performance of Video queries with better caching.
+* Lazy Images: improve performance of the feature by avoiding the use of jQuery.
 * Likes: improve performance when loading resources used by the Likes feature on the front-end of your site.
 * Protect: improve detection of IP on servers using custom IP Headers.
 * Revue Block: update the layout of the default placeholder appearing when you first insert the block.
