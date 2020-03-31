@@ -115,7 +115,7 @@ class ProductSelector extends Component {
 
 	render() {
 		return (
-			<Fragment>
+			<div className="product-selector">
 				<QuerySiteProducts />
 				{ this.renderTitleSection() }
 				<DurationSwitcher type="solutions" />
@@ -123,7 +123,7 @@ class ProductSelector extends Component {
 					{ this.renderBackupProduct() }
 					{ this.renderSearchProduct() }
 				</div>
-			</Fragment>
+			</div>
 		);
 	}
 }

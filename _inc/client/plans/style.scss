@@ -231,6 +231,12 @@ $plan-features-sidebar-width: 272px;
 	}
 }
 
+.product-selector {
+  @include breakpoint( "<660px" ) {
+	display: none;
+  }
+}
+
 .plans-mobile-notice.dops-card h2 {
 	margin-top: 0;
 }
