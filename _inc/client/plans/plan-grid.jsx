@@ -13,7 +13,7 @@ import analytics from 'lib/analytics';
 import Button from 'components/button';
 import { getSiteRawUrl, getUpgradeUrl, getUserId, showBackups } from 'state/initial-state';
 import { getSitePlan, getAvailablePlans, isFetchingSiteData } from 'state/site/reducer';
-import { setPlanDuration, getPlanDuration } from 'state/plans';
+import { getPlanDuration } from 'state/plans';
 import { getPlanClass } from 'lib/plans/constants';
 import { translate as __ } from 'i18n-calypso';
 import TopButton from './top-button';
@@ -365,21 +365,18 @@ class PlanGrid extends React.Component {
 	}
 }
 
-export default connect(
-	state => {
-		const userId = getUserId( state );
+export default connect( state => {
+	const userId = getUserId( state );
 
-		return {
-			plans: getAvailablePlans( state ),
-			siteRawUrl: getSiteRawUrl( state ),
-			sitePlan: getSitePlan( state ),
-			userId,
-			showBackups: showBackups( state ),
-			planDuration: getPlanDuration( state ),
-			plansUpgradeUrl: planType => getUpgradeUrl( state, `plans-${ planType }`, userId ),
-			plansLearnMoreUpgradeUrl: getUpgradeUrl( state, 'plans-learn-more', userId ),
-			isFetchingData: isFetchingSiteData( state ),
-		};
-	},
-	{ setPlanDuration }
-)( PlanGrid );
+	return {
+		plans: getAvailablePlans( state ),
+		siteRawUrl: getSiteRawUrl( state ),
+		sitePlan: getSitePlan( state ),
+		userId,
+		showBackups: showBackups( state ),
+		planDuration: getPlanDuration( state ),
+		plansUpgradeUrl: planType => getUpgradeUrl( state, `plans-${ planType }`, userId ),
+		plansLearnMoreUpgradeUrl: getUpgradeUrl( state, 'plans-learn-more', userId ),
+		isFetchingData: isFetchingSiteData( state ),
+	};
+} )( PlanGrid );
