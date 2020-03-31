@@ -5,7 +5,13 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	/**
 	 * @var array When printing the submit button, what tags are allowed
 	 */
-	static $allowed_html_tags_for_submit_button = array( 'br' => array() );
+	public static $allowed_html_tags_for_submit_button = array(
+		'br'     => array(),
+		's'      => array(),
+		'strong' => array(),
+		'em'     => array(),
+	);
+
 	/**
 	 * Use this variable when printing the message after submitting an email in subscription widgets
 	 *

@@ -373,6 +373,7 @@ function SubscriptionEdit( props ) {
 						style={ buttonStyles }
 						value={ submitButtonText }
 						withoutInteractiveFormatting
+						allowedFormats={ [ 'core/bold', 'core/italic', 'core/strikethrough' ] }
 					/>
 				</div>
 
