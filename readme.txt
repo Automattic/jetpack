@@ -160,6 +160,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Publicize Block: update wording in custom message field to clarify how the feature works.
 * Pinterest Block: check for valid Pinterest URLs when embedding them into a new block.
 * OpenTable Block: fix layout issue when using Wide and Full-width sizes.
+* OpenTable Block: fix PHP warning occuring when a block is created but not configured.
 * Recurring Payments Block: ensure that the minimum payment option respects the chosen currency for the button.
 * Shortcodes: Fix Crowdsignal poll embeds when using the P2 theme.
 * Simple Payments Block: avoid issues when pasting email addresses into the email field.
