@@ -2,9 +2,9 @@
 
 ### Blocks
 
-#### Podcast Player
+#### WordPress 5.4 Compatibility
 
-We've created a new Podcast Player block that will allow you to quickly embed and play podcasts within your posts and pages. Give the block and its options a try, and let us know if you run into any issues.
+We've adapted all blocks so they can be displayed nicely in the updated editor. Give them all a try, and let us know if you find layout issues!
 
 #### Recurring Payments
 
