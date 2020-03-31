@@ -42,8 +42,11 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		add_action( 'wcct_before_cart_widget', array( $this, 'remove_from_cart' ) );
 		add_filter( 'woocommerce_cart_item_remove_link', array( $this, 'remove_from_cart_attributes' ), 10, 2 );
 
-		// cart checkout
+		// Checkout.
+		// Send events after checkout template (shortcode).
 		add_action( 'woocommerce_after_checkout_form', array( $this, 'checkout_process' ) );
+		// Send events after checkout block.
+		add_action( 'woocommerce_blocks_enqueue_checkout_block_scripts_after', array( $this, 'checkout_process' ) );
 
 		// order confirmed
 		add_action( 'woocommerce_thankyou', array( $this, 'order_process' ), 10, 1 );
