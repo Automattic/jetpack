@@ -74,12 +74,10 @@ class Client {
 			return new \WP_Error( 'malformed_token' );
 		}
 
-		$jetpack_api_version = Constants::get_constant( 'JETPACK__API_VERSION' );
-
 		$token_key = sprintf(
 			'%s:%d:%d',
 			$token_key,
-			$jetpack_api_version,
+			Constants::get_constant( 'JETPACK__API_VERSION' ),
 			$token->external_user_id
 		);
 

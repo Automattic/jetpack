@@ -766,12 +766,10 @@ class Manager {
 	 * @return String XMLRPC API URL.
 	 */
 	public function xmlrpc_api_url() {
-		$api_base = Constants::get_constant( 'JETPACK__API_BASE' );
-
 		$base = preg_replace(
 			'#(https?://[^?/]+)(/?.*)?$#',
 			'\\1',
-			$api_base
+			Constants::get_constant( 'JETPACK__API_BASE' )
 		);
 		return untrailingslashit( $base ) . '/xmlrpc.php';
 	}
