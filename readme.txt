@@ -124,6 +124,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Revue Block: update the layout of the default placeholder appearing when you first insert the block.
 * Site Health: add new card informing you of your site's synchronization status with WordPress.com.
 * Widgets: improve performance of the Search and Milestone widgets.
+* WooCommerce Analytics: add URL and WooCommerce version to events.
 * WordAds: improve performance of the display of all ads.
 * WordPress.com Toolbar: log user out of WordPress.com when attempting to log out from the site.
 
