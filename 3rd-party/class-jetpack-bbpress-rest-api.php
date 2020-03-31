@@ -96,13 +96,8 @@ class Jetpack_BbPress_REST_API {
 	 */
 	public function adjust_meta_caps( $caps, $cap, $user_id, $args ) {
 
-		// only run for REST API requests.
-		if ( ! defined( 'REST_API_REQUEST' ) || ! REST_API_REQUEST ) {
-			return $caps;
-		}
-
-		// only modify caps for meta caps and for bbPress meta keys.
-		if ( ! in_array( $cap, array( 'edit_post_meta', 'delete_post_meta', 'add_post_meta' ), true ) || empty( $args[1] ) || false === strpos( $args[1], '_bbp_' ) ) {
+		// Return early if not a REST request or if not meta bbPress caps.
+		if ( $this->should_adjust_meta_caps_return_early( $caps, $cap, $user_id, $args ) ) {
 			return $caps;
 		}
 
@@ -140,4 +135,27 @@ class Jetpack_BbPress_REST_API {
 		return $caps;
 	}
 
+	/**
+	 * Should adjust_meta_caps return early?
+	 *
+	 * @param array  $caps Capabilities for meta capability.
+	 * @param string $cap Capability name.
+	 * @param int    $user_id User id.
+	 * @param array  $args Arguments.
+	 *
+	 * @return bool
+	 */
+	private function should_adjust_meta_caps_return_early( $caps, $cap, $user_id, $args ) {
+		// only run for REST API requests.
+		if ( ! defined( 'REST_API_REQUEST' ) || ! REST_API_REQUEST ) {
+			return true;
+		}
+
+		// only modify caps for meta caps and for bbPress meta keys.
+		if ( ! in_array( $cap, array( 'edit_post_meta', 'delete_post_meta', 'add_post_meta' ), true ) || empty( $args[1] ) || false === strpos( $args[1], '_bbp_' ) ) {
+			return true;
+		}
+
+		return false;
+	}
 }
