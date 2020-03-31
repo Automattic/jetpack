@@ -150,6 +150,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Connection: ensure that the "Disconnect" button is easily accessible on mobile.
 * Connection: fix connection issues for sites with a plan in a "pending" state.
+* Connection: improve connection flow when starting to connect your site from the WordPress.com dashboard.
 * Dashboard: clarify wording and display of the Backup & Scan cards.
 * Dashboard: fix layout issues within the Stats Widget in the dashboard.
 * Form Block: fix button colors not saving correctly.
