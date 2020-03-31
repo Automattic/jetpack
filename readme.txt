@@ -135,7 +135,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Social Menus: add Ravelry support.
 * Widgets: add Ravelry support to Social Icons widget.
 * Widgets: improve performance of the Search and Milestone widgets.
-* WooCommerce Analytics: add URL and WooCommerce version to events.
+* WooCommerce Analytics: add additional information to events (plugin version, information about blocks and shortcodes).
 * WordAds Block: update "hide on mobile" toggle layout.
 * WordAds: update ad loader support for Google Chrome.
 * WordAds: improve performance of the display of all ads.
