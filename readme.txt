@@ -116,6 +116,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Comment Likes: improve performance by removing dependency on Noticons.
 * Contact Info Widget: improve the display of Map API key notices.
 * Custom CSS: add support for more CSS 3.0 properties: mask , scroll, and object-fit.
+* Dashboard notices: allow the use of different Jetpack logos.
 * Eventbrite Block: offer additional alignment options.
 * Facebook Embeds and Facebook Page Plugin Widget: improve performance and compatibility with caching plugins.
 * Facebook Page Plugin Widget: add new layout options (Cover Photo and Call To Action).
