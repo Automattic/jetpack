@@ -1,6 +1,6 @@
 <?php
 /**
- * Pinterest Block.
+ * Subscriptions Block.
  *
  * @package Jetpack
  */
