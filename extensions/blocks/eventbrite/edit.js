@@ -69,6 +69,7 @@ class EventbriteEdit extends Component {
 					url: resolvedUrl,
 				} );
 				setAttributes( newValidatedAttributes );
+				this.setState( { editedUrl: resolvedUrl } );
 				noticeOperations.removeAllNotices();
 			} )
 			.catch( () => {

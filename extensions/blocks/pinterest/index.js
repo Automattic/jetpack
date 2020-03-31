@@ -13,6 +13,8 @@ import { pinType } from './utils';
 
 export const URL_REGEX = /^\s*https?:\/\/(?:www\.)?(?:[a-z]{2}\.)?(?:pinterest\.[a-z.]+|pin\.it)\/([^/]+)(\/[^/]+)?/i;
 
+export const PINTEREST_EXAMPLE_URL = 'https://pinterest.com/anapinskywalker/';
+
 export const name = 'pinterest';
 export const title = __( 'Pinterest', 'jetpack' );
 
@@ -85,7 +87,7 @@ export const settings = {
 
 	example: {
 		attributes: {
-			url: 'https://pinterest.com/anapinskywalker/',
+			url: PINTEREST_EXAMPLE_URL,
 		},
 	},
 };
