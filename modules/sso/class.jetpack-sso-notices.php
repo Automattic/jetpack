@@ -25,8 +25,8 @@ class Jetpack_SSO_Notices {
 				),
 				array(  'a' => array( 'href' => array() ) )
 			),
-			'https://wordpress.com/me/security/two-step',
-			'https://support.wordpress.com/security/two-step-authentication/'
+			\Jetpack::build_redirect_url( 'calypso-me-security-2fa' ),
+			\Jetpack::build_redirect_url( 'support-wpcom-security-2fa' )
 		);
 
 		$message .= sprintf( '<p class="message" id="login_error">%s</p>', $error );
