@@ -23,6 +23,13 @@ class Client {
 	 * @return array|WP_Error WP HTTP response on success
 	 */
 	public static function remote_request( $args, $body = null ) {
+		add_filter(
+			'jetpack_constant_default_value',
+			__NAMESPACE__ . '\Utils::jetpack_api_constant_filter',
+			10,
+			2
+		);
+
 		$defaults = array(
 			'url'           => '',
 			'user_id'       => 0,
@@ -67,12 +74,7 @@ class Client {
 			return new \WP_Error( 'malformed_token' );
 		}
 
-		$api_version_hook = 'jetpack_constant_JETPACK__API_VERSION';
-		$api_filter_name  = __NAMESPACE__ . '\Utils::jetpack_api_constant_filter';
-
-		add_filter( $api_version_hook, $api_filter_name, 10, 2 );
 		$jetpack_api_version = Constants::get_constant( 'JETPACK__API_VERSION' );
-		remove_filter( $api_version_hook, $api_filter_name, 10 );
 
 		$token_key = sprintf(
 			'%s:%d:%d',

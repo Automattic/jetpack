@@ -40,6 +40,17 @@ class ManagerTest extends TestCase {
 				);
 
 		$this->wp_redirect = $builder->build();
+
+		// Mock the apply_filters() call in Constants::get_constant().
+		$builder = new MockBuilder();
+		$builder->setNamespace( 'Automattic\Jetpack' )
+				->setName( 'apply_filters' )
+				->setFunction(
+					function( $filter_name, $value, $name ) {
+						return constant( __NAMESPACE__ . "\Utils::DEFAULT_$name" );
+					}
+				);
+		$this->constants_apply_filters = $builder->build();
 	}
 
 	public function tearDown() {
@@ -76,7 +87,7 @@ class ManagerTest extends TestCase {
 
 	public function test_api_url_defaults() {
 		$this->apply_filters->enable();
-		$this->set_up_api_constant_filter_mocks();
+		$this->constants_apply_filters->enable();
 
 		$this->assertEquals(
 			'https://jetpack.wordpress.com/jetpack.something/1/',
@@ -95,7 +106,7 @@ class ManagerTest extends TestCase {
 	 */
 	public function test_api_url_uses_constants_and_filters() {
 		$this->apply_filters->enable();
-		$this->set_up_api_constant_filter_mocks();
+		$this->constants_apply_filters->enable();
 
 		Constants::set_constant( 'JETPACK__API_BASE', 'https://example.com/api/base.' );
 		$this->assertEquals(
@@ -222,38 +233,5 @@ class ManagerTest extends TestCase {
 				return $return_value;
 			} );
 		return $builder->build()->enable();
-	}
-
-	protected function set_up_api_constant_filter_mocks() {
-		$add_filter_builder = new MockBuilder();
-		$add_filter_builder->setNamespace( 'Automattic\Jetpack\Connection' )
-			->setName( 'add_filter' )
-			->setFunction(
-				function() {
-					return null;
-				}
-			);
-		$add_filter_builder->build()->enable();
-
-		$remove_filter_builder = new MockBuilder();
-		$remove_filter_builder->setNamespace( 'Automattic\Jetpack\Connection' )
-			->setName( 'remove_filter' )
-			->setFunction(
-				function() {
-					return null;
-				}
-			);
-		$remove_filter_builder->build()->enable();
-
-		// Mock the apply_filters() call in Constants::get_constant().
-		$apply_filters_builder = new MockBuilder();
-		$apply_filters_builder->setNamespace( 'Automattic\Jetpack' )
-				->setName( 'apply_filters' )
-				->setFunction(
-					function( $filter_name, $value, $name ) {
-						return constant( "Automattic\Jetpack\Connection\Utils::DEFAULT_{$name}" );
-					}
-				);
-		$apply_filters_builder->build()->enable();
 	}
 }

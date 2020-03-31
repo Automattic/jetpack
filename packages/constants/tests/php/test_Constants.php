@@ -73,15 +73,14 @@ class Test_Constants extends TestCase {
 	 */
 	function test_jetpack_constants_get_constant_null_when_not_set() {
 		$this->apply_filters_spy->enable();
-		$test_constant_name   = 'UNDEFINED';
-		$expected_filter_name = "jetpack_constant_{$test_constant_name}";
+		$test_constant_name = 'UNDEFINED';
 
 		$actual_output = Constants::get_constant( $test_constant_name );
 
 		list($filter_name, $filter_constant_value, $filter_constant_name )
 			= $this->apply_filters_spy->getInvocations()[0]->getArguments();
 
-		$this->assertEquals( $expected_filter_name, $filter_name );
+		$this->assertEquals( 'jetpack_constant_default_value', $filter_name );
 		$this->assertNull( $filter_constant_value );
 		$this->assertEquals( $test_constant_name, $filter_constant_name );
 
@@ -119,10 +118,9 @@ class Test_Constants extends TestCase {
 	 */
 	function test_jetpack_constants_get_constant_use_filter_value() {
 		$test_constant_name  = 'TEST_CONSTANT';
-		$test_filter_name    = "jetpack_constant_{$test_constant_name}";
 		$test_constant_value = 'test value';
 
-		// Special apply_filters spy for this test.
+		// Create a new apply_filters spy for this test.
 		$apply_filters_spy = new Spy(
 			'Automattic\Jetpack',
 			'apply_filters',
@@ -137,7 +135,7 @@ class Test_Constants extends TestCase {
 		list($filter_name, $filter_constant_value, $filter_constant_name )
 			= $apply_filters_spy->getInvocations()[0]->getArguments();
 
-		$this->assertEquals( $test_filter_name, $filter_name );
+		$this->assertEquals( 'jetpack_constant_default_value', $filter_name );
 		$this->assertNull( $filter_constant_value );
 		$this->assertEquals( $test_constant_name, $filter_constant_name );
 

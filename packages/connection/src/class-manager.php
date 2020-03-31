@@ -69,6 +69,13 @@ class Manager {
 		if ( ! wp_next_scheduled( 'jetpack_clean_nonces' ) ) {
 			wp_schedule_event( time(), 'hourly', 'jetpack_clean_nonces' );
 		}
+
+		add_filter(
+			'jetpack_constant_default_value',
+			__NAMESPACE__ . '\Utils::jetpack_api_constant_filter',
+			10,
+			2
+		);
 	}
 
 	/**
@@ -334,12 +341,7 @@ class Manager {
 		@list( $token_key, $version, $user_id ) = explode( ':', wp_unslash( $_GET['token'] ) );
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
-		$api_version_hook = 'jetpack_constant_JETPACK__API_VERSION';
-		$api_filter_name  = __NAMESPACE__ . '\Utils::jetpack_api_constant_filter';
-
-		add_filter( $api_version_hook, $api_filter_name, 10, 2 );
 		$jetpack_api_version = Constants::get_constant( 'JETPACK__API_VERSION' );
-		remove_filter( $api_version_hook, $api_filter_name, 10 );
 
 		if (
 			empty( $token_key )
@@ -721,18 +723,8 @@ class Manager {
 	 * @return String API URL.
 	 */
 	public function api_url( $relative_url ) {
-		$api_base_hook   = 'jetpack_constant_JETPACK__API_BASE';
-		$api_filter_name = __NAMESPACE__ . '\Utils::jetpack_api_constant_filter';
-
-		add_filter( $api_base_hook, $api_filter_name, 10, 2 );
 		$api_base = Constants::get_constant( 'JETPACK__API_BASE' );
-		remove_filter( $api_base_hook, $api_filter_name, 10 );
-
-		$api_version_hook = 'jetpack_constant_JETPACK__API_VERSION';
-
-		add_filter( $api_version_hook, $api_filter_name, 10, 2 );
 		$api_version = '/' . Constants::get_constant( 'JETPACK__API_VERSION' ) . '/';
-		remove_filter( $api_version_hook, $api_filter_name, 10 );
 
 		/**
 		 * Filters whether the connection manager should use the iframe authorization
@@ -774,12 +766,7 @@ class Manager {
 	 * @return String XMLRPC API URL.
 	 */
 	public function xmlrpc_api_url() {
-		$api_base_hook   = 'jetpack_constant_JETPACK__API_BASE';
-		$api_filter_name = __NAMESPACE__ . '\Utils::jetpack_api_constant_filter';
-
-		add_filter( $api_base_hook, $api_filter_name, 10, 2 );
 		$api_base = Constants::get_constant( 'JETPACK__API_BASE' );
-		remove_filter( $api_base_hook, $api_filter_name, 10 );
 
 		$base = preg_replace(
 			'#(https?://[^?/]+)(/?.*)?$#',
