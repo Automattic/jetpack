@@ -389,11 +389,12 @@ class The_Neverending_Home_Page {
 	}
 
 	function infinite_setting_html_calypso_placeholder() {
-		$details = get_blog_details();
+		$details     = get_blog_details();
+		$writing_url = Jetpack::build_redirect_url( 'calypso-settings-writing', array( 'site' => $details->domain ) );
 		echo '<span>' . sprintf(
 			/* translators: Variables are the enclosing link to the settings page */
 			esc_html__( 'This option has moved. You can now manage it %1$shere%2$s.' ),
-			'<a href="' . esc_url( 'https://wordpress.com/settings/writing/' . $details->domain ) . '">',
+			'<a href="' . esc_url( $writing_url ) . '">',
 			'</a>'
 		) . '</span>';
 	}
