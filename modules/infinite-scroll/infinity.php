@@ -393,7 +393,7 @@ class The_Neverending_Home_Page {
 		$details = get_blog_details();
 		echo '<span>' . sprintf(
 			/* translators: Variables are the enclosing link to the settings page */
-			esc_html__( 'This option has moved. You can now manage it %1$shere%2$s.' ),
+			esc_html__( 'This option has moved. You can now manage it %1$shere%2$s.', 'jetpack' ),
 			'<a href="' . esc_url( 'https://wordpress.com/settings/writing/' . $details->domain ) . '">',
 			'</a>'
 		) . '</span>';
