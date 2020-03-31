@@ -56,7 +56,7 @@ function SubscriptionEdit( props ) {
 		attributes,
 		setAttributes,
 		emailFieldBackgroundColor,
-		setEmailFieldBackgroundColor,
+		//setEmailFieldBackgroundColor,
 		buttonBackgroundColor,
 		fallbackButtonBackgroundColor,
 		setButtonBackgroundColor,
@@ -190,22 +190,33 @@ function SubscriptionEdit( props ) {
 			<InspectorControls>
 				{ isGradientAvailable && (
 					<PanelColorGradientSettings
-						title={ __( 'Background Colors', 'jetpack' ) }
+						title={ __( 'Color Settings', 'jetpack' ) }
 						className="wp-block-jetpack-subscriptions__backgroundpanel"
 						settings={ [
-							{
-								colorValue: emailFieldBackgroundColor.color,
-								onColorChange: setEmailFieldBackgroundColor,
-								gradientValue: emailFieldGradient.gradientValue,
-								onGradientChange: emailFieldGradient.setGradient,
-								label: __( 'Email Field', 'jetpack' ),
-							},
+							// Disable support for email field background color in the UI for now.
+							// {
+							// 	colorValue: emailFieldBackgroundColor.color,
+							// 	onColorChange: setEmailFieldBackgroundColor,
+							// 	gradientValue: emailFieldGradient.gradientValue,
+							// 	onGradientChange: emailFieldGradient.setGradient,
+							// 	label: __( 'Email Field', 'jetpack' ),
+							// },
 							{
 								colorValue: buttonBackgroundColor.color,
 								onColorChange: setButtonBackgroundColor,
 								gradientValue: buttonGradient.gradientValue,
 								onGradientChange: buttonGradient.setGradient,
-								label: __( 'Button', 'jetpack' ),
+								label: __( 'Button Background Color', 'jetpack' ),
+							},
+							{
+								colorValue: textColor.color,
+								onColorChange: setTextColor,
+								label: __( 'Button Text Color', 'jetpack' ),
+							},
+							{
+								colorValue: borderColor.color,
+								onColorChange: setBorderColor,
+								label: __( 'Border Color', 'jetpack' ),
 							},
 						] }
 						initialOpen={ true }
@@ -226,15 +237,25 @@ function SubscriptionEdit( props ) {
 						title={ __( 'Background Colors', 'jetpack' ) }
 						className="wp-block-jetpack-subscriptions__backgroundpanel"
 						colorSettings={ [
-							{
-								value: emailFieldBackgroundColor.color,
-								onChange: setEmailFieldBackgroundColor,
-								label: __( 'Email Field', 'jetpack' ),
-							},
+							// {
+							// 	value: emailFieldBackgroundColor.color,
+							// 	onChange: setEmailFieldBackgroundColor,
+							// 	label: __( 'Email Field', 'jetpack' ),
+							// },
 							{
 								value: buttonBackgroundColor.color,
 								onChange: setButtonBackgroundColor,
-								label: __( 'Button', 'jetpack' ),
+								label: __( 'Button Background Color', 'jetpack' ),
+							},
+							{
+								value: textColor.color,
+								onChange: setTextColor,
+								label: __( 'Button Text Color', 'jetpack' ),
+							},
+							{
+								value: borderColor.color,
+								onChange: setBorderColor,
+								label: __( 'Border Color', 'jetpack' ),
 							},
 						] }
 						initialOpen={ false }
@@ -257,18 +278,6 @@ function SubscriptionEdit( props ) {
 					className="wp-block-jetpack-subscriptions__textpanel"
 				>
 					<FontSizePicker value={ fontSize.size } onChange={ setFontSize } />
-
-					<PanelColorSettings
-						title={ __( '', 'jetpack' ) }
-						className="wp-block-jetpack-subscriptions__textcolorpanel"
-						colorSettings={ [
-							{
-								value: textColor.color,
-								onChange: setTextColor,
-								label: __( 'Button Text Color', 'jetpack' ),
-							},
-						] }
-					/>
 				</PanelBody>
 
 				<PanelBody
@@ -294,18 +303,6 @@ function SubscriptionEdit( props ) {
 						initialPosition={ borderWeight.default }
 						allowReset
 						onChange={ newBorderWeight => setAttributes( { borderWeight: newBorderWeight } ) }
-					/>
-
-					<PanelColorSettings
-						title={ __( '', 'jetpack' ) }
-						className="wp-block-jetpack-subscriptions__bordercolorpanel"
-						colorSettings={ [
-							{
-								value: borderColor.color,
-								onChange: setBorderColor,
-								label: __( 'Border Color', 'jetpack' ),
-							},
-						] }
 					/>
 				</PanelBody>
 
