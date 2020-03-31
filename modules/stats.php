@@ -551,8 +551,14 @@ function stats_reports_page( $main_chart_only = false ) {
 		return stats_dashboard_widget_content();
 	}
 
-	$blog_id = stats_get_option( 'blog_id' );
-	$domain = Jetpack::build_raw_urls( get_home_url() );
+	$blog_id   = stats_get_option( 'blog_id' );
+	$domain    = Jetpack::build_raw_urls( get_home_url() );
+	$stats_url = Jetpack::build_redirect_url(
+		'calypso-stats',
+		array(
+			'site' => $domain,
+		)
+	);
 
 	$jetpack_admin_url = admin_url() . 'admin.php?page=jetpack';
 
@@ -594,7 +600,7 @@ function stats_reports_page( $main_chart_only = false ) {
 					 */
 					apply_filters( 'jetpack_static_url', "{$http}://en.wordpress.com/i/loading/loading-64.gif" )
 				); ?>" /></p>
-		<p style="font-size: 11pt; margin: 0;"><a href="https://wordpress.com/stats/<?php echo esc_attr( $domain ); ?>" target="_blank"><?php esc_html_e( 'View stats on WordPress.com right now', 'jetpack' ); ?></a></p>
+		<p style="font-size: 11pt; margin: 0;"><a href="<?php echo esc_url( $stats_url ); ?>" target="_blank"><?php esc_html_e( 'View stats on WordPress.com right now', 'jetpack' ); ?></a></p>
 		<p class="hide-if-js"><?php esc_html_e( 'Your Site Stats work better with JavaScript enabled.', 'jetpack' ); ?><br />
 		<a href="<?php echo esc_url( $nojs_url ); ?>"><?php esc_html_e( 'View Site Stats without JavaScript', 'jetpack' ); ?></a>.</p>
 		</div>
@@ -1395,9 +1401,15 @@ function stats_dashboard_widget_content() {
 <div class="clear"></div>
 <div class="stats-view-all">
 <?php
+	$stats_day_url = Jetpack::build_redirect_url(
+		'calypso-stats-day',
+		array(
+			'site' => Jetpack::build_raw_urls( get_home_url() ),
+		)
+	);
 	printf(
 		'<a class="button" target="_blank" rel="noopener noreferrer" href="%1$s">%2$s</a>',
-		esc_url( "https://wordpress.com/stats/day/" . Jetpack::build_raw_urls( get_home_url() ) ),
+		esc_url( $stats_day_url ),
 		esc_html__( 'View all stats', 'jetpack' )
 	);
 ?>
@@ -1718,9 +1730,16 @@ function jetpack_stats_post_table_cell( $column, $post_id ) {
 				esc_html__( 'No stats', 'jetpack' )
 			);
 		} else {
+			$stats_post_url = Jetpack::build_redirect_url(
+				'calypso-stats-post',
+				array(
+					'site' => Jetpack::build_raw_urls( get_home_url() ),
+					'path' => $post_id,
+				)
+			);
 			printf(
 				'<a href="%s" title="%s" class="dashicons dashicons-chart-bar" target="_blank"></a>',
-				esc_url( "https://wordpress.com/stats/post/$post_id/" . Jetpack::build_raw_urls( get_home_url() ) ),
+				esc_url( $stats_post_url ),
 				esc_html__( 'View stats for this post in WordPress.com', 'jetpack' )
 			);
 		}
