@@ -25,28 +25,23 @@ import PlanRadioButton from '../single-product-components/plan-radio-button';
 import ProductSavings from '../single-product-components/product-savings';
 
 function getTierLabel( productObject, recordCount ) {
-	const numberOfDefinedTiers = 5;
 	switch ( productObject.price_tier_slug ) {
 		case JETPACK_SEARCH_TIER_UP_TO_100_RECORDS:
-			return __( 'Tear 1: Up to 100 records' );
+			return __( 'Up to 100 records' );
 		case JETPACK_SEARCH_TIER_UP_TO_1K_RECORDS:
-			return __( 'Tear 2:  Up to 1,000 records' );
+			return __( 'Up to 1,000 records' );
 		case JETPACK_SEARCH_TIER_UP_TO_10K_RECORDS:
-			return __( 'Tear 3: Up to 10,000 records' );
+			return __( 'Up to 10,000 records' );
 		case JETPACK_SEARCH_TIER_UP_TO_100K_RECORDS:
-			return __( 'Tear 4: Up to 100,000 records' );
+			return __( 'Up to 100,000 records' );
 		case JETPACK_SEARCH_TIER_UP_TO_1M_RECORDS:
-			return __( 'Tear 5: Up to 1,000,000 records' );
-		case JETPACK_SEARCH_TIER_MORE_THAN_1M_RECORDS:
+			return __( 'Up to 1,000,000 records' );
+		case JETPACK_SEARCH_TIER_MORE_THAN_1M_RECORDS: {
 			const tierMaximumRecords = 1000000 * Math.ceil( recordCount / 1000000 );
-			const tierNumber =
-				numberOfDefinedTiers + Math.floor( productObject.price_tier_usage_quantity / 1000000 );
 			return __( 'Tier %(tierNumber)s: Up to %(tierMaximumRecords)s records', {
-				args: {
-					tierNumber,
-					tierMaximumRecords: numberFormat( tierMaximumRecords ),
-				},
+				args: { tierMaximumRecords: numberFormat( tierMaximumRecords ) },
 			} );
+		}
 		default:
 			return null;
 	}
