@@ -180,6 +180,8 @@ export class PodcastPlayer extends Component {
 				aria-describedby={
 					track && track.description ? `${ playerId }__track-description` : undefined
 				}
+				// The following line ensures compatibility with Calypso previews (jetpack-iframe-embed.js).
+				data-jetpack-iframe-ignore
 			>
 				<Header
 					playerId={ playerId }
