@@ -10,7 +10,7 @@ const Header = memo(
 				{ showCoverArt && cover && (
 					<div className="jetpack-podcast-player__cover">
 						{ /* alt="" will prevent the src from being announced. Ideally we'd have a cover.alt, but we can't get that from the RSS */ }
-						<img src={ cover } alt="" />
+						<img className="jetpack-podcast-player__cover-image" src={ cover } alt="" />
 					</div>
 				) }
 
