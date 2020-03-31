@@ -83,7 +83,7 @@ export function SingleProductSearchCard( props ) {
 				<div className="single-product-search__radio-buttons-container">
 					<PlanRadioButton
 						billingTimeFrame={ planDuration }
-						checked={ true }
+						checked
 						currencyCode={ currencyCode }
 						fullPrice={ planDuration === 'yearly' ? yearlyPrice : monthlyPrice }
 						planName={ planDuration === 'yearly' ? 'Annual' : 'Monthly' }
