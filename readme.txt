@@ -151,6 +151,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Connection: ensure that the "Disconnect" button is easily accessible on mobile.
 * Connection: fix connection issues for sites with a plan in a "pending" state.
 * Dashboard: clarify wording and display of the Backup & Scan cards.
+* Dashboard: fix layout issues within the Stats Widget in the dashboard.
 * Form Block: fix button colors not saving correctly.
 * Google Calendar Block: ensure calendars are properly displayed regardless of the width option picked in block styles.
 * OpenTable Block: fix layout issue when using Wide and Full-width sizes.
