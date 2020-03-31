@@ -31,14 +31,14 @@ function register_block() {
 		BLOCK_NAME,
 		array(
 			'attributes'      => array(
-				'url'                  => array(
+				'url'                    => array(
 					'type' => 'url',
 				),
-				'itemsToShow'          => array(
+				'itemsToShow'            => array(
 					'type'    => 'integer',
 					'default' => 5,
 				),
-				'showCoverArt'         => array(
+				'showCoverArt'           => array(
 					'type'    => 'boolean',
 					'default' => true,
 				),
@@ -213,4 +213,33 @@ function get_colors( $name, $attrs, $property ) {
 	}
 
 	return $colors;
+}
+
+/**
+ * Render the given podcast template.
+ *
+ * @param string $name  Template name, available in `./templates` folder.
+ * @param array  $data   Template data. Optional.
+ * @param bool   $print   Render template. True as default.
+ * @return false|string HTML markup or false.
+ */
+function render( $name, $data = array(), $print = true ) {
+	if ( ! strpos( $name, '.php' ) ) {
+		$name = $name . '.php';
+	}
+
+	$template_path = dirname( __FILE__ ) . '/templates/' . $name;
+	if ( ! file_exists( $template_path ) ) {
+		return '';
+	}
+
+	ob_start();
+	include $template_path;
+	$markup = ob_get_contents();
+	ob_end_clean();
+
+	if ( $print ) {
+		echo esc_attr( $markup );
+	}
+	return $markup;
 }
