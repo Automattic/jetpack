@@ -367,7 +367,6 @@ class PlanGrid extends React.Component {
 
 export default connect( state => {
 	const userId = getUserId( state );
-
 	return {
 		plans: getAvailablePlans( state ),
 		siteRawUrl: getSiteRawUrl( state ),
@@ -379,4 +378,4 @@ export default connect( state => {
 		plansLearnMoreUpgradeUrl: getUpgradeUrl( state, 'plans-learn-more', userId ),
 		isFetchingData: isFetchingSiteData( state ),
 	};
-} )( PlanGrid );
+}, null )( PlanGrid );
