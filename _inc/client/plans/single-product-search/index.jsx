@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { useState } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import { translate as __, numberFormat } from 'i18n-calypso';
 import { get } from 'lodash';
