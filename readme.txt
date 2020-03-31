@@ -103,7 +103,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Major Enhancements**
 
-*
+* Search: our new Instant search experience will allow your visitors to get search results as soon as they start typing.
 
 **Enhancements**
 

@@ -1,5 +1,11 @@
 ## 8.4
 
+### Search
+
+The highlight of this release is the new Instant Search experience, now available to all sites using the brand new Jetpack Search product. Give it a try, either by purchasing a product via the WordPress.com dashboard, or follow the flow to upgrade your site starting right from your dashboard, in Jetpack > Plans or Jetpack > Settings > Performance.
+
+Give it a try and let us know what you think about the purchase and configuration flow, as well as the look of the Instant Search on your site.
+
 ### Blocks
 
 #### WordPress 5.4 Compatibility
