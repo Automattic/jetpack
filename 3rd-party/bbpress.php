@@ -1,4 +1,10 @@
 <?php
+/**
+ * Compatibility functions for bbpress.
+ *
+ * @package Jetpack
+ */
+
 add_action( 'init', 'jetpack_bbpress_compat', 11 ); // Priority 11 needed to ensure sharing_display is loaded.
 
 /**
@@ -8,6 +14,19 @@ add_action( 'init', 'jetpack_bbpress_compat', 11 ); // Priority 11 needed to ens
  * @since  3.7.1
  */
 function jetpack_bbpress_compat() {
+	if ( ! function_exists( 'bbpress' ) ) {
+		return;
+	}
+
+	/**
+	 * Add compatibility layer for REST API.
+	 *
+	 * @since 8.5.0 Moved from root-level file and check_rest_api_compat()
+	 */
+	require_once 'class.jetpack-bbpress-json-api-compat.php';
+	bbPress_Jetpack_REST_API::instance();
+
+	// Adds sharing buttons to bbPress items.
 	if ( function_exists( 'sharing_display' ) ) {
 		add_filter( 'bbp_get_topic_content',           'sharing_display', 19 );
 		add_action( 'bbp_template_after_single_forum', 'jetpack_sharing_bbpress' );

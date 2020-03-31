@@ -2,6 +2,12 @@
 /**
  * bbPress & Jetpack REST API Compatibility
  * Enables bbPress to work with the Jetpack REST API
+ *
+ * @package Jetpack
+ */
+
+/**
+ * bbPress REST API Compatibility.
  */
 class bbPress_Jetpack_REST_API {
 
@@ -98,5 +104,3 @@ class bbPress_Jetpack_REST_API {
 	}
 
 }
-
-bbPress_Jetpack_REST_API::instance();
