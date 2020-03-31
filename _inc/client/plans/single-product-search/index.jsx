@@ -86,7 +86,7 @@ export function SingleProductSearchCard( props ) {
 						checked
 						currencyCode={ currencyCode }
 						fullPrice={ planDuration === 'yearly' ? yearlyPrice : monthlyPrice }
-						planName={ planDuration === 'yearly' ? 'Annual' : 'Monthly' }
+						planName={ planDuration === 'yearly' ? __( 'Yearly' ) : __( 'Monthly' ) }
 						radioValue={ planDuration }
 					/>
 				</div>
