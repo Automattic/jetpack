@@ -82,6 +82,30 @@ const PodcastPlayerEdit = ( {
 	const [ isEditing, setIsEditing ] = useState( false );
 	const [ feedData, setFeedData ] = useState( {} );
 
+	const fetchFeed = useCallback(
+		urlToFetch => {
+			const encodedURL = encodeURIComponent( urlToFetch );
+
+			apiFetch( {
+				path: '/wpcom/v2/podcast-player?url=' + encodedURL,
+			} ).then(
+				data => {
+					// Store feed data.
+					setFeedData( data );
+				},
+				err => {
+					// Show error and allow to edit URL.
+					debug( 'feed error', err );
+					createErrorNotice(
+						__( "Your podcast couldn't be embedded. Please double check your URL.", 'jetpack' )
+					);
+					setIsEditing( true );
+				}
+			);
+		},
+		[ createErrorNotice ]
+	);
+
 	// Load RSS feed.
 	useEffect( () => {
 		// Clean state.
@@ -93,24 +117,8 @@ const PodcastPlayerEdit = ( {
 			return;
 		}
 
-		// Load feed data.
-		apiFetch( {
-			path: `/wpcom/v2/podcast-player?url=${ encodeURIComponent( url ) }`,
-		} ).then(
-			data => {
-				// Store feed data.
-				setFeedData( data );
-			},
-			err => {
-				// Show error and allow to edit URL.
-				debug( 'feed error', err );
-				createErrorNotice(
-					__( "Your podcast couldn't be embedded. Please double check your URL.", 'jetpack' )
-				);
-				setIsEditing( true );
-			}
-		);
-	}, [ createErrorNotice, removeAllNotices, url ] );
+		fetchFeed( url );
+	}, [ fetchFeed, removeAllNotices, url ] );
 
 	/**
 	 * Check if the current URL of the Podcast RSS feed
@@ -128,10 +136,8 @@ const PodcastPlayerEdit = ( {
 			return;
 		}
 
-		// Setting HTML `inputmode` to "url" allows non-http URLs whilst still
-		// allowing the user to see the most suitable keyboard on their device
-		// for entering URLs. However, this means we need to manually prepend
-		// "http" to any entry before attempting validation.
+		// Ensure URL has `http` appended to it (if it doesn't already) before
+		// we accept it as the entered URL.
 		const prependedURL = prependHTTP( editedUrl );
 
 		if ( ! isURL( prependedURL ) ) {
@@ -141,9 +147,15 @@ const PodcastPlayerEdit = ( {
 			return;
 		}
 
-		// Ensure URL has `http` appended to it (if it doesn't already) before
-		// we accept it as the entered URL.
-		setAttributes( { url: prependedURL } );
+		/*
+		 * Short-circuit feed fetching if we tried before, use useEffect otherwise.
+		 * @see {@link https://github.com/Automattic/jetpack/pull/15213}
+		 */
+		if ( prependedURL === url ) {
+			fetchFeed( url );
+		} else {
+			setAttributes( { url: prependedURL } );
+		}
 
 		// Also update the temporary `input` value in order that clicking
 		// `Replace` in the UI will show the "corrected" version of the URL
