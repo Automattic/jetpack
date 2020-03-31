@@ -10,8 +10,6 @@ import { get } from 'lodash';
  * Internal dependencies
  */
 import QuerySiteProducts from 'components/data/query-site-products';
-import ExternalLink from 'components/external-link';
-import analytics from 'lib/analytics';
 import { getPlanClass } from 'lib/plans/constants';
 import { getSiteRawUrl, getUpgradeUrl, isMultisite } from 'state/initial-state';
 import {
@@ -27,6 +25,7 @@ import PurchasedProductCard from './single-product-components/purchased-product-
 import SingleProductBackup from './single-product-backup';
 import SingleProductSearch from './single-product-search';
 import './single-products.scss';
+import DurationSwitcher from './duration-switcher';
 
 class ProductSelector extends Component {
 	state = {
@@ -57,39 +56,16 @@ class ProductSelector extends Component {
 		return false;
 	}
 
-	handleLandingPageLinkClick = () => {
-		analytics.tracks.recordJetpackClick( {
-			target: 'landing-page-link',
-			feature: 'single-product-backup',
-			extra: this.state.selectedBackupType,
-		} );
-	};
-
 	setSelectedBackupType = selectedBackupType => {
 		this.setState( { selectedBackupType } );
 	};
 
 	renderTitleSection() {
-		const { backupInfoUrl, isFetchingData } = this.props;
 		return (
 			<Fragment>
 				<h1 className="plans-section__header">{ __( 'Solutions' ) }</h1>
 				<h2 className="plans-section__subheader">
 					{ __( "Looking for specific features? We've got you covered." ) }
-					{ ! isFetchingData && ! this.findPrioritizedPurchaseForBackup() && (
-						<>
-							<br />
-							<ExternalLink
-								target="_blank"
-								href={ backupInfoUrl }
-								icon
-								iconSize={ 12 }
-								onClick={ this.handleLandingPageLinkClick }
-							>
-								{ __( 'Which backup option is best for me?' ) }
-							</ExternalLink>
-						</>
-					) }
 				</h2>
 			</Fragment>
 		);
@@ -142,6 +118,7 @@ class ProductSelector extends Component {
 			<Fragment>
 				<QuerySiteProducts />
 				{ this.renderTitleSection() }
+				<DurationSwitcher type="solutions" />
 				<div className="plans-section__single-product plans-section__single-product--with-search">
 					{ this.renderBackupProduct() }
 					{ this.renderSearchProduct() }
@@ -154,7 +131,6 @@ class ProductSelector extends Component {
 export default connect( state => {
 	return {
 		activeSitePurchases: getActiveSitePurchases( state ),
-		backupInfoUrl: getUpgradeUrl( state, 'aag-backups' ), // Redirect to https://jetpack.com/upgrade/backup/
 		isFetchingData:
 			isFetchingSiteData( state ) ||
 			! getAvailablePlans( state ) ||

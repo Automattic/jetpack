@@ -11,7 +11,6 @@ import { includes, map, reduce } from 'lodash';
  */
 import analytics from 'lib/analytics';
 import Button from 'components/button';
-import ButtonGroup from 'components/button-group';
 import { getSiteRawUrl, getUpgradeUrl, getUserId, showBackups } from 'state/initial-state';
 import { getSitePlan, getAvailablePlans, isFetchingSiteData } from 'state/site/reducer';
 import { setPlanDuration, getPlanDuration } from 'state/plans';
@@ -19,6 +18,7 @@ import { getPlanClass } from 'lib/plans/constants';
 import { translate as __ } from 'i18n-calypso';
 import TopButton from './top-button';
 import FeatureItem from './feture-item';
+import DurationSwitcher from './duration-switcher';
 
 class PlanGrid extends React.Component {
 	/**
@@ -28,20 +28,6 @@ class PlanGrid extends React.Component {
 
 	UNSAFE_componentWillUpdate() {
 		this.featuredPlans = false;
-	}
-
-	handlePeriodChange( newPeriod ) {
-		if ( newPeriod === this.props.planDuration ) {
-			return null;
-		}
-
-		return () => {
-			analytics.tracks.recordJetpackClick( {
-				target: 'change-period-' + newPeriod,
-				feature: 'plans-grid',
-			} );
-			this.props.setPlanDuration( newPeriod );
-		};
 	}
 
 	handleSeeFeaturesClick( planType ) {
@@ -70,7 +56,7 @@ class PlanGrid extends React.Component {
 		return (
 			<div className="plan-features">
 				{ this.renderMobileCard() }
-				{ this.renderPlanPeriodToggle() }
+				<DurationSwitcher type="plans" />
 
 				<div className="plan-features__content">
 					<table className={ tableClasses }>
@@ -102,31 +88,6 @@ class PlanGrid extends React.Component {
 				<Button href={ plansUrl } primary>
 					{ __( 'View all Jetpack plans' ) }
 				</Button>
-			</div>
-		);
-	}
-
-	renderPlanPeriodToggle() {
-		const { planDuration } = this.props;
-		const periods = {
-			monthly: __( 'Monthly' ),
-			yearly: __( 'Yearly' ),
-		};
-
-		return (
-			<div className="plan-grid-period">
-				<ButtonGroup>
-					{ map( periods, ( periodLabel, periodName ) => (
-						<Button
-							key={ 'plan-period-button-' + periodName }
-							primary={ periodName === planDuration }
-							onClick={ this.handlePeriodChange( periodName ) }
-							compact
-						>
-							{ periodLabel }
-						</Button>
-					) ) }
-				</ButtonGroup>
 			</div>
 		);
 	}

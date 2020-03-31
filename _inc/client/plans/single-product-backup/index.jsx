@@ -71,6 +71,7 @@ function generateBackupOptions( {
 function SingleProductBackupCard( props ) {
 	const {
 		products,
+		backupInfoUrl,
 		upgradeLinkDaily,
 		upgradeLinkRealtime,
 		selectedBackupType,
@@ -96,6 +97,7 @@ function SingleProductBackupCard( props ) {
 					billingTimeFrame={ planDuration }
 					currencyCode={ currencyCode }
 					backupOptions={ backupOptions }
+					backupInfoUrl={ backupInfoUrl }
 					selectedBackupType={ selectedBackupType }
 					setSelectedBackupType={ setSelectedBackupType }
 				/>
@@ -106,6 +108,7 @@ function SingleProductBackupCard( props ) {
 
 export default connect( state => ( {
 	planDuration: getPlanDuration( state ),
+	backupInfoUrl: getUpgradeUrl( state, 'aag-backups' ), // Redirect to https://jetpack.com/upgrade/backup/
 	upgradeLinkDaily: getUpgradeUrl( state, 'jetpack-backup-daily', '', true ),
 	upgradeLinkRealtime: getUpgradeUrl( state, 'jetpack-backup-realtime', '', true ),
 } ) )( SingleProductBackupCard );
