@@ -3,7 +3,7 @@
  * Module Name: WooCommerce Analytics
  * Module Description: Enhanced analytics for WooCommerce and Jetpack users.
  * Sort Order: 13
- * First Introduced: 5.9
+ * First Introduced: 8.4
  * Requires Connection: Yes
  * Auto Activate: Yes
  * Module Tags: Other, Recommended
