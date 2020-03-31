@@ -163,6 +163,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Shortcodes: Fix Crowdsignal poll embeds when using the P2 theme.
 * Site Logo: avoid PHP notices in the Customizer, when no logo is set yet.
 * Widgets: fix conflicts between some themes and the live countdown feature in the Milestone Widget.
+* Widgets: avoid display issues in the Top Posts Widget, when displaying posts from Custom Post Types.
 
 --------
 
