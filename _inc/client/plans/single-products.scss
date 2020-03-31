@@ -152,9 +152,12 @@
 	}
 }
 
-
 .plan-price {
 	margin-right: 0.25em;
+
+	&.is-inline {
+		margin-right: 0;
+	}
 }
 
 .single-product-backup__radio-buttons-container::before {
@@ -168,5 +171,5 @@
 }
 
 .single-product-backup__price-group-billing-timeframe {
-  font-size: 12px;
+	font-size: 12px;
 }
