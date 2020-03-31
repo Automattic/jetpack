@@ -161,6 +161,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * OpenTable Block: fix layout issue when using Wide and Full-width sizes.
 * Recurring Payments Block: ensure that the minimum payment option respects the chosen currency for the button.
 * Shortcodes: Fix Crowdsignal poll embeds when using the P2 theme.
+* Simple Payments Block: avoid issues when pasting email addresses into the email field.
 * Site Logo: avoid PHP notices in the Customizer, when no logo is set yet.
 * Widgets: fix conflicts between some themes and the live countdown feature in the Milestone Widget.
 * Widgets: avoid display issues in the Top Posts Widget, when displaying posts from Custom Post Types.
