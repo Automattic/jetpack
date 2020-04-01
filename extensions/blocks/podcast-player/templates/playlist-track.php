@@ -8,10 +8,15 @@
 namespace Automattic\Jetpack\Extensions\Podcast_Player;
 
 // phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+
+$css_classes = "jetpack-podcast-player__track {$secondary_colors['class']}";
+if ( $is_active ) {
+	$css_classes .= ' is-active';
+}
 ?>
 
 <li
-	class="jetpack-podcast-player__track <?php echo esc_attr( $secondary_colors['class'] ); ?>"
+	class="<?php echo esc_attr( $css_classes ); ?>"
 	style="<?php echo esc_attr( $secondary_colors['style'] ); ?>"
 >
 	<a

@@ -133,11 +133,12 @@ function render_player( $player_data, $attributes ) {
 		>
 			<?php render( 'podcast-header', $player_props ); ?>
 			<ol class="jetpack-podcast-player__tracks">
-				<?php foreach ( $player_data['tracks'] as $attachment ) : ?>
+				<?php foreach ( $player_data['tracks'] as $track_index => $attachment ) : ?>
 					<?php
 					render(
 						'playlist-track',
 						array(
+							'is_active'        => 0 === $track_index,
 							'attachment'       => $attachment,
 							'secondary_colors' => $secondary_colors,
 						)
