@@ -15,6 +15,11 @@ module.exports = {
 			jsx: true,
 		},
 	},
+	settings: {
+		react: {
+			version: 'detect', // React version. "detect" automatically picks the version you have installed.
+		},
+	},
 	plugins: [ 'jsx-a11y', 'lodash', 'jsdoc' ],
 	rules: {
 		// REST API objects include underscores
@@ -57,7 +62,8 @@ module.exports = {
 		'prefer-const': 2,
 		'react/jsx-curly-spacing': [ 2, 'always' ],
 		'react/jsx-no-bind': 2,
-		'react/jsx-space-before-closing': 2,
+		// 'react/jsx-space-before-closing': 2,
+		'react/jsx-tag-spacing': [ 2, { beforeSelfClosing: 'always' } ],
 		'react/no-danger': 2,
 		'react/no-did-mount-set-state': 2,
 		'react/no-did-update-set-state': 2,
@@ -108,13 +114,9 @@ module.exports = {
 		'jsdoc/check-tag-names': 1, // Recommended
 		'jsdoc/check-types': 1, // Recommended
 		'jsdoc/implements-on-classes': 1, // Recommended
-		'jsdoc/match-description': 1,
 		'jsdoc/newline-after-description': 1, // Recommended
-		'jsdoc/no-types': 1,
 		'jsdoc/no-undefined-types': 1, // Recommended
 		'jsdoc/require-description': 1,
-		'jsdoc/require-description-complete-sentence': 0,
-		'jsdoc/require-example': 1,
 		'jsdoc/require-hyphen-before-param-description': 1,
 		'jsdoc/require-jsdoc': 1, // Recommended
 		'jsdoc/require-param': 1, // Recommended
