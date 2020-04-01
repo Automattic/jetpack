@@ -34,7 +34,7 @@ export const defaultAttributes = {
 	},
 	buttonBackgroundColor: {
 		type: 'string',
-		default: 'accent',
+		default: 'primary',
 	},
 	customButtonBackgroundColor: {
 		type: 'string',
