@@ -217,7 +217,7 @@ function get_colors( $name, $attrs, $property ) {
 }
 
 /**
- * Render the given podcast template.
+ * Render the given template in server-side.
  *
  * @param string $name  Template name, available in `./templates` folder.
  * @param array  $data   Template data. Optional.
@@ -235,10 +235,12 @@ function render( $name, $data = array(), $print = true ) {
 		return '';
 	}
 
-	// Optionally provided an assoc array of data to pass to tempalte
-	// and it will be extracted into variables
+	// Optionally provided an assoc array of data to pass to template
+	// and it will be extracted into variables.
 	if ( is_array( $data ) ) {
+		// phpcs:disable WordPress.PHP.DontExtract.extract_extract
 		extract( $data );
+		// phpcs:enable WordPress.PHP.DontExtract.extract_extract
 	}
 
 	ob_start();
@@ -247,7 +249,9 @@ function render( $name, $data = array(), $print = true ) {
 	ob_end_clean();
 
 	if ( $print ) {
+		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo $markup;
+		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 	return $markup;
 }
