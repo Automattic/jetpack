@@ -254,6 +254,10 @@ $player-float-background: $light-gray-200;
 		background-color: $player-background;
 	}
 
+	.mejs-controls {
+		position: static;
+	}
+
 	.mejs-time,
 	.mejs-time-float {
 		color: $player-text-color;
