@@ -134,20 +134,14 @@ $player-float-background: $light-gray-200;
 		margin-bottom: $player-grid-spacing;
 		font-size: $description-font-size;
 		line-height: 1.6;
+		color: $dark-gray-500;
 	}
 
-	// Apply `secondary` color to the podcast title.
-	.jetpack-podcast-player__container:not(.has-secondary) { // no custom -> default color.
-		.jetpack-podcast-player__track-description {
-			color: $dark-gray-500;
-		}
-	}
 	.jetpack-podcast-player__container.has-secondary { // custom color.
 		.jetpack-podcast-player__track-description {
 			color: currentColor;
 		}
 	}
-
 
 	/**
 	 * Playlist elements styles
