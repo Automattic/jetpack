@@ -9,7 +9,9 @@ import { get } from 'lodash';
 /**
  * Internal dependencies
  */
+import analytics from 'lib/analytics';
 import Button from 'components/button';
+import ExternalLink from 'components/external-link';
 import {
 	JETPACK_SEARCH_TIER_UP_TO_100_RECORDS,
 	JETPACK_SEARCH_TIER_UP_TO_1K_RECORDS,
@@ -49,13 +51,22 @@ function handleSelectedTimeframeChangeFactory( setTimeframe ) {
 	return event => setTimeframe( event.target.value );
 }
 
+function handleLandingPageLinkClickFactory( recordCount ) {
+	analytics.tracks.recordJetpackClick( {
+		target: 'landing-page-link',
+		feature: 'single-product-search',
+		extra: recordCount,
+	} );
+}
+
 export function SingleProductSearchCard( props ) {
 	const [ timeframe, setTimeframe ] = useState( 'yearly' );
-	const handleSelectedTimeframeChange = handleSelectedTimeframeChangeFactory( setTimeframe );
 	const currencyCode = get( props.siteProducts, 'jetpack_search.currency_code', '' );
 	const monthlyPrice = get( props.siteProducts, 'jetpack_search_monthly.cost', '' );
 	const yearlyPrice = get( props.siteProducts, 'jetpack_search.cost', '' );
 	const recordCount = get( props.siteProducts, 'jetpack_search.price_tier_usage_quantity', '0' );
+	const handleLandingPageLinkClick = handleLandingPageLinkClickFactory( recordCount );
+	const handleSelectedTimeframeChange = handleSelectedTimeframeChangeFactory( setTimeframe );
 
 	return props.isFetching ? (
 		<div className="plans-section__single-product-skeleton is-placeholder" />
@@ -67,9 +78,15 @@ export function SingleProductSearchCard( props ) {
 			<div className="single-product__accented-card-body">
 				<p>
 					{ SEARCH_DESCRIPTION }{ ' ' }
-					<a href="https://jetpack.com/search" target="_blank" rel="noopener noreferrer">
-						{ __( 'Learn More' ) }
-					</a>
+					<ExternalLink
+						target="_blank"
+						href={ props.searchInfoUrl }
+						icon
+						iconSize={ 12 }
+						onClick={ handleLandingPageLinkClick }
+					>
+						{ __( 'Learn more' ) }
+					</ExternalLink>
 				</p>
 				<h4 className="single-product-backup__options-header">
 					{ __( 'Eligible Tier: ' ) }
@@ -123,6 +140,7 @@ export function SingleProductSearchCard( props ) {
 }
 
 export default connect( state => ( {
+	searchInfoUrl: getUpgradeUrl( state, 'aag-search' ), // Redirect to https://jetpack.com/upgrade/search/
 	searchUpgradeUrl: getUpgradeUrl( state, 'jetpack-search' ),
 	searchUpgradeMonthlyUrl: getUpgradeUrl( state, 'jetpack-search-monthly' ),
 } ) )( SingleProductSearchCard );
