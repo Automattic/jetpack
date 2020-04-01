@@ -24,8 +24,8 @@ import { SEARCH_DESCRIPTION, SEARCH_TITLE } from '../constants';
 import PlanRadioButton from '../single-product-components/plan-radio-button';
 import ProductSavings from '../single-product-components/product-savings';
 
-function getTierLabel( productObject, recordCount ) {
-	switch ( productObject.price_tier_slug ) {
+function getTierLabel( priceTierSlug, recordCount ) {
+	switch ( priceTierSlug ) {
 		case JETPACK_SEARCH_TIER_UP_TO_100_RECORDS:
 			return __( 'Up to 100 records' );
 		case JETPACK_SEARCH_TIER_UP_TO_1K_RECORDS:
@@ -38,7 +38,7 @@ function getTierLabel( productObject, recordCount ) {
 			return __( 'Up to 1,000,000 records' );
 		case JETPACK_SEARCH_TIER_MORE_THAN_1M_RECORDS: {
 			const tierMaximumRecords = 1000000 * Math.ceil( recordCount / 1000000 );
-			return __( 'Tier %(tierNumber)s: Up to %(tierMaximumRecords)s records', {
+			return __( 'Up to %(tierMaximumRecords)s records', {
 				args: { tierMaximumRecords: numberFormat( tierMaximumRecords ) },
 			} );
 		}
@@ -81,7 +81,10 @@ export function SingleProductSearchCard( props ) {
 						checked
 						currencyCode={ currencyCode }
 						fullPrice={ planDuration === 'yearly' ? yearlyPrice : monthlyPrice }
-						planName={ getTierLabel( get( props.siteProducts, 'jetpack_search' ), recordCount ) }
+						planName={ getTierLabel(
+							get( props.siteProducts, 'jetpack_search.price_tier_slug' ),
+							recordCount
+						) }
 						radioValue={ planDuration }
 					/>
 				</div>
