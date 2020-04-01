@@ -53,8 +53,8 @@ class Performance extends Component {
 					className="jp-settings-description"
 				/>
 				<Search { ...commonProps } />
-				<Media { ...commonProps } />
 				<SpeedUpSite { ...commonProps } />
+				<Media { ...commonProps } />
 			</div>
 		);
 	}
