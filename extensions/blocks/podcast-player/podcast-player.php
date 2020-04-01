@@ -31,14 +31,14 @@ function register_block() {
 		BLOCK_NAME,
 		array(
 			'attributes'      => array(
-				'url'                  => array(
+				'url'                    => array(
 					'type' => 'url',
 				),
-				'itemsToShow'          => array(
+				'itemsToShow'            => array(
 					'type'    => 'integer',
 					'default' => 5,
 				),
-				'showCoverArt'         => array(
+				'showCoverArt'           => array(
 					'type'    => 'boolean',
 					'default' => true,
 				),
@@ -131,6 +131,7 @@ function render_player( $player_data, $attributes ) {
 			class="<?php echo esc_attr( $player_classes_name ); ?>"
 			style="<?php echo esc_attr( $player_inline_style ); ?>"
 		>
+			<?php render( 'podcast-header', $player_props ); ?>
 			<ol class="jetpack-podcast-player__tracks">
 				<?php foreach ( $player_data['tracks'] as $attachment ) : ?>
 				<li
@@ -213,4 +214,52 @@ function get_colors( $name, $attrs, $property ) {
 	}
 
 	return $colors;
+}
+
+/**
+ * Render the given template in server-side.
+ * Important note:
+ *    The $template_props array will be extracted.
+ *    This means it will create a var for each array item.
+ *    Keep it mind when using this param to pass
+ *    properties to the template.
+ *
+ * @param string $name           Template name, available in `./templates` folder.
+ * @param array  $template_props Template properties. Optional.
+ * @param bool   $print          Render template. True as default.
+ * @return false|string          HTML markup or false.
+ */
+function render( $name, $template_props = array(), $print = true ) {
+	if ( ! strpos( $name, '.php' ) ) {
+		$name = $name . '.php';
+	}
+
+	$template_path = dirname( __FILE__ ) . '/templates/' . $name;
+
+	if ( ! file_exists( $template_path ) ) {
+		return '';
+	}
+
+	// Optionally provided an assoc array of data to pass to template
+	// IMPORTANT: It will be extracted into variables.
+	if ( is_array( $template_props ) ) {
+		// It ignores the `discouraging` sniffer rule for extract,
+		// since it's needed to make the templating system works.
+		extract( $template_props ); // phpcs:ignore WordPress.PHP.DontExtract.extract_extract
+	}
+
+	ob_start();
+	include $template_path;
+	$markup = ob_get_contents();
+	ob_end_clean();
+
+	if ( $print ) {
+		// it's disabled in order to allow to templates
+		// render their content without HTML entities issues.
+		// However, each template is going to be checked
+		// guaranteeing the correct escape for the markup.
+
+		echo $markup; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	}
+	return $markup;
 }
