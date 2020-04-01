@@ -230,14 +230,6 @@ function is_launched() {
 	return 'launched' === site_launch_status();
 }
 
-function get_launch_banner_status() {
-	return get_option( 'wpcom_private_sites_module_launch_banner' );
-}
-
-function set_launch_banner_status( $status = 'hide' ) {
-	update_option( 'wpcom_private_sites_module_launch_banner', $status );
-}
-
 /**
  * Hooked into filter: `pre_update_option_blog_public`
  * Sets a secondary option (`wpcom_blog_public_updated`) to `1` when the `blog_public` option is updated

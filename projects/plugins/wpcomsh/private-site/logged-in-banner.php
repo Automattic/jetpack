@@ -21,22 +21,18 @@ function show_logged_in_banner() {
 		return;
 	}
 
+	// In this scenario, a site is 'launched' if it's explicitly launched or came before Private by Default.
+	$is_site_launched = is_launched() || '' === site_launch_status();
+
+	// The site is being used as a Private site.
+	if ( $is_site_launched && site_is_private() && ! site_is_coming_soon() ) {
+		return;
+	}
+
 	// Older sites might not have a launch status, but can still be coming soon.
 	if ( '' === site_launch_status() && ! site_is_coming_soon() ) {
 		return;
 	}
-
-	// For a launched site, the launch banner will show a celebratory message, so we want to show it only once.
-	if ( 'hide' === get_launch_banner_status() ) {
-		return;
-	}
-
-	$is_site_launched = is_launched();
-
-	if ( $is_site_launched ) {
-		set_launch_banner_status( 'hide' );
-	}
-
 	?>
 	<div id="wpcom-launch-banner-wrapper">
 		<div class="wpcom-launch-banner" id="wpcom-launch-banner">
@@ -47,10 +43,10 @@ function show_logged_in_banner() {
 				<img src="<?php echo esc_url( plugins_url( 'launch-image.svg', __FILE__ ) ) ?>" class="launch-banner-image" width="170" />
 				<div class="launch-banner-text">
 					<?php
-					if ( ! $is_site_launched ) {
-						_e( "Your site hasn't been launched yet. Only you can see it until it is launched.", 'wpcomsh' );
-					} elseif ( $is_site_launched && site_is_coming_soon() ) {
+					if ( $is_site_launched && site_is_coming_soon() ) {
 						_e( "Your site is marked as \"Coming Soon\" and hidden from visitors until it's ready.", 'wpcomsh' );
+					} elseif ( ! $is_site_launched ) {
+						_e( "Your site hasn't been launched yet. Only you can see it until it is launched.", 'wpcomsh' );
 					} else {
 						_e( "Your site has been launched; now you can share it with the world!", 'wpcomsh' );
 					}
