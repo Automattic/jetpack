@@ -13,7 +13,6 @@ $track_title    = $attachment['title'];
 $track_duration = ! empty( $attachment['duration'] ) ? $attachment['duration'] : '';
 
 $class = 'jetpack-podcast-player__track';
-$style = '';
 
 if ( $is_active ) {
 	$class .= " is-active {$primary_colors['class']}";
