@@ -10,6 +10,7 @@ import { debounce, isEmpty, isEqual, take, times } from 'lodash';
 import apiFetch from '@wordpress/api-fetch';
 import { InspectorControls } from '@wordpress/block-editor';
 import {
+	Animate,
 	Button,
 	ExternalLink,
 	PanelBody,
@@ -50,10 +51,10 @@ export function InstagramGalleryEdit( props ) {
 		if ( ! accessToken ) {
 			return;
 		}
+
 		noticeOperations.removeAllNotices();
-		if ( isEmpty( images ) ) {
-			setIsLoadingGallery( true );
-		}
+		setIsLoadingGallery( true );
+
 		apiFetch( {
 			path: addQueryArgs( '/wpcom/v2/instagram/gallery', {
 				access_token: accessToken,
@@ -70,13 +71,6 @@ export function InstagramGalleryEdit( props ) {
 			}
 
 			setAttributes( { images: response.images, instagramUser: response.external_name } );
-
-			// If Instagram sends back less images than the requested amount,
-			// this prevents showing placeholder for non existent images.
-			// Note: this will trigger an additional Instagram call.
-			if ( response.images.length < count ) {
-				setAttributes( { count: response.images.length } );
-			}
 		} );
 	}, [ accessToken, count ] );
 
@@ -133,8 +127,8 @@ export function InstagramGalleryEdit( props ) {
 
 	const showPlaceholder = ! isLoadingGallery && ( ! accessToken || isEmpty( images ) );
 	const showSidebar = ! showPlaceholder;
-	const showLoadingSpinner = accessToken && isLoadingGallery;
-	const showGallery = ! showPlaceholder && ! isLoadingGallery;
+	const showLoadingSpinner = accessToken && isLoadingGallery && isEmpty( images );
+	const showGallery = ! showPlaceholder && ! showLoadingSpinner;
 
 	const blockClasses = classnames( className, { [ `align${ align }` ]: align } );
 	const { gridClasses, gridStyle, photoStyle } = getGalleryCssAttributes( columns, spacing );
@@ -173,19 +167,27 @@ export function InstagramGalleryEdit( props ) {
 							<img alt={ image.title || image.url } src={ image.url } />
 						</span>
 					) ) }
-					{ count > images.length &&
-						times( count - images.length, index => (
-							<span
-								className="wp-block-jetpack-instagram-gallery__grid-post"
-								key={ `instagram-gallery-placeholder-${ index }` }
-								style={ photoStyle }
-							>
-								<img
-									alt={ __( 'Instagram Gallery placeholder', 'jetpack' ) }
-									src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNMyc2tBwAEOgG/c94mJwAAAABJRU5ErkJggg=="
-								/>
-							</span>
-						) ) }
+					{ isLoadingGallery && count > images.length && (
+						<Animate type="loading">
+							{ ( { className } ) =>
+								times( count - images.length, index => (
+									<span
+										className={ classnames(
+											'wp-block-jetpack-instagram-gallery__grid-post',
+											className
+										) }
+										key={ `instagram-gallery-placeholder-${ index }` }
+										style={ photoStyle }
+									>
+										<img
+											alt={ __( 'Instagram Gallery placeholder', 'jetpack' ) }
+											src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNMyc2tBwAEOgG/c94mJwAAAABJRU5ErkJggg=="
+										/>
+									</span>
+								) )
+							}
+						</Animate>
+					) }
 				</div>
 			) }
 
