@@ -107,8 +107,6 @@ class SingleProductBackupBody extends React.Component {
 
 				<UpgradeButton
 					selectedUpgrade={ selectedBackup }
-					billingTimeFrame={ billingTimeFrame }
-					currencyCode={ currencyCode }
 					onClickHandler={ this.handleUpgradeButtonClick }
 				/>
 			</React.Fragment>
