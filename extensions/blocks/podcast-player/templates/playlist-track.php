@@ -8,6 +8,10 @@
 namespace Automattic\Jetpack\Extensions\Podcast_Player;
 
 // phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+
+$track_title    = $attachment['title'];
+$track_duration = ! empty( $attachment['duration'] ) ? $attachment['duration'] : '';
+
 $class = 'jetpack-podcast-player__track';
 $style = '';
 
@@ -33,8 +37,8 @@ if ( $is_active ) {
 		aria-pressed="false"
 	>
 		<span class="jetpack-podcast-player__track-status-icon"></span>
-		<span class="jetpack-podcast-player__track-title"><?php echo esc_html( $attachment['title'] ); ?></span>
-		<time class="jetpack-podcast-player__track-duration"><?php echo ( ! empty( $attachment['duration'] ) ? esc_html( $attachment['duration'] ) : '' ); ?></time>
+		<span class="jetpack-podcast-player__track-title"><?php echo esc_html( $track_title ); ?></span>
+		<time class="jetpack-podcast-player__track-duration"><?php echo esc_attr( $track_duration ); ?></time>
 	</a>
 </li>
 
