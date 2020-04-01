@@ -90,6 +90,15 @@ class BackupsScanRewind extends Component {
 					),
 					url: 'https://wordpress.com/activity-log/' + siteRawUrl,
 				};
+			default:
+				return {
+					title: __( 'Oops!' ),
+					icon: 'info',
+					description: __(
+						'The Jetpack Backup and Scan status could not be retrieved at this time.'
+					),
+					url: '',
+				};
 		}
 	}
 
@@ -227,7 +236,7 @@ export const BackupsScan = withModuleSettingsFormHelpers(
 				this.props.vaultPressData !== 'N/A' &&
 				false !== get( this.props.vaultPressData, [ 'data' ], false );
 
-			if ( ! hasRewindData && ( this.props.vaultPressActive && ! hasVpData ) ) {
+			if ( ! hasRewindData && this.props.vaultPressActive && ! hasVpData ) {
 				return <LoadingCard />;
 			}
 
