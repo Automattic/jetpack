@@ -308,3 +308,45 @@ export const getUpgradeUrl = ( state, source, userId = '' ) => {
 		( subsidiaryId ? `&subsidiaryId=${ subsidiaryId }` : '' )
 	);
 };
+
+/**
+ * Builds an URL using the jetpack.com/redirect service
+ *
+ * @since 8.5.0
+ *
+ * @param {string}  source The URL handler registered in the server
+ * @param {object}  args {
+ *
+ * 		Additional arguments to build the url
+ *
+ * 		@param {string} site URL of the current site. Optional, default is current site
+ * 		@param {string} path Additional path to be appended to the URL
+ * 		@param {string} query Query parameters to be added to the URL
+ * 		@param {string} anchor Anchor to be added to the URL
+ * }
+ *
+ * @return {string} The redirect URL
+ */
+export const getRedirectUrl = ( source, args = {} ) => {
+	let queryVars = {
+		source: source,
+	};
+
+	const acceptedArgs = [ 'site', 'path', 'query', 'anchor' ];
+
+	Object.keys( args ).map( argName => {
+		if ( acceptedArgs.includes( argName ) ) {
+			queryVars[ argName ] = encodeURIComponent( args[ argName ] );
+		}
+	} );
+
+	if ( ! get( queryVars, 'site' ) ) {
+		queryVars.site = window.Initial_State.rawUrl;
+	}
+
+	const queryString = Object.keys( queryVars )
+		.map( key => key + '=' + queryVars[ key ] )
+		.join( '&' );
+
+	return `https://jetpack.com/redirect/?` + queryString;
+};

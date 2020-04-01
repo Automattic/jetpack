@@ -18,7 +18,7 @@ import analytics from 'lib/analytics';
  */
 import { imagePath } from 'constants/urls';
 import { isDevMode, isCurrentUserLinked, getConnectUrl } from 'state/connection';
-import { getInitialStateStatsData } from 'state/initial-state';
+import { getInitialStateStatsData, getRedirectUrl } from 'state/initial-state';
 import QueryStatsData from 'components/data/query-stats-data';
 import DashStatsBottom from './dash-stats-bottom';
 import { getStatsData, statsSwitchTab, fetchStatsData, getActiveStatsTab } from 'state/at-a-glance';
@@ -88,7 +88,7 @@ export class DashStats extends Component {
 				nestedValue: null,
 				className: 'statsChartbar',
 				data: {
-					link: `https://wordpress.com/stats/${ unit }/${ props.siteRawUrl }?startDate=${ date }`,
+					link: getRedirectUrl( 'calypso-stats-' + unit, { query: 'startDate=' + date } ),
 				},
 				tooltipData: [
 					{
@@ -174,9 +174,7 @@ export class DashStats extends Component {
 								'Something happened while loading stats. Please try again later or {{a}}view your stats now on WordPress.com{{/a}}',
 								{
 									components: {
-										a: (
-											<a href={ 'https://wordpress.com/stats/insights/' + this.props.siteRawUrl } />
-										),
+										a: <a href={ getRedirectUrl( 'calypso-stats-insights' ) } />,
 									},
 								}
 							) }
