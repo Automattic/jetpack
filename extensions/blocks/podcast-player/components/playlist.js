@@ -53,6 +53,7 @@ const TrackError = memo( ( { link, title } ) => (
 				{ ' - ' }
 				<a href={ link } rel="noopener noreferrer nofollow" target="_blank">
 					<span class="jetpack-podcast-player--visually-hidden">
+						{ /* translators: %s is the title of the track. This text is visually hidden from the screen, but available to screen readers */ }
 						{ sprintf( __( '%s: ', 'jetpack' ), title ) }
 					</span>
 					{ __( 'Open in a new tab', 'jetpack' ) }
