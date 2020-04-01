@@ -6,7 +6,7 @@ import debugFactory from 'debug';
 /**
  * WordPress dependencies
  */
-import { useState, useCallback, useEffect } from '@wordpress/element';
+import { useState, useCallback, useEffect, useRef } from '@wordpress/element';
 import {
 	Button,
 	ExternalLink,
@@ -42,6 +42,7 @@ import { queueMusic } from './icons/';
 import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import attributesValidation from './attributes';
 import PodcastPlayer from './components/podcast-player';
+import { makeCancellable } from './utils';
 import { applyFallbackStyles } from '../../shared/apply-fallback-styles';
 
 const DEFAULT_MIN_ITEMS = 1;
@@ -81,21 +82,34 @@ const PodcastPlayerEdit = ( {
 	const [ editedUrl, setEditedUrl ] = useState( url || '' );
 	const [ isEditing, setIsEditing ] = useState( false );
 	const [ feedData, setFeedData ] = useState( {} );
+	const cancellableFetch = useRef();
 
 	const fetchFeed = useCallback(
 		urlToFetch => {
 			const encodedURL = encodeURIComponent( urlToFetch );
 
-			apiFetch( {
-				path: '/wpcom/v2/podcast-player?url=' + encodedURL,
-			} ).then(
+			cancellableFetch.current = makeCancellable(
+				apiFetch( {
+					path: '/wpcom/v2/podcast-player?url=' + encodedURL,
+				} )
+			);
+
+			cancellableFetch.current.promise.then(
 				data => {
+					if ( data?.isCanceled ) {
+						debug( 'Block was unmounted during fetch', data );
+						return; // bail if canceled to avoid setting state
+					}
 					// Store feed data.
 					setFeedData( data );
 				},
-				err => {
+				error => {
+					if ( error?.isCanceled ) {
+						debug( 'Block was unmounted during fetch', error );
+						return; // bail if canceled to avoid setting state
+					}
 					// Show error and allow to edit URL.
-					debug( 'feed error', err );
+					debug( 'feed error', error );
 					createErrorNotice(
 						__( "Your podcast couldn't be embedded. Please double check your URL.", 'jetpack' )
 					);
@@ -105,6 +119,12 @@ const PodcastPlayerEdit = ( {
 		},
 		[ createErrorNotice ]
 	);
+
+	useEffect( () => {
+		return () => {
+			cancellableFetch?.current?.cancel?.();
+		};
+	}, [] );
 
 	// Load RSS feed.
 	useEffect( () => {
