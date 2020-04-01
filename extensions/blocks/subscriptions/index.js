@@ -2,14 +2,13 @@
  * External dependencies
  */
 import { __, _x } from '@wordpress/i18n';
-import { isEmpty } from 'lodash';
 import { Rect, Path, SVG } from '@wordpress/components';
-import { RawHTML } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
 import { defaultAttributes } from './attributes';
+import deprecated from './deprecated';
 import edit from './edit';
 import save from './save';
 import { supportsCollections } from '../../shared/block-category';
@@ -58,34 +57,5 @@ export const settings = {
 	example: {
 		attributes: {},
 	},
-	deprecated: [
-		{
-			attributes: {
-				subscribeButton: { type: 'string', default: __( 'Subscribe', 'jetpack' ) },
-				showSubscribersTotal: { type: 'boolean', default: false },
-			},
-			migrate: attr => {
-				return {
-					subscribeButton: '',
-					submitButtonText: attr.subscribeButton,
-					showSubscribersTotal: attr.showSubscribersTotal,
-					customBackgroundButtonColor: '',
-					customTextButtonColor: '',
-					submitButtonClasses: '',
-				};
-			},
-
-			isEligible: attr => {
-				if ( ! isEmpty( attr.subscribeButton ) ) {
-					return false;
-				}
-				return true;
-			},
-			save: function( { attributes } ) {
-				return (
-					<RawHTML>{ `[jetpack_subscription_form show_subscribers_total="${ attributes.showSubscribersTotal }" show_only_email_and_button="true"]` }</RawHTML>
-				);
-			},
-		},
-	],
+	deprecated,
 };
