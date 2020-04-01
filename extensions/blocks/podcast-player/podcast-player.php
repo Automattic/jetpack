@@ -230,8 +230,15 @@ function render( $name, $data = array(), $print = true ) {
 	}
 
 	$template_path = dirname( __FILE__ ) . '/templates/' . $name;
+
 	if ( ! file_exists( $template_path ) ) {
 		return '';
+	}
+
+	// Optionally provided an assoc array of data to pass to tempalte
+	// and it will be extracted into variables
+	if ( is_array( $data ) ) {
+		extract( $data );
 	}
 
 	ob_start();
