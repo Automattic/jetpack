@@ -129,10 +129,6 @@ $player-float-background: $light-gray-200;
 		margin-bottom: $player-grid-spacing;
 	}
 
-	&.is-default .jetpack-podcast-player__audio-player {
-		display: none;
-	}
-
 	.jetpack-podcast-player--audio-player-loading {
 		height: 10px;
 		background: $player-slider-background;
@@ -238,10 +234,6 @@ $player-float-background: $light-gray-200;
 		}
 	}
 
-	&.is-default .jetpack-podcast-player__track-status-icon {
-		display: none;
-	}
-
 	.jetpack-podcast-player__track-status-icon--error {
 		fill: $text-color-error;
 	}
@@ -249,11 +241,6 @@ $player-float-background: $light-gray-200;
 	.jetpack-podcast-player__track-title {
 		flex-grow: 1;
 		padding: 0 $track-v-padding;
-	}
-
-	&.is-default .jetpack-podcast-player__track-title {
-		// Change padding to account for missing space for status-icon.
-		padding-left: $player-grid-spacing - $track-v-padding;
 	}
 
 	.jetpack-podcast-player__track-duration {
@@ -279,6 +266,24 @@ $player-float-background: $light-gray-200;
 
 		& > span > a {
 			color: inherit;
+		}
+	}
+
+	/**
+	 * Style the block to hide dynamic UI and show just its default style.
+	 */
+	&.is-default {
+		.jetpack-podcast-player__track-title {
+			// Change padding to account for missing space for status-icon.
+			padding-left: $player-grid-spacing - $track-v-padding;
+		}
+
+		.jetpack-podcast-player__audio-player {
+			display: none;
+		}
+
+		&.is-default .jetpack-podcast-player__track-status-icon {
+			display: none;
 		}
 	}
 
