@@ -2,15 +2,17 @@
  * External dependencies
  */
 import React from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { translate as __ } from 'i18n-calypso';
-import { withRouter } from 'react-router';
 
 /**
  * Internal dependencies
  */
 import analytics from 'lib/analytics';
 import { BACKUP_DESCRIPTION } from '../constants';
+import ExternalLink from 'components/external-link';
+import { getUpgradeUrl } from 'state/initial-state';
 import PlanRadioButton from '../single-product-components/plan-radio-button';
 import ProductSavings from '../single-product-components/product-savings';
 import UpgradeButton from '../single-product-components/upgrade-button';
@@ -38,14 +40,39 @@ class SingleProductBackupBody extends React.Component {
 		} );
 	};
 
+	handleLandingPageLinkClick = selectedBackupType => () => {
+		analytics.tracks.recordJetpackClick( {
+			target: 'landing-page-link',
+			feature: 'single-product-backup',
+			extra: selectedBackupType,
+		} );
+	};
+
 	render() {
-		const { backupOptions, billingTimeFrame, currencyCode, selectedBackupType } = this.props;
+		const {
+			backupInfoUrl,
+			backupOptions,
+			billingTimeFrame,
+			currencyCode,
+			selectedBackupType,
+		} = this.props;
 
 		const selectedBackup = backupOptions.find( ( { type } ) => type === selectedBackupType );
 
 		return (
 			<React.Fragment>
-				<p>{ BACKUP_DESCRIPTION }</p>
+				<p>
+					{ BACKUP_DESCRIPTION } <br />
+					<ExternalLink
+						target="_blank"
+						href={ backupInfoUrl }
+						icon
+						iconSize={ 12 }
+						onClick={ this.handleLandingPageLinkClick }
+					>
+						{ __( 'Which backup option is best for me?' ) }
+					</ExternalLink>
+				</p>
 				<PromoNudge />
 				<h4 className="single-product-backup__options-header">
 					{ __( 'Select a backup option:' ) }
@@ -81,4 +108,8 @@ class SingleProductBackupBody extends React.Component {
 	}
 }
 
-export default withRouter( SingleProductBackupBody );
+export default connect( state => {
+	return {
+		backupInfoUrl: getUpgradeUrl( state, 'aag-backups' ), // Redirect to https://jetpack.com/upgrade/backup/
+	};
+} )( SingleProductBackupBody );
