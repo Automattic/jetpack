@@ -15,12 +15,13 @@
 
 define( 'JETPACK__MINIMUM_WP_VERSION', '5.3' );
 define( 'JETPACK__MINIMUM_PHP_VERSION', '5.6' );
-define( 'JETPACK__VERSION', '8.4-alpha' );
+define( 'JETPACK__VERSION', '8.3' );
 define( 'JETPACK_MASTER_USER', true );
 define( 'JETPACK__API_VERSION', 1 );
 define( 'JETPACK__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'JETPACK__PLUGIN_FILE', __FILE__ );
 
+defined( 'JETPACK__RELEASE_POST_BLOG_SLUG' ) || define( 'JETPACK__RELEASE_POST_BLOG_SLUG', 'jetpackreleaseblog.wordpress.com' );
 defined( 'JETPACK_CLIENT__AUTH_LOCATION' ) || define( 'JETPACK_CLIENT__AUTH_LOCATION', 'header' );
 defined( 'JETPACK_CLIENT__HTTPS' ) || define( 'JETPACK_CLIENT__HTTPS', 'AUTO' );
 defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) || define( 'JETPACK__GLOTPRESS_LOCALES_PATH', JETPACK__PLUGIN_DIR . 'locales.php' );

@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { translate as __ } from 'i18n-calypso';
 import Button from 'components/button';
@@ -9,11 +8,11 @@ import Button from 'components/button';
 /**
  * Internal dependencies
  */
-import JetpackDialogue from 'components/jetpack-dialogue';
 import { imagePath } from 'constants/urls';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import analytics from 'lib/analytics';
 import ExternalLink from 'components/external-link';
+import ModernOverlay from 'components/jetpack-dialogue-modern';
 
 const UpgradeNoticeContent = withModuleSettingsFormHelpers(
 	class extends Component {
@@ -60,18 +59,8 @@ const UpgradeNoticeContent = withModuleSettingsFormHelpers(
 					 * See Jetpack::send_update_modal_data().
 					 */ }
 					<div dangerouslySetInnerHTML={ { __html: content } } />
-					<div className="jp-dialogue__cta-container">
+					<div className="jp-dialogue-modern__cta-container">
 						<Button onClick={ this.dismissNotice }>{ __( 'Okay, got it!' ) }</Button>
-					</div>
-					<br />
-					<div>
-						<ExternalLink
-							href={ this.props.releasePostLink }
-							target="_blank"
-							rel="noopener noreferrer"
-						>
-							{ __( 'View this post on the Jetpack.com blog' ) }
-						</ExternalLink>
 						<br />
 						<ExternalLink
 							href="https://wordpress.org/plugins/jetpack/#developers"
@@ -92,9 +81,16 @@ const UpgradeNoticeContent = withModuleSettingsFormHelpers(
 		}
 
 		render() {
+			const { featuredImage } = this.props;
+			let featuredImageComponent = null;
+
+			if ( featuredImage && featuredImage.length > 0 ) {
+				featuredImageComponent = <img src={ featuredImage } alt={ '' } />;
+			}
+
 			return (
-				<JetpackDialogue
-					svg={ <img src={ imagePath + 'jetpack-welcome.svg' } width="250" alt={ '' } /> }
+				<ModernOverlay
+					svg={ featuredImageComponent }
 					title={ __( 'New in Jetpack %(version)s', {
 						args: {
 							version: this.props.version,
@@ -108,12 +104,5 @@ const UpgradeNoticeContent = withModuleSettingsFormHelpers(
 		}
 	}
 );
-
-JetpackDialogue.propTypes = {
-	adminUrl: PropTypes.string,
-	dismiss: PropTypes.func,
-	isUnavailableInDevMode: PropTypes.func,
-	version: PropTypes.string,
-};
 
 export default UpgradeNoticeContent;

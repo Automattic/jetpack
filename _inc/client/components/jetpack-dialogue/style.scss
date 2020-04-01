@@ -12,7 +12,7 @@
 	height: 100%;
 	overflow: auto;
 
-	@include breakpoint( ">782px" ) {
+	@include breakpoint( ">660px" ) {
 		left: 36px;
 	}
 

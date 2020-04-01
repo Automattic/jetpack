@@ -3315,12 +3315,33 @@ p {
 			return;
 		}
 
-		$post_link = isset( $post_data['posts'][0]['URL'] ) ? $post_data['posts'][0]['URL'] : null;
-		if ( empty( $post_link ) ) {
-			return;
+		$post_thumbnail = isset( $post_data['posts'][0]['post_thumbnail'] ) ? $post_data['posts'][0]['post_thumbnail'] : null;
+		if ( ! empty( $post_thumbnail ) ) {
+			jetpack_require_lib( 'class.jetpack-photon-image' );
+			$photon_image = new Jetpack_Photon_Image(
+				array(
+					'file'   => jetpack_photon_url( $post_thumbnail['URL'] ),
+					'width'  => $post_thumbnail['width'],
+					'height' => $post_thumbnail['height'],
+				),
+				$post_thumbnail['mime_type']
+			);
+			$photon_image->resize(
+				array(
+					'width'  => 600,
+					'height' => null,
+					'crop'   => false,
+				)
+			);
+			$post_thumbnail_url = $photon_image->get_raw_filename();
+		} else {
+			$post_thumbnail_url = null;
 		}
 
+		// this allows us to embed videopress videos into the release post.
+		add_filter( 'wp_kses_allowed_html', array( __CLASS__, 'allow_post_embed_iframe' ), 10, 2 );
 		$content = wp_kses_post( $post_content );
+		remove_filter( 'wp_kses_allowed_html', array( __CLASS__, 'allow_post_embed_iframe' ), 10, 2 );
 
 		// Bail if DOMDocument is disabled on the server.
 		if ( ! class_exists( 'DOMDocument' ) ) {
@@ -3343,14 +3364,32 @@ p {
 
 		$modal_content = $dom_doc->saveHTML();
 
-		$link = esc_url( $post_link );
-
 		$post_array = array(
-			'release_post_content' => $modal_content,
-			'release_post_link'    => $link,
+			'release_post_content'        => $modal_content,
+			'release_post_featured_image' => $post_thumbnail_url,
 		);
 
 		self::state( 'message_content', $post_array );
+	}
+
+	/**
+	 * Allow temporarily allow post content to contain iframes, e.g. for videopress
+	 *
+	 * @param string $tags    The tags.
+	 * @param string $context The context.
+	 */
+	public static function allow_post_embed_iframe( $tags, $context ) {
+		if ( 'post' === $context ) {
+			$tags['iframe'] = array(
+				'src'             => true,
+				'height'          => true,
+				'width'           => true,
+				'frameborder'     => true,
+				'allowfullscreen' => true,
+			);
+		}
+
+		return $tags;
 	}
 
 	/**
@@ -3373,10 +3412,10 @@ p {
 		$release_post_src = add_query_arg(
 			array(
 				'order_by' => 'date',
-				'tag'      => JETPACK__VERSION . '+show_update_modal',
+				'tag'      => JETPACK__VERSION,
 				'number'   => '1',
 			),
-			'https://public-api.wordpress.com/rest/v1/sites/jetpack.com/posts'
+			'https://public-api.wordpress.com/rest/v1/sites/' . JETPACK__RELEASE_POST_BLOG_SLUG . '/posts'
 		);
 
 		$response = wp_remote_get( $release_post_src );

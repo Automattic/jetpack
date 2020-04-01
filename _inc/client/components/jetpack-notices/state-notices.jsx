@@ -235,9 +235,7 @@ class JetpackStateNotices extends React.Component {
 	renderContent = () => {
 		let status = 'is-info',
 			noticeText = '',
-			action,
-			releasePostContent = null,
-			releasePostLink = null;
+			action;
 		const error = this.props.jetpackStateNoticesErrorCode,
 			message = this.props.jetpackStateNoticesMessageCode,
 			messageContent = this.props.jetpackStateNoticesMessageContent;
@@ -253,21 +251,16 @@ class JetpackStateNotices extends React.Component {
 			}
 		}
 
-		if ( messageContent ) {
-			releasePostContent = messageContent.release_post_content;
-			releasePostLink = messageContent.release_post_link;
-		}
-
 		// Show custom message for updated Jetpack.
-		if ( releasePostContent && releasePostLink ) {
+		if ( messageContent.release_post_content ) {
 			return (
 				<UpgradeNoticeContent
 					adminUrl={ this.props.adminUrl }
 					dismiss={ this.dismissJetpackStateNotice }
 					isUnavailableInDevMode={ this.props.isUnavailableInDevMode }
 					version={ this.props.currentVersion }
-					releasePostContent={ releasePostContent }
-					releasePostLink={ releasePostLink }
+					releasePostContent={ messageContent.release_post_content }
+					featuredImage={ messageContent.release_post_featured_image }
 				/>
 			);
 		}
