@@ -133,6 +133,13 @@ $player-float-background: $light-gray-200;
 		display: none;
 	}
 
+	.jetpack-podcast-player--audio-player-loading {
+		width: 100%;
+		height: 10px;
+		background: $player-slider-background;
+		margin: 15px $player-grid-spacing;
+	}
+
 	.jetpack-podcast-player__track-description {
 		order: 99; // high number to make it always appear after the audio player
 		padding: 0 $player-grid-spacing;
