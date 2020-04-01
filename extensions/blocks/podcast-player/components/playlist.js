@@ -7,7 +7,7 @@ import classnames from 'classnames';
  * WordPress dependencies
  */
 import { memo } from '@wordpress/element';
-import { __, _x } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -20,18 +20,12 @@ const TrackIcon = ( { isPlaying, isError, className } ) => {
 
 	if ( isError ) {
 		name = 'error';
-		hiddenText = _x(
-			'Error: ',
-			'Text to describe the current state. This will go before the track title, such as "Error: The title of the track"',
-			'jetpack'
-		);
+		/* translators: This is text to describe the current state. This will go before the track title, such as "Error: [The title of the track]" */
+		hiddenText = __( 'Error: ', 'jetpack' );
 	} else if ( isPlaying ) {
 		name = 'playing';
-		hiddenText = _x(
-			'Playing: ',
-			'Text to describe the current state. This will go before the track title, such as "Playing: The title of the track"',
-			'jetpack'
-		);
+		/* translators: Text to describe the current state. This will go before the track title, such as "Playing: [The title of the track]" */
+		hiddenText = __( 'Playing: ', 'jetpack' );
 	}
 
 	const icon = trackIcons[ name ];
@@ -98,6 +92,9 @@ const Track = memo(
 			inlineStyle.color = colors.secondary.custom;
 		}
 
+		/* translators: This needs to be a single word with no spaces. It describes the current item in the group. A screen reader will announce it as "[title], current track" */
+		const ariaCurrent = isActive ? __( 'track', 'jetpack' ) : undefined;
+
 		return (
 			<li
 				className={ trackClassName }
@@ -107,15 +104,7 @@ const Track = memo(
 					className="jetpack-podcast-player__track-link"
 					href={ track.link }
 					role="button"
-					aria-current={
-						isActive
-							? _x(
-									'track',
-									'This needs to be a single word with no spaces. It describes the current item in the group. A screen reader will announce it as "[track title], current track"',
-									'jetpack'
-							  )
-							: undefined
-					}
+					aria-current={ ariaCurrent }
 					onClick={ e => {
 						// Prevent handling clicks if a modifier is in use.
 						if ( e.shiftKey || e.metaKey || e.altKey ) {
