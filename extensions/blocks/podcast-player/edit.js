@@ -100,7 +100,7 @@ const PodcastPlayerEdit = ( {
 					setFeedData( data );
 				},
 				error => {
-					if ( error && error.isCanceled ) {
+					if ( error?.isCanceled ) {
 						debug( 'Block was unmounted during fetch', error );
 						return; // bail if canceled to avoid setting state
 					}
@@ -118,9 +118,7 @@ const PodcastPlayerEdit = ( {
 
 	useEffect( () => {
 		return () => {
-			if ( cancellableFetch && cancellableFetch.current && cancellableFetch.current.cancel ) {
-				cancellableFetch.current.cancel();
-			}
+			cancellableFetch?.current?.cancel?.();
 		};
 	}, [] );
 
