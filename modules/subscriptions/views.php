@@ -841,13 +841,17 @@ function jetpack_do_subscription_form( $instance ) {
 		$submit_button_styles .= $style;
 		$email_field_styles   .= $style;
 	}
-	if ( isset( $instance['custom_spacing'] ) && 'undefined' !== $instance['custom_spacing'] ) {
-		if ( isset( $instance['button_on_newline'] ) && 'true' === $instance['button_on_newline'] ) {
-			$submit_button_styles .= 'margin-top: ' . $instance['custom_spacing'] . 'px; ';
-		} else {
-			$submit_button_styles .= 'margin-left: ' . $instance['custom_spacing'] . 'px; ';
-		}
+
+	$button_spacing = 10;
+	if ( ! empty( $instance['custom_spacing'] ) ) {
+		$button_spacing = $instance['custom_spacing'];
 	}
+	if ( isset( $instance['button_on_sameline'] ) && 'true' === $instance['button_on_sameline'] ) {
+		$submit_button_styles .= 'margin-left: ' . $button_spacing . 'px; ';
+	} else {
+		$submit_button_styles .= 'margin-top: ' . $button_spacing . 'px; ';
+	}
+
 	if ( isset( $instance['custom_border_radius'] ) && 'undefined' !== $instance['custom_border_radius'] ) {
 		$style                 = 'border-radius: ' . $instance['custom_border_radius'] . 'px; ';
 		$submit_button_styles .= $style;

@@ -2,6 +2,7 @@
  * External dependencies
  */
 import classnames from 'classnames';
+import { isEqual } from 'lodash';
 import apiFetch from '@wordpress/api-fetch';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import {
@@ -29,6 +30,8 @@ import { compose } from '@wordpress/compose';
  * Internal dependencies
  */
 import './view.scss';
+import { defaultAttributes } from './attributes';
+import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 
 const { getComputedStyle } = window;
 const isGradientAvailable = !! useGradient;
@@ -69,6 +72,11 @@ function SubscriptionEdit( props ) {
 		setFontSize,
 	} = props;
 
+	const validatedAttributes = getValidatedAttributes( defaultAttributes, attributes );
+	if ( ! isEqual( validatedAttributes, attributes ) ) {
+		setAttributes( validatedAttributes );
+	}
+
 	const {
 		borderRadius,
 		borderWeight,
@@ -78,7 +86,7 @@ function SubscriptionEdit( props ) {
 		subscribePlaceholder,
 		showSubscribersTotal,
 		buttonOnNewLine,
-	} = attributes;
+	} = validatedAttributes;
 
 	const MIN_BORDER_RADIUS_VALUE = 0;
 	const MAX_BORDER_RADIUS_VALUE = 50;
@@ -176,7 +184,7 @@ function SubscriptionEdit( props ) {
 	const getBlockClassName = () => {
 		return classnames(
 			className,
-			buttonOnNewLine ? 'wp-block-jetpack-subscriptions__newline' : undefined,
+			buttonOnNewLine ? undefined : 'wp-block-jetpack-subscriptions__same-line',
 			showSubscribersTotal ? 'wp-block-jetpack-subscriptions__showsubs' : undefined
 		);
 	};
@@ -290,7 +298,7 @@ function SubscriptionEdit( props ) {
 						label={ __( 'Border Radius', 'jetpack' ) }
 						min={ MIN_BORDER_RADIUS_VALUE }
 						max={ MAX_BORDER_RADIUS_VALUE }
-						initialPosition={ borderRadius.default }
+						initialPosition={ borderRadius }
 						allowReset
 						onChange={ newBorderRadius => setAttributes( { borderRadius: newBorderRadius } ) }
 					/>
@@ -300,7 +308,7 @@ function SubscriptionEdit( props ) {
 						label={ __( 'Border Weight', 'jetpack' ) }
 						min={ MIN_BORDER_WEIGHT_VALUE }
 						max={ MAX_BORDER_WEIGHT_VALUE }
-						initialPosition={ borderWeight.default }
+						initialPosition={ borderWeight }
 						allowReset
 						onChange={ newBorderWeight => setAttributes( { borderWeight: newBorderWeight } ) }
 					/>
@@ -316,7 +324,7 @@ function SubscriptionEdit( props ) {
 						label={ __( 'Space Inside', 'jetpack' ) }
 						min={ MIN_PADDING_VALUE }
 						max={ MAX_PADDING_VALUE }
-						initialPosition={ padding.default }
+						initialPosition={ padding }
 						allowReset
 						onChange={ newPaddingValue => setAttributes( { padding: newPaddingValue } ) }
 					/>
@@ -326,7 +334,7 @@ function SubscriptionEdit( props ) {
 						label={ __( 'Space Between', 'jetpack' ) }
 						min={ MIN_SPACING_VALUE }
 						max={ MAX_SPACING_VALUE }
-						initialPosition={ spacing.default }
+						initialPosition={ spacing }
 						allowReset
 						onChange={ newSpacingValue => setAttributes( { spacing: newSpacingValue } ) }
 					/>
