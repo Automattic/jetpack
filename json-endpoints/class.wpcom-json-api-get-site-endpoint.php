@@ -602,6 +602,10 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'import_engine':
 					$options[ $key ] = $site->get_import_engine();
 					break;
+
+				case 'is_wpforteams_site':
+					$options[ $key ] = $site->is_wpforteams_site();
+					break;
 			}
 		}
 
