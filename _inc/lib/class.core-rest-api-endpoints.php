@@ -1935,7 +1935,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'description'       => esc_html__( 'Enabled Services and those hidden behind a button', 'jetpack' ),
 				'type'              => 'object',
 				'default'           => array(
-					'visible' => array( 'twitter', 'facebook', 'google-plus-1' ),
+					'visible' => array( 'twitter', 'facebook' ),
 					'hidden'  => array(),
 				),
 				'validate_callback' => __CLASS__ . '::validate_services',

@@ -7,7 +7,7 @@
  * 'after_setup_theme' action:
  *
  * add_theme_support( 'social-links', array(
- *     'facebook', 'twitter', 'linkedin', 'tumblr', 'google_plus',
+ *     'facebook', 'twitter', 'linkedin', 'tumblr',
  * ) );
  */
 
