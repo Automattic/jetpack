@@ -249,6 +249,11 @@ function render( $name, $data = array(), $print = true ) {
 	ob_end_clean();
 
 	if ( $print ) {
+		// it's disabled in order to allow to templates
+		// render their content without HTML entities issues.
+		// However, each template is going to be checked
+		// guaranteeing the correct escape for the markup.
+
 		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo $markup;
 		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
