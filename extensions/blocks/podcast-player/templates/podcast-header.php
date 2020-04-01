@@ -25,7 +25,7 @@ $track = ! empty( $template_props['tracks'] ) ? $template_props['tracks'][0] : a
 	<div class="jetpack-podcast-player__current-track-info" aria-live="polite">
 		<?php if ( $show_cover_art && isset( $cover ) ) : ?>
 			<div class="jetpack-podcast-player__cover">
-				<img class="jetpack-podcast-player__cover-image" src=<?php echo esc_url( $cover ); ?>alt="" />
+				<img class="jetpack-podcast-player__cover-image" src="<?php echo esc_url( $cover ); ?>" alt="" />
 			</div>
 
 			<?php

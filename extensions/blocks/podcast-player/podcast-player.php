@@ -115,6 +115,7 @@ function render_player( $player_data, $attributes ) {
 		$player_data
 	);
 
+	$primary_colors    = get_colors( 'primary', $attributes, 'color' );
 	$secondary_colors  = get_colors( 'secondary', $attributes, 'color' );
 	$background_colors = get_colors( 'background', $attributes, 'background-color' );
 
@@ -133,22 +134,18 @@ function render_player( $player_data, $attributes ) {
 		>
 			<?php render( 'podcast-header', $player_props ); ?>
 			<ol class="jetpack-podcast-player__tracks">
-				<?php foreach ( $player_data['tracks'] as $attachment ) : ?>
-				<li
-					class="jetpack-podcast-player__track <?php echo esc_attr( $secondary_colors['class'] ); ?>"
-					style="<?php echo esc_attr( $secondary_colors['style'] ); ?>"
-				>
-					<a
-						class="jetpack-podcast-player__track-link"
-						href="<?php echo esc_url( $attachment['link'] ); ?>"
-						role="button"
-						aria-pressed="false"
-					>
-						<span class="jetpack-podcast-player__track-status-icon"></span>
-						<span class="jetpack-podcast-player__track-title"><?php echo esc_html( $attachment['title'] ); ?></span>
-						<time class="jetpack-podcast-player__track-duration"><?php echo ( ! empty( $attachment['duration'] ) ? esc_html( $attachment['duration'] ) : '' ); ?></time>
-					</a>
-				</li>
+				<?php foreach ( $player_data['tracks'] as $track_index => $attachment ) : ?>
+					<?php
+					render(
+						'playlist-track',
+						array(
+							'is_active'        => 0 === $track_index,
+							'attachment'       => $attachment,
+							'primary_colors'   => $primary_colors,
+							'secondary_colors' => $secondary_colors,
+						)
+					);
+					?>
 				<?php endforeach; ?>
 			</ol>
 		</section>
