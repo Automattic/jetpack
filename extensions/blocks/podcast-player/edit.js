@@ -96,6 +96,10 @@ const PodcastPlayerEdit = ( {
 
 			cancellableFetch.current.promise.then(
 				data => {
+					if ( data?.isCanceled ) {
+						debug( 'Block was unmounted during fetch', data );
+						return; // bail if canceled to avoid setting state
+					}
 					// Store feed data.
 					setFeedData( data );
 				},
