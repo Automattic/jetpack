@@ -7,7 +7,7 @@ import classnames from 'classnames';
  * WordPress dependencies
  */
 import { memo } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -50,12 +50,13 @@ const TrackError = memo( ( { link, title } ) => (
 		{ __( 'Episode unavailable', 'jetpack' ) }{ ' ' }
 		{ link && (
 			<span>
-				{ '(' }
+				{ ' - ' }
 				<a href={ link } rel="noopener noreferrer nofollow" target="_blank">
-					<span class="jetpack-podcast-player--visually-hidden">{ title }: </span>
+					<span class="jetpack-podcast-player--visually-hidden">
+						{ sprintf( __( '%s: ', 'jetpack' ), title ) }
+					</span>
 					{ __( 'Open in a new tab', 'jetpack' ) }
 				</a>
-				{ ')' }
 			</span>
 		) }
 	</div>

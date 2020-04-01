@@ -100,7 +100,7 @@ export class PodcastPlayer extends Component {
 	handleError = () => {
 		this.setState( { playerState: STATE_ERROR } );
 
-		speak( `${ __( 'Error: Episode unavailable. (Open in a new tab)', 'jetpack' ) }`, 'assertive' );
+		speak( `${ __( 'Error: Episode unavailable - Open in a new tab', 'jetpack' ) }`, 'assertive' );
 	};
 
 	/**
