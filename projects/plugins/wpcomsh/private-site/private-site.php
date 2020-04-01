@@ -43,6 +43,7 @@ function admin_init() {
 		add_action( 'blog_privacy_selector', '\Private_Site\privatize_blog_priv_selector' );
 		// Prevent wp-admin from touching blog_public option
 		add_action( 'whitelist_options', '\Private_Site\remove_privacy_option_from_whitelist' );
+		add_action( 'admin_print_scripts', '\Private_Site\hide_videopress_from_jetpack_plans_page' );
 	}
 
 	if ( should_override_editor_with_classic_editor() ) {
@@ -100,6 +101,7 @@ function init() {
 	add_action( 'wp_head', '\Private_Site\show_logged_in_banner', -1000 );
 }
 add_action( 'init', '\Private_Site\init' );
+
 
 /** Jetpack-specific hooks **/
 function muplugins_loaded() {
@@ -275,6 +277,20 @@ function should_prevent_site_access() {
 
 	return $cached = ! is_private_blog_user();
 }
+
+function hide_videopress_from_jetpack_plans_page() {
+	wp_add_inline_script(
+		'react-plugin',
+		'
+			if ( window.Initial_State && window.Initial_State.getModules ) {
+				if ( ! ( "videopress" in window.Initial_State.getModules ) ) {
+					window.Initial_State.getModules.videopress = {};
+				}
+				window.Initial_State.getModules.videopress.override = "inactive";
+			}
+		', 'before'
+	);
+};
 
 function register_additional_jetpack_xmlrpc_methods( $methods ) {
 	return array_merge( $methods, [
