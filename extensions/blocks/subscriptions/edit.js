@@ -377,7 +377,11 @@ function SubscriptionEdit( props ) {
 					/>
 
 					<RichText
-						className={ classnames( buttonClasses, 'wp-block-jetpack-subscriptions__button' ) }
+						className={ classnames(
+							buttonClasses,
+							'wp-block-jetpack-subscriptions__button',
+							'wp-block-button__link'
+						) }
 						onChange={ value => setAttributes( { submitButtonText: value } ) }
 						style={ buttonStyles }
 						value={ submitButtonText }
