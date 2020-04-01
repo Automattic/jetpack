@@ -110,7 +110,6 @@ $player-float-background: $light-gray-200;
 
 	a.jetpack-podcast-player__podcast-title {
 		text-decoration: none;
-		color: $text-color;
 
 		&:hover,
 		&:focus {
@@ -119,13 +118,8 @@ $player-float-background: $light-gray-200;
 	}
 
 	// Apply `secondary` color to the podcast title.
-	.jetpack-podcast-player__container:not(.has-secondary) { // no custom -> default color.
-		a.jetpack-podcast-player__podcast-title {
-			color: $text-color;
-		}
-	}
 	.jetpack-podcast-player__container.has-secondary { // custom color.
-		a.jetpack-podcast-player__podcast-title {
+		.jetpack-podcast-player__podcast-title {
 			color: currentColor;
 		}
 	}
