@@ -32,10 +32,11 @@ $track = ! empty( $template_props['tracks'] ) ? $template_props['tracks'][0] : a
 			render(
 				'podcast-header-title',
 				array(
-					'playerId' => $playerId,
-					'title'    => $title,
-					'link'     => $link,
-					'track'    => $track,
+					'playerId'       => $playerId,
+					'title'          => $title,
+					'link'           => $link,
+					'track'          => $track,
+					'primary_colors' => $primary_colors,
 				)
 			);
 			?>
