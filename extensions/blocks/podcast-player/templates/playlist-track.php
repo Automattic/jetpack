@@ -29,7 +29,7 @@ if ( $is_active ) {
 		class="jetpack-podcast-player__track-link"
 		href="<?php echo esc_url( $attachment['link'] ); ?>"
 		role="button"
-		aria-pressed="false"
+		<?php echo $is_active ? 'aria-current="track"' : ''; ?>
 	>
 		<span class="jetpack-podcast-player__track-status-icon"></span>
 		<span class="jetpack-podcast-player__track-title"><?php echo esc_html( $track_title ); ?></span>
