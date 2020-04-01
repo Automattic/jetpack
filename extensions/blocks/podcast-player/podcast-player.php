@@ -115,6 +115,7 @@ function render_player( $player_data, $attributes ) {
 		$player_data
 	);
 
+	$primary_colors    = get_colors( 'primary', $attributes, 'color' );
 	$secondary_colors  = get_colors( 'secondary', $attributes, 'color' );
 	$background_colors = get_colors( 'background', $attributes, 'background-color' );
 
@@ -140,6 +141,7 @@ function render_player( $player_data, $attributes ) {
 						array(
 							'is_active'        => 0 === $track_index,
 							'attachment'       => $attachment,
+							'primary_colors'   => $primary_colors,
 							'secondary_colors' => $secondary_colors,
 						)
 					);
