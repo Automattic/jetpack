@@ -68,16 +68,22 @@ const Title = memo( ( {
 			<span className="jetpack-podcast-player--visually-hidden"> - </span>
 		) }
 
-		{ !! title && <PodcastTitle title={ title } link={ link } /> }
+		{ !! title && <PodcastTitle title={ title } link={ link } colors={ colors } /> }
 	</h2>
 ) );
 
-const PodcastTitle = memo( ( { title, link } ) => {
-	const className = 'jetpack-podcast-player__podcast-title';
+const PodcastTitle = memo( ( { title, link, colors = { secondary: { name: null, custom: null, classes: '' } } } ) => {
+	const className = classnames( 'jetpack-podcast-player__podcast-title', colors.secondary.classes );
 
 	if ( link ) {
 		return (
-			<a className={ className } href={ link } target="_blank" rel="noopener noreferrer nofollow">
+			<a
+				className={ className }
+				style={ { color: colors.secondary.custom } }
+				href={ link }
+				target="_blank"
+				rel="noopener noreferrer nofollow"
+			>
 				{ title }
 			</a>
 		);
