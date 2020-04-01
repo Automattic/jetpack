@@ -169,21 +169,48 @@ export class PodcastPlayer extends Component {
 		const track = this.getTrack( currentTrack );
 
 		// Set CSS classes string.
+		const primaryColorClass = getColorClassName( 'color', primaryColor );
 		const secondaryColorClass = getColorClassName( 'color', secondaryColor );
 		const backgroundColorClass = getColorClassName( 'background-color', backgroundColor );
 
-		const cssClassesName = classnames( playerState, {
-			'has-secondary': secondaryColor || customSecondaryColor,
-			[ secondaryColorClass ]: secondaryColorClass,
-			'has-background': backgroundColor || customBackgroundColor,
-			[ backgroundColorClass ]: backgroundColorClass,
-		} );
+		const colors = {
+			primary: {
+				name: primaryColor,
+				custom: customPrimaryColor,
+				classes: classnames( {
+					'has-primary': primaryColorClass || customPrimaryColor,
+					[ primaryColorClass ]: primaryColorClass,
+				} ),
+			},
+			secondary: {
+				name: secondaryColor,
+				custom: customSecondaryColor,
+				classes: classnames( {
+					'has-secondary': secondaryColorClass || customSecondaryColor,
+					[ secondaryColorClass ]: secondaryColorClass,
+				} ),
+			},
+			background: {
+				name: backgroundColor,
+				custom: customBackgroundColor,
+				classes: classnames( {
+					'has-background': backgroundColorClass || customBackgroundColor,
+					[ backgroundColorClass ]: backgroundColorClass,
+				} ),
+			},
+		};
 
 		const inlineStyle = {
 			color: customSecondaryColor && ! secondaryColorClass ? customSecondaryColor : null,
 			backgroundColor:
 				customBackgroundColor && ! backgroundColorClass ? customBackgroundColor : null,
 		};
+
+		const cssClassesName = classnames(
+			playerState,
+			colors.secondary.classes,
+			colors.background.classes
+		);
 
 		return (
 			<section
@@ -204,6 +231,7 @@ export class PodcastPlayer extends Component {
 					track={ this.getTrack( currentTrack ) }
 					showCoverArt={ showCoverArt }
 					showEpisodeDescription={ showEpisodeDescription }
+					colors={ colors }
 				>
 					<AudioPlayer
 						initialTrackSource={ this.getTrack( 0 ).src }
@@ -233,16 +261,7 @@ export class PodcastPlayer extends Component {
 					currentTrack={ currentTrack }
 					tracks={ tracksToDisplay }
 					selectTrack={ this.selectTrack }
-					colors={ {
-						primary: {
-							name: primaryColor,
-							custom: customPrimaryColor,
-						},
-						secondary: {
-							name: secondaryColor,
-							custom: customSecondaryColor,
-						},
-					} }
+					colors={ colors }
 				/>
 			</section>
 		);
