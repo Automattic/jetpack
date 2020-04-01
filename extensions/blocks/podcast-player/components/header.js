@@ -6,7 +6,7 @@ import { memo } from '@wordpress/element';
 const Header = memo(
 	( { playerId, title, cover, link, track, children, showCoverArt, showEpisodeDescription } ) => (
 		<div className="jetpack-podcast-player__header">
-			<div className="jetpack-podcast-player__current-track-info" aria-live="polite">
+			<div className="jetpack-podcast-player__current-track-info">
 				{ showCoverArt && cover && (
 					<div className="jetpack-podcast-player__cover">
 						{ /* alt="" will prevent the src from being announced. Ideally we'd have a cover.alt, but we can't get that from the RSS */ }

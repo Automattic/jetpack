@@ -7,6 +7,8 @@
  * WordPress dependencies
  */
 import { Component } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import { speak } from '@wordpress/a11y';
 
 /**
  * Internal dependencies
@@ -52,6 +54,7 @@ class AudioPlayer extends Component {
 	 */
 	pause = () => {
 		this.audio.pause();
+		speak( __( 'Paused', 'jetpack' ), 'assertive' );
 	};
 
 	/**
