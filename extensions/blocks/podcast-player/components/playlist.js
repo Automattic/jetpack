@@ -21,11 +21,11 @@ const TrackIcon = ( { isPlaying, isError, className } ) => {
 	if ( isError ) {
 		name = 'error';
 		/* translators: This is text to describe the current state. This will go before the track title, such as "Error: [The title of the track]" */
-		hiddenText = __( 'Error: ', 'jetpack' );
+		hiddenText = __( 'Error:', 'jetpack' );
 	} else if ( isPlaying ) {
 		name = 'playing';
 		/* translators: Text to describe the current state. This will go before the track title, such as "Playing: [The title of the track]" */
-		hiddenText = __( 'Playing: ', 'jetpack' );
+		hiddenText = __( 'Playing:', 'jetpack' );
 	}
 
 	const icon = trackIcons[ name ];
@@ -37,7 +37,8 @@ const TrackIcon = ( { isPlaying, isError, className } ) => {
 
 	return (
 		<span className={ `${ className } ${ className }--${ name }` }>
-			<span className="jetpack-podcast-player--visually-hidden">{ hiddenText }</span>
+			{ /* Intentional space left after hiddenText */ }
+			<span className="jetpack-podcast-player--visually-hidden">{ `${ hiddenText } ` }</span>
 			{ icon }
 		</span>
 	);
