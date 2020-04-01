@@ -5,7 +5,7 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -28,7 +28,10 @@ export const settings = {
 	description: __( 'Select and play episodes from a single podcast.', 'jetpack' ),
 	icon: queueMusic,
 	category: 'jetpack',
-	keywords: [],
+	keywords: [
+		_x( 'audio', 'block search term', 'jetpack' ),
+		_x( 'embed', 'block search term', 'jetpack' ),
+	],
 	supports: {
 		// Support for block's alignment (left, center, right, wide, full). When true, it adds block controls to change block’s alignment.
 		align: false /* if set to true, the 'align' option below can be used*/,
