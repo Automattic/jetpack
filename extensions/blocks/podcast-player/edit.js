@@ -71,6 +71,7 @@ const PodcastPlayerEdit = ( {
 	backgroundColor: backgroundColorProp,
 	setBackgroundColor,
 	fallbackBackgroundColor,
+	isSelected,
 } ) => {
 	// Validated attributes.
 	const validatedAttributes = getValidatedAttributes( attributesValidation, attributes );
@@ -83,6 +84,7 @@ const PodcastPlayerEdit = ( {
 	const [ isEditing, setIsEditing ] = useState( false );
 	const [ feedData, setFeedData ] = useState( {} );
 	const cancellableFetch = useRef();
+	const [ isInteractive, setIsInteractive ] = useState( false );
 
 	const fetchFeed = useCallback(
 		urlToFetch => {
@@ -139,6 +141,13 @@ const PodcastPlayerEdit = ( {
 
 		fetchFeed( url );
 	}, [ fetchFeed, removeAllNotices, url ] );
+
+	// Bring back the overlay after block gets deselected.
+	useEffect( () => {
+		if ( ! isSelected && isInteractive ) {
+			setIsInteractive( false );
+		}
+	}, [ isSelected ] );
 
 	/**
 	 * Check if the current URL of the Podcast RSS feed
@@ -304,6 +313,19 @@ const PodcastPlayerEdit = ( {
 					title={ feedData.title }
 					link={ feedData.link }
 				/>
+				{
+					// Disabled because the overlay div doesn't actually have a role or functionality
+					// as far as the user is concerned. We're just catching the first click so that
+					// the block can be selected without interacting with the embed preview that the overlay covers.
+					/* eslint-disable jsx-a11y/no-static-element-interactions */
+				 }
+				{ ! isInteractive && (
+					<div
+						className="jetpack-podcast-player__interactive-overlay"
+						onMouseUp={ () => setIsInteractive( true ) }
+					/>
+				) }
+				{ /* eslint-enable jsx-a11y/no-static-element-interactions */ }
 			</div>
 		</>
 	);
