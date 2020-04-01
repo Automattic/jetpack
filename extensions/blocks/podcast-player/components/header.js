@@ -1,10 +1,15 @@
 /**
  * External dependencies
  */
+import classnames from 'classnames';
+
+/**
+ * WordPress dependencies
+ */
 import { memo } from '@wordpress/element';
 
 const Header = memo(
-	( { playerId, title, cover, link, track, children, showCoverArt, showEpisodeDescription } ) => (
+	( { playerId, title, cover, link, track, children, showCoverArt, showEpisodeDescription, colors } ) => (
 		<div className="jetpack-podcast-player__header">
 			<div className="jetpack-podcast-player__current-track-info">
 				{ showCoverArt && cover && (
@@ -15,7 +20,13 @@ const Header = memo(
 				) }
 
 				{ !! ( title || ( track && track.title ) ) && (
-					<Title playerId={ playerId } title={ title } link={ link } track={ track } />
+					<Title
+						playerId={ playerId }
+						title={ title }
+						link={ link }
+						track={ track }
+						colors={ colors }
+					/>
 				) }
 			</div>
 
@@ -35,10 +46,21 @@ const Header = memo(
 	)
 );
 
-const Title = memo( ( { playerId, title, link, track } ) => (
+const Title = memo( ( {
+	playerId,
+	title,
+	link,
+	track,
+	colors = { primary: { name: null, custom: null, classes: '' } }
+} ) => (
 	<h2 id={ `${ playerId }__title` } className="jetpack-podcast-player__title">
 		{ !! ( track && track.title ) && (
-			<span className="jetpack-podcast-player__current-track-title">{ track.title }</span>
+			<span
+				className={ classnames( 'jetpack-podcast-player__current-track-title', colors.primary.classes ) }
+				style={ { color: colors.primary.custom } }
+			>
+				{ track.title }
+			</span>
 		) }
 
 		{ /* Adds a visually hidden dash when both a track and a podcast titles are present */ }
