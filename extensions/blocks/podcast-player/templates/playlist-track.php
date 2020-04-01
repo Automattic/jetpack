@@ -16,7 +16,7 @@ if ( $is_active ) {
 
 	$style = $primary_colors['style'];
 } else {
-	$class .= " is-active {$secondary_colors['class']}";
+	$class .= " {$secondary_colors['class']}";
 
 	$style = $secondary_colors['style'];
 }
