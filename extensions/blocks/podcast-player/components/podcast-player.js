@@ -215,14 +215,14 @@ export class PodcastPlayer extends Component {
 				</Header>
 
 				<h4
-					id={ 'jetpack-podcast-player__tracklist-title--' + playerId }
+					id={ `jetpack-podcast-player__tracklist-title--${ playerId }` }
 					className="jetpack-podcast-player--visually-hidden"
 				>
 					{ /* translators: %s is the track title. This describes what the playlist goes with, like "Playlist: [name of the podcast]" */ }
 					{ sprintf( __( 'Playlist: %s', 'jetpack' ), title ) }
 				</h4>
 				<p
-					id={ 'jetpack-podcast-player__tracklist-description--' + playerId }
+					id={ `jetpack-podcast-player__tracklist-description--${ playerId }` }
 					className="jetpack-podcast-player--visually-hidden"
 				>
 					{ __( 'Select an episode to play it in the audio player.', 'jetpack' ) }
