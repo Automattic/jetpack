@@ -218,6 +218,11 @@ function get_colors( $name, $attrs, $property ) {
 
 /**
  * Render the given template in server-side.
+ * Important note:
+ *    The $template_props array will be extracted.
+ *    This means it will create a var for each array item.
+ *    Keep it mind when using this param to pass
+ *    properties to the template.
  *
  * @param string $name           Template name, available in `./templates` folder.
  * @param array  $template_props Template properties. Optional.
@@ -236,8 +241,10 @@ function render( $name, $template_props = array(), $print = true ) {
 	}
 
 	// Optionally provided an assoc array of data to pass to template
-	// and it will be extracted into variables.
+	// IMPORTANT: It will be extracted into variables.
 	if ( is_array( $template_props ) ) {
+		// It ignores the `discouraging` sniffer rule for extract,
+		// since it's needed to make the templating system works.
 		extract( $template_props ); // phpcs:ignore WordPress.PHP.DontExtract.extract_extract
 	}
 
