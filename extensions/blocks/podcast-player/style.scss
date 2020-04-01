@@ -118,7 +118,7 @@ $player-float-background: $light-gray-200;
 	}
 
 	// Apply `secondary` color to the podcast title.
-	.jetpack-podcast-player__container.has-secondary { // custom color.
+	.has-secondary { // custom color.
 		.jetpack-podcast-player__podcast-title {
 			color: currentColor;
 		}
@@ -137,7 +137,7 @@ $player-float-background: $light-gray-200;
 		color: $dark-gray-500;
 	}
 
-	.jetpack-podcast-player__container.has-secondary { // custom color.
+	.has-secondary { // custom color.
 		.jetpack-podcast-player__track-description {
 			color: currentColor;
 		}

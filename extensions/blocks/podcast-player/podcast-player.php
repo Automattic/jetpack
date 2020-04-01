@@ -119,7 +119,7 @@ function render_player( $player_data, $attributes ) {
 	$secondary_colors  = get_colors( 'secondary', $attributes, 'color' );
 	$background_colors = get_colors( 'background', $attributes, 'background-color' );
 
-	$player_classes_name = trim( "jetpack-podcast-player__container {$secondary_colors['class']} {$background_colors['class']}" );
+	$player_classes_name = trim( "{$secondary_colors['class']} {$background_colors['class']}" );
 	$player_inline_style = trim( "{$secondary_colors['style']} ${background_colors['style']}" );
 
 	$block_classname = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attributes, array( 'is-default' ) );
