@@ -33,7 +33,7 @@ export default {
 			showSubscribersTotal: attr.showSubscribersTotal,
 			buttonOnNewLine: true,
 			submitButtonText: attr.submitButtonText,
-			buttonBackgroundColor: attr.backgroundButtonColor ? attr.backgroundButtonColor : 'accent',
+			buttonBackgroundColor: attr.backgroundButtonColor ? attr.backgroundButtonColor : 'primary',
 			customButtonBackgroundColor: attr.customBackgroundButtonColor,
 			textColor: attr.textButtonColor ? attr.textButtonColor : 'background',
 			customTextColor: attr.customTextButtonColor,

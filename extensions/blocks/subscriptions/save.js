@@ -95,8 +95,9 @@ export default function Save( { className, attributes } ) {
 	const getBlockClassName = () => {
 		return classnames(
 			className,
-			buttonOnNewLine ? undefined : 'wp-block-jetpack-subscriptions__same-line',
-			showSubscribersTotal ? 'wp-block-jetpack-subscriptions__showsubs' : undefined
+			'wp-block-jetpack-subscriptions__supports-newline',
+			buttonOnNewLine ? 'wp-block-jetpack-subscriptions__use-newline' : undefined,
+			showSubscribersTotal ? 'wp-block-jetpack-subscriptions__show-subs' : undefined
 		);
 	};
 
@@ -107,7 +108,7 @@ export default function Save( { className, attributes } ) {
 			[jetpack_subscription_form
 				subscribe_placeholder="${ subscribePlaceholder }"
 				show_subscribers_total="${ showSubscribersTotal }"
-				button_on_sameline="${ buttonOnNewLine }"
+				button_on_newline="${ buttonOnNewLine }"
 				submit_button_text="${ submitButtonText }"
 				custom_background_emailfield_color="${ emailFieldBackgroundStyle }"
 				custom_background_button_color="${ buttonBackgroundStyle }"

@@ -184,8 +184,9 @@ function SubscriptionEdit( props ) {
 	const getBlockClassName = () => {
 		return classnames(
 			className,
-			buttonOnNewLine ? undefined : 'wp-block-jetpack-subscriptions__same-line',
-			showSubscribersTotal ? 'wp-block-jetpack-subscriptions__showsubs' : undefined
+			'wp-block-jetpack-subscriptions__supports-newline',
+			buttonOnNewLine ? 'wp-block-jetpack-subscriptions__use-newline' : undefined,
+			showSubscribersTotal ? 'wp-block-jetpack-subscriptions__show-subs' : undefined
 		);
 	};
 
