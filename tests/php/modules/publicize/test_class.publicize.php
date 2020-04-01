@@ -3,6 +3,7 @@ require dirname( __FILE__ ) . '/../../../../modules/publicize.php';
 
 /**
  * @group publicize
+ * @covers Publicize
  */
 class WP_Test_Publicize extends WP_UnitTestCase {
 
@@ -166,7 +167,6 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 *
 	 * @see https://jetpack.com/support/publicize/
 	 *
-	 * @covers Publicize::post_type_is_publicizeable()
 	 * @since 4.6.0
 	 */
 	public function test_publicize_post_type_is_publicizeable_cpt() {
@@ -247,7 +247,6 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * the helper method that checks post flags to prevent re-sharing
 	 * of already shared post.
 	 *
-	 * @covers Publicize::post_is_done_sharing()
 	 * @since 6.7.0
 	 */
 	public function test_post_is_done_sharing_for_done_all() {
@@ -266,7 +265,6 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * Verifies that "done sharing post" logic is correct. Checks
 	 * that already published post is correctly reported as 'done'.
 	 *
-	 * @covers Publicize::post_is_done_sharing()
 	 * @since 6.7.0
 	 */
 	public function test_post_is_done_sharing_for_published() {
@@ -289,7 +287,6 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * Verifies that get_services_connected returns all test
 	 * connections that are valid for the current user.
 	 *
-	 * @covers Publicize::get_services_connected()
 	 * @since 6.7.0
 	 */
 	public function test_get_services_connected() {
@@ -303,7 +300,6 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * when there are no connection filters and the post
 	 * has not been shared yet.
 	 *
-	 * @covers Publicize::get_filtered_connection_data()
 	 * @since 6.7.0
 	 */
 	public function test_get_filtered_connection_data_no_filters() {
@@ -349,7 +345,6 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * no current post. 'Done' return value should be false
 	 * so a new post will not have connections disabled.
 	 *
-	 * @covers Publicize::post_is_done_sharing()
 	 * @since 6.7.0
 	 */
 	public function test_post_is_done_sharing_null_post() {
@@ -369,7 +364,6 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * no current post. Connections data should be passed
 	 * through without disabling connections.
 	 *
-	 * @covers Publicize::get_filtered_connection_data()
 	 * @since 6.7.0
 	 */
 	public function test_get_filtered_connection_data_null_post() {
@@ -394,7 +388,6 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * connection list before and after a 'no facebook' filter has
 	 * been applied.
 	 *
-	 * @covers Publicize::get_filtered_connection_data()
 	 * @since 6.7.0
 	 */
 	public function test_filter_wpas_submit_post() {
@@ -430,7 +423,6 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * 'publicize_checkbox_global_default' filter can be used to
 	 * uncheck such a global connection.
 	 *
-	 * @covers Publicize::get_filtered_connection_data()
 	 * @since 6.7.0
 	 */
 	public function test_filter_publicize_checkbox_global_default_for_global_connection() {
@@ -472,7 +464,6 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * This test verifies that the 'publicize_checkbox_global_default'
 	 * filter has no effect on a normal connection.
 	 *
-	 * @covers Publicize::get_filtered_connection_data()
 	 * @since 6.7.0
 	 */
 	public function test_filter_publicize_checkbox_global_default_for_normal_connection() {
@@ -507,7 +498,6 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * This test confirms that the 'publicize_checkbox_default'
 	 * can correctly set a normal connection unchecked.
 	 *
-	 * @covers Publicize::get_filtered_connection_data()
 	 * @since 6.7.0
 	 */
 	public function test_filter_publicize_checkbox_default_for_normal_connection() {
@@ -533,7 +523,6 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * This test confirms that the 'publicize_checkbox_default'
 	 * can be used to set a global connection to unchecked.
 	 *
-	 * @covers Publicize::get_filtered_connection_data()
 	 * @since 6.7.0
 	 */
 	public function test_filter_publicize_checkbox_default_for_global_connection() {
@@ -560,7 +549,6 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * If a post has already been published, its checkbox should be
 	 * disabled.
 	 *
-	 * @covers Publicize::get_filtered_connection_data()
 	 * @since 6.7.0
 	 */
 	public function test_get_filtered_connection_data_disabled_after_publish() {

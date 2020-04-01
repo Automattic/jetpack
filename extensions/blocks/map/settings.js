@@ -5,6 +5,15 @@
  */
 import { __, _x } from '@wordpress/i18n';
 
+/**
+ * Internal dependencies
+ */
+
+import defaultTheme from './map-theme_default.jpg';
+import blackAndWhiteTheme from './map-theme_black_and_white.jpg';
+import satelliteTheme from './map-theme_satellite.jpg';
+import terrainTheme from './map-theme_terrain.jpg';
+
 export const settings = {
 	name: 'map',
 	prefix: 'jetpack',
@@ -26,7 +35,7 @@ export const settings = {
 	),
 	category: 'jetpack',
 	keywords: [
-		_x( 'map', 'block search term', 'jetpack' ),
+		_x( 'maps', 'block search term', 'jetpack' ),
 		_x( 'location', 'block search term', 'jetpack' ),
 		_x( 'navigation', 'block search term', 'jetpack' ),
 	],
@@ -38,10 +47,6 @@ export const settings = {
 		points: {
 			type: 'array',
 			default: [],
-		},
-		mapStyle: {
-			type: 'string',
-			default: 'default',
 		},
 		mapDetails: {
 			type: 'boolean',
@@ -66,26 +71,43 @@ export const settings = {
 			type: 'boolean',
 			default: false,
 		},
+		scrollToZoom: {
+			type: 'boolean',
+			default: false,
+		},
+		mapHeight: {
+			type: 'integer',
+		},
+		showFullscreenButton: {
+			type: 'boolean',
+			default: true,
+		},
 	},
 	supports: {
+		defaultStylePicker: false,
 		html: false,
 	},
-	mapStyleOptions: [
+	styles: [
 		{
-			value: 'default',
+			name: 'default',
 			label: __( 'Basic', 'jetpack' ),
+			preview: defaultTheme,
+			isDefault: true,
 		},
 		{
-			value: 'black_and_white',
+			name: 'black_and_white',
 			label: __( 'Black and white', 'jetpack' ),
+			preview: blackAndWhiteTheme,
 		},
 		{
-			value: 'satellite',
+			name: 'satellite',
 			label: __( 'Satellite', 'jetpack' ),
+			preview: satelliteTheme,
 		},
 		{
-			value: 'terrain',
+			name: 'terrain',
 			label: __( 'Terrain', 'jetpack' ),
+			preview: terrainTheme,
 		},
 	],
 	validAlignments: [ 'center', 'wide', 'full' ],

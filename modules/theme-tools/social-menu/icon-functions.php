@@ -152,6 +152,7 @@ if ( ! function_exists( 'jetpack_social_menu_social_links_icons' ) ) :
 			'medium.com'        => 'medium',
 			'pinterest.'        => 'pinterest',
 			'getpocket.com'     => 'pocket',
+			'ravelry.com'       => 'ravelry',
 			'reddit.com'        => 'reddit',
 			'skype.com'         => 'skype',
 			'skype:'            => 'skype',

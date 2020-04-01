@@ -10,8 +10,8 @@ import {
 	InspectorControls,
 	MediaPlaceholder,
 	MediaUpload,
-	mediaUpload,
-} from '@wordpress/editor';
+} from '@wordpress/block-editor';
+import { mediaUpload } from '@wordpress/editor';
 import {
 	DropZone,
 	FormFileUpload,
@@ -27,7 +27,13 @@ import {
  */
 import FilterToolbar from './filter-toolbar';
 import Layout from './layout';
-import { ALLOWED_MEDIA_TYPES, LAYOUT_STYLES, MAX_COLUMNS } from './constants';
+import {
+	ALLOWED_MEDIA_TYPES,
+	LAYOUT_CIRCLE,
+	LAYOUT_STYLES,
+	MAX_COLUMNS,
+	MAX_ROUNDED_CORNERS,
+} from './constants';
 import { getActiveStyleName } from '../../shared/block-styles';
 import { icon } from '.';
 import EditButton from '../../shared/edit-button';
@@ -128,7 +134,35 @@ class TiledGalleryEdit extends Component {
 		} );
 	};
 
+	onMove = ( oldIndex, newIndex ) => {
+		const images = [ ...this.props.attributes.images ];
+		images.splice( newIndex, 1, this.props.attributes.images[ oldIndex ] );
+		images.splice( oldIndex, 1, this.props.attributes.images[ newIndex ] );
+		this.setState( { selectedImage: newIndex } );
+		this.setAttributes( { images } );
+	};
+
+	onMoveForward = oldIndex => {
+		return () => {
+			if ( oldIndex === this.props.attributes.images.length - 1 ) {
+				return;
+			}
+			this.onMove( oldIndex, oldIndex + 1 );
+		};
+	};
+
+	onMoveBackward = oldIndex => {
+		return () => {
+			if ( oldIndex === 0 ) {
+				return;
+			}
+			this.onMove( oldIndex, oldIndex - 1 );
+		};
+	};
+
 	setColumnsNumber = value => this.setAttributes( { columns: value } );
+
+	setRoundedCorners = value => this.setAttributes( { roundedCorners: value } );
 
 	setImageAttributes = index => attributes => {
 		const {
@@ -166,6 +200,7 @@ class TiledGalleryEdit extends Component {
 			imageFilter,
 			images,
 			linkTo,
+			roundedCorners,
 		} = attributes;
 
 		const dropZone = <DropZone onFilesDrop={ this.addFiles } />;
@@ -236,6 +271,15 @@ class TiledGalleryEdit extends Component {
 								max={ Math.min( MAX_COLUMNS, images.length ) }
 							/>
 						) }
+						{ layoutStyle !== LAYOUT_CIRCLE && (
+							<RangeControl
+								label={ __( 'Rounded corners', 'jetpack' ) }
+								value={ roundedCorners }
+								onChange={ this.setRoundedCorners }
+								min={ 0 }
+								max={ MAX_ROUNDED_CORNERS }
+							/>
+						) }
 						<SelectControl
 							label={ __( 'Link To', 'jetpack' ) }
 							value={ linkTo }
@@ -255,8 +299,11 @@ class TiledGalleryEdit extends Component {
 					images={ images }
 					layoutStyle={ layoutStyle }
 					linkTo={ linkTo }
+					onMoveBackward={ this.onMoveBackward }
+					onMoveForward={ this.onMoveForward }
 					onRemoveImage={ this.onRemoveImage }
 					onSelectImage={ this.onSelectImage }
+					roundedCorners={ roundedCorners }
 					selectedImage={ isSelected ? selectedImage : null }
 					setImageAttributes={ this.setImageAttributes }
 				>

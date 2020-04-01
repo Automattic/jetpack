@@ -374,6 +374,25 @@ class Updates extends Module {
 	}
 
 	/**
+	 * Send the updates actions for full sync.
+	 *
+	 * @access public
+	 *
+	 * @param array $config Full sync configuration for this sync module.
+	 * @param int   $send_until The timestamp until the current request can send.
+	 * @param array $state This module Full Sync status.
+	 *
+	 * @return array This module Full Sync status.
+	 */
+	public function send_full_sync_actions( $config, $send_until, $state ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		// we call this instead of do_action when sending immediately.
+		$this->send_action( 'jetpack_full_sync_updates', array( true ) );
+
+		// The number of actions enqueued, and next module state (true == done).
+		return array( 'finished' => true );
+	}
+
+	/**
 	 * Retrieve an estimated number of actions that will be enqueued.
 	 *
 	 * @access public
@@ -493,4 +512,16 @@ class Updates extends Module {
 	public function reset_data() {
 		delete_option( self::UPDATES_CHECKSUM_OPTION_NAME );
 	}
+
+	/**
+	 * Return Total number of objects.
+	 *
+	 * @param array $config Full Sync config.
+	 *
+	 * @return int total
+	 */
+	public function total( $config ) {
+		return 3;
+	}
+
 }

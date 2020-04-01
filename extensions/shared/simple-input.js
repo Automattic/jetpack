@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { PlainText } from '@wordpress/editor';
+import { PlainText } from '@wordpress/block-editor';
 
 const simpleInput = ( type, props, label, view, onChange ) => {
 	const { isSelected } = props;

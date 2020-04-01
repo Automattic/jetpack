@@ -4,7 +4,7 @@
  * Plugin URI: https://jetpack.com
  * Description: Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users.
  * Author: Automattic
- * Version: 8.0-alpha
+ * Version: 8.4-alpha
  * Author URI: https://jetpack.com
  * License: GPL2+
  * Text Domain: jetpack
@@ -13,22 +13,22 @@
  * @package Jetpack
  */
 
-define( 'JETPACK__MINIMUM_WP_VERSION',  '5.2' );
+define( 'JETPACK__MINIMUM_WP_VERSION', '5.3' );
 define( 'JETPACK__MINIMUM_PHP_VERSION', '5.6' );
-define( 'JETPACK__VERSION',             '8.0-alpha' );
-define( 'JETPACK_MASTER_USER',           true );
-define( 'JETPACK__API_VERSION',          1 );
-define( 'JETPACK__PLUGIN_DIR',           plugin_dir_path( __FILE__ ) );
-define( 'JETPACK__PLUGIN_FILE',          __FILE__ );
+define( 'JETPACK__VERSION', '8.4-alpha' );
+define( 'JETPACK_MASTER_USER', true );
+define( 'JETPACK__API_VERSION', 1 );
+define( 'JETPACK__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
+define( 'JETPACK__PLUGIN_FILE', __FILE__ );
 
-defined( 'JETPACK_CLIENT__AUTH_LOCATION' )   || define( 'JETPACK_CLIENT__AUTH_LOCATION', 'header' );
-defined( 'JETPACK_CLIENT__HTTPS' )           || define( 'JETPACK_CLIENT__HTTPS', 'AUTO' );
+defined( 'JETPACK_CLIENT__AUTH_LOCATION' ) || define( 'JETPACK_CLIENT__AUTH_LOCATION', 'header' );
+defined( 'JETPACK_CLIENT__HTTPS' ) || define( 'JETPACK_CLIENT__HTTPS', 'AUTO' );
 defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) || define( 'JETPACK__GLOTPRESS_LOCALES_PATH', JETPACK__PLUGIN_DIR . 'locales.php' );
-defined( 'JETPACK__API_BASE' )               || define( 'JETPACK__API_BASE', 'https://jetpack.wordpress.com/jetpack.' );
-defined( 'JETPACK_PROTECT__API_HOST' )       || define( 'JETPACK_PROTECT__API_HOST', 'https://api.bruteprotect.com/' );
-defined( 'JETPACK__WPCOM_JSON_API_HOST' )    || define( 'JETPACK__WPCOM_JSON_API_HOST', 'public-api.wordpress.com' );
-defined( 'JETPACK__SANDBOX_DOMAIN' )         || define( 'JETPACK__SANDBOX_DOMAIN', '' );
-defined( 'JETPACK__DEBUGGER_PUBLIC_KEY' )    || define(
+defined( 'JETPACK__API_BASE' ) || define( 'JETPACK__API_BASE', 'https://jetpack.wordpress.com/jetpack.' );
+defined( 'JETPACK_PROTECT__API_HOST' ) || define( 'JETPACK_PROTECT__API_HOST', 'https://api.bruteprotect.com/' );
+defined( 'JETPACK__WPCOM_JSON_API_HOST' ) || define( 'JETPACK__WPCOM_JSON_API_HOST', 'public-api.wordpress.com' );
+defined( 'JETPACK__SANDBOX_DOMAIN' ) || define( 'JETPACK__SANDBOX_DOMAIN', '' );
+defined( 'JETPACK__DEBUGGER_PUBLIC_KEY' ) || define(
 	'JETPACK__DEBUGGER_PUBLIC_KEY',
 	"\r\n" . '-----BEGIN PUBLIC KEY-----' . "\r\n"
 	. 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAm+uLLVoxGCY71LS6KFc6' . "\r\n"
@@ -46,7 +46,7 @@ defined( 'JETPACK__DEBUGGER_PUBLIC_KEY' )    || define(
  * Setting these constants, though, is *not* the preferred method. It's better to configure
  * the proxy to send the X-Forwarded-Port header.
  */
-defined( 'JETPACK_SIGNATURE__HTTP_PORT' )  || define( 'JETPACK_SIGNATURE__HTTP_PORT', 80 );
+defined( 'JETPACK_SIGNATURE__HTTP_PORT' ) || define( 'JETPACK_SIGNATURE__HTTP_PORT', 80 );
 defined( 'JETPACK_SIGNATURE__HTTPS_PORT' ) || define( 'JETPACK_SIGNATURE__HTTPS_PORT', 443 );
 
 /**

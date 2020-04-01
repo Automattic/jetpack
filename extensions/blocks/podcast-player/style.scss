@@ -1,0 +1,301 @@
+/**
+ * Podcast Player block shared styles (editor & front-end).
+ */
+@import '../../shared/styles/gutenberg-base-styles.scss';
+
+$episode-v-padding: 15px;
+$episode-h-padding: 10px;
+$player-grid-spacing: 24px;
+$cover-image-size: 80px;
+$track-title-font-size: 24px;
+$track-title-b-margin: 10px;
+$podcast-title-font-size: 16px;
+$description-font-size: 16px;
+$player-divider-height: 2px;
+$episode-status-icon-size: 22px;
+$text-color: $dark-gray-300; // Lightest gray that can be used for AA text contrast.
+$text-color-hover: $black;
+$text-color-active: $text-color-hover;
+$text-color-error: $alert-red;
+$block-bg-color: $white;
+$block-border-color: $dark-gray-100;
+$player-text-color: $text-color;
+$player-background: transparent;
+$player-slider-background: $light-gray-600; 
+$player-slider-foreground: $dark-gray-100;
+$player-button-color: $dark-gray-100;
+$player-float-background: $light-gray-200;
+
+.jetpack-podcast-player--visually-hidden {
+	position: absolute !important;
+	height: 1px;
+	width: 1px;
+	overflow: hidden;
+	clip: rect( 1px, 1px, 1px, 1px );
+	white-space: nowrap; /* added line */
+}
+
+/**
+ * Player's (block) parent element.
+ */
+.wp-block-jetpack-podcast-player {
+	border: 1px solid $block-border-color;
+	background-color: $block-bg-color;
+	overflow: hidden;
+	font-family: $default-font;
+
+	/**
+	 * Player's state classes added to this element:
+	 * &.is-playing {} // When audio starts playing.
+	 * &.is-paused {}  // When audio is paused.
+	 * &.is-error {}   // When playback error occured.
+	 */
+
+	audio {
+		display: none;
+	}
+
+	.jetpack-podcast-player__titles {
+		display: flex;
+		flex-direction: column;
+		margin: 0;
+	}
+
+	.jetpack-podcast-player__title-link {
+		text-decoration: none;
+		color: $text-color;
+
+		&:hover,
+		&:focus {
+			color: $text-color-hover;
+		}
+	}
+
+	.jetpack-podcast-player__episodes {
+		list-style-type: none;
+		display: flex;
+		flex-direction: column;
+		margin: 0;
+		padding: $episode-v-padding 0;
+	}
+}
+
+/**
+ * Podcast Player Header
+ */
+.jetpack-podcast-player__header-wrapper {
+	display: flex;
+	flex-direction: column;
+	position: relative;
+
+	&:after {
+		content: '';
+		background: $light-gray-700;
+		position: absolute;
+		height: $player-divider-height;
+		bottom: 0;
+		left: $player-grid-spacing;
+		right: $player-grid-spacing;
+	}
+}
+
+.jetpack-podcast-player__track-description {
+	order: 99; // high number to make it always appear after the audio player
+	padding: 0 $player-grid-spacing;
+	margin-bottom: $player-grid-spacing;
+	color: $dark-gray-500;
+	font-size: $description-font-size;
+	line-height: 1.6;
+}
+
+.jetpack-podcast-player__header {
+	display: flex;
+	padding: $player-grid-spacing;
+}
+
+.jetpack-podcast-player__track-image-wrapper {
+	width: $cover-image-size;
+	margin-right: $player-grid-spacing;
+	flex-shrink: 0;
+}
+
+.jetpack-podcast-player__track-image {
+	width: $cover-image-size;
+	height: $cover-image-size;
+}
+
+.jetpack-podcast-player__track-title {
+	font-size: $track-title-font-size;
+	margin: 0 0 $track-title-b-margin;
+}
+
+.jetpack-podcast-player__title {
+	font-size: $podcast-title-font-size;
+	color: $text-color;
+	margin: 0;
+}
+
+.jetpack-podcast-player__audio-player {
+	margin-bottom: $player-grid-spacing;
+}
+
+.jetpack-podcast-player__episode {
+	margin: 0;
+	font-family: $default-font;
+	font-size: $editor-font-size;
+
+	/**
+	 * When episode "is-active", it means that it's been clicked by a user to
+	 * start playback. Combine this class with the Player's state classes (see
+	 * above) to apply styling for different scenarios.
+	 */
+	&.is-active {
+		font-weight: bold;
+	}
+
+	/**
+	 * Applies default color to:
+	 * - The active podcast only if it doesn't have defined a custom color.
+	 * - The other podcasts only if they don't have defined a custom color.
+	 */
+	&.is-active:not( .has-primary ),
+	&:not( .is-active ):not( .has-secondary ) {
+		color: $text-color-hover;
+	}
+
+	// We need to scope this class to override editor link styles.
+	.jetpack-podcast-player__episode-link {
+		display: flex;
+		flex-flow: row nowrap;
+		justify-content: space-between;
+		padding: $episode-h-padding $episode-v-padding;
+		text-decoration: none;
+		transition: none;
+
+		&:hover,
+		&:focus {
+			color: $text-color-hover;
+		}
+	}
+
+	/**
+	 * Inherits colors if:
+	 * - Active podcast has defined a custom color.
+	 * - The other podcasts if they have defined a custom color.
+	 */
+	&.is-active.has-primary .jetpack-podcast-player__episode-link,
+	&.has-secondary .jetpack-podcast-player__episode-link {
+		color: inherit;
+	}
+
+	// Make space for the error element that will be appended.
+	.is-error &.is-active .jetpack-podcast-player__episode-link {
+		padding-bottom: 0;
+	}
+}
+
+/**
+ * Style player by overriding mejs default styles
+ */
+
+ .wp-block-jetpack-podcast-player {
+
+	.mejs-container, 
+	.mejs-embed, 
+	.mejs-embed body, 
+	.mejs-container .mejs-controls {
+		background-color: $player-background;
+	}
+
+	.mejs-time,
+	.mejs-time-float {
+		color: $player-text-color;
+	}
+
+	.mejs-time-float {
+		background: $player-float-background;
+		border-color: $player-float-background;
+	}
+
+	.mejs-time-float-corner {
+		border-top-color: $player-float-background;
+	}
+
+	.mejs-controls .mejs-time-rail .mejs-time-total, 
+	.mejs-controls .mejs-horizontal-volume-slider .mejs-horizontal-volume-total {
+		background-color: $player-slider-background;
+	}
+
+	.mejs-controls .mejs-time-rail .mejs-time-loaded {
+		background-color: lighten( $player-slider-foreground, 20% );
+	}
+
+	.mejs-controls .mejs-time-rail .mejs-time-current,
+	.mejs-controls .mejs-horizontal-volume-slider .mejs-horizontal-volume-current {
+		background-color: $player-slider-foreground;
+	}
+
+	//Helper function that escapes the value of the color variable in the SVG.
+	//This way we can change the value in one place and easily add style variations.
+	@function encodecolor($string) {
+		@if type-of($string) == 'color' {
+			$hex: str-slice(ie-hex-str($string), 4);
+			$string:unquote("#{$hex}");
+		}
+		$string: '%23' + $string;
+		@return $string;
+	}
+
+	//For the buttons mejs is using an external SVG that's linked to via CSS.
+	//This is the same SVG but inlined in the CSS using a color variable.
+	.mejs-button > button {
+		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='120'%3E%3Cstyle%3E.st0%7Bfill:#{encodecolor($player-button-color)};width:16px;height:16px%7D.st1%7Bfill:none;stroke:#{encodecolor($player-button-color)};stroke-width:1.5;stroke-linecap:round%7D%3C/style%3E%3Cpath class='st0' d='M16.5 8.5c.3.1.4.5.2.8-.1.1-.1.2-.2.2l-11.4 7c-.5.3-.8.1-.8-.5V2c0-.5.4-.8.8-.5l11.4 7zM24 1h2.2c.6 0 1 .4 1 1v14c0 .6-.4 1-1 1H24c-.6 0-1-.4-1-1V2c0-.5.4-1 1-1zm9.8 0H36c.6 0 1 .4 1 1v14c0 .6-.4 1-1 1h-2.2c-.6 0-1-.4-1-1V2c0-.5.4-1 1-1zM81 1.4c0-.6.4-1 1-1h5.4c.6 0 .7.3.3.7l-6 6c-.4.4-.7.3-.7-.3V1.4zm0 15.8c0 .6.4 1 1 1h5.4c.6 0 .7-.3.3-.7l-6-6c-.4-.4-.7-.3-.7.3v5.4zM98.8 1.4c0-.6-.4-1-1-1h-5.4c-.6 0-.7.3-.3.7l6 6c.4.4.7.3.7-.3V1.4zm0 15.8c0 .6-.4 1-1 1h-5.4c-.6 0-.7-.3-.3-.7l6-6c.4-.4.7-.3.7.3v5.4zM112.7 5c0 .6.4 1 1 1h4.1c.6 0 .7-.3.3-.7L113.4.6c-.4-.4-.7-.3-.7.3V5zm-7.1 1c.6 0 1-.4 1-1V.9c0-.6-.3-.7-.7-.3l-4.7 4.7c-.4.4-.3.7.3.7h4.1zm1 7.1c0-.6-.4-1-1-1h-4.1c-.6 0-.7.3-.3.7l4.7 4.7c.4.4.7.3.7-.3v-4.1zm7.1-1c-.6 0-1 .4-1 1v4.1c0 .5.3.7.7.3l4.7-4.7c.4-.4.3-.7-.3-.7h-4.1zM67 5.8c-.5.4-1.2.6-1.8.6H62c-.6 0-1 .4-1 1v5.7c0 .6.4 1 1 1h4.2c.3.2.5.4.8.6l3.5 2.6c.4.3.8.1.8-.4V3.5c0-.5-.4-.7-.8-.4L67 5.8z'/%3E%3Cpath class='st1' d='M73.9 2.5s3.9-.8 3.9 7.7-3.9 7.8-3.9 7.8'/%3E%3Cpath class='st1' d='M72.6 6.4s2.6-.4 2.6 3.8-2.6 3.9-2.6 3.9'/%3E%3Cpath class='st0' d='M47 5.8c-.5.4-1.2.6-1.8.6H42c-.6 0-1 .4-1 1v5.7c0 .6.4 1 1 1h4.2c.3.2.5.4.8.6l3.5 2.6c.4.3.8.1.8-.4V3.5c0-.5-.4-.7-.8-.4L47 5.8z'/%3E%3Cpath d='M52.8 7l5.4 5.4m-5.4 0L58.2 7' fill='none' stroke='#{encodecolor($player-button-color)}' stroke-width='2' stroke-linecap='round'/%3E%3Cpath d='M128.7 8.6c-6.2-4.2-6.5 7.8 0 3.9m6.5-3.9c-6.2-4.2-6.5 7.8 0 3.9' fill='none' stroke='#{encodecolor($player-button-color)}'/%3E%3Cpath class='st0' d='M122.2 3.4h15.7v13.1h-15.7V3.4zM120.8 2v15.7h18.3V2h-18.3zM143.2 3h14c1.1 0 2 .9 2 2v10c0 1.1-.9 2-2 2h-14c-1.1 0-2-.9-2-2V5c0-1.1.9-2 2-2z'/%3E%3Cpath d='M146.4 13.8c-.8 0-1.6-.4-2.1-1-1.1-1.4-1-3.4.1-4.8.5-.6 2-1.7 4.6.2l-.6.8c-1.4-1-2.6-1.1-3.3-.3-.8 1-.8 2.4-.1 3.5.7.9 1.9.8 3.4-.1l.5.9c-.7.5-1.6.7-2.5.8zm7.5 0c-.8 0-1.6-.4-2.1-1-1.1-1.4-1-3.4.1-4.8.5-.6 2-1.7 4.6.2l-.5.8c-1.4-1-2.6-1.1-3.3-.3-.8 1-.8 2.4-.1 3.5.7.9 1.9.8 3.4-.1l.5.9c-.8.5-1.7.7-2.6.8z' fill='%23231f20'/%3E%3Cpath class='st0' d='M60.3 77c.6.2.8.8.6 1.4-.1.3-.3.5-.6.6L30 96.5c-1 .6-1.7.1-1.7-1v-35c0-1.1.8-1.5 1.7-1L60.3 77z'/%3E%3Cpath d='M2.5 79c0-20.7 16.8-37.5 37.5-37.5S77.5 58.3 77.5 79 60.7 116.5 40 116.5 2.5 99.7 2.5 79z' opacity='.75' fill='none' stroke='#{encodecolor($player-button-color)}' stroke-width='5'/%3E%3Cpath class='st0' d='M140.3 77c.6.2.8.8.6 1.4-.1.3-.3.5-.6.6L110 96.5c-1 .6-1.7.1-1.7-1v-35c0-1.1.8-1.5 1.7-1L140.3 77z'/%3E%3Cpath d='M82.5 79c0-20.7 16.8-37.5 37.5-37.5s37.5 16.8 37.5 37.5-16.8 37.5-37.5 37.5S82.5 99.7 82.5 79z' fill='none' stroke='#{encodecolor($player-button-color)}' stroke-width='5'/%3E%3Ccircle class='st0' cx='201.9' cy='47.1' r='8.1'/%3E%3Ccircle cx='233.9' cy='79' r='5' opacity='.4' fill='#{encodecolor($player-button-color)}'/%3E%3Ccircle cx='201.9' cy='110.9' r='6' opacity='.6' fill='#{encodecolor($player-button-color)}'/%3E%3Ccircle cx='170.1' cy='79' r='7' opacity='.8' fill='#{encodecolor($player-button-color)}'/%3E%3Ccircle cx='178.2' cy='56.3' r='7.5' opacity='.9' fill='#{encodecolor($player-button-color)}'/%3E%3Ccircle cx='226.3' cy='56.1' r='4.5' opacity='.3' fill='#{encodecolor($player-button-color)}'/%3E%3Ccircle cx='225.8' cy='102.8' r='5.5' opacity='.5' fill='#{encodecolor($player-button-color)}'/%3E%3Ccircle cx='178.2' cy='102.8' r='6.5' opacity='.7' fill='#{encodecolor($player-button-color)}'/%3E%3Cpath class='st0' d='M178 9.4c0 .4-.4.7-.9.7-.1 0-.2 0-.2-.1L172 8.2c-.5-.2-.6-.6-.1-.8l6.2-3.6c.5-.3.8-.1.7.5l-.8 5.1z'/%3E%3Cpath class='st0' d='M169.4 15.9c-1 0-2-.2-2.9-.7-2-1-3.2-3-3.2-5.2.1-3.4 2.9-6 6.3-6 2.5.1 4.8 1.7 5.6 4.1l.1-.1 2.1 1.1c-.6-4.4-4.7-7.5-9.1-6.9-3.9.6-6.9 3.9-7 7.9 0 2.9 1.7 5.6 4.3 7 1.2.6 2.5.9 3.8 1 2.6 0 5-1.2 6.6-3.3l-1.8-.9c-1.2 1.2-3 2-4.8 2zM183.4 3.2c.8 0 1.5.7 1.5 1.5s-.7 1.5-1.5 1.5-1.5-.7-1.5-1.5c0-.9.7-1.5 1.5-1.5zm5.1 0h8.5c.9 0 1.5.7 1.5 1.5s-.7 1.5-1.5 1.5h-8.5c-.9 0-1.5-.7-1.5-1.5-.1-.9.6-1.5 1.5-1.5zm-5.1 5c.8 0 1.5.7 1.5 1.5s-.7 1.5-1.5 1.5-1.5-.7-1.5-1.5c0-.9.7-1.5 1.5-1.5zm5.1 0h8.5c.9 0 1.5.7 1.5 1.5s-.7 1.5-1.5 1.5h-8.5c-.9 0-1.5-.7-1.5-1.5-.1-.9.6-1.5 1.5-1.5zm-5.1 5c.8 0 1.5.7 1.5 1.5s-.7 1.5-1.5 1.5-1.5-.7-1.5-1.5c0-.9.7-1.5 1.5-1.5zm5.1 0h8.5c.9 0 1.5.7 1.5 1.5s-.7 1.5-1.5 1.5h-8.5c-.9 0-1.5-.7-1.5-1.5-.1-.9.6-1.5 1.5-1.5z'/%3E%3C/svg%3E");
+	}
+ }
+
+.jetpack-podcast-player__episode-status-icon {
+	flex: $episode-status-icon-size 0 0;
+	fill: $text-color-active;
+
+	svg {
+		display: inline-block;
+		vertical-align: middle;
+		width: $episode-status-icon-size;
+		height: $episode-status-icon-size;
+	}
+}
+
+.jetpack-podcast-player__episode-status-icon--error {
+	fill: $text-color-error;
+}
+
+.jetpack-podcast-player__episode-title {
+	flex-grow: 1;
+	padding: 0 $episode-v-padding;
+}
+
+.jetpack-podcast-player__episode-duration {
+	word-break: normal; // Prevents the time breaking into multiple lines.
+}
+
+/**
+ * Error element, appended as the last child of the Episode element
+ * (.jetpack-podcast-player__episode) when Player's error has been caught.
+ */
+.jetpack-podcast-player__episode-error {
+	display: block;
+	margin-left: 2 * $episode-v-padding + $episode-status-icon-size;
+	margin-bottom: $episode-h-padding;
+	color: $alert-red;
+	font-family: $default-font;
+	font-size: 0.8em;
+	font-weight: normal;
+
+	& > span {
+		color: $text-color;
+	}
+
+	& > span > a {
+		color: inherit;
+	}
+}

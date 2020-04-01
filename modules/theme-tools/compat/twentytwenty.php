@@ -8,6 +8,10 @@
 
 /**
  * Add Jetpack extra functionality to Twenty Twenty.
+ *
+ * See: https://jetpack.com/support/infinite-scroll/
+ * See: https://jetpack.com/support/responsive-videos/
+ * See: https://jetpack.com/support/content-options/
  */
 function twentytwenty_jetpack_setup() {
 	/**
@@ -16,12 +20,39 @@ function twentytwenty_jetpack_setup() {
 	add_theme_support(
 		'infinite-scroll',
 		array(
-			'type'      => 'click',
-			'container' => 'site-content',
-			'render'    => 'twentytwenty_infinite_scroll_render',
-			'footer'    => 'site-content',
+			'type'           => 'click',
+			'container'      => 'site-content',
+			'render'         => 'twentytwenty_infinite_scroll_render',
+			'footer'         => 'site-content',
+			'footer_widgets' => array(
+				'sidebar-1',
+				'sidebar-2',
+			),
 		)
 	);
+
+	// Add theme support for Content Options.
+	add_theme_support(
+		'jetpack-content-options',
+		array(
+			'post-details'    => array(
+				'stylesheet' => 'twentytwenty-style',
+				'date'       => '.post-date',
+				'categories' => '.entry-categories',
+				'tags'       => '.post-tags',
+				'author'     => '.post-author',
+			),
+			'featured-images' => array(
+				'archive'  => true,
+				'post'     => true,
+				'page'     => true,
+				'fallback' => false,
+			),
+		)
+	);
+
+	// Social Menu.
+	add_theme_support( 'jetpack-social-menu', 'svg' );
 
 	/**
 	 * Add theme support for geo-location.
@@ -129,4 +160,3 @@ function twentytwenty_infinity_accent_color_css() {
 	wp_add_inline_style( 'twentytwenty-jetpack', $custom_css );
 }
 add_action( 'wp_enqueue_scripts', 'twentytwenty_infinity_accent_color_css' );
-

@@ -5,7 +5,7 @@ import { invoke } from 'lodash';
 import { __, _x } from '@wordpress/i18n';
 import { Component } from '@wordpress/element';
 import { Placeholder, SandBox, Button, IconButton, Spinner, Toolbar } from '@wordpress/components';
-import { BlockControls, BlockIcon } from '@wordpress/editor';
+import { BlockControls, BlockIcon } from '@wordpress/block-editor';
 import apiFetch from '@wordpress/api-fetch';
 
 /**
@@ -13,8 +13,6 @@ import apiFetch from '@wordpress/api-fetch';
  */
 import { fallback, pinType } from './utils';
 import { icon } from '.';
-
-const PINIT_URL_REGEX = /^\s*https?:\/\/pin\.it\//i;
 
 class PinterestEdit extends Component {
 	constructor() {
@@ -24,10 +22,11 @@ class PinterestEdit extends Component {
 			editedUrl: this.props.attributes.url || '',
 			editingUrl: false,
 			// If this is a pin.it URL, we're going to need to find where it redirects to.
-			resolvingRedirect: PINIT_URL_REGEX.test( this.props.attributes.url ),
+			resolvingRedirect: false,
 			// The interactive-related magic comes from Core's EmbedPreview component,
 			// which currently isn't exported in a way we can use.
 			interactive: false,
+			resolvedStatusCode: null,
 		};
 	}
 
@@ -54,17 +53,23 @@ class PinterestEdit extends Component {
 	resolveRedirect = () => {
 		const { url } = this.props.attributes;
 
+		this.setState( { resolvedStatusCode: null } );
+
 		this.fetchRequest = apiFetch( {
 			path: `/wpcom/v2/resolve-redirect/${ url }`,
 		} );
 
 		this.fetchRequest.then(
-			resolvedUrl => {
+			response => {
 				// resolve
 				this.fetchRequest = null;
-				this.props.setAttributes( { url: resolvedUrl } );
+				const resolvedUrl = response.url || url;
+				const resolvedStatusCode = response.status ? parseInt( response.status, 10 ) : null;
+
+				this.props.setAttributes( { url: response.url } );
 				this.setState( {
 					resolvingRedirect: false,
+					resolvedStatusCode,
 					editedUrl: resolvedUrl,
 				} );
 			},
@@ -112,12 +117,18 @@ class PinterestEdit extends Component {
 		this.props.setAttributes( { url } );
 		this.setState( { editingUrl: false } );
 
-		if ( PINIT_URL_REGEX.test( url ) ) {
-			// Setting the `resolvingRedirect` state here, then waiting for `componentDidUpdate()` to
-			// be called before actually resolving it ensures that the `editedUrl` state has also been
-			// updated before resolveRedirect() is called.
-			this.setState( { resolvingRedirect: true } );
-		}
+		// Setting the `resolvingRedirect` state here, then waiting for `componentDidUpdate()` to
+		// be called before actually resolving it ensures that the `editedUrl` state has also been
+		// updated before resolveRedirect() is called.
+		this.setState( { resolvingRedirect: true } );
+	};
+
+	cannotEmbed = () => {
+		const { url } = this.props.attributes;
+		const { resolvedStatusCode } = this.state;
+		const type = pinType( url );
+
+		return ( url && ! type ) || ( resolvedStatusCode && resolvedStatusCode >= 400 );
 	};
 
 	/**
@@ -142,8 +153,6 @@ class PinterestEdit extends Component {
 		const type = pinType( url );
 		const html = `<a data-pin-do='${ type }' href='${ url }'></a>`;
 
-		const cannotEmbed = url && ! type;
-
 		const controls = (
 			<BlockControls>
 				<Toolbar>
@@ -157,10 +166,9 @@ class PinterestEdit extends Component {
 			</BlockControls>
 		);
 
-		if ( editingUrl || ! url || cannotEmbed ) {
+		if ( editingUrl || ! url || this.cannotEmbed() ) {
 			return (
 				<div className={ className }>
-					{ controls }
 					<Placeholder label={ __( 'Pinterest', 'jetpack' ) } icon={ <BlockIcon icon={ icon } /> }>
 						<form onSubmit={ this.setUrl }>
 							<input
@@ -171,15 +179,15 @@ class PinterestEdit extends Component {
 								placeholder={ __( 'Enter URL to embed here…', 'jetpack' ) }
 								onChange={ event => this.setState( { editedUrl: event.target.value } ) }
 							/>
-							<Button isLarge type="submit">
+							<Button isLarge isSecondary type="submit">
 								{ _x( 'Embed', 'button label', 'jetpack' ) }
 							</Button>
-							{ cannotEmbed && (
+							{ this.cannotEmbed() && (
 								<p className="components-placeholder__error">
 									{ __( 'Sorry, this content could not be embedded.', 'jetpack' ) }
 									<br />
 									<Button isLarge onClick={ () => fallback( editedUrl, this.props.onReplace ) }>
-										{ _x( 'Convert to link', 'button label', 'jetpack' ) }
+										{ _x( 'Convert block to link', 'button label', 'jetpack' ) }
 									</Button>
 								</p>
 							) }

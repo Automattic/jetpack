@@ -6,7 +6,7 @@ require_once JETPACK__PLUGIN_DIR . '/tests/php/lib/class-wp-test-spy-rest-server
 class WP_Test_Jetpack_Core_Api_Module_Activate_Endpoint extends WP_Test_Jetpack_REST_Testcase {
 	/**
 	 * @author zinigor
-	 * @covers Jetpack_Core_API_Module_Activate_Endpoint
+	 * @covers Jetpack_Core_Json_Api_Endpoints
 	 * @dataProvider api_routes
 	 */
 	public function test_register_routes( $route_string = false, $method = false, $classname = false ) {
@@ -17,6 +17,7 @@ class WP_Test_Jetpack_Core_Api_Module_Activate_Endpoint extends WP_Test_Jetpack_
 		foreach ( $routes[ $route_string ] as $item ) {
 			if ( isset( $item['methods'][ $method ] ) ) {
 				$route = $item;
+				break;
 			}
 		}
 

@@ -402,27 +402,6 @@ function jetpack_masterbar_more_info() {
 add_action( 'jetpack_module_more_info_masterbar', 'jetpack_masterbar_more_info' );
 
 /**
- * Mobile Theme support link.
- */
-function jetpack_minileven_more_button() {
-	echo 'https://jetpack.com/support/mobile-theme';
-}
-add_action( 'jetpack_learn_more_button_minileven', 'jetpack_minileven_more_button' );
-
-/**
- * Mobile Theme description.
- */
-function jetpack_minileven_more_info() {
-	esc_html_e(
-		"Automatically optimize your site for mobile. Jetpack's mobile theme uses the header image,
-		background, and widgets from your current theme. Post format support means your photos and galleries
-		will also look fantastic.",
-		'jetpack'
-	);
-}
-add_action( 'jetpack_module_more_info_minileven', 'jetpack_minileven_more_info' );
-
-/**
  * Infinite Scroll support link.
  */
 function jetpack_infinite_scroll_more_button() {
@@ -805,7 +784,7 @@ add_action( 'jetpack_module_more_info_google-analytics', 'jetpack_google_analyti
  * WooCommerce Analytics support link.
  */
 function jetpack_woocommerce_analytics_more_link() {
-	echo 'https://jetpack.com/support/';
+	echo 'https://jetpack.com/support/woocommerce-analytics/';
 }
 add_action( 'jetpack_learn_more_button_woocommerce-analytics', 'jetpack_woocommerce_analytics_more_link' );
 
@@ -833,7 +812,7 @@ add_action( 'jetpack_learn_more_button_search', 'jetpack_search_more_link' );
  */
 function jetpack_search_more_info() {
 	esc_html_e(
-		'Enhanced search, powered by Elasticsearch, a powerful replacement for WordPress search.',
+		'Help visitors quickly find answers with highly relevant instant search results and powerful filtering.',
 		'jetpack'
 	);
 }

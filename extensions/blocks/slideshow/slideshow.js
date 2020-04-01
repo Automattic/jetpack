@@ -7,7 +7,7 @@ import { __ } from '@wordpress/i18n';
 import { Component, createRef } from '@wordpress/element';
 import { isBlobURL } from '@wordpress/blob';
 import { isEqual } from 'lodash';
-import { RichText } from '@wordpress/editor';
+import { RichText } from '@wordpress/block-editor';
 import { Spinner } from '@wordpress/components';
 
 /**

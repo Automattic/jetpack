@@ -3,6 +3,11 @@
 require_once JETPACK__PLUGIN_DIR . '/tests/php/lib/class-wp-test-jetpack-rest-testcase.php';
 require_once JETPACK__PLUGIN_DIR . '/tests/php/lib/class-wp-test-spy-rest-server.php';
 
+/**
+ * Test class for Jetpack
+ *
+ * @covers Jetpack
+ */
 class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testcase {
 	protected static $admin_id;
 
@@ -58,7 +63,6 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 
 	/**
 	 * @author roccotripaldi
-	 * @covers Jetpack->wp_rest_authenticate
 	 */
 	public function test_jetpack_rest_api_authentication_fail_no_token_or_signature() {
 		global $wp_version;
@@ -76,7 +80,6 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 
 	/**
 	 * @author jnylen0
-	 * @covers Jetpack->wp_rest_authenticate
 	 */
 	public function test_jetpack_rest_api_authentication_fail_no_token() {
 		$_GET['signature'] = 'invalid';
@@ -88,7 +91,6 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 
 	/**
 	 * @author jnylen0
-	 * @covers Jetpack->wp_rest_authenticate
 	 */
 	public function test_jetpack_rest_api_authentication_fail_no_signature() {
 		$_GET['token'] = 'invalid';
@@ -100,7 +102,6 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 
 	/**
 	 * @author roccotripaldi
-	 * @covers Jetpack->wp_rest_authenticate
 	 */
 	public function test_jetpack_rest_api_authentication_fail_invalid_token() {
 		$_GET['token'] = 'invalid';
@@ -113,7 +114,6 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 
 	/**
 	 * @author jnylen0
-	 * @covers Jetpack->wp_rest_authenticate
 	 */
 	public function test_jetpack_rest_api_authentication_fail_bad_nonce() {
 		add_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ), 10, 2 );
@@ -133,7 +133,6 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 
 	/**
 	 * @author jnylen0
-	 * @covers Jetpack->wp_rest_authenticate
 	 */
 	public function test_jetpack_rest_api_authentication_fail_bad_signature() {
 		add_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ), 10, 2 );
@@ -150,7 +149,6 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 
 	/**
 	 * @author jnylen0
-	 * @covers Jetpack->wp_rest_authenticate
 	 */
 	public function test_jetpack_rest_api_get_authentication_success() {
 		add_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ), 10, 2 );
@@ -179,7 +177,6 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 
 	/**
 	 * @author jnylen0
-	 * @covers Jetpack->wp_rest_authenticate
 	 */
 	public function test_jetpack_rest_api_post_authentication_fail_bad_signature() {
 		add_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ), 10, 2 );
@@ -198,7 +195,6 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 
 	/**
 	 * @author jnylen0
-	 * @covers Jetpack->wp_rest_authenticate
 	 */
 	public function test_jetpack_rest_api_post_authentication_fail_bad_body_hash() {
 		add_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ), 10, 2 );
@@ -228,7 +224,6 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 
 	/**
 	 * @author jnylen0
-	 * @covers Jetpack->wp_rest_authenticate
 	 */
 	public function test_jetpack_rest_api_post_authentication_success() {
 		$_SERVER['HTTP_CONTENT_TYPE'] = 'application/json';
@@ -267,7 +262,7 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 	}
 
 	/**
-	 * @covers Jetpack->wp_rest_authenticate
+	 * Test for urlencoded request
 	 */
 	public function test_jetpack_rest_api_post_urlencoded_authentication_success() {
 		$_SERVER['HTTP_CONTENT_TYPE'] = 'application/x-www-form-urlencoded';
@@ -309,7 +304,7 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 	}
 
 	/**
-	 * @covers Jetpack->wp_rest_authenticate
+	 * Test for multipart request
 	 */
 	public function test_jetpack_rest_api_post_multipart_authentication_success() {
 		$_SERVER['HTTP_CONTENT_TYPE'] = 'multipart/form-data; boundary=------------------------test';

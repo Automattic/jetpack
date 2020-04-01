@@ -126,6 +126,29 @@ class Network_Options extends Module {
 	}
 
 	/**
+	 * Send the network options actions for full sync.
+	 *
+	 * @access public
+	 *
+	 * @param array $config Full sync configuration for this sync module.
+	 * @param int   $send_until The timestamp until the current request can send.
+	 * @param array $state This module Full Sync status.
+	 *
+	 * @return array This module Full Sync status.
+	 */
+	public function send_full_sync_actions( $config, $send_until, $state ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		if ( ! is_multisite() ) {
+			return array( null, true );
+		}
+
+		// we call this instead of do_action when sending immediately.
+		$this->send_action( 'jetpack_full_sync_network_options', array( true ) );
+
+		// The number of actions enqueued, and next module state (true == done).
+		return array( 'finished' => true );
+	}
+
+	/**
 	 * Retrieve an estimated number of actions that will be enqueued.
 	 *
 	 * @access public
@@ -233,4 +256,16 @@ class Network_Options extends Module {
 
 		return $args;
 	}
+
+	/**
+	 * Return Total number of objects.
+	 *
+	 * @param array $config Full Sync config.
+	 *
+	 * @return int total
+	 */
+	public function total( $config ) {
+		return count( $this->network_options_whitelist );
+	}
+
 }

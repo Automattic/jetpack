@@ -1,4 +1,10 @@
 <?php
+/**
+ * Base class for Jetpack's debugging tests.
+ *
+ * @package Jetpack.
+ */
+
 use Automattic\Jetpack\Status;
 
 /**
@@ -238,75 +244,105 @@ class Jetpack_Cxn_Test_Base {
 
 	/**
 	 * Helper function to return consistent responses for a passing test.
+	 * Possible Args:
+	 * - name: string The raw method name that runs the test. Default 'unnamed_test'.
+	 * - label: bool|string If false, tests will be labeled with their `name`. You can pass a string to override this behavior. Default false.
+	 * - pass: bool|string True if the test passed. Default true.
+	 * - short_description: bool|string A brief, non-html description that will appear in CLI results. Default 'Test passed!'.
+	 * - long_description: bool|string An html description that will appear in the site health page. Default false.
+	 * - severity: bool|string 'critical', 'recommended', or 'good'. Default: false.
+	 * - action: bool|string A URL for the recommended action. Default: false
+	 * - action_label: bool|string The label for the recommended action. Default: false
+	 * - show_in_site_health: bool True if the test should be shown on the Site Health page. Default: true
 	 *
-	 * @param string $name Test name.
+	 * @param array $args Arguments to override defaults.
 	 *
 	 * @return array Test results.
 	 */
-	public static function passing_test( $name = 'Unnamed' ) {
-		return array(
-			'name'       => $name,
-			'pass'       => true,
-			'message'    => __( 'Test Passed!', 'jetpack' ),
-			'resolution' => false,
-			'severity'   => false,
+	public static function passing_test( $args ) {
+		return wp_parse_args(
+			$args,
+			array(
+				'name'                => 'unnamed_test',
+				'label'               => false,
+				'pass'                => true,
+				'short_description'   => __( 'Test passed!', 'jetpack' ),
+				'long_description'    => false,
+				'severity'            => false,
+				'action'              => false,
+				'action_label'        => false,
+				'show_in_site_health' => true,
+			)
 		);
 	}
 
 	/**
 	 * Helper function to return consistent responses for a skipped test.
+	 * Possible Args:
+	 * - name: string The raw method name that runs the test. Default unnamed_test.
+	 * - label: bool|string If false, tests will be labeled with their `name`. You can pass a string to override this behavior. Default false.
+	 * - pass: bool|string True if the test passed. Default 'skipped'.
+	 * - short_description: bool|string A brief, non-html description that will appear in CLI results, and as headings in admin UIs. Default false.
+	 * - long_description: bool|string An html description that will appear in the site health page. Default false.
+	 * - severity: bool|string 'critical', 'recommended', or 'good'. Default: false.
+	 * - action: bool|string A URL for the recommended action. Default: false
+	 * - action_label: bool|string The label for the recommended action. Default: false
+	 * - show_in_site_health: bool True if the test should be shown on the Site Health page. Default: true
 	 *
-	 * @param string $name Test name.
-	 * @param string $message Reason for skipping the test. Optional.
+	 * @param array $args Arguments to override defaults.
 	 *
 	 * @return array Test results.
 	 */
-	public static function skipped_test( $name = 'Unnamed', $message = false ) {
-		return array(
-			'name'       => $name,
-			'pass'       => 'skipped',
-			'message'    => $message,
-			'resolution' => false,
-			'severity'   => false,
+	public static function skipped_test( $args = array() ) {
+		return wp_parse_args(
+			$args,
+			array(
+				'name'                => 'unnamed_test',
+				'label'               => false,
+				'pass'                => 'skipped',
+				'short_description'   => false,
+				'long_description'    => false,
+				'severity'            => false,
+				'action'              => false,
+				'action_label'        => false,
+				'show_in_site_health' => true,
+			)
 		);
 	}
 
 	/**
 	 * Helper function to return consistent responses for a failing test.
+	 * Possible Args:
+	 * - name: string The raw method name that runs the test. Default unnamed_test.
+	 * - label: bool|string If false, tests will be labeled with their `name`. You can pass a string to override this behavior. Default false.
+	 * - pass: bool|string True if the test passed. Default false.
+	 * - short_description: bool|string A brief, non-html description that will appear in CLI results, and as headings in admin UIs. Default 'Test failed!'.
+	 * - long_description: bool|string An html description that will appear in the site health page. Default false.
+	 * - severity: bool|string 'critical', 'recommended', or 'good'. Default: 'critical'.
+	 * - action: bool|string A URL for the recommended action. Default: false.
+	 * - action_label: bool|string The label for the recommended action. Default: false.
+	 * - show_in_site_health: bool True if the test should be shown on the Site Health page. Default: true
 	 *
 	 * @since 7.1.0
-	 * @since 7.3.0 Added $action for resolution action link, $severity for issue severity.
 	 *
-	 * @param string $name Test name.
-	 * @param string $message Message detailing the failure.
-	 * @param string $resolution Optional. Steps to resolve.
-	 * @param string $action Optional. URL to direct users to self-resolve.
-	 * @param string $severity Optional. "critical" or "recommended" for failure stats. "good" for passing.
+	 * @param array $args Arguments to override defaults.
 	 *
 	 * @return array Test results.
 	 */
-	public static function failing_test( $name, $message, $resolution = false, $action = false, $severity = 'critical' ) {
-		// Provide standard resolutions steps, but allow pass-through of non-standard ones.
-		switch ( $resolution ) {
-			case 'cycle_connection':
-				$resolution = __( 'Please disconnect and reconnect Jetpack.', 'jetpack' ); // @todo: Link.
-				break;
-			case 'outbound_requests':
-				$resolution = __( 'Please ask your hosting provider to confirm your server can make outbound requests to jetpack.com.', 'jetpack' );
-				break;
-			case 'support':
-			case false:
-				$resolution = __( 'Please contact Jetpack support.', 'jetpack' ); // @todo: Link to support.
-				break;
-		}
-
-		return array(
-			'name'       => $name,
-			'pass'       => false,
-			'message'    => $message,
-			'resolution' => $resolution,
-			'action'     => $action,
-			'severity'   => $severity,
+	public static function failing_test( $args ) {
+		return wp_parse_args(
+			$args,
+			array(
+				'name'                => 'unnamed_test',
+				'label'               => false,
+				'pass'                => false,
+				'short_description'   => __( 'Test failed!', 'jetpack' ),
+				'long_description'    => false,
+				'severity'            => 'critical',
+				'action'              => false,
+				'action_label'        => false,
+				'show_in_site_health' => true,
+			)
 		);
 	}
 
@@ -331,12 +367,12 @@ class Jetpack_Cxn_Test_Base {
 					WP_CLI::log( WP_CLI::colorize( '%gPassed:%n  ' . $test['name'] ) );
 				} elseif ( 'skipped' === $test['pass'] ) {
 					WP_CLI::log( WP_CLI::colorize( '%ySkipped:%n ' . $test['name'] ) );
-					if ( $test['message'] ) {
-						WP_CLI::log( '         ' . $test['message'] ); // Number of spaces to "tab indent" the reason.
+					if ( $test['short_description'] ) {
+						WP_CLI::log( '         ' . $test['short_description'] ); // Number of spaces to "tab indent" the reason.
 					}
 				} else { // Failed.
 					WP_CLI::log( WP_CLI::colorize( '%rFailed:%n  ' . $test['name'] ) );
-					WP_CLI::log( '         ' . $test['message'] ); // Number of spaces to "tab indent" the reason.
+					WP_CLI::log( '         ' . $test['short_description'] ); // Number of spaces to "tab indent" the reason.
 				}
 			}
 		}
@@ -426,9 +462,11 @@ class Jetpack_Cxn_Test_Base {
 
 		foreach ( $fails as $result ) {
 			$code    = 'failed_' . $result['name'];
-			$message = $result['message'];
+			$message = $result['short_description'];
 			$data    = array(
-				'resolution' => $result['resolution'],
+				'resolution' => $result['action'] ?
+					$result['action_label'] . ' :' . $result['action'] :
+					'',
 			);
 			if ( ! $error ) {
 				$error = new WP_Error( $code, $message, $data );

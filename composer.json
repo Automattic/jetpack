@@ -16,27 +16,31 @@
 		"automattic/jetpack-autoloader": "@dev",
 		"automattic/jetpack-backup": "@dev",
 		"automattic/jetpack-compat": "@dev",
+		"automattic/jetpack-config": "@dev",
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-constants": "@dev",
 		"automattic/jetpack-error": "@dev",
 		"automattic/jetpack-jitm": "@dev",
 		"automattic/jetpack-logo": "@dev",
 		"automattic/jetpack-options": "@dev",
+		"automattic/jetpack-partner": "@dev",
 		"automattic/jetpack-roles": "@dev",
+		"automattic/jetpack-status": "@dev",
 		"automattic/jetpack-sync": "@dev",
 		"automattic/jetpack-terms-of-service": "@dev",
 		"automattic/jetpack-tracking": "@dev"
 	},
 	"require-dev": {
-		"dealerdirect/phpcodesniffer-composer-installer": "0.5.0",
+		"dealerdirect/phpcodesniffer-composer-installer": "0.6.2",
 		"phpcompatibility/phpcompatibility-wp": "2.1.0",
-		"sirbrillig/phpcs-changed": "2.2.7-beta-1@dev",
-		"sirbrillig/phpcs-variable-analysis": "2.7.0",
-		"wp-coding-standards/wpcs": "^2.2"
+		"sirbrillig/phpcs-changed": "2.2.7",
+		"sirbrillig/phpcs-variable-analysis": "2.8.1",
+		"wp-coding-standards/wpcs": "2.2.1"
 	},
 	"scripts": {
 		"php:compatibility": "vendor/bin/phpcs -p -s --runtime-set testVersion '5.6-' --standard=PHPCompatibilityWP --ignore=docker,tools,tests,node_modules,vendor --extensions=php",
 		"php:lint": "vendor/bin/phpcs -p -s",
+		"php:changed": "vendor/sirbrillig/phpcs-changed/bin/phpcs-changed --git",
 		"php:autofix": "vendor/bin/phpcbf",
 		"php:lint:errors": "vendor/bin/phpcs -p -s --runtime-set ignore_warnings_on_exit 1"
 	},

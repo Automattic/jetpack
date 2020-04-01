@@ -5,8 +5,8 @@ import classnames from 'classnames';
 import SubmitButton from '../../shared/submit-button';
 import apiFetch from '@wordpress/api-fetch';
 import { __, sprintf } from '@wordpress/i18n';
-import { trimEnd } from 'lodash';
-import formatCurrency, { getCurrencyDefaults } from '@automattic/format-currency';
+import { pick } from 'lodash';
+import formatCurrency from '@automattic/format-currency';
 import { addQueryArgs, getQueryArg, isURL } from '@wordpress/url';
 import { compose } from '@wordpress/compose';
 import { withSelect } from '@wordpress/data';
@@ -20,7 +20,7 @@ import {
 	withNotices,
 	SelectControl,
 } from '@wordpress/components';
-import { InspectorControls, BlockIcon } from '@wordpress/editor';
+import { InspectorControls, BlockIcon } from '@wordpress/block-editor';
 import { Fragment, Component } from '@wordpress/element';
 
 /**
@@ -28,7 +28,13 @@ import { Fragment, Component } from '@wordpress/element';
  */
 import getJetpackExtensionAvailability from '../../shared/get-jetpack-extension-availability';
 import StripeNudge from '../../shared/components/stripe-nudge';
-import { icon, SUPPORTED_CURRENCY_LIST } from '.';
+import {
+	icon,
+	isPriceValid,
+	minimumTransactionAmountForCurrency,
+	removeInvalidProducts,
+	CURRENCY_OPTIONS,
+} from '.';
 
 const API_STATE_LOADING = 0;
 const API_STATE_CONNECTED = 1;
@@ -50,7 +56,7 @@ class MembershipsButtonEdit extends Component {
 			products: [],
 			siteSlug: '',
 			editedProductCurrency: 'USD',
-			editedProductPrice: 5,
+			editedProductPrice: minimumTransactionAmountForCurrency( 'USD' ),
 			editedProductPriceValid: true,
 			editedProductTitle: '',
 			editedProductTitleValid: true,
@@ -99,7 +105,14 @@ class MembershipsButtonEdit extends Component {
 				const connected = result.connected_account_id
 					? API_STATE_CONNECTED
 					: API_STATE_NOTCONNECTED;
-				this.setState( { connected, connectURL, products, shouldUpgrade, upgradeURL, siteSlug } );
+				this.setState( {
+					connected,
+					connectURL,
+					shouldUpgrade,
+					upgradeURL,
+					siteSlug,
+					products: removeInvalidProducts( products ),
+				} );
 			},
 			result => {
 				const connectURL = null;
@@ -109,23 +122,25 @@ class MembershipsButtonEdit extends Component {
 			}
 		);
 	};
-	getCurrencyList = SUPPORTED_CURRENCY_LIST.map( value => {
-		const { symbol } = getCurrencyDefaults( value );
-		// if symbol is equal to the code (e.g., 'CHF' === 'CHF'), don't duplicate it.
-		// trim the dot at the end, e.g., 'kr.' becomes 'kr'
-		const label = symbol === value ? value : `${ value } ${ trimEnd( symbol, '.' ) }`;
-		return { value, label };
-	} );
 
-	handleCurrencyChange = editedProductCurrency => this.setState( { editedProductCurrency } );
+	handleCurrencyChange = editedProductCurrency =>
+		this.setState( {
+			editedProductCurrency,
+			editedProductPriceValid: isPriceValid( editedProductCurrency, this.state.editedProductPrice ),
+		} );
 	handleRenewIntervalChange = editedProductRenewInterval =>
 		this.setState( { editedProductRenewInterval } );
 
 	handlePriceChange = price => {
-		price = parseFloat( price );
+		const editedProductPrice = parseFloat( price );
+		const editedProductPriceValid = isPriceValid(
+			this.state.editedProductCurrency,
+			editedProductPrice
+		);
+
 		this.setState( {
-			editedProductPrice: price,
-			editedProductPriceValid: ! isNaN( price ) && price >= 5,
+			editedProductPrice,
+			editedProductPriceValid,
 		} );
 	};
 
@@ -142,8 +157,7 @@ class MembershipsButtonEdit extends Component {
 		}
 		if (
 			! this.state.editedProductPrice ||
-			isNaN( this.state.editedProductPrice ) ||
-			this.state.editedProductPrice < 5
+			! isPriceValid( this.state.editedProductCurrency, this.state.editedProductPrice )
 		) {
 			this.setState( { editedProductPriceValid: false } );
 			return;
@@ -212,6 +226,11 @@ class MembershipsButtonEdit extends Component {
 			return;
 		}
 
+		const minPrice = formatCurrency(
+			minimumTransactionAmountForCurrency( this.state.editedProductCurrency ),
+			this.state.editedProductCurrency
+		);
+		const minimumPriceNote = sprintf( __( 'Minimum allowed price is %s.' ), minPrice );
 		return (
 			<div>
 				<div className="membership-button__price-container">
@@ -219,24 +238,25 @@ class MembershipsButtonEdit extends Component {
 						className="membership-button__field membership-button__field-currency"
 						label={ __( 'Currency', 'jetpack' ) }
 						onChange={ this.handleCurrencyChange }
-						options={ this.getCurrencyList }
+						options={ CURRENCY_OPTIONS }
 						value={ this.state.editedProductCurrency }
 					/>
-					<TextControl
-						label={ __( 'Price', 'jetpack' ) }
-						className={ classnames( {
-							'membership-membership-button__field': true,
-							'membership-button__field-price': true,
-							'membership-button__field-error': ! this.state.editedProductPriceValid,
-						} ) }
-						onChange={ this.handlePriceChange }
-						placeholder={ formatCurrency( 0, this.state.editedProductCurrency ) }
-						required
-						min="5.00"
-						step="1"
-						type="number"
-						value={ this.state.editedProductPrice || '' }
-					/>
+					<div className="membership-membership-button__field membership-button__field-price">
+						<TextControl
+							label={ __( 'Price', 'jetpack' ) }
+							className={ classnames( {
+								'membership-button__field-error': ! this.state.editedProductPriceValid,
+							} ) }
+							onChange={ this.handlePriceChange }
+							placeholder={ minPrice }
+							required
+							min="0"
+							step="1"
+							type="number"
+							value={ this.state.editedProductPrice || '' }
+						/>
+						<p>{ minimumPriceNote }</p>
+					</div>
 				</div>
 				<TextControl
 					className={ classnames( {
@@ -350,9 +370,8 @@ class MembershipsButtonEdit extends Component {
 	}
 
 	render = () => {
-		const { attributes, className, notices } = this.props;
+		const { notices } = this.props;
 		const { connected, products } = this.state;
-		const { align } = attributes;
 
 		const stripeConnectUrl = this.getConnectUrl();
 
@@ -363,7 +382,7 @@ class MembershipsButtonEdit extends Component {
 						label={ __( 'Payment plan', 'jetpack' ) }
 						value={ this.props.attributes.planId }
 						onChange={ this.setMembershipAmount }
-						options={ this.state.products.map( product => ( {
+						options={ products.map( product => ( {
 							label: this.renderAmount( product ),
 							value: product.id,
 							key: product.id,
@@ -377,21 +396,7 @@ class MembershipsButtonEdit extends Component {
 				</PanelBody>
 			</InspectorControls>
 		);
-		const blockClasses = classnames( className, [
-			'wp-block-button__link',
-			'components-button',
-			'is-primary',
-			'is-button',
-			`align${ align }`,
-		] );
-		const blockContent = (
-			<SubmitButton
-				className={ blockClasses }
-				submitButtonText={ this.props.attributes.submitButtonText }
-				attributes={ this.props.attributes }
-				setAttributes={ this.props.setAttributes }
-			/>
-		);
+
 		return (
 			<Fragment>
 				{ this.props.noticeUI }
@@ -406,19 +411,15 @@ class MembershipsButtonEdit extends Component {
 							icon={ <BlockIcon icon={ icon } /> }
 							label={ __( 'Recurring Payments', 'jetpack' ) }
 							notices={ notices }
+							instructions={ __(
+								"You'll need to upgrade your plan to use the Recurring Payments button.",
+								'jetpack'
+							) }
 						>
-							<div className="components-placeholder__instructions">
-								<p>
-									{ __(
-										"You'll need to upgrade your plan to use the Recurring Payments button.",
-										'jetpack'
-									) }
-								</p>
-								<Button isDefault isLarge href={ this.state.upgradeURL } target="_blank">
-									{ __( 'Upgrade Your Plan', 'jetpack' ) }
-								</Button>
-								{ this.renderDisclaimer() }
-							</div>
+							<Button isSecondary isLarge href={ this.state.upgradeURL } target="_blank">
+								{ __( 'Upgrade Your Plan', 'jetpack' ) }
+							</Button>
+							{ this.renderDisclaimer() }
 						</Placeholder>
 					</div>
 				) }
@@ -475,11 +476,23 @@ class MembershipsButtonEdit extends Component {
 							</Placeholder>
 						</div>
 					) }
-				{ this.state.products && inspectorControls }
+				{ products.length > 0 && inspectorControls }
 				{ ( ( ( this.hasUpgradeNudge || ! this.state.shouldUpgrade ) &&
 					connected !== API_STATE_LOADING ) ||
-					this.props.attributes.planId ) &&
-					blockContent }
+					this.props.attributes.planId ) && (
+					<SubmitButton
+						{ ...{
+							attributes: pick( this.props.attributes, [
+								'submitButtonText',
+								'backgroundButtonColor',
+								'textButtonColor',
+								'customBackgroundButtonColor',
+								'customBackgroundButtonColor',
+							] ),
+							setAttributes: this.props.setAttributes,
+						} }
+					/>
+				) }
 				{ this.hasUpgradeNudge && connected === API_STATE_NOTCONNECTED && (
 					<div className="wp-block-jetpack-recurring-payments disclaimer-only">
 						{ this.renderDisclaimer() }

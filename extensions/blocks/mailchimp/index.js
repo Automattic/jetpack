@@ -38,6 +38,15 @@ export const settings = {
 			type: 'string',
 			default: __( 'Join my email list', 'jetpack' ),
 		},
+		backgroundButtonColor: {
+			type: 'string',
+		},
+		textButtonColor: {
+			type: 'string',
+		},
+		submitButtonClasses: {
+			type: 'string',
+		},
 		customBackgroundButtonColor: {
 			type: 'string',
 		},
@@ -51,9 +60,19 @@ export const settings = {
 				'jetpack'
 			),
 		},
+		interests: {
+			type: 'array',
+			default: [],
+		},
 		processingLabel: {
 			type: 'string',
 			default: __( 'Processing…', 'jetpack' ),
+		},
+		signupFieldTag: {
+			type: 'string',
+		},
+		signupFieldValue: {
+			type: 'string',
 		},
 		successLabel: {
 			type: 'string',

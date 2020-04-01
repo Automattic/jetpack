@@ -50,20 +50,22 @@ class Manager {
 	 *
 	 * @todo Implement a proper nonce verification.
 	 */
-	public function init() {
-		$this->setup_xmlrpc_handlers(
+	public static function configure() {
+		$manager = new self();
+
+		$manager->setup_xmlrpc_handlers(
 			$_GET, // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$this->is_active(),
-			$this->verify_xml_rpc_signature()
+			$manager->is_active(),
+			$manager->verify_xml_rpc_signature()
 		);
 
-		if ( $this->is_active() ) {
-			add_filter( 'xmlrpc_methods', array( $this, 'public_xmlrpc_methods' ) );
+		if ( $manager->is_active() ) {
+			add_filter( 'xmlrpc_methods', array( $manager, 'public_xmlrpc_methods' ) );
 		} else {
-			add_action( 'rest_api_init', array( $this, 'initialize_rest_api_registration_connector' ) );
+			add_action( 'rest_api_init', array( $manager, 'initialize_rest_api_registration_connector' ) );
 		}
 
-		add_action( 'jetpack_clean_nonces', array( $this, 'clean_nonces' ) );
+		add_action( 'jetpack_clean_nonces', array( $manager, 'clean_nonces' ) );
 		if ( ! wp_next_scheduled( 'jetpack_clean_nonces' ) ) {
 			wp_schedule_event( time(), 'hourly', 'jetpack_clean_nonces' );
 		}
@@ -335,7 +337,7 @@ class Manager {
 		if (
 			empty( $token_key )
 		||
-			empty( $version ) || strval( JETPACK__API_VERSION ) !== $version
+			empty( $version ) || strval( Utils::get_jetpack_api_version() ) !== $version
 		) {
 			return new \WP_Error( 'malformed_token', 'Malformed token in request', compact( 'signature_details' ) );
 		}
@@ -526,7 +528,7 @@ class Manager {
 	 * @return string|int Returns the ID of the connection owner or False if no connection owner found.
 	 */
 	public function get_connection_owner_id() {
-		$user_token       = $this->get_access_token( JETPACK_MASTER_USER );
+		$user_token       = $this->get_access_token( self::JETPACK_MASTER_USER );
 		$connection_owner = false;
 		if ( $user_token && is_object( $user_token ) && isset( $user_token->external_user_id ) ) {
 			$connection_owner = $user_token->external_user_id;
@@ -601,7 +603,7 @@ class Manager {
 	 * @return object|false False if no connection owner found.
 	 */
 	public function get_connection_owner() {
-		$user_token = $this->get_access_token( JETPACK_MASTER_USER );
+		$user_token = $this->get_access_token( self::JETPACK_MASTER_USER );
 
 		$connection_owner = false;
 		if ( $user_token && is_object( $user_token ) && isset( $user_token->external_user_id ) ) {
@@ -623,7 +625,7 @@ class Manager {
 			$user_id = get_current_user_id();
 		}
 
-		$user_token = $this->get_access_token( JETPACK_MASTER_USER );
+		$user_token = $this->get_access_token( self::JETPACK_MASTER_USER );
 
 		return $user_token && is_object( $user_token ) && isset( $user_token->external_user_id ) && $user_id === $user_token->external_user_id;
 	}
@@ -714,10 +716,23 @@ class Manager {
 	 */
 	public function api_url( $relative_url ) {
 		$api_base = Constants::get_constant( 'JETPACK__API_BASE' );
-		$version  = Constants::get_constant( 'JETPACK__API_VERSION' );
-
 		$api_base = $api_base ? $api_base : 'https://jetpack.wordpress.com/jetpack.';
-		$version  = $version ? '/' . $version . '/' : '/1/';
+		$version  = '/' . Utils::get_jetpack_api_version() . '/';
+
+		/**
+		 * Filters whether the connection manager should use the iframe authorization
+		 * flow instead of the regular redirect-based flow.
+		 *
+		 * @since 8.3.0
+		 *
+		 * @param Boolean $is_iframe_flow_used should the iframe flow be used, defaults to false.
+		 */
+		$iframe_flow = apply_filters( 'jetpack_use_iframe_authorization_flow', false );
+
+		// Do not modify anything that is not related to authorize requests.
+		if ( 'authorize' === $relative_url && $iframe_flow ) {
+			$relative_url = 'authorize_iframe';
+		}
 
 		/**
 		 * Filters the API URL that Jetpack uses for server communication.
@@ -1169,10 +1184,21 @@ class Manager {
 			 *
 			 * @param Callable a function or method that returns a secret string.
 			 */
-			$this->secret_callable = apply_filters( 'jetpack_connection_secret_generator', 'wp_generate_password' );
+			$this->secret_callable = apply_filters( 'jetpack_connection_secret_generator', array( $this, 'secret_callable_method' ) );
 		}
 
 		return $this->secret_callable;
+	}
+
+	/**
+	 * Runs the wp_generate_password function with the required parameters. This is the
+	 * default implementation of the secret callable, can be overridden using the
+	 * jetpack_connection_secret_generator filter.
+	 *
+	 * @return String $secret value.
+	 */
+	private function secret_callable_method() {
+		return wp_generate_password( 32, false );
 	}
 
 	/**
@@ -1257,6 +1283,36 @@ class Manager {
 			unset( $secrets[ $secret_name ] );
 			\Jetpack_Options::update_raw_option( self::SECRETS_OPTION_NAME, $secrets );
 		}
+	}
+
+	/**
+	 * Deletes all connection tokens and transients from the local Jetpack site.
+	 */
+	public function delete_all_connection_tokens() {
+		\Jetpack_Options::delete_option(
+			array(
+				'blog_token',
+				'user_token',
+				'user_tokens',
+				'master_user',
+				'time_diff',
+				'fallback_no_verify_ssl_certs',
+			)
+		);
+
+		\Jetpack_Options::delete_raw_option( 'jetpack_secrets' );
+
+		// Delete cached connected user data.
+		$transient_key = 'jetpack_connected_user_data_' . get_current_user_id();
+		delete_transient( $transient_key );
+	}
+
+	/**
+	 * Tells WordPress.com to disconnect the site and clear all tokens from cached site.
+	 */
+	public function disconnect_site_wpcom() {
+		$xml = new \Jetpack_IXR_Client();
+		$xml->query( 'jetpack.deregister', get_current_user_id() );
 	}
 
 	/**
@@ -1526,6 +1582,7 @@ class Manager {
 				return new \WP_Error( 'unknown', '', $code );
 			}
 
+			/* translators: Error description string. */
 			$error_description = isset( $json->error_description ) ? sprintf( __( 'Error Details: %s', 'jetpack' ), (string) $json->error_description ) : '';
 
 			return new \WP_Error( (string) $json->error, $error_description, $code );
@@ -1749,6 +1806,12 @@ class Manager {
 		 * @param array $data The request data.
 		 */
 		do_action( 'jetpack_authorize_ending_authorized', $data );
+
+		\Jetpack_Options::delete_raw_option( 'jetpack_last_connect_url_check' );
+
+		// Start nonce cleaner.
+		wp_clear_scheduled_hook( 'jetpack_clean_nonces' );
+		wp_schedule_event( time(), 'hourly', 'jetpack_clean_nonces' );
 
 		return 'authorized';
 	}

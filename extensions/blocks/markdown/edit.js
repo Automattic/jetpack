@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { BlockControls, PlainText } from '@wordpress/editor';
+import { BlockControls, PlainText } from '@wordpress/block-editor';
 import { Component } from '@wordpress/element';
 import { compose } from '@wordpress/compose';
 import { withDispatch, withSelect } from '@wordpress/data';
@@ -119,9 +119,9 @@ class MarkdownEdit extends Component {
 
 export default compose( [
 	withSelect( select => ( {
-		currentBlockId: select( 'core/editor' ).getSelectedBlockClientId(),
+		currentBlockId: select( 'core/block-editor' ).getSelectedBlockClientId(),
 	} ) ),
 	withDispatch( ( dispatch, { currentBlockId } ) => ( {
-		removeBlock: () => dispatch( 'core/editor' ).removeBlocks( currentBlockId ),
+		removeBlock: () => dispatch( 'core/block-editor' ).removeBlocks( currentBlockId ),
 	} ) ),
 ] )( MarkdownEdit );

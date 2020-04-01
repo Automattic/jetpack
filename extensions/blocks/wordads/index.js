@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { ExternalLink, Path, SVG } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 
@@ -58,7 +58,11 @@ export const settings = {
 
 	category: 'jetpack',
 
-	keywords: [ __( 'ads', 'jetpack' ), 'WordAds', __( 'Advertisement', 'jetpack' ) ],
+	keywords: [
+		_x( 'ads', 'block search term', 'jetpack' ),
+		'WordAds',
+		_x( 'advertisement', 'block search term', 'jetpack' ),
+	],
 
 	supports: {
 		align: [ 'left', 'center', 'right' ],

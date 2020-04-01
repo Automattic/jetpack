@@ -49,7 +49,18 @@ class Users extends Module {
 	 * @return string
 	 */
 	public function table_name() {
-		return 'users';
+		return 'usermeta';
+	}
+
+	/**
+	 * The id field in the database.
+	 *
+	 * @access public
+	 *
+	 * @return string
+	 */
+	public function id_field() {
+		return 'user_id';
 	}
 
 	/**
@@ -116,7 +127,7 @@ class Users extends Module {
 		add_action( 'jetpack_wp_login', $callable, 10, 3 );
 
 		add_action( 'wp_logout', $callable, 10, 0 );
-		add_action( 'wp_masterbar_logout', $callable, 10, 0 );
+		add_action( 'wp_masterbar_logout', $callable, 10, 1 );
 
 		// Add on init.
 		add_filter( 'jetpack_sync_before_enqueue_jetpack_sync_add_user', array( $this, 'expand_action' ) );

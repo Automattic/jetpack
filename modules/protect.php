@@ -407,7 +407,7 @@ class Jetpack_Protect_Module {
 		);
 
 		foreach ( $ip_related_headers as $header ) {
-			if ( isset( $_SERVER[ $header ] ) ) {
+			if ( ! empty( $_SERVER[ $header ] ) ) {
 				$output[ $header ] = $_SERVER[ $header ];
 			}
 		}

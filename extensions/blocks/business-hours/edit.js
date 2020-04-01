@@ -5,7 +5,7 @@ import apiFetch from '@wordpress/api-fetch';
 import classNames from 'classnames';
 import { __ } from '@wordpress/i18n';
 import { __experimentalGetSettings } from '@wordpress/date';
-import { BlockIcon } from '@wordpress/editor';
+import { BlockIcon } from '@wordpress/block-editor';
 import { Component } from '@wordpress/element';
 import { Placeholder } from '@wordpress/components';
 

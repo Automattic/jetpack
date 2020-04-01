@@ -1,7 +1,7 @@
 /* global FB, jpfbembed */
 ( function( window ) {
 	var facebookEmbed = function() {
-		var fbroot, src;
+		var fbroot, src, newScript, firstScript;
 
 		if ( 'undefined' !== typeof FB && FB.XFBML ) {
 			FB.XFBML.parse();
@@ -15,7 +15,11 @@
 				src += '&appId=' + jpfbembed.appid;
 			}
 			src += '&version=v2.3';
-			jQuery.getScript( src );
+
+			newScript = document.createElement( 'script' );
+			newScript.setAttribute( 'src', src );
+			firstScript = document.querySelector( 'script' );
+			firstScript.parentNode.insertBefore( newScript, firstScript );
 		}
 	};
 
@@ -29,7 +33,7 @@
 	};
 
 	if ( 'undefined' !== typeof infiniteScroll ) {
-		jQuery( document.body ).on( 'post-load', facebookEmbed );
+		document.body.addEventListener( 'post-load', facebookEmbed );
 	}
 
 	facebookEmbed();

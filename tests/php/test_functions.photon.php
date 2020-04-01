@@ -22,7 +22,7 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 
 	/**
 	 * @author kraftbj
-	 * @covers jetpack_photon_url
+	 * @covers ::jetpack_photon_url
 	 * @since 3.9.2
 	 */
 	public function test_photonizing_https_image_adds_ssl_query_arg() {
@@ -33,7 +33,7 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 
 	/**
 	 * @author kraftbj
-	 * @covers jetpack_photon_url
+	 * @covers ::jetpack_photon_url
 	 * @since  3.9.2
 	 */
 	public function test_photonizing_http_image_no_ssl_query_arg() {
@@ -44,7 +44,7 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers jetpack_photon_url
+	 * @covers ::jetpack_photon_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_no_filter
 	 */
@@ -59,7 +59,7 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers jetpack_photon_url
+	 * @covers ::jetpack_photon_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_no_filter
 	 */
@@ -74,7 +74,7 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers jetpack_photon_url
+	 * @covers ::jetpack_photon_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_no_filter
 	 */
@@ -86,7 +86,7 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers jetpack_photon_url
+	 * @covers ::jetpack_photon_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_no_filter
 	 */
@@ -98,7 +98,7 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers jetpack_photon_url
+	 * @covers ::jetpack_photon_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_no_filter
 	 */
@@ -110,7 +110,7 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers jetpack_photon_url
+	 * @covers ::jetpack_photon_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_filter_http
 	 */
@@ -123,7 +123,7 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers jetpack_photon_url
+	 * @covers ::jetpack_photon_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_filter_http
 	 */
@@ -136,7 +136,7 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers jetpack_photon_url
+	 * @covers ::jetpack_photon_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_filter_http
 	 */
@@ -149,7 +149,7 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers jetpack_photon_url
+	 * @covers ::jetpack_photon_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_filter_http
 	 */
@@ -162,7 +162,7 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers jetpack_photon_url
+	 * @covers ::jetpack_photon_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_filter_http
 	 */
@@ -175,7 +175,7 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers jetpack_photon_url
+	 * @covers ::jetpack_photon_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_filter_network_path
 	 */
@@ -188,7 +188,7 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers jetpack_photon_url
+	 * @covers ::jetpack_photon_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_filter_network_path
 	 */
@@ -201,7 +201,7 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers jetpack_photon_url
+	 * @covers ::jetpack_photon_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_filter_network_path
 	 */
@@ -214,7 +214,7 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers jetpack_photon_url
+	 * @covers ::jetpack_photon_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_filter_network_path
 	 */
@@ -227,7 +227,7 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers jetpack_photon_url
+	 * @covers ::jetpack_photon_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_filter_network_path
 	 */
@@ -240,7 +240,7 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers jetpack_photon_url_scheme
+	 * @covers ::jetpack_photon_url_scheme
 	 * @since  4.5.0
 	 * @group  jetpack_photon_url_scheme
 	 */
@@ -252,7 +252,7 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers jetpack_photon_url_scheme
+	 * @covers ::jetpack_photon_url_scheme
 	 * @since  4.5.0
 	 * @group  jetpack_photon_url_scheme
 	 */
@@ -264,7 +264,7 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers jetpack_photon_url_scheme
+	 * @covers ::jetpack_photon_url_scheme
 	 * @since  4.5.0
 	 * @group  jetpack_photon_url_scheme
 	 */
@@ -276,7 +276,7 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers jetpack_photon_url_scheme
+	 * @covers ::jetpack_photon_url_scheme
 	 * @since  4.5.0
 	 * @group  jetpack_photon_url_scheme
 	 */
@@ -288,7 +288,7 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers jetpack_photon_url_scheme
+	 * @covers ::jetpack_photon_url_scheme
 	 * @since  4.5.0
 	 * @group  jetpack_photon_url_scheme
 	 */
@@ -300,7 +300,7 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers jetpack_photon_url_scheme
+	 * @covers ::jetpack_photon_url_scheme
 	 * @since  4.5.0
 	 * @group  jetpack_photon_url_scheme
 	 */
@@ -312,7 +312,7 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers jetpack_photon_url_scheme
+	 * @covers ::jetpack_photon_url_scheme
 	 * @since  4.5.0
 	 * @group  jetpack_photon_url_scheme
 	 */
@@ -324,7 +324,7 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers jetpack_photon_banned_domains
+	 * @covers ::jetpack_photon_banned_domains
 	 * @since  5.0.0
 	 * @group  jetpack_photon_banned_domains
 	 */
@@ -335,7 +335,7 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers jetpack_photon_banned_domains
+	 * @covers ::jetpack_photon_banned_domains
 	 * @since  5.0.0
 	 * @group  jetpack_photon_banned_domains
 	 */

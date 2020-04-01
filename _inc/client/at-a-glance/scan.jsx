@@ -77,7 +77,7 @@ class DashScan extends Component {
 	};
 
 	getVPContent() {
-		const { sitePlan, fetchingSiteData } = this.props;
+		const { sitePlan, planClass, fetchingSiteData } = this.props;
 		const hasSitePlan = false !== sitePlan;
 		const vpData = this.props.vaultPressData;
 		const scanEnabled = get( vpData, [ 'data', 'features', 'security' ], false );
@@ -96,7 +96,7 @@ class DashScan extends Component {
 				if ( threats !== 0 ) {
 					return renderCard( {
 						content: [
-							<h3>
+							<h3 className="jp-dash-item__title jp-dash-item__title_fullwidth jp-dash-item__title_top">
 								{ __( 'Uh oh, %(number)s threat found.', 'Uh oh, %(number)s threats found.', {
 									count: threats,
 									args: { number: numberFormat( threats ) },
@@ -135,7 +135,6 @@ class DashScan extends Component {
 		const inactiveOrUninstalled = this.props.isVaultPressInstalled
 			? 'pro-inactive'
 			: 'pro-uninstalled';
-		const planClass = getPlanClass( get( sitePlan, 'product_slug', '' ) );
 		const hasPremium = 'is-premium-plan' === planClass;
 		const hasBusiness = 'is-business-plan' === planClass;
 
@@ -159,19 +158,7 @@ class DashScan extends Component {
 				</p>
 			) : null;
 
-		const overrideContent =
-			null === scanContent ? (
-				<JetpackBanner
-					callToAction={ __( 'Upgrade' ) }
-					title={ __( 'Find threats early so we can help fix them fast.' ) }
-					disableHref="false"
-					href={ this.props.upgradeUrl }
-					eventFeature="scan"
-					path="dashboard"
-					plan={ PLAN_JETPACK_PREMIUM }
-					icon="lock"
-				/>
-			) : null;
+		const overrideContent = null === scanContent ? this.getUpgradeBanner() : null;
 
 		return renderCard( {
 			className: 'jp-dash-item__is-inactive',
@@ -179,6 +166,21 @@ class DashScan extends Component {
 			content: [ scanContent ],
 			overrideContent,
 		} );
+	}
+
+	getUpgradeBanner() {
+		return (
+			<JetpackBanner
+				callToAction={ __( 'Upgrade' ) }
+				title={ __( 'Find threats early so we can help fix them fast.' ) }
+				disableHref="false"
+				href={ this.props.upgradeUrl }
+				eventFeature="scan"
+				path="dashboard"
+				plan={ PLAN_JETPACK_PREMIUM }
+				icon="lock"
+			/>
+		);
 	}
 
 	getRewindContent() {
@@ -236,6 +238,13 @@ class DashScan extends Component {
 		return false;
 	}
 
+	getUpgradeContent() {
+		return renderCard( {
+			className: 'jp-dash-item__is-inactive',
+			overrideContent: this.getUpgradeBanner(),
+		} );
+	}
+
 	render() {
 		if ( ! this.props.showBackups ) {
 			return null;
@@ -248,24 +257,41 @@ class DashScan extends Component {
 			} );
 		}
 
+		// If the plan class does not support Scan, prompt an upgrade
+		// Otherwise, use either VaultPress or Rewind to determine what to show
+		let content;
+		if (
+			[
+				'is-free-plan',
+				'is-personal-plan',
+				'is-daily-backup-plan',
+				'is-realtime-backup-plan',
+			].includes( this.props.planClass )
+		) {
+			content = this.getUpgradeContent();
+		} else if ( 'unavailable' === this.props.rewindStatus ) {
+			content = this.getVPContent( this.props.planClass );
+		} else {
+			content = <div className="jp-dash-item">{ this.getRewindContent() }</div>;
+		}
+
 		return (
 			<div>
 				<QueryVaultPressData />
-				{ 'unavailable' === this.props.rewindStatus ? (
-					this.getVPContent()
-				) : (
-					<div className="jp-dash-item">{ this.getRewindContent() }</div>
-				) }
+				{ content }
 			</div>
 		);
 	}
 }
 
 export default connect( state => {
+	const sitePlan = getSitePlan( state );
+
 	return {
 		vaultPressData: getVaultPressData( state ),
 		scanThreats: getVaultPressScanThreatCount( state ),
-		sitePlan: getSitePlan( state ),
+		sitePlan,
+		planClass: getPlanClass( get( sitePlan, 'product_slug', '' ) ),
 		isDevMode: isDevMode( state ),
 		isVaultPressInstalled: isPluginInstalled( state, 'vaultpress/vaultpress.php' ),
 		fetchingSiteData: isFetchingSiteData( state ),

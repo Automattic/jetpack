@@ -27,16 +27,6 @@ class Users {
 	public static $user_roles = array();
 
 	/**
-	 * Jetpack connection manager instance.
-	 *
-	 * @access public
-	 * @static
-	 *
-	 * @var null|Automattic\Jetpack\Connection\Manager
-	 */
-	public static $connection = null;
-
-	/**
 	 * Initialize sync for user data changes.
 	 *
 	 * @access public
@@ -44,8 +34,8 @@ class Users {
 	 * @todo Eventually, connection needs to be instantiated at the top level in the sync package.
 	 */
 	public static function init() {
-		self::$connection = new Jetpack_Connection();
-		if ( self::$connection->is_active() ) {
+		$connection = new Jetpack_Connection();
+		if ( $connection->is_active() ) {
 			// Kick off synchronization of user role when it changes.
 			add_action( 'set_user_role', array( __CLASS__, 'user_role_change' ) );
 		}
@@ -60,7 +50,8 @@ class Users {
 	 * @param int $user_id ID of the user.
 	 */
 	public static function user_role_change( $user_id ) {
-		if ( self::$connection->is_user_connected( $user_id ) ) {
+		$connection = new Jetpack_Connection();
+		if ( $connection->is_user_connected( $user_id ) ) {
 			self::update_role_on_com( $user_id );
 			// Try to choose a new master if we're demoting the current one.
 			self::maybe_demote_master_user( $user_id );
@@ -101,7 +92,8 @@ class Users {
 	 * @return string Signed role of the user.
 	 */
 	public static function get_signed_role( $user_id ) {
-		return \Jetpack::connection()->sign_role( self::get_role( $user_id ), $user_id );
+		$connection = new Jetpack_Connection();
+		return $connection->sign_role( self::get_role( $user_id ), $user_id );
 	}
 
 	/**
@@ -140,9 +132,10 @@ class Users {
 				)
 			);
 			$new_master = false;
+			$connection = new Jetpack_Connection();
 			foreach ( $query->results as $result ) {
 				$found_user_id = absint( $result->id );
-				if ( $found_user_id && self::$connection->is_user_connected( $found_user_id ) ) {
+				if ( $found_user_id && $connection->is_user_connected( $found_user_id ) ) {
 					$new_master = $found_user_id;
 					break;
 				}

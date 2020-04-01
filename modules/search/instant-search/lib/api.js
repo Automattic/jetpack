@@ -4,13 +4,19 @@
 import fetch from 'unfetch';
 import { encode } from 'qss';
 import { flatten } from 'q-flat';
+import stringify from 'fast-json-stable-stringify';
+import Cache from 'cache';
 
 /**
  * Internal dependencies
  */
-import { getFilterKeys } from './query-string';
+import { getFilterKeys } from './filters';
+import { MINUTE_IN_MILLISECONDS } from './constants';
 
 const isLengthyArray = array => Array.isArray( array ) && array.length > 0;
+// Cache contents evicted after fixed time-to-live
+const cache = new Cache( 5 * MINUTE_IN_MILLISECONDS );
+const backupCache = new Cache( 30 * MINUTE_IN_MILLISECONDS );
 
 export function buildFilterAggregations( widgets = [] ) {
 	const aggregation = {};
@@ -31,12 +37,13 @@ function generateAggregation( filter ) {
 			};
 		}
 		case 'taxonomy': {
-			let field = `taxonomy.${ filter.taxonomy }.slug`;
+			let field = `taxonomy.${ filter.taxonomy }.slug_slash_name`;
 			if ( filter.taxonomy === 'post_tag' ) {
-				field = 'tag.slug';
-			} else if ( filter.type === 'category' ) {
-				field = 'category.slug';
+				field = 'tag.slug_slash_name';
+			} else if ( filter.taxonomy === 'category' ) {
+				field = 'category.slug_slash_name';
 			}
+
 			return { terms: { field, size: filter.count } };
 		}
 		case 'post_type': {
@@ -117,43 +124,77 @@ function buildFilterObject( filterQuery ) {
 	return filter;
 }
 
-export function search( { aggregations, filter, pageHandle, query, resultFormat, siteId, sort } ) {
-	let fields = [];
-	let highlight_fields = [];
+export function search( {
+	aggregations,
+	filter,
+	pageHandle,
+	query,
+	resultFormat,
+	siteId,
+	sort,
+	postsPerPage = 10,
+} ) {
+	const key = stringify( Array.from( arguments ) );
+
+	// Use cached value from the last 30 minutes if browser is offline
+	if ( ! navigator.onLine && backupCache.get( key ) ) {
+		return backupCache
+			.get( key )
+			.then( data => ( { _isCached: true, _isError: false, _isOffline: true, ...data } ) );
+	}
+	// Use cached value from the last 5 minutes
+	if ( cache.get( key ) ) {
+		return cache
+			.get( key )
+			.then( data => ( { _isCached: true, _isError: false, _isOffline: false, ...data } ) );
+	}
+
+	let fields = [
+		'date',
+		'permalink.url.raw',
+		'tag.name.default',
+		'category.name.default',
+		'post_type',
+		'has.image',
+		'shortcode_types',
+	];
+	const highlightFields = [ 'title', 'content', 'comments' ];
+
 	switch ( resultFormat ) {
 		case 'engagement':
 		case 'product':
-		case 'minimal':
-		default:
-			highlight_fields = [ 'title', 'content', 'comments' ];
-			fields = [
-				'date',
-				'permalink.url.raw',
-				'tag.name.default',
-				'category.name.default',
-				'post_type',
-				'has.image',
-				'shortcode_types',
-			];
+			fields = fields.concat( [ 'image.url.raw', 'wc.price' ] );
 	}
 
 	const queryString = encode(
 		flatten( {
 			aggregations,
 			fields,
-			highlight_fields,
+			highlight_fields: highlightFields,
 			filter: buildFilterObject( filter ),
 			query: encodeURIComponent( query ),
 			sort,
 			page_handle: pageHandle,
+			size: postsPerPage,
 		} )
 	);
 
 	return fetch(
 		`https://public-api.wordpress.com/rest/v1.3/sites/${ siteId }/search?${ queryString }`
-	).then( response => {
-		return response.json();
-	} );
-	//TODO: handle errors and fallback to a longer term cache - network connectivity for mobile
-	//TODO: store cache data in the browser - esp for mobile
+	)
+		.catch( error => {
+			// TODO: Display a message about falling back to a cached value in the interface
+			// Fallback to either cache if we run into any errors
+			const fallbackValue = cache.get( key ) || backupCache.get( key );
+			if ( fallbackValue ) {
+				return { _isCached: true, _isError: true, _isOffline: false, ...fallbackValue };
+			}
+			throw error;
+		} )
+		.then( response => {
+			const json = response.json();
+			cache.put( key, json );
+			backupCache.put( key, json );
+			return json;
+		} );
 }

@@ -7,9 +7,17 @@ jQuery( document ).ready( function( $ ) {
 	var connectionHelpSections = $(
 		'#jetpack-connection-cards, .jp-connect-full__dismiss-paragraph'
 	);
+	var connectButtonFrom = '';
 
 	connectButton.on( 'click', function( event ) {
 		event.preventDefault();
+
+		if ( 'undefined' === typeof URLSearchParams ) {
+			connectButtonFrom = '';
+		} else {
+			var searchParams = new URLSearchParams( $( this ).prop( 'search' ) );
+			connectButtonFrom = searchParams && searchParams.get( 'from' );
+		}
 
 		if ( connectionHelpSections.length ) {
 			connectionHelpSections.fadeOut( 600 );
@@ -42,7 +50,7 @@ jQuery( document ).ready( function( $ ) {
 			}
 		},
 		startConnectionFlow: function() {
-			var abTestName = 'jetpack_connect_in_place_v3';
+			var abTestName = 'jetpack_connect_in_place_v4';
 
 			$.ajax( {
 				url: 'https://public-api.wordpress.com/wpcom/v2/abtest/' + abTestName,
@@ -114,13 +122,20 @@ jQuery( document ).ready( function( $ ) {
 		handleConnectionSuccess: function( data ) {
 			jetpackConnectButton.fetchPlanType();
 			window.addEventListener( 'message', jetpackConnectButton.receiveData );
-			jetpackConnectIframe.attr( 'src', data.authorizeUrl );
+			jetpackConnectIframe.attr( 'src', data.authorizeUrl + '&from=' + connectButtonFrom );
 			jetpackConnectIframe.on( 'load', function() {
 				jetpackConnectIframe.show();
 				$( '.jp-connect-full__button-container' ).hide();
 			} );
 			jetpackConnectIframe.hide();
 			$( '.jp-connect-full__button-container' ).after( jetpackConnectIframe );
+
+			// At this point we are pretty sure if things work out that we will be loading the admin script
+			var link = document.createElement( 'link' );
+			link.rel = 'preload';
+			link.as = 'script';
+			link.href = jpConnect.preFetchScript;
+			document.head.appendChild( link );
 		},
 		fetchPlanType: function() {
 			$.ajax( {
@@ -131,7 +146,8 @@ jQuery( document ).ready( function( $ ) {
 				},
 				success: function( data ) {
 					var siteData = JSON.parse( data.data );
-					jetpackConnectButton.isPaidPlan = ! siteData.plan.is_free;
+					jetpackConnectButton.isPaidPlan =
+						siteData.options.is_pending_plan || ! siteData.plan.is_free;
 				},
 			} );
 		},
@@ -153,7 +169,11 @@ jQuery( document ).ready( function( $ ) {
 			} else {
 				window.location.assign( jpConnect.plansPromptUrl );
 			}
-			window.location.reload( true );
+
+			// The Jetpack admin page has hashes in the URLs, so we need to reload the page after .assign()
+			if ( window.location.hash ) {
+				window.location.reload( true );
+			}
 		},
 		handleConnectionError: function( error ) {
 			jetpackConnectButton.isRegistering = false;

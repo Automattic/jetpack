@@ -31,15 +31,18 @@ const supportLink =
 		: 'https://jetpack.com/support/jetpack-blocks/simple-payments-block/';
 
 export const settings = {
-	title: __( 'Simple Payments button', 'jetpack' ),
+	title: __( 'Simple Payments', 'jetpack' ),
 
 	description: (
 		<Fragment>
 			<p>
 				{ __(
-					'Lets you create and embed credit and debit card payment buttons with minimal setup.',
+					'Lets you add credit and debit card payment buttons with minimal setup.',
 					'jetpack'
 				) }
+			</p>
+			<p>
+				{ __( 'Good for collecting donations or payments for products and services.', 'jetpack' ) }
 			</p>
 			<ExternalLink href={ supportLink }>{ __( 'Support reference', 'jetpack' ) }</ExternalLink>
 		</Fragment>
@@ -55,8 +58,12 @@ export const settings = {
 	category: 'jetpack',
 
 	keywords: [
-		_x( 'shop', 'block search term', 'jetpack' ),
+		_x( 'buy', 'block search term', 'jetpack' ),
+		_x( 'commerce', 'block search term', 'jetpack' ),
+		_x( 'products', 'block search term', 'jetpack' ),
+		_x( 'purchase', 'block search term', 'jetpack' ),
 		_x( 'sell', 'block search term', 'jetpack' ),
+		_x( 'shop', 'block search term', 'jetpack' ),
 		'PayPal',
 	],
 
@@ -134,7 +141,7 @@ export const settings = {
 			price: 25.0,
 			title: __( 'Jetpack t-shirt', 'jetpack' ),
 			content: __(
-				'Take flight in ultimate comfort with ths stylish t-shirt featuring the Jetpack logo.',
+				'Take flight in ultimate comfort with this stylish t-shirt featuring the Jetpack logo.',
 				'jetpack'
 			),
 			email: 'jetpack@jetpack.com',

@@ -848,11 +848,13 @@ class Grunion_Contact_Form_Plugin {
 	 * @param int $post_id Id of the post to fetch meta data for.
 	 *
 	 * @return mixed
-	 *
-	 * @codeCoverageIgnore - No need to be covered.
 	 */
 	public function get_post_meta_for_csv_export( $post_id ) {
-		return get_post_meta( $post_id, '_feedback_extra_fields', true );
+		$md                  = get_post_meta( $post_id, '_feedback_extra_fields', true );
+		$md['feedback_date'] = get_the_date( DATE_RFC3339, $post_id );
+		$content_fields      = self::parse_fields_from_content( $post_id );
+		$md['feedback_ip']   = ( isset( $content_fields['_feedback_ip'] ) ) ? $content_fields['_feedback_ip'] : 0;
+		return $md;
 	}
 
 	/**
@@ -888,6 +890,7 @@ class Grunion_Contact_Form_Plugin {
 			'_feedback_author_email' => '2_Email',
 			'_feedback_author_url'   => '3_Website',
 			'_feedback_main_comment' => '4_Comment',
+			'_feedback_author_ip'    => '5_IP',
 		);
 
 		foreach ( $field_mapping as $parsed_field_name => $field_name ) {

@@ -92,7 +92,7 @@ class Jetpack_Signature {
 			// X-Forwarded-Port and the back end's port is *not* 80. It's better,
 			// though, to configure the proxy to send X-Forwarded-Port.
 			$https_port = defined( 'JETPACK_SIGNATURE__HTTPS_PORT' ) ? JETPACK_SIGNATURE__HTTPS_PORT : 443;
-			$port       = in_array( $host_port, array( 443, 80, $https_port ), true ) ? '' : $host_port;
+			$port       = in_array( $host_port, array( 443, 80, $https_port ), false ) ? '' : $host_port; // phpcs:ignore WordPress.PHP.StrictInArray.FoundNonStrictFalse
 		} else {
 			// 80: Standard Port
 			// JETPACK_SIGNATURE__HTTPS_PORT: Set this constant in wp-config.php to the back end webserver's port
@@ -100,7 +100,7 @@ class Jetpack_Signature {
 			// X-Forwarded-Port. It's better, though, to configure the proxy to
 			// send X-Forwarded-Port.
 			$http_port = defined( 'JETPACK_SIGNATURE__HTTP_PORT' ) ? JETPACK_SIGNATURE__HTTP_PORT : 80;
-			$port      = in_array( $host_port, array( 80, $http_port ), true ) ? '' : $host_port;
+			$port      = in_array( $host_port, array( 80, $http_port ), false ) ? '' : $host_port; // phpcs:ignore WordPress.PHP.StrictInArray.FoundNonStrictFalse
 		}
 
 		$this->current_request_url = "{$scheme}://{$_SERVER['HTTP_HOST']}:{$port}" . stripslashes( $_SERVER['REQUEST_URI'] );

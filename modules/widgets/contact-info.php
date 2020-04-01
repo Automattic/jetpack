@@ -252,10 +252,14 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 			<p>
 				<label for="<?php echo esc_attr( $this->get_field_id( 'address' ) ); ?>"><?php esc_html_e( 'Address:', 'jetpack' ); ?></label>
 				<textarea class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'address' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'address' ) ); ?>"><?php echo esc_textarea( $instance['address'] ); ?></textarea>
+			</p>
 
+			<p>
 				<input class="jp-contact-info-showmap" id="<?php echo esc_attr( $this->get_field_id( 'showmap' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'showmap' ) ); ?>" value="1" type="checkbox" <?php checked( $instance['showmap'], 1 ); ?> />
 				<label for="<?php echo esc_attr( $this->get_field_id( 'showmap' ) ); ?>"><?php esc_html_e( 'Show map', 'jetpack' ); ?></label>
 			</p>
+
+			<?php if ( ! has_filter( 'jetpack_google_maps_api_key' ) ) { ?>
 
 			<p class="jp-contact-info-admin-map" style="<?php echo $instance['showmap'] ? '' : 'display: none;'; ?>">
 				<label for="<?php echo esc_attr( $this->get_field_id( 'apikey' ) ); ?>">
@@ -281,13 +285,15 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 				</label>
 			</p>
 
+			<?php } // end if jetpack_google_maps_api_key check. ?>
+
 			<p class="jp-contact-info-admin-map jp-contact-info-embed-map" style="<?php echo $instance['showmap'] ? '' : 'display: none;'; ?>">
 				<?php
 				if ( ! is_customize_preview() && true === $instance['goodmap'] ) {
 					echo $this->build_map( $instance['address'], $apikey ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				} elseif ( true !== $instance['goodmap'] && ! empty( $instance['goodmap'] ) ) {
 					printf(
-						'<span class="notice notice-warning" style="display: block;">%s</span>',
+						'<span class="button-link-delete">%s</span>',
 						esc_html( $instance['goodmap'] )
 					);
 				}

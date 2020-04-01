@@ -27,8 +27,6 @@ class WP_Test_Jetpack_WPCOM_Block_Editor extends WP_UnitTestCase {
 	}
 	/**
 	 * Test_verify_frame_nonce.
-	 *
-	 * @covers ::verify_frame_nonce
 	 */
 	public function test_verify_frame_nonce() {
 		$wpcom_block_editor = Jetpack_WPCOM_Block_Editor::init();

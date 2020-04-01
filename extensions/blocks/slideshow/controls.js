@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { BlockControls, InspectorControls, MediaUpload } from '@wordpress/editor';
+import { BlockControls, InspectorControls, MediaUpload } from '@wordpress/block-editor';
 import {
 	PanelBody,
 	RangeControl,

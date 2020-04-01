@@ -305,7 +305,7 @@ class Jetpack_Calypsoify {
 		$wp_admin_bar->add_node( $my_sites_node );
 
 		$reader_node       = (object) $wp_admin_bar->get_node( 'newdash' );
-		$reader_node->href = 'https://wordpress.com';
+		$reader_node->href = 'https://wordpress.com/read';
 		$wp_admin_bar->add_node( $reader_node );
 
 		$me_node       = (object) $wp_admin_bar->get_node( 'my-account' );

@@ -33,7 +33,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$post_sync_module = Modules::get_module( "posts" );
 
 		$this->post = $post_sync_module->filter_post_content_and_add_links( $this->post );
-		$this->assertEqualsObject( $this->post, $event->args[1] );
+		$this->assertEqualsObject( $this->post, $event->args[1], 'Synced post does not match local post.' );
 	}
 
 	public function test_add_post_syncs_post_data() {
@@ -211,7 +211,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		$meta_attachment_metadata = $this->server_replica_storage->get_metadata( 'post', $attach_id, '_wp_attachment_metadata', true );
-		$this->assertEqualsObject( get_post_meta( $attach_id, '_wp_attachment_metadata', true ), $meta_attachment_metadata );
+		$this->assertEqualsObject( get_post_meta( $attach_id, '_wp_attachment_metadata', true ), $meta_attachment_metadata, 'Synced meta does not match local meta.' );
 
 		$meta_thumbnail_id = $this->server_replica_storage->get_metadata( 'post', $this->post->ID, '_thumbnail_id', true );
 		$this->assertEquals( get_post_meta( $this->post->ID, '_thumbnail_id', true ), $meta_thumbnail_id );
@@ -757,8 +757,12 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		// this only applies to rendered content, which is off by default
 		Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 
-		require_once JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing.php';
-		require_once JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php';
+		if ( class_exists( 'Sharing_Service' ) ) {
+			Sharing_Service::init();
+		} else {
+			require_once JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing.php';
+			require_once JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php';
+		}
 
 		set_current_screen( 'front' );
 		add_filter( 'sharing_show', '__return_true' );

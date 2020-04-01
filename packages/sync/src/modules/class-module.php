@@ -9,6 +9,8 @@ namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Sync\Listener;
 use Automattic\Jetpack\Sync\Replicastore;
+use Automattic\Jetpack\Sync\Sender;
+use Automattic\Jetpack\Sync\Settings;
 
 /**
  * Basic methods implemented by Jetpack Sync extensions.
@@ -125,7 +127,7 @@ abstract class Module {
 	 * @param array   $config               Full sync configuration for this sync module.
 	 * @param int     $max_items_to_enqueue Maximum number of items to enqueue.
 	 * @param boolean $state                True if full sync has finished enqueueing this module, false otherwise.
-	 * @return array Number of actions enqueued, and next module state.
+	 * @return array  Number of actions enqueued, and next module state.
 	 */
 	public function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) {
 		// In subclasses, return the number of actions enqueued, and next module state (true == done).
@@ -259,6 +261,94 @@ abstract class Module {
 		}
 
 		return array( $chunk_count, true );
+	}
+
+	/**
+	 * Given the Module Full Sync Configuration and Status return the next chunk of items to send.
+	 *
+	 * @param array $config This module Full Sync configuration.
+	 * @param array $status This module Full Sync status.
+	 * @param int   $chunk_size Chunk size.
+	 *
+	 * @return array|object|null
+	 */
+	public function get_next_chunk( $config, $status, $chunk_size ) {
+		global $wpdb;
+		return $wpdb->get_col(
+			<<<SQL
+SELECT {$this->id_field()} 
+FROM {$wpdb->{$this->table_name()}} 
+WHERE {$this->get_where_sql( $config )}
+AND {$this->id_field()} < {$status['last_sent']}
+ORDER BY {$this->id_field()} 
+DESC LIMIT {$chunk_size}
+SQL
+		);
+	}
+
+	/**
+	 * Return the initial last sent object.
+	 *
+	 * @return string|array initial status.
+	 */
+	public function get_initial_last_sent() {
+		return '~0';
+	}
+
+	/**
+	 * Immediately send all items of a sync type as an action.
+	 *
+	 * @access protected
+	 *
+	 * @param string $config Full sync configuration for this module.
+	 * @param array  $status the current module full sync status.
+	 * @param float  $send_until timestamp until we want this request to send full sync events.
+	 *
+	 * @return array Status, the module full sync status updated.
+	 */
+	public function send_full_sync_actions( $config, $status, $send_until ) {
+		global $wpdb;
+
+		if ( empty( $status['last_sent'] ) ) {
+			$status['last_sent'] = $this->get_initial_last_sent();
+		}
+
+		$limits = Settings::get_setting( 'full_sync_limits' )[ $this->name() ];
+
+		$chunks_sent = 0;
+		// phpcs:ignore WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition
+		while ( $objects = $this->get_next_chunk( $config, $status, $limits['chunk_size'] ) ) {
+			if ( $chunks_sent++ === $limits['max_chunks'] || microtime( true ) >= $send_until ) {
+				return $status;
+			}
+
+			$result = $this->send_action( 'jetpack_full_sync_' . $this->name(), array( $objects, $status['last_sent'] ) );
+
+			if ( is_wp_error( $result ) || $wpdb->last_error ) {
+				return $status;
+			}
+			// The $ids are ordered in descending order.
+			$status['last_sent'] = end( $objects );
+			$status['sent']     += count( $objects );
+		}
+
+		if ( ! $wpdb->last_error ) {
+			$status['finished'] = true;
+		}
+
+		return $status;
+	}
+
+
+	/**
+	 * Immediately sends a single item without firing or enqueuing it
+	 *
+	 * @param string $action_name The action.
+	 * @param array  $data The data associated with the action.
+	 */
+	public function send_action( $action_name, $data = null ) {
+		$sender = Sender::get_instance();
+		return $sender->send_action( $action_name, $data );
 	}
 
 	/**
@@ -460,4 +550,33 @@ abstract class Module {
 
 		return $results;
 	}
+
+	/**
+	 * Return Total number of objects.
+	 *
+	 * @param array $config Full Sync config.
+	 *
+	 * @return int total
+	 */
+	public function total( $config ) {
+		global $wpdb;
+		$table = $wpdb->{$this->table_name()};
+		$where = $this->get_where_sql( $config );
+
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		return $wpdb->get_var( "SELECT COUNT(*) FROM $table WHERE $where" );
+	}
+
+	/**
+	 * Retrieve the WHERE SQL clause based on the module config.
+	 *
+	 * @access public
+	 *
+	 * @param array $config Full sync configuration for this sync module.
+	 * @return string WHERE SQL clause, or `null` if no comments are specified in the module config.
+	 */
+	public function get_where_sql( $config ) {
+		return '1=1';
+	}
+
 }

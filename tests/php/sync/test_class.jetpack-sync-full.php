@@ -5,10 +5,11 @@ use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Modules\Full_Sync;
 use Automattic\Jetpack\Sync\Settings;
 
-function jetpack_foo_full_sync_callable() {
-	return 'the value';
-}
-
+/**
+ * Testing Jetpack's full sync module prior to 8.2 release.
+ *
+ * @group legacy-full-sync
+ */
 class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	private $full_sync;
 
@@ -21,7 +22,12 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 	public function setUp() {
 		parent::setUp();
+		Settings::reset_data();
+		Settings::update_settings( array( 'full_sync_send_immediately' => 0 ) );
+
 		$this->full_sync = Modules::get_module( 'full-sync' );
+		$this->server_replica_storage->reset();
+		$this->sender->reset_data();
 	}
 
 	function test_enqueues_sync_start_action() {
@@ -47,7 +53,6 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( isset( $range['comments']->max ) );
 		$this->assertTrue( isset( $range['comments']->min ) );
 		$this->assertTrue( isset( $range['comments']->count ) );
-
 	}
 
 	function test_enqueues_sync_start_action_without_post_sends_empty_range() {
@@ -283,7 +288,6 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	function test_full_sync_sends_all_term_relationships() {
 		global $wpdb;
 		$this->sender->reset_data();
-		Settings::update_settings( array( 'max_queue_size_full_sync' => 10, 'max_enqueue_full_sync' => 10 ) );
 
 		$post_ids = $this->factory->post->create_many( 20 );
 
@@ -1292,6 +1296,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_doesnt_send_deleted_posts() {
+
 		// previously, the behavior was to send false or throw errors - we
 		// should actively detect false values and remove them
 		$keep_post_id = $this->factory->post->create();
@@ -1311,6 +1316,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_doesnt_send_deleted_comments() {
+
 		// previously, the behavior was to send false or throw errors - we
 		// should actively detect false values and remove them
 		$post_id     = $this->factory->post->create();
@@ -1330,6 +1336,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_doesnt_send_deleted_users() {
+
 		$user_counts = count_users();
 		$existing_user_count = $user_counts['total_users'];
 
@@ -1380,6 +1387,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_status_with_a_small_queue() {
+
 		$this->sender->set_dequeue_max_bytes( 1250 ); // process 0.00125MB of items at a time
 
 		$this->create_dummy_data_and_empty_the_queue();

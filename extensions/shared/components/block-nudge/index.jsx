@@ -4,7 +4,7 @@
 import { Button } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
 import { withDispatch } from '@wordpress/data';
-import { Warning } from '@wordpress/editor';
+import { Warning } from '@wordpress/block-editor';
 
 import './style.scss';
 
@@ -17,7 +17,8 @@ export const BlockNudge = ( { autosaveAndRedirect, buttonLabel, href, icon, subt
 					href={ href } // Only for server-side rendering, since onClick doesn't work there.
 					onClick={ autosaveAndRedirect }
 					target="_top"
-					isDefault
+					isSecondary
+					isLarge
 				>
 					{ buttonLabel }
 				</Button>,

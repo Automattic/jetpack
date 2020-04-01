@@ -77,7 +77,7 @@ export class DashStats extends Component {
 				tooltipLabel = __( 'Week of %(date)s', {
 					args: { date: moment( date ).format( 'MMMM Do' ) },
 				} );
-			} else if ( 'month' ) {
+			} else if ( 'month' === unit ) {
 				chartLabel = moment( date ).format( 'MMM' );
 				tooltipLabel = moment( date ).format( 'MMMM, YYYY' );
 			}
@@ -109,7 +109,7 @@ export class DashStats extends Component {
 	/**
 	 * Checks that the stats fetching didn't return errors.
 	 *
-	 * @returns {object|bool} Returns statsData.general.errors or false if it is not an object
+	 * @returns {object|boolean} Returns statsData.general.errors or false if it is not an object
 	 */
 	statsErrors() {
 		return get( this.props.statsData, [ 'general', 'errors' ], false );

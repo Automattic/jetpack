@@ -1,4 +1,4 @@
-@import '../../shared/styles/gutenberg-colors.scss';
+@import '../../shared/styles/gutenberg-base-styles.scss';
 
 .wp-block-jetpack-gif {
 	figure {
@@ -6,6 +6,9 @@
 	}
 	.components-base-control__field {
 		text-align: center;
+	}
+	.components-placeholder__label svg {
+		margin-right: 1ch;
 	}
 	.wp-block-jetpack-gif_cover {
 		background: none;
@@ -27,21 +30,10 @@
 		flex-direction: row;
 		flex-wrap: wrap;
 		justify-content: center;
-		margin: 0 auto;
+		margin-bottom: 10px;
 		max-width: 400px;
 		width: 100%;
 		z-index: 1;
-		.components-base-control__label {
-			position: absolute;
-			top: -1000em;
-		}
-		.components-button {
-			margin-top: 1px;
-		}
-	}
-	.wp-block-jetpack-gif_input {
-		flex-grow: 1;
-		margin-right: 0.5em;
 	}
 	.wp-block-jetpack-gif_thumbnails-container {
 		display: flex;

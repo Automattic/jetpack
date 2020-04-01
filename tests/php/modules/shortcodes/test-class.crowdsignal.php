@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * Test class for CrowdsignalShortcode
+ *
+ * @covers CrowdsignalShortcode
+ */
 class WP_Test_Jetpack_Shortcodes_CrowdSignal extends WP_UnitTestCase {
 
 	public function setUp() {
@@ -11,7 +16,6 @@ class WP_Test_Jetpack_Shortcodes_CrowdSignal extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers CrowdSignal::crowdsignal_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_crowdsignal_exists() {
@@ -21,7 +25,6 @@ class WP_Test_Jetpack_Shortcodes_CrowdSignal extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers CrowdSignal::crowdsignal_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_crowdsignal() {
@@ -34,7 +37,6 @@ class WP_Test_Jetpack_Shortcodes_CrowdSignal extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers CrowdSignal::crowdsignal_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_polldaddy() {

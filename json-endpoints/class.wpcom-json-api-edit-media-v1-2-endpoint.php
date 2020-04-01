@@ -345,10 +345,10 @@ class WPCOM_JSON_API_Edit_Media_v1_2_Endpoint extends WPCOM_JSON_API_Update_Medi
 
 		$input = $this->input( true );
 
-		// images
-		$media_file = $input['media'] ? (array) $input['media'] : null;
-		$media_url = $input['media_url'];
-		$media_attrs = $input['attrs'] ? (array) $input['attrs'] : null;
+		// Images.
+		$media_file  = isset( $input['media'] ) ? (array) $input['media'] : null;
+		$media_url   = isset( $input['media_url'] ) ? $input['media_url'] : null;
+		$media_attrs = isset( $input['attrs'] ) ? (array) $input['attrs'] : null;
 
 		if ( isset( $media_url ) || $media_file ) {
 			$user_can_upload_files = current_user_can( 'upload_files' ) || $this->api->is_authorized_with_upload_token();
@@ -425,4 +425,3 @@ class WPCOM_JSON_API_Edit_Media_v1_2_Endpoint extends WPCOM_JSON_API_Update_Medi
 		return $response;
 	}
 }
-

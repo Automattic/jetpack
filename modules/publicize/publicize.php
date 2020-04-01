@@ -208,6 +208,10 @@ abstract class Publicize_Base {
 			case 'linkedin':
 				return 'LinkedIn';
 				break;
+			case 'google_drive': // google-drive used to be called google_drive.
+			case 'google-drive':
+				return 'Google Drive';
+				break;
 			case 'twitter':
 			case 'facebook':
 			case 'tumblr':

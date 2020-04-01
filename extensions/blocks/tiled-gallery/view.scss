@@ -3,6 +3,7 @@
 @import './css-gram.scss';
 
 $tiled-gallery-max-column-count: 20;
+$tiled-gallery-max-rounded-corners: 20; // See constants.js for JS counterpart
 
 .wp-block-jetpack-tiled-gallery {
 	margin: 0 auto $jetpack-block-margin-bottom;
@@ -31,6 +32,12 @@ $tiled-gallery-max-column-count: 20;
 	&.is-style-rectangular {
 		.tiled-gallery__item {
 			display: flex;
+		}
+	}
+
+	@for $i from 1 through $tiled-gallery-max-rounded-corners {
+		&.has-rounded-corners-#{$i} .tiled-gallery__item img {
+			border-radius: #{$i}px;
 		}
 	}
 }

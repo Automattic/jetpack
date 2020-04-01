@@ -68,11 +68,28 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 	 * @covers ::vimeo_shortcode
 	 * @since 3.2
 	 */
-	public function test_shortcodes_vimeo_w_h() {
+	public function test_shortcodes_vimeo_w_h_old_format() {
 		$video_id = '141358';
 		$width    = '350';
 		$height   = '500';
 		$content  = '[vimeo ' . $video_id . ' w=' . $width . '&h=' . $height . ']';
+
+		$shortcode_content = do_shortcode( $content );
+
+		$this->assertContains( 'vimeo.com/video/' . $video_id, $shortcode_content );
+		$this->assertContains( 'width="' . $width . '"', $shortcode_content );
+		$this->assertContains( 'height="' . $height . '"', $shortcode_content );
+	}
+
+	/**
+	 * @covers ::vimeo_shortcode
+	 * @since 8.2
+	 */
+	public function test_shortcodes_vimeo_w_h_new_format() {
+		$video_id = '141358';
+		$width    = '350';
+		$height   = '500';
+		$content  = '[vimeo ' . $video_id . ' w=' . $width . ' h=' . $height . ']';
 
 		$shortcode_content = do_shortcode( $content );
 

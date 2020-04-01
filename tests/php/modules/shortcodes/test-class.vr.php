@@ -4,7 +4,7 @@ class WP_Test_Jetpack_Shortcodes_VR extends WP_UnitTestCase {
 
 	/**
 	 * @author mkaz
-	 * @covers ::vr_shortcode
+	 * @covers ::jetpack_vr_viewer_shortcode
 	 * @since 4.5
 	 */
 	public function test_shortcodes_vr_exists() {
@@ -13,7 +13,7 @@ class WP_Test_Jetpack_Shortcodes_VR extends WP_UnitTestCase {
 
 	/**
 	 * @author mkaz
-	 * @covers ::vr_shortcode
+	 * @covers ::jetpack_vr_viewer_shortcode
 	 * @since 4.5
 	 */
 	public function test_shortcodes_vr() {
@@ -26,7 +26,7 @@ class WP_Test_Jetpack_Shortcodes_VR extends WP_UnitTestCase {
 
 	/**
 	 * @author mkaz
-	 * @covers ::vr_shortcode
+	 * @covers ::jetpack_vr_viewer_shortcode
 	 * @since 4.5
 	 */
 	public function test_shortcodes_vr_url() {
@@ -40,7 +40,7 @@ class WP_Test_Jetpack_Shortcodes_VR extends WP_UnitTestCase {
 
 	/**
 	 * @author mkaz
-	 * @covers ::vr_shortcode
+	 * @covers ::jetpack_vr_viewer_shortcode
 	 * @since 4.5
 	 */
 	public function test_shortcodes_vr_url_missing() {
@@ -48,6 +48,4 @@ class WP_Test_Jetpack_Shortcodes_VR extends WP_UnitTestCase {
 		$shortcode_content = do_shortcode( $content );
 		$this->assertEmpty( $shortcode_content );
 	}
-
-
 }

@@ -1,0 +1,37 @@
+@import 'scss/mixin_breakpoint';
+
+// Plan radio button
+.plan-radio-button {
+	display: flex;
+
+	& + & {
+		margin-top: 16px;
+
+		@include breakpoint( '>660px' ) {
+			margin-top: 0;
+		}
+	}
+}
+
+.plan-radio-button__label {
+	display: flex;
+	flex-flow: row wrap;
+	align-items: center;
+	width: 100%;
+	margin-left: 8px;
+
+	@include breakpoint( '>660px' ) {
+		flex-flow: column nowrap;
+		align-items: flex-start;
+	}
+}
+
+input[type='radio'].plan-radio-button__input {
+	flex: 0 0 auto;
+	margin-top: 2px;
+}
+
+.plan-radio-button__title {
+	font-weight: 600;
+	flex: 1;
+}

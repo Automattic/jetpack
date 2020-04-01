@@ -18,6 +18,7 @@ bin/pre-commit-hook.js
 bin/prepare-built-branch.sh
 bin/prepare-commit-msg.js
 bin/release-package.php
+bin/version-packages.sh
 css/*.css.map
 css/*.css.min.map
 docs
@@ -40,6 +41,7 @@ vendor/automattic/**/composer.json
 vendor/automattic/**/assets/*.scss
 composer.lock
 package.json
+postcss.config.js
 gulpfile.js
 gulpfile.babel.js
 node_modules
@@ -79,3 +81,4 @@ packages
 **/__snapshots__
 modules/search/instant-search
 modules/search/.eslintrc.js
+wp-cli-templates

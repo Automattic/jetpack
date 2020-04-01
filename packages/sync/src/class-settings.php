@@ -53,6 +53,8 @@ class Settings {
 		'term_relationships_full_sync_item_size' => true,
 		'sync_sender_enabled'                    => true,
 		'full_sync_sender_enabled'               => true,
+		'full_sync_send_duration'                => true,
+		'full_sync_limits'                       => true,
 	);
 
 	/**
@@ -96,16 +98,6 @@ class Settings {
 	public static $is_sending;
 
 	/**
-	 * Some settings can be expensive to compute - let's cache them.
-	 *
-	 * @access public
-	 * @static
-	 *
-	 * @var array
-	 */
-	public static $settings_cache = array();
-
-	/**
 	 * Retrieve all settings with their current values.
 	 *
 	 * @access public
@@ -137,18 +129,12 @@ class Settings {
 			return false;
 		}
 
-		if ( isset( self::$settings_cache[ $setting ] ) ) {
-			return self::$settings_cache[ $setting ];
-		}
-
 		if ( self::is_network_setting( $setting ) ) {
 			if ( is_multisite() ) {
 				$value = get_site_option( self::SETTINGS_OPTION_PREFIX . $setting );
 			} else {
 				// On single sites just return the default setting.
-				$value                            = Defaults::get_default_setting( $setting );
-				self::$settings_cache[ $setting ] = $value;
-				return $value;
+				return Defaults::get_default_setting( $setting );
 			}
 		} else {
 			$value = get_option( self::SETTINGS_OPTION_PREFIX . $setting );
@@ -194,8 +180,6 @@ class Settings {
 			}
 		}
 
-		self::$settings_cache[ $setting ] = $value;
-
 		return $value;
 	}
 
@@ -218,8 +202,6 @@ class Settings {
 			} else {
 				update_option( self::SETTINGS_OPTION_PREFIX . $setting, $value, true );
 			}
-
-			unset( self::$settings_cache[ $setting ] );
 
 			// If we set the disabled option to true, clear the queues.
 			if ( ( 'disable' === $setting || 'network_disable' === $setting ) && ! ! $value ) {
@@ -266,7 +248,7 @@ class Settings {
 	 * @return string SQL WHERE clause.
 	 */
 	public static function get_blacklisted_taxonomies_sql() {
-		return 'taxonomy NOT IN (\'' . join( '\', \'', array_map( 'esc_sql', self::get_setting( 'taxonomies_blacklist' ) ) ) . '\')';
+		return "taxonomy NOT IN ('" . join( "', '", array_map( 'esc_sql', self::get_setting( 'taxonomies_blacklist' ) ) ) . "')";
 	}
 
 	/**
@@ -315,8 +297,7 @@ class Settings {
 	 * @static
 	 */
 	public static function reset_data() {
-		$valid_settings       = self::$valid_settings;
-		self::$settings_cache = array();
+		$valid_settings = self::$valid_settings;
 		foreach ( $valid_settings as $option => $value ) {
 			delete_option( self::SETTINGS_OPTION_PREFIX . $option );
 		}

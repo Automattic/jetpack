@@ -60,6 +60,7 @@ class Jetpack_Options {
 					'unique_connection',           // (array)  A flag to determine a unique connection to wordpress.com two values "connected" and "disconnected" with values for how many times each has occured
 					'protect_whitelist',           // (array) IP Address for the Protect module to ignore
 					'sync_error_idc',              // (bool|array) false or array containing the site's home and siteurl at time of IDC error
+					'sync_health_status',          // (bool|array) An array of data relating to Jetpack's sync health.
 					'safe_mode_confirmed',         // (bool) True if someone confirms that this site was correctly put into safe mode automatically after an identity crisis is discovered.
 					'migrate_for_idc',             // (bool) True if someone confirms that this site should migrate stats and subscribers from its previous URL
 					'dismissed_connection_banner', // (bool) True if the connection banner has been dismissed
@@ -557,9 +558,6 @@ class Jetpack_Options {
 			'disabled_likes',
 			'disabled_reblogs',
 			'jetpack_comments_likes_enabled',
-			'wp_mobile_excerpt',
-			'wp_mobile_featured_images',
-			'wp_mobile_app_promos',
 			'stats_options',
 			'stats_dashboard_widget',
 			'safecss_preview_rev',
@@ -570,7 +568,6 @@ class Jetpack_Options {
 			'jetpack_portfolio_posts_per_page',
 			'jetpack_testimonial',
 			'jetpack_testimonial_posts_per_page',
-			'wp_mobile_custom_css',
 			'sharedaddy_disable_resources',
 			'sharing-options',
 			'sharing-services',

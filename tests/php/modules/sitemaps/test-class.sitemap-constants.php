@@ -23,9 +23,6 @@ class WP_Test_Jetpack_Sitemap_Constants extends WP_UnitTestCase {
 	 * @link http://www.sitemaps.org/ Sitemap protocol.
 	 * @link https://support.google.com/news/publisher/answer/74288?hl=en News sitemap extension.
 	 *
-	 * @covers JP_SITEMAP_MAX_BYTES
-	 * @covers JP_SITEMAP_MAX_ITEMS
-	 * @covers JP_NEWS_SITEMAP_MAX_ITEMS
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */
@@ -49,11 +46,6 @@ class WP_Test_Jetpack_Sitemap_Constants extends WP_UnitTestCase {
 	/**
 	 * Sitemap type constants are all distinct.
 	 *
-	 * @covers JP_MASTER_SITEMAP_TYPE
-	 * @covers JP_SITEMAP_TYPE
-	 * @covers JP_SITEMAP_INDEX_TYPE
-	 * @covers JP_IMAGE_SITEMAP_TYPE
-	 * @covers JP_IMAGE_SITEMAP_INDEX_TYPE
 	 * @group jetpack-sitemap
 	 * @since 4.7.0
 	 */

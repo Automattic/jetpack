@@ -25,6 +25,7 @@ import { isDevVersion, userCanConnectSite, userIsSubscriber } from 'state/initia
 import DismissableNotices from './dismissable';
 import JetpackBanner from 'components/jetpack-banner';
 import { JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
+import PlanConflictWarning from './plan-conflict-warning';
 
 export class DevVersionNotice extends React.Component {
 	static displayName = 'DevVersionNotice';
@@ -199,6 +200,7 @@ class JetpackNotices extends React.Component {
 					isStaging={ this.props.isStaging }
 					isInIdentityCrisis={ this.props.isInIdentityCrisis }
 				/>
+				<PlanConflictWarning />
 				<DismissableNotices />
 				<UserUnlinked
 					connectUrl={ this.props.connectUrl }

@@ -2070,16 +2070,50 @@ abstract class WPCOM_JSON_API_Endpoint {
 	}
 
 	/**
+	 * Get an array of all valid AMP origins for a blog's siteurl.
+	 *
+	 * @param string $siteurl Origin url of the API request.
+	 * @return array
+	 */
+	public function get_amp_cache_origins( $siteurl ) {
+		$host = parse_url( $siteurl, PHP_URL_HOST );
+
+		/*
+		 * From AMP docs:
+		 * "When possible, the Google AMP Cache will create a subdomain for each AMP document's domain by first converting it
+		 * from IDN (punycode) to UTF-8. The caches replaces every - (dash) with -- (2 dashes) and replace every . (dot) with
+		 * - (dash). For example, pub.com will map to pub-com.cdn.ampproject.org."
+		 */
+		if ( function_exists( 'idn_to_utf8' ) ) {
+			// The third parameter is set explicitly to prevent issues with newer PHP versions compiled with an old ICU version.
+			// phpcs:ignore PHPCompatibility.Constants.RemovedConstants.intl_idna_variant_2003Deprecated
+			$host = idn_to_utf8( $host, IDNA_DEFAULT, defined( 'INTL_IDNA_VARIANT_UTS46' ) ? INTL_IDNA_VARIANT_UTS46 : INTL_IDNA_VARIANT_2003 );
+		}
+		$subdomain = str_replace( array( '-', '.' ), array( '--', '-' ), $host );
+		return array(
+			$siteurl,
+			// Google AMP Cache (legacy).
+			'https://cdn.ampproject.org',
+			// Google AMP Cache subdomain.
+			sprintf( 'https://%s.cdn.ampproject.org', $subdomain ),
+			// Cloudflare AMP Cache.
+			sprintf( 'https://%s.amp.cloudflare.com', $subdomain ),
+			// Bing AMP Cache.
+			sprintf( 'https://%s.bing-amp.com', $subdomain ),
+		);
+	}
+
+	/**
 	 * Return endpoint response
 	 *
-	 * @param ... determined by ->$path
+	 * @param string $path ... determined by ->$path.
 	 *
-	 * @return
+	 * @return array|WP_Error
 	 *  falsy: HTTP 500, no response body
 	 *  WP_Error( $error_code, $error_message, $http_status_code ): HTTP $status_code, json_encode( array( 'error' => $error_code, 'message' => $error_message ) ) response body
 	 *  $data: HTTP 200, json_encode( $data ) response body
 	 */
-	abstract function callback( $path = '' );
+	abstract public function callback( $path = '' );
 
 
 }

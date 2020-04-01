@@ -85,7 +85,6 @@ function onBuild( done, err, stats ) {
 		'related-posts',
 		'tiled-gallery',
 		'likes',
-		'minileven',
 		'infinite-scroll',
 		'masterbar',
 		'videopress',

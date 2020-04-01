@@ -28,13 +28,13 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 		$this->assertNotEquals( false, $event );
 		$this->assertEquals( 'wp_insert_comment', $event->action );
 		$this->assertEquals( $this->comment->comment_ID, $event->args[0] );
-		$this->assertEqualsObject( $this->comment, $event->args[1] );
+		$this->assertEqualsObject( $this->comment, $event->args[1], 'Synced comment does not match local comment' );
 	}
 
 	public function test_add_comment_syncs_comment_data() {
 		// post stored by server should equal post in client
 		$this->assertEquals( 1, $this->server_replica_storage->comment_count() );
-		$this->assertEqualsObject( $this->comment, $this->server_replica_storage->get_comment( $this->comment->comment_ID ) );
+		$this->assertEqualsObject( $this->comment, $this->server_replica_storage->get_comment( $this->comment->comment_ID ), 'Synced comment does not match local comment' );
 	}
 
 	public function test_update_comment() {
@@ -395,7 +395,7 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 		$comment_sync_module = Modules::get_module( "comments" );
 
 		$comment_id = $this->comment_ids[0];
-		
+
 		// get the synced object
 		$event = $this->server_event_storage->get_most_recent_event( 'wp_insert_comment' );
 		$synced_comment = $event->args[1];

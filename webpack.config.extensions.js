@@ -1,7 +1,7 @@
 /**
  **** WARNING: No ES6 modules here. Not transpiled! ****
  */
-/* eslint-disable import/no-nodejs-modules, lodash/import-scope */
+/* eslint-disable lodash/import-scope */
 
 /**
  * External dependencies
@@ -33,12 +33,16 @@ function blockScripts( type, inputDir, presetBlocks ) {
 
 const presetPath = path.join( __dirname, 'extensions', 'index.json' );
 const presetIndex = require( presetPath );
-const presetBlocks = _.get( presetIndex, [ 'production' ], [] );
-const presetBetaBlocks = _.get( presetIndex, [ 'beta' ], [] );
-const allPresetBlocks = [ ...presetBlocks, ...presetBetaBlocks ];
+const presetProductionBlocks = _.get( presetIndex, [ 'production' ], [] );
+const presetExperimentalBlocks = [
+	...presetProductionBlocks,
+	..._.get( presetIndex, [ 'experimental' ], [] ),
+];
+// Beta Blocks include all blocks: beta, experimental, and production blocks.
+const presetBetaBlocks = [ ...presetExperimentalBlocks, ..._.get( presetIndex, [ 'beta' ], [] ) ];
 
 // Helps split up each block into its own folder view script
-const viewBlocksScripts = allPresetBlocks.reduce( ( viewBlocks, block ) => {
+const viewBlocksScripts = presetBetaBlocks.reduce( ( viewBlocks, block ) => {
 	const viewScriptPath = path.join( __dirname, 'extensions', 'blocks', block, 'view.js' );
 	if ( fs.existsSync( viewScriptPath ) ) {
 		viewBlocks[ block + '/view' ] = [ viewSetup, ...[ viewScriptPath ] ];
@@ -46,16 +50,22 @@ const viewBlocksScripts = allPresetBlocks.reduce( ( viewBlocks, block ) => {
 	return viewBlocks;
 }, {} );
 
-// Combines all the different blocks into one editor.js script
+// Combines all the different production blocks into one editor.js script
 const editorScript = [
 	editorSetup,
-	...blockScripts( 'editor', path.join( __dirname, 'extensions' ), presetBlocks ),
+	...blockScripts( 'editor', path.join( __dirname, 'extensions' ), presetProductionBlocks ),
+];
+
+// Combines all the different Experimental blocks into one editor.js script
+const editorExperimentalScript = [
+	editorSetup,
+	...blockScripts( 'editor', path.join( __dirname, 'extensions' ), presetExperimentalBlocks ),
 ];
 
 // Combines all the different blocks into one editor-beta.js script
 const editorBetaScript = [
 	editorSetup,
-	...blockScripts( 'editor', path.join( __dirname, 'extensions' ), allPresetBlocks ),
+	...blockScripts( 'editor', path.join( __dirname, 'extensions' ), presetBetaBlocks ),
 ];
 
 const extensionsWebpackConfig = getBaseWebpackConfig(
@@ -63,6 +73,7 @@ const extensionsWebpackConfig = getBaseWebpackConfig(
 	{
 		entry: {
 			editor: editorScript,
+			'editor-experimental': editorExperimentalScript,
 			'editor-beta': editorBetaScript,
 			...viewBlocksScripts,
 		},

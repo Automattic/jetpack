@@ -4,11 +4,12 @@
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import { connect } from 'react-redux';
+import { isEmpty } from 'lodash';
 
 /**
  * Internal dependencies
  */
-import { fetchProducts, isFetchingProducts } from 'state/site';
+import { fetchProducts, isFetchingProducts, getProducts } from 'state/products';
 
 class QueryProducts extends Component {
 	static propTypes = {
@@ -20,7 +21,7 @@ class QueryProducts extends Component {
 	};
 
 	componentDidMount() {
-		if ( ! this.props.isFetchingProducts ) {
+		if ( ! this.props.isFetchingProducts && isEmpty( this.props.products ) ) {
 			this.props.fetchProducts();
 		}
 	}
@@ -33,6 +34,7 @@ class QueryProducts extends Component {
 export default connect(
 	state => ( {
 		isFetchingProducts: isFetchingProducts( state ),
+		products: getProducts( state ),
 	} ),
 	dispatch => ( {
 		fetchProducts: () => dispatch( fetchProducts() ),

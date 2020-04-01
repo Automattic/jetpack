@@ -37,7 +37,7 @@ export const SettingsGroup = props => {
 	}
 
 	return (
-		<div className="jp-form-settings-group">
+		<div className={ classNames( 'jp-form-settings-group', props.className ) }>
 			<Card
 				className={ classNames( {
 					'jp-form-has-child': props.hasChild,
@@ -61,6 +61,7 @@ SettingsGroup.propTypes = {
 	userCanManageModules: PropTypes.bool.isRequired,
 	isLinked: PropTypes.bool.isRequired,
 	isUnavailableInDevMode: PropTypes.func.isRequired,
+	className: PropTypes.string,
 };
 
 SettingsGroup.defaultProps = {
@@ -72,6 +73,7 @@ SettingsGroup.defaultProps = {
 	userCanManageModules: false,
 	isLinked: false,
 	isUnavailableInDevMode: noop,
+	className: '',
 };
 
 export default connect( state => {

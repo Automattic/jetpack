@@ -115,8 +115,17 @@ export class Map extends Component {
 		this.debouncedSizeMap.cancel();
 	}
 	componentDidUpdate( prevProps ) {
-		const { apiKey, children, points, mapStyle, mapDetails } = this.props;
-		const { map } = this.state;
+		const {
+			admin,
+			apiKey,
+			children,
+			points,
+			mapStyle,
+			mapDetails,
+			scrollToZoom,
+			showFullscreenButton,
+		} = this.props;
+		const { map, fullscreenControl } = this.state;
 		if ( apiKey && apiKey.length > 0 && apiKey !== prevProps.apiKey ) {
 			this.loadMapLibraries();
 		}
@@ -133,6 +142,25 @@ export class Map extends Component {
 		}
 		if ( mapStyle !== prevProps.mapStyle || mapDetails !== prevProps.mapDetails ) {
 			map.setStyle( this.getMapStyle() );
+		}
+
+		// Only allow scroll zooming when the `scrollToZoom` is set.
+		if ( scrollToZoom !== prevProps.scrollToZoom ) {
+			if ( scrollToZoom ) {
+				map.scrollZoom.enable();
+			} else {
+				map.scrollZoom.disable();
+			}
+		}
+		if ( showFullscreenButton !== prevProps.showFullscreenButton ) {
+			if ( showFullscreenButton ) {
+				map.addControl( fullscreenControl );
+				if ( admin && fullscreenControl._fullscreenButton ) {
+					fullscreenControl._fullscreenButton.disabled = true;
+				}
+			} else {
+				map.removeControl( fullscreenControl );
+			}
 		}
 	}
 	/* Event handling */
@@ -168,20 +196,41 @@ export class Map extends Component {
 	};
 	// Various map functions
 	sizeMap = () => {
+		const { mapHeight } = this.props;
 		const { map } = this.state;
 		const mapEl = this.mapRef.current;
-		const blockWidth = mapEl.offsetWidth;
-		const maxHeight = window.innerHeight * 0.8;
-		const blockHeight = Math.min( blockWidth * ( 3 / 4 ), maxHeight );
-		mapEl.style.height = blockHeight + 'px';
+		if ( mapHeight ) {
+			mapEl.style.height = mapHeight + 'px';
+		} else {
+			const blockWidth = mapEl.offsetWidth;
+			const maxHeight =
+				window.location.search.indexOf( 'map-block-counter' ) > -1
+					? window.innerHeight
+					: window.innerHeight * 0.8;
+			const blockHeight = Math.min( blockWidth * ( 3 / 4 ), maxHeight );
+			mapEl.style.height = blockHeight + 'px';
+		}
 		map.resize();
 		this.setBoundsByMarkers();
 	};
+	updateZoom = () => {
+		const { zoom } = this.props;
+		const { map } = this.state;
+
+		map.setZoom( zoom );
+		map.updateZoom( zoom );
+	};
 	setBoundsByMarkers = () => {
-		const { zoom, points, onSetZoom } = this.props;
+		const { admin, onSetMapCenter, onSetZoom, points, zoom } = this.props;
 		const { map, activeMarker, mapboxgl, zoomControl, boundsSetProgrammatically } = this.state;
 		if ( ! map ) {
 			return;
+		}
+		// Do not allow map dragging in the editor if there are markers, because the positioning will be programmatically overridden.
+		if ( points.length && admin ) {
+			map.dragPan.disable();
+		} else {
+			map.dragPan.enable();
 		}
 		// If there are no points at all, there is no data to set bounds to. Abort the function.
 		if ( ! points.length ) {
@@ -195,19 +244,22 @@ export class Map extends Component {
 		points.forEach( point => {
 			bounds.extend( [ point.coordinates.longitude, point.coordinates.latitude ] );
 		} );
+		onSetMapCenter( bounds.getCenter() );
 
 		// If there are multiple points, zoom is determined by the area they cover, and zoom control is removed.
 		if ( points.length > 1 ) {
 			map.fitBounds( bounds, {
 				padding: {
-					top: 40,
-					bottom: 40,
-					left: 20,
-					right: 20,
+					top: 80,
+					bottom: 80,
+					left: 40,
+					right: 40,
 				},
 			} );
 			this.setState( { boundsSetProgrammatically: true } );
-			map.removeControl( zoomControl );
+			try {
+				map.removeControl( zoomControl );
+			} catch ( e ) {}
 			return;
 		}
 		// If there is only one point, center map around it.
@@ -265,7 +317,7 @@ export class Map extends Component {
 	}
 	initMap( mapCenter ) {
 		const { mapboxgl } = this.state;
-		const { zoom, onMapLoaded, onError, admin } = this.props;
+		const { zoom, onMapLoaded, onError, scrollToZoom, showFullscreenButton, admin } = this.props;
 		let map = null;
 		try {
 			map = new mapboxgl.Map( {
@@ -281,6 +333,15 @@ export class Map extends Component {
 			onError( 'mapbox_error', e.message );
 			return;
 		}
+
+		// If the map block doesn't have the focus in the editor, or
+		// it hasn't been enabled on the front end, disable scroll zooming.
+		if ( ! scrollToZoom ) {
+			map.scrollZoom.disable();
+		}
+
+		const fullscreenControl = new mapboxgl.FullscreenControl();
+
 		map.on( 'error', e => {
 			onError( 'mapbox_error', e.error.message );
 		} );
@@ -291,14 +352,23 @@ export class Map extends Component {
 		map.on( 'zoomend', () => {
 			this.props.onSetZoom( map.getZoom() );
 		} );
-
+		map.on( 'moveend', () => {
+			const { onSetMapCenter, points } = this.props;
+			// If there are no markers, user repositioning controls map center. If there are markers, set programmatically.
+			if ( points.length < 1 ) {
+				onSetMapCenter( map.getCenter() );
+			}
+		} );
 		/* Listen for clicks on the Map background, which hides the current popup. */
 		map.getCanvas().addEventListener( 'click', this.onMapClick );
-		this.setState( { map, zoomControl }, () => {
+		this.setState( { map, zoomControl, fullscreenControl }, () => {
 			this.debouncedSizeMap();
 			map.addControl( zoomControl );
-			if ( ! admin ) {
-				map.addControl( new mapboxgl.FullscreenControl() );
+			if ( showFullscreenButton ) {
+				map.addControl( fullscreenControl );
+				if ( admin && fullscreenControl._fullscreenButton ) {
+					fullscreenControl._fullscreenButton.disabled = true;
+				}
 			}
 			this.mapRef.current.addEventListener( 'alignmentChanged', this.debouncedSizeMap );
 			map.resize();
@@ -307,13 +377,14 @@ export class Map extends Component {
 			window.addEventListener( 'resize', this.debouncedSizeMap );
 		} );
 	}
-	googlePoint2Mapbox( google_point ) {
-		const mapCenter = [
-			google_point.longitude ? google_point.longitude : 0,
-			google_point.latitude ? google_point.latitude : 0,
-		];
-		return mapCenter;
-	}
+	googlePoint2Mapbox = google_point =>
+		google_point.hasOwnProperty( 'lat' ) && google_point.hasOwnProperty( 'lng' )
+			? google_point // Already a valid Mapbox point.
+			: {
+					// Legacy point, supported here to avoid block deprecation.
+					lat: google_point.latitude || 0,
+					lng: google_point.longitude || 0,
+			  };
 }
 
 Map.defaultProps = {
@@ -321,6 +392,7 @@ Map.defaultProps = {
 	mapStyle: 'default',
 	zoom: 13,
 	onSetZoom: () => {},
+	onSetMapCenter: () => {},
 	onMapLoaded: () => {},
 	onMarkerClick: () => {},
 	onError: () => {},

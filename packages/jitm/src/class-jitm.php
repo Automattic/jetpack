@@ -11,6 +11,7 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
+use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\Connection\Manager;
 
@@ -31,6 +32,14 @@ class JITM {
 	 * @access private
 	 */
 	private $tracking;
+
+	/**
+	 * The configuration method that is called from the jetpack-config package.
+	 */
+	public static function configure() {
+		$jitm = new self();
+		$jitm->register();
+	}
 
 	/**
 	 * JITM constructor.
@@ -183,13 +192,13 @@ class JITM {
 		// Bail if we're not trying to delete connection owner.
 		$user_ids_to_delete = array();
 		if ( isset( $_REQUEST['users'] ) ) {
-			$user_ids_to_delete = $_REQUEST['users'];
+			$user_ids_to_delete = array_map( 'sanitize_text_field', wp_unslash( $_REQUEST['users'] ) );
 		} elseif ( isset( $_REQUEST['user'] ) ) {
-			$user_ids_to_delete[] = $_REQUEST['user'];
+			$user_ids_to_delete[] = sanitize_text_field( wp_unslash( $_REQUEST['user'] ) );
 		}
 
 		// phpcs:enable
-
+		$user_ids_to_delete        = array_map( 'absint', $user_ids_to_delete );
 		$deleting_connection_owner = in_array( $connection_owner_id, (array) $user_ids_to_delete, true );
 		if ( ! $deleting_connection_owner ) {
 			return;
@@ -335,6 +344,7 @@ class JITM {
 		?>
 		<div class="jetpack-jitm-message"
 			data-nonce="<?php echo esc_attr( wp_create_nonce( 'wp_rest' ) ); ?>"
+			data-ajax-nonce="<?php echo esc_attr( wp_create_nonce( 'wp_ajax_action' ) ); ?>"
 			data-message-path="<?php echo esc_attr( $message_path ); ?>"
 			data-query="<?php echo urlencode_deep( $query_string ); ?>"
 			data-redirect="<?php echo urlencode_deep( $current_screen ); ?>"
@@ -444,10 +454,11 @@ class JITM {
 	 *
 	 * @param string $message_path The message path to ask for.
 	 * @param string $query The query string originally from the front end.
+	 * @param bool   $full_jp_logo_exists If there is a full Jetpack logo already on the page.
 	 *
 	 * @return array The JITM's to show, or an empty array if there is nothing to show
 	 */
-	public function get_messages( $message_path, $query ) {
+	public function get_messages( $message_path, $query, $full_jp_logo_exists ) {
 		// Custom filters go here.
 		add_filter( 'jitm_woocommerce_services_msg', array( $this, 'jitm_woocommerce_services_msg' ) );
 		add_filter( 'jitm_jetpack_woo_services_install', array( $this, 'jitm_jetpack_woo_services_install' ) );
@@ -534,10 +545,12 @@ class JITM {
 		 * Allow adding your own custom JITMs after a set of JITMs has been received.
 		 *
 		 * @since 6.9.0
+		 * @since 8.3.0 - Added Message path.
 		 *
-		 * @param array $envelopes array of existing JITMs.
+		 * @param array  $envelopes    array of existing JITMs.
+		 * @param string $message_path The message path to ask for.
 		 */
-		$envelopes = apply_filters( 'jetpack_jitm_received_envelopes', $envelopes );
+		$envelopes = apply_filters( 'jetpack_jitm_received_envelopes', $envelopes, $message_path );
 
 		foreach ( $envelopes as $idx => &$envelope ) {
 
@@ -564,11 +577,8 @@ class JITM {
 				'u'      => $user->ID,
 			);
 
-			if ( ! class_exists( 'Jetpack_Affiliate' ) ) {
-				require_once JETPACK__PLUGIN_DIR . 'class.jetpack-affiliate.php';
-			}
 			// Get affiliate code and add it to the array of URL parameters.
-			$aff = \Jetpack_Affiliate::init()->get_affiliate_code();
+			$aff = Partner::init()->get_partner_code( Partner::AFFILIATE_CODE );
 			if ( '' !== $aff ) {
 				$url_params['aff'] = $aff;
 			}
@@ -599,7 +609,7 @@ class JITM {
 			switch ( $envelope->content->icon ) {
 				case 'jetpack':
 					$jetpack_logo            = new Jetpack_Logo();
-					$envelope->content->icon = '<div class="jp-emblem">' . $jetpack_logo->get_jp_emblem() . '</div>';
+					$envelope->content->icon = '<div class="jp-emblem">' . ( ( $full_jp_logo_exists ) ? $jetpack_logo->get_jp_emblem() : $jetpack_logo->get_jp_emblem_larger() ) . '</div>';
 					break;
 				case 'woocommerce':
 					$envelope->content->icon = '<div class="jp-emblem"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0px" y="0px" viewBox="0 0 168 100" xml:space="preserve" enable-background="new 0 0 168 100" width="50" height="30"><style type="text/css">

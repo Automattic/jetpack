@@ -2,10 +2,17 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { PlainText } from '@wordpress/editor';
+import { PlainText } from '@wordpress/block-editor';
 import { ToggleControl } from '@wordpress/components';
 
-const JetpackFieldLabel = ( { setAttributes, label, resetFocus, isSelected, required } ) => {
+const JetpackFieldLabel = ( {
+	setAttributes,
+	label,
+	labelFieldName,
+	resetFocus,
+	isSelected,
+	required,
+} ) => {
 	return (
 		<div className="jetpack-field-label">
 			<PlainText
@@ -13,6 +20,10 @@ const JetpackFieldLabel = ( { setAttributes, label, resetFocus, isSelected, requ
 				className="jetpack-field-label__input"
 				onChange={ value => {
 					resetFocus && resetFocus();
+					if ( labelFieldName ) {
+						setAttributes( { [ labelFieldName ]: value } );
+						return;
+					}
 					setAttributes( { label: value } );
 				} }
 				placeholder={ __( 'Write label…', 'jetpack' ) }

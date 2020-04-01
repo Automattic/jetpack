@@ -11,17 +11,18 @@ import { __ } from '@wordpress/i18n';
 import debounce from 'lodash/debounce';
 
 class ScrollButton extends Component {
+	overlayElement = document.getElementsByClassName( 'jetpack-instant-search__overlay' )[ 0 ];
 	componentDidMount() {
-		this.props.enableLoadOnScroll && document.addEventListener( 'scroll', this.checkScroll );
+		this.overlayElement.addEventListener( 'scroll', this.checkScroll );
 	}
 	componentDidUnmount() {
-		document.removeEventListener( 'scroll', this.checkScroll );
+		this.overlayElement.removeEventListener( 'scroll', this.checkScroll );
 	}
 
 	checkScroll = debounce( () => {
 		if (
 			this.props.enableLoadOnScroll &&
-			window.innerHeight + window.scrollY === document.body.offsetHeight
+			window.innerHeight + this.overlayElement.scrollTop === this.overlayElement.scrollHeight
 		) {
 			this.props.onLoadNextPage();
 		}

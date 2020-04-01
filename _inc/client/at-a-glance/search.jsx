@@ -6,7 +6,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import { noop } from 'lodash';
-import { getPlanClass, PLAN_JETPACK_PREMIUM } from 'lib/plans/constants';
+import { getPlanClass, PLAN_JETPACK_SEARCH } from 'lib/plans/constants';
+import { SEARCH_DESCRIPTION, SEARCH_CUSTOMIZE_CTA, SEARCH_SUPPORT } from 'plans/constants';
 
 /**
  * Internal dependencies
@@ -15,9 +16,8 @@ import analytics from 'lib/analytics';
 import DashItem from 'components/dash-item';
 import Card from 'components/card';
 import JetpackBanner from 'components/jetpack-banner';
-import { isModuleFound } from 'state/search';
 import { isDevMode } from 'state/connection';
-import { getSitePlan } from 'state/site';
+import { getSitePlan, hasActiveSearchPurchase, isFetchingSitePurchases } from 'state/site';
 import { getUpgradeUrl } from 'state/initial-state';
 
 /**
@@ -28,12 +28,10 @@ import { getUpgradeUrl } from 'state/initial-state';
  */
 const renderCard = props => (
 	<DashItem
-		label={ __( 'Jetpack Search' ) }
+		label={ __( 'Search' ) }
 		module="search"
 		support={ {
-			text: __(
-				'Jetpack Search is a powerful replacement for the search capability built into WordPress.'
-			),
+			text: SEARCH_SUPPORT,
 			link: 'https://jetpack.com/support/search/',
 		} }
 		className={ props.className }
@@ -67,10 +65,20 @@ class DashSearch extends Component {
 		} );
 	}
 
-	activateSearch = () => this.props.updateOptions( { search: true } );
+	activateSearch = () => {
+		this.props.updateOptions( {
+			search: true,
+			...( this.props.hasSearchProduct ? { instant_search_enabled: true } : {} ),
+		} );
+	};
 
 	render() {
-		const hasPro = 'is-business-plan' === this.props.planClass;
+		if ( this.props.isFetching ) {
+			return renderCard( {
+				status: '',
+				content: __( 'Loading…' ),
+			} );
+		}
 
 		if ( this.props.isDevMode ) {
 			return renderCard( {
@@ -81,7 +89,7 @@ class DashSearch extends Component {
 			} );
 		}
 
-		if ( ! hasPro ) {
+		if ( ! this.props.isBusinessPlan && ! this.props.hasSearchProduct ) {
 			return renderCard( {
 				className: 'jp-dash-item__is-inactive',
 				status: 'no-pro-uninstalled-or-inactive',
@@ -89,14 +97,12 @@ class DashSearch extends Component {
 				overrideContent: (
 					<JetpackBanner
 						callToAction={ __( 'Upgrade' ) }
-						title={ __(
-							"Replace your site's basic search with customizable search that helps visitors find answers faster."
-						) }
+						title={ SEARCH_DESCRIPTION }
 						disableHref="false"
 						href={ this.props.upgradeUrl }
 						eventFeature="search"
 						path="dashboard"
-						plan={ PLAN_JETPACK_PREMIUM }
+						plan={ PLAN_JETPACK_SEARCH }
 						icon="search"
 					/>
 				),
@@ -107,12 +113,10 @@ class DashSearch extends Component {
 			return (
 				<div className="jp-dash-item">
 					<DashItem
-						label={ __( 'Jetpack Search' ) }
+						label={ __( 'Search' ) }
 						module="search"
 						support={ {
-							text: __(
-								'Jetpack Search is a powerful replacement for the search capability built into WordPress.'
-							),
+							text: SEARCH_SUPPORT,
 							link: 'https://jetpack.com/support/search/',
 						} }
 						className="jp-dash-item__is-active"
@@ -123,13 +127,23 @@ class DashSearch extends Component {
 							{ __( 'Jetpack Search is powering search on your site.' ) }
 						</p>
 					</DashItem>
-					<Card
-						compact
-						className="jp-search-config-aag"
-						href="customize.php?autofocus[panel]=widgets"
-					>
-						{ __( 'Add Search (Jetpack) Widget' ) }
-					</Card>
+					{ this.props.hasSearchProduct ? (
+						<Card
+							compact
+							className="jp-search-config-aag"
+							href="customize.php?autofocus[section]=jetpack_search"
+						>
+							{ SEARCH_CUSTOMIZE_CTA }
+						</Card>
+					) : (
+						<Card
+							compact
+							className="jp-search-config-aag"
+							href="customize.php?autofocus[panel]=widgets"
+						>
+							{ __( 'Add Search (Jetpack) Widget' ) }
+						</Card>
+					) }
 				</div>
 			);
 		}
@@ -138,7 +152,7 @@ class DashSearch extends Component {
 			className: 'jp-dash-item__is-inactive',
 			pro_inactive: false,
 			content: __(
-				'{{a}}Activate{{/a}} to replace the WordPress built-in search with Jetpack Search, an advanced search experience.',
+				'{{a}}Activate{{/a}} to help visitors quickly find answers with highly relevant instant search results and powerful filtering.',
 				{
 					components: {
 						a: <a href="javascript:void(0)" onClick={ this.activateSearch } />,
@@ -151,9 +165,10 @@ class DashSearch extends Component {
 
 export default connect( state => {
 	return {
-		foundSearch: isModuleFound( state, 'search' ),
-		planClass: getPlanClass( getSitePlan( state ).product_slug ),
+		isBusinessPlan: 'is-business-plan' === getPlanClass( getSitePlan( state ).product_slug ),
 		isDevMode: isDevMode( state ),
+		isFetching: isFetchingSitePurchases( state ),
+		hasSearchProduct: hasActiveSearchPurchase( state ),
 		upgradeUrl: getUpgradeUrl( state, 'aag-search' ),
 	};
 } )( DashSearch );

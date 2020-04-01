@@ -6,13 +6,16 @@ dist: trusty
 # Tell Travis CI we're using PHP
 language: php
 
+services:
+  - docker
+
 # Run Matrix for these PHP versions
 php:
 - "5.6"
 - "7.0"
 - "7.2"
 - "7.3"
-# 7.4 can not be included here until 5.3 is the "previous" version of WP.
+- "7.4snapshot"
 
 env:
   # Global variable is re-defined in matrix-include -list
@@ -42,21 +45,21 @@ matrix:
     name: "Build dashboard & extensions"
     language: node_js
     env: WP_TRAVISCI="yarn build"
-  - if: branch !~ /(^branch-.*-built)/
-    name: "Spell check Markdown files"
-    language: node_js
-    env: WP_TRAVISCI="yarn test-spelling"
+
+  # Disable for now until we fix all the spelling issues
+  # - name: "Spell check Markdown files"
+  #   if: branch !~ /(^branch-.*-built)/
+  #   language: node_js
+  #   env: WP_TRAVISCI="yarn test-spelling"
+
   - php: "nightly"
     name: "PHP Nightly"
-  - php: "7.4snapshot"
-    env: WP_BRANCH=master SIMPLE_AND_MULTISITE=1
-    # add a new entry for "latest" WP once 5.3 has shipped. Remove snapshot once 7.4 is GA.
 
   # Code Climate code coverage.
   - php: "7.3"
     name: "Code Coverage"
     env:
-      - WP_BRANCH=latest
+      - WP_BRANCH=previous
       - DO_COVERAGE=true
     before_script:
       - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
@@ -66,16 +69,18 @@ matrix:
       - export PLUGIN_SLUG=$(basename $(pwd))
       - ./tests/setup-travis.sh
     after_script:
-      - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT --coverage-input-type clover
+      - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT -t clover -p /tmp/wordpress-previous/src/wp-content/plugins/jetpack
 
   - php: "7.0"
     name: "E2E tests"
-    if: branch !~ /(^branch-.*-built)/ AND env(RUN_E2E) = true
+    # Since build secrets are not available for forks, we would not be able to (and don't want) decrypt the config file
+    # so we just skip the E2E job all together
+    if: branch !~ /(^branch-.*-built)/ AND env(RUN_E2E) = true AND fork = false
     before_script:
     # Enable user namespace cloning
     - "sysctl kernel.unprivileged_userns_clone=1"
     - nvm install
-    - yarn && yarn build
+    - yarn && yarn build-production
     - ./tests/e2e/bin/setup-e2e-travis.sh
     - yarn test-decrypt-config
     script:
@@ -86,10 +91,11 @@ matrix:
           - nginx
           # This is required to run new chrome on old trusty
           - libnss3
-
+  - php: "7.0"
+    name: "Legacy full sync"
+    env: LEGACY_FULL_SYNC=1 WP_BRANCH=latest
 
   allow_failures:
-    - name: "E2E tests"
     - name: "PHP Nightly"
     - name: "Spell check Markdown files"
     - name: "Code Coverage"

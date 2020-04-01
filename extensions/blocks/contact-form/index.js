@@ -5,7 +5,7 @@ import { __, _x } from '@wordpress/i18n';
 import { getBlockType, createBlock } from '@wordpress/blocks';
 import { Path, Circle } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
-import { InnerBlocks } from '@wordpress/editor';
+import { InnerBlocks } from '@wordpress/block-editor';
 
 /**
  * Internal dependencies
@@ -17,6 +17,7 @@ import JetpackFieldTextarea from './components/jetpack-field-textarea';
 import JetpackFieldCheckbox from './components/jetpack-field-checkbox';
 import JetpackFieldMultiple from './components/jetpack-field-multiple';
 import renderMaterialIcon from '../../shared/render-material-icon';
+import colorValidator from '../../shared/colorValidator';
 
 export const name = 'contact-form';
 
@@ -48,8 +49,20 @@ export const settings = {
 			type: 'string',
 			default: __( 'Submit', 'jetpack' ),
 		},
-		customBackgroundButtonColor: { type: 'string' },
-		customTextButtonColor: { type: 'string' },
+		backgroundButtonColor: {
+			type: 'string',
+		},
+		textButtonColor: {
+			type: 'string',
+		},
+		customBackgroundButtonColor: {
+			type: 'string',
+			validator: colorValidator,
+		},
+		customTextButtonColor: {
+			type: 'string',
+			validator: colorValidator,
+		},
 		submitButtonClasses: { type: 'string' },
 		hasFormSettingsSet: {
 			type: 'string',

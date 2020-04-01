@@ -488,6 +488,7 @@ new Jetpack_JSON_API_Sync_Status_Endpoint(
 			'full_queue_next_sync'  => '(float) Time in seconds before trying to sync the full sync queue again',
 			'cron_size'             => '(int) Size of the current cron array',
 			'next_cron'             => '(int) The number of seconds till the next item in cron.',
+			'progress'              => '(array) Full Sync status by module',
 		),
 		'example_request'  => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync/status',
 	)
@@ -553,6 +554,7 @@ $sync_settings_response = array(
 	'render_filtered_content'  => '(int|bool=true) Set to 1 or true to render filtered content.',
 	'max_enqueue_full_sync'    => '(int|bool=false) Maximum number of rows to enqueue during each full sync process',
 	'max_queue_size_full_sync' => '(int|bool=false) Maximum queue size that full sync is allowed to use',
+	'full_sync_send_duration'  => '(float) Max full sync duration per request',
 	'sync_via_cron'            => '(int|bool=false) Set to 1 or true to avoid using cron for sync.',
 	'cron_sync_time_limit'	   => '(int|bool=false) Limit cron jobs to number of seconds',
 	'enqueue_wait_time'        => '(int|bool=false) Wait time in seconds between attempting to continue a full sync, via requests',

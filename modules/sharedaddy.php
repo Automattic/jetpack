@@ -1,6 +1,4 @@
 <?php
-use Automattic\Jetpack\Status;
-
 /**
  * Module Name: Sharing
  * Module Description: Add Twitter, Facebook and Google+ buttons at the bottom of each post, making it easy for visitors to share your content.
@@ -16,6 +14,8 @@ use Automattic\Jetpack\Status;
  *
  * @package Jetpack
  */
+
+use Automattic\Jetpack\Status;
 
 if ( ! function_exists( 'sharing_init' ) ) {
 	require dirname( __FILE__ ) . '/sharedaddy/sharedaddy.php';
@@ -37,7 +37,8 @@ function sharedaddy_loaded() {
  * @return string Sharing config URL
  */
 function jetpack_sharedaddy_configuration_url() {
-	if ( ( new Status() )->is_development_mode() || Jetpack::is_staging_site() || ! Jetpack::is_user_connected() ) {
+	$status = new Status();
+	if ( $status->is_development_mode() || $status->is_staging_site() || ! Jetpack::is_user_connected() ) {
 		return admin_url( 'options-general.php?page=sharing' );
 	}
 

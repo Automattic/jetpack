@@ -1,6 +1,8 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
 require_once dirname( __FILE__ ) . '/rtl-admin-bar.php';
 
@@ -79,7 +81,7 @@ class A8C_WPCOM_Masterbar {
 		add_action( 'admin_bar_init', array( $this, 'init' ) );
 
 		// Post logout on the site, also log the user out of WordPress.com.
-		add_action( 'wp_logout', array( $this, 'maybe_logout_user_from_wpcom' ) );
+		add_filter( 'logout_redirect', array( $this, 'maybe_logout_user_from_wpcom' ), 10, 3 );
 	}
 
 	/**
@@ -165,8 +167,12 @@ class A8C_WPCOM_Masterbar {
 
 	/**
 	 * Log out from WordPress.com when logging out of the local site.
+	 *
+	 * @param string  $redirect_to           The redirect destination URL.
+	 * @param string  $requested_redirect_to The requested redirect destination URL passed as a parameter.
+	 * @param WP_User $user                  The WP_User object for the user that's logging out.
 	 */
-	public function maybe_logout_user_from_wpcom() {
+	public function maybe_logout_user_from_wpcom( $redirect_to, $requested_redirect_to, $user ) {
 		/**
 		 * Whether we should sign out from wpcom too when signing out from the masterbar.
 		 *
@@ -181,8 +187,29 @@ class A8C_WPCOM_Masterbar {
 			&& 'masterbar' === $_GET['context'] // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			&& $masterbar_should_logout_from_wpcom
 		) {
-			do_action( 'wp_masterbar_logout' );
+			/*
+			 * Get the associated WordPress.com User ID, if the user is connected.
+			 */
+			$connection_manager = new Connection_Manager();
+			if ( $connection_manager->is_user_connected( $user->ID ) ) {
+				$wpcom_user_data = $connection_manager->get_connected_user_data( $user->ID );
+				if ( ! empty( $wpcom_user_data['ID'] ) ) {
+					/**
+					 * Hook into the log out event happening from the Masterbar.
+					 *
+					 * @since 5.1.0
+					 * @since 7.9.0 Added the $wpcom_user_id parameter to the action.
+					 *
+					 * @module masterbar
+					 *
+					 * @param int $wpcom_user_id WordPress.com User ID.
+					 */
+					do_action( 'wp_masterbar_logout', $wpcom_user_data['ID'] );
+				}
+			}
 		}
+
+		return $redirect_to;
 	}
 
 	/**
@@ -428,7 +455,7 @@ class A8C_WPCOM_Masterbar {
 
 		$following_title = $this->create_menu_item_pair(
 			array(
-				'url'   => 'https://wordpress.com/',
+				'url'   => 'https://wordpress.com/read',
 				'id'    => 'wp-admin-bar-followed-sites',
 				'label' => esc_html__( 'Followed Sites', 'jetpack' ),
 			),
@@ -865,6 +892,8 @@ class A8C_WPCOM_Masterbar {
 				)
 			);
 		}
+
+		$this->add_my_home_submenu_item( $wp_admin_bar );
 
 		// Stats.
 		if ( Jetpack::is_module_active( 'stats' ) && current_user_can( 'view_stats' ) ) {
@@ -1325,5 +1354,29 @@ class A8C_WPCOM_Masterbar {
 			 */
 			do_action( 'jetpack_masterbar' );
 		}
+	}
+
+	/**
+	 * Adds "My Home" submenu item to sites that are eligible.
+	 *
+	 * @param WP_Admin_Bar $wp_admin_bar Admin Bar instance.
+	 * @return void
+	 */
+	private function add_my_home_submenu_item( &$wp_admin_bar ) {
+		if ( ! current_user_can( 'manage_options' ) || ! jetpack_is_atomic_site() ) {
+			return;
+		}
+
+		$wp_admin_bar->add_menu(
+			array(
+				'parent' => 'blog',
+				'id'     => 'my-home',
+				'title'  => __( 'My Home', 'jetpack' ),
+				'href'   => 'https://wordpress.com/home/' . esc_attr( $this->primary_site_slug ),
+				'meta'   => array(
+					'class' => 'mb-icon',
+				),
+			)
+		);
 	}
 }

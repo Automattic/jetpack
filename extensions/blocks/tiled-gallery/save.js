@@ -13,7 +13,13 @@ export default function TiledGallerySave( { attributes } ) {
 		return null;
 	}
 
-	const { align, className, columns = defaultColumnsNumber( attributes ), linkTo } = attributes;
+	const {
+		align,
+		className,
+		columns = defaultColumnsNumber( attributes ),
+		linkTo,
+		roundedCorners,
+	} = attributes;
 
 	return (
 		<Layout
@@ -25,6 +31,7 @@ export default function TiledGallerySave( { attributes } ) {
 			isSave
 			layoutStyle={ getActiveStyleName( LAYOUT_STYLES, className ) }
 			linkTo={ linkTo }
+			roundedCorners={ roundedCorners }
 		/>
 	);
 }

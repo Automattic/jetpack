@@ -11,12 +11,12 @@ import {
 	JETPACK_SITE_BENEFITS_FETCH,
 	JETPACK_SITE_BENEFITS_FETCH_RECEIVE,
 	JETPACK_SITE_BENEFITS_FETCH_FAIL,
-	JETPACK_PRODUCTS_FETCH,
-	JETPACK_PRODUCTS_FETCH_RECEIVE,
-	JETPACK_PRODUCTS_FETCH_FAIL,
 	JETPACK_SITE_PLANS_FETCH,
 	JETPACK_SITE_PLANS_FETCH_RECEIVE,
 	JETPACK_SITE_PLANS_FETCH_FAIL,
+	JETPACK_SITE_PURCHASES_FETCH,
+	JETPACK_SITE_PURCHASES_FETCH_RECEIVE,
+	JETPACK_SITE_PURCHASES_FETCH_FAIL,
 } from 'state/action-types';
 import restApi from 'rest-api';
 
@@ -65,28 +65,6 @@ export const fetchSiteBenefits = () => {
 	};
 };
 
-export const fetchProducts = () => {
-	return dispatch => {
-		dispatch( {
-			type: JETPACK_PRODUCTS_FETCH,
-		} );
-		return restApi
-			.fetchProducts()
-			.then( products => {
-				dispatch( {
-					type: JETPACK_PRODUCTS_FETCH_RECEIVE,
-					products,
-				} );
-			} )
-			.catch( error => {
-				dispatch( {
-					type: JETPACK_PRODUCTS_FETCH_FAIL,
-					error,
-				} );
-			} );
-	};
-};
-
 export const fetchSiteFeatures = () => {
 	return dispatch => {
 		dispatch( {
@@ -128,6 +106,29 @@ export const fetchAvailablePlans = () => {
 				dispatch( {
 					type: JETPACK_SITE_PLANS_FETCH_FAIL,
 					error: error,
+				} );
+			} );
+	};
+};
+
+export const fetchSitePurchases = () => {
+	return dispatch => {
+		dispatch( {
+			type: JETPACK_SITE_PURCHASES_FETCH,
+		} );
+		return restApi
+			.fetchSitePurchases()
+			.then( purchases => {
+				dispatch( {
+					type: JETPACK_SITE_PURCHASES_FETCH_RECEIVE,
+					purchases,
+				} );
+				return purchases;
+			} )
+			.catch( error => {
+				dispatch( {
+					type: JETPACK_SITE_PURCHASES_FETCH_FAIL,
+					error,
 				} );
 			} );
 	};

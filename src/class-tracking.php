@@ -91,8 +91,10 @@ class Tracking {
 		}
 
 		$connection_manager = new Connection_Manager();
-		$wpcom_user_data = $connection_manager->get_connected_user_data( $user_id );
-		update_user_meta( $user_id, 'jetpack_tracks_wpcom_id', $wpcom_user_data['ID'] );
+		$wpcom_user_data    = $connection_manager->get_connected_user_data( $user_id );
+		if ( isset( $wpcom_user_data['ID'] ) ) {
+			update_user_meta( $user_id, 'jetpack_tracks_wpcom_id', $wpcom_user_data['ID'] );
+		}
 
 		$this->tracking->record_user_event( 'wpa_user_linked', array() );
 	}

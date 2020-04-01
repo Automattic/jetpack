@@ -5,13 +5,17 @@ import { waitAndType, waitAndClick, waitForSelector } from '../page-helper';
 
 export default class SimplePaymentBlock {
 	constructor( block, page ) {
-		this.blockName = SimplePaymentBlock.name();
+		this.blockTitle = SimplePaymentBlock.title();
 		this.block = block;
 		this.page = page;
 		this.blockSelector = '#block-' + block.clientId;
 	}
 
 	static name() {
+		return 'simple-payments';
+	}
+
+	static title() {
 		return 'Simple Payments';
 	}
 

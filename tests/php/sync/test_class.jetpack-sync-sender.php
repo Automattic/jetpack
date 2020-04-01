@@ -3,6 +3,7 @@
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Defaults;
 use Automattic\Jetpack\Sync\Modules\Callables;
+use Automattic\Jetpack\Sync\Settings;
 
 class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	protected $action_ran;
@@ -259,7 +260,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$full_sync_event = $this->server_event_storage->get_most_recent_event( 'my_full_sync_action' );
 
 		$this->assertEquals( $incremental_event->queue, $this->listener->get_sync_queue()->id );
-		$this->assertEquals( $full_sync_event->queue, $this->listener->get_full_sync_queue()->id );
+		$this->assertEquals( $this->listener->get_full_sync_queue()->id, $full_sync_event->queue );
 
 		remove_action( 'my_incremental_action', array( $this->listener, 'action_handler' ) );
 		remove_action( 'my_full_sync_action', array( $this->listener, 'full_sync_action_handler' ) );

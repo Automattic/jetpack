@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { G, Path, Rect, SVG } from '@wordpress/components';
 import { createBlock } from '@wordpress/blocks';
 
@@ -33,6 +33,12 @@ export const settings = {
 	icon,
 
 	category: 'jetpack',
+
+	keywords: [
+		_x( 'social', 'block search term', 'jetpack' ),
+		_x( 'pinboard', 'block search term', 'jetpack' ),
+		_x( 'pins', 'block search term', 'jetpack' ),
+	],
 
 	supports: {
 		align: false,

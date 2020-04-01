@@ -15,7 +15,6 @@ describe( 'SettingsGroup', () => {
 
 	const allGroupsNonAdminCantAccess = [
 			'widget-visibility',
-			'minileven',
 			'contact-form',
 			'sitemaps',
 			'latex',

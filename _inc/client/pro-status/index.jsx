@@ -13,6 +13,7 @@ import { get } from 'lodash';
 /**
  * Internal dependencies
  */
+import { getPlanClass } from 'lib/plans/constants';
 import { getSiteRawUrl, getSiteAdminUrl, getUpgradeUrl } from 'state/initial-state';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import QueryVaultPressData from 'components/data/query-vaultpress-data';
@@ -104,10 +105,9 @@ class ProStatus extends React.Component {
 						context: 'A caption for a small button to fix security issues.',
 					} );
 				} else {
-					message = __( 'Threats found!', {
-						context: 'Short warning message about new threats found.',
+					action = __( 'See threats', {
+						context: 'A caption for a small button to fix security issues.',
 					} );
-					action = __( 'FIX', { context: 'A caption for a small button to fix security issues.' } );
 				}
 				actionUrl = 'https://dashboard.vaultpress.com/';
 				break;
@@ -188,7 +188,10 @@ class ProStatus extends React.Component {
 			hasFree = /jetpack_free*/.test( sitePlan.product_slug ),
 			hasPremium = /jetpack_premium*/.test( sitePlan.product_slug ),
 			hasBackups = get( vpData, [ 'data', 'features', 'backups' ], false ),
-			hasScan = get( vpData, [ 'data', 'features', 'security' ], false );
+			hasScan = get( vpData, [ 'data', 'features', 'security' ], false ),
+			hasJetpackBackup = [ 'is-daily-backup-plan', 'is-realtime-backup-plan' ].includes(
+				this.props.planClass
+			);
 
 		const getStatus = ( feature, active, installed ) => {
 			switch ( feature ) {
@@ -202,7 +205,11 @@ class ProStatus extends React.Component {
 					break;
 
 				case 'scan':
-					if ( this.props.fetchingSiteData || this.props.isFetchingVaultPressData ) {
+					if (
+						this.props.fetchingSiteData ||
+						this.props.isFetchingVaultPressData ||
+						hasJetpackBackup
+					) {
 						return '';
 					}
 					if ( ( hasFree || hasPersonal ) && ! hasScan ) {
@@ -276,6 +283,8 @@ class ProStatus extends React.Component {
 }
 
 export default connect( state => {
+	const sitePlan = getSitePlan( state );
+
 	return {
 		siteRawUrl: getSiteRawUrl( state ),
 		siteAdminUrl: getSiteAdminUrl( state ),
@@ -283,7 +292,8 @@ export default connect( state => {
 		getVaultPressData: () => getVaultPressData( state ),
 		getAkismetData: () => getAkismetData( state ),
 		isFetchingVaultPressData: isFetchingVaultPressData( state ),
-		sitePlan: () => getSitePlan( state ),
+		sitePlan: () => sitePlan,
+		planClass: getPlanClass( get( sitePlan, 'product_slug', '' ) ),
 		fetchingPluginsData: isFetchingPluginsData( state ),
 		pluginActive: plugin_slug => isPluginActive( state, plugin_slug ),
 		pluginInstalled: plugin_slug => isPluginInstalled( state, plugin_slug ),
