@@ -219,12 +219,12 @@ function get_colors( $name, $attrs, $property ) {
 /**
  * Render the given template in server-side.
  *
- * @param string $name  Template name, available in `./templates` folder.
- * @param array  $data   Template data. Optional.
- * @param bool   $print   Render template. True as default.
- * @return false|string HTML markup or false.
+ * @param string $name           Template name, available in `./templates` folder.
+ * @param array  $template_props Template properties. Optional.
+ * @param bool   $print          Render template. True as default.
+ * @return false|string          HTML markup or false.
  */
-function render( $name, $data = array(), $print = true ) {
+function render( $name, $template_props = array(), $print = true ) {
 	if ( ! strpos( $name, '.php' ) ) {
 		$name = $name . '.php';
 	}
@@ -237,8 +237,8 @@ function render( $name, $data = array(), $print = true ) {
 
 	// Optionally provided an assoc array of data to pass to template
 	// and it will be extracted into variables.
-	if ( is_array( $data ) ) {
-		extract( $data ); // phpcs:ignore WordPress.PHP.DontExtract.extract_extract
+	if ( is_array( $template_props ) ) {
+		extract( $template_props ); // phpcs:ignore WordPress.PHP.DontExtract.extract_extract
 	}
 
 	ob_start();
@@ -252,9 +252,7 @@ function render( $name, $data = array(), $print = true ) {
 		// However, each template is going to be checked
 		// guaranteeing the correct escape for the markup.
 
-		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo $markup;
-		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo $markup; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 	return $markup;
 }

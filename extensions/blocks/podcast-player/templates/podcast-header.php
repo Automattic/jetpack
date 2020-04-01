@@ -13,12 +13,12 @@ namespace Automattic\Jetpack\Extensions\Podcast_Player;
 /**
  * Block attributes
  */
-$attributes               = (array) $data['attributes'];
+$attributes               = (array) $template_props['attributes']; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 $show_cover_art           = (bool) $attributes['showCoverArt'];
 $show_episode_description = (bool) $attributes['showEpisodeDescription'];
 
 // Current track.
-$track = ! empty( $data['tracks'] ) ? $data['tracks'][0] : array();
+$track = ! empty( $template_props['tracks'] ) ? $template_props['tracks'][0] : array();
 ?>
 
 <div class="jetpack-podcast-player__header">
