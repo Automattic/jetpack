@@ -110,11 +110,17 @@ $player-float-background: $light-gray-200;
 
 	a.jetpack-podcast-player__podcast-title {
 		text-decoration: none;
-		color: $text-color;
 
 		&:hover,
 		&:focus {
 			color: $text-color-hover;
+		}
+	}
+
+	// Apply `secondary` color to the podcast title.
+	.has-secondary { // custom color.
+		.jetpack-podcast-player__podcast-title {
+			color: currentColor;
 		}
 	}
 
@@ -126,9 +132,15 @@ $player-float-background: $light-gray-200;
 		order: 99; // high number to make it always appear after the audio player
 		padding: 0 $player-grid-spacing;
 		margin-bottom: $player-grid-spacing;
-		color: $dark-gray-500;
 		font-size: $description-font-size;
 		line-height: 1.6;
+		color: $dark-gray-500;
+	}
+
+	.has-secondary { // custom color.
+		.jetpack-podcast-player__track-description {
+			color: currentColor;
+		}
 	}
 
 	/**

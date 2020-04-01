@@ -132,7 +132,17 @@ function render_player( $player_data, $attributes ) {
 			class="<?php echo esc_attr( $player_classes_name ); ?>"
 			style="<?php echo esc_attr( $player_inline_style ); ?>"
 		>
-			<?php render( 'podcast-header', $player_props ); ?>
+			<?php
+			render(
+				'podcast-header',
+				array_merge(
+					$player_props,
+					array(
+						'primary_colors' => $primary_colors,
+					)
+				)
+			);
+			?>
 			<ol class="jetpack-podcast-player__tracks">
 				<?php foreach ( $player_data['tracks'] as $track_index => $attachment ) : ?>
 					<?php
