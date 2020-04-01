@@ -328,7 +328,7 @@ export const getUpgradeUrl = ( state, source, userId = '' ) => {
  * @return {string} The redirect URL
  */
 export const getRedirectUrl = ( source, args = {} ) => {
-	let queryVars = {
+	const queryVars = {
 		source: source,
 	};
 
