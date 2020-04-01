@@ -48,14 +48,15 @@ import { getColorClassName } from '../utils';
 
 const TrackError = memo( ( { link, title } ) => (
 	<div className="jetpack-podcast-player__track-error">
-		{ __( 'Episode unavailable', 'jetpack' ) }{ ' ' }
+		{ __( 'Episode unavailable', 'jetpack' ) }
 		{ link && (
 			<span>
 				{ ' - ' }
 				<a href={ link } rel="noopener noreferrer nofollow" target="_blank">
 					<span class="jetpack-podcast-player--visually-hidden">
+						{ /* Intentional trailing space outside of the translated string */ }
 						{ /* translators: %s is the title of the track. This text is visually hidden from the screen, but available to screen readers */ }
-						{ sprintf( __( '%s: ', 'jetpack' ), title ) }
+						{ `${ sprintf( __( '%s:', 'jetpack' ), title ) } ` }
 					</span>
 					{ __( 'Open in a new tab', 'jetpack' ) }
 				</a>
