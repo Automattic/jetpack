@@ -96,6 +96,8 @@ class Jetpack_Beta_Admin {
 			update_option( 'jp_beta_email_notifications', (int) ! $enable_email_notifications );
 		}
 		wp_safe_redirect( Jetpack_Beta::admin_url() );
+
+		exit();
 	}
 
 	static function is_toggle_action( $option ) {
