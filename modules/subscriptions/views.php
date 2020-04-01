@@ -386,7 +386,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 					</p>
 				<?php endif; ?>
 
-                <p>
+				<p id="subscribe-submit">
                     <input type="hidden" name="action" value="subscribe"/>
                     <input type="hidden" name="blog_id" value="<?php echo (int) $current_blog->blog_id; ?>"/>
                     <input type="hidden" name="source" value="<?php echo esc_url( $referer ); ?>"/>
