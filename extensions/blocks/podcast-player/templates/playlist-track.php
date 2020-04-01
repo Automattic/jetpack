@@ -12,17 +12,13 @@ namespace Automattic\Jetpack\Extensions\Podcast_Player;
 $track_title    = $attachment['title'];
 $track_duration = ! empty( $attachment['duration'] ) ? $attachment['duration'] : '';
 
-$class = 'jetpack-podcast-player__track';
-
+$class = 'jetpack-podcast-player__track ' . $secondary_colors['class'];
+$style = $secondary_colors['style'];
 if ( $is_active ) {
-	$class .= " is-active {$primary_colors['class']}";
-
+	$class = 'jetpack-podcast-player__track is-active ' . $primary_colors['class'];
 	$style = $primary_colors['style'];
-} else {
-	$class .= " {$secondary_colors['class']}";
-
-	$style = $secondary_colors['style'];
 }
+
 ?>
 
 <li
