@@ -121,8 +121,6 @@ $player-float-background: $light-gray-200;
 	// Apply `secondary` color to the podcast title.
 	.jetpack-podcast-player__container:not(.has-secondary) { // no custom -> default color.
 		a.jetpack-podcast-player__podcast-title {
-			font-size: $podcast-title-font-size;
-			color: $text-color;
 			margin: 0;
 		}
 	}
