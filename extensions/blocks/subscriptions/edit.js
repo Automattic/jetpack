@@ -28,7 +28,7 @@ import { compose } from '@wordpress/compose';
 /**
  * Internal dependencies
  */
-import './shared.scss';
+import './view.scss';
 
 const { getComputedStyle } = window;
 const isGradientAvailable = !! useGradient;
