@@ -936,13 +936,10 @@ class Jetpack {
 			return $default_url;
 		}
 
-		$site_slug = self::build_raw_urls( get_home_url() );
-
 		return esc_url(
 			self::build_redirect_url(
 				'calypso-edit-' . $post_type,
 				array(
-					'site' => $site_slug,
 					'path' => $post_id,
 				)
 			)
@@ -957,7 +954,6 @@ class Jetpack {
 			self::build_redirect_url(
 				'calypso-edit-comment',
 				array(
-					'site' => self::build_raw_urls( get_home_url() ),
 					'path' => $query_args['amp;c'],
 				)
 			)
@@ -6849,27 +6845,24 @@ endif;
 	 *
 	 * Note to WP.com: Changes to this method must be synced to wpcom
 	 *
-	 * @since 8.4.0
+	 * @since 8.5.0
 	 *
 	 * @param string        $source The URL handler registered in the server
 	 * @param array|string  $args {
+	 *    Optional. Additional arguments to build the url
 	 *
-	 * 		Additional arguments to build the url
-	 *
-	 * 		@param string $site URL of the current site
-	 * 		@param string $path Additional path to be appended to the URL
-	 * 		@param string $query Query parameters to be added to the URL
-	 * 		@param string $anchor Anchor to be added to the URL
-
+	 *    @type string $site URL of the site; Default is current site.
+	 *    @type string $path Additional path to be appended to the URL.
+	 *    @type string $query Query parameters to be added to the URL.
+	 *    @type string $anchor Anchor to be added to the URL.
 	 * }
-	 *
 	 *
 	 * @return string The built URL
 	 */
 	public static function build_redirect_url( $source, $args = array() ) {
 
 		$url           = 'https://jetpack.com/redirect';
-		$args          = wp_parse_args( $args );
+		$args          = wp_parse_args( $args, array( 'site' => self::build_raw_urls( get_home_url() ) ) );
 		$accepted_args = array( 'site', 'path', 'query', 'anchor' );
 
 		$to_be_added = array(

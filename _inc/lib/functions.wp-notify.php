@@ -89,8 +89,6 @@ if ( ! function_exists( 'wp_notify_postauthor' ) && Jetpack::is_active() ) :
 
 		$moderate_on_wpcom = ! in_array( false, array_map( 'is_user_connected', $emails ) );
 
-		$primary_site_slug = Jetpack::build_raw_urls( get_home_url() );
-
 		switch ( $comment->comment_type ) {
 			case 'trackback':
 				/* translators: 1: Post title */
@@ -139,7 +137,6 @@ if ( ! function_exists( 'wp_notify_postauthor' ) && Jetpack::is_active() ) :
 			? \Jetpack::build_redirect_url(
 				'calypso-all-comments',
 				array(
-					'site' => $primary_site_slug,
 					'path' => $comment->comment_post_ID,
 				)
 			) . "/\r\n\r\n"
@@ -151,7 +148,6 @@ if ( ! function_exists( 'wp_notify_postauthor' ) && Jetpack::is_active() ) :
 		$base_wpcom_edit_comment_url = \Jetpack::build_redirect_url(
 			'calypso-edit-comment',
 			array(
-				'site'  => $primary_site_slug,
 				'path'  => $comment_id,
 				'query' => 'action=__action__',
 			)
@@ -320,12 +316,9 @@ if ( ! function_exists( 'wp_notify_moderator' ) && Jetpack::is_active() ) :
 
 		$moderate_on_wpcom = ! in_array( false, array_map( 'is_user_connected', $emails ) );
 
-		$primary_site_slug = Jetpack::build_raw_urls( get_home_url() );
-
 		$base_wpcom_edit_comment_url = \Jetpack::build_redirect_url(
 			'calypso-edit-comment',
 			array(
-				'site'  => $primary_site_slug,
 				'path'  => $comment_id,
 				'query' => 'action=__action__',
 			)
@@ -376,7 +369,7 @@ if ( ! function_exists( 'wp_notify_moderator' ) && Jetpack::is_active() ) :
 		) . "\r\n";
 
 		$notify_message .= $moderate_on_wpcom
-			? \Jetpack::build_redirect_url( 'calypso-pending-comments', array( 'site' => $primary_site_slug ) )
+			? \Jetpack::build_redirect_url( 'calypso-pending-comments' )
 			: admin_url( 'edit-comments.php?comment_status=moderated#wpbody-content' ) . "\r\n";
 
 		/* translators: Comment moderation notification email subject. 1: Site name, 2: Post title */

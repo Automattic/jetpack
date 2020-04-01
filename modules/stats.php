@@ -552,13 +552,7 @@ function stats_reports_page( $main_chart_only = false ) {
 	}
 
 	$blog_id   = stats_get_option( 'blog_id' );
-	$domain    = Jetpack::build_raw_urls( get_home_url() );
-	$stats_url = Jetpack::build_redirect_url(
-		'calypso-stats',
-		array(
-			'site' => $domain,
-		)
-	);
+	$stats_url = Jetpack::build_redirect_url( 'calypso-stats' );
 
 	$jetpack_admin_url = admin_url() . 'admin.php?page=jetpack';
 
@@ -1401,12 +1395,7 @@ function stats_dashboard_widget_content() {
 <div class="clear"></div>
 <div class="stats-view-all">
 <?php
-	$stats_day_url = Jetpack::build_redirect_url(
-		'calypso-stats-day',
-		array(
-			'site' => Jetpack::build_raw_urls( get_home_url() ),
-		)
-	);
+	$stats_day_url = Jetpack::build_redirect_url( 'calypso-stats-day' );
 	printf(
 		'<a class="button" target="_blank" rel="noopener noreferrer" href="%1$s">%2$s</a>',
 		esc_url( $stats_day_url ),
@@ -1733,7 +1722,6 @@ function jetpack_stats_post_table_cell( $column, $post_id ) {
 			$stats_post_url = Jetpack::build_redirect_url(
 				'calypso-stats-post',
 				array(
-					'site' => Jetpack::build_raw_urls( get_home_url() ),
 					'path' => $post_id,
 				)
 			);

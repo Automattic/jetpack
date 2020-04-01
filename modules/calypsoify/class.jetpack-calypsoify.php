@@ -289,12 +289,7 @@ class Jetpack_Calypsoify {
 	 */
 	public function insert_sidebar_html() {
 		$heading       = ( isset( $_GET['post_type'] ) && 'feedback' === $_GET['post_type'] ) ? __( 'Feedback', 'jetpack' ) : __( 'Plugins', 'jetpack' );
-		$stats_day_url = Jetpack::build_redirect_url(
-			'calypso-stats-day',
-			array(
-				'site' => Jetpack::build_raw_urls( get_home_url() ),
-			)
-		);
+		$stats_day_url = Jetpack::build_redirect_url( 'calypso-stats-day' );
 		?>
 		<a href="<?php echo esc_url( $stats_day_url ); ?>" id="calypso-sidebar-header">
 			<svg class="gridicon gridicons-chevron-left" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M14 20l-8-8 8-8 1.414 1.414L8.828 12l6.586 6.586"></path></g></svg>
@@ -312,12 +307,7 @@ class Jetpack_Calypsoify {
 
 		// Add proper links to masterbar top sections.
 		$my_sites_node       = (object) $wp_admin_bar->get_node( 'blog' );
-		$my_sites_node->href = Jetpack::build_redirect_url(
-			'calypso-stats-day',
-			array(
-				'site' => Jetpack::build_raw_urls( get_home_url() ),
-			)
-		);
+		$my_sites_node->href = Jetpack::build_redirect_url( 'calypso-stats-day' );
 		$wp_admin_bar->add_node( $my_sites_node );
 
 		$reader_node       = (object) $wp_admin_bar->get_node( 'newdash' );

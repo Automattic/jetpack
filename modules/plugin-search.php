@@ -429,22 +429,15 @@ class Jetpack_Plugin_Search {
 	 *
 	 */
 	private function get_configure_url( $feature, $configure_url ) {
-		$site_fragment = Jetpack::build_raw_urls( get_home_url() );
 		switch ( $feature ) {
 			case 'sharing':
 			case 'publicize':
-				$configure_url = \Jetpack::build_redirect_url(
-					'wpcom-marketing-connections',
-					array(
-						'site' => rawurlencode( $site_fragment ),
-					)
-				);
+				$configure_url = \Jetpack::build_redirect_url( 'wpcom-marketing-connections' );
 				break;
 			case 'seo-tools':
 				$configure_url = \Jetpack::build_redirect_url(
 					'wpcom-marketing-traffic',
 					array(
-						'site'   => rawurlencode( $site_fragment ),
 						'anchor' => 'seo',
 					)
 				);
@@ -453,18 +446,12 @@ class Jetpack_Plugin_Search {
 				$configure_url = \Jetpack::build_redirect_url(
 					'wpcom-marketing-traffic',
 					array(
-						'site'   => rawurlencode( $site_fragment ),
 						'anchor' => 'analytics',
 					)
 				);
 				break;
 			case 'wordads':
-				$configure_url = \Jetpack::build_redirect_url(
-					'wpcom-ads-settings',
-					array(
-						'site' => rawurlencode( $site_fragment ),
-					)
-				);
+				$configure_url = \Jetpack::build_redirect_url( 'wpcom-ads-settings' );
 				break;
 		}
 		return $configure_url;

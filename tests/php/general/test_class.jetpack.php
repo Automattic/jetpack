@@ -1211,43 +1211,45 @@ EXPECTED;
 	/**
 	 * Basic tests to build_redirect_url function.
 	 *
+	 * @since 8.5.0
+	 *
 	 * @group build_redirect_url
 	 */
 	public function test_build_redirect_url() {
 
 		$url = \Jetpack::build_redirect_url( 'simple' );
-		$this->assertEquals( 'https://jetpack.com/redirect?source=simple', $url );
+		$this->assertEquals( 'https://jetpack.com/redirect?source=simple&site=example.org', $url );
 
 		// Test invalid parameter.
 		$url = \Jetpack::build_redirect_url( 'simple', array( 'invalid' => 'value' ) );
-		$this->assertEquals( 'https://jetpack.com/redirect?source=simple', $url );
+		$this->assertEquals( 'https://jetpack.com/redirect?source=simple&site=example.org', $url );
 
 		// Test path.
 		$url = \Jetpack::build_redirect_url( 'simple', array( 'path' => 'value' ) );
-		$this->assertEquals( 'https://jetpack.com/redirect?source=simple&path=value', $url );
+		$this->assertEquals( 'https://jetpack.com/redirect?source=simple&site=example.org&path=value', $url );
 
 		// Test path special chars.
 		$url = \Jetpack::build_redirect_url( 'simple', array( 'path' => 'weird value!' ) );
 		$v   = rawurlencode( 'weird value!' );
-		$this->assertEquals( 'https://jetpack.com/redirect?source=simple&path=' . $v, $url );
+		$this->assertEquals( 'https://jetpack.com/redirect?source=simple&site=example.org&path=' . $v, $url );
 
 		// Test query.
 		$url = \Jetpack::build_redirect_url( 'simple', array( 'query' => 'value' ) );
-		$this->assertEquals( 'https://jetpack.com/redirect?source=simple&query=value', $url );
+		$this->assertEquals( 'https://jetpack.com/redirect?source=simple&site=example.org&query=value', $url );
 
 		// Test query special chars.
 		$url = \Jetpack::build_redirect_url( 'simple', array( 'query' => 'key=value&key2=value2' ) );
 		$v   = rawurlencode( 'key=value&key2=value2' );
-		$this->assertEquals( 'https://jetpack.com/redirect?source=simple&query=' . $v, $url );
+		$this->assertEquals( 'https://jetpack.com/redirect?source=simple&site=example.org&query=' . $v, $url );
 
 		// Test anchor.
 		$url = \Jetpack::build_redirect_url( 'simple', array( 'anchor' => 'value' ) );
-		$this->assertEquals( 'https://jetpack.com/redirect?source=simple&anchor=value', $url );
+		$this->assertEquals( 'https://jetpack.com/redirect?source=simple&site=example.org&anchor=value', $url );
 
 		// Test anchor special chars.
 		$url = \Jetpack::build_redirect_url( 'simple', array( 'anchor' => 'key=value&key2=value2' ) );
 		$v   = rawurlencode( 'key=value&key2=value2' );
-		$this->assertEquals( 'https://jetpack.com/redirect?source=simple&anchor=' . $v, $url );
+		$this->assertEquals( 'https://jetpack.com/redirect?source=simple&site=example.org&anchor=' . $v, $url );
 
 	}
 
