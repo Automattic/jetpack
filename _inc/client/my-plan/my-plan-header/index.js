@@ -129,6 +129,16 @@ class MyPlanHeader extends React.Component {
 					} ),
 				};
 
+			case 'is-scan-plan':
+				return {
+					details: expiration,
+					icon: `${ imagePath }/products/product-jetpack-scan.svg`,
+					tagLine: __(
+						'Automatic scanning and one-click fixes keep your site one step ahead of security threats.'
+					),
+					title: __( 'Jetpack Scan' ),
+				};
+
 			default:
 				return {
 					isPlaceholder: true,
