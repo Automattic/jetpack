@@ -139,6 +139,7 @@ function render_player( $player_data, $attributes ) {
 					$player_props,
 					array(
 						'primary_colors' => $primary_colors,
+						'player_id'      => $player_data['playerId'],
 					)
 				)
 			);
@@ -255,18 +256,14 @@ function render( $name, $template_props = array(), $print = true ) {
 		extract( $template_props ); // phpcs:ignore WordPress.PHP.DontExtract.extract_extract
 	}
 
-	ob_start();
-	include $template_path;
-	$markup = ob_get_contents();
-	ob_end_clean();
-
 	if ( $print ) {
-		// it's disabled in order to allow to templates
-		// render their content without HTML entities issues.
-		// However, each template is going to be checked
-		// guaranteeing the correct escape for the markup.
+		include $template_path;
+	} else {
+		ob_start();
+		include $template_path;
+		$markup = ob_get_contents();
+		ob_end_clean();
 
-		echo $markup; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		return $markup;
 	}
-	return $markup;
 }

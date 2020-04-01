@@ -7,7 +7,14 @@
 
 namespace Automattic\Jetpack\Extensions\Podcast_Player;
 
-// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+/**
+ * Template variables.
+ *
+ * @var array $attachment
+ * @var array $primary_colors
+ * @var array $secondary_colors
+ * @var bool  $is_active
+ */
 
 $track_title    = $attachment['title'];
 $track_duration = ! empty( $attachment['duration'] ) ? $attachment['duration'] : '';
@@ -22,7 +29,7 @@ if ( $is_active ) {
 ?>
 
 <li
-	class="<?php echo esc_attr( $class ); ?>"
+	class="<?php echo esc_attr( trim( $class ) ); ?>"
 	style="<?php echo esc_attr( $style ); ?>"
 >
 	<a
@@ -36,6 +43,3 @@ if ( $is_active ) {
 		<time class="jetpack-podcast-player__track-duration"><?php echo esc_attr( $track_duration ); ?></time>
 	</a>
 </li>
-
-<?php
-// phpcs:enable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable

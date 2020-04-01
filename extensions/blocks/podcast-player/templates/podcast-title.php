@@ -7,15 +7,19 @@
 
 namespace Automattic\Jetpack\Extensions\Podcast_Player;
 
-// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
-// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+/**
+ * Template variables.
+ *
+ * @var string $title
+ * @var string $link
+ */
 
 if ( ! isset( $title ) ) {
 	return;
 }
-?>
 
-<?php if ( isset( $link ) ) : ?>
+if ( isset( $link ) ) :
+	?>
 	<a
 		class="jetpack-podcast-player__podcast-title"
 		href="<?php echo esc_url( $link ); ?>"
@@ -28,8 +32,5 @@ if ( ! isset( $title ) ) {
 	<span class="jetpack-podcast-player__podcast-title">
 		<?php echo esc_attr( $title ); ?>
 	</span>;
-<?php endif; ?>
-
-<?php
-// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-// phpcs:enable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+	<?php
+endif;
