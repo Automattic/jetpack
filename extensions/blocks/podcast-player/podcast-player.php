@@ -238,9 +238,7 @@ function render( $name, $data = array(), $print = true ) {
 	// Optionally provided an assoc array of data to pass to template
 	// and it will be extracted into variables.
 	if ( is_array( $data ) ) {
-		// phpcs:disable WordPress.PHP.DontExtract.extract_extract
-		extract( $data );
-		// phpcs:enable WordPress.PHP.DontExtract.extract_extract
+		extract( $data ); // phpcs:ignore WordPress.PHP.DontExtract.extract_extract
 	}
 
 	ob_start();
