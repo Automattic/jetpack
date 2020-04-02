@@ -61,11 +61,11 @@ export const defaultAttributes = {
 	},
 	borderRadius: {
 		type: 'number',
-		default: 6,
+		default: 0,
 	},
 	borderWeight: {
 		type: 'number',
-		default: 2,
+		default: 1,
 	},
 	borderColor: {
 		type: 'string',
