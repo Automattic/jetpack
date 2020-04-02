@@ -65,12 +65,12 @@ function set_availability() {
 			'missing_plan',
 			array(
 				'required_feature' => 'opentable',
-				'required_plan'    => 'premium-plan',
+				'required_plan'    => 'value_bundle',
 			)
 		);
 	}
 }
-add_action( 'jetpack_register_gutenberg_extensions', __NAMESPACE__ . '\set_availability' );
+add_action( 'init', __NAMESPACE__ . '\set_availability' );
 
 /**
  * Adds an inline script which updates the block editor settings to
