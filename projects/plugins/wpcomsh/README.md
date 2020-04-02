@@ -240,3 +240,7 @@ As this module is currently being developed & evaluated, it is only enabled when
 Enables the "experimental" block bundle [offered in Jetpack](https://github.com/Automattic/jetpack/pull/14104), instead of the default Production bundle.
 
 Those blocks are considered ready for production, but we don't want to serve to all Jetpack sites yet. When you use this bundle, you'll get all production blocks as well as experimental blocks.
+
+### SEO Description Block
+
+Enables the SEO Description Block that is currently only available for WordPress.com sites.
