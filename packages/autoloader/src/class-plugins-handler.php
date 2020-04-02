@@ -10,9 +10,11 @@ class Plugins_Handler {
 	 * Returns an array containing all active plugins and all known activating
 	 * plugins.
 	 *
+	 * @param bool $skip_single_file_plugins If true, plugins with no dedicated directories will be skipped.
+	 *
 	 * @return Array An array of plugin names as strings.
 	 */
-	public function get_all_active_plugins() {
+	public function get_all_active_plugins( $skip_single_file_plugins = true ) {
 		$active_plugins = array_merge(
 			is_multisite()
 				? array_keys( get_site_option( 'active_sitewide_plugins', array() ) )
@@ -22,7 +24,22 @@ class Plugins_Handler {
 
 		$plugins = array_unique( array_merge( $active_plugins, $this->get_all_activating_plugins() ) );
 
+		if ( $skip_single_file_plugins ) {
+			$plugins = array_filter( $plugins, array( $this, 'is_directory_plugin' ) );
+		}
+
 		return $plugins;
+	}
+
+	/**
+	 * Ensure the plugin has its own directory and not a single-file plugin.
+	 *
+	 * @param string $plugin Plugin name, may be prefixed with "/".
+	 *
+	 * @return bool
+	 */
+	public function is_directory_plugin( $plugin ) {
+		return false !== strpos( $plugin, '/', 1 );
 	}
 
 	/**
