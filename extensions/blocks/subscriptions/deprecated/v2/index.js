@@ -37,11 +37,6 @@ export default {
 			customButtonBackgroundColor: attr.customBackgroundButtonColor,
 			textColor: attr.textButtonColor ? attr.textButtonColor : 'background',
 			customTextColor: attr.customTextButtonColor,
-			customFontSize: 18,
-			borderRadius: 6,
-			borderWeight: 2,
-			padding: 15,
-			spacing: 10,
 		};
 	},
 	save,
