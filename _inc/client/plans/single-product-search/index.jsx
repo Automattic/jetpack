@@ -50,11 +50,13 @@ function getTierLabel( priceTierSlug, recordCount ) {
 }
 
 function handleLandingPageLinkClickFactory( recordCount ) {
-	analytics.tracks.recordJetpackClick( {
-		target: 'landing-page-link',
-		feature: 'single-product-search',
-		extra: recordCount,
-	} );
+	return () => {
+		analytics.tracks.recordJetpackClick( {
+			target: 'landing-page-link',
+			feature: 'single-product-search',
+			extra: recordCount,
+		} );
+	};
 }
 
 export function SingleProductSearchCard( props ) {
