@@ -271,7 +271,7 @@
 
 <p class="small">
 	<?php esc_html_e( 'It is your own responsibility to ensure that your site complies with the relevant laws.', 'jetpack' ); ?>
-	<a href="https://jetpack.com/support/extra-sidebar-widgets/eu-cookie-law-widget/">
+	<a href="<?php echo esc_url( \Jetpack::build_redirect_url( 'jetpack-suport-extra-sidebar-widgets-eu-cookie-law-widget' ) ); ?>">
 		<?php esc_html_e( 'Click here for more information', 'jetpack' ); ?>
 	</a>
 </p>
