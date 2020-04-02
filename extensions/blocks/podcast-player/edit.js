@@ -156,7 +156,8 @@ const PodcastPlayerEdit = ( {
 		if ( ! isSelected && isInteractive ) {
 			setIsInteractive( false );
 		}
-	}, [ isInteractive, isSelected ] );
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ isSelected ] );
 
 	/**
 	 * Check if the current URL of the Podcast RSS feed
