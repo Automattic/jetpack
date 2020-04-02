@@ -110,11 +110,20 @@ const PodcastPlayerEdit = ( {
 						debug( 'Block was unmounted during fetch', error );
 						return; // bail if canceled to avoid setting state
 					}
-					// Show error and allow to edit URL.
-					debug( 'feed error', error );
-					createErrorNotice(
-						__( "Your podcast couldn't be embedded. Please double check your URL.", 'jetpack' )
-					);
+					if ( /\bspotify\b/i.test( encodedURL ) ) {
+						createErrorNotice(
+							__(
+								"It looks like you're trying to embed a podcast hosted on Spotify. Please use the Spotify block instead.",
+								'jetpack'
+							)
+						);
+					} else {
+						// Show error and allow to edit URL.
+						debug( 'feed error', error );
+						createErrorNotice(
+							__( "Your podcast couldn't be embedded. Please double check your URL.", 'jetpack' )
+						);
+					}
 					setIsEditing( true );
 				}
 			);
@@ -147,7 +156,7 @@ const PodcastPlayerEdit = ( {
 		if ( ! isSelected && isInteractive ) {
 			setIsInteractive( false );
 		}
-	}, [ isSelected ] );
+	}, [ isInteractive, isSelected ] );
 
 	/**
 	 * Check if the current URL of the Podcast RSS feed
