@@ -37,11 +37,17 @@ export function bindCustomizerChanges( callback ) {
 	CUSTOMIZE_SETTINGS.forEach( setting => {
 		window.wp.customize( setting, value => {
 			value.bind( function( newValue ) {
-				// If Instant Search hasn't been injected, set its initial overlay state via server server object.
+				const newOvelayOptions = { [ SETTINGS_TO_STATE_MAP.get( setting ) ]: newValue };
+
+				// If Instant Search hasn't been injected, update initial server object state
 				window[ SERVER_OBJECT_NAME ].showResults = true;
-				callback( {
-					[ SETTINGS_TO_STATE_MAP.get( setting ) ]: newValue,
-				} );
+				window[ SERVER_OBJECT_NAME ].overlayOptions = {
+					...window[ SERVER_OBJECT_NAME ].overlayOptions,
+					...newOvelayOptions,
+				};
+
+				// If callback is available, invoke it.
+				callback && callback( newOvelayOptions );
 			} );
 		} );
 	} );

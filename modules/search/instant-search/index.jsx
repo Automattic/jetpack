@@ -14,6 +14,7 @@ import { getThemeOptions } from './lib/dom';
 import { SERVER_OBJECT_NAME } from './lib/constants';
 import { initializeTracks, identifySite, resetTrackingCookies } from './lib/tracks';
 import { buildFilterAggregations } from './lib/api';
+import { bindCustomizerChanges } from './lib/customize';
 
 const injectSearchApp = () => {
 	render(
@@ -35,6 +36,9 @@ const injectSearchApp = () => {
 	);
 };
 
+if ( window[ SERVER_OBJECT_NAME ] ) {
+	bindCustomizerChanges();
+}
 document.addEventListener( 'DOMContentLoaded', function() {
 	if ( !! window[ SERVER_OBJECT_NAME ] && 'siteId' in window[ SERVER_OBJECT_NAME ] ) {
 		initializeTracks();
