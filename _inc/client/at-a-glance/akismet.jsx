@@ -21,6 +21,7 @@ import { getSitePlan } from 'state/site';
 import { isDevMode } from 'state/connection';
 import { getApiNonce, getUpgradeUrl } from 'state/initial-state';
 import JetpackBanner from 'components/jetpack-banner';
+import getRedirectUrl from 'lib/jp-redirect';
 
 class DashAkismet extends Component {
 	static propTypes = {
@@ -186,7 +187,7 @@ class DashAkismet extends Component {
 					key="moderate-comments"
 					className="jp-dash-item__manage-in-wpcom"
 					compact
-					href={ `https://wordpress.com/comments/all/${ this.props.siteRawUrl }` }
+					href={ getRedirectUrl( 'calypso-all-comments', { site: this.props.siteRawUrl } ) }
 				>
 					{ __( 'Moderate comments' ) }
 				</Card>
