@@ -37,7 +37,7 @@ export default function RevueEdit( props ) {
 		if ( ! isEqual( validatedAttributes, attributes ) ) {
 			setAttributes( validatedAttributes );
 		}
-	}, [ attributes ] );
+	}, [ attributes, setAttributes ] );
 
 	const {
 		revueUsername,
@@ -57,7 +57,7 @@ export default function RevueEdit( props ) {
 		if ( ! username && revueUsername ) {
 			setUsername( revueUsername );
 		}
-	}, [] );
+	}, [ username, revueUsername ] );
 
 	const saveUsername = event => {
 		event.preventDefault();

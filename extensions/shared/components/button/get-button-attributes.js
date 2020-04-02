@@ -7,12 +7,12 @@ import colorValidator from '../../colorValidator';
  * Create an object of Button attributes.
  * The parameter is an optional object, and all its properties are optional as well.
  *
- * @param {string} [defaultPlaceholder] The default button placeholder text.
- * @param {string} [defaultText] The default button text.
- * @param {boolean} [hasPlaceholder] Whether the button has a `buttonPlaceholder` attribute.
- * @param {boolean} [hasUrl] Whether the button has a `buttonUrl` attribute.
- * @param {Function} [urlValidator] A function to validate the `buttonUrl` attribute.
- * @returns {Object} The button attributes.
+ * @param {string} [defaultPlaceholder] - The default button placeholder text.
+ * @param {string} [defaultText] - The default button text.
+ * @param {boolean} [hasPlaceholder] - Whether the button has a `buttonPlaceholder` attribute.
+ * @param {boolean} [hasUrl] - Whether the button has a `buttonUrl` attribute.
+ * @param {Function} [urlValidator] - A function to validate the `buttonUrl` attribute.
+ * @returns {object} The button attributes.
  */
 export default function getButtonAttributes( {
 	defaultPlaceholder,
