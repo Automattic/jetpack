@@ -135,6 +135,12 @@ $player-float-background: $light-gray-200;
 		font-size: $description-font-size;
 		line-height: 1.6;
 		color: $dark-gray-500;
+		//crop the description if too long
+		display: -webkit-box;
+		-webkit-line-clamp: 4;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+		max-height: 105px; //IE11 fallback
 	}
 
 	.has-secondary { // custom color.
