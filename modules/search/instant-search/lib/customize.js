@@ -1,3 +1,8 @@
+/**
+ * Internal dependencies
+ */
+import { SERVER_OBJECT_NAME } from './constants';
+
 const CUSTOMIZE_SETTINGS = [
 	'jetpack_search_color_theme',
 	'jetpack_search_inf_scroll',
@@ -32,9 +37,10 @@ export function bindCustomizerChanges( callback ) {
 	CUSTOMIZE_SETTINGS.forEach( setting => {
 		window.wp.customize( setting, value => {
 			value.bind( function( newValue ) {
+				// If Instant Search hasn't been injected, set its initial overlay state via server server object.
+				window[ SERVER_OBJECT_NAME ].showResults = true;
 				callback( {
-					key: SETTINGS_TO_STATE_MAP.get( setting ),
-					value: newValue,
+					[ SETTINGS_TO_STATE_MAP.get( setting ) ]: newValue,
 				} );
 			} );
 		} );
