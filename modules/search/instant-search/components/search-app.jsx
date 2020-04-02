@@ -170,7 +170,6 @@ class SearchApp extends Component {
 	onChangeQuery = event => setSearchQuery( event.target.value );
 
 	onPopstate = () => {
-		this.showResults();
 		this.onChangeQueryString();
 	};
 
