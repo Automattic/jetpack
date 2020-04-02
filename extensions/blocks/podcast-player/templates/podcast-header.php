@@ -60,4 +60,8 @@ $track = ! empty( $template_props['tracks'] ) ? $template_props['tracks'][0] : a
 		<?php echo esc_attr( $track['description'] ); ?>
 	</div>
 	<?php endif; ?>
+
+	<div class="jetpack-podcast-player__audio-player">
+		<div class="jetpack-podcast-player--audio-player-loading"></div>
+	</div>
 </div>

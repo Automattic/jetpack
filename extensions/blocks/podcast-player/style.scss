@@ -125,7 +125,14 @@ $player-float-background: $light-gray-200;
 	}
 
 	.jetpack-podcast-player__audio-player {
+		height: 40px; // mirroring .mejs-container
 		margin-bottom: $player-grid-spacing;
+	}
+
+	.jetpack-podcast-player--audio-player-loading {
+		height: 10px; // mirroring .mejs-time-total
+		background: $player-slider-background;
+		margin: 15px $player-grid-spacing; // simulating spacing of .mejs-container
 	}
 
 	.jetpack-podcast-player__track-description {
@@ -259,6 +266,24 @@ $player-float-background: $light-gray-200;
 
 		& > span > a {
 			color: inherit;
+		}
+	}
+
+	/**
+	 * Style the block to hide dynamic UI and show just its default style.
+	 */
+	&.is-default {
+		.jetpack-podcast-player__track-title {
+			// Change padding to account for missing space for status-icon.
+			padding-left: $player-grid-spacing - $track-v-padding;
+		}
+
+		.jetpack-podcast-player__audio-player {
+			display: none;
+		}
+
+		&.is-default .jetpack-podcast-player__track-status-icon {
+			display: none;
 		}
 	}
 
