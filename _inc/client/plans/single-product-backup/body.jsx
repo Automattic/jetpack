@@ -67,8 +67,7 @@ class SingleProductBackupBody extends React.Component {
 
 		return (
 			<React.Fragment>
-				<p>{ BACKUP_DESCRIPTION }</p>
-				<PromoNudge />
+				<div className="single-product__description">{ BACKUP_DESCRIPTION }</div>
 				<div className="single-product__landing-page">
 					<ExternalLink
 						className="single-product__landing-page"
@@ -81,6 +80,7 @@ class SingleProductBackupBody extends React.Component {
 						{ __( 'Which backup option is best for me?' ) }
 					</ExternalLink>
 				</div>
+				<PromoNudge />
 				<h4 className="single-product-backup__options-header">
 					{ __( 'Select a backup option:' ) }
 				</h4>

@@ -120,7 +120,8 @@
 	}
 }
 
-.single-product__accented-card-body p {
+.single-product__accented-card-body p,
+.single-product__accented-card-body .single-product__description {
 	margin-top: 14px;
 	font-size: 14px;
 	color: $gray-text-min;
@@ -172,4 +173,8 @@
 
 .single-product-backup__price-group-billing-timeframe {
 	font-size: 12px;
+}
+
+.single-product__landing-page {
+	text-align: center;
 }

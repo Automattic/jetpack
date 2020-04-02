@@ -75,8 +75,8 @@ export function SingleProductSearchCard( props ) {
 				<h3 className="single-product-backup__header-title">{ SEARCH_TITLE }</h3>
 			</div>
 			<div className="single-product__accented-card-body">
-				<p>
-					{ SEARCH_DESCRIPTION }{ ' ' }
+				<div className="single-product__description">{ SEARCH_DESCRIPTION }</div>
+				<div className="single-product__landing-page">
 					<ExternalLink
 						target="_blank"
 						href={ props.searchInfoUrl }
@@ -86,7 +86,7 @@ export function SingleProductSearchCard( props ) {
 					>
 						{ __( 'Learn more' ) }
 					</ExternalLink>
-				</p>
+				</div>
 				<h4 className="single-product-backup__options-header">
 					{ __(
 						'Your current site record size: %s record',
