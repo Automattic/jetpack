@@ -18,7 +18,8 @@ import analytics from 'lib/analytics';
  */
 import { imagePath } from 'constants/urls';
 import { isDevMode, isCurrentUserLinked, getConnectUrl } from 'state/connection';
-import { getInitialStateStatsData, getRedirectUrl } from 'state/initial-state';
+import getRedirectUrl from 'lib/jp-redirect';
+import { getInitialStateStatsData } from 'state/initial-state';
 import QueryStatsData from 'components/data/query-stats-data';
 import DashStatsBottom from './dash-stats-bottom';
 import { getStatsData, statsSwitchTab, fetchStatsData, getActiveStatsTab } from 'state/at-a-glance';
