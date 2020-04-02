@@ -277,11 +277,11 @@ abstract class Jetpack_Admin_Page {
 		$jetpack_admin_url = admin_url( 'admin.php?page=jetpack' );
 		$jetpack_about_url = ( Jetpack::is_active() || Jetpack::is_development_mode() )
 			? admin_url( 'admin.php?page=jetpack_about' )
-			: 'https://jetpack.com';
+			: \Jetpack::build_redirect_url( 'jetpack' );
 
 		$jetpack_privacy_url = ( Jetpack::is_active() || Jetpack::is_development_mode() )
 			? $jetpack_admin_url . '#/privacy'
-			: 'https://automattic.com/privacy/';
+			: \Jetpack::build_redirect_url( 'a8c-privacy' );
 
 		?>
 		<div id="jp-plugin-container" class="
@@ -357,7 +357,7 @@ abstract class Jetpack_Admin_Page {
 				</div>
 				<ul class="jp-footer__links">
 					<li class="jp-footer__link-item">
-						<a href="https://jetpack.com" target="_blank" rel="noopener noreferrer" class="jp-footer__link" title="<?php esc_html_e( 'Jetpack version', 'jetpack' ); ?>">Jetpack <?php echo JETPACK__VERSION; ?></a>
+						<a href="<?php echo esc_url( Jetpack::build_redirect_url( 'jetpack' ) ); ?>" target="_blank" rel="noopener noreferrer" class="jp-footer__link" title="<?php esc_html_e( 'Jetpack version', 'jetpack' ); ?>">Jetpack <?php echo esc_html( JETPACK__VERSION ); ?></a>
 					</li>
 					<li class="jp-footer__link-item">
 						<a href="<?php echo esc_url( $jetpack_about_url ); ?>" title="<?php esc_attr__( 'About Jetpack', 'jetpack' ); ?>" class="jp-footer__link"><?php echo esc_html__( 'About', 'jetpack' ); ?></a>
