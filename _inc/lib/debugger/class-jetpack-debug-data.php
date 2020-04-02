@@ -95,8 +95,8 @@ class Jetpack_Debug_Data {
 	 */
 	public static function core_debug_data( $debug ) {
 		$support_url = Jetpack::is_development_version()
-			? 'https://jetpack.com/contact-support/beta-group/'
-			: 'https://jetpack.com/contact-support/';
+			? \Jetpack::build_redirect_url( 'jetpack-contact-support-beta-group' )
+			: \Jetpack::build_redirect_url( 'jetpack-contact-support' );
 
 		$jetpack = array(
 			'jetpack' => array(

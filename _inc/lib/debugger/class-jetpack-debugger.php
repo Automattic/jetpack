@@ -57,8 +57,8 @@ class Jetpack_Debugger {
 		}
 
 		$support_url = Jetpack::is_development_version()
-			? 'https://jetpack.com/contact-support/beta-group/'
-			: 'https://jetpack.com/contact-support/';
+			? \Jetpack::build_redirect_url( 'jetpack-contact-support-beta-group' )
+			: \Jetpack::build_redirect_url( 'jetpack-contact-support' );
 
 		$cxntests = new Jetpack_Cxn_Tests();
 		?>
@@ -111,10 +111,10 @@ class Jetpack_Debugger {
 									),
 								)
 							),
-							'https://jetpack.com/support/getting-started-with-jetpack/known-issues/',
-							'https://jetpack.com/support/getting-started-with-jetpack/known-issues/',
-							'https://jetpack.com/support/',
-							'https://wordpress.org/support/plugin/jetpack'
+							esc_url( \Jetpack::build_redirect_url( 'jetpack-contact-support-known-issues' ) ),
+							esc_url( \Jetpack::build_redirect_url( 'jetpack-contact-support-known-issues' ) ),
+							esc_url( \Jetpack::build_redirect_url( 'jetpack-contact-support' ) ),
+							esc_url( \Jetpack::build_redirect_url( 'wporg-support-plugin-jetpack' ) )
 						);
 						?>
 						</li>
@@ -225,7 +225,7 @@ class Jetpack_Debugger {
 								__( 'Would you like to use Jetpack on your local development site? You can do so thanks to <a href="%s">Jetpack\'s development mode</a>.', 'jetpack' ),
 								array( 'a' => array( 'href' => array() ) )
 							),
-							'https://jetpack.com/support/development-mode/'
+							esc_url( \Jetpack::build_redirect_url( 'support-development-mode' ) )
 						);
 						?>
 							</p>

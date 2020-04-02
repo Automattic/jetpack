@@ -226,7 +226,7 @@ class Jetpack_Plugin_Search {
 					'Learn more about these suggestions.',
 					'jetpack'
 				),
-				'supportLink'    => 'https://jetpack.com/redirect/?source=plugin-hint-learn-support',
+				'supportLink'    => \Jetpack::build_redirect_url( 'plugin-hint-learn-support' ),
 				'hideText'       => esc_html__( 'Hide this suggestion', 'jetpack' ),
 			)
 		);
@@ -277,7 +277,7 @@ class Jetpack_Plugin_Search {
 				'requires_connection' => true,
 				'module' => 'akismet',
 				'sort' => '16',
-				'learn_more_button' => 'https://jetpack.com/features/security/spam-filtering/',
+				'learn_more_button' => \Jetpack::build_redirect_url( 'plugin-hint-upgrade-akismet' ),
 				'configure_url' => admin_url( 'admin.php?page=akismet-key-config' ),
 			),
 		);
@@ -474,7 +474,7 @@ class Jetpack_Plugin_Search {
 			$links['jp_get_started'] = '<a
 				id="plugin-select-settings"
 				class="jetpack-plugin-search__primary jetpack-plugin-search__get-started button"
-				href="https://jetpack.com/redirect/?source=plugin-hint-learn-' . $plugin['module'] . '"
+				href="' . esc_url( \Jetpack::build_redirect_url( 'plugin-hint-learn-' . $plugin['module'] ) ) . '"
 				data-module="' . esc_attr( $plugin['module'] ) . '"
 				data-track="get_started"
 				>' . esc_html__( 'Get started', 'jetpack' ) . '</a>';
@@ -511,7 +511,7 @@ class Jetpack_Plugin_Search {
 			$links['jp_get_started'] = '<a
 				id="plugin-select-settings"
 				class="jetpack-plugin-search__primary jetpack-plugin-search__get-started button"
-				href="https://jetpack.com/redirect/?source=plugin-hint-learn-' . $plugin['module'] . '"
+				href="' . esc_url( \Jetpack::build_redirect_url( 'plugin-hint-learn-' . $plugin['module'] ) ) . '"
 				data-module="' . esc_attr( $plugin['module'] ) . '"
 				data-track="get_started"
 				>' . esc_html__( 'Get started', 'jetpack' ) . '</a>';
