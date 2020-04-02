@@ -155,7 +155,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	function is_coming_soon() {
 		return $this->is_private() && (int) $this->get_atomic_cloud_site_option( 'wpcom_coming_soon' ) === 1;
 	}
-	
+
 	/**
 	 * Return site's launch status.
 	 *
@@ -227,6 +227,10 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 
 	function is_connected_site() {
 		return true;
+	}
+
+	function is_wpforteams_site() {
+		return false;
 	}
 
 	function current_user_can( $role ) {
