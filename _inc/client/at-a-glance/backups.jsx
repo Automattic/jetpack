@@ -20,6 +20,7 @@ import { isPluginInstalled } from 'state/site/plugins';
 import { getVaultPressData } from 'state/at-a-glance';
 import { isDevMode } from 'state/connection';
 import { getUpgradeUrl, showBackups } from 'state/initial-state';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Displays a card for Backups based on the props given.
@@ -115,7 +116,10 @@ class DashBackups extends Component {
 							components: {
 								a: (
 									<a
-										href={ `https://wordpress.com/plugins/setup/${ siteRawUrl }?only=backups` }
+										href={ getRedirectUrl( 'calypso-plugins-setup', {
+											site: siteRawUrl,
+											query: 'only=backups',
+										} ) }
 										target="_blank"
 										rel="noopener noreferrer"
 									/>
@@ -182,7 +186,7 @@ class DashBackups extends Component {
 							__( "You need to enter your server's credentials to finish the setup." )
 						) }
 						{ buildAction(
-							`https://wordpress.com/settings/security/${ siteRawUrl }`,
+							getRedirectUrl( 'calypso-settings-security', { site: siteRawUrl } ),
 							__( 'Enter credentials' )
 						) }
 					</React.Fragment>
@@ -196,7 +200,7 @@ class DashBackups extends Component {
 					<React.Fragment>
 						{ buildCard( message ) }
 						{ buildAction(
-							`https://wordpress.com/activity-log/${ siteRawUrl }?group=rewind`,
+							getRedirectUrl( 'calypso-activity-log', { site: siteRawUrl, query: 'group=rewind' } ),
 							__( "View your site's backups" )
 						) }
 					</React.Fragment>
