@@ -53,7 +53,7 @@ class Jetpack_Post_By_Email {
 	 * Enqueues scripts for user profile page.
 	 */
 	public function profile_scripts() {
-		wp_enqueue_script( 'post-by-email', plugins_url( 'post-by-email/post-by-email.js', __FILE__ ), array( 'jquery' ), JETPACK__VERSION, true );
+		wp_enqueue_script( 'post-by-email', plugins_url( 'post-by-email.js', __FILE__ ), array( 'jquery' ), JETPACK__VERSION, true );
 		wp_localize_script(
 			'post-by-email',
 			'pbeVars',
@@ -61,7 +61,7 @@ class Jetpack_Post_By_Email {
 				'rest_nonce' => wp_create_nonce( 'wp_rest' ),
 			)
 		);
-		wp_enqueue_style( 'post-by-email', plugins_url( 'post-by-email/post-by-email.css', __FILE__ ), array(), JETPACK__VERSION );
+		wp_enqueue_style( 'post-by-email', plugins_url( 'post-by-email.css', __FILE__ ), array(), JETPACK__VERSION );
 		wp_style_add_data( 'post-by-email', 'jetpack-inline', true );
 	}
 
@@ -105,17 +105,12 @@ class Jetpack_Post_By_Email {
 						if ( $this->check_user_connection() ) {
 							$email = $this->get_post_by_email_address();
 
-							if ( empty( $email ) ) {
-								$enable_hidden = '';
-								$info_hidden   = ' style="display: none;"';
-							} else {
-								$enable_hidden = ' style="display: none;"';
-								$info_hidden   = '';
-							}
+							$enable_button_style = empty( $email ) ? '' : 'display: none;';
+							$info_style          = empty( $email ) ? 'display: none;' : '';
 							?>
 
-							<input type="button" name="jp-pbe-enable" id="jp-pbe-enable" class="button" value="<?php esc_attr_e( 'Enable Post By Email', 'jetpack' ); ?> "<?php echo esc_attr( $enable_hidden ); ?> />
-							<div id="jp-pbe-info"<?php echo esc_attr( $info_hidden ); ?>>
+							<input type="button" name="jp-pbe-enable" id="jp-pbe-enable" class="button" value="<?php esc_attr_e( 'Enable Post By Email', 'jetpack' ); ?>" style="<?php echo esc_attr( $enable_button_style ); ?>" />
+							<div id="jp-pbe-info" style="<?php echo esc_attr( $info_style ); ?>">
 								<p id="jp-pbe-email-wrapper">
 									<input type="text" id="jp-pbe-email" value="<?php echo esc_attr( $email ); ?>" readonly="readonly" class="regular-text" />
 									<span class="description"><a target="_blank" href="https://jetpack.com/support/post-by-email/"><?php esc_html_e( 'More information', 'jetpack' ); ?></a></span>
