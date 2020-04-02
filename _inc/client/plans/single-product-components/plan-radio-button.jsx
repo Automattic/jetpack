@@ -17,7 +17,7 @@ export default function PlanRadioButton( props ) {
 				className="plan-radio-button__input"
 				value={ props.radioValue }
 				checked={ props.checked }
-				onChange={ props.onChange }
+				onChange={ props.onChange ? props.onChange : null }
 			/>
 			<div className="plan-radio-button__label">
 				<span className="plan-radio-button__title">{ props.planName }</span>

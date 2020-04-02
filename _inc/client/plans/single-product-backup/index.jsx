@@ -12,35 +12,58 @@ import { get } from 'lodash';
 import { getUpgradeUrl } from 'state/initial-state';
 import { BACKUP_TITLE } from '../constants';
 import SingleProductBackupBody from './body';
+import { getPlanDuration } from '../../state/plans';
 
-function generateBackupOptions( { products, upgradeLinkDaily, upgradeLinkRealtime } ) {
+function generateBackupOptions( {
+	products,
+	upgradeLinkDaily,
+	upgradeLinkRealtime,
+	planDuration,
+} ) {
 	const priceDailyMonthly = get( products, [ 'jetpack_backup_daily_monthly', 'cost' ], '' );
 	const priceRealtimeMonthly = get( products, [ 'jetpack_backup_realtime_monthly', 'cost' ], '' );
+
 	const priceDaily = get( products, [ 'jetpack_backup_daily', 'cost' ], '' );
 	const priceDailyMonthlyPerYear = '' === priceDailyMonthly ? '' : priceDailyMonthly * 12;
+
 	const priceRealtime = get( products, [ 'jetpack_backup_realtime', 'cost' ], '' );
 	const priceRealtimeMonthlyPerYear = '' === priceRealtimeMonthly ? '' : priceRealtimeMonthly * 12;
-
+	if ( 'yearly' === planDuration ) {
+		return [
+			{
+				type: 'daily',
+				name: __( 'Daily Backups' ),
+				link: upgradeLinkDaily,
+				discountedPrice: priceDaily,
+				fullPrice: priceDailyMonthlyPerYear,
+				potentialSavings:
+					priceDailyMonthlyPerYear && priceDaily ? priceDailyMonthlyPerYear - priceDaily : null,
+			},
+			{
+				type: 'real-time',
+				name: __( 'Real-Time Backups' ),
+				link: upgradeLinkRealtime,
+				discountedPrice: priceRealtime,
+				fullPrice: priceRealtimeMonthlyPerYear,
+				potentialSavings:
+					priceRealtimeMonthlyPerYear && priceRealtime
+						? priceRealtimeMonthlyPerYear - priceRealtime
+						: null,
+			},
+		];
+	}
 	return [
 		{
 			type: 'daily',
 			name: __( 'Daily Backups' ),
 			link: upgradeLinkDaily,
-			discountedPrice: priceDaily,
-			fullPrice: priceDailyMonthlyPerYear,
-			potentialSavings:
-				priceDailyMonthlyPerYear && priceDaily ? priceDailyMonthlyPerYear - priceDaily : null,
+			fullPrice: priceDailyMonthly,
 		},
 		{
 			type: 'real-time',
 			name: __( 'Real-Time Backups' ),
 			link: upgradeLinkRealtime,
-			discountedPrice: priceRealtime,
-			fullPrice: priceRealtimeMonthlyPerYear,
-			potentialSavings:
-				priceRealtimeMonthlyPerYear && priceRealtime
-					? priceRealtimeMonthlyPerYear - priceRealtime
-					: null,
+			fullPrice: priceRealtimeMonthly,
 		},
 	];
 }
@@ -48,16 +71,18 @@ function generateBackupOptions( { products, upgradeLinkDaily, upgradeLinkRealtim
 function SingleProductBackupCard( props ) {
 	const {
 		products,
+		backupInfoUrl,
 		upgradeLinkDaily,
 		upgradeLinkRealtime,
 		selectedBackupType,
 		setSelectedBackupType,
+		planDuration,
 	} = props;
-	const billingTimeFrame = 'yearly';
 	const currencyCode = get( products, [ 'jetpack_backup_daily', 'currency_code' ], '' );
 	const backupOptions = useMemo(
-		() => generateBackupOptions( { products, upgradeLinkDaily, upgradeLinkRealtime } ),
-		[ products, upgradeLinkDaily, upgradeLinkRealtime ]
+		() =>
+			generateBackupOptions( { products, upgradeLinkDaily, upgradeLinkRealtime, planDuration } ),
+		[ products, upgradeLinkDaily, upgradeLinkRealtime, planDuration ]
 	);
 
 	return props.isFetching ? (
@@ -69,9 +94,10 @@ function SingleProductBackupCard( props ) {
 			</div>
 			<div className="single-product__accented-card-body">
 				<SingleProductBackupBody
-					billingTimeFrame={ billingTimeFrame }
+					billingTimeFrame={ planDuration }
 					currencyCode={ currencyCode }
 					backupOptions={ backupOptions }
+					backupInfoUrl={ backupInfoUrl }
 					selectedBackupType={ selectedBackupType }
 					setSelectedBackupType={ setSelectedBackupType }
 				/>
@@ -81,6 +107,8 @@ function SingleProductBackupCard( props ) {
 }
 
 export default connect( state => ( {
-	upgradeLinkDaily: getUpgradeUrl( state, 'jetpack-backup-daily' ),
-	upgradeLinkRealtime: getUpgradeUrl( state, 'jetpack-backup-realtime' ),
+	planDuration: getPlanDuration( state ),
+	backupInfoUrl: getUpgradeUrl( state, 'aag-backups' ), // Redirect to https://jetpack.com/upgrade/backup/
+	upgradeLinkDaily: getUpgradeUrl( state, 'jetpack-backup-daily', '', true ),
+	upgradeLinkRealtime: getUpgradeUrl( state, 'jetpack-backup-realtime', '', true ),
 } ) )( SingleProductBackupCard );
