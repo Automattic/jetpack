@@ -125,14 +125,14 @@ $player-float-background: $light-gray-200;
 	}
 
 	.jetpack-podcast-player__audio-player {
-		height: 40px; /* the same as .mejs-container */
+		height: 40px; // mirroring .mejs-container
 		margin-bottom: $player-grid-spacing;
 	}
 
 	.jetpack-podcast-player--audio-player-loading {
-		height: 10px;
+		height: 10px; // mirroring .mejs-time-total
 		background: $player-slider-background;
-		margin: 15px $player-grid-spacing;
+		margin: 15px $player-grid-spacing; // simulating spacing of .mejs-container
 	}
 
 	.jetpack-podcast-player__track-description {
