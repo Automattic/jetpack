@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-03-30 11:23:32+0000\n"
+"PO-Revision-Date: 2020-04-02 00:54:04+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -13,15 +13,15 @@ msgstr ""
 
 #: wpcomsh.php:943
 msgid "Disk space quota"
-msgstr ""
+msgstr "Diskutrymmeskvot"
 
 #: wpcomsh.php:939
 msgid "Disk space used"
-msgstr ""
+msgstr "Använt diskutrymme"
 
 #: widgets/instagram/instagram.php:454
 msgid "<strong>Connected Instagram Account</strong><br /> <a href=\"%1$s\">%2$s</a> | <a href=\"%3$s\">remove</a>"
-msgstr ""
+msgstr "<strong>Anslutet Instagram-konto</strong><br /> <a href=\"%1$s\">%2$s</a> | <a href=\"%3$s\">ta bort</a>"
 
 #: widgets/instagram/instagram.php:429
 msgid "Having trouble? Try <a href=\"%s\" target=\"_blank\">logging into the correct account</a> on Instagram.com first."
@@ -33,7 +33,7 @@ msgstr "Anslut Instagram-konto"
 
 #: widgets/instagram/instagram.php:417 widgets/instagram/instagram.php:451
 msgid "Instagram is currently experiencing connectivity issues, please try again later to connect."
-msgstr ""
+msgstr "Instagram har för närvarande anslutningsproblem. Prova igen senare för att ansluta."
 
 #: widgets/instagram/instagram.php:393
 msgid "Connecting…"
@@ -41,15 +41,15 @@ msgstr "Ansluter..."
 
 #: widgets/instagram/instagram.php:366
 msgid "<strong>Important: You must first click Save to activate this widget <em>before</em> connecting your account.</strong> After saving the widget, click the button below to connect your Instagram account."
-msgstr ""
+msgstr "<strong>Viktigt: Du måste först klicka på Spara för att aktivera den här widgeten <em>innan</em> du ansluter till ditt konto.</strong> När widgeten har sparats, klicka på knappen nedan för att ansluta till ditt Instagram-konto."
 
 #: widgets/instagram/instagram.php:362
 msgid "Your current connection will stop working on 31 March 2020 due to changes in Instagram's service. <br /><br />Please reconnect to Instagram in order to continue using this widget"
-msgstr ""
+msgstr "Din nuvarande anslutning upphör att gälla den 31 mars 2020 på grund av ändringar i Instagrams tjänst. <br /><br />Anslut till Instagram igen för att fortsätta använda den här widgeten"
 
 #: widgets/instagram/instagram.php:315
 msgid "Missing or invalid security nonce."
-msgstr ""
+msgstr "Säkerhets-nonce saknas eller är ogiltig."
 
 #: widgets/instagram/instagram.php:254
 msgid "In order to use this Instagram widget, you must <a href=\"%s\">configure it</a> first."
@@ -57,7 +57,7 @@ msgstr "För att kunna använda den här Instagram-widgeten måste du först <a 
 
 #: widgets/instagram/instagram.php:247
 msgid "In order to continue using this Instagram widget after %s, you must <a href=\"%s\">re-connect</a>."
-msgstr ""
+msgstr "För att fortsätta använda den här Instagram-widgeten efter %s måste du <a href=\"%s\">ansluta igen</a>."
 
 #: widgets/category-cloud.php:167
 msgid "Click for more information"
@@ -101,7 +101,7 @@ msgstr "Kategorimoln"
 
 #: private-site/private-site.php:124
 msgid "Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings."
-msgstr ""
+msgstr "Jetpack är frånkopplat och webbplatsen är privat. Anslut Jetpack igen för att hantera webbplatsens synlighetsinställningar."
 
 #: private-site/logged-in-banner.php:62
 msgid "Update visibility"

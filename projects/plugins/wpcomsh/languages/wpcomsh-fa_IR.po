@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-03-27 11:39:30+0000\n"
+"PO-Revision-Date: 2020-04-01 04:12:45+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -57,7 +57,7 @@ msgstr ""
 
 #: widgets/instagram/instagram.php:247
 msgid "In order to continue using this Instagram widget after %s, you must <a href=\"%s\">re-connect</a>."
-msgstr ""
+msgstr "در نظر داشته باشید که برای ادامهٔ استفاده از ابزارکِ اینستاگرام پس از تاریخ %s، باید <a href=\"%s\">مجدداً متصل شوید</a>."
 
 #: widgets/category-cloud.php:167
 msgid "Click for more information"
@@ -368,7 +368,7 @@ msgstr "ارتقا به تجاری"
 
 #: footer-credit/footer-credit/customizer.php:54
 msgid "Hide (Business Plan Required)"
-msgstr ""
+msgstr "نهفتن (طرح تجاری نیاز است)"
 
 #: footer-credit/footer-credit/customizer.php:52
 msgid "Hide"

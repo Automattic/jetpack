@@ -13,15 +13,15 @@ msgstr ""
 
 #: wpcomsh.php:943
 msgid "Disk space quota"
-msgstr ""
+msgstr "Speicherplatzkontingent"
 
 #: wpcomsh.php:939
 msgid "Disk space used"
-msgstr ""
+msgstr "Belegter Speicherplatz"
 
 #: widgets/instagram/instagram.php:454
 msgid "<strong>Connected Instagram Account</strong><br /> <a href=\"%1$s\">%2$s</a> | <a href=\"%3$s\">remove</a>"
-msgstr ""
+msgstr "<strong>Verbundenes Instagram-Konto</strong><br /> <a href=\"%1$s\">%2$s</a> | <a href=\"%3$s\">entfernen</a>"
 
 #: widgets/instagram/instagram.php:429
 msgid "Having trouble? Try <a href=\"%s\" target=\"_blank\">logging into the correct account</a> on Instagram.com first."
@@ -101,11 +101,11 @@ msgstr "Kategoriewolke"
 
 #: private-site/private-site.php:124
 msgid "Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings."
-msgstr ""
+msgstr "Jetpack ist getrennt und Website ist privat. Verbinde Jetpack erneut, um die Einstellungen zur Sichtbarkeit der Website zu verwalten."
 
 #: private-site/logged-in-banner.php:62
 msgid "Update visibility"
-msgstr ""
+msgstr "Sichtbarkeit aktualisieren"
 
 #: private-site/logged-in-banner.php:62
 msgid "Launch site"
@@ -121,7 +121,7 @@ msgstr "Deine Website wurde veröffentlicht; du kannst sie jetzt mit der ganzen 
 
 #: private-site/logged-in-banner.php:50
 msgid "Your site is marked as \"Coming Soon\" and hidden from visitors until it's ready."
-msgstr ""
+msgstr "Deine Website ist als „Demnächst verfügbar“ gekennzeichnet und wird Besuchern erst angezeigt, wenn sie fertig ist."
 
 #: private-site/logged-in-banner.php:48
 msgid "Your site hasn't been launched yet. Only you can see it until it is launched."

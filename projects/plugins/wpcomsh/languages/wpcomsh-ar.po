@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-03-27 11:20:45+0000\n"
+"PO-Revision-Date: 2020-04-01 00:54:03+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -13,15 +13,15 @@ msgstr ""
 
 #: wpcomsh.php:943
 msgid "Disk space quota"
-msgstr ""
+msgstr "المساحة المتوافرة على القرص"
 
 #: wpcomsh.php:939
 msgid "Disk space used"
-msgstr ""
+msgstr "المساحة المستخدمة على القرص"
 
 #: widgets/instagram/instagram.php:454
 msgid "<strong>Connected Instagram Account</strong><br /> <a href=\"%1$s\">%2$s</a> | <a href=\"%3$s\">remove</a>"
-msgstr ""
+msgstr "<strong>الحساب المتصل على إنستغرام</strong><br /> <a href=\"%1$s\">%2$s</a> | <a href=\"%3$s\">إزالة</a>"
 
 #: widgets/instagram/instagram.php:429
 msgid "Having trouble? Try <a href=\"%s\" target=\"_blank\">logging into the correct account</a> on Instagram.com first."
@@ -33,7 +33,7 @@ msgstr "تخويل الوصول إلى إنستغرام"
 
 #: widgets/instagram/instagram.php:417 widgets/instagram/instagram.php:451
 msgid "Instagram is currently experiencing connectivity issues, please try again later to connect."
-msgstr ""
+msgstr "يواجه إنستغرام مشكلات في الاتصال حاليًا، يرجى محاولة الاتصال مرة أخرى لاحقًا."
 
 #: widgets/instagram/instagram.php:393
 msgid "Connecting…"
@@ -41,15 +41,15 @@ msgstr "جارِ الاتصال..."
 
 #: widgets/instagram/instagram.php:366
 msgid "<strong>Important: You must first click Save to activate this widget <em>before</em> connecting your account.</strong> After saving the widget, click the button below to connect your Instagram account."
-msgstr ""
+msgstr "<strong>مهم: يجب أن تنقر أولاً على حفظ لتفعيل هذا المربع الجانبي <em>قبل </em>الاتصال بحسابك.</strong> بعد حفظ المربع الجانبي، انقر على الزر أدناه للاتصال بحسابك على إنستغرام."
 
 #: widgets/instagram/instagram.php:362
 msgid "Your current connection will stop working on 31 March 2020 due to changes in Instagram's service. <br /><br />Please reconnect to Instagram in order to continue using this widget"
-msgstr ""
+msgstr "سيتوقف اتصالك الحالي عن العمل بتاريخ 31 مارس 2020 نظرًا إلى حدوث تغييرات في خدمة الإنستغرام. <br /><br />يرجى إعادة الاتصال بالإنستغرام للاستمرار في استخدام هذا المربع الجانبي"
 
 #: widgets/instagram/instagram.php:315
 msgid "Missing or invalid security nonce."
-msgstr ""
+msgstr "الأمان الآن مفقود أو غير صالح."
 
 #: widgets/instagram/instagram.php:254
 msgid "In order to use this Instagram widget, you must <a href=\"%s\">configure it</a> first."
@@ -57,7 +57,7 @@ msgstr "كي تستخدم هذا المربع الجانبي لإنستغرام�
 
 #: widgets/instagram/instagram.php:247
 msgid "In order to continue using this Instagram widget after %s, you must <a href=\"%s\">re-connect</a>."
-msgstr ""
+msgstr "للاستمرار في استخدام هذا المربع الجانبي الخاص بالإنستغرام بعد %s، يجب عليك<a href=\"%s\"> إعادة الاتصال.</a>"
 
 #: widgets/category-cloud.php:167
 msgid "Click for more information"
@@ -101,11 +101,11 @@ msgstr "سحابة التصنيفات"
 
 #: private-site/private-site.php:124
 msgid "Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings."
-msgstr ""
+msgstr "تم فصل Jetpack وأصبح الموقع خاصًا. أعد الاتصال بـ Jetpack لإدارة إعدادات رؤية موقعك."
 
 #: private-site/logged-in-banner.php:62
 msgid "Update visibility"
-msgstr ""
+msgstr "تحديث الرؤية"
 
 #: private-site/logged-in-banner.php:62
 msgid "Launch site"
@@ -121,7 +121,7 @@ msgstr "تم إطلاق موقعك، يمكنك الآن مشاركته مع ا�
 
 #: private-site/logged-in-banner.php:50
 msgid "Your site is marked as \"Coming Soon\" and hidden from visitors until it's ready."
-msgstr ""
+msgstr "تم وسم موقعك بعلامة \"قريبًا\"، وتم إخفاؤه من أمام الزائرين حتى يصبح جاهزًا."
 
 #: private-site/logged-in-banner.php:48
 msgid "Your site hasn't been launched yet. Only you can see it until it is launched."

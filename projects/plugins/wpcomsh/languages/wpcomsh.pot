@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WP.com Site Helper\n"
 "Report-Msgid-Bugs-To: help@wordpress.com\n"
-"POT-Creation-Date: 2020-03-30 17:06+0200\n"
+"POT-Creation-Date: 2020-04-02 16:25+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -39,6 +39,22 @@ msgstr ""
 
 #: customizer-fixes/customizer-fixes.php:13
 msgid "Save Settings"
+msgstr ""
+
+#: footer-credit/footer-credit-optimizations.php:114
+msgid "Proudly powered by WordPress"
+msgstr ""
+
+#: footer-credit/footer-credit-optimizations.php:130
+msgid "Theme"
+msgstr ""
+
+#: footer-credit/footer-credit-optimizations.php:147
+msgid "by"
+msgstr ""
+
+#: footer-credit/footer-credit-optimizations.php:159
+msgid "Design by"
 msgstr ""
 
 #: footer-credit/footer-credit/customizer.php:41
@@ -82,22 +98,6 @@ msgstr ""
 
 #: footer-credit/footer-credit/footer-credit.php:101
 msgid "Powered by WordPress.com"
-msgstr ""
-
-#: footer-credit/footer-credit-optimizations.php:114
-msgid "Proudly powered by WordPress"
-msgstr ""
-
-#: footer-credit/footer-credit-optimizations.php:130
-msgid "Theme"
-msgstr ""
-
-#: footer-credit/footer-credit-optimizations.php:147
-msgid "by"
-msgstr ""
-
-#: footer-credit/footer-credit-optimizations.php:159
-msgid "Design by"
 msgstr ""
 
 #: footer-credit/theme-optimizations.php:32
@@ -173,49 +173,49 @@ msgstr ""
 msgid "Log in"
 msgstr ""
 
-#: private-site/logged-in-banner.php:51
-msgid ""
-"Your site hasn't been launched yet. Only you can see it until it is launched."
-msgstr ""
-
-#: private-site/logged-in-banner.php:53
+#: private-site/logged-in-banner.php:47
 msgid ""
 "Your site is marked as \"Coming Soon\" and hidden from visitors until it's "
 "ready."
 msgstr ""
 
-#: private-site/logged-in-banner.php:55
+#: private-site/logged-in-banner.php:49
+msgid ""
+"Your site hasn't been launched yet. Only you can see it until it is launched."
+msgstr ""
+
+#: private-site/logged-in-banner.php:51
 msgid "Your site has been launched; now you can share it with the world!"
 msgstr ""
 
-#: private-site/logged-in-banner.php:62
+#: private-site/logged-in-banner.php:58
 msgid "Dismiss"
 msgstr ""
 
-#: private-site/logged-in-banner.php:65
+#: private-site/logged-in-banner.php:61
 msgid "Launch site"
 msgstr ""
 
-#: private-site/logged-in-banner.php:65
+#: private-site/logged-in-banner.php:61
 msgid "Update visibility"
 msgstr ""
 
-#: private-site/private-site.php:137
+#: private-site/private-site.php:139
 msgid ""
 "Jetpack is disconnected & site is private. Reconnect Jetpack to manage site "
 "visibility settings."
 msgstr ""
 
-#: private-site/private-site.php:143
+#: private-site/private-site.php:145
 msgid "Manage your site visibility settings"
 msgstr ""
 
-#: private-site/private-site.php:325 private-site/private-site.php:427
-#: private-site/private-site.php:588
+#: private-site/private-site.php:333 private-site/private-site.php:435
+#: private-site/private-site.php:596
 msgid "This site is private."
 msgstr ""
 
-#: private-site/private-site.php:487
+#: private-site/private-site.php:495
 msgid "Private Site"
 msgstr ""
 
@@ -460,6 +460,14 @@ msgid ""
 "\">profile page</a>."
 msgstr ""
 
+#: widgets/i-voted.php:31
+msgid "Show your readers that you voted with an \"I Voted\" sticker."
+msgstr ""
+
+#: widgets/i-voted.php:33
+msgid "I Voted"
+msgstr ""
+
 #: widgets/instagram/instagram.php:31 widgets/instagram/instagram.php:47
 msgid "Instagram"
 msgstr ""
@@ -561,14 +569,6 @@ msgstr ""
 #: widgets/instagram/instagram.php:486
 #, php-format
 msgid "New images may take up to %d minutes to show up on your site."
-msgstr ""
-
-#: widgets/i-voted.php:31
-msgid "Show your readers that you voted with an \"I Voted\" sticker."
-msgstr ""
-
-#: widgets/i-voted.php:33
-msgid "I Voted"
 msgstr ""
 
 #: widgets/music-player.php:15

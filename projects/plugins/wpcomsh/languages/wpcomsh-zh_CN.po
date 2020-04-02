@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-03-27 11:20:45+0000\n"
+"PO-Revision-Date: 2020-04-02 00:54:04+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -13,15 +13,15 @@ msgstr ""
 
 #: wpcomsh.php:943
 msgid "Disk space quota"
-msgstr ""
+msgstr "磁盘空间配额"
 
 #: wpcomsh.php:939
 msgid "Disk space used"
-msgstr ""
+msgstr "已用磁盘空间"
 
 #: widgets/instagram/instagram.php:454
 msgid "<strong>Connected Instagram Account</strong><br /> <a href=\"%1$s\">%2$s</a> | <a href=\"%3$s\">remove</a>"
-msgstr ""
+msgstr "<strong>已连接的 Instagram 帐户</strong><br /> <a href=\"%1$s\">%2$s</a> | <a href=\"%3$s\">移除</a>"
 
 #: widgets/instagram/instagram.php:429
 msgid "Having trouble? Try <a href=\"%s\" target=\"_blank\">logging into the correct account</a> on Instagram.com first."
@@ -33,7 +33,7 @@ msgstr "授予 Instagram 访问权限"
 
 #: widgets/instagram/instagram.php:417 widgets/instagram/instagram.php:451
 msgid "Instagram is currently experiencing connectivity issues, please try again later to connect."
-msgstr ""
+msgstr "Instagram 目前遇到连接问题，请稍后再尝试连接。"
 
 #: widgets/instagram/instagram.php:393
 msgid "Connecting…"
@@ -41,15 +41,15 @@ msgstr "正在连接…"
 
 #: widgets/instagram/instagram.php:366
 msgid "<strong>Important: You must first click Save to activate this widget <em>before</em> connecting your account.</strong> After saving the widget, click the button below to connect your Instagram account."
-msgstr ""
+msgstr "<strong>重要提示：在连接您的帐户<em>之前</em>，您必须先点击“保存”以激活此小工具。</strong>保存该小工具之后，点击下方按钮以连接您的 Instagram 帐户。"
 
 #: widgets/instagram/instagram.php:362
 msgid "Your current connection will stop working on 31 March 2020 due to changes in Instagram's service. <br /><br />Please reconnect to Instagram in order to continue using this widget"
-msgstr ""
+msgstr "因 Instagram 服务有变更，您目前的连接将于 2020 年 3 月 31 日停止运行。<br /><br />请重新连接到 Instagram，以继续使用此小工具"
 
 #: widgets/instagram/instagram.php:315
 msgid "Missing or invalid security nonce."
-msgstr ""
+msgstr "安全 Nonce 缺失或无效"
 
 #: widgets/instagram/instagram.php:254
 msgid "In order to use this Instagram widget, you must <a href=\"%s\">configure it</a> first."
@@ -57,7 +57,7 @@ msgstr "为了使用此 Instagram 小工具，您必须先对其进行<a href=\"
 
 #: widgets/instagram/instagram.php:247
 msgid "In order to continue using this Instagram widget after %s, you must <a href=\"%s\">re-connect</a>."
-msgstr ""
+msgstr "为在 %s之后继续使用 Instagram 小工具，您必须<a href=\"%s\">重新连接</a>。"
 
 #: widgets/category-cloud.php:167
 msgid "Click for more information"
@@ -101,11 +101,11 @@ msgstr "分类"
 
 #: private-site/private-site.php:124
 msgid "Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings."
-msgstr ""
+msgstr "已断开与 Jetpack 的连接，且站点为私人站点。重新连接 Jetpack 以管理站点可见性设置。"
 
 #: private-site/logged-in-banner.php:62
 msgid "Update visibility"
-msgstr ""
+msgstr "更新可见性"
 
 #: private-site/logged-in-banner.php:62
 msgid "Launch site"
@@ -121,7 +121,7 @@ msgstr "您的站点已启动，您现在可以与全世界分享了！"
 
 #: private-site/logged-in-banner.php:50
 msgid "Your site is marked as \"Coming Soon\" and hidden from visitors until it's ready."
-msgstr ""
+msgstr "您的站点已标记为“即将推出”，并且会在准备就绪之前对访客隐藏。"
 
 #: private-site/logged-in-banner.php:48
 msgid "Your site hasn't been launched yet. Only you can see it until it is launched."

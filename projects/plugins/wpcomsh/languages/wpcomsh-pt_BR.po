@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-03-27 11:20:45+0000\n"
+"PO-Revision-Date: 2020-03-31 00:54:04+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -13,15 +13,15 @@ msgstr ""
 
 #: wpcomsh.php:943
 msgid "Disk space quota"
-msgstr ""
+msgstr "Cota de espaço de disco"
 
 #: wpcomsh.php:939
 msgid "Disk space used"
-msgstr ""
+msgstr "Espaço de disco usado"
 
 #: widgets/instagram/instagram.php:454
 msgid "<strong>Connected Instagram Account</strong><br /> <a href=\"%1$s\">%2$s</a> | <a href=\"%3$s\">remove</a>"
-msgstr ""
+msgstr "<strong>Conta do Instagram conectada</strong><br /> <a href=\"%1$s\">%2$s</a> | <a href=\"%3$s\">remover</a>"
 
 #: widgets/instagram/instagram.php:429
 msgid "Having trouble? Try <a href=\"%s\" target=\"_blank\">logging into the correct account</a> on Instagram.com first."
@@ -41,7 +41,7 @@ msgstr "Conectando..."
 
 #: widgets/instagram/instagram.php:366
 msgid "<strong>Important: You must first click Save to activate this widget <em>before</em> connecting your account.</strong> After saving the widget, click the button below to connect your Instagram account."
-msgstr ""
+msgstr "<strong>Importante: Clique em “Salvar” para ativar este widget <em>antes</em> de conectar-se à conta.</strong> Após salvar o widget, clique no botão abaixo para conectar-se a sua conta do Instagram."
 
 #: widgets/instagram/instagram.php:362
 msgid "Your current connection will stop working on 31 March 2020 due to changes in Instagram's service. <br /><br />Please reconnect to Instagram in order to continue using this widget"
@@ -101,11 +101,11 @@ msgstr "Categorias"
 
 #: private-site/private-site.php:124
 msgid "Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings."
-msgstr ""
+msgstr "O Jetpack está desconectado e o site é privado. Reconecte o Jetpack para gerenciar as configurações de visibilidade do site."
 
 #: private-site/logged-in-banner.php:62
 msgid "Update visibility"
-msgstr ""
+msgstr "Atualizar visibilidade"
 
 #: private-site/logged-in-banner.php:62
 msgid "Launch site"
@@ -121,7 +121,7 @@ msgstr "Seu site foi lançado; agora, você já pode compartilhá-lo com o mundo
 
 #: private-site/logged-in-banner.php:50
 msgid "Your site is marked as \"Coming Soon\" and hidden from visitors until it's ready."
-msgstr ""
+msgstr "Seu site está marcado como “Em breve”, ou seja, os visitantes só poderão vê-lo quando estiver pronto."
 
 #: private-site/logged-in-banner.php:48
 msgid "Your site hasn't been launched yet. Only you can see it until it is launched."

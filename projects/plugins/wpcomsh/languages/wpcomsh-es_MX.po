@@ -13,15 +13,15 @@ msgstr ""
 
 #: wpcomsh.php:943
 msgid "Disk space quota"
-msgstr ""
+msgstr "Cuota de espacio del disco"
 
 #: wpcomsh.php:939
 msgid "Disk space used"
-msgstr ""
+msgstr "Espacio del disco utilizado"
 
 #: widgets/instagram/instagram.php:454
 msgid "<strong>Connected Instagram Account</strong><br /> <a href=\"%1$s\">%2$s</a> | <a href=\"%3$s\">remove</a>"
-msgstr ""
+msgstr "<strong>Cuenta de Instagram conectada</strong><br /> <a href=\"%1$s\">%2$s</a> | <a href=\"%3$s\">eliminar</a>"
 
 #: widgets/instagram/instagram.php:429
 msgid "Having trouble? Try <a href=\"%s\" target=\"_blank\">logging into the correct account</a> on Instagram.com first."
@@ -33,7 +33,7 @@ msgstr "Autorizar acceso a Instagram"
 
 #: widgets/instagram/instagram.php:417 widgets/instagram/instagram.php:451
 msgid "Instagram is currently experiencing connectivity issues, please try again later to connect."
-msgstr ""
+msgstr "Instagram está teniendo problemas de conectividad ahora mismo, intenta conectarte de nuevo más tarde."
 
 #: widgets/instagram/instagram.php:393
 msgid "Connecting…"
@@ -49,7 +49,7 @@ msgstr "Tu actual conexión dejará de funcionar el 31 de marzo de 2020 debido a
 
 #: widgets/instagram/instagram.php:315
 msgid "Missing or invalid security nonce."
-msgstr ""
+msgstr "Falta el nonce de seguridad o no es válido."
 
 #: widgets/instagram/instagram.php:254
 msgid "In order to use this Instagram widget, you must <a href=\"%s\">configure it</a> first."
@@ -101,11 +101,11 @@ msgstr "Nube de categorías"
 
 #: private-site/private-site.php:124
 msgid "Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings."
-msgstr ""
+msgstr "Jetpack está desconectado y el sitio es privado. Vuelve a conectar Jetpack para gestionar la configuración de visibilidad del sitio."
 
 #: private-site/logged-in-banner.php:62
 msgid "Update visibility"
-msgstr ""
+msgstr "Actualiza la visibilidad"
 
 #: private-site/logged-in-banner.php:62
 msgid "Launch site"
@@ -121,7 +121,7 @@ msgstr "Se ha publicado tu sitio. Ya puedes compartirlo con todo el mundo."
 
 #: private-site/logged-in-banner.php:50
 msgid "Your site is marked as \"Coming Soon\" and hidden from visitors until it's ready."
-msgstr ""
+msgstr "Tu sitio está marcado como \"Próximamente\" y permanece oculto a los visitantes hasta que esté listo."
 
 #: private-site/logged-in-banner.php:48
 msgid "Your site hasn't been launched yet. Only you can see it until it is launched."
