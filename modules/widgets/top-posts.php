@@ -299,7 +299,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		}
 
 		if ( ! $posts ) {
-			$link = 'https://jetpack.com/support/getting-more-views-and-traffic/';
+			$link = esc_url( \Jetpack::build_redirect_url( 'jetpack-support-getting-more-views-and-traffic' ) );
 			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 				$link = 'https://en.support.wordpress.com/getting-more-site-traffic/';
 			}

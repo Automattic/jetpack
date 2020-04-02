@@ -73,7 +73,7 @@ add_action( 'wp_head', 'jetpack_verification_print_meta', 1 );
 function jetpack_verification_tool_box() {
 	?>
 		<div class="jp-verification-tools card">
-			<h3 class="title"><?php _e( 'Website Verification Services', 'jetpack' ); ?>&nbsp;<a href="https://jetpack.com/support/site-verification-tools/" rel="noopener noreferrer" target="_blank">(?)</a></h3>
+			<h3 class="title"><?php esc_html_e( 'Website Verification Services', 'jetpack' ); ?>&nbsp;<a href="<?php echo esc_url( \Jetpack::build_redirect_url( 'jetpack-support-site-verification-tools' ) ); ?>" rel="noopener noreferrer" target="_blank">(?)</a></h3>
 			<p>
 				<?php printf( __( 'You can verify your site using the <a href="%s">"Site verification" tool in Jetpack Settings</a>.', 'jetpack' ), esc_url( admin_url( 'admin.php?page=jetpack#/traffic' ) ) ); ?>
 			</p>

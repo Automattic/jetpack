@@ -278,7 +278,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 								),
 							)
 						),
-						'https://jetpack.com/support/extra-sidebar-widgets/contact-info-widget/'
+						esc_url( \Jetpack::build_redirect_url( 'jetpack-support-extra-sidebar-widgets-contact-info-widget' ) )
 					);
 					?>
 					</small>

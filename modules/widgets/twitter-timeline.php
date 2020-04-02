@@ -294,9 +294,9 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 	 */
 	public function get_docs_link( $hash = '' ) {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$base_url = 'https://support.wordpress.com/widgets/twitter-timeline-widget/';
+			$base_url = esc_url( \Jetpack::build_redirect_url( 'wpcom-support-widgets-twitter-timeline-widget' ) );
 		} else {
-			$base_url = 'https://jetpack.com/support/extra-sidebar-widgets/twitter-timeline-widget/';
+			$base_url = esc_url( \Jetpack::build_redirect_url( 'jetpack-support-extra-sidebar-widgets-twitter-timeline-widget' ) );
 		}
 		return '<a href="' . $base_url . $hash . '" target="_blank">( ? )</a>';
 	}

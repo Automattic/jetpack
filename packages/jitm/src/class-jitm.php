@@ -303,7 +303,7 @@ class JITM {
 					),
 				)
 			),
-			'https://jetpack.com/support/primary-user/'
+			esc_url( \Jetpack::build_redirect_url( 'jetpack-support-primary-user' ) )
 		);
 		echo '</p>';
 		echo '<p>';
@@ -319,7 +319,7 @@ class JITM {
 					),
 				)
 			),
-			'https://jetpack.com/contact-support'
+			esc_url( \Jetpack::build_redirect_url( 'jetpack-contact-support' ) )
 		);
 		echo '</p>';
 		echo '</div>';
