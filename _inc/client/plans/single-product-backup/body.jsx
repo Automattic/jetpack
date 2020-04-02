@@ -5,6 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { translate as __ } from 'i18n-calypso';
+import { withRouter } from 'react-router';
 
 /**
  * Internal dependencies
@@ -36,6 +37,7 @@ class SingleProductBackupBody extends React.Component {
 			target: `upgrade-${ selectedBackupType }`,
 			type: 'upgrade',
 			product: selectedBackupType,
+			// NOTE: This depends on React-Router's withRouter HOC
 			page: this.props.routes[ 0 ] && this.props.routes[ 0 ].name,
 		} );
 	};
@@ -128,4 +130,4 @@ export default connect( state => {
 	return {
 		backupInfoUrl: getUpgradeUrl( state, 'aag-backups' ), // Redirect to https://jetpack.com/upgrade/backup/
 	};
-} )( SingleProductBackupBody );
+} )( withRouter( SingleProductBackupBody ) );
