@@ -20,10 +20,12 @@ import {
 	isFetchingSiteData,
 } from 'state/site';
 import { isFetchingSiteProducts, getSiteProducts } from 'state/site-products';
+import { getPlanDuration } from 'state/plans/reducer';
 import PurchasedProductCard from './single-product-components/purchased-product-card';
 import SingleProductBackup from './single-product-backup';
 import SingleProductSearch from './single-product-search';
 import './single-products.scss';
+import DurationSwitcher from './duration-switcher';
 
 class ProductSelector extends Component {
 	state = {
@@ -59,7 +61,6 @@ class ProductSelector extends Component {
 	};
 
 	renderTitleSection() {
-		const { isFetchingData } = this.props;
 		return (
 			<Fragment>
 				<h1 className="plans-section__header">{ __( 'Solutions' ) }</h1>
@@ -114,14 +115,15 @@ class ProductSelector extends Component {
 
 	render() {
 		return (
-			<Fragment>
+			<div className="product-selector">
 				<QuerySiteProducts />
 				{ this.renderTitleSection() }
+				<DurationSwitcher type="solutions" />
 				<div className="plans-section__single-product plans-section__single-product--with-search">
 					{ this.renderBackupProduct() }
 					{ this.renderSearchProduct() }
 				</div>
-			</Fragment>
+			</div>
 		);
 	}
 }
@@ -133,6 +135,7 @@ export default connect( state => {
 			isFetchingSiteData( state ) ||
 			! getAvailablePlans( state ) ||
 			isFetchingSiteProducts( state ),
+		planDuration: getPlanDuration( state ),
 		multisite: isMultisite( state ),
 		searchPurchase: getActiveSearchPurchase( state ),
 		sitePlan: getSitePlan( state ),

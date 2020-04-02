@@ -18,7 +18,7 @@ const MyPlanCard = ( { action, isError, isPlaceholder, details, icon, tagLine, t
 	const detailsClassNames = classNames( 'my-plan-card__details', { 'is-error': isError } );
 
 	return (
-		<div className={ cardClassNames } compact>
+		<div className={ cardClassNames }>
 			<div className="my-plan-card__primary">
 				<div className="my-plan-card__icon">{ icon && <img src={ icon } alt={ title } /> }</div>
 				<div className="my-plan-card__header">
@@ -40,7 +40,7 @@ MyPlanCard.propTypes = {
 	action: PropTypes.oneOfType( [ PropTypes.node, PropTypes.element ] ),
 	isError: PropTypes.bool,
 	isPlaceholder: PropTypes.bool,
-	details: PropTypes.string,
+	details: PropTypes.oneOfType( [ PropTypes.string, PropTypes.node, PropTypes.element ] ),
 	icon: PropTypes.string,
 	tagLine: PropTypes.oneOfType( [ PropTypes.string, PropTypes.node, PropTypes.element ] ),
 	title: PropTypes.oneOfType( [ PropTypes.string, PropTypes.node, PropTypes.element ] ),

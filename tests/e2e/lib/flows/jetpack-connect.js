@@ -29,6 +29,7 @@ const cardCredentials = config.get( 'testCardCredentials' );
 
 /**
  * Connects your site to WPCOM as `wpcomUser`, buys a Professional plan via sandbox cookie
+ *
  * @param {Object} o Optional object with params such as `wpcomUser` and expected Jetpack plan
  */
 export async function connectThroughWPAdminIfNeeded( {

@@ -40,11 +40,17 @@ class SingleProductBackupBody extends React.Component {
 		} );
 	};
 
-	handleLandingPageLinkClick = selectedBackupType => () => {
+	handleLandingPageLinkClick = () => {
+		const { selectedBackupType, billingTimeFrame } = this.props;
+		let type = selectedBackupType;
+		if ( 'monthly' === billingTimeFrame ) {
+			type += '-monthly';
+		}
+
 		analytics.tracks.recordJetpackClick( {
 			target: 'landing-page-link',
 			feature: 'single-product-backup',
-			extra: selectedBackupType,
+			extra: type,
 		} );
 	};
 
@@ -74,6 +80,18 @@ class SingleProductBackupBody extends React.Component {
 					</ExternalLink>
 				</p>
 				<PromoNudge />
+				<div className="single-product__landing-page">
+					<ExternalLink
+						className="single-product__landing-page"
+						target="_blank"
+						href={ backupInfoUrl }
+						icon
+						iconSize={ 12 }
+						onClick={ this.handleLandingPageLinkClick }
+					>
+						{ __( 'Which backup option is best for me?' ) }
+					</ExternalLink>
+				</div>
 				<h4 className="single-product-backup__options-header">
 					{ __( 'Select a backup option:' ) }
 				</h4>
@@ -99,8 +117,6 @@ class SingleProductBackupBody extends React.Component {
 				/>
 				<UpgradeButton
 					selectedUpgrade={ selectedBackup }
-					billingTimeFrame={ billingTimeFrame }
-					currencyCode={ currencyCode }
 					onClickHandler={ this.handleUpgradeButtonClick }
 				/>
 			</React.Fragment>
