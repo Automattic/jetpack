@@ -72,7 +72,7 @@ export function SingleProductSearchCard( props ) {
 					{ __(
 						'Your current site record size: %s record',
 						'Your current site record size: %s records',
-						{ args: recordCount, count: recordCount }
+						{ args: numberFormat( recordCount ), count: recordCount }
 					) }
 				</h4>
 				<div className="single-product-search__radio-buttons-container">
