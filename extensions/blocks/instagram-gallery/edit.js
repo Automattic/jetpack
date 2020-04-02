@@ -33,7 +33,7 @@ import { getGalleryCssAttributes } from './utils';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import './editor.scss';
 
-export function InstagramGalleryEdit( props ) {
+const InstagramGalleryEdit = props => {
 	const { attributes, className, noticeOperations, noticeUI, setAttributes } = props;
 	const { accessToken, align, columns, count, images, instagramUser, spacing } = attributes;
 
@@ -45,7 +45,7 @@ export function InstagramGalleryEdit( props ) {
 		if ( ! isEqual( validatedAttributes, attributes ) ) {
 			setAttributes( validatedAttributes );
 		}
-	}, [ attributes ] );
+	}, [ attributes, setAttributes ] );
 
 	useEffect( () => {
 		if ( ! accessToken ) {
@@ -72,7 +72,7 @@ export function InstagramGalleryEdit( props ) {
 
 			setAttributes( { images: response.images, instagramUser: response.external_name } );
 		} );
-	}, [ accessToken, count ] );
+	}, [ accessToken, count, noticeOperations, setAttributes ] );
 
 	const connectToInstagram = () => {
 		setIsConnecting( true );
@@ -169,12 +169,12 @@ export function InstagramGalleryEdit( props ) {
 					) ) }
 					{ isLoadingGallery && count > images.length && (
 						<Animate type="loading">
-							{ ( { className } ) =>
+							{ ( { className: animateClasses } ) =>
 								times( count - images.length, index => (
 									<span
 										className={ classnames(
 											'wp-block-jetpack-instagram-gallery__grid-post',
-											className
+											animateClasses
 										) }
 										key={ `instagram-gallery-placeholder-${ index }` }
 										style={ photoStyle }
@@ -240,6 +240,6 @@ export function InstagramGalleryEdit( props ) {
 			) }
 		</div>
 	);
-}
+};
 
 export default withNotices( InstagramGalleryEdit );
