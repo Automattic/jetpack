@@ -35,7 +35,7 @@
 }
 
 .plans-section__subheader {
-	margin: 8px auto 32px;
+	margin: 8px auto 18px;
 	color: $gray-text-min;
 	text-align: center;
 	font-weight: normal;
@@ -152,9 +152,11 @@
 	}
 }
 
-.single-product-search__radio-buttons-container {
-	.plan-price {
-		margin-right: 0.25em;
+.plan-price {
+	margin-right: 0.25em;
+
+	&.is-inline {
+		margin-right: 0;
 	}
 }
 
@@ -166,4 +168,8 @@
 	height: 100%;
 	width: 0;
 	order: 2;
+}
+
+.single-product-backup__price-group-billing-timeframe {
+	font-size: 12px;
 }
