@@ -14,11 +14,11 @@ namespace Automattic\Jetpack\Extensions\Podcast_Player;
  * @var string $link
  */
 
-if ( ! isset( $title ) ) {
+if ( empty( $title ) ) {
 	return;
 }
 
-if ( isset( $link ) ) :
+if ( ! empty( $link ) ) :
 	?>
 	<a
 		class="jetpack-podcast-player__podcast-title"
