@@ -4,6 +4,7 @@
 import React from 'react';
 import { expect } from 'chai';
 import { shallow } from 'enzyme';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -20,7 +21,7 @@ describe( 'DashItem', () => {
 		disabled: true,
 		pro: true,
 		isDevMode: false,
-		href: 'https://jetpack.com/',
+		href: getRedirectUrl( 'jetpack' ),
 		userCanToggle: true,
 		siteAdminUrl: 'https://example.org/wp-admin/',
 		siteRawUrl: 'example.org',
@@ -40,7 +41,7 @@ describe( 'DashItem', () => {
 	} );
 
 	it( 'the href property for the card body is correctly set', () => {
-		expect( wrapper.find( '.jp-dash-item__card' ).props().href ).to.be.equal( 'https://jetpack.com/' );
+		expect( wrapper.find( '.jp-dash-item__card' ).props().href ).to.be.equal( getRedirectUrl( 'jetpack' ) );
 	} );
 
 	it( 'the top component has classes properly set when is disabled', () => {
@@ -179,7 +180,7 @@ describe( 'DashItem', () => {
 		} );
 
 		it( 'when it is activated, the warning badge is linked to Plugins screen in WordPress.com', () => {
-			expect( wrapper.find( 'SectionHeader' ).find( 'a' ).props().href ).to.be.equal( 'https://wordpress.com/plugins/manage/' + manageProps.siteRawUrl );
+			expect( wrapper.find( 'SectionHeader' ).find( 'a' ).props().href ).to.be.equal( getRedirectUrl( 'calypso-plugins-manage', { site: manageProps.siteRawUrl } ) );
 		} );
 
 		it( "when status is 'is-working', the warning badge has an 'active' label", () => {
