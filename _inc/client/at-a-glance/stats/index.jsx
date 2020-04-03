@@ -221,7 +221,7 @@ export class DashStats extends Component {
 										a: <a href="javascript:void(0)" onClick={ this.activateStats } />,
 										a1: (
 											<a
-												href="https://jetpack.com/support/wordpress-com-stats/"
+												href={ getRedirectUrl( 'jetpack-support-wordpress-com-stats' ) }
 												target="_blank"
 												rel="noopener noreferrer"
 											/>
