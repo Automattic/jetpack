@@ -18,6 +18,7 @@ import DashItem from 'components/dash-item';
 import QueryPluginUpdates from 'components/data/query-plugin-updates';
 import { getPluginUpdates } from 'state/at-a-glance';
 import { isDevMode } from 'state/connection';
+import getRedirectUrl from 'lib/jp-redirect';
 
 class DashPluginUpdates extends Component {
 	static propTypes = {
@@ -56,7 +57,9 @@ class DashPluginUpdates extends Component {
 		}
 
 		const updatesAvailable = 'updates-available' === pluginUpdates.code;
-		const managePluginsUrl = `https://wordpress.com/plugins/manage/${ this.props.siteRawUrl }`;
+		const managePluginsUrl = getRedirectUrl( 'calypso-plugins-manage', {
+			site: this.props.siteRawUrl,
+		} );
 		const workingOrInactive = this.props.getOptionValue( 'manage' ) ? 'is-working' : 'is-inactive';
 
 		return [
