@@ -44,7 +44,7 @@ class DashPluginUpdates extends Component {
 			text: __(
 				'Jetpack’s Plugin Updates allows you to choose which plugins update automatically.'
 			),
-			link: 'https://jetpack.com/support/site-management/',
+			link: getRedirectUrl( 'jetpack-support-site-management' ),
 		};
 
 		if ( 'N/A' === pluginUpdates ) {
