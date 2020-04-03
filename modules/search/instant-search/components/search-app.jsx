@@ -45,7 +45,7 @@ class SearchApp extends Component {
 			overlayOptions: { ...this.props.initialOverlayOptions },
 			requestId: 0,
 			response: {},
-			showResults: false,
+			showResults: this.props.initialShowResults,
 		};
 		this.getResults = debounce( this.getResults, 200 );
 	}
@@ -152,8 +152,11 @@ class SearchApp extends Component {
 		this.showResults();
 	};
 
-	handleOverlayOptionsUpdate = ( { key, value } ) => {
-		this.setState( { overlayOptions: { ...this.state.overlayOptions, [ key ]: value } } );
+	handleOverlayOptionsUpdate = newOverlayOptions => {
+		this.setState(
+			{ overlayOptions: { ...this.state.overlayOptions, ...newOverlayOptions } },
+			this.showResults
+		);
 	};
 
 	showResults = () => {
