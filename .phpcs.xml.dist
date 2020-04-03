@@ -18,6 +18,9 @@
 		<properties>
 			<property name="allowWordPressPassByRefFunctions" value="true" />
 		</properties>
+
+		<!-- Template files use extracted variables. -->
+		<exclude-pattern>/extensions/blocks/podcast-player/templates/*</exclude-pattern>
 	</rule>
 
 	<rule ref="WordPress.WP.I18n">

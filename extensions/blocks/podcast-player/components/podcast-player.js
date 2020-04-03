@@ -7,6 +7,8 @@ import classnames from 'classnames';
  * WordPress dependencies
  */
 import { Component } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
+import { speak } from '@wordpress/a11y';
 
 /**
  * Internal dependencies
@@ -67,8 +69,17 @@ export class PodcastPlayer extends Component {
 		if ( ! trackData ) {
 			return;
 		}
+
 		this.setState( { currentTrack: track } );
 		this.setAudioSource( trackData.src );
+
+		// Read that we're loading the track and its description. This is dismissible via ctrl on VoiceOver.
+		/* translators: %s is the track title. It describes the current state of the track as "Loading: [track title]" */
+		speak(
+			`${ sprintf( __( 'Loading: %s', 'jetpack' ), trackData.title ) } ${ trackData.description }`,
+			'assertive'
+		);
+
 		this.play();
 	};
 
@@ -88,6 +99,8 @@ export class PodcastPlayer extends Component {
 	 */
 	handleError = () => {
 		this.setState( { playerState: STATE_ERROR } );
+
+		speak( `${ __( 'Error: Episode unavailable - Open in a new tab', 'jetpack' ) }`, 'assertive' );
 	};
 
 	/**
@@ -156,21 +169,49 @@ export class PodcastPlayer extends Component {
 		const track = this.getTrack( currentTrack );
 
 		// Set CSS classes string.
+		const primaryColorClass = getColorClassName( 'color', primaryColor );
 		const secondaryColorClass = getColorClassName( 'color', secondaryColor );
 		const backgroundColorClass = getColorClassName( 'background-color', backgroundColor );
 
-		const cssClassesName = classnames( playerState, {
-			'has-secondary': secondaryColor || customSecondaryColor,
-			[ secondaryColorClass ]: secondaryColorClass,
-			'has-background': backgroundColor || customBackgroundColor,
-			[ backgroundColorClass ]: backgroundColorClass,
-		} );
+		const colors = {
+			primary: {
+				name: primaryColor,
+				custom: customPrimaryColor,
+				classes: classnames( {
+					'has-primary': primaryColorClass || customPrimaryColor,
+					[ primaryColorClass ]: primaryColorClass,
+				} ),
+			},
+			secondary: {
+				name: secondaryColor,
+				custom: customSecondaryColor,
+				classes: classnames( {
+					'has-secondary': secondaryColorClass || customSecondaryColor,
+					[ secondaryColorClass ]: secondaryColorClass,
+				} ),
+			},
+			background: {
+				name: backgroundColor,
+				custom: customBackgroundColor,
+				classes: classnames( {
+					'has-background': backgroundColorClass || customBackgroundColor,
+					[ backgroundColorClass ]: backgroundColorClass,
+				} ),
+			},
+		};
 
 		const inlineStyle = {
 			color: customSecondaryColor && ! secondaryColorClass ? customSecondaryColor : null,
 			backgroundColor:
 				customBackgroundColor && ! backgroundColorClass ? customBackgroundColor : null,
 		};
+
+		const cssClassesName = classnames(
+			'jetpack-podcast-player',
+			playerState,
+			colors.secondary.classes,
+			colors.background.classes
+		);
 
 		return (
 			<section
@@ -191,6 +232,7 @@ export class PodcastPlayer extends Component {
 					track={ this.getTrack( currentTrack ) }
 					showCoverArt={ showCoverArt }
 					showEpisodeDescription={ showEpisodeDescription }
+					colors={ colors }
 				>
 					<AudioPlayer
 						initialTrackSource={ this.getTrack( 0 ).src }
@@ -200,21 +242,27 @@ export class PodcastPlayer extends Component {
 						ref={ this.playerRef }
 					/>
 				</Header>
+
+				<h4
+					id={ `jetpack-podcast-player__tracklist-title--${ playerId }` }
+					className="jetpack-podcast-player--visually-hidden"
+				>
+					{ /* translators: %s is the track title. This describes what the playlist goes with, like "Playlist: [name of the podcast]" */ }
+					{ sprintf( __( 'Playlist: %s', 'jetpack' ), title ) }
+				</h4>
+				<p
+					id={ `jetpack-podcast-player__tracklist-description--${ playerId }` }
+					className="jetpack-podcast-player--visually-hidden"
+				>
+					{ __( 'Select an episode to play it in the audio player.', 'jetpack' ) }
+				</p>
 				<Playlist
+					playerId={ playerId }
 					playerState={ playerState }
 					currentTrack={ currentTrack }
 					tracks={ tracksToDisplay }
 					selectTrack={ this.selectTrack }
-					colors={ {
-						primary: {
-							name: primaryColor,
-							custom: customPrimaryColor,
-						},
-						secondary: {
-							name: secondaryColor,
-							custom: customSecondaryColor,
-						},
-					} }
+					colors={ colors }
 				/>
 			</section>
 		);
