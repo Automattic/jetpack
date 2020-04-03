@@ -5,6 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import { includes, map, reduce } from 'lodash';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -97,8 +98,8 @@ class PlanGrid extends React.Component {
 		const currently = __( 'You’re currently on Jetpack %(plan)s.', {
 			args: { plan: this.props.sitePlan.product_name_short },
 		} );
-		const myPlanUrl = `https://wordpress.com/plans/my-plan/${ this.props.siteRawUrl }`;
-		const plansUrl = `https://wordpress.com/plans/${ this.props.siteRawUrl }`;
+		const myPlanUrl = getRedirectUrl( 'wpcom-plans-my-plan', { site: this.props.siteRawUrl } );
+		const plansUrl = getRedirectUrl( 'wpcom-plans', { site: this.props.siteRawUrl } );
 
 		return (
 			<div className="plans-mobile-notice dops-card">

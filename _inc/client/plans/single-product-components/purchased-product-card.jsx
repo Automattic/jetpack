@@ -3,6 +3,7 @@
  */
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -36,7 +37,7 @@ export default function PurchasedProductCard( { purchase, siteRawlUrl } ) {
 
 	const planLink = (
 		<a
-			href={ `https://wordpress.com/plans/my-plan/${ siteRawlUrl }` }
+			href={ getRedirectUrl( 'wpcom-plans-my-plan', { site: siteRawlUrl } ) }
 			target="_blank"
 			rel="noopener noreferrer"
 		/>

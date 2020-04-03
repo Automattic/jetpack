@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { translate as __, numberFormat } from 'i18n-calypso';
 import { get } from 'lodash';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -67,7 +68,7 @@ export function SingleProductSearchCard( props ) {
 			<div className="single-product__accented-card-body">
 				<p>
 					{ SEARCH_DESCRIPTION }{ ' ' }
-					<a href="https://jetpack.com/search" target="_blank" rel="noopener noreferrer">
+					<a href={ getRedirectUrl( 'jetpack-search' ) } target="_blank" rel="noopener noreferrer">
 						{ __( 'Learn More' ) }
 					</a>
 				</p>
