@@ -11,6 +11,7 @@ module.exports = [
 	'functions.global.php',
 	'functions.opengraph.php',
 	'_inc/lib/admin-pages/class-jetpack-about-page.php',
+	'_inc/lib/class-jetpack-instagram-gallery-helper.php',
 	'_inc/lib/class-jetpack-mapbox-helper.php',
 	'_inc/lib/class-jetpack-podcast-helper.php',
 	'_inc/lib/class.jetpack-password-checker.php',

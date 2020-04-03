@@ -21,6 +21,10 @@ class WPCOM_REST_API_V2_Endpoint_Instagram extends WP_REST_Controller {
 		$this->namespace = 'wpcom/v2';
 		$this->rest_base = 'instagram';
 
+		if ( ! class_exists( 'Jetpack_Instagram_Gallery_Helper' ) ) {
+			\jetpack_require_lib( 'class-jetpack-instagram-gallery-helper' );
+		}
+
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 	}
 
@@ -84,7 +88,7 @@ class WPCOM_REST_API_V2_Endpoint_Instagram extends WP_REST_Controller {
 	 * @return mixed
 	 */
 	public function get_instagram_connect_url() {
-		$site_id = $this->get_site_id();
+		$site_id = Jetpack_Instagram_Gallery_Helper::get_site_id();
 		if ( is_wp_error( $site_id ) ) {
 			return $site_id;
 		}
@@ -103,11 +107,11 @@ class WPCOM_REST_API_V2_Endpoint_Instagram extends WP_REST_Controller {
 	/**
 	 * Delete a stored Instagram access token.
 
-	 * @param  Object $request - request passed from WP.
+	 * @param  WP_REST_Request $request The request.
 	 * @return mixed
 	 */
 	public function delete_instagram_access_token( $request ) {
-		$site_id = $this->get_site_id();
+		$site_id = Jetpack_Instagram_Gallery_Helper::get_site_id();
 		if ( is_wp_error( $site_id ) ) {
 			return $site_id;
 		}
@@ -134,47 +138,11 @@ class WPCOM_REST_API_V2_Endpoint_Instagram extends WP_REST_Controller {
 	/**
 	 * Get the Instagram Gallery.
 	 *
-	 * @param  Object $request - request passed from WP.
+	 * @param  WP_REST_Request $request The request.
 	 * @return mixed
 	 */
 	public function get_instagram_gallery( $request ) {
-		$site_id = $this->get_site_id();
-		if ( is_wp_error( $site_id ) ) {
-			return $site_id;
-		}
-
-		$path     = sprintf( '/sites/%d/instagram/%s?count=%d', $site_id, $request['access_token'], (int) $request['count'] );
-		$response = Client::wpcom_json_api_request_as_blog(
-			$path,
-			2,
-			array( 'headers' => array( 'content-type' => 'application/json' ) ),
-			null,
-			'wpcom'
-		);
-		if ( is_wp_error( $response ) ) {
-			return $response;
-		}
-		$body = json_decode( wp_remote_retrieve_body( $response ) );
-
-		return $body;
-	}
-
-	/**
-	 * Get the WPCOM or self-hosted site ID.
-	 *
-	 * @return mixed
-	 */
-	private function get_site_id() {
-		$is_wpcom = ( defined( 'IS_WPCOM' ) && IS_WPCOM );
-		$site_id  = $is_wpcom ? get_current_blog_id() : Jetpack_Options::get_option( 'id' );
-		if ( ! $site_id ) {
-			return new WP_Error(
-				'unavailable_site_id',
-				__( 'Sorry, something is wrong with your Jetpack connection.', 'jetpack' ),
-				403
-			);
-		}
-		return (int) $site_id;
+		return Jetpack_Instagram_Gallery_Helper::get_instagram_gallery( $request['access_token'], $request['count'] );
 	}
 }
 

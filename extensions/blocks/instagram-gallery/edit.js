@@ -29,15 +29,15 @@ import { addQueryArgs } from '@wordpress/url';
  */
 import PopupMonitor from 'lib/popup-monitor';
 import defaultAttributes from './attributes';
-import { getGalleryCssAttributes } from './utils';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import './editor.scss';
 
 const InstagramGalleryEdit = props => {
 	const { attributes, className, noticeOperations, noticeUI, setAttributes } = props;
-	const { accessToken, align, columns, count, images, instagramUser, spacing } = attributes;
+	const { accessToken, align, columns, count, instagramUser, spacing } = attributes;
 
 	const [ isConnecting, setIsConnecting ] = useState( false );
+	const [ images, setImages ] = useState( [] );
 	const [ isLoadingGallery, setIsLoadingGallery ] = useState( false );
 
 	useEffect( () => {
@@ -70,7 +70,8 @@ const InstagramGalleryEdit = props => {
 				return;
 			}
 
-			setAttributes( { images: response.images, instagramUser: response.external_name } );
+			setAttributes( { instagramUser: response.external_name } );
+			setImages( response.images );
 		} );
 	}, [ accessToken, count, noticeOperations, setAttributes ] );
 
@@ -110,17 +111,15 @@ const InstagramGalleryEdit = props => {
 		} ).then( responseCode => {
 			setIsConnecting( false );
 			if ( 200 === responseCode ) {
-				setAttributes( {
-					accessToken: undefined,
-					images: [],
-				} );
+				setAttributes( { accessToken: undefined } );
+				setImages( [] );
 			}
 		} );
 	};
 
 	const debouncedSetNumberOfPosts = debounce( value => {
 		if ( value < images.length ) {
-			setAttributes( { images: take( images, value ) } );
+			setImages( take( images, value ) );
 		}
 		setAttributes( { count: value } );
 	}, 500 );
@@ -131,7 +130,12 @@ const InstagramGalleryEdit = props => {
 	const showGallery = ! showPlaceholder && ! showLoadingSpinner;
 
 	const blockClasses = classnames( className, { [ `align${ align }` ]: align } );
-	const { gridClasses, gridStyle, photoStyle } = getGalleryCssAttributes( columns, spacing );
+	const gridClasses = classnames(
+		'wp-block-jetpack-instagram-gallery__grid',
+		`wp-block-jetpack-instagram-gallery__grid-columns-${ columns }`
+	);
+	const gridStyle = { gridGap: spacing };
+	const photoStyle = { padding: spacing };
 
 	return (
 		<div className={ blockClasses }>

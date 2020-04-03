@@ -17,10 +17,6 @@ export default {
 		min: 1,
 		max: 30,
 	},
-	images: {
-		type: 'array',
-		default: [],
-	},
 	spacing: {
 		type: 'number',
 		default: 10,
