@@ -11,7 +11,7 @@ import { get } from 'lodash';
  */
 import QuerySiteProducts from 'components/data/query-site-products';
 import { getPlanClass } from 'lib/plans/constants';
-import { getSiteRawUrl, getUpgradeUrl, isMultisite } from 'state/initial-state';
+import { getSiteRawUrl, isMultisite } from 'state/initial-state';
 import {
 	getActiveSitePurchases,
 	getAvailablePlans,

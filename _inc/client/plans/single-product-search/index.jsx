@@ -9,7 +9,9 @@ import { get } from 'lodash';
 /**
  * Internal dependencies
  */
+import analytics from 'lib/analytics';
 import Button from 'components/button';
+import ExternalLink from 'components/external-link';
 import {
 	JETPACK_SEARCH_TIER_UP_TO_100_RECORDS,
 	JETPACK_SEARCH_TIER_UP_TO_1K_RECORDS,
@@ -47,12 +49,23 @@ function getTierLabel( priceTierSlug, recordCount ) {
 	}
 }
 
+function handleLandingPageLinkClickFactory( recordCount ) {
+	return () => {
+		analytics.tracks.recordJetpackClick( {
+			target: 'landing-page-link',
+			feature: 'single-product-search',
+			extra: recordCount,
+		} );
+	};
+}
+
 export function SingleProductSearchCard( props ) {
 	const { planDuration, siteProducts } = props;
 	const currencyCode = get( siteProducts, 'jetpack_search.currency_code', '' );
 	const monthlyPrice = get( siteProducts, 'jetpack_search_monthly.cost', '' );
 	const yearlyPrice = get( siteProducts, 'jetpack_search.cost', '' );
 	const recordCount = get( siteProducts, 'jetpack_search.price_tier_usage_quantity', '0' );
+	const handleLandingPageLinkClick = handleLandingPageLinkClickFactory( recordCount );
 
 	return props.isFetching ? (
 		<div className="plans-section__single-product-skeleton is-placeholder" />
@@ -62,12 +75,18 @@ export function SingleProductSearchCard( props ) {
 				<h3 className="single-product-backup__header-title">{ SEARCH_TITLE }</h3>
 			</div>
 			<div className="single-product__accented-card-body">
-				<p>
-					{ SEARCH_DESCRIPTION }{ ' ' }
-					<a href="https://jetpack.com/search" target="_blank" rel="noopener noreferrer">
-						{ __( 'Learn More' ) }
-					</a>
-				</p>
+				<div className="single-product__description">{ SEARCH_DESCRIPTION }</div>
+				<div className="single-product__landing-page">
+					<ExternalLink
+						target="_blank"
+						href={ props.searchInfoUrl }
+						icon
+						iconSize={ 12 }
+						onClick={ handleLandingPageLinkClick }
+					>
+						{ __( 'Learn more' ) }
+					</ExternalLink>
+				</div>
 				<h4 className="single-product-backup__options-header">
 					{ __(
 						'Your current site record size: %s record',
@@ -110,6 +129,7 @@ export function SingleProductSearchCard( props ) {
 
 export default connect( state => ( {
 	planDuration: getPlanDuration( state ),
-	searchUpgradeUrl: getUpgradeUrl( state, 'jetpack-search' ),
+	searchInfoUrl: getUpgradeUrl( state, 'aag-search' ), // Redirect to https://jetpack.com/upgrade/search/
 	searchUpgradeMonthlyUrl: getUpgradeUrl( state, 'jetpack-search-monthly' ),
+	searchUpgradeUrl: getUpgradeUrl( state, 'jetpack-search' ),
 } ) )( SingleProductSearchCard );
