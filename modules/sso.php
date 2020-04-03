@@ -702,7 +702,7 @@ class Jetpack_SSO {
 			if ( $user ) {
 				$expected_id = get_user_meta( $user->ID, 'wpcom_user_id', true );
 				if ( $expected_id && $expected_id !== $user_data->ID ) {
-					$error = new WP_Error( 'expected_wpcom_user', __( 'Something got a little mixed up and an unexpected WordPress.com user logged in.', 'jetpack' ) );
+					$error = new WP_Error( 'expected_wpcom_user', __( 'Something got a little mixed up and an unexpected WordPress.com account tried to login.', 'jetpack' ) );
 
 					/** This filter is documented in core/src/wp-includes/pluggable.php */
 					do_action( 'wp_login_failed', $user_data->login, $error );
