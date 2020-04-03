@@ -37,3 +37,23 @@ if ( supportsCollections() ) {
 		},
 	] );
 }
+
+setCategories( [
+	...getCategories().filter( ( { slug } ) => slug !== 'earn' ),
+	// Add a Jetpack block category
+	{
+		slug: 'earn',
+		title: 'Earn',
+		icon: <JetpackLogo />,
+	},
+] );
+
+setCategories( [
+	...getCategories().filter( ( { slug } ) => slug !== 'marketing' ),
+	// Add a Jetpack block category
+	{
+		slug: 'marketing',
+		title: 'Marketing',
+		icon: <JetpackLogo />,
+	},
+] );
