@@ -167,41 +167,44 @@ const PodcastPlayerEdit = ( {
 	 *
 	 * @param {object} event - Form on submit event object.
 	 */
-	const checkPodcastLink = useCallback( event => {
-		event.preventDefault();
-		removeAllNotices();
+	const checkPodcastLink = useCallback(
+		event => {
+			event.preventDefault();
+			removeAllNotices();
 
-		if ( ! editedUrl ) {
-			return;
-		}
+			if ( ! editedUrl ) {
+				return;
+			}
 
-		// Ensure URL has `http` appended to it (if it doesn't already) before
-		// we accept it as the entered URL.
-		const prependedURL = prependHTTP( editedUrl );
+			// Ensure URL has `http` appended to it (if it doesn't already) before
+			// we accept it as the entered URL.
+			const prependedURL = prependHTTP( editedUrl );
 
-		if ( ! isURL( prependedURL ) ) {
-			createErrorNotice(
-				__( "Your podcast couldn't be embedded. Please double check your URL.", 'jetpack' )
-			);
-			return;
-		}
+			if ( ! isURL( prependedURL ) ) {
+				createErrorNotice(
+					__( "Your podcast couldn't be embedded. Please double check your URL.", 'jetpack' )
+				);
+				return;
+			}
 
-		/*
-		 * Short-circuit feed fetching if we tried before, use useEffect otherwise.
-		 * @see {@link https://github.com/Automattic/jetpack/pull/15213}
-		 */
-		if ( prependedURL === url ) {
-			fetchFeed( url );
-		} else {
-			setAttributes( { url: prependedURL } );
-		}
+			/*
+			 * Short-circuit feed fetching if we tried before, use useEffect otherwise.
+			 * @see {@link https://github.com/Automattic/jetpack/pull/15213}
+			 */
+			if ( prependedURL === url ) {
+				fetchFeed( url );
+			} else {
+				setAttributes( { url: prependedURL } );
+			}
 
-		// Also update the temporary `input` value in order that clicking
-		// `Replace` in the UI will show the "corrected" version of the URL
-		// (ie: with `http` prepended if it wasn't originally present).
-		setEditedUrl( prependedURL );
-		setIsEditing( false );
-	} );
+			// Also update the temporary `input` value in order that clicking
+			// `Replace` in the UI will show the "corrected" version of the URL
+			// (ie: with `http` prepended if it wasn't originally present).
+			setEditedUrl( prependedURL );
+			setIsEditing( false );
+		},
+		[ editedUrl, url, fetchFeed, createErrorNotice, removeAllNotices, setAttributes ]
+	);
 
 	if ( isEditing || ! url ) {
 		return (
