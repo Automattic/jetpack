@@ -207,6 +207,7 @@ export class PodcastPlayer extends Component {
 		};
 
 		const cssClassesName = classnames(
+			'jetpack-podcast-player',
 			playerState,
 			colors.secondary.classes,
 			colors.background.classes

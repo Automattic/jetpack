@@ -129,7 +129,7 @@ function render_player( $player_data, $attributes ) {
 	?>
 	<div class="<?php echo esc_attr( $block_classname ); ?>" id="<?php echo esc_attr( $instance_id ); ?>">
 		<section
-			class="<?php echo esc_attr( $player_classes_name ); ?>"
+			class="jetpack-podcast-player <?php echo esc_attr( $player_classes_name ); ?>"
 			style="<?php echo esc_attr( $player_inline_style ); ?>"
 		>
 			<?php

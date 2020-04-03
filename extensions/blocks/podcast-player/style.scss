@@ -56,6 +56,15 @@ $player-float-background: $light-gray-200;
 	}
 
 	/**
+	 * Reset vertical padding for <section /> elements.
+	 * For instance, Twenty-Twenty sets `padding: 8rem 0`.
+	 */
+	.jetpack-podcast-player {
+		padding-top: 0;
+		padding-bottom: 0;
+	}
+
+	/**
 	 * Header elements styles
 	 */
 
