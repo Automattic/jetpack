@@ -26,7 +26,7 @@ export const settings = {
 		_x( 'appointments', 'block search term', 'jetpack' ),
 	],
 	icon,
-	category: supportsCollections() ? 'embeds' : 'jetpack',
+	category: supportsCollections() ? 'embed' : 'jetpack',
 	supports: {
 		align: true,
 		alignWide: true,

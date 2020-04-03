@@ -33,7 +33,7 @@ export const settings = {
 
 	icon,
 
-	category: supportsCollections() ? 'embeds' : 'jetpack',
+	category: supportsCollections() ? 'embed' : 'jetpack',
 
 	keywords: [
 		_x( 'social', 'block search term', 'jetpack' ),

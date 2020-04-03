@@ -26,7 +26,7 @@ export const settings = {
 	title,
 	description: __( 'Embed a calendar for customers to schedule appointments', 'jetpack' ),
 	icon,
-	category: supportsCollections() ? 'widgets' : 'jetpack',
+	category: supportsCollections() ? 'marketing' : 'jetpack',
 	keywords: [
 		_x( 'calendar', 'block search term', 'jetpack' ),
 		_x( 'schedule', 'block search term', 'jetpack' ),

@@ -42,7 +42,7 @@ export const settings = {
 	title,
 	description: __( 'Embed Eventbrite event details and ticket checkout.', 'jetpack' ),
 	icon,
-	category: supportsCollections() ? 'widgets' : 'jetpack',
+	category: supportsCollections() ? 'embed' : 'jetpack',
 	keywords: [
 		_x( 'events', 'block search term', 'jetpack' ),
 		_x( 'tickets', 'block search term', 'jetpack' ),

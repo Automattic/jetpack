@@ -83,7 +83,7 @@ export const settings = {
 	title: __( 'Business Hours', 'jetpack' ),
 	description: __( 'Display opening hours for your business.', 'jetpack' ),
 	icon,
-	category: supportsCollections() ? 'widgets' : 'jetpack',
+	category: supportsCollections() ? 'marketing' : 'jetpack',
 	supports: {
 		html: true,
 	},

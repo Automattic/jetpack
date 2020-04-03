@@ -33,7 +33,7 @@ export const settings = {
 		_x( 'feedback', 'block search term', 'jetpack' ),
 		_x( 'contact form', 'block search term', 'jetpack' ),
 	],
-	category: supportsCollections() ? 'widgets' : 'jetpack',
+	category: supportsCollections() ? 'marketing' : 'jetpack',
 	supports: {
 		html: false,
 	},

@@ -26,7 +26,7 @@ export const settings = {
 	title,
 	description: __( 'Allow visitors to book a reservation with OpenTable', 'jetpack' ),
 	icon,
-	category: supportsCollections() ? 'widgets' : 'jetpack',
+	category: supportsCollections() ? 'earn' : 'jetpack',
 	keywords: [
 		_x( 'booking', 'block search term', 'jetpack' ),
 		_x( 'reservation', 'block search term', 'jetpack' ),

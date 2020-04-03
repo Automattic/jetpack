@@ -112,7 +112,7 @@ export const name = 'slideshow';
 
 export const settings = {
 	title: __( 'Slideshow', 'jetpack' ),
-	category: supportsCollections() ? 'common' : 'jetpack',
+	category: supportsCollections() ? 'layout' : 'jetpack',
 	keywords: [
 		_x( 'image', 'block search term', 'jetpack' ),
 		_x( 'gallery', 'block search term', 'jetpack' ),
