@@ -5,7 +5,6 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { numberFormat, translate as __ } from 'i18n-calypso';
-import { getPlanClass, PLAN_JETPACK_PREMIUM } from 'lib/plans/constants';
 import getRedirectUrl from 'lib/jp-redirect';
 
 /**
@@ -14,7 +13,7 @@ import getRedirectUrl from 'lib/jp-redirect';
 import Card from 'components/card';
 import QueryVaultPressData from 'components/data/query-vaultpress-data';
 import QueryScanStatus from 'components/data/query-scan-status';
-import { getSitePlan, isFetchingSiteData } from 'state/site';
+import { getSitePlan, isFetchingSiteData, getSitePurchases } from 'state/site';
 import { isPluginInstalled } from 'state/site/plugins';
 import { getVaultPressScanThreatCount, getVaultPressData } from 'state/at-a-glance';
 import { isDevMode } from 'state/connection';
@@ -22,6 +21,7 @@ import DashItem from 'components/dash-item';
 import { get, isArray } from 'lodash';
 import { getUpgradeUrl, showBackups } from 'state/initial-state';
 import JetpackBanner from 'components/jetpack-banner';
+import { isJetpackScan, getPlanClass, PLAN_JETPACK_PREMIUM } from 'lib/plans/constants';
 
 /**
  * Displays a card for Security Scan based on the props given.
@@ -259,10 +259,15 @@ class DashScan extends Component {
 			} );
 		}
 
+		const scanPurchase = this.props.purchases.find( purchase =>
+			isJetpackScan( purchase.product_slug )
+		);
+
 		// If the plan class does not support Scan, prompt an upgrade
 		// Otherwise, use either VaultPress or Rewind to determine what to show
 		let content;
 		if (
+			! scanPurchase &&
 			[
 				'is-free-plan',
 				'is-personal-plan',
@@ -300,5 +305,6 @@ export default connect( state => {
 		fetchingSiteData: isFetchingSiteData( state ),
 		showBackups: showBackups( state ),
 		upgradeUrl: getUpgradeUrl( state, 'aag-scan' ),
+		purchases: getSitePurchases( state ),
 	};
 } )( DashScan );
