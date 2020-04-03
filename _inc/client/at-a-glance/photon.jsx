@@ -12,6 +12,7 @@ import { translate as __ } from 'i18n-calypso';
  */
 import { isModuleAvailable } from 'state/modules';
 import { isDevMode } from 'state/connection';
+import getRedirectUrl from 'lib/jp-redirect';
 
 class DashPhoton extends Component {
 	static propTypes = {
@@ -28,7 +29,7 @@ class DashPhoton extends Component {
 			text: __(
 				'Jetpack will optimize your images and serve them from the server location nearest to your visitors. Using our global content delivery network will boost the loading speed of your site.'
 			),
-			link: 'https://jetpack.com/support/photon/',
+			link: getRedirectUrl( 'jetpack-support-photon' ),
 		};
 
 		if ( this.props.getOptionValue( 'photon' ) ) {
