@@ -2911,7 +2911,7 @@ JS;
 		add_action( 'edit_attachment',          array( $this, 'post_action_handler' ) );
 		add_action( 'add_attachment',           array( $this, 'post_action_handler' ) );
 		add_action( 'delete_attachment',        array( $this, 'post_action_handler' ) );
-		add_action( 'private_to_published',     array( $this, 'post_action_handler' ) );
+		add_action( 'private_to_publish',       array( $this, 'post_action_handler' ) );
 		add_action( 'wp_restore_post_revision', array( $this, 'post_action_handler' ) );
 
 		// Postmeta
