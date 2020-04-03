@@ -5,6 +5,7 @@
  */
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { h, Component, Fragment } from 'preact';
+import { useMemo } from 'preact/hooks';
 
 /**
  * Internal dependencies
@@ -15,6 +16,7 @@ import ScrollButton from './scroll-button';
 import SearchForm from './search-form';
 import SearchResult from './search-result';
 import SearchSidebar from './search-sidebar';
+import { getConstrastingColor } from '../lib/colors';
 
 class SearchResults extends Component {
 	getSearchTitle() {
@@ -46,8 +48,9 @@ class SearchResults extends Component {
 	}
 
 	renderPrimarySection() {
-		const { query } = this.props;
+		const { highlightColor, query } = this.props;
 		const { results = [], total = 0, corrected_query = false } = this.props.response;
+		const textColor = useMemo( () => getConstrastingColor( highlightColor ), [ highlightColor ] );
 		const hasCorrectedQuery = corrected_query !== false;
 		const hasResults = total > 0;
 
@@ -58,7 +61,8 @@ class SearchResults extends Component {
 					dangerouslySetInnerHTML={ {
 						__html: `
 							.jetpack-instant-search__search-results .jetpack-instant-search__search-results-primary mark { 
-								background-color: ${ this.props.highlightColor };
+								color: ${ textColor };
+								background-color: ${ highlightColor };
 							}
 						`,
 					} }
