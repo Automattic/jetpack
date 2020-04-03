@@ -5,6 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import { includes } from 'lodash';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -36,17 +37,17 @@ class Media extends React.Component {
 				disableInDevMode
 				module={ videoPress }
 				support={ {
-					link: 'https://jetpack.com/support/videopress/',
+					link: getRedirectUrl( 'jetpack-support-videopress' ),
 				} }
 			>
 				<FormLegend className="jp-form-label-wide">{ __( 'Video' ) }</FormLegend>
 				<p>
-					{' '}
+					{ ' ' }
 					{ __(
 						'Make the content you publish more engaging with high-resolution video. ' +
 							'With Jetpack Video you can customize your media player and deliver ' +
 							'high-speed, ad-free, and unbranded videos to your visitors. Videos are hosted on our WordPress.com servers and do not subtract space from your hosting plan!'
-					) }{' '}
+					) }{ ' ' }
 				</p>
 				<ModuleToggle
 					slug="videopress"
