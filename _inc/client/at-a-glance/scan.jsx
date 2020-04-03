@@ -36,7 +36,7 @@ const renderCard = props => (
 			text: __(
 				'Your site’s files are regularly scanned for unauthorized or suspicious modifications that could compromise your security and data.'
 			),
-			link: 'https://jetpack.com/support/security/',
+			link: getRedirectUrl( 'jetpack-support-security' ),
 		} }
 		className={ props.className || '' }
 		status={ props.status || '' }
@@ -105,11 +105,11 @@ class DashScan extends Component {
 							</h3>,
 							<p className="jp-dash-item__description">
 								{ __( '{{a}}View details at VaultPress.com{{/a}}', {
-									components: { a: <a href="https://dashboard.vaultpress.com/" /> },
+									components: { a: <a href={ getRedirectUrl( 'vaultpress-dashboard' ) } /> },
 								} ) }
 								<br />
 								{ __( '{{a}}Contact Support{{/a}}', {
-									components: { a: <a href="https://jetpack.com/support" /> },
+									components: { a: <a href={ getRedirectUrl( 'jetpack-support' ) } /> },
 								} ) }
 							</p>,
 						],
