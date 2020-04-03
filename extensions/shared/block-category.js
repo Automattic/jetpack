@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { getCategories, setCategories, registerBlockCollection } from '@wordpress/blocks';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -42,7 +43,7 @@ setCategories( [
 	// Add a Earn block category
 	{
 		slug: 'earn',
-		title: 'Earn',
+		title: __( 'Earn' ),
 		icon: <JetpackLogo />,
 	},
 ] );
@@ -52,7 +53,7 @@ setCategories( [
 	// Add a Marketing block category
 	{
 		slug: 'marketing',
-		title: 'Marketing',
+		title: __( 'Marketing' ),
 		icon: <JetpackLogo />,
 	},
 ] );
