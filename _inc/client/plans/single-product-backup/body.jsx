@@ -11,11 +11,11 @@ import { withRouter } from 'react-router';
  */
 import analytics from 'lib/analytics';
 import { BACKUP_DESCRIPTION } from '../constants';
+import ExternalLink from 'components/external-link';
 import PlanRadioButton from '../single-product-components/plan-radio-button';
 import ProductSavings from '../single-product-components/product-savings';
 import UpgradeButton from '../single-product-components/upgrade-button';
 import PromoNudge from '../single-product-components/promo-nudge';
-import ExternalLink from 'components/external-link';
 
 class SingleProductBackupBody extends React.Component {
 	static propTypes = {
@@ -35,6 +35,7 @@ class SingleProductBackupBody extends React.Component {
 			target: `upgrade-${ selectedBackupType }`,
 			type: 'upgrade',
 			product: selectedBackupType,
+			// NOTE: This depends on React-Router's withRouter HOC
 			page: this.props.routes[ 0 ] && this.props.routes[ 0 ].name,
 		} );
 	};
@@ -55,19 +56,18 @@ class SingleProductBackupBody extends React.Component {
 
 	render() {
 		const {
+			backupInfoUrl,
 			backupOptions,
 			billingTimeFrame,
 			currencyCode,
 			selectedBackupType,
-			backupInfoUrl,
 		} = this.props;
 
 		const selectedBackup = backupOptions.find( ( { type } ) => type === selectedBackupType );
 
 		return (
 			<React.Fragment>
-				<p>{ BACKUP_DESCRIPTION }</p>
-				<PromoNudge />
+				<div className="single-product__description">{ BACKUP_DESCRIPTION }</div>
 				<div className="single-product__landing-page">
 					<ExternalLink
 						className="single-product__landing-page"
@@ -80,6 +80,7 @@ class SingleProductBackupBody extends React.Component {
 						{ __( 'Which backup option is best for me?' ) }
 					</ExternalLink>
 				</div>
+				<PromoNudge />
 				<h4 className="single-product-backup__options-header">
 					{ __( 'Select a backup option:' ) }
 				</h4>
