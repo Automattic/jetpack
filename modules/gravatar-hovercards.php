@@ -12,7 +12,7 @@
  * Additional Search Queries: gravatar, hovercards
  */
 
-define( 'GROFILES__CACHE_BUSTER', gmdate( 'YM' ) . '-2' ); // Break CDN cache, increment when gravatar.com/js/gprofiles.js changes.
+define( 'GROFILES__CACHE_BUSTER', gmdate( 'YM' ) . '-3' ); // Break CDN cache, increment when gravatar.com/js/gprofiles.js changes.
 
 function grofiles_hovercards_init() {
 	add_filter( 'get_avatar',          'grofiles_get_avatar', 10, 2 );
