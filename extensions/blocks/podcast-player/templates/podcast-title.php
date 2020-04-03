@@ -26,11 +26,11 @@ if ( isset( $link ) ) :
 		target="_blank"
 		rel="noopener noreferrer nofollow"
 	>
-		<?php echo esc_attr( $title ); ?>
+		<?php echo esc_html( $title ); ?>
 	</a>
 <?php else : ?>
 	<span class="jetpack-podcast-player__podcast-title">
-		<?php echo esc_attr( $title ); ?>
+		<?php echo esc_html( $title ); ?>
 	</span>;
 	<?php
 endif;

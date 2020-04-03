@@ -40,6 +40,6 @@ if ( $is_active ) {
 	>
 		<span class="jetpack-podcast-player__track-status-icon"></span>
 		<span class="jetpack-podcast-player__track-title"><?php echo esc_html( $track_title ); ?></span>
-		<time class="jetpack-podcast-player__track-duration"><?php echo esc_attr( $track_duration ); ?></time>
+		<time class="jetpack-podcast-player__track-duration"><?php echo esc_html( $track_duration ); ?></time>
 	</a>
 </li>

@@ -28,7 +28,7 @@ if ( ! isset( $title ) && empty( $track ) && ! isset( $track['title'] ) ) {
 			class="jetpack-podcast-player__current-track-title <?php echo esc_attr( $primary_colors['class'] ); ?>"
 			<?php echo isset( $primary_colors['style'] ) ? 'style="' . esc_attr( $primary_colors['style'] ) . '"' : ''; ?>
 		>
-			<?php echo esc_attr( $track['title'] ); ?>
+			<?php echo esc_html( $track['title'] ); ?>
 		</span>
 	<?php endif; ?>
 

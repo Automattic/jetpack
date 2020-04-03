@@ -57,7 +57,7 @@ $track = ! empty( $template_props['tracks'] ) ? $template_props['tracks'][0] : a
 		id="<?php echo esc_attr( $player_id ); ?>__track-description"
 		class="jetpack-podcast-player__track-description"
 	>
-		<?php echo esc_attr( $track['description'] ); ?>
+		<?php echo esc_html( $track['description'] ); ?>
 	</div>
 	<?php endif; ?>
 
