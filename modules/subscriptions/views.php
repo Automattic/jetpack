@@ -326,7 +326,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 						echo wpautop( sprintf( _n( 'Join %s other follower', 'Join %s other followers', $subscribers_total ), number_format_i18n( $subscribers_total ) ) );
 					}
 					?>
-                    <p><input type="text" name="email" style="width: 95%; padding: 1px 2px"
+                    <p><input type="text" name="email" style="width: 95%; padding: 1px 10px"
                               placeholder="<?php esc_attr_e( 'Enter your email address' ); ?>" value=""
                               id="subscribe-field<?php if ( Jetpack_Subscriptions_Widget::$instance_count > 1 ) {
 						          echo '-' . Jetpack_Subscriptions_Widget::$instance_count;
