@@ -11,13 +11,12 @@ import JetpackLogo from '../shared/jetpack-logo';
 /**
  * Return bool depending on registerBlockCollection compatibility.
  *
+ * @todo When Jetpack's minimum is WP 5.4. Remove this function and update all block categories.
+ *
  * @return {boolean} Value to indicate function support.
  */
 export const supportsCollections = () => {
-	if ( typeof registerBlockCollection === 'function' ) {
-		return true;
-	}
-	return false;
+	return typeof registerBlockCollection === 'function';
 };
 
 if ( supportsCollections() ) {
@@ -26,7 +25,7 @@ if ( supportsCollections() ) {
 		icon: <JetpackLogo />,
 	} );
 } else {
-	// This can be removed once G 7.3 is shipped in the Core version that is JP's minimum.
+	// This can be removed once Jetpack's minimum is Core 5.4.
 	setCategories( [
 		...getCategories().filter( ( { slug } ) => slug !== 'jetpack' ),
 		// Add a Jetpack block category
@@ -40,7 +39,7 @@ if ( supportsCollections() ) {
 
 setCategories( [
 	...getCategories().filter( ( { slug } ) => slug !== 'earn' ),
-	// Add a Jetpack block category
+	// Add a Earn block category
 	{
 		slug: 'earn',
 		title: 'Earn',
@@ -50,7 +49,7 @@ setCategories( [
 
 setCategories( [
 	...getCategories().filter( ( { slug } ) => slug !== 'marketing' ),
-	// Add a Jetpack block category
+	// Add a Marketing block category
 	{
 		slug: 'marketing',
 		title: 'Marketing',
