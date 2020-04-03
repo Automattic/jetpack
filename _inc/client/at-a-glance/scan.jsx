@@ -6,6 +6,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { numberFormat, translate as __ } from 'i18n-calypso';
 import { getPlanClass, PLAN_JETPACK_PREMIUM } from 'lib/plans/constants';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -147,7 +148,7 @@ class DashScan extends Component {
 							components: {
 								a: (
 									<a
-										href="https://wordpress.com/plugins/vaultpress"
+										href={ getRedirectUrl( 'calypso-plugins-vaultpress' ) }
 										target="_blank"
 										rel="noopener noreferrer"
 									/>
@@ -212,7 +213,7 @@ class DashScan extends Component {
 							__( "You need to enter your server's credentials to finish the setup." )
 						) }
 						{ buildAction(
-							`https://wordpress.com/settings/security/${ siteRawUrl }`,
+							getRedirectUrl( 'calypso-settings-security', { site: siteRawUrl } ),
 							__( 'Enter credentials' )
 						) }
 					</React.Fragment>
@@ -228,7 +229,7 @@ class DashScan extends Component {
 							)
 						) }
 						{ buildAction(
-							`https://wordpress.com/activity-log/${ siteRawUrl }`,
+							getRedirectUrl( 'calypso-activity-log', { site: siteRawUrl } ),
 							__( 'View security scan details' )
 						) }
 					</React.Fragment>
