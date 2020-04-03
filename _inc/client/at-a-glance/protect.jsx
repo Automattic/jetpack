@@ -14,6 +14,7 @@ import QueryProtectCount from 'components/data/query-dash-protect';
 import { isModuleAvailable } from 'state/modules';
 import { getProtectCount } from 'state/at-a-glance';
 import { isDevMode } from 'state/connection';
+import getRedirectUrl from 'lib/jp-redirect';
 
 class DashProtect extends Component {
 	static propTypes = {
@@ -28,7 +29,7 @@ class DashProtect extends Component {
 		const labelName = __( 'Protect' );
 		const support = {
 			text: __( 'Protects your site from traditional and distributed brute force login attacks.' ),
-			link: 'https://jetpack.com/support/protect/',
+			link: getRedirectUrl( 'jetpack-support-protect' ),
 		};
 
 		if ( this.props.getOptionValue( 'protect' ) ) {
