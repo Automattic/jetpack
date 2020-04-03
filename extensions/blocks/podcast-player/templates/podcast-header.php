@@ -25,7 +25,8 @@ $show_cover_art           = (bool) $attributes['showCoverArt'];
 $show_episode_description = (bool) $attributes['showEpisodeDescription'];
 
 // Current track.
-$track = ! empty( $template_props['tracks'] ) ? $template_props['tracks'][0] : array();
+$tracks = $template_props['tracks'];
+$track  = ( is_array( $tracks ) && ! empty( $tracks ) ) ? $tracks[0] : array();
 ?>
 
 <div class="jetpack-podcast-player__header">
