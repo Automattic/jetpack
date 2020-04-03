@@ -5,6 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import SimpleNotice from 'components/notice';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -47,7 +48,7 @@ class JetpackStateNotices extends React.Component {
 						components: {
 							a: (
 								<a
-									href="https://jetpack.com/cancelled-connection/"
+									href={ getRedirectUrl( 'jetpack-cancelled-connection' ) }
 									target="_blank"
 									rel="noopener noreferrer"
 								/>
@@ -88,7 +89,13 @@ class JetpackStateNotices extends React.Component {
 					"This site can't be connected to WordPress.com because it violates our {{a}}Terms of Service{{/a}}.",
 					{
 						components: {
-							a: <a href="https://wordpress.com/tos" rel="noopener noreferrer" target="_blank" />,
+							a: (
+								<a
+									href={ getRedirectUrl( 'wpcom-tos' ) }
+									rel="noopener noreferrer"
+									target="_blank"
+								/>
+							),
 						},
 					}
 				);
@@ -219,7 +226,9 @@ class JetpackStateNotices extends React.Component {
 				);
 				status = 'is-info';
 				action = (
-					<NoticeAction href="https://jetpack.com/support/security/troubleshooting-protect/">
+					<NoticeAction
+						href={ getRedirectUrl( 'jetpack-support-security-troubleshooting-protect' ) }
+					>
 						{ __( 'Learn More' ) }
 					</NoticeAction>
 				);
