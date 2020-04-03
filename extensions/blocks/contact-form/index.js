@@ -175,7 +175,7 @@ export const settings = {
 };
 
 const FieldDefaults = {
-	category: 'jetpack',
+	category: supportsCollections() ? 'marketing' : 'jetpack',
 	parent: [ 'jetpack/contact-form' ],
 	supports: {
 		reusable: false,
