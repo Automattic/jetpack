@@ -33,7 +33,7 @@ export const settings = {
 		_x( 'feedback', 'block search term', 'jetpack' ),
 		_x( 'contact form', 'block search term', 'jetpack' ),
 	],
-	category: supportsCollections() ? 'marketing' : 'jetpack',
+	category: supportsCollections() ? 'grow' : 'jetpack',
 	supports: {
 		html: false,
 	},
@@ -175,7 +175,7 @@ export const settings = {
 };
 
 const FieldDefaults = {
-	category: supportsCollections() ? 'marketing' : 'jetpack',
+	category: supportsCollections() ? 'grow' : 'jetpack',
 	parent: [ 'jetpack/contact-form' ],
 	supports: {
 		reusable: false,

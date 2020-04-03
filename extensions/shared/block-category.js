@@ -49,11 +49,11 @@ setCategories( [
 ] );
 
 setCategories( [
-	...getCategories().filter( ( { slug } ) => slug !== 'marketing' ),
-	// Add a Marketing block category
+	...getCategories().filter( ( { slug } ) => slug !== 'grow' ),
+	// Add a Grow block category
 	{
-		slug: 'marketing',
-		title: __( 'Marketing' ),
+		slug: 'grow',
+		title: __( 'Grow' ),
 		icon: <JetpackLogo />,
 	},
 ] );

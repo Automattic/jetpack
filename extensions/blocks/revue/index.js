@@ -17,7 +17,7 @@ export const settings = {
 	title: __( 'Revue', 'jetpack' ),
 	description: __( 'Add a subscription form for your Revue newsletter.', 'jetpack' ),
 	icon,
-	category: supportsCollections() ? 'marketing' : 'jetpack',
+	category: supportsCollections() ? 'grow' : 'jetpack',
 	keywords: [
 		_x( 'email', 'block search term', 'jetpack' ),
 		_x( 'subscription', 'block search term', 'jetpack' ),

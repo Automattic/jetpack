@@ -64,7 +64,7 @@ export const settings = {
 			<Circle cx="12" cy="9" r="2.5" />
 		</Fragment>
 	),
-	category: supportsCollections() ? 'marketing' : 'jetpack',
+	category: supportsCollections() ? 'grow' : 'jetpack',
 	attributes,
 	parent: [ 'jetpack/contact-info' ],
 	edit,
