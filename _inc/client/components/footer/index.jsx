@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import classNames from 'classnames';
 import { translate as __ } from 'i18n-calypso';
 import analytics from 'lib/analytics';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -170,11 +171,11 @@ export class Footer extends React.Component {
 
 		const aboutPageUrl = this.props.siteConnectionStatus
 			? this.props.siteAdminUrl + 'admin.php?page=jetpack_about'
-			: 'https://jetpack.com';
+			: getRedirectUrl( 'jetpack' );
 
 		const privacyUrl = this.props.siteConnectionStatus
 			? this.props.siteAdminUrl + 'admin.php?page=jetpack#/privacy'
-			: 'https://automattic.com/privacy/';
+			: getRedirectUrl( 'a8c-privacy' );
 
 		return (
 			<div className={ classes }>
@@ -222,7 +223,7 @@ export class Footer extends React.Component {
 					<li className="jp-footer__link-item">
 						<a
 							onClick={ this.trackTermsClick }
-							href="https://wordpress.com/tos/"
+							href={ getRedirectUrl( 'wpcom-tos' ) }
 							target="_blank"
 							rel="noopener noreferrer"
 							title={ __( 'WordPress.com Terms of Service' ) }
