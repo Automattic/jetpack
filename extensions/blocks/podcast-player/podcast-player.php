@@ -22,9 +22,8 @@ if ( ! class_exists( 'Jetpack_Podcast_Helper' ) ) {
 }
 
 /**
- * Registers the block for use in Gutenberg
- * This is done via an action so that we can disable
- * registration if we need to.
+ * Registers the block for use in Gutenberg. This is done via an action so that
+ * we can disable registration if we need to.
  */
 function register_block() {
 	jetpack_register_block(
@@ -269,11 +268,15 @@ function render( $name, $template_props = array(), $print = true ) {
 		return '';
 	}
 
-	// Optionally provided an assoc array of data to pass to template
-	// IMPORTANT: It will be extracted into variables.
+	/*
+	 * Optionally provided an assoc array of data to pass to template.
+	 * IMPORTANT: It will be extracted into variables.
+	 */
 	if ( is_array( $template_props ) ) {
-		// It ignores the `discouraging` sniffer rule for extract,
-		// since it's needed to make the templating system works.
+		/*
+		 * It ignores the `discouraging` sniffer rule for extract, since it's needed
+		 * to make the templating system works.
+		 */
 		extract( $template_props ); // phpcs:ignore WordPress.PHP.DontExtract.extract_extract
 	}
 

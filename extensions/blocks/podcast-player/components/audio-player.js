@@ -1,4 +1,5 @@
 /* global _wpmejsSettings, MediaElementPlayer */
+
 /**
  * External dependencies
  */
@@ -41,6 +42,7 @@ class AudioPlayer extends Component {
 
 	/**
 	 * Play current audio.
+	 *
 	 * @public
 	 */
 	play = () => {
@@ -50,6 +52,7 @@ class AudioPlayer extends Component {
 
 	/**
 	 * Pause current audio.
+	 *
 	 * @public
 	 */
 	pause = () => {
@@ -59,6 +62,7 @@ class AudioPlayer extends Component {
 
 	/**
 	 * Toggle playing state.
+	 *
 	 * @public
 	 */
 	togglePlayPause = () => {
