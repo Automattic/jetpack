@@ -13,6 +13,7 @@ import analytics from 'lib/analytics';
 import { isModuleAvailable } from 'state/modules';
 import { isDevMode } from 'state/connection';
 import DashItem from 'components/dash-item';
+import getRedirectUrl from 'lib/jp-redirect';
 
 class DashMonitor extends Component {
 	static propTypes = {
@@ -36,7 +37,7 @@ class DashMonitor extends Component {
 			text: __(
 				'Jetpack’s downtime monitor will continuously monitor your site, and alert you the moment that downtime is detected.'
 			),
-			link: 'https://jetpack.com/support/monitor/',
+			link: getRedirectUrl( 'jetpack-support-monitor' ),
 		};
 
 		if ( this.props.getOptionValue( 'monitor' ) ) {
