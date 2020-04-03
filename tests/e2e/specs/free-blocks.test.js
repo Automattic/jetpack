@@ -20,13 +20,14 @@ describe( 'Free blocks', () => {
 
 	describe( 'Pinterest block', () => {
 		it( 'Can publish a post with a Pinterest block', async () => {
+			const pinId = '180003316347175596';
 			const blockEditor = await BlockEditorPage.visit( page );
 			const blockInfo = await blockEditor.insertBlock(
 				PinterestBlock.name(),
 				PinterestBlock.title()
 			);
 
-			const pinterestBlock = new PinterestBlock( blockInfo, page );
+			const pinterestBlock = new PinterestBlock( blockInfo, page, pinId );
 			await pinterestBlock.addEmbed();
 
 			await blockEditor.focus();
@@ -34,7 +35,7 @@ describe( 'Free blocks', () => {
 			await blockEditor.viewPost();
 
 			const frontend = await PostFrontendPage.init( page );
-			await frontend.isRenderedBlockPresent( PinterestBlock );
+			await frontend.isRenderedBlockPresent( PinterestBlock, { pinId } );
 		} );
 	} );
 
