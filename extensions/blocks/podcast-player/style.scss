@@ -95,6 +95,7 @@ $player-float-background: $light-gray-200;
 		display: flex;
 		flex-direction: column;
 		margin: 0;
+		overflow: hidden;
 	}
 
 	.jetpack-podcast-player__current-track-title {
