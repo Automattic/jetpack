@@ -6,6 +6,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
 import { numberFormat, translate as __ } from 'i18n-calypso';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -14,7 +15,6 @@ import QueryProtectCount from 'components/data/query-dash-protect';
 import { isModuleAvailable } from 'state/modules';
 import { getProtectCount } from 'state/at-a-glance';
 import { isDevMode } from 'state/connection';
-import getRedirectUrl from 'lib/jp-redirect';
 
 class DashProtect extends Component {
 	static propTypes = {

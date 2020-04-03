@@ -6,6 +6,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { numberFormat, translate as __ } from 'i18n-calypso';
 import { get } from 'lodash';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -21,7 +22,6 @@ import { getSitePlan } from 'state/site';
 import { isDevMode } from 'state/connection';
 import { getApiNonce, getUpgradeUrl } from 'state/initial-state';
 import JetpackBanner from 'components/jetpack-banner';
-import getRedirectUrl from 'lib/jp-redirect';
 
 class DashAkismet extends Component {
 	static propTypes = {

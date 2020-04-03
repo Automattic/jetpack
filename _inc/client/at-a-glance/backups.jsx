@@ -7,6 +7,7 @@ import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
 import { translate as __ } from 'i18n-calypso';
 import { get, isEmpty, noop } from 'lodash';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -20,7 +21,6 @@ import { isPluginInstalled } from 'state/site/plugins';
 import { getVaultPressData } from 'state/at-a-glance';
 import { isDevMode } from 'state/connection';
 import { getUpgradeUrl, showBackups } from 'state/initial-state';
-import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Displays a card for Backups based on the props given.

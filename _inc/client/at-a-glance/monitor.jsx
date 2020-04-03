@@ -6,6 +6,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import analytics from 'lib/analytics';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -13,7 +14,6 @@ import analytics from 'lib/analytics';
 import { isModuleAvailable } from 'state/modules';
 import { isDevMode } from 'state/connection';
 import DashItem from 'components/dash-item';
-import getRedirectUrl from 'lib/jp-redirect';
 
 class DashMonitor extends Component {
 	static propTypes = {
