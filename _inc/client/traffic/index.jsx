@@ -4,6 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -80,7 +81,9 @@ export class Traffic extends React.Component {
 				{ foundAds && (
 					<Ads
 						{ ...commonProps }
-						configureUrl={ 'https://wordpress.com/stats/ads/day/' + this.props.siteRawUrl }
+						configureUrl={ getRedirectUrl( 'calypso-stats-ads-day', {
+							site: this.props.siteRawUrl,
+						} ) }
 					/>
 				) }
 				{ foundRelated && (
@@ -99,17 +102,19 @@ export class Traffic extends React.Component {
 				{ foundSeo && (
 					<SEO
 						{ ...commonProps }
-						configureUrl={
-							'https://wordpress.com/marketing/traffic/' + this.props.siteRawUrl + '#seo'
-						}
+						configureUrl={ getRedirectUrl( 'wpcom-marketing-traffic', {
+							site: this.props.siteRawUrl,
+							anchor: 'seo',
+						} ) }
 					/>
 				) }
 				{ foundAnalytics && (
 					<GoogleAnalytics
 						{ ...commonProps }
-						configureUrl={
-							'https://wordpress.com/marketing/traffic/' + this.props.siteRawUrl + '#analytics'
-						}
+						configureUrl={ getRedirectUrl( 'wpcom-marketing-traffic', {
+							site: this.props.siteRawUrl,
+							anchor: 'analytics',
+						} ) }
 					/>
 				) }
 				{ foundStats && <SiteStats { ...commonProps } /> }
