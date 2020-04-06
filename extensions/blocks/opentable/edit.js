@@ -19,6 +19,7 @@ import {
 } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { getBlockDefaultClassName } from '@wordpress/blocks';
+import { useEffect, useRef } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -56,6 +57,28 @@ function OpenTableEdit( {
 	}
 
 	const { align, rid, style, iframe, domain, lang, newtab } = attributes;
+
+	// We only want to show the warning about wide display when alignment changes, not on every page load
+	// so below ref is set to indicate the initial component mount
+	const mount = useRef( true );
+	useEffect( () => {
+		if ( mount.current ) {
+			mount.current = false;
+			return;
+		}
+		noticeOperations.removeAllNotices();
+		if ( style === 'wide' && align && align !== 'wide' ) {
+			const content = (
+				<>
+					{ __(
+						'With the OpenTable block you may encounter display issues if you use its "wide" style with anything other than "wide" alignment',
+						'jetpack'
+					) }
+				</>
+			);
+			noticeOperations.createNotice( { status: 'warning', content } );
+		}
+	}, [ attributes ] );
 
 	const parseEmbedCode = embedCode => {
 		const newAttributes = getAttributesFromEmbedCode( embedCode );
@@ -205,6 +228,7 @@ function OpenTableEdit( {
 
 	return (
 		<div className={ editClasses }>
+			{ noticeUI }
 			{ ! isEmpty( rid ) && inspectorControls }
 			{ ! isEmpty( rid ) ? blockPreview() : blockPlaceholder }
 		</div>
