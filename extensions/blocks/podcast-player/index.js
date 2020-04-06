@@ -19,6 +19,7 @@ import { queueMusic } from './icons/';
  */
 import './style.scss';
 import './editor.scss';
+import { supportsCollections } from '../../shared/block-category';
 
 export const name = 'podcast-player';
 export const namespaceName = `jetpack/${ name }`;
@@ -27,7 +28,7 @@ export const settings = {
 	title,
 	description: __( 'Select and play episodes from a single podcast.', 'jetpack' ),
 	icon: queueMusic,
-	category: 'jetpack',
+	category: supportsCollections() ? 'embed' : 'jetpack',
 	keywords: [
 		_x( 'audio', 'block search term', 'jetpack' ),
 		_x( 'embed', 'block search term', 'jetpack' ),

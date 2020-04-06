@@ -12,6 +12,7 @@ import './editor.scss';
 import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import edit from './edit';
 import save from './save';
+import { supportsCollections } from '../../shared/block-category';
 
 export const name = 'markdown';
 
@@ -57,7 +58,7 @@ export const settings = {
 		</SVG>
 	),
 
-	category: 'jetpack',
+	category: supportsCollections() ? 'formatting' : 'jetpack',
 
 	keywords: [
 		_x( 'formatting', 'block search term', 'jetpack' ),
