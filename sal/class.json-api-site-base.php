@@ -135,6 +135,8 @@ abstract class SAL_Site {
 		);
 	}
 
+	abstract protected function is_wpforteams_site();
+
 	public function is_wpcom_atomic() {
 		return false;
 	}

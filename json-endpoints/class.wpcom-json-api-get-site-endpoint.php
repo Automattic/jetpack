@@ -140,6 +140,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'site_goals',
 		'site_segment',
 		'import_engine',
+		'is_wpforteams_site'
 	);
 
 	protected static $jetpack_response_field_additions = array(
@@ -601,6 +602,10 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'import_engine':
 					$options[ $key ] = $site->get_import_engine();
+					break;
+
+				case 'is_wpforteams_site':
+					$options[ $key ] = $site->is_wpforteams_site();
 					break;
 			}
 		}

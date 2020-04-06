@@ -1996,10 +1996,6 @@ class Jetpack {
 		 */
 		$_jetpack_rest_api_compat_includes = apply_filters( 'jetpack_rest_api_compat', array() );
 
-		if ( function_exists( 'bbpress' ) ) {
-			$_jetpack_rest_api_compat_includes[] = JETPACK__PLUGIN_DIR . 'class.jetpack-bbpress-json-api-compat.php';
-		}
-
 		foreach ( $_jetpack_rest_api_compat_includes as $_jetpack_rest_api_compat_include ) {
 			require_once $_jetpack_rest_api_compat_include;
 		}

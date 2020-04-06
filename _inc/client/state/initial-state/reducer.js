@@ -7,6 +7,7 @@ import { assign, get, merge } from 'lodash';
  * Internal dependencies
  */
 import { JETPACK_SET_INITIAL_STATE, MOCK_SWITCH_USER_PERMISSIONS } from 'state/action-types';
+import { getPlanDuration } from 'state/plans/reducer';
 
 export const initialState = ( state = window.Initial_State, action ) => {
 	switch ( action.type ) {
@@ -298,9 +299,12 @@ export function getPartnerSubsidiaryId( state ) {
  *
  * @return {string} Upgrade URL with source, site, and affiliate code added.
  */
-export const getUpgradeUrl = ( state, source, userId = '' ) => {
+export const getUpgradeUrl = ( state, source, userId = '', planDuration = false ) => {
 	const affiliateCode = getAffiliateCode( state );
 	const subsidiaryId = getPartnerSubsidiaryId( state );
+	if ( planDuration && 'monthly' === getPlanDuration( state ) ) {
+		source += '-monthly';
+	}
 	return (
 		`https://jetpack.com/redirect/?source=${ source }&site=${ getSiteRawUrl( state ) }` +
 		( affiliateCode ? `&aff=${ affiliateCode }` : '' ) +

@@ -137,5 +137,9 @@ module.exports = {
 		'no-case-declarations': 1,
 		'no-class-assign': 1,
 		'no-redeclare': 1,
+
+		// Workaround for ESLint failing to parse files with template literals
+		// with this error: "TypeError: Cannot read property 'range' of null"
+		'template-curly-spacing': 'off',
 	},
 };

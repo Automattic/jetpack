@@ -1,8 +1,11 @@
 // If the file path starts with anything like in the array below, it should be linted.
 module.exports = [
 	'3rd-party/3rd-party.php',
+	'3rd-party/bbpress.php',
 	'3rd-party/class.jetpack-amp-support.php',
+	'3rd-party/class-jetpack-bbpress-rest-api.php',
 	'3rd-party/woocommerce-services.php',
+	'class.jetpack-bbpress-json-api.compat.php',
 	'class.jetpack-gutenberg.php',
 	'class.jetpack-plan.php',
 	'docker',
@@ -29,6 +32,8 @@ module.exports = [
 	'modules/memberships/',
 	'modules/module-extras.php',
 	'modules/module-info.php',
+	'modules/post-by-email.php',
+	'modules/post-by-email/',
 	'modules/search/class-jetpack-instant-search.php',
 	'modules/search/class-jetpack-search-customize.php',
 	'modules/search/class.jetpack-search-options.php',
