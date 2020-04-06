@@ -106,7 +106,7 @@ $player-background: transparent;
 		height: $cover-image-size;
 	}
 
-	// Increasing specificity on the header titles and links for more consistency across themes and editor canvas
+	// Increasing specificity on the header titles and links for more consistency across themes and editor canvas.
 	.jetpack-podcast-player__header {
 		
 		.jetpack-podcast-player__title {
@@ -114,7 +114,7 @@ $player-background: transparent;
 			flex-direction: column;
 			margin: 0;
 			overflow: hidden;
-			letter-spacing: 0; // Fixes 2020 compressed text
+			letter-spacing: 0; // Fixes Twenty Twenty compressed text.
 			
 			&:before,
 			&:after {
@@ -243,7 +243,7 @@ $player-background: transparent;
 		}
 	}
 
-	// needs slightly higher specificity to override some theme's link styles
+	// Needs slightly higher specificity to override some theme's link styles.
 	a.jetpack-podcast-player__track-link {
 		text-decoration: none;
 	}
