@@ -17,7 +17,6 @@ jQuery( function( $ ) {
 		// Updated selector for Gutenberg plugin => v7.7
 		var newButton = $( '.edit-post-header .edit-post-fullscreen-mode-close' );
 
-		// True if either close button exists.
 		var hasLegacyButton = legacyButton && legacyButton.length;
 		var hasNewButton = newButton && newButton.length;
 
