@@ -68,3 +68,4 @@ _inc/jetpack-strings.php
 /vendor/class-classes-handler.php
 /vendor/class-files-handler.php
 /vendor/class-plugins-handler.php
+/vendor/class-version-selector.php

@@ -115,6 +115,9 @@ AUTOLOADER_COMMENT;
 
 		file_put_contents( $vendorPath . '/class-plugins-handler.php', $this->getAutoloadPackageFile( 'class-plugins-handler.php', $suffix ) );
 		$this->io->writeError( '<info>Generated ' . $vendorPath . '/class-plugins-handler.php</info>', true );
+
+		file_put_contents( $vendorPath . '/class-version-selector.php', $this->getAutoloadPackageFile( 'class-version-selector.php', $suffix ) );
+		$this->io->writeError( '<info>Generated ' . $vendorPath . '/class-version-selector.php</info>', true );
 	}
 
 	/**
