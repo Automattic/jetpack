@@ -10,6 +10,7 @@
 	overflow-y: auto;
 	overflow-x: hidden;
 	transition: opacity 0.15s ease-in-out;
+	box-sizing: border-box;
 
 	&.is-hidden {
 		transform: translateX( 100vw );
@@ -21,6 +22,10 @@
 
 	&.jetpack-instant-search__overlay--dark {
 		background: #131313;
+	}
+
+	*, *:before, *:after {
+		box-sizing: inherit;
 	}
 }
 
