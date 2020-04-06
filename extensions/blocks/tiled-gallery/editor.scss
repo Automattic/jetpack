@@ -73,13 +73,13 @@
 			@include reduce-motion("transition");
 
 			&:hover {
-				box-shadow: $shadow-toolbar;
+				box-shadow: $shadow-popover;
 			}
 
 			.components-button {
 				color: $dark-opacity-300;
 				padding: 2px;
-				height: $icon-button-size-small;
+				height: $button-size-small;
 
 				// Remove hover box shadows, since they clash with the container.
 				&:not(:disabled):not([aria-disabled="true"]):not(.is-secondary):hover {
@@ -135,7 +135,7 @@
 
 	.tiled-gallery__item__move-menu,
 	.tiled-gallery__item__inline-menu {
-		margin: $grid-size;
+		margin: $grid-unit-10;
 		display: inline-flex;
 		z-index: z-index(".block-library-gallery-item__inline-menu");
 
@@ -147,7 +147,7 @@
 			// Use smaller buttons to fit when there are many columns.
 			.columns-7 &,
 			.columns-8 & {
-				padding: $grid-size-small / 2;
+				padding: $grid-unit-05 / 2;
 			}
 		}
 	}
