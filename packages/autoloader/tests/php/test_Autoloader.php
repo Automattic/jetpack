@@ -18,7 +18,7 @@ class WP_Test_Autoloader extends TestCase {
 	 */
 	public function setup() {
 		parent::setup();
-		$this->classes_handler = new Classes_Handler( new Plugins_Handler() );
+		$this->classes_handler = new Classes_Handler( new Plugins_Handler(), new Version_Selector() );
 		spl_autoload_register( 'autoloader' );
 	}
 
@@ -49,9 +49,29 @@ class WP_Test_Autoloader extends TestCase {
 	}
 
 	/**
-	 * Tests whether enqueueing prioritizes the dev version of the class.
+	 * Tests whether enqueueing prioritizes the stable version of the class when the
+	 * JETPACK_AUTOLOAD_DEV constant is not set. This test must be run before
+	 * 'test_enqueueing_adds_the_dev_version_to_the_global_array' because that test
+	 * sets JETPACK_AUTOLOAD_DEV.
 	 */
-	public function test_enqueueing_always_adds_the_dev_version_to_the_global_array() {
+	public function test_enqueueing_does_not_add_the_dev_version_to_the_global_array() {
+
+		$this->classes_handler->enqueue_package_class( 'className', '1', 'path_to_class' );
+		$this->classes_handler->enqueue_package_class( 'className', 'dev-howdy', 'path_to_class_dev' );
+		$this->classes_handler->enqueue_package_class( 'className', '2', 'path_to_class_v2' );
+
+		global $jetpack_packages_classmap;
+		$this->assertTrue( isset( $jetpack_packages_classmap['className'] ) );
+		$this->assertEquals( $jetpack_packages_classmap['className']['version'], '2' );
+		$this->assertEquals( $jetpack_packages_classmap['className']['path'], 'path_to_class_v2' );
+	}
+
+	/**
+	 * Tests whether enqueueing prioritizes the dev version of the class when the
+	 * JETPACK_AUTOLOAD_DEV constant is set to true.
+	 */
+	public function test_enqueueing_adds_the_dev_version_to_the_global_array() {
+		defined( 'JETPACK_AUTOLOAD_DEV' ) || define( 'JETPACK_AUTOLOAD_DEV', true );
 
 		$this->classes_handler->enqueue_package_class( 'className', '1', 'path_to_class' );
 		$this->classes_handler->enqueue_package_class( 'className', 'dev-howdy', 'path_to_class_dev' );
