@@ -43,7 +43,7 @@ setCategories( [
 	// Add a Earn block category
 	{
 		slug: 'earn',
-		title: __( 'Earn' ),
+		title: __( 'Earn', 'jetpack' ),
 		icon: <JetpackLogo />,
 	},
 ] );
@@ -53,7 +53,7 @@ setCategories( [
 	// Add a Grow block category
 	{
 		slug: 'grow',
-		title: __( 'Grow' ),
+		title: __( 'Grow', 'jetpack' ),
 		icon: <JetpackLogo />,
 	},
 ] );
