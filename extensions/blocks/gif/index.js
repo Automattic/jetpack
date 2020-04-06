@@ -25,7 +25,10 @@ export const icon = (
 
 export const settings = {
 	title,
-	icon,
+	icon: {
+		src: icon,
+		foreground: '#00be28',
+	},
 	category: 'jetpack',
 	keywords: [
 		_x( 'animated', 'block search term', 'jetpack' ),

@@ -33,7 +33,10 @@ export const settings = {
 		'Control block visibility based on how often a visitor has viewed the page.',
 		'jetpack'
 	),
-	icon,
+	icon: {
+		src: icon,
+		foreground: '#00be28',
+	},
 	keywords: [
 		_x( 'return', 'block search term', 'jetpack' ),
 		_x( 'visitors', 'block search term', 'jetpack' ),

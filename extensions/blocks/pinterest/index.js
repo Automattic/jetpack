@@ -32,7 +32,10 @@ export const settings = {
 
 	description: __( 'Embed a Pinterest pin, board, or user.', 'jetpack' ),
 
-	icon,
+	icon: {
+		src: icon,
+		foreground: '#00be28',
+	},
 
 	category: 'jetpack',
 

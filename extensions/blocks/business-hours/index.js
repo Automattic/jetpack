@@ -81,7 +81,10 @@ export const icon = renderMaterialIcon(
 export const settings = {
 	title: __( 'Business Hours', 'jetpack' ),
 	description: __( 'Display opening hours for your business.', 'jetpack' ),
-	icon,
+	icon: {
+		src: icon,
+		foreground: '#00be28',
+	},
 	category: 'jetpack',
 	supports: {
 		html: true,

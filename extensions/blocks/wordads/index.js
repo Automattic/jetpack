@@ -36,7 +36,10 @@ export const settings = {
 		</Fragment>
 	),
 
-	icon,
+	icon: {
+		src: icon,
+		foreground: '#00be28',
+	},
 	attributes: {
 		align: {
 			type: 'string',

@@ -15,7 +15,10 @@ export const name = 'revue';
 export const settings = {
 	title: __( 'Revue', 'jetpack' ),
 	description: __( 'Add a subscription form for your Revue newsletter.', 'jetpack' ),
-	icon,
+	icon: {
+		src: icon,
+		foreground: '#00be28',
+	},
 	category: 'jetpack',
 	keywords: [
 		_x( 'email', 'block search term', 'jetpack' ),

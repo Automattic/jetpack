@@ -24,7 +24,10 @@ export const title = __( 'Calendly', 'jetpack' );
 export const settings = {
 	title,
 	description: __( 'Embed a calendar for customers to schedule appointments', 'jetpack' ),
-	icon,
+	icon: {
+		src: icon,
+		foreground: '#00be28',
+	},
 	category: 'jetpack',
 	keywords: [
 		_x( 'calendar', 'block search term', 'jetpack' ),

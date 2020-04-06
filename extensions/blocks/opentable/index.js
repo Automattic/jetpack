@@ -24,7 +24,10 @@ import { getAttributesFromEmbedCode, restRefRegex, ridRegex } from './utils';
 export const settings = {
 	title,
 	description: __( 'Allow visitors to book a reservation with OpenTable', 'jetpack' ),
-	icon,
+	icon: {
+		src: icon,
+		foreground: '#00be28',
+	},
 	category: 'jetpack',
 	keywords: [
 		_x( 'booking', 'block search term', 'jetpack' ),

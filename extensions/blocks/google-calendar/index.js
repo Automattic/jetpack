@@ -24,7 +24,10 @@ export const settings = {
 		_x( 'schedule', 'block search term', 'jetpack' ),
 		_x( 'appointments', 'block search term', 'jetpack' ),
 	],
-	icon,
+	icon: {
+		src: icon,
+		foreground: '#00be28',
+	},
 	category: 'jetpack',
 	supports: {
 		align: true,

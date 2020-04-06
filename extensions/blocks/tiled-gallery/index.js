@@ -203,7 +203,10 @@ export const settings = {
 		( ! isSimpleSite()
 			? ' ' + __( "Serves images using Jetpack's fast global network of servers.", 'jetpack' )
 			: '' ),
-	icon,
+	icon: {
+		src: icon,
+		foreground: '#00be28',
+	},
 	keywords: [
 		_x( 'columns', 'block search term', 'jetpack' ),
 		_x( 'images', 'block search term', 'jetpack' ),

@@ -21,7 +21,10 @@ export const icon = (
 
 export const settings = {
 	title: __( 'Mailchimp', 'jetpack' ),
-	icon,
+	icon: {
+		src: icon,
+		foreground: '#00be28',
+	},
 	description: __( 'A form enabling readers to join a Mailchimp list.', 'jetpack' ),
 	category: 'jetpack',
 	keywords: [

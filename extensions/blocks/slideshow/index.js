@@ -123,7 +123,10 @@ export const settings = {
 		align: [ 'center', 'wide', 'full' ],
 		html: false,
 	},
-	icon,
+	icon: {
+		src: icon,
+		foreground: '#00be28',
+	},
 	edit,
 	save,
 	transforms,

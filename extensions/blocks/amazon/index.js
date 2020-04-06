@@ -21,7 +21,10 @@ export const settings = {
 	attributes,
 	title,
 	description: __( 'Promote Amazon products and earn a commission from sales.', 'jetpack' ),
-	icon,
+	icon: {
+		src: icon,
+		foreground: '#00be28',
+	},
 	category: 'jetpack',
 	keywords: [ __( 'amazon', 'jetpack' ), __( 'affiliate', 'jetpack' ) ],
 	supports: {

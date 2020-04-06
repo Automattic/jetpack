@@ -26,7 +26,10 @@ export const title = __( 'Podcast Player', 'jetpack' );
 export const settings = {
 	title,
 	description: __( 'Select and play episodes from a single podcast.', 'jetpack' ),
-	icon: queueMusic,
+	icon: {
+		src: queueMusic,
+		foreground: '#00be28',
+	},
 	category: 'jetpack',
 	keywords: [
 		_x( 'audio', 'block search term', 'jetpack' ),

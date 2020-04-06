@@ -14,7 +14,10 @@ export const name = 'instagram-gallery';
 export const settings = {
 	title: __( 'Instagram Gallery', 'jetpack' ),
 	description: __( 'Embed posts from your Instagram account', 'jetpack' ),
-	icon: 'instagram',
+	icon: {
+		src: 'instagram',
+		foreground: '#00be28',
+	},
 	category: 'jetpack',
 	keywords: [
 		_x( 'images', 'block search term', 'jetpack' ),

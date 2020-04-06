@@ -16,7 +16,10 @@ export const { name } = mapSettings;
 
 export const settings = {
 	title: mapSettings.title,
-	icon: mapSettings.icon,
+	icon: {
+		src: mapSettings.icon,
+		foreground: '#00be28',
+	},
 	category: mapSettings.category,
 	keywords: mapSettings.keywords,
 	description: mapSettings.description,

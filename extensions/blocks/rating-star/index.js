@@ -20,7 +20,10 @@ export const settings = {
 		'Rate movies, books, songs, recipes — anything you can put a number on.',
 		'jetpack'
 	),
-	icon: StarBlockIcon,
+	icon: {
+		src: StarBlockIcon,
+		foreground: '#00be28',
+	},
 	keywords: [
 		_x( 'star', 'block search term', 'jetpack' ),
 		_x( 'rating', 'block search term', 'jetpack' ),

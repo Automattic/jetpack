@@ -25,7 +25,10 @@ export const icon = (
 
 export const settings = {
 	title: __( 'Recurring Payments', 'jetpack' ),
-	icon,
+	icon: {
+		src: icon,
+		foreground: '#00be28',
+	},
 	description: __( 'Button allowing you to sell subscription products.', 'jetpack' ),
 	category: 'jetpack',
 	keywords: [
