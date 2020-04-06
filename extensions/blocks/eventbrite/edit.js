@@ -11,10 +11,11 @@ import {
 	Toolbar,
 	Spinner,
 	ExternalLink,
+	withNotices,
 } from '@wordpress/components';
 import { BlockControls, BlockIcon } from '@wordpress/block-editor';
 import { withDispatch } from '@wordpress/data';
-import apiFetch from '@wordpress/api-fetch';
+import { compose } from '@wordpress/compose';
 
 /**
  * Internal dependencies
@@ -22,11 +23,12 @@ import apiFetch from '@wordpress/api-fetch';
 import attributeDetails from './attributes';
 import { convertToLink, eventIdFromUrl } from './utils';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
-import { icon, URL_REGEX } from '.';
+import { icon, URL_REGEX, EVENTBRITE_EXAMPLE_URL } from '.';
 import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import ModalButtonPreview from './modal-button-preview';
 import EventbriteInPageExample from './eventbrite-in-page-example.png';
 import BlockStylesSelector from '../../shared/components/block-styles-selector';
+import testEmbedUrl from '../../shared/test-embed-url';
 import './editor.scss';
 
 const MODAL_BUTTON_STYLES = [
@@ -38,79 +40,20 @@ class EventbriteEdit extends Component {
 	state = {
 		editedUrl: this.props.attributes.url || '',
 		editingUrl: false,
-		// Resolve the url on mount if we haven't already set an eventId,
-		// Such as when transforming from an Eventbrite link.
-		resolvingUrl: this.props.attributes.url && ! this.props.attributes.eventId,
-		resolvedStatusCode: null,
+		isResolvingUrl: false,
 	};
 
 	componentDidMount() {
-		const { resolvingUrl } = this.state;
-
-		// Check if we need to resolve an Eventbrite URL immediately.
-		if ( resolvingUrl ) {
-			this.resolveUrl();
-		}
-	}
-
-	componentDidUpdate( prevProps, prevState ) {
-		// Check if an Eventbrite URL has been entered, so we need to resolve it.
-		if ( ! prevState.resolvingUrl && this.state.resolvingUrl ) {
-			this.resolveUrl();
-		}
-	}
-
-	// TODO: figure out how to cancel request since apiFetch was updated to use Promises rather than XHR requests.
-	// componentWillUnmount() {}
-
-	resolveUrl = () => {
 		const { url } = this.props.attributes;
 
-		this.setState( { resolvedStatusCode: null } );
+		this.setUrl( url );
+	}
 
-		this.fetchRequest = apiFetch( {
-			path: `/wpcom/v2/resolve-redirect/${ url }`,
-		} );
+	setUrl = url => {
+		const { attributes, noticeOperations, setAttributes } = this.props;
+		const { style } = attributes;
 
-		this.fetchRequest.then(
-			response => {
-				// resolve
-				this.fetchRequest = null;
-				const resolvedUrl = response.url || url;
-				const resolvedStatusCode = response.status ? parseInt( response.status, 10 ) : null;
-
-				this.props.setAttributes( {
-					eventId: eventIdFromUrl( resolvedUrl ),
-					url: resolvedUrl,
-				} );
-				this.setState( {
-					resolvingUrl: false,
-					resolvedStatusCode,
-					editedUrl: resolvedUrl,
-				} );
-			},
-			xhr => {
-				// reject
-				if ( xhr.statusText === 'abort' ) {
-					return;
-				}
-				this.fetchRequest = null;
-				this.setState( {
-					resolvingUrl: false,
-					editingUrl: true,
-				} );
-			}
-		);
-	};
-
-	setUrl = event => {
-		if ( event ) {
-			event.preventDefault();
-		}
-
-		const { editedUrl: url } = this.state;
-
-		if ( ! url ) {
+		if ( ! url || EVENTBRITE_EXAMPLE_URL === url || 'modal' === style ) {
 			return;
 		}
 
@@ -118,26 +61,57 @@ class EventbriteEdit extends Component {
 			eventId: eventIdFromUrl( url ),
 			url,
 		};
-		const validatedAttributes = getValidatedAttributes( attributeDetails, newAttributes );
 
-		this.props.setAttributes( validatedAttributes );
+		testEmbedUrl( newAttributes.url, this.setIsResolvingUrl )
+			.then( resolvedUrl => {
+				const newValidatedAttributes = getValidatedAttributes( attributeDetails, {
+					...newAttributes,
+					url: resolvedUrl,
+				} );
+				setAttributes( newValidatedAttributes );
+				this.setState( { editedUrl: resolvedUrl } );
+				noticeOperations.removeAllNotices();
+			} )
+			.catch( () => {
+				setAttributes( { eventId: undefined, url: undefined } );
+				this.setErrorNotice();
+			} );
+	};
 
-		// Setting the `resolvingUrl` state here, then waiting for `componentDidUpdate()` to
-		// be called before actually resolving it ensures that the `editedUrl` state has also been
-		// updated before resolveUrl() is called.
-		this.setState( {
-			editingUrl: false,
-			resolvingUrl: true,
-		} );
+	setIsResolvingUrl = isResolvingUrl => this.setState( { isResolvingUrl } );
+
+	setErrorNotice = () => {
+		const { noticeOperations, onReplace } = this.props;
+		const { editedUrl } = this.state;
+
+		noticeOperations.removeAllNotices();
+		noticeOperations.createErrorNotice(
+			<>
+				{ __( 'Sorry, this content could not be embedded.', 'jetpack' ) }{ ' ' }
+				<Button isLink onClick={ () => convertToLink( editedUrl, onReplace ) }>
+					{ _x( 'Convert block to link', 'button label', 'jetpack' ) }
+				</Button>
+			</>
+		);
+	};
+
+	submitForm = event => {
+		if ( event ) {
+			event.preventDefault();
+		}
+
+		const { editedUrl } = this.state;
+
+		this.setUrl( editedUrl );
+
+		this.setState( { editingUrl: false } );
 	};
 
 	cannotEmbed = () => {
 		const { url } = this.props.attributes;
-		const { resolvedStatusCode } = this.state;
+		const { isResolvingUrl } = this.state;
 
-		return (
-			( url && ! URL_REGEX.test( url ) ) || ( resolvedStatusCode && resolvedStatusCode >= 400 )
-		);
+		return ! isResolvingUrl && url && ! URL_REGEX.test( url );
 	};
 
 	renderLoading() {
@@ -211,7 +185,7 @@ class EventbriteEdit extends Component {
 	// @todo Remove isDefault and isLarge from Button when the minimum WP version
 	// supported by JP uses Gutenberg > 7.2
 	renderEditEmbed() {
-		const { className } = this.props;
+		const { className, noticeUI } = this.props;
 		const { editedUrl } = this.state;
 		const supportLink =
 			isSimpleSite() || isAtomicSite()
@@ -227,8 +201,9 @@ class EventbriteEdit extends Component {
 						'jetpack'
 					) }
 					icon={ <BlockIcon icon={ icon } /> }
+					notices={ noticeUI }
 				>
-					<form onSubmit={ this.setUrl }>
+					<form onSubmit={ this.submitForm }>
 						<input
 							type="url"
 							value={ editedUrl }
@@ -240,15 +215,6 @@ class EventbriteEdit extends Component {
 						<Button isLarge isSecondary type="submit">
 							{ _x( 'Embed', 'submit button label', 'jetpack' ) }
 						</Button>
-						{ this.cannotEmbed() && (
-							<p className="components-placeholder__error">
-								{ __( 'Sorry, this content could not be embedded.', 'jetpack' ) }
-								<br />
-								<Button isLarge onClick={ () => convertToLink( editedUrl, this.props.onReplace ) }>
-									{ _x( 'Convert block to link', 'button label', 'jetpack' ) }
-								</Button>
-							</p>
-						) }
 					</form>
 
 					<div className="components-placeholder__learn-more">
@@ -310,11 +276,11 @@ class EventbriteEdit extends Component {
 	render() {
 		const { attributes, addModalButtonStyles, removeModalButtonStyles, isSelected } = this.props;
 		const { url, style } = attributes;
-		const { editingUrl, resolvingUrl } = this.state;
+		const { editingUrl, isResolvingUrl } = this.state;
 
 		let component;
 
-		if ( resolvingUrl ) {
+		if ( isResolvingUrl ) {
 			removeModalButtonStyles();
 			component = this.renderLoading();
 		} else if ( editingUrl || ! url || this.cannotEmbed() ) {
@@ -352,22 +318,25 @@ class EventbriteEdit extends Component {
 	}
 }
 
-export default withDispatch( ( dispatch, { name }, { select } ) => {
-	const { getBlockStyles } = select( 'core/blocks' );
-	const styles = getBlockStyles( name );
-	return {
-		addModalButtonStyles() {
-			if ( styles.length < 1 ) {
-				dispatch( 'core/blocks' ).addBlockStyles( name, MODAL_BUTTON_STYLES );
-			}
-		},
-		removeModalButtonStyles() {
-			if ( styles.length > 0 ) {
-				dispatch( 'core/blocks' ).removeBlockStyles(
-					name,
-					MODAL_BUTTON_STYLES.map( style => style.name )
-				);
-			}
-		},
-	};
-} )( EventbriteEdit );
+export default compose(
+	withDispatch( ( dispatch, { name }, { select } ) => {
+		const { getBlockStyles } = select( 'core/blocks' );
+		const styles = getBlockStyles( name );
+		return {
+			addModalButtonStyles() {
+				if ( styles.length < 1 ) {
+					dispatch( 'core/blocks' ).addBlockStyles( name, MODAL_BUTTON_STYLES );
+				}
+			},
+			removeModalButtonStyles() {
+				if ( styles.length > 0 ) {
+					dispatch( 'core/blocks' ).removeBlockStyles(
+						name,
+						MODAL_BUTTON_STYLES.map( style => style.name )
+					);
+				}
+			},
+		};
+	} ),
+	withNotices
+)( EventbriteEdit );
