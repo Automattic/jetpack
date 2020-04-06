@@ -46,7 +46,14 @@ function render_block( $attributes, $content ) {
 	$count        = get_instagram_gallery_attribute( 'count', $attributes );
 	$spacing      = get_instagram_gallery_attribute( 'spacing', $attributes );
 
-	$grid_classes = 'wp-block-jetpack-instagram-gallery__grid wp-block-jetpack-instagram-gallery__grid-columns-' . $columns;
+	$grid_classes = Jetpack_Gutenberg::block_classes(
+		FEATURE_NAME,
+		$attributes,
+		array(
+			'wp-block-jetpack-instagram-gallery__grid',
+			'wp-block-jetpack-instagram-gallery__grid-columns-' . $columns,
+		),
+	);
 	$grid_style   = 'grid-gap: ' . $spacing . 'px;';
 	$photo_style  = 'padding: ' . $spacing . 'px;';
 
