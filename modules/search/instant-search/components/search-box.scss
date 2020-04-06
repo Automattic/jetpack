@@ -1,12 +1,11 @@
 .jetpack-instant-search__box {
 	position: relative;
-	display: flex;
-	align-items: center;
-	flex: 0 0 100%;
 }
 
 .jetpack-instant-search__box-label {
-	width: 100%;
+	display: flex;
+	align-items: center;
+	flex: 0 0 100%;
 }
 
 input.jetpack-instant-search__box-input.search-field {
@@ -56,9 +55,12 @@ input.jetpack-instant-search__box-input.search-field {
 
 .jetpack-instant-search__box-gridicon {
 	position: absolute;
-	top: 15px;
+	top: 0;
 	left: 14px;
 	z-index: 1;
+	display: flex;
+	align-items: center;
+	height: 100%;
 
 	svg {
 		fill: #666666;
