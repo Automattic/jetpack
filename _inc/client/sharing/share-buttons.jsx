@@ -5,6 +5,7 @@ import React, { Component } from 'react';
 import { translate as __ } from 'i18n-calypso';
 import Card from 'components/card';
 import analytics from 'lib/analytics';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -52,7 +53,7 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 							onClick={ this.trackClickConfigure }
 							target="_blank"
 							rel="noopener noreferrer"
-							href={ 'https://wordpress.com/marketing/sharing-buttons/' + siteRawUrl }
+							href={ getRedirectUrl( 'wpcom-marketing-sharing-buttons', { site: siteRawUrl } ) }
 						>
 							{ __( 'Configure your sharing buttons' ) }
 						</Card>
@@ -86,7 +87,7 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 							text: __(
 								'You can customize the sharing buttons and choose which services to display.'
 							),
-							link: 'https://jetpack.com/support/sharing/',
+							link: getRedirectUrl( 'jetpack-support-sharing' ),
 						} }
 					>
 						<p>
