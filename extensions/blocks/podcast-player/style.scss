@@ -105,36 +105,40 @@ $player-background: transparent;
 		height: $cover-image-size;
 	}
 
-	.jetpack-podcast-player__title {
-		display: flex;
-		flex-direction: column;
-		margin: 0;
-		overflow: hidden;
-		letter-spacing: 0; // Fixes 2020 compressed text
+	// Increasing specificity on the header titles and links for more consistency across themes and editor canvas
+	.jetpack-podcast-player__header {
 		
-		&:before,
-		&:after {
-			display: none;
+		.jetpack-podcast-player__title {
+			display: flex;
+			flex-direction: column;
+			margin: 0;
+			overflow: hidden;
+			letter-spacing: 0; // Fixes 2020 compressed text
+			
+			&:before,
+			&:after {
+				display: none;
+			}
 		}
-	}
-
-	.jetpack-podcast-player__current-track-title {
-		font-size: $track-title-font-size;
-		margin: 0 0 $track-title-b-margin;
-	}
-
-	.jetpack-podcast-player__podcast-title {
-		font-size: $podcast-title-font-size;
-		color: $text-color;
-		margin: 0;
-	}
-
-	a.jetpack-podcast-player__podcast-title {
-		text-decoration: none;
-
-		&:hover,
-		&:focus {
-			color: $text-color-hover;
+	
+		.jetpack-podcast-player__current-track-title {
+			font-size: $track-title-font-size;
+			margin: 0 0 $track-title-b-margin;
+		}
+	
+		.jetpack-podcast-player__podcast-title {
+			font-size: $podcast-title-font-size;
+			color: $text-color;
+			margin: 0;
+		}
+	
+		.jetpack-podcast-player__podcast-title {
+			text-decoration: none;
+	
+			&:hover,
+			&:focus {
+				color: $text-color-hover;
+			}
 		}
 	}
 
@@ -230,8 +234,6 @@ $player-background: transparent;
 		padding: $track-h-padding $track-v-padding;
 		transition: none;
 		color: inherit;
-
-		
 
 		&:hover,
 		&:focus {
