@@ -9,11 +9,12 @@ import {
 	waitAndType,
 	isEventuallyVisible,
 } from '../../page-helper';
+import getRedirectUrl from 'lib/jp-redirect';
 
 export default class LoginPage extends Page {
 	constructor( page ) {
 		const expectedSelector = '.wp-login__container';
-		const url = 'https://wordpress.com/log-in';
+		const url = getRedirectUrl( 'wpcom-log-in' );
 		super( page, { expectedSelector, url, explicitWaitMS: 45000 } );
 	}
 
