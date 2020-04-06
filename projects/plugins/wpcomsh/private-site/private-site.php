@@ -287,6 +287,7 @@ function hide_videopress_from_jetpack_plans_page() {
 function register_additional_jetpack_xmlrpc_methods( $methods ) {
 	return array_merge( $methods, [
 		'jetpack.getClosestThumbnailSizeUrl' => '\Private_Site\get_closest_thumbnail_size_url',
+		'jetpack.getReadAccessCookies' => '\Private_Site\get_read_access_cookies',
 	] );
 }
 
@@ -303,6 +304,46 @@ function get_closest_thumbnail_size_url( $args ) {
 	}
 
 	return $result;
+}
+
+/**
+ * We use this XMLPC method to ensure wp.com is able to fetch read access cookies even
+ * when Jetpack SSO module is disabled.
+ */
+function get_read_access_cookies( $args ) {
+	if ( ! class_exists( '\Jetpack_SSO' ) ) {
+		$sso_path = Jetpack::init()->get_module_path( 'sso' );
+		include_once $sso_path;
+	}
+
+	[ $_GET['user_id'], $_GET['sso_nonce'], $expiration ] = $args;
+	add_filter( 'jetpack_sso_require_two_step', '__return_false' );
+	add_filter( 'send_auth_cookies', '__return_false' );
+	add_filter( 'wp_redirect', '__return_false' );
+	add_filter( 'auth_cookie_expiration', function () use ( $expiration ) {
+		return $expiration;
+	}, 1000 );
+
+	$logged_in_cookie = null;
+	add_action( 'set_logged_in_cookie', function ( $_cookie ) use ( &$logged_in_cookie ) {
+		$logged_in_cookie = $_cookie;
+		// handle_login() calls exit instead of just returning, here we use Exceptions as
+		// a flow control mechanism to ensure that instead of exiting we actually have a
+		// chance to return value from this xmlrpc call.
+		throw new \Exception();
+	}, 10, 6 );
+	try {
+		\Jetpack_SSO::get_instance()->handle_login();
+	} catch ( \Exception $e ) {
+	}
+
+	if ( ! $logged_in_cookie ) {
+		return new \WP_Error( 'Authentication failed' );
+	}
+
+	return [
+		[ LOGGED_IN_COOKIE, $logged_in_cookie ],
+	];
 }
 
 /**
