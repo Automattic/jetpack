@@ -21,6 +21,8 @@ if ( ! is_array( $jetpack_autoloader_activating_plugins ) ) {
  * Used for autoloading jetpack packages.
  *
  * @param string $class_name Class Name to load.
+ *
+ * @return Boolean Whether the class_name was found in the classmap.
  */
 function autoloader( $class_name ) {
 	global $jetpack_packages_classmap;
@@ -38,16 +40,17 @@ function autoloader( $class_name ) {
 /**
  * Used for running the code that initializes class and file maps.
  *
- * @param Plugins_Handler $plugins_handler The Plugins_Handler object.
+ * @param Plugins_Handler  $plugins_handler The Plugins_Handler object.
+ * @param Version_Selector $version_selector The Version_Selector object.
  */
-function enqueue_files( $plugins_handler ) {
+function enqueue_files( $plugins_handler, $version_selector ) {
 	require_once __DIR__ . '/class-classes-handler.php';
 	require_once __DIR__ . '/class-files-handler.php';
 
-	$classes_handler = new Classes_Handler( $plugins_handler );
+	$classes_handler = new Classes_Handler( $plugins_handler, $version_selector );
 	$classes_handler->set_class_paths();
 
-	$files_handler = new Files_Handler( $plugins_handler );
+	$files_handler = new Files_Handler( $plugins_handler, $version_selector );
 	$files_handler->set_file_paths();
 
 	$files_handler->file_loader();
@@ -62,10 +65,12 @@ function set_up_autoloader() {
 	global $jetpack_packages_classmap;
 
 	require_once __DIR__ . '/class-plugins-handler.php';
+	require_once __DIR__ . '/class-version-selector.php';
 	require_once __DIR__ . '/class-autoloader-handler.php';
 
 	$plugins_handler    = new Plugins_Handler();
-	$autoloader_handler = new Autoloader_Handler( $plugins_handler );
+	$version_selector   = new Version_Selector();
+	$autoloader_handler = new Autoloader_Handler( $plugins_handler, $version_selector );
 
 	if ( $plugins_handler->should_autoloader_reset() ) {
 		/*
@@ -85,7 +90,7 @@ function set_up_autoloader() {
 
 	// This is the latest autoloader, so generate the classmap and filemap and register the autoloader function.
 	if ( empty( $jetpack_packages_classmap ) && $current_autoloader_version === $jetpack_autoloader_latest_version ) {
-		enqueue_files( $plugins_handler );
+		enqueue_files( $plugins_handler, $version_selector );
 		$autoloader_handler->update_autoloader_chain();
 	}
 }
