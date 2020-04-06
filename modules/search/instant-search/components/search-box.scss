@@ -157,6 +157,8 @@ input.jetpack-instant-search__box-input.search-field {
 	}
 
 	&.is-selected {
+		text-decoration: none;
+
 		.jetpack-instant-search__overlay--light & {
 			border-color: #000;
 		}
