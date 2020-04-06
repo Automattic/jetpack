@@ -16,6 +16,8 @@ class Autoloader_Handler {
 	 */
 	const V2_AUTOLOADER_BASE = 'Automattic\Jetpack\Autoloader\jp';
 
+	const AUTOLOAD_GENERATOR_CLASS_NAME = 'Automattic\Jetpack\Autoloader\AutoloadGenerator';
+
 	/**
 	 * The Plugins_Handler object.
 	 *
@@ -24,12 +26,21 @@ class Autoloader_Handler {
 	private $plugins_handler = null;
 
 	/**
+	 * The Version_Selector object.
+	 *
+	 * @var Version_Selector
+	 */
+	private $version_selector = null;
+
+	/**
 	 * The constructor.
 	 *
-	 * @param Plugins_Handler $plugins_handler The plugins_handler object.
+	 * @param Plugins_Handler  $plugins_handler The Plugins_Handler object.
+	 * @param Version_Selector $version_selector The Version_Selector object.
 	 */
-	public function __construct( $plugins_handler ) {
-		$this->plugins_handler = $plugins_handler;
+	public function __construct( $plugins_handler, $version_selector ) {
+		$this->plugins_handler  = $plugins_handler;
+		$this->version_selector = $version_selector;
 	}
 
 	/**
@@ -52,11 +63,10 @@ class Autoloader_Handler {
 			if ( file_exists( $classmap_path ) ) {
 				$packages = require $classmap_path;
 
-				$compare_version = $packages['Automattic\\Jetpack\\Autoloader\\AutoloadGenerator']['version'];
+				$compare_version = $packages[ self::AUTOLOAD_GENERATOR_CLASS_NAME ]['version'];
 				$compare_path    = trailingslashit( $plugin_path ) . 'vendor/autoload_packages.php';
 
-				// TODO: This comparison needs to properly handle dev versions.
-				if ( version_compare( $selected_autoloader_version, $compare_version, '<' ) ) {
+				if ( $this->version_selector->is_version_update_required( $selected_autoloader_version, $compare_version ) ) {
 					$selected_autoloader_version = $compare_version;
 					$selected_autoloader_path    = $compare_path;
 				}
@@ -78,7 +88,7 @@ class Autoloader_Handler {
 		$classmap_file       = trailingslashit( dirname( __FILE__ ) ) . 'composer/jetpack_autoload_classmap.php';
 		$autoloader_packages = require $classmap_file;
 
-		return $autoloader_packages['Automattic\\Jetpack\\Autoloader\\AutoloadGenerator']['version'];
+		return $autoloader_packages[ self::AUTOLOAD_GENERATOR_CLASS_NAME ]['version'];
 	}
 
 

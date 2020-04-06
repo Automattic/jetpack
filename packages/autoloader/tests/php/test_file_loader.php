@@ -17,7 +17,7 @@ class WP_Test_File_Loader extends TestCase {
 	 */
 	public function setUp() {
 		parent::setUp();
-		$this->files_handler = new Files_Handler( new Plugins_Handler() );
+		$this->files_handler = new Files_Handler( new Plugins_Handler(), new Version_Selector() );
 	}
 
 	/**
@@ -46,9 +46,11 @@ class WP_Test_File_Loader extends TestCase {
 	}
 
 	/**
-	 * Tests whether enqueueing prioritizes the dev version of the file.
+	 * Tests whether enqueueing prioritizes the dev version of the file when
+	 * JETPACK_AUTOLOAD_DEV is set to true.
 	 */
-	public function test_enqueueing_always_adds_the_dev_version_to_the_global_array() {
+	public function test_enqueueing_adds_the_dev_version_to_the_global_array() {
+		defined( 'JETPACK_AUTOLOAD_DEV' ) || define( 'JETPACK_AUTOLOAD_DEV', true );
 
 		$this->files_handler->enqueue_package_file( 'file_id', '1', 'path_to_file' );
 		$this->files_handler->enqueue_package_file( 'file_id', 'dev-howdy', 'path_to_file_dev' );
