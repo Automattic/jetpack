@@ -8,7 +8,7 @@ import { startCase } from 'lodash';
 /**
  * WordPress dependencies
  */
-import { useState, useCallback, useEffect, useRef, memo } from '@wordpress/element';
+import { useState, useCallback, useEffect, useRef } from '@wordpress/element';
 import {
 	Button,
 	ExternalLink,
