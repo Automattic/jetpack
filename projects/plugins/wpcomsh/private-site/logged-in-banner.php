@@ -21,6 +21,11 @@ function show_logged_in_banner() {
 		return;
 	}
 
+	// The site is being previewed in Calypso or Gutenberg.
+	if ( 'true' === $_GET['iframe'] && ( 'true' === $_GET['theme_preview'] || 'true' === $_GET['preview'] ) ) {
+		return;
+	}
+
 	// In this scenario, a site is 'launched' if it's explicitly launched or came before Private by Default.
 	$is_site_launched = is_launched() || '' === site_launch_status();
 
