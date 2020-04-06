@@ -15,6 +15,7 @@ namespace Automattic\Jetpack\Extensions\Podcast_Player;
  * @var string $link
  * @var array  $track
  * @var array  $primary_colors
+ * @var bool   $is_amp
  */
 
 if ( ! isset( $title ) && empty( $track['title'] ) ) {
@@ -28,6 +29,7 @@ $track_link = empty( $track['link'] ) ? $track['src'] : $track['link'];
 	<span
 		class="jetpack-podcast-player__current-track-title <?php echo esc_attr( $primary_colors['class'] ); ?>"
 		<?php echo isset( $primary_colors['style'] ) ? 'style="' . esc_attr( $primary_colors['style'] ) . '"' : ''; ?>
+		<?php echo $is_amp ? '[text]="podcastPlayer.tracks[currentTrack].title"' : ''; ?>
 	>
 		<?php
 		echo esc_html( $track['title'] );

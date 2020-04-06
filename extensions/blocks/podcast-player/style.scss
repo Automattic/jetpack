@@ -343,6 +343,16 @@ $jetpack-podcast-player-error: $alert-red;
 	}
 
 	/**
+	 * Style overrides for AMP version.
+	 */
+	&.is-amp {
+		.jetpack-podcast-player__audio-player {
+			display: block;
+			padding: 0 $player-grid-spacing;
+		}
+	}
+
+	/**
 	 * Style player by overriding mejs default styles
 	 */
 	.mejs-container,

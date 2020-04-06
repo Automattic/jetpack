@@ -15,6 +15,8 @@ namespace Automattic\Jetpack\Extensions\Podcast_Player;
  * @var string $title
  * @var string $link
  * @var array  $primary_colors
+ * @var bool   $is_amp
+ * @var string $cover
  */
 
 /**
@@ -48,6 +50,7 @@ $track  = ( is_array( $tracks ) && ! empty( $tracks ) ) ? $tracks[0] : array();
 					'link'           => $link,
 					'track'          => $track,
 					'primary_colors' => $primary_colors,
+					'is_amp'         => $is_amp,
 				)
 			);
 		}
@@ -60,12 +63,35 @@ $track  = ( is_array( $tracks ) && ! empty( $tracks ) ) ? $tracks[0] : array();
 	<div
 		id="<?php echo esc_attr( $player_id ); ?>__track-description"
 		class="jetpack-podcast-player__track-description"
+		<?php echo $is_amp ? '[text]="podcastPlayer.tracks[currentTrack].description"' : ''; ?>
 	>
 		<?php echo esc_html( $track['description'] ); ?>
 	</div>
 	<?php endif; ?>
 
 	<div class="jetpack-podcast-player__audio-player">
-		<div class="jetpack-podcast-player--audio-player-loading"></div>
+		<?php if ( $is_amp ) : ?>
+			<amp-audio
+				width="100%"
+				height="40"
+				artwork="<?php echo esc_url( $cover ); ?>"
+				artist="<?php echo esc_attr( $title ); ?>"
+				src="<?php echo esc_url( $track['src'] ); ?>"
+				title="<?php echo esc_attr( $track['title'] ); ?>"
+				[src]="podcastPlayer.tracks[currentTrack].src"
+				[title]="podcastPlayer.tracks[currentTrack].title"
+			>
+				<p fallback>
+					<a [href]="podcastPlayer.tracks[currentTrack].link" href="<?php esc_url( $track['link'] ); ?>">
+						<?php __( 'Open episode page', 'jetpack' ); ?>
+					</a>
+					<a download [href]="podcastPlayer.tracks[currentTrack].src" href="<?php esc_url( $track['src'] ); ?>">
+						<?php __( 'Download audio', 'jetpack' ); ?>
+					</a>
+				</p>
+			</amp-audio>
+		<?php else : ?>
+			<div class="jetpack-podcast-player--audio-player-loading"></div>
+		<?php endif; ?>
 	</div>
 </div>

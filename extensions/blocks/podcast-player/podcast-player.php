@@ -125,6 +125,10 @@ function render_player( $player_data, $attributes ) {
 	$instance_id             = wp_unique_id( 'jetpack-podcast-player-block-' . get_the_ID() . '-' );
 	$player_data['playerId'] = $instance_id;
 
+	// Check if we are in AMP mode.
+	$is_amp                = Blocks::is_amp_request();
+	$player_data['is_amp'] = $is_amp;
+
 	// Generate object to be used as props for PodcastPlayer.
 	$player_props = array_merge(
 		// Add all attributes.
@@ -141,8 +145,11 @@ function render_player( $player_data, $attributes ) {
 	$player_inline_style  = trim( "{$secondary_colors['style']} ${background_colors['style']}" );
 	$player_inline_style .= get_css_vars( $attributes );
 
-	$block_classname = Blocks::classes( FEATURE_NAME, $attributes, array( 'is-default' ) );
-	$is_amp          = Blocks::is_amp_request();
+	$extra_classes = array( 'is-default' );
+	if ( $is_amp ) {
+		$extra_classes[] = 'is-amp';
+	}
+	$block_classname = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attributes, $extra_classes );
 
 	ob_start();
 	?>
@@ -163,26 +170,45 @@ function render_player( $player_data, $attributes ) {
 				)
 			);
 			?>
-			<?php if ( count( $player_data['tracks'] ) > 1 ) : ?>
+			<?php if ( $is_amp ) : ?>
+			<amp-selector
+				layout="container"
+				keyboard-select-mode="select"
+				class="jetpack-podcast-player__tracks"
+				on="select: AMP.setState({
+					currentTrack: event.targetOption,
+				})"
+			>
+			<?php else : ?>
 			<ol class="jetpack-podcast-player__tracks">
+			<?php endif; ?>
 				<?php foreach ( $player_data['tracks'] as $track_index => $attachment ) : ?>
 					<?php
 					render(
 						'playlist-track',
 						array(
+							'index'            => $track_index,
 							'is_active'        => 0 === $track_index,
 							'attachment'       => $attachment,
 							'primary_colors'   => $primary_colors,
 							'secondary_colors' => $secondary_colors,
+							'is_amp'           => $is_amp,
 						)
 					);
 					?>
 				<?php endforeach; ?>
+			<?php if ( $is_amp ) : ?>
+			</amp-selector>
+			<?php else : ?>
 			</ol>
 			<?php endif; ?>
 		</section>
-		<?php if ( ! $is_amp ) : ?>
+		<?php if ( $is_amp ) : ?>
+		<amp-state id="podcastPlayer">
+		<?php endif; ?>
 		<script type="application/json"><?php echo wp_json_encode( $player_props ); ?></script>
+		<?php if ( $is_amp ) : ?>
+		</amp-state>
 		<?php endif; ?>
 	</div>
 	<?php
