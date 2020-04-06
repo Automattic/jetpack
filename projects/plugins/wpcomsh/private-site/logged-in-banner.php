@@ -22,7 +22,11 @@ function show_logged_in_banner() {
 	}
 
 	// The site is being previewed in Calypso or Gutenberg.
-	if ( 'true' === $_GET['iframe'] && ( 'true' === $_GET['theme_preview'] || 'true' === $_GET['preview'] ) ) {
+	if ( isset( $_GET['iframe'] ) && 'true' === $_GET['iframe'] && (
+			( isset( $_GET['theme_preview'] ) && 'true' === $_GET['theme_preview'] ) ||
+			( isset( $_GET['preview'] ) && 'true' === $_GET['preview'] )
+		) )
+	{
 		return;
 	}
 
