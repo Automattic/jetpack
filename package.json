@@ -224,7 +224,12 @@
 		"yarn": "^1.3.2"
 	},
 	"resolutions": {
-		"**/**/minimist": ">=0.2.1 <1.0.0 || >=1.2.3",
-		"**/**/acorn": ">=5.7.4 <6.0.0 || >=6.4.1 <7.0.0 || >=7.1.1"
+		"**/webpack/acorn": "^6.4.1",
+		"**/acorn-globals/acorn": "^6.4.1",
+		"**/sharkdown/minimist": "^0.2.1",
+		"**/mkdirp/minimist": "^0.2.1",
+		"**/optimist/minimist": "^0.2.1",
+		"**/mapbox-gl/minimist": "^0.2.1",
+		"**/@mapbox/geojson-rewind/minimist": "^1.2.3"
 	}
 }
