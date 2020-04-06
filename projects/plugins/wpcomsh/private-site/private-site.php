@@ -22,6 +22,26 @@ use function wp_clone;
 use function wp_get_current_user;
 use function wp_send_json_error;
 
+/**
+ * We disable some Jetpack modules if the site is private and atomic
+ *
+ * !!! KEEP THIS LIST IN SYNC WITH THE LIST ON WPCOM !!!
+ * @see private_blog_filter_jetpack_active_modules in wp-content/mu-plugins/private-blog.php (update this to an actual link when D41356-code lands)
+ */
+const DISABLED_JETPACK_MODULES_WHEN_PRIVATE = [
+	'publicize',
+	'sharedaddy',
+	'json-api',
+	'enhanced-distribution',
+	'google-analytics',
+	'photon',
+	'photon-cdn',
+	'sitemaps',
+	'verification-tools',
+	'videopress',
+	'wordads',
+];
+
 function is_module_active() {
 	// This feature is currently in testing. It's only enabled for sites which have privacy model
 	// explicitly set to private. This is technically the same as site_is_private function, but since
@@ -124,6 +144,7 @@ function muplugins_loaded() {
 	add_action( 'jetpack_sync_before_send_queue_sync', '\Private_Site\remove_mask_site_name_filter' );
 
 	// Prevent Jetpack certain modules from running while the site is private
+	add_filter( 'jetpack_active_modules', '\Private_Site\filter_jetpack_active_modules' );
 	add_filter( 'jetpack_get_available_modules', '\Private_Site\filter_jetpack_get_available_modules' );
 	add_filter( 'jetpack_force_disable_site_accelerator', '__return_true' );
 }
@@ -643,6 +664,19 @@ function hide_opml() {
 }
 
 /**
+ * Removes disabled modules from the active list for private sites
+ *
+ * @param array $modules Active modules.
+ *
+ * @return array Array of modules after filtering.
+ */
+function filter_jetpack_active_modules( $modules ) {
+	return array_filter( $modules, function( $module_name ) {
+		return ! in_array( $module_name, DISABLED_JETPACK_MODULES_WHEN_PRIVATE );
+	} );
+}
+
+/**
  * Disables modules for private sites
  *
  * @param array $modules Available modules.
@@ -650,22 +684,8 @@ function hide_opml() {
  * @return array Array of modules after filtering.
  */
 function filter_jetpack_get_available_modules( $modules ) {
-	$disabled_modules = [
-		'publicize',
-		'sharedaddy',
-		'json-api',
-		'enhanced-distribution',
-		'google-analytics',
-		'photon',
-		'photon-cdn',
-		'sitemaps',
-		'verification-tools',
-		'videopress',
-		'wordads',
-	];
-
-	return array_filter( $modules, function( $module_name ) use ( $disabled_modules ) {
-		return ! in_array( $module_name, $disabled_modules );
+	return array_filter( $modules, function( $module_name ) {
+		return ! in_array( $module_name, DISABLED_JETPACK_MODULES_WHEN_PRIVATE );
 	}, ARRAY_FILTER_USE_KEY );
 }
 
