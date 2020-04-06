@@ -13,6 +13,7 @@ import { Component } from '@wordpress/element';
 import { Disabled, FormToggle, Notice, ExternalLink } from '@wordpress/components';
 import { withSelect } from '@wordpress/data';
 import { includes } from 'lodash';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -37,7 +38,9 @@ class PublicizeConnection extends Component {
 						'jetpack'
 					) }
 				</p>
-				<ExternalLink href={ `https://wordpress.com/marketing/connections/${ getSiteFragment() }` }>
+				<ExternalLink
+					href={ getRedirectUrl( 'wpcom-marketing-connections', { site: getSiteFragment() } ) }
+				>
 					{ __( 'Go to Sharing settings', 'jetpack' ) }
 				</ExternalLink>
 			</Notice>

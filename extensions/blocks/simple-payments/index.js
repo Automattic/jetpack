@@ -4,6 +4,7 @@
 import { __, _x } from '@wordpress/i18n';
 import { ExternalLink, Path, SVG } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -27,8 +28,8 @@ export const name = 'simple-payments';
 
 const supportLink =
 	isSimpleSite() || isAtomicSite()
-		? 'https://support.wordpress.com/simple-payments/'
-		: 'https://jetpack.com/support/jetpack-blocks/simple-payments-block/';
+		? getRedirectUrl( 'wpcom-support-simple-payments' )
+		: getRedirectUrl( 'jetpack-support-jetpack-blocks-simple-payments-block' );
 
 export const settings = {
 	title: __( 'Simple Payments', 'jetpack' ),
