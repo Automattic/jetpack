@@ -14,7 +14,7 @@ export const name = 'instagram-gallery';
 
 export const settings = {
 	title: __( 'Instagram Gallery', 'jetpack' ),
-	description: __( 'Embed posts from your Instagram account', 'jetpack' ),
+	description: __( 'Embed posts from your Instagram account.', 'jetpack' ),
 	icon: 'instagram',
 	category: supportsCollections() ? 'embed' : 'jetpack',
 	keywords: [
@@ -23,10 +23,18 @@ export const settings = {
 		_x( 'pictures', 'block search term', 'jetpack' ),
 	],
 	supports: {
-		align: [ 'wide', 'full' ],
+		align: true,
 		html: false,
 	},
 	attributes,
 	edit,
-	save: () => {},
+	save: ( { attributes: { instagramUser } } ) => (
+		<div>
+			<a
+				href={ `https://www.instagram.com/${ instagramUser }/` }
+				rel="noopener noreferrer"
+				target="_blank"
+			>{ `https://www.instagram.com/${ instagramUser }/` }</a>
+		</div>
+	),
 };
