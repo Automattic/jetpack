@@ -57,11 +57,16 @@ function show_logged_in_banner() {
 					<div class="launch-banner-button">
 						<button class="dismiss-button" onclick="javascript:document.getElementById('wpcom-launch-banner-wrapper').style.display='none'"><?php _e( "Dismiss" ); ?></button>
 						<?php
-						$site_slug = \Jetpack::build_raw_urls( get_home_url() );
-						$button_text = ! $is_site_launched ? __( 'Launch site', 'wpcomsh' ) : __( 'Update visibility', 'wpcomsh' );
 
 						if ( ! $is_site_launched || site_is_coming_soon() ) {
+							$site_slug = \Jetpack::build_raw_urls( get_home_url() );
+							$button_text = __( 'Launch site', 'wpcomsh' );
 							$site_privacy_settings_url = 'https://wordpress.com/start/launch-site?siteSlug=' . $site_slug . '&returnTo=home';
+
+							if ( $is_site_launched && site_is_coming_soon() ) {
+								$button_text =  __( 'Update visibility', 'wpcomsh' );
+								$site_privacy_settings_url = 'https://wordpress.com/settings/general/' . $site_slug . '#site-privacy-settings';
+							}
 							?>
 							<a target="_parent" href='<?php echo esc_url( $site_privacy_settings_url ); ?>' rel="noopener noreferrer" >
 								<input type="button" class="launch-site-button" value="<?php echo esc_attr( $button_text ) ?>" />
