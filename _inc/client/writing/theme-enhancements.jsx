@@ -5,6 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import analytics from 'lib/analytics';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -136,7 +137,7 @@ class ThemeEnhancements extends React.Component {
 							text: __(
 								'Loads the next posts automatically when the reader approaches the bottom of the page.'
 							),
-							link: 'https://jetpack.com/support/infinite-scroll',
+							link: getRedirectUrl( 'jetpack-support-infinite-scroll' ),
 						} }
 					>
 						<FormLegend className="jp-form-label-wide">{ infScr.name }</FormLegend>
@@ -193,7 +194,7 @@ class ThemeEnhancements extends React.Component {
 						module={ { module: customCSS.module } }
 						support={ {
 							text: customCSS.description,
-							link: 'https://jetpack.com/support/custom-css/',
+							link: getRedirectUrl( 'jetpack-support-custom-css' ),
 						} }
 					>
 						<ModuleToggle
