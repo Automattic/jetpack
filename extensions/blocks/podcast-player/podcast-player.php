@@ -121,6 +121,7 @@ function render_player( $player_data, $attributes ) {
 
 	$player_classes_name = trim( "{$secondary_colors['class']} {$background_colors['class']}" );
 	$player_inline_style = trim( "{$secondary_colors['style']} ${background_colors['style']}" );
+	$player_inline_style .= get_css_vars( $attributes );
 
 	$block_classname = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attributes, array( 'is-default' ) );
 	$is_amp          = ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() );
@@ -222,6 +223,19 @@ function get_colors( $name, $attrs, $property ) {
 	}
 
 	return $colors;
+}
+
+function get_css_vars( $attrs ) {
+	$colors_name = array( 'primary', 'secondary', 'background' );
+
+	$inline_style = '';
+	foreach ( $colors_name as $color ) {
+		$hex_color = 'hex' . ucfirst( $color ) . 'Color';
+		if ( isset( $attrs[ $hex_color ] ) ) {
+			$inline_style .= " --color-{$color}: {$attrs[ $hex_color ]};";
+		}
+	}
+	return $inline_style;
 }
 
 /**
