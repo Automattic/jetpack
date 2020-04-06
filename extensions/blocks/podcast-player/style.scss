@@ -110,6 +110,11 @@ $player-background: transparent;
 		flex-direction: column;
 		margin: 0;
 		overflow: hidden;
+
+		&:before,
+		&:after {
+			display: none;
+		}
 	}
 
 	.jetpack-podcast-player__current-track-title {
@@ -222,14 +227,20 @@ $player-background: transparent;
 		flex-flow: row nowrap;
 		justify-content: space-between;
 		padding: $track-h-padding $track-v-padding;
-		text-decoration: none;
 		transition: none;
 		color: inherit;
+
+		
 
 		&:hover,
 		&:focus {
 			color: inherit;
 		}
+	}
+
+	// needs slightly higher specificity to override some theme's link styles
+	a.jetpack-podcast-player__track-link {
+		text-decoration: none;
 	}
 
 	// Make space for the error element that will be appended.
