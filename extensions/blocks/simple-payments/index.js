@@ -22,6 +22,7 @@ import simplePaymentsExample1 from './simple-payments_example-1.jpg';
  * Styles
  */
 import './editor.scss';
+import { supportsCollections } from '../../shared/block-category';
 
 export const name = 'simple-payments';
 
@@ -55,7 +56,7 @@ export const settings = {
 		</SVG>
 	),
 
-	category: 'jetpack',
+	category: supportsCollections() ? 'earn' : 'jetpack',
 
 	keywords: [
 		_x( 'buy', 'block search term', 'jetpack' ),
