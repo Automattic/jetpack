@@ -20,17 +20,13 @@ const TrackIcon = ( { isPlaying, isError, className } ) => {
 
 	if ( isError ) {
 		name = 'error';
-		/*
-		 * Translators: This is text to describe the current state. This will go
-		 * before the track title, such as "Error: [The title of the track]".
-		 */
+		/* translators: This is text to describe the current state. This will go
+		before the track title, such as "Error: [The title of the track]". */
 		hiddenText = __( 'Error:', 'jetpack' );
 	} else if ( isPlaying ) {
 		name = 'playing';
-		/*
-		 * Translators: Text to describe the current state. This will go before the
-		 * track title, such as "Playing: [The title of the track]".
-		 */
+		/* translators: Text to describe the current state. This will go before the
+		track title, such as "Playing: [The title of the track]". */
 		hiddenText = __( 'Playing:', 'jetpack' );
 	}
 
@@ -59,13 +55,13 @@ const TrackError = memo( ( { link, title } ) => (
 			<span>
 				<a href={ link } rel="noopener noreferrer nofollow" target="_blank">
 					<span class="jetpack-podcast-player--visually-hidden">
-						{ /*
-						 * Intentional trailing space outside of the translated string.
-						 *
-						 * Translators: %s is the title of the track. This text is visually
-						 * hidden from the screen, but available to screen readers.
-						 */ }
-						{ `${ sprintf( __( '%s:', 'jetpack' ), title ) } ` }
+						{ /* Intentional trailing space outside of the translated string. */ }
+						{ `${ sprintf(
+							/* translators: %s is the title of the track. This text is
+							visually hidden from the screen, but available to screen readers. */
+							__( '%s:', 'jetpack' ),
+							title
+						) } ` }
 					</span>
 					{ __( 'Open in a new tab', 'jetpack' ) }
 				</a>
@@ -105,11 +101,9 @@ const Track = memo(
 			inlineStyle.color = colors.secondary.custom;
 		}
 
-		/*
-		 * Translators: This needs to be a single word with no spaces. It describes
-		 * the current item in the group. A screen reader will announce it as
-		 * "[title], current track".
-		 */
+		/* translators: This needs to be a single word with no spaces. It describes
+		the current item in the group. A screen reader will announce it as "[title],
+		current track". */
 		const ariaCurrent = isActive ? __( 'track', 'jetpack' ) : undefined;
 
 		return (
