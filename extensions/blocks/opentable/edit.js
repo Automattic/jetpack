@@ -4,7 +4,7 @@
 import 'url-polyfill';
 import classnames from 'classnames';
 import { isEmpty, isEqual, join } from 'lodash';
-import getRedirectUrl from 'lib/jp-redirect';
+import getRedirectUrl from '../../../_inc/client/lib/jp-redirect';
 
 /**
  * WordPress dependencies

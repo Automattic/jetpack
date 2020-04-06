@@ -29,7 +29,11 @@ export default function getRedirectUrl( source, args = {} ) {
 		}
 	} );
 
-	if ( ! queryVars.hasOwnProperty( 'site' ) ) {
+	if (
+		! queryVars.hasOwnProperty( 'site' ) &&
+		window.hasOwnProperty( 'Initial_State' ) &&
+		window.Initial_State.hasOwnProperty( 'rawUrl' )
+	) {
 		queryVars.site = window.Initial_State.rawUrl;
 	}
 

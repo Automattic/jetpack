@@ -2,7 +2,7 @@
  * External dependencies
  */
 import debugFactory from 'debug';
-import getRedirectUrl from 'lib/jp-redirect';
+import getRedirectUrl from '../../../_inc/client/lib/jp-redirect';
 
 /**
  * WordPress dependencies

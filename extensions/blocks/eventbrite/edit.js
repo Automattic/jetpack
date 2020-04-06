@@ -16,7 +16,7 @@ import {
 import { BlockControls, BlockIcon } from '@wordpress/block-editor';
 import { withDispatch } from '@wordpress/data';
 import { compose } from '@wordpress/compose';
-import getRedirectUrl from 'lib/jp-redirect';
+import getRedirectUrl from '../../../_inc/client/lib/jp-redirect';
 
 /**
  * Internal dependencies

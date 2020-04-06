@@ -15,7 +15,7 @@ import { compose } from '@wordpress/compose';
 import { BlockIcon, InspectorControls } from '@wordpress/block-editor';
 import { withViewportMatch } from '@wordpress/viewport';
 import { getBlockDefaultClassName } from '@wordpress/blocks';
-import getRedirectUrl from 'lib/jp-redirect';
+import getRedirectUrl from '../../../_inc/client/lib/jp-redirect';
 
 /**
  * Internal dependencies

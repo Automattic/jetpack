@@ -13,7 +13,7 @@ import { Component } from '@wordpress/element';
 import { Disabled, FormToggle, Notice, ExternalLink } from '@wordpress/components';
 import { withSelect } from '@wordpress/data';
 import { includes } from 'lodash';
-import getRedirectUrl from 'lib/jp-redirect';
+import getRedirectUrl from '../../../_inc/client/lib/jp-redirect';
 
 /**
  * Internal dependencies
