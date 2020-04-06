@@ -1,0 +1,4 @@
+*
+!.gitignore
+!debug.php
+!avoid-plugin-deletion.php

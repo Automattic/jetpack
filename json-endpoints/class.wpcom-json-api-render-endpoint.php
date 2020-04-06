@@ -8,7 +8,7 @@ abstract class WPCOM_JSON_API_Render_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 * props to o2's o2_Read_API::poll() function for inspiration.
 	 *
 	 * In short we figure out what scripts load for a "normal" page load by executing wp_head and wp_footer
-	 * then we render our shortcode (to both get our result, and to have the shortcode files enqueue their resources)
+	 * then we render the embed/shortcode (to both get our result, and to have the shortcode files enqueue their resources)
 	 * then we load wp_head and wp_footer again to see what new resources were added
 	 * finally we find out the url to the source file and any extra info (like media or init js)
 	 */
@@ -96,7 +96,7 @@ abstract class WPCOM_JSON_API_Render_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$media = esc_attr( $wp_styles->registered[ $handle ]->args );
 				}
 
-				// add to an aray so we can return all this info
+				// add to an array so we can return all this info
 				$styles[ $handle ] = array (
 					'src' => $src,
 					'media' => $media,
@@ -121,4 +121,25 @@ abstract class WPCOM_JSON_API_Render_Endpoint extends WPCOM_JSON_API_Endpoint {
 		return $ver;
 	}
 
+	/**
+	 * given a shortcode, process and return the result
+	 */
+	function do_shortcode( $shortcode ) {
+		return do_shortcode( $shortcode );
+	}
+
+	/**
+	 * given a one-line embed URL, process and return the result
+	 */
+	function do_embed( $embed_url ) {
+		// in order for oEmbed to fire in the `$wp_embed->shortcode` method, we need to set a post as the current post
+		$_posts = get_posts( array( 'posts_per_page' => 1, 'suppress_filters' => false ) );
+		if ( ! empty( $_posts ) ) {
+			global $post;
+			$post = array_shift( $_posts );
+		}
+
+		global $wp_embed;
+		return $wp_embed->shortcode( array(), $embed_url );
+	}
 }

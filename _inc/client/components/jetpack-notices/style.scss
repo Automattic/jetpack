@@ -1,0 +1,7 @@
+.dops-notice {
+	ul {
+		@include breakpoint( "<480px" ) {
+			font-size: rem( 12px );
+		}
+	}
+}

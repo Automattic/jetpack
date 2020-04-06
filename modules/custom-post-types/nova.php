@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Assets;
+
 /*
  * Put the following code in your theme's Food Menu Page Template to customize the markup of the menu.
 
@@ -51,7 +53,7 @@ class Nova_Restaurant {
 		static $instance = false;
 
 		if ( !$instance ) {
-			$instance = new Nova_Restaurant;
+			$instance = new Nova_Restaurant();
 		}
 
 		if ( $menu_item_loop_markup ) {
@@ -70,10 +72,6 @@ class Nova_Restaurant {
 		add_action( 'admin_menu',            array( $this, 'add_admin_menus'      ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_nova_styles'  ) );
 		add_action( 'admin_head',            array( $this, 'set_custom_font_icon' ) );
-
-		// Enable Omnisearch for Menu Items.
-		if ( class_exists( 'Jetpack_Omnisearch_Posts' ) )
-			new Jetpack_Omnisearch_Posts( self::MENU_ITEM_POST_TYPE );
 
 		// Always sort menu items correctly
 		add_action( 'parse_query',   array( $this, 'sort_menu_item_queries_by_menu_order'    ) );
@@ -107,6 +105,8 @@ class Nova_Restaurant {
 		/**
 		 * Allow something else to hook in and enable this CPT.
 		 *
+		 * @module custom-content-types
+		 *
 		 * @since 2.6.0
 		 *
 		 * @param bool false Whether or not to enable this CPT.
@@ -121,70 +121,115 @@ class Nova_Restaurant {
 	 * Register Taxonomies and Post Type
 	 */
 	function register_taxonomies() {
-		register_taxonomy( self::MENU_ITEM_LABEL_TAX, self::MENU_ITEM_POST_TYPE, array(
-			'labels' => array(
-				'name'                       => __( 'Menu Item Labels', 'jetpack' ),
-				'singular_name'              => __( 'Menu Item Label', 'jetpack' ),
-				'search_items'               => __( 'Search Menu Item Labels', 'jetpack' ),
-				'popular_items'              => __( 'Popular Labels', 'jetpack' ),
-				'all_items'                  => __( 'All Menu Item Labels', 'jetpack' ),
-				'edit_item'                  => __( 'Edit Menu Item Label', 'jetpack' ),
-				'view_item'                  => __( 'View Menu Item Label', 'jetpack' ),
-				'update_item'                => __( 'Update Menu Item Label', 'jetpack' ),
-				'add_new_item'               => __( 'Add New Menu Item Label', 'jetpack' ),
-				'new_item_name'              => __( 'New Menu Item Label Name', 'jetpack' ),
-				'separate_items_with_commas' => __( 'For example, spicy, favorite, etc. <br /> Separate Labels with commas', 'jetpack' ),
-				'add_or_remove_items'        => __( 'Add or remove Labels', 'jetpack' ),
-				'choose_from_most_used'      => __( 'Choose from the most used Labels', 'jetpack' ),
-			),
-			'no_tagcloud' => __( 'No Labels found', 'jetpack' ),
+		if ( ! taxonomy_exists( self::MENU_ITEM_LABEL_TAX ) ) {
+			register_taxonomy( self::MENU_ITEM_LABEL_TAX, self::MENU_ITEM_POST_TYPE, array(
+				'labels' => array(
+					/* translators: this is about a food menu */
+					'name'                       => __( 'Menu Item Labels', 'jetpack' ),
+					/* translators: this is about a food menu */
+					'singular_name'              => __( 'Menu Item Label', 'jetpack' ),
+					/* translators: this is about a food menu */
+					'search_items'               => __( 'Search Menu Item Labels', 'jetpack' ),
+					'popular_items'              => __( 'Popular Labels', 'jetpack' ),
+					/* translators: this is about a food menu */
+					'all_items'                  => __( 'All Menu Item Labels', 'jetpack' ),
+					/* translators: this is about a food menu */
+					'edit_item'                  => __( 'Edit Menu Item Label', 'jetpack' ),
+					/* translators: this is about a food menu */
+					'view_item'                  => __( 'View Menu Item Label', 'jetpack' ),
+					/* translators: this is about a food menu */
+					'update_item'                => __( 'Update Menu Item Label', 'jetpack' ),
+					/* translators: this is about a food menu */
+					'add_new_item'               => __( 'Add New Menu Item Label', 'jetpack' ),
+					/* translators: this is about a food menu */
+					'new_item_name'              => __( 'New Menu Item Label Name', 'jetpack' ),
+					'separate_items_with_commas' => __( 'For example, spicy, favorite, etc. <br /> Separate Labels with commas', 'jetpack' ),
+					'add_or_remove_items'        => __( 'Add or remove Labels', 'jetpack' ),
+					'choose_from_most_used'      => __( 'Choose from the most used Labels', 'jetpack' ),
+					'items_list_navigation'      => __( 'Menu item label list navigation',   'jetpack' ),
+					'items_list'                 => __( 'Menu item labels list',              'jetpack' ),
+				),
+				'no_tagcloud' => __( 'No Labels found', 'jetpack' ),
+				'hierarchical'  => false,
+			) );
+		}
 
-			'hierarchical'  => false,
-		) );
-
-		register_taxonomy( self::MENU_TAX, self::MENU_ITEM_POST_TYPE, array(
-			'labels' => array(
-				'name'               => __( 'Menu Sections', 'jetpack' ),
-				'singular_name'      => __( 'Menu Section', 'jetpack' ),
-				'search_items'       => __( 'Search Menu Sections', 'jetpack' ),
-				'all_items'          => __( 'All Menu Sections', 'jetpack' ),
-				'parent_item'        => __( 'Parent Menu Section', 'jetpack' ),
-				'parent_item_colon'  => __( 'Parent Menu Section:', 'jetpack' ),
-				'edit_item'          => __( 'Edit Menu Section', 'jetpack' ),
-				'view_item'          => __( 'View Menu Section', 'jetpack' ),
-				'update_item'        => __( 'Update Menu Section', 'jetpack' ),
-				'add_new_item'       => __( 'Add New Menu Section', 'jetpack' ),
-				'new_item_name'      => __( 'New Menu Sections Name', 'jetpack' ),
-			),
-			'rewrite' => array(
-				'slug'         => 'menu',
-				'with_front'   => false,
-				'hierarchical' => true,
-			),
-
-			'hierarchical'  => true,
-			'show_tagcloud' => false,
-			'query_var'     => 'menu',
-		) );
+		if ( ! taxonomy_exists( self::MENU_TAX ) ) {
+			register_taxonomy( self::MENU_TAX, self::MENU_ITEM_POST_TYPE, array(
+				'labels' => array(
+					/* translators: this is about a food menu */
+					'name'               => __( 'Menu Sections', 'jetpack' ),
+					/* translators: this is about a food menu */
+					'singular_name'      => __( 'Menu Section', 'jetpack' ),
+					/* translators: this is about a food menu */
+					'search_items'       => __( 'Search Menu Sections', 'jetpack' ),
+					/* translators: this is about a food menu */
+					'all_items'          => __( 'All Menu Sections', 'jetpack' ),
+					/* translators: this is about a food menu */
+					'parent_item'        => __( 'Parent Menu Section', 'jetpack' ),
+					/* translators: this is about a food menu */
+					'parent_item_colon'  => __( 'Parent Menu Section:', 'jetpack' ),
+					/* translators: this is about a food menu */
+					'edit_item'          => __( 'Edit Menu Section', 'jetpack' ),
+					/* translators: this is about a food menu */
+					'view_item'          => __( 'View Menu Section', 'jetpack' ),
+					/* translators: this is about a food menu */
+					'update_item'        => __( 'Update Menu Section', 'jetpack' ),
+					/* translators: this is about a food menu */
+					'add_new_item'       => __( 'Add New Menu Section', 'jetpack' ),
+					/* translators: this is about a food menu */
+					'new_item_name'      => __( 'New Menu Sections Name', 'jetpack' ),
+					'items_list_navigation' => __( 'Menu section list navigation',  'jetpack' ),
+					'items_list'            => __( 'Menu section list',             'jetpack' ),
+				),
+				'rewrite' => array(
+					'slug'         => 'menu',
+					'with_front'   => false,
+					'hierarchical' => true,
+				),
+				'hierarchical'  => true,
+				'show_tagcloud' => false,
+				'query_var'     => 'menu',
+			) );
+		}
 	}
 
 	function register_post_types() {
+		if ( post_type_exists( self::MENU_ITEM_POST_TYPE ) ) {
+			return;
+		}
+
 		register_post_type( self::MENU_ITEM_POST_TYPE, array(
 			'description' => __( "Items on your restaurant's menu", 'jetpack' ),
 
 			'labels' => array(
+				/* translators: this is about a food menu */
 				'name'               => __( 'Menu Items', 'jetpack' ),
+				/* translators: this is about a food menu */
 				'singular_name'      => __( 'Menu Item', 'jetpack' ),
+				/* translators: this is about a food menu */
 				'menu_name'          => __( 'Food Menus', 'jetpack' ),
+				/* translators: this is about a food menu */
 				'all_items'          => __( 'Menu Items', 'jetpack' ),
+				/* translators: this is about a food menu */
 				'add_new'            => __( 'Add One Item', 'jetpack' ),
+				/* translators: this is about a food menu */
 				'add_new_item'       => __( 'Add Menu Item', 'jetpack' ),
+				/* translators: this is about a food menu */
 				'edit_item'          => __( 'Edit Menu Item', 'jetpack' ),
+				/* translators: this is about a food menu */
 				'new_item'           => __( 'New Menu Item', 'jetpack' ),
+				/* translators: this is about a food menu */
 				'view_item'          => __( 'View Menu Item', 'jetpack' ),
+				/* translators: this is about a food menu */
 				'search_items'       => __( 'Search Menu Items', 'jetpack' ),
+				/* translators: this is about a food menu */
 				'not_found'          => __( 'No Menu Items found', 'jetpack' ),
+				/* translators: this is about a food menu */
 				'not_found_in_trash' => __( 'No Menu Items found in Trash', 'jetpack' ),
+				'filter_items_list'     => __( 'Filter menu items list',       'jetpack' ),
+				'items_list_navigation' => __( 'Menu item list navigation',    'jetpack' ),
+				'items_list'            => __( 'Menu items list',              'jetpack' ),
 			),
 			'supports' => array(
 				'title',
@@ -219,18 +264,25 @@ class Nova_Restaurant {
 
 		$messages[self::MENU_ITEM_POST_TYPE] = array(
 			0  => '', // Unused. Messages start at index 1.
+				/* translators: this is about a food menu */
 			1  => sprintf( __( 'Menu item updated. <a href="%s">View item</a>', 'jetpack' ), esc_url( get_permalink( $post->ID ) ) ),
 			2  => esc_html__( 'Custom field updated.', 'jetpack' ),
 			3  => esc_html__( 'Custom field deleted.', 'jetpack' ),
+			/* translators: this is about a food menu */
 			4  => esc_html__( 'Menu item updated.', 'jetpack' ),
 			/* translators: %s: date and time of the revision */
 			5  => isset( $_GET['revision'] ) ? sprintf( esc_html__( 'Menu item restored to revision from %s', 'jetpack' ), wp_post_revision_title( (int) $_GET['revision'], false ) ) : false,
+			/* translators: this is about a food menu */
 			6  => sprintf( __( 'Menu item published. <a href="%s">View item</a>', 'jetpack' ), esc_url( get_permalink( $post->ID ) ) ),
+			/* translators: this is about a food menu */
 			7  => esc_html__( 'Menu item saved.', 'jetpack' ),
+			/* translators: this is about a food menu */
 			8  => sprintf( __( 'Menu item submitted. <a target="_blank" href="%s">Preview item</a>', 'jetpack' ), esc_url( add_query_arg( 'preview', 'true', get_permalink( $post->ID ) ) ) ),
+			/* translators: this is about a food menu */
 			9  => sprintf( __( 'Menu item scheduled for: <strong>%1$s</strong>. <a target="_blank" href="%2$s">Preview item</a>', 'jetpack' ),
-			// translators: Publish box date format, see http://php.net/date
+			// translators: Publish box date format, see https://php.net/date
 			date_i18n( __( 'M j, Y @ G:i', 'jetpack' ), strtotime( $post->post_date ) ), esc_url( get_permalink($post->ID) ) ),
+			/* translators: this is about a food menu */
 			10 => sprintf( __( 'Menu item draft updated. <a target="_blank" href="%s">Preview item</a>', 'jetpack' ), esc_url( add_query_arg( 'preview', 'true', get_permalink( $post->ID ) ) ) ),
 		);
 
@@ -257,10 +309,10 @@ class Nova_Restaurant {
 	 * Change ‘Enter Title Here’ text for the Menu Item.
 	 */
 	function change_default_title( $title ) {
-		$screen = get_current_screen();
-
-		if ( self::MENU_ITEM_POST_TYPE == $screen->post_type )
+		if ( self::MENU_ITEM_POST_TYPE == get_post_type() ) {
+			/* translators: this is about a food menu */
 			$title = esc_html__( "Enter the menu item's name here", 'jetpack' );
+		}
 
 		return $title;
 	}
@@ -378,13 +430,25 @@ class Nova_Restaurant {
 		add_action( 'current_screen', array( $this, 'current_screen_load' ) );
 
 		//Adjust 'Add Many Items' submenu position
-		$submenu_item = array_pop( $GLOBALS['submenu']['edit.php?post_type=' . self::MENU_ITEM_POST_TYPE] );
-		$GLOBALS['submenu']['edit.php?post_type=' . self::MENU_ITEM_POST_TYPE][11] = $submenu_item;
-		ksort( $GLOBALS['submenu']['edit.php?post_type=' . self::MENU_ITEM_POST_TYPE] );
+		if ( isset( $GLOBALS['submenu']['edit.php?post_type=' . self::MENU_ITEM_POST_TYPE] ) ) {
+			$submenu_item = array_pop( $GLOBALS['submenu']['edit.php?post_type=' . self::MENU_ITEM_POST_TYPE] );
+			$GLOBALS['submenu']['edit.php?post_type=' . self::MENU_ITEM_POST_TYPE][11] = $submenu_item;
+			ksort( $GLOBALS['submenu']['edit.php?post_type=' . self::MENU_ITEM_POST_TYPE] );
+		}
+
 
 		$this->setup_menu_item_columns();
 
-		wp_register_script( 'nova-menu-checkboxes', plugins_url( 'js/menu-checkboxes.js', __FILE__ ), array( 'jquery' ), $this->version, true );
+		wp_register_script(
+			'nova-menu-checkboxes',
+			Assets::get_file_url_for_environment(
+				'_inc/build/custom-post-types/js/menu-checkboxes.min.js',
+				'modules/custom-post-types/js/menu-checkboxes.js'
+			),
+			array( 'jquery' ),
+			$this->version,
+			true
+		);
 	}
 
 
@@ -416,6 +480,7 @@ class Nova_Restaurant {
 
 	function admin_notices() {
 		if ( isset( $_GET['nova_reordered'] ) )
+			/* translators: this is about a food menu */
 			printf( '<div class="updated"><p>%s</p></div>', __( 'Menu Items re-ordered.', 'jetpack' ) );
 	}
 
@@ -470,9 +535,12 @@ class Nova_Restaurant {
 				), wp_nonce_url( $url, 'nova_move_item_down_' . $post_id ) );
 				$menu_item = get_post($post_id);
 				$this->get_menu_by_post_id( $post_id );
+				if ( $term_id = $this->get_menu_by_post_id( $post_id ) ) {
+					$term_id = $term_id->term_id;
+				}
 	?>
 				<input type="hidden" class="menu-order-value" name="nova_order[<?php echo (int) $post_id ?>]" value="<?php echo esc_attr( $menu_item->menu_order ) ?>" />
-				<input type="hidden" class='nova-menu-term' name="nova_menu_term[<?php echo (int) $post_id ?>]" value="<?php echo esc_attr( $this->get_menu_by_post_id( $post_id )->term_id ); ?>">
+				<input type="hidden" class='nova-menu-term' name="nova_menu_term[<?php echo (int) $post_id ?>]" value="<?php echo esc_attr( $term_id ); ?>">
 
 				<span class="hide-if-js">
 				&nbsp; &nbsp; &mdash; <a class="nova-move-item-up" data-post-id="<?php echo (int) $post_id; ?>" href="<?php echo esc_url( $up_url ); ?>">up</a>
@@ -548,7 +616,17 @@ class Nova_Restaurant {
 
 		$this->maybe_reorder_menu_items();
 
-		wp_enqueue_script( 'nova-drag-drop', plugins_url( 'js/nova-drag-drop.js', __FILE__ ), array( 'jquery-ui-sortable' ), $this->version, true );
+		wp_enqueue_script(
+			'nova-drag-drop',
+			Assets::get_file_url_for_environment(
+				'_inc/build/custom-post-types/js/nova-drag-drop.min.js',
+				'modules/custom-post-types/js/nova-drag-drop.js'
+			),
+			array( 'jquery-ui-sortable' ),
+			$this->version,
+			true
+		);
+
 		wp_localize_script( 'nova-drag-drop', '_novaDragDrop', array(
 			'nonce'       => wp_create_nonce( 'drag-drop-reorder' ),
 			'nonceName'   => 'drag-drop-reorder',
@@ -710,16 +788,25 @@ class Nova_Restaurant {
 
 		$term = $this->get_menu_item_menu_leaf( $post->ID );
 
-		if ( false !== $last_term_id && $last_term_id === $term->term_id )
+		$term_id = $term instanceof WP_Term ? $term->term_id : null;
+
+		if ( false !== $last_term_id && $last_term_id === $term_id ) {
 			return;
+		}
 
-		$last_term_id = $term->term_id;
-
-		$parent_count = 0;
-		$current_term = $term;
-		while ( $current_term->parent ) {
-			$parent_count++;
-			$current_term = get_term( $current_term->parent, self::MENU_TAX );
+		if ( is_null( $term_id ) ) {
+			$last_term_id = null;
+			$term_name = '';
+			$parent_count = 0;
+		} else {
+			$last_term_id = $term->term_id;
+			$term_name = $term->name;
+			$parent_count = 0;
+			$current_term = $term;
+			while ( $current_term->parent ) {
+				$parent_count++;
+				$current_term = get_term( $current_term->parent, self::MENU_TAX );
+			}
 		}
 
 		$non_order_column_count = $wp_list_table->get_column_count() - 1;
@@ -730,22 +817,22 @@ class Nova_Restaurant {
 
 		$up_url = add_query_arg( array(
 			'action'  => 'move-menu-up',
-			'term_id' => (int) $term->term_id,
-		), wp_nonce_url( $url, 'nova_move_menu_up_' . $term->term_id ) );
+			'term_id' => (int) $term_id,
+		), wp_nonce_url( $url, 'nova_move_menu_up_' . $term_id ) );
 
 		$down_url = add_query_arg( array(
 			'action'  => 'move-menu-down',
-			'term_id' => (int) $term->term_id,
-		), wp_nonce_url( $url, 'nova_move_menu_down_' . $term->term_id ) );
+			'term_id' => (int) $term_id,
+		), wp_nonce_url( $url, 'nova_move_menu_down_' . $term_id ) );
 
 ?>
-		<tr class="no-items menu-label-row" data-term_id="<?php echo esc_attr( $term->term_id ) ?>">
+		<tr class="no-items menu-label-row" data-term_id="<?php echo esc_attr( $term_id ) ?>">
 			<td class="colspanchange" colspan="<?php echo (int) $non_order_column_count; ?>">
 				<h3><?php
 					echo str_repeat( ' &mdash; ', (int) $parent_count );
 
-					if ( ! is_wp_error( $term ) ) {
-						echo esc_html( sanitize_term_field( 'name', $term->name, $term->term_id, self::MENU_TAX, 'display' ) );
+					if ( $term instanceof WP_Term ) {
+						echo esc_html( sanitize_term_field( 'name', $term_name, $term_id, self::MENU_TAX, 'display' ) );
 						edit_term_link( __( 'edit', 'jetpack' ), '<span class="edit-nova-section"><span class="dashicon dashicon-edit"></span>', '</span>', $term );
 
 					} else {
@@ -754,7 +841,7 @@ class Nova_Restaurant {
 				?></h3>
 			</td>
 			<td>
-				<?php if ( ! is_wp_error( $term ) ) { ?>
+				<?php if ( $term instanceof WP_Term ) { ?>
 				<a class="nova-move-menu-up" title="<?php esc_attr_e( 'Move menu section up', 'jetpack' ); ?>" href="<?php echo esc_url( $up_url ); ?>"><?php esc_html_e( 'UP', 'jetpack' ); ?></a>
 				<br />
 				<a class="nova-move-menu-down" title="<?php esc_attr_e( 'Move menu section down', 'jetpack' ); ?>" href="<?php echo esc_url( $down_url ); ?>"><?php esc_html_e( 'DOWN', 'jetpack' ); ?></a>
@@ -776,7 +863,16 @@ class Nova_Restaurant {
 	}
 
 	function enqueue_many_items_scripts() {
-		wp_enqueue_script( 'nova-many-items', plugins_url( 'js/many-items.js', __FILE__ ), array( 'jquery' ), $this->version, true );
+		wp_enqueue_script(
+			'nova-many-items',
+			Assets::get_file_url_for_environment(
+				'_inc/build/custom-post-types/js/many-items.min.js',
+				'modules/custom-post-types/js/many-items.js'
+			),
+			array( 'jquery' ),
+			$this->version,
+			true
+		);
 	}
 
 	function process_form_request() {
@@ -801,7 +897,7 @@ class Nova_Restaurant {
 				'post_title'   => $_POST['nova_title'][$key],
 				'tax_input'    => array(
 					self::MENU_ITEM_LABEL_TAX => $_POST['nova_labels'][$key],
-					self::MENU_TAX            => $_POST['nova_menu_tax'],
+					self::MENU_TAX            => isset( $_POST['nova_menu_tax'] ) ? $_POST['nova_menu_tax'] : null,
 				),
 			);
 
@@ -1117,11 +1213,29 @@ class Nova_Restaurant {
 	/**
 	 * Outputs a Menu Item Markup element opening tag
 	 *
-	 * @param string $field - Menu Item Markup settings field
+	 * @param string $field - Menu Item Markup settings field.
 	 */
 	function menu_item_loop_open_element( $field ) {
 		$markup = $this->get_menu_item_loop_markup();
-		echo '<' . tag_escape( $markup["{$field}_tag"] ) .  $this->menu_item_loop_class( $markup["{$field}_class"] ) . ">\n";
+		/**
+		 * Filter a menu item's element opening tag.
+		 *
+		 * @module custom-content-types
+		 *
+		 * @since 4.4.0
+		 *
+		 * @param string       $tag    Menu item's element opening tag.
+		 * @param string       $field  Menu Item Markup settings field.
+		 * @param array        $markup Array of markup elements for the menu item.
+		 * @param false|object $term   Taxonomy term for current menu item.
+		 */
+		echo apply_filters(
+			'jetpack_nova_menu_item_loop_open_element',
+			'<' . tag_escape( $markup["{$field}_tag"] ) . $this->menu_item_loop_class( $markup["{$field}_class"] ) . ">\n",
+			$field,
+			$markup,
+			$this->menu_item_loop_current_term
+		);
 	}
 
 	/**
@@ -1131,21 +1245,55 @@ class Nova_Restaurant {
 	 */
 	function menu_item_loop_close_element( $field ) {
 		$markup = $this->get_menu_item_loop_markup();
-		echo '</' . tag_escape( $markup["{$field}_tag"] ) . ">\n";
+		/**
+		 * Filter a menu item's element closing tag.
+		 *
+		 * @module custom-content-types
+		 *
+		 * @since 4.4.0
+		 *
+		 * @param string       $tag    Menu item's element closing tag.
+		 * @param string       $field  Menu Item Markup settings field.
+		 * @param array        $markup Array of markup elements for the menu item.
+		 * @param false|object $term   Taxonomy term for current menu item.
+		 */
+		echo apply_filters(
+			'jetpack_nova_menu_item_loop_close_element',
+			'</' . tag_escape( $markup["{$field}_tag"] ) . ">\n",
+			$field,
+			$markup,
+			$this->menu_item_loop_current_term
+		);
 	}
 
 	/**
-	 * Returns a Menu Item Markup element's class attribute
+	 * Returns a Menu Item Markup element's class attribute.
 	 *
-	 * @param string $class
-	 * @return string HTML class attribute with leading whitespace
+	 * @param  string $class Class name.
+	 * @return string HTML   class attribute with leading whitespace.
 	 */
 	function menu_item_loop_class( $class ) {
-		if ( !$class ) {
+		if ( ! $class ) {
 			return '';
 		}
 
-		return ' class="' . esc_attr( $class ) . '"';
+		/**
+		 * Filter a menu Item Markup element's class attribute.
+		 *
+		 * @module custom-content-types
+		 *
+		 * @since 4.4.0
+		 *
+		 * @param string       $tag    Menu Item Markup element's class attribute.
+		 * @param string       $class  Menu Item Class name.
+		 * @param false|object $term   Taxonomy term for current menu item.
+		 */
+		return apply_filters(
+			'jetpack_nova_menu_item_loop_class',
+			' class="' . esc_attr( $class ) . '"',
+			$class,
+			$this->menu_item_loop_current_term
+		);
 	}
 }
 

@@ -1,128 +1,144 @@
-/* global jetpack_post_by_email:true, ajaxurl */
+/* global jetpack_post_by_email:true, pbeVars */
 
-jetpack_post_by_email = {
-	init: function() {
-		jQuery( '#jp-pbe-enable' ).click( jetpack_post_by_email.enable );
-		jQuery( '#jp-pbe-regenerate' ).click( jetpack_post_by_email.regenerate );
-		jQuery( '#jp-pbe-disable' ).click( jetpack_post_by_email.disable );
-	},
+( function( $ ) {
+	var $pbeDisable,
+		$pbeEmail,
+		$pbeEmailWrapper,
+		$pbeEnable,
+		$pbeError,
+		$pbeInfo,
+		$pbeRegenerate,
+		$pbeSpinner;
 
-	enable: function() {
-		jQuery( '#jp-pbe-enable' ).attr( 'disabled', 'disabled' );
-		jQuery( '#jp-pbe-error' ).fadeOut();
-		jQuery( '#jp-pbe-spinner' ).fadeIn();
+	jetpack_post_by_email = {
+		init: function() {
+			$pbeEnable.click( jetpack_post_by_email.enable );
+			$pbeRegenerate.click( jetpack_post_by_email.regenerate );
+			$pbeDisable.click( jetpack_post_by_email.disable );
+		},
 
-		var data = {
-			action: 'jetpack_post_by_email_enable'
-		};
+		enable: function() {
+			$pbeEnable.attr( 'disabled', 'disabled' );
+			$pbeError.fadeOut();
+			$pbeSpinner.fadeIn();
 
-		jQuery.post( ajaxurl, data, jetpack_post_by_email.handle_enabled );
-	},
+			jetpack_post_by_email.send_request(
+				{ post_by_email_address: 'create' },
+				jetpack_post_by_email.handle_enabled
+			);
+		},
 
-	handle_enabled: function( response ) {
-		var enabled = false, error;
-		try {
-			error = JSON.parse( response );
-		} catch ( e ) {
-			enabled = true;
-		}
+		handle_enabled: function( response ) {
+			$pbeRegenerate.removeAttr( 'disabled' );
+			$pbeDisable.removeAttr( 'disabled' );
 
-		jQuery( '#jp-pbe-regenerate' ).removeAttr( 'disabled' );
-		jQuery( '#jp-pbe-disable' ).removeAttr( 'disabled' );
+			if ( response.code === 'success' ) {
+				$pbeEnable.fadeOut( 400, function() {
+					$pbeEnable.removeAttr( 'disabled' );
+					$pbeEmail.val( response.post_by_email_address );
+					$pbeInfo.fadeIn();
+				} );
+			} else {
+				$pbeError.text( jetpack_post_by_email.parse_error_message( response ) );
+				$pbeError.fadeIn();
+				$pbeEnable.removeAttr( 'disabled' );
+			}
 
-		if ( enabled ) {
-			jQuery( '#jp-pbe-enable' ).fadeOut( 400, function() {
-				jQuery( '#jp-pbe-enable' ).removeAttr( 'disabled' );
-				jQuery( '#jp-pbe-email' ).val( response );
-				jQuery( '#jp-pbe-info' ).fadeIn();
-			});
-		} else {
-			jQuery( '#jp-pbe-error' ).text( error.message );
-			jQuery( '#jp-pbe-error' ).fadeIn();
-			jQuery( '#jp-pbe-enable' ).removeAttr( 'disabled' );
-		}
+			$pbeSpinner.fadeOut();
+		},
 
-		jQuery( '#jp-pbe-spinner' ).fadeOut();
-	},
+		regenerate: function() {
+			jetpack_post_by_email.before_request();
 
-	regenerate: function() {
-		jQuery( '#jp-pbe-regenerate' ).attr( 'disabled', 'disabled' );
-		jQuery( '#jp-pbe-disable' ).attr( 'disabled', 'disabled' );
-		jQuery( '#jp-pbe-error' ).fadeOut();
-		jQuery( '#jp-pbe-spinner' ).fadeIn();
+			jetpack_post_by_email.send_request(
+				{ post_by_email_address: 'regenerate' },
+				jetpack_post_by_email.handle_regenerated
+			);
+		},
 
-		var data = {
-			action: 'jetpack_post_by_email_regenerate'
-		};
+		handle_regenerated: function( response ) {
+			if ( response.code === 'success' ) {
+				$pbeEmailWrapper.fadeOut( 400, function() {
+					$pbeEmail.val( response.post_by_email_address );
+					$pbeEmailWrapper.fadeIn();
+				} );
+			} else {
+				$pbeError.text( jetpack_post_by_email.parse_error_message( response ) );
+				$pbeError.fadeIn();
+			}
 
-		jQuery.post( ajaxurl, data, jetpack_post_by_email.handle_regenerated );
-	},
+			$pbeRegenerate.removeAttr( 'disabled' );
+			$pbeDisable.removeAttr( 'disabled' );
+			$pbeSpinner.fadeOut();
+		},
 
-	handle_regenerated: function( response ) {
-		var regenerated = false, error;
-		try {
-			error = JSON.parse( response );
-		} catch ( e ) {
-			regenerated = true;
-		}
+		disable: function() {
+			jetpack_post_by_email.before_request();
 
-		if ( regenerated ) {
-			jQuery( '#jp-pbe-email-wrapper' ).fadeOut( 400, function() {
-				jQuery( '#jp-pbe-email' ).val( response );
-				jQuery( '#jp-pbe-email-wrapper' ).fadeIn();
-			});
-		} else {
-			jQuery( '#jp-pbe-error' ).text( error.message );
-			jQuery( '#jp-pbe-error' ).fadeIn();
-		}
+			jetpack_post_by_email.send_request(
+				{ post_by_email_address: 'delete' },
+				jetpack_post_by_email.handle_disabled
+			);
+		},
 
-		jQuery( '#jp-pbe-regenerate' ).removeAttr( 'disabled' );
-		jQuery( '#jp-pbe-disable' ).removeAttr( 'disabled' );
-		jQuery( '#jp-pbe-spinner' ).fadeOut();
-	},
+		handle_disabled: function( response ) {
+			if ( response.code === 'success' ) {
+				$pbeEnable.removeAttr( 'disabled' );
+				$pbeInfo.fadeOut( 400, function() {
+					$pbeRegenerate.removeAttr( 'disabled' );
+					$pbeDisable.removeAttr( 'disabled' );
+					$pbeEnable.fadeIn();
+				} );
+			} else {
+				$pbeRegenerate.removeAttr( 'disabled' );
+				$pbeDisable.removeAttr( 'disabled' );
 
-	disable: function() {
-		jQuery( '#jp-pbe-regenerate' ).attr( 'disabled', 'disabled' );
-		jQuery( '#jp-pbe-disable' ).attr( 'disabled', 'disabled' );
-		jQuery( '#jp-pbe-error' ).fadeOut();
-		jQuery( '#jp-pbe-spinner' ).fadeIn();
+				$pbeError.text( jetpack_post_by_email.parse_error_message( response ) );
+				$pbeError.fadeIn();
+			}
 
-		var data = {
-			action: 'jetpack_post_by_email_disable'
-		};
+			$pbeSpinner.fadeOut();
+		},
 
-		jQuery.post( ajaxurl, data, jetpack_post_by_email.handle_disabled );
-	},
+		send_request: function( data, callback ) {
+			var request = new XMLHttpRequest();
+			request.open( 'POST', '/wp-json/jetpack/v4/settings/' );
+			request.setRequestHeader( 'Content-Type', 'application/json' );
+			request.setRequestHeader( 'X-WP-Nonce', pbeVars.rest_nonce );
+			request.onreadystatechange = function() {
+				if ( this.readyState === XMLHttpRequest.DONE ) {
+					callback( JSON.parse( this.response ) );
+				}
+			};
+			request.send( JSON.stringify( data ) );
+		},
 
-	handle_disabled: function( response ) {
-		var disabled = false, error;
-		try {
-			error = JSON.parse( response );
-		} catch ( e ) {
-			disabled = true;
-		}
+		parse_error_message: function( data ) {
+			if ( data.message ) {
+				return data.message.replace( /^.*?:/, '' );
+			}
 
-		if ( 'error' !== error.response ) {
-			disabled = true;
-		}
+			return '';
+		},
 
-		if ( disabled ) {
-			jQuery( '#jp-pbe-enable' ).removeAttr( 'disabled' );
-			jQuery( '#jp-pbe-info' ).fadeOut( 400, function() {
-				jQuery( '#jp-pbe-regenerate' ).removeAttr( 'disabled' );
-				jQuery( '#jp-pbe-disable' ).removeAttr( 'disabled' );
-				jQuery( '#jp-pbe-enable' ).fadeIn();
-			});
-		} else {
-			jQuery( '#jp-pbe-regenerate' ).removeAttr( 'disabled' );
-			jQuery( '#jp-pbe-disable' ).removeAttr( 'disabled' );
+		before_request: function() {
+			$pbeRegenerate.attr( 'disabled', 'disabled' );
+			$pbeDisable.attr( 'disabled', 'disabled' );
+			$pbeError.fadeOut();
+			$pbeSpinner.fadeIn();
+		},
+	};
 
-			jQuery( '#jp-pbe-error' ).text( error.message );
-			jQuery( '#jp-pbe-error' ).fadeIn();
-		}
+	$( function() {
+		$pbeDisable = $( '#jp-pbe-disable' );
+		$pbeEmail = $( '#jp-pbe-email' );
+		$pbeEmailWrapper = $( '#jp-pbe-email-wrapper' );
+		$pbeEnable = $( '#jp-pbe-enable' );
+		$pbeError = $( '#jp-pbe-error' );
+		$pbeInfo = $( '#jp-pbe-info' );
+		$pbeRegenerate = $( '#jp-pbe-regenerate' );
+		$pbeSpinner = $( '#jp-pbe-spinner' );
 
-		jQuery( '#jp-pbe-spinner' ).fadeOut();
-	}
-};
-
-jQuery( function() { jetpack_post_by_email.init(); } );
+		jetpack_post_by_email.init();
+	} );
+} )( jQuery );

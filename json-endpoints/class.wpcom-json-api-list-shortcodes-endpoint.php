@@ -1,4 +1,25 @@
 <?php
+
+new WPCOM_JSON_API_List_Shortcodes_Endpoint( array(
+	'description' => "Get a list of shortcodes available on a site. Note: The current user must have publishing access.",
+	'group'       => 'sites',
+	'stat'        => 'shortcodes',
+	'method'      => 'GET',
+	'path'        => '/sites/%s/shortcodes',
+	'path_labels' => array(
+		'$site'    => '(int|string) Site ID or domain',
+	),
+	'response_format' => array(
+		'shortcodes' => '(array) A list of supported shortcodes by their handle.',
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/82974409/shortcodes',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	)
+) );
+
 class WPCOM_JSON_API_List_Shortcodes_Endpoint extends WPCOM_JSON_API_Endpoint {
 	// /sites/%s/shortcodes -> $blog_id
 	function callback( $path = '', $blog_id = 0 ) {

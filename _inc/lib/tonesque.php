@@ -1,13 +1,13 @@
 <?php
 /*
 Plugin Name: Tonesque
-Plugin URI: http://automattic.com/
+Plugin URI: https://automattic.com/
 Description: Grab an average color representation from an image.
 Version: 1.0
 Author: Automattic, Matias Ventura
-Author URI: http://automattic.com/
+Author URI: https://automattic.com/
 License: GNU General Public License v2 or later
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
 */
 
 class Tonesque {
@@ -17,13 +17,16 @@ class Tonesque {
 	private $color = '';
 
 	function __construct( $image_url ) {
-		if ( ! class_exists( 'Jetpack_Color' ) )
+		if ( ! class_exists( 'Jetpack_Color' ) ) {
 			jetpack_require_lib( 'class.color' );
+		}
 
 		$this->image_url = esc_url_raw( $image_url );
 		$this->image_url = trim( $this->image_url );
 		/**
 		 * Allows any image URL to be passed in for $this->image_url.
+		 *
+		 * @module theme-tools
 		 *
 		 * @since 2.5.0
 		 *
@@ -35,34 +38,55 @@ class Tonesque {
 	}
 
 	public static function imagecreatefromurl( $image_url ) {
-	 	// Grab the extension
-		$file = strtolower( pathinfo( $image_url, PATHINFO_EXTENSION ) );
-		$file = explode( '?', $file );
-		$file = $file[ 0 ];
+		$data = null;
 
-		switch ( $file ) {
-			case 'gif' :
-				$image_obj = imagecreatefromgif( $image_url );
-				break;
-			case 'png' :
-				$image_obj = imagecreatefrompng( $image_url );
-				break;
-			case 'jpg' :
-			case 'jpeg' :
-				$image_obj = imagecreatefromjpeg( $image_url );
-				break;
-			default:
-				return false;
+		// If it's a URL:
+		if ( preg_match( '#^https?://#i', $image_url ) ) {
+			// If it's a url pointing to a local media library url:
+			$content_url = content_url();
+			$_image_url  = set_url_scheme( $image_url );
+			if ( wp_startswith( $_image_url, $content_url ) ) {
+				$_image_path = str_replace( $content_url, WP_CONTENT_DIR, $_image_url );
+				if ( file_exists( $_image_path ) ) {
+					$filetype = wp_check_filetype( $_image_path );
+					$ext = $filetype['ext'];
+					$type = $filetype['type'];
+
+					if ( wp_startswith( $type, 'image/' ) ) {
+						$data = file_get_contents( $_image_path );
+					}
+				}
+			}
+
+			if ( empty( $data ) ) {
+				$response = wp_remote_get( $image_url );
+				if ( is_wp_error( $response ) ) {
+					return false;
+				}
+				$data = wp_remote_retrieve_body( $response );
+			}
 		}
 
-		return $image_obj;
+		// If it's a local path in our WordPress install:
+		if ( file_exists( $image_url ) ) {
+			$filetype = wp_check_filetype( $image_url );
+			$ext = $filetype['ext'];
+			$type = $filetype['type'];
+
+			if ( wp_startswith( $type, 'image/' ) ) {
+				$data = file_get_contents( $image_url );
+			}
+		}
+
+		// Now turn it into an image and return it.
+		return imagecreatefromstring( $data );
 	}
 
 	/**
 	 *
 	 * Construct object from image.
 	 *
-	 * @param optional $type (hex, rgb, hsl)
+	 * @param optional $type (hex, rgb, hsv)
 	 * @return color as a string formatted as $type
 	 *
  	 */
@@ -179,13 +203,13 @@ class Tonesque {
 
 		switch ( $type ) {
 			case 'rgb' :
-				$color = implode( $c->toRgbInt(), ',' );
+				$color = implode( ',', $c->toRgbInt() );
 				break;
 			case 'hex' :
 				$color = $c->toHex();
 				break;
 			case 'hsv' :
-				$color = implode( $c->toHsvInt(), ',' );
+				$color = implode( ',', $c->toHsvInt() );
 				break;
 			default:
 				return $color = $c->toHex();
@@ -207,7 +231,7 @@ class Tonesque {
 			return false;
 
 		$c = $this->color->getMaxContrastColor();
-		return implode( $c->toRgbInt(), ',' );
+		return implode( ',', $c->toRgbInt() );
 	}
 
 };

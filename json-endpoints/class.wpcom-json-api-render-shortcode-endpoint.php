@@ -1,4 +1,31 @@
 <?php
+
+new WPCOM_JSON_API_Render_Shortcode_Endpoint( array(
+	'description' => "Get a rendered shortcode for a site. Note: The current user must have publishing access.",
+	'group'       => 'sites',
+	'stat'        => 'shortcodes:render',
+	'method'      => 'GET',
+	'path'        => '/sites/%s/shortcodes/render',
+	'path_labels' => array(
+		'$site'    => '(int|string) Site ID or domain',
+	),
+	'query_parameters' => array(
+		'shortcode'     => '(string) The query-string encoded shortcode string to render. Required. Only accepts one at a time.',
+	),
+	'response_format' => array(
+		'shortcode' => '(string) The shortcode that was passed in for rendering.',
+		'result'    => '(html) The rendered HTML result of the shortcode.',
+		'scripts'   => '(array) An array of JavaScript files needed to render the shortcode. Returned in the format of <code>{ "script-slug" : { "src": "http://example.com/file.js", "extra" : "" } }</code> where extra contains any neccessary extra JS for initializing the source file and src contains the script to load. Omitted if no scripts are neccessary.',
+		'styles'    => '(array) An array of CSS files needed to render the shortcode. Returned in the format of <code>{ "style-slug" : { "src": "http://example.com/file.css", "media" : "all" } }</code>. Omitted if no styles are neccessary.',
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/82974409/shortcodes/render?shortcode=%5Bgallery%20ids%3D%22729%2C732%2C731%2C720%22%5D',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	)
+) );
+
 class WPCOM_JSON_API_Render_Shortcode_Endpoint extends WPCOM_JSON_API_Render_Endpoint {
 	// /sites/%s/shortcodes/render -> $blog_id
 	function callback( $path = '', $blog_id = 0 ) {
@@ -41,10 +68,4 @@ class WPCOM_JSON_API_Render_Shortcode_Endpoint extends WPCOM_JSON_API_Render_End
 
 		return $return;
 	}
-
-	function do_shortcode( $shortcode ) {
-		$result = do_shortcode( $shortcode );
-		return $result;
-	}
-
 }

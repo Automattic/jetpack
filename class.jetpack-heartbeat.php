@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Connection\Manager;
+
 class Jetpack_Heartbeat {
 
 	/**
@@ -21,7 +23,7 @@ class Jetpack_Heartbeat {
 	 */
 	public static function init() {
 		if ( ! self::$instance ) {
-			self::$instance = new Jetpack_Heartbeat;
+			self::$instance = new Jetpack_Heartbeat();
 		}
 
 		return self::$instance;
@@ -34,8 +36,9 @@ class Jetpack_Heartbeat {
 	 * @return Jetpack_Heartbeat
 	 */
 	private function __construct() {
-		if ( ! Jetpack::is_active() )
+		if ( ! Jetpack::is_active() ) {
 			return;
+		}
 
 		// Schedule the task
 		add_action( $this->cron_name, array( $this, 'cron_exec' ) );
@@ -91,54 +94,85 @@ class Jetpack_Heartbeat {
 
 		$jetpack->do_stats( 'server_side' );
 
+		/**
+		 * Fires when we synchronize all registered options on heartbeat.
+		 *
+		 * @since 3.3.0
+		 */
 		do_action( 'jetpack_heartbeat' );
 	}
 
+	/**
+	 * Generates heartbeat stats data.
+	 *
+	 * @param string $prefix Prefix to add before stats identifier.
+	 *
+	 * @return array The stats array.
+	 */
 	public static function generate_stats_array( $prefix = '' ) {
 		$return = array();
 
-		$return["{$prefix}version"]        = JETPACK__VERSION;
-		$return["{$prefix}wp-version"]     = get_bloginfo( 'version' );
-		$return["{$prefix}php-version"]    = PHP_VERSION;
-		$return["{$prefix}branch"]         = floatval( JETPACK__VERSION );
-		$return["{$prefix}wp-branch"]      = floatval( get_bloginfo( 'version' ) );
-		$return["{$prefix}php-branch"]     = floatval( PHP_VERSION );
-		$return["{$prefix}public"]         = Jetpack_Options::get_option( 'public' );
-		$return["{$prefix}ssl"]            = Jetpack::permit_ssl();
-		$return["{$prefix}language"]       = get_bloginfo( 'language' );
-		$return["{$prefix}charset"]        = get_bloginfo( 'charset' );
-		$return["{$prefix}is-multisite"]   = is_multisite() ? 'multisite' : 'singlesite';
-		$return["{$prefix}identitycrisis"] = Jetpack::check_identity_crisis( 1 ) ? 'yes' : 'no';
-		$return["{$prefix}plugins"]        = implode( ',', Jetpack::get_active_plugins() );
+		$return[ "{$prefix}version" ]        = JETPACK__VERSION;
+		$return[ "{$prefix}wp-version" ]     = get_bloginfo( 'version' );
+		$return[ "{$prefix}php-version" ]    = PHP_VERSION;
+		$return[ "{$prefix}branch" ]         = floatval( JETPACK__VERSION );
+		$return[ "{$prefix}wp-branch" ]      = floatval( get_bloginfo( 'version' ) );
+		$return[ "{$prefix}php-branch" ]     = floatval( PHP_VERSION );
+		$return[ "{$prefix}public" ]         = Jetpack_Options::get_option( 'public' );
+		$return[ "{$prefix}ssl" ]            = Jetpack::permit_ssl();
+		$return[ "{$prefix}is-https" ]       = is_ssl() ? 'https' : 'http';
+		$return[ "{$prefix}language" ]       = get_bloginfo( 'language' );
+		$return[ "{$prefix}charset" ]        = get_bloginfo( 'charset' );
+		$return[ "{$prefix}is-multisite" ]   = is_multisite() ? 'multisite' : 'singlesite';
+		$return[ "{$prefix}identitycrisis" ] = Jetpack::check_identity_crisis() ? 'yes' : 'no';
+		$return[ "{$prefix}plugins" ]        = implode( ',', Jetpack::get_active_plugins() );
+		if ( function_exists( 'get_mu_plugins' ) ) {
+			$return[ "{$prefix}mu-plugins" ] = implode( ',', array_keys( get_mu_plugins() ) );
+		}
+		$return[ "{$prefix}manage-enabled" ] = true;
 
-		$return["{$prefix}single-user-site"]= Jetpack::is_single_user_site();
+		$xmlrpc_errors = Jetpack_Options::get_option( 'xmlrpc_errors', array() );
+		if ( $xmlrpc_errors ) {
+			$return[ "{$prefix}xmlrpc-errors" ] = implode( ',', array_keys( $xmlrpc_errors ) );
+			Jetpack_Options::delete_option( 'xmlrpc_errors' );
+		}
 
-		$return["{$prefix}manage-enabled"] = Jetpack::is_module_active( 'manage' );
+		// Missing the connection owner?
+		$connection_manager                 = new Manager();
+		$return[ "{$prefix}missing-owner" ] = $connection_manager->is_missing_connection_owner();
 
-		// is-multi-network can have three values, `single-site`, `single-network`, and `multi-network`
-		$return["{$prefix}is-multi-network"] = 'single-site';
+		// is-multi-network can have three values, `single-site`, `single-network`, and `multi-network`.
+		$return[ "{$prefix}is-multi-network" ] = 'single-site';
 		if ( is_multisite() ) {
-			$return["{$prefix}is-multi-network"] = Jetpack::is_multi_network() ? 'multi-network' : 'single-network';
+			$return[ "{$prefix}is-multi-network" ] = Jetpack::is_multi_network() ? 'multi-network' : 'single-network';
 		}
 
 		if ( ! empty( $_SERVER['SERVER_ADDR'] ) || ! empty( $_SERVER['LOCAL_ADDR'] ) ) {
 			$ip     = ! empty( $_SERVER['SERVER_ADDR'] ) ? $_SERVER['SERVER_ADDR'] : $_SERVER['LOCAL_ADDR'];
 			$ip_arr = array_map( 'intval', explode( '.', $ip ) );
-			if ( 4 == count( $ip_arr ) ) {
-				$return["{$prefix}ip-2-octets"] = implode( '.', array_slice( $ip_arr, 0, 2 ) );
+			if ( 4 === count( $ip_arr ) ) {
+				$return[ "{$prefix}ip-2-octets" ] = implode( '.', array_slice( $ip_arr, 0, 2 ) );
 			}
 		}
 
 		foreach ( Jetpack::get_available_modules() as $slug ) {
-			$return["{$prefix}module-{$slug}"] = Jetpack::is_module_active( $slug ) ? 'on' : 'off';
+			$return[ "{$prefix}module-{$slug}" ] = Jetpack::is_module_active( $slug ) ? 'on' : 'off';
 		}
 
 		return $return;
 	}
 
 	public static function jetpack_xmlrpc_methods( $methods ) {
-		$methods['jetpack.getHeartbeatData'] = array( __CLASS__, 'generate_stats_array' );
+		$methods['jetpack.getHeartbeatData'] = array( __CLASS__, 'xmlrpc_data_response' );
 		return $methods;
+	}
+
+	public static function xmlrpc_data_response( $params = array() ) {
+		// The WordPress XML-RPC server sets a default param of array()
+		// if no argument is passed on the request and the method handlers get this array in $params.
+		// generate_stats_array() needs a string as first argument.
+		$params = empty( $params ) ? '' : $params;
+		return self::generate_stats_array( $params );
 	}
 
 	public function deactivate() {

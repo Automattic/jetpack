@@ -63,7 +63,7 @@ if ( isset( $argv[2] ) ) {
 		$origin_urls[] = $origin_url;
 	}
 
-	$origin_urls[] = 'http://translate.wordpress.com/api/projects/wpcom';
+	$origin_urls[] = 'https://translate.wordpress.com/api/projects/wpcom';
 */
 	die_error( 'No SOURCE_URLs specified' );
 }

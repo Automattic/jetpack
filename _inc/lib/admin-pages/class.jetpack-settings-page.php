@@ -1,26 +1,68 @@
 <?php
+
+use Automattic\Jetpack\Tracking;
+use Automattic\Jetpack\Assets;
+
 include_once( 'class.jetpack-admin-page.php' );
 include_once( JETPACK__PLUGIN_DIR . 'class.jetpack-modules-list-table.php' );
 
 // Builds the settings page and its menu
 class Jetpack_Settings_Page extends Jetpack_Admin_Page {
+
 	// Show the settings page only when Jetpack is connected or in dev mode
 	protected $dont_show_if_not_active = true;
-	function add_page_actions( $hook ) {} // There are no page specific actions to attach to the menu
+
+	function add_page_actions( $hook ) {}
 
 	// Adds the Settings sub menu
 	function get_page_hook() {
-		return add_submenu_page( 'jetpack', __( 'Jetpack Settings', 'jetpack' ), __( 'Settings', 'jetpack' ), 'jetpack_manage_modules', 'jetpack_modules', array( $this, 'render' ) );
+		return add_submenu_page(
+			null,
+			__( 'Jetpack Settings', 'jetpack' ),
+			__( 'Settings', 'jetpack' ),
+			'jetpack_manage_modules',
+			'jetpack_modules',
+			array( $this, 'render' )
+		);
 	}
 
 	// Renders the module list table where you can use bulk action or row
 	// actions to activate/deactivate and configure modules
 	function page_render() {
 		$list_table = new Jetpack_Modules_List_Table;
+
+		// We have static.html so let's continue trying to fetch the others
+		$noscript_notice = @file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static-noscript-notice.html' );
+		$rest_api_notice = @file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static-version-notice.html' );
+
+		$noscript_notice = str_replace(
+			'#HEADER_TEXT#',
+			esc_html__( 'You have JavaScript disabled', 'jetpack' ),
+			$noscript_notice
+		);
+		$noscript_notice = str_replace(
+			'#TEXT#',
+			esc_html__( "Turn on JavaScript to unlock Jetpack's full potential!", 'jetpack' ),
+			$noscript_notice
+		);
+
+		$rest_api_notice = str_replace(
+			'#HEADER_TEXT#',
+			esc_html( __( 'WordPress REST API is disabled', 'jetpack' ) ),
+			$rest_api_notice
+		);
+		$rest_api_notice = str_replace(
+			'#TEXT#',
+			esc_html( __( "Enable WordPress REST API to unlock Jetpack's full potential!", 'jetpack' ) ),
+			$rest_api_notice
+		);
+
+		if ( ! $this->is_rest_api_enabled() ) {
+			echo $rest_api_notice;
+		}
+		echo $noscript_notice;
 		?>
-		<div class="clouds-sm"></div>
-		<?php /** This action is documented in class.jetpack.php */
-		do_action( 'jetpack_notices' ) ?>
+
 		<div class="page-content configure">
 			<div class="frame top hide-if-no-js">
 				<div class="wrap">
@@ -43,7 +85,7 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 			</div><!-- /.frame -->
 			<div class="frame bottom">
 				<div class="wrap">
-					<div class="manage-right">
+					<div class="manage-right" style="display: none;">
 						<div class="bumper">
 							<form class="navbar-form" role="search">
 								<input type="hidden" name="page" value="jetpack_modules" />
@@ -65,7 +107,7 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 							</form>
 						</div>
 					</div>
-					<div class="manage-left">
+					<div class="manage-left" style="width: 100%;">
 						<form class="jetpack-modules-list-table-form" onsubmit="return false;">
 						<table class="<?php echo implode( ' ', $list_table->get_table_classes() ); ?>">
 							<tbody id="the-list">
@@ -78,10 +120,27 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 			</div><!-- /.frame -->
 		</div><!-- /.content -->
 		<?php
+
+		$tracking = new Tracking();
+		$tracking->record_user_event( 'wpa_page_view', array( 'path' => 'old_settings' ) );
+	}
+
+	/**
+	 * Load styles for static page.
+	 *
+	 * @since 4.3.0
+	 */
+	function additional_styles() {
+		Jetpack_Admin_Page::load_wrapper_styles();
 	}
 
 	// Javascript logic specific to the list table
 	function page_admin_scripts() {
-		wp_enqueue_script( 'jetpack-admin-js', plugins_url( '_inc/jetpack-admin.js', JETPACK__PLUGIN_FILE ), array( 'jquery' ), JETPACK__VERSION . '-20121111' );
+		wp_enqueue_script(
+			'jetpack-admin-js',
+			Assets::get_file_url_for_environment( '_inc/build/jetpack-admin.min.js', '_inc/jetpack-admin.js' ),
+			array( 'jquery' ),
+			JETPACK__VERSION
+		);
 	}
 }

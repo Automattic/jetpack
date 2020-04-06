@@ -1,88 +1,131 @@
 <?php
-
-// guarantee use of https
-wp_oembed_remove_provider( '#https?://(www\.)?slideshare\.net/.*#i' );
-wp_oembed_add_provider( '#https?://(www\.)?slideshare\.net/.*#i', 'https://www.slideshare.net/api/oembed/2', true );
-
-/*
- * Slideshare shortcode format:
+/**
+ * Slideshare shortcode
+ *
+ * Formats:
  * Old style (still compatible): [slideshare id=5342235&doc=camprock-101002163655-phpapp01&w=300&h=200]
  * New style: [slideshare id=5342235&w=300&h=200&fb=0&mw=0&mh=0&sc=no]
  *
  * Legend:
- *	id 	= 	Document ID provided by Slideshare
- *	w	=	Width of iFrame 	(int)
- *	h	=	Height of iFrame 	(int)
- *	fb	=	iFrame frameborder 	(int)
- *	mw	=	iFrame marginwidth 	(int)
- *	mh	=	iFrame marginheight	(int)
- *	sc	=	iFrame Scrollbar	(yes/no)
- **/
+ *  id    = Document ID provided by Slideshare
+ *  w     = Width of iFrame     (int)
+ *  h     = Height of iFrame    (int)
+ *  fb    = iFrame frameborder  (int)
+ *  mw    = iFrame marginwidth  (int)
+ *  mh    = iFrame marginheight (int)
+ *  sc    = iFrame Scrollbar    (yes/no)
+ *  pro   = Slideshare Pro      (yes/no)
+ *  style = Inline CSS          (string)
+ *
+ * @package Jetpack
+ */
 
-add_shortcode( 'slideshare', 'slideshare_shortcode' );
-
+/**
+ * Register and display shortcode.
+ *
+ * @param array $atts Shortcode attributes.
+ */
 function slideshare_shortcode( $atts ) {
 	global $content_width;
 
 	$params = shortcode_new_to_old_params( $atts );
 	parse_str( $params, $arguments );
 
-	if ( empty( $arguments ) )
+	if ( empty( $arguments ) ) {
 		return '<!-- SlideShare error: no arguments -->';
-
-	extract( $arguments );
-
-	// check that the Slideshare ID contains letters, numbers and query strings
-	$pattern = '/[^-_a-zA-Z0-9?=&]/';
-	if ( empty( $id ) || preg_match( $pattern, $id ) )
-		return '<!-- SlideShare error: id is missing or has illegal characters -->';
-
-	// check the width/height
-	if ( empty( $w ) && ! empty( $content_width ) )
-		$w = intval( $content_width );
-	elseif ( ! ( $w = intval( $w ) ) || $w < 300 || $w > 1600 )
-		$w = 425;
-	else
-		$w = intval( $w );
-
-	$h = ceil( $w * 348 / 425 );
-
-	if ( isset( $pro ) ) {
-		$source = "https://www.slideshare.net/slidesharepro/$id";
-	} else {
-		$source = "https://www.slideshare.net/slideshow/embed_code/$id";
 	}
 
-	if ( isset( $rel ) )
-		$source = add_query_arg( 'rel', intval( $rel ), $source );
+	$attr = shortcode_atts(
+		array(
+			'id'    => '',
+			'w'     => '',
+			'h'     => '',
+			'fb'    => '',
+			'mw'    => '',
+			'mh'    => '',
+			'sc'    => '',
+			'pro'   => '',
+			'style' => '',
+		),
+		$arguments
+	);
 
-	if ( isset( $startSlide ) )
-		$source = add_query_arg( 'startSlide', intval( $startSlide ), $source );
+	// check that the Slideshare ID contains letters, numbers and query strings.
+	$pattern = '/[^-_a-zA-Z0-9?=&]/';
+	if ( empty( $attr['id'] ) || preg_match( $pattern, $attr['id'] ) ) {
+		return '<!-- SlideShare error: id is missing or has illegal characters -->';
+	}
+
+	// check the width/height.
+	$w = intval( $attr['w'] );
+
+	// If no width was specified (or uses the wrong format), and if we have a $content_width, use that.
+	if ( empty( $w ) && ! empty( $content_width ) ) {
+		$w = intval( $content_width );
+	} elseif ( $w < 300 || $w > 1600 ) { // If width was specified, but is too small/large, set default value.
+		$w = 425;
+	} else {
+		$w = intval( $w );
+	}
+
+	$h = ceil( $w * 348 / 425 ); // Note: user-supplied height is ignored.
+
+	if ( ! empty( $attr['pro'] ) ) {
+		$source = 'https://www.slideshare.net/slidesharepro/' . $attr['id'];
+	} else {
+		$source = 'https://www.slideshare.net/slideshow/embed_code/' . $attr['id'];
+	}
+
+	if ( isset( $attr['rel'] ) ) {
+		$source = add_query_arg( 'rel', intval( $attr['rel'] ), $source );
+	}
+
+	if ( ! empty( $attr['startSlide'] ) ) {
+		$source = add_query_arg( 'startSlide', intval( $attr['startSlide'] ), $source );
+	}
 
 	$player = sprintf( "<iframe src='%s' width='%d' height='%d'", esc_url( $source ), $w, $h );
 
-	// check the frameborder
-	if ( isset( $fb ) )
-		$player .= " frameborder='" . intval( $fb ) . "'";
+	// check the frameborder.
+	if ( ! empty( $attr['fb'] ) || '0' === $attr['fb'] ) {
+		$player .= " frameborder='" . intval( $attr['fb'] ) . "'";
+	}
 
-	// check the margin width; if not empty, cast as int
-	if ( isset( $mw ) )
-		$player .= " marginwidth='" . intval( $mw ) . "'";
+	// check the margin width; if not empty, cast as int.
+	if ( ! empty( $attr['mw'] ) || '0' === $attr['mw'] ) {
+		$player .= " marginwidth='" . intval( $attr['mw'] ) . "'";
+	}
 
-	// check the margin height, if not empty, cast as int
-	if ( isset( $mh ) )
-		$player .= " marginheight='" . intval( $mh ) . "'";
+	// check the margin height, if not empty, cast as int.
+	if ( ! empty( $attr['mh'] ) || '0' === $attr['mh'] ) {
+		$player .= " marginheight='" . intval( $attr['mh'] ) . "'";
+	}
 
-	if ( ! empty( $style ) )
-		$player .= " style='" . $style . "'";
+	if ( ! empty( $attr['style'] ) ) {
+		$player .= " style='" . esc_attr( $attr['style'] ) . "'";
+	}
 
-	// check the scrollbar; cast as a lowercase string for comparison
-	$sc = isset( $sc ) ? strtolower( $sc ) : '';
+	// check the scrollbar; cast as a lowercase string for comparison.
+	if ( ! empty( $attr['sc'] ) ) {
+		$sc = strtolower( $attr['sc'] );
 
-	if ( in_array( $sc, array( 'yes', 'no' ) ) )
-		$player .= " scrolling='" . $sc . "'";
+		if ( in_array( $sc, array( 'yes', 'no' ), true ) ) {
+			$player .= " scrolling='" . $sc . "'";
+		}
+	}
 
 	$player .= ' allowfullscreen webkitallowfullscreen mozallowfullscreen></iframe>';
 
-	return $player;
+	/**
+	 * Filter the returned SlideShare shortcode.
+	 *
+	 * @module shortcodes
+	 *
+	 * @since 4.7.0
+	 *
+	 * @param string $player The iframe to return.
+	 * @param array  $atts   The attributes specified in the shortcode.
+	 */
+	return apply_filters( 'jetpack_slideshare_shortcode', $player, $atts );
 }
+add_shortcode( 'slideshare', 'slideshare_shortcode' );

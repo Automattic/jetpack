@@ -1,12 +1,14 @@
 <?php
 /**
  * Module Name: Infinite Scroll
- * Module Description: Add support for infinite scroll to your theme.
+ * Module Description: Automatically load new content when a visitor scrolls
  * Sort Order: 26
  * First Introduced: 2.0
  * Requires Connection: No
  * Auto Activate: No
  * Module Tags: Appearance
+ * Feature: Appearance
+ * Additional Search Queries: scroll, infinite, infinite scroll
  */
 
 /**
@@ -55,24 +57,12 @@ class Jetpack_Infinite_Scroll_Extras {
 	/**
 	 * Enable "Configure" button on module card
 	 *
-	 * @uses Jetpack::enable_module_configurable, Jetpack::module_configuration_load
+	 * @uses Jetpack::enable_module_configurable
 	 * @action jetpack_modules_loaded
 	 * @return null
 	 */
 	public function action_jetpack_modules_loaded() {
 		Jetpack::enable_module_configurable( __FILE__ );
-		Jetpack::module_configuration_load( __FILE__, array( $this, 'module_configuration_load' ) );
-	}
-
-	/**
-	 * Redirect configure button to Settings > Reading
-	 *
-	 * @uses wp_safe_redirect, admin_url
-	 * @return null
-	 */
-	public function module_configuration_load() {
-		wp_safe_redirect( admin_url( 'options-reading.php#infinite-scroll-options' ) );
-		exit;
 	}
 
 	/**
@@ -94,7 +84,8 @@ class Jetpack_Infinite_Scroll_Extras {
 	 * @return html
 	 */
 	public function setting_google_analytics() {
-		echo '<label><input name="infinite_scroll_google_analytics" type="checkbox" value="1" ' . checked( true, (bool) get_option( $this->option_name_google_analytics, false ), false ) . ' /> ' . __( 'Track each Infinite Scroll post load as a page view in Google Analytics', 'jetpack' ) . '</br><small>' . __( 'By checking the box above, each new set of posts loaded via Infinite Scroll will be recorded as a page view in Google Analytics.', 'jetpack' ) . '</small>' . '</label>';
+		echo '<label><input name="infinite_scroll_google_analytics" type="checkbox" value="1" ' . checked( true, (bool) get_option( $this->option_name_google_analytics, false ), false ) . ' /> ' . esc_html__( 'Track each scroll load (7 posts by default) as a page view in Google Analytics', 'jetpack' )  . '</label>';
+		echo '<p class="description">' . esc_html__( 'Check the box above to record each new set of posts loaded via Infinite Scroll as a page view in Google Analytics.', 'jetpack' ) . '</p>';
 	}
 
 	/**
@@ -113,16 +104,17 @@ class Jetpack_Infinite_Scroll_Extras {
 	 *
 	 * As released in Jetpack 2.0, a child theme's parent wasn't checked for in the plugin's bundled support, hence the convoluted way the parent is checked for now.
 	 *
-	 * @uses is_admin, wp_get_theme, get_theme, get_current_theme, apply_filters
+	 * @uses is_admin, wp_get_theme, apply_filters
 	 * @action setup_theme
 	 * @return null
 	 */
 	function action_after_setup_theme() {
-		$theme = function_exists( 'wp_get_theme' ) ? wp_get_theme() : get_theme( get_current_theme() );
+		$theme = wp_get_theme();
 
 		if ( ! is_a( $theme, 'WP_Theme' ) && ! is_array( $theme ) )
 			return;
 
+		/** This filter is already documented in modules/infinite-scroll/infinity.php */
 		$customization_file = apply_filters( 'infinite_scroll_customization_file', dirname( __FILE__ ) . "/infinite-scroll/themes/{$theme['Stylesheet']}.php", $theme['Stylesheet'] );
 
 		if ( is_readable( $customization_file ) ) {
@@ -157,7 +149,7 @@ class Jetpack_Infinite_Scroll_Extras {
 			}
 
 			// We made it this far, so gather the data needed to track IS views
-			$settings['stats'] = 'blog=' . Jetpack_Options::get_option( 'id' ) . '&host=' . parse_url( get_option( 'home' ), PHP_URL_HOST ) . '&v=ext&j=' . JETPACK__API_VERSION . ':' . JETPACK__VERSION;
+			$settings['stats'] = 'blog=' . Jetpack_Options::get_option( 'id' ) . '&host=' . wp_parse_url( get_option( 'home' ), PHP_URL_HOST ) . '&v=ext&j=' . JETPACK__API_VERSION . ':' . JETPACK__VERSION;
 
 			// Pagetype parameter
 			$settings['stats'] .= '&x_pagetype=infinite';
@@ -168,7 +160,7 @@ class Jetpack_Infinite_Scroll_Extras {
 		}
 
 		// Check if Google Analytics tracking is requested
-		$settings['google_analytics'] = (bool) get_option( $this->option_name_google_analytics );
+		$settings['google_analytics'] = (bool) Jetpack_Options::get_option_and_ensure_autoload( $this->option_name_google_analytics, 0 );
 
 		return $settings;
 	}
@@ -187,8 +179,20 @@ class Jetpack_Infinite_Scroll_Extras {
 	public function action_wp_enqueue_scripts() {
 		// Do not load scripts and styles on singular pages and static pages
 		$load_scripts_and_styles = ! ( is_singular() || is_page() );
-		if ( ! apply_filters( 'jetpack_infinite_scroll_load_scripts_and_styles', $load_scripts_and_styles ) )
+		if (
+			/**
+			 * Allow plugins to enqueue all Infinite Scroll scripts and styles on singular pages as well.
+			 *
+			 *  @module infinite-scroll
+			 *
+			 * @since 3.1.0
+			 *
+			 * @param bool $load_scripts_and_styles Should scripts and styles be loaded on singular pahes and static pages. Default to false.
+			 */
+			! apply_filters( 'jetpack_infinite_scroll_load_scripts_and_styles', $load_scripts_and_styles )
+		) {
 			return;
+		}
 
 		// VideoPress stand-alone plugin
 		global $videopress;
@@ -203,23 +207,13 @@ class Jetpack_Infinite_Scroll_Extras {
 
 		// Fire the post_gallery action early so Carousel scripts are present.
 		if ( Jetpack::is_module_active( 'carousel' ) ) {
-			do_action( 'post_gallery', '', '' );
+			/** This filter is already documented in core/wp-includes/media.php */
+			do_action( 'post_gallery', '', '', 0 );
 		}
 
 		// Always enqueue Tiled Gallery scripts when both IS and Tiled Galleries are enabled
 		if ( Jetpack::is_module_active( 'tiled-gallery' ) ) {
 			Jetpack_Tiled_Gallery::default_scripts_and_styles();
-		}
-
-		// Core's Audio and Video Shortcodes
-		if ( 'mediaelement' === apply_filters( 'wp_audio_shortcode_library', 'mediaelement' ) ) {
-			wp_enqueue_style( 'wp-mediaelement' );
-			wp_enqueue_script( 'wp-mediaelement' );
-		}
-
-		if ( 'mediaelement' === apply_filters( 'wp_video_shortcode_library', 'mediaelement' ) ) {
-			wp_enqueue_style( 'wp-mediaelement' );
-			wp_enqueue_script( 'wp-mediaelement' );
 		}
 	}
 }

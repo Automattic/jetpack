@@ -1,21 +1,8 @@
 // ==========================================================================
-// Animation for miles!
+// Animations
 // ==========================================================================
 
-
-@keyframes "grow" {
-	0% {
-		transform: scale(.3);
-	}
-	60% {
-		transform: scale(1.15);
-	}
-	100% {
-		transform: scale(1);
-	}
-}
-
-@keyframes "candy" {
+@keyframes jetpack-candy {
 	0% {
 		transform: scale(1);
 	}
@@ -30,11 +17,22 @@
 	}
 }
 
-@keyframes "flyer" {
-	 0% {
-		transform: translate3d(0px, 0px, 0px);
+@keyframes jetpack-loading-fade {
+	0% {
+		opacity: .5;
 	}
+
+	50% {
+		opacity: 1;
+	}
+
 	100% {
-		transform: translate3d(680px, -680px, 0px);
+		opacity: .5;
+	}
+}
+
+@keyframes jetpack-rotate {
+	to {
+		transform: rotate(1turn);
 	}
 }

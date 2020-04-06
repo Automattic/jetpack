@@ -86,9 +86,16 @@
 
 .tiled-gallery.type-circle .tiled-gallery-item img {
 	border-radius: 50% !important; /* Ensure that circles are displayed in themes that add border-radius to all images as a default */
+	object-fit: cover;
 }
 .tiled-gallery.type-circle .tiled-gallery-caption {
 	display: none;
 	opacity: 0;
 }
 
+
+/* =Square Layout
+-------------------------------------------------------------- */
+.tiled-gallery.type-square .tiled-gallery-item img {
+	object-fit: cover;
+}

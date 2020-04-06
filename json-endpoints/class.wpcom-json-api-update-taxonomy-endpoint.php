@@ -1,5 +1,165 @@
 <?php
 
+new WPCOM_JSON_API_Update_Taxonomy_Endpoint( array(
+	'description' => 'Create a new category.',
+	'group'       => 'taxonomy',
+	'stat'        => 'categories:new',
+
+	'method'      => 'POST',
+	'path'        => '/sites/%s/categories/new',
+	'path_labels' => array(
+		'$site' => '(int|string) Site ID or domain',
+	),
+
+	'request_format' => array(
+		'name'        => '(string) Name of the category',
+		'description' => '(string) A description of the category',
+		'parent'      => '(int) ID of the parent category',
+	),
+
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/categories/new/',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+		'body' => array(
+			'name' => 'Puppies',
+		)
+	)
+) );
+
+new WPCOM_JSON_API_Update_Taxonomy_Endpoint( array(
+	'description' => 'Create a new tag.',
+	'group'       => 'taxonomy',
+	'stat'        => 'tags:new',
+
+	'method'      => 'POST',
+	'path'        => '/sites/%s/tags/new',
+	'path_labels' => array(
+		'$site' => '(int|string) Site ID or domain',
+	),
+
+	'request_format' => array(
+		'name'        => '(string) Name of the tag',
+		'description' => '(string) A description of the tag',
+	),
+
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/tags/new/',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+		'body' => array(
+			'name' => 'Kitties'
+		)
+	)
+) );
+
+new WPCOM_JSON_API_Update_Taxonomy_Endpoint( array(
+	'description' => 'Edit a tag.',
+	'group'       => 'taxonomy',
+	'stat'        => 'tags:1:POST',
+
+	'method'      => 'POST',
+	'path'        => '/sites/%s/tags/slug:%s',
+	'path_labels' => array(
+		'$site' => '(int|string) Site ID or domain',
+		'$tag'  => '(string) The tag slug',
+	),
+
+	'request_format' => array(
+		'name'        => '(string) Name of the tag',
+		'description' => '(string) A description of the tag',
+	),
+
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/tags/slug:testing-tag',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+		'body' => array(
+			'description' => 'Kitties are awesome!'
+		)
+	)
+) );
+
+new WPCOM_JSON_API_Update_Taxonomy_Endpoint( array(
+	'description' => 'Edit a category.',
+	'group'       => 'taxonomy',
+	'stat'        => 'categories:1:POST',
+
+	'method'      => 'POST',
+	'path'        => '/sites/%s/categories/slug:%s',
+	'path_labels' => array(
+		'$site'     => '(int|string) Site ID or domain',
+		'$category' => '(string) The category slug',
+	),
+
+	'request_format' => array(
+		'name'        => '(string) Name of the category',
+		'description' => '(string) A description of the category',
+		'parent'      => '(int) ID of the parent category',
+	),
+
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/categories/slug:testing-category',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+		'body' => array(
+			'description' => 'Puppies are great!'
+		)
+	)
+) );
+
+new WPCOM_JSON_API_Update_Taxonomy_Endpoint( array(
+	'description' => 'Delete a category.',
+	'group'       => 'taxonomy',
+	'stat'        => 'categories:1:delete',
+
+	'method'      => 'POST',
+	'path'        => '/sites/%s/categories/slug:%s/delete',
+	'path_labels' => array(
+		'$site'     => '(int|string) Site ID or domain',
+		'$category' => '(string) The category slug',
+	),
+	'response_format' => array(
+		'slug'    => '(string) The slug of the deleted category',
+		'success' => '(bool) Was the operation successful?',
+	),
+
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/categories/slug:$category/delete',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	)
+) );
+
+new WPCOM_JSON_API_Update_Taxonomy_Endpoint( array(
+	'description' => 'Delete a tag.',
+	'group'       => 'taxonomy',
+	'stat'        => 'tags:1:delete',
+
+	'method'      => 'POST',
+	'path'        => '/sites/%s/tags/slug:%s/delete',
+	'path_labels' => array(
+		'$site' => '(int|string) Site ID or domain',
+		'$tag'  => '(string) The tag slug',
+	),
+	'response_format' => array(
+		'slug'    => '(string) The slug of the deleted tag',
+		'success' => '(bool) Was the operation successful?',
+	),
+
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/tags/slug:$tag/delete',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	)
+) );
+
 class WPCOM_JSON_API_Update_Taxonomy_Endpoint extends WPCOM_JSON_API_Taxonomy_Endpoint {
 	// /sites/%s/tags|categories/new    -> $blog_id
 	// /sites/%s/tags|categories/slug:%s -> $blog_id, $taxonomy_id
@@ -47,16 +207,15 @@ class WPCOM_JSON_API_Update_Taxonomy_Endpoint extends WPCOM_JSON_API_Taxonomy_En
 			$input['parent'] = 0;
 
 		if ( $term = get_term_by( 'name', $input['name'], $taxonomy_type ) ) {
-			// get_term_by is not case-sensitive, but a name with different casing is allowed
-			// also, the exact same name is allowed as long as the parents are different
-			if ( $input['name'] === $term->name && $input['parent'] === $term->parent ) {
+			// the same name is allowed as long as the parents are different
+			if ( $input['parent'] === $term->parent ) {
 				return new WP_Error( 'duplicate', 'A taxonomy with that name already exists', 400 );
 			}
 		}
 
 		$data = wp_insert_term( addslashes( $input['name'] ), $taxonomy_type,
 			array(
-		  		'description' => addslashes( $input['description'] ),
+		  		'description' => isset( $input['description'] ) ? addslashes( $input['description'] ) : '',
 		  		'parent'      => $input['parent']
 			)
 		);

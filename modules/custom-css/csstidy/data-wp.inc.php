@@ -31,6 +31,10 @@ foreach ( $GLOBALS['csstidy']['all_properties'] as $property => $levels ) {
 	}
 }
 
+// Add `display` to the list of properties that can be used multiple times in a single selector
+$GLOBALS['csstidy']['multiple_properties'][] = 'display';
+
+// Allow vendor prefixes for any property that is allowed to be used multiple times inside a single selector
 foreach ( $GLOBALS['csstidy']['multiple_properties'] as $property ) {
 	if ( '-' != $property[0] ) {
 		$GLOBALS['csstidy']['multiple_properties'][] = '-o-' . $property;
@@ -83,4 +87,16 @@ $GLOBALS['csstidy']['all_properties']['object-position'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['text-overflow'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['zoom'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['pointer-events'] = 'CSS3.0';
+$GLOBALS['csstidy']['all_properties']['font-feature-settings'] = 'CSS3.0';
+$GLOBALS['csstidy']['all_properties']['font-kerning'] = 'CSS3.0';
+$GLOBALS['csstidy']['all_properties']['font-language-override'] = 'CSS3.0';
+$GLOBALS['csstidy']['all_properties']['font-synthesis'] = 'CSS3.0';
+$GLOBALS['csstidy']['all_properties']['font-variant-alternates'] = 'CSS3.0';
+$GLOBALS['csstidy']['all_properties']['font-variant-caps'] = 'CSS3.0';
+$GLOBALS['csstidy']['all_properties']['font-variant-east-asian'] = 'CSS3.0';
+$GLOBALS['csstidy']['all_properties']['font-variant-ligatures'] = 'CSS3.0';
+$GLOBALS['csstidy']['all_properties']['font-variant-numeric'] = 'CSS3.0';
+$GLOBALS['csstidy']['all_properties']['font-variant-position'] = 'CSS3.0';
+$GLOBALS['csstidy']['all_properties']['font-variation-settings'] = 'CSS3.0';
+$GLOBALS['csstidy']['all_properties']['line-height-step'] = 'CSS3.0';
 

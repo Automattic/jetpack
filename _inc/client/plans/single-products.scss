@@ -1,0 +1,180 @@
+@import 'scss/mixin_breakpoint';
+@import 'scss/variables/_colors.scss';
+@import 'scss/calypso-colors.scss';
+
+.single-product-backup__header-title {
+	margin: 5px 20px 5px 0;
+	font-size: 17px;
+	text-align: center;
+	font-size: 17px;
+	line-height: 24px;
+	font-weight: bold;
+}
+
+.single-product-backup__price-group {
+	display: flex;
+	flex-flow: row wrap;
+	align-items: baseline;
+}
+
+.single-product-backup__options-header {
+	padding-bottom: 8px;
+	font-size: 14px;
+	font-weight: 400;
+	color: $gray-text-min;
+	text-align: center;
+	margin-top: 30px;
+}
+
+// Plans section
+.plans-section__header {
+	margin: 32px auto 8px;
+	text-align: center;
+	font-weight: normal;
+	font-size: 22px;
+}
+
+.plans-section__subheader {
+	margin: 8px auto 18px;
+	color: $gray-text-min;
+	text-align: center;
+	font-weight: normal;
+	font-size: 14px;
+}
+
+.plans-section__single-product {
+	display: flex;
+	justify-content: center;
+	margin: 24px auto 40px;
+
+	&.plans-section__single-product--with-search {
+		.single-product__accented-card,
+		.plans-section__single-product-skeleton {
+			&:first-child {
+				margin-right: 0.5em;
+			}
+			&:last-child {
+				margin-left: 0.5em;
+			}
+		}
+	}
+}
+
+.plans-section__single-product-skeleton {
+	width: 100%;
+	max-width: 518px;
+	height: 328px;
+}
+
+// Single product backup containers
+.single-product-backup__radio-buttons-container {
+	display: flex;
+	flex-flow: column nowrap;
+	margin-bottom: 21px;
+
+	@include breakpoint( '>660px' ) {
+		flex-flow: row wrap;
+		justify-content: space-around; // IE11 fallback.
+		justify-content: space-evenly;
+		position: relative;
+
+		&::before {
+			display: block;
+			border-left: 1px solid $light-gray-700;
+			position: absolute;
+			content: '';
+			height: 100%;
+			width: 0;
+			order: 2;
+		}
+	}
+}
+
+.single-product-search__upgrade-button-container,
+.single-product-backup__upgrade-button-container {
+	text-align: center;
+	margin-top: 24px;
+	margin-bottom: 8px;
+
+	.plan-price,
+	.plan-price__currency-symbol {
+		color: $white;
+	}
+}
+
+// Accented card
+.single-product__accented-card {
+	max-width: 518px;
+	width: 100%;
+	font-size: 14px;
+}
+
+.single-product__accented-card-header {
+	padding: 8px 16px;
+	margin: -16px -16px 16px;
+	border-bottom: solid 2px $alert-green;
+
+	@include breakpoint( '>480px' ) {
+		padding: 8px 24px;
+		margin: -24px -24px 24px;
+	}
+}
+
+.single-product__accented-card-body p,
+.single-product__accented-card-body .single-product__description {
+	margin-top: 14px;
+	font-size: 14px;
+	color: $gray-text-min;
+	text-align: center;
+}
+
+.single-product__accented-card-header-primary {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	svg {
+		margin-right: 8px;
+		fill: $alert-green;
+	}
+}
+
+.single-product-search__radio-buttons-container,
+.single-product-backup__radio-buttons-container {
+	display: flex;
+	flex-flow: column nowrap;
+	margin-bottom: 21px;
+
+	@include breakpoint( '>660px' ) {
+		flex-flow: row wrap;
+		justify-content: space-around; // IE11 fallback.
+		justify-content: space-evenly;
+		position: relative;
+	}
+}
+
+.plan-price {
+	margin-right: 0.25em;
+
+	&.is-inline {
+		margin-right: 0;
+	}
+}
+
+.single-product-backup__radio-buttons-container::before {
+	display: block;
+	border-left: 1px solid $light-gray-700;
+	position: absolute;
+	content: '';
+	height: 100%;
+	width: 0;
+	order: 2;
+}
+
+.single-product-backup__price-group-billing-timeframe {
+	font-size: 12px;
+}
+
+.single-product__landing-page {
+	text-align: center;
+}

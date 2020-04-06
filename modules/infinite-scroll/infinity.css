@@ -1,13 +1,11 @@
 /* =Infinity Styles
 -------------------------------------------------------------- */
 
-.infinite-wrap {
-}
 .infinite-loader {
 	color: #000;
 	display: block;
 	height: 28px;
-	text-indent: -9999px;
+	text-align: center;
 }
 #infinite-handle span {
 	background: #333;
@@ -16,6 +14,104 @@
 	cursor: pointer;
 	font-size: 13px;
 	padding: 6px 16px;
+}
+
+/**
+ * CSS Spinner Styles
+ */
+@keyframes spinner-inner {
+	0% { opacity: 1 }
+	100% { opacity: 0 }
+}
+.infinite-loader .spinner-inner div {
+	left: 47px;
+	top: 24px;
+	position: absolute;
+	animation: spinner-inner linear 1s infinite;
+	background: #000000;
+	outline: 1px solid white;
+	width: 6px;
+	height: 12px;
+	border-radius: 3px / 6px;
+	transform-origin: 3px 26px;
+}
+.infinite-loader .spinner-inner div:nth-child(1) {
+	transform: rotate(0deg);
+	animation-delay: -0.9166666666666666s;
+	background: #000000;
+}
+.infinite-loader .spinner-inner div:nth-child(2) {
+	transform: rotate(30deg);
+	animation-delay: -0.8333333333333334s;
+	background: #000000;
+}
+.infinite-loader .spinner-inner div:nth-child(3) {
+	transform: rotate(60deg);
+	animation-delay: -0.75s;
+	background: #000000;
+}
+.infinite-loader .spinner-inner div:nth-child(4) {
+	transform: rotate(90deg);
+	animation-delay: -0.6666666666666666s;
+	background: #000000;
+}
+.infinite-loader .spinner-inner div:nth-child(5) {
+	transform: rotate(120deg);
+	animation-delay: -0.5833333333333334s;
+	background: #000000;
+}
+.infinite-loader .spinner-inner div:nth-child(6) {
+	transform: rotate(150deg);
+	animation-delay: -0.5s;
+	background: #000000;
+}
+.infinite-loader .spinner-inner div:nth-child(7) {
+	transform: rotate(180deg);
+	animation-delay: -0.4166666666666667s;
+	background: #000000;
+}
+.infinite-loader .spinner-inner div:nth-child(8) {
+	transform: rotate(210deg);
+	animation-delay: -0.3333333333333333s;
+	background: #000000;
+}
+.infinite-loader .spinner-inner div:nth-child(9) {
+	transform: rotate(240deg);
+	animation-delay: -0.25s;
+	background: #000000;
+}
+.infinite-loader .spinner-inner div:nth-child(10) {
+	transform: rotate(270deg);
+	animation-delay: -0.16666666666666666s;
+	background: #000000;
+}
+.infinite-loader .spinner-inner div:nth-child(11) {
+	transform: rotate(300deg);
+	animation-delay: -0.08333333333333333s;
+	background: #000000;
+}
+.infinite-loader .spinner-inner div:nth-child(12) {
+	transform: rotate(330deg);
+	animation-delay: 0s;
+	background: #000000;
+}
+.infinite-loader .spinner {
+	width: 28px;
+	height: 28px;
+	display: inline-block;
+	overflow: hidden;
+	background: none;
+}
+.infinite-loader .spinner-inner {
+	width: 100%;
+	height: 100%;
+	position: relative;
+	transform: translateZ(0) scale(0.28);
+	backface-visibility: hidden;
+	transform-origin: 0 0; /* see note above */
+}
+.infinite-loader .spinner-inner div {
+	box-sizing: content-box;
 }
 
 /**

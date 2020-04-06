@@ -21,9 +21,9 @@
  *   GNU Lesser General Public License for more details.
  *
  *   You should have received a copy of the GNU Lesser General Public License
- *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
- * @license http://opensource.org/licenses/lgpl-license.php GNU Lesser General Public License
+ * @license https://opensource.org/licenses/lgpl-license.php GNU Lesser General Public License
  * @package csstidy
  * @author Florian Schmitz (floele at gmail dot com) 2005-2007
  * @author Brett Zamir (brettz9 at yahoo dot com) 2007
@@ -40,14 +40,13 @@
  * @version 1.0
  */
 class csstidy_optimise {
-
 	/**
 	 * Constructor
 	 * @param array $css contains the class csstidy
 	 * @access private
 	 * @version 1.0
 	 */
-	function csstidy_optimise(&$css) {
+	function __construct(&$css) {
 		$this->parser = & $css;
 		$this->css = & $css->css;
 		$this->sub_value = & $css->sub_value;
@@ -55,6 +54,10 @@ class csstidy_optimise {
 		$this->selector = & $css->selector;
 		$this->property = & $css->property;
 		$this->value = & $css->value;
+	}
+
+	function csstidy_optimise(&$css) {
+		$this->__construct($css);
 	}
 
 	/**
@@ -214,7 +217,7 @@ class csstidy_optimise {
 	 * @return string
 	 * @version 1.0
 	 */
-	function shorthand($value) {
+	static function shorthand($value) {
 		$important = '';
 		if (csstidy::is_important($value)) {
 			$values = csstidy::gvw_important($value);
@@ -305,8 +308,8 @@ class csstidy_optimise {
 		// #aabbcc -> #abc
 		if (strlen($color) == 7) {
 			$color_temp = strtolower($color);
-			if ($color_temp{0} === '#' && $color_temp{1} == $color_temp{2} && $color_temp{3} == $color_temp{4} && $color_temp{5} == $color_temp{6}) {
-				$color = '#' . $color{1} . $color{3} . $color{5};
+			if ($color_temp[0] === '#' && $color_temp[1] == $color_temp[2] && $color_temp[3] == $color_temp[4] && $color_temp[5] == $color_temp[6]) {
+				$color = '#' . $color[1] . $color[3] . $color[5];
 			}
 		}
 
@@ -389,7 +392,7 @@ class csstidy_optimise {
 	 */
 	function AnalyseCssNumber($string) {
 		// most simple checks first
-		if (strlen($string) == 0 || ctype_alpha($string{0})) {
+		if (strlen($string) == 0 || ctype_alpha($string[0])) {
 			return false;
 		}
 
@@ -500,7 +503,7 @@ class csstidy_optimise {
 	 * @version 1.0
 	 * @see merge_4value_shorthands()
 	 */
-	function dissolve_4value_shorthands($property, $value) {
+	static function dissolve_4value_shorthands($property, $value) {
 		$shorthands = & $GLOBALS['csstidy']['shorthands'];
 		if (!is_array($shorthands[$property])) {
 			$return[$property] = $value;
@@ -545,7 +548,7 @@ class csstidy_optimise {
 	 * @return array
 	 * @version 1.0
 	 */
-	function explode_ws($sep, $string) {
+	static function explode_ws($sep, $string) {
 		$status = 'st';
 		$to = '';
 
@@ -554,22 +557,22 @@ class csstidy_optimise {
 		for ($i = 0, $len = strlen($string); $i < $len; $i++) {
 			switch ($status) {
 				case 'st':
-					if ($string{$i} == $sep && !csstidy::escaped($string, $i)) {
+					if ($string[$i] == $sep && !csstidy::escaped($string, $i)) {
 						++$num;
-					} elseif ($string{$i} === '"' || $string{$i} === '\'' || $string{$i} === '(' && !csstidy::escaped($string, $i)) {
+					} elseif ($string[$i] === '"' || $string[$i] === '\'' || $string[$i] === '(' && !csstidy::escaped($string, $i)) {
 						$status = 'str';
-						$to = ($string{$i} === '(') ? ')' : $string{$i};
-						(isset($output[$num])) ? $output[$num] .= $string{$i} : $output[$num] = $string{$i};
+						$to = ($string[$i] === '(') ? ')' : $string[$i];
+						(isset($output[$num])) ? $output[$num] .= $string[$i] : $output[$num] = $string[$i];
 					} else {
-						(isset($output[$num])) ? $output[$num] .= $string{$i} : $output[$num] = $string{$i};
+						(isset($output[$num])) ? $output[$num] .= $string[$i] : $output[$num] = $string[$i];
 					}
 					break;
 
 				case 'str':
-					if ($string{$i} == $to && !csstidy::escaped($string, $i)) {
+					if ($string[$i] == $to && !csstidy::escaped($string, $i)) {
 						$status = 'st';
 					}
-					(isset($output[$num])) ? $output[$num] .= $string{$i} : $output[$num] = $string{$i};
+					(isset($output[$num])) ? $output[$num] .= $string[$i] : $output[$num] = $string[$i];
 					break;
 			}
 		}
@@ -588,7 +591,7 @@ class csstidy_optimise {
 	 * @version 1.2
 	 * @see dissolve_4value_shorthands()
 	 */
-	function merge_4value_shorthands($array) {
+	static function merge_4value_shorthands($array) {
 		$return = $array;
 		$shorthands = & $GLOBALS['csstidy']['shorthands'];
 
@@ -622,7 +625,8 @@ class csstidy_optimise {
 	 * @see merge_bg()
 	 * @todo full CSS 3 compliance
 	 */
-	function dissolve_short_bg($str_value) {
+	static function dissolve_short_bg($str_value) {
+		$have = array();
 		// don't try to explose background gradient !
 		if (stripos($str_value, "gradient(")!==FALSE)
 			return array('background'=>$str_value);
@@ -666,9 +670,9 @@ class csstidy_optimise {
 					$have['clip'] = true;
 				} elseif (in_array($str_value[$i][$j], $origin, true)) {
 					$return['background-origin'] .= $str_value[$i][$j] . ',';
-				} elseif ($str_value[$i][$j]{0} === '(') {
+				} elseif ($str_value[$i][$j][0] === '(') {
 					$return['background-size'] .= substr($str_value[$i][$j], 1, -1) . ',';
-				} elseif (in_array($str_value[$i][$j], $pos, true) || is_numeric($str_value[$i][$j]{0}) || $str_value[$i][$j]{0} === null || $str_value[$i][$j]{0} === '-' || $str_value[$i][$j]{0} === '.') {
+				} elseif (in_array($str_value[$i][$j], $pos, true) || is_numeric($str_value[$i][$j][0]) || $str_value[$i][$j][0] === null || $str_value[$i][$j][0] === '-' || $str_value[$i][$j][0] === '.') {
 					$return['background-position'] .= $str_value[$i][$j];
 					if (!$have['pos'])
 						$return['background-position'] .= ' '; else
@@ -700,7 +704,7 @@ class csstidy_optimise {
 	 * @see dissolve_short_bg()
 	 * @todo full CSS 3 compliance
 	 */
-	function merge_bg($input_css) {
+	static function merge_bg($input_css) {
 		$background_prop_default = & $GLOBALS['csstidy']['background_prop_default'];
 		// Max number of background images. CSS3 not yet fully implemented
 		$number_of_values = @max(count(csstidy_optimise::explode_ws(',', $input_css['background-image'])), count(csstidy_optimise::explode_ws(',', $input_css['background-color'])), 1);
@@ -780,7 +784,8 @@ class csstidy_optimise {
 	 * @version 1.3
 	 * @see merge_font()
 	 */
-	function dissolve_short_font($str_value) {
+	static function dissolve_short_font($str_value) {
+		$have = array();
 		$font_prop_default = & $GLOBALS['csstidy']['font_prop_default'];
 		$font_weight = array('normal', 'bold', 'bolder', 'lighter', 100, 200, 300, 400, 500, 600, 700, 800, 900);
 		$font_variant = array('normal', 'small-caps');
@@ -815,7 +820,7 @@ class csstidy_optimise {
 			} elseif ($have['style'] === false && in_array($str_value[0][$j], $font_style)) {
 				$return['font-style'] = $str_value[0][$j];
 				$have['style'] = true;
-			} elseif ($have['size'] === false && (is_numeric($str_value[0][$j]{0}) || $str_value[0][$j]{0} === null || $str_value[0][$j]{0} === '.')) {
+			} elseif ($have['size'] === false && (is_numeric($str_value[0][$j][0]) || $str_value[0][$j][0] === null || $str_value[0][$j][0] === '.')) {
 				$size = csstidy_optimise::explode_ws('/', trim($str_value[0][$j]));
 				$return['font-size'] = $size[0];
 				if (isset($size[1])) {
@@ -845,7 +850,7 @@ class csstidy_optimise {
 
 		// Fix for 100 and more font-size
 		if ($have['size'] === false && isset($return['font-weight']) &&
-						is_numeric($return['font-weight']{0})) {
+						is_numeric($return['font-weight'][0])) {
 			$return['font-size'] = $return['font-weight'];
 			unset($return['font-weight']);
 		}
@@ -867,7 +872,7 @@ class csstidy_optimise {
 	 * @version 1.3
 	 * @see dissolve_short_font()
 	 */
-	function merge_font($input_css) {
+	static function merge_font($input_css) {
 		$font_prop_default = & $GLOBALS['csstidy']['font_prop_default'];
 		$new_font_value = '';
 		$important = '';
@@ -881,8 +886,8 @@ class csstidy_optimise {
 					$family = trim($family);
 					$len = strlen($family);
 					if (strpos($family, " ") &&
-									!(($family{0} == '"' && $family{$len - 1} == '"') ||
-									($family{0} == "'" && $family{$len - 1} == "'"))) {
+									!(($family[0] == '"' && $family[$len - 1] == '"') ||
+									($family[0] == "'" && $family[$len - 1] == "'"))) {
 						$family = '"' . $family . '"';
 					}
 					$result_families[] = $family;

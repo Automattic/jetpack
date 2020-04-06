@@ -2,21 +2,21 @@
 
 /*
 Plugin Name: Easy Markdown
-Plugin URI: http://automattic.com/
+Plugin URI: https://automattic.com/
 Description: Write in Markdown, publish in WordPress
 Version: 0.1
 Author: Matt Wiebe
-Author URI: http://automattic.com/
+Author URI: https://automattic.com/
 */
 
 /**
  * Copyright (c) Automattic. All rights reserved.
  *
  * Released under the GPL license
- * http://www.opensource.org/licenses/gpl-license.php
+ * https://www.opensource.org/licenses/gpl-license.php
  *
  * This is an add-on for WordPress
- * http://wordpress.org/
+ * https://wordpress.org/
  *
  * **********************************************************************
  * This program is free software; you can redistribute it and/or modify
@@ -115,6 +115,8 @@ class WPCom_Markdown {
 	 * @return null
 	 */
 	public function load_markdown_for_posts() {
+		add_filter( 'wp_kses_allowed_html', array( $this, 'wp_kses_allowed_html' ), 10, 2 );
+		add_action( 'after_wp_tiny_mce', array( $this, 'after_wp_tiny_mce' ) );
 		add_action( 'wp_insert_post', array( $this, 'wp_insert_post' ) );
 		add_filter( 'wp_insert_post_data', array( $this, 'wp_insert_post_data' ), 10, 2 );
 		add_filter( 'edit_post_content', array( $this, 'edit_post_content' ), 10, 2 );
@@ -133,6 +135,8 @@ class WPCom_Markdown {
 	 * @return null
 	 */
 	public function unload_markdown_for_posts() {
+		remove_filter( 'wp_kses_allowed_html', array( $this, 'wp_kses_allowed_html' ) );
+		remove_action( 'after_wp_tiny_mce', array( $this, 'after_wp_tiny_mce' ) );
 		remove_action( 'wp_insert_post', array( $this, 'wp_insert_post' ) );
 		remove_filter( 'wp_insert_post_data', array( $this, 'wp_insert_post_data' ), 10, 2 );
 		remove_filter( 'edit_post_content', array( $this, 'edit_post_content' ), 10, 2 );
@@ -294,7 +298,16 @@ class WPCom_Markdown {
 	 * @return string support url
 	 */
 	protected function get_support_url() {
-		return apply_filters( 'easy_markdown_support_url', 'http://en.support.wordpress.com/markdown-quick-reference/' );
+		/**
+		 * Filter the Markdown support URL.
+		 *
+		 * @module markdown
+		 *
+		 * @since 2.8.0
+		 *
+		 * @param string $url Markdown support URL.
+		 */
+		return apply_filters( 'easy_markdown_support_url', 'https://en.support.wordpress.com/markdown-quick-reference/' );
 	}
 
 	/**
@@ -302,7 +315,7 @@ class WPCom_Markdown {
 	 * @return boolean
 	 */
 	public function is_posting_enabled() {
-		return (bool) get_option( self::POST_OPTION, '' );
+		return (bool) Jetpack_Options::get_option_and_ensure_autoload( self::POST_OPTION, '' );
 	}
 
 	/**
@@ -310,7 +323,7 @@ class WPCom_Markdown {
 	 * @return boolean
 	 */
 	public function is_commenting_enabled() {
-		return (bool) get_option( self::COMMENT_OPTION, '' );
+		return (bool) Jetpack_Options::get_option_and_ensure_autoload( self::COMMENT_OPTION, '' );
 	}
 
 	/**
@@ -407,6 +420,52 @@ class WPCom_Markdown {
 	}
 
 	/**
+	 * Some tags are allowed to have a 'markdown' attribute, allowing them to contain Markdown.
+	 * We need to tell KSES about those tags.
+	 * @param  array $tags     List of tags that KSES allows.
+	 * @param  string $context The context that KSES is allowing these tags.
+	 * @return array           The tags that KSES allows, with our extra 'markdown' parameter where necessary.
+	 */
+	public function wp_kses_allowed_html( $tags, $context ) {
+		if ( 'post' !== $context ) {
+			return $tags;
+		}
+
+		$re = '/' . $this->get_parser()->contain_span_tags_re . '/';
+		foreach ( $tags as $tag => $attributes ) {
+			if ( preg_match( $re, $tag ) ) {
+				$attributes['markdown'] = true;
+				$tags[ $tag ] = $attributes;
+			}
+		}
+
+		return $tags;
+	}
+
+	/**
+	 * TinyMCE needs to know not to strip the 'markdown' attribute. Unfortunately, it doesn't
+	 * really offer a nice API for whitelisting attributes, so we have to manually add it
+	 * to the schema instead.
+	 */
+	public function after_wp_tiny_mce() {
+?>
+<script type="text/javascript">
+jQuery( function() {
+	( 'undefined' !== typeof tinymce ) && tinymce.on( 'AddEditor', function( event ) {
+		event.editor.on( 'BeforeSetContent', function( event ) {
+			var editor = event.target;
+			Object.keys( editor.schema.elements ).forEach( function( key, index ) {
+				editor.schema.elements[ key ].attributes['markdown'] = {};
+				editor.schema.elements[ key ].attributesOrder.push( 'markdown' );
+			} );
+		} );
+	}, true );
+} );
+</script>
+<?php
+	}
+
+	/**
 	 * Magic happens here. Markdown is converted and stored on post_content. Original Markdown is stored
 	 * in post_content_filtered so that we can continue editing as Markdown.
 	 * @param  array $post_data  The post data that will be inserted into the DB. Slashed.
@@ -429,13 +488,27 @@ class WPCom_Markdown {
 		}
 		// rejigger post_content and post_content_filtered
 		// revisions are already in the right place, except when we're restoring, but that's taken care of elsewhere
-		if ( 'revision' !== $post_data['post_type'] ) {
+		// also prevent quick edit feature from overriding already-saved markdown (issue https://github.com/Automattic/jetpack/issues/636)
+		if ( 'revision' !== $post_data['post_type'] && ! isset( $_POST['_inline_edit'] ) ) {
+			/**
+			 * Filter the original post content passed to Markdown.
+			 *
+			 * @module markdown
+			 *
+			 * @since 2.8.0
+			 *
+			 * @param string $post_data['post_content'] Untransformed post content.
+			 */
 			$post_data['post_content_filtered'] = apply_filters( 'wpcom_untransformed_content', $post_data['post_content'] );
 			$post_data['post_content'] = $this->transform( $post_data['post_content'], array( 'id' => $post_id ) );
+			/** This filter is already documented in core/wp-includes/default-filters.php */
 			$post_data['post_content'] = apply_filters( 'content_save_pre', $post_data['post_content'] );
 		} elseif ( 0 === strpos( $post_data['post_name'], $post_data['post_parent'] . '-autosave' ) ) {
 			// autosaves for previews are weird
+			/** This filter is already documented in modules/markdown/easy-markdown.php */
+			$post_data['post_content_filtered'] = apply_filters( 'wpcom_untransformed_content', $post_data['post_content'] );
 			$post_data['post_content'] = $this->transform( $post_data['post_content'], array( 'id' => $post_data['post_parent'] ) );
+			/** This filter is already documented in core/wp-includes/default-filters.php */
 			$post_data['post_content'] = apply_filters( 'content_save_pre', $post_data['post_content'] );
 		}
 
@@ -499,6 +572,11 @@ class WPCom_Markdown {
 	 * @return string        Markdown-processed content
 	 */
 	public function transform( $text, $args = array() ) {
+		// If this contains Gutenberg content, let's keep it intact.
+		if ( has_blocks( $text ) ) {
+			return $text;
+		}
+
 		$args = wp_parse_args( $args, array(
 			'id' => false,
 			'unslash' => true,
@@ -508,6 +586,16 @@ class WPCom_Markdown {
 		if ( $args['unslash'] )
 			$text = wp_unslash( $text );
 
+		/**
+		 * Filter the content to be run through Markdown, before it's transformed by Markdown.
+		 *
+		 * @module markdown
+		 *
+		 * @since 2.8.0
+		 *
+		 * @param string $text Content to be run through Markdown
+		 * @param array $args Array of Markdown options.
+		 */
 		$text = apply_filters( 'wpcom_markdown_transform_pre', $text, $args );
 		// ensure our paragraphs are separated
 		$text = str_replace( array( '</p><p>', "</p>\n<p>" ), "</p>\n\n<p>", $text );
@@ -527,6 +615,16 @@ class WPCom_Markdown {
 		$text = preg_replace( '/((id|href)="#?fn(ref)?):/', "$1-", $text );
 		// Markdown inserts extra spaces to make itself work. Buh-bye.
 		$text = rtrim( $text );
+		/**
+		 * Filter the content to be run through Markdown, after it was transformed by Markdown.
+		 *
+		 * @module markdown
+		 *
+		 * @since 2.8.0
+		 *
+		 * @param string $text Content to be run through Markdown
+		 * @param array $args Array of Markdown options.
+		 */
 		$text = apply_filters( 'wpcom_markdown_transform_post', $text, $args );
 
 		// probably need to re-slash
@@ -608,15 +706,15 @@ class WPCom_Markdown {
 	 * @return null
 	 */
 	protected function check_for_early_methods() {
-		global $HTTP_RAW_POST_DATA;
-		if ( false === strpos( $HTTP_RAW_POST_DATA, 'metaWeblog.getPost' )
-			&& false === strpos( $HTTP_RAW_POST_DATA, 'wp.getPage' ) ) {
+		$raw_post_data = file_get_contents( "php://input" );
+		if ( false === strpos( $raw_post_data, 'metaWeblog.getPost' )
+			&& false === strpos( $raw_post_data, 'wp.getPage' ) ) {
 			return;
 		}
 		include_once( ABSPATH . WPINC . '/class-IXR.php' );
-		$message = new IXR_Message( $HTTP_RAW_POST_DATA );
+		$message = new IXR_Message( $raw_post_data );
 		$message->parse();
-		$post_id_position = 'metaWeblog.getPost' === $message->methodName ?  0 : 1;
+		$post_id_position = 'metaWeblog.getPost' === $message->methodName ? 0 : 1;
 		$this->prime_post_cache( $message->params[ $post_id_position ] );
 	}
 

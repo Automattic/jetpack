@@ -48,6 +48,7 @@ function jetpack_sass_css_preprocess( $sass ) {
 	require_once( dirname( __FILE__ ) . '/preprocessors/scss.inc.php' );
 
 	$compiler = new scssc();
+	$compiler->setFormatter( 'scss_formatter' );
 
 	try {
 		return $compiler->compile( $sass );

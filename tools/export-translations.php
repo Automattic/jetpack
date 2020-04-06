@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Exports translations from http://translate.wordpress.com/api/projects/jetpack
+ * Exports translations from https://translate.wordpress.org/api/projects/jetpack
  *
  * php export-translations.php DIRECTORY SOURCE_URL
  */
@@ -22,10 +22,11 @@ function die_error( $message ) {
 }
 
 /**
- * Converts GlotPress URL into a GlotPress API URL
+ * Converts GlotPress URL into a GlotPress API URL.
  *
- * @param sring $url URL
- * @return sstring API URL
+ * @param string $url GlotPres URL.
+ *
+ * @return string $api_url GlotPress API URL.
  */
 function apize_url( $url ) {
 	if ( false !== strpos( $url, '/api' ) ) {
@@ -80,22 +81,45 @@ $source_url = apize_url( rtrim( $argv[2], '/' ) );
 $source     = file_get_contents( $source_url );
 
 $available_sets = json_decode( $source )->translation_sets;
-
 // Maps source locale slugs to current Jetpack locales
 $map = array();
 foreach ( $available_sets as $set ) {
 	$s = strtolower( str_replace( '-', '_', $set->locale ) );
 
+	$suffix = '';
+
+	if ( 'default' !== $set->slug ) {
+		// Setting up a suffix for locales that have an additional slug, like Informal Deutsch
+		$suffix = '_' . $set->slug;
+		$s .= $suffix;
+	}
+
+	echo PHP_EOL;
+
 	if ( GP_Locales::exists( $set->locale ) ) {
 		$locale = GP_Locales::by_slug( $set->locale );
-		$map[$set->locale] = $locale->wp_locale;
+
+		if ( empty( $locale->wp_locale ) ) {
+			echo "Warning: missing wp_locale, using slug {$locale->slug}{$suffix} instead for "
+				. $set->slug . ' '
+				. $locale->english_name
+				. PHP_EOL;
+			$map[ $set->locale . $suffix ] = $locale->slug . $suffix;
+		} else {
+			echo "Using wp_locale {$locale->wp_locale}{$suffix} for "
+				. $set->slug . ' '
+				. $locale->english_name
+				. PHP_EOL;
+			$map[ $set->locale . $suffix ] = $locale->wp_locale . $suffix;
+		}
 		continue;
 	}
 
-	echo "ERROR\n";
+	echo "Warning: not found locale {$set->slug} {$set->locale}, trying to match current sets..." . PHP_EOL;
 
 	// source's 'ja' matches Jetpack's 'ja'
 	if ( isset( $current_sets[$s] ) ) {
+		echo "Found current set: $s\n";
 		$map[$set->locale] = $current_sets[$s];
 		unset( $current_sets[$s] );
 		continue;
@@ -104,30 +128,40 @@ foreach ( $available_sets as $set ) {
 	// source's 'it' matches Jetpack's 'it_IT'
 	foreach ( array_keys( $current_sets ) as $c ) {
 		if ( 0 === strpos( $c, $s ) ) {
+			echo "Found partial matched set: $s";
 			$map[$set->locale] = $current_sets[$c];
 			unset( $current_sets[$c] );
-			continue 2;
+			continue;
 		}
 	}
 
+	echo "No entire or partial match, setting {$set->locale}{$suffix} as new locale." . PHP_EOL;
+
 	// New locale
-	$map[$set->locale] = $set->locale;
+	$map[ $set->locale . $suffix ] = $set->locale . $suffix;
 }
 
 // Get all the PO files
 foreach ( $available_sets as $id => $set ) {
-	if ( empty( $map[$set->locale] ) ) {
-		echo "UNKNOWN LOCALE: {$set->locale}\n";
+	$full_locale = $set->locale;
+
+	if ( 'default' !== $set->slug ) {
+		$full_locale .= '_' . $set->slug;
+	}
+
+	if ( ! isset ( $map[ $full_locale ] ) ) {
+		echo "UNKNOWN LOCALE: {$full_locale}\n";
 		continue;
 	}
 
-	$output_file = "{$temp_file_path}/jetpack-{$map[$set->locale]}.po";
-	$input_url   = sprintf( '%s/%s/%s/export-translations?format=po', $source_url, $set->locale, $set->slug );
-	$exec        = sprintf( 'curl -s -o %s %s', escapeshellarg( $output_file ), escapeshellarg( $input_url ) );
-	echo "Downloading $input_url\n";
+	$output_file = "{$temp_file_path}/jetpack-{$map[$full_locale]}.po";
+	$input_url   = sprintf( '%s/%s/%s/export-translations/?format=po', $source_url, $set->locale, $set->slug );
+	$exec        = sprintf( 'curl --silent --location --output %s %s', escapeshellarg( $output_file ), escapeshellarg( $input_url ) );
+	echo "Downloading $input_url to" . PHP_EOL . $output_file . PHP_EOL;
 	exec( $exec );
-}
 
+	echo "\nSuccessfully downloaded " . $output_file . " with size of " . filesize( $output_file ) . "\n";
+}
 echo "\n";
 
 // Convert PO files to MO files
@@ -157,7 +191,8 @@ foreach( glob( "{$temp_file_path}/*.po" ) as $output_po ) {
 
 	echo "NOW: $now/$now_total, CURRENT: $current/$current_total\n";
 
-	if ( $now < $current - 1 ) { // some off-by-one error?
+	// Ignoring files that add no changes or that have less than 50% translated
+	if ( $translated / $now_total < 0.5 || $now < $current - 1 ) { // some off-by-one error?
 		echo "IGNORING $file\n";
 		exec( sprintf( 'rm %s', $output_mo ) );
 		exec( sprintf( 'rm %s', $output_po ) );
@@ -169,3 +204,4 @@ foreach( glob( "{$temp_file_path}/*.po" ) as $output_po ) {
 
 	echo "\n";
 }
+

@@ -1,19 +1,22 @@
 /**
  * JS for handling the Site Logo real-time display in the Customizer preview frame.
  */
-(function($){
+( function( $ ) {
 	var api = wp.customize,
-		$body, $anchor, $logo, size;
+		$body,
+		$anchor,
+		$logo,
+		size;
 
 	function cacheSelectors() {
-		$body   = $( 'body' );
+		$body = $( 'body' );
 		$anchor = $( '.site-logo-link' );
-		$logo   = $( '.site-logo' );
-		size    = $logo.attr( 'data-size' );
+		$logo = $( '.site-logo' );
+		size = $logo.attr( 'data-size' );
 	}
 
-	api( 'site_logo', function( value ){
-		value.bind( function( newVal ){
+	api( 'site_logo', function( value ) {
+		value.bind( function( newVal ) {
 			// grab selectors the first time through
 			if ( ! $body ) {
 				cacheSelectors();
@@ -26,11 +29,11 @@
 					size = 'full';
 				}
 
-				$logo.attr({
+				$logo.attr( {
 					height: newVal.sizes[ size ].height,
 					width: newVal.sizes[ size ].width,
-					src: newVal.sizes[ size ].url
-				});
+					src: newVal.sizes[ size ].url,
+				} );
 
 				$anchor.show();
 				$body.addClass( 'has-site-logo' );
@@ -38,6 +41,6 @@
 				$anchor.hide();
 				$body.removeClass( 'has-site-logo' );
 			}
-		});
-	});
-})(jQuery);
+		} );
+	} );
+} )( jQuery );
