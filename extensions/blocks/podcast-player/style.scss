@@ -110,7 +110,8 @@ $player-background: transparent;
 		flex-direction: column;
 		margin: 0;
 		overflow: hidden;
-
+		letter-spacing: 0; // Fixes 2020 compressed text
+		
 		&:before,
 		&:after {
 			display: none;
