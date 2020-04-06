@@ -2,6 +2,7 @@
  * External dependencies
  */
 import debugFactory from 'debug';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * WordPress dependencies
@@ -53,8 +54,8 @@ const debug = debugFactory( 'jetpack:podcast-player:edit' );
 // Support page link.
 const supportUrl =
 	isSimpleSite() || isAtomicSite()
-		? 'http://en.support.wordpress.com/wordpress-editor/blocks/podcast-player-block/'
-		: 'https://jetpack.com/support/jetpack-blocks/podcast-player-block/';
+		? getRedirectUrl( 'wpcom-support-wordpress-editor-blocks-podcast-player-block' )
+		: getRedirectUrl( 'jetpack-support-jetpack-blocks-podcast-player-block' );
 
 const PodcastPlayerEdit = ( {
 	instanceId,

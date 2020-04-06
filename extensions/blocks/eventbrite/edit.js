@@ -16,6 +16,7 @@ import {
 import { BlockControls, BlockIcon } from '@wordpress/block-editor';
 import { withDispatch } from '@wordpress/data';
 import { compose } from '@wordpress/compose';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -189,8 +190,8 @@ class EventbriteEdit extends Component {
 		const { editedUrl } = this.state;
 		const supportLink =
 			isSimpleSite() || isAtomicSite()
-				? 'http://support.wordpress.com/wordpress-editor/blocks/eventbrite-block/'
-				: 'https://jetpack.com/support/jetpack-blocks/eventbrite-block/';
+				? getRedirectUrl( 'wpcom-support-wordpress-editor-blocks-eventbrite-block' )
+				: getRedirectUrl( 'jetpack-support-jetpack-blocks-eventbrite-block' );
 
 		return (
 			<div className={ className }>

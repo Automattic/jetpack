@@ -22,6 +22,7 @@ import {
 } from '@wordpress/components';
 import { InspectorControls, BlockIcon } from '@wordpress/block-editor';
 import { Fragment, Component } from '@wordpress/element';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -334,7 +335,11 @@ class MembershipsButtonEdit extends Component {
 	renderDisclaimer = () => {
 		return (
 			<div className="membership-button__disclaimer">
-				<ExternalLink href="https://en.support.wordpress.com/recurring-payments-button/#related-fees">
+				<ExternalLink
+					href={ getRedirectUrl( 'wpcom-support-recurring-payments-button', {
+						anchor: 'related-fees',
+					} ) }
+				>
 					{ __( 'Read more about Recurring Payments and related fees.', 'jetpack' ) }
 				</ExternalLink>
 			</div>
@@ -390,7 +395,9 @@ class MembershipsButtonEdit extends Component {
 					/>
 				</PanelBody>
 				<PanelBody title={ __( 'Management', 'jetpack' ) }>
-					<ExternalLink href={ `https://wordpress.com/earn/payments/${ this.state.siteSlug }` }>
+					<ExternalLink
+						href={ getRedirectUrl( 'wpcom-earn-payments', { site: this.state.siteSlug } ) }
+					>
 						{ __( 'See your earnings, subscriber list, and products.', 'jetpack' ) }
 					</ExternalLink>
 				</PanelBody>

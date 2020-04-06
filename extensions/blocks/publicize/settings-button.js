@@ -13,6 +13,7 @@ import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
 import { Component } from '@wordpress/element';
 import { ExternalLink } from '@wordpress/components';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -25,7 +26,7 @@ class PublicizeSettingsButton extends Component {
 
 		// If running in WP.com wp-admin or in Calypso, we redirect to Calypso sharing settings.
 		if ( siteFragment ) {
-			return `https://wordpress.com/marketing/connections/${ siteFragment }`;
+			return getRedirectUrl( 'wpcom-marketing-connections', { site: siteFragment } );
 		}
 
 		// If running in WordPress.org wp-admin we redirect to Sharing settings in wp-admin.
