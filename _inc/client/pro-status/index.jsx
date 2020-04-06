@@ -9,6 +9,7 @@ import Button from 'components/button';
 import SimpleNotice from 'components/notice';
 import analytics from 'lib/analytics';
 import { get } from 'lodash';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -109,7 +110,7 @@ class ProStatus extends React.Component {
 						context: 'A caption for a small button to fix security issues.',
 					} );
 				}
-				actionUrl = 'https://dashboard.vaultpress.com/';
+				actionUrl = getRedirectUrl( 'vaultpress-dashboard' );
 				break;
 			case 'free':
 			case 'personal':
@@ -162,7 +163,10 @@ class ProStatus extends React.Component {
 				onClick={ handleClickForTracking( 'set_up', feature ) }
 				compact={ true }
 				primary={ true }
-				href={ `https://wordpress.com/plugins/setup/${ this.props.siteRawUrl }?only=${ feature }` }
+				href={ getRedirectUrl( 'jetpack-plugins-setup', {
+					site: this.props.siteRawUrl,
+					query: 'only=' + feature,
+				} ) }
 			>
 				{ __( 'Set up', { context: 'Caption for a button to set up a feature.' } ) }
 			</Button>
