@@ -384,6 +384,10 @@ $player-float-background: $light-gray-200;
 			mask-position: -20px 0;
 		}
 
+		.mejs-replay > button {
+			mask-position: -160px 0;
+		}
+
 		.mejs-mute > button {
 			mask-position: -60px 0;
 		}
