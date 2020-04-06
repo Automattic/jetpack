@@ -63,10 +63,6 @@ export const settings = {
 		 */
 		html: false,
 		/*
-		 * Passing false hides this block in Gutenberg's visual inserter.
-		 */
-		// inserter: true,
-		/*
 		 * When false, user will only be able to insert the block once per post.
 		 */
 		multiple: true,
