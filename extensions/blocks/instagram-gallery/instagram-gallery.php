@@ -9,6 +9,7 @@
 
 namespace Automattic\Jetpack\Extensions\Instagram_Gallery;
 
+use Jetpack;
 use Jetpack_Gutenberg;
 use Jetpack_Instagram_Gallery_Helper;
 
@@ -21,10 +22,12 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
  * registration if we need to.
  */
 function register_block() {
-	jetpack_register_block(
-		BLOCK_NAME,
-		array( 'render_callback' => __NAMESPACE__ . '\render_block' )
-	);
+	if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Jetpack::is_active() ) {
+		jetpack_register_block(
+			BLOCK_NAME,
+			array( 'render_callback' => __NAMESPACE__ . '\render_block' )
+		);
+	}
 }
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 
@@ -52,7 +55,7 @@ function render_block( $attributes, $content ) {
 		array(
 			'wp-block-jetpack-instagram-gallery__grid',
 			'wp-block-jetpack-instagram-gallery__grid-columns-' . $columns,
-		),
+		)
 	);
 	$grid_style   = 'grid-gap: ' . $spacing . 'px;';
 	$photo_style  = 'padding: ' . $spacing . 'px;';
