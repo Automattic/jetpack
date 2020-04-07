@@ -185,9 +185,8 @@ export class PodcastPlayer extends Component {
 		 * Also, add CSS variables.
 		 */
 		const inlineStyle = {
-			color: customSecondaryColor && ! secondaryColorClass ? customSecondaryColor : null,
-			backgroundColor:
-				customBackgroundColor && ! backgroundColorClass ? customBackgroundColor : null,
+			color: customSecondaryColor,
+			backgroundColor: customBackgroundColor,
 			'--jetpack-podcast-player-primary': hexPrimaryColor,
 			'--jetpack-podcast-player-secondary': hexSecondaryColor,
 			'--jetpack-podcast-player-background': hexBackgroundColor,
@@ -203,7 +202,7 @@ export class PodcastPlayer extends Component {
 		return (
 			<section
 				className={ cssClassesName }
-				style={ Object.keys( inlineStyle ).length ? inlineStyle : null }
+				style={ inlineStyle }
 				aria-labelledby={ title || ( track && track.title ) ? `${ playerId }__title` : undefined }
 				aria-describedby={
 					track && track.description ? `${ playerId }__track-description` : undefined
