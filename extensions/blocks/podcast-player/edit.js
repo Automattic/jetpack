@@ -160,10 +160,9 @@ const PodcastPlayerEdit = ( {
 	}, [ isSelected ] );
 
 	/**
-	 * Check if the current URL of the Podcast RSS feed
-	 * is valid. If so, set the block attribute and changes
-	 * the edition mode.
-	 * This function is bound to the onSubmit event for the form.
+	 * Check if the current URL of the Podcast RSS feed is valid. If so, set the
+	 * block attribute and changes the edition mode. This function is bound to the
+	 * onSubmit event for the form.
 	 *
 	 * @param {object} event - Form on submit event object.
 	 */
@@ -176,8 +175,10 @@ const PodcastPlayerEdit = ( {
 				return;
 			}
 
-			// Ensure URL has `http` appended to it (if it doesn't already) before
-			// we accept it as the entered URL.
+			/*
+			 * Ensure URL has `http` appended to it (if it doesn't already) before we
+			 * accept it as the entered URL.
+			 */
 			const prependedURL = prependHTTP( editedUrl );
 
 			if ( ! isURL( prependedURL ) ) {
@@ -197,9 +198,11 @@ const PodcastPlayerEdit = ( {
 				setAttributes( { url: prependedURL } );
 			}
 
-			// Also update the temporary `input` value in order that clicking
-			// `Replace` in the UI will show the "corrected" version of the URL
-			// (ie: with `http` prepended if it wasn't originally present).
+			/*
+			 * Also update the temporary `input` value in order that clicking `Replace`
+			 * in the UI will show the "corrected" version of the URL (ie: with `http`
+			 * prepended if it wasn't originally present).
+			 */
 			setEditedUrl( prependedURL );
 			setIsEditing( false );
 		},
@@ -331,12 +334,13 @@ const PodcastPlayerEdit = ( {
 					title={ feedData.title }
 					link={ feedData.link }
 				/>
-				{
-					// Disabled because the overlay div doesn't actually have a role or functionality
-					// as far as the user is concerned. We're just catching the first click so that
-					// the block can be selected without interacting with the embed preview that the overlay covers.
-					/* eslint-disable jsx-a11y/no-static-element-interactions */
-				 }
+				{ /*
+				 * Disabled because the overlay div doesn't actually have a role or
+				 * functionality as far as the user is concerned. We're just catching
+				 * the first click so that the block can be selected without
+				 * interacting with the embed preview that the overlay covers.
+				 */ }
+				{ /* eslint-disable jsx-a11y/no-static-element-interactions */ }
 				{ ! isInteractive && (
 					<div
 						className="jetpack-podcast-player__interactive-overlay"
