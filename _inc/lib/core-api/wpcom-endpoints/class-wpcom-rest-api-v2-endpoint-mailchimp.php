@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Redirect;
 
 /**
  * Mailchimp: Get Mailchimp Status.
@@ -80,7 +81,7 @@ class WPCOM_REST_API_V2_Endpoint_Mailchimp extends WP_REST_Controller {
 				403
 			);
 		}
-		$connect_url = \Jetpack::build_redirect_url(
+		$connect_url = Redirect::get_url(
 			'wpcom-marketing-connections',
 			array(
 				'site'  => rawurlencode( $site_id ),

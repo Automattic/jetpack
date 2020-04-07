@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Redirect;
 
 /*
 Plugin Name: The Neverending Home Page.
@@ -391,7 +392,7 @@ class The_Neverending_Home_Page {
 
 	function infinite_setting_html_calypso_placeholder() {
 		$details     = get_blog_details();
-		$writing_url = Jetpack::build_redirect_url( 'calypso-settings-writing', array( 'site' => $details->domain ) );
+		$writing_url = Redirect::get_url( 'calypso-settings-writing', array( 'site' => $details->domain ) );
 		echo '<span>' . sprintf(
 			/* translators: Variables are the enclosing link to the settings page */
 			esc_html__( 'This option has moved. You can now manage it %1$shere%2$s.', 'jetpack' ),

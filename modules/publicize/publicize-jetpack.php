@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Redirect;
+
 class Publicize extends Publicize_Base {
 
 	function __construct() {
@@ -490,7 +492,7 @@ class Publicize extends Publicize_Base {
 			}
 			$page_info_message = sprintf(
 				__( 'Facebook supports Publicize connections to Facebook Pages, but not to Facebook Profiles. <a href="%s">Learn More about Publicize for Facebook</a>', 'jetpack' ),
-				esc_url( \Jetpack::build_redirect_url( 'jetpack-support-publicize-facebook' ) )
+				esc_url( Redirect::get_url( 'jetpack-support-publicize-facebook' ) )
 			);
 
 			if ( $pages ) : ?>

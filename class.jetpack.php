@@ -16,6 +16,7 @@ use Automattic\Jetpack\Sync\Users;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
+use Automattic\Jetpack\Redirect;
 
 /*
 Options:
@@ -937,7 +938,7 @@ class Jetpack {
 		}
 
 		return esc_url(
-			self::build_redirect_url(
+			Redirect::get_url(
 				'calypso-edit-' . $post_type,
 				array(
 					'path' => $post_id,
@@ -951,7 +952,7 @@ class Jetpack {
 		wp_parse_str( wp_parse_url( $url, PHP_URL_QUERY ), $query_args );
 
 		return esc_url(
-			self::build_redirect_url(
+			Redirect::get_url(
 				'calypso-edit-comment',
 				array(
 					'path' => $query_args['amp;c'],
@@ -1729,7 +1730,7 @@ class Jetpack {
 			$notice = sprintf(
 				/* translators: %s is a URL */
 				__( 'In <a href="%s" target="_blank">Development Mode</a>:', 'jetpack' ),
-				self::build_redirect_url( 'jetpack-support-development-mode' )
+				Redirect::get_url( 'jetpack-support-development-mode' )
 			);
 
 			$notice .= ' ' . self::development_mode_trigger_text();
@@ -1740,14 +1741,14 @@ class Jetpack {
 		// Throw up a notice if using a development version and as for feedback.
 		if ( self::is_development_version() ) {
 			/* translators: %s is a URL */
-			$notice = sprintf( __( 'You are currently running a development version of Jetpack. <a href="%s" target="_blank">Submit your feedback</a>', 'jetpack' ), self::build_redirect_url( 'jetpack-contact-support-beta-group' ) );
+			$notice = sprintf( __( 'You are currently running a development version of Jetpack. <a href="%s" target="_blank">Submit your feedback</a>', 'jetpack' ), Redirect::get_url( 'jetpack-contact-support-beta-group' ) );
 
 			echo '<div class="updated" style="border-color: #f0821e;"><p>' . $notice . '</p></div>';
 		}
 		// Throw up a notice if using staging mode
 		if ( ( new Status() )->is_staging_site() ) {
 			/* translators: %s is a URL */
-			$notice = sprintf( __( 'You are running Jetpack on a <a href="%s" target="_blank">staging server</a>.', 'jetpack' ), self::build_redirect_url( 'jetpack-support-staging-sites' ) );
+			$notice = sprintf( __( 'You are running Jetpack on a <a href="%s" target="_blank">staging server</a>.', 'jetpack' ), Redirect::get_url( 'jetpack-support-staging-sites' ) );
 
 			echo '<div class="updated" style="border-color: #f0821e;"><p>' . $notice . '</p></div>';
 		}
@@ -3962,8 +3963,8 @@ p {
 		}
 
 		// Help Sidebar
-		$support_url = self::build_redirect_url( 'jetpack-support' );
-		$faq_url     = self::build_redirect_url( 'jetpack-faq' );
+		$support_url = Redirect::get_url( 'jetpack-support' );
+		$faq_url     = Redirect::get_url( 'jetpack-faq' );
 		$current_screen->set_help_sidebar(
 			'<p><strong>' . __( 'For more information:', 'jetpack' ) . '</strong></p>' .
 			'<p><a href="' . $faq_url . '" target="_blank">' . __( 'Jetpack FAQ', 'jetpack' ) . '</a></p>' .
@@ -4330,7 +4331,7 @@ p {
 
 		switch ( $message_code ) {
 			case 'jetpack-manage':
-				$sites_url = esc_url( self::build_redirect_url( 'calypso-sites' ) );
+				$sites_url = esc_url( Redirect::get_url( 'calypso-sites' ) );
 				// translators: %s is the URL to the "Sites" panel on wordpress.com.
 				$this->message = '<strong>' . sprintf( __( 'You are all set! Your site can now be managed from <a href="%s" target="_blank">wordpress.com/sites</a>.', 'jetpack' ), $sites_url ) . '</strong>';
 				if ( $activated_manage ) {
@@ -5197,7 +5198,7 @@ endif;
 					printf(
 						__( 'For more help, try our <a href="%1$s">connection debugger</a> or <a href="%2$s" target="_blank">troubleshooting tips</a>.', 'jetpack' ),
 						esc_url( self::admin_url( array( 'page' => 'jetpack-debugger' ) ) ),
-						esc_url( self::build_redirect_url( 'jetpack-support-getting-started-troubleshooting-tips' ) )
+						esc_url( Redirect::get_url( 'jetpack-support-getting-started-troubleshooting-tips' ) )
 					);
 					?>
 				</p>
@@ -6000,7 +6001,7 @@ endif;
 			$die_error = sprintf(
 				/* translators: %s is a URL */
 				__( 'Your site is incorrectly double-encoding redirects from http to https. This is preventing Jetpack from authenticating your connection. Please visit our <a href="%s">support page</a> for details about how to resolve this.', 'jetpack' ),
-				self::build_redirect_url( 'jetpack-support-double-encoding' )
+				Redirect::get_url( 'jetpack-support-double-encoding' )
 			);
 		}
 
@@ -6835,52 +6836,6 @@ endif;
 		$strip_http = '/.*?:\/\//i';
 		$url        = preg_replace( $strip_http, '', $url );
 		$url        = str_replace( '/', '::', $url );
-		return $url;
-	}
-
-	/**
-	 * Builds an URL using the jetpack.com/redirect service
-	 *
-	 * Note to WP.com: Changes to this method must be synced to wpcom
-	 *
-	 * @since 8.5.0
-	 *
-	 * @param string        $source The URL handler registered in the server
-	 * @param array|string  $args {
-	 *    Optional. Additional arguments to build the url
-	 *
-	 *    @type string $site URL of the site; Default is current site.
-	 *    @type string $path Additional path to be appended to the URL.
-	 *    @type string $query Query parameters to be added to the URL.
-	 *    @type string $anchor Anchor to be added to the URL.
-	 * }
-	 *
-	 * @return string The built URL
-	 */
-	public static function build_redirect_url( $source, $args = array() ) {
-
-		$url           = 'https://jetpack.com/redirect';
-		$args          = wp_parse_args( $args, array( 'site' => self::build_raw_urls( get_home_url() ) ) );
-		$accepted_args = array( 'site', 'path', 'query', 'anchor' );
-
-		$to_be_added = array(
-			'source' => rawurlencode( $source ),
-		);
-
-		foreach ( $args as $arg_name => $arg_value ) {
-
-			if ( ! in_array( $arg_name, $accepted_args, true ) || empty( $arg_value ) ) {
-				continue;
-			}
-
-			$to_be_added[ $arg_name ] = rawurlencode( $arg_value );
-
-		}
-
-		if ( ! empty( $to_be_added ) ) {
-			$url = add_query_arg( $to_be_added, $url );
-		}
-
 		return $url;
 	}
 
