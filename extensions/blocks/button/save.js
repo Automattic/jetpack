@@ -31,9 +31,9 @@ const ButtonSave = ( { attributes, blockName, uniqueId } ) => {
 		customTextColor,
 	} = attributes;
 
-	const buttonBackgroundClass = getColorClassName( 'background-color', backgroundColor );
-	const buttonGradientClass = IS_GRADIENT_AVAILABLE ? getGradientClass( gradient ) : undefined;
-	const buttonTextClass = getColorClassName( 'color', textColor );
+	const backgroundClass = getColorClassName( 'background-color', backgroundColor );
+	const gradientClass = IS_GRADIENT_AVAILABLE ? getGradientClass( gradient ) : undefined;
+	const textClass = getColorClassName( 'color', textColor );
 
 	const blockClasses = classnames( 'wp-block-button', 'jetpack-submit-button', className, {
 		[ `wp-block-jetpack-${ blockName }` ]: blockName,
@@ -41,18 +41,18 @@ const ButtonSave = ( { attributes, blockName, uniqueId } ) => {
 
 	const buttonClasses = classnames( 'wp-block-button__link', {
 		'has-text-color': textColor || customTextColor,
-		[ buttonTextClass ]: buttonTextClass,
+		[ textClass ]: textClass,
 		'has-background': backgroundColor || gradient || customBackgroundColor || customGradient,
-		[ buttonBackgroundClass ]: buttonBackgroundClass,
-		[ buttonGradientClass ]: buttonGradientClass,
+		[ backgroundClass ]: backgroundClass,
+		[ gradientClass ]: gradientClass,
 		'no-border-radius': 0 === borderRadius,
 	} );
 
 	const buttonStyle = {
 		background: customGradient || undefined,
 		backgroundColor:
-			buttonBackgroundClass || customGradient || gradient ? undefined : customBackgroundColor,
-		color: buttonTextClass ? undefined : customTextColor,
+			backgroundClass || customGradient || gradient ? undefined : customBackgroundColor,
+		color: textClass ? undefined : customTextColor,
 		borderRadius: borderRadius ? borderRadius + 'px' : undefined,
 	};
 

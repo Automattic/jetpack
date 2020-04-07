@@ -73,7 +73,7 @@ const ButtonEdit = ( {
 			<RichText
 				allowedFormats={ [] }
 				className={ buttonClasses }
-				onChange={ value => setAttributes( { buttonText: value } ) }
+				onChange={ value => setAttributes( { text: value } ) }
 				placeholder={ placeholder || __( 'Add text…', 'jetpack' ) }
 				style={ buttonStyles }
 				value={ text }
