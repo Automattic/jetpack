@@ -22,6 +22,7 @@ $text-color-active: $text-color-hover;
 $text-color-error: $alert-red;
 $block-bg-color: $white;
 $block-border-color: $dark-gray-100;
+$current-track-title-color: $black;
 $player-background: transparent;
 
 .jetpack-podcast-player--visually-hidden {
@@ -105,14 +106,22 @@ $player-background: transparent;
 		height: $cover-image-size;
 	}
 
-	.jetpack-podcast-player__title {
+	// The tag name increases specificity to override some themes/editor styles.
+	h2.jetpack-podcast-player__title {
 		display: flex;
 		flex-direction: column;
 		margin: 0;
 		overflow: hidden;
+		letter-spacing: 0; // Fixes Twenty Twenty compressed text.
+
+		&:before,
+		&:after {
+			display: none;
+		}
 	}
 
 	.jetpack-podcast-player__current-track-title {
+		color: $current-track-title-color;
 		font-size: $track-title-font-size;
 		margin: 0 0 $track-title-b-margin;
 	}
@@ -133,7 +142,8 @@ $player-background: transparent;
 	}
 
 	// Apply `secondary` color to the podcast title.
-	.has-secondary { // custom color.
+	.has-secondary {
+		// custom color.
 		.jetpack-podcast-player__podcast-title {
 			color: currentColor;
 		}
@@ -165,7 +175,8 @@ $player-background: transparent;
 		max-height: 105px; //IE11 fallback
 	}
 
-	.has-secondary { // custom color.
+	.has-secondary {
+		// custom color.
 		.jetpack-podcast-player__track-description {
 			color: currentColor;
 		}
@@ -222,13 +233,22 @@ $player-background: transparent;
 		flex-flow: row nowrap;
 		justify-content: space-between;
 		padding: $track-h-padding $track-v-padding;
-		text-decoration: none;
 		transition: none;
 		color: inherit;
 
 		&:hover,
 		&:focus {
 			color: inherit;
+		}
+	}
+
+	// The tag name increases specificity to override some themes/editor styles.
+	a.jetpack-podcast-player__track-link {
+		text-decoration: none;
+
+		&:hover,
+		&:focus {
+			text-decoration: none;
 		}
 	}
 
@@ -240,7 +260,7 @@ $player-background: transparent;
 	.jetpack-podcast-player__track-status-icon {
 		flex: $track-status-icon-size 0 0;
 		fill: $jetpack-podcast-player-primary;
-		fill: var(--jetpack-podcast-player-primary);
+		fill: var( --jetpack-podcast-player-primary );
 
 		svg {
 			display: inline-block;
@@ -342,7 +362,7 @@ $player-background: transparent;
 	}
 
 	.mejs-controls .mejs-time-rail .mejs-time-loaded {
-		opacity: .5;
+		opacity: 0.5;
 		background-color: $jetpack-podcast-player-primary;
 		background-color: var( --jetpack-podcast-player-primary );
 	}
