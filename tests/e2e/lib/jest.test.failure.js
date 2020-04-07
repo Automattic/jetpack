@@ -30,7 +30,6 @@ export const defaultErrorHandler = async ( error, name ) => {
 
 		logger.slack( { type: 'failure', message: { block: currentBlock, name, error } } );
 		logger.slack( { type: 'file', message: filePath } );
-
 		await logDebugLog();
 	}
 
