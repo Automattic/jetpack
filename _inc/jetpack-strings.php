@@ -46,6 +46,9 @@ __( "Fast, highly relevant search results and powerful filtering.", "jetpack" ),
 __( "Jetpack Search", "jetpack" ), // _inc/client/my-plan/my-plan-header/index.js:125
 __( "My Plan", "jetpack" ), // _inc/client/my-plan/my-plan-header/index.js:142
 __( "My Products", "jetpack" ), // _inc/client/my-plan/my-plan-header/index.js:155
+__( "Resetting Jetpack options…", "jetpack" ), // _inc/client/state/dev-version/actions.js:29
+__( "Options reset.", "jetpack" ), // _inc/client/state/dev-version/actions.js:39
+__( "Options failed to reset.", "jetpack" ), // _inc/client/state/dev-version/actions.js:52
 __( "Testing Jetpack Connection", "jetpack" ), // _inc/client/state/connection/actions.js:42
 __( "There was an error testing Jetpack. Error: %(error)s", "jetpack" ), // _inc/client/state/connection/actions.js:67
 __( "Disconnecting Jetpack", "jetpack" ), // _inc/client/state/connection/actions.js:129
@@ -53,9 +56,6 @@ __( "There was an error disconnecting Jetpack. Error: %(error)s", "jetpack" ), /
 __( "Unlinking from WordPress.com", "jetpack" ), // _inc/client/state/connection/actions.js:173
 __( "Unlinked from WordPress.com.", "jetpack" ), // _inc/client/state/connection/actions.js:184
 __( "Error unlinking from WordPress.com. %(error)s", "jetpack" ), // _inc/client/state/connection/actions.js:199
-__( "Resetting Jetpack options…", "jetpack" ), // _inc/client/state/dev-version/actions.js:29
-__( "Options reset.", "jetpack" ), // _inc/client/state/dev-version/actions.js:39
-__( "Options failed to reset.", "jetpack" ), // _inc/client/state/dev-version/actions.js:52
 __( "Sending login email…", "jetpack" ), // _inc/client/state/mobile/actions.js:22
 __( "Login email sent", "jetpack" ), // _inc/client/state/mobile/actions.js:34
 __( "Failed to send login email", "jetpack" ), // _inc/client/state/mobile/actions.js:49
@@ -718,10 +718,10 @@ _x( "Discussion", "Navigation item.", "jetpack" ), // _inc/client/components/nav
 _x( "Traffic", "Navigation item.", "jetpack" ), // _inc/client/components/navigation-settings/index.jsx:185
 _x( "Sharing", "Navigation item.", "jetpack" ), // _inc/client/components/navigation-settings/index.jsx:202
 _x( "Writing", "Navigation item.", "jetpack" ), // _inc/client/components/navigation-settings/index.jsx:216
-__( "Manage Subscription", "jetpack" ), // _inc/client/components/product-card/index.jsx:89
 __( "Purchased on %s.", "jetpack" ), // _inc/client/components/product-expiration/index.jsx:35
 __( "Expired on %s.", "jetpack" ), // _inc/client/components/product-expiration/index.jsx:49
 __( "Renews on %s.", "jetpack" ), // _inc/client/components/product-expiration/index.jsx:53
+__( "Manage Subscription", "jetpack" ), // _inc/client/components/product-card/index.jsx:89
 _x( "Upgrade", "A caption for a button to upgrade an existing paid feature to a higher tier.", "jetpack" ), // _inc/client/components/settings-card/index.jsx:86
 __( "Host fast, high-quality, ad-free video.", "jetpack" ), // _inc/client/components/settings-card/index.jsx:98
 __( "Generate income with high-quality ads.", "jetpack" ), // _inc/client/components/settings-card/index.jsx:118
@@ -758,15 +758,6 @@ __( "Daily Backups", "jetpack" ), // _inc/client/plans/single-product-backup/ind
 __( "Real-Time Backups", "jetpack" ), // _inc/client/plans/single-product-backup/index.jsx:44
 __( "Daily Backups", "jetpack" ), // _inc/client/plans/single-product-backup/index.jsx:58
 __( "Real-Time Backups", "jetpack" ), // _inc/client/plans/single-product-backup/index.jsx:64
-__( "Up to 100 records", "jetpack" ), // _inc/client/plans/single-product-search/index.jsx:32
-__( "Up to 1,000 records", "jetpack" ), // _inc/client/plans/single-product-search/index.jsx:34
-__( "Up to 10,000 records", "jetpack" ), // _inc/client/plans/single-product-search/index.jsx:36
-__( "Up to 100,000 records", "jetpack" ), // _inc/client/plans/single-product-search/index.jsx:38
-__( "Up to 1,000,000 records", "jetpack" ), // _inc/client/plans/single-product-search/index.jsx:40
-__( "Up to %(tierMaximumRecords)s records", "jetpack" ), // _inc/client/plans/single-product-search/index.jsx:43
-__( "Learn more", "jetpack" ), // _inc/client/plans/single-product-search/index.jsx:87
-_n( "Your current site record size: %s record", "Your current site record size: %s records", 1, "jetpack" ), // _inc/client/plans/single-product-search/index.jsx:91
-__( "Upgrade to Jetpack Search", "jetpack" ), // _inc/client/plans/single-product-search/index.jsx:122
 __( "You would save {{savings /}} by paying yearly", "jetpack" ), // _inc/client/plans/single-product-components/product-savings.jsx:33
 __( "You are saving {{savings /}} by paying yearly", "jetpack" ), // _inc/client/plans/single-product-components/product-savings.jsx:34
 __( "Up to %(percent)d%% off!", "jetpack" ), // _inc/client/plans/single-product-components/promo-nudge.jsx:16
@@ -776,6 +767,15 @@ __( "Included in your {{planLink}}Premium Plan{{/planLink}}", "jetpack" ), // _i
 __( "Included in your {{planLink}}Professional Plan{{/planLink}}", "jetpack" ), // _inc/client/plans/single-product-components/purchased-product-card.jsx:89
 /* translators: Button to purchase product upgrade. %(name)s is the product name. */
 __( "Upgrade to %(name)s", "jetpack" ), // _inc/client/plans/single-product-components/upgrade-button.jsx:21
+__( "Up to 100 records", "jetpack" ), // _inc/client/plans/single-product-search/index.jsx:32
+__( "Up to 1,000 records", "jetpack" ), // _inc/client/plans/single-product-search/index.jsx:34
+__( "Up to 10,000 records", "jetpack" ), // _inc/client/plans/single-product-search/index.jsx:36
+__( "Up to 100,000 records", "jetpack" ), // _inc/client/plans/single-product-search/index.jsx:38
+__( "Up to 1,000,000 records", "jetpack" ), // _inc/client/plans/single-product-search/index.jsx:40
+__( "Up to %(tierMaximumRecords)s records", "jetpack" ), // _inc/client/plans/single-product-search/index.jsx:43
+__( "Learn more", "jetpack" ), // _inc/client/plans/single-product-search/index.jsx:87
+_n( "Your current site record size: %s record", "Your current site record size: %s records", 1, "jetpack" ), // _inc/client/plans/single-product-search/index.jsx:91
+__( "Upgrade to Jetpack Search", "jetpack" ), // _inc/client/plans/single-product-search/index.jsx:122
 __( "Verifying…", "jetpack" ), // _inc/client/traffic/verification-services/google.jsx:79
 __( "Site failed to verify: %(error)s", "jetpack" ), // _inc/client/traffic/verification-services/google.jsx:101
 __( "Google", "jetpack" ), // _inc/client/traffic/verification-services/google.jsx:187
