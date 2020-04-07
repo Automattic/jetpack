@@ -203,8 +203,10 @@ export class PodcastPlayer extends Component {
 			},
 		};
 
-		// Set colors through inline styles.
-		// Also, add CSS variables.
+		/*
+		 * Set colors through inline styles.
+		 * Also, add CSS variables.
+		 */
 		const inlineStyle = {
 			color: customSecondaryColor && ! secondaryColorClass ? customSecondaryColor : null,
 			backgroundColor:
