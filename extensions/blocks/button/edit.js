@@ -25,26 +25,26 @@ import { IS_GRADIENT_AVAILABLE } from './constants';
 
 const ButtonEdit = ( {
 	attributes,
-	buttonBackgroundColor,
-	buttonFallbackBackgroundColor,
-	buttonFallbackTextColor,
-	buttonTextColor,
+	backgroundColor,
 	className,
+	fallbackBackgroundColor,
+	fallbackTextColor,
 	setAttributes,
-	setButtonBackgroundColor,
-	setButtonTextColor,
+	setBackgroundColor,
+	setTextColor,
+	textColor,
 } ) => {
-	const { buttonBorderRadius, buttonPlaceholder, buttonText } = attributes;
+	const { borderRadius, placeholder, text } = attributes;
 
 	/* eslint-disable react-hooks/rules-of-hooks */
 	const {
-		gradientClass: buttonGradientClass,
-		gradientValue: buttonGradientValue,
-		setGradient: setButtonGradient,
+		gradientClass: gradientClass,
+		gradientValue: gradientValue,
+		setGradient: setGradient,
 	} = IS_GRADIENT_AVAILABLE
 		? useGradient( {
-				gradientAttribute: 'buttonGradient',
-				customGradientAttribute: 'customButtonGradient',
+				gradientAttribute: 'gradient',
+				customGradientAttribute: 'customGradient',
 		  } )
 		: {};
 	/* eslint-enable react-hooks/rules-of-hooks */
@@ -52,20 +52,20 @@ const ButtonEdit = ( {
 	const blockClasses = classnames( 'wp-block-button', className );
 
 	const buttonClasses = classnames( 'wp-block-button__link', {
-		'has-background': buttonBackgroundColor.color || buttonGradientValue,
-		[ buttonBackgroundColor.class ]: ! buttonGradientValue && buttonBackgroundColor.class,
-		'has-text-color': buttonTextColor.color,
-		[ buttonTextColor.class ]: buttonTextColor.class,
-		[ buttonGradientClass ]: buttonGradientClass,
-		'no-border-radius': 0 === buttonBorderRadius,
+		'has-background': backgroundColor.color || gradientValue,
+		[ backgroundColor.class ]: ! gradientValue && backgroundColor.class,
+		'has-text-color': textColor.color,
+		[ textColor.class ]: textColor.class,
+		[ gradientClass ]: gradientClass,
+		'no-border-radius': 0 === borderRadius,
 	} );
 
 	const buttonStyles = {
-		...( ! buttonBackgroundColor.color && buttonGradientValue
-			? { background: buttonGradientValue }
-			: { backgroundColor: buttonBackgroundColor.color } ),
-		color: buttonTextColor.color,
-		borderRadius: buttonBorderRadius ? buttonBorderRadius + 'px' : undefined,
+		...( ! backgroundColor.color && gradientValue
+			? { background: gradientValue }
+			: { backgroundColor: backgroundColor.color } ),
+		color: textColor.color,
+		borderRadius: borderRadius ? borderRadius + 'px' : undefined,
 	};
 
 	return (
@@ -74,34 +74,31 @@ const ButtonEdit = ( {
 				allowedFormats={ [] }
 				className={ buttonClasses }
 				onChange={ value => setAttributes( { buttonText: value } ) }
-				placeholder={ buttonPlaceholder || __( 'Add text…', 'jetpack' ) }
+				placeholder={ placeholder || __( 'Add text…', 'jetpack' ) }
 				style={ buttonStyles }
-				value={ buttonText }
+				value={ text }
 				withoutInteractiveFormatting
 			/>
 			<InspectorControls>
 				<ButtonColorsPanel
 					{ ...{
-						buttonBackgroundColor,
-						buttonFallbackBackgroundColor,
-						buttonFallbackTextColor,
-						buttonGradientValue,
-						buttonTextColor,
-						setButtonBackgroundColor,
-						setButtonGradient,
-						setButtonTextColor,
+						backgroundColor,
+						fallbackBackgroundColor,
+						fallbackTextColor,
+						gradientValue,
+						setBackgroundColor,
+						setGradient,
+						setTextColor,
+						textColor,
 					} }
 				/>
-				<ButtonBorderPanel
-					buttonBorderRadius={ buttonBorderRadius }
-					setAttributes={ setAttributes }
-				/>
+				<ButtonBorderPanel buttonBorderRadius={ borderRadius } setAttributes={ setAttributes } />
 			</InspectorControls>
 		</div>
 	);
 };
 
 export default compose(
-	withColors( { buttonBackgroundColor: 'background-color' }, { buttonTextColor: 'color' } ),
+	withColors( { backgroundColor: 'background-color' }, { textColor: 'color' } ),
 	applyFallbackStyles
 )( ButtonEdit );

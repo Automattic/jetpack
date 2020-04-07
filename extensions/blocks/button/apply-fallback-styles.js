@@ -9,19 +9,18 @@ import { get } from 'lodash';
 import { withFallbackStyles } from '@wordpress/components';
 
 const applyFallbackStyles = withFallbackStyles( ( node, ownProps ) => {
-	const { buttonBackgroundColor, buttonTextColor } = ownProps;
-	const buttonBackgroundColorValue = get( buttonBackgroundColor, 'color' );
-	const buttonTextColorValue = get( buttonTextColor, 'color' );
+	const { backgroundColor, textColor } = ownProps;
+	const backgroundColorValue = get( backgroundColor, 'color' );
+	const textColorValue = get( textColor, 'color' );
 
 	// Avoid the use of querySelector if textColor color is known and verify if node is available.
 	const textNode =
-		! buttonTextColorValue && node ? node.querySelector( '[contenteditable="true"]' ) : null;
+		! textColorValue && node ? node.querySelector( '[contenteditable="true"]' ) : null;
 
 	return {
-		buttonFallbackBackgroundColor:
-			buttonBackgroundColorValue || ! node ? undefined : getComputedStyle( node ).backgroundColor,
-		buttonFallbackTextColor:
-			buttonTextColor || ! textNode ? undefined : getComputedStyle( textNode ).color,
+		fallbackBackgroundColor:
+			backgroundColorValue || ! node ? undefined : getComputedStyle( node ).backgroundColor,
+		fallbackTextColor: textColor || ! textNode ? undefined : getComputedStyle( textNode ).color,
 	};
 } );
 

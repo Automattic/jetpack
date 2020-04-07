@@ -14,22 +14,22 @@ import {
 	MIN_BORDER_RADIUS_VALUE,
 } from './constants';
 
-const ButtonBorderPanel = ( { buttonBorderRadius = '', setAttributes } ) => {
-	const setButtonBorderRadius = useCallback(
-		newButtonBorderRadius => setAttributes( { buttonBorderRadius: newButtonBorderRadius } ),
+const ButtonBorderPanel = ( { borderRadius = '', setAttributes } ) => {
+	const setBorderRadius = useCallback(
+		newBorderRadius => setAttributes( { borderRadius: newBorderRadius } ),
 		[ setAttributes ]
 	);
 
 	return (
-		<PanelBody title={ __( 'Button border settings', 'jetpack' ) }>
+		<PanelBody title={ __( 'Border Settings', 'jetpack' ) }>
 			<RangeControl
 				allowReset
 				initialPosition={ INITIAL_BORDER_RADIUS_POSITION }
 				label={ __( 'Border radius', 'jetpack' ) }
 				max={ MAX_BORDER_RADIUS_VALUE }
 				min={ MIN_BORDER_RADIUS_VALUE }
-				onChange={ setButtonBorderRadius }
-				value={ buttonBorderRadius }
+				onChange={ setBorderRadius }
+				value={ borderRadius }
 			/>
 		</PanelBody>
 	);
