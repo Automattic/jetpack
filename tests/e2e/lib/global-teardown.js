@@ -1,7 +1,6 @@
 import { readFileSync } from 'fs';
-// const { teardown } = require( 'jest-environment-puppeteer' );
-
 import { teardown } from 'jest-environment-puppeteer';
+
 import {
 	sendSnippetToSlack,
 	sendMessageToSlack,
