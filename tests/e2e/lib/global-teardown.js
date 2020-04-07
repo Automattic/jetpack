@@ -10,7 +10,7 @@ import {
 	getResultMessage,
 } from './reporters/slack';
 module.exports = async function( globalConfig ) {
-	processSlackLog();
+	await processSlackLog();
 	await teardown( globalConfig );
 };
 
