@@ -509,11 +509,7 @@ class MyPlanBody extends React.Component {
 									<h3 className="jp-landing__plan-features-title">
 										{ __( 'Try a premium theme' ) }
 									</h3>
-									<p>
-										{ __(
-											'Access hundreds of beautifully designed premium themes at no extra cost.'
-										) }
-									</p>
+									<p>{ __( 'Access beautifully designed premium themes at no extra cost.' ) }</p>
 									<Button
 										onClick={ this.handleButtonClickForTracking( 'premium_themes' ) }
 										href={ 'https://wordpress.com/themes/premium/' + this.props.siteRawUrl }
