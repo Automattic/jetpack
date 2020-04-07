@@ -7,6 +7,7 @@ import {
 	sendFileToSlack,
 	getFailedTestMessage,
 	getResultMessage,
+	getSuccessMessage,
 } from './reporters/slack';
 module.exports = async function( globalConfig ) {
 	if ( process.env.CI ) {
@@ -20,6 +21,10 @@ module.exports = async function( globalConfig ) {
  */
 async function processSlackLog() {
 	const log = readFileSync( './logs/e2e-slack.log' ).toString();
+
+	if ( log.length === 0 ) {
+		return await sendMessageToSlack( getSuccessMessage() );
+	}
 
 	const messages = log
 		.trim()

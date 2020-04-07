@@ -93,6 +93,22 @@ export const getResultMessage = failureCount => {
 	return message;
 };
 
+export const getSuccessMessage = () => {
+	let buildInfo = `*BUILD #${ TRAVIS_BUILD_NUMBER } PASSED:*
+
+*Travis build:* ${ TRAVIS_BUILD_WEB_URL }
+*Github branch:* ${ branchName }`;
+
+	if ( TRAVIS_PULL_REQUEST ) {
+		buildInfo += `\n*Github PR URL:* ${ repoURL }/pull/${ TRAVIS_PULL_REQUEST }`;
+	} else {
+		buildInfo += `\n*Github branch URL:* ${ repoURL }/tree/${ branchName }`;
+	}
+
+	const message = [ createSection( buildInfo ) ];
+	return message;
+};
+
 export async function sendMessageToSlack( message, options = {} ) {
 	const payload = Object.assign(
 		{
