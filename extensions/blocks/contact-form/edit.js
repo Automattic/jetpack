@@ -1,29 +1,33 @@
 /**
  * External dependencies
  */
+import { get, map } from 'lodash';
 import classnames from 'classnames';
 import emailValidator from 'email-validator';
 import { __, sprintf } from '@wordpress/i18n';
 import {
 	BaseControl,
-	Button,
 	PanelBody,
-	Path,
-	Placeholder,
 	SelectControl,
 	TextareaControl,
 	TextControl,
 } from '@wordpress/components';
-import { Component, Fragment } from '@wordpress/element';
+import { Component } from '@wordpress/element';
 import { compose, withInstanceId } from '@wordpress/compose';
-import { InnerBlocks, InspectorControls, URLInput } from '@wordpress/block-editor';
+import {
+	InnerBlocks,
+	InspectorControls,
+	URLInput,
+	__experimentalBlockVariationPicker as BlockVariationPicker,
+} from '@wordpress/block-editor';
+import { createBlock, registerBlockVariation } from '@wordpress/blocks';
+import { useDispatch, withSelect } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
-import HelpMessage from '../../../shared/help-message';
-import renderMaterialIcon from '../../../shared/render-material-icon';
-import SubmitButton from '../../../shared/submit-button';
+import HelpMessage from '../../shared/help-message';
+import SubmitButton from '../../shared/submit-button';
 
 const ALLOWED_BLOCKS = [
 	'jetpack/markdown',
@@ -47,7 +51,7 @@ const ALLOWED_BLOCKS = [
 	'core/video',
 ];
 
-class JetpackContactForm extends Component {
+class JetpackContactFormEdit extends Component {
 	constructor( ...args ) {
 		super( ...args );
 		this.onChangeSubject = this.onChangeSubject.bind( this );
@@ -69,10 +73,6 @@ class JetpackContactForm extends Component {
 		this.state = {
 			toError: error && error.length ? error : null,
 		};
-	}
-
-	getEmailHelpMessage() {
-		return __( 'You can enter multiple email addresses separated by commas.', 'jetpack' );
 	}
 
 	onChangeSubject( subject ) {
@@ -163,23 +163,21 @@ class JetpackContactForm extends Component {
 		const { instanceId, attributes } = this.props;
 		const { subject, to } = attributes;
 		return (
-			<Fragment>
+			<>
 				<TextControl
 					aria-describedby={ `contact-form-${ instanceId }-email-${
 						this.hasEmailError() ? 'error' : 'help'
 					}` }
-					label={ __( 'Email address', 'jetpack' ) }
+					label={ __( 'Email address to send to', 'jetpack' ) }
 					placeholder={ __( 'name@example.com', 'jetpack' ) }
 					onKeyDown={ this.preventEnterSubmittion }
 					value={ to }
 					onBlur={ this.onBlurTo }
 					onChange={ this.onChangeTo }
+					help={ __( 'You can enter multiple email addresses separated by commas.', 'jetpack' ) }
 				/>
 				<HelpMessage isError id={ `contact-form-${ instanceId }-email-error` }>
 					{ this.getfieldEmailError( fieldEmailError ) }
-				</HelpMessage>
-				<HelpMessage id={ `contact-form-${ instanceId }-email-help` }>
-					{ this.getEmailHelpMessage() }
 				</HelpMessage>
 
 				<TextControl
@@ -187,8 +185,12 @@ class JetpackContactForm extends Component {
 					value={ subject }
 					placeholder={ __( "Let's work together", 'jetpack' ) }
 					onChange={ this.onChangeSubject }
+					help={ __(
+						'Choose a subject line that you recognize as an email from your website.',
+						'jetpack'
+					) }
 				/>
-			</Fragment>
+			</>
 		);
 	}
 
@@ -196,7 +198,7 @@ class JetpackContactForm extends Component {
 		const { instanceId } = this.props;
 		const { customThankyou, customThankyouMessage, customThankyouRedirect } = this.props.attributes;
 		return (
-			<Fragment>
+			<>
 				<SelectControl
 					label={ __( 'On Submission', 'jetpack' ) }
 					value={ customThankyou }
@@ -230,7 +232,7 @@ class JetpackContactForm extends Component {
 						/>
 					</BaseControl>
 				) }
-			</Fragment>
+			</>
 		);
 	}
 
@@ -239,15 +241,68 @@ class JetpackContactForm extends Component {
 		return fieldEmailError && fieldEmailError.length > 0;
 	}
 
+	createBlocksFromInnerBlocksTemplate( innerBlocksTemplate ) {
+		const blocks = map(
+			innerBlocksTemplate,
+			( [ name, attributes, innerBlocks = [] ] ) =>
+				createBlock(
+					name,
+					attributes,
+					this.createBlocksFromInnerBlocksTemplate( innerBlocks )
+				)
+		);
+
+		return blocks;
+	}
+
 	render() {
-		const { className, attributes } = this.props;
+		const {
+			setAttributes,
+			className,
+			attributes,
+			blockType,
+			variations,
+			defaultVariation,
+			replaceInnerBlocks,
+			hasInnerBlocks,
+			selectBlock,
+		} = this.props;
+
 		const { hasFormSettingsSet } = attributes;
 		const formClassnames = classnames( className, 'jetpack-contact-form', {
 			'has-intro': ! hasFormSettingsSet,
 		} );
 
+		if ( ! hasInnerBlocks && registerBlockVariation ) {
+			return (
+				<BlockVariationPicker
+					icon={ get( blockType, [ 'icon', 'src' ] ) }
+					label={ get( blockType, [ 'title' ] ) }
+					instructions={ __( "Please select which type of form you'd like to add, or you can create your own using the skip option.", 'jetpack' ) }
+					variations={ variations }
+					allowSkip
+					onSelect={ ( nextVariation = defaultVariation ) => {
+						if ( nextVariation.attributes ) {
+							setAttributes( nextVariation.attributes );
+						}
+
+						if ( nextVariation.innerBlocks ) {
+							replaceInnerBlocks(
+								this.props.clientId,
+								this.createBlocksFromInnerBlocksTemplate(
+									nextVariation.innerBlocks
+								)
+							);
+						}
+
+						selectBlock( this.props.clientId );
+					} }
+				/>
+			);
+		}
+
 		return (
-			<Fragment>
+			<>
 				<InspectorControls>
 					<PanelBody title={ __( 'Email Feedback Settings', 'jetpack' ) }>
 						{ this.renderToAndSubjectFields() }
@@ -257,60 +312,40 @@ class JetpackContactForm extends Component {
 					</PanelBody>
 				</InspectorControls>
 				<div className={ formClassnames }>
-					{ ! hasFormSettingsSet && (
-						<Placeholder
-							label={ __( 'Form', 'jetpack' ) }
-							icon={ renderMaterialIcon(
-								<Path d="M13 7.5h5v2h-5zm0 7h5v2h-5zM19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM11 6H6v5h5V6zm-1 4H7V7h3v3zm1 3H6v5h5v-5zm-1 4H7v-3h3v3z" />
-							) }
-							instructions={ __(
-								'You’ll receive an email notification each time someone fills out the form. Where should it go, and what should the subject line be?',
-								'jetpack'
-							) }
-						>
-							<form onSubmit={ this.onFormSettingsSet }>
-								{ this.renderToAndSubjectFields() }
-								<div class="components-placeholder__instructions">
-									{ __(
-										'(If you leave these blank, notifications will go to the author with the post or page title as the subject line.)',
-										'jetpack'
-									) }
-								</div>
-								<div className="jetpack-contact-form__create">
-									<Button isLarge isSecondary type="submit" disabled={ this.hasEmailError() }>
-										{ __( 'Add form', 'jetpack' ) }
-									</Button>
-								</div>
-							</form>
-						</Placeholder>
-					) }
-					{ hasFormSettingsSet && (
-						<InnerBlocks
-							allowedBlocks={ ALLOWED_BLOCKS }
-							templateLock={ false }
-							template={ [
-								[
-									'jetpack/field-name',
-									{
-										required: true,
-									},
-								],
-								[
-									'jetpack/field-email',
-									{
-										required: true,
-									},
-								],
-								[ 'jetpack/field-url', {} ],
-								[ 'jetpack/field-textarea', {} ],
-							] }
-						/>
-					) }
-					{ hasFormSettingsSet && <SubmitButton { ...this.props } /> }
+					<InnerBlocks
+						allowedBlocks={ ALLOWED_BLOCKS }
+					/>
+					<SubmitButton { ...this.props } />
 				</div>
-			</Fragment>
+			</>
 		);
 	}
 }
 
-export default compose( [ withInstanceId ] )( JetpackContactForm );
+export default compose( [
+	withSelect( ( select, props ) => {
+		const {
+			getBlockType,
+			getBlockVariations,
+			getDefaultBlockVariation
+		} = select( 'core/blocks' );
+		const { getBlocks } = select( 'core/block-editor' );
+		const {
+			replaceInnerBlocks,
+			selectBlock
+		 } = useDispatch( 'core/block-editor' );
+		const innerBlocks = getBlocks( props.clientId );
+
+		return {
+			blockType: getBlockType( props.name ),
+			defaultVariation: getDefaultBlockVariation( props.name, 'block' ),
+			variations: getBlockVariations( props.name, 'block' ),
+
+			innerBlocks,
+			hasInnerBlocks: select( 'core/block-editor' ).getBlocks( props.clientId ).length > 0,
+			replaceInnerBlocks,
+			selectBlock,
+		};
+	} ),
+	withInstanceId,
+] )( JetpackContactFormEdit );

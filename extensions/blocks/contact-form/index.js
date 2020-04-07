@@ -11,17 +11,18 @@ import { InnerBlocks } from '@wordpress/block-editor';
  * Internal dependencies
  */
 import './editor.scss';
-import JetpackContactForm from './components/jetpack-contact-form';
+import edit from './edit';
+import { defaultAttributes } from './attributes';
+import variations from './variations';
+import deprecated from './deprecated';
 import JetpackField from './components/jetpack-field';
 import JetpackFieldTextarea from './components/jetpack-field-textarea';
 import JetpackFieldCheckbox from './components/jetpack-field-checkbox';
 import JetpackFieldMultiple from './components/jetpack-field-multiple';
 import renderMaterialIcon from '../../shared/render-material-icon';
-import colorValidator from '../../shared/colorValidator';
 import { supportsCollections } from '../../shared/block-category';
 
 export const name = 'contact-form';
-
 export const settings = {
 	title: __( 'Form', 'jetpack' ),
 	description: __( 'A simple way to get feedback from folks visiting your site.', 'jetpack' ),
@@ -33,145 +34,15 @@ export const settings = {
 		_x( 'feedback', 'block search term', 'jetpack' ),
 		_x( 'contact form', 'block search term', 'jetpack' ),
 	],
-	category: supportsCollections() ? 'grow' : 'jetpack',
 	supports: {
 		html: false,
 	},
-	attributes: {
-		subject: {
-			type: 'string',
-			default: '',
-		},
-		to: {
-			type: 'string',
-			default: '',
-		},
-		submitButtonText: {
-			type: 'string',
-			default: __( 'Submit', 'jetpack' ),
-		},
-		backgroundButtonColor: {
-			type: 'string',
-		},
-		textButtonColor: {
-			type: 'string',
-		},
-		customBackgroundButtonColor: {
-			type: 'string',
-			validator: colorValidator,
-		},
-		customTextButtonColor: {
-			type: 'string',
-			validator: colorValidator,
-		},
-		submitButtonClasses: { type: 'string' },
-		hasFormSettingsSet: {
-			type: 'string',
-			default: null,
-		},
-		customThankyou: {
-			type: 'string',
-			default: '',
-		},
-		customThankyouMessage: {
-			type: 'string',
-			default: '',
-		},
-		customThankyouRedirect: {
-			type: 'string',
-			default: '',
-		},
-
-		// Deprecated
-		has_form_settings_set: {
-			type: 'string',
-			default: null,
-		},
-		submit_button_text: {
-			type: 'string',
-			default: __( 'Submit', 'jetpack' ),
-		},
-	},
-
-	edit: JetpackContactForm,
-	save: () => <InnerBlocks.Content />,
-	example: {
-		attributes: {
-			hasFormSettingsSet: true,
-			submitButtonText: __( 'Submit', 'jetpack' ),
-		},
-		innerBlocks: [
-			{
-				name: 'jetpack/field-name',
-				attributes: {
-					label: __( 'Name', 'jetpack' ),
-					required: true,
-				},
-			},
-			{
-				name: 'jetpack/field-email',
-				attributes: {
-					label: __( 'Email', 'jetpack' ),
-					required: true,
-				},
-			},
-			{
-				name: 'jetpack/field-url',
-				attributes: {
-					label: __( 'Website', 'jetpack' ),
-				},
-			},
-			{
-				name: 'jetpack/field-textarea',
-				attributes: {
-					label: __( 'Message', 'jetpack' ),
-				},
-			},
-		],
-	},
-	deprecated: [
-		{
-			attributes: {
-				subject: {
-					type: 'string',
-					default: '',
-				},
-				to: {
-					type: 'string',
-					default: '',
-				},
-				submit_button_text: {
-					type: 'string',
-					default: __( 'Submit', 'jetpack' ),
-				},
-				has_form_settings_set: {
-					type: 'string',
-					default: null,
-				},
-			},
-			migrate: attr => {
-				return {
-					submitButtonText: attr.submit_button_text,
-					hasFormSettingsSet: attr.has_form_settings_set,
-					to: attr.to,
-					subject: attr.subject,
-				};
-			},
-
-			isEligible: attr => {
-				// when the deprecated, snake_case values are default, no need to migrate
-				if (
-					! attr.has_form_settings_set &&
-					( ! attr.submit_button_text || attr.submit_button_text === 'Submit' )
-				) {
-					return false;
-				}
-				return true;
-			},
-
-			save: () => <InnerBlocks.Content />,
-		},
-	],
+	attributes: defaultAttributes,
+	edit,
+	save: InnerBlocks.Content,
+	variations,
+	category: supportsCollections() ? 'grow' : 'jetpack',
+	deprecated,
 };
 
 const FieldDefaults = {
