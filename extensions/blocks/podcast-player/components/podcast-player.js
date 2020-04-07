@@ -156,10 +156,13 @@ export class PodcastPlayer extends Component {
 			itemsToShow,
 			primaryColor,
 			customPrimaryColor,
+			hexPrimaryColor,
 			secondaryColor,
 			customSecondaryColor,
+			hexSecondaryColor,
 			backgroundColor,
 			customBackgroundColor,
+			hexBackgroundColor,
 			showCoverArt,
 			showEpisodeDescription,
 		} = attributes;
@@ -200,10 +203,17 @@ export class PodcastPlayer extends Component {
 			},
 		};
 
+		/*
+		 * Set colors through inline styles.
+		 * Also, add CSS variables.
+		 */
 		const inlineStyle = {
 			color: customSecondaryColor && ! secondaryColorClass ? customSecondaryColor : null,
 			backgroundColor:
 				customBackgroundColor && ! backgroundColorClass ? customBackgroundColor : null,
+			'--jetpack-podcast-player-primary': hexPrimaryColor,
+			'--jetpack-podcast-player-secondary': hexSecondaryColor,
+			'--jetpack-podcast-player-background': hexBackgroundColor,
 		};
 
 		const cssClassesName = classnames(
