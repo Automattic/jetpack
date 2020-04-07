@@ -14,25 +14,25 @@ import { __ } from '@wordpress/i18n';
 import { IS_GRADIENT_AVAILABLE } from './constants';
 
 const ButtonColorsPanel = ( {
-	buttonBackgroundColor,
-	buttonFallbackBackgroundColor,
-	buttonFallbackTextColor,
-	buttonGradientValue,
-	buttonTextColor,
-	setButtonBackgroundColor,
-	setButtonGradient,
-	setButtonTextColor,
+	backgroundColor,
+	fallbackBackgroundColor,
+	fallbackTextColor,
+	gradientValue,
+	setBackgroundColor,
+	setGradient,
+	setTextColor,
+	textColor,
 } ) => {
 	const ButtonContrastChecker = (
 		<ContrastChecker
 			{ ...{
 				// Text is considered large if font size is greater or equal to 18pt or 24px,
 				// currently that's not the case for button.
-				backgroundColor: buttonBackgroundColor.color,
-				fallbackBackgroundColor: buttonFallbackBackgroundColor,
-				fallbackTextColor: buttonFallbackTextColor,
+				backgroundColor: backgroundColor.color,
+				fallbackBackgroundColor,
+				fallbackTextColor,
 				isLargeText: false,
-				textColor: buttonTextColor.color,
+				textColor: textColor.color,
 			} }
 		/>
 	);
@@ -42,19 +42,19 @@ const ButtonColorsPanel = ( {
 			<PanelColorGradientSettings
 				settings={ [
 					{
-						colorValue: buttonTextColor.color,
+						colorValue: textColor.color,
 						label: __( 'Text Color', 'jetpack' ),
-						onColorChange: setButtonTextColor,
+						onColorChange: setTextColor,
 					},
 					{
-						colorValue: buttonBackgroundColor.color,
-						gradientValue: buttonGradientValue,
+						colorValue: backgroundColor.color,
+						gradientValue: gradientValue,
 						label: __( 'Background', 'jetpack' ),
-						onColorChange: setButtonBackgroundColor,
-						onGradientChange: setButtonGradient,
+						onColorChange: setBackgroundColor,
+						onGradientChange: setGradient,
 					},
 				] }
-				title={ __( 'Button Background & Text Color', 'jetpack' ) }
+				title={ __( 'Background & Text Color', 'jetpack' ) }
 			>
 				{ ButtonContrastChecker }
 			</PanelColorGradientSettings>
@@ -65,17 +65,17 @@ const ButtonColorsPanel = ( {
 		<PanelColorSettings
 			colorSettings={ [
 				{
-					value: buttonTextColor.color,
-					onChange: setButtonTextColor,
+					value: textColor.color,
+					onChange: setTextColor,
 					label: __( 'Text Color', 'jetpack' ),
 				},
 				{
-					value: buttonBackgroundColor.color,
-					onChange: setButtonBackgroundColor,
+					value: backgroundColor.color,
+					onChange: setBackgroundColor,
 					label: __( 'Background', 'jetpack' ),
 				},
 			] }
-			title={ __( 'Button Background & Text Color', 'jetpack' ) }
+			title={ __( 'Background & Text Color', 'jetpack' ) }
 		>
 			{ ButtonContrastChecker }
 		</PanelColorSettings>

@@ -19,49 +19,41 @@ import { IS_GRADIENT_AVAILABLE } from './constants';
 
 const ButtonSave = ( { attributes, blockName, uniqueId } ) => {
 	const {
-		buttonBackgroundColor,
-		buttonBorderRadius,
-		buttonGradient,
-		buttonText,
-		buttonTextColor,
-		buttonUrl,
+		backgroundColor,
+		borderRadius,
+		gradient,
+		text,
+		textColor,
+		url,
 		className,
-		customButtonBackgroundColor,
-		customButtonGradient,
-		customButtonTextColor,
+		customBackgroundColor,
+		customGradient,
+		customTextColor,
 	} = attributes;
 
-	const buttonBackgroundClass = getColorClassName( 'background-color', buttonBackgroundColor );
-	const buttonGradientClass = IS_GRADIENT_AVAILABLE
-		? getGradientClass( buttonGradient )
-		: undefined;
-	const buttonTextClass = getColorClassName( 'color', buttonTextColor );
+	const buttonBackgroundClass = getColorClassName( 'background-color', backgroundColor );
+	const buttonGradientClass = IS_GRADIENT_AVAILABLE ? getGradientClass( gradient ) : undefined;
+	const buttonTextClass = getColorClassName( 'color', textColor );
 
 	const blockClasses = classnames( 'wp-block-button', 'jetpack-submit-button', className, {
 		[ `wp-block-jetpack-${ blockName }` ]: blockName,
 	} );
 
 	const buttonClasses = classnames( 'wp-block-button__link', {
-		'has-text-color': buttonTextColor || customButtonTextColor,
+		'has-text-color': textColor || customTextColor,
 		[ buttonTextClass ]: buttonTextClass,
-		'has-background':
-			buttonBackgroundColor ||
-			buttonGradient ||
-			customButtonBackgroundColor ||
-			customButtonGradient,
+		'has-background': backgroundColor || gradient || customBackgroundColor || customGradient,
 		[ buttonBackgroundClass ]: buttonBackgroundClass,
 		[ buttonGradientClass ]: buttonGradientClass,
-		'no-border-radius': 0 === buttonBorderRadius,
+		'no-border-radius': 0 === borderRadius,
 	} );
 
 	const buttonStyle = {
-		background: customButtonGradient || undefined,
+		background: customGradient || undefined,
 		backgroundColor:
-			buttonBackgroundClass || customButtonGradient || buttonGradient
-				? undefined
-				: customButtonBackgroundColor,
-		color: buttonTextClass ? undefined : customButtonTextColor,
-		borderRadius: buttonBorderRadius ? buttonBorderRadius + 'px' : undefined,
+			buttonBackgroundClass || customGradient || gradient ? undefined : customBackgroundColor,
+		color: buttonTextClass ? undefined : customTextColor,
+		borderRadius: borderRadius ? borderRadius + 'px' : undefined,
 	};
 
 	return (
@@ -69,14 +61,14 @@ const ButtonSave = ( { attributes, blockName, uniqueId } ) => {
 			<RichText.Content
 				className={ buttonClasses }
 				data-id-attr={ uniqueId || 'placeholder' }
-				href={ buttonUrl }
+				href={ url }
 				id={ uniqueId }
 				rel="noopener noreferrer"
 				role="button"
 				style={ buttonStyle }
 				tagName="a"
 				target="_blank"
-				value={ buttonText }
+				value={ text }
 			/>
 		</div>
 	);
