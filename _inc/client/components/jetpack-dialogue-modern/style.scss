@@ -5,7 +5,7 @@
 	right: 0;
 	bottom: 0;
 	left: 0;
-	z-index: 100; // to sit over other elements
+	z-index: 1000; // to sit over other elements
 	background: rgba($gray-light, .95);
 	padding: 1rem 0 0 0;
 	height: 100%;
