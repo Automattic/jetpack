@@ -38,8 +38,9 @@ export class PodcastPlayer extends Component {
 
 	/**
 	 * Select a track and play/pause, as needed.
+	 *
 	 * @public
-	 * @param {number} track The track number
+	 * @param {number} track - The track number
 	 */
 	selectTrack = track => {
 		const { currentTrack } = this.state;
@@ -61,8 +62,9 @@ export class PodcastPlayer extends Component {
 
 	/**
 	 * Load audio from the track, start playing.
+	 *
 	 * @private
-	 * @param {number} track The track number
+	 * @param {number} track - The track number
 	 */
 	loadAndPlay = track => {
 		const trackData = this.getTrack( track );
@@ -73,9 +75,13 @@ export class PodcastPlayer extends Component {
 		this.setState( { currentTrack: track } );
 		this.setAudioSource( trackData.src );
 
-		// Read that we're loading the track and its description. This is dismissible via ctrl on VoiceOver.
-		/* translators: %s is the track title. It describes the current state of the track as "Loading: [track title]" */
+		/*
+		 * Read that we're loading the track and its description. This is
+		 * dismissible via ctrl on VoiceOver.
+		 */
 		speak(
+			/* translators: %s is the track title. It describes the current state of
+			the track as "Loading: [track title]". */
 			`${ sprintf( __( 'Loading: %s', 'jetpack' ), trackData.title ) } ${ trackData.description }`,
 			'assertive'
 		);
@@ -85,8 +91,9 @@ export class PodcastPlayer extends Component {
 
 	/**
 	 * Get track data.
+	 *
 	 * @private
-	 * @param {number} track The track number
+	 * @param {number} track - The track number
 	 * @returns {object} Track object.
 	 */
 	getTrack = track => {
@@ -95,6 +102,7 @@ export class PodcastPlayer extends Component {
 
 	/**
 	 * Error handler for audio.
+	 *
 	 * @private
 	 */
 	handleError = () => {
@@ -105,6 +113,7 @@ export class PodcastPlayer extends Component {
 
 	/**
 	 * Play handler for audio.
+	 *
 	 * @private
 	 */
 	handlePlay = () => {
@@ -115,6 +124,7 @@ export class PodcastPlayer extends Component {
 
 	/**
 	 * Pause handler for audio.
+	 *
 	 * @private
 	 */
 	handlePause = () => {
@@ -127,25 +137,29 @@ export class PodcastPlayer extends Component {
 
 	/**
 	 * Play current audio.
+	 *
 	 * @public
 	 */
 	play = noop;
 
 	/**
 	 * Pause current audio.
+	 *
 	 * @public
 	 */
 	pause = noop;
 
 	/**
 	 * Toggle playing state.
+	 *
 	 * @public
 	 */
 	togglePlayPause = noop;
 
 	/**
 	 * Set audio source.
-	 * @param {string} src The url of audio content.
+	 *
+	 * @param {string} src - The url of audio content.
 	 * @public
 	 */
 	setAudioSource = noop;
@@ -207,7 +221,10 @@ export class PodcastPlayer extends Component {
 				aria-describedby={
 					track && track.description ? `${ playerId }__track-description` : undefined
 				}
-				// The following line ensures compatibility with Calypso previews (jetpack-iframe-embed.js).
+				/*
+				 * The following line ensures compatibility with Calypso previews
+				 * (jetpack-iframe-embed.js).
+				 */
 				data-jetpack-iframe-ignore
 			>
 				<Header
@@ -233,8 +250,15 @@ export class PodcastPlayer extends Component {
 					id={ `jetpack-podcast-player__tracklist-title--${ playerId }` }
 					className="jetpack-podcast-player--visually-hidden"
 				>
-					{ /* translators: %s is the track title. This describes what the playlist goes with, like "Playlist: [name of the podcast]" */ }
-					{ sprintf( __( 'Playlist: %s', 'jetpack' ), title ) }
+					{ /*
+					 * This describes what the playlist goes with, like "Playlist: [name
+					 * of the podcast]".
+					 */ }
+					{ sprintf(
+						// translators: %s is the track title.
+						__( 'Playlist: %s', 'jetpack' ),
+						title
+					) }
 				</h4>
 				<p
 					id={ `jetpack-podcast-player__tracklist-description--${ playerId }` }

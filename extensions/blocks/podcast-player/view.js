@@ -1,4 +1,5 @@
 /* global jetpackPodcastPlayers */
+
 /**
  * External dependencies
  */
@@ -21,7 +22,8 @@ const playerInstances = {};
 
 /**
  * Downgrades the block to use the static markup as rendered on the server.
- * @param {Element} block The root element of the block.
+ *
+ * @param {Element} block - The root element of the block.
  */
 const downgradeBlockToStatic = function( block ) {
 	block.classList.add( 'is-default' );
@@ -29,7 +31,8 @@ const downgradeBlockToStatic = function( block ) {
 
 /**
  * Initialize player instance.
- * @param {string} id The id of the block element in document.
+ *
+ * @param {string} id - The id of the block element in document.
  */
 const initializeBlock = function( id ) {
 	// Find DOM node.

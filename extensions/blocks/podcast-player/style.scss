@@ -143,7 +143,6 @@ $player-background: transparent;
 
 	// Apply `secondary` color to the podcast title.
 	.has-secondary {
-		// custom color.
 		.jetpack-podcast-player__podcast-title {
 			color: currentColor;
 		}
@@ -175,8 +174,8 @@ $player-background: transparent;
 		max-height: 105px; //IE11 fallback
 	}
 
+	// Apply `secondary` color to the track description.
 	.has-secondary {
-		// custom color.
 		.jetpack-podcast-player__track-description {
 			color: currentColor;
 		}
@@ -227,7 +226,6 @@ $player-background: transparent;
 		}
 	}
 
-	// We need to scope this class to override editor link styles.
 	.jetpack-podcast-player__track-link {
 		display: flex;
 		flex-flow: row nowrap;
