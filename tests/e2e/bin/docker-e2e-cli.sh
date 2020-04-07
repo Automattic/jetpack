@@ -16,6 +16,7 @@ function usage {
 	echo "  stop                         Stops the containers"
 	echo "  db_reset                     Reset the site DB"
 	echo "  sh                           sh into the container"
+	echo "  ct                           run arbitrary shell command in main container"
 	echo "  cli \"subcommand\"             run a wp-cli command"
 	echo "  -h | usage                   output this message"
 	exit 1
@@ -39,6 +40,8 @@ elif [ "${1}" == "db_reset" ]; then
 	$DC run --rm -u 33 $CLI db reset
 elif [ "${1}" == "sh" ]; then
 	$DC exec $CONTAINER bash
+elif [ "${1}" == "ct" ]; then
+	$DC run --rm $CONTAINER ${2}
 elif [ "${1}" == "cli" ]; then
 	$DC run --rm -u 33 $CLI ${2}
 elif [ "${1}" == "usage" ]; then

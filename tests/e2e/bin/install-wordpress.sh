@@ -71,6 +71,8 @@ echo -e $(status_message "Configuring site constants...")
 	docker-compose $DOCKER_COMPOSE_FILE_OPTIONS run --rm -u 33 $CLI config set WP_DEBUG_DISPLAY false --raw --type=constant --quiet
 	docker-compose $DOCKER_COMPOSE_FILE_OPTIONS run --rm -u 33 $CLI config set JETPACK_BETA_BLOCKS true --raw --type=constant --quiet
 
+docker-compose $DOCKER_COMPOSE_FILE_OPTIONS run --rm $CONTAINER touch /var/www/html/wp-content/debug.log
+
 # NOTE: Force classic connection flow
 # https://github.com/Automattic/jetpack/pull/13288
 docker-compose $DOCKER_COMPOSE_FILE_OPTIONS run --rm -u 33 $CLI config set JETPACK_SHOULD_USE_CONNECTION_IFRAME false --raw --type=constant --quiet
