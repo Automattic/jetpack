@@ -17,7 +17,7 @@ import { STATE_PLAYING, STATE_ERROR, STATE_PAUSED } from '../constants';
 import Playlist from './playlist';
 import AudioPlayer from './audio-player';
 import Header from './header';
-import { getColorClassName } from '../utils';
+import { getColorsObject } from '../utils';
 
 // const debug = debugFactory( 'jetpack:podcast-player' );
 const noop = () => {};
@@ -171,46 +171,22 @@ export class PodcastPlayer extends Component {
 		const tracksToDisplay = tracks.slice( 0, itemsToShow );
 		const track = this.getTrack( currentTrack );
 
-		// Set CSS classes string.
-		const primaryColorClass = getColorClassName( 'color', primaryColor );
-		const secondaryColorClass = getColorClassName( 'color', secondaryColor );
-		const backgroundColorClass = getColorClassName( 'background-color', backgroundColor );
-
-		const colors = {
-			primary: {
-				name: primaryColor,
-				custom: customPrimaryColor,
-				classes: classnames( {
-					'has-primary': primaryColorClass || customPrimaryColor,
-					[ primaryColorClass ]: primaryColorClass,
-				} ),
-			},
-			secondary: {
-				name: secondaryColor,
-				custom: customSecondaryColor,
-				classes: classnames( {
-					'has-secondary': secondaryColorClass || customSecondaryColor,
-					[ secondaryColorClass ]: secondaryColorClass,
-				} ),
-			},
-			background: {
-				name: backgroundColor,
-				custom: customBackgroundColor,
-				classes: classnames( {
-					'has-background': backgroundColorClass || customBackgroundColor,
-					[ backgroundColorClass ]: backgroundColorClass,
-				} ),
-			},
-		};
+		const colors = getColorsObject( {
+			primaryColor,
+			customPrimaryColor,
+			secondaryColor,
+			customSecondaryColor,
+			backgroundColor,
+			customBackgroundColor,
+		} );
 
 		/*
 		 * Set colors through inline styles.
 		 * Also, add CSS variables.
 		 */
 		const inlineStyle = {
-			color: customSecondaryColor && ! secondaryColorClass ? customSecondaryColor : null,
-			backgroundColor:
-				customBackgroundColor && ! backgroundColorClass ? customBackgroundColor : null,
+			color: customSecondaryColor,
+			backgroundColor: customBackgroundColor,
 			'--jetpack-podcast-player-primary': hexPrimaryColor,
 			'--jetpack-podcast-player-secondary': hexSecondaryColor,
 			'--jetpack-podcast-player-background': hexBackgroundColor,
@@ -226,7 +202,7 @@ export class PodcastPlayer extends Component {
 		return (
 			<section
 				className={ cssClassesName }
-				style={ Object.keys( inlineStyle ).length ? inlineStyle : null }
+				style={ inlineStyle }
 				aria-labelledby={ title || ( track && track.title ) ? `${ playerId }__title` : undefined }
 				aria-describedby={
 					track && track.description ? `${ playerId }__track-description` : undefined
