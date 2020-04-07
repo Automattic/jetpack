@@ -6,7 +6,6 @@ import fs from 'fs';
 /**
  * Internal dependencies
  */
-import { sendFailedTestScreenshotToSlack, sendFailedTestMessageToSlack } from './reporters/slack';
 import { takeScreenshot } from './reporters/screenshot';
 import { logHTML, logDebugLog } from './page-helper';
 import logger from './logger';
@@ -29,8 +28,9 @@ export const defaultErrorHandler = async ( error, name ) => {
 			'image/png'
 		);
 
-		await sendFailedTestMessageToSlack( { block: currentBlock, name, error } );
-		await sendFailedTestScreenshotToSlack( filePath );
+		logger.slack( { type: 'failure', message: { block: currentBlock, name, error } } );
+		logger.slack( { type: 'file', message: filePath } );
+
 		await logDebugLog();
 	}
 

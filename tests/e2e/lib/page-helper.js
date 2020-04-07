@@ -12,6 +12,7 @@ import { readFileSync } from 'fs';
  */
 import { sendSnippetToSlack } from './reporters/slack';
 import logger from './logger';
+import { execSyncShellCommand } from './utils-helper';
 
 /**
  * Waits for selector to be present in DOM. Throws a `TimeoutError` if element was not found after 30 sec. Behavior can be modified with @param options. Possible keys: `visible`, `hidden`, `timeout`.
@@ -185,12 +186,19 @@ export async function logHTML() {
 }
 
 export async function logDebugLog() {
-	const log = readFileSync( '/home/travis/wordpress/wp-content/debug.log' ).toString();
+	let log;
+	if ( process.env.CI ) {
+		log = readFileSync( '/home/travis/wordpress/wp-content/debug.log' ).toString();
+	} else {
+		const cmd = './tests/e2e/bin/docker-e2e-cli.sh ct "cat wp-content/debug.log"';
+		log = execSyncShellCommand( cmd );
+	}
+
 	if ( log.length > 1 ) {
 		if ( process.env.E2E_DEBUG ) {
 			logger.info( '#### WP DEBUG.LOG ####' );
 			logger.info( log );
 		}
-		await sendSnippetToSlack( log );
+		logger.slack( { message: log, type: 'debuglog' } );
 	}
 }
