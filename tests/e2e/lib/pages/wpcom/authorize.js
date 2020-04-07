@@ -13,7 +13,10 @@ export default class AuthorizePage extends Page {
 
 	async approve( repeat = true ) {
 		const authorizeButtonSelector = '.jetpack-connect__authorize-form button';
-		await waitAndClick( this.page, authorizeButtonSelector );
+		await Promise.all( [
+			waitAndClick( this.page, authorizeButtonSelector ),
+			this.page.waitForNavigation( { waitUntil: 'networkidle2' } ),
+		] );
 		try {
 			return await this.waitToDisappear();
 		} catch ( error ) {
@@ -29,12 +32,9 @@ export default class AuthorizePage extends Page {
 	}
 
 	async waitToDisappear() {
-		await Promise.all( [
-			this.page.waitForNavigation(),
-			waitForSelector( this.page, '.jetpack-connect__logged-in-form-loading', {
-				hidden: true,
-			} ),
-		] );
+		await waitForSelector( this.page, '.jetpack-connect__logged-in-form-loading', {
+			hidden: true,
+		} );
 
 		return await waitForSelector( this.page, '.jetpack-connect__authorize-form button', {
 			hidden: true,
