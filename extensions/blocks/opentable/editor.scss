@@ -107,6 +107,12 @@
 	}
 }
 
+.wp-block[data-type="jetpack/opentable"] {
+	.components-notice__content {
+		text-align: left;
+	}
+}
+
 .components-toggle-control.is-opentable {
 	padding-top: 6px;
 }

@@ -56,18 +56,11 @@ function OpenTableEdit( {
 		setAttributes( validatedAttributes );
 	}
 
-	const { align, rid, style, iframe, domain, lang, newtab } = attributes;
+	const { align, rid, style, iframe, domain, lang, newtab, __isBlockPreview } = attributes;
 
-	// We only want to show the warning about wide display when alignment changes, not on every page load
-	// so below ref is set to indicate the initial component mount
-	const mount = useRef( true );
 	useEffect( () => {
-		if ( mount.current ) {
-			mount.current = false;
-			return;
-		}
 		noticeOperations.removeAllNotices();
-		if ( style === 'wide' && align && align !== 'wide' ) {
+		if ( ! isEmpty( rid ) && ! __isBlockPreview && 'wide' === style && 'wide' !== align ) {
 			const content = (
 				<>
 					{ __(
@@ -78,7 +71,7 @@ function OpenTableEdit( {
 			);
 			noticeOperations.createNotice( { status: 'warning', content } );
 		}
-	}, [ attributes ] );
+	}, [ __isBlockPreview, align, noticeOperations, rid, style ] );
 
 	const parseEmbedCode = embedCode => {
 		const newAttributes = getAttributesFromEmbedCode( embedCode );
@@ -227,11 +220,13 @@ function OpenTableEdit( {
 	} );
 
 	return (
-		<div className={ editClasses }>
+		<>
 			{ noticeUI }
-			{ ! isEmpty( rid ) && inspectorControls }
-			{ ! isEmpty( rid ) ? blockPreview() : blockPlaceholder }
-		</div>
+			<div className={ editClasses }>
+				{ ! isEmpty( rid ) && inspectorControls }
+				{ ! isEmpty( rid ) ? blockPreview() : blockPlaceholder }
+			</div>
+		</>
 	);
 }
 
