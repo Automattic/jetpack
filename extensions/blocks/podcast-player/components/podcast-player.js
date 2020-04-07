@@ -209,9 +209,9 @@ export class PodcastPlayer extends Component {
 			color: customSecondaryColor && ! secondaryColorClass ? customSecondaryColor : null,
 			backgroundColor:
 				customBackgroundColor && ! backgroundColorClass ? customBackgroundColor : null,
-			'--color-primary': hexPrimaryColor,
-			'--color-secondary': hexSecondaryColor,
-			'--color-background': hexBackgroundColor,
+			'--jetpack-podcast-player-primary': hexPrimaryColor,
+			'--jetpack-podcast-player-secondary': hexSecondaryColor,
+			'--jetpack-podcast-player-background': hexBackgroundColor,
 		};
 
 		const cssClassesName = classnames(
