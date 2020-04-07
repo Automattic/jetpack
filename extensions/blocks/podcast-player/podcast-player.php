@@ -232,7 +232,7 @@ function get_css_vars( $attrs ) {
 	foreach ( $colors_name as $color ) {
 		$hex_color = 'hex' . ucfirst( $color ) . 'Color';
 		if ( isset( $attrs[ $hex_color ] ) ) {
-			$inline_style .= " --color-{$color}: {$attrs[ $hex_color ]};";
+			$inline_style .= " --jetpack-podcast-player-{$color}: {$attrs[ $hex_color ]};";
 		}
 	}
 	return $inline_style;
