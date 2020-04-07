@@ -17,7 +17,6 @@ import {
 } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import getRedirectUrl from '../../../_inc/client/lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -67,8 +66,8 @@ export default function RevueEdit( props ) {
 
 	const supportLink =
 		isSimpleSite() || isAtomicSite()
-			? getRedirectUrl( 'wpcom-support-wordpress-editor-blocks-revue-block' )
-			: getRedirectUrl( 'jetpack-support-jetpack-blocks-revue-block' );
+			? 'http://support.wordpress.com/wordpress-editor/blocks/revue-block/'
+			: 'https://jetpack.com/support/jetpack-blocks/revue-block/';
 
 	return (
 		<div className={ className }>

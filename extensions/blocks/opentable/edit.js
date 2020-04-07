@@ -4,7 +4,6 @@
 import 'url-polyfill';
 import classnames from 'classnames';
 import { isEmpty, isEqual, join } from 'lodash';
-import getRedirectUrl from '../../../_inc/client/lib/jp-redirect';
 
 /**
  * WordPress dependencies
@@ -174,8 +173,8 @@ function OpenTableEdit( {
 
 	const supportLink =
 		isSimpleSite() || isAtomicSite()
-			? getRedirectUrl( 'wpcom-support-wordpress-editor-blocks-opentable-block' )
-			: getRedirectUrl( 'jetpack-support-jetpack-blocks-opentable-block' );
+			? 'https://en.support.wordpress.com/wordpress-editor/blocks/opentable-block/'
+			: 'https://jetpack.com/support/jetpack-blocks/opentable-block/';
 
 	const blockPlaceholder = (
 		<Placeholder

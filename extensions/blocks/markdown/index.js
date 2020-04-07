@@ -4,7 +4,6 @@
 import { __, _x } from '@wordpress/i18n';
 import { ExternalLink, Path, Rect, SVG } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
-import getRedirectUrl from '../../../_inc/client/lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -24,8 +23,8 @@ const exampleDescription = __(
 
 const supportLink =
 	isSimpleSite() || isAtomicSite()
-		? getRedirectUrl( 'wpcom-support-markdown-quick-reference' )
-		: getRedirectUrl( 'jetpack-support-jetpack-blocks-markdown-block' );
+		? 'https://en.support.wordpress.com/markdown-quick-reference/'
+		: 'https://jetpack.com/support/jetpack-blocks/markdown-block/';
 
 export const settings = {
 	title: __( 'Markdown', 'jetpack' ),
