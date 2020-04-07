@@ -9,7 +9,9 @@ import {
 	getResultMessage,
 } from './reporters/slack';
 module.exports = async function( globalConfig ) {
-	await processSlackLog();
+	if ( process.env.CI ) {
+		await processSlackLog();
+	}
 	await teardown( globalConfig );
 };
 
