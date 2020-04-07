@@ -2,8 +2,6 @@
  * External dependencies
  */
 import debugFactory from 'debug';
-import { startCase } from 'lodash';
-
 
 /**
  * WordPress dependencies
@@ -261,9 +259,8 @@ const PodcastPlayerEdit = ( {
 		);
 	}
 
-	const createColorChangeHandler = ( colorName, handler ) => ( color ) => {
-		const attr = `hex${ startCase( colorName ) }Color`;
-		setAttributes( { [ attr ]: color } );
+	const createColorChangeHandler = ( colorAttr, handler ) => ( color ) => {
+		setAttributes( { [ colorAttr ]: color } );
 		handler( color );
 	};
 
@@ -300,17 +297,17 @@ const PodcastPlayerEdit = ( {
 					colorSettings={ [
 						{
 							value: primaryColorProp.color,
-							onChange: createColorChangeHandler( 'primary', setPrimaryColor ),
+							onChange: createColorChangeHandler( 'hexPrimaryColor', setPrimaryColor ),
 							label: __( 'Primary Color', 'jetpack' ),
 						},
 						{
 							value: secondaryColorProp.color,
-							onChange: createColorChangeHandler( 'secondary', setSecondaryColor ),
+							onChange: createColorChangeHandler( 'hexSecondaryColor', setSecondaryColor ),
 							label: __( 'Secondary Color', 'jetpack' ),
 						},
 						{
 							value: backgroundColorProp.color,
-							onChange: createColorChangeHandler( 'background', setBackgroundColor ),
+							onChange: createColorChangeHandler( 'hexBackgroundColor', setBackgroundColor ),
 							label: __( 'Background Color', 'jetpack' ),
 						},
 					] }
