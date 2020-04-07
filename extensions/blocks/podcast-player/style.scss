@@ -107,37 +107,38 @@ $player-background: transparent;
 	}
 
 	// Increasing specificity on the header titles and links for more consistency across themes and editor canvas.
-	.jetpack-podcast-player__header {
+	h2.jetpack-podcast-player__title {
+		display: flex;
+		flex-direction: column;
+		margin: 0;
+		overflow: hidden;
+		letter-spacing: 0; // Fixes Twenty Twenty compressed text.
 		
-		.jetpack-podcast-player__title {
-			display: flex;
-			flex-direction: column;
-			margin: 0;
-			overflow: hidden;
-			letter-spacing: 0; // Fixes Twenty Twenty compressed text.
-			
-			&:before,
-			&:after {
-				display: none;
-			}
+		&:before,
+		&:after {
+			display: none;
 		}
+	}
+
+	.jetpack-podcast-player__current-track-title {
+		color: $current-track-title-color;
+		font-size: $track-title-font-size;
+		margin: 0 0 $track-title-b-margin;
+	}
 	
-		.jetpack-podcast-player__current-track-title {
-			color: $current-track-title-color;
-			font-size: $track-title-font-size;
-			margin: 0 0 $track-title-b-margin;
-		}
-	
-		.jetpack-podcast-player__podcast-title {
-			font-size: $podcast-title-font-size;
-			color: $text-color;
-			margin: 0;
-			text-decoration: none;
-	
-			&:hover,
-			&:focus {
-				color: $text-color-hover;
-			}
+
+	.jetpack-podcast-player__podcast-title {
+		font-size: $podcast-title-font-size;
+		color: $text-color;
+		margin: 0;
+	}
+
+	a.jetpack-podcast-player__podcast-title {
+		text-decoration: none;
+
+		&:hover,
+		&:focus {
+			color: $text-color-hover;
 		}
 	}
 
