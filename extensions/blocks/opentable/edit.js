@@ -57,10 +57,11 @@ function OpenTableEdit( {
 	}
 
 	const { align, rid, style, iframe, domain, lang, newtab, __isBlockPreview } = attributes;
+	const isPlaceholder = isEmpty( rid );
 
 	useEffect( () => {
 		noticeOperations.removeAllNotices();
-		if ( ! isEmpty( rid ) && ! __isBlockPreview && 'wide' === style && 'wide' !== align ) {
+		if ( ! isPlaceholder && ! __isBlockPreview && 'wide' === style && 'wide' !== align ) {
 			const content = (
 				<>
 					{ __(
@@ -213,8 +214,8 @@ function OpenTableEdit( {
 	);
 
 	const editClasses = classnames( className, {
-		[ `${ defaultClassName }-theme-${ style }` ]: ! isEmpty( rid ) && styleValues.includes( style ),
-		'is-placeholder': isEmpty( rid ),
+		[ `${ defaultClassName }-theme-${ style }` ]: ! isPlaceholder && styleValues.includes( style ),
+		'is-placeholder': isPlaceholder,
 		'is-multi': 'multi' === getTypeAndTheme( style )[ 0 ],
 		[ `align${ align }` ]: align,
 	} );
@@ -223,8 +224,8 @@ function OpenTableEdit( {
 		<>
 			{ noticeUI }
 			<div className={ editClasses }>
-				{ ! isEmpty( rid ) && inspectorControls }
-				{ ! isEmpty( rid ) ? blockPreview() : blockPlaceholder }
+				{ ! isPlaceholder && inspectorControls }
+				{ ! isPlaceholder ? blockPreview() : blockPlaceholder }
 			</div>
 		</>
 	);
