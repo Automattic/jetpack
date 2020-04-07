@@ -22,11 +22,12 @@ body.jp-dialogue-modern-showing {
 }
 
 .jp-dialogue-modern {
-	max-width: rem( 600px );
+	max-width: rem( 300px );
 	margin: rem( 32px ) auto;
 	overflow: hidden;
 	position: relative;
 	background-color: white;
+	box-shadow: 0 5px 24px 0 rgba( 0, 0, 0, 0.13);
 
 	p {
 		font-size: rem( 14px );
