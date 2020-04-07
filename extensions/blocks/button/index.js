@@ -21,6 +21,7 @@ export const settings = {
 	keywords: [],
 	supports: {
 		html: false,
+		inserter: false,
 	},
 	attributes,
 	edit,
