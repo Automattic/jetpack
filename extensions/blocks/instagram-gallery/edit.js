@@ -30,15 +30,20 @@ import { addQueryArgs } from '@wordpress/url';
 import PopupMonitor from 'lib/popup-monitor';
 import defaultAttributes from './attributes';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
+import useConnectService from '../../shared/use-connect-service';
 import './editor.scss';
 
 const InstagramGalleryEdit = props => {
 	const { attributes, className, noticeOperations, noticeUI, setAttributes } = props;
 	const { accessToken, align, columns, count, instagramUser, spacing } = attributes;
 
-	const [ isConnecting, setIsConnecting ] = useState( false );
 	const [ images, setImages ] = useState( [] );
 	const [ isLoadingGallery, setIsLoadingGallery ] = useState( false );
+
+	const disconnect = () => {
+		setImages( [] );
+	}
+	const { isConnecting, connectToService, disconnectFromService } = useConnectService( 'instagram', setAttributes, { disconnect } );
 
 	useEffect( () => {
 		const validatedAttributes = getValidatedAttributes( defaultAttributes, attributes );
@@ -75,48 +80,6 @@ const InstagramGalleryEdit = props => {
 		} );
 	}, [ accessToken, count, noticeOperations, setAttributes ] );
 
-	const connectToInstagram = () => {
-		setIsConnecting( true );
-		apiFetch( { path: '/wpcom/v2/instagram/connect-url' } ).then( connectUrl => {
-			const popupMonitor = new PopupMonitor();
-
-			popupMonitor.open(
-				connectUrl,
-				'connect-to-instagram-popup',
-				'toolbar=0,location=0,menubar=0,' + popupMonitor.getScreenCenterSpecs( 700, 700 )
-			);
-
-			popupMonitor.on( 'message', ( { keyring_id } ) => {
-				setIsConnecting( false );
-				if ( keyring_id ) {
-					setAttributes( { accessToken: keyring_id.toString() } );
-				}
-			} );
-
-			popupMonitor.on( 'close', name => {
-				if ( 'connect-to-instagram-popup' === name ) {
-					setIsConnecting( false );
-				}
-			} );
-		} );
-	};
-
-	const disconnectFromInstagram = () => {
-		setIsConnecting( true );
-		apiFetch( {
-			path: addQueryArgs( '/wpcom/v2/instagram/delete-access-token', {
-				access_token: accessToken,
-			} ),
-			method: 'DELETE',
-		} ).then( responseCode => {
-			setIsConnecting( false );
-			if ( 200 === responseCode ) {
-				setAttributes( { accessToken: undefined } );
-				setImages( [] );
-			}
-		} );
-	};
-
 	const debouncedSetNumberOfPosts = debounce( value => {
 		if ( value < images.length ) {
 			setImages( take( images, value ) );
@@ -145,7 +108,7 @@ const InstagramGalleryEdit = props => {
 					label={ __( 'Instagram Gallery', 'jetpack' ) }
 					notices={ noticeUI }
 				>
-					<Button disabled={ isConnecting } isLarge isPrimary onClick={ connectToInstagram }>
+					<Button disabled={ isConnecting } isLarge isPrimary onClick={ connectToService }>
 						{ isConnecting
 							? __( 'Connecting…', 'jetpack' )
 							: __( 'Connect your Instagram account', 'jetpack' ) }
@@ -209,10 +172,10 @@ const InstagramGalleryEdit = props => {
 								disabled={ isConnecting }
 								isDestructive
 								isLink
-								onClick={ disconnectFromInstagram }
+								onClick={ () => disconnectFromService( accessToken ) }
 							>
 								{ isConnecting
-									? __( 'Disonnecting…', 'jetpack' )
+									? __( 'Disconnecting…', 'jetpack' )
 									: __( 'Disconnect your account', 'jetpack' ) }
 							</Button>
 						</PanelRow>
