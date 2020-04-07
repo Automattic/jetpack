@@ -14,6 +14,7 @@ import {
 	waitAndType,
 	isEventuallyVisible,
 } from '../../page-helper';
+import logger from '../../logger';
 
 export default class LoginPage extends Page {
 	constructor( page ) {
@@ -50,7 +51,7 @@ export default class LoginPage extends Page {
 			} );
 		} catch ( e ) {
 			if ( retry === true ) {
-				console.log( `The login didn't work as expected - retrying now: '${ e }'` );
+				logger.info( `The login didn't work as expected - retrying now: '${ e }'` );
 				return await this.login( wpcomUser, { retry: false } );
 			}
 			throw e;

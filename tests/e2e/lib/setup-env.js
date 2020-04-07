@@ -2,6 +2,7 @@
  * WordPress dependencies
  */
 import { setBrowserViewport, enablePageDialogAccept } from '@wordpress/e2e-test-utils';
+import logger from './logger';
 /**
  * Environment variables
  */
@@ -22,11 +23,11 @@ async function setupBrowser() {
 function setupConsoleLogs() {
 	page.on( 'pageerror', function( err ) {
 		const theTempValue = err.toString();
-		console.log( 'Page error: ' + theTempValue );
+		logger.info( 'Page error: ' + theTempValue );
 	} );
 	page.on( 'error', function( err ) {
 		const theTempValue = err.toString();
-		console.log( 'Error: ' + theTempValue );
+		logger.info( 'Error: ' + theTempValue );
 	} );
 }
 

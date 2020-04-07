@@ -8,12 +8,13 @@ import { resetWordpressInstall, getNgrokSiteUrl } from '../lib/utils-helper';
 import PinterestBlock from '../lib/blocks/pinterest';
 import EventbriteBlock from '../lib/blocks/eventbrite';
 import { catchBeforeAll } from '../lib/jest.test.failure';
+import logger from '../lib/logger';
 
 describe( 'Free blocks', () => {
 	catchBeforeAll( async () => {
 		await resetWordpressInstall();
 		const url = getNgrokSiteUrl();
-		console.log( 'NEW SITE URL: ' + url );
+		logger.info( 'NEW SITE URL: ' + url );
 
 		await connectThroughWPAdminIfNeeded( { mockPlanData: true, plan: 'free' } );
 	} );

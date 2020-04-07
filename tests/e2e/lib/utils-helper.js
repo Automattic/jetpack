@@ -3,9 +3,11 @@
  */
 import { execSync, exec } from 'child_process';
 import config from 'config';
+import logger from './logger';
 
 /**
  * Executes a shell command and return it as a Promise.
+ *
  * @param {string} cmd  shell command
  * @return {Promise<string>} output
  */
@@ -13,11 +15,11 @@ export async function execShellCommand( cmd ) {
 	return new Promise( resolve => {
 		const cmdExec = exec( cmd, ( error, stdout ) => {
 			if ( error ) {
-				console.warn( error );
+				logger.warn( error );
 			}
 			return resolve( stdout ? stdout : error );
 		} );
-		cmdExec.stdout.on( 'data', data => console.log( data ) );
+		cmdExec.stdout.on( 'data', data => logger.info( data ) );
 	} );
 }
 
@@ -53,7 +55,7 @@ export function provisionJetpackStartConnection( plan = 'professional', user = '
 	const cmd = `sh ./bin/partner-provision.sh --partner_id=${ clientID } --partner_secret=${ clientSecret } --user=${ user } --plan=${ plan } --url=${ url }`;
 
 	const response = execSyncShellCommand( cmd );
-	console.log( response );
+	logger.info( response );
 
 	const json = JSON.parse( response );
 	if ( json.success !== true ) {
@@ -65,6 +67,7 @@ export function provisionJetpackStartConnection( plan = 'professional', user = '
 
 /**
  * Runs wp cli command to activate jetpack module, also checks if the module is available in the list of active modules.
+ *
  * @param {Page} page Puppeteer page object
  * @param {string} module Jetpack module name
  */
@@ -98,7 +101,7 @@ export async function execWpCommand( wpCmd, suffix = null ) {
 		cmd = cmd + suffix;
 	}
 
-	console.log( 'execWpCommand', cmd );
+	logger.info( 'execWpCommand', cmd );
 
 	return await execShellCommand( cmd );
 }

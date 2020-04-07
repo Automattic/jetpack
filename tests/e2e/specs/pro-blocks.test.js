@@ -9,12 +9,13 @@ import { resetWordpressInstall, getNgrokSiteUrl, activateModule } from '../lib/u
 import SimplePaymentBlock from '../lib/blocks/simple-payments';
 import WordAdsBlock from '../lib/blocks/word-ads';
 import { catchBeforeAll } from '../lib/jest.test.failure';
+import logger from '../lib/logger';
 
 describe( 'Paid blocks', () => {
 	catchBeforeAll( async () => {
 		await resetWordpressInstall();
 		const url = getNgrokSiteUrl();
-		console.log( 'NEW SITE URL: ' + url );
+		logger.info( 'NEW SITE URL: ' + url );
 
 		await connectThroughWPAdminIfNeeded( { mockPlanData: true } );
 
