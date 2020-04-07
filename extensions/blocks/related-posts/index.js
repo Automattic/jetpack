@@ -9,6 +9,7 @@ import { G, Path, SVG } from '@wordpress/components';
  */
 import edit from './edit';
 import './style.scss';
+import { supportsCollections } from '../../shared/block-category';
 
 export const name = 'related-posts';
 
@@ -23,7 +24,7 @@ export const settings = {
 		</SVG>
 	),
 
-	category: 'jetpack',
+	category: supportsCollections() ? 'embed' : 'jetpack',
 
 	keywords: [
 		_x( 'similar content', 'block search term', 'jetpack' ),
