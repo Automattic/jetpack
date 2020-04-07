@@ -261,10 +261,8 @@ $player-background: transparent;
 		fill: var( --jetpack-podcast-player-primary );
 
 		svg {
-			display: inline-block;
-			vertical-align: middle;
+			position: absolute;
 			width: $track-status-icon-size;
-			height: $track-status-icon-size;
 		}
 	}
 
