@@ -701,7 +701,7 @@ class Jetpack_SSO {
 			$user = get_user_by( 'id', intval( $user_data->external_user_id ) );
 			if ( $user ) {
 				$expected_id = get_user_meta( $user->ID, 'wpcom_user_id', true );
-				if ( $expected_id && $expected_id !== $user_data->ID ) {
+				if ( $expected_id && $expected_id != $user_data->ID ) { // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
 					$error = new WP_Error( 'expected_wpcom_user', __( 'Something got a little mixed up and an unexpected WordPress.com user logged in.', 'jetpack' ) );
 
 					/** This filter is documented in core/src/wp-includes/pluggable.php */
