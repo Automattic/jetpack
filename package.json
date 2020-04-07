@@ -210,7 +210,7 @@
 		"nock": "12.0.3",
 		"node-wp-i18n": "1.2.3",
 		"prettier": "npm:wp-prettier@1.19.1",
-		"puppeteer": "1.20.0",
+		"puppeteer": "2.1.1",
 		"react-click-outside": "3.0.1",
 		"react-test-renderer": "16.13.1",
 		"sass-loader": "7.3.1",
