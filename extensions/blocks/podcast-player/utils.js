@@ -1,4 +1,10 @@
 /**
+ * External dependencies
+ */
+import classnames from 'classnames';
+import { memoize } from 'lodash';
+
+/**
  * Returns a class based on the context a color is being used and its slug.
  * Note: This helper function was copied from core @wordpress/block-editor lib,
  * in order to avoid requiring not-needed dependencies to reduce the size
@@ -46,3 +52,66 @@ export function makeCancellable( promise ) {
 		},
 	};
 }
+
+/**
+ * Returns object with detailed color settings computed from the basic configuration.
+ *
+ * @example
+ * const colors = generateColorsObject( {
+ *   primaryColor: '…',
+ *   customPrimaryColor: '…',
+ *   …
+ * } );
+ * @param Object config with all color-related block attributes.
+ * @returns Object with color details.
+ */
+const generateColorsObject = ( {
+	primaryColor,
+	customPrimaryColor,
+	secondaryColor,
+	customSecondaryColor,
+	backgroundColor,
+	customBackgroundColor,
+} ) => {
+	// Set CSS classes string.
+	const primaryColorClass = getColorClassName( 'color', primaryColor );
+	const secondaryColorClass = getColorClassName( 'color', secondaryColor );
+	const backgroundColorClass = getColorClassName( 'background-color', backgroundColor );
+
+	// Generate colors object.
+	return {
+		primary: {
+			name: primaryColor,
+			custom: customPrimaryColor,
+			classes: classnames( {
+				'has-primary': primaryColorClass || customPrimaryColor,
+				[ primaryColorClass ]: primaryColorClass,
+			} ),
+		},
+		secondary: {
+			name: secondaryColor,
+			custom: customSecondaryColor,
+			classes: classnames( {
+				'has-secondary': secondaryColorClass || customSecondaryColor,
+				[ secondaryColorClass ]: secondaryColorClass,
+			} ),
+		},
+		background: {
+			name: backgroundColor,
+			custom: customBackgroundColor,
+			classes: classnames( {
+				'has-background': backgroundColorClass || customBackgroundColor,
+				[ backgroundColorClass ]: backgroundColorClass,
+			} ),
+		},
+	};
+};
+
+/**
+ * Memoized version of generateColorsObject.
+ * @see {@link generateColorsObject} for params and return type.
+ */
+export const getColorsObject = memoize( generateColorsObject, config => {
+	// Cache key is a string with all arguments joined into one string.
+	return Object.values( config ).join();
+} );
