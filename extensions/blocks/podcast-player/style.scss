@@ -22,7 +22,7 @@ $text-color-active: $text-color-hover;
 $text-color-error: $alert-red;
 $block-bg-color: $white;
 $block-border-color: $dark-gray-100;
-$player-title-color: $black;
+$current-track-title-color: $black;
 $player-background: transparent;
 
 .jetpack-podcast-player--visually-hidden {
@@ -123,7 +123,7 @@ $player-background: transparent;
 		}
 	
 		.jetpack-podcast-player__current-track-title {
-			color: $player-title-color;
+			color: $current-track-title-color;
 			font-size: $track-title-font-size;
 			margin: 0 0 $track-title-b-margin;
 		}
