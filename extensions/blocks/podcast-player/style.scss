@@ -244,6 +244,11 @@ $player-background: transparent;
 	// Needs slightly higher specificity to override some theme's link styles.
 	a.jetpack-podcast-player__track-link {
 		text-decoration: none;
+
+		&:hover,
+		&:focus {
+			text-decoration: none;
+		}
 	}
 
 	// Make space for the error element that will be appended.
