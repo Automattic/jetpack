@@ -9,14 +9,13 @@ import SimpleNotice from 'components/notice';
 /**
  * Internal dependencies
  */
-import { getCurrentVersion, getSiteAdminUrl } from 'state/initial-state';
+import { getCurrentVersion } from 'state/initial-state';
 import {
 	getJetpackStateNoticesErrorCode,
 	getJetpackStateNoticesMessageCode,
 	getJetpackStateNoticesErrorDescription,
 	getJetpackStateNoticesMessageContent,
 } from 'state/jetpack-notices';
-import { isUnavailableInDevMode } from 'state/connection';
 import NoticeAction from 'components/notice/notice-action.jsx';
 import UpgradeNoticeContent from 'components/upgrade-notice-content';
 
@@ -252,12 +251,10 @@ class JetpackStateNotices extends React.Component {
 		}
 
 		// Show custom message for updated Jetpack.
-		if ( messageContent.release_post_content ) {
+		if ( messageContent && messageContent.release_post_content ) {
 			return (
 				<UpgradeNoticeContent
-					adminUrl={ this.props.adminUrl }
 					dismiss={ this.dismissJetpackStateNotice }
-					isUnavailableInDevMode={ this.props.isUnavailableInDevMode }
 					version={ this.props.currentVersion }
 					releasePostContent={ messageContent.release_post_content }
 					featuredImage={ messageContent.release_post_featured_image }
@@ -295,7 +292,5 @@ export default connect( state => {
 		jetpackStateNoticesMessageCode: getJetpackStateNoticesMessageCode( state ),
 		jetpackStateNoticesErrorDescription: getJetpackStateNoticesErrorDescription( state ),
 		jetpackStateNoticesMessageContent: getJetpackStateNoticesMessageContent( state ),
-		adminUrl: getSiteAdminUrl( state ),
-		isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
 	};
 } )( JetpackStateNotices );
