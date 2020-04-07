@@ -230,7 +230,8 @@ $player-background: transparent;
 		display: flex;
 		flex-flow: row nowrap;
 		justify-content: space-between;
-		padding: $track-h-padding $track-v-padding;
+		// Adjustments on left padding to account for SVG sound icon spacing 
+		padding: $track-h-padding $player-grid-spacing $track-h-padding $player-grid-spacing - 2px;
 		transition: none;
 		color: inherit;
 
@@ -331,6 +332,8 @@ $player-background: transparent;
 
 	.mejs-controls {
 		position: static;
+		// Lines up the mejs player padding with our wrapper spacing
+		padding: 0 ($player-grid-spacing - 7px) 0 ($player-grid-spacing - 9px);
 	}
 
 	.mejs-time,
