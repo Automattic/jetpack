@@ -20,27 +20,27 @@ export default function useConnectService( serviceName, setAttributes, callbacks
 			const popupMonitor = new PopupMonitor();
 
 			popupMonitor.open(
-				connectUrl,
-				`connect-to-${ serviceName }-popup`,
-				'toolbar=0,location=0,menubar=0,' + popupMonitor.getScreenCenterSpecs( 700, 700 )
-			);
+			    connectUrl,
+			    `connect-to-${ serviceName }-popup`,
+			    'toolbar=0,location=0,menubar=0,' + popupMonitor.getScreenCenterSpecs( 700, 700 )
+		    );
 
 			popupMonitor.on( 'message', ( { keyring_id } ) => {
-				setIsConnecting( false );
-				if ( keyring_id ) {
-					setAttributes( { accessToken: keyring_id.toString() } );
+			    setIsConnecting( false );
+			    if ( keyring_id ) {
+			        setAttributes( { accessToken: keyring_id.toString() } );
                 }
                 if ( callbacks.connect ) {
                     callbacks.connect( keyring_id );
                 }
-			} );
+	        } );
 
-			popupMonitor.on( 'close', name => {
-				if ( `connect-to-${ serviceName }-popup` === name ) {
-					setIsConnecting( false );
-				}
-			} );
-		} );
+		    popupMonitor.on( 'close', name => {
+			    if ( `connect-to-${ serviceName }-popup` === name ) {
+				    setIsConnecting( false );
+			    }
+		    } );
+	    } );
 	};
 
 	const disconnectFromService = ( accessToken ) => {
@@ -54,11 +54,11 @@ export default function useConnectService( serviceName, setAttributes, callbacks
             setIsConnecting( false );
 			if ( 200 === responseCode ) {
                 setAttributes( { accessToken: undefined } );
-                if ( callbacks.disconnect ) {
-                    callbacks.disconnect();
+            	if ( callbacks.disconnect ) {
+    				callbacks.disconnect();
                 }
-			}
-		} );
+		    }
+	    } );
     };
     
     return { isConnecting, connectToService, disconnectFromService };
