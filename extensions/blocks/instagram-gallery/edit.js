@@ -27,10 +27,9 @@ import { addQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies
  */
-import PopupMonitor from 'lib/popup-monitor';
 import defaultAttributes from './attributes';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
-import useConnectService from '../../shared/use-connect-service';
+import useConnectInstagram from './use-connect-instagram';
 import './editor.scss';
 
 const InstagramGalleryEdit = props => {
@@ -39,11 +38,7 @@ const InstagramGalleryEdit = props => {
 
 	const [ images, setImages ] = useState( [] );
 	const [ isLoadingGallery, setIsLoadingGallery ] = useState( false );
-
-	const disconnect = () => {
-		setImages( [] );
-	}
-	const { isConnecting, connectToService, disconnectFromService } = useConnectService( 'instagram', setAttributes, { disconnect } );
+	const { isConnecting, connectToService, disconnectFromService } = useConnectInstagram(  setAttributes, setImages );
 
 	useEffect( () => {
 		const validatedAttributes = getValidatedAttributes( defaultAttributes, attributes );
