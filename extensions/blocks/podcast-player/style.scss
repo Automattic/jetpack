@@ -106,14 +106,14 @@ $player-background: transparent;
 		height: $cover-image-size;
 	}
 
-	// Increasing specificity on the header titles and links for more consistency across themes and editor canvas.
+	// The tag name increases specificity to override some themes/editor styles.
 	h2.jetpack-podcast-player__title {
 		display: flex;
 		flex-direction: column;
 		margin: 0;
 		overflow: hidden;
 		letter-spacing: 0; // Fixes Twenty Twenty compressed text.
-		
+
 		&:before,
 		&:after {
 			display: none;
@@ -125,7 +125,6 @@ $player-background: transparent;
 		font-size: $track-title-font-size;
 		margin: 0 0 $track-title-b-margin;
 	}
-	
 
 	.jetpack-podcast-player__podcast-title {
 		font-size: $podcast-title-font-size;
@@ -143,7 +142,8 @@ $player-background: transparent;
 	}
 
 	// Apply `secondary` color to the podcast title.
-	.has-secondary { // custom color.
+	.has-secondary {
+		// custom color.
 		.jetpack-podcast-player__podcast-title {
 			color: currentColor;
 		}
@@ -175,7 +175,8 @@ $player-background: transparent;
 		max-height: 105px; //IE11 fallback
 	}
 
-	.has-secondary { // custom color.
+	.has-secondary {
+		// custom color.
 		.jetpack-podcast-player__track-description {
 			color: currentColor;
 		}
@@ -241,7 +242,7 @@ $player-background: transparent;
 		}
 	}
 
-	// Needs slightly higher specificity to override some theme's link styles.
+	// The tag name increases specificity to override some themes/editor styles.
 	a.jetpack-podcast-player__track-link {
 		text-decoration: none;
 
@@ -259,7 +260,7 @@ $player-background: transparent;
 	.jetpack-podcast-player__track-status-icon {
 		flex: $track-status-icon-size 0 0;
 		fill: $jetpack-podcast-player-primary;
-		fill: var(--jetpack-podcast-player-primary);
+		fill: var( --jetpack-podcast-player-primary );
 
 		svg {
 			display: inline-block;
@@ -361,7 +362,7 @@ $player-background: transparent;
 	}
 
 	.mejs-controls .mejs-time-rail .mejs-time-loaded {
-		opacity: .5;
+		opacity: 0.5;
 		background-color: $jetpack-podcast-player-primary;
 		background-color: var( --jetpack-podcast-player-primary );
 	}
