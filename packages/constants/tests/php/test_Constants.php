@@ -1,6 +1,8 @@
 <?php
 
 use Automattic\Jetpack\Constants;
+use phpmock\Mock;
+use phpmock\spy\Spy;
 use PHPUnit\Framework\TestCase;
 
 class Test_Constants extends TestCase {
@@ -8,11 +10,20 @@ class Test_Constants extends TestCase {
 		if ( ! defined( 'JETPACK__VERSION' ) ) {
 			define( 'JETPACK__VERSION', '7.5' );
 		}
+
+		$this->apply_filters_spy = new Spy(
+			'Automattic\Jetpack',
+			'apply_filters',
+			function ( $filter_name, $value, $name ) {
+				return $value;
+			}
+		);
 	}
 
 	public function tearDown() {
 		parent::tearDown();
 		Constants::$set_constants = array();
+		Mock::disableAll();
 	}
 
 	/**
@@ -49,22 +60,43 @@ class Test_Constants extends TestCase {
 	 * @covers Automattic\Jetpack\Constants::get_constant
 	 */
 	function test_jetpack_constants_default_to_constant() {
-		$this->assertEquals( Constants::get_constant( 'JETPACK__VERSION' ), JETPACK__VERSION );
+		$this->apply_filters_spy->enable();
+		$actual_output = Constants::get_constant( 'JETPACK__VERSION' );
+
+		// apply_filters() should not have been called.
+		$this->assertEquals( array(), $this->apply_filters_spy->getInvocations() );
+		$this->assertEquals( JETPACK__VERSION, $actual_output );
 	}
 
 	/**
 	 * @covers Automattic\Jetpack\Constants::get_constant
 	 */
 	function test_jetpack_constants_get_constant_null_when_not_set() {
-		$this->assertNull( Constants::get_constant( 'UNDEFINED' ) );
+		$this->apply_filters_spy->enable();
+		$test_constant_name = 'UNDEFINED';
+
+		$actual_output = Constants::get_constant( $test_constant_name );
+
+		list($filter_name, $filter_constant_value, $filter_constant_name )
+			= $this->apply_filters_spy->getInvocations()[0]->getArguments();
+
+		$this->assertEquals( 'jetpack_constant_default_value', $filter_name );
+		$this->assertNull( $filter_constant_value );
+		$this->assertEquals( $test_constant_name, $filter_constant_name );
+
+		$this->assertNull( $actual_output );
 	}
 
 	/**
 	 * @covers Automattic\Jetpack\Constants::get_constant
 	 */
 	function test_jetpack_constants_can_override_previously_defined_constant() {
+		$this->apply_filters_spy->enable();
 		$test_version = '1.0.0';
 		Constants::set_constant( 'JETPACK__VERSION', $test_version );
+
+		// apply_filters() should not have been called.
+		$this->assertEquals( array(), $this->apply_filters_spy->getInvocations() );
 		$this->assertEquals( Constants::get_constant( 'JETPACK__VERSION' ), $test_version );
 	}
 
@@ -72,8 +104,42 @@ class Test_Constants extends TestCase {
 	 * @covers Automattic\Jetpack\Constants::get_constant
 	 */
 	function test_jetpack_constants_override_to_null_gets_null() {
+		$this->apply_filters_spy->enable();
 		Constants::set_constant( 'JETPACK__VERSION', null );
+
+		// apply_filters() should not have been called.
+		$this->assertEquals( array(), $this->apply_filters_spy->getInvocations() );
 		$this->assertNull( Constants::get_constant( 'JETPACK__VERSION' ) );
+	}
+
+
+	/**
+	 * @covers Automattic\Jetpack\Constants::get_constant
+	 */
+	function test_jetpack_constants_get_constant_use_filter_value() {
+		$test_constant_name  = 'TEST_CONSTANT';
+		$test_constant_value = 'test value';
+
+		// Create a new apply_filters spy for this test.
+		$apply_filters_spy = new Spy(
+			'Automattic\Jetpack',
+			'apply_filters',
+			function ( $filter_name, $value, $name ) use ( $test_constant_value ) {
+				return $test_constant_value;
+			}
+		);
+		$apply_filters_spy->enable();
+
+		$actual_output = Constants::get_constant( $test_constant_name );
+
+		list($filter_name, $filter_constant_value, $filter_constant_name )
+			= $apply_filters_spy->getInvocations()[0]->getArguments();
+
+		$this->assertEquals( 'jetpack_constant_default_value', $filter_name );
+		$this->assertNull( $filter_constant_value );
+		$this->assertEquals( $test_constant_name, $filter_constant_name );
+
+		$this->assertEquals( $test_constant_value, $actual_output );
 	}
 
 	/**

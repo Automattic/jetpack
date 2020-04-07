@@ -69,6 +69,13 @@ class Manager {
 		if ( ! wp_next_scheduled( 'jetpack_clean_nonces' ) ) {
 			wp_schedule_event( time(), 'hourly', 'jetpack_clean_nonces' );
 		}
+
+		add_filter(
+			'jetpack_constant_default_value',
+			__NAMESPACE__ . '\Utils::jetpack_api_constant_filter',
+			10,
+			2
+		);
 	}
 
 	/**
@@ -334,11 +341,12 @@ class Manager {
 		@list( $token_key, $version, $user_id ) = explode( ':', wp_unslash( $_GET['token'] ) );
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
+		$jetpack_api_version = Constants::get_constant( 'JETPACK__API_VERSION' );
+
 		if (
 			empty( $token_key )
 		||
-			empty( $version ) || strval( Utils::get_jetpack_api_version() ) !== $version
-		) {
+			empty( $version ) || strval( $jetpack_api_version ) !== $version ) {
 			return new \WP_Error( 'malformed_token', 'Malformed token in request', compact( 'signature_details' ) );
 		}
 
@@ -716,8 +724,7 @@ class Manager {
 	 */
 	public function api_url( $relative_url ) {
 		$api_base = Constants::get_constant( 'JETPACK__API_BASE' );
-		$api_base = $api_base ? $api_base : 'https://jetpack.wordpress.com/jetpack.';
-		$version  = '/' . Utils::get_jetpack_api_version() . '/';
+		$api_version = '/' . Constants::get_constant( 'JETPACK__API_VERSION' ) . '/';
 
 		/**
 		 * Filters whether the connection manager should use the iframe authorization
@@ -742,14 +749,14 @@ class Manager {
 		 * @param String $url the generated URL.
 		 * @param String $relative_url the relative URL that was passed as an argument.
 		 * @param String $api_base the API base string that is being used.
-		 * @param String $version the version string that is being used.
+		 * @param String $api_version the API version string that is being used.
 		 */
 		return apply_filters(
 			'jetpack_api_url',
-			rtrim( $api_base . $relative_url, '/\\' ) . $version,
+			rtrim( $api_base . $relative_url, '/\\' ) . $api_version,
 			$relative_url,
 			$api_base,
-			$version
+			$api_version
 		);
 	}
 
