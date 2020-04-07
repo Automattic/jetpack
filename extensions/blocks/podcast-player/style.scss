@@ -143,7 +143,6 @@ $player-background: transparent;
 
 	// Apply `secondary` color to the podcast title.
 	.has-secondary {
-		// custom color.
 		.jetpack-podcast-player__podcast-title {
 			color: currentColor;
 		}
@@ -175,8 +174,8 @@ $player-background: transparent;
 		max-height: 105px; //IE11 fallback
 	}
 
+	// Apply `secondary` color to the track description.
 	.has-secondary {
-		// custom color.
 		.jetpack-podcast-player__track-description {
 			color: currentColor;
 		}
