@@ -261,7 +261,7 @@ const PodcastPlayerEdit = ( {
 		);
 	}
 
-	const updateColor = ( colorName, handler ) => ( color ) => {
+	const createColorChangeHandler = ( colorName, handler ) => ( color ) => {
 		const attr = `hex${ startCase( colorName ) }Color`;
 		setAttributes( { [ attr ]: color } );
 		handler( color );
@@ -300,17 +300,17 @@ const PodcastPlayerEdit = ( {
 					colorSettings={ [
 						{
 							value: primaryColorProp.color,
-							onChange: updateColor( 'primary', setPrimaryColor ),
+							onChange: createColorChangeHandler( 'primary', setPrimaryColor ),
 							label: __( 'Primary Color', 'jetpack' ),
 						},
 						{
 							value: secondaryColorProp.color,
-							onChange: updateColor( 'secondary', setSecondaryColor ),
+							onChange: createColorChangeHandler( 'secondary', setSecondaryColor ),
 							label: __( 'Secondary Color', 'jetpack' ),
 						},
 						{
 							value: backgroundColorProp.color,
-							onChange: updateColor( 'background', setBackgroundColor ),
+							onChange: createColorChangeHandler( 'background', setBackgroundColor ),
 							label: __( 'Background Color', 'jetpack' ),
 						},
 					] }
