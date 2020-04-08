@@ -42,20 +42,43 @@ function render_block( $attributes, $content ) {
 		return $content;
 	}
 
-	$element = get_attribute( $attributes, 'element' );
-	$text    = get_attribute( $attributes, 'text' );
-	$classes = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attributes );
+	$element   = get_attribute( $attributes, 'element' );
+	$text      = get_attribute( $attributes, 'text' );
+	$unique_id = get_attribute( $attributes, 'uniqueId' );
+	$classes   = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attributes );
 
 	$dom    = new \DOMDocument();
-	$button = $dom->createElement( $element, $text );
+	$button = $dom->createElement( $element, $content );
+
+	if ( 'input' === $element ) {
+		$button = $dom->createElement( 'input' );
+
+		$attribute        = $dom->createAttribute( 'value' );
+		$attribute->value = $text;
+		$button->appendChild( $attribute );
+	} else {
+		$button = $dom->createElement( $element, $text );
+	}
 
 	$attribute        = $dom->createAttribute( 'class' );
 	$attribute->value = get_button_classes( $attributes );
 	$button->appendChild( $attribute );
 
-	$attribute        = $dom->createAttribute( 'style' );
-	$attribute->value = get_button_styles( $attributes );
+	$button_styles = get_button_styles( $attributes );
+	if ( ! empty( $button_styles ) ) {
+		$attribute        = $dom->createAttribute( 'style' );
+		$attribute->value = $button_styles;
+		$button->appendChild( $attribute );
+	}
+
+	$attribute        = $dom->createAttribute( 'data-id-attr' );
+	$attribute->value = empty( $unique_id ) ? 'placeholder' : $unique_id;
 	$button->appendChild( $attribute );
+	if ( $unique_id ) {
+		$attribute        = $dom->createAttribute( 'id' );
+		$attribute->value = $unique_id;
+		$button->appendChild( $attribute );
+	}
 
 	if ( 'a' === $element ) {
 		$attribute        = $dom->createAttribute( 'href' );
@@ -64,6 +87,14 @@ function render_block( $attributes, $content ) {
 
 		$attribute        = $dom->createAttribute( 'target' );
 		$attribute->value = '_blank';
+		$button->appendChild( $attribute );
+
+		$attribute        = $dom->createAttribute( 'role' );
+		$attribute->value = 'button';
+		$button->appendChild( $attribute );
+
+		$attribute        = $dom->createAttribute( 'rel' );
+		$attribute->value = 'noopener noreferrer';
 		$button->appendChild( $attribute );
 	} elseif ( 'button' === $element || 'input' === $element ) {
 		$attribute        = $dom->createAttribute( 'type' );
@@ -74,7 +105,8 @@ function render_block( $attributes, $content ) {
 	$dom->appendChild( $button );
 
 	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	return '<div class="' . esc_attr( $classes ) . '">' . $dom->saveHTML() . '</div>';}
+	return '<div class="' . esc_attr( $classes ) . '">' . $dom->saveHTML() . '</div>';
+}
 
 /**
  * Get the Button block classes.
