@@ -261,8 +261,9 @@ $player-background: transparent;
 		fill: var( --jetpack-podcast-player-primary );
 
 		svg {
-			position: absolute;
+			display: block;
 			width: $track-status-icon-size;
+			height: $track-status-icon-size;
 		}
 	}
 
