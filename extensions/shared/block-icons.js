@@ -12,8 +12,12 @@ import { isAtomicSite, isSimpleSite } from './site-type-utils';
  */
 export function getIconColor() {
 	if ( isAtomicSite() || isSimpleSite() ) {
-		return '#1e1e1e'; // Default Gutenberg G2 Black
+		// Default Gutenberg G2 Black
+		// https://github.com/WordPress/gutenberg/blob/34ed2a6042d42fa18a5dcd0853d59bdff6a068d9/packages/base-styles/_colors.scss#L29
+		return '#1e1e1e';
 	}
 
-	return '#00be28'; // Jetpack Green
+	// Jetpack Green
+	// https://github.com/Automattic/jetpack/blob/ed275e2d8167f79899c4965719f76410e244be87/_inc/client/scss/variables/_colors.scss#L95
+	return '#00be28';
 }
