@@ -38,7 +38,10 @@ const InstagramGalleryEdit = props => {
 
 	const [ images, setImages ] = useState( [] );
 	const [ isLoadingGallery, setIsLoadingGallery ] = useState( false );
-	const { isConnecting, connectToService, disconnectFromService } = useConnectInstagram(  setAttributes, setImages );
+	const { isConnecting, connectToService, disconnectFromService } = useConnectInstagram(
+		setAttributes,
+		setImages
+	);
 
 	useEffect( () => {
 		const validatedAttributes = getValidatedAttributes( defaultAttributes, attributes );
