@@ -32,9 +32,9 @@ export default function ImageTransition( {
 		if ( imgSrc ) {
 			// First load image as a new window.Image and then update local state when it is loaded,
 			// this lets us handle the fade in animation
-			let img = new window.Image();
-			img.src = imgSrc;
-			img.onload = onImageLoad;
+			const tmpImg = new window.Image();
+			tmpImg.src = imgSrc;
+			tmpImg.onload = onImageLoad;
 			componentMounted = true;
 		}
 		if ( img.current ) {
@@ -52,7 +52,7 @@ export default function ImageTransition( {
 		opacity: '0',
 	};
 
-	let imageStyle = {
+	const imageStyle = {
 		opacity: '0',
 		height: '0',
 		width: '0',
@@ -64,7 +64,7 @@ export default function ImageTransition( {
 
 	imageStyle.transition = `opacity ${ transitionSpeed }s ease-in`;
 
-	let loadingStyle = {
+	const loadingStyle = {
 		opacity: '1',
 		height: size,
 		width: size,
