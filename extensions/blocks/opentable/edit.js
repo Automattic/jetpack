@@ -19,7 +19,7 @@ import {
 } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { getBlockDefaultClassName } from '@wordpress/blocks';
-import { useEffect, useRef } from '@wordpress/element';
+import { useEffect } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -72,7 +72,7 @@ function OpenTableEdit( {
 			);
 			noticeOperations.createNotice( { status: 'warning', content } );
 		}
-	}, [ __isBlockPreview, align, noticeOperations, rid, style ] );
+	}, [ __isBlockPreview, align, isPlaceholder, noticeOperations, rid, style ] );
 
 	const parseEmbedCode = embedCode => {
 		const newAttributes = getAttributesFromEmbedCode( embedCode );
