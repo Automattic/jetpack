@@ -12,6 +12,9 @@ export default {
 		type: 'boolean',
 		default: false,
 	},
+	uniqueId: {
+		type: 'string',
+	},
 	text: {
 		type: 'string',
 	},
