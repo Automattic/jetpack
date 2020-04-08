@@ -20,3 +20,20 @@
 	bottom: 0;
 	opacity: 0;
 }
+
+// Placeholder styles
+.jetpack-podcast-player__placeholder {
+	.components-base-control,
+	.components-base-control__field {
+		display: flex;
+		flex-grow: 1;
+	}
+
+	.components-base-control__field {
+		margin-bottom: 0;
+	}
+
+	.components-placeholder__learn-more {
+		margin-top: 1em;
+	}
+}
