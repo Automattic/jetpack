@@ -18,8 +18,8 @@ import Playlist from './playlist';
 import AudioPlayer from './audio-player';
 import Header from './header';
 import { getColorsObject } from '../utils';
+import withErrorBoundary from './with-error-boundary';
 
-// const debug = debugFactory( 'jetpack:podcast-player' );
 const noop = () => {};
 
 export class PodcastPlayer extends Component {
@@ -292,4 +292,4 @@ PodcastPlayer.defaultProps = {
 	tracks: [],
 };
 
-export default PodcastPlayer;
+export default withErrorBoundary( PodcastPlayer );

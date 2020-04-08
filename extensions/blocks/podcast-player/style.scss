@@ -292,6 +292,18 @@ $player-background: transparent;
 	}
 
 	/**
+	 * Global errro element, replaces the whole block with the error message.
+	 */
+	.jetpack-podcast-player__error {
+		padding: $player-grid-spacing;
+		margin: 0;
+		color: $alert-red;
+		font-family: $default-font;
+		font-size: 0.8em;
+		font-weight: normal;
+	}
+
+	/**
 	 * Style the block to hide dynamic UI and show just its default style.
 	 */
 	&.is-default {
