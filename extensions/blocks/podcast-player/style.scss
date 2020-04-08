@@ -332,7 +332,11 @@ $player-background: transparent;
 
 	.mejs-controls {
 		position: static;
-		// Lines up the mejs player padding with our wrapper spacing
+		/**
+		* Lines up the mejs player padding with our wrapper spacing.
+		* Magic numbers are due to needing to line-up the player spacing with buttons
+		* and fixed widths inside of the mediaplayer.
+		*/
 		padding: 0 ($player-grid-spacing - 6px) 0 ($player-grid-spacing - 9px);
 	}
 
