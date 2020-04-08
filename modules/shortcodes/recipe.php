@@ -618,16 +618,25 @@ class Jetpack_Recipes {
 			return '';
 		}
 
+		$image_attrs = array(
+			'class'    => 'jetpack-recipe-image u-photo photo',
+			'itemprop' => 'image',
+		);
+
+		if (
+			function_exists( 'wp_lazy_loading_enabled' )
+			&& wp_lazy_loading_enabled( 'img', 'wp_get_attachment_image' )
+		) {
+			$image_attrs['loading'] = 'lazy';
+		}
+
 		// If it's numeric, this may be an attachment.
 		if ( is_numeric( $src ) ) {
 			return wp_get_attachment_image(
 				$src,
 				'full',
 				false,
-				array(
-					'class'    => 'jetpack-recipe-image u-photo photo',
-					'itemprop' => 'image',
-				)
+				$image_attrs
 			);
 		}
 
@@ -639,8 +648,18 @@ class Jetpack_Recipes {
 			return '';
 		}
 
+		$image_attrs_markup = '';
+		foreach ( $image_attrs as $name => $value ) {
+			$image_attrs_markup .= sprintf(
+				' %1$s="%2$s"',
+				esc_attr( $name ),
+				esc_attr( $value )
+			);
+		}
+
 		return sprintf(
-			'<img class="jetpack-recipe-image u-photo photo" itemprop="image" src="%1$s" />',
+			'<img%1$s src="%2$s" />',
+			$image_attrs_markup,
 			esc_url( $src )
 		);
 	}
