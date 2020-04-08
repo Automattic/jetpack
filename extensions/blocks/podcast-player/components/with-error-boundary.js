@@ -15,10 +15,7 @@ export default function withErrorBoundary( WrappedComponent ) {
 		};
 
 		componentDidCatch = ( error, errorInfo ) => {
-			// This needs to be delayed in order for React to finish its error handling.
-			setTimeout( () => {
-				this.props.onError( error, errorInfo );
-			} );
+			this.props.onError( error, errorInfo );
 		};
 
 		static getDerivedStateFromError = () => {
