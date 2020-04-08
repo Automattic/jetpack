@@ -1041,14 +1041,14 @@ class Defaults {
 	 *
 	 * @var int Number of queue items.
 	 */
-	public static $default_max_queue_size = 1000;
+	public static $default_max_queue_size = 5000;
 
 	/**
 	 * Default maximum lag allowed in the queue.
 	 *
 	 * @var int Number of seconds
 	 */
-	public static $default_max_queue_lag = 900; // 15 minutes.
+	public static $default_max_queue_lag = 7200; // 2 hours.
 
 	/**
 	 * Default for default writes per sec.
