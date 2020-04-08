@@ -7,6 +7,7 @@ import { __, _x } from '@wordpress/i18n';
  * Internal dependencies
  */
 import attributes from './attributes';
+import deprecatedV1 from './deprecated/v1';
 import edit from './edit';
 import icon from './icon';
 import save from './save';
@@ -36,4 +37,5 @@ export const settings = {
 			revueUsername: 'example',
 		},
 	},
+	deprecated: [ deprecatedV1 ],
 };
