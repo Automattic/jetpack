@@ -16,8 +16,8 @@ export default function ImageTransition( {
 } ) {
 	const [ loaded, setLoaded ] = useState( false );
 	const [ size, setSize ] = useState( 'auto' );
-	const { columns } = attributes;
-	const transitionSpeed = 1;
+	const { columns, spacing } = attributes;
+	const transitionSpeed = '.3';
 	const img = useRef();
 	let componentMounted = false;
 
@@ -30,7 +30,8 @@ export default function ImageTransition( {
 	useEffect( () => {
 		const imgSrc = src;
 		if ( imgSrc ) {
-			//load image in a new window.Image and update local state when image is loaded
+			// First load image as a new window.Image and then update local state when it is loaded,
+			// this lets us handle the fade in animation
 			let img = new window.Image();
 			img.src = imgSrc;
 			img.onload = onImageLoad;
@@ -39,7 +40,7 @@ export default function ImageTransition( {
 		if ( img.current ) {
 			setSize( img.current.parentNode.getBoundingClientRect().width );
 		}
-	}, [ columns ] );
+	}, [ columns, spacing ] );
 
 	const imageLoadedStyle = {
 		opacity: '1',
@@ -51,7 +52,6 @@ export default function ImageTransition( {
 		opacity: '0',
 	};
 
-	//add transition style
 	let imageStyle = {
 		opacity: '0',
 		height: '0',
@@ -62,9 +62,9 @@ export default function ImageTransition( {
 		'z-index': '10',
 	};
 
-	imageStyle.transition = `opacity ${ transitionSpeed }s ease 0s`;
+	imageStyle.transition = `opacity ${ transitionSpeed }s ease-in`;
 
-	let loaderStyle = {
+	let loadingStyle = {
 		opacity: '1',
 		height: size,
 		width: size,
@@ -73,7 +73,7 @@ export default function ImageTransition( {
 		left: '0',
 	};
 
-	loaderStyle.transition = `opacity ${ transitionSpeed }s ease 0s`;
+	loadingStyle.transition = `opacity ${ transitionSpeed }s ease-out`;
 
 	return (
 		<>
@@ -84,7 +84,7 @@ export default function ImageTransition( {
 							<img
 								alt={ __( 'Instagram Gallery placeholder', 'jetpack' ) }
 								src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNMyc2tBwAEOgG/c94mJwAAAABJRU5ErkJggg=="
-								style={ loaded ? { ...loaderStyle, ...imageLoadedLoadingStyle } : loaderStyle }
+								style={ loaded ? { ...loadingStyle, ...imageLoadedLoadingStyle } : loadingStyle }
 							/>
 						</span>
 						<img
