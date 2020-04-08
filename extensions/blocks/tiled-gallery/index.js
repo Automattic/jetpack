@@ -19,6 +19,7 @@ import {
 	LAYOUT_STYLES,
 } from './constants';
 import { isSimpleSite } from '../../shared/site-type-utils';
+import { getIconColor } from '../../shared/block-icons';
 
 /**
  * Style dependencies
@@ -194,6 +195,7 @@ export const icon = (
 		/>
 	</SVG>
 );
+export const iconColor = getIconColor();
 
 export const settings = {
 	attributes: blockAttributes,
@@ -205,7 +207,7 @@ export const settings = {
 			: '' ),
 	icon: {
 		src: icon,
-		foreground: '#00be28',
+		foreground: iconColor,
 	},
 	keywords: [
 		_x( 'columns', 'block search term', 'jetpack' ),

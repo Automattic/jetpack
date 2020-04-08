@@ -9,6 +9,7 @@ import { trimEnd } from 'lodash';
  * Internal dependencies
  */
 import { __, _x } from '@wordpress/i18n';
+import { getIconColor } from '../../shared/block-icons';
 import edit from './edit';
 import './editor.scss';
 
@@ -22,12 +23,13 @@ export const icon = (
 		</G>
 	</SVG>
 );
+export const iconColor = getIconColor();
 
 export const settings = {
 	title: __( 'Recurring Payments', 'jetpack' ),
 	icon: {
 		src: icon,
-		foreground: '#00be28',
+		foreground: iconColor,
 	},
 	description: __( 'Button allowing you to sell subscription products.', 'jetpack' ),
 	category: 'jetpack',

@@ -7,8 +7,9 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import attributes from './attributes';
-import icon from './icon';
 import edit from './edit';
+import icon from './icon';
+import { getIconColor } from '../../shared/block-icons';
 
 /**
  * Style dependencies
@@ -17,13 +18,14 @@ import './editor.scss';
 
 export const name = 'amazon';
 export const title = __( 'Amazon', 'jetpack' );
+export const iconColor = getIconColor();
 export const settings = {
 	attributes,
 	title,
 	description: __( 'Promote Amazon products and earn a commission from sales.', 'jetpack' ),
 	icon: {
 		src: icon,
-		foreground: '#00be28',
+		foreground: iconColor,
 	},
 	category: 'jetpack',
 	keywords: [ __( 'amazon', 'jetpack' ), __( 'affiliate', 'jetpack' ) ],

@@ -8,15 +8,17 @@ import { __, _x } from '@wordpress/i18n';
  */
 import attributes from './attributes';
 import edit from './edit';
+import { getIconColor } from '../../shared/block-icons';
 
 export const name = 'instagram-gallery';
+export const iconColor = getIconColor();
 
 export const settings = {
 	title: __( 'Instagram Gallery', 'jetpack' ),
 	description: __( 'Embed posts from your Instagram account', 'jetpack' ),
 	icon: {
 		src: 'instagram',
-		foreground: '#00be28',
+		foreground: iconColor,
 	},
 	category: 'jetpack',
 	keywords: [

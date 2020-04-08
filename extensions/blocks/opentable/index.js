@@ -10,6 +10,8 @@ import { createBlock } from '@wordpress/blocks';
 import { defaultAttributes } from './attributes';
 import edit from './edit';
 import icon from './icon';
+import { getAttributesFromEmbedCode, restRefRegex, ridRegex } from './utils';
+import { getIconColor } from '../../shared/block-icons';
 
 /**
  * Style dependencies
@@ -19,14 +21,15 @@ import './view.scss';
 
 export const name = 'opentable';
 export const title = __( 'OpenTable', 'jetpack' );
-import { getAttributesFromEmbedCode, restRefRegex, ridRegex } from './utils';
+
+export const iconColor = getIconColor();
 
 export const settings = {
 	title,
 	description: __( 'Allow visitors to book a reservation with OpenTable', 'jetpack' ),
 	icon: {
 		src: icon,
-		foreground: '#00be28',
+		foreground: iconColor,
 	},
 	category: 'jetpack',
 	keywords: [

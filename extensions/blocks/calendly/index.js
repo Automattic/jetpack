@@ -11,6 +11,7 @@ import attributes from './attributes';
 import edit from './edit';
 import icon from './icon';
 import { getAttributesFromEmbedCode, REGEX } from './utils';
+import { getIconColor } from '../../shared/block-icons';
 
 /**
  * Style dependencies
@@ -21,12 +22,13 @@ export const CALENDLY_EXAMPLE_URL = 'https://calendly.com/wordpresscom/jetpack-b
 
 export const name = 'calendly';
 export const title = __( 'Calendly', 'jetpack' );
+export const iconColor = getIconColor();
 export const settings = {
 	title,
 	description: __( 'Embed a calendar for customers to schedule appointments', 'jetpack' ),
 	icon: {
 		src: icon,
-		foreground: '#00be28',
+		foreground: iconColor,
 	},
 	category: 'jetpack',
 	keywords: [

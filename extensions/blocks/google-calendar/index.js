@@ -11,9 +11,11 @@ import edit from './edit';
 import { extractAttributesFromIframe, URL_REGEX, IFRAME_REGEX } from './utils';
 import './editor.scss';
 import icon from './icon';
+import { getIconColor } from '../../shared/block-icons';
 
 export const name = 'google-calendar';
 export const title = __( 'Google Calendar', 'jetpack' );
+export const iconColor = getIconColor();
 
 export const settings = {
 	title,
@@ -26,7 +28,7 @@ export const settings = {
 	],
 	icon: {
 		src: icon,
-		foreground: '#00be28',
+		foreground: iconColor,
 	},
 	category: 'jetpack',
 	supports: {

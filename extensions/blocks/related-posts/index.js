@@ -9,6 +9,7 @@ import { G, Path, SVG } from '@wordpress/components';
  */
 import edit from './edit';
 import './style.scss';
+import { getIconColor } from '../../shared/block-icons';
 
 export const name = 'related-posts';
 
@@ -19,13 +20,14 @@ export const icon = (
 		</G>
 	</SVG>
 );
+export const iconColor = getIconColor();
 
 export const settings = {
 	title: __( 'Related Posts', 'jetpack' ),
 
 	icon: {
 		src: icon,
-		foreground: '#00be28',
+		foreground: iconColor,
 	},
 
 	category: 'jetpack',

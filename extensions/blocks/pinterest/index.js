@@ -10,6 +10,7 @@ import { createBlock } from '@wordpress/blocks';
  */
 import edit from './edit';
 import { pinType } from './utils';
+import { getIconColor } from '../../shared/block-icons';
 
 export const URL_REGEX = /^\s*https?:\/\/(?:www\.)?(?:[a-z]{2}\.)?(?:pinterest\.[a-z.]+|pin\.it)\/([^/]+)(\/[^/]+)?/i;
 
@@ -26,6 +27,7 @@ export const icon = (
 		</G>
 	</SVG>
 );
+export const iconColor = getIconColor();
 
 export const settings = {
 	title,
@@ -34,7 +36,7 @@ export const settings = {
 
 	icon: {
 		src: icon,
-		foreground: '#00be28',
+		foreground: iconColor,
 	},
 
 	category: 'jetpack',

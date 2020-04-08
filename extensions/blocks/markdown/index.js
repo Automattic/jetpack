@@ -12,6 +12,7 @@ import './editor.scss';
 import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import edit from './edit';
 import save from './save';
+import { getIconColor } from '../../shared/block-icons';
 
 export const name = 'markdown';
 
@@ -36,6 +37,7 @@ const icon = (
 		<Path d="M30 98v-68h20l20 25 20-25h20v68h-20v-39l-20 25-20-25v39zM155 98l-30-33h20v-35h20v35h20z" />
 	</SVG>
 );
+export const iconColor = getIconColor();
 
 const supportLink =
 	isSimpleSite() || isAtomicSite()
@@ -59,7 +61,7 @@ export const settings = {
 
 	icon: {
 		src: icon,
-		foreground: '#00be28',
+		foreground: iconColor,
 	},
 
 	category: 'jetpack',

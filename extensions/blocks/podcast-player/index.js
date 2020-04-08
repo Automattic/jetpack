@@ -13,6 +13,7 @@ import { __, _x } from '@wordpress/i18n';
 import attributes from './attributes';
 import edit from './edit';
 import { queueMusic } from './icons/';
+import { getIconColor } from '../../shared/block-icons';
 
 /**
  * Style dependencies
@@ -23,12 +24,13 @@ import './editor.scss';
 export const name = 'podcast-player';
 export const namespaceName = `jetpack/${ name }`;
 export const title = __( 'Podcast Player', 'jetpack' );
+export const iconColor = getIconColor();
 export const settings = {
 	title,
 	description: __( 'Select and play episodes from a single podcast.', 'jetpack' ),
 	icon: {
 		src: queueMusic,
-		foreground: '#00be28',
+		foreground: iconColor,
 	},
 	category: 'jetpack',
 	keywords: [

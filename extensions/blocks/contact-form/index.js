@@ -18,19 +18,21 @@ import JetpackFieldCheckbox from './components/jetpack-field-checkbox';
 import JetpackFieldMultiple from './components/jetpack-field-multiple';
 import renderMaterialIcon from '../../shared/render-material-icon';
 import colorValidator from '../../shared/colorValidator';
+import { getIconColor } from '../../shared/block-icons';
 
 export const name = 'contact-form';
 
 export const icon = renderMaterialIcon(
 	<Path d="M13 7.5h5v2h-5zm0 7h5v2h-5zM19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM11 6H6v5h5V6zm-1 4H7V7h3v3zm1 3H6v5h5v-5zm-1 4H7v-3h3v3z" />
 );
+export const iconColor = getIconColor();
 
 export const settings = {
 	title: __( 'Form', 'jetpack' ),
 	description: __( 'A simple way to get feedback from folks visiting your site.', 'jetpack' ),
 	icon: {
 		src: icon,
-		foreground: '#00be28',
+		foreground: iconColor,
 	},
 	keywords: [
 		_x( 'email', 'block search term', 'jetpack' ),

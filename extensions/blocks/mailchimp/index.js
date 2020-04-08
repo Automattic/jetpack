@@ -9,6 +9,7 @@ import { Path, SVG } from '@wordpress/components';
  */
 import edit from './edit';
 import './editor.scss';
+import { getIconColor } from '../../shared/block-icons';
 
 export const name = 'mailchimp';
 
@@ -18,12 +19,13 @@ export const icon = (
 		<Path d="M22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6zm-2 0l-8 5-8-5h16zm0 12H4V8l8 5 8-5v10z" />
 	</SVG>
 );
+export const iconColor = getIconColor();
 
 export const settings = {
 	title: __( 'Mailchimp', 'jetpack' ),
 	icon: {
 		src: icon,
-		foreground: '#00be28',
+		foreground: iconColor,
 	},
 	description: __( 'A form enabling readers to join a Mailchimp list.', 'jetpack' ),
 	category: 'jetpack',
