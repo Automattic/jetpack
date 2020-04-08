@@ -15,13 +15,11 @@ import './editor.scss';
 export const { name } = mapSettings;
 import { getIconColor } from '../../shared/block-icons';
 
-export const iconColor = getIconColor();
-
 export const settings = {
 	title: mapSettings.title,
 	icon: {
 		src: mapSettings.icon,
-		foreground: iconColor,
+		foreground: getIconColor(),
 	},
 	category: mapSettings.category,
 	keywords: mapSettings.keywords,

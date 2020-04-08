@@ -196,7 +196,6 @@ export const icon = (
 		/>
 	</SVG>
 );
-export const iconColor = getIconColor();
 
 export const settings = {
 	attributes: blockAttributes,
@@ -208,7 +207,7 @@ export const settings = {
 			: '' ),
 	icon: {
 		src: icon,
-		foreground: iconColor,
+		foreground: getIconColor(),
 	},
 	keywords: [
 		_x( 'columns', 'block search term', 'jetpack' ),

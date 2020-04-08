@@ -13,14 +13,13 @@ import { getIconColor } from '../../shared/block-icons';
 import { supportsCollections } from '../../shared/block-category';
 
 export const name = 'revue';
-export const iconColor = getIconColor();
 
 export const settings = {
 	title: __( 'Revue', 'jetpack' ),
 	description: __( 'Add a subscription form for your Revue newsletter.', 'jetpack' ),
 	icon: {
 		src: icon,
-		foreground: iconColor,
+		foreground: getIconColor(),
 	},
 	category: supportsCollections() ? 'grow' : 'jetpack',
 	keywords: [

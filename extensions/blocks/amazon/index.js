@@ -19,14 +19,13 @@ import { supportsCollections } from '../../shared/block-category';
 
 export const name = 'amazon';
 export const title = __( 'Amazon', 'jetpack' );
-export const iconColor = getIconColor();
 export const settings = {
 	attributes,
 	title,
 	description: __( 'Promote Amazon products and earn a commission from sales.', 'jetpack' ),
 	icon: {
 		src: icon,
-		foreground: iconColor,
+		foreground: getIconColor(),
 	},
 	category: supportsCollections() ? 'earn' : 'jetpack',
 	keywords: [ __( 'amazon', 'jetpack' ), __( 'affiliate', 'jetpack' ) ],

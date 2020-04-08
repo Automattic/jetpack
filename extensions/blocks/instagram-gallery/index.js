@@ -12,14 +12,13 @@ import { getIconColor } from '../../shared/block-icons';
 import { supportsCollections } from '../../shared/block-category';
 
 export const name = 'instagram-gallery';
-export const iconColor = getIconColor();
 
 export const settings = {
 	title: __( 'Instagram Gallery', 'jetpack' ),
 	description: __( 'Embed posts from your Instagram account', 'jetpack' ),
 	icon: {
 		src: 'instagram',
-		foreground: iconColor,
+		foreground: getIconColor(),
 	},
 	category: supportsCollections() ? 'embed' : 'jetpack',
 	keywords: [

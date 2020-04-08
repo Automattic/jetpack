@@ -16,7 +16,6 @@ import './style.scss';
 import { supportsCollections } from '../../shared/block-category';
 
 export const name = 'rating-star';
-export const iconColor = getIconColor();
 
 export const settings = {
 	title: __( 'Star Rating', 'jetpack' ),
@@ -26,7 +25,7 @@ export const settings = {
 	),
 	icon: {
 		src: StarBlockIcon,
-		foreground: iconColor,
+		foreground: getIconColor(),
 	},
 	keywords: [
 		_x( 'star', 'block search term', 'jetpack' ),

@@ -16,7 +16,6 @@ import { supportsCollections } from '../../shared/block-category';
 
 export const name = 'google-calendar';
 export const title = __( 'Google Calendar', 'jetpack' );
-export const iconColor = getIconColor();
 
 export const settings = {
 	title,
@@ -29,7 +28,7 @@ export const settings = {
 	],
 	icon: {
 		src: icon,
-		foreground: iconColor,
+		foreground: getIconColor(),
 	},
 	category: supportsCollections() ? 'embed' : 'jetpack',
 	supports: {

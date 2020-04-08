@@ -25,13 +25,12 @@ import { supportsCollections } from '../../shared/block-category';
 export const name = 'podcast-player';
 export const namespaceName = `jetpack/${ name }`;
 export const title = __( 'Podcast Player', 'jetpack' );
-export const iconColor = getIconColor();
 export const settings = {
 	title,
 	description: __( 'Select and play episodes from a single podcast.', 'jetpack' ),
 	icon: {
 		src: queueMusic,
-		foreground: iconColor,
+		foreground: getIconColor(),
 	},
 	category: supportsCollections() ? 'embed' : 'jetpack',
 	keywords: [

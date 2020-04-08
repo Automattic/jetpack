@@ -28,7 +28,6 @@ export const icon = (
 		</G>
 	</SVG>
 );
-export const iconColor = getIconColor();
 
 export const settings = {
 	title,
@@ -37,7 +36,7 @@ export const settings = {
 
 	icon: {
 		src: icon,
-		foreground: iconColor,
+		foreground: getIconColor(),
 	},
 
 	category: supportsCollections() ? 'embed' : 'jetpack',

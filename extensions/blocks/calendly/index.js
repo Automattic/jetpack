@@ -23,13 +23,12 @@ export const CALENDLY_EXAMPLE_URL = 'https://calendly.com/wordpresscom/jetpack-b
 
 export const name = 'calendly';
 export const title = __( 'Calendly', 'jetpack' );
-export const iconColor = getIconColor();
 export const settings = {
 	title,
 	description: __( 'Embed a calendar for customers to schedule appointments', 'jetpack' ),
 	icon: {
 		src: icon,
-		foreground: iconColor,
+		foreground: getIconColor(),
 	},
 	category: supportsCollections() ? 'grow' : 'jetpack',
 	keywords: [

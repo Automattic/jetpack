@@ -37,14 +37,13 @@ export const icon = (
 		</G>
 	</SVG>
 );
-export const iconColor = getIconColor();
 
 export const settings = {
 	title,
 	description: __( 'Embed Eventbrite event details and ticket checkout.', 'jetpack' ),
 	icon: {
 		src: icon,
-		foreground: iconColor,
+		foreground: getIconColor(),
 	},
 	category: supportsCollections() ? 'embed' : 'jetpack',
 	keywords: [

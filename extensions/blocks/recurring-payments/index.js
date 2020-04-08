@@ -24,13 +24,12 @@ export const icon = (
 		</G>
 	</SVG>
 );
-export const iconColor = getIconColor();
 
 export const settings = {
 	title: __( 'Recurring Payments', 'jetpack' ),
 	icon: {
 		src: icon,
-		foreground: iconColor,
+		foreground: getIconColor(),
 	},
 	description: __( 'Button allowing you to sell subscription products.', 'jetpack' ),
 	category: supportsCollections() ? 'earn' : 'jetpack',

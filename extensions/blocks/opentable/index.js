@@ -22,14 +22,13 @@ import './view.scss';
 
 export const name = 'opentable';
 export const title = __( 'OpenTable', 'jetpack' );
-export const iconColor = getIconColor();
 
 export const settings = {
 	title,
 	description: __( 'Allow visitors to book a reservation with OpenTable', 'jetpack' ),
 	icon: {
 		src: icon,
-		foreground: iconColor,
+		foreground: getIconColor(),
 	},
 	category: supportsCollections() ? 'earn' : 'jetpack',
 	keywords: [
