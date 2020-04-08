@@ -13,6 +13,7 @@ import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import edit from './edit';
 import save from './save';
 import { getIconColor } from '../../shared/block-icons';
+import { supportsCollections } from '../../shared/block-category';
 
 export const name = 'markdown';
 
@@ -64,7 +65,7 @@ export const settings = {
 		foreground: iconColor,
 	},
 
-	category: 'jetpack',
+	category: supportsCollections() ? 'formatting' : 'jetpack',
 
 	keywords: [
 		_x( 'formatting', 'block search term', 'jetpack' ),

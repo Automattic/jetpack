@@ -12,13 +12,25 @@ jQuery( function( $ ) {
 	}
 
 	var editPostHeaderInception = setInterval( function() {
-		var $closeButton = $( '.edit-post-fullscreen-mode-close__toolbar a' );
-		if ( $closeButton.length < 1 ) {
+		// Legacy selector for Gutenberg plugin < v7.7
+		var legacyButton = $( '.edit-post-fullscreen-mode-close__toolbar a' );
+		// Updated selector for Gutenberg plugin => v7.7
+		var newButton = $( '.edit-post-header .edit-post-fullscreen-mode-close' );
+
+		var hasLegacyButton = legacyButton && legacyButton.length;
+		var hasNewButton = newButton && newButton.length;
+
+		// Keep trying until we find one of the close buttons.
+		if ( ! ( hasLegacyButton || hasNewButton ) ) {
 			return;
 		}
 		clearInterval( editPostHeaderInception );
 
-		$closeButton.attr( 'href', calypsoifyGutenberg.closeUrl );
+		var theButton = legacyButton;
+		if ( hasNewButton ) {
+			theButton = newButton;
+		}
+		theButton.attr( 'href', calypsoifyGutenberg.closeUrl );
 	} );
 
 	$( 'body.revision-php a' ).each( function() {

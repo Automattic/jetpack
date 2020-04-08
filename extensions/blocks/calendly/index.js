@@ -17,6 +17,7 @@ import { getIconColor } from '../../shared/block-icons';
  * Style dependencies
  */
 import './editor.scss';
+import { supportsCollections } from '../../shared/block-category';
 
 export const CALENDLY_EXAMPLE_URL = 'https://calendly.com/wordpresscom/jetpack-block-example';
 
@@ -30,7 +31,7 @@ export const settings = {
 		src: icon,
 		foreground: iconColor,
 	},
-	category: 'jetpack',
+	category: supportsCollections() ? 'grow' : 'jetpack',
 	keywords: [
 		_x( 'calendar', 'block search term', 'jetpack' ),
 		_x( 'schedule', 'block search term', 'jetpack' ),

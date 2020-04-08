@@ -19,6 +19,7 @@ import JetpackFieldMultiple from './components/jetpack-field-multiple';
 import renderMaterialIcon from '../../shared/render-material-icon';
 import colorValidator from '../../shared/colorValidator';
 import { getIconColor } from '../../shared/block-icons';
+import { supportsCollections } from '../../shared/block-category';
 
 export const name = 'contact-form';
 
@@ -39,7 +40,7 @@ export const settings = {
 		_x( 'feedback', 'block search term', 'jetpack' ),
 		_x( 'contact form', 'block search term', 'jetpack' ),
 	],
-	category: 'jetpack',
+	category: supportsCollections() ? 'grow' : 'jetpack',
 	supports: {
 		html: false,
 	},
@@ -181,7 +182,7 @@ export const settings = {
 };
 
 const FieldDefaults = {
-	category: 'jetpack',
+	category: supportsCollections() ? 'grow' : 'jetpack',
 	parent: [ 'jetpack/contact-form' ],
 	supports: {
 		reusable: false,

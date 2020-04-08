@@ -12,6 +12,7 @@ import { __, _x } from '@wordpress/i18n';
 import { getIconColor } from '../../shared/block-icons';
 import edit from './edit';
 import './editor.scss';
+import { supportsCollections } from '../../shared/block-category';
 
 export const name = 'recurring-payments';
 
@@ -32,7 +33,7 @@ export const settings = {
 		foreground: iconColor,
 	},
 	description: __( 'Button allowing you to sell subscription products.', 'jetpack' ),
-	category: 'jetpack',
+	category: supportsCollections() ? 'earn' : 'jetpack',
 	keywords: [
 		_x( 'sell', 'block search term', 'jetpack' ),
 		_x( 'subscriptions', 'block search term', 'jetpack' ),

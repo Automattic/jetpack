@@ -9,21 +9,21 @@ import Card from 'components/card';
 /**
  * Internal dependencies
  */
-import { FEATURE_SEARCH_JETPACK, getPlanClass } from 'lib/plans/constants';
-import { SEARCH_DESCRIPTION, SEARCH_CUSTOMIZE_CTA, SEARCH_SUPPORT } from 'plans/constants';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import { FormFieldset } from 'components/forms';
+import CompactFormToggle from 'components/form/form-toggle/compact';
+import { FEATURE_SEARCH_JETPACK, getPlanClass } from 'lib/plans/constants';
+import { SEARCH_DESCRIPTION, SEARCH_CUSTOMIZE_CTA, SEARCH_SUPPORT } from 'plans/constants';
+import { isAtomicSite } from 'state/initial-state';
+import { hasUpdatedSetting, isSettingActivated, isUpdatingSetting } from 'state/settings';
 import {
 	getSitePlan,
 	hasActiveSearchPurchase as selectHasActiveSearchPurchase,
 	isFetchingSitePurchases,
 } from 'state/site';
-import { FormFieldset } from 'components/forms';
-import CompactFormToggle from 'components/form/form-toggle/compact';
-import { hasUpdatedSetting } from 'state/settings';
-import { isSettingActivated, isUpdatingSetting } from '../state/settings/reducer';
 
 function toggleModuleFactory( {
 	getOptionValue,
@@ -65,7 +65,7 @@ function Search( props ) {
 			props.updateOptions( { has_jetpack_search_product: true } );
 			toggleModule( 'search' );
 		}
-	}, [ props.failedToEnableSearch, props.hasActiveSearchPurchase ] );
+	}, [ props.failedToEnableSearch, props.hasActiveSearchPurchase, toggleModule ] );
 
 	return (
 		<SettingsCard { ...props } module="search" feature={ FEATURE_SEARCH_JETPACK } hideButton>
@@ -80,7 +80,6 @@ function Search( props ) {
 				<p>{ SEARCH_DESCRIPTION } </p>
 				{ props.isLoading && __( 'Loading…' ) }
 				{ ! props.isLoading && ( props.isBusinessPlan || props.hasActiveSearchPurchase ) && (
-					// TODO: There's a known bug preventing Jetpack Search from being enabled here for Search product purchases
 					<Fragment>
 						<ModuleToggle
 							activated={ isModuleEnabled }
@@ -91,24 +90,28 @@ function Search( props ) {
 						>
 							{ __( 'Enable Search' ) }
 						</ModuleToggle>
-						<FormFieldset>
-							<CompactFormToggle
-								checked={ isInstantSearchEnabled }
-								disabled={ ! props.hasActiveSearchPurchase || ! isModuleEnabled }
-								onChange={ toggleInstantSearch }
-								toggling={ props.isSavingAnyOption( 'instant_search_enabled' ) }
-							>
-								<span className="jp-form-toggle-explanation">
-									{ __( 'Enable instant search experience (recommended)' ) }
-								</span>
-							</CompactFormToggle>
-							<p className="jp-form-setting-explanation jp-form-search-setting-explanation">
-								{ __(
-									'Instant search will allow your visitors to get search results as soon as they start typing. ' +
-										'If deactivated, Jetpack Search will still optimize your search results but visitors will have to submit a search query before seeing any results.'
-								) }
-							</p>
-						</FormFieldset>
+
+						{ ! props.isAtomicSite && (
+							// NOTE: Jetpack Search currently does not support atomic sites.
+							<FormFieldset>
+								<CompactFormToggle
+									checked={ isInstantSearchEnabled }
+									disabled={ ! props.hasActiveSearchPurchase || ! isModuleEnabled }
+									onChange={ toggleInstantSearch }
+									toggling={ props.isSavingAnyOption( 'instant_search_enabled' ) }
+								>
+									<span className="jp-form-toggle-explanation">
+										{ __( 'Enable instant search experience (recommended)' ) }
+									</span>
+								</CompactFormToggle>
+								<p className="jp-form-setting-explanation jp-form-search-setting-explanation">
+									{ __(
+										'Instant search will allow your visitors to get search results as soon as they start typing. ' +
+											'If deactivated, Jetpack Search will still optimize your search results but visitors will have to submit a search query before seeing any results.'
+									) }
+								</p>
+							</FormFieldset>
+						) }
 					</Fragment>
 				) }
 			</SettingsGroup>
@@ -140,6 +143,7 @@ function Search( props ) {
 export default connect( state => {
 	const planClass = getPlanClass( getSitePlan( state ).product_slug );
 	return {
+		isAtomicSite: isAtomicSite( state ),
 		isLoading: isFetchingSitePurchases( state ),
 		hasActiveSearchPurchase: selectHasActiveSearchPurchase( state ),
 		isBusinessPlan: 'is-business-plan' === planClass,

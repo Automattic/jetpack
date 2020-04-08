@@ -12,6 +12,7 @@ import { extractAttributesFromIframe, URL_REGEX, IFRAME_REGEX } from './utils';
 import './editor.scss';
 import icon from './icon';
 import { getIconColor } from '../../shared/block-icons';
+import { supportsCollections } from '../../shared/block-category';
 
 export const name = 'google-calendar';
 export const title = __( 'Google Calendar', 'jetpack' );
@@ -30,7 +31,7 @@ export const settings = {
 		src: icon,
 		foreground: iconColor,
 	},
-	category: 'jetpack',
+	category: supportsCollections() ? 'embed' : 'jetpack',
 	supports: {
 		align: true,
 		alignWide: true,

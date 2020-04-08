@@ -6548,9 +6548,9 @@ endif;
 				foreach ( $wp_filter[ $hook ] as $func => $values ) {
 					foreach ( $values as $hooked ) {
 						if ( is_callable( $hooked['function'] ) ) {
-							$function_name = 'an anonymous function';
-						} else {
 							$function_name = $hooked['function'];
+						} else {
+							$function_name = 'an anonymous function';
 						}
 						_deprecated_function( $hook . ' used for ' . $function_name, null, $hook_alt );
 					}

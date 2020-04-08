@@ -10,7 +10,7 @@ their self-hosted site's data. To give a user of your site a way to do
 that you can add a button to your admin area:
 
 ```php
-use Automattic\Jetpack\Manager;
+use Automattic\Jetpack\Connection\Manager;
 
 // Getting the existing blog token created at registration step.
 $manager = new Manager();
@@ -35,7 +35,7 @@ As with the registration step, you need to add a WordPress POST
 handler, as one usually does for admin actions:
 
 ```php
-use Automattic\Jetpack\Manager;
+use Automattic\Jetpack\Connection\Manager;
 
 add_action( 'admin_post_connect_user', 'your_plugin_connect_user' ) );
 

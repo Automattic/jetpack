@@ -10,6 +10,7 @@ import { Fragment } from '@wordpress/element';
  */
 import edit from './edit';
 import { DEFAULT_FORMAT } from './constants';
+import { supportsCollections } from '../../shared/block-category';
 
 export const name = 'wordads';
 export const title = __( 'Ad', 'jetpack' );
@@ -59,7 +60,7 @@ export const settings = {
 		attributes: {},
 	},
 
-	category: 'jetpack',
+	category: supportsCollections() ? 'earn' : 'jetpack',
 
 	keywords: [
 		_x( 'ads', 'block search term', 'jetpack' ),

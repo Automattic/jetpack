@@ -10,6 +10,7 @@ import { Path, SVG } from '@wordpress/components';
 import edit from './edit';
 import './editor.scss';
 import { getIconColor } from '../../shared/block-icons';
+import { supportsCollections } from '../../shared/block-category';
 
 export const name = 'mailchimp';
 
@@ -28,7 +29,7 @@ export const settings = {
 		foreground: iconColor,
 	},
 	description: __( 'A form enabling readers to join a Mailchimp list.', 'jetpack' ),
-	category: 'jetpack',
+	category: supportsCollections() ? 'grow' : 'jetpack',
 	keywords: [
 		_x( 'email', 'block search term', 'jetpack' ),
 		_x( 'subscription', 'block search term', 'jetpack' ),

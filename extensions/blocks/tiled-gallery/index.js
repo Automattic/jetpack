@@ -37,6 +37,7 @@ import tiledGalleryExample3 from './tiled-gallery_example-3.jpg';
 import tiledGalleryExample4 from './tiled-gallery_example-4.jpg';
 import tiledGalleryExample5 from './tiled-gallery_example-5.jpg';
 import tiledGalleryExample6 from './tiled-gallery_example-6.jpg';
+import { supportsCollections } from '../../shared/block-category';
 
 // Style names are translated. Avoid introducing an i18n dependency elsewhere (view)
 // by only including the labels here, the only place they're needed.
@@ -199,7 +200,7 @@ export const iconColor = getIconColor();
 
 export const settings = {
 	attributes: blockAttributes,
-	category: 'jetpack',
+	category: supportsCollections() ? 'layout' : 'jetpack',
 	description:
 		__( 'Display multiple images in an elegantly organized tiled layout.', 'jetpack' ) +
 		( ! isSimpleSite()

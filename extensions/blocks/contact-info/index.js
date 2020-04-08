@@ -16,6 +16,7 @@ import { name as addressName, settings as addressSettings } from './address/';
 import { name as emailName, settings as emailSettings } from './email/';
 import { name as phoneName, settings as phoneSettings } from './phone/';
 import { getIconColor } from '../../shared/block-icons';
+import { supportsCollections } from '../../shared/block-category';
 
 const attributes = {};
 
@@ -47,7 +48,7 @@ export const settings = {
 		src: icon,
 		foreground: iconColor,
 	},
-	category: 'jetpack',
+	category: supportsCollections() ? 'grow' : 'jetpack',
 	supports: {
 		align: [ 'wide', 'full' ],
 		html: false,

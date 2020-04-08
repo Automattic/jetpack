@@ -13,6 +13,7 @@ import edit from './edit';
 import save from './save';
 import renderMaterialIcon from '../../shared/render-material-icon';
 import { getIconColor } from '../../shared/block-icons';
+import { supportsCollections } from '../../shared/block-category';
 
 export const name = 'subscriptions';
 export const icon = renderMaterialIcon(
@@ -34,7 +35,7 @@ export const settings = {
 		src: icon,
 		foreground: iconColor,
 	},
-	category: 'jetpack',
+	category: supportsCollections() ? 'grow' : 'jetpack',
 
 	keywords: [
 		_x( 'subscribe', 'block search term', 'jetpack' ),

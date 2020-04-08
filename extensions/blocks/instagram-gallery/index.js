@@ -9,6 +9,7 @@ import { __, _x } from '@wordpress/i18n';
 import attributes from './attributes';
 import edit from './edit';
 import { getIconColor } from '../../shared/block-icons';
+import { supportsCollections } from '../../shared/block-category';
 
 export const name = 'instagram-gallery';
 export const iconColor = getIconColor();
@@ -20,17 +21,25 @@ export const settings = {
 		src: 'instagram',
 		foreground: iconColor,
 	},
-	category: 'jetpack',
+	category: supportsCollections() ? 'embed' : 'jetpack',
 	keywords: [
 		_x( 'images', 'block search term', 'jetpack' ),
 		_x( 'photos', 'block search term', 'jetpack' ),
 		_x( 'pictures', 'block search term', 'jetpack' ),
 	],
 	supports: {
-		align: [ 'wide', 'full' ],
+		align: true,
 		html: false,
 	},
 	attributes,
 	edit,
-	save: () => {},
+	save: ( { attributes: { instagramUser } } ) => (
+		<div>
+			<a
+				href={ `https://www.instagram.com/${ instagramUser }/` }
+				rel="noopener noreferrer"
+				target="_blank"
+			>{ `https://www.instagram.com/${ instagramUser }/` }</a>
+		</div>
+	),
 };

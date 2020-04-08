@@ -13,14 +13,17 @@ export default class AuthorizePage extends Page {
 
 	async approve( repeat = true ) {
 		const authorizeButtonSelector = '.jetpack-connect__authorize-form button';
-		await waitAndClick( this.page, authorizeButtonSelector );
+		await Promise.all( [
+			waitAndClick( this.page, authorizeButtonSelector ),
+			this.page.waitForNavigation( { waitUntil: 'networkidle2' } ),
+		] );
 		try {
 			return await this.waitToDisappear();
 		} catch ( error ) {
 			if ( repeat ) {
 				const message = 'Jetpack connection failed. Retrying once again.';
 				console.log( message );
-				await sendMessageToSlack( 'Jetpack connection failed. Retrying once again.' );
+				await sendMessageToSlack( message );
 
 				return await this.approve( false );
 			}
@@ -33,7 +36,7 @@ export default class AuthorizePage extends Page {
 			hidden: true,
 		} );
 
-		return await waitForSelector( this.page, this.expectedSelector, {
+		return await waitForSelector( this.page, '.jetpack-connect__authorize-form button', {
 			hidden: true,
 		} );
 	}

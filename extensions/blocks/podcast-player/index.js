@@ -20,6 +20,7 @@ import { getIconColor } from '../../shared/block-icons';
  */
 import './style.scss';
 import './editor.scss';
+import { supportsCollections } from '../../shared/block-category';
 
 export const name = 'podcast-player';
 export const namespaceName = `jetpack/${ name }`;
@@ -32,7 +33,7 @@ export const settings = {
 		src: queueMusic,
 		foreground: iconColor,
 	},
-	category: 'jetpack',
+	category: supportsCollections() ? 'embed' : 'jetpack',
 	keywords: [
 		_x( 'audio', 'block search term', 'jetpack' ),
 		_x( 'embed', 'block search term', 'jetpack' ),

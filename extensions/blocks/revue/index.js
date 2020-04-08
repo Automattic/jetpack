@@ -10,6 +10,7 @@ import attributes from './attributes';
 import edit from './edit';
 import icon from './icon';
 import { getIconColor } from '../../shared/block-icons';
+import { supportsCollections } from '../../shared/block-category';
 
 export const name = 'revue';
 export const iconColor = getIconColor();
@@ -21,7 +22,7 @@ export const settings = {
 		src: icon,
 		foreground: iconColor,
 	},
-	category: 'jetpack',
+	category: supportsCollections() ? 'grow' : 'jetpack',
 	keywords: [
 		_x( 'email', 'block search term', 'jetpack' ),
 		_x( 'subscription', 'block search term', 'jetpack' ),

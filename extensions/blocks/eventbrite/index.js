@@ -13,6 +13,7 @@ import deprecated from './deprecated/v1';
 import edit from './edit';
 import save from './save';
 import { getIconColor } from '../../shared/block-icons';
+import { supportsCollections } from '../../shared/block-category';
 
 // Example URLs
 // https://www.eventbrite.com/e/test-event-tickets-123456789
@@ -45,7 +46,7 @@ export const settings = {
 		src: icon,
 		foreground: iconColor,
 	},
-	category: 'jetpack',
+	category: supportsCollections() ? 'embed' : 'jetpack',
 	keywords: [
 		_x( 'events', 'block search term', 'jetpack' ),
 		_x( 'tickets', 'block search term', 'jetpack' ),
