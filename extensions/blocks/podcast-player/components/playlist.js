@@ -54,7 +54,7 @@ const TrackError = memo( ( { link, title } ) => (
 		{ link && (
 			<span>
 				<a href={ link } rel="noopener noreferrer nofollow" target="_blank">
-					<span class="jetpack-podcast-player--visually-hidden">
+					<span className="jetpack-podcast-player--visually-hidden">
 						{ /* Intentional trailing space outside of the translated string. */ }
 						{ `${ sprintf(
 							/* translators: %s is the title of the track. This text is
