@@ -107,8 +107,15 @@ function render_block( $attributes, $content ) {
 			</div>
 			<?php
 			endif;
-			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+
+			// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
+		if ( strpos( 'wp-block-jetpack-revue__fallback', $content ) ) {
 			echo $content;
+		} else {
+			echo get_deprecated_v1_revue_button( $attributes );
+		}
+			// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
+
 		?>
 	</form>
 	<div class="<?php echo esc_attr( $base_class . 'message' ); ?>">
@@ -153,4 +160,94 @@ function get_revue_attribute( $attribute, $attributes ) {
 	if ( array_key_exists( $attribute, $default_attributes ) ) {
 		return $default_attributes[ $attribute ];
 	}
+}
+
+/**
+ * DEPRECATED V1
+ */
+
+/**
+ * Create the Revue subscribe button.
+ *
+ * @param array $attributes Array containing the Revue block attributes.
+ *
+ * @return string
+ */
+function get_deprecated_v1_revue_button( $attributes ) {
+	$classes = array( 'wp-block-button__link' );
+	$styles  = array();
+
+	$text                        = get_revue_attribute( 'text', $attributes );
+	$has_class_name              = array_key_exists( 'className', $attributes );
+	$has_named_text_color        = array_key_exists( 'textColor', $attributes );
+	$has_custom_text_color       = array_key_exists( 'customTextColor', $attributes );
+	$has_named_background_color  = array_key_exists( 'backgroundColor', $attributes );
+	$has_custom_background_color = array_key_exists( 'customBackgroundColor', $attributes );
+	$has_named_gradient          = array_key_exists( 'gradient', $attributes );
+	$has_custom_gradient         = array_key_exists( 'customGradient', $attributes );
+	$has_border_radius           = array_key_exists( 'borderRadius', $attributes );
+
+	if ( $has_class_name ) {
+		$classes[] = $attributes['className'];
+	}
+
+	if ( $has_named_text_color || $has_custom_text_color ) {
+		$classes[] = 'has-text-color';
+	}
+	if ( $has_named_text_color ) {
+		$classes[] = sprintf( 'has-%s-color', $attributes['textColor'] );
+	} elseif ( $has_custom_text_color ) {
+		$styles[] = sprintf( 'color: %s;', $attributes['customTextColor'] );
+	}
+
+	if (
+		$has_named_background_color ||
+		$has_custom_background_color ||
+		$has_named_gradient ||
+		$has_custom_gradient
+	) {
+		$classes[] = 'has-background';
+	}
+	if ( $has_named_background_color && ! $has_custom_gradient ) {
+		$classes[] = sprintf( 'has-%s-background-color', $attributes['backgroundColor'] );
+	}
+	if ( $has_named_gradient ) {
+		$classes[] = sprintf( 'has-%s-gradient-background', $attributes['gradient'] );
+	} elseif ( $has_custom_gradient ) {
+		$styles[] = sprintf( 'background: %s;', $attributes['customGradient'] );
+	}
+	if (
+		$has_custom_background_color &&
+		! $has_named_background_color &&
+		! $has_named_gradient &&
+		! $has_custom_gradient
+	) {
+		$styles[] = sprintf( 'background-color: %s;', $attributes['customBackgroundColor'] );
+	}
+
+	if ( $has_border_radius ) {
+		// phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
+		if ( 0 == $attributes['borderRadius'] ) {
+			$classes[] = 'no-border-radius';
+		} else {
+			$styles[] = sprintf( 'border-radius: %spx;', $attributes['borderRadius'] );
+		}
+	}
+
+	ob_start();
+	?>
+
+<div class="wp-block-button">
+	<button
+		class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>"
+		name="member[subscribe]"
+		style="<?php echo esc_attr( implode( ' ', $styles ) ); ?>"
+		type="submit"
+	>
+		<?php echo wp_kses_post( $text ); ?>
+	</button>
+</div>
+
+	<?php
+	return ob_get_clean();
 }
