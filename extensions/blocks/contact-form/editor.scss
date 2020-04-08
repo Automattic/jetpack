@@ -1,5 +1,11 @@
 @import '../../shared/styles/gutenberg-base-styles.scss';
 
+.wp-block-jetpack-contact-form {
+	.block-editor-block-variation-picker__variations {
+		flex-wrap: nowrap;
+	}
+}
+
 .jetpack-contact-form .components-placeholder {
 	padding: 24px;
 

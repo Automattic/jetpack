@@ -242,14 +242,8 @@ class JetpackContactFormEdit extends Component {
 	}
 
 	createBlocksFromInnerBlocksTemplate( innerBlocksTemplate ) {
-		const blocks = map(
-			innerBlocksTemplate,
-			( [ name, attributes, innerBlocks = [] ] ) =>
-				createBlock(
-					name,
-					attributes,
-					this.createBlocksFromInnerBlocksTemplate( innerBlocks )
-				)
+		const blocks = map( innerBlocksTemplate, ( [ name, attributes, innerBlocks = [] ] ) =>
+			createBlock( name, attributes, this.createBlocksFromInnerBlocksTemplate( innerBlocks ) )
 		);
 
 		return blocks;
@@ -275,29 +269,32 @@ class JetpackContactFormEdit extends Component {
 
 		if ( ! hasInnerBlocks && registerBlockVariation ) {
 			return (
-				<BlockVariationPicker
-					icon={ get( blockType, [ 'icon', 'src' ] ) }
-					label={ get( blockType, [ 'title' ] ) }
-					instructions={ __( "Please select which type of form you'd like to add, or you can create your own using the skip option.", 'jetpack' ) }
-					variations={ variations }
-					allowSkip
-					onSelect={ ( nextVariation = defaultVariation ) => {
-						if ( nextVariation.attributes ) {
-							setAttributes( nextVariation.attributes );
-						}
+				<div className={ formClassnames }>
+					<BlockVariationPicker
+						icon={ get( blockType, [ 'icon', 'src' ] ) }
+						label={ get( blockType, [ 'title' ] ) }
+						instructions={ __(
+							"Please select which type of form you'd like to add, or create your own using the skip option.",
+							'jetpack'
+						) }
+						variations={ variations }
+						allowSkip
+						onSelect={ ( nextVariation = defaultVariation ) => {
+							if ( nextVariation.attributes ) {
+								setAttributes( nextVariation.attributes );
+							}
 
-						if ( nextVariation.innerBlocks ) {
-							replaceInnerBlocks(
-								this.props.clientId,
-								this.createBlocksFromInnerBlocksTemplate(
-									nextVariation.innerBlocks
-								)
-							);
-						}
+							if ( nextVariation.innerBlocks ) {
+								replaceInnerBlocks(
+									this.props.clientId,
+									this.createBlocksFromInnerBlocksTemplate( nextVariation.innerBlocks )
+								);
+							}
 
-						selectBlock( this.props.clientId );
-					} }
-				/>
+							selectBlock( this.props.clientId );
+						} }
+					/>
+				</div>
 			);
 		}
 
@@ -312,9 +309,7 @@ class JetpackContactFormEdit extends Component {
 					</PanelBody>
 				</InspectorControls>
 				<div className={ formClassnames }>
-					<InnerBlocks
-						allowedBlocks={ ALLOWED_BLOCKS }
-					/>
+					<InnerBlocks allowedBlocks={ ALLOWED_BLOCKS } />
 					<SubmitButton { ...this.props } />
 				</div>
 			</>
@@ -324,16 +319,9 @@ class JetpackContactFormEdit extends Component {
 
 export default compose( [
 	withSelect( ( select, props ) => {
-		const {
-			getBlockType,
-			getBlockVariations,
-			getDefaultBlockVariation
-		} = select( 'core/blocks' );
+		const { getBlockType, getBlockVariations, getDefaultBlockVariation } = select( 'core/blocks' );
 		const { getBlocks } = select( 'core/block-editor' );
-		const {
-			replaceInnerBlocks,
-			selectBlock
-		 } = useDispatch( 'core/block-editor' );
+		const { replaceInnerBlocks, selectBlock } = useDispatch( 'core/block-editor' );
 		const innerBlocks = getBlocks( props.clientId );
 
 		return {

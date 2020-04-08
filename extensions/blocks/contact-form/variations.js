@@ -12,11 +12,14 @@ import renderMaterialIcon from '../../shared/render-material-icon';
 const variations = [
 	{
 		name: 'contact-form',
-		title: __( 'Contact Form' ),
+		title: __( 'Contact Form', 'jetpack' ),
 		description: __( 'Add a contact form to your page.', 'jetpack' ),
 		isDefault: true,
 		icon: renderMaterialIcon(
-			<Path d="M13 7.5h5v2h-5zm0 7h5v2h-5zM19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM11 6H6v5h5V6zm-1 4H7V7h3v3zm1 3H6v5h5v-5zm-1 4H7v-3h3v3z" />
+			<Path d="M21.99 8c0-.72-.37-1.35-.94-1.7l-8.04-4.71c-.62-.37-1.4-.37-2.02 0L2.95 6.3C2.38 6.65 2 7.28 2 8v10c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2l-.01-10zm-11.05 4.34l-7.2-4.5 7.25-4.25c.62-.37 1.4-.37 2.02 0l7.25 4.25-7.2 4.5c-.65.4-1.47.4-2.12 0z" />,
+			48,
+			48,
+			'-4 -4 32 32'
 		),
 		innerBlocks: [
 			[ 'jetpack/field-name', { required: true } ],
@@ -28,14 +31,15 @@ const variations = [
 			submitButtonText: __( 'Contact Us', 'jetpack' ),
 		},
 	},
-
-	// TODO: This is not yet a real variation.
 	{
 		name: 'rsvp-form',
-		title: __( 'RSVP Form' ),
+		title: __( 'RSVP Form', 'jetpack' ),
 		description: __( 'Add an RSVP form to your page', 'jetpack' ),
 		icon: renderMaterialIcon(
-			<Path d="M13 7.5h5v2h-5zm0 7h5v2h-5zM19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM11 6H6v5h5V6zm-1 4H7V7h3v3zm1 3H6v5h5v-5zm-1 4H7v-3h3v3z" />
+			<Path d="M10 9V7.41c0-.89-1.08-1.34-1.71-.71L3.7 11.29c-.39.39-.39 1.02 0 1.41l4.59 4.59c.63.63 1.71.19 1.71-.7V14.9c5 0 8.5 1.6 11 5.1-1-5-4-10-11-11z" />,
+			48,
+			48,
+			'-4 -3 32 32'
 		),
 		innerBlocks: [
 			[ 'jetpack/field-name', { required: true } ],
@@ -46,9 +50,82 @@ const variations = [
 			submitButtonText: __( 'Send RSVP', 'jetpack' ),
 		},
 	},
-
-	// TODO:
-	// Registration, Booking, Order, Feedback
+	{
+		name: 'registration-form',
+		title: __( 'Registration Form', 'jetpack' ),
+		description: __( 'Add a Registration form to your page', 'jetpack' ),
+		icon: renderMaterialIcon(
+			<Path d="M11.34 15.02c.39.39 1.02.39 1.41 0l6.36-6.36c.39-.39.39-1.02 0-1.41L14.16 2.3c-.38-.4-1.01-.4-1.4-.01L6.39 8.66c-.39.39-.39 1.02 0 1.41l4.95 4.95zm2.12-10.61L17 7.95l-4.95 4.95-3.54-3.54 4.95-4.95zm6.95 11l-2.12-2.12c-.18-.18-.44-.29-.7-.29h-.27l-2 2h1.91L19 17H5l1.78-2h2.05l-2-2h-.42c-.27 0-.52.11-.71.29l-2.12 2.12c-.37.38-.58.89-.58 1.42V20c0 1.1.9 2 2 2h14c1.1 0 2-.89 2-2v-3.17c0-.53-.21-1.04-.59-1.42z" />,
+			48,
+			48,
+			'-4 -3 32 32'
+		),
+		innerBlocks: [
+			[ 'jetpack/field-name', { required: true } ],
+			[ 'jetpack/field-email', { required: true } ],
+			[ 'jetpack/field-textarea', { label: __( 'RSVP Details', 'jetpack' ) } ],
+		],
+		attributes: {
+			submitButtonText: __( 'Send', 'jetpack' ),
+		},
+	},
+	{
+		name: 'appointment-form',
+		title: __( 'Appointment Form', 'jetpack' ),
+		description: __( 'Add an Appointment booking form to your page', 'jetpack' ),
+		icon: renderMaterialIcon(
+			<Path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V8c0-.55-.45-1-1-1s-1 .45-1 1v2H2c-.55 0-1 .45-1 1s.45 1 1 1h2v2c0 .55.45 1 1 1s1-.45 1-1v-2h2c.55 0 1-.45 1-1s-.45-1-1-1H6zm9 4c-2.67 0-8 1.34-8 4v1c0 .55.45 1 1 1h14c.55 0 1-.45 1-1v-1c0-2.66-5.33-4-8-4z" />,
+			48,
+			48,
+			'-4 -3 32 32'
+		),
+		innerBlocks: [
+			[ 'jetpack/field-name', { required: true } ],
+			[ 'jetpack/field-email', { required: true } ],
+			[ 'jetpack/field-textarea', { label: __( 'RSVP Details', 'jetpack' ) } ],
+		],
+		attributes: {
+			submitButtonText: __( 'Book Appointment', 'jetpack' ),
+		},
+	},
+	{
+		name: 'order-form',
+		title: __( 'Order Form', 'jetpack' ),
+		description: __( 'Add an Order form to your page', 'jetpack' ),
+		icon: renderMaterialIcon(
+			<Path d="M12 9c.55 0 1-.45 1-1V6h2c.55 0 1-.45 1-1s-.45-1-1-1h-2V2c0-.55-.45-1-1-1s-1 .45-1 1v2H9c-.55 0-1 .45-1 1s.45 1 1 1h2v2c0 .55.45 1 1 1zm-5 9c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2zm-8.9-5h7.45c.75 0 1.41-.41 1.75-1.03l3.38-6.13c.27-.48.09-1.09-.39-1.36-.48-.26-1.09-.09-1.35.39L15.55 11H8.53L4.54 2.57c-.16-.35-.52-.57-.9-.57H2c-.55 0-1 .45-1 1s.45 1 1 1h1l3.6 7.59-1.35 2.44C4.52 15.37 5.48 17 7 17h11c.55 0 1-.45 1-1s-.45-1-1-1H7l1.1-2z" />,
+			48,
+			48,
+			'-4 -5 32 32'
+		),
+		innerBlocks: [
+			[ 'jetpack/field-name', { required: true } ],
+			[ 'jetpack/field-email', { required: true } ],
+			[ 'jetpack/field-textarea', { label: __( 'RSVP Details', 'jetpack' ) } ],
+		],
+		attributes: {
+			submitButtonText: __( 'Send Order', 'jetpack' ),
+		},
+	},
+	{
+		name: 'feedback-form',
+		title: __( 'Feedback Form', 'jetpack' ),
+		description: __( 'Add a Feedback form to your page', 'jetpack' ),
+		icon: renderMaterialIcon(
+			<Path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.03 0 3.8-1.11 4.75-2.75.19-.33-.05-.75-.44-.75H7.69c-.38 0-.63.42-.44.75.95 1.64 2.72 2.75 4.75 2.75z" />,
+			48,
+			48,
+			'-4 -3 32 32'
+		),
+		innerBlocks: [
+			[ 'jetpack/field-name', { required: true } ],
+			[ 'jetpack/field-email', { required: true } ],
+			[ 'jetpack/field-textarea', { label: __( 'RSVP Details', 'jetpack' ) } ],
+		],
+		attributes: {
+			submitButtonText: __( 'Send Feedback', 'jetpack' ),
+		},
+	},
 ];
 
 export default variations;
