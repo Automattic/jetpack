@@ -28,7 +28,7 @@ export default function withErrorBoundary( WrappedComponent ) {
 					<section className="jetpack-podcast-player">
 						<p className="jetpack-podcast-player__error">
 							{ __(
-								'An unexpected error occured within the Podcast Player. Please reload the page.',
+								'An unexpected error occured within the Podcast Player. Reloading this page might fix the problem.',
 								'jetpack'
 							) }
 						</p>
