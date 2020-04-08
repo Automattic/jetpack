@@ -28,10 +28,8 @@ function autoloader( $class_name ) {
 	global $jetpack_packages_classmap;
 
 	if ( isset( $jetpack_packages_classmap[ $class_name ] ) ) {
-		if ( file_exists( $jetpack_packages_classmap[ $class_name ]['path'] ) ) {
-			require_once $jetpack_packages_classmap[ $class_name ]['path'];
-			return true;
-		}
+		require_once $jetpack_packages_classmap[ $class_name ]['path'];
+		return true;
 	}
 
 	return false;
