@@ -96,7 +96,7 @@ In order for WordPress to load the test site correctly, you'll need to access th
 - Optional but encouraged: use `make i18n` to update translatable strings and translations and create a new PR.
 - Checkout latest `master`
 - Tag the release with `make tag`
-- Build a new release locally with `make build`. The build will be `./build/wpcomsh.{vesion}.zip`
+- Build a new release locally with `make build`. The build will be `./build/wpcomsh.{version}.zip`
 - [Draft a new release](https://github.com/Automattic/wpcomsh/releases) and add the build as an asset. Note the build asset in this [example](https://github.com/Automattic/wpcomsh/releases/tag/v2.3.50).
 - Publish release
 - New version will be deployed when our monitoring detects it has been released.
