@@ -2,6 +2,7 @@
  * External dependencies
  */
 import React from 'react';
+import { withRouter } from 'react-router';
 import Card from 'components/card';
 
 /**
@@ -26,26 +27,28 @@ function handleLandingPageLinkClick( key, duration ) {
 	};
 }
 
-function handleUpgradeLinkClick( selectedUpgrade ) {
+function handleUpgradeLinkClick( selectedUpgrade, route ) {
 	return () => {
 		analytics.tracks.recordJetpackClick( {
 			target: `upgrade-${ selectedUpgrade.type }`,
 			type: 'upgrade',
 			product: selectedUpgrade.type,
 			// NOTE: This depends on React-Router's withRouter HOC
-			page: this.props.routes[ 0 ] && this.props.routes[ 0 ].name,
+			page: route,
 		} );
 	};
 }
 
-export default function SingleProductCard( props ) {
-	const { planDuration, product, isFetching, selectedUpgrade } = props;
+function SingleProductCard( props ) {
+	const { planDuration, product, isFetching, selectedUpgrade, routes } = props;
 
 	function handleSelectedTypeChange( key, type ) {
 		return () => {
 			props.setSelectedProduct( key, type );
 		};
 	}
+
+	const name = routes[ 0 ] && routes[ 0 ].name;
 
 	return isFetching ? (
 		<div className="plans-section__single-product-skeleton is-placeholder" />
@@ -95,10 +98,12 @@ export default function SingleProductCard( props ) {
 					potentialSavings={ selectedUpgrade.potentialSavings }
 				/>
 				<UpgradeButton
-					onClickHandler={ handleUpgradeLinkClick( selectedUpgrade ) }
+					onClickHandler={ handleUpgradeLinkClick( selectedUpgrade, name ) }
 					selectedUpgrade={ selectedUpgrade }
 				/>
 			</div>
 		</Card>
 	);
 }
+
+export default withRouter( SingleProductCard );
