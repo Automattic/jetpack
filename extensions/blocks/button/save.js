@@ -17,19 +17,25 @@ import {
  */
 import { IS_GRADIENT_AVAILABLE } from './constants';
 
-const ButtonSave = ( { attributes, blockName, uniqueId } ) => {
+// eslint-disable-next-line jsdoc/require-jsdoc
+export default function ButtonSave( { attributes, blockName, uniqueId } ) {
 	const {
 		backgroundColor,
 		borderRadius,
-		gradient,
-		text,
-		textColor,
-		url,
 		className,
 		customBackgroundColor,
 		customGradient,
 		customTextColor,
+		gradient,
+		saveInPostContent,
+		text,
+		textColor,
+		url,
 	} = attributes;
+
+	if ( ! saveInPostContent ) {
+		return null;
+	}
 
 	const backgroundClass = getColorClassName( 'background-color', backgroundColor );
 	const gradientClass = IS_GRADIENT_AVAILABLE ? getGradientClass( gradient ) : undefined;
@@ -72,6 +78,4 @@ const ButtonSave = ( { attributes, blockName, uniqueId } ) => {
 			/>
 		</div>
 	);
-};
-
-export default ButtonSave;
+}

@@ -4,6 +4,14 @@
 import colorValidator from '../../shared/colorValidator';
 
 export default {
+	element: {
+		type: 'string',
+		enum: [ 'a', 'button', 'input' ],
+	},
+	saveInPostContent: {
+		type: 'boolean',
+		default: false,
+	},
 	text: {
 		type: 'string',
 	},

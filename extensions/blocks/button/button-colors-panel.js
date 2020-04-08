@@ -13,7 +13,8 @@ import { __ } from '@wordpress/i18n';
  */
 import { IS_GRADIENT_AVAILABLE } from './constants';
 
-const ButtonColorsPanel = ( {
+// eslint-disable-next-line jsdoc/require-jsdoc
+export default function ButtonColorsPanel( {
 	backgroundColor,
 	fallbackBackgroundColor,
 	fallbackTextColor,
@@ -22,7 +23,7 @@ const ButtonColorsPanel = ( {
 	setGradient,
 	setTextColor,
 	textColor,
-} ) => {
+} ) {
 	const ButtonContrastChecker = (
 		<ContrastChecker
 			{ ...{
@@ -80,6 +81,4 @@ const ButtonColorsPanel = ( {
 			{ ButtonContrastChecker }
 		</PanelColorSettings>
 	);
-};
-
-export default ButtonColorsPanel;
+}
