@@ -8,6 +8,7 @@ import { assign, get, merge } from 'lodash';
  */
 import { JETPACK_SET_INITIAL_STATE, MOCK_SWITCH_USER_PERMISSIONS } from 'state/action-types';
 import { getPlanDuration } from 'state/plans/reducer';
+import { getSiteProducts } from 'state/site-products';
 
 export const initialState = ( state = window.Initial_State, action ) => {
 	switch ( action.type ) {
@@ -327,3 +328,48 @@ export const getUpgradeUrl = ( state, source, userId = '', planDuration = false 
 		( subsidiaryId ? `&subsidiaryId=${ subsidiaryId }` : '' )
 	);
 };
+
+/**
+ * Returns the list of products that are available for purchase.
+ *
+ * @param state
+ * @returns Array of Products that you can purchase.
+ */
+export function getProductsForPurchase( state ) {
+	const products = get( state.jetpack.initialState, 'products', [] );
+	return products.map( product => {
+		return {
+			title: product.title,
+			key: product.key,
+			shortDescription: product.short_description,
+			optionsLabel: product.options_label,
+			defaultOption: product.default_option,
+			options: getProductOptions( state, product ),
+			learnMore: product.learn_more,
+			learnMoreUrl: getUpgradeUrl( state, `aag-${ product.key }` ),
+			showPromotion: product.show_promotion,
+		};
+	} );
+}
+
+function getProductOptions( state, product ) {
+	const siteProducts = getSiteProducts( state );
+	return product.options.map( option => {
+		return {
+			name: option.name,
+			type: option.type,
+			key: option.key,
+			slug: option.slug,
+			description: option.description,
+			currencyCode: get( siteProducts, [ option.key, 'currency_code' ], '' ),
+			yearly: {
+				fullPrice: get( siteProducts, [ option.key, 'cost' ], '' ),
+				upgradeUrl: getUpgradeUrl( state, option.slug ),
+			},
+			monthly: {
+				fullPrice: get( siteProducts, [ `${ option.key }_monthly`, 'cost' ], '' ),
+				upgradeUrl: getUpgradeUrl( state, `${ option.slug }-monthly` ),
+			},
+		};
+	} );
+}

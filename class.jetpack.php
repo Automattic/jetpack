@@ -4803,7 +4803,7 @@ endif;
 			Constants::is_defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' )
 			&& include_once Constants::get_constant( 'JETPACK__GLOTPRESS_LOCALES_PATH' )
 		) {
-			$gp_locale = GP_Locales::by_field( 'wp_locale', get_locale() );
+			$gp_locale      = GP_Locales::by_field( 'wp_locale', get_locale() );
 			$args['locale'] = isset( $gp_locale ) && isset( $gp_locale->slug )
 				? $gp_locale->slug
 				: '';
@@ -6203,12 +6203,11 @@ endif;
 		if ( $idc_allowed && $sync_error && self::sync_idc_optin() ) {
 			$local_options = self::get_sync_error_idc_option();
 			// Ensure all values are set.
-			if ( isset( $sync_error['home'] ) && isset ( $local_options['home'] ) && isset( $sync_error['siteurl'] ) && isset( $local_options['siteurl'] ) ) {
+			if ( isset( $sync_error['home'] ) && isset( $local_options['home'] ) && isset( $sync_error['siteurl'] ) && isset( $local_options['siteurl'] ) ) {
 				if ( $sync_error['home'] === $local_options['home'] && $sync_error['siteurl'] === $local_options['siteurl'] ) {
 					$is_valid = true;
 				}
 			}
-
 		}
 
 		/**
@@ -6783,7 +6782,7 @@ endif;
 			// Check PHP version
 			if ( 'php-version' == $stat ) {
 				if ( version_compare( PHP_VERSION, JETPACK__MINIMUM_PHP_VERSION, '<' ) ) {
-					$caution[ $stat ] = $value . " - min supported is " . JETPACK__MINIMUM_PHP_VERSION;
+					$caution[ $stat ] = $value . ' - min supported is ' . JETPACK__MINIMUM_PHP_VERSION;
 					continue;
 				}
 			}
@@ -7321,5 +7320,76 @@ endif;
 			return false;
 		}
 		return true;
+	}
+
+	/**
+	 * Returns the list of products that we have available for purchase.
+	 */
+	public static function get_products_for_purchase() {
+		return array(
+			array(
+				'key'               => 'backup',
+				'title'             => 'Jetpack Backup',
+				'short_description' => 'Always-on backups ensure you never lose your site.',
+				'learn_more'        => 'Which backup option is best for me?',
+				'description'       => 'Always-on backups ensure you never lose your site. Your changes are saved as you edit and you have unlimited backup archives.',
+				'options_label'     => 'Select a backup option:',
+				'options'           => array(
+					array(
+						'type'        => 'daily',
+						'slug'        => 'jetpack-backup-daily',
+						'key'         => 'jetpack_backup_daily',
+						'name'        => 'Daily Backups',
+						'description' => 'Your data is being securely backed up daily.',
+					),
+					array(
+						'type'        => 'realtime',
+						'slug'        => 'jetpack-backup-realtime',
+						'key'         => 'jetpack_backup_realtime',
+						'name'        => 'Real-Time Backups',
+						'description' => 'Your data is being securely backed up as you edit.',
+					),
+				),
+				'default_option'    => 'realtime',
+				'show_promotion'    => true,
+			),
+			array(
+				'key'               => 'search',
+				'title'             => 'Jetpack Search',
+				'short_description' => 'Incredibly powerful and customizable, Jetpack Search helps your visitors instantly find the right content – right when they need it.',
+				'learn_more'        => 'Learn More',
+				'description'       => 'Incredibly powerful and customizable, Jetpack Search helps your visitors instantly find the right content – right when they need it.',
+				'options'           => array(
+					array(
+						'type'        => 'search',
+						'slug'        => 'jetpack-search',
+						'key'         => 'jetpack_search',
+						'name'        => 'Search',
+						'description' => 'Your data is being securely backed up daily.',
+					),
+				),
+				'tears'             => array(),
+				'default_option'    => 'search',
+				'show_promotion'    => false,
+			),
+			array(
+				'key'               => 'scan',
+				'title'             => 'Jetpack Scan',
+				'short_description' => 'Automatic scanning and one-click fixes keep your site one step ahead of security threats.',
+				'learn_more'        => 'Learn More',
+				'description'       => 'Automatic scanning and one-click fixes keep your site one step ahead of security threats.',
+				'show_promotion'    => true,
+				'options'           => array(
+					array(
+						'type'        => 'scan',
+						'slug'        => 'jetpack-scan',
+						'key'         => 'jetpack_scan',
+						'name'        => 'Scan',
+						'description' => '... ',
+					),
+				),
+				'default_option'    => 'scan',
+			),
+		);
 	}
 }

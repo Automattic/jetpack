@@ -11,7 +11,7 @@ import { get } from 'lodash';
  */
 import QuerySiteProducts from 'components/data/query-site-products';
 import { getPlanClass } from 'lib/plans/constants';
-import { getSiteRawUrl, isMultisite } from 'state/initial-state';
+import { getProductsForPurchase, getSiteRawUrl, isMultisite } from 'state/initial-state';
 import {
 	getActiveSitePurchases,
 	getAvailablePlans,
@@ -24,12 +24,14 @@ import { getPlanDuration } from 'state/plans/reducer';
 import PurchasedProductCard from './single-product-components/purchased-product-card';
 import SingleProductBackup from './single-product-backup';
 import SingleProductSearch from './single-product-search';
+import SingleProductCard from './single-product';
 import './single-products.scss';
 import DurationSwitcher from './duration-switcher';
 
 class ProductSelector extends Component {
 	state = {
 		selectedBackupType: 'real-time',
+		selectedProduct: {},
 	};
 
 	findPrioritizedPurchaseForBackup() {
@@ -58,6 +60,12 @@ class ProductSelector extends Component {
 
 	setSelectedBackupType = selectedBackupType => {
 		this.setState( { selectedBackupType } );
+	};
+
+	setSelectedProduct = ( key, type ) => {
+		const selectedProduct = this.state.selectedProduct;
+		selectedProduct[ key ] = type;
+		this.setState( { selectedProduct } );
 	};
 
 	renderTitleSection() {
@@ -113,6 +121,67 @@ class ProductSelector extends Component {
 		);
 	}
 
+	getProduct( key ) {
+		return this.props.productsForPurchase.find( product => product.key === key );
+	}
+
+	getSelectedType( key ) {
+		const product = this.getProduct( key );
+		return this.state.selectedProduct && this.state.selectedProduct[ key ]
+			? this.state.selectedProduct[ key ]
+			: product.defaultOption;
+	}
+
+	getProductOption( key, optionType ) {
+		const product = this.getProduct( key );
+		return product.options.find( option => option.type === optionType );
+	}
+
+	getOptionName( key, option ) {
+		return option.name;
+	}
+
+	getOptionPurchaseLink( key, option ) {
+		return option[ this.props.planDuration ] ? option[ this.props.planDuration ].upgradeUrl : null;
+	}
+
+	getSelectedUpgrade( key ) {
+		const type = this.getSelectedType( key );
+		const option = this.getProductOption( key, type );
+		const name = this.getOptionName( key, option );
+		const link = this.getOptionPurchaseLink( key, option );
+		const currencyCode = option.currencyCode;
+		const potentialSavings = option.monthly.fullPrice * 12 - option.yearly.fullPrice;
+		return {
+			link,
+			name,
+			type,
+			currencyCode,
+			potentialSavings,
+		};
+	}
+
+	renderProductsForPurchase() {
+		const { isFetchingData, productsForPurchase, planDuration } = this.props;
+
+		return (
+			<div className="plan-section__single-products">
+				{ productsForPurchase.map( function( product ) {
+					return (
+						<SingleProductCard
+							product={ product }
+							key={ product.key }
+							isFetching={ isFetchingData }
+							selectedUpgrade={ this.getSelectedUpgrade( product.key ) }
+							planDuration={ planDuration }
+							setSelectedProduct={ this.setSelectedProduct }
+						/>
+					);
+				}, this ) }
+			</div>
+		);
+	}
+
 	render() {
 		return (
 			<div className="product-selector">
@@ -123,6 +192,7 @@ class ProductSelector extends Component {
 					{ this.renderBackupProduct() }
 					{ this.renderSearchProduct() }
 				</div>
+				{ this.renderProductsForPurchase() }
 			</div>
 		);
 	}
@@ -131,6 +201,7 @@ class ProductSelector extends Component {
 export default connect( state => {
 	return {
 		activeSitePurchases: getActiveSitePurchases( state ),
+		productsForPurchase: getProductsForPurchase( state ),
 		isFetchingData:
 			isFetchingSiteData( state ) ||
 			! getAvailablePlans( state ) ||
