@@ -13,9 +13,7 @@ import {
 	ExternalLink,
 	withNotices,
 } from '@wordpress/components';
-import { BlockControls, BlockIcon } from '@wordpress/block-editor';
-import { withDispatch } from '@wordpress/data';
-import { compose } from '@wordpress/compose';
+import { BlockControls, BlockIcon, InnerBlocks } from '@wordpress/block-editor';
 
 /**
  * Internal dependencies
@@ -25,16 +23,10 @@ import { convertToLink, eventIdFromUrl } from './utils';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import { icon, URL_REGEX, EVENTBRITE_EXAMPLE_URL } from '.';
 import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
-import ModalButtonPreview from './modal-button-preview';
 import EventbriteInPageExample from './eventbrite-in-page-example.png';
 import BlockStylesSelector from '../../shared/components/block-styles-selector';
 import testEmbedUrl from '../../shared/test-embed-url';
 import './editor.scss';
-
-const MODAL_BUTTON_STYLES = [
-	{ name: 'fill', label: __( 'Fill', 'jetpack' ), isDefault: true },
-	{ name: 'outline', label: __( 'Outline', 'jetpack' ) },
-];
 
 class EventbriteEdit extends Component {
 	state = {
@@ -274,34 +266,35 @@ class EventbriteEdit extends Component {
 	 * @returns {object} The UI displayed when user edits this block.
 	 */
 	render() {
-		const { attributes, addModalButtonStyles, removeModalButtonStyles, isSelected } = this.props;
-		const { url, style } = attributes;
+		const { attributes } = this.props;
+		const { eventId, url, style, __isBlockPreview } = attributes;
 		const { editingUrl, isResolvingUrl } = this.state;
 
 		let component;
 
 		if ( isResolvingUrl ) {
-			removeModalButtonStyles();
 			component = this.renderLoading();
 		} else if ( editingUrl || ! url || this.cannotEmbed() ) {
-			removeModalButtonStyles();
 			component = this.renderEditEmbed();
 		} else {
-			// Don't add / remove button styles if blocks aren't selected
-			// For example in previews
-			if ( isSelected ) {
-				if ( style === 'modal' ) {
-					addModalButtonStyles();
-				} else {
-					removeModalButtonStyles();
-				}
-			}
-
 			component = (
 				<>
 					{ this.renderBlockControls() }
-					{ style === 'modal' ? (
-						<ModalButtonPreview { ...this.props } />
+					{ style === 'modal' && ! __isBlockPreview ? (
+						<InnerBlocks
+							template={ [
+								[
+									'jetpack/button',
+									{
+										element: 'a',
+										text: _x( 'Register', 'verb: e.g. register for an event.', 'jetpack' ),
+										uniqueId: `eventbrite-widget-${ eventId }`,
+										url,
+									},
+								],
+							] }
+							templateLock="all"
+						/>
 					) : (
 						this.renderInlinePreview()
 					) }
@@ -318,25 +311,4 @@ class EventbriteEdit extends Component {
 	}
 }
 
-export default compose(
-	withDispatch( ( dispatch, { name }, { select } ) => {
-		const { getBlockStyles } = select( 'core/blocks' );
-		const styles = getBlockStyles( name );
-		return {
-			addModalButtonStyles() {
-				if ( styles.length < 1 ) {
-					dispatch( 'core/blocks' ).addBlockStyles( name, MODAL_BUTTON_STYLES );
-				}
-			},
-			removeModalButtonStyles() {
-				if ( styles.length > 0 ) {
-					dispatch( 'core/blocks' ).removeBlockStyles(
-						name,
-						MODAL_BUTTON_STYLES.map( style => style.name )
-					);
-				}
-			},
-		};
-	} ),
-	withNotices
-)( EventbriteEdit );
+export default withNotices( EventbriteEdit );

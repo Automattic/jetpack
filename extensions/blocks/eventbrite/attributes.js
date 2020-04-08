@@ -16,24 +16,4 @@ export default {
 	style: {
 		type: 'string',
 	},
-	// Modal button attributes, used for Button & Modal embed type.
-	text: {
-		type: 'string',
-		default: _x( 'Register', 'verb: e.g. register for an event.', 'jetpack' ),
-	},
-	backgroundColor: {
-		type: 'string',
-	},
-	textColor: {
-		type: 'string',
-	},
-	customBackgroundColor: {
-		type: 'string',
-	},
-	customTextColor: {
-		type: 'string',
-	},
-	borderRadius: {
-		type: 'number',
-	},
 };
