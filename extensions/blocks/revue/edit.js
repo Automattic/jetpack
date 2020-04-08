@@ -16,7 +16,7 @@ import {
 	TextControl,
 } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -164,7 +164,15 @@ export default function RevueEdit( { attributes, className, setAttributes } ) {
 						/>
 					) }
 					<InnerBlocks
-						template={ [ [ 'jetpack/button', { element: 'button', text: 'Subscribe' } ] ] }
+						template={ [
+							[
+								'jetpack/button',
+								{
+									element: 'button',
+									text: _x( 'Subscribe', 'verb: e.g. subscribe to a newsletter.', 'jetpack' ),
+								},
+							],
+						] }
 						templateLock="all"
 					/>
 				</>
