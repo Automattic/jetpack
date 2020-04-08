@@ -106,16 +106,15 @@ function render_block( $attributes, $content ) {
 				</label>
 			</div>
 			<?php
-			endif;
+		endif;
 
-			// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
+		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
 		if ( strpos( 'wp-block-jetpack-revue__fallback', $content ) ) {
 			echo $content;
 		} else {
 			echo get_deprecated_v1_revue_button( $attributes );
 		}
-			// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
-
+		// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
 		?>
 	</form>
 	<div class="<?php echo esc_attr( $base_class . 'message' ); ?>">
