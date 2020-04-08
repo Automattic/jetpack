@@ -9,6 +9,7 @@ import { __, _x } from '@wordpress/i18n';
 import attributes from './attributes';
 import edit from './edit';
 import icon from './icon';
+import save from './save';
 import { supportsCollections } from '../../shared/block-category';
 
 export const name = 'revue';
@@ -29,14 +30,7 @@ export const settings = {
 	},
 	attributes,
 	edit,
-	save: ( { attributes: { revueUsername } } ) => {
-		const url = `https://www.getrevue.co/profile/${ revueUsername }`;
-		return (
-			<div>
-				<a href={ url }>{ url }</a>
-			</div>
-		);
-	},
+	save,
 	example: {
 		attributes: {
 			revueUsername: 'example',
