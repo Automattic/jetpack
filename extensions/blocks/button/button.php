@@ -163,7 +163,7 @@ function get_button_styles( $attributes ) {
 	}
 
 	// phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
-	if ( $has_border_radius && 0 != $attributes['buttonBorderRadius'] ) {
+	if ( $has_border_radius && 0 != $attributes['borderRadius'] ) {
 		$styles[] = sprintf( 'border-radius: %spx;', $attributes['borderRadius'] );
 	}
 
