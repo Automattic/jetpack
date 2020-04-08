@@ -6,7 +6,7 @@ import { isEqual } from 'lodash';
 /**
  * WordPress dependencies
  */
-import { BlockIcon, InspectorControls } from '@wordpress/block-editor';
+import { BlockIcon, InnerBlocks, InspectorControls } from '@wordpress/block-editor';
 import {
 	Button,
 	ToggleControl,
@@ -22,22 +22,20 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import defaultAttributes from './attributes';
-import ButtonPreview from './button-preview';
 import JetpackFieldLabel from '../contact-form/components/jetpack-field-label';
 import icon from './icon';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import './editor.scss';
 
-export default function RevueEdit( props ) {
-	const { attributes, className, setAttributes } = props;
-
+// eslint-disable-next-line jsdoc/require-jsdoc
+export default function RevueEdit( { attributes, className, setAttributes } ) {
 	useEffect( () => {
 		const validatedAttributes = getValidatedAttributes( defaultAttributes, attributes );
 		if ( ! isEqual( validatedAttributes, attributes ) ) {
 			setAttributes( validatedAttributes );
 		}
-	}, [ attributes ] );
+	}, [ attributes, setAttributes ] );
 
 	const {
 		revueUsername,
@@ -165,7 +163,10 @@ export default function RevueEdit( props ) {
 							value={ lastNamePlaceholder }
 						/>
 					) }
-					<ButtonPreview { ...props } />
+					<InnerBlocks
+						template={ [ [ 'jetpack/button', { element: 'button', text: 'Subscribe' } ] ] }
+						templateLock="all"
+					/>
 				</>
 			) }
 		</div>
