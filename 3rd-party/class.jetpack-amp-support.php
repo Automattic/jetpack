@@ -53,18 +53,8 @@ class Jetpack_AMP_Support {
 		// Sync the amp-options.
 		add_filter( 'jetpack_options_whitelist', array( 'Jetpack_AMP_Support', 'filter_jetpack_options_whitelist' ) );
 
-		// Show admin bar.
-		add_filter( 'show_admin_bar', array( 'Jetpack_AMP_Support', 'show_admin_bar' ) );
+		// Disable Comment Likes.
 		add_filter( 'jetpack_comment_likes_enabled', array( 'Jetpack_AMP_Support', 'comment_likes_enabled' ) );
-	}
-
-	/**
-	 * Disable the admin bar on AMP views.
-	 *
-	 * @param Whether bool $show the admin bar should be shown. Default false.
-	 */
-	public static function show_admin_bar( $show ) {
-		return $show && ! self::is_amp_request();
 	}
 
 	/**
