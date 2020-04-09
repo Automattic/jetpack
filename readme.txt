@@ -96,6 +96,14 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
+= 8.4.2 =
+
+* Release date: April 14, 2020
+
+**Bug Fixes**
+
+* Infinite Scroll: avoid breaking functionality on sites without any footer.
+
 = 8.4.1 =
 
 * Release date: April 7, 2020
