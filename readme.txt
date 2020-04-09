@@ -105,6 +105,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * General: avoid conflicts with other plugins interacting with the AMP plugin and the admin bar.
 * Infinite Scroll: avoid breaking functionality on sites without any footer.
 * Infinite Scroll: avoid any conflict that may cause some posts to be missing from Infinite Scroll load.
+* Site Health Tools: improve messaging to make translations easier.
 * Top Posts Widget: provide default for newly added parameter to avoid errors when using third-party plugins interacting with stats.
 
 = 8.4.1 =
