@@ -42,3 +42,34 @@
 		}
 	}
 }
+
+.wp-block-jetpack-instagram-gallery__placeholder {
+	animation-name: fadeIn, pulse;
+	animation-duration: 300ms, 1.6s;
+	animation-delay: 0ms, 300ms; /* add this */
+	animation-timing-function: ease-out, ease-out;
+	animation-iteration-count: 1, infinite;
+}
+
+@keyframes fadeIn {
+	0% {
+		opacity: 0;
+	}
+	50% {
+		opacity: 0.5;
+	}
+	100% {
+		opacity: 1;
+	}
+}
+@keyframes pulse {
+	0% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.5;
+	}
+	100% {
+		opacity: 1;
+	}
+}

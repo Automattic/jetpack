@@ -133,27 +133,6 @@ const InstagramGalleryEdit = props => {
 							<ImageTransition src={ image.url } attributes={ attributes } />
 						</span>
 					) ) }
-					{ isLoadingGallery && count > images.length && (
-						<Animate type="loading">
-							{ ( { className: animateClasses } ) =>
-								times( count - images.length, index => (
-									<span
-										className={ classnames(
-											'wp-block-jetpack-instagram-gallery__grid-post',
-											animateClasses
-										) }
-										key={ `instagram-gallery-placeholder-${ index }` }
-										style={ photoStyle }
-									>
-										<img
-											alt={ __( 'Instagram Gallery placeholder', 'jetpack' ) }
-											src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNMyc2tBwAEOgG/c94mJwAAAABJRU5ErkJggg=="
-										/>
-									</span>
-								) )
-							}
-						</Animate>
-					) }
 				</div>
 			) }
 

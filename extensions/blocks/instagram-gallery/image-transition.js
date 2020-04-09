@@ -1,101 +1,74 @@
 /**
- * External dependencies
- */
-import classnames from 'classnames';
-
-/**
  * WordPress dependencies
  */
 import { useEffect, useState, useRef } from '@wordpress/element';
-import { Animate } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
-export default function ImageTransition( {
-	src,
-	attributes
-} ) {
+/**
+ * Internal dependencies
+ */
+
+export default function ImageTransition( { src } ) {
 	const [ loaded, setLoaded ] = useState( false );
 	const [ size, setSize ] = useState( 'auto' );
-	const { columns, spacing } = attributes;
-	const transitionSpeed = '.3';
+
 	const img = useRef();
-	let componentMounted = false;
+
+	const transitionSpeed = '.5';
 
 	const onImageLoad = () => {
-		if ( componentMounted ) {
-			setLoaded( true );
-		}
+		setLoaded( true );
+		setSize( 'auto' );
 	};
 
 	useEffect( () => {
 		const imgSrc = src;
 		if ( imgSrc ) {
-			// First load image as a new window.Image and then update local state when it is loaded,
+			// First pre-load image as a new window.Image and then update local state when it is loaded,
 			// this lets us handle the fade in animation
 			const tmpImg = new window.Image();
 			tmpImg.src = imgSrc;
 			tmpImg.onload = onImageLoad;
-			componentMounted = true;
 		}
 		if ( img.current ) {
 			setSize( img.current.parentNode.getBoundingClientRect().width );
 		}
-	}, [ columns, spacing ] );
-
-	const imageLoadedStyle = {
-		opacity: '1',
-		height: size,
-		width: size,
-	};
-
-	const imageLoadedLoadingStyle = {
-		opacity: '0',
-	};
+	}, [] );
 
 	const imageStyle = {
 		opacity: '0',
-		height: '0',
-		width: '0',
-		position: 'absolute',
-		top: '0',
-		left: '0',
-		'z-index': '10',
+		transition: `opacity ${ transitionSpeed }s ease-in-out`,
 	};
 
-	imageStyle.transition = `opacity ${ transitionSpeed }s ease-in`;
-
-	const loadingStyle = {
+	const imageLoadedStyle = {
 		opacity: '1',
-		height: size,
-		width: size,
-		position: 'relative',
-		top: '0',
-		left: '0',
 	};
 
-	loadingStyle.transition = `opacity ${ transitionSpeed }s ease-out`;
+	const containerStyle = {
+		opacity: '1',
+		backgroundColor: '#A7A79F',
+		height: size,
+		display: 'block',
+	};
+
+	const containerLoadedStyle = {
+		height: 'auto',
+		animation: 'none',
+	};
 
 	return (
 		<>
-			<Animate type="loading">
-				{ ( { className: animateClasses } ) => (
-					<>
-						<span className={ classnames( animateClasses ) }>
-							<img
-								alt={ __( 'Instagram Gallery placeholder', 'jetpack' ) }
-								src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNMyc2tBwAEOgG/c94mJwAAAABJRU5ErkJggg=="
-								style={ loaded ? { ...loadingStyle, ...imageLoadedLoadingStyle } : loadingStyle }
-							/>
-						</span>
-						<img
-							ref={ img }
-							alt={ __( 'Instagram Gallery placeholder', 'jetpack' ) }
-							src={ src }
-							style={ loaded ? { ...imageStyle, ...imageLoadedStyle } : imageStyle }
-						/>
-					</>
-				) }
-			</Animate>
+			<span
+				style={ loaded ? { ...containerStyle, ...containerLoadedStyle } : containerStyle }
+				className="wp-block-jetpack-instagram-gallery__placeholder"
+			>
+				<img
+					ref={ img }
+					alt={ __( 'Instagram Gallery placeholder', 'jetpack' ) }
+					src={ src }
+					style={ loaded ? { ...imageStyle, ...imageLoadedStyle } : imageStyle }
+				/>
+			</span>
 		</>
 	);
 }
