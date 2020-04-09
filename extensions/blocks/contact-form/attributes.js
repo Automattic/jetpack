@@ -11,11 +11,10 @@ import colorValidator from '../../shared/colorValidator';
 export const defaultAttributes = {
 	subject: {
 		type: 'string',
-		default: '',
+		default: __( 'A new message from your website', 'jetpack' ),
 	},
 	to: {
 		type: 'string',
-		default: '',
 	},
 	submitButtonText: {
 		type: 'string',
