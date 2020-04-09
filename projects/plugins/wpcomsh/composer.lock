@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3428fcb6941d1472a240b865beb1f00f",
+    "content-hash": "c57514679d937b9af3c01862f9511bde",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -30,20 +30,21 @@
         },
         {
             "name": "automattic/custom-fonts",
-            "version": "v1.0.1",
+            "version": "v1.0.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/custom-fonts.git",
-                "reference": "2804fb54f39d8447365490d7a7cdf83b3679d358"
+                "reference": "e6a49fc62f51d4c234ebcef95ff82c1642061a23"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/custom-fonts/zipball/2804fb54f39d8447365490d7a7cdf83b3679d358",
-                "reference": "2804fb54f39d8447365490d7a7cdf83b3679d358",
+                "url": "https://api.github.com/repos/Automattic/custom-fonts/zipball/e6a49fc62f51d4c234ebcef95ff82c1642061a23",
+                "reference": "e6a49fc62f51d4c234ebcef95ff82c1642061a23",
                 "shasum": ""
             },
             "require-dev": {
-                "10up/wp_mock": "dev-master"
+                "10up/wp_mock": "0.4.2",
+                "phpunit/phpunit": "^7"
             },
             "type": "library",
             "autoload": {
@@ -51,7 +52,7 @@
                     "custom-fonts.php"
                 ]
             },
-            "time": "2017-06-12T21:39:47+00:00"
+            "time": "2020-04-09T12:13:27+00:00"
         },
         {
             "name": "automattic/custom-fonts-typekit",
@@ -143,28 +144,31 @@
         },
         {
             "name": "composer/installers",
-            "version": "v1.8.0",
+            "version": "v1.9.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/installers.git",
-                "reference": "7d610d50aae61ae7ed6675e58efeabdf279bb5e3"
+                "reference": "b93bcf0fa1fccb0b7d176b0967d969691cd74cca"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/installers/zipball/7d610d50aae61ae7ed6675e58efeabdf279bb5e3",
-                "reference": "7d610d50aae61ae7ed6675e58efeabdf279bb5e3",
+                "url": "https://api.github.com/repos/composer/installers/zipball/b93bcf0fa1fccb0b7d176b0967d969691cd74cca",
+                "reference": "b93bcf0fa1fccb0b7d176b0967d969691cd74cca",
                 "shasum": ""
             },
             "require": {
-                "composer-plugin-api": "^1.0"
+                "composer-plugin-api": "^1.0 || ^2.0"
             },
             "replace": {
                 "roundcube/plugin-installer": "*",
                 "shama/baton": "*"
             },
             "require-dev": {
-                "composer/composer": "1.0.*@dev",
-                "phpunit/phpunit": "^4.8.36"
+                "composer/composer": "1.6.* || 2.0.*@dev",
+                "composer/semver": "1.0.* || 2.0.*@dev",
+                "phpunit/phpunit": "^4.8.36",
+                "sebastian/comparator": "^1.2.4",
+                "symfony/process": "^2.3"
             },
             "type": "composer-plugin",
             "extra": {
@@ -263,7 +267,7 @@
                 "zend",
                 "zikula"
             ],
-            "time": "2020-02-07T10:39:20+00:00"
+            "time": "2020-04-07T06:57:05+00:00"
         },
         {
             "name": "wordpress/classic-editor-plugin",
