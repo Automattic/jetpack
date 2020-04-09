@@ -42,11 +42,13 @@ const DISABLED_JETPACK_MODULES_WHEN_PRIVATE = [
 	'wordads',
 ];
 
+/**
+ * This function was used when the feature was in testing. Currently we're trying it for a some WP.com users.
+ * Wpcomsh is not aware of any test groups so this function just says return true for now. Once the entire feature
+ * is ready to be rolled out to 100% of users, it's okay to completely remove this function and any checks.
+ */
 function is_module_active() {
-	// This feature is currently in testing. It's only enabled for sites which have privacy model
-	// explicitly set to private. This is technically the same as site_is_private function, but since
-	// the other implementation may change, it's safe to just have that copied over for now.
-	return defined( 'AT_PRIVACY_MODEL' ) && AT_PRIVACY_MODEL === 'wp_uploads';
+	return true;
 }
 
 function admin_init() {
