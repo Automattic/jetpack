@@ -21,7 +21,7 @@ import {
 	withNotices,
 } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 
 /**
@@ -64,18 +64,31 @@ const InstagramGalleryEdit = props => {
 				access_token: accessToken,
 				count,
 			} ),
-		} ).then( response => {
+		} ).then( ( { external_name: externalName, images: imageList } ) => {
 			setIsLoadingGallery( false );
 
-			if ( isEmpty( response.images ) ) {
+			if ( isEmpty( imageList ) ) {
 				noticeOperations.createErrorNotice(
 					__( 'No images were found in your Instagram account.', 'jetpack' )
 				);
 				return;
 			}
 
-			setAttributes( { instagramUser: response.external_name } );
-			setImages( response.images );
+			setAttributes( { instagramUser: externalName } );
+			if ( imageList.length < count ) {
+				noticeOperations.removeAllNotices();
+				noticeOperations.createNotice( {
+					status: 'warning',
+					content: __(
+						sprintf(
+							'There are currently only %s posts in your Instagram account',
+							imageList.length
+						),
+						'jetpack'
+					),
+				} );
+			}
+			setImages( imageList );
 		} );
 	}, [ accessToken, count, noticeOperations, setAttributes ] );
 
@@ -159,6 +172,12 @@ const InstagramGalleryEdit = props => {
 						</PanelRow>
 					</PanelBody>
 					<PanelBody title={ __( 'Gallery Settings', 'jetpack' ) }>
+						<div className="wp-block-jetpack-instagram-gallery__count-notice">{ noticeUI }</div>
+						{ isLoadingGallery && (
+							<div className="wp-block-jetpack-instagram-gallery__gallery-loading">
+								<Spinner />
+							</div>
+						) }
 						<RangeControl
 							label={ __( 'Number of Posts', 'jetpack' ) }
 							value={ count }
