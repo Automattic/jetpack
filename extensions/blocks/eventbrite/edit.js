@@ -267,7 +267,7 @@ class EventbriteEdit extends Component {
 	 */
 	render() {
 		const { attributes } = this.props;
-		const { eventId, url, style, __isBlockPreview } = attributes;
+		const { eventId, url, style } = attributes;
 		const { editingUrl, isResolvingUrl } = this.state;
 
 		let component;
@@ -280,7 +280,7 @@ class EventbriteEdit extends Component {
 			component = (
 				<>
 					{ this.renderBlockControls() }
-					{ style === 'modal' && ! __isBlockPreview ? (
+					{ style === 'modal' ? (
 						<InnerBlocks
 							template={ [
 								[

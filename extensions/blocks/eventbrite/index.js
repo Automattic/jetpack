@@ -79,6 +79,17 @@ export const settings = {
 			style: 'modal',
 			text: _x( 'Register', 'verb: e.g. register for an event.', 'jetpack' ),
 		},
+		innerBlocks: [
+			{
+				name: 'jetpack/button',
+				attributes: {
+					element: 'a',
+					text: _x( 'Register', 'verb: e.g. register for an event.', 'jetpack' ),
+					uniqueId: `eventbrite-widget-${ 123456789 }`,
+					url: EVENTBRITE_EXAMPLE_URL,
+				},
+			},
+		],
 	},
 	deprecated,
 };
