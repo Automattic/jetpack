@@ -22,6 +22,7 @@ import applyFallbackStyles from './apply-fallback-styles';
 import ButtonBorderPanel from './button-border-panel';
 import ButtonColorsPanel from './button-colors-panel';
 import { IS_GRADIENT_AVAILABLE } from './constants';
+import './editor.scss';
 
 const ButtonEdit = ( {
 	attributes,
