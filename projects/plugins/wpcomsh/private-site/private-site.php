@@ -87,6 +87,9 @@ function init() {
 		return;
 	}
 
+	// Update `wpcom_coming_soon` cached value when it's updated on WP.com
+	add_filter( 'rest_api_update_site_settings', '\Private_Site\cache_option_on_update_site_settings', 10, 2 );
+
 	if ( ! site_is_private() ) {
 		return;
 	}
@@ -96,9 +99,6 @@ function init() {
 
 	// Scrutinize REST API requests
 	add_filter( 'rest_dispatch_request', '\Private_Site\rest_dispatch_request', 10, 4 );
-
-	// Update `wpcom_coming_soon` cached value when it's updated on WP.com
-	add_filter( 'rest_api_update_site_settings', '\Private_Site\cache_option_on_update_site_settings', 10, 2 );
 
 	// Prevent Pinterest pinning
 	add_action( 'wp_head', '\Private_Site\private_no_pinning' );
