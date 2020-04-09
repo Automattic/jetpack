@@ -27,15 +27,11 @@ else
 	REPORT_DIR="docs/$BRANCH"
 fi
 
-ls -la $RESULTS_DIR
 
-allure generate --clean
-
-cp -a $RESULTS_DIR/. $REPORT_DIR
-ls -la $RESULTS_DIR
+allure generate --clean -o $REPORT_DIR
 
 git status
 
-git add allure-results docs
+git add $RESULTS_DIR docs
 git commit --message "Travis build: $TRAVIS_BUILD_NUMBER"
 git push
