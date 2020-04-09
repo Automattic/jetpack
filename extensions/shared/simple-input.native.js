@@ -5,18 +5,20 @@ import { PlainText } from '@wordpress/block-editor';
 import { View } from 'react-native';
 
 const simpleInput = ( type, props, label, view, onChange ) => {
-	const { isSelected } = props;
+	const { 
+		isSelected,
+		onFocus,
+	 } = props;
 	const value = props.attributes[ type ];
 	return (
 		<View>
-			{/* { ( isSelected || value === '' ) && ( */}
-				<PlainText
-					value={ value }
-					placeholder={ label }
-					aria-label={ label }
-					onChange={ onChange }
-				/>
-			{/* ) } */}
+			<PlainText
+				value={ value }
+				placeholder={ label }
+				aria-label={ label }
+				onChange={ onChange }
+				onFocus={ onFocus }
+			/>
 		</View>
 	);
 };
