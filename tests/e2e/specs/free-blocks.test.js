@@ -7,7 +7,7 @@ import { connectThroughWPAdminIfNeeded } from '../lib/flows/jetpack-connect';
 import { resetWordpressInstall, getNgrokSiteUrl } from '../lib/utils-helper';
 import PinterestBlock from '../lib/blocks/pinterest';
 import EventbriteBlock from '../lib/blocks/eventbrite';
-import { catchBeforeAll } from '../lib/jest.test.failure';
+import { catchBeforeAll } from '../lib/setup-env';
 import logger from '../lib/logger';
 
 describe( 'Free blocks', () => {

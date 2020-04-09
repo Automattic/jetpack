@@ -7,7 +7,7 @@ import PluginsPage from '../lib/pages/wp-admin/plugins';
 import DashboardPage from '../lib/pages/wp-admin/dashboard';
 import JetpackPage from '../lib/pages/wp-admin/jetpack';
 import { resetWordpressInstall, getNgrokSiteUrl } from '../lib/utils-helper';
-import { catchBeforeAll } from '../lib/jest.test.failure';
+import { catchBeforeAll } from '../lib/setup-env';
 
 describe( 'Jetpack connection', () => {
 	catchBeforeAll( async () => {
