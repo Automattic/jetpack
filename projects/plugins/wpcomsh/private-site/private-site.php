@@ -8,6 +8,7 @@
 namespace Private_Site;
 
 use Jetpack;
+use Jetpack_SSO_Helpers;
 use WP_Error;
 use WP_REST_Request;
 use function checked;
@@ -334,38 +335,32 @@ function get_closest_thumbnail_size_url( $args ) {
  * when Jetpack SSO module is disabled.
  */
 function get_read_access_cookies( $args ) {
-	if ( ! class_exists( '\Jetpack_SSO' ) ) {
-		$sso_path = Jetpack::init()->get_module_path( 'sso' );
-		include_once $sso_path;
+	[ $user_id, $expiration ] = $args;
+
+	$user = get_user_by( 'id', intval( $user_id ) );
+	if ( ! $user ) {
+		return new WP_Error( 'account_not_found',
+			'Account not found. If you already have an account, make sure you have connected to WordPress.com.' );
+	}
+	if ( ! $user->has_cap( 'read' ) ) {
+		return new WP_Error( 'access error', 'User does not have "read" capabilities' );
 	}
 
-	[ $_GET['user_id'], $_GET['sso_nonce'], $expiration ] = $args;
-	add_filter( 'jetpack_sso_require_two_step', '__return_false' );
 	add_filter( 'send_auth_cookies', '__return_false' );
-	add_filter( 'wp_redirect', '__return_false' );
 	add_filter( 'auth_cookie_expiration', function () use ( $expiration ) {
 		return $expiration;
 	}, 1000 );
-
-	$logged_in_cookie = null;
-	add_action( 'set_logged_in_cookie', function ( $_cookie ) use ( &$logged_in_cookie ) {
+	add_action( 'set_logged_in_cookie', function ( $_cookie, $expiration ) use ( &$logged_in_cookie, &$logged_in_cookie_expiration ) {
 		$logged_in_cookie = $_cookie;
-		// handle_login() calls exit instead of just returning, here we use Exceptions as
-		// a flow control mechanism to ensure that instead of exiting we actually have a
-		// chance to return value from this xmlrpc call.
-		throw new \Exception();
-	}, 10, 6 );
-	try {
-		\Jetpack_SSO::get_instance()->handle_login();
-	} catch ( \Exception $e ) {
-	}
-
+		$logged_in_cookie_expiration = $expiration;
+	}, 10, 2 );
+	wp_set_auth_cookie( $user->ID, true );
 	if ( ! $logged_in_cookie ) {
-		return new \WP_Error( 'Authentication failed' );
+		return new WP_Error( 'authorization_failed', 'Authorization cookie was not found' );
 	}
 
 	return [
-		[ LOGGED_IN_COOKIE, $logged_in_cookie ],
+		[ LOGGED_IN_COOKIE, $logged_in_cookie, $logged_in_cookie_expiration ],
 	];
 }
 
