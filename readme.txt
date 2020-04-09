@@ -102,6 +102,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug Fixes**
 
+* General: avoid conflicts with other plugins interacting with the AMP plugin and the admin bar.
 * Infinite Scroll: avoid breaking functionality on sites without any footer.
 
 = 8.4.1 =
