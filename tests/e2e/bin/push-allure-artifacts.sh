@@ -28,15 +28,11 @@ else
 fi
 
 ls -la $RESULTS_DIR
-ls -la $REPORT_DIR
-
-cp -R ../$RESULTS_DIR .
-
-ls -la $RESULTS_DIR
 
 allure generate
 
 cp -a $RESULTS_DIR/. $REPORT_DIR
+ls -la $RESULTS_DIR
 
 git status
 
