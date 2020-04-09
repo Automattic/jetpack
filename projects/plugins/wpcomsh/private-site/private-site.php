@@ -586,10 +586,41 @@ function is_jetpack_connected() {
 	return is_callable( 'Jetpack::is_active' ) && \Jetpack::is_active();
 }
 
+function is_site_preview() {
+	return site_preview_source() !== false;
+}
+
+function site_preview_source() {
+	$ua = isset( $_SERVER['HTTP_USER_AGENT'] ) ? $_SERVER['HTTP_USER_AGENT'] : "";
+	$apps_ua_fragments = [
+		'iphone-app' => " wp-iphone/",
+		'android-app' => " wp-android/",
+		'desktop-app' => " WordPressDesktop/",
+	];
+	foreach ( $apps_ua_fragments as $source => $fragment ) {
+		if ( strpos( $ua, $fragment ) !== false ) {
+			return $source;
+		}
+	}
+
+	if ( isset( $_GET['iframe'] ) && 'true' === $_GET['iframe'] && (
+			( isset( $_GET['theme_preview'] ) && 'true' === $_GET['theme_preview'] ) ||
+			( isset( $_GET['preview'] ) && 'true' === $_GET['preview'] )
+		) ) {
+		return "browser-iframe";
+	}
+
+	return false;
+}
+
 /**
  * Grabs a proper access denied template and returns it's path
  */
 function access_denied_template_path() {
+	if ( is_site_preview() ) {
+		return __DIR__ . '/access-denied-preview-login-template.php';
+	}
+
 	if ( site_is_coming_soon() ) {
 		return __DIR__ . '/access-denied-coming-soon-template.php';
 	} else {
