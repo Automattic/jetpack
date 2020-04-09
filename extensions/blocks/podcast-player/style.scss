@@ -256,8 +256,6 @@ $player-background: transparent;
 		}
 	}
 
-	.jetpack-podcast-player__track-status-icon--error {
-		fill: $text-color-error;
 	}
 
 	.jetpack-podcast-player__track-title {
@@ -289,6 +287,22 @@ $player-background: transparent;
 		& > span > a {
 			color: inherit;
 		}
+	}
+
+	.has-primary .jetpack-podcast-player__track-error {
+		color: currentColor;
+
+		& > span {
+			color: var( --jetpack-podcast-player-secondary );
+		}
+	}
+
+	.jetpack-podcast-player__track-status-icon--error {
+		fill: $text-color-error;
+	}
+
+	.has-primary .jetpack-podcast-player__track-status-icon--error {
+		fill: currentColor;
 	}
 
 	/**
