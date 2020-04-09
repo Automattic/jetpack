@@ -8,7 +8,6 @@
 namespace Private_Site;
 
 use Jetpack;
-use Jetpack_SSO_Helpers;
 use WP_Error;
 use WP_REST_Request;
 use function checked;
