@@ -19,7 +19,7 @@ git clone https://${USERNAME}:${GH_TEST_REPORT_TOKEN}@github.com/brbrr/$DIR.git
 
 cd $DIR
 
-cp -R ../$RESULTS_DIR ./$RESULTS_DIR
+cp -R ../$RESULTS_DIR .
 
 git add .
 git commit --message "Travis build: $TRAVIS_BUILD_NUMBER"
