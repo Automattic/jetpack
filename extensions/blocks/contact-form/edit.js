@@ -309,7 +309,7 @@ class JetpackContactFormEdit extends Component {
 					</PanelBody>
 				</InspectorControls>
 				<div className={ formClassnames }>
-					<InnerBlocks allowedBlocks={ ALLOWED_BLOCKS } />
+					<InnerBlocks allowedBlocks={ ALLOWED_BLOCKS } templateInsertUpdatesSelection={ false } />
 					<SubmitButton { ...this.props } />
 				</div>
 			</>
