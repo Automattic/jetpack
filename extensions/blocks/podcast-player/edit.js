@@ -215,6 +215,7 @@ const PodcastPlayerEdit = ( {
 				icon={ <BlockIcon icon={ queueMusic } /> }
 				label={ __( 'Podcast Player', 'jetpack' ) }
 				instructions={ __( 'Enter your podcast RSS feed URL.', 'jetpack' ) }
+				className={ 'jetpack-podcast-player__placeholder' }
 			>
 				<form onSubmit={ checkPodcastLink }>
 					{ noticeUI }
@@ -262,7 +263,7 @@ const PodcastPlayerEdit = ( {
 		);
 	}
 
-	const createColorChangeHandler = ( colorAttr, handler ) => ( color ) => {
+	const createColorChangeHandler = ( colorAttr, handler ) => color => {
 		setAttributes( { [ colorAttr ]: color } );
 		handler( color );
 	};
