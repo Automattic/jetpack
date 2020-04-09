@@ -29,7 +29,7 @@ fi
 
 ls -la $RESULTS_DIR
 
-allure generate
+allure generate --clean
 
 cp -a $RESULTS_DIR/. $REPORT_DIR
 ls -la $RESULTS_DIR
