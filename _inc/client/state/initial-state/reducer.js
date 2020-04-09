@@ -337,23 +337,27 @@ export const getUpgradeUrl = ( state, source, userId = '', planDuration = false 
  */
 export function getProductsForPurchase( state ) {
 	const products = get( state.jetpack.initialState, 'products', [] );
+	const siteProducts = getSiteProducts( state );
+
 	return products.map( product => {
+		const optionKey = product.options[ 0 ].key;
 		return {
 			title: product.title,
 			key: product.key,
 			shortDescription: product.short_description,
 			optionsLabel: product.options_label,
 			defaultOption: product.default_option,
-			options: getProductOptions( state, product ),
+			options: getProductOptions( state, product, siteProducts ),
 			learnMore: product.learn_more,
 			learnMoreUrl: getUpgradeUrl( state, `aag-${ product.key }` ),
 			showPromotion: product.show_promotion,
+			recordCount: get( siteProducts, [ optionKey, 'price_tier_usage_quantity' ], '0' ),
+			priceTierSlug: get( siteProducts, [ optionKey, 'price_tier_slug' ], null ),
 		};
 	} );
 }
 
-function getProductOptions( state, product ) {
-	const siteProducts = getSiteProducts( state );
+function getProductOptions( state, product, siteProducts ) {
 	return product.options.map( option => {
 		return {
 			name: option.name,

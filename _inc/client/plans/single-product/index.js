@@ -11,6 +11,7 @@ import Card from 'components/card';
 import ExternalLink from 'components/external-link';
 import PlanRadioButton from 'plans/single-product-components/plan-radio-button';
 import ProductSavings from 'plans/single-product-components/product-savings';
+import ProductOptionsLabel from 'plans/single-product-components/product-options-label';
 import UpgradeButton from 'plans/single-product-components/upgrade-button';
 import PromoNudge from 'plans/single-product-components/promo-nudge';
 import analytics from 'lib/analytics';
@@ -73,12 +74,13 @@ function SingleProductCard( props ) {
 				</div>
 
 				{ product.showPromotion && <PromoNudge /> }
-				<h4 className="single-product-backup__options-header">{ product.optionsLabel }</h4>
+				<ProductOptionsLabel product={ product } />
 
 				<div className="single-product-backup__radio-buttons-container">
 					{ product.options.map( option => {
 						return (
 							<PlanRadioButton
+								product={ product }
 								key={ option.type }
 								billingTimeFrame={ planDuration }
 								checked={ option.type === selectedUpgrade.type }
