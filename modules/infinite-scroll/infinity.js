@@ -151,11 +151,13 @@
 	 * Renders the results from a successful response.
 	 */
 	Scroller.prototype.render = function( response ) {
+		var childrenToAppend = Array.prototype.slice.call( response.fragment.childNodes );
 		this.body.classList.add( 'infinity-success' );
 
 		// Render the retrieved nodes.
-		for ( var i = 0; i < response.fragment.childNodes.length; i++ ) {
-			this.element.appendChild( response.fragment.childNodes[ i ] );
+		while ( childrenToAppend.length > 0 ) {
+			var currentNode = childrenToAppend.shift();
+			this.element.appendChild( currentNode );
 		}
 
 		this.trigger( this.body, 'is.post-load', {
