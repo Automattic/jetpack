@@ -78,6 +78,7 @@ matrix:
     if: branch !~ /(^branch-.*-built)/ AND env(RUN_E2E) = true AND fork = false
     before_script:
     # Enable user namespace cloning
+    - ./tests/e2e/bin/push-allure-artifacts
     - "sysctl kernel.unprivileged_userns_clone=1"
     - nvm install
     - yarn && yarn build-production
