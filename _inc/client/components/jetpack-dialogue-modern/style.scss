@@ -30,8 +30,8 @@ body.jp-dialogue-modern-showing {
 	box-shadow: 0 5px 24px 0 rgba( 0, 0, 0, 0.13);
 
 	p {
-		font-size: rem( 14px );
-		color: $gray-text-min;
+		font-size: rem( 16px );
+		color: #000000;
 		text-align: left;
 	}
 
@@ -44,6 +44,8 @@ body.jp-dialogue-modern-showing {
 		text-align: left;
 		list-style: disc outside none;
 		margin: rem(16px);
+		font-size: rem( 16px );
+		color: #000000;
 	}
 
 	p + img {
@@ -64,6 +66,10 @@ body.jp-dialogue-modern-showing {
 		figcaption {
 			text-align: center;
 		}
+	}
+
+	a {
+		text-decoration: underline;
 	}
 }
 

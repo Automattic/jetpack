@@ -3306,16 +3306,26 @@ p {
 	public static function send_update_modal_data() {
 		$post_data = self::get_release_post_data();
 
-		if ( ! isset( $post_data ) || ! isset( $post_data['posts'] ) || ! isset( $post_data['posts'][0] ) ) {
+		if ( ! isset( $post_data['posts'][0] ) ) {
 			return;
 		}
 
-		$post_content = isset( $post_data['posts'][0]['content'] ) ? $post_data['posts'][0]['content'] : null;
+		$post = $post_data['posts'][0];
+
+		$post_content = isset( $post['content'] ) ? $post['content'] : null;
 		if ( empty( $post_content ) ) {
 			return;
 		}
 
-		$post_thumbnail = isset( $post_data['posts'][0]['post_thumbnail'] ) ? $post_data['posts'][0]['post_thumbnail'] : null;
+		// This allows us to embed videopress videos into the release post.
+		add_filter( 'wp_kses_allowed_html', array( __CLASS__, 'allow_post_embed_iframe' ), 10, 2 );
+		$content = wp_kses_post( $post_content );
+		remove_filter( 'wp_kses_allowed_html', array( __CLASS__, 'allow_post_embed_iframe' ), 10, 2 );
+
+		$post_title = isset( $post['title'] ) ? $post['title'] : null;
+		$title      = wp_kses( $post_title, array() );
+
+		$post_thumbnail = isset( $post['post_thumbnail'] ) ? $post['post_thumbnail'] : null;
 		if ( ! empty( $post_thumbnail ) ) {
 			jetpack_require_lib( 'class.jetpack-photon-image' );
 			$photon_image = new Jetpack_Photon_Image(
@@ -3338,42 +3348,17 @@ p {
 			$post_thumbnail_url = null;
 		}
 
-		// this allows us to embed videopress videos into the release post.
-		add_filter( 'wp_kses_allowed_html', array( __CLASS__, 'allow_post_embed_iframe' ), 10, 2 );
-		$content = wp_kses_post( $post_content );
-		remove_filter( 'wp_kses_allowed_html', array( __CLASS__, 'allow_post_embed_iframe' ), 10, 2 );
-
-		// Bail if DOMDocument is disabled on the server.
-		if ( ! class_exists( 'DOMDocument' ) ) {
-			return;
-		}
-
-		// Remove the hidden elements from the modal content.
-		$dom_doc = new DOMDocument();
-
-		$old_libxml_disable_entity_loader = libxml_disable_entity_loader( true );
-		$old_libxml_use_internal_errors   = libxml_use_internal_errors( true );
-		@$dom_doc->loadHTML( '<?xml encoding="utf-8" ?>' . $content ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-		libxml_use_internal_errors( $old_libxml_use_internal_errors );
-		libxml_disable_entity_loader( $old_libxml_disable_entity_loader );
-
-		$selector = new DOMXPath( $dom_doc );
-		foreach ( $selector->query( '//*[contains(@class, "hide-in-jetpack")]' ) as $el ) {
-			$el->parentNode->removeChild( $el ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-		}
-
-		$modal_content = $dom_doc->saveHTML();
-
 		$post_array = array(
-			'release_post_content'        => $modal_content,
+			'release_post_content'        => $content,
 			'release_post_featured_image' => $post_thumbnail_url,
+			'release_post_title'          => $title,
 		);
 
 		self::state( 'message_content', $post_array );
 	}
 
 	/**
-	 * Allow temporarily allow post content to contain iframes, e.g. for videopress
+	 * Temporarily allow post content to contain iframes, e.g. for videopress.
 	 *
 	 * @param string $tags    The tags.
 	 * @param string $context The context.
@@ -3393,10 +3378,8 @@ p {
 	}
 
 	/**
-	 * Obtains the release post from the Jetpack.com blog. A release post will be displayed in the
-	 * update modal when these two tags are used on the post:
-	 * 1) the Jetpack version number
-	 * 2) show_update_modal
+	 * Obtains the release post from the Jetpack release post blog. A release post will be displayed in the
+	 * update modal when a post has a tag equal to the Jetpack version number.
 	 *
 	 * The response parameters for the post array can be found here:
 	 * https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/posts/%24post_ID/#apidoc-response

@@ -63,21 +63,26 @@ const UpgradeNoticeContent = withModuleSettingsFormHelpers(
 
 		render() {
 			const { featuredImage } = this.props;
-			let featuredImageComponent = null;
+			let featuredImageComponent = null,
+				{ title } = this.props;
 
 			if ( featuredImage && featuredImage.length > 0 ) {
 				featuredImageComponent = <img src={ featuredImage } alt={ '' } />;
 			}
 
+			if ( ! title || 0 === title.length ) {
+				title = __( 'New in Jetpack %(version)s', {
+					args: {
+						version: this.props.version,
+					},
+					comment: '%(version) is a version number.',
+				} );
+			}
+
 			return (
 				<ModernOverlay
 					svg={ featuredImageComponent }
-					title={ __( 'New in Jetpack %(version)s', {
-						args: {
-							version: this.props.version,
-						},
-						comment: '%(version) is a version number.',
-					} ) }
+					title={ title }
 					content={ this.renderInnerContent() }
 					dismiss={ this.dismissNotice }
 				/>

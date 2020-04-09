@@ -258,6 +258,7 @@ class JetpackStateNotices extends React.Component {
 					version={ this.props.currentVersion }
 					releasePostContent={ messageContent.release_post_content }
 					featuredImage={ messageContent.release_post_featured_image }
+					title={ messageContent.release_post_title }
 				/>
 			);
 		}
