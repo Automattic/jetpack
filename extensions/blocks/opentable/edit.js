@@ -61,11 +61,17 @@ function OpenTableEdit( {
 
 	useEffect( () => {
 		noticeOperations.removeAllNotices();
-		if ( ! isPlaceholder && ! __isBlockPreview && 'wide' === style && 'wide' !== align ) {
+		if (
+			! isPlaceholder &&
+			! __isBlockPreview &&
+			'wide' === style &&
+			'wide' !== align &&
+			'full' !== align
+		) {
 			const content = (
 				<>
 					{ __(
-						'With the OpenTable block you may encounter display issues if you use its "wide" style with anything other than "wide" alignment',
+						'With the OpenTable block you may encounter display issues if you use its "wide" style with anything other than "wide" or "full" alignment. The wide display style may also not work well on smaller screens.',
 						'jetpack'
 					) }
 				</>
