@@ -91,6 +91,12 @@ class JetpackContactFormEdit extends Component {
 	}
 
 	onBlurTo( event ) {
+		if ( event.target.value.length === 0 ) {
+			this.setState( { toError: null } );
+			this.props.setAttributes( { to: this.props.adminEmail } );
+			return;
+		}
+
 		const error = event.target.value
 			.split( ',' )
 			.map( this.getToValidationError )
@@ -102,15 +108,8 @@ class JetpackContactFormEdit extends Component {
 	}
 
 	onChangeTo( to ) {
-		const emails = to.trim();
-		if ( emails.length === 0 ) {
-			this.setState( { toError: null } );
-			this.props.setAttributes( { to } );
-			return;
-		}
-
 		this.setState( { toError: null } );
-		this.props.setAttributes( { to } );
+		this.props.setAttributes( { to: to.trim() } );
 	}
 
 	onChangeSubmit( submitButtonText ) {
@@ -162,6 +161,8 @@ class JetpackContactFormEdit extends Component {
 		const fieldEmailError = this.state.toError;
 		const { instanceId, attributes } = this.props;
 		const { subject, to } = attributes;
+		const email = to !== undefined ? to : this.props.adminEmail;
+
 		return (
 			<>
 				<TextControl
@@ -171,7 +172,7 @@ class JetpackContactFormEdit extends Component {
 					label={ __( 'Email address to send to', 'jetpack' ) }
 					placeholder={ __( 'name@example.com', 'jetpack' ) }
 					onKeyDown={ this.preventEnterSubmittion }
-					value={ to }
+					value={ email }
 					onBlur={ this.onBlurTo }
 					onChange={ this.onChangeTo }
 					help={ __( 'You can enter multiple email addresses separated by commas.', 'jetpack' ) }
@@ -183,7 +184,7 @@ class JetpackContactFormEdit extends Component {
 				<TextControl
 					label={ __( 'Email subject line', 'jetpack' ) }
 					value={ subject }
-					placeholder={ __( "Let's work together", 'jetpack' ) }
+					placeholder={ __( 'Enter a subject', 'jetpack' ) }
 					onChange={ this.onChangeSubject }
 					help={ __(
 						'Choose a subject line that you recognize as an email from your website.',
@@ -321,6 +322,7 @@ export default compose( [
 	withSelect( ( select, props ) => {
 		const { getBlockType, getBlockVariations, getDefaultBlockVariation } = select( 'core/blocks' );
 		const { getBlocks } = select( 'core/block-editor' );
+		const { getSite } = select( 'core' );
 		const { replaceInnerBlocks, selectBlock } = useDispatch( 'core/block-editor' );
 		const innerBlocks = getBlocks( props.clientId );
 
@@ -333,6 +335,8 @@ export default compose( [
 			hasInnerBlocks: select( 'core/block-editor' ).getBlocks( props.clientId ).length > 0,
 			replaceInnerBlocks,
 			selectBlock,
+
+			adminEmail: get( getSite(), [ 'email' ] ),
 		};
 	} ),
 	withInstanceId,

@@ -55,6 +55,7 @@ const variations = [
 		],
 		attributes: {
 			submitButtonText: __( 'Send RSVP', 'jetpack' ),
+			subject: __( 'A new RSVP from your website', 'jetpack' ),
 		},
 	},
 	{
@@ -82,6 +83,7 @@ const variations = [
 		],
 		attributes: {
 			submitButtonText: __( 'Send', 'jetpack' ),
+			subject: __( 'A new registration from your website', 'jetpack' ),
 		},
 	},
 	{
@@ -111,6 +113,7 @@ const variations = [
 		],
 		attributes: {
 			submitButtonText: __( 'Book Appointment', 'jetpack' ),
+			subject: __( 'A new appointment booked from your website', 'jetpack' ),
 		},
 	},
 	{
@@ -138,6 +141,7 @@ const variations = [
 		],
 		attributes: {
 			submitButtonText: __( 'Send Feedback', 'jetpack' ),
+			subject: __( 'New feedback received from your website', 'jetpack' ),
 		},
 	},
 ];
