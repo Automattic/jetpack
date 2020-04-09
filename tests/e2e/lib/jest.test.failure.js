@@ -19,6 +19,10 @@ const { CI, E2E_DEBUG, E2E_LOG_HTML } = process.env;
 
 export const defaultErrorHandler = async ( error, name ) => {
 	// If running tests in CI
+
+	const screenshotBuffer = await page.screenshot();
+	reporter.addAttachment( 'Screenshot', screenshotBuffer, 'image/png' );
+
 	if ( CI ) {
 		const filePath = await takeScreenshot( currentBlock, name );
 		await sendFailedTestMessageToSlack( { block: currentBlock, name, error } );
