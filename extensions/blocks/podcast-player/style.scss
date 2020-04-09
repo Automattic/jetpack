@@ -218,7 +218,7 @@ $player-background: transparent;
 		display: flex;
 		flex-flow: row nowrap;
 		justify-content: space-between;
-		// Adjustments on left padding to account for SVG sound icon spacing 
+		// Adjustments on left padding to account for SVG sound icon spacing
 		padding: $track-h-padding $player-grid-spacing $track-h-padding $player-grid-spacing - 2px;
 		transition: none;
 		color: inherit;
@@ -326,7 +326,7 @@ $player-background: transparent;
 		* Magic numbers are due to needing to line-up the player spacing with buttons
 		* and fixed widths inside of the mediaplayer.
 		*/
-		padding: 0 ($player-grid-spacing - 6px) 0 ($player-grid-spacing - 9px);
+		padding: 0 ( $player-grid-spacing - 6px ) 0 ( $player-grid-spacing - 9px );
 	}
 
 	.mejs-time,
