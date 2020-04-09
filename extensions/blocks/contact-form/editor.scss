@@ -1,8 +1,19 @@
 @import '../../shared/styles/gutenberg-base-styles.scss';
 
 .wp-block-jetpack-contact-form {
-	.block-editor-block-variation-picker__variations {
-		flex-wrap: nowrap;
+	.block-editor-block-variation-picker__variations > li {
+		max-width: none;
+		width: 85px;
+		margin-right: 15px;
+
+		.block-editor-block-variation-picker__variation {
+			padding: 17px;
+			margin-right: 0;
+		}
+
+		.block-editor-block-variation-picker__variation-label {
+			margin-right: 0;
+		}
 	}
 }
 
