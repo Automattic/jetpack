@@ -19,7 +19,15 @@ git clone https://${USERNAME}:${GH_TEST_REPORT_TOKEN}@github.com/brbrr/$DIR.git
 
 cd $DIR
 
+ls -la $RESULTS_DIR
+
 cp -R ../$RESULTS_DIR .
+
+ls -la $RESULTS_DIR
+
+allure generate
+
+git status
 
 git add .
 git commit --message "Travis build: $TRAVIS_BUILD_NUMBER"

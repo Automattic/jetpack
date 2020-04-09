@@ -86,6 +86,9 @@ matrix:
     script:
     - yarn test-e2e --runInBand --verbose
     after_script:
+    - sudo apt-add-repository -y ppa:qameta/allure
+    - sudo apt-get update
+    - sudo apt-get -y install allure
     - ./tests/e2e/bin/push-allure-artifacts.sh
     addons:
       apt:
