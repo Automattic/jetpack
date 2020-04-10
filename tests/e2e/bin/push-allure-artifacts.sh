@@ -27,6 +27,11 @@ fi
 
 git clone https://${USERNAME}:${GH_TEST_REPORT_TOKEN}@github.com/$ORG/$REPO.git
 
+# mkdir -p $REPO_DIR/$REPORT_DIR/$RESULTS_DIR
+
+# allure generate -o $REPO_DIR/$REPORT_DIR
+
+
 ls -la $ROOT_DIR/$RESULTS_DIR
 
 mkdir -p $REPO_DIR/$REPORT_DIR/$RESULTS_DIR
@@ -37,7 +42,7 @@ ls -la $REPO_DIR/$REPORT_DIR/$RESULTS_DIR
 
 cd $REPO_DIR/$REPORT_DIR
 
-allure generate --clean -o .
+allure generate -o .
 
 ls -la $REPO_DIR/$REPORT_DIR
 
