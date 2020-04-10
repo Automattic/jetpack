@@ -11,6 +11,10 @@ import {
 	SelectControl,
 	TextareaControl,
 	TextControl,
+	ToolbarGroup,
+	Button,
+	Dropdown,
+	Icon,
 } from '@wordpress/components';
 import { Component } from '@wordpress/element';
 import { compose, withInstanceId } from '@wordpress/compose';
@@ -19,9 +23,11 @@ import {
 	InspectorControls,
 	URLInput,
 	__experimentalBlockVariationPicker as BlockVariationPicker,
+	BlockControls,
 } from '@wordpress/block-editor';
 import { createBlock, registerBlockVariation } from '@wordpress/blocks';
 import { useDispatch, withSelect } from '@wordpress/data';
+import { DOWN } from '@wordpress/keycodes';
 
 /**
  * Internal dependencies
@@ -301,6 +307,38 @@ class JetpackContactFormEdit extends Component {
 
 		return (
 			<>
+				<BlockControls>
+					<ToolbarGroup>
+						<Dropdown
+							position="bottom right"
+							className="block-library-colors-selector"
+							contentClassName="block-library-colors-selector__popover"
+							renderToggle={ ( { isOpen, onToggle } ) => {
+								const openOnArrowDown = event => {
+									if ( ! isOpen && event.keyCode === DOWN ) {
+										event.preventDefault();
+										event.stopPropagation();
+										onToggle();
+									}
+								};
+
+								return (
+									<Button
+										className="components-toolbar__control block-library-colors-selector__toggle"
+										label={ __( 'Open Colors Selector' ) }
+										onClick={ onToggle }
+										onKeyDown={ openOnArrowDown }
+										icon={ <Icon icon="edit" /> }
+									/>
+								);
+							} }
+							renderContent={ () => {
+								return this.renderToAndSubjectFields();
+							} }
+						/>
+					</ToolbarGroup>
+				</BlockControls>
+
 				<InspectorControls>
 					<PanelBody title={ __( 'Email Feedback Settings', 'jetpack' ) }>
 						{ this.renderToAndSubjectFields() }
@@ -309,6 +347,7 @@ class JetpackContactFormEdit extends Component {
 						{ this.renderConfirmationMessageFields() }
 					</PanelBody>
 				</InspectorControls>
+
 				<div className={ formClassnames }>
 					<InnerBlocks allowedBlocks={ ALLOWED_BLOCKS } templateInsertUpdatesSelection={ false } />
 					<SubmitButton { ...this.props } />
