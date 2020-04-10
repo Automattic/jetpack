@@ -66,7 +66,7 @@ class JetpackContactFormEdit extends Component {
 		this.onChangeSubmit = this.onChangeSubmit.bind( this );
 		this.onFormSettingsSet = this.onFormSettingsSet.bind( this );
 		this.getToValidationError = this.getToValidationError.bind( this );
-		this.renderToAndSubjectFields = this.renderToAndSubjectFields.bind( this );
+		this.renderFormSettings = this.renderFormSettings.bind( this );
 		this.preventEnterSubmittion = this.preventEnterSubmittion.bind( this );
 		this.hasEmailError = this.hasEmailError.bind( this );
 
@@ -163,11 +163,12 @@ class JetpackContactFormEdit extends Component {
 		}
 	}
 
-	renderToAndSubjectFields() {
+	renderFormSettings() {
 		const fieldEmailError = this.state.toError;
 		const { instanceId, attributes } = this.props;
 		const { subject, to } = attributes;
 		const email = to !== undefined ? to : this.props.adminEmail;
+		const { customThankyou, customThankyouMessage, customThankyouRedirect } = this.props.attributes;
 
 		return (
 			<>
@@ -197,15 +198,7 @@ class JetpackContactFormEdit extends Component {
 						'jetpack'
 					) }
 				/>
-			</>
-		);
-	}
 
-	renderConfirmationMessageFields() {
-		const { instanceId } = this.props;
-		const { customThankyou, customThankyouMessage, customThankyouRedirect } = this.props.attributes;
-		return (
-			<>
 				<SelectControl
 					label={ __( 'On Submission', 'jetpack' ) }
 					value={ customThankyou }
@@ -333,18 +326,15 @@ class JetpackContactFormEdit extends Component {
 								);
 							} }
 							renderContent={ () => {
-								return this.renderToAndSubjectFields();
+								return this.renderFormSettings();
 							} }
 						/>
 					</ToolbarGroup>
 				</BlockControls>
 
 				<InspectorControls>
-					<PanelBody title={ __( 'Email Feedback Settings', 'jetpack' ) }>
-						{ this.renderToAndSubjectFields() }
-					</PanelBody>
-					<PanelBody title={ __( 'Confirmation Message', 'jetpack' ) }>
-						{ this.renderConfirmationMessageFields() }
+					<PanelBody title={ __( 'Form Settings', 'jetpack' ) }>
+						{ this.renderFormSettings() }
 					</PanelBody>
 				</InspectorControls>
 
