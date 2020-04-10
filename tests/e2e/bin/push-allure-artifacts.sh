@@ -5,7 +5,8 @@ set -ex
 
 ORG="brbrr"
 REPO="test-dashboard-pages"
-
+ROOT_DIR=$(pwd)
+REPO_DIR=$ROOT_DIR/$REPO
 RESULTS_DIR="allure-results"
 USERNAME="jetpackbot"
 
@@ -26,11 +27,15 @@ fi
 
 git clone https://${USERNAME}:${GH_TEST_REPORT_TOKEN}@github.com/$ORG/$REPO.git
 
-allure generate --clean -o $REPO/$REPORT_DIR
-
 cp -R $RESULTS_DIR $REPO/$REPORT_DIR
 
-cd $REPO
+cd $REPO_DIR/$REPORT_DIR
+
+allure generate --clean -o .
+
+ls -la
+
+cd $REPO_DIR
 
 git status
 
