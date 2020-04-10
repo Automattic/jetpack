@@ -163,7 +163,7 @@ class ProStatus extends React.Component {
 				onClick={ handleClickForTracking( 'set_up', feature ) }
 				compact={ true }
 				primary={ true }
-				href={ getRedirectUrl( 'jetpack-plugins-setup', {
+				href={ getRedirectUrl( 'calypso-plugins-setup', {
 					site: this.props.siteRawUrl,
 					query: 'only=' + feature,
 				} ) }
