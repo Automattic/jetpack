@@ -230,10 +230,7 @@ function CalendlyEdit( props ) {
 			) }
 			<InspectorControls>
 				<PanelBody title={ __( 'Calendar Settings', 'jetpack' ) } initialOpen={ false }>
-					<form
-						onSubmit={ parseEmbedCode }
-						className={ `${ defaultClassName }-embed-form-sidebar` }
-					>
+					<form onSubmit={ parseEmbedCode } className={ `${ defaultClassName }-embed-form-sidebar` }>
 						<input
 							type="text"
 							id="embedCode"
