@@ -259,7 +259,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 				<label for="<?php echo esc_attr( $this->get_field_id( 'showmap' ) ); ?>"><?php esc_html_e( 'Show map', 'jetpack' ); ?></label>
 			</p>
 
-			<?php if ( ! has_filter( 'jetpack_google_maps_api_key' ) ) { ?>
+			<?php if ( ! has_filter( 'jetpack_google_maps_api_key' ) || $apikey === $instance['apikey'] ) { ?>
 
 			<p class="jp-contact-info-admin-map" style="<?php echo $instance['showmap'] ? '' : 'display: none;'; ?>">
 				<label for="<?php echo esc_attr( $this->get_field_id( 'apikey' ) ); ?>">
