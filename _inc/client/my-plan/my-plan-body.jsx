@@ -405,7 +405,7 @@ class MyPlanBody extends React.Component {
 										{ this.props.isModuleActivated( 'wordads' ) ? (
 											<Button
 												onClick={ this.handleButtonClickForTracking( 'view_earnings' ) }
-												href={ getRedirectUrl( 'calypso-ads-earnings', {
+												href={ getRedirectUrl( 'wpcom-ads-earnings', {
 													site: this.props.siteRawUrl,
 												} ) }
 											>
