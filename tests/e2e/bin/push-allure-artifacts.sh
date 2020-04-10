@@ -29,6 +29,8 @@ git clone https://${USERNAME}:${GH_TEST_REPORT_TOKEN}@github.com/$ORG/$REPO.git
 
 ls -la $RESULTS_DIR
 
+mkdir -p $REPO/$REPORT_DIR/$RESULTS_DIR
+
 cp -a $RESULTS_DIR/. $REPO/$REPORT_DIR/$RESULTS_DIR
 
 cd $REPO_DIR/$REPORT_DIR
