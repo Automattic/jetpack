@@ -225,7 +225,7 @@ class Jetpack_Debugger {
 								__( 'Would you like to use Jetpack on your local development site? You can do so thanks to <a href="%s">Jetpack\'s development mode</a>.', 'jetpack' ),
 								array( 'a' => array( 'href' => array() ) )
 							),
-							esc_url( Redirect::get_url( 'support-development-mode' ) )
+							esc_url( Redirect::get_url( 'jetpack-support-development-mode' ) )
 						);
 						?>
 							</p>
