@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# see https://github.com/wp-cli/wp-cli/blob/master/templates/install-wp-tests.sh
 
 set -ex
 
@@ -52,11 +51,17 @@ if [ "$ARTIFACT" = "master" ]; then
 	cp -a master/. ./
 fi
 
-# Push the changes
 cd $REPO_DIR
 
+# Push the changes
 git status
-
 git add .
-git commit --message "Travis build: $TRAVIS_BUILD_NUMBER"
+git commit --message "Build for $ARTIFACT. Travis build# $TRAVIS_BUILD_NUMBER."
 git push
+
+# TODO move it before push, once it we can confirm it's doing the right thing
+# Remove folders older then 30 days
+# find . -type d -mtime +30 -maxdepth 1 | xargs rm -rf
+find . -type d -mtime +30 -maxdepth 1
+find ./docs -type d -mtime +30 -maxdepth 1
+
