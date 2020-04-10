@@ -113,10 +113,8 @@
 	}
 
 	&:focus {
-		border: 1px solid #e3e5e8;
-		padding: 2px 4px;
 		box-shadow: none;
-		background: #fff;
+		outline: none;
 	}
 }
 
