@@ -26,7 +26,6 @@ export class PodcastPlayer extends Component {
 	state = {
 		playerState: STATE_PAUSED,
 		currentTrack: 0,
-		hasUserInteraction: false,
 	};
 
 	playerRef = player => {
@@ -35,17 +34,6 @@ export class PodcastPlayer extends Component {
 		this.pause = player ? player.pause : noop;
 		this.togglePlayPause = player ? player.togglePlayPause : noop;
 		this.setAudioSource = player ? player.setAudioSource : noop;
-	};
-
-	/**
-	 * Record the user has interacted with the player.
-	 *
-	 * @private
-	 */
-	recordUserInteraction = () => {
-		if ( ! this.state.hasUserInteraction ) {
-			this.setState( { hasUserInteraction: true } );
-		}
 	};
 
 	/**
@@ -59,7 +47,6 @@ export class PodcastPlayer extends Component {
 
 		// Current track already selected.
 		if ( currentTrack === track ) {
-			this.recordUserInteraction();
 			this.togglePlayPause();
 			return;
 		}
@@ -80,9 +67,6 @@ export class PodcastPlayer extends Component {
 	 * @param {number} track - The track number
 	 */
 	loadAndPlay = track => {
-		// Record that user has interacted.
-		this.recordUserInteraction();
-
 		const trackData = this.getTrack( track );
 		if ( ! trackData ) {
 			return;
@@ -121,17 +105,9 @@ export class PodcastPlayer extends Component {
 	 *
 	 * @private
 	 */
-	handleError = error => {
-		// If an error happens before any user interaction, our player is broken beyond repair.
-		if ( ! this.state.hasUserInteraction ) {
-			// setState wrapper makes sure our ErrorBoundary handles the error.
-			this.setState( () => {
-				throw new Error( error );
-			} );
-		}
-
-		// Otherwise, let's just mark the episode as broken.
+	handleError = () => {
 		this.setState( { playerState: STATE_ERROR } );
+
 		speak( `${ __( 'Error: Episode unavailable - Open in a new tab', 'jetpack' ) }`, 'assertive' );
 	};
 
@@ -143,7 +119,6 @@ export class PodcastPlayer extends Component {
 	handlePlay = () => {
 		this.setState( {
 			playerState: STATE_PLAYING,
-			hasUserInteraction: true,
 		} );
 	};
 
