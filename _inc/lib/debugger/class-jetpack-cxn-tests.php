@@ -12,6 +12,7 @@ use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Settings as Sync_Settings;
 use Automattic\Jetpack\Sync\Health as Sync_Health;
 use Automattic\Jetpack\Sync\Sender as Sync_Sender;
+use Automattic\Jetpack\Redirect;
 
 /**
  * Class Jetpack_Cxn_Tests contains all of the actual tests.
@@ -83,8 +84,8 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	 */
 	protected function helper_get_support_url() {
 		return Jetpack::is_development_version()
-			? \Jetpack::build_redirect_url( 'jetpack-contact-support-beta-group' )
-			: \Jetpack::build_redirect_url( 'jetpack-contact-support' );
+			? Redirect::get_url( 'jetpack-contact-support-beta-group' )
+			: Redirect::get_url( 'jetpack-contact-support' );
 	}
 
 	/**
@@ -200,7 +201,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 					'name'              => $name,
 					'short_description' => __( 'The user who setup the Jetpack connection no longer exists on this site.', 'jetpack' ),
 					'action_label'      => __( 'Please disconnect and reconnect Jetpack.', 'jetpack' ),
-					'action'            => \Jetpack::build_redirect_url( 'jetpack-support-reconnecting-reinstalling-jetpack' ),
+					'action'            => Redirect::get_url( 'jetpack-support-reconnecting-reinstalling-jetpack' ),
 				)
 			);
 		}
@@ -236,7 +237,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 					/* translators: a WordPress username */
 					'short_description' => sprintf( __( 'The user (%s) who setup the Jetpack connection is not an administrator.', 'jetpack' ), $master_user->user_login ),
 					'action_label'      => __( 'Either upgrade the user or disconnect and reconnect Jetpack.', 'jetpack' ),
-					'action'            => \Jetpack::build_redirect_url( 'jetpack-support-reconnecting-reinstalling-jetpack' ),
+					'action'            => Redirect::get_url( 'jetpack-support-reconnecting-reinstalling-jetpack' ),
 				)
 			);
 		}
@@ -262,7 +263,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 					'label'             => __( 'PHP XML manipulation libraries are not available.', 'jetpack' ),
 					'short_description' => __( 'Please ask your hosting provider to refer to our server requirements and enable PHP\'s XML module.', 'jetpack' ),
 					'action_label'      => __( 'View our server requirements', 'jetpack' ),
-					'action'            => \Jetpack::build_redirect_url( 'jetpack-support-server-requirements' ),
+					'action'            => Redirect::get_url( 'jetpack-support-server-requirements' ),
 				)
 			);
 		}
@@ -556,7 +557,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 						'name'              => $name,
 						'label'             => __( 'Jetpack has detected an error syncing your site.', 'jetpack' ),
 						'severity'          => 'critical',
-						'action'            => \Jetpack::build_redirect_url( 'jetpack-contact-support' ),
+						'action'            => Redirect::get_url( 'jetpack-contact-support' ),
 						'action_label'      => __( 'Contact Jetpack Support', 'jetpack' ),
 						'short_description' => __( 'Jetpack has detected an error syncing your site.', 'jetpack' ),
 						'long_description'  => sprintf(
@@ -680,7 +681,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 					'short_description' => sprintf(
 						/* translators: %1$s - A debugging url */
 						__( 'Jetpack.com detected an error on the WP.com Self Test. Visit the Jetpack Debug page for more info: %1$s, or contact support.', 'jetpack' ),
-						esc_url( \Jetpack::build_redirect_url( 'jetpack-support-debug' ) )
+						esc_url( Redirect::get_url( 'jetpack-support-debug' ) )
 					),
 					'action_label'      => $this->helper_get_support_text(),
 					'action'            => $this->helper_get_support_url(),

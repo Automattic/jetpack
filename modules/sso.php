@@ -3,6 +3,7 @@
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Tracking;
+use Automattic\Jetpack\Redirect;
 
 require_once( JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-helpers.php' );
 require_once( JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-notices.php' );
@@ -941,7 +942,7 @@ class Jetpack_SSO {
 		$query = add_query_arg( $args, '' );
 		$query = trim( $query, '?' );
 
-		$url = \Jetpack::build_redirect_url(
+		$url = Redirect::get_url(
 			'wpcom-login',
 			array(
 				'query' => $query,
@@ -985,7 +986,7 @@ class Jetpack_SSO {
 		$query = add_query_arg( $args, '' );
 		$query = trim( $query, '?' );
 
-		$url = \Jetpack::build_redirect_url(
+		$url = Redirect::get_url(
 			'wpcom-login',
 			array(
 				'query' => $query,

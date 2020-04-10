@@ -3,6 +3,8 @@
  * Register two plugabble functions to handle notification emails to authors and moderators.
  */
 
+use Automattic\Jetpack\Redirect;
+
 // phpcs:disable WordPress.WP.I18n.MissingArgDomain --reason: WP Core string.
 
 if ( ! function_exists( 'wp_notify_postauthor' ) && Jetpack::is_active() ) :
@@ -134,7 +136,7 @@ if ( ! function_exists( 'wp_notify_postauthor' ) && Jetpack::is_active() ) :
 		}
 
 		$notify_message .= $moderate_on_wpcom
-			? \Jetpack::build_redirect_url(
+			? Redirect::get_url(
 				'calypso-all-comments',
 				array(
 					'path' => $comment->comment_post_ID,
@@ -145,7 +147,7 @@ if ( ! function_exists( 'wp_notify_postauthor' ) && Jetpack::is_active() ) :
 		/* translators: %s: URL */
 		$notify_message .= sprintf( __( 'Permalink: %s' ), get_comment_link( $comment ) ) . "\r\n";
 
-		$base_wpcom_edit_comment_url = \Jetpack::build_redirect_url(
+		$base_wpcom_edit_comment_url = Redirect::get_url(
 			'calypso-edit-comment',
 			array(
 				'path'  => $comment_id,
@@ -316,7 +318,7 @@ if ( ! function_exists( 'wp_notify_moderator' ) && Jetpack::is_active() ) :
 
 		$moderate_on_wpcom = ! in_array( false, array_map( 'is_user_connected', $emails ) );
 
-		$base_wpcom_edit_comment_url = \Jetpack::build_redirect_url(
+		$base_wpcom_edit_comment_url = Redirect::get_url(
 			'calypso-edit-comment',
 			array(
 				'path'  => $comment_id,
@@ -369,7 +371,7 @@ if ( ! function_exists( 'wp_notify_moderator' ) && Jetpack::is_active() ) :
 		) . "\r\n";
 
 		$notify_message .= $moderate_on_wpcom
-			? \Jetpack::build_redirect_url( 'calypso-pending-comments' )
+			? Redirect::get_url( 'calypso-pending-comments' )
 			: admin_url( 'edit-comments.php?comment_status=moderated#wpbody-content' ) . "\r\n";
 
 		/* translators: Comment moderation notification email subject. 1: Site name, 2: Post title */

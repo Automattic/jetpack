@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Redirect;
+
 abstract class Publicize_Base {
 
 	/**
@@ -1245,8 +1247,8 @@ function publicize_calypso_url() {
 	}
 
 	if ( $site_suffix ) {
-		return Jetpack::build_redirect_url( 'wpcom-marketing-connections', array( 'site' => $site_suffix ) );
+		return Redirect::get_url( 'wpcom-marketing-connections', array( 'site' => $site_suffix ) );
 	} else {
-		return Jetpack::build_redirect_url( 'wpcom-marketing-connections-base' );
+		return Redirect::get_url( 'wpcom-marketing-connections-base' );
 	}
 }

@@ -16,6 +16,7 @@
  */
 
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Redirect;
 
 if ( ! function_exists( 'sharing_init' ) ) {
 	require dirname( __FILE__ ) . '/sharedaddy/sharedaddy.php';
@@ -42,5 +43,5 @@ function jetpack_sharedaddy_configuration_url() {
 		return admin_url( 'options-general.php?page=sharing' );
 	}
 
-	return \Jetpack::build_redirect_url( 'wpcom-marketing-sharing-buttons' );
+	return Redirect::get_url( 'wpcom-marketing-sharing-buttons' );
 }

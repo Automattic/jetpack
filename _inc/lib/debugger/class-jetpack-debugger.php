@@ -1,12 +1,12 @@
 <?php
-
-use Automattic\Jetpack\Status;
-
 /**
  * Jetpack Debugger functionality allowing for self-service diagnostic information via the legacy jetpack debugger.
  *
  * @package jetpack
  */
+
+use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Redirect;
 
 /**
  * Class Jetpack_Debugger
@@ -57,8 +57,8 @@ class Jetpack_Debugger {
 		}
 
 		$support_url = Jetpack::is_development_version()
-			? \Jetpack::build_redirect_url( 'jetpack-contact-support-beta-group' )
-			: \Jetpack::build_redirect_url( 'jetpack-contact-support' );
+			? Redirect::get_url( 'jetpack-contact-support-beta-group' )
+			: Redirect::get_url( 'jetpack-contact-support' );
 
 		$cxntests = new Jetpack_Cxn_Tests();
 		?>
@@ -111,10 +111,10 @@ class Jetpack_Debugger {
 									),
 								)
 							),
-							esc_url( \Jetpack::build_redirect_url( 'jetpack-contact-support-known-issues' ) ),
-							esc_url( \Jetpack::build_redirect_url( 'jetpack-contact-support-known-issues' ) ),
-							esc_url( \Jetpack::build_redirect_url( 'jetpack-contact-support' ) ),
-							esc_url( \Jetpack::build_redirect_url( 'wporg-support-plugin-jetpack' ) )
+							esc_url( Redirect::get_url( 'jetpack-contact-support-known-issues' ) ),
+							esc_url( Redirect::get_url( 'jetpack-contact-support-known-issues' ) ),
+							esc_url( Redirect::get_url( 'jetpack-support' ) ),
+							esc_url( Redirect::get_url( 'wporg-support-plugin-jetpack' ) )
 						);
 						?>
 						</li>
@@ -225,7 +225,7 @@ class Jetpack_Debugger {
 								__( 'Would you like to use Jetpack on your local development site? You can do so thanks to <a href="%s">Jetpack\'s development mode</a>.', 'jetpack' ),
 								array( 'a' => array( 'href' => array() ) )
 							),
-							esc_url( \Jetpack::build_redirect_url( 'support-development-mode' ) )
+							esc_url( Redirect::get_url( 'jetpack-support-development-mode' ) )
 						);
 						?>
 							</p>

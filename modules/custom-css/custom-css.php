@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Redirect;
 
 class Jetpack_Custom_CSS {
 	static function init() {
@@ -1067,7 +1068,7 @@ class Jetpack_Custom_CSS {
 						 * @param string $url Custom CSS limited width's support doc URL.
 						 */
 						esc_url(
-							apply_filters( 'safecss_limit_width_link', \Jetpack::build_redirect_url( 'jetpack-support-custom-css', array( 'anchor' => 'limited-width' ) ) )
+							apply_filters( 'safecss_limit_width_link', Redirect::get_url( 'jetpack-support-custom-css', array( 'anchor' => 'limited-width' ) ) )
 						)
 					);
 

@@ -2,6 +2,7 @@
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
+use Automattic\Jetpack\Redirect;
 
 /**
  * This class will handle everything involved with fixing an Identity Crisis.
@@ -60,7 +61,7 @@ class Jetpack_IDC {
 	 * @return string
 	 */
 	public static function get_safe_mod_doc_url() {
-		return \Jetpack::build_redirect_url( 'jetpack-support-safe-mode' );
+		return Redirect::get_url( 'jetpack-support-safe-mode' );
 	}
 
 	/**

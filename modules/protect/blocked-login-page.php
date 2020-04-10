@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Redirect;
 
 /**
  * Class Jetpack_Protect_Blocked_Login_Page
@@ -77,7 +78,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 	 * @return string
 	 */
 	public static function get_help_url() {
-		return \Jetpack::build_redirect_url( 'jetpack-support-security-features', array( 'anchor' => 'unblock' ) );
+		return Redirect::get_url( 'jetpack-support-security-features', array( 'anchor' => 'unblock' ) );
 	}
 
 	public function add_args_to_lostpassword_redirect_url( $url ) {

@@ -9,6 +9,7 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Functions;
 use Automattic\Jetpack\Sync\Sender;
+use Automattic\Jetpack\Redirect;
 
 /**
  * Class Jetpack_Debug_Data
@@ -95,8 +96,8 @@ class Jetpack_Debug_Data {
 	 */
 	public static function core_debug_data( $debug ) {
 		$support_url = Jetpack::is_development_version()
-			? \Jetpack::build_redirect_url( 'jetpack-contact-support-beta-group' )
-			: \Jetpack::build_redirect_url( 'jetpack-contact-support' );
+			? Redirect::get_url( 'jetpack-contact-support-beta-group' )
+			: Redirect::get_url( 'jetpack-contact-support' );
 
 		$jetpack = array(
 			'jetpack' => array(

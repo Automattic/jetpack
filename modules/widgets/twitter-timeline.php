@@ -9,6 +9,7 @@
  */
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Redirect;
 
 /**
  * Register the widget for use in Appearance -> Widgets
@@ -294,9 +295,9 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 	 */
 	public function get_docs_link( $hash = '' ) {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$base_url = esc_url( \Jetpack::build_redirect_url( 'wpcom-support-widgets-twitter-timeline-widget' ) );
+			$base_url = esc_url( Redirect::get_url( 'wpcom-support-widgets-twitter-timeline-widget' ) );
 		} else {
-			$base_url = esc_url( \Jetpack::build_redirect_url( 'jetpack-support-extra-sidebar-widgets-twitter-timeline-widget' ) );
+			$base_url = esc_url( Redirect::get_url( 'jetpack-support-extra-sidebar-widgets-twitter-timeline-widget' ) );
 		}
 		return '<a href="' . $base_url . $hash . '" target="_blank">( ? )</a>';
 	}
