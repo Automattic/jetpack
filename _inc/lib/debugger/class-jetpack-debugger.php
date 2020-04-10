@@ -113,7 +113,7 @@ class Jetpack_Debugger {
 							),
 							esc_url( Redirect::get_url( 'jetpack-contact-support-known-issues' ) ),
 							esc_url( Redirect::get_url( 'jetpack-contact-support-known-issues' ) ),
-							esc_url( Redirect::get_url( 'jetpack-contact-support' ) ),
+							esc_url( Redirect::get_url( 'jetpack-support' ) ),
 							esc_url( Redirect::get_url( 'wporg-support-plugin-jetpack' ) )
 						);
 						?>
