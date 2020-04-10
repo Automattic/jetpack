@@ -234,3 +234,9 @@ The build pipeline also supports [Color studio](https://github.com/Automattic/co
 ### Icons
 
 Please use outline versions of [Material icons](https://material.io/tools/icons/?style=outline) to stay in line with Gutenberg. Don't rely on icons used in WordPress core to avoid visual mixing up with core blocks.
+
+## Developing and Testing Blocks for Mobile
+
+### How to run the Mobile Block Editor
+
+### Run tests for mobile version of jetpack blocks
