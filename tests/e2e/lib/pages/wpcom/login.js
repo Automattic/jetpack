@@ -1,4 +1,9 @@
 /**
+ * External dependencies
+ */
+import getRedirectUrl from '../../../../../_inc/client/lib/jp-redirect';
+
+/**
  * Internal dependencies
  */
 import Page from '../page';
@@ -9,7 +14,6 @@ import {
 	waitAndType,
 	isEventuallyVisible,
 } from '../../page-helper';
-import getRedirectUrl from 'lib/jp-redirect';
 
 export default class LoginPage extends Page {
 	constructor( page ) {
