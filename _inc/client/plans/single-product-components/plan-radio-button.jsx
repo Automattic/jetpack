@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React from 'react';
-
+import classNames from 'classnames';
 /**
  * Internal dependencies
  */
@@ -44,13 +44,14 @@ function getSearchTierLabel( priceTierSlug, recordCount ) {
 }
 
 export default function PlanRadioButton( props ) {
+	const classes = classNames( 'plan-radio-button', { 'is-selected': props.checked } );
 	const label =
 		props.product && 'search' === props.product.key
 			? getSearchTierLabel( props.product.priceTierSlug, props.product.recordCount )
 			: props.planName;
 
 	return (
-		<label className="plan-radio-button">
+		<label className={ classes }>
 			<input
 				type="radio"
 				className="plan-radio-button__input"

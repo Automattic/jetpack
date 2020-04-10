@@ -16,6 +16,8 @@ import UpgradeButton from 'plans/single-product-components/upgrade-button';
 import PromoNudge from 'plans/single-product-components/promo-nudge';
 import analytics from 'lib/analytics';
 
+import './style.scss';
+
 function handleLandingPageLinkClick( key, duration ) {
 	const extra = 'monthly' === duration ? `${ key }-monthly` : key;
 
@@ -52,7 +54,7 @@ function SingleProductCard( props ) {
 	const name = routes[ 0 ] && routes[ 0 ].name;
 
 	return isFetching ? (
-		<div className="plans-section__single-product-skeleton is-placeholder" />
+		<Card className="single-product__accented-card is-placeholder" />
 	) : (
 		<Card className="single-product__accented-card">
 			<div className="single-product__accented-card-header">
@@ -76,7 +78,7 @@ function SingleProductCard( props ) {
 				{ product.showPromotion && <PromoNudge /> }
 				<ProductOptionsLabel product={ product } />
 
-				<div className="single-product-backup__radio-buttons-container">
+				<div className="single-product__radio-buttons-container">
 					{ product.options.map( option => {
 						return (
 							<PlanRadioButton
