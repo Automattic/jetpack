@@ -29,15 +29,19 @@ git clone https://${USERNAME}:${GH_TEST_REPORT_TOKEN}@github.com/$ORG/$REPO.git
 
 ls -la $RESULTS_DIR
 
-mkdir -p $REPO/$REPORT_DIR/$RESULTS_DIR
+mkdir -p $REPO_DIR/$REPORT_DIR/$RESULTS_DIR
 
 cp -a $RESULTS_DIR/. $REPO/$REPORT_DIR/$RESULTS_DIR
+
+ls -la $REPO/$REPORT_DIR/$RESULTS_DIR
 
 cd $REPO_DIR/$REPORT_DIR
 
 allure generate --clean -o .
 
-ls -la
+ls -la docs
+ls -la $REPO_DIR/$REPORT_DIR
+ls -la $REPO/$REPORT_DIR/$RESULTS_DIR
 
 cd $REPO_DIR
 
