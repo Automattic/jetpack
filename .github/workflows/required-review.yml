@@ -6,7 +6,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check for required review approval
-        uses: automattic/action-required-review@debug
+        uses: automattic/action-required-review@master
         env:
           REQUIRED_REVIEW_TEAM_ID: "2787210"
           GITHUB_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
