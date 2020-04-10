@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import { __ } from '@wordpress/i18n';
 import { Fragment } from '@wordpress/element';
 import { InspectorControls } from '@wordpress/block-editor';
-import { PanelBody, TextControl } from '@wordpress/components';
+import { PanelBody, TextControl, ToggleControl } from '@wordpress/components';
 
 /**
  * Internal dependencies
@@ -20,7 +20,6 @@ function JetpackField( {
 	setAttributes,
 	defaultValue,
 	placeholder,
-	id,
 } ) {
 	return (
 		<Fragment>
@@ -43,15 +42,21 @@ function JetpackField( {
 			</div>
 			<InspectorControls>
 				<PanelBody title={ __( 'Field Settings', 'jetpack' ) }>
-					<TextControl
-						label={ __( 'Default Value', 'jetpack' ) }
-						value={ defaultValue }
-						onChange={ value => setAttributes( { defaultValue: value } ) }
+					<ToggleControl
+						label={ __( 'Field is required', 'jetpack' ) }
+						className="jetpack-field-label__required"
+						checked={ required }
+						onChange={ value => setAttributes( { required: value } ) }
+						help={ __(
+							'Does this field have to be completed for the form to be submitted?',
+							'jetpack'
+						) }
 					/>
 					<TextControl
-						label={ __( 'ID', 'jetpack' ) }
-						value={ id }
-						onChange={ value => setAttributes( { id: value } ) }
+						label={ __( 'Default value', 'jetpack' ) }
+						value={ defaultValue }
+						onChange={ value => setAttributes( { defaultValue: value } ) }
+						help={ __( 'The value of the field if no edits are made.', 'jetpack' ) }
 					/>
 				</PanelBody>
 			</InspectorControls>

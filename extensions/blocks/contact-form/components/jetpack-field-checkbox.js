@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { BaseControl, PanelBody, TextControl, ToggleControl } from '@wordpress/components';
+import { BaseControl, PanelBody, ToggleControl } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 import { InspectorControls } from '@wordpress/block-editor';
 import { withInstanceId } from '@wordpress/compose';
@@ -19,7 +19,6 @@ const JetpackFieldCheckbox = ( {
 	setAttributes,
 	isSelected,
 	defaultValue,
-	id,
 } ) => {
 	return (
 		<BaseControl
@@ -42,14 +41,9 @@ const JetpackFieldCheckbox = ( {
 					<InspectorControls>
 						<PanelBody title={ __( 'Field Settings', 'jetpack' ) }>
 							<ToggleControl
-								label={ __( 'Default Checked State', 'jetpack' ) }
+								label={ __( 'Checked by default', 'jetpack' ) }
 								checked={ defaultValue }
 								onChange={ value => setAttributes( { defaultValue: value } ) }
-							/>
-							<TextControl
-								label={ __( 'ID', 'jetpack' ) }
-								value={ id }
-								onChange={ value => setAttributes( { id: value } ) }
 							/>
 						</PanelBody>
 					</InspectorControls>

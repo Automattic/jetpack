@@ -34,6 +34,7 @@ import { DOWN } from '@wordpress/keycodes';
  */
 import HelpMessage from '../../shared/help-message';
 import SubmitButton from '../../shared/submit-button';
+import './extensions/advanced-settings.js';
 
 const ALLOWED_BLOCKS = [
 	'jetpack/markdown',

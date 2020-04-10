@@ -2,9 +2,8 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { BaseControl, IconButton, PanelBody, TextControl } from '@wordpress/components';
+import { BaseControl, IconButton } from '@wordpress/components';
 import { Component, Fragment } from '@wordpress/element';
-import { InspectorControls } from '@wordpress/block-editor';
 import { withInstanceId } from '@wordpress/compose';
 
 /**
@@ -53,7 +52,7 @@ class JetpackFieldMultiple extends Component {
 	}
 
 	render() {
-		const { type, instanceId, required, label, setAttributes, isSelected, id } = this.props;
+		const { type, instanceId, required, label, setAttributes, isSelected } = this.props;
 		let { options } = this.props;
 		let { inFocus } = this.state;
 		if ( ! options.length ) {
@@ -104,16 +103,6 @@ class JetpackFieldMultiple extends Component {
 						</IconButton>
 					) }
 				</BaseControl>
-
-				<InspectorControls>
-					<PanelBody title={ __( 'Field Settings', 'jetpack' ) }>
-						<TextControl
-							label={ __( 'ID', 'jetpack' ) }
-							value={ id }
-							onChange={ value => setAttributes( { id: value } ) }
-						/>
-					</PanelBody>
-				</InspectorControls>
 			</Fragment>
 		);
 	}
