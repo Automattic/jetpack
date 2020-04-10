@@ -39,7 +39,7 @@ cd $REPO_DIR/$REPORT_DIR
 
 allure generate --clean -o .
 
-ls -la docs
+ls -la $REPO_DIR/docs
 ls -la $REPO_DIR/$REPORT_DIR
 ls -la $REPO/$REPORT_DIR/$RESULTS_DIR
 
