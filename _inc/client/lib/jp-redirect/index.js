@@ -8,7 +8,7 @@
  *
  * 		Additional arguments to build the url
  *
- * 		@type {string} site URL of the current site. Optional, default is current site
+ * 		@type {string} site URL of the current site.
  * 		@type {string} path Additional path to be appended to the URL
  * 		@type {string} query Query parameters to be added to the URL
  * 		@type {string} anchor Anchor to be added to the URL
@@ -28,14 +28,6 @@ export default function getRedirectUrl( source, args = {} ) {
 			queryVars[ argName ] = encodeURIComponent( args[ argName ] );
 		}
 	} );
-
-	if (
-		! queryVars.hasOwnProperty( 'site' ) &&
-		window.hasOwnProperty( 'Initial_State' ) &&
-		window.Initial_State.hasOwnProperty( 'rawUrl' )
-	) {
-		queryVars.site = window.Initial_State.rawUrl;
-	}
 
 	const queryString = Object.keys( queryVars )
 		.map( key => key + '=' + queryVars[ key ] )
