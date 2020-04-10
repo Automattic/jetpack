@@ -27,7 +27,9 @@ fi
 
 git clone https://${USERNAME}:${GH_TEST_REPORT_TOKEN}@github.com/$ORG/$REPO.git
 
-cp -R $RESULTS_DIR $REPO/$REPORT_DIR
+ls -la $RESULTS_DIR
+
+cp -a $RESULTS_DIR/. $REPO/$REPORT_DIR/$RESULTS_DIR
 
 cd $REPO_DIR/$REPORT_DIR
 
@@ -39,6 +41,6 @@ cd $REPO_DIR
 
 git status
 
-git add $RESULTS_DIR docs
+git add docs
 git commit --message "Travis build: $TRAVIS_BUILD_NUMBER"
 git push
