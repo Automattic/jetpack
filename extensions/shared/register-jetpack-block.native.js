@@ -48,9 +48,10 @@ export default function registerJetpackBlock( name, settings, childBlocks = [] )
 		example: requiredPlan ? undefined : settings.example,
 	} );
 
-	console.log(
-		`Block jetpack/${ name } registered.`
-	);
+	if ( 'production' !== process.env.NODE_ENV ) {
+		// eslint-disable-next-line no-console
+		console.log( `Block jetpack/${ name } registered.` );
+	}
 
 	// Register child blocks. Using `registerBlockType()` directly avoids availability checks -- if
 	// their parent is available, we register them all, without checking for their individual availability.
