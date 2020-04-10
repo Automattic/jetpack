@@ -14,12 +14,12 @@ import ModernOverlay from 'components/jetpack-dialogue-modern';
 const UpgradeNoticeContent = withModuleSettingsFormHelpers(
 	class extends Component {
 		componentDidMount() {
-			jQuery( 'body' ).addClass( 'jp-dialogue-showing' );
+			jQuery( 'body' ).addClass( 'jp-dialogue-modern-showing' );
 			analytics.tracks.recordEvent( 'jetpack_warm_welcome_view', { version: this.props.version } );
 		}
 
 		componentWillUnmount() {
-			jQuery( 'body' ).removeClass( 'jp-dialogue-showing' );
+			jQuery( 'body' ).removeClass( 'jp-dialogue-modern-showing' );
 		}
 
 		trackLearnMoreClick = () => {

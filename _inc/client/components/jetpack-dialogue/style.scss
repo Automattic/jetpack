@@ -1,6 +1,6 @@
 .jp-dialogue-full__container {
 	box-sizing: border-box;
-	position: fixed;
+	position: absolute;
 	top: 0;
 	right: 0;
 	bottom: 0;
@@ -10,41 +10,25 @@
 	text-align: center;
 	padding: rem( 32px );
 	height: 100%;
-	overflow: auto;
-
-	@include breakpoint( ">660px" ) {
-		left: 36px;
-	}
-
-	@include breakpoint( ">960px" ) {
-		left: 160px;
-	}
-}
-
-body.jp-dialogue-showing {
-	overflow: hidden;
 }
 
 .jp-dialogue {
+	text-align: center;
 	max-width: rem( 600px );
-	margin: rem( 32px ) auto;
+	margin: 0 auto rem( 32px );
 	overflow: hidden;
+
+	@include breakpoint( "<660px" ) {
+		text-align: left;
+	}
 
 	p {
 		font-size: rem( 14px );
 		color: $gray-text-min;
-		text-align: left;
 	}
 
 	img {
-		text-align: center;
 		max-width: 100%;
-	}
-
-	li {
-		text-align: left;
-		list-style: disc outside none;
-		margin: rem(16px);
 	}
 
 	p + img {
