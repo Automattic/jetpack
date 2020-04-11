@@ -200,7 +200,7 @@
 		"eslint-plugin-react": "7.19.0",
 		"eslint-plugin-wpcalypso": "4.1.0",
 		"glob": "7.1.6",
-		"husky": "4.2.3",
+		"husky": "4.2.5",
 		"jest": "24.9.0",
 		"jest-puppeteer": "4.4.0",
 		"lodash": "4.17.15",
