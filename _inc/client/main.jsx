@@ -272,7 +272,12 @@ class Main extends React.Component {
 			// );
 		}
 
-		window.wpNavMenuClassChange();
+		const indices =
+			this.props.currentVersion.includes( 'alpha' ) || this.props.currentVersion.includes( 'beta' )
+				? { setup: 1, dashboard: 2, settings: 3 }
+				: { setup: -1, dashboard: 1, settings: 2 };
+
+		window.wpNavMenuClassChange( indices );
 
 		return (
 			<div aria-live="assertive">
@@ -358,7 +363,7 @@ export default connect(
 /**
  * Hack for changing the sub-nav menu core classes for 'settings' and 'dashboard'
  */
-window.wpNavMenuClassChange = function() {
+window.wpNavMenuClassChange = function( pageOrder = { setup: -1, dashboard: 1, settings: 2 } ) {
 	let hash = window.location.hash;
 
 	// Clear currents
@@ -372,21 +377,21 @@ window.wpNavMenuClassChange = function() {
 		const subNavItem = jQuery( '#toplevel_page_jetpack' )
 			.find( 'li' )
 			.filter( function( index ) {
-				return index === 1;
+				return index === pageOrder.setup;
 			} );
 		subNavItem[ 0 ].classList.add( 'current' );
 	} else if ( dashboardRoutes.includes( hash ) ) {
 		const subNavItem = jQuery( '#toplevel_page_jetpack' )
 			.find( 'li' )
 			.filter( function( index ) {
-				return index === 2;
+				return index === pageOrder.dashboard;
 			} );
 		subNavItem[ 0 ].classList.add( 'current' );
 	} else if ( settingsRoutes.includes( hash ) ) {
 		const subNavItem = jQuery( '#toplevel_page_jetpack' )
 			.find( 'li' )
 			.filter( function( index ) {
-				return index === 3;
+				return index === pageOrder.settings;
 			} );
 		subNavItem[ 0 ].classList.add( 'current' );
 	}

@@ -51,7 +51,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	 * TODO: description etc
 	 */
 	function jetpack_add_set_up_sub_nav_item() {
-		if ( ( new Status() )->is_development_mode() || Jetpack::is_active() ) {
+		if ( ( new Status() )->is_development_mode() || ( false !== strpos( JETPACK__VERSION, 'alpha' ) || false !== strpos( JETPACK__VERSION, 'beta' ) ) ) {
 			global $submenu;
 			$submenu['jetpack'][] = array( __( 'Set up', 'jetpack' ), 'jetpack_admin_page', 'admin.php?page=jetpack#/setup' );
 		}
