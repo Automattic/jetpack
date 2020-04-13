@@ -89,7 +89,7 @@ export class DashStats extends Component {
 				nestedValue: null,
 				className: 'statsChartbar',
 				data: {
-					link: getRedirectUrl( 'calypso-stats-' + unit, { query: 'startDate=' + date } ),
+					link: getRedirectUrl( 'calypso-stats-' + unit, { site: props.siteRawUrl, query: 'startDate=' + date } ),
 				},
 				tooltipData: [
 					{
