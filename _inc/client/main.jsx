@@ -44,23 +44,23 @@ import restApi from 'rest-api';
 import QueryRewindStatus from 'components/data/query-rewind-status';
 import { getRewindStatus } from 'state/rewind';
 
-const defaultRoute = '#/';
-const setupRoute = '#/setup';
-const dashboardRoute = '#/dashboard';
-const myPlanRoute = '#/my-plan';
-const plansRoute = '#/plans';
-const plansPromptRoute = '#/plans-prompt';
+const defaultRoute = '/';
+const setupRoute = '/setup';
+const dashboardRoute = '/dashboard';
+const myPlanRoute = '/my-plan';
+const plansRoute = '/plans';
+const plansPromptRoute = '/plans-prompt';
 
 const dashboardRoutes = [ defaultRoute, dashboardRoute, myPlanRoute, plansRoute ];
 const settingsRoutes = [
-	'#/settings',
-	'#/security',
-	'#/performance',
-	'#/writing',
-	'#/sharing',
-	'#/discussion',
-	'#/traffic',
-	'#/privacy',
+	'/settings',
+	'/security',
+	'/performance',
+	'/writing',
+	'/sharing',
+	'/discussion',
+	'/traffic',
+	'/privacy',
 ];
 
 class Main extends React.Component {
@@ -283,33 +283,28 @@ class Main extends React.Component {
 	};
 
 	shouldShowAppsCard() {
-		// Do not show in settings page
-		const hashRoute = '#' + this.props.route.path;
-		return this.props.isSiteConnected && dashboardRoutes.includes( hashRoute );
+		// Only show on the dashboard
+		return this.props.isSiteConnected && dashboardRoutes.includes( this.props.route.path );
 	}
 
 	shouldShowSupportCard() {
-		// Do not show in settings page
-		const hashRoute = '#' + this.props.route.path;
-		return this.props.isSiteConnected && dashboardRoutes.includes( hashRoute );
+		// Only show on the dashboard
+		return this.props.isSiteConnected && dashboardRoutes.includes( this.props.route.path );
 	}
 
 	shouldShowRewindStatus() {
-		// Do not show on plans prompt page
-		const hashRoute = '#' + this.props.route.path;
-		return this.props.isSiteConnected && dashboardRoutes.includes( hashRoute );
+		// Only show on the dashboard
+		return this.props.isSiteConnected && dashboardRoutes.includes( this.props.route.path );
 	}
 
 	shouldShowMasthead() {
-		// Do not show on plans prompt page or setup page
-		const hashRoute = '#' + this.props.route.path;
-		return [ ...dashboardRoutes, ...settingsRoutes ].includes( hashRoute );
+		// Only show on the dashboard and settings page
+		return [ ...dashboardRoutes, ...settingsRoutes ].includes( this.props.route.path );
 	}
 
 	shouldShowFooter() {
-		// Do not show on plans prompt page
-		const hashRoute = '#' + this.props.route.path;
-		return [ ...dashboardRoutes, ...settingsRoutes ].includes( hashRoute );
+		// Only show on the dashboard and settings page
+		return [ ...dashboardRoutes, ...settingsRoutes ].includes( this.props.route.path );
 	}
 
 	render() {
@@ -371,7 +366,8 @@ window.wpNavMenuClassChange = function() {
 		jQuery( obj ).removeClass( 'current' );
 	} );
 
-	hash = hash.split( '?' )[ 0 ];
+	hash = hash.split( '?' )[ 0 ].replace( /#/, '' );
+
 	if ( hash === setupRoute ) {
 		const subNavItem = jQuery( '#toplevel_page_jetpack' )
 			.find( 'li' )
