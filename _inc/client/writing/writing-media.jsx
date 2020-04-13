@@ -2,7 +2,7 @@
  * External dependencies
  */
 
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import CompactFormToggle from 'components/form/form-toggle/compact';
@@ -19,134 +19,122 @@ import SettingsGroup from 'components/settings-group';
 import { getModule } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
 
-class WritingMedia extends Component {
-	/**
-	 * Get options for initial state.
-	 *
-	 * @type {Object}  state                           Inner component state.
-	 * @type {Boolean} state.carousel_display_exif     Whether EXIF data will be displayed in the carousel.
-	 * @type {Boolean} state.carousel_display_comments Whether text box for commenting and comment list will be displayed in the carousel.
-	 */
-	state = {
-		carousel_display_exif: this.props.getOptionValue( 'carousel_display_exif', 'carousel' ),
-		carousel_display_comments: this.props.getOptionValue( 'carousel_display_comments', 'carousel' ),
+/**
+ * Renders controls to activate the carousel and additional settings.
+ *
+ * @param {object} props - Component properties.
+ *
+ * @returns {object} - Controls for carousel.
+ */
+function WritingMedia( props ) {
+	const [ displayExif, setDisplayExif ] = useState(
+		props.getOptionValue( 'carousel_display_exif', 'carousel' )
+	);
+	const [ displayComments, setDisplayComments ] = useState(
+		props.getOptionValue( 'carousel_display_comments', 'carousel' )
+	);
+
+	const handleCarouselDisplayExifChange = () => {
+		setDisplayExif( ! displayExif );
+		props.updateFormStateModuleOption( 'carousel', 'carousel_display_exif' );
 	};
 
-	/**
-	 * Update state so toggles are updated.
-	 *
-	 * @param {string} optionName option slug
-	 */
-	updateOptions = optionName => {
-		this.setState(
-			{
-				[ optionName ]: ! this.state[ optionName ],
-			},
-			this.props.updateFormStateModuleOption( 'carousel', optionName )
-		);
+	const handleCarouselDisplayCommentsChange = () => {
+		setDisplayComments( ! displayComments );
+		props.updateFormStateModuleOption( 'carousel', 'carousel_display_comments' );
 	};
 
-	handleCarouselDisplayExifChange = () => {
-		this.updateOptions( 'carousel_display_exif' );
-	};
+	const foundCarousel = props.isModuleFound( 'carousel' );
 
-	handleCarouselDisplayCommentsChange = () => {
-		this.updateOptions( 'carousel_display_comments' );
-	};
+	if ( ! foundCarousel ) {
+		return null;
+	}
 
-	render() {
-		const foundCarousel = this.props.isModuleFound( 'carousel' );
+	const isCarouselActive = props.getOptionValue( 'carousel' );
 
-		if ( ! foundCarousel ) {
-			return null;
-		}
-
-		const isCarouselActive = this.props.getOptionValue( 'carousel' );
-
-		return (
-			<SettingsCard
-				{ ...this.props }
-				module="media"
-				header={ __( 'Media' ) }
-				hideButton={ ! foundCarousel }
-				saveDisabled={ this.props.isSavingAnyOption( 'carousel_background_color' ) }
+	return (
+		<SettingsCard
+			{ ...props }
+			module="media"
+			header={ __( 'Media' ) }
+			hideButton={ ! foundCarousel }
+			saveDisabled={ props.isSavingAnyOption( 'carousel_background_color' ) }
+		>
+			<SettingsGroup
+				hasChild
+				module={ { module: 'carousel' } }
+				support={ {
+					link: getRedirectUrl( 'jetpack-support-carousel' ),
+				} }
 			>
-				<SettingsGroup
-					hasChild
-					module={ { module: 'carousel' } }
-					support={ {
-						link: getRedirectUrl( 'jetpack-support-carousel' ),
-					} }
+				<p>
+					{ __(
+						'Create full-screen carousel slideshows for the images in your ' +
+							'posts and pages. Carousel galleries are mobile-friendly and ' +
+							'encourage site visitors to interact with your photos.'
+					) }
+				</p>
+				<ModuleToggle
+					slug="carousel"
+					activated={ isCarouselActive }
+					toggling={ props.isSavingAnyOption( 'carousel' ) }
+					toggleModule={ props.toggleModuleNow }
 				>
-					<p>
-						{ __(
-							'Create full-screen carousel slideshows for the images in your ' +
-								'posts and pages. Carousel galleries are mobile-friendly and ' +
-								'encourage site visitors to interact with your photos.'
-						) }
-					</p>
-					<ModuleToggle
-						slug="carousel"
-						activated={ isCarouselActive }
-						toggling={ this.props.isSavingAnyOption( 'carousel' ) }
-						toggleModule={ this.props.toggleModuleNow }
+					<span className="jp-form-toggle-explanation">
+						{ __( 'Display images in a full-screen carousel gallery' ) }
+					</span>
+				</ModuleToggle>
+				<FormFieldset>
+					<CompactFormToggle
+						checked={ displayExif }
+						disabled={
+							! isCarouselActive ||
+							props.isSavingAnyOption( [ 'carousel', 'carousel_display_exif' ] )
+						}
+						onChange={ handleCarouselDisplayExifChange /* eslint-disable-line */ }
 					>
 						<span className="jp-form-toggle-explanation">
-							{ __( 'Display images in a full-screen carousel gallery' ) }
+							{ __( 'Show photo Exif metadata in carousel (when available)' ) }
 						</span>
-					</ModuleToggle>
+					</CompactFormToggle>
+					<CompactFormToggle
+						checked={ displayComments }
+						disabled={
+							! isCarouselActive ||
+							props.isSavingAnyOption( [ 'carousel', 'carousel_display_comments' ] )
+						}
+						onChange={ handleCarouselDisplayCommentsChange /* eslint-disable-line */ }
+					>
+						<span className="jp-form-toggle-explanation">
+							{ __( 'Show comments area in carousel' ) }
+						</span>
+					</CompactFormToggle>
 					<FormFieldset>
-						<CompactFormToggle
-							checked={ this.state.carousel_display_exif }
-							disabled={
-								! isCarouselActive ||
-								this.props.isSavingAnyOption( [ 'carousel', 'carousel_display_exif' ] )
-							}
-							onChange={ this.handleCarouselDisplayExifChange }
-						>
-							<span className="jp-form-toggle-explanation">
-								{ __( 'Show photo Exif metadata in carousel (when available)' ) }
-							</span>
-						</CompactFormToggle>
-						<CompactFormToggle
-							checked={ this.state.carousel_display_comments }
-							disabled={
-								! isCarouselActive ||
-								this.props.isSavingAnyOption( [ 'carousel', 'carousel_display_comments' ] )
-							}
-							onChange={ this.handleCarouselDisplayCommentsChange }
-						>
-							<span className="jp-form-toggle-explanation">
-								{ __( 'Show comments area in carousel' ) }
-							</span>
-						</CompactFormToggle>
-						<FormFieldset>
-							<p className="jp-form-setting-explanation">
-								{ __(
-									'Exif data shows viewers additional technical details of a photo, like its focal length, aperture, and ISO.'
-								) }
-							</p>
-						</FormFieldset>
-						<FormLabel>
-							<FormLegend className="jp-form-label-wide">
-								{ __( 'Carousel color scheme' ) }
-							</FormLegend>
-							<FormSelect
-								name={ 'carousel_background_color' }
-								value={ this.props.getOptionValue( 'carousel_background_color' ) }
-								disabled={
-									! isCarouselActive ||
-									this.props.isSavingAnyOption( [ 'carousel', 'carousel_background_color' ] )
-								}
-								{ ...this.props }
-								validValues={ this.props.validValues( 'carousel_background_color', 'carousel' ) }
-							/>
-						</FormLabel>
+						<p className="jp-form-setting-explanation">
+							{ __(
+								'Exif data shows viewers additional technical details of a photo, like its focal length, aperture, and ISO.'
+							) }
+						</p>
 					</FormFieldset>
-				</SettingsGroup>
-			</SettingsCard>
-		);
-	}
+					<FormLabel>
+						<FormLegend className="jp-form-label-wide">
+							{ __( 'Carousel color scheme' ) }
+						</FormLegend>
+						<FormSelect
+							name={ 'carousel_background_color' }
+							value={ props.getOptionValue( 'carousel_background_color' ) }
+							disabled={
+								! isCarouselActive ||
+								props.isSavingAnyOption( [ 'carousel', 'carousel_background_color' ] )
+							}
+							{ ...props }
+							validValues={ props.validValues( 'carousel_background_color', 'carousel' ) }
+						/>
+					</FormLabel>
+				</FormFieldset>
+			</SettingsGroup>
+		</SettingsCard>
+	);
 }
 
 export default connect( state => {
