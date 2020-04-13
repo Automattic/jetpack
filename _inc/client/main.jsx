@@ -28,6 +28,7 @@ import {
 } from 'state/initial-state';
 import { areThereUnsavedSettings, clearUnsavedSettingsFlag } from 'state/settings';
 import { getSearchTerm } from 'state/search';
+import { SetupWizard } from 'setup-wizard';
 import AtAGlance from 'at-a-glance/index.jsx';
 import MyPlan from 'my-plan/index.jsx';
 import Plans from 'plans/index.jsx';
@@ -254,7 +255,7 @@ class Main extends React.Component {
 				break;
 			case '/setup':
 				navComponent = null;
-				pageComponent = <div>Hello world!</div>;
+				pageComponent = <SetupWizard />;
 				break;
 
 			default:
