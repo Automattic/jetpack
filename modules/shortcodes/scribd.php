@@ -50,8 +50,9 @@ function scribd_shortcode_handler( $atts ) {
  * @param array $atts Shortcode attributes.
  */
 function scribd_shortcode_markup( $atts ) {
-	$markup = <<<EOD
-<iframe class="scribd_iframe_embed" src="//www.scribd.com/embeds/$atts[id]/content?start_page=1&view_mode=$atts[mode]&access_key=$atts[key]" data-auto-height="true" scrolling="no" id="scribd_$atts[id]" width="100%" height="500" frameborder="0"></iframe>
+	$sandbox = class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ? 'sandbox="allow-popups allow-scripts allow-same-origin"' : '';
+	$markup  = <<<EOD
+<iframe class="scribd_iframe_embed" src="//www.scribd.com/embeds/$atts[id]/content?start_page=1&view_mode=$atts[mode]&access_key=$atts[key]" $sandbox data-auto-height="true" scrolling="no" id="scribd_$atts[id]" width="100%" height="500" frameborder="0"></iframe>
 <div style="font-size:10px;text-align:center;width:100%"><a href="https://www.scribd.com/doc/$atts[id]" target="_blank">View this document on Scribd</a></div>
 EOD;
 
