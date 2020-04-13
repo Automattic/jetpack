@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { wrap } from 'lodash';
+import fs from 'fs';
 /**
  * Internal dependencies
  */
@@ -21,6 +22,12 @@ export const defaultErrorHandler = async ( error, name ) => {
 	// If running tests in CI
 	if ( CI ) {
 		const filePath = await takeScreenshot( currentBlock, name );
+		reporter.addAttachment(
+			`Test failed: ${ currentBlock } :: ${ name }`,
+			fs.readFileSync( filePath ),
+			'image/png'
+		);
+
 		await sendFailedTestMessageToSlack( { block: currentBlock, name, error } );
 		await sendFailedTestScreenshotToSlack( filePath );
 		await logDebugLog();
