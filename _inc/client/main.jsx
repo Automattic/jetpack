@@ -3,7 +3,6 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import { includes } from 'lodash';
 import { createHistory } from 'history';
 import { withRouter } from 'react-router';
 import { translate as __ } from 'i18n-calypso';
@@ -45,8 +44,24 @@ import restApi from 'rest-api';
 import QueryRewindStatus from 'components/data/query-rewind-status';
 import { getRewindStatus } from 'state/rewind';
 
-const dashboardRoutes = [ '#/', '#/dashboard', '#/my-plan', '#/plans' ];
+const defaultRoute = '#/';
+const setupRoute = '#/setup';
+const dashboardRoute = '#/dashboard';
+const myPlanRoute = '#/my-plan';
+const plansRoute = '#/plans';
 const plansPromptRoute = '#/plans-prompt';
+
+const dashboardRoutes = [ defaultRoute, dashboardRoute, myPlanRoute, plansRoute ];
+const settingsRoutes = [
+	'#/settings',
+	'#/security',
+	'#/performance',
+	'#/writing',
+	'#/sharing',
+	'#/discussion',
+	'#/traffic',
+	'#/privacy',
+];
 
 class Main extends React.Component {
 	UNSAFE_componentWillMount() {
@@ -127,7 +142,7 @@ class Main extends React.Component {
 
 	shouldComponentUpdate( nextProps ) {
 		// If user triggers Skip to main content or Skip to toolbar with keyboard navigation, stay in the same tab.
-		if ( includes( [ '/wpbody-content', '/wp-toolbar' ], nextProps.route.path ) ) {
+		if ( [ '/wpbody-content', '/wp-toolbar' ].includes( nextProps.route.path ) ) {
 			return false;
 		}
 
@@ -237,18 +252,24 @@ class Main extends React.Component {
 					/>
 				);
 				break;
+			case '/setup':
+				navComponent = null;
+				pageComponent = <div>Hello world!</div>;
+				break;
 
 			default:
-				// If no route found, kick them to the dashboard and do some url/history trickery
+				// TODO: remove, temporarily starting on the setup page
 				const history = createHistory();
-				history.replace( window.location.pathname + '?page=jetpack#/dashboard' );
-				pageComponent = (
-					<AtAGlance
-						siteRawUrl={ this.props.siteRawUrl }
-						siteAdminUrl={ this.props.siteAdminUrl }
-						rewindStatus={ this.props.rewindStatus }
-					/>
-				);
+				history.replace( window.location.pathname + '?page=jetpack#/setup' );
+			// If no route found, kick them to the dashboard and do some url/history trickery
+			// history.replace( window.location.pathname + '?page=jetpack#/dashboard' );
+			// pageComponent = (
+			// 	<AtAGlance
+			// 		siteRawUrl={ this.props.siteRawUrl }
+			// 		siteAdminUrl={ this.props.siteAdminUrl }
+			// 		rewindStatus={ this.props.rewindStatus }
+			// 	/>
+			// );
 		}
 
 		window.wpNavMenuClassChange();
@@ -264,31 +285,31 @@ class Main extends React.Component {
 	shouldShowAppsCard() {
 		// Do not show in settings page
 		const hashRoute = '#' + this.props.route.path;
-		return this.props.isSiteConnected && includes( dashboardRoutes, hashRoute );
+		return this.props.isSiteConnected && dashboardRoutes.includes( hashRoute );
 	}
 
 	shouldShowSupportCard() {
 		// Do not show in settings page
 		const hashRoute = '#' + this.props.route.path;
-		return this.props.isSiteConnected && includes( dashboardRoutes, hashRoute );
+		return this.props.isSiteConnected && dashboardRoutes.includes( hashRoute );
 	}
 
 	shouldShowRewindStatus() {
 		// Do not show on plans prompt page
 		const hashRoute = '#' + this.props.route.path;
-		return this.props.isSiteConnected && hashRoute !== plansPromptRoute;
+		return this.props.isSiteConnected && dashboardRoutes.includes( hashRoute );
 	}
 
 	shouldShowMasthead() {
-		// Do not show on plans prompt page
+		// Do not show on plans prompt page or setup page
 		const hashRoute = '#' + this.props.route.path;
-		return hashRoute !== plansPromptRoute;
+		return [ ...dashboardRoutes, ...settingsRoutes ].includes( hashRoute );
 	}
 
 	shouldShowFooter() {
 		// Do not show on plans prompt page
 		const hashRoute = '#' + this.props.route.path;
-		return hashRoute !== plansPromptRoute;
+		return [ ...dashboardRoutes, ...settingsRoutes ].includes( hashRoute );
 	}
 
 	render() {
@@ -344,16 +365,6 @@ export default connect(
  */
 window.wpNavMenuClassChange = function() {
 	let hash = window.location.hash;
-	const settingRoutes = [
-		'#/settings',
-		'#/security',
-		'#/performance',
-		'#/writing',
-		'#/sharing',
-		'#/discussion',
-		'#/traffic',
-		'#/privacy',
-	];
 
 	// Clear currents
 	jQuery( '.current' ).each( function( i, obj ) {
@@ -361,18 +372,25 @@ window.wpNavMenuClassChange = function() {
 	} );
 
 	hash = hash.split( '?' )[ 0 ];
-	if ( includes( dashboardRoutes, hash ) ) {
+	if ( hash === setupRoute ) {
 		const subNavItem = jQuery( '#toplevel_page_jetpack' )
 			.find( 'li' )
 			.filter( function( index ) {
 				return index === 1;
 			} );
 		subNavItem[ 0 ].classList.add( 'current' );
-	} else if ( includes( settingRoutes, hash ) ) {
+	} else if ( dashboardRoutes.includes( hash ) ) {
 		const subNavItem = jQuery( '#toplevel_page_jetpack' )
 			.find( 'li' )
 			.filter( function( index ) {
 				return index === 2;
+			} );
+		subNavItem[ 0 ].classList.add( 'current' );
+	} else if ( settingsRoutes.includes( hash ) ) {
+		const subNavItem = jQuery( '#toplevel_page_jetpack' )
+			.find( 'li' )
+			.filter( function( index ) {
+				return index === 3;
 			} );
 		subNavItem[ 0 ].classList.add( 'current' );
 	}

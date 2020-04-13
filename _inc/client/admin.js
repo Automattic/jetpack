@@ -74,6 +74,7 @@ function render() {
 						name={ i18n.translate( 'At A Glance', { context: 'Navigation item.' } ) }
 						component={ Main }
 					/>
+					<Route path="/setup" name={ i18n.translate( 'Set up' ) } component={ Main } />
 					<Route path="/dashboard" name={ i18n.translate( 'At A Glance' ) } component={ Main } />
 					<Route
 						path="/my-plan"

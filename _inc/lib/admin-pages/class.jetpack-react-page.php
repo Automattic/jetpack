@@ -48,6 +48,16 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	}
 
 	/**
+	 * TODO: description etc
+	 */
+	function jetpack_add_set_up_sub_nav_item() {
+		if ( ( new Status() )->is_development_mode() || Jetpack::is_active() ) {
+			global $submenu;
+			$submenu['jetpack'][] = array( __( 'Set up', 'jetpack' ), 'jetpack_admin_page', 'admin.php?page=jetpack#/setup' );
+		}
+	}
+
+	/**
 	 * Add Jetpack Dashboard sub-link and point it to AAG if the user can view stats, manage modules or if Protect is active.
 	 *
 	 * Works in Dev Mode or when user is connected.
