@@ -30,7 +30,7 @@ export default function ImageTransition( { src, alt } ) {
 		if ( img.current ) {
 			setContainerHeight( img.current.parentNode.getBoundingClientRect().width );
 		}
-	}, [] );
+	}, [ src ] );
 
 	const imageStyle = {
 		opacity: '0',
