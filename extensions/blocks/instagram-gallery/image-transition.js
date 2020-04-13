@@ -15,7 +15,7 @@ export default function ImageTransition( { src, alt } ) {
 
 	const onImageLoad = () => {
 		setLoaded( true );
-		setSize( 'auto' );
+		setContainerHeight( 'auto' );
 	};
 
 	useEffect( () => {
