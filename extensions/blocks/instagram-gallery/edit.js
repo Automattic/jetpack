@@ -2,7 +2,7 @@
  * External dependencies
  */
 import classnames from 'classnames';
-import { debounce, isEmpty, isEqual, take, times } from 'lodash';
+import { isEmpty, isEqual, times } from 'lodash';
 
 /**
  * WordPress dependencies
@@ -10,7 +10,6 @@ import { debounce, isEmpty, isEqual, take, times } from 'lodash';
 import apiFetch from '@wordpress/api-fetch';
 import { InspectorControls } from '@wordpress/block-editor';
 import {
-	Animate,
 	Button,
 	ExternalLink,
 	PanelBody,
@@ -21,7 +20,7 @@ import {
 	withNotices,
 } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 
 /**
@@ -58,7 +57,7 @@ const InstagramGalleryEdit = props => {
 		apiFetch( {
 			path: addQueryArgs( '/wpcom/v2/instagram/gallery', {
 				access_token: accessToken,
-				count,
+				count: 30,
 			} ),
 		} ).then( response => {
 			setIsLoadingGallery( false );
@@ -73,7 +72,22 @@ const InstagramGalleryEdit = props => {
 			setAttributes( { instagramUser: response.external_name } );
 			setImages( response.images );
 		} );
-	}, [ accessToken, count, noticeOperations, setAttributes ] );
+	}, [ accessToken, noticeOperations, setAttributes ] );
+
+	useEffect( () => {
+		noticeOperations.removeAllNotices();
+
+		if ( images.length < count ) {
+			noticeOperations.createNotice( {
+				status: 'info',
+				content: __(
+					sprintf( 'There are currently only %s posts in your Instagram account', images.length ),
+					'jetpack'
+				),
+				isDismissible: false,
+			} );
+		}
+	}, [ count, images ] );
 
 	const connectToInstagram = () => {
 		setIsConnecting( true );
@@ -117,13 +131,6 @@ const InstagramGalleryEdit = props => {
 		} );
 	};
 
-	const debouncedSetNumberOfPosts = debounce( value => {
-		if ( value < images.length ) {
-			setImages( take( images, value ) );
-		}
-		setAttributes( { count: value } );
-	}, 500 );
-
 	const showPlaceholder = ! isLoadingGallery && ( ! accessToken || isEmpty( images ) );
 	const showSidebar = ! showPlaceholder;
 	const showLoadingSpinner = accessToken && isLoadingGallery && isEmpty( images );
@@ -136,6 +143,20 @@ const InstagramGalleryEdit = props => {
 	);
 	const gridStyle = { gridGap: spacing };
 	const photoStyle = { padding: spacing };
+
+	const getImage = index => {
+		if ( images[ index ] ) {
+			const image = images[ index ];
+			return <img alt={ image.title || image.url } src={ image.url } />;
+		}
+
+		return (
+			<img
+				alt={ __( 'Instagram Gallery placeholder', 'jetpack' ) }
+				src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNMyc2tBwAEOgG/c94mJwAAAABJRU5ErkJggg=="
+			/>
+		);
+	};
 
 	return (
 		<div className={ blockClasses }>
@@ -162,36 +183,15 @@ const InstagramGalleryEdit = props => {
 
 			{ showGallery && (
 				<div className={ gridClasses } style={ gridStyle }>
-					{ images.map( image => (
+					{ times( count, index => (
 						<span
-							className="wp-block-jetpack-instagram-gallery__grid-post"
-							key={ image.title || image.link }
+							className={ classnames( 'wp-block-jetpack-instagram-gallery__grid-post' ) }
+							key={ index }
 							style={ photoStyle }
 						>
-							<img alt={ image.title || image.url } src={ image.url } />
+							{ getImage( index ) }
 						</span>
 					) ) }
-					{ isLoadingGallery && count > images.length && (
-						<Animate type="loading">
-							{ ( { className: animateClasses } ) =>
-								times( count - images.length, index => (
-									<span
-										className={ classnames(
-											'wp-block-jetpack-instagram-gallery__grid-post',
-											animateClasses
-										) }
-										key={ `instagram-gallery-placeholder-${ index }` }
-										style={ photoStyle }
-									>
-										<img
-											alt={ __( 'Instagram Gallery placeholder', 'jetpack' ) }
-											src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNMyc2tBwAEOgG/c94mJwAAAABJRU5ErkJggg=="
-										/>
-									</span>
-								) )
-							}
-						</Animate>
-					) }
 				</div>
 			) }
 
@@ -218,10 +218,11 @@ const InstagramGalleryEdit = props => {
 						</PanelRow>
 					</PanelBody>
 					<PanelBody title={ __( 'Gallery Settings', 'jetpack' ) }>
+						<div className="wp-block-jetpack-instagram-gallery__count-notice">{ noticeUI }</div>
 						<RangeControl
 							label={ __( 'Number of Posts', 'jetpack' ) }
 							value={ count }
-							onChange={ debouncedSetNumberOfPosts }
+							onChange={ value => setAttributes( { count: value } ) }
 							min={ 1 }
 							max={ 30 }
 						/>
