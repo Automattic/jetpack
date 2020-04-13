@@ -142,17 +142,25 @@ class Posts extends Module {
 	 */
 	public function daily_akismet_meta_cleanup_before( $feedback_ids ) {
 		remove_action( 'deleted_post_meta', $this->action_handler );
-		/**
-		 * Used for syncing deletion of batch post meta
-		 *
-		 * @since 6.1.0
-		 *
-		 * @module sync
-		 *
-		 * @param array $feedback_ids feedback post IDs
-		 * @param string $meta_key to be deleted
-		 */
-		do_action( 'jetpack_post_meta_batch_delete', $feedback_ids, '_feedback_akismet_values' );
+
+		if ( ! is_array( $feedback_ids ) || count( $feedback_ids ) < 1 ) {
+			return;
+		}
+
+		$ids_chunks = array_chunk( $feedback_ids, 100, false );
+		foreach ( $ids_chunks as $chunk ) {
+			/**
+			 * Used for syncing deletion of batch post meta
+			 *
+			 * @since 6.1.0
+			 *
+			 * @module sync
+			 *
+			 * @param array $feedback_ids feedback post IDs
+			 * @param string $meta_key to be deleted
+			 */
+			do_action( 'jetpack_post_meta_batch_delete', $chunk, '_feedback_akismet_values' );
+		}
 	}
 
 	/**
