@@ -285,6 +285,10 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 				</label>
 			</p>
 
+			<?php } else { ?>
+
+			<input type="hidden" id="<?php echo esc_attr( $this->get_field_id( 'apikey' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'apikey' ) ); ?>" value="<?php echo esc_attr( $apikey ); ?>" />
+
 			<?php } // end if jetpack_google_maps_api_key check. ?>
 
 			<p class="jp-contact-info-admin-map jp-contact-info-embed-map" style="<?php echo $instance['showmap'] ? '' : 'display: none;'; ?>">
