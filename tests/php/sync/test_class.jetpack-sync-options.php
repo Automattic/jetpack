@@ -140,6 +140,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'jetpack_autoupdate_translations'          => 'pineapple',
 			'carousel_background_color'                => 'pineapple',
 			'carousel_display_exif'                    => 'pineapple',
+			'carousel_display_comments'                => 'pineapple',
 			'jetpack_portfolio'                        => 'pineapple',
 			'jetpack_portfolio_posts_per_page'         => 'pineapple',
 			'jetpack_testimonial'                      => 'pineapple',

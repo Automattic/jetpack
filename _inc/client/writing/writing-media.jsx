@@ -23,10 +23,13 @@ class WritingMedia extends Component {
 	/**
 	 * Get options for initial state.
 	 *
-	 * @returns {Object} {{carousel_display_exif: Boolean}}
+	 * @type {Object}  state                           Inner component state.
+	 * @type {Boolean} state.carousel_display_exif     Whether EXIF data will be displayed in the carousel.
+	 * @type {Boolean} state.carousel_display_comments Whether text box for commenting and comment list will be displayed in the carousel.
 	 */
 	state = {
 		carousel_display_exif: this.props.getOptionValue( 'carousel_display_exif', 'carousel' ),
+		carousel_display_comments: this.props.getOptionValue( 'carousel_display_comments', 'carousel' ),
 	};
 
 	/**
@@ -45,6 +48,10 @@ class WritingMedia extends Component {
 
 	handleCarouselDisplayExifChange = () => {
 		this.updateOptions( 'carousel_display_exif' );
+	};
+
+	handleCarouselDisplayCommentsChange = () => {
+		this.updateOptions( 'carousel_display_comments' );
 	};
 
 	render() {
@@ -99,6 +106,18 @@ class WritingMedia extends Component {
 						>
 							<span className="jp-form-toggle-explanation">
 								{ __( 'Show photo Exif metadata in carousel (when available)' ) }
+							</span>
+						</CompactFormToggle>
+						<CompactFormToggle
+							checked={ this.state.carousel_display_comments }
+							disabled={
+								! isCarouselActive ||
+								this.props.isSavingAnyOption( [ 'carousel', 'carousel_display_comments' ] )
+							}
+							onChange={ this.handleCarouselDisplayCommentsChange }
+						>
+							<span className="jp-form-toggle-explanation">
+								{ __( 'Show comments area in carousel' ) }
 							</span>
 						</CompactFormToggle>
 						<FormFieldset>
