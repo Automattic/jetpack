@@ -60,6 +60,18 @@ const settingsRoutes = [
 	'/privacy',
 ];
 
+const dashboardRoutes = [ defaultRoute, dashboardRoute, myPlanRoute, plansRoute ];
+const settingsRoutes = [
+	'#/settings',
+	'#/security',
+	'#/performance',
+	'#/writing',
+	'#/sharing',
+	'#/discussion',
+	'#/traffic',
+	'#/privacy',
+];
+
 class Main extends React.Component {
 	UNSAFE_componentWillMount() {
 		this.props.setInitialState();
