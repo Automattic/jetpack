@@ -681,7 +681,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 					'short_description' => sprintf(
 						/* translators: %1$s - A debugging url */
 						__( 'Jetpack.com detected an error on the WP.com Self Test. Visit the Jetpack Debug page for more info: %1$s, or contact support.', 'jetpack' ),
-						esc_url( Redirect::get_url( 'jetpack-support-debug' ) )
+						Redirect::get_url( 'jetpack-support-debug', array( 'query' => 'url=' . rawurlencode( site_url() ) ) )
 					),
 					'action_label'      => $this->helper_get_support_text(),
 					'action'            => $this->helper_get_support_url(),
