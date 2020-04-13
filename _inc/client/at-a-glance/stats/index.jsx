@@ -175,7 +175,9 @@ export class DashStats extends Component {
 								'Something happened while loading stats. Please try again later or {{a}}view your stats now on WordPress.com{{/a}}',
 								{
 									components: {
-										a: <a href={ getRedirectUrl( 'calypso-stats-insights' ) } />,
+										a: <a href={ getRedirectUrl( 'calypso-stats-insights', {
+												site: this.props.siteRawUrl,
+											} ) } />,
 									},
 								}
 							) }
