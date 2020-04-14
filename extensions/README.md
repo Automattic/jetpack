@@ -20,8 +20,8 @@ Extensions in the `extensions/blocks` folder loosely follow this structure:
 	├── block-or-plugin-name.php ← PHP file where the block and its assets are registered.
 	├── editor.js                ← script loaded only in the editor
 	├── editor.scss              ← styles loaded only in the editor
-	├── view.js                  ← script loaded in the editor and theme
-	└── view.scss                ← styles loaded in the editor and theme
+	├── view.js                  ← script loaded on the frontend
+	└── view.scss                ← styles loaded on the frontend
 ```
 
 If your block depends on another block, place them all in extensions folder:
