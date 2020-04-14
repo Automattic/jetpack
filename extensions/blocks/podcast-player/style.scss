@@ -420,7 +420,8 @@ $player-background: transparent;
 	 * approach will allow us to customize colors via CSS variables.
 	 */
 	@supports ( mask-image: none ) or ( -webkit-mask-image: none ) {
-		.mejs-button > button {
+		.mejs-button > button,
+		.jetpack-podcast-player__track-status-icon--playing {
 			background-image: none;
 			background-color: var( --jetpack-podcast-player-primary );
 			mask: url( '/wp-includes/js/mediaelement/mejs-controls.svg' );
@@ -444,6 +445,15 @@ $player-background: transparent;
 
 		.mejs-unmute > button {
 			mask-position: -40px 0;
+		}
+
+		.jetpack-podcast-player__track-status-icon--playing {
+			mask-position: -60px 4px;
+			max-width: 20px;
+			margin-right: 2px;
+			svg {
+				visibility: hidden;
+			}
 		}
 	}
 }
