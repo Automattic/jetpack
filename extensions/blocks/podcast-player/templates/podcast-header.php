@@ -82,11 +82,11 @@ $track  = ( is_array( $tracks ) && ! empty( $tracks ) ) ? $tracks[0] : array();
 				[title]="podcastPlayer.tracks[currentTrack].title"
 			>
 				<p fallback>
-					<a [href]="podcastPlayer.tracks[currentTrack].link" href="<?php esc_url( $track['link'] ); ?>">
-						<?php __( 'Open episode page', 'jetpack' ); ?>
+					<a [href]="podcastPlayer.tracks[currentTrack].link" href="<?php echo esc_url( $track['link'] ); ?>">
+						<?php esc_html_e( 'Open episode page', 'jetpack' ); ?>
 					</a>
-					<a download [href]="podcastPlayer.tracks[currentTrack].src" href="<?php esc_url( $track['src'] ); ?>">
-						<?php __( 'Download audio', 'jetpack' ); ?>
+					<a download [href]="podcastPlayer.tracks[currentTrack].src" href="<?php echo esc_url( $track['src'] ); ?>">
+						<?php esc_html_e( 'Download audio', 'jetpack' ); ?>
 					</a>
 				</p>
 			</amp-audio>
