@@ -137,7 +137,7 @@ if ( ! function_exists( 'wp_notify_postauthor' ) && Jetpack::is_active() ) :
 
 		$notify_message .= $moderate_on_wpcom
 			? Redirect::get_url(
-				'calypso-all-comments',
+				'calypso-comments-all',
 				array(
 					'path' => $comment->comment_post_ID,
 				)
@@ -371,7 +371,7 @@ if ( ! function_exists( 'wp_notify_moderator' ) && Jetpack::is_active() ) :
 		) . "\r\n";
 
 		$notify_message .= $moderate_on_wpcom
-			? Redirect::get_url( 'calypso-pending-comments' )
+			? Redirect::get_url( 'calypso-comments-pending' )
 			: admin_url( 'edit-comments.php?comment_status=moderated#wpbody-content' ) . "\r\n";
 
 		/* translators: Comment moderation notification email subject. 1: Site name, 2: Post title */

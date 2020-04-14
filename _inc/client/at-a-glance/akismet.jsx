@@ -187,7 +187,7 @@ class DashAkismet extends Component {
 					key="moderate-comments"
 					className="jp-dash-item__manage-in-wpcom"
 					compact
-					href={ getRedirectUrl( 'calypso-all-comments', { site: this.props.siteRawUrl } ) }
+					href={ getRedirectUrl( 'calypso-comments-all', { site: this.props.siteRawUrl } ) }
 				>
 					{ __( 'Moderate comments' ) }
 				</Card>
