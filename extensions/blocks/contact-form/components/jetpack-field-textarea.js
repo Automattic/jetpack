@@ -72,12 +72,6 @@ function JetpackFieldTextarea( {
 							'jetpack'
 						) }
 					/>
-					<TextControl
-						label={ __( 'Default value', 'jetpack' ) }
-						value={ defaultValue }
-						onChange={ value => setAttributes( { defaultValue: value } ) }
-						help={ __( 'The value of the field if no edits are made.', 'jetpack' ) }
-					/>
 				</PanelBody>
 			</InspectorControls>
 		</Fragment>
