@@ -450,6 +450,7 @@ $player-background: transparent;
 		.jetpack-podcast-player__track-status-icon--playing {
 			mask-position: -60px 4px;
 			max-width: 20px;
+			max-height: 24px;
 			margin-right: 2px;
 			svg {
 				visibility: hidden;
