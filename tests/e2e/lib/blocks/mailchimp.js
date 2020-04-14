@@ -31,7 +31,7 @@ export default class MailchimpBlock {
 	 *
 	 */
 	async connect( isLoggedIn = true ) {
-		const setupFormSelector = this.getSelector( "a[href*='wpcom-marketing-connections']" );
+		const setupFormSelector = this.getSelector( "a[href*='calypso-marketing-connections']" );
 		const formSelector = await waitForSelector( this.page, setupFormSelector );
 		const hrefProperty = await formSelector.getProperty( 'href' );
 		const connectionsUrl = await hrefProperty.jsonValue();

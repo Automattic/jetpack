@@ -1247,8 +1247,8 @@ function publicize_calypso_url() {
 	}
 
 	if ( $site_suffix ) {
-		return Redirect::get_url( 'wpcom-marketing-connections', array( 'site' => $site_suffix ) );
+		return Redirect::get_url( 'calypso-marketing-connections', array( 'site' => $site_suffix ) );
 	} else {
-		return Redirect::get_url( 'wpcom-marketing-connections-base' );
+		return Redirect::get_url( 'calypso-marketing-connections-base' );
 	}
 }

@@ -44,7 +44,7 @@ export const Publicize = withModuleSettingsFormHelpers(
 						onClick={ this.trackClickConfigure }
 						target="_blank"
 						rel="noopener noreferrer"
-						href={ getRedirectUrl( 'wpcom-marketing-connections', { site: siteRawUrl } ) }
+						href={ getRedirectUrl( 'calypso-marketing-connections', { site: siteRawUrl } ) }
 					>
 						{ __( 'Connect your social media accounts' ) }
 					</Card>

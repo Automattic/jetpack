@@ -78,8 +78,8 @@ class PlanGrid extends React.Component {
 		const currently = __( 'You’re currently on Jetpack %(plan)s.', {
 			args: { plan: this.props.sitePlan.product_name_short },
 		} );
-		const myPlanUrl = getRedirectUrl( 'wpcom-plans-my-plan', { site: this.props.siteRawUrl } );
-		const plansUrl = getRedirectUrl( 'wpcom-plans', { site: this.props.siteRawUrl } );
+		const myPlanUrl = getRedirectUrl( 'calypso-plans-my-plan', { site: this.props.siteRawUrl } );
+		const plansUrl = getRedirectUrl( 'calypso-plans', { site: this.props.siteRawUrl } );
 
 		return (
 			<div className="plans-mobile-notice dops-card">

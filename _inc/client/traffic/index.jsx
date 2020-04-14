@@ -102,7 +102,7 @@ export class Traffic extends React.Component {
 				{ foundSeo && (
 					<SEO
 						{ ...commonProps }
-						configureUrl={ getRedirectUrl( 'wpcom-marketing-traffic', {
+						configureUrl={ getRedirectUrl( 'calypso-marketing-traffic', {
 							site: this.props.siteRawUrl,
 							anchor: 'seo',
 						} ) }
@@ -111,7 +111,7 @@ export class Traffic extends React.Component {
 				{ foundAnalytics && (
 					<GoogleAnalytics
 						{ ...commonProps }
-						configureUrl={ getRedirectUrl( 'wpcom-marketing-traffic', {
+						configureUrl={ getRedirectUrl( 'calypso-marketing-traffic', {
 							site: this.props.siteRawUrl,
 							anchor: 'analytics',
 						} ) }

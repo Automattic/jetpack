@@ -14,7 +14,7 @@ export default function ChecklistCta( { onClick, siteSlug } ) {
 	return (
 		<div className="jp-landing__plan-features-header-checklist-cta-container">
 			<Button
-				href={ getRedirectUrl( 'wpcom-plans-my-plan', { site: siteSlug, query: 'checklist' } ) }
+				href={ getRedirectUrl( 'calypso-plans-my-plan', { site: siteSlug, query: 'checklist' } ) }
 				onClick={ onClick }
 				primary
 			>

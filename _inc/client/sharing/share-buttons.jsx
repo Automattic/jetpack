@@ -53,7 +53,7 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 							onClick={ this.trackClickConfigure }
 							target="_blank"
 							rel="noopener noreferrer"
-							href={ getRedirectUrl( 'wpcom-marketing-sharing-buttons', { site: siteRawUrl } ) }
+							href={ getRedirectUrl( 'calypso-marketing-sharing-buttons', { site: siteRawUrl } ) }
 						>
 							{ __( 'Configure your sharing buttons' ) }
 						</Card>

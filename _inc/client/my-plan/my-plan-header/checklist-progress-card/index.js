@@ -49,7 +49,7 @@ class ChecklistProgressCard extends Component {
 						<div className="checklist__header-secondary">
 							<Button
 								compact
-								href={ getRedirectUrl( 'wpcom-plans-my-plan', { site: siteSlug } ) }
+								href={ getRedirectUrl( 'calypso-plans-my-plan', { site: siteSlug } ) }
 								onClick={ this.trackCtaClick }
 								primary
 							>

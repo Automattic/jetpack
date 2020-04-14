@@ -752,7 +752,7 @@ class A8C_WPCOM_Masterbar {
 		$help_link = Redirect::get_url( 'jetpack-support' );
 
 		if ( jetpack_is_atomic_site() ) {
-			$help_link = Redirect::get_url( 'wpcom-help' );
+			$help_link = Redirect::get_url( 'calypso-help' );
 		}
 
 		$wp_admin_bar->add_menu(
@@ -927,7 +927,7 @@ class A8C_WPCOM_Masterbar {
 
 		// Add Calypso plans link and plan type indicator.
 		if ( is_user_member_of_blog( $current_user->ID ) && current_user_can( 'manage_options' ) ) {
-			$plans_url = Redirect::get_url( 'wpcom-plans' );
+			$plans_url = Redirect::get_url( 'calypso-plans' );
 			$label     = esc_html__( 'Plan', 'jetpack' );
 			$plan      = Jetpack_Plan::get();
 

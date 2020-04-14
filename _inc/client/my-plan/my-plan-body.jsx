@@ -443,7 +443,7 @@ class MyPlanBody extends React.Component {
 										{ this.props.isModuleActivated( 'seo-tools' ) ? (
 											<Button
 												onClick={ this.handleButtonClickForTracking( 'configure_seo' ) }
-												href={ getRedirectUrl( 'wpcom-marketing-traffic', {
+												href={ getRedirectUrl( 'calypso-marketing-traffic', {
 													site: this.props.siteRawUrl,
 												} ) }
 											>
@@ -483,7 +483,7 @@ class MyPlanBody extends React.Component {
 										{ this.props.isModuleActivated( 'google-analytics' ) ? (
 											<Button
 												onClick={ this.handleButtonClickForTracking( 'configure_ga' ) }
-												href={ getRedirectUrl( 'wpcom-marketing-traffic', {
+												href={ getRedirectUrl( 'calypso-marketing-traffic', {
 													site: this.props.siteRawUrl,
 												} ) }
 											>
@@ -676,7 +676,7 @@ class MyPlanBody extends React.Component {
 								</p>
 								<Button
 									onClick={ this.handleButtonClickForTracking( 'free_sharing' ) }
-									href={ getRedirectUrl( 'wpcom-marketing-connections', {
+									href={ getRedirectUrl( 'calypso-marketing-connections', {
 										site: this.props.siteRawUrl,
 									} ) }
 								>

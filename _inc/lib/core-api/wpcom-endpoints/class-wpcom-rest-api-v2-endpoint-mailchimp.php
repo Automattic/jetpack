@@ -82,7 +82,7 @@ class WPCOM_REST_API_V2_Endpoint_Mailchimp extends WP_REST_Controller {
 			);
 		}
 		$connect_url = Redirect::get_url(
-			'wpcom-marketing-connections',
+			'calypso-marketing-connections',
 			array(
 				'site'  => rawurlencode( $site_id ),
 				'query' => 'mailchimp',

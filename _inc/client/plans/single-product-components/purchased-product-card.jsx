@@ -37,7 +37,7 @@ export default function PurchasedProductCard( { purchase, siteRawlUrl } ) {
 
 	const planLink = (
 		<a
-			href={ getRedirectUrl( 'wpcom-plans-my-plan', { site: siteRawlUrl } ) }
+			href={ getRedirectUrl( 'calypso-plans-my-plan', { site: siteRawlUrl } ) }
 			target="_blank"
 			rel="noopener noreferrer"
 		/>

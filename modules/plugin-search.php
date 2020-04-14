@@ -433,11 +433,11 @@ class Jetpack_Plugin_Search {
 		switch ( $feature ) {
 			case 'sharing':
 			case 'publicize':
-				$configure_url = Redirect::get_url( 'wpcom-marketing-connections' );
+				$configure_url = Redirect::get_url( 'calypso-marketing-connections' );
 				break;
 			case 'seo-tools':
 				$configure_url = Redirect::get_url(
-					'wpcom-marketing-traffic',
+					'calypso-marketing-traffic',
 					array(
 						'anchor' => 'seo',
 					)
@@ -445,7 +445,7 @@ class Jetpack_Plugin_Search {
 				break;
 			case 'google-analytics':
 				$configure_url = Redirect::get_url(
-					'wpcom-marketing-traffic',
+					'calypso-marketing-traffic',
 					array(
 						'anchor' => 'analytics',
 					)

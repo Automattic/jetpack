@@ -60,7 +60,7 @@ describe( 'Dashboard Stats', () => {
 			moduleList: { stats: {} },
 			activeTab: 'day',
 			isLinked: true,
-			connectUrl: getRedirectUrl( 'wpcom-jetpack-connect' ),
+			connectUrl: getRedirectUrl( 'calypso-jetpack-connect' ),
 			isEmptyStatsCardDismissed: false,
 			getOptionValue: module => 'stats' === module,
 			getModuleOverride: () => false,

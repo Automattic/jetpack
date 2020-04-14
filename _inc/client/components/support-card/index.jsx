@@ -89,7 +89,7 @@ class SupportCard extends React.Component {
 								onClick={ this.trackAskQuestionClick }
 								href={
 									this.props.isAtomicSite
-										? getRedirectUrl( 'wpcom-help-contact' )
+										? getRedirectUrl( 'calypso-help-contact' )
 										: jetpackSupportURl
 								}
 							>
@@ -99,7 +99,7 @@ class SupportCard extends React.Component {
 								onClick={ this.trackSearchClick }
 								href={
 									this.props.isAtomicSite
-										? getRedirectUrl( 'wpcom-help' )
+										? getRedirectUrl( 'calypso-help' )
 										: getRedirectUrl( 'jetpack-support' )
 								}
 							>

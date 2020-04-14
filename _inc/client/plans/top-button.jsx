@@ -34,7 +34,7 @@ export default class TopButton extends React.Component {
 			plansUpgradeUrl,
 		} = this.props;
 		const url = isActivePlan
-			? getRedirectUrl( 'wpcom-plans-my-plan', { site: siteRawUrl } )
+			? getRedirectUrl( 'calypso-plans-my-plan', { site: siteRawUrl } )
 			: plansUpgradeUrl;
 		const className = classNames(
 			'plan-features__table-item',

@@ -43,5 +43,5 @@ function jetpack_sharedaddy_configuration_url() {
 		return admin_url( 'options-general.php?page=sharing' );
 	}
 
-	return Redirect::get_url( 'wpcom-marketing-sharing-buttons' );
+	return Redirect::get_url( 'calypso-marketing-sharing-buttons' );
 }
