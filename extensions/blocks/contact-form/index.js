@@ -77,6 +77,14 @@ const FieldDefaults = {
 			type: 'string',
 			default: '',
 		},
+		padding: {
+			type: 'number',
+			default: defaultAttributes.padding.default,
+		},
+		spacing: {
+			type: 'number',
+			default: defaultAttributes.spacing.default,
+		},
 	},
 	transforms: {
 		to: [
@@ -122,14 +130,6 @@ const FieldDefaults = {
 				isMatch: ( { options } ) => ! options.length,
 				transform: attributes => createBlock( 'jetpack/field-textarea', attributes ),
 			},
-			/* // not yet ready for prime time.
-			{
-				type: 'block',
-				blocks: [ 'jetpack/field-checkbox' ],
-				isMatch: ( { options } ) => 1 === options.length,
-				transform: ( attributes )=>createBlock( 'jetpack/field-checkbox', attributes )
-			},
-			*/
 			{
 				type: 'block',
 				blocks: [ 'jetpack/field-checkbox-multiple' ],
@@ -157,18 +157,22 @@ const getFieldLabel = ( { attributes, name: blockName } ) => {
 	return null === attributes.label ? getBlockType( blockName ).title : attributes.label;
 };
 
-const editField = type => props => (
-	<JetpackField
-		type={ type }
-		label={ getFieldLabel( props ) }
-		required={ props.attributes.required }
-		setAttributes={ props.setAttributes }
-		isSelected={ props.isSelected }
-		defaultValue={ props.attributes.defaultValue }
-		placeholder={ props.attributes.placeholder }
-		id={ props.attributes.id }
-	/>
-);
+const editField = type => props => {
+	return (
+		<JetpackField
+			type={ type }
+			label={ getFieldLabel( props ) }
+			required={ props.attributes.required }
+			setAttributes={ props.setAttributes }
+			isSelected={ props.isSelected }
+			defaultValue={ props.attributes.defaultValue }
+			placeholder={ props.attributes.placeholder }
+			padding={ props.attributes.padding }
+			spacing={ props.attributes.spacing }
+			id={ props.attributes.id }
+		/>
+	);
+};
 
 const editMultiField = type => props => (
 	<JetpackFieldMultiple
@@ -179,6 +183,7 @@ const editMultiField = type => props => (
 		type={ type }
 		isSelected={ props.isSelected }
 		id={ props.attributes.id }
+		spacing={ props.attributes.spacing }
 	/>
 );
 
@@ -289,6 +294,8 @@ export const childBlocks = [
 					defaultValue={ props.attributes.defaultValue }
 					placeholder={ props.attributes.placeholder }
 					id={ props.attributes.id }
+					padding={ props.attributes.padding }
+					spacing={ props.attributes.spacing }
 				/>
 			),
 		},
@@ -311,6 +318,7 @@ export const childBlocks = [
 					isSelected={ props.isSelected }
 					defaultValue={ props.attributes.defaultValue }
 					id={ props.attributes.id }
+					spacing={ props.attributes.spacing }
 				/>
 			),
 			attributes: {

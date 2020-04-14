@@ -15,6 +15,7 @@ import {
 	Button,
 	Dropdown,
 	Icon,
+	RangeControl,
 } from '@wordpress/components';
 import { Component } from '@wordpress/element';
 import { compose, withInstanceId } from '@wordpress/compose';
@@ -57,6 +58,11 @@ const ALLOWED_BLOCKS = [
 	'core/verse',
 	'core/video',
 ];
+
+const MIN_PADDING_VALUE = 5;
+const MAX_PADDING_VALUE = 50;
+const MIN_SPACING_VALUE = 5;
+const MAX_SPACING_VALUE = 50;
 
 class JetpackContactFormEdit extends Component {
 	constructor( ...args ) {
@@ -263,7 +269,7 @@ class JetpackContactFormEdit extends Component {
 			selectBlock,
 		} = this.props;
 
-		const { hasFormSettingsSet } = attributes;
+		const { hasFormSettingsSet, padding, spacing } = attributes;
 		const formClassnames = classnames( className, 'jetpack-contact-form', {
 			'has-intro': ! hasFormSettingsSet,
 		} );
@@ -336,6 +342,27 @@ class JetpackContactFormEdit extends Component {
 				<InspectorControls>
 					<PanelBody title={ __( 'Form Settings', 'jetpack' ) }>
 						{ this.renderFormSettings() }
+					</PanelBody>
+					<PanelBody title={ __( 'Spacing Settings', 'jetpack' ) }>
+						<RangeControl
+							value={ padding }
+							label={ __( 'Space Inside Fields', 'jetpack' ) }
+							min={ MIN_PADDING_VALUE }
+							max={ MAX_PADDING_VALUE }
+							initialPosition={ padding }
+							allowReset
+							onChange={ newPadding => setAttributes( { padding: newPadding } ) }
+						/>
+
+						<RangeControl
+							value={ spacing }
+							label={ __( 'Space Between Fields', 'jetpack' ) }
+							min={ MIN_SPACING_VALUE }
+							max={ MAX_SPACING_VALUE }
+							initialPosition={ padding }
+							allowReset
+							onChange={ newSpacing => setAttributes( { spacing: newSpacing } ) }
+						/>
 					</PanelBody>
 				</InspectorControls>
 

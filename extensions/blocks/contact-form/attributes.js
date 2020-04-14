@@ -34,7 +34,9 @@ export const defaultAttributes = {
 		type: 'string',
 		validator: colorValidator,
 	},
-	submitButtonClasses: { type: 'string' },
+	submitButtonClasses: {
+		type: 'string',
+	},
 	hasFormSettingsSet: {
 		type: 'string',
 		default: null,
@@ -50,6 +52,14 @@ export const defaultAttributes = {
 	customThankyouRedirect: {
 		type: 'string',
 		default: '',
+	},
+	padding: {
+		type: 'number',
+		default: 12,
+	},
+	spacing: {
+		type: 'number',
+		default: 10,
 	},
 
 	// Deprecated

@@ -4,7 +4,8 @@
 import { __ } from '@wordpress/i18n';
 import { BaseControl, IconButton } from '@wordpress/components';
 import { Component, Fragment } from '@wordpress/element';
-import { withInstanceId } from '@wordpress/compose';
+import { compose, withInstanceId } from '@wordpress/compose';
+import { withSelect } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -52,12 +53,25 @@ class JetpackFieldMultiple extends Component {
 	}
 
 	render() {
-		const { type, instanceId, required, label, setAttributes, isSelected } = this.props;
+		const {
+			type,
+			instanceId,
+			required,
+			label,
+			spacing,
+			setAttributes,
+			isSelected,
+			parentBlock,
+		} = this.props;
 		let { options } = this.props;
 		let { inFocus } = this.state;
 		if ( ! options.length ) {
 			options = [ '' ];
 			inFocus = 0;
+		}
+
+		if ( parentBlock && parentBlock.attributes.spacing !== spacing ) {
+			setAttributes( { spacing: parentBlock.attributes.spacing } );
 		}
 
 		return (
@@ -78,6 +92,9 @@ class JetpackFieldMultiple extends Component {
 					<ol
 						className="jetpack-field-multiple__list"
 						id={ `jetpack-field-multiple-${ instanceId }` }
+						style={ {
+							marginBottom: spacing + 'px',
+						} }
 					>
 						{ options.map( ( option, index ) => (
 							<JetpackOption
@@ -108,4 +125,18 @@ class JetpackFieldMultiple extends Component {
 	}
 }
 
-export default withInstanceId( JetpackFieldMultiple );
+export default compose( [
+	withSelect( select => {
+		const { getBlock, getSelectedBlockClientId, getBlockHierarchyRootClientId } = select(
+			'core/block-editor'
+		);
+		const selectedBlockClientId = getSelectedBlockClientId();
+
+		return {
+			parentBlock: selectedBlockClientId
+				? getBlock( getBlockHierarchyRootClientId( selectedBlockClientId ) )
+				: null,
+		};
+	} ),
+	withInstanceId,
+] )( JetpackFieldMultiple );
