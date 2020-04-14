@@ -20,7 +20,7 @@ import {
 	withNotices,
 } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, sprintf, _n } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 
 /**
@@ -97,13 +97,21 @@ const InstagramGalleryEdit = props => {
 
 	useEffect( () => {
 		noticeOperations.removeAllNotices();
+		const accountImageTotal = images.length;
 
-		if ( showSidebar && images.length < count ) {
+		if ( showSidebar && accountImageTotal < count ) {
 			noticeOperations.createNotice( {
 				status: 'info',
 				content: __(
-					sprintf( 'There are currently only %s posts in your Instagram account', images.length ),
-					'jetpack'
+					sprintf(
+						_n(
+							'There is currently only %s post in your Instagram account',
+							'There are currently only %s posts in your Instagram account',
+							accountImageTotal,
+							'jetpack'
+						),
+						accountImageTotal
+					)
 				),
 				isDismissible: false,
 			} );
