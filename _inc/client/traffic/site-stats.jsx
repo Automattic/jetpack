@@ -172,6 +172,7 @@ class SiteStatsComponent extends React.Component {
 				{ ...this.props }
 				header={ __( 'Site stats', { context: 'Settings header' } ) }
 				hideButton
+				module="site-stats"
 			>
 				<FoldableCard
 					onOpen={ this.trackOpenCard }

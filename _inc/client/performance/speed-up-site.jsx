@@ -219,7 +219,12 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 			}
 
 			return (
-				<SettingsCard { ...this.props } header={ __( 'Performance & speed' ) } hideButton>
+				<SettingsCard
+					{ ...this.props }
+					header={ __( 'Performance & speed' ) }
+					hideButton
+					module="performance-speed"
+				>
 					{ ( foundPhoton || foundAssetCdn ) && (
 						<SettingsGroup
 							hasChild

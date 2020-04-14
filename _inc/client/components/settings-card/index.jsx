@@ -321,9 +321,19 @@ export const SettingsCard = props => {
 		return null;
 	}
 
+	let moduleClassName = '';
+	if ( props.feature ) {
+		moduleClassName = 'jp-settings-' + props.feature;
+	} else if ( props.module ) {
+		moduleClassName = 'jp-settings-' + props.module;
+	}
+
 	return (
 		getModuleOverridenBanner() || (
-			<form className="jp-form-settings-card" onSubmit={ ! isSaving ? props.onSubmit : undefined }>
+			<form
+				className={ `jp-form-settings-card ${ moduleClassName }` }
+				onSubmit={ ! isSaving ? props.onSubmit : undefined }
+			>
 				<SectionHeader label={ header }>
 					{ ! props.hideButton && (
 						<Button primary compact type="submit" disabled={ isSaving || ! props.isDirty() }>

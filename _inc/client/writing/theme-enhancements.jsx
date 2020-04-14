@@ -124,6 +124,7 @@ class ThemeEnhancements extends React.Component {
 				{ ...this.props }
 				header={ __( 'Theme enhancements' ) }
 				hideButton={ ! foundInfiniteScroll || ! this.props.isInfiniteScrollSupported }
+				module="theme-enhancements"
 			>
 				{ infiniteScrollDisabledByOverride && (
 					<ModuleOverriddenBanner moduleName={ infScr.name } compact />
