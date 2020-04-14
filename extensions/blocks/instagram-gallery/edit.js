@@ -110,7 +110,7 @@ const InstagramGalleryEdit = props => {
 	const gridStyle = { gridGap: spacing };
 	const photoStyle = { padding: spacing };
 
-	const getImage = index => {
+	const renderImage = index => {
 		if ( images[ index ] ) {
 			const image = images[ index ];
 			return (
@@ -161,7 +161,7 @@ const InstagramGalleryEdit = props => {
 							key={ index }
 							style={ photoStyle }
 						>
-							{ getImage( index ) }
+							{ renderImage( index ) }
 						</span>
 					) ) }
 				</div>
