@@ -2,19 +2,16 @@
  * WordPress dependencies
  */
 import { useEffect, useState, useRef } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
 
-export default function ImageTransition( { src } ) {
+export default function ImageTransition( { src, alt } ) {
 	const [ loaded, setLoaded ] = useState( false );
-	const [ size, setSize ] = useState( 'auto' );
+	const [ containerHeight, setContainerHeight ] = useState( 'auto' );
 
 	const img = useRef();
-
-	const transitionSpeed = '.5';
 
 	const onImageLoad = () => {
 		setLoaded( true );
@@ -31,13 +28,13 @@ export default function ImageTransition( { src } ) {
 			tmpImg.onload = onImageLoad;
 		}
 		if ( img.current ) {
-			setSize( img.current.parentNode.getBoundingClientRect().width );
+			setContainerHeight( img.current.parentNode.getBoundingClientRect().width );
 		}
 	}, [] );
 
 	const imageStyle = {
 		opacity: '0',
-		transition: `opacity ${ transitionSpeed }s ease-in-out`,
+		transition: `opacity .5s ease-in-out`,
 	};
 
 	const imageLoadedStyle = {
@@ -47,7 +44,7 @@ export default function ImageTransition( { src } ) {
 	const containerStyle = {
 		opacity: '1',
 		backgroundColor: '#A7A79F',
-		height: size,
+		height: containerHeight,
 		display: 'block',
 	};
 
@@ -64,7 +61,7 @@ export default function ImageTransition( { src } ) {
 			>
 				<img
 					ref={ img }
-					alt={ __( 'Instagram Gallery placeholder', 'jetpack' ) }
+					alt={ alt }
 					src={ src }
 					style={ loaded ? { ...imageStyle, ...imageLoadedStyle } : imageStyle }
 				/>
