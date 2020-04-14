@@ -106,6 +106,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Infinite Scroll: avoid breaking functionality on sites without any footer.
 * Infinite Scroll: avoid any conflict that may cause some posts to be missing from Infinite Scroll load.
 * Site Health Tools: improve messaging to make translations easier.
+* Contact Info Widget: avoid the display of notices in the widget settings when an API key is set via a filter.
 * Top Posts Widget: provide default for newly added parameter to avoid errors when using third-party plugins interacting with stats.
 
 = 8.4.1 =
