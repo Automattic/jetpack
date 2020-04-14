@@ -89,7 +89,10 @@ export class DashStats extends Component {
 				nestedValue: null,
 				className: 'statsChartbar',
 				data: {
-					link: getRedirectUrl( 'calypso-stats-' + unit, { site: props.siteRawUrl, query: 'startDate=' + date } ),
+					link: getRedirectUrl( `calypso-stats-${ unit }`, {
+						site: props.siteRawUrl,
+						query: `startDate=${ date }`,
+					} ),
 				},
 				tooltipData: [
 					{
@@ -175,9 +178,13 @@ export class DashStats extends Component {
 								'Something happened while loading stats. Please try again later or {{a}}view your stats now on WordPress.com{{/a}}',
 								{
 									components: {
-										a: <a href={ getRedirectUrl( 'calypso-stats-insights', {
-												site: this.props.siteRawUrl,
-											} ) } />,
+										a: (
+											<a
+												href={ getRedirectUrl( 'calypso-stats-insights', {
+													site: this.props.siteRawUrl,
+												} ) }
+											/>
+										),
 									},
 								}
 							) }

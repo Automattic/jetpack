@@ -165,7 +165,7 @@ class ProStatus extends React.Component {
 				primary={ true }
 				href={ getRedirectUrl( 'calypso-plugins-setup', {
 					site: this.props.siteRawUrl,
-					query: 'only=' + feature,
+					query: `only=${ feature }`,
 				} ) }
 			>
 				{ __( 'Set up', { context: 'Caption for a button to set up a feature.' } ) }
