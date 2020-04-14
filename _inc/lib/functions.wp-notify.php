@@ -151,7 +151,7 @@ if ( ! function_exists( 'wp_notify_postauthor' ) && Jetpack::is_active() ) :
 			'calypso-edit-comment',
 			array(
 				'path'  => $comment_id,
-				'query' => 'action=__action__',
+				'query' => 'action=__action__', // __action__ will be replaced by the actual action.
 			)
 		);
 
@@ -322,7 +322,7 @@ if ( ! function_exists( 'wp_notify_moderator' ) && Jetpack::is_active() ) :
 			'calypso-edit-comment',
 			array(
 				'path'  => $comment_id,
-				'query' => 'action=__action__',
+				'query' => 'action=__action__', // __action__ will be replaced by the actual action.
 			)
 		);
 
