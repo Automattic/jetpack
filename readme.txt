@@ -96,6 +96,19 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
+= 8.4.2 =
+
+* Release date: April 14, 2020
+
+**Bug Fixes**
+
+* General: avoid conflicts with other plugins interacting with the AMP plugin and the admin bar.
+* Infinite Scroll: avoid breaking functionality on sites without any footer.
+* Infinite Scroll: avoid any conflict that may cause some posts to be missing from Infinite Scroll load.
+* Site Health Tools: improve messaging to make translations easier.
+* Contact Info Widget: avoid the display of notices in the widget settings when an API key is set via a filter.
+* Top Posts Widget: provide default for newly added parameter to avoid errors when using third-party plugins interacting with stats.
+
 = 8.4.1 =
 
 * Release date: April 7, 2020
