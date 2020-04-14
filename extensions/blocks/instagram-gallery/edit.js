@@ -82,21 +82,6 @@ const InstagramGalleryEdit = props => {
 		} );
 	}, [ accessToken, noticeOperations, setAttributes ] );
 
-	useEffect( () => {
-		noticeOperations.removeAllNotices();
-
-		if ( images.length < count ) {
-			noticeOperations.createNotice( {
-				status: 'info',
-				content: __(
-					sprintf( 'There are currently only %s posts in your Instagram account', images.length ),
-					'jetpack'
-				),
-				isDismissible: false,
-			} );
-		}
-	}, [ count, images ] );
-
 	const showPlaceholder = ! isLoadingGallery && ( ! accessToken || isEmpty( images ) );
 	const showSidebar = ! showPlaceholder;
 	const showLoadingSpinner = accessToken && isLoadingGallery && isEmpty( images );
@@ -109,6 +94,21 @@ const InstagramGalleryEdit = props => {
 	);
 	const gridStyle = { gridGap: spacing };
 	const photoStyle = { padding: spacing };
+
+	useEffect( () => {
+		noticeOperations.removeAllNotices();
+
+		if ( showSidebar && images.length < count ) {
+			noticeOperations.createNotice( {
+				status: 'info',
+				content: __(
+					sprintf( 'There are currently only %s posts in your Instagram account', images.length ),
+					'jetpack'
+				),
+				isDismissible: false,
+			} );
+		}
+	}, [ count, images ] );
 
 	const renderImage = index => {
 		if ( images[ index ] ) {
