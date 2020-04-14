@@ -254,31 +254,46 @@ class Main extends React.Component {
 				);
 				break;
 			case '/setup':
-				navComponent = null;
-				pageComponent = <SetupWizard />;
+				if ( this.props.currentVersion.includes( 'alpha' ) ) {
+					navComponent = null;
+					pageComponent = <SetupWizard />;
+				} else {
+					const history = createHistory();
+					history.replace( window.location.pathname + '?page=jetpack#/dashboard' );
+					pageComponent = (
+						<AtAGlance
+							siteRawUrl={ this.props.siteRawUrl }
+							siteAdminUrl={ this.props.siteAdminUrl }
+							rewindStatus={ this.props.rewindStatus }
+						/>
+					);
+				}
 				break;
 
 			default:
-				// TODO: remove, temporarily starting on the setup page
 				const history = createHistory();
-				history.replace( window.location.pathname + '?page=jetpack#/setup' );
-			// If no route found, kick them to the dashboard and do some url/history trickery
-			// history.replace( window.location.pathname + '?page=jetpack#/dashboard' );
-			// pageComponent = (
-			// 	<AtAGlance
-			// 		siteRawUrl={ this.props.siteRawUrl }
-			// 		siteAdminUrl={ this.props.siteAdminUrl }
-			// 		rewindStatus={ this.props.rewindStatus }
-			// 	/>
-			// );
+				if ( this.props.currentVersion.includes( 'alpha' ) ) {
+					history.replace( window.location.pathname + '?page=jetpack#/setup' );
+					navComponent = null;
+					pageComponent = <SetupWizard />;
+				} else {
+					// If no route found, kick them to the dashboard and do some url/history trickery
+					history.replace( window.location.pathname + '?page=jetpack#/dashboard' );
+					pageComponent = (
+						<AtAGlance
+							siteRawUrl={ this.props.siteRawUrl }
+							siteAdminUrl={ this.props.siteAdminUrl }
+							rewindStatus={ this.props.rewindStatus }
+						/>
+					);
+				}
 		}
 
-		const indices =
-			this.props.currentVersion.includes( 'alpha' ) || this.props.currentVersion.includes( 'beta' )
-				? { setup: 1, dashboard: 2, settings: 3 }
-				: { setup: -1, dashboard: 1, settings: 2 };
+		const pageOrder = this.props.currentVersion.includes( 'alpha' )
+			? { setup: 1, dashboard: 2, settings: 3 }
+			: { setup: -1, dashboard: 1, settings: 2 };
 
-		window.wpNavMenuClassChange( indices );
+		window.wpNavMenuClassChange( pageOrder );
 
 		return (
 			<div aria-live="assertive">
