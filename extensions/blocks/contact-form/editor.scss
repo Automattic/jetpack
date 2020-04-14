@@ -63,11 +63,13 @@
 }
 
 .jetpack-field-label {
-	display: flex;
-	flex-direction: row;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: baseline;
 
 	.components-base-control {
-		margin-top:-1px;
+		margin-top: -1px;
 		margin-bottom: -3px;
 
 		&.jetpack-field-label__required {
@@ -81,9 +83,16 @@
 		}
 	}
 
+	.rich-text.jetpack-field-label__input {
+		cursor: text;
+		padding-right: 8px;
+	}
+
 	.required {
-		color: var( --color-error );
 		word-break: normal;
+		color: unset;
+		opacity: 0.45;
+		font-size: 15px;
 	}
 
 	.components-toggle-control .components-base-control__field {
@@ -92,30 +101,8 @@
 }
 
 .jetpack-field-label__input {
-	flex-grow: 1;
 	min-height: unset;
 	padding: 0;
-}
-
-// Duplicated to elevate specificity in order to overwrite core styles
-.jetpack-field-label__input.jetpack-field-label__input.jetpack-field-label__input {
-	border-color: $white;
-	border-radius: 0;
-	font-weight: 600;
-	margin: 0;
-	margin-bottom: 2px;
-	padding: 0;
-	width: auto;
-	background: transparent;
-
-	&:hover {
-		border-color: #357cb5;
-	}
-
-	&:focus {
-		box-shadow: none;
-		outline: none;
-	}
 }
 
 input.components-text-control__input {
@@ -131,18 +118,21 @@ input.components-text-control__input {
 	.components-textarea-control__input {
 		color: #72777c;
 		padding: 10px 8px;
+		border-color: unset;
+		box-shadow: unset;
 	}
 }
 
 .jetpack-field-checkbox__checkbox.jetpack-field-checkbox__checkbox.jetpack-field-checkbox__checkbox {
 	float: left;
-	margin: 3px 5px 0 0
+	margin: 3px 5px 0 0;
 }
 
 // Duplicated to elevate specificity in order to overwrite core styles
 .jetpack-field-multiple__list.jetpack-field-multiple__list {
 	list-style-type: none;
 	margin: 0;
+	padding-left: 0;
 
 	&:empty {
 		display: none;

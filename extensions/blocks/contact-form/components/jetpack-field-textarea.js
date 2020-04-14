@@ -4,7 +4,13 @@
 import { __ } from '@wordpress/i18n';
 import { Fragment } from '@wordpress/element';
 import { InspectorControls } from '@wordpress/block-editor';
-import { PanelBody, ToggleControl, TextareaControl, TextControl } from '@wordpress/components';
+import {
+	PanelBody,
+	ToggleControl,
+	TextareaControl,
+	TextControl,
+	Disabled,
+} from '@wordpress/components';
 import { compose } from '@wordpress/compose';
 import { withSelect } from '@wordpress/data';
 
@@ -35,24 +41,24 @@ function JetpackFieldTextarea( {
 	return (
 		<Fragment>
 			<div className="jetpack-field">
-				<TextareaControl
-					label={
-						<JetpackFieldLabel
-							required={ required }
-							label={ label }
-							setAttributes={ setAttributes }
-							isSelected={ isSelected }
-						/>
-					}
-					placeholder={ placeholder }
-					value={ placeholder }
-					onChange={ value => setAttributes( { placeholder: value } ) }
-					title={ __( 'Set the placeholder text', 'jetpack' ) }
-					style={ {
-						padding: padding + 'px',
-						marginBottom: spacing + 'px',
-					} }
+				<JetpackFieldLabel
+					required={ required }
+					label={ label }
+					setAttributes={ setAttributes }
+					isSelected={ isSelected }
 				/>
+				<Disabled>
+					<TextareaControl
+						placeholder={ placeholder }
+						value={ placeholder }
+						onChange={ value => setAttributes( { placeholder: value } ) }
+						title={ __( 'Set the placeholder text', 'jetpack' ) }
+						style={ {
+							padding: padding + 'px',
+							marginBottom: spacing + 'px',
+						} }
+					/>
+				</Disabled>
 			</div>
 			<InspectorControls>
 				<PanelBody title={ __( 'Field Settings', 'jetpack' ) }>

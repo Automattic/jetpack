@@ -5,7 +5,7 @@ import classNames from 'classnames';
 import { __ } from '@wordpress/i18n';
 import { Fragment } from '@wordpress/element';
 import { InspectorControls } from '@wordpress/block-editor';
-import { PanelBody, TextControl, ToggleControl } from '@wordpress/components';
+import { PanelBody, TextControl, ToggleControl, Disabled } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
 import { withSelect } from '@wordpress/data';
 
@@ -39,25 +39,25 @@ function JetpackField( props ) {
 	return (
 		<Fragment>
 			<div className={ classNames( 'jetpack-field', { 'is-selected': isSelected } ) }>
-				<TextControl
-					type={ type }
-					label={
-						<JetpackFieldLabel
-							required={ required }
-							label={ label }
-							setAttributes={ setAttributes }
-							isSelected={ isSelected }
-						/>
-					}
-					placeholder={ placeholder }
-					value={ placeholder }
-					onChange={ value => setAttributes( { placeholder: value } ) }
-					title={ __( 'Set the placeholder text', 'jetpack' ) }
-					style={ {
-						padding: padding + 'px',
-						marginBottom: spacing + 'px',
-					} }
+				<JetpackFieldLabel
+					required={ required }
+					label={ label }
+					setAttributes={ setAttributes }
+					isSelected={ isSelected }
 				/>
+				<Disabled>
+					<TextControl
+						type={ type }
+						placeholder={ placeholder }
+						value={ placeholder }
+						onChange={ value => setAttributes( { placeholder: value } ) }
+						title={ __( 'Set the placeholder text', 'jetpack' ) }
+						style={ {
+							padding: padding + 'px',
+							marginBottom: spacing + 'px',
+						} }
+					/>
+				</Disabled>
 			</div>
 			<InspectorControls>
 				<PanelBody title={ __( 'Field Settings', 'jetpack' ) }>

@@ -2,12 +2,13 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { PlainText } from '@wordpress/block-editor';
+import { RichText } from '@wordpress/block-editor';
 
 const JetpackFieldLabel = ( { setAttributes, label, labelFieldName, resetFocus, required } ) => {
 	return (
 		<div className="jetpack-field-label">
-			<PlainText
+			<RichText
+				tagName="label"
 				value={ label }
 				className="jetpack-field-label__input"
 				onChange={ value => {
@@ -18,7 +19,9 @@ const JetpackFieldLabel = ( { setAttributes, label, labelFieldName, resetFocus, 
 					}
 					setAttributes( { label: value } );
 				} }
-				placeholder={ __( 'Write label…', 'jetpack' ) }
+				placeholder={ __( 'Add label…', 'jetpack' ) }
+				withoutInteractiveFormatting
+				allowedFormats={ [ 'core/bold', 'core/italic' ] }
 			/>
 			{ required && <span className="required">{ __( '(required)', 'jetpack' ) }</span> }
 		</div>
