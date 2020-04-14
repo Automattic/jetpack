@@ -353,6 +353,7 @@ export function getProductsForPurchase( state ) {
 			showPromotion: product.show_promotion,
 			recordCount: get( siteProducts, [ optionKey, 'price_tier_usage_quantity' ], '0' ),
 			priceTierSlug: get( siteProducts, [ optionKey, 'price_tier_slug' ], null ),
+			includedInPlans: product.included_in_plans,
 		};
 	} );
 }

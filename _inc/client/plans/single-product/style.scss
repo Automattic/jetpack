@@ -20,6 +20,14 @@
   text-align: center;
   margin: -16px -16px 16px;
   border-bottom: solid 2px $alert-green;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .gridicon {
+	margin-right: 8px;
+	fill: $alert-green;
+  }
 
   @include breakpoint( '>480px' ) {
 	padding: 8px 24px;
@@ -39,17 +47,6 @@
   font-size: 14px;
   color: $gray-text-min;
   text-align: center;
-}
-
-.single-product__accented-card-header-primary {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  svg {
-	margin-right: 8px;
-	fill: $alert-green;
-  }
 }
 
 .single-product__landing-page {
@@ -72,4 +69,20 @@
 	flex-flow: row wrap;
 	display: flex;
 	justify-content: space-evenly;
+}
+
+.single-product__purchase {
+  text-align: center;
+
+  .dops-button {
+	margin: 16px 0;
+  }
+
+  &-description {
+	font-size: 12px;
+	font-style: italic;
+	line-height: 20px;
+	color: #646970;
+	text-align: center;
+  }
 }

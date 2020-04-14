@@ -87,8 +87,17 @@ class ProductSelector extends Component {
 		};
 	}
 
+	getPurchase( product ) {
+		return this.props.activeSitePurchases.find( item => {
+			const planClass = getPlanClass( item.product_slug ).substring( 3 ); // removes the is-
+			if ( product.includedInPlans.includes( planClass ) ) {
+				return item;
+			}
+		} );
+	}
+
 	renderProductsForPurchase() {
-		const { isFetchingData, productsForPurchase, planDuration } = this.props;
+		const { isFetchingData, productsForPurchase, planDuration, siteRawlUrl } = this.props;
 
 		return (
 			<>
@@ -101,6 +110,8 @@ class ProductSelector extends Component {
 							selectedUpgrade={ this.getSelectedUpgrade( product.key ) }
 							planDuration={ planDuration }
 							setSelectedProduct={ this.setSelectedProduct }
+							purchase={ this.getPurchase( product ) }
+							siteRawlUrl={ siteRawlUrl }
 						/>
 					);
 				}, this ) }
