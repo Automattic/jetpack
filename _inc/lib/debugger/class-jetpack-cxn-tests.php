@@ -605,8 +605,8 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 						sprintf(
 							/* translators: placeholder is a number of minutes. */
 							_n(
-								'Jetpack has identified a delay while syncing individual content updates. Certain features might be slower than usual, but this is only temporary while sync catches up with recent changes to your site. <strong>We’re seeing a current delay of %1$d minute</strong>',
-								'Jetpack has identified a delay while syncing individual content updates. Certain features might be slower than usual, but this is only temporary while sync catches up with recent changes to your site. <strong>We’re seeing a current delay of %1$d minutes</strong>',
+								'Jetpack has identified a delay while syncing individual content updates. Certain features might be slower than usual, but this is only temporary while sync catches up with recent changes to your site. <strong>We’re seeing a current delay of %1$d minute.</strong>',
+								'Jetpack has identified a delay while syncing individual content updates. Certain features might be slower than usual, but this is only temporary while sync catches up with recent changes to your site. <strong>We’re seeing a current delay of %1$d minutes.</strong>',
 								intval( $sync_queue->lag() / MINUTE_IN_SECONDS ),
 								'jetpack'
 							),
