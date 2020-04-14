@@ -10,6 +10,7 @@ import { createBlock } from '@wordpress/blocks';
  */
 import edit from './edit';
 import { pinType } from './utils';
+import { supportsCollections } from '../../shared/block-category';
 
 export const URL_REGEX = /^\s*https?:\/\/(?:www\.)?(?:[a-z]{2}\.)?(?:pinterest\.[a-z.]+|pin\.it)\/([^/]+)(\/[^/]+)?/i;
 
@@ -34,7 +35,7 @@ export const settings = {
 
 	icon,
 
-	category: 'jetpack',
+	category: supportsCollections() ? 'embed' : 'jetpack',
 
 	keywords: [
 		_x( 'social', 'block search term', 'jetpack' ),

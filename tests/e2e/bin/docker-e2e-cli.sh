@@ -9,6 +9,18 @@ set -e
 # Include useful functions
 . "$(dirname "$0")/includes.sh"
 
+function usage {
+	echo "usage: $0 command"
+	echo "  setup                        Setup the docker containers for E2E tests"
+	echo "  reset                        Reset the containers state"
+	echo "  stop                         Stops the containers"
+	echo "  db_reset                     Reset the site DB"
+	echo "  sh                           sh into the container"
+	echo "  cli \"subcommand\"             run a wp-cli command"
+	echo "  -h | usage                   output this message"
+	exit 1
+}
+
 FILES=${1-.}
 E2E_DEBUG=${2-true}
 WP_BASE_URL=${3-$(get_ngrok_url)}
@@ -29,6 +41,8 @@ elif [ "${1}" == "sh" ]; then
 	$DC exec $CONTAINER bash
 elif [ "${1}" == "cli" ]; then
 	$DC run --rm -u 33 $CLI ${2}
+elif [ "${1}" == "usage" ]; then
+	usage
 else
-	$DC ${1}
+	usage
 fi

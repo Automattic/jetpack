@@ -399,14 +399,11 @@
         },
         {
             "name": "automattic/jetpack-redirect",
-            "version": "dev-add/redirect-everything-package",
+            "version": "dev-add/redirect-everything-dependency",
             "dist": {
                 "type": "path",
                 "url": "./packages/redirect",
-                "reference": "64978532e4866e6b1a99abf28c2c4f64a3708f73"
-            },
-            "require": {
-                "automattic/jetpack-constants": "@dev"
+                "reference": "3f0328ec369ca80af8eba39d9bc452e1bf9f222c"
             },
             "require-dev": {
                 "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"

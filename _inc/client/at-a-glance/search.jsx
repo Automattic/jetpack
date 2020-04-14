@@ -19,7 +19,7 @@ import Card from 'components/card';
 import JetpackBanner from 'components/jetpack-banner';
 import { isDevMode } from 'state/connection';
 import { getSitePlan, hasActiveSearchPurchase, isFetchingSitePurchases } from 'state/site';
-import { getUpgradeUrl } from 'state/initial-state';
+import { getUpgradeUrl, isAtomicSite } from 'state/initial-state';
 
 /**
  * Displays a card for Search based on the props given.
@@ -74,6 +74,11 @@ class DashSearch extends Component {
 	};
 
 	render() {
+		// NOTE: Jetpack Search currently does not support atomic sites.
+		if ( this.props.isAtomicSite ) {
+			return null;
+		}
+
 		if ( this.props.isFetching ) {
 			return renderCard( {
 				status: '',
@@ -166,6 +171,7 @@ class DashSearch extends Component {
 
 export default connect( state => {
 	return {
+		isAtomicSite: isAtomicSite( state ),
 		isBusinessPlan: 'is-business-plan' === getPlanClass( getSitePlan( state ).product_slug ),
 		isDevMode: isDevMode( state ),
 		isFetching: isFetchingSitePurchases( state ),

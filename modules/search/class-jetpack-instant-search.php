@@ -397,10 +397,12 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		$sidebars = get_option( 'sidebars_widgets', array() );
 		$slug     = Jetpack_Search_Helpers::FILTER_WIDGET_BASE;
 
-		foreach ( (array) $sidebars['jetpack-instant-search-sidebar'] as $widget_id ) {
-			if ( 0 === strpos( $widget_id, $slug ) ) {
-				// Already configured.
-				return;
+		if ( isset( $sidebars['jetpack-instant-search-sidebar'] ) ) {
+			foreach ( (array) $sidebars['jetpack-instant-search-sidebar'] as $widget_id ) {
+				if ( 0 === strpos( $widget_id, $slug ) ) {
+					// Already configured.
+					return;
+				}
 			}
 		}
 

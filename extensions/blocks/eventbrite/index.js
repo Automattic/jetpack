@@ -12,6 +12,7 @@ import attributes from './attributes';
 import deprecated from './deprecated/v1';
 import edit from './edit';
 import save from './save';
+import { supportsCollections } from '../../shared/block-category';
 
 // Example URLs
 // https://www.eventbrite.com/e/test-event-tickets-123456789
@@ -43,7 +44,7 @@ export const settings = {
 	title,
 	description: __( 'Embed Eventbrite event details and ticket checkout.', 'jetpack' ),
 	icon,
-	category: 'jetpack',
+	category: supportsCollections() ? 'embed' : 'jetpack',
 	keywords: [
 		_x( 'events', 'block search term', 'jetpack' ),
 		_x( 'tickets', 'block search term', 'jetpack' ),

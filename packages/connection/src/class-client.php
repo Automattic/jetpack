@@ -23,6 +23,13 @@ class Client {
 	 * @return array|WP_Error WP HTTP response on success
 	 */
 	public static function remote_request( $args, $body = null ) {
+		add_filter(
+			'jetpack_constant_default_value',
+			__NAMESPACE__ . '\Utils::jetpack_api_constant_filter',
+			10,
+			2
+		);
+
 		$defaults = array(
 			'url'           => '',
 			'user_id'       => 0,
@@ -70,7 +77,7 @@ class Client {
 		$token_key = sprintf(
 			'%s:%d:%d',
 			$token_key,
-			Utils::get_jetpack_api_version(),
+			Constants::get_constant( 'JETPACK__API_VERSION' ),
 			$token->external_user_id
 		);
 

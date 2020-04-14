@@ -28,10 +28,11 @@ import {
 } from 'lib/plans/constants';
 
 import {
-	isMultisite,
 	getSiteAdminUrl,
-	userCanManageModules,
 	getUpgradeUrl,
+	isAtomicSite,
+	isMultisite,
+	userCanManageModules,
 } from 'state/initial-state';
 import { isAkismetKeyValid, isCheckingAkismetKey, getVaultPressData } from 'state/at-a-glance';
 import {
@@ -188,7 +189,8 @@ export const SettingsCard = props => {
 				);
 
 			case FEATURE_SEARCH_JETPACK:
-				if ( props.hasActiveSearchPurchase ) {
+				// NOTE: Jetpack Search currently does not support atomic sites.
+				if ( props.hasActiveSearchPurchase || props.isAtomicSite ) {
 					return '';
 				}
 
@@ -377,5 +379,6 @@ export default connect( state => {
 		spamUpgradeUrl: getUpgradeUrl( state, 'settings-spam' ),
 		multisite: isMultisite( state ),
 		hasActiveSearchPurchase: hasActiveSearchPurchase( state ),
+		isAtomicSite: isAtomicSite( state ),
 	};
 } )( SettingsCard );
