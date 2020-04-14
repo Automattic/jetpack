@@ -40,6 +40,12 @@ const InstagramGalleryEdit = props => {
 	const [ images, setImages ] = useState( [] );
 	const [ isLoadingGallery, setIsLoadingGallery ] = useState( false );
 
+	const {
+		spacing: { default: defaultSpacing },
+		count: { default: defaultCount },
+		columns: { default: defaultColumns },
+	} = defaultAttributes;
+
 	useEffect( () => {
 		const validatedAttributes = getValidatedAttributes( defaultAttributes, attributes );
 		if ( ! isEqual( validatedAttributes, attributes ) ) {
@@ -239,6 +245,24 @@ const InstagramGalleryEdit = props => {
 							min={ 0 }
 							max={ 50 }
 						/>
+						<div className="wp-block-jetpack-instagram-gallery__reset-button">
+							<Button
+								isSecondary
+								isSmall
+								disabled={
+									spacing === defaultSpacing && columns === defaultColumns && count === defaultCount
+								}
+								onClick={ () =>
+									setAttributes( {
+										spacing: defaultSpacing,
+										columns: defaultColumns,
+										count: defaultCount,
+									} )
+								}
+							>
+								{ __( 'Reset', 'jetpack' ) }
+							</Button>
+						</div>
 					</PanelBody>
 				</InspectorControls>
 			) }

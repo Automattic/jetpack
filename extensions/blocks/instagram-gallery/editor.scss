@@ -16,6 +16,11 @@
 	}
 }
 
+.wp-block-jetpack-instagram-gallery__reset-button {
+	display: flex;
+	justify-content: flex-end;
+}
+
 @for $i from 1 through 6 {
 	.wp-block-jetpack-instagram-gallery__grid-columns-#{$i}
 		.wp-block-jetpack-instagram-gallery__grid-post {
