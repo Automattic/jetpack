@@ -34,6 +34,12 @@ function WritingMedia( props ) {
 		props.getOptionValue( 'carousel_display_comments', 'carousel' )
 	);
 
+	const foundCarousel = props.isModuleFound( 'carousel' );
+
+	if ( ! foundCarousel ) {
+		return null;
+	}
+
 	const handleCarouselDisplayExifChange = () => {
 		setDisplayExif( ! displayExif );
 		props.updateFormStateModuleOption( 'carousel', 'carousel_display_exif' );
@@ -44,13 +50,27 @@ function WritingMedia( props ) {
 		props.updateFormStateModuleOption( 'carousel', 'carousel_display_comments' );
 	};
 
-	const foundCarousel = props.isModuleFound( 'carousel' );
-
-	if ( ! foundCarousel ) {
-		return null;
-	}
-
 	const isCarouselActive = props.getOptionValue( 'carousel' );
+
+	/**
+	 * Render a toggle. For example the toggle for EXIF data.
+	 *
+	 * @param {string} checked - Current state of the toggle.
+	 * @param {string} optionName - Name of the option that the toggle state will be saved to.
+	 * @param {Function} onChangeHandler - Method to call when the toggle is clicked.
+	 * @param {string} label - Description for the toggle.
+	 *
+	 * @returns {object} A compact toggle component.
+	 */
+	const renderToggle = ( checked, optionName, onChangeHandler, label ) => (
+		<CompactFormToggle
+			checked={ checked }
+			disabled={ ! isCarouselActive || props.isSavingAnyOption( [ 'carousel', optionName ] ) }
+			onChange={ onChangeHandler /* eslint-disable-line */ }
+		>
+			<span className="jp-form-toggle-explanation">{ label }</span>
+		</CompactFormToggle>
+	);
 
 	return (
 		<SettingsCard
@@ -85,30 +105,18 @@ function WritingMedia( props ) {
 					</span>
 				</ModuleToggle>
 				<FormFieldset>
-					<CompactFormToggle
-						checked={ displayExif }
-						disabled={
-							! isCarouselActive ||
-							props.isSavingAnyOption( [ 'carousel', 'carousel_display_exif' ] )
-						}
-						onChange={ handleCarouselDisplayExifChange /* eslint-disable-line */ }
-					>
-						<span className="jp-form-toggle-explanation">
-							{ __( 'Show photo Exif metadata in carousel (when available)' ) }
-						</span>
-					</CompactFormToggle>
-					<CompactFormToggle
-						checked={ displayComments }
-						disabled={
-							! isCarouselActive ||
-							props.isSavingAnyOption( [ 'carousel', 'carousel_display_comments' ] )
-						}
-						onChange={ handleCarouselDisplayCommentsChange /* eslint-disable-line */ }
-					>
-						<span className="jp-form-toggle-explanation">
-							{ __( 'Show comments area in carousel' ) }
-						</span>
-					</CompactFormToggle>
+					{ renderToggle(
+						displayExif,
+						'carousel_display_exif',
+						handleCarouselDisplayExifChange,
+						__( 'Show photo Exif metadata in carousel (when available)' )
+					) }
+					{ renderToggle(
+						displayComments,
+						'carousel_display_comments',
+						handleCarouselDisplayCommentsChange,
+						__( 'Show comments area in carousel' )
+					) }
 					<FormFieldset>
 						<p className="jp-form-setting-explanation">
 							{ __(
