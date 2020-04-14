@@ -41,7 +41,7 @@ function jetpack_cpt_section_callback() {
 	?>
 	<p>
 		<?php esc_html_e( 'Use these settings to display different types of content on your site.', 'jetpack' ); ?>
-		<a target="_blank" href="<?php echo esc_url( Redirect::get_url( 'jetpack-support-custom-content-types' ) ); ?>"><?php esc_html_e( 'Learn More', 'jetpack' ); ?></a>
+		<a target="_blank" rel="noopener noreferrer" href="<?php echo esc_url( Redirect::get_url( 'jetpack-support-custom-content-types' ) ); ?>"><?php esc_html_e( 'Learn More', 'jetpack' ); ?></a>
 	</p>
 	<?php
 }
