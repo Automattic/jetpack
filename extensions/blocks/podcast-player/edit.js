@@ -29,7 +29,8 @@ import {
 	PanelColorSettings,
 	ContrastChecker,
 } from '@wordpress/block-editor';
-
+import { withDispatch } from '@wordpress/data';
+import { createBlock } from '@wordpress/blocks';
 import apiFetch from '@wordpress/api-fetch';
 import { isURL, prependHTTP } from '@wordpress/url';
 
@@ -42,7 +43,7 @@ import { queueMusic } from './icons/';
 import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import attributesValidation from './attributes';
 import PodcastPlayer from './components/podcast-player';
-import { makeCancellable } from './utils';
+import { makeCancellable, checkEmbedBlockCompatibility } from './utils';
 import { applyFallbackStyles } from '../../shared/apply-fallback-styles';
 
 const DEFAULT_MIN_ITEMS = 1;
@@ -61,7 +62,7 @@ const PodcastPlayerEdit = ( {
 	className,
 	attributes,
 	setAttributes,
-	noticeOperations: { createErrorNotice, removeAllNotices },
+	noticeOperations: { createErrorNotice, removeAllNotices, createNotice },
 	noticeUI,
 	primaryColor: primaryColorProp,
 	setPrimaryColor,
@@ -72,6 +73,7 @@ const PodcastPlayerEdit = ( {
 	setBackgroundColor,
 	fallbackBackgroundColor,
 	isSelected,
+	replaceWithEmbedBlock,
 } ) => {
 	// Validated attributes.
 	const validatedAttributes = getValidatedAttributes( attributesValidation, attributes );
@@ -110,13 +112,23 @@ const PodcastPlayerEdit = ( {
 						debug( 'Block was unmounted during fetch', error );
 						return; // bail if canceled to avoid setting state
 					}
-					if ( /\bspotify\b/i.test( encodedURL ) ) {
-						createErrorNotice(
-							__(
+
+					const externalEmbed = checkEmbedBlockCompatibility( urlToFetch );
+					if ( externalEmbed ) {
+						createNotice( {
+							content: __(
+								// todo: service name
 								"It looks like you're trying to embed a podcast hosted on Spotify. Please use the Spotify block instead.",
 								'jetpack'
-							)
-						);
+							),
+							actions: [
+								{
+									label: __( 'Convert to Embed', 'jetpack' ),
+									isPrimary: true,
+									onClick: replaceWithEmbedBlock,
+								},
+							],
+						} );
 					} else {
 						// Show error and allow to edit URL.
 						debug( 'feed error', error );
@@ -128,7 +140,7 @@ const PodcastPlayerEdit = ( {
 				}
 			);
 		},
-		[ createErrorNotice ]
+		[ createErrorNotice, createNotice, replaceWithEmbedBlock ]
 	);
 
 	useEffect( () => {
@@ -355,6 +367,18 @@ const PodcastPlayerEdit = ( {
 };
 
 export default compose( [
+	withDispatch( ( dispatch, { clientId, attributes } ) => {
+		return {
+			replaceWithEmbedBlock() {
+				dispatch( 'core/block-editor' ).replaceBlock(
+					clientId,
+					createBlock( 'core/embed', {
+						url: attributes.url,
+					} )
+				);
+			},
+		};
+	} ),
 	withColors( 'backgroundColor', { primaryColor: 'color' }, { secondaryColor: 'color' } ),
 	withNotices,
 	withInstanceId,
