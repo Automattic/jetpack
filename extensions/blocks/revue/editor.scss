@@ -14,4 +14,10 @@
 	.components-text-control__input {
 		color: #72777c;
 	}
+
+	input {
+		@media screen and ( min-width: 600px ) {
+			max-width: 300px;
+		}
+	}
 }
