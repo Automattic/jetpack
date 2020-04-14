@@ -323,15 +323,16 @@ export const SettingsCard = props => {
 
 	let moduleClassName = '';
 	if ( props.feature ) {
-		moduleClassName = 'jp-settings-' + props.feature;
+		moduleClassName = `jp-settings-${ props.feature }`;
 	} else if ( props.module ) {
-		moduleClassName = 'jp-settings-' + props.module;
+		moduleClassName = `jp-settings-${ props.module }`;
 	}
 
 	return (
 		getModuleOverridenBanner() || (
 			<form
-				className={ `jp-form-settings-card ${ moduleClassName }` }
+				{ ...( moduleClassName ? { id: moduleClassName } : null ) }
+				className={ `jp-form-settings-card` }
 				onSubmit={ ! isSaving ? props.onSubmit : undefined }
 			>
 				<SectionHeader label={ header }>
