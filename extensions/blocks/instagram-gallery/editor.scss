@@ -1,18 +1,12 @@
 .wp-block-jetpack-instagram-gallery__count-notice {
+	.components-notice {
+		margin: 0 0 15px 0;
+	}
+
 	.components-notice__content {
 		margin: 0;
 		line-height: inherit;
 		padding-right: 0;
-	}
-	.components-notice.is-dismissible {
-		padding-right: 12px;
-		margin-left: 0;
-		margin-right: 0;
-	}
-	.components-button.has-icon {
-		padding: 0;
-		min-width: 24px;
-		height: 24px;
 	}
 }
 .wp-block-jetpack-instagram-gallery__grid {
