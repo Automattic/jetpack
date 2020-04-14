@@ -16,6 +16,9 @@
 		display: block;
 		margin-top: 0.25em;
 		width: 100%;
+		@media screen and ( min-width: 600px ) {
+			max-width: 250px;
+		}
 	}
 
 	label {
