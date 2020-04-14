@@ -40,12 +40,6 @@ const InstagramGalleryEdit = props => {
 	const [ images, setImages ] = useState( [] );
 	const [ isLoadingGallery, setIsLoadingGallery ] = useState( false );
 
-	const {
-		spacing: { default: defaultSpacing },
-		count: { default: defaultCount },
-		columns: { default: defaultColumns },
-	} = defaultAttributes;
-
 	useEffect( () => {
 		const validatedAttributes = getValidatedAttributes( defaultAttributes, attributes );
 		if ( ! isEqual( validatedAttributes, attributes ) ) {
@@ -124,7 +118,7 @@ const InstagramGalleryEdit = props => {
 	};
 
 	const debouncedSetNumberOfPosts = debounce( value => {
-		if ( value < images.length ) {
+		if ( value && value < images.length ) {
 			setImages( take( images, value ) );
 		}
 		setAttributes( { count: value } );
@@ -135,10 +129,11 @@ const InstagramGalleryEdit = props => {
 	const showLoadingSpinner = accessToken && isLoadingGallery && isEmpty( images );
 	const showGallery = ! showPlaceholder && ! showLoadingSpinner;
 
+	const numberOfColumns = columns ? columns : defaultAttributes.columns.default;
 	const blockClasses = classnames( className, { [ `align${ align }` ]: align } );
 	const gridClasses = classnames(
 		'wp-block-jetpack-instagram-gallery__grid',
-		`wp-block-jetpack-instagram-gallery__grid-columns-${ columns }`
+		`wp-block-jetpack-instagram-gallery__grid-columns-${ numberOfColumns }`
 	);
 	const gridStyle = { gridGap: spacing };
 	const photoStyle = { padding: spacing };
@@ -228,41 +223,29 @@ const InstagramGalleryEdit = props => {
 							label={ __( 'Number of Posts', 'jetpack' ) }
 							value={ count }
 							onChange={ debouncedSetNumberOfPosts }
-							min={ 1 }
-							max={ 30 }
+							min={ defaultAttributes.count.min }
+							max={ defaultAttributes.count.max }
+							initialPosition={ defaultAttributes.count.default }
+							allowReset
 						/>
 						<RangeControl
 							label={ __( 'Number of Columns', 'jetpack' ) }
 							value={ columns }
 							onChange={ value => setAttributes( { columns: value } ) }
-							min={ 1 }
-							max={ 6 }
+							min={ defaultAttributes.columns.min }
+							max={ defaultAttributes.columns.max }
+							initialPosition={ defaultAttributes.columns.default }
+							allowReset
 						/>
 						<RangeControl
 							label={ __( 'Image Spacing (px)', 'jetpack' ) }
 							value={ spacing }
 							onChange={ value => setAttributes( { spacing: value } ) }
-							min={ 0 }
-							max={ 50 }
+							min={ defaultAttributes.spacing.min }
+							max={ defaultAttributes.spacing.max }
+							initialPosition={ defaultAttributes.spacing.default }
+							allowReset
 						/>
-						<div className="wp-block-jetpack-instagram-gallery__reset-button">
-							<Button
-								isSecondary
-								isSmall
-								disabled={
-									spacing === defaultSpacing && columns === defaultColumns && count === defaultCount
-								}
-								onClick={ () =>
-									setAttributes( {
-										spacing: defaultSpacing,
-										columns: defaultColumns,
-										count: defaultCount,
-									} )
-								}
-							>
-								{ __( 'Reset', 'jetpack' ) }
-							</Button>
-						</div>
 					</PanelBody>
 				</InspectorControls>
 			) }
