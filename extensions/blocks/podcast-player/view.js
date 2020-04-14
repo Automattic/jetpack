@@ -8,7 +8,7 @@ import debugFactory from 'debug';
 /**
  * WordPress dependencies
  */
-import { render, createElement } from '@wordpress/element';
+import { render, createElement, unmountComponentAtNode } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -44,7 +44,7 @@ const initializeBlock = function( id ) {
 		return;
 	}
 
-	// Load data from the embedded JSON.
+	// Load data from the embedded JSON and remove it from the HTML.
 	const dataContainer = block.querySelector( 'script[type="application/json"]' );
 	if ( ! dataContainer ) {
 		downgradeBlockToStatic( block );
@@ -58,6 +58,10 @@ const initializeBlock = function( id ) {
 		downgradeBlockToStatic( block );
 		return;
 	}
+	dataContainer.remove();
+
+	// Save the static markup.
+	const fallbackHTML = block.innerHTML;
 
 	// Abort if not tracks found.
 	if ( ! data || ! data.tracks.length ) {
@@ -70,6 +74,12 @@ const initializeBlock = function( id ) {
 		// Prepare component.
 		const component = createElement( PodcastPlayer, {
 			...data,
+			onError: function() {
+				// Unmount React version and bring back the static HTML.
+				unmountComponentAtNode( block );
+				block.innerHTML = fallbackHTML;
+				downgradeBlockToStatic( block );
+			},
 		} );
 
 		// Render and save instance to the list of active ones.
