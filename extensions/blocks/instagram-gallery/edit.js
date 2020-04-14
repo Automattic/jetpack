@@ -32,6 +32,8 @@ import useConnectInstagram from './use-connect-instagram';
 import ImageTransition from './image-transition';
 import './editor.scss';
 
+const MAX_IMAGE_COUNT = 30;
+
 const InstagramGalleryEdit = props => {
 	const { attributes, className, noticeOperations, noticeUI, setAttributes, isSelected } = props;
 	const { accessToken, align, columns, count, instagramUser, spacing } = attributes;
@@ -63,7 +65,7 @@ const InstagramGalleryEdit = props => {
 		apiFetch( {
 			path: addQueryArgs( '/wpcom/v2/instagram/gallery', {
 				access_token: accessToken,
-				count: 30,
+				count: MAX_IMAGE_COUNT,
 			} ),
 		} ).then( ( { external_name: externalName, images: imageList } ) => {
 			setIsLoadingGallery( false );
@@ -194,7 +196,7 @@ const InstagramGalleryEdit = props => {
 							value={ count }
 							onChange={ value => setAttributes( { count: value } ) }
 							min={ 1 }
-							max={ 30 }
+							max={ MAX_IMAGE_COUNT }
 						/>
 						<RangeControl
 							label={ __( 'Number of Columns', 'jetpack' ) }
