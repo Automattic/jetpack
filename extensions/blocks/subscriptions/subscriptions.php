@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Extensions\Subscriptions;
 
+use Jetpack;
 use Jetpack_Gutenberg;
 
 const FEATURE_NAME = 'subscriptions';
@@ -18,10 +19,15 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
  * registration if we need to.
  */
 function register_block() {
-	jetpack_register_block(
-		BLOCK_NAME,
-		array( 'render_callback' => __NAMESPACE__ . '\render_block' )
-	);
+	if (
+		( Jetpack::is_active() && Jetpack::is_module_active( 'subscriptions' ) )
+		|| ( defined( 'IS_WPCOM' ) && IS_WPCOM )
+	) {
+		jetpack_register_block(
+			BLOCK_NAME,
+			array( 'render_callback' => __NAMESPACE__ . '\render_block' )
+		);
+	}
 }
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 
