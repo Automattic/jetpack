@@ -50,7 +50,7 @@ function wpcom_load_event( $access_token_source ) {
 
 	$event_name = 'map_block_mapbox_wpcom_key_load';
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-		require_lib( 'tracks/client' );
+		jetpack_require_lib( 'tracks/client' );
 		tracks_record_event( wp_get_current_user(), $event_name );
 	} elseif ( jetpack_is_atomic_site() && Jetpack::is_active() ) {
 		$tracking = new Tracking();
