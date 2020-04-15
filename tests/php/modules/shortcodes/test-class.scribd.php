@@ -21,12 +21,12 @@ class WP_Test_Jetpack_Shortcodes_Scribd extends WP_UnitTestCase {
 			'non_amp' => array(
 				'[scribd id=39027960 key=key-3kaiwcjqhtipf25m8tw mode=list]',
 				false,
-				'<iframe class="scribd_iframe_embed" src="//www.scribd.com/embeds/39027960/content?start_page=1&view_mode=list&access_key=key-3kaiwcjqhtipf25m8tw"  data-auto-height="true" scrolling="no" id="scribd_39027960" width="100%" height="500" frameborder="0"></iframe>' . PHP_EOL . '<div style="font-size:10px;text-align:center;width:100%"><a href="https://www.scribd.com/doc/39027960" target="_blank">View this document on Scribd</a></div>',
+				'<iframe class="scribd_iframe_embed" src="https://www.scribd.com/embeds/39027960/content?start_page=1&view_mode=list&access_key=key-3kaiwcjqhtipf25m8tw" data-auto-height="true" scrolling="no" id="scribd_39027960" width="100%" height="500" frameborder="0"></iframe><div style="font-size:10px;text-align:center;width:100%"><a href="https://www.scribd.com/doc/39027960" rel="noopener noreferrer" target="_blank">View this document on Scribd</a></div>',
 			),
 			'amp'     => array(
 				'[scribd id=39027960 key=key-3kaiwcjqhtipf25m8tw mode=list]',
 				true,
-				'<iframe class="scribd_iframe_embed" src="//www.scribd.com/embeds/39027960/content?start_page=1&view_mode=list&access_key=key-3kaiwcjqhtipf25m8tw" sandbox="allow-popups allow-scripts allow-same-origin" data-auto-height="true" scrolling="no" id="scribd_39027960" width="100%" height="500" frameborder="0"></iframe>' . PHP_EOL . '<div style="font-size:10px;text-align:center;width:100%"><a href="https://www.scribd.com/doc/39027960" target="_blank">View this document on Scribd</a></div>',
+				'<iframe class="scribd_iframe_embed" src="https://www.scribd.com/embeds/39027960/content?start_page=1&view_mode=list&access_key=key-3kaiwcjqhtipf25m8tw" sandbox="allow-popups allow-scripts allow-same-origin" data-auto-height="true" scrolling="no" id="scribd_39027960" width="100%" height="500" frameborder="0"></iframe><div style="font-size:10px;text-align:center;width:100%"><a href="https://www.scribd.com/doc/39027960" rel="noopener noreferrer" target="_blank">View this document on Scribd</a></div>',
 			),
 		);
 	}
@@ -48,7 +48,10 @@ class WP_Test_Jetpack_Shortcodes_Scribd extends WP_UnitTestCase {
 			add_filter( 'jetpack_is_amp_request', '__return_true' );
 		}
 
-		$this->assertEquals( $expected, do_shortcode( $shortcode ) );
+		$actual = preg_replace( '/\s+/', ' ', do_shortcode( $shortcode ) );
+		$actual = preg_replace( '/(?<=>)\s+(?=<)/', '', trim( $actual ) );
+
+		$this->assertEquals( $expected, $actual );
 	}
 
 }
