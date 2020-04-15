@@ -7,6 +7,7 @@ import { translate as __ } from 'i18n-calypso';
 /**
  * Internal dependencies
  */
+import Button from 'components/button';
 import { imagePath } from 'constants/urls';
 
 export function SetupWizard() {
@@ -33,6 +34,17 @@ export function SetupWizard() {
 			</p>
 			<div className="jp-setup-wizard-intro-question">
 				<h2>{ __( 'What will YourGroovyDomain.com be used for?' ) }</h2>
+				<div>
+					<Button primary className="jp-setup-wizard-button">
+						{ __( 'Personal Use' ) }
+					</Button>
+					<Button className="jp-setup-wizard-button" primary>
+						{ __( 'Business Use' ) }
+					</Button>
+				</div>
+				<a className="jp-setup-wizard-skip-link" href="">
+					{ __( 'Skip to recommended features' ) }
+				</a>
 			</div>
 		</div>
 	);
