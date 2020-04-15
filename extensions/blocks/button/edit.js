@@ -24,7 +24,7 @@ import ButtonColorsPanel from './button-colors-panel';
 import { IS_GRADIENT_AVAILABLE } from './constants';
 import './editor.scss';
 
-const ButtonEdit = ( {
+function ButtonEdit( {
 	attributes,
 	backgroundColor,
 	className,
@@ -34,7 +34,7 @@ const ButtonEdit = ( {
 	setBackgroundColor,
 	setTextColor,
 	textColor,
-} ) => {
+} ) {
 	const { borderRadius, placeholder, text } = attributes;
 
 	/* eslint-disable react-hooks/rules-of-hooks */
@@ -97,7 +97,7 @@ const ButtonEdit = ( {
 			</InspectorControls>
 		</div>
 	);
-};
+}
 
 export default compose(
 	withColors( { backgroundColor: 'background-color' }, { textColor: 'color' } ),

@@ -17,7 +17,6 @@ import {
  */
 import { IS_GRADIENT_AVAILABLE } from './constants';
 
-// eslint-disable-next-line jsdoc/require-jsdoc
 export default function ButtonSave( { attributes, blockName, uniqueId } ) {
 	const {
 		backgroundColor,

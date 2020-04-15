@@ -14,7 +14,6 @@ import {
 	MIN_BORDER_RADIUS_VALUE,
 } from './constants';
 
-// eslint-disable-next-line jsdoc/require-jsdoc
 export default function ButtonBorderPanel( { borderRadius = '', setAttributes } ) {
 	const setBorderRadius = useCallback(
 		newBorderRadius => setAttributes( { borderRadius: newBorderRadius } ),
