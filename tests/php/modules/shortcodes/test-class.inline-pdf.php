@@ -37,7 +37,7 @@ class WP_Test_Jetpack_Shortcodes_Inline_Pdfs extends WP_UnitTestCase {
 
 		$this->assertContains(
 			sprintf(
-				'<p><object data="%1$s" type="application/pdf" width="100%%" height="800"><p><a href="%1$s">%1$s</a></p></object></p>' . "\n",
+				'<p><object data="%1$s" type="application/pdf" width="100%%" height="800"><p><a href="%1$s">Click to access PDF Document</a></p></object></p>' . "\n",
 				$url
 			),
 			$actual
