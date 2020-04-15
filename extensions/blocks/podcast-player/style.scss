@@ -453,6 +453,11 @@ $player-background: transparent;
 			max-width: 20px;
 			margin: 4px 2px 0 0;
 			svg {
+				/**
+				* To stay consistent with the mediaelement player icons, we're using the same
+				* icon sprite for the track list playing icon. As we still keep the SVG as a
+				* fallback when CSS masks are not supported, we have to hide it when they are.
+				*/
 				visibility: hidden;
 			}
 		}
