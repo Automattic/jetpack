@@ -16,4 +16,18 @@
 	box-sizing: border-box;
 	border-radius: 4px;
 	margin-top: 36px;
+	padding: 14px;
+
+	h2 {
+		margin-top: 0px;
+	}
+}
+
+.jp-setup-wizard-button {
+	margin: 0px 11px 11px 11px;
+}
+
+.jp-setup-wizard-skip-link {
+	text-decoration: underline !important;
+	color: #000000;
 }
