@@ -37,6 +37,7 @@ export default function Save( { className, attributes } ) {
 		spacing,
 	} = attributes;
 
+	const isGradientAvailable = !! getGradientClass;
 	const editorSettings = select( 'core/editor' ).getEditorSettings();
 
 	const textColorClass = getColorClassName( 'color', textColor );
@@ -44,13 +45,15 @@ export default function Save( { className, attributes } ) {
 	const borderClass = getColorClassName( 'border-color', borderColor );
 
 	const buttonBackgroundClass = getColorClassName( 'background-color', buttonBackgroundColor );
-	const buttonGradientClass = getGradientClass( buttonGradient );
+	const buttonGradientClass = isGradientAvailable ? getGradientClass( buttonGradient ) : undefined;
 
 	const emailFieldBackgroundClass = getColorClassName(
 		'background-color',
 		emailFieldBackgroundColor
 	);
-	const emailFieldGradientClass = getGradientClass( emailFieldGradient );
+	const emailFieldGradientClass = isGradientAvailable
+		? getGradientClass( emailFieldGradient )
+		: undefined;
 
 	const sharedClasses = classnames(
 		borderRadius === 0 ? 'no-border-radius' : undefined,
