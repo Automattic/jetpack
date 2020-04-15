@@ -420,7 +420,8 @@ $player-background: transparent;
 	 * approach will allow us to customize colors via CSS variables.
 	 */
 	@supports ( mask-image: none ) or ( -webkit-mask-image: none ) {
-		.mejs-button > button {
+		.mejs-button > button,
+		.jetpack-podcast-player__track-status-icon--playing {
 			background-image: none;
 			background-color: var( --jetpack-podcast-player-primary );
 			mask: url( '/wp-includes/js/mediaelement/mejs-controls.svg' );
@@ -444,6 +445,21 @@ $player-background: transparent;
 
 		.mejs-unmute > button {
 			mask-position: -40px 0;
+		}
+
+		.jetpack-podcast-player__track-status-icon--playing {
+			mask-position: -60px 0;
+			max-height: $track-status-icon-size;
+			max-width: 20px;
+			margin: 4px 2px 0 0;
+			svg {
+				/**
+				* To stay consistent with the mediaelement player icons, we're using the same
+				* icon sprite for the track list playing icon. As we still keep the SVG as a
+				* fallback when CSS masks are not supported, we have to hide it when they are.
+				*/
+				visibility: hidden;
+			}
 		}
 	}
 }
