@@ -29,9 +29,8 @@ import {
 	PanelColorSettings,
 	ContrastChecker,
 } from '@wordpress/block-editor';
-import { withDispatch, select } from '@wordpress/data';
+import { withDispatch } from '@wordpress/data';
 import { createBlock } from '@wordpress/blocks';
-import apiFetch from '@wordpress/api-fetch';
 import { isURL, prependHTTP } from '@wordpress/url';
 
 /**
@@ -44,7 +43,9 @@ import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import attributesValidation from './attributes';
 import PodcastPlayer from './components/podcast-player';
 import { makeCancellable } from './utils';
+import { fetchPodcastFeed } from './api';
 import { applyFallbackStyles } from '../../shared/apply-fallback-styles';
+import { PODCAST_FEED, EMBED_BLOCK } from './constants';
 
 const DEFAULT_MIN_ITEMS = 1;
 const DEFAULT_MAX_ITEMS = 10;
@@ -90,38 +91,27 @@ const PodcastPlayerEdit = ( {
 
 	const fetchFeed = useCallback(
 		urlToFetch => {
-			const encodedURL = encodeURIComponent( urlToFetch );
-
-			cancellableFetch.current = makeCancellable(
-				apiFetch( {
-					path: '/wpcom/v2/podcast-player?url=' + encodedURL,
-				} )
-			);
+			cancellableFetch.current = makeCancellable( fetchPodcastFeed( urlToFetch ) );
 
 			cancellableFetch.current.promise.then(
-				data => {
-					if ( data?.isCanceled ) {
-						debug( 'Block was unmounted during fetch', data );
+				response => {
+					if ( response?.isCanceled ) {
+						debug( 'Block was unmounted during fetch', response );
 						return; // bail if canceled to avoid setting state
 					}
-					// Store feed data.
-					setFeedData( data );
+
+					// Check what type of response we got and act accordingly.
+					switch ( response?.type ) {
+						case PODCAST_FEED:
+							return setFeedData( response.data );
+						case EMBED_BLOCK:
+							return replaceWithEmbedBlock();
+					}
 				},
-				async error => {
+				error => {
 					if ( error?.isCanceled ) {
 						debug( 'Block was unmounted during fetch', error );
 						return; // bail if canceled to avoid setting state
-					}
-
-					// Try if we have another block that can embed this URL.
-					const externalEmbed = await select( 'core' ).getEmbedPreview( urlToFetch );
-					if ( externalEmbed ) {
-						// Since this is after another async operation, we still need to ensure it hasn't been cancelled.
-						if ( error?.isCanceled ) {
-							return;
-						}
-						replaceWithEmbedBlock();
-						return;
 					}
 
 					// Show error and allow to edit URL.
