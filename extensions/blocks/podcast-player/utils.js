@@ -124,14 +124,3 @@ export const getColorsObject = memoize( generateColorsObject, config => {
 	// Cache key is a string with all arguments joined into one string.
 	return Object.values( config ).join();
 } );
-
-export const checkEmbedBlockCompatibility = url => {
-	// todo: implement proper detection
-	return true;
-
-	// if ( /\bspotify\b/i.test( url ) ) {
-	// 	return true;
-	// }
-	//
-	// return false;
-};
