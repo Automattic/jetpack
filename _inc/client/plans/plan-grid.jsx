@@ -241,7 +241,7 @@ class PlanGrid extends React.Component {
 	 * @return {ReactElement} <td>s with buttons
 	 */
 	renderTopButtons() {
-		const { planDuration } = this.props.planDuration;
+		const { planDuration } = this.props;
 		return map( this.getPlans(), ( plan, planType ) => {
 			const { siteRawUrl, plansUpgradeUrl, sitePlan } = this.props;
 			const isActivePlan = this.isCurrentPlanType( planType );
