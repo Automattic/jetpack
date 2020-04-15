@@ -129,6 +129,7 @@ export class PodcastPlayer extends Component {
 			// default but errors instead. If the user is using IE11 we thus provide
 			// additional instructions on how they can turn on <audio> support.
 			const isIE11 = window.navigator.userAgent.match( /Trident\/7\./ );
+			// Internal error message, no translation needed
 			const playerError = isIE11
 				? 'IE11: Playing sounds in webpages setting is not checked'
 				: error;
