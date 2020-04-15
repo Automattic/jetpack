@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
 import classNames from 'classnames';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -32,7 +33,7 @@ class ModuleOverridenBanner extends JetpackBanner {
 			components: {
 				link: (
 					<a
-						href="http://jetpack.com/support/module-overrides/"
+						href={ getRedirectUrl( 'jetpack-support-module-overrides' ) }
 						target="_blank"
 						rel="noopener noreferrer"
 					/>

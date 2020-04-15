@@ -4,6 +4,7 @@
 import React, { Component } from 'react';
 import { translate as __ } from 'i18n-calypso';
 import Card from 'components/card';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -34,7 +35,7 @@ export const Masterbar = withModuleSettingsFormHelpers(
 							text: __(
 								'Adds a toolbar with links to all your sites, notifications, your WordPress.com profile, and the Reader.'
 							),
-							link: 'https://jetpack.com/support/masterbar/',
+							link: getRedirectUrl( 'jetpack-support-masterbar' ),
 						} }
 					>
 						<p>

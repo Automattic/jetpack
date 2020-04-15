@@ -1,6 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Redirect;
 
 if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 
@@ -278,7 +279,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 								),
 							)
 						),
-						'https://jetpack.com/support/extra-sidebar-widgets/contact-info-widget/'
+						esc_url( Redirect::get_url( 'jetpack-support-extra-sidebar-widgets-contact-info-widget' ) )
 					);
 					?>
 					</small>

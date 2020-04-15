@@ -4,6 +4,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -223,7 +224,7 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 						<SettingsGroup
 							hasChild
 							support={ {
-								link: 'http://jetpack.com/support/site-accelerator/',
+								link: getRedirectUrl( 'jetpack-support-site-accelerator' ),
 							} }
 						>
 							<p>
@@ -279,7 +280,7 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 							hasChild
 							module={ lazyImages }
 							support={ {
-								link: 'https://jetpack.com/support/lazy-images/',
+								link: getRedirectUrl( 'jetpack-support-lazy-images' ),
 							} }
 						>
 							<p>

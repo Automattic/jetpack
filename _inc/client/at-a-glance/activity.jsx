@@ -9,6 +9,7 @@ import Card from 'components/card';
 import { translate as __ } from 'i18n-calypso';
 // import { get, includes } from 'lodash';
 import classNames from 'classnames';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -70,7 +71,7 @@ class DashActivity extends Component {
 					key="view-activity"
 					className="jp-dash-item__manage-in-wpcom"
 					compact
-					href={ `https://wordpress.com/activity-log/${ this.props.siteRawUrl }` }
+					href={ getRedirectUrl( 'calypso-activity-log', { site: this.props.siteRawUrl } ) }
 				>
 					{ __( 'View site activity' ) }
 				</Card>

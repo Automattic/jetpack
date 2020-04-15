@@ -5,6 +5,7 @@ import { translate as __ } from 'i18n-calypso';
 import Card from 'components/card';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -32,7 +33,7 @@ class JetpackTerminationDialogFeatures extends Component {
 						a: (
 							<a
 								className="jetpack-termination-dialog__link"
-								href="https://jetpack.com/features/design/content-delivery-network/"
+								href={ getRedirectUrl( 'jetpack-features-design-content-delivery-network' ) }
 								rel="noopener noreferrer"
 								target="_blank"
 							/>
@@ -53,7 +54,7 @@ class JetpackTerminationDialogFeatures extends Component {
 							a: (
 								<a
 									className="jetpack-termination-dialog__link"
-									href="https://jetpack.com/features/security/"
+									href={ getRedirectUrl( 'jetpack-features-security' ) }
 									rel="noopener noreferrer"
 									target="_blank"
 								/>
@@ -73,7 +74,7 @@ class JetpackTerminationDialogFeatures extends Component {
 						a: (
 							<a
 								className="jetpack-termination-dialog__link"
-								href="https://jetpack.com/support/social/"
+								href={ getRedirectUrl( 'jetpack-support-social' ) }
 								rel="noopener noreferrer"
 								target="_blank"
 							/>

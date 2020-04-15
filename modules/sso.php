@@ -3,6 +3,7 @@
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Tracking;
+use Automattic\Jetpack\Redirect;
 
 require_once( JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-helpers.php' );
 require_once( JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-notices.php' );
@@ -929,10 +930,10 @@ class Jetpack_SSO {
 	/**
 	 * Build WordPress.com SSO URL with appropriate query parameters.
 	 *
-	 * @param  array  $args Optional query parameters.
-	 * @return string       WordPress.com SSO URL
+	 * @param array $args Optional query parameters.
+	 * @return string WordPress.com SSO URL
 	 */
-	function build_sso_url( $args = array() ) {
+	public function build_sso_url( $args = array() ) {
 		$sso_nonce = ! empty( $args['sso_nonce'] ) ? $args['sso_nonce'] : self::request_initial_nonce();
 		$defaults = array(
 			'action'       => 'jetpack-sso',
@@ -947,7 +948,17 @@ class Jetpack_SSO {
 			return $args['sso_nonce'];
 		}
 
-		return add_query_arg( $args, 'https://wordpress.com/wp-login.php' );
+		$query = add_query_arg( $args, '' );
+		$query = trim( $query, '?' );
+
+		$url = Redirect::get_url(
+			'wpcom-login',
+			array(
+				'query' => $query,
+			)
+		);
+
+		return $url;
 	}
 
 	/**
@@ -955,10 +966,10 @@ class Jetpack_SSO {
 	 * including the parameters necessary to force the user to reauthenticate
 	 * on WordPress.com.
 	 *
-	 * @param  array  $args Optional query parameters.
-	 * @return string       WordPress.com SSO URL
+	 * @param array $args Optional query parameters.
+	 * @return string WordPress.com SSO URL
 	 */
-	function build_reauth_and_sso_url( $args = array() ) {
+	public function build_reauth_and_sso_url( $args = array() ) {
 		$sso_nonce = ! empty( $args['sso_nonce'] ) ? $args['sso_nonce'] : self::request_initial_nonce();
 		$redirect = $this->build_sso_url( array( 'force_auth' => '1', 'sso_nonce' => $sso_nonce ) );
 
@@ -981,7 +992,17 @@ class Jetpack_SSO {
 			return $args['sso_nonce'];
 		}
 
-		return add_query_arg( $args, 'https://wordpress.com/wp-login.php' );
+		$query = add_query_arg( $args, '' );
+		$query = trim( $query, '?' );
+
+		$url = Redirect::get_url(
+			'wpcom-login',
+			array(
+				'query' => $query,
+			)
+		);
+
+		return $url;
 	}
 
 	/**

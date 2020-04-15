@@ -9,6 +9,7 @@ import { translate as __ } from 'i18n-calypso';
 import analytics from 'lib/analytics';
 import { getPlanClass, FEATURE_UNLIMITED_PREMIUM_THEMES } from 'lib/plans/constants';
 import { get, includes } from 'lodash';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -106,7 +107,7 @@ class MyPlanBody extends React.Component {
 						<p>{ description }</p>
 						<Button
 							onClick={ this.handleButtonClickForTracking( 'view_backup_dash' ) }
-							href={ 'https://wordpress.com/activity-log/' + this.props.siteRawUrl }
+							href={ getRedirectUrl( 'calypso-activity-log', { site: this.props.siteRawUrl } ) }
 						>
 							{ __( 'View Your Backups' ) }
 						</Button>
@@ -139,7 +140,7 @@ class MyPlanBody extends React.Component {
 							</p>
 							<Button
 								onClick={ this.handleButtonClickForTracking( 'view_security_dash_rewind' ) }
-								href={ 'https://wordpress.com/activity-log/' + this.props.siteRawUrl }
+								href={ getRedirectUrl( 'calypso-activity-log', { site: this.props.siteRawUrl } ) }
 							>
 								{ __( 'View your security activity' ) }
 							</Button>
@@ -186,18 +187,17 @@ class MyPlanBody extends React.Component {
 						this.props.isPluginActive( 'vaultpress/vaultpress.php' ) ? (
 							<Button
 								onClick={ this.handleButtonClickForTracking( 'view_security_dash' ) }
-								href="https://dashboard.vaultpress.com/"
+								href={ getRedirectUrl( 'vaultpress-dashboard' ) }
 							>
 								{ __( 'View your security dashboard' ) }
 							</Button>
 						) : (
 							<Button
 								onClick={ this.handleButtonClickForTracking( 'configure_vault' ) }
-								href={
-									'https://wordpress.com/plugins/setup/' +
-									this.props.siteRawUrl +
-									'?only=vaultpress'
-								}
+								href={ getRedirectUrl( 'calypso-plugins-setup', {
+									site: this.props.siteRawUrl,
+									query: 'only=vaultpress',
+								} ) }
 							>
 								{ __( 'View settings' ) }
 							</Button>
@@ -312,11 +312,10 @@ class MyPlanBody extends React.Component {
 								) : (
 									<Button
 										onClick={ this.handleButtonClickForTracking( 'configure_akismet' ) }
-										href={
-											'https://wordpress.com/plugins/setup/' +
-											this.props.siteRawUrl +
-											'?only=akismet'
-										}
+										href={ getRedirectUrl( 'calypso-plugins-setup', {
+											site: this.props.siteRawUrl,
+											query: 'only=akismet',
+										} ) }
 									>
 										{ __( 'View settings' ) }
 									</Button>
@@ -377,7 +376,7 @@ class MyPlanBody extends React.Component {
 								</p>
 								<Button
 									onClick={ this.handleButtonClickForTracking( 'view_site_activity' ) }
-									href={ 'https://wordpress.com/activity-log/' + this.props.siteRawUrl }
+									href={ getRedirectUrl( 'calypso-activity-log', { site: this.props.siteRawUrl } ) }
 								>
 									{ __( 'View your site activity' ) }
 								</Button>
@@ -406,7 +405,9 @@ class MyPlanBody extends React.Component {
 										{ this.props.isModuleActivated( 'wordads' ) ? (
 											<Button
 												onClick={ this.handleButtonClickForTracking( 'view_earnings' ) }
-												href={ 'https://wordpress.com/ads/earnings/' + this.props.siteRawUrl }
+												href={ getRedirectUrl( 'wpcom-ads-earnings', {
+													site: this.props.siteRawUrl,
+												} ) }
 											>
 												{ __( 'View your earnings' ) }
 											</Button>
@@ -442,7 +443,9 @@ class MyPlanBody extends React.Component {
 										{ this.props.isModuleActivated( 'seo-tools' ) ? (
 											<Button
 												onClick={ this.handleButtonClickForTracking( 'configure_seo' ) }
-												href={ 'https://wordpress.com/marketing/traffic/' + this.props.siteRawUrl }
+												href={ getRedirectUrl( 'calypso-marketing-traffic', {
+													site: this.props.siteRawUrl,
+												} ) }
 											>
 												{ __( 'Configure site SEO' ) }
 											</Button>
@@ -480,7 +483,9 @@ class MyPlanBody extends React.Component {
 										{ this.props.isModuleActivated( 'google-analytics' ) ? (
 											<Button
 												onClick={ this.handleButtonClickForTracking( 'configure_ga' ) }
-												href={ 'https://wordpress.com/marketing/traffic/' + this.props.siteRawUrl }
+												href={ getRedirectUrl( 'calypso-marketing-traffic', {
+													site: this.props.siteRawUrl,
+												} ) }
 											>
 												{ __( 'Configure Google Analytics' ) }
 											</Button>
@@ -512,7 +517,9 @@ class MyPlanBody extends React.Component {
 									<p>{ __( 'Access beautifully designed premium themes at no extra cost.' ) }</p>
 									<Button
 										onClick={ this.handleButtonClickForTracking( 'premium_themes' ) }
-										href={ 'https://wordpress.com/themes/premium/' + this.props.siteRawUrl }
+										href={ getRedirectUrl( 'calypso-themes-premium', {
+											site: this.props.siteRawUrl,
+										} ) }
 									>
 										{ __( 'Browse premium themes' ) }
 									</Button>
@@ -542,7 +549,9 @@ class MyPlanBody extends React.Component {
 										{ this.props.isModuleActivated( 'publicize' ) ? (
 											<Button
 												onClick={ this.handleButtonClickForTracking( 'schedule_posts' ) }
-												href={ 'https://wordpress.com/posts/' + this.props.siteRawUrl }
+												href={ getRedirectUrl( 'calypso-edit-posts', {
+													site: this.props.siteRawUrl,
+												} ) }
 											>
 												{ __( 'Schedule posts' ) }
 											</Button>
@@ -587,7 +596,9 @@ class MyPlanBody extends React.Component {
 								</p>
 								<Button
 									onClick={ this.handleButtonClickForTracking( 'free_security' ) }
-									href={ 'https://wordpress.com/settings/security/' + this.props.siteRawUrl }
+									href={ getRedirectUrl( 'calypso-settings-security', {
+										site: this.props.siteRawUrl,
+									} ) }
 								>
 									{ __( 'Set up your site security' ) }
 								</Button>
@@ -639,7 +650,7 @@ class MyPlanBody extends React.Component {
 								</p>
 								<Button
 									onClick={ this.handleButtonClickForTracking( 'free_themes' ) }
-									href={ 'https://wordpress.com/themes/' + this.props.siteRawUrl }
+									href={ getRedirectUrl( 'calypso-themes', { site: this.props.siteRawUrl } ) }
 								>
 									{ __( 'Explore free themes' ) }
 								</Button>
@@ -665,7 +676,9 @@ class MyPlanBody extends React.Component {
 								</p>
 								<Button
 									onClick={ this.handleButtonClickForTracking( 'free_sharing' ) }
-									href={ 'https://wordpress.com/marketing/connections/' + this.props.siteRawUrl }
+									href={ getRedirectUrl( 'calypso-marketing-connections', {
+										site: this.props.siteRawUrl,
+									} ) }
 								>
 									{ __( 'Start sharing' ) }
 								</Button>
@@ -691,7 +704,7 @@ class MyPlanBody extends React.Component {
 								</p>
 								<Button
 									onClick={ this.handleButtonClickForTracking( 'view_site_activity' ) }
-									href={ 'https://wordpress.com/activity-log/' + this.props.siteRawUrl }
+									href={ getRedirectUrl( 'calypso-activity-log', { site: this.props.siteRawUrl } ) }
 								>
 									{ __( 'View your site activity' ) }
 								</Button>
@@ -717,7 +730,7 @@ class MyPlanBody extends React.Component {
 								</p>
 								<Button
 									onClick={ this.handleButtonClickForTracking( 'free_support_documentation' ) }
-									href="https://jetpack.com/support/"
+									href={ getRedirectUrl( 'jetpack-support' ) }
 								>
 									{ __( 'Search support docs' ) }
 								</Button>

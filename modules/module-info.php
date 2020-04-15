@@ -11,6 +11,8 @@
  * @package Jetpack
  */
 
+use Automattic\Jetpack\Redirect;
+
 /**
  *  VaultPress (stub) support link.
  */
@@ -37,7 +39,7 @@ add_action( 'jetpack_module_more_info_vaultpress', 'vaultpress_jetpack_more_info
  * Gravatar Hovercards support link.
  */
 function grofiles_load_more_link() {
-	echo 'https://jetpack.com/support/gravatar-hovercards/';
+	echo esc_url( Redirect::get_url( 'jetpack-support-gravatar-hovercards' ) );
 }
 add_filter( 'jetpack_learn_more_button_gravatar-hovercards', 'grofiles_load_more_link' );
 
@@ -57,7 +59,7 @@ add_action( 'jetpack_module_more_info_gravatar-hovercards', 'grofiles_more_info'
  * Shortcodes support link.
  */
 function jetpack_shortcodes_load_more_link() {
-	echo 'https://jetpack.com/support/shortcode-embeds/';
+	echo esc_url( Redirect::get_url( 'jetpack-support-shortcode-embeds' ) );
 }
 add_filter( 'jetpack_learn_more_button_shortcodes', 'jetpack_shortcodes_load_more_link' );
 
@@ -98,7 +100,7 @@ add_action( 'jetpack_module_more_info_shortlinks', 'wpme_more_info' );
  * Site Stats support link.
  */
 function stats_load_more_link() {
-	echo 'https://jetpack.com/support/wordpress-com-stats/';
+	echo esc_url( Redirect::get_url( 'jetpack-support-wordpress-com-stats' ) );
 }
 add_filter( 'jetpack_learn_more_button_stats', 'stats_load_more_link' );
 
@@ -118,7 +120,7 @@ add_action( 'jetpack_module_more_info_stats', 'stats_more_info' );
  * Publicize support link.
  */
 function publicize_load_more_link() {
-	echo 'https://jetpack.com/support/publicize/';
+	echo esc_url( Redirect::get_url( 'jetpack-support-publicize' ) );
 }
 add_filter( 'jetpack_learn_more_button_publicize', 'publicize_load_more_link' );
 
@@ -138,7 +140,7 @@ add_action( 'jetpack_module_more_info_publicize', 'publicize_more_info' );
  * Notifications
  */
 function notes_load_more_link() {
-	echo 'https://jetpack.com/support/notifications/';
+	echo esc_url( Redirect::get_url( 'jetpack-support-notifications' ) );
 }
 add_filter( 'jetpack_learn_more_button_notes', 'notes_load_more_link' );
 
@@ -158,7 +160,7 @@ add_filter( 'jetpack_module_more_info_notes', 'notes_more_info' );
  * LaTeX support link.
  */
 function latex_load_more_link() {
-	echo 'https://jetpack.com/support/beautiful-math-with-latex/';
+	echo esc_url( Redirect::get_url( 'jetpack-support-beautiful-math-with-latex' ) );
 }
 add_filter( 'jetpack_learn_more_button_latex', 'latex_load_more_link' );
 
@@ -180,7 +182,7 @@ add_action( 'jetpack_module_more_info_latex', 'latex_more_info' );
  * Sharing support link.
  */
 function sharedaddy_load_more_link() {
-	echo 'https://jetpack.com/support/sharing/';
+	echo esc_url( Redirect::get_url( 'jetpack-support-sharing' ) );
 }
 add_filter( 'jetpack_learn_more_button_sharedaddy', 'sharedaddy_load_more_link' );
 
@@ -201,7 +203,7 @@ add_action( 'jetpack_module_more_info_sharedaddy', 'sharedaddy_more_info' );
  * Extra Sidebar Widgets support link.
  */
 function jetpack_widgets_load_more_link() {
-	echo 'https://jetpack.com/support/extra-sidebar-widgets/';
+	echo esc_url( Redirect::get_url( 'jetpack-support-extra-sidebar-widgets' ) );
 }
 add_filter( 'jetpack_learn_more_button_widgets', 'jetpack_widgets_load_more_link' );
 
@@ -222,7 +224,7 @@ add_action( 'jetpack_module_more_info_widgets', 'jetpack_widgets_more_info' );
  * Subscriptions support link.
  */
 function jetpack_subscriptions_load_more_link() {
-	echo 'https://jetpack.com/support/subscriptions/';
+	echo esc_url( Redirect::get_url( 'jetpack-support-subscriptions' ) );
 }
 add_action( 'jetpack_learn_more_button_subscriptions', 'jetpack_subscriptions_load_more_link' );
 
@@ -242,7 +244,7 @@ add_action( 'jetpack_module_more_info_subscriptions', 'jetpack_subscriptions_mor
  * Enhanced Distribution support link.
  */
 function jetpack_enhanced_distribution_more_link() {
-	echo 'https://jetpack.com/support/enhanced-distribution/';
+	echo esc_url( Redirect::get_url( 'jetpack-support-enhanced-distribution' ) );
 }
 add_action( 'jetpack_learn_more_button_enhanced-distribution', 'jetpack_enhanced_distribution_more_link' );
 
@@ -263,7 +265,7 @@ add_action( 'jetpack_module_more_info_enhanced-distribution', 'jetpack_enhanced_
  * Protect support link.
  */
 function jetpack_protect_more_link() {
-	echo 'https://jetpack.com/support/protect/';
+	echo esc_url( Redirect::get_url( 'jetpack-support-protect' ) );
 }
 add_action( 'jetpack_learn_more_button_protect', 'jetpack_protect_more_link' );
 
@@ -284,7 +286,7 @@ add_action( 'jetpack_module_more_info_protect', 'jetpack_protect_more_info' );
  * JSON API support link.
  */
 function jetpack_json_api_more_link() {
-	echo 'https://jetpack.com/support/json-api/';
+	echo esc_url( Redirect::get_url( 'jetpack-support-json-api' ) );
 }
 add_action( 'jetpack_learn_more_button_json-api', 'jetpack_json_api_more_link' );
 
@@ -304,7 +306,7 @@ add_action( 'jetpack_module_more_info_json-api', 'jetpack_json_api_more_info' );
  * Contact Form support link.
  */
 function jetpack_contact_form_learn_more_button() {
-	echo 'https://jetpack.com/support/contact-form/';
+	echo esc_url( Redirect::get_url( 'jetpack-support-contact-form' ) );
 }
 add_action( 'jetpack_learn_more_button_contact-form', 'jetpack_contact_form_learn_more_button' );
 
@@ -325,7 +327,7 @@ add_action( 'jetpack_module_more_info_contact-form', 'jetpack_contact_form_more_
  * Comments support link.
  */
 function jetpack_comments_learn_more_button() {
-	echo 'https://jetpack.com/support/comments';
+	echo esc_url( Redirect::get_url( 'jetpack-support-comments' ) );
 }
 add_action( 'jetpack_learn_more_button_comments', 'jetpack_comments_learn_more_button' );
 
@@ -345,7 +347,7 @@ add_action( 'jetpack_module_more_info_comments', 'jetpack_comments_more_info' );
  * Carousel support link.
  */
 function jetpack_carousel_learn_more_button() {
-	echo 'https://jetpack.com/support/carousel';
+	echo esc_url( Redirect::get_url( 'jetpack-support-carousel' ) );
 }
 add_action( 'jetpack_learn_more_button_carousel', 'jetpack_carousel_learn_more_button' );
 
@@ -365,7 +367,7 @@ add_action( 'jetpack_module_more_info_carousel', 'jetpack_carousel_more_info' );
  * Custom CSS support link.
  */
 function jetpack_custom_css_more_button() {
-	echo 'https://jetpack.com/support/custom-css';
+	echo esc_url( Redirect::get_url( 'jetpack-support-custom-css' ) );
 }
 add_action( 'jetpack_learn_more_button_custom-css', 'jetpack_custom_css_more_button' );
 
@@ -385,7 +387,7 @@ add_action( 'jetpack_module_more_info_custom-css', 'jetpack_custom_css_more_info
  * Masterbar support link.
  */
 function jetpack_masterbar_more_link() {
-	echo 'https://jetpack.com/support/masterbar/';
+	echo esc_url( Redirect::get_url( 'jetpack-support-masterbar' ) );
 }
 add_action( 'jetpack_learn_more_button_masterbar', 'jetpack_masterbar_more_link' );
 
@@ -405,7 +407,7 @@ add_action( 'jetpack_module_more_info_masterbar', 'jetpack_masterbar_more_info' 
  * Infinite Scroll support link.
  */
 function jetpack_infinite_scroll_more_button() {
-	echo 'https://jetpack.com/support/infinite-scroll';
+	echo esc_url( Redirect::get_url( 'jetpack-support-infinite-scroll' ) );
 }
 add_action( 'jetpack_learn_more_button_infinite-scroll', 'jetpack_infinite_scroll_more_button' );
 
@@ -425,7 +427,7 @@ add_action( 'jetpack_module_more_info_infinite-scroll', 'jetpack_infinite_scroll
  * Post by Email support link.
  */
 function jetpack_post_by_email_more_link() {
-	echo 'https://jetpack.com/support/post-by-email/';
+	echo esc_url( Redirect::get_url( 'jetpack-support-post-by-email' ) );
 }
 add_action( 'jetpack_learn_more_button_post-by-email', 'jetpack_post_by_email_more_link' );
 
@@ -444,7 +446,7 @@ add_action( 'jetpack_module_more_info_post-by-email', 'jetpack_post_by_email_mor
  * Photon support link.
  */
 function jetpack_photon_more_link() {
-	echo 'https://jetpack.com/support/photon';
+	echo esc_url( Redirect::get_url( 'jetpack-support-photon' ) );
 }
 add_action( 'jetpack_learn_more_button_photon', 'jetpack_photon_more_link' );
 
@@ -464,7 +466,7 @@ add_action( 'jetpack_module_more_info_photon', 'jetpack_photon_more_info' );
  * Lazy Images support link.
  */
 function jetpack_lazy_images_more_link() {
-	echo 'https://jetpack.com/support/lazy-images/';
+	echo esc_url( Redirect::get_url( 'jetpack-support-lazy-images' ) );
 }
 add_action( 'jetpack_learn_more_button_lazy-images', 'jetpack_lazy_images_more_link' );
 
@@ -485,7 +487,7 @@ add_action( 'jetpack_module_more_info_lazy-images', 'jetpack_lazy_images_more_in
  * Tiled Galleries support link.
  */
 function jetpack_tiled_gallery_more_link() {
-	echo 'https://jetpack.com/support/tiled-galleries/';
+	echo esc_url( Redirect::get_url( 'jetpack-support-tiled-galleries' ) );
 }
 add_action( 'jetpack_learn_more_button_tiled-gallery', 'jetpack_tiled_gallery_more_link' );
 
@@ -505,7 +507,7 @@ add_action( 'jetpack_module_more_info_tiled-gallery', 'jetpack_tiled_gallery_mor
  * Likes support link.
  */
 function jetpack_likes_more_link() {
-	echo 'https://jetpack.com/support/likes/';
+	echo esc_url( Redirect::get_url( 'jetpack-support-likes' ) );
 }
 add_action( 'jetpack_learn_more_button_likes', 'jetpack_likes_more_link' );
 
@@ -525,7 +527,7 @@ add_action( 'jetpack_module_more_info_likes', 'jetpack_likes_more_info' );
  * Widget Visibility support link.
  */
 function jetpack_widget_visibility_more_link() {
-	echo 'https://jetpack.com/support/widget-visibility/';
+	echo esc_url( Redirect::get_url( 'jetpack-support-widget-visibility' ) );
 }
 add_action( 'jetpack_learn_more_button_widget-visibility', 'jetpack_widget_visibility_more_link' );
 
@@ -545,7 +547,7 @@ add_action( 'jetpack_module_more_info_widget-visibility', 'jetpack_widget_visibi
  * VideoPress support link.
  */
 function jetpack_videopress_more_link() {
-	echo 'https://jetpack.com/support/videopress/';
+	echo esc_url( Redirect::get_url( 'jetpack-support-videopress' ) );
 }
 add_action( 'jetpack_learn_more_button_videopress', 'jetpack_videopress_more_link' );
 
@@ -565,7 +567,7 @@ add_action( 'jetpack_module_more_info_videopress', 'jetpack_videopress_more_info
  * SSO support link.
  */
 function jetpack_sso_more_link() {
-	echo 'https://jetpack.com/support/sso/';
+	echo esc_url( Redirect::get_url( 'jetpack-support-sso' ) );
 }
 add_action( 'jetpack_learn_more_button_sso', 'jetpack_sso_more_link' );
 
@@ -585,7 +587,7 @@ add_action( 'jetpack_module_more_info_sso', 'jetpack_sso_more_info' );
  * Monitor support link.
  */
 function jetpack_monitor_more_link() {
-	echo 'https://jetpack.com/support/monitor/';
+	echo esc_url( Redirect::get_url( 'jetpack-support-monitor' ) );
 }
 add_action( 'jetpack_learn_more_button_monitor', 'jetpack_monitor_more_link' );
 
@@ -605,7 +607,7 @@ add_action( 'jetpack_module_more_info_monitor', 'jetpack_monitor_more_info' );
  * Related Posts support link.
  */
 function jetpack_related_posts_more_button() {
-	echo 'https://jetpack.com/support/related-posts/';
+	echo esc_url( Redirect::get_url( 'jetpack-support-related-posts' ) );
 }
 add_action( 'jetpack_learn_more_button_related-posts', 'jetpack_related_posts_more_button' );
 
@@ -625,7 +627,7 @@ add_action( 'jetpack_module_more_info_related-posts', 'jetpack_related_posts_mor
  * Markdown support link.
  */
 function jetpack_markdown_more_link() {
-	echo 'https://jetpack.com/support/markdown/';
+	echo esc_url( Redirect::get_url( 'jetpack-support-markdown' ) );
 }
 add_action( 'jetpack_learn_more_button_markdown', 'jetpack_markdown_more_link' );
 
@@ -645,7 +647,7 @@ add_action( 'jetpack_module_more_info_markdown', 'jetpack_markdown_more_info' );
  * Site Verification Tools support link.
  */
 function jetpack_verification_tools_more_link() {
-	echo 'https://jetpack.com/support/site-verification-tools/';
+	echo esc_url( Redirect::get_url( 'jetpack-support-site-verification-tools' ) );
 }
 add_action( 'jetpack_learn_more_button_verification-tools', 'jetpack_verification_tools_more_link' );
 
@@ -665,7 +667,7 @@ add_action( 'jetpack_module_more_info_verification-tools', 'jetpack_verification
  * SEO Tools support link.
  */
 function jetpack_seo_tools_more_link() {
-	echo 'https://jetpack.com/support/seo-tools/';
+	echo esc_url( Redirect::get_url( 'jetpack-support-seo-tools' ) );
 }
 add_action( 'jetpack_learn_more_button_seo-tools', 'jetpack_seo_tools_more_link' );
 
@@ -684,7 +686,7 @@ add_action( 'jetpack_module_more_info_seo-tools', 'jetpack_seo_tools_more_info' 
  * Custom Content Types support link.
  */
 function jetpack_custom_content_types_more_link() {
-	echo 'https://jetpack.com/support/custom-content-types/';
+	echo esc_url( Redirect::get_url( 'jetpack-support-custom-content-types' ) );
 }
 add_action( 'jetpack_learn_more_button_custom-content-types', 'jetpack_custom_content_types_more_link' );
 
@@ -704,7 +706,7 @@ add_action( 'jetpack_module_more_info_custom-content-types', 'jetpack_custom_con
  * Manage support link.
  */
 function jetpack_manage_more_link() {
-	echo 'https://jetpack.com/support/site-management/';
+	echo esc_url( Redirect::get_url( 'jetpack-support-site-management' ) );
 }
 add_action( 'jetpack_learn_more_button_manage', 'jetpack_manage_more_link' );
 
@@ -726,7 +728,7 @@ add_action( 'jetpack_module_more_info_manage', 'jetpack_custom_jetpack_manage' )
  * Sitemaps support link.
  */
 function jetpack_sitemaps_more_link() {
-	echo 'https://jetpack.com/support/sitemaps/';
+	echo esc_url( Redirect::get_url( 'jetpack-support-sitemaps' ) );
 }
 add_action( 'jetpack_learn_more_button_sitemaps', 'jetpack_sitemaps_more_link' );
 
@@ -765,7 +767,7 @@ add_action( 'jetpack_module_more_info_wordads', 'jetpack_wordads_more_info' );
  * Google Analytics support link.
  */
 function jetpack_google_analytics_more_link() {
-	echo 'https://jetpack.com/support/google-analytics';
+	echo esc_url( Redirect::get_url( 'jetpack-support-google-analytics' ) );
 }
 add_action( 'jetpack_learn_more_button_google-analytics', 'jetpack_google_analytics_more_link' );
 
@@ -784,7 +786,7 @@ add_action( 'jetpack_module_more_info_google-analytics', 'jetpack_google_analyti
  * WooCommerce Analytics support link.
  */
 function jetpack_woocommerce_analytics_more_link() {
-	echo 'https://jetpack.com/support/woocommerce-analytics/';
+	echo esc_url( Redirect::get_url( 'jetpack-support-woocommerce-analytics' ) );
 }
 add_action( 'jetpack_learn_more_button_woocommerce-analytics', 'jetpack_woocommerce_analytics_more_link' );
 
@@ -803,7 +805,7 @@ add_action( 'jetpack_module_more_info_woocommerce-analytics', 'jetpack_woocommer
  * Search support link.
  */
 function jetpack_search_more_link() {
-	echo 'https://jetpack.com/support/search/';
+	echo esc_url( Redirect::get_url( 'jetpack-support-search' ) );
 }
 add_action( 'jetpack_learn_more_button_search', 'jetpack_search_more_link' );
 
@@ -822,7 +824,7 @@ add_action( 'jetpack_module_more_info_search', 'jetpack_search_more_info' );
  * Comment Likes support link.
  */
 function jetpack_comment_likes_more_link() {
-	echo 'https://jetpack.com/support/comment-likes/';
+	echo esc_url( Redirect::get_url( 'jetpack-support-comment-likes' ) );
 }
 add_action( 'jetpack_learn_more_button_comment-likes', 'jetpack_comment_likes_more_link' );
 
@@ -841,7 +843,7 @@ add_action( 'jetpack_module_more_info_comment-likes', 'jetpack_comment_likes_mor
  * Asset CDN support link.
  */
 function jetpack_assetcdn_more_link() {
-	echo 'https://jetpack.com/support/asset-cdn/';
+	echo esc_url( Redirect::get_url( 'jetpack-support-asset-cdn' ) );
 }
 add_action( 'jetpack_learn_more_button_photon-cdn', 'jetpack_assetcdn_more_link' );
 
@@ -861,7 +863,7 @@ add_action( 'jetpack_module_more_info_photon-cdn', 'jetpack_assetcdn_more_info' 
  * Copy Post support link.
  */
 function jetpack_copy_post_more_link() {
-	echo 'https://jetpack.com/support/copy-post-2/';
+	echo esc_url( Redirect::get_url( 'jetpack-support-copy-post-2' ) );
 }
 add_action( 'jetpack_learn_more_button_copy-post', 'jetpack_copy_post_more_link' );
 

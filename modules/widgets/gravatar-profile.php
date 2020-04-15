@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Redirect;
+
 /**
  * Register the widget for use in Appearance -> Widgets
  */
@@ -268,7 +270,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 			$profile_url = admin_url( 'profile.php' );
 
 			if ( isset( $_REQUEST['calypso'] ) ) {
-				$profile_url = 'https://wordpress.com/me';
+				$profile_url = Redirect::get_url( 'calypso-me' );
 			}
 		}
 		?>

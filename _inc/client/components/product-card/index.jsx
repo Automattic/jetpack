@@ -5,6 +5,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { localize } from 'i18n-calypso';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -38,7 +39,7 @@ class ProductCard extends Component {
 	};
 
 	getManagePurchaseLink( siteName, purchaseId ) {
-		return `https://wordpress.com/me/purchases/${ siteName }/${ purchaseId }`;
+		return getRedirectUrl( 'calypso-me-purchases', { site: siteName, path: purchaseId } );
 	}
 
 	handleManagePurchase( productSlug ) {

@@ -8,6 +8,7 @@ import SimpleNotice from 'components/notice';
 import NoticeAction from 'components/notice/notice-action.jsx';
 import { translate as __ } from 'i18n-calypso';
 import NoticesList from 'components/global-notices';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -58,7 +59,7 @@ export class StagingSiteNotice extends React.Component {
 
 	render() {
 		if ( this.props.isStaging && ! this.props.isInIdentityCrisis ) {
-			const stagingSiteSupportLink = 'https://jetpack.com/support/staging-sites/',
+			const stagingSiteSupportLink = getRedirectUrl( 'jetpack-support-staging-sites' ),
 				props = {
 					text: __( 'You are running Jetpack on a staging server.' ),
 					status: 'is-basic',
@@ -123,7 +124,7 @@ export class DevModeNotice extends React.Component {
 					components: {
 						a: (
 							<a
-								href="https://jetpack.com/support/development-mode/"
+								href={ getRedirectUrl( 'jetpack-support-development-mode' ) }
 								target="_blank"
 								rel="noopener noreferrer"
 							/>
@@ -135,7 +136,7 @@ export class DevModeNotice extends React.Component {
 
 			return (
 				<SimpleNotice showDismiss={ false } status="is-info" text={ text }>
-					<NoticeAction href="https://jetpack.com/development-mode/">
+					<NoticeAction href={ getRedirectUrl( 'jetpack-support-development-mode' ) }>
 						{ __( 'Learn More' ) }
 					</NoticeAction>
 				</SimpleNotice>

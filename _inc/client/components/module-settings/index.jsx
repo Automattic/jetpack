@@ -4,6 +4,7 @@
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
 import Card from 'components/card';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -203,7 +204,9 @@ export class MonitorSettings extends React.Component {
 									className="jp-module-settings__external-link"
 									icon={ true }
 									iconSize={ 16 }
-									href={ 'https://wordpress.com/settings/security/' + this.props.module.raw_url }
+									href={ getRedirectUrl( 'calypso-settings-security', {
+										site: this.props.module.raw_url,
+									} ) }
 								/>
 							),
 						},

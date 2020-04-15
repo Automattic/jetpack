@@ -7,6 +7,7 @@ import PropTypes from 'prop-types';
 import CompactFormToggle from 'components/form/form-toggle/compact';
 import analytics from 'lib/analytics';
 import { translate as __ } from 'i18n-calypso';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -64,7 +65,7 @@ class ModuleToggleComponent extends Component {
 			components: {
 				link: (
 					<a
-						href="http://jetpack.com/support/module-overrides/"
+						href={ getRedirectUrl( 'jetpack-support-module-overrides' ) }
 						target="_blank"
 						rel="noopener noreferrer"
 						style={ { textDecoration: 'underline' } }

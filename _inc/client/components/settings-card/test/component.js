@@ -5,6 +5,7 @@ import React from 'react';
 import { expect } from 'chai';
 import { shallow } from 'enzyme';
 import sinon from 'sinon';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -19,7 +20,7 @@ describe( 'SettingsCard', () => {
 		getModule: () => (
 			{
 				name: 'Comments',
-				learn_more_button: 'https://jetpack.com/support/protect'
+				learn_more_button: getRedirectUrl( 'jetpack-support-protect' )
 			}
 		),
 		isSavingAnyOption: () => false,
@@ -93,7 +94,7 @@ describe( 'SettingsCard', () => {
 
 		Object.assign( testProps, {
 			header: 'A custom header',
-			support: 'https://jetpack.com/'
+			support: getRedirectUrl( 'jetpack' )
 		} );
 
 		const wrapper = shallow( <SettingsCard { ...testProps } ><p>Child</p></SettingsCard> );

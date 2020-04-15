@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Redirect;
 
 // Shared logic between Jetpack admin pages
 abstract class Jetpack_Admin_Page {
@@ -277,11 +278,11 @@ abstract class Jetpack_Admin_Page {
 		$jetpack_admin_url = admin_url( 'admin.php?page=jetpack' );
 		$jetpack_about_url = ( Jetpack::is_active() || Jetpack::is_development_mode() )
 			? admin_url( 'admin.php?page=jetpack_about' )
-			: 'https://jetpack.com';
+			: Redirect::get_url( 'jetpack' );
 
 		$jetpack_privacy_url = ( Jetpack::is_active() || Jetpack::is_development_mode() )
 			? $jetpack_admin_url . '#/privacy'
-			: 'https://automattic.com/privacy/';
+			: Redirect::get_url( 'a8c-privacy' );
 
 		?>
 		<div id="jp-plugin-container" class="
@@ -357,13 +358,13 @@ abstract class Jetpack_Admin_Page {
 				</div>
 				<ul class="jp-footer__links">
 					<li class="jp-footer__link-item">
-						<a href="https://jetpack.com" target="_blank" rel="noopener noreferrer" class="jp-footer__link" title="<?php esc_html_e( 'Jetpack version', 'jetpack' ); ?>">Jetpack <?php echo JETPACK__VERSION; ?></a>
+						<a href="<?php echo esc_url( Redirect::get_url( 'jetpack' ) ); ?>" target="_blank" rel="noopener noreferrer" class="jp-footer__link" title="<?php esc_html_e( 'Jetpack version', 'jetpack' ); ?>">Jetpack <?php echo esc_html( JETPACK__VERSION ); ?></a>
 					</li>
 					<li class="jp-footer__link-item">
 						<a href="<?php echo esc_url( $jetpack_about_url ); ?>" title="<?php esc_attr__( 'About Jetpack', 'jetpack' ); ?>" class="jp-footer__link"><?php echo esc_html__( 'About', 'jetpack' ); ?></a>
 					</li>
 					<li class="jp-footer__link-item">
-						<a href="https://wordpress.com/tos/" target="_blank" rel="noopener noreferrer" title="<?php esc_html__( 'WordPress.com Terms of Service', 'jetpack' ); ?>" class="jp-footer__link"><?php echo esc_html_x( 'Terms', 'Navigation item', 'jetpack' ); ?></a>
+						<a href="<?php echo esc_url( Redirect::get_url( 'wpcom-tos' ) ); ?>" target="_blank" rel="noopener noreferrer" title="<?php esc_html__( 'WordPress.com Terms of Service', 'jetpack' ); ?>" class="jp-footer__link"><?php echo esc_html_x( 'Terms', 'Navigation item', 'jetpack' ); ?></a>
 					</li>
 					<li class="jp-footer__link-item">
 						<a href="<?php echo esc_url( $jetpack_privacy_url ); ?>" rel="noopener noreferrer" title="<?php esc_html_e( "Automattic's Privacy Policy", 'jetpack' ); ?>" class="jp-footer__link"><?php echo esc_html_x( 'Privacy', 'Navigation item', 'jetpack' ); ?></a>

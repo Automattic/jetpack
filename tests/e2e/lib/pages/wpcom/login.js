@@ -1,4 +1,9 @@
 /**
+ * External dependencies
+ */
+import getRedirectUrl from '../../../../../_inc/client/lib/jp-redirect';
+
+/**
  * Internal dependencies
  */
 import Page from '../page';
@@ -13,7 +18,7 @@ import {
 export default class LoginPage extends Page {
 	constructor( page ) {
 		const expectedSelector = '.wp-login__container';
-		const url = 'https://wordpress.com/log-in';
+		const url = getRedirectUrl( 'wpcom-log-in' );
 		super( page, { expectedSelector, url, explicitWaitMS: 45000 } );
 	}
 

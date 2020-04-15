@@ -11,6 +11,7 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Redirect;
 
 /**
  * Disable direct access.
@@ -129,8 +130,8 @@ function jetpack_render_tos_blurb() {
 				'strong' => true,
 			)
 		),
-		'https://wordpress.com/tos',
-		'https://jetpack.com/support/what-data-does-jetpack-sync'
+		esc_url( Redirect::get_url( 'wpcom-tos' ) ),
+		esc_url( Redirect::get_url( 'jetpack-support-what-data-does-jetpack-sync' ) )
 	);
 }
 

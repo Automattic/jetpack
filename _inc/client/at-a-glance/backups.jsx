@@ -7,6 +7,7 @@ import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
 import { translate as __ } from 'i18n-calypso';
 import { get, isEmpty, noop } from 'lodash';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -35,7 +36,7 @@ const renderCard = props => (
 			text: __(
 				'Jetpack Backups allow you to easily restore or download a backup from a specific moment.'
 			),
-			link: 'https://jetpack.com/support/backup/',
+			link: getRedirectUrl( 'jetpack-support-backup' ),
 		} }
 		className={ props.className }
 		status={ props.status }
@@ -115,7 +116,10 @@ class DashBackups extends Component {
 							components: {
 								a: (
 									<a
-										href={ `https://wordpress.com/plugins/setup/${ siteRawUrl }?only=backups` }
+										href={ getRedirectUrl( 'calypso-plugins-setup', {
+											site: siteRawUrl,
+											query: 'only=backups',
+										} ) }
 										target="_blank"
 										rel="noopener noreferrer"
 									/>
@@ -182,7 +186,7 @@ class DashBackups extends Component {
 							__( "You need to enter your server's credentials to finish the setup." )
 						) }
 						{ buildAction(
-							`https://wordpress.com/settings/security/${ siteRawUrl }`,
+							getRedirectUrl( 'calypso-settings-security', { site: siteRawUrl } ),
 							__( 'Enter credentials' )
 						) }
 					</React.Fragment>
@@ -196,7 +200,7 @@ class DashBackups extends Component {
 					<React.Fragment>
 						{ buildCard( message ) }
 						{ buildAction(
-							`https://wordpress.com/activity-log/${ siteRawUrl }?group=rewind`,
+							getRedirectUrl( 'calypso-activity-log', { site: siteRawUrl, query: 'group=rewind' } ),
 							__( "View your site's backups" )
 						) }
 					</React.Fragment>

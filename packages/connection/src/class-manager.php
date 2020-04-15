@@ -723,7 +723,7 @@ class Manager {
 	 * @return String API URL.
 	 */
 	public function api_url( $relative_url ) {
-		$api_base = Constants::get_constant( 'JETPACK__API_BASE' );
+		$api_base    = Constants::get_constant( 'JETPACK__API_BASE' );
 		$api_version = '/' . Constants::get_constant( 'JETPACK__API_VERSION' ) . '/';
 
 		/**

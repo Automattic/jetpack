@@ -9,6 +9,7 @@ import { translate as __ } from 'i18n-calypso';
 import Card from 'components/card';
 import Button from 'components/button';
 import analytics from 'lib/analytics';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -88,7 +89,7 @@ class SupportCard extends React.Component {
 								onClick={ this.trackAskQuestionClick }
 								href={
 									this.props.isAtomicSite
-										? 'https://wordpress.com/help/contact/'
+										? getRedirectUrl( 'calypso-help-contact' )
 										: jetpackSupportURl
 								}
 							>
@@ -98,8 +99,8 @@ class SupportCard extends React.Component {
 								onClick={ this.trackSearchClick }
 								href={
 									this.props.isAtomicSite
-										? 'https://wordpress.com/help/'
-										: 'https://jetpack.com/support/'
+										? getRedirectUrl( 'calypso-help' )
+										: getRedirectUrl( 'jetpack-support' )
 								}
 							>
 								{ __( 'Search our support site' ) }

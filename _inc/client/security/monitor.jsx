@@ -3,6 +3,7 @@
  */
 import React, { Component } from 'react';
 import { translate as __ } from 'i18n-calypso';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -38,7 +39,7 @@ export const Monitor = withModuleSettingsFormHelpers(
 							text: __(
 								'Jetpack will continuously monitor your site, and alert you the moment downtime is detected.'
 							),
-							link: 'https://jetpack.com/support/monitor/',
+							link: getRedirectUrl( 'jetpack-support-monitor' ),
 						} }
 					>
 						<ModuleToggle
@@ -61,7 +62,9 @@ export const Monitor = withModuleSettingsFormHelpers(
 							className="jp-settings-card__configure-link"
 							onClick={ this.trackConfigureClick }
 							target="_blank"
-							href={ 'https://wordpress.com/settings/security/' + this.props.siteRawUrl }
+							href={ getRedirectUrl( 'calypso-settings-security', {
+								site: this.props.siteRawUrl,
+							} ) }
 						>
 							{ __( 'Configure your notification settings' ) }
 						</Card>

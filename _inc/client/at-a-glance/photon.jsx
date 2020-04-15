@@ -6,6 +6,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
 import { translate as __ } from 'i18n-calypso';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -28,7 +29,7 @@ class DashPhoton extends Component {
 			text: __(
 				'Jetpack will optimize your images and serve them from the server location nearest to your visitors. Using our global content delivery network will boost the loading speed of your site.'
 			),
-			link: 'https://jetpack.com/support/photon/',
+			link: getRedirectUrl( 'jetpack-support-photon' ),
 		};
 
 		if ( this.props.getOptionValue( 'photon' ) ) {

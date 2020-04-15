@@ -6,6 +6,7 @@ import { translate as __ } from 'i18n-calypso';
 import Card from 'components/card';
 import analytics from 'lib/analytics';
 import { connect } from 'react-redux';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -38,7 +39,7 @@ class SeoComponent extends React.Component {
 						text: __(
 							'Allows you to optimize your site and its content for better results in search engines.'
 						),
-						link: 'https://jetpack.com/support/seo-tools/',
+						link: getRedirectUrl( 'jetpack-support-seo-tools' ),
 					} }
 				>
 					<span>

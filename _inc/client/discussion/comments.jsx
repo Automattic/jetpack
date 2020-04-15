@@ -4,6 +4,7 @@
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
 import TextInput from 'components/text-input';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -84,7 +85,7 @@ class CommentsComponent extends React.Component {
 								'Replaces the standard WordPress comment form with a new comment system ' +
 									'that includes social media login options.'
 							),
-							link: 'https://jetpack.com/support/comments',
+							link: getRedirectUrl( 'jetpack-support-comments' ),
 						} }
 					>
 						<ModuleToggle
@@ -209,8 +210,10 @@ class CommentsComponent extends React.Component {
 								</FormFieldset>
 								<SupportInfo
 									text={ __( 'Allow readers to like individual comments.' ) }
-									link="https://jetpack.com/support/comment-likes/"
-									privacyLink="https://jetpack.com/support/comment-likes/#privacy"
+									link={ getRedirectUrl( 'jetpack-support-comment-likes' ) }
+									privacyLink={ getRedirectUrl( 'jetpack-support-comment-likes', {
+										anchor: 'privacy',
+									} ) }
 								/>
 							</div>
 						) }
