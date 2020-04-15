@@ -62,7 +62,7 @@ const PodcastPlayerEdit = ( {
 	className,
 	attributes,
 	setAttributes,
-	noticeOperations: { createErrorNotice, removeAllNotices, createNotice },
+	noticeOperations: { createErrorNotice, removeAllNotices },
 	noticeUI,
 	primaryColor: primaryColorProp,
 	setPrimaryColor,
@@ -133,7 +133,7 @@ const PodcastPlayerEdit = ( {
 				}
 			);
 		},
-		[ createErrorNotice, createNotice, replaceWithEmbedBlock ]
+		[ createErrorNotice, replaceWithEmbedBlock ]
 	);
 
 	useEffect( () => {
