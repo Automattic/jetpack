@@ -25,9 +25,6 @@ function jetpack_require_lib( $slug ) {
 		"$lib_dir/$slug/0-load.php",
 		"$lib_dir/$slug/$basename.php",
 	);
-	if ( defined( 'JETPACK__PLUGIN_DIR' ) ) {
-		$choices[] = JETPACK__PLUGIN_DIR . "vendor/automattic/jetpack-compat/lib/$slug.php";
-	}
 	foreach( $choices as $file_name ) {
 		if ( is_readable( $file_name ) ) {
 			require_once $file_name;
