@@ -124,9 +124,20 @@ function jetpack_googlemaps_shortcode( $atts ) {
 			}
 		}
 
-		$sandbox = class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ? 'sandbox="allow-popups allow-scripts allow-same-origin"' : '';
+		$sandbox = class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request()
+			? 'sandbox="allow-popups allow-scripts allow-same-origin"'
+			: '';
 
-		return '<div class="' . esc_attr( $css_class ) . '"><iframe width="' . $width . '" height="' . $height . '" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="' . $url . '" ' . $sandbox . '></iframe></div>';
+		return sprintf(
+			'<div class="%1$s">
+				<iframe width="%2$d" height="%3$d" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" %5$s src="%4$s"></iframe>
+			</div>',
+			esc_attr( $css_class ),
+			absint( $width ),
+			absint( $height ),
+			esc_url( $url ),
+			$sandbox
+		);
 	}
 }
 add_shortcode( 'googlemaps', 'jetpack_googlemaps_shortcode' );
