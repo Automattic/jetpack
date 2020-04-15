@@ -125,9 +125,16 @@ export class PodcastPlayer extends Component {
 	handleError = error => {
 		// If an error happens before any user interaction, our player is broken beyond repair.
 		if ( ! this.state.hasUserInteraction ) {
+			// There is a known error where IE11 doesn't support the <audio> element by
+			// default but errors instead. If the user is using IE11 we thus provide
+			// additional instructions on how they can turn on <audio> support.
+			const isIE11 = window.navigator.userAgent.match( /Trident\/7\./ );
+			const playerError = isIE11
+				? 'IE11: Playing sounds in webpages setting is not checked'
+				: error;
 			// setState wrapper makes sure our ErrorBoundary handles the error.
 			this.setState( () => {
-				throw new Error( error );
+				throw new Error( playerError );
 			} );
 		}
 
