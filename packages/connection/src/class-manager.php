@@ -45,6 +45,27 @@ class Manager {
 	private $xmlrpc_verification = null;
 
 	/**
+	 * Plugin management object.
+	 *
+	 * @var Plugin
+	 */
+	private $plugin = null;
+
+	/**
+	 * Initialize the object.
+	 * Make sure to call the "Configure" first.
+	 *
+	 * @param Plugin $plugin Slug of the plugin using the connection (optional, but encouraged).
+	 *
+	 * @see \Automattic\Jetpack\Config
+	 */
+	public function __construct( Plugin $plugin = null ) {
+		if ( $plugin ) {
+			$this->plugin = $plugin;
+		}
+	}
+
+	/**
 	 * Initializes required listeners. This is done separately from the constructors
 	 * because some objects sometimes need to instantiate separate objects of this class.
 	 *
@@ -1294,8 +1315,21 @@ class Manager {
 
 	/**
 	 * Deletes all connection tokens and transients from the local Jetpack site.
+	 * If the plugin object has been provided in the constructor, the function first check
+	 * whether it's the only active connection.
+	 * If there are any other connections, the function will do nothing and return `false`.
+	 *
+	 * @return bool True if disconnected successfully, false otherwise.
 	 */
 	public function delete_all_connection_tokens() {
+		if ( null !== $this->plugin && ! $this->plugin->is_only() ) {
+			return false;
+		}
+
+		if ( ! apply_filters( 'jetpack_connection_delete_all_tokens', true, $this ) ) {
+			return false;
+		}
+
 		\Jetpack_Options::delete_option(
 			array(
 				'blog_token',
@@ -1312,14 +1346,31 @@ class Manager {
 		// Delete cached connected user data.
 		$transient_key = 'jetpack_connected_user_data_' . get_current_user_id();
 		delete_transient( $transient_key );
+
+		return true;
 	}
 
 	/**
 	 * Tells WordPress.com to disconnect the site and clear all tokens from cached site.
+	 * If the plugin object has been provided in the constructor, the function first check
+	 * whether it's the only active connection.
+	 * If there are any other connections, the function will do nothing and return `false`.
+	 *
+	 * @return bool True if disconnected successfully, false otherwise.
 	 */
 	public function disconnect_site_wpcom() {
+		if ( null !== $this->plugin && ! $this->plugin->is_only() ) {
+			return false;
+		}
+
+		if ( ! apply_filters( 'jetpack_connection_disconnect_site_wpcom', true, $this ) ) {
+			return false;
+		}
+
 		$xml = new \Jetpack_IXR_Client();
 		$xml->query( 'jetpack.deregister', get_current_user_id() );
+
+		return true;
 	}
 
 	/**
@@ -1607,6 +1658,8 @@ class Manager {
 			return new \WP_Error( 'scope', 'No Scope', $code );
 		}
 
+		// TODO: get rid of the error silencer.
+		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		@list( $role, $hmac ) = explode( ':', $json->scope );
 		if ( empty( $role ) || empty( $hmac ) ) {
 			return new \WP_Error( 'scope', 'Malformed Scope', $code );
@@ -2206,4 +2259,14 @@ class Manager {
 
 		return $role . ':' . hash_hmac( 'md5', "{$role}|{$user_id}", $token->secret );
 	}
+
+	/**
+	 * Retrieve the plugin management object.
+	 *
+	 * @return Plugin
+	 */
+	public function get_plugin() {
+		return $this->plugin;
+	}
+
 }
