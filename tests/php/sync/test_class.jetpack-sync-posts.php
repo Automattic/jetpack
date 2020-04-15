@@ -1155,6 +1155,97 @@ That was a cool video.';
 		$this->assertEquals( $events[3]->action, 'jetpack_published_post' );
 	}
 
+	/**
+	 * Test if `Modules\Posts\daily_akismet_meta_cleanup_before` will properly chunk it's parameters in chunks of 100
+	 *
+	 * @throws ReflectionException Throw if Reflection fails to initialize.
+	 */
+	public function test_sync_jetpack_posts_akismet_post_meta_delete_is_chunked() {
+		$ids = array_fill( 0, 1450, 1234 );
+
+		$mocked = $this->getMockBuilder( stdClass::class )
+						->setMethods( array( 'chunked_call' ) )
+						->getMock();
+
+		$mocked->expects( $this->exactly( 15 ) )
+				->method( 'chunked_call' );
+
+		add_action( 'jetpack_post_meta_batch_delete', array( $mocked, 'chunked_call' ), 10, 2 );
+
+		/**
+		 * Override `action_handler` private property as it's used directly in the method and it's not initialized
+		 * to a function during method call, without calling `Modules\Posts\init_listeners()` to set it.
+		 */
+		$test_instance = new Modules\Posts();
+		$test_ref      = new ReflectionObject( $test_instance );
+		$property_ref  = $test_ref->getProperty( 'action_handler' );
+		$property_ref->setAccessible( true );
+		$property_ref->setValue( $test_instance, function () {} );
+
+		$test_instance->daily_akismet_meta_cleanup_before( $ids );
+	}
+
+	/**
+	 * Test if `Modules\Posts\daily_akismet_meta_cleanup_before` will properly return with invalid input
+	 *
+	 * @throws ReflectionException Throw if Reflection fails to initialize.
+	 */
+	public function test_sync_jetpack_posts_akismet_post_meta_delete_invalid_data() {
+		$ids = 'test_invalid_value';
+
+		$mocked = $this->getMockBuilder( stdClass::class )
+						->setMethods( array( 'chunked_call' ) )
+						->getMock();
+
+		$mocked->expects( $this->never() )
+				->method( 'chunked_call' );
+
+		add_action( 'jetpack_post_meta_batch_delete', array( $mocked, 'chunked_call' ), 10, 2 );
+
+		/**
+		 * Override `action_handler` private property as it's used directly in the method and it's not initialized
+		 * to a function during method call, without calling `Modules\Posts\init_listeners()` to set it.
+		 */
+		$test_instance = new Modules\Posts();
+		$test_ref      = new ReflectionObject( $test_instance );
+		$property_ref  = $test_ref->getProperty( 'action_handler' );
+		$property_ref->setAccessible( true );
+		$property_ref->setValue( $test_instance, function () {} );
+
+		$test_instance->daily_akismet_meta_cleanup_before( $ids );
+	}
+
+	/**
+	 * Test if `Modules\Posts\daily_akismet_meta_cleanup_before` will properly return with empty input
+	 *
+	 * @throws ReflectionException Throw if Reflection fails to initialize.
+	 */
+	public function test_sync_jetpack_posts_akismet_post_meta_delete_empty() {
+		$ids = array();
+
+		$mocked = $this->getMockBuilder( stdClass::class )
+						->setMethods( array( 'chunked_call' ) )
+						->getMock();
+
+		$mocked->expects( $this->never() )
+			->method( 'chunked_call' );
+
+		add_action( 'jetpack_post_meta_batch_delete', array( $mocked, 'chunked_call' ), 10, 2 );
+
+		/**
+		 * Override `action_handler` private property as it's used directly in the method and it's not initialized
+		 * to a function during method call, without calling `Modules\Posts\init_listeners()` to set it.
+		 */
+		$test_instance = new Modules\Posts();
+		$test_ref      = new ReflectionObject( $test_instance );
+		$property_ref  = $test_ref->getProperty( 'action_handler' );
+		$property_ref->setAccessible( true );
+		$property_ref->setValue( $test_instance, function () {} );
+
+		$test_instance->daily_akismet_meta_cleanup_before( $ids );
+	}
+
+
 	function add_a_hello_post_type() {
 		if ( ! $this->test_already  ) {
 			$this->test_already = true;
