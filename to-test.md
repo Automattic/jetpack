@@ -1,20 +1,6 @@
-## 8.4
-
-### Search
-
-The highlight of this release is the new Instant Search experience, now available to all sites using the brand new Jetpack Search product. Give it a try, either by purchasing a product via the WordPress.com dashboard, or follow the flow to upgrade your site starting right from your dashboard, in Jetpack > Plans or Jetpack > Settings > Performance.
-
-Give it a try and let us know what you think about the purchase and configuration flow, as well as the look of the Instant Search on your site.
+## 8.5
 
 ### Blocks
-
-#### WordPress 5.4 Compatibility
-
-We've adapted all blocks so they can be displayed nicely in the updated editor. Give them all a try, and let us know if you find layout issues!
-
-#### Recurring Payments
-
-We've made some changes to this block (that requires a Premium Plan), so the buttons can be displayed properly and work well when using the AMP Plugin. On a site using that plugin, try adding a Recurring Payments button and view that button on an AMP view. You should be able to click the button and be redirected to the Payment page.
 
 ### Others
 
