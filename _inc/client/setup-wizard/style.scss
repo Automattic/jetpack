@@ -4,17 +4,35 @@
 
 .jp-setup-wizard-header {
 	font-size: 24px;
+
+	@include breakpoint( '<480px' ) {
+		text-align: left;
+	}
 }
 
 .jp-setup-wizard-paragraph {
 	font-size: 16px;
-	margin: 0;
+
+	@include breakpoint( '>480px' ) {
+		margin: 0;
+	}
+
+	@include breakpoint( '<480px' ) {
+		text-align: left;
+	}
 }
 
 .jp-setup-wizard-intro-question {
-	border: 1px solid #dddddd;
-	box-sizing: border-box;
-	border-radius: 4px;
+	@include breakpoint( '>480px' ) {
+		border: 1px solid #dddddd;
+		box-sizing: border-box;
+		border-radius: 4px;
+	}
+
+	@include breakpoint( '<480px' ) {
+		text-align: left;
+	}
+
 	margin-top: 36px;
 	padding: 14px;
 
