@@ -151,11 +151,13 @@
 	 * Renders the results from a successful response.
 	 */
 	Scroller.prototype.render = function( response ) {
+		var childrenToAppend = Array.prototype.slice.call( response.fragment.childNodes );
 		this.body.classList.add( 'infinity-success' );
 
 		// Render the retrieved nodes.
-		for ( var i = 0; i < response.fragment.childNodes.length; i++ ) {
-			this.element.appendChild( response.fragment.childNodes[ i ] );
+		while ( childrenToAppend.length > 0 ) {
+			var currentNode = childrenToAppend.shift();
+			this.element.appendChild( currentNode );
 		}
 
 		this.trigger( this.body, 'is.post-load', {
@@ -202,6 +204,10 @@
 		var blog = document.getElementById( 'infinity-blog-title' );
 		var self = this;
 
+		if ( ! blog ) {
+			return;
+		}
+
 		blog.setAttribute( 'title', totop );
 		blog.addEventListener( 'click', function( e ) {
 			var sourceScroll = self.window.pageYOffset;
@@ -223,7 +229,12 @@
 			footerContainer,
 			width,
 			sourceBottom,
-			targetBottom;
+			targetBottom,
+			footerEnabled = this.footer && this.footer.el;
+
+		if ( ! footerEnabled ) {
+			return;
+		}
 
 		// Check if we have an id for the page wrapper
 		if ( 'string' === typeof this.footer.wrap ) {
