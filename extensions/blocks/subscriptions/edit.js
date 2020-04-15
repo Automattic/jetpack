@@ -36,7 +36,6 @@ import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 const { getComputedStyle } = window;
 const isGradientAvailable = !! useGradient;
 
-// TODO Update this to support fallback for new colors
 const applyFallbackStyles = withFallbackStyles( ( node, ownProps ) => {
 	const { buttonBackgroundColor, textColor } = ownProps;
 	const buttonBackgroundColorValue = buttonBackgroundColor && buttonBackgroundColor.color;
@@ -59,7 +58,6 @@ function SubscriptionEdit( props ) {
 		attributes,
 		setAttributes,
 		emailFieldBackgroundColor,
-		//setEmailFieldBackgroundColor,
 		buttonBackgroundColor,
 		setButtonBackgroundColor,
 		fallbackButtonBackgroundColor,
@@ -202,14 +200,6 @@ function SubscriptionEdit( props ) {
 						title={ __( 'Color Settings', 'jetpack' ) }
 						className="wp-block-jetpack-subscriptions__backgroundpanel"
 						settings={ [
-							// Disable support for email field background color in the UI for now.
-							// {
-							// 	colorValue: emailFieldBackgroundColor.color,
-							// 	onColorChange: setEmailFieldBackgroundColor,
-							// 	gradientValue: emailFieldGradient.gradientValue,
-							// 	onGradientChange: emailFieldGradient.setGradient,
-							// 	label: __( 'Email Field', 'jetpack' ),
-							// },
 							{
 								colorValue: buttonBackgroundColor.color,
 								onColorChange: setButtonBackgroundColor,
@@ -246,11 +236,6 @@ function SubscriptionEdit( props ) {
 						title={ __( 'Background Colors', 'jetpack' ) }
 						className="wp-block-jetpack-subscriptions__backgroundpanel"
 						colorSettings={ [
-							// {
-							// 	value: emailFieldBackgroundColor.color,
-							// 	onChange: setEmailFieldBackgroundColor,
-							// 	label: __( 'Email Field', 'jetpack' ),
-							// },
 							{
 								value: buttonBackgroundColor.color,
 								onChange: setButtonBackgroundColor,
