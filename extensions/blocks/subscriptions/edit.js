@@ -30,7 +30,7 @@ import { compose } from '@wordpress/compose';
  * Internal dependencies
  */
 import './view.scss';
-import { defaultAttributes } from './attributes';
+import defaultAttributes from './attributes';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 
 const { getComputedStyle } = window;

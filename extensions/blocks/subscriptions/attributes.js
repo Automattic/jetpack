@@ -3,7 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 
-export const defaultAttributes = {
+export default {
 	subscribePlaceholder: {
 		type: 'string',
 		default: __( 'Enter your email here', 'jetpack' ),

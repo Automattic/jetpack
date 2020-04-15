@@ -7,7 +7,7 @@ import { Rect, Path, SVG } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import { defaultAttributes } from './attributes';
+import attributes from './attributes';
 import deprecated from './deprecated';
 import edit from './edit';
 import save from './save';
@@ -51,7 +51,7 @@ export const settings = {
 		_x( 'join', 'block search term', 'jetpack' ),
 		_x( 'follow', 'block search term', 'jetpack' ),
 	],
-	attributes: defaultAttributes,
+	attributes,
 	edit,
 	save,
 	example: {
