@@ -14,6 +14,8 @@ import { getSiteTitle } from 'state/initial-state';
 import { IntroPage } from './intro-page';
 import { IncomeQuestion } from './income-question';
 
+import { IntroPage } from './intro-page';
+
 const SetupWizardComponent = props => {
 	const { path } = useRouteMatch();
 
