@@ -109,9 +109,13 @@ $player-background: transparent;
 	}
 
 	.jetpack-podcast-player__current-track-title {
-		color: $current-track-title-color;
 		font-size: $track-title-font-size;
 		margin: 0 0 $track-title-b-margin;
+
+		// Apply default color if custom primary has not been set
+		&:not(.has-primary) {
+			color: $current-track-title-color;
+		}
 	}
 
 	.jetpack-podcast-player__podcast-title {
