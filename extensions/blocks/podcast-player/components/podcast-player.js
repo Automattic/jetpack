@@ -26,6 +26,7 @@ export class PodcastPlayer extends Component {
 	state = {
 		playerState: STATE_PAUSED,
 		currentTrack: 0,
+		hasUserInteraction: false,
 	};
 
 	playerRef = player => {
@@ -34,6 +35,17 @@ export class PodcastPlayer extends Component {
 		this.pause = player ? player.pause : noop;
 		this.togglePlayPause = player ? player.togglePlayPause : noop;
 		this.setAudioSource = player ? player.setAudioSource : noop;
+	};
+
+	/**
+	 * Record the user has interacted with the player.
+	 *
+	 * @private
+	 */
+	recordUserInteraction = () => {
+		if ( ! this.state.hasUserInteraction ) {
+			this.setState( { hasUserInteraction: true } );
+		}
 	};
 
 	/**
@@ -47,6 +59,7 @@ export class PodcastPlayer extends Component {
 
 		// Current track already selected.
 		if ( currentTrack === track ) {
+			this.recordUserInteraction();
 			this.togglePlayPause();
 			return;
 		}
@@ -67,6 +80,9 @@ export class PodcastPlayer extends Component {
 	 * @param {number} track - The track number
 	 */
 	loadAndPlay = track => {
+		// Record that user has interacted.
+		this.recordUserInteraction();
+
 		const trackData = this.getTrack( track );
 		if ( ! trackData ) {
 			return;
@@ -104,10 +120,27 @@ export class PodcastPlayer extends Component {
 	 * Error handler for audio.
 	 *
 	 * @private
+	 * @param {object} error - The error object
 	 */
-	handleError = () => {
-		this.setState( { playerState: STATE_ERROR } );
+	handleError = error => {
+		// If an error happens before any user interaction, our player is broken beyond repair.
+		if ( ! this.state.hasUserInteraction ) {
+			// There is a known error where IE11 doesn't support the <audio> element by
+			// default but errors instead. If the user is using IE11 we thus provide
+			// additional instructions on how they can turn on <audio> support.
+			const isIE11 = window.navigator.userAgent.match( /Trident\/7\./ );
+			// Internal error message, no translation needed
+			const playerError = isIE11
+				? 'IE11: Playing sounds in webpages setting is not checked'
+				: error;
+			// setState wrapper makes sure our ErrorBoundary handles the error.
+			this.setState( () => {
+				throw new Error( playerError );
+			} );
+		}
 
+		// Otherwise, let's just mark the episode as broken.
+		this.setState( { playerState: STATE_ERROR } );
 		speak( `${ __( 'Error: Episode unavailable - Open in a new tab', 'jetpack' ) }`, 'assertive' );
 	};
 
@@ -119,6 +152,7 @@ export class PodcastPlayer extends Component {
 	handlePlay = () => {
 		this.setState( {
 			playerState: STATE_PLAYING,
+			hasUserInteraction: true,
 		} );
 	};
 
