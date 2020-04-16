@@ -185,6 +185,7 @@ $player-background: transparent;
 		margin: 0;
 		font-family: $default-font;
 		font-size: $editor-font-size;
+		line-height: $editor-line-height;
 
 		/**
 		 * When track "is-active", it means that it's been clicked by a user to
@@ -253,6 +254,7 @@ $player-background: transparent;
 			display: block;
 			width: $track-status-icon-size;
 			height: $track-status-icon-size;
+			margin-top: 3px; // center vertically
 		}
 	}
 
