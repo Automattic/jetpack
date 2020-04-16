@@ -2,7 +2,7 @@
  * External dependencies
  */
 import classnames from 'classnames';
-import { isEmpty, isEqual, times } from 'lodash';
+import { get, isEmpty, isEqual, times } from 'lodash';
 
 /**
  * WordPress dependencies
@@ -12,6 +12,7 @@ import { InspectorControls } from '@wordpress/block-editor';
 import {
 	Button,
 	ExternalLink,
+	Notice,
 	PanelBody,
 	PanelRow,
 	Placeholder,
@@ -31,6 +32,11 @@ import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import useConnectInstagram from './use-connect-instagram';
 import ImageTransition from './image-transition';
 import './editor.scss';
+
+const isCurrentUserConnected = get( window.Jetpack_Editor_Initial_State, [
+	'jetpack',
+	'is_current_user_connected',
+] );
 
 const MAX_IMAGE_COUNT = 30;
 
@@ -116,7 +122,7 @@ const InstagramGalleryEdit = props => {
 				isDismissible: false,
 			} );
 		}
-	}, [ count, images ] );
+	}, [ count, images, noticeOperations, showSidebar ] );
 
 	const renderImage = index => {
 		if ( images[ index ] ) {
@@ -146,11 +152,27 @@ const InstagramGalleryEdit = props => {
 					label={ __( 'Instagram Gallery', 'jetpack' ) }
 					notices={ noticeUI }
 				>
-					<Button disabled={ isConnecting } isLarge isPrimary onClick={ connectToService }>
+					<Button
+						disabled={ ! isCurrentUserConnected || isConnecting }
+						isLarge
+						isPrimary
+						onClick={ connectToService }
+					>
 						{ isConnecting
 							? __( 'Connecting…', 'jetpack' )
 							: __( 'Connect your Instagram account', 'jetpack' ) }
 					</Button>
+
+					<Notice isDismissible={ false } status="info">
+						{ __(
+							'To connect your Instagram account, you need to link your account to WordPress.com.',
+							'jetpack'
+						) }
+						<br />
+						<Button href={ addQueryArgs( 'admin.php', { page: 'jetpack#/dashboard' } ) } isLink>
+							{ __( 'Open the Jetpack dashboard', 'jetpack' ) }
+						</Button>
+					</Notice>
 				</Placeholder>
 			) }
 
@@ -184,18 +206,20 @@ const InstagramGalleryEdit = props => {
 								@{ instagramUser }
 							</ExternalLink>
 						</PanelRow>
-						<PanelRow>
-							<Button
-								disabled={ isConnecting }
-								isDestructive
-								isLink
-								onClick={ () => disconnectFromService( accessToken ) }
-							>
-								{ isConnecting
-									? __( 'Disconnecting…', 'jetpack' )
-									: __( 'Disconnect your account', 'jetpack' ) }
-							</Button>
-						</PanelRow>
+						{ isCurrentUserConnected && (
+							<PanelRow>
+								<Button
+									disabled={ isConnecting }
+									isDestructive
+									isLink
+									onClick={ () => disconnectFromService( accessToken ) }
+								>
+									{ isConnecting
+										? __( 'Disconnecting…', 'jetpack' )
+										: __( 'Disconnect your account', 'jetpack' ) }
+								</Button>
+							</PanelRow>
+						) }
 					</PanelBody>
 					<PanelBody title={ __( 'Gallery Settings', 'jetpack' ) }>
 						<div className="wp-block-jetpack-instagram-gallery__count-notice">{ noticeUI }</div>
