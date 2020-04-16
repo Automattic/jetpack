@@ -17,6 +17,7 @@ import ProductOptionsLabel from 'plans/single-product-components/product-options
 import UpgradeButton from 'plans/single-product-components/upgrade-button';
 import PromoNudge from 'plans/single-product-components/promo-nudge';
 import analytics from 'lib/analytics';
+import getRedirectUrl from 'lib/jp-redirect';
 import { getPlanClass } from 'lib/plans/constants';
 import { DAILY_BACKUP_TITLE, REALTIME_BACKUP_TITLE } from 'plans/constants';
 import { translate as __ } from 'i18n-calypso';
@@ -94,11 +95,13 @@ function renderPossiblePurchase( product, props ) {
 }
 
 function renderPurchase( product, purchase ) {
+	const purchaseUrl = getRedirectUrl( 'calypso-me-purchases', {
+		site: purchase.blog_id,
+		path: purchase.ID,
+	} );
 	return (
 		<div className="single-product__purchase">
-			<Button href={ `https://wordpress.com/me/purchases/${ purchase.blog_id }/${ purchase.ID }` }>
-				{ __( 'Manage Subscription' ) }
-			</Button>
+			<Button href={ purchaseUrl }>{ __( 'Manage Subscription' ) }</Button>
 			<div className="single-product__purchase-description">{ product.description }</div>
 		</div>
 	);
@@ -112,7 +115,7 @@ function getProduct( product, purchase, siteRawlUrl ) {
 	const planClass = getPlanClass( purchase.product_slug );
 	const planLink = (
 		<a
-			href={ `https://wordpress.com/plans/my-plan/${ siteRawlUrl }` }
+			href={ getRedirectUrl( 'calypso-plans-my-plan', { site: siteRawlUrl } ) }
 			target="_blank"
 			rel="noopener noreferrer"
 		/>
@@ -127,52 +130,39 @@ function getProduct( product, purchase, siteRawlUrl ) {
 	);
 
 	switch ( planClass ) {
-		case 'is-search-plan':
-			return {
-				description,
-				...product,
-			};
-		case 'is-scan-plan':
-			return {
-				description,
-				...product,
-			};
 		case 'is-daily-backup-plan':
-			return {
-				title: DAILY_BACKUP_TITLE,
-				description,
-				...product,
-			};
+			product.title = DAILY_BACKUP_TITLE;
+			product.description = description;
+			break;
+
 		case 'is-realtime-backup-plan':
-			return {
-				title: REALTIME_BACKUP_TITLE,
-				description,
-				...product,
-			};
+			product.title = REALTIME_BACKUP_TITLE;
+			product.description = description;
+			break;
+
 		case 'is-personal-plan':
-			return {
-				title: product.key === 'backup' ? 'hello' : product.title,
-				description: __( 'Included in your {{planLink}}Personal Plan{{/planLink}}', {
-					components: { planLink },
-				} ),
-				...product,
-			};
+			product.title = product.key === 'backup' ? DAILY_BACKUP_TITLE : product.title;
+			product.description = __( 'Included in your {{planLink}}Personal Plan{{/planLink}}', {
+				components: { planLink },
+			} );
+			break;
+
 		case 'is-premium-plan':
-			return {
-				title: product.key === 'backup' ? 'helssslo' : product.title,
-				description: __( 'Included in your {{planLink}}Premium Plan{{/planLink}}', {
-					components: { planLink },
-				} ),
-				...product,
-			};
+			product.title = product.key === 'backup' ? DAILY_BACKUP_TITLE : product.title;
+			product.description = __( 'Included in your {{planLink}}Premium Plan{{/planLink}}', {
+				components: { planLink },
+			} );
+			break;
+
 		case 'is-business-plan':
-			return {
-				title: product.key === 'backup' ? REALTIME_BACKUP_TITLE : product.title,
-				description: __( 'Included in your {{planLink}}Professional Plan{{/planLink}}', {
-					components: { planLink },
-				} ),
-				...product,
-			};
+			product.title = product.key === 'backup' ? REALTIME_BACKUP_TITLE : product.title;
+			product.description = __( 'Included in your {{planLink}}Professional Plan{{/planLink}}', {
+				components: { planLink },
+			} );
+			break;
+		default:
+			product.description = description;
+			break;
 	}
 
 	return product;
@@ -189,7 +179,7 @@ function SingleProductCard( props ) {
 		<Card className="single-product__accented-card">
 			<div className="single-product__accented-card-header">
 				{ isPurchased && <Gridicon icon="checkmark" size={ 18 } /> }
-				<h3 className="single-product-backup__header-title">{ product.title }</h3>
+				<h3 className="single-product__header-title">{ product.title }</h3>
 			</div>
 			<div className="single-product__accented-card-body">
 				<div className="single-product__description">{ product.shortDescription }</div>
