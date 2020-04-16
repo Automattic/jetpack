@@ -374,39 +374,32 @@ export default connect(
 )( withRouter( Main ) );
 
 /**
- * Hack for changing the sub-nav menu core classes for 'settings' and 'dashboard'
+ * Manages changing the visuals of the sub-nav items on the left sidebar when the React app changes routes
  */
 window.wpNavMenuClassChange = function( pageOrder = { setup: -1, dashboard: 1, settings: 2 } ) {
 	let hash = window.location.hash;
 
-	// Clear currents
+	// Clear currently highlighted sub-nav item
 	jQuery( '.current' ).each( function( i, obj ) {
 		jQuery( obj ).removeClass( 'current' );
 	} );
 
-	hash = hash.split( '?' )[ 0 ].replace( /#/, '' );
+	const getJetpackSubNavItem = subNavItemIndex => {
+		return jQuery( '#toplevel_page_jetpack' )
+			.find( 'li' )
+			.filter( function( index ) {
+				return index === subNavItemIndex;
+			} )[ 0 ];
+	};
 
+	// Set the current sub-nav item according to the current hash route
+	hash = hash.split( '?' )[ 0 ].replace( /#/, '' );
 	if ( hash === setupRoute ) {
-		const subNavItem = jQuery( '#toplevel_page_jetpack' )
-			.find( 'li' )
-			.filter( function( index ) {
-				return index === pageOrder.setup;
-			} );
-		subNavItem[ 0 ].classList.add( 'current' );
+		getJetpackSubNavItem( pageOrder.setup ).classList.add( 'current' );
 	} else if ( dashboardRoutes.includes( hash ) ) {
-		const subNavItem = jQuery( '#toplevel_page_jetpack' )
-			.find( 'li' )
-			.filter( function( index ) {
-				return index === pageOrder.dashboard;
-			} );
-		subNavItem[ 0 ].classList.add( 'current' );
+		getJetpackSubNavItem( pageOrder.dashboard ).classList.add( 'current' );
 	} else if ( settingsRoutes.includes( hash ) ) {
-		const subNavItem = jQuery( '#toplevel_page_jetpack' )
-			.find( 'li' )
-			.filter( function( index ) {
-				return index === pageOrder.settings;
-			} );
-		subNavItem[ 0 ].classList.add( 'current' );
+		getJetpackSubNavItem( pageOrder.settings ).classList.add( 'current' );
 	}
 
 	const $body = jQuery( 'body' );
