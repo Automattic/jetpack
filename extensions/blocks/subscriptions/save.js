@@ -8,6 +8,7 @@ import {
 	getColorObjectByAttributeValues,
 	__experimentalGetGradientClass as getGradientClass,
 	getFontSizeClass,
+	getFontSize,
 } from '@wordpress/block-editor';
 import classnames from 'classnames';
 
@@ -38,12 +39,10 @@ export default function Save( { className, attributes } ) {
 	} = attributes;
 
 	const isGradientAvailable = !! getGradientClass;
-	const editorSettings = select( 'core/editor' ).getEditorSettings();
 
 	const textColorClass = getColorClassName( 'color', textColor );
 	const fontSizeClass = getFontSizeClass( fontSize );
 	const borderClass = getColorClassName( 'border-color', borderColor );
-
 	const buttonBackgroundClass = getColorClassName( 'background-color', buttonBackgroundColor );
 	const buttonGradientClass = isGradientAvailable ? getGradientClass( buttonGradient ) : undefined;
 
@@ -86,15 +85,6 @@ export default function Save( { className, attributes } ) {
 			? customButtonGradient
 			: customButtonBackgroundColor;
 
-	const fontSizeStyle = fontSizeClass ? undefined : customFontSize;
-
-	// Themes don't regularly support border color classes, so pass the hex to styles either way.
-	const customBorderColorStyle = getColorObjectByAttributeValues(
-		editorSettings.colors,
-		borderColor,
-		customBorderColor
-	).color;
-
 	const getBlockClassName = () => {
 		return classnames(
 			className,
@@ -116,10 +106,10 @@ export default function Save( { className, attributes } ) {
 				custom_background_emailfield_color="${ emailFieldBackgroundStyle }"
 				custom_background_button_color="${ buttonBackgroundStyle }"
 				custom_text_button_color="${ customTextColor }"
-				custom_font_size="${ fontSizeStyle }"
+				custom_font_size="${ customFontSize }"
 				custom_border_radius="${ borderRadius }"
 				custom_border_weight="${ borderWeight }"
-				custom_border_color="${ customBorderColorStyle }"
+				custom_border_color="${ customBorderColor }"
 				custom_padding="${ padding }"
 				custom_spacing="${ spacing }"
 				submit_button_classes="${ submitButtonClasses }"

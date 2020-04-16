@@ -65,9 +65,7 @@ function SubscriptionEdit( props ) {
 		fallbackTextColor,
 		setTextColor,
 		borderColor,
-		setBorderColor,
 		fontSize,
-		setFontSize,
 	} = props;
 
 	const validatedAttributes = getValidatedAttributes( defaultAttributes, attributes );
@@ -214,7 +212,14 @@ function SubscriptionEdit( props ) {
 							},
 							{
 								colorValue: borderColor.color,
-								onColorChange: setBorderColor,
+								onColorChange: newBorderColor => {
+									// Note: setBorderColor from withColors hook does not
+									// work correctly with shortcode border color rendering.
+									setAttributes( {
+										borderColor: newBorderColor,
+										customBorderColor: newBorderColor,
+									} );
+								},
 								label: __( 'Border Color', 'jetpack' ),
 							},
 						] }
@@ -248,7 +253,14 @@ function SubscriptionEdit( props ) {
 							},
 							{
 								value: borderColor.color,
-								onChange: setBorderColor,
+								onColorChange: newBorderColor => {
+									// Note: setBorderColor from withColors hook does not
+									// work correctly with shortcode border color rendering.
+									setAttributes( {
+										borderColor: newBorderColor,
+										customBorderColor: newBorderColor,
+									} );
+								},
 								label: __( 'Border Color', 'jetpack' ),
 							},
 						] }
@@ -271,7 +283,18 @@ function SubscriptionEdit( props ) {
 					initialOpen={ false }
 					className="wp-block-jetpack-subscriptions__textpanel"
 				>
-					<FontSizePicker value={ fontSize.size } onChange={ setFontSize } />
+					<FontSizePicker
+						withSlider={ true }
+						value={ fontSize.size }
+						onChange={ newFontSize => {
+							// Note: setFontSize from withFontSizes hook does not
+							// work correctly with shortcode font size rendering.
+							setAttributes( {
+								fontSize: newFontSize,
+								customFontSize: newFontSize,
+							} );
+						} }
+					/>
 				</PanelBody>
 
 				<PanelBody

@@ -54,10 +54,10 @@ export default {
 	},
 	fontSize: {
 		type: 'number',
+		default: 'normal',
 	},
 	customFontSize: {
 		type: 'number',
-		default: 18,
 	},
 	borderRadius: {
 		type: 'number',
