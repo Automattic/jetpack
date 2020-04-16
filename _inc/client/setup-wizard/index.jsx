@@ -41,7 +41,7 @@ const SetupWizardComponent = props => {
 					<h2>
 						{ __( 'What will %(siteUrl)s be used for?', { args: { siteUrl: props.siteRawUrl } } ) }
 					</h2>
-					<div>
+					<div className="jp-setup-wizard-answer-buttons">
 						<Button primary className="jp-setup-wizard-button">
 							{ __( 'Personal Use' ) }
 						</Button>
