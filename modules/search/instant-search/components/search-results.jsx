@@ -73,6 +73,7 @@ class SearchResults extends Component {
 					isVisible={ this.props.isVisible }
 					locale={ this.props.locale }
 					postTypes={ this.props.postTypes }
+					overlayTrigger={ this.props.overlayTrigger }
 					response={ this.props.response }
 					widgets={ this.props.widgets }
 					widgetsOutsideOverlay={ this.props.widgetsOutsideOverlay }

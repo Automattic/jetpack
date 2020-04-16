@@ -287,6 +287,7 @@ class SearchApp extends Component {
 					isVisible={ this.state.showResults }
 					locale={ this.props.options.locale }
 					onLoadNextPage={ this.loadNextPage }
+					overlayTrigger={ this.state.overlayOptions.overlayTrigger }
 					postTypes={ this.props.options.postTypes }
 					query={ getSearchQuery() }
 					response={ this.state.response }
