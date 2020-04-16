@@ -236,3 +236,9 @@ The build pipeline also supports [Color studio](https://github.com/Automattic/co
 ### Icons
 
 Please use outline versions of [Material icons](https://material.io/tools/icons/?style=outline) to stay in line with Gutenberg. Don't rely on icons used in WordPress core to avoid visual mixing up with core blocks.
+
+## Native support
+
+This is still very much experimental and subject to change.
+React Native support for Jetpack blocks is being added as part of the WordPress [Android](https://github.com/wordpress-mobile/WordPress-Android) and [iOS](https://github.com/wordpress-mobile/WordPress-iOS) apps.
+A react-native build configuration will attempt to resolve `.native.js` extensions before `.js` ones, making `.native.js` a simple approach to write "cross-platform" gutenberg blocks.
