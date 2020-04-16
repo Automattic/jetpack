@@ -7381,6 +7381,15 @@ endif;
 		return self::is_plugin_active( 'vaultpress/vaultpress.php' ) || apply_filters( 'jetpack_show_backups', true );
 	}
 
+	/**
+	 * Returns a boolean for whether the Setup Wizard should be displayed or not.
+	 *
+	 * @return bool True if the Setup Wizard should be displayed, false otherwise.
+	 */
+	public static function show_setup_wizard() {
+		return apply_filters( 'jetpack_show_setup_wizard', false );
+	}
+
 	/*
 	 * Deprecated manage functions
 	 */
