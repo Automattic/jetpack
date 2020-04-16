@@ -271,7 +271,7 @@ $player-background: transparent;
 	 */
 	.jetpack-podcast-player__track-error {
 		display: block;
-		margin-left: 2 * $track-v-padding + $track-status-icon-size;
+		margin-left: ($player-grid-spacing - 2px) + $track-status-icon-size + $track-v-padding; // has to be aligned with the track title
 		margin-bottom: $track-h-padding;
 		color: $alert-red;
 		font-family: $default-font;
