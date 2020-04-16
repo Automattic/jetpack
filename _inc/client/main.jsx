@@ -46,14 +46,9 @@ import restApi from 'rest-api';
 import QueryRewindStatus from 'components/data/query-rewind-status';
 import { getRewindStatus } from 'state/rewind';
 
-const defaultRoute = '/';
 const setupRoute = '/setup';
-const dashboardRoute = '/dashboard';
-const myPlanRoute = '/my-plan';
-const plansRoute = '/plans';
-const plansPromptRoute = '/plans-prompt';
 
-const dashboardRoutes = [ defaultRoute, dashboardRoute, myPlanRoute, plansRoute ];
+const dashboardRoutes = [ '/', '/dashboard', '/my-plan', '/plans' ];
 const settingsRoutes = [
 	'/settings',
 	'/security',

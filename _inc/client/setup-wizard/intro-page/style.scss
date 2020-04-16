@@ -27,13 +27,14 @@
 .jp-setup-wizard-intro-question {
 	box-sizing: border-box;
 
-	@include breakpoint( '>660px' ) {
+	@include breakpoint( '>480px' ) {
 		border: 1px solid #dddddd;
 		border-radius: 4px;
 	}
 
-	margin-top: 36px;
-	padding: 14px 0;
+	max-width: 720px;
+	margin: 2rem auto;
+	padding: 1rem 0;
 
 	h2 {
 		margin-top: 0px;
@@ -57,12 +58,12 @@
 }
 
 .jp-setup-wizard-button {
-	margin: 1em;
+	margin: 1rem;
 	width: 160px;
 
 	@include breakpoint( '<480px' ) {
 		width: 100%;
-		margin: 0.5em 0;
+		margin: 0.5rem 0;
 	}
 }
 
