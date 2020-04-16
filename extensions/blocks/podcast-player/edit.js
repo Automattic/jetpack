@@ -29,8 +29,8 @@ import {
 	PanelColorSettings,
 	ContrastChecker,
 } from '@wordpress/block-editor';
-
-import apiFetch from '@wordpress/api-fetch';
+import { withDispatch } from '@wordpress/data';
+import { createBlock } from '@wordpress/blocks';
 import { isURL, prependHTTP } from '@wordpress/url';
 
 /**
@@ -43,7 +43,9 @@ import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import attributesValidation from './attributes';
 import PodcastPlayer from './components/podcast-player';
 import { makeCancellable } from './utils';
+import { fetchPodcastFeed } from './api';
 import { applyFallbackStyles } from '../../shared/apply-fallback-styles';
+import { PODCAST_FEED, EMBED_BLOCK } from './constants';
 
 const DEFAULT_MIN_ITEMS = 1;
 const DEFAULT_MAX_ITEMS = 10;
@@ -72,6 +74,7 @@ const PodcastPlayerEdit = ( {
 	setBackgroundColor,
 	fallbackBackgroundColor,
 	isSelected,
+	replaceWithEmbedBlock,
 } ) => {
 	// Validated attributes.
 	const validatedAttributes = getValidatedAttributes( attributesValidation, attributes );
@@ -88,47 +91,39 @@ const PodcastPlayerEdit = ( {
 
 	const fetchFeed = useCallback(
 		urlToFetch => {
-			const encodedURL = encodeURIComponent( urlToFetch );
-
-			cancellableFetch.current = makeCancellable(
-				apiFetch( {
-					path: '/wpcom/v2/podcast-player?url=' + encodedURL,
-				} )
-			);
+			cancellableFetch.current = makeCancellable( fetchPodcastFeed( urlToFetch ) );
 
 			cancellableFetch.current.promise.then(
-				data => {
-					if ( data?.isCanceled ) {
-						debug( 'Block was unmounted during fetch', data );
+				response => {
+					if ( response?.isCanceled ) {
+						debug( 'Block was unmounted during fetch', response );
 						return; // bail if canceled to avoid setting state
 					}
-					// Store feed data.
-					setFeedData( data );
+
+					// Check what type of response we got and act accordingly.
+					switch ( response?.type ) {
+						case PODCAST_FEED:
+							return setFeedData( response.data );
+						case EMBED_BLOCK:
+							return replaceWithEmbedBlock();
+					}
 				},
 				error => {
 					if ( error?.isCanceled ) {
 						debug( 'Block was unmounted during fetch', error );
 						return; // bail if canceled to avoid setting state
 					}
-					if ( /\bspotify\b/i.test( encodedURL ) ) {
-						createErrorNotice(
-							__(
-								"It looks like you're trying to embed a podcast hosted on Spotify. Please use the Spotify block instead.",
-								'jetpack'
-							)
-						);
-					} else {
-						// Show error and allow to edit URL.
-						debug( 'feed error', error );
-						createErrorNotice(
-							__( "Your podcast couldn't be embedded. Please double check your URL.", 'jetpack' )
-						);
-					}
+
+					// Show error and allow to edit URL.
+					debug( 'feed error', error );
+					createErrorNotice(
+						__( "Your podcast couldn't be embedded. Please double check your URL.", 'jetpack' )
+					);
 					setIsEditing( true );
 				}
 			);
 		},
-		[ createErrorNotice ]
+		[ createErrorNotice, replaceWithEmbedBlock ]
 	);
 
 	useEffect( () => {
@@ -355,6 +350,18 @@ const PodcastPlayerEdit = ( {
 };
 
 export default compose( [
+	withDispatch( ( dispatch, { clientId, attributes } ) => {
+		return {
+			replaceWithEmbedBlock() {
+				dispatch( 'core/block-editor' ).replaceBlock(
+					clientId,
+					createBlock( 'core/embed', {
+						url: attributes.url,
+					} )
+				);
+			},
+		};
+	} ),
 	withColors( 'backgroundColor', { primaryColor: 'color' }, { secondaryColor: 'color' } ),
 	withNotices,
 	withInstanceId,
