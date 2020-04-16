@@ -2,13 +2,13 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 2.4.107
+ * Version: 2.4.108
  * Author: Automattic
  * Author URI: http://automattic.com/
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.4.107' );
+define( 'WPCOMSH_VERSION', '2.4.108' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -788,12 +788,6 @@ function require_lib( $slug ) {
  * @return string Google Maps API key
  */
 function wpcomsh_google_maps_api_key( $api_key ) {
-	// We don't want to add the fallback API key to the Geocode API call; we'll get "referer restrictions" errors.
-	// That call is only made when saving the form, to validate the address.
-	if ( is_admin() ) {
-		return $api_key;
-	}
-
 	// Fall back to the dotcom API key if the user has not set their own.
 	return ( empty( $api_key ) ) ? 'AIzaSyCq4vWNv6eCGe2uvhPRGWQlv80IQp8dwTE' : $api_key;
 }
