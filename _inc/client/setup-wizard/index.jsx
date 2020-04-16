@@ -12,6 +12,8 @@ import { getSiteTitle } from 'state/initial-state';
 
 import { IntroPage } from './intro-page';
 
+import { IntroPage } from './intro-page';
+
 const SetupWizardComponent = props => {
 	return (
 		<>
