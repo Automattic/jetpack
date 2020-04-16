@@ -48,10 +48,10 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	}
 
 	/**
-	 * TODO: description etc
+	 * Add Jetpack Setup sub-link for eligible users
 	 */
 	function jetpack_add_set_up_sub_nav_item() {
-		if ( false !== strpos( JETPACK__VERSION, 'alpha' ) ) {
+		if ( Jetpack::show_setup_wizard() ) {
 			global $submenu;
 			$submenu['jetpack'][] = array( __( 'Set up', 'jetpack' ), 'jetpack_admin_page', 'admin.php?page=jetpack#/setup' );
 		}
@@ -295,6 +295,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				'isAtomicSite'               => jetpack_is_atomic_site(),
 				'plan'                       => Jetpack_Plan::get(),
 				'showBackups'                => Jetpack::show_backups_ui(),
+				'showSetupWizard'            => Jetpack::show_setup_wizard(),
 				'isMultisite'                => is_multisite(),
 			),
 			'themeData'                   => array(

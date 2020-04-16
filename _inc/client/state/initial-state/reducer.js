@@ -258,6 +258,17 @@ export function showBackups( state ) {
 }
 
 /**
+ * Check if the Setup Wizard should be displayed
+ *
+ * @param {object} state Global state tree
+ *
+ * @return {boolean} True if the Setup Wizard should be displayed.
+ */
+export function showSetupWizard( state ) {
+	return get( state.jetpack.initialState.siteData, 'showSetupWizard', false );
+}
+
+/**
  * Check if the site is part of a Multisite network.
  *
  * @param {object} state Global state tree

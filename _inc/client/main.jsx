@@ -25,6 +25,7 @@ import {
 	userCanConnectSite,
 	getCurrentVersion,
 	getTracksUserData,
+	showSetupWizard,
 } from 'state/initial-state';
 import { areThereUnsavedSettings, clearUnsavedSettingsFlag } from 'state/settings';
 import { getSearchTerm } from 'state/search';
@@ -254,7 +255,7 @@ class Main extends React.Component {
 				);
 				break;
 			case '/setup':
-				if ( this.props.currentVersion.includes( 'alpha' ) ) {
+				if ( this.props.showSetupWizard ) {
 					navComponent = null;
 					pageComponent = <SetupWizard />;
 				} else {
@@ -272,7 +273,7 @@ class Main extends React.Component {
 
 			default:
 				const history = createHistory();
-				if ( this.props.currentVersion.includes( 'alpha' ) ) {
+				if ( this.props.showSetupWizard ) {
 					history.replace( window.location.pathname + '?page=jetpack#/setup' );
 					navComponent = null;
 					pageComponent = <SetupWizard />;
@@ -289,7 +290,7 @@ class Main extends React.Component {
 				}
 		}
 
-		const pageOrder = this.props.currentVersion.includes( 'alpha' )
+		const pageOrder = this.props.showSetupWizard
 			? { setup: 1, dashboard: 2, settings: 3 }
 			: { setup: -1, dashboard: 1, settings: 2 };
 
@@ -364,6 +365,7 @@ export default connect(
 			isSiteConnected: isSiteConnected( state ),
 			rewindStatus: getRewindStatus( state ),
 			currentVersion: getCurrentVersion( state ),
+			showSetupWizard: showSetupWizard( state ),
 		};
 	},
 	dispatch => ( {
