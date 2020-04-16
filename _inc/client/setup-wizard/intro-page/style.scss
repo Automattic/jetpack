@@ -5,15 +5,13 @@
 }
 
 .jp-setup-wizard-header {
-	font-size: 24px;
-
 	@include breakpoint( '<660px' ) {
 		text-align: left;
 	}
 }
 
 .jp-setup-wizard-paragraph {
-	font-size: 16px;
+	font-size: 1rem;
 
 	@include breakpoint( '>660px' ) {
 		margin: 0;
