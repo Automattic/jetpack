@@ -28,6 +28,7 @@ import icon from './icon';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
 import './editor.scss';
+import './view.scss';
 
 export default function RevueEdit( props ) {
 	const { attributes, className, setAttributes } = props;
