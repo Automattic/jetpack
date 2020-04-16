@@ -254,34 +254,19 @@ class Main extends React.Component {
 					navComponent = null;
 					pageComponent = <SetupWizard />;
 				} else {
-					const history = createHistory();
-					history.replace( window.location.pathname + '?page=jetpack#/dashboard' );
-					pageComponent = (
-						<AtAGlance
-							siteRawUrl={ this.props.siteRawUrl }
-							siteAdminUrl={ this.props.siteAdminUrl }
-							rewindStatus={ this.props.rewindStatus }
-						/>
-					);
+					this.setHistory( '?page=jetpack#/dashboard' );
+					pageComponent = this.getAtAGlance();
 				}
 				break;
 
 			default:
-				const history = createHistory();
 				if ( this.props.showSetupWizard ) {
-					history.replace( window.location.pathname + '?page=jetpack#/setup' );
+					this.setHistory( '?page=jetpack#/setup' );
 					navComponent = null;
 					pageComponent = <SetupWizard />;
 				} else {
-					// If no route found, kick them to the dashboard and do some url/history trickery
-					history.replace( window.location.pathname + '?page=jetpack#/dashboard' );
-					pageComponent = (
-						<AtAGlance
-							siteRawUrl={ this.props.siteRawUrl }
-							siteAdminUrl={ this.props.siteAdminUrl }
-							rewindStatus={ this.props.rewindStatus }
-						/>
-					);
+					this.setHistory( '?page=jetpack#/dashboard' );
+					pageComponent = this.getAtAGlance();
 				}
 		}
 
@@ -298,6 +283,21 @@ class Main extends React.Component {
 			</div>
 		);
 	};
+
+	getAtAGlance() {
+		return (
+			<AtAGlance
+				siteRawUrl={ this.props.siteRawUrl }
+				siteAdminUrl={ this.props.siteAdminUrl }
+				rewindStatus={ this.props.rewindStatus }
+			/>
+		);
+	}
+
+	setHistory( path ) {
+		const history = createHistory();
+		history.replace( window.location.pathname + path );
+	}
 
 	shouldShowAppsCard() {
 		// Only show on the dashboard
