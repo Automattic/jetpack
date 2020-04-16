@@ -695,19 +695,34 @@ class Jetpack {
 
 		add_filter( 'jetpack_just_in_time_msg_cache', '__return_true', 9 );
 
+		/*
+		 * If enabled, point edit post, page, and comment links to Calypso instead of WP-Admin.
+		 * We should make sure to only do this for front end links.
+		 */
+		if ( self::get_option( 'edit_links_calypso_redirect' ) && ! is_admin() ) {
+			add_filter( 'get_edit_post_link', array( $this, 'point_edit_post_links_to_calypso' ), 1, 2 );
+			add_filter( 'get_edit_comment_link', array( $this, 'point_edit_comment_links_to_calypso' ), 1 );
+
+			/*
+			 * We'll override wp_notify_postauthor and wp_notify_moderator pluggable functions
+			 * so they point moderation links on emails to Calypso.
+			 */
+			jetpack_require_lib( 'functions.wp-notify' );
+		}
+
 		// Hide edit post link if mobile app.
 		if ( Jetpack_User_Agent_Info::is_mobile_app() ) {
 			add_filter( 'get_edit_post_link', '__return_empty_string' );
 		}
 
-		// Update the Jetpack plan from API on heartbeats
+		// Update the Jetpack plan from API on heartbeats.
 		add_action( 'jetpack_heartbeat', array( 'Jetpack_Plan', 'refresh_from_wpcom' ) );
 
 		/**
 		 * This is the hack to concatenate all css files into one.
-		 * For description and reasoning see the implode_frontend_css method
+		 * For description and reasoning see the implode_frontend_css method.
 		 *
-		 * Super late priority so we catch all the registered styles
+		 * Super late priority so we catch all the registered styles.
 		 */
 		if ( ! is_admin() ) {
 			add_action( 'wp_print_styles', array( $this, 'implode_frontend_css' ), -1 ); // Run first
@@ -801,22 +816,6 @@ class Jetpack {
 			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-keyring-service-helper.php';
 			add_action( 'init', array( 'Jetpack_Keyring_Service_Helper', 'init' ), 9, 0 );
 		}
-
-		/*
-		 * If enabled, point edit post, page, and comment links to Calypso instead of WP-Admin.
-		 * We should make sure to only do this for front end links.
-		 */
-		if ( self::get_option( 'edit_links_calypso_redirect' ) && ! is_admin() ) {
-			add_filter( 'get_edit_post_link', array( $this, 'point_edit_post_links_to_calypso' ), 1, 2 );
-			add_filter( 'get_edit_comment_link', array( $this, 'point_edit_comment_links_to_calypso' ), 1 );
-
-			/*
-			 * We'll override wp_notify_postauthor and wp_notify_moderator pluggable functions
-			 * so they point moderation links on emails to Calypso.
-			 */
-			jetpack_require_lib( 'functions.wp-notify' );
-		}
-
 	}
 
 	/**
