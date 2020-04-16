@@ -31,4 +31,31 @@
 	],
 	"beta": [ "amazon", "instagram-gallery" ],
 	"experimental": [ "seo" ]
+	"beta": [ "amazon", "instagram-gallery", "podcast-player" ],
+	"experimental": [ "seo" ],
+	"p2tenberg": [
+		"business-hours",
+		"calendly",
+		"contact-form",
+		"contact-info",
+		"eventbrite",
+		"gif",
+		"google-calendar",
+		"mailchimp",
+		"map",
+		"markdown",
+		"opentable",
+		"pinterest",
+		"rating-star",
+		"recurring-payments",
+		"related-posts",
+		"repeat-visitor",
+		"revue",
+		"simple-payments",
+		"slideshow",
+		"subscriptions",
+		"tiled-gallery",
+		"videopress",
+		"wordads"
+	]
 }

@@ -34,6 +34,8 @@ function blockScripts( type, inputDir, presetBlocks ) {
 const presetPath = path.join( __dirname, 'extensions', 'index.json' );
 const presetIndex = require( presetPath );
 const presetProductionBlocks = _.get( presetIndex, [ 'production' ], [] );
+const presetP2tenbergBlocks = _.get( presetIndex, [ 'p2tenberg' ], [] );
+
 const presetExperimentalBlocks = [
 	...presetProductionBlocks,
 	..._.get( presetIndex, [ 'experimental' ], [] ),
@@ -68,6 +70,11 @@ const editorBetaScript = [
 	...blockScripts( 'editor', path.join( __dirname, 'extensions' ), presetBetaBlocks ),
 ];
 
+const editorP2tenbergScript = [
+	editorSetup,
+	...blockScripts( 'editor', path.join( __dirname, 'extensions' ), presetP2tenbergBlocks ),
+];
+
 const extensionsWebpackConfig = getBaseWebpackConfig(
 	{ WP: true },
 	{
@@ -75,6 +82,7 @@ const extensionsWebpackConfig = getBaseWebpackConfig(
 			editor: editorScript,
 			'editor-experimental': editorExperimentalScript,
 			'editor-beta': editorBetaScript,
+			'editor-p2tenberg': editorP2tenbergScript,
 			...viewBlocksScripts,
 		},
 		'output-chunk-filename': '[name].[chunkhash].js',
