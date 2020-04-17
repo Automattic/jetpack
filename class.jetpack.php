@@ -7255,7 +7255,7 @@ endif;
 	 * @return bool True if the Setup Wizard should be displayed, false otherwise.
 	 */
 	public static function show_setup_wizard() {
-		return apply_filters( 'jetpack_show_setup_wizard', false );
+		return apply_filters( 'jetpack_show_setup_wizard', false ) && self::is_active();
 	}
 
 	/*
