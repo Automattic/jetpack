@@ -530,7 +530,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 			// Full Sync in Progress.
 			if ( $progress_percent ) {
 
-				return self::failing_test(
+				return self::skipped_test(
 					array(
 						'name'              => $name,
 						'label'             => __( 'Jetpack is performing a sync of your site', 'jetpack' ),
@@ -632,7 +632,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 				} else {
 
 					// Sync is Healthy.
-					return self::skipped_test( array( 'name' => $name ) );
+					return self::passing_test( array( 'name' => $name ) );
 
 				}
 			}
