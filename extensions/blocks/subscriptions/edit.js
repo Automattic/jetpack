@@ -134,7 +134,7 @@ function SubscriptionEdit( props ) {
 		borderColor: borderColor.color,
 		borderRadius: borderRadius + 'px',
 		borderWidth: borderWeight + 'px',
-		fontSize: fontSize.size + 'px',
+		fontSize: fontSize.size ? fontSize.size + 'px' : undefined,
 		padding:
 			padding +
 			'px ' +
