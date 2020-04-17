@@ -109,7 +109,7 @@ function render_block( $attributes, $content ) {
 		endif;
 
 		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
-		if ( strpos( 'wp-block-jetpack-revue__fallback', $content ) ) {
+		if ( false !== strpos( $content, 'wp-block-jetpack-revue__fallback' ) ) {
 			echo $content;
 		} else {
 			echo get_deprecated_v1_revue_button( $attributes );
