@@ -202,7 +202,7 @@ class Jetpack_Recipes {
 				);
 			}
 
-			$time_types = array( 'cooktime', 'preptime', 'time' );
+			$time_types = array( 'preptime', 'cooktime', 'time' );
 			foreach ( $time_types as $time_type ) {
 				if ( '' === $atts[ $time_type ] ) {
 					continue;
