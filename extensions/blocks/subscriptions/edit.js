@@ -86,12 +86,16 @@ function SubscriptionEdit( props ) {
 
 	const MIN_BORDER_RADIUS_VALUE = 0;
 	const MAX_BORDER_RADIUS_VALUE = 50;
+	const DEFAULT_BORDER_RADIUS_VALUE = 0;
 	const MIN_BORDER_WEIGHT_VALUE = 0;
 	const MAX_BORDER_WEIGHT_VALUE = 15;
+	const DEFAULT_BORDER_WEIGHT_VALUE = 1;
 	const MIN_PADDING_VALUE = 5;
 	const MAX_PADDING_VALUE = 50;
+	const DEFAULT_PADDING_VALUE = 15;
 	const MIN_SPACING_VALUE = 0;
 	const MAX_SPACING_VALUE = 50;
+	const DEFAULT_SPACING_VALUE = 10;
 
 	const [ subscriberCountString, setSubscriberCountString ] = useState( '' );
 	const emailFieldGradient = isGradientAvailable
@@ -129,21 +133,32 @@ function SubscriptionEdit( props ) {
 		[ buttonGradient.gradientClass ]: buttonGradient.gradientClass,
 	};
 
+	const getPaddingStyleValue = paddingValue => {
+		const value = paddingValue ? paddingValue : DEFAULT_PADDING_VALUE;
+
+		return (
+			value +
+			'px ' +
+			Math.round( value * 1.5 ) +
+			'px ' +
+			value +
+			'px ' +
+			Math.round( value * 1.5 ) +
+			'px'
+		);
+	};
+
+	const getSpacingStyleValue = spacingValue => {
+		return spacingValue ? spacingValue : DEFAULT_SPACING_VALUE;
+	};
+
 	const sharedStyles = {
 		color: textColor.color,
 		borderColor: borderColor.color,
-		borderRadius: borderRadius + 'px',
-		borderWidth: borderWeight + 'px',
+		borderRadius: borderRadius ? borderRadius + 'px' : DEFAULT_BORDER_RADIUS_VALUE + 'px',
+		borderWidth: borderWeight ? borderWeight + 'px' : DEFAULT_BORDER_WEIGHT_VALUE + 'px',
 		fontSize: fontSize.size ? fontSize.size + 'px' : undefined,
-		padding:
-			padding +
-			'px ' +
-			Math.round( padding * 1.5 ) +
-			'px ' +
-			padding +
-			'px ' +
-			Math.round( padding * 1.5 ) +
-			'px',
+		padding: getPaddingStyleValue( padding ),
 	};
 
 	const emailFieldStyles = {
@@ -158,7 +173,9 @@ function SubscriptionEdit( props ) {
 		...( ! buttonBackgroundColor.color && buttonGradient.gradientValue
 			? { background: buttonGradient.gradientValue }
 			: { backgroundColor: buttonBackgroundColor.color } ),
-		...( buttonOnNewLine ? { marginTop: spacing + 'px' } : { marginLeft: spacing + 'px' } ),
+		...( buttonOnNewLine
+			? { marginTop: getSpacingStyleValue( spacing ) + 'px' }
+			: { marginLeft: getSpacingStyleValue( spacing ) + 'px' } ),
 	};
 
 	const getSubscriberCount = () => {
@@ -307,7 +324,7 @@ function SubscriptionEdit( props ) {
 						label={ __( 'Border Radius', 'jetpack' ) }
 						min={ MIN_BORDER_RADIUS_VALUE }
 						max={ MAX_BORDER_RADIUS_VALUE }
-						initialPosition={ borderRadius }
+						initialPosition={ DEFAULT_BORDER_RADIUS_VALUE }
 						allowReset
 						onChange={ newBorderRadius => setAttributes( { borderRadius: newBorderRadius } ) }
 					/>
@@ -317,7 +334,7 @@ function SubscriptionEdit( props ) {
 						label={ __( 'Border Weight', 'jetpack' ) }
 						min={ MIN_BORDER_WEIGHT_VALUE }
 						max={ MAX_BORDER_WEIGHT_VALUE }
-						initialPosition={ borderWeight }
+						initialPosition={ DEFAULT_BORDER_WEIGHT_VALUE }
 						allowReset
 						onChange={ newBorderWeight => setAttributes( { borderWeight: newBorderWeight } ) }
 					/>
@@ -333,7 +350,7 @@ function SubscriptionEdit( props ) {
 						label={ __( 'Space Inside', 'jetpack' ) }
 						min={ MIN_PADDING_VALUE }
 						max={ MAX_PADDING_VALUE }
-						initialPosition={ padding }
+						initialPosition={ DEFAULT_PADDING_VALUE }
 						allowReset
 						onChange={ newPaddingValue => setAttributes( { padding: newPaddingValue } ) }
 					/>
@@ -343,7 +360,7 @@ function SubscriptionEdit( props ) {
 						label={ __( 'Space Between', 'jetpack' ) }
 						min={ MIN_SPACING_VALUE }
 						max={ MAX_SPACING_VALUE }
-						initialPosition={ spacing }
+						initialPosition={ DEFAULT_SPACING_VALUE }
 						allowReset
 						onChange={ newSpacingValue => setAttributes( { spacing: newSpacingValue } ) }
 					/>

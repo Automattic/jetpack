@@ -59,11 +59,9 @@ export default {
 	},
 	borderRadius: {
 		type: 'number',
-		default: 0,
 	},
 	borderWeight: {
 		type: 'number',
-		default: 1,
 	},
 	borderColor: {
 		type: 'string',
@@ -73,10 +71,8 @@ export default {
 	},
 	padding: {
 		type: 'number',
-		default: 15,
 	},
 	spacing: {
 		type: 'number',
-		default: 10,
 	},
 };
