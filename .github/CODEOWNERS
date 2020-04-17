@@ -16,8 +16,3 @@
 /class.jetpack-cli.php @automattic/jetpack-infinity
 /bin/partner-provision.sh @automattic/jetpack-infinity
 /bin/partner-cancel.sh @automattic/jetpack-infinity
-
-
-# Catch-all owners, the Jetpack Crew
-# Please leave this at the bottom of the list
-* @automattic/jetpack-crew
