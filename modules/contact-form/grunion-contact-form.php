@@ -2812,6 +2812,8 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			self::wp_mail( $to, "{$spam}{$subject}", $message, $headers );
 		}
 
+		$all_field_data = $this->get_all_field_data();
+
 		/**
 		 * Fires an action hook right after the email(s) have been sent.
 		 *
@@ -2826,8 +2828,10 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		 * @param string|array $headers Optional. Additional headers.
 		 * @param array $all_values Contact form fields.
 		 * @param array $extra_values Contact form fields not included in $all_values
+		 * @param array $all_field_data The attribute and value data for all fields.
+		 * @param boolean $is_spam Whether the form submission is spam.
 		 */
-		do_action( 'grunion_after_message_sent', $post_id, $to, $subject, $message, $headers, $all_values, $extra_values );
+		do_action( 'grunion_after_message_sent', $post_id, $to, $subject, $message, $headers, $all_values, $extra_values, $all_field_data, $is_spam );
 
 		if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
 			return self::success_message( $post_id, $this );
@@ -3004,6 +3008,37 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		}
 
 		return addslashes( $value );
+	}
+
+	/**
+	 * Returns an array containing the attribute and value data for all form fields.
+	 * The array keys are:
+	 *    ['attrs'] =>
+	 *        ['label']
+	 *        ['type']
+	 *        ['required']
+	 *        ['options']
+	 *        ['id']
+	 *        ['default']
+	 *        ['values']
+	 *        ['placeholder']
+	 *        ['class']
+	 *    ['value']
+	 *
+	 * @return Array The attribute and value data for all form fields.
+	 */
+	public function get_all_field_data() {
+		$all_field_data = array_map(
+			function ( $field ) {
+				return array(
+					'attrs' => $field->attributes,
+					'value' => Grunion_Contact_Form_Plugin::strip_tags( $field->value ),
+				);
+			},
+			$this->fields
+		);
+
+		return $all_field_data;
 	}
 }
 
