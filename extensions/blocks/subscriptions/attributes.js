@@ -34,7 +34,6 @@ export default {
 	},
 	buttonBackgroundColor: {
 		type: 'string',
-		default: 'primary',
 	},
 	customButtonBackgroundColor: {
 		type: 'string',
@@ -47,7 +46,6 @@ export default {
 	},
 	textColor: {
 		type: 'string',
-		default: 'background',
 	},
 	customTextColor: {
 		type: 'string',
