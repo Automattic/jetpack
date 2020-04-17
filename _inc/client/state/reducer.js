@@ -25,6 +25,7 @@ import { reducer as settings } from 'state/settings/reducer';
 import { reducer as siteData } from 'state/site/reducer';
 import { reducer as siteProducts } from 'state/site-products/reducer';
 import { reducer as siteVerify } from 'state/site-verify/reducer';
+import { reducer as syncProgress } from 'state/sync-progress';
 import { reducer as disconnectSurvey } from 'state/disconnect-survey/reducer';
 import { reducer as trackingSettings } from 'state/tracking/reducer';
 import { reducer as mobile } from 'state/mobile/reducer';
@@ -47,6 +48,7 @@ const jetpackReducer = combineReducers( {
 	siteData,
 	siteProducts,
 	siteVerify,
+	syncProgress,
 	disconnectSurvey,
 	trackingSettings,
 	mobile,
