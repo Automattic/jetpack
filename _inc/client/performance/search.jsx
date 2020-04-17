@@ -12,6 +12,7 @@ import getRedirectUrl from 'lib/jp-redirect';
  */
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
+import ProgressBar from 'components/progress-bar';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { FormFieldset } from 'components/forms';
@@ -25,6 +26,9 @@ import {
 	hasActiveSearchPurchase as selectHasActiveSearchPurchase,
 	isFetchingSitePurchases,
 } from 'state/site';
+import { fetchSyncProgress, getSyncProgress } from 'state/sync-progress';
+
+import './search.scss';
 
 function toggleModuleFactory( {
 	getOptionValue,
@@ -62,6 +66,10 @@ function Search( props ) {
 	] );
 
 	useEffect( () => {
+		props.fetchSyncProgress();
+	}, [] );
+
+	useEffect( () => {
 		if ( props.failedToEnableSearch && props.hasActiveSearchPurchase ) {
 			props.updateOptions( { has_jetpack_search_product: true } );
 			toggleModule( 'search' );
@@ -78,6 +86,20 @@ function Search( props ) {
 					link: getRedirectUrl( 'jetpack-support-search' ),
 				} }
 			>
+				<div className="jp-form-search-setting-progress">
+					<ProgressBar
+						isPulsing={ props.syncProgress !== 100 }
+						value={ Number.isFinite( props.syncProgress ) ? props.syncProgress : 100 }
+					/>
+					<div className="jp-form-search-setting-progress-text">
+						{ ! Number.isFinite( props.syncProgress ) &&
+							__( "Loading your site's indexing status…" ) }
+						{ Number.isFinite( props.syncProgress ) &&
+							props.syncProgress !== 100 &&
+							__( 'Your site is currently being indexed for search…' ) }
+						{ props.syncProgress === 100 && __( 'Your site search is fully operational.' ) }
+					</div>
+				</div>
 				<p>{ SEARCH_DESCRIPTION } </p>
 				{ props.isLoading && __( 'Loading…' ) }
 				{ ! props.isLoading && ( props.isBusinessPlan || props.hasActiveSearchPurchase ) && (
@@ -141,16 +163,20 @@ function Search( props ) {
 	);
 }
 
-export default connect( state => {
-	const planClass = getPlanClass( getSitePlan( state ).product_slug );
-	return {
-		isAtomicSite: isAtomicSite( state ),
-		isLoading: isFetchingSitePurchases( state ),
-		hasActiveSearchPurchase: selectHasActiveSearchPurchase( state ),
-		isBusinessPlan: 'is-business-plan' === planClass,
-		failedToEnableSearch:
-			! isSettingActivated( state, 'search' ) &&
-			! isUpdatingSetting( state, 'search' ) &&
-			false === hasUpdatedSetting( state, 'search' ),
-	};
-} )( withModuleSettingsFormHelpers( Search ) );
+export default connect(
+	state => {
+		const planClass = getPlanClass( getSitePlan( state ).product_slug );
+		return {
+			failedToEnableSearch:
+				! isSettingActivated( state, 'search' ) &&
+				! isUpdatingSetting( state, 'search' ) &&
+				false === hasUpdatedSetting( state, 'search' ),
+			hasActiveSearchPurchase: selectHasActiveSearchPurchase( state ),
+			isAtomicSite: isAtomicSite( state ),
+			isBusinessPlan: 'is-business-plan' === planClass,
+			isLoading: isFetchingSitePurchases( state ),
+			syncProgress: getSyncProgress( state ),
+		};
+	},
+	{ fetchSyncProgress }
+)( withModuleSettingsFormHelpers( Search ) );

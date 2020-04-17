@@ -1,0 +1,12 @@
+@import '../scss/variables/colors';
+
+.jp-form-search-setting-progress {
+	margin-bottom: 1em;
+
+	.progress-bar {
+		width: 75%;
+	}
+}
+.jp-form-search-setting-progress-text {
+	color: $gray;
+}
