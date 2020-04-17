@@ -100,6 +100,8 @@ function SubscriptionEdit( props ) {
 	} = validatedAttributes;
 
 	const [ subscriberCountString, setSubscriberCountString ] = useState( '' );
+	const [ subscriberCount, setSubscriberCount ] = useState( '' );
+
 	const emailFieldGradient = isGradientAvailable
 		? useGradient( {
 				gradientAttribute: 'emailFieldGradient',
@@ -185,6 +187,7 @@ function SubscriptionEdit( props ) {
 			// Handle error condition
 			if ( ! count.hasOwnProperty( 'count' ) ) {
 				setSubscriberCountString( __( 'Subscriber count unavailable', 'jetpack' ) );
+				setSubscriberCount( 0 );
 			} else {
 				setSubscriberCountString(
 					sprintf(
@@ -192,6 +195,7 @@ function SubscriptionEdit( props ) {
 						count.count
 					)
 				);
+				setSubscriberCount( count.count );
 			}
 		} );
 	};
@@ -379,6 +383,14 @@ function SubscriptionEdit( props ) {
 						checked={ showSubscribersTotal }
 						onChange={ () => {
 							setAttributes( { showSubscribersTotal: ! showSubscribersTotal } );
+						} }
+						help={ () => {
+							if ( ! subscriberCount || subscriberCount < 1 ) {
+								return __(
+									'This will remain hidden on your website until you have at least one subscriber.',
+									'jetpack'
+								);
+							}
 						} }
 					/>
 
