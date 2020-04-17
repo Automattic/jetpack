@@ -32,6 +32,21 @@ import { compose } from '@wordpress/compose';
 import './view.scss';
 import defaultAttributes from './attributes';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
+import {
+	MIN_BORDER_RADIUS_VALUE,
+	MAX_BORDER_RADIUS_VALUE,
+	DEFAULT_BORDER_RADIUS_VALUE,
+	MIN_BORDER_WEIGHT_VALUE,
+	MAX_BORDER_WEIGHT_VALUE,
+	DEFAULT_BORDER_WEIGHT_VALUE,
+	MIN_PADDING_VALUE,
+	MAX_PADDING_VALUE,
+	DEFAULT_PADDING_VALUE,
+	MIN_SPACING_VALUE,
+	MAX_SPACING_VALUE,
+	DEFAULT_SPACING_VALUE,
+	DEFAULT_FONTSIZE_VALUE,
+} from './constants';
 
 const { getComputedStyle } = window;
 const isGradientAvailable = !! useGradient;
@@ -83,19 +98,6 @@ function SubscriptionEdit( props ) {
 		showSubscribersTotal,
 		buttonOnNewLine,
 	} = validatedAttributes;
-
-	const MIN_BORDER_RADIUS_VALUE = 0;
-	const MAX_BORDER_RADIUS_VALUE = 50;
-	const DEFAULT_BORDER_RADIUS_VALUE = 0;
-	const MIN_BORDER_WEIGHT_VALUE = 0;
-	const MAX_BORDER_WEIGHT_VALUE = 15;
-	const DEFAULT_BORDER_WEIGHT_VALUE = 1;
-	const MIN_PADDING_VALUE = 5;
-	const MAX_PADDING_VALUE = 50;
-	const DEFAULT_PADDING_VALUE = 15;
-	const MIN_SPACING_VALUE = 0;
-	const MAX_SPACING_VALUE = 50;
-	const DEFAULT_SPACING_VALUE = 10;
 
 	const [ subscriberCountString, setSubscriberCountString ] = useState( '' );
 	const emailFieldGradient = isGradientAvailable
@@ -157,7 +159,7 @@ function SubscriptionEdit( props ) {
 		borderColor: borderColor.color,
 		borderRadius: borderRadius ? borderRadius + 'px' : DEFAULT_BORDER_RADIUS_VALUE + 'px',
 		borderWidth: borderWeight ? borderWeight + 'px' : DEFAULT_BORDER_WEIGHT_VALUE + 'px',
-		fontSize: fontSize.size ? fontSize.size + 'px' : undefined,
+		fontSize: fontSize.size ? fontSize.size + 'px' : DEFAULT_FONTSIZE_VALUE + 'px',
 		padding: getPaddingStyleValue( padding ),
 	};
 
@@ -303,9 +305,10 @@ function SubscriptionEdit( props ) {
 					<FontSizePicker
 						withSlider={ true }
 						value={ fontSize.size }
-						onChange={ newFontSize => {
+						onChange={ selectedFontSize => {
 							// Note: setFontSize from withFontSizes hook does not
 							// work correctly with shortcode font size rendering.
+							const newFontSize = selectedFontSize ? selectedFontSize : DEFAULT_FONTSIZE_VALUE;
 							setAttributes( {
 								fontSize: newFontSize,
 								customFontSize: newFontSize,

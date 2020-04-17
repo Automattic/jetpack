@@ -6,7 +6,7 @@ import { __ } from '@wordpress/i18n';
 export default {
 	subscribePlaceholder: {
 		type: 'string',
-		default: __( 'Enter your email here', 'jetpack' ),
+		default: __( 'Enter your email address', 'jetpack' ),
 	},
 	showSubscribersTotal: {
 		type: 'boolean',
@@ -52,7 +52,6 @@ export default {
 	},
 	fontSize: {
 		type: 'number',
-		default: 'normal',
 	},
 	customFontSize: {
 		type: 'number',

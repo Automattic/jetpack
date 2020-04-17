@@ -1,16 +1,24 @@
 /**
  * External dependencies
  */
-import { select } from '@wordpress/data';
 import { RawHTML } from '@wordpress/element';
 import {
 	getColorClassName,
-	getColorObjectByAttributeValues,
 	__experimentalGetGradientClass as getGradientClass,
 	getFontSizeClass,
-	getFontSize,
 } from '@wordpress/block-editor';
 import classnames from 'classnames';
+
+/**
+ * Internal dependencies
+ */
+import {
+	DEFAULT_BORDER_RADIUS_VALUE,
+	DEFAULT_BORDER_WEIGHT_VALUE,
+	DEFAULT_PADDING_VALUE,
+	DEFAULT_SPACING_VALUE,
+	DEFAULT_FONTSIZE_VALUE,
+} from './constants';
 
 export default function Save( { className, attributes } ) {
 	const {
@@ -106,12 +114,12 @@ export default function Save( { className, attributes } ) {
 				custom_background_emailfield_color="${ emailFieldBackgroundStyle }"
 				custom_background_button_color="${ buttonBackgroundStyle }"
 				custom_text_button_color="${ customTextColor }"
-				custom_font_size="${ customFontSize }"
-				custom_border_radius="${ borderRadius }"
-				custom_border_weight="${ borderWeight }"
+				custom_font_size="${ customFontSize || DEFAULT_FONTSIZE_VALUE }"
+				custom_border_radius="${ borderRadius || DEFAULT_BORDER_RADIUS_VALUE }"
+				custom_border_weight="${ borderWeight || DEFAULT_BORDER_WEIGHT_VALUE }"
 				custom_border_color="${ customBorderColor }"
-				custom_padding="${ padding }"
-				custom_spacing="${ spacing }"
+				custom_padding="${ padding || DEFAULT_PADDING_VALUE }"
+				custom_spacing="${ spacing || DEFAULT_SPACING_VALUE }"
 				submit_button_classes="${ submitButtonClasses }"
 				email_field_classes="${ emailFieldClasses }"
 				show_only_email_and_button="true"
