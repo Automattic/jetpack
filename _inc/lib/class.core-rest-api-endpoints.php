@@ -5,6 +5,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\JITM;
 use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Sync\Modules;
 
 /**
  * Register WP REST API endpoints for Jetpack.
@@ -501,6 +502,16 @@ class Jetpack_Core_Json_Api_Endpoints {
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => __CLASS__ . '::send_mobile_magic_link',
+				'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+			)
+		);
+
+		register_rest_route(
+			'jetpack/v4',
+			'/sync-progress',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_sync_progress',
 				'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
 			)
 		);
@@ -3289,6 +3300,26 @@ class Jetpack_Core_Json_Api_Endpoints {
 		return rest_ensure_response(
 			array(
 				'code' => 'success',
+			)
+		);
+	}
+
+	/**
+	 * Retrieves current Jetpack sync status
+	 *
+	 * @param WP_REST_REQUEST $request The request parameters.
+	 * @return bool|WP_Error
+	 */
+	public static function get_sync_progress( $request ) {
+		// Adapted from jetpack_debugger_sync_progress_ajax in debug-functions.php.
+		$full_sync_module = Modules::get_module( 'full-sync' );
+		$progress_percent = $full_sync_module ? intval( $full_sync_module->get_sync_progress_percentage() ) : null;
+		$output           = ! $progress_percent ? 100 : intval( $progress_percent );
+
+		return rest_ensure_response(
+			array(
+				'code' => 'success',
+				'data' => $output,
 			)
 		);
 	}

@@ -286,6 +286,12 @@ function JetpackRestApiClient( root, nonce ) {
 			} )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
+
+		fetchSyncProgress: () => {
+			return getRequest( `${ apiRoot }jetpack/v4/sync-progress`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse );
+		},
 	};
 
 	function addCacheBuster( route ) {
