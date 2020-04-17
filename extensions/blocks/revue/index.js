@@ -13,6 +13,14 @@ import icon from './icon';
 import save from './save';
 import { supportsCollections } from '../../shared/block-category';
 
+export const innerButtonBlock = {
+	name: 'jetpack/button',
+	attributes: {
+		element: 'button',
+		text: _x( 'Subscribe', 'verb: e.g. subscribe to a newsletter.', 'jetpack' ),
+	},
+};
+
 export const name = 'revue';
 
 export const settings = {
@@ -33,9 +41,8 @@ export const settings = {
 	edit,
 	save,
 	example: {
-		attributes: {
-			revueUsername: 'example',
-		},
+		attributes: { revueUsername: 'example' },
+		innerBlocks: [ innerButtonBlock ],
 	},
 	deprecated: [ deprecatedV1 ],
 };

@@ -16,11 +16,12 @@ import {
 	TextControl,
 } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
-import { __, _x } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
+import { innerButtonBlock } from './';
 import defaultAttributes from './attributes';
 import JetpackFieldLabel from '../contact-form/components/jetpack-field-label';
 import icon from './icon';
@@ -165,15 +166,7 @@ export default function RevueEdit( { attributes, className, setAttributes } ) {
 						/>
 					) }
 					<InnerBlocks
-						template={ [
-							[
-								'jetpack/button',
-								{
-									element: 'button',
-									text: _x( 'Subscribe', 'verb: e.g. subscribe to a newsletter.', 'jetpack' ),
-								},
-							],
-						] }
+						template={ [ [ innerButtonBlock.name, innerButtonBlock.attributes ] ] }
 						templateLock="all"
 					/>
 				</>
