@@ -1,7 +1,10 @@
 @import '../../scss/mixin_breakpoint';
+@import '../../scss/calypso-colors';
 
 .jp-setup-wizard-intro {
 	text-align: center;
+	background: $white;
+	padding: 1rem 0;
 }
 
 .jp-setup-wizard-header {
