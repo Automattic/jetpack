@@ -4,6 +4,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
+import getRedirectUrl from 'lib/jp-redirect';
 /**
  * Internal dependencies
  */
@@ -28,7 +29,7 @@ class Shortlinks extends Component {
 					module={ { module: 'shortlinks' } }
 					support={ {
 						text: this.props.shortlinksModule.description,
-						link: 'https://jetpack.com/support/shortlinks/',
+						link: getRedirectUrl( 'jetpack-support-shortlinks' ),
 					} }
 					disableInDevMode
 				>

@@ -16,6 +16,7 @@ use Automattic\Jetpack\Sync\Users;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
+use Automattic\Jetpack\Redirect;
 
 /*
 Options:
@@ -926,33 +927,39 @@ class Jetpack {
 		// Mapping the allowed CPTs on WordPress.com to corresponding paths in Calypso.
 		// https://en.support.wordpress.com/custom-post-types/
 		$allowed_post_types = array(
-			'post'                => 'post',
-			'page'                => 'page',
-			'jetpack-portfolio'   => 'edit/jetpack-portfolio',
-			'jetpack-testimonial' => 'edit/jetpack-testimonial',
+			'post',
+			'page',
+			'jetpack-portfolio',
+			'jetpack-testimonial',
 		);
 
-		if ( ! in_array( $post_type, array_keys( $allowed_post_types ) ) ) {
+		if ( ! in_array( $post_type, $allowed_post_types, true ) ) {
 			return $default_url;
 		}
 
-		$path_prefix = $allowed_post_types[ $post_type ];
-
-		$site_slug = self::build_raw_urls( get_home_url() );
-
-		return esc_url( sprintf( 'https://wordpress.com/%s/%s/%d', $path_prefix, $site_slug, $post_id ) );
+		return esc_url(
+			Redirect::get_url(
+				'calypso-edit-' . $post_type,
+				array(
+					'path' => $post_id,
+				)
+			)
+		);
 	}
 
 	function point_edit_comment_links_to_calypso( $url ) {
 		// Take the `query` key value from the URL, and parse its parts to the $query_args. `amp;c` matches the comment ID.
 		wp_parse_str( wp_parse_url( $url, PHP_URL_QUERY ), $query_args );
+
 		return esc_url(
-			sprintf(
-				'https://wordpress.com/comment/%s/%d',
-				self::build_raw_urls( get_home_url() ),
-				$query_args['amp;c']
+			Redirect::get_url(
+				'calypso-edit-comment',
+				array(
+					'path' => $query_args['amp;c'],
+				)
 			)
 		);
+
 	}
 
 	function jetpack_track_last_sync_callback( $params ) {
@@ -1723,7 +1730,7 @@ class Jetpack {
 			$notice = sprintf(
 				/* translators: %s is a URL */
 				__( 'In <a href="%s" target="_blank">Development Mode</a>:', 'jetpack' ),
-				'https://jetpack.com/support/development-mode/'
+				Redirect::get_url( 'jetpack-support-development-mode' )
 			);
 
 			$notice .= ' ' . self::development_mode_trigger_text();
@@ -1734,14 +1741,14 @@ class Jetpack {
 		// Throw up a notice if using a development version and as for feedback.
 		if ( self::is_development_version() ) {
 			/* translators: %s is a URL */
-			$notice = sprintf( __( 'You are currently running a development version of Jetpack. <a href="%s" target="_blank">Submit your feedback</a>', 'jetpack' ), 'https://jetpack.com/contact-support/beta-group/' );
+			$notice = sprintf( __( 'You are currently running a development version of Jetpack. <a href="%s" target="_blank">Submit your feedback</a>', 'jetpack' ), Redirect::get_url( 'jetpack-contact-support-beta-group' ) );
 
 			echo '<div class="updated" style="border-color: #f0821e;"><p>' . $notice . '</p></div>';
 		}
 		// Throw up a notice if using staging mode
 		if ( ( new Status() )->is_staging_site() ) {
 			/* translators: %s is a URL */
-			$notice = sprintf( __( 'You are running Jetpack on a <a href="%s" target="_blank">staging server</a>.', 'jetpack' ), 'https://jetpack.com/support/staging-sites/' );
+			$notice = sprintf( __( 'You are running Jetpack on a <a href="%s" target="_blank">staging server</a>.', 'jetpack' ), Redirect::get_url( 'jetpack-support-staging-sites' ) );
 
 			echo '<div class="updated" style="border-color: #f0821e;"><p>' . $notice . '</p></div>';
 		}
@@ -3956,10 +3963,12 @@ p {
 		}
 
 		// Help Sidebar
+		$support_url = Redirect::get_url( 'jetpack-support' );
+		$faq_url     = Redirect::get_url( 'jetpack-faq' );
 		$current_screen->set_help_sidebar(
 			'<p><strong>' . __( 'For more information:', 'jetpack' ) . '</strong></p>' .
-			'<p><a href="https://jetpack.com/faq/" target="_blank">' . __( 'Jetpack FAQ', 'jetpack' ) . '</a></p>' .
-			'<p><a href="https://jetpack.com/support/" target="_blank">' . __( 'Jetpack Support', 'jetpack' ) . '</a></p>' .
+			'<p><a href="' . $faq_url . '" rel="noopener noreferrer" target="_blank">' . __( 'Jetpack FAQ', 'jetpack' ) . '</a></p>' .
+			'<p><a href="' . $support_url . '" rel="noopener noreferrer" target="_blank">' . __( 'Jetpack Support', 'jetpack' ) . '</a></p>' .
 			'<p><a href="' . self::admin_url( array( 'page' => 'jetpack-debugger' ) ) . '">' . __( 'Jetpack Debugging Center', 'jetpack' ) . '</a></p>'
 		);
 	}
@@ -4322,7 +4331,9 @@ p {
 
 		switch ( $message_code ) {
 			case 'jetpack-manage':
-				$this->message = '<strong>' . sprintf( __( 'You are all set! Your site can now be managed from <a href="%s" target="_blank">wordpress.com/sites</a>.', 'jetpack' ), 'https://wordpress.com/sites' ) . '</strong>';
+				$sites_url = esc_url( Redirect::get_url( 'calypso-sites' ) );
+				// translators: %s is the URL to the "Sites" panel on wordpress.com.
+				$this->message = '<strong>' . sprintf( __( 'You are all set! Your site can now be managed from <a href="%s" target="_blank">wordpress.com/sites</a>.', 'jetpack' ), $sites_url ) . '</strong>';
 				if ( $activated_manage ) {
 					$this->message .= '<br /><strong>' . __( 'Manage has been activated for you!', 'jetpack' ) . '</strong>';
 				}
@@ -5187,7 +5198,7 @@ endif;
 					printf(
 						__( 'For more help, try our <a href="%1$s">connection debugger</a> or <a href="%2$s" target="_blank">troubleshooting tips</a>.', 'jetpack' ),
 						esc_url( self::admin_url( array( 'page' => 'jetpack-debugger' ) ) ),
-						esc_url( 'https://jetpack.com/support/getting-started-with-jetpack/troubleshooting-tips/' )
+						esc_url( Redirect::get_url( 'jetpack-support-getting-started-troubleshooting-tips' ) )
 					);
 					?>
 				</p>
@@ -5990,7 +6001,7 @@ endif;
 			$die_error = sprintf(
 				/* translators: %s is a URL */
 				__( 'Your site is incorrectly double-encoding redirects from http to https. This is preventing Jetpack from authenticating your connection. Please visit our <a href="%s">support page</a> for details about how to resolve this.', 'jetpack' ),
-				'https://jetpack.com/support/double-encoding/'
+				Redirect::get_url( 'jetpack-support-double-encoding' )
 			);
 		}
 

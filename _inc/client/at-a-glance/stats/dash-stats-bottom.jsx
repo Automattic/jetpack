@@ -6,6 +6,7 @@ import React, { Component } from 'react';
 import Button from 'components/button';
 import analytics from 'lib/analytics';
 import Card from 'components/card';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -114,7 +115,9 @@ class DashStatsBottom extends Component {
 										<Button
 											onClick={ this.trackViewWpcomStats }
 											className="is-primary"
-											href={ 'https://wordpress.com/stats/insights/' + this.props.siteRawUrl }
+											href={ getRedirectUrl( 'calypso-stats-insights', {
+												site: this.props.siteRawUrl,
+											} ) }
 										/>
 									),
 								},

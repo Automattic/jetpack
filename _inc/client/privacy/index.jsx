@@ -5,6 +5,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { translate as __ } from 'i18n-calypso';
 import { connect } from 'react-redux';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -124,7 +125,7 @@ class Privacy extends React.Component {
 											components: {
 												cookiePolicyLink: (
 													<ExternalLink
-														href="https://automattic.com/cookies/"
+														href={ getRedirectUrl( 'a8c-cookies' ) }
 														onClick={ trackCookiePolicyView }
 														target="_blank"
 														rel="noopener noreferrer"
@@ -142,7 +143,7 @@ class Privacy extends React.Component {
 										components: {
 											pp: (
 												<ExternalLink
-													href="https://automattic.com/privacy/"
+													href={ getRedirectUrl( 'a8c-privacy' ) }
 													onClick={ trackPrivacyPolicyView }
 													target="_blank"
 													rel="noopener noreferrer"
@@ -160,7 +161,7 @@ class Privacy extends React.Component {
 										components: {
 											cookiePolicyLink: (
 												<ExternalLink
-													href="https://automattic.com/cookies/"
+													href={ getRedirectUrl( 'a8c-cookies' ) }
 													onClick={ trackCookiePolicyView }
 													target="_blank"
 													rel="noopener noreferrer"
@@ -177,7 +178,7 @@ class Privacy extends React.Component {
 										components: {
 											privacyCenterLink: (
 												<ExternalLink
-													href="https://jetpack.com/support/privacy"
+													href={ getRedirectUrl( 'jetpack-support-privacy' ) }
 													onClick={ trackPrivacyCenterView }
 													target="_blank"
 													rel="noopener noreferrer"

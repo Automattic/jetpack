@@ -12,6 +12,7 @@ use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Settings as Sync_Settings;
 use Automattic\Jetpack\Sync\Health as Sync_Health;
 use Automattic\Jetpack\Sync\Sender as Sync_Sender;
+use Automattic\Jetpack\Redirect;
 
 /**
  * Class Jetpack_Cxn_Tests contains all of the actual tests.
@@ -83,8 +84,8 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	 */
 	protected function helper_get_support_url() {
 		return Jetpack::is_development_version()
-			? 'https://jetpack.com/contact-support/beta-group/'
-			: 'https://jetpack.com/contact-support/';
+			? Redirect::get_url( 'jetpack-contact-support-beta-group' )
+			: Redirect::get_url( 'jetpack-contact-support' );
 	}
 
 	/**
@@ -200,7 +201,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 					'name'              => $name,
 					'short_description' => __( 'The user who setup the Jetpack connection no longer exists on this site.', 'jetpack' ),
 					'action_label'      => __( 'Please disconnect and reconnect Jetpack.', 'jetpack' ),
-					'action'            => 'https://jetpack.com/support/reconnecting-reinstalling-jetpack/',
+					'action'            => Redirect::get_url( 'jetpack-support-reconnecting-reinstalling-jetpack' ),
 				)
 			);
 		}
@@ -236,7 +237,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 					/* translators: a WordPress username */
 					'short_description' => sprintf( __( 'The user (%s) who setup the Jetpack connection is not an administrator.', 'jetpack' ), $master_user->user_login ),
 					'action_label'      => __( 'Either upgrade the user or disconnect and reconnect Jetpack.', 'jetpack' ),
-					'action'            => 'https://jetpack.com/support/reconnecting-reinstalling-jetpack/',
+					'action'            => Redirect::get_url( 'jetpack-support-reconnecting-reinstalling-jetpack' ),
 				)
 			);
 		}
@@ -262,7 +263,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 					'label'             => __( 'PHP XML manipulation libraries are not available.', 'jetpack' ),
 					'short_description' => __( 'Please ask your hosting provider to refer to our server requirements and enable PHP\'s XML module.', 'jetpack' ),
 					'action_label'      => __( 'View our server requirements', 'jetpack' ),
-					'action'            => 'https://jetpack.com/support/server-requirements/',
+					'action'            => Redirect::get_url( 'jetpack-support-server-requirements' ),
 				)
 			);
 		}
@@ -548,37 +549,73 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 				);
 
 			} elseif ( Sync_Health::get_status() === Sync_Health::STATUS_OUT_OF_SYNC ) {
+				/*
+				 * Sync has experienced Data Loss.
+				 */
 
-				// Sync has experienced Data Loss.
+				$description  = '<p>';
+				$description .= esc_html__( 'The information synced by Jetpack ensures that Jetpack Search, Related Posts and other features are aligned with your site’s current content.', 'jetpack' );
+				$description .= '</p>';
+				$description .= '<p>';
+				$description .= sprintf(
+					'<span class="dashicons fail"><span class="screen-reader-text">%1$s</span></span> ',
+					esc_html__( 'Error', 'jetpack' )
+				);
+				$description .= wp_kses(
+					__( 'Jetpack has detected an error while syncing your site. <strong>We recommend <a id="full_sync_request_link" href="#">a full sync</a> to align Jetpack with your site data.</strong>', 'jetpack' ),
+					array(
+						'a'      => array(
+							'id'   => array(),
+							'href' => array(),
+						),
+						'strong' => array(),
+					)
+				);
+				$description .= '</p>';
 
 				return self::failing_test(
 					array(
 						'name'              => $name,
 						'label'             => __( 'Jetpack has detected an error syncing your site.', 'jetpack' ),
 						'severity'          => 'critical',
-						'action'            => 'https://jetpack.com/contact-support/',
+						'action'            => Redirect::get_url( 'jetpack-contact-support' ),
 						'action_label'      => __( 'Contact Jetpack Support', 'jetpack' ),
 						'short_description' => __( 'Jetpack has detected an error syncing your site.', 'jetpack' ),
-						'long_description'  => sprintf(
-							'<p>%1$s</p><p><span class="dashicons fail"><span class="screen-reader-text">%2$s</span></span> %3$s<strong> %4$s <a id="full_sync_request_link" href="#">%5$s</a> %6$s</strong></p>',
-							__( 'The information synced by Jetpack ensures that Jetpack Search, Related Posts and other features are aligned with your site’s current content.', 'jetpack' ),
-							__( 'Error', 'jetpack' ),
-							__( 'Jetpack has detected an error while syncing your site', 'jetpack' ), /* translators: screen reader text indicating a test failed */
-							__( 'We recommend', 'jetpack' ),
-							__( 'full sync', 'jetpack' ),
-							__( 'to align Jetpack with your site data.', 'jetpack' )
-						),
+						'long_description'  => $description,
 					)
 				);
 
 			} else {
-
 				// Get the Sync Queue.
 				$sender     = Sync_Sender::get_instance();
 				$sync_queue = $sender->get_sync_queue();
 
 				// lag exceeds 5 minutes.
 				if ( $sync_queue->lag() > 5 * MINUTE_IN_SECONDS ) {
+
+					$description  = '<p>';
+					$description .= esc_html__( 'The information synced by Jetpack ensures that Jetpack Search, Related Posts and other features are aligned with your site’s current content.', 'jetpack' );
+					$description .= '</p>';
+					$description .= '<p>';
+					$description .= sprintf(
+						'<span class="dashicons dashicons-clock" style="color: orange;"><span class="screen-reader-text">%1$s</span></span> ',
+						/* translators: name, used to describe a clock icon. */
+						esc_html__( 'Clock', 'jetpack' )
+					);
+					$description .= wp_kses(
+						sprintf(
+							/* translators: placeholder is a number of minutes. */
+							_n(
+								'Jetpack has identified a delay while syncing individual content updates. Certain features might be slower than usual, but this is only temporary while sync catches up with recent changes to your site. <strong>We’re seeing a current delay of %1$d minute.</strong>',
+								'Jetpack has identified a delay while syncing individual content updates. Certain features might be slower than usual, but this is only temporary while sync catches up with recent changes to your site. <strong>We’re seeing a current delay of %1$d minutes.</strong>',
+								intval( $sync_queue->lag() / MINUTE_IN_SECONDS ),
+								'jetpack'
+							),
+							number_format_i18n( $sync_queue->lag() / MINUTE_IN_SECONDS )
+						),
+						array( 'strong' => array() )
+					);
+					$description .= '</p>';
 
 					return self::failing_test(
 						array(
@@ -588,15 +625,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 							'action'            => null,
 							'action_label'      => null,
 							'short_description' => __( 'Jetpack is experiencing a delay syncing your site.', 'jetpack' ),
-							'long_description'  => sprintf(
-								'<p>%1$s</p><p><span class="dashicons dashicons-clock" style="color: orange;"><span class="screen-reader-text">%2$s</span></span> %3$s <strong>%4$s %5$d %6$s</strong></p>',
-								__( 'The information synced by Jetpack ensures that Jetpack Search, Related Posts and other features are aligned with your site’s current content.', 'jetpack' ),
-								__( 'Clock', 'jetpack' ),
-								__( 'Jetpack has identified a delay while syncing individual content updates. Certain features might be slower than usual, but this is only temporary while sync catches up with recent changes to your site.', 'jetpack' ), /* translators: screen reader text indicating a test failed */
-								__( 'We’re seeing a current delay of', 'jetpack' ),
-								intval( $sync_queue->lag() / MINUTE_IN_SECONDS ),
-								__( 'minutes.', 'jetpack' )
-							),
+							'long_description'  => $description,
 						)
 					);
 
@@ -608,8 +637,27 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 				}
 			}
 		} else {
+			/*
+			 * Sync is disabled.
+			 */
 
-			// Sync is disabled.
+			$description  = '<p>';
+			$description .= esc_html__( 'The information synced by Jetpack ensures that Jetpack Search, Related Posts and other features are aligned with your site’s current content.', 'jetpack' );
+			$description .= '</p>';
+			$description .= '<p>';
+			$description .= __( 'Developers may enable / disable syncing using the Sync Settings API.', 'jetpack' );
+			$description .= '</p>';
+			$description .= '<p>';
+			$description .= sprintf(
+				'<span class="dashicons fail"><span class="screen-reader-text">%1$s</span></span> ',
+				esc_html__( 'Error', 'jetpack' )
+			);
+			$description .= wp_kses(
+				__( 'Jetpack Sync has been disabled on your site. Without it, certain Jetpack features will not work. <strong>We recommend enabling Sync.</strong>', 'jetpack' ),
+				array( 'strong' => array() )
+			);
+			$description .= '</p>';
+
 			return self::failing_test(
 				array(
 					'name'              => $name,
@@ -618,17 +666,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 					'action'            => 'https://github.com/Automattic/jetpack/blob/master/packages/sync/src/class-settings.php',
 					'action_label'      => __( 'See Github for more on Sync Settings', 'jetpack' ),
 					'short_description' => __( 'Jetpack Sync has been disabled on your site.', 'jetpack' ),
-					'long_description'  => sprintf(
-						'<p>%1$s</p><p>%2$s</p><p><span class="dashicons fail"><span class="screen-reader-text">%3$s</span></span> %4$s<strong> %5$s</strong></p>',
-						__( 'The information synced by Jetpack ensures that Jetpack Search, Related Posts and other features are aligned with your site’s current content.', 'jetpack' ),
-						__( 'Developers may enable / disable syncing using the Sync Settings API.', 'jetpack' ), /* translators: screen reader text indicating a test failed */
-						__( 'The information synced by Jetpack ensures that Jetpack Search, Related Posts and other features are aligned with your site’s current content.', 'jetpack' ),
-						__( 'Developers may enable / disable syncing using the Sync Settings API.', 'jetpack' ),
-						/* translators: screen reader text indicating a test failed */
-						__( 'Error', 'jetpack' ),
-						__( 'Jetpack Sync has been disabled on your site. Without it, certain Jetpack features will not work.', 'jetpack' ),
-						__( 'We recommend enabling Sync.', 'jetpack' )
-					),
+					'long_description'  => $description,
 				)
 			);
 
@@ -680,7 +718,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 					'short_description' => sprintf(
 						/* translators: %1$s - A debugging url */
 						__( 'Jetpack.com detected an error on the WP.com Self Test. Visit the Jetpack Debug page for more info: %1$s, or contact support.', 'jetpack' ),
-						esc_url( add_query_arg( 'url', rawurlencode( site_url() ), 'https://jetpack.com/support/debug/' ) )
+						Redirect::get_url( 'jetpack-support-debug', array( 'query' => 'url=' . rawurlencode( site_url() ) ) )
 					),
 					'action_label'      => $this->helper_get_support_text(),
 					'action'            => $this->helper_get_support_url(),

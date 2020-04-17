@@ -11,7 +11,7 @@ use Automattic\Jetpack\Connection\Utils;
 
 class ManagerTest extends TestCase {
 
-	protected $arguments_stack = [];
+	protected $arguments_stack = array();
 
 	public function setUp() {
 		$this->manager = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
@@ -34,7 +34,7 @@ class ManagerTest extends TestCase {
 				->setName( 'wp_redirect' )
 				->setFunction(
 					function( $url ) {
-						$this->arguments_stack['wp_redirect'] [] = [ $url ];
+						$this->arguments_stack['wp_redirect'] [] = array( $url );
 						return true;
 					}
 				);
@@ -63,10 +63,10 @@ class ManagerTest extends TestCase {
 	 * @covers Automattic\Jetpack\Connection\Manager::is_active
 	 */
 	public function test_is_active_when_connected() {
-		$access_token = (object) [
+		$access_token = (object) array(
 			'secret'           => 'abcd1234',
 			'external_user_id' => 1,
-		];
+		);
 		$this->manager->expects( $this->once() )
 					  ->method( 'get_access_token' )
 					  ->will( $this->returnValue( $access_token ) );
@@ -191,10 +191,10 @@ class ManagerTest extends TestCase {
 	 */
 	public function test_is_user_connected_with_default_user_id_logged_in() {
 		$this->mock_function( 'get_current_user_id', 1 );
-		$access_token = (object) [
+		$access_token = (object) array(
 			'secret'           => 'abcd1234',
 			'external_user_id' => 1,
-		];
+		);
 		$this->manager->expects( $this->once() )
 					  ->method( 'get_access_token' )
 					  ->will( $this->returnValue( $access_token ) );
@@ -207,10 +207,10 @@ class ManagerTest extends TestCase {
 	 */
 	public function test_is_user_connected_with_user_id_logged_in() {
 		$this->mock_function( 'absint', 1 );
-		$access_token = (object) [
+		$access_token = (object) array(
 			'secret'           => 'abcd1234',
 			'external_user_id' => 1,
-		];
+		);
 		$this->manager->expects( $this->once() )
 					  ->method( 'get_access_token' )
 					  ->will( $this->returnValue( $access_token ) );
@@ -229,9 +229,11 @@ class ManagerTest extends TestCase {
 		$builder = new MockBuilder();
 		$builder->setNamespace( __NAMESPACE__ )
 			->setName( $function_name )
-			->setFunction( function() use ( &$return_value ) {
-				return $return_value;
-			} );
+			->setFunction(
+				function() use ( &$return_value ) {
+					return $return_value;
+				}
+			);
 		return $builder->build()->enable();
 	}
 }

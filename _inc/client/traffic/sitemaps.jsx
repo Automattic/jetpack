@@ -8,6 +8,7 @@ import { translate as __ } from 'i18n-calypso';
 import ExternalLink from 'components/external-link';
 import { get } from 'lodash';
 import analytics from 'lib/analytics';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -45,7 +46,7 @@ export class Sitemaps extends React.Component {
 					hasChild
 					module={ { module: 'sitemaps' } }
 					support={ {
-						link: 'https://jetpack.com/support/sitemaps/',
+						link: getRedirectUrl( 'jetpack-support-sitemaps' ),
 					} }
 				>
 					<p>

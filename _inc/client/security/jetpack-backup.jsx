@@ -5,6 +5,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { translate as __ } from 'i18n-calypso';
 import { get } from 'lodash';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -34,7 +35,7 @@ export class JetpackBackup extends Component {
 						'Backs up your site to the global WordPress.com servers, ' +
 							'allowing you to restore your content in the event of an emergency or error.'
 					),
-					link: 'https://jetpack.com/support/backups/',
+					link: getRedirectUrl( 'jetpack-support-backup' ),
 				} }
 			>
 				{ __( 'Your site is backed up.' ) }
@@ -61,14 +62,14 @@ export class JetpackBackup extends Component {
 					description: __(
 						'You need to enter your server credentials to finish configuring Jetpack Backup.'
 					),
-					url: 'https://wordpress.com/settings/security/' + siteRawUrl,
+					url: getRedirectUrl( 'calypso-settings-security', { site: siteRawUrl } ),
 				};
 			case 'active':
 				return {
 					title: __( 'Active' ),
 					icon: 'checkmark-circle',
 					description: __( 'Your site is being backed up.' ),
-					url: 'https://wordpress.com/activity-log/' + siteRawUrl,
+					url: getRedirectUrl( 'calypso-activity-log', { site: siteRawUrl } ),
 				};
 			default:
 				return {
@@ -116,7 +117,7 @@ export class JetpackBackup extends Component {
 								'Backs up your site to the global WordPress.com servers, ' +
 									'allowing you to restore your content in the event of an emergency or error.'
 							),
-							link: 'https://jetpack.com/support/backups/',
+							link: getRedirectUrl( 'jetpack-support-backup' ),
 						} }
 					>
 						{ __( 'Checking site status…' ) }

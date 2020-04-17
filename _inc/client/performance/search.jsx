@@ -5,6 +5,7 @@ import React, { Fragment, useMemo, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import Card from 'components/card';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -74,7 +75,7 @@ function Search( props ) {
 				module={ { module: 'search' } }
 				support={ {
 					text: SEARCH_SUPPORT,
-					link: 'https://jetpack.com/support/search',
+					link: getRedirectUrl( 'jetpack-support-search' ),
 				} }
 			>
 				<p>{ SEARCH_DESCRIPTION } </p>

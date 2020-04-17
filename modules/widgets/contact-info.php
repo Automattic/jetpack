@@ -1,6 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Redirect;
 
 if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 
@@ -259,7 +260,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 				<label for="<?php echo esc_attr( $this->get_field_id( 'showmap' ) ); ?>"><?php esc_html_e( 'Show map', 'jetpack' ); ?></label>
 			</p>
 
-			<?php if ( ! has_filter( 'jetpack_google_maps_api_key' ) ) { ?>
+			<?php if ( ! has_filter( 'jetpack_google_maps_api_key' ) || false === apply_filters( 'jetpack_google_maps_api_key', false ) ) { ?>
 
 			<p class="jp-contact-info-admin-map" style="<?php echo $instance['showmap'] ? '' : 'display: none;'; ?>">
 				<label for="<?php echo esc_attr( $this->get_field_id( 'apikey' ) ); ?>">
@@ -278,12 +279,16 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 								),
 							)
 						),
-						'https://jetpack.com/support/extra-sidebar-widgets/contact-info-widget/'
+						esc_url( Redirect::get_url( 'jetpack-support-extra-sidebar-widgets-contact-info-widget' ) )
 					);
 					?>
 					</small>
 				</label>
 			</p>
+
+			<?php } else { ?>
+
+			<input type="hidden" id="<?php echo esc_attr( $this->get_field_id( 'apikey' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'apikey' ) ); ?>" value="<?php echo esc_attr( $apikey ); ?>" />
 
 			<?php } // end if jetpack_google_maps_api_key check. ?>
 

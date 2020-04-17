@@ -14,6 +14,7 @@ use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\Connection\Manager;
+use Automattic\Jetpack\Redirect;
 
 /**
  * Jetpack just in time messaging through out the admin
@@ -303,7 +304,7 @@ class JITM {
 					),
 				)
 			),
-			'https://jetpack.com/support/primary-user/'
+			esc_url( Redirect::get_url( 'jetpack-support-primary-user' ) )
 		);
 		echo '</p>';
 		echo '<p>';
@@ -319,7 +320,7 @@ class JITM {
 					),
 				)
 			),
-			'https://jetpack.com/contact-support'
+			esc_url( Redirect::get_url( 'jetpack-contact-support' ) )
 		);
 		echo '</p>';
 		echo '</div>';

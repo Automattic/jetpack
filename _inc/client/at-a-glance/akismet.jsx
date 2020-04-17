@@ -6,6 +6,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { numberFormat, translate as __ } from 'i18n-calypso';
 import { get } from 'lodash';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -186,7 +187,7 @@ class DashAkismet extends Component {
 					key="moderate-comments"
 					className="jp-dash-item__manage-in-wpcom"
 					compact
-					href={ `https://wordpress.com/comments/all/${ this.props.siteRawUrl }` }
+					href={ getRedirectUrl( 'calypso-comments-all', { site: this.props.siteRawUrl } ) }
 				>
 					{ __( 'Moderate comments' ) }
 				</Card>

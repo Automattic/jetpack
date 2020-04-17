@@ -8,6 +8,7 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -43,7 +44,7 @@ class DashPluginUpdates extends Component {
 			text: __(
 				'Jetpack’s Plugin Updates allows you to choose which plugins update automatically.'
 			),
-			link: 'https://jetpack.com/support/site-management/',
+			link: getRedirectUrl( 'jetpack-support-site-management' ),
 		};
 
 		if ( 'N/A' === pluginUpdates ) {
@@ -56,7 +57,9 @@ class DashPluginUpdates extends Component {
 		}
 
 		const updatesAvailable = 'updates-available' === pluginUpdates.code;
-		const managePluginsUrl = `https://wordpress.com/plugins/manage/${ this.props.siteRawUrl }`;
+		const managePluginsUrl = getRedirectUrl( 'calypso-plugins-manage', {
+			site: this.props.siteRawUrl,
+		} );
 		const workingOrInactive = this.props.getOptionValue( 'manage' ) ? 'is-working' : 'is-inactive';
 
 		return [

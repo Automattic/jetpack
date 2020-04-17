@@ -8,6 +8,7 @@ import { translate as __ } from 'i18n-calypso';
 import { noop } from 'lodash';
 import { getPlanClass, PLAN_JETPACK_SEARCH } from 'lib/plans/constants';
 import { SEARCH_DESCRIPTION, SEARCH_CUSTOMIZE_CTA, SEARCH_SUPPORT } from 'plans/constants';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -32,7 +33,7 @@ const renderCard = props => (
 		module="search"
 		support={ {
 			text: SEARCH_SUPPORT,
-			link: 'https://jetpack.com/support/search/',
+			link: getRedirectUrl( 'jetpack-support-search' ),
 		} }
 		className={ props.className }
 		status={ props.status }
@@ -122,7 +123,7 @@ class DashSearch extends Component {
 						module="search"
 						support={ {
 							text: SEARCH_SUPPORT,
-							link: 'https://jetpack.com/support/search/',
+							link: getRedirectUrl( 'jetpack-support-search' ),
 						} }
 						className="jp-dash-item__is-active"
 						isModule={ false }

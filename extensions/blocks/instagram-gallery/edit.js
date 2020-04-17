@@ -2,7 +2,7 @@
  * External dependencies
  */
 import classnames from 'classnames';
-import { debounce, isEmpty, isEqual, take, times } from 'lodash';
+import { isEmpty, isEqual, times } from 'lodash';
 
 /**
  * WordPress dependencies
@@ -10,7 +10,6 @@ import { debounce, isEmpty, isEqual, take, times } from 'lodash';
 import apiFetch from '@wordpress/api-fetch';
 import { InspectorControls } from '@wordpress/block-editor';
 import {
-	Animate,
 	Button,
 	ExternalLink,
 	PanelBody,
@@ -21,24 +20,32 @@ import {
 	withNotices,
 } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf, _n } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 
 /**
  * Internal dependencies
  */
-import PopupMonitor from 'lib/popup-monitor';
 import defaultAttributes from './attributes';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
+import useConnectInstagram from './use-connect-instagram';
+import ImageTransition from './image-transition';
 import './editor.scss';
 
+const MAX_IMAGE_COUNT = 30;
+
 const InstagramGalleryEdit = props => {
-	const { attributes, className, noticeOperations, noticeUI, setAttributes } = props;
+	const { attributes, className, noticeOperations, noticeUI, setAttributes, isSelected } = props;
 	const { accessToken, align, columns, count, instagramUser, spacing } = attributes;
 
-	const [ isConnecting, setIsConnecting ] = useState( false );
 	const [ images, setImages ] = useState( [] );
 	const [ isLoadingGallery, setIsLoadingGallery ] = useState( false );
+	const { isConnecting, connectToService, disconnectFromService } = useConnectInstagram(
+		setAttributes,
+		setImages
+	);
+
+	const unselectedCount = count > images.length ? images.length : count;
 
 	useEffect( () => {
 		const validatedAttributes = getValidatedAttributes( defaultAttributes, attributes );
@@ -58,71 +65,22 @@ const InstagramGalleryEdit = props => {
 		apiFetch( {
 			path: addQueryArgs( '/wpcom/v2/instagram/gallery', {
 				access_token: accessToken,
-				count,
+				count: MAX_IMAGE_COUNT,
 			} ),
-		} ).then( response => {
+		} ).then( ( { external_name: externalName, images: imageList } ) => {
 			setIsLoadingGallery( false );
 
-			if ( isEmpty( response.images ) ) {
+			if ( isEmpty( imageList ) ) {
 				noticeOperations.createErrorNotice(
 					__( 'No images were found in your Instagram account.', 'jetpack' )
 				);
 				return;
 			}
 
-			setAttributes( { instagramUser: response.external_name } );
-			setImages( response.images );
+			setAttributes( { instagramUser: externalName } );
+			setImages( imageList );
 		} );
-	}, [ accessToken, count, noticeOperations, setAttributes ] );
-
-	const connectToInstagram = () => {
-		setIsConnecting( true );
-		apiFetch( { path: '/wpcom/v2/instagram/connect-url' } ).then( connectUrl => {
-			const popupMonitor = new PopupMonitor();
-
-			popupMonitor.open(
-				connectUrl,
-				'connect-to-instagram-popup',
-				'toolbar=0,location=0,menubar=0,' + popupMonitor.getScreenCenterSpecs( 700, 700 )
-			);
-
-			popupMonitor.on( 'message', ( { keyring_id } ) => {
-				setIsConnecting( false );
-				if ( keyring_id ) {
-					setAttributes( { accessToken: keyring_id.toString() } );
-				}
-			} );
-
-			popupMonitor.on( 'close', name => {
-				if ( 'connect-to-instagram-popup' === name ) {
-					setIsConnecting( false );
-				}
-			} );
-		} );
-	};
-
-	const disconnectFromInstagram = () => {
-		setIsConnecting( true );
-		apiFetch( {
-			path: addQueryArgs( '/wpcom/v2/instagram/delete-access-token', {
-				access_token: accessToken,
-			} ),
-			method: 'DELETE',
-		} ).then( responseCode => {
-			setIsConnecting( false );
-			if ( 200 === responseCode ) {
-				setAttributes( { accessToken: undefined } );
-				setImages( [] );
-			}
-		} );
-	};
-
-	const debouncedSetNumberOfPosts = debounce( value => {
-		if ( value < images.length ) {
-			setImages( take( images, value ) );
-		}
-		setAttributes( { count: value } );
-	}, 500 );
+	}, [ accessToken, noticeOperations, setAttributes ] );
 
 	const showPlaceholder = ! isLoadingGallery && ( ! accessToken || isEmpty( images ) );
 	const showSidebar = ! showPlaceholder;
@@ -137,6 +95,49 @@ const InstagramGalleryEdit = props => {
 	const gridStyle = { gridGap: spacing };
 	const photoStyle = { padding: spacing };
 
+	useEffect( () => {
+		noticeOperations.removeAllNotices();
+		const accountImageTotal = images.length;
+
+		if ( showSidebar && accountImageTotal < count ) {
+			noticeOperations.createNotice( {
+				status: 'info',
+				content: __(
+					sprintf(
+						_n(
+							'There is currently only %s post in your Instagram account',
+							'There are currently only %s posts in your Instagram account',
+							accountImageTotal,
+							'jetpack'
+						),
+						accountImageTotal
+					)
+				),
+				isDismissible: false,
+			} );
+		}
+	}, [ count, images ] );
+
+	const renderImage = index => {
+		if ( images[ index ] ) {
+			const image = images[ index ];
+			return (
+				<ImageTransition
+					alt={ image.title || image.url }
+					src={ image.url }
+					attributes={ attributes }
+				/>
+			);
+		}
+
+		return (
+			<img
+				alt={ __( 'Instagram Gallery placeholder', 'jetpack' ) }
+				src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNMyc2tBwAEOgG/c94mJwAAAABJRU5ErkJggg=="
+			/>
+		);
+	};
+
 	return (
 		<div className={ blockClasses }>
 			{ showPlaceholder && (
@@ -145,7 +146,7 @@ const InstagramGalleryEdit = props => {
 					label={ __( 'Instagram Gallery', 'jetpack' ) }
 					notices={ noticeUI }
 				>
-					<Button disabled={ isConnecting } isLarge isPrimary onClick={ connectToInstagram }>
+					<Button disabled={ isConnecting } isLarge isPrimary onClick={ connectToService }>
 						{ isConnecting
 							? __( 'Connecting…', 'jetpack' )
 							: __( 'Connect your Instagram account', 'jetpack' ) }
@@ -162,36 +163,15 @@ const InstagramGalleryEdit = props => {
 
 			{ showGallery && (
 				<div className={ gridClasses } style={ gridStyle }>
-					{ images.map( image => (
+					{ times( isSelected ? count : unselectedCount, index => (
 						<span
-							className="wp-block-jetpack-instagram-gallery__grid-post"
-							key={ image.title || image.link }
+							className={ classnames( 'wp-block-jetpack-instagram-gallery__grid-post' ) }
+							key={ index }
 							style={ photoStyle }
 						>
-							<img alt={ image.title || image.url } src={ image.url } />
+							{ renderImage( index ) }
 						</span>
 					) ) }
-					{ isLoadingGallery && count > images.length && (
-						<Animate type="loading">
-							{ ( { className: animateClasses } ) =>
-								times( count - images.length, index => (
-									<span
-										className={ classnames(
-											'wp-block-jetpack-instagram-gallery__grid-post',
-											animateClasses
-										) }
-										key={ `instagram-gallery-placeholder-${ index }` }
-										style={ photoStyle }
-									>
-										<img
-											alt={ __( 'Instagram Gallery placeholder', 'jetpack' ) }
-											src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNMyc2tBwAEOgG/c94mJwAAAABJRU5ErkJggg=="
-										/>
-									</span>
-								) )
-							}
-						</Animate>
-					) }
 				</div>
 			) }
 
@@ -209,21 +189,22 @@ const InstagramGalleryEdit = props => {
 								disabled={ isConnecting }
 								isDestructive
 								isLink
-								onClick={ disconnectFromInstagram }
+								onClick={ () => disconnectFromService( accessToken ) }
 							>
 								{ isConnecting
-									? __( 'Disonnecting…', 'jetpack' )
+									? __( 'Disconnecting…', 'jetpack' )
 									: __( 'Disconnect your account', 'jetpack' ) }
 							</Button>
 						</PanelRow>
 					</PanelBody>
 					<PanelBody title={ __( 'Gallery Settings', 'jetpack' ) }>
+						<div className="wp-block-jetpack-instagram-gallery__count-notice">{ noticeUI }</div>
 						<RangeControl
 							label={ __( 'Number of Posts', 'jetpack' ) }
 							value={ count }
-							onChange={ debouncedSetNumberOfPosts }
+							onChange={ value => setAttributes( { count: value } ) }
 							min={ 1 }
-							max={ 30 }
+							max={ MAX_IMAGE_COUNT }
 						/>
 						<RangeControl
 							label={ __( 'Number of Columns', 'jetpack' ) }

@@ -24,6 +24,7 @@
 		"automattic/jetpack-logo": "@dev",
 		"automattic/jetpack-options": "@dev",
 		"automattic/jetpack-partner": "@dev",
+		"automattic/jetpack-redirect": "@dev",
 		"automattic/jetpack-roles": "@dev",
 		"automattic/jetpack-status": "@dev",
 		"automattic/jetpack-sync": "@dev",
