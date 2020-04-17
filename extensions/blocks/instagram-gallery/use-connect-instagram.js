@@ -1,14 +1,10 @@
 /**
- * WordPress dependencies
+ * External dependencies
  */
 import { useState } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
-
-/**
- * Internal dependencies
- */
-import PopupMonitor from 'lib/popup-monitor';
+import PopupMonitor from '@automattic/popup-monitor';
 
 export default function useConnectInstagram( setAttributes, setImages ) {
 	const [ isConnecting, setIsConnecting ] = useState( false );
