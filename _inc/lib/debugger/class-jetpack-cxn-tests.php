@@ -696,11 +696,12 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 
 		$testsite_url = Connection_Utils::fix_url_for_bad_hosts( JETPACK__API_BASE . 'testsite/1/?url=' );
 
-		add_filter( 'http_request_timeout', array( 'Jetpack_Cxn_Tests', 'increase_timeout' ) );
+		// Using PHP_INT_MAX - 1 so that there is still a way to override this if needed and since it only impacts this one call.
+		add_filter( 'http_request_timeout', array( 'Jetpack_Cxn_Tests', 'increase_timeout' ), PHP_INT_MAX - 1 );
 
 		$response = wp_remote_get( $testsite_url . $self_xml_rpc_url );
 
-		remove_filter( 'http_request_timeout', array( 'Jetpack_Cxn_Tests', 'increase_timeout' ) );
+		remove_filter( 'http_request_timeout', array( 'Jetpack_Cxn_Tests', 'increase_timeout' ), PHP_INT_MAX - 1 );
 
 		if ( 200 === wp_remote_retrieve_response_code( $response ) ) {
 			return self::passing_test( array( 'name' => $name ) );
