@@ -307,7 +307,7 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Automattic\\Jetpack\\": "src/"
+                    "Automattic\\Jetpack\\JITMS\\": "src/"
                 }
             },
             "scripts": {
