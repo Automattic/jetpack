@@ -27,6 +27,7 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 		wp_dequeue_style( 'jetpack-recipes-js' );
 		wp_dequeue_script( 'jetpack-recipes-js' );
 		wp_dequeue_script( 'jetpack-recipes-printthis' );
+		parent::tearDown();
 	}
 
 	/**
@@ -408,7 +409,7 @@ EOT;
 	}
 
 	/**
-	 * Verify that the recipe shortcode allows needed content via KSES.
+	 * Test the [recipe] shortcode on an AMP endpoint.
 	 *
 	 * @dataProvider get_data_recipe_amp
 	 * @since 8.5.0

@@ -266,7 +266,7 @@ class Jetpack_Recipes {
 			if ( 'false' !== $atts['print'] ) {
 				$is_amp       = class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request();
 				$print_action = $is_amp ? 'on="tap:AMP.print"' : '';
-				$print_text   = $is_amp ? esc_html_x( 'Print page', 'recipe', 'jetpack' ) : esc_html_x( 'Print', 'recipe', 'jetpack' );
+				$print_text   = $is_amp ? esc_html__( 'Print page', 'jetpack' ) : esc_html_x( 'Print', 'recipe', 'jetpack' );
 				$html        .= sprintf(
 					'<li class="jetpack-recipe-print"><a href="#" %1$s>%2$s</a></li>',
 					$print_action,
