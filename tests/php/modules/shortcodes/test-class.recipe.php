@@ -30,7 +30,6 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	 * @inheritDoc
 	 */
 	public function tearDown() {
-		wp_dequeue_style( 'jetpack-recipes-js' );
 		wp_dequeue_script( 'jetpack-recipes-js' );
 		wp_dequeue_script( 'jetpack-recipes-printthis' );
 		parent::tearDown();
