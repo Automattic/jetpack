@@ -19,6 +19,48 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tear down after each test.
+	 *
+	 * @inheritDoc
+	 */
+	public function tearDown() {
+		wp_dequeue_style( 'jetpack-recipes-js' );
+		wp_dequeue_script( 'jetpack-recipes-js' );
+		wp_dequeue_script( 'jetpack-recipes-printthis' );
+	}
+
+	/**
+	 * Test add_scripts.
+	 *
+	 * @since 8.5.0
+	 */
+	public function test_add_scripts() {
+		$GLOBALS['posts'] = array( $this->factory()->post->create_and_get( array( 'post_content' => '[recipe]' ) ) );
+		$instance         = new Jetpack_Recipes();
+		$instance->add_scripts();
+
+		$this->assertTrue( wp_style_is( 'jetpack-recipes-style' ) );
+		$this->assertTrue( wp_script_is( 'jetpack-recipes-printthis' ) );
+		$this->assertTrue( wp_script_is( 'jetpack-recipes-js' ) );
+	}
+
+	/**
+	 * Test add_scripts on an AMP endpoint.
+	 *
+	 * @since 8.5.0
+	 */
+	public function test_add_scripts_amp() {
+		add_filter( 'jetpack_is_amp_request', '__return_true' );
+		$GLOBALS['posts'] = array( $this->factory()->post->create_and_get( array( 'post_content' => '[recipe]' ) ) );
+		$instance         = new Jetpack_Recipes();
+		$instance->add_scripts();
+
+		$this->assertTrue( wp_style_is( 'jetpack-recipes-style' ) );
+		$this->assertFalse( wp_script_is( 'jetpack-recipes-printthis' ) );
+		$this->assertFalse( wp_script_is( 'jetpack-recipes-js' ) );
+	}
+
+	/**
 	 * Verify that the shortcodes exist.
 	 *
 	 * @since 8.0.0
@@ -329,5 +371,58 @@ EOT;
 
 		$shortcode_content = do_shortcode( "[recipe]\n$tags\n[/recipe]" );
 		$this->assertContains( $tags, $shortcode_content );
+	}
+
+	/**
+	 * Gets the test data for test_shortcodes_recipe_amp().
+	 *
+	 * @return array The test data.
+	 */
+	public function get_data_recipe_amp() {
+		return array(
+			'only_recipe_shortcode'       => array(
+				'[recipe title="Mediterranean Panini" servings="5-8" preptime="50 mins" cooktime="25 mins" difficulty="hard" rating="★★★★"]',
+				'<div class="hrecipe h-recipe jetpack-recipe" itemscope itemtype="https://schema.org/Recipe"><h3 class="p-name jetpack-recipe-title fn" itemprop="name">Mediterranean Panini</h3>
+					<ul class="jetpack-recipe-meta">
+						<li class="jetpack-recipe-servings p-yield yield" itemprop="recipeYield"><strong>Servings: </strong>5-8</li>
+						<li class="jetpack-recipe-cooktime"><time itemprop="cookTime" datetime="P0DT0H25M0S"><strong>Cook Time:</strong> <span class="cooktime">25 mins</span></time></li>
+						<li class="jetpack-recipe-preptime"><time itemprop="prepTime" datetime="P0DT0H50M0S"><strong>Prep Time:</strong> <span class="preptime">50 mins</span></time></li>
+						<li class="jetpack-recipe-difficulty"><strong>Difficulty: </strong>hard</li><li class="jetpack-recipe-rating"><strong>Rating: </strong><span itemprop="contentRating">★★★★</span></li>
+						<li class="jetpack-recipe-print"><a href="#" on="tap:AMP.print">Print page</a></li>
+					</ul>
+				<div class="jetpack-recipe-content"></div></div>',
+			),
+			'with_recipe_notes_shortcode' => array(
+				'[recipe title="Mediterranean Panini" servings="5-8" preptime="50 mins" cooktime="25 mins" difficulty="hard" rating="★★★★"][recipe-notes]Credit: allrecipes.com[/recipe-notes][/recipe]',
+				'<div class="hrecipe h-recipe jetpack-recipe" itemscope itemtype="https://schema.org/Recipe"><h3 class="p-name jetpack-recipe-title fn" itemprop="name">Mediterranean Panini</h3>
+					<ul class="jetpack-recipe-meta">
+						<li class="jetpack-recipe-servings p-yield yield" itemprop="recipeYield"><strong>Servings: </strong>5-8</li>
+						<li class="jetpack-recipe-cooktime"><time itemprop="cookTime" datetime="P0DT0H25M0S"><strong>Cook Time:</strong><span class="cooktime">25 mins</span></time></li>
+						<li class="jetpack-recipe-preptime"><time itemprop="prepTime" datetime="P0DT0H50M0S"><strong>Prep Time:</strong><span class="preptime">50 mins</span></time></li>
+						<li class="jetpack-recipe-difficulty"><strong>Difficulty: </strong>hard</li><li class="jetpack-recipe-rating"><strong>Rating: </strong><span itemprop="contentRating">★★★★</span></li>
+						<li class="jetpack-recipe-print"><a href="#" on="tap:AMP.print">Print page</a></li>
+					</ul>
+				<div class="jetpack-recipe-content"><div class="jetpack-recipe-notes">Credit: allrecipes.com</div></div></div>',
+			),
+		);
+	}
+
+	/**
+	 * Verify that the recipe shortcode allows needed content via KSES.
+	 *
+	 * @dataProvider get_data_recipe_amp
+	 * @since 8.5.0
+	 */
+	public function test_shortcodes_recipe_amp( $shortcode, $expected ) {
+		add_filter( 'jetpack_is_amp_request', '__return_true' );
+
+		$expected = preg_replace( '/\s+/', ' ', $expected );
+		$expected = preg_replace( '/(?<=>)\s+(?=<)/', '', trim( $expected ) );
+
+		$actual = do_shortcode( $shortcode );
+		$actual = preg_replace( '/\s+/', ' ', $actual );
+		$actual = preg_replace( '/(?<=>)\s+(?=<)/', '', trim( $actual ) );
+
+		$this->assertEquals( $expected, $actual );
 	}
 }
