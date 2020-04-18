@@ -321,17 +321,17 @@ export const SettingsCard = props => {
 		return null;
 	}
 
-	let moduleClassName = '';
+	let moduleId = '';
 	if ( props.feature ) {
-		moduleClassName = `jp-settings-${ props.feature }`;
+		moduleId = `jp-settings-${ props.feature }`;
 	} else if ( props.module ) {
-		moduleClassName = `jp-settings-${ props.module }`;
+		moduleId = `jp-settings-${ props.module }`;
 	}
 
 	return (
 		getModuleOverridenBanner() || (
 			<form
-				{ ...( moduleClassName ? { id: moduleClassName } : null ) }
+				{ ...( moduleId ? { id: moduleId } : null ) }
 				className={ `jp-form-settings-card` }
 				onSubmit={ ! isSaving ? props.onSubmit : undefined }
 			>
