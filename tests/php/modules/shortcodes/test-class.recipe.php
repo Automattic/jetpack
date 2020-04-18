@@ -14,7 +14,9 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	public $instance;
 
 	/**
-	 * After a test method runs, reset any state in WordPress the test method might have changed.
+	 * Set up each test.
+	 *
+	 * @inheritDoc
 	 */
 	public function setUp() {
 		parent::setUp();

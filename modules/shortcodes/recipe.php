@@ -53,10 +53,8 @@ class Jetpack_Recipes {
 			$allowedtags[ $tag ]['datetime'] = array();
 		}
 
-		// In AMP, allow the handler <a on="">.
-		if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
-			$allowedtags['a']['on'] = array();
-		}
+		// Allow the handler <a on=""> in AMP.
+		$allowedtags['a']['on'] = array();
 
 		// Allow itemscope and itemtype for divs.
 		if ( ! isset( $allowedtags['div'] ) ) {
