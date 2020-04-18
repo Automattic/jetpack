@@ -7,15 +7,19 @@
 class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 
 	/**
+	 * The tested instance.
+	 *
+	 * @var Jetpack_Recipes
+	 */
+	public $instance;
+
+	/**
 	 * After a test method runs, reset any state in WordPress the test method might have changed.
 	 */
 	public function setUp() {
-		// Run hook to load shortcode.
-		do_action( 'init' );
-
-		// Reset data.
-		wp_reset_postdata();
-		parent::tearDown();
+		parent::setUp();
+		$this->instance = new Jetpack_Recipes();
+		$this->instance->action_init();
 	}
 
 	/**
@@ -36,9 +40,12 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	 * @since 8.5.0
 	 */
 	public function test_add_scripts() {
-		$GLOBALS['posts'] = array( $this->factory()->post->create_and_get( array( 'post_content' => '[recipe]' ) ) );
-		$instance         = new Jetpack_Recipes();
-		$instance->add_scripts();
+		global $posts;
+
+		$post = new stdClass();
+		$post->post_content = '[recipe]';
+		$posts              = array( $post );
+		$this->instance->add_scripts();
 
 		$this->assertTrue( wp_style_is( 'jetpack-recipes-style' ) );
 		$this->assertTrue( wp_script_is( 'jetpack-recipes-printthis' ) );
@@ -51,10 +58,13 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	 * @since 8.5.0
 	 */
 	public function test_add_scripts_amp() {
+		global $posts;
+
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
-		$GLOBALS['posts'] = array( $this->factory()->post->create_and_get( array( 'post_content' => '[recipe]' ) ) );
-		$instance         = new Jetpack_Recipes();
-		$instance->add_scripts();
+		$post = new stdClass();
+		$post->post_content = '[recipe]';
+		$posts              = array( $post );
+		$this->instance->add_scripts();
 
 		$this->assertTrue( wp_style_is( 'jetpack-recipes-style' ) );
 		$this->assertFalse( wp_script_is( 'jetpack-recipes-printthis' ) );
