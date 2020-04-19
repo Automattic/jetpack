@@ -3,7 +3,7 @@
  */
 import { __ } from '@wordpress/i18n';
 import { BaseControl, PanelBody, ToggleControl } from '@wordpress/components';
-import { Fragment } from '@wordpress/element';
+import { useEffect } from '@wordpress/element';
 import { InspectorControls } from '@wordpress/block-editor';
 import { compose, withInstanceId } from '@wordpress/compose';
 import { withSelect } from '@wordpress/data';
@@ -13,19 +13,23 @@ import { withSelect } from '@wordpress/data';
  */
 import JetpackFieldLabel from './jetpack-field-label';
 
-const JetpackFieldCheckbox = ( {
-	instanceId,
-	required,
-	label,
-	setAttributes,
-	isSelected,
-	defaultValue,
-	parentBlock,
-	spacing,
-} ) => {
-	if ( parentBlock && parentBlock.attributes.spacing !== spacing ) {
-		setAttributes( { spacing: parentBlock.attributes.spacing } );
-	}
+function JetpackFieldCheckbox( props ) {
+	const {
+		instanceId,
+		required,
+		label,
+		setAttributes,
+		isSelected,
+		defaultValue,
+		parentBlock,
+		spacing,
+	} = props;
+
+	useEffect( () => {
+		if ( parentBlock && parentBlock.attributes.spacing !== spacing ) {
+			setAttributes( { spacing: parentBlock.attributes.spacing } );
+		}
+	} );
 
 	return (
 		<BaseControl
@@ -62,7 +66,7 @@ const JetpackFieldCheckbox = ( {
 			}
 		/>
 	);
-};
+}
 
 export default compose( [
 	withSelect( select => {

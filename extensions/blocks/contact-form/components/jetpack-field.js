@@ -3,7 +3,7 @@
  */
 import classNames from 'classnames';
 import { __ } from '@wordpress/i18n';
-import { Fragment } from '@wordpress/element';
+import { Fragment, useEffect } from '@wordpress/element';
 import { InspectorControls, BlockControls } from '@wordpress/block-editor';
 import {
 	PanelBody,
@@ -36,13 +36,15 @@ function JetpackField( props ) {
 		spacing,
 	} = props;
 
-	if ( parentBlock && parentBlock.attributes.padding !== padding ) {
-		setAttributes( { padding: parentBlock.attributes.padding } );
-	}
+	useEffect( () => {
+		if ( parentBlock && parentBlock.attributes.padding !== padding ) {
+			setAttributes( { padding: parentBlock.attributes.padding } );
+		}
 
-	if ( parentBlock && parentBlock.attributes.spacing !== spacing ) {
-		setAttributes( { spacing: parentBlock.attributes.spacing } );
-	}
+		if ( parentBlock && parentBlock.attributes.spacing !== spacing ) {
+			setAttributes( { spacing: parentBlock.attributes.spacing } );
+		}
+	} );
 
 	return (
 		<Fragment>

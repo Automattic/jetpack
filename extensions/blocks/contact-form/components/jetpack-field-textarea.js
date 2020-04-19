@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { Fragment } from '@wordpress/element';
+import { Fragment, useEffect } from '@wordpress/element';
 import { InspectorControls, BlockControls } from '@wordpress/block-editor';
 import {
 	PanelBody,
@@ -22,23 +22,27 @@ import { withSelect } from '@wordpress/data';
 import JetpackFieldLabel from './jetpack-field-label';
 import renderMaterialIcon from '../../../shared/render-material-icon';
 
-function JetpackFieldTextarea( {
-	required,
-	label,
-	parentBlock,
-	setAttributes,
-	isSelected,
-	placeholder,
-	padding,
-	spacing,
-} ) {
-	if ( parentBlock && parentBlock.attributes.padding !== padding ) {
-		setAttributes( { padding: parentBlock.attributes.padding } );
-	}
+function JetpackFieldTextarea( props ) {
+	const {
+		required,
+		label,
+		parentBlock,
+		setAttributes,
+		isSelected,
+		placeholder,
+		padding,
+		spacing,
+	} = props;
 
-	if ( parentBlock && parentBlock.attributes.spacing !== spacing ) {
-		setAttributes( { spacing: parentBlock.attributes.spacing } );
-	}
+	useEffect( () => {
+		if ( parentBlock && parentBlock.attributes.padding !== padding ) {
+			setAttributes( { padding: parentBlock.attributes.padding } );
+		}
+
+		if ( parentBlock && parentBlock.attributes.spacing !== spacing ) {
+			setAttributes( { spacing: parentBlock.attributes.spacing } );
+		}
+	} );
 
 	return (
 		<Fragment>
