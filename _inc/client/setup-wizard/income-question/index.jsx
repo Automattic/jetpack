@@ -27,6 +27,40 @@ const IncomeQuestion = props => {
 				} ) }
 			</h1>
 			<p className="jp-setup-wizard-subtitle">{ __( 'Check all that apply' ) }</p>
+			<div className="jp-setup-wizard-income-answer-container">
+				<div classname="jp-setup-wizard-income-answer">
+					<input type="checkbox" checked="checked" />
+					<p>{ __( 'Advertising or affiliate marketing' ) }</p>
+					<p>{ __( "You're planning on putting ads and or affiliate links on your website." ) }</p>
+				</div>
+				<div classname="jp-setup-wizard-income-answer">
+					<input type="checkbox" checked="checked" />
+					<p>{ __( 'Online store' ) }</p>
+					<p>
+						{ __(
+							"You're planning on selling physical goods, digital downloads, or services directly to your customers."
+						) }
+					</p>
+				</div>
+				<div classname="jp-setup-wizard-income-answer">
+					<input type="checkbox" checked="checked" />
+					<p>{ __( 'Appointments / bookings' ) }</p>
+					<p>
+						{ __(
+							'Your services require booking appointments online, for example a hair salon or accountant.'
+						) }
+					</p>
+				</div>
+				<div classname="jp-setup-wizard-income-answer">
+					<input type="checkbox" checked="checked" />
+					<p>{ __( 'Physical location' ) }</p>
+					<p>
+						{ __(
+							'You have a physical store or business and this website will help drive foot traffic to your location.'
+						) }
+					</p>
+				</div>
+			</div>
 		</div>
 	);
 };
