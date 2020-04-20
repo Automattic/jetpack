@@ -232,7 +232,7 @@ class Main extends React.Component {
 			case '/setup/income':
 				if ( this.props.showSetupWizard ) {
 					navComponent = null;
-					pageComponent = <SetupWizard />;
+					pageComponent = <SetupWizard route={ route } />;
 				} else {
 					this.props.history.replace( '/dashboard' );
 					pageComponent = this.getAtAGlance();
