@@ -4,7 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { includes } from 'lodash';
-import { createHistory } from 'history';
+import { createBrowserHistory } from 'history';
 import { withRouter } from 'react-router';
 import { translate as __ } from 'i18n-calypso';
 
@@ -240,7 +240,7 @@ class Main extends React.Component {
 
 			default:
 				// If no route found, kick them to the dashboard and do some url/history trickery
-				const history = createHistory();
+				const history = createBrowserHistory();
 				history.replace( window.location.pathname + '?page=jetpack#/dashboard' );
 				pageComponent = (
 					<AtAGlance
