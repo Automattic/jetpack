@@ -24,7 +24,7 @@ const IncomeQuestion = props => {
 					args: { siteUrl: props.siteRawUrl },
 				} ) }
 			</h1>
-			<p>{ __( 'Check all that apply' ) }</p>
+			<p className="jp-setup-wizard-subtitle">{ __( 'Check all that apply' ) }</p>
 		</div>
 	);
 };
