@@ -953,6 +953,11 @@ function sharing_display( $text = '', $echo = false ) {
 	}
 }
 
+/**
+ * Returns the language code for Recaptcha to use.
+ *
+ * @return string Language code, 'en' if none found.
+ */
 function get_base_recaptcha_lang_code() {
 
 	$base_recaptcha_lang_code_mapping = array(
@@ -970,12 +975,12 @@ function get_base_recaptcha_lang_code() {
 		'tr'    => 'tr',
 	);
 
-	$blog_lang_code = function_exists( 'get_blog_lang_code' ) ? get_blog_lang_code() : get_bloginfo( 'language' );
+	$blog_lang_code = ( defined( 'IS_WPCOM' ) && IS_WPCOM && function_exists( 'get_blog_lang_code' ) ) ? get_blog_lang_code() : get_bloginfo( 'language' );
 	if ( isset( $base_recaptcha_lang_code_mapping[ $blog_lang_code ] ) ) {
 		return $base_recaptcha_lang_code_mapping[ $blog_lang_code ];
 	}
 
-	// if no base mapping is found return default 'en'
+	// if no base mapping is found return default 'en'.
 	return 'en';
 }
 
