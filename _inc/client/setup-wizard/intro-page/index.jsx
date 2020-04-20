@@ -15,7 +15,7 @@ import './style.scss';
 
 const IntroPage = props => {
 	return (
-		<div className="jp-setup-wizard-intro">
+		<div className="jp-setup-wizard-main">
 			<img
 				width="200px"
 				height="200px"

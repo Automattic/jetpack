@@ -11,12 +11,23 @@ import QuerySite from 'components/data/query-site';
 import { getSiteTitle } from 'state/initial-state';
 
 import { IntroPage } from './intro-page';
+import { IncomeQuestion } from './income-question';
 
 const SetupWizardComponent = props => {
+	let pageComponent;
+	switch ( props.route ) {
+		case '/setup':
+			pageComponent = <IntroPage siteTitle={ props.siteTitle } />;
+			break;
+		case '/setup/income':
+			pageComponent = <IncomeQuestion />;
+			break;
+	}
+
 	return (
 		<>
 			<QuerySite />
-			<IntroPage siteTitle={ props.siteTitle } />
+			{ pageComponent }
 		</>
 	);
 };

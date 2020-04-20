@@ -46,6 +46,7 @@ import QueryRewindStatus from 'components/data/query-rewind-status';
 import { getRewindStatus } from 'state/rewind';
 
 const setupRoute = '/setup';
+const setupRoutes = [ setupRoute, '/setup/income' ];
 
 const dashboardRoutes = [ '/', '/dashboard', '/my-plan', '/plans' ];
 const settingsRoutes = [
@@ -228,9 +229,10 @@ class Main extends React.Component {
 				);
 				break;
 			case '/setup':
+			case '/setup/income':
 				if ( this.props.showSetupWizard ) {
 					navComponent = null;
-					pageComponent = <SetupWizard />;
+					pageComponent = <SetupWizard route={ route } />;
 				} else {
 					this.props.history.replace( '/dashboard' );
 					pageComponent = this.getAtAGlance();
@@ -288,7 +290,7 @@ class Main extends React.Component {
 
 	shouldShowMasthead() {
 		// Only show on the setup pages, dashboard, and settings page
-		return [ setupRoute, ...dashboardRoutes, ...settingsRoutes ].includes(
+		return [ ...setupRoutes, ...dashboardRoutes, ...settingsRoutes ].includes(
 			this.props.location.pathname
 		);
 	}
