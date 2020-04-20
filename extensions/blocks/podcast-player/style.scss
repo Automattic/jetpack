@@ -73,11 +73,13 @@ $player-background: transparent;
 		a {
 			box-shadow: none;
 			text-decoration: none;
+			border: none;
 	
 			&:hover,
 			&:focus {
 				box-shadow: none;
 				text-decoration: none;
+				border: none;
 			}
 		}
 	}
