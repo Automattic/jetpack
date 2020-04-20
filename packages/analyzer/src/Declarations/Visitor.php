@@ -45,7 +45,10 @@ class Visitor extends NodeVisitorAbstract {
 			if ( ! $this->current_class ) {
 				return;
 			}
-			$method = new Class_Method( $this->current_relative_path, $node->getLine(), $this->current_class, $node->name->name, $node->isStatic() );
+
+			// Check for a doc block or a function call to indicate the method is deprecated.
+			$deprecated = Utils::has_doc_comment( $node, '@deprecated' ) || Utils::has_function_call( $node, 'deprecated_function' );
+			$method     = new Class_Method( $this->current_relative_path, $node->getLine(), $this->current_class, $node->name->name, $node->isStatic(), $deprecated );
 			foreach ( $node->getParams() as $param ) {
 				$param_default = Utils::get_param_default_as_string( $param->default, $this->current_class );
 				$method->add_param( $param->var->name, $param_default, $param->type, $param->byRef, $param->variadic );

@@ -14,7 +14,16 @@ class Differences extends PersistentList {
 		return $path;
 	}
 
-	public function find( $new_declarations, $prev_declarations, $new_root = null ) {
+	/**
+	 * Find differences between two sets of declarations.
+	 *
+	 * @param Declarations $new_declarations  List of new declarations.
+	 * @param Declarations $prev_declarations List of previous declarations.
+	 * @param string       $new_root          Path where new delcaration were scanned.
+	 * @param boolean      $find_deprecated   Include deprecated functions.
+	 * @return void
+	 */
+	public function find( $new_declarations, $prev_declarations, $new_root = null, $find_deprecated = false ) {
 		if ( $new_root ) {
 			$new_root = $this->slashit( $new_root );
 		} else {
@@ -24,14 +33,21 @@ class Differences extends PersistentList {
 		$missing_total               = 0;
 		$moved_total                 = 0;
 		$moved_with_empty_file_total = 0;
+		$deprecated_total            = 0;
 		// for each declaration, see if it exists in the current analyzer's declarations
 		// if not, add it to the list of differences - either as missing or different
 		foreach ( $prev_declarations->get() as $prev_declaration ) {
 			$matched               = false;
 			$moved                 = false;
 			$moved_with_empty_file = false;
+			$deprecated            = false;
 			foreach ( $new_declarations->get() as $new_declaration ) {
+
 				if ( $prev_declaration->match( $new_declaration ) ) {
+					if ( $find_deprecated && isset( $new_declaration->deprecated ) && $new_declaration->deprecated ) {
+						$deprecated = true;
+					}
+
 					// echo "Comparing " . $prev_declaration->path . " to " . $new_declaration->path . "\n";
 					if ( $prev_declaration->path !== $new_declaration->path ) {
 
@@ -57,7 +73,18 @@ class Differences extends PersistentList {
 				// echo "Declaration " . $prev_declaration->display_name() . " moved from " . $prev_declaration->path . " to " . $new_declaration->path . " with matching empty file at original location\n";
 			}
 
-			if ( $matched && $moved ) {
+			// Add differences for any detected deprecations.
+			if ( $deprecated ) {
+				switch ( $new_declaration->type() ) {
+					case 'method':
+						$this->add( new Differences\Class_Method_Deprecated( $prev_declaration, $new_declaration ) );
+						break;
+					default:
+						echo 'Unknown deprecated type ' . $new_declaration->type() . "\n";
+				}
+				$deprecated_total++;
+
+			} elseif ( $matched && $moved ) {
 				switch ( $prev_declaration->type() ) {
 					case 'class':
 						$this->add( new Differences\Class_Moved( $prev_declaration, $new_declaration ) );
@@ -111,5 +138,8 @@ class Differences extends PersistentList {
 		echo 'Moved: ' . $moved_total . "\n";
 		echo 'Moved with stubbed file: ' . $moved_with_empty_file_total . "\n";
 		echo 'Missing: ' . $missing_total . "\n";
+		if ( $find_deprecated ) {
+			echo 'Deprecated: ' . $deprecated_total . "\n";
+		}
 	}
 }
