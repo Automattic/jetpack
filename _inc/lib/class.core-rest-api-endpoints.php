@@ -1046,7 +1046,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		if (
 			! function_exists( 'openssl_verify' )
-			|| ! openssl_verify(
+			|| 1 !== openssl_verify(
 				$signature_data,
 				$signature,
 				JETPACK__DEBUGGER_PUBLIC_KEY
