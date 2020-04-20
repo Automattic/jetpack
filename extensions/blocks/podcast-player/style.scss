@@ -105,6 +105,9 @@ $player-background: transparent;
 	.jetpack-podcast-player__cover-image {
 		width: $cover-image-size;
 		height: $cover-image-size;
+		padding: 0;
+		border: 0;
+		max-width: 100%;
 	}
 
 	// The tag name increases specificity to override some themes/editor styles.
@@ -240,6 +243,7 @@ $player-background: transparent;
 		transition: none;
 		color: inherit;
 
+		&:visited,
 		&:hover,
 		&:focus {
 			color: inherit;
@@ -345,7 +349,8 @@ $player-background: transparent;
 	.mejs-container,
 	.mejs-embed,
 	.mejs-embed body,
-	.mejs-container .mejs-controls {
+	.mejs-container .mejs-controls,
+	.mejs-mediaelement {
 		background-color: $player-background;
 	}
 
