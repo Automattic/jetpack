@@ -93,7 +93,7 @@ function ButtonEdit( {
 						textColor,
 					} }
 				/>
-				<ButtonBorderPanel buttonBorderRadius={ borderRadius } setAttributes={ setAttributes } />
+				<ButtonBorderPanel borderRadius={ borderRadius } setAttributes={ setAttributes } />
 			</InspectorControls>
 		</div>
 	);
