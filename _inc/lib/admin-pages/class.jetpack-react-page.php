@@ -51,7 +51,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	 * Add Jetpack Setup sub-link for eligible users
 	 */
 	function jetpack_add_set_up_sub_nav_item() {
-		if ( Jetpack::show_setup_wizard() ) {
+		if ( $this->show_setup_wizard() ) {
 			global $submenu;
 			$submenu['jetpack'][] = array( __( 'Set up', 'jetpack' ), 'jetpack_admin_page', 'admin.php?page=jetpack#/setup' );
 		}
@@ -295,7 +295,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				'isAtomicSite'               => jetpack_is_atomic_site(),
 				'plan'                       => Jetpack_Plan::get(),
 				'showBackups'                => Jetpack::show_backups_ui(),
-				'showSetupWizard'            => Jetpack::show_setup_wizard(),
+				'showSetupWizard'            => $this->show_setup_wizard(),
 				'isMultisite'                => is_multisite(),
 			),
 			'themeData'                   => array(
@@ -340,6 +340,16 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		$core_api_endpoint = new Jetpack_Core_API_Data();
 		$settings = $core_api_endpoint->get_all_options();
 		return $settings->data;
+	}
+
+
+	/**
+	 * Returns a boolean for whether the Setup Wizard should be displayed or not.
+	 *
+	 * @return bool True if the Setup Wizard should be displayed, false otherwise.
+	 */
+	public function show_setup_wizard() {
+		return apply_filters( 'jetpack_show_setup_wizard', false ) && Jetpack::is_active();
 	}
 }
 
