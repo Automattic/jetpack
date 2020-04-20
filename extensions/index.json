@@ -13,6 +13,7 @@
 		"markdown",
 		"opentable",
 		"pinterest",
+		"podcast-player",
 		"publicize",
 		"rating-star",
 		"recurring-payments",
@@ -28,6 +29,6 @@
 		"videopress",
 		"wordads"
 	],
-	"beta": [ "amazon", "instagram-gallery", "podcast-player" ],
+	"beta": [ "amazon", "instagram-gallery" ],
 	"experimental": [ "seo" ]
 }
