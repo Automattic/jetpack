@@ -527,16 +527,6 @@ if (
 
 					$settings = array();
 
-					// Do we want a full embed code or a link?
-					if (
-						$no_script
-						|| $inline
-						|| $infinite_scroll
-						|| ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() )
-					) {
-						return $survey_link;
-					}
-
 					if ( 'iframe' === $attributes['type'] ) {
 						if ( 'auto' !== $attributes['height'] ) {
 							if (
