@@ -8,10 +8,9 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Connection\Manager;
-use Automattic\Jetpack\JITM;
+use Automattic\Jetpack\Connection\Plugin;
 use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
 use Automattic\Jetpack\Sync\Main as Sync_Main;
-use Automattic\Jetpack\Terms_Of_Service;
 
 /**
  * The configuration class.
@@ -36,6 +35,13 @@ class Config {
 	);
 
 	/**
+	 * Initialization options stored here.
+	 *
+	 * @var array
+	 */
+	protected $options = array();
+
+	/**
 	 * Creates the configuration class instance.
 	 */
 	public function __construct() {
@@ -53,9 +59,12 @@ class Config {
 	 * instructs the class to initalize it.
 	 *
 	 * @param String $feature the feature slug.
+	 * @param array  $options Additional options, optional.
 	 */
-	public function ensure( $feature ) {
+	public function ensure( $feature, array $options = array() ) {
 		$this->config[ $feature ] = true;
+
+		$this->set_feature_options( $feature, $options );
 	}
 
 	/**
@@ -115,6 +124,7 @@ class Config {
 
 	/**
 	 * Ensures a feature is enabled, sets it up if it hasn't already been set up.
+	 * Run the options method (if exists) every time the method is called.
 	 *
 	 * @param String $feature slug of the feature.
 	 * @return Integer either FEATURE_ENSURED, FEATURE_ALREADY_ENSURED or FEATURE_NOT_AVAILABLE constants.
@@ -123,6 +133,11 @@ class Config {
 		$method = 'enable_' . $feature;
 		if ( ! method_exists( $this, $method ) ) {
 			return self::FEATURE_NOT_AVAILABLE;
+		}
+
+		$method_options = 'ensure_options_' . $feature;
+		if ( method_exists( $this, $method_options ) ) {
+			$this->{ $method_options }();
 		}
 
 		if ( did_action( 'jetpack_feature_' . $feature . '_enabled' ) ) {
@@ -195,6 +210,64 @@ class Config {
 		Manager::configure();
 
 		return true;
+	}
+
+	/**
+	 * Setup the Connection options.
+	 */
+	protected function ensure_options_connection() {
+		$options = $this->get_feature_options( 'connection' );
+
+		if ( ! empty( $options['slug'] ) ) {
+			add_action(
+				'jetpack_connection_configure_plugin',
+				function() use ( $options ) {
+					if ( empty( $options['slug'] ) ) {
+						return;
+					}
+
+					$slug = $options['slug'];
+					unset( $options['slug'] );
+
+					$name = $slug;
+					if ( ! empty( $options['name'] ) ) {
+						$name = $options['name'];
+						unset( $options['name'] );
+					}
+
+					( new Plugin( $slug ) )->add( $name, $options );
+				}
+			);
+		}
+
+		return true;
+	}
+
+	/**
+	 * Temporary save initialization options for a feature.
+	 *
+	 * @param string $feature The feature slug.
+	 * @param array  $options The options.
+	 *
+	 * @return bool
+	 */
+	protected function set_feature_options( $feature, array $options ) {
+		if ( $options ) {
+			$this->options[ $feature ] = $options;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Get initialization options for a feature from the temporary storage.
+	 *
+	 * @param string $feature The feature slug.
+	 *
+	 * @return array
+	 */
+	protected function get_feature_options( $feature ) {
+		return empty( $this->options[ $feature ] ) ? array() : $this->options[ $feature ];
 	}
 
 }

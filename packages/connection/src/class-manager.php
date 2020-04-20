@@ -55,13 +55,13 @@ class Manager {
 	 * Initialize the object.
 	 * Make sure to call the "Configure" first.
 	 *
-	 * @param Plugin $plugin Slug of the plugin using the connection (optional, but encouraged).
+	 * @param string $plugin_slug Slug of the plugin using the connection (optional, but encouraged).
 	 *
 	 * @see \Automattic\Jetpack\Config
 	 */
-	public function __construct( Plugin $plugin = null ) {
-		if ( $plugin ) {
-			$this->plugin = $plugin;
+	public function __construct( $plugin_slug = null ) {
+		if ( $plugin_slug && is_string( $plugin_slug ) ) {
+			$this->set_plugin_instance( new Plugin( $plugin_slug ) );
 		}
 	}
 
@@ -2261,12 +2261,34 @@ class Manager {
 	}
 
 	/**
+	 * Set the plugin instance.
+	 *
+	 * @param Plugin $plugin_instance The plugin instance.
+	 *
+	 * @return $this
+	 */
+	public function set_plugin_instance( Plugin $plugin_instance ) {
+		$this->plugin = $plugin_instance;
+
+		return $this;
+	}
+
+	/**
 	 * Retrieve the plugin management object.
 	 *
 	 * @return Plugin
 	 */
 	public function get_plugin() {
 		return $this->plugin;
+	}
+
+	/**
+	 * Get all connected plugins information.
+	 *
+	 * @return array
+	 */
+	public function get_connected_plugins() {
+		return Plugin_Storage::get_all();
 	}
 
 }

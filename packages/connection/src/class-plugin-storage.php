@@ -11,11 +11,25 @@ namespace Automattic\Jetpack\Connection;
  * Storage for plugin connection information.
  *
  * @todo Adapt for multisite installations.
- * @todo Consider using the `Jetpack_Options` package.
  */
 class Plugin_Storage {
 
 	const OPTION_KEY = 'connection_plugins';
+
+	/**
+	 * Connected plugins.
+	 *
+	 * @var array
+	 */
+	private static $plugins = array();
+
+	/**
+	 * Whether the plugins were configured.
+	 * To make sure we don't call the configuration process again and again.
+	 *
+	 * @var bool
+	 */
+	private static $plugins_configuration_finished = false;
 
 	/**
 	 * Add or update the plugin information in the storage.
@@ -24,14 +38,9 @@ class Plugin_Storage {
 	 * @param array  $args Plugin arguments, optional.
 	 *
 	 * @return bool
-	 *
-	 * @todo Don't update if nothing's changed
 	 */
 	public static function upsert( $slug, array $args = array() ) {
-		$stored          = self::get_all();
-		$stored[ $slug ] = $args;
-
-		update_option( self::OPTION_KEY, $stored, false );
+		self::$plugins[ $slug ] = $args;
 
 		return true;
 	}
@@ -44,9 +53,7 @@ class Plugin_Storage {
 	 * @return array|null
 	 */
 	public static function get_one( $slug ) {
-		$stored = self::get_all();
-
-		return empty( $stored[ $slug ] ) ? null : $stored[ $slug ];
+		return empty( self::$plugins[ $slug ] ) ? null : self::$plugins[ $slug ];
 	}
 
 	/**
@@ -55,7 +62,12 @@ class Plugin_Storage {
 	 * @return array
 	 */
 	public static function get_all() {
-		return get_option( self::OPTION_KEY, array() );
+		if ( ! self::$plugins_configuration_finished ) {
+			do_action( 'jetpack_connection_configure_plugin' );
+			self::$plugins_configuration_finished = true;
+		}
+
+		return self::$plugins;
 	}
 
 	/**
@@ -66,13 +78,11 @@ class Plugin_Storage {
 	 * @return bool
 	 */
 	public static function delete( $slug ) {
-		$stored = self::get_all();
-
-		if ( array_key_exists( $slug, $stored ) ) {
-			unset( $stored[ $slug ] );
+		if ( array_key_exists( $slug, self::$plugins ) ) {
+			unset( self::$plugins[ $slug ] );
 		}
 
-		return update_option( self::OPTION_KEY, $stored, false );
+		return true;
 	}
 
 }

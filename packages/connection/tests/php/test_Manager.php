@@ -7,6 +7,10 @@
 
 namespace Automattic\Jetpack\Connection;
 
+require_once __DIR__ . '/mock/trait-options.php';
+require_once __DIR__ . '/mock/trait-hooks.php';
+
+use Automattic\Jetpack\Connection\Test\Mock\Hooks;
 use Automattic\Jetpack\Connection\Test\Mock\Options;
 use Automattic\Jetpack\Constants;
 use phpmock\Mock;
@@ -19,7 +23,7 @@ use PHPUnit\Framework\TestCase;
  */
 class ManagerTest extends TestCase {
 
-	use Options;
+	use Options, Hooks;
 
 	/**
 	 * Temporary stack for `wp_redirect`.
@@ -71,6 +75,7 @@ class ManagerTest extends TestCase {
 		$this->constants_apply_filters = $builder->build();
 
 		$this->build_mock_options();
+		$this->build_mock_actions();
 	}
 
 	/**
@@ -271,13 +276,13 @@ class ManagerTest extends TestCase {
 		$this->update_option->enable();
 		$this->get_option->enable();
 		$this->apply_filters->enable();
+		$this->do_action->enable();
 
-		$plugin1 = ( new Plugin( 'plugin-slug-1' ) )
-			->add( 'Plugin Name 1' );
+		( new Plugin( 'plugin-slug-1' ) )->add( 'Plugin Name 1' );
 
 		( new Plugin( 'plugin-slug-2' ) )->add( 'Plugin Name 2' );
 
-		$manager = new Manager( $plugin1 );
+		$manager = new Manager( 'plugin-slug-1' );
 
 		$this->assertFalse( $manager->delete_all_connection_tokens() );
 	}
@@ -292,13 +297,15 @@ class ManagerTest extends TestCase {
 		$this->update_option->enable();
 		$this->get_option->enable();
 		$this->apply_filters->enable();
+		$this->do_action->enable();
 
 		$plugin1 = ( new Plugin( 'plugin-slug-1' ) )
 			->add( 'Plugin Name 1' );
 
 		( new Plugin( 'plugin-slug-2' ) )->add( 'Plugin Name 2' );
 
-		$manager = new Manager( $plugin1 );
+		$manager = ( new Manager() )
+			->set_plugin_instance( $plugin1 );
 
 		$this->assertFalse( $manager->disconnect_site_wpcom() );
 	}
