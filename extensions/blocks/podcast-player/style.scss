@@ -40,7 +40,6 @@ $player-background: transparent;
 	border: 1px solid $block-border-color;
 	background-color: $block-bg-color;
 	overflow: hidden;
-	font-family: $default-font;
 
 	/**
 	 * Player's state classes added to this element:
@@ -187,7 +186,6 @@ $player-background: transparent;
 
 	.jetpack-podcast-player__track {
 		margin: 0;
-		font-family: $default-font;
 		font-size: $editor-font-size;
 		line-height: $editor-line-height;
 
@@ -280,7 +278,6 @@ $player-background: transparent;
 		margin-left: ($player-grid-spacing - 2px) + $track-status-icon-size + $track-v-padding; // has to be aligned with the track title
 		margin-bottom: $track-h-padding;
 		color: $alert-red;
-		font-family: $default-font;
 		font-size: 0.8em;
 		font-weight: normal;
 
@@ -316,7 +313,6 @@ $player-background: transparent;
 		padding: $player-grid-spacing;
 		margin: 0;
 		color: $alert-red;
-		font-family: $default-font;
 		font-size: 0.8em;
 		font-weight: normal;
 	}
