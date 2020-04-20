@@ -31,6 +31,7 @@ class Jetpack_AMP_Support {
 		// Sharing.
 		add_filter( 'jetpack_sharing_display_markup', array( 'Jetpack_AMP_Support', 'render_sharing_html' ), 10, 2 );
 		add_filter( 'sharing_enqueue_scripts', array( 'Jetpack_AMP_Support', 'amp_disable_sharedaddy_css' ) );
+		add_action( 'wp_head', array( 'Jetpack_AMP_Support', 'amp_enqueue_sharing_css' ) );
 
 		// enforce freedom mode for videopress.
 		add_filter( 'videopress_shortcode_options', array( 'Jetpack_AMP_Support', 'videopress_enable_freedom_mode' ) );
@@ -353,6 +354,8 @@ class Jetpack_AMP_Support {
 	 * @param array  $sharing_enabled Array of Sharing Services currently enabled.
 	 */
 	public static function render_sharing_html( $markup, $sharing_enabled ) {
+		global $post;
+
 		if ( ! self::is_amp_request() ) {
 			return $markup;
 		}
@@ -361,28 +364,84 @@ class Jetpack_AMP_Support {
 		if ( empty( $sharing_enabled ) ) {
 			return $markup;
 		}
-		$supported_services = array(
-			'facebook'  => array(
-				/** This filter is documented in modules/sharedaddy/sharing-sources.php */
-				'data-param-app_id' => apply_filters( 'jetpack_sharing_facebook_app_id', '249643311490' ),
-			),
-			'twitter'   => array(),
-			'pinterest' => array(),
-			'whatsapp'  => array(),
-			'tumblr'    => array(),
-			'linkedin'  => array(),
-		);
-		$sharing_links      = array();
+
+		$sharing_links = array();
 		foreach ( $sharing_enabled['visible'] as $id => $service ) {
-			if ( ! isset( $supported_services[ $id ] ) ) {
-				$sharing_links[] = "<!-- not supported: $id -->";
+			$args = array();
+			$skip = false;
+			switch ( $service->get_id() ) {
+				case 'facebook':
+					$args = array(
+						/** This filter is documented in modules/sharedaddy/sharing-sources.php */
+						'data-param-app_id' => apply_filters( 'jetpack_sharing_facebook_app_id', '249643311490' ),
+					);
+					break;
+
+				case 'jetpack-whatsapp':
+					$args = array(
+						'type' => 'whatsapp',
+					);
+					break;
+
+				case 'print':
+					$args = array(
+						'on' => 'tap:AMP.print',
+					);
+					break;
+
+				case 'pocket':
+					$args = array(
+						'data-share-endpoint' => esc_url_raw( 'https://getpocket.com/save/?url=' . rawurlencode( $service->get_share_url( $post->ID ) ) . '&title=' . rawurlencode( $service->get_share_title( $post->ID ) ) ),
+					);
+					break;
+
+				case 'skype':
+					$args = array(
+						'data-share-endpoint' => sprintf(
+							'https://web.skype.com/share?url=%1$s&lang=%2$s=&source=jetpack',
+							rawurlencode( $service->get_share_url( $post->ID ) ),
+							'en-US'
+						),
+					);
+					break;
+
+				case 'reddit':
+					$args = array(
+						'data-share-endpoint' => esc_url_raw( 'https://reddit.com/submit?url=' . rawurlencode( $service->get_share_url( $post->ID ) ) . '&title=' . rawurlencode( $service->get_share_title( $post->ID ) ) ),
+					);
+					break;
+
+				case 'telegram':
+					$args = array(
+						'data-share-endpoint' => esc_url_raw( 'https://telegram.me/share/url?url=' . rawurlencode( $service->get_share_url( $post->ID ) ) . '&text=' . rawurlencode( $service->get_share_title( $post->ID ) ) ),
+					);
+					break;
+
+				case 'twitter':
+				case 'pinterest':
+				case 'tumblr':
+				case 'linkedin':
+					// No custom args needed.
+					$args = array();
+					break;
+
+				default:
+					// We don't support any other services.
+					$sharing_links[] = "<!-- not supported: $id -->";
+					$skip            = true;
+			}
+
+			if ( $skip ) {
 				continue;
 			}
+
 			$args         = array_merge(
 				array(
-					'type' => $id,
+					'type'   => $id,
+					'height' => '32px',
+					'width'  => '32px',
 				),
-				$supported_services[ $id ]
+				$args
 			);
 			$sharing_link = '<amp-social-share';
 			foreach ( $args as $key => $value ) {
@@ -413,6 +472,16 @@ class Jetpack_AMP_Support {
 		}
 
 		return $enqueue;
+	}
+
+	/**
+	 * Enqueues the AMP specific sharing styles for the sharing icons.
+	 */
+	public static function amp_enqueue_sharing_css() {
+		if ( self::is_amp_request() ) {
+			wp_enqueue_style( 'sharedaddy-amp', plugin_dir_url( dirname( __FILE__ ) ) . 'modules/sharedaddy/amp-sharing.css', array(), JETPACK__VERSION );
+			wp_enqueue_style( 'social-logos' );
+		}
 	}
 
 	/**
