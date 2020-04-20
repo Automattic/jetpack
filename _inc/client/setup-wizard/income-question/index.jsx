@@ -10,6 +10,8 @@ import { translate as __ } from 'i18n-calypso';
  */
 import { imagePath } from 'constants/urls';
 
+import './style.scss';
+
 const IncomeQuestion = props => {
 	return (
 		<div className="jp-setup-wizard-main">
