@@ -499,14 +499,14 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	}
 
 	/**
-	 * Sync Health Tests.
+	 * Full Sync Health Test.
 	 *
-	 * Disabled: Results in a failing test (recommended)
+	 * Disabled: Results in a skipped test (recommended)
 	 * In Progress: Results in failing test (recommended)
 	 * Delayed: Results in failing test (recommended)
 	 * Error: Results in failing test (critical)
 	 */
-	protected function test__sync_health() {
+	protected function test__full_sync_health() {
 
 		$name = __FUNCTION__;
 
@@ -533,26 +533,72 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 				return self::skipped_test(
 					array(
 						'name'              => $name,
-						'label'             => __( 'Jetpack is performing a sync of your site', 'jetpack' ),
+						'label'             => __( 'Jetpack is performing a full sync of your site', 'jetpack' ),
 						'severity'          => 'recommended',
-						'short_description' => __( 'Jetpack is performing a sync of your site', 'jetpack' ),
+						/* translators: placeholder is a percentage number. */
+						'short_description' => sprintf( __( 'Jetpack is performing a full sync of your site. Current Progress: %1$d %', 'jetpack' ), $progress_percent ),
 						'long_description'  => sprintf(
-							'<p>%1$s</p>' .
-							'<p><span class="dashicons dashicons-update"><span class="screen-reader-text">%2$s</span></span> %3$s</p>' .
-							'<div class="jetpack-sync-progress-ui"><div class="jetpack-sync-progress-label"></div><div class="jetpack-sync-progress-bar"></div></div>',
-							__( 'The information synced by Jetpack ensures that Jetpack Search, Related Posts and other features are aligned with your site’s current content.', 'jetpack' ),
-							/* translators: screen reader text indicating data is updating. */
+							'<p>%1$s</p><p><span class="dashicons dashicons-update"><span class="screen-reader-text">%2$s</span></span> %3$s</p><div class="jetpack-sync-progress-ui"><div class="jetpack-sync-progress-label"></div><div class="jetpack-sync-progress-bar"></div></div>',
+							__( 'The information synced by Jetpack ensures that Jetpack Search, Related Posts and other features are aligned with your site’s current content.', 'jetpack' ), /* translators: screen reader text indicating data is updating. */
 							__( 'Updating', 'jetpack' ),
 							__( 'Jetpack is currently performing a full sync of your site data.', 'jetpack' )
 						),
 					)
 				);
 
-			} elseif ( Sync_Health::get_status() === Sync_Health::STATUS_OUT_OF_SYNC ) {
+			} else {
+
+				// no Full Sync in Progress.
+				return self::skipped_test(
+					array(
+						'name'                => $name,
+						'show_in_site_health' => false,
+					)
+				);
+
+			}
+		} else {
+
+			// If sync is not enabled no Full Sync can occur.
+			return self::skipped_test(
+				array(
+					'name'                => $name,
+					'show_in_site_health' => false,
+				)
+			);
+
+		}
+
+	}
+
+	/**
+	 * Sync Health Tests.
+	 *
+	 * Disabled: Results in a failing test (recommended)
+	 * Delayed: Results in failing test (recommended)
+	 * Error: Results in failing test (critical)
+	 */
+	protected function test__sync_health() {
+
+		$name = __FUNCTION__;
+
+		if ( ! $this->helper_is_jetpack_connected() ) {
+			// If the site is not connected, there is no point in testing Sync health.
+			return self::skipped_test(
+				array(
+					'name'                => $name,
+					'show_in_site_health' => false,
+				)
+			);
+		}
+
+		// Sync is enabled.
+		if ( Sync_Settings::is_sync_enabled() ) {
+
+			if ( Sync_Health::get_status() === Sync_Health::STATUS_OUT_OF_SYNC ) {
 				/*
 				 * Sync has experienced Data Loss.
 				 */
-
 				$description  = '<p>';
 				$description .= esc_html__( 'The information synced by Jetpack ensures that Jetpack Search, Related Posts and other features are aligned with your site’s current content.', 'jetpack' );
 				$description .= '</p>';
@@ -573,14 +619,14 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 				);
 				$description .= '</p>';
 
-				return self::failing_test(
+				return self::skipped_test(
 					array(
 						'name'              => $name,
 						'label'             => __( 'Jetpack has detected an error syncing your site.', 'jetpack' ),
 						'severity'          => 'critical',
 						'action'            => Redirect::get_url( 'jetpack-contact-support' ),
 						'action_label'      => __( 'Contact Jetpack Support', 'jetpack' ),
-						'short_description' => __( 'Jetpack has detected an error syncing your site.', 'jetpack' ),
+						'short_description' => __( 'Jetpack has detected an error while syncing your site. We recommend a full sync to align Jetpack with your site data.', 'jetpack' ),
 						'long_description'  => $description,
 					)
 				);
@@ -617,7 +663,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 					);
 					$description .= '</p>';
 
-					return self::failing_test(
+					return self::skipped_test(
 						array(
 							'name'              => $name,
 							'label'             => __( 'Jetpack is experiencing a delay syncing your site.', 'jetpack' ),
