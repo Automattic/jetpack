@@ -1639,9 +1639,12 @@ class Jetpack {
 
 	/**
 	 * Is Jetpack active?
+	 * The method only checks if there's an existing token for the master user. It doesn't validate the token.
+	 *
+	 * @return bool
 	 */
 	public static function is_active() {
-		return (bool) Jetpack_Data::get_access_token( JETPACK_MASTER_USER );
+		return self::connection()->is_active();
 	}
 
 	/**

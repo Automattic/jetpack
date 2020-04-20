@@ -8,7 +8,9 @@
 namespace Automattic\Jetpack\Connection;
 
 /**
- * Storage for plugin connection information.
+ * The class serves a single purpose - to store the data that plugins use the connection, along with some auxiliary information.
+ * Well, we don't really store all that. The information is provided on runtime,
+ * so all we need to do is to save the data into the class property and retrieve it from there on demand.
  *
  * @todo Adapt for multisite installations.
  */
@@ -63,7 +65,14 @@ class Plugin_Storage {
 	 */
 	public static function get_all() {
 		if ( ! self::$plugins_configuration_finished ) {
+			/**
+			 * Fires upon retrieval of the connected plugins.
+			 * Only fires once, as the data isn't supposed to change after it's been initialized.
+			 *
+			 * @since 8.5.0
+			 */
 			do_action( 'jetpack_connection_configure_plugin' );
+
 			self::$plugins_configuration_finished = true;
 		}
 

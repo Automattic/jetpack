@@ -89,11 +89,9 @@ class JetpackTerminationDialogFeatures extends Component {
 	renderConnectedPlugins( plugins ) {
 		return (
 			<ul>
-				{ plugins
-					.filter( el => 'jetpack' !== el.slug )
-					.map( el => (
-						<li key={ el.slug }>{ el.name }</li>
-					) ) }
+				{ plugins.map( plugin => (
+					<li key={ plugin.slug }>{ plugin.name }</li>
+				) ) }
 			</ul>
 		);
 	}
@@ -147,12 +145,24 @@ class JetpackTerminationDialogFeatures extends Component {
 						</ul>
 					</div>
 				) }
-				{ connectedPlugins && (
+				{ connectedPlugins.length > 0 && (
 					<div className="jetpack-termination-dialog__generic-info">
-						<h2>{ __( 'Jetpack Connection is also used by these plugins' ) }</h2>
+						<h2>
+							{ __(
+								'Jetpack Connection is also used by other plugin',
+								'Jetpack Connection is also used by other plugins',
+								{
+									count: connectedPlugins.length,
+								}
+							) }
+						</h2>
 						<p>
 							{ __(
-								'To fully disconnect form Jetpack you will need to disable following plugins:'
+								'If you disconnect Jetpack from WordPress.com, the following plugin will also be disconnected:',
+								'If you disconnect Jetpack from WordPress.com, the following plugins will also be disconnected:',
+								{
+									count: connectedPlugins.length,
+								}
 							) }
 						</p>
 						{ this.renderConnectedPlugins( connectedPlugins ) }

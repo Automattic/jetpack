@@ -244,5 +244,6 @@ export function getSiteID( state ) {
  * @return {Object}        Connected plugins
  */
 export function getConnectedPlugins( state ) {
-	return get( state.jetpack.siteData, [ 'data', 'site', 'connectedPlugins' ], null );
+	const plugins = get( state.jetpack.siteData, [ 'data', 'site', 'connectedPlugins' ], null );
+	return plugins ? plugins.filter( plugin => 'jetpack' !== plugin.slug ) : null;
 }

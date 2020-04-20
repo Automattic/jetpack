@@ -9,6 +9,9 @@ namespace Automattic\Jetpack\Connection;
 
 /**
  * Plugin connection management class.
+ * The class represents a single plugin that uses Jetpack connection.
+ * Its functionality has been pretty simplistic so far: add to the storage (`Plugin_Storage`), remove it from there,
+ * and determine whether it's the last active connection. As the component grows, there'll be more functionality added.
  */
 class Plugin {
 

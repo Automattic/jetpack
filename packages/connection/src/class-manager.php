@@ -1315,21 +1315,10 @@ class Manager {
 
 	/**
 	 * Deletes all connection tokens and transients from the local Jetpack site.
-	 * If the plugin object has been provided in the constructor, the function first check
-	 * whether it's the only active connection.
-	 * If there are any other connections, the function will do nothing and return `false`.
 	 *
 	 * @return bool True if disconnected successfully, false otherwise.
 	 */
 	public function delete_all_connection_tokens() {
-		if ( null !== $this->plugin && ! $this->plugin->is_only() ) {
-			return false;
-		}
-
-		if ( ! apply_filters( 'jetpack_connection_delete_all_tokens', true, $this ) ) {
-			return false;
-		}
-
 		\Jetpack_Options::delete_option(
 			array(
 				'blog_token',
@@ -1352,21 +1341,10 @@ class Manager {
 
 	/**
 	 * Tells WordPress.com to disconnect the site and clear all tokens from cached site.
-	 * If the plugin object has been provided in the constructor, the function first check
-	 * whether it's the only active connection.
-	 * If there are any other connections, the function will do nothing and return `false`.
 	 *
 	 * @return bool True if disconnected successfully, false otherwise.
 	 */
 	public function disconnect_site_wpcom() {
-		if ( null !== $this->plugin && ! $this->plugin->is_only() ) {
-			return false;
-		}
-
-		if ( ! apply_filters( 'jetpack_connection_disconnect_site_wpcom', true, $this ) ) {
-			return false;
-		}
-
 		$xml = new \Jetpack_IXR_Client();
 		$xml->query( 'jetpack.deregister', get_current_user_id() );
 

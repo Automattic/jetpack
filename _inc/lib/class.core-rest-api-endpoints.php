@@ -161,7 +161,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => __CLASS__ . '::get_connection_plugins',
-				'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+				'permission_callback' => __CLASS__ . '::activate_plugins_permission_check',
 			)
 		);
 
