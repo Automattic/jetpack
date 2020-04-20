@@ -501,10 +501,9 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	/**
 	 * Full Sync Health Test.
 	 *
-	 * Disabled: Results in a skipped test (recommended)
-	 * In Progress: Results in failing test (recommended)
-	 * Delayed: Results in failing test (recommended)
-	 * Error: Results in failing test (critical)
+	 * Sync Disabled: Results in a skipped test
+	 * Not In Progress : Results in a skipped test
+	 * In Progress: Results in skipped test w/ status in CLI
 	 */
 	protected function test__full_sync_health() {
 
