@@ -66,6 +66,20 @@ $player-background: transparent;
 		--jetpack-podcast-player-primary: #{$jetpack-podcast-player-primary};
 		--jetpack-podcast-player-secondary: #{$jetpack-podcast-player-secondary};
 		--jetpack-podcast-player-background: #{$jetpack-podcast-player-background};
+
+		/**
+		 * Override to address themes using text-decoration or box-shadow underlines on links.
+		 */
+		a {
+			box-shadow: none;
+			text-decoration: none;
+	
+			&:hover,
+			&:focus {
+				box-shadow: none;
+				text-decoration: none;
+			}
+		}
 	}
 
 	/**
@@ -124,7 +138,6 @@ $player-background: transparent;
 	}
 
 	a.jetpack-podcast-player__podcast-title {
-		text-decoration: none;
 
 		&:hover,
 		&:focus {
@@ -229,16 +242,6 @@ $player-background: transparent;
 		&:hover,
 		&:focus {
 			color: inherit;
-		}
-	}
-
-	// The tag name increases specificity to override some themes/editor styles.
-	a.jetpack-podcast-player__track-link {
-		text-decoration: none;
-
-		&:hover,
-		&:focus {
-			text-decoration: none;
 		}
 	}
 
