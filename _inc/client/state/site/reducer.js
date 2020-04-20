@@ -24,6 +24,9 @@ import {
 	JETPACK_SITE_PURCHASES_FETCH,
 	JETPACK_SITE_PURCHASES_FETCH_RECEIVE,
 	JETPACK_SITE_PURCHASES_FETCH_FAIL,
+	JETPACK_SITE_CONNECTED_PLUGINS_FETCH,
+	JETPACK_SITE_CONNECTED_PLUGINS_FETCH_RECEIVE,
+	JETPACK_SITE_CONNECTED_PLUGINS_FETCH_FAIL,
 } from 'state/action-types';
 
 export const data = ( state = {}, action ) => {
@@ -32,6 +35,8 @@ export const data = ( state = {}, action ) => {
 			return assign( {}, state, action.siteData );
 		case JETPACK_SITE_BENEFITS_FETCH_RECEIVE:
 			return merge( {}, state, { site: { benefits: action.siteBenefits } } );
+		case JETPACK_SITE_CONNECTED_PLUGINS_FETCH_RECEIVE:
+			return merge( {}, state, { site: { connectedPlugins: action.connectedPlugins } } );
 		case JETPACK_SITE_FEATURES_FETCH_RECEIVE:
 			return merge( {}, state, { site: { features: action.siteFeatures } } );
 		case JETPACK_SITE_PLANS_FETCH_RECEIVE:
@@ -57,6 +62,10 @@ export const requests = ( state = initialRequestsState, action ) => {
 			return assign( {}, state, {
 				isFetchingSiteBenefits: true,
 			} );
+		case JETPACK_SITE_CONNECTED_PLUGINS_FETCH:
+			return assign( {}, state, {
+				isFetchingConnectedPlugins: true,
+			} );
 		case JETPACK_SITE_FEATURES_FETCH:
 			return assign( {}, state, {
 				isFetchingSiteFeatures: true,
@@ -78,6 +87,11 @@ export const requests = ( state = initialRequestsState, action ) => {
 		case JETPACK_SITE_BENEFITS_FETCH_RECEIVE:
 			return assign( {}, state, {
 				isFetchingSiteBenefits: false,
+			} );
+		case JETPACK_SITE_CONNECTED_PLUGINS_FETCH_FAIL:
+		case JETPACK_SITE_CONNECTED_PLUGINS_FETCH_RECEIVE:
+			return assign( {}, state, {
+				isFetchingConnectedPlugins: false,
 			} );
 		case JETPACK_SITE_FEATURES_FETCH_FAIL:
 		case JETPACK_SITE_FEATURES_FETCH_RECEIVE:
@@ -128,6 +142,16 @@ export function isFetchingSiteData( state ) {
  */
 export function isFetchingSiteBenefits( state ) {
 	return !! state.jetpack.siteData.requests.isFetchingSiteBenefits;
+}
+
+/**
+ * Returns true if currently requesting connected plugins. Otherwise false.
+ *
+ * @param  {Object}  state Global state tree
+ * @return {Boolean}       Whether connected plugins are being requested
+ */
+export function isFetchingConnectedPlugins( state ) {
+	return !! state.jetpack.siteData.requests.isFetchingConnectedPlugins;
 }
 
 /**
@@ -211,4 +235,14 @@ export function hasActiveSearchPurchase( state ) {
 
 export function getSiteID( state ) {
 	return get( state.jetpack.siteData, [ 'data', 'ID' ] );
+}
+
+/**
+ * Returns plugins that use the Jetpack connection
+ *
+ * @param  {Object} state Global state tree
+ * @return {Object}        Connected plugins
+ */
+export function getConnectedPlugins( state ) {
+	return get( state.jetpack.siteData, [ 'data', 'site', 'connectedPlugins' ], null );
 }

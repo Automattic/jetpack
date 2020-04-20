@@ -23,6 +23,7 @@ class JetpackTerminationDialogFeatures extends Component {
 		isDevVersion: PropTypes.bool,
 		purpose: PropTypes.oneOf( [ 'disconnect', 'disable' ] ).isRequired,
 		siteBenefits: PropTypes.array.isRequired,
+		connectedPlugins: PropTypes.array.isRequired,
 	};
 
 	renderCDNReason() {
@@ -85,8 +86,20 @@ class JetpackTerminationDialogFeatures extends Component {
 		);
 	}
 
+	renderConnectedPlugins( plugins ) {
+		return (
+			<ul>
+				{ plugins
+					.filter( el => 'jetpack' !== el.slug )
+					.map( el => (
+						<li key={ el.slug }>{ el.name }</li>
+					) ) }
+			</ul>
+		);
+	}
+
 	render() {
-		const { isDevVersion, purpose, siteBenefits } = this.props;
+		const { isDevVersion, purpose, siteBenefits, connectedPlugins } = this.props;
 
 		const siteBenefitCount = siteBenefits.length;
 
@@ -132,6 +145,17 @@ class JetpackTerminationDialogFeatures extends Component {
 							{ this.renderProtectReason() }
 							{ this.renderSocialReason() }
 						</ul>
+					</div>
+				) }
+				{ connectedPlugins && (
+					<div className="jetpack-termination-dialog__generic-info">
+						<h2>{ __( 'Jetpack Connection is also used by these plugins' ) }</h2>
+						<p>
+							{ __(
+								'To fully disconnect form Jetpack you will need to disable following plugins:'
+							) }
+						</p>
+						{ this.renderConnectedPlugins( connectedPlugins ) }
 					</div>
 				) }
 				<div className="jetpack-termination-dialog__get-help">
