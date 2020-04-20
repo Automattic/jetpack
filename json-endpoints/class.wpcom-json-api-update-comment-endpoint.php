@@ -254,7 +254,7 @@ class WPCOM_JSON_API_Update_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endp
 			'comment_author_url'   => $user->user_url,
 			'comment_content'      => $input['content'],
 			'comment_parent'       => $comment_parent_id,
-			'comment_type'         => '',
+			'comment_type'         => 'comment',
 		);
 
 		if ( $comment_parent_id ) {

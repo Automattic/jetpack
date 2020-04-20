@@ -306,7 +306,7 @@ class Jetpack_Sitemap_Librarian {
 			$wpdb->prepare(
 				"SELECT MAX(comment_date_gmt)
 					FROM $wpdb->comments
-					WHERE comment_post_ID = %d AND comment_approved = '1' AND comment_type=''",
+					WHERE comment_post_ID = %d AND comment_approved = '1' AND comment_type in ( '', 'comment' )",
 				$post_id
 			)
 		);

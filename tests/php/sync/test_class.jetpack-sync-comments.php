@@ -79,13 +79,13 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 	public function test_do_not_sync_comment_with_unknown_comment_type() {
 		$this->server_event_storage->reset();
 		$comment_data = array(
-			'comment_post_ID' => $this->post_id,
-			'comment_date' => date('Y-m-d H:i:s', time() ),
-			'comment_date_gmt' => date('Y-m-d H:i:s', time() ),
-			'comment_author' => 'ActionScheduler',
-			'comment_content' => 'fun!',
-			'comment_agent' => 'ActionScheduler',
-			'comment_type' => 'action_log',
+			'comment_post_ID'  => $this->post_id,
+			'comment_date'     => gmdate( 'Y-m-d H:i:s', time() ),
+			'comment_date_gmt' => gmdate( 'Y-m-d H:i:s', time() ),
+			'comment_author'   => 'ActionScheduler',
+			'comment_content'  => 'fun!',
+			'comment_agent'    => 'ActionScheduler',
+			'comment_type'     => 'action_log',
 		);
 		wp_insert_comment( $comment_data );
 		$this->sender->do_sync();
@@ -99,13 +99,13 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 		add_filter( 'jetpack_sync_whitelisted_comment_types', array( $this, 'add_custom_comment_type' ) );
 
 		$comment_data = array(
-			'comment_post_ID' => $this->post_id,
-			'comment_date' => date('Y-m-d H:i:s', time() ),
-			'comment_date_gmt' => date('Y-m-d H:i:s', time() ),
-			'comment_author' => 'fun author',
-			'comment_content' => 'fun!',
-			'comment_agent' => 'fun things!',
-			'comment_type' => 'product_feedback', // This should be whitelisted in the filter.
+			'comment_post_ID'  => $this->post_id,
+			'comment_date'     => gmdate( 'Y-m-d H:i:s', time() ),
+			'comment_date_gmt' => gmdate( 'Y-m-d H:i:s', time() ),
+			'comment_author'   => 'fun author',
+			'comment_content'  => 'fun!',
+			'comment_agent'    => 'fun things!',
+			'comment_type'     => 'product_feedback', // This should be whitelisted in the filter.
 		);
 		wp_insert_comment( $comment_data );
 		$this->sender->do_sync();
@@ -225,6 +225,16 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_unapprove_comment() {
+		global $wp_version;
+		$comment_action_name = 'comment_unapproved_comment';
+
+		/*
+		 * Before WP 5.5, the default comment type was an empty string.
+		 * @to-do: remove when WP 5.5 is the minimum required version.
+		 */
+		if ( version_compare( $wp_version, '5.5-alpha', '<' ) ) {
+			$comment_action_name = 'comment_unapproved_';
+		}
 
 		$this->assertEquals( 1, $this->server_replica_storage->comment_count( 'approve' ) );
 		$this->comment->comment_approved = 0;
@@ -236,7 +246,7 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 0, $this->server_replica_storage->comment_count( 'approve' ) );
 		$remote_comment = $this->server_replica_storage->get_comment( $this->comment->comment_ID );
 		$this->assertEquals( 0, $remote_comment->comment_approved );
-		$comment_unapproved_event = $this->server_event_storage->get_most_recent_event( 'comment_unapproved_' );
+		$comment_unapproved_event = $this->server_event_storage->get_most_recent_event( $comment_action_name );
 		$this->assertTrue( (bool) $comment_unapproved_event );
 
 		$comment_approved_to_unapproved_event = $this->server_event_storage->get_most_recent_event( 'comment_approved_to_unapproved' );
@@ -249,7 +259,7 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 		wp_update_comment( (array) $this->comment );
 		$this->sender->do_sync();
 
-		$comment_unapproved_event = $this->server_event_storage->get_most_recent_event( 'comment_unapproved_' );
+		$comment_unapproved_event = $this->server_event_storage->get_most_recent_event( $comment_action_name );
 		$this->assertTrue( (bool) $comment_unapproved_event );
 
 		$comment_approved_to_unapproved_event = $this->server_event_storage->get_most_recent_event( 'comment_approved_to_unapproved' );
@@ -313,6 +323,17 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_sync_comment_jetpack_sync_prevent_sending_comment_data_filter() {
+		global $wp_version;
+		$comment_action_name = 'comment_approved_comment';
+
+		/*
+		 * Before WP 5.5, the default comment type was an empty string.
+		 * @to-do: remove when WP 5.5 is the minimum required version.
+		 */
+		if ( version_compare( $wp_version, '5.5-alpha', '<' ) ) {
+			$comment_action_name = 'comment_approved_';
+		}
+
 		add_filter( 'jetpack_sync_prevent_sending_comment_data', '__return_true' );
 
 		$this->server_replica_storage->reset();
@@ -327,7 +348,7 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 0, $this->server_replica_storage->comment_count( 'approve' ) );
 		$this->assertEquals( 1, $this->server_replica_storage->comment_count( 'jetpack_sync_blocked' ) );
 
-		$insert_comment_event = $this->server_event_storage->get_most_recent_event( 'comment_approved_' );
+		$insert_comment_event = $this->server_event_storage->get_most_recent_event( $comment_action_name );
 		$comment              = $insert_comment_event->args[1];
 
 		$this->assertEquals( $this->comment->comment_ID, $comment->comment_ID );
