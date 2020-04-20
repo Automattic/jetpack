@@ -529,13 +529,13 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 			// Full Sync in Progress.
 			if ( $progress_percent ) {
 
-				return self::skipped_test(
+				return self::informational_test(
 					array(
 						'name'              => $name,
 						'label'             => __( 'Jetpack is performing a full sync of your site', 'jetpack' ),
 						'severity'          => 'recommended',
 						/* translators: placeholder is a percentage number. */
-						'short_description' => sprintf( __( 'Jetpack is performing a full sync of your site. Current Progress: %1$d %', 'jetpack' ), $progress_percent ),
+						'short_description' => sprintf( __( 'Jetpack is performing a full sync of your site. Current Progress: %1$d %%', 'jetpack' ), $progress_percent ),
 						'long_description'  => sprintf(
 							'<p>%1$s</p><p><span class="dashicons dashicons-update"><span class="screen-reader-text">%2$s</span></span> %3$s</p><div class="jetpack-sync-progress-ui"><div class="jetpack-sync-progress-label"></div><div class="jetpack-sync-progress-bar"></div></div>',
 							__( 'The information synced by Jetpack ensures that Jetpack Search, Related Posts and other features are aligned with your site’s current content.', 'jetpack' ), /* translators: screen reader text indicating data is updating. */
@@ -618,7 +618,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 				);
 				$description .= '</p>';
 
-				return self::skipped_test(
+				return self::failing_test(
 					array(
 						'name'              => $name,
 						'label'             => __( 'Jetpack has detected an error syncing your site.', 'jetpack' ),
@@ -662,7 +662,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 					);
 					$description .= '</p>';
 
-					return self::skipped_test(
+					return self::informational_test(
 						array(
 							'name'              => $name,
 							'label'             => __( 'Jetpack is experiencing a delay syncing your site.', 'jetpack' ),

@@ -315,6 +315,42 @@ class Jetpack_Cxn_Test_Base {
 	}
 
 	/**
+	 * Helper function to return consistent responses for an informational test.
+	 * Possible Args:
+	 * - name: string The raw method name that runs the test. Default unnamed_test.
+	 * - label: bool|string If false, tests will be labeled with their `name`. You can pass a string to override this behavior. Default false.
+	 * - short_description: bool|string A brief, non-html description that will appear in CLI results, and as headings in admin UIs. Default false.
+	 * - long_description: bool|string An html description that will appear in the site health page. Default false.
+	 * - severity: bool|string 'critical', 'recommended', or 'good'. Default: false.
+	 * - action: bool|string A URL for the recommended action. Default: false
+	 * - action_label: bool|string The label for the recommended action. Default: false
+	 * - show_in_site_health: bool True if the test should be shown on the Site Health page. Default: true
+	 *
+	 * @param array $args Arguments to override defaults.
+	 *
+	 * @return array Test results.
+	 */
+	public static function informational_test( $args = array() ) {
+		$args = wp_parse_args(
+			$args,
+			array(
+				'name'                => 'unnamed_test',
+				'label'               => false,
+				'short_description'   => false,
+				'long_description'    => false,
+				'severity'            => false,
+				'action'              => false,
+				'action_label'        => false,
+				'show_in_site_health' => true,
+			)
+		);
+
+		$args['pass'] = 'informational';
+
+		return $args;
+	}
+
+	/**
 	 * Helper function to return consistent responses for a failing test.
 	 * Possible Args:
 	 * - name: string The raw method name that runs the test. Default unnamed_test.
@@ -373,6 +409,11 @@ class Jetpack_Cxn_Test_Base {
 					WP_CLI::log( WP_CLI::colorize( '%gPassed:%n  ' . $test['name'] ) );
 				} elseif ( 'skipped' === $test['pass'] ) {
 					WP_CLI::log( WP_CLI::colorize( '%ySkipped:%n ' . $test['name'] ) );
+					if ( $test['short_description'] ) {
+						WP_CLI::log( '         ' . $test['short_description'] ); // Number of spaces to "tab indent" the reason.
+					}
+				} elseif ( 'informational' === $test['pass'] ) {
+					WP_CLI::log( WP_CLI::colorize( '%yInfo:%n    ' . $test['name'] ) );
 					if ( $test['short_description'] ) {
 						WP_CLI::log( '         ' . $test['short_description'] ); // Number of spaces to "tab indent" the reason.
 					}
