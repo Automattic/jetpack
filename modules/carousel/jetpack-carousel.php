@@ -687,7 +687,7 @@ class Jetpack_Carousel {
 			'comment_author_email' => $email,
 			'comment_author_url'   => $url,
 			'comment_approved'     => 0,
-			'comment_type'         => '',
+			'comment_type'         => 'comment',
 		);
 
 		if ( ! empty( $user_id ) ) {

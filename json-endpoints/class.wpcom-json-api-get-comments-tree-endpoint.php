@@ -105,7 +105,7 @@ class WPCOM_JSON_API_Get_Comments_Tree_Endpoint extends WPCOM_JSON_API_Endpoint 
 		$db_status = $this->get_comment_db_status( $status );
 		$type = $this->get_sanitized_comment_type( $type );
 		// An empty value in the comments_type column denotes a regular comment.
-		$type = ( 'comment' === $type ) ? '' : $type;
+		$type = ( 'comment' === $type ) ? 'comment' : $type;
 
 		$result = $wpdb->get_var(
 			$wpdb->prepare(
