@@ -264,7 +264,7 @@ abstract class Sharing_Source {
 	 * @param array $attrs Custom attributes for rendering the social icon.
 	 */
 	protected function build_amp_markup( $attrs = array() ) {
-		$attrs         = array_merge(
+		$attrs        = array_merge(
 			array(
 				'type'   => $this->get_id(),
 				'height' => '32px',
@@ -276,7 +276,7 @@ abstract class Sharing_Source {
 		foreach ( $attrs as $key => $value ) {
 			$sharing_link .= sprintf( ' %s="%s"', sanitize_key( $key ), esc_attr( $value ) );
 		}
-		$sharing_link   .= '></amp-social-share>';
+		$sharing_link .= '></amp-social-share>';
 		return $sharing_link;
 	}
 
@@ -436,7 +436,7 @@ abstract class Deprecated_Sharing_Source extends Sharing_Source {
 	 *
 	 * @param \WP_Post $post The current post being viewed.
 	 */
-	final public function get_amp_display( $post ) {
+	final public function get_amp_display( $post ) { // phpcs:ignore
 		return false;
 	}
 
@@ -610,7 +610,7 @@ class Share_Email extends Sharing_Source {
 	 *
 	 * @param \WP_Post $post The current post being viewed.
 	 */
-	public function get_amp_display( $post ) {
+	public function get_amp_display( $post ) { // phpcs:ignore
 		return false;
 	}
 
@@ -1275,7 +1275,7 @@ class Share_PressThis extends Sharing_Source {
 	 *
 	 * @param \WP_Post $post The current post being viewed.
 	 */
-	public function get_amp_display( $post ) {
+	public function get_amp_display( $post ) { // phpcs:ignore
 		return false;
 	}
 }
@@ -1337,7 +1337,7 @@ class Share_Custom extends Sharing_Advanced_Source {
 	 *
 	 * @param \WP_Post $post The current post being viewed.
 	 */
-	public function get_amp_display( $post ) {
+	public function get_amp_display( $post ) { // phpcs:ignore
 		return false;
 	}
 
