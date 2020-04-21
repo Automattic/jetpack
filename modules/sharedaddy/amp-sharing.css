@@ -1,12 +1,12 @@
 amp-social-share {
 	border-radius: 50%;
 	color: #fff !important;
-    -webkit-border-radius: 50%;
-    padding: 7px;
-    position: relative;
-    line-height: 1;
-    width: 32px;
-    height: 32px;
+	-webkit-border-radius: 50%;
+	padding: 7px;
+	position: relative;
+	line-height: 1;
+	width: 32px;
+	height: 32px;
 	margin: 0 5px 5px 0;
 }
 

@@ -31,7 +31,7 @@ class Jetpack_AMP_Support {
 		// Sharing.
 		add_filter( 'jetpack_sharing_display_markup', array( 'Jetpack_AMP_Support', 'render_sharing_html' ), 10, 2 );
 		add_filter( 'sharing_enqueue_scripts', array( 'Jetpack_AMP_Support', 'amp_disable_sharedaddy_css' ) );
-		add_action( 'wp_head', array( 'Jetpack_AMP_Support', 'amp_enqueue_sharing_css' ) );
+		add_action( 'wp_enqueue_scripts', array( 'Jetpack_AMP_Support', 'amp_enqueue_sharing_css' ) );
 
 		// enforce freedom mode for videopress.
 		add_filter( 'videopress_shortcode_options', array( 'Jetpack_AMP_Support', 'videopress_enable_freedom_mode' ) );
@@ -479,8 +479,7 @@ class Jetpack_AMP_Support {
 	 */
 	public static function amp_enqueue_sharing_css() {
 		if ( self::is_amp_request() ) {
-			wp_enqueue_style( 'sharedaddy-amp', plugin_dir_url( dirname( __FILE__ ) ) . 'modules/sharedaddy/amp-sharing.css', array(), JETPACK__VERSION );
-			wp_enqueue_style( 'social-logos' );
+			wp_enqueue_style( 'sharedaddy-amp', plugin_dir_url( dirname( __FILE__ ) ) . 'modules/sharedaddy/amp-sharing.css', array( 'social-logos' ), JETPACK__VERSION );
 		}
 	}
 
