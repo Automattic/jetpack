@@ -9,8 +9,6 @@ $player-grid-spacing: 24px;
 $cover-image-size: 80px;
 $track-title-font-size: 24px;
 $track-title-b-margin: 10px;
-$podcast-title-font-size: 16px;
-$description-font-size: 16px;
 $track-status-icon-size: 22px;
 $block-border-color: $dark-gray-100;
 $jetpack-podcast-player-primary: $black;
@@ -131,7 +129,7 @@ $jetpack-podcast-player-background: $white;
 	}
 
 	.jetpack-podcast-player__podcast-title {
-		font-size: $podcast-title-font-size;
+		font-size: $editor-font-size;
 		color: $jetpack-podcast-player-secondary;
 		margin: 0;
 	}
@@ -181,7 +179,7 @@ $jetpack-podcast-player-background: $white;
 		order: 99; // high number to make it always appear after the audio player
 		padding: 0 $player-grid-spacing;
 		margin-bottom: $player-grid-spacing;
-		font-size: $description-font-size;
+		font-size: $editor-font-size;
 		line-height: 1.6;
 		color: $dark-gray-500;
 		//crop the description if too long
