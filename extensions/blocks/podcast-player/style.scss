@@ -29,7 +29,6 @@ $jetpack-podcast-player-background: $white;
  */
 .wp-block-jetpack-podcast-player {
 	border: 1px solid $block-border-color;
-	background-color: $jetpack-podcast-player-background;
 	overflow: hidden;
 
 	audio {
@@ -41,8 +40,20 @@ $jetpack-podcast-player-background: $white;
 	 * For instance, Twenty-Twenty sets `padding: 8rem 0`.
 	 */
 	.jetpack-podcast-player {
+		/**
+		 * Set default values for our CSS variables.
+		 */
+		--jetpack-podcast-player-primary: #{$jetpack-podcast-player-primary};
+		--jetpack-podcast-player-secondary: #{$jetpack-podcast-player-secondary};
+		--jetpack-podcast-player-background: #{$jetpack-podcast-player-background};
+
 		padding-top: 0;
 		padding-bottom: 0;
+		background-color: var( --jetpack-podcast-player-background );
+
+		&:not(.has-background) {
+			background-color: $jetpack-podcast-player-background;
+		}
 
 		/**
 		 * Player's state classes added to this element:
@@ -50,13 +61,6 @@ $jetpack-podcast-player-background: $white;
 	 	 * &.is-paused {}  // When audio is paused.
 		 * &.is-error {}   // When playback error occured.
 		 */
-
-		/**
-		* Set default values for our CSS variables.
-		*/
-		--jetpack-podcast-player-primary: #{$jetpack-podcast-player-primary};
-		--jetpack-podcast-player-secondary: #{$jetpack-podcast-player-secondary};
-		--jetpack-podcast-player-background: #{$jetpack-podcast-player-background};
 
 		/**
 		 * Override to address themes using text-decoration or box-shadow underlines on links.
