@@ -14,6 +14,7 @@ import {
 	Placeholder,
 	RangeControl,
 	TextControl,
+	Toolbar,
 	ToolbarGroup,
 	withNotices,
 	ToggleControl,
@@ -256,14 +257,29 @@ const PodcastPlayerEdit = ( {
 	return (
 		<>
 			<BlockControls>
-				<ToolbarGroup>
-					<Button
-						aria-label={ __( 'Edit Podcast Feed URL', 'jetpack' ) }
-						onClick={ () => setIsEditing( true ) }
-					>
-						{ __( 'Replace', 'jetpack' ) }
-					</Button>
-				</ToolbarGroup>
+				{ /* @todo Fallback can be removed when WP 5.4 is the minimum supported version. */ }
+				{ ToolbarGroup ? (
+					<ToolbarGroup>
+						<Button
+							aria-label={ __( 'Edit Podcast Feed URL', 'jetpack' ) }
+							onClick={ () => setIsEditing( true ) }
+						>
+							{ __( 'Replace', 'jetpack' ) }
+						</Button>
+					</ToolbarGroup>
+				) : (
+					<Toolbar
+						controls={ [
+							{
+								title: __( 'Edit Podcast Feed URL', 'jetpack' ),
+								onClick: () => setIsEditing( true ),
+								extraProps: {
+									children: __( 'Replace', 'jetpack' ),
+								},
+							},
+						] }
+					/>
+				) }
 			</BlockControls>
 			<InspectorControls>
 				<PanelBody title={ __( 'Podcast settings', 'jetpack' ) }>
