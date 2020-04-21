@@ -35,10 +35,6 @@ $jetpack-podcast-player-background: $white;
 		display: none;
 	}
 
-	/**
-	 * Reset vertical padding for <section /> elements.
-	 * For instance, Twenty-Twenty sets `padding: 8rem 0`.
-	 */
 	.jetpack-podcast-player {
 		/**
 		 * Set default values for our CSS variables.
@@ -47,6 +43,10 @@ $jetpack-podcast-player-background: $white;
 		--jetpack-podcast-player-secondary: #{$jetpack-podcast-player-secondary};
 		--jetpack-podcast-player-background: #{$jetpack-podcast-player-background};
 
+		/**
+		 * Reset vertical padding for <section /> elements.
+		 * For instance, Twenty-Twenty sets `padding: 8rem 0`.
+		 */
 		padding-top: 0;
 		padding-bottom: 0;
 		background-color: var( --jetpack-podcast-player-background );
