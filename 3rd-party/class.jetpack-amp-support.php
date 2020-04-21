@@ -451,8 +451,8 @@ class Jetpack_AMP_Support {
 			$sharing_links[] = $sharing_link;
 		}
 
-		// Wrap AMP sharing buttons in container.
-		$markup = preg_replace( '#(?<=<div class="sd-content">).+?(?=</div>)#s', implode( '', $sharing_links ), $markup );
+		// Replace the existing unordered list with AMP sharing buttons.
+		$markup = preg_replace( '#<ul>(.+)</ul>#', implode( '', $sharing_links ), $markup );
 
 		// Remove any lingering share-end list items.
 		$markup = str_replace( '<li class="share-end"></li>', '', $markup );
