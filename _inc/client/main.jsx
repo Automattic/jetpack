@@ -3,8 +3,7 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import { createHistory } from 'history';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 import { translate as __ } from 'i18n-calypso';
 
 /**
@@ -70,12 +69,13 @@ class Main extends React.Component {
 		// Handles refresh, closing and navigating away from Jetpack's Admin Page
 		window.addEventListener( 'beforeunload', this.onBeforeUnload );
 		// Handles transition between routes handled by react-router
-		this.props.router.listenBefore( this.routerWillLeave );
+		const unblock = this.props.history.block( this.routerWillLeave );
+		unblock();
 
 		// Track initial page view
 		this.props.isSiteConnected &&
 			analytics.tracks.recordEvent( 'jetpack_wpa_page_view', {
-				path: this.props.route.path,
+				path: this.props.location.pathname,
 				current_version: this.props.currentVersion,
 			} );
 	}
@@ -139,14 +139,14 @@ class Main extends React.Component {
 
 	shouldComponentUpdate( nextProps ) {
 		// If user triggers Skip to main content or Skip to toolbar with keyboard navigation, stay in the same tab.
-		if ( [ '/wpbody-content', '/wp-toolbar' ].includes( nextProps.route.path ) ) {
+		if ( [ '/wpbody-content', '/wp-toolbar' ].includes( nextProps.location.pathname ) ) {
 			return false;
 		}
 
 		return (
 			nextProps.siteConnectionStatus !== this.props.siteConnectionStatus ||
 			nextProps.isLinked !== this.props.isLinked ||
-			nextProps.route.path !== this.props.route.path ||
+			nextProps.location.pathname !== this.props.location.pathname ||
 			nextProps.searchTerm !== this.props.searchTerm ||
 			nextProps.rewindStatus !== this.props.rewindStatus
 		);
@@ -154,10 +154,10 @@ class Main extends React.Component {
 
 	componentDidUpdate( prevProps ) {
 		// Track page view on change only
-		prevProps.route.path !== this.props.route.path &&
+		prevProps.location.pathname !== this.props.location.pathname &&
 			this.props.isSiteConnected &&
 			analytics.tracks.recordEvent( 'jetpack_wpa_page_view', {
-				path: this.props.route.path,
+				path: this.props.location.pathname,
 				current_version: this.props.currentVersion,
 			} );
 
@@ -189,13 +189,13 @@ class Main extends React.Component {
 
 		const settingsNav = (
 			<NavigationSettings
-				route={ this.props.route }
+				routeName={ this.props.routeName }
 				siteRawUrl={ this.props.siteRawUrl }
 				siteAdminUrl={ this.props.siteAdminUrl }
 			/>
 		);
 		let pageComponent,
-			navComponent = <Navigation route={ this.props.route } />;
+			navComponent = <Navigation routeName={ this.props.routeName } />;
 
 		switch ( route ) {
 			case '/dashboard':
@@ -254,18 +254,17 @@ class Main extends React.Component {
 					navComponent = null;
 					pageComponent = <SetupWizard />;
 				} else {
-					this.setHistory( '?page=jetpack#/dashboard' );
+					this.props.history.replace( '/dashboard' );
 					pageComponent = this.getAtAGlance();
 				}
 				break;
-
 			default:
 				if ( this.props.showSetupWizard ) {
-					this.setHistory( '?page=jetpack#/setup' );
+					this.props.history.replace( '/setup' );
 					navComponent = null;
 					pageComponent = <SetupWizard />;
 				} else {
-					this.setHistory( '?page=jetpack#/dashboard' );
+					this.props.history.replace( '/dashboard' );
 					pageComponent = this.getAtAGlance();
 				}
 		}
@@ -294,46 +293,41 @@ class Main extends React.Component {
 		);
 	}
 
-	setHistory( path ) {
-		const history = createHistory();
-		history.replace( window.location.pathname + path );
-	}
-
 	shouldShowAppsCard() {
 		// Only show on the dashboard
-		return this.props.isSiteConnected && dashboardRoutes.includes( this.props.route.path );
+		return this.props.isSiteConnected && dashboardRoutes.includes( this.props.location.pathname );
 	}
 
 	shouldShowSupportCard() {
 		// Only show on the dashboard
-		return this.props.isSiteConnected && dashboardRoutes.includes( this.props.route.path );
+		return this.props.isSiteConnected && dashboardRoutes.includes( this.props.location.pathname );
 	}
 
 	shouldShowRewindStatus() {
 		// Only show on the dashboard
-		return this.props.isSiteConnected && dashboardRoutes.includes( this.props.route.path );
+		return this.props.isSiteConnected && dashboardRoutes.includes( this.props.location.pathname );
 	}
 
 	shouldShowMasthead() {
 		// Only show on the setup pages, dashboard, and settings page
-		return [ setupRoute, ...dashboardRoutes, ...settingsRoutes ].includes( this.props.route.path );
+		return [ setupRoute, ...dashboardRoutes, ...settingsRoutes ].includes( this.props.location.pathname );
 	}
 
 	shouldShowFooter() {
 		// Only show on the dashboard and settings page
-		return [ ...dashboardRoutes, ...settingsRoutes ].includes( this.props.route.path );
+		return [ ...dashboardRoutes, ...settingsRoutes ].includes( this.props.location.pathname );
 	}
 
 	render() {
 		return (
 			<div>
-				{ this.shouldShowMasthead() && <Masthead route={ this.props.route } /> }
+				{ this.shouldShowMasthead() && <Masthead location={ this.props.location } /> }
 				<div className="jp-lower">
 					{ this.shouldShowRewindStatus() && <QueryRewindStatus /> }
 					<AdminNotices />
 					<JetpackNotices />
-					{ this.renderMainContent( this.props.route.path ) }
-					{ this.shouldShowSupportCard() && <SupportCard path={ this.props.route.path } /> }
+					{ this.renderMainContent( this.props.location.pathname ) }
+					{ this.shouldShowSupportCard() && <SupportCard path={ this.props.location.pathname } /> }
 					{ this.shouldShowAppsCard() && <AppsCard /> }
 				</div>
 				{ this.shouldShowFooter() && <Footer siteAdminUrl={ this.props.siteAdminUrl } /> }
@@ -375,6 +369,8 @@ export default connect(
 
 /**
  * Manages changing the visuals of the sub-nav items on the left sidebar when the React app changes routes
+ *
+ * @param pageOrder
  */
 window.wpNavMenuClassChange = function( pageOrder = { setup: -1, dashboard: 1, settings: 2 } ) {
 	let hash = window.location.hash;
