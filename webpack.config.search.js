@@ -9,33 +9,22 @@ const isDevelopment = process.env.NODE_ENV !== 'production';
 const baseWebpackConfig = getBaseWebpackConfig(
 	{ WP: false },
 	{
-		entry: {}, // We'll override later
-		'output-filename': '[name].js',
-		'output-path': path.join( __dirname, '_inc', 'build' ),
+		entry: {
+			main: path.join( __dirname, './modules/search/instant-search/index.jsx' ),
+			customize: path.join( __dirname, './modules/search/instant-search/index-customize.jsx' ),
+		},
+		'output-filename': 'jp-search-[name].js',
+		'output-path': path.join( __dirname, '_inc/build/instant-search' ),
 	}
 );
 
-const sharedWebpackConfig = {
-	...baseWebpackConfig,
-	resolve: {
-		...baseWebpackConfig.resolve,
-		modules: [ path.resolve( __dirname, '_inc/client' ), 'node_modules' ],
-	},
-	node: {
-		fs: 'empty',
-		process: true,
-	},
-	devtool: isDevelopment ? 'source-map' : false,
-};
-
 module.exports = [
 	{
-		...sharedWebpackConfig,
-		entry: { search: path.join( __dirname, './modules/search/instant-search/index.jsx' ) },
-		output: {
-			...sharedWebpackConfig.output,
-			path: path.join( __dirname, '_inc/build/instant-search' ),
-			filename: 'jp-search.bundle.js',
+		...baseWebpackConfig,
+		devtool: isDevelopment ? 'source-map' : false,
+		node: {
+			fs: 'empty',
+			process: true,
 		},
 		performance: isDevelopment
 			? {
@@ -48,5 +37,9 @@ module.exports = [
 					maxEntrypointSize: 122880,
 					hints: 'error',
 			  },
+		resolve: {
+			...baseWebpackConfig.resolve,
+			modules: [ path.resolve( __dirname, '_inc/client' ), 'node_modules' ],
+		},
 	},
 ];

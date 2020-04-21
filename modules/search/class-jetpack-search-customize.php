@@ -26,6 +26,7 @@ class Jetpack_Search_Customize {
 	 */
 	public function __construct() {
 		add_action( 'customize_register', array( $this, 'customize_register' ) );
+		add_action( 'customize_controls_print_scripts', array( $this, 'load_assets' ) );
 	}
 
 	/**
@@ -152,8 +153,24 @@ class Jetpack_Search_Customize {
 				'label'   => __( 'Display "Powered by Jetpack"', 'jetpack' ),
 			)
 		);
-
 	}
 
+	/**
+	 * Load custom script for customizer
+	 *
+	 * @since 8.3.0
+	 */
+	public function load_assets() {
+		$script_relative_path = '_inc/build/instant-search/jp-search-customize.js';
+		$script_version       = Jetpack_Search_Helpers::get_asset_version( $script_relative_path );
+		$script_path          = plugins_url( $script_relative_path, JETPACK__PLUGIN_FILE );
+		wp_enqueue_script( 'jetpack-instant-search-customize', $script_path, array(), $script_version, true );
+
+		$options = array(
+			'apiNonce' => wp_create_nonce( 'wp_rest' ),
+			'apiRoot'  => esc_url_raw( rest_url() ),
+		);
+		wp_add_inline_script( 'jetpack-instant-search-customize', 'var JetpackInstantCustomizeOptions=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( $options ) ) . '"));', 'before' );
+	}
 }
 
