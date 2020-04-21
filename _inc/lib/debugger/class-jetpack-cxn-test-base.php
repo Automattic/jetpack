@@ -259,19 +259,10 @@ class Jetpack_Cxn_Test_Base {
 	 * @return array Test results.
 	 */
 	public static function passing_test( $args ) {
-		$args = wp_parse_args(
-			$args,
-			array(
-				'name'                => 'unnamed_test',
-				'label'               => false,
-				'short_description'   => __( 'Test passed!', 'jetpack' ),
-				'long_description'    => false,
-				'severity'            => false,
-				'action'              => false,
-				'action_label'        => false,
-				'show_in_site_health' => true,
-			)
-		);
+		$defaults                      = self::test_result_defaults();
+		$defaults['short_description'] = __( 'Test passed!', 'jetpack' );
+
+		$args = wp_parse_args( $args, $defaults );
 
 		$args['pass'] = true;
 
@@ -297,16 +288,7 @@ class Jetpack_Cxn_Test_Base {
 	public static function skipped_test( $args = array() ) {
 		$args = wp_parse_args(
 			$args,
-			array(
-				'name'                => 'unnamed_test',
-				'label'               => false,
-				'short_description'   => false,
-				'long_description'    => false,
-				'severity'            => false,
-				'action'              => false,
-				'action_label'        => false,
-				'show_in_site_health' => true,
-			)
+			self::test_result_defaults()
 		);
 
 		$args['pass'] = 'skipped';
@@ -333,16 +315,7 @@ class Jetpack_Cxn_Test_Base {
 	public static function informational_test( $args = array() ) {
 		$args = wp_parse_args(
 			$args,
-			array(
-				'name'                => 'unnamed_test',
-				'label'               => false,
-				'short_description'   => false,
-				'long_description'    => false,
-				'severity'            => false,
-				'action'              => false,
-				'action_label'        => false,
-				'show_in_site_health' => true,
-			)
+			self::test_result_defaults()
 		);
 
 		$args['pass'] = 'informational';
@@ -369,23 +342,35 @@ class Jetpack_Cxn_Test_Base {
 	 * @return array Test results.
 	 */
 	public static function failing_test( $args ) {
-		$args = wp_parse_args(
-			$args,
-			array(
-				'name'                => 'unnamed_test',
-				'label'               => false,
-				'short_description'   => __( 'Test failed!', 'jetpack' ),
-				'long_description'    => false,
-				'severity'            => 'critical',
-				'action'              => false,
-				'action_label'        => false,
-				'show_in_site_health' => true,
-			)
-		);
+		$defaults                      = self::test_result_defaults();
+		$defaults['short_description'] = __( 'Test failed!', 'jetpack' );
+		$defaults['severity']          = 'critical';
+
+		$args = wp_parse_args( $args, $defaults );
 
 		$args['pass'] = false;
 
 		return $args;
+	}
+
+	/**
+	 * Provides defaults for test arguments.
+	 *
+	 * @since 8.5.0
+	 *
+	 * @return array Result defaults.
+	 */
+	private static function test_result_defaults() {
+		return array(
+			'name'                => 'unnamed_test',
+			'label'               => false,
+			'short_description'   => false,
+			'long_description'    => false,
+			'severity'            => false,
+			'action'              => false,
+			'action_label'        => false,
+			'show_in_site_health' => true,
+		);
 	}
 
 	/**
