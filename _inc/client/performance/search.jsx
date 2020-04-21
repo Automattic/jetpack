@@ -86,20 +86,22 @@ function Search( props ) {
 					link: getRedirectUrl( 'jetpack-support-search' ),
 				} }
 			>
-				<div className="jp-form-search-setting-progress">
-					<ProgressBar
-						isPulsing={ props.syncProgress !== 100 }
-						value={ Number.isFinite( props.syncProgress ) ? props.syncProgress : 100 }
-					/>
-					<div className="jp-form-search-setting-progress-text">
-						{ ! Number.isFinite( props.syncProgress ) &&
-							__( "Loading your site's indexing status…" ) }
-						{ Number.isFinite( props.syncProgress ) &&
-							props.syncProgress !== 100 &&
-							__( 'Your site is currently being indexed for search…' ) }
-						{ props.syncProgress === 100 && __( 'Your site search is fully operational.' ) }
+				{ ! props.isAtomicSite && ( props.isBusinessPlan || props.hasActiveSearchPurchase ) && (
+					<div className="jp-form-search-setting-progress">
+						<ProgressBar
+							isPulsing={ props.syncProgress !== 100 }
+							value={ Number.isFinite( props.syncProgress ) ? props.syncProgress : 100 }
+						/>
+						<div className="jp-form-search-setting-progress-text">
+							{ ! Number.isFinite( props.syncProgress ) &&
+								__( "Loading your site's indexing status…" ) }
+							{ Number.isFinite( props.syncProgress ) &&
+								props.syncProgress !== 100 &&
+								__( 'Your site is currently being indexed for search…' ) }
+							{ props.syncProgress === 100 && __( 'Your site search is fully operational.' ) }
+						</div>
 					</div>
-				</div>
+				) }
 				<p>{ SEARCH_DESCRIPTION } </p>
 				{ props.isLoading && __( 'Loading…' ) }
 				{ ! props.isLoading && ( props.isBusinessPlan || props.hasActiveSearchPurchase ) && (
