@@ -51,7 +51,7 @@ $jetpack-podcast-player-background: $white;
 		padding-bottom: 0;
 		background-color: var( --jetpack-podcast-player-background );
 
-		&:not(.has-background) {
+		&:not( .has-background ) {
 			background-color: $jetpack-podcast-player-background;
 		}
 
@@ -76,6 +76,20 @@ $jetpack-podcast-player-background: $white;
 				text-decoration: none;
 				border: none;
 			}
+		}
+	}
+
+	a.jetpack-podcast-player__link {
+		&,
+		&:active,
+		&:visited {
+			color: inherit;
+		}
+
+		&:hover,
+		&:focus {
+			color: inherit;
+			color: var( --jetpack-podcast-player-primary );
 		}
 	}
 
@@ -125,46 +139,21 @@ $jetpack-podcast-player-background: $white;
 	.jetpack-podcast-player__current-track-title {
 		font-size: $current-track-title-font-size;
 		margin: 0 0 $current-track-title-bottom-margin;
+		color: var( --jetpack-podcast-player-primary );
 
 		// Apply default color if custom primary has not been set
-		&:not(.has-primary) {
+		&:not( .has-primary ) {
 			color: $jetpack-podcast-player-primary;
 		}
 	}
 
 	.jetpack-podcast-player__podcast-title {
 		font-size: $editor-font-size;
-		color: $jetpack-podcast-player-secondary;
 		margin: 0;
-	}
+		color: var( --jetpack-podcast-player-secondary );
 
-	a.jetpack-podcast-player__podcast-title {
-		&,
-		&:active,
-		&:visited {
+		&:not( .has-secondary ) {
 			color: $jetpack-podcast-player-secondary;
-		}
-
-		&:hover,
-		&:focus {
-			color: $jetpack-podcast-player-primary;
-		}
-	}
-
-	// Apply `secondary` color to the podcast title.
-	.has-secondary {
-		.jetpack-podcast-player__podcast-title {
-			color: currentColor;
-		}
-
-		a.jetpack-podcast-player__podcast-title {
-			&,
-			&:hover,
-			&:focus,
-			&:active,
-			&:visited {
-				color: currentColor;
-			}
 		}
 	}
 
@@ -185,19 +174,16 @@ $jetpack-podcast-player-background: $white;
 		margin-bottom: $block-grid-gutter;
 		font-size: $editor-font-size;
 		line-height: 1.6;
-		color: $dark-gray-500;
 		//crop the description if too long
 		display: -webkit-box;
 		-webkit-line-clamp: 4;
 		-webkit-box-orient: vertical;
 		overflow: hidden;
 		max-height: 105px; //IE11 fallback
-	}
+		color: var( --jetpack-podcast-player-secondary );
 
-	// Apply `secondary` color to the track description.
-	.has-secondary {
-		.jetpack-podcast-player__track-description {
-			color: currentColor;
+		&:not( .has-secondary ) {
+			color: $jetpack-podcast-player-secondary;
 		}
 	}
 
@@ -217,6 +203,11 @@ $jetpack-podcast-player-background: $white;
 		margin: 0;
 		font-size: $editor-font-size;
 		line-height: $editor-line-height;
+		color: var( --jetpack-podcast-player-secondary );
+
+		&:not( .is-active ):not( .has-secondary ) {
+			color: $jetpack-podcast-player-secondary;
+		}
 
 		/**
 		 * When track "is-active", it means that it's been clicked by a user to
@@ -225,22 +216,9 @@ $jetpack-podcast-player-background: $white;
 		 */
 		&.is-active {
 			font-weight: bold;
-		}
+			color: var( --jetpack-podcast-player-primary );
 
-		// Apply default colors only if custom ones are not defined.
-		&:not( .is-active ):not( .has-secondary ) {
-			color: $jetpack-podcast-player-secondary;
-
-			&:hover,
-			&:focus {
-				color: $jetpack-podcast-player-primary;
-			}
-		}
-		&.is-active:not( .has-primary ) {
-			color: $jetpack-podcast-player-primary;
-
-			&:hover,
-			&:focus {
+			&:not( .has-primary ) {
 				color: $jetpack-podcast-player-primary;
 			}
 		}
@@ -253,13 +231,6 @@ $jetpack-podcast-player-background: $white;
 		// Adjustments on left padding to account for SVG sound icon spacing
 		padding: $track-h-padding $block-grid-gutter $track-h-padding $block-grid-gutter - 2px;
 		transition: none;
-		color: inherit;
-
-		&:visited,
-		&:hover,
-		&:focus {
-			color: inherit;
-		}
 	}
 
 	// Make space for the error element that will be appended.
@@ -269,15 +240,24 @@ $jetpack-podcast-player-background: $white;
 
 	.jetpack-podcast-player__track-status-icon {
 		flex: $track-status-icon-size 0 0;
-		fill: $jetpack-podcast-player-primary;
-		fill: var( --jetpack-podcast-player-primary );
+		fill: currentColor;
 
 		svg {
 			display: block;
 			width: $track-status-icon-size;
 			height: $track-status-icon-size;
 			margin-top: 3px; // center vertically
+			fill: inherit;
 		}
+	}
+
+	.jetpack-podcast-player__track-status-icon--error {
+		fill: $alert-red;
+	}
+
+	// Use primary color to prevent visual conflicts (i.e. with red bg color)
+	.jetpack-podcast-player__track.has-primary .jetpack-podcast-player__track-status-icon--error  {
+		fill: currentColor;
 	}
 
 	.jetpack-podcast-player__track-title {
@@ -297,33 +277,22 @@ $jetpack-podcast-player-background: $white;
 		display: block;
 		margin-left: ($block-grid-gutter - 2px) + $track-status-icon-size + $track-v-padding; // has to be aligned with the track title
 		margin-bottom: $track-h-padding;
-		color: $alert-red;
 		font-size: 0.8em;
 		font-weight: normal;
-
-		& > span {
-			color: $jetpack-podcast-player-secondary;
-		}
-
-		& > span > a {
-			color: inherit;
-		}
-	}
-
-	.has-primary .jetpack-podcast-player__track-error {
-		color: currentColor;
+		color: $alert-red;
 
 		& > span {
 			color: var( --jetpack-podcast-player-secondary );
+
+			&:not( .has-secondary ) {
+				color: $jetpack-podcast-player-secondary;
+			}
 		}
 	}
 
-	.jetpack-podcast-player__track-status-icon--error {
-		fill: $alert-red;
-	}
-
-	.has-primary .jetpack-podcast-player__track-status-icon--error {
-		fill: currentColor;
+	// Use primary color to prevent visual conflicts (i.e. red background)
+	.jetpack-podcast-player__track.has-primary .jetpack-podcast-player__track-error {
+		color: inherit;
 	}
 
 	/**

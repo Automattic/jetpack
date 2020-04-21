@@ -50,7 +50,11 @@ const Header = memo(
 			{ !! ( showEpisodeDescription && track && track.description ) && (
 				<div
 					id={ `${ playerId }__track-description` }
-					className="jetpack-podcast-player__track-description"
+					className={ classnames(
+						'jetpack-podcast-player__track-description',
+						colors.secondary.classes
+					) }
+					style={ { color: colors.secondary.custom } }
 				>
 					{ track.description }
 				</div>
@@ -103,21 +107,22 @@ const PodcastTitle = memo(
 			colors.secondary.classes
 		);
 
-		if ( link ) {
-			return (
-				<a
-					className={ className }
-					style={ { color: colors.secondary.custom } }
-					href={ link }
-					target="_blank"
-					rel="noopener noreferrer nofollow"
-				>
+		return (
+			<span className={ className } style={ { color: colors.secondary.custom } }>
+				{ link ? (
+					<a
+						className="jetpack-podcast-player__link"
+						href={ link }
+						target="_blank"
+						rel="noopener noreferrer nofollow"
+					>
+						{ title }
+					</a>
+				) : (
 					{ title }
-				</a>
-			);
-		}
-
-		return <span className={ className }>{ title }</span>;
+				) }
+			</span>
+		);
 	}
 );
 

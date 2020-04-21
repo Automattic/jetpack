@@ -8,12 +8,17 @@
 import { memo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 
-const TrackError = memo( ( { link, title } ) => (
+const TrackError = memo( ( { link, title, colors } ) => (
 	<div className="jetpack-podcast-player__track-error">
 		{ __( 'Episode unavailable. ', 'jetpack' ) }
 		{ link && (
-			<span>
-				<a href={ link } rel="noopener noreferrer nofollow" target="_blank">
+			<span className={ colors.secondary.classes } style={ { color: colors.secondary.custom } }>
+				<a
+					className="jetpack-podcast-player__link"
+					href={ link }
+					rel="noopener noreferrer nofollow"
+					target="_blank"
+				>
 					<span className="jetpack-podcast-player--visually-hidden">
 						{ /* Intentional trailing space outside of the translated string. */ }
 						{ `${ sprintf(
