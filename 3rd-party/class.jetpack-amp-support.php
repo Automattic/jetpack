@@ -356,6 +356,10 @@ class Jetpack_AMP_Support {
 	public static function render_sharing_html( $markup, $sharing_enabled ) {
 		global $post;
 
+		if ( empty( $post ) ) {
+			return '';
+		}
+
 		if ( ! self::is_amp_request() ) {
 			return $markup;
 		}
@@ -367,88 +371,10 @@ class Jetpack_AMP_Support {
 
 		$sharing_links = array();
 		foreach ( $sharing_enabled['visible'] as $id => $service ) {
-			$args = array();
-			$skip = false;
-			switch ( $service->get_id() ) {
-				case 'facebook':
-					$args = array(
-						/** This filter is documented in modules/sharedaddy/sharing-sources.php */
-						'data-param-app_id' => apply_filters( 'jetpack_sharing_facebook_app_id', '249643311490' ),
-					);
-					break;
-
-				case 'jetpack-whatsapp':
-					$args = array(
-						'type' => 'whatsapp',
-					);
-					break;
-
-				case 'print':
-					$args = array(
-						'on' => 'tap:AMP.print',
-					);
-					break;
-
-				case 'pocket':
-					$args = array(
-						'data-share-endpoint' => esc_url_raw( 'https://getpocket.com/save/?url=' . rawurlencode( $service->get_share_url( $post->ID ) ) . '&title=' . rawurlencode( $service->get_share_title( $post->ID ) ) ),
-					);
-					break;
-
-				case 'skype':
-					$args = array(
-						'data-share-endpoint' => sprintf(
-							'https://web.skype.com/share?url=%1$s&lang=%2$s=&source=jetpack',
-							rawurlencode( $service->get_share_url( $post->ID ) ),
-							'en-US'
-						),
-					);
-					break;
-
-				case 'reddit':
-					$args = array(
-						'data-share-endpoint' => esc_url_raw( 'https://reddit.com/submit?url=' . rawurlencode( $service->get_share_url( $post->ID ) ) . '&title=' . rawurlencode( $service->get_share_title( $post->ID ) ) ),
-					);
-					break;
-
-				case 'telegram':
-					$args = array(
-						'data-share-endpoint' => esc_url_raw( 'https://telegram.me/share/url?url=' . rawurlencode( $service->get_share_url( $post->ID ) ) . '&text=' . rawurlencode( $service->get_share_title( $post->ID ) ) ),
-					);
-					break;
-
-				case 'twitter':
-				case 'pinterest':
-				case 'tumblr':
-				case 'linkedin':
-					// No custom args needed.
-					$args = array();
-					break;
-
-				default:
-					// We don't support any other services.
-					$sharing_links[] = "<!-- not supported: $id -->";
-					$skip            = true;
+			$sharing_link = $service->get_amp_display( $post );
+			if ( ! empty( $sharing_link ) ) {
+				$sharing_links[] = $sharing_link;
 			}
-
-			if ( $skip ) {
-				continue;
-			}
-
-			$args         = array_merge(
-				array(
-					'type'   => $id,
-					'height' => '32px',
-					'width'  => '32px',
-				),
-				$args
-			);
-			$sharing_link = '<amp-social-share';
-			foreach ( $args as $key => $value ) {
-				$sharing_link .= sprintf( ' %s="%s"', sanitize_key( $key ), esc_attr( $value ) );
-			}
-			$sharing_link   .= '></amp-social-share>';
-			$sharing_links[] = $sharing_link;
 		}
 
 		// Replace the existing unordered list with AMP sharing buttons.
