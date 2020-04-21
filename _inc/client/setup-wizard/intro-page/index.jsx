@@ -26,9 +26,7 @@ const IntroPage = props => {
 				{ __( 'Set up Jetpack for better site security, performance, and more' ) }
 			</h1>
 			<p className="jp-setup-wizard-paragraph">
-				{ __(
-					'Jetpack is a cloud-powered tool built by Automattic and brought to you by Bluehost.'
-				) }
+				{ __( 'Jetpack is a cloud-powered tool built by Automattic.' ) }
 			</p>
 			<p className="jp-setup-wizard-paragraph">
 				{ __(
