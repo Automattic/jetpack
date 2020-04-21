@@ -74,7 +74,7 @@ $player-background: transparent;
 			box-shadow: none;
 			text-decoration: none;
 			border: none;
-	
+
 			&:hover,
 			&:focus {
 				box-shadow: none;
@@ -144,6 +144,11 @@ $player-background: transparent;
 	}
 
 	a.jetpack-podcast-player__podcast-title {
+		&,
+		&:active,
+		&:visited {
+			color: $text-color;
+		}
 
 		&:hover,
 		&:focus {
@@ -155,6 +160,16 @@ $player-background: transparent;
 	.has-secondary {
 		.jetpack-podcast-player__podcast-title {
 			color: currentColor;
+		}
+
+		a.jetpack-podcast-player__podcast-title {
+			&,
+			&:hover,
+			&:focus,
+			&:active,
+			&:visited {
+				color: currentColor;
+			}
 		}
 	}
 
