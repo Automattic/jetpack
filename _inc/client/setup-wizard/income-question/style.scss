@@ -1,4 +1,10 @@
 .jp-setup-wizard-subtitle {
 	font-weight: 600;
-	font-size: 1.33em;
+	font-size: 1.33rem;
+}
+
+.jp-setup-wizard-income-answer-container {
+	display: grid;
+	grid-template-rows: auto auto;
+	grid-template-columns: auto auto;
 }

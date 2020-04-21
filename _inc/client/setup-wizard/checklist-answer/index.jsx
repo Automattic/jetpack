@@ -4,12 +4,17 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 
+import './style.scss';
+
 const ChecklistAnswer = props => {
 	return (
-		<>
-			<div>{ props.title }</div>
-			<div>{ props.details }</div>
-		</>
+		<div className="jp-checklist-answer-container">
+			<div className="jp-checklist-answer-checkbox-container">
+				<input type="checkbox" />
+			</div>
+			<div className="jp-checklist-answer-title">{ props.title }</div>
+			<div className="jp-checklist-answer-details">{ props.details }</div>
+		</div>
 	);
 };
 

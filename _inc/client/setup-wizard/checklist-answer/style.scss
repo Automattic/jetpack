@@ -1,0 +1,40 @@
+.jp-checklist-answer-container {
+	display: grid;
+	grid-template-rows: auto auto;
+	grid-template-columns: auto auto;
+
+	box-sizing: border-box;
+	border: 1px solid #dddddd;
+	border-radius: 4px;
+}
+
+.jp-checklist-answer-checkbox-container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.jp-checklist-answer-container input {
+	grid-row: 1;
+	grid-column: 1;
+
+	margin-left: 2rem;
+	margin-right: 1.5rem;
+}
+
+.jp-checklist-answer-title {
+	grid-row: 1;
+	grid-column: 2;
+	margin: 1rem 1rem 1rem 0;
+
+	font-weight: 600;
+	text-align: left;
+}
+
+.jp-checklist-answer-details {
+	grid-row: 2;
+	grid-column: 2;
+	margin: 0 1rem 1rem 0;
+
+	text-align: left;
+}
