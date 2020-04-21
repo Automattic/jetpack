@@ -228,8 +228,10 @@ $jetpack-podcast-player-background: $white;
 		display: flex;
 		flex-flow: row nowrap;
 		justify-content: space-between;
-		// Adjustments on left padding to account for SVG sound icon spacing
-		padding: $track-h-padding $block-grid-gutter $track-h-padding $block-grid-gutter - 2px;
+		padding-top: $track-h-padding;
+		padding-bottom: $track-h-padding;
+		padding-left: $block-grid-gutter - 2px; // Adjustments on left padding to account for SVG sound icon spacing
+		padding-right: $block-grid-gutter;
 		transition: none;
 	}
 
@@ -256,7 +258,7 @@ $jetpack-podcast-player-background: $white;
 	}
 
 	// Use primary color to prevent visual conflicts (i.e. with red bg color)
-	.jetpack-podcast-player__track.has-primary .jetpack-podcast-player__track-status-icon--error  {
+	.jetpack-podcast-player__track.has-primary .jetpack-podcast-player__track-status-icon--error {
 		fill: currentColor;
 	}
 
@@ -275,7 +277,7 @@ $jetpack-podcast-player-background: $white;
 	 */
 	.jetpack-podcast-player__track-error {
 		display: block;
-		margin-left: ($block-grid-gutter - 2px) + $track-status-icon-size + $track-v-padding; // has to be aligned with the track title
+		margin-left: ( $block-grid-gutter - 2px ) + $track-status-icon-size + $track-v-padding; // has to be aligned with the track title
 		margin-bottom: $track-h-padding;
 		font-size: 0.8em;
 		font-weight: normal;
@@ -337,12 +339,15 @@ $jetpack-podcast-player-background: $white;
 
 	.mejs-controls {
 		position: static;
+		padding-top: 0;
+		padding-bottom: 0;
 		/**
 		* Lines up the mejs player padding with our wrapper spacing.
 		* Magic numbers are due to needing to line-up the player spacing with buttons
 		* and fixed widths inside of the mediaplayer.
 		*/
-		padding: 0 ( $block-grid-gutter - 6px ) 0 ( $block-grid-gutter - 9px );
+		padding-left: $block-grid-gutter - 9px;
+		padding-right: $block-grid-gutter - 6px;
 	}
 
 	.mejs-time,
