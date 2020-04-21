@@ -15,13 +15,7 @@ $track-status-icon-size: 22px;
 $jetpack-podcast-player-primary: $black;
 $jetpack-podcast-player-secondary: $dark-gray-300;
 $jetpack-podcast-player-background: $white;
-$text-color: $dark-gray-300; // Lightest gray that can be used for AA text contrast.
-$text-color-hover: $black;
-$text-color-active: $text-color-hover;
-$text-color-error: $alert-red;
-$block-bg-color: $white;
 $block-border-color: $dark-gray-100;
-$current-track-title-color: $black;
 $player-background: transparent;
 
 .jetpack-podcast-player--visually-hidden {
@@ -38,7 +32,7 @@ $player-background: transparent;
  */
 .wp-block-jetpack-podcast-player {
 	border: 1px solid $block-border-color;
-	background-color: $block-bg-color;
+	background-color: $jetpack-podcast-player-background;
 	overflow: hidden;
 
 	/**
@@ -133,13 +127,13 @@ $player-background: transparent;
 
 		// Apply default color if custom primary has not been set
 		&:not(.has-primary) {
-			color: $current-track-title-color;
+			color: $jetpack-podcast-player-primary;
 		}
 	}
 
 	.jetpack-podcast-player__podcast-title {
 		font-size: $podcast-title-font-size;
-		color: $text-color;
+		color: $jetpack-podcast-player-secondary;
 		margin: 0;
 	}
 
@@ -147,12 +141,12 @@ $player-background: transparent;
 		&,
 		&:active,
 		&:visited {
-			color: $text-color;
+			color: $jetpack-podcast-player-secondary;
 		}
 
 		&:hover,
 		&:focus {
-			color: $text-color-hover;
+			color: $jetpack-podcast-player-primary;
 		}
 	}
 
@@ -234,19 +228,19 @@ $player-background: transparent;
 
 		// Apply default colors only if custom ones are not defined.
 		&:not( .is-active ):not( .has-secondary ) {
-			color: $text-color;
+			color: $jetpack-podcast-player-secondary;
 
 			&:hover,
 			&:focus {
-				color: $text-color-hover;
+				color: $jetpack-podcast-player-primary;
 			}
 		}
 		&.is-active:not( .has-primary ) {
-			color: $text-color-active;
+			color: $jetpack-podcast-player-primary;
 
 			&:hover,
 			&:focus {
-				color: $text-color-active;
+				color: $jetpack-podcast-player-primary;
 			}
 		}
 	}
@@ -307,7 +301,7 @@ $player-background: transparent;
 		font-weight: normal;
 
 		& > span {
-			color: $text-color;
+			color: $jetpack-podcast-player-secondary;
 		}
 
 		& > span > a {
@@ -324,7 +318,7 @@ $player-background: transparent;
 	}
 
 	.jetpack-podcast-player__track-status-icon--error {
-		fill: $text-color-error;
+		fill: $alert-red;
 	}
 
 	.has-primary .jetpack-podcast-player__track-status-icon--error {
