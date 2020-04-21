@@ -35,8 +35,9 @@ $track  = ( is_array( $tracks ) && ! empty( $tracks ) ) ? $tracks[0] : array();
 			<div class="jetpack-podcast-player__cover">
 				<img class="jetpack-podcast-player__cover-image" src="<?php echo esc_url( $cover ); ?>" alt="" />
 			</div>
+		<?php endif; ?>
 
-			<?php
+		<?php
 			render(
 				'podcast-header-title',
 				array(
@@ -48,7 +49,6 @@ $track  = ( is_array( $tracks ) && ! empty( $tracks ) ) ? $tracks[0] : array();
 				)
 			);
 			?>
-		<?php endif; ?>
 	</div>
 
 	<?php
