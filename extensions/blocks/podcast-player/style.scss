@@ -3,14 +3,14 @@
  */
 @import '../../shared/styles/gutenberg-base-styles.scss';
 
+$block-grid-gutter: 24px;
+$block-border-color: $dark-gray-100;
+$cover-image-size: 80px;
+$current-track-title-font-size: 24px;
+$current-track-title-bottom-margin: 10px;
 $track-v-padding: 15px;
 $track-h-padding: 10px;
-$player-grid-spacing: 24px;
-$cover-image-size: 80px;
-$track-title-font-size: 24px;
-$track-title-b-margin: 10px;
 $track-status-icon-size: 22px;
-$block-border-color: $dark-gray-100;
 $jetpack-podcast-player-primary: $black;
 $jetpack-podcast-player-secondary: $dark-gray-300;
 $jetpack-podcast-player-background: $white;
@@ -86,12 +86,12 @@ $jetpack-podcast-player-background: $white;
 
 	.jetpack-podcast-player__current-track-info {
 		display: flex;
-		padding: $player-grid-spacing;
+		padding: $block-grid-gutter;
 	}
 
 	.jetpack-podcast-player__cover {
 		width: $cover-image-size;
-		margin-right: $player-grid-spacing;
+		margin-right: $block-grid-gutter;
 		flex-shrink: 0;
 	}
 
@@ -119,8 +119,8 @@ $jetpack-podcast-player-background: $white;
 	}
 
 	.jetpack-podcast-player__current-track-title {
-		font-size: $track-title-font-size;
-		margin: 0 0 $track-title-b-margin;
+		font-size: $current-track-title-font-size;
+		margin: 0 0 $current-track-title-bottom-margin;
 
 		// Apply default color if custom primary has not been set
 		&:not(.has-primary) {
@@ -166,19 +166,19 @@ $jetpack-podcast-player-background: $white;
 
 	.jetpack-podcast-player__audio-player {
 		height: 40px; // mirroring .mejs-container
-		margin-bottom: $player-grid-spacing;
+		margin-bottom: $block-grid-gutter;
 	}
 
 	.jetpack-podcast-player--audio-player-loading {
 		height: 10px; // mirroring .mejs-time-total
 		background: $jetpack-podcast-player-secondary;
-		margin: 15px $player-grid-spacing; // simulating spacing of .mejs-container
+		margin: 15px $block-grid-gutter; // simulating spacing of .mejs-container
 	}
 
 	.jetpack-podcast-player__track-description {
 		order: 99; // high number to make it always appear after the audio player
-		padding: 0 $player-grid-spacing;
-		margin-bottom: $player-grid-spacing;
+		padding: 0 $block-grid-gutter;
+		margin-bottom: $block-grid-gutter;
 		font-size: $editor-font-size;
 		line-height: 1.6;
 		color: $dark-gray-500;
@@ -247,7 +247,7 @@ $jetpack-podcast-player-background: $white;
 		flex-flow: row nowrap;
 		justify-content: space-between;
 		// Adjustments on left padding to account for SVG sound icon spacing
-		padding: $track-h-padding $player-grid-spacing $track-h-padding $player-grid-spacing - 2px;
+		padding: $track-h-padding $block-grid-gutter $track-h-padding $block-grid-gutter - 2px;
 		transition: none;
 		color: inherit;
 
@@ -291,7 +291,7 @@ $jetpack-podcast-player-background: $white;
 	 */
 	.jetpack-podcast-player__track-error {
 		display: block;
-		margin-left: ($player-grid-spacing - 2px) + $track-status-icon-size + $track-v-padding; // has to be aligned with the track title
+		margin-left: ($block-grid-gutter - 2px) + $track-status-icon-size + $track-v-padding; // has to be aligned with the track title
 		margin-bottom: $track-h-padding;
 		color: $alert-red;
 		font-size: 0.8em;
@@ -326,7 +326,7 @@ $jetpack-podcast-player-background: $white;
 	 * Global error element, replaces the whole block with the error message.
 	 */
 	.jetpack-podcast-player__error {
-		padding: $player-grid-spacing;
+		padding: $block-grid-gutter;
 		margin: 0;
 		color: $alert-red;
 		font-size: 0.8em;
@@ -339,7 +339,7 @@ $jetpack-podcast-player-background: $white;
 	&.is-default {
 		.jetpack-podcast-player__track-title {
 			// Change padding to account for missing space for status-icon.
-			padding-left: $player-grid-spacing - $track-v-padding;
+			padding-left: $block-grid-gutter - $track-v-padding;
 		}
 
 		.jetpack-podcast-player__audio-player {
@@ -369,7 +369,7 @@ $jetpack-podcast-player-background: $white;
 		* Magic numbers are due to needing to line-up the player spacing with buttons
 		* and fixed widths inside of the mediaplayer.
 		*/
-		padding: 0 ( $player-grid-spacing - 6px ) 0 ( $player-grid-spacing - 9px );
+		padding: 0 ( $block-grid-gutter - 6px ) 0 ( $block-grid-gutter - 9px );
 	}
 
 	.mejs-time,
