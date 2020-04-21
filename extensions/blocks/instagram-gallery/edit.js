@@ -12,6 +12,7 @@ import { InspectorControls } from '@wordpress/block-editor';
 import {
 	Button,
 	ExternalLink,
+	Notice,
 	PanelBody,
 	PanelRow,
 	Placeholder,
@@ -19,6 +20,8 @@ import {
 	Spinner,
 	withNotices,
 } from '@wordpress/components';
+import { compose } from '@wordpress/compose';
+import { withSelect } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
 import { __, sprintf, _n } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
@@ -35,7 +38,15 @@ import './editor.scss';
 const MAX_IMAGE_COUNT = 30;
 
 const InstagramGalleryEdit = props => {
-	const { attributes, className, noticeOperations, noticeUI, setAttributes, isSelected } = props;
+	const {
+		attributes,
+		canUserManageOptions,
+		className,
+		isSelected,
+		noticeOperations,
+		noticeUI,
+		setAttributes,
+	} = props;
 	const { accessToken, align, columns, count, instagramUser, spacing } = attributes;
 
 	const [ images, setImages ] = useState( [] );
@@ -116,7 +127,7 @@ const InstagramGalleryEdit = props => {
 				isDismissible: false,
 			} );
 		}
-	}, [ count, images ] );
+	}, [ count, images, noticeOperations, showSidebar ] );
 
 	const renderImage = index => {
 		if ( images[ index ] ) {
@@ -146,11 +157,22 @@ const InstagramGalleryEdit = props => {
 					label={ __( 'Instagram Gallery', 'jetpack' ) }
 					notices={ noticeUI }
 				>
-					<Button disabled={ isConnecting } isLarge isPrimary onClick={ connectToService }>
+					<Button
+						disabled={ true !== canUserManageOptions || isConnecting }
+						isLarge
+						isPrimary
+						onClick={ connectToService }
+					>
 						{ isConnecting
 							? __( 'Connecting…', 'jetpack' )
 							: __( 'Connect your Instagram account', 'jetpack' ) }
 					</Button>
+
+					{ false === canUserManageOptions && (
+						<Notice isDismissible={ false } status="info">
+							{ __( 'Only administrators can connect their accounts to Instagram.', 'jetpack' ) }
+						</Notice>
+					) }
 				</Placeholder>
 			) }
 
@@ -184,18 +206,20 @@ const InstagramGalleryEdit = props => {
 								@{ instagramUser }
 							</ExternalLink>
 						</PanelRow>
-						<PanelRow>
-							<Button
-								disabled={ isConnecting }
-								isDestructive
-								isLink
-								onClick={ () => disconnectFromService( accessToken ) }
-							>
-								{ isConnecting
-									? __( 'Disconnecting…', 'jetpack' )
-									: __( 'Disconnect your account', 'jetpack' ) }
-							</Button>
-						</PanelRow>
+						{ true === canUserManageOptions && (
+							<PanelRow>
+								<Button
+									disabled={ isConnecting }
+									isDestructive
+									isLink
+									onClick={ () => disconnectFromService( accessToken ) }
+								>
+									{ isConnecting
+										? __( 'Disconnecting…', 'jetpack' )
+										: __( 'Disconnect your account', 'jetpack' ) }
+								</Button>
+							</PanelRow>
+						) }
 					</PanelBody>
 					<PanelBody title={ __( 'Gallery Settings', 'jetpack' ) }>
 						<div className="wp-block-jetpack-instagram-gallery__count-notice">{ noticeUI }</div>
@@ -227,4 +251,9 @@ const InstagramGalleryEdit = props => {
 	);
 };
 
-export default withNotices( InstagramGalleryEdit );
+export default compose(
+	withSelect( select => ( {
+		canUserManageOptions: select( 'core' ).canUser( 'update', 'settings' ),
+	} ) ),
+	withNotices
+)( InstagramGalleryEdit );
