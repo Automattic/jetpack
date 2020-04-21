@@ -29,7 +29,7 @@
 		"videopress",
 		"wordads"
 	],
-	"beta": [ "amazon", "instagram-gallery", "podcast-player" ],
+	"beta": [ "amazon", "instagram-gallery" ],
 	"experimental": [ "seo" ],
 	"no-post-editor": [
 		"business-hours",
