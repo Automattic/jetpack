@@ -24,7 +24,7 @@ class NonAdminView extends React.Component {
 	shouldComponentUpdate( nextProps ) {
 		return (
 			nextProps.siteConnectionStatus !== this.props.siteConnectionStatus ||
-			nextProps.route.path !== this.props.route.path
+			nextProps.location.pathname !== this.props.location.pathname
 		);
 	}
 
@@ -66,7 +66,7 @@ class NonAdminView extends React.Component {
 	};
 
 	render() {
-		return this.renderMainContent( this.props.route.path );
+		return this.renderMainContent( this.props.location.pathname );
 	}
 }
 

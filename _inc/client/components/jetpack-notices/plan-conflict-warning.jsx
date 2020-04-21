@@ -4,7 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 
 /**
  * Internal dependencies
@@ -12,12 +12,12 @@ import { withRouter } from 'react-router';
 import SimpleNotice from 'components/notice';
 import { getActiveSitePurchases } from 'state/site';
 
-export function PlanConflictWarning( {
-	activeSitePurchases,
-	router: {
-		location: { pathname },
-	},
-} ) {
+/**
+ * PlanConflictWarning component
+ *
+ * @returns {object} component
+ */
+export function PlanConflictWarning( { activeSitePurchases, location: { pathname } } ) {
 	// Only show on plans page.
 	if ( '/plans' !== pathname ) {
 		return null;

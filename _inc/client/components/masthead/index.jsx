@@ -22,7 +22,7 @@ import JetpackLogo from '../jetpack-logo';
 
 export class Masthead extends React.Component {
 	static defaultProps = {
-		route: { path: '' },
+		location: { pathname: '' },
 	};
 
 	trackDashClick = () => {
@@ -68,9 +68,9 @@ export class Masthead extends React.Component {
 			),
 			isDashboardView = includes(
 				[ '/', '/dashboard', '/my-plan', '/plans' ],
-				this.props.route.path
+				this.props.location.pathname
 			),
-			isStatic = '' === this.props.route.path;
+			isStatic = '' === this.props.location.pathname;
 
 		const hideNav = '/setup' === this.props.route.path;
 

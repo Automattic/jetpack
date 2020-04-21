@@ -9,6 +9,7 @@ import NavTabs from 'components/section-nav/tabs';
 import NavItem from 'components/section-nav/item';
 import { translate as __ } from 'i18n-calypso';
 import analytics from 'lib/analytics';
+import { withRouter } from 'react-router-dom';
 
 /**
  * Internal dependencies
@@ -44,11 +45,13 @@ export class Navigation extends React.Component {
 		let navTabs;
 		if ( this.props.userCanManageModules ) {
 			navTabs = (
-				<NavTabs selectedText={ this.props.route.name }>
+				<NavTabs selectedText={ this.props.routeName }>
 					<NavItem
 						path="#/dashboard"
 						onClick={ this.trackDashboardClick }
-						selected={ this.props.route.path === '/dashboard' || this.props.route.path === '/' }
+						selected={
+							this.props.location.pathname === '/dashboard' || this.props.location.pathname === '/'
+						}
 					>
 						{ __( 'At a Glance', { context: 'Navigation item.' } ) }
 					</NavItem>
@@ -56,7 +59,7 @@ export class Navigation extends React.Component {
 						<NavItem
 							path="#/my-plan"
 							onClick={ this.trackMyPlanClick }
-							selected={ this.props.route.path === '/my-plan' }
+							selected={ this.props.location.pathname === '/my-plan' }
 						>
 							{ __( 'My Plan', { context: 'Navigation item.' } ) }
 						</NavItem>
@@ -65,7 +68,7 @@ export class Navigation extends React.Component {
 						<NavItem
 							path="#/plans"
 							onClick={ this.trackPlansClick }
-							selected={ this.props.route.path === '/plans' }
+							selected={ this.props.location.pathname === '/plans' }
 						>
 							{ __( 'Plans', { context: 'Navigation item.' } ) }
 						</NavItem>
@@ -74,10 +77,12 @@ export class Navigation extends React.Component {
 			);
 		} else {
 			navTabs = (
-				<NavTabs selectedText={ this.props.route.name }>
+				<NavTabs selectedText={ this.props.routeName }>
 					<NavItem
 						path="#/dashboard"
-						selected={ this.props.route.path === '/dashboard' || this.props.route.path === '/' }
+						selected={
+							this.props.location.pathname === '/dashboard' || this.props.location.pathname === '/'
+						}
 					>
 						{ __( 'At a Glance', { context: 'Navigation item.' } ) }
 					</NavItem>
@@ -86,7 +91,7 @@ export class Navigation extends React.Component {
 		}
 		return (
 			<div id="jp-navigation" className="dops-navigation">
-				<SectionNav selectedText={ this.props.route.name }>{ navTabs }</SectionNav>
+				<SectionNav selectedText={ this.props.routeName }>{ navTabs }</SectionNav>
 			</div>
 		);
 	}
@@ -105,4 +110,4 @@ export default connect( state => {
 		isDevMode: isDevMode( state ),
 		isLinked: isCurrentUserLinked( state ),
 	};
-} )( Navigation );
+} )( withRouter( Navigation ) );

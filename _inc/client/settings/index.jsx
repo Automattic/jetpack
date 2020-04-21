@@ -18,8 +18,9 @@ import Security from 'security';
 import Sharing from 'sharing';
 import Traffic from 'traffic';
 import Writing from 'writing';
+import { withRouter } from 'react-router-dom';
 
-export default class extends React.Component {
+class Settings extends React.Component {
 	static displayName = 'SearchableSettings';
 
 	render() {
@@ -45,39 +46,44 @@ export default class extends React.Component {
 					siteAdminUrl={ this.props.siteAdminUrl }
 					siteRawUrl={ this.props.siteRawUrl }
 					active={
-						'/security' === this.props.route.path ||
-						( '/settings' === this.props.route.path && commonProps.userCanManageModules )
+						'/security' === this.props.location.pathname ||
+						( '/settings' === this.props.location.pathname && commonProps.userCanManageModules )
 					}
 					{ ...commonProps }
 				/>
 				<Discussion
 					siteRawUrl={ this.props.siteRawUrl }
-					active={ '/discussion' === this.props.route.path }
+					active={ '/discussion' === this.props.location.pathname }
 					{ ...commonProps }
 				/>
-				<Performance active={ '/performance' === this.props.route.path } { ...commonProps } />
+				<Performance
+					active={ '/performance' === this.props.location.pathname }
+					{ ...commonProps }
+				/>
 				<Traffic
 					siteRawUrl={ this.props.siteRawUrl }
 					siteAdminUrl={ this.props.siteAdminUrl }
-					active={ '/traffic' === this.props.route.path }
+					active={ '/traffic' === this.props.location.pathname }
 					{ ...commonProps }
 				/>
 				<Writing
 					siteAdminUrl={ this.props.siteAdminUrl }
 					active={
-						'/writing' === this.props.route.path ||
-						( '/settings' === this.props.route.path && ! commonProps.userCanManageModules )
+						'/writing' === this.props.location.pathname ||
+						( '/settings' === this.props.location.pathname && ! commonProps.userCanManageModules )
 					}
 					{ ...commonProps }
 				/>
 				<Sharing
 					siteAdminUrl={ this.props.siteAdminUrl }
-					active={ '/sharing' === this.props.route.path }
+					active={ '/sharing' === this.props.location.pathname }
 					{ ...commonProps }
 				/>
-				<Privacy active={ '/privacy' === this.props.route.path } { ...commonProps } />
+				<Privacy active={ '/privacy' === this.props.location.pathname } { ...commonProps } />
 				<SearchableModules searchTerm={ this.props.searchTerm } />
 			</div>
 		);
 	}
 }
+
+export default withRouter( Settings );
