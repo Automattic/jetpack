@@ -64,6 +64,10 @@ export function getSiteAdminUrl( state ) {
 	return get( state.jetpack.initialState, 'adminUrl', {} );
 }
 
+export function getSiteTitle( state ) {
+	return get( state.jetpack.initialState, 'siteTitle', '' );
+}
+
 export function isSitePublic( state ) {
 	return get( state.jetpack.initialState, [ 'connectionStatus', 'isPublic' ] );
 }

@@ -37,7 +37,7 @@ const IntroPage = props => {
 			</p>
 			<div className="jp-setup-wizard-intro-question">
 				<h2>
-					{ __( 'What will %(siteUrl)s be used for?', { args: { siteUrl: props.siteRawUrl } } ) }
+					{ __( 'What will %(siteTitle)s be used for?', { args: { siteTitle: props.siteTitle } } ) }
 				</h2>
 				<div className="jp-setup-wizard-answer-buttons">
 					<Button primary className="jp-setup-wizard-button">
@@ -56,7 +56,7 @@ const IntroPage = props => {
 };
 
 IntroPage.propTypes = {
-	siteRawUrl: PropTypes.string.isRequired,
+	siteTitle: PropTypes.string.isRequired,
 };
 
 export { IntroPage };

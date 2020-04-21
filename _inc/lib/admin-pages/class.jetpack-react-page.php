@@ -263,6 +263,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'getModules'                  => $modules,
 			'rawUrl'                      => Jetpack::build_raw_urls( get_home_url() ),
 			'adminUrl'                    => esc_url( admin_url() ),
+			'siteTitle'                   => (string) htmlspecialchars_decode( get_option( 'blogname' ), ENT_QUOTES ),
 			'stats'                       => array(
 				// data is populated asynchronously on page load.
 				'data'  => array(
