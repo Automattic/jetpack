@@ -4,9 +4,7 @@
 import ReactDOM from 'react-dom';
 import React from 'react';
 import { Provider } from 'react-redux';
-import { Route, Router, useRouterHistory } from 'react-router';
-import { syncHistoryWithStore } from 'react-router-redux';
-import { createHashHistory } from 'history';
+import { HashRouter, Route, Switch } from 'react-router-dom';
 import { assign, get } from 'lodash';
 
 /**
@@ -44,10 +42,6 @@ if ( 'undefined' !== typeof Initial_State.locale[ '' ] ) {
 
 i18n.setLocale( Initial_State.locale );
 
-const hashHistory = useRouterHistory( createHashHistory )();
-
-const history = syncHistoryWithStore( hashHistory, store );
-
 // Add dispatch and actionTypes to the window object so we can use it from the browser's console
 if ( 'undefined' !== typeof window && process.env.NODE_ENV === 'development' ) {
 	assign( window, {
@@ -58,6 +52,9 @@ if ( 'undefined' !== typeof window && process.env.NODE_ENV === 'development' ) {
 
 render();
 
+/**
+ *
+ */
 function render() {
 	const container = document.getElementById( 'jp-plugin-container' );
 
@@ -68,69 +65,58 @@ function render() {
 	ReactDOM.render(
 		<div>
 			<Provider store={ store }>
-				<Router history={ history }>
-					<Route
-						path="/"
-						name={ i18n.translate( 'At A Glance', { context: 'Navigation item.' } ) }
-						component={ Main }
-					/>
-					<Route path="/setup" name={ i18n.translate( 'Set up' ) } component={ Main } />
-					<Route path="/dashboard" name={ i18n.translate( 'At A Glance' ) } component={ Main } />
-					<Route
-						path="/my-plan"
-						name={ i18n.translate( 'My Plan', { context: 'Navigation item.' } ) }
-						component={ Main }
-					/>
-					<Route
-						path="/plans"
-						name={ i18n.translate( 'Plans', { context: 'Navigation item.' } ) }
-						component={ Main }
-					/>
-					<Route
-						path="/plans-prompt"
-						name={ i18n.translate( 'Plans', { context: 'Navigation item.' } ) }
-						component={ Main }
-					/>
-					<Route
-						path="/settings"
-						name={ i18n.translate( 'Settings', { context: 'Navigation item.' } ) }
-						component={ Main }
-					/>
-					<Route
-						path="/discussion"
-						name={ i18n.translate( 'Discussion', { context: 'Navigation item.' } ) }
-						component={ Main }
-					/>
-					<Route
-						path="/security"
-						name={ i18n.translate( 'Security', { context: 'Navigation item.' } ) }
-						component={ Main }
-					/>
-					<Route
-						path="/performance"
-						name={ i18n.translate( 'Performance', { context: 'Navigation item.' } ) }
-						component={ Main }
-					/>
-					<Route
-						path="/traffic"
-						name={ i18n.translate( 'Traffic', { context: 'Navigation item.' } ) }
-						component={ Main }
-					/>
-					<Route
-						path="/writing"
-						name={ i18n.translate( 'Writing', { context: 'Navigation item.' } ) }
-						component={ Main }
-					/>
-					<Route
-						path="/sharing"
-						name={ i18n.translate( 'Sharing', { context: 'Navigation item.' } ) }
-						component={ Main }
-					/>
-					<Route path="/wpbody-content" component={ Main } />
-					<Route path="/wp-toolbar" component={ Main } />
-					<Route path="/privacy" component={ Main } />
-					<Route path="*" component={ Main } />
-				</Router>
+				<HashRouter>
+					<Switch>
+						<Route path="/dashboard">
+							<Main
+								routeName={ i18n.translate( 'At A Glance', { context: 'Navigation item.' } ) }
+							/>
+						</Route>
+						<Route path="/setup">
+							<Main routeName={ i18n.translate( 'Set up', { context: 'Navigation item.' } ) } />
+						</Route>
+						<Route path="/my-plan">
+							<Main routeName={ i18n.translate( 'My Plan', { context: 'Navigation item.' } ) } />
+						</Route>
+						<Route path="/plans">
+							<Main routeName={ i18n.translate( 'Plans', { context: 'Navigation item.' } ) } />
+						</Route>
+						<Route path="/plans-prompt">
+							<Main routeName={ i18n.translate( 'Plans', { context: 'Navigation item.' } ) } />
+						</Route>
+						<Route path="/settings">
+							<Main routeName={ i18n.translate( 'Settings', { context: 'Navigation item.' } ) } />
+						</Route>
+						<Route path="/discussion">
+							<Main routeName={ i18n.translate( 'Discussion', { context: 'Navigation item.' } ) } />
+						</Route>
+						<Route path="/security">
+							<Main routeName={ i18n.translate( 'Security', { context: 'Navigation item.' } ) } />
+						</Route>
+						<Route path="/performance">
+							<Main
+								routeName={ i18n.translate( 'Performance', { context: 'Navigation item.' } ) }
+							/>
+						</Route>
+						<Route path="/traffic">
+							<Main routeName={ i18n.translate( 'Traffic', { context: 'Navigation item.' } ) } />
+						</Route>
+						<Route path="/writing">
+							<Main routeName={ i18n.translate( 'Writing', { context: 'Navigation item.' } ) } />
+						</Route>
+						<Route path="/sharing">
+							<Main routeName={ i18n.translate( 'Sharing', { context: 'Navigation item.' } ) } />
+						</Route>
+						<Route path="/wpbody-content" component={ Main } />
+						<Route path="/wp-toolbar" component={ Main } />
+						<Route path="/privacy" component={ Main } />
+						<Route path="/*">
+							<Main
+								routeName={ i18n.translate( 'At A Glance', { context: 'Navigation item.' } ) }
+							/>
+						</Route>
+					</Switch>
+				</HashRouter>
 			</Provider>
 		</div>,
 		container
