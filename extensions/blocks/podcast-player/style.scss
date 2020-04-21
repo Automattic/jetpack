@@ -330,9 +330,9 @@ $jetpack-podcast-player-background: $white;
 	 * Style player by overriding mejs default styles
 	 */
 	.mejs-container,
+	.mejs-container .mejs-controls,
 	.mejs-embed,
 	.mejs-embed body,
-	.mejs-container .mejs-controls,
 	.mejs-mediaelement {
 		background-color: transparent;
 	}
