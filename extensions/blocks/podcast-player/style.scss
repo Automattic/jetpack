@@ -32,13 +32,6 @@ $jetpack-podcast-player-background: $white;
 	background-color: $jetpack-podcast-player-background;
 	overflow: hidden;
 
-	/**
-	 * Player's state classes added to this element:
-	 * &.is-playing {} // When audio starts playing.
-	 * &.is-paused {}  // When audio is paused.
-	 * &.is-error {}   // When playback error occured.
-	 */
-
 	audio {
 		display: none;
 	}
@@ -50,6 +43,13 @@ $jetpack-podcast-player-background: $white;
 	.jetpack-podcast-player {
 		padding-top: 0;
 		padding-bottom: 0;
+
+		/**
+		 * Player's state classes added to this element:
+		 * &.is-playing {} // When audio starts playing.
+	 	 * &.is-paused {}  // When audio is paused.
+		 * &.is-error {}   // When playback error occured.
+		 */
 
 		/**
 		* Set default values for our CSS variables.
