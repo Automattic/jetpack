@@ -12,11 +12,10 @@ $track-title-b-margin: 10px;
 $podcast-title-font-size: 16px;
 $description-font-size: 16px;
 $track-status-icon-size: 22px;
+$block-border-color: $dark-gray-100;
 $jetpack-podcast-player-primary: $black;
 $jetpack-podcast-player-secondary: $dark-gray-300;
 $jetpack-podcast-player-background: $white;
-$block-border-color: $dark-gray-100;
-$player-background: transparent;
 
 .jetpack-podcast-player--visually-hidden {
 	position: absolute !important;
@@ -362,7 +361,7 @@ $player-background: transparent;
 	.mejs-embed body,
 	.mejs-container .mejs-controls,
 	.mejs-mediaelement {
-		background-color: $player-background;
+		background-color: transparent;
 	}
 
 	.mejs-controls {
