@@ -14,7 +14,7 @@ import {
 	Placeholder,
 	RangeControl,
 	TextControl,
-	Toolbar,
+	ToolbarGroup,
 	withNotices,
 	ToggleControl,
 	Spinner,
@@ -235,16 +235,6 @@ const PodcastPlayerEdit = ( {
 		);
 	}
 
-	const toolbarControls = [
-		{
-			title: __( 'Edit Podcast Feed URL', 'jetpack' ),
-			onClick: () => setIsEditing( true ),
-			extraProps: {
-				children: __( 'Replace', 'jetpack' ),
-			},
-		},
-	];
-
 	// Loading state for fetching the feed.
 	if ( ! feedData.tracks || ! feedData.tracks.length ) {
 		return (
@@ -266,7 +256,14 @@ const PodcastPlayerEdit = ( {
 	return (
 		<>
 			<BlockControls>
-				<Toolbar controls={ toolbarControls } />
+				<ToolbarGroup>
+					<Button
+						aria-label={ __( 'Edit Podcast Feed URL', 'jetpack' ) }
+						onClick={ () => setIsEditing( true ) }
+					>
+						{ __( 'Replace', 'jetpack' ) }
+					</Button>
+				</ToolbarGroup>
 			</BlockControls>
 			<InspectorControls>
 				<PanelBody title={ __( 'Podcast settings', 'jetpack' ) }>
