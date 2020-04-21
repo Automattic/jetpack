@@ -55,7 +55,7 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
 /**
  * Podcast Player block registration/dependency declaration.
  *
- * @param array $attributes Array containing the Podcast Player block attributes.
+ * @param array|object $attributes Podcast Player block attributes / WP_Block instance.
  * @return string
  */
 function render_block( $attributes ) {
@@ -79,7 +79,19 @@ function render_block( $attributes ) {
 		return '<p>' . esc_html( $player_data->get_error_message() ) . '</p>';
 	}
 
-	return render_player( $player_data, $attributes );
+	/*
+	 * Get the block attributes checking if `$attributes`
+	 * is an array and it has defined a property.
+	 *
+	 * It handles the dual-behavior of argument
+	 * of the callback_render() function, which
+	 * was recently introduced by this Pull Request:
+	 * https://github.com/WordPress/gutenberg/pull/21467
+	 */
+	$block_attributes = ! is_array( $attributes ) && isset( $attributes->attributes )
+		? $attributes->attributes
+		: $attributes;
+	return render_player( $player_data, $block_attributes );
 }
 
 /**
