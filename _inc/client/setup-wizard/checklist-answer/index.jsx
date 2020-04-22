@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 
@@ -19,7 +20,7 @@ class ChecklistAnswer extends Component {
 	render() {
 		return (
 			<div
-				className="jp-checklist-answer-container"
+				className={ classNames( 'jp-checklist-answer-container', { checked: this.state.checked } ) }
 				onClick={ this.toggleCheckbox }
 				onKeyPress={ this.toggleCheckbox }
 				role="checkbox"

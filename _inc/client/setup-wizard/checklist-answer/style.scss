@@ -7,6 +7,10 @@
 	border: 1px solid #dddddd;
 	border-radius: 4px;
 	cursor: pointer;
+
+	&.checked {
+		background: #f6f7f7;
+	}
 }
 
 .jp-checklist-answer-container:focus {
