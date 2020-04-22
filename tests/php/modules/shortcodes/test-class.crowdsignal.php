@@ -150,22 +150,6 @@ class WP_Test_Jetpack_Shortcodes_CrowdSignal extends WP_UnitTestCase {
 			$shortcode_content
 		);
 		$this->assertTrue( wp_script_is( 'crowdsignal-survey', 'enqueued' ) );
-
-		// Test AMP version. On AMP views, we only show a link.
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			self::markTestSkipped( 'WordPress.com does not run the latest version of the AMP plugin yet.' );
-			return;
-		}
-
-		add_filter( 'jetpack_is_amp_request', '__return_true' );
-		$shortcode_content = do_shortcode( $content );
-		$this->assertEquals(
-			sprintf(
-				'<a href="https://survey.fm/%1$s" target="_blank" rel="noopener noreferrer">Take Our Survey</a>',
-				$id
-			),
-			$shortcode_content
-		);
 	}
 
 	/**
