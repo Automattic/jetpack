@@ -45,34 +45,6 @@ class Post_Connection_JITM extends JITM {
 	}
 
 	/**
-	 * Prepare actions according to screen and post type.
-	 *
-	 * @since 3.8.2
-	 *
-	 * @uses Jetpack_Autoupdate::get_possible_failures()
-	 *
-	 * @param \WP_Screen $screen WP Core's screen object.
-	 */
-	public function prepare_jitms( $screen ) {
-		if ( ! in_array(
-			$screen->id,
-			array(
-				'jetpack_page_stats',
-				'jetpack_page_akismet-key-config',
-				'admin_page_jetpack_modules',
-			),
-			true
-		) ) {
-			add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
-			add_action( 'admin_notices', array( $this, 'ajax_message' ) );
-			add_action( 'edit_form_top', array( $this, 'ajax_message' ) );
-
-			// Not really a JITM. Don't know where else to put this :) .
-			add_action( 'admin_notices', array( $this, 'delete_user_update_connection_owner_notice' ) );
-		}
-	}
-
-	/**
 	 * Asks the wpcom API for the current message to display keyed on query string and message path
 	 *
 	 * @param string $message_path The message path to ask for.

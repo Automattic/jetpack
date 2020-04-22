@@ -8,12 +8,9 @@
 namespace Automattic\Jetpack\JITMS;
 
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Partner;
-use Automattic\Jetpack\Tracking;
-use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\JITMS\Engine;
 
@@ -27,15 +24,6 @@ class Pre_Connection_JITM extends JITM {
 	const PACKAGE_VERSION = '1.0'; // TODO: Keep in sync with version specified in composer.json.
 
 	/**
-	 * Tracking object.
-	 *
-	 * @var Automattic\Jetpack\Tracking
-	 *
-	 * @access private
-	 */
-	public $tracking;
-
-	/**
 	 * Determines if JITMs are enabled.
 	 *
 	 * @return bool Enable JITMs.
@@ -46,32 +34,7 @@ class Pre_Connection_JITM extends JITM {
 	}
 
 	/**
-	 * Prepare actions according to screen and post type.
-	 *
-	 * @since 3.8.2
-	 *
-	 * @uses Jetpack_Autoupdate::get_possible_failures()
-	 *
-	 * @param \WP_Screen $screen WP Core's screen object.
-	 */
-	public function prepare_jitms( $screen ) {
-		if ( ! in_array(
-			$screen->id,
-			array(
-				'jetpack_page_stats',
-				'jetpack_page_akismet-key-config',
-				'admin_page_jetpack_modules',
-			),
-			true
-		) ) {
-			add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
-			add_action( 'admin_notices', array( $this, 'ajax_message' ) );
-			add_action( 'edit_form_top', array( $this, 'ajax_message' ) );
-		}
-	}
-
-	/**
-	 * Asks the wpcom API for the current message to display keyed on query string and message path
+	 * Retrieve the current message to display keyed on query string and message path
 	 *
 	 * @param string $message_path The message path to ask for.
 	 * @param string $query The query string originally from the front end.
@@ -132,13 +95,6 @@ class Pre_Connection_JITM extends JITM {
 				continue;
 			}
 
-			$this->tracking->record_user_event(
-				'jitm_view_client',
-				array(
-					'jitm_id' => $envelope->id,
-				)
-			);
-
 			$normalized_site_url = \Jetpack::build_raw_urls( get_home_url() );
 
 			$url_params = array(
@@ -154,8 +110,6 @@ class Pre_Connection_JITM extends JITM {
 			}
 
 			$envelope->url = add_query_arg( $url_params, 'https://jetpack.com/redirect/' );
-
-			$envelope->jitm_stats_url = \Jetpack::build_stats_url( array( 'x_jetpack-jitm' => $envelope->id ) );
 
 			if ( $envelope->cta['hook'] ) {
 				$envelope->url = apply_filters( 'jitm_' . $envelope->cta['hook'], $envelope->url );
@@ -193,23 +147,9 @@ class Pre_Connection_JITM extends JITM {
 					$envelope->content['icon'] = '';
 					break;
 			}
-
-			$jetpack = \Jetpack::init();
-			$jetpack->stat( 'jitm', $envelope->id . '-viewed-' . JETPACK__VERSION );
-			$jetpack->do_stats( 'server_side' );
 		}
 
 		return $envelopes;
-	}
-
-	/**
-	 * Is the current page a block editor page?
-	 *
-	 * @since 8.0.0
-	 */
-	public function is_gutenberg_page() {
-		$current_screen = get_current_screen();
-		return ( method_exists( $current_screen, 'is_block_editor' ) && $current_screen->is_block_editor() );
 	}
 
 }

@@ -7,8 +7,6 @@
 
 namespace Automattic\Jetpack\JITMS;
 
-use Automattic\Jetpack\JITMS\Cache;
-
 /**
  * Class JITM\Message
  *
@@ -30,14 +28,7 @@ class Message {
 	protected $template;
 
 	/**
-	 * Message TTL
-	 *
-	 * @var int
-	 */
-	protected $ttl;
-
-	/**
-	 * Partner
+	 * Hosted with partner name
 	 *
 	 * @var string
 	 */
@@ -91,13 +82,6 @@ class Message {
 	 * @var string
 	 */
 	protected $message_path_regex;
-
-	/**
-	 * Check multisite
-	 *
-	 * @var bool
-	 */
-	protected $multisite_check;
 
 	/**
 	 * Call to action
@@ -156,13 +140,6 @@ class Message {
 	protected $theme;
 
 	/**
-	 * Stickers
-	 *
-	 * @var array
-	 */
-	protected $stickers;
-
-	/**
 	 * Active widgets
 	 *
 	 * @var array
@@ -191,41 +168,6 @@ class Message {
 	protected $mobile_browser;
 
 	/**
-	 * Should be master user
-	 *
-	 * @var bool
-	 */
-	protected $should_be_master_user;
-
-	/**
-	 * $ab_test_series
-	 *
-	 * @var string
-	 */
-	protected $ab_test_series;
-
-	/**
-	 * $ab_test_hidden_variation
-	 *
-	 * @var string
-	 */
-	protected $ab_test_hidden_variation;
-
-	/**
-	 * Has mobile app
-	 *
-	 * @var bool
-	 */
-	protected $has_mobile_app;
-
-	/**
-	 * Tracks
-	 *
-	 * @var array
-	 */
-	protected $tracks;
-
-	/**
 	 * User locales
 	 *
 	 * @var array
@@ -240,20 +182,6 @@ class Message {
 	protected $is_dismissible;
 
 	/**
-	 * Need to accept TOS
-	 *
-	 * @var bool
-	 */
-	protected $needs_accept_tos;
-
-	/**
-	 * User countries
-	 *
-	 * @var array
-	 */
-	protected $user_countries;
-
-	/**
 	 * Calculated score
 	 *
 	 * @var int
@@ -261,81 +189,47 @@ class Message {
 	protected $calculated_score;
 
 	/**
-	 * JITM Cache instance
-	 *
-	 * @var Cache
-	 */
-	protected $cache;
-
-	/**
 	 * Class constructor
 	 *
 	 * @param string $id Message ID.
 	 * @param string $feature_class Feature class.
-	 * @param Cache  $cache Instance of JITM Cache.
 	 */
-	public function __construct( $id, $feature_class, $cache ) {
-		$this->id                       = $id;
-		$this->feature_class            = $feature_class;
-		$this->template                 = 'default'; // 'default-with-button' ...
-		$this->ttl                      = 300;
-		$this->max_dismissals           = 2;
-		$this->next_show                = 3628800; // 6 weeks in seconds
-		$this->inactive_plugins         = array();
-		$this->active_plugins           = array();
-		$this->installed_plugins        = array();
-		$this->uninstalled_plugins      = array();
-		$this->roles                    = array();
-		$this->content                  = array(
+	public function __construct( $id, $feature_class ) {
+		$this->id                  = $id;
+		$this->feature_class       = $feature_class;
+		$this->template            = 'default'; // 'default-with-button' ...
+		$this->max_dismissals      = 2;
+		$this->next_show           = 3628800; // 6 weeks in seconds
+		$this->inactive_plugins    = array();
+		$this->active_plugins      = array();
+		$this->installed_plugins   = array();
+		$this->uninstalled_plugins = array();
+		$this->roles               = array();
+		$this->content             = array(
 			'message' => '',
 			'icon'    => null,
 			'list'    => array(),
 		);
-		$this->query                    = array();
-		$this->message_path_regex       = null;
-		$this->calculated_score         = 0;
-		$this->cta                      = array(
+		$this->query               = array();
+		$this->message_path_regex  = null;
+		$this->calculated_score    = 0;
+		$this->cta                 = array(
 			'message'   => '',
 			'hook'      => null,
 			'newWindow' => true,
 			'primary'   => true,
 		);
-		$this->redux_action             = null;
-		$this->priority                 = 0;
-		$this->hosted_with_partner      = null;
-		$this->theme                    = null;
-		$this->multisite_check          = null;
-		$this->should_be_master_user    = false;
-		$this->stickers                 = array();
-		$this->active_widgets           = array();
-		$this->inactive_widgets         = array();
-		$this->option_matches           = array();
-		$this->mobile_browser           = null;
-		$this->has_mobile_app           = null;
-		$this->ab_test_series           = null;
-		$this->ab_test_hidden_variation = null;
-		$this->tracks                   = null;
-		$this->user_locales             = array();
-		$this->is_dismissible           = true;
-		$this->needs_accept_tos         = null;
-		$this->user_countries           = array();
+		$this->redux_action        = null;
+		$this->priority            = 0;
+		$this->hosted_with_partner = null;
+		$this->theme               = null;
+		$this->active_widgets      = array();
+		$this->inactive_widgets    = array();
+		$this->option_matches      = array();
+		$this->mobile_browser      = null;
+		$this->user_locales        = array();
+		$this->is_dismissible      = true;
 
-		$this->cache = $cache;
-	}
-
-	/**
-	 * For AB test
-	 *
-	 * @param string $series Series.
-	 * @param string $hide_variation $hide_variation.
-	 *
-	 * @return $this
-	 */
-	public function for_ab_test( $series, $hide_variation ) {
-		$this->ab_test_series           = $series;
-		$this->ab_test_hidden_variation = $hide_variation;
-
-		return $this;
 	}
 
 	/**
@@ -384,26 +278,20 @@ class Message {
 			return $score;
 		}
 
-		$score = $this->cache->get_or_set(
-			'query_string',
-			$this->query,
-			function () use ( &$query ) {
-				return array_reduce(
-					array_keys( $query ),
-					function ( $score, $key ) use ( &$query ) {
-						if ( $score ) {
-							return $score;
-						}
+		$score = array_reduce(
+			array_keys( $query ),
+			function ( $score, $key ) use ( &$query ) {
+				if ( $score ) {
+					return $score;
+				}
 
-						if ( array_key_exists( $key, $this->query ) ) {
-							return (int) preg_match( $this->query[ $key ], $query[ $key ] );
-						}
+				if ( array_key_exists( $key, $this->query ) ) {
+					return (int) preg_match( $this->query[ $key ], $query[ $key ] );
+				}
 
-						return 0;
-					},
-					0
-				);
-			}
+				return 0;
+			},
+			0
 		);
 
 		return $score ? $score : false;
@@ -455,7 +343,7 @@ class Message {
 	 * @return bool|int
 	 */
 	private function score_dismissal( $path, $external_user_id, $query, $score ) {
-		$dismissals = $this->cache->get_dismissals();
+		$dismissals = $this->get_dismissals();
 		if ( false !== $dismissals && is_array( $dismissals ) && isset( $dismissals[ $this->feature_class ] ) && is_array( $dismissals[ $this->feature_class ] ) ) {
 			$score = 0;
 
@@ -471,7 +359,7 @@ class Message {
 	}
 
 	/**
-	 * Score multisite
+	 * Score hosted with partner
 	 *
 	 * @param string $path path.
 	 * @param int    $external_user_id external_user_id.
@@ -480,66 +368,19 @@ class Message {
 	 *
 	 * @return bool|int
 	 */
-	private function score_multisite( $path, $external_user_id, $query, $score ) {
-		if ( is_null( $this->multisite_check ) ) {
-			return $score;
-		}
-
-		$is_multisite = $this->cache->get_or_set(
-			'callable',
-			'is_multisite',
-			function () {
-				return (bool) $this->cache->get_replica_store()->get_callable( 'is_multi_site' );
-			}
-		);
-
-		if ( $is_multisite === $this->multisite_check ) {
-			$score = 1;
-		}
-
-		return $score ? $score : false;
-	}
-
-	/**
-	 * Score partner hosted
-	 *
-	 * @param string $path path.
-	 * @param int    $external_user_id external_user_id.
-	 * @param array  $query query.
-	 * @param int    $score score.
-	 *
-	 * @return bool|int
-	 */
-	private function score_partner_hosted( $path, $external_user_id, $query, $score ) {
+	private function score_hosted_with_partner( $path, $external_user_id, $query, $score ) {
 		if ( is_null( $this->hosted_with_partner ) ) {
 			return $score;
 		}
 
-		require_lib( 'jetpack-start' );
+		// Using 'bluehost' for development
+		// TODO: replace with proper detection method.
 
-		$hosted_with_partner = $this->cache->get_or_set(
-			'jetpack-start-hosted',
-			$this->hosted_with_partner,
-			function () {
-				return is_jetpack_site_hosted_with_partner( get_current_blog_id() );
-			}
-		);
-
-		// If a boolean was passed in to $this->hosted_with_partner, then we simply check if the site is, or is not,
-		// hosted with a partner. If a string was passed in, check if the site is hosted on a specific partner.
-		if ( is_bool( $this->hosted_with_partner ) ) {
-			$passes_hosted_with_partner = ( $this->hosted_with_partner === $hosted_with_partner );
-		} elseif ( is_string( $this->hosted_with_partner ) ) {
-			$passes_hosted_with_partner = ( $this->hosted_with_partner === $hosted_with_partner );
-		} else {
-			$passes_hosted_with_partner = false;
-		}
-
-		if ( $passes_hosted_with_partner ) {
+		if ( 'bluehost' === $this->hosted_with_partner ) {
 			return 1;
-		} else {
-			return false;
 		}
+
+		return false;
 	}
 
 	/**
@@ -557,8 +398,7 @@ class Message {
 			return $score;
 		}
 
-		$current_user_id = $this->cache->get_current_user( $external_user_id );
-		$user_locale     = strtolower( get_user_locale( $current_user_id ) );
+		$user_locale = strtolower( get_user_locale() );
 
 		return in_array( $user_locale, $this->user_locales, true );
 	}
@@ -578,54 +418,14 @@ class Message {
 			return $score;
 		}
 
-		/*
-		 * In Jetpack versions 7.8+, the user roles are set in the cache when the JITM request from Jetpack is
-		 * received. This `get_or_set()` call is required for older versions of Jetpack.
-		 */
-		$user = $this->cache->get_or_set(
-			'user_roles',
-			'user',
-			function () use ( $external_user_id ) {
-				$user = $this->cache->get_current_user( $external_user_id );
-				if ( 0 === $user ) {
-					// User is not linked so the role is unknown.
-					return false;
-				}
-
-				return get_userdata( $user );
-			}
-		);
-
-		if ( $user ) {
-			foreach ( $this->roles as $cap ) {
-				if ( in_array( $cap, $user->roles, true ) ) {
-					return 1;
-				}
+		$user = wp_get_current_user();
+		foreach ( $this->roles as $cap ) {
+			if ( in_array( $cap, $user->roles, true ) ) {
+				return true;
 			}
 		}
 
 		return false;
-	}
-
-	/**
-	 * Score master user
-	 *
-	 * @param string $path path.
-	 * @param int    $external_user_id external_user_id.
-	 * @param array  $query query.
-	 * @param int    $score score.
-	 *
-	 * @return bool|int
-	 */
-	private function score_master_user( $path, $external_user_id, $query, $score ) {
-		if ( ! $this->should_be_master_user ) {
-			return $score;
-		}
-
-		$current_user_id = $this->cache->get_current_user( $external_user_id );
-		$master_user     = \Jetpack::get_master_user( get_current_blog_id() );
-
-		return $master_user && ( $master_user->ID === $current_user_id );
 	}
 
 	/**
@@ -643,7 +443,7 @@ class Message {
 			return $score;
 		}
 
-		$active_theme = $this->cache->get_or_set(
+		$active_theme = $this->get_or_set(
 			'themes',
 			'active',
 			function () {
@@ -672,8 +472,8 @@ class Message {
 	 */
 	private function score_plugins( $path, $external_user_id, $query, $score ) {
 		if ( ! empty( $this->active_plugins ) || ! empty( $this->inactive_plugins ) || ! empty( $this->installed_plugins ) || ! empty( $this->uninstalled_plugins ) ) {
-			$installed_plugins = $this->cache->get_installed_plugins();
-			$active_plugins    = $this->cache->get_active_plugins();
+			$installed_plugins = $this->get_installed_plugins();
+			$active_plugins    = $this->get_active_plugins();
 
 			// check for inactive plugins.
 			$score = (int) array_reduce(
@@ -763,30 +563,6 @@ class Message {
 	}
 
 	/**
-	 * Score stickers
-	 *
-	 * @param string $path path.
-	 * @param int    $external_user_id external_user_id.
-	 * @param array  $query query.
-	 * @param int    $score score.
-	 *
-	 * @return bool|int
-	 */
-	private function score_stickers( $path, $external_user_id, $query, $score ) {
-		if ( empty( $this->stickers ) ) {
-			return $score;
-		}
-
-		foreach ( $this->stickers as $sticker ) {
-			if ( has_blog_sticker( $sticker ) ) {
-				return 1;
-			}
-		}
-
-		return false;
-	}
-
-	/**
 	 * Score active widgets
 	 *
 	 * @param string $path path.
@@ -800,7 +576,7 @@ class Message {
 		if ( empty( $this->active_widgets ) ) {
 			return $score;
 		}
-		$active_widget_list = $this->cache->get_widget_list();
+		$active_widget_list = $this->get_widget_list();
 
 		foreach ( $this->active_widgets as $active_widget ) {
 			if ( in_array( $active_widget, $active_widget_list, true ) ) {
@@ -826,7 +602,7 @@ class Message {
 			return $score;
 		}
 
-		$active_widget_list = $this->cache->get_widget_list();
+		$active_widget_list = $this->get_widget_list();
 
 		foreach ( $this->inactive_widgets as $inactive_widget ) {
 			if ( in_array( $inactive_widget, $active_widget_list, true ) ) {
@@ -844,86 +620,20 @@ class Message {
 	 * @param int    $external_user_id external_user_id.
 	 * @param array  $query query.
 	 * @param int    $score score.
+	 * @param bool   $mobile_browser mobile browser.
 	 *
 	 * @return bool|int
 	 */
-	private function score_mobile_browser( $path, $external_user_id, $query, $score ) {
+	private function score_mobile_browser( $path, $external_user_id, $query, $score, $mobile_browser ) {
 		if ( is_null( $this->mobile_browser ) ) {
 			return $score;
 		}
 
-		if ( $this->mobile_browser === $this->cache->is_mobile_browser() ) {
+		if ( $this->mobile_browser === $mobile_browser ) {
 			return 1;
 		}
 
 		return false;
-	}
-
-	/**
-	 * Score has mobile app
-	 *
-	 * @param string $path path.
-	 * @param int    $external_user_id external_user_id.
-	 * @param array  $query query.
-	 * @param int    $score score.
-	 *
-	 * @return bool|int
-	 */
-	private function score_has_mobile_app( $path, $external_user_id, $query, $score ) {
-		if ( is_null( $this->has_mobile_app ) ) {
-			return $score;
-		}
-
-		if ( $this->has_mobile_app !== $this->cache->has_mobile_app( $external_user_id ) ) {
-			return false;
-		}
-
-		return 1;
-	}
-
-	/**
-	 * Score TOS
-	 *
-	 * @param string $path path.
-	 * @param int    $external_user_id external_user_id.
-	 * @param array  $query query.
-	 * @param int    $score score.
-	 *
-	 * @return bool|int
-	 */
-	private function score_tos( $path, $external_user_id, $query, $score ) {
-		if ( is_null( $this->needs_accept_tos ) ) {
-			return $score;
-		}
-
-		require_lib( 'tos/updates' );
-		$current_user_id = $this->cache->get_current_user( $external_user_id );
-		if ( \A8C\TOS\display_accept_prompt( $current_user_id ) ) {
-			return 1;
-		}
-
-		return false;
-	}
-
-	/**
-	 * Score user country
-	 *
-	 * @param string $path path.
-	 * @param int    $external_user_id external_user_id.
-	 * @param array  $query query.
-	 * @param int    $score score.
-	 *
-	 * @return bool|int
-	 */
-	private function score_user_country( $path, $external_user_id, $query, $score ) {
-		if ( empty( $this->user_countries ) ) {
-			return $score;
-		}
-
-		$current_user_id = $this->cache->get_current_user( $external_user_id );
-		$user_country    = $this->cache->get_user_country( $current_user_id );
-
-		return in_array( $user_country, $this->user_countries, true ) ? 1 : false;
 	}
 
 	/**
@@ -935,10 +645,11 @@ class Message {
 	 * @param int    $external_user_id The external user id.
 	 * @param array  $external_caps The external user's role.
 	 * @param array  $query The query string from the browser.
+	 * @param bool   $mobile_browser Is using a mobile browser.
 	 *
 	 * @return int The score for this jitm
 	 */
-	public function score( $path, $external_user_id, $external_caps, $query ) {
+	public function score( $path, $external_user_id, $external_caps, $query, $mobile_browser ) {
 		$score = 0;
 
 		// try and keep this in order of least expensive to most expensive - in terms of db/transaction overhead.
@@ -946,24 +657,18 @@ class Message {
 			'score_message_path',
 			'score_query_string',
 			'score_mobile_browser',
-			'score_user_country',
 			'score_option_matches',
 			'score_dismissal',
-			'score_tos',
-			'score_multisite',
-			'score_user_locale',
 			'score_user_roles',
-			'score_master_user',
-			'score_has_mobile_app',
-			'score_stickers',
 			'score_user_theme',
 			'score_plugins',
 			'score_active_widgets',
 			'score_inactive_widgets',
+			'score_hosted_with_partner',
 		);
 
 		foreach ( $score_priority as $score_func ) {
-			$score = $this->$score_func( $path, $external_user_id, $query, $score );
+			$score = $this->$score_func( $path, $external_user_id, $query, $score, $mobile_browser );
 			if ( false === $score ) {
 				return 0;
 			}
@@ -1010,39 +715,17 @@ class Message {
 		$obj->content        = $this->content;
 		$obj->cta            = $this->cta;
 		$obj->template       = $this->template;
-		$obj->ttl            = $this->ttl;
 		$obj->id             = $this->id;
 		$obj->feature_class  = $this->feature_class;
 		$obj->expires        = $this->next_show;
 		$obj->max_dismissal  = $this->max_dismissals;
 		$obj->is_dismissible = $this->is_dismissible;
 
-		if ( ! empty( $this->tracks ) ) {
-			$obj->tracks = $this->tracks;
-		}
-
 		if ( is_array( $this->redux_action ) ) {
 			$obj->action = $this->redux_action;
 		}
 
 		return $obj;
-	}
-
-	/**
-	 * Called if it will be rendered on the client, just before rendering on the client.
-	 *
-	 * @param int $external_user_id The external user id.
-	 *
-	 * @return object The rendered rule
-	 */
-	public function post_render( $external_user_id ) {
-		if ( isset( $this->ab_test_series ) && isset( $this->ab_test_hidden_variation ) ) {
-			if ( ab_test_variation( $this->ab_test_series, $this->cache->get_current_user( $external_user_id ) ) === $this->ab_test_hidden_variation ) {
-				$this->content = array();
-			}
-		}
-
-		return $this->render();
 	}
 
 	/**
@@ -1088,19 +771,6 @@ class Message {
 	 */
 	public function has_widget_inactive( $widget_slug ) {
 		$this->inactive_widgets[] = $widget_slug;
-
-		return $this;
-	}
-
-	/**
-	 * Check if a blog has a specific sticker
-	 *
-	 * @param string $sticker The sticker to check for.
-	 *
-	 * @return $this
-	 */
-	public function has_sticker( $sticker ) {
-		$this->stickers[] = $sticker;
 
 		return $this;
 	}
@@ -1228,17 +898,6 @@ class Message {
 	}
 
 	/**
-	 * Only show if the user is the master JP user
-	 *
-	 * @return $this
-	 */
-	public function user_is_master_user() {
-		$this->should_be_master_user = true;
-
-		return $this;
-	}
-
-	/**
 	 * Show the specified message to the user
 	 *
 	 * @param string $message The message.
@@ -1315,29 +974,6 @@ class Message {
 	}
 
 	/**
-	 * Sets Custom Tracks events.
-	 * If you don't set this, 'jitm_nudge_click' + the message id will be used by default.
-	 *
-	 * @param string $type Event type. e.g. 'click' or 'display'.
-	 * @param string $name Tracks Event name.
-	 * @param array  $props Custom event properties.
-	 *
-	 * @return $this
-	 */
-	public function with_tracks( $type, $name, $props = null ) {
-		if ( ! is_array( $this->tracks ) ) {
-			$this->tracks = array();
-		}
-
-		$this->tracks[ $type ] = array(
-			'name'  => $name,
-			'props' => $props,
-		);
-
-		return $this;
-	}
-
-	/**
 	 * Adds an icon to the JITM
 	 *
 	 * @param string $emblem You may put an svg here, or a predifined emblem from Jetpack.
@@ -1377,28 +1013,6 @@ class Message {
 	}
 
 	/**
-	 * Only show jitm for multisite sites
-	 *
-	 * @return $this
-	 */
-	public function is_multisite() {
-		$this->multisite_check = true;
-
-		return $this;
-	}
-
-	/**
-	 * Only show jitm for single sites
-	 *
-	 * @return $this
-	 */
-	public function is_single_site() {
-		$this->multisite_check = false;
-
-		return $this;
-	}
-
-	/**
 	 * Sets the amount of time to reshow a jitm after it has been dismissed
 	 *
 	 * @param int $seconds The number of seconds to show wait to show the jitm again.
@@ -1425,27 +1039,14 @@ class Message {
 	}
 
 	/**
-	 * Set the ttl for this jitm before it will be retrieved again from the server
+	 * Sets a flag to check if a site is hosted with a certain partner.
 	 *
-	 * @param int $seconds The number of seconds to cache.
-	 *
-	 * @return $this
-	 */
-	public function ttl( $seconds ) {
-		$this->ttl = $seconds;
-
-		return $this;
-	}
-
-	/**
-	 * Sets a flag to check if a site is hosted with a Jetpack partner.
-	 *
-	 * @param bool|string $partner partner.
+	 * @param bool|string $partner_name partner name.
 	 *
 	 * @return $this
 	 */
-	public function is_hosted_with_partner( $partner = true ) {
-		$this->hosted_with_partner = $partner;
+	public function is_hosted_with_partner( $partner_name ) {
+		$this->hosted_with_partner = $partner_name;
 
 		return $this;
 	}
@@ -1478,19 +1079,6 @@ class Message {
 	 */
 	public function mobile_browser( $mobile_browser ) {
 		$this->mobile_browser = $mobile_browser;
-
-		return $this;
-	}
-
-	/**
-	 * Limits the JITM to mobile or non-mobile user
-	 *
-	 * @param bool $has_mobile_app - Whether to limit to mobile or non-mobile user.
-	 *
-	 * @return $this
-	 */
-	public function has_mobile_app( $has_mobile_app ) {
-		$this->has_mobile_app = $has_mobile_app;
 
 		return $this;
 	}
@@ -1531,32 +1119,63 @@ class Message {
 	}
 
 	/**
-	 * Requires the user to accept the current ToS.
+	 * Get the site's dismissals
 	 *
-	 * @return $this
+	 * @return array The array of dismissed jitms
 	 */
-	public function needs_accept_tos() {
-		$this->needs_accept_tos = true;
-
-		return $this;
+	public function get_dismissals() {
+		return \Jetpack_Options::get_option( 'hide_jitm' ) ? \Jetpack_Options::get_option( 'hide_jitm' ) : array();
 	}
 
 	/**
-	 * Only show this JITM when the specified country is set as a user attribute.
-	 * Multiple calls are treated as OR: if _any_ of countries of the given countries are founds
-	 * the rule will pass.
+	 * Get's the site's installed plugins
 	 *
-	 * @param string|array $country_code Single country or an array of countries.
-	 *
-	 * @return $this
+	 * @return array An array of installed plugins
 	 */
-	public function with_user_country( $country_code ) {
-		if ( is_array( $country_code ) ) {
-			$this->user_countries = array_merge( array_map( 'strtoupper', $country_code ), $this->user_countries );
-		} else {
-			$this->user_countries[] = strtoupper( $country_code );
+	public function get_installed_plugins() {
+		if ( ! function_exists( 'get_plugins' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
-		return $this;
+		/** This filter is documented in wp-admin/includes/class-wp-plugins-list-table.php */
+		$all_plugins = apply_filters( 'all_plugins', get_plugins() );
+
+		return $all_plugins;
+	}
+
+	/**
+	 * Get's the site's active plugins
+	 *
+	 * @return array An array of active plugins
+	 */
+	public function get_active_plugins() {
+		include_once ABSPATH . 'wp-admin/includes/plugin.php';
+		$active_plugins = \Jetpack::get_active_plugins();
+		if ( ! is_array( $active_plugins ) ) { // can be an empty string.
+			$active_plugins = array();
+		}
+
+		return $active_plugins;
+	}
+
+	/**
+	 * Get the list of widgets
+	 *
+	 * @return array
+	 */
+	public function get_widget_list() {
+		$list           = array();
+		$active_widgets = get_option( 'sidebars_widgets' );
+		foreach ( $active_widgets as $widgets ) {
+			if ( is_iterable( $widgets ) ) {
+				foreach ( $widgets as $widget ) {
+					$list[] = implode( '-', array_slice( explode( '-', $widget ), 0, - 1 ) );
+				}
+			} else {
+				$list[] = implode( '-', array_slice( explode( '-', $widgets ), 0, - 1 ) );
+			}
+		}
+
+		return $list;
 	}
 
 }

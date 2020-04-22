@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\JITMS;
 
-use Automattic\Jetpack\JITMS\Cache;
 use Automattic\Jetpack\JITMS\Message;
 
 /**
@@ -18,11 +17,11 @@ use Automattic\Jetpack\JITMS\Message;
 class Engine {
 
 	/**
-	 * Jetpack's JITM Cache
+	 * Is mobile browser
 	 *
-	 * @var Cache Cache instance.
+	 * @var bool $mobile_browser.
 	 */
-	private $cache;
+	private $mobile_browser;
 
 	/**
 	 * Returns the default rules
@@ -34,7 +33,7 @@ class Engine {
 			$this->preconnection_default_rules()
 		);
 
-		return apply_filters( 'jetpack_jitm_rules', $rules, $this->get_cache() );
+		return apply_filters( 'jetpack_jitm_rules', $rules );
 	}
 
 	/**
@@ -43,10 +42,9 @@ class Engine {
 	 * @return array Pre-connection JITMs default rules.
 	 */
 	private function preconnection_default_rules() {
-		$cache = $this->get_cache();
 
 		return array(
-			( new Message( 'jpsetup-posts', 'pre-connect', $cache ) )
+			( new Message( 'jpsetup-posts', 'pre-connect' ) )
 				->user_is( 'administrator' )
 				->with_icon()
 				->message_path( '/wp:edit-post:admin_notices/' )
@@ -59,13 +57,14 @@ class Engine {
 					__( 'Setup Jetpack', 'jetpack' ),
 					'',
 					function() {
-						return esc_url( \Jetpack::init()->build_connect_url( true, false, 'pre-connection-jitm' ) );
+						return esc_url( \Jetpack::init()->build_connect_url( true, false, 'pre-connection-jitm-posts' ) );
 					}
 				)
 				->open_cta_in_same_window()
 				->is_dismissible( true )
-				->priority( 1000 ),
-			( new Message( 'jpsetup-upload', 'pre-connect', $cache ) )
+				->priority( 1000 )
+				->is_hosted_with_partner( 'bluehost' ),
+			( new Message( 'jpsetup-upload', 'pre-connect' ) )
 				->user_is( 'administrator' )
 				->with_icon()
 				->message_path( '/wp:upload:admin_notices/' )
@@ -78,13 +77,14 @@ class Engine {
 					__( 'Setup Jetpack', 'jetpack' ),
 					'',
 					function() {
-						return esc_url( \Jetpack::init()->build_connect_url( true, false, 'pre-connection-jitm' ) );
+						return esc_url( \Jetpack::init()->build_connect_url( true, false, 'pre-connection-jitm-upload' ) );
 					}
 				)
 				->open_cta_in_same_window()
 				->is_dismissible( true )
-				->priority( 1000 ),
-			( new Message( 'jpsetup-widgets', 'pre-connect', $cache ) )
+				->priority( 1000 )
+				->is_hosted_with_partner( 'bluehost' ),
+			( new Message( 'jpsetup-widgets', 'pre-connect' ) )
 				->user_is( 'administrator' )
 				->with_icon()
 				->message_path( '/wp:widgets:admin_notices/' )
@@ -97,36 +97,14 @@ class Engine {
 					__( 'Setup Jetpack', 'jetpack' ),
 					'',
 					function() {
-						return esc_url( \Jetpack::init()->build_connect_url( true, false, 'pre-connection-jitm' ) );
+						return esc_url( \Jetpack::init()->build_connect_url( true, false, 'pre-connection-jitm-widgets' ) );
 					}
 				)
 				->open_cta_in_same_window()
 				->is_dismissible( true )
-				->priority( 1000 ),
+				->priority( 1000 )
+				->is_hosted_with_partner( 'bluehost' ),
 		);
-	}
-
-	/**
-	 * Sets the Cache instance
-	 *
-	 * @param Cache $cache Cache instance.
-	 *
-	 * @return void
-	 */
-	public function set_cache( $cache ) {
-		$this->cache = $cache;
-	}
-
-	/**
-	 * Gets the Cache instance
-	 *
-	 * @return Cache Cache instance.
-	 */
-	private function get_cache() {
-		if ( ! $this->cache ) {
-			$this->cache = new Cache();
-		}
-		return $this->cache;
 	}
 
 	/**
@@ -138,12 +116,9 @@ class Engine {
 	 * @param string $query Message query.
 	 * @param bool   $mobile_browser Uses mobile browser.
 	 *
-	 * @return Cache Cache instance.
+	 * @return array Rendered messages.
 	 */
 	public function get_top_messages( $message_path, $user_id = null, $user_level = '', $query = '', $mobile_browser = false ) {
-		$cache = $this->get_cache();
-		$cache->set_mobile_browser( $mobile_browser );
-
 		$rules = $this->default_rules();
 
 		if ( is_string( $user_level ) ) {
@@ -152,22 +127,10 @@ class Engine {
 			$user_level = array();
 		}
 
-		if ( ! empty( $user_level ) ) {
-			$user        = new \stdClass();
-			$user->roles = $user_level;
-			$cache->set( 'user_roles', 'user', $user );
-		}
-
-		/**
-		 * An array containing the following data structure:
-		 * [0] = The top score
-		 * [1] = An array of top jitms for display
-		 * [2] = An array of top jitm-message classes, for further processing
-		 */
 		$rules = array_reduce(
 			$rules,
-			function ( $return, $rule ) use ( $message_path, $user_id, $user_level, $query ) {
-				$score = $rule->score( $message_path, $user_id, $user_level, $query );
+			function ( $return, $rule ) use ( $message_path, $user_id, $user_level, $query, $mobile_browser ) {
+				$score = $rule->score( $message_path, $user_id, $user_level, $query, $mobile_browser );
 				if ( $score > $return[0] ) {
 					$return = array( $score, array( $rule->render() ), array( $rule ) );
 				} elseif ( $score === $return[0] && $score > 0 ) {
@@ -183,7 +146,7 @@ class Engine {
 		$rendered_rules = array();
 
 		foreach ( $rules[2] as $rule ) {
-			$rendered_rules[] = $rule->post_render( $user_id );
+			$rendered_rules[] = $rule->render();
 		}
 
 		// get the top message which hasn't been dismissed.
