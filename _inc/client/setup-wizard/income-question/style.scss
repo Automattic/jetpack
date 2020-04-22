@@ -1,6 +1,14 @@
+.jp-setup-wizard-main h1 {
+	font-size: 2rem;
+	margin: 0.67rem 1rem 0 1rem;
+	color: #000000;
+}
+
 .jp-setup-wizard-subtitle {
 	font-weight: 600;
 	font-size: 1.33rem;
+	margin: 0 1rem 1rem 1rem;
+	color: #000000;
 }
 
 .jp-setup-wizard-income-answer-container {
@@ -15,5 +23,5 @@
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	margin: 1rem;
+	margin: 2rem;
 }
