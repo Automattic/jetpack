@@ -20,8 +20,6 @@ import {
 	Spinner,
 	withNotices,
 } from '@wordpress/components';
-import { compose } from '@wordpress/compose';
-import { withSelect } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
 import { __, sprintf, _n } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
@@ -43,15 +41,7 @@ const isCurrentUserConnectedToWpcom = get( window.Jetpack_Editor_Initial_State, 
 const MAX_IMAGE_COUNT = 30;
 
 const InstagramGalleryEdit = props => {
-	const {
-		attributes,
-		canUserManageOptions,
-		className,
-		isSelected,
-		noticeOperations,
-		noticeUI,
-		setAttributes,
-	} = props;
+	const { attributes, className, isSelected, noticeOperations, noticeUI, setAttributes } = props;
 	const { accessToken, align, columns, count, instagramUser, spacing } = attributes;
 
 	const [ images, setImages ] = useState( [] );
@@ -74,12 +64,7 @@ const InstagramGalleryEdit = props => {
 	}, [ attributes, setAttributes ] );
 
 	useEffect( () => {
-		if (
-			! canUserManageOptions ||
-			isCurrentUserConnectedToWpcom ||
-			wpcomConnectUrl ||
-			isRequestingWpcomConnectUrl
-		) {
+		if ( isCurrentUserConnectedToWpcom || wpcomConnectUrl || isRequestingWpcomConnectUrl ) {
 			return;
 		}
 		setRequestingWpcomConnectUrl( true );
@@ -92,7 +77,7 @@ const InstagramGalleryEdit = props => {
 			setWpcomConnectUrl( connectUrl );
 			setRequestingWpcomConnectUrl( false );
 		} );
-	}, [ canUserManageOptions, isRequestingWpcomConnectUrl, wpcomConnectUrl ] );
+	}, [ isRequestingWpcomConnectUrl, wpcomConnectUrl ] );
 
 	useEffect( () => {
 		if ( ! accessToken ) {
@@ -126,14 +111,6 @@ const InstagramGalleryEdit = props => {
 	const showSidebar = ! showPlaceholder;
 	const showLoadingSpinner = accessToken && isLoadingGallery && isEmpty( images );
 	const showGallery = ! showPlaceholder && ! showLoadingSpinner;
-
-	// `canUserManageOptions` is undefined while loading
-	const isConnectToInstagramButtonDisabled =
-		true !== canUserManageOptions || ! isCurrentUserConnectedToWpcom || isConnecting;
-	const showLowerRolesNotice = false === canUserManageOptions;
-	const showUserNeedsConnectionToWpcomNotice =
-		canUserManageOptions && ! isCurrentUserConnectedToWpcom;
-	const showDisconnectFromInstagramButton = canUserManageOptions || isCurrentUserConnectedToWpcom;
 
 	const blockClasses = classnames( className, { [ `align${ align }` ]: align } );
 	const gridClasses = classnames(
@@ -195,7 +172,7 @@ const InstagramGalleryEdit = props => {
 					notices={ noticeUI }
 				>
 					<Button
-						disabled={ isConnectToInstagramButtonDisabled }
+						disabled={ ! isCurrentUserConnectedToWpcom || isConnecting }
 						isLarge
 						isPrimary
 						onClick={ connectToService }
@@ -205,13 +182,7 @@ const InstagramGalleryEdit = props => {
 							: __( 'Connect your Instagram account', 'jetpack' ) }
 					</Button>
 
-					{ showLowerRolesNotice && (
-						<Notice isDismissible={ false } status="info">
-							{ __( 'Only administrators can connect their accounts to Instagram.', 'jetpack' ) }
-						</Notice>
-					) }
-
-					{ showUserNeedsConnectionToWpcomNotice && (
+					{ ! isCurrentUserConnectedToWpcom && (
 						<Notice isDismissible={ false } status="info">
 							{ __(
 								'To connect your Instagram account, you need to link your account to WordPress.com.',
@@ -256,7 +227,7 @@ const InstagramGalleryEdit = props => {
 								@{ instagramUser }
 							</ExternalLink>
 						</PanelRow>
-						{ showDisconnectFromInstagramButton && (
+						{ isCurrentUserConnectedToWpcom && (
 							<PanelRow>
 								<Button
 									disabled={ isConnecting }
@@ -301,10 +272,4 @@ const InstagramGalleryEdit = props => {
 	);
 };
 
-export default compose(
-	withSelect( select => ( {
-		// canUser returns undefined while loading, then true or false
-		canUserManageOptions: select( 'core' ).canUser( 'update', 'settings' ),
-	} ) ),
-	withNotices
-)( InstagramGalleryEdit );
+export default withNotices( InstagramGalleryEdit );
