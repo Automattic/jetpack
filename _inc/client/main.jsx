@@ -133,13 +133,18 @@ class Main extends React.Component {
 	}
 
 	componentDidUpdate( prevProps ) {
+		const routeChanged = prevProps.location.pathname !== this.props.location.pathname;
 		// Track page view on change only
-		prevProps.location.pathname !== this.props.location.pathname &&
+		routeChanged &&
 			this.props.isSiteConnected &&
 			analytics.tracks.recordEvent( 'jetpack_wpa_page_view', {
 				path: this.props.location.pathname,
 				current_version: this.props.currentVersion,
 			} );
+
+		// if ( routeChanged ) {
+		// 	this.handleRouterWillLeave();
+		// }
 
 		// Not taking into account development mode here because changing the connection
 		// status without reloading is possible only by disconnecting a live site not
