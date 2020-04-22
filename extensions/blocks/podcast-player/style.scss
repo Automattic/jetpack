@@ -63,7 +63,8 @@ $jetpack-podcast-player-background: $white;
 		 */
 
 		/**
-		 * Override to address themes using text-decoration or box-shadow underlines on links.
+		 * Override to address themes using text-decoration or box-shadow underlines
+		 * on links.
 		 */
 		a {
 			box-shadow: none;
@@ -77,19 +78,19 @@ $jetpack-podcast-player-background: $white;
 				border: none;
 			}
 		}
-	}
 
-	a.jetpack-podcast-player__link {
-		&,
-		&:active,
-		&:visited {
-			color: inherit;
-		}
+		a.jetpack-podcast-player__link {
+			&,
+			&:active,
+			&:visited {
+				color: inherit;
+			}
 
-		&:hover,
-		&:focus {
-			color: inherit;
-			color: var( --jetpack-podcast-player-primary );
+			&:hover,
+			&:focus {
+				color: inherit;
+				color: var( --jetpack-podcast-player-primary );
+			}
 		}
 	}
 
