@@ -15,12 +15,7 @@ class Plugins_Handler {
 	 * @return Array An array of plugin names as strings.
 	 */
 	public function get_all_active_plugins( $skip_single_file_plugins = true ) {
-		$active_plugins = array_merge(
-			is_multisite()
-				? array_keys( get_site_option( 'active_sitewide_plugins', array() ) )
-				: array(),
-			(array) get_option( 'active_plugins', array() )
-		);
+		$active_plugins = array_merge( $this->get_multisite_plugins(), $this->get_active_plugins() );
 
 		$plugins = array_unique( array_merge( $active_plugins, $this->get_all_activating_plugins() ) );
 
@@ -29,6 +24,26 @@ class Plugins_Handler {
 		}
 
 		return $plugins;
+	}
+
+	/**
+	 * Get the active sitewide plugins in a multisite environment.
+	 *
+	 * @return Array The active sitewide plugins.
+	 */
+	public function get_multisite_plugins() {
+		return is_multisite()
+			? array_keys( get_site_option( 'active_sitewide_plugins', array() ) )
+			: array();
+	}
+
+	/**
+	 * Get the currently active plugins.
+	 *
+	 * @return Array The active plugins.
+	 */
+	protected function get_active_plugins() {
+		return (array) get_option( 'active_plugins', array() );
 	}
 
 	/**
