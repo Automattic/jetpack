@@ -136,7 +136,7 @@ function muplugins_loaded() {
 	}
 
 	// Only allow Jetpack XMLRPC methods -- Jetpack handles verifying the token, request signature, etc.
-	add_filter( 'xmlrpc_methods', '\Private_Site\xmlrpc_methods_limit_to_jetpack' );
+	add_filter( 'xmlrpc_methods', '\Private_Site\xmlrpc_methods_limit_to_allowed_list' );
 
 	// Register additional Jetpack XMLRPC methods
 	add_filter( 'jetpack_xmlrpc_methods', '\Private_Site\register_additional_jetpack_xmlrpc_methods' );
@@ -496,10 +496,12 @@ function rest_dispatch_request( $dispatch_result, $request, $route, $handler ) {
 	return null;
 }
 
-function xmlrpc_methods_limit_to_jetpack( $methods ) {
+function xmlrpc_methods_limit_to_allowed_list( $methods ) {
 	if ( should_prevent_site_access() ) {
 		return array_filter( $methods, function ( $key ) {
-			return preg_match( '/^jetpack\..+/', $key );
+			return in_array( $key, [
+				'demo.sayHello', // Permits the Jetpack debug tool. See: p58i-8OX-p2#comment-46085
+			] ) || preg_match( '/^jetpack\..+/', $key );
 		}, ARRAY_FILTER_USE_KEY );
 	}
 	return $methods;
