@@ -98,10 +98,17 @@ class WPCOM_REST_API_V2_Endpoint_Instagram extends WP_REST_Controller {
 		if ( is_wp_error( $response ) ) {
 			return $response;
 		}
-		$body        = json_decode( wp_remote_retrieve_body( $response ) );
-		$connect_url = $body->services->{'instagram-basic-display'}->connect_URL;
 
-		return $connect_url;
+		$body = json_decode( wp_remote_retrieve_body( $response ) );
+		if ( ! property_exists( $body, 'services' ) || ! property_exists( $body->services, 'instagram-basic-display' ) ) {
+			return new WP_Error(
+				'bad_request',
+				__( 'An error occurred. Please try again later.', 'jetpack' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		return $body->services->{ 'instagram-basic-display' }->connect_URL;
 	}
 
 	/**

@@ -58,7 +58,8 @@ const InstagramGalleryEdit = props => {
 	const [ isLoadingGallery, setIsLoadingGallery ] = useState( false );
 	const { isConnecting, connectToService, disconnectFromService } = useConnectInstagram(
 		setAttributes,
-		setImages
+		setImages,
+		noticeOperations
 	);
 	const [ wpcomConnectUrl, setWpcomConnectUrl ] = useState();
 	const [ isRequestingWpcomConnectUrl, setRequestingWpcomConnectUrl ] = useState( false );
