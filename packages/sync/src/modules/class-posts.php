@@ -120,6 +120,7 @@ class Posts extends Module {
 
 		add_action( 'deleted_post', $callable, 10 );
 		add_action( 'jetpack_published_post', $callable, 10, 2 );
+		add_filter( 'jetpack_sync_before_enqueue_deleted_post', array( $this, 'filter_blacklisted_post_types_deleted' ) );
 
 		add_action( 'transition_post_status', array( $this, 'save_published' ), 10, 3 );
 		add_filter( 'jetpack_sync_before_enqueue_jetpack_sync_save_post', array( $this, 'filter_blacklisted_post_types' ) );
@@ -273,6 +274,27 @@ class Posts extends Module {
 	public function expand_jetpack_sync_save_post( $args ) {
 		list( $post_id, $post, $update, $previous_state ) = $args;
 		return array( $post_id, $this->filter_post_content_and_add_links( $post ), $update, $previous_state );
+	}
+
+	/**
+	 * Filter all blacklisted post types.
+	 *
+	 * @param array $args Hook arguments.
+	 * @return array|false Hook arguments, or false if the post type is a blacklisted one.
+	 */
+	public function filter_blacklisted_post_types_deleted( $args ) {
+
+		// deleted_post is called after the SQL delete but before cache cleanup.
+		// There is the potential we can't detect post_type at this point.
+		$post = get_post( $args[0] );
+
+		if ( ! is_wp_error( $post ) && ! empty( $post ) ) {
+			if ( in_array( $post->post_type, Settings::get_setting( 'post_types_blacklist' ), true ) ) {
+				return false;
+			}
+		}
+
+		return $args;
 	}
 
 	/**
