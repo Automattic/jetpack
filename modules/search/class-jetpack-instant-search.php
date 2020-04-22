@@ -133,8 +133,8 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			'siteId'                => Jetpack::get_option( 'id' ),
 
 			// filtering.
-			'postTypeFilters'       => isset( $widget_options['post_types'] ) ? $widget_options['post_types'] : array(),
 			'postTypes'             => $post_type_labels,
+			'postTypesWhitelist'    => isset( $widget_options['post_types'] ) ? $widget_options['post_types'] : array(),
 			'sort'                  => isset( $widget_options['sort'] ) ? $widget_options['sort'] : null,
 			'widgets'               => array_values( $widgets ),
 			'widgetsOutsideOverlay' => array_values( $widgets_outside_overlay ),

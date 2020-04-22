@@ -103,7 +103,7 @@ const filterKeyToEsFilter = new Map( [
 	],
 ] );
 
-function buildFilterObject( filterQuery ) {
+function buildFilterObject( filterQuery, postTypesWhitelist ) {
 	if ( ! filterQuery ) {
 		return {};
 	}
@@ -121,6 +121,16 @@ function buildFilterObject( filterQuery ) {
 				}
 			} );
 		} );
+
+	// Handle post types whitelist defined in PHP
+	postTypesWhitelist.length > 0 &&
+		filter.bool.must.push( {
+			bool: {
+				should: postTypesWhitelist.map( postType =>
+					filterKeyToEsFilter.get( 'post_types' )( postType )
+				),
+			},
+		} );
 	return filter;
 }
 
@@ -133,6 +143,7 @@ export function search( {
 	siteId,
 	sort,
 	postsPerPage = 10,
+	postTypesWhitelist,
 } ) {
 	const key = stringify( Array.from( arguments ) );
 
@@ -171,7 +182,7 @@ export function search( {
 			aggregations,
 			fields,
 			highlight_fields: highlightFields,
-			filter: buildFilterObject( filter ),
+			filter: buildFilterObject( filter, postTypesWhitelist ),
 			query: encodeURIComponent( query ),
 			sort,
 			page_handle: pageHandle,

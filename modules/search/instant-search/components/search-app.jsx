@@ -219,6 +219,7 @@ class SearchApp extends Component {
 			siteId: this.props.options.siteId,
 			sort,
 			postsPerPage: this.props.options.postsPerPage,
+			postTypesWhitelist: this.props.options.postTypesWhitelist,
 		} )
 			.then( newResponse => {
 				if ( this.state.requestId === requestId ) {
