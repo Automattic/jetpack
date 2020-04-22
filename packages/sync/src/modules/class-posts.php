@@ -286,7 +286,7 @@ class Posts extends Module {
 
 		// deleted_post is called after the SQL delete but before cache cleanup.
 		// There is the potential we can't detect post_type at this point.
-		if ( ! is_post_type_allowed( $args[0] ) ) {
+		if ( ! $this->is_post_type_allowed( $args[0] ) ) {
 			return false;
 		}
 
