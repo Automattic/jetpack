@@ -55,7 +55,7 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
 /**
  * Podcast Player block registration/dependency declaration.
  *
- * @param array|object $attributes Podcast Player block attributes / WP_Block instance.
+ * @param array|WP_Block $attributes Podcast Player block attributes / WP_Block instance.
  * @return string
  */
 function render_block( $attributes ) {
