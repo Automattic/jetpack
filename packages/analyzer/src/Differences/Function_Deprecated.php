@@ -1,6 +1,6 @@
 <?php
 /**
- * Class Method Deprecated checker.
+ * Function Deprecated Checker.
  *
  * @package automattic/jetpack-analyzer
  */
@@ -8,19 +8,20 @@
 namespace Automattic\Jetpack\Analyzer\Differences;
 
 use Automattic\Jetpack\Analyzer\PersistentList\Item as PersistentListItem;
-use Automattic\Jetpack\Analyzer\Invocations\Static_Call;
+use Automattic\Jetpack\Analyzer\Invocations\Function_Call;
 use Automattic\Jetpack\Analyzer\Warnings\Warning; // TODO - subclasses?
 
 /**
- * Class Class_Method_Deprecated
+ * Class Function_Deprecated
  */
-class Class_Method_Deprecated extends PersistentListItem implements Invocation_Warner {
+class Function_Deprecated extends PersistentListItem implements Invocation_Warner {
 	/**
 	 * Old declaration.
 	 *
 	 * @var object
 	 */
 	public $old_declaration;
+
 	/**
 	 * New declaration.
 	 *
@@ -29,7 +30,7 @@ class Class_Method_Deprecated extends PersistentListItem implements Invocation_W
 	public $new_declaration;
 
 	/**
-	 * Class_Method_Deprecated constructor.
+	 * Function_Moved constructor.
 	 *
 	 * @param object $old_declaration Old declaration.
 	 * @param object $new_declaration New declaration.
@@ -54,18 +55,18 @@ class Class_Method_Deprecated extends PersistentListItem implements Invocation_W
 	}
 
 	/**
-	 * Returns type of issue.
+	 * Returns type of issue discovered.
 	 *
-	 * @return string 'method_deprecated'
+	 * @return string 'function_deprecated'
 	 */
 	public function type() {
-		return 'method_deprecated';
+		return 'function_deprecated';
 	}
 
 	/**
-	 * Display name of issue.
+	 * Returns the display name of the issue.
 	 *
-	 * @return string
+	 * @return mixed
 	 */
 	public function display_name() {
 		return $this->old_declaration->display_name();
@@ -80,7 +81,7 @@ class Class_Method_Deprecated extends PersistentListItem implements Invocation_W
 	public function find_invocation_warnings( $invocation, $warnings ) {
 		if ( $invocation->depends_on( $this->old_declaration ) ) {
 			$warnings->add(
-				new Warning( $this->type(), $invocation->path, $invocation->line, 'Class method ' . $this->old_declaration->display_name() . ' is deprecated ' . $this->old_declaration->path . ' line ' . $this->old_declaration->line, $this->old_declaration )
+				new Warning( $this->type(), $invocation->path, $invocation->line, 'Function ' . $this->old_declaration->display_name() . ' is deprecated ' . $this->old_declaration->path . ' line ' . $this->old_declaration->line, $this->old_declaration )
 			);
 		}
 	}

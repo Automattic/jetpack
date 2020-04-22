@@ -128,7 +128,7 @@ class Declarations extends PersistentList {
 
 					case 'function':
 						$params      = json_decode( $params_json );
-						$declaration = new Declarations\Function_( $file, $line, $name );
+						$declaration = new Declarations\Function_( $file, $line, $name, $deprecated );
 						if ( is_array( $params ) ) {
 							foreach ( $params as $param ) {
 								$declaration->add_param( $param->name, $param->default, $param->type, $param->byRef, $param->variadic );

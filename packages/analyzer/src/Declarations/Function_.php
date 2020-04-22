@@ -8,10 +8,12 @@ namespace Automattic\Jetpack\Analyzer\Declarations;
 class Function_ extends Declaration {
 	public $func_name;
 	public $params;
+	public $deprecated;
 
-	function __construct( $path, $line, $func_name ) {
-		$this->func_name = $func_name;
-		$this->params    = array();
+	function __construct( $path, $line, $func_name, $deprecated = false ) {
+		$this->func_name  = $func_name;
+		$this->params     = array();
+		$this->deprecated = $deprecated;
 		parent::__construct( $path, $line );
 	}
 
@@ -29,6 +31,7 @@ class Function_ extends Declaration {
 			$this->func_name,
 			'',
 			json_encode( $this->params ),
+			$this->deprecated,
 		);
 	}
 
