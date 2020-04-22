@@ -234,7 +234,7 @@ class Jetpack_Cxn_Test_Base {
 
 		foreach ( $results as $test => $result ) {
 			// We do not want tests that passed or ones that are misconfigured (no pass status or no failure message).
-			if ( ! isset( $result['pass'] ) || false !== $result['pass'] || ! isset( $result['message'] ) ) {
+			if ( ! isset( $result['pass'] ) || false !== $result['pass'] || ! isset( $result['short_description'] ) ) {
 				unset( $results[ $test ] );
 			}
 		}
