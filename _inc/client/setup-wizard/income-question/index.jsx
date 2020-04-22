@@ -24,7 +24,7 @@ const IncomeQuestion = props => {
 			/>
 			<h1>
 				{ __( 'Do you intend to make money directly from %(siteUrl)s?', {
-					args: { siteUrl: props.siteRawUrl },
+					args: { siteUrl: props.siteTitle },
 				} ) }
 			</h1>
 			<p className="jp-setup-wizard-subtitle">{ __( 'Check all that apply' ) }</p>
@@ -57,7 +57,7 @@ const IncomeQuestion = props => {
 };
 
 IncomeQuestion.propTypes = {
-	siteRawUrl: PropTypes.string.isRequired,
+	siteTitle: PropTypes.string.isRequired,
 };
 
 export { IncomeQuestion };

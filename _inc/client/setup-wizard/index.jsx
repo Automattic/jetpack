@@ -20,7 +20,7 @@ const SetupWizardComponent = props => {
 			pageComponent = <IntroPage siteTitle={ props.siteTitle } />;
 			break;
 		case '/setup/income':
-			pageComponent = <IncomeQuestion siteRawUrl={ props.siteRawUrl } />;
+			pageComponent = <IncomeQuestion siteTitle={ props.siteTitle } />;
 			break;
 	}
 
