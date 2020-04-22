@@ -9,6 +9,7 @@ import { translate as __ } from 'i18n-calypso';
  * Internal dependencies
  */
 import { ChecklistAnswer } from '../checklist-answer';
+import Button from 'components/button';
 import { imagePath } from 'constants/urls';
 
 import './style.scss';
@@ -51,6 +52,14 @@ const IncomeQuestion = props => {
 						'You have a physical store or business and this website will help drive foot traffic to your location.'
 					}
 				/>
+			</div>
+			<div className="jp-setup-wizard-advance-container">
+				<Button primary className="jp-setup-wizard-button">
+					{ __( 'Continue' ) }
+				</Button>
+				<a className="jp-setup-wizard-skip-link" href="">
+					{ __( 'None of these apply' ) }
+				</a>
 			</div>
 		</div>
 	);

@@ -5,3 +5,18 @@
 	box-shadow: 0px 2px 6px rgba( 0, 0, 0, 0.03 ), 0px 1px 2px rgba( 0, 0, 0, 0.03 );
 	border: 1px solid #dcdcde;
 }
+
+.jp-setup-wizard-button {
+	margin: 1rem;
+	width: 160px;
+
+	@include breakpoint( '<480px' ) {
+		width: 100%;
+		margin: 0.5rem 0;
+	}
+}
+
+.jp-setup-wizard-skip-link {
+	text-decoration: underline !important;
+	color: #000000;
+}
