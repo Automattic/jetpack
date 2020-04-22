@@ -88,9 +88,9 @@ function render_block( $attributes ) {
 	 * was recently introduced by this Pull Request:
 	 * https://github.com/WordPress/gutenberg/pull/21467
 	 */
-	$block_attributes = ! is_array( $attributes ) && isset( $attributes->attributes )
-		? $attributes->attributes
-		: $attributes;
+	if ( ! empty( $attributes->attributes ) ) {
+		$attributes = $attributes->attributes;
+	}
 	return render_player( $player_data, $block_attributes );
 }
 
