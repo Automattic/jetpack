@@ -40,7 +40,6 @@ $player-background: transparent;
 	border: 1px solid $block-border-color;
 	background-color: $block-bg-color;
 	overflow: hidden;
-	font-family: $default-font;
 
 	/**
 	 * Player's state classes added to this element:
@@ -67,6 +66,22 @@ $player-background: transparent;
 		--jetpack-podcast-player-primary: #{$jetpack-podcast-player-primary};
 		--jetpack-podcast-player-secondary: #{$jetpack-podcast-player-secondary};
 		--jetpack-podcast-player-background: #{$jetpack-podcast-player-background};
+
+		/**
+		 * Override to address themes using text-decoration or box-shadow underlines on links.
+		 */
+		a {
+			box-shadow: none;
+			text-decoration: none;
+			border: none;
+
+			&:hover,
+			&:focus {
+				box-shadow: none;
+				text-decoration: none;
+				border: none;
+			}
+		}
 	}
 
 	/**
@@ -92,6 +107,9 @@ $player-background: transparent;
 	.jetpack-podcast-player__cover-image {
 		width: $cover-image-size;
 		height: $cover-image-size;
+		padding: 0;
+		border: 0;
+		max-width: 100%;
 	}
 
 	// The tag name increases specificity to override some themes/editor styles.
@@ -99,6 +117,7 @@ $player-background: transparent;
 		display: flex;
 		flex-direction: column;
 		margin: 0;
+		padding: 0;
 		overflow: hidden;
 		letter-spacing: 0; // Fixes Twenty Twenty compressed text.
 
@@ -125,7 +144,11 @@ $player-background: transparent;
 	}
 
 	a.jetpack-podcast-player__podcast-title {
-		text-decoration: none;
+		&,
+		&:active,
+		&:visited {
+			color: $text-color;
+		}
 
 		&:hover,
 		&:focus {
@@ -137,6 +160,16 @@ $player-background: transparent;
 	.has-secondary {
 		.jetpack-podcast-player__podcast-title {
 			color: currentColor;
+		}
+
+		a.jetpack-podcast-player__podcast-title {
+			&,
+			&:hover,
+			&:focus,
+			&:active,
+			&:visited {
+				color: currentColor;
+			}
 		}
 	}
 
@@ -187,7 +220,6 @@ $player-background: transparent;
 
 	.jetpack-podcast-player__track {
 		margin: 0;
-		font-family: $default-font;
 		font-size: $editor-font-size;
 		line-height: $editor-line-height;
 
@@ -228,19 +260,10 @@ $player-background: transparent;
 		transition: none;
 		color: inherit;
 
+		&:visited,
 		&:hover,
 		&:focus {
 			color: inherit;
-		}
-	}
-
-	// The tag name increases specificity to override some themes/editor styles.
-	a.jetpack-podcast-player__track-link {
-		text-decoration: none;
-
-		&:hover,
-		&:focus {
-			text-decoration: none;
 		}
 	}
 
@@ -280,7 +303,6 @@ $player-background: transparent;
 		margin-left: ($player-grid-spacing - 2px) + $track-status-icon-size + $track-v-padding; // has to be aligned with the track title
 		margin-bottom: $track-h-padding;
 		color: $alert-red;
-		font-family: $default-font;
 		font-size: 0.8em;
 		font-weight: normal;
 
@@ -316,7 +338,6 @@ $player-background: transparent;
 		padding: $player-grid-spacing;
 		margin: 0;
 		color: $alert-red;
-		font-family: $default-font;
 		font-size: 0.8em;
 		font-weight: normal;
 	}
@@ -345,7 +366,8 @@ $player-background: transparent;
 	.mejs-container,
 	.mejs-embed,
 	.mejs-embed body,
-	.mejs-container .mejs-controls {
+	.mejs-container .mejs-controls,
+	.mejs-mediaelement {
 		background-color: $player-background;
 	}
 
