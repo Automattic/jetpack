@@ -2,21 +2,46 @@
  * External dependencies
  */
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, { Component } from 'react';
 
 import './style.scss';
 
-const ChecklistAnswer = props => {
-	return (
-		<div className="jp-checklist-answer-container">
-			<div className="jp-checklist-answer-checkbox-container">
-				<input type="checkbox" />
+class ChecklistAnswer extends Component {
+	constructor( props ) {
+		super( props );
+		this.state = { checked: false };
+	}
+
+	toggleCheckbox = () => {
+		this.setState( { checked: ! this.state.checked } );
+	};
+
+	toggleCheckboxKeypress = e => {
+		if ( 32 === e.charCode ) {
+			return;
+		}
+		this.toggleCheckbox();
+	};
+
+	render() {
+		return (
+			<div
+				className="jp-checklist-answer-container"
+				onClick={ this.toggleCheckbox }
+				onKeyPress={ this.toggleCheckboxKeypress }
+				role="checkbox"
+				aria-checked={ this.state.checked }
+				tabIndex={ 0 }
+			>
+				<div className="jp-checklist-answer-checkbox-container">
+					<input type="checkbox" tabIndex={ -1 } checked={ this.state.checked } />
+				</div>
+				<div className="jp-checklist-answer-title">{ this.props.title }</div>
+				<div className="jp-checklist-answer-details">{ this.props.details }</div>
 			</div>
-			<div className="jp-checklist-answer-title">{ props.title }</div>
-			<div className="jp-checklist-answer-details">{ props.details }</div>
-		</div>
-	);
-};
+		);
+	}
+}
 
 ChecklistAnswer.propTypes = {
 	title: PropTypes.string.isRequired,
