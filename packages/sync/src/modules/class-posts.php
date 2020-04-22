@@ -286,12 +286,8 @@ class Posts extends Module {
 
 		// deleted_post is called after the SQL delete but before cache cleanup.
 		// There is the potential we can't detect post_type at this point.
-		$post = get_post( $args[0] );
-
-		if ( ! is_wp_error( $post ) && ! empty( $post ) ) {
-			if ( in_array( $post->post_type, Settings::get_setting( 'post_types_blacklist' ), true ) ) {
-				return false;
-			}
+		if ( ! is_post_type_allowed( $args[0] ) ) {
+			return false;
 		}
 
 		return $args;
@@ -549,13 +545,9 @@ class Posts extends Module {
 			$post = get_post( $post_ID );
 		}
 
-		$previous_status = isset( $this->previous_status[ $post_ID ] ) ?
-			$this->previous_status[ $post_ID ] :
-			self::DEFAULT_PREVIOUS_STATE;
+		$previous_status = isset( $this->previous_status[ $post_ID ] ) ? $this->previous_status[ $post_ID ] : self::DEFAULT_PREVIOUS_STATE;
 
-		$just_published = isset( $this->just_published[ $post_ID ] ) ?
-			$this->just_published[ $post_ID ] :
-			false;
+		$just_published = isset( $this->just_published[ $post_ID ] ) ? $this->just_published[ $post_ID ] : false;
 
 		$state = array(
 			'is_auto_save'                 => (bool) Jetpack_Constants::get_constant( 'DOING_AUTOSAVE' ),
@@ -570,14 +562,18 @@ class Posts extends Module {
 		 *
 		 * @param int $post_ID the post ID
 		 * @param mixed $post \WP_Post object
-		 * @param bool  $update Whether this is an existing post being updated or not.
+		 * @param bool $update Whether this is an existing post being updated or not.
 		 * @param mixed $state state
 		 *
 		 * @module sync
 		 */
 		do_action( 'jetpack_sync_save_post', $post_ID, $post, $update, $state );
 		unset( $this->previous_status[ $post_ID ] );
-		$this->send_published( $post_ID, $post );
+
+		// Only Send Pulished Post event if post_type is not blacklisted.
+		if ( ! in_array( $post->post_type, Settings::get_setting( 'post_types_blacklist' ), true ) ) {
+			$this->send_published( $post_ID, $post );
+		}
 	}
 
 	/**
