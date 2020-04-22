@@ -9,6 +9,10 @@
 	cursor: pointer;
 }
 
+.jp-checklist-answer-container:focus {
+	border: 2px solid #00a0d2;
+}
+
 .jp-checklist-answer-checkbox-container {
 	display: flex;
 	justify-content: center;
