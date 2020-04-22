@@ -30,5 +30,30 @@
 		"wordads"
 	],
 	"beta": [ "amazon", "instagram-gallery" ],
-	"experimental": [ "seo" ]
+	"experimental": [ "seo" ],
+	"no-post-editor": [
+		"business-hours",
+		"calendly",
+		"contact-form",
+		"contact-info",
+		"eventbrite",
+		"gif",
+		"google-calendar",
+		"mailchimp",
+		"map",
+		"markdown",
+		"opentable",
+		"pinterest",
+		"rating-star",
+		"recurring-payments",
+		"related-posts",
+		"repeat-visitor",
+		"revue",
+		"simple-payments",
+		"slideshow",
+		"subscriptions",
+		"tiled-gallery",
+		"videopress",
+		"wordads"
+	]
 }
