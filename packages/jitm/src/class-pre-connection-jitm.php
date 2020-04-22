@@ -62,7 +62,7 @@ class Pre_Connection_JITM extends JITM {
 
 		$user_roles = implode( ',', $user->roles );
 
-		$envelopes = $jitm_engine->get_top_messages( $message_path, $user->ID, $user_roles, $query_string, $mobile_browser );
+		$envelopes = $jitm_engine->get_top_messages( $message_path, $user_roles, $query_string, $mobile_browser );
 
 		if ( ! is_array( $envelopes ) ) {
 			return array();

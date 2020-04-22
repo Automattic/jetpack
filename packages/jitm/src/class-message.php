@@ -247,13 +247,12 @@ class Message {
 	 * Score the message path
 	 *
 	 * @param string $path path.
-	 * @param int    $external_user_id external_user_id.
 	 * @param array  $query query.
 	 * @param int    $score score.
 	 *
 	 * @return bool|int
 	 */
-	private function score_message_path( $path, $external_user_id, $query, $score ) {
+	private function score_message_path( $path, $query, $score ) {
 		if ( empty( $this->message_path_regex ) ) {
 			return $score;
 		}
@@ -267,13 +266,12 @@ class Message {
 	 * Score the query string
 	 *
 	 * @param string $path path.
-	 * @param int    $external_user_id external_user_id.
 	 * @param array  $query query.
 	 * @param int    $score score.
 	 *
 	 * @return bool|int
 	 */
-	private function score_query_string( $path, $external_user_id, $query, $score ) {
+	private function score_query_string( $path, $query, $score ) {
 		if ( empty( $this->query ) ) {
 			return $score;
 		}
@@ -301,13 +299,12 @@ class Message {
 	 * Score option matches
 	 *
 	 * @param string $path path.
-	 * @param int    $external_user_id external_user_id.
 	 * @param array  $query query.
 	 * @param int    $score score.
 	 *
 	 * @return bool|int
 	 */
-	private function score_option_matches( $path, $external_user_id, $query, $score ) {
+	private function score_option_matches( $path, $query, $score ) {
 		if ( empty( $this->option_matches ) ) {
 			return $score;
 		}
@@ -336,13 +333,12 @@ class Message {
 	 * Score dismissal
 	 *
 	 * @param string $path path.
-	 * @param int    $external_user_id external_user_id.
 	 * @param array  $query query.
 	 * @param int    $score score.
 	 *
 	 * @return bool|int
 	 */
-	private function score_dismissal( $path, $external_user_id, $query, $score ) {
+	private function score_dismissal( $path, $query, $score ) {
 		$dismissals = $this->get_dismissals();
 		if ( false !== $dismissals && is_array( $dismissals ) && isset( $dismissals[ $this->feature_class ] ) && is_array( $dismissals[ $this->feature_class ] ) ) {
 			$score = 0;
@@ -362,13 +358,12 @@ class Message {
 	 * Score hosted with partner
 	 *
 	 * @param string $path path.
-	 * @param int    $external_user_id external_user_id.
 	 * @param array  $query query.
 	 * @param int    $score score.
 	 *
 	 * @return bool|int
 	 */
-	private function score_hosted_with_partner( $path, $external_user_id, $query, $score ) {
+	private function score_hosted_with_partner( $path, $query, $score ) {
 		if ( is_null( $this->hosted_with_partner ) ) {
 			return $score;
 		}
@@ -387,13 +382,12 @@ class Message {
 	 * Score user locale
 	 *
 	 * @param string $path path.
-	 * @param int    $external_user_id external_user_id.
 	 * @param array  $query query.
 	 * @param int    $score score.
 	 *
 	 * @return bool|int
 	 */
-	private function score_user_locale( $path, $external_user_id, $query, $score ) {
+	private function score_user_locale( $path, $query, $score ) {
 		if ( empty( $this->user_locales ) ) {
 			return $score;
 		}
@@ -407,13 +401,12 @@ class Message {
 	 * Score user roles
 	 *
 	 * @param string $path path.
-	 * @param int    $external_user_id external_user_id.
 	 * @param array  $query query.
 	 * @param int    $score score.
 	 *
 	 * @return bool|int
 	 */
-	private function score_user_roles( $path, $external_user_id, $query, $score ) {
+	private function score_user_roles( $path, $query, $score ) {
 		if ( empty( $this->roles ) ) {
 			return $score;
 		}
@@ -432,13 +425,12 @@ class Message {
 	 * Score user theme
 	 *
 	 * @param string $path path.
-	 * @param int    $external_user_id external_user_id.
 	 * @param array  $query query.
 	 * @param int    $score score.
 	 *
 	 * @return bool|int
 	 */
-	private function score_user_theme( $path, $external_user_id, $query, $score ) {
+	private function score_user_theme( $path, $query, $score ) {
 		if ( null === $this->theme ) {
 			return $score;
 		}
@@ -464,13 +456,12 @@ class Message {
 	 * Score plugins
 	 *
 	 * @param string $path path.
-	 * @param int    $external_user_id external_user_id.
 	 * @param array  $query query.
 	 * @param int    $score score.
 	 *
 	 * @return bool|int
 	 */
-	private function score_plugins( $path, $external_user_id, $query, $score ) {
+	private function score_plugins( $path, $query, $score ) {
 		if ( ! empty( $this->active_plugins ) || ! empty( $this->inactive_plugins ) || ! empty( $this->installed_plugins ) || ! empty( $this->uninstalled_plugins ) ) {
 			$installed_plugins = $this->get_installed_plugins();
 			$active_plugins    = $this->get_active_plugins();
@@ -566,13 +557,12 @@ class Message {
 	 * Score active widgets
 	 *
 	 * @param string $path path.
-	 * @param int    $external_user_id external_user_id.
 	 * @param array  $query query.
 	 * @param int    $score score.
 	 *
 	 * @return bool|int
 	 */
-	private function score_active_widgets( $path, $external_user_id, $query, $score ) {
+	private function score_active_widgets( $path, $query, $score ) {
 		if ( empty( $this->active_widgets ) ) {
 			return $score;
 		}
@@ -591,13 +581,12 @@ class Message {
 	 * Score inactive widgets
 	 *
 	 * @param string $path path.
-	 * @param int    $external_user_id external_user_id.
 	 * @param array  $query query.
 	 * @param int    $score score.
 	 *
 	 * @return bool|int
 	 */
-	private function score_inactive_widgets( $path, $external_user_id, $query, $score ) {
+	private function score_inactive_widgets( $path, $query, $score ) {
 		if ( empty( $this->inactive_widgets ) ) {
 			return $score;
 		}
@@ -617,14 +606,13 @@ class Message {
 	 * Score mobile browser
 	 *
 	 * @param string $path path.
-	 * @param int    $external_user_id external_user_id.
 	 * @param array  $query query.
 	 * @param int    $score score.
 	 * @param bool   $mobile_browser mobile browser.
 	 *
 	 * @return bool|int
 	 */
-	private function score_mobile_browser( $path, $external_user_id, $query, $score, $mobile_browser ) {
+	private function score_mobile_browser( $path, $query, $score, $mobile_browser ) {
 		if ( is_null( $this->mobile_browser ) ) {
 			return $score;
 		}
@@ -642,14 +630,13 @@ class Message {
 	 * The goal is to return a score of 0 if anything fails to match, and a score > 1 for all matches.
 	 *
 	 * @param string $path The message path from the user's browser.
-	 * @param int    $external_user_id The external user id.
 	 * @param array  $external_caps The external user's role.
 	 * @param array  $query The query string from the browser.
 	 * @param bool   $mobile_browser Is using a mobile browser.
 	 *
 	 * @return int The score for this jitm
 	 */
-	public function score( $path, $external_user_id, $external_caps, $query, $mobile_browser ) {
+	public function score( $path, $external_caps, $query, $mobile_browser ) {
 		$score = 0;
 
 		// try and keep this in order of least expensive to most expensive - in terms of db/transaction overhead.
@@ -668,7 +655,7 @@ class Message {
 		);
 
 		foreach ( $score_priority as $score_func ) {
-			$score = $this->$score_func( $path, $external_user_id, $query, $score, $mobile_browser );
+			$score = $this->$score_func( $path, $query, $score, $mobile_browser );
 			if ( false === $score ) {
 				return 0;
 			}

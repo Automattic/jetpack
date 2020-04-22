@@ -111,14 +111,13 @@ class Engine {
 	 * Gets the top messages
 	 *
 	 * @param string $message_path Message path.
-	 * @param int    $user_id User ID.
 	 * @param string $user_level User level.
 	 * @param string $query Message query.
 	 * @param bool   $mobile_browser Uses mobile browser.
 	 *
 	 * @return array Rendered messages.
 	 */
-	public function get_top_messages( $message_path, $user_id = null, $user_level = '', $query = '', $mobile_browser = false ) {
+	public function get_top_messages( $message_path, $user_level = '', $query = '', $mobile_browser = false ) {
 		$rules = $this->default_rules();
 
 		if ( is_string( $user_level ) ) {
@@ -129,8 +128,8 @@ class Engine {
 
 		$rules = array_reduce(
 			$rules,
-			function ( $return, $rule ) use ( $message_path, $user_id, $user_level, $query, $mobile_browser ) {
-				$score = $rule->score( $message_path, $user_id, $user_level, $query, $mobile_browser );
+			function ( $return, $rule ) use ( $message_path, $user_level, $query, $mobile_browser ) {
+				$score = $rule->score( $message_path, $user_level, $query, $mobile_browser );
 				if ( $score > $return[0] ) {
 					$return = array( $score, array( $rule->render() ), array( $rule ) );
 				} elseif ( $score === $return[0] && $score > 0 ) {
