@@ -4,7 +4,6 @@
 @import '../../shared/styles/gutenberg-base-styles.scss';
 
 $block-grid-gutter: 24px;
-$block-border-color: $dark-gray-100;
 $cover-image-size: 80px;
 $current-track-title-font-size: 24px;
 $current-track-title-bottom-margin: 10px;
@@ -28,7 +27,6 @@ $jetpack-podcast-player-background: $white;
  * Player's (block) parent element.
  */
 .wp-block-jetpack-podcast-player {
-	border: 1px solid $block-border-color;
 	overflow: hidden;
 
 	audio {
