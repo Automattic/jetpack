@@ -1096,7 +1096,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				}
 			}
 
-			$result = $errors[0];
+			$result = ( ! empty( $errors ) ) ? $errors[0] : null;
 			if ( count( $errors ) > 1 ) {
 				// Remove the primary error.
 				array_shift( $errors );
