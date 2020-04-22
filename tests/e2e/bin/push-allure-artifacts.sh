@@ -54,9 +54,8 @@ fi
 cd $REPO_DIR
 
 # Push the changes
-git status
 git add .
-git commit --message "Build for $ARTIFACT. Travis build# $TRAVIS_BUILD_NUMBER."
+git commit -q --message "Build for $ARTIFACT. Travis build# $TRAVIS_BUILD_NUMBER."
 git push
 
 # TODO move it before push, once it we can confirm it's doing the right thing
