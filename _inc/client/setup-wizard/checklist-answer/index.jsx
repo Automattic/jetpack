@@ -16,19 +16,12 @@ class ChecklistAnswer extends Component {
 		this.setState( { checked: ! this.state.checked } );
 	};
 
-	toggleCheckboxKeypress = e => {
-		if ( 32 === e.charCode ) {
-			return;
-		}
-		this.toggleCheckbox();
-	};
-
 	render() {
 		return (
 			<div
 				className="jp-checklist-answer-container"
 				onClick={ this.toggleCheckbox }
-				onKeyPress={ this.toggleCheckboxKeypress }
+				onKeyPress={ this.toggleCheckbox }
 				role="checkbox"
 				aria-checked={ this.state.checked }
 				tabIndex={ 0 }
