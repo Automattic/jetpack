@@ -91,7 +91,7 @@ function render_block( $attributes ) {
 	if ( ! empty( $attributes->attributes ) ) {
 		$attributes = $attributes->attributes;
 	}
-	return render_player( $player_data, $block_attributes );
+	return render_player( $player_data, $attributes );
 }
 
 /**
