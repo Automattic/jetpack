@@ -29,7 +29,7 @@ const CustomizeApp = ( { apiRoot, apiNonce } ) => {
 	}, [ apiRoot, apiNonce ] );
 
 	return createPortal(
-		syncProgress !== 1000 && (
+		syncProgress !== 100 && (
 			<div
 				className="jetpack-instant-search-customizer__portaled-wrapper"
 				style={ { margin: '1em 0' } } // NOTE: Customize app doesn't have a style build step
