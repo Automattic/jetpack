@@ -166,7 +166,7 @@ $jetpack-podcast-player-error: $alert-red;
 	.jetpack-podcast-player--audio-player-loading {
 		height: 10px; // mirroring .mejs-time-total
 		background: $jetpack-podcast-player-secondary;
-		margin: 15px $gutter-l; // simulating spacing of .mejs-container
+		margin: $gutter-m $gutter-l; // simulating spacing of .mejs-container
 	}
 
 	.jetpack-podcast-player__track-description {
