@@ -14,7 +14,6 @@ import logger from './logger';
  * WordPress dependencies
  */
 import { setBrowserViewport, enablePageDialogAccept } from '@wordpress/e2e-test-utils';
-import logger from './logger';
 /**
  * Environment variables
  */
