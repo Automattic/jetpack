@@ -130,13 +130,12 @@ catchBeforeAll( async () => {
 	await enablePageDialogAccept();
 	setupConsoleLogs();
 
-	const url = getNgrokSiteUrl();
-	console.log( 'NEW SITE URL: ' + url );
+	const status = await connectThroughWPAdminIfNeeded( { mockPlanData: true, plan: 'free' } );
 
-	await connectThroughWPAdminIfNeeded( { mockPlanData: true, plan: 'free' } );
-	const result = await execWpCommand( 'wp option get jetpack_private_options --format=json' );
-
-	fs.writeFileSync( 'jetpack_private_options.txt', result.trim() );
+	if ( status !== 'already_connected' ) {
+		const result = await execWpCommand( 'wp option get jetpack_private_options --format=json' );
+		fs.writeFileSync( 'jetpack_private_options.txt', result.trim() );
+	}
 } );
 
 afterEach( async () => {

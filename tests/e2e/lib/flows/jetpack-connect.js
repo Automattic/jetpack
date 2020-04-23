@@ -43,7 +43,7 @@ export async function connectThroughWPAdminIfNeeded( {
 	await loginToWpSite( mockPlanData );
 
 	if ( await isBlogTokenSet() ) {
-		return true;
+		return 'already_connected';
 	}
 
 	await ( await Sidebar.init( page ) ).selectJetpack();
