@@ -28,17 +28,12 @@ import { addQueryArgs } from '@wordpress/url';
  * Internal dependencies
  */
 import defaultAttributes from './attributes';
+import { IS_CURRENT_USER_CONNECTED_TO_WPCOM, MAX_IMAGE_COUNT } from './constants';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import useConnectInstagram from './use-connect-instagram';
+import useConnectWpcom from './use-connect-wpcom';
 import ImageTransition from './image-transition';
 import './editor.scss';
-
-const isCurrentUserConnectedToWpcom = get( window.Jetpack_Editor_Initial_State, [
-	'jetpack',
-	'is_current_user_connected',
-] );
-
-const MAX_IMAGE_COUNT = 30;
 
 const InstagramGalleryEdit = props => {
 	const { attributes, className, isSelected, noticeOperations, noticeUI, setAttributes } = props;
@@ -51,8 +46,7 @@ const InstagramGalleryEdit = props => {
 		setImages,
 		noticeOperations
 	);
-	const [ wpcomConnectUrl, setWpcomConnectUrl ] = useState();
-	const [ isRequestingWpcomConnectUrl, setRequestingWpcomConnectUrl ] = useState( false );
+	const { isRequestingWpcomConnectUrl, wpcomConnectUrl } = useConnectWpcom();
 
 	const unselectedCount = count > images.length ? images.length : count;
 
@@ -62,22 +56,6 @@ const InstagramGalleryEdit = props => {
 			setAttributes( validatedAttributes );
 		}
 	}, [ attributes, setAttributes ] );
-
-	useEffect( () => {
-		if ( isCurrentUserConnectedToWpcom || wpcomConnectUrl || isRequestingWpcomConnectUrl ) {
-			return;
-		}
-		setRequestingWpcomConnectUrl( true );
-		apiFetch( {
-			path: addQueryArgs( '/jetpack/v4/connection/url', {
-				from: 'jetpack-block-editor',
-				redirect: window.location.href,
-			} ),
-		} ).then( connectUrl => {
-			setWpcomConnectUrl( connectUrl );
-			setRequestingWpcomConnectUrl( false );
-		} );
-	}, [ isRequestingWpcomConnectUrl, wpcomConnectUrl ] );
 
 	useEffect( () => {
 		if ( ! accessToken ) {
@@ -172,7 +150,7 @@ const InstagramGalleryEdit = props => {
 					notices={ noticeUI }
 				>
 					<Button
-						disabled={ ! isCurrentUserConnectedToWpcom || isConnecting }
+						disabled={ ! IS_CURRENT_USER_CONNECTED_TO_WPCOM || isConnecting }
 						isLarge
 						isPrimary
 						onClick={ connectToService }
@@ -182,14 +160,18 @@ const InstagramGalleryEdit = props => {
 							: __( 'Connect your Instagram account', 'jetpack' ) }
 					</Button>
 
-					{ ! isCurrentUserConnectedToWpcom && (
+					{ ! IS_CURRENT_USER_CONNECTED_TO_WPCOM && (
 						<Notice isDismissible={ false } status="info">
 							{ __(
 								'To connect your Instagram account, you need to link your account to WordPress.com.',
 								'jetpack'
 							) }
 							<br />
-							<Button disabled={ isRequestingWpcomConnectUrl } href={ wpcomConnectUrl } isLink>
+							<Button
+								disabled={ isRequestingWpcomConnectUrl || ! wpcomConnectUrl }
+								href={ wpcomConnectUrl }
+								isLink
+							>
 								{ __( 'Link your account to WordPress.com', 'jetpack' ) }
 							</Button>
 						</Notice>
@@ -227,7 +209,7 @@ const InstagramGalleryEdit = props => {
 								@{ instagramUser }
 							</ExternalLink>
 						</PanelRow>
-						{ isCurrentUserConnectedToWpcom && (
+						{ IS_CURRENT_USER_CONNECTED_TO_WPCOM && (
 							<PanelRow>
 								<Button
 									disabled={ isConnecting }
