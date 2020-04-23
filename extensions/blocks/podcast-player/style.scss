@@ -47,7 +47,12 @@ $jetpack-podcast-player-background: $white;
 		 */
 		padding-top: 0;
 		padding-bottom: 0;
+		color: var( --jetpack-podcast-player-secondary );
 		background-color: var( --jetpack-podcast-player-background );
+
+		&:not( .has-secondary ) {
+			color: $jetpack-podcast-player-secondary;
+		}
 
 		&:not( .has-background ) {
 			background-color: $jetpack-podcast-player-background;
@@ -128,6 +133,7 @@ $jetpack-podcast-player-background: $white;
 		padding: 0;
 		overflow: hidden;
 		letter-spacing: 0; // Fixes Twenty Twenty compressed text.
+		color: inherit;
 
 		&:before,
 		&:after {
@@ -149,11 +155,7 @@ $jetpack-podcast-player-background: $white;
 	.jetpack-podcast-player__podcast-title {
 		font-size: $editor-font-size;
 		margin: 0;
-		color: var( --jetpack-podcast-player-secondary );
-
-		&:not( .has-secondary ) {
-			color: $jetpack-podcast-player-secondary;
-		}
+		color: inherit;
 	}
 
 	.jetpack-podcast-player__audio-player {
@@ -179,11 +181,7 @@ $jetpack-podcast-player-background: $white;
 		-webkit-box-orient: vertical;
 		overflow: hidden;
 		max-height: 105px; //IE11 fallback
-		color: var( --jetpack-podcast-player-secondary );
-
-		&:not( .has-secondary ) {
-			color: $jetpack-podcast-player-secondary;
-		}
+		color: inherit;
 	}
 
 	/**
