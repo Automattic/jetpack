@@ -331,8 +331,8 @@ $jetpack-podcast-player-background: $white;
 
 	.mejs-time,
 	.mejs-time-float {
-		color: $jetpack-podcast-player-secondary;
-		color: var( --jetpack-podcast-player-secondary );
+		color: $jetpack-podcast-player-background;
+		color: var( --jetpack-podcast-player-background );
 	}
 
 	.mejs-time-float {
