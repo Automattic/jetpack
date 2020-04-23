@@ -306,23 +306,6 @@ $jetpack-podcast-player-background: $white;
 	}
 
 	/**
-	 * Style the block to hide dynamic UI and show just its default style (no-js).
-	 */
-	&.is-default {
-		.jetpack-podcast-player__track-title {
-			padding-left: 0; // Account for missing space for status-icon.
-		}
-
-		.jetpack-podcast-player__audio-player {
-			display: none;
-		}
-
-		&.is-default .jetpack-podcast-player__track-status-icon {
-			display: none;
-		}
-	}
-
-	/**
 	 * Style player by overriding mejs default styles
 	 */
 	.mejs-container,
@@ -453,6 +436,20 @@ $jetpack-podcast-player-background: $white;
 				*/
 				visibility: hidden;
 			}
+		}
+	}
+
+	/**
+	 * Style the block to hide dynamic UI and show just its default style (no-js).
+	 */
+	&.is-default {
+		.jetpack-podcast-player__track-title {
+			padding-left: 0; // Account for missing space for status-icon.
+		}
+
+		.jetpack-podcast-player__audio-player,
+		.jetpack-podcast-player__track-status-icon {
+			display: none;
 		}
 	}
 }
