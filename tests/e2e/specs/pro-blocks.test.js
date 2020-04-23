@@ -4,24 +4,23 @@
 import BlockEditorPage from '../lib/pages/wp-admin/block-editor';
 import PostFrontendPage from '../lib/pages/postFrontend';
 import MailchimpBlock from '../lib/blocks/mailchimp';
-import { connectThroughWPAdminIfNeeded } from '../lib/flows/jetpack-connect';
-import { resetWordpressInstall, getNgrokSiteUrl, activateModule } from '../lib/utils-helper';
+import { syncJetpackPlanData } from '../lib/flows/jetpack-connect';
+import { activateModule, execWpCommand } from '../lib/utils-helper';
 import SimplePaymentBlock from '../lib/blocks/simple-payments';
 import WordAdsBlock from '../lib/blocks/word-ads';
-
 import { catchBeforeAll } from '../lib/setup-env';
-import logger from '../lib/logger';
 
 describe( 'Paid blocks', () => {
 	catchBeforeAll( async () => {
-		await resetWordpressInstall();
-		const url = getNgrokSiteUrl();
-		logger.info( 'NEW SITE URL: ' + url );
-
-		await connectThroughWPAdminIfNeeded( { mockPlanData: true } );
+		await syncJetpackPlanData( 'pro' );
 
 		await activateModule( page, 'publicize' );
 		await activateModule( page, 'wordads' );
+	} );
+
+	afterAll( async () => {
+		await execWpCommand( 'wp jetpack module deactivate publicize' );
+		await execWpCommand( 'wp jetpack module deactivate wordads' );
 	} );
 
 	describe( 'Mailchimp Block', () => {

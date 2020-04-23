@@ -3,6 +3,7 @@
  */
 import { wrap } from 'lodash';
 import fs from 'fs';
+import { setBrowserViewport, enablePageDialogAccept } from '@wordpress/e2e-test-utils';
 
 /**
  * Internal dependencies
@@ -10,13 +11,9 @@ import fs from 'fs';
 import { takeScreenshot } from './reporters/screenshot';
 import { logHTML, logDebugLog } from './page-helper';
 import logger from './logger';
-/**
- * WordPress dependencies
- */
-import { setBrowserViewport, enablePageDialogAccept } from '@wordpress/e2e-test-utils';
-/**
- * Environment variables
- */
+import { getNgrokSiteUrl, execWpCommand } from './utils-helper';
+import { connectThroughWPAdminIfNeeded } from './flows/jetpack-connect';
+
 const { PUPPETEER_TIMEOUT, E2E_DEBUG, CI, E2E_LOG_HTML } = process.env;
 let currentBlock;
 
@@ -126,12 +123,20 @@ jasmine.getEnv().addReporter( {
 // Before every test suite run, delete all content created by the test. This ensures
 // other posts/comments/etc. aren't dirtying tests and tests don't depend on
 // each other's side-effects.
-beforeAll( async () => {
+catchBeforeAll( async () => {
 	await setupBrowser();
 
 	// Handles not saved changed dialog in block editor
 	await enablePageDialogAccept();
 	setupConsoleLogs();
+
+	const url = getNgrokSiteUrl();
+	console.log( 'NEW SITE URL: ' + url );
+
+	await connectThroughWPAdminIfNeeded( { mockPlanData: true, plan: 'free' } );
+	const result = await execWpCommand( 'wp option get jetpack_private_options --format=json' );
+
+	fs.writeFileSync( 'jetpack_private_options.txt', result.trim() );
 } );
 
 afterEach( async () => {
