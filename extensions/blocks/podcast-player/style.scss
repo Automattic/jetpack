@@ -172,7 +172,7 @@ $jetpack-podcast-player-error: $alert-red;
 	.jetpack-podcast-player__track-description {
 		order: 99; // high number to make it always appear after the audio player
 		padding: 0 $gutter-l;
-		margin-bottom: $gutter-l;
+		margin: 0 0 $gutter-l 0;
 		font-size: $editor-font-size;
 		line-height: $editor-line-height;
 		//crop the description if too long

@@ -48,12 +48,12 @@ const Header = memo(
 			 * readers, then visually switching it with the audio player via flex.
 			 */ }
 			{ !! ( showEpisodeDescription && track && track.description ) && (
-				<div
+				<p
 					id={ `${ playerId }__track-description` }
 					className="jetpack-podcast-player__track-description"
 				>
 					{ track.description }
-				</div>
+				</p>
 			) }
 
 			{ /* children contains the audio player */ }
