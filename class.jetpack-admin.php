@@ -37,6 +37,8 @@ class Jetpack_Admin {
 		$this->jetpack_about = new Jetpack_About_Page();
 
 		add_action( 'admin_menu', array( $this->jetpack_react, 'add_actions' ), 998 );
+		add_action( 'admin_menu', array( $this->jetpack_react, 'add_actions' ), 998 );
+		add_action( 'jetpack_admin_menu', array( $this->jetpack_react, 'jetpack_add_set_up_sub_nav_item' ) );
 		add_action( 'jetpack_admin_menu', array( $this->jetpack_react, 'jetpack_add_dashboard_sub_nav_item' ) );
 		add_action( 'jetpack_admin_menu', array( $this->jetpack_react, 'jetpack_add_settings_sub_nav_item' ) );
 		add_action( 'jetpack_admin_menu', array( $this, 'admin_menu_debugger' ) );

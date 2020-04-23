@@ -3,7 +3,6 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import { includes } from 'lodash';
 import { createHistory } from 'history';
 import { withRouter } from 'react-router';
 import { translate as __ } from 'i18n-calypso';
@@ -26,9 +25,11 @@ import {
 	userCanConnectSite,
 	getCurrentVersion,
 	getTracksUserData,
+	showSetupWizard,
 } from 'state/initial-state';
 import { areThereUnsavedSettings, clearUnsavedSettingsFlag } from 'state/settings';
 import { getSearchTerm } from 'state/search';
+import { SetupWizard } from 'setup-wizard';
 import AtAGlance from 'at-a-glance/index.jsx';
 import MyPlan from 'my-plan/index.jsx';
 import Plans from 'plans/index.jsx';
@@ -45,8 +46,19 @@ import restApi from 'rest-api';
 import QueryRewindStatus from 'components/data/query-rewind-status';
 import { getRewindStatus } from 'state/rewind';
 
-const dashboardRoutes = [ '#/', '#/dashboard', '#/my-plan', '#/plans' ];
-const plansPromptRoute = '#/plans-prompt';
+const setupRoute = '/setup';
+
+const dashboardRoutes = [ '/', '/dashboard', '/my-plan', '/plans' ];
+const settingsRoutes = [
+	'/settings',
+	'/security',
+	'/performance',
+	'/writing',
+	'/sharing',
+	'/discussion',
+	'/traffic',
+	'/privacy',
+];
 
 class Main extends React.Component {
 	UNSAFE_componentWillMount() {
@@ -127,7 +139,7 @@ class Main extends React.Component {
 
 	shouldComponentUpdate( nextProps ) {
 		// If user triggers Skip to main content or Skip to toolbar with keyboard navigation, stay in the same tab.
-		if ( includes( [ '/wpbody-content', '/wp-toolbar' ], nextProps.route.path ) ) {
+		if ( [ '/wpbody-content', '/wp-toolbar' ].includes( nextProps.route.path ) ) {
 			return false;
 		}
 
@@ -237,21 +249,32 @@ class Main extends React.Component {
 					/>
 				);
 				break;
+			case '/setup':
+				if ( this.props.showSetupWizard ) {
+					navComponent = null;
+					pageComponent = <SetupWizard />;
+				} else {
+					this.setHistory( '?page=jetpack#/dashboard' );
+					pageComponent = this.getAtAGlance();
+				}
+				break;
 
 			default:
-				// If no route found, kick them to the dashboard and do some url/history trickery
-				const history = createHistory();
-				history.replace( window.location.pathname + '?page=jetpack#/dashboard' );
-				pageComponent = (
-					<AtAGlance
-						siteRawUrl={ this.props.siteRawUrl }
-						siteAdminUrl={ this.props.siteAdminUrl }
-						rewindStatus={ this.props.rewindStatus }
-					/>
-				);
+				if ( this.props.showSetupWizard ) {
+					this.setHistory( '?page=jetpack#/setup' );
+					navComponent = null;
+					pageComponent = <SetupWizard />;
+				} else {
+					this.setHistory( '?page=jetpack#/dashboard' );
+					pageComponent = this.getAtAGlance();
+				}
 		}
 
-		window.wpNavMenuClassChange();
+		const pageOrder = this.props.showSetupWizard
+			? { setup: 1, dashboard: 2, settings: 3 }
+			: { setup: -1, dashboard: 1, settings: 2 };
+
+		window.wpNavMenuClassChange( pageOrder );
 
 		return (
 			<div aria-live="assertive">
@@ -261,34 +284,44 @@ class Main extends React.Component {
 		);
 	};
 
+	getAtAGlance() {
+		return (
+			<AtAGlance
+				siteRawUrl={ this.props.siteRawUrl }
+				siteAdminUrl={ this.props.siteAdminUrl }
+				rewindStatus={ this.props.rewindStatus }
+			/>
+		);
+	}
+
+	setHistory( path ) {
+		const history = createHistory();
+		history.replace( window.location.pathname + path );
+	}
+
 	shouldShowAppsCard() {
-		// Do not show in settings page
-		const hashRoute = '#' + this.props.route.path;
-		return this.props.isSiteConnected && includes( dashboardRoutes, hashRoute );
+		// Only show on the dashboard
+		return this.props.isSiteConnected && dashboardRoutes.includes( this.props.route.path );
 	}
 
 	shouldShowSupportCard() {
-		// Do not show in settings page
-		const hashRoute = '#' + this.props.route.path;
-		return this.props.isSiteConnected && includes( dashboardRoutes, hashRoute );
+		// Only show on the dashboard
+		return this.props.isSiteConnected && dashboardRoutes.includes( this.props.route.path );
 	}
 
 	shouldShowRewindStatus() {
-		// Do not show on plans prompt page
-		const hashRoute = '#' + this.props.route.path;
-		return this.props.isSiteConnected && hashRoute !== plansPromptRoute;
+		// Only show on the dashboard
+		return this.props.isSiteConnected && dashboardRoutes.includes( this.props.route.path );
 	}
 
 	shouldShowMasthead() {
-		// Do not show on plans prompt page
-		const hashRoute = '#' + this.props.route.path;
-		return hashRoute !== plansPromptRoute;
+		// Only show on the setup pages, dashboard, and settings page
+		return [ setupRoute, ...dashboardRoutes, ...settingsRoutes ].includes( this.props.route.path );
 	}
 
 	shouldShowFooter() {
-		// Do not show on plans prompt page
-		const hashRoute = '#' + this.props.route.path;
-		return hashRoute !== plansPromptRoute;
+		// Only show on the dashboard and settings page
+		return [ ...dashboardRoutes, ...settingsRoutes ].includes( this.props.route.path );
 	}
 
 	render() {
@@ -327,6 +360,7 @@ export default connect(
 			isSiteConnected: isSiteConnected( state ),
 			rewindStatus: getRewindStatus( state ),
 			currentVersion: getCurrentVersion( state ),
+			showSetupWizard: showSetupWizard( state ),
 		};
 	},
 	dispatch => ( {
@@ -340,41 +374,32 @@ export default connect(
 )( withRouter( Main ) );
 
 /**
- * Hack for changing the sub-nav menu core classes for 'settings' and 'dashboard'
+ * Manages changing the visuals of the sub-nav items on the left sidebar when the React app changes routes
  */
-window.wpNavMenuClassChange = function() {
+window.wpNavMenuClassChange = function( pageOrder = { setup: -1, dashboard: 1, settings: 2 } ) {
 	let hash = window.location.hash;
-	const settingRoutes = [
-		'#/settings',
-		'#/security',
-		'#/performance',
-		'#/writing',
-		'#/sharing',
-		'#/discussion',
-		'#/traffic',
-		'#/privacy',
-	];
 
-	// Clear currents
+	// Clear currently highlighted sub-nav item
 	jQuery( '.current' ).each( function( i, obj ) {
 		jQuery( obj ).removeClass( 'current' );
 	} );
 
-	hash = hash.split( '?' )[ 0 ];
-	if ( includes( dashboardRoutes, hash ) ) {
-		const subNavItem = jQuery( '#toplevel_page_jetpack' )
+	const getJetpackSubNavItem = subNavItemIndex => {
+		return jQuery( '#toplevel_page_jetpack' )
 			.find( 'li' )
 			.filter( function( index ) {
-				return index === 1;
-			} );
-		subNavItem[ 0 ].classList.add( 'current' );
-	} else if ( includes( settingRoutes, hash ) ) {
-		const subNavItem = jQuery( '#toplevel_page_jetpack' )
-			.find( 'li' )
-			.filter( function( index ) {
-				return index === 2;
-			} );
-		subNavItem[ 0 ].classList.add( 'current' );
+				return index === subNavItemIndex;
+			} )[ 0 ];
+	};
+
+	// Set the current sub-nav item according to the current hash route
+	hash = hash.split( '?' )[ 0 ].replace( /#/, '' );
+	if ( hash === setupRoute ) {
+		getJetpackSubNavItem( pageOrder.setup ).classList.add( 'current' );
+	} else if ( dashboardRoutes.includes( hash ) ) {
+		getJetpackSubNavItem( pageOrder.dashboard ).classList.add( 'current' );
+	} else if ( settingsRoutes.includes( hash ) ) {
+		getJetpackSubNavItem( pageOrder.settings ).classList.add( 'current' );
 	}
 
 	const $body = jQuery( 'body' );

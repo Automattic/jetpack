@@ -64,6 +64,10 @@ export function getSiteAdminUrl( state ) {
 	return get( state.jetpack.initialState, 'adminUrl', {} );
 }
 
+export function getSiteTitle( state ) {
+	return get( state.jetpack.initialState, 'siteTitle', '' );
+}
+
 export function isSitePublic( state ) {
 	return get( state.jetpack.initialState, [ 'connectionStatus', 'isPublic' ] );
 }
@@ -255,6 +259,17 @@ export function currentThemeSupports( state, feature ) {
  */
 export function showBackups( state ) {
 	return get( state.jetpack.initialState.siteData, 'showBackups', true );
+}
+
+/**
+ * Check if the Setup Wizard should be displayed
+ *
+ * @param {object} state Global state tree
+ *
+ * @return {boolean} True if the Setup Wizard should be displayed.
+ */
+export function showSetupWizard( state ) {
+	return get( state.jetpack.initialState.siteData, 'showSetupWizard', false );
 }
 
 /**

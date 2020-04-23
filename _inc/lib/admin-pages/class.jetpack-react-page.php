@@ -48,6 +48,16 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	}
 
 	/**
+	 * Add Jetpack Setup sub-link for eligible users
+	 */
+	function jetpack_add_set_up_sub_nav_item() {
+		if ( $this->show_setup_wizard() ) {
+			global $submenu;
+			$submenu['jetpack'][] = array( __( 'Set up', 'jetpack' ), 'jetpack_admin_page', 'admin.php?page=jetpack#/setup' );
+		}
+	}
+
+	/**
 	 * Add Jetpack Dashboard sub-link and point it to AAG if the user can view stats, manage modules or if Protect is active.
 	 *
 	 * Works in Dev Mode or when user is connected.
@@ -253,6 +263,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'getModules'                  => $modules,
 			'rawUrl'                      => Jetpack::build_raw_urls( get_home_url() ),
 			'adminUrl'                    => esc_url( admin_url() ),
+			'siteTitle'                   => (string) htmlspecialchars_decode( get_option( 'blogname' ), ENT_QUOTES ),
 			'stats'                       => array(
 				// data is populated asynchronously on page load.
 				'data'  => array(
@@ -285,6 +296,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				'isAtomicSite'               => jetpack_is_atomic_site(),
 				'plan'                       => Jetpack_Plan::get(),
 				'showBackups'                => Jetpack::show_backups_ui(),
+				'showSetupWizard'            => $this->show_setup_wizard(),
 				'isMultisite'                => is_multisite(),
 			),
 			'themeData'                   => array(
@@ -329,6 +341,23 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		$core_api_endpoint = new Jetpack_Core_API_Data();
 		$settings = $core_api_endpoint->get_all_options();
 		return $settings->data;
+	}
+
+
+	/**
+	 * Returns a boolean for whether the Setup Wizard should be displayed or not.
+	 *
+	 * @return bool True if the Setup Wizard should be displayed, false otherwise.
+	 */
+	public function show_setup_wizard() {
+		/**
+		 * Determines if the Setup Wizard is displayed or not.
+		 *
+		 * @since 8.5
+		 *
+		 * @param array $jetpack_show_setup_wizard If true, the Setup Wizard will be displayed. Otherwise it will not display.
+		 */
+		return apply_filters( 'jetpack_show_setup_wizard', false ) && Jetpack::is_active();
 	}
 }
 

@@ -72,6 +72,8 @@ export class Masthead extends React.Component {
 			),
 			isStatic = '' === this.props.route.path;
 
+		const hideNav = '/setup' === this.props.route.path;
+
 		return (
 			<div className="jp-masthead">
 				<div className="jp-masthead__inside-container">
@@ -82,7 +84,7 @@ export class Masthead extends React.Component {
 						{ devNotice }
 						{ sandboxedBadge }
 					</div>
-					{ this.props.userCanEditPosts && (
+					{ this.props.userCanEditPosts && ! hideNav && (
 						<div className="jp-masthead__nav">
 							{ ! isStatic && this.props.siteConnectionStatus && (
 								<ButtonGroup>
