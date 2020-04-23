@@ -10,14 +10,14 @@ phpenv config-rm xdebug.ini
 # Configure PHP and PHPUnit environment
 if [[ ${TRAVIS_PHP_VERSION} == "nightly" ]]; then
 	composer install --ignore-platform-reqs
-	composer global require "phpunit/phpunit=9.1.*" --ignore-platform-reqs
+	composer global require "phpunit/phpunit=7.5.*" --ignore-platform-reqs
 elif [[ ${TRAVIS_PHP_VERSION:0:3} == "7.0" ]]; then
   composer remove sirbrillig/phpcs-changed --dev
   composer install
 	composer global require "phpunit/phpunit=6.5.*" --no-suggest
 elif [[ ${TRAVIS_PHP_VERSION:0:2} == "7." ]]; then
   composer install
-  composer global require "phpunit/phpunit=8.5.*" --no-suggest
+  composer global require "phpunit/phpunit=7.5.*" --no-suggest
 elif [[ ${TRAVIS_PHP_VERSION:0:2} == "5." ]]; then
   composer remove sirbrillig/phpcs-changed --dev
   composer install
