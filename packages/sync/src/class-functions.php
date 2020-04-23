@@ -637,13 +637,13 @@ class Functions {
 	 */
 	public static function get_publicize_options() {
 		$default = array(
-			'attach_media' => true,
+			'attach_media' => false,
 		);
 		/**
 		 * Filters the options for Publicize.
 		 *
 		 * As of Jetpack 8.5, the array keys could be:
-		 * attach_media bool If Publicize should send the image to the social media platform.
+		 * attach_media bool If Publicize should send the image to the social media platform. Default false.
 		 *
 		 * @since 8.5.0
 		 *
