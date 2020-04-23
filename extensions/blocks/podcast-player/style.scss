@@ -174,7 +174,7 @@ $jetpack-podcast-player-error: $alert-red;
 		padding: 0 $gutter-l;
 		margin-bottom: $gutter-l;
 		font-size: $editor-font-size;
-		line-height: 1.6;
+		line-height: $editor-line-height;
 		//crop the description if too long
 		display: -webkit-box;
 		-webkit-line-clamp: 4;
