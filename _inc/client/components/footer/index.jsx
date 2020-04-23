@@ -201,7 +201,7 @@ export class Footer extends React.Component {
 					<li className="jp-footer__link-item">
 						<a
 							onClick={ this.trackVersionClick }
-							href="https://jetpack.com"
+							href={ getRedirectUrl( 'jetpack' ) }
 							target="_blank"
 							rel="noopener noreferrer"
 							className="jp-footer__link"
