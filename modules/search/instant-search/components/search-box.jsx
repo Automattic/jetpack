@@ -58,8 +58,8 @@ const SearchBox = props => {
 				</label>
 			</div>
 
-			{ props.enableFilters && ! props.widget && (
-				<div className="jetpack-instant-search__box-filter-area">
+			<div className="jetpack-instant-search__box-filter-area">
+				{ props.enableFilters && (
 					<div
 						role="button"
 						onClick={ props.toggleFilters }
@@ -80,9 +80,9 @@ const SearchBox = props => {
 								: __( 'Show filters', 'jetpack' ) }
 						</span>
 					</div>
-					<SearchSort onChange={ props.onChangeSort } value={ getSortQuery() } />
-				</div>
-			) }
+				) }
+				<SearchSort onChange={ props.onChangeSort } value={ getSortQuery() } />
+			</div>
 		</Fragment>
 	);
 };
