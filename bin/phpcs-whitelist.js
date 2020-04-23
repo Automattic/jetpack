@@ -1,4 +1,6 @@
 // If the file path starts with anything like in the array below, it should be linted.
+// New files must be added here when they're created.
+// If you are able to clear all errors from a file, please add it here.
 module.exports = [
 	'3rd-party/3rd-party.php',
 	'3rd-party/bbpress.php',
