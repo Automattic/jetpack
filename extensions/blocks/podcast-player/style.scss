@@ -329,7 +329,11 @@ $jetpack-podcast-player-error: $alert-red;
 		padding-right: $gutter-l - 6px;
 	}
 
-	.mejs-time,
+	.mejs-time {
+		color: $jetpack-podcast-player-secondary;
+		color: var( --jetpack-podcast-player-secondary );
+	}
+
 	.mejs-time-float {
 		color: $jetpack-podcast-player-background;
 		color: var( --jetpack-podcast-player-background );
