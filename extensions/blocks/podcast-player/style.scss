@@ -306,12 +306,11 @@ $jetpack-podcast-player-background: $white;
 	}
 
 	/**
-	 * Style the block to hide dynamic UI and show just its default style.
+	 * Style the block to hide dynamic UI and show just its default style (no-js).
 	 */
 	&.is-default {
 		.jetpack-podcast-player__track-title {
-			// Change padding to account for missing space for status-icon.
-			padding-left: $block-grid-gutter - $track-v-padding;
+			padding-left: 0; // Account for missing space for status-icon.
 		}
 
 		.jetpack-podcast-player__audio-player {
