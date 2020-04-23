@@ -31,7 +31,7 @@ class Plugins_Handler {
 	 *
 	 * @return Array The active sitewide plugins.
 	 */
-	public function get_multisite_plugins() {
+	protected function get_multisite_plugins() {
 		return is_multisite()
 			? array_keys( get_site_option( 'active_sitewide_plugins', array() ) )
 			: array();
