@@ -6,6 +6,7 @@ import fs from 'fs';
  * Internal dependencies
  */
 import { getNgrokSiteUrl, execWpCommand, execShellCommand } from './utils-helper';
+import logger from './logger';
 
 export async function persistPlanData( planType = 'jetpack_business' ) {
 	const planDataOption = 'e2e_jetpack_plan_data';
@@ -245,6 +246,7 @@ function getPlanData(
 /**
  * Returns a JSON representation of Jetpack plan data.
  * TODO: Share the mock data with methods in jetpack/tests/php/general/test_class.jetpack-plan.php somehow.
+ *
  * @param {string} type Jetpack plan slug.
  * @return {JSON} JSON Jetpack plan object.
  */
@@ -397,7 +399,7 @@ export async function syncPlanData( page ) {
 		bkPlan = JSON.parse( await execWpCommand( 'wp option get jetpack_active_plan --format=json' ) );
 		await execWpCommand( 'wp option get jetpack_active_modules --format=json' );
 
-		console.log( '!!! PLANS: ', frPlan, bkPlan.product_slug );
+		logger.info( '!!! PLANS: ', frPlan, bkPlan.product_slug );
 		isSame = frPlan.trim() === bkPlan.product_slug.trim();
 	} while ( ! isSame );
 

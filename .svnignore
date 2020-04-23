@@ -82,3 +82,4 @@ packages
 modules/search/instant-search
 modules/search/.eslintrc.js
 wp-cli-templates
+logs

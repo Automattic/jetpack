@@ -23,6 +23,7 @@ import {
 } from '../utils-helper';
 import PlansPage from '../pages/wpcom/plans';
 import { persistPlanData, syncPlanData } from '../plan-helper';
+import logger from '../logger';
 
 const cookie = config.get( 'storeSandboxCookieValue' );
 const cardCredentials = config.get( 'testCardCredentials' );
@@ -62,7 +63,7 @@ export async function connectThroughWPAdminIfNeeded( {
 		await jetpackPage.openMyPlan();
 		if ( await jetpackPage.isPlan( plan ) ) {
 			// eslint-disable-next-line no-console
-			console.log( 'Site is already connected and has a plan!' );
+			logger.info( 'Site is already connected and has a plan!' );
 			return true;
 		}
 	}

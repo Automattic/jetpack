@@ -4,6 +4,7 @@
 import { waitAndClick, waitForSelector, clickAndWaitForNewPage } from '../page-helper';
 import LoginPage from '../pages/wpcom/login';
 import ConnectionsPage from '../pages/wpcom/connections';
+import logger from '../logger';
 
 export default class MailchimpBlock {
 	constructor( block, page ) {
@@ -54,7 +55,7 @@ export default class MailchimpBlock {
 				await ConnectionsPage.init( loginTab );
 				loaded = true;
 			} catch ( e ) {
-				console.log(
+				logger.info(
 					'ConnectionsPage is not available yet. Attempt: ' + count,
 					' URL: ' + connectionsUrl
 				);
@@ -80,6 +81,7 @@ export default class MailchimpBlock {
 
 	/**
 	 * Checks whether block is rendered on frontend
+	 *
 	 * @param {Page} page Puppeteer page instance
 	 */
 	static async isRendered( page ) {
