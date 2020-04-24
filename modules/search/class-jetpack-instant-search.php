@@ -132,10 +132,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			'postsPerPage'          => get_option( 'posts_per_page' ),
 			'siteId'                => Jetpack::get_option( 'id' ),
 
-			// filtering.
-			'postTypeFilters'       => isset( $widget_options['post_types'] ) ? $widget_options['post_types'] : array(),
 			'postTypes'             => $post_type_labels,
-			'sort'                  => isset( $widget_options['sort'] ) ? $widget_options['sort'] : null,
 			'widgets'               => array_values( $widgets ),
 			'widgetsOutsideOverlay' => array_values( $widgets_outside_overlay ),
 		);

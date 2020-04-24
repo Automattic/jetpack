@@ -103,9 +103,12 @@ const filterKeyToEsFilter = new Map( [
 	],
 ] );
 
-function buildFilterObject( filterQuery ) {
-	if ( ! filterQuery ) {
+function buildFilterObject( filterQuery, adminQueryFilter ) {
+	if ( ! filterQuery && ! adminQueryFilter ) {
 		return {};
+	}
+	if ( ! filterQuery ) {
+		return adminQueryFilter;
 	}
 
 	const filter = { bool: { must: [] } };
@@ -121,6 +124,10 @@ function buildFilterObject( filterQuery ) {
 				}
 			} );
 		} );
+
+	if ( adminQueryFilter ) {
+		filter.bool.must.push( adminQueryFilter );
+	}
 	return filter;
 }
 
@@ -133,6 +140,7 @@ export function search( {
 	siteId,
 	sort,
 	postsPerPage = 10,
+	adminQueryFilter,
 } ) {
 	const key = stringify( Array.from( arguments ) );
 
@@ -171,7 +179,7 @@ export function search( {
 			aggregations,
 			fields,
 			highlight_fields: highlightFields,
-			filter: buildFilterObject( filter ),
+			filter: buildFilterObject( filter, adminQueryFilter ),
 			query: encodeURIComponent( query ),
 			sort,
 			page_handle: pageHandle,
