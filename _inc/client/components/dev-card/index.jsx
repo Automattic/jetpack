@@ -142,7 +142,7 @@ export class DevCard extends React.Component {
 
 		const planClass = getPlanClass( this.props.sitePlan.product_slug );
 		const rewindState = get( this.props.rewindStatus, [ 'state' ], false );
-		const scanState = this.props.scanState?.state || false;
+		const scanState = this.props.scanStatus?.state || false;
 
 		return (
 			<Card compact className={ classes }>
