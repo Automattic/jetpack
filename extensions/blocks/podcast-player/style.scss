@@ -66,19 +66,15 @@ $jetpack-podcast-player-error: $alert-red;
 		 */
 
 		/**
-		 * Override to address themes using text-decoration or box-shadow underlines
-		 * on links.
+		 * Reset anchor styles to address themes' overrides.
 		 */
-		a {
-			&,
-			&:active,
-			&:visited,
-			&:hover,
-			&:focus {
-				text-decoration: none;
-				border: none;
-			}
-
+		a,
+		a:active,
+		a:visited,
+		a:hover,
+		a:focus {
+			text-decoration: none;
+			border: none;
 		}
 
 		a.jetpack-podcast-player__link {
