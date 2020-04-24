@@ -26,6 +26,16 @@
 	}
 }
 
+.jp-checklist-answer-container input[type='checkbox'] {
+	height: 1rem;
+	width: 1rem;
+
+	@include breakpoint( '<660px' ) {
+		height: 1.5rem;
+		width: 1.5rem;
+	}
+}
+
 .jp-checklist-answer-container:focus {
 	@include breakpoint( '>660px' ) {
 		border: 1px solid #00a0d2;
