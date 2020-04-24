@@ -18,6 +18,7 @@ $jetpack-podcast-player-error: $alert-red;
 	outline: 1px solid;
 	outline-color: $jetpack-podcast-player-secondary;
 	outline-color: var( --jetpack-podcast-player-secondary );
+	outline-offset: 2px;
 }
 
 .jetpack-podcast-player--visually-hidden {
