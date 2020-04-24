@@ -38,10 +38,10 @@ const IntroPage = props => {
 					{ __( 'What will %(siteTitle)s be used for?', { args: { siteTitle: props.siteTitle } } ) }
 				</h2>
 				<div className="jp-setup-wizard-answer-buttons">
-					<Button primary className="jp-setup-wizard-button">
+					<Button href="#/setup/income" primary className="jp-setup-wizard-button">
 						{ __( 'Personal Use' ) }
 					</Button>
-					<Button className="jp-setup-wizard-button" primary>
+					<Button href="#/setup/income" primary className="jp-setup-wizard-button">
 						{ __( 'Business Use' ) }
 					</Button>
 				</div>
