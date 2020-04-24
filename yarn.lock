@@ -79,6 +79,13 @@
     schema-utils "^1.0.0"
     webpack-sources "^1.1.0"
 
+"@automattic/popup-monitor@1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@automattic/popup-monitor/-/popup-monitor-1.0.0.tgz#57809015748e2a66d115666b887bd25af645635a"
+  integrity sha512-hZzcOOfNB150rq/mTEWjDHM16Kuuia8OlAAHosylpacPDYJnh2zjPg910fpApuUrhRnOSaiZ+sv3Ydkt0LdTZg==
+  dependencies:
+    lodash "^4.17.15"
+
 "@automattic/viewport@1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@automattic/viewport/-/viewport-1.0.0.tgz#66cf793007058f9e63f89c50134d02287d6b5261"

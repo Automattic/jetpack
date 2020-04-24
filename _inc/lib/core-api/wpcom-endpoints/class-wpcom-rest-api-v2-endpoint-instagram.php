@@ -99,7 +99,7 @@ class WPCOM_REST_API_V2_Endpoint_Instagram extends WP_REST_Controller {
 			return $response;
 		}
 		$body        = json_decode( wp_remote_retrieve_body( $response ) );
-		$connect_url = $body->services->instagram->connect_URL;
+		$connect_url = $body->services->{'instagram-basic-display'}->connect_URL;
 
 		return $connect_url;
 	}
