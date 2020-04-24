@@ -23,9 +23,9 @@ class ChecklistAnswer extends Component {
 		window.addEventListener( 'resize', this.handleResize );
 	};
 
-	componentWillUnmount() {
+	componentWillUnmount = () => {
 		window.removeEventListener( 'resize', this.handleResize );
-	}
+	};
 
 	handleResize = () => {
 		const windowWidth = window.innerWidth <= 660 ? 'small' : 'large';
