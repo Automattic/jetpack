@@ -504,6 +504,64 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
 			)
 		);
+
+		// Update settings from the Jetpack wizard.
+		register_rest_route(
+			'jetpack/v4',
+			'/setup/questionnaire',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::update_setup_questionnaire',
+				'permission_callback' => __CLASS__ . '::update_settings_permission_check',
+				'args'                => array(
+					'option_values' => array(
+						'required' => true,
+						'type'     => 'object',
+					),
+				),
+			)
+		);
+
+		// Get settings for the Jetpack wizard.
+		register_rest_route(
+			'jetpack/v4',
+			'/setup/questionnaire',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_setup_questionnaire',
+				'permission_callback' => __CLASS__ . '::update_settings_permission_check',
+			)
+		);
+	}
+
+	/**
+	 * Update the settings selected on the wizard questionnaire
+	 *
+	 * @param WP_REST_Request $request The request.
+	 *
+	 * @return bool true.
+	 */
+	public static function update_setup_questionnaire( $request ) {
+		$option_values = $request['option_values'];
+		update_option( 'setup_questionnaire', $option_values );
+		return true;
+	}
+
+	/**
+	 * Get the settings for the wizard questionnaire
+	 *
+	 * @param WP_REST_Request $request The request.
+	 *
+	 * @return array Questionnaire settings.
+	 */
+	public static function get_setup_questionnaire( $request ) {
+		$options_values = get_option( 'setup_questionnaire' );
+		if ( $options_values ) {
+			$return = $options_values;
+		} else {
+			$return = array();
+		}
+		return $return;
 	}
 
 	public static function get_plans( $request ) {
