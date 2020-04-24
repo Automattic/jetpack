@@ -20,7 +20,7 @@ const IncomeQuestion = props => {
 			<img
 				width="200px"
 				height="200px"
-				src={ imagePath + '/generating-cash-2.svg' }
+				src={ imagePath + '/generating-cash.svg' }
 				alt={ __( 'A jetpack site generating revenue' ) }
 			/>
 			<h1>

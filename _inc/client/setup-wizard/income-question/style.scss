@@ -19,7 +19,7 @@
 	@include breakpoint( '>660px' ) {
 		display: grid;
 		grid-template-rows: auto auto;
-		grid-template-columns: auto auto;
+		grid-template-columns: 50% 50%;
 		grid-gap: 1rem;
 	}
 
