@@ -123,22 +123,35 @@ class WPcom_Instagram_Widget extends WP_Widget {
 		return $is_legacy_token;
 	}
 
-	private function is_legacy_token( $token_id ) {
+	private function get_token_status( $token_id ) {
+		if ( empty( $token_id ) ) {
+			return [ 'valid' => false ];
+		}
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$token = Keyring::init()->get_token_store()->get_token( array( 'type' => 'access', 'id' => $token_id ) );
-			return $token && 'instagram' === $token->name;
+
+			return [
+				'valid' => ! empty( $token ),
+				'legacy' => $token && 'instagram' === $token->name,
+			];
 		}
 
 		$site = Jetpack_Options::get_option( 'id' );
-		$path = sprintf( '/sites/%s/instagram/%s/check-legacy', $site, $token_id );
+		$path = sprintf( '/sites/%s/instagram/%s/check-token', $site, $token_id );
 		$result = $this->wpcom_json_api_request_as_blog( $path, 2, array( 'headers' => array( 'content-type' => 'application/json' ) ), null, 'wpcom' );
 		$response_code = wp_remote_retrieve_response_code( $result );
 		if ( 200 !== $response_code ) {
-			do_action( 'wpcomsh_log', 'Instagram widget: failed to verify if token is for legacy API: API returned code ' . $response_code );
-			return 'ERROR';
+			do_action( 'wpcomsh_log', 'Instagram widget: failed token status check: API returned code ' . $response_code );
+			return [
+				//We assume the token is valid if the response_code is anything but the invalid
+				//token codes we send back. This is to make sure it's not reset, if the API is down
+				//or something
+				'valid' => ! ( 403 == $response_code || 401 === $response_code ),
+				'legacy' => 'ERROR',
+			];
 		}
-		$body = json_decode( $result['body'] );
-		return 'true' === $body->legacy;
+		$status = json_decode( $result['body'], true );
+		return $status;
 	}
 
 	/**
@@ -231,21 +244,23 @@ class WPcom_Instagram_Widget extends WP_Widget {
 		$instance = wp_parse_args( $instance, $this->defaults );
 		$data   = $this->get_data( $instance );
 		$images = $data['images'];
+
+		$status = $this->get_token_status( $instance['token_id'] );
 		// Don't display anything to non-blog admins if the widgets is unconfigured or API call fails
-		if ( ( ! $instance['token_id'] || ! is_array( $images ) ) && ! current_user_can( 'edit_theme_options' ) ) {
+		if ( ( ! $status['valid'] || ! is_array( $images ) ) && ! current_user_can( 'edit_theme_options' ) ) {
 			return;
 		}
 
 		echo $args['before_widget'];
 
 		// Always show a title on an unconfigured widget
-		if ( ! $instance['token_id'] && empty( $instance['title'] ) )
+		if ( ! $status['valid'] && empty( $instance['title'] ) )
 			$instance['title'] = $this->defaults['title'];
 
 		if ( ! empty( $instance['title'] ) )
 			echo $args['before_title'] . esc_html( $instance['title'] ) . $args['after_title'];
 
-		if ( $instance['token_id'] && current_user_can( 'edit_theme_options' ) && $this->is_legacy_token( $instance['token_id'] ) ) {
+		if ( $status['valid'] && current_user_can( 'edit_theme_options' ) && $status['legacy'] ) {
 			/* translators: Variable is a formatted date string representing 31 March 2020. */
 			echo '<p><em>' . sprintf(
 				__( 'In order to continue using this Instagram widget after %s, you must <a href="%s">re-connect</a>.', 'wpcomsh' ),
@@ -254,7 +269,7 @@ class WPcom_Instagram_Widget extends WP_Widget {
 			) . '</em></p>';
 		}
 
-		if ( ! $instance['token_id'] ) {
+		if ( ! $status['valid'] ) {
 			echo '<p><em>' . sprintf( __( 'In order to use this Instagram widget, you must <a href="%s">configure it</a> first.', 'wpcomsh' ), add_query_arg( 'instagram_widget_id', $this->number, admin_url( 'widgets.php' ) ) ) . '</em></p>';
 		} else {
 			if ( ! is_array( $images ) ) {
@@ -315,8 +330,10 @@ class WPcom_Instagram_Widget extends WP_Widget {
 			echo '<script type="text/javascript">jQuery(document).ready(function($){ $(\'.widget[id$="wpcom_instagram_widget-' . esc_js( $this->number ) . '"] .widget-inside\').slideDown(\'fast\'); });</script>';
 		}
 
+		$status = $this->get_token_status( $instance['token_id'] );
+
 		// If removing the widget's stored token ID
-		if ( $instance['token_id'] && isset( $_GET['instagram_widget_id'] ) && $_GET['instagram_widget_id'] == $this->number && ! empty( $_GET['instagram_widget'] ) && 'remove_token' === $_GET['instagram_widget'] ) {
+		if ( $status['valid'] && isset( $_GET['instagram_widget_id'] ) && $_GET['instagram_widget_id'] == $this->number && ! empty( $_GET['instagram_widget'] ) && 'remove_token' === $_GET['instagram_widget'] ) {
 			if ( empty( $_GET['nonce'] ) || ! wp_verify_nonce( $_GET['nonce'], 'instagram-widget-remove-token-' . $this->number . '-' . $instance['token_id'] ) ) {
 				wp_die( __( 'Missing or invalid security nonce.', 'wpcomsh' ) );
 			}
@@ -345,19 +362,13 @@ class WPcom_Instagram_Widget extends WP_Widget {
 			$this->update_widget_token_id( $instance['token_id'] );
 			$this->update_widget_token_legacy_status( false );
 		}
-		// If a token ID is stored, make sure it's still valid, and if we know if it is a legacy API token or not
-		elseif ( $instance['token_id'] ) {
-			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-				$token = Keyring::init()->get_token_store()->get_token( array( 'type' => 'access', 'id' => $instance['token_id'] ) );
-
-				if ( ! $token ) {
-					$instance['token_id'] = $this->defaults['token_id'];
-				}
-			}
-
-			if ( ! isset( $instance['is_legacy_token'] ) || 'ERROR' === $instance['is_legacy_token'] ) {
-				$instance['is_legacy_token'] = $this->update_widget_token_legacy_status( $this->is_legacy_token( $instance['token_id'] ) );
-			}
+		// If a token ID is stored, check if we know if it is a legacy API token or not
+		elseif ( $status['valid'] && ( ! isset( $instance['is_legacy_token'] ) || 'ERROR' === $instance['is_legacy_token'] ) ) {
+			$instance['is_legacy_token'] = $this->update_widget_token_legacy_status( $status['legacy'] );
+		}
+		// If the token isn't valid reset it
+		elseif ( ! $status['valid'] ) {
+			$instance['token_id'] = $this->defaults['token_id'];
 			$this->update_widget_token_id( $instance['token_id'] );
 		}
 
