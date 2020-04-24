@@ -387,6 +387,7 @@ class Defaults {
 		'jp_sitemap_master',
 		'jp_vid_sitemap',
 		'jp_vid_sitemap_index',
+		'msm_sitemap', // Metro Sitemap Plugin.
 		'postman_sent_mail',
 		'rssap-feed',
 		'rssmi_feed_item',
