@@ -20,7 +20,7 @@ module.exports = {
 			version: 'detect', // React version. "detect" automatically picks the version you have installed.
 		},
 	},
-	plugins: [ 'jsx-a11y', 'lodash', 'jsdoc' ],
+	plugins: [ 'jsx-a11y', 'lodash', 'jsdoc', 'jetpack' ],
 	rules: {
 		// REST API objects include underscores
 		camelcase: 0,
@@ -137,6 +137,9 @@ module.exports = {
 		'no-case-declarations': 1,
 		'no-class-assign': 1,
 		'no-redeclare': 1,
+
+		// Jetpack custom rules
+		'jetpack/jetpack-redirects': 1,
 
 		// Workaround for ESLint failing to parse files with template literals
 		// with this error: "TypeError: Cannot read property 'range' of null"
