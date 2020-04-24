@@ -26,11 +26,13 @@ import {
 	switchUserPermission,
 	switchThreats,
 	switchRewindState,
+	switchScanState,
 } from 'state/dev-version';
 import { getVaultPressScanThreatCount } from 'state/at-a-glance';
 import Card from 'components/card';
 import onKeyDownCallback from 'utils/onkeydown-callback';
 import { getRewindStatus } from 'state/rewind';
+import { getScanStatus } from 'state/scan';
 
 export class DevCard extends React.Component {
 	static displayName = 'DevCard';
@@ -49,6 +51,10 @@ export class DevCard extends React.Component {
 
 	onRewindStatusChange = event => {
 		this.props.switchRewindState( event.target.value );
+	};
+
+	onScanStatusChange = event => {
+		this.props.switchScanState( event.target.value );
 	};
 
 	maybeShowStatsToggle = () => {
@@ -136,6 +142,7 @@ export class DevCard extends React.Component {
 
 		const planClass = getPlanClass( this.props.sitePlan.product_slug );
 		const rewindState = get( this.props.rewindStatus, [ 'state' ], false );
+		const scanState = this.props.scanState?.state || false;
 
 		return (
 			<Card compact className={ classes }>
@@ -315,7 +322,7 @@ export class DevCard extends React.Component {
 				</ul>
 				<hr />
 				<ul>
-					<strong>Backup & Scan</strong>
+					<strong>Backup</strong>
 					<li>
 						<label htmlFor="rewindUnavailable">
 							<input
@@ -369,6 +376,61 @@ export class DevCard extends React.Component {
 						</label>
 					</li>
 				</ul>
+				<ul>
+					<strong>Scan</strong>
+					<li>
+						<label htmlFor="scanUnavailable">
+							<input
+								type="radio"
+								id="scanUnavailable"
+								value="unavailable"
+								name="unavailable"
+								checked={ 'unavailable' === scanState }
+								onChange={ this.onScanStatusChange }
+							/>
+							Unavailable
+						</label>
+					</li>
+					<li>
+						<label htmlFor="scanProvisioning">
+							<input
+								type="radio"
+								id="scanProvisioning"
+								value="provisioning"
+								name="provisioning"
+								checked={ 'provisioning' === scanState }
+								onChange={ this.onScanStatusChange }
+							/>
+							Provisioning
+						</label>
+					</li>
+					<li>
+						<label htmlFor="scanAwatingCreds">
+							<input
+								type="radio"
+								id="scanAwatingCreds"
+								value="awaiting_credentials"
+								name="awaiting_credentials"
+								checked={ 'awaiting_credentials' === scanState }
+								onChange={ this.onScanStatusChange }
+							/>
+							Awaiting credentials
+						</label>
+					</li>
+					<li>
+						<label htmlFor="scanActive">
+							<input
+								type="radio"
+								id="scanActive"
+								value="active"
+								name="active"
+								checked={ 'active' === scanState }
+								onChange={ this.onScanStatusChange }
+							/>
+							Active
+						</label>
+					</li>
+				</ul>
 				{ this.maybeShowStatsToggle() }
 				{ this.maybeShowIsLinkedToggle() }
 			</Card>
@@ -389,6 +451,7 @@ export default connect(
 			canEditPosts: userCanEditPosts( state ),
 			getVaultPressScanThreatCount: () => getVaultPressScanThreatCount( state ),
 			rewindStatus: getRewindStatus( state ),
+			scanStatus: getScanStatus( state ),
 		};
 	},
 	dispatch => {
@@ -408,6 +471,7 @@ export default connect(
 			switchRewindState: rewindState => {
 				return dispatch( switchRewindState( rewindState ) );
 			},
+			switchScanState: scanState => dispatch( switchScanState( scanState ) ),
 		};
 	}
 )( DevCard );
