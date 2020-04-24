@@ -323,6 +323,7 @@ $jetpack-podcast-player-error: $alert-red;
 
 	.mejs-container:focus {
 		@include focus-outline();
+		box-shadow: none; // Reset the editor canvas box-shadow focus indicator for mejs-container.
 	}
 
 	.mejs-controls {
