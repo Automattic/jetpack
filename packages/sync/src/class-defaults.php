@@ -372,6 +372,7 @@ class Defaults {
 	 * @var array Blacklisted post types.
 	 */
 	public static $blacklisted_post_types = array(
+		'ai_log', // Logger - https://github.com/alleyinteractive/logger.
 		'ai1ec_event',
 		'bwg_album',
 		'bwg_gallery',
@@ -387,6 +388,7 @@ class Defaults {
 		'jp_sitemap_master',
 		'jp_vid_sitemap',
 		'jp_vid_sitemap_index',
+		'msm_sitemap', // Metro Sitemap Plugin.
 		'postman_sent_mail',
 		'rssap-feed',
 		'rssmi_feed_item',
@@ -396,6 +398,7 @@ class Defaults {
 		'snitch',
 		'vip-legacy-redirect',
 		'wp_automatic',
+		'wp_log', // WP Logging Plugin.
 		'wp-rest-api-log', // https://wordpress.org/plugins/wp-rest-api-log/.
 		'wpephpcompat_jobs',
 		'wprss_feed_item',
