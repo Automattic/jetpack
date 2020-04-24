@@ -372,6 +372,7 @@ class Defaults {
 	 * @var array Blacklisted post types.
 	 */
 	public static $blacklisted_post_types = array(
+		'ai_log', // Logger - https://github.com/alleyinteractive/logger.
 		'ai1ec_event',
 		'bwg_album',
 		'bwg_gallery',
