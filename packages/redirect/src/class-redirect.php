@@ -66,7 +66,7 @@ class Redirect {
 			$source_url = \wp_parse_url( $source );
 
 			// discard any query and fragments.
-			$source = $source_url['scheme'] . '://' . $source_url['host'] . ( isset( $source_url['path'] ) ? $source_url['path'] : '' );
+			$source = 'https://' . $source_url['host'] . ( isset( $source_url['path'] ) ? $source_url['path'] : '' );
 		}
 
 		$to_be_added = array(
