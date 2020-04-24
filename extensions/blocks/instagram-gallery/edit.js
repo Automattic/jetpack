@@ -146,11 +146,9 @@ const InstagramGalleryEdit = props => {
 				<Placeholder
 					icon="instagram"
 					instructions={
-						! IS_CURRENT_USER_CONNECTED_TO_WPCOM &&
-						__(
-							'To connect your Instagram account, you need to link your account to WordPress.com.',
-							'jetpack'
-						)
+						! IS_CURRENT_USER_CONNECTED_TO_WPCOM
+							? __( "First, you'll need to connect to WordPress.com.", 'jetpack' )
+							: __( 'Connect to Instagram to start sharing your images.', 'jetpack' )
 					}
 					label={ __( 'Instagram Gallery', 'jetpack' ) }
 					notices={ noticeUI }
@@ -159,7 +157,7 @@ const InstagramGalleryEdit = props => {
 						<Button disabled={ isConnecting } isLarge isPrimary onClick={ connectToService }>
 							{ isConnecting
 								? __( 'Connecting…', 'jetpack' )
-								: __( 'Connect your Instagram account', 'jetpack' ) }
+								: __( 'Connect to Instagram', 'jetpack' ) }
 						</Button>
 					) : (
 						<Button
@@ -168,7 +166,7 @@ const InstagramGalleryEdit = props => {
 							isLarge
 							isPrimary
 						>
-							{ __( 'Link your account to WordPress.com', 'jetpack' ) }
+							{ __( 'Connect to WordPress.com', 'jetpack' ) }
 						</Button>
 					) }
 				</Placeholder>
