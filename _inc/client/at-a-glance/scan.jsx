@@ -13,6 +13,7 @@ import getRedirectUrl from 'lib/jp-redirect';
  */
 import Card from 'components/card';
 import QueryVaultPressData from 'components/data/query-vaultpress-data';
+import QueryScanStatus from 'components/data/query-scan-status';
 import { getSitePlan, isFetchingSiteData } from 'state/site';
 import { isPluginInstalled } from 'state/site/plugins';
 import { getVaultPressScanThreatCount, getVaultPressData } from 'state/at-a-glance';
@@ -279,6 +280,7 @@ class DashScan extends Component {
 		return (
 			<div>
 				<QueryVaultPressData />
+				<QueryScanStatus />
 				{ content }
 			</div>
 		);
