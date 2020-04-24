@@ -2,7 +2,7 @@
  * External dependencies
  */
 import classnames from 'classnames';
-import { get, isEmpty, isEqual, times } from 'lodash';
+import { isEmpty, isEqual, times } from 'lodash';
 
 /**
  * WordPress dependencies
@@ -12,7 +12,6 @@ import { InspectorControls } from '@wordpress/block-editor';
 import {
 	Button,
 	ExternalLink,
-	Notice,
 	PanelBody,
 	PanelRow,
 	Placeholder,
@@ -146,35 +145,31 @@ const InstagramGalleryEdit = props => {
 			{ showPlaceholder && (
 				<Placeholder
 					icon="instagram"
+					instructions={
+						! IS_CURRENT_USER_CONNECTED_TO_WPCOM &&
+						__(
+							'To connect your Instagram account, you need to link your account to WordPress.com.',
+							'jetpack'
+						)
+					}
 					label={ __( 'Instagram Gallery', 'jetpack' ) }
 					notices={ noticeUI }
 				>
-					<Button
-						disabled={ ! IS_CURRENT_USER_CONNECTED_TO_WPCOM || isConnecting }
-						isLarge
-						isPrimary
-						onClick={ connectToService }
-					>
-						{ isConnecting
-							? __( 'Connecting…', 'jetpack' )
-							: __( 'Connect your Instagram account', 'jetpack' ) }
-					</Button>
-
-					{ ! IS_CURRENT_USER_CONNECTED_TO_WPCOM && (
-						<Notice isDismissible={ false } status="info">
-							{ __(
-								'To connect your Instagram account, you need to link your account to WordPress.com.',
-								'jetpack'
-							) }
-							<br />
-							<Button
-								disabled={ isRequestingWpcomConnectUrl || ! wpcomConnectUrl }
-								href={ wpcomConnectUrl }
-								isLink
-							>
-								{ __( 'Link your account to WordPress.com', 'jetpack' ) }
-							</Button>
-						</Notice>
+					{ IS_CURRENT_USER_CONNECTED_TO_WPCOM ? (
+						<Button disabled={ isConnecting } isLarge isPrimary onClick={ connectToService }>
+							{ isConnecting
+								? __( 'Connecting…', 'jetpack' )
+								: __( 'Connect your Instagram account', 'jetpack' ) }
+						</Button>
+					) : (
+						<Button
+							disabled={ isRequestingWpcomConnectUrl || ! wpcomConnectUrl }
+							href={ wpcomConnectUrl }
+							isLarge
+							isPrimary
+						>
+							{ __( 'Link your account to WordPress.com', 'jetpack' ) }
+						</Button>
 					) }
 				</Placeholder>
 			) }
