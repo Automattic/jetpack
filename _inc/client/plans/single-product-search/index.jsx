@@ -23,6 +23,7 @@ import {
 import { getPlanDuration } from 'state/plans/reducer';
 import { getUpgradeUrl } from 'state/initial-state';
 import { SEARCH_DESCRIPTION, SEARCH_TITLE } from '../constants';
+import InfoPopover from 'components/info-popover';
 import PlanRadioButton from '../single-product-components/plan-radio-button';
 import ProductSavings from '../single-product-components/product-savings';
 
@@ -93,6 +94,11 @@ export function SingleProductSearchCard( props ) {
 						'Your current site record size: %s records',
 						{ args: numberFormat( recordCount ), count: recordCount }
 					) }
+					<InfoPopover position="right">
+						{
+							'Records are all posts, pages, custom post types and other types of content indexed by Jetpack Search.'
+						}
+					</InfoPopover>
 				</h4>
 				<h4 className="single-product-backup__options-header">
 					{ __(
@@ -112,6 +118,7 @@ export function SingleProductSearchCard( props ) {
 						radioValue={ planDuration }
 					/>
 				</div>
+
 				<ProductSavings
 					billingTimeframe={ planDuration }
 					currencyCode={ currencyCode }
