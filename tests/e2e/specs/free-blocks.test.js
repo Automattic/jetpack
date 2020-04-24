@@ -3,20 +3,14 @@
  */
 import BlockEditorPage from '../lib/pages/wp-admin/block-editor';
 import PostFrontendPage from '../lib/pages/postFrontend';
-import { connectThroughWPAdminIfNeeded } from '../lib/flows/jetpack-connect';
-import { resetWordpressInstall, getNgrokSiteUrl } from '../lib/utils-helper';
+import { syncJetpackPlanData } from '../lib/flows/jetpack-connect';
 import PinterestBlock from '../lib/blocks/pinterest';
 import EventbriteBlock from '../lib/blocks/eventbrite';
 import { catchBeforeAll } from '../lib/setup-env';
-import logger from '../lib/logger';
 
 describe( 'Free blocks', () => {
 	catchBeforeAll( async () => {
-		await resetWordpressInstall();
-		const url = getNgrokSiteUrl();
-		logger.info( 'NEW SITE URL: ' + url );
-
-		await connectThroughWPAdminIfNeeded( { mockPlanData: true, plan: 'free' } );
+		await syncJetpackPlanData( 'free' );
 	} );
 
 	describe( 'Pinterest block', () => {

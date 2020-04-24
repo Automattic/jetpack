@@ -38,27 +38,17 @@ export async function connectThroughWPAdminIfNeeded( {
 	plan = 'pro',
 	mockPlanData = false,
 } = {} ) {
-	// Logs in to WPCOM
-	const login = await LoginPage.visit( page );
-	if ( ! mockPlanData ) {
-		await login.setSandboxModeForPayments( cookie );
-	}
-	if ( ! ( await login.isLoggedIn() ) ) {
-		await login.login( wpcomUser );
-	}
+	await loginToWpcomIfNeeded( wpcomUser, mockPlanData );
 
-	const siteUrl = getNgrokSiteUrl();
-	const host = new URL( siteUrl ).host;
+	await loginToWpSite( mockPlanData );
 
-	await ( await WPLoginPage.visit( page, siteUrl + '/wp-login.php' ) ).login();
-
-	if ( ! mockPlanData ) {
-		await ( await DashboardPage.init( page ) ).setSandboxModeForPayments( cookie, host );
+	if ( await isBlogTokenSet() ) {
+		return 'already_connected';
 	}
 
 	await ( await Sidebar.init( page ) ).selectJetpack();
 
-	let jetpackPage = await JetpackPage.init( page );
+	const jetpackPage = await JetpackPage.init( page );
 	if ( await jetpackPage.isConnected() ) {
 		await jetpackPage.openMyPlan();
 		if ( await jetpackPage.isPlan( plan ) ) {
@@ -68,43 +58,76 @@ export async function connectThroughWPAdminIfNeeded( {
 		}
 	}
 
-	await jetpackPage.connect();
+	await doClassicConnection( plan, mockPlanData );
+	await syncJetpackPlanData( plan, mockPlanData );
+}
 
+async function doClassicConnection( plan, mockPlanData ) {
+	const jetpackPage = await JetpackPage.init( page );
+	await jetpackPage.connect();
 	// Go through Jetpack connect flow
 	await ( await AuthorizePage.init( page ) ).approve();
-
-	// These steps are disabled for now
-	// await ( await JetpackSiteTypePage.init( page ) ).selectSiteType( 'blog' );
-	// await ( await JetpackSiteTopicPage.init( page ) ).selectSiteTopic( 'test site' );
-	// await ( await JetpackUserTypePage.init( page ) ).selectUserType( 'creator' );
-
 	if ( mockPlanData ) {
-		const planType = plan === 'free' ? 'jetpack_free' : 'jetpack_business';
-		await persistPlanData( planType );
 		await ( await PickAPlanPage.init( page ) ).selectFreePlan();
 	} else {
 		await ( await PickAPlanPage.init( page ) ).selectBusinessPlan();
 		await ( await CheckoutPage.init( page ) ).processPurchase( cardCredentials );
 	}
-
 	await ( await ThankYouPage.init( page ) ).waitForSetupAndProceed();
 	await ( await MyPlanPage.init( page ) ).returnToWPAdmin();
+}
 
-	jetpackPage = await JetpackPage.init( page );
+export async function syncJetpackPlanData( plan, mockPlanData = true ) {
+	const planType = plan === 'free' ? 'jetpack_free' : 'jetpack_business';
+	await persistPlanData( planType );
+
+	const siteUrl = getNgrokSiteUrl();
+	const jetpackUrl = siteUrl + '/wp-admin/admin.php?page=jetpack#/dashboard';
+
+	const jetpackPage = await JetpackPage.visit( page, jetpackUrl );
+	await jetpackPage.openMyPlan();
+	await jetpackPage.reload( { waitFor: 'networkidle0' } );
+
 	if ( ! mockPlanData ) {
 		await jetpackPage.reload( { waitFor: 'networkidle0' } );
-
 		await page.waitForResponse(
 			response => response.url().match( /v4\/site[^\/]/ ) && response.status() === 200,
 			{ timeout: 60 * 1000 }
 		);
 		await execWpCommand( 'wp cron event run jetpack_v2_heartbeat' );
 	}
-
 	await syncPlanData( page );
-
 	if ( ! ( await jetpackPage.isPlan( plan ) ) ) {
 		throw new Error( `Site does not have ${ plan } plan` );
+	}
+}
+
+async function loginToWpSite( mockPlanData ) {
+	const siteUrl = getNgrokSiteUrl();
+	const host = new URL( siteUrl ).host;
+	await ( await WPLoginPage.visit( page, siteUrl + '/wp-login.php' ) ).login();
+	if ( ! mockPlanData ) {
+		await ( await DashboardPage.init( page ) ).setSandboxModeForPayments( cookie, host );
+	}
+}
+
+async function loginToWpcomIfNeeded( wpcomUser, mockPlanData ) {
+	// Logs in to WPCOM
+	const login = await LoginPage.visit( page );
+	if ( ! mockPlanData ) {
+		await login.setSandboxModeForPayments( cookie );
+	}
+	if ( ! ( await login.isLoggedIn() ) ) {
+		await login.login( wpcomUser );
+	}
+}
+
+async function isBlogTokenSet() {
+	const cliCmd = 'wp jetpack options get blog_token';
+	const result = await execWpCommand( cliCmd );
+
+	if ( typeof result === 'object' && result.code === 1 ) {
+		return false;
 	}
 
 	return true;

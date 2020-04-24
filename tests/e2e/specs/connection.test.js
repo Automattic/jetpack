@@ -1,27 +1,32 @@
 /**
  * Internal dependencies
  */
-import WPLoginPage from '../lib/pages/wp-admin/login';
 import Sidebar from '../lib/pages/wp-admin/sidebar';
 import PluginsPage from '../lib/pages/wp-admin/plugins';
 import DashboardPage from '../lib/pages/wp-admin/dashboard';
 import JetpackPage from '../lib/pages/wp-admin/jetpack';
-import { resetWordpressInstall, getNgrokSiteUrl } from '../lib/utils-helper';
 import { catchBeforeAll } from '../lib/setup-env';
+import { execWpCommand } from '../lib/utils-helper';
 
 describe( 'Jetpack connection', () => {
 	catchBeforeAll( async () => {
-		await resetWordpressInstall();
-		const url = getNgrokSiteUrl();
-		await ( await WPLoginPage.visit( page, url + '/wp-login.php' ) ).login();
+		await execWpCommand( 'wp option delete jetpack_private_options' );
+		page.reload();
+	} );
+
+	afterAll( async () => {
+		await execWpCommand(
+			'wp option update jetpack_private_options --format=json',
+			'< jetpack_private_options.txt'
+		);
 	} );
 
 	it( 'Can find connect button on plugins page', async () => {
 		await ( await Sidebar.init( page ) ).selectInstalledPlugins();
 
 		const pluginsPage = await PluginsPage.init( page );
-		await pluginsPage.deactivateJetpack();
-		await pluginsPage.activateJetpack();
+		await execWpCommand( 'wp transient set activated_jetpack true 120' );
+		await pluginsPage.reload();
 
 		expect( await pluginsPage.isFullScreenPopupShown() ).toBeTruthy();
 	} );
