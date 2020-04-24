@@ -5,7 +5,6 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { numberFormat, translate as __ } from 'i18n-calypso';
-import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -22,6 +21,7 @@ import { get, isArray } from 'lodash';
 import { getUpgradeUrl, showBackups } from 'state/initial-state';
 import JetpackBanner from 'components/jetpack-banner';
 import { isJetpackScan, getPlanClass, PLAN_JETPACK_PREMIUM } from 'lib/plans/constants';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Displays a card for Security Scan based on the props given.
