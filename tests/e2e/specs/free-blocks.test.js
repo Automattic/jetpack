@@ -30,6 +30,7 @@ describe( 'Free blocks', () => {
 
 		await step( 'Can publish a post with a Pinterest block', async () => {
 			await blockEditor.focus();
+			await page.waitForSelector( 'test' );
 			await blockEditor.publishPost();
 			await blockEditor.viewPost();
 		} );
