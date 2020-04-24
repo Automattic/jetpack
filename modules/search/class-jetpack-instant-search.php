@@ -410,6 +410,10 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		$sidebar_id            = false;
 		$sidebar_searchbox_idx = false;
 		if ( $has_sidebar ) {
+			if ( empty( $sidebars['sidebar-1'] ) ) {
+				// Adding to an empty sidebar is generally a bad idea.
+				$has_sidebar = false;
+			}
 			foreach ( (array) $sidebars['sidebar-1'] as $idx => $widget_id ) {
 				if ( 0 === strpos( $widget_id, 'search-' ) ) {
 					$sidebar_searchbox_idx = $idx;
