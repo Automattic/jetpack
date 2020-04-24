@@ -15,30 +15,86 @@ import './style.scss';
 class ChecklistAnswer extends Component {
 	constructor( props ) {
 		super( props );
-		this.state = { checked: false };
+		this.state = { checked: false, expanded: false, windowWidth: '' };
 	}
 
-	toggleCheckbox = () => {
+	componentDidMount = () => {
+		this.handleResize(); // Call this once on mount to initialize state.windowWidth
+		window.addEventListener( 'resize', this.handleResize );
+	};
+
+	componentWillUnmount() {
+		window.removeEventListener( 'resize', this.handleResize );
+	}
+
+	handleResize = () => {
+		const windowWidth = window.innerWidth <= 660 ? 'small' : 'large';
+		this.setState( { windowWidth } );
+	};
+
+	toggleCheckboxLargeWindow = () => {
+		if ( 'small' === this.state.windowWidth ) {
+			return;
+		}
+
 		this.setState( { checked: ! this.state.checked } );
 	};
 
+	toggleCheckboxSmallWindow = () => {
+		if ( 'large' === this.state.windowWidth ) {
+			return;
+		}
+
+		this.setState( { checked: ! this.state.checked } );
+	};
+
+	toggleExpanded = () => {
+		this.setState( { expanded: ! this.state.expanded } );
+	};
+
 	render() {
+		const { checked, expanded } = this.state;
+
+		const smallWindow = 'small' === this.state.windowWidth;
+
+		const chevronIcon = expanded ? 'chevron-up' : 'chevron-down';
+
 		return (
 			<div
-				className={ classNames( 'jp-checklist-answer-container', { checked: this.state.checked } ) }
-				onClick={ this.toggleCheckbox }
-				onKeyPress={ this.toggleCheckbox }
+				className={ classNames( 'jp-checklist-answer-container', { checked } ) }
+				onClick={ this.toggleCheckboxLargeWindow }
+				onKeyPress={ this.toggleCheckboxLargeWindow }
 				role="checkbox"
-				aria-checked={ this.state.checked }
-				tabIndex={ 0 }
+				aria-checked={ checked }
+				tabIndex={ smallWindow ? -1 : 0 }
 			>
 				<div className="jp-checklist-answer-checkbox-container">
-					<input type="checkbox" tabIndex={ -1 } checked={ this.state.checked } />
+					<input
+						type="checkbox"
+						onClick={ this.toggleCheckboxSmallWindow }
+						onKeyPress={ this.toggleCheckboxSmallWindow }
+						tabIndex={ smallWindow ? 0 : -1 }
+						checked={ checked }
+					/>
 				</div>
 				<div className="jp-checklist-answer-title">{ this.props.title }</div>
-				<div className="jp-checklist-answer-details">{ this.props.details }</div>
-				<div className="jp-checklist-answer-chevron-container">
-					<Gridicon icon="chevron-down" size={ 14 } />
+				<div
+					className={ classNames( 'jp-checklist-answer-details', {
+						expanded,
+					} ) }
+				>
+					{ this.props.details }
+				</div>
+				<div
+					className={ classNames( 'jp-checklist-answer-chevron-container', {
+						expanded,
+					} ) }
+					onClick={ this.toggleExpanded }
+					onKeyPress={ this.toggleExpanded }
+					role="button"
+					tabIndex={ smallWindow ? 0 : -1 }
+				>
+					<Gridicon icon={ chevronIcon } size={ 14 } />
 				</div>
 			</div>
 		);

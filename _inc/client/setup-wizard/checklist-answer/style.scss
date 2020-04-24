@@ -10,6 +10,8 @@
 		border: 1px solid #dddddd;
 		border-radius: 4px;
 
+		cursor: pointer;
+
 		&.checked {
 			background: #f6f7f7;
 		}
@@ -22,12 +24,12 @@
 
 		margin-bottom: 1.5rem;
 	}
-
-	cursor: pointer;
 }
 
 .jp-checklist-answer-container:focus {
-	border: 2px solid #00a0d2;
+	@include breakpoint( '>660px' ) {
+		border: 1px solid #00a0d2;
+	}
 }
 
 .jp-checklist-answer-checkbox-container {
@@ -79,6 +81,14 @@
 		grid-column-end: 3;
 	}
 
+	@include breakpoint( '<660px' ) {
+		display: none;
+
+		&.expanded {
+			display: block;
+		}
+	}
+
 	text-align: left;
 }
 
@@ -93,4 +103,14 @@
 	display: flex;
 	justify-content: center;
 	align-items: center;
+
+	@include breakpoint( '<660px' ) {
+		cursor: pointer;
+	}
+}
+
+.jp-checklist-answer-chevron-container:focus {
+	@include breakpoint( '<660px' ) {
+		border: 1px solid #00a0d2;
+	}
 }
