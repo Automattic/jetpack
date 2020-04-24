@@ -5,6 +5,11 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 
+/**
+ * Internal dependencies
+ */
+import Gridicon from 'components/gridicon';
+
 import './style.scss';
 
 class ChecklistAnswer extends Component {
@@ -32,6 +37,9 @@ class ChecklistAnswer extends Component {
 				</div>
 				<div className="jp-checklist-answer-title">{ this.props.title }</div>
 				<div className="jp-checklist-answer-details">{ this.props.details }</div>
+				<div className="jp-checklist-answer-chevron-container">
+					<Gridicon icon="chevron-down" size={ 14 } />
+				</div>
 			</div>
 		);
 	}

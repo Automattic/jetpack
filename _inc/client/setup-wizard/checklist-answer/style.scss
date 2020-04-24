@@ -1,16 +1,29 @@
+@import '../../scss/mixin_breakpoint';
+
 .jp-checklist-answer-container {
-	display: grid;
-	grid-template-rows: auto 75%;
-	grid-template-columns: auto auto;
+	@include breakpoint( '>660px' ) {
+		display: grid;
+		grid-template-rows: auto 75%;
+		grid-template-columns: auto auto;
 
-	box-sizing: border-box;
-	border: 1px solid #dddddd;
-	border-radius: 4px;
-	cursor: pointer;
+		box-sizing: border-box;
+		border: 1px solid #dddddd;
+		border-radius: 4px;
 
-	&.checked {
-		background: #f6f7f7;
+		&.checked {
+			background: #f6f7f7;
+		}
 	}
+
+	@include breakpoint( '<660px' ) {
+		display: grid;
+		grid-template-rows: 30px auto;
+		grid-template-columns: 30px auto 30px;
+
+		margin-bottom: 1.5rem;
+	}
+
+	cursor: pointer;
 }
 
 .jp-checklist-answer-container:focus {
@@ -27,23 +40,57 @@
 	grid-row: 1;
 	grid-column: 1;
 
-	margin-left: 2rem;
-	margin-right: 1.5rem;
+	@include breakpoint( '>660px' ) {
+		margin-left: 2rem;
+		margin-right: 1.5rem;
+	}
+	@include breakpoint( '<660px' ) {
+		margin: 0;
+	}
 }
 
 .jp-checklist-answer-title {
 	grid-row: 1;
 	grid-column: 2;
-	margin: 1rem 1rem 1rem 0;
+
+	@include breakpoint( '>660px' ) {
+		margin: 1rem 1rem 1rem 0;
+	}
+	@include breakpoint( '<660px' ) {
+		display: flex;
+		align-items: center;
+
+		margin: 0.5rem;
+	}
 
 	font-weight: 600;
 	text-align: left;
 }
 
 .jp-checklist-answer-details {
-	grid-row: 2;
-	grid-column: 2;
-	margin: 0 1rem 1rem 0;
+	@include breakpoint( '>660px' ) {
+		grid-row: 2;
+		grid-column: 2;
+		margin: 0 1rem 1rem 0;
+	}
+
+	@include breakpoint( '<660px' ) {
+		grid-column-start: 1;
+		grid-column-end: 3;
+	}
 
 	text-align: left;
+}
+
+.jp-checklist-answer-chevron-container {
+	@include breakpoint( '>660px' ) {
+		display: none;
+	}
+
+	grid-row: 1;
+	grid-column: 3;
+
+	display: flex;
+	justify-content: center;
+	align-items: center;
 }
