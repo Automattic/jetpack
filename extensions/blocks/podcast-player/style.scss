@@ -465,7 +465,7 @@ $jetpack-podcast-player-error: $alert-red;
 				* icon sprite for the track list playing icon. As we still keep the SVG as a
 				* fallback when CSS masks are not supported, we have to hide it when they are.
 				*/
-				visibility: hidden;
+				display: none;
 			}
 		}
 	}
