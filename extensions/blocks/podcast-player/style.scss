@@ -180,13 +180,17 @@ $jetpack-podcast-player-error: $alert-red;
 		margin: 0 0 $gutter-l 0;
 		font-size: $editor-font-size;
 		line-height: $editor-line-height;
-		//crop the description if too long
-		display: -webkit-box;
-		-webkit-line-clamp: 4;
-		-webkit-box-orient: vertical;
-		overflow: hidden;
-		max-height: 105px; //IE11 fallback
 		color: inherit;
+		overflow: hidden;
+		max-height: 4em * $editor-line-height; // IE11 fallback for line-clamp
+
+		@supports ( display: -webkit-box ) {
+			//crop the description if too long
+			display: -webkit-box;
+			-webkit-box-orient: vertical;
+			-webkit-line-clamp: 4;
+			max-height: initial;
+		}
 	}
 
 	/**
