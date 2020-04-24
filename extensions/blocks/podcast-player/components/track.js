@@ -59,7 +59,7 @@ const Track = memo(
 				style={ Object.keys( inlineStyle ).length ? inlineStyle : null }
 			>
 				<a
-					className="jetpack-podcast-player__track-link"
+					className="jetpack-podcast-player__link jetpack-podcast-player__track-link"
 					href={ track.link }
 					role="button"
 					aria-current={ ariaCurrent }
@@ -100,7 +100,9 @@ const Track = memo(
 						</time>
 					) }
 				</a>
-				{ isActive && isError && <TrackError link={ track.link } title={ track.title } /> }
+				{ isActive && isError && (
+					<TrackError link={ track.link } title={ track.title } colors={ colors } />
+				) }
 			</li>
 		);
 	}

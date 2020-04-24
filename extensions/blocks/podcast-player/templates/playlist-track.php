@@ -33,7 +33,7 @@ if ( $is_active ) {
 	style="<?php echo esc_attr( $style ); ?>"
 >
 	<a
-		class="jetpack-podcast-player__track-link"
+		class="jetpack-podcast-player__track-link jetpack-podcast-player__link"
 		href="<?php echo esc_url( $attachment['link'] ); ?>"
 		role="button"
 		<?php echo $is_active ? 'aria-current="track"' : ''; ?>

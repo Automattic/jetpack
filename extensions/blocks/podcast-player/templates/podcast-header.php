@@ -30,7 +30,7 @@ $track  = ( is_array( $tracks ) && ! empty( $tracks ) ) ? $tracks[0] : array();
 ?>
 
 <div class="jetpack-podcast-player__header">
-	<div class="jetpack-podcast-player__current-track-info" aria-live="polite">
+	<div class="jetpack-podcast-player__current-track-info">
 		<?php if ( $show_cover_art && isset( $cover ) ) : ?>
 			<div class="jetpack-podcast-player__cover">
 				<img class="jetpack-podcast-player__cover-image" src="<?php echo esc_url( $cover ); ?>" alt="" />

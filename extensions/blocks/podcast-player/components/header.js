@@ -48,12 +48,12 @@ const Header = memo(
 			 * readers, then visually switching it with the audio player via flex.
 			 */ }
 			{ !! ( showEpisodeDescription && track && track.description ) && (
-				<div
+				<p
 					id={ `${ playerId }__track-description` }
 					className="jetpack-podcast-player__track-description"
 				>
 					{ track.description }
-				</div>
+				</p>
 			) }
 
 			{ /* children contains the audio player */ }
@@ -96,29 +96,21 @@ const Title = memo(
 	)
 );
 
-const PodcastTitle = memo(
-	( { title, link, colors = { secondary: { name: null, custom: null, classes: '' } } } ) => {
-		const className = classnames(
-			'jetpack-podcast-player__podcast-title',
-			colors.secondary.classes
-		);
-
-		if ( link ) {
-			return (
-				<a
-					className={ className }
-					style={ { color: colors.secondary.custom } }
-					href={ link }
-					target="_blank"
-					rel="noopener noreferrer nofollow"
-				>
-					{ title }
-				</a>
-			);
-		}
-
-		return <span className={ className }>{ title }</span>;
-	}
-);
+const PodcastTitle = memo( ( { title, link } ) => (
+	<span className="jetpack-podcast-player__podcast-title">
+		{ link ? (
+			<a
+				className="jetpack-podcast-player__link"
+				href={ link }
+				target="_blank"
+				rel="noopener noreferrer nofollow"
+			>
+				{ title }
+			</a>
+		) : (
+			{ title }
+		) }
+	</span>
+) );
 
 export default Header;

@@ -3,26 +3,16 @@
  */
 @import '../../shared/styles/gutenberg-base-styles.scss';
 
-$track-v-padding: 15px;
-$track-h-padding: 10px;
-$player-grid-spacing: 24px;
+$gutter-s: 10px;
+$gutter-m: 15px;
+$gutter-l: 24px;
 $cover-image-size: 80px;
-$track-title-font-size: 24px;
-$track-title-b-margin: 10px;
-$podcast-title-font-size: 16px;
-$description-font-size: 16px;
+$current-track-title-font-size: 24px;
 $track-status-icon-size: 22px;
 $jetpack-podcast-player-primary: $black;
 $jetpack-podcast-player-secondary: $dark-gray-300;
 $jetpack-podcast-player-background: $white;
-$text-color: $dark-gray-300; // Lightest gray that can be used for AA text contrast.
-$text-color-hover: $black;
-$text-color-active: $text-color-hover;
-$text-color-error: $alert-red;
-$block-bg-color: $white;
-$block-border-color: $dark-gray-100;
-$current-track-title-color: $black;
-$player-background: transparent;
+$jetpack-podcast-player-error: $alert-red;
 
 .jetpack-podcast-player--visually-hidden {
 	position: absolute !important;
@@ -37,38 +27,47 @@ $player-background: transparent;
  * Player's (block) parent element.
  */
 .wp-block-jetpack-podcast-player {
-	border: 1px solid $block-border-color;
-	background-color: $block-bg-color;
 	overflow: hidden;
-
-	/**
-	 * Player's state classes added to this element:
-	 * &.is-playing {} // When audio starts playing.
-	 * &.is-paused {}  // When audio is paused.
-	 * &.is-error {}   // When playback error occured.
-	 */
 
 	audio {
 		display: none;
 	}
 
-	/**
-	 * Reset vertical padding for <section /> elements.
-	 * For instance, Twenty-Twenty sets `padding: 8rem 0`.
-	 */
 	.jetpack-podcast-player {
-		padding-top: 0;
-		padding-bottom: 0;
-
 		/**
-		* Set default values for our CSS variables.
-		*/
+		 * Set default values for our CSS variables.
+		 */
 		--jetpack-podcast-player-primary: #{$jetpack-podcast-player-primary};
 		--jetpack-podcast-player-secondary: #{$jetpack-podcast-player-secondary};
 		--jetpack-podcast-player-background: #{$jetpack-podcast-player-background};
 
 		/**
-		 * Override to address themes using text-decoration or box-shadow underlines on links.
+		 * Reset vertical padding for <section /> elements.
+		 * For instance, Twenty-Twenty sets `padding: 8rem 0`.
+		 */
+		padding-top: 0;
+		padding-bottom: 0;
+		color: var( --jetpack-podcast-player-secondary );
+		background-color: var( --jetpack-podcast-player-background );
+
+		&:not( .has-secondary ) {
+			color: $jetpack-podcast-player-secondary;
+		}
+
+		&:not( .has-background ) {
+			background-color: $jetpack-podcast-player-background;
+		}
+
+		/**
+		 * Player's state classes added to this element:
+		 * &.is-playing {} // When audio starts playing.
+	 	 * &.is-paused {}  // When audio is paused.
+		 * &.is-error {}   // When playback error occured.
+		 */
+
+		/**
+		 * Override to address themes using text-decoration or box-shadow underlines
+		 * on links.
 		 */
 		a {
 			box-shadow: none;
@@ -80,6 +79,20 @@ $player-background: transparent;
 				box-shadow: none;
 				text-decoration: none;
 				border: none;
+			}
+		}
+
+		a.jetpack-podcast-player__link {
+			&,
+			&:active,
+			&:visited {
+				color: inherit;
+			}
+
+			&:hover,
+			&:focus {
+				color: inherit;
+				color: var( --jetpack-podcast-player-primary );
 			}
 		}
 	}
@@ -95,12 +108,12 @@ $player-background: transparent;
 
 	.jetpack-podcast-player__current-track-info {
 		display: flex;
-		padding: $player-grid-spacing;
+		padding: $gutter-l;
 	}
 
 	.jetpack-podcast-player__cover {
 		width: $cover-image-size;
-		margin-right: $player-grid-spacing;
+		margin-right: $gutter-l;
 		flex-shrink: 0;
 	}
 
@@ -120,6 +133,7 @@ $player-background: transparent;
 		padding: 0;
 		overflow: hidden;
 		letter-spacing: 0; // Fixes Twenty Twenty compressed text.
+		color: inherit;
 
 		&:before,
 		&:after {
@@ -128,82 +142,46 @@ $player-background: transparent;
 	}
 
 	.jetpack-podcast-player__current-track-title {
-		font-size: $track-title-font-size;
-		margin: 0 0 $track-title-b-margin;
+		font-size: $current-track-title-font-size;
+		margin: 0 0 $gutter-s;
+		color: var( --jetpack-podcast-player-primary );
 
 		// Apply default color if custom primary has not been set
-		&:not(.has-primary) {
-			color: $current-track-title-color;
+		&:not( .has-primary ) {
+			color: $jetpack-podcast-player-primary;
 		}
 	}
 
 	.jetpack-podcast-player__podcast-title {
-		font-size: $podcast-title-font-size;
-		color: $text-color;
+		font-size: $editor-font-size;
 		margin: 0;
-	}
-
-	a.jetpack-podcast-player__podcast-title {
-		&,
-		&:active,
-		&:visited {
-			color: $text-color;
-		}
-
-		&:hover,
-		&:focus {
-			color: $text-color-hover;
-		}
-	}
-
-	// Apply `secondary` color to the podcast title.
-	.has-secondary {
-		.jetpack-podcast-player__podcast-title {
-			color: currentColor;
-		}
-
-		a.jetpack-podcast-player__podcast-title {
-			&,
-			&:hover,
-			&:focus,
-			&:active,
-			&:visited {
-				color: currentColor;
-			}
-		}
+		color: inherit;
 	}
 
 	.jetpack-podcast-player__audio-player {
 		height: 40px; // mirroring .mejs-container
-		margin-bottom: $player-grid-spacing;
+		margin-bottom: $gutter-l;
 	}
 
 	.jetpack-podcast-player--audio-player-loading {
 		height: 10px; // mirroring .mejs-time-total
 		background: $jetpack-podcast-player-secondary;
-		margin: 15px $player-grid-spacing; // simulating spacing of .mejs-container
+		margin: $gutter-m $gutter-l; // simulating spacing of .mejs-container
 	}
 
 	.jetpack-podcast-player__track-description {
 		order: 99; // high number to make it always appear after the audio player
-		padding: 0 $player-grid-spacing;
-		margin-bottom: $player-grid-spacing;
-		font-size: $description-font-size;
-		line-height: 1.6;
-		color: $dark-gray-500;
+		padding: 0 $gutter-l;
+		margin: 0 0 $gutter-l 0;
+		font-size: $editor-font-size;
+		line-height: $editor-line-height;
 		//crop the description if too long
 		display: -webkit-box;
 		-webkit-line-clamp: 4;
 		-webkit-box-orient: vertical;
 		overflow: hidden;
 		max-height: 105px; //IE11 fallback
-	}
-
-	// Apply `secondary` color to the track description.
-	.has-secondary {
-		.jetpack-podcast-player__track-description {
-			color: currentColor;
-		}
+		color: inherit;
 	}
 
 	/**
@@ -215,13 +193,18 @@ $player-background: transparent;
 		display: flex;
 		flex-direction: column;
 		margin: 0;
-		padding: $track-v-padding 0;
+		padding: 0 0 $gutter-m 0;
 	}
 
 	.jetpack-podcast-player__track {
 		margin: 0;
 		font-size: $editor-font-size;
 		line-height: $editor-line-height;
+		color: var( --jetpack-podcast-player-secondary );
+
+		&:not( .is-active ):not( .has-secondary ) {
+			color: $jetpack-podcast-player-secondary;
+		}
 
 		/**
 		 * When track "is-active", it means that it's been clicked by a user to
@@ -230,23 +213,10 @@ $player-background: transparent;
 		 */
 		&.is-active {
 			font-weight: bold;
-		}
+			color: var( --jetpack-podcast-player-primary );
 
-		// Apply default colors only if custom ones are not defined.
-		&:not( .is-active ):not( .has-secondary ) {
-			color: $text-color;
-
-			&:hover,
-			&:focus {
-				color: $text-color-hover;
-			}
-		}
-		&.is-active:not( .has-primary ) {
-			color: $text-color-active;
-
-			&:hover,
-			&:focus {
-				color: $text-color-active;
+			&:not( .has-primary ) {
+				color: $jetpack-podcast-player-primary;
 			}
 		}
 	}
@@ -255,16 +225,11 @@ $player-background: transparent;
 		display: flex;
 		flex-flow: row nowrap;
 		justify-content: space-between;
-		// Adjustments on left padding to account for SVG sound icon spacing
-		padding: $track-h-padding $player-grid-spacing $track-h-padding $player-grid-spacing - 2px;
+		padding-top: $gutter-s;
+		padding-bottom: $gutter-s;
+		padding-left: $gutter-l - 2px; // Adjustments on left padding to account for SVG sound icon spacing
+		padding-right: $gutter-l;
 		transition: none;
-		color: inherit;
-
-		&:visited,
-		&:hover,
-		&:focus {
-			color: inherit;
-		}
 	}
 
 	// Make space for the error element that will be appended.
@@ -274,20 +239,29 @@ $player-background: transparent;
 
 	.jetpack-podcast-player__track-status-icon {
 		flex: $track-status-icon-size 0 0;
-		fill: $jetpack-podcast-player-primary;
-		fill: var( --jetpack-podcast-player-primary );
+		fill: currentColor;
 
 		svg {
 			display: block;
 			width: $track-status-icon-size;
 			height: $track-status-icon-size;
 			margin-top: 3px; // center vertically
+			fill: inherit;
 		}
+	}
+
+	.jetpack-podcast-player__track-status-icon--error {
+		fill: $jetpack-podcast-player-error;
+	}
+
+	// Use primary color to prevent visual conflicts (i.e. with red bg color)
+	.jetpack-podcast-player__track.has-primary .jetpack-podcast-player__track-status-icon--error {
+		fill: currentColor;
 	}
 
 	.jetpack-podcast-player__track-title {
 		flex-grow: 1;
-		padding: 0 $track-v-padding;
+		padding: 0 $gutter-m;
 	}
 
 	.jetpack-podcast-player__track-duration {
@@ -300,91 +274,69 @@ $player-background: transparent;
 	 */
 	.jetpack-podcast-player__track-error {
 		display: block;
-		margin-left: ($player-grid-spacing - 2px) + $track-status-icon-size + $track-v-padding; // has to be aligned with the track title
-		margin-bottom: $track-h-padding;
-		color: $alert-red;
+		margin-left: ( $gutter-l - 2px ) + $track-status-icon-size + $gutter-m; // has to be aligned with the track title
+		margin-bottom: $gutter-s;
 		font-size: 0.8em;
 		font-weight: normal;
-
-		& > span {
-			color: $text-color;
-		}
-
-		& > span > a {
-			color: inherit;
-		}
-	}
-
-	.has-primary .jetpack-podcast-player__track-error {
-		color: currentColor;
+		color: $jetpack-podcast-player-error;
 
 		& > span {
 			color: var( --jetpack-podcast-player-secondary );
+
+			&:not( .has-secondary ) {
+				color: $jetpack-podcast-player-secondary;
+			}
 		}
 	}
 
-	.jetpack-podcast-player__track-status-icon--error {
-		fill: $text-color-error;
-	}
-
-	.has-primary .jetpack-podcast-player__track-status-icon--error {
-		fill: currentColor;
+	// Use primary color to prevent visual conflicts (i.e. red background)
+	.jetpack-podcast-player__track.has-primary .jetpack-podcast-player__track-error {
+		color: inherit;
 	}
 
 	/**
 	 * Global error element, replaces the whole block with the error message.
 	 */
 	.jetpack-podcast-player__error {
-		padding: $player-grid-spacing;
+		padding: $gutter-l;
 		margin: 0;
-		color: $alert-red;
+		color: $jetpack-podcast-player-error;
 		font-size: 0.8em;
 		font-weight: normal;
-	}
-
-	/**
-	 * Style the block to hide dynamic UI and show just its default style.
-	 */
-	&.is-default {
-		.jetpack-podcast-player__track-title {
-			// Change padding to account for missing space for status-icon.
-			padding-left: $player-grid-spacing - $track-v-padding;
-		}
-
-		.jetpack-podcast-player__audio-player {
-			display: none;
-		}
-
-		&.is-default .jetpack-podcast-player__track-status-icon {
-			display: none;
-		}
 	}
 
 	/**
 	 * Style player by overriding mejs default styles
 	 */
 	.mejs-container,
+	.mejs-container .mejs-controls,
 	.mejs-embed,
 	.mejs-embed body,
-	.mejs-container .mejs-controls,
 	.mejs-mediaelement {
-		background-color: $player-background;
+		background-color: transparent;
 	}
 
 	.mejs-controls {
 		position: static;
+		padding-top: 0;
+		padding-bottom: 0;
 		/**
 		* Lines up the mejs player padding with our wrapper spacing.
 		* Magic numbers are due to needing to line-up the player spacing with buttons
 		* and fixed widths inside of the mediaplayer.
 		*/
-		padding: 0 ( $player-grid-spacing - 6px ) 0 ( $player-grid-spacing - 9px );
+		padding-left: $gutter-l - 9px;
+		padding-right: $gutter-l - 6px;
 	}
 
-	.mejs-time,
-	.mejs-time-float {
+	.mejs-time {
 		color: $jetpack-podcast-player-secondary;
 		color: var( --jetpack-podcast-player-secondary );
+	}
+
+	.mejs-time-float {
+		color: $jetpack-podcast-player-background;
+		color: var( --jetpack-podcast-player-background );
 	}
 
 	.mejs-time-float {
@@ -488,6 +440,20 @@ $player-background: transparent;
 				*/
 				visibility: hidden;
 			}
+		}
+	}
+
+	/**
+	 * Style the block to hide dynamic UI and show just its default style (no-js).
+	 */
+	&.is-default {
+		.jetpack-podcast-player__track-title {
+			padding-left: 0; // Account for missing space for status-icon.
+		}
+
+		.jetpack-podcast-player__audio-player,
+		.jetpack-podcast-player__track-status-icon {
+			display: none;
 		}
 	}
 }
