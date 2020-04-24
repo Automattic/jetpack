@@ -94,7 +94,7 @@ class ChecklistAnswer extends Component {
 					role="button"
 					tabIndex={ smallWindow ? 0 : -1 }
 				>
-					<Gridicon icon={ chevronIcon } size={ 14 } />
+					<Gridicon icon={ chevronIcon } size={ 21 } />
 				</div>
 			</div>
 		);
