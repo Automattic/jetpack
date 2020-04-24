@@ -1,14 +1,40 @@
 /**
  * External dependencies
  */
-import apiFetch from '@wordpress/api-fetch';
-import { useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
-import { addQueryArgs } from '@wordpress/url';
 import PopupMonitor from '@automattic/popup-monitor';
 
-export default function useConnectInstagram( setAttributes, setImages, noticeOperations ) {
+/**
+ * WordPress dependencies
+ */
+import apiFetch from '@wordpress/api-fetch';
+import { useEffect, useState } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import { addQueryArgs } from '@wordpress/url';
+
+export default function useConnectInstagram( {
+	accessToken,
+	noticeOperations,
+	setAttributes,
+	setImages,
+} ) {
 	const [ isConnecting, setIsConnecting ] = useState( false );
+
+	useEffect( () => {
+		if ( accessToken ) {
+			return;
+		}
+		setIsConnecting( true );
+		apiFetch( { path: `/wpcom/v2/instagram/access-token` } )
+			.then( token => {
+				setIsConnecting( false );
+				if ( token ) {
+					setAttributes( { accessToken: token } );
+				}
+			} )
+			.catch( () => {
+				setIsConnecting( false );
+			} );
+	}, [ accessToken, setAttributes, setIsConnecting ] );
 
 	const connectToService = () => {
 		noticeOperations.removeAllNotices();
@@ -45,11 +71,11 @@ export default function useConnectInstagram( setAttributes, setImages, noticeOpe
 			} );
 	};
 
-	const disconnectFromService = accessToken => {
+	const disconnectFromService = token => {
 		setIsConnecting( true );
 		apiFetch( {
 			path: addQueryArgs( `/wpcom/v2/instagram-gallery/delete-access-token`, {
-				access_token: accessToken,
+				access_token: token,
 			} ),
 			method: 'DELETE',
 		} ).then( responseCode => {

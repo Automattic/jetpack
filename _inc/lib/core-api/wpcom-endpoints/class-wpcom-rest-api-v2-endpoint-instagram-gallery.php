@@ -43,6 +43,15 @@ class WPCOM_REST_API_V2_Endpoint_Instagram_Gallery extends WP_REST_Controller {
 
 		register_rest_route(
 			$this->namespace,
+			$this->rest_base . '/access-token',
+			array(
+				'methods'  => WP_REST_Server::READABLE,
+				'callback' => array( $this, 'get_instagram_access_token' ),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
 			$this->rest_base . '/delete-access-token',
 			array(
 				'args'     => array(
@@ -109,6 +118,36 @@ class WPCOM_REST_API_V2_Endpoint_Instagram_Gallery extends WP_REST_Controller {
 		}
 
 		return $body->services->{ 'instagram-basic-display' }->connect_URL;
+	}
+
+	/**
+	 * Get a stored Instagram access token.
+	 *
+	 * @return mixed
+	 */
+	public function get_instagram_access_token() {
+		$site_id = Jetpack_Instagram_Gallery_Helper::get_site_id();
+		if ( is_wp_error( $site_id ) ) {
+			return $site_id;
+		}
+
+		$path     = sprintf( '/sites/%d/external-services/connections', $site_id );
+		$response = Client::wpcom_json_api_request_as_user( $path );
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+		$body        = json_decode( wp_remote_retrieve_body( $response ) );
+		$connections = $body->connections;
+
+		$access_token = null;
+		foreach ( $connections as $connection ) {
+			if ( 'instagram-basic-display' === $connection->service ) {
+				$access_token = (string) $connection->ID;
+				break;
+			}
+		}
+
+		return $access_token;
 	}
 
 	/**
