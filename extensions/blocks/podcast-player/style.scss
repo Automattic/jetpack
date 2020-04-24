@@ -70,16 +70,15 @@ $jetpack-podcast-player-error: $alert-red;
 		 * on links.
 		 */
 		a {
-			box-shadow: none;
-			text-decoration: none;
-			border: none;
-
+			&,
+			&:active,
+			&:visited,
 			&:hover,
 			&:focus {
-				box-shadow: none;
 				text-decoration: none;
 				border: none;
 			}
+
 		}
 
 		a.jetpack-podcast-player__link {
@@ -131,7 +130,6 @@ $jetpack-podcast-player-error: $alert-red;
 		flex-direction: column;
 		margin: 0;
 		padding: 0;
-		overflow: hidden;
 		letter-spacing: 0; // Fixes Twenty Twenty compressed text.
 		color: inherit;
 
