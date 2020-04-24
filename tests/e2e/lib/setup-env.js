@@ -112,6 +112,12 @@ global.it = async ( name, func ) => {
 	} );
 };
 
+export const step = async ( stepName, fn ) => {
+	reporter.startStep( stepName );
+	await fn();
+	reporter.endStep();
+};
+
 jasmine.getEnv().addReporter( {
 	specStarted( result ) {
 		logger.info( `Spec name: ${ result.fullName }, description: ${ result.description }` );

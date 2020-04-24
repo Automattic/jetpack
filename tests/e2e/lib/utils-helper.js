@@ -101,7 +101,7 @@ export async function execWpCommand( wpCmd, suffix = null ) {
 		cmd = cmd + suffix;
 	}
 
-	logger.info( 'execWpCommand', cmd );
+	logger.info( cmd );
 
 	return await execShellCommand( cmd );
 }
