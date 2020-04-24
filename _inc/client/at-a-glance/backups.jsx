@@ -92,7 +92,7 @@ class DashBackups extends Component {
 							components: {
 								a: (
 									<a
-										href="https://dashboard.vaultpress.com"
+										href={ getRedirectUrl( 'vaultpress-dashboard' ) }
 										target="_blank"
 										rel="noopener noreferrer"
 									/>
