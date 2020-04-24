@@ -403,6 +403,8 @@ $jetpack-podcast-player-error: $alert-red;
 		.mejs-button > button,
 		.jetpack-podcast-player__track-status-icon--playing {
 			background-image: none;
+			outline-color: $jetpack-podcast-player-primary;
+			outline-color: var( --jetpack-podcast-player-primary );
 
 			// Using mask on the :before pseudo to prevent it from covering the outline
 			&:before {
