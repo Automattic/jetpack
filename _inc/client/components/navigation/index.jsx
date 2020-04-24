@@ -98,7 +98,7 @@ export class Navigation extends React.Component {
 }
 
 Navigation.propTypes = {
-	route: PropTypes.object.isRequired,
+	routeName: PropTypes.string.isRequired,
 	isDevMode: PropTypes.bool.isRequired,
 };
 

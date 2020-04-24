@@ -219,7 +219,6 @@ class Main extends React.Component {
 				navComponent = settingsNav;
 				pageComponent = (
 					<SearchableSettings
-						route={ this.props.route }
 						siteAdminUrl={ this.props.siteAdminUrl }
 						siteRawUrl={ this.props.siteRawUrl }
 						searchTerm={ this.props.searchTerm }
@@ -289,7 +288,9 @@ class Main extends React.Component {
 
 	shouldShowMasthead() {
 		// Only show on the setup pages, dashboard, and settings page
-		return [ setupRoute, ...dashboardRoutes, ...settingsRoutes ].includes( this.props.location.pathname );
+		return [ setupRoute, ...dashboardRoutes, ...settingsRoutes ].includes(
+			this.props.location.pathname
+		);
 	}
 
 	shouldShowFooter() {

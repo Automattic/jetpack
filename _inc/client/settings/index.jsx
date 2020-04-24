@@ -25,7 +25,6 @@ class Settings extends React.Component {
 
 	render() {
 		const commonProps = {
-			route: this.props.route,
 			searchTerm: this.props.searchTerm,
 			rewindStatus: this.props.rewindStatus,
 			userCanManageModules: this.props.userCanManageModules,
