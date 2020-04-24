@@ -11,7 +11,7 @@ import { setBrowserViewport, enablePageDialogAccept } from '@wordpress/e2e-test-
 import { takeScreenshot } from './reporters/screenshot';
 import { logHTML, logDebugLog } from './page-helper';
 import logger from './logger';
-import { getNgrokSiteUrl, execWpCommand } from './utils-helper';
+import { execWpCommand } from './utils-helper';
 import { connectThroughWPAdminIfNeeded } from './flows/jetpack-connect';
 
 const { PUPPETEER_TIMEOUT, E2E_DEBUG, CI, E2E_LOG_HTML } = process.env;
@@ -117,7 +117,7 @@ jasmine.getEnv().addReporter( {
 		logger.info( `Spec name: ${ result.fullName }, description: ${ result.description }` );
 		jasmine.currentTest = result;
 	},
-	specDone: result => ( jasmine.currentTest = result ),
+	specDone: () => ( jasmine.currentTest = null ),
 } );
 
 // Before every test suite run, delete all content created by the test. This ensures
