@@ -48,14 +48,35 @@ function scribd_shortcode_handler( $atts ) {
  * Display the shortcode.
  *
  * @param array $atts Shortcode attributes.
+ * @return string The rendered shortcode.
  */
 function scribd_shortcode_markup( $atts ) {
-	$markup = <<<EOD
-<iframe class="scribd_iframe_embed" src="//www.scribd.com/embeds/$atts[id]/content?start_page=1&view_mode=$atts[mode]&access_key=$atts[key]" data-auto-height="true" scrolling="no" id="scribd_$atts[id]" width="100%" height="500" frameborder="0"></iframe>
-<div style="font-size:10px;text-align:center;width:100%"><a href="https://www.scribd.com/doc/$atts[id]" target="_blank">View this document on Scribd</a></div>
-EOD;
+	$sandbox = class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request()
+		? 'sandbox="allow-popups allow-scripts allow-same-origin"'
+		: '';
 
-	return $markup;
+	$url = add_query_arg(
+		array(
+			'start_page' => '1',
+			'view_mode'  => esc_attr( $atts['mode'] ),
+			'access_key' => esc_attr( $atts['key'] ),
+		),
+		esc_url(
+			sprintf(
+				'https://www.scribd.com/embeds/%1$d/content',
+				absint( $atts['id'] )
+			)
+		)
+	);
+
+	return sprintf(
+		'<iframe class="scribd_iframe_embed" src="%1$s" %2$s data-auto-height="true" scrolling="no" id="scribd_%3$d" width="100%%" height="500" frameborder="0"></iframe>
+		<div style="font-size:10px;text-align:center;width:100%%"><a href="https://www.scribd.com/doc/%3$d" rel="noopener noreferrer" target="_blank">%4$s</a></div>',
+		$url,
+		$sandbox,
+		absint( $atts['id'] ),
+		esc_html__( 'View this document on Scribd', 'jetpack' )
+	);
 }
 add_shortcode( 'scribd', 'scribd_shortcode_handler' );
 
