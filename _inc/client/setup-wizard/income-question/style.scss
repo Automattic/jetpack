@@ -25,18 +25,20 @@
 }
 
 .jp-setup-wizard-income-answer-container {
-	margin: 0 10%;
-
 	@include breakpoint( '>660px' ) {
 		display: grid;
 		grid-template-rows: auto auto;
 		grid-template-columns: 50% 50%;
 		grid-gap: 1rem;
+
+		margin: 0 10%;
 	}
 
 	@include breakpoint( '<660px' ) {
 		display: flex;
 		flex-direction: column;
+
+		margin: 0 0 0 1rem;
 	}
 }
 
