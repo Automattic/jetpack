@@ -34,4 +34,8 @@
 	flex-direction: column;
 	align-items: center;
 	margin: 2rem;
+
+	@include breakpoint( '<660px' ) {
+		margin: 0 2rem 2rem 2rem;
+	}
 }
