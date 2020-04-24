@@ -94,6 +94,11 @@ export function SingleProductSearchCard( props ) {
 						{ args: numberFormat( recordCount ), count: recordCount }
 					) }
 				</h4>
+				<h4 className="single-product-backup__options-header">
+					{ __(
+						'Records are all posts, pages, custom post types and other types of content indexed by Jetpack Search.'
+					) }
+				</h4>
 				<div className="single-product-search__radio-buttons-container">
 					<PlanRadioButton
 						billingTimeFrame={ planDuration }
