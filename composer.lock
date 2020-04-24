@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "dc6e3d68da6dac7eac1d4a150e2d179a",
+    "content-hash": "76b0cce3e2c32a81a3cce4d8d3ed0665",
     "packages": [
         {
             "name": "automattic/jetpack-abtest",
@@ -810,16 +810,16 @@
         },
         {
             "name": "sirbrillig/phpcs-changed",
-            "version": "v2.2.7",
+            "version": "v2.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sirbrillig/phpcs-changed.git",
-                "reference": "4fd30eda5c91862ea28023c2762d3b57aae8f5e4"
+                "reference": "ef63e225de330bdd928288e6c6bbcb79289202d5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sirbrillig/phpcs-changed/zipball/4fd30eda5c91862ea28023c2762d3b57aae8f5e4",
-                "reference": "4fd30eda5c91862ea28023c2762d3b57aae8f5e4",
+                "url": "https://api.github.com/repos/sirbrillig/phpcs-changed/zipball/ef63e225de330bdd928288e6c6bbcb79289202d5",
+                "reference": "ef63e225de330bdd928288e6c6bbcb79289202d5",
                 "shasum": ""
             },
             "require": {
@@ -860,7 +860,7 @@
                 }
             ],
             "description": "Run phpcs on files, but only report warnings/errors from lines which were changed.",
-            "time": "2019-11-21T17:09:44+00:00"
+            "time": "2020-04-16T14:54:42+00:00"
         },
         {
             "name": "sirbrillig/phpcs-variable-analysis",
@@ -1037,5 +1037,6 @@
         "ext-json": "*",
         "ext-openssl": "*"
     },
-    "platform-dev": []
+    "platform-dev": [],
+    "plugin-api-version": "1.1.0"
 }
