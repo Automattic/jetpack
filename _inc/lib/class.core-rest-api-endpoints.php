@@ -136,6 +136,16 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
 		) );
 
+		register_rest_route(
+			'jetpack/v4',
+			'/scan',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_scan_state',
+				'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+			)
+		);
+
 		// Fetches a fresh connect URL
 		register_rest_route( 'jetpack/v4', '/connection/url', array(
 			'methods' => WP_REST_Server::READABLE,
@@ -1176,6 +1186,66 @@ class Jetpack_Core_Json_Api_Endpoints {
 		return new WP_Error(
 			'error_get_rewind_data',
 			esc_html__( 'Could not retrieve Backup & Scan data.', 'jetpack' ),
+			array( 'status' => 500 )
+		);
+	}
+
+	/**
+	 * Gets Scan state data.
+	 *
+	 * @since 8.5.0
+	 *
+	 * @return array|WP_Error Result from WPCOM API or error.
+	 */
+	public static function scan_state() {
+		$site_id = Jetpack_Options::get_option( 'id' );
+
+		if ( ! $site_id ) {
+			return new WP_Error( 'site_id_missing' );
+		}
+
+		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/scan', $site_id ) . '?force=wpcom', '2', array(), null, 'wpcom' );
+
+		if ( wp_remote_retrieve_response_code( $response ) !== 200 ) {
+			return new WP_Error( 'scan_state_fetch_failed' );
+		}
+
+		$body = wp_remote_retrieve_body( $response );
+
+		return json_decode( $body );
+	}
+
+	/**
+	 * Get Scan state for API.
+	 *
+	 * @since 8.5.0
+	 *
+	 * @return WP_REST_Response|WP_Error REST response or error state.
+	 */
+	public static function get_scan_state() {
+		$scan_state = self::scan_state();
+
+		if ( ! is_wp_error( $scan_state ) ) {
+			return rest_ensure_response(
+				array(
+					'code'    => 'success',
+					'message' => esc_html__( 'Scan state correctly received.', 'jetpack' ),
+					'data'    => wp_json_encode( $scan_state ),
+				)
+			);
+		}
+
+		if ( $scan_state->get_error_code() === 'scan_state_fetch_failed' ) {
+			return new WP_Error( 'scan_state_fetch_failed', esc_html__( 'Failed fetching rewind data. Try again later.', 'jetpack' ), array( 'status' => 400 ) );
+		}
+
+		if ( $scan_state->get_error_code() === 'site_id_missing' ) {
+			return new WP_Error( 'site_id_missing', esc_html__( 'The ID of this site does not exist.', 'jetpack' ), array( 'status' => 404 ) );
+		}
+
+		return new WP_Error(
+			'error_get_rewind_data',
+			esc_html__( 'Could not retrieve Scan state.', 'jetpack' ),
 			array( 'status' => 500 )
 		);
 	}
