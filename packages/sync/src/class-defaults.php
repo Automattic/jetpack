@@ -158,6 +158,7 @@ class Defaults {
 		'site_user_type',
 		'site_vertical',
 		'jetpack_excluded_extensions',
+		'jetpack_publicize_options',
 	);
 
 	/**
@@ -293,7 +294,6 @@ class Defaults {
 		'available_jetpack_blocks'         => array( 'Jetpack_Gutenberg', 'get_availability' ), // Includes both Gutenberg blocks *and* plugins.
 		'paused_themes'                    => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_paused_themes' ),
 		'paused_plugins'                   => array( 'Automattic\\Jetpack\\Sync\\Functions', 'get_paused_plugins' ),
-		'publicize_options'                => array( 'Automattic\\Jetpack\\Sync\\FUnctions', 'get_publicize_options' ),
 	);
 
 

@@ -625,30 +625,4 @@ class Functions {
 		}
 		return false;
 	}
-
-	/**
-	 * Returns Publicize Options.
-	 *
-	 * @todo Add a default option setter to the Publicize module itself.
-	 *
-	 * Currently returns the value of the `jetpack_publicize_options` filter.
-	 *
-	 * @return array Array of publicize_options.
-	 */
-	public static function get_publicize_options() {
-		$default = array(
-			'attach_media' => false,
-		);
-		/**
-		 * Filters the options for Publicize.
-		 *
-		 * As of Jetpack 8.5, the array keys could be:
-		 * attach_media bool If Publicize should send the image to the social media platform. Default false.
-		 *
-		 * @since 8.5.0
-		 *
-		 * @param array $options Array of Publicize options.
-		 */
-		return (array) apply_filters( 'jetpack_publicize_options', $default );
-	}
 }
