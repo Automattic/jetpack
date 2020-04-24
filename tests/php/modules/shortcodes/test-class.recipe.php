@@ -397,8 +397,8 @@ EOT;
 				'<div class="hrecipe h-recipe jetpack-recipe" itemscope itemtype="https://schema.org/Recipe"><h3 class="p-name jetpack-recipe-title fn" itemprop="name">Mediterranean Panini</h3>
 					<ul class="jetpack-recipe-meta">
 						<li class="jetpack-recipe-servings p-yield yield" itemprop="recipeYield"><strong>Servings: </strong>5-8</li>
-						<li class="jetpack-recipe-cooktime"><time itemprop="cookTime" datetime="P0DT0H25M0S"><strong>Cook Time:</strong> <span class="cooktime">25 mins</span></time></li>
 						<li class="jetpack-recipe-preptime"><time itemprop="prepTime" datetime="P0DT0H50M0S"><strong>Prep Time:</strong> <span class="preptime">50 mins</span></time></li>
+						<li class="jetpack-recipe-cooktime"><time itemprop="cookTime" datetime="P0DT0H25M0S"><strong>Cook Time:</strong> <span class="cooktime">25 mins</span></time></li>
 						<li class="jetpack-recipe-difficulty"><strong>Difficulty: </strong>hard</li><li class="jetpack-recipe-rating"><strong>Rating: </strong><span itemprop="contentRating">★★★★</span></li>
 						<li class="jetpack-recipe-print"><a href="#" on="tap:AMP.print">Print page</a></li>
 					</ul>
@@ -409,8 +409,8 @@ EOT;
 				'<div class="hrecipe h-recipe jetpack-recipe" itemscope itemtype="https://schema.org/Recipe"><h3 class="p-name jetpack-recipe-title fn" itemprop="name">Mediterranean Panini</h3>
 					<ul class="jetpack-recipe-meta">
 						<li class="jetpack-recipe-servings p-yield yield" itemprop="recipeYield"><strong>Servings: </strong>5-8</li>
-						<li class="jetpack-recipe-cooktime"><time itemprop="cookTime" datetime="P0DT0H25M0S"><strong>Cook Time:</strong><span class="cooktime">25 mins</span></time></li>
 						<li class="jetpack-recipe-preptime"><time itemprop="prepTime" datetime="P0DT0H50M0S"><strong>Prep Time:</strong><span class="preptime">50 mins</span></time></li>
+						<li class="jetpack-recipe-cooktime"><time itemprop="cookTime" datetime="P0DT0H25M0S"><strong>Cook Time:</strong><span class="cooktime">25 mins</span></time></li>
 						<li class="jetpack-recipe-difficulty"><strong>Difficulty: </strong>hard</li><li class="jetpack-recipe-rating"><strong>Rating: </strong><span itemprop="contentRating">★★★★</span></li>
 						<li class="jetpack-recipe-print"><a href="#" on="tap:AMP.print">Print page</a></li>
 					</ul>
