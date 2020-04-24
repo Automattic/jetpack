@@ -66,6 +66,6 @@ export function isFetchingScanStatus( state ) {
  * @param  {object}  state - Global state tree
  * @returns {object}  Features
  */
-export function getRewindStatus( state ) {
+export function getScanStatus( state ) {
 	return get( state.jetpack.scan, [ 'data', 'status' ], {} );
 }
