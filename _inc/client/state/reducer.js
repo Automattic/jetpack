@@ -20,6 +20,7 @@ import { reducer as pluginsData } from 'state/site/plugins/reducer';
 import { reducer as products } from 'state/products/reducer';
 import { reducer as publicize } from 'state/publicize/reducer';
 import { reducer as rewind } from 'state/rewind/reducer';
+import { reducer as scan } from 'state/scan/reducer';
 import { reducer as search } from 'state/search/reducer';
 import { reducer as settings } from 'state/settings/reducer';
 import { reducer as siteData } from 'state/site/reducer';
@@ -42,6 +43,7 @@ const jetpackReducer = combineReducers( {
 	products,
 	publicize,
 	rewind,
+	scan,
 	search,
 	settings,
 	siteData,
