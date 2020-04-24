@@ -48,6 +48,23 @@ class RedirectTest extends TestCase {
 		$v   = rawurlencode( 'key=value&key2=value2' );
 		$this->assertEquals( 'https://jetpack.com/redirect?source=simple&site=example.org&anchor=' . $v, $url );
 
+		// Test informing URL.
+		$url = Redirect::get_url( 'https://wordpress.com/support' );
+		$v   = rawurlencode( 'https://wordpress.com/support' );
+		$this->assertEquals( 'https://jetpack.com/redirect?url=' . $v . '&site=example.org', $url );
+
+		// Test URL and query.
+		$url   = Redirect::get_url( 'https://wordpress.com/support', array( 'query' => 'key=value&key2=value2' ) );
+		$v     = rawurlencode( 'key=value&key2=value2' );
+		$v_url = rawurlencode( 'https://wordpress.com/support' );
+		$this->assertEquals( 'https://jetpack.com/redirect?url=' . $v_url . '&site=example.org&query=' . $v, $url );
+
+		// Test URL and query, discarding info from url.
+		$url   = Redirect::get_url( 'https://wordpress.com/support?this=that#super', array( 'query' => 'key=value&key2=value2' ) );
+		$v     = rawurlencode( 'key=value&key2=value2' );
+		$v_url = rawurlencode( 'https://wordpress.com/support' );
+		$this->assertEquals( 'https://jetpack.com/redirect?url=' . $v_url . '&site=example.org&query=' . $v, $url );
+
 	}
 
 }
