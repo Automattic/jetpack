@@ -14,6 +14,12 @@ $jetpack-podcast-player-secondary: $dark-gray-300;
 $jetpack-podcast-player-background: $white;
 $jetpack-podcast-player-error: $alert-red;
 
+@mixin focus-outline() {
+	outline: 1px solid;
+	outline-color: $jetpack-podcast-player-secondary;
+	outline-color: var( --jetpack-podcast-player-secondary );
+}
+
 .jetpack-podcast-player--visually-hidden {
 	position: absolute !important;
 	height: 1px;
@@ -73,8 +79,12 @@ $jetpack-podcast-player-error: $alert-red;
 		a:visited,
 		a:hover,
 		a:focus {
+			box-shadow: none; // Some themes use it instead of outline
 			text-decoration: none;
 			border: none;
+		}
+		a:focus {
+			@include focus-outline();
 		}
 
 		a.jetpack-podcast-player__link {
@@ -310,6 +320,10 @@ $jetpack-podcast-player-error: $alert-red;
 		background-color: transparent;
 	}
 
+	.mejs-container:focus {
+		@include focus-outline();
+	}
+
 	.mejs-controls {
 		position: static;
 		padding-top: 0;
@@ -363,6 +377,9 @@ $jetpack-podcast-player-error: $alert-red;
 		background-color: var( --jetpack-podcast-player-primary );
 	}
 
+	.mejs-controls .mejs-time-rail .mejs-time-slider:focus {
+		@include focus-outline();
+	}
 	/**
 	 * Helper function that escapes the value of the color variable in the SVG.
 	 * This way we can change the value in one place and easily add style
@@ -397,8 +414,6 @@ $jetpack-podcast-player-error: $alert-red;
 		.mejs-button > button,
 		.jetpack-podcast-player__track-status-icon--playing {
 			background-image: none;
-			outline-color: $jetpack-podcast-player-primary;
-			outline-color: var( --jetpack-podcast-player-primary );
 
 			// Using mask on the :before pseudo to prevent it from covering the outline
 			&:before {
@@ -410,6 +425,10 @@ $jetpack-podcast-player-error: $alert-red;
 				background-image: none;
 				mask: url( '/wp-includes/js/mediaelement/mejs-controls.svg' );
 			}
+		}
+
+		.mejs-button > button:focus {
+			@include focus-outline();
 		}
 
 		.mejs-play > button:before {
