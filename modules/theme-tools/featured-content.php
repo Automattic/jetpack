@@ -315,8 +315,8 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 				return;
 			}
 
-			// Bail if the blog page is not the front page.
-			if ( 'posts' !== get_option( 'show_on_front' ) ) {
+			// Bail if not on a blog page (posts list).
+			if ( ! is_front_page() && ! $query->is_posts_page ) {
 				return;
 			}
 
