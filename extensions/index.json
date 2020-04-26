@@ -29,7 +29,7 @@
 		"videopress",
 		"wordads"
 	],
-	"beta": [ "amazon", "instagram-gallery" ],
+	"beta": [ "amazon", "instagram-gallery", "schedule-content" ],
 	"experimental": [ "seo" ],
 	"no-post-editor": [
 		"business-hours",
@@ -49,6 +49,7 @@
 		"related-posts",
 		"repeat-visitor",
 		"revue",
+		"schedule-content",
 		"simple-payments",
 		"slideshow",
 		"subscriptions",
