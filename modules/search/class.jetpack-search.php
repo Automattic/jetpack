@@ -354,7 +354,11 @@ class Jetpack_Search {
 			return;
 		}
 
-		$filters = Jetpack_Search_Helpers::get_filters_from_widgets();
+    if (empty (Jetpack_Search_Helpers) {
+      $JetPack_Search_Helpers = new Jetpack_Search_Helpers();
+    }
+    
+    $filters = Jetpack_Search_Helpers::get_filters_from_widgets();
 
 		if ( ! empty( $filters ) ) {
 			$this->set_filters( $filters );
