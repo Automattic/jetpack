@@ -3,10 +3,8 @@
  */
 import { __ } from '@wordpress/i18n';
 import { BaseControl, PanelBody, ToggleControl } from '@wordpress/components';
-import { useEffect } from '@wordpress/element';
 import { InspectorControls } from '@wordpress/block-editor';
-import { compose, withInstanceId } from '@wordpress/compose';
-import { withSelect } from '@wordpress/data';
+import { withInstanceId } from '@wordpress/compose';
 
 /**
  * Internal dependencies
@@ -14,33 +12,14 @@ import { withSelect } from '@wordpress/data';
 import JetpackFieldLabel from './jetpack-field-label';
 
 function JetpackFieldCheckbox( props ) {
-	const {
-		instanceId,
-		required,
-		label,
-		setAttributes,
-		isSelected,
-		defaultValue,
-		parentBlock,
-		spacing,
-	} = props;
-
-	useEffect( () => {
-		if ( parentBlock && parentBlock.attributes.spacing !== spacing ) {
-			setAttributes( { spacing: parentBlock.attributes.spacing } );
-		}
-	} );
+	const { instanceId, required, label, setAttributes, isSelected, defaultValue } = props;
 
 	return (
 		<BaseControl
 			id={ `jetpack-field-checkbox-${ instanceId }` }
 			className="jetpack-field jetpack-field-checkbox"
 			label={
-				<div
-					style={ {
-						marginBottom: spacing + 'px',
-					} }
-				>
+				<>
 					<input
 						className="jetpack-field-checkbox__checkbox"
 						type="checkbox"
@@ -62,24 +41,10 @@ function JetpackFieldCheckbox( props ) {
 							/>
 						</PanelBody>
 					</InspectorControls>
-				</div>
+				</>
 			}
 		/>
 	);
 }
 
-export default compose( [
-	withSelect( select => {
-		const { getBlock, getSelectedBlockClientId, getBlockHierarchyRootClientId } = select(
-			'core/block-editor'
-		);
-		const selectedBlockClientId = getSelectedBlockClientId();
-
-		return {
-			parentBlock: selectedBlockClientId
-				? getBlock( getBlockHierarchyRootClientId( selectedBlockClientId ) )
-				: null,
-		};
-	} ),
-	withInstanceId,
-] )( JetpackFieldCheckbox );
+export default withInstanceId( JetpackFieldCheckbox );

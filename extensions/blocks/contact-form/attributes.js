@@ -53,14 +53,6 @@ export const defaultAttributes = {
 		type: 'string',
 		default: '',
 	},
-	padding: {
-		type: 'number',
-		default: 12,
-	},
-	spacing: {
-		type: 'number',
-		default: 10,
-	},
 
 	// Deprecated
 	has_form_settings_set: {

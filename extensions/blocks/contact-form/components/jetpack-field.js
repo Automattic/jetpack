@@ -3,7 +3,7 @@
  */
 import classNames from 'classnames';
 import { __ } from '@wordpress/i18n';
-import { Fragment, useEffect } from '@wordpress/element';
+import { Fragment } from '@wordpress/element';
 import { InspectorControls, BlockControls } from '@wordpress/block-editor';
 import {
 	PanelBody,
@@ -14,8 +14,6 @@ import {
 	ToolbarButton,
 	Path,
 } from '@wordpress/components';
-import { compose } from '@wordpress/compose';
-import { withSelect } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -23,28 +21,8 @@ import { withSelect } from '@wordpress/data';
 import JetpackFieldLabel from './jetpack-field-label';
 import renderMaterialIcon from '../../../shared/render-material-icon';
 
-function JetpackField( props ) {
-	const {
-		isSelected,
-		type,
-		required,
-		label,
-		parentBlock,
-		setAttributes,
-		placeholder,
-		padding,
-		spacing,
-	} = props;
-
-	useEffect( () => {
-		if ( parentBlock && parentBlock.attributes.padding !== padding ) {
-			setAttributes( { padding: parentBlock.attributes.padding } );
-		}
-
-		if ( parentBlock && parentBlock.attributes.spacing !== spacing ) {
-			setAttributes( { spacing: parentBlock.attributes.spacing } );
-		}
-	} );
+export default function JetpackField( props ) {
+	const { isSelected, type, required, label, setAttributes, placeholder } = props;
 
 	return (
 		<Fragment>
@@ -62,10 +40,6 @@ function JetpackField( props ) {
 						value={ placeholder }
 						onChange={ value => setAttributes( { placeholder: value } ) }
 						title={ __( 'Set the placeholder text', 'jetpack' ) }
-						style={ {
-							padding: padding + 'px',
-							marginBottom: spacing + 'px',
-						} }
 					/>
 				</Disabled>
 			</div>
@@ -102,18 +76,3 @@ function JetpackField( props ) {
 		</Fragment>
 	);
 }
-
-export default compose( [
-	withSelect( select => {
-		const { getBlock, getSelectedBlockClientId, getBlockHierarchyRootClientId } = select(
-			'core/block-editor'
-		);
-		const selectedBlockClientId = getSelectedBlockClientId();
-
-		return {
-			parentBlock: selectedBlockClientId
-				? getBlock( getBlockHierarchyRootClientId( selectedBlockClientId ) )
-				: null,
-		};
-	} ),
-] )( JetpackField );

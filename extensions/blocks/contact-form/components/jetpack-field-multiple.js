@@ -12,9 +12,8 @@ import {
 	Path,
 } from '@wordpress/components';
 import { InspectorControls, BlockControls } from '@wordpress/block-editor';
-import { Fragment, useEffect, useState } from '@wordpress/element';
-import { compose, withInstanceId } from '@wordpress/compose';
-import { withSelect } from '@wordpress/data';
+import { Fragment, useState } from '@wordpress/element';
+import { withInstanceId } from '@wordpress/compose';
 
 /**
  * Internal dependencies
@@ -24,25 +23,9 @@ import JetpackOption from './jetpack-option';
 import renderMaterialIcon from '../../../shared/render-material-icon';
 
 function JetpackFieldMultiple( props ) {
-	const {
-		type,
-		instanceId,
-		required,
-		label,
-		spacing,
-		setAttributes,
-		isSelected,
-		options,
-		parentBlock,
-	} = props;
+	const { type, instanceId, required, label, setAttributes, isSelected, options } = props;
 
 	const [ inFocus, setInFocus ] = useState( null );
-
-	useEffect( () => {
-		if ( parentBlock && parentBlock.attributes.spacing !== spacing ) {
-			setAttributes( { spacing: parentBlock.attributes.spacing } );
-		}
-	} );
 
 	const onChangeOption = ( key = null, option = null ) => {
 		const newOptions = options.slice( 0 );
@@ -95,9 +78,6 @@ function JetpackFieldMultiple( props ) {
 				<ol
 					className="jetpack-field-multiple__list"
 					id={ `jetpack-field-multiple-${ instanceId }` }
-					style={ {
-						marginBottom: spacing + 'px',
-					} }
 				>
 					{ options.map( ( option, index ) => (
 						<JetpackOption
@@ -157,18 +137,4 @@ function JetpackFieldMultiple( props ) {
 	);
 }
 
-export default compose( [
-	withSelect( select => {
-		const { getBlock, getSelectedBlockClientId, getBlockHierarchyRootClientId } = select(
-			'core/block-editor'
-		);
-		const selectedBlockClientId = getSelectedBlockClientId();
-
-		return {
-			parentBlock: selectedBlockClientId
-				? getBlock( getBlockHierarchyRootClientId( selectedBlockClientId ) )
-				: null,
-		};
-	} ),
-	withInstanceId,
-] )( JetpackFieldMultiple );
+export default withInstanceId( JetpackFieldMultiple );

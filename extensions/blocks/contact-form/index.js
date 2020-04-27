@@ -77,14 +77,6 @@ const FieldDefaults = {
 			type: 'string',
 			default: '',
 		},
-		padding: {
-			type: 'number',
-			default: defaultAttributes.padding.default,
-		},
-		spacing: {
-			type: 'number',
-			default: defaultAttributes.spacing.default,
-		},
 	},
 	transforms: {
 		to: [
@@ -167,8 +159,6 @@ const editField = type => props => {
 			isSelected={ props.isSelected }
 			defaultValue={ props.attributes.defaultValue }
 			placeholder={ props.attributes.placeholder }
-			padding={ props.attributes.padding }
-			spacing={ props.attributes.spacing }
 			id={ props.attributes.id }
 		/>
 	);
@@ -183,7 +173,6 @@ const editMultiField = type => props => (
 		type={ type }
 		isSelected={ props.isSelected }
 		id={ props.attributes.id }
-		spacing={ props.attributes.spacing }
 	/>
 );
 
@@ -294,8 +283,6 @@ export const childBlocks = [
 					defaultValue={ props.attributes.defaultValue }
 					placeholder={ props.attributes.placeholder }
 					id={ props.attributes.id }
-					padding={ props.attributes.padding }
-					spacing={ props.attributes.spacing }
 				/>
 			),
 		},
@@ -318,7 +305,6 @@ export const childBlocks = [
 					isSelected={ props.isSelected }
 					defaultValue={ props.attributes.defaultValue }
 					id={ props.attributes.id }
-					spacing={ props.attributes.spacing }
 				/>
 			),
 			attributes: {

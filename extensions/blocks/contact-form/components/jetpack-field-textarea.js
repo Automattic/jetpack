@@ -13,8 +13,6 @@ import {
 	ToolbarButton,
 	Path,
 } from '@wordpress/components';
-import { compose } from '@wordpress/compose';
-import { withSelect } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -22,27 +20,8 @@ import { withSelect } from '@wordpress/data';
 import JetpackFieldLabel from './jetpack-field-label';
 import renderMaterialIcon from '../../../shared/render-material-icon';
 
-function JetpackFieldTextarea( props ) {
-	const {
-		required,
-		label,
-		parentBlock,
-		setAttributes,
-		isSelected,
-		placeholder,
-		padding,
-		spacing,
-	} = props;
-
-	useEffect( () => {
-		if ( parentBlock && parentBlock.attributes.padding !== padding ) {
-			setAttributes( { padding: parentBlock.attributes.padding } );
-		}
-
-		if ( parentBlock && parentBlock.attributes.spacing !== spacing ) {
-			setAttributes( { spacing: parentBlock.attributes.spacing } );
-		}
-	} );
+export default function JetpackFieldTextarea( props ) {
+	const { required, label, setAttributes, isSelected, placeholder } = props;
 
 	return (
 		<Fragment>
@@ -59,10 +38,6 @@ function JetpackFieldTextarea( props ) {
 						value={ placeholder }
 						onChange={ value => setAttributes( { placeholder: value } ) }
 						title={ __( 'Set the placeholder text', 'jetpack' ) }
-						style={ {
-							padding: padding + 'px',
-							marginBottom: spacing + 'px',
-						} }
 					/>
 				</Disabled>
 			</div>
@@ -99,18 +74,3 @@ function JetpackFieldTextarea( props ) {
 		</Fragment>
 	);
 }
-
-export default compose( [
-	withSelect( select => {
-		const { getBlock, getSelectedBlockClientId, getBlockHierarchyRootClientId } = select(
-			'core/block-editor'
-		);
-		const selectedBlockClientId = getSelectedBlockClientId();
-
-		return {
-			parentBlock: selectedBlockClientId
-				? getBlock( getBlockHierarchyRootClientId( selectedBlockClientId ) )
-				: null,
-		};
-	} ),
-] )( JetpackFieldTextarea );
