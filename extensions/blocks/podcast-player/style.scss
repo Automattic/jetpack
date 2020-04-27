@@ -135,6 +135,7 @@ $jetpack-podcast-player-error: $alert-red;
 	h2.jetpack-podcast-player__title {
 		display: flex;
 		flex-direction: column;
+		width: 100%; // Makes long titles wrap in IE11.
 		margin: 0;
 		padding: 0;
 		letter-spacing: 0; // Fixes Twenty Twenty compressed text.
