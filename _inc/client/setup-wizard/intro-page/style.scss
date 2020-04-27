@@ -1,5 +1,5 @@
-@import '../../scss/mixin_breakpoint';
 @import '../../scss/calypso-colors';
+@import '../../scss/mixin_breakpoint';
 
 .jp-setup-wizard-header {
 	@include breakpoint( '<660px' ) {
@@ -23,7 +23,7 @@
 	box-sizing: border-box;
 
 	@include breakpoint( '>480px' ) {
-		border: 1px solid #dddddd;
+		border: 1px solid $gray-lighten-20;
 		border-radius: 4px;
 	}
 

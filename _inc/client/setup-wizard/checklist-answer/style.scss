@@ -1,3 +1,4 @@
+@import '../../scss/calypso-colors';
 @import '../../scss/mixin_breakpoint';
 
 .jp-checklist-answer-container {
@@ -7,13 +8,13 @@
 		grid-template-columns: auto auto;
 
 		box-sizing: border-box;
-		border: 1px solid #dddddd;
+		border: 1px solid $gray-lighten-20;
 		border-radius: 4px;
 
 		cursor: pointer;
 
 		&.checked {
-			background: #f6f7f7;
+			background: $gray-light;
 		}
 	}
 
@@ -28,7 +29,7 @@
 
 .jp-checklist-answer-container:focus {
 	@include breakpoint( '>660px' ) {
-		border: 1px solid #00a0d2;
+		border: 1px solid $blue-medium;
 	}
 }
 
@@ -113,6 +114,6 @@
 
 .jp-checklist-answer-chevron-container:focus {
 	@include breakpoint( '<660px' ) {
-		border: 1px solid #00a0d2;
+		border: 1px solid $blue-medium;
 	}
 }
