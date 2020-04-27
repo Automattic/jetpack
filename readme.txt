@@ -109,6 +109,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Comments: update how comment types are stored to be fully compatible with upcoming WordPress Core changes.
 * OpenTable Block: add a warning notice when their selected combination of style and align options may cause display issues.
+* Publicize: allow site owners to set a filter to enable embedding media directly into Twitter embeds.
 * Search: add new option to configure the Instant Search overlay.
 * Sync: improve performance of the synchronization process on sites with plugins generating an important amount of posts.
 

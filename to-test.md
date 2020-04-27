@@ -6,6 +6,10 @@
 
 We've made several changes to the Carousel feature in this release. You'll want to test the feature, with and without the AMP plugin, and ensure it still works well in AMP views as well as on desktop.
 
+### Publicize
+
+We've made some changes to the default behaviour when publicizing to Twitter accounts. Until now, when you would publish a new post with an image, that image would be uploaded and attached to the Publicized tweet. From now on, when you do publish a post, Publicize will let Twitter build a preview card for the tweet, based on the link above. Please try publishing some posts with Publicize to Twitter activated, and ensure that Publicize still works.
+
 ### Others
 
 - If you have the opportunity to test in an older browser like IE11, please do so. You may catch some interesting bugs!
