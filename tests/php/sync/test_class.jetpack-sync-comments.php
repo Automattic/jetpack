@@ -450,4 +450,9 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 		$comment_types[] = 'product_feedback';
 		return $comment_types;
 	}
+
+	/*
+	 * Need to duplicate all above tests for individual actions to ensure they don't fire for non whitelisted post-types.
+	 */
+
 }
