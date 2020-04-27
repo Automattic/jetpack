@@ -126,6 +126,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Embeds: provide helpful feedback when inline PDFs cannot be displayed in mobile browsers.
 * General: fix comment notification overrides that direct moderation links to the WordPress.com interface.
 * General: improve deprecated hook notices to handle anonymous functions.
+* Site Health Tools: reduce false positives in Jetpack connection tests.
 * Subscriptions Block: fix layout issue in email input box.
 * Sync: improve performance of the synchronization process when processing a large amount of Akismet feedback.
 
