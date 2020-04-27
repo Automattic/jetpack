@@ -183,10 +183,10 @@ $jetpack-podcast-player-error: $alert-red;
 		line-height: $editor-line-height;
 		color: inherit;
 		overflow: hidden;
-		max-height: 4em * $editor-line-height; // IE11 fallback for line-clamp
+		max-height: 4em * $editor-line-height; // IE11 fallback for line-clamp.
 
 		@supports ( display: -webkit-box ) {
-			//crop the description if too long
+			// Crop the description if too long.
 			display: -webkit-box;
 			-webkit-box-orient: vertical;
 			-webkit-line-clamp: 4;
