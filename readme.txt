@@ -113,6 +113,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Improved compatibility**
 
+* Ad Block: ensure full compatibility of the feature with the AMP plugin.
 * Carousel: ensure full compatibility of the feature with the AMP plugin.
 * Embeds: ensure that all recipes, as well as Google Maps embeds and Scribd embeds, can be viewed with no errors in AMP views.
 * General: when using a beta version of Jetpack via the Jetpack Beta Plugin, allow Multisite connections to be managed in Network Admin.
