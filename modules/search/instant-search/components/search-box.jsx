@@ -28,8 +28,12 @@ const SearchBox = props => {
 	const inputRef = useRef( null );
 
 	useEffect( () => {
-		props.isVisible ? stealFocusWithInput( inputRef.current )() : restoreFocus();
-	}, [ props.isVisible ] );
+		if ( props.isVisible ) {
+			stealFocusWithInput( inputRef.current )();
+		} else if ( props.shouldRestoreFocus ) {
+			restoreFocus();
+		}
+	}, [ props.isVisible, props.shouldRestoreFocus ] );
 
 	return (
 		<Fragment>
