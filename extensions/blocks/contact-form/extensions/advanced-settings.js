@@ -1,7 +1,7 @@
 /**
  * External Dependencies
  */
-import { find, filter } from 'lodash';
+import { find } from 'lodash';
 import { __ } from '@wordpress/i18n';
 import { addFilter } from '@wordpress/hooks';
 import { InspectorAdvancedControls } from '@wordpress/block-editor';
@@ -19,15 +19,8 @@ const withAdvancedControls = createHigherOrderComponent( BlockEdit => {
 
 		const { id } = attributes;
 
-		const supportedBlocks = filter( childBlocks, block => {
-			if ( block.name === 'field-checkbox-multiple' || block.name === 'field-radio' ) {
-				return false;
-			}
-			return true;
-		} );
-
 		// Remove the jetpack/ from each block name to perform the matching.
-		if ( ! find( supportedBlocks, [ 'name', props.name.split( '/' )[ 1 ] ] ) ) {
+		if ( ! find( childBlocks, [ 'name', props.name.split( '/' )[ 1 ] ] ) ) {
 			return <BlockEdit { ...props } />;
 		}
 
