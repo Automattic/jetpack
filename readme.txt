@@ -113,6 +113,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Improved compatibility**
 
+* Carousel: ensure full compatibility of the feature with the AMP plugin.
 * Embeds: ensure that all recipe and Scribd embeds can be viewed with no errors in AMP views.
 * General: when using a beta version of Jetpack via the Jetpack Beta Plugin, allow Multisite connections to be managed in Network Admin.
 * Shortcodes: improve behavior of the Archives shortcode in AMP views.

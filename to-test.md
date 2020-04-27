@@ -2,6 +2,10 @@
 
 ### Blocks
 
+### Carousel
+
+We've made several changes to the Carousel feature in this release. You'll want to test the feature, with and without the AMP plugin, and ensure it still works well in AMP views as well as on desktop.
+
 ### Others
 
 - If you have the opportunity to test in an older browser like IE11, please do so. You may catch some interesting bugs!
