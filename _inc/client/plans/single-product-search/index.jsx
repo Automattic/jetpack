@@ -95,15 +95,10 @@ export function SingleProductSearchCard( props ) {
 						{ args: numberFormat( recordCount ), count: recordCount }
 					) }
 					<InfoPopover position="right">
-						{
-							'Records are all posts, pages, custom post types and other types of content indexed by Jetpack Search.'
-						}
+						{ __(
+							'Records are all posts, pages, custom post types, and other types of content indexed by Jetpack Search.'
+						) }
 					</InfoPopover>
-				</h4>
-				<h4 className="single-product-backup__options-header">
-					{ __(
-						'Records are all posts, pages, custom post types and other types of content indexed by Jetpack Search.'
-					) }
 				</h4>
 				<div className="single-product-search__radio-buttons-container">
 					<PlanRadioButton
