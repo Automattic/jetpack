@@ -117,6 +117,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
+* Contact Form: avoid making unnecessary requests to the Akismet API.
 * General: fix comment notification overrides that direct moderation links to the WordPress.com interface.
 
 --------
