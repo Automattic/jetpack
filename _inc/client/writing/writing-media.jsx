@@ -59,6 +59,7 @@ class WritingMedia extends Component {
 		return (
 			<SettingsCard
 				{ ...this.props }
+				module="media"
 				header={ __( 'Media' ) }
 				hideButton={ ! foundCarousel }
 				saveDisabled={ this.props.isSavingAnyOption( 'carousel_background_color' ) }
