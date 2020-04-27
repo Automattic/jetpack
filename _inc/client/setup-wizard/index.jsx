@@ -29,7 +29,7 @@ const SetupWizardComponent = props => {
 					<IncomeQuestion siteTitle={ props.siteTitle } />
 				</Route>
 				<Route path={ `${ path }/updates` }>
-					<UpdatesQuestion />
+					<UpdatesQuestion siteTitle={ props.siteTitle } />
 				</Route>
 			</Switch>
 		</>
