@@ -570,10 +570,7 @@ class Posts extends Module {
 		do_action( 'jetpack_sync_save_post', $post_ID, $post, $update, $state );
 		unset( $this->previous_status[ $post_ID ] );
 
-		// Only Send Pulished Post event if post_type is not blacklisted.
-		if ( ! in_array( $post->post_type, Settings::get_setting( 'post_types_blacklist' ), true ) ) {
-			$this->send_published( $post_ID, $post );
-		}
+		$this->send_published( $post_ID, $post );
 	}
 
 	/**
@@ -619,15 +616,18 @@ class Posts extends Module {
 		 */
 		$flags = apply_filters( 'jetpack_published_post_flags', $post_flags, $post );
 
-		/**
-		 * Action that gets synced when a post type gets published.
-		 *
-		 * @since 4.4.0
-		 *
-		 * @param int $post_ID
-		 * @param mixed array $flags post flags that are added to the post
-		 */
-		do_action( 'jetpack_published_post', $post_ID, $flags );
+		// Only Send Pulished Post event if post_type is not blacklisted.
+		if ( ! in_array( $post->post_type, Settings::get_setting( 'post_types_blacklist' ), true ) ) {
+			/**
+			 * Action that gets synced when a post type gets published.
+			 *
+			 * @since 4.4.0
+			 *
+			 * @param int $post_ID
+			 * @param mixed array $flags post flags that are added to the post
+			 */
+			do_action( 'jetpack_published_post', $post_ID, $flags );
+		}
 		unset( $this->just_published[ $post_ID ] );
 
 		/**
