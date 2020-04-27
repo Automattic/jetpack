@@ -849,7 +849,7 @@ class Jetpack {
 	 * @deprecated since 7.7.0
 	 * @see Automattic\Jetpack\Connection\Manager::setup_xmlrpc_handlers()
 	 *
-	 * @param Array                 $request_params Incoming request parameters.
+	 * @param array                 $request_params Incoming request parameters.
 	 * @param Boolean               $is_active      Whether the connection is currently active.
 	 * @param Boolean               $is_signed      Whether the signature check has been successful.
 	 * @param Jetpack_XMLRPC_Server $xmlrpc_server  (optional) An instance of the server to use instead of instantiating a new one.
@@ -4795,8 +4795,8 @@ endif;
 	/**
 	 * Filters the connection URL parameter array.
 	 *
-	 * @param Array $args default URL parameters used by the package.
-	 * @return Array the modified URL arguments array.
+	 * @param array $args default URL parameters used by the package.
+	 * @return array the modified URL arguments array.
 	 */
 	public static function filter_connect_request_body( $args ) {
 		if (
@@ -5378,8 +5378,8 @@ endif;
 	/**
 	 * Filters the registration request body to include tracking properties.
 	 *
-	 * @param Array $properties
-	 * @return Array amended properties.
+	 * @param array $properties
+	 * @return array amended properties.
 	 */
 	public static function filter_register_request_body( $properties ) {
 		$tracking        = new Tracking();
@@ -5397,8 +5397,8 @@ endif;
 	/**
 	 * Filters the token request body to include tracking properties.
 	 *
-	 * @param Array $properties
-	 * @return Array amended properties.
+	 * @param array $properties
+	 * @return array amended properties.
 	 */
 	public static function filter_token_request_body( $properties ) {
 		$tracking        = new Tracking();

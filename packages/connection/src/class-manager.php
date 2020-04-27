@@ -81,7 +81,7 @@ class Manager {
 	/**
 	 * Sets up the XMLRPC request handlers.
 	 *
-	 * @param Array                  $request_params incoming request parameters.
+	 * @param array                  $request_params incoming request parameters.
 	 * @param Boolean                $is_active whether the connection is currently active.
 	 * @param Boolean                $is_signed whether the signature check has been successful.
 	 * @param \Jetpack_XMLRPC_Server $xmlrpc_server (optional) an instance of the server to use instead of instantiating a new one.
@@ -463,8 +463,8 @@ class Manager {
 		 *
 		 * @since 7.7.0
 		 *
-		 * @param Array $post_data request data.
-		 * @param Array $token_data token data.
+		 * @param array $post_data request data.
+		 * @param array $token_data token data.
 		 */
 		return apply_filters(
 			'jetpack_signature_check_token',
@@ -813,7 +813,7 @@ class Manager {
 		 *
 		 * @since 7.7.0
 		 *
-		 * @param Array $post_data request data.
+		 * @param array $post_data request data.
 		 * @param Array $token_data token data.
 		 */
 		$body = apply_filters(
@@ -1160,8 +1160,8 @@ class Manager {
 	 *
 	 * @todo Refactor to use rawurlencode() instead of urlencode().
 	 *
-	 * @param Array $args arguments that need to have the source added.
-	 * @return Array $amended arguments.
+	 * @param array $args arguments that need to have the source added.
+	 * @return array $amended arguments.
 	 */
 	public static function apply_activation_source_to_args( $args ) {
 		list( $activation_source_name, $activation_source_keyword ) = get_option( 'jetpack_activation_source' );
@@ -1548,7 +1548,7 @@ class Manager {
 		 *
 		 * @since 8.0.0
 		 *
-		 * @param Array $request_data request data.
+		 * @param array $request_data request data.
 		 */
 		$body = apply_filters(
 			'jetpack_token_request_body',
@@ -1690,7 +1690,7 @@ class Manager {
 		 *
 		 * @since 8.0.0
 		 *
-		 * @param Array $request_data request data.
+		 * @param array $request_data request data.
 		 */
 		$body = apply_filters(
 			'jetpack_connect_request_body',
@@ -2072,8 +2072,8 @@ class Manager {
 	 * since it is passed by reference to various methods.
 	 * Capture it here so we can verify the signature later.
 	 *
-	 * @param Array $methods an array of available XMLRPC methods.
-	 * @return Array the same array, since this method doesn't add or remove anything.
+	 * @param array $methods an array of available XMLRPC methods.
+	 * @return array the same array, since this method doesn't add or remove anything.
 	 */
 	public function xmlrpc_methods( $methods ) {
 		$this->raw_post_data = $GLOBALS['HTTP_RAW_POST_DATA'];
@@ -2090,8 +2090,8 @@ class Manager {
 	/**
 	 * Registering an additional method.
 	 *
-	 * @param Array $methods an array of available XMLRPC methods.
-	 * @return Array the amended array in case the method is added.
+	 * @param array $methods an array of available XMLRPC methods.
+	 * @return array the amended array in case the method is added.
 	 */
 	public function public_xmlrpc_methods( $methods ) {
 		if ( array_key_exists( 'wp.getOptions', $methods ) ) {
@@ -2103,7 +2103,7 @@ class Manager {
 	/**
 	 * Handles a getOptions XMLRPC method call.
 	 *
-	 * @param Array $args method call arguments.
+	 * @param array $args method call arguments.
 	 * @return an amended XMLRPC server options array.
 	 */
 	public function jetpack_get_options( $args ) {
@@ -2151,8 +2151,8 @@ class Manager {
 	/**
 	 * Adds Jetpack-specific options to the output of the XMLRPC options method.
 	 *
-	 * @param Array $options standard Core options.
-	 * @return Array amended options.
+	 * @param array $options standard Core options.
+	 * @return array amended options.
 	 */
 	public function xmlrpc_options( $options ) {
 		$jetpack_client_id = false;

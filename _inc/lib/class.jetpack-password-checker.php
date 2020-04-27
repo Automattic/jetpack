@@ -97,7 +97,7 @@ class Jetpack_Password_Checker {
 		 *
 		 * @since 7.2.0
 		 *
-		 * @param Array $restricted_passwords strings that are forbidden for use as passwords.
+		 * @param array $restricted_passwords strings that are forbidden for use as passwords.
 		 */
 		$this->common_passwords = apply_filters( 'jetpack_password_checker_restricted_strings', array() );
 
@@ -125,7 +125,7 @@ class Jetpack_Password_Checker {
 	 *
 	 * @param String  $password      the tested string.
 	 * @param Boolean $required_only only test against required conditions, defaults to false.
-	 * @return Array $results an array containing failed and passed test results.
+	 * @return array $results an array containing failed and passed test results.
 	 */
 	public function test( $password, $required_only = false ) {
 
@@ -146,7 +146,7 @@ class Jetpack_Password_Checker {
 		 *
 		 * @since 7.2.0
 		 *
-		 * @param Array $minimum_entropy_bits minimum entropy bits requirement.
+		 * @param array $minimum_entropy_bits minimum entropy bits requirement.
 		 */
 		$bits         = apply_filters( 'jetpack_password_checker_minimum_entropy_bits', self::MINIMUM_BITS );
 		$entropy_bits = $this->calculate_entropy_bits( $this->password );
@@ -169,9 +169,9 @@ class Jetpack_Password_Checker {
 	/**
 	 * Run the tests using the currently set up object values.
 	 *
-	 * @param Array   $tests tests to run.
+	 * @param array   $tests tests to run.
 	 * @param Boolean $required_only whether to run only required tests.
-	 * @return Array test results.
+	 * @return array test results.
 	 */
 	protected function run_tests( $tests, $required_only = false ) {
 
@@ -213,8 +213,8 @@ class Jetpack_Password_Checker {
 	/**
 	 * Returns a list of tests that need to be run on password strings.
 	 *
-	 * @param Array $sections only return specific sections with the passed keys, defaults to all.
-	 * @return Array test descriptions.
+	 * @param array $sections only return specific sections with the passed keys, defaults to all.
+	 * @return array test descriptions.
 	 */
 	protected function list_tests( $sections = false ) {
 		// Note: these should be in order of priority.
@@ -273,7 +273,7 @@ class Jetpack_Password_Checker {
 		 *
 		 * @since 7.2.0
 		 *
-		 * @param Array $minimum_entropy_bits minimum entropy bits requirement.
+		 * @param array $minimum_entropy_bits minimum entropy bits requirement.
 		 */
 		$tests = apply_filters( 'jetpack_password_checker_tests', $tests );
 
@@ -288,7 +288,7 @@ class Jetpack_Password_Checker {
 	/**
 	 * Provides the regular expression tester functionality.
 	 *
-	 * @param Array $test_data the current test data.
+	 * @param array $test_data the current test data.
 	 * @return Boolean does the test pass?
 	 */
 	protected function test_preg_match( $test_data ) {
@@ -308,7 +308,7 @@ class Jetpack_Password_Checker {
 	/**
 	 * Provides the comparison tester functionality.
 	 *
-	 * @param Array $test_data the current test data.
+	 * @param array $test_data the current test data.
 	 * @return Boolean does the test pass?
 	 */
 	protected function test_compare_to_list( $test_data ) {
@@ -333,7 +333,7 @@ class Jetpack_Password_Checker {
 	/**
 	 * Getter for the common password list.
 	 *
-	 * @return Array common passwords.
+	 * @return array common passwords.
 	 */
 	protected function get_common_passwords() {
 		return $this->common_passwords;
@@ -343,7 +343,7 @@ class Jetpack_Password_Checker {
 	 * Returns the widely known user data that can not be used in the password to avoid
 	 * predictable strings.
 	 *
-	 * @return Array user data.
+	 * @return array user data.
 	 */
 	protected function get_other_user_data() {
 
@@ -377,7 +377,7 @@ class Jetpack_Password_Checker {
 	 * Compare the password for matches with known user data.
 	 *
 	 * @param String $password the string to be tested.
-	 * @param Array  $strings_to_test known user data.
+	 * @param array  $strings_to_test known user data.
 	 * @return Boolean does the test pass?
 	 */
 	protected function test_not_same_as_other_user_data( $password, $strings_to_test ) {
@@ -409,7 +409,7 @@ class Jetpack_Password_Checker {
 	 * A shorthand for the not in array construct.
 	 *
 	 * @param Mixed $needle the needle.
-	 * @param Array $haystack the haystack.
+	 * @param array $haystack the haystack.
 	 * @return is the needle not in the haystack?
 	 */
 	protected function negative_in_array( $needle, $haystack ) {

@@ -232,7 +232,7 @@ class Jetpack_PostImages {
 	 * format to the other images?_from_*() methods.
 	 *
 	 * @param  int $post_id The post ID to check
-	 * @return Array containing details of the Featured Image, or empty array if none.
+	 * @return array containing details of the Featured Image, or empty array if none.
 	 */
 	static function from_thumbnail( $post_id, $width = 200, $height = 200 ) {
 		$images = array();
@@ -385,7 +385,7 @@ class Jetpack_PostImages {
 	 *
 	 * @uses DOMDocument
 	 *
-	 * @return Array containing images
+	 * @return array containing images
 	 */
 	static function from_html( $html_or_id, $width = 200, $height = 200 ) {
 		$images = array();
@@ -472,7 +472,7 @@ class Jetpack_PostImages {
 	/**
 	 * @param    int $post_id The post ID to check
 	 * @param    int $size
-	 * @return Array containing details of the image, or empty array if none.
+	 * @return array containing details of the image, or empty array if none.
 	 */
 	static function from_blavatar( $post_id, $size = 96 ) {
 
@@ -512,7 +512,7 @@ class Jetpack_PostImages {
 	 * @param int    $post_id The post ID to check.
 	 * @param int    $size The size of the avatar to get.
 	 * @param string $default The default image to use.
-	 * @return Array containing details of the image, or empty array if none.
+	 * @return array containing details of the image, or empty array if none.
 	 */
 	static function from_gravatar( $post_id, $size = 96, $default = false ) {
 		$post      = get_post( $post_id );
@@ -552,7 +552,7 @@ class Jetpack_PostImages {
 	 *
 	 * @param  int   $post_id
 	 * @param array $args Other arguments (currently width and height required for images where possible to determine)
-	 * @return Array containing details of the best image to be used
+	 * @return array containing details of the best image to be used
 	 */
 	static function get_image( $post_id, $args = array() ) {
 		$image = '';
@@ -594,7 +594,7 @@ class Jetpack_PostImages {
 	 *
 	 * @param  int   $post_id
 	 * @param  array $args Optional args, see defaults list for details
-	 * @return Array containing images that would be good for representing this post
+	 * @return array containing images that would be good for representing this post
 	 */
 	static function get_images( $post_id, $args = array() ) {
 		// Figure out which image to attach to this post.

@@ -43,7 +43,7 @@ class Jetpack_BbPress_REST_API {
 	/**
 	 * Adds the bbPress post types to the rest_api_allowed_post_types filter.
 	 *
-	 * @param Array $allowed_post_types Allowed post types.
+	 * @param array $allowed_post_types Allowed post types.
 	 *
 	 * @return array
 	 */
@@ -57,7 +57,7 @@ class Jetpack_BbPress_REST_API {
 	/**
 	 * Adds the bbpress meta keys to the rest_api_allowed_public_metadata filter.
 	 *
-	 * @param Array $allowed_meta_keys Allowed meta keys.
+	 * @param array $allowed_meta_keys Allowed meta keys.
 	 *
 	 * @return array
 	 */
