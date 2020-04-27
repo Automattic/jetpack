@@ -505,31 +505,29 @@ class Jetpack_Core_Json_Api_Endpoints {
 			)
 		);
 
-		// Update settings from the Jetpack wizard.
+		/*
+		 * Get and update settings from the Jetpack wizard.
+		 */
 		register_rest_route(
 			'jetpack/v4',
 			'/setup/questionnaire',
 			array(
-				'methods'             => WP_REST_Server::EDITABLE,
-				'callback'            => __CLASS__ . '::update_setup_questionnaire',
-				'permission_callback' => __CLASS__ . '::update_settings_permission_check',
-				'args'                => array(
-					'option_values' => array(
-						'required' => true,
-						'type'     => 'object',
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => __CLASS__ . '::get_setup_questionnaire',
+					'permission_callback' => __CLASS__ . '::update_settings_permission_check',
+				),
+				array(
+					'methods'             => WP_REST_Server::EDITABLE,
+					'callback'            => __CLASS__ . '::update_setup_questionnaire',
+					'permission_callback' => __CLASS__ . '::update_settings_permission_check',
+					'args'                => array(
+						'option_values' => array(
+							'required' => true,
+							'type'     => 'object',
+						),
 					),
 				),
-			)
-		);
-
-		// Get settings for the Jetpack wizard.
-		register_rest_route(
-			'jetpack/v4',
-			'/setup/questionnaire',
-			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => __CLASS__ . '::get_setup_questionnaire',
-				'permission_callback' => __CLASS__ . '::update_settings_permission_check',
 			)
 		);
 	}
@@ -542,8 +540,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool true.
 	 */
 	public static function update_setup_questionnaire( $request ) {
+		// TODO: add validation.
+
 		$option_values = $request['option_values'];
-		update_option( 'setup_questionnaire', $option_values );
+		Jetpack_Options::update_option( 'setup_questionnaire', $option_values );
 		return true;
 	}
 
@@ -555,13 +555,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return array Questionnaire settings.
 	 */
 	public static function get_setup_questionnaire( $request ) {
-		$options_values = get_option( 'setup_questionnaire' );
+		$options_values = Jetpack_Options::get_option( 'setup_questionnaire' );
 		if ( $options_values ) {
-			$return = $options_values;
+			return $options_values;
 		} else {
-			$return = array();
+			return array();
 		}
-		return $return;
 	}
 
 	public static function get_plans( $request ) {
