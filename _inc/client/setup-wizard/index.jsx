@@ -13,6 +13,7 @@ import { getSiteTitle } from 'state/initial-state';
 
 import { IntroPage } from './intro-page';
 import { IncomeQuestion } from './income-question';
+import { UpdatesQuestion } from './updates-question';
 
 const SetupWizardComponent = props => {
 	const { path } = useRouteMatch();
@@ -26,6 +27,9 @@ const SetupWizardComponent = props => {
 				</Route>
 				<Route path={ `${ path }/income` }>
 					<IncomeQuestion siteTitle={ props.siteTitle } />
+				</Route>
+				<Route path={ `${ path }/updates` }>
+					<UpdatesQuestion />
 				</Route>
 			</Switch>
 		</>

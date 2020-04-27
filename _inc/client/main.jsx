@@ -235,6 +235,7 @@ class Main extends React.Component {
 				break;
 			case '/setup':
 			case '/setup/income':
+			case '/setup/updates':
 				if ( this.props.showSetupWizard ) {
 					navComponent = null;
 					pageComponent = <SetupWizard />;
