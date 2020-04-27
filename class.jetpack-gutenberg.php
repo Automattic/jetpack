@@ -697,15 +697,17 @@ class Jetpack_Gutenberg {
 		);
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$user      = wp_get_current_user();
-			$user_data = array(
+			$user                      = wp_get_current_user();
+			$user_data                 = array(
 				'userid'   => $user->ID,
 				'username' => $user->user_login,
 			);
-			$blog_id   = get_current_blog_id();
+			$blog_id                   = get_current_blog_id();
+			$is_current_user_connected = true;
 		} else {
-			$user_data = Jetpack_Tracks_Client::get_connected_user_tracks_identity();
-			$blog_id   = Jetpack_Options::get_option( 'id', 0 );
+			$user_data                 = Jetpack_Tracks_Client::get_connected_user_tracks_identity();
+			$blog_id                   = Jetpack_Options::get_option( 'id', 0 );
+			$is_current_user_connected = Jetpack::is_user_connected();
 		}
 
 		wp_localize_script(
@@ -713,7 +715,10 @@ class Jetpack_Gutenberg {
 			'Jetpack_Editor_Initial_State',
 			array(
 				'available_blocks' => self::get_availability(),
-				'jetpack'          => array( 'is_active' => Jetpack::is_active() ),
+				'jetpack'          => array(
+					'is_active'                 => Jetpack::is_active(),
+					'is_current_user_connected' => $is_current_user_connected,
+				),
 				'siteFragment'     => $site_fragment,
 				'tracksUserData'   => $user_data,
 				'wpcomBlogId'      => $blog_id,

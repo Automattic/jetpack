@@ -27,23 +27,25 @@ import { addQueryArgs } from '@wordpress/url';
  * Internal dependencies
  */
 import defaultAttributes from './attributes';
+import { IS_CURRENT_USER_CONNECTED_TO_WPCOM, MAX_IMAGE_COUNT } from './constants';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import useConnectInstagram from './use-connect-instagram';
+import useConnectWpcom from './use-connect-wpcom';
 import ImageTransition from './image-transition';
 import './editor.scss';
 
-const MAX_IMAGE_COUNT = 30;
-
 const InstagramGalleryEdit = props => {
-	const { attributes, className, noticeOperations, noticeUI, setAttributes, isSelected } = props;
+	const { attributes, className, isSelected, noticeOperations, noticeUI, setAttributes } = props;
 	const { accessToken, align, columns, count, instagramUser, spacing } = attributes;
 
 	const [ images, setImages ] = useState( [] );
 	const [ isLoadingGallery, setIsLoadingGallery ] = useState( false );
 	const { isConnecting, connectToService, disconnectFromService } = useConnectInstagram(
 		setAttributes,
-		setImages
+		setImages,
+		noticeOperations
 	);
+	const { isRequestingWpcomConnectUrl, wpcomConnectUrl } = useConnectWpcom();
 
 	const unselectedCount = count > images.length ? images.length : count;
 
@@ -116,7 +118,7 @@ const InstagramGalleryEdit = props => {
 				isDismissible: false,
 			} );
 		}
-	}, [ count, images ] );
+	}, [ count, images, noticeOperations, showSidebar ] );
 
 	const renderImage = index => {
 		if ( images[ index ] ) {
@@ -143,14 +145,30 @@ const InstagramGalleryEdit = props => {
 			{ showPlaceholder && (
 				<Placeholder
 					icon="instagram"
+					instructions={
+						! IS_CURRENT_USER_CONNECTED_TO_WPCOM
+							? __( "First, you'll need to connect to WordPress.com.", 'jetpack' )
+							: __( 'Connect to Instagram to start sharing your images.', 'jetpack' )
+					}
 					label={ __( 'Instagram Gallery', 'jetpack' ) }
 					notices={ noticeUI }
 				>
-					<Button disabled={ isConnecting } isLarge isPrimary onClick={ connectToService }>
-						{ isConnecting
-							? __( 'Connecting…', 'jetpack' )
-							: __( 'Connect your Instagram account', 'jetpack' ) }
-					</Button>
+					{ IS_CURRENT_USER_CONNECTED_TO_WPCOM ? (
+						<Button disabled={ isConnecting } isLarge isPrimary onClick={ connectToService }>
+							{ isConnecting
+								? __( 'Connecting…', 'jetpack' )
+								: __( 'Connect to Instagram', 'jetpack' ) }
+						</Button>
+					) : (
+						<Button
+							disabled={ isRequestingWpcomConnectUrl || ! wpcomConnectUrl }
+							href={ wpcomConnectUrl }
+							isLarge
+							isPrimary
+						>
+							{ __( 'Connect to WordPress.com', 'jetpack' ) }
+						</Button>
+					) }
 				</Placeholder>
 			) }
 
@@ -184,18 +202,20 @@ const InstagramGalleryEdit = props => {
 								@{ instagramUser }
 							</ExternalLink>
 						</PanelRow>
-						<PanelRow>
-							<Button
-								disabled={ isConnecting }
-								isDestructive
-								isLink
-								onClick={ () => disconnectFromService( accessToken ) }
-							>
-								{ isConnecting
-									? __( 'Disconnecting…', 'jetpack' )
-									: __( 'Disconnect your account', 'jetpack' ) }
-							</Button>
-						</PanelRow>
+						{ IS_CURRENT_USER_CONNECTED_TO_WPCOM && (
+							<PanelRow>
+								<Button
+									disabled={ isConnecting }
+									isDestructive
+									isLink
+									onClick={ () => disconnectFromService( accessToken ) }
+								>
+									{ isConnecting
+										? __( 'Disconnecting…', 'jetpack' )
+										: __( 'Disconnect your account', 'jetpack' ) }
+								</Button>
+							</PanelRow>
+						) }
 					</PanelBody>
 					<PanelBody title={ __( 'Gallery Settings', 'jetpack' ) }>
 						<div className="wp-block-jetpack-instagram-gallery__count-notice">{ noticeUI }</div>
