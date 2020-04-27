@@ -1,6 +1,7 @@
 {
 	"production": [
 		"business-hours",
+		"button",
 		"calendly",
 		"contact-form",
 		"contact-info",
@@ -33,6 +34,7 @@
 	"experimental": [ "seo" ],
 	"no-post-editor": [
 		"business-hours",
+		"button",
 		"calendly",
 		"contact-form",
 		"contact-info",
