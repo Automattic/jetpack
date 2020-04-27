@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { BaseControl, IconButton } from '@wordpress/components';
+import { BaseControl, Button } from '@wordpress/components';
 import { Fragment, useState } from '@wordpress/element';
 import { withInstanceId } from '@wordpress/compose';
 
@@ -84,14 +84,14 @@ function JetpackFieldMultiple( props ) {
 					) ) }
 				</ol>
 				{ isSelected && (
-					<IconButton
+					<Button
 						className="jetpack-field-multiple__add-option"
 						icon="insert"
 						label={ __( 'Insert option', 'jetpack' ) }
 						onClick={ addNewOption }
 					>
 						{ __( 'Add option', 'jetpack' ) }
-					</IconButton>
+					</Button>
 				) }
 			</BaseControl>
 
