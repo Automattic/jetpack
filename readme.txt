@@ -103,7 +103,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Major Enhancements**
 
-*
+* Podcast Player: you can now embed and play recent podcast episodes in any post or page.
 
 **Enhancements**
 

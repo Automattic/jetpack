@@ -2,6 +2,14 @@
 
 ### Blocks
 
+#### Podcast Player
+
+This release introduces a new Podcast Player block. This block allows you to embed any podcast into one of your posts or pages. You can choose how many tracks will be displayed, and fully customize the look of the player and its options. Your readers will then be able to play each episode in their browser.
+
+To test, add the block to a post or a page and make sure everything works as planned.
+
+You can use just about any podcast feed you may know about.
+
 #### Revue
 
 We've made changes to the Revue block, and added customization options to the button as well as the different fields. Try editing an existing Revue block, or create a new Revue block and use the different customization options.
