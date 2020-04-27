@@ -326,9 +326,7 @@ class JetpackContactFormEdit extends Component {
 									/>
 								);
 							} }
-							renderContent={ () => {
-								return this.renderFormSettings();
-							} }
+							renderContent={ () => this.renderFormSettings() }
 						/>
 					</ToolbarGroup>
 				</BlockControls>
