@@ -2,6 +2,7 @@
  * External dependencies
  */
 import React from 'react';
+import { Route, Switch, useRouteMatch } from 'react-router-dom';
 import { connect } from 'react-redux';
 
 /**
@@ -14,20 +15,19 @@ import { IntroPage } from './intro-page';
 import { IncomeQuestion } from './income-question';
 
 const SetupWizardComponent = props => {
-	let pageComponent;
-	switch ( props.route ) {
-		case '/setup':
-			pageComponent = <IntroPage siteTitle={ props.siteTitle } />;
-			break;
-		case '/setup/income':
-			pageComponent = <IncomeQuestion siteTitle={ props.siteTitle } />;
-			break;
-	}
+	const { path } = useRouteMatch();
 
 	return (
 		<>
 			<QuerySite />
-			{ pageComponent }
+			<Switch>
+				<Route exact path={ `${ path }` }>
+					<IntroPage siteTitle={ props.siteTitle } />
+				</Route>
+				<Route path={ `${ path }/income` }>
+					<IncomeQuestion siteTitle={ props.siteTitle } />
+				</Route>
+			</Switch>
 		</>
 	);
 };
