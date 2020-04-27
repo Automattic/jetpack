@@ -2,6 +2,10 @@
 
 ### Blocks
 
+#### Revue
+
+We've made changes to the Revue block, and added customization options to the button as well as the different fields. Try editing an existing Revue block, or create a new Revue block and use the different customization options.
+
 ### Carousel
 
 We've made several changes to the Carousel feature in this release. You'll want to test the feature, with and without the AMP plugin, and ensure it still works well in AMP views as well as on desktop.
