@@ -350,6 +350,9 @@ class Jetpack_Search {
 	 * @since 5.7.0
 	 */
 	public function set_filters_from_widgets() {
+		if ( ! class_exists( 'Jetpack_Search_Helpers' ) ) {
+			return;
+		}
 		if ( Jetpack_Search_Helpers::are_filters_by_widget_disabled() ) {
 			return;
 		}
