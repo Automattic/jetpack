@@ -53,14 +53,4 @@ export const defaultAttributes = {
 		type: 'string',
 		default: '',
 	},
-
-	// Deprecated
-	has_form_settings_set: {
-		type: 'string',
-		default: null,
-	},
-	submit_button_text: {
-		type: 'string',
-		default: __( 'Submit', 'jetpack' ),
-	},
 };
