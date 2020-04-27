@@ -1,0 +1,33 @@
+.jetpack-schedule-content-block__settings {
+	.components-radio-control {
+		margin: auto;
+
+		.components-base-control__field {
+			display: flex;
+		}
+
+		input[type='radio'].components-radio-control__input {
+			margin-right: 6px;
+		}
+
+		.components-radio-control__option:first-of-type {
+			margin-right: 32px;
+		}
+	}
+
+	.components-datetime {
+		width: 100%;
+
+		.components-datetime__time {
+			display: flex;
+
+			fieldset {
+				margin: auto;
+			}
+		}
+
+		.DayPicker {
+			margin: auto;
+		}
+	}
+}
