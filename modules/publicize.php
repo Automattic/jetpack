@@ -79,6 +79,8 @@ class Jetpack_Publicize {
 					 * As of Jetpack 8.5, the array keys could be:
 					 * attach_media bool If Publicize should send the image to the social media platform. Default false.
 					 *
+					 * @module publicize
+					 *
 					 * @since 8.5.0
 					 *
 					 * @param array $options Array of Publicize options.
