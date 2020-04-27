@@ -38,6 +38,7 @@ module.exports = [
 	'modules/module-info.php',
 	'modules/post-by-email.php',
 	'modules/post-by-email/',
+	'modules/publicize.php',
 	'modules/search/class-jetpack-instant-search.php',
 	'modules/search/class-jetpack-search-customize.php',
 	'modules/search/class.jetpack-search-options.php',
