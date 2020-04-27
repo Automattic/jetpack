@@ -21,6 +21,7 @@ module.exports = [
 	'_inc/lib/class-jetpack-podcast-helper.php',
 	'_inc/lib/class.jetpack-password-checker.php',
 	'_inc/lib/components.php',
+	'_inc/lib/core-api/class.jetpack-core-api-integrations-proxy-endpoint.php',
 	'_inc/lib/core-api/class.jetpack-core-api-site-endpoints.php',
 	'_inc/lib/core-api/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-instagram.php',
 	'_inc/lib/core-api/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-podcast-player.php',

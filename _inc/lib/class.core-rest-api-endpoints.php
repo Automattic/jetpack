@@ -56,6 +56,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-xmlrpc-consumer-endpoint.php';
 
 		// Load API endpoints
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-integrations-proxy-endpoint.php';
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-module-endpoints.php';
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-site-endpoints.php';
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-widgets-endpoints.php';
@@ -75,6 +76,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$module_toggle_endpoint = new Jetpack_Core_API_Module_Toggle_Endpoint( new Jetpack_IXR_Client() );
 		$site_endpoint = new Jetpack_Core_API_Site_Endpoint();
 		$widget_endpoint = new Jetpack_Core_API_Widget_Endpoint();
+		$integrations_endpoint  = new Jetpack_Core_API_Integrations_Proxy();
 
 		register_rest_route( 'jetpack/v4', 'plans', array(
 			'methods'             => WP_REST_Server::READABLE,
@@ -506,6 +508,16 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => __CLASS__ . '::send_mobile_magic_link',
 				'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+			)
+		);
+
+		register_rest_route(
+			'jetpack/v4',
+			'integrations/(?P<path>.+)',
+			array(
+				'methods'             => WP_REST_Server::ALLMETHODS,
+				'callback'            => array( $integrations_endpoint, 'wpcom_request_as_user' ),
+				'permission_callback' => array( $integrations_endpoint, 'user_can_proxy_request' ),
 			)
 		);
 	}
