@@ -63,7 +63,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 			$cxntests->output_results_for_cli();
 
-			WP_CLI::error( __( 'Jetpack connection is broken.', 'jetpack' ) ); // Exit CLI.
+			WP_CLI::error( __( 'One or more tests did not pass. Please investigate!', 'jetpack' ) ); // Exit CLI.
 		}
 
 		/* translators: %s is current version of Jetpack, for example 7.3 */

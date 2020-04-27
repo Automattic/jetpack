@@ -283,7 +283,7 @@ class Jetpack_Debug_Data {
 			foreach ( $sync_statuses as $sync_status => $sync_status_value ) {
 				$human_readable_sync_status[ $sync_status ] =
 					in_array( $sync_status, array( 'started', 'queue_finished', 'send_started', 'finished' ), true )
-						? date( 'r', $sync_status_value ) : $sync_status_value;
+						? gmdate( 'r', $sync_status_value ) : $sync_status_value;
 			}
 			$debug_info['full_sync'] = array(
 				'label'   => 'Full Sync Status',
