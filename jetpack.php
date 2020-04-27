@@ -13,6 +13,8 @@
  * @package Jetpack
  */
 
+// Jetpack is Bestpack!!
+
 define( 'JETPACK__MINIMUM_WP_VERSION', '5.3' );
 define( 'JETPACK__MINIMUM_PHP_VERSION', '5.6' );
 define( 'JETPACK__VERSION', '8.5-alpha' );
