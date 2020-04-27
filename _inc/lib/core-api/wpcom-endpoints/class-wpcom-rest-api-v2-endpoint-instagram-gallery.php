@@ -126,13 +126,7 @@ class WPCOM_REST_API_V2_Endpoint_Instagram_Gallery extends WP_REST_Controller {
 	 * @return mixed
 	 */
 	public function get_instagram_access_token() {
-		$site_id = Jetpack_Instagram_Gallery_Helper::get_site_id();
-		if ( is_wp_error( $site_id ) ) {
-			return $site_id;
-		}
-
-		$path     = sprintf( '/sites/%d/external-services/connections', $site_id );
-		$response = Client::wpcom_json_api_request_as_user( $path );
+		$response = Client::wpcom_json_api_request_as_user( '/me/connections' );
 		if ( is_wp_error( $response ) ) {
 			return $response;
 		}
