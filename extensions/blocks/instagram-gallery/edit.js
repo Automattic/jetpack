@@ -65,7 +65,7 @@ const InstagramGalleryEdit = props => {
 		setIsLoadingGallery( true );
 
 		apiFetch( {
-			path: addQueryArgs( '/wpcom/v2/instagram/gallery', {
+			path: addQueryArgs( '/wpcom/v2/instagram-gallery/gallery', {
 				access_token: accessToken,
 				count: MAX_IMAGE_COUNT,
 			} ),
