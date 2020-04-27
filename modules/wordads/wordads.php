@@ -546,9 +546,9 @@ HTML;
 				$section_id = 0 === $this->params->blog_id ? WORDADS_API_TEST_ID : $this->params->blog_id . '5';
 				$snippet    = $this->get_ad_snippet( $section_id, $height, $width, $spot, self::$SOLO_UNIT_CSS );
 			} elseif ( 'top_amp' === $spot ) {
-				// 320x50 unit which can safely be inserted below title, above content in a variety of themes.
-				$width   = 320;
-				$height  = 50;
+				// Ad unit which can safely be inserted below title, above content in a variety of themes.
+				$width   = $this->params->mobile_device ? 320 : 300;
+				$height  = $this->params->mobile_device ? 50 : 250;
 				$snippet = $this->get_ad_snippet( null, $height, $width );
 			}
 		} elseif ( 'house' == $type ) {
