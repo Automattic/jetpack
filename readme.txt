@@ -107,7 +107,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
-*
+* Comments: update how comment types are stored to be fully compatible with upcoming WordPress Core changes.
 
 **Improved compatibility**
 
