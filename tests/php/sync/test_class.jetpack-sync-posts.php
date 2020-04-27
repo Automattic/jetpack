@@ -8,6 +8,8 @@ use Automattic\Jetpack\Sync\Settings;
 
 /**
  * Testing CRUD on Posts
+ *
+ * @group jetpack-sync
  */
 class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 

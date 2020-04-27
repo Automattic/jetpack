@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Sync\Settings;
+use Automattic\Jetpack\Sync\Modules;
 
 /**
  * Class to handle sync for comments.
@@ -201,9 +202,17 @@ class Comments extends Module {
 	 * @return bool or array $args Arguments passed to wp_insert_comment, deleted_comment, spammed_comment, etc.
 	 */
 	public function only_allow_white_listed_comment_types( $args ) {
-		$comment = $args[1];
+		$comment = false;
 
-		if ( ! in_array( $comment->comment_type, $this->get_whitelisted_comment_types(), true ) ) {
+		if ( isset( $args[1] ) ) {
+			// comment object is available.
+			$comment = $args[1];
+		} else {
+			// comment_id is available.
+			$comment = get_comment( $args[0] );
+		}
+
+		if ( false !== $comment && ! in_array( $comment->comment_type, $this->get_whitelisted_comment_types(), true ) ) {
 			return false;
 		}
 
@@ -220,7 +229,7 @@ class Comments extends Module {
 		$post_id      = $args[0];
 		$posts_module = Modules::get_module( 'posts' );
 
-		if ( false !== $posts_module && ! $posts_module::is_post_type_allowed( $post_id ) ) {
+		if ( false !== $posts_module && ! $posts_module->is_post_type_allowed( $post_id ) ) {
 			return false;
 		}
 
