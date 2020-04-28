@@ -163,6 +163,19 @@
 	}
 }
 
+/* Subscriptions Widget */
+
+.jetpack_subscription_widget .widget-title label {
+	font-size: 2.8rem;
+	font-weight: 700;
+	margin: 0;
+}
+@media ( min-width: 700px ) {
+	.jetpack_subscription_widget .widget-title label {
+			font-size: 4rem;
+	}
+}
+
 /* Related Posts */
 
 .entry-content #jp-relatedposts {
