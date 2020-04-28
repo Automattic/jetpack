@@ -60,7 +60,7 @@ const Track = memo(
 			>
 				<a
 					className="jetpack-podcast-player__link jetpack-podcast-player__track-link"
-					href={ track.link }
+					href={ track.link || track.src }
 					role="button"
 					aria-current={ ariaCurrent }
 					onClick={ e => {

@@ -14,6 +14,13 @@ $jetpack-podcast-player-secondary: $dark-gray-300;
 $jetpack-podcast-player-background: $white;
 $jetpack-podcast-player-error: $alert-red;
 
+@mixin focus-outline() {
+	outline: 1px solid;
+	outline-color: $jetpack-podcast-player-secondary;
+	outline-color: var( --jetpack-podcast-player-secondary );
+	outline-offset: 2px;
+}
+
 .jetpack-podcast-player--visually-hidden {
 	position: absolute !important;
 	height: 1px;
@@ -66,20 +73,19 @@ $jetpack-podcast-player-error: $alert-red;
 		 */
 
 		/**
-		 * Override to address themes using text-decoration or box-shadow underlines
-		 * on links.
+		 * Reset anchor styles to address themes' overrides.
 		 */
-		a {
-			box-shadow: none;
+		a,
+		a:active,
+		a:visited,
+		a:hover,
+		a:focus {
+			box-shadow: none; // Some themes use it instead of outline
 			text-decoration: none;
 			border: none;
-
-			&:hover,
-			&:focus {
-				box-shadow: none;
-				text-decoration: none;
-				border: none;
-			}
+		}
+		a:focus {
+			@include focus-outline();
 		}
 
 		a.jetpack-podcast-player__link {
@@ -131,7 +137,6 @@ $jetpack-podcast-player-error: $alert-red;
 		flex-direction: column;
 		margin: 0;
 		padding: 0;
-		overflow: hidden;
 		letter-spacing: 0; // Fixes Twenty Twenty compressed text.
 		color: inherit;
 
@@ -316,6 +321,11 @@ $jetpack-podcast-player-error: $alert-red;
 		background-color: transparent;
 	}
 
+	.mejs-container:focus {
+		@include focus-outline();
+		box-shadow: none; // Reset the editor canvas box-shadow focus indicator for mejs-container.
+	}
+
 	.mejs-controls {
 		position: static;
 		padding-top: 0;
@@ -369,6 +379,9 @@ $jetpack-podcast-player-error: $alert-red;
 		background-color: var( --jetpack-podcast-player-primary );
 	}
 
+	.mejs-controls .mejs-time-rail .mejs-time-slider:focus {
+		@include focus-outline();
+	}
 	/**
 	 * Helper function that escapes the value of the color variable in the SVG.
 	 * This way we can change the value in one place and easily add style
@@ -403,42 +416,57 @@ $jetpack-podcast-player-error: $alert-red;
 		.mejs-button > button,
 		.jetpack-podcast-player__track-status-icon--playing {
 			background-image: none;
-			background-color: var( --jetpack-podcast-player-primary );
-			mask: url( '/wp-includes/js/mediaelement/mejs-controls.svg' );
+
+			// Using mask on the :before pseudo to prevent it from covering the outline
+			&:before {
+				display: block;
+				content: '';
+				width: 100%;
+				height: 100%;
+				background-color: var( --jetpack-podcast-player-primary );
+				background-image: none;
+				mask: url( '/wp-includes/js/mediaelement/mejs-controls.svg' );
+			}
 		}
 
-		.mejs-play > button {
+		.mejs-button > button:focus {
+			@include focus-outline();
+		}
+
+		.mejs-play > button:before {
 			mask-position: 0 0;
 		}
 
-		.mejs-pause > button {
+		.mejs-pause > button:before {
 			mask-position: -20px 0;
 		}
 
-		.mejs-replay > button {
+		.mejs-replay > button:before {
 			mask-position: -160px 0;
 		}
 
-		.mejs-mute > button {
+		.mejs-mute > button:before {
 			mask-position: -60px 0;
 		}
 
-		.mejs-unmute > button {
+		.mejs-unmute > button:before {
 			mask-position: -40px 0;
 		}
 
 		.jetpack-podcast-player__track-status-icon--playing {
-			mask-position: -60px 0;
-			max-height: $track-status-icon-size;
-			max-width: 20px;
-			margin: 4px 2px 0 0;
+			&:before {
+				mask-position: -60px 0;
+				max-height: $track-status-icon-size;
+				max-width: 20px;
+				margin: 4px 2px 0 0;
+			}
 			svg {
 				/**
 				* To stay consistent with the mediaelement player icons, we're using the same
 				* icon sprite for the track list playing icon. As we still keep the SVG as a
 				* fallback when CSS masks are not supported, we have to hide it when they are.
 				*/
-				visibility: hidden;
+				display: none;
 			}
 		}
 	}
