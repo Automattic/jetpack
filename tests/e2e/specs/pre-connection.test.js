@@ -8,7 +8,7 @@ import JetpackPage from '../lib/pages/wp-admin/jetpack';
 import { catchBeforeAll } from '../lib/setup-env';
 import { execWpCommand } from '../lib/utils-helper';
 
-describe( 'Jetpack connection', () => {
+describe( 'Jetpack pre-connection', () => {
 	catchBeforeAll( async () => {
 		await execWpCommand( 'wp option delete jetpack_private_options' );
 		page.reload();
