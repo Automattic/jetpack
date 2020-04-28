@@ -43,7 +43,7 @@ function render_block( $attributes, $content ) {
 	}
 
 	$element   = get_attribute( $attributes, 'element' );
-	$text      = get_attribute( $attributes, 'text' );
+	$text      = wp_strip_all_tags( get_attribute( $attributes, 'text' ), true );
 	$unique_id = get_attribute( $attributes, 'uniqueId' );
 	$classes   = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attributes );
 

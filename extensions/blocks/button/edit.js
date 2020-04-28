@@ -74,6 +74,7 @@ function ButtonEdit( {
 			<RichText
 				allowedFormats={ [] }
 				className={ buttonClasses }
+				disableLineBreaks
 				onChange={ value => setAttributes( { text: value } ) }
 				placeholder={ placeholder || __( 'Add text…', 'jetpack' ) }
 				style={ buttonStyles }
