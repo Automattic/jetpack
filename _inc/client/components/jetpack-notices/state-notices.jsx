@@ -10,14 +10,13 @@ import getRedirectUrl from 'lib/jp-redirect';
 /**
  * Internal dependencies
  */
-
-import { getCurrentVersion, isGutenbergAvailable, getSiteAdminUrl } from 'state/initial-state';
+import { getCurrentVersion } from 'state/initial-state';
 import {
 	getJetpackStateNoticesErrorCode,
 	getJetpackStateNoticesMessageCode,
 	getJetpackStateNoticesErrorDescription,
+	getJetpackStateNoticesMessageContent,
 } from 'state/jetpack-notices';
-import { isUnavailableInDevMode } from 'state/connection';
 import NoticeAction from 'components/notice/notice-action.jsx';
 import UpgradeNoticeContent from 'components/upgrade-notice-content';
 
@@ -246,9 +245,10 @@ class JetpackStateNotices extends React.Component {
 			noticeText = '',
 			action;
 		const error = this.props.jetpackStateNoticesErrorCode,
-			message = this.props.jetpackStateNoticesMessageCode;
+			message = this.props.jetpackStateNoticesMessageCode,
+			messageContent = this.props.jetpackStateNoticesMessageContent;
 
-		if ( ! error && ! message ) {
+		if ( ! error && ! message && ! messageContent ) {
 			return;
 		}
 
@@ -259,17 +259,15 @@ class JetpackStateNotices extends React.Component {
 			}
 		}
 
-		// Show custom message for upgraded Jetpack
-		const { currentVersion, gutenbergAvailable } = this.props;
-		const versionForUpgradeNotice = /(6\.8).*/;
-		const match = currentVersion.match( versionForUpgradeNotice );
-		if ( 'modules_activated' === message && match && gutenbergAvailable ) {
+		// Show custom message for updated Jetpack.
+		if ( messageContent && messageContent.release_post_content ) {
 			return (
 				<UpgradeNoticeContent
-					adminUrl={ this.props.adminUrl }
 					dismiss={ this.dismissJetpackStateNotice }
-					isUnavailableInDevMode={ this.props.isUnavailableInDevMode }
-					version={ match[ '1' ] }
+					version={ this.props.currentVersion }
+					releasePostContent={ messageContent.release_post_content }
+					featuredImage={ messageContent.release_post_featured_image }
+					title={ messageContent.release_post_title }
 				/>
 			);
 		}
@@ -300,11 +298,9 @@ class JetpackStateNotices extends React.Component {
 export default connect( state => {
 	return {
 		currentVersion: getCurrentVersion( state ),
-		gutenbergAvailable: isGutenbergAvailable( state ),
 		jetpackStateNoticesErrorCode: getJetpackStateNoticesErrorCode( state ),
 		jetpackStateNoticesMessageCode: getJetpackStateNoticesMessageCode( state ),
 		jetpackStateNoticesErrorDescription: getJetpackStateNoticesErrorDescription( state ),
-		adminUrl: getSiteAdminUrl( state ),
-		isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
+		jetpackStateNoticesMessageContent: getJetpackStateNoticesMessageContent( state ),
 	};
 } )( JetpackStateNotices );

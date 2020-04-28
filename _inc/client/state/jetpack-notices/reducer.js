@@ -76,6 +76,16 @@ export function getJetpackStateNoticesMessageCode( state ) {
 }
 
 /**
+ * Returns the message content passed from PHP to the intial state of the app.
+ *
+ * @param {Object} state Global state tree
+ * @return {string} The message content.
+ */
+export function getJetpackStateNoticesMessageContent( state ) {
+	return get( state.jetpack.initialState, [ 'jetpackStateNotices', 'messageContent' ] );
+}
+
+/**
  * Returns any Jetpack notice error description hooked onto 'jetpack_notices' in PHP
  *
  * @param  {Object} state Global state tree
