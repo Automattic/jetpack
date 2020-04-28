@@ -142,7 +142,7 @@ export class DevCard extends React.Component {
 
 		const planClass = getPlanClass( this.props.sitePlan.product_slug );
 		const rewindState = get( this.props.rewindStatus, [ 'state' ], false );
-		const scanState = this.props.scanStatus?.state || false;
+		const scanState = get( this.props.scanStatus, [ 'state' ], false );
 
 		return (
 			<Card compact className={ classes }>
@@ -402,19 +402,6 @@ export class DevCard extends React.Component {
 								onChange={ this.onScanStatusChange }
 							/>
 							Provisioning
-						</label>
-					</li>
-					<li>
-						<label htmlFor="scanAwatingCreds">
-							<input
-								type="radio"
-								id="scanAwatingCreds"
-								value="awaiting_credentials"
-								name="awaiting_credentials"
-								checked={ 'awaiting_credentials' === scanState }
-								onChange={ this.onScanStatusChange }
-							/>
-							Awaiting credentials
 						</label>
 					</li>
 					<li>
