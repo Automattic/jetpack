@@ -247,6 +247,12 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( parseJsonResponse )
 				.then( body => JSON.parse( body.data ) ),
 
+		fetchScanStatus: () =>
+			getRequest( `${ apiRoot }jetpack/v4/scan`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse )
+				.then( body => JSON.parse( body.data ) ),
+
 		dismissJetpackNotice: notice =>
 			postRequest( `${ apiRoot }jetpack/v4/notice/${ notice }`, postParams, {
 				body: JSON.stringify( { dismissed: true } ),
