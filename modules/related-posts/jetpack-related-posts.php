@@ -1662,7 +1662,8 @@ EOT;
 					'modules/related-posts/related-posts.js'
 				),
 				$dependencies,
-				self::VERSION
+				self::VERSION,
+				true
 			);
 			$related_posts_js_options = array(
 				/**
