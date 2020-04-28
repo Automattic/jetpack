@@ -4803,7 +4803,7 @@ endif;
 			Constants::is_defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' )
 			&& include_once Constants::get_constant( 'JETPACK__GLOTPRESS_LOCALES_PATH' )
 		) {
-			$gp_locale = GP_Locales::by_field( 'wp_locale', get_locale() );
+			$gp_locale      = GP_Locales::by_field( 'wp_locale', get_locale() );
 			$args['locale'] = isset( $gp_locale ) && isset( $gp_locale->slug )
 				? $gp_locale->slug
 				: '';
@@ -6203,12 +6203,11 @@ endif;
 		if ( $idc_allowed && $sync_error && self::sync_idc_optin() ) {
 			$local_options = self::get_sync_error_idc_option();
 			// Ensure all values are set.
-			if ( isset( $sync_error['home'] ) && isset ( $local_options['home'] ) && isset( $sync_error['siteurl'] ) && isset( $local_options['siteurl'] ) ) {
+			if ( isset( $sync_error['home'] ) && isset( $local_options['home'] ) && isset( $sync_error['siteurl'] ) && isset( $local_options['siteurl'] ) ) {
 				if ( $sync_error['home'] === $local_options['home'] && $sync_error['siteurl'] === $local_options['siteurl'] ) {
 					$is_valid = true;
 				}
 			}
-
 		}
 
 		/**
@@ -6783,7 +6782,7 @@ endif;
 			// Check PHP version
 			if ( 'php-version' == $stat ) {
 				if ( version_compare( PHP_VERSION, JETPACK__MINIMUM_PHP_VERSION, '<' ) ) {
-					$caution[ $stat ] = $value . " - min supported is " . JETPACK__MINIMUM_PHP_VERSION;
+					$caution[ $stat ] = $value . ' - min supported is ' . JETPACK__MINIMUM_PHP_VERSION;
 					continue;
 				}
 			}
@@ -7321,5 +7320,80 @@ endif;
 			return false;
 		}
 		return true;
+	}
+
+	/**
+	 * Returns the list of products that we have available for purchase.
+	 */
+	public static function get_products_for_purchase() {
+		return array(
+			array(
+				'key'               => 'backup',
+				'title'             => __( 'Jetpack Backup', 'jetpack' ),
+				'short_description' => __( 'Always-on backups ensure you never lose your site.', 'jetpack' ),
+				'learn_more'        => __( 'Which backup option is best for me?', 'jetpack' ),
+				'description'       => __( 'Always-on backups ensure you never lose your site. Your changes are saved as you edit and you have unlimited backup archives.', 'jetpack' ),
+				'options_label'     => __( 'Select a backup option:', 'jetpack' ),
+				'options'           => array(
+					array(
+						'type'        => 'daily',
+						'slug'        => 'jetpack-backup-daily',
+						'key'         => 'jetpack_backup_daily',
+						'name'        => __( 'Daily Backups', 'jetpack' ),
+						'description' => __( 'Your data is being securely backed up daily.', 'jetpack' ),
+					),
+					array(
+						'type'        => 'realtime',
+						'slug'        => 'jetpack-backup-realtime',
+						'key'         => 'jetpack_backup_realtime',
+						'name'        => __( 'Real-Time Backups', 'jetpack' ),
+						'description' => __( 'Your data is being securely backed up as you edit.', 'jetpack' ),
+					),
+				),
+				'default_option'    => 'realtime',
+				'show_promotion'    => true,
+				'discount_percent'  => 70,
+				'included_in_plans' => array( 'personal-plan', 'premium-plan', 'business-plan', 'daily-backup-plan', 'realtime-backup-plan' ),
+			),
+			array(
+				'key'               => 'scan',
+				'title'             => __( 'Jetpack Scan', 'jetpack' ),
+				'short_description' => __( 'Automatic scanning and one-click fixes keep your site one step ahead of security threats.', 'jetpack' ),
+				'learn_more'        => __( 'Learn More', 'jetpack' ),
+				'description'       => __( 'Automatic scanning and one-click fixes keep your site one step ahead of security threats.', 'jetpack' ),
+				'show_promotion'    => true,
+				'discount_percent'  => 30,
+				'options'           => array(
+					array(
+						'type'      => 'scan',
+						'slug'      => 'jetpack-scan',
+						'key'       => 'jetpack_scan',
+						'name'      => __( 'Scan', 'jetpack' ),
+					),
+				),
+				'default_option'    => 'scan',
+				'included_in_plans' => array( 'premium-plan', 'business-plan', 'scan-plan' ),
+			),
+			array(
+				'key'               => 'search',
+				'title'             => __( 'Jetpack Search', 'jetpack' ),
+				'short_description' => __( 'Incredibly powerful and customizable, Jetpack Search helps your visitors instantly find the right content – right when they need it.', 'jetpack' ),
+				'learn_more'        => __( 'Learn More', 'jetpack' ),
+				'description'       => __( 'Incredibly powerful and customizable, Jetpack Search helps your visitors instantly find the right content – right when they need it.', 'jetpack' ),
+				'label_popup'  		=> __( 'Records are all posts, pages, custom post types, and other types of content indexed by Jetpack Search.' ),
+				'options'           => array(
+					array(
+						'type'      => 'search',
+						'slug'      => 'jetpack-search',
+						'key'       => 'jetpack_search',
+						'name'      => __( 'Search', 'jetpack' ),
+					),
+				),
+				'tears'             => array(),
+				'default_option'    => 'search',
+				'show_promotion'    => false,
+				'included_in_plans' => array( 'search-plan' ),
+			)
+		);
 	}
 }
