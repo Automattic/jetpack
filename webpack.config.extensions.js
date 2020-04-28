@@ -112,10 +112,6 @@ const componentsWebpackConfig = getBaseWebpackConfig(
 module.exports = [
 	{
 		...extensionsWebpackConfig,
-		resolve: {
-			...extensionsWebpackConfig.resolve,
-			modules: [ path.resolve( __dirname, '_inc/client' ), 'node_modules' ],
-		},
 		// The `module` override fixes https://github.com/Automattic/jetpack/issues/12511.
 		// @TODO Remove once there's a fix in `@automattic/calypso-build`
 		module: {
@@ -137,10 +133,6 @@ module.exports = [
 	},
 	{
 		...componentsWebpackConfig,
-		resolve: {
-			...componentsWebpackConfig.resolve,
-			modules: [ path.resolve( __dirname, '_inc/client' ), 'node_modules' ],
-		},
 		plugins: [
 			...componentsWebpackConfig.plugins,
 			new webpack.NormalModuleReplacementPlugin(
