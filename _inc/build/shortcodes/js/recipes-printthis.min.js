@@ -1,0 +1,40 @@
+/* Do not modify this file directly. It is compiled from other files. */
+/*
+ * printThis v1.9.0
+ * @desc Printing plug-in for jQuery
+ * @author Jason Day
+ *
+ * Resources (based on) :
+ *              jPrintArea: http://plugins.jquery.com/project/jPrintArea
+ *              jqPrint: https://github.com/permanenttourist/jquery.jqprint
+ *              Ben Nadal: http://www.bennadel.com/blog/1591-Ask-Ben-Print-Part-Of-A-Web-Page-With-jQuery.htm
+ *
+ * Licensed under the MIT licence:
+ *              http://www.opensource.org/licenses/mit-license.php
+ *
+ * (c) Jason Day 2015
+ *
+ * Usage:
+ *
+ *  $("#mySelector").printThis({
+ *      debug: false,               * show the iframe for debugging
+ *      importCSS: true,            * import page CSS
+ *      importStyle: false,         * import style tags
+ *      printContainer: true,       * grab outer container as well as the contents of the selector
+ *      loadCSS: "path/to/my.css",  * path to additional css file - us an array [] for multiple
+ *      pageTitle: "",              * add title to print page
+ *      removeInline: false,        * remove all inline styles from print elements
+ *      printDelay: 333,            * variable print delay
+ *      header: null,               * prefix to html
+ *      footer: null,               * postfix to html
+ *      base: false,                * preserve the BASE tag, or accept a string for the URL
+ *      formValues: true            * preserve input/form values
+ *      canvas: false               * copy canvas elements (experimental)
+ *      doctypeString: '...'        * enter a different doctype for older markup
+ *  });
+ *
+ * Notes:
+ *  - the loadCSS will load additional css (with or without @media print) into the iframe, adjusting layout
+ *
+ */
+!function(e){var t;e.fn.printThis=function(n){t=e.extend({},e.fn.printThis.defaults,n);var i=this instanceof jQuery?this:e(this),a="printThis-"+(new Date).getTime();if(window.location.hostname!==document.domain&&navigator.userAgent.match(/msie/i)){var o='javascript:document.write("<head><script>document.domain=\\"'+document.domain+'\\";<\/script></head><body></body>")',r=document.createElement("iframe");r.name="printIframe",r.id=a,r.className="MSIE",document.body.appendChild(r),r.src=o}else{e("<iframe id='"+a+"' name='printIframe' />").appendTo("body")}var d=e("#"+a);t.debug||d.css({position:"absolute",width:"0px",height:"0px",left:"-600px",top:"-600px"}),setTimeout(function(){t.doctypeString&&function(e,t){var n,i;(i=(n=(n=e.get(0)).contentWindow||n.contentDocument||n).document||n.contentDocument||n).open(),i.write(t),i.close()}(d,t.doctypeString);var n,a=d.contents(),o=a.find("head"),r=a.find("body"),s=e("base");if(n=!0===t.base&&s.length>0?s.attr("href"):"string"==typeof t.base?t.base:document.location.protocol+"//"+document.location.host,o.append('<base href="'+n+'">'),t.importCSS&&e("link[rel=stylesheet]").each(function(){var t=e(this).attr("href");if(t){var n=e(this).attr("media")||"all";o.append("<link type='text/css' rel='stylesheet' href='"+t+"' media='"+n+"'>")}}),t.importStyle&&e("style").each(function(){e(this).clone().appendTo(o)}),t.pageTitle&&o.append("<title>"+t.pageTitle+"</title>"),t.loadCSS&&(e.isArray(t.loadCSS)?jQuery.each(t.loadCSS,function(e,t){o.append("<link type='text/css' rel='stylesheet' href='"+this+"'>")}):o.append("<link type='text/css' rel='stylesheet' href='"+t.loadCSS+"'>")),t.header&&r.append(t.header),t.canvas){var c=0;i.find("canvas").each(function(){e(this).attr("data-printthis",c++)})}if(t.printContainer?r.append(i.outer()):i.each(function(){r.append(e(this).html())}),t.canvas&&r.find("canvas").each(function(){var t=e(this).data("printthis"),n=e('[data-printthis="'+t+'"]');this.getContext("2d").drawImage(n[0],0,0),n.removeData("printthis")}),t.formValues){var p=i.find("input");p.length&&p.each(function(){var t=e(this),n=e(this).attr("name"),i=t.is(":checkbox")||t.is(":radio"),o=a.find('input[name="'+n+'"]'),r=t.val();i?t.is(":checked")&&(t.is(":checkbox")?o.attr("checked","checked"):t.is(":radio")&&a.find('input[name="'+n+'"][value="'+r+'"]').attr("checked","checked")):o.val(r)});var h=i.find("select");h.length&&h.each(function(){var t=e(this),n=e(this).attr("name"),i=t.val();a.find('select[name="'+n+'"]').val(i)});var l=i.find("textarea");l.length&&l.each(function(){var t=e(this),n=e(this).attr("name"),i=t.val();a.find('textarea[name="'+n+'"]').val(i)})}t.removeInline&&(e.isFunction(e.removeAttr)?a.find("body *").removeAttr("style"):a.find("body *").attr("style","")),t.footer&&r.append(t.footer),setTimeout(function(){d.hasClass("MSIE")?(window.frames.printIframe.focus(),o.append("<script>  window.print(); <\/script>")):document.queryCommandSupported("print")?d[0].contentWindow.document.execCommand("print",!1,null):(d[0].contentWindow.focus(),d[0].contentWindow.print()),t.debug||setTimeout(function(){d.remove()},1e3)},t.printDelay)},333)},e.fn.printThis.defaults={debug:!1,importCSS:!0,importStyle:!1,printContainer:!0,loadCSS:"",pageTitle:"",removeInline:!1,printDelay:333,header:null,footer:null,formValues:!0,canvas:!1,base:!1,doctypeString:"<!DOCTYPE html>"},jQuery.fn.outer=function(){return e(e("<div></div>").html(this.clone())).html()}}(jQuery);
