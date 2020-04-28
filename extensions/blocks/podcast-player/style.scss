@@ -135,6 +135,7 @@ $jetpack-podcast-player-error: $alert-red;
 	h2.jetpack-podcast-player__title {
 		display: flex;
 		flex-direction: column;
+		width: 100%; // Makes long titles wrap in IE11.
 		margin: 0;
 		padding: 0;
 		letter-spacing: 0; // Fixes Twenty Twenty compressed text.
@@ -180,13 +181,17 @@ $jetpack-podcast-player-error: $alert-red;
 		margin: 0 0 $gutter-l 0;
 		font-size: $editor-font-size;
 		line-height: $editor-line-height;
-		//crop the description if too long
-		display: -webkit-box;
-		-webkit-line-clamp: 4;
-		-webkit-box-orient: vertical;
-		overflow: hidden;
-		max-height: 105px; //IE11 fallback
 		color: inherit;
+		overflow: hidden;
+		max-height: 4em * $editor-line-height; // IE11 fallback for line-clamp.
+
+		@supports ( display: -webkit-box ) {
+			// Crop the description if too long.
+			display: -webkit-box;
+			-webkit-box-orient: vertical;
+			-webkit-line-clamp: 4;
+			max-height: initial;
+		}
 	}
 
 	/**
@@ -250,7 +255,7 @@ $jetpack-podcast-player-error: $alert-red;
 			display: block;
 			width: $track-status-icon-size;
 			height: $track-status-icon-size;
-			margin-top: 3px; // center vertically
+			margin-top: ( $editor-font-size * $editor-line-height - $track-status-icon-size ) / 2; // center vertically
 			fill: inherit;
 		}
 	}
