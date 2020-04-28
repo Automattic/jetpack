@@ -45,6 +45,6 @@ export default {
 		type: 'string',
 	},
 	borderRadius: {
-		type: 'string',
+		type: 'number',
 	},
 };
