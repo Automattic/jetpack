@@ -863,6 +863,8 @@ function grunion_recheck_queue() {
 	foreach ( $approved_feedbacks as $feedback ) {
 		$meta = get_post_meta( $feedback->ID, '_feedback_akismet_values', true );
 
+		$meta['recheck_reason'] = 'recheck_queue';
+
 		if ( ! $meta ) {
 			// _feedback_akismet_values is eventually deleted when it's no longer
 			// within a reasonable time period to check the feedback for spam, so
