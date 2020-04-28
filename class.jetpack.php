@@ -7352,7 +7352,27 @@ endif;
 				),
 				'default_option'    => 'realtime',
 				'show_promotion'    => true,
+				'discount_percent'  => 70,
 				'included_in_plans' => array( 'personal-plan', 'premium-plan', 'business-plan', 'daily-backup-plan', 'realtime-backup-plan' ),
+			),
+			array(
+				'key'               => 'scan',
+				'title'             => __( 'Jetpack Scan', 'jetpack' ),
+				'short_description' => __( 'Automatic scanning and one-click fixes keep your site one step ahead of security threats.', 'jetpack' ),
+				'learn_more'        => __( 'Learn More', 'jetpack' ),
+				'description'       => __( 'Automatic scanning and one-click fixes keep your site one step ahead of security threats.', 'jetpack' ),
+				'show_promotion'    => true,
+				'discount_percent'  => 30,
+				'options'           => array(
+					array(
+						'type'      => 'scan',
+						'slug'      => 'jetpack-scan',
+						'key'       => 'jetpack_scan',
+						'name'      => __( 'Scan', 'jetpack' ),
+					),
+				),
+				'default_option'    => 'scan',
+				'included_in_plans' => array( 'premium-plan', 'business-plan', 'scan-plan' ),
 			),
 			array(
 				'key'               => 'search',
@@ -7360,6 +7380,7 @@ endif;
 				'short_description' => __( 'Incredibly powerful and customizable, Jetpack Search helps your visitors instantly find the right content – right when they need it.', 'jetpack' ),
 				'learn_more'        => __( 'Learn More', 'jetpack' ),
 				'description'       => __( 'Incredibly powerful and customizable, Jetpack Search helps your visitors instantly find the right content – right when they need it.', 'jetpack' ),
+				'label_popup'  		=> __( 'Records are all posts, pages, custom post types, and other types of content indexed by Jetpack Search.' ),
 				'options'           => array(
 					array(
 						'type'      => 'search',
@@ -7372,25 +7393,7 @@ endif;
 				'default_option'    => 'search',
 				'show_promotion'    => false,
 				'included_in_plans' => array( 'search-plan' ),
-			),
-			array(
-				'key'               => 'scan',
-				'title'             => __( 'Jetpack Scan', 'jetpack' ),
-				'short_description' => __( 'Automatic scanning and one-click fixes keep your site one step ahead of security threats.', 'jetpack' ),
-				'learn_more'        => __( 'Learn More', 'jetpack' ),
-				'description'       => __( 'Automatic scanning and one-click fixes keep your site one step ahead of security threats.', 'jetpack' ),
-				'show_promotion'    => true,
-				'options'           => array(
-					array(
-						'type'      => 'scan',
-						'slug'      => 'jetpack-scan',
-						'key'       => 'jetpack_scan',
-						'name'      => __( 'Scan', 'jetpack' ),
-					),
-				),
-				'default_option'    => 'scan',
-				'included_in_plans' => array( 'premium-plan', 'business-plan', 'scan-plan' ),
-			),
+			)
 		);
 	}
 }
