@@ -33,7 +33,6 @@ import { DOWN } from '@wordpress/keycodes';
  * Internal dependencies
  */
 import HelpMessage from '../../shared/help-message';
-import SubmitButton from '../../shared/submit-button';
 import './extensions/advanced-settings.js';
 
 const ALLOWED_BLOCKS = [
@@ -339,7 +338,6 @@ class JetpackContactFormEdit extends Component {
 
 				<div className={ formClassnames }>
 					<InnerBlocks allowedBlocks={ ALLOWED_BLOCKS } templateInsertUpdatesSelection={ false } />
-					<SubmitButton { ...this.props } />
 				</div>
 			</>
 		);

@@ -295,7 +295,7 @@ class Grunion_Contact_Form_Plugin {
 	}
 
 	public static function gutenblock_render_form( $atts, $content ) {
-		return Grunion_Contact_Form::parse( $atts, do_blocks( $content ) );
+		return Grunion_Contact_Form::parse( $atts, do_blocks( $content ), true );
 	}
 
 	public static function block_attributes_to_shortcode_attributes( $atts, $type ) {
@@ -2035,49 +2035,55 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			 * @param int $id Contact Form ID.
 			 */
 			$url = apply_filters( 'grunion_contact_form_form_action', "{$url}#contact-form-{$id}", $GLOBALS['post'], $id );
+			$has_submit_button_block = ! ( false === strpos( $content, 'wp-block-jetpack-button' ) );
 
 			$r .= "<form action='" . esc_url( $url ) . "' method='post' class='contact-form commentsblock'>\n";
 			$r .= $form->body;
-			$r .= "\t<p class='contact-submit'>\n";
 
-			$gutenberg_submit_button_classes = '';
-			if ( ! empty( $attributes['submitButtonClasses'] ) ) {
-				$gutenberg_submit_button_classes = ' ' . $attributes['submitButtonClasses'];
-			}
+			// In new versions of the contact form block the button is an inner block
+			// so the button does not need to be constructed server-side.
+			if ( ! $has_submit_button_block ) {
+				$r .= "\t<p class='contact-submit'>\n";
 
-			/**
-			 * Filter the contact form submit button class attribute.
-			 *
-			 * @module contact-form
-			 *
-			 * @since 6.6.0
-			 *
-			 * @param string $class Additional CSS classes for button attribute.
-			 */
-			$submit_button_class = apply_filters( 'jetpack_contact_form_submit_button_class', 'pushbutton-wide' . $gutenberg_submit_button_classes );
+				$gutenberg_submit_button_classes = '';
+				if ( ! empty( $attributes['submitButtonClasses'] ) ) {
+					$gutenberg_submit_button_classes = ' ' . $attributes['submitButtonClasses'];
+				}
 
-			$submit_button_styles = '';
-			if ( ! empty( $attributes['customBackgroundButtonColor'] ) ) {
-				$submit_button_styles .= 'background-color: ' . $attributes['customBackgroundButtonColor'] . '; ';
-			}
-			if ( ! empty( $attributes['customTextButtonColor'] ) ) {
-				$submit_button_styles .= 'color: ' . $attributes['customTextButtonColor'] . ';';
-			}
-			if ( ! empty( $attributes['submitButtonText'] ) ) {
-				$submit_button_text = $attributes['submitButtonText'];
-			} else {
-				$submit_button_text = $form->get_attribute( 'submit_button_text' );
-			}
+				/**
+				 * Filter the contact form submit button class attribute.
+				 *
+				 * @module contact-form
+				 *
+				 * @since 6.6.0
+				 *
+				 * @param string $class Additional CSS classes for button attribute.
+				 */
+				$submit_button_class = apply_filters( 'jetpack_contact_form_submit_button_class', 'pushbutton-wide' . $gutenberg_submit_button_classes );
 
-			$r .= "\t\t<button type='submit' class='" . esc_attr( $submit_button_class ) . "'";
-			if ( ! empty( $submit_button_styles ) ) {
-				$r .= " style='" . esc_attr( $submit_button_styles ) . "'";
+				$submit_button_styles = '';
+				if ( ! empty( $attributes['customBackgroundButtonColor'] ) ) {
+					$submit_button_styles .= 'background-color: ' . $attributes['customBackgroundButtonColor'] . '; ';
+				}
+				if ( ! empty( $attributes['customTextButtonColor'] ) ) {
+					$submit_button_styles .= 'color: ' . $attributes['customTextButtonColor'] . ';';
+				}
+				if ( ! empty( $attributes['submitButtonText'] ) ) {
+					$submit_button_text = $attributes['submitButtonText'];
+				} else {
+					$submit_button_text = $form->get_attribute( 'submit_button_text' );
+				}
+
+				$r .= "\t\t<button type='submit' class='" . esc_attr( $submit_button_class ) . "'";
+				if ( ! empty( $submit_button_styles ) ) {
+					$r .= " style='" . esc_attr( $submit_button_styles ) . "'";
+				}
+				$r .= ">";
+				$r .= wp_kses(
+					      $submit_button_text,
+					      self::$allowed_html_tags_for_submit_button
+				      ) . "</button>";
 			}
-			$r .= ">";
-			$r .= wp_kses(
-				      $submit_button_text,
-				      self::$allowed_html_tags_for_submit_button
-			      ) . "</button>";
 
 			if ( is_user_logged_in() ) {
 				$r .= "\t\t" . wp_nonce_field( 'contact-form_' . $id, '_wpnonce', true, false ) . "\n"; // nonce and referer
@@ -2089,7 +2095,11 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$r .= "\t\t<input type='hidden' name='contact-form-id' value='$id' />\n";
 			$r .= "\t\t<input type='hidden' name='action' value='grunion-contact-form' />\n";
 			$r .= "\t\t<input type='hidden' name='contact-form-hash' value='" . esc_attr( $form->hash ) . "' />\n";
-			$r .= "\t</p>\n";
+
+			if ( ! $has_submit_button_block ) {
+				$r .= "\t</p>\n";
+			}
+
 			$r .= "</form>\n";
 		}
 

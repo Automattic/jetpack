@@ -25,10 +25,14 @@ const variations = [
 			[ 'jetpack/field-name', { required: true } ],
 			[ 'jetpack/field-email', { required: true } ],
 			[ 'jetpack/field-textarea', {} ],
+			[
+				'jetpack/button',
+				{
+					text: __( 'Contact Us', 'jetpack' ),
+					element: 'button',
+				},
+			],
 		],
-		attributes: {
-			submitButtonText: __( 'Contact Us', 'jetpack' ),
-		},
 	},
 	{
 		name: 'rsvp-form',
@@ -52,9 +56,15 @@ const variations = [
 				},
 			],
 			[ 'jetpack/field-textarea', { label: __( 'Other Details', 'jetpack' ) } ],
+			[
+				'jetpack/button',
+				{
+					text: __( 'Send RSVP', 'jetpack' ),
+					element: 'button',
+				},
+			],
 		],
 		attributes: {
-			submitButtonText: __( 'Send RSVP', 'jetpack' ),
 			subject: __( 'A new RSVP from your website', 'jetpack' ),
 		},
 	},
@@ -80,9 +90,15 @@ const variations = [
 				},
 			],
 			[ 'jetpack/field-textarea', { label: __( 'Other Details', 'jetpack' ) } ],
+			[
+				'jetpack/button',
+				{
+					text: __( 'Send', 'jetpack' ),
+					element: 'button',
+				},
+			],
 		],
 		attributes: {
-			submitButtonText: __( 'Send', 'jetpack' ),
 			subject: __( 'A new registration from your website', 'jetpack' ),
 		},
 	},
@@ -110,9 +126,15 @@ const variations = [
 				},
 			],
 			[ 'jetpack/field-textarea', { label: __( 'Notes', 'jetpack' ) } ],
+			[
+				'jetpack/button',
+				{
+					text: __( 'Book Appointment', 'jetpack' ),
+					element: 'button',
+				},
+			],
 		],
 		attributes: {
-			submitButtonText: __( 'Book Appointment', 'jetpack' ),
 			subject: __( 'A new appointment booked from your website', 'jetpack' ),
 		},
 	},
@@ -138,9 +160,15 @@ const variations = [
 				},
 			],
 			[ 'jetpack/field-textarea', { label: __( 'How could we improve?', 'jetpack' ) } ],
+			[
+				'jetpack/button',
+				{
+					text: __( 'Send Feedback', 'jetpack' ),
+					element: 'button',
+				},
+			],
 		],
 		attributes: {
-			submitButtonText: __( 'Send Feedback', 'jetpack' ),
 			subject: __( 'New feedback received from your website', 'jetpack' ),
 		},
 	},
