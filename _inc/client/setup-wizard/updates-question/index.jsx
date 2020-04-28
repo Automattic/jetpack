@@ -7,11 +7,14 @@ import { translate as __ } from 'i18n-calypso';
 /**
  * Internal dependencies
  */
+import Button from 'components/button';
 import { imagePath } from 'constants/urls';
+
+import './style.scss';
 
 const UpdatesQuestion = props => {
 	return (
-		<div className="jp-setup-wizard-main">
+		<div className="jp-setup-wizard-main jp-setup-wizard-updates-main">
 			<img
 				width="200px"
 				height="200px"
@@ -23,6 +26,17 @@ const UpdatesQuestion = props => {
 					args: { siteTitle: props.siteTitle },
 				} ) }
 			</h1>
+			<div className="jp-setup-wizard-updates-answer-buttons-container">
+				<Button href="" primary className="jp-setup-wizard-updates-button">
+					{ __( 'Yes' ) }
+				</Button>
+				<Button href="" className="jp-setup-wizard-updates-button">
+					{ __( 'No' ) }
+				</Button>
+			</div>
+			<a className="jp-setup-wizard-skip-link" href="">
+				{ __( 'Skip' ) }
+			</a>
 		</div>
 	);
 };

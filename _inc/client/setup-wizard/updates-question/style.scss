@@ -1,0 +1,29 @@
+@import '../../scss/mixin_breakpoint';
+
+.jp-setup-wizard-main.jp-setup-wizard-updates-main h1 {
+	@include breakpoint( '<480px' ) {
+		margin: 0.67rem 1rem 0 0;
+	}
+}
+
+.jp-setup-wizard-updates-button {
+	margin: 0.5rem;
+	width: 100px;
+
+	@include breakpoint( '<480px' ) {
+		width: 100%;
+		margin: 0.5rem 0;
+	}
+}
+
+.jp-setup-wizard-updates-answer-buttons-container {
+	display: flex;
+
+	flex-direction: row;
+	justify-content: center;
+
+	@include breakpoint( '<480px' ) {
+		flex-direction: column;
+		align-items: center;
+	}
+}
