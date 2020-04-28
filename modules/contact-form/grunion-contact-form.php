@@ -295,7 +295,7 @@ class Grunion_Contact_Form_Plugin {
 	}
 
 	public static function gutenblock_render_form( $atts, $content ) {
-		return Grunion_Contact_Form::parse( $atts, do_blocks( $content ), true );
+		return Grunion_Contact_Form::parse( $atts, do_blocks( $content ) );
 	}
 
 	public static function block_attributes_to_shortcode_attributes( $atts, $type ) {
@@ -2034,7 +2034,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			 * @param $post $GLOBALS['post'] Post global variable.
 			 * @param int $id Contact Form ID.
 			 */
-			$url = apply_filters( 'grunion_contact_form_form_action', "{$url}#contact-form-{$id}", $GLOBALS['post'], $id );
+			$url                     = apply_filters( 'grunion_contact_form_form_action', "{$url}#contact-form-{$id}", $GLOBALS['post'], $id );
 			$has_submit_button_block = ! ( false === strpos( $content, 'wp-block-jetpack-button' ) );
 
 			$r .= "<form action='" . esc_url( $url ) . "' method='post' class='contact-form commentsblock'>\n";
