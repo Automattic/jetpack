@@ -117,7 +117,7 @@ class WPCOM_REST_API_V2_Endpoint_Instagram_Gallery extends WP_REST_Controller {
 			);
 		}
 
-		return $body->services->{ 'instagram-basic-display' }->connect_URL;
+		return add_query_arg( 'state', get_current_user_id(), $body->services->{ 'instagram-basic-display' }->connect_URL );
 	}
 
 	/**
