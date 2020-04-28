@@ -261,10 +261,8 @@ class WPcom_Instagram_Widget extends WP_Widget {
 			echo $args['before_title'] . esc_html( $instance['title'] ) . $args['after_title'];
 
 		if ( $status['valid'] && current_user_can( 'edit_theme_options' ) && $status['legacy'] ) {
-			/* translators: Variable is a formatted date string representing 31 March 2020. */
 			echo '<p><em>' . sprintf(
-				__( 'In order to continue using this Instagram widget after %s, you must <a href="%s">re-connect</a>.', 'wpcomsh' ),
-				date_i18n('l, d F Y', mktime( 12, 0, 0, 3, 31, 2020 ), true ),
+				__( 'In order to continue using this widget you must <a href="%s">reconnect to Instagram</a>.', 'wpcomsh' ),
 				add_query_arg( 'instagram_widget_id', $this->number, admin_url( 'widgets.php' ) )
 			) . '</em></p>';
 		}
@@ -376,7 +374,7 @@ class WPcom_Instagram_Widget extends WP_Widget {
 		$is_legacy_token = ( isset( $instance['is_legacy_token'] ) && $instance['is_legacy_token'] === true );
 
 		if ( $is_legacy_token ) {
-			echo '<p><strong>' . __( 'Your current connection will stop working on 31 March 2020 due to changes in Instagram\'s service. <br /><br />Please reconnect to Instagram in order to continue using this widget', 'wpcomsh' ) . '</strong></p>';
+			echo '<p><strong>' . __( 'In order to continue using this widget you must reconnect to Instagram.', 'wpcomsh' ) . '</strong></p>';
 		}
 
 		if ( is_customize_preview() && ! $instance['token_id'] ) {
