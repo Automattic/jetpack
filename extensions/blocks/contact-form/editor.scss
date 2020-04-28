@@ -112,14 +112,18 @@ input.components-text-control__input {
 .jetpack-field {
 	// done to increase elevate specificity in order to overwrite calypso styles
 	.components-text-control__input.components-text-control__input {
-			width: 100%;
+		width: 100%;
 	}
-	.components-text-control__input,
-	.components-textarea-control__input {
+	input.components-text-control__input,
+	textarea.components-textarea-control__input {
 		color: #72777c;
-		padding: 10px 8px;
-		border-color: unset;
+		padding: 12px 8px;
+		border-color: rgba( 0, 0, 0, 0.4 );
 		box-shadow: unset;
+	}
+
+	textarea.components-textarea-control__input {
+		min-height: 150px;
 	}
 }
 
