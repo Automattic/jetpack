@@ -54,7 +54,7 @@ const IncomeQuestion = props => {
 				/>
 			</div>
 			<div className="jp-setup-wizard-advance-container">
-				<Button primary className="jp-setup-wizard-button">
+				<Button href="#/setup/updates" primary className="jp-setup-wizard-button">
 					{ __( 'Continue' ) }
 				</Button>
 				<a className="jp-setup-wizard-skip-link" href="">
