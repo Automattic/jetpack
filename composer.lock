@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5ac039aaa9e5f68ad7f13fb0f50453dd",
+    "content-hash": "613a885d9a8c5d1f3c25745dd803c9b4",
     "packages": [
         {
             "name": "automattic/jetpack-abtest",
@@ -144,16 +144,16 @@
         },
         {
             "name": "automattic/jetpack-compat",
-            "version": "v1.1.0",
+            "version": "v1.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-compat.git",
-                "reference": "a874b474beed47f9783fddc428aba6e0542cb69b"
+                "reference": "a2e809f7434e8501c13c2a8393988b130c94d292"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-compat/zipball/a874b474beed47f9783fddc428aba6e0542cb69b",
-                "reference": "a874b474beed47f9783fddc428aba6e0542cb69b",
+                "url": "https://api.github.com/repos/Automattic/jetpack-compat/zipball/a2e809f7434e8501c13c2a8393988b130c94d292",
+                "reference": "a2e809f7434e8501c13c2a8393988b130c94d292",
                 "shasum": ""
             },
             "require-dev": {
@@ -174,7 +174,7 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Compatibility layer with previous versions of Jetpack",
-            "time": "2020-03-10T22:53:33+00:00"
+            "time": "2020-04-28T13:52:27+00:00"
         },
         {
             "name": "automattic/jetpack-config",
