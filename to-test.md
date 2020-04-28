@@ -1,20 +1,26 @@
-## 8.4
-
-### Search
-
-The highlight of this release is the new Instant Search experience, now available to all sites using the brand new Jetpack Search product. Give it a try, either by purchasing a product via the WordPress.com dashboard, or follow the flow to upgrade your site starting right from your dashboard, in Jetpack > Plans or Jetpack > Settings > Performance.
-
-Give it a try and let us know what you think about the purchase and configuration flow, as well as the look of the Instant Search on your site.
+## 8.5
 
 ### Blocks
 
-#### WordPress 5.4 Compatibility
+#### Podcast Player
 
-We've adapted all blocks so they can be displayed nicely in the updated editor. Give them all a try, and let us know if you find layout issues!
+This release introduces a new Podcast Player block. This block allows you to embed any podcast into one of your posts or pages. You can choose how many tracks will be displayed, and fully customize the look of the player and its options. Your readers will then be able to play each episode in their browser.
 
-#### Recurring Payments
+To test, add the block to a post or a page and make sure everything works as planned.
 
-We've made some changes to this block (that requires a Premium Plan), so the buttons can be displayed properly and work well when using the AMP Plugin. On a site using that plugin, try adding a Recurring Payments button and view that button on an AMP view. You should be able to click the button and be redirected to the Payment page.
+You can use just about any podcast feed you may know about.
+
+#### Revue
+
+We've made changes to the Revue block, and added customization options to the button as well as the different fields. Try editing an existing Revue block, or create a new Revue block and use the different customization options.
+
+### Carousel
+
+We've made several changes to the Carousel feature in this release. You'll want to test the feature, with and without the AMP plugin, and ensure it still works well in AMP views as well as on desktop.
+
+### Publicize
+
+We've made some changes to the default behaviour when publicizing to Twitter accounts. Until now, when you would publish a new post with an image, that image would be uploaded and attached to the Publicized tweet. From now on, when you do publish a post, Publicize will let Twitter build a preview card for the tweet, based on the link above. Please try publishing some posts with Publicize to Twitter activated, and ensure that Publicize still works.
 
 ### Others
 
