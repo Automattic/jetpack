@@ -817,7 +817,7 @@ class Jetpack_Subscriptions {
 		 * @since 5.5.0
 		 *
 		 * @param NULL|WP_Error $result Result of form submission: NULL on success, WP_Error otherwise.
-		 * @param Array $post_ids An array of post IDs that the user subscribed to, 0 means blog subscription.
+		 * @param array $post_ids An array of post IDs that the user subscribed to, 0 means blog subscription.
 		 */
 		do_action( 'jetpack_subscriptions_comment_form_submission', $result, $post_ids );
 	}

@@ -482,8 +482,8 @@ class Jetpack_Network {
 	/**
 	 * Filters the registration request body to include additional properties.
 	 *
-	 * @param Array $properties standard register request body properties.
-	 * @return Array amended properties.
+	 * @param array $properties standard register request body properties.
+	 * @return array amended properties.
 	 */
 	public function filter_register_request_body( $properties ) {
 		$blog_details = get_blog_details();

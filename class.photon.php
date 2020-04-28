@@ -154,7 +154,7 @@ class Jetpack_Photon {
 	/**
 	 * Disables intermediate sizes to disallow resizing.
 	 *
-	 * @param Array $sizes an array containing image sizes.
+	 * @param array $sizes an array containing image sizes.
 	 * @return Boolean
 	 */
 	public static function filter_photon_noresize_intermediate_sizes( $sizes ) {

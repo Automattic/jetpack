@@ -428,7 +428,7 @@ class Full_Sync_Immediately extends Module {
 	/**
 	 * Empty Function as we don't close buffers on Immediate Full Sync.
 	 *
-	 * @param Array $actions an array of actions, ignored for queueless sync.
+	 * @param array $actions an array of actions, ignored for queueless sync.
 	 */
 	public function update_sent_progress_action( $actions ) {
 		return;

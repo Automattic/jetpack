@@ -232,7 +232,7 @@ class Jetpack_Photon_Image {
 	/**
 	 * Sets proper width and height from dimensions.
 	 *
-	 * @param Array $dimensions an array of image dimensions.
+	 * @param array $dimensions an array of image dimensions.
 	 * @return void
 	 */
 	protected function set_width_height( $dimensions ) {
