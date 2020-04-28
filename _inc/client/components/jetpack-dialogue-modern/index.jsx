@@ -4,7 +4,6 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { translate as __ } from 'i18n-calypso';
-import Card from 'components/card';
 import { noop } from 'lodash';
 import classNames from 'classnames';
 
@@ -13,9 +12,8 @@ import classNames from 'classnames';
  */
 import Gridicon from 'components/gridicon';
 import onKeyDownCallback from 'utils/onkeydown-callback';
-import { imagePath } from 'constants/urls';
 
-class JetpackDialogue extends Component {
+class ModernOverlay extends Component {
 	maybeDismiss = e => {
 		if ( this.props.showDismiss && ( ! e.keyCode || e.keyCode === 27 ) ) {
 			this.props.dismiss( e );
@@ -37,51 +35,36 @@ class JetpackDialogue extends Component {
 	}
 
 	render() {
-		const classes = classNames( this.props.className, 'jp-dialogue' );
+		const classes = classNames( this.props.className, 'jp-dialogue-modern', {
+			'has-featured-image': !! this.props.svg,
+		} );
 		return (
 			<div
-				className="jp-dialogue-full__container"
+				className="jp-dialogue-modern-full__container"
 				role="presentation"
 				onClick={ this.maybeDismiss }
 				onKeyDown={ onKeyDownCallback( this.maybeDismiss ) }
 			>
-				<img
-					src={ imagePath + 'stars-full.svg' }
-					width="60"
-					height="60"
-					alt={ __( 'Stars' ) }
-					className="jp-dialogue-full__svg-stars"
-				/>
-				<img
-					src={ imagePath + 'jupiter.svg' }
-					width="50"
-					height="100"
-					alt={ __( 'Jupiter' ) }
-					className="jp-dialogue-full__svg-jupiter"
-				/>
-
 				<div
 					className={ classes }
 					role="presentation"
 					onClick={ this.clickForeground }
 					onKeyDown={ onKeyDownCallback( this.clickForeground ) }
 				>
+					{ this.props.showDismiss && (
+						<Gridicon
+							icon="cross-small"
+							className="jp-dialogue-modern-full__dismiss"
+							tabIndex="0"
+							onKeyDown={ onKeyDownCallback( this.props.dismiss ) }
+							onClick={ this.props.dismiss }
+						/>
+					) }
 					{ this.props.svg }
-
-					<h1 className="jp-dialogue__title">{ this.props.title }</h1>
-
-					<Card>
-						{ this.props.showDismiss && (
-							<Gridicon
-								icon="cross-small"
-								className="jp-dialogue-full__dismiss"
-								tabIndex="0"
-								onKeyDown={ onKeyDownCallback( this.props.dismiss ) }
-								onClick={ this.props.dismiss }
-							/>
-						) }
+					<div className="jp-dialogue-modern__content">
+						<h1 className="jp-dialogue-modern__title">{ this.props.title }</h1>
 						{ this.props.content }
-					</Card>
+					</div>
 					<div>{ this.props.belowContent }</div>
 				</div>
 			</div>
@@ -89,17 +72,18 @@ class JetpackDialogue extends Component {
 	}
 }
 
-JetpackDialogue.propTypes = {
+ModernOverlay.propTypes = {
 	content: PropTypes.oneOfType( [ PropTypes.string, PropTypes.object ] ).isRequired,
 	belowContent: PropTypes.oneOfType( [ PropTypes.string, PropTypes.object ] ).isRequired,
 	svg: PropTypes.oneOfType( [ PropTypes.bool, PropTypes.object ] ),
 	dismissOnClick: PropTypes.func,
 	showDismiss: PropTypes.bool,
 	title: PropTypes.string,
+	adminUrl: PropTypes.string,
 	dismiss: PropTypes.func,
 };
 
-JetpackDialogue.defaultProps = {
+ModernOverlay.defaultProps = {
 	svg: false,
 	showDismiss: true,
 	dismiss: noop,
@@ -108,4 +92,4 @@ JetpackDialogue.defaultProps = {
 	title: '',
 };
 
-export default JetpackDialogue;
+export default ModernOverlay;

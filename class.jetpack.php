@@ -2322,6 +2322,7 @@ class Jetpack {
 		);
 
 		self::state( 'message', 'modules_activated' );
+
 		self::activate_default_modules( $jetpack_version, JETPACK__VERSION, $reactivate_modules, $redirect );
 
 		if ( $redirect ) {
@@ -3291,14 +3292,124 @@ p {
 	/**
 	 * Runs before bumping version numbers up to a new version
 	 *
-	 * @param  string $version    Version:timestamp
-	 * @param  string $old_version Old Version:timestamp or false if not set yet.
-	 * @return null              [description]
+	 * @param string $version    Version:timestamp.
+	 * @param string $old_version Old Version:timestamp or false if not set yet.
 	 */
 	public static function do_version_bump( $version, $old_version ) {
-		if ( ! $old_version ) { // For new sites
-			// There used to be stuff here, but this seems like it might  be useful to someone in the future...
+		if ( $old_version ) { // For existing Jetpack installations.
+			self::send_update_modal_data();
 		}
+	}
+
+	/**
+	 * Prepares the release post content and image data and saves it in the
+	 * state array. This data is used to create the update modal.
+	 */
+	public static function send_update_modal_data() {
+		$post_data = self::get_release_post_data();
+
+		if ( ! isset( $post_data['posts'][0] ) ) {
+			return;
+		}
+
+		$post = $post_data['posts'][0];
+
+		$post_content = isset( $post['content'] ) ? $post['content'] : null;
+		if ( empty( $post_content ) ) {
+			return;
+		}
+
+		// This allows us to embed videopress videos into the release post.
+		add_filter( 'wp_kses_allowed_html', array( __CLASS__, 'allow_post_embed_iframe' ), 10, 2 );
+		$content = wp_kses_post( $post_content );
+		remove_filter( 'wp_kses_allowed_html', array( __CLASS__, 'allow_post_embed_iframe' ), 10, 2 );
+
+		$post_title = isset( $post['title'] ) ? $post['title'] : null;
+		$title      = wp_kses( $post_title, array() );
+
+		$post_thumbnail = isset( $post['post_thumbnail'] ) ? $post['post_thumbnail'] : null;
+		if ( ! empty( $post_thumbnail ) ) {
+			jetpack_require_lib( 'class.jetpack-photon-image' );
+			$photon_image = new Jetpack_Photon_Image(
+				array(
+					'file'   => jetpack_photon_url( $post_thumbnail['URL'] ),
+					'width'  => $post_thumbnail['width'],
+					'height' => $post_thumbnail['height'],
+				),
+				$post_thumbnail['mime_type']
+			);
+			$photon_image->resize(
+				array(
+					'width'  => 600,
+					'height' => null,
+					'crop'   => false,
+				)
+			);
+			$post_thumbnail_url = $photon_image->get_raw_filename();
+		} else {
+			$post_thumbnail_url = null;
+		}
+
+		$post_array = array(
+			'release_post_content'        => $content,
+			'release_post_featured_image' => $post_thumbnail_url,
+			'release_post_title'          => $title,
+		);
+
+		self::state( 'message_content', $post_array );
+	}
+
+	/**
+	 * Temporarily allow post content to contain iframes, e.g. for videopress.
+	 *
+	 * @param string $tags    The tags.
+	 * @param string $context The context.
+	 */
+	public static function allow_post_embed_iframe( $tags, $context ) {
+		if ( 'post' === $context ) {
+			$tags['iframe'] = array(
+				'src'             => true,
+				'height'          => true,
+				'width'           => true,
+				'frameborder'     => true,
+				'allowfullscreen' => true,
+			);
+		}
+
+		return $tags;
+	}
+
+	/**
+	 * Obtains the release post from the Jetpack release post blog. A release post will be displayed in the
+	 * update modal when a post has a tag equal to the Jetpack version number.
+	 *
+	 * The response parameters for the post array can be found here:
+	 * https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/posts/%24post_ID/#apidoc-response
+	 *
+	 * @return array|null Returns an associative array containing the release post data at index ['posts'][0].
+	 *                    Returns null if the release post data is not available.
+	 */
+	private static function get_release_post_data() {
+		if ( Constants::is_defined( 'TESTING_IN_JETPACK' ) && Constants::get_constant( 'TESTING_IN_JETPACK' ) ) {
+			return null;
+		}
+
+		$release_post_src = add_query_arg(
+			array(
+				'order_by' => 'date',
+				'tag'      => JETPACK__VERSION,
+				'number'   => '1',
+			),
+			'https://public-api.wordpress.com/rest/v1/sites/' . JETPACK__RELEASE_POST_BLOG_SLUG . '/posts'
+		);
+
+		$response = wp_remote_get( $release_post_src );
+
+		if ( ! is_array( $response ) ) {
+			return null;
+		}
+
+		return json_decode( wp_remote_retrieve_body( $response ), true );
 	}
 
 	/**
@@ -5732,7 +5843,7 @@ endif;
 
 		// Extract state from cookies and delete cookies
 		if ( isset( $_COOKIE['jetpackState'] ) && is_array( $_COOKIE['jetpackState'] ) ) {
-			$yum = $_COOKIE['jetpackState'];
+			$yum = wp_unslash( $_COOKIE['jetpackState'] );
 			unset( $_COOKIE['jetpackState'] );
 			foreach ( $yum as $k => $v ) {
 				if ( strlen( $v ) ) {
@@ -5744,12 +5855,14 @@ endif;
 
 		if ( $restate ) {
 			foreach ( $state as $k => $v ) {
-				setcookie( "jetpackState[$k]", $v, 0, $path, $domain );
+				if ( 'message_content' !== $k ) {
+					setcookie( "jetpackState[$k]", $v, 0, $path, $domain );
+				}
 			}
 			return;
 		}
 
-		// Get a state variable
+		// Get a state variable.
 		if ( isset( $key ) && ! isset( $value ) ) {
 			if ( array_key_exists( $key, $state ) ) {
 				return $state[ $key ];
@@ -5757,13 +5870,13 @@ endif;
 			return null;
 		}
 
-		// Set a state variable
+		// Set a state variable.
 		if ( isset( $key ) && isset( $value ) ) {
 			if ( is_array( $value ) && isset( $value[0] ) ) {
 				$value = $value[0];
 			}
 			$state[ $key ] = $value;
-			if ( ! headers_sent() ) {
+			if ( 'message_content' !== $key && ! headers_sent() ) {
 				setcookie( "jetpackState[$key]", $value, 0, $path, $domain );
 			}
 		}
