@@ -18,7 +18,7 @@ const UpdatesQuestion = props => {
 			<img
 				width="200px"
 				height="200px"
-				src={ imagePath + '/jetpack-publicize-with-tumblr.svg' }
+				src={ imagePath + 'jetpack-publicize-1.svg' }
 				alt={ __( 'A jetpack site using publicize to share posts' ) }
 			/>
 			<h1>
