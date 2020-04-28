@@ -16,7 +16,7 @@ const UpdatesQuestion = props => {
 	return (
 		<div className="jp-setup-wizard-main jp-setup-wizard-updates-main">
 			<img
-				width="200px"
+				width="300px"
 				height="200px"
 				src={ imagePath + 'jetpack-publicize-1.svg' }
 				alt={ __( 'A jetpack site using publicize to share posts' ) }
