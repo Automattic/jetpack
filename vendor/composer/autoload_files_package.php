@@ -15,7 +15,7 @@ return array(
 		'path'    => $vendorDir . '/automattic/jetpack-backup/actions.php'
 	),
 	'009de6aaa0d497eacea41fab13fc05f1' => array(
-		'version' => '1.1.0.0',
+		'version' => '1.2.0.0',
 		'path'    => $vendorDir . '/automattic/jetpack-compat/functions.php'
 	),
 );

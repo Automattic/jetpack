@@ -203,23 +203,23 @@ return array(
 		'path'    => $vendorDir . '/automattic/jetpack-config/src/class-config.php'
 	),
 	'Jetpack_Sync_Settings' => array(
-		'version' => '1.1.0.0',
+		'version' => '1.2.0.0',
 		'path'    => $vendorDir . '/automattic/jetpack-compat/legacy/class-jetpack-sync-settings.php'
 	),
 	'JetpackTracking' => array(
-		'version' => '1.1.0.0',
+		'version' => '1.2.0.0',
 		'path'    => $vendorDir . '/automattic/jetpack-compat/legacy/class-jetpacktracking.php'
 	),
 	'Jetpack_Client' => array(
-		'version' => '1.1.0.0',
+		'version' => '1.2.0.0',
 		'path'    => $vendorDir . '/automattic/jetpack-compat/legacy/class-jetpack-client.php'
 	),
 	'Jetpack_Sync_Modules' => array(
-		'version' => '1.1.0.0',
+		'version' => '1.2.0.0',
 		'path'    => $vendorDir . '/automattic/jetpack-compat/legacy/class-jetpack-sync-modules.php'
 	),
 	'Jetpack_Sync_Actions' => array(
-		'version' => '1.1.0.0',
+		'version' => '1.2.0.0',
 		'path'    => $vendorDir . '/automattic/jetpack-compat/legacy/class-jetpack-sync-actions.php'
 	),
 	'Automattic\\Jetpack\\Backup\\Helper_Script_Manager' => array(
