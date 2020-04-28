@@ -46,7 +46,7 @@ import QueryRewindStatus from 'components/data/query-rewind-status';
 import { getRewindStatus } from 'state/rewind';
 
 const setupRoute = '/setup';
-const setupRoutes = [ setupRoute, '/setup/income' ];
+const setupRoutes = [ setupRoute, '/setup/income', '/setup/updates' ];
 
 const dashboardRoutes = [ '/', '/dashboard', '/my-plan', '/plans' ];
 const settingsRoutes = [
