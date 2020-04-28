@@ -13,13 +13,13 @@ use Automattic\Jetpack\Connection\Client;
  *
  * @since 8.5
  */
-class WPCOM_REST_API_V2_Endpoint_Instagram extends WP_REST_Controller {
+class WPCOM_REST_API_V2_Endpoint_Instagram_Gallery extends WP_REST_Controller {
 	/**
 	 * Constructor.
 	 */
 	public function __construct() {
 		$this->namespace = 'wpcom/v2';
-		$this->rest_base = 'instagram';
+		$this->rest_base = 'instagram-gallery';
 
 		if ( ! class_exists( 'Jetpack_Instagram_Gallery_Helper' ) ) {
 			\jetpack_require_lib( 'class-jetpack-instagram-gallery-helper' );
@@ -153,4 +153,4 @@ class WPCOM_REST_API_V2_Endpoint_Instagram extends WP_REST_Controller {
 	}
 }
 
-wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Instagram' );
+wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Instagram_Gallery' );

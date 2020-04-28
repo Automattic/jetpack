@@ -14,7 +14,7 @@ export default function useConnectInstagram( setAttributes, setImages, noticeOpe
 		noticeOperations.removeAllNotices();
 		setIsConnecting( true );
 
-		apiFetch( { path: `/wpcom/v2/instagram/connect-url` } )
+		apiFetch( { path: `/wpcom/v2/instagram-gallery/connect-url` } )
 			.then( connectUrl => {
 				const popupMonitor = new PopupMonitor();
 
@@ -48,7 +48,7 @@ export default function useConnectInstagram( setAttributes, setImages, noticeOpe
 	const disconnectFromService = accessToken => {
 		setIsConnecting( true );
 		apiFetch( {
-			path: addQueryArgs( `/wpcom/v2/instagram/delete-access-token`, {
+			path: addQueryArgs( `/wpcom/v2/instagram-gallery/delete-access-token`, {
 				access_token: accessToken,
 			} ),
 			method: 'DELETE',
