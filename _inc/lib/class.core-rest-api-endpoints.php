@@ -542,7 +542,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	public static function update_setup_questionnaire( $request ) {
 		// TODO: add validation.
 
-		$option_values = $request['option_values'];
+		$option_values = empty( $request['option_values'] ) ? array() : $request['option_values'];
 		Jetpack_Options::update_option( 'setup_questionnaire', $option_values );
 		return true;
 	}
@@ -550,17 +550,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Get the settings for the wizard questionnaire
 	 *
-	 * @param WP_REST_Request $request The request.
-	 *
 	 * @return array Questionnaire settings.
 	 */
-	public static function get_setup_questionnaire( $request ) {
-		$options_values = Jetpack_Options::get_option( 'setup_questionnaire' );
-		if ( $options_values ) {
-			return $options_values;
-		} else {
-			return array();
-		}
+	public static function get_setup_questionnaire() {
+		return Jetpack_Options::get_option( 'setup_questionnaire', array() );
 	}
 
 	public static function get_plans( $request ) {
