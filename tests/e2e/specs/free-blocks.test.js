@@ -44,7 +44,7 @@ describe( 'Free blocks', () => {
 		const eventId = '96820156695';
 		let blockEditor;
 
-		await step( 'Can publish a post with a Eventbrite block', async () => {
+		await step( 'Can visit the block editor and add a Eventbrite block', async () => {
 			blockEditor = await BlockEditorPage.visit( page );
 			const blockInfo = await blockEditor.insertBlock(
 				EventbriteBlock.name(),
@@ -55,7 +55,7 @@ describe( 'Free blocks', () => {
 			await eventbriteBlock.addEmbed();
 		} );
 
-		await step( 'Can publish a post with a Pinterest block', async () => {
+		await step( 'Can publish a post with a Eventbrite block', async () => {
 			await blockEditor.focus();
 			await blockEditor.publishPost();
 			await blockEditor.viewPost();
