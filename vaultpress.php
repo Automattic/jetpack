@@ -17,7 +17,7 @@
 defined( 'ABSPATH' ) || die();
 
 define( 'VAULTPRESS__MINIMUM_PHP_VERSION', '5.6' );
-define( 'VAULTPRESS__VERSION', '2.1' );
+define( 'VAULTPRESS__VERSION', '2.1.1' );
 define( 'VAULTPRESS__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 
 /**
@@ -2993,12 +2993,12 @@ JS;
 		if ( ! class_exists( 'Jetpack' ) ) {
 			return false;
 		}
-		
+
 		// For version of Jetpack prior to 7.7.
 		if ( ! class_exists( 'Jetpack_IXR_Client' ) ) {
 			Jetpack::load_xml_rpc_client();
 		}
-		
+
 		$xml = new Jetpack_IXR_Client( array( 'user_id' => get_current_user_id() ) );
 		$xml->query( 'wpcom.getUserEmail' );
 		if ( ! $xml->isError() ) {
@@ -3012,7 +3012,7 @@ JS;
 		if ( ! class_exists( 'Jetpack' ) ) {
 			return false;
 		}
-		
+
 		// For version of Jetpack prior to 7.7.
 		if ( ! class_exists( 'Jetpack_IXR_Client' ) ) {
 			Jetpack::load_xml_rpc_client();
