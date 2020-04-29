@@ -91,21 +91,25 @@ class Jetpack_Twitter_Cards {
 					'height' => 240,
 				)
 			);
-			if ( ! empty( $post_image ) ) {
-				if ( (int) $post_image['src_width'] >= 280 && (int) $post_image['src_height'] >= 150 ) {
-					$card_type                = 'summary_large_image';
-					$og_tags['twitter:image'] = esc_url( add_query_arg( 'w', 640, $post_image['src'] ) );
-				} else {
-					$og_tags['twitter:image'] = esc_url( add_query_arg( 'w', 240, $post_image['src'] ) );
-				}
-
-				// Add the alt tag if we have one.
-				if ( ! empty( $post_image['alt_text'] ) ) {
-					// Shorten it if it is too long.
-					if ( strlen( $post_image['alt_text'] ) > $alt_length ) {
-						$og_tags['twitter:image:alt'] = esc_attr( mb_substr( $post_image['alt_text'], 0, $alt_length ) . '…' );
+			if ( ! empty( $post_image ) && is_array( $post_image ) ) {
+				// 4096 is the maximum size for an image per https://developer.twitter.com/en/docs/tweets/optimize-with-cards/overview/summary .
+				if ( (int) $post_image['src_width'] <= 4096 && (int) $post_image['src_height'] <= 4096 ) {
+					// 300x157 is the minimum size for a summary_large_image per https://developer.twitter.com/en/docs/tweets/optimize-with-cards/overview/summary-card-with-large-image .
+					if ( (int) $post_image['src_width'] >= 300 && (int) $post_image['src_height'] >= 157 ) {
+						$card_type                = 'summary_large_image';
+						$og_tags['twitter:image'] = esc_url( add_query_arg( 'w', 640, $post_image['src'] ) );
 					} else {
-						$og_tags['twitter:image:alt'] = esc_attr( $post_image['alt_text'] );
+						$og_tags['twitter:image'] = esc_url( add_query_arg( 'w', 240, $post_image['src'] ) );
+					}
+
+					// Add the alt tag if we have one.
+					if ( ! empty( $post_image['alt_text'] ) ) {
+						// Shorten it if it is too long.
+						if ( strlen( $post_image['alt_text'] ) > $alt_length ) {
+							$og_tags['twitter:image:alt'] = esc_attr( mb_substr( $post_image['alt_text'], 0, $alt_length ) . '…' );
+						} else {
+							$og_tags['twitter:image:alt'] = esc_attr( $post_image['alt_text'] );
+						}
 					}
 				}
 			}
