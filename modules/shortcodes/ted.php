@@ -106,8 +106,11 @@ function ted_filter_oembed_fetch_url( $provider, $url, $args ) {
  * @return string|false
  */
 function ted_filter_oembed_amp_iframe( $cache, $url ) {
-	if ( is_string( $cache )
-		&& strpos( $url, 'ted.com' ) ) {
+	if ( class_exists( 'Jetpack_AMP_Support' )
+		&& Jetpack_AMP_Support::is_amp_request()
+		&& is_string( $cache )
+		&& strpos( $url, 'ted.com' )
+	) {
 		$cache = preg_replace(
 			'/src=[\'"].*?[\'"]/',
 			'$0 sandbox="allow-popups allow-scripts allow-same-origin"',
