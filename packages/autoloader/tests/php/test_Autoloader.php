@@ -69,6 +69,9 @@ class WP_Test_Autoloader extends TestCase {
 	/**
 	 * Tests whether enqueueing prioritizes the dev version of the class when the
 	 * JETPACK_AUTOLOAD_DEV constant is set to true.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	public function test_enqueueing_adds_the_dev_version_to_the_global_array() {
 		defined( 'JETPACK_AUTOLOAD_DEV' ) || define( 'JETPACK_AUTOLOAD_DEV', true );
