@@ -207,7 +207,7 @@ class Comments extends Module {
 		if ( isset( $args[1] ) ) {
 			// comment object is available.
 			$comment = $args[1];
-		} else {
+		} elseif ( is_numeric( $args[0] ) ) {
 			// comment_id is available.
 			$comment = get_comment( $args[0] );
 		}
