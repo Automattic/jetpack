@@ -75,7 +75,8 @@ function ButtonEdit( {
 				allowedFormats={ [] }
 				className={ buttonClasses }
 				disableLineBreaks
-				onChange={ value => setAttributes( { text: value } ) }
+				// TODO: Remove `replace` once minimum Gutenberg version is 8.0 (to fully support `disableLineBreaks`)
+				onChange={ value => setAttributes( { text: value.replace( /<br>/gim, ' ' ) } ) }
 				placeholder={ placeholder || __( 'Add text…', 'jetpack' ) }
 				style={ buttonStyles }
 				value={ text }
