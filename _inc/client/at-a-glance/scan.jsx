@@ -12,7 +12,8 @@ import { numberFormat, translate as __ } from 'i18n-calypso';
 import Card from 'components/card';
 import QueryVaultPressData from 'components/data/query-vaultpress-data';
 import QueryScanStatus from 'components/data/query-scan-status';
-import { getSitePlan, isFetchingSiteData, getSitePurchases } from 'state/site';
+import { getSitePlan, isFetchingSiteData } from 'state/site';
+import { getScanStatus } from 'state/scan';
 import { isPluginInstalled } from 'state/site/plugins';
 import { getVaultPressScanThreatCount, getVaultPressData } from 'state/at-a-glance';
 import { isDevMode } from 'state/connection';
@@ -20,7 +21,7 @@ import DashItem from 'components/dash-item';
 import { get, isArray } from 'lodash';
 import { getUpgradeUrl, showBackups } from 'state/initial-state';
 import JetpackBanner from 'components/jetpack-banner';
-import { isJetpackScan, getPlanClass, PLAN_JETPACK_PREMIUM } from 'lib/plans/constants';
+import { getPlanClass, PLAN_JETPACK_PREMIUM } from 'lib/plans/constants';
 import getRedirectUrl from 'lib/jp-redirect';
 
 /**
@@ -55,14 +56,13 @@ const renderCard = props => (
 class DashScan extends Component {
 	static propTypes = {
 		siteRawUrl: PropTypes.string.isRequired,
-		rewindStatus: PropTypes.string.isRequired,
 
 		// Connected props
 		vaultPressData: PropTypes.any.isRequired,
 		scanThreats: PropTypes.any.isRequired,
 		sitePlan: PropTypes.object.isRequired,
 		isDevMode: PropTypes.bool.isRequired,
-		isPluginInstalled: PropTypes.bool.isRequired,
+		isVaultPressInstalled: PropTypes.bool.isRequired,
 		fetchingSiteData: PropTypes.bool.isRequired,
 		upgradeUrl: PropTypes.string.isRequired,
 	};
@@ -73,9 +73,8 @@ class DashScan extends Component {
 		scanThreats: 0,
 		sitePlan: '',
 		isDevMode: false,
-		isPluginInstalled: false,
+		isVaultPressInstalled: false,
 		fetchingSiteData: false,
-		rewindStatus: '',
 	};
 
 	getVPContent() {
@@ -186,7 +185,7 @@ class DashScan extends Component {
 	}
 
 	getRewindContent() {
-		const { rewindStatus, siteRawUrl } = this.props;
+		const { scanStatus, siteRawUrl } = this.props;
 		const buildAction = ( url, message ) => (
 			<Card compact key="manage-backups" className="jp-dash-item__manage-in-wpcom" href={ url }>
 				{ message }
@@ -200,32 +199,32 @@ class DashScan extends Component {
 				content: message,
 			} );
 
-		switch ( rewindStatus ) {
+		if ( scanStatus.credentials.length === 0 ) {
+			return (
+				<React.Fragment>
+					{ buildCard( __( "You need to enter your server's credentials to finish the setup." ) ) }
+					{ buildAction(
+						getRedirectUrl( 'calypso-settings-security', { site: siteRawUrl } ),
+						__( 'Enter credentials' )
+					) }
+				</React.Fragment>
+			);
+		}
+
+		switch ( scanStatus.state ) {
 			case 'provisioning':
 				return (
 					<React.Fragment>
 						{ buildCard( __( 'We are configuring your site protection.' ) ) }
 					</React.Fragment>
 				);
-			case 'awaiting_credentials':
-				return (
-					<React.Fragment>
-						{ buildCard(
-							__( "You need to enter your server's credentials to finish the setup." )
-						) }
-						{ buildAction(
-							getRedirectUrl( 'calypso-settings-security', { site: siteRawUrl } ),
-							__( 'Enter credentials' )
-						) }
-					</React.Fragment>
-				);
-			case 'active':
+			case 'idle':
+			case 'scanning':
 				return (
 					<React.Fragment>
 						{ buildCard(
 							__(
-								'We are making sure your site stays free of security threats.' +
-									' ' +
+								'We are making sure your site stays free of security threats. ' +
 									'You will be notified if we find one.'
 							)
 						) }
@@ -259,27 +258,20 @@ class DashScan extends Component {
 			} );
 		}
 
-		const scanPurchase = this.props.purchases.find( purchase =>
-			isJetpackScan( purchase.product_slug )
-		);
-
-		// If the plan class does not support Scan, prompt an upgrade
-		// Otherwise, use either VaultPress or Rewind to determine what to show
-		let content;
-		if (
-			! scanPurchase &&
-			[
-				'is-free-plan',
-				'is-personal-plan',
-				'is-daily-backup-plan',
-				'is-realtime-backup-plan',
-			].includes( this.props.planClass )
+		// Show loading while we're getting props.
+		// Once we get them, test the Scan system and then VaultPress in order.
+		const { scanStatus, vaultPressData } = this.props;
+		let content = renderCard( { content: __( 'Loading…' ) } );
+		if ( scanStatus.state && 'unavailable' !== scanStatus.state ) {
+			content = <div className="jp-dash-item">{ this.getRewindContent() }</div>;
+		} else if ( get( vaultPressData, [ 'data', 'features', 'security' ], false ) ) {
+			content = this.getVPContent();
+		} else if (
+			'N/A' === vaultPressData &&
+			scanStatus.state &&
+			'unavailable' === scanStatus.state
 		) {
 			content = this.getUpgradeContent();
-		} else if ( 'unavailable' === this.props.rewindStatus ) {
-			content = this.getVPContent( this.props.planClass );
-		} else {
-			content = <div className="jp-dash-item">{ this.getRewindContent() }</div>;
 		}
 
 		return (
@@ -296,6 +288,7 @@ export default connect( state => {
 	const sitePlan = getSitePlan( state );
 
 	return {
+		scanStatus: getScanStatus( state ),
 		vaultPressData: getVaultPressData( state ),
 		scanThreats: getVaultPressScanThreatCount( state ),
 		sitePlan,
@@ -305,6 +298,5 @@ export default connect( state => {
 		fetchingSiteData: isFetchingSiteData( state ),
 		showBackups: showBackups( state ),
 		upgradeUrl: getUpgradeUrl( state, 'aag-scan' ),
-		purchases: getSitePurchases( state ),
 	};
 } )( DashScan );
