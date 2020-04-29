@@ -16,27 +16,6 @@ export const defaultAttributes = {
 	to: {
 		type: 'string',
 	},
-	submitButtonText: {
-		type: 'string',
-		default: __( 'Submit', 'jetpack' ),
-	},
-	backgroundButtonColor: {
-		type: 'string',
-	},
-	textButtonColor: {
-		type: 'string',
-	},
-	customBackgroundButtonColor: {
-		type: 'string',
-		validator: colorValidator,
-	},
-	customTextButtonColor: {
-		type: 'string',
-		validator: colorValidator,
-	},
-	submitButtonClasses: {
-		type: 'string',
-	},
 	hasFormSettingsSet: {
 		type: 'string',
 		default: null,
