@@ -405,16 +405,29 @@ export class DevCard extends React.Component {
 						</label>
 					</li>
 					<li>
-						<label htmlFor="scanActive">
+						<label htmlFor="scanIdle">
 							<input
 								type="radio"
-								id="scanActive"
-								value="active"
-								name="active"
-								checked={ 'active' === scanState }
+								id="scanIdle"
+								value="idle"
+								name="idle"
+								checked={ 'idle' === scanState }
 								onChange={ this.onScanStatusChange }
 							/>
-							Active
+							Idle
+						</label>
+					</li>
+					<li>
+						<label htmlFor="scanScanning">
+							<input
+								type="radio"
+								id="scanScanning"
+								value="scanning"
+								name="scanning"
+								checked={ 'scanning' === scanState }
+								onChange={ this.onScanStatusChange }
+							/>
+							Scanning
 						</label>
 					</li>
 				</ul>
