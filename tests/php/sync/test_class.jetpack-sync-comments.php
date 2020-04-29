@@ -450,4 +450,97 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 		$comment_types[] = 'product_feedback';
 		return $comment_types;
 	}
+
+	/*
+	 * Verify Whitelist is applied to all actions.
+	 */
+
+	/**
+	 * Helper function to generate unknown comment data.
+	 *
+	 * @param string $comment_type comment_type of generated comment.
+	 *
+	 * @return false|int Comment ID or false if failure.
+	 */
+	private function generate_unknown_comment( $comment_type = 'action_log' ) {
+		$comment_data = array(
+			'comment_post_ID'  => $this->post_id,
+			'comment_date'     => gmdate( 'Y-m-d H:i:s', time() ),
+			'comment_date_gmt' => gmdate( 'Y-m-d H:i:s', time() ),
+			'comment_author'   => 'ActionScheduler',
+			'comment_content'  => 'fun!',
+			'comment_agent'    => 'ActionScheduler',
+			'comment_type'     => $comment_type,
+		);
+
+		$comment_id = wp_insert_comment( $comment_data );
+
+		return $comment_id;
+	}
+
+	/**
+	 * Test that `*_comment_meta` actions are sent for known comment types and meta.
+	 */
+	public function test_sync_comment_meta_known() {
+
+		add_comment_meta( $this->comment->comment_ID, 'hc_avatar', 'red' );
+		update_comment_meta( $this->comment->comment_ID, 'hc_avatar', 'blue' );
+		delete_comment_meta( $this->comment->comment_ID, 'hc_avatar' );
+		$this->sender->do_sync();
+
+		$added_comment_meta_event = $this->server_event_storage->get_most_recent_event( 'added_comment_meta' );
+		$this->assertEquals( 'added_comment_meta', $added_comment_meta_event->action );
+
+		$updated_comment_meta_event = $this->server_event_storage->get_most_recent_event( 'updated_comment_meta' );
+		$this->assertEquals( 'updated_comment_meta', $updated_comment_meta_event->action );
+
+		$deleted_comment_meta_event = $this->server_event_storage->get_most_recent_event( 'deleted_comment_meta' );
+		$this->assertEquals( 'deleted_comment_meta', $deleted_comment_meta_event->action );
+
+	}
+
+	/**
+	 * Test that `*_comment_meta` actions are not sent for known comment types and unknown meta.
+	 */
+	public function test_sync_comment_meta_unknown_meta() {
+
+		add_comment_meta( $this->comment->comment_ID, 'gobble', 'red' );
+		update_comment_meta( $this->comment->comment_ID, 'gobble', 'blue' );
+		delete_comment_meta( $this->comment->comment_ID, 'gobble' );
+		$this->sender->do_sync();
+
+		$added_comment_meta_event = $this->server_event_storage->get_most_recent_event( 'added_comment_meta' );
+		$this->assertFalse( $added_comment_meta_event );
+
+		$updated_comment_meta_event = $this->server_event_storage->get_most_recent_event( 'updated_comment_meta' );
+		$this->assertFalse( $updated_comment_meta_event );
+
+		$deleted_comment_meta_event = $this->server_event_storage->get_most_recent_event( 'deleted_comment_meta' );
+		$this->assertFalse( $deleted_comment_meta_event );
+
+	}
+
+	/**
+	 * Test that `*_comment_meta` actions are not sent for unknown comment types.
+	 */
+	public function test_sync_comment_meta_unknown_type() {
+		$this->server_event_storage->reset();
+
+		$comment_id = $this->generate_unknown_comment();
+		add_comment_meta( $comment_id, 'hc_avatar', 'red' );
+		update_comment_meta( $comment_id, 'hc_avatar', 'blue' );
+		delete_comment_meta( $comment_id, 'hc_avatar' );
+		$this->sender->do_sync();
+
+		$added_comment_meta_event = $this->server_event_storage->get_most_recent_event( 'added_comment_meta' );
+		$this->assertFalse( $added_comment_meta_event );
+
+		$updated_comment_meta_event = $this->server_event_storage->get_most_recent_event( 'updated_comment_meta' );
+		$this->assertFalse( $updated_comment_meta_event );
+
+		$deleted_comment_meta_event = $this->server_event_storage->get_most_recent_event( 'deleted_comment_meta' );
+		$this->assertFalse( $deleted_comment_meta_event );
+
+	}
+
 }
