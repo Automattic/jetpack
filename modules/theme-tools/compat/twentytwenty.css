@@ -176,6 +176,15 @@
 	}
 }
 
+/*
+ * This overwrites inline styles added to the wpcom widget,
+ * hence the use of !important
+ */
+.widget_blog_subscription form p:not(#subscribe-email) input[type="text"] {
+	padding: 1.5rem 1.8rem !important;
+	width: 100% !important;
+}
+
 /* Related Posts */
 
 .entry-content #jp-relatedposts {

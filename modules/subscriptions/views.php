@@ -300,12 +300,18 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 
 		if ( self::is_wpcom() && ! self::wpcom_has_status_message() ) {
 			global $current_blog;
-			$url = defined( 'SUBSCRIBE_BLOG_URL' ) ? SUBSCRIBE_BLOG_URL : '';
+
+			$url     = defined( 'SUBSCRIBE_BLOG_URL' ) ? SUBSCRIBE_BLOG_URL : '';
+			$form_id = 'subscribe-blog' . self::$instance_count > 1
+				? '-' . self::$instance_count
+				: '';
 			?>
-            <form action="<?php echo $url; ?>" method="post" accept-charset="utf-8"
-                  id="subscribe-blog<?php if ( Jetpack_Subscriptions_Widget::$instance_count > 1 ) {
-				      echo '-' . Jetpack_Subscriptions_Widget::$instance_count;
-			      } ?>">
+			<form
+				action="<?php echo esc_url( $url ); ?>"
+				method="post"
+				accept-charset="utf-8"
+				id="<?php echo esc_attr( $form_id ); ?>"
+			>
 				<?php if ( is_user_logged_in() ) : ?>
 					<?php
 					if ( ! $show_only_email_and_button ) {
@@ -325,12 +331,20 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 						/* translators: %s: number of folks following the blog */
 						echo wpautop( sprintf( _n( 'Join %s other follower', 'Join %s other followers', $subscribers_total ), number_format_i18n( $subscribers_total ) ) );
 					}
+					$email_field_id = 'subscribe-field' . self::$instance_count > 1
+						? '-' . self::$instance_count
+						: '';
 					?>
-                    <p><input type="text" name="email" style="width: 95%; padding: 1px 10px"
-                              placeholder="<?php esc_attr_e( 'Enter your email address' ); ?>" value=""
-                              id="subscribe-field<?php if ( Jetpack_Subscriptions_Widget::$instance_count > 1 ) {
-						          echo '-' . Jetpack_Subscriptions_Widget::$instance_count;
-					          } ?>"/></p>
+					<p>
+						<input
+							type="text"
+							name="email"
+							style="width: 95%; padding: 1px 10px"
+							placeholder="<?php esc_attr_e( 'Enter your email address', 'jetpack' ); ?>"
+							value=""
+							id="<?php echo esc_attr( $email_field_id ); ?>"
+						/>
+					</p>
 				<?php endif; ?>
 
                 <p>
