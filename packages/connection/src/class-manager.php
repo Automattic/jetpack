@@ -1315,8 +1315,6 @@ class Manager {
 
 	/**
 	 * Deletes all connection tokens and transients from the local Jetpack site.
-	 *
-	 * @return bool True if disconnected successfully, false otherwise.
 	 */
 	public function delete_all_connection_tokens() {
 		\Jetpack_Options::delete_option(
@@ -1335,20 +1333,14 @@ class Manager {
 		// Delete cached connected user data.
 		$transient_key = 'jetpack_connected_user_data_' . get_current_user_id();
 		delete_transient( $transient_key );
-
-		return true;
 	}
 
 	/**
 	 * Tells WordPress.com to disconnect the site and clear all tokens from cached site.
-	 *
-	 * @return bool True if disconnected successfully, false otherwise.
 	 */
 	public function disconnect_site_wpcom() {
 		$xml = new \Jetpack_IXR_Client();
 		$xml->query( 'jetpack.deregister', get_current_user_id() );
-
-		return true;
 	}
 
 	/**

@@ -1041,7 +1041,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Get plugins connected to the Jetpack.
 	 *
-	 * @return array|WP_Error WP_Error returned if connection test does not succeed.
+	 * @return WP_REST_Response|WP_Error Response or error object, depending on the request result.
 	 */
 	public static function get_connection_plugins() {
 		$plugins = ( new Connection_Manager() )->get_connected_plugins();

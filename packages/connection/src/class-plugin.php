@@ -50,7 +50,7 @@ class Plugin {
 	 * @see $this->arguments_whitelist
 	 */
 	public function add( $name, array $args = array() ) {
-		$args += compact( 'name' ) + array_intersect_key( $args, array_flip( $this->arguments_whitelist ) );
+		$args = compact( 'name' ) + array_intersect_key( $args, array_flip( $this->arguments_whitelist ) );
 
 		Plugin_Storage::upsert( $this->slug, $args );
 

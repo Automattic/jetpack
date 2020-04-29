@@ -72,7 +72,7 @@ class Test_Plugin extends TestCase {
 	public function test_add() {
 		$plugin = new Plugin( self::PLUGIN_SLUG );
 
-		$plugin->add( self::PLUGIN_NAME, $this->plugin_args );
+		$plugin->add( self::PLUGIN_NAME, $this->plugin_args + array( 'invalid_key' => 'value' ) );
 
 		$this->assertEquals( array( 'name' => self::PLUGIN_NAME ) + $this->plugin_args, Plugin_Storage::get_one( self::PLUGIN_SLUG ) );
 	}

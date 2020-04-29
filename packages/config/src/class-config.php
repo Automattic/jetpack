@@ -39,7 +39,7 @@ class Config {
 	 *
 	 * @var array
 	 */
-	protected $options = array();
+	protected $feature_options = array();
 
 	/**
 	 * Creates the configuration class instance.
@@ -253,7 +253,7 @@ class Config {
 	 */
 	protected function set_feature_options( $feature, array $options ) {
 		if ( $options ) {
-			$this->options[ $feature ] = $options;
+			$this->feature_options[ $feature ] = $options;
 		}
 
 		return true;
@@ -267,7 +267,7 @@ class Config {
 	 * @return array
 	 */
 	protected function get_feature_options( $feature ) {
-		return empty( $this->options[ $feature ] ) ? array() : $this->options[ $feature ];
+		return empty( $this->feature_options[ $feature ] ) ? array() : $this->feature_options[ $feature ];
 	}
 
 }
