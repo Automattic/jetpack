@@ -5,23 +5,32 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { numberFormat, translate as __ } from 'i18n-calypso';
+import { get, isArray } from 'lodash';
 
 /**
  * Internal dependencies
  */
+// Components.
 import Card from 'components/card';
 import QueryVaultPressData from 'components/data/query-vaultpress-data';
 import QueryScanStatus from 'components/data/query-scan-status';
+import DashItem from 'components/dash-item';
+import JetpackBanner from 'components/jetpack-banner';
+
+// State.
+import { getUpgradeUrl, showBackups } from 'state/initial-state';
 import { getSitePlan, isFetchingSiteData } from 'state/site';
 import { getScanStatus, isFetchingScanStatus } from 'state/scan';
 import { isPluginInstalled } from 'state/site/plugins';
-import { getVaultPressScanThreatCount, getVaultPressData } from 'state/at-a-glance';
 import { isDevMode } from 'state/connection';
-import DashItem from 'components/dash-item';
-import { get, isArray } from 'lodash';
-import { getUpgradeUrl, showBackups } from 'state/initial-state';
-import JetpackBanner from 'components/jetpack-banner';
-import { getPlanClass, PLAN_JETPACK_PREMIUM } from 'lib/plans/constants';
+import {
+	getVaultPressScanThreatCount,
+	getVaultPressData,
+	isFetchingVaultPressData,
+} from 'state/at-a-glance';
+
+// Lib.
+import { PLAN_JETPACK_PREMIUM, getPlanClass } from 'lib/plans/constants';
 import getRedirectUrl from 'lib/jp-redirect';
 
 /**
@@ -58,23 +67,19 @@ class DashScan extends Component {
 		siteRawUrl: PropTypes.string.isRequired,
 
 		// Connected props
-		vaultPressData: PropTypes.any.isRequired,
-		scanThreats: PropTypes.any.isRequired,
-		sitePlan: PropTypes.object.isRequired,
 		isDevMode: PropTypes.bool.isRequired,
-		isVaultPressInstalled: PropTypes.bool.isRequired,
-		fetchingSiteData: PropTypes.bool.isRequired,
+		showBackups: PropTypes.bool.isRequired,
+		scanType: PropTypes.string.isRequired,
 		upgradeUrl: PropTypes.string.isRequired,
+		scanStatus: PropTypes.string,
+		threatCount: PropTypes.number,
+		scanPluginInstalled: PropTypes.bool,
 	};
 
 	static defaultProps = {
-		siteRawUrl: '',
-		vaultPressData: '',
-		scanThreats: 0,
-		sitePlan: '',
-		isDevMode: false,
-		isVaultPressInstalled: false,
-		fetchingSiteData: false,
+		scanStatus: 'unknown',
+		threatCount: 0,
+		scanPluginInstalled: false,
 	};
 
 	getVPContent() {
@@ -93,7 +98,7 @@ class DashScan extends Component {
 
 			if ( scanEnabled ) {
 				// Check for threats
-				const threats = this.props.scanThreats;
+				const threats = this.props.threatCount;
 				if ( threats !== 0 ) {
 					return renderCard( {
 						content: [
@@ -260,14 +265,22 @@ class DashScan extends Component {
 
 		// Show loading while we're getting props.
 		// Once we get them, test the Scan system and then VaultPress in order.
-		const { scanStatus, vaultPressData, fetchingScanStatus } = this.props;
-		let content = renderCard( { content: __( 'Loading…' ) } );
-		if ( ! fetchingScanStatus && scanStatus.state && 'unavailable' !== scanStatus.state ) {
-			content = <div className="jp-dash-item">{ this.getRewindContent() }</div>;
-		} else if ( get( vaultPressData, [ 'data', 'features', 'security' ], false ) ) {
-			content = this.getVPContent();
-		} else if ( 'N/A' === vaultPressData && ! fetchingScanStatus ) {
-			content = this.getUpgradeContent();
+		const { scanType } = this.props;
+		let content;
+		switch ( scanType ) {
+			case 'none':
+				content = this.getUpgradeContent();
+				break;
+			case 'scan':
+				content = renderCard( { content: __( 'Jetpack Scan' ) } );
+				break;
+			case 'vaultpress':
+				content = renderCard( { content: __( 'VaultPress' ) } );
+				break;
+			case 'unknown':
+			default:
+				content = renderCard( { content: __( 'Loading…' ) } );
+				break;
 		}
 
 		return (
@@ -281,19 +294,64 @@ class DashScan extends Component {
 }
 
 export default connect( state => {
-	const sitePlan = getSitePlan( state );
+	// First, check dev mode and whether to display at all.
+	const devMode = isDevMode( state );
+	const shouldShowBackups = showBackups( state );
+	let newProps = {
+		scanType: 'unknown',
+		isDevMode: devMode,
+		showBackups: shouldShowBackups,
+		upgradeUrl: getUpgradeUrl( state, 'aag-scan' ),
+	};
+	if ( devMode || ! shouldShowBackups ) {
+		// Exit early if we don't need more.
+		return newProps;
+	}
+
+	// Next, get the status. If it's loading, we just need that.
+	const fetchingScanStatus = isFetchingScanStatus( state );
+	const fetchingVaultPressStatus = isFetchingVaultPressData( state );
+	const fetchingSitePlan = isFetchingSiteData( state );
+	if ( fetchingScanStatus || fetchingVaultPressStatus || fetchingSitePlan ) {
+		return {
+			...newProps,
+		};
+	}
+	newProps = {
+		...newProps,
+	};
+
+	// Determine what type of scanning we have: Jetpack Scan or VaultPress.
+	const jpScanStatus = getScanStatus( state );
+	const vpScanStatus = getVaultPressData( state );
+	const { product_slug: plan } = getSitePlan( state );
+	const planHasVP = [ 'is-premium-plan', 'is-business-plan' ].includes( getPlanClass( plan ) );
+
+	// If it's Scan, return that info.
+	if ( jpScanStatus.state && jpScanStatus.state !== 'unavailable' ) {
+		return {
+			...newProps,
+			scanType: 'scan',
+			scanStatus: jpScanStatus.state,
+			threatCount: jpScanStatus.threats ? jpScanStatus.threats.length : 0,
+		};
+	}
+
+	// If it's VaultPress, pull in other relevant info and return that.
+	if ( 'N/A' !== vpScanStatus || planHasVP ) {
+		return {
+			...newProps,
+			scanType: 'vaultpress',
+			scanStatus: vpScanStatus,
+			threatCount: getVaultPressScanThreatCount( state ),
+			pluginInstalled: isPluginInstalled( state, 'vaultpress/vaultpress.php' ),
+		};
+	}
+
+	// If it's none of the above, display the prompt.
 
 	return {
-		scanStatus: getScanStatus( state ),
-		fetchingScanStatus: isFetchingScanStatus( state ),
-		vaultPressData: getVaultPressData( state ),
-		scanThreats: getVaultPressScanThreatCount( state ),
-		sitePlan,
-		planClass: getPlanClass( get( sitePlan, 'product_slug', '' ) ),
-		isDevMode: isDevMode( state ),
-		isVaultPressInstalled: isPluginInstalled( state, 'vaultpress/vaultpress.php' ),
-		fetchingSiteData: isFetchingSiteData( state ),
-		showBackups: showBackups( state ),
-		upgradeUrl: getUpgradeUrl( state, 'aag-scan' ),
+		...newProps,
+		scanType: 'none',
 	};
 } )( DashScan );
