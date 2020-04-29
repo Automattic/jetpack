@@ -85,13 +85,7 @@ class AtAGlance extends Component {
 		// Status can be unavailable, active, provisioning, awaiting_credentials
 		const rewindStatus = get( this.props.rewindStatus, [ 'state' ], '' );
 		const securityCards = [];
-		securityCards.push(
-			<DashScan
-				{ ...settingsProps }
-				siteRawUrl={ this.props.siteRawUrl }
-				rewindStatus={ rewindStatus }
-			/>
-		);
+		securityCards.push( <DashScan { ...settingsProps } siteRawUrl={ this.props.siteRawUrl } /> );
 		if ( ! this.props.multisite ) {
 			securityCards.push(
 				<DashBackups
