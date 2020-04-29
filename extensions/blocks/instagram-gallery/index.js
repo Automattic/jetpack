@@ -8,6 +8,7 @@ import { __, _x } from '@wordpress/i18n';
  */
 import attributes from './attributes';
 import edit from './edit';
+import './store';
 import { supportsCollections } from '../../shared/block-category';
 
 export const name = 'instagram-gallery';
