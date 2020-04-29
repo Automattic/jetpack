@@ -5,7 +5,6 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { numberFormat, translate as __ } from 'i18n-calypso';
-import { get, isArray } from 'lodash';
 
 /**
  * Internal dependencies
@@ -54,7 +53,7 @@ const renderCard = props => (
 		pro={ true }
 		overrideContent={ props.overrideContent }
 	>
-		{ isArray( props.content ) ? (
+		{ Array.isArray( props.content ) ? (
 			props.content
 		) : (
 			<p className="jp-dash-item__description">{ props.content }</p>
@@ -71,106 +70,74 @@ class DashScan extends Component {
 		showBackups: PropTypes.bool.isRequired,
 		scanType: PropTypes.string.isRequired,
 		upgradeUrl: PropTypes.string.isRequired,
-		scanStatus: PropTypes.string,
+		scanStatus: PropTypes.object,
 		threatCount: PropTypes.number,
-		scanPluginInstalled: PropTypes.bool,
 	};
 
 	static defaultProps = {
-		scanStatus: 'unknown',
 		threatCount: 0,
-		scanPluginInstalled: false,
 	};
 
 	getVPContent() {
-		const { sitePlan, planClass, fetchingSiteData } = this.props;
-		const hasSitePlan = false !== sitePlan;
-		const vpData = this.props.vaultPressData;
-		const scanEnabled = get( vpData, [ 'data', 'features', 'security' ], false );
+		const {
+			scanStatus: { code },
+			threatCount,
+		} = this.props;
 
-		if ( this.props.getOptionValue( 'vaultpress' ) ) {
-			if ( 'N/A' === vpData ) {
-				return renderCard( {
-					status: '',
-					content: __( 'Loading…' ),
-				} );
-			}
-
-			if ( scanEnabled ) {
-				// Check for threats
-				const threats = this.props.threatCount;
-				if ( threats !== 0 ) {
-					return renderCard( {
-						content: [
-							<h3 className="jp-dash-item__title jp-dash-item__title_fullwidth jp-dash-item__title_top">
-								{ __( 'Uh oh, %(number)s threat found.', 'Uh oh, %(number)s threats found.', {
-									count: threats,
-									args: { number: numberFormat( threats ) },
-								} ) }
-							</h3>,
-							<p className="jp-dash-item__description">
-								{ __( '{{a}}View details at VaultPress.com{{/a}}', {
-									components: { a: <a href={ getRedirectUrl( 'vaultpress-dashboard' ) } /> },
-								} ) }
-								<br />
-								{ __( '{{a}}Contact Support{{/a}}', {
-									components: { a: <a href={ getRedirectUrl( 'jetpack-support' ) } /> },
-								} ) }
-							</p>,
-						],
-					} );
-				}
-
-				// All good
-				if ( vpData.code === 'success' ) {
-					return renderCard( {
-						status: 'is-working',
-						content: __( "No threats found, you're good to go!" ),
-					} );
-				}
-			}
-		}
-
-		if ( fetchingSiteData ) {
+		if ( 'success' !== code ) {
 			return renderCard( {
-				status: '',
-				content: __( 'Loading…' ),
+				className: 'jp-dash-item__is-inactive',
+				status: 'vp_not_activated' === code ? 'pro-inactive' : 'pro-uninstalled',
+				content: [
+					<p className="jp-dash-item__description" key="inactive-scanning">
+						{ __(
+							'For automated, comprehensive scanning of security threats, please {{a}}install and activate{{/a}} VaultPress.',
+							{
+								components: {
+									a: (
+										<a
+											href={ getRedirectUrl( 'calypso-plugins-vaultpress' ) }
+											target="_blank"
+											rel="noopener noreferrer"
+										/>
+									),
+								},
+							}
+						) }
+					</p>,
+				],
 			} );
 		}
 
-		const inactiveOrUninstalled = this.props.isVaultPressInstalled
-			? 'pro-inactive'
-			: 'pro-uninstalled';
-		const hasPremium = 'is-premium-plan' === planClass;
-		const hasBusiness = 'is-business-plan' === planClass;
-
-		const scanContent =
-			hasPremium || hasBusiness || scanEnabled ? (
-				<p className="jp-dash-item__description" key="inactive-scanning">
-					{ __(
-						'For automated, comprehensive scanning of security threats, please {{a}}install and activate{{/a}} VaultPress.',
-						{
-							components: {
-								a: (
-									<a
-										href={ getRedirectUrl( 'calypso-plugins-vaultpress' ) }
-										target="_blank"
-										rel="noopener noreferrer"
-									/>
-								),
-							},
-						}
-					) }
-				</p>
-			) : null;
-
-		const overrideContent = null === scanContent ? this.getUpgradeBanner() : null;
+		// Check threat count.
+		if ( threatCount ) {
+			return renderCard( {
+				content: [
+					<h3
+						className="jp-dash-item__title jp-dash-item__title_fullwidth jp-dash-item__title_top"
+						key="1"
+					>
+						{ __( 'Uh oh, %(number)s threat found.', 'Uh oh, %(number)s threats found.', {
+							count: threatCount,
+							args: { number: numberFormat( threatCount ) },
+						} ) }
+					</h3>,
+					<p className="jp-dash-item__description" key="2">
+						{ __( '{{a}}View details at VaultPress.com{{/a}}', {
+							components: { a: <a href={ getRedirectUrl( 'vaultpress-dashboard' ) } /> },
+						} ) }
+						<br />
+						{ __( '{{a}}Contact Support{{/a}}', {
+							components: { a: <a href={ getRedirectUrl( 'jetpack-support' ) } /> },
+						} ) }
+					</p>,
+				],
+			} );
+		}
 
 		return renderCard( {
-			className: 'jp-dash-item__is-inactive',
-			status: hasSitePlan ? inactiveOrUninstalled : 'no-pro-uninstalled-or-inactive',
-			content: [ scanContent ],
-			overrideContent,
+			status: 'is-working',
+			content: __( "No threats found, you're good to go!" ),
 		} );
 	}
 
@@ -272,10 +239,10 @@ class DashScan extends Component {
 				content = this.getUpgradeContent();
 				break;
 			case 'scan':
-				content = renderCard( { content: __( 'Jetpack Scan' ) } );
+				content = this.getRewindContent();
 				break;
 			case 'vaultpress':
-				content = renderCard( { content: __( 'VaultPress' ) } );
+				content = this.getVPContent();
 				break;
 			case 'unknown':
 			default:
@@ -332,19 +299,27 @@ export default connect( state => {
 		return {
 			...newProps,
 			scanType: 'scan',
-			scanStatus: jpScanStatus.state,
+			scanStatus: jpScanStatus,
 			threatCount: jpScanStatus.threats ? jpScanStatus.threats.length : 0,
 		};
 	}
 
 	// If it's VaultPress, pull in other relevant info and return that.
 	if ( 'N/A' !== vpScanStatus || planHasVP ) {
+		// If there is not VP data, it's a string. This makes it an object.
+		let vpScanOverride = vpScanStatus;
+		if ( 'N/A' === vpScanStatus ) {
+			if ( isPluginInstalled( state, 'vaultpress/vaultpress.php' ) ) {
+				vpScanOverride = { code: 'vp_not_activated' };
+			} else {
+				vpScanOverride = { code: 'vp_not_installed' };
+			}
+		}
 		return {
 			...newProps,
 			scanType: 'vaultpress',
-			scanStatus: vpScanStatus,
+			scanStatus: vpScanOverride,
 			threatCount: getVaultPressScanThreatCount( state ),
-			pluginInstalled: isPluginInstalled( state, 'vaultpress/vaultpress.php' ),
 		};
 	}
 
