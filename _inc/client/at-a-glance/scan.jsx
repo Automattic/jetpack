@@ -13,7 +13,7 @@ import Card from 'components/card';
 import QueryVaultPressData from 'components/data/query-vaultpress-data';
 import QueryScanStatus from 'components/data/query-scan-status';
 import { getSitePlan, isFetchingSiteData } from 'state/site';
-import { getScanStatus } from 'state/scan';
+import { getScanStatus, isFetchingScanStatus } from 'state/scan';
 import { isPluginInstalled } from 'state/site/plugins';
 import { getVaultPressScanThreatCount, getVaultPressData } from 'state/at-a-glance';
 import { isDevMode } from 'state/connection';
@@ -199,7 +199,7 @@ class DashScan extends Component {
 				content: message,
 			} );
 
-		if ( scanStatus.credentials.length === 0 ) {
+		if ( scanStatus.credentials && scanStatus.credentials.length === 0 ) {
 			return (
 				<React.Fragment>
 					{ buildCard( __( "You need to enter your server's credentials to finish the setup." ) ) }
@@ -260,17 +260,13 @@ class DashScan extends Component {
 
 		// Show loading while we're getting props.
 		// Once we get them, test the Scan system and then VaultPress in order.
-		const { scanStatus, vaultPressData } = this.props;
+		const { scanStatus, vaultPressData, fetchingScanStatus } = this.props;
 		let content = renderCard( { content: __( 'Loading…' ) } );
-		if ( scanStatus.state && 'unavailable' !== scanStatus.state ) {
+		if ( ! fetchingScanStatus && scanStatus.state && 'unavailable' !== scanStatus.state ) {
 			content = <div className="jp-dash-item">{ this.getRewindContent() }</div>;
 		} else if ( get( vaultPressData, [ 'data', 'features', 'security' ], false ) ) {
 			content = this.getVPContent();
-		} else if (
-			'N/A' === vaultPressData &&
-			scanStatus.state &&
-			'unavailable' === scanStatus.state
-		) {
+		} else if ( 'N/A' === vaultPressData && ! fetchingScanStatus ) {
 			content = this.getUpgradeContent();
 		}
 
@@ -289,6 +285,7 @@ export default connect( state => {
 
 	return {
 		scanStatus: getScanStatus( state ),
+		fetchingScanStatus: isFetchingScanStatus( state ),
 		vaultPressData: getVaultPressData( state ),
 		scanThreats: getVaultPressScanThreatCount( state ),
 		sitePlan,
