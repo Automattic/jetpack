@@ -87,8 +87,8 @@ class Jetpack_Twitter_Cards {
 			$post_image = Jetpack_PostImages::get_image(
 				$post->ID,
 				array(
-					'width'  => 240,
-					'height' => 240,
+					'width'  => 144,
+					'height' => 144,
 				)
 			);
 			if ( ! empty( $post_image ) && is_array( $post_image ) ) {
@@ -99,7 +99,7 @@ class Jetpack_Twitter_Cards {
 						$card_type                = 'summary_large_image';
 						$og_tags['twitter:image'] = esc_url( add_query_arg( 'w', 640, $post_image['src'] ) );
 					} else {
-						$og_tags['twitter:image'] = esc_url( add_query_arg( 'w', 240, $post_image['src'] ) );
+						$og_tags['twitter:image'] = esc_url( add_query_arg( 'w', 144, $post_image['src'] ) );
 					}
 
 					// Add the alt tag if we have one.
