@@ -46,7 +46,6 @@ export default {
 			textColor: attributes.textButtonColor,
 			customBackgroundColor: attributes.customBackgroundButtonColor,
 			customTextColor: attributes.customTextButtonColor,
-			className: attributes.submitButtonClasses,
 		};
 
 		const newInnerBlocks = innerBlocks.concat(
