@@ -65,21 +65,11 @@ function saveButton( attributes ) {
 }
 
 export default function save( { attributes } ) {
-	const { eventId, style, url } = attributes;
+	const { eventId, style } = attributes;
 
-	if ( ! eventId ) {
+	if ( ! eventId || style !== 'modal' ) {
 		return;
 	}
 
-	if ( style === 'modal' ) {
-		return saveButton( attributes );
-	}
-
-	return (
-		url && (
-			<a className="eventbrite__direct-link" href={ url }>
-				{ url }
-			</a>
-		)
-	);
+	return saveButton( attributes );
 }

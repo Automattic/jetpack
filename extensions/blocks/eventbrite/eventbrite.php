@@ -66,12 +66,14 @@ function render_block( $attr, $content ) {
 
 		// $content contains a fallback link to the event that's saved in the post_content.
 		// Append a div that will hold the iframe embed created by the Eventbrite widget.js.
-		$classes = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attr );
+		$classes     = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attr );
+		$direct_link = '<a class="eventbrite__direct-link" href="' . esc_url( $attr['url'] ) . '">' . esc_url( $attr['url'] ) . '</a>';
 
 		$content .= sprintf(
-			'<div id="%1$s" class="%2$s"></div>',
+			'<div id="%1$s" class="%2$s">%3$s</div>',
 			esc_attr( $widget_id ),
-			esc_attr( $classes )
+			esc_attr( $classes ),
+			$direct_link
 		);
 
 		return sprintf(
