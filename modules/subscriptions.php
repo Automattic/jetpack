@@ -13,7 +13,6 @@
  */
 
 add_action( 'jetpack_modules_loaded', 'jetpack_subscriptions_load' );
-
 function jetpack_subscriptions_load() {
 	Jetpack::enable_module_configurable( __FILE__ );
 }
@@ -889,4 +888,6 @@ class Jetpack_Subscriptions {
 
 Jetpack_Subscriptions::init();
 
-include dirname( __FILE__ ) . '/subscriptions/views.php';
+require dirname( __FILE__ ) . '/subscriptions/class-helpers.php';
+require dirname( __FILE__ ) . '/subscriptions/class-shortcode.php';
+require dirname( __FILE__ ) . '/subscriptions/class-widget.php';

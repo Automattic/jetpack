@@ -1,12 +1,19 @@
 ## Assets for Subscriptions
 
+Those files are shared with wordpress.com.
+
 ### subscriptions.css
 
 CSS required to render the subscription widget
 
-### views.php
+### class-helpers.php
 
-This file handles the registration of various subscriptions
-views, i.e. a widget and a block for the post editor.
+This file introduces utilities to be used across Subscriptions shortcodes and widgets.
 
-This file is shared with wordpress.com
+### class-shortcode.php
+
+This handles handles registering the 2 shortcodes available in Jetpack and on WordPresss.com.
+
+### class-widget.php
+
+This file handles the registration of the Subscrpitions widget.
