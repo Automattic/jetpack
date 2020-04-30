@@ -31,7 +31,8 @@
 		grid-template-columns: 50% 50%;
 		grid-gap: 1rem;
 
-		margin: 0 10%;
+		max-width: 650px;
+		margin: 0 auto;
 	}
 
 	@include breakpoint( '<660px' ) {
