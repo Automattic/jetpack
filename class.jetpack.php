@@ -3311,6 +3311,11 @@ p {
 	 */
 	public static function do_version_bump( $version, $old_version ) {
 		if ( $old_version ) { // For existing Jetpack installations.
+
+			// If a front end page is visited after the update, the 'wp' action will fire.
+			add_action( 'wp', 'Jetpack::set_update_modal_display' );
+
+			// If an admin page is visited after the update, the 'current_screen' action will fire.
 			add_action( 'current_screen', 'Jetpack::set_update_modal_display' );
 		}
 	}
