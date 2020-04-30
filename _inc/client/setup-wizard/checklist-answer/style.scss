@@ -2,6 +2,10 @@
 @import '../../scss/mixin_breakpoint';
 
 .jp-checklist-answer-container {
+	p {
+		margin: 0;
+	}
+
 	@include breakpoint( '>660px' ) {
 		display: grid;
 		grid-template-rows: auto 75%;

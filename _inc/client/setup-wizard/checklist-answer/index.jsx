@@ -77,13 +77,15 @@ class ChecklistAnswer extends Component {
 						checked={ checked }
 					/>
 				</div>
-				<div className="jp-checklist-answer-title">{ this.props.title }</div>
+				<div className="jp-checklist-answer-title">
+					<p>{ this.props.title }</p>
+				</div>
 				<div
 					className={ classNames( 'jp-checklist-answer-details', {
 						expanded,
 					} ) }
 				>
-					{ this.props.details }
+					<p>{ this.props.details }</p>
 				</div>
 				<div
 					className={ classNames( 'jp-checklist-answer-chevron-container', {
