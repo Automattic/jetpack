@@ -156,6 +156,8 @@ class WPCOM_REST_API_V2_Endpoint_Instagram_Gallery extends WP_REST_Controller {
 			return $site_id;
 		}
 
+		Jetpack_Instagram_Gallery_Helper::delete_instagram_gallery_cache( $request['access_token'] );
+
 		$path     = sprintf( '/sites/%d/instagram/%s', $site_id, $request['access_token'] );
 		$response = Client::wpcom_json_api_request_as_blog(
 			$path,
