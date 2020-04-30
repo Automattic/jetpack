@@ -2255,7 +2255,7 @@ class Manager {
 	/**
 	 * Get all connected plugins information.
 	 *
-	 * @return array
+	 * @return array|\WP_Error
 	 */
 	public function get_connected_plugins() {
 		return Plugin_Storage::get_all();

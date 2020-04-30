@@ -1045,6 +1045,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 */
 	public static function get_connection_plugins() {
 		$plugins = ( new Connection_Manager() )->get_connected_plugins();
+
+		if ( is_wp_error( $plugins ) ) {
+			return $plugins;
+		}
+
 		array_walk(
 			$plugins,
 			function( &$data, $slug ) {

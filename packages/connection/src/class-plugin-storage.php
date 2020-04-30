@@ -7,6 +7,9 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use Automattic\Jetpack\Config;
+use WP_Error;
+
 /**
  * The class serves a single purpose - to store the data that plugins use the connection, along with some auxiliary information.
  * Well, we don't really store all that. The information is provided on runtime,
@@ -15,8 +18,6 @@ namespace Automattic\Jetpack\Connection;
  * @todo Adapt for multisite installations.
  */
 class Plugin_Storage {
-
-	const OPTION_KEY = 'connection_plugins';
 
 	/**
 	 * Connected plugins.
@@ -60,10 +61,17 @@ class Plugin_Storage {
 
 	/**
 	 * Retrieve info for all plugins that use the connection.
+	 * WARNING: the method cannot be called until Jetpack Config has been run (`plugins_loaded`, priority 2).
+	 * Even if you don't use Jetpack Config, it may be introduced later by other plugins,
+	 * so please make sure not to run the method too early in the code.
 	 *
-	 * @return array
+	 * @return array|WP_Error
 	 */
 	public static function get_all() {
+		if ( class_exists( Config::class ) && method_exists( Config::class, 'is_configured' ) && ! Config::is_configured() ) {
+			return new WP_Error( 'too_early', __( 'You cannot call this method until Jetpack Config is configured', 'jetpack' ) );
+		}
+
 		if ( ! self::$plugins_configuration_finished ) {
 			/**
 			 * Fires upon retrieval of the connected plugins.
