@@ -227,12 +227,12 @@ BODY;
 	public function get_data_shortcodes_ted() {
 		return array(
 			'non_amp' => array(
-				'[ted id="1" lang="en"]',
+				'[ted id="1" lang="en" width="640" height="360"]',
 				false,
 				'<iframe title="Louie Schwartzberg: Hidden miracles of the natural world" src="https://embed.ted.com/talks/louie_schwartzberg_hidden_miracles_of_the_natural_world" width="640" height="360" frameborder="0" scrolling="no" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>',
 			),
 			'amp'     => array(
-				'[ted id="1" lang="en"]',
+				'[ted id="1" lang="en" width="640" height="360"]',
 				true,
 				'<iframe title="Louie Schwartzberg: Hidden miracles of the natural world" src="https://embed.ted.com/talks/louie_schwartzberg_hidden_miracles_of_the_natural_world" sandbox="allow-popups allow-scripts allow-same-origin" width="640" height="360" frameborder="0" scrolling="no" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>',
 			),
