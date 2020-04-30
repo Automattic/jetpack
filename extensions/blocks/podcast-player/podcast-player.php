@@ -62,8 +62,7 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  */
 function render_error( $message ) {
 	// Suppress errors for users unable to address them.
-	$post = get_post();
-	if ( empty( $post ) || ! current_user_can( 'edit_post', $post->ID ) ) {
+	if ( ! current_user_can( 'edit_posts' ) ) {
 		return '';
 	}
 	return '<p>' . esc_html( $message ) . '</p>';
