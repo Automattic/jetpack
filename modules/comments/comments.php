@@ -174,7 +174,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	 */
 	public function comment_form_before() {
 		/**
-		 * Filters the setting that determines if Jetpagk comments should be enabled for
+		 * Filters the setting that determines if Jetpack comments should be enabled for
 		 * the current post type.
 		 *
 		 * @module comments
