@@ -1,1 +1,10 @@
-export const hasInstagramGalleryToken = ( state, token ) => -1 !== state.indexOf( token );
+/**
+ * External dependencies
+ */
+import { get } from 'lodash';
+
+export const isInstagramGalleryTokenConnected = ( state, token ) =>
+	'connected' === get( state, [ 'tokens', token ] );
+
+export const isInstagramGalleryTokenDisconnected = ( state, token ) =>
+	'disconnected' === get( state, [ 'tokens', token ] );

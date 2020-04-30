@@ -1,9 +1,9 @@
-export const addInstagramGalleryToken = token => ( {
-	type: 'INSTAGRAM_GALLERY_BLOCK_ADD_TOKEN',
+export const connectInstagramGalleryToken = token => ( {
+	type: 'INSTAGRAM_GALLERY_BLOCK_TOKEN_CONNECT',
 	token,
 } );
 
-export const removeInstagramGalleryToken = token => ( {
-	type: 'INSTAGRAM_GALLERY_BLOCK_REMOVE_TOKEN',
+export const disconnectInstagramGalleryToken = token => ( {
+	type: 'INSTAGRAM_GALLERY_BLOCK_TOKEN_DISCONNECT',
 	token,
 } );

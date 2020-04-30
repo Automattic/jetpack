@@ -1,19 +1,19 @@
 /**
  * WordPress dependencies
  */
-import { registerStore } from '@wordpress/data';
+import { combineReducers, registerStore } from '@wordpress/data';
 
 /**
  * Internal dependencies
  */
 import * as actions from './actions';
-import reducer from './reducer';
+import * as reducers from './reducers';
 import * as selectors from './selectors';
 
-const store = registerStore( 'jetpack/instagram-gallery', {
+const reducer = combineReducers( reducers );
+
+export default registerStore( 'jetpack/instagram-gallery', {
 	actions,
 	reducer,
 	selectors,
 } );
-
-export default store;
