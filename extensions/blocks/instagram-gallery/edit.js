@@ -102,24 +102,26 @@ const InstagramGalleryEdit = props => {
 		noticeOperations.removeAllNotices();
 		const accountImageTotal = images.length;
 
-		if ( showSidebar && accountImageTotal < count ) {
-			noticeOperations.createNotice( {
-				status: 'info',
-				content: __(
-					sprintf(
+		if ( showSidebar && ! showLoadingSpinner && accountImageTotal < count ) {
+			const noticeContent = accountImageTotal
+				? sprintf(
 						_n(
-							'There is currently only %s post in your Instagram account',
-							'There are currently only %s posts in your Instagram account',
+							'There is currently only %s post in your Instagram account.',
+							'There are currently only %s posts in your Instagram account.',
 							accountImageTotal,
 							'jetpack'
 						),
 						accountImageTotal
-					)
-				),
+				  )
+				: __( 'There are currently no posts in your Instagram account.', 'jetpack' );
+
+			noticeOperations.createNotice( {
+				status: 'info',
+				content: noticeContent,
 				isDismissible: false,
 			} );
 		}
-	}, [ count, images, noticeOperations, showSidebar ] );
+	}, [ count, images, noticeOperations, showLoadingSpinner, showSidebar ] );
 
 	const renderImage = index => {
 		if ( images[ index ] ) {
