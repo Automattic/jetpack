@@ -24,7 +24,7 @@ export default function useConnectInstagram( {
 			return;
 		}
 		setIsConnecting( true );
-		apiFetch( { path: `/wpcom/v2/instagram/access-token` } )
+		apiFetch( { path: `/wpcom/v2/instagram-gallery/access-token` } )
 			.then( token => {
 				setIsConnecting( false );
 				if ( token ) {
