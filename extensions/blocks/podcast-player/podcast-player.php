@@ -53,6 +53,23 @@ function register_block() {
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 
 /**
+ * Returns the error message wrapped in HTML if current user
+ * has the capability to edit the post. Public visitors will
+ * never see errors.
+ *
+ * @param string $message The error message to display.
+ * @return string
+ */
+function render_error( $message ) {
+	// Suppress errors for users unable to address them.
+	$post = get_post();
+	if ( empty( $post ) || ! current_user_can( 'edit_post', $post->ID ) ) {
+		return '';
+	}
+	return '<p>' . esc_html( $message ) . '</p>';
+}
+
+/**
  * Podcast Player block registration/dependency declaration.
  *
  * @param array $attributes Array containing the Podcast Player block attributes.
@@ -62,12 +79,12 @@ function render_block( $attributes ) {
 
 	// Test for empty URLS.
 	if ( empty( $attributes['url'] ) ) {
-		return '<p>' . esc_html__( 'No Podcast URL provided. Please enter a valid Podcast RSS feed URL.', 'jetpack' ) . '</p>';
+		return render_error( __( 'No Podcast URL provided. Please enter a valid Podcast RSS feed URL.', 'jetpack' ) );
 	}
 
 	// Test for invalid URLs.
 	if ( ! wp_http_validate_url( $attributes['url'] ) ) {
-		return '<p>' . esc_html__( 'Your podcast URL is invalid and couldn\'t be embedded. Please double check your URL.', 'jetpack' ) . '</p>';
+		return render_error( __( 'Your podcast URL is invalid and couldn\'t be embedded. Please double check your URL.', 'jetpack' ) );
 	}
 
 	// Sanitize the URL.
@@ -76,7 +93,7 @@ function render_block( $attributes ) {
 	$player_data = Jetpack_Podcast_Helper::get_player_data( $attributes['url'] );
 
 	if ( is_wp_error( $player_data ) ) {
-		return '<p>' . esc_html( $player_data->get_error_message() ) . '</p>';
+		return render_error( $player_data->get_error_message() );
 	}
 
 	return render_player( $player_data, $attributes );
@@ -92,7 +109,7 @@ function render_block( $attributes ) {
 function render_player( $player_data, $attributes ) {
 	// If there are no tracks (it is possible) then display appropriate user facing error message.
 	if ( empty( $player_data['tracks'] ) ) {
-		return '<p>' . esc_html__( 'No tracks available to play.', 'jetpack' ) . '</p>';
+		return render_error( __( 'No tracks available to play.', 'jetpack' ) );
 	}
 
 	// Only use the amount of tracks requested.
