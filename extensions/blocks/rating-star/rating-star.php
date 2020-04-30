@@ -76,7 +76,6 @@ function render_block( $attributes ) {
  * Confirmed that version 1.4.1 (or presumably newer) does not need this filter.
  */
 function amp_add_inline_css() {
-	echo '.wp-block-jetpack-rating-star span { display: none; }';
+	echo '.wp-block-jetpack-rating-star span:not([aria-hidden="true"]) { display: none; }';
 }
 add_action( 'amp_post_template_css', __NAMESPACE__ . '\amp_add_inline_css', 11 );
-
