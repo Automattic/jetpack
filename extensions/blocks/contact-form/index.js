@@ -12,7 +12,7 @@ import { InnerBlocks } from '@wordpress/block-editor';
  */
 import './editor.scss';
 import edit from './edit';
-import { defaultAttributes } from './attributes';
+import defaultAttributes from './attributes';
 import variations from './variations';
 import deprecated from './deprecated';
 import JetpackField from './components/jetpack-field';

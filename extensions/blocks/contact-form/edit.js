@@ -64,7 +64,6 @@ class JetpackContactFormEdit extends Component {
 		this.onBlurTo = this.onBlurTo.bind( this );
 		this.onChangeTo = this.onChangeTo.bind( this );
 		this.onChangeSubmit = this.onChangeSubmit.bind( this );
-		this.onFormSettingsSet = this.onFormSettingsSet.bind( this );
 		this.getToValidationError = this.getToValidationError.bind( this );
 		this.renderFormSettings = this.renderFormSettings.bind( this );
 		this.preventEnterSubmittion = this.preventEnterSubmittion.bind( this );
@@ -120,15 +119,6 @@ class JetpackContactFormEdit extends Component {
 
 	onChangeSubmit( submitButtonText ) {
 		this.props.setAttributes( { submitButtonText } );
-	}
-
-	onFormSettingsSet( event ) {
-		event.preventDefault();
-		if ( this.state.toError ) {
-			// don't submit the form if there are errors.
-			return;
-		}
-		this.props.setAttributes( { hasFormSettingsSet: 'yes' } );
 	}
 
 	getfieldEmailError( errors ) {
@@ -262,10 +252,7 @@ class JetpackContactFormEdit extends Component {
 			selectBlock,
 		} = this.props;
 
-		const { hasFormSettingsSet } = attributes;
-		const formClassnames = classnames( className, 'jetpack-contact-form', {
-			'has-intro': ! hasFormSettingsSet,
-		} );
+		const formClassnames = classnames( className, 'jetpack-contact-form' );
 
 		if ( ! hasInnerBlocks && registerBlockVariation ) {
 			return (

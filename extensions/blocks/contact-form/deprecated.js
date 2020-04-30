@@ -1,22 +1,38 @@
 /**
  * External dependencies
  */
-import { omit, some, pick } from 'lodash';
+import { omit } from 'lodash';
 import { __ } from '@wordpress/i18n';
 import { InnerBlocks } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 
+/**
+ * Internal dependencies
+ */
+import defaultAttributes from './attributes';
+
 const deprecatedAttributes = [
+	'submit_button_text',
+	'has_form_settings_set',
 	'submitButtonText',
 	'backgroundButtonColor',
 	'textButtonColor',
 	'customBackgroundButtonColor',
 	'customTextButtonColor',
 	'submitButtonClasses',
+	'hasFormSettingsSet',
 ];
 
-export default {
+export default [ {
 	attributes: {
+		submit_button_text: {
+			type: 'string',
+			default: __( 'Submit', 'jetpack' ),
+		},
+		has_form_settings_set: {
+			type: 'string',
+			default: null,
+		},
 		submitButtonText: {
 			type: 'string',
 			default: __( 'Submit', 'jetpack' ),
@@ -36,6 +52,7 @@ export default {
 		submitButtonClasses: {
 			type: 'string',
 		},
+		...defaultAttributes,
 	},
 	migrate: ( attributes, innerBlocks ) => {
 		const newAttributes = omit( attributes, deprecatedAttributes );
@@ -57,6 +74,12 @@ export default {
 
 		return [ newAttributes, newInnerBlocks ];
 	},
-	isEligible: attributes => some( pick( attributes, deprecatedAttributes ), Boolean ),
+	isEligible: attr => {
+		if ( attr.has_form_settings_set || attr.hasFormSettingsSet ) {
+			return true;
+		}
+
+		return false;
+	},
 	save: InnerBlocks.Content,
-};
+} ];

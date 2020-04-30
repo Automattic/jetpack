@@ -8,17 +8,13 @@ import { __ } from '@wordpress/i18n';
  */
 import colorValidator from '../../shared/colorValidator';
 
-export const defaultAttributes = {
+export default {
 	subject: {
 		type: 'string',
 		default: __( 'A new message from your website', 'jetpack' ),
 	},
 	to: {
 		type: 'string',
-	},
-	hasFormSettingsSet: {
-		type: 'string',
-		default: null,
 	},
 	customThankyou: {
 		type: 'string',
