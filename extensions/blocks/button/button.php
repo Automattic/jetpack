@@ -43,69 +43,36 @@ function render_block( $attributes, $content ) {
 	}
 
 	$element   = get_attribute( $attributes, 'element' );
-	$text      = wp_strip_all_tags( get_attribute( $attributes, 'text' ), true );
+	$text      = get_attribute( $attributes, 'text' );
 	$unique_id = get_attribute( $attributes, 'uniqueId' );
+	$url       = get_attribute( $attributes, 'url' );
 	$classes   = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attributes );
 
-	$dom    = new \DOMDocument();
-	$button = $dom->createElement( $element, $content );
+	$button_classes = get_button_classes( $attributes );
+	$button_styles  = get_button_styles( $attributes );
 
-	if ( 'input' === $element ) {
-		$button = $dom->createElement( 'input' );
+	$button_attributes = sprintf( ' class="%s" style="%s"', esc_attr( $button_classes ), esc_attr( $button_styles ) );
 
-		$attribute        = $dom->createAttribute( 'value' );
-		$attribute->value = $text;
-		$button->appendChild( $attribute );
+	if ( empty( $unique_id ) ) {
+		$button_attributes .= ' data-id-attr="placeholder"';
 	} else {
-		$button = $dom->createElement( $element, $text );
-	}
-
-	$attribute        = $dom->createAttribute( 'class' );
-	$attribute->value = get_button_classes( $attributes );
-	$button->appendChild( $attribute );
-
-	$button_styles = get_button_styles( $attributes );
-	if ( ! empty( $button_styles ) ) {
-		$attribute        = $dom->createAttribute( 'style' );
-		$attribute->value = $button_styles;
-		$button->appendChild( $attribute );
-	}
-
-	$attribute        = $dom->createAttribute( 'data-id-attr' );
-	$attribute->value = empty( $unique_id ) ? 'placeholder' : $unique_id;
-	$button->appendChild( $attribute );
-	if ( $unique_id ) {
-		$attribute        = $dom->createAttribute( 'id' );
-		$attribute->value = $unique_id;
-		$button->appendChild( $attribute );
+		$button_attributes .= sprintf( ' data-id-attr="%1$s" id="%1$s"', esc_attr( $unique_id ) );
 	}
 
 	if ( 'a' === $element ) {
-		$attribute        = $dom->createAttribute( 'href' );
-		$attribute->value = get_attribute( $attributes, 'url' );
-		$button->appendChild( $attribute );
-
-		$attribute        = $dom->createAttribute( 'target' );
-		$attribute->value = '_blank';
-		$button->appendChild( $attribute );
-
-		$attribute        = $dom->createAttribute( 'role' );
-		$attribute->value = 'button';
-		$button->appendChild( $attribute );
-
-		$attribute        = $dom->createAttribute( 'rel' );
-		$attribute->value = 'noopener noreferrer';
-		$button->appendChild( $attribute );
-	} elseif ( 'button' === $element || 'input' === $element ) {
-		$attribute        = $dom->createAttribute( 'type' );
-		$attribute->value = 'submit';
-		$button->appendChild( $attribute );
+		$button_attributes .= sprintf( ' href="%s" target="_blank" role="button" rel="noopener noreferrer"', esc_url( $url ) );
+	} elseif ( 'button' === $element ) {
+		$button_attributes .= ' type="submit"';
+	} elseif ( 'input' === $element ) {
+		$button_attributes .= sprintf( ' type="submit" value="%s"', wp_strip_all_tags( $text, true ) );
 	}
 
-	$dom->appendChild( $button );
+	$button = 'input' === $element
+		? '<' . $element . $button_attributes . ' />'
+		: '<' . $element . $button_attributes . '>' . $text . '</' . $element . '>';
 
 	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	return '<div class="' . esc_attr( $classes ) . '">' . $dom->saveHTML() . '</div>';
+	return '<div class="' . esc_attr( $classes ) . '">' . $button . '</div>';
 }
 
 /**

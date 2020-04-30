@@ -35,7 +35,13 @@ function ButtonEdit( {
 	setTextColor,
 	textColor,
 } ) {
-	const { borderRadius, placeholder, text } = attributes;
+	const { borderRadius, element, placeholder, text } = attributes;
+
+	const onChange = value => {
+		// TODO: Remove `replace` once minimum Gutenberg version is 8.0 (to fully support `disableLineBreaks`)
+		const newValue = 'input' === element ? value.replace( /<br>/gim, ' ' ) : value;
+		setAttributes( { text: newValue } );
+	};
 
 	/* eslint-disable react-hooks/rules-of-hooks */
 	const {
@@ -74,9 +80,8 @@ function ButtonEdit( {
 			<RichText
 				allowedFormats={ [] }
 				className={ buttonClasses }
-				disableLineBreaks
-				// TODO: Remove `replace` once minimum Gutenberg version is 8.0 (to fully support `disableLineBreaks`)
-				onChange={ value => setAttributes( { text: value.replace( /<br>/gim, ' ' ) } ) }
+				disableLineBreaks={ 'input' === element }
+				onChange={ onChange }
 				placeholder={ placeholder || __( 'Add text…', 'jetpack' ) }
 				style={ buttonStyles }
 				value={ text }
