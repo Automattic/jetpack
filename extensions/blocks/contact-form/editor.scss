@@ -223,3 +223,7 @@ input.components-text-control__input {
 	}
 }
 
+// Make sure form settings dropdown looks good on older Gutenberg versions
+.jetpack-contact-form__popover .components-popover__content {
+	padding: 12px;
+}

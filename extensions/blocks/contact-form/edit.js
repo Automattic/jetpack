@@ -34,6 +34,7 @@ import { DOWN } from '@wordpress/keycodes';
  */
 import HelpMessage from '../../shared/help-message';
 import './extensions/advanced-settings.js';
+import defaultVariations from './variations';
 
 const ALLOWED_BLOCKS = [
 	'jetpack/markdown',
@@ -78,6 +79,11 @@ class JetpackContactFormEdit extends Component {
 		this.state = {
 			toError: error && error.length ? error : null,
 		};
+
+		// Populate default variation on older versions of WP or GB that don't support variations.
+		if ( ! this.props.hasInnerBlocks && ! registerBlockVariation ) {
+			this.setVariation( defaultVariations[ 0 ] );
+		}
 	}
 
 	onChangeSubject( subject ) {
@@ -231,6 +237,23 @@ class JetpackContactFormEdit extends Component {
 		return fieldEmailError && fieldEmailError.length > 0;
 	}
 
+	setVariation( variation ) {
+		const { setAttributes, replaceInnerBlocks, clientId, selectBlock } = this.props;
+
+		if ( variation.attributes ) {
+			setAttributes( variation.attributes );
+		}
+
+		if ( variation.innerBlocks ) {
+			replaceInnerBlocks(
+				clientId,
+				this.createBlocksFromInnerBlocksTemplate( variation.innerBlocks )
+			);
+		}
+
+		selectBlock( clientId );
+	}
+
 	createBlocksFromInnerBlocksTemplate( innerBlocksTemplate ) {
 		const blocks = map( innerBlocksTemplate, ( [ name, attributes, innerBlocks = [] ] ) =>
 			createBlock( name, attributes, this.createBlocksFromInnerBlocksTemplate( innerBlocks ) )
@@ -240,17 +263,7 @@ class JetpackContactFormEdit extends Component {
 	}
 
 	render() {
-		const {
-			setAttributes,
-			className,
-			attributes,
-			blockType,
-			variations,
-			defaultVariation,
-			replaceInnerBlocks,
-			hasInnerBlocks,
-			selectBlock,
-		} = this.props;
+		const { className, blockType, variations, defaultVariation, hasInnerBlocks } = this.props;
 
 		const formClassnames = classnames( className, 'jetpack-contact-form' );
 
@@ -267,18 +280,7 @@ class JetpackContactFormEdit extends Component {
 						variations={ variations }
 						allowSkip
 						onSelect={ ( nextVariation = defaultVariation ) => {
-							if ( nextVariation.attributes ) {
-								setAttributes( nextVariation.attributes );
-							}
-
-							if ( nextVariation.innerBlocks ) {
-								replaceInnerBlocks(
-									this.props.clientId,
-									this.createBlocksFromInnerBlocksTemplate( nextVariation.innerBlocks )
-								);
-							}
-
-							selectBlock( this.props.clientId );
+							this.setVariation( nextVariation );
 						} }
 					/>
 				</div>
@@ -287,35 +289,37 @@ class JetpackContactFormEdit extends Component {
 
 		return (
 			<>
-				<BlockControls>
-					<ToolbarGroup>
-						<Dropdown
-							position="bottom right"
-							className="block-library-colors-selector"
-							contentClassName="block-library-colors-selector__popover"
-							renderToggle={ ( { isOpen, onToggle } ) => {
-								const openOnArrowDown = event => {
-									if ( ! isOpen && event.keyCode === DOWN ) {
-										event.preventDefault();
-										event.stopPropagation();
-										onToggle();
-									}
-								};
+				{ ToolbarGroup && (
+					<BlockControls>
+						<ToolbarGroup>
+							<Dropdown
+								position="bottom right"
+								className="jetpack-contact-form-settings-selector"
+								contentClassName="jetpack-contact-form__popover"
+								renderToggle={ ( { isOpen, onToggle } ) => {
+									const openOnArrowDown = event => {
+										if ( ! isOpen && event.keyCode === DOWN ) {
+											event.preventDefault();
+											event.stopPropagation();
+											onToggle();
+										}
+									};
 
-								return (
-									<Button
-										className="components-toolbar__control block-library-colors-selector__toggle"
-										label={ __( 'Open Colors Selector' ) }
-										onClick={ onToggle }
-										onKeyDown={ openOnArrowDown }
-										icon={ <Icon icon="edit" /> }
-									/>
-								);
-							} }
-							renderContent={ () => this.renderFormSettings() }
-						/>
-					</ToolbarGroup>
-				</BlockControls>
+									return (
+										<Button
+											className="components-toolbar__control jetpack-contact-form__toggle"
+											label={ __( 'Edit Form Settings' ) }
+											onClick={ onToggle }
+											onKeyDown={ openOnArrowDown }
+											icon={ <Icon icon="edit" /> }
+										/>
+									);
+								} }
+								renderContent={ () => this.renderFormSettings() }
+							/>
+						</ToolbarGroup>
+					</BlockControls>
+				) }
 
 				<InspectorControls>
 					<PanelBody title={ __( 'Form Settings', 'jetpack' ) }>
@@ -340,16 +344,16 @@ export default compose( [
 		const innerBlocks = getBlocks( props.clientId );
 
 		return {
-			blockType: getBlockType( props.name ),
-			defaultVariation: getDefaultBlockVariation( props.name, 'block' ),
-			variations: getBlockVariations( props.name, 'block' ),
+			blockType: getBlockType && getBlockType( props.name ),
+			defaultVariation: getDefaultBlockVariation && getDefaultBlockVariation( props.name, 'block' ),
+			variations: getBlockVariations && getBlockVariations( props.name, 'block' ),
 
 			innerBlocks,
 			hasInnerBlocks: select( 'core/block-editor' ).getBlocks( props.clientId ).length > 0,
 			replaceInnerBlocks,
 			selectBlock,
 
-			adminEmail: get( getSite(), [ 'email' ] ),
+			adminEmail: get( getSite && getSite(), [ 'email' ] ),
 		};
 	} ),
 	withInstanceId,
