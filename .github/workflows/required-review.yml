@@ -2,7 +2,7 @@ on: pull_request_review
 name: Check required reviews
 jobs:
   check_required_reviews:
-    name: Required review
+    name: Checking required reviews
     runs-on: ubuntu-latest
     steps:
       - name: Check for required review approval
