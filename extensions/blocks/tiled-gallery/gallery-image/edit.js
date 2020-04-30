@@ -9,6 +9,11 @@ import { IconButton, Spinner } from '@wordpress/components';
 import { isBlobURL } from '@wordpress/blob';
 import { withSelect } from '@wordpress/data';
 
+/**
+ * Internal dependencies
+ */
+import { close, downChevron, leftChevron, rightChevron, upChevron } from '../icons';
+
 class GalleryImageEdit extends Component {
 	img = createRef();
 
@@ -60,14 +65,20 @@ class GalleryImageEdit extends Component {
 		const {
 			'aria-label': ariaLabel,
 			alt,
+			columns,
 			height,
 			id,
 			imageFilter,
+			isFirstItem,
+			isLastItem,
 			isSelected,
 			link,
 			linkTo,
+			onMoveBackward,
+			onMoveForward,
 			onRemove,
 			origUrl,
+			showMovers,
 			srcSet,
 			url,
 			width,
@@ -121,16 +132,35 @@ class GalleryImageEdit extends Component {
 					[ `filter__${ imageFilter }` ]: !! imageFilter,
 				} ) }
 			>
-				{ isSelected && (
-					<div className="tiled-gallery__item__inline-menu">
+				{ showMovers && (
+					<div className="tiled-gallery__item__move-menu">
 						<IconButton
-							icon="no-alt"
-							onClick={ onRemove }
-							className="tiled-gallery__item__remove"
-							label={ __( 'Remove Image', 'jetpack' ) }
+							icon={ columns === 1 ? upChevron : leftChevron }
+							onClick={ isFirstItem ? undefined : onMoveBackward }
+							className="tiled-gallery__item__move-backward"
+							label={ __( 'Move image backward', 'jetpack' ) }
+							aria-disabled={ isFirstItem }
+							disabled={ ! isSelected }
+						/>
+						<IconButton
+							icon={ columns === 1 ? downChevron : rightChevron }
+							onClick={ isLastItem ? undefined : onMoveForward }
+							className="tiled-gallery__item__move-forward"
+							label={ __( 'Move image forward', 'jetpack' ) }
+							aria-disabled={ isLastItem }
+							disabled={ ! isSelected }
 						/>
 					</div>
 				) }
+				<div className="tiled-gallery__item__inline-menu">
+					<IconButton
+						icon={ close }
+						onClick={ onRemove }
+						className="tiled-gallery__item__remove"
+						label={ __( 'Remove image', 'jetpack' ) }
+						disabled={ ! isSelected }
+					/>
+				</div>
 				{ /* Keep the <a> HTML structure, but ensure there is no navigation from edit */
 				/* eslint-disable-next-line jsx-a11y/anchor-is-valid */ }
 				{ href ? <a>{ img }</a> : img }

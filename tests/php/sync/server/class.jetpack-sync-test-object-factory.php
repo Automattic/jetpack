@@ -28,7 +28,7 @@ class JetpackSyncTestObjectFactory {
 		'comment_author_url'   => 'http://example.com',
 		'comment_content'      => 'Hi there!',
 		'comment_approved'     => '1',
-		'comment_type'         => '',
+		'comment_type'         => 'comment',
 		'comment_author_IP'    => '',
 		'comment_karma'        => '0',
 		'comment_agent'        => '',

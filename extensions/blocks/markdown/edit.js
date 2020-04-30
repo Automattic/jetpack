@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import classnames from 'classnames';
 import { __ } from '@wordpress/i18n';
 import { BlockControls, PlainText } from '@wordpress/block-editor';
 import { Component } from '@wordpress/element';
@@ -67,12 +68,13 @@ class MarkdownEdit extends Component {
 
 	renderToolbarButton( mode, label ) {
 		const { activePanel } = this.state;
+		const { className } = this.props;
+		const buttonClassnames = classnames( className, 'components-button components-tab-button', {
+			'is-pressed': activePanel === mode,
+		} );
 
 		return (
-			<button
-				className={ `components-tab-button ${ activePanel === mode ? 'is-active' : '' }` }
-				onClick={ this.toggleMode( mode ) }
-			>
+			<button className={ buttonClassnames } onClick={ this.toggleMode( mode ) }>
 				<span>{ label }</span>
 			</button>
 		);

@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Sync;
 
+use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Constants;
 
 /**
@@ -199,7 +200,8 @@ class Sender {
 	 * @access public
 	 */
 	public function maybe_set_user_from_token() {
-		$verified_user = \Jetpack::connection()->verify_xml_rpc_signature();
+		$connection    = new Manager();
+		$verified_user = $connection->verify_xml_rpc_signature();
 		if ( Constants::is_true( 'XMLRPC_REQUEST' ) &&
 			! is_wp_error( $verified_user )
 			&& $verified_user
@@ -466,13 +468,16 @@ class Sender {
 			 *
 			 * @since 4.2.0
 			 *
-			 * @param array $data The action buffer
+			 * @param array  $data The action buffer
 			 * @param string $codec The codec name used to encode the data
 			 * @param double $time The current time
 			 * @param string $queue The queue used to send ('sync' or 'full_sync')
+			 * @param float  $checkout_duration The duration of the checkout operation.
+			 * @param float  $preprocess_duration The duration of the pre-process operation.
+			 * @param int    $queue_size The size of the sync queue at the time of processing.
 			 */
 			Settings::set_is_sending( true );
-			$processed_item_ids = apply_filters( 'jetpack_sync_send_data', $items_to_send, $this->codec->name(), microtime( true ), $queue->id, $checkout_duration, $preprocess_duration );
+			$processed_item_ids = apply_filters( 'jetpack_sync_send_data', $items_to_send, $this->codec->name(), microtime( true ), $queue->id, $checkout_duration, $preprocess_duration, $queue->size() );
 			Settings::set_is_sending( false );
 		} else {
 			$processed_item_ids = $skipped_items_ids;
@@ -565,7 +570,7 @@ class Sender {
 	 */
 	private function create_action_to_send( $action_name, $data ) {
 		return array(
-			microtime( true ) => array(
+			(string) microtime( true ) => array(
 				$action_name,
 				$data,
 				get_current_user_id(),

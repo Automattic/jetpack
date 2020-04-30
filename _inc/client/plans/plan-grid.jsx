@@ -5,26 +5,23 @@ import React from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import { includes, map, reduce } from 'lodash';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
  */
 import analytics from 'lib/analytics';
 import Button from 'components/button';
-import ButtonGroup from 'components/button-group';
 import { getSiteRawUrl, getUpgradeUrl, getUserId, showBackups } from 'state/initial-state';
 import { getSitePlan, getAvailablePlans, isFetchingSiteData } from 'state/site/reducer';
+import { getPlanDuration } from 'state/plans';
 import { getPlanClass } from 'lib/plans/constants';
-import { isFetchingProducts } from '../state/products';
 import { translate as __ } from 'i18n-calypso';
 import TopButton from './top-button';
 import FeatureItem from './feture-item';
+import DurationSwitcher from './duration-switcher';
 
 class PlanGrid extends React.Component {
-	state = {
-		period: 'yearly',
-	};
-
 	/**
 	 * Memoized storage for plans to display according to highlighted features
 	 */
@@ -32,23 +29,6 @@ class PlanGrid extends React.Component {
 
 	UNSAFE_componentWillUpdate() {
 		this.featuredPlans = false;
-	}
-
-	handlePeriodChange( newPeriod ) {
-		if ( newPeriod === this.state.period ) {
-			return null;
-		}
-
-		return () => {
-			analytics.tracks.recordJetpackClick( {
-				target: 'change-period-' + newPeriod,
-				feature: 'plans-grid',
-			} );
-
-			this.setState( {
-				period: newPeriod,
-			} );
-		};
 	}
 
 	handleSeeFeaturesClick( planType ) {
@@ -77,7 +57,7 @@ class PlanGrid extends React.Component {
 		return (
 			<div className="plan-features">
 				{ this.renderMobileCard() }
-				{ this.renderPlanPeriodToggle() }
+				<DurationSwitcher type="plans" />
 
 				<div className="plan-features__content">
 					<table className={ tableClasses }>
@@ -98,8 +78,8 @@ class PlanGrid extends React.Component {
 		const currently = __( 'You’re currently on Jetpack %(plan)s.', {
 			args: { plan: this.props.sitePlan.product_name_short },
 		} );
-		const myPlanUrl = `https://wordpress.com/plans/my-plan/${ this.props.siteRawUrl }`;
-		const plansUrl = `https://wordpress.com/plans/${ this.props.siteRawUrl }`;
+		const myPlanUrl = getRedirectUrl( 'calypso-plans-my-plan', { site: this.props.siteRawUrl } );
+		const plansUrl = getRedirectUrl( 'calypso-plans', { site: this.props.siteRawUrl } );
 
 		return (
 			<div className="plans-mobile-notice dops-card">
@@ -109,31 +89,6 @@ class PlanGrid extends React.Component {
 				<Button href={ plansUrl } primary>
 					{ __( 'View all Jetpack plans' ) }
 				</Button>
-			</div>
-		);
-	}
-
-	renderPlanPeriodToggle() {
-		const { period } = this.state;
-		const periods = {
-			monthly: __( 'Monthly' ),
-			yearly: __( 'Yearly' ),
-		};
-
-		return (
-			<div className="plan-grid-period">
-				<ButtonGroup>
-					{ map( periods, ( periodLabel, periodName ) => (
-						<Button
-							key={ 'plan-period-button-' + periodName }
-							primary={ periodName === period }
-							onClick={ this.handlePeriodChange( periodName ) }
-							compact
-						>
-							{ periodLabel }
-						</Button>
-					) ) }
-				</ButtonGroup>
 			</div>
 		);
 	}
@@ -240,6 +195,7 @@ class PlanGrid extends React.Component {
 	 * @return {ReactElement} needed <td>s for prices
 	 */
 	renderPrices() {
+		const { planDuration } = this.props;
 		return map( this.getPlans(), ( plan, type ) => {
 			const className = classNames( 'plan-features__table-item', 'plan-price' );
 
@@ -261,7 +217,7 @@ class PlanGrid extends React.Component {
 				<td key={ 'price-' + type } className={ className }>
 					<span
 						className="plan-price__yearly"
-						dangerouslySetInnerHTML={ { __html: plan.price[ this.state.period ].per } }
+						dangerouslySetInnerHTML={ { __html: plan.price[ planDuration ].per } }
 					/>
 				</td>
 			);
@@ -286,12 +242,13 @@ class PlanGrid extends React.Component {
 	 * @return {ReactElement} <td>s with buttons
 	 */
 	renderTopButtons() {
+		const { planDuration } = this.props;
 		return map( this.getPlans(), ( plan, planType ) => {
 			const { siteRawUrl, plansUpgradeUrl, sitePlan } = this.props;
 			const isActivePlan = this.isCurrentPlanType( planType );
 			const buttonText = isActivePlan ? plan.strings.manage : plan.strings.upgrade;
 			let planTypeWithPeriod = planType;
-			if ( 'monthly' === this.state.period ) {
+			if ( planDuration === 'monthly' ) {
 				planTypeWithPeriod += '-monthly';
 			}
 
@@ -409,19 +366,17 @@ class PlanGrid extends React.Component {
 	}
 }
 
-export default connect(
-	state => {
-		const userId = getUserId( state );
-		return {
-			plans: getAvailablePlans( state ),
-			siteRawUrl: getSiteRawUrl( state ),
-			sitePlan: getSitePlan( state ),
-			userId,
-			showBackups: showBackups( state ),
-			plansUpgradeUrl: planType => getUpgradeUrl( state, `plans-${ planType }`, userId ),
-			plansLearnMoreUpgradeUrl: getUpgradeUrl( state, 'plans-learn-more', userId ),
-			isFetchingData: isFetchingSiteData( state ) || isFetchingProducts( state ),
-		};
-	},
-	null
-)( PlanGrid );
+export default connect( state => {
+	const userId = getUserId( state );
+	return {
+		plans: getAvailablePlans( state ),
+		siteRawUrl: getSiteRawUrl( state ),
+		sitePlan: getSitePlan( state ),
+		userId,
+		showBackups: showBackups( state ),
+		planDuration: getPlanDuration( state ),
+		plansUpgradeUrl: planType => getUpgradeUrl( state, `plans-${ planType }`, userId ),
+		plansLearnMoreUpgradeUrl: getUpgradeUrl( state, 'plans-learn-more', userId ),
+		isFetchingData: isFetchingSiteData( state ),
+	};
+}, null )( PlanGrid );

@@ -136,11 +136,25 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
 		) );
 
+		register_rest_route(
+			'jetpack/v4',
+			'/scan',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_scan_state',
+				'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+			)
+		);
+
 		// Fetches a fresh connect URL
 		register_rest_route( 'jetpack/v4', '/connection/url', array(
 			'methods' => WP_REST_Server::READABLE,
 			'callback' => __CLASS__ . '::build_connect_url',
 			'permission_callback' => __CLASS__ . '::connect_url_permission_callback',
+			'args'                => array(
+				'from'     => array( 'type' => 'string' ),
+				'redirect' => array( 'type' => 'string' ),
+			),
 		) );
 
 		// Get current user connection data
@@ -211,6 +225,16 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'callback' => array( $site_endpoint, 'get_features' ),
 			'permission_callback' => array( $site_endpoint , 'can_request' ),
 		) );
+
+		register_rest_route(
+			'jetpack/v4',
+			'/site/products',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $site_endpoint, 'get_products' ),
+				'permission_callback' => array( $site_endpoint, 'can_request' ),
+			)
+		);
 
 		// Get current site purchases.
 		register_rest_route(
@@ -494,6 +518,56 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
 			)
 		);
+
+		/*
+		 * Get and update settings from the Jetpack wizard.
+		 */
+		register_rest_route(
+			'jetpack/v4',
+			'/setup/questionnaire',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => __CLASS__ . '::get_setup_questionnaire',
+					'permission_callback' => __CLASS__ . '::update_settings_permission_check',
+				),
+				array(
+					'methods'             => WP_REST_Server::EDITABLE,
+					'callback'            => __CLASS__ . '::update_setup_questionnaire',
+					'permission_callback' => __CLASS__ . '::update_settings_permission_check',
+					'args'                => array(
+						'option_values' => array(
+							'required' => true,
+							'type'     => 'object',
+						),
+					),
+				),
+			)
+		);
+	}
+
+	/**
+	 * Update the settings selected on the wizard questionnaire
+	 *
+	 * @param WP_REST_Request $request The request.
+	 *
+	 * @return bool true.
+	 */
+	public static function update_setup_questionnaire( $request ) {
+		// TODO: add validation.
+
+		$option_values = empty( $request['option_values'] ) ? array() : $request['option_values'];
+		Jetpack_Options::update_option( 'setup_questionnaire', $option_values );
+		return true;
+	}
+
+	/**
+	 * Get the settings for the wizard questionnaire
+	 *
+	 * @return array Questionnaire settings.
+	 */
+	public static function get_setup_questionnaire() {
+		return Jetpack_Options::get_option( 'setup_questionnaire', array() );
 	}
 
 	public static function get_plans( $request ) {
@@ -592,7 +666,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return array();
 		}
 
-		return $jitm->get_messages( $request['message_path'], urldecode_deep( $request['query'] ) );
+		return $jitm->get_messages( $request['message_path'], urldecode_deep( $request['query'] ), 'true' === $request['full_jp_logo_exists'] ? true : false );
 	}
 
 	/**
@@ -975,16 +1049,17 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool True if site is connected
 	 */
 	public static function jetpack_connection_status() {
+		$status = new Status();
 		return rest_ensure_response( array(
-				'isActive'     => Jetpack::is_active(),
-				'isStaging'    => Jetpack::is_staging_site(),
-				'isRegistered' => Jetpack::connection()->is_registered(),
-				'devMode'      => array(
-					'isActive' => ( new Status() )->is_development_mode(),
-					'constant' => defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG,
-					'url'      => site_url() && false === strpos( site_url(), '.' ),
-					'filter'   => apply_filters( 'jetpack_development_mode', false ),
-				),
+			'isActive'     => Jetpack::is_active(),
+			'isStaging'    => $status->is_staging_site(),
+			'isRegistered' => Jetpack::connection()->is_registered(),
+			'devMode'      => array(
+				'isActive' => $status->is_development_mode(),
+				'constant' => defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG,
+				'url'      => site_url() && false === strpos( site_url(), '.' ),
+				'filter'   => apply_filters( 'jetpack_development_mode', false ),
+			),
 			)
 		);
 	}
@@ -1035,7 +1110,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		if (
 			! function_exists( 'openssl_verify' )
-			|| ! openssl_verify(
+			|| 1 !== openssl_verify(
 				$signature_data,
 				$signature,
 				JETPACK__DEBUGGER_PUBLIC_KEY
@@ -1085,7 +1160,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				}
 			}
 
-			$result = $errors[0];
+			$result = ( ! empty( $errors ) ) ? $errors[0] : null;
 			if ( count( $errors ) > 1 ) {
 				// Remove the primary error.
 				array_shift( $errors );
@@ -1170,6 +1245,66 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
+	 * Gets Scan state data.
+	 *
+	 * @since 8.5.0
+	 *
+	 * @return array|WP_Error Result from WPCOM API or error.
+	 */
+	public static function scan_state() {
+		$site_id = Jetpack_Options::get_option( 'id' );
+
+		if ( ! $site_id ) {
+			return new WP_Error( 'site_id_missing' );
+		}
+
+		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/scan', $site_id ) . '?force=wpcom', '2', array(), null, 'wpcom' );
+
+		if ( wp_remote_retrieve_response_code( $response ) !== 200 ) {
+			return new WP_Error( 'scan_state_fetch_failed' );
+		}
+
+		$body = wp_remote_retrieve_body( $response );
+
+		return json_decode( $body );
+	}
+
+	/**
+	 * Get Scan state for API.
+	 *
+	 * @since 8.5.0
+	 *
+	 * @return WP_REST_Response|WP_Error REST response or error state.
+	 */
+	public static function get_scan_state() {
+		$scan_state = self::scan_state();
+
+		if ( ! is_wp_error( $scan_state ) ) {
+			return rest_ensure_response(
+				array(
+					'code'    => 'success',
+					'message' => esc_html__( 'Scan state correctly received.', 'jetpack' ),
+					'data'    => wp_json_encode( $scan_state ),
+				)
+			);
+		}
+
+		if ( $scan_state->get_error_code() === 'scan_state_fetch_failed' ) {
+			return new WP_Error( 'scan_state_fetch_failed', esc_html__( 'Failed fetching rewind data. Try again later.', 'jetpack' ), array( 'status' => 400 ) );
+		}
+
+		if ( $scan_state->get_error_code() === 'site_id_missing' ) {
+			return new WP_Error( 'site_id_missing', esc_html__( 'The ID of this site does not exist.', 'jetpack' ), array( 'status' => 404 ) );
+		}
+
+		return new WP_Error(
+			'error_get_rewind_data',
+			esc_html__( 'Could not retrieve Scan state.', 'jetpack' ),
+			array( 'status' => 500 )
+		);
+	}
+
+	/**
 	 * Disconnects Jetpack from the WordPress.com Servers
 	 *
 	 * @uses Jetpack::disconnect();
@@ -1230,8 +1365,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @return string|WP_Error A raw URL if the connection URL could be built; error message otherwise.
 	 */
-	public static function build_connect_url() {
-		$url = Jetpack::init()->build_connect_url( true, false, false );
+	public static function build_connect_url( $request ) {
+		$from     = isset( $request['from'] ) ? $request['from'] : false;
+		$redirect = isset( $request['redirect'] ) ? $request['redirect'] : false;
+
+		$url = Jetpack::init()->build_connect_url( true, $redirect, $from );
 		if ( $url ) {
 			return rest_ensure_response( $url );
 		}
@@ -1872,29 +2010,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'jp_group'          => 'markdown',
 			),
 
-			// Mobile Theme
-			'wp_mobile_excerpt' => array(
-				'description'       => esc_html__( 'Excerpts', 'jetpack' ),
-				'type'              => 'boolean',
-				'default'           => 0,
-				'validate_callback' => __CLASS__ . '::validate_boolean',
-				'jp_group'          => 'minileven',
-			),
-			'wp_mobile_featured_images' => array(
-				'description'       => esc_html__( 'Featured Images', 'jetpack' ),
-				'type'              => 'boolean',
-				'default'           => 0,
-				'validate_callback' => __CLASS__ . '::validate_boolean',
-				'jp_group'          => 'minileven',
-			),
-			'wp_mobile_app_promos' => array(
-				'description'       => esc_html__( 'Show a promo for the WordPress mobile apps in the footer of the mobile theme.', 'jetpack' ),
-				'type'              => 'boolean',
-				'default'           => 0,
-				'validate_callback' => __CLASS__ . '::validate_boolean',
-				'jp_group'          => 'minileven',
-			),
-
 			// Monitor
 			'monitor_receive_notifications' => array(
 				'description'       => esc_html__( 'Receive Monitor Email Notifications.', 'jetpack' ),
@@ -1947,7 +2062,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'description'       => esc_html__( 'Enabled Services and those hidden behind a button', 'jetpack' ),
 				'type'              => 'object',
 				'default'           => array(
-					'visible' => array( 'twitter', 'facebook', 'google-plus-1' ),
+					'visible' => array( 'twitter', 'facebook' ),
 					'hidden'  => array(),
 				),
 				'validate_callback' => __CLASS__ . '::validate_services',
@@ -2078,6 +2193,31 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'default'           => 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'related-posts',
+			),
+
+			// Search.
+			'instant_search_enabled'               => array(
+				'description'       => esc_html__( 'Enable Instant Search', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'search',
+			),
+
+			'has_jetpack_search_product'           => array(
+				'description'       => esc_html__( 'Has an active Jetpack Search product purchase', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'settings',
+			),
+
+			'search_auto_config'                   => array(
+				'description'       => esc_html__( 'Trigger an auto config of instant search', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'search',
 			),
 
 			// Verification Tools
@@ -2982,8 +3122,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				if ( ! class_exists( 'Jetpack_Post_By_Email' ) && ! include_once( Jetpack::get_module_path( $module ) ) ) {
 					return false;
 				}
-				$post_by_email = new Jetpack_Post_By_Email();
-				$value = $post_by_email->get_post_by_email_address();
+				$value = Jetpack_Post_By_Email::init()->get_post_by_email_address();
 				if ( $value === null ) {
 					$value = 'NULL'; // sentinel value so it actually gets set
 				}

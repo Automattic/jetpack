@@ -129,6 +129,10 @@ class Jetpack_Comment_Likes {
 	}
 
 	public function load_styles_register_scripts() {
+		if ( ! $this->settings->is_likes_visible() ) {
+			return;
+		}
+
 		if ( ! wp_style_is( 'open-sans', 'registered' ) ) {
 			wp_register_style( 'open-sans', 'https://fonts.googleapis.com/css?family=Open+Sans', array(), JETPACK__VERSION );
 		}
@@ -138,7 +142,7 @@ class Jetpack_Comment_Likes {
 			Assets::get_file_url_for_environment( '_inc/build/postmessage.min.js', '_inc/postmessage.js' ),
 			array( 'jquery' ),
 			JETPACK__VERSION,
-			false
+			true
 		);
 		wp_enqueue_script(
 			'jetpack_resize',
@@ -148,7 +152,7 @@ class Jetpack_Comment_Likes {
 			),
 			array( 'jquery' ),
 			JETPACK__VERSION,
-			false
+			true
 		);
 		wp_enqueue_script( 'jetpack_likes_queuehandler', plugins_url( 'likes/queuehandler.js' , __FILE__ ), array( 'jquery', 'postmessage', 'jetpack_resize' ), JETPACK__VERSION, true );
 	}

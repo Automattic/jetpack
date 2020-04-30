@@ -9,6 +9,7 @@ import { includes } from 'lodash';
 import FoldableCard from 'components/foldable-card';
 import classNames from 'classnames';
 import analytics from 'lib/analytics';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -109,7 +110,7 @@ export const Protect = withModuleSettingsFormHelpers(
 								text: __(
 									'Protects your site from traditional and distributed brute force login attacks.'
 								),
-								link: 'https://jetpack.com/support/protect/',
+								link: getRedirectUrl( 'jetpack-support-protect' ),
 							} }
 						>
 							<FormFieldset>

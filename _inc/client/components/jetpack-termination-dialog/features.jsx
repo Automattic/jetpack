@@ -5,6 +5,7 @@ import { translate as __ } from 'i18n-calypso';
 import Card from 'components/card';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -32,7 +33,7 @@ class JetpackTerminationDialogFeatures extends Component {
 						a: (
 							<a
 								className="jetpack-termination-dialog__link"
-								href="https://jetpack.com/features/design/content-delivery-network/"
+								href={ getRedirectUrl( 'jetpack-features-design-content-delivery-network' ) }
 								rel="noopener noreferrer"
 								target="_blank"
 							/>
@@ -53,7 +54,7 @@ class JetpackTerminationDialogFeatures extends Component {
 							a: (
 								<a
 									className="jetpack-termination-dialog__link"
-									href="https://jetpack.com/features/security/"
+									href={ getRedirectUrl( 'jetpack-features-security' ) }
 									rel="noopener noreferrer"
 									target="_blank"
 								/>
@@ -73,7 +74,7 @@ class JetpackTerminationDialogFeatures extends Component {
 						a: (
 							<a
 								className="jetpack-termination-dialog__link"
-								href="https://jetpack.com/support/social/"
+								href={ getRedirectUrl( 'jetpack-support-social' ) }
 								rel="noopener noreferrer"
 								target="_blank"
 							/>
@@ -92,69 +93,67 @@ class JetpackTerminationDialogFeatures extends Component {
 		const jetpackSupportURl = isDevVersion ? JETPACK_CONTACT_BETA_SUPPORT : JETPACK_CONTACT_SUPPORT;
 
 		return (
-			<div className="jetpack-termination-dialog__features">
-				<Card>
-					<p className="jetpack-termination-dialog__info">
-						{ purpose === 'disconnect'
-							? __(
-									'Jetpack is currently powering features on your site. Once you disconnect Jetpack, these features will no longer be available and your site may no longer function the same way.'
-							  )
-							: __(
-									'Jetpack is currently powering features on your site. Once you disable Jetpack, these features will no longer be available and your site may no longer function the same way.'
-							  ) }
-						{ siteBenefitCount > 0 &&
-							__( ' We’ve highlighted some of the features you rely on below.' ) }
+			<Card className="jetpack-termination-dialog__features">
+				<p className="jetpack-termination-dialog__info">
+					{ purpose === 'disconnect'
+						? __(
+								'Jetpack is currently powering features on your site. Once you disconnect Jetpack, these features will no longer be available and your site may no longer function the same way.'
+						  )
+						: __(
+								'Jetpack is currently powering features on your site. Once you disable Jetpack, these features will no longer be available and your site may no longer function the same way.'
+						  ) }
+					{ siteBenefitCount > 0 &&
+						__( ' We’ve highlighted some of the features you rely on below.' ) }
+				</p>
+				<div
+					className={
+						siteBenefitCount === 1
+							? 'jetpack-termination-dialog__features-list-single-column'
+							: 'jetpack-termination-dialog__features-list'
+					}
+				>
+					{ siteBenefits.map( ( { amount, description, name, gridIcon, title } ) => (
+						<SingleFeature
+							key={ name }
+							amount={ amount }
+							description={ description }
+							gridIcon={ gridIcon }
+							title={ title }
+						/>
+					) ) }
+				</div>
+				{ siteBenefitCount <= 2 && (
+					<div className="jetpack-termination-dialog__generic-info">
+						<h2>
+							{ __( 'Jetpack has many powerful tools that can help you achieve your goals' ) }
+						</h2>
+						<ul>
+							{ this.renderCDNReason() }
+							{ this.renderProtectReason() }
+							{ this.renderSocialReason() }
+						</ul>
+					</div>
+				) }
+				<div className="jetpack-termination-dialog__get-help">
+					<p>
+						{ __(
+							'Have a question? We’d love to help! {{a}}Send a question to the Jetpack support team.{{/a}}',
+							{
+								components: {
+									a: (
+										<a
+											className="jetpack-termination-dialog__link"
+											href={ jetpackSupportURl }
+											rel="noopener noreferrer"
+											target="_blank"
+										/>
+									),
+								},
+							}
+						) }
 					</p>
-					<div
-						className={
-							siteBenefitCount === 1
-								? 'jetpack-termination-dialog__features-list-single-column'
-								: 'jetpack-termination-dialog__features-list'
-						}
-					>
-						{ siteBenefits.map( ( { amount, description, name, gridIcon, title } ) => (
-							<SingleFeature
-								key={ name }
-								amount={ amount }
-								description={ description }
-								gridIcon={ gridIcon }
-								title={ title }
-							/>
-						) ) }
-					</div>
-					{ siteBenefitCount <= 2 && (
-						<div className="jetpack-termination-dialog__generic-info">
-							<h2>
-								{ __( 'Jetpack has many powerful tools that can help you achieve your goals' ) }
-							</h2>
-							<ul>
-								{ this.renderCDNReason() }
-								{ this.renderProtectReason() }
-								{ this.renderSocialReason() }
-							</ul>
-						</div>
-					) }
-					<div className="jetpack-termination-dialog__get-help">
-						<p>
-							{ __(
-								'Have a question? We’d love to help! {{a}}Send a question to the Jetpack support team.{{/a}}',
-								{
-									components: {
-										a: (
-											<a
-												className="jetpack-termination-dialog__link"
-												href={ jetpackSupportURl }
-												rel="noopener noreferrer"
-												target="_blank"
-											/>
-										),
-									},
-								}
-							) }
-						</p>
-					</div>
-				</Card>
-			</div>
+				</div>
+			</Card>
 		);
 	}
 }

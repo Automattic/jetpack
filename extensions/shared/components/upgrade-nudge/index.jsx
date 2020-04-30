@@ -7,6 +7,7 @@ import { addQueryArgs } from '@wordpress/url';
 import { compact, get, startsWith } from 'lodash';
 import { compose } from '@wordpress/compose';
 import { withSelect } from '@wordpress/data';
+import { useEffect } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -19,36 +20,61 @@ import './store';
 
 import './style.scss';
 
-export const UpgradeNudge = ( { planName, trackEvent, upgradeUrl } ) => (
-	<BlockNudge
-		buttonLabel={ __( 'Upgrade', 'jetpack' ) }
-		icon={
-			<GridiconStar
-				className="jetpack-upgrade-nudge__icon"
-				size={ 18 }
-				aria-hidden="true"
-				role="img"
-				focusable="false"
-			/>
+const getTitle = ( customTitle, planName ) => {
+	if ( customTitle ) {
+		return planName ? sprintf( customTitle.knownPlan, { planName } ) : customTitle.unknownPlan;
+	}
+
+	return planName
+		? sprintf( __( 'Upgrade to %(planName)s to use this block on your site.', 'jetpack' ), {
+				planName,
+		  } )
+		: __( 'Upgrade to a paid plan to use this block on your site.', 'jetpack' );
+};
+
+export const UpgradeNudge = ( {
+	planName,
+	trackViewEvent,
+	trackClickEvent,
+	upgradeUrl,
+	title,
+	subtitle,
+} ) => {
+	useEffect( () => {
+		if ( planName ) {
+			trackViewEvent();
 		}
-		href={ upgradeUrl }
-		onClick={ trackEvent }
-		title={
-			planName
-				? sprintf( __( 'Upgrade to %(planName)s to use this block on your site.', 'jetpack' ), {
-						planName,
-				  } )
-				: __( 'Upgrade to a paid plan to use this block on your site.', 'jetpack' )
-		}
-		subtitle={ __(
-			'You can try it out before upgrading, but only you will see it. It will be hidden from your visitors until you upgrade.',
-			'jetpack'
-		) }
-	/>
-);
+	}, [ planName ] );
+
+	return (
+		<BlockNudge
+			buttonLabel={ __( 'Upgrade', 'jetpack' ) }
+			icon={
+				<GridiconStar
+					className="jetpack-upgrade-nudge__icon"
+					size={ 18 }
+					aria-hidden="true"
+					role="img"
+					focusable="false"
+				/>
+			}
+			href={ upgradeUrl }
+			onClick={ trackClickEvent }
+			title={ getTitle( title, planName ) }
+			subtitle={
+				subtitle
+					? subtitle
+					: __(
+							'You can try it out before upgrading, but only you will see it. It will be hidden from your visitors until you upgrade.',
+							'jetpack'
+					  )
+			}
+		/>
+	);
+};
 
 export default compose( [
-	withSelect( ( select, { plan: planSlug } ) => {
+	withSelect( ( select, { plan: planSlug, blockName } ) => {
 		const plan = select( 'wordpress-com/plans' ).getPlan( planSlug );
 
 		// WP.com plan objects have a dedicated `path_slug` field, Jetpack plan objects don't
@@ -90,13 +116,19 @@ export default compose( [
 				redirect_to,
 			} );
 
+		const planName = get( plan, [ 'product_name' ] );
 		return {
-			trackEvent: blockName =>
-				void analytics.tracks.recordEvent( 'jetpack_editor_block_upgrade_click', {
-					plan,
+			trackViewEvent: () =>
+				void analytics.tracks.recordEvent( 'jetpack_editor_block_upgrade_nudge_impression', {
+					plan: planPathSlug,
 					block: blockName,
 				} ),
-			planName: get( plan, [ 'product_name' ] ),
+			trackClickEvent: () =>
+				void analytics.tracks.recordEvent( 'jetpack_editor_block_upgrade_click', {
+					plan: planPathSlug,
+					block: blockName,
+				} ),
+			planName,
 			upgradeUrl,
 		};
 	} ),

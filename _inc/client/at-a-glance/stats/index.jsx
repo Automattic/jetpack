@@ -12,6 +12,7 @@ import Button from 'components/button';
 import Spinner from 'components/spinner';
 import { numberFormat, moment, translate as __ } from 'i18n-calypso';
 import analytics from 'lib/analytics';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -77,7 +78,7 @@ export class DashStats extends Component {
 				tooltipLabel = __( 'Week of %(date)s', {
 					args: { date: moment( date ).format( 'MMMM Do' ) },
 				} );
-			} else if ( 'month' ) {
+			} else if ( 'month' === unit ) {
 				chartLabel = moment( date ).format( 'MMM' );
 				tooltipLabel = moment( date ).format( 'MMMM, YYYY' );
 			}
@@ -88,7 +89,10 @@ export class DashStats extends Component {
 				nestedValue: null,
 				className: 'statsChartbar',
 				data: {
-					link: `https://wordpress.com/stats/${ unit }/${ props.siteRawUrl }?startDate=${ date }`,
+					link: getRedirectUrl( `calypso-stats-${ unit }`, {
+						site: props.siteRawUrl,
+						query: `startDate=${ date }`,
+					} ),
 				},
 				tooltipData: [
 					{
@@ -109,7 +113,7 @@ export class DashStats extends Component {
 	/**
 	 * Checks that the stats fetching didn't return errors.
 	 *
-	 * @returns {object|bool} Returns statsData.general.errors or false if it is not an object
+	 * @returns {object|boolean} Returns statsData.general.errors or false if it is not an object
 	 */
 	statsErrors() {
 		return get( this.props.statsData, [ 'general', 'errors' ], false );
@@ -175,7 +179,11 @@ export class DashStats extends Component {
 								{
 									components: {
 										a: (
-											<a href={ 'https://wordpress.com/stats/insights/' + this.props.siteRawUrl } />
+											<a
+												href={ getRedirectUrl( 'calypso-stats-insights', {
+													site: this.props.siteRawUrl,
+												} ) }
+											/>
 										),
 									},
 								}
@@ -222,7 +230,7 @@ export class DashStats extends Component {
 										a: <a href="javascript:void(0)" onClick={ this.activateStats } />,
 										a1: (
 											<a
-												href="https://jetpack.com/support/wordpress-com-stats/"
+												href={ getRedirectUrl( 'jetpack-support-wordpress-com-stats' ) }
 												target="_blank"
 												rel="noopener noreferrer"
 											/>

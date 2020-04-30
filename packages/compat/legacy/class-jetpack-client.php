@@ -50,7 +50,7 @@ class Jetpack_Client {
 	 * @param null   $body Request body.
 	 * @param string $base_api_path Endpoint base prefix.
 	 *
-	 * @return Array|WP_Error
+	 * @return array|WP_Error
 	 */
 	public static function wpcom_json_api_request_as_blog(
 		$path,
@@ -79,7 +79,7 @@ class Jetpack_Client {
 	 * @see Utils::fix_url_for_bad_hosts()
 	 *
 	 * @param String  $url the request URL.
-	 * @param Array   $args request arguments.
+	 * @param array   $args request arguments.
 	 * @param Boolean $set_fallback whether to allow flagging this request to use a fallback certficate override.
 	 * @return array|WP_Error WP HTTP response on success
 	 */

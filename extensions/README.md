@@ -20,8 +20,8 @@ Extensions in the `extensions/blocks` folder loosely follow this structure:
 	├── block-or-plugin-name.php ← PHP file where the block and its assets are registered.
 	├── editor.js                ← script loaded only in the editor
 	├── editor.scss              ← styles loaded only in the editor
-	├── view.js                  ← script loaded in the editor and theme
-	└── view.scss                ← styles loaded in the editor and theme
+	├── view.js                  ← script loaded on the frontend
+	└── view.scss                ← styles loaded on the frontend
 ```
 
 If your block depends on another block, place them all in extensions folder:
@@ -57,6 +57,7 @@ Generally, all new extensions should start out as a beta.
 - In the `wp-config.php` for your Docker environment (`docker/wordpress/wp-config.php`) or in your custom mu-plugins file (`docker/mu-plugins/yourfile.php`), enable beta extensions with the following snippet: `define( 'JETPACK_BETA_BLOCKS', true );`
 - When you use this constant, you'll get all blocks: Beta blocks, Experimental blocks, and Production blocks.
 - In the WordPress.com environment, Automatticians will be able to see beta extensions with no further configuration
+- In a Jurassic Ninja site, you must go to Settings > Jetpack Constants, and enable the `JETPACK_BETA_BLOCKS` option there.
 - Once you've successfully beta tested your new extension, you can open new PR to make your extension live!
 - Simply move the extension's slug out of the beta array and into the production array in `extensions/index.json`.
 
@@ -66,13 +67,7 @@ We also offer an "experimental" state for extensions. Those extensions will be m
 
 Experimental extensions are usually considered ready for production, but are served only to sites requesting them.
 
-### Testing
-
-Run `yarn test-extensions [--watch]` to run tests written in [Jest](https://jestjs.io/en/).
-
-Note that adding [Jest snapshot tests](https://jestjs.io/docs/en/snapshot-testing) for block's `save` methods is problematic because many core packages relying on `window` that is not present when testing with Jest. See [prior exploration](https://github.com/Automattic/wp-calypso/pull/30727).
-
-## Scaffolding blocks with WP-CLI
+### Scaffolding blocks with WP-CLI
 
 We have a command in WP-CLI that allows to scaffold Jetpack blocks. Its syntax is as follows:
 
@@ -80,7 +75,7 @@ We have a command in WP-CLI that allows to scaffold Jetpack blocks. Its syntax i
 
 **Currently the only `type` is `block`.**
 
-### Options
+#### Options
 
 - **title**: Block name, also used to create the slug. This parameter is required. If it's something like _Logo gallery_, the slug will be `logo-gallery`. It's also used to generate the class name when an external edit component is requested. Following this example, it would be `LogoGalleryEdit`.
 - **--slug**: Specific slug to identify the block that overrides the one generated base don the title.
@@ -88,7 +83,7 @@ We have a command in WP-CLI that allows to scaffold Jetpack blocks. Its syntax i
 - **--keywords**: Provide up to three keywords separated by a comma so users when they search for a block in the editor.
 - **--variation**: Allows to decide whether the block should be a production block, experimental, or beta. Defaults to Beta when arg not provided.
 
-### Files
+#### Files
 
 All files will be created in a directory under `extensions/blocks/` named after the block title or a specific given slug. For a hypothetical **Jukebox** block, it will create the following files
 
@@ -102,7 +97,7 @@ All files will be created in a directory under `extensions/blocks/` named after 
 Additionally, the slug of the new block will be added to the `beta` array in the file `extensions/index.json`.
 Since it's added to the beta array, you need to load the beta blocks as explained above to be able to test this block.
 
-### Examples
+#### Examples
 
 `wp jetpack scaffold block "Cool Block"`
 
@@ -112,11 +107,19 @@ Since it's added to the beta array, you need to load the beta blocks as explaine
 
 `wp jetpack scaffold block "Jukebox" --variation="experimental"`
 
-### Can I use Jurassic Ninja to test blocks?
+### Testing
+
+Run `yarn test-extensions [--watch]` to run tests written in [Jest](https://jestjs.io/en/).
+
+Note that adding [Jest snapshot tests](https://jestjs.io/docs/en/snapshot-testing) for block's `save` methods is problematic because many core packages relying on `window` that is not present when testing with Jest. See [prior exploration](https://github.com/Automattic/wp-calypso/pull/30727).
+
+#### Can I use Jurassic Ninja to test blocks?
 
 Yes! Just like any other changes in Jetpack, also blocks work in Jurassic Ninja.
 
 Simply add branch name to the URL: jurassic.ninja/create/?jetpack-beta&branch=master or use other ninjastic features.
+
+## Deploying extensions
 
 ### How do I merge extensions to Jetpack
 
@@ -153,7 +156,7 @@ To test extensions for a Simple site in Calypso, sandbox the simple site URL (`e
 
 ## Good to know when developing Gutenberg extensions
 
-## The Build
+### The Build
 
 - Compiled extensions are output to `_inc/blocks`
 - You can view the various build commands in `package.json`
@@ -163,7 +166,7 @@ If you need to modify the build process, bear in mind that config files are also
 synced to WordPress.com via Fusion. Consult with a Jetpack crew member to ensure
 you test the new build in both environments.
 
-## Debugging
+### Debugging
 
 Setting these might be useful for debugging with block editor:
 
@@ -233,3 +236,9 @@ The build pipeline also supports [Color studio](https://github.com/Automattic/co
 ### Icons
 
 Please use outline versions of [Material icons](https://material.io/tools/icons/?style=outline) to stay in line with Gutenberg. Don't rely on icons used in WordPress core to avoid visual mixing up with core blocks.
+
+## Native support
+
+This is still very much experimental and subject to change.
+React Native support for Jetpack blocks is being added as part of the WordPress [Android](https://github.com/wordpress-mobile/WordPress-Android) and [iOS](https://github.com/wordpress-mobile/WordPress-iOS) apps.
+A react-native build configuration will attempt to resolve `.native.js` extensions before `.js` ones, making `.native.js` a simple approach to write "cross-platform" gutenberg blocks.

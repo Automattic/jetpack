@@ -9,6 +9,7 @@ import { Path, SVG } from '@wordpress/components';
  */
 import edit from './edit';
 import './editor.scss';
+import { supportsCollections } from '../../shared/block-category';
 
 export const name = 'mailchimp';
 
@@ -23,7 +24,7 @@ export const settings = {
 	title: __( 'Mailchimp', 'jetpack' ),
 	icon,
 	description: __( 'A form enabling readers to join a Mailchimp list.', 'jetpack' ),
-	category: 'jetpack',
+	category: supportsCollections() ? 'grow' : 'jetpack',
 	keywords: [
 		_x( 'email', 'block search term', 'jetpack' ),
 		_x( 'subscription', 'block search term', 'jetpack' ),
@@ -37,6 +38,15 @@ export const settings = {
 		submitButtonText: {
 			type: 'string',
 			default: __( 'Join my email list', 'jetpack' ),
+		},
+		backgroundButtonColor: {
+			type: 'string',
+		},
+		textButtonColor: {
+			type: 'string',
+		},
+		submitButtonClasses: {
+			type: 'string',
 		},
 		customBackgroundButtonColor: {
 			type: 'string',

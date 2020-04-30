@@ -6,12 +6,14 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { numberFormat, translate as __ } from 'i18n-calypso';
 import { getPlanClass, PLAN_JETPACK_PREMIUM } from 'lib/plans/constants';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
  */
 import Card from 'components/card';
 import QueryVaultPressData from 'components/data/query-vaultpress-data';
+import QueryScanStatus from 'components/data/query-scan-status';
 import { getSitePlan, isFetchingSiteData } from 'state/site';
 import { isPluginInstalled } from 'state/site/plugins';
 import { getVaultPressScanThreatCount, getVaultPressData } from 'state/at-a-glance';
@@ -35,7 +37,7 @@ const renderCard = props => (
 			text: __(
 				'Your site’s files are regularly scanned for unauthorized or suspicious modifications that could compromise your security and data.'
 			),
-			link: 'https://jetpack.com/support/security/',
+			link: getRedirectUrl( 'jetpack-support-security' ),
 		} }
 		className={ props.className || '' }
 		status={ props.status || '' }
@@ -96,7 +98,7 @@ class DashScan extends Component {
 				if ( threats !== 0 ) {
 					return renderCard( {
 						content: [
-							<h3>
+							<h3 className="jp-dash-item__title jp-dash-item__title_fullwidth jp-dash-item__title_top">
 								{ __( 'Uh oh, %(number)s threat found.', 'Uh oh, %(number)s threats found.', {
 									count: threats,
 									args: { number: numberFormat( threats ) },
@@ -104,11 +106,11 @@ class DashScan extends Component {
 							</h3>,
 							<p className="jp-dash-item__description">
 								{ __( '{{a}}View details at VaultPress.com{{/a}}', {
-									components: { a: <a href="https://dashboard.vaultpress.com/" /> },
+									components: { a: <a href={ getRedirectUrl( 'vaultpress-dashboard' ) } /> },
 								} ) }
 								<br />
 								{ __( '{{a}}Contact Support{{/a}}', {
-									components: { a: <a href="https://jetpack.com/support" /> },
+									components: { a: <a href={ getRedirectUrl( 'jetpack-support' ) } /> },
 								} ) }
 							</p>,
 						],
@@ -147,7 +149,7 @@ class DashScan extends Component {
 							components: {
 								a: (
 									<a
-										href="https://wordpress.com/plugins/vaultpress"
+										href={ getRedirectUrl( 'calypso-plugins-vaultpress' ) }
 										target="_blank"
 										rel="noopener noreferrer"
 									/>
@@ -212,7 +214,7 @@ class DashScan extends Component {
 							__( "You need to enter your server's credentials to finish the setup." )
 						) }
 						{ buildAction(
-							`https://wordpress.com/settings/security/${ siteRawUrl }`,
+							getRedirectUrl( 'calypso-settings-security', { site: siteRawUrl } ),
 							__( 'Enter credentials' )
 						) }
 					</React.Fragment>
@@ -228,7 +230,7 @@ class DashScan extends Component {
 							)
 						) }
 						{ buildAction(
-							`https://wordpress.com/activity-log/${ siteRawUrl }`,
+							getRedirectUrl( 'calypso-activity-log', { site: siteRawUrl } ),
 							__( 'View security scan details' )
 						) }
 					</React.Fragment>
@@ -278,6 +280,7 @@ class DashScan extends Component {
 		return (
 			<div>
 				<QueryVaultPressData />
+				<QueryScanStatus />
 				{ content }
 			</div>
 		);

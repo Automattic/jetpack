@@ -53,6 +53,9 @@ class Jetpack_Recipes {
 			$allowedtags[ $tag ]['datetime'] = array();
 		}
 
+		// Allow the handler <a on=""> in AMP.
+		$allowedtags['a']['on'] = array();
+
 		// Allow itemscope and itemtype for divs.
 		if ( ! isset( $allowedtags['div'] ) ) {
 			$allowedtags['div'] = array();
@@ -103,6 +106,11 @@ class Jetpack_Recipes {
 
 		// add $themecolors-defined styles.
 		wp_add_inline_style( 'jetpack-recipes-style', self::themecolor_styles() );
+
+		if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
+			return;
+		}
+
 		wp_enqueue_script(
 			'jetpack-recipes-printthis',
 			Assets::get_file_url_for_environment( '_inc/build/shortcodes/js/recipes-printthis.min.js', 'modules/shortcodes/js/recipes-printthis.js' ),
@@ -202,7 +210,7 @@ class Jetpack_Recipes {
 				);
 			}
 
-			$time_types = array( 'cooktime', 'preptime', 'time' );
+			$time_types = array( 'preptime', 'cooktime', 'time' );
 			foreach ( $time_types as $time_type ) {
 				if ( '' === $atts[ $time_type ] ) {
 					continue;
@@ -254,9 +262,13 @@ class Jetpack_Recipes {
 			}
 
 			if ( 'false' !== $atts['print'] ) {
-				$html .= sprintf(
-					'<li class="jetpack-recipe-print"><a href="#">%1$s</a></li>',
-					esc_html_x( 'Print', 'recipe', 'jetpack' )
+				$is_amp       = class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request();
+				$print_action = $is_amp ? 'on="tap:AMP.print"' : '';
+				$print_text   = $is_amp ? esc_html__( 'Print page', 'jetpack' ) : esc_html_x( 'Print', 'recipe', 'jetpack' );
+				$html        .= sprintf(
+					'<li class="jetpack-recipe-print"><a href="#" %1$s>%2$s</a></li>',
+					$print_action,
+					$print_text
 				);
 			}
 
@@ -618,16 +630,25 @@ class Jetpack_Recipes {
 			return '';
 		}
 
+		$image_attrs = array(
+			'class'    => 'jetpack-recipe-image u-photo photo',
+			'itemprop' => 'image',
+		);
+
+		if (
+			function_exists( 'wp_lazy_loading_enabled' )
+			&& wp_lazy_loading_enabled( 'img', 'wp_get_attachment_image' )
+		) {
+			$image_attrs['loading'] = 'lazy';
+		}
+
 		// If it's numeric, this may be an attachment.
 		if ( is_numeric( $src ) ) {
 			return wp_get_attachment_image(
 				$src,
 				'full',
 				false,
-				array(
-					'class'    => 'jetpack-recipe-image u-photo photo',
-					'itemprop' => 'image',
-				)
+				$image_attrs
 			);
 		}
 
@@ -639,8 +660,18 @@ class Jetpack_Recipes {
 			return '';
 		}
 
+		$image_attrs_markup = '';
+		foreach ( $image_attrs as $name => $value ) {
+			$image_attrs_markup .= sprintf(
+				' %1$s="%2$s"',
+				esc_attr( $name ),
+				esc_attr( $value )
+			);
+		}
+
 		return sprintf(
-			'<img class="jetpack-recipe-image u-photo photo" itemprop="image" src="%1$s" />',
+			'<img%1$s src="%2$s" />',
+			$image_attrs_markup,
 			esc_url( $src )
 		);
 	}

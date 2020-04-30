@@ -28,6 +28,10 @@ export const PLAN_JETPACK_BACKUP_DAILY = 'jetpack_backup_daily';
 export const PLAN_JETPACK_BACKUP_DAILY_MONTHLY = 'jetpack_backup_daily_monthly';
 export const PLAN_JETPACK_BACKUP_REALTIME = 'jetpack_backup_realtime';
 export const PLAN_JETPACK_BACKUP_REALTIME_MONTHLY = 'jetpack_backup_realtime_monthly';
+export const PLAN_JETPACK_SEARCH = 'jetpack_search';
+export const PLAN_JETPACK_SEARCH_MONTHLY = 'jetpack_search_monthly';
+export const PLAN_JETPACK_SCAN = 'jetpack_scan';
+export const PLAN_JETPACK_SCAN_MONTHLY = 'jetpack_scan_monthly';
 export const PLAN_HOST_BUNDLE = 'host-bundle';
 export const PLAN_WPCOM_ENTERPRISE = 'wpcom-enterprise';
 export const PLAN_VIP = 'vip';
@@ -47,6 +51,10 @@ export const JETPACK_BACKUP_PRODUCTS = [
 	PLAN_JETPACK_BACKUP_REALTIME,
 	PLAN_JETPACK_BACKUP_REALTIME_MONTHLY,
 ];
+
+export const JETPACK_SEARCH_PRODUCTS = [ PLAN_JETPACK_SEARCH, PLAN_JETPACK_SEARCH_MONTHLY ];
+
+export const JETPACK_SCAN_PRODUCTS = [ PLAN_JETPACK_SCAN, PLAN_JETPACK_SCAN_MONTHLY ];
 
 export const PLAN_MONTHLY_PERIOD = 31;
 export const PLAN_ANNUAL_PERIOD = 365;
@@ -114,6 +122,14 @@ export const FEATURE_WORDADS_JETPACK = 'wordads-jetpack';
 export const FEATURE_GOOGLE_ANALYTICS_JETPACK = 'google-analytics-jetpack';
 export const FEATURE_SEARCH_JETPACK = 'search-jetpack';
 
+// Jetpack Search Tiers
+export const JETPACK_SEARCH_TIER_UP_TO_100_RECORDS = 'up_to_100_records';
+export const JETPACK_SEARCH_TIER_UP_TO_1K_RECORDS = 'up_to_1k_records';
+export const JETPACK_SEARCH_TIER_UP_TO_10K_RECORDS = 'up_to_10k_records';
+export const JETPACK_SEARCH_TIER_UP_TO_100K_RECORDS = 'up_to_100k_records';
+export const JETPACK_SEARCH_TIER_UP_TO_1M_RECORDS = 'up_to_1m_records';
+export const JETPACK_SEARCH_TIER_MORE_THAN_1M_RECORDS = 'more_than_1m_records';
+
 export function isMonthly( plan ) {
 	return includes( JETPACK_MONTHLY_PLANS, plan );
 }
@@ -128,6 +144,18 @@ export function isNew( plan ) {
 
 export function isJetpackBackup( product ) {
 	return includes( JETPACK_BACKUP_PRODUCTS, product );
+}
+
+export function isJetpackSearch( product ) {
+	return includes( JETPACK_SEARCH_PRODUCTS, product );
+}
+
+export function isJetpackScan( product ) {
+	return JETPACK_SCAN_PRODUCTS.includes( product );
+}
+
+export function isJetpackProduct( product ) {
+	return isJetpackBackup( product ) || isJetpackSearch( product ) || isJetpackScan( product );
 }
 
 export function getPlanClass( plan ) {
@@ -163,6 +191,12 @@ export function getPlanClass( plan ) {
 		case PLAN_JETPACK_BACKUP_REALTIME:
 		case PLAN_JETPACK_BACKUP_REALTIME_MONTHLY:
 			return 'is-realtime-backup-plan';
+		case PLAN_JETPACK_SEARCH:
+		case PLAN_JETPACK_SEARCH_MONTHLY:
+			return 'is-search-plan';
+		case PLAN_JETPACK_SCAN:
+		case PLAN_JETPACK_SCAN_MONTHLY:
+			return 'is-scan-plan';
 		default:
 			return '';
 	}

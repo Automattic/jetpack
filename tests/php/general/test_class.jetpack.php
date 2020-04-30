@@ -8,6 +8,27 @@ use Automattic\Jetpack\Status;
 
 // Extend with a public constructor so that can be mocked in tests
 class MockJetpack extends Jetpack {
+
+	/**
+	 * Holds the singleton instance of this class
+	 *
+	 * @var MockJetpack
+	 */
+	public static $instance = false;
+
+	/**
+	 * We are redefining this to overcome the lack of late static binding in the parent Jetpack class.
+	 *
+	 * @static
+	 */
+	public static function init() {
+		if ( ! self::$instance ) {
+			self::$instance = new self();
+		}
+
+		return self::$instance;
+	}
+
 	public function __construct() {
 		$this->connection_manager = new Connection_Manager();
 	}
@@ -40,6 +61,14 @@ class WP_Test_Jetpack extends WP_UnitTestCase {
 	public function tearDown() {
 		parent::tearDown();
 		Constants::clear_constants();
+	}
+
+	/**
+	 * Make sure that MockJetpack creates separate instances of `Jetpack` and `Automattic\Jetpack\Connection\Manager`.
+	 */
+	public function test_static_binding() {
+		$this->assertNotEquals( spl_object_hash( MockJetpack::init() ), spl_object_hash( Jetpack::init() ) );
+		$this->assertNotEquals( spl_object_hash( MockJetpack::connection() ), spl_object_hash( Jetpack::connection() ) );
 	}
 
 	/**
@@ -136,50 +165,6 @@ EXPECTED;
 		$result = Jetpack::absolutize_css_urls( $css, 'http://example.com/dir1/dir2/style.css' );
 		$this->assertEquals( $expected, $result );
 
-	}
-
-	/**
-	 * @author  kraftbj
-	 * @covers Jetpack::is_staging_site
-	 * @since  3.9.0
-	 */
-	public function test_is_staging_site_will_report_staging_for_wpengine_sites_by_url() {
-		add_filter( 'site_url', array( $this, 'pre_test_is_staging_site_will_report_staging_for_wpengine_sites_by_url' ) );
-		$this->assertTrue( MockJetpack::is_staging_site() );
-		remove_filter( 'site_url', array( $this, 'pre_test_is_staging_site_will_report_staging_for_wpengine_sites_by_url' ) );
-
-	}
-
-	public function pre_test_is_staging_site_will_report_staging_for_wpengine_sites_by_url(){
-		return 'http://bjk.staging.wpengine.com';
-	}
-
-	/**
-	 * @dataProvider get_is_staging_site_known_hosting_providers_data
-	 */
-	public function test_is_staging_site_for_known_hosting_providers( $site_url ) {
-		$original_site_url = get_option( 'siteurl' );
-		update_option( 'siteurl', $site_url );
-		$result = MockJetpack::is_staging_site();
-		update_option( 'siteurl', $original_site_url );
-		$this->assertTrue(
-			$result,
-			sprintf( 'Expected %s to return true for `is_staging_site()', $site_url )
-		);
-	}
-
-	public function get_is_staging_site_known_hosting_providers_data() {
-		return array(
-			'wpengine' => array(
-				'http://bjk.staging.wpengine.com',
-			),
-			'kinsta' => array(
-				'http://test.staging.kinsta.com',
-			),
-			'dreampress' => array(
-				'http://ebinnion.stage.site',
-			),
-		);
 	}
 
 	/*
@@ -557,7 +542,7 @@ EXPECTED;
 
 	function test_is_staging_site_true_when_sync_error_idc_is_valid() {
 		add_filter( 'jetpack_sync_error_idc_validation', '__return_true' );
-		$this->assertTrue( Jetpack::is_staging_site() );
+		$this->assertTrue( ( new Status() )->is_staging_site() );
 		remove_filter( 'jetpack_sync_error_idc_validation', '__return_false' );
 	}
 
@@ -1223,4 +1208,78 @@ EXPECTED;
 		);
 	}
 
+	/**
+	 * Tests login URL only adds redirect param when redirect param is in original request.
+	 *
+	 * @since 8.4.0
+	 * @return void
+	 */
+	public function test_login_url_add_redirect() {
+		$login_url = wp_login_url( '/wp-admin' );
+		$this->assertFalse( strpos( $login_url, Jetpack::$jetpack_redirect_login ) );
+
+		$login_url = wp_login_url( '/wp-admin?' . Jetpack::$jetpack_redirect_login . '=true' );
+		parse_str( wp_parse_url( $login_url, PHP_URL_QUERY ), $login_parts );
+		$this->assertArraySubset( array( Jetpack::$jetpack_redirect_login => 'true' ), $login_parts, true );
+	}
+
+	/**
+	 * Tests login redirect sending users to Calypso when redirect param is set.
+	 *
+	 * @since 8.4.0
+	 * @return void
+	 */
+	public function test_login_init_redirect() {
+		tests_add_filter(
+			'wp_redirect',
+			function( $location ) {
+				$expected_location = add_query_arg(
+					array(
+						'forceInstall' => 1,
+						'url'          => rawurlencode( get_site_url() ),
+					),
+					'https://wordpress.com/jetpack/connect'
+				);
+				$this->assertEquals( $location, $expected_location );
+				throw new Exception(); // Cause an exception, as we don't want to run exit.
+			}
+		);
+
+		// Remove core filters that add headers.
+		remove_filter( 'login_init', 'wp_admin_headers' );
+		remove_filter( 'login_init', 'send_frame_options_header' );
+
+		// Run it once and no exception is thrown.
+		do_action( 'login_init' );
+
+		$this->expectException( Exception::class );
+		$_GET[ Jetpack::$jetpack_redirect_login ] = 'true';
+		do_action( 'login_init' ); // Now expect an exception.
+	}
+
+	/**
+	 * Tests getting the correct Calypso host.
+	 *
+	 * @since 8.4.0
+	 * @return void
+	 */
+	public function test_get_calypso_host() {
+		// No env.
+		$this->assertEquals( 'https://wordpress.com/', Jetpack::get_calypso_host() );
+
+		$_GET['calypso_env'] = 'development';
+		$this->assertEquals( 'http://calypso.localhost:3000/', Jetpack::get_calypso_host() );
+
+		$_GET['calypso_env'] = 'wpcalypso';
+		$this->assertEquals( 'https://wpcalypso.wordpress.com/', Jetpack::get_calypso_host() );
+
+		$_GET['calypso_env'] = 'horizon';
+		$this->assertEquals( 'https://horizon.wordpress.com/', Jetpack::get_calypso_host() );
+
+		$_GET['calypso_env'] = 'stage';
+		$this->assertEquals( 'https://wordpress.com/', Jetpack::get_calypso_host() );
+
+		$_GET['calypso_env'] = 'production';
+		$this->assertEquals( 'https://wordpress.com/', Jetpack::get_calypso_host() );
+	}
 } // end class

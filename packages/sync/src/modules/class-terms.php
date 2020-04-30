@@ -34,7 +34,7 @@ class Terms extends Module {
 	 * @return string
 	 */
 	public function id_field() {
-		return 'term_id';
+		return 'term_taxonomy_id';
 	}
 
 	/**

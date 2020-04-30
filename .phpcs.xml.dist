@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <ruleset name="Jetpack">
-	<config name="minimum_supported_wp_version" value="5.2" />
+	<config name="minimum_supported_wp_version" value="5.3" />
 	<config name="testVersion" value="5.6-"/>
 
 	<rule ref="PHPCompatibilityWP"/>
@@ -18,6 +18,9 @@
 		<properties>
 			<property name="allowWordPressPassByRefFunctions" value="true" />
 		</properties>
+
+		<!-- Template files use extracted variables. -->
+		<exclude-pattern>/extensions/blocks/podcast-player/templates/*</exclude-pattern>
 	</rule>
 
 	<rule ref="WordPress.WP.I18n">
@@ -35,8 +38,6 @@
 
 	<arg name="colors"/>
 
-	<exclude-pattern>/docker/*</exclude-pattern>
 	<exclude-pattern>/node_modules/*</exclude-pattern>
-	<exclude-pattern>/tests/*</exclude-pattern>
 	<exclude-pattern>/vendor/*</exclude-pattern>
 </ruleset>

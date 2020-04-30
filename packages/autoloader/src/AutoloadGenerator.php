@@ -81,10 +81,14 @@ class AutoloadGenerator extends BaseGenerator {
 		$autoloads  = $this->parseAutoloads( $packageMap, $mainPackage );
 
 		$classMap = $this->getClassMap( $autoloads, $filesystem, $vendorPath, $basePath );
+		$fileMap  = $this->getFileMap( $autoloads, $filesystem, $vendorPath, $basePath );
 
 		// Generate the files.
 		file_put_contents( $targetDir . '/autoload_classmap_package.php', $this->getAutoloadClassmapPackagesFile( $classMap ) );
 		$this->io->writeError( '<info>Generated ' . $targetDir . '/autoload_classmap_package.php</info>', true );
+
+		file_put_contents( $targetDir . '/autoload_files_package.php', $this->getAutoloadFilesPackagesFile( $fileMap ) );
+		$this->io->writeError( '<info>Generated ' . $targetDir . '/autoload_files_package.php</info>', true );
 
 		file_put_contents( $vendorPath . '/autoload_packages.php', $this->getAutoloadPackageFile( $suffix ) );
 		$this->io->writeError( '<info>Generated ' . $vendorPath . '/autoload_packages.php</info>', true );
@@ -106,7 +110,7 @@ class AutoloadGenerator extends BaseGenerator {
 	protected function parseAutoloadsType( array $packageMap, $type, PackageInterface $mainPackage ) {
 		$autoloads = array();
 
-		if ( 'psr-4' !== $type && 'classmap' !== $type ) {
+		if ( 'psr-4' !== $type && 'classmap' !== $type && 'files' !== $type ) {
 			return parent::parseAutoloadsType( $packageMap, $type, $mainPackage );
 		}
 
@@ -147,6 +151,18 @@ class AutoloadGenerator extends BaseGenerator {
 					}
 				}
 			}
+			if ( 'files' === $type && isset( $autoload['files'] ) && is_array( $autoload['files'] ) ) {
+				foreach ( $autoload['files'] as $file_id => $paths ) {
+					$paths = is_array( $paths ) ? $paths : array( $paths );
+					foreach ( $paths as $path ) {
+						$relativePath = empty( $installPath ) ? ( empty( $path ) ? '.' : $path ) : $installPath . '/' . $path;
+						$autoloads[ $this->getFileIdentifier( $package, $path ) ]  = array(
+							'path'    => $relativePath,
+							'version' => $package->getVersion(), // Version of the file comes from the package - should we try to parse it?
+						);
+					}
+				}
+			}
 		}
 
 		return $autoloads;
@@ -160,7 +176,7 @@ class AutoloadGenerator extends BaseGenerator {
 	 * @param string     $vendorPath Path to the vendor directory.
 	 * @param string     $basePath Base Path.
 	 *
-	 * @return array $classMap
+	 * @return string $classMap
 	 */
 	private function getClassMap( array $autoloads, Filesystem $filesystem, $vendorPath, $basePath ) {
 		$blacklist = null;
@@ -176,8 +192,8 @@ class AutoloadGenerator extends BaseGenerator {
 			foreach ( $packages_info as $package ) {
 				$dir       = $filesystem->normalizePath(
 					$filesystem->isAbsolutePath( $package['path'] )
-					? $package['path']
-					: $basePath . '/' . $package['path']
+						? $package['path']
+						: $basePath . '/' . $package['path']
 				);
 				$namespace = empty( $namespace ) ? null : $namespace;
 				$map       = ClassMapGenerator::createMap( $dir, $blacklist, $this->io, $namespace );
@@ -200,8 +216,8 @@ CLASS_CODE;
 		foreach ( $autoloads['classmap'] as $package ) {
 			$dir = $filesystem->normalizePath(
 				$filesystem->isAbsolutePath( $package['path'] )
-				? $package['path']
-				: $basePath . '/' . $package['path']
+					? $package['path']
+					: $basePath . '/' . $package['path']
 			);
 			$map = ClassMapGenerator::createMap( $dir, $blacklist, $this->io, null );
 
@@ -225,7 +241,7 @@ CLASS_CODE;
 	/**
 	 * Generate the PHP that will be used in the autoload_classmap_package.php files.
 	 *
-	 * @param srting $classMap class map array string that is to be written out to the file.
+	 * @param string $classMap class map array string that is to be written out to the file.
 	 *
 	 * @return string
 	 */
@@ -242,6 +258,56 @@ CLASS_CODE;
 return $classMap
 
 INCLUDE_CLASSMAP;
+	}
+
+	/**
+	 * Take the autoloads array and return the fileMap that contains the path and the version for each namespace.
+	 *
+	 * @param array      $autoloads Array of autoload settings defined defined by the packages.
+	 * @param Filesystem $filesystem Filesystem class instance.
+	 * @param string     $vendorPath Path to the vendor directory.
+	 * @param string     $basePath Base Path.
+	 *
+	 * @return string $fileMap
+	 */
+	private function getFileMap( array $autoloads, Filesystem $filesystem, $vendorPath, $basePath ) {
+		$fileMapString = '';
+		foreach ( $autoloads['files'] as $file_id => $package ) {
+			$key            = var_export( $file_id, true );
+			$pathCode       = $this->getPathCode( $filesystem, $basePath, $vendorPath, $package['path'] );
+			$versionCode    = var_export( $package['version'], true );
+			$fileMapString .= <<<FILE_CODE
+	$key => array(
+		'version' => $versionCode,
+		'path'    => $pathCode
+	),
+FILE_CODE;
+			$fileMapString .= PHP_EOL;
+		}
+
+		return 'array( ' . PHP_EOL . $fileMapString . ');' . PHP_EOL;
+	}
+
+	/**
+	 * Generate the PHP that will be used in the autoload_files_package.php files.
+	 *
+	 * @param string $filesMap files array as string that is to be written out to the file.
+	 *
+	 * @return string
+	 */
+	private function getAutoloadFilesPackagesFile( $filesMap ) {
+
+		return <<<INCLUDE_FILEMAP
+<?php
+
+// This file `autoload_files_packages.php` was auto generated by automattic/jetpack-autoloader.
+
+\$vendorDir = dirname(__DIR__);
+\$baseDir   = dirname(\$vendorDir);
+
+return $filesMap
+
+INCLUDE_FILEMAP;
 	}
 
 	/**
@@ -264,17 +330,22 @@ function enqueue_packages_$suffix() {
 		enqueue_package_class( \$class_name, \$class_info['version'], \$class_info['path'] );
 	}
 
-	\$autoload_file = __DIR__ . '/composer/autoload_files.php';
+	\$autoload_file = __DIR__ . '/composer/autoload_files_package.php';
+
 	\$includeFiles = file_exists( \$autoload_file )
 		? require \$autoload_file
 		: array();
 
-	foreach ( \$includeFiles as \$fileIdentifier => \$file ) {
-		if ( empty( \$GLOBALS['__composer_autoload_files'][ \$fileIdentifier ] ) ) {
-			require \$file;
+	foreach ( \$includeFiles as \$fileIdentifier => \$file_data ) {
+		enqueue_package_file( \$fileIdentifier, \$file_data[ 'version' ], \$file_data[ 'path' ] );
+	}
 
-			\$GLOBALS['__composer_autoload_files'][ \$fileIdentifier ] = true;
-		}
+	if ( function_exists( 'has_action') && function_exists( 'did_action' ) && ! did_action( 'plugins_loaded' ) && false === has_action( 'plugins_loaded', __NAMESPACE__ . '\\file_loader' ) ) {
+		// Add action if it has not been added and has not happened yet.
+		// Priority -10 to load files as early as possible in case plugins try to use them during `plugins_loaded`.
+		add_action( 'plugins_loaded', __NAMESPACE__ . '\\file_loader', 0, -10 );
+	} elseif( ! function_exists( 'did_action' ) || did_action( 'plugins_loaded' ) ) {
+		file_loader(); // Either WordPress is not loaded or plugin is doing it wrong. Either way we'll load the files so nothing breaks.
 	}
 }
 enqueue_packages_$suffix();

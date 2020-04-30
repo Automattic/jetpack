@@ -11,6 +11,7 @@ import { bindActionCreators } from 'redux';
 import Masthead from 'components/masthead';
 import LoadingPlaceholder from 'components/loading-placeholder';
 import { setInitialState } from 'state/initial-state';
+import Footer from 'components/footer';
 
 class StaticMain extends React.Component {
 	UNSAFE_componentWillMount() {
@@ -22,7 +23,8 @@ class StaticMain extends React.Component {
 			<div id="jp-plugin-container">
 				<Masthead { ...this.props } />
 				<LoadingPlaceholder { ...this.props } />
-				<style type="text/css">{ '.vp-deactivated { display: none; }' }</style>
+				<Footer { ...this.props } />
+				<style type="text/css">{ '.vp-deactivated{ display: none; }' }</style>
 			</div>
 		);
 	}

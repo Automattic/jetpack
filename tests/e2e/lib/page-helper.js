@@ -11,6 +11,8 @@ import { readFileSync } from 'fs';
  * Internal dependencies
  */
 import { sendSnippetToSlack } from './reporters/slack';
+import logger from './logger';
+import { execSyncShellCommand } from './utils-helper';
 
 /**
  * Waits for selector to be present in DOM. Throws a `TimeoutError` if element was not found after 30 sec. Behavior can be modified with @param options. Possible keys: `visible`, `hidden`, `timeout`.
@@ -31,14 +33,14 @@ export async function waitForSelector( page, selector, options = {} ) {
 	try {
 		const element = await page.waitForSelector( selector, options );
 		const secondsPassed = ( new Date() - startTime ) / 1000;
-		console.log( `Found element by locator: ${ selector }. Waited for: ${ secondsPassed } sec` );
+		logger.info( `Found element by locator: ${ selector }. Waited for: ${ secondsPassed } sec` );
 		return element;
 	} catch ( e ) {
 		if ( options.logHTML && PUPPETEER_HEADLESS !== 'false' ) {
 			await logHTML();
 		}
 		const secondsPassed = ( new Date() - startTime ) / 1000;
-		console.log(
+		logger.info(
 			`Failed to locate an element by locator: ${ selector }. Waited for: ${ secondsPassed } sec. URL: ${ page.url() }`
 		);
 		throw e;
@@ -54,12 +56,13 @@ export async function waitForSelector( page, selector, options = {} ) {
  * @param {Object} options Custom options to modify function behavior.
  */
 export async function waitAndClick( page, selector, options = { visible: true } ) {
-	const element = await waitForSelector( page, selector, options );
-	return await element.click( options );
+	await waitForSelector( page, selector, options );
+	return await page.click( selector, options );
 }
 
 /**
  * Waits for element to be present in DOM, removes all the previous content and types @param value into the element.
+ *
  * @param {Puppeteer.Page} page Puppeteer representation of the page.
  * @param {string} selector CSS selector of the element
  * @param {string} value Value to type into
@@ -84,11 +87,11 @@ export async function waitAndType( page, selector, value, options = { visible: t
  * @return {boolean} true if visible, false if not
  */
 export async function isEventuallyVisible( page, selector, timeout = 5000 ) {
-	const isPresent = await isEventuallyPresent( this.page, selector, { visible: true, timeout } );
-	if ( ! isPresent ) {
-		console.log( `Element is not visible by locator: ${ selector }` );
+	const isVisible = await isEventuallyPresent( page, selector, { visible: true, timeout } );
+	if ( ! isVisible ) {
+		logger.info( `Element is not visible by locator: ${ selector }` );
 	}
-	return isPresent;
+	return isVisible;
 }
 
 /**
@@ -174,21 +177,28 @@ export async function scrollIntoView( page, selector ) {
 export async function logHTML() {
 	const bodyHTML = await page.evaluate( () => document.body.innerHTML );
 	if ( process.env.E2E_DEBUG ) {
-		console.log( '#### PAGE HTML ####' );
-		console.log( page.url() );
-		console.log( bodyHTML );
+		logger.info( '#### PAGE HTML ####' );
+		logger.info( page.url() );
+		logger.info( bodyHTML );
 	}
 	await sendSnippetToSlack( bodyHTML );
 	return bodyHTML;
 }
 
 export async function logDebugLog() {
-	const log = readFileSync( '/home/travis/wordpress/wp-content/debug.log' ).toString();
+	let log;
+	if ( process.env.CI ) {
+		log = readFileSync( '/home/travis/wordpress/wp-content/debug.log' ).toString();
+	} else {
+		const cmd = './tests/e2e/bin/docker-e2e-cli.sh ct "cat wp-content/debug.log"';
+		log = execSyncShellCommand( cmd );
+	}
+
 	if ( log.length > 1 ) {
 		if ( process.env.E2E_DEBUG ) {
-			console.log( '#### WP DEBUG.LOG ####' );
-			console.log( log );
+			logger.info( '#### WP DEBUG.LOG ####' );
+			logger.info( log );
 		}
-		await sendSnippetToSlack( log );
+		logger.slack( { message: log, type: 'debuglog' } );
 	}
 }

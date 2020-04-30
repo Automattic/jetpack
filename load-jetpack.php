@@ -33,10 +33,7 @@ add_filter( 'jetpack_require_lib_dir', 'jetpack_require_lib_dir' );
  * @filter jetpack_should_use_minified_assets
  */
 function jetpack_should_use_minified_assets() {
-	if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
-		return false;
-	}
-	return true;
+	return ! defined( 'SCRIPT_DEBUG' ) || ! SCRIPT_DEBUG;
 }
 add_filter( 'jetpack_should_use_minified_assets', 'jetpack_should_use_minified_assets', 9 );
 
@@ -54,6 +51,7 @@ require_once JETPACK__PLUGIN_DIR . 'functions.photon.php';
 require_once JETPACK__PLUGIN_DIR . 'functions.global.php';
 require_once JETPACK__PLUGIN_DIR . 'functions.compat.php';
 require_once JETPACK__PLUGIN_DIR . 'functions.gallery.php';
+require_once JETPACK__PLUGIN_DIR . 'functions.cookies.php';
 require_once JETPACK__PLUGIN_DIR . 'require-lib.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-autoupdate.php';
 require_once JETPACK__PLUGIN_DIR . 'class.frame-nonce-preview.php';
@@ -62,12 +60,8 @@ require_once JETPACK__PLUGIN_DIR . 'class.jetpack-idc.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-connection-banner.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-plan.php';
 
-Automattic\Jetpack\Sync\Main::init();
-
 if ( is_admin() ) {
 	require_once JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php';
-	$jitm = new Automattic\Jetpack\JITM();
-	add_action( 'plugins_loaded', array( $jitm, 'register' ) );
 	jetpack_require_lib( 'debugger' );
 }
 
@@ -80,19 +74,8 @@ require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.core-rest-api-endpoints.php';
 
 add_action( 'updating_jetpack_version', array( 'Jetpack', 'do_version_bump' ), 10, 2 );
 add_action( 'init', array( 'Jetpack', 'init' ) );
-add_action( 'plugins_loaded', array( 'Jetpack', 'plugin_textdomain' ), 99 );
-add_action( 'plugins_loaded', array( 'Jetpack', 'load_modules' ), 100 );
 add_filter( 'jetpack_static_url', array( 'Jetpack', 'staticize_subdomain' ) );
 add_filter( 'is_jetpack_site', '__return_true' );
-
-/**
- * Add an easy way to photon-ize a URL that is safe to call even if Jetpack isn't active.
- *
- * See: https://jetpack.com/2013/07/11/photon-and-themes/
- */
-if ( Jetpack::is_module_active( 'photon' ) ) {
-	add_filter( 'jetpack_photon_url', 'jetpack_photon_url', 10, 3 );
-}
 
 if ( JETPACK__SANDBOX_DOMAIN ) {
 	require_once JETPACK__PLUGIN_DIR . '_inc/jetpack-server-sandbox.php';

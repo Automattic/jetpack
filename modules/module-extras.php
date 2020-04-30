@@ -18,6 +18,8 @@ $tools = array(
 	'custom-post-types/testimonial.php',
 	'custom-post-types/nova.php',
 	'geo-location.php',
+	// Those oEmbed providers are always available.
+	'shortcodes/others.php',
 	'theme-tools.php',
 	'theme-tools/social-links.php',
 	'theme-tools/random-redirect.php',
@@ -44,8 +46,8 @@ $connected_tools = array(
 	'calypsoify/class.jetpack-calypsoify.php',
 	'plugin-search.php',
 	'simple-payments/simple-payments.php',
-	'woocommerce-analytics/wp-woocommerce-analytics.php',
 	'wpcom-block-editor/class-jetpack-wpcom-block-editor.php',
+	'wpcom-tos/wpcom-tos.php',
 );
 
 // Add connected features to our existing list if the site is currently connected.

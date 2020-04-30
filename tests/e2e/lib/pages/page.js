@@ -2,6 +2,7 @@
  * Internal dependencies
  */
 import { waitForSelector } from '../page-helper';
+import logger from '../logger';
 
 export default class Page {
 	constructor( page, { expectedSelector, url = null, explicitWaitMS = 25000 } ) {
@@ -15,6 +16,7 @@ export default class Page {
 
 	/**
 	 * Static method which initialize a page object. Also waits for `this.expectedSelector` to become visible, which kinda simulates page loads
+	 *
 	 * @param {Puppeteer.Page} page Puppeteer representation of the page.
 	 *
 	 * @return {Page} Instance of the Page Object class
@@ -54,11 +56,12 @@ export default class Page {
 
 	/**
 	 * Adds a cookie to the browser and reloads the page.
+	 *
 	 * @param {string} sandboxCookieValue Cookie to use
 	 * @param {string} domain Cookie domain
 	 */
 	async setSandboxModeForPayments( sandboxCookieValue, domain = '.wordpress.com' ) {
-		console.log( `Setting up the cookie for ${ this.name } page on ${ this.page.url() }` );
+		logger.info( `Setting up the cookie for ${ this.name } page on ${ this.page.url() }` );
 
 		await this.page.setCookie( {
 			name: 'store_sandbox',
@@ -71,6 +74,7 @@ export default class Page {
 
 	/**
 	 * Reloads the page and waits for the expected locator
+	 *
 	 * @param {Object} options page.reload options object
 	 */
 	async reload( options = {} ) {
@@ -82,7 +86,7 @@ export default class Page {
 		let reloadNeeded = await callback();
 		let count = 1;
 		while ( reloadNeeded || count > 5 ) {
-			console.log( 'Reloading since reloadNeeded is: ', reloadNeeded.toString() );
+			logger.info( 'Reloading since reloadNeeded is: ', reloadNeeded.toString() );
 
 			await this.reload( options );
 			reloadNeeded = await callback();

@@ -68,15 +68,17 @@ class SubmitButton extends Component {
 		const textClass = get( textButtonColor, 'class' );
 		const backgroundClass = get( backgroundButtonColor, 'class' );
 		return classnames( 'wp-block-button__link', {
-			'has-text-color': textButtonColor,
+			'has-text-color': textButtonColor.color,
 			[ textClass ]: textClass,
-			'has-background': backgroundButtonColor,
+			'has-background': backgroundButtonColor.color,
 			[ backgroundClass ]: backgroundClass,
 		} );
 	}
 	render() {
 		const {
 			attributes,
+			backgroundButtonColor,
+			textButtonColor,
 			fallbackBackgroundColor,
 			fallbackTextColor,
 			setAttributes,
@@ -84,8 +86,8 @@ class SubmitButton extends Component {
 			setTextButtonColor,
 		} = this.props;
 
-		const backgroundColor = attributes.customBackgroundButtonColor || fallbackBackgroundColor;
-		const color = attributes.customTextButtonColor || fallbackTextColor;
+		const backgroundColor = backgroundButtonColor.color || fallbackBackgroundColor;
+		const color = textButtonColor.color || fallbackTextColor;
 		const buttonStyle = { border: 'none', backgroundColor, color };
 		const buttonClasses = this.getButtonClasses();
 
@@ -108,23 +110,22 @@ class SubmitButton extends Component {
 						colorSettings={ [
 							{
 								value: backgroundColor,
-								onChange: nextColour => {
-									setBackgroundButtonColor( nextColour );
-									setAttributes( { customBackgroundButtonColor: nextColour } );
-								},
+								onChange: setBackgroundButtonColor,
 								label: __( 'Background Color', 'jetpack' ),
 							},
 							{
 								value: color,
-								onChange: nextColour => {
-									setTextButtonColor( nextColour );
-									setAttributes( { customTextButtonColor: nextColour } );
-								},
+								onChange: setTextButtonColor,
 								label: __( 'Text Color', 'jetpack' ),
 							},
 						] }
 					/>
-					<ContrastChecker textColor={ color } backgroundColor={ backgroundColor } />
+					<ContrastChecker
+						textColor={ color }
+						backgroundColor={ backgroundColor }
+						fallbackBackgroundColor
+						fallbackTextColor
+					/>
 				</InspectorControls>
 			</Fragment>
 		);
@@ -132,6 +133,6 @@ class SubmitButton extends Component {
 }
 
 export default compose( [
-	withColors( 'backgroundButtonColor', { textButtonColor: 'color' } ),
+	withColors( { backgroundButtonColor: 'background-color' }, { textButtonColor: 'color' } ),
 	applyFallbackStyles,
 ] )( SubmitButton );

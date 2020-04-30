@@ -70,6 +70,7 @@ class WordAds {
 
 	/**
 	 * Checks for AMP support and returns true iff active & AMP request
+	 *
 	 * @return boolean True if supported AMP request
 	 *
 	 * @since 7.5.0
@@ -108,6 +109,7 @@ class WordAds {
 
 	/**
 	 * Returns the ad tag property array for supported ad types.
+	 *
 	 * @return array      array with ad tags
 	 *
 	 * @since 7.1.0
@@ -118,6 +120,7 @@ class WordAds {
 
 	/**
 	 * Returns the solo css for unit
+	 *
 	 * @return string the special css for solo units
 	 *
 	 * @since 7.1.0
@@ -332,11 +335,10 @@ HTML;
 		$data_tags = ( $this->params->cloudflare ) ? ' data-cfasync="false"' : '';
 		echo <<<HTML
 		<script$data_tags type="text/javascript">
-			(function(){function g(a,c){a:{for(var b=a.length,d="string"==typeof a?a.split(""):a,e=0;e<b;e++)if(e in d&&c.call(void 0,d[e],e,a)){c=e;break a}c=-1}return 0>c?null:"string"==typeof a?a.charAt(c):a[c]};function h(a,c,b){b=null!=b?"="+encodeURIComponent(String(b)):"";if(c+=b){b=a.indexOf("#");0>b&&(b=a.length);var d=a.indexOf("?");if(0>d||d>b){d=b;var e=""}else e=a.substring(d+1,b);a=[a.substr(0,d),e,a.substr(b)];b=a[1];a[1]=c?b?b+"&"+c:c:b;a=a[0]+(a[1]?"?"+a[1]:"")+a[2]}return a};var k=0;function l(a,c){var b=document.createElement("script");b.src=a;b.onload=function(){c&&c(void 0)};b.onerror=function(){c("error")};a=document.getElementsByTagName("head");var d;a&&0!==a.length?d=a[0]:d=document.documentElement;d.appendChild(b)}function m(a){return"string"==typeof a&&0<a.length}
-			function p(a,c,b){c=void 0===c?"":c;b=void 0===b?".":b;var d=[];Object.keys(a).forEach(function(e){var f=a[e],n=typeof f;"object"==n&&null!=f||"function"==n?d.push(p(f,c+e+b)):null!==f&&void 0!==f&&(e=encodeURIComponent(c+e),d.push(e+"="+encodeURIComponent(f)))});return d.filter(m).join("&")}function q(){return window.__ATA||{}}function r(a,c){a||(q().config=c.c,l(c.url))}var t=Math.floor(1E13*Math.random());q().rid=t;
-			var u=q().pageParams,v="//"+(q().serverDomain||"s.pubmine.com")+"/conf",w=window.top===window,x;try{var y=JSON.parse(document.getElementById("oil-configuration").innerText);if("boolean"!==typeof y.gdpr_applies)throw Error("Config doesn't contain gdpr_applies");x=y.gdpr_applies?1:0}catch(a){x=null}
-			var z=x,A=window.__ATA_PP||u||null,B=w?document.referrer?document.referrer:null:null,C=w?null:document.referrer?document.referrer:null,D=function(){var a=void 0===a?document.cookie:a;return(a=g(a.split("; "),function(c){return-1!=c.indexOf("__ATA_tuuid=")}))?a.split("=")[1]:""}(),E=p({gdpr:z,pp:A,rid:t,src:B,ref:C,tuuid:D?D:null,vp:window.innerWidth+"x"+window.innerHeight},"",".");
-			(function(a){var c;k++;var b="callback__"+Date.now().toString(36)+"_"+k.toString(36);a=h(a,void 0===c?"cb":c,b);window[b]=function(d){r(void 0,d)};l(a,function(d){d&&r(d)})})(v+"?"+E);}).call(this);
+		(function(){var g=Date.now||function(){return+new Date};function h(a,b){a:{for(var c=a.length,d="string"==typeof a?a.split(""):a,e=0;e<c;e++)if(e in d&&b.call(void 0,d[e],e,a)){b=e;break a}b=-1}return 0>b?null:"string"==typeof a?a.charAt(b):a[b]};function k(a,b,c){c=null!=c?"="+encodeURIComponent(String(c)):"";if(b+=c){c=a.indexOf("#");0>c&&(c=a.length);var d=a.indexOf("?");if(0>d||d>c){d=c;var e=""}else e=a.substring(d+1,c);a=[a.substr(0,d),e,a.substr(c)];c=a[1];a[1]=b?c?c+"&"+b:b:c;a=a[0]+(a[1]?"?"+a[1]:"")+a[2]}return a};var l=0;function m(a,b){var c=document.createElement("script");c.src=a;c.onload=function(){b&&b(void 0)};c.onerror=function(){b("error")};a=document.getElementsByTagName("head");var d;a&&0!==a.length?d=a[0]:d=document.documentElement;d.appendChild(c)}function n(a){var b=void 0===b?document.cookie:b;return(b=h(b.split("; "),function(c){return-1!=c.indexOf(a+"=")}))?b.split("=")[1]:""}function p(a){return"string"==typeof a&&0<a.length}
+		function r(a,b,c){b=void 0===b?"":b;c=void 0===c?".":c;var d=[];Object.keys(a).forEach(function(e){var f=a[e],q=typeof f;"object"==q&&null!=f||"function"==q?d.push(r(f,b+e+c)):null!==f&&void 0!==f&&(e=encodeURIComponent(b+e),d.push(e+"="+encodeURIComponent(f)))});return d.filter(p).join("&")}function t(a,b){a||((window.__ATA||{}).config=b.c,m(b.url))}var u=Math.floor(1E13*Math.random()),v=window.__ATA||{};window.__ATA=v;v.rid=u;v.createdAt=g();var w=window.__ATA||{},x="s.pubmine.com";
+		w&&w.serverDomain&&(x=w.serverDomain);var y="//"+x+"/conf",z=window.top===window,A=window.__ATA_PP&&window.__ATA_PP.gdpr_applies,B="boolean"===typeof A?Number(A):null,C=window.__ATA_PP||null,D=z?document.referrer?document.referrer:null:null,E=z?window.location.href:document.referrer?document.referrer:null,F,G=n("__ATA_tuuid");F=G?G:null;var H=window.innerWidth+"x"+window.innerHeight,I=n("usprivacy"),J=r({gdpr:B,pp:C,rid:u,src:D,ref:E,tuuid:F,vp:H,us_privacy:I?I:null},"",".");
+		(function(a){var b=void 0===b?"cb":b;l++;var c="callback__"+g().toString(36)+"_"+l.toString(36);a=k(a,b,c);window[c]=function(d){t(void 0,d)};m(a,function(d){d&&t(d)})})(y+"?"+J);}).call(this);
 		</script>
 HTML;
 	}
@@ -423,7 +425,7 @@ HTML;
 	}
 
 	/**
-	 * Special cases for inserting header unit via jQuery
+	 * Special cases for inserting header unit via JS
 	 *
 	 * @since 4.5.0
 	 */
@@ -450,7 +452,7 @@ HTML;
 				$selector = '#main';
 				break;
 			case 'twentyfourteen':
-				$selector = 'article:first';
+				$selector = 'article';
 				break;
 		}
 
@@ -459,7 +461,15 @@ HTML;
 		if ( ! self::is_amp() ) {
 			echo <<<HTML
 		<script type="text/javascript">
-			jQuery('.wpcnt-header').insertBefore('$selector');
+			(function ( selector ) {
+				var main = document.querySelector( selector );
+				var headerAd = document.querySelector('.wpcnt-header');
+
+				if ( main ) {
+					main.parentNode.insertBefore( headerAd, main );
+				}
+			})( '$selector' );
+
 		</script>
 HTML;
 		}
@@ -536,9 +546,9 @@ HTML;
 				$section_id = 0 === $this->params->blog_id ? WORDADS_API_TEST_ID : $this->params->blog_id . '5';
 				$snippet    = $this->get_ad_snippet( $section_id, $height, $width, $spot, self::$SOLO_UNIT_CSS );
 			} elseif ( 'top_amp' === $spot ) {
-				// 320x50 unit which can safely be inserted below title, above content in a variety of themes.
-				$width   = 320;
-				$height  = 50;
+				// Ad unit which can safely be inserted below title, above content in a variety of themes.
+				$width   = $this->params->mobile_device ? 320 : 300;
+				$height  = $this->params->mobile_device ? 50 : 250;
 				$snippet = $this->get_ad_snippet( null, $height, $width );
 			}
 		} elseif ( 'house' == $type ) {
@@ -588,7 +598,7 @@ HTML;
 
 		$ad_number = count( $this->ads ) . '-' . uniqid();
 		$data_tags = $this->params->cloudflare ? ' data-cfasync="false"' : '';
-		$css = esc_attr( $css );
+		$css       = esc_attr( $css );
 
 		$loc_id = 100;
 		if ( ! empty( self::$ad_location_ids[ $location ] ) ) {
@@ -617,10 +627,10 @@ HTML;
 	/**
 	 * Returns the complete ad div with snippet to be inserted into the page
 	 *
-	 * @param  string  $spot top, side, inline, or belowpost
-	 * @param  string  $snippet The snippet to insert into the div
-	 * @param  array  $css_classes
-	 * @return string The supporting ad unit div
+	 * @param  string $spot top, side, inline, or belowpost.
+	 * @param  string $snippet The snippet to insert into the div.
+	 * @param  array  $css_classes CSS classes.
+	 * @return string The supporting ad unit div.
 	 *
 	 * @since 7.1
 	 */
@@ -634,9 +644,9 @@ HTML;
 			$css_classes[] = 'wpcnt-header';
 		}
 
-		$spot = esc_attr( $spot );
+		$spot    = esc_attr( $spot );
 		$classes = esc_attr( implode( ' ', $css_classes ) );
-		$about  = esc_html__( 'Advertisements', 'jetpack' );
+		$about   = esc_html__( 'Advertisements', 'jetpack' );
 		return <<<HTML
 		<div class="$classes">
 			<div class="wpa">

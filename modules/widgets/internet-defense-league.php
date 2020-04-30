@@ -86,6 +86,12 @@ class Jetpack_Internet_Defense_League_Widget extends WP_Widget {
 		if ( ! isset( $this->variants[ $this->variant ] ) ) {
 			$this->variant = $this->defaults['variant'];
 		}
+
+		// On AMP endpoints, prevent a validation error from the inline script.
+		if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
+			return;
+		}
+
 		?>
 		<script type="text/javascript">
 			window._idl = {};

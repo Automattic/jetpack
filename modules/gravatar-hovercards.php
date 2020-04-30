@@ -12,7 +12,7 @@
  * Additional Search Queries: gravatar, hovercards
  */
 
-define( 'GROFILES__CACHE_BUSTER', gmdate( 'YM' ) . 'aa' ); // Break CDN cache, increment when gravatar.com/js/gprofiles.js changes
+define( 'GROFILES__CACHE_BUSTER', gmdate( 'YW' ) );
 
 function grofiles_hovercards_init() {
 	add_filter( 'get_avatar',          'grofiles_get_avatar', 10, 2 );
@@ -182,7 +182,7 @@ function grofiles_attach_cards() {
 		return;
 	}
 
-	wp_enqueue_script( 'grofiles-cards', 'https://secure.gravatar.com/js/gprofiles.js', array( 'jquery' ), GROFILES__CACHE_BUSTER, true );
+	wp_enqueue_script( 'grofiles-cards', 'https://secure.gravatar.com/js/gprofiles.js', array(), GROFILES__CACHE_BUSTER, true );
 	wp_enqueue_script( 'wpgroho', plugins_url( 'wpgroho.js', __FILE__ ), array( 'grofiles-cards' ), false, true );
 	if ( is_user_logged_in() ) {
 		$cu = wp_get_current_user();
@@ -213,14 +213,22 @@ function grofiles_admin_cards() {
 }
 
 function grofiles_extra_data() {
+	$authors = grofiles_gravatars_to_append();
+
+	if ( ! $authors ) {
+		wp_dequeue_script( 'grofiles-cards' );
+		wp_dequeue_script( 'wpgroho' );
+	} else {
 ?>
 	<div style="display:none">
 <?php
-	foreach ( grofiles_gravatars_to_append() as $author )
-		grofiles_hovercards_data_html( $author );
+		foreach ( $authors as $author ) {
+			grofiles_hovercards_data_html( $author );
+		}
 ?>
 	</div>
 <?php
+	}
 }
 
 /**

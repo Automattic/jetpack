@@ -7,6 +7,8 @@ import { assign, get, merge } from 'lodash';
  * Internal dependencies
  */
 import { JETPACK_SET_INITIAL_STATE, MOCK_SWITCH_USER_PERMISSIONS } from 'state/action-types';
+import { getPlanDuration } from 'state/plans/reducer';
+import { getSiteProducts } from 'state/site-products';
 
 export const initialState = ( state = window.Initial_State, action ) => {
 	switch ( action.type ) {
@@ -61,6 +63,10 @@ export function getSiteRawUrl( state ) {
 
 export function getSiteAdminUrl( state ) {
 	return get( state.jetpack.initialState, 'adminUrl', {} );
+}
+
+export function getSiteTitle( state ) {
+	return get( state.jetpack.initialState, 'siteTitle', '' );
 }
 
 export function isSitePublic( state ) {
@@ -257,6 +263,17 @@ export function showBackups( state ) {
 }
 
 /**
+ * Check if the Setup Wizard should be displayed
+ *
+ * @param {object} state Global state tree
+ *
+ * @return {boolean} True if the Setup Wizard should be displayed.
+ */
+export function showSetupWizard( state ) {
+	return get( state.jetpack.initialState.siteData, 'showSetupWizard', false );
+}
+
+/**
  * Check if the site is part of a Multisite network.
  *
  * @param {object} state Global state tree
@@ -298,9 +315,12 @@ export function getPartnerSubsidiaryId( state ) {
  *
  * @return {string} Upgrade URL with source, site, and affiliate code added.
  */
-export const getUpgradeUrl = ( state, source, userId = '' ) => {
+export const getUpgradeUrl = ( state, source, userId = '', planDuration = false ) => {
 	const affiliateCode = getAffiliateCode( state );
 	const subsidiaryId = getPartnerSubsidiaryId( state );
+	if ( planDuration && 'monthly' === getPlanDuration( state ) ) {
+		source += '-monthly';
+	}
 	return (
 		`https://jetpack.com/redirect/?source=${ source }&site=${ getSiteRawUrl( state ) }` +
 		( affiliateCode ? `&aff=${ affiliateCode }` : '' ) +
@@ -308,3 +328,55 @@ export const getUpgradeUrl = ( state, source, userId = '' ) => {
 		( subsidiaryId ? `&subsidiaryId=${ subsidiaryId }` : '' )
 	);
 };
+
+/**
+ * Returns the list of products that are available for purchase.
+ *
+ * @param state
+ * @returns Array of Products that you can purchase.
+ */
+export function getProductsForPurchase( state ) {
+	const products = get( state.jetpack.initialState, 'products', [] );
+	const siteProducts = getSiteProducts( state );
+
+	return products.map( product => {
+		const optionKey = product.options[ 0 ].key;
+		return {
+			title: product.title,
+			key: product.key,
+			shortDescription: product.short_description,
+			labelPopup: product.label_popup,
+			optionsLabel: product.options_label,
+			defaultOption: product.default_option,
+			options: getProductOptions( state, product, siteProducts ),
+			learnMore: product.learn_more,
+			learnMoreUrl: getUpgradeUrl( state, `aag-${ product.key }` ),
+			showPromotion: product.show_promotion,
+			promotionPercentage: product.discount_percent,
+			recordCount: get( siteProducts, [ optionKey, 'price_tier_usage_quantity' ], '0' ),
+			priceTierSlug: get( siteProducts, [ optionKey, 'price_tier_slug' ], null ),
+			includedInPlans: product.included_in_plans,
+		};
+	} );
+}
+
+function getProductOptions( state, product, siteProducts ) {
+	return product.options.map( option => {
+		return {
+			name: option.name,
+			type: option.type,
+			key: option.key,
+			slug: option.slug,
+			description: option.description,
+			currencyCode: get( siteProducts, [ option.key, 'currency_code' ], '' ),
+			yearly: {
+				fullPrice: get( siteProducts, [ option.key, 'cost' ], '' ),
+				upgradeUrl: getUpgradeUrl( state, option.slug ),
+			},
+			monthly: {
+				fullPrice: get( siteProducts, [ `${ option.key }_monthly`, 'cost' ], '' ),
+				upgradeUrl: getUpgradeUrl( state, `${ option.slug }-monthly` ),
+			},
+		};
+	} );
+}

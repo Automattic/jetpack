@@ -63,6 +63,44 @@
 				width: 100%;
 			}
 		}
+
+		&.is-selected .tiled-gallery__item__move-menu,
+		&.is-selected .tiled-gallery__item__inline-menu {
+			background: $white;
+			border: 1px solid $dark-opacity-light-800;
+			border-radius: $radius-round-rectangle;
+			transition: box-shadow 0.2s ease-out;
+			@include reduce-motion("transition");
+
+			&:hover {
+				box-shadow: $shadow-popover;
+			}
+
+			.components-button {
+				color: $dark-opacity-300;
+				padding: 2px;
+				height: $button-size-small;
+
+				// Remove hover box shadows, since they clash with the container.
+				&:not(:disabled):not([aria-disabled="true"]):not(.is-secondary):hover {
+					box-shadow: none;
+				}
+
+				@include break-small() {
+					// Use smaller buttons to fit when there are many columns.
+					.columns-7 &,
+					.columns-8 & {
+						padding: 0;
+						width: inherit;
+						height: inherit;
+					}
+				}
+			}
+
+			.components-button:focus {
+				color: inherit;
+			}
+		}
 	}
 
 	.tiled-gallery__add-item {
@@ -95,23 +133,39 @@
 		}
 	}
 
+	.tiled-gallery__item__move-menu,
 	.tiled-gallery__item__inline-menu {
-		background-color: $tiled-gallery-selection;
+		margin: $grid-unit-10;
 		display: inline-flex;
-		padding: 0 0 2px 2px;
-		position: absolute;
-		right: 0;
-		top: 0;
+		z-index: z-index(".block-library-gallery-item__inline-menu");
 
 		.components-button {
-			color: $white;
-			&:hover,
-			&:focus {
-				color: $white;
+			color: transparent;
+		}
+
+		@include break-small() {
+			// Use smaller buttons to fit when there are many columns.
+			.columns-7 &,
+			.columns-8 & {
+				padding: $grid-unit-05 / 2;
 			}
 		}
 	}
 
+	.tiled-gallery__item__inline-menu {
+		position: absolute;
+		top: -2px;
+		right: -2px;
+	}
+
+	.tiled-gallery__item__move-menu {
+		position: absolute;
+		top: -2px;
+		left: -2px;
+	}
+
+	.tiled-gallery__item__move-backward,
+	.tiled-gallery__item__move-forward,
 	.tiled-gallery__item__remove {
 		padding: 0;
 	}
@@ -125,8 +179,8 @@
 	}
 
 	// Hide upload buttons in style picker preview
-	.editor-block-preview__content & {
-		.editor-media-placeholder {
+	.block-editor-block-preview__content & {
+		.block-editor-media-placeholder {
 			display: none;
 		}
 	}

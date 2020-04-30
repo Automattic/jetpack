@@ -9,6 +9,7 @@ import Button from 'components/button';
 import SimpleNotice from 'components/notice';
 import analytics from 'lib/analytics';
 import { get } from 'lodash';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -105,12 +106,11 @@ class ProStatus extends React.Component {
 						context: 'A caption for a small button to fix security issues.',
 					} );
 				} else {
-					message = __( 'Threats found!', {
-						context: 'Short warning message about new threats found.',
+					action = __( 'See threats', {
+						context: 'A caption for a small button to fix security issues.',
 					} );
-					action = __( 'FIX', { context: 'A caption for a small button to fix security issues.' } );
 				}
-				actionUrl = 'https://dashboard.vaultpress.com/';
+				actionUrl = getRedirectUrl( 'vaultpress-dashboard' );
 				break;
 			case 'free':
 			case 'personal':
@@ -163,7 +163,10 @@ class ProStatus extends React.Component {
 				onClick={ handleClickForTracking( 'set_up', feature ) }
 				compact={ true }
 				primary={ true }
-				href={ `https://wordpress.com/plugins/setup/${ this.props.siteRawUrl }?only=${ feature }` }
+				href={ getRedirectUrl( 'calypso-plugins-setup', {
+					site: this.props.siteRawUrl,
+					query: `only=${ feature }`,
+				} ) }
 			>
 				{ __( 'Set up', { context: 'Caption for a button to set up a feature.' } ) }
 			</Button>

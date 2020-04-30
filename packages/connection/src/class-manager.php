@@ -50,29 +50,38 @@ class Manager {
 	 *
 	 * @todo Implement a proper nonce verification.
 	 */
-	public function init() {
-		$this->setup_xmlrpc_handlers(
+	public static function configure() {
+		$manager = new self();
+
+		$manager->setup_xmlrpc_handlers(
 			$_GET, // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$this->is_active(),
-			$this->verify_xml_rpc_signature()
+			$manager->is_active(),
+			$manager->verify_xml_rpc_signature()
 		);
 
-		if ( $this->is_active() ) {
-			add_filter( 'xmlrpc_methods', array( $this, 'public_xmlrpc_methods' ) );
+		if ( $manager->is_active() ) {
+			add_filter( 'xmlrpc_methods', array( $manager, 'public_xmlrpc_methods' ) );
 		} else {
-			add_action( 'rest_api_init', array( $this, 'initialize_rest_api_registration_connector' ) );
+			add_action( 'rest_api_init', array( $manager, 'initialize_rest_api_registration_connector' ) );
 		}
 
-		add_action( 'jetpack_clean_nonces', array( $this, 'clean_nonces' ) );
+		add_action( 'jetpack_clean_nonces', array( $manager, 'clean_nonces' ) );
 		if ( ! wp_next_scheduled( 'jetpack_clean_nonces' ) ) {
 			wp_schedule_event( time(), 'hourly', 'jetpack_clean_nonces' );
 		}
+
+		add_filter(
+			'jetpack_constant_default_value',
+			__NAMESPACE__ . '\Utils::jetpack_api_constant_filter',
+			10,
+			2
+		);
 	}
 
 	/**
 	 * Sets up the XMLRPC request handlers.
 	 *
-	 * @param Array                  $request_params incoming request parameters.
+	 * @param array                  $request_params incoming request parameters.
 	 * @param Boolean                $is_active whether the connection is currently active.
 	 * @param Boolean                $is_signed whether the signature check has been successful.
 	 * @param \Jetpack_XMLRPC_Server $xmlrpc_server (optional) an instance of the server to use instead of instantiating a new one.
@@ -332,11 +341,12 @@ class Manager {
 		@list( $token_key, $version, $user_id ) = explode( ':', wp_unslash( $_GET['token'] ) );
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
+		$jetpack_api_version = Constants::get_constant( 'JETPACK__API_VERSION' );
+
 		if (
 			empty( $token_key )
 		||
-			empty( $version ) || strval( JETPACK__API_VERSION ) !== $version
-		) {
+			empty( $version ) || strval( $jetpack_api_version ) !== $version ) {
 			return new \WP_Error( 'malformed_token', 'Malformed token in request', compact( 'signature_details' ) );
 		}
 
@@ -453,8 +463,8 @@ class Manager {
 		 *
 		 * @since 7.7.0
 		 *
-		 * @param Array $post_data request data.
-		 * @param Array $token_data token data.
+		 * @param array $post_data request data.
+		 * @param array $token_data token data.
 		 */
 		return apply_filters(
 			'jetpack_signature_check_token',
@@ -526,7 +536,7 @@ class Manager {
 	 * @return string|int Returns the ID of the connection owner or False if no connection owner found.
 	 */
 	public function get_connection_owner_id() {
-		$user_token       = $this->get_access_token( JETPACK_MASTER_USER );
+		$user_token       = $this->get_access_token( self::JETPACK_MASTER_USER );
 		$connection_owner = false;
 		if ( $user_token && is_object( $user_token ) && isset( $user_token->external_user_id ) ) {
 			$connection_owner = $user_token->external_user_id;
@@ -601,7 +611,7 @@ class Manager {
 	 * @return object|false False if no connection owner found.
 	 */
 	public function get_connection_owner() {
-		$user_token = $this->get_access_token( JETPACK_MASTER_USER );
+		$user_token = $this->get_access_token( self::JETPACK_MASTER_USER );
 
 		$connection_owner = false;
 		if ( $user_token && is_object( $user_token ) && isset( $user_token->external_user_id ) ) {
@@ -623,7 +633,7 @@ class Manager {
 			$user_id = get_current_user_id();
 		}
 
-		$user_token = $this->get_access_token( JETPACK_MASTER_USER );
+		$user_token = $this->get_access_token( self::JETPACK_MASTER_USER );
 
 		return $user_token && is_object( $user_token ) && isset( $user_token->external_user_id ) && $user_id === $user_token->external_user_id;
 	}
@@ -713,11 +723,23 @@ class Manager {
 	 * @return String API URL.
 	 */
 	public function api_url( $relative_url ) {
-		$api_base = Constants::get_constant( 'JETPACK__API_BASE' );
-		$version  = Constants::get_constant( 'JETPACK__API_VERSION' );
+		$api_base    = Constants::get_constant( 'JETPACK__API_BASE' );
+		$api_version = '/' . Constants::get_constant( 'JETPACK__API_VERSION' ) . '/';
 
-		$api_base = $api_base ? $api_base : 'https://jetpack.wordpress.com/jetpack.';
-		$version  = $version ? '/' . $version . '/' : '/1/';
+		/**
+		 * Filters whether the connection manager should use the iframe authorization
+		 * flow instead of the regular redirect-based flow.
+		 *
+		 * @since 8.3.0
+		 *
+		 * @param Boolean $is_iframe_flow_used should the iframe flow be used, defaults to false.
+		 */
+		$iframe_flow = apply_filters( 'jetpack_use_iframe_authorization_flow', false );
+
+		// Do not modify anything that is not related to authorize requests.
+		if ( 'authorize' === $relative_url && $iframe_flow ) {
+			$relative_url = 'authorize_iframe';
+		}
 
 		/**
 		 * Filters the API URL that Jetpack uses for server communication.
@@ -727,14 +749,14 @@ class Manager {
 		 * @param String $url the generated URL.
 		 * @param String $relative_url the relative URL that was passed as an argument.
 		 * @param String $api_base the API base string that is being used.
-		 * @param String $version the version string that is being used.
+		 * @param String $api_version the API version string that is being used.
 		 */
 		return apply_filters(
 			'jetpack_api_url',
-			rtrim( $api_base . $relative_url, '/\\' ) . $version,
+			rtrim( $api_base . $relative_url, '/\\' ) . $api_version,
 			$relative_url,
 			$api_base,
-			$version
+			$api_version
 		);
 	}
 
@@ -791,7 +813,7 @@ class Manager {
 		 *
 		 * @since 7.7.0
 		 *
-		 * @param Array $post_data request data.
+		 * @param array $post_data request data.
 		 * @param Array $token_data token data.
 		 */
 		$body = apply_filters(
@@ -1138,8 +1160,8 @@ class Manager {
 	 *
 	 * @todo Refactor to use rawurlencode() instead of urlencode().
 	 *
-	 * @param Array $args arguments that need to have the source added.
-	 * @return Array $amended arguments.
+	 * @param array $args arguments that need to have the source added.
+	 * @return array $amended arguments.
 	 */
 	public static function apply_activation_source_to_args( $args ) {
 		list( $activation_source_name, $activation_source_keyword ) = get_option( 'jetpack_activation_source' );
@@ -1169,10 +1191,21 @@ class Manager {
 			 *
 			 * @param Callable a function or method that returns a secret string.
 			 */
-			$this->secret_callable = apply_filters( 'jetpack_connection_secret_generator', 'wp_generate_password' );
+			$this->secret_callable = apply_filters( 'jetpack_connection_secret_generator', array( $this, 'secret_callable_method' ) );
 		}
 
 		return $this->secret_callable;
+	}
+
+	/**
+	 * Runs the wp_generate_password function with the required parameters. This is the
+	 * default implementation of the secret callable, can be overridden using the
+	 * jetpack_connection_secret_generator filter.
+	 *
+	 * @return String $secret value.
+	 */
+	private function secret_callable_method() {
+		return wp_generate_password( 32, false );
 	}
 
 	/**
@@ -1515,7 +1548,7 @@ class Manager {
 		 *
 		 * @since 8.0.0
 		 *
-		 * @param Array $request_data request data.
+		 * @param array $request_data request data.
 		 */
 		$body = apply_filters(
 			'jetpack_token_request_body',
@@ -1556,6 +1589,7 @@ class Manager {
 				return new \WP_Error( 'unknown', '', $code );
 			}
 
+			/* translators: Error description string. */
 			$error_description = isset( $json->error_description ) ? sprintf( __( 'Error Details: %s', 'jetpack' ), (string) $json->error_description ) : '';
 
 			return new \WP_Error( (string) $json->error, $error_description, $code );
@@ -1656,7 +1690,7 @@ class Manager {
 		 *
 		 * @since 8.0.0
 		 *
-		 * @param Array $request_data request data.
+		 * @param array $request_data request data.
 		 */
 		$body = apply_filters(
 			'jetpack_connect_request_body',
@@ -1779,6 +1813,12 @@ class Manager {
 		 * @param array $data The request data.
 		 */
 		do_action( 'jetpack_authorize_ending_authorized', $data );
+
+		\Jetpack_Options::delete_raw_option( 'jetpack_last_connect_url_check' );
+
+		// Start nonce cleaner.
+		wp_clear_scheduled_hook( 'jetpack_clean_nonces' );
+		wp_schedule_event( time(), 'hourly', 'jetpack_clean_nonces' );
 
 		return 'authorized';
 	}
@@ -2032,8 +2072,8 @@ class Manager {
 	 * since it is passed by reference to various methods.
 	 * Capture it here so we can verify the signature later.
 	 *
-	 * @param Array $methods an array of available XMLRPC methods.
-	 * @return Array the same array, since this method doesn't add or remove anything.
+	 * @param array $methods an array of available XMLRPC methods.
+	 * @return array the same array, since this method doesn't add or remove anything.
 	 */
 	public function xmlrpc_methods( $methods ) {
 		$this->raw_post_data = $GLOBALS['HTTP_RAW_POST_DATA'];
@@ -2050,8 +2090,8 @@ class Manager {
 	/**
 	 * Registering an additional method.
 	 *
-	 * @param Array $methods an array of available XMLRPC methods.
-	 * @return Array the amended array in case the method is added.
+	 * @param array $methods an array of available XMLRPC methods.
+	 * @return array the amended array in case the method is added.
 	 */
 	public function public_xmlrpc_methods( $methods ) {
 		if ( array_key_exists( 'wp.getOptions', $methods ) ) {
@@ -2063,7 +2103,7 @@ class Manager {
 	/**
 	 * Handles a getOptions XMLRPC method call.
 	 *
-	 * @param Array $args method call arguments.
+	 * @param array $args method call arguments.
 	 * @return an amended XMLRPC server options array.
 	 */
 	public function jetpack_get_options( $args ) {
@@ -2111,8 +2151,8 @@ class Manager {
 	/**
 	 * Adds Jetpack-specific options to the output of the XMLRPC options method.
 	 *
-	 * @param Array $options standard Core options.
-	 * @return Array amended options.
+	 * @param array $options standard Core options.
+	 * @return array amended options.
 	 */
 	public function xmlrpc_options( $options ) {
 		$jetpack_client_id = false;

@@ -5,6 +5,8 @@
  */
 import { h, createRef, Component } from 'preact';
 import strip from 'strip';
+// eslint-disable-next-line lodash/import-scope
+import uniqueId from 'lodash/uniqueId';
 
 /**
  * Internal dependencies
@@ -23,18 +25,15 @@ function getDateOptions( interval ) {
 	return { year: 'numeric', month: 'long' };
 }
 
-export default class SearchFilter extends Component {
-	constructor( props ) {
-		super( props );
-		this.filtersList = createRef();
-		this.idPrefix = `jp-instant-search-filter-${ Math.floor( Math.random() * 100 ) }`;
+// TODO: Fix this in the API
+// TODO: Remove once format is fixed in the API
+function fixDateFormat( dateString ) {
+	return dateString.split( ' ' ).join( 'T' );
+}
 
-		if ( this.props.type === 'date' ) {
-			// NOTE: This assumes that the configuration never changes. It will break if we
-			// ever adjust it dynamically.
-			this.dateOptions = getDateOptions( this.props.configuration.interval );
-		}
-	}
+export default class SearchFilter extends Component {
+	filtersList = createRef();
+	idPrefix = uniqueId( 'jetpack-instant-search__filter-' );
 
 	getIdentifier() {
 		if ( this.props.type === 'postType' ) {
@@ -66,9 +65,17 @@ export default class SearchFilter extends Component {
 					name={ key }
 					onChange={ this.toggleFilter }
 					type="checkbox"
+					className="jetpack-instant-search__filter-list-input"
 				/>
-				<label htmlFor={ `${ this.idPrefix }-dates-${ this.getIdentifier() }-${ key }` }>
-					{ new Date( key ).toLocaleString( locale, this.dateOptions ) } ({ count })
+				<label
+					htmlFor={ `${ this.idPrefix }-dates-${ this.getIdentifier() }-${ key }` }
+					className="jetpack-instant-search__filter-list-label"
+				>
+					{ new Date( fixDateFormat( key ) ).toLocaleString(
+						locale,
+						getDateOptions( this.props.configuration.interval )
+					) }{ ' ' }
+					({ count })
 				</label>
 			</div>
 		);
@@ -84,8 +91,12 @@ export default class SearchFilter extends Component {
 					name={ key }
 					onChange={ this.toggleFilter }
 					type="checkbox"
+					className="jetpack-instant-search__filter-list-input"
 				/>
-				<label htmlFor={ `${ this.idPrefix }-post-types-${ key }` }>
+				<label
+					htmlFor={ `${ this.idPrefix }-post-types-${ key }` }
+					className="jetpack-instant-search__filter-list-label"
+				>
 					{ strip( name ) } ({ count })
 				</label>
 			</div>
@@ -93,17 +104,25 @@ export default class SearchFilter extends Component {
 	};
 
 	renderTaxonomy = ( { key, doc_count: count } ) => {
+		// Taxonomy keys contain slug and name separated by a slash
+		const [ slug, name ] = key && key.split( /\/(.+)/ );
+
 		return (
 			<div>
 				<input
-					checked={ this.isChecked( key ) }
-					id={ `${ this.idPrefix }-taxonomies-${ key }` }
-					name={ key }
+					checked={ this.isChecked( slug ) }
+					id={ `${ this.idPrefix }-taxonomies-${ slug }` }
+					name={ slug }
 					onChange={ this.toggleFilter }
 					type="checkbox"
+					className="jetpack-instant-search__filter-list-input"
 				/>
-				<label htmlFor={ `${ this.idPrefix }-taxonomies-${ key }` }>
-					{ strip( key ) } ({ count })
+
+				<label
+					htmlFor={ `${ this.idPrefix }-taxonomies-${ slug }` }
+					className="jetpack-instant-search__filter-list-label"
+				>
+					{ strip( name ) } ({ count })
 				</label>
 			</div>
 		);
@@ -134,11 +153,11 @@ export default class SearchFilter extends Component {
 	render() {
 		return (
 			<div>
-				<h4 className="jetpack-search-filters-widget__sub-heading">
+				<h4 className="jetpack-instant-search__filter-sub-heading">
 					{ this.props.configuration.name }
 				</h4>
 				{ this.props.aggregation && 'buckets' in this.props.aggregation && (
-					<div className="jetpack-search-filters-widget__filter-list" ref={ this.filtersList }>
+					<div className="jetpack-instant-search__filter-list" ref={ this.filtersList }>
 						{ this.props.type === 'date' && this.renderDates() }
 						{ this.props.type === 'postType' && this.renderPostTypes() }
 						{ this.props.type === 'taxonomy' && this.renderTaxonomies() }

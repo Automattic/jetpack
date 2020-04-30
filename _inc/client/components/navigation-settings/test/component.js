@@ -4,7 +4,6 @@
 import React from 'react';
 import { expect } from 'chai';
 import { shallow } from 'enzyme';
-import sinon from 'sinon';
 
 /**
  * Internal dependencies
@@ -13,22 +12,20 @@ import { NavigationSettings } from '../index';
 
 describe( 'NavigationSettings', () => {
 	let wrapper,
-		testProps,
-		options;
+		testProps;
 
 	before( () => {
 		testProps = {
-			hasAnyOfTheseModules: modules => true,
+			hasAnyOfTheseModules: () => true,
 			hasAnyPerformanceFeature: true,
 			hasAnySecurityFeature: true,
 			userCanManageModules: false,
 			isSubscriber: true,
-			route: {
-				name: 'General',
-				path: '/settings'
+			location: {
+				pathname: '/settings'
 			},
-			router: {
-				goBack: () => {},
+			routeName: 'General',
+			history: {
 				listen: () => {}
 			},
 			isModuleActivated: () => true,
@@ -37,23 +34,12 @@ describe( 'NavigationSettings', () => {
 			siteAdminUrl: 'https://example.org/wp-admin/',
 			searchForTerm: () => {},
 			isLinked: true,
-			moduleList: { minileven: true, sitemaps: true, carousel: true, 'custom-content-types': true, 'verification-tools': true, markdown: true, 'infinite-scroll': true, 'gravatar-hovercards': true, sharedaddy: true, sso: true, 'related-posts': true, monitor: true, vaultpress: true, stats: true, masterbar: true, 'google-analytics': true, 'seo-tools': true, wordads: true, videopress: true, subscriptions: true, comments: true, 'post-by-email': true, photon: true, publicize: true, likes: true },
+			moduleList: { sitemaps: true, carousel: true, 'custom-content-types': true, 'verification-tools': true, markdown: true, 'infinite-scroll': true, 'gravatar-hovercards': true, sharedaddy: true, sso: true, 'related-posts': true, monitor: true, vaultpress: true, stats: true, masterbar: true, 'google-analytics': true, 'seo-tools': true, wordads: true, videopress: true, subscriptions: true, comments: true, 'post-by-email': true, photon: true, publicize: true, likes: true },
 			isPluginActive: () => true
 		};
 
-		options = {
-			context: {
-				router: {
-					goBack: () => {},
-					listen: () => {},
-					getCurrentLocation: () => ( {} ),
-				},
-			},
-			moduleList: []
-		};
-
 		window.location.hash = '#settings';
-		wrapper = shallow( <NavigationSettings { ...testProps } />, options );
+		wrapper = shallow( <NavigationSettings { ...testProps } /> );
 	} );
 
 	describe( 'initially', () => {
@@ -86,7 +72,7 @@ describe( 'NavigationSettings', () => {
 				isSubscriber: false
 			} );
 
-			wrapper = shallow( <NavigationSettings { ...testProps } />, options );
+			wrapper = shallow( <NavigationSettings { ...testProps } /> );
 		} );
 
 		it( 'renders tabs with Writing and Sharing', () => {
@@ -108,7 +94,7 @@ describe( 'NavigationSettings', () => {
 				isModuleActivated: m => 'sharedaddy' === m
 			} );
 			expect(
-				shallow( <NavigationSettings { ...publicizeProps } />, options )
+				shallow( <NavigationSettings { ...publicizeProps } /> )
 					.find( 'NavItem' )
 					.children()
 					.getElements()
@@ -134,7 +120,7 @@ describe( 'NavigationSettings', () => {
 				isModuleActivated: m => 'sharedaddy' === m
 			} );
 			expect(
-				shallow( <NavigationSettings { ...publicizeProps } />, options )
+				shallow( <NavigationSettings { ...publicizeProps } /> )
 					.find( 'NavItem' )
 					.children()
 					.getElements()
@@ -149,15 +135,15 @@ describe( 'NavigationSettings', () => {
 					userCanManageModules: false,
 					isSubscriber: false,
 					userCanPublish: true,
-					route: {
-						name: 'General',
-						path: '/settings'
+					location: {
+						pathname: '/settings'
 					},
+					routeName: 'General',
 					isModuleActivated: m => 'publicize' === m
 				} );
 				it( 'show Sharing if user is linked', () => {
 					expect(
-						shallow( <NavigationSettings { ...publicizeProps } />, options )
+						shallow( <NavigationSettings { ...publicizeProps } /> )
 							.find( 'NavItem' )
 							.children()
 							.getElements()
@@ -176,7 +162,7 @@ describe( 'NavigationSettings', () => {
 				isSubscriber: false
 			} );
 
-			wrapper = shallow( <NavigationSettings { ...testProps } />, options );
+			wrapper = shallow( <NavigationSettings { ...testProps } /> );
 		} );
 
 		it( 'renders tabs with Discussion, Security, Traffic, Writing, Sharing', () => {
@@ -231,12 +217,12 @@ describe( 'NavigationSettings', () => {
 
 		it( 'switches to Security when the tab is clicked', () => {
 			Object.assign( testProps, {
-				route: {
-					name: 'Security',
-					path: '/security'
-				}
+				location: {
+					pathname: '/security'
+				},
+				routeName: 'Security',
 			} );
-			wrapper = shallow( <NavigationSettings { ...testProps } />, options );
+			wrapper = shallow( <NavigationSettings { ...testProps } /> );
 			expect( wrapper.find( 'SectionNav' ).props().selectedText ).to.be.equal( 'Security' );
 		} );
 	} );

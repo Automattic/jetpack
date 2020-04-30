@@ -1,35 +1,26 @@
-## 8.1
+## 8.5
 
-### Sync
+### Blocks
 
-This release brings in significant changes to "Sync", the synchronization process that keeps your site's data up to date with WordPress.com. You'll consequently want to check that on newly connected sites as well as existing sites, data gets properly synchronized with WordPress.com. That means that features like Notifications, Publicize, Related Posts should keep working properly on your site.
+#### Podcast Player
 
-### Site Accelerator
+This release introduces a new Podcast Player block. This block allows you to embed any podcast into one of your posts or pages. You can choose how many tracks will be displayed, and fully customize the look of the player and its options. Your readers will then be able to play each episode in their browser.
 
-The devicepx library has been disabled by default, unless explicitly enabled via theme support. This library was previously used to compensate for lack of browser support. To quote Joseph Scott:
+To test, add the block to a post or a page and make sure everything works as planned.
 
-```
-As a general item, I'd be happy to see devicepx go away entirely. My only concern is for places that assume it will be around and could potentially end up with unexpected results.
+You can use just about any podcast feed you may know about.
 
-Devicepx came about because there were not great ways for managing alternate image needs, like DPI ( retina ). Now, we have much better options that don't require JavaScript to be checking things all the time. We certainly have the browser feature support that makes it possible for devicepx to go away.
-```
+#### Revue
 
-To test enable the Jetpack plugin. Make sure it no longer enqueues the `https://s0.wp.com/wp-content/js/devicepx-jetpack.js` script on all pages automatically. Please make sure images of various sizes (galleries, featured images, icons, etc.) look fine on different screens.
+We've made changes to the Revue block, and added customization options to the button as well as the different fields. Try editing an existing Revue block, or create a new Revue block and use the different customization options.
 
-Add `add_theme_support( 'jetpack-devicepx' );` to theme's functions.php and notice that now all front-end page loads include the https://s0.wp.com/wp-content/js/devicepx-jetpack.js script. You can use the following snippet:
+### Carousel
 
-```
-add_action( 'init', 'jetpack_declare_theme_support' );
-function jetpack_declare_theme_support() {
-	add_theme_support( 'jetpack-devicepx' );
-}
-```
+We've made several changes to the Carousel feature in this release. You'll want to test the feature, with and without the AMP plugin, and ensure it still works well in AMP views as well as on desktop.
 
-Load an AMP page and notice that the devicepx library is not loaded as expected.
+### Publicize
 
-### Subscriptions
-
-The option to send emails on new subscribers has been added to wp-admin. Previously the option could only be set using Calypso. To test you can go to the wp-admin settings and open the Discussion tab. The new checkbox will be in the "Email me whenever" section. Make sure you can save both the on and off value, and change it using Calypso.
+We've made some changes to the default behaviour when publicizing to Twitter accounts. Until now, when you would publish a new post with an image, that image would be uploaded and attached to the Publicized tweet. From now on, when you do publish a post, Publicize will let Twitter build a preview card for the tweet, based on the link above. Please try publishing some posts with Publicize to Twitter activated, and ensure that Publicize still works.
 
 ### Others
 

@@ -4,7 +4,7 @@
 import classNames from 'classnames';
 import { __ } from '@wordpress/i18n';
 import { Component, createRef } from '@wordpress/element';
-import { Button, PanelBody, Path, Placeholder, SVG, TextControl } from '@wordpress/components';
+import { Button, PanelBody, Path, Placeholder, SVG } from '@wordpress/components';
 import { InspectorControls, RichText } from '@wordpress/block-editor';
 
 /**
@@ -136,14 +136,14 @@ class GifEdit extends Component {
 				onSubmit={ this.onFormSubmit }
 				ref={ this.textControlRef }
 			>
-				<TextControl
-					className="wp-block-jetpack-gif_input"
-					label={ INPUT_PROMPT }
-					placeholder={ INPUT_PROMPT }
-					onChange={ value => setAttributes( { searchText: value } ) }
+				<input
+					type="text"
+					className="wp-block-jetpack-gif_input components-placeholder__input"
+					placeholder={ __( 'Enter search terms, e.g. cat…', 'jetpack' ) }
+					onChange={ event => setAttributes( { searchText: event.target.value } ) }
 					value={ searchText }
 				/>
-				<Button isLarge onClick={ this.onSubmit }>
+				<Button isDefault onClick={ this.onSubmit }>
 					{ __( 'Search', 'jetpack' ) }
 				</Button>
 			</form>
@@ -159,7 +159,12 @@ class GifEdit extends Component {
 					</PanelBody>
 				</InspectorControls>
 				{ ! giphyUrl ? (
-					<Placeholder className="wp-block-jetpack-gif_placeholder" icon={ icon } label={ title }>
+					<Placeholder
+						className="wp-block-jetpack-gif_placeholder"
+						icon={ icon }
+						label={ title }
+						instructions={ INPUT_PROMPT }
+					>
 						{ inputFields }
 					</Placeholder>
 				) : (

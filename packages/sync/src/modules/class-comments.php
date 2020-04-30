@@ -174,7 +174,7 @@ class Comments extends Module {
 		 */
 		return apply_filters(
 			'jetpack_sync_whitelisted_comment_types',
-			array( '', 'trackback', 'pingback' )
+			array( '', 'comment', 'trackback', 'pingback' )
 		);
 	}
 

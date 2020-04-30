@@ -1,19 +1,47 @@
-jQuery( document ).ready( function() {
-	var filter_list = jQuery( '.jetpack-search-filters-widget__filter-list' );
+var jetpackSearchModule = function() {
+	var i,
+		j,
+		checkboxes,
+		filter_list = document.querySelectorAll( '.jetpack-search-filters-widget__filter-list' );
 
-	filter_list.on( 'click', 'a', function() {
-		var checkbox = jQuery( this ).siblings( 'input[type="checkbox"]' );
-		checkbox.prop( 'checked', ! checkbox.prop( 'checked' ) );
-	} );
+	for ( i = 0; i < filter_list.length; i++ ) {
+		filter_list[ i ].addEventListener( 'click', function( event ) {
+			var target = event.target;
+			var precedingCheckbox;
+			var nextAnchor;
 
-	filter_list
-		.find( 'input[type="checkbox"]' )
-		.prop( 'disabled', false )
-		.css( 'cursor', 'inherit' )
-		.on( 'click', function() {
-			var anchor = jQuery( this ).siblings( 'a' );
-			if ( anchor.length ) {
-				window.location.href = anchor.prop( 'href' );
+			// If the target is an anchor, we want to toggle the checkbox.
+			if ( target.nodeName && 'a' === target.nodeName.toLowerCase() ) {
+				precedingCheckbox = target.previousElementSibling;
+				if (
+					precedingCheckbox &&
+					precedingCheckbox.type &&
+					'checkbox' === precedingCheckbox.type
+				) {
+					precedingCheckbox.checked = ! precedingCheckbox.checked;
+				}
+			}
+
+			// If the target is a checkbox, we want to navigate.
+			if ( target.type && 'checkbox' === target.type ) {
+				nextAnchor = target.nextElementSibling;
+				if ( nextAnchor && 'a' === nextAnchor.nodeName.toLowerCase() ) {
+					window.location.href = nextAnchor.getAttribute( 'href' );
+				}
 			}
 		} );
-} );
+
+		// Enable checkboxes now that we're setup.
+		checkboxes = filter_list[ i ].querySelectorAll( 'input[type="checkbox"]' );
+		for ( j = 0; j < checkboxes.length; j++ ) {
+			checkboxes[ j ].disabled = false;
+			checkboxes[ j ].style.cursor = 'inherit';
+		}
+	}
+};
+
+if ( document.readyState === 'interactive' || document.readyState === 'complete' ) {
+	jetpackSearchModule();
+} else {
+	document.addEventListener( 'DOMContentLoaded', jetpackSearchModule );
+}

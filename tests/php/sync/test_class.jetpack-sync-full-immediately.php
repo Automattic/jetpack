@@ -4,6 +4,7 @@ use Automattic\Jetpack\Sync\Actions;
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Modules\Full_Sync;
 use Automattic\Jetpack\Sync\Settings;
+use Automattic\Jetpack\Sync\Health;
 
 if ( ! function_exists( 'jetpack_foo_full_sync_callable' ) ) {
 	function jetpack_foo_full_sync_callable() {
@@ -11,11 +12,6 @@ if ( ! function_exists( 'jetpack_foo_full_sync_callable' ) ) {
 	}
 }
 
-/**
- * Sync Full Immediately
- *
- * @group sync-beta
- */
 class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 	private $full_sync;
 
@@ -59,6 +55,17 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( isset( $range['comments']->max ) );
 		$this->assertTrue( isset( $range['comments']->min ) );
 		$this->assertTrue( isset( $range['comments']->count ) );
+	}
+
+	function test_sync_health_in_sync_on_full_sync_end() {
+		Health::update_status( Health::STATUS_OUT_OF_SYNC );
+		$this->assertEquals( Health::get_status(), Health::STATUS_OUT_OF_SYNC );
+		$post = $this->factory->post->create();
+		$this->factory->comment->create_post_comments( $post, 11 );
+
+		$this->full_sync->start();
+		$this->sender->do_full_sync();
+		$this->assertEquals( Health::get_status(), Health::STATUS_IN_SYNC );
 	}
 
 	// this only applies to the test replicastore - in production we overlay data

@@ -10,6 +10,7 @@ vendor/wp-coding-standards
 vendor/automattic/jetpack-autoloader
 /wpcom-test-backup/
 /.vscode/
+/logs
 
 
 ## FILES

@@ -966,5 +966,35 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		remove_filter( 'http_response', array( $this, 'mock_xmlrpc_success' ), 10 );
 	}
 
+	/**
+	 * Test saving and retrieving the Setup Wizard questionnaire responses.
+	 *
+	 * @since 4.4.0
+	 */
+	public function test_setup_wizard() {
+		// Create a user and set it up as current.
+		$user = $this->create_and_get_user( 'administrator' );
+		$user->add_cap( 'jetpack_configure_modules' );
+		wp_set_current_user( $user->ID );
+
+		$test_data = array(
+			'param1' => 'val1',
+			'param2' => 'val2',
+		);
+
+		$response = $this->create_and_get_request(
+			'setup/questionnaire',
+			array(
+				'option_values' => $test_data,
+			),
+			'POST'
+		);
+		$this->assertResponseStatus( 200, $response );
+		$this->assertEquals( true, $response->get_data() );
+
+		$response = $this->create_and_get_request( 'setup/questionnaire', array(), 'GET' );
+		$this->assertResponseStatus( 200, $response );
+		$this->assertResponseData( $test_data, $response );
+	}
 
 } // class end

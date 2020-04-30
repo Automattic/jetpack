@@ -6,6 +6,7 @@ import { translate as __ } from 'i18n-calypso';
 import CompactFormToggle from 'components/form/form-toggle/compact';
 import Card from 'components/card';
 import analytics from 'lib/analytics';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -68,7 +69,9 @@ class SubscriptionsComponent extends React.Component {
 					compact
 					className="jp-settings-card__configure-link"
 					onClick={ this.trackConfigureClick }
-					href={ 'https://wordpress.com/people/email-followers/' + this.props.siteRawUrl }
+					href={ getRedirectUrl( 'calypso-people-email-followers', {
+						site: this.props.siteRawUrl,
+					} ) }
 				>
 					{ __( 'View your Email Followers' ) }
 				</Card>
@@ -78,7 +81,7 @@ class SubscriptionsComponent extends React.Component {
 					className="jp-settings-card__configure-link"
 					href={ `${ this.props.connectUrl }&from=unlinked-user-connect-masterbar` }
 				>
-					{ __( 'Create a Jetpack account to view your email followers' ) }{' '}
+					{ __( 'Create a Jetpack account to view your email followers' ) }{ ' ' }
 				</Card>
 			);
 		};
@@ -94,7 +97,7 @@ class SubscriptionsComponent extends React.Component {
 							'Allows readers to subscribe to your posts or comments, ' +
 								'and receive notifications of new content by email.'
 						),
-						link: 'https://jetpack.com/support/subscriptions/',
+						link: getRedirectUrl( 'jetpack-support-subscriptions' ),
 					} }
 				>
 					<ModuleToggle

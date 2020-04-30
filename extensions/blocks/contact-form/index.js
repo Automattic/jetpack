@@ -17,6 +17,8 @@ import JetpackFieldTextarea from './components/jetpack-field-textarea';
 import JetpackFieldCheckbox from './components/jetpack-field-checkbox';
 import JetpackFieldMultiple from './components/jetpack-field-multiple';
 import renderMaterialIcon from '../../shared/render-material-icon';
+import colorValidator from '../../shared/colorValidator';
+import { supportsCollections } from '../../shared/block-category';
 
 export const name = 'contact-form';
 
@@ -31,7 +33,7 @@ export const settings = {
 		_x( 'feedback', 'block search term', 'jetpack' ),
 		_x( 'contact form', 'block search term', 'jetpack' ),
 	],
-	category: 'jetpack',
+	category: supportsCollections() ? 'grow' : 'jetpack',
 	supports: {
 		html: false,
 	},
@@ -48,8 +50,20 @@ export const settings = {
 			type: 'string',
 			default: __( 'Submit', 'jetpack' ),
 		},
-		customBackgroundButtonColor: { type: 'string' },
-		customTextButtonColor: { type: 'string' },
+		backgroundButtonColor: {
+			type: 'string',
+		},
+		textButtonColor: {
+			type: 'string',
+		},
+		customBackgroundButtonColor: {
+			type: 'string',
+			validator: colorValidator,
+		},
+		customTextButtonColor: {
+			type: 'string',
+			validator: colorValidator,
+		},
 		submitButtonClasses: { type: 'string' },
 		hasFormSettingsSet: {
 			type: 'string',
@@ -161,7 +175,7 @@ export const settings = {
 };
 
 const FieldDefaults = {
-	category: 'jetpack',
+	category: supportsCollections() ? 'grow' : 'jetpack',
 	parent: [ 'jetpack/contact-form' ],
 	supports: {
 		reusable: false,

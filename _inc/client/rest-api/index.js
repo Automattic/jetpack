@@ -31,7 +31,7 @@ function JetpackRestApiClient( root, nonce ) {
 		},
 		getParams = {
 			credentials: 'same-origin',
-			headers: headers,
+			headers,
 		},
 		postParams = {
 			method: 'post',
@@ -219,6 +219,11 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( parseJsonResponse )
 				.then( body => JSON.parse( body.data ) ),
 
+		fetchSiteProducts: () =>
+			getRequest( `${ apiRoot }jetpack/v4/site/products`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
 		fetchSitePurchases: () =>
 			getRequest( `${ apiRoot }jetpack/v4/site/purchases`, getParams )
 				.then( checkStatus )
@@ -238,6 +243,12 @@ function JetpackRestApiClient( root, nonce ) {
 
 		fetchRewindStatus: () =>
 			getRequest( `${ apiRoot }jetpack/v4/rewind`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse )
+				.then( body => JSON.parse( body.data ) ),
+
+		fetchScanStatus: () =>
+			getRequest( `${ apiRoot }jetpack/v4/scan`, getParams )
 				.then( checkStatus )
 				.then( parseJsonResponse )
 				.then( body => JSON.parse( body.data ) ),
@@ -272,6 +283,13 @@ function JetpackRestApiClient( root, nonce ) {
 
 		sendMobileLoginEmail: () =>
 			postRequest( `${ apiRoot }jetpack/v4/mobile/send-login-email`, postParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
+		submitSurvey: surveyResponse =>
+			postRequest( `${ apiRoot }jetpack/v4/marketing/survey`, postParams, {
+				body: JSON.stringify( surveyResponse ),
+			} )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 	};

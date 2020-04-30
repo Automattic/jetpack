@@ -44,6 +44,8 @@ class Jetpack_WPCOM_Block_Editor {
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_assets' ), 9 );
 		add_action( 'enqueue_block_assets', array( $this, 'enqueue_block_assets' ) );
 		add_filter( 'mce_external_plugins', array( $this, 'add_tinymce_plugins' ) );
+
+		$this->enable_cross_site_auth_cookies();
 	}
 
 	/**
@@ -390,6 +392,185 @@ class Jetpack_WPCOM_Block_Editor {
 		}
 
 		return $plugin_array;
+	}
+
+	/**
+	 * Ensures the authentication cookies are designated for cross-site access.
+	 */
+	private function enable_cross_site_auth_cookies() {
+		/**
+		 * Allow plugins to disable the cross-site auth cookies.
+		 *
+		 * @since 8.1.1
+		 *
+		 * @param false bool Whether auth cookies should be disabled for cross-site access. False by default.
+		 */
+		if ( apply_filters( 'jetpack_disable_cross_site_auth_cookies', false ) ) {
+			return;
+		}
+
+		add_action( 'set_auth_cookie', array( $this, 'set_samesite_auth_cookies' ), 10, 5 );
+		add_action( 'set_logged_in_cookie', array( $this, 'set_samesite_logged_in_cookies' ), 10, 4 );
+		add_action( 'clear_auth_cookie', array( $this, 'clear_auth_cookies' ) );
+		add_filter( 'send_auth_cookies', '__return_false' );
+	}
+
+	/**
+	 * Gets the SameSite attribute to use in auth cookies.
+	 *
+	 * @param  bool $secure Whether the connection is secure.
+	 * @return string SameSite attribute to use on auth cookies.
+	 */
+	public function get_samesite_attr_for_auth_cookies( $secure ) {
+		$samesite = $secure ? 'None' : 'Lax';
+		/**
+		 * Filters the SameSite attribute to use in auth cookies.
+		 *
+		 * @param string $samesite SameSite attribute to use in auth cookies.
+		 *
+		 * @since 8.1.1
+		 */
+		$samesite = apply_filters( 'jetpack_auth_cookie_samesite', $samesite );
+
+		return $samesite;
+	}
+
+	/**
+	 * Generates cross-site auth cookies so they can be accessed by WordPress.com.
+	 *
+	 * @param string $auth_cookie Authentication cookie value.
+	 * @param int    $expire      The time the login grace period expires as a UNIX timestamp.
+	 *                            Default is 12 hours past the cookie's expiration time.
+	 * @param int    $expiration  The time when the authentication cookie expires as a UNIX timestamp.
+	 *                            Default is 14 days from now.
+	 * @param int    $user_id     User ID.
+	 * @param string $scheme      Authentication scheme. Values include 'auth' or 'secure_auth'.
+	 */
+	public function set_samesite_auth_cookies( $auth_cookie, $expire, $expiration, $user_id, $scheme ) {
+		if ( wp_startswith( $scheme, 'secure_' ) ) {
+			$secure           = true;
+			$auth_cookie_name = SECURE_AUTH_COOKIE;
+		} else {
+			$secure           = false;
+			$auth_cookie_name = AUTH_COOKIE;
+		}
+		$samesite = $this->get_samesite_attr_for_auth_cookies( $secure );
+
+		jetpack_shim_setcookie(
+			$auth_cookie_name,
+			$auth_cookie,
+			array(
+				'expires'  => $expire,
+				'path'     => PLUGINS_COOKIE_PATH,
+				'domain'   => COOKIE_DOMAIN,
+				'secure'   => $secure,
+				'httponly' => true,
+				'samesite' => $samesite,
+			)
+		);
+
+		jetpack_shim_setcookie(
+			$auth_cookie_name,
+			$auth_cookie,
+			array(
+				'expires'  => $expire,
+				'path'     => ADMIN_COOKIE_PATH,
+				'domain'   => COOKIE_DOMAIN,
+				'secure'   => $secure,
+				'httponly' => true,
+				'samesite' => $samesite,
+			)
+		);
+	}
+
+	/**
+	 * Generates cross-site logged in cookies so they can be accessed by WordPress.com.
+	 *
+	 * @param string $logged_in_cookie The logged-in cookie value.
+	 * @param int    $expire           The time the login grace period expires as a UNIX timestamp.
+	 *                                 Default is 12 hours past the cookie's expiration time.
+	 * @param int    $expiration       The time when the logged-in cookie expires as a UNIX timestamp.
+	 *                                 Default is 14 days from now.
+	 * @param int    $user_id          User ID.
+	 */
+	public function set_samesite_logged_in_cookies( $logged_in_cookie, $expire, $expiration, $user_id ) {
+		$secure = is_ssl();
+
+		// Front-end cookie is secure when the auth cookie is secure and the site's home URL is forced HTTPS.
+		$secure_logged_in_cookie = $secure && 'https' === wp_parse_url( get_option( 'home' ), PHP_URL_SCHEME );
+
+		/** This filter is documented in core/src/wp-includes/pluggable.php */
+		$secure = apply_filters( 'secure_auth_cookie', $secure, $user_id );
+
+		/** This filter is documented in core/src/wp-includes/pluggable.php */
+		$secure_logged_in_cookie = apply_filters( 'secure_logged_in_cookie', $secure_logged_in_cookie, $user_id, $secure );
+
+		$samesite = $this->get_samesite_attr_for_auth_cookies( $secure_logged_in_cookie );
+
+		jetpack_shim_setcookie(
+			LOGGED_IN_COOKIE,
+			$logged_in_cookie,
+			array(
+				'expires'  => $expire,
+				'path'     => COOKIEPATH,
+				'domain'   => COOKIE_DOMAIN,
+				'secure'   => $secure_logged_in_cookie,
+				'httponly' => true,
+				'samesite' => $samesite,
+			)
+		);
+
+		if ( COOKIEPATH !== SITECOOKIEPATH ) {
+			jetpack_shim_setcookie(
+				LOGGED_IN_COOKIE,
+				$logged_in_cookie,
+				array(
+					'expires'  => $expire,
+					'path'     => SITECOOKIEPATH,
+					'domain'   => COOKIE_DOMAIN,
+					'secure'   => $secure_logged_in_cookie,
+					'httponly' => true,
+					'samesite' => $samesite,
+				)
+			);
+		}
+	}
+
+	/**
+	 * Removes all of the cookies associated with authentication.
+	 *
+	 * This is copied from core's `wp_clear_auth_cookie` since disabling the core auth cookies prevents also the auth
+	 * cookies from being cleared.
+	 *
+	 * @see wp_clear_auth_cookie
+	 */
+	public function clear_auth_cookies() {
+		// Auth cookies.
+		setcookie( AUTH_COOKIE, ' ', time() - YEAR_IN_SECONDS, ADMIN_COOKIE_PATH, COOKIE_DOMAIN );
+		setcookie( SECURE_AUTH_COOKIE, ' ', time() - YEAR_IN_SECONDS, ADMIN_COOKIE_PATH, COOKIE_DOMAIN );
+		setcookie( AUTH_COOKIE, ' ', time() - YEAR_IN_SECONDS, PLUGINS_COOKIE_PATH, COOKIE_DOMAIN );
+		setcookie( SECURE_AUTH_COOKIE, ' ', time() - YEAR_IN_SECONDS, PLUGINS_COOKIE_PATH, COOKIE_DOMAIN );
+		setcookie( LOGGED_IN_COOKIE, ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
+		setcookie( LOGGED_IN_COOKIE, ' ', time() - YEAR_IN_SECONDS, SITECOOKIEPATH, COOKIE_DOMAIN );
+
+		// Settings cookies.
+		setcookie( 'wp-settings-' . get_current_user_id(), ' ', time() - YEAR_IN_SECONDS, SITECOOKIEPATH );
+		setcookie( 'wp-settings-time-' . get_current_user_id(), ' ', time() - YEAR_IN_SECONDS, SITECOOKIEPATH );
+
+		// Old cookies.
+		setcookie( AUTH_COOKIE, ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
+		setcookie( AUTH_COOKIE, ' ', time() - YEAR_IN_SECONDS, SITECOOKIEPATH, COOKIE_DOMAIN );
+		setcookie( SECURE_AUTH_COOKIE, ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
+		setcookie( SECURE_AUTH_COOKIE, ' ', time() - YEAR_IN_SECONDS, SITECOOKIEPATH, COOKIE_DOMAIN );
+
+		// Even older cookies.
+		setcookie( USER_COOKIE, ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
+		setcookie( PASS_COOKIE, ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
+		setcookie( USER_COOKIE, ' ', time() - YEAR_IN_SECONDS, SITECOOKIEPATH, COOKIE_DOMAIN );
+		setcookie( PASS_COOKIE, ' ', time() - YEAR_IN_SECONDS, SITECOOKIEPATH, COOKIE_DOMAIN );
+
+		// Post password cookie.
+		setcookie( 'wp-postpass_' . COOKIEHASH, ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
 	}
 }
 

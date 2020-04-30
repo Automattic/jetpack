@@ -42,8 +42,11 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		add_action( 'wcct_before_cart_widget', array( $this, 'remove_from_cart' ) );
 		add_filter( 'woocommerce_cart_item_remove_link', array( $this, 'remove_from_cart_attributes' ), 10, 2 );
 
-		// cart checkout
+		// Checkout.
+		// Send events after checkout template (shortcode).
 		add_action( 'woocommerce_after_checkout_form', array( $this, 'checkout_process' ) );
+		// Send events after checkout block.
+		add_action( 'woocommerce_blocks_enqueue_checkout_block_scripts_after', array( $this, 'checkout_process' ) );
 
 		// order confirmed
 		add_action( 'woocommerce_thankyou', array( $this, 'order_process' ), 10, 1 );
@@ -77,36 +80,85 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	}
 
 	/**
+	 * Default event properties which should be included with all events.
+	 *
+	 * @return array Array of standard event props.
+	 */
+	public function get_common_properties() {
+		$site_info          = array(
+			'blog_id'     => Jetpack::get_option( 'id' ),
+			'ui'          => $this->get_user_id(),
+			'url'         => home_url(),
+			'woo_version' => WC()->version,
+		);
+		$cart_checkout_info = self::get_cart_checkout_info();
+		return array_merge( $site_info, $cart_checkout_info );
+	}
+
+	/**
+	 * Render tracks event properties as string of JavaScript object props.
+	 *
+	 * @param  array $properties Array of key/value pairs.
+	 * @return string String of the form "key1: value1, key2: value2, " (etc).
+	 */
+	private function render_properties_as_js( $properties ) {
+		$js_args_string = '';
+		foreach ( $properties as $key => $value ) {
+			$js_args_string = $js_args_string . "'$key': '" . esc_js( $value ) . "', ";
+		}
+		return $js_args_string;
+	}
+
+	/**
+	 * Record an event with optional custom properties.
+	 *
+	 * @param string  $event_name The name of the event to record.
+	 * @param integer $product_id The id of the product relating to the event.
+	 * @param array   $properties Optional array of (key => value) event properties.
+	 */
+	public function record_event( $event_name, $product_id, $properties = array() ) {
+		$product = wc_get_product( $product_id );
+		if ( ! $product instanceof WC_Product ) {
+			return;
+		}
+		$product_details = $this->get_product_details( $product );
+
+		$all_props = array_merge(
+			$properties,
+			$this->get_common_properties()
+		);
+
+		wc_enqueue_js(
+			"_wca.push( {
+					'_en': '" . esc_js( $event_name ) . "',
+					'pi': '" . esc_js( $product_id ) . "',
+					'pn': '" . esc_js( $product_details['name'] ) . "',
+					'pc': '" . esc_js( $product_details['category'] ) . "',
+					'pp': '" . esc_js( $product_details['price'] ) . "',
+					'pt': '" . esc_js( $product_details['type'] ) . "'," .
+					$this->render_properties_as_js( $all_props ) . '
+				} );'
+		);
+	}
+
+	/**
 	 * On product lists or other non-product pages, add an event listener to "Add to Cart" button click
 	 */
 	public function loop_session_events() {
-		$blogid = Jetpack::get_option( 'id' );
-
-		// check for previous add-to-cart cart events
+		// Check for previous events queued in session data.
 		if ( is_object( WC()->session ) ) {
 			$data = WC()->session->get( 'wca_session_data' );
 			if ( ! empty( $data ) ) {
 				foreach ( $data as $data_instance ) {
-					$product = wc_get_product( $data_instance['product_id'] );
-					if ( ! $product ) {
-						continue;
-					}
-					$product_details = $this->get_product_details( $product );
-					wc_enqueue_js(
-						"_wca.push( {
-								'_en': '" . esc_js( $data_instance['event'] ) . "',
-								'blog_id': '" . esc_js( $blogid ) . "',
-								'pi': '" . esc_js( $data_instance['product_id'] ) . "',
-								'pn': '" . esc_js( $product_details['name'] ) . "',
-								'pc': '" . esc_js( $product_details['category'] ) . "',
-								'pp': '" . esc_js( $product_details['price'] ) . "',
-								'pq': '" . esc_js( $data_instance['quantity'] ) . "',
-								'pt': '" . esc_js( $product_details['type'] ) . "',
-								'ui': '" . esc_js( $this->get_user_id() ) . "',
-							} );"
+					$this->record_event(
+						$data_instance['event'],
+						$data_instance['product_id'],
+						array(
+							'pq' => $data_instance['quantity'],
+						)
 					);
 				}
-				// clear data
+				// Clear data, now that these events have been recorded.
 				WC()->session->set( 'wca_session_data', '' );
 			}
 		}
@@ -116,11 +168,13 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	 * On the cart page, add an event listener for removal of product click
 	 */
 	public function remove_from_cart() {
+		$common_props = $this->render_properties_as_js(
+			$this->get_common_properties()
+		);
 
 		// We listen at div.woocommerce because the cart 'form' contents get forcibly
 		// updated and subsequent removals from cart would then not have this click
 		// handler attached.
-		$blogid = Jetpack::get_option( 'id' );
 		wc_enqueue_js(
 			"jQuery( 'div.woocommerce' ).on( 'click', 'a.remove', function() {
 				var productID = jQuery( this ).data( 'product_id' );
@@ -131,12 +185,11 @@ class Jetpack_WooCommerce_Analytics_Universal {
 				};
 				_wca.push( {
 					'_en': 'woocommerceanalytics_remove_from_cart',
-					'blog_id': '" . esc_js( $blogid ) . "',
 					'pi': productDetails.id,
-					'pq': productDetails.quantity,
-					'ui': '" . esc_js( $this->get_user_id() ) . "',
+					'pq': productDetails.quantity, " .
+					$common_props . '
 				} );
-			} );"
+			} );'
 		);
 	}
 
@@ -185,22 +238,10 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	 * Track a product page view
 	 */
 	public function capture_product_view() {
-
 		global $product;
-		$blogid          = Jetpack::get_option( 'id' );
-		$product_details = $this->get_product_details( $product );
-
-		wc_enqueue_js(
-			"_wca.push( {
-				'_en': 'woocommerceanalytics_product_view',
-				'blog_id': '" . esc_js( $blogid ) . "',
-				'pi': '" . esc_js( $product_details['id'] ) . "',
-				'pn': '" . esc_js( $product_details['name'] ) . "',
-				'pc': '" . esc_js( $product_details['category'] ) . "',
-				'pp': '" . esc_js( $product_details['price'] ) . "',
-				'pt': '" . esc_js( $product_details['type'] ) . "',
-				'ui': '" . esc_js( $this->get_user_id() ) . "',
-			} );"
+		$this->record_event(
+			'woocommerceanalytics_product_view',
+			$product->get_id()
 		);
 	}
 
@@ -208,10 +249,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	 * On the Checkout page, trigger an event for each product in the cart
 	 */
 	public function checkout_process() {
-
-		$universal_commands = array();
-		$cart               = WC()->cart->get_cart();
-		$blogid             = Jetpack::get_option( 'id' );
+		$cart = WC()->cart->get_cart();
 
 		foreach ( $cart as $cart_item_key => $cart_item ) {
 			/**
@@ -223,22 +261,14 @@ class Jetpack_WooCommerce_Analytics_Universal {
 				continue;
 			}
 
-			$product_details = $this->get_product_details( $product );
-
-			$universal_commands[] = "_wca.push( {
-				'_en': 'woocommerceanalytics_product_checkout',
-				'blog_id': '" . esc_js( $blogid ) . "',
-				'pi': '" . esc_js( $product_details['id'] ) . "',
-				'pn': '" . esc_js( $product_details['name'] ) . "',
-				'pc': '" . esc_js( $product_details['category'] ) . "',
-				'pp': '" . esc_js( $product_details['price'] ) . "',
-				'pq': '" . esc_js( $cart_item['quantity'] ) . "',
-				'pt': '" . esc_js( $product_details['type'] ) . "',
-				'ui': '" . esc_js( $this->get_user_id() ) . "',
-			} );";
+			$this->record_event(
+				'woocommerceanalytics_product_checkout',
+				$product->get_id(),
+				array(
+					'pq' => $cart_item['quantity'],
+				)
+			);
 		}
-
-		wc_enqueue_js( implode( "\r\n", $universal_commands ) );
 	}
 
 	/**
@@ -247,31 +277,21 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	 * @param string $order_id Order Id.
 	 */
 	public function order_process( $order_id ) {
-		$order              = wc_get_order( $order_id );
-		$universal_commands = array();
-		$blogid             = Jetpack::get_option( 'id' );
+		$order = wc_get_order( $order_id );
 
 		// loop through products in the order and queue a purchase event.
 		foreach ( $order->get_items() as $order_item_id => $order_item ) {
 			$product = $order->get_product_from_item( $order_item );
 
-			$product_details = $this->get_product_details( $product );
-
-			$universal_commands[] = "_wca.push( {
-				'_en': 'woocommerceanalytics_product_purchase',
-				'blog_id': '" . esc_js( $blogid ) . "',
-				'pi': '" . esc_js( $product_details['id'] ) . "',
-				'pn': '" . esc_js( $product_details['name'] ) . "',
-				'pc': '" . esc_js( $product_details['category'] ) . "',
-				'pp': '" . esc_js( $product_details['price'] ) . "',
-				'pq': '" . esc_js( $order_item->get_quantity() ) . "',
-				'pt': '" . esc_js( $product_details['type'] ) . "',
-				'oi': '" . esc_js( $order->get_order_number() ) . "',
-				'ui': '" . esc_js( $this->get_user_id() ) . "',
-			} );";
+			$this->record_event(
+				'woocommerceanalytics_product_purchase',
+				$product->get_id(),
+				array(
+					'oi' => $order->get_order_number(),
+					'pq' => $order_item->get_quantity(),
+				)
+			);
 		}
-
-		wc_enqueue_js( implode( "\r\n", $universal_commands ) );
 	}
 
 	/**
@@ -279,7 +299,9 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	 * updating its quantity to zero
 	 */
 	public function remove_from_cart_via_quantity() {
-		$blogid = Jetpack::get_option( 'id' );
+		$common_props = $this->render_properties_as_js(
+			$this->get_common_properties()
+		);
 
 		wc_enqueue_js(
 			"
@@ -291,14 +313,12 @@ class Jetpack_WooCommerce_Analytics_Universal {
 						var productID = jQuery( this ).find( '.product-remove a' ).data( 'product_id' );
 						_wca.push( {
 							'_en': 'woocommerceanalytics_remove_from_cart',
-							'blog_id': '" . esc_js( $blogid ) . "',
-							'pi': productID,
-							'ui': '" . esc_js( $this->get_user_id() ) . "',
+							'pi': productID, " .
+							$common_props . '
 						} );
 					}
 				} );
-			} );
-		"
+			} );'
 		);
 	}
 
@@ -328,7 +348,8 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		$referer_postid = isset( $_SERVER['HTTP_REFERER'] ) ? url_to_postid( $_SERVER['HTTP_REFERER'] ) : 0;
 		// if the referring post is not a product OR the product being added is not the same as post
 		// (eg. related product list on single product page) then include a product view event
-		if ( ! wc_get_product( $referer_postid ) || $product_id != $referer_postid ) {
+		$product_by_referer_postid = wc_get_product( $referer_postid );
+		if ( ! $product_by_referer_postid instanceof WC_Product || (int) $product_id !== $referer_postid ) {
 			$this->capture_event_in_session_data( $product_id, $quantity, 'woocommerceanalytics_product_view' );
 		}
 		// add cart event to the session data
@@ -343,7 +364,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	public function capture_event_in_session_data( $product_id, $quantity, $event ) {
 
 		$product = wc_get_product( $product_id );
-		if ( ! $product ) {
+		if ( ! $product instanceof WC_Product ) {
 			return;
 		}
 
@@ -380,7 +401,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	 */
 	public function get_product_categories_concatenated( $product ) {
 
-		if ( ! $product ) {
+		if ( ! $product instanceof WC_Product ) {
 			return '';
 		}
 
@@ -400,4 +421,76 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		return $line;
 	}
 
+	/**
+	 * Search a specific post for text content.
+	 *
+	 * Note: similar code is in a WooCommerce core PR:
+	 * https://github.com/woocommerce/woocommerce/pull/25932
+	 *
+	 * @param integer $post_id The id of the post to search.
+	 * @param string  $text    The text to search for.
+	 * @return integer 1 if post contains $text (otherwise 0).
+	 */
+	public static function post_contains_text( $post_id, $text ) {
+		global $wpdb;
+
+		// Search for the text anywhere in the post.
+		$wildcarded = "%{$text}%";
+
+		$result = $wpdb->get_var(
+			$wpdb->prepare(
+				"
+				SELECT COUNT( * ) FROM {$wpdb->prefix}posts
+				WHERE ID=%d
+				AND {$wpdb->prefix}posts.post_content LIKE %s
+				",
+				array( $post_id, $wildcarded )
+			)
+		);
+
+		return ( '0' !== $result ) ? 1 : 0;
+	}
+
+	/**
+	 * Get info about the cart & checkout pages, in particular
+	 * whether the store is using shortcodes or Gutenberg blocks.
+	 * This info is cached in a transient.
+	 *
+	 * Note: similar code is in a WooCommerce core PR:
+	 * https://github.com/woocommerce/woocommerce/pull/25932
+	 *
+	 * @return array
+	 */
+	public static function get_cart_checkout_info() {
+		$transient_name = 'jetpack_woocommerce_analytics_cart_checkout_info_cache';
+
+		$info = get_transient( $transient_name );
+		if ( false === $info ) {
+			$cart_page_id     = wc_get_page_id( 'cart' );
+			$checkout_page_id = wc_get_page_id( 'checkout' );
+
+			$info = array(
+				'cart_page_contains_cart_block'         => self::post_contains_text(
+					$cart_page_id,
+					'<!-- wp:woocommerce/cart'
+				),
+				'cart_page_contains_cart_shortcode'     => self::post_contains_text(
+					$cart_page_id,
+					'[woocommerce_cart]'
+				),
+				'checkout_page_contains_checkout_block' => self::post_contains_text(
+					$checkout_page_id,
+					'<!-- wp:woocommerce/checkout'
+				),
+				'checkout_page_contains_checkout_shortcode' => self::post_contains_text(
+					$checkout_page_id,
+					'[woocommerce_checkout]'
+				),
+			);
+
+			set_transient( $transient_name, $info, DAY_IN_SECONDS );
+		}
+
+		return $info;
+	}
 }

@@ -1,9 +1,21 @@
-# Connection
+# Jetpack Connection Package
 
-*Currently a work in progress*
+Let's talk to wordpress.com! 
 
-This package will eventually give other plugins the ability to create a secure two-way communication path between  the plugin and WordPress.com. 
-* It currently relies on the full Jetpack plugin to work 
-* It does not, nor will it come with UI
+## Get Started 
 
-Follow the "Jetpack DNA" label to keep up with ongoing work.
+Package is published in [Packagist](https://packagist.org/packages/automattic/jetpack-connection). We recommend using the latest version there, or you can also test with the latest development versions like below:
+
+```
+"require": {
+    "automattic/jetpack-autoloader": "dev-master",
+    "automattic/jetpack-config": "dev-master",
+    "automattic/jetpack-connection": "dev-master"
+}
+```
+
+## Examples
+1. [Register the site](docs/register-site.md)
+2. [Authorize the user](docs/authorize-user.md)
+3. In-place user auth @todo
+4. Disconnecting @todo

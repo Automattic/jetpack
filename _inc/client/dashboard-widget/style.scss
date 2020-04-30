@@ -130,22 +130,30 @@
 
 	footer {
 		background: #fafafa;
-		padding: .75em;
+		padding: .75em .75em 0 .75em;
 		overflow: hidden;
 		border-top: 1px solid #ccc;
 
 		.protect,
 		.akismet {
-			width: 50%;
 			float: left;
 			text-align: left;
+			margin-bottom: .75em;
 		}
 
 		.protect {
 			padding-right: 3%;
+			min-width: 50%;
 		}
 
 		h3 {
+			font-size: 1em;
+			font-weight: normal;
+			margin: 0 0 0.25em 0;
+			padding: 0;
+		}
+
+		p.blocked-count {
 			font-size: 1.5em;
 			font-weight: normal;
 			margin: 0;

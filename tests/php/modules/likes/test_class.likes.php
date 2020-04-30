@@ -4,6 +4,35 @@ require dirname( __FILE__ ) . '/../../../../modules/likes.php';
 class WP_Test_Likes extends WP_UnitTestCase {
 
 	/**
+	 * Test that the actions are not added if likes are not visible.
+	 *
+	 * @since 8.4.0
+	 */
+	public function test_action_init_likes_not_visible() {
+		$instance = new Jetpack_Likes();
+		$instance->action_init();
+
+		$this->assertFalse( has_filter( 'the_content', array( $instance, 'post_likes' ) ) );
+		$this->assertFalse( has_filter( 'the_excerpt', array( $instance, 'post_likes' ) ) );
+	}
+
+	/**
+	 * Test that the actions are added if likes are visible.
+	 *
+	 * @since 8.4.0
+	 */
+	public function test_action_init_likes_visible() {
+		$this->go_to( get_permalink( $this->factory()->post->create() ) );
+		add_filter( 'wpl_is_enabled_sitewide', '__return_true' );
+		add_filter( 'wpl_is_single_post_disabled', '__return_true' );
+		$instance = new Jetpack_Likes();
+		$instance->action_init();
+
+		$this->assertEquals( 30, has_filter( 'the_content', array( $instance, 'post_likes' ) ) );
+		$this->assertEquals( 30, has_filter( 'the_excerpt', array( $instance, 'post_likes' ) ) );
+	}
+
+	/**
 	 * Test if likes are rendered correctly.
 	 *
 	 * @since 4.6.0

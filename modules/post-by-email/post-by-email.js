@@ -1,4 +1,4 @@
-/* global jetpack_post_by_email:true, ajaxurl, pbeVars */
+/* global jetpack_post_by_email:true, pbeVars */
 
 ( function( $ ) {
 	var $pbeDisable,
@@ -22,26 +22,24 @@
 			$pbeError.fadeOut();
 			$pbeSpinner.fadeIn();
 
-			var data = {
-				action: 'jetpack_post_by_email_enable',
-				pbe_nonce: pbeVars.nonces.enable,
-			};
-
-			$.post( ajaxurl, data, jetpack_post_by_email.handle_enabled );
+			jetpack_post_by_email.send_request(
+				{ post_by_email_address: 'create' },
+				jetpack_post_by_email.handle_enabled
+			);
 		},
 
 		handle_enabled: function( response ) {
 			$pbeRegenerate.removeAttr( 'disabled' );
 			$pbeDisable.removeAttr( 'disabled' );
 
-			if ( response.success ) {
+			if ( response.code === 'success' ) {
 				$pbeEnable.fadeOut( 400, function() {
 					$pbeEnable.removeAttr( 'disabled' );
-					$pbeEmail.val( response.data );
+					$pbeEmail.val( response.post_by_email_address );
 					$pbeInfo.fadeIn();
 				} );
 			} else {
-				$pbeError.text( response.data );
+				$pbeError.text( jetpack_post_by_email.parse_error_message( response ) );
 				$pbeError.fadeIn();
 				$pbeEnable.removeAttr( 'disabled' );
 			}
@@ -50,27 +48,22 @@
 		},
 
 		regenerate: function() {
-			$pbeRegenerate.attr( 'disabled', 'disabled' );
-			$pbeDisable.attr( 'disabled', 'disabled' );
-			$pbeError.fadeOut();
-			$pbeSpinner.fadeIn();
+			jetpack_post_by_email.before_request();
 
-			var data = {
-				action: 'jetpack_post_by_email_regenerate',
-				pbe_nonce: pbeVars.nonces.regenerate,
-			};
-
-			$.post( ajaxurl, data, jetpack_post_by_email.handle_regenerated );
+			jetpack_post_by_email.send_request(
+				{ post_by_email_address: 'regenerate' },
+				jetpack_post_by_email.handle_regenerated
+			);
 		},
 
 		handle_regenerated: function( response ) {
-			if ( response.success ) {
+			if ( response.code === 'success' ) {
 				$pbeEmailWrapper.fadeOut( 400, function() {
-					$pbeEmail.val( response.data );
+					$pbeEmail.val( response.post_by_email_address );
 					$pbeEmailWrapper.fadeIn();
 				} );
 			} else {
-				$pbeError.text( response.data );
+				$pbeError.text( jetpack_post_by_email.parse_error_message( response ) );
 				$pbeError.fadeIn();
 			}
 
@@ -80,21 +73,16 @@
 		},
 
 		disable: function() {
-			$pbeRegenerate.attr( 'disabled', 'disabled' );
-			$pbeDisable.attr( 'disabled', 'disabled' );
-			$pbeError.fadeOut();
-			$pbeSpinner.fadeIn();
+			jetpack_post_by_email.before_request();
 
-			var data = {
-				action: 'jetpack_post_by_email_disable',
-				pbe_nonce: pbeVars.nonces.disable,
-			};
-
-			$.post( ajaxurl, data, jetpack_post_by_email.handle_disabled );
+			jetpack_post_by_email.send_request(
+				{ post_by_email_address: 'delete' },
+				jetpack_post_by_email.handle_disabled
+			);
 		},
 
 		handle_disabled: function( response ) {
-			if ( response.success ) {
+			if ( response.code === 'success' ) {
 				$pbeEnable.removeAttr( 'disabled' );
 				$pbeInfo.fadeOut( 400, function() {
 					$pbeRegenerate.removeAttr( 'disabled' );
@@ -105,11 +93,39 @@
 				$pbeRegenerate.removeAttr( 'disabled' );
 				$pbeDisable.removeAttr( 'disabled' );
 
-				$pbeError.text( response.data );
+				$pbeError.text( jetpack_post_by_email.parse_error_message( response ) );
 				$pbeError.fadeIn();
 			}
 
 			$pbeSpinner.fadeOut();
+		},
+
+		send_request: function( data, callback ) {
+			var request = new XMLHttpRequest();
+			request.open( 'POST', '/wp-json/jetpack/v4/settings/' );
+			request.setRequestHeader( 'Content-Type', 'application/json' );
+			request.setRequestHeader( 'X-WP-Nonce', pbeVars.rest_nonce );
+			request.onreadystatechange = function() {
+				if ( this.readyState === XMLHttpRequest.DONE ) {
+					callback( JSON.parse( this.response ) );
+				}
+			};
+			request.send( JSON.stringify( data ) );
+		},
+
+		parse_error_message: function( data ) {
+			if ( data.message ) {
+				return data.message.replace( /^.*?:/, '' );
+			}
+
+			return '';
+		},
+
+		before_request: function() {
+			$pbeRegenerate.attr( 'disabled', 'disabled' );
+			$pbeDisable.attr( 'disabled', 'disabled' );
+			$pbeError.fadeOut();
+			$pbeSpinner.fadeIn();
 		},
 	};
 

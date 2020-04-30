@@ -52,7 +52,6 @@ export class Writing extends React.Component {
 			'custom-content-types',
 			'post-by-email',
 			'infinite-scroll',
-			'minileven',
 			'widgets',
 			'widget-visibility',
 		].some( this.props.isModuleFound );

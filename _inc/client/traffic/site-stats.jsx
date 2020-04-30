@@ -11,6 +11,7 @@ import { filter, includes } from 'lodash';
 import classNames from 'classnames';
 import { imagePath } from 'constants/urls';
 import analytics from 'lib/analytics';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -145,7 +146,7 @@ class SiteStatsComponent extends React.Component {
 												a: <a href="javascript:void(0)" onClick={ this.activateStats } />,
 												a1: (
 													<a
-														href="https://jetpack.com/support/wordpress-com-stats/"
+														href={ getRedirectUrl( 'jetpack-support-wordpress-com-stats' ) }
 														target="_blank"
 														rel="noopener noreferrer"
 													/>
@@ -171,6 +172,7 @@ class SiteStatsComponent extends React.Component {
 				{ ...this.props }
 				header={ __( 'Site stats', { context: 'Settings header' } ) }
 				hideButton
+				module="site-stats"
 			>
 				<FoldableCard
 					onOpen={ this.trackOpenCard }
@@ -189,7 +191,7 @@ class SiteStatsComponent extends React.Component {
 							text: __(
 								'Displays information on your site activity, including visitors and popular posts or pages.'
 							),
-							link: 'https://jetpack.com/support/wordpress-com-stats/',
+							link: getRedirectUrl( 'jetpack-support-wordpress-com-stats' ),
 						} }
 					>
 						<FormFieldset>

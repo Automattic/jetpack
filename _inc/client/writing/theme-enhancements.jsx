@@ -2,16 +2,15 @@
  * External dependencies
  */
 import React from 'react';
-import classNames from 'classnames';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
-import CompactFormToggle from 'components/form/form-toggle/compact';
 import analytics from 'lib/analytics';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
  */
-import { FormFieldset, FormLabel, FormLegend } from 'components/forms';
+import { FormLabel, FormLegend } from 'components/forms';
 import { ModuleToggle } from 'components/module-toggle';
 import { getModule } from 'state/modules';
 import { currentThemeSupports } from 'state/initial-state';
@@ -19,7 +18,6 @@ import { isModuleFound } from 'state/search';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import SimpleNotice from 'components/notice';
 import ModuleOverriddenBanner from 'components/module-overridden-banner';
 
 class ThemeEnhancements extends React.Component {
@@ -96,51 +94,27 @@ class ThemeEnhancements extends React.Component {
 	 * Get options for initial state.
 	 *
 	 * @returns {Object} {{
-	 * 		infinite_scroll: *,
-	 *		wp_mobile_excerpt: *,
-	 *		wp_mobile_featured_images: *,
-	 *		wp_mobile_app_promos: *
+	 * 		infinite_scroll: *
 	 * }}
 	 */
 	state = {
 		infinite_mode: this.getInfiniteMode(),
-		wp_mobile_excerpt: this.props.getOptionValue( 'wp_mobile_excerpt', 'minileven' ),
-		wp_mobile_featured_images: this.props.getOptionValue(
-			'wp_mobile_featured_images',
-			'minileven'
-		),
-		wp_mobile_app_promos: this.props.getOptionValue( 'wp_mobile_app_promos', 'minileven' ),
 	};
 
 	handleInfiniteScrollModeChange = key => {
 		return () => this.updateInfiniteMode( key );
 	};
 
-	handleMinilevenOptionChange = ( optionName, module ) => {
-		return () => this.updateOptions( optionName, module );
-	};
-
-	trackMinilevenLearnMore = () => {
-		analytics.tracks.recordJetpackClick( {
-			target: 'learn-more',
-			feature: 'minileven',
-			extra: 'deprecated-link',
-		} );
-	};
-
 	render() {
 		const foundInfiniteScroll = this.props.isModuleFound( 'infinite-scroll' ),
-			foundCustomCSS = this.props.isModuleFound( 'custom-css' ),
-			foundMinileven = this.props.isModuleFound( 'minileven' );
+			foundCustomCSS = this.props.isModuleFound( 'custom-css' );
 
-		if ( ! foundInfiniteScroll && ! foundMinileven && ! foundCustomCSS ) {
+		if ( ! foundInfiniteScroll && ! foundCustomCSS ) {
 			return null;
 		}
 
 		const infScr = this.props.getModule( 'infinite-scroll' );
-		const minileven = this.props.getModule( 'minileven' );
 		const customCSS = this.props.getModule( 'custom-css' );
-		const isMinilevenActive = this.props.getOptionValue( minileven.module );
 
 		const infiniteScrollDisabledByOverride =
 			'inactive' === this.props.getModuleOverride( 'infinite-scroll' );
@@ -150,6 +124,7 @@ class ThemeEnhancements extends React.Component {
 				{ ...this.props }
 				header={ __( 'Theme enhancements' ) }
 				hideButton={ ! foundInfiniteScroll || ! this.props.isInfiniteScrollSupported }
+				module="theme-enhancements"
 			>
 				{ infiniteScrollDisabledByOverride && (
 					<ModuleOverriddenBanner moduleName={ infScr.name } compact />
@@ -163,7 +138,7 @@ class ThemeEnhancements extends React.Component {
 							text: __(
 								'Loads the next posts automatically when the reader approaches the bottom of the page.'
 							),
-							link: 'https://jetpack.com/support/infinite-scroll',
+							link: getRedirectUrl( 'jetpack-support-infinite-scroll' ),
 						} }
 					>
 						<FormLegend className="jp-form-label-wide">{ infScr.name }</FormLegend>
@@ -215,104 +190,12 @@ class ThemeEnhancements extends React.Component {
 						) }
 					</SettingsGroup>
 				) }
-				{ foundMinileven && (
-					<SettingsGroup
-						hasChild
-						module={ { module: minileven.module } }
-						key={ `theme_enhancement_${ minileven.module }` }
-						support={ {
-							text: __(
-								'Enables a lightweight, mobile-friendly theme ' +
-									'that will be displayed to visitors on mobile devices.'
-							),
-							link: 'https://jetpack.com/support/mobile-theme',
-						} }
-						className={ classNames(
-							'minileven',
-							`${ isMinilevenActive ? `active` : `inactive` }`
-						) }
-					>
-						<FormLegend className="jp-form-label-wide">{ __( 'Mobile Theme' ) }</FormLegend>
-						<SimpleNotice
-							showDismiss={ false }
-							status="is-info"
-							className="jp-form-settings-notice"
-						>
-							{ __(
-								'{{b}}Note:{{/b}} This feature is being retired ' +
-									'and will be removed from Jetpack in March. ' +
-									'{{link}}Learn more{{/link}}',
-								{
-									components: {
-										b: <strong />,
-										link: (
-											<a
-												href="https://jetpack.com/support/mobile-theme/"
-												target="_blank"
-												rel="noopener noreferrer"
-												onClick={ this.trackMinilevenLearnMore }
-											/>
-										),
-									},
-									context: 'Link leads to a support document.',
-								}
-							) }
-						</SimpleNotice>
-						<p>
-							{ __(
-								'Give your site a fast-loading, streamlined look for mobile devices. Visitors will ' +
-									'still see your regular theme on other screen sizes.'
-							) }
-						</p>
-						<ModuleToggle
-							slug={ minileven.module }
-							activated={ isMinilevenActive }
-							toggling={ this.props.isSavingAnyOption( minileven.module ) }
-							toggleModule={ this.props.toggleModuleNow }
-							disabled={ ! isMinilevenActive }
-						>
-							<span className="jp-form-toggle-explanation">{ minileven.description }</span>
-						</ModuleToggle>
-						<FormFieldset>
-							{ [
-								{
-									key: 'wp_mobile_excerpt',
-									label: __(
-										'Show excerpts instead of full posts on front page and archive pages'
-									),
-								},
-								{
-									key: 'wp_mobile_featured_images',
-									label: __( 'Show featured images' ),
-								},
-								{
-									key: 'wp_mobile_app_promos',
-									label: __(
-										'Show an ad for the WordPress mobile apps in the footer of the mobile theme'
-									),
-								},
-							].map( chkbx => (
-								<CompactFormToggle
-									checked={ this.state[ chkbx.key ] }
-									disabled={
-										! isMinilevenActive ||
-										this.props.isSavingAnyOption( [ minileven.module, chkbx.key ] )
-									}
-									onChange={ this.handleMinilevenOptionChange( chkbx.key, minileven.module ) }
-									key={ `${ minileven.module }_${ chkbx.key }` }
-								>
-									<span className="jp-form-toggle-explanation">{ chkbx.label }</span>
-								</CompactFormToggle>
-							) ) }
-						</FormFieldset>
-					</SettingsGroup>
-				) }
 				{ foundCustomCSS && (
 					<SettingsGroup
 						module={ { module: customCSS.module } }
 						support={ {
 							text: customCSS.description,
-							link: 'https://jetpack.com/support/custom-css/',
+							link: getRedirectUrl( 'jetpack-support-custom-css' ),
 						} }
 					>
 						<ModuleToggle

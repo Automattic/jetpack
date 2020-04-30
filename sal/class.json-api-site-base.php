@@ -71,6 +71,8 @@ abstract class SAL_Site {
 
 	abstract public function is_private();
 
+	abstract public function is_coming_soon();
+
 	abstract public function is_following();
 
 	abstract public function get_subscribers_count();
@@ -133,6 +135,8 @@ abstract class SAL_Site {
 		);
 	}
 
+	abstract protected function is_wpforteams_site();
+
 	public function is_wpcom_atomic() {
 		return false;
 	}
@@ -146,10 +150,6 @@ abstract class SAL_Site {
 	}
 
 	public function get_post_by_id( $post_id, $context ) {
-		// Remove the skyword tracking shortcode for posts returned via the API.
-		remove_shortcode( 'skyword-tracking' );
-		add_shortcode( 'skyword-tracking', '__return_empty_string' );
-
 		$post = get_post( $post_id, OBJECT, $context );
 
 		if ( ! $post ) {
@@ -419,6 +419,16 @@ abstract class SAL_Site {
 			'upload_files'        => current_user_can( 'upload_files' ),
 			'delete_users'        => current_user_can( 'delete_users' ),
 			'remove_users'        => current_user_can( 'remove_users' ),
+			/**
+		 	 * Filter whether the Hosting section in Calypso should be available for site.
+			 *
+			 * @module json-api
+			 *
+			 * @since 8.2.0
+			 *
+			 * @param bool $view_hosting Can site access Hosting section. Default to false.
+			 */
+			'view_hosting'        => apply_filters( 'jetpack_json_api_site_can_view_hosting', false ),
 			'view_stats'          => stats_is_blog_user( $this->blog_id )
 		);
 	}
@@ -641,11 +651,15 @@ abstract class SAL_Site {
 		return false;
 	}
 
-	function get_migration_status() {
-		return false;
+	function get_migration_meta() {
+		return null;
 	}
 
 	function get_site_segment() {
 		return false;
+	}
+
+	function get_site_creation_flow() {
+		return get_option( 'site_creation_flow' );
 	}
 }

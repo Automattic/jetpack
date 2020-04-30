@@ -41,6 +41,7 @@ if ( program.args.length ) {
 		window.Initial_State = {
 			userData: {},
 			dismissedNotices: {},
+			locale: '{}',
 		};
 
 		switch ( program.args[ 0 ] ) {

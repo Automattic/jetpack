@@ -114,12 +114,14 @@ class Jetpack_Sync_Actions extends Automattic\Jetpack\Sync\Actions {
 	 * @param Integer $queue_id the queue identifier.
 	 * @param Integer $checkout_duration time spent retrieving items.
 	 * @param Integer $preprocess_duration Time spent converting items into data.
+	 * @param Integer $queue_size The current size of the sync queue.
+	 *
 	 * @return WP_Response the response object.
 	 */
-	public static function send_data( $data, $codec_name, $sent_timestamp, $queue_id, $checkout_duration, $preprocess_duration ) {
+	public static function send_data( $data, $codec_name, $sent_timestamp, $queue_id, $checkout_duration, $preprocess_duration, $queue_size = null ) {
 		_deprecated_function( __METHOD__, 'jetpack-7.5', 'Automattic\Jetpack\Sync\Actions' );
 
-		return Actions::send_data( $data, $codec_name, $sent_timestamp, $queue_id, $checkout_duration, $preprocess_duration );
+		return Actions::send_data( $data, $codec_name, $sent_timestamp, $queue_id, $checkout_duration, $preprocess_duration, $queue_size );
 	}
 
 	/**
@@ -138,7 +140,7 @@ class Jetpack_Sync_Actions extends Automattic\Jetpack\Sync\Actions {
 	 *
 	 * @deprecated Automattic\Jetpack\Sync\Actions::do_full_sync
 	 *
-	 * @param Array $modules the modules list.
+	 * @param array $modules the modules list.
 	 * @return Boolean whether the sync was initialized.
 	 */
 	public static function do_full_sync( $modules = null ) {
@@ -152,7 +154,7 @@ class Jetpack_Sync_Actions extends Automattic\Jetpack\Sync\Actions {
 	 *
 	 * @deprecated Automattic\Jetpack\Sync\Actions::jetpack_cron_schedule
 	 *
-	 * @param Array $schedules the schedules to add.
+	 * @param array $schedules the schedules to add.
 	 */
 	public static function jetpack_cron_schedule( $schedules ) {
 		_deprecated_function( __METHOD__, 'jetpack-7.5', 'Automattic\Jetpack\Sync\Actions' );
@@ -187,7 +189,7 @@ class Jetpack_Sync_Actions extends Automattic\Jetpack\Sync\Actions {
 	 *
 	 * @deprecated Automattic\Jetpack\Sync\Actions::do_cron_sync_by_type
 	 *
-	 * @param Array $type the type of object to sync.
+	 * @param array $type the type of object to sync.
 	 */
 	public static function do_cron_sync_by_type( $type ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		_deprecated_function( __METHOD__, 'jetpack-7.5', 'Automattic\Jetpack\Sync\Actions' );
@@ -233,7 +235,7 @@ class Jetpack_Sync_Actions extends Automattic\Jetpack\Sync\Actions {
 	 *
 	 * @deprecated Automattic\Jetpack\Sync\Actions::add_woocommerce_sync_module
 	 *
-	 * @param Array $sync_modules an array of modules.
+	 * @param array $sync_modules an array of modules.
 	 */
 	public static function add_woocommerce_sync_module( $sync_modules ) {
 		_deprecated_function( __METHOD__, 'jetpack-7.5', 'Automattic\Jetpack\Sync\Actions' );
@@ -257,7 +259,7 @@ class Jetpack_Sync_Actions extends Automattic\Jetpack\Sync\Actions {
 	 *
 	 * @deprecated Automattic\Jetpack\Sync\Actions::add_wp_super_cache_sync_module
 	 *
-	 * @param Array $sync_modules the list to be amended.
+	 * @param array $sync_modules the list to be amended.
 	 */
 	public static function add_wp_super_cache_sync_module( $sync_modules ) {
 		_deprecated_function( __METHOD__, 'jetpack-7.5', 'Automattic\Jetpack\Sync\Actions' );
@@ -349,7 +351,7 @@ class Jetpack_Sync_Actions extends Automattic\Jetpack\Sync\Actions {
 	 *
 	 * @deprecated Automattic\Jetpack\Sync\Actions::get_sync_status
 	 *
-	 * @param Array $fields sync fields to get status of.
+	 * @param array $fields sync fields to get status of.
 	 */
 	public static function get_sync_status( $fields = null ) {
 		_deprecated_function( __METHOD__, 'jetpack-7.5', 'Automattic\Jetpack\Sync\Actions' );

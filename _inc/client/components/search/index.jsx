@@ -2,6 +2,7 @@
  * External dependencies
  */
 import classNames from 'classnames';
+import { isMobile } from '@automattic/viewport';
 import PropTypes from 'prop-types';
 import React from 'react';
 import ReactDom from 'react-dom';
@@ -13,7 +14,6 @@ import { debounce, noop } from 'lodash';
 import analytics from 'lib/analytics';
 import Spinner from 'components/spinner';
 import Gridicon from 'components/gridicon';
-import { isMobile } from 'lib/viewport';
 
 import './style.scss';
 

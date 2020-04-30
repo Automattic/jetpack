@@ -22,6 +22,7 @@ import simplePaymentsExample1 from './simple-payments_example-1.jpg';
  * Styles
  */
 import './editor.scss';
+import { supportsCollections } from '../../shared/block-category';
 
 export const name = 'simple-payments';
 
@@ -31,7 +32,7 @@ const supportLink =
 		: 'https://jetpack.com/support/jetpack-blocks/simple-payments-block/';
 
 export const settings = {
-	title: __( 'Simple Payments button', 'jetpack' ),
+	title: __( 'Simple Payments', 'jetpack' ),
 
 	description: (
 		<Fragment>
@@ -42,10 +43,7 @@ export const settings = {
 				) }
 			</p>
 			<p>
-				{ __(
-					'Good for collecting donations or payments for products and services.',
-					'jetpack'
-				) }
+				{ __( 'Good for collecting donations or payments for products and services.', 'jetpack' ) }
 			</p>
 			<ExternalLink href={ supportLink }>{ __( 'Support reference', 'jetpack' ) }</ExternalLink>
 		</Fragment>
@@ -58,11 +56,15 @@ export const settings = {
 		</SVG>
 	),
 
-	category: 'jetpack',
+	category: supportsCollections() ? 'earn' : 'jetpack',
 
 	keywords: [
-		_x( 'shop', 'block search term', 'jetpack' ),
+		_x( 'buy', 'block search term', 'jetpack' ),
+		_x( 'commerce', 'block search term', 'jetpack' ),
+		_x( 'products', 'block search term', 'jetpack' ),
+		_x( 'purchase', 'block search term', 'jetpack' ),
 		_x( 'sell', 'block search term', 'jetpack' ),
+		_x( 'shop', 'block search term', 'jetpack' ),
 		'PayPal',
 	],
 
@@ -140,7 +142,7 @@ export const settings = {
 			price: 25.0,
 			title: __( 'Jetpack t-shirt', 'jetpack' ),
 			content: __(
-				'Take flight in ultimate comfort with ths stylish t-shirt featuring the Jetpack logo.',
+				'Take flight in ultimate comfort with this stylish t-shirt featuring the Jetpack logo.',
 				'jetpack'
 			),
 			email: 'jetpack@jetpack.com',

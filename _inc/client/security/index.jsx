@@ -122,10 +122,10 @@ export class Security extends Component {
 				{ foundBackups && backupsContent }
 				{ foundMonitor && <Monitor { ...commonProps } /> }
 				{ foundAkismet && (
-					<div>
+					<>
 						<Antispam { ...commonProps } />
 						<QueryAkismetKeyCheck />
-					</div>
+					</>
 				) }
 				{ ! isSearchTerm && <ManagePlugins { ...commonProps } /> }
 				{ foundProtect && <Protect { ...commonProps } /> }

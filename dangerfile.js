@@ -60,7 +60,7 @@ if ( newFiles.length > 0 ) {
 	if ( notWhitelistedFiles.length > 0 ) {
 		const stringifiedFilesList = '\n' + notWhitelistedFiles.join( '\n' );
 		fail(
-			'Please add these new PHP files to PHPCS whitelist for automatic linting:' +
+			'Please add these new PHP files to PHPCS whitelist in bin/phpcs-whitelist.js for automatic linting:' +
 				stringifiedFilesList
 		);
 	}

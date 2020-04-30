@@ -71,6 +71,8 @@ function _manually_load_plugin() {
 		require JETPACK_WOOCOMMERCE_INSTALL_DIR . '/woocommerce.php';
 	}
 	require dirname( __FILE__ ) . '/../../jetpack.php';
+	$jetpack = Jetpack::init();
+	$jetpack->configure();
 }
 
 function _manually_install_woocommerce() {
@@ -101,23 +103,25 @@ if ( ! ( in_running_uninstall_group() ) ) {
 }
 
 /**
- * Replace Full Sync module with Full Sync Immediately
+ * As of Jetpack 8.2, we are using Full_Sync_Immediately as the default full sync module.
+ * Some unit tests will need to revert to the now legacy Full_Sync module. The unit tests
+ * will look for a LEGACY_FULL_SYNC flag to run tests on the legacy module.
  *
  * @param array $modules Sync Modules.
  *
  * @return array
  */
-function jetpack_full_sync_immediately_on( $modules ) {
+function jetpack_full_sync_immediately_off( $modules ) {
 	foreach ( $modules as $key => $module ) {
-		if ( in_array( $module, array( 'Automattic\\Jetpack\\Sync\\Modules\\Full_Sync', 'Jetpack_Sync_Modules_Full_Sync' ), true ) ) {
-			$modules[ $key ] = 'Automattic\\Jetpack\\Sync\\Modules\\Full_Sync_Immediately';
+		if ( in_array( $module, array( 'Automattic\\Jetpack\\Sync\\Modules\\Full_Sync_Immediately' ), true ) ) {
+			$modules[ $key ] = 'Automattic\\Jetpack\\Sync\\Modules\\Full_Sync';
 		}
 	}
 	return $modules;
 }
 
-if ( false !== getenv( 'SYNC_BETA' ) ) {
-	tests_add_filter( 'jetpack_sync_modules', 'jetpack_full_sync_immediately_on' );
+if ( false !== getenv( 'LEGACY_FULL_SYNC' ) ) {
+	tests_add_filter( 'jetpack_sync_modules', 'jetpack_full_sync_immediately_off' );
 }
 
 require $test_root . '/includes/bootstrap.php';

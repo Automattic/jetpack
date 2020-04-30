@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { ExternalLink, Path, SVG } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 
@@ -10,6 +10,7 @@ import { Fragment } from '@wordpress/element';
  */
 import edit from './edit';
 import { DEFAULT_FORMAT } from './constants';
+import { supportsCollections } from '../../shared/block-category';
 
 export const name = 'wordads';
 export const title = __( 'Ad', 'jetpack' );
@@ -56,9 +57,13 @@ export const settings = {
 		attributes: {},
 	},
 
-	category: 'jetpack',
+	category: supportsCollections() ? 'earn' : 'jetpack',
 
-	keywords: [ __( 'ads', 'jetpack' ), 'WordAds', __( 'Advertisement', 'jetpack' ) ],
+	keywords: [
+		_x( 'ads', 'block search term', 'jetpack' ),
+		'WordAds',
+		_x( 'advertisement', 'block search term', 'jetpack' ),
+	],
 
 	supports: {
 		align: [ 'left', 'center', 'right' ],

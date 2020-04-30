@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { G, Path, Rect, SVG } from '@wordpress/components';
 import { createBlock } from '@wordpress/blocks';
 
@@ -10,8 +10,11 @@ import { createBlock } from '@wordpress/blocks';
  */
 import edit from './edit';
 import { pinType } from './utils';
+import { supportsCollections } from '../../shared/block-category';
 
 export const URL_REGEX = /^\s*https?:\/\/(?:www\.)?(?:[a-z]{2}\.)?(?:pinterest\.[a-z.]+|pin\.it)\/([^/]+)(\/[^/]+)?/i;
+
+export const PINTEREST_EXAMPLE_URL = 'https://pinterest.com/anapinskywalker/';
 
 export const name = 'pinterest';
 export const title = __( 'Pinterest', 'jetpack' );
@@ -32,7 +35,13 @@ export const settings = {
 
 	icon,
 
-	category: 'jetpack',
+	category: supportsCollections() ? 'embed' : 'jetpack',
+
+	keywords: [
+		_x( 'social', 'block search term', 'jetpack' ),
+		_x( 'pinboard', 'block search term', 'jetpack' ),
+		_x( 'pins', 'block search term', 'jetpack' ),
+	],
 
 	supports: {
 		align: false,
@@ -79,7 +88,7 @@ export const settings = {
 
 	example: {
 		attributes: {
-			url: 'https://pinterest.com/anapinskywalker/',
+			url: PINTEREST_EXAMPLE_URL,
 		},
 	},
 };

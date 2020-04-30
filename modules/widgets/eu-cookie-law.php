@@ -105,7 +105,7 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 					'_inc/build/widgets/eu-cookie-law/eu-cookie-law.min.js',
 					'modules/widgets/eu-cookie-law/eu-cookie-law.js'
 				),
-				array( 'jquery' ),
+				array(),
 				'20180522',
 				true
 			);

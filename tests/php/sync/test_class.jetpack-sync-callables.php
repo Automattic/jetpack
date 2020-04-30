@@ -98,6 +98,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			'available_jetpack_blocks'         => Jetpack_Gutenberg::get_availability(),
 			'paused_themes'                    => Functions::get_paused_themes(),
 			'paused_plugins'                   => Functions::get_paused_plugins(),
+			'main_network_site_wpcom_id'       => Functions::main_network_site_wpcom_id(),
 		);
 
 		if ( function_exists( 'wp_cache_is_enabled' ) ) {
@@ -1051,6 +1052,117 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 		$synced_value = $this->server_replica_storage->get_callable( 'jetpack_banana' );
 		$this->assertTrue( ! empty( $synced_value ), 'We couldn\'t synced a value!' );
+	}
+
+	/**
+	 * Test get_hosting_provider() callable to ensure that known hosts have the
+	 * right hosting provider returned.
+	 *
+	 * @return void
+	 */
+	public function test_get_hosting_provider_callable_with_unknown_host() {
+		$this->assertEquals( Functions::get_hosting_provider(), 'unknown' );
+	}
+
+	/**
+	 * Test getting a hosting provider by a known constant
+	 *
+	 * @return void
+	 */
+	public function test_get_hosting_provider_by_known_constant() {
+		$functions = new Functions();
+		Constants::set_constant( 'GD_SYSTEM_PLUGIN_DIR', 'set' );
+		$this->assertEquals( $functions->get_hosting_provider_by_known_constant(), 'gd-managed-wp' );
+		Constants::clear_constants();
+
+		Constants::set_constant( 'UNKNOWN', 'set' );
+		$this->assertFalse( $functions->get_hosting_provider_by_known_constant() );
+		Constants::clear_constants();
+	}
+
+	/**
+	 * Test getting a hosting provider by a known class
+	 *
+	 * @return void
+	 */
+	public function test_get_hosting_provider_by_known_class() {
+		$functions = new Functions();
+
+		$this->assertFalse( $functions->get_hosting_provider_by_known_class() );
+
+		$class_mock = $this->getMockBuilder( '\\WPaaS\\Plugin' )
+					->getMock(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+
+		$this->assertEquals( $functions->get_hosting_provider_by_known_class(), 'gd-managed-wp' );
+
+	}
+
+	/**
+	 * Test getting a hosting provider by a known function
+	 *
+	 * @return bool
+	 */
+	public function test_get_hosting_provider_by_known_function() {
+
+		/**
+		 * Stub is_wpe for testing function exists
+		 *
+		 * @return boolean
+		 */
+		function is_wpe() {
+			return true;
+		}
+
+		$functions = new Functions();
+
+		// Get hosting provider by known function.
+		$this->assertEquals( $functions->get_hosting_provider_by_known_function(), 'wpe' );
+	}
+
+	/**
+	 * Test getting the main network site wpcom ID in multisite installs
+	 *
+	 * @return void
+	 */
+	public function test_get_main_network_site_wpcom_id_multisite() {
+		if ( ! is_multisite() ) {
+			$this->markTestSkipped( 'Only used on multisite' );
+		}
+
+		// set the Jetpack ID for this site.
+		$main_network_wpcom_id = 12345;
+		\Jetpack_Options::update_option( 'id', $main_network_wpcom_id );
+
+		$user_id = $this->factory->user->create();
+
+		// NOTE this is necessary because WPMU causes certain assumptions about transients.
+		// to be wrong, and tests to explode. @see: https://github.com/sheabunge/WordPress/commit/ff4f1bb17095c6af8a0f35ac304f79074f3c3ff6 .
+		global $wpdb;
+
+		$suppress      = $wpdb->suppress_errors();
+		$other_blog_id = wpmu_create_blog( 'foo.com', '', 'My Blog', $user_id );
+		$wpdb->suppress_errors( $suppress );
+
+		switch_to_blog( $other_blog_id );
+
+		$functions = new Functions();
+		$this->assertEquals( $main_network_wpcom_id, $functions->main_network_site_wpcom_id() );
+
+		restore_current_blog();
+	}
+
+	/**
+	 * Test getting the main network site wpcom ID in single site installs
+	 *
+	 * @return void
+	 */
+	public function test_get_main_network_site_wpcom_id_single() {
+		// set the Jetpack ID for this site.
+		$main_network_wpcom_id = 7891011;
+		\Jetpack_Options::update_option( 'id', $main_network_wpcom_id );
+
+		$functions = new Functions();
+		$this->assertEquals( $main_network_wpcom_id, $functions->main_network_site_wpcom_id() );
 	}
 
 }

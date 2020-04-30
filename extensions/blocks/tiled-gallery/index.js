@@ -36,6 +36,7 @@ import tiledGalleryExample3 from './tiled-gallery_example-3.jpg';
 import tiledGalleryExample4 from './tiled-gallery_example-4.jpg';
 import tiledGalleryExample5 from './tiled-gallery_example-5.jpg';
 import tiledGalleryExample6 from './tiled-gallery_example-6.jpg';
+import { supportsCollections } from '../../shared/block-category';
 
 // Style names are translated. Avoid introducing an i18n dependency elsewhere (view)
 // by only including the labels here, the only place they're needed.
@@ -128,6 +129,10 @@ const blockAttributes = {
 		default: 'none',
 		type: 'string',
 	},
+	roundedCorners: {
+		type: 'integer',
+		default: 0,
+	},
 };
 
 const exampleAttributes = {
@@ -193,7 +198,7 @@ export const icon = (
 
 export const settings = {
 	attributes: blockAttributes,
-	category: 'jetpack',
+	category: supportsCollections() ? 'layout' : 'jetpack',
 	description:
 		__( 'Display multiple images in an elegantly organized tiled layout.', 'jetpack' ) +
 		( ! isSimpleSite()
@@ -201,9 +206,13 @@ export const settings = {
 			: '' ),
 	icon,
 	keywords: [
+		_x( 'columns', 'block search term', 'jetpack' ),
 		_x( 'images', 'block search term', 'jetpack' ),
 		_x( 'photos', 'block search term', 'jetpack' ),
 		_x( 'pictures', 'block search term', 'jetpack' ),
+		_x( 'square', 'block search term', 'jetpack' ),
+		_x( 'circle', 'block search term', 'jetpack' ),
+		_x( 'mosaic', 'block search term', 'jetpack' ),
 	],
 	styles: layoutStylesWithLabels,
 	supports: {

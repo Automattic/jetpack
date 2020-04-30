@@ -89,9 +89,17 @@ export class FormTextInput extends React.Component {
 			'is-valid': this.props.isValid,
 		} );
 
+		const filteredProps = {};
+		for ( const key in this.props ) {
+			if ( [ 'isError', 'isValid', 'selectOnFocus' ].includes( key ) ) {
+				continue;
+			}
+			filteredProps[ key ] = this.props[ key ];
+		}
+
 		return (
 			<input
-				{ ...this.props }
+				{ ...filteredProps }
 				ref="textField"
 				className={ classes }
 				onClick={ selectOnFocus ? this.selectOnFocus : null }

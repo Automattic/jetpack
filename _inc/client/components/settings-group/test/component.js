@@ -5,6 +5,7 @@ import React from 'react';
 import { expect } from 'chai';
 import { shallow } from 'enzyme';
 import sinon from 'sinon';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -15,7 +16,6 @@ describe( 'SettingsGroup', () => {
 
 	const allGroupsNonAdminCantAccess = [
 			'widget-visibility',
-			'minileven',
 			'contact-form',
 			'sitemaps',
 			'latex',
@@ -57,7 +57,7 @@ describe( 'SettingsGroup', () => {
 	let testProps = {
 		info: {
 			text: 'Help text about Protect',
-			link: 'https://jetpack.com/support/protect',
+			link: getRedirectUrl( 'jetpack-support-protect' ),
 		},
 		isDevMode: false,
 		isSitePublic: true,

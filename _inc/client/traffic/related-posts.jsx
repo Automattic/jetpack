@@ -6,6 +6,7 @@ import React from 'react';
 import { translate as __ } from 'i18n-calypso';
 import Card from 'components/card';
 import CompactFormToggle from 'components/form/form-toggle/compact';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -67,7 +68,7 @@ class RelatedPostsComponent extends React.Component {
 							'The feature helps visitors find more of your content by ' +
 								'displaying related posts at the bottom of each post.'
 						),
-						link: 'https://jetpack.com/support/related-posts/',
+						link: getRedirectUrl( 'jetpack-support-related-posts' ),
 					} }
 				>
 					<p>
@@ -78,7 +79,9 @@ class RelatedPostsComponent extends React.Component {
 								components: {
 									a: (
 										<a
-											href="https://jetpack.com/support/jetpack-blocks/related-posts-block/"
+											href={ getRedirectUrl(
+												'jetpack-support-jetpack-blocks-related-posts-block'
+											) }
 											target="_blank"
 											rel="noopener noreferrer"
 										/>

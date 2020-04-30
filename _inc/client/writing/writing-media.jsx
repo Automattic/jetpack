@@ -6,6 +6,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import CompactFormToggle from 'components/form/form-toggle/compact';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -58,6 +59,7 @@ class WritingMedia extends Component {
 		return (
 			<SettingsCard
 				{ ...this.props }
+				module="media"
 				header={ __( 'Media' ) }
 				hideButton={ ! foundCarousel }
 				saveDisabled={ this.props.isSavingAnyOption( 'carousel_background_color' ) }
@@ -66,7 +68,7 @@ class WritingMedia extends Component {
 					hasChild
 					module={ { module: 'carousel' } }
 					support={ {
-						link: 'https://jetpack.com/support/carousel',
+						link: getRedirectUrl( 'jetpack-support-carousel' ),
 					} }
 				>
 					<p>

@@ -7,15 +7,16 @@ use phpmock\MockBuilder;
 use PHPUnit\Framework\TestCase;
 
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Connection\Utils;
 
 class ManagerTest extends TestCase {
 
-	protected $arguments_stack = [];
+	protected $arguments_stack = array();
 
 	public function setUp() {
 		$this->manager = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
-		                      ->setMethods( [ 'get_access_token' ] )
-		                      ->getMock();
+							  ->setMethods( array( 'get_access_token' ) )
+							  ->getMock();
 
 		$builder = new MockBuilder();
 		$builder->setNamespace( __NAMESPACE__ )
@@ -33,12 +34,23 @@ class ManagerTest extends TestCase {
 				->setName( 'wp_redirect' )
 				->setFunction(
 					function( $url ) {
-						$this->arguments_stack['wp_redirect'] [] = [ $url ];
+						$this->arguments_stack['wp_redirect'] [] = array( $url );
 						return true;
 					}
 				);
 
 		$this->wp_redirect = $builder->build();
+
+		// Mock the apply_filters() call in Constants::get_constant().
+		$builder = new MockBuilder();
+		$builder->setNamespace( 'Automattic\Jetpack' )
+				->setName( 'apply_filters' )
+				->setFunction(
+					function( $filter_name, $value, $name ) {
+						return constant( __NAMESPACE__ . "\Utils::DEFAULT_$name" );
+					}
+				);
+		$this->constants_apply_filters = $builder->build();
 	}
 
 	public function tearDown() {
@@ -51,13 +63,13 @@ class ManagerTest extends TestCase {
 	 * @covers Automattic\Jetpack\Connection\Manager::is_active
 	 */
 	public function test_is_active_when_connected() {
-		$access_token = (object) [
+		$access_token = (object) array(
 			'secret'           => 'abcd1234',
 			'external_user_id' => 1,
-		];
+		);
 		$this->manager->expects( $this->once() )
-		              ->method( 'get_access_token' )
-		              ->will( $this->returnValue( $access_token ) );
+					  ->method( 'get_access_token' )
+					  ->will( $this->returnValue( $access_token ) );
 
 		$this->assertTrue( $this->manager->is_active() );
 	}
@@ -67,14 +79,15 @@ class ManagerTest extends TestCase {
 	 */
 	public function test_is_active_when_not_connected() {
 		$this->manager->expects( $this->once() )
-		              ->method( 'get_access_token' )
-		              ->will( $this->returnValue( false ) );
+					  ->method( 'get_access_token' )
+					  ->will( $this->returnValue( false ) );
 
 		$this->assertFalse( $this->manager->is_active() );
 	}
 
 	public function test_api_url_defaults() {
 		$this->apply_filters->enable();
+		$this->constants_apply_filters->enable();
 
 		$this->assertEquals(
 			'https://jetpack.wordpress.com/jetpack.something/1/',
@@ -93,6 +106,7 @@ class ManagerTest extends TestCase {
 	 */
 	public function test_api_url_uses_constants_and_filters() {
 		$this->apply_filters->enable();
+		$this->constants_apply_filters->enable();
 
 		Constants::set_constant( 'JETPACK__API_BASE', 'https://example.com/api/base.' );
 		$this->assertEquals(
@@ -165,8 +179,8 @@ class ManagerTest extends TestCase {
 	public function test_is_user_connected_with_user_id_logged_out_not_connected() {
 		$this->mock_function( 'absint', 1 );
 		$this->manager->expects( $this->once() )
-		              ->method( 'get_access_token' )
-		              ->will( $this->returnValue( false ) );
+					  ->method( 'get_access_token' )
+					  ->will( $this->returnValue( false ) );
 
 		$this->assertFalse( $this->manager->is_user_connected( 1 ) );
 	}
@@ -177,13 +191,13 @@ class ManagerTest extends TestCase {
 	 */
 	public function test_is_user_connected_with_default_user_id_logged_in() {
 		$this->mock_function( 'get_current_user_id', 1 );
-		$access_token = (object) [
+		$access_token = (object) array(
 			'secret'           => 'abcd1234',
 			'external_user_id' => 1,
-		];
+		);
 		$this->manager->expects( $this->once() )
-		              ->method( 'get_access_token' )
-		              ->will( $this->returnValue( $access_token ) );
+					  ->method( 'get_access_token' )
+					  ->will( $this->returnValue( $access_token ) );
 
 		$this->assertTrue( $this->manager->is_user_connected() );
 	}
@@ -193,13 +207,13 @@ class ManagerTest extends TestCase {
 	 */
 	public function test_is_user_connected_with_user_id_logged_in() {
 		$this->mock_function( 'absint', 1 );
-		$access_token = (object) [
+		$access_token = (object) array(
 			'secret'           => 'abcd1234',
 			'external_user_id' => 1,
-		];
+		);
 		$this->manager->expects( $this->once() )
-		              ->method( 'get_access_token' )
-		              ->will( $this->returnValue( $access_token ) );
+					  ->method( 'get_access_token' )
+					  ->will( $this->returnValue( $access_token ) );
 
 		$this->assertTrue( $this->manager->is_user_connected( 1 ) );
 	}
@@ -215,9 +229,11 @@ class ManagerTest extends TestCase {
 		$builder = new MockBuilder();
 		$builder->setNamespace( __NAMESPACE__ )
 			->setName( $function_name )
-			->setFunction( function() use ( &$return_value ) {
-				return $return_value;
-			} );
+			->setFunction(
+				function() use ( &$return_value ) {
+					return $return_value;
+				}
+			);
 		return $builder->build()->enable();
 	}
 }

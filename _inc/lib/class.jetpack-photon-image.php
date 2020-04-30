@@ -130,14 +130,17 @@ class Jetpack_Photon_Image {
 	 * @return string Basename of the filename.
 	 */
 	public function get_filename() {
+		return wp_basename( $this->get_raw_filename() );
+	}
 
-		if ( true === $this->is_resized() ) {
-			$filename = $this->get_resized_filename();
-		} else {
-			$filename = $this->filename;
-		}
-
-		return wp_basename( $filename );
+	/**
+	 * Return the absolute filename. If the image has been resized, including
+	 * the resizing params for Jetpack CDN.
+	 *
+	 * @return string Filename.
+	 */
+	public function get_raw_filename() {
+		return $this->is_resized() ? $this->get_resized_filename() : $this->filename;
 	}
 
 	/**
@@ -232,7 +235,7 @@ class Jetpack_Photon_Image {
 	/**
 	 * Sets proper width and height from dimensions.
 	 *
-	 * @param Array $dimensions an array of image dimensions.
+	 * @param array $dimensions an array of image dimensions.
 	 * @return void
 	 */
 	protected function set_width_height( $dimensions ) {

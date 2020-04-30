@@ -345,6 +345,12 @@ https://github.com/thoughtbot/bourbon
   fill: #00BE28;
 }
 
+.jitm-banner__icon-plan .jp-emblem .jitm-jp-logo {
+  height: inherit;
+  width: 6rem;
+  fill: inherit;
+}
+
 @media (min-width: 481px) {
   .jitm-banner__icon-plan {
     align-items: center;

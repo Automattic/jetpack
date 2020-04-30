@@ -3,6 +3,7 @@
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Sync\Defaults;
 use Automattic\Jetpack\Sync\Settings;
+use Automattic\Jetpack\Sync\Health;
 
 class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 	function test_never_queues_if_development() {
@@ -197,6 +198,29 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertObjectHasAttribute( 'silent', $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' ) );
 		$this->assertTrue( $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' )->silent );
+	}
+
+	function test_data_loss_action_sent_and_health_updated() {
+		Health::update_status( Health::STATUS_IN_SYNC );
+		$this->assertEquals( Health::get_status(), Health::STATUS_IN_SYNC );
+
+		$this->listener->sync_data_loss(  $this->listener->get_sync_queue() );
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_data_loss' );
+
+		$this->assertTrue( isset( $event->args['timestamp'] ) );
+		$this->assertTrue( isset( $event->args['queue_size'] ) );
+		$this->assertTrue( isset( $event->args['queue_lag'] ) );
+		$this->assertEquals( Health::get_status(), Health::STATUS_OUT_OF_SYNC );
+	}
+
+	function test_data_loss_action_ignored_if_already_out_of_sync() {
+		Health::update_status( Health::STATUS_OUT_OF_SYNC );
+
+		$this->listener->sync_data_loss( $this->listener->get_sync_queue() );
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_data_loss' );
+
+		$this->assertFalse( $event );
+		$this->assertEquals( Health::get_status(), Health::STATUS_OUT_OF_SYNC );
 	}
 
 	function get_page_url() {

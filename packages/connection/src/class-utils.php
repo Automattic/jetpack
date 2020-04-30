@@ -14,6 +14,9 @@ use Automattic\Jetpack\Constants;
  */
 class Utils {
 
+	const DEFAULT_JETPACK__API_VERSION = 1;
+	const DEFAULT_JETPACK__API_BASE    = 'https://jetpack.wordpress.com/jetpack.';
+
 	/**
 	 * Some hosts disable the OpenSSL extension and so cannot make outgoing HTTPS requests.
 	 * This method sets the URL scheme to HTTP when HTTPS requests can't be made.
@@ -58,5 +61,25 @@ class Utils {
 			$options = compact( 'user_tokens' );
 		}
 		return \Jetpack_Options::update_options( $options );
+	}
+
+	/**
+	 * Filters the value of the api constant.
+	 *
+	 * @param String $constant_value The constant value.
+	 * @param String $constant_name The constant name.
+	 * @return mixed | null
+	 */
+	public static function jetpack_api_constant_filter( $constant_value, $constant_name ) {
+		if ( ! is_null( $constant_value ) ) {
+			// If the constant value was already set elsewhere, use that value.
+			return $constant_value;
+		}
+
+		if ( defined( "self::DEFAULT_$constant_name" ) ) {
+			return constant( "self::DEFAULT_$constant_name" );
+		}
+
+		return null;
 	}
 }

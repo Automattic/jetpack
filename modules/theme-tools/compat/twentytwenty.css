@@ -249,3 +249,12 @@
 	/* !important because the gif block styles are loaded in the footer after this file */
 	margin: 1em auto !important;
 }
+
+/**
+ * Images
+ */
+
+/* Beautiful Math */
+.entry-content img.latex {
+	display: inline;
+}

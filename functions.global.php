@@ -11,44 +11,13 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Redirect;
 
 /**
  * Disable direct access.
  */
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
-}
-
-if ( ! function_exists( 'wp_timezone' ) ) {
-	/**
-	 * Shim for WordPress 5.3's wp_timezone() function.
-	 *
-	 * This is a mix of wp_timezone(), which calls wp_timezone_string().
-	 * We don't need both in Jetpack, so providing only one function.
-	 *
-	 * @since 7.9.0
-	 * @todo Remove when WP 5.3 is Jetpack's minimum
-	 *
-	 * @return DateTimeZone Site's DateTimeZone
-	 */
-	function wp_timezone() {
-		$timezone_string = get_option( 'timezone_string' );
-
-		if ( $timezone_string ) {
-			return new DateTimeZone( $timezone_string );
-		}
-
-		$offset  = (float) get_option( 'gmt_offset' );
-		$hours   = (int) $offset;
-		$minutes = ( $offset - $hours );
-
-		$sign      = ( $offset < 0 ) ? '-' : '+';
-		$abs_hour  = abs( $hours );
-		$abs_mins  = abs( $minutes * 60 );
-		$tz_offset = sprintf( '%s%02d:%02d', $sign, $abs_hour, $abs_mins );
-
-		return new DateTimeZone( $tz_offset );
-	}
 }
 
 /**
@@ -113,7 +82,7 @@ function jetpack_store_migration_data( $option_name, $option_value ) {
 		'post_title'            => $option_name,
 		'post_content_filtered' => $option_value,
 		'post_type'             => 'jetpack_migration',
-		'post_date'             => date( 'Y-m-d H:i:s', time() ),
+		'post_date'             => gmdate( 'Y-m-d H:i:s', time() ),
 	);
 
 	$post = get_page_by_title( $option_name, 'OBJECT', 'jetpack_migration' );
@@ -161,8 +130,8 @@ function jetpack_render_tos_blurb() {
 				'strong' => true,
 			)
 		),
-		'https://wordpress.com/tos',
-		'https://jetpack.com/support/what-data-does-jetpack-sync'
+		esc_url( Redirect::get_url( 'wpcom-tos' ) ),
+		esc_url( Redirect::get_url( 'jetpack-support-what-data-does-jetpack-sync' ) )
 	);
 }
 

@@ -79,8 +79,8 @@ if [ "$WP_TRAVISCI" == "phpunit" ]; then
 		export WP_TRAVISCI="phpdbg -qrr $HOME/.composer/vendor/bin/phpunit --coverage-clover $TRAVIS_BUILD_DIR/clover.xml"
 	fi
 
-  if [ "$SYNC_BETA" == "1" ]; then
-    export WP_TRAVISCI="phpunit --group=sync-beta"
+  if [ "$LEGACY_FULL_SYNC" == "1" ]; then
+    export WP_TRAVISCI="phpunit --group=legacy-full-sync"
   fi
 
 	print_build_info

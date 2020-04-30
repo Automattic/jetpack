@@ -4,6 +4,7 @@
 import { waitAndClick, waitForSelector, clickAndWaitForNewPage } from '../page-helper';
 import LoginPage from '../pages/wpcom/login';
 import ConnectionsPage from '../pages/wpcom/connections';
+import logger from '../logger';
 
 export default class MailchimpBlock {
 	constructor( block, page ) {
@@ -31,11 +32,10 @@ export default class MailchimpBlock {
 	 *
 	 */
 	async connect( isLoggedIn = true ) {
-		const setupFormSelector = this.getSelector( "a[href*='marketing/connections']" );
-		const connectionsUrl = await ( await ( await waitForSelector(
-			this.page,
-			setupFormSelector
-		) ).getProperty( 'href' ) ).jsonValue();
+		const setupFormSelector = this.getSelector( "a[href*='calypso-marketing-connections']" );
+		const formSelector = await waitForSelector( this.page, setupFormSelector );
+		const hrefProperty = await formSelector.getProperty( 'href' );
+		const connectionsUrl = await hrefProperty.jsonValue();
 		const loginTab = await clickAndWaitForNewPage( this.page, setupFormSelector );
 		global.page = loginTab;
 
@@ -55,7 +55,7 @@ export default class MailchimpBlock {
 				await ConnectionsPage.init( loginTab );
 				loaded = true;
 			} catch ( e ) {
-				console.log(
+				logger.info(
 					'ConnectionsPage is not available yet. Attempt: ' + count,
 					' URL: ' + connectionsUrl
 				);
@@ -65,6 +65,8 @@ export default class MailchimpBlock {
 				}
 			}
 		}
+
+		await loginTab.reload( { waitFor: 'networkidle0' } );
 
 		await ( await ConnectionsPage.init( loginTab ) ).selectMailchimpList();
 
@@ -79,6 +81,7 @@ export default class MailchimpBlock {
 
 	/**
 	 * Checks whether block is rendered on frontend
+	 *
 	 * @param {Page} page Puppeteer page instance
 	 */
 	static async isRendered( page ) {

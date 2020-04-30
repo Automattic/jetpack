@@ -2,6 +2,7 @@ export const ALLOWED_MEDIA_TYPES = [ 'image' ];
 export const DEFAULT_GALLERY_WIDTH = 580;
 export const GUTTER_WIDTH = 4;
 export const MAX_COLUMNS = 20;
+export const MAX_ROUNDED_CORNERS = 20;
 export const PHOTON_MAX_RESIZE = 2000;
 
 /**

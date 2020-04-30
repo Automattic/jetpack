@@ -3,18 +3,18 @@
 /**
  * External Dependencies
  */
+import classNames from 'classnames';
+import { debounce } from 'lodash';
+import { getWindowInnerWidth } from '@automattic/viewport';
 import PropTypes from 'prop-types';
 import ReactDom from 'react-dom';
 import React from 'react';
-import { debounce } from 'lodash';
-import classNames from 'classnames';
 
 /**
  * Internal Dependencies
  */
 import DropdownItem from 'components/select-dropdown/item';
 import SelectDropdown from 'components/select-dropdown';
-import { getWindowInnerWidth } from 'lib/viewport';
 
 /**
  * Internal Variables

@@ -194,7 +194,7 @@ class Jetpack_RelatedPosts {
 	 * @return string Rendered related posts HTML.
 	 */
 	public function get_server_rendered_html() {
-		$rp_settings       = Jetpack_Options::get_option( 'relatedposts', array() );
+		$rp_settings       = $this->get_options();
 		$block_rp_settings = array(
 			'displayThumbnails' => $rp_settings['show_thumbnails'],
 			'showHeadline'      => $rp_settings['show_headline'],
@@ -405,22 +405,6 @@ EOT;
 		if ( $display_lower_row ) {
 			$rows_markup .= $this->render_block_row( $lower_row_posts, $block_attributes );
 		}
-
-		/*
-		 * Below is a hack to get the block content to render correctly.
-		 *
-		 * This functionality should be covered in /inc/blocks.php but due to an error,
-		 * this has not been fixed as of this writing.
-		 *
-		 * Alda has submitted a patch to Core in order to have this issue fixed at
-		 * https://core.trac.wordpress.org/ticket/45495 and
-		 * made it into WordPress 5.2.
-		 *
-		 * @todo update when WP 5.2 is the minimum support version.
-		 */
-		$priority = has_filter( 'the_content', 'wpautop' );
-		remove_filter( 'the_content', 'wpautop', $priority );
-		add_filter( 'the_content', '_restore_wpautop_hook', $priority + 1 );
 
 		return sprintf(
 			'<nav class="jp-relatedposts-i2" data-layout="%1$s">%2$s%3$s</nav>',

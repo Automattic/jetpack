@@ -27,11 +27,17 @@
 		<testsuite name="infinite-scroll">
 			<directory prefix="test_" suffix=".php">tests/php/modules/infinite-scroll</directory>
 		</testsuite>
+		<testsuite name="comment-likes">
+			<directory prefix="test" suffix=".php">tests/php/modules/comment-likes</directory>
+		</testsuite>
 		<testsuite name="likes">
 			<directory prefix="test_" suffix=".php">tests/php/modules/likes</directory>
 		</testsuite>
 		<testsuite name="publicize">
 			<directory prefix="test_" suffix=".php">tests/php/modules/publicize</directory>
+		</testsuite>
+		<testsuite name="post-by-email">
+			<directory prefix="test" suffix=".php">tests/php/modules/post-by-email</directory>
 		</testsuite>
 		<testsuite name="related-posts">
 			<directory prefix="test_" suffix=".php">tests/php/modules/related-posts</directory>
@@ -68,10 +74,11 @@
 		</testsuite>
 		<testsuite name="sync">
 			<directory prefix="test_" suffix=".php">tests/php/sync</directory>
-			<exclude>tests/php/sync/test_class.jetpack-sync-full-immediately.php</exclude>
+			<exclude>tests/php/sync/test_class.jetpack-sync-full.php</exclude>
 		</testsuite>
-		<testsuite name="sync-beta">
-			<file>tests/php/sync/test_class.jetpack-sync-full-immediately.php</file>
+		<testsuite name="legacy-full-sync">
+			<file>tests/php/sync/test_class.jetpack-sync-base.php</file>
+			<file>tests/php/sync/test_class.jetpack-sync-full.php</file>
 		</testsuite>
 		<testsuite name="theme-tools">
 			<directory prefix="test_" suffix=".php">php/modules/theme-tools</directory>
@@ -88,6 +95,9 @@
 		<testsuite name="3rd-party">
 			<directory prefix="test_" suffix=".php">tests/php/3rd-party</directory>
 		</testsuite>
+		<testsuite name="carousel">
+			<directory prefix="test-" suffix=".php">tests/php/modules/carousel</directory>
+		</testsuite>
 		<testsuite name="lazy-images">
 			<directory prefix="test_" suffix=".php">tests/php/modules/lazy-images</directory>
 		</testsuite>
@@ -100,12 +110,15 @@
 		<testsuite name="deprecation">
 			<file>tests/php/test_deprecation.php</file>
 		</testsuite>
+		<testsuite name="extensions">
+			<directory prefix="test" suffix=".php">tests/php/extensions</directory>
+		</testsuite>
 	</testsuites>
 	<groups>
 		<exclude>
 			<group>external-http</group>
 			<group>uninstall</group>
-			<group>sync-beta</group>
+			<group>legacy-full-sync</group>
 		</exclude>
 	</groups>
 	<filter>

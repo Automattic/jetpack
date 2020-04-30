@@ -37,6 +37,8 @@ class Jetpack_Admin {
 		$this->jetpack_about = new Jetpack_About_Page();
 
 		add_action( 'admin_menu', array( $this->jetpack_react, 'add_actions' ), 998 );
+		add_action( 'admin_menu', array( $this->jetpack_react, 'add_actions' ), 998 );
+		add_action( 'jetpack_admin_menu', array( $this->jetpack_react, 'jetpack_add_set_up_sub_nav_item' ) );
 		add_action( 'jetpack_admin_menu', array( $this->jetpack_react, 'jetpack_add_dashboard_sub_nav_item' ) );
 		add_action( 'jetpack_admin_menu', array( $this->jetpack_react, 'jetpack_add_settings_sub_nav_item' ) );
 		add_action( 'jetpack_admin_menu', array( $this, 'admin_menu_debugger' ) );
@@ -188,6 +190,20 @@ class Jetpack_Admin {
 		 * We never want to show VaultPress as activatable through Jetpack.
 		 */
 		if ( 'vaultpress' === $module['module'] ) {
+			return false;
+		}
+
+		/*
+		 * WooCommerce Analytics should only be available
+		 * when running WooCommerce 3+
+		 */
+		if (
+			'woocommerce-analytics' === $module['module']
+			&& (
+				! class_exists( 'WooCommerce' )
+				|| version_compare( WC_VERSION, '3.0', '<' )
+			)
+		) {
 			return false;
 		}
 

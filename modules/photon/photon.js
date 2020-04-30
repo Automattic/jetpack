@@ -53,5 +53,5 @@
 		}
 	}
 
-	document.body.addEventListener( 'post-load', restore_dims );
+	document.body.addEventListener( 'is.post-load', restore_dims );
 } )();

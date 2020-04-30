@@ -4,6 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -57,7 +58,7 @@ export class Composing extends React.Component {
 							'Duplicate existing posts, pages, Testimonials, and Portfolios. ' +
 								'All the content will be copied including text, featured images, sharing settings, and more.'
 						),
-						link: 'https://jetpack.com/support/copy-post-2/',
+						link: getRedirectUrl( 'jetpack-support-copy-post-2' ),
 					} }
 				>
 					<FormFieldset>
@@ -82,7 +83,7 @@ export class Composing extends React.Component {
 								'This setting enables Markdown in the Classic Editor ' +
 								'as well as within a Classic Editor block.'
 						),
-						link: 'https://jetpack.com/support/markdown/',
+						link: getRedirectUrl( 'jetpack-support-markdown' ),
 					} }
 				>
 					<FormFieldset>
@@ -113,7 +114,7 @@ export class Composing extends React.Component {
 						text: __(
 							'LaTeX is a powerful markup language for writing complex mathematical equations and formulas.'
 						),
-						link: 'https://jetpack.com/support/beautiful-math-with-latex/',
+						link: getRedirectUrl( 'jetpack-support-beautiful-math-with-latex' ),
 					} }
 				>
 					<FormFieldset>
@@ -134,7 +135,7 @@ export class Composing extends React.Component {
 					module={ shortcodes }
 					support={ {
 						text: shortcodes.description,
-						link: 'https://jetpack.com/support/shortcode-embeds/',
+						link: getRedirectUrl( 'jetpack-support-shortcode-embeds' ),
 					} }
 				>
 					<FormFieldset>

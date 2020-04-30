@@ -360,6 +360,11 @@
 
 .jp-connection-settings__modal.dops-modal {
 	max-width: 635px;
+	min-height: 400px;
+
+	@include breakpoint( '>660px' ) {
+		min-height: auto;
+	}
 }
 
 .jp-connection-settings__modal-body {
