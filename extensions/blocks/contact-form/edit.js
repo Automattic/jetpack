@@ -33,7 +33,6 @@ import {
  * Internal dependencies
  */
 import HelpMessage from '../../shared/help-message';
-import './extensions/advanced-settings.js';
 import defaultVariations from './variations';
 
 const ALLOWED_BLOCKS = [

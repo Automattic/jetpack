@@ -1,13 +1,28 @@
 /**
  * External dependencies
  */
+import { find } from 'lodash';
 import { __ } from '@wordpress/i18n';
-import { InspectorControls, BlockControls } from '@wordpress/block-editor';
-import { PanelBody, ToggleControl, Toolbar, ToolbarButton, Path } from '@wordpress/components';
+import { addFilter } from '@wordpress/hooks';
+import { createHigherOrderComponent } from '@wordpress/compose';
+import {
+	InspectorAdvancedControls,
+	InspectorControls,
+	BlockControls,
+} from '@wordpress/block-editor';
+import {
+	PanelBody,
+	TextControl,
+	ToggleControl,
+	Toolbar,
+	ToolbarButton,
+	Path,
+} from '@wordpress/components';
 
 /**
- * Internal dependencies
+ * Internal Dependencies
  */
+import { childBlocks } from '../index';
 import renderMaterialIcon from '../../../shared/render-material-icon';
 
 const JetpackFieldControls = ( { setAttributes, required } ) => {
@@ -45,5 +60,35 @@ const JetpackFieldControls = ( { setAttributes, required } ) => {
 		</>
 	);
 };
+
+const withAdvancedControls = createHigherOrderComponent( BlockEdit => {
+	return props => {
+		const { attributes, setAttributes, isSelected } = props;
+
+		const { id } = attributes;
+
+		// Remove the jetpack/ from each block name to perform the matching.
+		if ( ! find( childBlocks, [ 'name', props.name.split( '/' )[ 1 ] ] ) ) {
+			return <BlockEdit { ...props } />;
+		}
+
+		return (
+			<>
+				<BlockEdit { ...props } />
+				{ isSelected && (
+					<InspectorAdvancedControls>
+						<TextControl
+							label={ __( 'Unique CSS ID', 'jetpack' ) }
+							value={ id }
+							onChange={ value => setAttributes( { id: value } ) }
+							help={ __( 'A unique ID that can be used in CSS or as an anchor.', 'jetpack' ) }
+						/>
+					</InspectorAdvancedControls>
+				) }
+			</>
+		);
+	};
+}, 'withAdvancedControls' );
+addFilter( 'editor.BlockEdit', 'jetpack/contact-form', withAdvancedControls );
 
 export default JetpackFieldControls;
