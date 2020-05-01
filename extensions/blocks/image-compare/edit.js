@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies
  */
-import { InspectorControls, RichText } from '@wordpress/block-editor';
+import { InspectorControls, MediaPlaceholder, RichText } from '@wordpress/block-editor';
 import { PanelBody, RadioControl, Placeholder } from '@wordpress/components';
 import { useResizeObserver } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
@@ -9,7 +9,6 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import UploadPlaceholder from './upload-placeholder';
 import useDebounce from './use-debounce';
 import './editor.scss';
 import './view.js';
@@ -89,7 +88,8 @@ const Edit = ( { attributes, clientId, isSelected, setAttributes } ) => {
 								<div className="components-placeholder__label">
 									{ __( 'Image Before', 'jetpack' ) }
 								</div>
-								<UploadPlaceholder
+								<MediaPlaceholder
+									dropZoneUIOnly={ false }
 									onSelect={ el => {
 										setAttributes( {
 											imageBeforeId: el.id,
@@ -113,7 +113,8 @@ const Edit = ( { attributes, clientId, isSelected, setAttributes } ) => {
 								<div className="components-placeholder__label">
 									{ __( 'Image After', 'jetpack' ) }
 								</div>
-								<UploadPlaceholder
+								<MediaPlaceholder
+									dropZoneUIOnly={ false }
 									onSelect={ el => {
 										setAttributes( {
 											imageAfterId: el.id,
