@@ -377,7 +377,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 							),
 							( ! empty( $email_field_styles )
 								? esc_attr( $email_field_styles )
-								: 'width: 95%; padding: 1px 2px'
+								: 'width: 95%; padding: 1px 10px'
 							),
 							esc_attr__( 'Enter your email address' ), // phpcs:ignore WordPress.WP.I18n.MissingArgDomain -- This is only used on WordPress.com.
 							esc_attr( $email_field_id )
