@@ -23,63 +23,66 @@ const deprecatedAttributes = [
 	'hasFormSettingsSet',
 ];
 
-export default [ {
-	attributes: {
-		submit_button_text: {
-			type: 'string',
-			default: __( 'Submit', 'jetpack' ),
+export default [
+	{
+		attributes: {
+			submit_button_text: {
+				type: 'string',
+				default: __( 'Submit', 'jetpack' ),
+			},
+			has_form_settings_set: {
+				type: 'string',
+				default: null,
+			},
+			submitButtonText: {
+				type: 'string',
+				default: __( 'Submit', 'jetpack' ),
+			},
+			backgroundButtonColor: {
+				type: 'string',
+			},
+			textButtonColor: {
+				type: 'string',
+			},
+			customBackgroundButtonColor: {
+				type: 'string',
+			},
+			customTextButtonColor: {
+				type: 'string',
+			},
+			submitButtonClasses: {
+				type: 'string',
+			},
+			...defaultAttributes,
 		},
-		has_form_settings_set: {
-			type: 'string',
-			default: null,
+		migrate: ( attributes, innerBlocks ) => {
+			const newAttributes = omit( attributes, deprecatedAttributes );
+
+			const buttonAttributes = {
+				text:
+					attributes.submitButtonText || attributes.submit_button_text || __( 'Submit', 'jetpack' ),
+				backgroundColor: attributes.backgroundButtonColor,
+				textColor: attributes.textButtonColor,
+				customBackgroundColor: attributes.customBackgroundButtonColor,
+				customTextColor: attributes.customTextButtonColor,
+			};
+
+			const newInnerBlocks = innerBlocks.concat(
+				createBlock( 'jetpack/button', {
+					element: 'button',
+					...buttonAttributes,
+				} )
+			);
+
+			return [ newAttributes, newInnerBlocks ];
 		},
-		submitButtonText: {
-			type: 'string',
-			default: __( 'Submit', 'jetpack' ),
+		isEligible: attr => {
+			if ( attr.has_form_settings_set || attr.hasFormSettingsSet ) {
+				return true;
+			}
+
+			return false;
 		},
-		backgroundButtonColor: {
-			type: 'string',
-		},
-		textButtonColor: {
-			type: 'string',
-		},
-		customBackgroundButtonColor: {
-			type: 'string',
-		},
-		customTextButtonColor: {
-			type: 'string',
-		},
-		submitButtonClasses: {
-			type: 'string',
-		},
-		...defaultAttributes,
+		save: InnerBlocks.Content,
 	},
-	migrate: ( attributes, innerBlocks ) => {
-		const newAttributes = omit( attributes, deprecatedAttributes );
-
-		const buttonAttributes = {
-			text: attributes.submitButtonText || __( 'Submit', 'jetpack' ),
-			backgroundColor: attributes.backgroundButtonColor,
-			textColor: attributes.textButtonColor,
-			customBackgroundColor: attributes.customBackgroundButtonColor,
-			customTextColor: attributes.customTextButtonColor,
-		};
-
-		const newInnerBlocks = innerBlocks.concat(
-			createBlock( 'jetpack/button', {
-				element: 'button',
-				...buttonAttributes,
-			} )
-		);
-
-		return [ newAttributes, newInnerBlocks ];
-	},
-	isEligible: attr => {
-		if ( attr.has_form_settings_set || attr.hasFormSettingsSet ) {
-			return true;
-		}
-
-		return false;
-	},
-	save: InnerBlocks.Content,
-} ];
+];
