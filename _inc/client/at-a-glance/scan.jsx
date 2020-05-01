@@ -195,7 +195,6 @@ class DashScan extends Component {
 			renderCard( {
 				className: 'jp-dash-item__is-active',
 				status: 'is-working',
-				feature: 'rewind',
 				content: message,
 			} );
 
