@@ -251,6 +251,26 @@ function JetpackContactFormEdit( {
 		);
 	};
 
+	const renderFormSettingsToggle = ( isOpen, onToggle ) => {
+		const openOnArrowDown = event => {
+			if ( ! isOpen && event.keyCode === DOWN ) {
+				event.preventDefault();
+				event.stopPropagation();
+				onToggle();
+			}
+		};
+
+		return (
+			<Button
+				className="components-toolbar__control jetpack-contact-form__toggle"
+				label={ __( 'Edit Form Settings' ) }
+				onClick={ onToggle }
+				onKeyDown={ openOnArrowDown }
+				icon={ <Icon icon="edit" /> }
+			/>
+		);
+	};
+
 	const renderVariationPicker = () => {
 		return (
 			<div className={ formClassnames }>
@@ -284,25 +304,9 @@ function JetpackContactFormEdit( {
 							position="bottom right"
 							className="jetpack-contact-form-settings-selector"
 							contentClassName="jetpack-contact-form__popover"
-							renderToggle={ ( { isOpen, onToggle } ) => {
-								const openOnArrowDown = event => {
-									if ( ! isOpen && event.keyCode === DOWN ) {
-										event.preventDefault();
-										event.stopPropagation();
-										onToggle();
-									}
-								};
-
-								return (
-									<Button
-										className="components-toolbar__control jetpack-contact-form__toggle"
-										label={ __( 'Edit Form Settings' ) }
-										onClick={ onToggle }
-										onKeyDown={ openOnArrowDown }
-										icon={ <Icon icon="edit" /> }
-									/>
-								);
-							} }
+							renderToggle={ ( { isOpen, onToggle } ) =>
+								renderFormSettingsToggle( isOpen, onToggle )
+							}
 							renderContent={ () => renderFormSettings() }
 						/>
 					</ToolbarGroup>
