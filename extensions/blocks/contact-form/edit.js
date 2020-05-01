@@ -337,7 +337,7 @@ export default compose( [
 			variations: getBlockVariations && getBlockVariations( props.name, 'block' ),
 
 			innerBlocks,
-			hasInnerBlocks: select( 'core/block-editor' ).getBlocks( props.clientId ).length > 0,
+			hasInnerBlocks: innerBlocks.length > 0,
 
 			adminEmail: get( getSite && getSite(), [ 'email' ] ),
 		};
