@@ -274,11 +274,13 @@ abstract class Sharing_Source {
 			implode( ' ', $klasses ),
 			esc_attr(
 				$is_deprecated
+					/* translators: %1$s is the name of a deprecated Sharing Service like "Google+" */
 					? sprintf( __( 'The %1$s service has shut down. This sharing button is not displayed to your visitors and should be removed.', 'jetpack' ), $this->get_name() )
 					: $this->get_name()
 			),
 			esc_html(
 				$is_deprecated
+					/* translators: %1$s is the name of a deprecated Sharing Service like "Google+" */
 					? sprintf( __( '%1$s has shut down', 'jetpack' ), $this->get_name() )
 					: $text
 			)
@@ -422,7 +424,9 @@ abstract class Deprecated_Sharing_Source extends Sharing_Source {
 	public function display_deprecated( $post ) {
 		return $this->get_link(
 			$this->get_share_url( $post->ID ),
+			/* translators: %1$s is the name of a deprecated Sharing Service like "Google+" */
 			sprintf( __( '%1$s has shut down', 'jetpack' ), $this->get_name() ),
+			/* translators: %1$s is the name of a deprecated Sharing Service like "Google+" */
 			sprintf( __( 'The %1$s service has shut down. This sharing button is not displayed to your visitors and should be removed.', 'jetpack' ), $this->get_name() )
 		);
 	}
