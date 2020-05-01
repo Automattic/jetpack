@@ -8,7 +8,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { useEffect, useState } from '@wordpress/element';
 import { compose, withInstanceId } from '@wordpress/compose';
 import { createBlock, registerBlockVariation } from '@wordpress/blocks';
-import { useDispatch, withSelect } from '@wordpress/data';
+import { withDispatch, withSelect } from '@wordpress/data';
 import { DOWN } from '@wordpress/keycodes';
 import {
 	InnerBlocks,
@@ -329,7 +329,6 @@ export default compose( [
 		const { getBlockType, getBlockVariations, getDefaultBlockVariation } = select( 'core/blocks' );
 		const { getBlocks } = select( 'core/block-editor' );
 		const { getSite } = select( 'core' );
-		const { replaceInnerBlocks, selectBlock } = useDispatch( 'core/block-editor' );
 		const innerBlocks = getBlocks( props.clientId );
 
 		return {
@@ -339,11 +338,13 @@ export default compose( [
 
 			innerBlocks,
 			hasInnerBlocks: select( 'core/block-editor' ).getBlocks( props.clientId ).length > 0,
-			replaceInnerBlocks,
-			selectBlock,
 
 			adminEmail: get( getSite && getSite(), [ 'email' ] ),
 		};
+	} ),
+	withDispatch( dispatch => {
+		const { replaceInnerBlocks, selectBlock } = dispatch( 'core/block-editor' );
+		return { replaceInnerBlocks, selectBlock };
 	} ),
 	withInstanceId,
 ] )( JetpackContactFormEdit );
