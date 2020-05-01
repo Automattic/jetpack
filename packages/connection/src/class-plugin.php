@@ -79,4 +79,31 @@ class Plugin {
 		return ! $plugins || ( array_key_exists( $this->slug, $plugins ) && 1 === count( $plugins ) );
 	}
 
+	/**
+	 * Add the plugin to the set of disconnected ones.
+	 *
+	 * @return bool
+	 */
+	public function disconnect_user_initiated() {
+		return Plugin_Storage::disconnect_user_initiated( $this->slug );
+	}
+
+	/**
+	 * Remove the plugin from the set of disconnected ones.
+	 *
+	 * @return bool
+	 */
+	public function reconnect_user_initiated() {
+		return Plugin_Storage::reconnect_user_initiated( $this->slug );
+	}
+
+	/**
+	 * Whether this plugin is allowed to use the connection.
+	 *
+	 * @return bool
+	 */
+	public function is_enabled() {
+		return ! in_array( $this->slug, Plugin_Storage::get_all_disconnected_user_initiated(), true );
+	}
+
 }

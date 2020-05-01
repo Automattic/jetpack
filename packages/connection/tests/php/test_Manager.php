@@ -7,6 +7,9 @@
 
 namespace Automattic\Jetpack\Connection;
 
+require_once __DIR__ . '/mock/trait-options.php';
+require_once __DIR__ . '/mock/trait-hooks.php';
+
 use Automattic\Jetpack\Connection\Test\Mock\Hooks;
 use Automattic\Jetpack\Connection\Test\Mock\Options;
 use Automattic\Jetpack\Constants;
@@ -19,6 +22,8 @@ use PHPUnit\Framework\TestCase;
  * Connection Manager functionality testing.
  */
 class ManagerTest extends TestCase {
+
+	use Options, Hooks;
 
 	/**
 	 * Temporary stack for `wp_redirect`.
@@ -68,6 +73,9 @@ class ManagerTest extends TestCase {
 					}
 				);
 		$this->constants_apply_filters = $builder->build();
+
+		$this->build_mock_options();
+		$this->build_mock_actions();
 	}
 
 	/**
@@ -256,6 +264,50 @@ class ManagerTest extends TestCase {
 			->will( $this->returnValue( $access_token ) );
 
 		$this->assertTrue( $this->manager->is_user_connected( 1 ) );
+	}
+
+	/**
+	 * Unit test for the "Delete all tokens" functionality.
+	 *
+	 * @covers Automattic\Jetpack\Connection\Manager::delete_all_connection_tokens
+	 * @throws MockEnabledException PHPUnit wasn't able to enable mock functions.
+	 */
+	public function test_delete_all_connection_tokens() {
+		$this->update_option->enable();
+		$this->get_option->enable();
+		$this->apply_filters->enable();
+		$this->do_action->enable();
+
+		( new Plugin( 'plugin-slug-1' ) )->add( 'Plugin Name 1' );
+
+		( new Plugin( 'plugin-slug-2' ) )->add( 'Plugin Name 2' );
+
+		$manager = new Manager( 'plugin-slug-1' );
+
+		$this->assertFalse( $manager->delete_all_connection_tokens() );
+	}
+
+	/**
+	 * Unit test for the "Disconnect from WP" functionality.
+	 *
+	 * @covers Automattic\Jetpack\Connection\Manager::disconnect_site_wpcom
+	 * @throws MockEnabledException PHPUnit wasn't able to enable mock functions.
+	 */
+	public function test_disconnect_site_wpcom() {
+		$this->update_option->enable();
+		$this->get_option->enable();
+		$this->apply_filters->enable();
+		$this->do_action->enable();
+
+		$plugin1 = ( new Plugin( 'plugin-slug-1' ) )
+			->add( 'Plugin Name 1' );
+
+		( new Plugin( 'plugin-slug-2' ) )->add( 'Plugin Name 2' );
+
+		$manager = ( new Manager() )
+			->set_plugin_instance( $plugin1 );
+
+		$this->assertFalse( $manager->disconnect_site_wpcom() );
 	}
 
 	/**

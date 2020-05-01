@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Connection;
 
 use Automattic\Jetpack\Config;
+use Jetpack_Options;
 use WP_Error;
 
 /**
@@ -20,6 +21,8 @@ use WP_Error;
 class Plugin_Storage {
 
 	const ACTIVE_PLUGINS_OPTION_NAME = 'jetpack_connection_active_plugins';
+
+	const DISCONNECTED_PLUGINS_OPTION_NAME = 'plugins_disconnected_user_initiated';
 
 	/**
 	 * Whether this class was configured for the first time or not.
@@ -41,14 +44,6 @@ class Plugin_Storage {
 	 * @var array
 	 */
 	private static $plugins = array();
-
-	/**
-	 * Whether the plugins were configured.
-	 * To make sure we don't call the configuration process again and again.
-	 *
-	 * @var bool
-	 */
-	private static $plugins_configuration_finished = false;
 
 	/**
 	 * Add or update the plugin information in the storage.
@@ -174,6 +169,52 @@ class Plugin_Storage {
 	public static function update_active_plugins_option() {
 		// Note: Since this options is synced to wpcom, if you change its structure, you have to update the sanitizer at wpcom side.
 		update_option( self::ACTIVE_PLUGINS_OPTION_NAME, self::$plugins );
+	}
+
+	/**
+	 * Add the plugin to the set of disconnected ones.
+	 *
+	 * @param string $slug Plugin slug.
+	 *
+	 * @return bool
+	 */
+	public static function disconnect_user_initiated( $slug ) {
+		$disconnects = self::get_all_disconnected_user_initiated();
+
+		if ( ! in_array( $slug, $disconnects, true ) ) {
+			$disconnects[] = $slug;
+			Jetpack_Options::update_option( self::DISCONNECTED_PLUGINS_OPTION_NAME, $disconnects );
+		}
+
+		return true;
+	}
+
+	/**
+	 * Remove the plugin from the set of disconnected ones.
+	 *
+	 * @param string $slug Plugin slug.
+	 *
+	 * @return bool
+	 */
+	public static function reconnect_user_initiated( $slug ) {
+		$disconnects = self::get_all_disconnected_user_initiated();
+
+		$slug_index = array_search( $slug, $disconnects, true );
+		if ( false !== $slug_index ) {
+			unset( $disconnects[ $slug_index ] );
+			Jetpack_Options::update_option( self::DISCONNECTED_PLUGINS_OPTION_NAME, $disconnects );
+		}
+
+		return true;
+	}
+
+	/**
+	 * Get all plugins that were disconnected by user.
+	 *
+	 * @return array
+	 */
+	public static function get_all_disconnected_user_initiated() {
+		return Jetpack_Options::get_option( self::DISCONNECTED_PLUGINS_OPTION_NAME, array() );
 	}
 
 }
