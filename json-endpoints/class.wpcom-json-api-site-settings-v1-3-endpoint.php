@@ -100,6 +100,7 @@ new WPCOM_JSON_API_Site_Settings_V1_3_Endpoint( array(
 		'posts_per_page'                       => '(int) Number of posts to show on blog pages',
 		'posts_per_rss'                        => '(int) Number of posts to show in the RSS feed',
 		'rss_use_excerpt'                      => '(bool) Whether the RSS feed will use post excerpts',
+		'earth_day_live'					   => '(bool) Whether to show the Earth Day Live modal for a site',
 	),
 
 	'response_format' => array(
