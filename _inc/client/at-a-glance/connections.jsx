@@ -18,6 +18,7 @@ import {
 	getUserWpComLogin,
 	getUserWpComEmail,
 	getUserWpComAvatar,
+	getUserGravatar,
 	getUsername,
 	getSiteIcon,
 } from 'state/initial-state';
@@ -115,7 +116,7 @@ export class DashConnections extends Component {
 						width="64"
 						height="64"
 						className="jp-connection-settings__gravatar"
-						src={ this.props.userWpComAvatar }
+						src={ this.props.userGravatar }
 					/>
 					<div className="jp-connection-settings__text">
 						{ __( 'The site is in Development Mode, so you can not connect to WordPress.com.' ) }
@@ -202,6 +203,7 @@ DashConnections.propTypes = {
 	userWpComLogin: PropTypes.any.isRequired,
 	userWpComEmail: PropTypes.any.isRequired,
 	userWpComAvatar: PropTypes.any.isRequired,
+	userGravatar: PropTypes.any.isRequired,
 	username: PropTypes.any.isRequired,
 };
 
@@ -214,6 +216,7 @@ export default connect( state => {
 		userWpComLogin: getUserWpComLogin( state ),
 		userWpComEmail: getUserWpComEmail( state ),
 		userWpComAvatar: getUserWpComAvatar( state ),
+		userGravatar: getUserGravatar( state ),
 		username: getUsername( state ),
 		isLinked: isCurrentUserLinked( state ),
 		siteIcon: getSiteIcon( state ),
