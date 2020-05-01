@@ -49,6 +49,7 @@ function jetpack_social_menu_init() {
 	}
 }
 add_action( 'after_setup_theme', 'jetpack_social_menu_init', 99 );
+add_action( 'restapi_theme_init', 'jetpack_social_menu_init' );
 
 /**
  * Return the type of menu the theme is using.
