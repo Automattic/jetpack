@@ -5,6 +5,18 @@ import { get, map } from 'lodash';
 import classnames from 'classnames';
 import emailValidator from 'email-validator';
 import { __, sprintf } from '@wordpress/i18n';
+import { useEffect, useState } from '@wordpress/element';
+import { compose, withInstanceId } from '@wordpress/compose';
+import { createBlock, registerBlockVariation } from '@wordpress/blocks';
+import { useDispatch, withSelect } from '@wordpress/data';
+import { DOWN } from '@wordpress/keycodes';
+import {
+	InnerBlocks,
+	InspectorControls,
+	URLInput,
+	__experimentalBlockVariationPicker as BlockVariationPicker,
+	BlockControls,
+} from '@wordpress/block-editor';
 import {
 	BaseControl,
 	PanelBody,
@@ -16,18 +28,6 @@ import {
 	Dropdown,
 	Icon,
 } from '@wordpress/components';
-import { Component } from '@wordpress/element';
-import { compose, withInstanceId } from '@wordpress/compose';
-import {
-	InnerBlocks,
-	InspectorControls,
-	URLInput,
-	__experimentalBlockVariationPicker as BlockVariationPicker,
-	BlockControls,
-} from '@wordpress/block-editor';
-import { createBlock, registerBlockVariation } from '@wordpress/blocks';
-import { useDispatch, withSelect } from '@wordpress/data';
-import { DOWN } from '@wordpress/keycodes';
 
 /**
  * Internal dependencies
@@ -58,137 +58,156 @@ const ALLOWED_BLOCKS = [
 	'core/video',
 ];
 
-class JetpackContactFormEdit extends Component {
-	constructor( ...args ) {
-		super( ...args );
-		this.onChangeSubject = this.onChangeSubject.bind( this );
-		this.onBlurTo = this.onBlurTo.bind( this );
-		this.onChangeTo = this.onChangeTo.bind( this );
-		this.onChangeSubmit = this.onChangeSubmit.bind( this );
-		this.getToValidationError = this.getToValidationError.bind( this );
-		this.renderFormSettings = this.renderFormSettings.bind( this );
-		this.preventEnterSubmittion = this.preventEnterSubmittion.bind( this );
-		this.hasEmailError = this.hasEmailError.bind( this );
+function JetpackContactFormEdit( {
+	attributes,
+	setAttributes,
+	adminEmail,
+	hasInnerBlocks,
+	replaceInnerBlocks,
+	selectBlock,
+	clientId,
+	instanceId,
+	className,
+	blockType,
+	variations,
+	defaultVariation,
+} ) {
+	const { to, subject, customThankyou, customThankyouMessage, customThankyouRedirect } = attributes;
 
-		const to = args[ 0 ].attributes.to ? args[ 0 ].attributes.to : '';
-		const error = to
-			.split( ',' )
-			.map( this.getToValidationError )
-			.filter( Boolean );
+	const [ emailErrors, setEmailErrors ] = useState( false );
+	const formClassnames = classnames( className, 'jetpack-contact-form' );
 
-		this.state = {
-			toError: error && error.length ? error : null,
-		};
+	const createBlocksFromInnerBlocksTemplate = innerBlocksTemplate => {
+		const blocks = map( innerBlocksTemplate, ( [ name, attr, innerBlocks = [] ] ) =>
+			createBlock( name, attr, createBlocksFromInnerBlocksTemplate( innerBlocks ) )
+		);
 
-		// Populate default variation on older versions of WP or GB that don't support variations.
-		if ( ! this.props.hasInnerBlocks && ! registerBlockVariation ) {
-			this.setVariation( defaultVariations[ 0 ] );
+		return blocks;
+	};
+
+	const setVariation = variation => {
+		if ( variation.attributes ) {
+			setAttributes( variation.attributes );
 		}
-	}
 
-	onChangeSubject( subject ) {
-		this.props.setAttributes( { subject } );
-	}
+		if ( variation.innerBlocks ) {
+			replaceInnerBlocks( clientId, createBlocksFromInnerBlocksTemplate( variation.innerBlocks ) );
+		}
 
-	getToValidationError( email ) {
+		selectBlock( clientId );
+	};
+
+	useEffect( () => {
+		// Populate default variation on older versions of WP or GB that don't support variations.
+		if ( ! hasInnerBlocks && ! registerBlockVariation ) {
+			setVariation( defaultVariations[ 0 ] );
+		}
+	} );
+
+	const validateEmail = email => {
 		email = email.trim();
+
 		if ( email.length === 0 ) {
 			return false; // ignore the empty emails
 		}
+
 		if ( ! emailValidator.validate( email ) ) {
 			return { email };
 		}
+
 		return false;
-	}
+	};
 
-	onBlurTo( event ) {
-		if ( event.target.value.length === 0 ) {
-			this.setState( { toError: null } );
-			this.props.setAttributes( { to: this.props.adminEmail } );
-			return;
-		}
+	const hasEmailErrors = () => {
+		return emailErrors && emailErrors.length > 0;
+	};
 
-		const error = event.target.value
-			.split( ',' )
-			.map( this.getToValidationError )
-			.filter( Boolean );
-		if ( error && error.length ) {
-			this.setState( { toError: error } );
-			return;
-		}
-	}
-
-	onChangeTo( to ) {
-		this.setState( { toError: null } );
-		this.props.setAttributes( { to: to.trim() } );
-	}
-
-	onChangeSubmit( submitButtonText ) {
-		this.props.setAttributes( { submitButtonText } );
-	}
-
-	getfieldEmailError( errors ) {
-		if ( errors ) {
-			if ( errors.length === 1 ) {
-				if ( errors[ 0 ] && errors[ 0 ].email ) {
-					return sprintf( __( '%s is not a valid email address.', 'jetpack' ), errors[ 0 ].email );
+	const getEmailErrors = () => {
+		if ( emailErrors ) {
+			if ( emailErrors.length === 1 ) {
+				if ( emailErrors[ 0 ] && emailErrors[ 0 ].email ) {
+					return sprintf(
+						__( '%s is not a valid email address.', 'jetpack' ),
+						emailErrors[ 0 ].email
+					);
 				}
-				return errors[ 0 ];
+				return emailErrors[ 0 ];
 			}
 
-			if ( errors.length === 2 ) {
+			if ( emailErrors.length === 2 ) {
 				return sprintf(
 					__( '%s and %s are not a valid email address.', 'jetpack' ),
-					errors[ 0 ].email,
-					errors[ 1 ].email
+					emailErrors[ 0 ].email,
+					emailErrors[ 1 ].email
 				);
 			}
-			const inValidEmails = errors.map( error => error.email );
+
+			const inValidEmails = emailErrors.map( error => error.email );
+
 			return sprintf(
 				__( '%s are not a valid email address.', 'jetpack' ),
 				inValidEmails.join( ', ' )
 			);
 		}
+
 		return null;
-	}
+	};
 
-	preventEnterSubmittion( event ) {
-		if ( event.key === 'Enter' ) {
-			event.preventDefault();
-			event.stopPropagation();
+	const onBlurEmailField = e => {
+		if ( e.target.value.length === 0 ) {
+			setEmailErrors( false );
+			setAttributes( { to: adminEmail } );
+			return;
 		}
-	}
 
-	renderFormSettings() {
-		const fieldEmailError = this.state.toError;
-		const { instanceId, attributes } = this.props;
-		const { subject, to } = attributes;
-		const email = to !== undefined ? to : this.props.adminEmail;
-		const { customThankyou, customThankyouMessage, customThankyouRedirect } = this.props.attributes;
+		const error = e.target.value
+			.split( ',' )
+			.map( validateEmail )
+			.filter( Boolean );
+
+		if ( error && error.length ) {
+			setEmailErrors( error );
+			return;
+		}
+	};
+
+	const onChangeEmailField = email => {
+		setEmailErrors( false );
+		setAttributes( { to: email.trim() } );
+	};
+
+	const renderFormSettings = () => {
+		const email = to !== undefined ? to : adminEmail;
 
 		return (
 			<>
 				<TextControl
 					aria-describedby={ `contact-form-${ instanceId }-email-${
-						this.hasEmailError() ? 'error' : 'help'
+						hasEmailErrors() ? 'error' : 'help'
 					}` }
 					label={ __( 'Email address to send to', 'jetpack' ) }
 					placeholder={ __( 'name@example.com', 'jetpack' ) }
-					onKeyDown={ this.preventEnterSubmittion }
+					onKeyDown={ e => {
+						if ( event.key === 'Enter' ) {
+							e.preventDefault();
+							e.stopPropagation();
+						}
+					} }
 					value={ email }
-					onBlur={ this.onBlurTo }
-					onChange={ this.onChangeTo }
+					onBlur={ onBlurEmailField }
+					onChange={ onChangeEmailField }
 					help={ __( 'You can enter multiple email addresses separated by commas.', 'jetpack' ) }
 				/>
+
 				<HelpMessage isError id={ `contact-form-${ instanceId }-email-error` }>
-					{ this.getfieldEmailError( fieldEmailError ) }
+					{ getEmailErrors() }
 				</HelpMessage>
 
 				<TextControl
 					label={ __( 'Email subject line', 'jetpack' ) }
 					value={ subject }
 					placeholder={ __( 'Enter a subject', 'jetpack' ) }
-					onChange={ this.onChangeSubject }
+					onChange={ newSubject => setAttributes( { subject: newSubject } ) }
 					help={ __(
 						'Choose a subject line that you recognize as an email from your website.',
 						'jetpack'
@@ -203,19 +222,19 @@ class JetpackContactFormEdit extends Component {
 						{ label: __( 'Show a custom text message', 'jetpack' ), value: 'message' },
 						{ label: __( 'Redirect to another webpage', 'jetpack' ), value: 'redirect' },
 					] }
-					onChange={ value => this.props.setAttributes( { customThankyou: value } ) }
+					onChange={ newMessage => setAttributes( { customThankyou: newMessage } ) }
 				/>
+
 				{ 'message' === customThankyou && (
 					<TextareaControl
 						label={ __( 'Message Text', 'jetpack' ) }
 						value={ customThankyouMessage }
 						placeholder={ __( 'Thank you for your submission!', 'jetpack' ) }
-						onChange={ value => this.props.setAttributes( { customThankyouMessage: value } ) }
+						onChange={ newMessage => setAttributes( { customThankyouMessage: newMessage } ) }
 					/>
 				) }
+
 				{ 'redirect' === customThankyou && (
-					// @todo This can likely be simplified when WP 5.4 is the minimum supported version.
-					// See https://github.com/Automattic/jetpack/pull/13745#discussion_r334712381
 					<BaseControl
 						label={ __( 'Redirect Address', 'jetpack' ) }
 						id={ `contact-form-${ instanceId }-thankyou-url` }
@@ -224,115 +243,81 @@ class JetpackContactFormEdit extends Component {
 							id={ `contact-form-${ instanceId }-thankyou-url` }
 							value={ customThankyouRedirect }
 							className="jetpack-contact-form__thankyou-redirect-url"
-							onChange={ value => this.props.setAttributes( { customThankyouRedirect: value } ) }
+							onChange={ newURL => setAttributes( { customThankyouRedirect: newURL } ) }
 						/>
 					</BaseControl>
 				) }
 			</>
 		);
-	}
+	};
 
-	hasEmailError() {
-		const fieldEmailError = this.state.toError;
-		return fieldEmailError && fieldEmailError.length > 0;
-	}
-
-	setVariation( variation ) {
-		const { setAttributes, replaceInnerBlocks, clientId, selectBlock } = this.props;
-
-		if ( variation.attributes ) {
-			setAttributes( variation.attributes );
-		}
-
-		if ( variation.innerBlocks ) {
-			replaceInnerBlocks(
-				clientId,
-				this.createBlocksFromInnerBlocksTemplate( variation.innerBlocks )
-			);
-		}
-
-		selectBlock( clientId );
-	}
-
-	createBlocksFromInnerBlocksTemplate( innerBlocksTemplate ) {
-		const blocks = map( innerBlocksTemplate, ( [ name, attributes, innerBlocks = [] ] ) =>
-			createBlock( name, attributes, this.createBlocksFromInnerBlocksTemplate( innerBlocks ) )
-		);
-
-		return blocks;
-	}
-
-	render() {
-		const { className, blockType, variations, defaultVariation, hasInnerBlocks } = this.props;
-
-		const formClassnames = classnames( className, 'jetpack-contact-form' );
-
-		if ( ! hasInnerBlocks && registerBlockVariation ) {
-			return (
-				<div className={ formClassnames }>
-					<BlockVariationPicker
-						icon={ get( blockType, [ 'icon', 'src' ] ) }
-						label={ get( blockType, [ 'title' ] ) }
-						instructions={ __(
-							"Please select which type of form you'd like to add, or create your own using the skip option.",
-							'jetpack'
-						) }
-						variations={ variations }
-						allowSkip
-						onSelect={ ( nextVariation = defaultVariation ) => {
-							this.setVariation( nextVariation );
-						} }
-					/>
-				</div>
-			);
-		}
-
+	const renderVariationPicker = () => {
 		return (
-			<>
-				{ ToolbarGroup && (
-					<BlockControls>
-						<ToolbarGroup>
-							<Dropdown
-								position="bottom right"
-								className="jetpack-contact-form-settings-selector"
-								contentClassName="jetpack-contact-form__popover"
-								renderToggle={ ( { isOpen, onToggle } ) => {
-									const openOnArrowDown = event => {
-										if ( ! isOpen && event.keyCode === DOWN ) {
-											event.preventDefault();
-											event.stopPropagation();
-											onToggle();
-										}
-									};
-
-									return (
-										<Button
-											className="components-toolbar__control jetpack-contact-form__toggle"
-											label={ __( 'Edit Form Settings' ) }
-											onClick={ onToggle }
-											onKeyDown={ openOnArrowDown }
-											icon={ <Icon icon="edit" /> }
-										/>
-									);
-								} }
-								renderContent={ () => this.renderFormSettings() }
-							/>
-						</ToolbarGroup>
-					</BlockControls>
-				) }
-
-				<InspectorControls>
-					<PanelBody title={ __( 'Form Settings', 'jetpack' ) }>
-						{ this.renderFormSettings() }
-					</PanelBody>
-				</InspectorControls>
-
-				<div className={ formClassnames }>
-					<InnerBlocks allowedBlocks={ ALLOWED_BLOCKS } templateInsertUpdatesSelection={ false } />
-				</div>
-			</>
+			<div className={ formClassnames }>
+				<BlockVariationPicker
+					icon={ get( blockType, [ 'icon', 'src' ] ) }
+					label={ get( blockType, [ 'title' ] ) }
+					instructions={ __(
+						"Please select which type of form you'd like to add, or create your own using the skip option.",
+						'jetpack'
+					) }
+					variations={ variations }
+					allowSkip
+					onSelect={ ( nextVariation = defaultVariation ) => {
+						setVariation( nextVariation );
+					} }
+				/>
+			</div>
 		);
+	};
+
+	if ( ! hasInnerBlocks && registerBlockVariation ) {
+		return renderVariationPicker();
 	}
+
+	return (
+		<>
+			{ ToolbarGroup && (
+				<BlockControls>
+					<ToolbarGroup>
+						<Dropdown
+							position="bottom right"
+							className="jetpack-contact-form-settings-selector"
+							contentClassName="jetpack-contact-form__popover"
+							renderToggle={ ( { isOpen, onToggle } ) => {
+								const openOnArrowDown = event => {
+									if ( ! isOpen && event.keyCode === DOWN ) {
+										event.preventDefault();
+										event.stopPropagation();
+										onToggle();
+									}
+								};
+
+								return (
+									<Button
+										className="components-toolbar__control jetpack-contact-form__toggle"
+										label={ __( 'Edit Form Settings' ) }
+										onClick={ onToggle }
+										onKeyDown={ openOnArrowDown }
+										icon={ <Icon icon="edit" /> }
+									/>
+								);
+							} }
+							renderContent={ () => renderFormSettings() }
+						/>
+					</ToolbarGroup>
+				</BlockControls>
+			) }
+
+			<InspectorControls>
+				<PanelBody title={ __( 'Form Settings', 'jetpack' ) }>{ renderFormSettings() }</PanelBody>
+			</InspectorControls>
+
+			<div className={ formClassnames }>
+				<InnerBlocks allowedBlocks={ ALLOWED_BLOCKS } templateInsertUpdatesSelection={ false } />
+			</div>
+		</>
+	);
 }
 
 export default compose( [
