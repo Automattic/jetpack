@@ -620,7 +620,7 @@ class Jetpack_Subscriptions {
 		if ( isset( $_REQUEST['redirect_fragment'] ) ) {
 			$redirect_fragment = preg_replace( '/[^a-z0-9_-]/i', '', $_REQUEST['redirect_fragment'] );
 		}
-		if ( !$redirect_fragment ) {
+		if ( !$redirect_fragment || ! is_string( $_REQUEST['redirect_fragment'] ) ) {
 			$redirect_fragment = 'subscribe-blog';
 		}
 
