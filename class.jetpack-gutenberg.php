@@ -37,9 +37,13 @@ function jetpack_register_block( $slug, $args = array() ) {
 		return false;
 	}
 
+	$feature_name = Jetpack_Gutenberg::remove_extension_prefix( $slug );
 	// If the block is dynamic, and a Jetpack block, wrap the render_callback to check availability.
-	if ( 0 === strpos( $slug, 'jetpack/' ) && isset( $args['render_callback'] ) ) {
-		$args['render_callback'] = Jetpack_Gutenberg::get_render_callback_with_availability_check( $slug, $args['render_callback'] );
+	if ( isset( $args['plan_check'] ) && true === $args['plan_check'] && 0 === strpos( $slug, 'jetpack/' ) && isset( $args['render_callback'] ) ) {
+		$args['render_callback'] = Jetpack_Gutenberg::get_render_callback_with_availability_check( $feature_name, $args['render_callback'] );
+		Jetpack_Gutenberg::set_availability_for_plan( $feature_name );
+	} else {
+		Jetpack_Gutenberg::set_extension_available( $feature_name );
 	}
 
 	return register_block_type( $slug, $args );
@@ -759,7 +763,7 @@ class Jetpack_Gutenberg {
 	 * Some blocks do not depend on a specific module,
 	 * and can consequently be loaded outside of the usual modules.
 	 * We will look for such modules in the extensions/ directory.
- *
+	 *
 	 * @since 7.1.0
 	 */
 	public static function load_independent_blocks() {
@@ -1005,6 +1009,7 @@ class Jetpack_Gutenberg {
 	public static function set_availability_for_plan( $slug ) {
 		$is_available = true;
 		$plan         = '';
+		$slug         = self::remove_extension_prefix( $slug );
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			if ( ! class_exists( 'Store_Product_List' ) ) {
@@ -1048,11 +1053,11 @@ class Jetpack_Gutenberg {
 		return function ( $prepared_attributes, $block_content ) use ( $render_callback, $slug ) {
 			$availability = self::get_availability();
 			$bare_slug    = self::remove_extension_prefix( $slug );
-			if ( isset( $availability[ $bare_slug ] ) && $availability[ $bare_slug ] ) {
+			if ( isset( $availability[ $bare_slug ] ) && $availability[ $bare_slug ]['available'] ) {
 				return call_user_func( $render_callback, $prepared_attributes, $block_content );
 			}
 			$plan = Jetpack_Plan::get_minimum_plan_for_feature( $bare_slug );
-			return Jetpack_Gutenberg::upgrade_nudge( $plan );
+			return self::upgrade_nudge( $plan );
 		};
 	}
 }

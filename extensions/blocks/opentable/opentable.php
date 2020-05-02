@@ -11,8 +11,8 @@ namespace Automattic\Jetpack\Extensions\OpenTable;
 
 use Jetpack_Gutenberg;
 
-const FEATURE_NAME  = 'opentable';
-const BLOCK_NAME    = 'jetpack/' . FEATURE_NAME;
+const FEATURE_NAME = 'opentable';
+const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 
 /**
  * Registers the block for use in Gutenberg
@@ -22,19 +22,13 @@ const BLOCK_NAME    = 'jetpack/' . FEATURE_NAME;
 function register_block() {
 	jetpack_register_block(
 		BLOCK_NAME,
-		array( 'render_callback' => __NAMESPACE__ . '\load_assets' )
+		array(
+			'render_callback' => __NAMESPACE__ . '\load_assets',
+			'plan_check'      => true,
+		)
 	);
 }
 add_action( 'init', __NAMESPACE__ . '\register_block' );
-
-/**
- * Set the availability of the block as the editor
- * is loaded.
- */
-function set_availability() {
-	\Jetpack_Gutenberg::set_availability_for_plan( FEATURE_NAME );
-}
-add_action( 'init', __NAMESPACE__ . '\set_availability' );
 
 /**
  * Adds an inline script which updates the block editor settings to

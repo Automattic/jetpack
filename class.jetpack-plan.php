@@ -30,6 +30,7 @@ class Jetpack_Plan {
 			),
 			'supports' => array(
 				'opentable',
+				'calendly',
 			),
 		),
 		'personal' => array(
