@@ -41,10 +41,17 @@ function jetpack_register_block( $slug, $args = array() ) {
 	// If the block is dynamic, and a Jetpack block, wrap the render_callback to check availability.
 	if ( isset( $args['plan_check'] ) && true === $args['plan_check'] && 0 === strpos( $slug, 'jetpack/' ) && isset( $args['render_callback'] ) ) {
 		$args['render_callback'] = Jetpack_Gutenberg::get_render_callback_with_availability_check( $feature_name, $args['render_callback'] );
-		Jetpack_Gutenberg::set_availability_for_plan( $feature_name );
+		$method_name             = 'set_availability_for_plan';
 	} else {
-		Jetpack_Gutenberg::set_extension_available( $feature_name );
+		$method_name = 'set_extension_available';
 	}
+
+	add_action(
+		'jetpack_register_gutenberg_extensions',
+		function() use ( $feature_name, $method_name ) {
+			call_user_func( array( 'Jetpack_Gutenberg', $method_name ), $feature_name );
+		}
+	);
 
 	return register_block_type( $slug, $args );
 }
@@ -1055,9 +1062,11 @@ class Jetpack_Gutenberg {
 			$bare_slug    = self::remove_extension_prefix( $slug );
 			if ( isset( $availability[ $bare_slug ] ) && $availability[ $bare_slug ]['available'] ) {
 				return call_user_func( $render_callback, $prepared_attributes, $block_content );
+			} elseif ( isset( $availability[ $bare_slug ]['details']['required_plan'] ) ) {
+				return self::upgrade_nudge( $availability[ $bare_slug ]['details']['required_plan'] );
 			}
-			$plan = Jetpack_Plan::get_minimum_plan_for_feature( $bare_slug );
-			return self::upgrade_nudge( $plan );
+
+			return null;
 		};
 	}
 }
