@@ -5,7 +5,13 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	/**
 	 * @var array When printing the submit button, what tags are allowed
 	 */
-	static $allowed_html_tags_for_submit_button = array( 'br' => array() );
+	public static $allowed_html_tags_for_submit_button = array(
+		'br'     => array(),
+		's'      => array(),
+		'strong' => array(),
+		'em'     => array(),
+	);
+
 	/**
 	 * Use this variable when printing the message after submitting an email in subscription widgets
 	 *
@@ -297,23 +303,39 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		$subscribe_placeholder      = isset( $instance['subscribe_placeholder'] ) ? stripslashes( $instance['subscribe_placeholder'] ) : '';
 		$submit_button_classes      = isset( $instance['submit_button_classes'] ) ? $instance['submit_button_classes'] : '';
 		$submit_button_styles       = isset( $instance['submit_button_styles'] ) ? $instance['submit_button_styles'] : '';
+		$email_field_classes        = isset( $instance['email_field_classes'] ) ? $instance['email_field_classes'] : '';
+		$email_field_styles         = isset( $instance['email_field_styles'] ) ? $instance['email_field_styles'] : '';
 
 		if ( self::is_wpcom() && ! self::wpcom_has_status_message() ) {
 			global $current_blog;
-			$url = defined( 'SUBSCRIBE_BLOG_URL' ) ? SUBSCRIBE_BLOG_URL : '';
+
+			$url     = defined( 'SUBSCRIBE_BLOG_URL' ) ? SUBSCRIBE_BLOG_URL : '';
+			$form_id = 'subscribe-blog' . self::$instance_count > 1
+				? '-' . self::$instance_count
+				: '';
 			?>
-            <form action="<?php echo $url; ?>" method="post" accept-charset="utf-8"
-                  id="subscribe-blog<?php if ( Jetpack_Subscriptions_Widget::$instance_count > 1 ) {
-				      echo '-' . Jetpack_Subscriptions_Widget::$instance_count;
-			      } ?>">
+			<form
+				action="<?php echo esc_url( $url ); ?>"
+				method="post"
+				accept-charset="utf-8"
+				id="<?php echo esc_attr( $form_id ); ?>"
+			>
 				<?php if ( is_user_logged_in() ) : ?>
 					<?php
 					if ( ! $show_only_email_and_button ) {
 						echo wpautop( $subscribe_logged_in );
 					}
 					if ( $show_subscribers_total && $subscribers_total ) {
-						/* translators: %s: number of folks following the blog */
-						echo wpautop( sprintf( _n( 'Join %s other follower', 'Join %s other followers', $subscribers_total ), number_format_i18n( $subscribers_total ) ) );
+						?>
+						<div class="jetpack-subscribe-count">
+							<p>
+							<?php
+							/* translators: %s: number of folks following the blog */
+							echo esc_html( sprintf( _n( 'Join %s other follower', 'Join %s other followers', $subscribers_total, 'jetpack' ), number_format_i18n( $subscribers_total ) ) );
+							?>
+							</p>
+						</div>
+						<?php
 					}
 					?>
 				<?php else : ?>
@@ -322,18 +344,49 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 						echo wpautop( $subscribe_text );
 					}
 					if ( $show_subscribers_total && $subscribers_total ) {
-						/* translators: %s: number of folks following the blog */
-						echo wpautop( sprintf( _n( 'Join %s other follower', 'Join %s other followers', $subscribers_total ), number_format_i18n( $subscribers_total ) ) );
+						?>
+						<div class="jetpack-subscribe-count">
+							<p>
+							<?php
+							/* translators: %s: number of folks following the blog */
+							echo esc_html( sprintf( _n( 'Join %s other follower', 'Join %s other followers', $subscribers_total, 'jetpack' ), number_format_i18n( $subscribers_total ) ) );
+							?>
+							</p>
+						</div>
+						<?php
 					}
+					$email_field_id = 'subscribe-field' . self::$instance_count > 1
+						? '-' . self::$instance_count
+						: '';
 					?>
-                    <p><input type="text" name="email" style="width: 95%; padding: 1px 10px"
-                              placeholder="<?php esc_attr_e( 'Enter your email address' ); ?>" value=""
-                              id="subscribe-field<?php if ( Jetpack_Subscriptions_Widget::$instance_count > 1 ) {
-						          echo '-' . Jetpack_Subscriptions_Widget::$instance_count;
-					          } ?>"/></p>
+					<p id="subscribe-email">
+						<?php
+						printf(
+							'<input
+								type="text"
+								name="email"
+								%1$s
+								style="%2$s"
+								placeholder="%3$s"
+								value=""
+								id="%4$s"
+							/>',
+							( ! empty( $email_field_classes )
+								? 'class="' . esc_attr( $email_field_classes ) . '"'
+								: ''
+							),
+							( ! empty( $email_field_styles )
+								? esc_attr( $email_field_styles )
+								: 'width: 95%; padding: 1px 10px'
+							),
+							esc_attr__( 'Enter your email address' ), // phpcs:ignore WordPress.WP.I18n.MissingArgDomain -- This is only used on WordPress.com.
+							esc_attr( $email_field_id )
+						);
+						?>
+					</p>
 				<?php endif; ?>
 
-                <p>
+				<p id="subscribe-submit">
                     <input type="hidden" name="action" value="subscribe"/>
                     <input type="hidden" name="blog_id" value="<?php echo (int) $current_blog->blog_id; ?>"/>
                     <input type="hidden" name="source" value="<?php echo esc_url( $referer ); ?>"/>
@@ -381,8 +434,16 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 				}
 
 				if ( $show_subscribers_total && 0 < $subscribers_total['value'] ) {
-					/* translators: %s: number of folks following the blog */
-					echo wpautop( sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $subscribers_total['value'], 'jetpack' ), number_format_i18n( $subscribers_total['value'] ) ) );
+					?>
+					<div class="jetpack-subscribe-count">
+						<p>
+						<?php
+						/* translators: %s: number of folks following the blog */
+						echo esc_html( sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $subscribers_total['value'], 'jetpack' ), number_format_i18n( $subscribers_total['value'] ) ) );
+						?>
+						</p>
+					</div>
+					<?php
 				}
 				if ( ! isset ( $_GET['subscribe'] ) || 'success' != $_GET['subscribe'] ) { ?>
                     <p id="subscribe-email">
@@ -391,10 +452,17 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
                                for="<?php echo esc_attr( $subscribe_field_id ) . '-' . esc_attr( $widget_id ); ?>">
 							<?php echo ! empty( $subscribe_placeholder ) ? esc_html( $subscribe_placeholder ) : esc_html__( 'Email Address:', 'jetpack' ); ?>
                         </label>
-                        <input type="email" name="email" required="required" class="required"
-                               value="<?php echo esc_attr( $subscribe_email ); ?>"
-                               id="<?php echo esc_attr( $subscribe_field_id ) . '-' . esc_attr( $widget_id ); ?>"
-                               placeholder="<?php echo esc_attr( $subscribe_placeholder ); ?>"/>
+                        <input type="email" name="email" required="required"
+                        	<?php if ( ! empty( $email_field_classes ) ) { ?>
+	                            class="<?php echo esc_attr( $email_field_classes ); ?> required"
+                            <?php }; ?>
+		                    <?php if ( ! empty( $email_field_styles ) ) { ?>
+			                    style="<?php echo esc_attr( $email_field_styles ); ?>"
+		                    <?php }; ?>
+                            value="<?php echo esc_attr( $subscribe_email ); ?>"
+                            id="<?php echo esc_attr( $subscribe_field_id ) . '-' . esc_attr( $widget_id ); ?>"
+                            placeholder="<?php echo esc_attr( $subscribe_placeholder ); ?>"
+                        />
                     </p>
 
                     <p id="subscribe-submit">
@@ -744,16 +812,63 @@ function jetpack_do_subscription_form( $instance ) {
 	$show_only_email_and_button             = isset( $instance['show_only_email_and_button'] ) ? $instance['show_only_email_and_button'] : false;
 	$submit_button_text                     = isset( $instance['submit_button_text'] ) ? $instance['submit_button_text'] : '';
 
-
-
 	// Build up a string with the submit button's classes and styles and set it on the instance
 	$submit_button_classes = isset( $instance['submit_button_classes'] ) ? $instance['submit_button_classes'] : '';
-	$submit_button_styles = '';
-	if ( isset( $instance['custom_background_button_color'] ) ) {
-		$submit_button_styles .= 'background-color: ' . $instance['custom_background_button_color'] . '; ';
+	$email_field_classes   = isset( $instance['email_field_classes'] ) ? $instance['email_field_classes'] : '';
+	$style                 = '';
+	$submit_button_styles  = '';
+	$email_field_styles    = '';
+
+	if ( isset( $instance['custom_background_button_color'] ) && 'undefined' !== $instance['custom_background_button_color'] ) {
+		$submit_button_styles .= 'background: ' . $instance['custom_background_button_color'] . '; ';
 	}
-	if ( isset( $instance['custom_text_button_color'] ) ) {
-		$submit_button_styles .= 'color: ' . $instance['custom_text_button_color'] . ';';
+	if ( isset( $instance['custom_text_button_color'] ) && 'undefined' !== $instance['custom_text_button_color'] ) {
+		$submit_button_styles .= 'color: ' . $instance['custom_text_button_color'] . '; ';
+	}
+
+	if ( isset( $instance['custom_font_size'] ) && 'undefined' !== $instance['custom_font_size'] ) {
+		$style                 = 'font-size: ' . $instance['custom_font_size'] . 'px; ';
+		$submit_button_styles .= $style;
+		$email_field_styles   .= $style;
+	}
+	if ( isset( $instance['custom_padding'] ) && 'undefined' !== $instance['custom_padding'] ) {
+		$style = 'padding: ' .
+			$instance['custom_padding'] . 'px ' .
+			round( $instance['custom_padding'] * 1.5 ) . 'px ' .
+			$instance['custom_padding'] . 'px ' .
+			round( $instance['custom_padding'] * 1.5 ) . 'px; ';
+
+		$submit_button_styles .= $style;
+		$email_field_styles   .= $style;
+	}
+
+	$button_spacing = 0;
+	if ( ! empty( $instance['custom_spacing'] ) ) {
+		$button_spacing = $instance['custom_spacing'];
+	}
+	if ( isset( $instance['button_on_newline'] ) && 'true' === $instance['button_on_newline'] ) {
+		$submit_button_styles .= 'margin-top: ' . $button_spacing . 'px; ';
+	} else {
+		$submit_button_styles .= 'margin-left: ' . $button_spacing . 'px; ';
+	}
+
+	if ( isset( $instance['custom_border_radius'] ) && 'undefined' !== $instance['custom_border_radius'] ) {
+		$style                 = 'border-radius: ' . $instance['custom_border_radius'] . 'px; ';
+		$submit_button_styles .= $style;
+		$email_field_styles   .= $style;
+	}
+	if ( isset( $instance['custom_border_weight'] ) && 'undefined' !== $instance['custom_border_weight'] ) {
+		$style                 = 'border-width: ' . $instance['custom_border_weight'] . 'px; ';
+		$submit_button_styles .= $style;
+		$email_field_styles   .= $style;
+	}
+	if ( isset( $instance['custom_border_color'] ) && 'undefined' !== $instance['custom_border_color'] ) {
+		$style =
+			'border-color: ' . $instance['custom_border_color'] . '; ' .
+			'border-style: solid;';
+
+		$submit_button_styles .= $style;
+		$email_field_styles   .= $style;
 	}
 
 	$instance = shortcode_atts(
@@ -768,8 +883,15 @@ function jetpack_do_subscription_form( $instance ) {
 	if ( ! empty( $submit_button_classes ) ) {
 		$instance['submit_button_classes'] = $submit_button_classes;
 	}
-	if ( ! empty ( $submit_button_styles ) ) {
-		$instance['submit_button_styles'] = $submit_button_styles;
+	if ( ! empty( $email_field_classes ) ) {
+		$instance['email_field_classes'] = $email_field_classes;
+	}
+
+	if ( ! empty( $submit_button_styles ) ) {
+		$instance['submit_button_styles'] = trim( $submit_button_styles );
+	}
+	if ( ! empty( $email_field_styles ) ) {
+		$instance['email_field_styles'] = trim( $email_field_styles );
 	}
 
 	$args = array(
@@ -790,11 +912,3 @@ function jetpack_blog_subscriptions_init() {
 }
 
 add_action( 'widgets_init', 'jetpack_blog_subscriptions_init' );
-
-function jetpack_register_subscriptions_block() {
-	if ( class_exists( 'WP_Block_Type_Registry' ) && ! WP_Block_Type_Registry::get_instance()->is_registered( 'jetpack/subscriptions' ) ) {
-		jetpack_register_block( 'jetpack/subscriptions' );
-	}
-}
-
-add_action( 'init', 'jetpack_register_subscriptions_block' );

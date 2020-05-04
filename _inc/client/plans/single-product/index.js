@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React from 'react';
-import { withRouter } from 'react-router';
+import { withRouter } from 'react-router-dom';
 
 /**
  * Internal dependencies
@@ -44,14 +44,15 @@ function handleUpgradeLinkClick( selectedUpgrade, route ) {
 			type: 'upgrade',
 			product: selectedUpgrade.type,
 			// NOTE: This depends on React-Router's withRouter HOC
-			page: name,
+			page: route,
 		} );
 	};
 }
 
 function renderPossiblePurchase( product, props ) {
-	const { planDuration, selectedUpgrade, routes } = props;
-	const name = routes[ 0 ] && routes[ 0 ].name;
+	const { planDuration, selectedUpgrade, match } = props;
+
+	const name = match && match.path;
 
 	function handleSelectedTypeChange( key, type ) {
 		return () => {

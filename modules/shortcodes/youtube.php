@@ -27,8 +27,8 @@
  * 12-2010:
  * <object width="640" height="385"><param name="movie" value="http://www.youtube.com/v/3H8bnKdf654?fs=1&amp;hl=en_GB"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/3H8bnKdf654?fs=1&amp;hl=en_GB" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="640" height="385"></embed></object>
  * 01-2011:
- * <iframe title="YouTube video player" class="youtube-player" type="text/html" width="640" height="390" src="http://www.youtube.com/embed/Qq9El3ki0_g" frameborder="0" allowFullScreen></iframe>
- * <iframe class="youtube-player" type="text/html" width="640" height="385" src="http://www.youtube.com/embed/VIDEO_ID" frameborder="0"></iframe>
+ * <iframe title="YouTube video player" class="youtube-player" width="640" height="390" src="http://www.youtube.com/embed/Qq9El3ki0_g" frameborder="0" allowFullScreen></iframe>
+ * <iframe class="youtube-player" width="640" height="385" src="http://www.youtube.com/embed/VIDEO_ID" frameborder="0"></iframe>
  *
  * @param string $content HTML content.
  * @return string The content with YouTube embeds replaced with YouTube shortcodes.
@@ -253,9 +253,9 @@ function youtube_id( $url ) {
 		( isset( $url['path'] ) && '/videoseries' === $url['path'] )
 		|| isset( $args['list'] )
 	) {
-		$html = "<iframe class='youtube-player' type='text/html' width='$w' height='$h' src='" . esc_url( "https://www.youtube.com/embed/videoseries?list=$id&hl=en_US" ) . "' allowfullscreen='true' style='border:0;'></iframe>";
+		$html = "<iframe class='youtube-player' width='$w' height='$h' src='" . esc_url( "https://www.youtube.com/embed/videoseries?list=$id&hl=en_US" ) . "' allowfullscreen='true' style='border:0;'></iframe>";
 	} else {
-		$html = "<iframe class='youtube-player' type='text/html' width='$w' height='$h' src='" . esc_url( "https://www.youtube.com/embed/$id?version=3&rel=$rel&fs=1$fmt$autohide&showsearch=$search&showinfo=$info&iv_load_policy=$iv$start$end$hd&wmode=$wmode$theme$autoplay$vq{$cc}{$cc_lang}" ) . "' allowfullscreen='true' style='border:0;'></iframe>";
+		$html = "<iframe class='youtube-player' width='$w' height='$h' src='" . esc_url( "https://www.youtube.com/embed/$id?version=3&rel=$rel&fs=1$fmt$autohide&showsearch=$search&showinfo=$info&iv_load_policy=$iv$start$end$hd&wmode=$wmode$theme$autoplay$vq{$cc}{$cc_lang}" ) . "' allowfullscreen='true' style='border:0;'></iframe>";
 	}
 
 	// Let's do some alignment wonder in a span, unless we're producing a feed.

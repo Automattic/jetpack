@@ -22,8 +22,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	 * @since 8.3.0
 	 */
 	public function load_php() {
-		require_once dirname( __FILE__ ) . '/class.jetpack-search-template-tags.php';
-		require_once JETPACK__PLUGIN_DIR . 'modules/widgets/search.php';
+		$this->base_load_php();
 
 		if ( class_exists( 'WP_Customize_Manager' ) ) {
 			require_once dirname( __FILE__ ) . '/class-jetpack-search-customize.php';
