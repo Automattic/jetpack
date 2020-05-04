@@ -15,6 +15,30 @@
 			margin-right: 0;
 		}
 	}
+
+	.block-editor-block-list__layout {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: space-between;
+		flex-direction: row;
+
+		.wp-block {
+			flex: 0 0 100%;
+			margin: 0 0 15px 0;
+
+			&.jetpack-field__width-25 {
+				flex: 0 0 24%;
+			}
+
+			&.jetpack-field__width-50 {
+				flex: 0 0 49%;
+			}
+
+			&.jetpack-field__width-75 {
+				flex: 0 0 74%;
+			}
+		}
+	}
 }
 
 .jetpack-contact-form .components-placeholder {
@@ -124,6 +148,16 @@ input.components-text-control__input {
 
 	textarea.components-textarea-control__input {
 		min-height: 150px;
+	}
+}
+
+.jetpack-field-label__width {
+	.components-button-group {
+		display: block;
+	}
+
+	.components-base-control__field {
+		margin-bottom: 12px;
 	}
 }
 

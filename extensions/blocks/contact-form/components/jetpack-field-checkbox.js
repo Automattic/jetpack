@@ -10,9 +10,10 @@ import { withInstanceId } from '@wordpress/compose';
  * Internal dependencies
  */
 import JetpackFieldLabel from './jetpack-field-label';
+import JetpackFieldWidth from './jetpack-field-width';
 
 function JetpackFieldCheckbox( props ) {
-	const { instanceId, required, label, setAttributes, isSelected, defaultValue } = props;
+	const { instanceId, required, label, setAttributes, fieldWidth, defaultValue } = props;
 
 	return (
 		<BaseControl
@@ -30,7 +31,6 @@ function JetpackFieldCheckbox( props ) {
 						required={ required }
 						label={ label }
 						setAttributes={ setAttributes }
-						isSelected={ isSelected }
 					/>
 					<InspectorControls>
 						<PanelBody title={ __( 'Field Settings', 'jetpack' ) }>
@@ -39,6 +39,8 @@ function JetpackFieldCheckbox( props ) {
 								checked={ defaultValue }
 								onChange={ value => setAttributes( { defaultValue: value } ) }
 							/>
+
+							<JetpackFieldWidth setAttributes={ setAttributes } fieldWidth={ fieldWidth } />
 						</PanelBody>
 					</InspectorControls>
 				</>

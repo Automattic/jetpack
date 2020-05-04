@@ -23,8 +23,9 @@ import {
  * Internal Dependencies
  */
 import renderMaterialIcon from '../../../shared/render-material-icon';
+import JetpackFieldWidth from './jetpack-field-width';
 
-const JetpackFieldControls = ( { setAttributes, id, required } ) => {
+const JetpackFieldControls = ( { setAttributes, fieldWidth, id, required } ) => {
 	return (
 		<>
 			<BlockControls>
@@ -54,6 +55,8 @@ const JetpackFieldControls = ( { setAttributes, id, required } ) => {
 							'jetpack'
 						) }
 					/>
+
+					<JetpackFieldWidth setAttributes={ setAttributes } fieldWidth={ fieldWidth } />
 				</PanelBody>
 			</InspectorControls>
 

@@ -77,6 +77,10 @@ const FieldDefaults = {
 			type: 'string',
 			default: '',
 		},
+		fieldWidth: {
+			type: 'number',
+			default: 100,
+		},
 	},
 	transforms: {
 		to: [
@@ -157,10 +161,10 @@ const editField = type => props => {
 			label={ getFieldLabel( props ) }
 			required={ props.attributes.required }
 			setAttributes={ props.setAttributes }
-			isSelected={ props.isSelected }
 			defaultValue={ props.attributes.defaultValue }
 			placeholder={ props.attributes.placeholder }
 			id={ props.attributes.id }
+			fieldWidth={ props.attributes.fieldWidth }
 		/>
 	);
 };
@@ -174,6 +178,7 @@ const editMultiField = type => props => (
 		type={ type }
 		isSelected={ props.isSelected }
 		id={ props.attributes.id }
+		fieldWidth={ props.attributes.fieldWidth }
 	/>
 );
 
@@ -280,10 +285,10 @@ export const childBlocks = [
 					label={ getFieldLabel( props ) }
 					required={ props.attributes.required }
 					setAttributes={ props.setAttributes }
-					isSelected={ props.isSelected }
 					defaultValue={ props.attributes.defaultValue }
 					placeholder={ props.attributes.placeholder }
 					id={ props.attributes.id }
+					fieldWidth={ props.attributes.fieldWidth }
 				/>
 			),
 		},
@@ -306,6 +311,7 @@ export const childBlocks = [
 					isSelected={ props.isSelected }
 					defaultValue={ props.attributes.defaultValue }
 					id={ props.attributes.id }
+					fieldWidth={ props.attributes.fieldWidth }
 				/>
 			),
 			attributes: {
