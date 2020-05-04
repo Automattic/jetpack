@@ -13,7 +13,7 @@ import JetpackFieldLabel from './jetpack-field-label';
 import JetpackFieldControls from './jetpack-field-controls';
 
 export default function JetpackField( props ) {
-	const { isSelected, type, required, label, setAttributes, placeholder } = props;
+	const { id, isSelected, type, required, label, setAttributes, placeholder } = props;
 
 	return (
 		<Fragment>
@@ -35,7 +35,7 @@ export default function JetpackField( props ) {
 				</Disabled>
 			</div>
 
-			<JetpackFieldControls required={ required } setAttributes={ setAttributes } />
+			<JetpackFieldControls id={ id } required={ required } setAttributes={ setAttributes } />
 		</Fragment>
 	);
 }

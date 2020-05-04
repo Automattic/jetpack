@@ -12,7 +12,7 @@ import JetpackFieldLabel from './jetpack-field-label';
 import JetpackFieldControls from './jetpack-field-controls';
 
 export default function JetpackFieldTextarea( props ) {
-	const { required, label, setAttributes, isSelected, placeholder } = props;
+	const { id, required, label, setAttributes, isSelected, placeholder } = props;
 
 	return (
 		<Fragment>
@@ -33,7 +33,7 @@ export default function JetpackFieldTextarea( props ) {
 				</Disabled>
 			</div>
 
-			<JetpackFieldControls required={ required } setAttributes={ setAttributes } />
+			<JetpackFieldControls id={ id } required={ required } setAttributes={ setAttributes } />
 		</Fragment>
 	);
 }
