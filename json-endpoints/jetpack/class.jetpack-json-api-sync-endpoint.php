@@ -317,10 +317,12 @@ class Jetpack_JSON_API_Sync_Close_Endpoint extends Jetpack_JSON_API_Sync_Endpoin
 
 		$items = $queue->peek_by_id( $request_body['item_ids'] );
 
-		/** This action is documented in packages/sync/src/modules/Full_Sync.php */
-		$full_sync_module = Modules::get_module( 'full-sync' );
+		// Update Full Sync Status if queue is "full_sync".
+		if ( 'full_sync' === $queue_name ) {
+			$full_sync_module = Modules::get_module( 'full-sync' );
 
-		$full_sync_module->update_sent_progress_action( $items );
+			$full_sync_module->update_sent_progress_action( $items );
+		}
 
 		$buffer = new Queue_Buffer( $request_body['buffer_id'], $request_body['item_ids'] );
 		$response = $queue->close( $buffer, $request_body['item_ids'] );
