@@ -70,6 +70,51 @@ class Jetpack_Google_Analytics {
 
 		return self::$instance;
 	}
+
+	/**
+	 * Add amp-analytics tags.
+	 *
+	 * @param array $analytics_entries An associative array of the analytics entries.
+	 *
+	 * @return array
+	 */
+	public static function amp_analytics_entries( $analytics_entries ) {
+		if ( ! is_array( $analytics_entries ) ) {
+			$analytics_entries = array();
+		}
+
+		$config_data = wp_json_encode(
+			array(
+				'vars'     => array(
+					'account' => Jetpack_Google_Analytics_Options::get_tracking_code(),
+				),
+				'triggers' => array(
+					'trackPageview' => array(
+						'on'      => 'visible',
+						'request' => 'pageview',
+					),
+				),
+			)
+		);
+
+		// Generate a hash string to uniquely identify this entry.
+		$entry_id = substr( md5( 'googleanalytics' . $config_data ), 0, 12 );
+
+		$data = array(
+			'type'   => 'googleanalytics',
+			'config' => $config_data,
+		);
+
+		$data = apply_filters( 'jetpack_amp_analytics_entries', $data, $entry_id );
+
+		if ( empty( $data ) ) {
+			return $analytics_entries;
+		}
+
+		$analytics_entries[ $entry_id ] = $data;
+
+		return $analytics_entries;
+	}
 }
 
 global $jetpack_google_analytics;

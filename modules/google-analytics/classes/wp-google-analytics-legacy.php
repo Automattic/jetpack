@@ -69,6 +69,13 @@ class Jetpack_Google_Analytics_Legacy {
 			return;
 		}
 
+		if ( class_exists( 'Jetpack_AMP_Support' )
+			&& Jetpack_AMP_Support::is_amp_request()
+		) {
+			add_filter( 'amp_analytics_entries', 'Jetpack_Google_Analytics::amp_analytics_entries' );
+			return;
+		}
+
 		$custom_vars = array(
 			"_gaq.push(['_setAccount', '{$tracking_id}']);",
 		);

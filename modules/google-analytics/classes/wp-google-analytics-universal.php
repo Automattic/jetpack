@@ -49,6 +49,13 @@ class Jetpack_Google_Analytics_Universal {
 			return;
 		}
 
+		if ( class_exists( 'Jetpack_AMP_Support' )
+			&& Jetpack_AMP_Support::is_amp_request()
+		) {
+			add_filter( 'amp_analytics_entries', 'Jetpack_Google_Analytics::amp_analytics_entries' );
+			return;
+		}
+
 		/**
 		 * Allow for additional elements to be added to the universal Google Analytics queue (ga) array
 		 *
