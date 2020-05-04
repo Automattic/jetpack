@@ -15,7 +15,7 @@ import './view.js';
 
 /* global juxtapose */
 
-const Edit = ( { attributes, clientId, isSelected, setAttributes } ) => {
+const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) => {
 	const {
 		imageBeforeId,
 		imageBeforeUrl,
@@ -55,7 +55,7 @@ const Edit = ( { attributes, clientId, isSelected, setAttributes } ) => {
 	);
 
 	return (
-		<figure className="wp-block-jetpack-image-compare-block" id={ clientId }>
+		<figure className={ className } id={ clientId }>
 			{ resizeListener }
 			<InspectorControls key="controls">
 				<PanelBody title={ __( 'Orientation', 'jetpack' ) }>

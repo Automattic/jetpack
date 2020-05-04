@@ -3,7 +3,7 @@
  */
 import { RichText } from '@wordpress/block-editor';
 
-const save = ( { attributes } ) => {
+const save = ( { attributes, className } ) => {
 	const {
 		imageBeforeId,
 		imageBeforeUrl,
@@ -16,7 +16,7 @@ const save = ( { attributes } ) => {
 	} = attributes;
 
 	return (
-		<figure>
+		<figure className={ className }>
 			<div className="juxtapose" data-mode={ orientation }>
 				<img
 					id={ imageBeforeId }
