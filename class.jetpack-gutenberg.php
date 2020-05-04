@@ -458,7 +458,7 @@ class Jetpack_Gutenberg {
 		$available_extensions = array();
 
 		foreach ( self::$extensions as $extension ) {
-			$is_available = self::is_registered( 'jetpack/' . $extension ) ||
+			$is_available = self::is_registered( 'jetpack/' . $extension ) &&
 			( isset( self::$availability[ $extension ] ) && true === self::$availability[ $extension ] );
 
 			$available_extensions[ $extension ] = array(
