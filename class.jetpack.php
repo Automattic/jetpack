@@ -7439,8 +7439,9 @@ endif;
 	 * Returns the list of products that we have available for purchase.
 	 */
 	public static function get_products_for_purchase() {
-		return array(
-			array(
+		$products = array();
+		if ( ! is_multisite() ) {
+			$products[] = array(
 				'key'               => 'backup',
 				'title'             => __( 'Jetpack Backup', 'jetpack' ),
 				'short_description' => __( 'Always-on backups ensure you never lose your site.', 'jetpack' ),
@@ -7467,8 +7468,9 @@ endif;
 				'show_promotion'    => true,
 				'discount_percent'  => 70,
 				'included_in_plans' => array( 'personal-plan', 'premium-plan', 'business-plan', 'daily-backup-plan', 'realtime-backup-plan' ),
-			),
-			array(
+			);
+
+			$products[] = array(
 				'key'               => 'scan',
 				'title'             => __( 'Jetpack Scan', 'jetpack' ),
 				'short_description' => __( 'Automatic scanning and one-click fixes keep your site one step ahead of security threats.', 'jetpack' ),
@@ -7486,27 +7488,30 @@ endif;
 				),
 				'default_option'    => 'scan',
 				'included_in_plans' => array( 'premium-plan', 'business-plan', 'scan-plan' ),
-			),
-			array(
-				'key'               => 'search',
-				'title'             => __( 'Jetpack Search', 'jetpack' ),
-				'short_description' => __( 'Incredibly powerful and customizable, Jetpack Search helps your visitors instantly find the right content – right when they need it.', 'jetpack' ),
-				'learn_more'        => __( 'Learn More', 'jetpack' ),
-				'description'       => __( 'Incredibly powerful and customizable, Jetpack Search helps your visitors instantly find the right content – right when they need it.', 'jetpack' ),
-				'label_popup'  		=> __( 'Records are all posts, pages, custom post types, and other types of content indexed by Jetpack Search.' ),
-				'options'           => array(
-					array(
-						'type'      => 'search',
-						'slug'      => 'jetpack-search',
-						'key'       => 'jetpack_search',
-						'name'      => __( 'Search', 'jetpack' ),
-					),
+			);
+		}
+
+		$products[] = array(
+			'key'               => 'search',
+			'title'             => __( 'Jetpack Search', 'jetpack' ),
+			'short_description' => __( 'Incredibly powerful and customizable, Jetpack Search helps your visitors instantly find the right content – right when they need it.', 'jetpack' ),
+			'learn_more'        => __( 'Learn More', 'jetpack' ),
+			'description'       => __( 'Incredibly powerful and customizable, Jetpack Search helps your visitors instantly find the right content – right when they need it.', 'jetpack' ),
+			'label_popup'  		=> __( 'Records are all posts, pages, custom post types, and other types of content indexed by Jetpack Search.' ),
+			'options'           => array(
+				array(
+					'type'      => 'search',
+					'slug'      => 'jetpack-search',
+					'key'       => 'jetpack_search',
+					'name'      => __( 'Search', 'jetpack' ),
 				),
-				'tears'             => array(),
-				'default_option'    => 'search',
-				'show_promotion'    => false,
-				'included_in_plans' => array( 'search-plan' ),
-			)
+			),
+			'tears'             => array(),
+			'default_option'    => 'search',
+			'show_promotion'    => false,
+			'included_in_plans' => array( 'search-plan' ),
 		);
+
+		return $products;
 	}
 }
