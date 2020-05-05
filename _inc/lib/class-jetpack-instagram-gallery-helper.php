@@ -11,6 +11,8 @@ use Automattic\Jetpack\Connection\Client;
  * Class Jetpack_Instagram_Gallery_Helper
  */
 class Jetpack_Instagram_Gallery_Helper {
+	const TRANSIENT_KEY_PREFIX = 'jetpack_instagram_gallery_block_';
+
 	/**
 	 * Get the Instagram Gallery.
 	 *
@@ -24,11 +26,15 @@ class Jetpack_Instagram_Gallery_Helper {
 			return $site_id;
 		}
 
-		$transient_key = 'jetpack_instagram_gallery_block_' . $access_token . '_' . $count;
+		$transient_key = self::TRANSIENT_KEY_PREFIX . $access_token;
 
 		$cached_gallery = get_transient( $transient_key );
 		if ( $cached_gallery ) {
-			return json_decode( $cached_gallery );
+			$decoded_cached_gallery = json_decode( $cached_gallery );
+			$cached_count           = count( $decoded_cached_gallery->images );
+			if ( $cached_count >= $count ) {
+				return $decoded_cached_gallery;
+			}
 		}
 
 		$response = Client::wpcom_json_api_request_as_blog(
@@ -63,5 +69,14 @@ class Jetpack_Instagram_Gallery_Helper {
 			);
 		}
 		return (int) $site_id;
+	}
+
+	/**
+	 * Delete the Instagram Gallery cache associated to an access token.
+	 *
+	 * @param string $access_token The Instagram access token.
+	 */
+	public static function delete_instagram_gallery_cache( $access_token ) {
+		delete_transient( self::TRANSIENT_KEY_PREFIX . $access_token );
 	}
 }

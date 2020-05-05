@@ -64,6 +64,7 @@ function render_block( $attributes, $content ) {
 		\jetpack_require_lib( 'class-jetpack-instagram-gallery-helper' );
 	}
 	$gallery = Jetpack_Instagram_Gallery_Helper::get_instagram_gallery( $access_token, $count );
+	$images  = array_slice( $gallery->images, 0, $count );
 
 	if ( is_wp_error( $gallery ) || empty( $gallery->images ) ) {
 		return '';
@@ -75,7 +76,7 @@ function render_block( $attributes, $content ) {
 	?>
 
 	<div class="<?php echo esc_attr( $grid_classes ); ?>" style="<?php echo esc_attr( $grid_style ); ?>">
-		<?php foreach ( $gallery->images as $image ) : ?>
+		<?php foreach ( $images as $image ) : ?>
 			<a
 				class="wp-block-jetpack-instagram-gallery__grid-post"
 				href="<?php echo esc_url( $image->link ); ?>"
