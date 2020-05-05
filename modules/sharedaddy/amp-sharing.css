@@ -2,7 +2,6 @@ amp-social-share {
 	border-radius: 50%;
 	color: #fff !important;
 	-webkit-border-radius: 50%;
-	padding: 7px;
 	position: relative;
 	line-height: 1;
 	width: 32px;
@@ -13,6 +12,7 @@ amp-social-share {
 amp-social-share::before {
 	display: inline-block;
 	font: normal 18px/1 'social-logos';
+	padding: 7px;
 	position: relative;
 	top: 1px;
 	vertical-align: top;

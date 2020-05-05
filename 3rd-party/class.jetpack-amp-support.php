@@ -33,6 +33,12 @@ class Jetpack_AMP_Support {
 		add_filter( 'sharing_enqueue_scripts', array( 'Jetpack_AMP_Support', 'amp_disable_sharedaddy_css' ) );
 		add_action( 'wp_enqueue_scripts', array( 'Jetpack_AMP_Support', 'amp_enqueue_sharing_css' ) );
 
+		// Sharing for Reader mode.
+		if ( function_exists( 'jetpack_social_menu_include_svg_icons' ) ) {
+			add_action( 'amp_post_template_footer', 'jetpack_social_menu_include_svg_icons' );
+		}
+		add_action( 'amp_post_template_css', array( 'Jetpack_AMP_Support', 'amp_reader_sharing_css' ), 10, 0 );
+
 		// enforce freedom mode for videopress.
 		add_filter( 'videopress_shortcode_options', array( 'Jetpack_AMP_Support', 'videopress_enable_freedom_mode' ) );
 
@@ -407,6 +413,14 @@ class Jetpack_AMP_Support {
 		if ( self::is_amp_request() ) {
 			wp_enqueue_style( 'sharedaddy-amp', plugin_dir_url( dirname( __FILE__ ) ) . 'modules/sharedaddy/amp-sharing.css', array( 'social-logos' ), JETPACK__VERSION );
 		}
+	}
+
+	/**
+	 * For the AMP Reader mode template, include styles that we need.
+	 */
+	public static function amp_reader_sharing_css() {
+		echo file_get_contents( plugin_dir_path( dirname( __FILE__ ) ) . '_inc/social-logos/social-logos.css' ); // phpcs:ignore
+		echo file_get_contents( plugin_dir_path( dirname( __FILE__ ) ) . 'modules/sharedaddy/amp-sharing.css' ); // phpcs:ignore
 	}
 
 	/**
