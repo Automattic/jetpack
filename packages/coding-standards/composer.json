@@ -1,0 +1,21 @@
+{
+	"name": "automattic/jetpack-coding-standards",
+	"type": "phpcodesniffer-standard",
+	"description": "PHP_CodeSniffer rules to enforce Jetpack coding standards.",
+	"keywords": [
+		"phpcs",
+		"standards",
+		"WordPress"
+	],
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"dealerdirect/phpcodesniffer-composer-installer": "^0.6",
+		"phpcompatibility/phpcompatibility-wp": "2.1.0",
+		"sirbrillig/phpcs-variable-analysis": "2.8.1",
+		"wp-coding-standards/wpcs": "2.2.1"
+	},
+	"require-dev": {
+		"phpcsstandards/phpcsdevtools": "^1.0"
+	},
+	"minimum-stability": "dev"
+}
