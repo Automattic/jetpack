@@ -19,7 +19,12 @@ export const data = ( state = {}, action ) => {
 		case SCAN_STATUS_FETCH_RECEIVE:
 			return assign( {}, state, { status: action.status } );
 		case MOCK_SWITCH_SCAN_STATE:
-			return assign( {}, state, { status: action.scanState } );
+			return {
+				status: {
+					...state.status,
+					...action.scanState,
+				},
+			};
 		default:
 			return state;
 	}
