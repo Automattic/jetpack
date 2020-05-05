@@ -4,6 +4,7 @@
 import { InspectorControls, MediaPlaceholder, RichText } from '@wordpress/block-editor';
 import { PanelBody, RadioControl, Placeholder } from '@wordpress/components';
 import { useResizeObserver } from '@wordpress/compose';
+import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -59,6 +60,7 @@ const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) 
 		);
 	}
 
+	const [ errorMessage, setErrorMessage ] = useState( null );
 
 	return (
 		<figure className={ className } id={ clientId }>
@@ -95,7 +97,9 @@ const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) 
 									{ __( 'Image Before', 'jetpack' ) }
 								</div>
 								<MediaPlaceholder
-									dropZoneUIOnly={ false }
+									onError={ err => {
+										setErrorMessage( `Error uploading: ${ err[ 2 ] }` );
+									} }
 									onSelect={ el => {
 										setAttributes( {
 											imageBeforeId: el.id,
@@ -120,7 +124,9 @@ const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) 
 									{ __( 'Image After', 'jetpack' ) }
 								</div>
 								<MediaPlaceholder
-									dropZoneUIOnly={ false }
+									onError={ err => {
+										setErrorMessage( `Error uploading: ${ err[ 2 ] }` );
+									} }
 									onSelect={ el => {
 										setAttributes( {
 											imageAfterId: el.id,
@@ -137,6 +143,7 @@ const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) 
 						) }
 					</div>
 				</Placeholder>
+				{ errorMessage && <div className="image-compare__error">{ errorMessage }</div> }
 			</div>
 			{ ( ! RichText.isEmpty( caption ) || ( isSelected && imageBeforeUrl && imageAfterUrl ) ) && (
 				<RichText

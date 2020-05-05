@@ -16,6 +16,13 @@
 	position: relative;
 }
 
+.image-compare__error {
+	font-size: 14px;
+	color: red;
+	padding: 8px;
+}
+
+
 .components-placeholder.is-large {
 	.image-compare__image-before {
 		padding-right: 12px;
