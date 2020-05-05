@@ -401,6 +401,18 @@
 						document.getElementsByTagName( elementToAppendTo )[ 0 ].appendChild( data );
 					}
 
+					if ( item.before_handle ) {
+						var before = document.createElement( 'script' ),
+							beforeContent = document.createTextNode(
+								'//<![CDATA[ \n' + item.before_handle + '\n//]]>'
+							);
+
+						before.type = 'text/javascript';
+						before.appendChild( beforeContent );
+
+						document.getElementsByTagName( elementToAppendTo )[ 0 ].appendChild( before );
+					}
+
 					// Build script tag and append to DOM in requested location
 					var script = document.createElement( 'script' );
 					script.type = 'text/javascript';
@@ -411,9 +423,17 @@
 					// We don't want that, it breaks stuff, e.g. wp-mediaelement init.
 					script.async = false;
 
-					if ( 'lodash' === item.handle ) {
+					if ( item.after_handle ) {
 						script.onload = function() {
-							window.lodash = _.noConflict();
+							var after = document.createElement( 'script' ),
+								afterContent = document.createTextNode(
+									'//<![CDATA[ \n' + item.after_handle + '\n//]]>'
+								);
+
+							after.type = 'text/javascript';
+							after.appendChild( afterContent );
+
+							document.getElementsByTagName( elementToAppendTo )[ 0 ].appendChild( after );
 						};
 					}
 

@@ -1073,9 +1073,11 @@ class The_Neverending_Home_Page {
 
 					// Provide basic script data
 					$script_data = array(
-						'handle'     => $handle,
-						'footer'     => ( is_array( $wp_scripts->in_footer ) && in_array( $handle, $wp_scripts->in_footer ) ),
-						'extra_data' => $wp_scripts->print_extra_script( $handle, false )
+						'handle'        => $handle,
+						'footer'        => ( is_array( $wp_scripts->in_footer ) && in_array( $handle, $wp_scripts->in_footer, true ) ),
+						'extra_data'    => $wp_scripts->print_extra_script( $handle, false ),
+						'before_handle' => $wp_scripts->print_inline_script( $handle, 'before', false ),
+						'after_handle'  => $wp_scripts->print_inline_script( $handle, 'after', false ),
 					);
 
 					// Base source
