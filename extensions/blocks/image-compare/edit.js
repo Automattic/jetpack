@@ -104,13 +104,13 @@ const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) 
 										} );
 										juxtapose.scanPage();
 									} }
+									accept="image/*"
 									allowedTypes={ [ 'image' ] }
 									labels={ { title: __( 'First image to compare', 'jetpack' ) } }
 								/>
 							</>
 						) }
 					</div>
-
 					<div className="image-compare__image-after">
 						{ imageAfterUrl ? (
 							<img id={ imageAfterId } src={ imageAfterUrl } alt={ imageAfterAlt } />
@@ -129,6 +129,7 @@ const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) 
 										} );
 										juxtapose.scanPage();
 									} }
+									accept="image/*"
 									allowedTypes={ [ 'image' ] }
 									labels={ { title: __( 'Second image to compare', 'jetpack' ) } }
 								/>
