@@ -71,6 +71,7 @@ class Jetpack_Options {
 					'mapbox_api_key',              // (string) Mapbox API Key, for use with Map block.
 					'mailchimp',                   // (string) Mailchimp keyring data, for mailchimp block.
 					'xmlrpc_errors',               // (array) Keys are XML-RPC signature error codes. Values are truthy.
+					'dismissed_wizard_banner',     // (int) True if the Wizard banner has been dismissed.
 				);
 
 			case 'private':

@@ -670,6 +670,8 @@ class Jetpack {
 
 		add_action( 'wp_ajax_jetpack_connection_banner', array( $this, 'jetpack_connection_banner_callback' ) );
 
+		add_action( 'wp_ajax_jetpack_wizard_banner', array( 'Jetpack_Wizard_Banner', 'ajax_callback' ) );
+
 		add_action( 'wp_loaded', array( $this, 'register_assets' ) );
 
 		/**
@@ -3730,6 +3732,14 @@ p {
 				$args,
 				true
 			);
+		}
+
+		// Show the Wizard Banner if someone is connected but did not start the wizard yet.
+		// Forcing Jetpack_Wizard::is_started() to true as a feature flag.
+		// TODO: implement Jetpack_Wizard::is_started().
+		// TODO: add host detection here.
+		if ( self::is_active() && ! Jetpack_Wizard::is_started() ) {
+			Jetpack_Wizard_Banner::init();
 		}
 
 		if ( current_user_can( 'manage_options' ) && 'AUTO' == JETPACK_CLIENT__HTTPS && ! self::permit_ssl() ) {
