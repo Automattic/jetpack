@@ -1,6 +1,6 @@
 amp-social-share {
 	border-radius: 50%;
-	color: #fff !important;
+	color: #fff;
 	-webkit-border-radius: 50%;
 	position: relative;
 	line-height: 1;
@@ -25,7 +25,7 @@ amp-social-share[type='print'] {
 
 amp-social-share[type='print']::before {
 	content: '\f469';
-	color: #656565 !important;
+	color: #656565;
 }
 
 amp-social-share[type='tumblr'] {
@@ -86,7 +86,7 @@ amp-social-share[type='pocket']::before {
 
 amp-social-share[type='reddit'] {
 	background: #cee3f8;
-	color: #555555 !important;
+	color: #555;
 }
 
 amp-social-share[type='reddit']::before {
