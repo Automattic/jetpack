@@ -1,4 +1,9 @@
 /**
+ * External dependencies
+ */
+import domReady from '@wordpress/dom-ready';
+
+/**
  * Internal dependencies
  */
 import './style.scss';
@@ -7,7 +12,7 @@ import { settings } from './settings.js';
 import FrontendManagement from '../../shared/frontend-management.js';
 import { getActiveStyleName } from '../../shared/block-styles';
 
-const mapViewLoader = function() {
+domReady( function() {
 	const frontendManagement = new FrontendManagement();
 	// Add apiKey to attibutes so FrontendManagement knows about it.
 	// It is dynamically being added on the php side.
@@ -31,10 +36,4 @@ const mapViewLoader = function() {
 			},
 		},
 	] );
-};
-
-if ( typeof document !== 'undefined' && document.readyState === 'complete' ) {
-	mapViewLoader();
-} else if ( typeof window !== 'undefined' ) {
-	window.addEventListener( 'load', mapViewLoader );
-}
+} );
