@@ -92,6 +92,7 @@ export const requests = ( state = initialRequestsState, action ) => {
 		case JETPACK_SITE_CONNECTED_PLUGINS_FETCH_RECEIVE:
 			return assign( {}, state, {
 				isFetchingConnectedPlugins: false,
+				isDoneFetchingConnectedPlugins: true,
 			} );
 		case JETPACK_SITE_FEATURES_FETCH_FAIL:
 		case JETPACK_SITE_FEATURES_FETCH_RECEIVE:
@@ -152,6 +153,16 @@ export function isFetchingSiteBenefits( state ) {
  */
 export function isFetchingConnectedPlugins( state ) {
 	return !! state.jetpack.siteData.requests.isFetchingConnectedPlugins;
+}
+
+/**
+ * Returns true if the connected plugins request has finished (even if it returned an error). Otherwise false.
+ *
+ * @param  {Object}  state Global state tree
+ * @return {Boolean}       Whether connected plugins request is completed.
+ */
+export function isDoneFetchingConnectedPlugins( state ) {
+	return !! state.jetpack.siteData.requests.isDoneFetchingConnectedPlugins;
 }
 
 /**
@@ -244,6 +255,10 @@ export function getSiteID( state ) {
  * @return {Object}        Connected plugins
  */
 export function getConnectedPlugins( state ) {
-	const plugins = get( state.jetpack.siteData, [ 'data', 'site', 'connectedPlugins' ], null );
-	return plugins ? plugins.filter( plugin => 'jetpack' !== plugin.slug ) : null;
+	if ( ! isDoneFetchingConnectedPlugins( state ) ) {
+		return null;
+	}
+
+	const plugins = get( state.jetpack.siteData, [ 'data', 'site', 'connectedPlugins' ], [] );
+	return plugins.filter( plugin => 'jetpack' !== plugin.slug );
 }

@@ -50,13 +50,22 @@ class Plugin_Storage {
 
 	/**
 	 * Retrieve the plugin information by slug.
+	 * WARNING: the method cannot be called until Jetpack Config has been run (`plugins_loaded`, priority 2).
+	 * Even if you don't use Jetpack Config, it may be introduced later by other plugins,
+	 * so please make sure not to run the method too early in the code.
 	 *
 	 * @param string $slug The plugin slug.
 	 *
-	 * @return array|null
+	 * @return array|null|WP_Error
 	 */
 	public static function get_one( $slug ) {
-		return empty( self::$plugins[ $slug ] ) ? null : self::$plugins[ $slug ];
+		$plugins = self::get_all();
+
+		if ( $plugins instanceof WP_Error ) {
+			return $plugins;
+		}
+
+		return empty( $plugins[ $slug ] ) ? null : $plugins[ $slug ];
 	}
 
 	/**
@@ -68,20 +77,10 @@ class Plugin_Storage {
 	 * @return array|WP_Error
 	 */
 	public static function get_all() {
-		if ( class_exists( Config::class ) && method_exists( Config::class, 'is_configured' ) && ! Config::is_configured() ) {
-			return new WP_Error( 'too_early', __( 'You cannot call this method until Jetpack Config is configured', 'jetpack' ) );
-		}
+		$maybe_error = self::ensure_configured();
 
-		if ( ! self::$plugins_configuration_finished ) {
-			/**
-			 * Fires upon retrieval of the connected plugins.
-			 * Only fires once, as the data isn't supposed to change after it's been initialized.
-			 *
-			 * @since 8.5.0
-			 */
-			do_action( 'jetpack_connection_configure_plugin' );
-
-			self::$plugins_configuration_finished = true;
+		if ( $maybe_error instanceof WP_Error ) {
+			return $maybe_error;
 		}
 
 		return self::$plugins;
@@ -89,14 +88,36 @@ class Plugin_Storage {
 
 	/**
 	 * Remove the plugin connection info from Jetpack.
+	 * WARNING: the method cannot be called until Jetpack Config has been run (`plugins_loaded`, priority 2).
+	 * Even if you don't use Jetpack Config, it may be introduced later by other plugins,
+	 * so please make sure not to run the method too early in the code.
 	 *
 	 * @param string $slug The plugin slug.
 	 *
-	 * @return bool
+	 * @return bool|WP_Error
 	 */
 	public static function delete( $slug ) {
+		$maybe_error = self::ensure_configured();
+
+		if ( $maybe_error instanceof WP_Error ) {
+			return $maybe_error;
+		}
+
 		if ( array_key_exists( $slug, self::$plugins ) ) {
 			unset( self::$plugins[ $slug ] );
+		}
+
+		return true;
+	}
+
+	/**
+	 * The method makes sure that `Jetpack\Config` has finished, and it's now safe to retrieve the list of plugins.
+	 *
+	 * @return bool|WP_Error
+	 */
+	private static function ensure_configured() {
+		if ( class_exists( Config::class ) && method_exists( Config::class, 'is_configured' ) && ! Config::is_configured() ) {
+			return new WP_Error( 'too_early', __( 'You cannot call this method until Jetpack Config is configured', 'jetpack' ) );
 		}
 
 		return true;

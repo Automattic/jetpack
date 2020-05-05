@@ -257,25 +257,17 @@ class Config {
 		$options = $this->get_feature_options( 'connection' );
 
 		if ( ! empty( $options['slug'] ) ) {
-			add_action(
-				'jetpack_connection_configure_plugin',
-				function() use ( $options ) {
-					if ( empty( $options['slug'] ) ) {
-						return;
-					}
+			// The `slug` and `name` are removed from the options because they need to be passed as arguments.
+			$slug = $options['slug'];
+			unset( $options['slug'] );
 
-					$slug = $options['slug'];
-					unset( $options['slug'] );
+			$name = $slug;
+			if ( ! empty( $options['name'] ) ) {
+				$name = $options['name'];
+				unset( $options['name'] );
+			}
 
-					$name = $slug;
-					if ( ! empty( $options['name'] ) ) {
-						$name = $options['name'];
-						unset( $options['name'] );
-					}
-
-					( new Plugin( $slug ) )->add( $name, $options );
-				}
-			);
+			( new Plugin( $slug ) )->add( $name, $options );
 		}
 
 		return true;

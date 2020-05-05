@@ -149,8 +149,8 @@ class JetpackTerminationDialogFeatures extends Component {
 					<div className="jetpack-termination-dialog__generic-info">
 						<h2>
 							{ __(
-								'Jetpack Connection is also used by other plugin',
-								'Jetpack Connection is also used by other plugins',
+								'The Jetpack Connection is also used by another plugin.',
+								'The Jetpack Connection is also used by other plugins.',
 								{
 									count: connectedPlugins.length,
 								}
