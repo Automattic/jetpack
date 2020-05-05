@@ -55,6 +55,7 @@ export const settings = {
 			domain: 'com',
 			lang: 'en-US',
 			newtab: false,
+			counterPadding: false,
 		},
 	},
 	transforms: {

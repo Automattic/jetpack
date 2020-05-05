@@ -97,6 +97,9 @@ function load_assets( $attributes ) {
 	if ( array_key_exists( 'rid', $attributes ) && is_array( $attributes['rid'] ) && count( $attributes['rid'] ) > 1 ) {
 		$classes[] = 'is-multi';
 	}
+	if ( array_key_exists( 'counterPadding', $attributes ) && $attributes['counterPadding'] ) {
+		$classes[] = 'has-no-padding';
+	}
 	$classes = Jetpack_Gutenberg::block_classes(
 		FEATURE_NAME,
 		$attributes,

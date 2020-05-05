@@ -56,7 +56,17 @@ function OpenTableEdit( {
 		setAttributes( validatedAttributes );
 	}
 
-	const { align, rid, style, iframe, domain, lang, newtab, __isBlockPreview } = attributes;
+	const {
+		align,
+		rid,
+		style,
+		iframe,
+		domain,
+		lang,
+		newtab,
+		counterPadding,
+		__isBlockPreview,
+	} = attributes;
 	const isPlaceholder = isEmpty( rid );
 
 	useEffect( () => {
@@ -166,6 +176,11 @@ function OpenTableEdit( {
 					onChange={ () => setAttributes( { iframe: ! iframe } ) }
 					className="is-opentable"
 				/>
+				<ToggleControl
+					label={ __( 'Remove button padding', 'jetpack' ) }
+					checked={ counterPadding }
+					onChange={ () => setAttributes( { counterPadding: ! counterPadding } ) }
+				/>
 			</InspectorAdvancedControls>
 			<BlockStylesSelector
 				clientId={ clientId }
@@ -224,6 +239,7 @@ function OpenTableEdit( {
 		'is-placeholder': isPlaceholder,
 		'is-multi': 'multi' === getTypeAndTheme( style )[ 0 ],
 		[ `align${ align }` ]: align,
+		'has-no-padding': counterPadding,
 	} );
 
 	return (

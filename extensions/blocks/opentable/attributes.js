@@ -61,4 +61,8 @@ export const defaultAttributes = {
 		default: false,
 		type: 'boolean',
 	},
+	counterPadding: {
+		default: false,
+		type: 'boolean',
+	},
 };
