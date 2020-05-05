@@ -7,6 +7,7 @@ import PopupMonitor from '@automattic/popup-monitor';
  * WordPress dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
@@ -17,24 +18,63 @@ export default function useConnectInstagram( {
 	setAttributes,
 	setImages,
 } ) {
+	const { isTokenConnected, isTokenDisconnected } = useSelect( select => {
+		const { isInstagramGalleryTokenConnected, isInstagramGalleryTokenDisconnected } = select(
+			'jetpack/instagram-gallery'
+		);
+		return {
+			isTokenConnected: isInstagramGalleryTokenConnected( accessToken ),
+			isTokenDisconnected: isInstagramGalleryTokenDisconnected( accessToken ),
+		};
+	} );
+
+	const { connectInstagramGalleryToken, disconnectInstagramGalleryToken } = useDispatch(
+		'jetpack/instagram-gallery'
+	);
+
 	const [ isConnecting, setIsConnecting ] = useState( false );
 
+	// Automatically retrieve a working Instagram access token, if it exists.
 	useEffect( () => {
-		if ( accessToken ) {
+		// If the block already has a token, and that token is marked as connected, don't retrieve it again.
+		if ( isTokenConnected ) {
 			return;
 		}
+
+		// If the block already has a token, and that token is marked as disconnected, remove it from the block.
+		if ( isTokenDisconnected ) {
+			setAttributes( { accessToken: undefined } );
+			return;
+		}
+
+		// Otherwise, try to retrieve it from the API.
 		setIsConnecting( true );
 		apiFetch( { path: `/wpcom/v2/instagram-gallery/access-token` } )
 			.then( token => {
 				setIsConnecting( false );
 				if ( token ) {
+					connectInstagramGalleryToken( token );
 					setAttributes( { accessToken: token } );
 				}
 			} )
 			.catch( () => {
 				setIsConnecting( false );
+				// If there are errors, chances are the token is not valid anymore.
+				// Mark it as disconnected, and remove it from the block.
+				if ( accessToken ) {
+					disconnectInstagramGalleryToken( accessToken );
+					setAttributes( { accessToken: undefined } );
+				}
 			} );
-	}, [ accessToken, setAttributes, setIsConnecting ] );
+	}, [
+		accessToken,
+		connectInstagramGalleryToken,
+		disconnectInstagramGalleryToken,
+		isTokenConnected,
+		isTokenDisconnected,
+		setAttributes,
+		setIsConnecting,
+	] );
 
 	const connectToService = () => {
 		noticeOperations.removeAllNotices();
@@ -53,7 +93,9 @@ export default function useConnectInstagram( {
 				popupMonitor.on( 'message', ( { keyring_id } ) => {
 					setIsConnecting( false );
 					if ( keyring_id ) {
-						setAttributes( { accessToken: keyring_id.toString() } );
+						const token = keyring_id.toString();
+						connectInstagramGalleryToken( token );
+						setAttributes( { accessToken: token } );
 					}
 				} );
 
@@ -81,6 +123,7 @@ export default function useConnectInstagram( {
 		} ).then( responseCode => {
 			setIsConnecting( false );
 			if ( 200 === responseCode ) {
+				disconnectInstagramGalleryToken( token );
 				setAttributes( { accessToken: undefined } );
 				setImages( [] );
 			}
