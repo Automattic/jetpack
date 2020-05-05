@@ -312,15 +312,15 @@ __( "Speed up image load times", "jetpack" ), // _inc/client/performance/speed-u
 __( "Speed up static file load times", "jetpack" ), // _inc/client/performance/speed-up-site.jsx:275
 __( "Lazy-loading images will improve your site’s speed and create a smoother viewing experience. Images will load as visitors scroll down the screen, instead of all at once.", "jetpack" ), // _inc/client/performance/speed-up-site.jsx:292
 __( "Enable Lazy Loading for images", "jetpack" ), // _inc/client/performance/speed-up-site.jsx:306
+__( "Explore our Jetpack plans", "jetpack" ), // _inc/client/plans-prompt/index.jsx:30
+__( "Now that you're set up, pick a plan that fits your needs.", "jetpack" ), // _inc/client/plans-prompt/index.jsx:32
+__( "Start with free", "jetpack" ), // _inc/client/plans-prompt/index.jsx:48
 __( "You’re currently on Jetpack %(plan)s.", "jetpack" ), // _inc/client/plans/plan-grid.jsx:78
 __( "Your Plan", "jetpack" ), // _inc/client/plans/plan-grid.jsx:86
 __( "Manage your plan", "jetpack" ), // _inc/client/plans/plan-grid.jsx:88
 __( "View all Jetpack plans", "jetpack" ), // _inc/client/plans/plan-grid.jsx:90
 __( "Solutions", "jetpack" ), // _inc/client/plans/product-selector.jsx:66
 __( "Looking for specific features? We've got you covered.", "jetpack" ), // _inc/client/plans/product-selector.jsx:68
-__( "Explore our Jetpack plans", "jetpack" ), // _inc/client/plans-prompt/index.jsx:30
-__( "Now that you're set up, pick a plan that fits your needs.", "jetpack" ), // _inc/client/plans-prompt/index.jsx:32
-__( "Start with free", "jetpack" ), // _inc/client/plans-prompt/index.jsx:48
 _x( "privacy", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:69
 _x( "tracks", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:70
 _x( "data", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:71
@@ -634,23 +634,23 @@ __( "This site is not connected to WordPress.com. Please ask the site administra
 __( "daily backups", "jetpack" ), // _inc/client/components/jetpack-notices/plan-conflict-warning.jsx:64
 __( "real-time backups", "jetpack" ), // _inc/client/components/jetpack-notices/plan-conflict-warning.jsx:66
 __( "Your %(planName)s Plan includes %(featureName)s. Looks like you also purchased the %(productName)s product. Consider removing %(productName)s.", "jetpack" ), // _inc/client/components/jetpack-notices/plan-conflict-warning.jsx:73
-__( "Cheatin' uh?", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:41
-__( "{{p}}Would you mind telling us why you did not complete the Jetpack connection in this {{a}}2 question survey{{/a}}?{{/p}}{{p}}A Jetpack connection is required for our free security and traffic features to work.{{/p}}", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:44
-__( "You need to stay logged in to your WordPress blog while you authorize Jetpack.", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:62
-__( "We had an issue connecting Jetpack; deactivate then reactivate the Jetpack plugin, then connect again.", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:67
-__( "There was an issue connecting your Jetpack. Please click \"Connect to WordPress.com\" again.", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:72
-__( "Your website needs to be publicly accessible to use Jetpack: %(error_key)s", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:78
-__( "This site can't be connected to WordPress.com because it violates our {{a}}Terms of Service{{/a}}.", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:88
-__( "{{s}}Your Jetpack has a glitch.{{/s}} Connecting this site with WordPress.com is not possible. This usually means your site is not publicly accessible (localhost).", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:104
-__( "WordPress.com is currently having problems and is unable to fuel up your Jetpack.  Please try again later.", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:118
-__( "Jetpack could not contact WordPress.com: %(error_key)s.  This usually means something is incorrectly configured on your web host.", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:124
-__( "{{s}}Your Jetpack has a glitch.{{/s}}  We're sorry for the inconvenience. Please try again later, if the issue continues please contact support with this message: %(error_key)s", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:164
-__( "Welcome to {{s}}Jetpack %(jetpack_version)s{{/s}}!", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:202
-__( "Your Jetpack is already connected.", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:212
-__( "You're fueled up and ready to go, Jetpack is now active.", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:216
-__( "You're fueled up and ready to go.", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:220
-__( "Your server is misconfigured, which means that Jetpack Protect is unable to effectively protect your site.", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:224
-__( "Learn More", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:232
+__( "Cheatin' uh?", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:40
+__( "{{p}}Would you mind telling us why you did not complete the Jetpack connection in this {{a}}2 question survey{{/a}}?{{/p}}{{p}}A Jetpack connection is required for our free security and traffic features to work.{{/p}}", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:43
+__( "You need to stay logged in to your WordPress blog while you authorize Jetpack.", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:61
+__( "We had an issue connecting Jetpack; deactivate then reactivate the Jetpack plugin, then connect again.", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:66
+__( "There was an issue connecting your Jetpack. Please click \"Connect to WordPress.com\" again.", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:71
+__( "Your website needs to be publicly accessible to use Jetpack: %(error_key)s", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:77
+__( "This site can't be connected to WordPress.com because it violates our {{a}}Terms of Service{{/a}}.", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:87
+__( "{{s}}Your Jetpack has a glitch.{{/s}} Connecting this site with WordPress.com is not possible. This usually means your site is not publicly accessible (localhost).", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:103
+__( "WordPress.com is currently having problems and is unable to fuel up your Jetpack.  Please try again later.", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:117
+__( "Jetpack could not contact WordPress.com: %(error_key)s.  This usually means something is incorrectly configured on your web host.", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:123
+__( "{{s}}Your Jetpack has a glitch.{{/s}}  We're sorry for the inconvenience. Please try again later, if the issue continues please contact support with this message: %(error_key)s", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:163
+__( "Welcome to {{s}}Jetpack %(jetpack_version)s{{/s}}!", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:201
+__( "Your Jetpack is already connected.", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:211
+__( "You're fueled up and ready to go, Jetpack is now active.", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:215
+__( "You're fueled up and ready to go.", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:219
+__( "Your server is misconfigured, which means that Jetpack Protect is unable to effectively protect your site.", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:223
+__( "Learn More", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:231
 __( "Continue", "jetpack" ), // _inc/client/components/jetpack-termination-dialog/dialog.jsx:161
 __( "Disconnect", "jetpack" ), // _inc/client/components/jetpack-termination-dialog/dialog.jsx:165
 __( "Disable", "jetpack" ), // _inc/client/components/jetpack-termination-dialog/dialog.jsx:165
@@ -746,30 +746,14 @@ __( "Upgrade", "jetpack" ), // _inc/client/components/support-card/index.jsx:115
 __( "Learn more", "jetpack" ), // _inc/client/components/support-info/index.jsx:79
 __( "Learn more", "jetpack" ), // _inc/client/components/support-info/index.jsx:89
 __( "Privacy information", "jetpack" ), // _inc/client/components/support-info/index.jsx:99
-__( "The features you rely on, adapted for the new WordPress editor.", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:45
-__( "A new editor? Yes! {{a}}Learn more{{/a}}.", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:47
-__( "Build your Jetpack site with blocks", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:60
-__( "Today, we are introducing the first wave of Jetpack-specific blocks built specifically for the new editor experience: Simple Payment button, Form, Map, and Markdown.", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:63
-__( "Jetpack is ready for the new WordPress editor", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:72
-__( "Take me to the new editor", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:77
-__( "Okay, got it!", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:79
-__( "Jetpack is ready for the new WordPress editor", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:93
-__( "New in Jetpack!", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:96
+/* translators: %(version) is a version number. */
+__( "New in Jetpack %(version)s", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:74
 __( "Which backup option is best for me?", "jetpack" ), // _inc/client/plans/single-product-backup/body.jsx:80
 __( "Select a backup option:", "jetpack" ), // _inc/client/plans/single-product-backup/body.jsx:85
 __( "Daily Backups", "jetpack" ), // _inc/client/plans/single-product-backup/index.jsx:35
 __( "Real-Time Backups", "jetpack" ), // _inc/client/plans/single-product-backup/index.jsx:44
 __( "Daily Backups", "jetpack" ), // _inc/client/plans/single-product-backup/index.jsx:58
 __( "Real-Time Backups", "jetpack" ), // _inc/client/plans/single-product-backup/index.jsx:64
-__( "You would save {{savings /}} by paying yearly", "jetpack" ), // _inc/client/plans/single-product-components/product-savings.jsx:33
-__( "You are saving {{savings /}} by paying yearly", "jetpack" ), // _inc/client/plans/single-product-components/product-savings.jsx:34
-__( "Up to %(percent)d%% off!", "jetpack" ), // _inc/client/plans/single-product-components/promo-nudge.jsx:16
-__( "Hurry, these are {{s}}Limited time introductory prices!{{/s}}", "jetpack" ), // _inc/client/plans/single-product-components/promo-nudge.jsx:19
-__( "Included in your {{planLink}}Personal Plan{{/planLink}}", "jetpack" ), // _inc/client/plans/single-product-components/purchased-product-card.jsx:72
-__( "Included in your {{planLink}}Premium Plan{{/planLink}}", "jetpack" ), // _inc/client/plans/single-product-components/purchased-product-card.jsx:81
-__( "Included in your {{planLink}}Professional Plan{{/planLink}}", "jetpack" ), // _inc/client/plans/single-product-components/purchased-product-card.jsx:90
-/* translators: Button to purchase product upgrade. %(name)s is the product name. */
-__( "Upgrade to %(name)s", "jetpack" ), // _inc/client/plans/single-product-components/upgrade-button.jsx:21
 __( "Up to 100 records", "jetpack" ), // _inc/client/plans/single-product-search/index.jsx:33
 __( "Up to 1,000 records", "jetpack" ), // _inc/client/plans/single-product-search/index.jsx:35
 __( "Up to 10,000 records", "jetpack" ), // _inc/client/plans/single-product-search/index.jsx:37
@@ -780,6 +764,15 @@ __( "Learn more", "jetpack" ), // _inc/client/plans/single-product-search/index.
 _n( "Your current site record size: %s record", "Your current site record size: %s records", 1, "jetpack" ), // _inc/client/plans/single-product-search/index.jsx:92
 __( "Records are all posts, pages, custom post types, and other types of content indexed by Jetpack Search.", "jetpack" ), // _inc/client/plans/single-product-search/index.jsx:98
 __( "Upgrade to Jetpack Search", "jetpack" ), // _inc/client/plans/single-product-search/index.jsx:129
+__( "You would save {{savings /}} by paying yearly", "jetpack" ), // _inc/client/plans/single-product-components/product-savings.jsx:33
+__( "You are saving {{savings /}} by paying yearly", "jetpack" ), // _inc/client/plans/single-product-components/product-savings.jsx:34
+__( "Up to %(percent)d%% off!", "jetpack" ), // _inc/client/plans/single-product-components/promo-nudge.jsx:16
+__( "Hurry, these are {{s}}Limited time introductory prices!{{/s}}", "jetpack" ), // _inc/client/plans/single-product-components/promo-nudge.jsx:19
+__( "Included in your {{planLink}}Personal Plan{{/planLink}}", "jetpack" ), // _inc/client/plans/single-product-components/purchased-product-card.jsx:72
+__( "Included in your {{planLink}}Premium Plan{{/planLink}}", "jetpack" ), // _inc/client/plans/single-product-components/purchased-product-card.jsx:81
+__( "Included in your {{planLink}}Professional Plan{{/planLink}}", "jetpack" ), // _inc/client/plans/single-product-components/purchased-product-card.jsx:90
+/* translators: Button to purchase product upgrade. %(name)s is the product name. */
+__( "Upgrade to %(name)s", "jetpack" ), // _inc/client/plans/single-product-components/upgrade-button.jsx:21
 __( "A jetpack site powering up", "jetpack" ), // _inc/client/setup-wizard/intro-page/index.jsx:23
 __( "Set up Jetpack for better site security, performance, and more", "jetpack" ), // _inc/client/setup-wizard/intro-page/index.jsx:26
 __( "Jetpack is a cloud-powered tool built by Automattic.", "jetpack" ), // _inc/client/setup-wizard/intro-page/index.jsx:29
