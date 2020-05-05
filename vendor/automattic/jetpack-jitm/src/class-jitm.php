@@ -83,7 +83,6 @@ class JITM {
 		if ( ! in_array(
 			$screen->id,
 			array(
-				'jetpack_page_stats',
 				'jetpack_page_akismet-key-config',
 				'admin_page_jetpack_modules',
 			),

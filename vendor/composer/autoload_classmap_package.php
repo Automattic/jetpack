@@ -195,7 +195,7 @@ return array(
 		'path'    => $vendorDir . '/automattic/jetpack-partner/src/class-partner.php'
 	),
 	'Automattic\\Jetpack\\JITM' => array(
-		'version' => '1.5.0.0',
+		'version' => '1.5.1.0',
 		'path'    => $vendorDir . '/automattic/jetpack-jitm/src/class-jitm.php'
 	),
 	'Automattic\\Jetpack\\Config' => array(

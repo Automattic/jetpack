@@ -317,17 +317,17 @@
     },
     {
         "name": "automattic/jetpack-jitm",
-        "version": "v1.5.0",
-        "version_normalized": "1.5.0.0",
+        "version": "v1.5.1",
+        "version_normalized": "1.5.1.0",
         "source": {
             "type": "git",
             "url": "https://github.com/Automattic/jetpack-jitm.git",
-            "reference": "f7138e4792add58d811fb2624b5a994ce3088a68"
+            "reference": "81f08e80a794afe278e282b9f375067e3fe9402e"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/Automattic/jetpack-jitm/zipball/f7138e4792add58d811fb2624b5a994ce3088a68",
-            "reference": "f7138e4792add58d811fb2624b5a994ce3088a68",
+            "url": "https://api.github.com/repos/Automattic/jetpack-jitm/zipball/81f08e80a794afe278e282b9f375067e3fe9402e",
+            "reference": "81f08e80a794afe278e282b9f375067e3fe9402e",
             "shasum": ""
         },
         "require": {
@@ -344,7 +344,7 @@
             "php-mock/php-mock": "^2.1",
             "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
         },
-        "time": "2020-04-28T11:26:45+00:00",
+        "time": "2020-04-30T15:11:27+00:00",
         "type": "library",
         "installation-source": "dist",
         "autoload": {

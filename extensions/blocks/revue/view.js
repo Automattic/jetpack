@@ -14,6 +14,10 @@ if ( typeof window !== 'undefined' && window.jQuery ) {
 
 		revueBlocks.forEach( block => {
 			const form = block.querySelector( '.wp-block-jetpack-revue__form' );
+			if ( ! form ) {
+				return;
+			}
+
 			const message = block.querySelector( '.wp-block-jetpack-revue__message' );
 
 			form.addEventListener( 'submit', () => {
