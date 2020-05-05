@@ -411,6 +411,12 @@
 					// We don't want that, it breaks stuff, e.g. wp-mediaelement init.
 					script.async = false;
 
+					if ( 'lodash' === item.handle ) {
+						script.onload = function() {
+							window.lodash = _.noConflict();
+						};
+					}
+
 					// If MediaElement.js is loaded in by item set of posts, don't initialize the players a second time as it breaks them all
 					if ( 'wp-mediaelement' === item.handle ) {
 						self.body.removeEventListener( 'is.post-load', self.initializeMejs );
