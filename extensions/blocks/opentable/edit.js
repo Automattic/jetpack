@@ -176,11 +176,13 @@ function OpenTableEdit( {
 					onChange={ () => setAttributes( { iframe: ! iframe } ) }
 					className="is-opentable"
 				/>
-				<ToggleControl
-					label={ __( 'Remove button padding', 'jetpack' ) }
-					checked={ counterPadding }
-					onChange={ () => setAttributes( { counterPadding: ! counterPadding } ) }
-				/>
+				{ 'button' === style && (
+					<ToggleControl
+						label={ __( 'Remove button padding', 'jetpack' ) }
+						checked={ counterPadding }
+						onChange={ () => setAttributes( { counterPadding: ! counterPadding } ) }
+					/>
+				) }
 			</InspectorAdvancedControls>
 			<BlockStylesSelector
 				clientId={ clientId }
