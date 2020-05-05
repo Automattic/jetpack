@@ -1,10 +1,12 @@
 /**
  * WordPress dependencies
  */
+import { getBlobByURL, isBlobURL, revokeBlobURL } from '@wordpress/blob';
 import { InspectorControls, MediaPlaceholder, RichText } from '@wordpress/block-editor';
 import { PanelBody, RadioControl, Placeholder } from '@wordpress/components';
 import { useResizeObserver } from '@wordpress/compose';
-import { useState } from '@wordpress/element';
+import { useEffect, useState } from '@wordpress/element';
+import { mediaUpload } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -61,6 +63,54 @@ const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) 
 	}
 
 	const [ errorMessage, setErrorMessage ] = useState( null );
+
+	useEffect( () => {
+		// debugger;
+		// check if temporary images
+		if ( ! imageBeforeId && isBlobURL( imageBeforeUrl ) ) {
+			const file = getBlobByURL( imageBeforeUrl );
+			if ( file ) {
+				mediaUpload( {
+					filesList: [ file ],
+					onFileChange: ( [ image ] ) => {
+						if ( image && image.id && image.url ) {
+							setAttributes( {
+								imageBeforeId: image.id,
+								imageBeforeUrl: image.url,
+								imageBeforeAlt: image.alt,
+							} );
+						}
+					},
+					allowedTypes: [ 'image' ],
+					onError: message => {
+						setErrorMessage( message );
+					},
+				} );
+			}
+		}
+
+		if ( ! imageAfterId && isBlobURL( imageAfterUrl ) ) {
+			const file = getBlobByURL( imageAfterUrl );
+			if ( file ) {
+				mediaUpload( {
+					filesList: [ file ],
+					onFileChange: ( [ image ] ) => {
+						if ( image && image.id && image.url ) {
+							setAttributes( {
+								imageAfterId: image.id,
+								imageAfterUrl: image.url,
+								imageAfterAlt: image.alt,
+							} );
+						}
+					},
+					allowedTypes: [ 'image' ],
+					onError: message => {
+						setErrorMessage( message );
+					},
+				} );
+			}
+		}
+	} );
 
 	return (
 		<figure className={ className } id={ clientId }>
