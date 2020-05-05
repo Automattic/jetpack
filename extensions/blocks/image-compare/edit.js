@@ -33,26 +33,32 @@ const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) 
 			? 'image-compare__comparison juxtapose'
 			: 'image-compare__placeholder';
 
-	// Let's look for resize so we can trigger the thing
-	const [ resizeListener, sizes ] = useResizeObserver();
+	// Check for defined, not necessary available in older Gutenberg.
+	let resizeListener = null;
+	let sizes = null;
+	if ( useResizeObserver ) {
+		// Let's look for resize so we can trigger the thing
+		[ resizeListener, sizes ] = useResizeObserver();
 
-	useDebounce(
-		sz => {
-			if ( sz > 0 ) {
-				if ( typeof juxtapose !== 'undefined' && juxtapose.sliders ) {
-					// only update for *this* slide
-					juxtapose.sliders.forEach( elem => {
-						const parentElem = elem.wrapper.parentElement;
-						if ( parentElem.id === clientId ) {
-							elem.optimizeWrapper( sz );
-						}
-					} );
+		useDebounce(
+			sz => {
+				if ( sz > 0 ) {
+					if ( typeof juxtapose !== 'undefined' && juxtapose.sliders ) {
+						// only update for *this* slide
+						juxtapose.sliders.forEach( elem => {
+							const parentElem = elem.wrapper.parentElement;
+							if ( parentElem.id === clientId ) {
+								elem.optimizeWrapper( sz );
+							}
+						} );
+					}
 				}
-			}
-		},
-		200,
-		sizes.width
-	);
+			},
+			200,
+			sizes.width
+		);
+	}
+
 
 	return (
 		<figure className={ className } id={ clientId }>
