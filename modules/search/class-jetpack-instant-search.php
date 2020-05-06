@@ -8,6 +8,7 @@
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Constants;
+require_once dirname( __FILE__ ) . '/class.jetpack-search-helpers.php';
 
 /**
  * Class to load Instant Search experience on the site.
@@ -62,13 +63,13 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			return;
 		}
 
-		$script_version = self::get_asset_version( $script_relative_path );
+		$script_version = Jetpack_Search_Helpers::get_asset_version( $script_relative_path );
 		$script_path    = plugins_url( $script_relative_path, JETPACK__PLUGIN_FILE );
 		wp_enqueue_script( 'jetpack-instant-search', $script_path, array(), $script_version, true );
 		$this->load_and_initialize_tracks();
 		$this->inject_javascript_options();
 
-		$style_version = self::get_asset_version( $style_relative_path );
+		$style_version = Jetpack_Search_Helpers::get_asset_version( $style_relative_path );
 		$style_path    = plugins_url( $style_relative_path, JETPACK__PLUGIN_FILE );
 		wp_enqueue_style( 'jetpack-instant-search', $style_path, array(), $style_version );
 	}
@@ -191,18 +192,6 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 	 */
 	public function load_and_initialize_tracks() {
 		wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
-	}
-
-	/**
-	 * Get the version number to use when loading the file. Allows us to bypass cache when developing.
-	 *
-	 * @param string $file Path of the file we are looking for.
-	 * @return string $script_version Version number.
-	 */
-	public static function get_asset_version( $file ) {
-		return Jetpack::is_development_version() && file_exists( JETPACK__PLUGIN_DIR . $file )
-			? filemtime( JETPACK__PLUGIN_DIR . $file )
-			: JETPACK__VERSION;
 	}
 
 	/**
