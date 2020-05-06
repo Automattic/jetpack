@@ -1,0 +1,8 @@
+#sub-accordion-section-jetpack_search .customize-label-control,
+#sub-accordion-section-jetpack_search .customize-control-checkbox {
+  margin-bottom: 0;
+}
+
+#sub-accordion-section-jetpack_search .customize-control-checkbox ~ .customize-label-control {
+  margin-top: 12px;
+}
