@@ -1,12 +1,15 @@
 /**
  * WordPress dependencies
  */
-import { getBlobByURL, isBlobURL, revokeBlobURL } from '@wordpress/blob';
-import { InspectorControls, MediaPlaceholder, RichText } from '@wordpress/block-editor';
+import {
+	InnerBlocks,
+	InspectorControls,
+	MediaPlaceholder,
+	RichText,
+} from '@wordpress/block-editor';
 import { PanelBody, RadioControl, Placeholder } from '@wordpress/components';
 import { useResizeObserver } from '@wordpress/compose';
-import { useEffect, useState } from '@wordpress/element';
-import { mediaUpload } from '@wordpress/editor';
+import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -30,11 +33,20 @@ const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) 
 		orientation,
 	} = attributes;
 
-	// If both images are set, add juxtaspose class, which is picked up by the library.
-	const classes =
-		imageBeforeUrl && imageAfterUrl
-			? 'image-compare__comparison juxtapose'
-			: 'image-compare__placeholder';
+	const TEMPLATE = [
+		[
+			'core/image',
+			{
+				className: 'image-compare__image-before',
+			},
+		],
+		[
+			'core/image',
+			{
+				className: 'image-compare__image-after',
+			},
+		],
+	];
 
 	// Check for defined, not necessary available in older Gutenberg.
 	let resizeListener = null;
@@ -62,55 +74,38 @@ const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) 
 		);
 	}
 
-	const [ errorMessage, setErrorMessage ] = useState( null );
+	const isInitiallyComplete = imageBeforeUrl && imageAfterUrl;
 
-	useEffect( () => {
-		// debugger;
-		// check if temporary images
-		if ( ! imageBeforeId && isBlobURL( imageBeforeUrl ) ) {
-			const file = getBlobByURL( imageBeforeUrl );
-			if ( file ) {
-				mediaUpload( {
-					filesList: [ file ],
-					onFileChange: ( [ image ] ) => {
-						if ( image && image.id && image.url ) {
-							setAttributes( {
-								imageBeforeId: image.id,
-								imageBeforeUrl: image.url,
-								imageBeforeAlt: image.alt,
-							} );
-						}
-					},
-					allowedTypes: [ 'image' ],
-					onError: message => {
-						setErrorMessage( message );
-					},
-				} );
-			}
+	const [ isComplete, setComplete ] = useState( isInitiallyComplete );
+
+	// If both images are set, add juxtaspose class, which is picked up by the library.
+	const classes = isComplete ? 'image-compare__comparison juxtapose' : 'image-compare__placeholder';
+
+	const blocksChanged = ibs => {
+		if ( ibs[ 0 ] && ibs[ 0 ].attributes.id ) {
+			setAttributes( {
+				imageBeforeId: ibs[ 0 ].attributes.id,
+				imageBeforeUrl: ibs[ 0 ].attributes.url,
+				imageBeforeAlt: ibs[ 0 ].attributes.alt,
+			} );
 		}
 
-		if ( ! imageAfterId && isBlobURL( imageAfterUrl ) ) {
-			const file = getBlobByURL( imageAfterUrl );
-			if ( file ) {
-				mediaUpload( {
-					filesList: [ file ],
-					onFileChange: ( [ image ] ) => {
-						if ( image && image.id && image.url ) {
-							setAttributes( {
-								imageAfterId: image.id,
-								imageAfterUrl: image.url,
-								imageAfterAlt: image.alt,
-							} );
-						}
-					},
-					allowedTypes: [ 'image' ],
-					onError: message => {
-						setErrorMessage( message );
-					},
-				} );
-			}
+		if ( ibs[ 1 ] && ibs[ 1 ].attributes.id ) {
+			setAttributes( {
+				imageAfterId: ibs[ 1 ].attributes.id,
+				imageAfterUrl: ibs[ 1 ].attributes.url,
+				imageAfterAlt: ibs[ 1 ].attributes.alt,
+			} );
 		}
-	} );
+
+		if ( ibs[ 0 ] && ibs[ 0 ].attributes.id && ibs[ 1 ] && ibs[ 1 ].attributes.id ) {
+			setComplete( true );
+			// Set a delay so markup can be updated before scan page gets triggered.
+			setTimeout( function() {
+				juxtapose.scanPage();
+			}, 100 );
+		}
+	};
 
 	return (
 		<figure className={ className } id={ clientId }>
@@ -136,64 +131,19 @@ const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) 
 					/>
 				</PanelBody>
 			</InspectorControls>
-			<div className={ classes } data-mode={ orientation }>
-				<Placeholder>
-					<div className="image-compare__image-before">
-						{ imageBeforeUrl ? (
+			<div className={ classes } data-mode={ orientation || 'horizontal' }>
+				{ ! isComplete ? (
+					<InnerBlocks onChange={ blocksChanged } template={ TEMPLATE } templateLock="all" />
+				) : (
+					<>
+						<div className="image-compare__image-before">
 							<img id={ imageBeforeId } src={ imageBeforeUrl } alt={ imageBeforeAlt } />
-						) : (
-							<>
-								<div className="components-placeholder__label">
-									{ __( 'Image Before', 'jetpack' ) }
-								</div>
-								<MediaPlaceholder
-									onError={ err => {
-										setErrorMessage( `Error uploading: ${ err[ 2 ] }` );
-									} }
-									onSelect={ el => {
-										setAttributes( {
-											imageBeforeId: el.id,
-											imageBeforeUrl: el.url,
-											imageBeforeAlt: el.alt,
-										} );
-										juxtapose.scanPage();
-									} }
-									accept="image/*"
-									allowedTypes={ [ 'image' ] }
-									labels={ { title: __( 'First image to compare', 'jetpack' ) } }
-								/>
-							</>
-						) }
-					</div>
-					<div className="image-compare__image-after">
-						{ imageAfterUrl ? (
+						</div>
+						<div className="image-compare__image-after">
 							<img id={ imageAfterId } src={ imageAfterUrl } alt={ imageAfterAlt } />
-						) : (
-							<>
-								<div className="components-placeholder__label">
-									{ __( 'Image After', 'jetpack' ) }
-								</div>
-								<MediaPlaceholder
-									onError={ err => {
-										setErrorMessage( `Error uploading: ${ err[ 2 ] }` );
-									} }
-									onSelect={ el => {
-										setAttributes( {
-											imageAfterId: el.id,
-											imageAfterUrl: el.url,
-											imageAfterAlt: el.alt,
-										} );
-										juxtapose.scanPage();
-									} }
-									accept="image/*"
-									allowedTypes={ [ 'image' ] }
-									labels={ { title: __( 'Second image to compare', 'jetpack' ) } }
-								/>
-							</>
-						) }
-					</div>
-				</Placeholder>
-				{ errorMessage && <div className="image-compare__error">{ errorMessage }</div> }
+						</div>
+					</>
+				) }
 			</div>
 			{ ( ! RichText.isEmpty( caption ) || ( isSelected && imageBeforeUrl && imageAfterUrl ) ) && (
 				<RichText
