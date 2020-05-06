@@ -279,12 +279,22 @@ class Jetpack_WPCOM_Block_Editor {
 			true
 		);
 
+		// phpcs:ignore WordPress.Security.NonceVerification
+		$editor_deprecated = isset( $_GET['editor/after-deprecation'] );
+		$switch_visible    = ( ! $editor_deprecated || jetpack_is_atomic_site() ) && $this->is_iframed_block_editor();
+
+		// The following is only to allow testing link without an atomic site.
+		// phpcs:ignore WordPress.Security.NonceVerification
+		if ( 'show' === $_GET['editor/after-deprecation'] ) {
+			$switch_visible = true;
+		}
+
 		wp_localize_script(
 			'wpcom-block-editor-default-editor-script',
 			'wpcomGutenberg',
 			array(
 				'switchToClassic' => array(
-					'isVisible' => jetpack_is_atomic_site() && $this->is_iframed_block_editor(),
+					'isVisible' => $switch_visible,
 					'label'     => __( 'Switch to Classic Editor', 'jetpack' ),
 					'url'       => Jetpack_Calypsoify::getInstance()->get_switch_to_classic_editor_url(),
 				),
