@@ -41,6 +41,11 @@ class Jetpack_Wizard_Banner {
 	 * Initialize hooks to display the banner
 	 */
 	public function maybe_initialize_hooks() {
+		// We already display the wizard at the Jetpack area.
+		if ( strpos( get_current_screen()->id, 'jetpack' ) !== false ) {
+			return;
+		}
+
 		// Kill if banner has been dismissed.
 		if ( Jetpack_Options::get_option( 'dismissed_wizard_banner' ) ) {
 			return;
@@ -110,15 +115,6 @@ class Jetpack_Wizard_Banner {
 	public function render_banner() {
 		$jetpack_logo = new Jetpack_Logo();
 
-		// When navigating into the Jetpack area of wp-admin, the element #wpcontent does not have padding, except on the other areas.
-		// Adding extra margin using a container div for when we're in Jetpack.
-		$add_margin = ( get_current_screen()->parent_file === 'jetpack' ) ? true : false;
-
-		if ( $add_margin ) {
-			?>
-			<div id="jp-wizard-banner-container" class="jp-wizard-banner-container">
-			<?php
-		}
 		?>
 		<div id="jp-wizard-banner" class="jp-wizard-banner">
 			<span
@@ -169,13 +165,6 @@ class Jetpack_Wizard_Banner {
 				</a>
 			</div>
 		</div>
-		<?php
-		if ( $add_margin ) {
-			?>
-			</div>
-			<?php
-		}
-		?>
 		<?php
 	}
 }
