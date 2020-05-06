@@ -3,7 +3,9 @@
 	<rule ref="Jetpack"/>
 	<rule ref="WordPress.WP.I18n">
 		<properties>
-			<property name="text_domain" type="array" value="jetpack"/>
+			<property name="text_domain" type="array">
+				<element value="jetpack"/>
+			</property>
 		</properties>
 	</rule>
 </ruleset>
