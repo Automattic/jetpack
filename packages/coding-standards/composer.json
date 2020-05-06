@@ -10,8 +10,8 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"dealerdirect/phpcodesniffer-composer-installer": "^0.6",
-		"phpcompatibility/phpcompatibility-wp": "2.1.0",
-		"sirbrillig/phpcs-variable-analysis": "2.8.1",
+		"phpcompatibility/phpcompatibility-wp": "^2.1",
+		"sirbrillig/phpcs-variable-analysis": "^2.8.1",
 		"wp-coding-standards/wpcs": "2.2.1"
 	},
 	"require-dev": {

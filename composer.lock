@@ -588,12 +588,12 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/coding-standards",
-                "reference": "ea4f345d2ebff1c69d4c29512a57b56b7ea89e25"
+                "reference": "4ab2ea0fd703e7790fef29155c5e6efa75373757"
             },
             "require": {
                 "dealerdirect/phpcodesniffer-composer-installer": "^0.6",
-                "phpcompatibility/phpcompatibility-wp": "2.1.0",
-                "sirbrillig/phpcs-variable-analysis": "2.8.1",
+                "phpcompatibility/phpcompatibility-wp": "^2.1",
+                "sirbrillig/phpcs-variable-analysis": "^2.8.1",
                 "wp-coding-standards/wpcs": "2.2.1"
             },
             "require-dev": {
