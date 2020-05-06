@@ -621,6 +621,22 @@ class Jetpack_Search_Widget extends WP_Widget {
 	}
 
 	/**
+	 * Checks whether or not the widget exists in the Jetpack Search overlay sidebar.
+	 *
+	 * @since 8.6.0
+	 *
+	 * @return boolean Whether the widget is within the overlay sidebar.
+	 */
+	public function is_within_overlay() {
+		return in_array(
+			$this->id,
+			array_key_exists( 'jetpack-instant-search-sidebar', get_option( 'sidebars_widgets', array() ) ) ?
+				get_option( 'sidebars_widgets', array() )['jetpack-instant-search-sidebar'] : array(),
+			true
+		);
+	}
+
+	/**
 	 * Updates a particular instance of the widget. Validates and sanitizes the options.
 	 *
 	 * @since 5.0.0
@@ -719,59 +735,19 @@ class Jetpack_Search_Widget extends WP_Widget {
 				/>
 			</p>
 
-			<p>
-				<label>
-					<input
-						type="checkbox"
-						class="jetpack-search-filters-widget__search-box-enabled"
-						name="<?php echo esc_attr( $this->get_field_name( 'search_box_enabled' ) ); ?>"
-						<?php checked( $instance['search_box_enabled'] ); ?>
-					/>
-					<?php esc_html_e( 'Show search box', 'jetpack' ); ?>
-				</label>
-			</p>
-			<p>
-				<label>
-					<input
-						type="checkbox"
-						class="jetpack-search-filters-widget__sort-controls-enabled"
-						name="<?php echo esc_attr( $this->get_field_name( 'user_sort_enabled' ) ); ?>"
-						<?php checked( $instance['user_sort_enabled'] ); ?>
-						<?php disabled( ! $instance['search_box_enabled'] ); ?>
-					/>
-					<?php esc_html_e( 'Show sort selection dropdown', 'jetpack' ); ?>
-				</label>
-			</p>
-
-			<p class="jetpack-search-filters-widget__post-types-select">
-				<label><?php esc_html_e( 'Post types to search (minimum of 1):', 'jetpack' ); ?></label>
-				<?php foreach ( get_post_types( array( 'exclude_from_search' => false ), 'objects' ) as $post_type ) : ?>
+			<?php if ( ! $this->is_within_overlay() ) { ?>
+				<p>
 					<label>
 						<input
 							type="checkbox"
-							value="<?php echo esc_attr( $post_type->name ); ?>"
-							name="<?php echo esc_attr( $this->get_field_name( 'post_types' ) ); ?>[]"
-							<?php checked( empty( $instance['post_types'] ) || in_array( $post_type->name, $instance['post_types'] ) ); ?>
-						/>&nbsp;
-						<?php echo esc_html( $post_type->label ); ?>
+							class="jetpack-search-filters-widget__search-box-enabled"
+							name="<?php echo esc_attr( $this->get_field_name( 'search_box_enabled' ) ); ?>"
+							<?php checked( $instance['search_box_enabled'] ); ?>
+						/>
+						<?php esc_html_e( 'Show search box', 'jetpack' ); ?>
 					</label>
-				<?php endforeach; ?>
-			</p>
-
-			<p>
-				<label>
-					<?php esc_html_e( 'Default sort order:', 'jetpack' ); ?>
-					<select
-						name="<?php echo esc_attr( $this->get_field_name( 'sort' ) ); ?>"
-						class="widefat jetpack-search-filters-widget__sort-order">
-						<?php foreach ( $this->get_sort_types() as $sort_type => $label ) { ?>
-							<option value="<?php echo esc_attr( $sort_type ); ?>" <?php selected( $instance['sort'], $sort_type ); ?>>
-								<?php echo esc_html( $label ); ?>
-							</option>
-						<?php } ?>
-					</select>
-				</label>
-			</p>
+				</p>
+			<?php } ?>
 
 			<?php if ( ! $hide_filters ) : ?>
 				<script class="jetpack-search-filters-widget__filter-template" type="text/template">
