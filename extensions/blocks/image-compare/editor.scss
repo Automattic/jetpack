@@ -1,10 +1,10 @@
 .image-compare__placeholder {
-	> .components-placeholder > .components-placeholder__label {
-		display: none;
+	.block-editor-block-list__layout {
+		display: flex;
 	}
 
-	.components-placeholder__fieldset .components-button {
-		margin-right: auto;
+	.block-editor-block-list__block {
+		width: 100%;
 	}
 }
 
@@ -15,13 +15,6 @@
 	flex: 1;
 	position: relative;
 }
-
-.image-compare__error {
-	font-size: 14px;
-	color: red;
-	padding: 8px;
-}
-
 
 .components-placeholder.is-large {
 	.image-compare__image-before {
