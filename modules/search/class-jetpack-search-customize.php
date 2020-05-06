@@ -10,7 +10,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+require_once dirname( __FILE__ ) . '/class.jetpack-search-helpers.php';
 require_once dirname( __FILE__ ) . '/class-jetpack-search-options.php';
+require_once dirname( __FILE__ ) . '/customize-controls/class-label-control.php';
 
 /**
  * Class to customize search on the site.
@@ -42,10 +44,9 @@ class Jetpack_Search_Customize {
 		$wp_customize->add_section(
 			$section_id,
 			array(
-				'title'       => esc_html__( 'Jetpack Search', 'jetpack' ),
-				'description' => __( 'Use these settings to customize the search overlay.', 'jetpack' ),
-				'capability'  => 'edit_theme_options',
-				'priority'    => 200,
+				'title'      => esc_html__( 'Jetpack Search', 'jetpack' ),
+				'capability' => 'edit_theme_options',
+				'priority'   => 200,
 			)
 		);
 
@@ -62,13 +63,36 @@ class Jetpack_Search_Customize {
 			$id,
 			array(
 				'label'       => __( 'Theme', 'jetpack' ),
-				'description' => __( 'A light or dark theme for your search overlay.', 'jetpack' ),
+				'description' => __( 'Select a theme for your search overlay.', 'jetpack' ),
 				'section'     => $section_id,
 				'type'        => 'radio',
 				'choices'     => array(
 					'light' => __( 'Light', 'jetpack' ),
 					'dark'  => __( 'Dark', 'jetpack' ),
 				),
+			)
+		);
+
+		$id = $setting_prefix . 'default_sort';
+		$wp_customize->add_setting(
+			$id,
+			array(
+				'default' => 'relevance',
+				'type'    => 'option',
+			)
+		);
+		$wp_customize->add_control(
+			$id,
+			array(
+				'choices'     => array(
+					'relevance' => __( 'Relevance (recommended)', 'jetpack' ),
+					'newest'    => __( 'Newest first', 'jetpack' ),
+					'oldest'    => __( 'Oldest first', 'jetpack' ),
+				),
+				'description' => __( 'Pick the initial sort for your search results.', 'jetpack' ),
+				'label'       => __( 'Default Sort', 'jetpack' ),
+				'section'     => $section_id,
+				'type'        => 'select',
 			)
 		);
 
@@ -84,8 +108,8 @@ class Jetpack_Search_Customize {
 		$wp_customize->add_control(
 			$id,
 			array(
-				'label'       => __( 'Overlay Trigger', 'jetpack' ),
-				'description' => __( 'Choose when the search overlay should appear.', 'jetpack' ),
+				'label'       => __( 'Search Overlay Trigger', 'jetpack' ),
+				'description' => __( 'Select when your overlay should appear.', 'jetpack' ),
 				'section'     => $section_id,
 				'type'        => 'select',
 				'choices'     => array(
@@ -110,7 +134,7 @@ class Jetpack_Search_Customize {
 				'type'        => 'range',
 				'section'     => $section_id,
 				'label'       => __( 'Background Opacity', 'jetpack' ),
-				'description' => __( 'Select an opacity for the search overlay.', 'jetpack' ),
+				'description' => __( 'Select an opacity for your search overlay.', 'jetpack' ),
 				'input_attrs' => array(
 					'min'  => 85,
 					'max'  => 100,
@@ -137,6 +161,76 @@ class Jetpack_Search_Customize {
 					'description' => __( 'Choose a color to highlight matching search terms.', 'jetpack' ),
 					'section'     => $section_id,
 				)
+			)
+		);
+
+		$id = $setting_prefix . 'post_types_title_placeholder';
+		$wp_customize->add_setting(
+			$id,
+			array( 'type' => 'option' )
+		);
+		$wp_customize->add_control(
+			new Label_Control(
+				$wp_customize,
+				$id,
+				array(
+					'description' => __( 'Choose post types to include in search results.', 'jetpack' ),
+					'label'       => __( 'Searchable Post Types', 'jetpack' ),
+					'section'     => $section_id,
+				)
+			)
+		);
+
+		foreach ( get_post_types( array( 'exclude_from_search' => false ), 'objects' ) as $post_type ) {
+			$id = Jetpack_Search_Helpers::generate_post_type_customizer_id( $post_type );
+			$wp_customize->add_setting(
+				$id,
+				array(
+					'default' => true,
+					'type'    => 'option',
+				)
+			);
+			$wp_customize->add_control(
+				$id,
+				array(
+					'label'   => $post_type->label,
+					'section' => $section_id,
+					'type'    => 'checkbox',
+				)
+			);
+		}
+
+		$id = $setting_prefix . 'additional_settings_placeholder';
+		$wp_customize->add_setting(
+			$id,
+			array( 'type' => 'option' )
+		);
+		$wp_customize->add_control(
+			new Label_Control(
+				$wp_customize,
+				$id,
+				array(
+					'label'   => __( 'Additional Jetpack Search Settings', 'jetpack' ),
+					'section' => $section_id,
+				)
+			)
+		);
+
+		$id = $setting_prefix . 'enable_sort';
+		$wp_customize->add_setting(
+			$id,
+			array(
+				'default'   => true,
+				'transport' => 'postMessage',
+				'type'      => 'option',
+			)
+		);
+		$wp_customize->add_control(
+			$id,
+			array(
+				'label'   => __( 'Show Sort Selector', 'jetpack' ),
+				'section' => $section_id,
+				'type'    => 'checkbox',
 			)
 		);
 

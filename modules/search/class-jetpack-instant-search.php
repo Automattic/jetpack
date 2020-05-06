@@ -121,10 +121,19 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		if ( ( $posts_per_page > 20 ) || ( $posts_per_page <= 0 ) ) {
 			$posts_per_page = 20;
 		}
+
+		$enabled_post_types = array();
+		foreach ( Jetpack_Search_Helpers::generate_post_type_customizer_ids() as $post_type => $customizer_key ) {
+			if ( (bool) get_option( $customizer_key, true ) ) {
+				$enabled_post_types[] = $post_type;
+			}
+		}
+
 		$options = array(
 			'overlayOptions'        => array(
 				'colorTheme'      => get_option( $prefix . 'color_theme', 'light' ),
 				'enableInfScroll' => (bool) get_option( $prefix . 'inf_scroll', false ),
+				'enableSort'      => (bool) get_option( $prefix . 'enable_sort', true ),
 				'highlightColor'  => get_option( $prefix . 'highlight_color', '#FFC' ),
 				'opacity'         => (int) get_option( $prefix . 'opacity', 97 ),
 				'overlayTrigger'  => get_option( $prefix . 'overlay_trigger', 'immediate' ),
@@ -136,8 +145,13 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			'locale'                => str_replace( '_', '-', Jetpack_Search_Helpers::is_valid_locale( get_locale() ) ? get_locale() : 'en_US' ),
 			'postsPerPage'          => $posts_per_page,
 			'siteId'                => Jetpack::get_option( 'id' ),
-
 			'postTypes'             => $post_type_labels,
+
+			// search options.
+			'defaultSort'           => get_option( $prefix . 'default_sort', 'relevance' ),
+			'enabledPostTypes'      => $enabled_post_types,
+
+			// widget info.
 			'widgets'               => array_values( $widgets ),
 			'widgetsOutsideOverlay' => array_values( $widgets_outside_overlay ),
 		);
