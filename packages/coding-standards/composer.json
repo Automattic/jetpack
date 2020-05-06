@@ -17,5 +17,10 @@
 	"require-dev": {
 		"phpcsstandards/phpcsdevtools": "^1.0"
 	},
+	"autoload": {
+		"classmap": [
+			"Jetpack/"
+		]
+	},
 	"minimum-stability": "dev"
 }

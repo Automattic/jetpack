@@ -588,7 +588,7 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/coding-standards",
-                "reference": "4ab2ea0fd703e7790fef29155c5e6efa75373757"
+                "reference": "ae0ce444bcfbbf04a237adb539ef6f7e2ddea51a"
             },
             "require": {
                 "dealerdirect/phpcodesniffer-composer-installer": "^0.6",
@@ -600,6 +600,11 @@
                 "phpcsstandards/phpcsdevtools": "^1.0"
             },
             "type": "phpcodesniffer-standard",
+            "autoload": {
+                "classmap": [
+                    "Jetpack/"
+                ]
+            },
             "license": [
                 "GPL-2.0-or-later"
             ],
