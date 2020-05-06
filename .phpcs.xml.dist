@@ -15,4 +15,15 @@
 			<property name="text_domain" type="array" value="jetpack" />
 		</properties>
 	</rule>
+
+	<!-- For the coding-standards package, we want to follow PHPCS convention, so excluding some WP rules. -->
+	<rule ref="WordPress.Files.FileName">
+    	<exclude-pattern>/packages/coding-standards/*</exclude-pattern>
+    </rule>
+    <rule ref="WordPress.NamingConventions.ValidVariableName">
+    	<exclude-pattern>/packages/coding-standards/*</exclude-pattern>
+    </rule>
+    <rule ref="WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition">
+    	<exclude-pattern>/packages/coding-standards/*</exclude-pattern>
+    </rule>
 </ruleset>

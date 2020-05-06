@@ -32,7 +32,7 @@
 		"automattic/jetpack-tracking": "@dev"
 	},
 	"require-dev": {
-		"automattic/jetpack-coding-standards": "dev-master",
+		"automattic/jetpack-coding-standards": "@dev",
 		"dealerdirect/phpcodesniffer-composer-installer": "0.6.2",
 		"sirbrillig/phpcs-changed": "2.4.0"
 	},
