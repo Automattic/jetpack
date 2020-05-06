@@ -588,10 +588,10 @@
             "dist": {
                 "type": "path",
                 "url": "./packages/coding-standards",
-                "reference": "ae0ce444bcfbbf04a237adb539ef6f7e2ddea51a"
+                "reference": "939685a450cdc15050014dddc1d8e0ba75591af0"
             },
             "require": {
-                "dealerdirect/phpcodesniffer-composer-installer": "^0.6",
+                "dealerdirect/phpcodesniffer-composer-installer": "^0.4.1 || ^0.5 || ^0.6.2",
                 "phpcompatibility/phpcompatibility-wp": "^2.1",
                 "sirbrillig/phpcs-variable-analysis": "^2.8.1",
                 "wp-coding-standards/wpcs": "2.2.1"
