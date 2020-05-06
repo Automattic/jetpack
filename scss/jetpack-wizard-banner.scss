@@ -2,7 +2,7 @@
 @import '../_inc/client/scss/calypso-colors';
 
 
-.jp-setup-wizard-intro {
+.jp-wizard-banner {
 	text-align: left;
 	background: $white;
 	padding: 2rem;
@@ -15,7 +15,11 @@
 	}
 }
 
-.jp-setup-wizard-header {
+.jp-wizard-banner-container {
+	margin: 20px 0 20px 20px;
+}
+
+.jp-wizard-banner-wizard-header {
 	margin-bottom: 1rem !important;
 	margin-top: 1rem !important;
 	font-weight: 500;
@@ -44,7 +48,7 @@ img {
 	margin-right: -25px;
 }
 
-.jp-setup-wizard-paragraph {
+.jp-wizard-banner-wizard-paragraph {
 	font-size: 1rem;
 
 	@include breakpoint( '>660px' ) {
@@ -56,7 +60,7 @@ img {
 	}
 }
 
-.jp-setup-wizard-intro-question {
+.jp-wizard-banner-wizard-intro-question {
 	box-sizing: border-box;
 
 	@include breakpoint( '>480px' ) {
@@ -79,7 +83,7 @@ img {
 	}
 }
 
-.jp-setup-wizard-answer-buttons {
+.jp-wizard-banner-wizard-answer-buttons {
 	display: flex;
 
 	flex-direction: row;
@@ -91,7 +95,7 @@ img {
 	}
 }
 
-.jp-setup-wizard-button {
+.jp-wizard-banner-wizard-button {
 	margin: 1rem;
 	width: 160px;
 	margin-right: 10px !important;
@@ -102,7 +106,7 @@ img {
 	}
 }
 
-.jp-setup-wizard-skip-link {
+.jp-wizard-banner-wizard-skip-link {
 	text-decoration: underline !important;
 	color: #000000;
 	margin-top: 1rem;

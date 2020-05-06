@@ -109,59 +109,73 @@ class Jetpack_Wizard_Banner {
 	 */
 	public function render_banner() {
 		$jetpack_logo = new Jetpack_Logo();
-		?>
 
-		<div id="jp-wizard-banner" class="">
-			<div class="jp-setup-wizard-intro">
-				<span
-					class="notice-dismiss wizard-banner-dismiss"
-					title="<?php esc_attr_e( 'Dismiss this notice', 'jetpack' ); ?>">
-				</span>
-				<div class="jp-emblem">
+		// When navigating into the Jetpack area of wp-admin, the element #wpcontent does not have padding, except on the other areas.
+		// Adding extra margin using a container div for when we're in Jetpack.
+		$add_margin = ( get_current_screen()->parent_file === 'jetpack' ) ? true : false;
+
+		if ( $add_margin ) {
+			?>
+			<div id="jp-wizard-banner-container" class="jp-wizard-banner-container">
+			<?php
+		}
+		?>
+		<div id="jp-wizard-banner" class="jp-wizard-banner">
+			<span
+				class="notice-dismiss wizard-banner-dismiss"
+				title="<?php esc_attr_e( 'Dismiss this notice', 'jetpack' ); ?>">
+			</span>
+			<div class="jp-emblem">
+			<?php
+				echo $jetpack_logo->get_jp_emblem_larger(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			?>
+			</div>
+			<img
+				width="200px"
+				height="200px"
+				src="
 				<?php
-					echo $jetpack_logo->get_jp_emblem_larger(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				esc_attr_e( plugins_url( 'images/jetpack-powering-up.svg', JETPACK__PLUGIN_FILE ), 'jetpack' ); // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
 				?>
-				</div>
-				<img
-					width="200px"
-					height="200px"
-					src="
+				"
+				alt="<?php esc_attr_e( 'A jetpack site powering up', 'jetpack' ); ?>"
+			/>
+			<h1 class="jp-wizard-banner-wizard-header">
+				<?php esc_html_e( 'Set up Jetpack for better site security, performance, and more', 'jetpack' ); ?>
+			</h1>
+			<p class="jp-wizard-banner-wizard-paragraph">
+				<?php esc_html_e( 'Jetpack is a cloud-powered tool built by Automattic.', 'jetpack' ); ?>
+			</p>
+			<p class="jp-wizard-banner-wizard-paragraph">
+				<?php esc_html_e( 'Answer a few questions and we’ll help you secure, speed up, customize, and grow your WordPress website.', 'jetpack' ); ?>
+			</p>
+			<div class="jp-wizard-banner-wizard-intro-question">
+				<h2>
 					<?php
-					esc_attr_e( plugins_url( 'images/jetpack-powering-up.svg', JETPACK__PLUGIN_FILE ), 'jetpack' ); // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
+					/* translators: %s is the site name */
+					esc_html_e( sprintf( 'What will %s be used for?', get_bloginfo( 'name' ) ), 'jetpack' ); // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
 					?>
-					"
-					alt="<?php esc_attr_e( 'A jetpack site powering up', 'jetpack' ); ?>"
-				/>
-				<h1 class="jp-setup-wizard-header">
-					<?php esc_html_e( 'Set up Jetpack for better site security, performance, and more', 'jetpack' ); ?>
-				</h1>
-				<p class="jp-setup-wizard-paragraph">
-					<?php esc_html_e( 'Jetpack is a cloud-powered tool built by Automattic.', 'jetpack' ); ?>
-				</p>
-				<p class="jp-setup-wizard-paragraph">
-					<?php esc_html_e( 'Answer a few questions and we’ll help you secure, speed up, customize, and grow your WordPress website.', 'jetpack' ); ?>
-				</p>
-				<div class="jp-setup-wizard-intro-question">
-					<h2>
-						<?php
-						/* translators: %s is the site name */
-						esc_html_e( sprintf( 'What will %s be used for?', get_bloginfo( 'name' ) ), 'jetpack' ); // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
-						?>
-					</h2>
-					<div class="jp-setup-wizard-answer-buttons">
-						<a class="button button-primary jp-setup-wizard-button" href="setup/income?use=personal">
-						<?php esc_html_e( 'Personal Use', 'jetpack' ); ?>
-						</a>
-						<a class="button button-primary jp-setup-wizard-button" href="setup/income?use=business">
-							<?php esc_html_e( 'Business Use', 'jetpack' ); ?>
-						</a>
-					</div>
-					<a class="jp-setup-wizard-skip-link" href="setup/features">
-						<?php esc_html_e( 'Skip to recommended features', 'jetpack' ); ?>
+				</h2>
+				<div class="jp-wizard-banner-wizard-answer-buttons">
+					<a class="button button-primary jp-wizard-banner-wizard-button" href="setup/income?use=personal">
+					<?php esc_html_e( 'Personal Use', 'jetpack' ); ?>
+					</a>
+					<a class="button button-primary jp-wizard-banner-wizard-button" href="setup/income?use=business">
+						<?php esc_html_e( 'Business Use', 'jetpack' ); ?>
 					</a>
 				</div>
+				<a class="jp-wizard-banner-wizard-skip-link" href="setup/features">
+					<?php esc_html_e( 'Skip to recommended features', 'jetpack' ); ?>
+				</a>
 			</div>
 		</div>
+		<?php
+		if ( $add_margin ) {
+			?>
+			</div>
+			<?php
+		}
+		?>
 		<?php
 	}
 }

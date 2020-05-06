@@ -36,7 +36,7 @@ class Jetpack_Wizard {
 	 * @return bool
 	 */
 	public static function can_be_displayed() {
-		return apply_filters( 'jetpack_connection_prompt_helpers', false ) &&
+		return apply_filters( 'jetpack_show_setup_wizard', false ) &&
 			Jetpack::is_active() &&
 			! self::is_finished();
 	}
