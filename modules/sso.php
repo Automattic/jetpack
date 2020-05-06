@@ -523,24 +523,23 @@ class Jetpack_SSO {
 				 * @since 8.6.0
 				 */
 				do_action( 'jetpack_sso_login_form_below_wpcom' );
-			?>
+				
+				if ( ! Jetpack_SSO_Helpers::should_hide_login_form() ) : ?>
+					<div class="jetpack-sso-or">
+						<span><?php esc_html_e( 'Or', 'jetpack' ); ?></span>
+					</div>
 
-			<?php if ( ! Jetpack_SSO_Helpers::should_hide_login_form() ) : ?>
-				<div class="jetpack-sso-or">
-					<span><?php esc_html_e( 'Or', 'jetpack' ); ?></span>
-				</div>
+					<a href="<?php echo esc_url( add_query_arg( 'jetpack-sso-show-default-form', '1' ) ); ?>" class="jetpack-sso-toggle wpcom">
+						<?php
+							esc_html_e( 'Log in with username and password', 'jetpack' )
+						?>
+					</a>
 
-				<a href="<?php echo esc_url( add_query_arg( 'jetpack-sso-show-default-form', '1' ) ); ?>" class="jetpack-sso-toggle wpcom">
-					<?php
-						esc_html_e( 'Log in with username and password', 'jetpack' )
-					?>
-				</a>
-
-				<a href="<?php echo esc_url( add_query_arg( 'jetpack-sso-show-default-form', '0' ) ); ?>" class="jetpack-sso-toggle default">
-					<?php
-						esc_html_e( 'Log in with WordPress.com', 'jetpack' )
-					?>
-				</a>
+					<a href="<?php echo esc_url( add_query_arg( 'jetpack-sso-show-default-form', '0' ) ); ?>" class="jetpack-sso-toggle default">
+						<?php
+							esc_html_e( 'Log in with WordPress.com', 'jetpack' )
+						?>
+					</a>
 			<?php endif; ?>
 		</div>
 		<?php
