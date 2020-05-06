@@ -389,8 +389,6 @@ class Queue {
 		$this->delete_checkout_id();
 
 		// By default clear all items in the buffer.
-		// TODO this should run even when the buffer is no longer valid.
-		// They were processed by WP.com so even if the lock is gone it should ensure items are removed from queue.
 		if ( is_null( $ids_to_remove ) ) {
 			$ids_to_remove = $buffer->get_item_ids();
 		}

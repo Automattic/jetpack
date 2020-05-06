@@ -301,6 +301,7 @@ class Jetpack_JSON_API_Sync_Checkout_Endpoint extends Jetpack_JSON_API_Sync_Endp
 
 class Jetpack_JSON_API_Sync_Close_Endpoint extends Jetpack_JSON_API_Sync_Endpoint {
 	protected function result() {
+
 		$request_body = $this->input();
 		$queue_name = $this->validate_queue( $request_body['queue'] );
 

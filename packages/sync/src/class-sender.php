@@ -431,6 +431,7 @@ class Sender {
 		if ( $queue->size() === 0 ) {
 			return new \WP_Error( 'empty_queue_' . $queue->id );
 		}
+
 		/**
 		 * Now that we're sure we are about to sync, try to ignore user abort
 		 * so we can avoid getting into a bad state.
@@ -477,7 +478,7 @@ class Sender {
 			 * @param int    $queue_size The size of the sync queue at the time of processing.
 			 */
 			Settings::set_is_sending( true );
-			$processed_item_ids = apply_filters( 'jetpack_sync_send_data', $items_to_send, $this->codec->name(), microtime( true ), $queue->id, $checkout_duration, $preprocess_duration, $queue->size() );
+			$processed_item_ids = apply_filters( 'jetpack_sync_send_data', $items_to_send, $this->codec->name(), microtime( true ), $queue->id, $checkout_duration, $preprocess_duration, $queue->size(), $buffer->id );
 			Settings::set_is_sending( false );
 		} else {
 			$processed_item_ids = $skipped_items_ids;
