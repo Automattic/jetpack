@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-03-30 12:17:15+0000\n"
+"PO-Revision-Date: 2020-04-10 10:21:01+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -13,23 +13,23 @@ msgstr ""
 
 #: wpcomsh.php:943
 msgid "Disk space quota"
-msgstr ""
+msgstr "Cotă spațiu pe disc"
 
 #: wpcomsh.php:939
 msgid "Disk space used"
-msgstr ""
+msgstr "Spațiu utilizat pe disc"
 
 #: widgets/instagram/instagram.php:454
 msgid "<strong>Connected Instagram Account</strong><br /> <a href=\"%1$s\">%2$s</a> | <a href=\"%3$s\">remove</a>"
-msgstr ""
+msgstr "<strong>Contul Instagram este conectat</strong><br /> <a href=\"%1$s\">%2$s</a> | <a href=\"%3$s\">înlătură</a>"
 
 #: widgets/instagram/instagram.php:429
 msgid "Having trouble? Try <a href=\"%s\" target=\"_blank\">logging into the correct account</a> on Instagram.com first."
-msgstr "Ai probleme? Încercă mai întâi <a href=\"%s\" target=\"_blank\">autentificare în contul corect</a> pe Instagram.com."
+msgstr "Ai probleme? Încercă mai întâi <a href=\"%s\" target=\"_blank\">autentificarea în contul corect</a> pe Instagram.com."
 
 #: widgets/instagram/instagram.php:421
 msgid "Connect Instagram Account"
-msgstr "Autorizează acces Instagram"
+msgstr "Conectează contul Instagram"
 
 #: widgets/instagram/instagram.php:417 widgets/instagram/instagram.php:451
 msgid "Instagram is currently experiencing connectivity issues, please try again later to connect."
@@ -49,7 +49,7 @@ msgstr "Conexiunea actuală va înceta să funcționeze la 31 martie 2020 din ca
 
 #: widgets/instagram/instagram.php:315
 msgid "Missing or invalid security nonce."
-msgstr ""
+msgstr "Nunicul de securitate lipsește sau este invalid."
 
 #: widgets/instagram/instagram.php:254
 msgid "In order to use this Instagram widget, you must <a href=\"%s\">configure it</a> first."
@@ -69,7 +69,7 @@ msgstr "Număr de elemente în sub-categorii pentru total părinte."
 
 #: widgets/category-cloud.php:156
 msgid "Maximum font percentage:"
-msgstr "Procent minim font:"
+msgstr "Procent maxim font:"
 
 #: widgets/category-cloud.php:149
 msgid "Minimum font percentage:"
@@ -93,7 +93,7 @@ msgstr "Dacă folosești mai multe <a href=\"%s\">categorii</a> pe site-ul tău,
 
 #: widgets/category-cloud.php:18
 msgid "Your most used categories in cloud format."
-msgstr "Cele mai folosite categorii în format nor."
+msgstr "Cele mai folosite categorii în format nor de categorii."
 
 #: widgets/category-cloud.php:16 widgets/category-cloud.php:42
 msgid "Category Cloud"
@@ -101,7 +101,7 @@ msgstr "Nor de categorii"
 
 #: private-site/private-site.php:124
 msgid "Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings."
-msgstr ""
+msgstr "Jetpack este deconectat și site-ul este privat. Reconectează Jetpack pentru a administra setările de vizibilitate pe site."
 
 #: private-site/logged-in-banner.php:62
 msgid "Update visibility"
@@ -137,7 +137,7 @@ msgstr "Text de afișat între twit și datare:"
 
 #: widgets/twitter.php:406
 msgid "Display Follow Button"
-msgstr "Afișează buton de urmărire"
+msgstr "Afișează butonul de urmărire"
 
 #: widgets/twitter.php:399
 msgid "Include retweets"
@@ -165,7 +165,7 @@ msgstr "Te rog comută la piesa „Cronologie Twitter”. Această piesă va dis
 
 #: widgets/twitter.php:289
 msgid "Error: Please make sure the Twitter account is %1$spublic%2$s."
-msgstr "Eroare: Te rog asigură-te că contul Twitter este %1$spublic%2$s."
+msgstr "Eroare: te rog asigură-te că contul Twitter este %1$spublic%2$s."
 
 #: widgets/twitter.php:262 widgets/twitter.php:275 widgets/twitter.php:296
 msgid "Error: Twitter did not respond. Please wait a few minutes and refresh this page."
@@ -685,7 +685,7 @@ msgstr "Adresă email personalizată:"
 
 #: widgets/gravatar.php:119
 msgid "Select a user or pick \"custom\" and enter a custom email address."
-msgstr "Selectează un utilizator sau alege „personalizat” și introdu o adresă de mail personalizată."
+msgstr "Selectează un utilizator sau alege „personalizat” și introdu o adresă de email personalizată."
 
 #: widgets/gravatar.php:115
 msgid "Center"
@@ -767,7 +767,7 @@ msgstr "Autori"
 
 #: widgets/author-grid.php:12
 msgid "Show a grid of author avatar images."
-msgstr "Arată o grilă cu imagini avatar ale autorului."
+msgstr "Arată o grilă cu imaginile avatar ale autorului."
 
 #: widgets/author-grid.php:11
 msgid "Author Grid"

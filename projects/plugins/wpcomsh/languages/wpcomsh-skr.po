@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-04-01 13:35:47+0000\n"
+"PO-Revision-Date: 2020-05-06 11:20:43+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -297,7 +297,7 @@ msgstr "ٻہوں وݙا  ظاہر کرو"
 
 #: widgets/aboutme.php:104
 msgid "Your about.me URL"
-msgstr ""
+msgstr "تہاݙی about.me یوآرایل"
 
 #: widgets/aboutme.php:97
 msgid "Widget title"
@@ -313,7 +313,7 @@ msgstr ""
 
 #: widgets/aboutme.php:20
 msgid "About.me Widget"
-msgstr ""
+msgstr "About.me ویجیٹ"
 
 #: widgets/aboutme.php:18
 msgid "Display your about.me profile with thumbnail"
@@ -416,7 +416,7 @@ msgstr "محفوظ"
 
 #: customizer-fixes/customizer-fixes.php:8
 msgid "Activate &amp; Save"
-msgstr ""
+msgstr "فعال کرو تے بچاؤ"
 
 #: private-site/private-site.php:130
 msgid "Manage your site visibility settings"
@@ -424,7 +424,7 @@ msgstr ""
 
 #: private-site/access-denied-coming-soon-template.php:140
 msgid "Something new is coming."
-msgstr ""
+msgstr "کوئی نویں شئے آندی پئی ہے۔"
 
 #: wpcomsh.php:338
 msgid "This plugin was installed by WordPress.com and provides features offered in your plan subscription."
@@ -468,11 +468,11 @@ msgstr ""
 
 #: widgets/top-clicks.php:53
 msgid "URLs to show:"
-msgstr ""
+msgstr "ݙکھاوݨ کیتے یوآرایل آں:"
 
 #: widgets/top-clicks.php:47
 msgid "Display length:"
-msgstr ""
+msgstr "نمائش دی لمباݨ:"
 
 #: widgets/top-clicks.php:14
 msgid "List the most-clicked links on your blog."
@@ -481,7 +481,7 @@ msgstr ""
 #: widgets/top-clicks.php:13 widgets/top-clicks.php:22
 #: widgets/top-clicks.php:66
 msgid "Top Clicks"
-msgstr ""
+msgstr "چوٹی دے کلک"
 
 #: widgets/tlkio/tlkio.php:59
 msgid "Height (in pixel):"

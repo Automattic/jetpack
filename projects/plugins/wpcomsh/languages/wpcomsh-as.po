@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-03-27 11:20:12+0000\n"
+"PO-Revision-Date: 2020-04-15 09:23:17+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -229,7 +229,7 @@ msgstr ""
 
 #: widgets/instagram/instagram.php:236
 msgid "Layout"
-msgstr ""
+msgstr "লে'আউট"
 
 #: widgets/instagram/instagram.php:226
 msgid "Number to display:"
@@ -384,7 +384,7 @@ msgstr ""
 
 #: footer-credit/footer-credit-optimizations.php:147
 msgid "by"
-msgstr ""
+msgstr "প্ৰকাশক"
 
 #: footer-credit/footer-credit-optimizations.php:130
 msgid "Theme"
@@ -501,7 +501,7 @@ msgstr ""
 
 #: widgets/reservations.php:55
 msgid "Show:"
-msgstr ""
+msgstr "দেখুৱাওঁক:"
 
 #: widgets/reservations.php:50
 msgid "E-mail Subject:"
