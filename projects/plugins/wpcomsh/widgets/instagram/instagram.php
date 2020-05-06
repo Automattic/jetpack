@@ -404,7 +404,7 @@ class WPcom_Instagram_Widget extends WP_Widget {
 						'_blank',
 						'toolbar=0,location=0,menubar=0,' + getScreenCenterSpecs( 700, 700 )
 					);
-					button.innerText = '<?php _e( 'Connecting…', 'wpcomsh' ); ?>';
+					button.innerText = '<?php echo esc_js( __( 'Connecting…', 'wpcomsh' ) ); ?>';
 					button.disabled = true;
 					window.onmessage = function( { data } ) {
 						if ( !! data.keyring_id ) {
