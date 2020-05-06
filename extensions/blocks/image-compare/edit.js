@@ -1,13 +1,8 @@
 /**
  * WordPress dependencies
  */
-import {
-	InnerBlocks,
-	InspectorControls,
-	MediaPlaceholder,
-	RichText,
-} from '@wordpress/block-editor';
-import { PanelBody, RadioControl, Placeholder } from '@wordpress/components';
+import { InnerBlocks, InspectorControls, RichText } from '@wordpress/block-editor';
+import { PanelBody, RadioControl } from '@wordpress/components';
 import { useResizeObserver } from '@wordpress/compose';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -48,11 +43,11 @@ const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) 
 		],
 	];
 
-	// Check for defined, not necessary available in older Gutenberg.
+	// Check for useResizeObserver, not available in older Gutenberg.
 	let resizeListener = null;
 	let sizes = null;
 	if ( useResizeObserver ) {
-		// Let's look for resize so we can trigger the thing
+		// Let's look for resize so we can trigger the thing.
 		[ resizeListener, sizes ] = useResizeObserver();
 
 		useDebounce(
@@ -74,14 +69,17 @@ const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) 
 		);
 	}
 
+	// Initial state if attributes already set or not.
 	const isInitiallyComplete = imageBeforeUrl && imageAfterUrl;
-
 	const [ isComplete, setComplete ] = useState( isInitiallyComplete );
 
 	// If both images are set, add juxtaspose class, which is picked up by the library.
 	const classes = isComplete ? 'image-compare__comparison juxtapose' : 'image-compare__placeholder';
 
+	// Function called when InnerBlocks change to set the attributes of the two
+	// images and call the juxtapose library to do its magic.
 	const blocksChanged = ibs => {
+		// Set attributes for image one, from InnerBlock[0].
 		if ( ibs[ 0 ] && ibs[ 0 ].attributes.id ) {
 			setAttributes( {
 				imageBeforeId: ibs[ 0 ].attributes.id,
@@ -90,6 +88,7 @@ const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) 
 			} );
 		}
 
+		// Set attributes for image two, from InnerBlock[1].
 		if ( ibs[ 1 ] && ibs[ 1 ].attributes.id ) {
 			setAttributes( {
 				imageAfterId: ibs[ 1 ].attributes.id,
@@ -98,9 +97,10 @@ const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) 
 			} );
 		}
 
+		// If both Innerblocks are set, then trigger juxtapose library.
 		if ( ibs[ 0 ] && ibs[ 0 ].attributes.id && ibs[ 1 ] && ibs[ 1 ].attributes.id ) {
 			setComplete( true );
-			// Set a delay so markup can be updated before scan page gets triggered.
+			// Delay to let markup update before the scan page gets triggered.
 			setTimeout( function() {
 				juxtapose.scanPage();
 			}, 100 );
@@ -123,7 +123,7 @@ const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) 
 								orientation: value,
 							} );
 
-							// Set a delay so markup can be updated before scan page gets triggered.
+							// Delay to let markup update before the scan page gets triggered.
 							setTimeout( function() {
 								juxtapose.scanPage();
 							}, 100 );
