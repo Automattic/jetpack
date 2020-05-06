@@ -17,7 +17,7 @@ class Jetpack_Wizard {
 	 */
 	public static function is_started() {
 		// TODO: check saved Jetpack_Option (to be implemented).
-		return true;
+		return false;
 	}
 
 	/**
@@ -30,5 +30,16 @@ class Jetpack_Wizard {
 		return false;
 	}
 
-	// TODO: move option save from the endpoint into here.
+	/**
+	 * Can the Wizard be displayed?
+	 *
+	 * @return bool
+	 */
+	public static function can_be_displayed() {
+		return apply_filters( 'jetpack_connection_prompt_helpers', false ) &&
+			Jetpack::is_active() &&
+			! self::is_finished();
+	}
+
+	// TODO: move save and get from the endpoint (update_setup_questionnaire() and get_setup_questionnaire()) to this class.
 }

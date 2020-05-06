@@ -3735,10 +3735,7 @@ p {
 		}
 
 		// Show the Wizard Banner if someone is connected but did not start the wizard yet.
-		// Forcing Jetpack_Wizard::is_started() to true as a feature flag.
-		// TODO: implement Jetpack_Wizard::is_started().
-		// TODO: add host detection here.
-		if ( self::is_active() && ! Jetpack_Wizard::is_started() ) {
+		if ( Jetpack_Wizard::can_be_displayed() ) {
 			Jetpack_Wizard_Banner::init();
 		}
 
