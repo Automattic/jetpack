@@ -390,27 +390,11 @@
 
 					// Output extra data, if present
 					if ( item.extra_data ) {
-						var data = document.createElement( 'script' ),
-							dataContent = document.createTextNode(
-								'//<![CDATA[ \n' + item.extra_data + '\n//]]>'
-							);
-
-						data.type = 'text/javascript';
-						data.appendChild( dataContent );
-
-						document.getElementsByTagName( elementToAppendTo )[ 0 ].appendChild( data );
+						self.appendInlineScript( item.extra_data, elementToAppendTo );
 					}
 
 					if ( item.before_handle ) {
-						var before = document.createElement( 'script' ),
-							beforeContent = document.createTextNode(
-								'//<![CDATA[ \n' + item.before_handle + '\n//]]>'
-							);
-
-						before.type = 'text/javascript';
-						before.appendChild( beforeContent );
-
-						document.getElementsByTagName( elementToAppendTo )[ 0 ].appendChild( before );
+						self.appendInlineScript( item.before_handle, elementToAppendTo );
 					}
 
 					// Build script tag and append to DOM in requested location
@@ -425,15 +409,7 @@
 
 					if ( item.after_handle ) {
 						script.onload = function() {
-							var after = document.createElement( 'script' ),
-								afterContent = document.createTextNode(
-									'//<![CDATA[ \n' + item.after_handle + '\n//]]>'
-								);
-
-							after.type = 'text/javascript';
-							after.appendChild( afterContent );
-
-							document.getElementsByTagName( elementToAppendTo )[ 0 ].appendChild( after );
+							self.appendInlineScript( item.after_handle, elementToAppendTo );
 						};
 					}
 
@@ -548,6 +524,26 @@
 		};
 
 		return xhr;
+	};
+
+	/**
+	 * Given JavaScript blob and the name of a parent tag, this helper function will
+	 * generate a script tag, insert the JavaScript blob, and append it to the parent.
+	 *
+	 * It's important to note that the JavaScript blob will be evaluated immediately. If
+	 * you need a parent script to load first, use that script element's onload handler.
+	 *
+	 * @param {string} script    The blob of JavaScript to run.
+	 * @param {string} parentTag The tag name of the parent element.
+	 */
+	Scroller.prototype.appendInlineScript = function( script, parentTag ) {
+		var element = document.createElement( 'script' ),
+			scriptContent = document.createTextNode( '//<![CDATA[ \n' + script + '\n//]]>' );
+
+		element.type = 'text/javascript';
+		element.appendChild( scriptContent );
+
+		document.getElementsByTagName( parentTag )[ 0 ].appendChild( element );
 	};
 
 	/**
