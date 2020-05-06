@@ -228,7 +228,7 @@ class DashScan extends Component {
 							)
 						) }
 						{ buildAction(
-							getRedirectUrl( 'calypso-activity-log', { site: siteRawUrl } ),
+							getRedirectUrl( 'calypso-scanner', { site: siteRawUrl } ),
 							__( 'View security scan details' )
 						) }
 					</React.Fragment>
