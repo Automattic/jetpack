@@ -984,17 +984,6 @@ class Jetpack {
 		return $params;
 	}
 
-	function jetpack_connection_banner_callback() {
-		check_ajax_referer( 'jp-connection-banner-nonce', 'nonce' );
-
-		if ( isset( $_REQUEST['dismissBanner'] ) ) {
-			Jetpack_Options::update_option( 'dismissed_connection_banner', 1 );
-			wp_send_json_success();
-		}
-
-		wp_die();
-	}
-
 	/**
 	 * Removes all XML-RPC methods that are not `jetpack.*`.
 	 * Only used in our alternate XML-RPC endpoint, where we want to
@@ -3432,7 +3421,6 @@ p {
 		self::load_modules();
 
 		Jetpack_Options::delete_option( 'do_activate' );
-		Jetpack_Options::delete_option( 'dismissed_connection_banner' );
 	}
 
 	/**
