@@ -466,7 +466,17 @@ class Jetpack_SSO {
 
 		?>
 		<div id="jetpack-sso-wrap">
-			<?php if ( $display_name && $gravatar ) : ?>
+			<?php
+				/**
+				 * Allow extension above Jetpack's SSO form.
+				 *
+				 * @module sso
+				 *
+				 * @since 8.6.0
+				 */
+				do_action( 'jetpack_sso_login_form_above_wpcom' );
+				
+				if ( $display_name && $gravatar ) : ?>
 				<div id="jetpack-sso-wrap__user">
 					<img width="72" height="72" src="<?php echo esc_html( $gravatar ); ?>" />
 
@@ -503,6 +513,17 @@ class Jetpack_SSO {
 					</p>
 				<?php endif; ?>
 			</div>
+
+			<?php
+				/**
+				 * Allow extension below Jetpack's SSO form.
+				 *
+				 * @module sso
+				 *
+				 * @since 8.6.0
+				 */
+				do_action( 'jetpack_sso_login_form_below_wpcom' );
+			?>
 
 			<?php if ( ! Jetpack_SSO_Helpers::should_hide_login_form() ) : ?>
 				<div class="jetpack-sso-or">
