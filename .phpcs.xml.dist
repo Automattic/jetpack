@@ -16,14 +16,20 @@
 		</properties>
 	</rule>
 
-	<!-- For the coding-standards package, we want to follow PHPCS convention, so excluding some WP rules. -->
+	<!-- For the coding-standards package, we are borrowing from the WPCS' phpcs.xml.dist. -->
 	<rule ref="WordPress.Files.FileName">
-    	<exclude-pattern>/packages/coding-standards/*</exclude-pattern>
-    </rule>
-    <rule ref="WordPress.NamingConventions.ValidVariableName">
-    	<exclude-pattern>/packages/coding-standards/*</exclude-pattern>
-    </rule>
-    <rule ref="WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition">
-    	<exclude-pattern>/packages/coding-standards/*</exclude-pattern>
-    </rule>
+		<exclude-pattern>/packages/coding-standards/*</exclude-pattern>
+	</rule>
+	<rule ref="WordPress.NamingConventions.ValidVariableName">
+		<exclude-pattern>/packages/coding-standards/*</exclude-pattern>
+	</rule>
+	<rule ref="WordPress.CodeAnalysis.AssignmentInCondition.FoundInWhileCondition">
+		<exclude-pattern>/packages/coding-standards/*</exclude-pattern>
+	</rule>
+	<rule ref="PSR1.Classes.ClassDeclaration">
+		<include-pattern>/packages/coding-standards/*</include-pattern>
+	</rule>
+	<rule ref="PSR2.Methods.FunctionClosingBrace">
+		<include-pattern>/packages/coding-standards/*</include-pattern>
+	</rule>
 </ruleset>
