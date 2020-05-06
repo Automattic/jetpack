@@ -312,7 +312,7 @@ class Actions {
 			array(
 				'url'     => $url,
 				'user_id' => JETPACK_MASTER_USER,
-				'timeout' => $query_args['timeout'],
+				'timeout' => 0.01,
 			)
 		);
 
