@@ -481,6 +481,70 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	/**
+	 * Test that `*_comment_meta` actions are sent for known comment types and meta.
+	 */
+	public function test_sync_comment_meta_known() {
+
+		add_comment_meta( $this->comment->comment_ID, 'hc_avatar', 'red' );
+		update_comment_meta( $this->comment->comment_ID, 'hc_avatar', 'blue' );
+		delete_comment_meta( $this->comment->comment_ID, 'hc_avatar' );
+		$this->sender->do_sync();
+
+		$added_comment_meta_event = $this->server_event_storage->get_most_recent_event( 'added_comment_meta' );
+		$this->assertEquals( 'added_comment_meta', $added_comment_meta_event->action );
+
+		$updated_comment_meta_event = $this->server_event_storage->get_most_recent_event( 'updated_comment_meta' );
+		$this->assertEquals( 'updated_comment_meta', $updated_comment_meta_event->action );
+
+		$deleted_comment_meta_event = $this->server_event_storage->get_most_recent_event( 'deleted_comment_meta' );
+		$this->assertEquals( 'deleted_comment_meta', $deleted_comment_meta_event->action );
+
+	}
+
+	/**
+	 * Test that `*_comment_meta` actions are not sent for known comment types and unknown meta.
+	 */
+	public function test_sync_comment_meta_unknown_meta() {
+
+		add_comment_meta( $this->comment->comment_ID, 'gobble', 'red' );
+		update_comment_meta( $this->comment->comment_ID, 'gobble', 'blue' );
+		delete_comment_meta( $this->comment->comment_ID, 'gobble' );
+		$this->sender->do_sync();
+
+		$added_comment_meta_event = $this->server_event_storage->get_most_recent_event( 'added_comment_meta' );
+		$this->assertFalse( $added_comment_meta_event );
+
+		$updated_comment_meta_event = $this->server_event_storage->get_most_recent_event( 'updated_comment_meta' );
+		$this->assertFalse( $updated_comment_meta_event );
+
+		$deleted_comment_meta_event = $this->server_event_storage->get_most_recent_event( 'deleted_comment_meta' );
+		$this->assertFalse( $deleted_comment_meta_event );
+
+	}
+
+	/**
+	 * Test that `*_comment_meta` actions are not sent for unknown comment types.
+	 */
+	public function test_sync_comment_meta_unknown_type() {
+		$this->server_event_storage->reset();
+
+		$comment_id = $this->generate_unknown_comment();
+		add_comment_meta( $comment_id, 'hc_avatar', 'red' );
+		update_comment_meta( $comment_id, 'hc_avatar', 'blue' );
+		delete_comment_meta( $comment_id, 'hc_avatar' );
+		$this->sender->do_sync();
+
+		$added_comment_meta_event = $this->server_event_storage->get_most_recent_event( 'added_comment_meta' );
+		$this->assertFalse( $added_comment_meta_event );
+
+		$updated_comment_meta_event = $this->server_event_storage->get_most_recent_event( 'updated_comment_meta' );
+		$this->assertFalse( $updated_comment_meta_event );
+
+		$deleted_comment_meta_event = $this->server_event_storage->get_most_recent_event( 'deleted_comment_meta' );
+		$this->assertFalse( $deleted_comment_meta_event );
+	}
+
+   /**
 	 * Test that `trashed_comment` actions are not sent for unknown comment types.
 	 */
 	public function test_wp_trash_comment_unknown_type() {
