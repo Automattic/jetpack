@@ -306,8 +306,7 @@ class WPcom_Instagram_Widget extends WP_Widget {
 			}
 
 			$body = json_decode( $response['body'] );
-			$connect_url = $body->services->instagram->connect_URL ??
-				$body->services->{'instagram-basic-display'}->connect_URL ??
+			$connect_url = $body->services->{'instagram-basic-display'}->connect_URL ??
 				new WP_Error( 'connect_url_not_found', "Connect URL not found" );
 		}
 
