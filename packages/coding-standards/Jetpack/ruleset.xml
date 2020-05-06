@@ -1,11 +1,12 @@
 <?xml version="1.0"?>
 <ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="Jetpack" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/squizlabs/PHP_CodeSniffer/master/phpcs.xsd">
+	<config name="minimum_supported_wp_version" value="5.3"/>
+	<config name="testVersion" value="5.6-"/>
 
 	<rule ref="PHPCompatibilityWP"/>
-	<rule ref="WordPress-Core" />
-	<rule ref="WordPress-Docs" />
-	<rule ref="WordPress-Extra" />
-	<rule ref="VariableAnalysis" />
+	<rule ref="WordPress-Docs"/>
+	<rule ref="WordPress-Extra"/>
+	<rule ref="VariableAnalysis"/>
 
 	<!-- Elevate undefined variables to an Error instead of a Warning. -->
 	<rule ref="VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable">
@@ -14,7 +15,7 @@
 
 	<rule ref="VariableAnalysis.CodeAnalysis.VariableAnalysis">
 		<properties>
-			<property name="allowWordPressPassByRefFunctions" value="true" />
+			<property name="allowWordPressPassByRefFunctions" value="true"/>
 		</properties>
 	</rule>
 
