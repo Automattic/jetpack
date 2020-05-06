@@ -987,7 +987,11 @@ class Jetpack {
 	function jetpack_connection_banner_callback() {
 		check_ajax_referer( 'jp-connection-banner-nonce', 'nonce' );
 
-		if ( isset( $_REQUEST['dismissBanner'] ) ) {
+		// Disable the banner dismiss functionality if the pre-connection prompt helpers filter is set.
+		if (
+			isset( $_REQUEST['dismissBanner'] ) &&
+			! apply_filters( 'jetpack_pre_connection_prompt_helpers', false )
+		) {
 			Jetpack_Options::update_option( 'dismissed_connection_banner', 1 );
 			wp_send_json_success();
 		}

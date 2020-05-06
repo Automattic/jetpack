@@ -66,8 +66,11 @@ class Jetpack_Connection_Banner {
 	 */
 	function maybe_initialize_hooks( $current_screen ) {
 
-		// Kill if banner has been dismissed
-		if ( Jetpack_Options::get_option( 'dismissed_connection_banner' ) ) {
+		// Kill if banner has been dismissed and the pre-connection helpers filter is not set.
+		if (
+			Jetpack_Options::get_option( 'dismissed_connection_banner' ) &&
+			! apply_filters( 'jetpack_pre_connection_prompt_helpers', false )
+		) {
 			return;
 		}
 
@@ -202,10 +205,19 @@ class Jetpack_Connection_Banner {
 				</span>
 			</div>
 			<div class="jp-wpcom-connect__inner-container">
-				<span
-					class="notice-dismiss connection-banner-dismiss"
-					title="<?php esc_attr_e( 'Dismiss this notice', 'jetpack' ); ?>">
-				</span>
+
+				<?php
+				if ( ! apply_filters( 'jetpack_pre_connection_prompt_helpers', false ) ) :
+					?>
+
+					<span
+						class="notice-dismiss connection-banner-dismiss"
+						title="<?php esc_attr_e( 'Dismiss this notice', 'jetpack' ); ?>">
+					</span>
+
+					<?php
+				endif;
+				?>
 
 				<div class="jp-wpcom-connect__content-container">
 
@@ -295,9 +307,18 @@ class Jetpack_Connection_Banner {
 					echo $logo->render();
 					?>
 
-					<div class="jp-connect-full__dismiss">
-						<svg class="jp-connect-full__svg-dismiss" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><title>Dismiss Jetpack Connection Window</title><rect x="0" fill="none" /><g><path d="M17.705 7.705l-1.41-1.41L12 10.59 7.705 6.295l-1.41 1.41L10.59 12l-4.295 4.295 1.41 1.41L12 13.41l4.295 4.295 1.41-1.41L13.41 12l4.295-4.295z"/></g></svg>
-					</div>
+					<?php
+					if ( ! apply_filters( 'jetpack_pre_connection_prompt_helpers', false ) ) :
+						?>
+
+						<div class="jp-connect-full__dismiss">
+							<svg class="jp-connect-full__svg-dismiss" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><title>Dismiss Jetpack Connection Window</title><rect x="0" fill="none" /><g><path d="M17.705 7.705l-1.41-1.41L12 10.59 7.705 6.295l-1.41 1.41L10.59 12l-4.295 4.295 1.41 1.41L12 13.41l4.295 4.295 1.41-1.41L13.41 12l4.295-4.295z"/></g></svg>
+						</div>
+
+						<?php
+					endif;
+					?>
+
 				<?php endif; ?>
 
 				<div class="jp-connect-full__step-header">
@@ -359,17 +380,27 @@ class Jetpack_Connection_Banner {
 				</div>
 
 				<?php if ( 'plugins' === $current_screen->base ) : ?>
-					<p class="jp-connect-full__dismiss-paragraph">
-						<a>
-							<?php
-							echo esc_html_x(
-								'Not now, thank you.',
-								'a link that closes the modal window that offers to connect Jetpack',
-								'jetpack'
-							);
-							?>
-						</a>
-					</p>
+
+					<?php
+					if ( ! apply_filters( 'jetpack_pre_connection_prompt_helpers', false ) ) :
+						?>
+
+						<p class="jp-connect-full__dismiss-paragraph">
+							<a>
+								<?php
+								echo esc_html_x(
+									'Not now, thank you.',
+									'a link that closes the modal window that offers to connect Jetpack',
+									'jetpack'
+								);
+								?>
+							</a>
+						</p>
+
+						<?php
+						endif;
+					?>
+
 				<?php endif; ?>
 			</div>
 		</div>
