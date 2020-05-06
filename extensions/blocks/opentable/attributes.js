@@ -61,7 +61,7 @@ export const defaultAttributes = {
 		default: false,
 		type: 'boolean',
 	},
-	counterPadding: {
+	negativeMargin: {
 		default: false,
 		type: 'boolean',
 	},

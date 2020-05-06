@@ -64,7 +64,7 @@ function OpenTableEdit( {
 		domain,
 		lang,
 		newtab,
-		counterPadding,
+		negativeMargin,
 		__isBlockPreview,
 	} = attributes;
 	const isPlaceholder = isEmpty( rid );
@@ -178,9 +178,9 @@ function OpenTableEdit( {
 				/>
 				{ 'button' === style && (
 					<ToggleControl
-						label={ __( 'Remove button padding', 'jetpack' ) }
-						checked={ counterPadding }
-						onChange={ () => setAttributes( { counterPadding: ! counterPadding } ) }
+						label={ __( 'Remove button margin', 'jetpack' ) }
+						checked={ negativeMargin }
+						onChange={ () => setAttributes( { negativeMargin: ! negativeMargin } ) }
 					/>
 				) }
 			</InspectorAdvancedControls>
@@ -241,7 +241,7 @@ function OpenTableEdit( {
 		'is-placeholder': isPlaceholder,
 		'is-multi': 'multi' === getTypeAndTheme( style )[ 0 ],
 		[ `align${ align }` ]: align,
-		'has-no-padding': counterPadding,
+		'has-no-margin': negativeMargin,
 	} );
 
 	return (
