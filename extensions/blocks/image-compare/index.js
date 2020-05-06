@@ -1,5 +1,5 @@
 /**
- * WordPress dependencies
+ * External dependencies
  */
 import { __ } from '@wordpress/i18n';
 
@@ -9,6 +9,9 @@ import { __ } from '@wordpress/i18n';
 import edit from './edit';
 import icon from './icon';
 import save from './save';
+import imgExampleAfter from './img-example-after.png';
+import imgExampleBefore from './img-example-before.png';
+import { supportsCollections } from '../../shared/block-category';
 
 export const name = 'image-compare';
 
@@ -18,7 +21,7 @@ export const settings = {
 
 	icon,
 
-	category: 'layout',
+	category: supportsCollections() ? 'layout' : 'jetpack',
 
 	attributes: {
 		imageBeforeId: {
@@ -70,12 +73,10 @@ export const settings = {
 	example: {
 		attributes: {
 			imageBeforeId: '1',
-			imageBeforeUrl:
-				'https://upload.wikimedia.org/wikipedia/commons/archive/d/d8/20180325051241%21Lynda_Carter_Wonder_Woman.JPG',
+			imageBeforeUrl: imgExampleBefore,
 			imageBeforeAlt: __( 'Before', 'jetpack' ),
 			imageAfterId: '2',
-			imageAfterUrl:
-				'https://upload.wikimedia.org/wikipedia/commons/d/d8/Lynda_Carter_Wonder_Woman.JPG',
+			imageAfterUrl: imgExampleAfter,
 			imageAfterAlt: __( 'After', 'jetpack' ),
 			caption: __( 'Wonder Woman', 'jetpack' ),
 		},

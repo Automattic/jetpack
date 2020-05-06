@@ -1,5 +1,5 @@
 /**
- * WordPress dependencies
+ * External dependencies
  */
 import { InnerBlocks, InspectorControls, RichText } from '@wordpress/block-editor';
 import { PanelBody, RadioControl } from '@wordpress/components';
