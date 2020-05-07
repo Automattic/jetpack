@@ -1027,7 +1027,7 @@ class Jetpack_Gutenberg {
 			}
 			$features_data = Store_Product_List::get_site_specific_features_data();
 			$is_available  = in_array( $slug, $features_data['active'], true );
-			if ( isset( $features_data['available'][ $slug ] ) && ! empty( $features_data['available'][ $slug ] ) ) {
+			if ( ! empty( $features_data['available'][ $slug ] ) ) {
 				$plan = $features_data['available'][ $slug ][0];
 			}
 		} elseif ( ! jetpack_is_atomic_site() ) {
