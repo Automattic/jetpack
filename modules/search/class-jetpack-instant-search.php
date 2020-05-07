@@ -117,11 +117,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 
 		$prefix         = Jetpack_Search_Options::OPTION_PREFIX;
 		$posts_per_page = (int) get_option( 'posts_per_page' );
-		if ( $posts_per_page > 20 ) {
-			$posts_per_page = 20;
-		}
-		if ( $posts_per_page <= 0 ) {
-			// -1 is inf posts in Core WP ;)
+		if ( ( $posts_per_page > 20 ) || ( $posts_per_page <= 0 ) ) {
 			$posts_per_page = 20;
 		}
 		$options = array(
