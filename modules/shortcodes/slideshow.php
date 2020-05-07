@@ -186,12 +186,16 @@ class Jetpack_Slideshow_Shortcode {
 		if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
 			// Load the styles and use the rendering method from the Slideshow block.
 			Jetpack_Gutenberg::load_styles_as_required( 'slideshow' );
-			return Slideshow\render_amp(
-				array(
-					'ids'      => wp_list_pluck( $gallery, 'id' ),
-					'autoplay' => $autostart,
-				)
+
+			$amp_args = array(
+				'ids' => wp_list_pluck( $gallery, 'id' ),
 			);
+
+			if ( 'true' == $autostart ) { // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison -- attribute can be stored as boolean or string.
+				$amp_args['autoplay'] = true;
+			}
+
+			return Slideshow\render_amp( $amp_args );
 		}
 
 		return $this->slideshow_js( $js_attr );
