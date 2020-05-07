@@ -45,6 +45,27 @@ class Manager {
 	private $xmlrpc_verification = null;
 
 	/**
+	 * Plugin management object.
+	 *
+	 * @var Plugin
+	 */
+	private $plugin = null;
+
+	/**
+	 * Initialize the object.
+	 * Make sure to call the "Configure" first.
+	 *
+	 * @param string $plugin_slug Slug of the plugin using the connection (optional, but encouraged).
+	 *
+	 * @see \Automattic\Jetpack\Config
+	 */
+	public function __construct( $plugin_slug = null ) {
+		if ( $plugin_slug && is_string( $plugin_slug ) ) {
+			$this->set_plugin_instance( new Plugin( $plugin_slug ) );
+		}
+	}
+
+	/**
 	 * Initializes required listeners. This is done separately from the constructors
 	 * because some objects sometimes need to instantiate separate objects of this class.
 	 *
@@ -1607,6 +1628,8 @@ class Manager {
 			return new \WP_Error( 'scope', 'No Scope', $code );
 		}
 
+		// TODO: get rid of the error silencer.
+		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		@list( $role, $hmac ) = explode( ':', $json->scope );
 		if ( empty( $role ) || empty( $hmac ) ) {
 			return new \WP_Error( 'scope', 'Malformed Scope', $code );
@@ -2206,4 +2229,36 @@ class Manager {
 
 		return $role . ':' . hash_hmac( 'md5', "{$role}|{$user_id}", $token->secret );
 	}
+
+	/**
+	 * Set the plugin instance.
+	 *
+	 * @param Plugin $plugin_instance The plugin instance.
+	 *
+	 * @return $this
+	 */
+	public function set_plugin_instance( Plugin $plugin_instance ) {
+		$this->plugin = $plugin_instance;
+
+		return $this;
+	}
+
+	/**
+	 * Retrieve the plugin management object.
+	 *
+	 * @return Plugin
+	 */
+	public function get_plugin() {
+		return $this->plugin;
+	}
+
+	/**
+	 * Get all connected plugins information.
+	 *
+	 * @return array|\WP_Error
+	 */
+	public function get_connected_plugins() {
+		return Plugin_Storage::get_all();
+	}
+
 }
