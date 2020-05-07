@@ -83,6 +83,14 @@ class Jetpack_Google_Analytics {
 			$analytics_entries = array();
 		}
 
+		$amp_tracking_codes = static::get_amp_tracking_codes( $analytics_entries );
+		$jetpack_account    = Jetpack_Google_Analytics_Options::get_tracking_code();
+
+		// Bypass tracking codes already set on AMP plugin.
+		if ( in_array( $jetpack_account, $amp_tracking_codes, true ) ) {
+			return $analytics_entries;
+		}
+
 		$config_data = wp_json_encode(
 			array(
 				'vars'     => array(
@@ -107,13 +115,26 @@ class Jetpack_Google_Analytics {
 
 		$data = apply_filters( 'jetpack_amp_analytics_entries', $data, $entry_id );
 
-		if ( empty( $data ) ) {
-			return $analytics_entries;
+	/**
+	 * Get AMP tracking codes.
+	 *
+	 * @param array $analytics_entries The codes available for AMP.
+	 *
+	 * @return array
+	 */
+	protected static function get_amp_tracking_codes( $analytics_entries ) {
+		$entries  = array_column( $analytics_entries, 'config' );
+		$accounts = array();
+
+		foreach ( $entries as $entry ) {
+			$entry = json_decode( $entry );
+
+			if ( ! empty( $entry->vars->account ) ) {
+				$accounts[] = $entry->vars->account;
+			}
 		}
 
-		$analytics_entries[ $entry_id ] = $data;
-
-		return $analytics_entries;
+		return $accounts;
 	}
 }
 
