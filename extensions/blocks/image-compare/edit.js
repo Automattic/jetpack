@@ -98,7 +98,7 @@ const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) 
 							placeHolderTitle={ __( 'Image before', 'jetpack' ) }
 							placeHolderLabel={ __( 'First image to compare', 'jetpack' ) }
 							onChange={ img => {
-								if ( img.media_type === 'image' ) {
+								if ( img.media_type === 'image' || img.type === 'image' ) {
 									setAttributes( {
 										imageBeforeId: img.id,
 										imageBeforeUrl: img.url,
@@ -118,7 +118,7 @@ const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) 
 							placeHolderTitle={ __( 'Image after', 'jetpack' ) }
 							placeHolderLabel={ __( 'Second image to compare', 'jetpack' ) }
 							onChange={ img => {
-								if ( img.media_type === 'image' ) {
+								if ( img.media_type === 'image' || img.type === 'image' ) {
 									setAttributes( {
 										imageAfterId: img.id,
 										imageAfterUrl: img.url,
