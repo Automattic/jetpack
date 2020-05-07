@@ -254,16 +254,6 @@ domReady( function() {
 			this.options.startingPosition = s;
 		},
 
-		checkImages: function() {
-			if (
-				getImageDimensions( this.imgBefore.image ).aspect() ===
-				getImageDimensions( this.imgAfter.image ).aspect()
-			) {
-				return true;
-			}
-			return false;
-		},
-
 		calculateDims: function( width, height ) {
 			const ratio = getImageDimensions( this.imgBefore.image ).aspect();
 			if ( width ) {
@@ -391,10 +381,6 @@ domReady( function() {
 		},
 
 		_init: function() {
-			if ( this.checkImages() === false ) {
-				return null;
-			}
-
 			this.updateSlider( this.options.startingPosition, false );
 
 			if ( this.options.showLabels === true ) {
