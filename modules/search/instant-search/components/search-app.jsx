@@ -281,6 +281,7 @@ class SearchApp extends Component {
 				<SearchResults
 					closeOverlay={ this.hideResults }
 					enableLoadOnScroll={ this.state.overlayOptions.enableInfScroll }
+					enableSort={ this.state.overlayOptions.enableSort }
 					hasError={ this.state.hasError }
 					hasNextPage={ this.hasNextPage() }
 					highlightColor={ this.state.overlayOptions.highlightColor }
