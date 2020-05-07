@@ -69,10 +69,11 @@ class Jetpack_Google_Analytics_Legacy {
 			return;
 		}
 
-		if ( class_exists( 'Jetpack_AMP_Support' )
-			&& Jetpack_AMP_Support::is_amp_request()
-		) {
-			add_filter( 'amp_analytics_entries', 'Jetpack_Google_Analytics::amp_analytics_entries' );
+		if ( Jetpack_AMP_Support::is_amp_request() ) {
+			// For Reader mode — legacy.
+			add_filter( 'amp_post_template_analytics', 'Jetpack_Google_Analytics::amp_analytics_entries', 1000 );
+			// For Standard and Transitional modes.
+			add_filter( 'amp_analytics_entries', 'Jetpack_Google_Analytics::amp_analytics_entries', 1000 );
 			return;
 		}
 
