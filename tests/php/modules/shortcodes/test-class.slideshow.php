@@ -94,6 +94,17 @@ class WP_Test_Jetpack_Shortcodes_Slideshow extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Check that no markup is returned when an invalid image ID is used.
+	 *
+	 * @since 8.5.0
+	 */
+	public function test_shortcodes_slideshow_no_valid_id() {
+		$content = sprintf( '[gallery type="slideshow" size="thumbnail" ids="%d"]', PHP_INT_MAX );
+
+		$this->assertEmpty( do_shortcode( $content ) );
+	}
+
+	/**
 	 * Gets the test data for test_shortcodes_slideshow_amp().
 	 *
 	 * @return array The test data.
@@ -111,10 +122,6 @@ class WP_Test_Jetpack_Shortcodes_Slideshow extends WP_UnitTestCase {
 			'with_autostart'    => array(
 				'[gallery type="slideshow" size="thumbnail" ids="' . $this->ids . '"]',
 				'wp-block-jetpack-slideshow wp-amp-block wp-block-jetpack-slideshow__autoplay wp-block-jetpack-slideshow__autoplay-playing" id',
-			),
-			'with_no_valid_id'  => array(
-				sprintf( '[gallery type="slideshow" size="thumbnail" ids="%d"]', PHP_INT_MAX ),
-				'',
 			),
 		);
 	}
