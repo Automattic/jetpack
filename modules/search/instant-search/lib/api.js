@@ -103,36 +103,44 @@ const filterKeyToEsFilter = new Map( [
 	],
 ] );
 
-function buildFilterObject( filterQuery, adminQueryFilter ) {
-	if ( ! filterQuery && ! adminQueryFilter ) {
-		return {};
-	}
-	if ( ! filterQuery ) {
-		return adminQueryFilter;
-	}
-
+function buildFilterObject( filterQuery, adminQueryFilter, enabledPostTypes ) {
 	const filter = { bool: { must: [] } };
-	getFilterKeys()
-		.filter( key => isLengthyArray( filterQuery[ key ] ) )
-		.forEach( key => {
-			filterQuery[ key ].forEach( item => {
-				if ( filterKeyToEsFilter.has( key ) ) {
-					filter.bool.must.push( filterKeyToEsFilter.get( key )( item ) );
-				} else {
-					// If key is not in the standard map, assume to be a custom taxonomy
-					filter.bool.must.push( { term: { [ `taxonomy.${ key }.slug` ]: item } } );
-				}
+
+	if ( filterQuery ) {
+		getFilterKeys()
+			.filter( key => isLengthyArray( filterQuery[ key ] ) )
+			.forEach( key => {
+				filterQuery[ key ].forEach( item => {
+					if ( filterKeyToEsFilter.has( key ) ) {
+						filter.bool.must.push( filterKeyToEsFilter.get( key )( item ) );
+					} else {
+						// If key is not in the standard map, assume to be a custom taxonomy
+						filter.bool.must.push( { term: { [ `taxonomy.${ key }.slug` ]: item } } );
+					}
+				} );
 			} );
-		} );
+	}
 
 	if ( adminQueryFilter ) {
 		filter.bool.must.push( adminQueryFilter );
 	}
+
+	if ( isLengthyArray( enabledPostTypes ) ) {
+		filter.bool.must.push( {
+			bool: {
+				should: enabledPostTypes.map( postType =>
+					filterKeyToEsFilter.get( 'post_types' )( postType )
+				),
+			},
+		} );
+	}
+
 	return filter;
 }
 
 export function search( {
 	aggregations,
+	enabledPostTypes,
 	filter,
 	pageHandle,
 	query,
@@ -179,7 +187,7 @@ export function search( {
 			aggregations,
 			fields,
 			highlight_fields: highlightFields,
-			filter: buildFilterObject( filter, adminQueryFilter ),
+			filter: buildFilterObject( filter, adminQueryFilter, enabledPostTypes ),
 			query: encodeURIComponent( query ),
 			sort,
 			page_handle: pageHandle,

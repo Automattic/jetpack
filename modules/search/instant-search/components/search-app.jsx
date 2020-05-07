@@ -231,6 +231,7 @@ class SearchApp extends Component {
 		return search( {
 			// Skip aggregations when requesting for paged results
 			aggregations: !! pageHandle ? {} : this.props.aggregations,
+			enabledPostTypes: this.props.options.enabledPostTypes,
 			filter,
 			pageHandle,
 			query,
