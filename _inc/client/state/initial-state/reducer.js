@@ -151,6 +151,10 @@ export function getUserWpComAvatar( state ) {
 	return get( state.jetpack.initialState.userData.currentUser, [ 'wpcomUser', 'avatar' ] );
 }
 
+export function getUserGravatar( state ) {
+	return get( state.jetpack.initialState.userData.currentUser, [ 'gravatar' ] );
+}
+
 export function getUsername( state ) {
 	return get( state.jetpack.initialState.userData.currentUser, [ 'username' ] );
 }
