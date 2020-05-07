@@ -220,20 +220,14 @@ BODY;
 	}
 
 	/**
-	 * Gets data for test_shortcodes_ted_oembed_amp_iframe().
+	 * Gets data for test_shortcodes_ted_oembed_iframe().
 	 *
 	 * @return array
 	 */
 	public function get_data_shortcodes_ted() {
 		return array(
-			'non_amp' => array(
+			'shortcode' => array(
 				'[ted id="1" lang="en" width="640" height="360"]',
-				false,
-				'<iframe title="Louie Schwartzberg: Hidden miracles of the natural world" src="https://embed.ted.com/talks/louie_schwartzberg_hidden_miracles_of_the_natural_world" width="640" height="360" frameborder="0" scrolling="no" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>',
-			),
-			'amp'     => array(
-				'[ted id="1" lang="en" width="640" height="360"]',
-				true,
 				'<iframe title="Louie Schwartzberg: Hidden miracles of the natural world" src="https://embed.ted.com/talks/louie_schwartzberg_hidden_miracles_of_the_natural_world" sandbox="allow-popups allow-scripts allow-same-origin" width="640" height="360" frameborder="0" scrolling="no" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>',
 			),
 		);
@@ -248,14 +242,9 @@ BODY;
 	 * @since 8.5
 	 *
 	 * @param string $shortcode The shortcode.
-	 * @param bool   $is_amp    Is amp request.
 	 * @param string $expected  The expected outcome.
 	 */
-	public function test_shortcodes_ted_oembed_amp_iframe( $shortcode, $is_amp, $expected ) {
-		if ( $is_amp ) {
-			add_filter( 'jetpack_is_amp_request', '__return_true' );
-		}
-
+	public function test_shortcodes_ted_oembed_iframe( $shortcode, $expected ) {
 		$actual = do_shortcode( $shortcode );
 
 		$this->assertEquals( $actual, $expected );
