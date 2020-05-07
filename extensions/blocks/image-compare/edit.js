@@ -89,38 +89,44 @@ const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) 
 			<div className={ classes } data-mode={ orientation || 'horizontal' }>
 				<Placeholder>
 					<div className="image-compare__image-before">
-						{ imageBeforeUrl ? (
-							<img id={ imageBeforeId } src={ imageBeforeUrl } alt={ imageBeforeAlt } />
-						) : (
-							<ImgUpload
-								placeHolderTitle={ __( 'Image before', 'jetpack' ) }
-								placeHolderLabel={ __( 'First image to compare', 'jetpack' ) }
-								onChange={ elem => {
+						<ImgUpload
+							image={ {
+								id: imageBeforeId,
+								url: imageBeforeUrl,
+								alt: imageBeforeAlt,
+							} }
+							placeHolderTitle={ __( 'Image before', 'jetpack' ) }
+							placeHolderLabel={ __( 'First image to compare', 'jetpack' ) }
+							onChange={ img => {
+								if ( img.media_type === 'image' ) {
 									setAttributes( {
-										imageBeforeId: elem.id,
-										imageBeforeUrl: elem.url,
-										imageBeforeAlt: elem.alt,
+										imageBeforeId: img.id,
+										imageBeforeUrl: img.url,
+										imageBeforeAlt: img.alt,
 									} );
-								} }
-							/>
-						) }
+								}
+							} }
+						/>
 					</div>
 					<div className="image-compare__image-after">
-						{ imageAfterUrl ? (
-							<img id={ imageAfterId } src={ imageAfterUrl } alt={ imageAfterAlt } />
-						) : (
-							<ImgUpload
-								placeHolderTitle={ __( 'Image after', 'jetpack' ) }
-								placeHolderLabel={ __( 'Second image to compare', 'jetpack' ) }
-								onChange={ elem => {
+						<ImgUpload
+							image={ {
+								id: imageAfterId,
+								url: imageAfterUrl,
+								alt: imageAfterAlt,
+							} }
+							placeHolderTitle={ __( 'Image after', 'jetpack' ) }
+							placeHolderLabel={ __( 'Second image to compare', 'jetpack' ) }
+							onChange={ img => {
+								if ( img.media_type === 'image' ) {
 									setAttributes( {
-										imageAfterId: elem.id,
-										imageAfterUrl: elem.url,
-										imageAfterAlt: elem.alt,
+										imageAfterId: img.id,
+										imageAfterUrl: img.url,
+										imageAfterAlt: img.alt,
 									} );
-								} }
-							/>
-						) }
+								}
+							} }
+						/>
 					</div>
 				</Placeholder>
 			</div>

@@ -6,14 +6,16 @@ import { MediaPlaceholder } from '@wordpress/block-editor';
 import { withNotices } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 
-const ImgUpload = ( {
-	noticeOperations,
-	noticeUI,
-	onChange,
-	placeHolderTitle,
-	placeHolderLabel,
-} ) => {
-	return (
+const ImgUpload = props => {
+	const { image, noticeOperations, noticeUI, onChange, placeHolderTitle, placeHolderLabel } = props;
+
+	const renderImage = (
+		<div className="image-compare__image-before">
+			<img id={ image.id } src={ image.url } alt={ image.alt } />
+		</div>
+	);
+
+	const renderPlaceholder = (
 		<Fragment>
 			<div className="components-placeholder__label">{ placeHolderTitle }</div>
 			<MediaPlaceholder
@@ -26,6 +28,12 @@ const ImgUpload = ( {
 			/>
 		</Fragment>
 	);
+
+	if ( image && image.url ) {
+		return renderImage;
+	}
+
+	return renderPlaceholder;
 };
 
 export default compose( [ withNotices ] )( ImgUpload );
