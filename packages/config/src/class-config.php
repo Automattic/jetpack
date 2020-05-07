@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Connection\Manager;
-use Automattic\Jetpack\JITM;
+use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
 use Automattic\Jetpack\Sync\Main as Sync_Main;
 use Automattic\Jetpack\Terms_Of_Service;
@@ -81,7 +81,7 @@ class Config {
 		}
 
 		if ( $this->config['jitm'] ) {
-			$this->ensure_class( 'Automattic\Jetpack\JITM' )
+			$this->ensure_class( 'Automattic\Jetpack\JITMS\JITM' )
 				&& $this->ensure_feature( 'jitm' );
 		}
 	}
