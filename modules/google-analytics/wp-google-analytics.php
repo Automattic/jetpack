@@ -108,12 +108,13 @@ class Jetpack_Google_Analytics {
 		// Generate a hash string to uniquely identify this entry.
 		$entry_id = substr( md5( 'googleanalytics' . $config_data ), 0, 12 );
 
-		$data = array(
+		$analytics_entries[ $entry_id ] = array(
 			'type'   => 'googleanalytics',
 			'config' => $config_data,
 		);
 
-		$data = apply_filters( 'jetpack_amp_analytics_entries', $data, $entry_id );
+		return $analytics_entries;
+	}
 
 	/**
 	 * Get AMP tracking codes.
