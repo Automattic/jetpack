@@ -37,6 +37,20 @@ class Jetpack_Instagram_Gallery_Helper {
 			}
 		}
 
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			if ( ! class_exists( 'WPCOM_Instagram_Gallery_Helper' ) ) {
+				\jetpack_require_lib( 'instagram-gallery-helper' );
+			}
+
+			$gallery = WPCOM_Instagram_Gallery_Helper::get_gallery( $access_token, $count );
+			if ( is_wp_error( $gallery ) ) {
+				return $gallery;
+			}
+
+			set_transient( $transient_key, wp_json_encode( $gallery ), HOUR_IN_SECONDS );
+			return $gallery;
+		}
+
 		$response = Client::wpcom_json_api_request_as_blog(
 			sprintf( '/sites/%d/instagram/%s?count=%d', $site_id, $access_token, (int) $count ),
 			2,
