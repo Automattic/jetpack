@@ -809,7 +809,7 @@ class Jetpack_Gutenberg {
 
 		// Add any extra classes.
 		if ( is_array( $extra ) && ! empty( $extra ) ) {
-			$classes = array_merge( $classes, $extra );
+			$classes = array_merge( $classes, array_filter( $extra ) );
 		}
 
 		return implode( ' ', $classes );

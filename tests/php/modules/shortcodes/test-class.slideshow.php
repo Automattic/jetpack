@@ -1,11 +1,25 @@
 <?php
 
+require_jetpack_file( 'extensions/blocks/slideshow/slideshow.php' );
+
 class WP_Test_Jetpack_Shortcodes_Slideshow extends WP_UnitTestCase {
 
+	/**
+	 * The mock IDs.
+	 *
+	 * @var string
+	 */
+	public $ids;
+
+	/**
+	 * Sets up each test.
+	 *
+	 * @inheritDoc
+	 */
 	public function setUp() {
 		if ( ! defined( 'TESTING_IN_JETPACK' ) || ! TESTING_IN_JETPACK ) {
 			switch_to_blog( 104104364 ); // test.wordpress.com
-			$this->IDs = '161,162';
+			$this->ids = '161,162';
 			return;
 		}
 
@@ -22,7 +36,7 @@ class WP_Test_Jetpack_Shortcodes_Slideshow extends WP_UnitTestCase {
 			'post_type'      => 'attachment',
 		) );
 
-		$this->IDs = "{$a1},{$a2}";
+		$this->ids = "{$a1},{$a2}";
 	}
 
 	/**
@@ -48,7 +62,7 @@ class WP_Test_Jetpack_Shortcodes_Slideshow extends WP_UnitTestCase {
 	}
 
 	public function test_shortcodes_slideshow_no_js() {
-		$content = '[gallery type="slideshow" ids="' . $this->IDs . '"]';
+		$content = '[gallery type="slideshow" ids="' . $this->ids . '"]';
 
 		$shortcode_content = do_shortcode( $content );
 
@@ -56,7 +70,7 @@ class WP_Test_Jetpack_Shortcodes_Slideshow extends WP_UnitTestCase {
 	}
 
 	public function test_shortcodes_slideshow_html() {
-		$content = '[gallery type="slideshow" ids="' . $this->IDs . '"]';
+		$content = '[gallery type="slideshow" ids="' . $this->ids . '"]';
 
 		$shortcode_content = do_shortcode( $content );
 
@@ -64,7 +78,7 @@ class WP_Test_Jetpack_Shortcodes_Slideshow extends WP_UnitTestCase {
 	}
 
 	public function test_shortcodes_slideshow_autostart_off() {
-		$content = '[gallery type="slideshow" ids="' . $this->IDs . '" autostart="false"]';
+		$content = '[gallery type="slideshow" ids="' . $this->ids . '" autostart="false"]';
 
 		$shortcode_content = do_shortcode( $content );
 
@@ -72,10 +86,59 @@ class WP_Test_Jetpack_Shortcodes_Slideshow extends WP_UnitTestCase {
 	}
 
 	public function test_shortcodes_slideshow_autostart_on() {
-		$content = '[gallery type="slideshow" ids="' . $this->IDs . '" autostart="true"]';
+		$content = '[gallery type="slideshow" ids="' . $this->ids . '" autostart="true"]';
 
 		$shortcode_content = do_shortcode( $content );
 
 		$this->assertEquals( ! false, strpos( $shortcode_content, 'data-autostart="true"' ) );
+	}
+
+	/**
+	 * Check that no markup is returned when an invalid image ID is used.
+	 *
+	 * @since 8.5.0
+	 */
+	public function test_shortcodes_slideshow_no_valid_id() {
+		$content = sprintf( '[gallery type="slideshow" size="thumbnail" ids="%d"]', PHP_INT_MAX );
+
+		$this->assertEmpty( do_shortcode( $content ) );
+	}
+
+	/**
+	 * Gets the test data for test_shortcodes_slideshow_amp().
+	 *
+	 * @return array The test data.
+	 */
+	public function get_slideshow_shortcode_amp() {
+		return array(
+			'amp_carousel'      => array(
+				'[gallery type="slideshow" size="thumbnail" ids="' . $this->ids . '"]',
+				'<amp-carousel width="800" height="600" layout="responsive" type="slides"',
+			),
+			'without_autostart' => array(
+				'[gallery type="slideshow" size="thumbnail" ids="' . $this->ids . ' autostart="false"]',
+				'wp-block-jetpack-slideshow wp-amp-block" id',
+			),
+			'with_autostart'    => array(
+				'[gallery type="slideshow" size="thumbnail" ids="' . $this->ids . '"]',
+				'wp-block-jetpack-slideshow wp-amp-block wp-block-jetpack-slideshow__autoplay wp-block-jetpack-slideshow__autoplay-playing" id',
+			),
+		);
+	}
+
+	/**
+	 * Test slideshow shortcode output in AMP.
+	 *
+	 * @dataProvider get_slideshow_shortcode_amp
+	 * @covers Jetpack_Slideshow_Shortcode::shortcode_callback()
+	 * @since 8.5.0
+	 *
+	 * @param string $shortcode The initial shortcode.
+	 * @param string $expected  The expected markup, after processing the shortcode.
+	 */
+	public function test_shortcodes_slideshow_amp( $shortcode, $expected ) {
+		add_filter( 'jetpack_is_amp_request', '__return_true' );
+
+		$this->assertContains( $expected, do_shortcode( $shortcode ) );
 	}
 }
