@@ -3,7 +3,7 @@
  */
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 
 /**
  * Internal dependencies
@@ -17,9 +17,9 @@ const ChecklistAnswer = props => {
 	const [ expanded, setExpanded ] = useState( false );
 	const [ windowWidth, setWindowWidth ] = useState( false );
 
-	function handleResize() {
+	const handleResize = useCallback( () => {
 		setWindowWidth( window.innerWidth <= 660 ? 'small' : 'large' );
-	}
+	} );
 
 	useEffect( () => {
 		handleResize(); // Call this once to make sure windowWidth is initialized
@@ -29,25 +29,25 @@ const ChecklistAnswer = props => {
 		};
 	} );
 
-	function toggleCheckboxLargeWindow() {
+	const toggleCheckboxLargeWindow = useCallback( () => {
 		if ( 'small' === windowWidth ) {
 			return;
 		}
 
 		setChecked( ! checked );
-	}
+	} );
 
-	function toggleCheckboxSmallWindow() {
+	const toggleCheckboxSmallWindow = useCallback( () => {
 		if ( 'large' === windowWidth ) {
 			return;
 		}
 
 		setChecked( ! checked );
-	}
+	} );
 
-	function toggleExpanded() {
+	const toggleExpanded = useCallback( () => {
 		setExpanded( ! expanded );
-	}
+	} );
 
 	const smallWindow = 'small' === windowWidth;
 
