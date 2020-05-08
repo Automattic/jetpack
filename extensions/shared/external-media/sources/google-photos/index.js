@@ -17,7 +17,7 @@ import { getApiUrl } from '../api';
 import GoogleFilterOption from './filter-option';
 import GoogleFilterView from './filter-view';
 import getFilterRequest from './filter-request';
-import { GooglePhotosLogo } from '../icons';
+import { GooglePhotosLogo } from '../../../icons';
 
 const isImageOnly = allowed => allowed && allowed.length === 1 && allowed[ 0 ] === 'image';
 

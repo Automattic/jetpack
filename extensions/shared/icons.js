@@ -1,7 +1,8 @@
 /**
  * External dependencies
  */
-import { Path, SVG } from '@wordpress/components';
+import { Path, Polygon, SVG } from '@wordpress/components';
+import classNames from 'classnames';
 
 export const MediaLibraryIcon = () => (
 	<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
@@ -70,5 +71,22 @@ export const GooglePhotosLogo = () => (
 			stroke="#43459D"
 			d="M412.199 313.4c1.7 1 3.2 2.3 4.601 3.8 34.1 34.4 68.6 68.4 102.6 102.8-42.7-.1-85.3.1-127.899 0 .1-18.2 0-36.5.1-54.7 6.699-17.3 13.899-34.5 20.598-51.9z"
 		/>
+	</SVG>
+);
+
+export default ( { size = 24, className } ) => (
+	<SVG
+		className={ classNames( 'jetpack-logo', className ) }
+		width={ size }
+		height={ size }
+		viewBox="0 0 32 32"
+	>
+		<Path
+			className="jetpack-logo__icon-circle"
+			fill="#00be28"
+			d="M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16s16-7.2,16-16S24.8,0,16,0z"
+		/>
+		<Polygon className="jetpack-logo__icon-triangle" fill="#fff" points="15,19 7,19 15,3 " />
+		<Polygon className="jetpack-logo__icon-triangle" fill="#fff" points="17,29 17,13 25,13 " />
 	</SVG>
 );

@@ -7,8 +7,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-
-import { GooglePhotosIcon, PexelsIcon } from './icons';
+import { GooglePhotosIcon, PexelsIcon } from '../../icons';
 import GooglePhotosMedia from './google-photos';
 import PexelsMedia from './pexels';
 import { SOURCE_WORDPRESS, SOURCE_GOOGLE_PHOTOS, SOURCE_PEXELS } from '../constants';
