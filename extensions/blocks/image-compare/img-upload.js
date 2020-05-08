@@ -9,15 +9,10 @@ import { Fragment } from '@wordpress/element';
 const ImgUpload = props => {
 	const { image, noticeOperations, noticeUI, onChange, placeHolderTitle, placeHolderLabel } = props;
 
-	const renderImage = (
-		<div className="image-compare__image-before">
-			<img id={ image.id } src={ image.url } alt={ image.alt } />
-		</div>
-	);
+	const renderImage = <img id={ image.id } src={ image.url } alt={ image.alt } />;
 
 	const renderPlaceholder = (
 		<Fragment>
-			<div className="components-placeholder__label">{ placeHolderTitle }</div>
 			<MediaPlaceholder
 				labels={ { title: placeHolderLabel } }
 				accept="image/*"

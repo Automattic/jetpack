@@ -87,7 +87,7 @@ const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) 
 				</PanelBody>
 			</InspectorControls>
 			<div className={ classes } data-mode={ orientation || 'horizontal' }>
-				<Placeholder>
+				<Placeholder label={ null }>
 					<div className="image-compare__image-before">
 						<ImgUpload
 							image={ {
@@ -95,8 +95,7 @@ const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) 
 								url: imageBeforeUrl,
 								alt: imageBeforeAlt,
 							} }
-							placeHolderTitle={ __( 'Image before', 'jetpack' ) }
-							placeHolderLabel={ __( 'First image to compare', 'jetpack' ) }
+							placeHolderLabel={ __( 'Image before', 'jetpack' ) }
 							onChange={ img => {
 								if ( img.media_type === 'image' || img.type === 'image' ) {
 									setAttributes( {
@@ -115,8 +114,7 @@ const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) 
 								url: imageAfterUrl,
 								alt: imageAfterAlt,
 							} }
-							placeHolderTitle={ __( 'Image after', 'jetpack' ) }
-							placeHolderLabel={ __( 'Second image to compare', 'jetpack' ) }
+							placeHolderLabel={ __( 'Image after', 'jetpack' ) }
 							onChange={ img => {
 								if ( img.media_type === 'image' || img.type === 'image' ) {
 									setAttributes( {

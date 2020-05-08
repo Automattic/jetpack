@@ -1,10 +1,9 @@
-.image-compare__placeholder {
-	.block-editor-block-list__layout {
-		display: flex;
-	}
+.image-compare__placeholder > .components-placeholder {
+	flex-direction: row;
+	align-items: center;
 
-	.block-editor-block-list__block {
-		width: 100%;
+	> .components-placeholder__label {
+		display: none;
 	}
 }
 
@@ -14,6 +13,16 @@
 	flex-direction: column;
 	flex: 1;
 	position: relative;
+
+	.components-placeholder.components-placeholder {
+		box-shadow: none;
+		padding: 0;
+		min-height: 0;
+
+		.components-placeholder__instructions {
+			display: none;
+		}
+	}
 }
 
 .components-placeholder.is-large {
@@ -33,7 +42,7 @@
 }
 
 // Disable the juxtaposition effect until the block itself is selected.
-[data-type="jetpack/image-compare-block"]:not(.is-selected) .image-compare__comparison {
+[data-type="jetpack/image-compare"]:not(.is-selected) .image-compare__comparison {
 	pointer-events: none;
 }
 
