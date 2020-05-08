@@ -51,41 +51,45 @@ export function setSearchQuery( searchValue ) {
 	pushQueryString( encode( query ) );
 }
 
-const DEFAULT_SORT_MAP = {
-	'date|DESC': 'date_desc',
-	'date|ASC': 'date_asc',
-	'relevance|DESC': 'score_default',
-};
+const DEFAULT_SORT_MAP = new Map( [
+	// Old sort keys for backward compatibility
+	[ 'date|DESC', 'date_desc' ],
+	[ 'date|ASC', 'date_asc' ],
+	[ 'relevance|DESC', 'score_default' ],
+	// New sort keys from the customizer
+	[ 'newest', 'date_desc' ],
+	[ 'oldest', 'date_asc' ],
+	[ 'relevance', 'score_default' ],
+] );
 
-// Convert a sort option like date|DESC to a sort key like date_desc
+const INVERTED_SORT_MAP = new Map( [
+	[ 'date_desc', 'date|DESC' ],
+	[ 'date_asc', 'date|ASC' ],
+	[ 'score_default', 'relevance|DESC' ],
+] );
+
+// Convert a sort option like 'date|DESC' or 'relevance' to a sort key like 'date_desc'
 export function getSortKeyFromSortOption( sortOption ) {
-	if ( ! Object.keys( DEFAULT_SORT_MAP ).includes( sortOption ) ) {
+	if ( ! DEFAULT_SORT_MAP.has( sortOption ) ) {
 		return null;
 	}
-
-	return DEFAULT_SORT_MAP[ sortOption ];
+	return DEFAULT_SORT_MAP.get( sortOption );
 }
 
-// Convert a sort key like date_desc to a sort option like date|DESC
+// Convert a sort key like 'date_desc' to a sort option like 'date|DESC'
+// Used primarily for setting sort select elements' value outside of the Instant Search app.
 export function getSortOptionFromSortKey( sortKey ) {
-	const sortKeyValues = Object.values( DEFAULT_SORT_MAP );
-
-	if ( ! sortKeyValues.includes( sortKey ) ) {
+	if ( ! INVERTED_SORT_MAP.has( sortKey ) ) {
 		return null;
 	}
 
-	return Object.keys( DEFAULT_SORT_MAP )[ sortKeyValues.indexOf( sortKey ) ];
+	return INVERTED_SORT_MAP.get( sortKey );
 }
 
-export function determineDefaultSort( initialSort, initialSearchString ) {
+export function determineDefaultSort( initialSort ) {
 	const query = getQuery();
 	if ( 'orderby' in query ) {
 		return getSortQuery();
-	}
-
-	// NOTE: Force descending date sorting when no initial search string is provided
-	if ( initialSearchString === '' ) {
-		return 'date_desc';
 	}
 
 	const sortKeyFromSortOption = getSortKeyFromSortOption( initialSort );
@@ -115,17 +119,18 @@ const SORT_QUERY_MAP = {
 	popularity: 'score_popularity',
 };
 
-export function getSortQuery() {
+export function getSortQuery( initialSort ) {
 	const query = getQuery();
-	const order = 'order' in query ? query.order : 'DESC';
-	const orderby = 'orderby' in query ? query.orderby : 'relevance';
-	let sort = 'score_default';
+
+	const order = query.order;
+	const orderby = query.orderby;
 	if ( ORDERED_SORT_TYPES.includes( orderby ) ) {
-		sort = SORT_QUERY_MAP[ orderby ][ order ];
+		return SORT_QUERY_MAP[ orderby ][ order ];
 	} else if ( Object.keys( SORT_QUERY_MAP ).includes( orderby ) ) {
-		sort = SORT_QUERY_MAP[ orderby ];
+		return SORT_QUERY_MAP[ orderby ];
 	}
-	return sort;
+
+	return initialSort;
 }
 
 export function setSortQuery( sortKey ) {

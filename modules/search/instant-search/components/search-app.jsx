@@ -128,6 +128,8 @@ class SearchApp extends Component {
 		document.body.style.overflowY = null;
 	}
 
+	getSort = () => getSortQuery( this.props.initialSort );
+
 	hasActiveQuery() {
 		return getSearchQuery() !== '' || hasFilter();
 	}
@@ -207,12 +209,14 @@ class SearchApp extends Component {
 		} );
 
 		document.querySelectorAll( this.props.themeOptions.searchSortSelector ).forEach( select => {
-			select.value = getSortOptionFromSortKey( getSortQuery() );
+			select.value = getSortOptionFromSortKey( this.getSort() );
 		} );
 
 		// NOTE: This is necessary to ensure that the search query has been propagated to SearchBox
 		this.forceUpdate();
 	};
+
+	onChangeSort = sort => setSortQuery( sort );
 
 	loadNextPage = () => {
 		this.hasNextPage() && this.getResults( { pageHandle: this.state.response.page_handle } );
@@ -221,7 +225,7 @@ class SearchApp extends Component {
 	getResults = ( {
 		query = getSearchQuery(),
 		filter = getFilterQuery(),
-		sort = getSortQuery(),
+		sort = this.getSort(),
 		resultFormat = getResultFormatQuery(),
 		pageHandle,
 	} = {} ) => {
@@ -288,6 +292,7 @@ class SearchApp extends Component {
 					isLoading={ this.state.isLoading }
 					isVisible={ this.state.showResults }
 					locale={ this.props.options.locale }
+					onChangeSort={ this.onChangeSort }
 					onLoadNextPage={ this.loadNextPage }
 					overlayTrigger={ this.state.overlayOptions.overlayTrigger }
 					postTypes={ this.props.options.postTypes }
@@ -295,6 +300,7 @@ class SearchApp extends Component {
 					response={ this.state.response }
 					resultFormat={ getResultFormatQuery() }
 					showPoweredBy={ this.state.overlayOptions.showPoweredBy }
+					sort={ this.getSort() }
 					widgets={ this.props.options.widgets }
 					widgetsOutsideOverlay={ this.props.options.widgetsOutsideOverlay }
 				/>
