@@ -116,3 +116,13 @@ export const GOOGLE_PHOTOS_CATEGORIES = [
 		label: __( 'Weddings', 'jetpack' ),
 	},
 ];
+export const PEXELS_EXAMPLE_QUERIES = [
+	'mountain',
+	'ocean',
+	'river',
+	'clouds',
+	'pattern',
+	'shapes',
+	'abstract',
+	'sky',
+];
