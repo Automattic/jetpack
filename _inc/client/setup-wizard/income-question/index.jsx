@@ -31,26 +31,26 @@ const IncomeQuestion = props => {
 			<p className="jp-setup-wizard-subtitle">{ __( 'Check all that apply' ) }</p>
 			<div className="jp-setup-wizard-income-answer-container">
 				<ChecklistAnswer
-					title={ 'Advertising or affiliate marketing' }
-					details={ "You're planning on putting ads and or affiliate links on your website." }
+					title={ __( 'Advertising or affiliate marketing' ) }
+					details={ __( "You're planning on putting ads and or affiliate links on your website." ) }
 				/>
 				<ChecklistAnswer
-					title={ 'Online store' }
-					details={
+					title={ __( 'Online store' ) }
+					details={ __(
 						"You're planning on selling physical goods, digital downloads, or services directly to your customers."
-					}
+					) }
 				/>
 				<ChecklistAnswer
-					title={ 'Appointments / bookings' }
-					details={
+					title={ __( 'Appointments / bookings' ) }
+					details={ __(
 						'Your services require booking appointments online, for example a hair salon or accountant.'
-					}
+					) }
 				/>
 				<ChecklistAnswer
-					title={ 'Physical location' }
-					details={
+					title={ __( 'Physical location' ) }
+					details={ __(
 						'You have a physical store or business and this website will help drive foot traffic to your location.'
-					}
+					) }
 				/>
 			</div>
 			<div className="jp-setup-wizard-advance-container">
