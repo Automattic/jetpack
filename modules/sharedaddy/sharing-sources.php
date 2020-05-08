@@ -436,7 +436,7 @@ abstract class Deprecated_Sharing_Source extends Sharing_Source {
 	 *
 	 * @param \WP_Post $post The current post being viewed.
 	 */
-	final public function get_amp_display( $post ) { // phpcs:ignore
+	final public function get_amp_display( $post ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return false;
 	}
 
