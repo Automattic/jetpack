@@ -41,10 +41,6 @@ function jetpack_debugger_site_status_tests( $core_tests ) {
 					return;
 				}
 
-				if ( isset( $results['show_in_site_health'] ) && false === $results['show_in_site_health'] ) {
-					return;
-				}
-
 				$label = $results['label'] ?
 					$results['label'] :
 					ucwords(
