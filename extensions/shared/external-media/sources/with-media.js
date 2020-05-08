@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-
 import { uniqBy } from 'lodash';
 import classnames from 'classnames';
 
@@ -17,9 +16,25 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-
 import { PATH_RECENT } from '../constants';
 import MediaItem from '../media-browser/media-item';
+
+const CopyingMedia = ( { items } ) => {
+	const classname =
+		items.length === 1
+			? 'jetpack-external-media-browser__single'
+			: 'jetpack-external-media-browser';
+
+	return (
+		<div className={ classname }>
+			<div className="jetpack-external-media-browser__media">
+				{ items.map( item => (
+					<MediaItem item={ item } key={ item.ID } isSelected isCopying />
+				) ) }
+			</div>
+		</div>
+	);
+};
 
 export default function withMedia() {
 	return createHigherOrderComponent( OriginalComponent => {
@@ -151,24 +166,6 @@ export default function withMedia() {
 				this.setState( { path }, cb );
 			};
 
-			renderCopying() {
-				const items = this.state.isCopying;
-				const classname =
-					items.length === 1
-						? 'jetpack-external-media-browser__single'
-						: 'jetpack-external-media-browser';
-
-				return (
-					<div className={ classname }>
-						<div className="jetpack-external-media-browser__media">
-							{ items.map( item => (
-								<MediaItem item={ item } key={ item.ID } isSelected isCopying />
-							) ) }
-						</div>
-					</div>
-				);
-			}
-
 			stopPropagation( event ) {
 				event.stopPropagation();
 			}
@@ -213,7 +210,7 @@ export default function withMedia() {
 						title={ isCopying ? __( 'Copying Media', 'jetpack' ) : __( 'Select Media', 'jetpack' ) }
 						className={ classes }
 					>
-						{ isCopying ? this.renderCopying() : this.renderContent() }
+						{ isCopying ? <CopyingMedia items={ isCopying } /> : this.renderContent() }
 					</Modal>
 				);
 			}
