@@ -8,7 +8,7 @@ import classnames from 'classnames';
  * WordPress dependencies
  */
 
-import { Component, Fragment } from '@wordpress/element';
+import { Component, Fragment, memo } from '@wordpress/element';
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
@@ -21,6 +21,12 @@ import MediaItem from './media-item';
 
 const MAX_SELECTED = 10;
 
+const EmptyResults = memo( () => (
+	<div className="jetpack-external-media-browser__empty">
+		<p>{ __( 'We found nothing.', 'jetpack' ) }</p>
+	</div>
+) );
+
 class MediaBrowser extends Component {
 	constructor( props ) {
 		super( props );
@@ -28,16 +34,6 @@ class MediaBrowser extends Component {
 		this.state = {
 			selected: [],
 		};
-	}
-
-	renderPlaceholders() {
-		return (
-			<Fragment>
-				<MediaPlaceholder />
-				<MediaPlaceholder />
-				<MediaPlaceholder />
-			</Fragment>
-		);
 	}
 
 	onSelectImage = newlySelected => {
@@ -67,14 +63,6 @@ class MediaBrowser extends Component {
 		this.props.nextPage();
 	};
 
-	renderEmpty() {
-		return (
-			<div className="jetpack-external-media-browser__empty">
-				<p>{ __( 'We found nothing.', 'jetpack' ) }</p>
-			</div>
-		);
-	}
-
 	render() {
 		const { media, isLoading, pageHandle } = this.props;
 		const { selected } = this.state;
@@ -100,8 +88,8 @@ class MediaBrowser extends Component {
 						/>
 					) ) }
 
-					{ media.length === 0 && ! isLoading && this.renderEmpty() }
-					{ isLoading && this.renderPlaceholders() }
+					{ media.length === 0 && ! isLoading && <EmptyResults /> }
+					{ isLoading && <MediaPlaceholder /> }
 
 					{ pageHandle && ! isLoading && (
 						<Button
