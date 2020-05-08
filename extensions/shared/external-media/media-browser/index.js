@@ -8,7 +8,7 @@ import classnames from 'classnames';
  * WordPress dependencies
  */
 
-import { Component, Fragment, memo } from '@wordpress/element';
+import { memo, useCallback, useState } from '@wordpress/element';
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
@@ -27,93 +27,82 @@ const EmptyResults = memo( () => (
 	</div>
 ) );
 
-class MediaBrowser extends Component {
-	constructor( props ) {
-		super( props );
+function MediaBrowser( props ) {
+	const { media, isLoading, pageHandle, className, multiple, setPath, nextPage, onCopy } = props;
+	const [ selected, setSelected ] = useState( [] );
 
-		this.state = {
-			selected: [],
-		};
-	}
+	const onSelectImage = useCallback(
+		newlySelected => {
+			let newSelected = [ newlySelected ];
 
-	onSelectImage = newlySelected => {
-		const { selected } = this.state;
-		let newSelected = [ newlySelected ];
+			if ( newlySelected.type === 'folder' ) {
+				setPath( newlySelected.ID );
+			} else if ( multiple ) {
+				newSelected = selected.slice( 0, MAX_SELECTED - 1 ).concat( newlySelected );
 
-		if ( newlySelected.type === 'folder' ) {
-			this.props.setPath( newlySelected.ID );
-		} else if ( this.props.multiple ) {
-			newSelected = selected.slice( 0, MAX_SELECTED - 1 ).concat( newlySelected );
-
-			if ( selected.find( item => newlySelected.ID === item.ID ) ) {
-				newSelected = selected.filter( item => item.ID !== newlySelected.ID );
+				if ( selected.find( item => newlySelected.ID === item.ID ) ) {
+					newSelected = selected.filter( item => item.ID !== newlySelected.ID );
+				}
+			} else if ( selected.length === 1 && newlySelected.ID === selected[ 0 ].ID ) {
+				newSelected = [];
 			}
-		} else if ( selected.length === 1 && newlySelected.ID === selected[ 0 ].ID ) {
-			newSelected = [];
-		}
 
-		this.setState( { selected: newSelected } );
-	};
+			setSelected( newSelected );
+		},
+		[ selected, multiple, setPath ]
+	);
 
-	onCopy = () => {
-		this.props.onCopy( this.state.selected );
-	};
+	const onCopyAndInsert = useCallback( () => {
+		onCopy( selected );
+	}, [ selected, onCopy ] );
 
-	onNextPage = () => {
-		this.props.nextPage();
-	};
+	const hasMediaItems = media.filter( item => item.type !== 'folder' ).length > 0;
+	const classes = classnames( {
+		'jetpack-external-media-browser__media': true,
+		'jetpack-external-media-browser__media__loading': isLoading,
+	} );
+	const wrapper = classnames( {
+		'jetpack-external-media-browser': true,
+		[ className ]: true,
+	} );
 
-	render() {
-		const { media, isLoading, pageHandle } = this.props;
-		const { selected } = this.state;
-		const hasMediaItems = media.filter( item => item.type !== 'folder' ).length > 0;
-		const classes = classnames( {
-			'jetpack-external-media-browser__media': true,
-			'jetpack-external-media-browser__media__loading': isLoading,
-		} );
-		const wrapper = classnames( {
-			'jetpack-external-media-browser': true,
-			[ this.props.className ]: true,
-		} );
+	return (
+		<div className={ wrapper }>
+			<div className={ classes }>
+				{ media.map( item => (
+					<MediaItem
+						item={ item }
+						key={ item.ID }
+						onClick={ onSelectImage }
+						isSelected={ selected.find( toFind => toFind.ID === item.ID ) }
+					/>
+				) ) }
 
-		return (
-			<div className={ wrapper }>
-				<div className={ classes }>
-					{ media.map( item => (
-						<MediaItem
-							item={ item }
-							key={ item.ID }
-							onClick={ this.onSelectImage }
-							isSelected={ selected.find( toFind => toFind.ID === item.ID ) }
-						/>
-					) ) }
+				{ media.length === 0 && ! isLoading && <EmptyResults /> }
+				{ isLoading && <MediaPlaceholder /> }
 
-					{ media.length === 0 && ! isLoading && <EmptyResults /> }
-					{ isLoading && <MediaPlaceholder /> }
-
-					{ pageHandle && ! isLoading && (
-						<Button
-							isLarge
-							isSecondary
-							className="jetpack-external-media-browser__loadmore"
-							disabled={ isLoading }
-							onClick={ this.onNextPage }
-						>
-							{ __( 'Load More', 'jetpack' ) }
-						</Button>
-					) }
-				</div>
-
-				{ hasMediaItems && (
-					<div className="jetpack-external-media-browser__media__toolbar">
-						<Button isPrimary isLarge disabled={ selected.length === 0 } onClick={ this.onCopy }>
-							{ __( 'Copy & Insert', 'jetpack' ) }
-						</Button>
-					</div>
+				{ pageHandle && ! isLoading && (
+					<Button
+						isLarge
+						isSecondary
+						className="jetpack-external-media-browser__loadmore"
+						disabled={ isLoading }
+						onClick={ nextPage }
+					>
+						{ __( 'Load More', 'jetpack' ) }
+					</Button>
 				) }
 			</div>
-		);
-	}
+
+			{ hasMediaItems && (
+				<div className="jetpack-external-media-browser__media__toolbar">
+					<Button isPrimary isLarge disabled={ selected.length === 0 } onClick={ onCopyAndInsert }>
+						{ __( 'Copy & Insert', 'jetpack' ) }
+					</Button>
+				</div>
+			) }
+		</div>
+	);
 }
 
 export default MediaBrowser;
