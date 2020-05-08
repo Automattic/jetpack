@@ -143,6 +143,7 @@ BODY;
 		$shortcode_content = do_shortcode( $content );
 
 		$this->assertContains( 'ted.com/talks/louie_schwartzberg_hidden_miracles_of_the_natural_world', $shortcode_content );
+		$this->assertContains( 'sandbox="allow-popups allow-scripts allow-same-origin"', $shortcode_content );
 
 		unset( $GLOBALS[ 'post' ] );
 	}
@@ -217,36 +218,5 @@ BODY;
 		$this->assertContains( 'ted.com/talks/louie_schwartzberg_hidden_miracles_of_the_natural_world', $shortcode_content );
 
 		unset( $GLOBALS[ 'post' ] );
-	}
-
-	/**
-	 * Gets data for test_shortcodes_ted_oembed_iframe().
-	 *
-	 * @return array
-	 */
-	public function get_data_shortcodes_ted() {
-		return array(
-			'shortcode' => array(
-				'[ted id="1" lang="en" width="640" height="360"]',
-				'<iframe title="Louie Schwartzberg: Hidden miracles of the natural world" src="https://embed.ted.com/talks/louie_schwartzberg_hidden_miracles_of_the_natural_world" sandbox="allow-popups allow-scripts allow-same-origin" width="640" height="360" frameborder="0" scrolling="no" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>',
-			),
-		);
-	}
-
-	/**
-	 * Checks filtered oembed for AMP and non AMP pages.
-	 *
-	 * @dataProvider get_data_shortcodes_ted
-	 * @author pereirinha
-	 * @covers ::shortcode_ted
-	 * @since 8.5
-	 *
-	 * @param string $shortcode The shortcode.
-	 * @param string $expected  The expected outcome.
-	 */
-	public function test_shortcodes_ted_oembed_iframe( $shortcode, $expected ) {
-		$actual = do_shortcode( $shortcode );
-
-		$this->assertEquals( $actual, $expected );
 	}
 }
