@@ -7,6 +7,8 @@
 	}
 
 	@include breakpoint( '>660px' ) {
+		padding-top: 0.5rem;
+
 		display: grid;
 		grid-template-rows: 2.5rem auto;
 		grid-template-columns: auto auto;
