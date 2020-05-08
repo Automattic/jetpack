@@ -8,6 +8,7 @@ import { addFilter } from '@wordpress/hooks';
  */
 import MediaButton from './media-button';
 import { mediaSources } from './sources';
+import './editor.scss';
 
 function insertExternalMediaBlocks( settings, name ) {
 	if ( name !== 'core/image' ) {

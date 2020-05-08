@@ -2,9 +2,18 @@
  * External Media
  */
 
-@import '../variables';
-
+$font-stack: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
+$font-size: 14px;
+$icon-size: 24px;
+$line-height: 1.6;
+$radius-roundrect: 8px;
+$radius-round: 50%;
+$grid-size: 8px;
+$tabbar-height: 48px;
 $border-width-tab: 3px;
+
+// G2 colors.
+$blue-g2: #3858e9;
 
 @keyframes loading-fade {
 	0% {
@@ -241,7 +250,7 @@ $border-width-tab: 3px;
  .jetpack-external-media-header__view {
 	display: flex;
 	align-items: center;
-	justify-content: start;
+	justify-content: flex-start;
 	margin-bottom: 48px;
 
 	select {
