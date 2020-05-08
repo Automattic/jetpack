@@ -195,4 +195,30 @@ class JITM {
 		}
 		return $content_icon;
 	}
+
+	/**
+	 * Stores dismiss data into an option
+	 *
+	 * @param string $key Dismiss key.
+	 */
+	public function save_dismiss( $key ) {
+		$hide_jitm = \Jetpack_Options::get_option( 'hide_jitm' );
+		if ( ! is_array( $hide_jitm ) ) {
+			$hide_jitm = array();
+		}
+
+		if ( ! isset( $hide_jitm[ $key ] ) || ! is_array( $hide_jitm[ $key ] ) ) {
+			$hide_jitm[ $key ] = array(
+				'last_dismissal' => 0,
+				'number'         => 0,
+			);
+		}
+
+		$hide_jitm[ $key ] = array(
+			'last_dismissal' => time(),
+			'number'         => $hide_jitm[ $key ]['number'] + 1,
+		);
+
+		\Jetpack_Options::update_option( 'hide_jitm', $hide_jitm );
+	}
 }

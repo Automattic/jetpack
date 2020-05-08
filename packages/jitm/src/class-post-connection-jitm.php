@@ -303,35 +303,7 @@ class Post_Connection_JITM extends JITM {
 				'feature_class' => $feature_class,
 			)
 		);
-
-		$hide_jitm = \Jetpack_Options::get_option( 'hide_jitm' );
-		if ( ! is_array( $hide_jitm ) ) {
-			$hide_jitm = array();
-		}
-
-		if ( isset( $hide_jitm[ $feature_class ] ) ) {
-			if ( ! is_array( $hide_jitm[ $feature_class ] ) ) {
-				$hide_jitm[ $feature_class ] = array(
-					'last_dismissal' => 0,
-					'number'         => 0,
-				);
-			}
-		} else {
-			$hide_jitm[ $feature_class ] = array(
-				'last_dismissal' => 0,
-				'number'         => 0,
-			);
-		}
-
-		$number = $hide_jitm[ $feature_class ]['number'];
-
-		$hide_jitm[ $feature_class ] = array(
-			'last_dismissal' => time(),
-			'number'         => $number + 1,
-		);
-
-		\Jetpack_Options::update_option( 'hide_jitm', $hide_jitm );
-
+		$this->save_dismiss( $feature_class );
 		return true;
 	}
 

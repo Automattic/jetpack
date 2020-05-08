@@ -126,30 +126,11 @@ class Pre_Connection_JITM extends JITM {
 	 * Dismisses a JITM ID so that it will no longer be shown.
 	 *
 	 * @param string $id The id of the JITM that was dismissed.
-	 * @param string $feature_class The feature class of the JITM that was dismissed. Unused in this subclass.
 	 *
 	 * @return bool Always true
 	 */
-	public function dismiss( $id, $feature_class ) {
-		$hide_jitm = \Jetpack_Options::get_option( 'hide_jitm' );
-		if ( ! is_array( $hide_jitm ) ) {
-			$hide_jitm = array();
-		}
-
-		if ( empty( $hide_jitm[ 'pre-connection-' . $id ] ) || ! is_array( $hide_jitm[ 'pre-connection-' . $id ] ) ) {
-			$hide_jitm[ 'pre-connection-' . $id ] = array(
-				'last_dismissal' => 0,
-				'number'         => 0,
-			);
-		}
-
-		$hide_jitm[ 'pre-connection-' . $id ] = array(
-			'last_dismissal' => time(),
-			'number'         => intval( $hide_jitm[ 'pre-connection-' . $id ]['number'] ) + 1,
-		);
-
-		\Jetpack_Options::update_option( 'hide_jitm', $hide_jitm );
-
+	public function dismiss( $id ) {
+		$this->save_dismiss( 'pre-connection-' . $id );
 		return true;
 	}
 }
