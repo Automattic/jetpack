@@ -3,7 +3,7 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 import { __ } from '@wordpress/i18n';
-import { Component, Fragment } from '@wordpress/element';
+import { useState, useCallback } from '@wordpress/element';
 import { Button } from '@wordpress/components';
 
 /**
@@ -14,20 +14,16 @@ import { SOURCE_GOOGLE_PHOTOS } from '../../constants';
 // Remove following line, once package is ready.
 const requestExternalAccess = () => {};
 import { getApiUrl } from '../api';
-import { GooglePhotosLogo } from '../../../icons';
+import AuthInstructions from './auth-instructions';
+import AuthProgress from './auth-progress';
 
-class GooglePhotosAuth extends Component {
-	constructor( props ) {
-		super( props );
+function GooglePhotosAuth( props ) {
+	const { getNextPage } = props;
 
-		// Set default mediaType filter if we are only allowed images
-		this.state = {
-			isAuthing: false,
-		};
-	}
+	const [ isAuthing, setIsAuthing ] = useState( false );
 
-	onAuthorize = () => {
-		this.setState( { isAuthing: true } );
+	const onAuthorize = useCallback( () => {
+		setIsAuthing( true );
 
 		// Get connection details
 		apiFetch( {
@@ -40,70 +36,25 @@ class GooglePhotosAuth extends Component {
 
 				// Open authorize URL in a window and let it play out
 				requestExternalAccess( service.connect_URL, () => {
-					this.setState( { isAuthing: false } );
-					this.getNextPage( true );
+					setIsAuthing( false );
+					getNextPage( true );
 				} );
 			} )
 			.catch( () => {
 				// Not much we can tell the user at this point so let them try and auth again
-				this.setState( { isAuthing: false } );
+				setIsAuthing( false );
 			} );
-	};
+	}, [] );
 
-	getAuthInstructions( isAuthing ) {
-		if ( isAuthing ) {
-			return __( 'Awaiting authorization', 'jetpack' );
-		}
+	return (
+		<div className="jetpack-external-media-auth">
+			{ isAuthing ? <AuthProgress /> : <AuthInstructions /> }
 
-		return (
-			<Fragment>
-				<GooglePhotosLogo />
-				<p>
-					{ __(
-						'To show your Google Photos library you need to connect your Google account.',
-						'jetpack'
-					) }
-				</p>
-				<p>{ __( 'You can remove the connection in either of these places:', 'jetpack' ) }</p>
-				<ul>
-					<li>
-						<a
-							target="_blank"
-							rel="noopener noreferrer"
-							href="https://myaccount.google.com/security"
-						>
-							{ __( 'Google Security page', 'jetpack' ) }
-						</a>
-					</li>
-					<li>
-						<a
-							target="_blank"
-							rel="noopener noreferrer"
-							href="https://wordpress.com/marketing/connections/"
-						>
-							{ __( 'WordPress.com Connections', 'jetpack' ) }
-						</a>
-					</li>
-				</ul>
-			</Fragment>
-		);
-	}
-
-	render() {
-		const { requiresAuth } = this.props;
-		const { isAuthing } = this.state;
-
-		if ( requiresAuth ) {
-			return (
-				<div className="jetpack-external-media-auth">
-					<p>{ this.getAuthInstructions( isAuthing ) }</p>
-					<Button isPrimary disabled={ isAuthing } onClick={ this.onAuthorize }>
-						{ __( 'Authorize', 'jetpack' ) }
-					</Button>
-				</div>
-			);
-		}
-	}
+			<Button isPrimary disabled={ isAuthing } onClick={ onAuthorize }>
+				{ __( 'Authorize', 'jetpack' ) }
+			</Button>
+		</div>
+	);
 }
 
 export default GooglePhotosAuth;
