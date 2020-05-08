@@ -19,7 +19,7 @@ use WP_Error;
  */
 class Plugin_Storage {
 
-	const ACTIVE_PLUGINS_OPTION_NAME = 'connection_plugins_active';
+	const ACTIVE_PLUGINS_OPTION_NAME = 'jetpack_connection_active_plugins';
 
 	/**
 	 * Whether this class was configured for the first time or not.
