@@ -38,11 +38,7 @@ module.exports = [
 			filename: 'jp-search.bundle.js',
 		},
 		performance: isDevelopment
-			? {
-					maxAssetSize: 500000,
-					maxEntrypointSize: 500000,
-					hints: 'error',
-			  }
+			? false
 			: {
 					maxAssetSize: 122880,
 					maxEntrypointSize: 122880,

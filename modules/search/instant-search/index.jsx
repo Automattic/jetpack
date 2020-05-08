@@ -3,6 +3,9 @@
 /**
  * External dependencies
  */
+if ( process.env.NODE_ENV !== 'production' ) {
+	require( 'preact/debug' );
+}
 import { h, render } from 'preact';
 
 /**
