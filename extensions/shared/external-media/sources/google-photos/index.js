@@ -12,7 +12,9 @@ import { SelectControl, Button } from '@wordpress/components';
 import { SOURCE_GOOGLE_PHOTOS, PATH_RECENT, PATH_ROOT } from '../../constants';
 import withMedia from '../with-media';
 import MediaBrowser from '../../media-browser';
-import requestExternalAccess from '../request-external-access';
+// TODO: import requestExternalAccess from '@automattic/request-external-access';
+// Remove following line, once package is ready.
+const requestExternalAccess = () => {};
 import { getApiUrl } from '../api';
 import GoogleFilterOption from './filter-option';
 import GoogleFilterView from './filter-view';
