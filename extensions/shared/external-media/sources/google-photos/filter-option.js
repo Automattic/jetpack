@@ -99,7 +99,7 @@ function FilterOption( { children, removeFilter } ) {
 			{ children }
 
 			<Button onClick={ removeFilter } isSmall>
-				Remove Filter
+				{ __( 'Remove Filter', 'jetpack' ) }
 			</Button>
 		</div>
 	);
