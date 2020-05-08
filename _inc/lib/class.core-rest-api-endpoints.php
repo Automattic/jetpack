@@ -164,6 +164,17 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'permission_callback' => __CLASS__ . '::get_user_connection_data_permission_callback',
 		) );
 
+		// Get list of plugins that use the Jetpack connection.
+		register_rest_route(
+			'jetpack/v4',
+			'/connection/plugins',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_connection_plugins',
+				'permission_callback' => __CLASS__ . '::activate_plugins_permission_check',
+			)
+		);
+
 		// Start the connection process by registering the site on WordPress.com servers.
 		register_rest_route( 'jetpack/v4', '/connection/register', array(
 			'methods'             => WP_REST_Server::EDITABLE,
@@ -1085,6 +1096,28 @@ class Jetpack_Core_Json_Api_Endpoints {
 		} else {
 			return $cxntests->output_fails_as_wp_error();
 		}
+	}
+
+	/**
+	 * Get plugins connected to the Jetpack.
+	 *
+	 * @return WP_REST_Response|WP_Error Response or error object, depending on the request result.
+	 */
+	public static function get_connection_plugins() {
+		$plugins = ( new Connection_Manager() )->get_connected_plugins();
+
+		if ( is_wp_error( $plugins ) ) {
+			return $plugins;
+		}
+
+		array_walk(
+			$plugins,
+			function( &$data, $slug ) {
+				$data['slug'] = $slug;
+			}
+		);
+
+		return rest_ensure_response( array_values( $plugins ) );
 	}
 
 	/**

@@ -96,3 +96,26 @@ add_shortcode( 'ted', 'shortcode_ted' );
 function ted_filter_oembed_fetch_url( $provider, $url, $args ) {
 	return add_query_arg( 'lang', $args['lang'], $provider );
 }
+
+/**
+ * Filter the oembed html to set the sandbox attribute in the iframe
+ *
+ * @param string|false $cache The cached HTML result, stored in post meta.
+ * @param string       $url   The attempted embed URL.
+ *
+ * @return string|false
+ */
+function ted_filter_oembed_amp_iframe( $cache, $url ) {
+	if ( is_string( $cache )
+		&& strpos( $url, 'ted.com' )
+	) {
+		$cache = preg_replace(
+			'/src=[\'"].*?[\'"]/',
+			'$0 sandbox="allow-popups allow-scripts allow-same-origin"',
+			$cache
+		);
+	}
+
+	return $cache;
+}
+add_filter( 'embed_oembed_html', 'ted_filter_oembed_amp_iframe', 10, 2 );

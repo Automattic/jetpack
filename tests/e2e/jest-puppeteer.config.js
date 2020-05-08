@@ -21,6 +21,8 @@ module.exports = {
 		slowMo: parseInt( PUPPETEER_SLOWMO, 10 ) || 0,
 		executablePath,
 		dumpio,
+		// Workaround for detached iFrames, which is needed for in-place connection. https://stackoverflow.com/a/59999976/3078381
+		args: [ '--disable-features=site-per-process' ],
 	},
 	/**
 	 * Switched to false to make tests work with WP.com due to Chromium error:

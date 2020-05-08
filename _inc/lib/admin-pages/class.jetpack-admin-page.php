@@ -231,7 +231,7 @@ abstract class Jetpack_Admin_Page {
 	static function load_wrapper_styles() {
 		$rtl = is_rtl() ? '.rtl' : '';
 		wp_enqueue_style( 'dops-css', plugins_url( "_inc/build/admin{$rtl}.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
-		wp_enqueue_style( 'components-css', plugins_url( "_inc/build/style.min{$rtl}.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
+		wp_enqueue_style( 'components-css', plugins_url( "_inc/build/style.min{$rtl}.css", JETPACK__PLUGIN_FILE ), array( 'wp-components' ), JETPACK__VERSION );
 		$custom_css = '
 			#wpcontent {
 				padding-left: 0 !important;

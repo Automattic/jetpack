@@ -60,7 +60,7 @@ class WP_Test_Jetpack_Shortcodes_CrowdSignal extends WP_UnitTestCase {
 
 		$this->assertEquals(
 			sprintf(
-				'<a name="pd_a_%1$d"></a><div class="CSS_Poll PDS_Poll" id="PDI_container%1$d" data-settings="{&quot;url&quot;:&quot;https:\/\/secure.polldaddy.com\/p\/%1$d.js&quot;}" style="display:inline-block;"></div><div id="PD_superContainer"></div><noscript><a href="https://polldaddy.com/p/%1$d" target="_blank">Take Our Poll</a></noscript>',
+				'<a name="pd_a_%1$d"></a><div class="CSS_Poll PDS_Poll" id="PDI_container%1$d" data-settings="{&quot;url&quot;:&quot;https:\/\/secure.polldaddy.com\/p\/%1$d.js&quot;}" style=""></div><div id="PD_superContainer"></div><noscript><a href="https://polldaddy.com/p/%1$d" target="_blank">Take Our Poll</a></noscript>',
 				$id
 			),
 			$shortcode_content
@@ -81,7 +81,7 @@ class WP_Test_Jetpack_Shortcodes_CrowdSignal extends WP_UnitTestCase {
 
 		$this->assertEquals(
 			sprintf(
-				'<a name="pd_a_%1$d"></a><div class="CSS_Poll PDS_Poll" id="PDI_container%1$d" data-settings="{&quot;url&quot;:&quot;https:\/\/secure.polldaddy.com\/p\/%1$d.js&quot;}" style="display:inline-block;"></div><div id="PD_superContainer"></div><noscript><a href="https://poll.fm/%1$d" target="_blank">Take Our Poll</a></noscript>',
+				'<a name="pd_a_%1$d"></a><div class="CSS_Poll PDS_Poll" id="PDI_container%1$d" data-settings="{&quot;url&quot;:&quot;https:\/\/secure.polldaddy.com\/p\/%1$d.js&quot;}" style=""></div><div id="PD_superContainer"></div><noscript><a href="https://poll.fm/%1$d" target="_blank">Take Our Poll</a></noscript>',
 				$id
 			),
 			$shortcode_content

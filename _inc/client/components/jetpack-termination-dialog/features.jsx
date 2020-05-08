@@ -23,6 +23,7 @@ class JetpackTerminationDialogFeatures extends Component {
 		isDevVersion: PropTypes.bool,
 		purpose: PropTypes.oneOf( [ 'disconnect', 'disable' ] ).isRequired,
 		siteBenefits: PropTypes.array.isRequired,
+		connectedPlugins: PropTypes.array.isRequired,
 	};
 
 	renderCDNReason() {
@@ -85,8 +86,18 @@ class JetpackTerminationDialogFeatures extends Component {
 		);
 	}
 
+	renderConnectedPlugins( plugins ) {
+		return (
+			<ul>
+				{ plugins.map( plugin => (
+					<li key={ plugin.slug }>{ plugin.name }</li>
+				) ) }
+			</ul>
+		);
+	}
+
 	render() {
-		const { isDevVersion, purpose, siteBenefits } = this.props;
+		const { isDevVersion, purpose, siteBenefits, connectedPlugins } = this.props;
 
 		const siteBenefitCount = siteBenefits.length;
 
@@ -132,6 +143,29 @@ class JetpackTerminationDialogFeatures extends Component {
 							{ this.renderProtectReason() }
 							{ this.renderSocialReason() }
 						</ul>
+					</div>
+				) }
+				{ connectedPlugins.length > 0 && (
+					<div className="jetpack-termination-dialog__generic-info">
+						<h2>
+							{ __(
+								'The Jetpack Connection is also used by another plugin.',
+								'The Jetpack Connection is also used by other plugins.',
+								{
+									count: connectedPlugins.length,
+								}
+							) }
+						</h2>
+						<p>
+							{ __(
+								'If you disconnect Jetpack from WordPress.com, the following plugin will also be disconnected:',
+								'If you disconnect Jetpack from WordPress.com, the following plugins will also be disconnected:',
+								{
+									count: connectedPlugins.length,
+								}
+							) }
+						</p>
+						{ this.renderConnectedPlugins( connectedPlugins ) }
 					</div>
 				) }
 				<div className="jetpack-termination-dialog__get-help">
