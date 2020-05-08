@@ -154,6 +154,45 @@ rsync -az --delete _inc/blocks/ \
 
 To test extensions for a Simple site in Calypso, sandbox the simple site URL (`example.wordpress.com`). Calypso loads Gutenberg from simple sites’ wp-admin in an iframe.
 
+## Paid blocks
+
+Blocks can be restricted to specific paid plans in both WordPress.com and Jetpack. When registering a block using `jetpack_register_block`, pass `plan_check => true` as a key in the second argument. When the block is registerd we check the plan data to see if the user's plan supports this block. For example:
+
+```
+function register_block() {
+	jetpack_register_block(		jetpack_register_block(
+		BLOCK_NAME,
+		array(
+			'render_callback' => __NAMESPACE__ . '\load_assets',
+			'plan_check'      => true,
+		)
+	);
+}
+```
+
+Sometimes blocks are paid for WordPress.com users but free for Jetpack users. In these cases it is still necessary to add the block to the plan data for both environments, for example:
+
+```
+	const PLAN_DATA = array(
+		'free'     => array(
+			'plans'    => array(
+				'jetpack_free',
+			),
+			'supports' => array(
+				'opentable',
+				'calendly',
+			),
+		),
+```
+
+### Upgrades
+Paid blocks that aren't supported by a user's plan will still be registered for use in the block editor, but won't render on the frontend of the site. An `UpgradeNudge` component will display above the block in the editor and one the front end of the site to inform users that this is a paid block.
+
+### Terminology
+Blocks can be registered but not available:
+- Registered: The block appears in the block inserter
+- Available: The block is included in the user's current plan and renders in the front end of the site
+
 ## Good to know when developing Gutenberg extensions
 
 ### The Build
