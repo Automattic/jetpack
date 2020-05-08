@@ -45,6 +45,25 @@ class Main {
 		Sync_Actions::initialize_woocommerce();
 		Sync_Actions::initialize_wp_super_cache();
 
+		// Enable non-blocking Jetpack Sync flow.
+		$non_block_enabled = get_option( 'jetpack_sync_non_blocking', false );
+
+		/**
+		 * Filters the option to enable non-blocking sync.
+		 *
+		 * Default value is false, filter to true to enable non-blocking mode which will have
+		 * WP.com return early and use the sync/close endpoint to check-in processed items.
+		 *
+		 * @since 8.6.0
+		 *
+		 * @param false $enabled Should non-blocking flow be enabled.
+		 */
+		$filtered = (array) apply_filters( 'jetpack_sync_non_blocking', false );
+
+		if ( is_bool( $filtered ) && $non_block_enabled !== $filtered ) {
+			update_option( 'jetpack_sync_non_blocking', $filtered, false );
+		}
+
 		// We need to define this here so that it's hooked before `updating_jetpack_version` is called.
 		add_action( 'updating_jetpack_version', array( 'Automattic\\Jetpack\\Sync\\Actions', 'cleanup_on_upgrade' ), 10, 2 );
 	}
