@@ -19,7 +19,7 @@ const ChecklistAnswer = props => {
 
 	const handleResize = useCallback( () => {
 		setWindowWidth( window.innerWidth <= 660 ? 'small' : 'large' );
-	} );
+	}, [ window.innerWidth ] );
 
 	useEffect( () => {
 		handleResize(); // Call this once to make sure windowWidth is initialized
@@ -35,7 +35,7 @@ const ChecklistAnswer = props => {
 		}
 
 		setChecked( ! checked );
-	} );
+	}, [ checked, windowWidth ] );
 
 	const toggleCheckboxSmallWindow = useCallback( () => {
 		if ( 'large' === windowWidth ) {
@@ -43,11 +43,11 @@ const ChecklistAnswer = props => {
 		}
 
 		setChecked( ! checked );
-	} );
+	}, [ checked, windowWidth ] );
 
 	const toggleExpanded = useCallback( () => {
 		setExpanded( ! expanded );
-	} );
+	}, [ expanded ] );
 
 	const smallWindow = 'small' === windowWidth;
 
