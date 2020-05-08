@@ -115,7 +115,11 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			);
 		}
 
-		$prefix  = Jetpack_Search_Options::OPTION_PREFIX;
+		$prefix         = Jetpack_Search_Options::OPTION_PREFIX;
+		$posts_per_page = (int) get_option( 'posts_per_page' );
+		if ( ( $posts_per_page > 20 ) || ( $posts_per_page <= 0 ) ) {
+			$posts_per_page = 20;
+		}
 		$options = array(
 			'overlayOptions'        => array(
 				'colorTheme'      => get_option( $prefix . 'color_theme', 'light' ),
@@ -129,7 +133,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			// core config.
 			'homeUrl'               => home_url(),
 			'locale'                => str_replace( '_', '-', Jetpack_Search_Helpers::is_valid_locale( get_locale() ) ? get_locale() : 'en_US' ),
-			'postsPerPage'          => get_option( 'posts_per_page' ),
+			'postsPerPage'          => $posts_per_page,
 			'siteId'                => Jetpack::get_option( 'id' ),
 
 			'postTypes'             => $post_type_labels,

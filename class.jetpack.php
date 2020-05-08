@@ -764,7 +764,6 @@ class Jetpack {
 
 		foreach (
 			array(
-				'connection',
 				'sync',
 				'tracking',
 				'tos',
@@ -774,12 +773,20 @@ class Jetpack {
 			$config->ensure( $feature );
 		}
 
+		$config->ensure(
+			'connection',
+			array(
+				'slug' => 'jetpack',
+				'name' => 'Jetpack',
+			)
+		);
+
 		if ( is_admin() ) {
 			$config->ensure( 'jitm' );
 		}
 
 		if ( ! $this->connection_manager ) {
-			$this->connection_manager = new Connection_Manager();
+			$this->connection_manager = new Connection_Manager( 'jetpack' );
 		}
 
 		/*
@@ -1632,9 +1639,12 @@ class Jetpack {
 
 	/**
 	 * Is Jetpack active?
+	 * The method only checks if there's an existing token for the master user. It doesn't validate the token.
+	 *
+	 * @return bool
 	 */
 	public static function is_active() {
-		return (bool) Jetpack_Data::get_access_token( JETPACK_MASTER_USER );
+		return self::connection()->is_active();
 	}
 
 	/**
@@ -5362,7 +5372,7 @@ endif;
 
 		// If the connection manager hasn't been instantiated, do that now.
 		if ( ! $jetpack->connection_manager ) {
-			$jetpack->connection_manager = new Connection_Manager();
+			$jetpack->connection_manager = new Connection_Manager( 'jetpack' );
 		}
 
 		return $jetpack->connection_manager;

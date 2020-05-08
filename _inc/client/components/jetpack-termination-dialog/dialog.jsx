@@ -9,7 +9,7 @@ import React, { Component } from 'react';
 /**
  * Internal dependencies
  */
-import { getSiteBenefits, getSiteID, getSitePlan } from 'state/site';
+import { getSiteBenefits, getSiteID, getSitePlan, getConnectedPlugins } from 'state/site';
 import { isDevVersion } from 'state/initial-state';
 import { submitSurvey as submitSurveyAction } from 'state/disconnect-survey/actions';
 import analytics from 'lib/analytics';
@@ -20,6 +20,7 @@ import JetpackTerminationDialogFeatures from './features';
 import JetpackTerminationDialogSurvey from './survey';
 import QuerySite from 'components/data/query-site';
 import QuerySiteBenefits from 'components/data/query-site-benefits';
+import QueryConnectedPlugins from 'components/data/query-connected-plugins';
 import Spinner from 'components/spinner';
 
 function mapBenefitNameToGridicon( benefitName ) {
@@ -80,6 +81,7 @@ class JetpackTerminationDialog extends Component {
 		siteBenefits: PropTypes.array,
 		submitSurvey: PropTypes.func,
 		terminateJetpack: PropTypes.func.isRequired,
+		connectedPlugins: PropTypes.array,
 	};
 
 	state = {
@@ -125,13 +127,14 @@ class JetpackTerminationDialog extends Component {
 	};
 
 	renderFeatures() {
-		const { isDevSite: siteIsDev, purpose, siteBenefits } = this.props;
+		const { isDevSite: siteIsDev, purpose, siteBenefits, connectedPlugins } = this.props;
 
-		return siteBenefits ? (
+		return siteBenefits && connectedPlugins ? (
 			<JetpackTerminationDialogFeatures
 				isDevSite={ siteIsDev }
 				purpose={ purpose }
 				siteBenefits={ siteBenefits.map( mapBenefitDataToViewData ) }
+				connectedPlugins={ connectedPlugins }
 			/>
 		) : (
 			<Card className="jetpack-termination-dialog__spinner">
@@ -175,6 +178,7 @@ class JetpackTerminationDialog extends Component {
 			<div className="jetpack-termination-dialog">
 				<QuerySite />
 				<QuerySiteBenefits />
+				<QueryConnectedPlugins />
 				<Card>
 					<div className="jetpack-termination-dialog__header">
 						<h2>
@@ -216,6 +220,7 @@ export default connect(
 		siteBenefits: getSiteBenefits( state ),
 		siteId: getSiteID( state ),
 		sitePlan: getSitePlan( state ),
+		connectedPlugins: getConnectedPlugins( state ),
 	} ),
 	{
 		submitSurvey: submitSurveyAction,

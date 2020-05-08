@@ -18,6 +18,7 @@ import {
 	getUserWpComLogin,
 	getUserWpComEmail,
 	getUserWpComAvatar,
+	getUserGravatar,
 	getUsername,
 	getSiteIcon,
 } from 'state/initial-state';
@@ -110,13 +111,17 @@ export class DashConnections extends Component {
 			// return nothing if this is an account connection card
 			cardContent = (
 				<div className="jp-connection-settings__info">
-					<img
-						alt="gravatar"
-						width="64"
-						height="64"
-						className="jp-connection-settings__gravatar"
-						src={ this.props.userWpComAvatar }
-					/>
+					{ this.props.userGravatar ? (
+						<img
+							alt="gravatar"
+							width="64"
+							height="64"
+							className="jp-connection-settings__gravatar"
+							src={ this.props.userGravatar }
+						/>
+					) : (
+						<Gridicon icon="user" size={ 64 } />
+					) }
 					<div className="jp-connection-settings__text">
 						{ __( 'The site is in Development Mode, so you can not connect to WordPress.com.' ) }
 					</div>
@@ -202,6 +207,7 @@ DashConnections.propTypes = {
 	userWpComLogin: PropTypes.any.isRequired,
 	userWpComEmail: PropTypes.any.isRequired,
 	userWpComAvatar: PropTypes.any.isRequired,
+	userGravatar: PropTypes.any.isRequired,
 	username: PropTypes.any.isRequired,
 };
 
@@ -214,6 +220,7 @@ export default connect( state => {
 		userWpComLogin: getUserWpComLogin( state ),
 		userWpComEmail: getUserWpComEmail( state ),
 		userWpComAvatar: getUserWpComAvatar( state ),
+		userGravatar: getUserGravatar( state ),
 		username: getUsername( state ),
 		isLinked: isCurrentUserLinked( state ),
 		siteIcon: getSiteIcon( state ),

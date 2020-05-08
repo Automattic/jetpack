@@ -438,6 +438,28 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
+	 * Return true if the extension has been registered and there's nothing in the availablilty array.
+	 *
+	 * @param string $extension The name of the extension.
+	 *
+	 * @return bool whether the extension has been registered and there's nothing in the availablilty array.
+	 */
+	public static function is_registered_and_no_entry_in_availability( $extension ) {
+		return self::is_registered( 'jetpack/' . $extension ) && ! isset( self::$availability[ $extension ] );
+	}
+
+	/**
+	 * Return true if the extension has a true entry in the availablilty array.
+	 *
+	 * @param string $extension The name of the extension.
+	 *
+	 * @return bool whether the extension has a true entry in the availablilty array.
+	 */
+	public static function is_available( $extension ) {
+		return isset( self::$availability[ $extension ] ) && true === self::$availability[ $extension ];
+	}
+
+	/**
 	 * Get availability of each block / plugin.
 	 *
 	 * @return array A list of block and plugins and their availablity status
@@ -458,8 +480,7 @@ class Jetpack_Gutenberg {
 		$available_extensions = array();
 
 		foreach ( self::$extensions as $extension ) {
-			$is_available = self::is_registered( 'jetpack/' . $extension ) ||
-			( isset( self::$availability[ $extension ] ) && true === self::$availability[ $extension ] );
+			$is_available = self::is_registered_and_no_entry_in_availability( $extension ) || self::is_available( $extension );
 
 			$available_extensions[ $extension ] = array(
 				'available' => $is_available,
@@ -788,7 +809,7 @@ class Jetpack_Gutenberg {
 
 		// Add any extra classes.
 		if ( is_array( $extra ) && ! empty( $extra ) ) {
-			$classes = array_merge( $classes, $extra );
+			$classes = array_merge( $classes, array_filter( $extra ) );
 		}
 
 		return implode( ' ', $classes );
