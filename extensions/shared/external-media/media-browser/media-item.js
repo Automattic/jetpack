@@ -23,9 +23,9 @@ class MediaItem extends Component {
 		const { medium = null, fmt_hd = null } = thumbnails;
 		const alt = title || caption || name;
 		const classes = classnames( {
-			'media-browser__media__item': true,
-			'media-browser__media__item__selected': isSelected,
-			'media-browser__media__folder': type === 'folder',
+			'jetpack-external-media-browser__media__item': true,
+			'jetpack-external-media-browser__media__item__selected': isSelected,
+			'jetpack-external-media-browser__media__folder': type === 'folder',
 			'is-transient': isSelected && isCopying,
 		} );
 
@@ -35,9 +35,9 @@ class MediaItem extends Component {
 				<img src={ medium || fmt_hd } alt={ alt } title={ alt } />
 
 				{ type === 'folder' && (
-					<div className="media-browser__media__info">
-						<div className="media-browser__media__name">{ name }</div>
-						<div className="media-browser__media__count">{ children }</div>
+					<div className="jetpack-external-media-browser__media__info">
+						<div className="jetpack-external-media-browser__media__name">{ name }</div>
+						<div className="jetpack-external-media-browser__media__count">{ children }</div>
 					</div>
 				) }
 

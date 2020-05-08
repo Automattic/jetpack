@@ -22,17 +22,17 @@ $border-width-tab: 3px;
  * Media item container
  */
 
-.a8c-media-browser__is-copying {
+.jetpack-external-media-browser__is-copying {
 	max-height: 20%;
 	max-width: 20%;
 	min-width: 480px;
 	min-height: 360px + 56px;
 
-	.media-browser__single {
+	.jetpack-external-media-browser__single {
 		height: 300px;
 	}
 
-	.media-browser__media {
+	.jetpack-external-media-browser__media {
 		height: 100%;
 	}
 
@@ -42,7 +42,7 @@ $border-width-tab: 3px;
 		padding: 0;
 		height: 100%;
 
-		&.media-browser__media__item__selected {
+		&.jetpack-external-media-browser__media__item__selected {
 			box-shadow: none;
 			border-radius: 0;
 		}
@@ -55,7 +55,7 @@ $border-width-tab: 3px;
 	}
 }
 
-.a8c-media-browser:not(.a8c-media-browser__is-copying) {
+.jetpack-external-media-browser:not(.jetpack-external-media-browser__is-copying) {
 	// Mimic the appearance of the regular media dialog.
 	top: 30px;
 	left: 30px;
@@ -79,7 +79,7 @@ $border-width-tab: 3px;
 	}
 }
 
-.media-browser__single {
+.jetpack-external-media-browser__single {
 	position: relative;
 	display: flex;
 	justify-content: center;
@@ -98,18 +98,18 @@ $border-width-tab: 3px;
 	}
 }
 
-.media-browser {
+.jetpack-external-media-browser {
 	background: white;
 	display: flex;
 	flex-direction: column;
 	align-items: flex-start;
 
-	.media-browser__media {
+	.jetpack-external-media-browser__media {
 		width: 100%;
 	}
 
 	// Individual Thumbnails
-	.media-browser__media__item {
+	.jetpack-external-media-browser__media__item {
 		height: 0;
 		width: 50%;
 		padding-top: 50%;
@@ -143,7 +143,7 @@ $border-width-tab: 3px;
 		}
 	}
 
-	.media-browser__media__folder {
+	.jetpack-external-media-browser__media__folder {
 		float: left;
 		display: flex;
 		flex-wrap: wrap;
@@ -153,7 +153,7 @@ $border-width-tab: 3px;
 		margin-bottom: 36px;
 	}
 
-	.media-browser__media__info {
+	.jetpack-external-media-browser__media__info {
 		font-size: 12px;
 		font-weight: bold;;
 		width: 100%;
@@ -162,7 +162,7 @@ $border-width-tab: 3px;
 		padding: 3px;
 	}
 
-	.media-browser__media__count {
+	.jetpack-external-media-browser__media__count {
 		background-color: #ddd;
 		padding: 3px 4px;
 		border-radius: 8px;
@@ -172,7 +172,7 @@ $border-width-tab: 3px;
 	// Resting, focus and selected.
 	$border-width: 8px;
 
-	.media-browser__media__item {
+	.jetpack-external-media-browser__media__item {
 		border: $border-width solid transparent;
 
 		&:focus {
@@ -192,7 +192,7 @@ $border-width-tab: 3px;
 	}
 
 	// Transient placeholder when media are loading.
-	.media-browser__media__placeholder {
+	.jetpack-external-media-browser__media__placeholder {
 		width: 100px;
 		height: 100px;
 		margin: $grid-size * 2;
@@ -202,7 +202,7 @@ $border-width-tab: 3px;
 	}
 
 	// Toolbar for "insert" and pagination button.
-	.media-browser__media__toolbar {
+	.jetpack-external-media-browser__media__toolbar {
 		position: sticky;
 		bottom: 0;
 		width: calc(100% + 48px);
@@ -217,7 +217,7 @@ $border-width-tab: 3px;
 		}
 	}
 
-	.media-browser__loadmore {
+	.jetpack-external-media-browser__loadmore {
 		clear: both;
 		display: block;
 		margin: 24px auto 48px auto;
@@ -226,7 +226,7 @@ $border-width-tab: 3px;
 
 // Show more thumbs beyond mobile.
 @media only screen and ( min-width: 600px ) {
-	.media-browser .media-browser__media__item {
+	.jetpack-external-media-browser .jetpack-external-media-browser__media__item {
 		width: 20%;
 		padding-top: 20%;
 	}
@@ -238,7 +238,7 @@ $border-width-tab: 3px;
  * The specific wrappers for Google and Pexels.
  */
 
- .a8c-media-header__view {
+ .jetpack-external-media-header__view {
 	display: flex;
 	align-items: center;
 	justify-content: start;
@@ -249,8 +249,8 @@ $border-width-tab: 3px;
 	}
 }
 
-.a8c-media-header__filter,
-.a8c-media-header__view {
+.jetpack-external-media-header__filter,
+.jetpack-external-media-header__view {
 	label {
 		margin-right: 10px;
 	}
@@ -275,19 +275,19 @@ $border-width-tab: 3px;
 	}
 }
 
-.a8c-media-header__filter {
+.jetpack-external-media-header__filter {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
 
-	.googlephotos-filter {
+	.jetpack-external-media-googlephotos-filter {
 		display: flex;
 		align-items: center;
 		margin-right: 7px;
 	}
 }
 
-.a8c-media-header__pexels {
+.jetpack-external-media-header__pexels {
 	display: flex;
 	margin-bottom: 48px;
 
@@ -311,7 +311,7 @@ $border-width-tab: 3px;
  * Basic Responsiveness
  */
 
-.a8c-media-placeholder__open-modal {
+.jetpack-external-media-placeholder__open-modal {
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -337,17 +337,17 @@ $border-width-tab: 3px;
 	}
 }
 
-.a8c-media-browsing > div.components-placeholder:not(.a8c-media-replacedholder) {
+.jetpack-external-media-browsing > div.components-placeholder:not(.jetpack-external-media-replacedholder) {
 	display: none;
 }
 
-.media-browser__empty {
+.jetpack-external-media-browser__empty {
 	width: 100%;
 	text-align: center;
 	padding-top: 2em;
 }
 
-.a8c-media-auth {
+.jetpack-external-media-auth {
 	max-width: 340px;
 	margin: 0 auto;
 	text-align: center;
@@ -357,11 +357,11 @@ $border-width-tab: 3px;
 	}
 }
 
-.a8c-media-filters {
+.jetpack-external-media-filters {
 	display: flex;
 	justify-content: space-between;
 }
 
-.external-media-browse {
+.jetpack-external-media-browse-button {
 	margin-right: 8px !important;
 }

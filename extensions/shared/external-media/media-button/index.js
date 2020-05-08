@@ -24,7 +24,7 @@ function MediaButton( props ) {
 			ev.stopPropagation();
 
 			// The DateTime picker is triggering a modal close when selected. We don't want this to close the modal
-			if ( ev.target.closest( '.a8c-media-header__dropdown' ) ) {
+			if ( ev.target.closest( '.jetpack-external-media-header__dropdown' ) ) {
 				return;
 			}
 		}

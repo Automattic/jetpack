@@ -69,7 +69,7 @@ class MediaBrowser extends Component {
 
 	renderEmpty() {
 		return (
-			<div className="media-browser__empty">
+			<div className="jetpack-external-media-browser__empty">
 				<p>{ __( 'We found nothing.', 'jetpack' ) }</p>
 			</div>
 		);
@@ -80,11 +80,11 @@ class MediaBrowser extends Component {
 		const { selected } = this.state;
 		const hasMediaItems = media.filter( item => item.type !== 'folder' ).length > 0;
 		const classes = classnames( {
-			'media-browser__media': true,
-			'media-browser__media__loading': isLoading,
+			'jetpack-external-media-browser__media': true,
+			'jetpack-external-media-browser__media__loading': isLoading,
 		} );
 		const wrapper = classnames( {
-			'media-browser': true,
+			'jetpack-external-media-browser': true,
 			[ this.props.className ]: true,
 		} );
 
@@ -107,7 +107,7 @@ class MediaBrowser extends Component {
 						<Button
 							isLarge
 							isSecondary
-							className="media-browser__loadmore"
+							className="jetpack-external-media-browser__loadmore"
 							disabled={ isLoading }
 							onClick={ this.onNextPage }
 						>
@@ -117,7 +117,7 @@ class MediaBrowser extends Component {
 				</div>
 
 				{ hasMediaItems && (
-					<div className="media-browser__media__toolbar">
+					<div className="jetpack-external-media-browser__media__toolbar">
 						<Button isPrimary isLarge disabled={ selected.length === 0 } onClick={ this.onCopy }>
 							{ __( 'Copy & Insert', 'jetpack' ) }
 						</Button>

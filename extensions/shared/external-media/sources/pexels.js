@@ -77,8 +77,8 @@ class PexelsMedia extends Component {
 		const { media, isLoading, pageHandle, multiple } = this.props;
 
 		return (
-			<div className="a8c-media-wrapper__pexels">
-				<form className="a8c-media-header__pexels" onSubmit={ this.onSearch }>
+			<div className="jetpack-external-media-wrapper__pexels">
+				<form className="jetpack-external-media-header__pexels" onSubmit={ this.onSearch }>
 					<TextControl value={ this.state.search } onChange={ this.onChange } />
 					<Button isPrimary onClick={ this.onSearch } type="submit">
 						{ __( 'Search', 'jetpack' ) }
@@ -87,7 +87,7 @@ class PexelsMedia extends Component {
 
 				<MediaBrowser
 					key={ this.state.searched }
-					className="a8c-media-browser__pexels"
+					className="jetpack-external-media-browser__pexels"
 					media={ media }
 					isLoading={ isLoading }
 					nextPage={ this.getNextPage }

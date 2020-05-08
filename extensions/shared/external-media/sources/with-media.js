@@ -153,11 +153,14 @@ export default function withMedia() {
 
 			renderCopying() {
 				const items = this.state.isCopying;
-				const classname = items.length === 1 ? 'media-browser__single' : 'media-browser';
+				const classname =
+					items.length === 1
+						? 'jetpack-external-media-browser__single'
+						: 'jetpack-external-media-browser';
 
 				return (
 					<div className={ classname }>
-						<div className="media-browser__media">
+						<div className="jetpack-external-media-browser__media">
 							{ items.map( item => (
 								<MediaItem item={ item } key={ item.ID } isSelected isCopying />
 							) ) }
@@ -200,8 +203,8 @@ export default function withMedia() {
 				const { onClose } = this.props;
 
 				const classes = classnames( {
-					'a8c-media-browser': true,
-					'a8c-media-browser__is-copying': isCopying,
+					'jetpack-external-media-browser': true,
+					'jetpack-external-media-browser__is-copying': isCopying,
 				} );
 
 				return (

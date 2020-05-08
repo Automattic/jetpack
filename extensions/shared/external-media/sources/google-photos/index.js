@@ -233,7 +233,7 @@ class GooglePhotosMedia extends Component {
 
 		if ( requiresAuth ) {
 			return (
-				<div className="a8c-media-auth">
+				<div className="jetpack-external-media-auth">
 					<p>{ this.getAuthInstructions( isAuthing ) }</p>
 					<Button isPrimary disabled={ isAuthing } onClick={ this.onAuthorize }>
 						{ __( 'Authorize', 'jetpack' ) }
@@ -243,10 +243,10 @@ class GooglePhotosMedia extends Component {
 		}
 
 		return (
-			<div className="a8c-media-wrapper__google">
-				<div className="a8c-media-header__view">
+			<div className="jetpack-external-media-wrapper__google">
+				<div className="jetpack-external-media-header__view">
 					<SelectControl
-						className="a8c-media-header__select"
+						className="jetpack-external-media-header__select"
 						label={ __( 'View', 'jetpack' ) }
 						value={ path.ID !== PATH_RECENT ? PATH_ROOT : PATH_RECENT }
 						disabled={ isLoading }
@@ -264,7 +264,7 @@ class GooglePhotosMedia extends Component {
 					) }
 				</div>
 
-				<div className="a8c-media-header__filter">
+				<div className="jetpack-external-media-header__filter">
 					{ path.ID === PATH_RECENT && (
 						<GoogleFilterOption
 							filters={ filters }
@@ -277,7 +277,7 @@ class GooglePhotosMedia extends Component {
 				</div>
 
 				<MediaBrowser
-					className="a8c-media-browser__google"
+					className="jetpack-external-media-browser__google"
 					key={ this.getQuery( filters ) }
 					media={ media }
 					isLoading={ isLoading }

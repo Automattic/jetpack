@@ -41,7 +41,7 @@ function DateOption( { value, name, updateFilter } ) {
 				</Button>
 			) }
 			renderContent={ ( { onToggle } ) => (
-				<div className="a8c-media-header__dropdown">
+				<div className="jetpack-external-media-header__dropdown">
 					<DateTimePicker
 						onChange={ selected => update( selected, onToggle ) }
 						currentDate={ value }
@@ -95,7 +95,7 @@ function getFilterOption( optionName, optionValue, updateFilter ) {
 
 function FilterOption( { children, removeFilter } ) {
 	return (
-		<div className="googlephotos-filter">
+		<div className="jetpack-external-media-googlephotos-filter">
 			{ children }
 
 			<Button onClick={ removeFilter } isSmall>

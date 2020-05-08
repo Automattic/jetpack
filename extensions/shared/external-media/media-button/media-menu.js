@@ -50,7 +50,7 @@ function MediaButtonMenu( props ) {
 					<Button
 						isTertiary={ ! isFeatured }
 						isPrimary={ isFeatured }
-						className="external-media-browse"
+						className="jetpack-external-media-browse-button"
 						onClick={ onToggle }
 					>
 						{ __( 'Select Image', 'jetpack' ) }
