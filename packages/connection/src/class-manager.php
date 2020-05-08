@@ -97,6 +97,11 @@ class Manager {
 			10,
 			2
 		);
+
+		add_filter( 'jetpack_sync_options_whitelist', __NAMESPACE__ . '\Plugin_Storage::whitelist_options' );
+
+		add_action( 'plugins_loaded', __NAMESPACE__ . '\Plugin_Storage::configure' );
+
 	}
 
 	/**

@@ -19,6 +19,22 @@ use WP_Error;
  */
 class Plugin_Storage {
 
+	const ACTIVE_PLUGINS_OPTION_NAME = 'connection_plugins_active';
+
+	/**
+	 * Whether this class was configured for the first time or not.
+	 *
+	 * @var boolean
+	 */
+	private static $configured = false;
+
+	/**
+	 * Refresh list of connected plugins upon intialization.
+	 *
+	 * @var boolean
+	 */
+	private static $refresh_connected_plugins = false;
+
 	/**
 	 * Connected plugins.
 	 *
@@ -44,6 +60,11 @@ class Plugin_Storage {
 	 */
 	public static function upsert( $slug, array $args = array() ) {
 		self::$plugins[ $slug ] = $args;
+
+		// if plugin is not in the list of active plugins, refresh the list.
+		if ( array_key_exists( $slug, get_option( self::ACTIVE_PLUGINS_OPTION_NAME, array() ) ) ) {
+			self::$refresh_connected_plugins = true;
+		}
 
 		return true;
 	}
@@ -116,11 +137,55 @@ class Plugin_Storage {
 	 * @return bool|WP_Error
 	 */
 	private static function ensure_configured() {
-		if ( class_exists( Config::class ) && method_exists( Config::class, 'is_configured' ) && ! Config::is_configured() ) {
+		if ( ! self::$configured ) {
 			return new WP_Error( 'too_early', __( 'You cannot call this method until Jetpack Config is configured', 'jetpack' ) );
 		}
 
 		return true;
+	}
+
+	/**
+	 * Called once to configure this class after plugins_loaded.
+	 *
+	 * @return void
+	 */
+	public static function configure() {
+
+		if ( self::$configured ) {
+			return;
+		}
+
+		// If a plugin was activated or deactivated.
+		$number_of_plugins_differ = count( self::$plugins ) !== count( get_option( self::ACTIVE_PLUGINS_OPTION_NAME, array() ) );
+
+		if ( $number_of_plugins_differ || true === self::$refresh_connected_plugins ) {
+			self::update_active_plugins_option();
+		}
+
+		add_filter( 'jetpack_sync_options_whitelist', __NAMESPACE__ . '\Plugin_Storage::whitelist_options' );
+
+		self::$configured = true;
+
+	}
+
+	/**
+	 * Adds Plugins Storage options to sync whitelist
+	 *
+	 * @param array $options the whitelisted options.
+	 * @return array
+	 */
+	public static function whitelist_options( $options ) {
+		$options[] = self::ACTIVE_PLUGINS_OPTION_NAME;
+		return $options;
+	}
+
+	/**
+	 * Updates the active plugins option with current list of active plugins.
+	 *
+	 * @return void
+	 */
+	public static function update_active_plugins_option() {
+		update_option( self::ACTIVE_PLUGINS_OPTION_NAME, array_keys( self::$plugins ) );
 	}
 
 }
