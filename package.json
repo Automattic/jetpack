@@ -75,7 +75,9 @@
 	"husky": {
 		"hooks": {
 			"pre-commit": "node bin/pre-commit-hook.js",
-			"prepare-commit-msg": "node bin/prepare-commit-msg.js"
+			"prepare-commit-msg": "node bin/prepare-commit-msg.js",
+			"post-merge": "./bin/post-merge-checkout-hook.sh",
+			"post-checkout": "./bin/post-merge-checkout-hook.sh"
 		}
 	},
 	"dependencies": {
