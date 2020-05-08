@@ -526,6 +526,7 @@ class Sender {
 				}
 			}
 		}
+
 		return true;
 	}
 
