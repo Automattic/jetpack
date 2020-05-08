@@ -175,30 +175,27 @@ class GooglePhotosMedia extends Component {
 						'jetpack'
 					) }
 				</p>
-				<p>
-					{ __experimentalCreateInterpolateElement(
-						__(
-							'You can remove the connection either on your <googleLink>Google Security page</googleLink> or in <connectionLink>WordPress.com Connections</connectionLink>.',
-							'jetpack'
-						),
-						{
-							googleLink: (
-								<a
-									target="_blank"
-									rel="noopener noreferrer"
-									href="https://myaccount.google.com/security"
-								/>
-							),
-							connectionLink: (
-								<a
-									target="_blank"
-									rel="noopener noreferrer"
-									href="https://wordpress.com/marketing/connections/"
-								/>
-							),
-						}
-					) }
-				</p>
+				<p>{ __( 'You can remove the connection in either of these places:', 'jetpack' ) }</p>
+				<ul>
+					<li>
+						<a
+							target="_blank"
+							rel="noopener noreferrer"
+							href="https://myaccount.google.com/security"
+						>
+							{ __( 'Google Security page', 'jetpack' ) }
+						</a>
+					</li>
+					<li>
+						<a
+							target="_blank"
+							rel="noopener noreferrer"
+							href="https://wordpress.com/marketing/connections/"
+						>
+							{ __( 'WordPress.com Connections', 'jetpack' ) }
+						</a>
+					</li>
+				</ul>
 			</Fragment>
 		);
 	}
