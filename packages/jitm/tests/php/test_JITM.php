@@ -1,8 +1,8 @@
-<?php
+<?php  // phpcs:disable
 
 namespace Automattic\Jetpack;
 
-use Automattic\Jetpack\JITM;
+use Automattic\Jetpack\JITMS\JITM;
 use phpmock\functions\FunctionProvider;
 use phpmock\Mock;
 use phpmock\MockBuilder;
