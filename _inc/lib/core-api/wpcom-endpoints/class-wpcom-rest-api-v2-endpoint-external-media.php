@@ -33,24 +33,21 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 			array(
 				'methods'  => WP_REST_Server::READABLE,
 				'callback' => array( $this, 'get_external_media' ),
+				'permission_callback' => 'is_user_logged_in',
 			)
 		);
 	}
 
 	public function get_external_media( \WP_REST_Request $request ) {
 		$params = $request->get_params();
-
-		$path = add_query_arg(
-			$request->get_params(),
-			'/meta/external-media/' . urlencode( $params['service'] )
-		);
-
-		$response = Client::wpcom_json_api_request_as_blog( $path );
+		$wpcom_path = sprintf( '/meta/external-media/%s', urlencode( $params['service'] ) );
+		$response = Client::wpcom_json_api_request_as_user( $wpcom_path );
 		if ( is_wp_error( $response ) ) {
 			return $response;
 		}
 
-		return json_decode( wp_remote_retrieve_body( $response ) );
+		$body = wp_remote_retrieve_body( $response );
+		return json_decode( $body );
 	}
 }
 
