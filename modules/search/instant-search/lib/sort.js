@@ -14,15 +14,15 @@ const sortOptions = {
 		field: 'relevance',
 		direction: SORT_DIRECTION_DESC,
 	},
-	date_asc: {
-		label: __( 'Oldest', 'jetpack' ),
-		field: 'date',
-		direction: SORT_DIRECTION_ASC,
-	},
 	date_desc: {
 		label: __( 'Newest', 'jetpack' ),
 		field: 'date',
 		direction: SORT_DIRECTION_DESC,
+	},
+	date_asc: {
+		label: __( 'Oldest', 'jetpack' ),
+		field: 'date',
+		direction: SORT_DIRECTION_ASC,
 	},
 };
 
