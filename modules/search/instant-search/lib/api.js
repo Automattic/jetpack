@@ -103,7 +103,7 @@ const filterKeyToEsFilter = new Map( [
 	],
 ] );
 
-function buildFilterObject( filterQuery, adminQueryFilter, enabledPostTypes ) {
+function buildFilterObject( filterQuery, adminQueryFilter ) {
 	const filter = { bool: { must: [] } };
 
 	if ( filterQuery ) {
@@ -125,22 +125,11 @@ function buildFilterObject( filterQuery, adminQueryFilter, enabledPostTypes ) {
 		filter.bool.must.push( adminQueryFilter );
 	}
 
-	if ( isLengthyArray( enabledPostTypes ) ) {
-		filter.bool.must.push( {
-			bool: {
-				should: enabledPostTypes.map( postType =>
-					filterKeyToEsFilter.get( 'post_types' )( postType )
-				),
-			},
-		} );
-	}
-
 	return filter;
 }
 
 export function search( {
 	aggregations,
-	enabledPostTypes,
 	filter,
 	pageHandle,
 	query,
@@ -187,7 +176,7 @@ export function search( {
 			aggregations,
 			fields,
 			highlight_fields: highlightFields,
-			filter: buildFilterObject( filter, adminQueryFilter, enabledPostTypes ),
+			filter: buildFilterObject( filter, adminQueryFilter ),
 			query: encodeURIComponent( query ),
 			sort,
 			page_handle: pageHandle,
