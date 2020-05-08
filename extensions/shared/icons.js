@@ -74,7 +74,7 @@ export const GooglePhotosLogo = () => (
 	</SVG>
 );
 
-export default ( { size = 24, className } ) => (
+export const JetpackLogo = ( { size = 24, className } ) => (
 	<SVG
 		className={ classNames( 'jetpack-logo', className ) }
 		width={ size }
