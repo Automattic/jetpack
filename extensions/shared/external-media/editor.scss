@@ -1,0 +1,367 @@
+/**
+ * External Media
+ */
+
+@import '../variables';
+
+$border-width-tab: 3px;
+
+@keyframes loading-fade {
+	0% {
+		opacity: 0.5;
+	}
+	50% {
+		opacity: 1;
+	}
+	100% {
+		opacity: 0.5;
+	}
+}
+
+/**
+ * Media item container
+ */
+
+.a8c-media-browser__is-copying {
+	max-height: 20%;
+	max-width: 20%;
+	min-width: 480px;
+	min-height: 360px + 56px;
+
+	.media-browser__single {
+		height: 300px;
+	}
+
+	.media-browser__media {
+		height: 100%;
+	}
+
+	.is-transient {
+		border: 0;
+		background: 0;
+		padding: 0;
+		height: 100%;
+
+		&.media-browser__media__item__selected {
+			box-shadow: none;
+			border-radius: 0;
+		}
+
+		img {
+			width: 100%;
+			height: 100%;
+			object-fit: contain;
+		}
+	}
+}
+
+.a8c-media-browser:not(.a8c-media-browser__is-copying) {
+	// Mimic the appearance of the regular media dialog.
+	top: 30px;
+	left: 30px;
+	right: 30px;
+	bottom: 30px;
+	transform: none;
+	max-height: 100%;
+	max-width: 100%;
+	
+	.is-error {
+		margin-bottom: 1em;
+	}
+
+	.components-placeholder {
+		background-color: transparent;
+	}
+
+	.components-modal__content {
+		overflow: auto;
+		padding-bottom: 0;
+	}
+}
+
+.media-browser__single {
+	position: relative;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	.is-transient img {
+		opacity: 0.3;
+	}
+
+	.components-spinner {
+		position: absolute;
+		top: 50%;
+		right: 50%;
+		margin-top: -9px;
+		margin-right: -9px;
+	}
+}
+
+.media-browser {
+	background: white;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+
+	.media-browser__media {
+		width: 100%;
+	}
+
+	// Individual Thumbnails
+	.media-browser__media__item {
+		height: 0;
+		width: 50%;
+		padding-top: 50%;
+		display: inline-flex;
+		position: relative;
+
+		// Unset button appearance.
+		border: 0;
+		background: transparent;
+
+		img {
+			display: block;
+			position: absolute;
+			top: $grid-size;
+			left: $grid-size;
+			width: calc(100% - #{$grid-size * 2});
+			height: calc(100% - #{$grid-size * 2});
+			object-fit: contain;
+		}
+
+		&.is-transient img {
+			opacity: 0.3;
+		}
+
+		.components-spinner {
+			position: absolute;
+			top: 50%;
+			right: 50%;
+			margin-top: -9px;
+			margin-right: -9px;
+		}
+	}
+
+	.media-browser__media__folder {
+		float: left;
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: space-between;
+		align-items: center;
+		align-content: flex-start;
+		margin-bottom: 36px;
+	}
+
+	.media-browser__media__info {
+		font-size: 12px;
+		font-weight: bold;;
+		width: 100%;
+		display: flex;
+		justify-content: space-between;
+		padding: 3px;
+	}
+
+	.media-browser__media__count {
+		background-color: #ddd;
+		padding: 3px 4px;
+		border-radius: 8px;
+		margin-bottom: auto;
+	}
+
+	// Resting, focus and selected.
+	$border-width: 8px;
+
+	.media-browser__media__item {
+		border: $border-width solid transparent;
+
+		&:focus {
+			outline: none;
+			box-shadow: inset 0 0 0 2px $blue-g2;
+			border-radius: 2px + $border-width; // Add the 4px from the transparent.
+		}
+
+		&__selected {
+			box-shadow: inset 0 0 0 6px $blue-g2;
+			border-radius: 2px + $border-width; // Add the 4px from the transparent.
+		}
+
+		&__selected:focus {
+			box-shadow: inset 0 0 0 2px $blue-g2, inset 0 0 0 3px white, inset 0 0 0 6px $blue-g2;
+		}
+	}
+
+	// Transient placeholder when media are loading.
+	.media-browser__media__placeholder {
+		width: 100px;
+		height: 100px;
+		margin: $grid-size * 2;
+		animation: loading-fade 1.6s ease-in-out infinite;
+		background-color: lighten(#999, 20%);
+		border: 0;
+	}
+
+	// Toolbar for "insert" and pagination button.
+	.media-browser__media__toolbar {
+		position: sticky;
+		bottom: 0;
+		width: calc(100% + 48px);
+		background: white;
+		padding: 0 24px 24px 24px;
+		display: flex;
+		justify-content: flex-end;
+		margin-left: -24px;
+
+		.components-button {
+			margin: ($grid-size * 3) 0 0 auto;
+		}
+	}
+
+	.media-browser__loadmore {
+		clear: both;
+		display: block;
+		margin: 24px auto 48px auto;
+	}
+}
+
+// Show more thumbs beyond mobile.
+@media only screen and ( min-width: 600px ) {
+	.media-browser .media-browser__media__item {
+		width: 20%;
+		padding-top: 20%;
+	}
+}
+
+
+
+/**
+ * The specific wrappers for Google and Pexels.
+ */
+
+ .a8c-media-header__view {
+	display: flex;
+	align-items: center;
+	justify-content: start;
+	margin-bottom: 48px;
+
+	select {
+		max-width: 200px !important;
+	}
+}
+
+.a8c-media-header__filter,
+.a8c-media-header__view {
+	label {
+		margin-right: 10px;
+	}
+
+	.components-base-control {
+		padding-right: $grid-size;
+		margin-bottom: 0;
+	}
+	
+	.components-base-control__label {
+		margin-bottom: 0;
+	}
+
+	.components-base-control__field {
+		display: flex;
+		align-items: center;
+		margin-bottom: 0;
+	}
+
+	.components-base-control + .components-base-control {
+		padding-left: $grid-size * 2;
+	}
+}
+
+.a8c-media-header__filter {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+
+	.googlephotos-filter {
+		display: flex;
+		align-items: center;
+		margin-right: 7px;
+	}
+}
+
+.a8c-media-header__pexels {
+	display: flex;
+	margin-bottom: 48px;
+
+	.components-base-control {
+		flex: 1;
+		margin-right: 12px;
+	}
+
+	.components-base-control__field {
+		margin-bottom: 0;
+	}
+
+	.components-base-control__field,
+	.components-text-control__input {
+		height: 100%;
+	}
+}
+
+
+/**
+ * Basic Responsiveness
+ */
+
+.a8c-media-placeholder__open-modal {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 0;
+	position: absolute;
+	right: 0;
+	margin-top: -48px;
+	z-index: 1;
+
+	.components-button {
+		margin: 0;
+		padding: 12px;
+		background: none;
+
+		&::before {
+			content: none;
+		}
+
+		svg {
+			display: block;
+			fill: currentColor;
+		}
+	}
+}
+
+.a8c-media-browsing > div.components-placeholder:not(.a8c-media-replacedholder) {
+	display: none;
+}
+
+.media-browser__empty {
+	width: 100%;
+	text-align: center;
+	padding-top: 2em;
+}
+
+.a8c-media-auth {
+	max-width: 340px;
+	margin: 0 auto;
+	text-align: center;
+
+	p {
+		margin: 2em 0;
+	}
+}
+
+.a8c-media-filters {
+	display: flex;
+	justify-content: space-between;
+}
+
+.external-media-browse {
+	margin-right: 8px !important;
+}
