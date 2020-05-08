@@ -15,7 +15,7 @@ import { getDateValue, getDateName } from './date-formatting';
 function CategoryOption( { value, updateFilter } ) {
 	return (
 		<SelectControl
-			label={ __( 'Category' ) }
+			label={ __( 'Category', 'jetpack' ) }
 			value={ value }
 			options={ GOOGLE_PHOTOS_CATEGORIES }
 			onChange={ updateFilter }
@@ -53,19 +53,19 @@ function DateOption( { value, name, updateFilter } ) {
 }
 
 function FavoriteOption() {
-	return <span>{ __( 'Only favorites' ) }</span>;
+	return <span>{ __( 'Only favorites', 'jetpack' ) }</span>;
 }
 
 function MediaTypeOption( { value, updateFilter } ) {
 	const options = [
-		{ label: __( 'All' ), value: '' },
-		{ label: __( 'Images' ), value: 'photo' },
-		{ label: __( 'Videos' ), value: 'video' },
+		{ label: __( 'All', 'jetpack' ), value: '' },
+		{ label: __( 'Images', 'jetpack' ), value: 'photo' },
+		{ label: __( 'Videos', 'jetpack' ), value: 'video' },
 	];
 
 	return (
 		<SelectControl
-			label={ __( 'Type' ) }
+			label={ __( 'Type', 'jetpack' ) }
 			value={ value }
 			options={ options }
 			onChange={ updateFilter }

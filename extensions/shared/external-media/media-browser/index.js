@@ -70,7 +70,7 @@ class MediaBrowser extends Component {
 	renderEmpty() {
 		return (
 			<div className="media-browser__empty">
-				<p>{ __( 'We found nothing.' ) }</p>
+				<p>{ __( 'We found nothing.', 'jetpack' ) }</p>
 			</div>
 		);
 	}
@@ -111,7 +111,7 @@ class MediaBrowser extends Component {
 							disabled={ isLoading }
 							onClick={ this.onNextPage }
 						>
-							{ __( 'Load More' ) }
+							{ __( 'Load More', 'jetpack' ) }
 						</Button>
 					) }
 				</div>
@@ -119,7 +119,7 @@ class MediaBrowser extends Component {
 				{ hasMediaItems && (
 					<div className="media-browser__media__toolbar">
 						<Button isPrimary isLarge disabled={ selected.length === 0 } onClick={ this.onCopy }>
-							{ __( 'Copy & Insert' ) }
+							{ __( 'Copy & Insert', 'jetpack' ) }
 						</Button>
 					</div>
 				) }

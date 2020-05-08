@@ -53,13 +53,13 @@ function MediaButtonMenu( props ) {
 						className="external-media-browse"
 						onClick={ onToggle }
 					>
-						{ __( 'Select Image' ) }
+						{ __( 'Select Image', 'jetpack' ) }
 					</Button>
 				) }
 				renderContent={ ( { onToggle } ) => (
 					<MenuGroup>
 						<MenuItem icon="admin-media" onClick={ () => openLibrary( onToggle ) }>
-							{ __( 'Media Library' ) }
+							{ __( 'Media Library', 'jetpack' ) }
 						</MenuItem>
 
 						<MediaSources

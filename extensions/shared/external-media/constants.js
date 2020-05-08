@@ -12,86 +12,107 @@ export const PATH_ROOT = '/';
 export const GOOGLE_PHOTOS_CATEGORIES = [
 	{
 		value: '',
-		label: __( 'All categories' ),
+		/* translators: category of images */
+		label: __( 'All categories', 'jetpack' ),
 	},
 	{
 		value: 'animals',
-		label: __( 'Animals' ),
+		/* translators: category of images */
+		label: __( 'Animals', 'jetpack' ),
 	},
 	{
 		value: 'arts',
-		label: __( 'Arts' ),
+		/* translators: category of images */
+		label: __( 'Arts', 'jetpack' ),
 	},
 	{
 		value: 'birthdays',
-		label: __( 'Birthdays' ),
+		/* translators: category of images */
+		label: __( 'Birthdays', 'jetpack' ),
 	},
 	{
 		value: 'cityscapes',
-		label: __( 'Cityscapes' ),
+		/* translators: category of images */
+		label: __( 'Cityscapes', 'jetpack' ),
 	},
 	{
 		value: 'crafts',
-		label: __( 'Crafts' ),
+		/* translators: category of images */
+		label: __( 'Crafts', 'jetpack' ),
 	},
 	{
 		value: 'fashion',
-		label: __( 'Fashion' ),
+		/* translators: category of images */
+		label: __( 'Fashion', 'jetpack' ),
 	},
 	{
 		value: 'food',
-		label: __( 'Food' ),
+		/* translators: category of images */
+		label: __( 'Food', 'jetpack' ),
 	},
 	{
 		value: 'flowers',
-		label: __( 'Flowers' ),
+		/* translators: category of images */
+		label: __( 'Flowers', 'jetpack' ),
 	},
 	{
 		value: 'gardens',
-		label: __( 'Gardens' ),
+		/* translators: category of images */
+		label: __( 'Gardens', 'jetpack' ),
 	},
 	{
 		value: 'holidays',
-		label: __( 'Holidays' ),
+		/* translators: category of images */
+		label: __( 'Holidays', 'jetpack' ),
 	},
 	{
 		value: 'houses',
-		label: __( 'Houses' ),
+		/* translators: category of images */
+		label: __( 'Houses', 'jetpack' ),
 	},
 	{
 		value: 'landmarks',
-		label: __( 'Landmarks' ),
+		/* translators: category of images */
+		label: __( 'Landmarks', 'jetpack' ),
 	},
 	{
 		value: 'landscapes',
-		label: __( 'Landscapes' ),
+		/* translators: category of images */
+		label: __( 'Landscapes', 'jetpack' ),
 	},
 	{
 		value: 'night',
-		label: __( 'Night' ),
+		/* translators: category of images */
+		label: __( 'Night', 'jetpack' ),
 	},
 	{
 		value: 'people',
-		label: __( 'People' ),
+		/* translators: category of images */
+		label: __( 'People', 'jetpack' ),
 	},
 	{
 		value: 'pets',
-		label: __( 'Pets' ),
+		/* translators: category of images */
+		label: __( 'Pets', 'jetpack' ),
 	},
 	{
 		value: 'selfies',
-		label: __( 'Selfies' ),
+		/* translators: category of images */
+		label: __( 'Selfies', 'jetpack' ),
 	},
 	{
 		value: 'sport',
-		label: __( 'Sport' ),
+		/* translators: category of images */
+		label: __( 'Sport', 'jetpack' ),
 	},
 	{
 		value: 'travel',
-		label: __( 'Travel' ),
+		/* translators: category of images */
+		label: __( 'Travel', 'jetpack' ),
 	},
 	{
 		value: 'weddings',
-		label: __( 'Weddings' ),
+		/* translators: category of images */
+		label: __( 'Weddings', 'jetpack' ),
 	},
 ];

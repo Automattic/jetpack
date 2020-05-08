@@ -16,13 +16,13 @@ import { SOURCE_WORDPRESS, SOURCE_GOOGLE_PHOTOS, SOURCE_PEXELS } from '../consta
 export const mediaSources = [
 	{
 		id: SOURCE_GOOGLE_PHOTOS,
-		label: __( 'Google Photos' ),
+		label: __( 'Google Photos', 'jetpack' ),
 		icon: <GooglePhotosIcon />,
 		keyword: 'google photos',
 	},
 	{
 		id: SOURCE_PEXELS,
-		label: __( 'Pexels Free Photos' ),
+		label: __( 'Pexels Free Photos', 'jetpack' ),
 		icon: <PexelsIcon />,
 		keyword: 'pexels',
 	},

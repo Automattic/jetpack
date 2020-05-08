@@ -82,11 +82,11 @@ class GooglePhotosMedia extends Component {
 		return [
 			{
 				value: PATH_RECENT,
-				label: __( 'Recent Photos' ),
+				label: __( 'Recent Photos', 'jetpack' ),
 			},
 			{
 				value: PATH_ROOT,
-				label: __( 'Albums' ),
+				label: __( 'Albums', 'jetpack' ),
 			},
 		];
 	}
@@ -117,7 +117,7 @@ class GooglePhotosMedia extends Component {
 
 	getAuthInstructions( isAuthing ) {
 		if ( isAuthing ) {
-			return __( 'Awaiting authorization' );
+			return __( 'Awaiting authorization', 'jetpack' );
 		}
 
 		return (
@@ -170,12 +170,16 @@ class GooglePhotosMedia extends Component {
 					/>
 				</SVG>
 				<p>
-					{ __( 'To show your Google Photos library you need to connect your Google account.' ) }
+					{ __(
+						'To show your Google Photos library you need to connect your Google account.',
+						'jetpack'
+					) }
 				</p>
 				<p>
 					{ __experimentalCreateInterpolateElement(
 						__(
-							'You can remove the connection either on your <googleLink>Google Security page</googleLink> or in <connectionLink>WordPress.com Connections</connectionLink>.'
+							'You can remove the connection either on your <googleLink>Google Security page</googleLink> or in <connectionLink>WordPress.com Connections</connectionLink>.',
+							'jetpack'
 						),
 						{
 							googleLink: (
@@ -215,7 +219,7 @@ class GooglePhotosMedia extends Component {
 		return (
 			<Fragment>
 				<Button isTertiary onClick={ () => this.setPath( PATH_ROOT ) }>
-					{ __( 'Albums' ) }
+					{ __( 'Albums', 'jetpack' ) }
 				</Button>
 				→ &nbsp; { path.name }
 			</Fragment>
@@ -232,7 +236,7 @@ class GooglePhotosMedia extends Component {
 				<div className="a8c-media-auth">
 					<p>{ this.getAuthInstructions( isAuthing ) }</p>
 					<Button isPrimary disabled={ isAuthing } onClick={ this.onAuthorize }>
-						{ __( 'Authorize' ) }
+						{ __( 'Authorize', 'jetpack' ) }
 					</Button>
 				</div>
 			);
@@ -243,7 +247,7 @@ class GooglePhotosMedia extends Component {
 				<div className="a8c-media-header__view">
 					<SelectControl
 						className="a8c-media-header__select"
-						label={ __( 'View' ) }
+						label={ __( 'View', 'jetpack' ) }
 						value={ path.ID !== PATH_RECENT ? PATH_ROOT : PATH_RECENT }
 						disabled={ isLoading }
 						options={ this.getPathOptions() }

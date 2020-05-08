@@ -81,7 +81,7 @@ class PexelsMedia extends Component {
 				<form className="a8c-media-header__pexels" onSubmit={ this.onSearch }>
 					<TextControl value={ this.state.search } onChange={ this.onChange } />
 					<Button isPrimary onClick={ this.onSearch } type="submit">
-						{ __( 'Search' ) }
+						{ __( 'Search', 'jetpack' ) }
 					</Button>
 				</form>
 

@@ -6,11 +6,11 @@ import { Fragment, useState } from '@wordpress/element';
 import { SelectControl, Button } from '@wordpress/components';
 
 const FILTERS = [
-	{ label: __( 'Category' ), value: 'category' },
-	{ label: __( 'After date' ), value: 'startDate' },
-	{ label: __( 'Before date' ), value: 'endDate' },
-	{ label: __( 'Favourite Media Only' ), value: 'favorite' },
-	{ label: __( 'Media Type' ), value: 'mediaType' },
+	{ label: __( 'Category', 'jetpack' ), value: 'category' },
+	{ label: __( 'After date', 'jetpack' ), value: 'startDate' },
+	{ label: __( 'Before date', 'jetpack' ), value: 'endDate' },
+	{ label: __( 'Favourite Media Only', 'jetpack' ), value: 'favorite' },
+	{ label: __( 'Media Type', 'jetpack' ), value: 'mediaType' },
 ];
 
 function getFilterOptions( filters ) {
@@ -60,7 +60,7 @@ function GoogleFilterView( props ) {
 	return (
 		<Fragment>
 			<SelectControl
-				label={ __( 'Filters' ) }
+				label={ __( 'Filters', 'jetpack' ) }
 				value={ currentFilter }
 				disabled={ isLoading }
 				options={ remainingFilters }
@@ -68,7 +68,7 @@ function GoogleFilterView( props ) {
 			/>
 
 			<Button disabled={ isLoading } isSecondary isSmall onClick={ setFilter }>
-				{ __( 'Add Filter' ) }
+				{ __( 'Add Filter', 'jetpack' ) }
 			</Button>
 		</Fragment>
 	);
