@@ -95,7 +95,7 @@ class Test_Jetpack_JITM extends TestCase {
 	protected function mock_filters( $filters ) {
 		$this->mocked_filters = $filters;
 		$builder = new MockBuilder();
-		$builder->setNamespace( __NAMESPACE__ )
+		$builder->setNamespace( "Automattic\Jetpack\JITMS" )
 			->setName( 'apply_filters' )
 			->setFunction(
 				function( ...$current_args ) {
@@ -117,7 +117,7 @@ class Test_Jetpack_JITM extends TestCase {
 
 	protected function mock_add_get_current_screen() {
 		$builder = new MockBuilder();
-		$builder->setNamespace( __NAMESPACE__ )
+		$builder->setNamespace( "Automattic\Jetpack\JITMS" )
 			->setName( 'get_current_screen' )
 			->setFunction( function() {
 				return new \stdClass;
@@ -127,7 +127,7 @@ class Test_Jetpack_JITM extends TestCase {
 
 	protected function mock_add_action() {
 		$builder = new MockBuilder();
-		$builder->setNamespace( __NAMESPACE__ )
+		$builder->setNamespace( "Automattic\Jetpack\JITMS" )
 			->setName( 'add_action' )
 			->setFunction( function( $name, $callable ) {
 				global $actions;
@@ -172,7 +172,7 @@ class Test_Jetpack_JITM extends TestCase {
 
 	protected function mock_wp_enqueue_script() {
 		$builder = new MockBuilder();
-		$builder->setNamespace( __NAMESPACE__ )
+		$builder->setNamespace( "Automattic\Jetpack\JITMS" )
 			->setName( 'wp_enqueue_script' )
 			->setFunction( function( $handle, $src = '', $deps = array(), $ver = false, $in_footer = false ) {
 				global $wp_scripts;
@@ -203,7 +203,7 @@ class Test_Jetpack_JITM extends TestCase {
 
 	protected function mock_empty_function( $name ) {
 		$builder = new MockBuilder();
-		$builder->setNamespace( __NAMESPACE__ )
+		$builder->setNamespace( "Automattic\Jetpack\JITMS" )
 			->setName( $name )
 			->setFunction( function() use ( $name ) {
 				// echo "Called $name with " . print_r( func_get_args(),1 ) . "\n";
