@@ -990,7 +990,7 @@ class Jetpack {
 		// Disable the banner dismiss functionality if the pre-connection prompt helpers filter is set.
 		if (
 			isset( $_REQUEST['dismissBanner'] ) &&
-			! apply_filters( 'jetpack_pre_connection_prompt_helpers', false )
+			! Jetpack_Connection_Banner::force_display()
 		) {
 			Jetpack_Options::update_option( 'dismissed_connection_banner', 1 );
 			wp_send_json_success();

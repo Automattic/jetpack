@@ -29,6 +29,22 @@ class Jetpack_Connection_Banner {
 	}
 
 	/**
+	 * The banner is forcibly displayed.
+	 *
+	 * @return bool
+	 */
+	public static function force_display() {
+		/**
+		 * This is an experiment for partners to test. Allow customization of the behavior of pre-connection banners.
+		 *
+		 * @since 8.6.0
+		 *
+		 * @param bool $always_show_prompt Should this prompt always appear? Default to false.
+		 */
+		return apply_filters( 'jetpack_pre_connection_prompt_helpers', false );
+	}
+
+	/**
 	 * Given a string for the the banner was added, and an int that represents the slide to
 	 * a URL for, this function returns a connection URL with a from parameter that will
 	 * support split testing.
@@ -69,14 +85,7 @@ class Jetpack_Connection_Banner {
 		// Kill if banner has been dismissed and the pre-connection helpers filter is not set.
 		if (
 			Jetpack_Options::get_option( 'dismissed_connection_banner' ) &&
-			/**
-			 * Allow customization of the behavior of pre-connection banners.
-			 *
-			 * @since 8.6.0
-			 *
-			 * @param bool $always_show_prompt Should the connection prompt always appear? Default to false.
-			 */
-			! apply_filters( 'jetpack_pre_connection_prompt_helpers', false )
+			! $this->force_display()
 		) {
 			return;
 		}
@@ -202,7 +211,7 @@ class Jetpack_Connection_Banner {
 	 * @since 7.2   Copy and visual elements reduced to show the new focus of Jetpack on Security and Performance.
 	 * @since 4.4.0
 	 */
-	function render_banner() {
+	public function render_banner() {
 		?>
 		<div id="message" class="updated jp-wpcom-connect__container">
 			<div class="jp-wpcom-connect__container-top-text">
@@ -214,7 +223,7 @@ class Jetpack_Connection_Banner {
 			<div class="jp-wpcom-connect__inner-container">
 
 				<?php
-				if ( ! apply_filters( 'jetpack_pre_connection_prompt_helpers', false ) ) :
+				if ( ! $this->force_display() ) :
 					?>
 
 					<span
@@ -315,7 +324,7 @@ class Jetpack_Connection_Banner {
 					?>
 
 					<?php
-					if ( ! apply_filters( 'jetpack_pre_connection_prompt_helpers', false ) ) :
+					if ( ! self::force_display() ) :
 						?>
 
 						<div class="jp-connect-full__dismiss">
@@ -389,7 +398,7 @@ class Jetpack_Connection_Banner {
 				<?php if ( 'plugins' === $current_screen->base ) : ?>
 
 					<?php
-					if ( ! apply_filters( 'jetpack_pre_connection_prompt_helpers', false ) ) :
+					if ( ! self::force_display() ) :
 						?>
 
 						<p class="jp-connect-full__dismiss-paragraph">
