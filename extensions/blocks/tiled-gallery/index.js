@@ -77,6 +77,10 @@ const blockAttributes = {
 	columns: {
 		type: 'number',
 	},
+	columnWidths: {
+		default: [],
+		type: 'array',
+	},
 	ids: {
 		default: [],
 		type: 'array',

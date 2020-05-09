@@ -160,6 +160,10 @@ class TiledGalleryEdit extends Component {
 		};
 	};
 
+	onResize = columnWidths => {
+		this.setAttributes( { columnWidths } );
+	};
+
 	setColumnsNumber = value => this.setAttributes( { columns: value } );
 
 	setRoundedCorners = value => this.setAttributes( { roundedCorners: value } );
@@ -303,6 +307,7 @@ class TiledGalleryEdit extends Component {
 					onMoveForward={ this.onMoveForward }
 					onRemoveImage={ this.onRemoveImage }
 					onSelectImage={ this.onSelectImage }
+					onResize={ this.onResize }
 					roundedCorners={ roundedCorners }
 					selectedImage={ isSelected ? selectedImage : null }
 					setImageAttributes={ this.setImageAttributes }
