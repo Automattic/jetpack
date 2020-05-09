@@ -69,6 +69,13 @@ class Jetpack_Connection_Banner {
 		// Kill if banner has been dismissed and the pre-connection helpers filter is not set.
 		if (
 			Jetpack_Options::get_option( 'dismissed_connection_banner' ) &&
+			/**
+			 * Allow customization of the behavior of pre-connection banners.
+			 *
+			 * @since 8.6.0
+			 *
+			 * @param bool $always_show_prompt Should the connection prompt always appear? Default to false.
+			 */
 			! apply_filters( 'jetpack_pre_connection_prompt_helpers', false )
 		) {
 			return;
