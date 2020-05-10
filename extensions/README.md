@@ -185,6 +185,8 @@ Sometimes blocks are paid for WordPress.com users but free for Jetpack users. In
 		),
 ```
 
+The plan data is found in `class.jetpack-plan.php` for Jetpack and an example of adding the features to WordPress.com plans is in D43206-code.
+
 ### Upgrades
 Paid blocks that aren't supported by a user's plan will still be registered for use in the block editor, but won't render on the frontend of the site. An `UpgradeNudge` component will display above the block in the editor and one the front end of the site to inform users that this is a paid block.
 
