@@ -40,7 +40,6 @@ domReady( function() {
 		this.image.src = properties.src;
 		this.image.alt = properties.alt || '';
 		this.label = properties.label || false;
-		this.credit = properties.credit || false;
 	}
 
 	function getImageDimensions( img ) {
@@ -152,7 +151,6 @@ domReady( function() {
 	const BOOLEAN_OPTIONS = {
 		animate: true,
 		showLabels: true,
-		showCredits: true,
 		makeResponsive: true,
 	};
 	function interpretBoolean( x ) {
@@ -170,7 +168,6 @@ domReady( function() {
 			// new options must have default values set here.
 			animate: true,
 			showLabels: true,
-			showCredits: true,
 			makeResponsive: true,
 			startingPosition: '50%',
 			mode: 'horizontal',
@@ -190,12 +187,6 @@ domReady( function() {
 		if ( images.length === 2 ) {
 			this.imgBefore = new Graphic( images[ 0 ], this );
 			this.imgAfter = new Graphic( images[ 1 ], this );
-		}
-
-		if ( this.imgBefore.credit || this.imgAfter.credit ) {
-			this.options.showCredits = true;
-		} else {
-			this.options.showCredits = false;
 		}
 	}
 
@@ -281,10 +272,6 @@ domReady( function() {
 				 * force dimension recalculation based on height instead of width */
 				dims = this.calculateDims( 0, window.innerHeight );
 				this.wrapper.style.paddingLeft = parseInt( ( window.innerWidth - dims.width ) / 2 ) + 'px';
-			}
-			if ( this.options.showCredits ) {
-				// accommodate the credits box within the iframe
-				dims.height -= 13;
 			}
 			return dims;
 		},
@@ -501,9 +488,6 @@ domReady( function() {
 		}
 		if ( w.getAttribute( 'data-showlabels' ) ) {
 			options.showLabels = w.getAttribute( 'data-showlabels' );
-		}
-		if ( w.getAttribute( 'data-showcredits' ) ) {
-			options.showCredits = w.getAttribute( 'data-showcredits' );
 		}
 		if ( w.getAttribute( 'data-startingposition' ) ) {
 			options.startingPosition = w.getAttribute( 'data-startingposition' );
