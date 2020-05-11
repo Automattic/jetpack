@@ -1733,7 +1733,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			$args['headers']['Cookie'] = "store_sandbox=$secret;";
 		}
 
-		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d', $site_id ) .'?force=wpcom', '1.1', $args );
+		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d', $site_id ) . '?force=wpcom', '1.1', $args );
 		$body     = wp_remote_retrieve_body( $response );
 		$data     = $body ? json_decode( $body ) : null;
 

@@ -364,6 +364,13 @@ class Client {
 		$body = null,
 		$base_api_path = 'rest'
 	) {
+
+		// Allow use a store sandbox. Internal ref: PCYsg-IA-p2.
+		if ( isset( $_COOKIE ) && isset( $_COOKIE['store_sandbox'] ) ) {
+			$secret                    = $_COOKIE['store_sandbox'];
+			$args['headers']['Cookie'] = "store_sandbox=$secret;";
+		}
+
 		$filtered_args = array_intersect_key(
 			$args,
 			array(
