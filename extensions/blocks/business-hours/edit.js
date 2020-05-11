@@ -13,7 +13,7 @@ import { useEffect, useState } from '@wordpress/element';
 import DayEdit from './components/day-edit';
 import DayPreview from './components/day-preview';
 
-function BusinessHoursEdit( props ) {
+const BusinessHoursEdit = props => {
 	const { attributes, className, isSelected } = props;
 	const { days } = attributes;
 
@@ -68,6 +68,6 @@ function BusinessHoursEdit( props ) {
 			) }
 		</div>
 	);
-}
+};
 
 export default BusinessHoursEdit;
