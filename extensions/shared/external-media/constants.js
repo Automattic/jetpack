@@ -6,9 +6,19 @@ import { __ } from '@wordpress/i18n';
 
 export const SOURCE_WORDPRESS = 'wordpress';
 export const SOURCE_GOOGLE_PHOTOS = 'google_photos';
-export const PATH_RECENT = 'recent';
 export const SOURCE_PEXELS = 'pexels';
+export const PATH_RECENT = 'recent';
 export const PATH_ROOT = '/';
+export const PATH_OPTIONS = [
+	{
+		value: PATH_RECENT,
+		label: __( 'Recent Photos', 'jetpack' ),
+	},
+	{
+		value: PATH_ROOT,
+		label: __( 'Albums', 'jetpack' ),
+	},
+];
 export const GOOGLE_PHOTOS_CATEGORIES = [
 	{
 		value: '',

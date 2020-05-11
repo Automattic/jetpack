@@ -2,168 +2,128 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { Component, Fragment } from '@wordpress/element';
-import { SelectControl, Button } from '@wordpress/components';
+import { useRef, useState, useCallback, useEffect } from '@wordpress/element';
+import { SelectControl } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
-import { SOURCE_GOOGLE_PHOTOS, PATH_RECENT, PATH_ROOT } from '../../constants';
+import { SOURCE_GOOGLE_PHOTOS, PATH_RECENT, PATH_ROOT, PATH_OPTIONS } from '../../constants';
 import MediaBrowser from '../../media-browser';
 import { getApiUrl } from '../api';
 import GoogleFilterOption from './filter-option';
 import GoogleFilterView from './filter-view';
+import Breadcrumbs from './breadcrumbs';
 import getFilterRequest from './filter-request';
 
 const isImageOnly = allowed => allowed && allowed.length === 1 && allowed[ 0 ] === 'image';
 
-class GooglePhotosMedia extends Component {
-	constructor( props ) {
-		super( props );
+function GooglePhotosMedia( props ) {
+	const {
+		media,
+		isLoading,
+		pageHandle,
+		multiple,
+		onChangePath,
+		getMedia,
+		allowedTypes,
+		path,
+		copyMedia,
+	} = props;
 
-		// Set default mediaType filter if we are only allowed images
-		this.state = {
-			isAuthing: false,
-			filters: isImageOnly( props.allowedTypes ) ? { mediaType: 'photo' } : {},
-		};
-	}
+	const imageOnly = isImageOnly( allowedTypes );
+	const [ filters, setFilters ] = useState( imageOnly ? { mediaType: 'photo' } : {} );
 
-	getListUrl() {
-		return getApiUrl( 'list', SOURCE_GOOGLE_PHOTOS, this.getQueryParams( this.state.filters ) );
-	}
-
-	getCopyUrl() {
-		return getApiUrl( 'copy', SOURCE_GOOGLE_PHOTOS );
-	}
-
-	componentDidMount() {
-		this.props.getMedia( this.getListUrl() );
-	}
-
-	getNextPage = ( reset = false ) => {
-		this.props.getMedia( this.getListUrl(), reset );
+	const lastQuery = useRef( '' );
+	const filterQuery = path.ID === PATH_RECENT ? getFilterRequest( filters ) : null;
+	const params = {
+		number: 20,
+		path: path.ID,
 	};
-
-	onCopy = items => {
-		this.props.copyMedia( items, this.getCopyUrl() );
-	};
-
-	getQuery( filters ) {
-		return JSON.stringify( this.getQueryParams( filters ) );
+	if ( filterQuery ) {
+		params.filter = filterQuery;
 	}
+	const listUrl = getApiUrl( 'list', SOURCE_GOOGLE_PHOTOS, params );
 
-	getQueryParams( filters ) {
-		const { path } = this.props;
-		const filterQuery = path.ID === PATH_RECENT ? getFilterRequest( filters ) : null;
-		const params = {
-			number: 20,
-			path: path.ID,
-		};
+	const getNextPage = useCallback(
+		( reset = false ) => {
+			getMedia( listUrl, reset );
+		},
+		[ getMedia, listUrl ]
+	);
 
-		if ( filterQuery ) {
-			params.filter = filterQuery;
+	const setPath = useCallback(
+		nextPath => {
+			const album = media.find( item => item.ID === nextPath );
+			onChangePath( album ? album : { ID: nextPath } );
+		},
+		[ media, onChangePath, getNextPage ]
+	);
+
+	const onCopy = useCallback(
+		items => {
+			copyMedia( items, getApiUrl( 'copy', SOURCE_GOOGLE_PHOTOS ) );
+		},
+		[ copyMedia ]
+	);
+
+	// Load media when the query changes.
+	useEffect( () => {
+		if ( lastQuery !== listUrl ) {
+			lastQuery.current = listUrl;
+			getNextPage();
 		}
+	}, [ lastQuery, listUrl ] );
 
-		return params;
-	}
-
-	setPath = path => {
-		const album = this.props.media.find( item => item.ID === path );
-
-		this.props.onChangePath( album ? album : { ID: path }, () => {
-			this.getNextPage( true );
-		} );
-	};
-
-	getPathOptions() {
-		return [
-			{
-				value: PATH_RECENT,
-				label: __( 'Recent Photos', 'jetpack' ),
-			},
-			{
-				value: PATH_ROOT,
-				label: __( 'Albums', 'jetpack' ),
-			},
-		];
-	}
-
-	setFilters = filters => {
-		const currentQuery = this.getQuery( this.state.filters );
-
-		this.setState( { filters }, () => {
-			if ( currentQuery !== this.getQuery( filters ) ) {
-				this.getNextPage( true );
-			}
-		} );
-	};
-
-	renderBreadcrumbs() {
-		const { path } = this.props;
-
-		return (
-			<Fragment>
-				<Button isTertiary onClick={ () => this.setPath( PATH_ROOT ) }>
-					{ __( 'Albums', 'jetpack' ) }
-				</Button>
-				→ &nbsp; { path.name }
-			</Fragment>
-		);
-	}
-
-	render() {
-		const { media, isLoading, pageHandle, multiple, path } = this.props;
-		const { filters } = this.state;
-		const canChange = ! isImageOnly( this.props.allowedTypes );
-
-		return (
-			<div className="jetpack-external-media-wrapper__google">
-				<div className="jetpack-external-media-header__view">
-					<SelectControl
-						className="jetpack-external-media-header__select"
-						label={ __( 'View', 'jetpack' ) }
-						value={ path.ID !== PATH_RECENT ? PATH_ROOT : PATH_RECENT }
-						disabled={ isLoading }
-						options={ this.getPathOptions() }
-						onChange={ this.setPath }
-					/>
-
-					{ path.ID === PATH_RECENT && (
-						<GoogleFilterView
-							filters={ filters }
-							isLoading={ isLoading }
-							setFilters={ this.setFilters }
-							canChangeMedia={ canChange }
-						/>
-					) }
-				</div>
-
-				<div className="jetpack-external-media-header__filter">
-					{ path.ID === PATH_RECENT && (
-						<GoogleFilterOption
-							filters={ filters }
-							isLoading={ isLoading }
-							setFilters={ this.setFilters }
-							canChangeMedia={ canChange }
-						/>
-					) }
-					{ path.ID !== PATH_RECENT && path.ID !== PATH_ROOT && this.renderBreadcrumbs() }
-				</div>
-
-				<MediaBrowser
-					className="jetpack-external-media-browser__google"
-					key={ this.getQuery( filters ) }
-					media={ media }
-					isLoading={ isLoading }
-					nextPage={ this.getNextPage }
-					onCopy={ this.onCopy }
-					pageHandle={ pageHandle }
-					multiple={ multiple }
-					setPath={ this.setPath }
+	return (
+		<div className="jetpack-external-media-wrapper__google">
+			<div className="jetpack-external-media-header__view">
+				<SelectControl
+					className="jetpack-external-media-header__select"
+					label={ __( 'View', 'jetpack' ) }
+					value={ path.ID !== PATH_RECENT ? PATH_ROOT : PATH_RECENT }
+					disabled={ isLoading }
+					options={ PATH_OPTIONS }
+					onChange={ setPath }
 				/>
+
+				{ path.ID === PATH_RECENT && (
+					<GoogleFilterView
+						filters={ filters }
+						isLoading={ isLoading }
+						setFilters={ setFilters }
+						canChangeMedia={ ! imageOnly }
+					/>
+				) }
 			</div>
-		);
-	}
+
+			<div className="jetpack-external-media-header__filter">
+				{ path.ID === PATH_RECENT && (
+					<GoogleFilterOption
+						filters={ filters }
+						isLoading={ isLoading }
+						setFilters={ setFilters }
+						canChangeMedia={ ! imageOnly }
+					/>
+				) }
+				{ path.ID !== PATH_RECENT && path.ID !== PATH_ROOT && (
+					<Breadcrumbs path={ path } setPath={ setPath } />
+				) }
+			</div>
+
+			<MediaBrowser
+				className="jetpack-external-media-browser__google"
+				key={ listUrl }
+				media={ media }
+				isLoading={ isLoading }
+				nextPage={ getNextPage }
+				onCopy={ onCopy }
+				pageHandle={ pageHandle }
+				multiple={ multiple }
+				setPath={ setPath }
+			/>
+		</div>
+	);
 }
 
 export default GooglePhotosMedia;
