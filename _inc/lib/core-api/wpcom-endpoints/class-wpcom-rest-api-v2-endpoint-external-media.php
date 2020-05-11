@@ -84,7 +84,7 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 
 		register_rest_route(
 			$this->namespace,
-			'/connection/(?P<service>google_photos)',
+			$this->rest_base . '/connection/(?P<service>google_photos)',
 			array (
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_connection_details' ),
