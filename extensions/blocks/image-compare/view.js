@@ -57,29 +57,14 @@ domReady( function() {
 		if ( ! element ) {
 			return;
 		}
-		// depending on required browser support this
-		// can be refactored, classList works for IE 10+
-		if ( element.classList ) {
-			element.classList.add( c );
-		} else {
-			element.className += ' ' + c;
-		}
+		element.classList.add( c );
 	}
 
 	function removeClass( element, c ) {
 		if ( ! element ) {
 			return;
 		}
-		// depending on required browser support this
-		// can be refactored, classList works for IE 10+
-		element.className = element.className
-			.replace( /(\S+)\s*/g, function( w, match ) {
-				if ( match === c ) {
-					return '';
-				}
-				return w;
-			} )
-			.replace( /^\s+/, '' );
+		element.classList.remove( c );
 	}
 
 	function setText( element, text ) {
