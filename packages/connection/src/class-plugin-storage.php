@@ -71,7 +71,7 @@ class Plugin_Storage {
 
 	/**
 	 * Retrieve the plugin information by slug.
-	 * WARNING: the method cannot be called until Jetpack Config has been run (`plugins_loaded`, priority 2).
+	 * WARNING: the method cannot be called until Plugin_Storage::configure is called, which happens on plugins_loaded
 	 * Even if you don't use Jetpack Config, it may be introduced later by other plugins,
 	 * so please make sure not to run the method too early in the code.
 	 *
@@ -91,7 +91,7 @@ class Plugin_Storage {
 
 	/**
 	 * Retrieve info for all plugins that use the connection.
-	 * WARNING: the method cannot be called until Jetpack Config has been run (`plugins_loaded`, priority 2).
+	 * WARNING: the method cannot be called until Plugin_Storage::configure is called, which happens on plugins_loaded
 	 * Even if you don't use Jetpack Config, it may be introduced later by other plugins,
 	 * so please make sure not to run the method too early in the code.
 	 *
@@ -109,7 +109,7 @@ class Plugin_Storage {
 
 	/**
 	 * Remove the plugin connection info from Jetpack.
-	 * WARNING: the method cannot be called until Jetpack Config has been run (`plugins_loaded`, priority 2).
+	 * WARNING: the method cannot be called until Plugin_Storage::configure is called, which happens on plugins_loaded
 	 * Even if you don't use Jetpack Config, it may be introduced later by other plugins,
 	 * so please make sure not to run the method too early in the code.
 	 *
