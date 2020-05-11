@@ -20,19 +20,9 @@ export default class JetpackPage extends Page {
 		return await waitAndClick( this.page, myPlanButton );
 	}
 
-	async isFree() {
-		const freePlanImage = ".my-plan-card__icon img[src*='free']";
-		return await isEventuallyVisible( this.page, freePlanImage, 20000 );
-	}
-
-	async isPremium() {
-		const premiumPlanImage = ".my-plan-card__icon img[src*='premium']";
-		return await isEventuallyVisible( this.page, premiumPlanImage, 20000 );
-	}
-
-	async isProfessional() {
-		const proPlanImage = ".my-plan-card__icon img[src*='business']";
-		return await isEventuallyVisible( this.page, proPlanImage, 20000 );
+	async openPlans() {
+		const plansButton = "a[href*='plans'] span";
+		return await waitAndClick( this.page, plansButton );
 	}
 
 	async isConnected() {
@@ -43,14 +33,34 @@ export default class JetpackPage extends Page {
 	async isPlan( plan ) {
 		switch ( plan ) {
 			case 'free':
-				return await this.isFree();
+				return await this._isPlan( 'free' );
+			case 'personal':
+				return await this._isPlan( 'personal' );
 			case 'premium':
-				return await this.isPremium();
+				return await this._isPlan( 'premium' );
 			case 'pro':
-				return await this.isProfessional();
+				return await this._isPlan( 'business' );
 			default:
 				throw new Error( 'Invalid plan string: ' + plan );
 		}
+	}
+
+	async isProduct( product ) {
+		switch ( product ) {
+			case 'backup':
+				return await this._isPlan( 'backup' );
+			case 'search':
+				return await this._isPlan( 'search' );
+			case 'scan':
+				return await this._isPlan( 'scan' );
+			default:
+				throw new Error( 'Invalid product string: ' + product );
+		}
+	}
+
+	async _isPlan( plan ) {
+		const imageSelector = `.my-plan-card__icon img[src*='${ plan }']`;
+		return await isEventuallyVisible( this.page, imageSelector, 20000 );
 	}
 
 	async isConnectBannerVisible() {

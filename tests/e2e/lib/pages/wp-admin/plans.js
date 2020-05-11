@@ -4,16 +4,14 @@
 import Page from '../page';
 import { waitAndClick } from '../../page-helper';
 
-export default class InPlacePlansPage extends Page {
+export default class PlansPage extends Page {
 	constructor( page ) {
-		const expectedSelector = '.plans-prompt__footer a';
+		const expectedSelector = '.plan-features';
 		super( page, { expectedSelector, explicitWaitMS: 60000 } );
 	}
 
 	async select( plan ) {
 		switch ( plan ) {
-			case 'free':
-				return await this.selectFreePlan();
 			case 'personal':
 				return await this.selectPlan( 'personal' );
 			case 'premium':
@@ -26,13 +24,8 @@ export default class InPlacePlansPage extends Page {
 				return await this.selectProduct( 'backup', 'realtime' );
 
 			default:
-				throw new Error( `${ plan } is not valide plan type` );
+				throw new Error( `${ plan } is not valid plan type` );
 		}
-	}
-
-	async selectFreePlan() {
-		const freePlanButton = '.plans-prompt__footer a';
-		return await waitAndClick( this.page, freePlanButton );
 	}
 
 	async selectPlan( type ) {
