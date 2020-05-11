@@ -143,6 +143,7 @@ const FieldDefaults = {
 		],
 	},
 	save: () => null,
+	example: {},
 };
 
 const getFieldLabel = ( { attributes, name: blockName } ) => {
