@@ -112,20 +112,9 @@ class GooglePhotosMedia extends Component {
 	}
 
 	render() {
-		const { media, isLoading, pageHandle, requiresAuth, multiple, path } = this.props;
-		const { isAuthing, filters } = this.state;
+		const { media, isLoading, pageHandle, multiple, path } = this.props;
+		const { filters } = this.state;
 		const canChange = ! isImageOnly( this.props.allowedTypes );
-
-		if ( requiresAuth ) {
-			return (
-				<div className="jetpack-external-media-auth">
-					<p>{ this.getAuthInstructions( isAuthing ) }</p>
-					<Button isPrimary disabled={ isAuthing } onClick={ this.onAuthorize }>
-						{ __( 'Authorize', 'jetpack' ) }
-					</Button>
-				</div>
-			);
-		}
 
 		return (
 			<div className="jetpack-external-media-wrapper__google">
