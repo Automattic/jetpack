@@ -40,6 +40,4 @@ class Jetpack_Wizard {
 			Jetpack::is_active() &&
 			! self::is_finished();
 	}
-
-	// TODO: move save and get logic from the endpoint (update_setup_questionnaire() and get_setup_questionnaire()) to this class.
 }

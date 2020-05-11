@@ -32,7 +32,7 @@ img {
 	margin-right: 1rem;
 	margin-top: 2rem;
 
-	@include breakpoint( '<660px' ) {
+	@include breakpoint( '<960px' ) {
 		display: none;
 	}
 }
