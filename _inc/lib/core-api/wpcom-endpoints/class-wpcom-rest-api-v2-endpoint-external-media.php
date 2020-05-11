@@ -73,7 +73,7 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 						'description' => __( 'Media data to copy.', 'jetpack' ),
 						'type'        => 'array',
 						'items'       => array(
-							'type' => 'array',
+							'type' => 'object',
 						),
 						'required'    => true,
 						'default'     => [],
