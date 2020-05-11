@@ -33,13 +33,9 @@ describe( 'Connection', () => {
 	} );
 
 	afterAll( async () => {
-		await execWpCommand(
-			'wp option update jetpack_private_options --format=json < jetpack_private_options.txt'
-		);
-		await execWpCommand( 'wp config set --raw JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME true' );
+		await execWpCommand( 'wp config set --raw JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME false' );
 		await execWpCommand( 'wp plugin activate e2e-plan-data-interceptor' );
-
-		// await resetWordpressInstall();
+		await resetWordpressInstall();
 	} );
 
 	it( 'In-place with Free plan', async () => {
