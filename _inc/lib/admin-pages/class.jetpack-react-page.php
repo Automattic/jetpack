@@ -377,14 +377,13 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 
 		$post = $post_data['posts'][0];
 
-		$post_content = isset( $post['content'] ) ? $post['content'] : null;
-		if ( empty( $post_content ) ) {
+		if ( empty( $post['content'] ) ) {
 			return;
 		}
 
 		// This allows us to embed videopress videos into the release post.
 		add_filter( 'wp_kses_allowed_html', array( $this, 'allow_post_embed_iframe' ), 10, 2 );
-		$content = wp_kses_post( $post_content );
+		$content = wp_kses_post( $post['content'] );
 		remove_filter( 'wp_kses_allowed_html', array( $this, 'allow_post_embed_iframe' ), 10, 2 );
 
 		$post_title = isset( $post['title'] ) ? $post['title'] : null;
