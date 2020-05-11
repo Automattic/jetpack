@@ -5,100 +5,69 @@ import apiFetch from '@wordpress/api-fetch';
 import classNames from 'classnames';
 import { __ } from '@wordpress/i18n';
 import { __experimentalGetSettings } from '@wordpress/date';
-import { BlockIcon } from '@wordpress/block-editor';
-import { Component } from '@wordpress/element';
-import { Placeholder } from '@wordpress/components';
+import { useEffect, useState } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
 import DayEdit from './components/day-edit';
 import DayPreview from './components/day-preview';
-import { icon } from '.';
 
-const defaultLocalization = {
-	days: {
-		Sun: __( 'Sunday', 'jetpack' ),
-		Mon: __( 'Monday', 'jetpack' ),
-		Tue: __( 'Tuesday', 'jetpack' ),
-		Wed: __( 'Wednesday', 'jetpack' ),
-		Thu: __( 'Thursday', 'jetpack' ),
-		Fri: __( 'Friday', 'jetpack' ),
-		Sat: __( 'Saturday', 'jetpack' ),
-	},
-	startOfWeek: 0,
-};
+function BusinessHoursEdit( props ) {
+	const { attributes, className, isSelected } = props;
+	const { days } = attributes;
 
-class BusinessHours extends Component {
-	state = {
-		localization: defaultLocalization,
-		hasFetched: false,
-	};
+	const [ daysOfWeek, setDaysOfWeek ] = useState( {
+		days: {
+			Sun: __( 'Sunday', 'jetpack' ),
+			Mon: __( 'Monday', 'jetpack' ),
+			Tue: __( 'Tuesday', 'jetpack' ),
+			Wed: __( 'Wednesday', 'jetpack' ),
+			Thu: __( 'Thursday', 'jetpack' ),
+			Fri: __( 'Friday', 'jetpack' ),
+			Sat: __( 'Saturday', 'jetpack' ),
+		},
+		startOfWeek: 0,
+	} );
 
-	componentDidMount() {
-		this.apiFetch();
-	}
+	const [ hasFetched, setHasFetched ] = useState( false );
 
-	apiFetch() {
-		this.setState( { data: defaultLocalization }, () => {
-			apiFetch( { path: '/wpcom/v2/business-hours/localized-week' } ).then(
-				data => {
-					this.setState( { localization: data, hasFetched: true } );
-				},
-				() => {
-					this.setState( { localization: defaultLocalization, hasFetched: true } );
-				}
-			);
-		} );
-	}
+	useEffect( () => {
+		apiFetch( { path: '/wpcom/v2/business-hours/localized-week' } ).then(
+			data => {
+				setDaysOfWeek( data );
+				setHasFetched( true );
+			},
+			() => setHasFetched( true )
+		);
+	}, [ hasFetched ] );
 
-	render() {
-		const { attributes, className, isSelected } = this.props;
-		const { days } = attributes;
-		const { localization, hasFetched } = this.state;
-		const { startOfWeek } = localization;
-		const localizedWeek = days.concat( days.slice( 0, startOfWeek ) ).slice( startOfWeek );
+	const localizedWeek = days.concat( days.slice( 0, daysOfWeek ) ).slice( daysOfWeek );
+	const {
+		formats: { time },
+	} = __experimentalGetSettings();
 
-		if ( ! hasFetched ) {
-			return (
-				<Placeholder
-					icon={ <BlockIcon icon={ icon } /> }
-					label={ __( 'Loading business hours', 'jetpack' ) }
-				/>
-			);
-		}
+	const daysOutput = localizedWeek.map( ( day, key ) => {
+		return <DayEdit key={ key } day={ day } localization={ daysOfWeek } { ...props } />;
+	} );
 
-		if ( ! isSelected ) {
-			const settings = __experimentalGetSettings();
-			const {
-				formats: { time },
-			} = settings;
-			return (
+	const classes = classNames( className, ! hasFetched ? 'is-fetching' : undefined, 'is-edit' );
+
+	return (
+		<div className={ classes }>
+			{ ! isSelected ? (
 				<dl className={ classNames( className, 'jetpack-business-hours' ) }>
 					{ localizedWeek.map( ( day, key ) => {
 						return (
-							<DayPreview
-								key={ key }
-								day={ day }
-								localization={ localization }
-								timeFormat={ time }
-							/>
+							<DayPreview key={ key } day={ day } localization={ daysOfWeek } timeFormat={ time } />
 						);
 					} ) }
 				</dl>
-			);
-		}
-
-		return (
-			<div className={ classNames( className, 'is-edit' ) }>
-				{ localizedWeek.map( ( day, key ) => {
-					return (
-						<DayEdit key={ key } day={ day } localization={ localization } { ...this.props } />
-					);
-				} ) }
-			</div>
-		);
-	}
+			) : (
+				daysOutput
+			) }
+		</div>
+	);
 }
 
-export default BusinessHours;
+export default BusinessHoursEdit;

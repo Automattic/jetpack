@@ -3,6 +3,10 @@
 .wp-block-jetpack-business-hours {
 	overflow: hidden;
 
+	&.is-fetching {
+		opacity: 0.25;
+	}
+
 	dd, dt {
 		@media (min-width: 480px ) {
 			display: inline-block;
