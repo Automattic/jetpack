@@ -1,6 +1,6 @@
 <?php
 /**
- * REST API endpoint for the External Media connections.
+ * REST API endpoint for the External Media.
  *
  * @package Jetpack
  * @since 8.5.0
@@ -9,7 +9,7 @@
 use Automattic\Jetpack\Connection\Client;
 
 /**
- * External Medie connections helper API.
+ * External Media helper API.
  *
  * @since 8.5
  */
@@ -39,9 +39,23 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 				'permission_callback' => array( $this, 'permission_callback' ),
 				'args' => array(
 					'search' => array(
-						'description' => __( 'Media collection search term' ),
+						'description' => __( 'Media collection search term.' ),
 						'type'        => 'string',
-						'required'    => 'false',
+						'required'    => false,
+					),
+					'number' => array(
+						'description' => __( 'Number of media items in the request' ),
+						'type'        => 'number',
+						'required'    => false,
+						'default'     => 20,
+					),
+					'path' => array(
+						'type'     => 'string',
+						'required' => false,
+					),
+					'page_handle' => array(
+						'type'     => 'string',
+						'required' => false,
 					),
 				),
 			)
@@ -54,6 +68,17 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 				'methods'             => \WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'copy_external_media' ),
 				'permission_callback' => array( $this, 'permission_callback' ),
+				'args'                => array(
+					'media' => array(
+						'description' => __( 'Media data to copy.' ),
+						'type'        => 'array',
+						'items'       => array(
+							'type' => 'array',
+						),
+						'required'    => true,
+						'default'     => [],
+					),
+				)
 			)
 		);
 
@@ -72,8 +97,12 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 		return current_user_can( 'edit_posts' );
 	}
 
+	public function wp_unique_filename() {
+		return $this->name;
+	}
+
 	public function get_external_media( \WP_REST_Request $request ) {
-		$params = $request->get_params();
+		$params     = $request->get_params();
 		$wpcom_path = sprintf( '/meta/external-media/%s', urlencode( $params['service'] ) );
 
 		// Build query string to pass to wpcom endpoint.
@@ -93,10 +122,6 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 		return json_decode( $body );
 	}
 
-	public function wp_unique_filename() {
-		return $this->name;
-	}
-
 	public function copy_external_media( \WP_REST_Request $request ) {
 		if ( ! function_exists( 'download_url' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/file.php';
@@ -110,18 +135,16 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 			require_once( ABSPATH . 'wp-admin/includes/image.php' );
 		}
 
-		$params = $request->get_params();
-
-		$media = isset( $params['media'] ) && is_array( $params['media'] ) ? $params['media'] : [];
-
-//		add_filter( 'wp_unique_filename', array( $this, 'wp_unique_filename' ) );
+		$media = $request->get_param( 'media' );
+		if ( empty( $media ) ) {
+			return new \WP_Error( 'external_media_data', 'No media data is provided' );
+		}
 
 		$responses = [];
-
 		foreach ( $media as $item ) {
 			$caption = '';
-			$title = '';
-			$guid = false;
+			$title   = '';
+			$guid    = false;
 
 			if ( isset( $item['guid'] ) ) {
 				$guid = $item['guid'];
@@ -161,29 +184,29 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 				continue;
 			}
 
-			$meta = wp_get_attachment_metadata( $id );
-			$meta['image_meta']['title'] = $title;
+			$meta                          = wp_get_attachment_metadata( $id );
+			$meta['image_meta']['title']   = $title;
 			$meta['image_meta']['caption'] = $caption;
 
 			wp_update_attachment_metadata( $id, $meta );
 
 			update_post_meta( $id, '_wp_attachment_image_alt', $title );
 			wp_update_post( [
-				'ID' => $id,
+				'ID'           => $id,
 				'post_excerpt' => $caption,
 			] );
 
-			$request = new \WP_REST_Request( 'GET', '/wp/v2/media/' . $id );
+			$request  = new \WP_REST_Request( 'GET', '/wp/v2/media/' . $id );
 			$response = rest_do_request( $request );
 
 			if ( is_wp_error( $response ) ) {
 				$responses[] = $response;
 			} else {
 				$responses[] = [
-					'id' => $id,
+					'id'      => $id,
 					'caption' => $caption,
-					'alt' => $title,
-					'url' => $response->data['source_url'],
+					'alt'     => $title,
+					'url'     => $response->data['source_url'],
 				];
 			}
 		}
@@ -192,7 +215,7 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 	}
 
 	public function get_connection_details( \WP_REST_Request $request ) {
-		$service = urlencode( $request->get_param( 'service' ) );
+		$service    = urlencode( $request->get_param( 'service' ) );
 		$wpcom_path = sprintf( '/meta/external-services/%s', $service );
 
 		$response = Client::wpcom_json_api_request_as_user( $wpcom_path, '1.1', [], null, 'rest' );
