@@ -123,7 +123,7 @@ export function getSortQuery( initialSort ) {
 	const query = getQuery();
 
 	const { order, orderby } = query;
-	if ( ORDERED_SORT_TYPES.includes( orderby ) ) {
+	if ( ORDERED_SORT_TYPES.includes( orderby ) && order ) {
 		return SORT_QUERY_MAP[ orderby ][ order ];
 	} else if ( Object.keys( SORT_QUERY_MAP ).includes( orderby ) ) {
 		return SORT_QUERY_MAP[ orderby ];
