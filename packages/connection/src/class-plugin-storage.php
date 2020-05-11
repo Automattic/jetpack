@@ -162,8 +162,6 @@ class Plugin_Storage {
 			self::update_active_plugins_option();
 		}
 
-		add_filter( 'jetpack_sync_options_whitelist', __NAMESPACE__ . '\Plugin_Storage::whitelist_options' );
-
 		self::$configured = true;
 
 	}
