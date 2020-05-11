@@ -39,12 +39,12 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 				'permission_callback' => array( $this, 'permission_callback' ),
 				'args' => array(
 					'search' => array(
-						'description' => __( 'Media collection search term.' ),
+						'description' => __( 'Media collection search term.', 'jetpack' ),
 						'type'        => 'string',
 						'required'    => false,
 					),
 					'number' => array(
-						'description' => __( 'Number of media items in the request' ),
+						'description' => __( 'Number of media items in the request', 'jetpack' ),
 						'type'        => 'number',
 						'required'    => false,
 						'default'     => 20,
@@ -70,10 +70,10 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 				'permission_callback' => array( $this, 'permission_callback' ),
 				'args'                => array(
 					'media' => array(
-						'description' => __( 'Media data to copy.' ),
+						'description' => __( 'Media data to copy.', 'jetpack' ),
 						'type'        => 'array',
 						'items'       => array(
-							'type' => 'array',
+							'type' => 'a    rray',
 						),
 						'required'    => true,
 						'default'     => [],
