@@ -52,7 +52,7 @@ const variations = [
 				{
 					label: __( 'Attending?', 'jetpack' ),
 					required: true,
-					options: [ 'Yes', 'No' ],
+					options: [ __( 'Yes', 'jetpack' ), __( 'No', 'jetpack' ) ],
 				},
 			],
 			[ 'jetpack/field-textarea', { label: __( 'Other Details', 'jetpack' ) } ],
@@ -86,7 +86,13 @@ const variations = [
 				'jetpack/field-select',
 				{
 					label: __( 'How did you hear about us?', 'jetpack' ),
-					options: [ 'Search Engine', 'Social Media', 'TV', 'Radio', 'Friend or Family' ],
+					options: [
+						__( 'Search Engine', 'jetpack' ),
+						__( 'Social Media', 'jetpack' ),
+						__( 'TV', 'jetpack' ),
+						__( 'Radio', 'jetpack' ),
+						__( 'Friend or Family', 'jetpack' ),
+					],
 				},
 			],
 			[ 'jetpack/field-textarea', { label: __( 'Other Details', 'jetpack' ) } ],
@@ -122,7 +128,7 @@ const variations = [
 				{
 					label: __( 'Time', 'jetpack' ),
 					required: true,
-					options: [ 'Morning', 'Afternoon' ],
+					options: [ __( 'Morning', 'jetpack' ), __( 'Afternoon', 'jetpack' ) ],
 				},
 			],
 			[ 'jetpack/field-textarea', { label: __( 'Notes', 'jetpack' ) } ],
@@ -156,7 +162,13 @@ const variations = [
 				{
 					label: __( 'Please rate our website', 'jetpack' ),
 					required: true,
-					options: [ '1 - Very Bad', '2 - Poor', '3 - Average', '4 - Good', '5 - Excellent' ],
+					options: [
+						__( '1 - Very Bad', 'jetpack' ),
+						__( '2 - Poor', 'jetpack' ),
+						__( '3 - Average', 'jetpack' ),
+						__( '4 - Good', 'jetpack' ),
+						__( '5 - Excellent', 'jetpack' ),
+					],
 				},
 			],
 			[ 'jetpack/field-textarea', { label: __( 'How could we improve?', 'jetpack' ) } ],
