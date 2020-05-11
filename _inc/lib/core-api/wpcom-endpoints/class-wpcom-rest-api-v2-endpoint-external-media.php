@@ -56,6 +56,16 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 				'permission_callback' => array( $this, 'permission_callback' ),
 			)
 		);
+
+		register_rest_route(
+			$this->namespace,
+			'/connection/(?P<service>google_photos)',
+			array (
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_connection_details' ),
+				'permission_callback' => array( $this, 'permission_callback' ),
+			)
+		);
 	}
 
 	public function permission_callback() {
@@ -179,7 +189,19 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 		}
 
 		return $responses;
+	}
 
+	public function get_connection_details( \WP_REST_Request $request ) {
+		$service = urlencode( $request->get_param( 'service' ) );
+		$wpcom_path = sprintf( '/meta/external-services/%s', $service );
+
+		$response = Client::wpcom_json_api_request_as_user( $wpcom_path, '1.1', [], null, 'rest' );
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$body = wp_remote_retrieve_body( $response );
+		return json_decode( $body );
 	}
 
 }
