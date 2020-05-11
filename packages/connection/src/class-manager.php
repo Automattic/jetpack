@@ -2340,12 +2340,12 @@ class Manager {
 	 *
 	 * @return bool
 	 */
-	public function disconnect_user_initiated() {
+	public function disable_plugin() {
 		if ( ! $this->plugin ) {
 			return false;
 		}
 
-		return $this->plugin->disconnect_user_initiated();
+		return $this->plugin->disable();
 	}
 
 	/**
@@ -2355,12 +2355,12 @@ class Manager {
 	 *
 	 * @return bool
 	 */
-	public function connect_user_initiated() {
+	public function enable_plugin() {
 		if ( ! $this->plugin ) {
 			return false;
 		}
 
-		return $this->plugin->reconnect_user_initiated();
+		return $this->plugin->enable();
 	}
 
 	/**

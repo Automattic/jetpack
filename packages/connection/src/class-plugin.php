@@ -84,8 +84,8 @@ class Plugin {
 	 *
 	 * @return bool
 	 */
-	public function disconnect_user_initiated() {
-		return Plugin_Storage::disconnect_user_initiated( $this->slug );
+	public function disable() {
+		return Plugin_Storage::disable_plugin( $this->slug );
 	}
 
 	/**
@@ -93,8 +93,8 @@ class Plugin {
 	 *
 	 * @return bool
 	 */
-	public function reconnect_user_initiated() {
-		return Plugin_Storage::reconnect_user_initiated( $this->slug );
+	public function enable() {
+		return Plugin_Storage::enable_plugin( $this->slug );
 	}
 
 	/**
@@ -103,7 +103,7 @@ class Plugin {
 	 * @return bool
 	 */
 	public function is_enabled() {
-		return ! in_array( $this->slug, Plugin_Storage::get_all_disconnected_user_initiated(), true );
+		return ! in_array( $this->slug, Plugin_Storage::get_all_disabled_plugins(), true );
 	}
 
 }

@@ -22,7 +22,7 @@ class Plugin_Storage {
 
 	const ACTIVE_PLUGINS_OPTION_NAME = 'jetpack_connection_active_plugins';
 
-	const DISCONNECTED_PLUGINS_OPTION_NAME = 'plugins_disconnected_user_initiated';
+	const PLUGINS_DISABLED_OPTION_NAME = 'connection_plugins_disabled';
 
 	/**
 	 * Whether this class was configured for the first time or not.
@@ -101,7 +101,7 @@ class Plugin_Storage {
 			return $maybe_error;
 		}
 
-		return $connected_only ? array_diff_key( self::$plugins, array_flip( self::get_all_disconnected_user_initiated() ) ) : self::$plugins;
+		return $connected_only ? array_diff_key( self::$plugins, array_flip( self::get_all_disabled_plugins() ) ) : self::$plugins;
 	}
 
 	/**
@@ -180,12 +180,12 @@ class Plugin_Storage {
 	 *
 	 * @return bool
 	 */
-	public static function disconnect_user_initiated( $slug ) {
-		$disconnects = self::get_all_disconnected_user_initiated();
+	public static function disable_plugin( $slug ) {
+		$disconnects = self::get_all_disabled_plugins();
 
 		if ( ! in_array( $slug, $disconnects, true ) ) {
 			$disconnects[] = $slug;
-			Jetpack_Options::update_option( self::DISCONNECTED_PLUGINS_OPTION_NAME, $disconnects );
+			Jetpack_Options::update_option( self::PLUGINS_DISABLED_OPTION_NAME, $disconnects );
 		}
 
 		return true;
@@ -198,13 +198,13 @@ class Plugin_Storage {
 	 *
 	 * @return bool
 	 */
-	public static function reconnect_user_initiated( $slug ) {
-		$disconnects = self::get_all_disconnected_user_initiated();
+	public static function enable_plugin( $slug ) {
+		$disconnects = self::get_all_disabled_plugins();
 
 		$slug_index = array_search( $slug, $disconnects, true );
 		if ( false !== $slug_index ) {
 			unset( $disconnects[ $slug_index ] );
-			Jetpack_Options::update_option( self::DISCONNECTED_PLUGINS_OPTION_NAME, $disconnects );
+			Jetpack_Options::update_option( self::PLUGINS_DISABLED_OPTION_NAME, $disconnects );
 		}
 
 		return true;
@@ -215,8 +215,8 @@ class Plugin_Storage {
 	 *
 	 * @return array
 	 */
-	public static function get_all_disconnected_user_initiated() {
-		return Jetpack_Options::get_option( self::DISCONNECTED_PLUGINS_OPTION_NAME, array() );
+	public static function get_all_disabled_plugins() {
+		return Jetpack_Options::get_option( self::PLUGINS_DISABLED_OPTION_NAME, array() );
 	}
 
 }
