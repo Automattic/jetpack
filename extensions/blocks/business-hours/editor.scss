@@ -5,6 +5,12 @@
 
 	&.is-fetching {
 		opacity: 0.25;
+		animation: fade 1s ease-in-out;
+	}
+
+	@keyframes fade {
+		0%,100% { opacity: 0.25 }
+		50% { opacity: 0.75 }
 	}
 
 	dd, dt {
