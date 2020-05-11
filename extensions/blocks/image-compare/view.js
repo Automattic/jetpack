@@ -54,6 +54,11 @@ domReady( function() {
 	}
 
 	function addClass( element, c ) {
+		if ( ! element ) {
+			return;
+		}
+		// depending on required browser support this
+		// can be refactored, classList works for IE 10+
 		if ( element.classList ) {
 			element.classList.add( c );
 		} else {
@@ -62,6 +67,11 @@ domReady( function() {
 	}
 
 	function removeClass( element, c ) {
+		if ( ! element ) {
+			return;
+		}
+		// depending on required browser support this
+		// can be refactored, classList works for IE 10+
 		element.className = element.className
 			.replace( /(\S+)\s*/g, function( w, match ) {
 				if ( match === c ) {
