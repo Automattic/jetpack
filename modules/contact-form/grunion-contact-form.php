@@ -2036,8 +2036,13 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			 */
 			$url                     = apply_filters( 'grunion_contact_form_form_action', "{$url}#contact-form-{$id}", $GLOBALS['post'], $id );
 			$has_submit_button_block = ! ( false === strpos( $content, 'wp-block-jetpack-button' ) );
+			$form_classes            = 'contact-form commentsblock';
 
-			$r .= "<form action='" . esc_url( $url ) . "' method='post' class='contact-form commentsblock'>\n";
+			if ( $has_submit_button_block ) {
+				$form_classes .= ' wp-block-jetpack-contact-form';
+			}
+
+			$r .= "<form action='" . esc_url( $url ) . "' method='post' class='" . esc_attr( $form_classes ) . "'>\n";
 			$r .= $form->body;
 
 			// In new versions of the contact form block the button is an inner block
