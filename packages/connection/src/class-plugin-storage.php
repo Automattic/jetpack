@@ -90,16 +90,18 @@ class Plugin_Storage {
 	 * Even if you don't use Jetpack Config, it may be introduced later by other plugins,
 	 * so please make sure not to run the method too early in the code.
 	 *
+	 * @param bool $connected_only Exclude plugins that were explicitly disconnected.
+	 *
 	 * @return array|WP_Error
 	 */
-	public static function get_all() {
+	public static function get_all( $connected_only = false ) {
 		$maybe_error = self::ensure_configured();
 
 		if ( $maybe_error instanceof WP_Error ) {
 			return $maybe_error;
 		}
 
-		return self::$plugins;
+		return $connected_only ? array_diff_key( self::$plugins, array_flip( self::get_all_disconnected_user_initiated() ) ) : self::$plugins;
 	}
 
 	/**

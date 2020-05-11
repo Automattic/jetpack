@@ -282,7 +282,10 @@ class ManagerTest extends TestCase {
 
 		( new Plugin( 'plugin-slug-2' ) )->add( 'Plugin Name 2' );
 
-		$manager = new Manager( 'plugin-slug-1' );
+		$stub = $this->createMock( Plugin::class );
+		$stub->method( 'is_only' )
+			->willReturn( false );
+		$manager = ( new Manager() )->set_plugin_instance( $stub );
 
 		$this->assertFalse( $manager->delete_all_connection_tokens() );
 	}
@@ -299,13 +302,14 @@ class ManagerTest extends TestCase {
 		$this->apply_filters->enable();
 		$this->do_action->enable();
 
-		$plugin1 = ( new Plugin( 'plugin-slug-1' ) )
-			->add( 'Plugin Name 1' );
+		( new Plugin( 'plugin-slug-1' ) )->add( 'Plugin Name 1' );
 
 		( new Plugin( 'plugin-slug-2' ) )->add( 'Plugin Name 2' );
 
-		$manager = ( new Manager() )
-			->set_plugin_instance( $plugin1 );
+		$stub = $this->createMock( Plugin::class );
+		$stub->method( 'is_only' )
+			->willReturn( false );
+		$manager = ( new Manager() )->set_plugin_instance( $stub );
 
 		$this->assertFalse( $manager->disconnect_site_wpcom() );
 	}

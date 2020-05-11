@@ -74,7 +74,7 @@ class Plugin {
 	 * @return bool
 	 */
 	public function is_only() {
-		$plugins = Plugin_Storage::get_all();
+		$plugins = Plugin_Storage::get_all( true );
 
 		return ! $plugins || ( array_key_exists( $this->slug, $plugins ) && 1 === count( $plugins ) );
 	}

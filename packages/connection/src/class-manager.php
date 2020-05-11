@@ -2325,13 +2325,13 @@ class Manager {
 	 * @return array|WP_Error
 	 */
 	public function get_connected_plugins() {
-		$maybe_plugins = Plugin_Storage::get_all();
+		$maybe_plugins = Plugin_Storage::get_all( true );
 
 		if ( $maybe_plugins instanceof WP_Error ) {
 			return $maybe_plugins;
 		}
 
-		return array_diff_key( $maybe_plugins, array_flip( Plugin_Storage::get_all_disconnected_user_initiated() ) );
+		return $maybe_plugins;
 	}
 
 	/**
