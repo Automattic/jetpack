@@ -5,17 +5,18 @@
  * @package   automattic/jetpack-coding-standards
  */
 
-namespace Automattic\Jetpack\CodingStandards\Sniffs\InlineDocs;
+// I admit this is weird. This allows the sniff to be named "Jetpack.InlineDocs.HooksInlineDocs".
+namespace Automattic\Jetpack\CodingStandards\Jetpack\Sniffs\InlineDocs;
 
 use WordPressCS\WordPress\AbstractFunctionRestrictionsSniff;
 use PHP_CodeSniffer\Util\Tokens;
 
 /**
- * Class HooksMustHaveDocblockSniff
+ * Class HooksInlineDocsSniff
  *
- * @package Automattic\Jetpack\CodingStandards\Sniffs\InlineDocs
+ * @package WPCS\WordPressCodingStandards
  */
-class HooksMustHaveDocblockSniff extends AbstractFunctionRestrictionsSniff {
+class HooksInlineDocsSniff extends AbstractFunctionRestrictionsSniff {
 
 	/**
 	 * Array of WordPress hook execution functions.
@@ -30,6 +31,23 @@ class HooksMustHaveDocblockSniff extends AbstractFunctionRestrictionsSniff {
 		'do_action_ref_array'      => 'action',
 		'do_action_deprecated'     => 'action',
 	);
+
+	/**
+	 * Array of allowed exceptional version numbers.
+	 *
+	 * By default, X.Y.Z version numbers are required. If there are any exceptions,
+	 * they can be passed in the ruleset XML file via:
+	 * <rule ref="Jetpack.InlineDocs.HooksInlineDocs">
+	 *  <properties>
+	 *   <property name="allowed_extra_versions" type="array">
+	 *    <element key="0.71" value="0.71"/>
+	 *    <element key="MU (3.0.0)" value="MU (3.0.0)"/>
+	 *   </property>
+	 * </rule>
+	 *
+	 * The key values are used to determine if a version is allowed outside of the X.Y.Z scheme. The value is not considered.
+	 */
+	public $allowed_extra_versions = array();
 
 	/**
 	 * Groups of functions to restrict.
@@ -93,7 +111,6 @@ class HooksMustHaveDocblockSniff extends AbstractFunctionRestrictionsSniff {
 					$stack_ptr,
 					'NoDocblockFound'
 				);
-				// return; Do we need to return here? Can we keep going?
 			}
 
 			/*
@@ -119,8 +136,10 @@ class HooksMustHaveDocblockSniff extends AbstractFunctionRestrictionsSniff {
 					// If it is false, there is no text or if the text is on the another line, error.
 					if ( false === $string || $this->tokens[ $string ]['line'] !== $this->tokens[ $tag ]['line'] ) {
 						$this->phpcsFile->addError( 'Since tag must have a value.', $tag, 'EmptySince' );
-					} elseif ( ! preg_match( '\'/^\d+\.\d+\.\d+/\'', $string ) ) { // Requires X.Y.Z. Trailing 0 is needed for a major release.
-						$this->phpcsFile->addError( 'Since tag must have a X.Y.Z. version number.', $tag, 'InvalidSince' );
+					} elseif ( ! preg_match('/^\d+\.\d+\.\d+/', $this->tokens[ $string ]['content'], $matches ) ) { // Requires X.Y.Z. Trailing 0 is needed for a major release.
+						if ( empty( $this->allowed_extra_versions ) || ! $this->array_begins_with( $this->tokens[ $string ]['content'], $this->allowed_extra_versions ) ) {
+							$this->phpcsFile->addError( 'Since tag must have a X.Y.Z version number.' . $this->tokens[ $string ]['content'], $tag, 'InvalidSince' );
+						}
 					}
 				}
 			}
@@ -158,11 +177,19 @@ class HooksMustHaveDocblockSniff extends AbstractFunctionRestrictionsSniff {
 	 *
 	 * @param int $start       The position of the starting token in the stack.
 	 * @param int $end       The position of the ending token in the stack.
+	 *
+	 * @return bool If docblock matches the previously documented convention.
 	 */
 	protected function is_previously_documented( $start, $end ) {
 		$string = $this->phpcsFile->findNext( T_DOC_COMMENT_STRING, $start, $end );
+
+		$content = $this->tokens[ $string ]['content'];
 		// If the call is documented elsewhere, stop here.
-		if ( 0 === strpos( $this->tokens[ $string ]['content'], 'This filter is documented in' ) ) {
+		if ( 0 === strpos( $content, 'This filter is documented' ) ) {
+			return true;
+		}
+
+		if ( 0 === strpos( $content, 'This action is documented' ) ) {
 			return true;
 		}
 
@@ -179,13 +206,22 @@ class HooksMustHaveDocblockSniff extends AbstractFunctionRestrictionsSniff {
 	protected function verify_valid_match( $stack_ptr ) {
 		$func_open_paren_token = $this->phpcsFile->findNext( Tokens::$emptyTokens, ( $stack_ptr + 1 ), null, true );
 		if ( false === $func_open_paren_token
-			|| \T_OPEN_PARENTHESIS !== $this->tokens[ $func_open_paren_token ]['code']
-			|| ! isset( $this->tokens[ $func_open_paren_token ]['parenthesis_closer'] )
+		     || \T_OPEN_PARENTHESIS !== $this->tokens[ $func_open_paren_token ]['code']
+		     || ! isset( $this->tokens[ $func_open_paren_token ]['parenthesis_closer'] )
 		) {
 			// Live coding, parse error or not a function call.
 			return false;
 		}
 
 		return true;
+	}
+
+	protected function array_begins_with( $string, $array ){
+		foreach ( $array as $key => $value ) {
+			if ( 0 === strpos( $string, $key ) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

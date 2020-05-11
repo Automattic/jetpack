@@ -5,9 +5,9 @@
  * @package   automattic/jetpack-coding-standards
  */
 
-namespace Automattic\Jetpack\CodingStandards\Sniffs\InlineDocs;
+namespace Automattic\Jetpack\CodingStandards\Jetpack\Sniffs\InlineDocs;
 
-use Automattic\Jetpack\CodingStandards\Sniffs\InlineDocs\HooksMustHaveDocblockSniff as HooksMustHaveDocblockSniff;
+use Automattic\Jetpack\CodingStandards\Jetpack\Sniffs\InlineDocs\HooksInlineDocsSniff as HooksInlineDocsSniff;
 
 /**
  * Class JetpackHooksRequirementsSniff
@@ -16,7 +16,7 @@ use Automattic\Jetpack\CodingStandards\Sniffs\InlineDocs\HooksMustHaveDocblockSn
  *
  * @package Automattic\Jetpack\CodingStandards\Sniffs\InlineDocs
  */
-class JetpackHooksRequirementsSniff extends HooksMustHaveDocblockSniff {
+class JetpackHooksRequirementsSniff extends HooksInlineDocsSniff {
 	/**
 	 * Process a matched token.
 	 *

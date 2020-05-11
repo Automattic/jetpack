@@ -15,6 +15,15 @@
 		</properties>
 	</rule>
 
+	 <rule ref="Jetpack.InlineDocs.HooksInlineDocs">
+	   <properties>
+	    <property name="allowed_extra_versions" type="array">
+	     <element key="0.71" value="0.71"/>
+	     <element key="MU (3.0.0)" value="MU (3.0.0)"/>
+	    </property>
+	    </properties>
+	  </rule>
+
 	<!-- For the coding-standards package, we are borrowing from the WPCS' phpcs.xml.dist. -->
 	<rule ref="WordPress.Files.FileName">
 		<exclude-pattern>/packages/coding-standards/*</exclude-pattern>
