@@ -54,22 +54,17 @@ domReady( function() {
 	}
 
 	function addClass( element, c ) {
-		if ( element.classList ) {
-			element.classList.add( c );
-		} else {
-			element.className += ' ' + c;
+		if ( ! element ) {
+			return;
 		}
+		element.classList.add( c );
 	}
 
 	function removeClass( element, c ) {
-		element.className = element.className
-			.replace( /(\S+)\s*/g, function( w, match ) {
-				if ( match === c ) {
-					return '';
-				}
-				return w;
-			} )
-			.replace( /^\s+/, '' );
+		if ( ! element ) {
+			return;
+		}
+		element.classList.remove( c );
 	}
 
 	function setText( element, text ) {
