@@ -1588,6 +1588,7 @@ class Manager {
 			'headers' => array(
 				'Accept' => 'application/json',
 			),
+			'timeout' => 10,
 		);
 
 		$response = Client::_wp_remote_request( Utils::fix_url_for_bad_hosts( $this->api_url( 'token' ) ), $args );
