@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
@@ -22,6 +22,13 @@ export const settings = {
 	icon,
 
 	category: supportsCollections() ? 'layout' : 'jetpack',
+	keywords: [
+		_x( 'juxtapose', 'block search term', 'jetpack' ),
+		_x( 'photos', 'block search term', 'jetpack' ),
+		_x( 'pictures', 'block search term', 'jetpack' ),
+		_x( 'side by side', 'block search term', 'jetpack' ),
+		_x( 'slider', 'block search term', 'jetpack' ),
+	],
 
 	attributes: {
 		imageBeforeId: {
