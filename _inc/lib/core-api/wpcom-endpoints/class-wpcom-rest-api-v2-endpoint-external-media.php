@@ -249,7 +249,7 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 		$service    = rawurlencode( $request->get_param( 'service' ) );
 		$wpcom_path = sprintf( '/meta/external-services/%s', $service );
 
-		$response = Client::wpcom_json_api_request_as_user( $wpcom_path, '2', array(), null, 'rest' );
+		$response = Client::wpcom_json_api_request_as_user( $wpcom_path, '1.1', array(), null, 'rest' );
 		$response = json_decode( wp_remote_retrieve_body( $response ) );
 
 		if ( isset( $response->code, $response->message, $response->data ) ) {
