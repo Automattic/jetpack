@@ -65,26 +65,24 @@ $blue-g2: #3858e9;
 }
 
 .jetpack-external-media-browser:not(.jetpack-external-media-browser__is-copying) {
-	// Mimic the appearance of the regular media dialog.
-	top: 30px;
-	left: 30px;
-	right: 30px;
-	bottom: 30px;
-	transform: none;
-	max-height: 100%;
-	max-width: 100%;
-	
 	.is-error {
 		margin-bottom: 1em;
 	}
-
+	
 	.components-placeholder {
 		background-color: transparent;
 	}
-
+	
 	.components-modal__content {
 		overflow: auto;
 		padding-bottom: 0;
+	}
+}
+
+@media (min-width: 600px) {
+	.components-modal__content {
+		width: 90vw;
+		height: 90vh;
 	}
 }
 
