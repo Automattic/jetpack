@@ -283,7 +283,7 @@ class Jetpack_WPCOM_Block_Editor {
 		// phpcs:ignore WordPress.Security.NonceVerification
 		$editor_deprecated               = isset( $_GET['editor/after-deprecation'] );
 		$classic_editor_plugin_available = is_plugin_inactive( 'classic-editor/classic-editor.php' );
-		$switch_visible                  = ( ! $editor_deprecated || jetpack_is_atomic_site() ) && $this->is_iframed_block_editor() && $classic_editor_plugin_available;
+		$switch_visible                  = ( ! $editor_deprecated || jetpack_is_atomic_site() ) && $this->is_iframed_block_editor() && $classic_editor_plugin_available && current_user_can( 'activate_plugin' );
 
 		// The following is only to allow testing link without an atomic site.
 		// phpcs:ignore WordPress.Security.NonceVerification
