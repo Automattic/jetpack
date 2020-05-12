@@ -17,7 +17,7 @@ if ( undefined !== typeof window && window.location ) {
 		dispatch( 'core/notices' ).createNotice(
 			'success',
 			__(
-				'Congrats! Your site is now connected to Stripe. You can start making money by adding your first subscription!',
+				'Congrats! Your site is now connected to Stripe. You can now start making money!',
 				'jetpack'
 			)
 		);
