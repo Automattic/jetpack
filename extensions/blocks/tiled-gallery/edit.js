@@ -65,6 +65,7 @@ export const pickRelevantMediaFiles = image => {
 class TiledGalleryEdit extends Component {
 	state = {
 		selectedImage: null,
+		changed: false,
 	};
 
 	static getDerivedStateFromProps( props, state ) {
@@ -111,6 +112,7 @@ class TiledGalleryEdit extends Component {
 		const { columns } = this.props.attributes;
 		this.setState( {
 			selectedImage: null,
+			changed: true,
 		} );
 		this.setAttributes( {
 			images,
@@ -138,7 +140,10 @@ class TiledGalleryEdit extends Component {
 		const images = [ ...this.props.attributes.images ];
 		images.splice( newIndex, 1, this.props.attributes.images[ oldIndex ] );
 		images.splice( oldIndex, 1, this.props.attributes.images[ newIndex ] );
-		this.setState( { selectedImage: newIndex } );
+		this.setState( {
+			selectedImage: newIndex,
+			changed: true,
+		} );
 		this.setAttributes( { images } );
 	};
 
@@ -161,7 +166,9 @@ class TiledGalleryEdit extends Component {
 	};
 
 	onResize = columnWidths => {
-		this.setAttributes( { columnWidths } );
+		if ( this.state.changed ) {
+			this.setAttributes( { columnWidths } );
+		}
 	};
 
 	setColumnsNumber = value => this.setAttributes( { columns: value } );
