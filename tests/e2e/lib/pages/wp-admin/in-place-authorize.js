@@ -5,6 +5,7 @@ import Page from '../page';
 import { waitAndClick, waitForSelector } from '../../page-helper';
 import { sendMessageToSlack } from '../../reporters/slack';
 import logger from '../../logger';
+import InPlacePlansPage from './in-place-plans';
 
 export default class InPlaceAuthorizeFrame extends Page {
 	constructor( page ) {
@@ -24,11 +25,22 @@ export default class InPlaceAuthorizeFrame extends Page {
 		return await iframeElement.contentFrame();
 	}
 
-	async approve() {
+	async approve( repeat = true ) {
 		const approveSelector = 'button#approve';
 		const iframe = await this.getFrame();
 		await waitAndClick( iframe, approveSelector );
-		await this.waitToDisappear();
+		try {
+			return await InPlacePlansPage.init( page );
+		} catch ( error ) {
+			if ( repeat ) {
+				const message = 'Jetpack in-place connection failed. Retrying once again.';
+				logger.info( message );
+				await sendMessageToSlack( message );
+
+				return await this.approve( false );
+			}
+			throw error;
+		}
 	}
 
 	async waitToDisappear() {
