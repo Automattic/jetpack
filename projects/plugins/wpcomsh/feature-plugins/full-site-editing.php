@@ -56,9 +56,3 @@ function wpcom_fse_global_editors_script() {
 	wp_add_inline_script( 'wp-list-reusable-blocks', $script );
 }
 add_action( 'admin_enqueue_scripts', 'wpcom_fse_global_editors_script' );
-
-/**
- * Disables Posts Carousel block on Atomic.
- * Can be removed once the block was tested on dotcom and got the green light for production.
- */
-add_action( 'a8c_disable_posts_carousel_block', '__return_true' );
