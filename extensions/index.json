@@ -31,7 +31,7 @@
 		"videopress",
 		"wordads"
 	],
-	"beta": [ "amazon", "image-compare" ],
+	"beta": [ "amazon", "image-compare", "editor-notes" ],
 	"experimental": [ "seo" ],
 	"no-post-editor": [
 		"business-hours",

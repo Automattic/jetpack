@@ -1,0 +1,16 @@
+@import '../../shared/styles/gutenberg-base-styles.scss';
+
+.wp-block-jetpack-editor-notes {
+	background-color: $light-gray-tertiary;
+	border: 1px solid $light-gray-ui;
+	padding: $block-padding;
+
+	.wp-block-jetpack-editor-notes__label {
+		color: $light-gray-ui;
+		font-family: $default-font;
+		font-size: $default-font-size;
+		font-style: italic;
+		font-weight: bold;
+		margin-top: 0;
+	}
+}
