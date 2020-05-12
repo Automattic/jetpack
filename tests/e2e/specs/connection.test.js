@@ -66,7 +66,7 @@ describe( 'Connection', () => {
 			await ( await CheckoutPage.init( page ) ).processPurchase( cardCredentials );
 			await ( await ThankYouPage.init( page ) ).waitForSetupAndProceed();
 			await ( await MyPlanPage.init( page ) ).returnToWPAdmin();
-			await syncJetpackPlanData( 'personal' );
+			await syncJetpackPlanData( 'personal', false );
 		} );
 
 		await step( 'Can assert that site has a Personal plan', async () => {
@@ -85,7 +85,7 @@ describe( 'Connection', () => {
 			await ( await CheckoutPage.init( page ) ).processPurchase( cardCredentials );
 			await ( await ThankYouPage.init( page ) ).waitForSetupAndProceed();
 			await ( await MyPlanPage.init( page ) ).returnToWPAdmin();
-			await syncJetpackPlanData( 'premium' );
+			await syncJetpackPlanData( 'premium', false );
 		} );
 
 		await step( 'Can assert that site has a Premium plan', async () => {

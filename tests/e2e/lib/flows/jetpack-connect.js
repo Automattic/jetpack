@@ -93,8 +93,10 @@ export async function doInPlaceConnection() {
 }
 
 export async function syncJetpackPlanData( plan, mockPlanData = true ) {
-	const planType = plan === 'free' ? 'jetpack_free' : 'jetpack_business';
-	await persistPlanData( planType );
+	if ( mockPlanData ) {
+		const planType = plan === 'free' ? 'jetpack_free' : 'jetpack_business';
+		await persistPlanData( planType );
+	}
 
 	const siteUrl = getNgrokSiteUrl();
 	const jetpackUrl = siteUrl + '/wp-admin/admin.php?page=jetpack#/dashboard';
