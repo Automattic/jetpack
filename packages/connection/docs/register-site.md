@@ -69,7 +69,15 @@ add_action( 'admin_post_register_site', 'your_plugin_register_site' );
 
 function your_plugin_register_site() {
 	check_admin_referer( 'register-site' );
-	( new Manager( 'plugin-slug' ) )->register();
+	$manager = new Manager( 'plugin-slug' );
+
+	// Mark the plugin connection as enabled, in case it was disabled earlier. 
+	$manager->enable_plugin();
+
+	// If the token doesn't exist (see "Soft and Hard Disconnect" section below), we need to register the site.
+	if ( ! $manager->get_access_token() ) {
+		$manager->register();
+	}
 
 	// This is where you could put your error handling, redirects, or whatever decorations you need.
 }
@@ -101,12 +109,62 @@ use Automattic\Jetpack\Connection\Manager;
 function your_plugin_disconnect_site() {
 	check_admin_referer( 'disconnect-site' );
 
-	// This will destroy the blog tokens on both this site, and the tokens stored on wordpress.com
-	( new Manager( 'plugin-slug' ) )->disconnect_site_wpcom();
+	$manager = new Manager( 'plugin-slug' );
 
-	// Clear all the tokens!
-	( new Manager( 'plugin-slug' ) )->delete_all_connection_tokens();
+	// Mark the plugin connection as disabled.
+	$manager->disable_plugin();
+
+	// If no other plugins use the connection, this will destroy the blog tokens on both this site, and the tokens stored on wordpress.com
+	$manager->disconnect_site_wpcom();
+
+	// If no other plugins use the connection, this will clear all the tokens!
+	$manager->delete_all_connection_tokens();
 
 	// Your error handling and decorations
+}
+```
+
+### Soft and Hard Disconnect
+
+There are two types of disconnection happening when you request a disconnect: *Soft Disconnect* and *Hard Disconnect*.
+The package API takes care of that under the hood, so in most cases there won't be any need to differentiate them in your code.
+Below is some basic information on how they differ.
+
+#### Soft Disconnect
+
+Soft disconnect means that all the tokens are preserved, but the connection for other plugins is preserved (no tokens are removed).
+Technically speaking, soft disconnect happens when you call `$manager->disable_plugin();`.
+Next time you try to use the connection, you call `$manager->is_plugin_enabled()`, which will return `false`.
+
+Calling `$manager->disconnect_site_wpcom()` and `$manager->delete_all_connection_tokens()` afterwards is still needed.
+These calls will determine if the plugin being disabled is the only one using the connection, and perform *soft* or *hard* disconnect accordingly.
+
+#### Hard Disconnect
+
+If there are no other plugins using the connection, or all of them have already been *softly disconnected*, the package will perform the *hard disconnect*.
+In that case methods `disconnect_site_wpcom()` and `delete_all_connection_tokens()` will actually remove the tokens and run the `deregister` API request.
+
+#### Using the connection
+If the plugin was *softly* disconnected, the access tokens will still be accessible.
+However, the user explicitly requested the plugin to be disabled, so you need to check for that before you utilize the connection in any way:
+```php
+$manager = new Manager( 'plugin-slug' );
+
+if ( $manager->is_plugin_enabled() && $manager->get_access_token() ) {
+	// Perform the API requests.
+} else {
+	// Assume the plugin is disconnected, no matter if the tokens actually exist.
+}
+```
+
+#### Reconnecting
+Whether a *soft* or *hard* disconnect was performed, the plugin will be marked as "disconnected", so if the connect is being reestablished, you need to call `$manager->enable_plugin()` to remove that flag.
+If the plugin was *softly* disconnected, removing the flag is enough for it to work. Otherwise, you'll need to register the website again:
+```php
+$manager = new Manager( 'plugin-slug' );
+$manager->enable_plugin();
+
+if ( ! $manager->get_access_token() ) {
+    $manager->register();
 }
 ```
