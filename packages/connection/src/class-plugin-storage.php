@@ -167,17 +167,6 @@ class Plugin_Storage {
 	}
 
 	/**
-	 * Adds Plugins Storage options to sync whitelist
-	 *
-	 * @param array $options the whitelisted options.
-	 * @return array
-	 */
-	public static function whitelist_options( $options ) {
-		$options[] = self::ACTIVE_PLUGINS_OPTION_NAME;
-		return $options;
-	}
-
-	/**
 	 * Updates the active plugins option with current list of active plugins.
 	 *
 	 * @return void
