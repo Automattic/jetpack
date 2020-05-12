@@ -132,7 +132,8 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 		$response = json_decode( wp_remote_retrieve_body( $response ) );
 
 		if ( isset( $response->code, $response->message, $response->data ) ) {
-			$response = new WP_Error( $response->code, $response->message, array( 'status' => $response->data ) );
+			$response->data = empty( $response->data->status ) ? array( 'status' => $response->data ) : $response->data;
+			$response       = new WP_Error( $response->code, $response->message, $response->data );
 		}
 
 		return $response;
@@ -252,7 +253,8 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 		$response = json_decode( wp_remote_retrieve_body( $response ) );
 
 		if ( isset( $response->code, $response->message, $response->data ) ) {
-			$response = new WP_Error( $response->code, $response->message, array( 'status' => $response->data ) );
+			$response->data = empty( $response->data->status ) ? array( 'status' => $response->data ) : $response->data;
+			$response       = new WP_Error( $response->code, $response->message, $response->data );
 		}
 
 		return $response;
