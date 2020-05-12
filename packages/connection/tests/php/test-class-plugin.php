@@ -53,6 +53,8 @@ class Test_Plugin extends TestCase {
 		$this->update_option->enable();
 		$this->get_option->enable();
 		$this->do_action->enable();
+
+		Plugin_Storage::configure();
 	}
 
 	/**
