@@ -104,6 +104,29 @@
 	margin-top: 7px;
 }
 
+.wp-block-jetpack-contact-form {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	flex-direction: row;
+}
+
+.wp-block-jetpack-contact-form .grunion-field-wrap {
+	flex: 0 0 100%;
+}
+
+.wp-block-jetpack-contact-form .grunion-field-width-25-wrap {
+	flex: 0 0 24%;
+}
+
+.wp-block-jetpack-contact-form .grunion-field-width-50-wrap {
+	flex: 0 0 49%;
+}
+
+.wp-block-jetpack-contact-form .grunion-field-width-75-wrap {
+	flex: 0 0 74%;
+}
+
 @media only screen and (min-width: 600px) {
 	.contact-form input[type='text'],
 	.contact-form input[type='email'],

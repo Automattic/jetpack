@@ -3062,6 +3062,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 				'values'      => null,
 				'placeholder' => null,
 				'class'       => null,
+				'width'       => null,
 			), $attributes, 'contact-field'
 		);
 
@@ -3221,7 +3222,12 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		$field_label       = $this->get_attribute( 'label' );
 		$field_required    = $this->get_attribute( 'required' );
 		$field_placeholder = $this->get_attribute( 'placeholder' );
+		$field_width       = $this->get_attribute( 'width' );
 		$class             = 'date' === $field_type ? 'jp-contact-form-date' : $this->get_attribute( 'class' );
+
+		if ( ! empty( $field_width ) ) {
+			$class .= 'grunion-field-width-' . $field_width;
+		}
 
 		/**
 		 * Filters the "class" attribute of the contact form input
