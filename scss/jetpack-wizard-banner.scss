@@ -11,7 +11,7 @@
 	margin: 40px 20px 0 2px;
 	@include breakpoint( '<660px' ) {
 		margin: 45px 20px 0 2px;
-		padding-bottom: 50px;
+		padding-bottom: 0px;
 	}
 }
 
@@ -20,6 +20,7 @@
 	margin-top: 1rem !important;
 	font-weight: 500;
 	font-size: 1.5em;
+	line-height: 150%;
 	@include breakpoint( '<660px' ) {
 		text-align: left;
 		font-weight: 400;
@@ -30,7 +31,7 @@ img {
 	border: none;
 	float: right;
 	margin-right: 1rem;
-	margin-top: 2rem;
+	margin-top: 1rem;
 
 	@include breakpoint( '<960px' ) {
 		display: none;
@@ -65,9 +66,8 @@ img {
 	}
 
 	max-width: 720px;
-	padding: 1.5rem 0;
+	padding: 1.5rem 0 1.5rem;
 	text-align: center;
-	height: 11rem;
 	margin-top: 2rem;
 
 	h2 {
@@ -88,6 +88,7 @@ img {
 	@include breakpoint( '<480px' ) {
 		flex-direction: column;
 		align-items: center;
+		width: 100%;
 	}
 }
 
