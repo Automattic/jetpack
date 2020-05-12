@@ -22,7 +22,7 @@ function JetpackFieldMultiple( props ) {
 		label,
 		setAttributes,
 		isSelected,
-		fieldWidth,
+		width,
 		options,
 	} = props;
 
@@ -108,7 +108,7 @@ function JetpackFieldMultiple( props ) {
 				id={ id }
 				required={ required }
 				setAttributes={ setAttributes }
-				fieldWidth={ fieldWidth }
+				width={ width }
 			/>
 		</Fragment>
 	);

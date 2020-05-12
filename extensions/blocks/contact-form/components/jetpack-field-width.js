@@ -4,7 +4,7 @@
 import { __ } from '@wordpress/i18n';
 import { BaseControl, Button, ButtonGroup } from '@wordpress/components';
 
-const JetpackFieldWidth = ( { setAttributes, fieldWidth } ) => {
+const JetpackFieldWidth = ( { setAttributes, width } ) => {
 	return (
 		<BaseControl
 			label={ __( 'Field Width', 'jetpack' ) }
@@ -20,8 +20,8 @@ const JetpackFieldWidth = ( { setAttributes, fieldWidth } ) => {
 						<Button
 							key={ widthValue }
 							isSmall
-							isPrimary={ widthValue === fieldWidth }
-							onClick={ () => setAttributes( { fieldWidth: widthValue } ) }
+							isPrimary={ widthValue === width }
+							onClick={ () => setAttributes( { width: widthValue } ) }
 						>
 							{ widthValue }%
 						</Button>

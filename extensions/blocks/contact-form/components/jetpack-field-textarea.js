@@ -11,7 +11,7 @@ import JetpackFieldLabel from './jetpack-field-label';
 import JetpackFieldControls from './jetpack-field-controls';
 
 export default function JetpackFieldTextarea( props ) {
-	const { id, required, label, setAttributes, placeholder, fieldWidth } = props;
+	const { id, required, label, setAttributes, placeholder, width } = props;
 
 	return (
 		<>
@@ -31,7 +31,7 @@ export default function JetpackFieldTextarea( props ) {
 				id={ id }
 				required={ required }
 				setAttributes={ setAttributes }
-				fieldWidth={ fieldWidth }
+				width={ width }
 			/>
 		</>
 	);

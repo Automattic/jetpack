@@ -13,7 +13,7 @@ import JetpackFieldLabel from './jetpack-field-label';
 import JetpackFieldWidth from './jetpack-field-width';
 
 function JetpackFieldCheckbox( props ) {
-	const { instanceId, required, label, setAttributes, fieldWidth, defaultValue } = props;
+	const { instanceId, required, label, setAttributes, width, defaultValue } = props;
 
 	return (
 		<BaseControl
@@ -40,7 +40,7 @@ function JetpackFieldCheckbox( props ) {
 								onChange={ value => setAttributes( { defaultValue: value } ) }
 							/>
 
-							<JetpackFieldWidth setAttributes={ setAttributes } fieldWidth={ fieldWidth } />
+							<JetpackFieldWidth setAttributes={ setAttributes } width={ width } />
 						</PanelBody>
 					</InspectorControls>
 				</>

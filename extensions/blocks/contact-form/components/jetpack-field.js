@@ -13,7 +13,7 @@ import JetpackFieldLabel from './jetpack-field-label';
 import JetpackFieldControls from './jetpack-field-controls';
 
 export default function JetpackField( props ) {
-	const { id, type, required, label, setAttributes, placeholder, fieldWidth } = props;
+	const { id, type, required, label, setAttributes, placeholder, width } = props;
 
 	return (
 		<>
@@ -33,7 +33,7 @@ export default function JetpackField( props ) {
 			<JetpackFieldControls
 				id={ id }
 				required={ required }
-				fieldWidth={ fieldWidth }
+				width={ width }
 				setAttributes={ setAttributes }
 			/>
 		</>
@@ -43,8 +43,8 @@ export default function JetpackField( props ) {
 const withCustomClassName = createHigherOrderComponent( BlockListBlock => {
 	return props => {
 		if ( props.name.indexOf( 'jetpack/field' ) > -1 ) {
-			const customClassName = props.attributes.fieldWidth
-				? 'jetpack-field__width-' + props.attributes.fieldWidth
+			const customClassName = props.attributes.width
+				? 'jetpack-field__width-' + props.attributes.width
 				: '';
 
 			return <BlockListBlock { ...props } className={ customClassName } />;
