@@ -44,6 +44,7 @@ class Jetpack_WPCOM_Block_Editor {
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_assets' ), 9 );
 		add_action( 'enqueue_block_assets', array( $this, 'enqueue_block_assets' ) );
 		add_filter( 'mce_external_plugins', array( $this, 'add_tinymce_plugins' ) );
+		add_action( 'admin_init', array( $this, 'activate_classic_editor' ) );
 
 		$this->enable_cross_site_auth_cookies();
 	}
@@ -280,8 +281,9 @@ class Jetpack_WPCOM_Block_Editor {
 		);
 
 		// phpcs:ignore WordPress.Security.NonceVerification
-		$editor_deprecated = isset( $_GET['editor/after-deprecation'] );
-		$switch_visible    = ( ! $editor_deprecated || jetpack_is_atomic_site() ) && $this->is_iframed_block_editor();
+		$editor_deprecated               = isset( $_GET['editor/after-deprecation'] );
+		$classic_editor_plugin_available = is_plugin_inactive( 'classic-editor/classic-editor.php' );
+		$switch_visible                  = ( ! $editor_deprecated || jetpack_is_atomic_site() ) && $this->is_iframed_block_editor() && $classic_editor_plugin_available;
 
 		// The following is only to allow testing link without an atomic site.
 		// phpcs:ignore WordPress.Security.NonceVerification
@@ -581,6 +583,21 @@ class Jetpack_WPCOM_Block_Editor {
 
 		// Post password cookie.
 		setcookie( 'wp-postpass_' . COOKIEHASH, ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
+	}
+
+	/**
+	 * Activates the Classic Editor plugin and reloads the page so it can initialize.
+	 *
+	 * This will only work if the Classic Editor plugin is already installed.
+	 */
+	public function activate_classic_editor() {
+		// phpcs:ignore WordPress.Security.NonceVerification
+		if ( ! empty( $_GET['set-editor'] ) && 'classic' === $_GET['set-editor'] && current_user_can( 'activate_plugin' ) ) {
+			if ( is_plugin_inactive( 'classic-editor/classic-editor.php' ) ) {
+				activate_plugin( 'classic-editor/classic-editor.php' );
+				wp_safe_redirect( remove_query_arg( 'set-editor', $_SERVER['REQUEST_URI'] ) );
+			}
+		}
 	}
 }
 

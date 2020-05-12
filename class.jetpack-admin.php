@@ -51,14 +51,6 @@ class Jetpack_Admin {
 
 		// Add module bulk actions handler
 		add_action( 'jetpack_unrecognized_action', array( $this, 'handle_unrecognized_action' ) );
-
-		add_action( 'admin_init', array( $this, 'activate_classic_editor' ), 9 );
-	}
-
-	public function activate_classic_editor() {
-		if ( 'classic' === $_GET['set-editor']  && current_user_can( 'activate_plugin' ) ) {
-			activate_plugin( 'classic-editor/classic-editor.php' );
-		}
 	}
 
 	static function sort_requires_connection_last( $module1, $module2 ) {
