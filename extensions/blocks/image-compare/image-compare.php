@@ -63,7 +63,7 @@ function render_amp( $attr, $content ) {
 	}
 	return sprintf(
 		'<amp-image-slider layout="responsive" width="300" height="200"><amp-img src="%s" layout="fill"></amp-img><amp-img src="%s" layout="fill"></amp-img></amp-image-slider>',
-		$imgs[1][0],
-		$imgs[1][1]
+		esc_attr( $imgs[1][0] ),
+		esc_attr( $imgs[1][1] )
 	);
 }
