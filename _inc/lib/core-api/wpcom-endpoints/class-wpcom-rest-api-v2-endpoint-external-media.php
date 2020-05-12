@@ -129,11 +129,13 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 		}
 
 		$response = Client::wpcom_json_api_request_as_user( $wpcom_path, '2' );
-		if ( is_wp_error( $response ) ) {
-			return $response;
+		$response = json_decode( wp_remote_retrieve_body( $response ) );
+
+		if ( isset( $response->code, $response->message, $response->data ) ) {
+			$response = new WP_Error( $response->code, $response->message, array( 'status' => $response->data ) );
 		}
 
-		return json_decode( wp_remote_retrieve_body( $response ) );
+		return $response;
 	}
 
 	/**
@@ -247,11 +249,13 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 		$wpcom_path = sprintf( '/meta/external-services/%s', $service );
 
 		$response = Client::wpcom_json_api_request_as_user( $wpcom_path, '2', array(), null, 'rest' );
-		if ( is_wp_error( $response ) ) {
-			return $response;
+		$response = json_decode( wp_remote_retrieve_body( $response ) );
+
+		if ( isset( $response->code, $response->message, $response->data ) ) {
+			$response = new WP_Error( $response->code, $response->message, array( 'status' => $response->data ) );
 		}
 
-		return json_decode( wp_remote_retrieve_body( $response ) );
+		return $response;
 	}
 }
 
