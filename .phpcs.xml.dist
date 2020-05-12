@@ -15,14 +15,19 @@
 		</properties>
 	</rule>
 
-	 <rule ref="Jetpack.InlineDocs.HooksInlineDocs">
+	 <rule ref="Jetpack.Commenting.HooksInlineDocs">
 	   <properties>
-	    <property name="allowed_extra_versions" type="array">
-	     <element key="0.71" value="0.71"/>
-	     <element key="MU (3.0.0)" value="MU (3.0.0)"/>
-	    </property>
+	    <property name="allowed_extra_versions" type="array" value="0.71"/>
+	    <property name="allowed_extra_versions" type="array" value="MU"/>
 	    </properties>
 	  </rule>
+
+	 <rule ref="Jetpack.Commenting.HooksRequireTags">
+	  	<properties>
+	  		<property name="required_tags" type="array" value="module"/>
+	  	</properties>
+	  	<include-pattern>/modules/*</include-pattern>
+	 </rule>
 
 	<!-- For the coding-standards package, we are borrowing from the WPCS' phpcs.xml.dist. -->
 	<rule ref="WordPress.Files.FileName">

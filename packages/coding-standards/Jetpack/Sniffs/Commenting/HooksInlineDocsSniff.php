@@ -5,8 +5,8 @@
  * @package   automattic/jetpack-coding-standards
  */
 
-// I admit this is weird. This allows the sniff to be named "Jetpack.InlineDocs.HooksInlineDocs".
-namespace Automattic\Jetpack\CodingStandards\Jetpack\Sniffs\InlineDocs;
+// I admit this is weird. This allows the sniff to be named "Jetpack.Commenting.HooksInlineDocs".
+namespace Automattic\Jetpack\CodingStandards\Jetpack\Sniffs\Commenting;
 
 use WordPressCS\WordPress\AbstractFunctionRestrictionsSniff;
 use PHP_CodeSniffer\Util\Tokens;
@@ -37,7 +37,7 @@ class HooksInlineDocsSniff extends AbstractFunctionRestrictionsSniff {
 	 *
 	 * By default, X.Y.Z version numbers are required. If there are any exceptions,
 	 * they can be passed in the ruleset XML file via:
-	 * <rule ref="Jetpack.InlineDocs.HooksInlineDocs">
+	 * <rule ref="Jetpack.Commenting.HooksInlineDocs">
 	 *  <properties>
 	 *   <property name="allowed_extra_versions" type="array">
 	 *    <element key="0.71" value="0.71"/>
@@ -217,8 +217,8 @@ class HooksInlineDocsSniff extends AbstractFunctionRestrictionsSniff {
 	}
 
 	protected function array_begins_with( $string, $array ){
-		foreach ( $array as $key => $value ) {
-			if ( 0 === strpos( $string, $key ) ) {
+		foreach ( $array as $value ) {
+			if ( 0 === strpos( $string, $value ) ) {
 				return true;
 			}
 		}

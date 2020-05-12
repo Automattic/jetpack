@@ -1,6 +1,14 @@
 <?xml version="1.0"?>
 <ruleset name="Jetpack-Plugin">
 	<rule ref="Jetpack"/>
+
+	<rule ref="Jetpack.Commenting.HooksRequireTags">
+		<properties>
+			<property name="required_tags" type="array" value="module"/>
+		</properties>
+		<include-pattern>/modules/*</include-pattern>
+	</rule>
+
 	<rule ref="WordPress.WP.I18n">
 		<properties>
 			<property name="text_domain" type="array">
