@@ -67,6 +67,8 @@ $blue-g2: #3858e9;
 .jetpack-external-media-browser:not(.jetpack-external-media-browser__is-copying) {
 	.is-error {
 		margin-bottom: 1em;
+		margin-left: 0;
+		margin-right: 0;
 	}
 	
 	.components-placeholder {
