@@ -1,9 +1,21 @@
+// Remove the left and right margin of the figure element in the editor.
+// The frontend is the domain of the theme.
+.wp-block-jetpack-image-compare {
+	margin-left: 0;
+	margin-right: 0;
+}
+
 .image-compare__placeholder > .components-placeholder {
 	flex-direction: row;
 	align-items: center;
 
 	> .components-placeholder__label {
 		display: none;
+	}
+
+	// Remove backgrounds from the nested placeholders.
+	.components-placeholder {
+		background: none;
 	}
 }
 
