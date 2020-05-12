@@ -208,9 +208,6 @@ catchBeforeAll( async () => {
 		const result = await execWpCommand( 'wp option get jetpack_private_options --format=json' );
 		fs.writeFileSync( 'jetpack_private_options.txt', result.trim() );
 	}
-
-	await execWpCommand( 'wp config set JETPACK_SHOULD_USE_CONNECTION_IFRAME true' );
-	await page.reload();
 } );
 
 afterEach( async () => {
