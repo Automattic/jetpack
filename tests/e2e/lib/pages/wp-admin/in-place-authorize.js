@@ -24,22 +24,11 @@ export default class InPlaceAuthorizeFrame extends Page {
 		return await iframeElement.contentFrame();
 	}
 
-	async approve( repeat = true ) {
+	async approve() {
 		const approveSelector = 'button#approve';
 		const iframe = await this.getFrame();
 		await waitAndClick( iframe, approveSelector );
-		try {
-			return await this.waitToDisappear();
-		} catch ( error ) {
-			if ( repeat ) {
-				const message = 'Jetpack in-place connection failed. Retrying once again.';
-				logger.info( message );
-				await sendMessageToSlack( message );
-
-				return await this.approve( false );
-			}
-			throw error;
-		}
+		await this.waitToDisappear();
 	}
 
 	async waitToDisappear() {
