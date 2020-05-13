@@ -23,6 +23,15 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 	private static $services_regex = '(?P<service>google_photos|pexels)';
 
 	/**
+	 * Temporary filename.
+	 *
+	 * Needed to cope with Google's very long file names.
+	 *
+	 * @var string
+	 */
+	private $tmp_name;
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -187,12 +196,16 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 
 			$guid = json_decode( $guid, true );
 
-			// phpcs:ignore $this->name = $guid['name'];
+			// Limit Google's long file names.
+			$this->tmp_name = $guid['name'];
+			add_filter( 'wp_unique_filename', array( $this, 'tmp_name' ) );
+			$download_url = download_url( $guid['url'] );
+			remove_filter( 'wp_unique_filename', array( $this, 'tmp_name' ) );
 
 			// Download file to temp dir.
 			$file = array(
 				'name'     => wp_basename( $guid['name'] ),
-				'tmp_name' => download_url( $guid['url'] ),
+				'tmp_name' => $download_url,
 			);
 
 			if ( is_wp_error( $file['tmp_name'] ) ) {
@@ -258,6 +271,15 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 		}
 
 		return $response;
+	}
+
+	/**
+	 * Filter callback to provide a shorter file name for google images.
+	 *
+	 * @return string
+	 */
+	public function tmp_name() {
+		return $this->tmp_name;
 	}
 }
 
