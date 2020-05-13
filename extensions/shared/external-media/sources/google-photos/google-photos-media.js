@@ -35,6 +35,7 @@ function GooglePhotosMedia( props ) {
 	const [ filters, setFilters ] = useState( imageOnly ? { mediaType: 'photo' } : {} );
 
 	const lastQuery = useRef( '' );
+	const lastPath = useRef( '' );
 	const filterQuery = path.ID === PATH_RECENT ? getFilterRequest( filters ) : null;
 	const params = {
 		number: 20,
@@ -54,9 +55,10 @@ function GooglePhotosMedia( props ) {
 	const setPath = useCallback(
 		nextPath => {
 			const album = media.find( item => item.ID === nextPath );
+			lastPath.current = path;
 			onChangePath( album ? album : { ID: nextPath } );
 		},
-		[ media, onChangePath ]
+		[ media, onChangePath, lastPath, path ]
 	);
 
 	const onCopy = useCallback(
@@ -70,9 +72,9 @@ function GooglePhotosMedia( props ) {
 	useEffect( () => {
 		if ( lastQuery !== listUrl ) {
 			lastQuery.current = listUrl;
-			getNextPage();
+			getNextPage( {}, path !== lastPath.current );
 		}
-	}, [ lastQuery, listUrl, getNextPage ] );
+	}, [ lastQuery, listUrl, getNextPage, path ] );
 
 	return (
 		<div className="jetpack-external-media-wrapper__google">
