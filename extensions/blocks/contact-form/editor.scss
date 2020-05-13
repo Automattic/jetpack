@@ -19,7 +19,7 @@
 	.block-editor-block-list__layout {
 		display: flex;
 		flex-wrap: wrap;
-		justify-content: left;
+		justify-content: flex-start;
 		flex-direction: row;
 
 		.wp-block {
