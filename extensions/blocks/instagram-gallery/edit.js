@@ -51,6 +51,7 @@ const InstagramGalleryEdit = props => {
 	} );
 	const { isConnecting, connectToService, disconnectFromService } = useConnectInstagram( {
 		accessToken,
+		isLoadingGallery,
 		noticeOperations,
 		setAttributes,
 		setImages,
