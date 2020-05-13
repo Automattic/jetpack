@@ -6,6 +6,7 @@ import { waitAndClick, waitForSelector } from '../../page-helper';
 import { sendMessageToSlack } from '../../reporters/slack';
 import logger from '../../logger';
 import InPlacePlansPage from './in-place-plans';
+import JetpackPage from './jetpack';
 
 export default class InPlaceAuthorizeFrame extends Page {
 	constructor( page ) {
@@ -38,6 +39,7 @@ export default class InPlaceAuthorizeFrame extends Page {
 				await sendMessageToSlack( message );
 
 				await this.reload();
+				await ( await JetpackPage.init( page ) ).connect();
 				return await this.approve( false );
 			}
 			throw error;
