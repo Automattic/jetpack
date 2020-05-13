@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { Component, useCallback, useState, useEffect } from '@wordpress/element';
+import { useRef, useCallback, useState, useEffect } from '@wordpress/element';
 import { TextControl, Button } from '@wordpress/components';
 import { sample } from 'lodash';
 
@@ -43,11 +43,13 @@ function PexelsMedia( props ) {
 		[ getMedia, searchQuery ]
 	);
 
+	const previousSearchQueryValue = useRef();
 	const onSearch = useCallback(
 		( event ) => {
 			event.preventDefault();
 			setLastSearchQuery( searchQuery );
 			getNextPage( event, true );
+			previousSearchQueryValue.current = searchQuery;
 		},
 		[ getNextPage, searchQuery ]
 	);
@@ -59,7 +61,12 @@ function PexelsMedia( props ) {
 		<div className="jetpack-external-media-wrapper__pexels">
 			<form className="jetpack-external-media-header__pexels" onSubmit={ onSearch }>
 				<TextControl value={ searchQuery } onChange={ setSearchQuery } />
-				<Button isPrimary onClick={ onSearch } type="submit">
+				<Button
+					isPrimary
+					onClick={ onSearch }
+					type="submit"
+					disabled={ ! searchQuery.length || searchQuery === previousSearchQueryValue.current }
+				>
 					{ __( 'Search', 'jetpack' ) }
 				</Button>
 			</form>
