@@ -10,6 +10,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { photonizedImgProps } from '../tiled-gallery/utils';
 import ImgUpload from './img-upload';
 import useDebounce from './use-debounce';
 import './editor.scss';
@@ -18,16 +19,7 @@ import './view.js';
 /* global juxtapose */
 
 const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) => {
-	const {
-		imageBeforeId,
-		imageBeforeUrl,
-		imageBeforeAlt,
-		imageAfterId,
-		imageAfterUrl,
-		imageAfterAlt,
-		caption,
-		orientation,
-	} = attributes;
+	const { imageBefore, imageAfter, caption, orientation } = attributes;
 
 	// Check for useResizeObserver, not available in older Gutenberg.
 	let resizeListener = null;
@@ -57,15 +49,15 @@ const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) 
 
 	// Initial state if attributes already set or not.
 	// If both images are set, add juxtaspose class, which is picked up by the library.
-	const isComplete = imageBeforeUrl && imageAfterUrl;
+	const isComplete = imageBefore && imageBefore.url && imageAfter && imageAfter.url;
 	const classes = isComplete ? 'image-compare__comparison juxtapose' : 'image-compare__placeholder';
 
 	// Watching for changes to key variables to trigger scan.
 	useLayoutEffect( () => {
-		if ( imageBeforeUrl && imageAfterUrl && typeof juxtapose !== 'undefined' ) {
+		if ( imageBefore.url && imageAfter.url && typeof juxtapose !== 'undefined' ) {
 			juxtapose.scanPage();
 		}
-	}, [ imageBeforeUrl, imageAfterUrl, orientation ] );
+	}, [ imageBefore, imageAfter, orientation ] );
 
 	return (
 		<figure className={ className } id={ clientId }>
@@ -91,17 +83,21 @@ const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) 
 					<div className="image-compare__image-before">
 						<ImgUpload
 							image={ {
-								id: imageBeforeId,
-								url: imageBeforeUrl,
-								alt: imageBeforeAlt,
+								id: imageBefore.id,
+								url: imageBefore.url,
+								alt: imageBefore.alt,
 							} }
 							placeHolderLabel={ __( 'Image before', 'jetpack' ) }
 							onChange={ img => {
 								if ( img.media_type === 'image' || img.type === 'image' ) {
 									setAttributes( {
-										imageBeforeId: img.id,
-										imageBeforeUrl: img.url,
-										imageBeforeAlt: img.alt,
+										imageBefore: {
+											id: img.id,
+											url: img.url,
+											alt: img.alt,
+											width: img.width,
+											height: img.height,
+										},
 									} );
 								}
 							} }
@@ -110,17 +106,22 @@ const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) 
 					<div className="image-compare__image-after">
 						<ImgUpload
 							image={ {
-								id: imageAfterId,
-								url: imageAfterUrl,
-								alt: imageAfterAlt,
+								id: imageAfter.id,
+								url: imageAfter.url,
+								alt: imageAfter.alt,
 							} }
 							placeHolderLabel={ __( 'Image after', 'jetpack' ) }
 							onChange={ img => {
 								if ( img.media_type === 'image' || img.type === 'image' ) {
+									const { src } = photonizedImgProps( img );
 									setAttributes( {
-										imageAfterId: img.id,
-										imageAfterUrl: img.url,
-										imageAfterAlt: img.alt,
+										imageAfter: {
+											id: img.id,
+											url: src ? src : img.url,
+											alt: img.alt,
+											width: img.width,
+											height: img.height,
+										},
 									} );
 								}
 							} }
@@ -128,7 +129,8 @@ const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) 
 					</div>
 				</Placeholder>
 			</div>
-			{ ( ! RichText.isEmpty( caption ) || ( isSelected && imageBeforeUrl && imageAfterUrl ) ) && (
+			{ ( ! RichText.isEmpty( caption ) ||
+				( isSelected && imageBefore.url && imageAfter.url ) ) && (
 				<RichText
 					tagName="figcaption"
 					placeholder={ __( 'Write caption', 'jetpack' ) }

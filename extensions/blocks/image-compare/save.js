@@ -4,30 +4,25 @@
 import { RichText } from '@wordpress/block-editor';
 
 const save = ( { attributes, className } ) => {
-	const {
-		imageBeforeId,
-		imageBeforeUrl,
-		imageBeforeAlt,
-		imageAfterId,
-		imageAfterUrl,
-		imageAfterAlt,
-		caption,
-		orientation,
-	} = attributes;
+	const { imageBefore, imageAfter, caption, orientation } = attributes;
 
 	return (
 		<figure className={ className }>
 			<div className="juxtapose" data-mode={ orientation }>
 				<img
-					id={ imageBeforeId }
-					src={ imageBeforeUrl }
-					alt={ imageBeforeAlt }
+					id={ imageBefore.id }
+					src={ imageBefore.url }
+					alt={ imageBefore.alt }
+					width={ imageBefore.width }
+					height={ imageBefore.height }
 					className="image-compare__image-before"
 				/>
 				<img
-					id={ imageAfterId }
-					src={ imageAfterUrl }
-					alt={ imageAfterAlt }
+					id={ imageAfter.id }
+					src={ imageAfter.url }
+					alt={ imageAfter.alt }
+					width={ imageAfter.width }
+					height={ imageAfter.height }
 					className="image-compare__image-after"
 				/>
 			</div>
