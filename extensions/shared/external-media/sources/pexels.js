@@ -28,7 +28,7 @@ function PexelsMedia( props ) {
 	);
 
 	const getNextPage = useCallback(
-		reset => {
+		( event, reset = false ) => {
 			if ( searchQuery ) {
 				getMedia(
 					getApiUrl( 'list', SOURCE_PEXELS, {
@@ -36,7 +36,7 @@ function PexelsMedia( props ) {
 						path: 'recent',
 						search: searchQuery,
 					} ),
-					reset ? true : false
+					reset
 				);
 			}
 		},
@@ -44,8 +44,8 @@ function PexelsMedia( props ) {
 	);
 
 	const onSearch = useCallback(
-		e => {
-			e.preventDefault();
+		event => {
+			event.preventDefault();
 			setLastSearchQuery( searchQuery );
 			getNextPage( true );
 		},

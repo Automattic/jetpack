@@ -19,12 +19,12 @@ function MediaButton( props ) {
 	const [ selectedSource, setSelectedSource ] = useState( null );
 	const ExternalLibrary = getExternalLibrary( selectedSource );
 
-	const closeLibrary = ev => {
-		if ( ev ) {
-			ev.stopPropagation();
+	const closeLibrary = event => {
+		if ( event ) {
+			event.stopPropagation();
 
 			// The DateTime picker is triggering a modal close when selected. We don't want this to close the modal
-			if ( ev.target.closest( '.jetpack-external-media-header__dropdown' ) ) {
+			if ( event.target.closest( '.jetpack-external-media-header__dropdown' ) ) {
 				return;
 			}
 		}

@@ -207,7 +207,7 @@ export default function withMedia() {
 
 				return (
 					<Modal
-						onRequestClose={ ev => onClose( ev ) }
+						onRequestClose={ event => onClose( event ) }
 						title={ isCopying ? __( 'Copying Media', 'jetpack' ) : __( 'Select Media', 'jetpack' ) }
 						className={ classes }
 					>
