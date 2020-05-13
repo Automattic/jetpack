@@ -76,13 +76,6 @@ describe( 'Connection', () => {
 
 		await step( 'Can visit plans page and select a Premium plan', async () => {
 			const jetpackPage = await JetpackPage.init( page );
-
-			// const siteUrl = getNgrokSiteUrl();
-			// const host = '.' + new URL( siteUrl ).host;
-			// await jetpackPage.setSandboxModeForPayments( cookie );
-			// await jetpackPage.setSandboxModeForPayments( cookie, host );
-			// await jetpackPage.reload();
-
 			await jetpackPage.openPlans();
 			const plansPage = await PlansPage.init( page );
 			await plansPage.select( 'premium' );

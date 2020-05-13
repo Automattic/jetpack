@@ -142,7 +142,7 @@ function observeConsoleLogging() {
 }
 
 // The Jest timeout is increased because these tests are a bit slow
-jest.setTimeout( PUPPETEER_TIMEOUT || 600000 );
+jest.setTimeout( PUPPETEER_TIMEOUT || 300000 );
 if ( E2E_DEBUG ) {
 	jest.setTimeout( 2147483647 ); // max 32-bit signed integer
 }
@@ -177,9 +177,6 @@ global.it = async ( name, func ) => {
 
 export const step = async ( stepName, fn ) => {
 	reporter.startStep( stepName );
-	console.log( '!!!!!!', stepName );
-	logger.info( '!!!!!!', stepName );
-
 	await fn();
 	reporter.endStep();
 };

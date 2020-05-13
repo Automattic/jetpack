@@ -38,7 +38,7 @@ export default class InPlaceAuthorizeFrame extends Page {
 				logger.info( message );
 				await sendMessageToSlack( message );
 
-				await this.reload();
+				await this.page.reload();
 				await ( await JetpackPage.init( this.page ) ).connect();
 				return await this.approve( false );
 			}
