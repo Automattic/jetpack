@@ -51,7 +51,7 @@ describe( 'Connection', () => {
 	it( 'In-place upgrading a plan from personal to premium', async () => {
 		await step( 'Can set a sandbox cookie', async () => {
 			const siteUrl = getNgrokSiteUrl();
-			const host = new URL( siteUrl ).host;
+			const host = '.' + new URL( siteUrl ).host;
 			const sidebar = await Sidebar.init( page );
 			await sidebar.setSandboxModeForPayments( cookie );
 			await sidebar.setSandboxModeForPayments( cookie, host );
@@ -62,7 +62,7 @@ describe( 'Connection', () => {
 			await doInPlaceConnection( 'personal' );
 		} );
 
-		await step( 'Can process payment', async () => {
+		await step( 'Can process payment for Personal plan', async () => {
 			await ( await CheckoutPage.init( page ) ).processPurchase( cardCredentials );
 			await ( await ThankYouPage.init( page ) ).waitForSetupAndProceed();
 			await ( await MyPlanPage.init( page ) ).returnToWPAdmin();
@@ -76,15 +76,26 @@ describe( 'Connection', () => {
 
 		await step( 'Can visit plans page and select a Premium plan', async () => {
 			// add dummy wait, just in case;
-			await page.waitFor( 120000 );
+
+			console.log( '!!!! Before wait', Date.now() );
+
+			await page.waitFor( 200000 );
+			console.log( '!!!! After wait', Date.now() );
 
 			const jetpackPage = await JetpackPage.init( page );
+
+			const siteUrl = getNgrokSiteUrl();
+			const host = '.' + new URL( siteUrl ).host;
+			await jetpackPage.setSandboxModeForPayments( cookie );
+			await jetpackPage.setSandboxModeForPayments( cookie, host );
+			await jetpackPage.reload();
+
 			await jetpackPage.openPlans();
 			const plansPage = await PlansPage.init( page );
 			await plansPage.select( 'premium' );
 		} );
 
-		await step( 'Can process payment', async () => {
+		await step( 'Can process payment for Premium plan', async () => {
 			await ( await CheckoutPage.init( page ) ).processPurchase( cardCredentials );
 			await ( await ThankYouPage.init( page ) ).waitForSetupAndProceed();
 			await ( await MyPlanPage.init( page ) ).returnToWPAdmin();
