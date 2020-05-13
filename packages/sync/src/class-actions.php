@@ -182,7 +182,7 @@ class Actions {
 			return self::sync_via_cron_allowed();
 		}
 
-		return false;
+		return true;
 	}
 
 	/**
