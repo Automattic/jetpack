@@ -14,6 +14,7 @@ use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\JITMS\Post_Connection_JITM;
 use Automattic\Jetpack\JITMS\Pre_Connection_JITM;
+use Automattic\Jetpack\Status;
 
 /**
  * Jetpack just in time messaging through out the admin
@@ -63,6 +64,12 @@ class JITM {
 		if ( ! apply_filters( 'jetpack_just_in_time_msgs', false ) ) {
 			return false;
 		}
+
+		// Folks cannot connect to WordPress.com and won't really be able to act on the pre-connection messages. So bail.
+		if ( ( new Status() )->is_development_mode() ) {
+			return false;
+		}
+
 		add_action( 'current_screen', array( $this, 'prepare_jitms' ) );
 		return true;
 	}
