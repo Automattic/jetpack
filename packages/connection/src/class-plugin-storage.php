@@ -172,7 +172,8 @@ class Plugin_Storage {
 	 * @return void
 	 */
 	public static function update_active_plugins_option() {
-		update_option( self::ACTIVE_PLUGINS_OPTION_NAME, array_keys( self::$plugins ) );
+		// Note: Since this options is synced to wpcom, if you change its structure, you have to update the sanitizer at wpcom side.
+		update_option( self::ACTIVE_PLUGINS_OPTION_NAME, self::$plugins );
 	}
 
 }
