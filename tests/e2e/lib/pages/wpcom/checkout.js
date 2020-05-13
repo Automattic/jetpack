@@ -1,8 +1,11 @@
+import fs from 'fs';
 /**
  * Internal dependencies
  */
 import Page from '../page';
 import { waitAndType, waitForSelector, waitAndClick, isEventuallyVisible } from '../../page-helper';
+import { takeScreenshot } from '../../reporters/screenshot';
+import { sendFileToSlack } from '../../reporters/slack';
 
 export default class CheckoutPage extends Page {
 	constructor( page ) {
@@ -11,6 +14,9 @@ export default class CheckoutPage extends Page {
 	}
 
 	async processPurchase( cardDetails ) {
+		const filePath = await takeScreenshot( 'zzz', 'qqq' );
+		await sendFileToSlack( filePath );
+
 		await this.payWithStoredCardIfPossible( cardDetails );
 		await this.submitPaymentDetails();
 		return await this.waitToDisappear();

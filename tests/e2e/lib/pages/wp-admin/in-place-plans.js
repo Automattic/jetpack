@@ -26,7 +26,7 @@ export default class InPlacePlansPage extends Page {
 				return await this.selectProduct( 'backup', 'realtime' );
 
 			default:
-				throw new Error( `${ plan } is not valide plan type` );
+				throw new Error( `${ plan } is not valid plan type` );
 		}
 	}
 
