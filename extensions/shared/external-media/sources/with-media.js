@@ -38,6 +38,7 @@ const CopyingMedia = ( { items } ) => {
 
 export default function withMedia() {
 	return createHigherOrderComponent( OriginalComponent => {
+		// Grandfathered class as it was ported from an older codebase.
 		class WithMediaComponent extends Component {
 			constructor( props ) {
 				super( props );
