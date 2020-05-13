@@ -1,6 +1,7 @@
 /**
  * External Media
  */
+@import '../styles/gutenberg-base-styles.scss';
 
 $font-stack: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
 $font-size: 14px;
@@ -11,9 +12,6 @@ $radius-round: 50%;
 $grid-size: 8px;
 $tabbar-height: 48px;
 $border-width-tab: 3px;
-
-// G2 colors.
-$blue-g2: #3858e9;
 
 @keyframes loading-fade {
 	0% {
@@ -186,17 +184,17 @@ $blue-g2: #3858e9;
 
 		&:focus {
 			outline: none;
-			box-shadow: inset 0 0 0 2px $blue-g2;
+			box-shadow: inset 0 0 0 2px $blue-medium-focus;
 			border-radius: 2px + $border-width; // Add the 4px from the transparent.
 		}
 
 		&__selected {
-			box-shadow: inset 0 0 0 6px $blue-g2;
+			box-shadow: inset 0 0 0 6px $blue-medium-focus;
 			border-radius: 2px + $border-width; // Add the 4px from the transparent.
 		}
 
 		&__selected:focus {
-			box-shadow: inset 0 0 0 2px $blue-g2, inset 0 0 0 3px white, inset 0 0 0 6px $blue-g2;
+			box-shadow: inset 0 0 0 2px $blue-medium-focus, inset 0 0 0 3px white, inset 0 0 0 6px $blue-medium-focus;
 		}
 	}
 
