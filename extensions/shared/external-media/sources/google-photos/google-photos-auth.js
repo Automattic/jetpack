@@ -1,4 +1,9 @@
 /**
+ * External dependencies
+ */
+import requestExternalAccess from '@automattic/request-external-access';
+
+/**
  * WordPress dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
@@ -10,7 +15,6 @@ import { Button } from '@wordpress/components';
  * Internal dependencies
  */
 import { SOURCE_GOOGLE_PHOTOS } from '../../constants';
-import requestExternalAccess from '@automattic/request-external-access';
 import { getApiUrl } from '../api';
 import AuthInstructions from './auth-instructions';
 import AuthProgress from './auth-progress';
