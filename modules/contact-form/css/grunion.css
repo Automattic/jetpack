@@ -107,24 +107,27 @@
 .wp-block-jetpack-contact-form {
 	display: flex;
 	flex-wrap: wrap;
-	justify-content: space-between;
+	justify-content: left;
 	flex-direction: row;
 }
 
 .wp-block-jetpack-contact-form .grunion-field-wrap {
 	flex: 0 0 100%;
+	/* Use transparent border to maintain consistent
+	 * space between elements with flexbox */
+	border-right: 15px solid transparent;
 }
 
 .wp-block-jetpack-contact-form .grunion-field-width-25-wrap {
-	flex: 0 0 24%;
+	flex: 0 0 25%;
 }
 
 .wp-block-jetpack-contact-form .grunion-field-width-50-wrap {
-	flex: 0 0 49%;
+	flex: 0 0 50%;
 }
 
 .wp-block-jetpack-contact-form .grunion-field-width-75-wrap {
-	flex: 0 0 74%;
+	flex: 0 0 75%;
 }
 
 @media only screen and (min-width: 600px) {

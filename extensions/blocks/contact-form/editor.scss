@@ -19,23 +19,25 @@
 	.block-editor-block-list__layout {
 		display: flex;
 		flex-wrap: wrap;
-		justify-content: space-between;
+		justify-content: left;
 		flex-direction: row;
 
 		.wp-block {
 			flex: 0 0 100%;
-			margin: 0 0 15px 0;
+			margin: 0;
+			border-right: 15px solid transparent;
+			border-bottom: 15px solid transparent;
 
 			&.jetpack-field__width-25 {
-				flex: 0 0 24%;
+				flex: 0 0 25%;
 			}
 
 			&.jetpack-field__width-50 {
-				flex: 0 0 49%;
+				flex: 0 0 50%;
 			}
 
 			&.jetpack-field__width-75 {
-				flex: 0 0 74%;
+				flex: 0 0 75%;
 			}
 		}
 	}
