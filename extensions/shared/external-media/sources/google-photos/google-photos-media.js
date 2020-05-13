@@ -45,8 +45,7 @@ function GooglePhotosMedia( props ) {
 	}
 	const listUrl = getApiUrl( 'list', SOURCE_GOOGLE_PHOTOS, params );
 
-	const getNextPage = useCallback(
-		( reset = false ) => {
+	const getNextPage = useCallback( ( event, reset = false ) => {
 			getMedia( listUrl, reset );
 		},
 		[ getMedia, listUrl ]
