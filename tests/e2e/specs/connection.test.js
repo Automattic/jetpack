@@ -75,18 +75,13 @@ describe( 'Connection', () => {
 		} );
 
 		await step( 'Can visit plans page and select a Premium plan', async () => {
-			// add dummy wait, just in case;
-			// console.log( '!!!! Before wait', Date.now() );
-			// await page.waitFor( 200000 );
-			// console.log( '!!!! After wait', Date.now() );
-
 			const jetpackPage = await JetpackPage.init( page );
 
-			const siteUrl = getNgrokSiteUrl();
-			const host = '.' + new URL( siteUrl ).host;
-			await jetpackPage.setSandboxModeForPayments( cookie );
-			await jetpackPage.setSandboxModeForPayments( cookie, host );
-			await jetpackPage.reload();
+			// const siteUrl = getNgrokSiteUrl();
+			// const host = '.' + new URL( siteUrl ).host;
+			// await jetpackPage.setSandboxModeForPayments( cookie );
+			// await jetpackPage.setSandboxModeForPayments( cookie, host );
+			// await jetpackPage.reload();
 
 			await jetpackPage.openPlans();
 			const plansPage = await PlansPage.init( page );
