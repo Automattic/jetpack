@@ -73,7 +73,7 @@ function GooglePhotosMedia( props ) {
 			lastQuery.current = listUrl;
 			getNextPage();
 		}
-	}, [ lastQuery, listUrl ] );
+	}, [ lastQuery, listUrl, getNextPage ] );
 
 	return (
 		<div className="jetpack-external-media-wrapper__google">
