@@ -10,9 +10,7 @@ import { Button } from '@wordpress/components';
  * Internal dependencies
  */
 import { SOURCE_GOOGLE_PHOTOS } from '../../constants';
-// TODO: import requestExternalAccess from '@automattic/request-external-access';
-// Remove following line, once package is ready.
-const requestExternalAccess = () => {};
+import requestExternalAccess from '@automattic/request-external-access';
 import { getApiUrl } from '../api';
 import AuthInstructions from './auth-instructions';
 import AuthProgress from './auth-progress';
