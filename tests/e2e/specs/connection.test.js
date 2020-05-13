@@ -85,19 +85,19 @@ describe( 'Connection', () => {
 
 			await jetpackPage.openPlans();
 			const plansPage = await PlansPage.init( page );
-			await plansPage.select( 'pro' );
+			await plansPage.select( 'premium' );
 		} );
 
 		await step( 'Can process payment for Premium plan', async () => {
 			await ( await CheckoutPage.init( page ) ).processPurchase( cardCredentials );
 			await ( await ThankYouPage.init( page ) ).waitForSetupAndProceed();
 			await ( await MyPlanPage.init( page ) ).returnToWPAdmin();
-			await syncJetpackPlanData( 'pro', false );
+			await syncJetpackPlanData( 'premium', false );
 		} );
 
 		await step( 'Can assert that site has a Premium plan', async () => {
 			const jetpackPage = await JetpackPage.init( page );
-			expect( await jetpackPage.isPlan( 'pro' ) ).toBeTruthy();
+			expect( await jetpackPage.isPlan( 'premium' ) ).toBeTruthy();
 		} );
 	} );
 } );
