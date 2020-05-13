@@ -16,6 +16,7 @@ import {
 	Placeholder,
 	RangeControl,
 	Spinner,
+	ToggleControl,
 	withNotices,
 } from '@wordpress/components';
 import { useEffect } from '@wordpress/element';
@@ -35,7 +36,15 @@ import './editor.scss';
 
 const InstagramGalleryEdit = props => {
 	const { attributes, className, isSelected, noticeOperations, noticeUI, setAttributes } = props;
-	const { accessToken, align, columns, count, instagramUser, spacing } = attributes;
+	const {
+		accessToken,
+		align,
+		columns,
+		count,
+		instagramUser,
+		isStackedOnMobile,
+		spacing,
+	} = attributes;
 
 	const { images, isLoadingGallery, setImages } = useInstagramGallery( {
 		accessToken,
@@ -67,7 +76,8 @@ const InstagramGalleryEdit = props => {
 	const blockClasses = classnames( className, { [ `align${ align }` ]: align } );
 	const gridClasses = classnames(
 		'wp-block-jetpack-instagram-gallery__grid',
-		`wp-block-jetpack-instagram-gallery__grid-columns-${ columns }`
+		`wp-block-jetpack-instagram-gallery__grid-columns-${ columns }`,
+		{ 'is-stacked-on-mobile': isStackedOnMobile }
 	);
 	const gridStyle = { gridGap: spacing };
 	const photoStyle = { padding: spacing };
@@ -216,6 +226,15 @@ const InstagramGalleryEdit = props => {
 							onChange={ value => setAttributes( { spacing: value } ) }
 							min={ 0 }
 							max={ 50 }
+						/>
+						<ToggleControl
+							label={ __( 'Stack on mobile' ) }
+							checked={ isStackedOnMobile }
+							onChange={ () =>
+								setAttributes( {
+									isStackedOnMobile: ! isStackedOnMobile,
+								} )
+							}
 						/>
 					</PanelBody>
 				</InspectorControls>

@@ -44,10 +44,11 @@ function render_block( $attributes, $content ) {
 		return '';
 	}
 
-	$access_token = $attributes['accessToken'];
-	$columns      = get_instagram_gallery_attribute( 'columns', $attributes );
-	$count        = get_instagram_gallery_attribute( 'count', $attributes );
-	$spacing      = get_instagram_gallery_attribute( 'spacing', $attributes );
+	$access_token         = $attributes['accessToken'];
+	$columns              = get_instagram_gallery_attribute( 'columns', $attributes );
+	$count                = get_instagram_gallery_attribute( 'count', $attributes );
+	$is_stacked_on_mobile = get_instagram_gallery_attribute( 'isStackedOnMobile', $attributes );
+	$spacing              = get_instagram_gallery_attribute( 'spacing', $attributes );
 
 	$grid_classes = Jetpack_Gutenberg::block_classes(
 		FEATURE_NAME,
@@ -57,8 +58,12 @@ function render_block( $attributes, $content ) {
 			'wp-block-jetpack-instagram-gallery__grid-columns-' . $columns,
 		)
 	);
-	$grid_style   = 'grid-gap: ' . $spacing . 'px;';
-	$photo_style  = 'padding: ' . $spacing . 'px;';
+	if ( $is_stacked_on_mobile ) {
+		$grid_classes .= ' is-stacked-on-mobile';
+	}
+
+	$grid_style  = 'grid-gap: ' . $spacing . 'px;';
+	$photo_style = 'padding: ' . $spacing . 'px;';
 
 	if ( ! class_exists( 'Jetpack_Instagram_Gallery_Helper' ) ) {
 		\jetpack_require_lib( 'class-jetpack-instagram-gallery-helper' );
@@ -109,9 +114,10 @@ function get_instagram_gallery_attribute( $attribute, $attributes ) {
 	}
 
 	$default_attributes = array(
-		'columns' => 3,
-		'count'   => 9,
-		'spacing' => 10,
+		'columns'           => 3,
+		'count'             => 9,
+		'isStackedOnMobile' => true,
+		'spacing'           => 10,
 	);
 
 	if ( array_key_exists( $attribute, $default_attributes ) ) {
