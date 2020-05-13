@@ -94,13 +94,7 @@ class Pre_Connection_JITM extends JITM {
 	 * @return array The JITMs to show, or an empty array if there is nothing to show
 	 */
 	public function get_messages( $message_path, $query, $full_jp_logo_exists ) {
-		/**
-		 * This is an experiment for partners to test. Allow customization of the behavior of pre-connection banners.
-		 *
-		 * @since 8.6.0
-		 *
-		 * @param bool $enable_pre_connection_jitms Should pre-connection JITMs appear? Default to false.
-		 */
+		/** This filter is documented in  class.jetpack-connection-banner.php */
 		if ( ! apply_filters( 'jetpack_pre_connection_prompt_helpers', false ) ) {
 			// If filter jetpack_pre_connection_prompt_helpers is not set, return an empty array.
 			return array();
