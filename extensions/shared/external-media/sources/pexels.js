@@ -44,18 +44,16 @@ function PexelsMedia( props ) {
 	);
 
 	const onSearch = useCallback(
-		event => {
+		( event ) => {
 			event.preventDefault();
 			setLastSearchQuery( searchQuery );
-			getNextPage( true );
+			getNextPage( event, true );
 		},
 		[ getNextPage, searchQuery ]
 	);
 
 	// Load initial results for the random example query.
-	useEffect( () => {
-		getNextPage();
-	}, [] );
+	useEffect( getNextPage, [] );
 
 	return (
 		<div className="jetpack-external-media-wrapper__pexels">
