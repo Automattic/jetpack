@@ -57,7 +57,7 @@ function GooglePhotosMedia( props ) {
 			const album = media.find( item => item.ID === nextPath );
 			onChangePath( album ? album : { ID: nextPath } );
 		},
-		[ media, onChangePath, getNextPage ]
+		[ media, onChangePath ]
 	);
 
 	const onCopy = useCallback(
