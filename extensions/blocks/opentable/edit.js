@@ -56,7 +56,17 @@ function OpenTableEdit( {
 		setAttributes( validatedAttributes );
 	}
 
-	const { align, rid, style, iframe, domain, lang, newtab, __isBlockPreview } = attributes;
+	const {
+		align,
+		rid,
+		style,
+		iframe,
+		domain,
+		lang,
+		newtab,
+		negativeMargin,
+		__isBlockPreview,
+	} = attributes;
 	const isPlaceholder = isEmpty( rid );
 
 	useEffect( () => {
@@ -166,6 +176,13 @@ function OpenTableEdit( {
 					onChange={ () => setAttributes( { iframe: ! iframe } ) }
 					className="is-opentable"
 				/>
+				{ 'button' === style && (
+					<ToggleControl
+						label={ __( 'Remove button margin', 'jetpack' ) }
+						checked={ negativeMargin }
+						onChange={ () => setAttributes( { negativeMargin: ! negativeMargin } ) }
+					/>
+				) }
 			</InspectorAdvancedControls>
 			<BlockStylesSelector
 				clientId={ clientId }
@@ -224,6 +241,7 @@ function OpenTableEdit( {
 		'is-placeholder': isPlaceholder,
 		'is-multi': 'multi' === getTypeAndTheme( style )[ 0 ],
 		[ `align${ align }` ]: align,
+		'has-no-margin': negativeMargin,
 	} );
 
 	return (

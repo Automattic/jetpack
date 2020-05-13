@@ -61,4 +61,8 @@ export const defaultAttributes = {
 		default: false,
 		type: 'boolean',
 	},
+	negativeMargin: {
+		default: false,
+		type: 'boolean',
+	},
 };
