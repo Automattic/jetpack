@@ -62,7 +62,7 @@ class Plugin_Storage {
 		self::$plugins[ $slug ] = $args;
 
 		// if plugin is not in the list of active plugins, refresh the list.
-		if ( array_key_exists( $slug, get_option( self::ACTIVE_PLUGINS_OPTION_NAME, array() ) ) ) {
+		if ( ! array_key_exists( $slug, get_option( self::ACTIVE_PLUGINS_OPTION_NAME, array() ) ) ) {
 			self::$refresh_connected_plugins = true;
 		}
 
