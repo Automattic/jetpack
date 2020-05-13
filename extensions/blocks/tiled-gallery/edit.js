@@ -105,6 +105,7 @@ class TiledGalleryEdit extends Component {
 			},
 			onError: noticeOperations.createErrorNotice,
 		} );
+		this.setState( { changed: true } );
 	};
 
 	onRemoveImage = index => () => {
@@ -134,6 +135,7 @@ class TiledGalleryEdit extends Component {
 			columns: columns ? Math.min( images.length, columns ) : columns,
 			images: images.map( image => pickRelevantMediaFiles( image ) ),
 		} );
+		this.setState( { changed: true } );
 	};
 
 	onMove = ( oldIndex, newIndex ) => {
