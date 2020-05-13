@@ -181,8 +181,8 @@ else
 	prepare_jetpack
 fi
 
-if [ -n $LATEST_GUTENBERG ] {
+if [ -n $LATEST_GUTENBERG ]; then
 	wp --path=$WP_CORE_DIR plugin install gutenberg --activate
-}
+fi
 
 echo $WP_SITE_URL
