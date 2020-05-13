@@ -19,6 +19,8 @@ const { PUPPETEER_TIMEOUT, E2E_DEBUG, CI, E2E_LOG_HTML } = process.env;
 let currentBlock;
 
 const defaultErrorHandler = async ( error, name ) => {
+	logger.info( error.stack );
+
 	// If running tests in CI
 	if ( CI ) {
 		const filePath = await takeScreenshot( currentBlock, name );
