@@ -7,7 +7,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import JetpackLogo from '../shared/jetpack-logo';
+import { JetpackLogo } from './icons';
 import { isAtomicSite, isSimpleSite } from '../shared/site-type-utils';
 
 /**
