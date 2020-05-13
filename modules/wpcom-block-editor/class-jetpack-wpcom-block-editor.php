@@ -597,7 +597,16 @@ class Jetpack_WPCOM_Block_Editor {
 				activate_plugin( 'classic-editor/classic-editor.php' );
 				update_network_option( null, 'classic-editor-replace', 'classic' );
 				update_user_option( get_current_user_id(), 'classic-editor-settings', 'classic' );
-				wp_safe_redirect( remove_query_arg( 'set-editor', $_SERVER['REQUEST_URI'] ) );
+
+				$classic_url = add_query_arg(
+					array(
+						'classic-editor'         => '',
+						'classic-editor__forget' => '',
+					),
+					remove_query_arg( 'set-editor', $_SERVER['REQUEST_URI'] )
+				);
+
+				wp_safe_redirect( $classic_url );
 			}
 		}
 	}
