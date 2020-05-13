@@ -39,7 +39,7 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
 function load_assets( $attr, $content ) {
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
-		return render_amp( $attr, $content );
+		return render_amp( $attr );
 	}
 
 	return $content;
@@ -49,21 +49,25 @@ function load_assets( $attr, $content ) {
 /**
  * Render image compare block for AMP
  *
- * @param array  $attr    Array containing the image-compare block attributes.
- * @param string $content String containing the image-compare block content.
+ * @param array $attr Array containing the image-compare block attributes.
  *
  * @return string
  */
-function render_amp( $attr, $content ) {
-	// Attributes that are parsed in JavaScript are not passed in, so to get
-	// the URLs we need to parse the content in PHP, which is rather lame.
-	preg_match_all( '/src="([^"]+)"/', $content, $imgs );
-	if ( empty( $imgs ) || ( count( $imgs ) < 2 ) || empty( $imgs[1] ) || ( count( $imgs[1] ) < 2 ) ) {
-		return '';
-	}
+function render_amp( $attr ) {
+	$img_before_id  = $attr['imageBeforeId'];
+	$img_before_url = $attr['imageBeforeUrl'];
+	$img_before_alt = $attr['imageBeforeAlt'];
+	$img_after_id   = $attr['imageAfterId'];
+	$img_after_url  = $attr['imageAfterUrl'];
+	$img_after_alt  = $attr['imageAfterAlt'];
+
 	return sprintf(
-		'<amp-image-slider layout="responsive" width="300" height="200"><amp-img src="%s" layout="fill"></amp-img><amp-img src="%s" layout="fill"></amp-img></amp-image-slider>',
-		esc_attr( $imgs[1][0] ),
-		esc_attr( $imgs[1][1] )
+		'<amp-image-slider layout="responsive" width="300" height="200"> <amp-img id="%d" src="%s" alt="%s" layout="fill"></amp-img> <amp-img id="%d" src="%s" alt="%s" layout="fill"></amp-img></amp-image-slider>',
+		esc_attr( $img_before_id ),
+		esc_attr( $img_before_url ),
+		esc_attr( $img_before_alt ),
+		esc_attr( $img_after_id ),
+		esc_attr( $img_after_url ),
+		esc_attr( $img_after_alt )
 	);
 }
