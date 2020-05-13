@@ -47,8 +47,12 @@ class Jetpack_Instagram_Gallery_Helper {
 				return $gallery;
 			}
 
-			set_transient( $transient_key, wp_json_encode( $gallery ), HOUR_IN_SECONDS );
-			return $gallery;
+			$encoded_gallery = wp_json_encode( $gallery );
+
+			set_transient( $transient_key, $encoded_gallery, HOUR_IN_SECONDS );
+
+			// Make sure the gallery is an object.
+			return json_decode( $encoded_gallery );
 		}
 
 		$response = Client::wpcom_json_api_request_as_blog(

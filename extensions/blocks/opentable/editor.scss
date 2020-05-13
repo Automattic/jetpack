@@ -99,6 +99,14 @@
 		}
 	}
 
+	&-theme-button {
+		&.has-no-margin {
+			iframe {
+				margin: -14px;
+			}
+		}
+	}
+
 	.editor-styles-wrapper & .components-form-token-field__suggestions-list {
 		font-family: $default-font;
 		text-align: left;

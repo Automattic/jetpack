@@ -28,6 +28,7 @@ module.exports = [
 	'_inc/lib/core-api/wpcom-endpoints/memberships.php',
 	'_inc/lib/debugger/',
 	'_inc/lib/plans.php',
+	'_inc/social-logos.php',
 	'jetpack.php',
 	'json-endpoints/jetpack/class-jetpack-json-api-delete-backup-helper-script-endpoint.php',
 	'json-endpoints/jetpack/class-jetpack-json-api-install-backup-helper-script-endpoint.php',
