@@ -56,11 +56,9 @@ function render_block( $attributes, $content ) {
 		array(
 			'wp-block-jetpack-instagram-gallery__grid',
 			'wp-block-jetpack-instagram-gallery__grid-columns-' . $columns,
+			( $is_stacked_on_mobile ? 'is-stacked-on-mobile' : null ),
 		)
 	);
-	if ( $is_stacked_on_mobile ) {
-		$grid_classes .= ' is-stacked-on-mobile';
-	}
 
 	$grid_style  = 'grid-gap: ' . $spacing . 'px;';
 	$photo_style = 'padding: ' . $spacing . 'px;';

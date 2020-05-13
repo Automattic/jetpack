@@ -228,7 +228,7 @@ const InstagramGalleryEdit = props => {
 							max={ 50 }
 						/>
 						<ToggleControl
-							label={ __( 'Stack on mobile' ) }
+							label={ __( 'Stack on mobile', 'jetpack' ) }
 							checked={ isStackedOnMobile }
 							onChange={ () =>
 								setAttributes( {
