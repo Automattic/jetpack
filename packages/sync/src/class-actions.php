@@ -170,6 +170,22 @@ class Actions {
 	}
 
 	/**
+	 * Decides if the sender should run on shutdown when actions are queued.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return bool
+	 */
+	public static function should_initialize_sender_enqueue() {
+		if ( Constants::is_true( 'DOING_CRON' ) ) {
+			return self::sync_via_cron_allowed();
+		}
+
+		return false;
+	}
+
+	/**
 	 * Decides if sync should run at all during this request.
 	 *
 	 * @access public
