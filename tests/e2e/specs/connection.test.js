@@ -76,11 +76,9 @@ describe( 'Connection', () => {
 
 		await step( 'Can visit plans page and select a Premium plan', async () => {
 			// add dummy wait, just in case;
-
-			console.log( '!!!! Before wait', Date.now() );
-
-			await page.waitFor( 200000 );
-			console.log( '!!!! After wait', Date.now() );
+			// console.log( '!!!! Before wait', Date.now() );
+			// await page.waitFor( 200000 );
+			// console.log( '!!!! After wait', Date.now() );
 
 			const jetpackPage = await JetpackPage.init( page );
 
@@ -92,19 +90,19 @@ describe( 'Connection', () => {
 
 			await jetpackPage.openPlans();
 			const plansPage = await PlansPage.init( page );
-			await plansPage.select( 'premium' );
+			await plansPage.select( 'pro' );
 		} );
 
 		await step( 'Can process payment for Premium plan', async () => {
 			await ( await CheckoutPage.init( page ) ).processPurchase( cardCredentials );
 			await ( await ThankYouPage.init( page ) ).waitForSetupAndProceed();
 			await ( await MyPlanPage.init( page ) ).returnToWPAdmin();
-			await syncJetpackPlanData( 'premium', false );
+			await syncJetpackPlanData( 'pro', false );
 		} );
 
 		await step( 'Can assert that site has a Premium plan', async () => {
 			const jetpackPage = await JetpackPage.init( page );
-			expect( await jetpackPage.isPlan( 'premium' ) ).toBeTruthy();
+			expect( await jetpackPage.isPlan( 'pro' ) ).toBeTruthy();
 		} );
 	} );
 } );
