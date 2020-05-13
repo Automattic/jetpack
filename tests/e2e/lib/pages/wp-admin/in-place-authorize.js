@@ -38,7 +38,6 @@ export default class InPlaceAuthorizeFrame extends Page {
 				await sendMessageToSlack( message );
 
 				await this.reload();
-
 				return await this.approve( false );
 			}
 			throw error;
