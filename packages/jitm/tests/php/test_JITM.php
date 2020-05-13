@@ -36,7 +36,13 @@ class Test_Jetpack_JITM extends TestCase {
 	public function test_jitm_disabled_by_filter() {
 		$this->mock_filters( array(
 			array( 'jetpack_just_in_time_msgs', false, false ),
-		) );
+		), "Automattic\Jetpack\JITMS" );
+
+		// Used for Status->is_development_mode().
+		$this->mock_filters( array(
+			array( 'jetpack_just_in_time_msgs', false, false ),
+		), "Automattic\Jetpack" );
+		$this->mock_site_url();
 
 		$jitm = new JITM();
 		$this->assertFalse( $jitm->register() );
@@ -47,7 +53,13 @@ class Test_Jetpack_JITM extends TestCase {
 	public function test_jitm_enabled_by_default() {
 		$this->mock_filters( array(
 			array( 'jetpack_just_in_time_msgs', false, true ),
-		) );
+		), "Automattic\Jetpack\JITMS" );
+
+		// Used for Status->is_development_mode().
+		$this->mock_filters( array(
+			array( 'jetpack_just_in_time_msgs', false, true ),
+		), "Automattic\Jetpack" );
+		$this->mock_site_url();
 
 		$jitm = new JITM();
 		$this->assertTrue( $jitm->register() );
@@ -92,10 +104,20 @@ class Test_Jetpack_JITM extends TestCase {
 	}
 	*/
 
-	protected function mock_filters( $filters ) {
+	protected function mock_site_url() {
+		$builder = new MockBuilder();
+		$builder->setNamespace( "Automattic\Jetpack" )
+			->setName( 'site_url' )
+			->setFunction( function() {
+				return "unit-test";
+			} );
+		$builder->build()->enable();
+	}
+
+	protected function mock_filters( $filters, $namespace ) {
 		$this->mocked_filters = $filters;
 		$builder = new MockBuilder();
-		$builder->setNamespace( "Automattic\Jetpack\JITMS" )
+		$builder->setNamespace( $namespace )
 			->setName( 'apply_filters' )
 			->setFunction(
 				function( ...$current_args ) {
