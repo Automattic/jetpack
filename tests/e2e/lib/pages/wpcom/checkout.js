@@ -1,11 +1,8 @@
-import fs from 'fs';
 /**
  * Internal dependencies
  */
 import Page from '../page';
 import { waitAndType, waitForSelector, waitAndClick, isEventuallyVisible } from '../../page-helper';
-import { takeScreenshot } from '../../reporters/screenshot';
-import { sendFileToSlack } from '../../reporters/slack';
 
 export default class CheckoutPage extends Page {
 	constructor( page ) {
@@ -44,10 +41,6 @@ export default class CheckoutPage extends Page {
 		const paymentButtonSelector = '.credit-card-payment-box button.is-primary:not([disabled])';
 
 		await waitForSelector( this.page, disabledPaymentButton, { hidden: true } );
-
-		const filePath = await takeScreenshot( 'zzz', 'qqq' );
-		await sendFileToSlack( filePath );
-
 		await waitAndClick( this.page, paymentButtonSelector );
 		return await this.waitForPaymentProcessing();
 	}

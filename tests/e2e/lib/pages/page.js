@@ -78,6 +78,7 @@ export default class Page {
 	 * @param {Object} options page.reload options object
 	 */
 	async reload( options = {} ) {
+		logger.info( `Reloading page: ${ this.name }` );
 		await this.page.reload( options );
 		return await this.waitForPage();
 	}

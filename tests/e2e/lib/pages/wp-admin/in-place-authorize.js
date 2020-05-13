@@ -31,7 +31,7 @@ export default class InPlaceAuthorizeFrame extends Page {
 		const iframe = await this.getFrame();
 		await waitAndClick( iframe, approveSelector );
 		try {
-			return await InPlacePlansPage.init( page );
+			return await InPlacePlansPage.init( this.page );
 		} catch ( error ) {
 			if ( repeat ) {
 				const message = 'Jetpack in-place connection failed. Retrying once again.';
@@ -39,7 +39,7 @@ export default class InPlaceAuthorizeFrame extends Page {
 				await sendMessageToSlack( message );
 
 				await this.reload();
-				await ( await JetpackPage.init( page ) ).connect();
+				await ( await JetpackPage.init( this.page ) ).connect();
 				return await this.approve( false );
 			}
 			throw error;
