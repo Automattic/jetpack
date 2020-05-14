@@ -64,11 +64,10 @@ function render_block( $attributes, $content ) {
 		\jetpack_require_lib( 'class-jetpack-instagram-gallery-helper' );
 	}
 	$gallery = Jetpack_Instagram_Gallery_Helper::get_instagram_gallery( $access_token, $count );
-	$images  = array_slice( $gallery->images, 0, $count );
-
 	if ( is_wp_error( $gallery ) || empty( $gallery->images ) ) {
 		return '';
 	}
+	$images = array_slice( $gallery->images, 0, $count );
 
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 
