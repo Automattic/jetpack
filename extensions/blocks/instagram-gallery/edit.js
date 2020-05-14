@@ -84,10 +84,10 @@ const InstagramGalleryEdit = props => {
 	const photoStyle = { padding: spacing };
 
 	useEffect( () => {
-		noticeOperations.removeAllNotices();
 		const accountImageTotal = images.length;
 
-		if ( ! showLoadingSpinner && accountImageTotal < count ) {
+		if ( showSidebar && ! showLoadingSpinner && accountImageTotal < count ) {
+			noticeOperations.removeAllNotices();
 			const noticeContent = accountImageTotal
 				? sprintf(
 						_n(
@@ -106,7 +106,7 @@ const InstagramGalleryEdit = props => {
 				isDismissible: false,
 			} );
 		}
-	}, [ count, images, noticeOperations, showLoadingSpinner ] );
+	}, [ count, images, noticeOperations, showLoadingSpinner, showSidebar ] );
 
 	const renderImage = index => {
 		if ( images[ index ] ) {
