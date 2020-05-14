@@ -32,21 +32,17 @@ function GooglePhotosMedia( props ) {
 	} = props;
 
 	const imageOnly = isImageOnly( allowedTypes );
-	const [ filters, setFilters ] = useState( {} );
+	const [ filters, setFilters ] = useState( imageOnly ? { mediaType: 'photo' } : {} );
 
 	const lastQuery = useRef( '' );
 	const lastPath = useRef( '' );
-	const filterQuery = path.ID === PATH_RECENT ? getFilterRequest( filters ) : {};
+	const filterQuery = path.ID === PATH_RECENT ? getFilterRequest( filters ) : null;
 	const params = {
 		number: 20,
 		path: path.ID,
 	};
 	if ( filterQuery ) {
 		params.filter = filterQuery;
-	}
-
-	if ( imageOnly ) {
-		params.mediaType = 'photo';
 	}
 
 	const listUrl = getApiUrl( 'list', SOURCE_GOOGLE_PHOTOS, params );
