@@ -49,29 +49,29 @@ describe( 'Connection', () => {
 	} );
 
 	it( 'In-place upgrading a plan from personal to premium', async () => {
-		await step( 'Can set a sandbox cookie', async () => {
-			const siteUrl = getNgrokSiteUrl();
-			const host = '.' + new URL( siteUrl ).host;
-			const sidebar = await Sidebar.init( page );
-			await sidebar.setSandboxModeForPayments( cookie );
-			await sidebar.setSandboxModeForPayments( cookie, host );
-		} );
+		// await step( 'Can set a sandbox cookie', async () => {
+		// 	const siteUrl = getNgrokSiteUrl();
+		// 	const host = '.' + new URL( siteUrl ).host;
+		// 	const sidebar = await Sidebar.init( page );
+		// 	await sidebar.setSandboxModeForPayments( cookie );
+		// 	await sidebar.setSandboxModeForPayments( cookie, host );
+		// } );
 
 		await step( 'Can start in-place connection', async () => {
 			await ( await Sidebar.init( page ) ).selectJetpack();
-			await doInPlaceConnection( 'personal' );
+			await doInPlaceConnection( 'premium' );
 		} );
 
 		await step( 'Can process payment for Personal plan', async () => {
 			await ( await CheckoutPage.init( page ) ).processPurchase( cardCredentials );
 			await ( await ThankYouPage.init( page ) ).waitForSetupAndProceed();
 			await ( await MyPlanPage.init( page ) ).returnToWPAdmin();
-			await syncJetpackPlanData( 'personal', false );
+			await syncJetpackPlanData( 'premium', false );
 		} );
 
 		await step( 'Can assert that site has a Personal plan', async () => {
 			const jetpackPage = await JetpackPage.init( page );
-			expect( await jetpackPage.isPlan( 'personal' ) ).toBeTruthy();
+			expect( await jetpackPage.isPlan( 'premium' ) ).toBeTruthy();
 		} );
 
 		await step( 'Can visit plans page and select a Premium plan', async () => {
