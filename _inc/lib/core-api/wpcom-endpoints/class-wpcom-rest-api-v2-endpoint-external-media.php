@@ -16,6 +16,44 @@ use Automattic\Jetpack\Connection\Client;
 class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 
 	/**
+	 * Media argument schema for /copy endpoint.
+	 *
+	 * @var array
+	 */
+	public $media_schema = array(
+		'items' => array(
+			'type'       => 'object',
+			'required'   => true,
+			'properties' => array(
+				'caption' => array(
+					'type' => 'string',
+				),
+				'guid'    => array(
+					'items' => array(
+						'caption' => array(
+							'type' => 'string',
+						),
+						'name'    => array(
+							'type' => 'string',
+						),
+						'title'   => array(
+							'type' => 'string',
+						),
+						'url'     => array(
+							'format' => 'uri',
+							'type'   => 'string',
+						),
+					),
+					'type'  => 'array',
+				),
+				'title'   => array(
+					'type' => 'string',
+				),
+			),
+		),
+	);
+
+	/**
 	 * Service regex.
 	 *
 	 * @var string
@@ -56,21 +94,17 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 					'search'      => array(
 						'description' => __( 'Media collection search term.', 'jetpack' ),
 						'type'        => 'string',
-						'required'    => false,
 					),
 					'number'      => array(
 						'description' => __( 'Number of media items in the request', 'jetpack' ),
 						'type'        => 'number',
-						'required'    => false,
 						'default'     => 20,
 					),
 					'path'        => array(
-						'type'     => 'string',
-						'required' => false,
+						'type' => 'string',
 					),
 					'page_handle' => array(
-						'type'     => 'string',
-						'required' => false,
+						'type' => 'string',
 					),
 				),
 			)
@@ -85,13 +119,12 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 				'permission_callback' => array( $this, 'permission_callback' ),
 				'args'                => array(
 					'media' => array(
-						'description' => __( 'Media data to copy.', 'jetpack' ),
-						'type'        => 'array',
-						'items'       => array(
-							'type' => 'object',
-						),
-						'required'    => true,
-						'default'     => array(),
+						'description'       => __( 'Media data to copy.', 'jetpack' ),
+						'items'             => array_values( $this->media_schema ),
+						'required'          => true,
+						'type'              => 'array',
+						'sanitize_callback' => array( $this, 'sanitize_media' ),
+						'validate_callback' => array( $this, 'validate_media' ),
 					),
 				),
 			)
@@ -113,6 +146,47 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 	 */
 	public function permission_callback() {
 		return current_user_can( 'edit_posts' );
+	}
+
+	/**
+	 * Sanitization callback for media parameter.
+	 *
+	 * @param array $param Media parameter.
+	 * @return true|\WP_Error
+	 */
+	public function sanitize_media( $param ) {
+		foreach ( $param as $key => $item ) {
+			if ( ! empty( $item['guid'] ) ) {
+				$param[ $key ]['guid'] = json_decode( $item['guid'], true );
+			}
+
+			if ( empty( $item['caption'] ) ) {
+				$param[ $key ]['caption'] = '';
+			}
+			if ( empty( $item['title'] ) ) {
+				$param[ $key ]['title'] = '';
+			}
+		}
+
+		return rest_sanitize_value_from_schema( $param, $this->media_schema );
+	}
+
+	/**
+	 * Validation callback for media parameter.
+	 *
+	 * @param array $param Media parameter.
+	 * @return true|\WP_Error
+	 */
+	public function validate_media( $param ) {
+		foreach ( $param as $key => $item ) {
+			if ( empty( $item['guid'] ) ) {
+				continue;
+			}
+
+			$param[ $key ]['guid'] = json_decode( $item['guid'], true );
+		}
+
+		return rest_validate_value_from_schema( $param, $this->media_schema, 'media' );
 	}
 
 	/**
@@ -155,60 +229,20 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 	 * @return array|\WP_Error|mixed
 	 */
 	public function copy_external_media( \WP_REST_Request $request ) {
-		if ( ! function_exists( 'download_url' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/file.php';
-		}
-
-		if ( ! function_exists( 'media_handle_sideload' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/media.php';
-		}
-
-		if ( ! function_exists( 'wp_read_image_metadata' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/image.php';
-		}
-
-		$media = $request->get_param( 'media' );
-		if ( empty( $media ) ) {
-			return new \WP_Error( 'external_media_data', 'No media data is provided' );
-		}
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		require_once ABSPATH . 'wp-admin/includes/media.php';
+		require_once ABSPATH . 'wp-admin/includes/image.php';
 
 		$responses = array();
-		foreach ( $media as $item ) {
-			$caption = '';
-			$title   = '';
-			$guid    = false;
-
-			if ( isset( $item['guid'] ) ) {
-				$guid = $item['guid'];
-			}
-
-			if ( isset( $item['caption'] ) ) {
-				$caption = $item['caption'];
-			}
-
-			if ( isset( $item['title'] ) ) {
-				$title = $item['title'];
-			}
-
-			if ( ! $guid ) {
-				return new \WP_Error( 'external_media_guid', 'No GUID is provided' );
-			}
-
-			$guid = json_decode( $guid, true );
-
-			// Limit Google's long file names.
-			$this->tmp_name = $guid['name'];
-			add_filter( 'wp_unique_filename', array( $this, 'tmp_name' ) );
-			$download_url = download_url( $guid['url'] );
-			remove_filter( 'wp_unique_filename', array( $this, 'tmp_name' ) );
-
+		foreach ( $request->get_param( 'media' ) as $item ) {
 			// Download file to temp dir.
 			$file = array(
-				'name'     => wp_basename( $guid['name'] ),
-				'tmp_name' => $download_url,
+				'name'     => wp_basename( $item['guid']['name'] ),
+				'tmp_name' => $this->get_download_url( $item['guid'] ),
 			);
 
 			if ( is_wp_error( $file['tmp_name'] ) ) {
+				$file['tmp_name']->add_data( array( 'status' => 400 ) );
 				$responses[] = $file['tmp_name'];
 				continue;
 			}
@@ -221,16 +255,16 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 			}
 
 			$meta                          = wp_get_attachment_metadata( $id );
-			$meta['image_meta']['title']   = $title;
-			$meta['image_meta']['caption'] = $caption;
+			$meta['image_meta']['title']   = $item['title'];
+			$meta['image_meta']['caption'] = $item['caption'];
 
 			wp_update_attachment_metadata( $id, $meta );
 
-			update_post_meta( $id, '_wp_attachment_image_alt', $title );
+			update_post_meta( $id, '_wp_attachment_image_alt', $item['title'] );
 			wp_update_post(
 				array(
 					'ID'           => $id,
-					'post_excerpt' => $caption,
+					'post_excerpt' => $item['caption'],
 				)
 			);
 
@@ -238,12 +272,13 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 			$response = rest_do_request( $request );
 
 			if ( is_wp_error( $response ) ) {
+				$response->add_data( array( 'status' => 400 ) );
 				$responses[] = $response;
 			} else {
 				$responses[] = array(
 					'id'      => $id,
-					'caption' => $caption,
-					'alt'     => $title,
+					'caption' => $item['caption'],
+					'alt'     => $item['title'],
 					'url'     => $response->data['source_url'],
 				);
 			}
@@ -280,6 +315,21 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 	 */
 	public function tmp_name() {
 		return $this->tmp_name;
+	}
+
+	/**
+	 * Returns a download URL, dealing with Google's long file names.
+	 *
+	 * @param array $guid Media information.
+	 * @return string|\WP_Error
+	 */
+	public function get_download_url( $guid ) {
+		$this->tmp_name = $guid['name'];
+		add_filter( 'wp_unique_filename', array( $this, 'tmp_name' ) );
+		$download_url = download_url( $guid['url'] );
+		remove_filter( 'wp_unique_filename', array( $this, 'tmp_name' ) );
+
+		return $download_url;
 	}
 }
 
