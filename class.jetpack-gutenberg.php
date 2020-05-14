@@ -993,7 +993,7 @@ class Jetpack_Gutenberg {
 	public static function upgrade_nudge( $plan ) {
 		if (
 			! current_user_can( 'manage_options' )
-		/** This filter is documented in class.jetpack-gutenberg.php */
+			/** This filter is documented in class.jetpack-gutenberg.php */
 			|| ! apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false )
 			/** This filter is documented in _inc/lib/admin-pages/class.jetpack-react-page.php */
 			|| ! apply_filters( 'jetpack_show_promotions', true )
