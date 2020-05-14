@@ -39,7 +39,7 @@ class Pre_Connection_JITM extends JITM {
 				'id'             => 'jpsetup-widgets',
 				'message_path'   => '/wp:widgets:admin_notices/',
 				'message'        => __( 'Looking for even more widgets?', 'jetpack' ),
-				'description'    => __( 'Setup Jetpack for great additional widgets like business hours and maps.', 'jetpack' ),
+				'description'    => __( 'Setup Jetpack for great additional widgets that display business contact info and maps, blog stats, and top posts.', 'jetpack' ),
 				'button_link'    => esc_url( \Jetpack::init()->build_connect_url( true, false, 'pre-connection-jitm-widgets' ) ),
 				'button_caption' => __( 'Setup Jetpack', 'jetpack' ),
 			),
