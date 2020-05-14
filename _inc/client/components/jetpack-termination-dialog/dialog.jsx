@@ -182,20 +182,21 @@ class JetpackTerminationDialog extends Component {
 				<QuerySite />
 				<QuerySiteBenefits />
 				<QueryConnectedPlugins />
-				<Card>
-					<div className="jetpack-termination-dialog__header">
-						<h2>
-							{ purpose === 'disconnect' ? __( 'Disconnect Jetpack' ) : __( 'Disable Jetpack' ) }
-						</h2>
-						{ location === 'dashboard' && (
+				{ location === 'dashboard' && (
+					<Card>
+						<div className="jetpack-termination-dialog__header">
+							<h2>
+								{ purpose === 'disconnect' ? __( 'Disconnect Jetpack' ) : __( 'Disable Jetpack' ) }
+							</h2>
+
 							<Gridicon
 								icon="cross"
 								className="jetpack-termination-dialog__close-icon"
 								onClick={ this.handleDialogCloseClick }
 							/>
-						) }
-					</div>
-				</Card>
+						</div>
+					</Card>
+				) }
 				{ ! showSurvey || step === JetpackTerminationDialog.FEATURE_STEP
 					? this.renderFeatures()
 					: this.renderSurvey() }

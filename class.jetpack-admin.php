@@ -18,6 +18,9 @@ class Jetpack_Admin {
 		// Suppress wpadmin stuffs when rendering iframes.
 		if ( isset( $_GET['iframe_request'] ) && $_GET['iframe_request'] && ! defined( 'IFRAME_REQUEST' ) ) {
 			add_action( 'admin_enqueue_scripts', array( 'Jetpack_Admin', 'hide_admin_notices' ) );
+			if ( isset( $_GET['jetpack_deactivate_modal'] ) && 'true' === $_GET['jetpack_deactivate_modal'] ) { //phpcs:ignore
+				wp_enqueue_style( 'jetpack-deactivate-dialog-iframe', plugins_url( 'css/jetpack-deactivate-dialog-iframe.css', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
+			}
 			define( 'IFRAME_REQUEST', true );
 		}
 

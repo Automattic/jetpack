@@ -6098,7 +6098,8 @@ endif;
 
 
 	function deactivate_dialog() {
- 		if ( Jetpack::is_active() ) {
+		global $pagenow;
+ 		if ( 'plugins.php' === $pagenow && Jetpack::is_active() ) {
  			add_thickbox();
  			wp_enqueue_script(
  				'jetpack-deactivate-dialog-js',
@@ -6109,7 +6110,16 @@ endif;
  				array( 'jquery' ),
  				JETPACK__VERSION,
  				true
- 			);
+			 );
+
+			wp_localize_script(
+				'jetpack-deactivate-dialog-js',
+				'deactivate_dialog',
+				array(
+					'title' => __( 'Deactivate Jetpack', 'jetpack' ),
+				)
+			);
+
  			wp_enqueue_style( 'jetpack-deactivate-dialog', plugins_url( 'css/jetpack-deactivate-dialog.css', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
 
   		}

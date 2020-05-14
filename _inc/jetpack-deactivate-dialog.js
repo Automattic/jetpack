@@ -1,6 +1,5 @@
 // /* global tb_position */
 ( function( $ ) {
-	console.log( 'testing' );
 	var deactivateLinkElem = $(
 		'tr[data-slug=jetpack] > td.plugin-title > div > span.deactivate > a'
 	);
@@ -30,8 +29,9 @@
 
 	deactivateLinkElem.attr(
 		'href',
-		'admin.php?page=jetpack&iframe_request=true#/disconnect-surveyTB_iframe=true'
+		'admin.php?page=jetpack&jetpack_deactivate_modal=true&iframe_request=true#/disconnect-surveyTB_iframe=true'
 	);
+	deactivateLinkElem.attr( 'title', deactivate_dialog.title );
 	deactivateLinkElem.addClass( 'thickbox' );
 	deactivateLinkElem.on( 'click', function() {
 		observer.observe( body, { childList: true } );

@@ -1,13 +1,18 @@
-.jetpack-disconnect-modal {
+#TB_window.jetpack-disconnect-modal {
+
 	#TB_title {
-		float: left;
-		height: 1px;
+		font-size: 28px;
+		line-height: 24px;
+		font-weight: 600;
+		height: 24px;
+		padding: 24px;
 	}
 
 	#TB_closeWindowButton {
 		left: auto;
-		right: -30px;
-		color: #eee;
+		right: 30px;
+		color: #a2a2a2;
+		top: 20px;
 
 		&:after {
 			content: '\f335';

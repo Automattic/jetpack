@@ -1,0 +1,13 @@
+body.wp-admin.toplevel_page_jetpack
+{
+	background-color: transparent;
+}
+
+#wpbody-content {
+	background-color: transparent !important;
+	padding-bottom: 50px;
+}
+
+#jp-plugin-container {
+	min-height: 0px !important;
+}
