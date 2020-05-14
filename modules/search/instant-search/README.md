@@ -11,7 +11,7 @@ It enables the user to quickly jump into a full-page search experience with filt
 1. Use the [Jetpack Docker environment](https://github.com/Automattic/jetpack/tree/master/docker#readme).
 2. Start a new branch.
 3. Modify/improve the code in the instant-search directories. New packages should be added to the common package.json.
-4. Run `yarn build-search [--watch]` to compile your changes.
+4. Run `yarn watch` to compile your changes.
 5. Test your changes on the front-end of your test site.
 6. Open a PR, and a WordPress.com diff will be automatically generated with your changes.
 7. Test the WordPress.com diff.
@@ -19,13 +19,10 @@ It enables the user to quickly jump into a full-page search experience with filt
 
 ### Basic Build Process
 
-This also works on WP.com
-
 ```
-> npm install yarn@1.7
-> npm install node@10.17.0
-> yarn build
-> yarn build-search [--watch]
+> npm install yarn
+> npm install node
+> yarn watch
 > ls _inc/build/instant-search/
 ```
 
