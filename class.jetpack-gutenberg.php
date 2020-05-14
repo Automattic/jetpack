@@ -37,6 +37,25 @@ function jetpack_register_block( $slug, $args = array() ) {
 		return false;
 	}
 
+	$feature_name = Jetpack_Gutenberg::remove_extension_prefix( $slug );
+	// If the block is dynamic, and a Jetpack block, wrap the render_callback to check availability.
+	if (
+		isset( $args['plan_check'], $args['render_callback'] )
+		&& true === $args['plan_check']
+	) {
+		$args['render_callback'] = Jetpack_Gutenberg::get_render_callback_with_availability_check( $feature_name, $args['render_callback'] );
+		$method_name             = 'set_availability_for_plan';
+	} else {
+		$method_name = 'set_extension_available';
+	}
+
+	add_action(
+		'jetpack_register_gutenberg_extensions',
+		function() use ( $feature_name, $method_name ) {
+			call_user_func( array( 'Jetpack_Gutenberg', $method_name ), $feature_name );
+		}
+	);
+
 	return register_block_type( $slug, $args );
 }
 
@@ -165,8 +184,8 @@ class Jetpack_Gutenberg {
 	 *
 	 * @return string The unprefixed extension name.
 	 */
-	private static function remove_extension_prefix( $extension_name ) {
-		if ( wp_startswith( $extension_name, 'jetpack/' ) || wp_startswith( $extension_name, 'jetpack-' ) ) {
+	public static function remove_extension_prefix( $extension_name ) {
+		if ( 0 === strpos( $extension_name, 'jetpack/' ) || 0 === strpos( $extension_name, 'jetpack-' ) ) {
 			return substr( $extension_name, strlen( 'jetpack/' ) );
 		}
 		return $extension_name;
@@ -481,7 +500,6 @@ class Jetpack_Gutenberg {
 
 		foreach ( self::$extensions as $extension ) {
 			$is_available = self::is_registered_and_no_entry_in_availability( $extension ) || self::is_available( $extension );
-
 			$available_extensions[ $extension ] = array(
 				'available' => $is_available,
 			);
@@ -992,4 +1010,66 @@ class Jetpack_Gutenberg {
 		);
 	}
 
+	/**
+	 * Set the availability of the block as the editor
+	 * is loaded.
+	 *
+	 * @param string $slug Slug of the block.
+	 */
+	public static function set_availability_for_plan( $slug ) {
+		$is_available = true;
+		$plan         = '';
+		$slug         = self::remove_extension_prefix( $slug );
+
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			if ( ! class_exists( 'Store_Product_List' ) ) {
+				require WP_CONTENT_DIR . '/admin-plugins/wpcom-billing/store-product-list.php';
+			}
+			$features_data = Store_Product_List::get_site_specific_features_data();
+			$is_available  = in_array( $slug, $features_data['active'], true );
+			if ( ! empty( $features_data['available'][ $slug ] ) ) {
+				$plan = $features_data['available'][ $slug ][0];
+			}
+		} elseif ( ! jetpack_is_atomic_site() ) {
+			/*
+			 * If it's Atomic then assume all features are available
+			 * otherwise check against the Jetpack plan.
+			 */
+			$is_available = Jetpack_Plan::supports( $slug );
+			$plan         = Jetpack_Plan::get_minimum_plan_for_feature( $slug );
+		}
+		if ( $is_available ) {
+			self::set_extension_available( $slug );
+		} else {
+			self::set_extension_unavailable(
+				$slug,
+				'missing_plan',
+				array(
+					'required_feature' => $slug,
+					'required_plan'    => $plan,
+				)
+			);
+		}
+	}
+
+	/**
+	 * Wraps the suplied render_callback in a function to check
+	 * the availability of the block before rendering it.
+	 *
+	 * @param string   $slug The block slug, used to check for availability.
+	 * @param callable $render_callback The render_callback that will be called if the block is available.
+	 */
+	public static function get_render_callback_with_availability_check( $slug, $render_callback ) {
+		return function ( $prepared_attributes, $block_content ) use ( $render_callback, $slug ) {
+			$availability = self::get_availability();
+			$bare_slug    = self::remove_extension_prefix( $slug );
+			if ( isset( $availability[ $bare_slug ] ) && $availability[ $bare_slug ]['available'] ) {
+				return call_user_func( $render_callback, $prepared_attributes, $block_content );
+			} elseif ( isset( $availability[ $bare_slug ]['details']['required_plan'] ) ) {
+				return self::upgrade_nudge( $availability[ $bare_slug ]['details']['required_plan'] );
+			}
+
+			return null;
+		};
+	}
 }
