@@ -3456,6 +3456,8 @@ p {
 	 */
 	public static function plugin_deactivation() {
 		require_once ABSPATH . '/wp-admin/includes/plugin.php';
+		$tracking = new Tracking();
+		$tracking->record_user_event( 'deactivate_plugin', array() );
 		if ( is_plugin_active_for_network( 'jetpack/jetpack.php' ) ) {
 			Jetpack_Network::init()->deactivate();
 		} else {
