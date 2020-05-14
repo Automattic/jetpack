@@ -8,6 +8,7 @@
 		"eventbrite",
 		"gif",
 		"google-calendar",
+		"image-compare",
 		"instagram-gallery",
 		"likes",
 		"mailchimp",
@@ -31,7 +32,7 @@
 		"videopress",
 		"wordads"
 	],
-	"beta": [ "amazon", "image-compare" ],
+	"beta": [ "amazon" ],
 	"experimental": [ "seo" ],
 	"no-post-editor": [
 		"business-hours",
