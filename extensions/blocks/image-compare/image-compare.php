@@ -54,20 +54,18 @@ function load_assets( $attr, $content ) {
  * @return string
  */
 function render_amp( $attr ) {
-	$img_before_id  = $attr['imageBeforeId'];
-	$img_before_url = $attr['imageBeforeUrl'];
-	$img_before_alt = $attr['imageBeforeAlt'];
-	$img_after_id   = $attr['imageAfterId'];
-	$img_after_url  = $attr['imageAfterUrl'];
-	$img_after_alt  = $attr['imageAfterAlt'];
+	$img_before = $attr['imageBefore'];
+	$img_after  = $attr['imageAfter'];
 
 	return sprintf(
-		'<amp-image-slider layout="responsive" width="300" height="200"> <amp-img id="%1$d" src="%2$s" alt="%3$s" layout="fill"></amp-img> <amp-img id="%4$d" src="%5$s" alt="%6$s" layout="fill"></amp-img></amp-image-slider>',
-		absint( $img_before_id ),
-		esc_url( $img_before_url ),
-		esc_attr( $img_before_alt ),
-		absint( $img_after_id ),
-		esc_url( $img_after_url ),
-		esc_attr( $img_after_alt )
+		'<amp-image-slider layout="responsive" width="%1$d" height="%2$d"> <amp-img id="%3$d" src="%4$s" alt="%5$s" layout="fill"></amp-img> <amp-img id="%6$d" src="%7$s" alt="%8$s" layout="fill"></amp-img></amp-image-slider>',
+		absint( $img_before['width'] ),
+		absint( $img_before['height'] ),
+		absint( $img_before['id'] ),
+		esc_url( $img_before['url'] ),
+		esc_attr( $img_before['alt'] ),
+		absint( $img_after['id'] ),
+		esc_url( $img_after['url'] ),
+		esc_attr( $img_after['alt'] )
 	);
 }
