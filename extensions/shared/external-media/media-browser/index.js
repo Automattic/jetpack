@@ -1,13 +1,11 @@
 /**
  * External dependencies
  */
-
 import classnames from 'classnames';
 
 /**
  * WordPress dependencies
  */
-
 import { memo, useCallback, useState } from '@wordpress/element';
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
@@ -15,7 +13,6 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-
 import MediaPlaceholder from './placeholder';
 import MediaItem from './media-item';
 
