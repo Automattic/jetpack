@@ -25,10 +25,10 @@ const UpdatesQuestion = props => {
 				} ) }
 			</h1>
 			<div className="jp-setup-wizard-updates-answer-buttons-container">
-				<Button href="" primary className="jp-setup-wizard-updates-button">
+				<Button href="#/setup/features" primary className="jp-setup-wizard-updates-button">
 					{ __( 'Yes' ) }
 				</Button>
-				<Button href="" className="jp-setup-wizard-updates-button">
+				<Button href="#/setup/features" className="jp-setup-wizard-updates-button">
 					{ __( 'No' ) }
 				</Button>
 			</div>

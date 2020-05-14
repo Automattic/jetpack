@@ -1,0 +1,39 @@
+@import '../../scss/mixin_breakpoint';
+
+.jp-setup-wizard-main.jp-setup-wizard-recommended-features-main {
+	img {
+		width: auto;
+		height: 150px;
+	}
+
+	@include breakpoint( '<660px' ) {
+		padding: 1rem 0;
+
+		h1 {
+			margin: 0.67rem 1rem 0 1rem;
+		}
+	}
+}
+
+.jp-setup-wizard-recommended-features-subtitle {
+	font-size: 1rem;
+	margin: 1rem 4rem;
+}
+
+.jp-setup-wizard-recommended-features-p1 {
+	font-size: 1rem;
+	margin: 1rem 4rem 0 4rem;
+
+	@include breakpoint( '<660px' ) {
+		margin: 1rem 4rem 0 1rem;
+	}
+}
+
+.jp-setup-wizard-recommended-features-p2 {
+	font-size: 1rem;
+	margin: 0 4rem 4rem 4rem;
+
+	@include breakpoint( '<660px' ) {
+		margin: 1rem 4rem 0 1rem;
+	}
+}

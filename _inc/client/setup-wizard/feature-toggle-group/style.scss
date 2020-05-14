@@ -1,0 +1,32 @@
+@import '../../scss/mixin_breakpoint';
+
+.jp-setup-wizard-feature-toggle-group {
+	h2 {
+		text-align: left;
+		margin: 1rem 0 0.25rem 0;
+
+		@include breakpoint( '<660px' ) {
+			margin: 1rem 1rem 0.25rem 1rem;
+		}
+	}
+}
+
+.jp-setup-wizard-feature-toggle-group-details {
+	text-align: left;
+	margin: 0 0 1rem 0;
+
+	@include breakpoint( '<660px' ) {
+		margin: 0 1rem 1rem 1rem;
+	}
+}
+
+.jp-setup-wizard-feature-toggle-group-toggles-area-container {
+	display: flex;
+	flex-direction: column;
+}
+
+.jp-setup-wizard-feature-toggle-group-toggle-container {
+	@include breakpoint( '>660px' ) {
+		margin: 0.25rem 0;
+	}
+}

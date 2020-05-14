@@ -46,7 +46,7 @@ import QueryRewindStatus from 'components/data/query-rewind-status';
 import { getRewindStatus } from 'state/rewind';
 
 const setupRoute = '/setup';
-const setupRoutes = [ setupRoute, '/setup/income', '/setup/updates' ];
+const setupRoutes = [ setupRoute, '/setup/income', '/setup/updates', '/setup/features' ];
 
 const dashboardRoutes = [ '/', '/dashboard', '/my-plan', '/plans' ];
 const settingsRoutes = [
@@ -231,6 +231,7 @@ class Main extends React.Component {
 			case '/setup':
 			case '/setup/income':
 			case '/setup/updates':
+			case '/setup/features':
 				if ( this.props.showSetupWizard ) {
 					navComponent = null;
 					pageComponent = <SetupWizard />;
