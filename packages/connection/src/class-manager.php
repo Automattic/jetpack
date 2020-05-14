@@ -1588,10 +1588,11 @@ class Manager {
 			'headers' => array(
 				'Accept' => 'application/json',
 			),
-			'timeout' => 10,
 		);
 
+		add_filter( 'http_request_timeout', array( $this, 'increase_timeout' ) );
 		$response = Client::_wp_remote_request( Utils::fix_url_for_bad_hosts( $this->api_url( 'token' ) ), $args );
+		remove_filter( 'http_request_timeout', array( $this, 'increase_timeout' ) );
 
 		if ( is_wp_error( $response ) ) {
 			return new \WP_Error( 'token_http_request_failed', $response->get_error_message() );
@@ -1657,6 +1658,15 @@ class Manager {
 		do_action( 'jetpack_user_authorized' );
 
 		return (string) $json->access_token;
+	}
+
+	/**
+	 * Increases the request timeout value to 30 seconds.
+	 *
+	 * @return int Returns 30.
+	 */
+	public function increase_timeout() {
+		return 30;
 	}
 
 	/**
