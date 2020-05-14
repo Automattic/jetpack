@@ -829,13 +829,6 @@ const features = {
 				info,
 			};
 		},
-		mapDispatchToProps: dispatch => {
-			return {
-				onToggleChange: currentCheckedValue => {
-					return () => {};
-				},
-			};
-		},
 	},
 
 	'site-accelerator': {
