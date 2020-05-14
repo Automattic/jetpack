@@ -236,52 +236,30 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 		$responses = array();
 		foreach ( $request->get_param( 'media' ) as $item ) {
 			// Download file to temp dir.
-			$file = array(
-				'name'     => wp_basename( $item['guid']['name'] ),
-				'tmp_name' => $this->get_download_url( $item['guid'] ),
-			);
-
-			if ( is_wp_error( $file['tmp_name'] ) ) {
-				$file['tmp_name']->add_data( array( 'status' => 400 ) );
-				$responses[] = $file['tmp_name'];
+			$download_url = $this->get_download_url( $item['guid'] );
+			if ( is_wp_error( $download_url ) ) {
+				$download_url->add_data( array( 'status' => 400 ) );
+				$responses[] = $download_url;
 				continue;
 			}
+
+			$file = array(
+				'name'     => wp_basename( $item['guid']['name'] ),
+				'tmp_name' => $download_url,
+			);
 
 			$id = media_handle_sideload( $file, 0, null );
 			if ( is_wp_error( $id ) ) {
 				@unlink( $file['tmp_name'] ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+				$id->add_data( array( 'status' => 400 ) );
 				$responses[] = $id;
 				continue;
 			}
 
-			$meta                          = wp_get_attachment_metadata( $id );
-			$meta['image_meta']['title']   = $item['title'];
-			$meta['image_meta']['caption'] = $item['caption'];
+			$this->update_attachment_meta( $id, $item );
 
-			wp_update_attachment_metadata( $id, $meta );
-
-			update_post_meta( $id, '_wp_attachment_image_alt', $item['title'] );
-			wp_update_post(
-				array(
-					'ID'           => $id,
-					'post_excerpt' => $item['caption'],
-				)
-			);
-
-			$request  = new \WP_REST_Request( 'GET', '/wp/v2/media/' . $id );
-			$response = rest_do_request( $request );
-
-			if ( is_wp_error( $response ) ) {
-				$response->add_data( array( 'status' => 400 ) );
-				$responses[] = $response;
-			} else {
-				$responses[] = array(
-					'id'      => $id,
-					'caption' => $item['caption'],
-					'alt'     => $item['title'],
-					'url'     => $response->data['source_url'],
-				);
-			}
+			// Add attachment data or WP_Error.
+			$responses[] = $this->get_attachment_data( $id, $item );
 		}
 
 		return $responses;
@@ -330,6 +308,54 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 		remove_filter( 'wp_unique_filename', array( $this, 'tmp_name' ) );
 
 		return $download_url;
+	}
+
+	/**
+	 * Updates attachment meta data for media item.
+	 *
+	 * @param int   $id   Attachment ID.
+	 * @param array $item Media item.
+	 */
+	public function update_attachment_meta( $id, $item ) {
+		$meta                          = wp_get_attachment_metadata( $id );
+		$meta['image_meta']['title']   = $item['title'];
+		$meta['image_meta']['caption'] = $item['caption'];
+
+		wp_update_attachment_metadata( $id, $meta );
+
+		update_post_meta( $id, '_wp_attachment_image_alt', $item['title'] );
+		wp_update_post(
+			array(
+				'ID'           => $id,
+				'post_excerpt' => $item['caption'],
+			)
+		);
+	}
+
+	/**
+	 * Retrieves attachment data for media item.
+	 *
+	 * @param int   $id   Attachment ID.
+	 * @param array $item Media item.
+	 *
+	 * @return array|\WP_REST_Response Attachment data on success, WP_Error on failure.
+	 */
+	public function get_attachment_data( $id, $item ) {
+		$request  = new \WP_REST_Request( 'GET', '/wp/v2/media/' . $id );
+		$response = rest_do_request( $request );
+
+		if ( is_wp_error( $response ) ) {
+			$response->add_data( array( 'status' => 400 ) );
+		} else {
+			$response = array(
+				'id'      => $id,
+				'caption' => $item['caption'],
+				'alt'     => $item['title'],
+				'url'     => $response->data['source_url'],
+			);
+		}
+
+		return $response;
 	}
 }
 
