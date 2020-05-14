@@ -231,6 +231,15 @@ class ProStatus extends React.Component {
 							'scan'
 						);
 					} else if ( scanStatus && scanStatus.state !== 'unavailable' ) {
+						if ( Array.isArray( scanStatus.threats ) && scanStatus.threats.length > 0 ) {
+							return (
+								<SimpleNotice showDismiss={ false } status="is-error" isCompact>
+									{ __( 'Threats', {
+										context: 'A caption for a small button to fix security issues.',
+									} ) }
+								</SimpleNotice>
+							);
+						}
 						if ( ! scanStatus.credentials ) {
 							return '';
 						}

@@ -198,6 +198,31 @@ class DashScan extends Component {
 				content: message,
 			} );
 
+		if ( Array.isArray( scanStatus.threats ) && scanStatus.threats.length > 0 ) {
+			return (
+				<>
+					{ buildCard( [
+						<h3 className="jp-dash-item__title jp-dash-item__title_fullwidth jp-dash-item__title_top">
+							{ __( 'Uh oh, %(number)s threat found.', 'Uh oh, %(number)s threats found.', {
+								count: scanStatus.threats.length,
+								args: { number: numberFormat( scanStatus.threats.length ) },
+							} ) }
+						</h3>,
+						<p className="jp-dash-item__description">
+							{ __( '{{a}}View details{{/a}}', {
+								components: { a: <a href={ getRedirectUrl( 'jetpack-scan-threat' ) } /> },
+							} ) }
+							<br />
+							{ __( '{{a}}Contact Support{{/a}}', {
+								components: { a: <a href={ getRedirectUrl( 'jetpack-support' ) } /> },
+							} ) }
+						</p>,
+					] ) }
+					{ buildAction( getRedirectUrl( 'jetpack-scan-threat' ), __( 'View details' ) ) }
+				</>
+			);
+		}
+
 		if ( scanStatus.credentials && scanStatus.credentials.length === 0 ) {
 			return (
 				<React.Fragment>
