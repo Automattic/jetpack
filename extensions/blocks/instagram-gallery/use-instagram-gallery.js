@@ -1,13 +1,14 @@
 /**
  * External dependencies
  */
-import { isEmpty } from 'lodash';
+import { isArray, isEmpty } from 'lodash';
 
 /**
  * WordPress dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 
@@ -17,11 +18,21 @@ import { addQueryArgs } from '@wordpress/url';
 import { MAX_IMAGE_COUNT } from './constants';
 
 export default function useInstagramGallery( { accessToken, noticeOperations, setAttributes } ) {
+	const { isTokenDisconnected } = useSelect( select => {
+		const { isInstagramGalleryTokenDisconnected } = select( 'jetpack/instagram-gallery' );
+		return { isTokenDisconnected: isInstagramGalleryTokenDisconnected( accessToken ) };
+	} );
+
+	const { connectInstagramGalleryToken, disconnectInstagramGalleryToken } = useDispatch(
+		'jetpack/instagram-gallery'
+	);
+
 	const [ images, setImages ] = useState( [] );
 	const [ isLoadingGallery, setIsLoadingGallery ] = useState( false );
 
 	useEffect( () => {
-		if ( ! accessToken ) {
+		// If the block doesn't have a token, or it's already marked as disconnected, don't bother trying to load the gallery.
+		if ( ! accessToken || isTokenDisconnected ) {
 			return;
 		}
 
@@ -33,20 +44,49 @@ export default function useInstagramGallery( { accessToken, noticeOperations, se
 				access_token: accessToken,
 				count: MAX_IMAGE_COUNT,
 			} ),
-		} ).then( ( { external_name: externalName, images: imageList } ) => {
-			setIsLoadingGallery( false );
+		} )
+			.then( ( { external_name: externalName, images: imageList } ) => {
+				setIsLoadingGallery( false );
 
-			if ( isEmpty( imageList ) ) {
-				noticeOperations.createErrorNotice(
-					__( 'No images were found in your Instagram account.', 'jetpack' )
-				);
-				return;
-			}
+				// If the response doesn't have an `images` property,
+				// or `images` is not an array (the API might literally return the string "ERROR"),
+				// the token is likely incorrect, so set it as disconnected.
+				if ( ! imageList || ! isArray( imageList ) ) {
+					noticeOperations.createErrorNotice(
+						__( 'An error occurred. Please try again later.', 'jetpack' )
+					);
+					setIsLoadingGallery( false );
+					setImages( [] );
+					disconnectInstagramGalleryToken( accessToken );
+					return;
+				}
 
-			setAttributes( { instagramUser: externalName } );
-			setImages( imageList );
-		} );
-	}, [ accessToken, noticeOperations, setAttributes ] );
+				if ( isEmpty( imageList ) ) {
+					noticeOperations.createErrorNotice(
+						__( 'No images were found in your Instagram account.', 'jetpack' )
+					);
+					setIsLoadingGallery( false );
+					setImages( [] );
+					return;
+				}
+
+				connectInstagramGalleryToken( accessToken );
+				setAttributes( { instagramUser: externalName } );
+				setImages( imageList );
+			} )
+			.catch( () => {
+				setIsLoadingGallery( false );
+				setImages( [] );
+				disconnectInstagramGalleryToken( accessToken );
+			} );
+	}, [
+		accessToken,
+		connectInstagramGalleryToken,
+		disconnectInstagramGalleryToken,
+		isTokenDisconnected,
+		noticeOperations,
+		setAttributes,
+	] );
 
 	return { images, isLoadingGallery, setImages };
 }

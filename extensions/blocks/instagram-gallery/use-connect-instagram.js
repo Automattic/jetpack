@@ -14,6 +14,7 @@ import { addQueryArgs } from '@wordpress/url';
 
 export default function useConnectInstagram( {
 	accessToken,
+	isLoadingGallery,
 	noticeOperations,
 	setAttributes,
 	setImages,
@@ -36,15 +37,23 @@ export default function useConnectInstagram( {
 
 	// Automatically retrieve a working Instagram access token, if it exists.
 	useEffect( () => {
-		// If the block already has a token, and that token is marked as connected, don't retrieve it again.
-		if ( isTokenConnected ) {
-			return;
-		}
+		// Only try to skip retrieving a token if the block already has a token.
+		if ( accessToken ) {
+			// On a fresh page with clean state, the block will start by attempting to load the gallery.
+			// If it works, the token is valid and will be marked as connected, or as disconnected otherwise.
+			if ( isLoadingGallery || ( ! isTokenConnected && ! isTokenDisconnected ) ) {
+				return;
+			}
+			// If the block already has a token, and that token is marked as connected, don't retrieve it again.
+			if ( isTokenConnected ) {
+				return;
+			}
 
-		// If the block already has a token, and that token is marked as disconnected, remove it from the block.
-		if ( isTokenDisconnected ) {
-			setAttributes( { accessToken: undefined } );
-			return;
+			// If the block already has a token, and that token is marked as disconnected, remove it from the block.
+			if ( isTokenDisconnected ) {
+				setAttributes( { accessToken: undefined } );
+				return;
+			}
 		}
 
 		// Otherwise, try to retrieve it from the API.
@@ -70,6 +79,7 @@ export default function useConnectInstagram( {
 		accessToken,
 		connectInstagramGalleryToken,
 		disconnectInstagramGalleryToken,
+		isLoadingGallery,
 		isTokenConnected,
 		isTokenDisconnected,
 		setAttributes,
