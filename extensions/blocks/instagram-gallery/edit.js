@@ -7,7 +7,6 @@ import { isEmpty, isEqual, times } from 'lodash';
 /**
  * WordPress dependencies
  */
-import apiFetch from '@wordpress/api-fetch';
 import { InspectorControls } from '@wordpress/block-editor';
 import {
 	Button,
@@ -19,9 +18,8 @@ import {
 	Spinner,
 	withNotices,
 } from '@wordpress/components';
-import { useEffect, useState } from '@wordpress/element';
+import { useEffect } from '@wordpress/element';
 import { __, sprintf, _n } from '@wordpress/i18n';
-import { addQueryArgs } from '@wordpress/url';
 
 /**
  * Internal dependencies
@@ -31,6 +29,7 @@ import { IS_CURRENT_USER_CONNECTED_TO_WPCOM, MAX_IMAGE_COUNT } from './constants
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import useConnectInstagram from './use-connect-instagram';
 import useConnectWpcom from './use-connect-wpcom';
+import useInstagramGallery from './use-instagram-gallery';
 import ImageTransition from './image-transition';
 import './editor.scss';
 
@@ -38,8 +37,11 @@ const InstagramGalleryEdit = props => {
 	const { attributes, className, isSelected, noticeOperations, noticeUI, setAttributes } = props;
 	const { accessToken, align, columns, count, instagramUser, spacing } = attributes;
 
-	const [ images, setImages ] = useState( [] );
-	const [ isLoadingGallery, setIsLoadingGallery ] = useState( false );
+	const { images, isLoadingGallery, setImages } = useInstagramGallery( {
+		accessToken,
+		noticeOperations,
+		setAttributes,
+	} );
 	const { isConnecting, connectToService, disconnectFromService } = useConnectInstagram( {
 		accessToken,
 		noticeOperations,
@@ -56,34 +58,6 @@ const InstagramGalleryEdit = props => {
 			setAttributes( validatedAttributes );
 		}
 	}, [ attributes, setAttributes ] );
-
-	useEffect( () => {
-		if ( ! accessToken ) {
-			return;
-		}
-
-		noticeOperations.removeAllNotices();
-		setIsLoadingGallery( true );
-
-		apiFetch( {
-			path: addQueryArgs( '/wpcom/v2/instagram-gallery/gallery', {
-				access_token: accessToken,
-				count: MAX_IMAGE_COUNT,
-			} ),
-		} ).then( ( { external_name: externalName, images: imageList } ) => {
-			setIsLoadingGallery( false );
-
-			if ( isEmpty( imageList ) ) {
-				noticeOperations.createErrorNotice(
-					__( 'No images were found in your Instagram account.', 'jetpack' )
-				);
-				return;
-			}
-
-			setAttributes( { instagramUser: externalName } );
-			setImages( imageList );
-		} );
-	}, [ accessToken, noticeOperations, setAttributes ] );
 
 	const showPlaceholder = ! isLoadingGallery && ( ! accessToken || isEmpty( images ) );
 	const showSidebar = ! showPlaceholder;
