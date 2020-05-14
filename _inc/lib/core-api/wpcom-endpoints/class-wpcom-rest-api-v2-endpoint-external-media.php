@@ -155,18 +155,7 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 	 * @return true|\WP_Error
 	 */
 	public function sanitize_media( $param ) {
-		foreach ( $param as $key => $item ) {
-			if ( ! empty( $item['guid'] ) ) {
-				$param[ $key ]['guid'] = json_decode( $item['guid'], true );
-			}
-
-			if ( empty( $item['caption'] ) ) {
-				$param[ $key ]['caption'] = '';
-			}
-			if ( empty( $item['title'] ) ) {
-				$param[ $key ]['title'] = '';
-			}
-		}
+		$param = $this->prepare_media_param( $param );
 
 		return rest_sanitize_value_from_schema( $param, $this->media_schema );
 	}
@@ -178,15 +167,32 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 	 * @return true|\WP_Error
 	 */
 	public function validate_media( $param ) {
-		foreach ( $param as $key => $item ) {
-			if ( empty( $item['guid'] ) ) {
-				continue;
-			}
-
-			$param[ $key ]['guid'] = json_decode( $item['guid'], true );
-		}
+		$param = $this->prepare_media_param( $param );
 
 		return rest_validate_value_from_schema( $param, $this->media_schema, 'media' );
+	}
+
+	/**
+	 * Decodes guid json and sets parameter defaults.
+	 *
+	 * @param array $param Media parameter.
+	 * @return array
+	 */
+	private function prepare_media_param( $param ) {
+		foreach ( $param as $key => $item ) {
+			if ( ! empty( $item['guid'] ) ) {
+				$param[ $key ]['guid'] = json_decode( $item['guid'], true );
+			}
+
+			if ( empty( $param[ $key ]['caption'] ) ) {
+				$param[ $key ]['caption'] = '';
+			}
+			if ( empty( $param[ $key ]['title'] ) ) {
+				$param[ $key ]['title'] = '';
+			}
+		}
+
+		return $param;
 	}
 
 	/**
@@ -238,20 +244,12 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 			// Download file to temp dir.
 			$download_url = $this->get_download_url( $item['guid'] );
 			if ( is_wp_error( $download_url ) ) {
-				$download_url->add_data( array( 'status' => 400 ) );
 				$responses[] = $download_url;
 				continue;
 			}
 
-			$file = array(
-				'name'     => wp_basename( $item['guid']['name'] ),
-				'tmp_name' => $download_url,
-			);
-
-			$id = media_handle_sideload( $file, 0, null );
+			$id = $this->sideload_media( $item['guid']['name'], $download_url );
 			if ( is_wp_error( $id ) ) {
-				@unlink( $file['tmp_name'] ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
-				$id->add_data( array( 'status' => 400 ) );
 				$responses[] = $id;
 				continue;
 			}
@@ -307,7 +305,34 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 		$download_url = download_url( $guid['url'] );
 		remove_filter( 'wp_unique_filename', array( $this, 'tmp_name' ) );
 
+		if ( is_wp_error( $download_url ) ) {
+			$download_url->add_data( array( 'status' => 400 ) );
+		}
+
 		return $download_url;
+	}
+
+	/**
+	 * Uploads media file and creates attachment object.
+	 *
+	 * @param string $file_name    Name of media file.
+	 * @param string $download_url Download URL.
+	 *
+	 * @return int|\WP_Error
+	 */
+	public function sideload_media( $file_name, $download_url ) {
+		$file = array(
+			'name'     => wp_basename( $file_name ),
+			'tmp_name' => $download_url,
+		);
+
+		$id = media_handle_sideload( $file, 0, null );
+		if ( is_wp_error( $id ) ) {
+			@unlink( $file['tmp_name'] ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			$id->add_data( array( 'status' => 400 ) );
+		}
+
+		return $id;
 	}
 
 	/**
