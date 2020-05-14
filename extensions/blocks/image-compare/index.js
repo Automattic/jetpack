@@ -44,6 +44,7 @@ export const settings = {
 		},
 		orientation: {
 			type: 'string',
+			default: 'horizontal',
 		},
 	},
 
