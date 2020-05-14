@@ -90,10 +90,11 @@ const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) 
 							placeHolderLabel={ __( 'Image before', 'jetpack' ) }
 							onChange={ img => {
 								if ( img.media_type === 'image' || img.type === 'image' ) {
+									const { src } = photonizedImgProps( img );
 									setAttributes( {
 										imageBefore: {
 											id: img.id,
-											url: img.url,
+											url: src ? src : img.url,
 											alt: img.alt,
 											width: img.width,
 											height: img.height,
