@@ -55,7 +55,6 @@ export default function useInstagramGallery( { accessToken, noticeOperations, se
 					noticeOperations.createErrorNotice(
 						__( 'An error occurred. Please try again later.', 'jetpack' )
 					);
-					setIsLoadingGallery( false );
 					setImages( [] );
 					disconnectInstagramGalleryToken( accessToken );
 					return;
@@ -65,9 +64,6 @@ export default function useInstagramGallery( { accessToken, noticeOperations, se
 					noticeOperations.createErrorNotice(
 						__( 'No images were found in your Instagram account.', 'jetpack' )
 					);
-					setIsLoadingGallery( false );
-					setImages( [] );
-					return;
 				}
 
 				connectInstagramGalleryToken( accessToken );

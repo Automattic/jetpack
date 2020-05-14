@@ -87,7 +87,7 @@ const InstagramGalleryEdit = props => {
 		noticeOperations.removeAllNotices();
 		const accountImageTotal = images.length;
 
-		if ( showSidebar && ! showLoadingSpinner && accountImageTotal < count ) {
+		if ( ! showLoadingSpinner && accountImageTotal < count ) {
 			const noticeContent = accountImageTotal
 				? sprintf(
 						_n(
@@ -106,7 +106,7 @@ const InstagramGalleryEdit = props => {
 				isDismissible: false,
 			} );
 		}
-	}, [ count, images, noticeOperations, showLoadingSpinner, showSidebar ] );
+	}, [ count, images, noticeOperations, showLoadingSpinner ] );
 
 	const renderImage = index => {
 		if ( images[ index ] ) {

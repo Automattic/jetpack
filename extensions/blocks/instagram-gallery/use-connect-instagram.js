@@ -8,7 +8,7 @@ import PopupMonitor from '@automattic/popup-monitor';
  */
 import apiFetch from '@wordpress/api-fetch';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useEffect, useState } from '@wordpress/element';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 
@@ -35,59 +35,79 @@ export default function useConnectInstagram( {
 
 	const [ isConnecting, setIsConnecting ] = useState( false );
 
-	// Automatically retrieve a working Instagram access token, if it exists.
-	useEffect( () => {
-		// Only try to skip retrieving a token if the block already has a token.
-		if ( accessToken ) {
-			// On a fresh page with clean state, the block will start by attempting to load the gallery.
-			// If it works, the token is valid and will be marked as connected, or as disconnected otherwise.
-			if ( isLoadingGallery || ( ! isTokenConnected && ! isTokenDisconnected ) ) {
-				return;
-			}
-			// If the block already has a token, and that token is marked as connected, don't retrieve it again.
-			if ( isTokenConnected ) {
-				return;
-			}
+	// Check if the user has got a valid token, and add it to the block.
+	const getAccessToken = useCallback( async () => {
+		try {
+			setIsConnecting( true );
+			const token = await apiFetch( { path: `/wpcom/v2/instagram-gallery/access-token` } );
+			setIsConnecting( false );
 
-			// If the block already has a token, and that token is marked as disconnected, remove it from the block.
-			if ( isTokenDisconnected ) {
+			if ( token ) {
+				connectInstagramGalleryToken( token );
+				setAttributes( { accessToken: token } );
+				return token;
+			}
+		} catch ( error ) {
+			setIsConnecting( false );
+			if ( accessToken ) {
+				disconnectInstagramGalleryToken( accessToken );
 				setAttributes( { accessToken: undefined } );
-				return;
 			}
 		}
-
-		// Otherwise, try to retrieve it from the API.
-		setIsConnecting( true );
-		apiFetch( { path: `/wpcom/v2/instagram-gallery/access-token` } )
-			.then( token => {
-				setIsConnecting( false );
-				if ( token ) {
-					connectInstagramGalleryToken( token );
-					setAttributes( { accessToken: token } );
-				}
-			} )
-			.catch( () => {
-				setIsConnecting( false );
-				// If there are errors, chances are the token is not valid anymore.
-				// Mark it as disconnected, and remove it from the block.
-				if ( accessToken ) {
-					disconnectInstagramGalleryToken( accessToken );
-					setAttributes( { accessToken: undefined } );
-				}
-			} );
 	}, [
 		accessToken,
 		connectInstagramGalleryToken,
 		disconnectInstagramGalleryToken,
+		setAttributes,
+	] );
+
+	// Automatically connect the block to Instagram.
+	useEffect( () => {
+		// If the block doesn't have a token, skip this automatic effect;
+		// users will need to explicitly click on the "Connect to Instagram" button.
+		if ( ! accessToken ) {
+			return;
+		}
+
+		// On a fresh page with clean state, the block will start by attempting to load the gallery.
+		// If it works, the token is valid and will be marked as connected, or as disconnected otherwise.
+		if ( isLoadingGallery || ( ! isTokenConnected && ! isTokenDisconnected ) ) {
+			return;
+		}
+		// If the block already has a token, and that token is marked as connected, don't retrieve it again.
+		if ( isTokenConnected ) {
+			return;
+		}
+
+		// If the block already has a token, and that token is marked as disconnected, remove it from the block.
+		if ( isTokenDisconnected ) {
+			setAttributes( { accessToken: undefined } );
+			return;
+		}
+
+		// Otherwise, try to retrieve it from the API.
+		getAccessToken();
+	}, [
+		accessToken,
+		getAccessToken,
 		isLoadingGallery,
 		isTokenConnected,
 		isTokenDisconnected,
 		setAttributes,
-		setIsConnecting,
 	] );
 
-	const connectToService = () => {
+	const connectToService = async () => {
 		noticeOperations.removeAllNotices();
+
+		// Try retrieving a valid token first;
+		// if the user has got one, skip the Instagram authorization popup.
+		if ( ! accessToken || isTokenDisconnected ) {
+			const token = await getAccessToken();
+			if ( token ) {
+				return;
+			}
+		}
+
 		setIsConnecting( true );
 
 		apiFetch( { path: `/wpcom/v2/instagram-gallery/connect-url` } )
