@@ -33,9 +33,6 @@ describe( 'Connection', () => {
 		await execWpCommand( 'wp config set --raw JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME false' );
 		await execWpCommand( 'wp plugin deactivate e2e-plan-data-interceptor' );
 
-		await execSyncShellCommand(
-			'rm /home/travis/wordpress/wp-content/plugins/e2e-plan-data-interceptor.php'
-		);
 		await loginToWpcomIfNeeded( 'defaultUser' );
 		await loginToWpSite();
 	} );
