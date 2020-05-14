@@ -691,7 +691,7 @@ class Jetpack {
 		add_filter( 'jetpack_get_default_modules', array( $this, 'handle_deprecated_modules' ), 99 );
 
 		// A filter to control all just in time messages
-		add_filter( 'jetpack_just_in_time_msgs', array( $this, 'is_active_and_not_development_mode' ), 9 );
+		add_filter( 'jetpack_just_in_time_msgs', '__return_true', 9 );
 
 		add_filter( 'jetpack_just_in_time_msg_cache', '__return_true', 9 );
 
