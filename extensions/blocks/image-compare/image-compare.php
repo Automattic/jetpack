@@ -62,12 +62,12 @@ function render_amp( $attr ) {
 	$img_after_alt  = $attr['imageAfterAlt'];
 
 	return sprintf(
-		'<amp-image-slider layout="responsive" width="300" height="200"> <amp-img id="%d" src="%s" alt="%s" layout="fill"></amp-img> <amp-img id="%d" src="%s" alt="%s" layout="fill"></amp-img></amp-image-slider>',
-		esc_attr( $img_before_id ),
-		esc_attr( $img_before_url ),
+		'<amp-image-slider layout="responsive" width="300" height="200"> <amp-img id="%1$d" src="%2$s" alt="%3$s" layout="fill"></amp-img> <amp-img id="%4$d" src="%5$s" alt="%6$s" layout="fill"></amp-img></amp-image-slider>',
+		absint( $img_before_id ),
+		esc_url( $img_before_url ),
 		esc_attr( $img_before_alt ),
-		esc_attr( $img_after_id ),
-		esc_attr( $img_after_url ),
+		absint( $img_after_id ),
+		esc_url( $img_after_url ),
 		esc_attr( $img_after_alt )
 	);
 }
