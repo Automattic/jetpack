@@ -168,14 +168,14 @@ class JetpackTerminationDialog extends Component {
 			</Button>
 		) : (
 			<Button scary primary onClick={ this.handleTerminationClick } disabled={ isProcessing }>
-				{ purpose === 'disconnect' ? __( 'Disconnect' ) : __( 'Disable' ) }
+				{ purpose === 'disconnect' ? __( 'Disconnect' ) : __( 'Disconnect and Deactivate' ) }
 			</Button>
 		);
 	}
 
 	render() {
 		const { location, purpose, showSurvey } = this.props;
-		const { step,isProcessing } = this.state;
+		const { step, isProcessing } = this.state;
 
 		return (
 			<div className="jetpack-termination-dialog">
