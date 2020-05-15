@@ -85,11 +85,12 @@ class Jetpack_Wizard_Banner {
 	 * Include the needed styles
 	 */
 	public function admin_banner_styles() {
-		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
-
 		wp_enqueue_style(
-			'jetpack',
-			plugins_url( "css/jetpack-wizard-banner{$min}.css", JETPACK__PLUGIN_FILE ),
+			'jetpack-wizard-banner',
+			Assets::get_file_url_for_environment(
+				'css/jetpack-wizard-banner.min.css',
+				'css/jetpack-wizard-banner.css'
+			),
 			array(),
 			JETPACK__VERSION
 		);
