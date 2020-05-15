@@ -27,6 +27,7 @@ const playerInstances = {};
  */
 const downgradeBlockToStatic = function( block ) {
 	block.classList.add( 'is-default' );
+	block.setAttribute( 'data-jetpack-block-initialized', 'true' );
 };
 
 /**
@@ -41,6 +42,10 @@ const initializeBlock = function( id ) {
 
 	// Check if we can find the block.
 	if ( ! block ) {
+		return;
+	}
+
+	if ( block.getAttribute( 'data-jetpack-block-initialized' ) === 'true' ) {
 		return;
 	}
 
@@ -88,6 +93,8 @@ const initializeBlock = function( id ) {
 		debug( 'unable to render', err );
 		downgradeBlockToStatic( block );
 	}
+
+	block.setAttribute( 'data-jetpack-block-initialized', 'true' );
 };
 
 // Initialize queued players.

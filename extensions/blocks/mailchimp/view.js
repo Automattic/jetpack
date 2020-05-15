@@ -81,6 +81,10 @@ function activateSubscription( block, blogId ) {
 const initializeMailchimpBlocks = () => {
 	const mailchimpBlocks = Array.from( document.querySelectorAll( '.' + blockClassName ) );
 	mailchimpBlocks.forEach( block => {
+		if ( block.getAttribute( 'data-jetpack-block-initialized' ) === 'true' ) {
+			return;
+		}
+
 		const blog_id = block.getAttribute( 'data-blog-id' );
 		try {
 			activateSubscription( block, blog_id );
@@ -90,6 +94,8 @@ const initializeMailchimpBlocks = () => {
 				console.error( err );
 			}
 		}
+
+		block.setAttribute( 'data-jetpack-block-initialized', 'true' );
 	} );
 };
 
