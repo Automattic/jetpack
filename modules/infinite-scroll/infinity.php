@@ -1056,7 +1056,19 @@ class The_Neverending_Home_Page {
 			global $wp_scripts;
 
 			// Identify new scripts needed by the latest set of IS posts
-			$new_scripts = array_diff( $wp_scripts->done, $initial_scripts );
+			$new_scripts = array_filter(
+				$wp_scripts->done,
+				function ( $script_name ) use ( $initial_scripts ) {
+					// Jetpack block scripts should always be sent, even if they've been
+					// sent before. These scripts only run once on when loadeed, they don't
+					// watch for new blocks being added.
+					if ( 0 === strpos( $script_name, 'jetpack-block-' ) ) {
+						return true;
+					}
+
+					return ! in_array( $script_name, $initial_scripts, true );
+				}
+			);
 
 			// If new scripts are needed, extract relevant data from $wp_scripts
 			if ( ! empty( $new_scripts ) ) {
