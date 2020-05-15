@@ -3734,10 +3734,7 @@ p {
 			);
 		}
 
-		// Show the Wizard Banner if someone is connected but did not start the wizard yet.
-		if ( Jetpack_Wizard::can_be_displayed() ) {
-			Jetpack_Wizard_Banner::init();
-		}
+		Jetpack_Wizard_Banner::init();
 
 		if ( current_user_can( 'manage_options' ) && 'AUTO' == JETPACK_CLIENT__HTTPS && ! self::permit_ssl() ) {
 			add_action( 'jetpack_notices', array( $this, 'alert_auto_ssl_fail' ) );

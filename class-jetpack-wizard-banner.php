@@ -41,15 +41,7 @@ class Jetpack_Wizard_Banner {
 	 * Initialize hooks to display the banner
 	 */
 	public function maybe_initialize_hooks() {
-		// We already display the wizard at the Jetpack area.
-		if ( false !== strpos( get_current_screen()->id, 'jetpack' ) ) {
-			return;
-		}
-		if ( ! current_user_can( 'jetpack_manage_modules' ) ) {
-			return;
-		}
-		// Kill if banner has been dismissed.
-		if ( Jetpack_Options::get_option( 'dismissed_wizard_banner' ) ) {
+		if ( ! $this->can_be_displayed() ) {
 			return;
 		}
 
@@ -59,9 +51,34 @@ class Jetpack_Wizard_Banner {
 	}
 
 	/**
+	 * Can we display the banner?
+	 */
+	private function can_be_displayed() {
+		if ( ! Jetpack_Wizard::can_be_displayed() ) {
+			return false;
+		}
+
+		// We already display the wizard at the Jetpack area.
+		if ( false !== strpos( get_current_screen()->id, 'jetpack' ) ) {
+			return false;
+		}
+
+		if ( ! current_user_can( 'jetpack_manage_modules' ) ) {
+			return false;
+		}
+
+		// Kill if banner has been dismissed.
+		if ( Jetpack_Options::get_option( 'dismissed_wizard_banner' ) ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
 	 * Enqueue JavaScript files.
 	 */
-	public static function enqueue_banner_scripts() {
+	public function enqueue_banner_scripts() {
 		wp_enqueue_script(
 			'jetpack-wizard-banner-js',
 			Assets::get_file_url_for_environment(
@@ -117,9 +134,13 @@ class Jetpack_Wizard_Banner {
 
 	/**
 	 * Renders the Wizard Banner
+	 *
+	 * Since this HTML replicates the contents of _inc/client/setup-wizard/intro-page/index.jsx,
+	 * every time one is changed, the other should also be.
 	 */
 	public function render_banner() {
-		$jetpack_logo = new Jetpack_Logo();
+		$jetpack_logo     = new Jetpack_Logo();
+		$powering_up_logo = plugins_url( 'images/jetpack-powering-up.svg', JETPACK__PLUGIN_FILE );
 
 		?>
 		<div id="jp-wizard-banner" class="jp-wizard-banner">
@@ -133,18 +154,15 @@ class Jetpack_Wizard_Banner {
 			?>
 			</div>
 			<img
+				class="powering-up-img"
 				width="200px"
 				height="200px"
-				src="
-				<?php
-				esc_attr_e( plugins_url( 'images/jetpack-powering-up.svg', JETPACK__PLUGIN_FILE ), 'jetpack' ); // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
-				?>
-				"
+				src="<?php echo esc_url( $powering_up_logo ); ?>"
 				alt="<?php esc_attr_e( 'A jetpack site powering up', 'jetpack' ); ?>"
 			/>
-			<h1 class="jp-wizard-banner-wizard-header">
+			<h2 class="jp-wizard-banner-wizard-header">
 				<?php esc_html_e( 'Set up Jetpack for better site security, performance, and more', 'jetpack' ); ?>
-			</h1>
+			</h2>
 			<p class="jp-wizard-banner-wizard-paragraph">
 				<?php esc_html_e( 'Jetpack is a cloud-powered tool built by Automattic.', 'jetpack' ); ?>
 			</p>
@@ -155,7 +173,11 @@ class Jetpack_Wizard_Banner {
 				<h2>
 					<?php
 					/* translators: %s is the site name */
-					esc_html_e( sprintf( 'What will %s be used for?', get_bloginfo( 'name' ) ), 'jetpack' ); // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
+					printf(
+						/* translators: %s is the site name */
+						esc_html__( 'What will %s be used for?', 'jetpack' ),
+						esc_html( get_bloginfo( 'name' ) )
+					);
 					?>
 				</h2>
 				<div class="jp-wizard-banner-wizard-answer-buttons">
