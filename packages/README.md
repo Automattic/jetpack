@@ -86,3 +86,17 @@ The PHP script admits two parameters, the package name and the new target versio
 - fetch all current tags of the package repository.
 - create and push a new `v5.6.7` tag in the package repository.
 - reset the local repository to its original state and clean up.
+
+## Should my code be in a Package? 
+
+Not sure if your code should be in a Package? Here are some general guidelines we follow when deciding: 
+
+|   | Consider |
+|---|---|
+| ❌ | Your code will not work without the Jetpack plugin. |
+| ❌ | There is no use for your code outside of the Jetpack Plugin context |
+| ✅ | A need to ship this code independently of the Jetpack plugin. |
+| ✅ | Other plugins will find this code useful. |
+| ✅ | You are building a completely new plugin. |
+| ✅ | Your code has dependencies that are only within itself or other Packages |
+
