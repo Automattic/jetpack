@@ -45,7 +45,9 @@ class Jetpack_Wizard_Banner {
 		if ( false !== strpos( get_current_screen()->id, 'jetpack' ) ) {
 			return;
 		}
-
+		if ( ! current_user_can( 'jetpack_manage_modules' ) ) {
+			return;
+		}
 		// Kill if banner has been dismissed.
 		if ( Jetpack_Options::get_option( 'dismissed_wizard_banner' ) ) {
 			return;
