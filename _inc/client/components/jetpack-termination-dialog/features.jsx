@@ -12,6 +12,7 @@ import getRedirectUrl from 'lib/jp-redirect';
  */
 import { JETPACK_CONTACT_SUPPORT, JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
 import SingleFeature from './single-feature';
+import Gridicon from 'components/gridicon';
 
 /**
  * Style dependencies
@@ -88,9 +89,12 @@ class JetpackTerminationDialogFeatures extends Component {
 
 	renderConnectedPlugins( plugins ) {
 		return (
-			<ul>
+			<ul class="jetpack-termination-dialog__active-plugins-list">
 				{ plugins.map( plugin => (
-					<li key={ plugin.slug }>{ plugin.name }</li>
+					<li key={ plugin.slug }>
+						<Gridicon icon="notice-outline" size={ 18 } />
+						{ plugin.name }
+					</li>
 				) ) }
 			</ul>
 		);
@@ -149,22 +153,13 @@ class JetpackTerminationDialogFeatures extends Component {
 					<div className="jetpack-termination-dialog__generic-info">
 						<h2>
 							{ __(
-								'The Jetpack Connection is also used by another plugin.',
-								'The Jetpack Connection is also used by other plugins.',
+								'The Jetpack Connection is also used by another plugin, and it will lose connection.',
+								'The Jetpack Connection is also used by other plugins, and they will lose connection.',
 								{
 									count: connectedPlugins.length,
 								}
 							) }
 						</h2>
-						<p>
-							{ __(
-								'If you disconnect Jetpack from WordPress.com, the following plugin will also be disconnected:',
-								'If you disconnect Jetpack from WordPress.com, the following plugins will also be disconnected:',
-								{
-									count: connectedPlugins.length,
-								}
-							) }
-						</p>
 						{ this.renderConnectedPlugins( connectedPlugins ) }
 					</div>
 				) }
