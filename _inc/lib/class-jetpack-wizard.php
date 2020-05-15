@@ -37,8 +37,10 @@ class Jetpack_Wizard {
 	 */
 	public static function can_be_displayed() {
 		/** This filter is documented in _inc/lib/admin-pages/class.jetpack-react-page.php */
-		return apply_filters( 'jetpack_show_setup_wizard', false ) &&
-			Jetpack::is_active() &&
-			! self::is_finished();
+		/** This filter is documented in _inc/lib/admin-pages/class.jetpack-react-page.php */
+		return apply_filters( 'jetpack_show_setup_wizard', false )
+				&& Jetpack::is_active()
+				&& ! self::is_finished()
+				&& current_user_can( 'jetpack_manage_modules' );
 	}
 }
