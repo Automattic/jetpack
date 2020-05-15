@@ -153,14 +153,23 @@ class Jetpack_Wizard_Banner {
 					?>
 				</h2>
 				<div class="jp-wizard-banner-wizard-answer-buttons">
-					<a class="button button-primary jp-wizard-banner-wizard-button" href="setup/income?use=personal">
+					<a
+						class="button button-primary jp-wizard-banner-wizard-button"
+						href="<?php echo esc_url( Jetpack::admin_url( 'page=jetpack#/setup/income?use=personal' ) ); ?>"
+					>
 					<?php esc_html_e( 'Personal Use', 'jetpack' ); ?>
 					</a>
-					<a class="button button-primary jp-wizard-banner-wizard-button" href="setup/income?use=business">
+					<a
+						class="button button-primary jp-wizard-banner-wizard-button"
+						href="<?php echo esc_url( Jetpack::admin_url( 'page=jetpack#/setup/income?use=business' ) ); ?>"
+					>
 						<?php esc_html_e( 'Business Use', 'jetpack' ); ?>
 					</a>
 				</div>
-				<a class="jp-wizard-banner-wizard-skip-link" href="setup/features">
+				<a
+					class="jp-wizard-banner-wizard-skip-link"
+					href="<?php echo esc_url( Jetpack::admin_url( 'page=jetpack#/setup/features' ) ); ?>"
+				>
 					<?php esc_html_e( 'Skip to recommended features', 'jetpack' ); ?>
 				</a>
 			</div>
