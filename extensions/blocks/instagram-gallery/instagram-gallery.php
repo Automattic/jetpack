@@ -67,9 +67,23 @@ function render_block( $attributes, $content ) {
 		\jetpack_require_lib( 'class-jetpack-instagram-gallery-helper' );
 	}
 	$gallery = Jetpack_Instagram_Gallery_Helper::get_instagram_gallery( $access_token, $count );
-	if ( is_wp_error( $gallery ) || empty( $gallery->images ) ) {
+
+	if ( is_wp_error( $gallery ) || ! property_exists( $gallery, 'images' ) || 'ERROR' === $gallery->images ) {
+		if ( current_user_can( 'edit_post' ) ) {
+			return sprintf(
+				'<div class="%s"><p>%s<br />%s</p></div>',
+				Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attributes ),
+				esc_html__( 'An error occurred in the Latest Instagram Posts block. Please try again later.', 'jetpack' ),
+				esc_html__( '(Only administrators will see this message.)', 'jetpack' )
+			);
+		}
 		return '';
 	}
+
+	if ( empty( $gallery->images ) ) {
+		return '';
+	}
+
 	$images = array_slice( $gallery->images, 0, $count );
 
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
