@@ -50,7 +50,7 @@ class RecommendedFeatures extends Component {
 				} ) }
 				<div className="jp-setup-wizard-recommended-features-buttons-container">
 					<Button primary href="#/dashboard">
-						{ __( "I'm done for now" ) }
+						{ __( 'I’m done for now' ) }
 					</Button>
 					<Button href="#/settings">{ __( 'Explore more features' ) }</Button>
 				</div>
