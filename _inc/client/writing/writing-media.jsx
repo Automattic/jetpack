@@ -2,7 +2,7 @@
  * External dependencies
  */
 
-import React, { useState } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import CompactFormToggle from 'components/form/form-toggle/compact';
@@ -27,30 +27,23 @@ import { isModuleFound as _isModuleFound } from 'state/search';
  * @returns {object} - Controls for carousel.
  */
 function WritingMedia( props ) {
-	const [ displayExif, setDisplayExif ] = useState(
-		props.getOptionValue( 'carousel_display_exif', 'carousel' )
-	);
-	const [ displayComments, setDisplayComments ] = useState(
-		props.getOptionValue( 'carousel_display_comments', 'carousel' )
-	);
-
 	const foundCarousel = props.isModuleFound( 'carousel' );
 
 	if ( ! foundCarousel ) {
 		return null;
 	}
 
+	const displayComments = props.getOptionValue( 'carousel_display_comments', 'carousel' );
+	const displayExif = props.getOptionValue( 'carousel_display_exif', 'carousel' );
+	const isCarouselActive = props.getOptionValue( 'carousel' );
+
 	const handleCarouselDisplayExifChange = () => {
-		setDisplayExif( ! displayExif );
 		props.updateFormStateModuleOption( 'carousel', 'carousel_display_exif' );
 	};
 
 	const handleCarouselDisplayCommentsChange = () => {
-		setDisplayComments( ! displayComments );
 		props.updateFormStateModuleOption( 'carousel', 'carousel_display_comments' );
 	};
-
-	const isCarouselActive = props.getOptionValue( 'carousel' );
 
 	/**
 	 * Render a toggle. For example the toggle for EXIF data.
