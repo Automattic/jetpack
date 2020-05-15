@@ -92,7 +92,7 @@ class Redirect {
 		/**
 		 * Filters the return of the Redirect URL.
 		 *
-		 * @since 8.6
+		 * @since 8.6.0
 		 *
 		 * @param string  $url    The redirect URL.
 		 * @param string  $source The $source informed to Redirect::get_url.
