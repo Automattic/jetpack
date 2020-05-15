@@ -467,16 +467,21 @@ function wpcom_youtube_embed_crazy_url_init() {
 }
 add_action( 'init', 'wpcom_youtube_embed_crazy_url_init' );
 
-/**
- * Allow oEmbeds in Jetpack's Comment form.
- *
- * @module shortcodes
- *
- * @since 2.8.0
- *
- * @param int get_option('embed_autourls') Option to automatically embed all plain text URLs.
- */
-if ( ! is_admin() && apply_filters( 'jetpack_comments_allow_oembed', true ) ) {
+if (
+	! is_admin()
+	/**
+	 * Allow oEmbeds in Jetpack's Comment form.
+	 *
+	 * @module shortcodes
+	 *
+	 * @since 2.8.0
+	 *
+	 * @param int $allow_oembed Option to automatically embed all plain text URLs.
+	 */
+	&& apply_filters( 'jetpack_comments_allow_oembed', true )
+	// No need for this on WordPress.com, this is done for multiple shortcodes at a time there.
+	&& ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM )
+) {
 	/*
 	 * We attach wp_kses_post to comment_text in default-filters.php with priority of 10 anyway,
 	 * so the iframe gets filtered out.
