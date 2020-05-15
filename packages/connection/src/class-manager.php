@@ -1590,9 +1590,9 @@ class Manager {
 			),
 		);
 
-		add_filter( 'http_request_timeout', array( $this, 'increase_timeout' ) );
+		add_filter( 'http_request_timeout', array( $this, 'increase_timeout' ), PHP_INT_MAX - 1 );
 		$response = Client::_wp_remote_request( Utils::fix_url_for_bad_hosts( $this->api_url( 'token' ) ), $args );
-		remove_filter( 'http_request_timeout', array( $this, 'increase_timeout' ) );
+		remove_filter( 'http_request_timeout', array( $this, 'increase_timeout' ), PHP_INT_MAX - 1 );
 
 		if ( is_wp_error( $response ) ) {
 			return new \WP_Error( 'token_http_request_failed', $response->get_error_message() );
