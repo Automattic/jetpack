@@ -63,6 +63,7 @@ export default function useConnectInstagram( {
 
 		// Try retrieving a valid token first;
 		// if the user has got one, skip the Instagram authorization popup.
+		// If/when the block has a valid token, the block will automatically embed the gallery.
 		if ( ! accessToken || isTokenDisconnected ) {
 			const token = await getAccessToken();
 			if ( token ) {
