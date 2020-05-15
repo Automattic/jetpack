@@ -69,7 +69,7 @@ const features = {
 
 			let optionsLink;
 			if ( inCurrentPlan ) {
-				optionsLink = 'https://docs.akismet.com/getting-started/activate/#step-5';
+				optionsLink = getRedirectUrl( 'jetpack-setup-wizard-anti-spam-get-started' );
 			}
 
 			let upgradeLink;
@@ -836,7 +836,7 @@ const features = {
 			let configureLink;
 			if ( inCurrentPlan ) {
 				info = getInfoString( sitePlan.product_name );
-				configureLink = 'https://jetpack.com/support/simple-payment-button/';
+				configureLink = getRedirectUrl( 'jetpack-setup-wizard-simple-payments-support' );
 			}
 
 			return {
