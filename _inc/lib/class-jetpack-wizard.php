@@ -36,6 +36,7 @@ class Jetpack_Wizard {
 	 * @return bool
 	 */
 	public static function can_be_displayed() {
+		/** This filter is documented in _inc/lib/admin-pages/class.jetpack-react-page.php */
 		return apply_filters( 'jetpack_show_setup_wizard', false ) &&
 			Jetpack::is_active() &&
 			! self::is_finished();
