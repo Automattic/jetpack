@@ -33,7 +33,7 @@ class RecommendedFeatures extends Component {
 				<h1>{ __( 'Get started with Jetpack’s powerful features' ) }</h1>
 				<p className="jp-setup-wizard-recommended-features-p1">
 					{ __(
-						"Jetpack has a lot of features so we've made a few recommendations for you below."
+						'Jetpack has a lot of features so we’ve made a few recommendations for you below.'
 					) }
 				</p>
 				<p className="jp-setup-wizard-recommended-features-p2">
