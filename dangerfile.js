@@ -83,9 +83,11 @@ When this PR is ready for review, please apply the \`[Status] Needs Review\` lab
 // Add note about E2E dashboard
 if ( process.env.TRAVIS_PULL_REQUEST ) {
 	const dashboardUrl = `https://jetpack-e2e-dashboard.herokuapp.com/pr-${ process.env.TRAVIS_PULL_REQUEST }`;
-	markdown( `
+	markdown(
+		`
 
-	E2E results is available here (for debugging purposes): ${ dashboardUrl }` );
+	E2E results is available here (for debugging purposes): [${ dashboardUrl }](${ dashboardUrl })`
+	);
 }
 
 /**
