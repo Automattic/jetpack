@@ -2,7 +2,7 @@
 /**
  * Displays the first page of the Wizard in a banner form
  *
- * @package none
+ * @package Jetpack
  */
 
 /**
