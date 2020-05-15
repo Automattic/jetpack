@@ -715,11 +715,28 @@ const features = {
 
 	seo: {
 		mapStateToProps: state => {
+			const sitePlan = getSitePlan( state );
+			const planClass = getPlanClass( sitePlan.product_slug );
+
+			const inCurrentPlan = [ 'is-premium-plan', 'is-business-plan' ].includes( planClass );
+
+			let configureLink;
+			if ( inCurrentPlan ) {
+				configureLink = '#/settings?term=seo';
+			}
+
+			let upgradeLink;
+			if ( ! inCurrentPlan ) {
+				upgradeLink = '#/plans';
+			}
+
 			return {
 				title: __( 'SEO' ),
 				details: __( 'Take control of the way search engines represent your site.' ),
 				checked: getSetting( state, 'seo-tools' ),
-				configureLink: '#/settings?term=seo',
+				configureLink,
+				upgradeLink,
+				isPaid: true,
 			};
 		},
 		mapDispatchToProps: dispatch => {
