@@ -101,7 +101,10 @@ class Jetpack_Wizard_Banner {
 	public static function ajax_callback() {
 		check_ajax_referer( 'jp-wizard-banner-nonce', 'nonce' );
 
-		if ( isset( $_REQUEST['dismissBanner'] ) ) {
+		if (
+			current_user_can( 'jetpack_manage_modules' )
+			&& isset( $_REQUEST['dismissBanner'] )
+		) {
 			Jetpack_Options::update_option( 'dismissed_wizard_banner', 1 );
 			wp_send_json_success();
 		}
