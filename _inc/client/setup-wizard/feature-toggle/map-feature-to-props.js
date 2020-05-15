@@ -277,7 +277,7 @@ const features = {
 		mapStateToProps: state => {
 			return {
 				title: __( 'Custom CSS' ),
-				details: __( 'Enabled an enhanced CSS customization panel.' ),
+				details: __( 'Enable an enhanced CSS customization panel.' ),
 				checked: getSetting( state, 'custom-css' ),
 				optionsLink: '#/settings?term=custom%20css',
 			};
