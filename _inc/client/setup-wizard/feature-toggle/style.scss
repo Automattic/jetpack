@@ -1,8 +1,6 @@
 @import '../../scss/mixin_breakpoint';
 @import '../../scss/calypso-colors';
-
-$greater-than-vertical-break: '>660px';
-$less-than-vertical-break: '<660px';
+@import '../recommended-features/variables';
 
 .jp-setup-wizard-feature-toggle {
 	border: 1px solid #ccd0d4;
