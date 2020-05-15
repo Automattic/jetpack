@@ -42,7 +42,7 @@ class Jetpack_Wizard_Banner {
 	 */
 	public function maybe_initialize_hooks() {
 		// We already display the wizard at the Jetpack area.
-		if ( strpos( get_current_screen()->id, 'jetpack' ) !== false ) {
+		if ( false !== strpos( get_current_screen()->id, 'jetpack' ) ) {
 			return;
 		}
 
