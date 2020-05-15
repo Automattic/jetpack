@@ -15,6 +15,10 @@ import { getRewindStatus } from 'state/rewind';
 import { getSetting, updateSettings } from 'state/settings';
 import { getSitePlan, hasActiveSearchPurchase } from 'state/site';
 
+function getInfoString( productName ) {
+	return __( 'Included with %(productName)s', { args: { productName } } );
+}
+
 const features = {
 	ads: {
 		mapStateToProps: state => {
@@ -31,7 +35,7 @@ const features = {
 			let info;
 			let configureLink;
 			if ( inCurrentPlan ) {
-				info = __( `Included with ${ sitePlan.product_name }` );
+				info = getInfoString( sitePlan.product_name );
 				configureLink = '#/settings?term=wordads';
 			}
 
@@ -75,7 +79,7 @@ const features = {
 
 			let info;
 			if ( inCurrentPlan ) {
-				info = __( `Included with ${ sitePlan.product_name }` );
+				info = getInfoString( sitePlan.product_name );
 			}
 
 			return {
@@ -124,7 +128,7 @@ const features = {
 
 			let info;
 			if ( inCurrentPlan ) {
-				info = __( `Included with ${ sitePlan.product_name }` );
+				info = getInfoString( sitePlan.product_name );
 			}
 
 			return {
@@ -338,7 +342,7 @@ const features = {
 			let info;
 			let configureLink;
 			if ( inCurrentPlan ) {
-				info = __( `Included with ${ sitePlan.product_name }` );
+				info = getInfoString( sitePlan.product_name );
 				configureLink = '#/settings?term=google%20analytics';
 			}
 
@@ -641,7 +645,7 @@ const features = {
 
 			let info;
 			if ( inCurrentPlan ) {
-				info = __( `Included with ${ sitePlan.product_name }` );
+				info = getInfoString( sitePlan.product_name );
 			}
 
 			return {
@@ -814,7 +818,7 @@ const features = {
 			let info;
 			let configureLink;
 			if ( inCurrentPlan ) {
-				info = __( `Included with ${ sitePlan.product_name }` );
+				info = getInfoString( sitePlan.product_name );
 				configureLink = 'https://jetpack.com/support/simple-payment-button/';
 			}
 
@@ -965,7 +969,7 @@ const features = {
 			let info;
 			let optionsLink;
 			if ( inCurrentPlan ) {
-				info = __( `Included with ${ sitePlan.product_name }` );
+				info = getInfoString( sitePlan.product_name );
 				optionsLink = '#/settings?term=video%20player';
 			}
 
