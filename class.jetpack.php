@@ -6099,18 +6099,18 @@ endif;
 
 	function deactivate_dialog() {
 		global $pagenow;
- 		if ( 'plugins.php' === $pagenow && Jetpack::is_active() ) {
- 			add_thickbox();
- 			wp_enqueue_script(
- 				'jetpack-deactivate-dialog-js',
- 				Assets::get_file_url_for_environment(
- 					'_inc/build/jetpack-deactivate-dialog.min.js',
- 					'_inc/jetpack-deactivate-dialog.js'
- 				),
- 				array( 'jquery' ),
- 				JETPACK__VERSION,
- 				true
-			 );
+		if ( 'plugins.php' === $pagenow && self::is_active() ) {
+			add_thickbox();
+			wp_enqueue_script(
+				'jetpack-deactivate-dialog-js',
+				Assets::get_file_url_for_environment(
+					'_inc/build/jetpack-deactivate-dialog.min.js',
+					'_inc/jetpack-deactivate-dialog.js'
+				),
+				array( 'jquery' ),
+				JETPACK__VERSION,
+				true
+			);
 
 			wp_localize_script(
 				'jetpack-deactivate-dialog-js',
