@@ -287,7 +287,7 @@ class Jetpack_WPCOM_Block_Editor {
 
 		// The following is only to allow testing link without an atomic site.
 		// phpcs:ignore WordPress.Security.NonceVerification
-		if ( 'show' === $_GET['editor/after-deprecation'] ) {
+		if ( $editor_deprecated && 'show' === $_GET['editor/after-deprecation'] ) {
 			$switch_visible = true;
 		}
 
