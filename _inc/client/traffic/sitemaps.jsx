@@ -18,6 +18,7 @@ import { withModuleSettingsFormHelpers } from 'components/module-settings/with-m
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import ClipboardButtonInput from 'components/clipboard-button-input';
 import { getSiteAdminUrl, isSiteVisibleToSearchEngines } from 'state/initial-state';
 
 export class Sitemaps extends React.Component {
@@ -75,26 +76,36 @@ export class Sitemaps extends React.Component {
 										'Good news: Jetpack is sending your sitemap automatically ' +
 											'to all major search engines for indexing.'
 									) }
-									<br />
-									<ExternalLink
-										onClick={ this.trackSitemapUrl }
-										icon={ true }
-										target="_blank"
-										rel="noopener noreferrer"
-										href={ sitemap_url }
-									>
-										{ sitemap_url }
-									</ExternalLink>
-									<br />
-									<ExternalLink
-										onClick={ this.trackSitemapNewsUrl }
-										icon={ true }
-										target="_blank"
-										rel="noopener noreferrer"
-										href={ news_sitemap_url }
-									>
-										{ news_sitemap_url }
-									</ExternalLink>
+									<span className="jp-sitemap-row">
+										<ClipboardButtonInput
+											value={ sitemap_url }
+											copy={ __( 'Copy', { context: 'verb' } ) }
+											copied={ __( 'Copied!' ) }
+											prompt={ __( 'Highlight and copy the following text to your clipboard:' ) }
+										/>
+										<ExternalLink
+											onClick={ this.trackSitemapUrl }
+											icon={ true }
+											target="_blank"
+											rel="noopener noreferrer"
+											href={ sitemap_url }
+										/>
+									</span>
+									<span className="jp-sitemap-row">
+										<ClipboardButtonInput
+											value={ news_sitemap_url }
+											copy={ __( 'Copy', { context: 'verb' } ) }
+											copied={ __( 'Copied!' ) }
+											prompt={ __( 'Highlight and copy the following text to your clipboard:' ) }
+										/>
+										<ExternalLink
+											onClick={ this.trackSitemapNewsUrl }
+											icon={ true }
+											target="_blank"
+											rel="noopener noreferrer"
+											href={ news_sitemap_url }
+										/>
+									</span>
 								</p>
 							</FormFieldset>
 						)
