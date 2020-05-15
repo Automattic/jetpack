@@ -7547,7 +7547,7 @@ endif;
 					sprintf( _n( '%s Security Threat', '%s Security Threats', $threat_count, 'jetpack' ), $threat_count )
 				),
 				'parent' => 'top-secondary',
-				'href'   => esc_url( Redirect::get_url( 'jetpack-scan-threat' ) ),
+				'href'   => esc_url( Redirect::get_url( 'calypso-scanner' ) ),
 				'meta'   => array(
 					'title'   => esc_attr__( 'Visit your scan dashboard', 'jetpack' ),
 					'onclick' => 'window.open( this.href ); return false;',
