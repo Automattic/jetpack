@@ -65,7 +65,7 @@ export const pickRelevantMediaFiles = image => {
 class TiledGalleryEdit extends Component {
 	state = {
 		selectedImage: null,
-		changed: false,
+		changed: 'undefined' === typeof this.props.attributes.columnWidths ? true : false,
 	};
 
 	static getDerivedStateFromProps( props, state ) {
