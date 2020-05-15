@@ -75,7 +75,8 @@ function jetpack_spotify_embed_ids( $content ) {
 			continue;
 		}
 
-		if ( substr( ltrim( $element ), 0, 8 ) !== 'spotify:' ) {
+		// If this element does not contain a Spotify embed, continue.
+		if ( strpos( $element, 'spotify:' ) === false ) {
 			continue;
 		}
 
