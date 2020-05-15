@@ -69,7 +69,7 @@ function render_block( $attributes, $content ) {
 	$gallery = Jetpack_Instagram_Gallery_Helper::get_instagram_gallery( $access_token, $count );
 
 	if ( is_wp_error( $gallery ) || ! property_exists( $gallery, 'images' ) || 'ERROR' === $gallery->images ) {
-		if ( current_user_can( 'edit_post' ) ) {
+		if ( current_user_can( 'edit_post', get_the_ID() ) ) {
 			return sprintf(
 				'<div class="%s"><p>%s<br />%s</p></div>',
 				Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attributes ),
