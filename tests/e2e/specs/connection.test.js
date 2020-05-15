@@ -76,24 +76,33 @@ describe( 'Connection', () => {
 
 		await step( 'Can assert that site has a Personal plan', async () => {
 			const jetpackPage = await JetpackPage.init( page );
+
+			const cliCmd = 'wp jetpack options get blog_token';
+			const result = await execWpCommand( cliCmd );
+			console.log( '!!!!!!1', result );
+
 			expect( await jetpackPage.isPlan( 'personal' ) ).toBeTruthy();
 		} );
 
 		await step( 'Can visit plans page and select a Premium plan', async () => {
 			const jetpackPage = await JetpackPage.init( page );
 
-			await jetpackPage.reload();
-			await page.waitFor( 10000 );
+			// await jetpackPage.reload();
+			// await page.waitFor( 10000 );
 
-			await jetpackPage.reload();
-			await page.waitFor( 10000 );
+			// await jetpackPage.reload();
+			// await page.waitFor( 10000 );
 
-			await jetpackPage.reload();
-			await page.waitFor( 10000 );
+			// await jetpackPage.reload();
+			// await page.waitFor( 10000 );
 
 			await jetpackPage.openPlans();
 			const plansPage = await PlansPage.init( page );
 			await plansPage.select( 'premium' );
+
+			const cliCmd = 'wp jetpack options get blog_token';
+			const result = await execWpCommand( cliCmd );
+			console.log( '!!!!!!2', result );
 		} );
 
 		await step( 'Can process payment for Premium plan', async () => {
@@ -101,10 +110,19 @@ describe( 'Connection', () => {
 			await ( await ThankYouPage.init( page ) ).waitForSetupAndProceed();
 			await ( await MyPlanPage.init( page ) ).returnToWPAdmin();
 			await syncJetpackPlanData( 'premium', false );
+
+			const cliCmd = 'wp jetpack options get blog_token';
+			const result = await execWpCommand( cliCmd );
+			console.log( '!!!!!!3', result );
 		} );
 
 		await step( 'Can assert that site has a Premium plan', async () => {
 			const jetpackPage = await JetpackPage.init( page );
+
+			const cliCmd = 'wp jetpack options get blog_token';
+			const result = await execWpCommand( cliCmd );
+			console.log( '!!!!!!4', result );
+
 			expect( await jetpackPage.isPlan( 'premium' ) ).toBeTruthy();
 		} );
 	} );
