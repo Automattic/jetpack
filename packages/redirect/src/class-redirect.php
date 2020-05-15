@@ -99,6 +99,6 @@ class Redirect {
 		 * @param array   $args   The arguments informed to Redirect::get_url.
 		 * @param boolean $is_url Whether $source is a URL or not.
 		 */
-		return apply_filters( 'jetpack_redirects_get_url', $url, $source, $args, $is_url );
+		return \apply_filters( 'jetpack_redirects_get_url', $url, $source, $args, $is_url );
 	}
 }
