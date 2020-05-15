@@ -79,7 +79,31 @@ export const settings = {
 	attributes,
 	example: {
 		attributes: {
-			// @TODO: Add default values for block attributes, for generating the block preview.
+			customPrimaryColor: '#2fb21f',
+			hexPrimaryColor: '#2fb21f',
+			exampleFeedData: {
+				title: __( 'Jetpack Example Podcast', 'jetpack' ),
+				link: 'https://jetpack.com',
+				cover:
+					'https://jetpackme.files.wordpress.com/2020/05/jetpack-example-podcast-cover.png?w=160',
+				tracks: [
+					{
+						id: '3',
+						title: __( '3. Our third episode', 'jetpack' ),
+						duration: '14:58',
+					},
+					{
+						id: '2',
+						title: __( '2. Interview with a special guest', 'jetpack' ),
+						duration: '19:17',
+					},
+					{
+						id: '1',
+						title: __( '1. Welcome to Example Podcast', 'jetpack' ),
+						duration: '11:25',
+					},
+				],
+			},
 		},
 	},
 };

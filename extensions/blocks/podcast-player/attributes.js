@@ -62,4 +62,7 @@ export default {
 		type: 'string',
 		validator: colorValidator,
 	},
+	exampleFeedData: {
+		type: 'object',
+	},
 };
