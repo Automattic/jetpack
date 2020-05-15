@@ -37,3 +37,24 @@
 		margin: 1rem 4rem 0 1rem;
 	}
 }
+
+.jp-setup-wizard-recommended-features-buttons-container {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+
+	@include breakpoint( '<660px' ) {
+		flex-direction: column;
+		margin-top: 1rem;
+	}
+
+	.dops-button {
+		width: 175px;
+		margin: 2rem 0.5rem 1rem 0.5rem;
+
+		@include breakpoint( '<660px' ) {
+			width: auto;
+			margin: 0.25rem 1rem;
+		}
+	}
+}
