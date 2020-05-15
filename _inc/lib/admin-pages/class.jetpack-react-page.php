@@ -359,7 +359,9 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		 *
 		 * @param array $jetpack_show_setup_wizard If true, the Setup Wizard will be displayed. Otherwise it will not display.
 		 */
-		return apply_filters( 'jetpack_show_setup_wizard', false ) && Jetpack::is_active();
+		return apply_filters( 'jetpack_show_setup_wizard', false )
+			&& Jetpack::is_active()
+			&& current_user_can( 'jetpack_manage_modules' );
 	}
 }
 
