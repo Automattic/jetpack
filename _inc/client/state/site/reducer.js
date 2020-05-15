@@ -216,7 +216,7 @@ export function getAvailablePlans( state ) {
 }
 
 export function getSitePurchases( state ) {
-	return get( state.jetpack.siteData, [ 'data', 'sitePurchases' ], [] );
+	return get( state.jetpack.siteData, [ 'data', 'sitePurchases', 'purchase' ], [] );
 }
 
 /**
