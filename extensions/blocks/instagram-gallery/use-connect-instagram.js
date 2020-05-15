@@ -8,26 +8,21 @@ import PopupMonitor from '@automattic/popup-monitor';
  */
 import apiFetch from '@wordpress/api-fetch';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useCallback, useEffect, useState } from '@wordpress/element';
+import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 
 export default function useConnectInstagram( {
 	accessToken,
-	isLoadingGallery,
 	noticeOperations,
 	setAttributes,
 	setImages,
 } ) {
-	const { isTokenConnected, isTokenDisconnected } = useSelect( select => {
-		const { isInstagramGalleryTokenConnected, isInstagramGalleryTokenDisconnected } = select(
-			'jetpack/instagram-gallery'
-		);
-		return {
-			isTokenConnected: isInstagramGalleryTokenConnected( accessToken ),
-			isTokenDisconnected: isInstagramGalleryTokenDisconnected( accessToken ),
-		};
-	} );
+	const { isTokenDisconnected } = useSelect( select => ( {
+		isTokenDisconnected: select( 'jetpack/instagram-gallery' ).isInstagramGalleryTokenDisconnected(
+			accessToken
+		),
+	} ) );
 
 	const { connectInstagramGalleryToken, disconnectInstagramGalleryToken } = useDispatch(
 		'jetpack/instagram-gallery'
@@ -35,8 +30,15 @@ export default function useConnectInstagram( {
 
 	const [ isConnecting, setIsConnecting ] = useState( false );
 
+	// When a block is disconnected, also disconnect all other blocks using the same token.
+	useEffect( () => {
+		if ( isTokenDisconnected ) {
+			setAttributes( { accessToken: undefined } );
+		}
+	}, [ isTokenDisconnected, setAttributes ] );
+
 	// Check if the user has got a valid token, and add it to the block.
-	const getAccessToken = useCallback( async () => {
+	const getAccessToken = async () => {
 		try {
 			setIsConnecting( true );
 			const token = await apiFetch( { path: `/wpcom/v2/instagram-gallery/access-token` } );
@@ -54,47 +56,7 @@ export default function useConnectInstagram( {
 				setAttributes( { accessToken: undefined } );
 			}
 		}
-	}, [
-		accessToken,
-		connectInstagramGalleryToken,
-		disconnectInstagramGalleryToken,
-		setAttributes,
-	] );
-
-	// Automatically connect the block to Instagram.
-	useEffect( () => {
-		// If the block doesn't have a token, skip this automatic effect;
-		// users will need to explicitly click on the "Connect to Instagram" button.
-		if ( ! accessToken ) {
-			return;
-		}
-
-		// On a fresh page with clean state, the block will start by attempting to load the gallery.
-		// If it works, the token is valid and will be marked as connected, or as disconnected otherwise.
-		if ( isLoadingGallery || ( ! isTokenConnected && ! isTokenDisconnected ) ) {
-			return;
-		}
-		// If the block already has a token, and that token is marked as connected, don't retrieve it again.
-		if ( isTokenConnected ) {
-			return;
-		}
-
-		// If the block already has a token, and that token is marked as disconnected, remove it from the block.
-		if ( isTokenDisconnected ) {
-			setAttributes( { accessToken: undefined } );
-			return;
-		}
-
-		// Otherwise, try to retrieve it from the API.
-		getAccessToken();
-	}, [
-		accessToken,
-		getAccessToken,
-		isLoadingGallery,
-		isTokenConnected,
-		isTokenDisconnected,
-		setAttributes,
-	] );
+	};
 
 	const connectToService = async () => {
 		noticeOperations.removeAllNotices();
