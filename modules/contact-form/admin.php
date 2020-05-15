@@ -129,9 +129,7 @@ function grunion_add_bulk_edit_option() {
 }
 
 /**
- * Hack an 'Empty Spam' button to spam view
- *
- * Leverages core's delete_all functionality
+ * Add an 'Empty Spam' button to spam view.
  */
 add_action( 'admin_head', 'grunion_add_empty_spam_button' );
 function grunion_add_empty_spam_button() {
@@ -148,17 +146,43 @@ function grunion_add_empty_spam_button() {
 		return;
 	}
 
-	// Get HTML for the button
-	$button_html  = wp_nonce_field( 'bulk-destroy', '_destroy_nonce', true, false );
-	$button_html .= get_submit_button( __( 'Empty Spam', 'jetpack' ), 'apply', 'delete_all', false );
+	$feedbacks_count = wp_count_posts( 'feedback' );
+	$nonce           = wp_create_nonce( 'jetpack_delete_spam_feedbacks' );
+	$success_url     = remove_query_arg( array( 'jetpack_empty_feedback_spam_error', 'post_status' ) ); // Go to the "All Feedback" page.
+	$failure_url     = add_query_arg( 'jetpack_empty_feedback_spam_error', '1' ); // Refresh the current page and show an error.
+	$spam_count      = $feedbacks_count->spam;
 
-	// Add the button next to the filter button via js
 	?>
-		<script type="text/javascript">
-			jQuery(document).ready(function($) {
-				$('#posts-filter #post-query-submit').after('<?php echo $button_html; ?>' );
-			})
-		</script>
+	<script type="text/javascript">
+		jQuery( function ( $ ) {
+			var jetpack_empty_spam_feedbacks_button_container = $( '<div/>' )
+				.addClass( 'jetpack-empty-spam-container' );
+
+			var jetpack_empty_spam_feedbacks_button = $( '<a />' )
+				.addClass( 'button-secondary' )
+				.addClass( 'jetpack-empty-spam' )
+				.attr( 'href', '#' )
+				<?php /* translators: The placeholder is for showing how much of the process has completed, as a percent. e.g., "Emptying Spam (40%)" */ ?>
+				.attr( 'data-progress-label', <?php echo wp_json_encode( __( 'Emptying Spam (%1$s%)', 'jetpack' ) ); ?> )
+				.attr( 'data-success-url', <?php echo wp_json_encode( $success_url ); ?> )
+				.attr( 'data-failure-url', <?php echo wp_json_encode( $failure_url ); ?> )
+				.attr( 'data-spam-feedbacks-count', <?php echo wp_json_encode( $spam_count ); ?> )
+				.attr( 'data-nonce', <?php echo wp_json_encode( $nonce ); ?> )
+				.text( <?php echo wp_json_encode( __( 'Empty Spam', 'jetpack' ) ); ?> )
+				;
+
+			jetpack_empty_spam_feedbacks_button_container.append( jetpack_empty_spam_feedbacks_button );
+
+			var jetpack_empty_spam_feedbacks_spinner = $( '<span />' )
+				.addClass( 'jetpack-empty-spam-spinner' )
+				;
+
+			jetpack_empty_spam_feedbacks_button_container.append( jetpack_empty_spam_feedbacks_spinner );
+
+			// Add the button both above and below the list of spam feedbacks.
+			$( '.tablenav.top .actions, .tablenav.bottom .actions' ).not( '.bulkactions' ).append( jetpack_empty_spam_feedbacks_button_container );
+		} );
+	</script>
 	<?php
 }
 
@@ -803,6 +827,22 @@ function grunion_enable_spam_recheck() {
 		return;
 	}
 
+	// Add the actual "Check for Spam" button.
+	add_action( 'admin_head', 'grunion_check_for_spam_button' );
+}
+
+add_action( 'admin_enqueue_scripts', 'grunion_enable_spam_recheck' );
+
+/**
+ * Add the JS and CSS necessary for the Feedback admin page to function.
+ */
+function grunion_add_admin_scripts() {
+	$screen = get_current_screen();
+
+	if ( 'edit-feedback' !== $screen->id ) {
+		return;
+	}
+
 	// Add the scripts that handle the spam check event.
 	wp_register_script(
 		'grunion-admin',
@@ -812,15 +852,13 @@ function grunion_enable_spam_recheck() {
 		),
 		array( 'jquery' )
 	);
+
 	wp_enqueue_script( 'grunion-admin' );
 
 	wp_enqueue_style( 'grunion.css' );
-
-	// Add the actual "Check for Spam" button.
-	add_action( 'admin_head', 'grunion_check_for_spam_button' );
 }
 
-add_action( 'admin_enqueue_scripts', 'grunion_enable_spam_recheck' );
+add_action( 'admin_enqueue_scripts', 'grunion_add_admin_scripts' );
 
 /**
  * Add the "Check for Spam" button to the Feedbacks dashboard page.
@@ -902,3 +940,65 @@ function grunion_recheck_queue() {
 }
 
 add_action( 'wp_ajax_grunion_recheck_queue', 'grunion_recheck_queue' );
+
+/**
+ * Delete a number of spam feedbacks via an AJAX request.
+ */
+function grunion_delete_spam_feedbacks() {
+	if ( ! wp_verify_nonce( $_POST['nonce'], 'jetpack_delete_spam_feedbacks' ) ) {
+		wp_send_json(
+			array(
+				'error' => __( 'You don&#8217;t have permission to do that.', 'jetpack' ),
+			)
+		);
+
+		return;
+	}
+
+	$query = 'post_type=feedback&post_status=spam';
+
+	if ( isset( $_POST['limit'] ) ) {
+		$query .= '&posts_per_page=' . intval( $_POST['limit'] );
+	}
+
+	$spam_feedbacks = get_posts( $query );
+
+	$deleted_feedbacks = 0;
+
+	foreach ( $spam_feedbacks as $feedback ) {
+		if ( ! current_user_can( 'delete_post', $feedback->ID ) ) {
+			wp_send_json(
+				array(
+					'error' => __( 'You don&#8217;t have permission to do that.', 'jetpack' ),
+				)
+			);
+
+			return;
+		}
+
+		wp_delete_post( $feedback->ID, true );
+
+		$deleted_feedbacks++;
+	}
+
+	wp_send_json(
+		array(
+			'counts' => array(
+				'deleted' => $deleted_feedbacks,
+			),
+		)
+	);
+}
+
+add_action( 'wp_ajax_jetpack_delete_spam_feedbacks', 'grunion_delete_spam_feedbacks' );
+
+/**
+ * Show an admin notice if the "Empty Spam" process was unable to complete, probably due to a permissions error.
+ */
+function grunion_spam_emptied_admin_notice() {
+	if ( isset( $_GET['jetpack_empty_feedback_spam_error'] ) ) {
+		echo '<div class="notice notice-error"><p>' . esc_html( __( 'An error occurred while trying to empty the Feedback spam folder.', 'jetpack' ) ) . '</p></div>';
+	}
+}
+
+add_action( 'admin_notices', 'grunion_spam_emptied_admin_notice' );

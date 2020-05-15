@@ -27,4 +27,73 @@ jQuery( function( $ ) {
 			}
 		);
 	}
+
+	var initial_spam_count = 0;
+	var deleted_spam_count = 0;
+
+	$( document ).on( 'click', '.jetpack-empty-spam', function( e ) {
+		e.preventDefault();
+
+		if ( $( this ).hasClass( 'button-disabled' ) ) {
+			// An Emptying process is already underway or the button is otherwise disabled.
+			return;
+		}
+
+		$( '.jetpack-empty-spam' )
+			.addClass( 'button-disabled' )
+			.addClass( 'emptying' );
+		$( '.jetpack-empty-spam-spinner' )
+			.addClass( 'spinner' )
+			.addClass( 'is-active' );
+
+		// Update the label on the "Empty Spam" button to use the active "Emptying Spam" language.
+		$( '.jetpack-empty-spam' ).text(
+			$( '.jetpack-empty-spam' )
+				.data( 'progress-label' )
+				.replace( '%1$s', '0' )
+		);
+
+		initial_spam_count = parseInt( $( this ).data( 'spam-feedbacks-count' ), 10 );
+
+		grunion_delete_spam( 25 );
+	} );
+
+	function grunion_delete_spam( limit ) {
+		var empty_spam_buttons = $( '.jetpack-empty-spam' );
+
+		var nonce = empty_spam_buttons.data( 'nonce' );
+
+		// We show the percentage complete down to one decimal point so even with 100k
+		// spam feedbacks, it will show some progress pretty quickly.
+		var percentage_complete = Math.round( ( deleted_spam_count / initial_spam_count ) * 1000 ) / 10;
+
+		// Update the progress counter on the "Check for Spam" button.
+		empty_spam_buttons.text(
+			empty_spam_buttons.data( 'progress-label' ).replace( '%1$s', percentage_complete )
+		);
+
+		$.post(
+			ajaxurl,
+			{
+				action: 'jetpack_delete_spam_feedbacks',
+				limit: limit,
+				nonce: nonce,
+			},
+			function( result ) {
+				if ( 'error' in result ) {
+					// An error is only returned in the case of a missing nonce, so we don't need the actual error message.
+					window.location.href = empty_spam_buttons.data( 'failure-url' );
+					return;
+				}
+
+				deleted_spam_count += result.counts.deleted;
+
+				if ( result.counts.deleted < limit ) {
+					window.location.href = empty_spam_buttons.data( 'success-url' );
+				} else {
+					grunion_delete_spam( limit );
+				}
+			}
+		);
+	}
 } );
