@@ -176,7 +176,10 @@ class Jetpack_Search_Widget extends WP_Widget {
 	 * @since 5.8.0
 	 */
 	public function enqueue_frontend_scripts() {
-		if ( ! is_active_widget( false, false, $this->id_base, true ) || Jetpack_Search_Options::is_instant_enabled() ) {
+		if (
+			! is_active_widget( false, false, $this->id_base, true )
+			|| ! Jetpack_Search_Options::is_instant_enabled()
+		) {
 			return;
 		}
 
