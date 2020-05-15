@@ -109,11 +109,13 @@ describe( 'Connection', () => {
 			await ( await CheckoutPage.init( page ) ).processPurchase( cardCredentials );
 			await ( await ThankYouPage.init( page ) ).waitForSetupAndProceed();
 			await ( await MyPlanPage.init( page ) ).returnToWPAdmin();
+			console.log( '!!!!!!3', result );
+
 			await syncJetpackPlanData( 'premium', false );
 
 			const cliCmd = 'wp jetpack options get blog_token';
 			const result = await execWpCommand( cliCmd );
-			console.log( '!!!!!!3', result );
+			console.log( '!!!!!!4', result );
 		} );
 
 		await step( 'Can assert that site has a Premium plan', async () => {
@@ -121,7 +123,7 @@ describe( 'Connection', () => {
 
 			const cliCmd = 'wp jetpack options get blog_token';
 			const result = await execWpCommand( cliCmd );
-			console.log( '!!!!!!4', result );
+			console.log( '!!!!!!5', result );
 
 			expect( await jetpackPage.isPlan( 'premium' ) ).toBeTruthy();
 		} );
