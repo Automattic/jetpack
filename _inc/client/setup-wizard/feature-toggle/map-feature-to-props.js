@@ -857,14 +857,16 @@ const features = {
 			return {
 				title: __( 'Site Accelerator' ),
 				details: __( 'Enable for faster images and a faster site.' ),
-				checked: getSetting( state, 'photon-cdn' ),
+				checked: getSetting( state, 'photon' ) && getSetting( state, 'photon-cdn' ),
 				optionsLink: '#/settings?term=image%20optimize',
 			};
 		},
 		mapDispatchToProps: dispatch => {
 			return {
 				onToggleChange: currentCheckedValue => {
-					return dispatch( updateSettings( { 'photon-cdn': ! currentCheckedValue } ) );
+					return dispatch(
+						updateSettings( { photon: ! currentCheckedValue, 'photon-cdn': ! currentCheckedValue } )
+					);
 				},
 			};
 		},
