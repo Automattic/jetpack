@@ -1,4 +1,5 @@
 @import '../../scss/mixin_breakpoint';
+@import './variables';
 
 .jp-setup-wizard-main.jp-setup-wizard-recommended-features-main {
 	img {
@@ -6,7 +7,7 @@
 		height: 150px;
 	}
 
-	@include breakpoint( '<660px' ) {
+	@include breakpoint( $less-than-vertical-break ) {
 		padding: 1rem 0;
 
 		h1 {
@@ -24,7 +25,7 @@
 	font-size: 1rem;
 	margin: 1rem 4rem 0 4rem;
 
-	@include breakpoint( '<660px' ) {
+	@include breakpoint( $less-than-vertical-break ) {
 		margin: 1rem 4rem 0 1rem;
 	}
 }
@@ -33,7 +34,7 @@
 	font-size: 1rem;
 	margin: 0 4rem 4rem 4rem;
 
-	@include breakpoint( '<660px' ) {
+	@include breakpoint( $less-than-vertical-break ) {
 		margin: 1rem 4rem 0 1rem;
 	}
 }
@@ -43,7 +44,7 @@
 	flex-direction: row;
 	justify-content: center;
 
-	@include breakpoint( '<660px' ) {
+	@include breakpoint( $less-than-vertical-break ) {
 		flex-direction: column;
 		margin-top: 1rem;
 	}
@@ -52,7 +53,7 @@
 		width: 175px;
 		margin: 2rem 0.5rem 1rem 0.5rem;
 
-		@include breakpoint( '<660px' ) {
+		@include breakpoint( $less-than-vertical-break ) {
 			width: auto;
 			margin: 0.25rem 1rem;
 		}
