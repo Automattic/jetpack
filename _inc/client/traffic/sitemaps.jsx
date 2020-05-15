@@ -22,12 +22,26 @@ import ClipboardButtonInput from 'components/clipboard-button-input';
 import { getSiteAdminUrl, isSiteVisibleToSearchEngines } from 'state/initial-state';
 
 export class Sitemaps extends React.Component {
-	trackSitemapUrl = () => {
-		analytics.tracks.recordJetpackClick( 'sitemap-url-link' );
-	};
-
-	trackSitemapNewsUrl = () => {
-		analytics.tracks.recordJetpackClick( 'sitemap-news-url-link' );
+	renderSitemapRow = ( sitemap, sitemapTrack ) => {
+		const trackSitemapUrl = () => analytics.tracks.recordJetpackClick( sitemapTrack );
+		return (
+			<span className="jp-sitemap-row">
+				<ClipboardButtonInput
+					value={ sitemap }
+					copy={ __( 'Copy', { context: 'verb' } ) }
+					copied={ __( 'Copied!' ) }
+					prompt={ __( 'Highlight and copy the following text to your clipboard:' ) }
+				/>
+				<ExternalLink
+					// eslint-disable-next-line react/jsx-no-bind
+					onClick={ trackSitemapUrl }
+					icon={ true }
+					target="_blank"
+					rel="noopener noreferrer"
+					href={ sitemap }
+				/>
+			</span>
+		);
 	};
 
 	render() {
@@ -76,36 +90,8 @@ export class Sitemaps extends React.Component {
 										'Good news: Jetpack is sending your sitemap automatically ' +
 											'to all major search engines for indexing.'
 									) }
-									<span className="jp-sitemap-row">
-										<ClipboardButtonInput
-											value={ sitemap_url }
-											copy={ __( 'Copy', { context: 'verb' } ) }
-											copied={ __( 'Copied!' ) }
-											prompt={ __( 'Highlight and copy the following text to your clipboard:' ) }
-										/>
-										<ExternalLink
-											onClick={ this.trackSitemapUrl }
-											icon={ true }
-											target="_blank"
-											rel="noopener noreferrer"
-											href={ sitemap_url }
-										/>
-									</span>
-									<span className="jp-sitemap-row">
-										<ClipboardButtonInput
-											value={ news_sitemap_url }
-											copy={ __( 'Copy', { context: 'verb' } ) }
-											copied={ __( 'Copied!' ) }
-											prompt={ __( 'Highlight and copy the following text to your clipboard:' ) }
-										/>
-										<ExternalLink
-											onClick={ this.trackSitemapNewsUrl }
-											icon={ true }
-											target="_blank"
-											rel="noopener noreferrer"
-											href={ news_sitemap_url }
-										/>
-									</span>
+									{ this.renderSitemapRow( sitemap_url, 'sitemap-url-link' ) }
+									{ this.renderSitemapRow( news_sitemap_url, 'sitemap-news-url-link' ) }
 								</p>
 							</FormFieldset>
 						)
