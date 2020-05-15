@@ -188,19 +188,12 @@ class DashScan extends Component {
 					<h2 className="jp-dash-item__count is-alert">{ numberFormat( numberOfThreats ) }</h2>,
 					<p className="jp-dash-item__description">
 						{ __(
-							'Security threat found. Please {{fixThreats}}fix these{{/fixThreats}} as soon as possible or {{supportLink}}contact support{{/supportLink}}.',
-							'Security threats found. Please {{fixThreats}}fix these{{/fixThreats}} as soon as possible or {{supportLink}}contact support{{/supportLink}}.',
+							'Security threat found. Please {{fixThreats}}fix these{{/fixThreats}} as soon as possible.',
+							'Security threats found. Please {{fixThreats}}fix these{{/fixThreats}} as soon as possible.',
 							{
 								count: numberOfThreats,
 								components: {
 									fixThreats: <a href={ dashboardUrl } />,
-									supportLink: (
-										<a
-											href={ getRedirectUrl( 'jetpack-support', {
-												site: siteRawUrl,
-											} ) }
-										/>
-									),
 								},
 							}
 						) }
