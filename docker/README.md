@@ -54,7 +54,7 @@ You should follow [Jetpack’s development documentation](../docs/development-en
 
 WordPress’ `WP_SITEURL` and `WP_HOME` constants are configured to be dynamic in `./docker/wordpress/wp-config.php` so you shouldn’t need to change these even if you access the site via different domains.
 
-## Environment Variables, `.env` Files, and Ports
+## Custom mounts, environment Variables, `.env` Files, and Ports
 
 You can control some of the behavior of Jetpack's Docker configuration with environment variables. Note, though, that there are two types of environments:
 1. The host environment in which the `yarn docker:*` (`docker-compose`) commands run when creating/managing the containers.
@@ -73,6 +73,13 @@ You can set the following variables on a per-command basis (`PORT_WORDPRESS=8000
 
 Configurable settings are documented in the [`./docker/default.env` file](https://github.com/Automattic/jetpack/blob/master/docker/default.env).
 Customizations should go into a `./docker/.env` file you create, though, not in the `./docker/default.env` file.
+
+### Mounting extra directories into the container
+
+You can use the file `docker/compose-extras.yml` to add mounts or alter the configuration provided by `docker/docker-compose.yml`.
+
+This file will be generated when running `yarn docker:up`, containing  commented out content from a sample file `docker/compose-extras.yml.sample`.
+But you can also copy it by hand and feel free to uncomment those lines in `docker/compose-extras.yml` to suit your needs. Changes to this file won't be tracked by git.
 
 ## Working with containers
 
