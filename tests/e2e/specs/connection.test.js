@@ -70,6 +70,11 @@ describe( 'Connection', () => {
 		await step( 'Can process payment for Personal plan', async () => {
 			await ( await CheckoutPage.init( page ) ).processPurchase( cardCredentials );
 			await ( await ThankYouPage.init( page ) ).waitForSetupAndProceed();
+			const p = await MyPlanPage.init( page );
+			p.reload( { waitFor: 'networkidle0' } );
+			p.reload( { waitFor: 'networkidle0' } );
+			p.reload( { waitFor: 'networkidle0' } );
+
 			await ( await MyPlanPage.init( page ) ).returnToWPAdmin();
 			await syncJetpackPlanData( 'personal', false );
 		} );
