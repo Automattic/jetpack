@@ -121,7 +121,7 @@ const InstagramGalleryEdit = props => {
 
 		return (
 			<img
-				alt={ __( 'Instagram Gallery placeholder', 'jetpack' ) }
+				alt={ __( 'Latest Instagram Posts placeholder', 'jetpack' ) }
 				src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNMyc2tBwAEOgG/c94mJwAAAABJRU5ErkJggg=="
 			/>
 		);
@@ -137,7 +137,7 @@ const InstagramGalleryEdit = props => {
 							? __( "First, you'll need to connect to WordPress.com.", 'jetpack' )
 							: __( 'Connect to Instagram to start sharing your images.', 'jetpack' )
 					}
-					label={ __( 'Instagram Gallery', 'jetpack' ) }
+					label={ __( 'Latest Instagram Posts', 'jetpack' ) }
 					notices={ noticeUI }
 				>
 					{ IS_CURRENT_USER_CONNECTED_TO_WPCOM ? (
@@ -204,7 +204,7 @@ const InstagramGalleryEdit = props => {
 							</PanelRow>
 						) }
 					</PanelBody>
-					<PanelBody title={ __( 'Gallery Settings', 'jetpack' ) }>
+					<PanelBody title={ __( 'Display Settings', 'jetpack' ) }>
 						<div className="wp-block-jetpack-instagram-gallery__count-notice">{ noticeUI }</div>
 						<RangeControl
 							label={ __( 'Number of Posts', 'jetpack' ) }
