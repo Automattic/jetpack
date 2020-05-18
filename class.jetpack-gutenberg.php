@@ -1011,7 +1011,7 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
-	 * Output an notice within a block.
+	 * Output a notice within a block.
 	 *
 	 * @since 8.6.0
 	 *
