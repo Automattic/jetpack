@@ -2651,13 +2651,13 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		$feedback_title = "{$comment_author} - {$feedback_time}";
 		$feedback_id    = md5( $feedback_title );
 
-		$all_values = array_merge(
-			$all_values, array(
-				'entry_title'     => the_title_attribute( 'echo=0' ),
-				'entry_permalink' => esc_url( get_permalink( get_the_ID() ) ),
-				'feedback_id'     => $feedback_id,
-			)
+		$entry_values = array(
+			'entry_title'     => the_title_attribute( 'echo=0' ),
+			'entry_permalink' => esc_url( get_permalink( get_the_ID() ) ),
+			'feedback_id'     => $feedback_id,
 		);
+
+		$all_values = array_merge( $all_values, $entry_values );
 
 		/** This filter is already documented in modules/contact-form/admin.php */
 		$subject = apply_filters( 'contact_form_subject', $contact_form_subject, $all_values );
@@ -2719,6 +2719,20 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		if ( defined( 'AKISMET_VERSION' ) ) {
 			update_post_meta( $post_id, '_feedback_akismet_values', $this->addslashes_deep( $akismet_values ) );
 		}
+
+		/**
+		 * Fires after the feedback post for the contact form submission has been inserted.
+		 *
+		 * @module contact-form
+		 *
+		 * @since 8.6.0
+		 *
+		 * @param integer $post_id The post id that contains the contact form data.
+		 * @param array   $this->fields An array containg the form's Grunion_Contact_Form_Field objects.
+		 * @param boolean $is_spam Whether the form submission has been identified as spam.
+		 * @param array   $entry_values The feedback entry values.
+		 */
+		do_action( 'grunion_after_feedback_post_inserted', $post_id, $this->fields, $is_spam, $entry_values );
 
 		$message = self::get_compiled_form( $post_id, $this );
 
@@ -3005,7 +3019,8 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		return addslashes( $value );
 	}
-}
+
+} // end class Grunion_Contact_Form
 
 /**
  * Class for the contact-field shortcode.
