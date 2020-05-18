@@ -1285,6 +1285,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return array|WP_Error Result from WPCOM API or error.
 	 */
 	public static function scan_state() {
+
+		if ( ! isset( $_GET['_cacheBuster'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$scan_state = get_site_transient( 'jetpack_scan_state' );
+			if ( ! empty( $scan_state ) ) {
+				return $scan_state;
+			}
+		}
 		$site_id = Jetpack_Options::get_option( 'id' );
 
 		if ( ! $site_id ) {
@@ -1297,9 +1304,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return new WP_Error( 'scan_state_fetch_failed' );
 		}
 
-		$body = wp_remote_retrieve_body( $response );
+		$body   = wp_remote_retrieve_body( $response );
+		$result = json_decode( $body );
+		set_site_transient( 'jetpack_scan_state', $result, 10 * MINUTE_IN_SECONDS );
 
-		return json_decode( $body );
+		return $result;
 	}
 
 	/**

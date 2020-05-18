@@ -672,11 +672,6 @@ class Jetpack {
 
 		add_action( 'wp_loaded', array( $this, 'register_assets' ) );
 
-		// Add display for Scan threats.
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_toolbar_styles' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_toolbar_styles' ) );
-		add_action( 'admin_bar_menu', array( $this, 'add_threats_to_toolbar' ), 999 );
-
 		/**
 		 * These actions run checks to load additional files.
 		 * They check for external files or plugins, so they need to run as late as possible.
@@ -7286,38 +7281,6 @@ endif;
 	}
 
 	/**
-	 * Checks for whether Jetpack Scan is enabled.
-	 * Will return true if the state of Scan is anything except "unavailable".
-	 *
-	 * @return bool|int|mixed
-	 */
-	public static function is_scan_enabled() {
-		if ( ! self::is_active() ) {
-			return false;
-		}
-
-		$scan_enabled = get_transient( 'jetpack_scan_enabled' );
-		if ( false === $scan_enabled ) {
-			jetpack_require_lib( 'class.core-rest-api-endpoints' );
-			$scan_state   = Jetpack_Core_Json_Api_Endpoints::scan_state();
-			$scan_enabled = ( ! is_wp_error( $scan_state )
-				&& ! empty( $scan_state->state )
-				&& 'unavailable' !== $scan_state->state )
-				? 1
-				: 0;
-
-			set_transient( 'jetpack_scan_enabled', $scan_enabled, 10 * MINUTE_IN_SECONDS );
-
-			$num_threats = ( $scan_enabled && ! empty( $scan_state->threats ) )
-				? count( $scan_state->threats )
-				: 0;
-
-			set_transient( 'jetpack_scan_threat_count', $num_threats, 10 * MINUTE_IN_SECONDS );
-		}
-		return $scan_enabled;
-	}
-
-	/**
 	 * Return Calypso environment value; used for developing Jetpack and pairing
 	 * it with different Calypso enrionments, such as localhost.
 	 *
@@ -7486,75 +7449,6 @@ endif;
 			return false;
 		}
 		return true;
-	}
-
-	/**
-	 * Adds custom styles for Jetpack Scan threat indicator.
-	 *
-	 * @since 8.6.0
-	 * @return void
-	 */
-	public function enqueue_toolbar_styles() {
-		if ( ! current_user_can( 'manage_options' ) ) {
-			return;
-		}
-
-		if ( ! self::is_scan_enabled() ) {
-			return;
-		}
-
-		wp_add_inline_style(
-			'admin-bar',
-			'#wp-admin-bar-jp-scan-notice.error { background-color: #D63638; }
-				#wp-admin-bar-jp-scan-notice.error:hover { background-color: #B32D2E; }
-				#wp-admin-bar-jp-scan-notice.error > ab-item { color: #FFF; }'
-		);
-	}
-
-	/**
-	 * Adds Jetpack Scan threat indicator to the WordPress admin bar.
-	 *
-	 * @since 8.6.0
-	 * @param WP_Admin_Bar $wp_admin_bar Reference to admin bar.
-	 * @return void
-	 */
-	public function add_threats_to_toolbar( $wp_admin_bar ) {
-		global $wp_version;
-
-		if ( version_compare( $wp_version, '3.3', '<' ) ) {
-			return;
-		}
-
-		if ( ! current_user_can( 'manage_options' ) ) {
-			return;
-		}
-
-		if ( ! self::is_scan_enabled() ) {
-			return;
-		}
-
-		$threat_count = intval( get_transient( 'jetpack_scan_threat_count' ) );
-		if ( $threat_count < 1 ) {
-			return;
-		}
-
-		$threat_count = number_format( $threat_count, 0 );
-		$wp_admin_bar->add_node(
-			array(
-				'id'     => 'jp-scan-notice',
-				'title'  => esc_html(
-					// translators: %s is number of threats found.
-					sprintf( _n( '%s Security Threat', '%s Security Threats', $threat_count, 'jetpack' ), $threat_count )
-				),
-				'parent' => 'top-secondary',
-				'href'   => esc_url( Redirect::get_url( 'calypso-scanner' ) ),
-				'meta'   => array(
-					'title'   => esc_attr__( 'Visit your scan dashboard', 'jetpack' ),
-					'onclick' => 'window.open( this.href ); return false;',
-					'class'   => 'error',
-				),
-			)
-		);
 	}
 
 	/**

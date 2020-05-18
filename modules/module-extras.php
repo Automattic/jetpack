@@ -48,6 +48,7 @@ $connected_tools = array(
 	'simple-payments/simple-payments.php',
 	'wpcom-block-editor/class-jetpack-wpcom-block-editor.php',
 	'wpcom-tos/wpcom-tos.php',
+	'scan/scan.php', // Shows Jetpack Scan Alerts if threats found in the adminbar.
 );
 
 // Add connected features to our existing list if the site is currently connected.
