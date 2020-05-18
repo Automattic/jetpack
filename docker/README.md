@@ -78,8 +78,7 @@ Customizations should go into a `./docker/.env` file you create, though, not in 
 
 You can use the file `docker/compose-extras.yml` to add mounts or alter the configuration provided by `docker/docker-compose.yml`.
 
-This file will be generated when running `yarn docker:up`, containing  commented out content from a sample file `docker/compose-extras.yml.sample`.
-But you can also copy it by hand and feel free to uncomment those lines in `docker/compose-extras.yml` to suit your needs. Changes to this file won't be tracked by git.
+Refer to the section [Custom plugins & themes in the container](#custom-plugins--themes-in-the-container) for more details.
 
 ## Working with containers
 
@@ -342,21 +341,20 @@ Jetpack Docker environment can be wonderful for developing your own plugins and 
 Since everything under `mu-plugins` and `wordpress/wp-content` is git-ignored, you'll want to keep those folders outside Jetpack repository folder and link them as volumes to your Docker instance.
 
 1. First ensure your containers are stopped (`yarn docker:stop`).
-2. Create a docker-compose file. You can place it anywhere in your computer:
-	```yml
-	version: '3.3'
-	services:
-	  wordpress:
-	    volumes:
-	      - ~/my-plugin:/var/www/html/wp-content/plugins/my-plugin
-	```
-	What comes before `:` is the path to your own plugin or theme, in your system. What comes after `:` is the path inside the Docker container. You can replace `plugins/my-plugin` with the path to your own plugin or theme.
-3. Start containers and include your custom volumes by running:
-	```bash
-	yarn docker:compose -f ~/docker-compose.my-volumes.yml up
-	```
+2. Edit `docker/compose-extras.yml`. This file will be generated when running `yarn docker:up`, containing commented out content from a sample file `docker/compose-extras.yml.sample`. But you can also copy it by hand. Changes to this file won't be tracked by git.
+   ```yml
+   version: '3.3'
+   services:
+     wordpress:
+       volumes:
+        - /Users/myself/checkouts/vaultpress:/var/www/html/wp-content/plugins/vaultpress
+   ```
 
-You can pass multiple configuration files by adding more `-f/--file` arguments. Docker Compose [combines them into a single configuration](https://docs.docker.com/compose/reference/overview/#use--f-to-specify-name-and-path-of-one-or-more-compose-files).
+   What comes before `:` is the path to your own plugin or theme, in your system. What comes after `:` is the path inside the Docker container. You can replace `/Users/myself/checkouts/vaultpress` with the path to your own plugin or theme.
+3. Start containers and include your custom volumes by running:
+   ```bash
+   yarn docker:up
+   ```
 
 ## Debugging
 
