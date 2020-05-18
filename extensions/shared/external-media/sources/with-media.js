@@ -122,6 +122,7 @@ export default function withMedia() {
 				apiFetch( {
 					path,
 					method,
+					parse: false,
 				} )
 					.then( result => {
 						this.setState( {
@@ -143,13 +144,13 @@ export default function withMedia() {
 					headers: {
 						'content-type': 'application/json',
 					},
-					body: JSON.stringify( {
+					data: {
 						media: items.map( item => ( {
 							guid: item.guid,
 							caption: item.caption,
 							title: item.title,
 						} ) ),
-					} ),
+					},
 				} )
 					.then( result => {
 						const { value, addToGallery, multiple } = this.props;
