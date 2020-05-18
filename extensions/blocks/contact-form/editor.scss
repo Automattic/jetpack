@@ -30,6 +30,10 @@
 
 			&.jetpack-field__width-25 {
 				flex: 0 0 25%;
+
+				.jetpack-option__input.jetpack-option__input.jetpack-option__input {
+					width: 85px;
+				}
 			}
 
 			&.jetpack-field__width-50 {
@@ -38,6 +42,10 @@
 
 			&.jetpack-field__width-75 {
 				flex: 0 0 75%;
+			}
+
+			&[data-type="jetpack/field-checkbox"] {
+				align-self: center;
 			}
 		}
 	}

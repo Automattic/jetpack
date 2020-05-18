@@ -130,6 +130,10 @@
 	flex: 0 0 75%;
 }
 
+.grunion-field-checkbox-wrap {
+	align-self: center;
+}
+
 @media only screen and (min-width: 600px) {
 	.contact-form input[type='text'],
 	.contact-form input[type='email'],
