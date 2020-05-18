@@ -3,57 +3,37 @@
  */
 import { __ } from '@wordpress/i18n';
 import { Fragment } from '@wordpress/element';
-import { InspectorControls } from '@wordpress/block-editor';
-import { PanelBody, TextareaControl, TextControl } from '@wordpress/components';
+import { TextareaControl, Disabled } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
 import JetpackFieldLabel from './jetpack-field-label';
+import JetpackFieldControls from './jetpack-field-controls';
 
-function JetpackFieldTextarea( {
-	required,
-	label,
-	setAttributes,
-	isSelected,
-	defaultValue,
-	placeholder,
-	id,
-} ) {
+export default function JetpackFieldTextarea( props ) {
+	const { id, required, label, setAttributes, isSelected, placeholder } = props;
+
 	return (
 		<Fragment>
 			<div className="jetpack-field">
-				<TextareaControl
-					label={
-						<JetpackFieldLabel
-							required={ required }
-							label={ label }
-							setAttributes={ setAttributes }
-							isSelected={ isSelected }
-						/>
-					}
-					placeholder={ placeholder }
-					value={ placeholder }
-					onChange={ value => setAttributes( { placeholder: value } ) }
-					title={ __( 'Set the placeholder text', 'jetpack' ) }
+				<JetpackFieldLabel
+					required={ required }
+					label={ label }
+					setAttributes={ setAttributes }
+					isSelected={ isSelected }
 				/>
+				<Disabled>
+					<TextareaControl
+						placeholder={ placeholder }
+						value={ placeholder }
+						onChange={ value => setAttributes( { placeholder: value } ) }
+						title={ __( 'Set the placeholder text', 'jetpack' ) }
+					/>
+				</Disabled>
 			</div>
-			<InspectorControls>
-				<PanelBody title={ __( 'Field Settings', 'jetpack' ) }>
-					<TextControl
-						label={ __( 'Default Value', 'jetpack' ) }
-						value={ defaultValue }
-						onChange={ value => setAttributes( { defaultValue: value } ) }
-					/>
-					<TextControl
-						label={ __( 'ID', 'jetpack' ) }
-						value={ id }
-						onChange={ value => setAttributes( { id: value } ) }
-					/>
-				</PanelBody>
-			</InspectorControls>
+
+			<JetpackFieldControls id={ id } required={ required } setAttributes={ setAttributes } />
 		</Fragment>
 	);
 }
-
-export default JetpackFieldTextarea;
