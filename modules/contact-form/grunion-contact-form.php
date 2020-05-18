@@ -3175,7 +3175,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 				break;
 			default:
 				// Just check for presence of any text
-				if ( ! strlen( trim( $field_value ) ) ) {
+				if ( ! is_string( $field_value ) || ! strlen( trim( $field_value ) ) ) {
 					/* translators: %s is the name of a form field */
 					$this->add_error( sprintf( __( '%s is required', 'jetpack' ), $field_label ) );
 				}
