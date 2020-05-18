@@ -32,7 +32,7 @@ const UpdatesQuestion = props => {
 					{ __( 'No' ) }
 				</Button>
 			</div>
-			<a className="jp-setup-wizard-skip-link" href="">
+			<a className="jp-setup-wizard-skip-link" href="#/setup/features">
 				{ __( 'Skip' ) }
 			</a>
 		</div>

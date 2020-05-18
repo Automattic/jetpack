@@ -57,7 +57,7 @@ const IncomeQuestion = props => {
 				<Button href="#/setup/updates" primary className="jp-setup-wizard-button">
 					{ __( 'Continue' ) }
 				</Button>
-				<a className="jp-setup-wizard-skip-link" href="">
+				<a className="jp-setup-wizard-skip-link" href="#/setup/updates">
 					{ __( 'None of these apply' ) }
 				</a>
 			</div>
