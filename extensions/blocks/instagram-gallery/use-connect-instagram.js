@@ -18,15 +18,11 @@ export default function useConnectInstagram( {
 	setAttributes,
 	setImages,
 } ) {
-	const { isTokenConnected, isTokenDisconnected } = useSelect( select => {
-		const { isInstagramGalleryTokenConnected, isInstagramGalleryTokenDisconnected } = select(
-			'jetpack/instagram-gallery'
-		);
-		return {
-			isTokenConnected: isInstagramGalleryTokenConnected( accessToken ),
-			isTokenDisconnected: isInstagramGalleryTokenDisconnected( accessToken ),
-		};
-	} );
+	const { isTokenDisconnected } = useSelect( select => ( {
+		isTokenDisconnected: select( 'jetpack/instagram-gallery' ).isInstagramGalleryTokenDisconnected(
+			accessToken
+		),
+	} ) );
 
 	const { connectInstagramGalleryToken, disconnectInstagramGalleryToken } = useDispatch(
 		'jetpack/instagram-gallery'
@@ -34,50 +30,47 @@ export default function useConnectInstagram( {
 
 	const [ isConnecting, setIsConnecting ] = useState( false );
 
-	// Automatically retrieve a working Instagram access token, if it exists.
+	// When a block is disconnected, also disconnect all other blocks using the same token.
 	useEffect( () => {
-		// If the block already has a token, and that token is marked as connected, don't retrieve it again.
-		if ( isTokenConnected ) {
-			return;
-		}
-
-		// If the block already has a token, and that token is marked as disconnected, remove it from the block.
 		if ( isTokenDisconnected ) {
 			setAttributes( { accessToken: undefined } );
-			return;
+		}
+	}, [ isTokenDisconnected, setAttributes ] );
+
+	// Check if the user has got a valid token, and add it to the block.
+	const getAccessToken = async () => {
+		try {
+			setIsConnecting( true );
+			const token = await apiFetch( { path: `/wpcom/v2/instagram-gallery/access-token` } );
+			setIsConnecting( false );
+
+			if ( token ) {
+				connectInstagramGalleryToken( token );
+				setAttributes( { accessToken: token } );
+				return token;
+			}
+		} catch ( error ) {
+			setIsConnecting( false );
+			if ( accessToken ) {
+				disconnectInstagramGalleryToken( accessToken );
+				setAttributes( { accessToken: undefined } );
+			}
+		}
+	};
+
+	const connectToService = async () => {
+		noticeOperations.removeAllNotices();
+
+		// Try retrieving a valid token first;
+		// if the user has got one, skip the Instagram authorization popup.
+		// If/when the block has a valid token, the block will automatically embed the gallery.
+		if ( ! accessToken || isTokenDisconnected ) {
+			const token = await getAccessToken();
+			if ( token ) {
+				return;
+			}
 		}
 
-		// Otherwise, try to retrieve it from the API.
-		setIsConnecting( true );
-		apiFetch( { path: `/wpcom/v2/instagram-gallery/access-token` } )
-			.then( token => {
-				setIsConnecting( false );
-				if ( token ) {
-					connectInstagramGalleryToken( token );
-					setAttributes( { accessToken: token } );
-				}
-			} )
-			.catch( () => {
-				setIsConnecting( false );
-				// If there are errors, chances are the token is not valid anymore.
-				// Mark it as disconnected, and remove it from the block.
-				if ( accessToken ) {
-					disconnectInstagramGalleryToken( accessToken );
-					setAttributes( { accessToken: undefined } );
-				}
-			} );
-	}, [
-		accessToken,
-		connectInstagramGalleryToken,
-		disconnectInstagramGalleryToken,
-		isTokenConnected,
-		isTokenDisconnected,
-		setAttributes,
-		setIsConnecting,
-	] );
-
-	const connectToService = () => {
-		noticeOperations.removeAllNotices();
 		setIsConnecting( true );
 
 		apiFetch( { path: `/wpcom/v2/instagram-gallery/connect-url` } )

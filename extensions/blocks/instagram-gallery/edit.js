@@ -83,10 +83,10 @@ const InstagramGalleryEdit = props => {
 	const photoStyle = { padding: spacing };
 
 	useEffect( () => {
-		noticeOperations.removeAllNotices();
 		const accountImageTotal = images.length;
 
 		if ( showSidebar && ! showLoadingSpinner && accountImageTotal < count ) {
+			noticeOperations.removeAllNotices();
 			const noticeContent = accountImageTotal
 				? sprintf(
 						_n(
