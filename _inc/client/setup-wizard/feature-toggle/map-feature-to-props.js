@@ -29,7 +29,7 @@ const features = {
 
 			let upgradeLink;
 			if ( ! inCurrentPlan ) {
-				upgradeLink = '#/plans';
+				upgradeLink = getRedirectUrl( 'plans-compare-premium' );
 			}
 
 			let info;
@@ -74,7 +74,7 @@ const features = {
 
 			let upgradeLink;
 			if ( ! inCurrentPlan ) {
-				upgradeLink = '#/plans';
+				upgradeLink = getRedirectUrl( 'plans-compare-personal' );
 			}
 
 			let info;
@@ -123,7 +123,7 @@ const features = {
 
 			let upgradeLink;
 			if ( ! inCurrentPlan ) {
-				upgradeLink = '#/plans';
+				upgradeLink = getRedirectUrl( 'plans-compare-personal' );
 			}
 
 			let info;
@@ -336,7 +336,7 @@ const features = {
 
 			let upgradeLink;
 			if ( ! inCurrentPlan ) {
-				upgradeLink = '#/plans';
+				upgradeLink = getRedirectUrl( 'plans-compare-premium' );
 			}
 
 			let info;
@@ -640,7 +640,7 @@ const features = {
 
 			let upgradeLink;
 			if ( ! inCurrentPlan ) {
-				upgradeLink = '#/plans';
+				upgradeLink = getRedirectUrl( 'plans-compare-premium' );
 			}
 
 			let info;
@@ -670,7 +670,7 @@ const features = {
 				'is-business-plan' !== getPlanClass( sitePlan.product_slug ) &&
 				! hasActiveSearchPurchase( state )
 			) {
-				upgradeLink = '#/plans';
+				upgradeLink = getRedirectUrl( 'plans-compare-business' );
 			} else {
 				optionsLink = '/wp-admin/admin.php?page=jetpack#/settings?term=search';
 			}
@@ -727,7 +727,7 @@ const features = {
 
 			let upgradeLink;
 			if ( ! inCurrentPlan ) {
-				upgradeLink = '#/plans';
+				upgradeLink = getRedirectUrl( 'plans-compare-premium' );
 			}
 
 			return {
@@ -829,7 +829,7 @@ const features = {
 
 			let upgradeLink;
 			if ( ! inCurrentPlan ) {
-				upgradeLink = '#/plans';
+				upgradeLink = getRedirectUrl( 'plans-compare-premium' );
 			}
 
 			let info;
@@ -982,7 +982,7 @@ const features = {
 
 			let upgradeLink;
 			if ( ! inCurrentPlan ) {
-				upgradeLink = '#/plans';
+				upgradeLink = getRedirectUrl( 'plans-compare-premium' );
 			}
 
 			let info;
