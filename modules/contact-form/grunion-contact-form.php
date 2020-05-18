@@ -3161,7 +3161,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		switch ( $field_type ) {
 			case 'email':
 				// Make sure the email address is valid
-				if ( ! is_email( $field_value ) ) {
+				if ( ! is_string( $field_value ) || ! is_email( $field_value ) ) {
 					/* translators: %s is the name of a form field */
 					$this->add_error( sprintf( __( '%s requires a valid email address', 'jetpack' ), $field_label ) );
 				}
