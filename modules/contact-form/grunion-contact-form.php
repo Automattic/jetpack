@@ -458,8 +458,10 @@ class Grunion_Contact_Form_Plugin {
 			$post = get_post( $id );
 
 			// Process the content to populate Grunion_Contact_Form::$last
-			/** This filter is already documented in core. wp-includes/post-template.php */
-			apply_filters( 'the_content', $post->post_content );
+			if ( $post ) {
+				/** This filter is already documented in core. wp-includes/post-template.php */
+				apply_filters( 'the_content', $post->post_content );
+			}
 		}
 
 		$form = isset( Grunion_Contact_Form::$forms[ $hash ] ) ? Grunion_Contact_Form::$forms[ $hash ] : null;
