@@ -205,6 +205,13 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 		$params     = $request->get_params();
 		$wpcom_path = sprintf( '/meta/external-media/%s', rawurlencode( $params['service'] ) );
 
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$request = new \WP_REST_Request( 'GET', '/' . $this->namespace . $wpcom_path );
+			$request->set_query_params( $params );
+
+			return rest_do_request( $request );
+		}
+
 		// Build query string to pass to wpcom endpoint.
 		$service_args = array_filter(
 			$params,
@@ -272,6 +279,13 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 	public function get_connection_details( \WP_REST_Request $request ) {
 		$service    = rawurlencode( $request->get_param( 'service' ) );
 		$wpcom_path = sprintf( '/meta/external-media/connection/%s', $service );
+
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$request = new \WP_REST_Request( 'GET', '/' . $this->namespace . $wpcom_path );
+			$request->set_query_params( $request->get_params() );
+
+			return rest_do_request( $request );
+		}
 
 		$response = Client::wpcom_json_api_request_as_user( $wpcom_path );
 		$response = json_decode( wp_remote_retrieve_body( $response ) );
@@ -366,17 +380,16 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 	 * @return array|\WP_REST_Response Attachment data on success, WP_Error on failure.
 	 */
 	public function get_attachment_data( $id, $item ) {
-		$request  = new \WP_REST_Request( 'GET', '/wp/v2/media/' . $id );
-		$response = rest_do_request( $request );
+		$image_src = wp_get_attachment_image_src( $id, 'full' );
 
-		if ( is_wp_error( $response ) ) {
-			$response->add_data( array( 'status' => 400 ) );
+		if ( empty( $image_src[0] ) ) {
+			$response = new WP_Error( 'rest_upload_error', 'Could not retrieve source URL.', array( 'status' => 400 ) );
 		} else {
 			$response = array(
 				'id'      => $id,
 				'caption' => $item['caption'],
 				'alt'     => $item['title'],
-				'url'     => $response->data['source_url'],
+				'url'     => $image_src[0],
 			);
 		}
 
