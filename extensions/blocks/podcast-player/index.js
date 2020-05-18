@@ -79,8 +79,8 @@ export const settings = {
 	attributes,
 	example: {
 		attributes: {
-			customPrimaryColor: '#2fb21f',
-			hexPrimaryColor: '#2fb21f',
+			customPrimaryColor: '#00be28',
+			hexPrimaryColor: '#00be28',
 			exampleFeedData: {
 				title: __( 'Jetpack Example Podcast', 'jetpack' ),
 				link: 'https://jetpack.com',
