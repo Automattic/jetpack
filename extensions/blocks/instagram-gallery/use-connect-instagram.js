@@ -107,6 +107,13 @@ export default function useConnectInstagram( {
 	};
 
 	const disconnectFromService = token => {
+		const hasConfirmed = window.confirm(
+			__( 'Are you sure you wish to disconnect your Instagram account?', 'jetpack' )
+		);
+		if ( ! hasConfirmed ) {
+			return;
+		}
+
 		setIsConnecting( true );
 		apiFetch( {
 			path: addQueryArgs( `/wpcom/v2/instagram-gallery/delete-access-token`, {
