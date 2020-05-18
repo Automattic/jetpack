@@ -94,9 +94,8 @@ Not sure if your code should be in a Package? Here are some general guidelines w
 |   | Consider |
 |---|---|
 | ❌ | Your code will not work without the Jetpack plugin. |
-| ❌ | There is no use for your code outside of the Jetpack Plugin context |
+| ❌ | There is no use for your code outside of the Jetpack Plugin context. |
 | ✅ | A need to ship this code independently of the Jetpack plugin. |
 | ✅ | Other plugins will find this code useful. |
 | ✅ | You are building a completely new plugin. |
-| ✅ | Your code has dependencies that are only within itself or other Packages |
-
+| ✅ | Your code has dependencies that are only within itself or other Packages. |
