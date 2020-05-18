@@ -70,12 +70,10 @@ function render_block( $attributes, $content ) {
 
 	if ( is_wp_error( $gallery ) || ! property_exists( $gallery, 'images' ) || 'ERROR' === $gallery->images ) {
 		if ( current_user_can( 'edit_post', get_the_ID() ) ) {
-			return sprintf(
-				'<div class="%s"><p>%s<br />%s</p></div>',
-				Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attributes ),
-				esc_html__( 'An error occurred in the Latest Instagram Posts block. Please try again later.', 'jetpack' ),
-				esc_html__( '(Only administrators will see this message.)', 'jetpack' )
-			);
+			$message = esc_html__( 'An error occurred in the Latest Instagram Posts block. Please try again later.', 'jetpack' )
+				. '<br />'
+				. esc_html__( '(Only administrators and the post author will see this message.)', 'jetpack' );
+			return Jetpack_Gutenberg::notice( $message, 'error', Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attributes ) );
 		}
 		return '';
 	}
