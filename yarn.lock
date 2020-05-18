@@ -10302,10 +10302,10 @@ map-visit@^1.0.0:
   dependencies:
     object-visit "^1.0.0"
 
-mapbox-gl@1.10.0:
-  version "1.10.0"
-  resolved "https://registry.yarnpkg.com/mapbox-gl/-/mapbox-gl-1.10.0.tgz#c33e74d1f328e820e245ff8ed7b5dbbbc4be204f"
-  integrity sha512-SrJXcR9s5yEsPuW2kKKumA1KqYW9RrL8j7ZcIh6glRQ/x3lwNMfwz/UEJAJcVNgeX+fiwzuBoDIdeGB/vSkZLQ==
+mapbox-gl@1.10.1:
+  version "1.10.1"
+  resolved "https://registry.yarnpkg.com/mapbox-gl/-/mapbox-gl-1.10.1.tgz#7dbd53bdf2f78e45e125c1115e94dea286ef663c"
+  integrity sha512-0aHt+lFUpYfvh0kMIqXqNXqoYMuhuAsMlw87TbhWrw78Tx2zfuPI0Lx31/YPUgJ+Ire0tzQ4JnuBL7acDNXmMg==
   dependencies:
     "@mapbox/geojson-rewind" "^0.5.0"
     "@mapbox/geojson-types" "^1.0.2"
