@@ -280,14 +280,24 @@ class Jetpack_WPCOM_Block_Editor {
 			true
 		);
 
-		// phpcs:ignore WordPress.Security.NonceVerification
-		$editor_deprecated               = isset( $_GET['editor/after-deprecation'] );
-		$classic_editor_plugin_available = is_plugin_inactive( 'classic-editor/classic-editor.php' );
-		$switch_visible                  = ( ! $editor_deprecated || jetpack_is_atomic_site() ) && $this->is_iframed_block_editor() && $classic_editor_plugin_available && current_user_can( 'activate_plugin' );
+		/**
+		 * Offer an option to switch to the classic editor when the following
+		 * criteria are met:
+		 * - The editor/after-deprecation query string param is present (Temporary requirement).
+		 * - In the iFramed block editor.
+		 * - The classic editor plugin is installed but not active.
+		 * - User has permission to activate plugins e.g. admins.
+		 */
+		$switch_visible = $this->is_iframed_block_editor()
+			&& isset( $_GET['editor/after-deprecation'] ) // phpcs:ignore WordPress.Security.NonceVerification
+			&& is_plugin_inactive( 'classic-editor/classic-editor.php' )
+			&& current_user_can( 'activate_plugin' );
 
-		// The following is only to allow testing link without an atomic site.
-		// phpcs:ignore WordPress.Security.NonceVerification
-		if ( $editor_deprecated && 'show' === $_GET['editor/after-deprecation'] ) {
+		/**
+		 * Due to difficulties in being able test with an iFramed editor the
+		 * following has been added so that the link display can be forced on.
+		 */
+		if ( isset( $_GET['editor/after-deprecation'] ) && 'show' === $_GET['editor/after-deprecation'] ) { // phpcs:ignore WordPress.Security.NonceVerification
 			$switch_visible = true;
 		}
 
