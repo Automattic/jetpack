@@ -322,6 +322,7 @@ class MembershipsButtonEdit extends Component {
 				<Button
 					className="membership-button__field-button"
 					isLarge
+					isSecondary
 					key={ product.id }
 					onClick={ () => this.setMembershipAmount( product.id ) }
 				>
