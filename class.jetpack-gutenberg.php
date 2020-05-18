@@ -499,7 +499,7 @@ class Jetpack_Gutenberg {
 		$available_extensions = array();
 
 		foreach ( self::$extensions as $extension ) {
-			$is_available = self::is_registered_and_no_entry_in_availability( $extension ) || self::is_available( $extension );
+			$is_available                       = self::is_registered_and_no_entry_in_availability( $extension ) || self::is_available( $extension );
 			$available_extensions[ $extension ] = array(
 				'available' => $is_available,
 			);
@@ -1007,6 +1007,57 @@ class Jetpack_Gutenberg {
 			array(
 				'plan' => $plan,
 			)
+		);
+	}
+
+	/**
+	 * Output a notice within a block.
+	 *
+	 * @since 8.6.0
+	 *
+	 * @param string $message Notice we want to output.
+	 * @param string $status  Status of the notice. Can be one of success, info, warning, error. info by default.
+	 * @param string $classes List of CSS classes.
+	 *
+	 * @return string
+	 */
+	public static function notice( $message, $status = 'info', $classes = '' ) {
+		if (
+			empty( $message )
+			|| ! in_array( $status, array( 'success', 'info', 'warning', 'error' ), true )
+		) {
+			return '';
+		}
+
+		$color = '';
+		switch ( $status ) {
+			case 'success':
+				$color = '#46b450';
+				break;
+			case 'warning':
+				$color = '#ffb900';
+				break;
+			case 'error':
+				$color = '#dc3232';
+				break;
+			case 'info':
+			default:
+				$color = '#00a0d2';
+				break;
+		}
+
+		return sprintf(
+			'<div class="jetpack-block__notice %1$s %3$s" style="border-left:5px solid %4$s;padding:1em;background-color:#f8f9f9;">%2$s</div>',
+			esc_attr( $status ),
+			wp_kses(
+				$message,
+				array(
+					'br' => array(),
+					'p'  => array(),
+				)
+			),
+			esc_attr( $classes ),
+			sanitize_hex_color( $color )
 		);
 	}
 
