@@ -294,11 +294,12 @@ class Jetpack_WPCOM_Block_Editor {
 			&& current_user_can( 'activate_plugin' );
 
 		/**
-		 * Due to difficulties in being able test with an iFramed editor the
-		 * following has been added so that the link display can be forced on.
+		 * Due to difficulties in being able test with an iFramed editor, the
+		 * following has been added so that requirement can be worked around.
 		 */
 		if ( isset( $_GET['editor/after-deprecation'] ) && 'show' === $_GET['editor/after-deprecation'] ) { // phpcs:ignore WordPress.Security.NonceVerification
-			$switch_visible = true;
+			$switch_visible = is_plugin_inactive( 'classic-editor/classic-editor.php' )
+				&& current_user_can( 'activate_plugin' );
 		}
 
 		wp_localize_script(
