@@ -290,6 +290,7 @@ class Jetpack_WPCOM_Block_Editor {
 		 */
 		$switch_visible = $this->is_iframed_block_editor()
 			&& isset( $_GET['editor/after-deprecation'] ) // phpcs:ignore WordPress.Security.NonceVerification
+			&& file_exists( WP_PLUGIN_DIR . 'classic-editor/classic-editor.php' )
 			&& is_plugin_inactive( 'classic-editor/classic-editor.php' )
 			&& current_user_can( 'activate_plugin' );
 
@@ -298,7 +299,8 @@ class Jetpack_WPCOM_Block_Editor {
 		 * following has been added so that requirement can be worked around.
 		 */
 		if ( isset( $_GET['editor/after-deprecation'] ) && 'show' === $_GET['editor/after-deprecation'] ) { // phpcs:ignore WordPress.Security.NonceVerification
-			$switch_visible = is_plugin_inactive( 'classic-editor/classic-editor.php' )
+			$switch_visible = file_exists( WP_PLUGIN_DIR . '/classic-editor/classic-editor.php' )
+				&& is_plugin_inactive( 'classic-editor/classic-editor.php' )
 				&& current_user_can( 'activate_plugin' );
 		}
 
