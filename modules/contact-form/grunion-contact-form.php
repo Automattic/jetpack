@@ -417,8 +417,12 @@ class Grunion_Contact_Form_Plugin {
 		add_filter( 'contact_form_subject', array( $this, 'replace_tokens_with_input' ), 10, 2 );
 
 		$id   = stripslashes( $_POST['contact-form-id'] );
-		$hash = isset( $_POST['contact-form-hash'] ) ? $_POST['contact-form-hash'] : null;
+		$hash = isset( $_POST['contact-form-hash'] ) ? $_POST['contact-form-hash'] : '';
 		$hash = preg_replace( '/[^\da-f]/i', '', $hash );
+
+		if ( ! is_string( $id ) || ! is_string( $hash ) ) {
+			return false;
+		}
 
 		if ( is_user_logged_in() ) {
 			check_admin_referer( "contact-form_{$id}" );
@@ -467,17 +471,17 @@ class Grunion_Contact_Form_Plugin {
 		$form = isset( Grunion_Contact_Form::$forms[ $hash ] ) ? Grunion_Contact_Form::$forms[ $hash ] : null;
 
 		// No form may mean user is using do_shortcode, grab the form using the stored post meta
-		if ( ! $form ) {
+		if ( ! $form && is_numeric( $id ) && $hash ) {
 
 			// Get shortcode from post meta
-			$shortcode = get_post_meta( $_POST['contact-form-id'], "_g_feedback_shortcode_{$hash}", true );
+			$shortcode = get_post_meta( $id, "_g_feedback_shortcode_{$hash}", true );
 
 			// Format it
 			if ( $shortcode != '' ) {
 
 				// Get attributes from post meta.
 				$parameters = '';
-				$attributes = get_post_meta( $_POST['contact-form-id'], "_g_feedback_shortcode_atts_{$hash}", true );
+				$attributes = get_post_meta( $id, "_g_feedback_shortcode_atts_{$hash}", true );
 				if ( ! empty( $attributes ) && is_array( $attributes ) ) {
 					foreach ( array_filter( $attributes ) as $param => $value ) {
 						$parameters .= " $param=\"$value\"";
@@ -490,10 +494,10 @@ class Grunion_Contact_Form_Plugin {
 				// Recreate form
 				$form = Grunion_Contact_Form::$last;
 			}
+		}
 
-			if ( ! $form ) {
-				return false;
-			}
+		if ( ! $form ) {
+			return false;
 		}
 
 		if ( is_wp_error( $form->errors ) && $form->errors->get_error_codes() ) {
