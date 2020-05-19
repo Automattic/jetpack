@@ -81,8 +81,6 @@ setup_nginx() {
 	sudo rm "$NGINX_DIR/sites-available/default"
 	sudo rm "$NGINX_DIR/sites-enabled/default"
 
-
-
 	# Figure out domain name and replace the value in config
 	# DOMAIN_NAME=$(echo $WP_SITE_URL | awk -F/ '{print $3}')
 	# DOMAIN_NAME="localhost"
