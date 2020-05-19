@@ -14,7 +14,7 @@ import {
 	JETPACK_SETUP_WIZARD_QUESTIONNAIRE_UPDATE,
 } from 'state/action-types';
 
-const data = ( state = {}, action ) => {
+const questionnaire = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case JETPACK_SETUP_WIZARD_QUESTIONNAIRE_FETCH_RECEIVE:
 			return assign( {}, state, action.questionnaire );
@@ -37,12 +37,12 @@ const requests = ( state = {}, action ) => {
 	}
 };
 
-export const reducer = combineReducers( { data, requests } );
+export const reducer = combineReducers( { questionnaire, requests } );
 
 export const isFetchingSetupWizardQuestionnaire = state => {
 	return !! state.jetpack.setupWizard.requests.isFetchingSetupQuestionnaire;
 };
 
 export const getSetupWizardAnswer = ( state, question ) => {
-	return get( state.jetpack.setupWizard.data, question );
+	return get( state.jetpack.setupWizard.questionnaire, question );
 };
