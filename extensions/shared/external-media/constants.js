@@ -132,7 +132,6 @@ export const PEXELS_EXAMPLE_QUERIES = [
 	'river',
 	'clouds',
 	'pattern',
-	'shapes',
 	'abstract',
 	'sky',
 ];
