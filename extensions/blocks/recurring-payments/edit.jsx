@@ -56,7 +56,7 @@ class MembershipsButtonEdit extends Component {
 			products: [],
 			siteSlug: '',
 			editedProductCurrency: 'USD',
-			editedProductPrice: minimumTransactionAmountForCurrency( 'USD' ),
+			editedProductPrice: parseFloat( minimumTransactionAmountForCurrency( 'USD' ) ).toFixed( 2 ),
 			editedProductPriceValid: true,
 			editedProductTitle: '',
 			editedProductTitleValid: true,
@@ -248,7 +248,7 @@ class MembershipsButtonEdit extends Component {
 								'membership-button__field-error': ! this.state.editedProductPriceValid,
 							} ) }
 							onChange={ this.handlePriceChange }
-							placeholder={ parseFloat( minPrice ).toFixed( 2 ) }
+							placeholder={ minPrice }
 							required
 							min="0"
 							step="1"
