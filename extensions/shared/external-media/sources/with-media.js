@@ -122,7 +122,7 @@ export default function withMedia() {
 				apiFetch( {
 					path,
 					method,
-					parse: false,
+					parse: window.wpcomFetch === typeof undefined,
 				} )
 					.then( result => {
 						this.setState( {
