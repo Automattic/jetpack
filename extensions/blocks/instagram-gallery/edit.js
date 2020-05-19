@@ -61,6 +61,7 @@ const InstagramGalleryEdit = props => {
 		accessToken,
 		noticeOperations,
 		setAttributes,
+		setSelectedAccount,
 	} );
 	const {
 		connectToService,

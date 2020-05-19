@@ -16,7 +16,12 @@ import { addQueryArgs } from '@wordpress/url';
  */
 import { MAX_IMAGE_COUNT } from './constants';
 
-export default function useInstagramGallery( { accessToken, noticeOperations, setAttributes } ) {
+export default function useInstagramGallery( {
+	accessToken,
+	noticeOperations,
+	setAttributes,
+	setSelectedAccount,
+} ) {
 	const [ images, setImages ] = useState( [] );
 	const [ isLoadingGallery, setIsLoadingGallery ] = useState( false );
 
@@ -47,6 +52,7 @@ export default function useInstagramGallery( { accessToken, noticeOperations, se
 					);
 					setImages( [] );
 					setAttributes( { accessToken: undefined } );
+					setSelectedAccount( undefined );
 					return;
 				}
 
@@ -63,8 +69,9 @@ export default function useInstagramGallery( { accessToken, noticeOperations, se
 				setIsLoadingGallery( false );
 				setImages( [] );
 				setAttributes( { accessToken: undefined } );
+				setSelectedAccount( undefined );
 			} );
-	}, [ accessToken, noticeOperations, setAttributes ] );
+	}, [ accessToken, noticeOperations, setAttributes, setSelectedAccount ] );
 
 	return { images, isLoadingGallery, setImages };
 }
