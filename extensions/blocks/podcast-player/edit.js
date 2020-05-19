@@ -92,7 +92,7 @@ const PodcastPlayerEdit = ( {
 	// State.
 	const [ editedUrl, setEditedUrl ] = useState( url || '' );
 	const [ isEditing, setIsEditing ] = useState( false );
-	const [ feedData, setFeedData ] = useState( exampleFeedData );
+	const [ feedData, setFeedData ] = useState( exampleFeedData || {} );
 	const cancellableFetch = useRef();
 	const [ isInteractive, setIsInteractive ] = useState( false );
 
