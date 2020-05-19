@@ -23,7 +23,7 @@ jobs:
       - name: Build
         uses: ianwalter/puppeteer@12728ddef82390d1ecd4732fb543f62177392fbb
         with:
-          args: yarn && yarn build
+          args: yarn build
       - name: script23
         run: yarn build
       - name: Test
