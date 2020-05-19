@@ -336,7 +336,7 @@ class Jetpack_JSON_API_Sync_Close_Endpoint extends Jetpack_JSON_API_Sync_Endpoin
 		$response = $queue->close( $buffer, $request_body['item_ids'] );
 
 		// Perform another checkout?
-		if ( $request_body['continue'] ) {
+		if ( isset( $request_body['continue'] ) && $request_body['continue'] ) {
 			if ( in_array( $queue_name, array( 'full_sync', 'immediate' ), true ) ) {
 				// Send Full Sync Actions.
 				Sender::get_instance()->do_full_sync();
