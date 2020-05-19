@@ -60,7 +60,12 @@ function PexelsMedia( props ) {
 	return (
 		<div className="jetpack-external-media-wrapper__pexels">
 			<form className="jetpack-external-media-header__pexels" onSubmit={ onSearch }>
-				<TextControl type="search" value={ searchQuery } onChange={ setSearchQuery } />
+				<TextControl
+					aria-label={ __( 'Search', 'jetpack' ) }
+					type="search"
+					value={ searchQuery }
+					onChange={ setSearchQuery }
+				/>
 				<Button
 					isPrimary
 					onClick={ onSearch }
