@@ -7,7 +7,7 @@ env:
   DB_ADAPTER: mysql
   DB_HOST: 127.0.0.1
   DB_USERNAME: root
-  DB_PASSWORD: ""
+  DB_PASSWORD: "root"
   CODECEPTION_URL: 127.0.0.1
   CODECEPTION_PORT: 8888
 jobs:
