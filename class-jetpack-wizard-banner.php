@@ -144,63 +144,74 @@ class Jetpack_Wizard_Banner {
 
 		?>
 		<div id="jp-wizard-banner" class="jp-wizard-banner">
-			<span
-				class="notice-dismiss wizard-banner-dismiss"
-				title="<?php esc_attr_e( 'Dismiss this notice', 'jetpack' ); ?>">
-			</span>
-			<div class="jp-emblem">
-			<?php
-				echo $jetpack_logo->get_jp_emblem_larger(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			?>
-			</div>
-			<img
-				class="powering-up-img"
-				width="200px"
-				height="200px"
-				src="<?php echo esc_url( $powering_up_logo ); ?>"
-				alt="<?php esc_attr_e( 'A jetpack site powering up', 'jetpack' ); ?>"
-			/>
-			<h2 class="jp-wizard-banner-wizard-header">
-				<?php esc_html_e( 'Set up Jetpack for better site security, performance, and more', 'jetpack' ); ?>
-			</h2>
-			<p class="jp-wizard-banner-wizard-paragraph">
-				<?php esc_html_e( 'Jetpack is a cloud-powered tool built by Automattic.', 'jetpack' ); ?>
-			</p>
-			<p class="jp-wizard-banner-wizard-paragraph">
-				<?php esc_html_e( 'Answer a few questions and we’ll help you secure, speed up, customize, and grow your WordPress website.', 'jetpack' ); ?>
-			</p>
-			<div class="jp-wizard-banner-wizard-intro-question">
-				<h2>
-					<?php
-					/* translators: %s is the site name */
-					printf(
-						/* translators: %s is the site name */
-						esc_html__( 'What will %s be used for?', 'jetpack' ),
-						esc_html( get_bloginfo( 'name' ) )
-					);
-					?>
-				</h2>
-				<div class="jp-wizard-banner-wizard-answer-buttons">
-					<a
-						class="button button-primary jp-wizard-banner-wizard-button"
-						href="<?php echo esc_url( Jetpack::admin_url( 'page=jetpack#/setup/income?use=personal' ) ); ?>"
-					>
-					<?php esc_html_e( 'Personal Use', 'jetpack' ); ?>
-					</a>
-					<a
-						class="button button-primary jp-wizard-banner-wizard-button"
-						href="<?php echo esc_url( Jetpack::admin_url( 'page=jetpack#/setup/income?use=business' ) ); ?>"
-					>
-						<?php esc_html_e( 'Business Use', 'jetpack' ); ?>
-					</a>
+			<div class="jp-wizard-banner-grid">
+				<div class="jp-wizard-banner-grid-a">
+					<div class="jp-emblem">
+						<?php
+							echo $jetpack_logo->get_jp_emblem_larger(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+						?>
+					</div>
+					<h2 class="jp-wizard-banner-wizard-header">
+						<?php esc_html_e( 'Set up Jetpack for better site security, performance, and more', 'jetpack' ); ?>
+					</h2>
+					<p class="jp-wizard-banner-wizard-paragraph">
+						<?php esc_html_e( 'Jetpack is a cloud-powered tool built by Automattic.', 'jetpack' ); ?>
+					</p>
+					<p class="jp-wizard-banner-wizard-paragraph">
+						<?php esc_html_e( 'Answer a few questions and we’ll help you secure, speed up, customize, and grow your WordPress website.', 'jetpack' ); ?>
+					</p>
+					<div class="jp-wizard-banner-wizard-intro-question">
+						<h2>
+							<?php
+							/* translators: %s is the site name */
+							printf(
+								/* translators: %s is the site name */
+								esc_html__( 'What will %s be used for?', 'jetpack' ),
+								esc_html( get_bloginfo( 'name' ) )
+							);
+							?>
+						</h2>
+						<div class="jp-wizard-banner-wizard-answer-buttons">
+							<a
+								class="button button-primary jp-wizard-banner-wizard-button"
+								href="<?php echo esc_url( Jetpack::admin_url( 'page=jetpack#/setup/income?use=personal' ) ); ?>"
+							>
+							<?php esc_html_e( 'Personal Use', 'jetpack' ); ?>
+							</a>
+							<a
+								class="button button-primary jp-wizard-banner-wizard-button"
+								href="<?php echo esc_url( Jetpack::admin_url( 'page=jetpack#/setup/income?use=business' ) ); ?>"
+							>
+								<?php esc_html_e( 'Business Use', 'jetpack' ); ?>
+							</a>
+						</div>
+						<a
+							class="jp-wizard-banner-wizard-skip-link"
+							href="<?php echo esc_url( Jetpack::admin_url( 'page=jetpack#/setup/features' ) ); ?>"
+						>
+							<?php esc_html_e( 'Skip to recommended features', 'jetpack' ); ?>
+						</a>
+					</div>
 				</div>
-				<a
-					class="jp-wizard-banner-wizard-skip-link"
-					href="<?php echo esc_url( Jetpack::admin_url( 'page=jetpack#/setup/features' ) ); ?>"
-				>
-					<?php esc_html_e( 'Skip to recommended features', 'jetpack' ); ?>
-				</a>
+
+
+				<div class="jp-wizard-banner-grid-b">
+					<img
+						class="powering-up-img"
+						width="200px"
+						height="200px"
+						src="<?php echo esc_url( $powering_up_logo ); ?>"
+						alt="<?php esc_attr_e( 'A jetpack site powering up', 'jetpack' ); ?>"
+					/>
+				</div>
+
+				<span
+					class="notice-dismiss wizard-banner-dismiss"
+					title="<?php esc_attr_e( 'Dismiss this notice', 'jetpack' ); ?>">
+				</span>
+
 			</div>
+
 		</div>
 		<?php
 	}

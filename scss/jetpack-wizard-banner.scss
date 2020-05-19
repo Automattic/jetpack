@@ -26,11 +26,33 @@
 	}
 }
 
+.jp-wizard-banner-grid {
+	display: flex;
+}
+
+.jp-wizard-banner-grid-a {
+	width: 95%;
+
+	@include breakpoint( '<960px' ) {
+		width: 100%;
+	}
+}
+
+.jp-wizard-banner-grid-b {
+	width: 20%;
+	display: block;
+	min-width: 200px;
+
+	@include breakpoint( '<960px' ) {
+		display: none;
+	}
+}
+
 .powering-up-img {
 	border: none;
-	float: right;
 	margin-right: 1rem;
-	margin-top: 1rem;
+	margin-top: 3rem;
+	margin-left: 1rem;
 
 	@include breakpoint( '<960px' ) {
 		display: none;
@@ -38,10 +60,17 @@
 }
 
 .wizard-banner-dismiss {
-	position: relative;
 	float: right;
-	margin-top: -25px;
-	margin-right: -25px;
+	height: 20px;
+	width: 20px;
+	margin-top: 80px;
+	margin-right: 30px;
+	position: fixed;
+
+	@include breakpoint( '<660px' ) {
+		margin-top: 95px;
+		margin-right: 25px;
+	}
 }
 
 .jp-wizard-banner-wizard-paragraph {
