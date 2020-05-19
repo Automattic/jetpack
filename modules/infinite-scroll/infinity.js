@@ -353,6 +353,7 @@
 		// Fire the ajax request.
 		xhr = new XMLHttpRequest();
 		xhr.open( 'POST', infiniteScroll.settings.ajaxurl, true );
+		xhr.setRequestHeader( 'X-Requested-With', 'XMLHttpRequest' );
 		xhr.setRequestHeader( 'Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8' );
 		xhr.send( self.urlEncodeJSON( query ) );
 
