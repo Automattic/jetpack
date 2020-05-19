@@ -16,17 +16,11 @@ jobs:
         with:
           php-version: '7.4'
           tools: composer
-      - name: script33
-        run: which node
-      - name: script233
-        run: which php
-      # - name: Build
+      - name: script23
+        run: yarn && yarn build
+      - name: Run tests
+        run: E2E_DEBUG=true yarn test-e2e --runInBand --verbose
+      # - name: Test
       #   uses: ianwalter/puppeteer@12728ddef82390d1ecd4732fb543f62177392fbb
       #   with:
-      #     args: yarn build
-      - name: script23
-        run: yarn build
-      - name: Test
-        uses: ianwalter/puppeteer@12728ddef82390d1ecd4732fb543f62177392fbb
-        with:
-          args: E2E_DEBUG=true yarn test-e2e --runInBand --verbose
+      #     args: E2E_DEBUG=true yarn test-e2e --runInBand --verbose
