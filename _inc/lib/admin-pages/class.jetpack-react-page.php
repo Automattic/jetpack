@@ -355,11 +355,13 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		/**
 		 * Determines if the Setup Wizard is displayed or not.
 		 *
-		 * @since 8.5
+		 * @since 8.5.0
 		 *
 		 * @param array $jetpack_show_setup_wizard If true, the Setup Wizard will be displayed. Otherwise it will not display.
 		 */
-		return apply_filters( 'jetpack_show_setup_wizard', false ) && Jetpack::is_active();
+		return apply_filters( 'jetpack_show_setup_wizard', false )
+			&& Jetpack::is_active()
+			&& current_user_can( 'jetpack_manage_modules' );
 	}
 }
 
@@ -392,7 +394,7 @@ function jetpack_current_user_data() {
 		'username'    => $current_user->user_login,
 		'id'          => $current_user->ID,
 		'wpcomUser'   => $dotcom_data,
-		'gravatar'    => get_avatar( $current_user->ID, 40, 'mm', '', array( 'force_display' => true ) ),
+		'gravatar'    => get_avatar_url( $current_user->ID, 64, 'mm', '', array( 'force_display' => true ) ),
 		'permissions' => array(
 			'admin_page'         => current_user_can( 'jetpack_admin_page' ),
 			'connect'            => current_user_can( 'jetpack_connect' ),

@@ -383,6 +383,11 @@ class Queue {
 		$is_valid = $this->validate_checkout( $buffer );
 
 		if ( is_wp_error( $is_valid ) ) {
+			// Always delete ids_to_remove even when buffer is no longer checked-out.
+			// They were processed by WP.com so safe to remove from queue.
+			if ( ! is_null( $ids_to_remove ) ) {
+				$this->delete( $ids_to_remove );
+			}
 			return $is_valid;
 		}
 

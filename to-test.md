@@ -18,6 +18,8 @@ We've made changes to the Revue block, and added customization options to the bu
 
 We've made several changes to the Carousel feature in this release. You'll want to test the feature, with and without the AMP plugin, and ensure it still works well in AMP views as well as on desktop.
 
+There's a new toggle in Jetpack > Settings > Writing. It allows users to hide the comments area in the image lightbox. Try toggling it off and ensure that the carousel no longer displays the Comment button, the text box to add a comment, and the comments list.
+
 ### Publicize
 
 We've made some changes to the default behaviour when publicizing to Twitter accounts. Until now, when you would publish a new post with an image, that image would be uploaded and attached to the Publicized tweet. From now on, when you do publish a post, Publicize will let Twitter build a preview card for the tweet, based on the link above. Please try publishing some posts with Publicize to Twitter activated, and ensure that Publicize still works.

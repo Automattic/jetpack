@@ -34,7 +34,7 @@ We recommend that you always use the latest published versions of our packages, 
 
 ### Initialize the package
 
-Second, we must initialize ("configure") the `jetpack-connection` package within your plugin.
+Second, we must initialize ("configure") the `jetpack-connection` package within your plugin, and provide the information about it.
 
 This is where the `jetpack-config` and `jetpack-autoload` packages come into play. Do this, and you're ready to start consuming the Jetpack connection!
 
@@ -47,7 +47,14 @@ function jpcs_load_plugin() {
 
 	// Here we enable the Jetpack packages.
 	$config = new Config();
-	$config->ensure( 'connection' );
+	$config->ensure(
+        'connection',
+        array(
+            'slug' => 'plugin-slug', // Required, slug of your plugin, should be unique.
+            'name' => 'Plugin Name', // Required, your plugin name.
+            'url_info' => 'https://example.org/conneciton-info', // Optional, URL of the connection info page.
+        )
+    );
 }
 
 add_action( 'plugins_loaded', 'jpcs_load_plugin', 1 );
@@ -62,7 +69,7 @@ add_action( 'admin_post_register_site', 'your_plugin_register_site' );
 
 function your_plugin_register_site() {
 	check_admin_referer( 'register-site' );
-	( new Manager() )->register();
+	( new Manager( 'plugin-slug' ) )->register();
 
 	// This is where you could put your error handling, redirects, or whatever decorations you need.
 }
@@ -95,10 +102,10 @@ function your_plugin_disconnect_site() {
 	check_admin_referer( 'disconnect-site' );
 
 	// This will destroy the blog tokens on both this site, and the tokens stored on wordpress.com
-	( new Manager() )->disconnect_site_wpcom();
+	( new Manager( 'plugin-slug' ) )->disconnect_site_wpcom();
 
 	// Clear all the tokens!
-	( new Manager() )->delete_all_connection_tokens();
+	( new Manager( 'plugin-slug' ) )->delete_all_connection_tokens();
 
 	// Your error handling and decorations
 }

@@ -8,10 +8,10 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Connection\Manager;
-use Automattic\Jetpack\JITM;
+use Automattic\Jetpack\JITMS\JITM;
+use Automattic\Jetpack\Connection\Plugin;
 use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
 use Automattic\Jetpack\Sync\Main as Sync_Main;
-use Automattic\Jetpack\Terms_Of_Service;
 
 /**
  * The configuration class.
@@ -36,26 +36,57 @@ class Config {
 	);
 
 	/**
+	 * Initialization options stored here.
+	 *
+	 * @var array
+	 */
+	protected $feature_options = array();
+
+	/**
+	 * Indicates if the configuration is needed.
+	 * If at least one `Config` object was created, the property is set to `true`.
+	 * If no objects were created, the value is `false`.
+	 *
+	 * @var bool
+	 */
+	private static $is_configuration_needed = false;
+
+	/**
+	 * Indicates whether the configuration process has completed.
+	 *
+	 * @var bool
+	 */
+	private static $is_configured = false;
+
+	/**
 	 * Creates the configuration class instance.
 	 */
 	public function __construct() {
-
 		/**
 		 * Adding the config handler to run on priority 2 because the class itself is
 		 * being constructed on priority 1.
 		 */
 		add_action( 'plugins_loaded', array( $this, 'on_plugins_loaded' ), 2 );
+
+		if ( false === self::$is_configuration_needed ) {
+			// This is the first instance of the class, add the `on_configured` action (we need it to run only once).
+			add_action( 'plugins_loaded', array( $this, 'on_configured' ), 3 );
+			self::$is_configuration_needed = true;
+		}
 	}
 
 	/**
 	 * Require a feature to be initialized. It's up to the package consumer to actually add
 	 * the package to their composer project. Declaring a requirement using this method
-	 * instructs the class to initalize it.
+	 * instructs the class to initialize it.
 	 *
 	 * @param String $feature the feature slug.
+	 * @param array  $options Additional options, optional.
 	 */
-	public function ensure( $feature ) {
+	public function ensure( $feature, array $options = array() ) {
 		$this->config[ $feature ] = true;
+
+		$this->set_feature_options( $feature, $options );
 	}
 
 	/**
@@ -81,9 +112,26 @@ class Config {
 		}
 
 		if ( $this->config['jitm'] ) {
-			$this->ensure_class( 'Automattic\Jetpack\JITM' )
+			$this->ensure_class( 'Automattic\Jetpack\JITMS\JITM' )
 				&& $this->ensure_feature( 'jitm' );
 		}
+	}
+
+	/**
+	 * The method is called when configuration is completed.
+	 * `Config` is done, so we set the flag..
+	 */
+	public static function on_configured() {
+		self::$is_configured = true;
+	}
+
+	/**
+	 * The method can be used to check if the `Config` needs to be run.
+	 *
+	 * @return bool Returns `true` if configuration has completed, or not needed (no instances were created); `false` if configuration is pending.
+	 */
+	public static function is_configured() {
+		return ! self::$is_configuration_needed || self::$is_configured;
 	}
 
 	/**
@@ -115,6 +163,7 @@ class Config {
 
 	/**
 	 * Ensures a feature is enabled, sets it up if it hasn't already been set up.
+	 * Run the options method (if exists) every time the method is called.
 	 *
 	 * @param String $feature slug of the feature.
 	 * @return Integer either FEATURE_ENSURED, FEATURE_ALREADY_ENSURED or FEATURE_NOT_AVAILABLE constants.
@@ -123,6 +172,11 @@ class Config {
 		$method = 'enable_' . $feature;
 		if ( ! method_exists( $this, $method ) ) {
 			return self::FEATURE_NOT_AVAILABLE;
+		}
+
+		$method_options = 'ensure_options_' . $feature;
+		if ( method_exists( $this, $method_options ) ) {
+			$this->{ $method_options }();
 		}
 
 		if ( did_action( 'jetpack_feature_' . $feature . '_enabled' ) ) {
@@ -195,6 +249,56 @@ class Config {
 		Manager::configure();
 
 		return true;
+	}
+
+	/**
+	 * Setup the Connection options.
+	 */
+	protected function ensure_options_connection() {
+		$options = $this->get_feature_options( 'connection' );
+
+		if ( ! empty( $options['slug'] ) ) {
+			// The `slug` and `name` are removed from the options because they need to be passed as arguments.
+			$slug = $options['slug'];
+			unset( $options['slug'] );
+
+			$name = $slug;
+			if ( ! empty( $options['name'] ) ) {
+				$name = $options['name'];
+				unset( $options['name'] );
+			}
+
+			( new Plugin( $slug ) )->add( $name, $options );
+		}
+
+		return true;
+	}
+
+	/**
+	 * Temporary save initialization options for a feature.
+	 *
+	 * @param string $feature The feature slug.
+	 * @param array  $options The options.
+	 *
+	 * @return bool
+	 */
+	protected function set_feature_options( $feature, array $options ) {
+		if ( $options ) {
+			$this->feature_options[ $feature ] = $options;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Get initialization options for a feature from the temporary storage.
+	 *
+	 * @param string $feature The feature slug.
+	 *
+	 * @return array
+	 */
+	protected function get_feature_options( $feature ) {
+		return empty( $this->feature_options[ $feature ] ) ? array() : $this->feature_options[ $feature ];
 	}
 
 }

@@ -8,13 +8,17 @@ import { __, _x } from '@wordpress/i18n';
  */
 import attributes from './attributes';
 import edit from './edit';
+import './store';
 import { supportsCollections } from '../../shared/block-category';
 
 export const name = 'instagram-gallery';
 
 export const settings = {
-	title: __( 'Instagram Gallery', 'jetpack' ),
-	description: __( 'Embed posts from your Instagram account.', 'jetpack' ),
+	title: __( 'Latest Instagram Posts', 'jetpack' ),
+	description: __(
+		'Display an automatically updating list of the latest posts from your Instagram feed.',
+		'jetpack'
+	),
 	icon: 'instagram',
 	category: supportsCollections() ? 'embed' : 'jetpack',
 	keywords: [

@@ -8,6 +8,8 @@
 		"eventbrite",
 		"gif",
 		"google-calendar",
+		"image-compare",
+		"instagram-gallery",
 		"likes",
 		"mailchimp",
 		"map",
@@ -30,7 +32,7 @@
 		"videopress",
 		"wordads"
 	],
-	"beta": [ "amazon", "instagram-gallery" ],
+	"beta": [ "amazon" ],
 	"experimental": [ "seo" ],
 	"no-post-editor": [
 		"business-hours",
@@ -41,6 +43,7 @@
 		"eventbrite",
 		"gif",
 		"google-calendar",
+		"instagram-gallery",
 		"mailchimp",
 		"map",
 		"markdown",

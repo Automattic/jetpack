@@ -24,6 +24,8 @@ import {
 import PlansPage from '../pages/wpcom/plans';
 import { persistPlanData, syncPlanData } from '../plan-helper';
 import logger from '../logger';
+import InPlaceAuthorizeFrame from '../pages/wp-admin/in-place-authorize';
+import InPlacePlansPage from '../pages/wp-admin/in-place-plans';
 
 const cookie = config.get( 'storeSandboxCookieValue' );
 const cardCredentials = config.get( 'testCardCredentials' );
@@ -58,11 +60,11 @@ export async function connectThroughWPAdminIfNeeded( {
 		}
 	}
 
-	await doClassicConnection( plan, mockPlanData );
+	await doClassicConnection( mockPlanData );
 	await syncJetpackPlanData( plan, mockPlanData );
 }
 
-async function doClassicConnection( plan, mockPlanData ) {
+async function doClassicConnection( mockPlanData ) {
 	const jetpackPage = await JetpackPage.init( page );
 	await jetpackPage.connect();
 	// Go through Jetpack connect flow
@@ -75,6 +77,14 @@ async function doClassicConnection( plan, mockPlanData ) {
 	}
 	await ( await ThankYouPage.init( page ) ).waitForSetupAndProceed();
 	await ( await MyPlanPage.init( page ) ).returnToWPAdmin();
+}
+
+export async function doInPlaceConnection() {
+	const jetpackPage = await JetpackPage.init( page );
+	await jetpackPage.connect();
+
+	await ( await InPlaceAuthorizeFrame.init( page ) ).approve();
+	await ( await InPlacePlansPage.init( page ) ).selectFreePlan();
 }
 
 export async function syncJetpackPlanData( plan, mockPlanData = true ) {

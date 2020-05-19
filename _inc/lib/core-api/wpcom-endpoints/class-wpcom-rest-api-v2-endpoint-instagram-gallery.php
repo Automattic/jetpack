@@ -20,6 +20,15 @@ class WPCOM_REST_API_V2_Endpoint_Instagram_Gallery extends WP_REST_Controller {
 	public function __construct() {
 		$this->namespace = 'wpcom/v2';
 		$this->rest_base = 'instagram-gallery';
+		$this->is_wpcom  = false;
+
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$this->is_wpcom = true;
+
+			if ( ! class_exists( 'WPCOM_Instagram_Gallery_Helper' ) ) {
+				\jetpack_require_lib( 'instagram-gallery-helper' );
+			}
+		}
 
 		if ( ! class_exists( 'Jetpack_Instagram_Gallery_Helper' ) ) {
 			\jetpack_require_lib( 'class-jetpack-instagram-gallery-helper' );
@@ -97,6 +106,10 @@ class WPCOM_REST_API_V2_Endpoint_Instagram_Gallery extends WP_REST_Controller {
 	 * @return mixed
 	 */
 	public function get_instagram_connect_url() {
+		if ( $this->is_wpcom ) {
+			return WPCOM_Instagram_Gallery_Helper::get_connect_url();
+		}
+
 		$site_id = Jetpack_Instagram_Gallery_Helper::get_site_id();
 		if ( is_wp_error( $site_id ) ) {
 			return $site_id;
@@ -126,6 +139,10 @@ class WPCOM_REST_API_V2_Endpoint_Instagram_Gallery extends WP_REST_Controller {
 	 * @return mixed
 	 */
 	public function get_instagram_access_token() {
+		if ( $this->is_wpcom ) {
+			return WPCOM_Instagram_Gallery_Helper::get_token_id();
+		}
+
 		$response = Client::wpcom_json_api_request_as_user( '/me/connections' );
 		if ( is_wp_error( $response ) ) {
 			return $response;
@@ -154,6 +171,16 @@ class WPCOM_REST_API_V2_Endpoint_Instagram_Gallery extends WP_REST_Controller {
 		$site_id = Jetpack_Instagram_Gallery_Helper::get_site_id();
 		if ( is_wp_error( $site_id ) ) {
 			return $site_id;
+		}
+
+		Jetpack_Instagram_Gallery_Helper::delete_instagram_gallery_cache( $request['access_token'] );
+
+		if ( $this->is_wpcom ) {
+			$response = WPCOM_Instagram_Gallery_Helper::delete_token( $request['access_token'] );
+			if ( is_wp_error( $response ) ) {
+				return $response;
+			}
+			return 200;
 		}
 
 		$path     = sprintf( '/sites/%d/instagram/%s', $site_id, $request['access_token'] );

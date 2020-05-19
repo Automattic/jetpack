@@ -1,8 +1,8 @@
-<?php
+<?php  // phpcs:disable
 
 namespace Automattic\Jetpack;
 
-use Automattic\Jetpack\JITM;
+use Automattic\Jetpack\JITMS\JITM;
 use phpmock\functions\FunctionProvider;
 use phpmock\Mock;
 use phpmock\MockBuilder;
@@ -36,7 +36,13 @@ class Test_Jetpack_JITM extends TestCase {
 	public function test_jitm_disabled_by_filter() {
 		$this->mock_filters( array(
 			array( 'jetpack_just_in_time_msgs', false, false ),
-		) );
+		), "Automattic\Jetpack\JITMS" );
+
+		// Used for Status->is_development_mode().
+		$this->mock_filters( array(
+			array( 'jetpack_just_in_time_msgs', false, false ),
+		), "Automattic\Jetpack" );
+		$this->mock_site_url();
 
 		$jitm = new JITM();
 		$this->assertFalse( $jitm->register() );
@@ -47,7 +53,13 @@ class Test_Jetpack_JITM extends TestCase {
 	public function test_jitm_enabled_by_default() {
 		$this->mock_filters( array(
 			array( 'jetpack_just_in_time_msgs', false, true ),
-		) );
+		), "Automattic\Jetpack\JITMS" );
+
+		// Used for Status->is_development_mode().
+		$this->mock_filters( array(
+			array( 'jetpack_just_in_time_msgs', false, true ),
+		), "Automattic\Jetpack" );
+		$this->mock_site_url();
 
 		$jitm = new JITM();
 		$this->assertTrue( $jitm->register() );
@@ -92,10 +104,20 @@ class Test_Jetpack_JITM extends TestCase {
 	}
 	*/
 
-	protected function mock_filters( $filters ) {
+	protected function mock_site_url() {
+		$builder = new MockBuilder();
+		$builder->setNamespace( "Automattic\Jetpack" )
+			->setName( 'site_url' )
+			->setFunction( function() {
+				return "unit-test";
+			} );
+		$builder->build()->enable();
+	}
+
+	protected function mock_filters( $filters, $namespace ) {
 		$this->mocked_filters = $filters;
 		$builder = new MockBuilder();
-		$builder->setNamespace( __NAMESPACE__ )
+		$builder->setNamespace( $namespace )
 			->setName( 'apply_filters' )
 			->setFunction(
 				function( ...$current_args ) {
@@ -117,7 +139,7 @@ class Test_Jetpack_JITM extends TestCase {
 
 	protected function mock_add_get_current_screen() {
 		$builder = new MockBuilder();
-		$builder->setNamespace( __NAMESPACE__ )
+		$builder->setNamespace( "Automattic\Jetpack\JITMS" )
 			->setName( 'get_current_screen' )
 			->setFunction( function() {
 				return new \stdClass;
@@ -127,7 +149,7 @@ class Test_Jetpack_JITM extends TestCase {
 
 	protected function mock_add_action() {
 		$builder = new MockBuilder();
-		$builder->setNamespace( __NAMESPACE__ )
+		$builder->setNamespace( "Automattic\Jetpack\JITMS" )
 			->setName( 'add_action' )
 			->setFunction( function( $name, $callable ) {
 				global $actions;
@@ -172,7 +194,7 @@ class Test_Jetpack_JITM extends TestCase {
 
 	protected function mock_wp_enqueue_script() {
 		$builder = new MockBuilder();
-		$builder->setNamespace( __NAMESPACE__ )
+		$builder->setNamespace( "Automattic\Jetpack\JITMS" )
 			->setName( 'wp_enqueue_script' )
 			->setFunction( function( $handle, $src = '', $deps = array(), $ver = false, $in_footer = false ) {
 				global $wp_scripts;
@@ -203,7 +225,7 @@ class Test_Jetpack_JITM extends TestCase {
 
 	protected function mock_empty_function( $name ) {
 		$builder = new MockBuilder();
-		$builder->setNamespace( __NAMESPACE__ )
+		$builder->setNamespace( "Automattic\Jetpack\JITMS" )
 			->setName( $name )
 			->setFunction( function() use ( $name ) {
 				// echo "Called $name with " . print_r( func_get_args(),1 ) . "\n";

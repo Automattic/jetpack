@@ -2,7 +2,7 @@
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\JITM;
+use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\Status;
 
@@ -163,6 +163,17 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'callback' => __CLASS__ . '::get_user_connection_data',
 			'permission_callback' => __CLASS__ . '::get_user_connection_data_permission_callback',
 		) );
+
+		// Get list of plugins that use the Jetpack connection.
+		register_rest_route(
+			'jetpack/v4',
+			'/connection/plugins',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_connection_plugins',
+				'permission_callback' => __CLASS__ . '::activate_plugins_permission_check',
+			)
+		);
 
 		// Start the connection process by registering the site on WordPress.com servers.
 		register_rest_route( 'jetpack/v4', '/connection/register', array(
@@ -660,7 +671,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return array An array of jitms
 	 */
 	public static function get_jitm_message( $request ) {
-		$jitm = new JITM();
+		$jitm = JITM::get_instance();
 
 		if ( ! $jitm->register() ) {
 			return array();
@@ -676,7 +687,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool Always True
 	 */
 	public static function delete_jitm_message( $request ) {
-		$jitm = new JITM();
+		$jitm = JITM::get_instance();
 
 		if ( ! $jitm->register() ) {
 			return true;
@@ -1088,6 +1099,28 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
+	 * Get plugins connected to the Jetpack.
+	 *
+	 * @return WP_REST_Response|WP_Error Response or error object, depending on the request result.
+	 */
+	public static function get_connection_plugins() {
+		$plugins = ( new Connection_Manager() )->get_connected_plugins();
+
+		if ( is_wp_error( $plugins ) ) {
+			return $plugins;
+		}
+
+		array_walk(
+			$plugins,
+			function( &$data, $slug ) {
+				$data['slug'] = $slug;
+			}
+		);
+
+		return rest_ensure_response( array_values( $plugins ) );
+	}
+
+	/**
 	 * Test connection permission check method.
 	 *
 	 * @since 7.1.0
@@ -1365,7 +1398,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @return string|WP_Error A raw URL if the connection URL could be built; error message otherwise.
 	 */
-	public static function build_connect_url( $request ) {
+	public static function build_connect_url( $request = array() ) {
 		$from     = isset( $request['from'] ) ? $request['from'] : false;
 		$redirect = isset( $request['redirect'] ) ? $request['redirect'] : false;
 
@@ -1868,6 +1901,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'description'       => wp_kses( sprintf( __( 'Show photo metadata (<a href="https://en.wikipedia.org/wiki/Exchangeable_image_file_format" target="_blank">Exif</a>) in carousel, when available.', 'jetpack' ) ), array( 'a' => array( 'href' => true, 'target' => true ) ) ),
 				'type'              => 'boolean',
 				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'carousel',
+			),
+			'carousel_display_comments'            => array(
+				'description'       => esc_html__( 'Show comments area in carousel', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 1,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'carousel',
 			),

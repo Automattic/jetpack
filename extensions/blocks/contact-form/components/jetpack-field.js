@@ -4,59 +4,38 @@
 import classNames from 'classnames';
 import { __ } from '@wordpress/i18n';
 import { Fragment } from '@wordpress/element';
-import { InspectorControls } from '@wordpress/block-editor';
-import { PanelBody, TextControl } from '@wordpress/components';
+import { TextControl, Disabled } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
 import JetpackFieldLabel from './jetpack-field-label';
+import JetpackFieldControls from './jetpack-field-controls';
 
-function JetpackField( {
-	isSelected,
-	type,
-	required,
-	label,
-	setAttributes,
-	defaultValue,
-	placeholder,
-	id,
-} ) {
+export default function JetpackField( props ) {
+	const { id, isSelected, type, required, label, setAttributes, placeholder } = props;
+
 	return (
 		<Fragment>
 			<div className={ classNames( 'jetpack-field', { 'is-selected': isSelected } ) }>
-				<TextControl
-					type={ type }
-					label={
-						<JetpackFieldLabel
-							required={ required }
-							label={ label }
-							setAttributes={ setAttributes }
-							isSelected={ isSelected }
-						/>
-					}
-					placeholder={ placeholder }
-					value={ placeholder }
-					onChange={ value => setAttributes( { placeholder: value } ) }
-					title={ __( 'Set the placeholder text', 'jetpack' ) }
+				<JetpackFieldLabel
+					required={ required }
+					label={ label }
+					setAttributes={ setAttributes }
+					isSelected={ isSelected }
 				/>
+				<Disabled>
+					<TextControl
+						type={ type }
+						placeholder={ placeholder }
+						value={ placeholder }
+						onChange={ value => setAttributes( { placeholder: value } ) }
+						title={ __( 'Set the placeholder text', 'jetpack' ) }
+					/>
+				</Disabled>
 			</div>
-			<InspectorControls>
-				<PanelBody title={ __( 'Field Settings', 'jetpack' ) }>
-					<TextControl
-						label={ __( 'Default Value', 'jetpack' ) }
-						value={ defaultValue }
-						onChange={ value => setAttributes( { defaultValue: value } ) }
-					/>
-					<TextControl
-						label={ __( 'ID', 'jetpack' ) }
-						value={ id }
-						onChange={ value => setAttributes( { id: value } ) }
-					/>
-				</PanelBody>
-			</InspectorControls>
+
+			<JetpackFieldControls id={ id } required={ required } setAttributes={ setAttributes } />
 		</Fragment>
 	);
 }
-
-export default JetpackField;

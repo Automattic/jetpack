@@ -1,13 +1,5 @@
-@import '../../scss/mixin_breakpoint';
 @import '../../scss/calypso-colors';
-
-.jp-setup-wizard-intro {
-	text-align: center;
-	background: $white;
-	padding: 1rem;
-	box-shadow: 0px 2px 6px rgba( 0, 0, 0, 0.03 ), 0px 1px 2px rgba( 0, 0, 0, 0.03 );
-	border: 1px solid #dcdcde;
-}
+@import '../../scss/mixin_breakpoint';
 
 .jp-setup-wizard-header {
 	@include breakpoint( '<660px' ) {
@@ -31,7 +23,7 @@
 	box-sizing: border-box;
 
 	@include breakpoint( '>480px' ) {
-		border: 1px solid #dddddd;
+		border: 1px solid $gray-lighten-20;
 		border-radius: 4px;
 	}
 
@@ -58,19 +50,4 @@
 		flex-direction: column;
 		align-items: center;
 	}
-}
-
-.jp-setup-wizard-button {
-	margin: 1rem;
-	width: 160px;
-
-	@include breakpoint( '<480px' ) {
-		width: 100%;
-		margin: 0.5rem 0;
-	}
-}
-
-.jp-setup-wizard-skip-link {
-	text-decoration: underline !important;
-	color: #000000;
 }

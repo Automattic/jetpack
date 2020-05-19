@@ -21,6 +21,7 @@ export const settings = {
 	supports: {
 		html: false,
 		inserter: false,
+		align: [ 'left', 'right' ],
 	},
 	attributes,
 	edit,

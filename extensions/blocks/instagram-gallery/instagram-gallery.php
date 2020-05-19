@@ -44,10 +44,11 @@ function render_block( $attributes, $content ) {
 		return '';
 	}
 
-	$access_token = $attributes['accessToken'];
-	$columns      = get_instagram_gallery_attribute( 'columns', $attributes );
-	$count        = get_instagram_gallery_attribute( 'count', $attributes );
-	$spacing      = get_instagram_gallery_attribute( 'spacing', $attributes );
+	$access_token         = $attributes['accessToken'];
+	$columns              = get_instagram_gallery_attribute( 'columns', $attributes );
+	$count                = get_instagram_gallery_attribute( 'count', $attributes );
+	$is_stacked_on_mobile = get_instagram_gallery_attribute( 'isStackedOnMobile', $attributes );
+	$spacing              = get_instagram_gallery_attribute( 'spacing', $attributes );
 
 	$grid_classes = Jetpack_Gutenberg::block_classes(
 		FEATURE_NAME,
@@ -55,19 +56,33 @@ function render_block( $attributes, $content ) {
 		array(
 			'wp-block-jetpack-instagram-gallery__grid',
 			'wp-block-jetpack-instagram-gallery__grid-columns-' . $columns,
+			( $is_stacked_on_mobile ? 'is-stacked-on-mobile' : null ),
 		)
 	);
-	$grid_style   = 'grid-gap: ' . $spacing . 'px;';
-	$photo_style  = 'padding: ' . $spacing . 'px;';
+
+	$grid_style  = 'grid-gap: ' . $spacing . 'px;';
+	$photo_style = 'padding: ' . $spacing . 'px;';
 
 	if ( ! class_exists( 'Jetpack_Instagram_Gallery_Helper' ) ) {
 		\jetpack_require_lib( 'class-jetpack-instagram-gallery-helper' );
 	}
 	$gallery = Jetpack_Instagram_Gallery_Helper::get_instagram_gallery( $access_token, $count );
 
-	if ( is_wp_error( $gallery ) || empty( $gallery->images ) ) {
+	if ( is_wp_error( $gallery ) || ! property_exists( $gallery, 'images' ) || 'ERROR' === $gallery->images ) {
+		if ( current_user_can( 'edit_post', get_the_ID() ) ) {
+			$message = esc_html__( 'An error occurred in the Latest Instagram Posts block. Please try again later.', 'jetpack' )
+				. '<br />'
+				. esc_html__( '(Only administrators and the post author will see this message.)', 'jetpack' );
+			return Jetpack_Gutenberg::notice( $message, 'error', Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attributes ) );
+		}
 		return '';
 	}
+
+	if ( empty( $gallery->images ) ) {
+		return '';
+	}
+
+	$images = array_slice( $gallery->images, 0, $count );
 
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 
@@ -75,7 +90,7 @@ function render_block( $attributes, $content ) {
 	?>
 
 	<div class="<?php echo esc_attr( $grid_classes ); ?>" style="<?php echo esc_attr( $grid_style ); ?>">
-		<?php foreach ( $gallery->images as $image ) : ?>
+		<?php foreach ( $images as $image ) : ?>
 			<a
 				class="wp-block-jetpack-instagram-gallery__grid-post"
 				href="<?php echo esc_url( $image->link ); ?>"
@@ -109,9 +124,10 @@ function get_instagram_gallery_attribute( $attribute, $attributes ) {
 	}
 
 	$default_attributes = array(
-		'columns' => 3,
-		'count'   => 9,
-		'spacing' => 10,
+		'columns'           => 3,
+		'count'             => 9,
+		'isStackedOnMobile' => true,
+		'spacing'           => 10,
 	);
 
 	if ( array_key_exists( $attribute, $default_attributes ) ) {

@@ -254,6 +254,22 @@ class Comments extends Module {
 	}
 
 	/**
+	 * Whether a comment type is allowed.
+	 * A comment type is allowed if it's present in the comment type whitelist.
+	 *
+	 * @param int $comment_id ID of the comment.
+	 * @return boolean Whether the comment type is allowed.
+	 */
+	public function is_comment_type_allowed( $comment_id ) {
+		$comment = get_comment( $comment_id );
+
+		if ( isset( $comment->comment_type ) ) {
+			return in_array( $comment->comment_type, $this->get_whitelisted_comment_types(), true );
+		}
+		return false;
+	}
+
+	/**
 	 * Initialize the module in the sender.
 	 *
 	 * @access public
@@ -438,7 +454,11 @@ class Comments extends Module {
 	 * @return array|boolean False if not whitelisted, the original hook args otherwise.
 	 */
 	public function filter_meta( $args ) {
-		return ( $this->is_whitelisted_comment_meta( $args[2] ) ? $args : false );
+		if ( $this->is_comment_type_allowed( $args[1] ) && $this->is_whitelisted_comment_meta( $args[2] ) ) {
+			return $args;
+		}
+
+		return false;
 	}
 
 	/**

@@ -691,7 +691,7 @@ class Jetpack {
 		add_filter( 'jetpack_get_default_modules', array( $this, 'handle_deprecated_modules' ), 99 );
 
 		// A filter to control all just in time messages
-		add_filter( 'jetpack_just_in_time_msgs', array( $this, 'is_active_and_not_development_mode' ), 9 );
+		add_filter( 'jetpack_just_in_time_msgs', '__return_true', 9 );
 
 		add_filter( 'jetpack_just_in_time_msg_cache', '__return_true', 9 );
 
@@ -764,7 +764,6 @@ class Jetpack {
 
 		foreach (
 			array(
-				'connection',
 				'sync',
 				'tracking',
 				'tos',
@@ -774,12 +773,20 @@ class Jetpack {
 			$config->ensure( $feature );
 		}
 
+		$config->ensure(
+			'connection',
+			array(
+				'slug' => 'jetpack',
+				'name' => 'Jetpack',
+			)
+		);
+
 		if ( is_admin() ) {
 			$config->ensure( 'jitm' );
 		}
 
 		if ( ! $this->connection_manager ) {
-			$this->connection_manager = new Connection_Manager();
+			$this->connection_manager = new Connection_Manager( 'jetpack' );
 		}
 
 		/*
@@ -987,7 +994,11 @@ class Jetpack {
 	function jetpack_connection_banner_callback() {
 		check_ajax_referer( 'jp-connection-banner-nonce', 'nonce' );
 
-		if ( isset( $_REQUEST['dismissBanner'] ) ) {
+		// Disable the banner dismiss functionality if the pre-connection prompt helpers filter is set.
+		if (
+			isset( $_REQUEST['dismissBanner'] ) &&
+			! Jetpack_Connection_Banner::force_display()
+		) {
 			Jetpack_Options::update_option( 'dismissed_connection_banner', 1 );
 			wp_send_json_success();
 		}
@@ -1632,9 +1643,12 @@ class Jetpack {
 
 	/**
 	 * Is Jetpack active?
+	 * The method only checks if there's an existing token for the master user. It doesn't validate the token.
+	 *
+	 * @return bool
 	 */
 	public static function is_active() {
-		return (bool) Jetpack_Data::get_access_token( JETPACK_MASTER_USER );
+		return self::connection()->is_active();
 	}
 
 	/**
@@ -3442,6 +3456,8 @@ p {
 	 */
 	public static function plugin_deactivation() {
 		require_once ABSPATH . '/wp-admin/includes/plugin.php';
+		$tracking = new Tracking();
+		$tracking->record_user_event( 'deactivate_plugin', array() );
 		if ( is_plugin_active_for_network( 'jetpack/jetpack.php' ) ) {
 			Jetpack_Network::init()->deactivate();
 		} else {
@@ -5362,7 +5378,7 @@ endif;
 
 		// If the connection manager hasn't been instantiated, do that now.
 		if ( ! $jetpack->connection_manager ) {
-			$jetpack->connection_manager = new Connection_Manager();
+			$jetpack->connection_manager = new Connection_Manager( 'jetpack' );
 		}
 
 		return $jetpack->connection_manager;

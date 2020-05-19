@@ -307,7 +307,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 	 */
 	public function get_docs_link( $hash = '' ) {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$base_url = esc_url( Redirect::get_url( 'wpcom-support-widgets-twitter-timeline-widget' ) );
+			$base_url = 'https://wordpress.com/support/widgets/twitter-timeline-widget/';
 		} else {
 			$base_url = esc_url( Redirect::get_url( 'jetpack-support-extra-sidebar-widgets-twitter-timeline-widget' ) );
 		}

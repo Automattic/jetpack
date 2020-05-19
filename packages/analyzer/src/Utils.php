@@ -86,4 +86,45 @@ class Utils {
 		// or methods they use without runtime analysis.
 		return get_class( $object );
 	}
+
+	/**
+	 * Check if a node has a docblock containing a specific comment string.
+	 *
+	 * @param PhpParser/Node $node    Current node we are parsing.
+	 * @param string         $comment Comment to match.
+	 * @return boolean
+	 */
+	public static function has_doc_comment( $node, $comment ) {
+		if ( $node->getDocComment() && false !== strpos( $node->getDocComment(), $comment ) ) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Check if a node contains a call to a function name.
+	 * Any part of the function name will be matched.
+	 *
+	 * @param PhpParser/Node $node Current node we are parsing.
+	 * @param string         $name Function name to match.
+	 * @return boolean
+	 */
+	public static function has_function_call( $node, $name ) {
+		if ( empty( $node->getStmts() ) ) {
+			return false;
+		}
+
+		foreach ( $node->getStmts() as $stmt ) {
+			if ( ! $stmt instanceof Node\Stmt\Expression || ! $stmt->expr instanceof Node\Expr\FuncCall ) {
+				continue;
+			}
+			if ( false !== strpos( $stmt->expr->name->toCodeString(), $name ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 }

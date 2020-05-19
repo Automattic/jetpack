@@ -39,6 +39,17 @@ gulp.task( 'blocks:watch', function() {
 	} );
 } );
 
+gulp.task( 'search:watch', function() {
+	const child = require( 'child_process' ).execFile( 'yarn', [
+		'build-search:scripts',
+		'--watch',
+	] );
+
+	child.stdout.on( 'data', function( data ) {
+		log( data.toString() );
+	} );
+} );
+
 /*
 	I18n land
 */
@@ -230,7 +241,14 @@ gulp.task(
 );
 gulp.task(
 	'watch',
-	gulp.parallel( react_watch, sass_watch, sass_watch_packages, 'old-styles:watch', 'blocks:watch' )
+	gulp.parallel(
+		react_watch,
+		sass_watch,
+		sass_watch_packages,
+		'old-styles:watch',
+		'blocks:watch',
+		'search:watch'
+	)
 );
 
 // Keeping explicit task names to allow for individual runs

@@ -7,7 +7,6 @@ import { isEmpty, isEqual, times } from 'lodash';
 /**
  * WordPress dependencies
  */
-import apiFetch from '@wordpress/api-fetch';
 import { InspectorControls } from '@wordpress/block-editor';
 import {
 	Button,
@@ -17,11 +16,11 @@ import {
 	Placeholder,
 	RangeControl,
 	Spinner,
+	ToggleControl,
 	withNotices,
 } from '@wordpress/components';
-import { useEffect, useState } from '@wordpress/element';
+import { useEffect } from '@wordpress/element';
 import { __, sprintf, _n } from '@wordpress/i18n';
-import { addQueryArgs } from '@wordpress/url';
 
 /**
  * Internal dependencies
@@ -31,15 +30,27 @@ import { IS_CURRENT_USER_CONNECTED_TO_WPCOM, MAX_IMAGE_COUNT } from './constants
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import useConnectInstagram from './use-connect-instagram';
 import useConnectWpcom from './use-connect-wpcom';
+import useInstagramGallery from './use-instagram-gallery';
 import ImageTransition from './image-transition';
 import './editor.scss';
 
 const InstagramGalleryEdit = props => {
 	const { attributes, className, isSelected, noticeOperations, noticeUI, setAttributes } = props;
-	const { accessToken, align, columns, count, instagramUser, spacing } = attributes;
+	const {
+		accessToken,
+		align,
+		columns,
+		count,
+		instagramUser,
+		isStackedOnMobile,
+		spacing,
+	} = attributes;
 
-	const [ images, setImages ] = useState( [] );
-	const [ isLoadingGallery, setIsLoadingGallery ] = useState( false );
+	const { images, isLoadingGallery, setImages } = useInstagramGallery( {
+		accessToken,
+		noticeOperations,
+		setAttributes,
+	} );
 	const { isConnecting, connectToService, disconnectFromService } = useConnectInstagram( {
 		accessToken,
 		noticeOperations,
@@ -57,34 +68,6 @@ const InstagramGalleryEdit = props => {
 		}
 	}, [ attributes, setAttributes ] );
 
-	useEffect( () => {
-		if ( ! accessToken ) {
-			return;
-		}
-
-		noticeOperations.removeAllNotices();
-		setIsLoadingGallery( true );
-
-		apiFetch( {
-			path: addQueryArgs( '/wpcom/v2/instagram-gallery/gallery', {
-				access_token: accessToken,
-				count: MAX_IMAGE_COUNT,
-			} ),
-		} ).then( ( { external_name: externalName, images: imageList } ) => {
-			setIsLoadingGallery( false );
-
-			if ( isEmpty( imageList ) ) {
-				noticeOperations.createErrorNotice(
-					__( 'No images were found in your Instagram account.', 'jetpack' )
-				);
-				return;
-			}
-
-			setAttributes( { instagramUser: externalName } );
-			setImages( imageList );
-		} );
-	}, [ accessToken, noticeOperations, setAttributes ] );
-
 	const showPlaceholder = ! isLoadingGallery && ( ! accessToken || isEmpty( images ) );
 	const showSidebar = ! showPlaceholder;
 	const showLoadingSpinner = accessToken && isLoadingGallery && isEmpty( images );
@@ -93,33 +76,36 @@ const InstagramGalleryEdit = props => {
 	const blockClasses = classnames( className, { [ `align${ align }` ]: align } );
 	const gridClasses = classnames(
 		'wp-block-jetpack-instagram-gallery__grid',
-		`wp-block-jetpack-instagram-gallery__grid-columns-${ columns }`
+		`wp-block-jetpack-instagram-gallery__grid-columns-${ columns }`,
+		{ 'is-stacked-on-mobile': isStackedOnMobile }
 	);
 	const gridStyle = { gridGap: spacing };
 	const photoStyle = { padding: spacing };
 
 	useEffect( () => {
-		noticeOperations.removeAllNotices();
 		const accountImageTotal = images.length;
 
-		if ( showSidebar && accountImageTotal < count ) {
-			noticeOperations.createNotice( {
-				status: 'info',
-				content: __(
-					sprintf(
+		if ( showSidebar && ! showLoadingSpinner && accountImageTotal < count ) {
+			noticeOperations.removeAllNotices();
+			const noticeContent = accountImageTotal
+				? sprintf(
 						_n(
-							'There is currently only %s post in your Instagram account',
-							'There are currently only %s posts in your Instagram account',
+							'There is currently only %s post in your Instagram account.',
+							'There are currently only %s posts in your Instagram account.',
 							accountImageTotal,
 							'jetpack'
 						),
 						accountImageTotal
-					)
-				),
+				  )
+				: __( 'There are currently no posts in your Instagram account.', 'jetpack' );
+
+			noticeOperations.createNotice( {
+				status: 'info',
+				content: noticeContent,
 				isDismissible: false,
 			} );
 		}
-	}, [ count, images, noticeOperations, showSidebar ] );
+	}, [ count, images, noticeOperations, showLoadingSpinner, showSidebar ] );
 
 	const renderImage = index => {
 		if ( images[ index ] ) {
@@ -135,7 +121,7 @@ const InstagramGalleryEdit = props => {
 
 		return (
 			<img
-				alt={ __( 'Instagram Gallery placeholder', 'jetpack' ) }
+				alt={ __( 'Latest Instagram Posts placeholder', 'jetpack' ) }
 				src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNMyc2tBwAEOgG/c94mJwAAAABJRU5ErkJggg=="
 			/>
 		);
@@ -151,7 +137,7 @@ const InstagramGalleryEdit = props => {
 							? __( "First, you'll need to connect to WordPress.com.", 'jetpack' )
 							: __( 'Connect to Instagram to start sharing your images.', 'jetpack' )
 					}
-					label={ __( 'Instagram Gallery', 'jetpack' ) }
+					label={ __( 'Latest Instagram Posts', 'jetpack' ) }
 					notices={ noticeUI }
 				>
 					{ IS_CURRENT_USER_CONNECTED_TO_WPCOM ? (
@@ -205,20 +191,28 @@ const InstagramGalleryEdit = props => {
 						</PanelRow>
 						{ IS_CURRENT_USER_CONNECTED_TO_WPCOM && (
 							<PanelRow>
-								<Button
-									disabled={ isConnecting }
-									isDestructive
-									isLink
-									onClick={ () => disconnectFromService( accessToken ) }
-								>
-									{ isConnecting
-										? __( 'Disconnecting…', 'jetpack' )
-										: __( 'Disconnect your account', 'jetpack' ) }
-								</Button>
+								<div>
+									<Button
+										disabled={ isConnecting }
+										isDestructive
+										isLink
+										onClick={ () => disconnectFromService( accessToken ) }
+									>
+										{ isConnecting
+											? __( 'Disconnecting…', 'jetpack' )
+											: __( 'Disconnect your account', 'jetpack' ) }
+									</Button>
+									<p className="wp-block-jetpack-instagram-gallery__disconnection-warning">
+										{ __(
+											'This will invalidate all Latest Instagram Posts blocks and Instagram widgets associated to this account.',
+											'jetpack'
+										) }
+									</p>
+								</div>
 							</PanelRow>
 						) }
 					</PanelBody>
-					<PanelBody title={ __( 'Gallery Settings', 'jetpack' ) }>
+					<PanelBody title={ __( 'Display Settings', 'jetpack' ) }>
 						<div className="wp-block-jetpack-instagram-gallery__count-notice">{ noticeUI }</div>
 						<RangeControl
 							label={ __( 'Number of Posts', 'jetpack' ) }
@@ -240,6 +234,15 @@ const InstagramGalleryEdit = props => {
 							onChange={ value => setAttributes( { spacing: value } ) }
 							min={ 0 }
 							max={ 50 }
+						/>
+						<ToggleControl
+							label={ __( 'Stack on mobile', 'jetpack' ) }
+							checked={ isStackedOnMobile }
+							onChange={ () =>
+								setAttributes( {
+									isStackedOnMobile: ! isStackedOnMobile,
+								} )
+							}
 						/>
 					</PanelBody>
 				</InspectorControls>
