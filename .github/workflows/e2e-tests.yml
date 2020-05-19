@@ -18,7 +18,7 @@ jobs:
       - name: DEBUG stuff
         run: |
          ls -la /etc/nginx
-         cat hhvm.conf
+         cat /etc/nginx/hhvm.conf
          which nginx
          apt install nginx
          sudo service nginx restart
