@@ -1904,6 +1904,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'carousel',
 			),
+			'carousel_display_comments'            => array(
+				'description'       => esc_html__( 'Show comments area in carousel', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 1,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'carousel',
+			),
 
 			// Comments
 			'highlander_comment_form_prompt' => array(
