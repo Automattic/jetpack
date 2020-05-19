@@ -74,7 +74,7 @@ setup_nginx() {
 	NGINX_DIR="/etc/nginx"
 	CONFIG_DIR="./tests/e2e/bin/travis"
 	PHP_FPM_BIN="$HOME/.phpenv/versions/$PHP_VERSION/sbin/php-fpm"
-	PHP_FPM_BIN="php-fpm7.4"
+	PHP_FPM_BIN="sudo php-fpm7.4"
 	PHP_FPM_CONF="$NGINX_DIR/php-fpm.conf"
 
 	# remove default nginx site configs
