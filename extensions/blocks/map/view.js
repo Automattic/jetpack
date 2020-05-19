@@ -16,7 +16,7 @@ domReady( function() {
 	const frontendManagement = new FrontendManagement();
 	// Add apiKey to attibutes so FrontendManagement knows about it.
 	// It is dynamically being added on the php side.
-	// So that it can be updated accross all the map blocks at the same time.
+	// So that it can be updated across all the map blocks at the same time.
 	const apiKey = {
 		type: 'string',
 		default: '',
