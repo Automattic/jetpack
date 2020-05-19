@@ -33,4 +33,12 @@
 	deactivateLinkElem.on( 'click', function( e ) {
 		observer.observe( body, { childList: true } );
 	} );
+
+	$( '#jetpack_deactivation_dialog_content__button-cancel' ).on( 'click', function( e ) {
+		tb_remove();
+	} );
+
+	$( '#jetpack_deactivation_dialog_content__button-deactivate' ).on( 'click', function( e ) {
+		deactivateJetpack();
+	} );
 } )( jQuery );
