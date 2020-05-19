@@ -39,7 +39,7 @@ jobs:
       # - run: whoami
       # - run: cat /etc/passwd
       # - run: su - www-data
-      # - run: sudo apt install -y php-fpm nginx jq
+      - run: sudo apt install -y php-fpm nginx jq
       - run: sudo systemctl start mysql.service
 
       - run: sudo service mysql restart
