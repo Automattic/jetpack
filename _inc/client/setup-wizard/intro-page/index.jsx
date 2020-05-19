@@ -17,11 +17,11 @@ import './style.scss';
 
 let IntroPage = props => {
 	const onPersonalButtonClick = useCallback( () => {
-		props.answerSiteUseQuestion( { use: 'personal' } );
+		props.updateSiteUseQuestion( { use: 'personal' } );
 	} );
 
 	const onBusinessButtonClick = useCallback( () => {
-		props.answerSiteUseQuestion( { use: 'business' } );
+		props.updateSiteUseQuestion( { use: 'business' } );
 	} );
 
 	return (
@@ -80,7 +80,7 @@ IntroPage.propTypes = {
 IntroPage = connect(
 	state => ( {} ),
 	dispatch => ( {
-		answerSiteUseQuestion: answer => dispatch( updateSetupWizardQuestionnaire( answer ) ),
+		updateSiteUseQuestion: answer => dispatch( updateSetupWizardQuestionnaire( answer ) ),
 	} )
 )( IntroPage );
 

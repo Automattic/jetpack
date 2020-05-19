@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { combineReducers } from 'redux';
-import { assign } from 'lodash';
+import { get, assign } from 'lodash';
 
 /**
  * Internal dependencies
@@ -41,4 +41,8 @@ export const reducer = combineReducers( { data, requests } );
 
 export const isFetchingSetupWizardQuestionnaire = state => {
 	return !! state.jetpack.setupWizard.requests.isFetchingSetupQuestionnaire;
+};
+
+export const getSetupWizardAnswer = ( state, question ) => {
+	return get( state.jetpack.setupWizard.data, question );
 };
