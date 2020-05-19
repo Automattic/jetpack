@@ -11,14 +11,9 @@ WP_VERSION=${5-latest}
 
 WP_CORE_DIR=${WP_CORE_DIR-$HOME/wordpress}
 
-BRANCH=$TRAVIS_BRANCH
-REPO=$TRAVIS_REPO_SLUG
 WORKING_DIR="$PWD"
+PHP_VERSION=${TRAVIS_PHP_VERSION-7.4}
 
-if [ "$TRAVIS_PULL_REQUEST_BRANCH" != "" ]; then
-	BRANCH=$TRAVIS_PULL_REQUEST_BRANCH
-	REPO=$TRAVIS_PULL_REQUEST_SLUG
-fi
 
 get_ngrok_url() {
 	echo $(curl -s localhost:4040/api/tunnels/command_line | jq --raw-output .public_url)
@@ -77,7 +72,7 @@ start_ngrok() {
 setup_nginx() {
 	NGINX_DIR="/etc/nginx"
 	CONFIG_DIR="./tests/e2e/bin/travis"
-	PHP_FPM_BIN="$HOME/.phpenv/versions/$TRAVIS_PHP_VERSION/sbin/php-fpm"
+	PHP_FPM_BIN="$HOME/.phpenv/versions/$PHP_VERSION/sbin/php-fpm"
 	PHP_FPM_CONF="$NGINX_DIR/php-fpm.conf"
 
 	# remove default nginx site configs

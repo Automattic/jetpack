@@ -16,6 +16,9 @@ jobs:
           php-version: '7.4'
           tools: composer
 
+      - run: which php-fpm
+
+      - run: ls -la $HOME/.phpenv/versions
 
       - name: DEBUG stuff
         run: sudo apt install nginx
@@ -24,11 +27,9 @@ jobs:
       - name: DEBUG stuff
         run: sudo service nginx restart
 
-      - name: DEBUG stuff
-        run: whoami
+      - run: whoami
 
-      - name: DEBUG stuff
-        run: cat /etc/passwd
+      - run: cat /etc/passwd
 
       - name: Build Jetpack
         run: yarn && yarn build-production
