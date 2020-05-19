@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-05-06 11:20:43+0000\n"
+"PO-Revision-Date: 2020-05-16 16:12:47+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -13,11 +13,11 @@ msgstr ""
 
 #: wpcomsh.php:943
 msgid "Disk space quota"
-msgstr ""
+msgstr "ڈسک سپیس کوٹہ"
 
 #: wpcomsh.php:939
 msgid "Disk space used"
-msgstr ""
+msgstr "ڈسک سپیس استعمال تھئی"
 
 #: widgets/instagram/instagram.php:454
 msgid "<strong>Connected Instagram Account</strong><br /> <a href=\"%1$s\">%2$s</a> | <a href=\"%3$s\">remove</a>"
@@ -33,7 +33,7 @@ msgstr "انسٹاگرام دی رسائی دا اختیار ݙیوو"
 
 #: widgets/instagram/instagram.php:417 widgets/instagram/instagram.php:451
 msgid "Instagram is currently experiencing connectivity issues, please try again later to connect."
-msgstr ""
+msgstr "اِنسٹا گرام اِیں ویلے رابطہ مربوط کرݨ دے مسائل دا سامنا کریندی پئی ہے، تھورائیت کریندے ہوئے کُجھ ویلے بعد وَلا مربوط کرو۔"
 
 #: widgets/instagram/instagram.php:393
 msgid "Connecting…"
@@ -49,7 +49,7 @@ msgstr ""
 
 #: widgets/instagram/instagram.php:315
 msgid "Missing or invalid security nonce."
-msgstr ""
+msgstr "حفاظتی مقام غائب یا غلط ہے۔"
 
 #: widgets/instagram/instagram.php:254
 msgid "In order to use this Instagram widget, you must <a href=\"%s\">configure it</a> first."
@@ -121,7 +121,7 @@ msgstr "تُہاݙی ویب سائیٹ دا آغاز تھی ڳیا ہِے؛ ہُ
 
 #: private-site/logged-in-banner.php:50
 msgid "Your site is marked as \"Coming Soon\" and hidden from visitors until it's ready."
-msgstr ""
+msgstr "تُہاݙی ویب سائیٹ \"وقتی آندے پئی ہِے\" دے طور تے نشان زد تھی ڳئی ہِے اَتے زائرین تُوں لُکّی پئی ہِے ڄے تئیں اِیہ تیّار تھیسی۔ "
 
 #: private-site/logged-in-banner.php:48
 msgid "Your site hasn't been launched yet. Only you can see it until it is launched."
@@ -201,7 +201,7 @@ msgstr "ٹیڳ دی ڳیݨ ݙکھاؤ"
 
 #: widgets/tag-cloud-widget.php:139
 msgid "Maximum number of tags displayed"
-msgstr ""
+msgstr "ڈسپلے تھئے ودھ کنوں ودھ ٹیگاں دی تعداد"
 
 #: widgets/tag-cloud-widget.php:137
 msgid "Number of Tags:"
@@ -317,11 +317,11 @@ msgstr "About.me ویجیٹ"
 
 #: widgets/aboutme.php:18
 msgid "Display your about.me profile with thumbnail"
-msgstr ""
+msgstr "آپݨی اباؤٹ ڈاٹ می پروفائل تھمب نیل نال ڈسپلے کرو"
 
 #: safeguard/utils.php:58
 msgid "Unable to fetch the requested data."
-msgstr ""
+msgstr "ارداس تھیا ڈیٹا کڈھ آوݨ دے قابل کائنی۔"
 
 #: private-site/access-denied-coming-soon-template.php:142
 msgid "Log in here"
@@ -400,7 +400,7 @@ msgstr "ترتیباں محفوظ کرو"
 
 #: customizer-fixes/customizer-fixes.php:12
 msgid "Are you sure you want to discard your unsaved changes?"
-msgstr ""
+msgstr "بھلا تہاکوں پک ہے جو تساں آپݨیاں غیر محفوظ تھیاں تبدیلیاں مکاوݨ چاہندے ہو؟"
 
 #: customizer-fixes/customizer-fixes.php:11
 msgid "Saved"
@@ -420,7 +420,7 @@ msgstr "فعال کرو تے بچاؤ"
 
 #: private-site/private-site.php:130
 msgid "Manage your site visibility settings"
-msgstr ""
+msgstr "آپݨی سائٹ دیاں نظرݨ ترتیباں منیج کرو"
 
 #: private-site/access-denied-coming-soon-template.php:140
 msgid "Something new is coming."
@@ -432,7 +432,7 @@ msgstr ""
 
 #: wpcomsh.php:335
 msgid "%s is automatically managed for you."
-msgstr ""
+msgstr "تہاݙے کیتے %s  خودکار منیج تھئی۔"
 
 #: widgets/top-rated.php:141
 msgid "How many items would you like to display?"
@@ -476,7 +476,7 @@ msgstr "نمائش دی لمباݨ:"
 
 #: widgets/top-clicks.php:14
 msgid "List the most-clicked links on your blog."
-msgstr ""
+msgstr "تہاݙے بلاگ تے سبھ کنوں ودھ کلک تھئے لنکاں دی تندیر۔"
 
 #: widgets/top-clicks.php:13 widgets/top-clicks.php:22
 #: widgets/top-clicks.php:66
@@ -653,7 +653,7 @@ msgstr "ڈھڳ ــ ڳاݨاں میوزک پلیئر"
 
 #: widgets/i-voted.php:33
 msgid "I Voted"
-msgstr ""
+msgstr "ووٹ ݙتم"
 
 #: widgets/i-voted.php:31
 msgid "Show your readers that you voted with an \"I Voted\" sticker."
@@ -669,7 +669,7 @@ msgstr ""
 
 #: widgets/gravatar.php:142
 msgid "Gravatar link. This is an optional URL that will be used when anyone clicks on your Gravatar:"
-msgstr ""
+msgstr "گراواتر لنک۔ ایہ ہک اختیاری یوآرایل ہے جہڑا اوں ویلے استعمال تھیسی جہڑے ویلے کوئی تہاݙے گراواتار تے کلک کریسی۔"
 
 #: widgets/gravatar.php:134
 msgid "Gravatar alignment:"
@@ -775,7 +775,7 @@ msgstr "مصنف دی گرڈ"
 
 #: private-site/private-site.php:453
 msgid "Private Site"
-msgstr ""
+msgstr "نجی سائٹ"
 
 #: private-site/private-site.php:291 private-site/private-site.php:393
 #: private-site/private-site.php:554
@@ -788,11 +788,11 @@ msgstr "لاگ ان تھیوو"
 
 #: private-site/access-denied-private-site-template.php:45
 msgid "Switch user"
-msgstr ""
+msgstr "ورتݨ آلا سوئچ کرو"
 
 #: private-site/access-denied-private-site-template.php:43
 msgid "You need to be logged in as a user who has permission to view this site."
-msgstr ""
+msgstr "ایں سائٹ کوں ݙیکھݨ کیتے جنھاں ورتݨ آلیْاں کوں اجازت ہے اُن٘ویں تہاکوں لاگ ان تھیوݨاں پوسی۔"
 
 #: privacy/participating-plugins.php:144
 msgid ""
@@ -831,8 +831,8 @@ msgstr ""
 
 #. Description of the plugin
 msgid "WordPress.com provided functionality & tools"
-msgstr ""
+msgstr "ورڈپریس ڈاٹ کام فعالت تے اوزار فراہم کیتے"
 
 #. Plugin Name of the plugin
 msgid "WP.com Site Helper"
-msgstr ""
+msgstr "وپ ڈاٹ کام سائٹ مددگار"

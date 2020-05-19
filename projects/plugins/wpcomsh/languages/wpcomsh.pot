@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WP.com Site Helper\n"
 "Report-Msgid-Bugs-To: help@wordpress.com\n"
-"POT-Creation-Date: 2020-05-06 12:45-0700\n"
+"POT-Creation-Date: 2020-05-19 12:24+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -39,22 +39,6 @@ msgstr ""
 
 #: customizer-fixes/customizer-fixes.php:13
 msgid "Save Settings"
-msgstr ""
-
-#: footer-credit/footer-credit-optimizations.php:114
-msgid "Proudly powered by WordPress"
-msgstr ""
-
-#: footer-credit/footer-credit-optimizations.php:130
-msgid "Theme"
-msgstr ""
-
-#: footer-credit/footer-credit-optimizations.php:147
-msgid "by"
-msgstr ""
-
-#: footer-credit/footer-credit-optimizations.php:159
-msgid "Design by"
 msgstr ""
 
 #: footer-credit/footer-credit/customizer.php:41
@@ -98,6 +82,22 @@ msgstr ""
 
 #: footer-credit/footer-credit/footer-credit.php:101
 msgid "Powered by WordPress.com"
+msgstr ""
+
+#: footer-credit/footer-credit-optimizations.php:114
+msgid "Proudly powered by WordPress"
+msgstr ""
+
+#: footer-credit/footer-credit-optimizations.php:130
+msgid "Theme"
+msgstr ""
+
+#: footer-credit/footer-credit-optimizations.php:147
+msgid "by"
+msgstr ""
+
+#: footer-credit/footer-credit-optimizations.php:159
+msgid "Design by"
 msgstr ""
 
 #: footer-credit/theme-optimizations.php:32
@@ -470,14 +470,6 @@ msgid ""
 "\">profile page</a>."
 msgstr ""
 
-#: widgets/i-voted.php:31
-msgid "Show your readers that you voted with an \"I Voted\" sticker."
-msgstr ""
-
-#: widgets/i-voted.php:33
-msgid "I Voted"
-msgstr ""
-
 #: widgets/instagram/instagram.php:31 widgets/instagram/instagram.php:47
 msgid "Instagram"
 msgstr ""
@@ -576,6 +568,14 @@ msgstr ""
 #: widgets/instagram/instagram.php:496
 #, php-format
 msgid "New images may take up to %d minutes to show up on your site."
+msgstr ""
+
+#: widgets/i-voted.php:31
+msgid "Show your readers that you voted with an \"I Voted\" sticker."
+msgstr ""
+
+#: widgets/i-voted.php:33
+msgid "I Voted"
 msgstr ""
 
 #: widgets/music-player.php:15
