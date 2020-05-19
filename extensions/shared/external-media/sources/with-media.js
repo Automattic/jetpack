@@ -141,9 +141,6 @@ export default function withMedia() {
 				apiFetch( {
 					path: apiUrl,
 					method: 'POST',
-					headers: {
-						'content-type': 'application/json',
-					},
 					data: {
 						media: items.map( item => ( {
 							guid: item.guid,
