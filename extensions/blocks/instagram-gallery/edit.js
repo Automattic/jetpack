@@ -242,24 +242,9 @@ const InstagramGalleryEdit = props => {
 						</PanelRow>
 						{ IS_CURRENT_USER_CONNECTED_TO_WPCOM && (
 							<PanelRow>
-								<div>
-									<Button
-										disabled={ isConnecting }
-										isDestructive
-										isLink
-										onClick={ () => disconnectFromService( accessToken ) }
-									>
-										{ isConnecting
-											? __( 'Disconnecting…', 'jetpack' )
-											: __( 'Disconnect your account', 'jetpack' ) }
-									</Button>
-									<p className="wp-block-jetpack-instagram-gallery__disconnection-warning">
-										{ __(
-											'This will invalidate all Latest Instagram Posts blocks and Instagram widgets associated to this account.',
-											'jetpack'
-										) }
-									</p>
-								</div>
+								<Button isDestructive isLink onClick={ () => disconnectFromService( accessToken ) }>
+									{ __( 'Disconnect your account from this block', 'jetpack' ) }
+								</Button>
 							</PanelRow>
 						) }
 					</PanelBody>
