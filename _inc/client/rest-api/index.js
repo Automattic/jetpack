@@ -252,8 +252,7 @@ function JetpackRestApiClient( root, nonce ) {
 		fetchSetupQuestionnaire: () =>
 			getRequest( `${ apiRoot }jetpack/v4/setup/questionnaire`, getParams )
 				.then( checkStatus )
-				.then( parseJsonResponse )
-				.then( body => JSON.parse( body.data ) ),
+				.then( parseJsonResponse ),
 
 		fetchProducts: () =>
 			getRequest( `${ apiRoot }jetpack/v4/products`, getParams )

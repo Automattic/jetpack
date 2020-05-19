@@ -20,6 +20,8 @@ const data = ( state = {}, action ) => {
 			return assign( {}, state, action.questionnaire );
 		case JETPACK_SETUP_WIZARD_QUESTIONNAIRE_UPDATE:
 			return assign( {}, state, action.answer );
+		default:
+			return state;
 	}
 };
 
@@ -30,6 +32,8 @@ const requests = ( state = {}, action ) => {
 		case JETPACK_SETUP_WIZARD_QUESTIONNAIRE_FETCH_RECEIVE:
 		case JETPACK_SETUP_WIZARD_QUESTIONNAIRE_FETCH_FAIL:
 			return assign( {}, state, { isFetchingSetupQuestionnaire: false } );
+		default:
+			return state;
 	}
 };
 

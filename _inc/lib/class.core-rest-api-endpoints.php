@@ -578,7 +578,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return array Questionnaire settings.
 	 */
 	public static function get_setup_questionnaire() {
-		return Jetpack_Options::get_option( 'setup_questionnaire', array() );
+		return Jetpack_Options::get_option( 'setup_questionnaire', (object) array() );
 	}
 
 	public static function get_plans( $request ) {

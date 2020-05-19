@@ -8,7 +8,10 @@ import { connect } from 'react-redux';
 /**
  * Internal dependencies
  */
-import { fetchSetupWizardQuestionnaire, isFetchingSetupWizardQuestionnaire } from 'state/scan';
+import {
+	fetchSetupWizardQuestionnaire,
+	isFetchingSetupWizardQuestionnaire,
+} from 'state/setup-wizard';
 import { isDevMode } from 'state/connection';
 
 class QuerySetupWizardQuestionnaire extends Component {

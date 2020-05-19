@@ -2,7 +2,8 @@
  * External dependencies
  */
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, { useCallback } from 'react';
+import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 
 /**
@@ -10,10 +11,19 @@ import { translate as __ } from 'i18n-calypso';
  */
 import Button from 'components/button';
 import { imagePath } from 'constants/urls';
+import { updateSetupWizardQuestionnaire } from 'state/setup-wizard';
 
 import './style.scss';
 
-const IntroPage = props => {
+let IntroPage = props => {
+	const onPersonalButtonClick = useCallback( () => {
+		props.answerSiteUseQuestion( { use: 'personal' } );
+	} );
+
+	const onBusinessButtonClick = useCallback( () => {
+		props.answerSiteUseQuestion( { use: 'business' } );
+	} );
+
 	return (
 		<div className="jp-setup-wizard-main">
 			<img
@@ -38,10 +48,20 @@ const IntroPage = props => {
 					{ __( 'What will %(siteTitle)s be used for?', { args: { siteTitle: props.siteTitle } } ) }
 				</h2>
 				<div className="jp-setup-wizard-answer-buttons">
-					<Button href="#/setup/income" primary className="jp-setup-wizard-button">
+					<Button
+						href="#/setup/income"
+						primary
+						className="jp-setup-wizard-button"
+						onClick={ onPersonalButtonClick }
+					>
 						{ __( 'Personal Use' ) }
 					</Button>
-					<Button href="#/setup/income" primary className="jp-setup-wizard-button">
+					<Button
+						href="#/setup/income"
+						primary
+						className="jp-setup-wizard-button"
+						onClick={ onBusinessButtonClick }
+					>
 						{ __( 'Business Use' ) }
 					</Button>
 				</div>
@@ -56,5 +76,12 @@ const IntroPage = props => {
 IntroPage.propTypes = {
 	siteTitle: PropTypes.string.isRequired,
 };
+
+IntroPage = connect(
+	state => ( {} ),
+	dispatch => ( {
+		answerSiteUseQuestion: answer => dispatch( updateSetupWizardQuestionnaire( answer ) ),
+	} )
+)( IntroPage );
 
 export { IntroPage };
