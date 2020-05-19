@@ -7,10 +7,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: script
-        run: ls -la
-      - name: script2
-        run: which php
       - name: Setup NodeJS
         uses: actions/setup-node@v2-beta
         with:
@@ -20,10 +16,14 @@ jobs:
         with:
           php-version: '7.4'
           tools: composer
-      - name: Build
-        uses: ianwalter/puppeteer@12728ddef82390d1ecd4732fb543f62177392fbb
-        with:
-          args: yarn build
+      - name: script33
+        run: which node
+      - name: script233
+        run: which php
+      # - name: Build
+      #   uses: ianwalter/puppeteer@12728ddef82390d1ecd4732fb543f62177392fbb
+      #   with:
+      #     args: yarn build
       - name: script23
         run: yarn build
       - name: Test
