@@ -93,7 +93,9 @@ setup_nginx() {
 	fi
 
 	sed -i "s+%WP_DOMAIN%+$DOMAIN_NAME+g" $CONFIG_DIR/travis_default-site.conf
-	sed -i "s+CI_USER+$USER+g" $CONFIG_DIR/travis_php-fpm.conf
+	sed -i "s+SITE_PAH+$WP_CORE_DIR+g" $CONFIG_DIR/travis_default-site.conf
+
+	sed -i "s+SITE_PAH+$USER+g" $CONFIG_DIR/travis_php-fpm.conf
 
 	# Copy the nginx config files
 	sudo cp "$CONFIG_DIR/travis_php-fpm.conf" "$PHP_FPM_CONF"

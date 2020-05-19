@@ -33,8 +33,6 @@ jobs:
         with:
           php-version: '7.4'
           tools: composer
-          extensions: mbstring, dom, zip, mysql
-
 
       # - run: whoami
       # - run: cat /etc/passwd
@@ -44,9 +42,6 @@ jobs:
       - run: sudo systemctl start mysql.service
 
       - run: sudo service mysql restart
-      - name: Start mysql service
-        run: sudo /etc/init.d/mysql start
-
 
       - name: Setup WordPress
         run: ./tests/e2e/bin/setup-e2e-travis.sh
