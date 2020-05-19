@@ -16,6 +16,15 @@ function MediaItem( props ) {
 		}
 	}, [ props.onClick ] );
 
+	// Catch space and enter keypresses
+	const onKeyDown = e => {
+		if ( e.which === 13 || e.which === 32 ) {
+			// Prevent spacebar from scrolling the page down
+			e.preventDefault();
+			onClick( event );
+		}
+	};
+
 	const { item, isSelected, isCopying = false } = props;
 	const { thumbnails, caption, name, title, type, children = 0 } = item;
 	const { medium = null, fmt_hd = null } = thumbnails;
@@ -27,9 +36,16 @@ function MediaItem( props ) {
 		'is-transient': isSelected && isCopying,
 	} );
 
-	/* eslint-disable jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */
+	/* eslint-disable jsx-a11y/no-noninteractive-element-to-interactive-role */
 	return (
-		<button className={ classes } onClick={ onClick }>
+		<li
+			className={ classes }
+			onClick={ onClick }
+			onKeyDown={ onKeyDown }
+			role="checkbox"
+			tabindex="0"
+			aria-checked={ isSelected ? 'true' : 'false' }
+		>
 			<img src={ medium || fmt_hd } alt={ alt } title={ alt } />
 
 			{ type === 'folder' && (
@@ -40,7 +56,7 @@ function MediaItem( props ) {
 			) }
 
 			{ isSelected && isCopying && <Spinner /> }
-		</button>
+		</li>
 	);
 }
 
