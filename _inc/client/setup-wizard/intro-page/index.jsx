@@ -11,17 +11,19 @@ import { translate as __ } from 'i18n-calypso';
  */
 import Button from 'components/button';
 import { imagePath } from 'constants/urls';
-import { updateSetupWizardQuestionnaire } from 'state/setup-wizard';
+import { saveSetupWizardQuestionnnaire, updateSetupWizardQuestionnaire } from 'state/setup-wizard';
 
 import './style.scss';
 
 let IntroPage = props => {
 	const onPersonalButtonClick = useCallback( () => {
 		props.updateSiteUseQuestion( { use: 'personal' } );
+		props.saveQuestionnaire();
 	} );
 
 	const onBusinessButtonClick = useCallback( () => {
 		props.updateSiteUseQuestion( { use: 'business' } );
+		props.saveQuestionnaire();
 	} );
 
 	return (
@@ -81,6 +83,7 @@ IntroPage = connect(
 	state => ( {} ),
 	dispatch => ( {
 		updateSiteUseQuestion: answer => dispatch( updateSetupWizardQuestionnaire( answer ) ),
+		saveQuestionnaire: () => dispatch( saveSetupWizardQuestionnnaire() ),
 	} )
 )( IntroPage );
 

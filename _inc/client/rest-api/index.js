@@ -212,13 +212,12 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
-		updateSetupQuestionnaire: updatedQuestionnaire => {
+		updateSetupQuestionnaire: updatedQuestionnaire =>
 			postRequest( `${ apiRoot }jetpack/v4/setup/questionnaire`, postParams, {
-				body: JSON.stringify( updatedQuestionnaire ),
+				body: JSON.stringify( { option_values: updatedQuestionnaire } ),
 			} )
 				.then( checkStatus )
-				.then( parseJsonResponse );
-		},
+				.then( parseJsonResponse ),
 
 		fetchSiteData: () =>
 			getRequest( `${ apiRoot }jetpack/v4/site`, getParams )

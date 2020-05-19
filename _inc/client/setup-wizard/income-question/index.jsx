@@ -1,7 +1,8 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { useCallback } from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { translate as __ } from 'i18n-calypso';
 
@@ -11,10 +12,11 @@ import { translate as __ } from 'i18n-calypso';
 import { ChecklistAnswer } from '../checklist-answer';
 import Button from 'components/button';
 import { imagePath } from 'constants/urls';
+import { saveSetupWizardQuestionnnaire } from 'state/setup-wizard';
 
 import './style.scss';
 
-const IncomeQuestion = props => {
+let IncomeQuestion = props => {
 	return (
 		<div className="jp-setup-wizard-main">
 			<img
@@ -58,10 +60,19 @@ const IncomeQuestion = props => {
 				/>
 			</div>
 			<div className="jp-setup-wizard-advance-container">
-				<Button href="#/setup/updates" primary className="jp-setup-wizard-button">
+				<Button
+					href="#/setup/updates"
+					primary
+					className="jp-setup-wizard-button"
+					onClick={ props.saveQuestionnaire }
+				>
 					{ __( 'Continue' ) }
 				</Button>
-				<a className="jp-setup-wizard-skip-link" href="#/setup/updates">
+				<a
+					className="jp-setup-wizard-skip-link"
+					href="#/setup/updates"
+					onClick={ props.saveQuestionnaire }
+				>
 					{ __( 'None of these apply' ) }
 				</a>
 			</div>
@@ -72,5 +83,12 @@ const IncomeQuestion = props => {
 IncomeQuestion.propTypes = {
 	siteTitle: PropTypes.string.isRequired,
 };
+
+IncomeQuestion = connect(
+	state => ( {} ),
+	dispatch => ( {
+		saveQuestionnaire: () => dispatch( saveSetupWizardQuestionnnaire() ),
+	} )
+)( IncomeQuestion );
 
 export { IncomeQuestion };

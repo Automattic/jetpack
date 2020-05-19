@@ -10,17 +10,19 @@ import { translate as __ } from 'i18n-calypso';
  */
 import Button from 'components/button';
 import { imagePath } from 'constants/urls';
-import { updateSetupWizardQuestionnaire } from 'state/setup-wizard';
+import { saveSetupWizardQuestionnnaire, updateSetupWizardQuestionnaire } from 'state/setup-wizard';
 
 import './style.scss';
 
 let UpdatesQuestion = props => {
 	const onYesButtonClick = useCallback( () => {
 		props.updateUpdatesQuestion( { 'site-updates': true } );
+		props.saveQuestionnaire();
 	} );
 
 	const onNoButtonClick = useCallback( () => {
 		props.updateUpdatesQuestion( { 'site-updates': false } );
+		props.saveQuestionnaire();
 	} );
 
 	return (
@@ -62,6 +64,7 @@ UpdatesQuestion = connect(
 	state => ( {} ),
 	dispatch => ( {
 		updateUpdatesQuestion: answer => dispatch( updateSetupWizardQuestionnaire( answer ) ),
+		saveQuestionnaire: () => dispatch( saveSetupWizardQuestionnnaire() ),
 	} )
 )( UpdatesQuestion );
 
