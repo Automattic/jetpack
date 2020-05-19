@@ -91,9 +91,9 @@ class Admin_Bar_Notice {
 			'scan_endpoint'      => get_rest_url( null, 'jetpack/v4/scan' ),
 			'scan_dashboard_url' => Redirect::get_url( 'calypso-scanner' ),
 			/* translators: %s is the alert icon */
-			'singular'           => sprintf( esc_html__( '%s Threat Found', 'jetpack' ), $this->get_icon() ),
+			'singular'           => sprintf( esc_html__( '%s Threat found', 'jetpack' ), $this->get_icon() ),
 			/* translators: %s is the alert icon */
-			'multiple'           => sprintf( esc_html__( '%s Threats Found', 'jetpack' ), $this->get_icon() ),
+			'multiple'           => sprintf( esc_html__( '%s Threats found', 'jetpack' ), $this->get_icon() ),
 		);
 		wp_localize_script( self::SCRIPT_NAME, 'Jetpack_Scan', $script_data );
 	}
@@ -138,7 +138,7 @@ class Admin_Bar_Notice {
 		// No need to do anything...
 		if ( $has_threats ) {
 			/* translators: %s is the alert icon */
-			$node['title']           = sprintf( esc_html__( '%s Threats Found', 'jetpack' ), $this->get_icon() );
+			$node['title']           = sprintf( esc_html__( '%s Threats found', 'jetpack' ), $this->get_icon() );
 			$node['href']            = esc_url( Redirect::get_url( 'calypso-scanner' ) );
 			$node['meta']['onclick'] = 'window.open( this.href ); return false;';
 		}
