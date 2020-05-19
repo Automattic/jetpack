@@ -21,7 +21,12 @@
 
 		.jetpack_deactivation_dialog_content {
 			padding: 24px;
+			padding-bottom: 80px;
 			margin-top: 0px;
+
+			@media screen and (min-width: 661px) {
+				padding-bottom: 24px;
+			}
 
 			p {
 				font-size: 16px;
@@ -69,8 +74,13 @@
 		margin: 24px;
 		text-align: left;
 		display: flex;
+		flex-direction: column;
 		justify-content: space-between;
-		flex-direction: row;
+
+
+		@media screen and (min-width: 661px) {
+			flex-direction: row;
+		}
 
 		p {
 			font-size: 13px;
@@ -89,8 +99,6 @@
 				cursor: pointer;
 				display: inline-block;
 				margin: 0;
-				margin-bottom: 0px;
-				margin-left: 18px;
 				outline: 0;
 				overflow: hidden;
 				font-size: 14px;
@@ -104,6 +112,14 @@
 				-webkit-appearance: none;
 				-moz-appearance: none;
 				appearance: none;
+				width:100%;
+				margin-bottom: 18px;
+
+				@media screen and (min-width: 661px) {
+					margin-bottom: 0px;
+					margin-left: 18px;
+					width: auto;
+				}
 
 				&#jetpack_deactivation_dialog_content__button-deactivate {
 					background: #d94f4f;
