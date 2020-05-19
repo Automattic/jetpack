@@ -248,7 +248,7 @@ class MembershipsButtonEdit extends Component {
 								'membership-button__field-error': ! this.state.editedProductPriceValid,
 							} ) }
 							onChange={ this.handlePriceChange }
-							placeholder={ minPrice }
+							placeholder={ parseFloat( minPrice ).toFixed( 2 ) }
 							required
 							min="0"
 							step="1"
