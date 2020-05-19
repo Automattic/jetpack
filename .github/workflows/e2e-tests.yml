@@ -25,7 +25,10 @@ jobs:
         run: sudo service nginx restart
 
       - name: DEBUG stuff
-        run: sudo systemctl restart nginx
+        run: whoami
+
+      - name: DEBUG stuff
+        run: cat /etc/passwd
 
       - name: Build Jetpack
         run: yarn && yarn build-production

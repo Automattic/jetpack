@@ -105,7 +105,7 @@ setup_nginx() {
 	sudo ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
 
 	# grands www-data user access to wordpress instalation
-	sudo gpasswd -a www-data travis
+	sudo gpasswd -a www-data $(whoami)
 
 	# Start php-fpm
 	"$PHP_FPM_BIN" --fpm-config "$PHP_FPM_CONF"
