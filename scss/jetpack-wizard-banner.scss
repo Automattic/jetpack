@@ -99,8 +99,6 @@
 	margin-top: 2rem;
 
 	h2 {
-		margin-top: 0px;
-
 		@include breakpoint( '<480px' ) {
 			text-align: left;
 		}
@@ -133,7 +131,7 @@
 
 .jp-wizard-banner-wizard-skip-link {
 	text-decoration: underline !important;
-	color: #000000;
+	color: $studio-black;
 	margin-top: 1rem;
 	display: block;
 }
