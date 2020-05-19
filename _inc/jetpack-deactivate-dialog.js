@@ -17,7 +17,6 @@
 					if ( 'TB_window' === addedNode.id ) {
 						// NodeList is static, we need to modify this in the DOM
 						$( '#TB_window' ).addClass( 'jetpack-disconnect-modal' );
-						$( '#TB_window' ).height( $( '#TB_ajaxContent' ).height() + 70 );
 						observer.disconnect();
 					}
 				} );
