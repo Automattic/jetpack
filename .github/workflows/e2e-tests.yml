@@ -1,35 +1,58 @@
 name: E2E tests
 # Trigger on every push
 on: push
+env:
+  CI: true
+  DB_NAME: jetpack_test
+  DB_ADAPTER: mysql
+  DB_HOST: 127.0.0.1
+  DB_USERNAME: root
+  DB_PASSWORD: ""
+  CODECEPTION_URL: 127.0.0.1
+  CODECEPTION_PORT: 8888
 jobs:
-  build:
+  e2e_tests:
     runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: true
+          MYSQL_DATABASE: jetpack_test
+        ports:
+          - 3306/tcp
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
     steps:
       - uses: actions/checkout@v2
-      - name: Setup NodeJS
-        uses: actions/setup-node@v2-beta
-        with:
-          node-version: '10'
+      # - name: Setup NodeJS
+      #   uses: actions/setup-node@v1
+      #   with:
+      #     node-version: '10'
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '7.4'
           tools: composer
+          extensions: mbstring, dom, zip, mysql
 
-      - run: which php7-fpm
 
-      - run: ls -la $HOME
+      # - run: whoami
+      # - run: cat /etc/passwd
+      # - run: su - www-data
+      # - run: sudo apt install -y php-fpm nginx jq
+      - run: sudo systemctl start mysql.service
 
-      - name: DEBUG stuff
-        run: sudo apt install nginx
-      - name: DEBUG stuff
-        run: ls -la /etc/nginx
-      - name: DEBUG stuff
-        run: sudo service nginx restart
+      - run: sudo service mysql restart
+      - name: Start mysql service
+        run: sudo /etc/init.d/mysql start
 
-      - run: whoami
 
-      - run: cat /etc/passwd
+      - name: Setup WordPress
+        run: ./tests/e2e/bin/setup-e2e-travis.sh
+      - run: ls -la /var/log/nginx
+      - run: cat /var/log/nginx/error.log
+
+      - run: sleep 60000
 
       - name: Build Jetpack
         run: yarn && yarn build-production

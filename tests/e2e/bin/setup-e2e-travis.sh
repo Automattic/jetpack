@@ -3,16 +3,17 @@
 
 set -ex
 
-DB_NAME=${4-jetpack_test}
-DB_USER=${4-root}
-DB_PASS=${4-}
-DB_HOST=${4-localhost}
-WP_VERSION=${5-latest}
+# DB_NAME=jetpack_test
+# DB_USERNAME=root
+# DB_PASSWORD=""
+# DB_HOST=${4-localhost}
+WP_VERSION=latest
 
 WP_CORE_DIR=${WP_CORE_DIR-$HOME/wordpress}
 
 WORKING_DIR="$PWD"
 PHP_VERSION=${TRAVIS_PHP_VERSION-7.4}
+USER="www-data"
 
 
 get_ngrok_url() {
@@ -73,15 +74,13 @@ setup_nginx() {
 	NGINX_DIR="/etc/nginx"
 	CONFIG_DIR="./tests/e2e/bin/travis"
 	PHP_FPM_BIN="$HOME/.phpenv/versions/$PHP_VERSION/sbin/php-fpm"
+	PHP_FPM_BIN="php-fpm7.4"
 	PHP_FPM_CONF="$NGINX_DIR/php-fpm.conf"
 
 	# remove default nginx site configs
 	sudo rm "$NGINX_DIR/sites-available/default"
 	sudo rm "$NGINX_DIR/sites-enabled/default"
 
-	# Copy the default nginx config files
-	sudo cp "$CONFIG_DIR/travis_php-fpm.conf" "$PHP_FPM_CONF"
-	sudo cp "$CONFIG_DIR/travis_fastcgi.conf" "$NGINX_DIR/fastcgi.conf"
 
 
 	# Figure out domain name and replace the value in config
@@ -93,14 +92,19 @@ setup_nginx() {
 		exit 1
 	fi
 
-	SED_ARG="s+%WP_DOMAIN%+$DOMAIN_NAME+g"
-	sed -i $SED_ARG $CONFIG_DIR/travis_default-site.conf
+	sed -i "s+%WP_DOMAIN%+$DOMAIN_NAME+g" $CONFIG_DIR/travis_default-site.conf
+	sed -i "s+CI_USER+$USER+g" $CONFIG_DIR/travis_php-fpm.conf
 
+	# Copy the nginx config files
+	sudo cp "$CONFIG_DIR/travis_php-fpm.conf" "$PHP_FPM_CONF"
+	sudo cp "$CONFIG_DIR/travis_fastcgi.conf" "$NGINX_DIR/fastcgi.conf"
 	sudo cp "$CONFIG_DIR/travis_default-site.conf" "$NGINX_DIR/sites-available/default"
 	sudo ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
 
 	# grands www-data user access to wordpress instalation
-	sudo gpasswd -a www-data $(whoami)
+	sudo gpasswd -a www-data $USER
+
+	cat "$CONFIG_DIR/travis_php-fpm.conf"
 
 	# Start php-fpm
 	"$PHP_FPM_BIN" --fpm-config "$PHP_FPM_CONF"
@@ -111,6 +115,7 @@ setup_nginx() {
 
 install_wp() {
 	# Set up WordPress using wp-cli
+	rm -rf "$WP_CORE_DIR" || exit 0
 	mkdir -p "$WP_CORE_DIR"
 	cd "$WP_CORE_DIR"
 
@@ -118,8 +123,8 @@ install_wp() {
 	chmod +x wp-cli.phar
 	sudo mv wp-cli.phar /usr/local/bin/wp
 
-	wp core download --version=$WP_VERSION
-	wp core config --dbname=$DB_NAME --dbuser=$DB_USER --dbpass=$DB_PASS --dbhost=$DB_HOST --dbprefix=wp_ --extra-php <<PHP
+	wp --allow-root core download --version=$WP_VERSION
+	wp --allow-root core config --dbname=$DB_NAME --dbuser=$DB_USERNAME --dbpass=$DB_PASSWORD --dbhost=$DB_HOST --dbprefix=wp_ --extra-php <<PHP
 /* Change WP_MEMORY_LIMIT to increase the memory limit for public pages. */
 define('WP_MEMORY_LIMIT', '256M');
 define('SCRIPT_DEBUG', true);
@@ -139,9 +144,9 @@ PHP
 	# https://github.com/Automattic/jetpack/pull/13288
 	wp --allow-root config set JETPACK_SHOULD_USE_CONNECTION_IFRAME false --raw --type=constant
 
-	wp db create
+	wp --allow-root db create
 
-	wp core install --url="$WP_SITE_URL" --title="E2E Gutenpack blocks" --admin_user=wordpress --admin_password=wordpress --admin_email=wordpress@example.com --path=$WP_CORE_DIR
+	wp --allow-root core install --url="$WP_SITE_URL" --title="E2E Gutenpack blocks" --admin_user=wordpress --admin_password=wordpress --admin_email=wordpress@example.com --path=$WP_CORE_DIR
 
 	# create a debug.log file
 	touch $WP_CORE_DIR/wp-content/debug.log
@@ -165,10 +170,10 @@ if [ "${1}" == "reset_wp" ]; then
 
 	echo "WP SITE URL: $WP_SITE_URL"
 
-	wp --path=$WP_CORE_DIR db reset --yes
-	wp --path=$WP_CORE_DIR core install --url="$WP_SITE_URL" --title="E2E Gutenpack blocks" --admin_user=wordpress --admin_password=wordpress --admin_email=wordpress@example.com
-	wp --path=$WP_CORE_DIR plugin activate jetpack
-	wp --path=$WP_CORE_DIR plugin activate e2e-plan-data-interceptor.php
+	wp --allow-root --path=$WP_CORE_DIR db reset --yes
+	wp --allow-root --path=$WP_CORE_DIR core install --url="$WP_SITE_URL" --title="E2E Gutenpack blocks" --admin_user=wordpress --admin_password=wordpress --admin_email=wordpress@example.com
+	wp --allow-root --path=$WP_CORE_DIR plugin activate jetpack
+	wp --allow-root --path=$WP_CORE_DIR plugin activate e2e-plan-data-interceptor.php
 
 
 	# create a debug.log file
