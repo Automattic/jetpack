@@ -16,10 +16,11 @@ jobs:
           php-version: '7.4'
           tools: composer
 
-      - name: DEBUG stuff
-        run: cat /etc/nginx/hhvm.conf
+
       - name: DEBUG stuff
         run: sudo apt install nginx
+      - name: DEBUG stuff
+        run: ls -la /etc/nginx
       - name: DEBUG stuff
         run: sudo service nginx restart
 
