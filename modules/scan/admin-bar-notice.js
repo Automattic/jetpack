@@ -8,19 +8,12 @@
 	}
 
 	function fetch_scan_treats_and_add_link() {
-		fetch( localized.scan_endpoint, {
-			credentials: 'same-origin',
-			headers: {
-				'X-WP-Nonce': localized.nonce,
-			},
-		} )
-			.then( function( response ) {
-				if ( response.status >= 200 && response.status < 400 ) {
-					return response.json();
-				}
-				return false;
-			} )
-			.then( function( body ) {
+		var xhrRequest = new XMLHttpRequest();
+		xhrRequest.open( 'GET', localized.scan_endpoint, true );
+		xhrRequest.onload = function() {
+			if ( this.status == 200 ) {
+				// Success!
+				var body = JSON.parse( this.response );
 				if ( body && body.data ) {
 					var apiResponse = JSON.parse( body.data );
 					var numberOfThreats =
@@ -29,7 +22,12 @@
 				} else {
 					update_threats_link( 0 );
 				}
-			} );
+			} else {
+				update_threats_link( 0 );
+			}
+		};
+		xhrRequest.setRequestHeader( 'X-WP-Nonce', localized.nonce );
+		xhrRequest.send();
 	}
 
 	ready( function() {
