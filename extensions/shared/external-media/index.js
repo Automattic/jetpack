@@ -30,7 +30,8 @@ addFilter(
 			{ ...props }
 			render={ button => <MediaButton { ...button } mediaProps={ props } /> }
 		/>
-	)
+	),
+	11
 );
 
 // Register the individual external media blocks
