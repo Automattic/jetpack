@@ -35,23 +35,18 @@ export default function useInstagramGallery( { accessToken, noticeOperations, se
 				count: MAX_IMAGE_COUNT,
 			} ),
 		} )
-			.then( response => {
+			.then( ( { external_name: externalName, images: imageList } ) => {
 				setIsLoadingGallery( false );
 
-				// `missing_data` indicates that the token is invalid.
-				if ( response.code && 'missing_data' === response.code ) {
-					setImages( [] );
-					setAttributes( { accessToken: undefined } );
-					return;
-				}
-
-				const { external_name: externalName, images: imageList } = response;
-
+				// If the response doesn't have an `images` property,
+				// or `images` is not an array (the API might literally return the string "ERROR"),
+				// the token is likely incorrect, so set it as disconnected.
 				if ( ! imageList || ! isArray( imageList ) ) {
 					noticeOperations.createErrorNotice(
 						__( 'An error occurred. Please try again later.', 'jetpack' )
 					);
 					setImages( [] );
+					setAttributes( { accessToken: undefined } );
 					return;
 				}
 
