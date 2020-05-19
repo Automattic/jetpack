@@ -231,7 +231,7 @@ class MembershipsButtonEdit extends Component {
 			this.state.editedProductCurrency
 		);
 		const minimumPriceNote = sprintf( __( 'Minimum allowed price is %s.' ), minPrice );
-		const formattedMinPrice = parseFloat( this.state.editedProductPrice ).toFixed( 2 );
+		const formattedMinPrice = parseFloat( this.state.editedProductPrice );
 		return (
 			<div>
 				<div className="membership-button__price-container">
