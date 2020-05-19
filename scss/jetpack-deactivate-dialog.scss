@@ -33,6 +33,16 @@
 				line-height: 24px;
 				margin-top: 0px;
 			}
+
+			ul {
+				font-size: 16px;
+				line-height: 24px;
+				li:before {
+					color: red;
+				}
+			}
+
+
 		}
 	}
 

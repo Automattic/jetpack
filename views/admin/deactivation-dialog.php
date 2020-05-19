@@ -32,7 +32,7 @@
 		<ul>
 			<?php foreach ( $data as $plugin_slug => $plugin_args ) : ?>
 
-				<li>
+				<li class="dashicons-before dashicons-warning">
 					<?php echo esc_html( isset( $plugin_args['name'] ) ? $plugin_args['name'] : $plugin_slug ); ?>
 				</li>
 
