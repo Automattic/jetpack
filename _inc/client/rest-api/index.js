@@ -212,13 +212,6 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
-		updateSetupQuestionnaire: updatedQuestionnaire =>
-			postRequest( `${ apiRoot }jetpack/v4/setup/questionnaire`, postParams, {
-				body: JSON.stringify( { option_values: updatedQuestionnaire } ),
-			} )
-				.then( checkStatus )
-				.then( parseJsonResponse ),
-
 		fetchSiteData: () =>
 			getRequest( `${ apiRoot }jetpack/v4/site`, getParams )
 				.then( checkStatus )
@@ -306,6 +299,13 @@ function JetpackRestApiClient( root, nonce ) {
 		submitSurvey: surveyResponse =>
 			postRequest( `${ apiRoot }jetpack/v4/marketing/survey`, postParams, {
 				body: JSON.stringify( surveyResponse ),
+			} )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
+		saveSetupQuestionnaire: newQuestionnaire =>
+			postRequest( `${ apiRoot }jetpack/v4/setup/questionnaire`, postParams, {
+				body: JSON.stringify( { questionnaire: newQuestionnaire } ),
 			} )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
