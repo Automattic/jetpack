@@ -253,7 +253,7 @@ class MembershipsButtonEdit extends Component {
 							min="0"
 							step="1"
 							type="number"
-							value={ this.state.editedProductPrice || '' }
+							value={ formatCurrency( this.state.editedProductPrice ) || '' }
 						/>
 						<p>{ minimumPriceNote }</p>
 					</div>
