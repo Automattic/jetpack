@@ -16,9 +16,9 @@ jobs:
           php-version: '7.4'
           tools: composer
 
-      # - run: which php-fpm
+      - run: which php7-fpm
 
-      - run: ls -la $HOME/.phpenv/versions
+      - run: ls -la $HOME
 
       - name: DEBUG stuff
         run: sudo apt install nginx
