@@ -84,7 +84,7 @@ class Admin_Bar_Notice {
 			return;
 		}
 		// We don't know about threats in the cache lets load the JS that fetches the info and updates the admin bar.
-		wp_enqueue_script( self::SCRIPT_NAME, Assets::get_file_url_for_environment( 'modules/scan/admin-bar-notice.js', 'modules/scan/admin-bar-notice.js' ), array(), self::SCRIPT_VERSION, true );
+		wp_enqueue_script( self::SCRIPT_NAME, Assets::get_file_url_for_environment( '_inc/build/scan/admin-bar-notice.min.js', 'modules/scan/admin-bar-notice.js' ), array(), self::SCRIPT_VERSION, true );
 
 		$script_data = array(
 			'nonce'              => wp_create_nonce( 'wp_rest' ),
