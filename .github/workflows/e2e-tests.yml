@@ -16,7 +16,7 @@ jobs:
           php-version: '7.4'
           tools: composer
 
-      - run: which php-fpm
+      # - run: which php-fpm
 
       - run: ls -la $HOME/.phpenv/versions
 
