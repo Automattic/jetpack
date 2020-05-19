@@ -1398,7 +1398,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @return string|WP_Error A raw URL if the connection URL could be built; error message otherwise.
 	 */
-	public static function build_connect_url( $request ) {
+	public static function build_connect_url( $request = array() ) {
 		$from     = isset( $request['from'] ) ? $request['from'] : false;
 		$redirect = isset( $request['redirect'] ) ? $request['redirect'] : false;
 
