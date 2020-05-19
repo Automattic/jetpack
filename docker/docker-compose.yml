@@ -61,8 +61,7 @@ services:
     depends_on:
       - db
       - maildev
-    build: .
-    image: jetpack_wordpress:localbuild
+    image: automattic/jetpack-wordpress-dev:latest
     volumes:
       - ..:/var/www/html/wp-content/plugins/jetpack
       ## Kludge for not having docker contain recursive stuff
