@@ -163,7 +163,6 @@ class Jetpack_Wizard_Banner {
 					<div class="jp-wizard-banner-wizard-intro-question">
 						<h2>
 							<?php
-							/* translators: %s is the site name */
 							printf(
 								/* translators: %s is the site name */
 								esc_html__( 'What will %s be used for?', 'jetpack' ),
