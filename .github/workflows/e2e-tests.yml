@@ -1,4 +1,4 @@
-name: CI
+name: E2E tests
 # Trigger on every push
 on: push
 jobs:
@@ -7,20 +7,25 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Install
-        # NOTE: this pins the action to a specific commit sha for security
-        # reasons but you can also use a version tag if desired. For example:
-        # ianwalter/puppeteer@3.0.0
-        uses: ianwalter/puppeteer@12728ddef82390d1ecd4732fb543f62177392fbb
+      - name: script
+        run: ls -la
+      - name: script2
+        run: which php
+      - name: Setup NodeJS
+        uses: actions/setup-node@v2-beta
         with:
-          args: yarn
+          node-version: '10'
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+          tools: composer
       - name: Build
-        # NOTE: this pins the action to a specific commit sha for security
-        # reasons but you can also use a version tag if desired. For example:
-        # ianwalter/puppeteer@3.0.0
         uses: ianwalter/puppeteer@12728ddef82390d1ecd4732fb543f62177392fbb
         with:
-          args: yarn build
+          args: yarn && yarn build
+      - name: script23
+        run: yarn build
       - name: Test
         uses: ianwalter/puppeteer@12728ddef82390d1ecd4732fb543f62177392fbb
         with:
