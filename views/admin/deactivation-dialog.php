@@ -45,7 +45,7 @@
 
 	<div class="jetpack_deactivation_dialog_content__buttons-row-container">
 		<div class="jetpack_deactivation_dialog_content__buttons-row">
-			<p>Are you sure you want to disconnect?</p>
+			<p><?php esc_html_e( 'Are you sure you want to deactivate?', 'jetpack' ); ?></p>
 			<div class="jetpack_deactivation_dialog_content__buttons">
 				<button type="button" id="jetpack_deactivation_dialog_content__button-cancel"><?php esc_html_e( 'Cancel', 'jetpack' ); ?></button>
 				<button type="button" id="jetpack_deactivation_dialog_content__button-deactivate"><?php esc_html_e( 'Disconnect and Deactivate', 'jetpack' ); ?></button>
