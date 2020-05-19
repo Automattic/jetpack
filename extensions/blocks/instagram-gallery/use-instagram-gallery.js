@@ -67,6 +67,7 @@ export default function useInstagramGallery( { accessToken, noticeOperations, se
 			.catch( () => {
 				setIsLoadingGallery( false );
 				setImages( [] );
+				setAttributes( { accessToken: undefined } );
 			} );
 	}, [ accessToken, noticeOperations, setAttributes ] );
 
