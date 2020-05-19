@@ -1,5 +1,9 @@
 @import './view.scss';
 
+.wp-block-jetpack-instagram-gallery .components-placeholder .components-radio-control {
+	margin-bottom: $default-block-margin;
+}
+
 .wp-block-jetpack-instagram-gallery__count-notice {
 	.components-notice {
 		margin: 0 0 15px 0;

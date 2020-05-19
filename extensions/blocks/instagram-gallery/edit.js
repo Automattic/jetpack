@@ -2,7 +2,7 @@
  * External dependencies
  */
 import classnames from 'classnames';
-import { isEmpty, isEqual, times } from 'lodash';
+import { find, isEmpty, isEqual, map, times } from 'lodash';
 
 /**
  * WordPress dependencies
@@ -15,12 +15,13 @@ import {
 	PanelBody,
 	PanelRow,
 	Placeholder,
+	RadioControl,
 	RangeControl,
 	Spinner,
 	ToggleControl,
 	withNotices,
 } from '@wordpress/components';
-import { useEffect } from '@wordpress/element';
+import { useEffect, useState } from '@wordpress/element';
 import { __, sprintf, _n } from '@wordpress/i18n';
 
 /**
@@ -47,27 +48,35 @@ const InstagramGalleryEdit = props => {
 		spacing,
 	} = attributes;
 
-	const { images, isLoadingGallery, setImages } = useInstagramGallery( {
-		accessToken,
-		noticeOperations,
-		setAttributes,
-	} );
-	const { isConnecting, connectToService, disconnectFromService } = useConnectInstagram( {
-		accessToken,
-		noticeOperations,
-		setAttributes,
-		setImages,
-	} );
-	const { isRequestingWpcomConnectUrl, wpcomConnectUrl } = useConnectWpcom();
-
-	const unselectedCount = count > images.length ? images.length : count;
-
 	useEffect( () => {
 		const validatedAttributes = getValidatedAttributes( defaultAttributes, attributes );
 		if ( ! isEqual( validatedAttributes, attributes ) ) {
 			setAttributes( validatedAttributes );
 		}
 	}, [ attributes, setAttributes ] );
+
+	const [ selectedAccount, setSelectedAccount ] = useState( accessToken );
+	const { isRequestingWpcomConnectUrl, wpcomConnectUrl } = useConnectWpcom();
+	const { images, isLoadingGallery, setImages } = useInstagramGallery( {
+		accessToken,
+		noticeOperations,
+		setAttributes,
+	} );
+	const {
+		connectToService,
+		disconnectFromService,
+		isConnecting,
+		isRequestingUserConnections,
+		userConnections,
+	} = useConnectInstagram( {
+		accessToken,
+		noticeOperations,
+		setAttributes,
+		setImages,
+		setSelectedAccount,
+	} );
+
+	const unselectedCount = count > images.length ? images.length : count;
 
 	const showPlaceholder = ! isLoadingGallery && ( ! accessToken || isEmpty( images ) );
 	const showSidebar = ! showPlaceholder;
@@ -128,6 +137,51 @@ const InstagramGalleryEdit = props => {
 		);
 	};
 
+	const connectBlockToInstagram = () => {
+		if ( selectedAccount && 'jetpack-new-instagram-connection' !== selectedAccount ) {
+			setAttributes( {
+				accessToken: selectedAccount,
+				instagramUser: find( userConnections, { token: selectedAccount } ).username,
+			} );
+			return;
+		}
+		connectToService();
+	};
+
+	const renderInstagramConnection = () => {
+		const hasUserConnections = userConnections.length > 0;
+		const radioOptions = [
+			...map( userConnections, connection => ( {
+				label: connection.username,
+				value: connection.token,
+			} ) ),
+			{
+				label: __( '…or another Instagram account', 'jetpack' ),
+				value: 'jetpack-new-instagram-connection',
+			},
+		];
+		const isButtonDisabled =
+			isConnecting || isRequestingUserConnections || ( hasUserConnections && ! selectedAccount );
+
+		return (
+			<div>
+				{ hasUserConnections && (
+					<RadioControl
+						label={ __( 'Choose your Instagram account:', 'jetpack' ) }
+						onChange={ value => setSelectedAccount( value ) }
+						options={ radioOptions }
+						selected={ selectedAccount }
+					/>
+				) }
+				<Button disabled={ isButtonDisabled } isLarge isPrimary onClick={ connectBlockToInstagram }>
+					{ isConnecting
+						? __( 'Connecting…', 'jetpack' )
+						: __( 'Connect to Instagram', 'jetpack' ) }
+				</Button>
+			</div>
+		);
+	};
+
 	return (
 		<div className={ blockClasses }>
 			{ showPlaceholder && (
@@ -142,11 +196,7 @@ const InstagramGalleryEdit = props => {
 					notices={ noticeUI }
 				>
 					{ IS_CURRENT_USER_CONNECTED_TO_WPCOM ? (
-						<Button disabled={ isConnecting } isLarge isPrimary onClick={ connectToService }>
-							{ isConnecting
-								? __( 'Connecting…', 'jetpack' )
-								: __( 'Connect to Instagram', 'jetpack' ) }
-						</Button>
+						renderInstagramConnection()
 					) : (
 						<Button
 							disabled={ isRequestingWpcomConnectUrl || ! wpcomConnectUrl }
