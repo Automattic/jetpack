@@ -1,7 +1,8 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { useCallback } from 'react';
+import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 
 /**
@@ -9,10 +10,19 @@ import { translate as __ } from 'i18n-calypso';
  */
 import Button from 'components/button';
 import { imagePath } from 'constants/urls';
+import { updateSetupWizardQuestionnaire } from 'state/setup-wizard';
 
 import './style.scss';
 
-const UpdatesQuestion = props => {
+let UpdatesQuestion = props => {
+	const onYesButtonClick = useCallback( () => {
+		props.updateUpdatesQuestion( { 'site-updates': true } );
+	} );
+
+	const onNoButtonClick = useCallback( () => {
+		props.updateUpdatesQuestion( { 'site-updates': false } );
+	} );
+
 	return (
 		<div className="jp-setup-wizard-main jp-setup-wizard-updates-main">
 			<img
@@ -25,10 +35,19 @@ const UpdatesQuestion = props => {
 				} ) }
 			</h1>
 			<div className="jp-setup-wizard-updates-answer-buttons-container">
-				<Button href="#/setup/features" primary className="jp-setup-wizard-updates-button">
+				<Button
+					href="#/setup/features"
+					primary
+					className="jp-setup-wizard-updates-button"
+					onClick={ onYesButtonClick }
+				>
 					{ __( 'Yes' ) }
 				</Button>
-				<Button href="#/setup/features" className="jp-setup-wizard-updates-button">
+				<Button
+					href="#/setup/features"
+					className="jp-setup-wizard-updates-button"
+					onClick={ onNoButtonClick }
+				>
 					{ __( 'No' ) }
 				</Button>
 			</div>
@@ -38,5 +57,12 @@ const UpdatesQuestion = props => {
 		</div>
 	);
 };
+
+UpdatesQuestion = connect(
+	state => ( {} ),
+	dispatch => ( {
+		updateUpdatesQuestion: answer => dispatch( updateSetupWizardQuestionnaire( answer ) ),
+	} )
+)( UpdatesQuestion );
 
 export { UpdatesQuestion };
