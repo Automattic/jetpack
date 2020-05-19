@@ -16,6 +16,11 @@ jobs:
           php-version: '7.4'
           tools: composer
       - name: Build Jetpack
+        run: |
+         ls -la /etc
+         ls -la /etc/nginx
+
+      - name: Build Jetpack
         run: yarn && yarn build-production
 
       - name: Decrypt config
