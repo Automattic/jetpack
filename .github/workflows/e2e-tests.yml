@@ -16,12 +16,13 @@ jobs:
           php-version: '7.4'
           tools: composer
       - name: DEBUG stuff
-        run: |
-         ls -la /etc/nginx
-         cat /etc/nginx/hhvm.conf
-         which nginx
-         apt install nginx
-         sudo service nginx restart
+        run: ls -la /etc/nginx
+      - name: DEBUG stuff
+        run: cat /etc/nginx/hhvm.conf
+      - name: DEBUG stuff
+        run:  apt install nginx
+      - name: DEBUG stuff
+        run: sudo service nginx restart
 
       - name: Build Jetpack
         run: yarn && yarn build-production
