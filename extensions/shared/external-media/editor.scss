@@ -196,7 +196,7 @@ $grid-size: 8px;
 		height: 100px;
 		margin: $grid-size * 2;
 		animation: loading-fade 1.6s ease-in-out infinite;
-		background-color: lighten(#999, 20%);
+		background-color: $light-gray-secondary;
 		border: 0;
 	}
 
