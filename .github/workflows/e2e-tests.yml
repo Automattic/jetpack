@@ -13,13 +13,15 @@ jobs:
         # Service containers to run with `container-job`
     services:
       wp:
-        image: wordpress
+        image: wordpress:5.4.1-php7.4-fpm
         ports:
           - 80:80
+        options: --name wpcnt
       wp-cli:
         image: wordpress:cli
-    steps:
+        options: --name wpcli
 
+    steps:
       - uses: actions/checkout@v2
 
       # - run: echo $WP
@@ -40,7 +42,6 @@ jobs:
           echo $WP_ID
           echo $WP_CLI_ID
           docker exec $WP_ID ls
-
           CLI_CMD="docker run -it --rm --volumes-from $WP_ID --network container:$WP_ID wordpress:cli"
 
           $CLI_CMD core install --title="QQQQQ" --admin_user=wordpress --admin_password=wordpress --admin_email=test@example.com --skip-email --url=http://localhost
