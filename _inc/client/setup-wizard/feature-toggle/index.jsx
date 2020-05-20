@@ -31,6 +31,7 @@ let FeatureToggle = props => {
 		upgradeLink,
 		optionsLink,
 		isPaid = false,
+		isLinkExternal = false,
 	} = props;
 
 	const [ windowWidth, setWindowWidth ] = useState( false );
@@ -56,20 +57,24 @@ let FeatureToggle = props => {
 	let buttonContent;
 	if ( ! checked && upgradeLink ) {
 		buttonContent = (
-			<Button href={ upgradeLink } primary target="_blank">
+			<Button href={ upgradeLink } primary target={ isLinkExternal ? '_blank' : '' }>
 				{ __( 'Upgrade now' ) }
-				<span>
-					<Gridicon icon="external" />
-				</span>
+				{ isLinkExternal && (
+					<span>
+						<Gridicon icon="external" />
+					</span>
+				) }
 			</Button>
 		);
 	} else if ( configureLink ) {
 		buttonContent = (
-			<Button href={ configureLink } target="_blank">
+			<Button href={ configureLink } target={ isLinkExternal ? '_blank' : '' }>
 				{ __( 'Configure' ) }
-				<span>
-					<Gridicon icon="external" />
-				</span>
+				{ isLinkExternal && (
+					<span>
+						<Gridicon icon="external" />
+					</span>
+				) }
 			</Button>
 		);
 	}
@@ -147,6 +152,7 @@ FeatureToggle.propTypes = {
 	optionsLink: PropTypes.string,
 	isPaid: PropTypes.bool,
 	isDisabled: PropTypes.bool,
+	isLinkExternal: PropTypes.bool,
 };
 
 FeatureToggle = connect(

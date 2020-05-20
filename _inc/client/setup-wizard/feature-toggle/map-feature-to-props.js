@@ -29,7 +29,7 @@ const features = {
 
 			let upgradeLink;
 			if ( ! inCurrentPlan ) {
-				upgradeLink = getRedirectUrl( 'plans-compare-premium' );
+				upgradeLink = '#/plans';
 			}
 
 			let info;
@@ -74,7 +74,7 @@ const features = {
 
 			let upgradeLink;
 			if ( ! inCurrentPlan ) {
-				upgradeLink = getRedirectUrl( 'plans-compare-personal' );
+				upgradeLink = '#/plans';
 			}
 
 			let info;
@@ -123,7 +123,7 @@ const features = {
 
 			let upgradeLink;
 			if ( ! inCurrentPlan ) {
-				upgradeLink = getRedirectUrl( 'plans-compare-personal' );
+				upgradeLink = '#/plans';
 			}
 
 			let info;
@@ -336,7 +336,7 @@ const features = {
 
 			let upgradeLink;
 			if ( ! inCurrentPlan ) {
-				upgradeLink = getRedirectUrl( 'plans-compare-premium' );
+				upgradeLink = '#/plans';
 			}
 
 			let info;
@@ -589,6 +589,7 @@ const features = {
 				details: __( 'Automaticaly share content on your favorite social media accounts.' ),
 				checked: getSetting( state, 'publicize' ),
 				configureLink: getRedirectUrl( 'calypso-marketing-connections', { site: siteRawUrl } ),
+				isLinkExternal: true,
 			};
 		},
 		mapDispatchToProps: dispatch => {
@@ -640,7 +641,7 @@ const features = {
 
 			let upgradeLink;
 			if ( ! inCurrentPlan ) {
-				upgradeLink = getRedirectUrl( 'plans-compare-premium' );
+				upgradeLink = '#/plans';
 			}
 
 			let info;
@@ -670,9 +671,9 @@ const features = {
 				'is-business-plan' !== getPlanClass( sitePlan.product_slug ) &&
 				! hasActiveSearchPurchase( state )
 			) {
-				upgradeLink = getRedirectUrl( 'plans-compare-business' );
+				upgradeLink = '#/plans';
 			} else {
-				optionsLink = '/wp-admin/admin.php?page=jetpack#/settings?term=search';
+				optionsLink = '#/settings?term=search';
 			}
 
 			return {
@@ -727,7 +728,7 @@ const features = {
 
 			let upgradeLink;
 			if ( ! inCurrentPlan ) {
-				upgradeLink = getRedirectUrl( 'plans-compare-premium' );
+				upgradeLink = '#/plans';
 			}
 
 			return {
@@ -829,14 +830,16 @@ const features = {
 
 			let upgradeLink;
 			if ( ! inCurrentPlan ) {
-				upgradeLink = getRedirectUrl( 'plans-compare-premium' );
+				upgradeLink = '#/plans';
 			}
 
 			let info;
 			let configureLink;
+			let isLinkExternal = false;
 			if ( inCurrentPlan ) {
 				info = getInfoString( sitePlan.product_name );
 				configureLink = getRedirectUrl( 'jetpack-setup-wizard-simple-payments-support' );
+				isLinkExternal = true;
 			}
 
 			return {
@@ -848,6 +851,7 @@ const features = {
 				configureLink,
 				upgradeLink,
 				info,
+				isLinkExternal,
 			};
 		},
 	},
@@ -982,7 +986,7 @@ const features = {
 
 			let upgradeLink;
 			if ( ! inCurrentPlan ) {
-				upgradeLink = getRedirectUrl( 'plans-compare-premium' );
+				upgradeLink = '#/plans';
 			}
 
 			let info;
