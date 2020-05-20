@@ -31,7 +31,6 @@ let FeatureToggle = props => {
 		upgradeLink,
 		optionsLink,
 		isPaid = false,
-		isDisabled = false,
 	} = props;
 
 	const [ windowWidth, setWindowWidth ] = useState( false );
@@ -48,16 +47,11 @@ let FeatureToggle = props => {
 		};
 	} );
 
-	function onToggleChange() {
-		if ( upgradeLink ) {
-			window.location.href = upgradeLink;
-			return;
-		}
-
+	const onToggleChange = useCallback( () => {
 		if ( 'function' === typeof props.onToggleChange ) {
 			props.onToggleChange( checked );
 		}
-	}
+	}, [ checked, props.onToggleChange ] );
 
 	let buttonContent;
 	if ( ! checked && upgradeLink ) {
@@ -103,6 +97,8 @@ let FeatureToggle = props => {
 	}
 
 	const formToggle = <FormToggle checked={ checked } onChange={ onToggleChange } />;
+
+	const isDisabled = !! ( props.isDisabled || upgradeLink );
 
 	return (
 		<div
