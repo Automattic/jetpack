@@ -6,7 +6,7 @@ import classnames from 'classnames';
 /**
  * WordPress dependencies
  */
-import { useCallback } from '@wordpress/element';
+import { useRef, useEffect, useCallback } from '@wordpress/element';
 import { Spinner } from '@wordpress/components';
 import { ENTER, SPACE } from '@wordpress/keycodes';
 
@@ -26,7 +26,7 @@ function MediaItem( props ) {
 		}
 	};
 
-	const { item, isSelected, isCopying = false } = props;
+	const { item, isFocused, isSelected, isCopying = false } = props;
 	const { thumbnails, caption, name, title, type, children = 0 } = item;
 	const { medium = null, fmt_hd = null } = thumbnails;
 	const alt = title || caption || name;
@@ -37,9 +37,15 @@ function MediaItem( props ) {
 		'is-transient': isSelected && isCopying,
 	} );
 
+	const itemEl = useRef( null );
+	useEffect( () => {
+		isFocused && itemEl.current.focus();
+	}, [ isFocused ] );
+
 	/* eslint-disable jsx-a11y/no-noninteractive-element-to-interactive-role */
 	return (
 		<li
+			ref={ itemEl }
 			className={ classes }
 			onClick={ onClick }
 			onKeyDown={ onKeyDown }

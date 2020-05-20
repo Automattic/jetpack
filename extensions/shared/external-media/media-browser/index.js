@@ -27,6 +27,7 @@ const EmptyResults = memo( () => (
 function MediaBrowser( props ) {
 	const { media, isLoading, pageHandle, className, multiple, setPath, nextPage, onCopy } = props;
 	const [ selected, setSelected ] = useState( [] );
+	const [ focusedItemIndex, setFocusedItemIndex ] = useState( -1 );
 
 	const onSelectImage = useCallback(
 		newlySelected => {
@@ -63,14 +64,22 @@ function MediaBrowser( props ) {
 		[ className ]: true,
 	} );
 
+	const onLoadMoreClick = () => {
+		if ( media.length ) {
+			setFocusedItemIndex( media.length );
+		}
+		nextPage();
+	};
+
 	return (
 		<div className={ wrapper }>
 			<ul className={ classes }>
-				{ media.map( item => (
+				{ media.map( ( item, index ) => (
 					<MediaItem
 						item={ item }
 						key={ item.ID }
 						onClick={ onSelectImage }
+						isFocused={ index === focusedItemIndex }
 						isSelected={ selected.find( toFind => toFind.ID === item.ID ) }
 					/>
 				) ) }
@@ -84,7 +93,7 @@ function MediaBrowser( props ) {
 						isSecondary
 						className="jetpack-external-media-browser__loadmore"
 						disabled={ isLoading }
-						onClick={ nextPage }
+						onClick={ onLoadMoreClick }
 					>
 						{ __( 'Load More', 'jetpack' ) }
 					</Button>
