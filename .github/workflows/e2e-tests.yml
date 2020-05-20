@@ -44,15 +44,15 @@ jobs:
 
           $CLI_CMD core install --title="QQQQQ" --admin_user=wordpress --admin_password=wordpress --admin_email=test@example.com --skip-email --url=http://localhost
 
-          	$CLI_CMD core config --dbname=$DB_NAME --dbuser=$DB_USERNAME --dbpass=$DB_PASSWORD --dbhost=$DB_HOST --dbprefix=wp_ --extra-php <<PHP
-/* Change WP_MEMORY_LIMIT to increase the memory limit for public pages. */
-define('WP_MEMORY_LIMIT', '256M');
-define('SCRIPT_DEBUG', true);
+          $CLI_CMD core config --dbname=$DB_NAME --dbuser=$DB_USERNAME --dbpass=$DB_PASSWORD --dbhost=$DB_HOST --dbprefix=wp_ --extra-php <<PHP
+          /* Change WP_MEMORY_LIMIT to increase the memory limit for public pages. */
+          define('WP_MEMORY_LIMIT', '256M');
+          define('SCRIPT_DEBUG', true);
 
-/* Tweak to fix TOO_MANY_REDIRECTS ngrok problem */
-if (isset(\$_SERVER['HTTP_X_FORWARDED_PROTO']) && \$_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https')
-    \$_SERVER['HTTPS'] = 'on';
-PHP
+          /* Tweak to fix TOO_MANY_REDIRECTS ngrok problem */
+          if (isset(\$_SERVER['HTTP_X_FORWARDED_PROTO']) && \$_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https')
+              \$_SERVER['HTTPS'] = 'on';
+          PHP
 
 
       - run: curl -s https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip > ngrok.zip
