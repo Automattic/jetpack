@@ -234,9 +234,13 @@ class ProStatus extends React.Component {
 						if ( Array.isArray( scanStatus.threats ) && scanStatus.threats.length > 0 ) {
 							return (
 								<SimpleNotice showDismiss={ false } status="is-error" isCompact>
-									{ __( 'Threats', {
-										context: 'A caption for a small button to fix security issues.',
-									} ) }
+									{ scanStatus.threats.length === 1
+										? __( 'Threat', {
+												context: 'A caption for a small button to fix security issues.',
+										  } )
+										: __( 'Threats', {
+												context: 'A caption for a small button to fix security issues.',
+										  } ) }
 								</SimpleNotice>
 							);
 						}
