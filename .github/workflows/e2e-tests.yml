@@ -10,18 +10,21 @@ env:
 jobs:
   wp:
     runs-on: ubuntu-latest
+        # Service containers to run with `container-job`
+    services:
+      # Label used to access the service container
+      wordpress:
+        # Docker Hub image
+        image: wordpress
     steps:
       - uses: actions/checkout@v2
-      - name: DO local action
-        uses: ./.github/actions/wp # Uses an action in the root directory
-        id: hello
-        with:
-          who-to-greet: 'Mona the Octocat'
-      - run: curl -s https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip > ngrok.zip
-      # - run: sudo apt update && sudo apt install unzip -y
-      # - run: unzip -o ngrok.zip
+
       - run: curl localhost || exit 0
       - run: curl localhost:8080 || exit 0
+
+      - run: curl -s https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip > ngrok.zip
+      # - run: sudo apt update && sudo apt install unzip -y
+      - run: unzip -o ngrok.zip
       - run: ./ngrok http -log=stdout 80
       - run: echo $(curl -s localhost:4040/api/tunnels/command_line | jq --raw-output .public_url)
       - run: sleep 6000
