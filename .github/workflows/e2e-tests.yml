@@ -10,29 +10,31 @@ env:
   DB_PASSWORD: "root"
   CODECEPTION_URL: 127.0.0.1
   CODECEPTION_PORT: 8888
+  WP_CORE_DIR: $HOME/wordpress
+
 jobs:
   e2e_tests:
     runs-on: ubuntu-latest
-    services:
-      mysql:
-        image: mysql:5.7
-        env:
-          MYSQL_ALLOW_EMPTY_PASSWORD: true
-          MYSQL_DATABASE: jetpack_test
-        ports:
-          - 3306/tcp
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+    # services:
+    #   mysql:
+    #     image: mysql:5.7
+    #     env:
+    #       MYSQL_ALLOW_EMPTY_PASSWORD: true
+    #       MYSQL_DATABASE: jetpack_test
+    #     ports:
+    #       - 3306/tcp
+    #     options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
     steps:
       - uses: actions/checkout@v2
       # - name: Setup NodeJS
       #   uses: actions/setup-node@v1
       #   with:
       #     node-version: '10'
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '7.4'
-          tools: composer
+      # - name: Setup PHP
+      #   uses: shivammathur/setup-php@v2
+      #   with:
+      #     php-version: '7.4'
+      #     tools: composer
 
       # - run: whoami
       # - run: cat /etc/passwd
@@ -45,9 +47,6 @@ jobs:
 
       - name: Setup WordPress
         run: ./tests/e2e/bin/setup-e2e-travis.sh
-      - run: ls -la /var/log/nginx
-      - run: cat /var/log/nginx/error.log
-
 
       - name: Build Jetpack
         run: yarn && yarn build-production
@@ -58,7 +57,3 @@ jobs:
         run: yarn test-decrypt-config
       - name: Run tests
         run: E2E_DEBUG=true yarn test-e2e --runInBand --verbose
-      # - name: Test
-      #   uses: ianwalter/puppeteer@12728ddef82390d1ecd4732fb543f62177392fbb
-      #   with:
-      #     args: E2E_DEBUG=true yarn test-e2e --runInBand --verbose
