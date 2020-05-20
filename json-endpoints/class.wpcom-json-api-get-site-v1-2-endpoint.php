@@ -13,7 +13,8 @@ new WPCOM_JSON_API_GET_Site_V1_2_Endpoint( array(
 	),
 
 	'query_parameters' => array(
-		'context' => false,
+		'context'  => false,
+		'filters'  => '(string) Optional. Returns sites that satisfy the given filters only. Example: filters=jetpack,atomic,wpcom',
 	),
 
 	'response_format' => WPCOM_JSON_API_GET_Site_V1_2_Endpoint::$site_format,
@@ -58,6 +59,16 @@ class WPCOM_JSON_API_GET_Site_V1_2_Endpoint extends WPCOM_JSON_API_GET_Site_Endp
 
 	function callback( $path = '', $blog_id = 0 ) {
 		add_filter( 'sites_site_format', array( $this, 'site_format' ) );
+
+		// Apply filter here, return same error as switch_to_blog_and_validate_user if blog is not found.
+		require_lib( 'site-filter' );
+		$filters = Site_Filter::process_query_arg( $this->query_args() );
+		if ( is_wp_error( $filters ) ) {
+			return $filters;
+		}
+		if ( ! empty( $filters ) && ! Site_Filter::filter_blog( $blog_id, $filters ) ) {
+			return new WP_Error( 'unknown_blog', 'Unknown blog', 404 );
+		}
 
 		return parent::callback( $path, $blog_id );
 	}
