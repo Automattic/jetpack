@@ -23,16 +23,18 @@ jobs:
 
       - uses: actions/checkout@v2
 
-      - run: echo $WP
-        env:
-          WP: ${{job.services.wp}}
+      # - run: echo $WP
+      #   env:
+      #     WP: ${{job.services.wp}}
 
       - run: curl localhost -v || exit 0
       - run: curl localhost:$WP_PORT -v || exit 0
         env:
           WP_PORT: ${{job.services.wp.ports['80']}}
       - run: docker ps -a
-      - run: docker run -it wordpress ls
+      - run: |
+          WP_ID=docker inspect --format="{{.Id}}" wordpress
+          docker exec $WP_ID ls
       - run: docker ps -a
 
 
