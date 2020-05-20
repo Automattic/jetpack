@@ -42,6 +42,7 @@ jobs:
       - run: curl localhost:8080 -v
       - run: docker ps -a
       - run: sudo systemctl start mysql.service
+      - run: echo ${{ job.services.mysql.ports['3306'] }}
 
 
       - name: Setup tmate session
