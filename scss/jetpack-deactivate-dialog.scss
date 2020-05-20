@@ -2,7 +2,10 @@
 
 	max-width: 635px;
 	max-height: 600px;
-	min-height: 500px;
+
+	@media screen and (min-width: 661px) {
+		max-height: 360px;
+	}
 
 	#TB_title {
 		font-size: 28px;
@@ -23,6 +26,10 @@
 		width: auto !important;
 		padding: 0px;
 		max-height: 435px;
+
+		@media screen and (min-width: 661px) {
+			max-height: 203px;
+		}
 
 		.jetpack_deactivation_dialog_content {
 			padding: 24px;

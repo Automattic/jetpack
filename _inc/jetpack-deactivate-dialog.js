@@ -1,4 +1,3 @@
-// /* global tb_position */
 ( function( $ ) {
 	var deactivateLinkElem = $(
 		'tr[data-slug=jetpack] > td.plugin-title > div > span.deactivate > a'
@@ -16,13 +15,21 @@
 				mutation.addedNodes.forEach( function( addedNode ) {
 					if ( 'TB_window' === addedNode.id ) {
 						// NodeList is static, we need to modify this in the DOM
+
 						$( '#TB_window' ).addClass( 'jetpack-disconnect-modal' );
+						centralizeDeactivationModal();
 						observer.disconnect();
 					}
 				} );
 			}
 		} );
 	} );
+
+	window.centralizeDeactivationModal = function() {
+		var modal = $( '#TB_window.jetpack-disconnect-modal' );
+		var top = $( window ).height() / 2 - $( modal ).height() / 2;
+		$( modal ).css( 'top', top + 'px' );
+	};
 
 	var body = $( 'body' )[ 0 ];
 
