@@ -57,9 +57,21 @@ function PexelsMedia( props ) {
 	// Load initial results for the random example query.
 	useEffect( getNextPage, [] );
 
+	const searchFormEl = useRef( null );
+	useEffect( () => {
+		const searchInputEl = searchFormEl.current.elements[ 0 ];
+
+		searchInputEl.focus();
+		searchInputEl.select();
+	}, [] );
+
 	return (
 		<div className="jetpack-external-media-wrapper__pexels">
-			<form className="jetpack-external-media-header__pexels" onSubmit={ onSearch }>
+			<form
+				ref={ searchFormEl }
+				className="jetpack-external-media-header__pexels"
+				onSubmit={ onSearch }
+			>
 				<TextControl
 					aria-label={ __( 'Search', 'jetpack' ) }
 					type="search"
