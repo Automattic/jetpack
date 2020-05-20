@@ -8,98 +8,96 @@ env:
   DB_PASSWORD: root
 
 jobs:
-  wp:
-    runs-on: ubuntu-latest
-        # Service containers to run with `container-job`
-    services:
-      mysql:
-        image: mysql:5.7
-        env:
-          MYSQL_ALLOW_EMPTY_PASSWORD: false
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: jetpack_test
-        ports:
-          - 3306/tcp
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
-      wp:
-        image: wordpress
-        ports:
-          - 8080:80
-        # env:
-        #   # WORDPRESS_DB_HOST: 127.0.0.1
-        #   WORDPRESS_DB_USER: root
-        #   WORDPRESS_DB_PASSWORD: root
-        #   WORDPRESS_DB_NAME: jetpack_test
-        #   # WORDPRESS_TABLE_PREFIX: wp_
-        options: --name wpcnt
-      wp-cli:
-        image: wordpress:cli
-        options: --name wpcli
-
-    steps:
-      - uses: actions/checkout@v2
-
-      - run: curl localhost:8080 -v
-      - run: docker ps -a
-      - run: sudo systemctl start mysql.service
-      - run: echo ${{ job.services.mysql.ports['3306'] }}
-
-
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v2
-
-      - name: what
-        env:
-          DB_PORT: ${{ job.services.mysql.ports['3306'] }}
-        run: |
-          WP_ID=$(docker ps -aqf "name=wpcnt")
-          WP_CLI_ID=$(docker ps -aqf "name=wpcli")
-          echo $WP_ID
-          echo $WP_CLI_ID
-          docker exec wpcnt ls
-          CLI_CMD="docker run -it --rm --volumes-from wpcnt --network container:wpcnt wordpress:cli"
-
-          $CLI_CMD core install --title="QQQQQ" --admin_user=wordpress --admin_password=wordpress --admin_email=test@example.com --skip-email --url=http://localhost
-
-          $CLI_CMD core config --dbname=$DB_NAME --dbuser=$DB_USERNAME --dbpass=$DB_PASSWORD --dbhost=$DB_HOST --dbprefix=wp_
-
-
-      - run: curl -s https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip > ngrok.zip
-      # - run: sudo apt update && sudo apt install unzip -y
-      - run: unzip -o ngrok.zip
-      - run: ./ngrok http -log=stdout 80 > /dev/null &
-      - run: echo $(curl -s localhost:4040/api/tunnels/command_line | jq --raw-output .public_url)
-      # - run: sleep 6000
-
-  # e2e_tests:
+  # wp:
   #   runs-on: ubuntu-latest
+  #       # Service containers to run with `container-job`
+  #   services:
+  #     mysql:
+  #       image: mysql:5.7
+  #       env:
+  #         MYSQL_ALLOW_EMPTY_PASSWORD: false
+  #         MYSQL_ROOT_PASSWORD: root
+  #         MYSQL_DATABASE: jetpack_test
+  #       ports:
+  #         - 3306/tcp
+  #       options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+  #     wp:
+  #       image: wordpress
+  #       ports:
+  #         - 8080:80
+  #       # env:
+  #       #   # WORDPRESS_DB_HOST: 127.0.0.1
+  #       #   WORDPRESS_DB_USER: root
+  #       #   WORDPRESS_DB_PASSWORD: root
+  #       #   WORDPRESS_DB_NAME: jetpack_test
+  #       #   # WORDPRESS_TABLE_PREFIX: wp_
+  #       options: --name wpcnt
+  #     wp-cli:
+  #       image: wordpress:cli
+  #       options: --name wpcli
+
   #   steps:
   #     - uses: actions/checkout@v2
-  #     # - run: sudo apt update
-  #     # - run: sudo apt install -y php-fpm nginx
-  #     # - run: sudo systemctl start mysql.service
 
-  #     - name: DO local action
-  #       uses: ./.github/actions/wp # Uses an action in the root directory
-  #       id: hello
-  #       with:
-  #         who-to-greet: 'Mona the Octocat'
+  #     - run: curl localhost:8080 -v
+  #     - run: docker ps -a
+  #     - run: sudo systemctl start mysql.service
+  #     - run: echo ${{ job.services.mysql.ports['3306'] }}
 
 
+  #     - name: Setup tmate session
+  #       uses: mxschmitt/action-tmate@v2
 
-  #     - name: Setup env and WordPress
-  #       run: |
-  #         sudo apt update
-  #         sudo apt install -y php-fpm nginx
-  #         sudo systemctl start mysql.service
-  #         ./tests/e2e/bin/setup-e2e-travis.sh
-
-  #     - name: Build Jetpack
-  #       run: yarn && yarn build-production
-
-  #     - name: Decrypt config
+  #     - name: what
   #       env:
-  #         CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
-  #       run: yarn test-decrypt-config
-  #     - name: Run tests
-  #       run: yarn test-e2e --runInBand --verbose
+  #         DB_PORT: ${{ job.services.mysql.ports['3306'] }}
+  #       run: |
+  #         WP_ID=$(docker ps -aqf "name=wpcnt")
+  #         WP_CLI_ID=$(docker ps -aqf "name=wpcli")
+  #         echo $WP_ID
+  #         echo $WP_CLI_ID
+  #         docker exec wpcnt ls
+  #         CLI_CMD="docker run -it --rm --volumes-from wpcnt --network container:wpcnt wordpress:cli"
+
+  #         $CLI_CMD core install --title="QQQQQ" --admin_user=wordpress --admin_password=wordpress --admin_email=test@example.com --skip-email --url=http://localhost
+
+  #         $CLI_CMD core config --dbname=$DB_NAME --dbuser=$DB_USERNAME --dbpass=$DB_PASSWORD --dbhost=$DB_HOST:32768 --dbprefix=wp_
+
+
+  #     - run: curl -s https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip > ngrok.zip
+  #     # - run: sudo apt update && sudo apt install unzip -y
+  #     - run: unzip -o ngrok.zip
+  #     - run: ./ngrok http -log=stdout 80 > /dev/null &
+  #     - run: echo $(curl -s localhost:4040/api/tunnels/command_line | jq --raw-output .public_url)
+      # - run: sleep 6000
+
+  e2e_tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      # - run: sudo apt update
+      # - run: sudo apt install -y php-fpm nginx
+      # - run: sudo systemctl start mysql.service
+
+      # - name: DO local action
+      #   uses: ./.github/actions/wp # Uses an action in the root directory
+      #   id: hello
+      #   with:
+      #     who-to-greet: 'Mona the Octocat'
+
+      - name: Setup env and WordPress
+        run: |
+          sudo apt update
+          sudo apt install -y php-fpm nginx
+          sudo systemctl start mysql.service
+          ./tests/e2e/bin/setup-e2e-travis.sh
+
+      - name: Build Jetpack
+        run: yarn && yarn build-production
+
+      - name: Decrypt config
+        env:
+          CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
+        run: yarn test-decrypt-config
+      - name: Run tests
+        run: yarn test-e2e --runInBand --verbose
