@@ -15,6 +15,15 @@ jobs:
       # - run: sudo apt update
       # - run: sudo apt install -y php-fpm nginx
       # - run: sudo systemctl start mysql.service
+
+      - name: DO local action
+        uses: ./.github/actions/wp # Uses an action in the root directory
+        id: hello
+        with:
+          who-to-greet: 'Mona the Octocat'
+
+
+          
       - name: Setup env and WordPress
         run: |
           sudo apt update
