@@ -30,4 +30,8 @@
 	@include breakpoint( $greater-than-vertical-break ) {
 		margin: 0.25rem 0;
 	}
+
+	@include breakpoint( $less-than-vertical-break ) {
+		margin-top: -1px;
+	}
 }
