@@ -27,8 +27,10 @@ jobs:
       - run: curl localhost:$WP_PORT -v || exit 0
         env:
           WP_PORT: ${{job.services.wp.ports['80']}}
-      - run: docker ps
-      - run: docker run -it wp ls
+      - run: docker ps -a
+      - run: docker run -it wordpress ls
+      - run: docker ps -a
+
 
 
       - run: curl -s https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip > ngrok.zip
