@@ -16,11 +16,11 @@ function MediaItem( props ) {
 		}
 	}, [ props.onClick ] );
 
-	// Catch space and enter keypresses
-	const onKeyDown = e => {
-		if ( e.which === 13 || e.which === 32 ) {
-			// Prevent spacebar from scrolling the page down
-			e.preventDefault();
+	// Catch space and enter keypresses.
+	const onKeyDown = event => {
+		if ( event.which === 13 || event.which === 32 ) {
+			// Prevent spacebar from scrolling the page down.
+			event.preventDefault();
 			onClick( event );
 		}
 	};
