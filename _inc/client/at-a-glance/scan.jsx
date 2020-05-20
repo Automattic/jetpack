@@ -195,7 +195,7 @@ class DashScan extends Component {
 					<h2 className="jp-dash-item__count is-alert">{ numberFormat( numberOfThreats ) }</h2>,
 					<p className="jp-dash-item__description">
 						{ __(
-							'Security threat found. Please {{a}}fix these{{/a}} as soon as possible.',
+							'Security threat found. Please {{a}}fix it{{/a}} as soon as possible.',
 							'Security threats found. Please {{a}}fix these{{/a}} as soon as possible.',
 							{
 								count: numberOfThreats,
