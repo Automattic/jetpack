@@ -65,7 +65,7 @@ function MediaBrowser( props ) {
 
 	return (
 		<div className={ wrapper }>
-			<div className={ classes }>
+			<ul className={ classes }>
 				{ media.map( item => (
 					<MediaItem
 						item={ item }
@@ -89,7 +89,7 @@ function MediaBrowser( props ) {
 						{ __( 'Load More', 'jetpack' ) }
 					</Button>
 				) }
-			</div>
+			</ul>
 
 			{ hasMediaItems && (
 				<div className="jetpack-external-media-browser__media__toolbar">
