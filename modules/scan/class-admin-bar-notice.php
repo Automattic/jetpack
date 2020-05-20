@@ -45,17 +45,35 @@ class Admin_Bar_Notice {
 	 * Initalize the hooks as needed.
 	 */
 	private function init_hooks() {
-		if ( is_multisite() ) {
-			return; // Jetpack Scan is currently not supported on multisite.
-		}
-
-		if ( ! current_user_can( 'manage_options' ) ) {
-			return; // Only show the notice to admins.
+		if ( ! $this->should_try_to_display_notice() ) {
+			return;
 		}
 
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_toolbar_script' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_toolbar_script' ) );
 		add_action( 'admin_bar_menu', array( $this, 'add_threats_to_toolbar' ), 999 );
+	}
+
+	/**
+	 * Whether to even try to display the notice or now.
+	 *
+	 * @return bool
+	 */
+	private function should_try_to_display_notice() {
+		if ( is_multisite() ) {
+			return false; // Jetpack Scan is currently not supported on multisite.
+		}
+
+		// Check if VaultPress is active.
+		if ( class_exists( 'VaultPress' ) ) {
+			return false;
+		}
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return false; // Only show the notice to admins.
+		}
+
+		return true;
 	}
 
 	/**
@@ -106,10 +124,15 @@ class Admin_Bar_Notice {
 	 * @param WP_Admin_Bar $wp_admin_bar WP Admin Bar class object.
 	 */
 	public function add_threats_to_toolbar( $wp_admin_bar ) {
+		if ( ! $this->should_try_to_display_notice() ) {
+			return;
+		}
+
 		$has_threats = $this->has_threats();
 		if ( false === $has_threats ) {
 			return;
 		}
+
 		$node = array(
 			'id'     => 'jetpack-scan-notice',
 			'title'  => '',

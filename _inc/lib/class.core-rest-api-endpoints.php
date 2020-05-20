@@ -1308,7 +1308,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		$body   = wp_remote_retrieve_body( $response );
 		$result = json_decode( $body );
-		set_transient( 'jetpack_scan_state', $result, 15 * MINUTE_IN_SECONDS );
+		set_transient( 'jetpack_scan_state', $result, 30 * MINUTE_IN_SECONDS );
 
 		return $result;
 	}
