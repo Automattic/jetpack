@@ -82,7 +82,7 @@ class AssetsTest extends TestCase {
 	 * Test that enqueue_async_script calls adds the script_loader_tag filter
 	 */
 	public function test_enqueue_async_script_adds_script_loader_tag_filter() {
-		enqueue_async_script( 'handle', 'minpath.js', 'path.js', array(), '123', true );
+		Assets::enqueue_async_script( 'handle', 'minpath.js', 'path.js', array(), '123', true );
 		$asset_instance = Assets::instance();
 		self::assertTrue( has_filter( 'script_loader_tag', array( $asset_instance, 'script_add_async' ) ) );
 	}
@@ -91,7 +91,7 @@ class AssetsTest extends TestCase {
 	 * Test that enqueue_async_script calls wp_enqueue_script
 	 */
 	public function test_enqueue_async_script_calls_wp_enqueue_script() {
-		enqueue_async_script( 'handle', '/minpath.js', '/path.js', array(), '123', true );
+		Assets::enqueue_async_script( 'handle', '/minpath.js', '/path.js', array(), '123', true );
 		$this->assertEquals(
 			$GLOBALS['_was_called_wp_enqueue_script'],
 			array( array( 'handle', Assets::get_file_url_for_environment( '/minpath.js', '/path.js' ), array(), '123', true ) )

@@ -119,20 +119,22 @@ class Assets {
 		return apply_filters( 'jetpack_get_file_for_environment', $url, $min_path, $non_min_path );
 	}
 
+	/**
+	 * A helper function that lets you enqueue scripts in an async fashion.
+	 *
+	 * @param string $handle        Name of the script. Should be unique.
+	 * @param string $min_path      Minimized script path.
+	 * @param string $non_min_path  Full Script path.
+	 * @param array  $deps           Array of script dependencies.
+	 * @param bool   $ver             The script version.
+	 * @param bool   $in_footer       Should the script be included in the footer.
+	 */
+	public static function enqueue_async_script( $handle, $min_path, $non_min_path, $deps = array(), $ver = false, $in_footer = true ) {
+		$assets_instance = self::instance();
+		$assets_instance->add_async_script( $handle );
+		wp_enqueue_script( $handle, self::get_file_url_for_environment( $min_path, $non_min_path ), $deps, $ver, $in_footer );
+	}
+
 }
 
-/**
- * A helper function that lets you enqueue scripts in an async fashion.
- *
- * @param string $handle        Name of the script. Should be unique.
- * @param string $min_path      Minimized script path.
- * @param string $non_min_path  Full Script path.
- * @param array  $deps           Array of script dependencies.
- * @param bool   $ver             The script version.
- * @param bool   $in_footer       Should the script be included in the footer.
- */
-function enqueue_async_script( $handle, $min_path, $non_min_path, $deps = array(), $ver = false, $in_footer = true ) {
-	$assets_instance = Assets::instance();
-	$assets_instance->add_async_script( $handle );
-	wp_enqueue_script( $handle, Assets::get_file_url_for_environment( $min_path, $non_min_path ), $deps, $ver, $in_footer );
-}
+

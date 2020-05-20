@@ -7,7 +7,7 @@
 
 namespace Automattic\Jetpack\Scan;
 
-use function Automattic\Jetpack\enqueue_async_script as jetpack_enqueue_async_script;
+use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Redirect;
 
 /**
@@ -87,7 +87,7 @@ class Admin_Bar_Notice {
 		}
 
 		// We don't know about threats in the cache lets load the JS that fetches the info and updates the admin bar.
-		jetpack_enqueue_async_script( self::SCRIPT_NAME, '_inc/build/scan/admin-bar-notice.min.js', 'modules/scan/admin-bar-notice.js', array(), self::SCRIPT_VERSION, true );
+		Assets::enqueue_async_script( self::SCRIPT_NAME, '_inc/build/scan/admin-bar-notice.min.js', 'modules/scan/admin-bar-notice.js', array(), self::SCRIPT_VERSION, true );
 
 		$script_data = array(
 			'nonce'              => wp_create_nonce( 'wp_rest' ),

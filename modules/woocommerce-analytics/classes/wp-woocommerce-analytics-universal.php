@@ -6,7 +6,7 @@
  * @author Automattic
  */
 
-use function Automattic\Jetpack\enqueue_async_script as jetpack_enqueue_async_script;
+use Automattic\Jetpack\Assets;
 
 /**
  * Bail if accessed directly
@@ -77,7 +77,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 			gmdate( 'YW' )
 		);
 
-		jetpack_enqueue_async_script( 'woocommerce-analytics', esc_url( $filename ), esc_url( $filename ), array(), null, false );
+		Assets::enqueue_async_script( 'woocommerce-analytics', esc_url( $filename ), esc_url( $filename ), array(), null, false );
 	}
 
 	/**
