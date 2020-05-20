@@ -64,12 +64,18 @@ let FeatureToggle = props => {
 		buttonContent = (
 			<Button href={ upgradeLink } primary target="_blank">
 				{ __( 'Upgrade now' ) }
+				<span>
+					<Gridicon icon="external" />
+				</span>
 			</Button>
 		);
 	} else if ( configureLink ) {
 		buttonContent = (
 			<Button href={ configureLink } target="_blank">
 				{ __( 'Configure' ) }
+				<span>
+					<Gridicon icon="external" />
+				</span>
 			</Button>
 		);
 	}
