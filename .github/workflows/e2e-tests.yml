@@ -32,10 +32,10 @@ jobs:
         env:
           WP_PORT: ${{job.services.wp.ports['80']}}
       - run: docker ps -a
-      - run: |
-          WP_ID=$(docker inspect --format="{{.Id}}" wordpress)
-          echo $WP_ID
-          docker exec $WP_ID ls
+      # - run: |
+      #     WP_ID=$(docker inspect --format="{{.Id}}" wordpress)
+      #     echo $WP_ID
+      #     docker exec $WP_ID ls
       - run: |
           WP_ID=$(docker ps -aqf "ancestor=wordpress")
           echo $WP_ID
