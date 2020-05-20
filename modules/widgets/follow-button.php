@@ -1,7 +1,7 @@
 <?php
 
 // @todo Fix performance issues before shipping.
-//add_action( 'widgets_init', 'follow_button_register_widget' );
+// add_action( 'widgets_init', 'follow_button_register_widget' );
 function follow_button_register_widget() {
 	if ( Jetpack::is_active() ) {
 		register_widget( 'Jetpack_Follow_Button_Widget' );
@@ -25,7 +25,8 @@ class Jetpack_Follow_Button_Widget extends WP_Widget {
 	public function widget( $args, $instance ) {
 		$attributes = array();
 		$instance   = wp_parse_args(
-			(array) $instance, array(
+			(array) $instance,
+			array(
 				'show_name'  => 1,
 				'show_count' => 0,
 			)
@@ -65,7 +66,7 @@ class Jetpack_Follow_Button_Widget extends WP_Widget {
 									<?php
 									if ( ! empty( $attributes ) ) {
 										echo implode( ' ', $attributes );}
-?>
+									?>
 		>
 			<?php sprintf( __( 'Follow %s on WordPress.com', 'jetpack' ), get_bloginfo( 'name' ) ); ?>
 		</a>
@@ -80,7 +81,8 @@ class Jetpack_Follow_Button_Widget extends WP_Widget {
 
 	public function form( $instance ) {
 		$instance = wp_parse_args(
-			(array) $instance, array(
+			(array) $instance,
+			array(
 				'show_name'  => 1,
 				'show_count' => 0,
 			)

@@ -7,8 +7,8 @@
  */
 
 /**
-* Register the widget for use in Appearance -> Widgets
-*/
+ * Register the widget for use in Appearance -> Widgets
+ */
 add_action( 'widgets_init', 'jetpack_image_widget_init', 11 );
 function jetpack_image_widget_init() {
 	if ( class_exists( 'WP_Widget_Media_Image' ) && Jetpack_Options::get_option( 'image_widget_migration' ) ) {
@@ -19,8 +19,8 @@ function jetpack_image_widget_init() {
 
 class Jetpack_Image_Widget extends WP_Widget {
 	/**
-	* Register widget with WordPress.
-	*/
+	 * Register widget with WordPress.
+	 */
 	public function __construct() {
 		parent::__construct(
 			'image',
@@ -39,27 +39,28 @@ class Jetpack_Image_Widget extends WP_Widget {
 	}
 
 	/**
-	* Loads file for front-end widget style.
-	*
-	* @uses wp_enqueue_style(), plugins_url()
-	*/
+	 * Loads file for front-end widget style.
+	 *
+	 * @uses wp_enqueue_style(), plugins_url()
+	 */
 	public function enqueue_style() {
 		wp_enqueue_style( 'jetpack_image_widget', plugins_url( 'image-widget/style.css', __FILE__ ), array(), '20140808' );
 	}
 
 	/**
-	* Front-end display of widget.
-	*
-	* @see WP_Widget::widget()
-	*
-	* @param array $args     Widget arguments.
-	* @param array $instance Saved values from database.
-	*/
+	 * Front-end display of widget.
+	 *
+	 * @see WP_Widget::widget()
+	 *
+	 * @param array $args     Widget arguments.
+	 * @param array $instance Saved values from database.
+	 */
 	public function widget( $args, $instance ) {
 		echo $args['before_widget'];
 
 		$instance = wp_parse_args(
-			$instance, array(
+			$instance,
+			array(
 				'title'   => '',
 				'img_url' => '',
 			)
@@ -148,56 +149,57 @@ class Jetpack_Image_Widget extends WP_Widget {
 			 'strong' => array(),
 		 );
 
-		$instance = $old_instance;
+		 $instance = $old_instance;
 
-		$instance['title']             = strip_tags( $new_instance['title'] );
-		$instance['img_url']           = esc_url( trim( $new_instance['img_url'] ) );
-		$instance['alt_text']          = strip_tags( $new_instance['alt_text'] );
-		$instance['img_title']         = strip_tags( $new_instance['img_title'] );
-		$instance['caption']           = wp_kses( stripslashes( $new_instance['caption'] ), $allowed_caption_html );
-		$instance['align']             = $new_instance['align'];
-		$instance['link']              = esc_url( trim( $new_instance['link'] ) );
-		$instance['link_target_blank'] = isset( $new_instance['link_target_blank'] ) ? (bool) $new_instance['link_target_blank'] : false;
+		 $instance['title']             = strip_tags( $new_instance['title'] );
+		 $instance['img_url']           = esc_url( trim( $new_instance['img_url'] ) );
+		 $instance['alt_text']          = strip_tags( $new_instance['alt_text'] );
+		 $instance['img_title']         = strip_tags( $new_instance['img_title'] );
+		 $instance['caption']           = wp_kses( stripslashes( $new_instance['caption'] ), $allowed_caption_html );
+		 $instance['align']             = $new_instance['align'];
+		 $instance['link']              = esc_url( trim( $new_instance['link'] ) );
+		 $instance['link_target_blank'] = isset( $new_instance['link_target_blank'] ) ? (bool) $new_instance['link_target_blank'] : false;
 
-		$new_img_width  = absint( $new_instance['img_width'] );
-		$new_img_height = absint( $new_instance['img_height'] );
+		 $new_img_width  = absint( $new_instance['img_width'] );
+		 $new_img_height = absint( $new_instance['img_height'] );
 
-		if ( ! empty( $instance['img_url'] ) && '' == $new_img_width && '' == $new_img_height ) {
-			// Download the url to a local temp file and then process it with getimagesize so we can optimize browser layout
-			$tmp_file = download_url( $instance['img_url'], 10 );
-			if ( ! is_wp_error( $tmp_file ) ) {
-				$size = getimagesize( $tmp_file );
+		 if ( ! empty( $instance['img_url'] ) && '' == $new_img_width && '' == $new_img_height ) {
+			 // Download the url to a local temp file and then process it with getimagesize so we can optimize browser layout
+			 $tmp_file = download_url( $instance['img_url'], 10 );
+			 if ( ! is_wp_error( $tmp_file ) ) {
+				 $size = getimagesize( $tmp_file );
 
-				$width                 = $size[0];
-				$instance['img_width'] = absint( $width );
+				 $width                 = $size[0];
+				 $instance['img_width'] = absint( $width );
 
-				$height                 = $size[1];
-				$instance['img_height'] = absint( $height );
+				 $height                 = $size[1];
+				 $instance['img_height'] = absint( $height );
 
-				unlink( $tmp_file );
-			} else {
-				$instance['img_width']  = $new_img_width;
-				$instance['img_height'] = $new_img_height;
-			}
-		} else {
-			$instance['img_width']  = $new_img_width;
-			$instance['img_height'] = $new_img_height;
-		}
+				 unlink( $tmp_file );
+			 } else {
+				 $instance['img_width']  = $new_img_width;
+				 $instance['img_height'] = $new_img_height;
+			 }
+		 } else {
+			 $instance['img_width']  = $new_img_width;
+			 $instance['img_height'] = $new_img_height;
+		 }
 
-		return $instance;
+		 return $instance;
 	}
 
 	/**
-	* Back end widget form.
-	*
-	* @see WP_Widget::form()
-	*
-	* @param array $instance Previously saved values from database.
-	*/
+	 * Back end widget form.
+	 *
+	 * @see WP_Widget::form()
+	 *
+	 * @param array $instance Previously saved values from database.
+	 */
 	public function form( $instance ) {
 		// Defaults
 		$instance = wp_parse_args(
-			(array) $instance, array(
+			(array) $instance,
+			array(
 				'title'             => '',
 				'img_url'           => '',
 				'alt_text'          => '',
@@ -248,7 +250,7 @@ class Jetpack_Image_Widget extends WP_Widget {
 		echo '<p><label for="' . $this->get_field_id( 'align' ) . '">' . esc_html__( 'Image Alignment:', 'jetpack' ) . '
 			<select id="' . $this->get_field_id( 'align' ) . '" name="' . $this->get_field_name( 'align' ) . '">';
 		foreach ( $alignments as $alignment => $alignment_name ) {
-			echo  '<option value="' . esc_attr( $alignment ) . '" ';
+			echo '<option value="' . esc_attr( $alignment ) . '" ';
 			if ( $alignment == $align ) {
 				echo 'selected="selected" ';
 			}

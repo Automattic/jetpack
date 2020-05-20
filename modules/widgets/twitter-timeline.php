@@ -495,6 +495,6 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 				</option>
 			</select>
 		</p>
-	<?php
+		<?php
 	}
 }

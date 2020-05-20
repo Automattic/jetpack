@@ -20,8 +20,8 @@ function jetpack_migrate_gallery_widget() {
 		return;
 	}
 
-	$old_widgets = get_option( 'widget_gallery', array() );
-	$media_gallery = get_option( 'widget_media_gallery', array() );
+	$old_widgets      = get_option( 'widget_gallery', array() );
+	$media_gallery    = get_option( 'widget_media_gallery', array() );
 	$sidebars_widgets = wp_get_sidebars_widgets();
 
 	// Array to store legacy widget ids in to unregister on success.
@@ -33,7 +33,8 @@ function jetpack_migrate_gallery_widget() {
 		// Try to get an unique id for the new type of widget.
 		// It may be the case that the user has already created a core Gallery Widget
 		// before the migration begins. (Maybe Jetpack was deactivated during core's upgrade).
-		for( $i = 0; $i < 10 && in_array( $new_id, array_keys( $media_gallery ) ); $i++, $new_id++ );
+		for ( $i = 0; $i < 10 && in_array( $new_id, array_keys( $media_gallery ) );
+		$i++, $new_id++ );
 
 		$widget_copy = jetpack_migrate_gallery_widget_upgrade_widget( $widget );
 
@@ -98,22 +99,22 @@ function jetpack_migrate_gallery_widget_is_importable( $widget ) {
  */
 function jetpack_migrate_gallery_widget_upgrade_widget( $widget ) {
 	$whitelisted_keys = array(
-		'ids' => '',
-		'link' => '',
-		'title' => '',
-		'type' => '',
-		'random' => '',
+		'ids'        => '',
+		'link'       => '',
+		'title'      => '',
+		'type'       => '',
+		'random'     => '',
 		'conditions' => '',
 	);
 
 	$default_data = array(
-		'columns' => 3,
-		'ids' => array(),
-		'link_type' => '',
+		'columns'        => 3,
+		'ids'            => array(),
+		'link_type'      => '',
 		'orderby_random' => false,
-		'size' => 'thumbnail',
-		'title' => '',
-		'type' => '',
+		'size'           => 'thumbnail',
+		'title'          => '',
+		'type'           => '',
 	);
 
 	if ( ! jetpack_migrate_gallery_widget_is_importable( $widget ) ) {
@@ -121,30 +122,37 @@ function jetpack_migrate_gallery_widget_upgrade_widget( $widget ) {
 	}
 	// Ensure widget has no keys other than those expected.
 	// Not all widgets have conditions, so lets add it in.
-	$widget_copy = array_merge( array( 'conditions' => null ), $widget );
+	$widget_copy          = array_merge( array( 'conditions' => null ), $widget );
 	$non_whitelisted_keys = array_diff_key( $widget_copy, $whitelisted_keys );
 	if ( count( $non_whitelisted_keys ) > 0 ) {
 		jetpack_migrate_gallery_widget_bump_stats( 'extra-key' );
 
 		// Log the names of the keys not in our whitelist.
 		foreach ( $non_whitelisted_keys as $key => $value ) {
-			jetpack_migrate_gallery_widget_bump_stats( "extra-key-$key", "migration-extra-key" );
+			jetpack_migrate_gallery_widget_bump_stats( "extra-key-$key", 'migration-extra-key' );
 		}
 	}
 
-	$widget_copy = array_merge( $default_data, $widget, array(
-		// ids in Jetpack's Gallery are a string of comma-separated values.
-		// Core's Media Gallery Widget stores ids in an array
-		'ids'            => explode( ',', $widget['ids'] ),
-		'link_type'      => $widget['link'],
-		'orderby_random' => isset( $widget['random'] ) && $widget['random'] === 'on',
-	) );
+	$widget_copy = array_merge(
+		$default_data,
+		$widget,
+		array(
+			// ids in Jetpack's Gallery are a string of comma-separated values.
+			// Core's Media Gallery Widget stores ids in an array
+			'ids'            => explode( ',', $widget['ids'] ),
+			'link_type'      => $widget['link'],
+			'orderby_random' => isset( $widget['random'] ) && $widget['random'] === 'on',
+		)
+	);
 
 	// Unsetting old widget fields
-	$widget_copy = array_diff_key( $widget_copy, array(
-		'link' => false,
-		'random' => false,
-	) );
+	$widget_copy = array_diff_key(
+		$widget_copy,
+		array(
+			'link'   => false,
+			'random' => false,
+		)
+	);
 
 	return $widget_copy;
 }
@@ -190,7 +198,7 @@ function jetpack_migrate_gallery_widget_bump_stats( $bin, $group = 'widget-migra
 	} else {
 		// $group is prepended with 'jetpack-'
 		$jetpack = Jetpack::init();
-		$jetpack->stat( $group, $bin ) ;
+		$jetpack->stat( $group, $bin );
 	}
 
 }

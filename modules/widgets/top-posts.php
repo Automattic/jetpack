@@ -373,7 +373,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 				if ( 'grid' == $display ) {
 					echo "<div class='widgets-grid-layout no-grav'>\n";
 					foreach ( $posts as $post ) :
-					?>
+						?>
 					<div class="widget-grid-view-image">
 						<?php
 						/**
@@ -421,13 +421,13 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 						do_action( 'jetpack_widget_top_posts_after_post', $post['post_id'] );
 						?>
 						</div>
-					<?php
+						<?php
 					endforeach;
 					echo "</div>\n";
 				} else {
 					echo "<ul class='widgets-list-layout no-grav'>\n";
 					foreach ( $posts as $post ) :
-					?>
+						?>
 					<li>
 						<?php
 						/** This action is documented in modules/widgets/top-posts.php */
@@ -457,7 +457,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 						do_action( 'jetpack_widget_top_posts_after_post', $post['post_id'] );
 						?>
 						</li>
-					<?php
+						<?php
 					endforeach;
 					echo "</ul>\n";
 				}
@@ -465,7 +465,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			default:
 				echo '<ul>';
 				foreach ( $posts as $post ) :
-				?>
+					?>
 				<li>
 					<?php
 					/** This action is documented in modules/widgets/top-posts.php */
@@ -485,7 +485,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 					do_action( 'jetpack_widget_top_posts_after_post', $post['post_id'] );
 					?>
 					</li>
-				<?php
+					<?php
 				endforeach;
 				echo '</ul>';
 		}

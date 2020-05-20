@@ -17,7 +17,7 @@ class Jetpack_Upcoming_Events_Widget extends WP_Widget {
 	}
 
 	function css() {
-?>
+		?>
 <style type="text/css">
 .upcoming-events li {
 	margin-bottom: 10px;
@@ -26,7 +26,7 @@ class Jetpack_Upcoming_Events_Widget extends WP_Widget {
 	display: block;
 }
 </style>
-<?php
+		<?php
 	}
 
 	function form( $instance ) {
@@ -36,7 +36,7 @@ class Jetpack_Upcoming_Events_Widget extends WP_Widget {
 			'count'    => 3,
 		);
 		$instance = array_merge( $defaults, (array) $instance );
-?>
+		?>
 
 		<p>
 		<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title:', 'jetpack' ); ?></label>
@@ -54,13 +54,13 @@ class Jetpack_Upcoming_Events_Widget extends WP_Widget {
 			<?php
 			$i = 1;
 			while ( $i <= 10 ) {
-			?>
+				?>
 				<option <?php selected( $instance['count'], $i ); ?>><?php echo $i; ?></option>
 			<?php $i++; } ?>
 			<option value="0" <?php selected( $instance['count'], 0 ); ?>><?php _e( 'All', 'jetpack' ); ?></option>
 		</select>
 		</p>
-<?php
+		<?php
 	}
 
 	function update( $new_instance, $old_instance ) {
@@ -86,11 +86,11 @@ class Jetpack_Upcoming_Events_Widget extends WP_Widget {
 		}
 
 		if ( ! $events ) : // nothing to display?
-?>
+			?>
 			<p><?php echo __( 'No upcoming events', 'jetpack' ); ?></p>
-<?php
+			<?php
 		else :
-?>
+			?>
 			<ul class="upcoming-events">
 				<?php foreach ( $events as $event ) : ?>
 				<li>
@@ -105,7 +105,7 @@ class Jetpack_Upcoming_Events_Widget extends WP_Widget {
 				</li>
 				<?php endforeach; ?>
 			</ul>
-<?php
+			<?php
 		endif;
 
 		echo $args['after_widget'];

@@ -17,6 +17,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 	class Jetpack_Simple_Payments_Widget extends WP_Widget {
 		/**
 		 * Currencies should be supported by PayPal:
+		 *
 		 * @link https://developer.paypal.com/docs/api/reference/currency-codes/
 		 *
 		 * List has to be in sync with list at the block's client side and API's backend side:
@@ -140,7 +141,9 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				wp_enqueue_media();
 				wp_enqueue_script( 'jetpack-simple-payments-widget-customizer', plugins_url( '/simple-payments/customizer.js', __FILE__ ), array( 'jquery' ), false, true );
 				wp_localize_script(
-					'jetpack-simple-payments-widget-customizer', 'jpSimplePaymentsStrings', array(
+					'jetpack-simple-payments-widget-customizer',
+					'jpSimplePaymentsStrings',
+					array(
 						'deleteConfirmation' => __( 'Are you sure you want to delete this item? It will be disabled and removed from all locations where it currently appears.', 'jetpack' ),
 					)
 				);
@@ -366,7 +369,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 			echo '<div class="jetpack-simple-payments-content">';
 
 			if ( ! empty( $instance['form_action'] ) && in_array( $instance['form_action'], array( 'add', 'edit' ) ) && is_customize_preview() ) {
-				require( dirname( __FILE__ ) . '/simple-payments/widget.php' );
+				require dirname( __FILE__ ) . '/simple-payments/widget.php';
 			} else {
 				$jsp                    = Jetpack_Simple_Payments::getInstance();
 				$simple_payments_button = $jsp->parse_shortcode(
@@ -435,7 +438,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 		 *
 		 * @param string $stat_name
 		 * @param string $event_action
-		 * @param array $event_properties
+		 * @param array  $event_properties
 		 */
 		private function record_event( $stat_name, $event_action, $event_properties = array() ) {
 			$current_user = wp_get_current_user();
@@ -469,7 +472,7 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 		 */
 		function update( $new_instance, $old_instance ) {
 			$defaults = $this->defaults();
-			//do not overrite `product_post_id` for `$new_instance` with the defaults
+			// do not overrite `product_post_id` for `$new_instance` with the defaults
 			$new_instance = wp_parse_args( $new_instance, array_diff_key( $defaults, array( 'product_post_id' => 0 ) ) );
 			$old_instance = wp_parse_args( $old_instance, $defaults );
 
@@ -496,7 +499,8 @@ if ( ! class_exists( 'Jetpack_Simple_Payments_Widget' ) ) {
 				: $defaults['form_product_email'];
 
 			return array_merge(
-				$required_widget_props, array(
+				$required_widget_props,
+				array(
 					'form_product_id'          => (int) $new_instance['form_product_id'],
 					'form_product_title'       => sanitize_text_field( $new_instance['form_product_title'] ),
 					'form_product_description' => sanitize_text_field( $new_instance['form_product_description'] ),

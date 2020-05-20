@@ -70,7 +70,6 @@ function jetpack_display_posts_update_cron_action() {
  * `jetpack_activate_module_widgets` - Activate the cron when the Extra Sidebar widgets are activated.
  *
  * `activated_plugin` - Activate the cron when Jetpack gets activated.
- *
  */
 add_action( 'updating_jetpack_version', 'jetpack_display_posts_widget_conditionally_activate_cron' );
 add_action( 'jetpack_activate_module_widgets', 'Jetpack_Display_Posts_Widget::activate_cron' );
@@ -89,6 +88,7 @@ function jetpack_conditionally_activate_cron_on_plugin_activation( $plugin_file_
 
 /**
  * Activates the cron only when needed.
+ *
  * @see Jetpack_Display_Posts_Widget::should_cron_be_running
  */
 function jetpack_display_posts_widget_conditionally_activate_cron() {

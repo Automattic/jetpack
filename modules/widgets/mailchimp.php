@@ -6,7 +6,7 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 		include_once JETPACK__PLUGIN_DIR . 'modules/shortcodes/mailchimp.php';
 	}
 
-	//register MailChimp Subscriber Popup widget
+	// register MailChimp Subscriber Popup widget
 	function jetpack_mailchimp_subscriber_popup_widget_init() {
 		register_widget( 'Jetpack_MailChimp_Subscriber_Popup_Widget' );
 	}

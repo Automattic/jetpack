@@ -66,7 +66,8 @@ class Jetpack_Widget_Authors extends WP_Widget {
 		}
 
 		$instance           = wp_parse_args(
-			$instance, array(
+			$instance,
+			array(
 				'title'       => __( 'Authors', 'jetpack' ),
 				'all'         => false,
 				'number'      => 5,
@@ -209,7 +210,8 @@ class Jetpack_Widget_Authors extends WP_Widget {
 
 	public function form( $instance ) {
 		$instance = wp_parse_args(
-			$instance, array(
+			$instance,
+			array(
 				'title'       => '',
 				'all'         => false,
 				'avatar_size' => 48,
@@ -250,7 +252,7 @@ class Jetpack_Widget_Authors extends WP_Widget {
 						'96'  => '96x96',
 						'128' => '128x128',
 					) as $value => $label ) {
-?>
+						?>
 						<option value="<?php echo esc_attr( $value ); ?>" <?php selected( $value, $instance['avatar_size'] ); ?>><?php echo esc_html( $label ); ?></option>
 					<?php } ?>
 				</select>
@@ -272,7 +274,7 @@ class Jetpack_Widget_Authors extends WP_Widget {
 		$new_instance['number']      = (int) $new_instance['number'];
 		$new_instance['avatar_size'] = (int) $new_instance['avatar_size'];
 
-		Jetpack_Widget_Authors::flush_cache();
+		self::flush_cache();
 
 		return $new_instance;
 	}

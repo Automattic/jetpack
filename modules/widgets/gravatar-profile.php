@@ -52,7 +52,8 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 		do_action( 'jetpack_stats_extra', 'widget_view', 'grofile' );
 
 		$instance = wp_parse_args(
-			$instance, array(
+			$instance,
+			array(
 				'title' => '',
 				'email' => '',
 			)
@@ -82,7 +83,8 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 
 		if ( ! empty( $profile ) ) {
 			$profile      = wp_parse_args(
-				$profile, array(
+				$profile,
+				array(
 					'thumbnailUrl' => '',
 					'profileUrl'   => '',
 					'displayName'  => '',
@@ -168,7 +170,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 					__( 'Personal Links', 'jetpack' )
 				)
 			);
-				?>
+			?>
 				</h4>
 			<ul class="grofile-urls grofile-links">
 
@@ -205,12 +207,12 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 				 *
 				 * @param string $str "Verified Services" section title.
 				 */
-				apply_filters(
-					'jetpack_gravatar_verified_services_title',
-					__( 'Verified Services', 'jetpack' )
-				)
+			apply_filters(
+				'jetpack_gravatar_verified_services_title',
+				__( 'Verified Services', 'jetpack' )
+			)
 		);
-			?>
+		?>
 			</h4>
 		<ul class="grofile-urls grofile-accounts">
 

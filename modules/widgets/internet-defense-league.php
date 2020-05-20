@@ -144,8 +144,8 @@ class Jetpack_Internet_Defense_League_Widget extends WP_Widget {
 		$instance = array();
 
 		$instance['campaign'] = ( isset( $new_instance['campaign'] ) && isset( $this->campaigns[ $new_instance['campaign'] ] ) ) ? $new_instance['campaign'] : $this->defaults['campaign'];
-		$instance['variant']  = ( isset( $new_instance['variant'] ) && isset( $this->variants[  $new_instance['variant']  ] ) ) ? $new_instance['variant'] : $this->defaults['variant'];
-		$instance['badge']    = ( isset( $new_instance['badge'] ) && isset( $this->badges[    $new_instance['badge'] ] ) ) ? $new_instance['badge'] : $this->defaults['badge'];
+		$instance['variant']  = ( isset( $new_instance['variant'] ) && isset( $this->variants[ $new_instance['variant'] ] ) ) ? $new_instance['variant'] : $this->defaults['variant'];
+		$instance['badge']    = ( isset( $new_instance['badge'] ) && isset( $this->badges[ $new_instance['badge'] ] ) ) ? $new_instance['badge'] : $this->defaults['badge'];
 
 		return $instance;
 	}

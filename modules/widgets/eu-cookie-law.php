@@ -172,7 +172,7 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 			}
 
 			echo $args['before_widget'];
-			require( dirname( __FILE__ ) . '/eu-cookie-law/widget.php' );
+			require dirname( __FILE__ ) . '/eu-cookie-law/widget.php';
 			echo $args['after_widget'];
 			/** This action is already documented in modules/widgets/gravatar-profile.php */
 			do_action( 'jetpack_stats_extra', 'widget_view', 'eu_cookie_law' );
@@ -199,7 +199,7 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 				20180417
 			);
 
-			require( dirname( __FILE__ ) . '/eu-cookie-law/form.php' );
+			require dirname( __FILE__ ) . '/eu-cookie-law/form.php';
 		}
 
 		/**

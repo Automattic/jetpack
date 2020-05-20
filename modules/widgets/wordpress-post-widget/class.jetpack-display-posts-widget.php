@@ -75,8 +75,7 @@ class Jetpack_Display_Posts_Widget extends Jetpack_Display_Posts_Widget__Base {
 		 */
 		if ( false === $instance_data ) {
 			$this->wp_add_option( $option_key, $new_data );
-		}
-		else {
+		} else {
 			$this->wp_update_option( $option_key, $new_data );
 		}
 

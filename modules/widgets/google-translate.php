@@ -93,7 +93,8 @@ class Jetpack_Google_Translate_Widget extends WP_Widget {
 		// We never should show more than 1 instance of this.
 		if ( null === self::$instance ) {
 			$instance = wp_parse_args(
-				$instance, array(
+				$instance,
+				array(
 					'title' => $this->default_title,
 				)
 			);

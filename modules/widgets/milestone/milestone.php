@@ -23,6 +23,7 @@ class Milestone_Widget extends WP_Widget {
 
 	/**
 	 * Available time units sorted in descending order.
+	 *
 	 * @var Array
 	 */
 	protected $available_units = array(
@@ -31,7 +32,7 @@ class Milestone_Widget extends WP_Widget {
 		'days',
 		'hours',
 		'minutes',
-		'seconds'
+		'seconds',
 	);
 
 	function __construct() {
@@ -94,12 +95,15 @@ class Milestone_Widget extends WP_Widget {
 
 	public static function styles_template() {
 		global $themecolors;
-		$colors = wp_parse_args( $themecolors, array(
-			'bg'     => 'ffffff',
-			'border' => 'cccccc',
-			'text'   => '333333',
-		) );
-?>
+		$colors = wp_parse_args(
+			$themecolors,
+			array(
+				'bg'     => 'ffffff',
+				'border' => 'cccccc',
+				'text'   => '333333',
+			)
+		);
+		?>
 <style>
 .milestone-widget {
 	margin-bottom: 1em;
@@ -143,7 +147,7 @@ class Milestone_Widget extends WP_Widget {
 	padding-top: 1em
 }
 </style>
-<?php
+		<?php
 	}
 
 	/**
@@ -244,8 +248,8 @@ class Milestone_Widget extends WP_Widget {
 		$instance = $this->sanitize_instance( $instance );
 
 		$milestone = mktime( $instance['hour'], $instance['min'], 0, $instance['month'], $instance['day'], $instance['year'] );
-		$now  = (int) current_time( 'timestamp' );
-		$type = $instance['type'];
+		$now       = (int) current_time( 'timestamp' );
+		$type      = $instance['type'];
 
 		if ( 'since' === $type ) {
 			$diff = (int) floor( $now - $milestone );
@@ -263,10 +267,10 @@ class Milestone_Widget extends WP_Widget {
 			DAY_IN_SECONDS,
 			HOUR_IN_SECONDS,
 			MINUTE_IN_SECONDS,
-			1
+			1,
 		);
 
-		$data['refresh'] = $refresh_intervals[ array_search( $data['unit'], $this->available_units ) ];
+		$data['refresh']   = $refresh_intervals[ array_search( $data['unit'], $this->available_units ) ];
 		$data['milestone'] = $milestone;
 
 		if ( ( 1 > $diff ) && ( 'until' === $type ) ) {
@@ -274,7 +278,7 @@ class Milestone_Widget extends WP_Widget {
 			$data['refresh'] = 0; // No need to refresh, the milestone has been reached
 		} else {
 			$interval_text = $this->get_interval_in_units( $diff, $data['unit'] );
-			$interval = intval( $interval_text );
+			$interval      = intval( $interval_text );
 
 			if ( 'since' === $type ) {
 
@@ -289,7 +293,7 @@ class Milestone_Widget extends WP_Widget {
 							),
 							$interval_text
 						);
-					break;
+						break;
 					case 'months':
 						$data['message'] = sprintf(
 							_n(
@@ -300,7 +304,7 @@ class Milestone_Widget extends WP_Widget {
 							),
 							$interval_text
 						);
-					break;
+						break;
 					case 'days':
 						$data['message'] = sprintf(
 							_n(
@@ -311,7 +315,7 @@ class Milestone_Widget extends WP_Widget {
 							),
 							$interval_text
 						);
-					break;
+						break;
 					case 'hours':
 						$data['message'] = sprintf(
 							_n(
@@ -322,7 +326,7 @@ class Milestone_Widget extends WP_Widget {
 							),
 							$interval_text
 						);
-					break;
+						break;
 					case 'minutes':
 						$data['message'] = sprintf(
 							_n(
@@ -333,7 +337,7 @@ class Milestone_Widget extends WP_Widget {
 							),
 							$interval_text
 						);
-					break;
+						break;
 					case 'seconds':
 						$data['message'] = sprintf(
 							_n(
@@ -344,7 +348,7 @@ class Milestone_Widget extends WP_Widget {
 							),
 							$interval_text
 						);
-					break;
+						break;
 				}
 			} else {
 				switch ( $this->get_unit( $diff, $instance['unit'] ) ) {
@@ -358,7 +362,7 @@ class Milestone_Widget extends WP_Widget {
 							),
 							$interval_text
 						);
-					break;
+						break;
 					case 'months':
 						$data['message'] = sprintf(
 							_n(
@@ -369,7 +373,7 @@ class Milestone_Widget extends WP_Widget {
 							),
 							$interval_text
 						);
-					break;
+						break;
 					case 'days':
 						$data['message'] = sprintf(
 							_n(
@@ -380,7 +384,7 @@ class Milestone_Widget extends WP_Widget {
 							),
 							$interval_text
 						);
-					break;
+						break;
 					case 'hours':
 						$data['message'] = sprintf(
 							_n(
@@ -391,7 +395,7 @@ class Milestone_Widget extends WP_Widget {
 							),
 							$interval_text
 						);
-					break;
+						break;
 					case 'minutes':
 						$data['message'] = sprintf(
 							_n(
@@ -402,7 +406,7 @@ class Milestone_Widget extends WP_Widget {
 							),
 							$interval_text
 						);
-					break;
+						break;
 					case 'seconds':
 						$data['message'] = sprintf(
 							_n(
@@ -413,7 +417,7 @@ class Milestone_Widget extends WP_Widget {
 							),
 							$interval_text
 						);
-					break;
+						break;
 				}
 			}
 			$data['message'] = '<div class="milestone-countdown">' . $data['message'] . '</div>';
@@ -426,7 +430,7 @@ class Milestone_Widget extends WP_Widget {
 	 * Return the largest possible time unit that the difference will be displayed in.
 	 *
 	 * @param Integer $seconds the interval in seconds
-	 * @param String $maximum_unit the maximum unit that will be used. Optional.
+	 * @param String  $maximum_unit the maximum unit that will be used. Optional.
 	 * @return String $calculated_unit
 	 */
 	protected function get_unit( $seconds, $maximum_unit = 'automatic' ) {
@@ -436,35 +440,33 @@ class Milestone_Widget extends WP_Widget {
 			// more than 2 years - show in years, one decimal point
 			$unit = 'years';
 
-		} else if ( $seconds >= YEAR_IN_SECONDS ) {
+		} elseif ( $seconds >= YEAR_IN_SECONDS ) {
 			if ( 'years' === $maximum_unit ) {
 				$unit = 'years';
 			} else {
 				// automatic mode - showing months even if it's between one and two years
 				$unit = 'months';
 			}
-
-		} else if ( $seconds >= MONTH_IN_SECONDS * 3 ) {
+		} elseif ( $seconds >= MONTH_IN_SECONDS * 3 ) {
 			// fewer than 2 years - show in months
 			$unit = 'months';
 
-		} else if ( $seconds >= MONTH_IN_SECONDS ) {
+		} elseif ( $seconds >= MONTH_IN_SECONDS ) {
 			if ( 'months' === $maximum_unit ) {
 				$unit = 'months';
 			} else {
 				// automatic mode - showing days even if it's between one and three months
 				$unit = 'days';
 			}
-
-		} else if ( $seconds >= DAY_IN_SECONDS - 1 ) {
+		} elseif ( $seconds >= DAY_IN_SECONDS - 1 ) {
 			// fewer than a month - show in days
 			$unit = 'days';
 
-		} else if ( $seconds >= HOUR_IN_SECONDS - 1 ) {
+		} elseif ( $seconds >= HOUR_IN_SECONDS - 1 ) {
 			// less than 1 day - show in hours
 			$unit = 'hours';
 
-		} else if ( $seconds >= MINUTE_IN_SECONDS - 1 ) {
+		} elseif ( $seconds >= MINUTE_IN_SECONDS - 1 ) {
 			// less than 1 hour - show in minutes
 			$unit = 'minutes';
 
@@ -474,7 +476,7 @@ class Milestone_Widget extends WP_Widget {
 		}
 
 		$maximum_unit_index = array_search( $maximum_unit, $this->available_units );
-		$unit_index = array_search( $unit, $this->available_units );
+		$unit_index         = array_search( $unit, $this->available_units );
 
 		if (
 			false === $maximum_unit_index // the maximum unit parameter is automatic
@@ -489,13 +491,13 @@ class Milestone_Widget extends WP_Widget {
 	 * Returns a time difference value in specified units.
 	 *
 	 * @param Integer $seconds
-	 * @param String $units
+	 * @param String  $units
 	 * @return Integer|String $time_in_units
 	 */
 	protected function get_interval_in_units( $seconds, $units ) {
 		switch ( $units ) {
 			case 'years':
-				$years = $seconds / YEAR_IN_SECONDS;
+				$years    = $seconds / YEAR_IN_SECONDS;
 				$decimals = abs( round( $years, 1 ) - round( $years ) ) > 0 ? 1 : 0;
 				return number_format_i18n( $years, $decimals );
 			case 'months':
@@ -548,21 +550,28 @@ class Milestone_Widget extends WP_Widget {
 	function sanitize_instance( $dirty ) {
 		$now = (int) current_time( 'timestamp' );
 
-		$dirty = wp_parse_args( $dirty, array(
-			'title'   => '',
-			'event'   => __( 'The Big Day', 'jetpack' ),
-			'unit'    => 'automatic',
-			'type'    => 'until',
-			'message' => __( 'The big day is here.', 'jetpack' ),
-			'day'     => date( 'd', $now ),
-			'month'   => date( 'm', $now ),
-			'year'    => date( 'Y', $now ),
-			'hour'    => 0,
-			'min'     => 0,
-		) );
+		$dirty = wp_parse_args(
+			$dirty,
+			array(
+				'title'   => '',
+				'event'   => __( 'The Big Day', 'jetpack' ),
+				'unit'    => 'automatic',
+				'type'    => 'until',
+				'message' => __( 'The big day is here.', 'jetpack' ),
+				'day'     => date( 'd', $now ),
+				'month'   => date( 'm', $now ),
+				'year'    => date( 'Y', $now ),
+				'hour'    => 0,
+				'min'     => 0,
+			)
+		);
 
 		$allowed_tags = array(
-			'a'      => array( 'title' => array(), 'href' => array(), 'target' => array() ),
+			'a'      => array(
+				'title'  => array(),
+				'href'   => array(),
+				'target' => array(),
+			),
 			'em'     => array( 'title' => array() ),
 			'strong' => array( 'title' => array() ),
 		);
@@ -573,9 +582,9 @@ class Milestone_Widget extends WP_Widget {
 			'unit'    => $dirty['unit'],
 			'type'    => $dirty['type'],
 			'message' => wp_kses( $dirty['message'], $allowed_tags ),
-			'year'    => $this->sanitize_range( $dirty['year'],  1901, 2037 ),
+			'year'    => $this->sanitize_range( $dirty['year'], 1901, 2037 ),
 			'month'   => $this->sanitize_range( $dirty['month'], 1, 12 ),
-			'hour'    => $this->sanitize_range( $dirty['hour'],  0, 23 ),
+			'hour'    => $this->sanitize_range( $dirty['hour'], 0, 23 ),
 			'min'     => zeroise( $this->sanitize_range( $dirty['min'], 0, 59 ), 2 ),
 		);
 
@@ -592,35 +601,37 @@ class Milestone_Widget extends WP_Widget {
 
 		$units = array(
 			'automatic' => _x( 'Automatic', 'Milestone widget: mode in which the date unit is determined automatically', 'jetpack' ),
-			'years' => _x( 'Years', 'Milestone widget: mode in which the date unit is set to years', 'jetpack' ),
-			'months' => _x( 'Months', 'Milestone widget: mode in which the date unit is set to months', 'jetpack' ),
-			'days' => _x( 'Days', 'Milestone widget: mode in which the date unit is set to days', 'jetpack' ),
-			'hours' => _x( 'Hours', 'Milestone widget: mode in which the date unit is set to hours', 'jetpack' ),
+			'years'     => _x( 'Years', 'Milestone widget: mode in which the date unit is set to years', 'jetpack' ),
+			'months'    => _x( 'Months', 'Milestone widget: mode in which the date unit is set to months', 'jetpack' ),
+			'days'      => _x( 'Days', 'Milestone widget: mode in which the date unit is set to days', 'jetpack' ),
+			'hours'     => _x( 'Hours', 'Milestone widget: mode in which the date unit is set to hours', 'jetpack' ),
 		);
 		?>
 
 	<div class="milestone-widget">
-        <p>
-        	<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title', 'jetpack' ); ?></label>
-        	<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $instance['title'] ); ?>" />
-        </p>
+		<p>
+			<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title', 'jetpack' ); ?></label>
+			<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $instance['title'] ); ?>" />
+		</p>
 
-        <p>
-        	<label for="<?php echo $this->get_field_id( 'event' ); ?>"><?php _e( 'Description', 'jetpack' ); ?></label>
-        	<input class="widefat" id="<?php echo $this->get_field_id( 'event' ); ?>" name="<?php echo $this->get_field_name( 'event' ); ?>" type="text" value="<?php echo esc_attr( $instance['event'] ); ?>" />
-        </p>
+		<p>
+			<label for="<?php echo $this->get_field_id( 'event' ); ?>"><?php _e( 'Description', 'jetpack' ); ?></label>
+			<input class="widefat" id="<?php echo $this->get_field_id( 'event' ); ?>" name="<?php echo $this->get_field_name( 'event' ); ?>" type="text" value="<?php echo esc_attr( $instance['event'] ); ?>" />
+		</p>
 
 		<fieldset class="jp-ms-data-time">
 			<legend><?php esc_html_e( 'Date', 'jetpack' ); ?></legend>
 
 			<label for="<?php echo $this->get_field_id( 'month' ); ?>" class="assistive-text"><?php _e( 'Month', 'jetpack' ); ?></label>
-			<select id="<?php echo $this->get_field_id( 'month' ); ?>" class="month" name="<?php echo $this->get_field_name( 'month' ); ?>"><?php
-				global $wp_locale;
-				for ( $i = 1; $i < 13; $i++ ) {
-					$monthnum = zeroise( $i, 2 );
-					echo '<option value="' . esc_attr( $monthnum ) . '"' . selected( $i, $instance['month'], false ) . '>' . $monthnum . '-' . $wp_locale->get_month_abbrev( $wp_locale->get_month( $i ) ) . '</option>';
-				}
-			?></select>
+			<select id="<?php echo $this->get_field_id( 'month' ); ?>" class="month" name="<?php echo $this->get_field_name( 'month' ); ?>">
+								   <?php
+									global $wp_locale;
+									for ( $i = 1; $i < 13; $i++ ) {
+										$monthnum = zeroise( $i, 2 );
+										echo '<option value="' . esc_attr( $monthnum ) . '"' . selected( $i, $instance['month'], false ) . '>' . $monthnum . '-' . $wp_locale->get_month_abbrev( $wp_locale->get_month( $i ) ) . '</option>';
+									}
+									?>
+			</select>
 
 			<label for="<?php echo $this->get_field_id( 'day' ); ?>" class="assistive-text"><?php _e( 'Day', 'jetpack' ); ?></label>
 			<input id="<?php echo $this->get_field_id( 'day' ); ?>" class="day" name="<?php echo $this->get_field_name( 'day' ); ?>" type="text" value="<?php echo esc_attr( $instance['day'] ); ?>">,
@@ -650,10 +661,11 @@ class Milestone_Widget extends WP_Widget {
 			</label>
 			<select id="<?php echo $this->get_field_id( 'unit' ); ?>" class="unit" name="<?php echo $this->get_field_name( 'unit' ); ?>">
 			<?php
-				foreach ( $units as $key => $unit ) {
-					echo '<option value="' . esc_attr( $key ) . '"' . selected( $key, $instance['unit'], false ) . '>' . $unit . '</option>';
-				}
-			?></select>
+			foreach ( $units as $key => $unit ) {
+				echo '<option value="' . esc_attr( $key ) . '"' . selected( $key, $instance['unit'], false ) . '>' . $unit . '</option>';
+			}
+			?>
+			</select>
 		</fieldset>
 
 		<ul class="milestone-type">
@@ -689,5 +701,5 @@ class Milestone_Widget extends WP_Widget {
 	</div>
 
 		<?php
-    }
+	}
 }

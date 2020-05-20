@@ -154,7 +154,8 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 
 	function form( $instance ) {
 		$instance  = wp_parse_args(
-			(array) $instance, array(
+			(array) $instance,
+			array(
 				'title'     => '',
 				'like_args' => $this->get_default_args(),
 			)

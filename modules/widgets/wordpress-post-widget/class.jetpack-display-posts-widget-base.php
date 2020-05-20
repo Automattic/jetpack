@@ -30,7 +30,7 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 			/** This filter is documented in modules/widgets/facebook-likebox.php */
 			apply_filters( 'jetpack_widget_name', __( 'Display WordPress Posts', 'jetpack' ) ),
 			array(
-				'description' => __( 'Displays a list of recent posts from another WordPress.com or Jetpack-enabled blog.', 'jetpack' ),
+				'description'                 => __( 'Displays a list of recent posts from another WordPress.com or Jetpack-enabled blog.', 'jetpack' ),
 				'customize_selective_refresh' => true,
 			)
 		);
@@ -116,9 +116,8 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 		if ( ! empty( $instance['title'] ) ) {
 			/** This filter is documented in core/src/wp-includes/default-widgets.php */
 			$instance['title'] = apply_filters( 'widget_title', $instance['title'] );
-			$content .= $args['before_title'] . esc_html( $instance['title'] . ': ' . $site_info->name ) . $args['after_title'];
-		}
-		else {
+			$content          .= $args['before_title'] . esc_html( $instance['title'] . ': ' . $site_info->name ) . $args['after_title'];
+		} else {
 			$content .= $args['before_title'] . esc_html( $site_info->name ) . $args['after_title'];
 		}
 
@@ -150,7 +149,7 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 				$target = ' target="_blank" rel="noopener"';
 			}
 			$content .= '<h4><a href="' . esc_url( $single_post['url'] ) . '"' . $target . '>' . esc_html( $post_title ) . '</a></h4>' . "\n";
-			if ( ( $instance['featured_image'] == true ) && ( ! empty ( $single_post['featured_image'] ) ) ) {
+			if ( ( $instance['featured_image'] == true ) && ( ! empty( $single_post['featured_image'] ) ) ) {
 				$featured_image = $single_post['featured_image'];
 				/**
 				 * Allows setting up custom Photon parameters to manipulate the image output in the Display Posts widget.
@@ -164,7 +163,7 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 				 * @param array $args Array of Photon Parameters.
 				 */
 				$image_params = apply_filters( 'jetpack_display_posts_widget_image_params', array() );
-				$content .= '<a title="' . esc_attr( $post_title ) . '" href="' . esc_url( $single_post['url'] ) . '"' . $target . '><img src="' . jetpack_photon_url( $featured_image, $image_params ) . '" alt="' . esc_attr( $post_title ) . '"/></a>';
+				$content     .= '<a title="' . esc_attr( $post_title ) . '" href="' . esc_url( $single_post['url'] ) . '"' . $target . '><img src="' . jetpack_photon_url( $featured_image, $image_params ) . '" alt="' . esc_attr( $post_title ) . '"/></a>';
 			}
 
 			if ( $instance['show_excerpts'] == true ) {
@@ -206,7 +205,6 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 		$featured_image     = ( isset( $instance['featured_image'] ) ) ? $instance['featured_image'] : false;
 		$show_excerpts      = ( isset( $instance['show_excerpts'] ) ) ? $instance['show_excerpts'] : false;
 
-
 		/**
 		 * Check if the widget instance has errors available.
 		 *
@@ -229,7 +227,7 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 			<label for="<?php echo $this->get_field_id( 'url' ); ?>"><?php _e( 'Blog URL:', 'jetpack' ); ?></label>
 			<input class="widefat" id="<?php echo $this->get_field_id( 'url' ); ?>" name="<?php echo $this->get_field_name( 'url' ); ?>" type="text" value="<?php echo esc_attr( $url ); ?>" />
 			<i>
-				<?php _e( "Enter a WordPress.com or Jetpack WordPress site URL.", 'jetpack' ); ?>
+				<?php _e( 'Enter a WordPress.com or Jetpack WordPress site URL.', 'jetpack' ); ?>
 			</i>
 			<?php
 			/**
@@ -328,9 +326,8 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 		$instance          = array();
 		$instance['title'] = ( ! empty( $new_instance['title'] ) ) ? strip_tags( $new_instance['title'] ) : '';
 		$instance['url']   = ( ! empty( $new_instance['url'] ) ) ? strip_tags( trim( $new_instance['url'] ) ) : '';
-		$instance['url']   = preg_replace( "!^https?://!is", "", $instance['url'] );
+		$instance['url']   = preg_replace( '!^https?://!is', '', $instance['url'] );
 		$instance['url']   = untrailingslashit( $instance['url'] );
-
 
 		/**
 		 * Check if the URL should be with or without the www prefix before saving.
@@ -443,13 +440,11 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 			);
 		}
 
-
 		/**
 		 * Extract service response body from the request.
 		 */
 
 		$service_response_body = wp_remote_retrieve_body( $service_response );
-
 
 		/**
 		 * No body has been set in the response. This should be pretty bad.
@@ -659,8 +654,7 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 		 */
 		if ( ! empty( $original_data ) ) {
 			$widget_data = $original_data;
-		}
-		else {
+		} else {
 			$widget_data = array(
 				'site_info' => array(
 					'last_check'  => null,
@@ -673,7 +667,7 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 					'last_update' => null,
 					'error'       => null,
 					'data'        => array(),
-				)
+				),
 			);
 		}
 
@@ -684,7 +678,6 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 
 		$site_info_raw_data    = $this->fetch_site_info( $site );
 		$site_info_parsed_data = $this->parse_site_info_response( $site_info_raw_data );
-
 
 		/**
 		 * If there is an error with the fetched site info, save the error and update the checked time.
@@ -699,14 +692,12 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 		 *
 		 * Data is only updated if we have valid results. This is done this way so we can show
 		 * something if external service is down.
-		 *
 		 */
 		else {
 			$widget_data['site_info']['last_update'] = time();
 			$widget_data['site_info']['data']        = $site_info_parsed_data;
 			$widget_data['site_info']['error']       = null;
 		}
-
 
 		/**
 		 * If only site data is needed, return it here, don't fetch posts data.
@@ -723,7 +714,6 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 		$site_posts_raw_data    = $this->fetch_posts_for_site( $site_info_parsed_data->ID );
 		$site_posts_parsed_data = $this->parse_posts_response( $site_posts_raw_data );
 
-
 		/**
 		 * If there is an error with the fetched posts, save the error and update the checked time.
 		 */
@@ -737,7 +727,6 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 		 *
 		 * Data is only updated if we have valid results. This is done this way so we can show
 		 * something if external service is down.
-		 *
 		 */
 		else {
 			$widget_data['posts']['last_update'] = time();
@@ -762,7 +751,6 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 			'debug'   => '',
 			'where'   => '',
 		);
-
 
 		/**
 		 * When the cache result is an error. Usually when the cache is empty.
@@ -801,14 +789,12 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 					$extra_data = $blog_data[ $info_key ]['error']->get_error_data();
 					if ( is_array( $extra_data ) ) {
 						$errors['debug'] = implode( '; ', $extra_data );
-					}
-					else {
+					} else {
 						$errors['debug'] = $extra_data;
 					}
 
 					break;
-				}
-				elseif ( is_array( $blog_data[ $info_key ]['error'] ) ) {
+				} elseif ( is_array( $blog_data[ $info_key ]['error'] ) ) {
 					/**
 					 * In this case we don't have debug information, because
 					 * we have no way to know the format. The widget works with
