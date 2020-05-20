@@ -51,7 +51,7 @@ export default function useInstagramGallery( {
 						__( 'An error occurred. Please try again later.', 'jetpack' )
 					);
 					setImages( [] );
-					setAttributes( { accessToken: undefined } );
+					setAttributes( { accessToken: undefined, instagramUser: undefined } );
 					setSelectedAccount( undefined );
 					return;
 				}
@@ -68,7 +68,7 @@ export default function useInstagramGallery( {
 			.catch( () => {
 				setIsLoadingGallery( false );
 				setImages( [] );
-				setAttributes( { accessToken: undefined } );
+				setAttributes( { accessToken: undefined, instagramUser: undefined } );
 				setSelectedAccount( undefined );
 			} );
 	}, [ accessToken, noticeOperations, setAttributes, setSelectedAccount ] );

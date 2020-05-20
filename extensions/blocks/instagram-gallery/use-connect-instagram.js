@@ -77,7 +77,7 @@ export default function useConnectInstagram( {
 
 	const disconnectFromService = () => {
 		noticeOperations.removeAllNotices();
-		setAttributes( { accessToken: undefined } );
+		setAttributes( { accessToken: undefined, instagramUser: undefined } );
 		setImages( [] );
 	};
 
