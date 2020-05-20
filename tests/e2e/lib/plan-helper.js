@@ -394,9 +394,9 @@ export async function syncPlanData( page ) {
 	do {
 		await page.reload( { waitFor: 'networkidle0' } );
 
+		bkPlan = JSON.parse( await execWpCommand( 'wp option get jetpack_active_plan --format=json' ) );
 		// eslint-disable-next-line no-undef
 		frPlan = await page.evaluate( () => Initial_State.siteData.plan.product_slug );
-		bkPlan = JSON.parse( await execWpCommand( 'wp option get jetpack_active_plan --format=json' ) );
 		await execWpCommand( 'wp option get jetpack_active_modules --format=json' );
 
 		logger.info( '!!! PLANS: ', frPlan, bkPlan.product_slug );

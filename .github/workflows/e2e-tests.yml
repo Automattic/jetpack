@@ -2,25 +2,25 @@ name: E2E tests
 # Trigger on every push
 on: push
 env:
-  # CI: true
   DB_NAME: jetpack_test
-  # DB_ADAPTER: mysql
   DB_HOST: 127.0.0.1
   DB_USERNAME: root
-  DB_PASSWORD: "root"
+  DB_PASSWORD: root
 
 jobs:
   e2e_tests:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: sudo apt update
-      - run: sudo apt install -y php-fpm nginx
-      - run: sudo systemctl start mysql.service
-      # - run: sudo service mysql restart
-
-      - name: Setup WordPress
-        run: ./tests/e2e/bin/setup-e2e-travis.sh
+      # - run: sudo apt update
+      # - run: sudo apt install -y php-fpm nginx
+      # - run: sudo systemctl start mysql.service
+      - name: Setup env and WordPress
+        run: |
+          sudo apt update
+          sudo apt install -y php-fpm nginx
+          sudo systemctl start mysql.service
+          ./tests/e2e/bin/setup-e2e-travis.sh
 
       - name: Build Jetpack
         run: yarn && yarn build-production
