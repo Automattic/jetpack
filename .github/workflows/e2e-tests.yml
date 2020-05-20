@@ -15,6 +15,7 @@ jobs:
       # Label used to access the service container
       wp:
         # Docker Hub image
+        # name: wp_container
         image: wordpress
         ports:
           - 80:80
@@ -26,7 +27,8 @@ jobs:
       - run: curl localhost:$WP_PORT -v || exit 0
         env:
           WP_PORT: ${{job.services.wp.ports['80']}}
-      - run: docker run --rm wp ls
+      - run: docker ps
+      - run: docker run wp_container ls
 
 
       - run: curl -s https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip > ngrok.zip
