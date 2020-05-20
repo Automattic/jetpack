@@ -206,7 +206,10 @@ class DashScan extends Component {
 						) }
 					</p>,
 				] ) }
-				{ renderAction( dashboardUrl, __( 'View threats details' ) ) }
+				{ renderAction(
+					dashboardUrl,
+					__( 'View threat details', 'View threats details', { count: numberOfThreats } )
+				) }
 			</>
 		);
 	}
