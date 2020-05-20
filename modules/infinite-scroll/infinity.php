@@ -1060,7 +1060,7 @@ class The_Neverending_Home_Page {
 				$wp_scripts->done,
 				function ( $script_name ) use ( $initial_scripts ) {
 					// Jetpack block scripts should always be sent, even if they've been
-					// sent before. These scripts only run once on when loadeed, they don't
+					// sent before. These scripts only run once on when loaded, they don't
 					// watch for new blocks being added.
 					if ( 0 === strpos( $script_name, 'jetpack-block-' ) ) {
 						return true;
