@@ -21,6 +21,15 @@
 		grid-template-rows: 65px auto auto;
 		grid-template-columns: 90px auto;
 	}
+
+	.dops-button {
+		width: 150px;
+
+		@include breakpoint( $less-than-vertical-break ) {
+			width: 100%;
+			margin-bottom: 1rem;
+		}
+	}
 }
 
 .jp-setup-wizard-form-toggle-container {
@@ -118,15 +127,6 @@
 		grid-row: 3;
 		grid-column-start: 1;
 		grid-column-end: 3;
-	}
-}
-
-.dops-button {
-	width: 150px;
-
-	@include breakpoint( $less-than-vertical-break ) {
-		width: 100%;
-		margin-bottom: 1rem;
 	}
 }
 
