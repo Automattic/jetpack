@@ -203,18 +203,15 @@ $grid-size: 8px;
 
 	// Toolbar for "insert" and pagination button.
 	.jetpack-external-media-browser__media__toolbar {
+		position: fixed;
 		position: sticky;
 		bottom: 0;
-		width: calc( 100% + 48px );
+		left: 0;
+		width: 100%;
 		background: white;
-		padding: 0 24px 24px 24px;
+		padding: 20px 0;
 		display: flex;
 		justify-content: flex-end;
-		margin-left: -24px;
-
-		.components-button {
-			margin: ( $grid-size * 3 ) 0 0 auto;
-		}
 	}
 
 	.jetpack-external-media-browser__loadmore {
