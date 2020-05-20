@@ -16,6 +16,12 @@ jobs:
         image: wordpress:5.4.1-php7.4-fpm
         ports:
           - 80:80
+        env:
+        WORDPRESS_DB_HOST: 127.0.0.1
+        WORDPRESS_DB_USER: root
+        WORDPRESS_DB_PASSWORD: root
+        WORDPRESS_DB_NAME: jetpack_test
+        WORDPRESS_TABLE_PREFIX: wp_
         options: --name wpcnt
       wp-cli:
         image: wordpress:cli
@@ -37,12 +43,12 @@ jobs:
         uses: mxschmitt/action-tmate@v2
 
       - run: |
-          WP_ID=$(docker ps -aqf "ancestor=wordpress")
-          WP_CLI_ID=$(docker ps -aqf "ancestor=wordpress:cli")
+          WP_ID=$(docker ps -aqf "name=wpcnt")
+          WP_CLI_ID=$(docker ps -aqf "name=wpcli")
           echo $WP_ID
           echo $WP_CLI_ID
           docker exec $WP_ID ls
-          CLI_CMD="docker run -it --rm --volumes-from $WP_ID --network container:$WP_ID wordpress:cli"
+          CLI_CMD="docker run -it --rm --volumes-from wpcnt --network container:wpcnt wordpress:cli"
 
           $CLI_CMD core install --title="QQQQQ" --admin_user=wordpress --admin_password=wordpress --admin_email=test@example.com --skip-email --url=http://localhost
 
