@@ -3,7 +3,7 @@
  */
 import { memo } from '@wordpress/element';
 
-const MediaPlaceholder = memo( function MediaPlaceholder() {
+function MediaPlaceholder() {
 	const className =
 		'jetpack-external-media-browser__media__item jetpack-external-media-browser__media__placeholder';
 	return (
@@ -13,6 +13,6 @@ const MediaPlaceholder = memo( function MediaPlaceholder() {
 			<div className={ className }></div>
 		</>
 	);
-} );
+}
 
-export default MediaPlaceholder;
+export default memo( MediaPlaceholder );
