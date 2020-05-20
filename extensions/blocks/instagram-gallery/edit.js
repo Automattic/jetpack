@@ -149,15 +149,24 @@ const InstagramGalleryEdit = props => {
 		connectToService();
 	};
 
+	const renderPlaceholderInstructions = () => {
+		if ( ! IS_CURRENT_USER_CONNECTED_TO_WPCOM ) {
+			return __( "First, you'll need to connect to WordPress.com.", 'jetpack' );
+		}
+		if ( ! isRequestingUserConnections && ! userConnections.length ) {
+			return __( 'Connect to Instagram to start sharing your images.', 'jetpack' );
+		}
+	};
+
 	const renderInstagramConnection = () => {
 		const hasUserConnections = userConnections.length > 0;
 		const radioOptions = [
 			...map( userConnections, connection => ( {
-				label: connection.username,
+				label: `@${ connection.username }`,
 				value: connection.token,
 			} ) ),
 			{
-				label: __( '…or another Instagram account', 'jetpack' ),
+				label: __( 'Add a new account', 'jetpack' ),
 				value: 'jetpack-new-instagram-connection',
 			},
 		];
@@ -168,7 +177,7 @@ const InstagramGalleryEdit = props => {
 			<div>
 				{ hasUserConnections && (
 					<RadioControl
-						label={ __( 'Choose your Instagram account:', 'jetpack' ) }
+						label={ __( 'Select your Instagram account:', 'jetpack' ) }
 						onChange={ value => setSelectedAccount( value ) }
 						options={ radioOptions }
 						selected={ selectedAccount }
@@ -188,11 +197,7 @@ const InstagramGalleryEdit = props => {
 			{ showPlaceholder && (
 				<Placeholder
 					icon="instagram"
-					instructions={
-						! IS_CURRENT_USER_CONNECTED_TO_WPCOM
-							? __( "First, you'll need to connect to WordPress.com.", 'jetpack' )
-							: __( 'Connect to Instagram to start sharing your images.', 'jetpack' )
-					}
+					instructions={ renderPlaceholderInstructions() }
 					label={ __( 'Latest Instagram Posts', 'jetpack' ) }
 					notices={ noticeUI }
 				>
@@ -235,16 +240,16 @@ const InstagramGalleryEdit = props => {
 			{ showSidebar && (
 				<InspectorControls>
 					<PanelBody title={ __( 'Account Settings', 'jetpack' ) }>
-						<PanelRow>
-							<span>{ __( 'Account', 'jetpack' ) }</span>
+						<div>
+							{ __( 'Account:', 'jetpack' ) }{ ' ' }
 							<ExternalLink href={ `https://www.instagram.com/${ instagramUser }/` }>
 								@{ instagramUser }
 							</ExternalLink>
-						</PanelRow>
+						</div>
 						{ IS_CURRENT_USER_CONNECTED_TO_WPCOM && (
 							<PanelRow>
 								<Button isDestructive isLink onClick={ () => disconnectFromService( accessToken ) }>
-									{ __( 'Disconnect your account from this block', 'jetpack' ) }
+									{ __( 'Disconnect your account', 'jetpack' ) }
 								</Button>
 							</PanelRow>
 						) }
