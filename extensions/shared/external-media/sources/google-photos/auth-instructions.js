@@ -6,7 +6,7 @@ import { Fragment, memo } from '@wordpress/element';
 
 import { GooglePhotosLogo } from '../../../icons';
 
-const AuthInstructions = memo( function AuthInstructions() {
+function AuthInstructions() {
 	return (
 		<Fragment>
 			<GooglePhotosLogo />
@@ -35,6 +35,6 @@ const AuthInstructions = memo( function AuthInstructions() {
 			</ul>
 		</Fragment>
 	);
-} );
+}
 
-export default AuthInstructions;
+export default memo( AuthInstructions );
