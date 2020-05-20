@@ -205,6 +205,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'jetpack_excluded_extensions'              => 'pineapple',
 			'jetpack-memberships-connected-account-id' => '340',
 			'jetpack_publicize_options'                => array(),
+			'jetpack_connection_active_plugins'        => array( 'jetpack' ),
 			'jetpack_sync_non_blocking'                => false,
 		);
 

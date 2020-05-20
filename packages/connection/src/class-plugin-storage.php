@@ -19,6 +19,22 @@ use WP_Error;
  */
 class Plugin_Storage {
 
+	const ACTIVE_PLUGINS_OPTION_NAME = 'jetpack_connection_active_plugins';
+
+	/**
+	 * Whether this class was configured for the first time or not.
+	 *
+	 * @var boolean
+	 */
+	private static $configured = false;
+
+	/**
+	 * Refresh list of connected plugins upon intialization.
+	 *
+	 * @var boolean
+	 */
+	private static $refresh_connected_plugins = false;
+
 	/**
 	 * Connected plugins.
 	 *
@@ -45,12 +61,17 @@ class Plugin_Storage {
 	public static function upsert( $slug, array $args = array() ) {
 		self::$plugins[ $slug ] = $args;
 
+		// if plugin is not in the list of active plugins, refresh the list.
+		if ( ! array_key_exists( $slug, get_option( self::ACTIVE_PLUGINS_OPTION_NAME, array() ) ) ) {
+			self::$refresh_connected_plugins = true;
+		}
+
 		return true;
 	}
 
 	/**
 	 * Retrieve the plugin information by slug.
-	 * WARNING: the method cannot be called until Jetpack Config has been run (`plugins_loaded`, priority 2).
+	 * WARNING: the method cannot be called until Plugin_Storage::configure is called, which happens on plugins_loaded
 	 * Even if you don't use Jetpack Config, it may be introduced later by other plugins,
 	 * so please make sure not to run the method too early in the code.
 	 *
@@ -70,7 +91,7 @@ class Plugin_Storage {
 
 	/**
 	 * Retrieve info for all plugins that use the connection.
-	 * WARNING: the method cannot be called until Jetpack Config has been run (`plugins_loaded`, priority 2).
+	 * WARNING: the method cannot be called until Plugin_Storage::configure is called, which happens on plugins_loaded
 	 * Even if you don't use Jetpack Config, it may be introduced later by other plugins,
 	 * so please make sure not to run the method too early in the code.
 	 *
@@ -88,7 +109,7 @@ class Plugin_Storage {
 
 	/**
 	 * Remove the plugin connection info from Jetpack.
-	 * WARNING: the method cannot be called until Jetpack Config has been run (`plugins_loaded`, priority 2).
+	 * WARNING: the method cannot be called until Plugin_Storage::configure is called, which happens on plugins_loaded
 	 * Even if you don't use Jetpack Config, it may be introduced later by other plugins,
 	 * so please make sure not to run the method too early in the code.
 	 *
@@ -116,11 +137,43 @@ class Plugin_Storage {
 	 * @return bool|WP_Error
 	 */
 	private static function ensure_configured() {
-		if ( class_exists( Config::class ) && method_exists( Config::class, 'is_configured' ) && ! Config::is_configured() ) {
+		if ( ! self::$configured ) {
 			return new WP_Error( 'too_early', __( 'You cannot call this method until Jetpack Config is configured', 'jetpack' ) );
 		}
 
 		return true;
+	}
+
+	/**
+	 * Called once to configure this class after plugins_loaded.
+	 *
+	 * @return void
+	 */
+	public static function configure() {
+
+		if ( self::$configured ) {
+			return;
+		}
+
+		// If a plugin was activated or deactivated.
+		$number_of_plugins_differ = count( self::$plugins ) !== count( get_option( self::ACTIVE_PLUGINS_OPTION_NAME, array() ) );
+
+		if ( $number_of_plugins_differ || true === self::$refresh_connected_plugins ) {
+			self::update_active_plugins_option();
+		}
+
+		self::$configured = true;
+
+	}
+
+	/**
+	 * Updates the active plugins option with current list of active plugins.
+	 *
+	 * @return void
+	 */
+	public static function update_active_plugins_option() {
+		// Note: Since this options is synced to wpcom, if you change its structure, you have to update the sanitizer at wpcom side.
+		update_option( self::ACTIVE_PLUGINS_OPTION_NAME, self::$plugins );
 	}
 
 }

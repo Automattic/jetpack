@@ -160,6 +160,7 @@ class Defaults {
 		'site_vertical',
 		'jetpack_excluded_extensions',
 		'jetpack_publicize_options',
+		'jetpack_connection_active_plugins',
 		'jetpack_sync_non_blocking', // is non-blocking Jetpack Sync flow enabled.
 	);
 

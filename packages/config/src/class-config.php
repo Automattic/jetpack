@@ -43,22 +43,6 @@ class Config {
 	protected $feature_options = array();
 
 	/**
-	 * Indicates if the configuration is needed.
-	 * If at least one `Config` object was created, the property is set to `true`.
-	 * If no objects were created, the value is `false`.
-	 *
-	 * @var bool
-	 */
-	private static $is_configuration_needed = false;
-
-	/**
-	 * Indicates whether the configuration process has completed.
-	 *
-	 * @var bool
-	 */
-	private static $is_configured = false;
-
-	/**
 	 * Creates the configuration class instance.
 	 */
 	public function __construct() {
@@ -68,11 +52,6 @@ class Config {
 		 */
 		add_action( 'plugins_loaded', array( $this, 'on_plugins_loaded' ), 2 );
 
-		if ( false === self::$is_configuration_needed ) {
-			// This is the first instance of the class, add the `on_configured` action (we need it to run only once).
-			add_action( 'plugins_loaded', array( $this, 'on_configured' ), 3 );
-			self::$is_configuration_needed = true;
-		}
 	}
 
 	/**
@@ -115,23 +94,6 @@ class Config {
 			$this->ensure_class( 'Automattic\Jetpack\JITMS\JITM' )
 				&& $this->ensure_feature( 'jitm' );
 		}
-	}
-
-	/**
-	 * The method is called when configuration is completed.
-	 * `Config` is done, so we set the flag..
-	 */
-	public static function on_configured() {
-		self::$is_configured = true;
-	}
-
-	/**
-	 * The method can be used to check if the `Config` needs to be run.
-	 *
-	 * @return bool Returns `true` if configuration has completed, or not needed (no instances were created); `false` if configuration is pending.
-	 */
-	public static function is_configured() {
-		return ! self::$is_configuration_needed || self::$is_configured;
 	}
 
 	/**
