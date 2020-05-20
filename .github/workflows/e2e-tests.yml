@@ -12,13 +12,12 @@ jobs:
     runs-on: ubuntu-latest
         # Service containers to run with `container-job`
     services:
-      # Label used to access the service container
       wp:
-        # Docker Hub image
-        # name: wp_container
         image: wordpress
         ports:
           - 80:80
+      wp-cli:
+        image: wordpress:cli
     steps:
 
       - uses: actions/checkout@v2
@@ -30,9 +29,10 @@ jobs:
       - run: curl localhost -v || exit 0
       - run: |
           WP_ID=$(docker ps -aqf "ancestor=wordpress")
+          WP_CI_ID=$(docker ps -aqf "ancestor=wordpress:cli")
           echo $WP_ID
           docker exec $WP_ID ls
-          echo $(docker exec $WP_ID which wp)
+          docker run -it --rm --volumes-from $WP_ID --network container:$WP_ID $WP_CI_ID user list
 
       - run: docker ps -a
 
