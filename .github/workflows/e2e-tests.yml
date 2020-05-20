@@ -33,7 +33,7 @@ jobs:
           WP_PORT: ${{job.services.wp.ports['80']}}
       - run: docker ps -a
       - run: |
-          WP_ID=docker inspect --format="{{.Id}}" wordpress
+          WP_ID=$(docker inspect --format="{{.Id}}" wordpress)
           docker exec $WP_ID ls
       - run: docker ps -a
 
