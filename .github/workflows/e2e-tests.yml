@@ -8,6 +8,22 @@ env:
   DB_PASSWORD: root
 
 jobs:
+  wp:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: DO local action
+        uses: ./.github/actions/wp # Uses an action in the root directory
+        id: hello
+        with:
+          who-to-greet: 'Mona the Octocat'
+      - run: curl -s https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip > ngrok.zip
+      - run: apt update && apt install unzip -y
+      - run: unzip -o ngrok.zip
+      - run: ./ngrok http -log=stdout 80
+      - run: echo $(curl -s localhost:4040/api/tunnels/command_line | jq --raw-output .public_url)
+      - run: sleep 6000
+
   e2e_tests:
     runs-on: ubuntu-latest
     steps:
@@ -23,7 +39,7 @@ jobs:
           who-to-greet: 'Mona the Octocat'
 
 
-          
+
       - name: Setup env and WordPress
         run: |
           sudo apt update
