@@ -12,6 +12,15 @@ jobs:
     runs-on: ubuntu-latest
         # Service containers to run with `container-job`
     services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: false
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: jetpack_test
+        ports:
+          - 3306/tcp
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
       wp:
         image: wordpress
         ports:
@@ -38,7 +47,10 @@ jobs:
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v2
 
-      - run: |
+      - name: what
+        env:
+          DB_PORT: ${{ job.services.mysql.ports['3306'] }}
+        run: |
           WP_ID=$(docker ps -aqf "name=wpcnt")
           WP_CLI_ID=$(docker ps -aqf "name=wpcli")
           echo $WP_ID
