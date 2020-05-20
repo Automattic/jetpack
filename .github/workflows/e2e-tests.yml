@@ -28,18 +28,12 @@ jobs:
       #     WP: ${{job.services.wp}}
 
       - run: curl localhost -v || exit 0
-      - run: curl localhost:$WP_PORT -v || exit 0
-        env:
-          WP_PORT: ${{job.services.wp.ports['80']}}
-      - run: docker ps -a
-      # - run: |
-      #     WP_ID=$(docker inspect --format="{{.Id}}" wordpress)
-      #     echo $WP_ID
-      #     docker exec $WP_ID ls
       - run: |
           WP_ID=$(docker ps -aqf "ancestor=wordpress")
           echo $WP_ID
           docker exec $WP_ID ls
+          docker exec $WP_ID which wp
+
       - run: docker ps -a
 
 
