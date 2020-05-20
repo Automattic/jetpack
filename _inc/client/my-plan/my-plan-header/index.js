@@ -122,11 +122,7 @@ class MyPlanHeader extends React.Component {
 					details: expiration,
 					icon: imagePath + '/products/product-jetpack-search.svg',
 					tagLine: __( 'Fast, highly relevant search results and powerful filtering.' ),
-					title: __( 'Jetpack Search', {
-						components: {
-							em: <em />,
-						},
-					} ),
+					title: __( 'Jetpack Search' ),
 				};
 
 			case 'is-scan-plan':
@@ -136,7 +132,7 @@ class MyPlanHeader extends React.Component {
 					tagLine: __(
 						'Automatic scanning and one-click fixes keep your site one step ahead of security threats.'
 					),
-					title: __( 'Jetpack Scan' ),
+					title: __( 'Jetpack Scan {{em}}Daily{{em/}}', { components: { em: <em /> } } ),
 				};
 
 			default:
