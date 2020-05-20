@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Disabled, FormToggle } from '@wordpress/components';
+// import { Disabled, FormToggle } from '@wordpress/components';
 import classnames from 'classnames';
 import { translate as __ } from 'i18n-calypso';
 import PropTypes from 'prop-types';
@@ -101,7 +101,8 @@ let FeatureToggle = props => {
 		);
 	}
 
-	const formToggle = <FormToggle checked={ checked } onChange={ onToggleChange } />;
+	// const formToggle = <FormToggle checked={ checked } onChange={ onToggleChange } />;
+	const formToggle = null;
 
 	const isDisabled = !! ( props.isDisabled || upgradeLink );
 
@@ -117,7 +118,7 @@ let FeatureToggle = props => {
 				} ) }
 			>
 				<Gridicon icon="star" />
-				{ isDisabled ? <Disabled>{ formToggle }</Disabled> : formToggle }
+				{ /* { isDisabled ? <Disabled>{ formToggle }</Disabled> : formToggle } */ }
 			</div>
 			{ smallWindow && (
 				<div className="jp-setup-wizard-form-toggle-title-small">
