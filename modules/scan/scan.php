@@ -3,7 +3,7 @@
  * Jetpack Scan features that show up on the jetpack admin side.
  * - Adds a admin bar notice when the site has threats.
  *
- * @package automattic/jetpack
+ * @package Jetpack
  */
 
 namespace Automattic\Jetpack\Scan;
