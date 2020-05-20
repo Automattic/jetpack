@@ -105,8 +105,12 @@ export default function withMedia() {
 				const { nextHandle, media } = this.state;
 
 				if ( nextHandle === false && media.length > 0 ) {
-					// Tried to make a request with no nextHandle. This can happen because InfiniteScroll sometimes triggers
-					// a request when the number of items is less than the scroll area. It should really be fixed there, but until that time...
+					/**
+					 * Tried to make a request with no nextHandle. This can happen because
+					 * InfiniteScroll sometimes triggers a request when the number of
+					 * items is less than the scroll area. It should really be fixed
+					 * there, but until that time...
+					 */
 					this.setState( {
 						isLoading: false,
 					} );

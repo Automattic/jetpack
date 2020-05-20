@@ -35,8 +35,12 @@ export function canDisplayPlaceholder( props ) {
 		return false;
 	}
 
-	// This is a new prop that is false when editing an image (and the placeholder should be shown), and contains a URL when
-	// not editing (and the placeholder shouldnt be shown). The docs say it should be strictly boolean, hence the inverse logic
+	/**
+	 * This is a new prop that is false when editing an image (and the placeholder
+	 * should be shown), and contains a URL when not editing (and the placeholder
+	 * shouldnt be shown). The docs say it should be strictly boolean, hence the
+	 * inverse logic.
+	 */
 	if ( disableMediaButtons !== undefined && disableMediaButtons !== false ) {
 		return false;
 	}
