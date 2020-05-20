@@ -54,7 +54,14 @@ const renderCard = props => (
 );
 
 const renderAction = ( url, message ) => (
-	<Card compact key="manage-scan" className="jp-dash-item__manage-in-wpcom" href={ url }>
+	<Card
+		compact
+		key="manage-scan"
+		className="jp-dash-item__manage-in-wpcom"
+		href={ url }
+		target="_blank"
+		rel="noopener noreferrer"
+	>
 		{ message }
 	</Card>
 );
