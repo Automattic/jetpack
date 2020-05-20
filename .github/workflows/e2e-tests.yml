@@ -15,7 +15,7 @@ jobs:
       wp:
         image: wordpress:5.4.1-php7.4-fpm
         ports:
-          - 80:80
+          - 8080:80
         # env:
         #   # WORDPRESS_DB_HOST: 127.0.0.1
         #   WORDPRESS_DB_USER: root
