@@ -47,37 +47,37 @@ jobs:
       - run: unzip -o ngrok.zip
       - run: ./ngrok http -log=stdout 80 > /dev/null &
       - run: echo $(curl -s localhost:4040/api/tunnels/command_line | jq --raw-output .public_url)
-      - run: sleep 6000
+      # - run: sleep 6000
 
-  e2e_tests:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      # - run: sudo apt update
-      # - run: sudo apt install -y php-fpm nginx
-      # - run: sudo systemctl start mysql.service
+  # e2e_tests:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     # - run: sudo apt update
+  #     # - run: sudo apt install -y php-fpm nginx
+  #     # - run: sudo systemctl start mysql.service
 
-      - name: DO local action
-        uses: ./.github/actions/wp # Uses an action in the root directory
-        id: hello
-        with:
-          who-to-greet: 'Mona the Octocat'
+  #     - name: DO local action
+  #       uses: ./.github/actions/wp # Uses an action in the root directory
+  #       id: hello
+  #       with:
+  #         who-to-greet: 'Mona the Octocat'
 
 
 
-      - name: Setup env and WordPress
-        run: |
-          sudo apt update
-          sudo apt install -y php-fpm nginx
-          sudo systemctl start mysql.service
-          ./tests/e2e/bin/setup-e2e-travis.sh
+  #     - name: Setup env and WordPress
+  #       run: |
+  #         sudo apt update
+  #         sudo apt install -y php-fpm nginx
+  #         sudo systemctl start mysql.service
+  #         ./tests/e2e/bin/setup-e2e-travis.sh
 
-      - name: Build Jetpack
-        run: yarn && yarn build-production
+  #     - name: Build Jetpack
+  #       run: yarn && yarn build-production
 
-      - name: Decrypt config
-        env:
-          CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
-        run: yarn test-decrypt-config
-      - name: Run tests
-        run: yarn test-e2e --runInBand --verbose
+  #     - name: Decrypt config
+  #       env:
+  #         CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
+  #       run: yarn test-decrypt-config
+  #     - name: Run tests
+  #       run: yarn test-e2e --runInBand --verbose
