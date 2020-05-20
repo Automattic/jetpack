@@ -47,7 +47,8 @@ function GooglePhotosMedia( props ) {
 
 	const listUrl = getApiUrl( 'list', SOURCE_GOOGLE_PHOTOS, params );
 
-	const getNextPage = useCallback( ( event, reset = false ) => {
+	const getNextPage = useCallback(
+		( event, reset = false ) => {
 			getMedia( listUrl, reset );
 		},
 		[ getMedia, listUrl ]
@@ -77,17 +78,26 @@ function GooglePhotosMedia( props ) {
 		}
 	}, [ lastQuery, listUrl, getNextPage, path ] );
 
+	const viewSelectFormEl = useRef( null );
+	useEffect( () => {
+		const viewSelectEl = viewSelectFormEl.current.elements[ 0 ];
+
+		viewSelectEl.focus();
+	} );
+
 	return (
 		<div className="jetpack-external-media-wrapper__google">
 			<div className="jetpack-external-media-header__view">
-				<SelectControl
-					className="jetpack-external-media-header__select"
-					label={ __( 'View', 'jetpack' ) }
-					value={ path.ID !== PATH_RECENT ? PATH_ROOT : PATH_RECENT }
-					disabled={ isLoading }
-					options={ PATH_OPTIONS }
-					onChange={ setPath }
-				/>
+				<form ref={ viewSelectFormEl }>
+					<SelectControl
+						className="jetpack-external-media-header__select"
+						label={ __( 'View', 'jetpack' ) }
+						value={ path.ID !== PATH_RECENT ? PATH_ROOT : PATH_RECENT }
+						disabled={ isLoading }
+						options={ PATH_OPTIONS }
+						onChange={ setPath }
+					/>
+				</form>
 
 				{ path.ID === PATH_RECENT && (
 					<GoogleFilterView
