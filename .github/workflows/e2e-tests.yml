@@ -13,14 +13,19 @@ jobs:
         # Service containers to run with `container-job`
     services:
       # Label used to access the service container
-      wordpress:
+      wp:
         # Docker Hub image
         image: wordpress
+            # Map port 8080 on the Docker host to port 80 on the nginx container
+        ports:
+          - 80:8080
     steps:
       - uses: actions/checkout@v2
 
       - run: curl localhost || exit 0
       - run: curl localhost:8080 || exit 0
+      - run: curl localhost:${{job.services.wp.ports}} || exit 0
+
 
       - run: curl -s https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip > ngrok.zip
       # - run: sudo apt update && sudo apt install unzip -y
