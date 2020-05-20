@@ -11,6 +11,7 @@ import { InspectorControls } from '@wordpress/block-editor';
 import {
 	Button,
 	ExternalLink,
+	Notice,
 	PanelBody,
 	PanelRow,
 	Placeholder,
@@ -82,11 +83,10 @@ const InstagramGalleryEdit = props => {
 	const gridStyle = { gridGap: spacing };
 	const photoStyle = { padding: spacing };
 
-	useEffect( () => {
+	const renderSidebarNotice = () => {
 		const accountImageTotal = images.length;
 
 		if ( showSidebar && ! showLoadingSpinner && accountImageTotal < count ) {
-			noticeOperations.removeAllNotices();
 			const noticeContent = accountImageTotal
 				? sprintf(
 						_n(
@@ -98,14 +98,15 @@ const InstagramGalleryEdit = props => {
 						accountImageTotal
 				  )
 				: __( 'There are currently no posts in your Instagram account.', 'jetpack' );
-
-			noticeOperations.createNotice( {
-				status: 'info',
-				content: noticeContent,
-				isDismissible: false,
-			} );
+			return (
+				<div className="wp-block-jetpack-instagram-gallery__count-notice">
+					<Notice isDismissible={ false } status="info">
+						{ noticeContent }
+					</Notice>
+				</div>
+			);
 		}
-	}, [ count, images, noticeOperations, showLoadingSpinner, showSidebar ] );
+	};
 
 	const renderImage = index => {
 		if ( images[ index ] ) {
@@ -213,7 +214,7 @@ const InstagramGalleryEdit = props => {
 						) }
 					</PanelBody>
 					<PanelBody title={ __( 'Display Settings', 'jetpack' ) }>
-						<div className="wp-block-jetpack-instagram-gallery__count-notice">{ noticeUI }</div>
+						{ renderSidebarNotice() }
 						<RangeControl
 							label={ __( 'Number of Posts', 'jetpack' ) }
 							value={ count }
