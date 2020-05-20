@@ -2,10 +2,10 @@ name: E2E tests
 # Trigger on every push
 on: push
 env:
-  DB_NAME: jetpack_test
-  DB_HOST: 127.0.0.1
-  DB_USERNAME: root
-  DB_PASSWORD: root
+  # DB_NAME: jetpack_test
+  # DB_HOST: 127.0.0.1
+  # DB_USERNAME: root
+  # DB_PASSWORD: root
 
 jobs:
   wp:
@@ -23,9 +23,9 @@ jobs:
         #   WORDPRESS_DB_NAME: jetpack_test
         #   # WORDPRESS_TABLE_PREFIX: wp_
         # options: --name wpcnt
-      wp-cli:
-        image: wordpress:cli
-        options: --name wpcli
+      # wp-cli:
+      #   image: wordpress:cli
+      #   options: --name wpcli
 
     steps:
       - uses: actions/checkout@v2
