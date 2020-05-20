@@ -10,7 +10,7 @@ set -ex
 WP_VERSION=latest
 
 # WP_CORE_DIR=${WP_CORE_DIR-$HOME/wordpress}
-WP_CORE_DIR: $HOME/wordpress
+WP_CORE_DIR=$HOME/wordpress
 
 
 WORKING_DIR="$PWD"
