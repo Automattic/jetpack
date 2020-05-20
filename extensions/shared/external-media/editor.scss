@@ -3,15 +3,7 @@
  */
 @import '../styles/gutenberg-base-styles.scss';
 
-$font-stack: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
-$font-size: 14px;
-$icon-size: 24px;
-$line-height: 1.6;
-$radius-roundrect: 8px;
-$radius-round: 50%;
 $grid-size: 8px;
-$tabbar-height: 48px;
-$border-width-tab: 3px;
 
 @keyframes loading-fade {
 	0% {
