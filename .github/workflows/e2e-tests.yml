@@ -16,6 +16,7 @@ jobs:
         image: wordpress
         ports:
           - 80:80
+          - 3306:3306
       wp-cli:
         image: wordpress:cli
     steps:
@@ -26,7 +27,7 @@ jobs:
       #   env:
       #     WP: ${{job.services.wp}}
 
-      - run: curl localhost -v || exit 0
+      # - run: curl localhost -v || exit 0
       - run: docker ps -a
 
       - name: Setup tmate session
@@ -34,12 +35,24 @@ jobs:
 
       - run: |
           WP_ID=$(docker ps -aqf "ancestor=wordpress")
-          WP_CI_ID=$(docker ps -aqf "ancestor=wordpress:cli")
+          WP_CLI_ID=$(docker ps -aqf "ancestor=wordpress:cli")
           echo $WP_ID
-          echo $WP_CI_ID
+          echo $WP_CLI_ID
           docker exec $WP_ID ls
-          echo "docker run -it --rm --volumes-from $WP_ID --network container:$WP_ID $WP_CI_ID user list"
-          docker run -it --rm --volumes-from $WP_ID --network container:$WP_ID $WP_CI_ID user list
+
+          CLI_CMD="docker run -it --rm --volumes-from $WP_ID --network container:$WP_ID wordpress:cli"
+
+          $CLI_CMD core install --title="QQQQQ" --admin_user=wordpress --admin_password=wordpress --admin_email=test@example.com --skip-email --url=http://localhost
+
+          	$CLI_CMD core config --dbname=$DB_NAME --dbuser=$DB_USERNAME --dbpass=$DB_PASSWORD --dbhost=$DB_HOST --dbprefix=wp_ --extra-php <<PHP
+/* Change WP_MEMORY_LIMIT to increase the memory limit for public pages. */
+define('WP_MEMORY_LIMIT', '256M');
+define('SCRIPT_DEBUG', true);
+
+/* Tweak to fix TOO_MANY_REDIRECTS ngrok problem */
+if (isset(\$_SERVER['HTTP_X_FORWARDED_PROTO']) && \$_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https')
+    \$_SERVER['HTTPS'] = 'on';
+PHP
 
 
       - run: curl -s https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip > ngrok.zip
