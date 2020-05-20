@@ -180,9 +180,7 @@ export async function connectThroughJetpackStart( {
 
 	await jetpackPage.reload( { waitFor: 'networkidle0' } );
 
-	await execShellCommand(
-		'wp cron event run jetpack_v2_heartbeat --path="/home/travis/wordpress"'
-	);
+	await execWpCommand( 'wp cron event run jetpack_v2_heartbeat' );
 
 	if ( ! ( await jetpackPage.isPlan( plan ) ) ) {
 		throw new Error( `Site does not have ${ plan } plan` );

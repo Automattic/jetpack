@@ -94,7 +94,7 @@ export async function execWpCommand( wpCmd, suffix = null ) {
 	// NOTE: Uncommited cli for dockerized local dev environment. Will update once dockerized PR is merged.
 	let cmd = `./tests/e2e/bin/docker-e2e-cli.sh cli "${ wpCmd }"`;
 	if ( process.env.CI ) {
-		cmd = `${ wpCmd } --path="/home/travis/wordpress"`;
+		cmd = `${ wpCmd } --path="${ process.env.HOME }/wordpress"`;
 	}
 
 	if ( suffix ) {

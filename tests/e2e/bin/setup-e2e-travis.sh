@@ -10,6 +10,8 @@ set -ex
 WP_VERSION=latest
 
 # WP_CORE_DIR=${WP_CORE_DIR-$HOME/wordpress}
+WP_CORE_DIR: $HOME/wordpress
+
 
 WORKING_DIR="$PWD"
 PHP_VERSION=${TRAVIS_PHP_VERSION-7.4}
@@ -90,7 +92,7 @@ setup_nginx() {
 		exit 1
 	fi
 
-	sed -i "s+%WP_DOMAIN%+$DOMAIN_NAME+g" $CONFIG_DIR/travis_default-site.conf
+	sed -i "s+WP_DOMAIN+$DOMAIN_NAME+g" $CONFIG_DIR/travis_default-site.conf
 	sed -i "s+SITE_PATH+$WP_CORE_DIR+g" $CONFIG_DIR/travis_default-site.conf
 
 	sed -i "s+CI_USER+$USER+g" $CONFIG_DIR/travis_php-fpm.conf
