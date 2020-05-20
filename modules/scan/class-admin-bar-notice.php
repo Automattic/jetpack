@@ -145,10 +145,16 @@ class Admin_Bar_Notice {
 
 		// No need to do anything...
 		if ( $has_threats ) {
-			/* translators: %s is the alert icon */
-			$node['title']           = sprintf( esc_html__( '%s Threats found', 'jetpack' ), $this->get_icon() );
 			$node['href']            = esc_url( Redirect::get_url( 'calypso-scanner' ) );
 			$node['meta']['onclick'] = 'window.open( this.href ); return false;';
+			$node['title']           = sprintf(
+				esc_html(
+				/* translators: %s is the alert icon */
+					_n( '%s Threat found', '%s Threats found', $this->get_threat_count(), 'jetpack' )
+				),
+				$this->get_icon()
+			);
+
 		}
 
 		$wp_admin_bar->add_node( $node );
@@ -176,5 +182,19 @@ class Admin_Bar_Notice {
 
 		// Return true if there is at least one threat found.
 		return (bool) isset( $scan_state->threats[0] );
+	}
+
+	/**
+	 * Returns the number of threats found or 0.
+	 *
+	 * @return int
+	 */
+	public function get_threat_count() {
+		if ( ! $this->has_threats() ) {
+			return 0;
+		}
+
+		$scan_state = get_transient( 'jetpack_scan_state' );
+		return is_array( $scan_state->threats ) ? count( $scan_state->threats ) : 0;
 	}
 }
