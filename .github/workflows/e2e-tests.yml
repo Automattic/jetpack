@@ -13,9 +13,11 @@ jobs:
         # Service containers to run with `container-job`
     services:
       wp:
-        image: wordpress:5.4.1-php7.4-fpm
+        image: wordpress
         ports:
           - 8080:80
+          - 8081:8081
+          - 9000:9000
         # env:
         #   # WORDPRESS_DB_HOST: 127.0.0.1
         #   WORDPRESS_DB_USER: root
@@ -36,6 +38,8 @@ jobs:
 
       - run: curl localhost -v || exit 0
       - run: curl localhost:8080 -v || exit 0
+      - run: curl localhost:8081 -v || exit 0
+      - run: curl localhost:9000 -v || exit 0
       - run: docker ps -a
       - run: sudo systemctl start mysql.service
 
