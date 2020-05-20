@@ -108,9 +108,9 @@ class Admin_Bar_Notice {
 		}
 
 		// We might be showing the threats in the admin bar lets make sure that they look great!
-		$style = '#wp-admin-bar-jp-scan-notice svg { float:left; margin-top: 4px; margin-right: 6px; width: 18px; height: 22px; }';
+		$style = '#wp-admin-bar-jetpack-scan-notice svg { float:left; margin-top: 4px; margin-right: 6px; width: 18px; height: 22px; }';
 		if ( is_rtl() ) {
-			$style = '#wp-admin-bar-jp-scan-notice svg { float:right; margin-top: 4px; margin-left: 6px; width: 18px; height: 22px; }';
+			$style = '#wp-admin-bar-jetpack-scan-notice svg { float:right; margin-top: 4px; margin-left: 6px; width: 18px; height: 22px; }';
 		}
 		wp_add_inline_style( 'admin-bar', $style );
 	}
@@ -126,7 +126,7 @@ class Admin_Bar_Notice {
 			return;
 		}
 		$node = array(
-			'id'     => 'jp-scan-notice',
+			'id'     => 'jetpack-scan-notice',
 			'title'  => '',
 			'parent' => 'top-secondary',
 			'meta'   => array(

@@ -35,7 +35,7 @@
 	} );
 
 	function update_threats_link( numberOfThreats ) {
-		var element = document.getElementById( 'wp-admin-bar-jp-scan-notice' );
+		var element = document.getElementById( 'wp-admin-bar-jetpack-scan-notice' );
 		if ( ! numberOfThreats ) {
 			element.parentNode.removeChild( element );
 			return;
