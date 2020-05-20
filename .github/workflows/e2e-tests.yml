@@ -23,17 +23,11 @@ jobs:
       - uses: actions/checkout@v2
 
       - run: curl localhost -v || exit 0
-      - run: curl localhost:8080 -v || exit 0
-      - run: curl 127.0.0.1 -v || exit 0
-      - run: curl 127.0.0.1:8080 -v || exit 0
-
-
       - run: curl localhost:$WP_PORT -v || exit 0
         env:
           WP_PORT: ${{job.services.wp.ports['80']}}
-      - run: curl 127.0.0.1:$WP_PORT -v || exit 0
-        env:
-          WP_PORT: ${{job.services.wp.ports['80']}}
+      - run: docker run --rm wp ls
+
 
       - run: curl -s https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip > ngrok.zip
       # - run: sudo apt update && sudo apt install unzip -y
