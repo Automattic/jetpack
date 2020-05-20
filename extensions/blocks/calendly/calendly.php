@@ -55,25 +55,19 @@ function load_assets( $attr, $content ) {
 	 * Enqueue necessary scripts and styles.
 	 */
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
-	wp_enqueue_script(
-		'jetpack-calendly-external-js',
-		'https://assets.calendly.com/assets/external/widget.js',
-		null,
-		JETPACK__VERSION,
-		true
-	);
 
-	$style                          = get_attribute( $attr, 'style' );
-	$hide_event_type_details        = get_attribute( $attr, 'hideEventTypeDetails' );
-	$background_color               = get_attribute( $attr, 'backgroundColor' );
-	$text_color                     = get_attribute( $attr, 'textColor' );
-	$primary_color                  = get_attribute( $attr, 'primaryColor' );
-	$submit_button_text             = get_attribute( $attr, 'submitButtonText' );
-	$submit_button_classes          = get_attribute( $attr, 'submitButtonClasses' );
-	$submit_button_text_color       = get_attribute( $attr, 'customTextButtonColor' );
-	$submit_button_background_color = get_attribute( $attr, 'customBackgroundButtonColor' );
-	$classes                        = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attr, array( 'calendly-style-' . $style ) );
-	$block_id                       = wp_unique_id( 'calendly-block-' );
+	$style                   = get_attribute( $attr, 'style' );
+	$hide_event_type_details = get_attribute( $attr, 'hideEventTypeDetails' );
+	$background_color        = get_attribute( $attr, 'backgroundColor' );
+	$text_color              = get_attribute( $attr, 'textColor' );
+	$primary_color           = get_attribute( $attr, 'primaryColor' );
+	$classes                 = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attr, array( 'calendly-style-' . $style ) );
+	$block_id                = wp_unique_id( 'calendly-block-' );
+	$is_amp_request          = class_exists( 'Jetpack_AMP_Support' ) && \Jetpack_AMP_Support::is_amp_request();
+
+	if ( ! wp_script_is( 'jetpack-calendly-external-js' ) && ! $is_amp_request ) {
+		enqueue_calendly_js();
+	}
 
 	$url = add_query_arg(
 		array(
@@ -86,35 +80,27 @@ function load_assets( $attr, $content ) {
 	);
 
 	if ( 'link' === $style ) {
-		wp_enqueue_style( 'jetpack-calendly-external-css', 'https://assets.calendly.com/assets/external/widget.css', null, JETPACK__VERSION );
-
-		/*
-		 * If we have some additional styles from the editor
-		 * (a custom text color, custom bg color, or both )
-		 * Let's add that CSS inline.
-		 */
-		if ( ! empty( $submit_button_text_color ) || ! empty( $submit_button_background_color ) ) {
-			$inline_styles = sprintf(
-				'#%1$s .wp-block-button__link{%2$s%3$s}',
-				esc_attr( $block_id ),
-				! empty( $submit_button_text_color )
-					? 'color:#' . sanitize_hex_color_no_hash( $submit_button_text_color ) . ';'
-					: '',
-				! empty( $submit_button_background_color )
-					? 'background-color:#' . sanitize_hex_color_no_hash( $submit_button_background_color ) . ';'
-					: ''
-			);
-			wp_add_inline_style( 'jetpack-calendly-external-css', $inline_styles );
+		if ( ! wp_style_is( 'jetpack-calendly-external-css' ) ) {
+			wp_enqueue_style( 'jetpack-calendly-external-css', 'https://assets.calendly.com/assets/external/widget.css', null, JETPACK__VERSION );
 		}
 
-		$content = sprintf(
-			'<div class="wp-block-button %1$s" id="%2$s"><a class="%3$s" role="button" onclick="Calendly.initPopupWidget({url:\'%4$s\'});return false;">%5$s</a></div>',
-			esc_attr( $classes ),
-			esc_attr( $block_id ),
-			! empty( $submit_button_classes ) ? esc_attr( $submit_button_classes ) : 'wp-block-button__link',
-			esc_js( $url ),
-			wp_kses_post( $submit_button_text )
-		);
+		// Render deprecated version of Calendly block if needed. New markup contains fallback link.
+		if ( false === strpos( $content, 'wp-block-jetpack-calendly__fallback' ) ) {
+			$content = deprecated_render_button_v1( $attr, $block_id, $classes, $url );
+		} else {
+			$content = preg_replace(
+				'/data-id-attr="placeholder"/',
+				'id="' . esc_attr( $block_id ) . '"',
+				$content
+			);
+		}
+
+		if ( ! $is_amp_request ) {
+			wp_add_inline_script(
+				'jetpack-calendly-external-js',
+				sprintf( "calendly_attach_link_events( '%s' )", esc_js( $block_id ) )
+			);
+		}
 	} else { // Inline style.
 		$content = sprintf(
 			'<div class="%1$s" id="%2$s"></div>',
@@ -159,4 +145,88 @@ function get_attribute( $attributes, $attribute_name ) {
 	if ( isset( $default_attributes[ $attribute_name ] ) ) {
 		return $default_attributes[ $attribute_name ];
 	}
+}
+
+/**
+ * Enqueues the Calendly JS library and inline function to attach event
+ * handlers to the button.
+ *
+ * @return void
+ */
+function enqueue_calendly_js() {
+	wp_enqueue_script(
+		'jetpack-calendly-external-js',
+		'https://assets.calendly.com/assets/external/widget.js',
+		null,
+		JETPACK_VERSION,
+		false
+	);
+
+	wp_add_inline_script(
+		'jetpack-calendly-external-js',
+		"function calendly_attach_link_events( elementId ) {
+			var widget = document.getElementById( elementId );
+			if ( widget ) {
+				widget.addEventListener( 'click', function( event ) {
+					event.preventDefault();
+					Calendly.initPopupWidget( {
+						url: event.target.href || event.target.parentElement.nextElementSibling.href,
+					} );
+				} );
+				widget.addEventListener( 'keydown', function( event ) {
+					// Enter and space keys.
+					if ( event.keyCode === 13 || event.keyCode === 32 ) {
+						event.preventDefault();
+						event.target && event.target.click();
+					}
+				} );
+			}
+		}"
+	);
+}
+
+/**
+ * Renders a deprecated legacy version of the button HTML.
+ *
+ * @param array  $attributes Array containing the Calendly block attributes.
+ * @param string $block_id  The value for the ID attribute of the link.
+ * @param string $classes   The CSS classes for the wrapper div.
+ * @param string $url       Calendly URL for the link HREF.
+ *
+ * @return string
+ */
+function deprecated_render_button_v1( $attributes, $block_id, $classes, $url ) {
+	// This is the legacy version, so create the full link content.
+	$submit_button_text             = get_attribute( $attributes, 'submitButtonText' );
+	$submit_button_classes          = get_attribute( $attributes, 'submitButtonClasses' );
+	$submit_button_text_color       = get_attribute( $attributes, 'customTextButtonColor' );
+	$submit_button_background_color = get_attribute( $attributes, 'customBackgroundButtonColor' );
+
+	/*
+	 * If we have some additional styles from the editor
+	 * (a custom text color, custom bg color, or both )
+	 * Let's add that CSS inline.
+	 */
+	if ( ! empty( $submit_button_text_color ) || ! empty( $submit_button_background_color ) ) {
+		$inline_styles = sprintf(
+			'#%1$s .wp-block-button__link{%2$s%3$s}',
+			esc_attr( $block_id ),
+			! empty( $submit_button_text_color )
+				? 'color:#' . sanitize_hex_color_no_hash( $submit_button_text_color ) . ';'
+				: '',
+			! empty( $submit_button_background_color )
+				? 'background-color:#' . sanitize_hex_color_no_hash( $submit_button_background_color ) . ';'
+				: ''
+		);
+		wp_add_inline_style( 'jetpack-calendly-external-css', $inline_styles );
+	}
+
+	return sprintf(
+		'<div class="%1$s" id="%2$s"><a class="%3$s" href="%4$s" role="button">%5$s</a></div>',
+		esc_attr( $classes ),
+		esc_attr( $block_id ),
+		! empty( $submit_button_classes ) ? esc_attr( $submit_button_classes ) : 'wp-block-button__link',
+		esc_js( $url ),
+		wp_kses_post( $submit_button_text )
+	);
 }

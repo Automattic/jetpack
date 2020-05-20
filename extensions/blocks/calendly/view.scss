@@ -4,4 +4,9 @@
 
 .wp-block-jetpack-calendly.calendly-style-inline {
 	height: 630px;
+	position: relative;
+}
+
+.wp-block-jetpack-calendly__fallback {
+	display: none;
 }

@@ -8,7 +8,7 @@ import queryString from 'query-string';
 /**
  * WordPress dependencies
  */
-import { BlockIcon, InspectorControls } from '@wordpress/block-editor';
+import { BlockIcon, InnerBlocks, InspectorControls } from '@wordpress/block-editor';
 import {
 	Button,
 	ExternalLink,
@@ -31,10 +31,9 @@ import './view.scss';
 import icon from './icon';
 import attributeDetails from './attributes';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
-import SubmitButton from '../../shared/submit-button';
 import { getAttributesFromEmbedCode } from './utils';
 import BlockStylesSelector from '../../shared/components/block-styles-selector';
-import { CALENDLY_EXAMPLE_URL } from './';
+import { CALENDLY_EXAMPLE_URL, innerButtonBlock } from './';
 import testEmbedUrl from '../../shared/test-embed-url';
 
 function CalendlyEdit( props ) {
@@ -65,6 +64,7 @@ function CalendlyEdit( props ) {
 	} = validatedAttributes;
 	const [ embedCode, setEmbedCode ] = useState( '' );
 	const [ isResolvingUrl, setIsResolvingUrl ] = useState( false );
+	const [ embedButtonAttributes, setEmbedButtonAttributes ] = useState( {} );
 
 	const setErrorNotice = () => {
 		noticeOperations.removeAllNotices();
@@ -95,6 +95,10 @@ function CalendlyEdit( props ) {
 		if ( ! newAttributes ) {
 			setErrorNotice();
 			return;
+		}
+
+		if ( newAttributes.buttonAttributes && 'link' === newAttributes.style ) {
+			setEmbedButtonAttributes( newAttributes.buttonAttributes );
 		}
 
 		testEmbedUrl( newAttributes.url, setIsResolvingUrl )
@@ -179,17 +183,14 @@ function CalendlyEdit( props ) {
 		</>
 	);
 
-	const submitButtonProps = {
-		attributes: pick( validatedAttributes, [
-			'submitButtonText',
-			'backgroundButtonColor',
-			'textButtonColor',
-			'customBackgroundButtonColor',
-			'customBackgroundButtonColor',
-		] ),
-		setAttributes,
-	};
-	const submitButtonPreview = <SubmitButton { ...submitButtonProps } />;
+	const buttonPreview = (
+		<InnerBlocks
+			template={ [
+				[ innerButtonBlock.name, { ...innerButtonBlock.attributes, ...embedButtonAttributes } ],
+			] }
+			templateLock="all"
+		/>
+	);
 
 	const linkPreview = (
 		<>
@@ -208,7 +209,7 @@ function CalendlyEdit( props ) {
 			return linkPreview;
 		}
 
-		return submitButtonPreview;
+		return buttonPreview;
 	};
 
 	const styleOptions = [
@@ -230,7 +231,10 @@ function CalendlyEdit( props ) {
 			) }
 			<InspectorControls>
 				<PanelBody title={ __( 'Calendar Settings', 'jetpack' ) } initialOpen={ false }>
-					<form onSubmit={ parseEmbedCode } className={ `${ defaultClassName }-embed-form-sidebar` }>
+					<form
+						onSubmit={ parseEmbedCode }
+						className={ `${ defaultClassName }-embed-form-sidebar` }
+					>
 						<input
 							type="text"
 							id="embedCode"

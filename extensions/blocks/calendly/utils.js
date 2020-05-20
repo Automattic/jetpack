@@ -10,29 +10,29 @@ export const getURLFromEmbedCode = embedCode => {
 	}
 };
 
-export const getSubmitButtonTextFromEmbedCode = embedCode => {
-	let submitButtonText = embedCode.match( /false;"\>([^<]+)\<\// );
-	if ( submitButtonText ) {
-		return submitButtonText[ 1 ];
+export const getTextFromEmbedCode = embedCode => {
+	let text = embedCode.match( /false;"\>([^<]+)\<\// );
+	if ( text ) {
+		return text[ 1 ];
 	}
 
-	submitButtonText = embedCode.match( /text: '([^']*?)'/ );
-	if ( submitButtonText ) {
-		return submitButtonText[ 1 ];
-	}
-};
-
-const getSubmitButtonTextColorFromEmbedCode = embedCode => {
-	const submitButtonTextColor = embedCode.match( /textColor: '([^']*?)'/ );
-	if ( submitButtonTextColor ) {
-		return submitButtonTextColor[ 1 ];
+	text = embedCode.match( /text: '([^']*?)'/ );
+	if ( text ) {
+		return text[ 1 ];
 	}
 };
 
-const getSubmitButtonBackgroundColorFromEmbedCode = embedCode => {
-	const submitButtonBackgroundColor = embedCode.match( /color: '([^']*?)'/ );
-	if ( submitButtonBackgroundColor ) {
-		return submitButtonBackgroundColor[ 1 ];
+const getTextColorFromEmbedCode = embedCode => {
+	const textColor = embedCode.match( /textColor: '([^']*?)'/ );
+	if ( textColor ) {
+		return textColor[ 1 ];
+	}
+};
+
+const getBackgroundColorFromEmbedCode = embedCode => {
+	const backgroundColor = embedCode.match( /color: '([^']*?)'/ );
+	if ( backgroundColor ) {
+		return backgroundColor[ 1 ];
 	}
 };
 
@@ -97,19 +97,23 @@ export const getAttributesFromEmbedCode = embedCode => {
 		newAttributes.style = newStyle;
 	}
 
-	const submitButtonText = getSubmitButtonTextFromEmbedCode( embedCode );
-	if ( submitButtonText ) {
-		newAttributes.submitButtonText = submitButtonText;
-	}
+	if ( 'link' === newStyle ) {
+		newAttributes.buttonAttributes = {};
 
-	const submitButtonTextColor = getSubmitButtonTextColorFromEmbedCode( embedCode );
-	if ( submitButtonTextColor ) {
-		newAttributes.customTextButtonColor = submitButtonTextColor;
-	}
+		const text = getTextFromEmbedCode( embedCode );
+		if ( text ) {
+			newAttributes.buttonAttributes.text = text;
+		}
 
-	const submitButtonBackgroundColor = getSubmitButtonBackgroundColorFromEmbedCode( embedCode );
-	if ( submitButtonBackgroundColor ) {
-		newAttributes.customBackgroundButtonColor = submitButtonBackgroundColor;
+		const textColor = getTextColorFromEmbedCode( embedCode );
+		if ( textColor ) {
+			newAttributes.buttonAttributes.customTextColor = textColor;
+		}
+
+		const backgroundColor = getBackgroundColorFromEmbedCode( embedCode );
+		if ( backgroundColor ) {
+			newAttributes.buttonAttributes.customBackgroundColor = backgroundColor;
+		}
 	}
 
 	return newAttributes;
