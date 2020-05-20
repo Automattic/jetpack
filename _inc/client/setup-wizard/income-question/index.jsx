@@ -28,7 +28,7 @@ const IncomeQuestion = props => {
 					args: { siteUrl: props.siteTitle },
 				} ) }
 			</h1>
-			<p className="jp-setup-wizard-subtitle">{ __( 'Check all that apply' ) }</p>
+			<h2 className="jp-setup-wizard-subtitle">{ __( 'Check all that apply' ) }</h2>
 			<div className="jp-setup-wizard-income-answer-container">
 				<ChecklistAnswer
 					title={ __( 'Advertising or affiliate marketing' ) }
