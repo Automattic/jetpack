@@ -2,9 +2,9 @@ name: E2E tests
 # Trigger on every push
 on: push
 env:
-  CI: true
+  # CI: true
   DB_NAME: jetpack_test
-  DB_ADAPTER: mysql
+  # DB_ADAPTER: mysql
   DB_HOST: 127.0.0.1
   DB_USERNAME: root
   DB_PASSWORD: "root"
@@ -12,35 +12,12 @@ env:
 jobs:
   e2e_tests:
     runs-on: ubuntu-latest
-    # services:
-    #   mysql:
-    #     image: mysql:5.7
-    #     env:
-    #       MYSQL_ALLOW_EMPTY_PASSWORD: true
-    #       MYSQL_DATABASE: jetpack_test
-    #     ports:
-    #       - 3306/tcp
-    #     options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
     steps:
       - uses: actions/checkout@v2
-      # - name: Setup NodeJS
-      #   uses: actions/setup-node@v1
-      #   with:
-      #     node-version: '10'
-      # - name: Setup PHP
-      #   uses: shivammathur/setup-php@v2
-      #   with:
-      #     php-version: '7.4'
-      #     tools: composer
-
-      # - run: whoami
-      # - run: cat /etc/passwd
-      # - run: su - www-data
       - run: sudo apt update
-      - run: sudo apt install -y php-fpm nginx jq
+      - run: sudo apt install -y php-fpm nginx
       - run: sudo systemctl start mysql.service
-
-      - run: sudo service mysql restart
+      # - run: sudo service mysql restart
 
       - name: Setup WordPress
         run: ./tests/e2e/bin/setup-e2e-travis.sh
@@ -53,4 +30,4 @@ jobs:
           CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
         run: yarn test-decrypt-config
       - name: Run tests
-        run: E2E_DEBUG=true yarn test-e2e --runInBand --verbose
+        run: test-e2e --runInBand --verbose

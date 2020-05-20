@@ -8,8 +8,6 @@ set -ex
 # DB_PASSWORD=""
 # DB_HOST=${4-localhost}
 WP_VERSION=latest
-
-# WP_CORE_DIR=${WP_CORE_DIR-$HOME/wordpress}
 WP_CORE_DIR=$HOME/wordpress
 
 
