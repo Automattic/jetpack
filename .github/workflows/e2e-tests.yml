@@ -27,15 +27,15 @@ jobs:
       #     WP: ${{job.services.wp}}
 
       - run: curl localhost -v || exit 0
+      - run: docker ps -a
+
       - run: |
           WP_ID=$(docker ps -aqf "ancestor=wordpress")
           WP_CI_ID=$(docker ps -aqf "ancestor=wordpress:cli")
           echo $WP_ID
           docker exec $WP_ID ls
+          echo "docker run -it --rm --volumes-from $WP_ID --network container:$WP_ID $WP_CI_ID user list"
           docker run -it --rm --volumes-from $WP_ID --network container:$WP_ID $WP_CI_ID user list
-
-      - run: docker ps -a
-
 
 
       - run: curl -s https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip > ngrok.zip
