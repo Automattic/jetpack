@@ -62,7 +62,7 @@ let FeatureToggle = props => {
 	let buttonContent;
 	if ( ! checked && upgradeLink ) {
 		buttonContent = (
-			<Button href={ upgradeLink } primary>
+			<Button href={ upgradeLink } primary target="_blank">
 				{ __( 'Upgrade now' ) }
 			</Button>
 		);
