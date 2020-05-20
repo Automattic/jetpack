@@ -132,7 +132,7 @@ class MyPlanHeader extends React.Component {
 					tagLine: __(
 						'Automatic scanning and one-click fixes keep your site one step ahead of security threats.'
 					),
-					title: __( 'Jetpack Scan {{em}}Daily{{em/}}', { components: { em: <em /> } } ),
+					title: __( 'Jetpack Scan {{em}}Daily{{/em}}', { components: { em: <em /> } } ),
 				};
 
 			default:
