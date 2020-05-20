@@ -2,13 +2,13 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 2.4.117
+ * Version: 2.4.118
  * Author: Automattic
  * Author URI: http://automattic.com/
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.4.117' );
+define( 'WPCOMSH_VERSION', '2.4.118' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -205,7 +205,6 @@ if ( class_exists( 'Jetpack_Plugin_Compatibility' ) ) {
 		'really-simple-ssl/rlrsssl-really-simple-ssl.php' => '"really-simple-ssl" is not supported on WordPress.com.',
 		'robo-gallery/robogallery.php' => '"robo-gallery" is not supported on WordPress.com.',
 		'speed-contact-bar/speed-contact-bar.php' => '"speed-contact-bar" is not supported on WordPress.com.',
-		'under-construction-page/under-construction.php' => '"under-construction-page" is not supported on WordPress.com.',
 		'unplug-jetpack/unplug-jetpack.php' => '"unplug-jetpack" is not supported on WordPress.com.',
 		'video-importer/video-importer.php' => '"video-importer" is not supported on WordPress.com.',
 		'woozone/plugin.php' => '"woozone" is not supported on WordPress.com.',
