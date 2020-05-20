@@ -240,12 +240,12 @@ const InstagramGalleryEdit = props => {
 			{ showSidebar && (
 				<InspectorControls>
 					<PanelBody title={ __( 'Account Settings', 'jetpack' ) }>
-						<div>
-							{ __( 'Account:', 'jetpack' ) }{ ' ' }
+						<PanelRow>
+							<span>{ __( 'Account', 'jetpack' ) }</span>
 							<ExternalLink href={ `https://www.instagram.com/${ instagramUser }/` }>
 								@{ instagramUser }
 							</ExternalLink>
-						</div>
+						</PanelRow>
 						{ IS_CURRENT_USER_CONNECTED_TO_WPCOM && (
 							<PanelRow>
 								<Button isDestructive isLink onClick={ () => disconnectFromService( accessToken ) }>
