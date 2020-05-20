@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies
  */
-import { Button, MenuItem, MenuGroup, Dropdown } from '@wordpress/components';
+import { Button, MenuItem, MenuGroup, Dropdown, NavigableMenu } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -46,27 +46,31 @@ function MediaButtonMenu( props ) {
 
 			<Dropdown
 				position="bottom right"
-				renderToggle={ ( { onToggle } ) => (
+				renderToggle={ ( { isOpen, onToggle } ) => (
 					<Button
 						isTertiary={ ! isFeatured }
 						isPrimary={ isFeatured }
 						className="jetpack-external-media-browse-button"
+						aria-haspopup="true"
+						aria-expanded={ isOpen }
 						onClick={ onToggle }
 					>
 						{ __( 'Select Image', 'jetpack' ) }
 					</Button>
 				) }
 				renderContent={ ( { onToggle } ) => (
-					<MenuGroup>
-						<MenuItem icon="admin-media" onClick={ () => openLibrary( onToggle ) }>
-							{ __( 'Media Library', 'jetpack' ) }
-						</MenuItem>
+					<NavigableMenu aria-label={ __( 'Select Image', 'jetpack' ) }>
+						<MenuGroup>
+							<MenuItem icon="admin-media" onClick={ () => openLibrary( onToggle ) }>
+								{ __( 'Media Library', 'jetpack' ) }
+							</MenuItem>
 
-						<MediaSources
-							open={ () => dropdownOpen( onToggle ) }
-							setSource={ source => changeSource( source, onToggle ) }
-						/>
-					</MenuGroup>
+							<MediaSources
+								open={ () => dropdownOpen( onToggle ) }
+								setSource={ source => changeSource( source, onToggle ) }
+							/>
+						</MenuGroup>
+					</NavigableMenu>
 				) }
 			/>
 		</>
