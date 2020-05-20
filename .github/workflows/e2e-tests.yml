@@ -32,7 +32,7 @@ jobs:
           WP_ID=$(docker ps -aqf "ancestor=wordpress")
           echo $WP_ID
           docker exec $WP_ID ls
-          docker exec $WP_ID which wp
+          echo $(docker exec $WP_ID which wp)
 
       - run: docker ps -a
 
