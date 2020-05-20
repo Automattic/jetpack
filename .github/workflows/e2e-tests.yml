@@ -1,11 +1,11 @@
 name: E2E tests
 # Trigger on every push
 on: push
-# env:
-#   DB_NAME: jetpack_test
-#   DB_HOST: 127.0.0.1
-#   DB_USERNAME: root
-#   DB_PASSWORD: root
+env:
+  DB_NAME: jetpack_test
+  DB_HOST: 127.0.0.1
+  DB_USERNAME: root
+  DB_PASSWORD: root
 
 jobs:
   wp:
@@ -16,30 +16,21 @@ jobs:
         image: wordpress
         ports:
           - 8080:80
-          - 8081:8081
-          - 9000:9000
         # env:
         #   # WORDPRESS_DB_HOST: 127.0.0.1
         #   WORDPRESS_DB_USER: root
         #   WORDPRESS_DB_PASSWORD: root
         #   WORDPRESS_DB_NAME: jetpack_test
         #   # WORDPRESS_TABLE_PREFIX: wp_
-        # options: --name wpcnt
-      # wp-cli:
-      #   image: wordpress:cli
-      #   options: --name wpcli
+        options: --name wpcnt
+      wp-cli:
+        image: wordpress:cli
+        options: --name wpcli
 
     steps:
       - uses: actions/checkout@v2
 
-      # - run: echo $WP
-      #   env:
-      #     WP: ${{job.services.wp}}
-
-      - run: curl localhost -v || exit 0
-      - run: curl localhost:8080 -v || exit 0
-      - run: curl localhost:8081 -v || exit 0
-      - run: curl localhost:9000 -v || exit 0
+      - run: curl localhost:8080 -v
       - run: docker ps -a
       - run: sudo systemctl start mysql.service
 
