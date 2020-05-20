@@ -30,4 +30,4 @@ jobs:
           CONFIG_KEY: ${{ secrets.E2E_CONFIG_KEY }}
         run: yarn test-decrypt-config
       - name: Run tests
-        run: test-e2e --runInBand --verbose
+        run: yarn test-e2e --runInBand --verbose
