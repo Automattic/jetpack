@@ -146,7 +146,7 @@ class Admin_Bar_Notice {
 	 * * @return boolean or null
 	 */
 	public function has_threats() {
-		$scan_state = get_site_transient( 'jetpack_scan_state' );
+		$scan_state = get_transient( 'jetpack_scan_state' );
 		if ( empty( $scan_state ) ) {
 			return null;
 		}

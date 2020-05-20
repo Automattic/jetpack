@@ -1287,7 +1287,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	public static function scan_state() {
 
 		if ( ! isset( $_GET['_cacheBuster'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			$scan_state = get_site_transient( 'jetpack_scan_state' );
+			$scan_state = get_transient( 'jetpack_scan_state' );
 			if ( ! empty( $scan_state ) ) {
 				return $scan_state;
 			}
@@ -1308,7 +1308,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		$body   = wp_remote_retrieve_body( $response );
 		$result = json_decode( $body );
-		set_site_transient( 'jetpack_scan_state', $result, 10 * MINUTE_IN_SECONDS );
+		set_transient( 'jetpack_scan_state', $result, 15 * MINUTE_IN_SECONDS );
 
 		return $result;
 	}
