@@ -1,10 +1,10 @@
 /**
  * External dependencies
  */
-import classNames from 'classnames';
 import { __ } from '@wordpress/i18n';
-import { Fragment } from '@wordpress/element';
+import { createHigherOrderComponent } from '@wordpress/compose';
 import { TextControl, Disabled } from '@wordpress/components';
+import { addFilter } from '@wordpress/hooks';
 
 /**
  * Internal dependencies
@@ -13,17 +13,12 @@ import JetpackFieldLabel from './jetpack-field-label';
 import JetpackFieldControls from './jetpack-field-controls';
 
 export default function JetpackField( props ) {
-	const { id, isSelected, type, required, label, setAttributes, placeholder } = props;
+	const { id, type, required, label, setAttributes, placeholder, width } = props;
 
 	return (
-		<Fragment>
-			<div className={ classNames( 'jetpack-field', { 'is-selected': isSelected } ) }>
-				<JetpackFieldLabel
-					required={ required }
-					label={ label }
-					setAttributes={ setAttributes }
-					isSelected={ isSelected }
-				/>
+		<>
+			<div className="jetpack-field">
+				<JetpackFieldLabel required={ required } label={ label } setAttributes={ setAttributes } />
 				<Disabled>
 					<TextControl
 						type={ type }
@@ -35,7 +30,28 @@ export default function JetpackField( props ) {
 				</Disabled>
 			</div>
 
-			<JetpackFieldControls id={ id } required={ required } setAttributes={ setAttributes } />
-		</Fragment>
+			<JetpackFieldControls
+				id={ id }
+				required={ required }
+				width={ width }
+				setAttributes={ setAttributes }
+			/>
+		</>
 	);
 }
+
+const withCustomClassName = createHigherOrderComponent( BlockListBlock => {
+	return props => {
+		if ( props.name.indexOf( 'jetpack/field' ) > -1 ) {
+			const customClassName = props.attributes.width
+				? 'jetpack-field__width-' + props.attributes.width
+				: '';
+
+			return <BlockListBlock { ...props } className={ customClassName } />;
+		}
+
+		return <BlockListBlock { ...props } />;
+	};
+}, 'withCustomClassName' );
+
+addFilter( 'editor.BlockListBlock', 'jetpack/contact-form', withCustomClassName );

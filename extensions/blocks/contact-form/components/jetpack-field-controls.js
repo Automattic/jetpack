@@ -1,10 +1,7 @@
 /**
  * External dependencies
  */
-import { find } from 'lodash';
 import { __ } from '@wordpress/i18n';
-import { addFilter } from '@wordpress/hooks';
-import { createHigherOrderComponent } from '@wordpress/compose';
 import {
 	InspectorAdvancedControls,
 	InspectorControls,
@@ -23,8 +20,9 @@ import {
  * Internal Dependencies
  */
 import renderMaterialIcon from '../../../shared/render-material-icon';
+import JetpackFieldWidth from './jetpack-field-width';
 
-const JetpackFieldControls = ( { setAttributes, id, required } ) => {
+const JetpackFieldControls = ( { setAttributes, width, id, required } ) => {
 	return (
 		<>
 			<BlockControls>
@@ -54,6 +52,8 @@ const JetpackFieldControls = ( { setAttributes, id, required } ) => {
 							'jetpack'
 						) }
 					/>
+
+					<JetpackFieldWidth setAttributes={ setAttributes } width={ width } />
 				</PanelBody>
 			</InspectorControls>
 
