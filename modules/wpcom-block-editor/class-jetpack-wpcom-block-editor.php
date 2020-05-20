@@ -44,6 +44,7 @@ class Jetpack_WPCOM_Block_Editor {
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_assets' ), 9 );
 		add_action( 'enqueue_block_assets', array( $this, 'enqueue_block_assets' ) );
 		add_filter( 'mce_external_plugins', array( $this, 'add_tinymce_plugins' ) );
+		add_action( 'admin_init', array( $this, 'activate_classic_editor' ) );
 
 		$this->enable_cross_site_auth_cookies();
 	}
@@ -279,12 +280,36 @@ class Jetpack_WPCOM_Block_Editor {
 			true
 		);
 
+		/**
+		 * Offer an option to switch to the classic editor when the following
+		 * criteria are met:
+		 * - The editor/after-deprecation query string param is present (Temporary requirement).
+		 * - In the iFramed block editor.
+		 * - The classic editor plugin is installed but not active.
+		 * - User has permission to activate plugins e.g. admins.
+		 */
+		$switch_visible = $this->is_iframed_block_editor()
+			&& isset( $_GET['editor/after-deprecation'] ) // phpcs:ignore WordPress.Security.NonceVerification
+			&& file_exists( WP_PLUGIN_DIR . 'classic-editor/classic-editor.php' )
+			&& is_plugin_inactive( 'classic-editor/classic-editor.php' )
+			&& current_user_can( 'activate_plugin' );
+
+		/**
+		 * Due to difficulties in being able test with an iFramed editor, the
+		 * following has been added so that requirement can be worked around.
+		 */
+		if ( isset( $_GET['editor/after-deprecation'] ) && 'show' === $_GET['editor/after-deprecation'] ) { // phpcs:ignore WordPress.Security.NonceVerification
+			$switch_visible = file_exists( WP_PLUGIN_DIR . '/classic-editor/classic-editor.php' )
+				&& is_plugin_inactive( 'classic-editor/classic-editor.php' )
+				&& current_user_can( 'activate_plugin' );
+		}
+
 		wp_localize_script(
 			'wpcom-block-editor-default-editor-script',
 			'wpcomGutenberg',
 			array(
 				'switchToClassic' => array(
-					'isVisible' => $this->is_iframed_block_editor(),
+					'isVisible' => $switch_visible,
 					'label'     => __( 'Switch to Classic Editor', 'jetpack' ),
 					'url'       => Jetpack_Calypsoify::getInstance()->get_switch_to_classic_editor_url(),
 				),
@@ -571,6 +596,32 @@ class Jetpack_WPCOM_Block_Editor {
 
 		// Post password cookie.
 		setcookie( 'wp-postpass_' . COOKIEHASH, ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
+	}
+
+	/**
+	 * Activates the Classic Editor plugin and reloads the page so it can initialize.
+	 *
+	 * This will only work if the Classic Editor plugin is already installed.
+	 */
+	public function activate_classic_editor() {
+		// phpcs:ignore WordPress.Security.NonceVerification
+		if ( ! empty( $_GET['set-editor'] ) && 'classic' === $_GET['set-editor'] && current_user_can( 'activate_plugin' ) ) {
+			if ( is_plugin_inactive( 'classic-editor/classic-editor.php' ) ) {
+				activate_plugin( 'classic-editor/classic-editor.php' );
+				update_network_option( null, 'classic-editor-replace', 'classic' );
+				update_user_option( get_current_user_id(), 'classic-editor-settings', 'classic' );
+
+				$classic_url = add_query_arg(
+					array(
+						'classic-editor'         => '',
+						'classic-editor__forget' => '',
+					),
+					remove_query_arg( 'set-editor', $_SERVER['REQUEST_URI'] )
+				);
+
+				wp_safe_redirect( $classic_url );
+			}
+		}
 	}
 }
 

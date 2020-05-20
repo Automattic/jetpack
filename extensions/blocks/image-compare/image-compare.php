@@ -54,7 +54,18 @@ function load_assets( $attr, $content ) {
  * @return string
  */
 function render_amp( $attr ) {
-	// @TODO: what to show for AMP view?
-	// :shrug-emoji:
-	return '';
+	$img_before = $attr['imageBefore'];
+	$img_after  = $attr['imageAfter'];
+
+	return sprintf(
+		'<amp-image-slider layout="responsive" width="%1$d" height="%2$d"> <amp-img id="%3$d" src="%4$s" alt="%5$s" layout="fill"></amp-img> <amp-img id="%6$d" src="%7$s" alt="%8$s" layout="fill"></amp-img></amp-image-slider>',
+		absint( $img_before['width'] ),
+		absint( $img_before['height'] ),
+		absint( $img_before['id'] ),
+		esc_url( $img_before['url'] ),
+		esc_attr( $img_before['alt'] ),
+		absint( $img_after['id'] ),
+		esc_url( $img_after['url'] ),
+		esc_attr( $img_after['alt'] )
+	);
 }

@@ -5,6 +5,13 @@
 	margin-right: 0;
 }
 
+// The positioning in the editor crops the selection focus. This accounts for that.
+.jx-slider.jx-slider {
+	top: 1px;
+	left: 1px;
+	width: calc(100% - 2px);
+}
+
 .image-compare__placeholder > .components-placeholder {
 	flex-direction: row;
 	align-items: center;

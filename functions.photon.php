@@ -352,6 +352,7 @@ function jetpack_photon_banned_domains( $skip, $image_url ) {
 		'/\.paypalobjects\.com$/',
 		'/\.dropbox\.com$/',
 		'/\.cdninstagram\.com$/',
+		'/\.wikimedia\.org$/',
 	);
 
 	$host = wp_parse_url( $image_url, PHP_URL_HOST );

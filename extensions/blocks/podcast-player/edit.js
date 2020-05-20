@@ -79,14 +79,20 @@ const PodcastPlayerEdit = ( {
 } ) => {
 	// Validated attributes.
 	const validatedAttributes = getValidatedAttributes( attributesValidation, attributes );
-	const { url, itemsToShow, showCoverArt, showEpisodeDescription } = validatedAttributes;
+	const {
+		url,
+		itemsToShow,
+		showCoverArt,
+		showEpisodeDescription,
+		exampleFeedData,
+	} = validatedAttributes;
 
 	const playerId = `jetpack-podcast-player-block-${ instanceId }`;
 
 	// State.
 	const [ editedUrl, setEditedUrl ] = useState( url || '' );
 	const [ isEditing, setIsEditing ] = useState( false );
-	const [ feedData, setFeedData ] = useState( {} );
+	const [ feedData, setFeedData ] = useState( exampleFeedData || {} );
 	const cancellableFetch = useRef();
 	const [ isInteractive, setIsInteractive ] = useState( false );
 
@@ -135,8 +141,7 @@ const PodcastPlayerEdit = ( {
 
 	// Load RSS feed.
 	useEffect( () => {
-		// Clean state.
-		setFeedData( {} );
+		// Clean notices.
 		removeAllNotices();
 
 		// Don't do anything if no url is set.
@@ -144,6 +149,8 @@ const PodcastPlayerEdit = ( {
 			return;
 		}
 
+		// Clean current podcast feed and fetch a new one.
+		setFeedData( {} );
 		fetchFeed( url );
 	}, [ fetchFeed, removeAllNotices, url ] );
 
@@ -205,7 +212,7 @@ const PodcastPlayerEdit = ( {
 		[ editedUrl, url, fetchFeed, createErrorNotice, removeAllNotices, setAttributes ]
 	);
 
-	if ( isEditing || ! url ) {
+	if ( isEditing || ( ! url && ! exampleFeedData ) ) {
 		return (
 			<Placeholder
 				icon={ <BlockIcon icon={ queueMusic } /> }

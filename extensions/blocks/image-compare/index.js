@@ -31,61 +31,36 @@ export const settings = {
 	],
 
 	attributes: {
-		imageBeforeId: {
-			type: 'string',
-			source: 'attribute',
-			attribute: 'id',
-			selector: '.image-compare__image-before',
+		imageBefore: {
+			type: 'object',
+			default: {},
 		},
-		imageBeforeUrl: {
-			type: 'string',
-			source: 'attribute',
-			attribute: 'src',
-			selector: '.image-compare__image-before',
-		},
-		imageBeforeAlt: {
-			type: 'string',
-			source: 'attribute',
-			attribute: 'alt',
-			selector: '.image-compare__image-before',
-		},
-		imageAfterId: {
-			type: 'string',
-			source: 'attribute',
-			attribute: 'id',
-			selector: '.image-compare__image-after',
-		},
-		imageAfterUrl: {
-			type: 'string',
-			source: 'attribute',
-			attribute: 'src',
-			selector: '.image-compare__image-after',
-		},
-		imageAfterAlt: {
-			type: 'string',
-			source: 'attribute',
-			attribute: 'alt',
-			selector: '.image-compare__image-after',
+		imageAfter: {
+			type: 'object',
+			default: {},
 		},
 		caption: {
 			type: 'string',
-			source: 'html',
-			selector: 'figcaption',
 		},
 		orientation: {
 			type: 'string',
+			default: 'horizontal',
 		},
 	},
 
 	example: {
 		attributes: {
-			imageBeforeId: '1',
-			imageBeforeUrl: imgExampleBefore,
-			imageBeforeAlt: __( 'Before', 'jetpack' ),
-			imageAfterId: '2',
-			imageAfterUrl: imgExampleAfter,
-			imageAfterAlt: __( 'After', 'jetpack' ),
-			caption: __( 'Wonder Woman', 'jetpack' ),
+			imageBefore: {
+				id: 1,
+				url: imgExampleBefore,
+				alt: __( 'Before', 'jetpack' ),
+			},
+			imageAfter: {
+				id: 2,
+				url: imgExampleAfter,
+				alt: __( 'After', 'jetpack' ),
+			},
+			caption: __( 'Example image', 'jetpack' ),
 		},
 	},
 

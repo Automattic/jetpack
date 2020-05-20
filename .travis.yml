@@ -104,6 +104,7 @@ matrix:
     - name: "PHP Nightly"
     - name: "Spell check Markdown files"
     - name: "Code Coverage"
+    - name: "E2E tests"
 
 cache:
   directories:

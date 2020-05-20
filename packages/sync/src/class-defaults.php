@@ -102,6 +102,7 @@ class Defaults {
 		'jetpack_autoupdate_translations',
 		'carousel_background_color',
 		'carousel_display_exif',
+		'carousel_display_comments',
 		'jetpack_portfolio',
 		'jetpack_portfolio_posts_per_page',
 		'jetpack_testimonial',
@@ -160,6 +161,7 @@ class Defaults {
 		'jetpack_excluded_extensions',
 		'jetpack_publicize_options',
 		'jetpack_connection_active_plugins',
+		'jetpack_sync_non_blocking', // is non-blocking Jetpack Sync flow enabled.
 	);
 
 	/**

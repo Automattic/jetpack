@@ -154,6 +154,55 @@ rsync -az --delete _inc/blocks/ \
 
 To test extensions for a Simple site in Calypso, sandbox the simple site URL (`example.wordpress.com`). Calypso loads Gutenberg from simple sites’ wp-admin in an iframe.
 
+## Paid blocks
+
+Blocks can be restricted to specific paid plans in both WordPress.com and Jetpack. When registering a block using `jetpack_register_block`, pass `plan_check => true` as a key in the second argument. When the block is registerd we check the plan data to see if the user's plan supports this block. For example:
+
+```php
+function register_block() {
+	jetpack_register_block(
+		BLOCK_NAME,
+		array(
+			'render_callback' => __NAMESPACE__ . '\load_assets',
+			'plan_check'      => true,
+		)
+	);
+}
+```
+
+Sometimes blocks are paid for WordPress.com users but free for Jetpack users. In these cases it is still necessary to add the block to the plan data for both environments, for example:
+
+```php
+const PLAN_DATA = array(
+	'free'     => array(
+		'plans'    => array(
+			'jetpack_free',
+		),
+		'supports' => array(
+			'opentable',
+			'calendly',
+		),
+	),
+```
+
+The plan data is found in `class.jetpack-plan.php` for Jetpack and an example of adding the features to WordPress.com plans is in D43206-code.
+
+### Upgrades
+Paid blocks that aren't supported by a user's plan will still be registered for use in the block editor, but will not be displayed by default.
+
+You can, however, use the following filter:
+
+```php
+add_filter( 'jetpack_block_editor_enable_upgrade_nudge', '__return_true' );
+```
+
+This will allow you to take advantage of those registered blocks. They will not be rendered to logged out visitors on the frontend of the site, but the block will be available in the block picker in the editor. When you add a paid block to a post, an `UpgradeNudge` component will display above the block in the editor and on the front end of the site to inform users that this is a paid block.
+
+### Terminology
+Blocks can be registered but not available:
+- Registered: The block appears in the block inserter
+- Available: The block is included in the user's current plan and renders in the front end of the site
+
 ## Good to know when developing Gutenberg extensions
 
 ### The Build

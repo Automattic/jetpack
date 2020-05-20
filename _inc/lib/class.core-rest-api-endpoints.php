@@ -2,7 +2,7 @@
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\JITM;
+use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\Status;
 
@@ -671,7 +671,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return array An array of jitms
 	 */
 	public static function get_jitm_message( $request ) {
-		$jitm = new JITM();
+		$jitm = JITM::get_instance();
 
 		if ( ! $jitm->register() ) {
 			return array();
@@ -687,7 +687,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool Always True
 	 */
 	public static function delete_jitm_message( $request ) {
-		$jitm = new JITM();
+		$jitm = JITM::get_instance();
 
 		if ( ! $jitm->register() ) {
 			return true;
@@ -1398,7 +1398,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @return string|WP_Error A raw URL if the connection URL could be built; error message otherwise.
 	 */
-	public static function build_connect_url( $request ) {
+	public static function build_connect_url( $request = array() ) {
 		$from     = isset( $request['from'] ) ? $request['from'] : false;
 		$redirect = isset( $request['redirect'] ) ? $request['redirect'] : false;
 
@@ -1901,6 +1901,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'description'       => wp_kses( sprintf( __( 'Show photo metadata (<a href="https://en.wikipedia.org/wiki/Exchangeable_image_file_format" target="_blank">Exif</a>) in carousel, when available.', 'jetpack' ) ), array( 'a' => array( 'href' => true, 'target' => true ) ) ),
 				'type'              => 'boolean',
 				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'carousel',
+			),
+			'carousel_display_comments'            => array(
+				'description'       => esc_html__( 'Show comments area in carousel', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 1,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'carousel',
 			),
