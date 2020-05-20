@@ -6,6 +6,23 @@
 	border: 1px solid $gray-lighten-20;
 }
 
+.jp-setup-wizard-main h1 {
+	font-size: 1.5rem;
+	font-weight: normal;
+	margin: 0.67rem 1rem 0 1rem;
+	color: black;
+
+	@include breakpoint( '<660px' ) {
+		text-align: left;
+	}
+}
+
+.jp-setup-wizard-main p {
+	@include breakpoint( '<660px' ) {
+		text-align: left;
+	}
+}
+
 .jp-setup-wizard-button {
 	margin: 1rem;
 	width: 160px;
