@@ -7,7 +7,7 @@
 
 namespace Automattic\Jetpack\Scan;
 
-use Automattic\Jetpack\Assets;
+use function Automattic\Jetpack\enqueue_async_script as jetpack_enqueue_async_script;
 use Automattic\Jetpack\Redirect;
 
 /**
@@ -55,23 +55,7 @@ class Admin_Bar_Notice {
 
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_toolbar_script' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_toolbar_script' ) );
-		add_filter( 'script_loader_tag', array( $this, 'add_async_defer_attribute' ), 10, 2 );
 		add_action( 'admin_bar_menu', array( $this, 'add_threats_to_toolbar' ), 999 );
-	}
-
-	/**
-	 * Adds the sync and defer attributes to the js so that it loads last.
-	 *
-	 * @param string $tag Html script tag about to get inserted.
-	 * @param string $handle Name of the script about to get inserted.
-	 *
-	 * @return string
-	 */
-	public function add_async_defer_attribute( $tag, $handle ) {
-		if ( self::SCRIPT_NAME !== $handle ) {
-			return $tag;
-		}
-		return str_replace( ' src', ' async defer src', $tag );
 	}
 
 	/**
@@ -83,8 +67,9 @@ class Admin_Bar_Notice {
 		if ( ! is_null( $this->has_threats() ) ) {
 			return;
 		}
+
 		// We don't know about threats in the cache lets load the JS that fetches the info and updates the admin bar.
-		wp_enqueue_script( self::SCRIPT_NAME, Assets::get_file_url_for_environment( '_inc/build/scan/admin-bar-notice.min.js', 'modules/scan/admin-bar-notice.js' ), array(), self::SCRIPT_VERSION, true );
+		jetpack_enqueue_async_script( self::SCRIPT_NAME, '_inc/build/scan/admin-bar-notice.min.js', 'modules/scan/admin-bar-notice.js', array(), self::SCRIPT_VERSION, true );
 
 		$script_data = array(
 			'nonce'              => wp_create_nonce( 'wp_rest' ),
