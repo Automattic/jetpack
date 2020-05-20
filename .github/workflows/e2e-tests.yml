@@ -16,13 +16,13 @@ jobs:
         image: wordpress:5.4.1-php7.4-fpm
         ports:
           - 80:80
-        env:
-          # WORDPRESS_DB_HOST: 127.0.0.1
-          WORDPRESS_DB_USER: root
-          WORDPRESS_DB_PASSWORD: root
-          WORDPRESS_DB_NAME: jetpack_test
-          # WORDPRESS_TABLE_PREFIX: wp_
-        options: --name wpcnt
+        # env:
+        #   # WORDPRESS_DB_HOST: 127.0.0.1
+        #   WORDPRESS_DB_USER: root
+        #   WORDPRESS_DB_PASSWORD: root
+        #   WORDPRESS_DB_NAME: jetpack_test
+        #   # WORDPRESS_TABLE_PREFIX: wp_
+        # options: --name wpcnt
       wp-cli:
         image: wordpress:cli
         options: --name wpcli
@@ -34,7 +34,7 @@ jobs:
       #   env:
       #     WP: ${{job.services.wp}}
 
-      # - run: curl localhost -v || exit 0
+      - run: curl localhost -v || exit 0
       - run: docker ps -a
       - run: sudo systemctl start mysql.service
 
