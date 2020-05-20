@@ -29,10 +29,14 @@ jobs:
       - run: curl localhost -v || exit 0
       - run: docker ps -a
 
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v2
+
       - run: |
           WP_ID=$(docker ps -aqf "ancestor=wordpress")
           WP_CI_ID=$(docker ps -aqf "ancestor=wordpress:cli")
           echo $WP_ID
+          echo $WP_CI_ID
           docker exec $WP_ID ls
           echo "docker run -it --rm --volumes-from $WP_ID --network container:$WP_ID $WP_CI_ID user list"
           docker run -it --rm --volumes-from $WP_ID --network container:$WP_ID $WP_CI_ID user list
