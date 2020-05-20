@@ -22,10 +22,7 @@
 		"clean-client": "rm -rf _inc/build/ css/",
 		"clean-composer": "rm -rf vendor/",
 		"clean-extensions": "rm -rf _inc/blocks/ ",
-		"install-if-deps-outdated": "yarn check 2> /dev/null || yarn install --check-files --production=false --frozen-lockfile",
-		"distclean": "rm -rf node_modules && yarn clean",
-		"build": "yarn install-if-deps-outdated && yarn clean && yarn build-client && yarn build-php && yarn build-extensions && yarn build-search",
-		"build-client": "gulp",
+		"something": "something",
 		"build-extensions": "webpack --config ./webpack.config.extensions.js",
 		"build-search": "yarn build-search:scripts && yarn build-search:styles",
 		"build-search:scripts": "webpack --config ./webpack.config.search.js",
@@ -74,7 +71,12 @@
 		"test-dangerci-and-adminpage-and-extensions": "yarn danger ci && yarn test-adminpage && yarn test-extensions",
 		"test-search": "jest modules/search",
 		"reformat-files": "./node_modules/.bin/prettier --ignore-path .eslintignore --write \"**/*.{js,jsx,json}\"",
-		"version-packages": "bash ./bin/version-packages.sh"
+		"version-packages": "bash ./bin/version-packages.sh",
+		"version-packages1": "bash ./bin/version-packages.sh",
+		"version-packages2": "bash ./bin/version-packages.sh",
+		"version-packages3": "bash ./bin/version-packages.sh",
+		"version-packages4": "bash ./bin/version-packages.sh",
+		"version-packages5": "bash ./bin/version-packages.sh"
 	},
 	"husky": {
 		"hooks": {
