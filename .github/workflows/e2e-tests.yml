@@ -18,7 +18,7 @@ jobs:
         with:
           who-to-greet: 'Mona the Octocat'
       - run: curl -s https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip > ngrok.zip
-      - run: apt update && apt install unzip -y
+      - run: sudo apt update && sudo apt install unzip -y
       - run: unzip -o ngrok.zip
       - run: ./ngrok http -log=stdout 80
       - run: echo $(curl -s localhost:4040/api/tunnels/command_line | jq --raw-output .public_url)
