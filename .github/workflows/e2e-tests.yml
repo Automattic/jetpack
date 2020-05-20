@@ -34,6 +34,11 @@ jobs:
       - run: docker ps -a
       - run: |
           WP_ID=$(docker inspect --format="{{.Id}}" wordpress)
+          echo $WP_ID
+          docker exec $WP_ID ls
+      - run: |
+          WP_ID=$(docker ps -aqf "ancestor=wordpress")
+          echo $WP_ID
           docker exec $WP_ID ls
       - run: docker ps -a
 
