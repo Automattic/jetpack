@@ -1,11 +1,11 @@
 name: E2E tests
 # Trigger on every push
 on: push
-env:
-  # DB_NAME: jetpack_test
-  # DB_HOST: 127.0.0.1
-  # DB_USERNAME: root
-  # DB_PASSWORD: root
+# env:
+#   DB_NAME: jetpack_test
+#   DB_HOST: 127.0.0.1
+#   DB_USERNAME: root
+#   DB_PASSWORD: root
 
 jobs:
   wp:
@@ -35,6 +35,7 @@ jobs:
       #     WP: ${{job.services.wp}}
 
       - run: curl localhost -v || exit 0
+      - run: curl localhost:8080 -v || exit 0
       - run: docker ps -a
       - run: sudo systemctl start mysql.service
 
