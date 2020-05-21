@@ -7499,7 +7499,7 @@ endif;
 						'type'      => 'scan',
 						'slug'      => 'jetpack-scan',
 						'key'       => 'jetpack_scan',
-						'name'      => __( 'Scan', 'jetpack' ),
+						'name'      => __( 'Daily Scan', 'jetpack' ),
 					),
 				),
 				'default_option'    => 'scan',
