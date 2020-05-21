@@ -424,8 +424,20 @@ class Jetpack_AMP_Support {
 	 * For the AMP Reader mode template, include styles that we need.
 	 */
 	public static function amp_reader_sharing_css() {
-		echo file_get_contents( plugin_dir_path( dirname( __FILE__ ) ) . '_inc/social-logos/social-logos.css' ); // phpcs:ignore
-		echo file_get_contents( plugin_dir_path( dirname( __FILE__ ) ) . 'modules/sharedaddy/amp-sharing.css' ); // phpcs:ignore
+		/*
+		 * We'll need to output the full contents of the 2 files
+		 * in the head on AMP views. We can't rely on regular enqueues here.
+		 *
+		 * phpcs:disable WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		 * phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
+		 */
+		echo file_get_contents( JETPACK_SOCIAL_LOGOS_DIR . '_inc/social-logos/social-logos.css' );
+		echo file_get_contents( WP_SHARING_PLUGIN_DIR . 'modules/sharedaddy/amp-sharing.css' );
+
+		/*
+		 * phpcs:enable WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		 * phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped
+		 */
 	}
 
 	/**
