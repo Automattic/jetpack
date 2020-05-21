@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { InnerBlocks, InspectorControls, RichText } from '@wordpress/block-editor';
-import { PanelBody, Placeholder, RadioControl, Tip } from '@wordpress/components';
+import { PanelBody, Placeholder, RadioControl } from '@wordpress/components';
 import { useResizeObserver } from '@wordpress/compose';
 import { useLayoutEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -63,16 +63,6 @@ const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) 
 		<figure className={ className } id={ clientId }>
 			{ resizeListener }
 			<InspectorControls key="controls">
-				<PanelBody title={ __( 'Help', 'jetpack' ) }>
-					<Tip>
-						<p>
-							{ __(
-								'Block works best using two images with the same width and height.',
-								'jetpack'
-							) }
-						</p>
-					</Tip>
-				</PanelBody>
 				<PanelBody title={ __( 'Orientation', 'jetpack' ) }>
 					<RadioControl
 						selected={ orientation || 'horizontal' }
