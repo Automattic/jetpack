@@ -1,13 +1,16 @@
 <?php
 /**
- * Send A Message Block.
- *
- * @since 8.x
+ * Send a Message Block.
  *
  * @package Jetpack
  */
 
-namespace Jetpack\Send_A_Message_Block;
+namespace Automattic\Jetpack\Extensions\Send_A_Message;
+
+require_once dirname( __FILE__ ) . '/whatsapp-button/whatsapp-button.php';
+
+use Jetpack;
+use Jetpack_Gutenberg;
 
 const FEATURE_NAME = 'send-a-message';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
@@ -20,24 +23,21 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 function register_block() {
 	jetpack_register_block(
 		BLOCK_NAME,
-		array( 'render_callback' => __NAMESPACE__ . '\load_assets' )
+		array( 'render_callback' => __NAMESPACE__ . '\render_block' )
 	);
 }
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 
 /**
- * Send A Message block registration/dependency declaration.
+ * Render callback.
  *
- * @param array  $attr    Array containing the Send A Message block attributes.
- * @param string $content String containing the Send A Message block content.
+ * @param array  $attributes Array containing the block attributes.
+ * @param string $content    String containing the block content.
  *
  * @return string
  */
-function load_assets( $attr, $content ) {
-	/*
-	 * Enqueue necessary scripts and styles.
-	 */
-	\Jetpack_Gutenberg::load_assets_as_required( 'send-a-message' );
+function render_block( $attributes, $content ) {
+	Jetpack_Gutenberg::load_styles_as_required( FEATURE_NAME );
 
 	return $content;
 }

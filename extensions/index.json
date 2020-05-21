@@ -32,7 +32,7 @@
 		"videopress",
 		"wordads"
 	],
-	"beta": [ "amazon", "send-a-message" ],
+	"beta": [ "amazon", "send-a-message", "send-a-message/whatsapp-button" ],
 	"experimental": [ "seo" ],
 	"no-post-editor": [
 		"business-hours",

@@ -4,13 +4,13 @@
 import registerJetpackBlock from '../../shared/register-jetpack-block';
 import { name, settings } from '.';
 import {
-	name as whatsAppBlockName,
-	settings as whatsAppBlockSettings,
-} from './service-blocks/whatsapp';
+	name as whatsAppButtonBlockName,
+	settings as whatsAppButtonBlockSettings,
+} from './whatsapp-button';
 
 registerJetpackBlock( name, settings, [
 	{
-		name: whatsAppBlockName,
-		settings: whatsAppBlockSettings,
+		name: whatsAppButtonBlockName,
+		settings: whatsAppButtonBlockSettings,
 	},
 ] );

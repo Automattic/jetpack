@@ -6,7 +6,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import whatsAppIcon from './service-blocks/whatsapp/icon';
+import whatsAppIcon from './whatsapp-button/icon';
 
 const variations = [
 	{
