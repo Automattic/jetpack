@@ -30,7 +30,10 @@ const JetpackFieldControls = ( { setAttributes, width, id, required } ) => {
 					<ToolbarButton
 						title={ __( 'Required', 'jetpack' ) }
 						icon={ renderMaterialIcon(
-							<Path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L12 15.45 7.77 18l1.12-4.81-3.73-3.23 4.92-.42L12 5l1.92 4.53 4.92.42-3.73 3.23L16.23 18z" />
+							<Path
+								d="M8.23118 8L16 16M8 16L15.7688 8 M6.5054 11.893L17.6567 11.9415M12.0585 17.6563L12 6.5"
+								stroke="currentColor"
+							/>
 						) }
 						onClick={ () => {
 							setAttributes( { required: ! required } );
