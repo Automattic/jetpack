@@ -104,7 +104,7 @@ setup_nginx() {
 	# grands www-data user access to wordpress instalation
 	sudo gpasswd -a www-data $USER
 
-	cat "$CONFIG_DIR/travis_php-fpm.conf"
+	echo $(compgen -c "php")
 
 	# Start php-fpm
 	sudo $PHP_FPM_BIN --fpm-config "$PHP_FPM_CONF"
