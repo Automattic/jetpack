@@ -73,9 +73,16 @@ start_ngrok() {
 setup_nginx() {
 	NGINX_DIR="/etc/nginx"
 	CONFIG_DIR="./tests/e2e/bin/travis"
-	PHP_FPM_BIN="$HOME/.phpenv/versions/$PHP_VERSION/sbin/php-fpm"
-	PHP_FPM_BIN="php-fpm7.4"
 	PHP_FPM_CONF="$NGINX_DIR/php-fpm.conf"
+
+
+
+
+	if [ $TRAVIS = "true" ]; then
+		PHP_FPM_BIN="$HOME/.phpenv/versions/$PHP_VERSION/sbin/php-fpm"
+	else
+		PHP_FPM_BIN="php-fpm7.4"
+	fi
 
 	# remove default nginx site configs
 	sudo rm "$NGINX_DIR/sites-available/default"
