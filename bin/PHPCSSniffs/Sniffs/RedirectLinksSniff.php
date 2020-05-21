@@ -13,6 +13,47 @@ class Jetpack_Sniffs_RedirectLinksSniff implements PHP_CodeSniffer_Sniff {
 	}
 
 	/**
+	 * List of domains that should always use the redirect url.
+	 *
+	 * @var array
+	 */
+	private $blacklist = array(
+		'([^ ]*\.)?wordpress.com',
+		'([^ ]*\.)?jetpack.com',
+		'([^ ]*\.)?vaultpress.com',
+		'([^ ]*\.)?akismet.com',
+		'([^ ]*\.)?tumblr.com',
+		'([^ ]*\.)?videopress.com',
+		'([^ ]*\.)?wordpress.org',
+	);
+
+	/**
+	 * Allowed subdomains.
+	 *
+	 * @var array
+	 */
+	private $whitelist = array(
+		'http://api.wordpress.org',
+		'https://api.wordpress.org',
+		'http://api.wordpress.org',
+		'https://public-api.wordpress.com',
+		'https://rest.akismet.com/',
+	);
+
+	/**
+	 * Allowed extensions.
+	 *
+	 * @var array
+	 */
+	private $allowed_extensions = array(
+		'jpg',
+		'jpeg',
+		'png',
+		'gif',
+		'pdf',
+	);
+
+	/**
 	 * Processes the tokens that this sniff is interested in.
 	 *
 	 * @param PHP_CodeSniffer_File $phpcs_file The file where the token was found.
@@ -22,19 +63,13 @@ class Jetpack_Sniffs_RedirectLinksSniff implements PHP_CodeSniffer_Sniff {
 
 		$tokens = $phpcs_file->getTokens();
 
-		$blacklist = array(
-			'([^ ]*\.)?wordpress.com',
-			'([^ ]*\.)?jetpack.com',
-			'([^ ]*\.)?vaultpress.com',
-			'([^ ]*\.)?akismet.com',
-			'([^ ]*\.)?tumblr.com',
-			'([^ ]*\.)?videopress.com',
-			'([^ ]*\.)?wordpress.org',
-		);
+		$pattern = '/https?:\/\/(' . implode( '|', $this->blacklist ) . ')([^\'\" ]+)?/';
 
-		$pattern = '/https?:\/\/(' . implode( '|', $blacklist ) . ')/';
+		if ( preg_match( $pattern, $tokens[ $stack_ptr ]['content'], $matches ) ) {
 
-		if ( preg_match( $pattern, $tokens[ $stack_ptr ]['content'] ) ) {
+			if ( $this->whitelisted( $matches[0] ) || $this->allowed_extension( $matches[0] ) ) {
+				return;
+			}
 
 			// if string is inside a parenthesis.
 			if ( isset( $tokens[ $stack_ptr ]['nested_parenthesis'] ) ) {
@@ -57,5 +92,43 @@ class Jetpack_Sniffs_RedirectLinksSniff implements PHP_CodeSniffer_Sniff {
 				'UrlFoundWithoutRedirect'
 			);
 		}
+	}
+
+	/**
+	 * Checks whether URL is whitelisted
+	 *
+	 * @param string $url The URL
+	 * @return void
+	 */
+	private function whitelisted( $url ) {
+
+		foreach ( $this->whitelist as $white ) {
+			$white_len = strlen( $white );
+			if ( $white === substr( $url, 0, $white_len ) ) {
+				return true;
+			}
+		}
+
+		return false;
+
+	}
+
+	/**
+	 * Check if URL ends with an allowed extension
+	 *
+	 * @param string $url The URL
+	 * @return void
+	 */
+	private function allowed_extension( $url ) {
+
+		foreach ( $this->allowed_extensions as $extension ) {
+			$extension_len = strlen( $extension );
+			if ( $extension === substr( $url, - $extension_len ) ) {
+				return true;
+			}
+		}
+
+		return false;
+
 	}
 }
