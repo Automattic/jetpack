@@ -8,73 +8,6 @@ env:
   DB_PASSWORD: root
 
 jobs:
-  wp:
-    runs-on: ubuntu-latest
-    container: node:10.18-jessie
-    services:
-      mysql:
-        image: mysql:5.7
-        # ports:
-        #   - 3306/tcp
-        env:
-          MYSQL_ALLOW_EMPTY_PASSWORD: false
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: jetpack_test
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3 --name wpsql
-      wp:
-        image: wordpress
-        # ports:
-        #   - 80:80
-        env:
-          WORDPRESS_DB_USER: root
-          WORDPRESS_DB_PASSWORD: root
-          WORDPRESS_DB_NAME: jetpack_test
-          WORDPRESS_TABLE_PREFIX: wp_
-        options: --name wpcnt
-      wp-cli:
-        image: wordpress:cli
-        options: --name wpcli
-
-    steps:
-      - uses: actions/checkout@v2
-
-      - run: curl localhost:80 -v || exit 0
-      - run: docker ps -a
-      - run: sudo systemctl start mysql.service
-      - run: echo ${{ job.services.mysql.ports['3306'] }}
-      - run: echo ${{ job.services.mysql.network }}
-      - run: echo ${{ job.container.network }}
-
-
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v2
-
-      - name: what
-        env:
-          DB_PORT: ${{ job.services.mysql.ports['3306'] }}
-        run: |
-          WP_ID=$(docker ps -aqf "name=wpcnt")
-          WP_CLI_ID=$(docker ps -aqf "name=wpcli")
-          echo $WP_ID
-          echo $WP_CLI_ID
-          docker exec wpcnt ls
-
-          CLI_CMD="docker run -it --rm --volumes-from wpcnt --network host wordpress:cli"
-
-          $CLI_CMD core config --dbname=$DB_NAME --dbuser=$DB_USERNAME --dbpass=$DB_PASSWORD --dbhost=127.0.0.1:32768 --dbprefix=wp_
-
-          $CLI_CMD db reset --yes --quiet
-
-          $CLI_CMD core install --title="QQQQQ" --admin_user=wordpress --admin_password=wordpress --admin_email=test@example.com --skip-email --url=http://localhost
-
-
-      - run: curl -s https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip > ngrok.zip
-      # - run: sudo apt update && sudo apt install unzip -y
-      - run: unzip -o ngrok.zip
-      - run: ./ngrok http -log=stdout 80 > /dev/null &
-      - run: echo $(curl -s localhost:4040/api/tunnels/command_line | jq --raw-output .public_url)
-      - run: sleep 6000
-
   e2e_tests:
     runs-on: ubuntu-latest
     steps:
@@ -85,12 +18,34 @@ jobs:
           sudo apt install -y php-fpm nginx
           sudo systemctl start mysql.service
 
-      # - name: Setup tmate session
-      #   uses: mxschmitt/action-tmate@v2
+      - run: |
+          echo $(yarn cache dir)
+          echo $(composer config cache-files-dir)
 
       - run: ./tests/e2e/bin/setup-e2e-travis.sh
 
-      - run: curl localhost -v
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - uses: actions/cache@v1
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Get Composer Cache Directory
+        id: composer-cache
+        run: |
+          echo "::set-output name=dir::$(composer config cache-files-dir)"
+      - uses: actions/cache@v1
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
 
       - name: Build Jetpack
         run: yarn && yarn build-production
