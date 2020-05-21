@@ -75,22 +75,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      # - run: sudo apt update
-      # - run: sudo apt install -y php-fpm nginx
-      # - run: sudo systemctl start mysql.service
-
-      # - name: DO local action
-      #   uses: ./.github/actions/wp # Uses an action in the root directory
-      #   id: hello
-      #   with:
-      #     who-to-greet: 'Mona the Octocat'
-
       - name: Setup env and WordPress
         run: |
           sudo apt update
           sudo apt install -y php-fpm nginx
           sudo systemctl start mysql.service
-          ./tests/e2e/bin/setup-e2e-travis.sh
+
+          - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v2
+
+      - run: ./tests/e2e/bin/setup-e2e-travis.sh
 
       - name: Build Jetpack
         run: yarn && yarn build-production
