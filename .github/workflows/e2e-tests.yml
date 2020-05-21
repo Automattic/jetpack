@@ -18,31 +18,21 @@ jobs:
           sudo apt install -y php-fpm nginx
           sudo systemctl start mysql.service
 
-      - run: |
-          echo $(yarn cache dir)
-          echo $(composer config cache-files-dir)
-
       - run: ./tests/e2e/bin/setup-e2e-travis.sh
 
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
-
-      - uses: actions/cache@v1
+      - name: Yarn cache
+        uses: actions/cache@v1
         id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
         with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          path: /home/runner/.cache/yarn/v6
           key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-
 
-      - name: Get Composer Cache Directory
-        id: composer-cache
-        run: |
-          echo "::set-output name=dir::$(composer config cache-files-dir)"
-      - uses: actions/cache@v1
+      - name: Composer cache
+        uses: actions/cache@v1
         with:
-          path: ${{ steps.composer-cache.outputs.dir }}
+          path: /home/runner/.composer/cache/files
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: |
             ${{ runner.os }}-composer-
