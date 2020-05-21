@@ -13,18 +13,18 @@ jobs:
     services:
       mysql:
         image: mysql:5.7
+        ports:
+          - 3306:3306
         env:
           MYSQL_ALLOW_EMPTY_PASSWORD: false
           MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: jetpack_test
-        ports:
-          - 3306/3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3 --name wpsql
       wp:
         image: wordpress
         ports:
           - 8080:80
-          - 3306/3306
+          - 3306:3306
         env:
           WORDPRESS_DB_HOST: 127.0.0.1:3306
           WORDPRESS_DB_USER: root
