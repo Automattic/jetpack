@@ -44,7 +44,7 @@ function MediaItem( props ) {
 			onClick={ onClick }
 			onKeyDown={ onKeyDown }
 			role="checkbox"
-			tabindex="0"
+			tabIndex="0"
 			aria-checked={ isSelected ? 'true' : 'false' }
 		>
 			<img src={ medium || fmt_hd } alt={ alt } title={ alt } />
