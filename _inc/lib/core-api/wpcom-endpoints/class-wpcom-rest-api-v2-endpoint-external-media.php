@@ -243,7 +243,7 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 				}
 				$response = new WP_Error(
 					'rest_request_error',
-					__( 'We are unable to load images at this time. Please try again later.', 'jetpack' ),
+					__( 'An unknown error has occurred. Please try again later.', 'jetpack' ),
 					array( 'status' => wp_remote_retrieve_response_code( $response ) )
 				);
 		}
