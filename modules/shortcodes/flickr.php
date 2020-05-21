@@ -180,7 +180,13 @@ function flickr_shortcode_handler( $atts ) {
 
 		$src = sprintf( '%s/player/', untrailingslashit( $src ) );
 
-		return sprintf( '<iframe src="%s" height="%s" width="%s"  frameborder="0" allowfullscreen webkitallowfullscreen mozallowfullscreen oallowfullscreen msallowfullscreen></iframe>', esc_url( $src ), esc_attr( $atts['h'] ), esc_attr( $atts['w'] ) );
+		$allow_full_screen = 'allowfullscreen webkitallowfullscreen mozallowfullscreen oallowfullscreen msallowfullscreen';
+
+		if ( Jetpack_AMP_Support::is_amp_request() ) {
+			$allow_full_screen = '';
+		}
+
+		return sprintf( '<iframe src="%s" height="%s" width="%s"  frameborder="0" %s></iframe>', esc_url( $src ), esc_attr( $atts['h'] ), esc_attr( $atts['w'] ), $allow_full_screen );
 	}
 
 	return false;
