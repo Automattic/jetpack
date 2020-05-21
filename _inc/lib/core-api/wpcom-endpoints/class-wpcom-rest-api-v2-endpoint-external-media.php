@@ -225,11 +225,27 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 		}
 
 		$response = Client::wpcom_json_api_request_as_user( $wpcom_path );
-		$response = json_decode( wp_remote_retrieve_body( $response ) );
 
-		if ( isset( $response->code, $response->message, $response->data ) ) {
-			$response->data = empty( $response->data->status ) ? array( 'status' => $response->data ) : $response->data;
-			$response       = new WP_Error( $response->code, $response->message, $response->data );
+		switch ( wp_remote_retrieve_response_code( $response ) ) {
+			case 200:
+				$response = json_decode( wp_remote_retrieve_body( $response ) );
+				break;
+
+			case 403:
+				$error    = json_decode( wp_remote_retrieve_body( $response ) );
+				$response = new WP_Error( $error->code, $error->message, $error->data );
+				break;
+
+			default:
+				if ( is_wp_error( $response ) ) {
+					$response->add_data( array( 'status' => 400 ) );
+					break;
+				}
+				$response = new WP_Error(
+					'rest_request_error',
+					__( 'We are unable to load images at this time. Please try again later.', 'jetpack' ),
+					array( 'status' => wp_remote_retrieve_response_code( $response ) )
+				);
 		}
 
 		return $response;
