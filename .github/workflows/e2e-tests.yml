@@ -38,7 +38,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - run: curl localhost:8080 -v || 0
+      - run: curl localhost:8080 -v || exit 0
       - run: docker ps -a
       # - run: sudo systemctl start mysql.service
       - run: echo ${{ job.services.mysql.ports['3306'] }}
