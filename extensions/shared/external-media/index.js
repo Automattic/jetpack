@@ -27,12 +27,16 @@ if ( isCurrentUserConnected() ) {
 	addFilter(
 		'editor.MediaUpload',
 		'external-media/replace-media-upload',
-		OriginalComponent => props => (
-			<OriginalComponent
-				{ ...props }
-				render={ button => <MediaButton { ...button } mediaProps={ props } /> }
-			/>
-		),
+		OriginalComponent => props => {
+			let { render } = props;
+
+			// Only replace button for components that expect images.
+			if ( props.allowedTypes.indexOf( 'image' ) > -1 ) {
+				render = button => <MediaButton { ...button } mediaProps={ props } />;
+			}
+
+			return <OriginalComponent { ...props } render={ render } />;
+		},
 		11
 	);
 
