@@ -75,9 +75,6 @@ setup_nginx() {
 	CONFIG_DIR="./tests/e2e/bin/travis"
 	PHP_FPM_CONF="$NGINX_DIR/php-fpm.conf"
 
-
-
-
 	if [ $TRAVIS = "true" ]; then
 		PHP_FPM_BIN="$HOME/.phpenv/versions/$PHP_VERSION/sbin/php-fpm"
 	else
