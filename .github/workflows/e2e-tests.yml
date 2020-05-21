@@ -24,7 +24,6 @@ jobs:
         image: wordpress
         ports:
           - 8080:80
-          - 3306:3306
         env:
           WORDPRESS_DB_HOST: 127.0.0.1:3306
           WORDPRESS_DB_USER: root
