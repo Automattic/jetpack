@@ -14,7 +14,7 @@ jobs:
       mysql:
         image: mysql:5.7
         ports:
-          - 3306:3306
+          - 3306/tcp
         env:
           MYSQL_ALLOW_EMPTY_PASSWORD: false
           MYSQL_ROOT_PASSWORD: root
@@ -40,7 +40,7 @@ jobs:
 
       - run: curl localhost:8080 -v || exit 0
       - run: docker ps -a
-      # - run: sudo systemctl start mysql.service
+      - run: sudo systemctl start mysql.service
       - run: echo ${{ job.services.mysql.ports['3306'] }}
 
 
