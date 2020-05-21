@@ -125,6 +125,12 @@
 			margin-top: auto;
 			margin-bottom: 0px;
 			margin-top: 0px;
+			padding-top: 0px;
+
+			@media screen and (min-width: 661px) {
+				padding-top: 5px;
+			}
+
 		}
 
 		.jetpack_deactivation_dialog_content__buttons {
@@ -164,6 +170,7 @@
 					background: $alert-red;
 					border-color: darken( $alert-red, 20% );
 					color: $white;
+					margin-bottom: 0px;
 				}
 			}
 
