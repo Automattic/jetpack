@@ -15,12 +15,7 @@ import WPLoginPage from '../pages/wp-admin/login';
 import CheckoutPage from '../pages/wpcom/checkout';
 import ThankYouPage from '../pages/wpcom/thank-you';
 import MyPlanPage from '../pages/wpcom/my-plan';
-import {
-	getNgrokSiteUrl,
-	provisionJetpackStartConnection,
-	execShellCommand,
-	execWpCommand,
-} from '../utils-helper';
+import { getNgrokSiteUrl, provisionJetpackStartConnection, execWpCommand } from '../utils-helper';
 import PlansPage from '../pages/wpcom/plans';
 import { persistPlanData, syncPlanData } from '../plan-helper';
 import logger from '../logger';
