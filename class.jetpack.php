@@ -4166,11 +4166,15 @@ p {
 	/**
 	 * Adds the deactivation warning modal if there are other active plugins using the connection
 	 *
+	 * @param string $hook The current admin page.
+	 *
 	 * @return void
 	 */
-	public function deactivate_dialog() {
-		global $pagenow;
-		if ( 'plugins.php' === $pagenow && self::is_active() ) {
+	public function deactivate_dialog( $hook ) {
+		if (
+			'plugins.php' === $hook
+			&& self::is_active()
+		) {
 
 			$active_plugins_using_connection = Connection_Plugin_Storage::get_all();
 
