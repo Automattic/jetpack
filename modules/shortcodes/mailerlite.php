@@ -9,9 +9,7 @@ use Automattic\Jetpack\Assets;
  */
 
 /**
- * Register [mailerlite_subscriber_popup] shortcode and add a filter to 'pre_kses' queue to reverse Mailerlite embed to shortcode.
- *
- * @since 4.5.0
+ * Register [mailerlite_subscriber_popup] shortcode.
  */
 function jetpack_mailerlite_subscriber_popup() {
 	add_shortcode(
