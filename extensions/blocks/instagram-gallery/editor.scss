@@ -65,7 +65,7 @@
 	}
 }
 
-@supports ( display: grid ) {
+@supports ( object-fit: cover ) {
 	.wp-block-jetpack-instagram-gallery__placeholder.is-loaded {
 		height: 100%;
 		img {
