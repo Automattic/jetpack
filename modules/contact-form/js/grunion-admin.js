@@ -1,5 +1,34 @@
 /* global ajaxurl */
 jQuery( function( $ ) {
+	if ( typeof jetpack_empty_spam_button_parameters !== 'undefined' ) {
+		// Create the "Empty Spam" button and add it above and below the list of spam feedbacks.
+		var jetpack_empty_spam_feedbacks_button_container = $( '<div/>' ).addClass(
+			'jetpack-empty-spam-container'
+		);
+
+		var jetpack_empty_spam_feedbacks_button = $( '<a />' )
+			.addClass( 'button-secondary' )
+			.addClass( 'jetpack-empty-spam' )
+			.attr( 'href', '#' )
+			.attr( 'data-progress-label', jetpack_empty_spam_button_parameters.progress_label )
+			.attr( 'data-success-url', jetpack_empty_spam_button_parameters.success_url )
+			.attr( 'data-failure-url', jetpack_empty_spam_button_parameters.failure_url )
+			.attr( 'data-spam-feedbacks-count', jetpack_empty_spam_button_parameters.spam_count )
+			.attr( 'data-nonce', jetpack_empty_spam_button_parameters.nonce )
+			.text( jetpack_empty_spam_button_parameters.label );
+		jetpack_empty_spam_feedbacks_button_container.append( jetpack_empty_spam_feedbacks_button );
+
+		var jetpack_empty_spam_feedbacks_spinner = $( '<span />' ).addClass(
+			'jetpack-empty-spam-spinner'
+		);
+		jetpack_empty_spam_feedbacks_button_container.append( jetpack_empty_spam_feedbacks_spinner );
+
+		// Add the button both above and below the list of spam feedbacks.
+		$( '.tablenav.top .actions, .tablenav.bottom .actions' )
+			.not( '.bulkactions' )
+			.append( jetpack_empty_spam_feedbacks_button_container );
+	}
+
 	$( document ).on( 'click', '#jetpack-check-feedback-spam:not(.button-disabled)', function( e ) {
 		e.preventDefault();
 

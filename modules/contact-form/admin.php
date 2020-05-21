@@ -129,64 +129,6 @@ function grunion_add_bulk_edit_option() {
 }
 
 /**
- * Add an 'Empty Spam' button to spam view.
- */
-add_action( 'admin_head', 'grunion_add_empty_spam_button' );
-function grunion_add_empty_spam_button() {
-	$screen = get_current_screen();
-
-	if ( is_null( $screen ) ) {
-		return;
-	}
-
-	// Only add to feedback, only to spam view
-	if ( 'edit-feedback' != $screen->id
-	|| empty( $_GET['post_status'] )
-	|| 'spam' !== $_GET['post_status'] ) {
-		return;
-	}
-
-	$feedbacks_count = wp_count_posts( 'feedback' );
-	$nonce           = wp_create_nonce( 'jetpack_delete_spam_feedbacks' );
-	$success_url     = remove_query_arg( array( 'jetpack_empty_feedback_spam_error', 'post_status' ) ); // Go to the "All Feedback" page.
-	$failure_url     = add_query_arg( 'jetpack_empty_feedback_spam_error', '1' ); // Refresh the current page and show an error.
-	$spam_count      = $feedbacks_count->spam;
-
-	?>
-	<script type="text/javascript">
-		jQuery( function ( $ ) {
-			var jetpack_empty_spam_feedbacks_button_container = $( '<div/>' )
-				.addClass( 'jetpack-empty-spam-container' );
-
-			var jetpack_empty_spam_feedbacks_button = $( '<a />' )
-				.addClass( 'button-secondary' )
-				.addClass( 'jetpack-empty-spam' )
-				.attr( 'href', '#' )
-				<?php /* translators: The placeholder is for showing how much of the process has completed, as a percent. e.g., "Emptying Spam (40%)" */ ?>
-				.attr( 'data-progress-label', <?php echo wp_json_encode( __( 'Emptying Spam (%1$s%)', 'jetpack' ) ); ?> )
-				.attr( 'data-success-url', <?php echo wp_json_encode( $success_url ); ?> )
-				.attr( 'data-failure-url', <?php echo wp_json_encode( $failure_url ); ?> )
-				.attr( 'data-spam-feedbacks-count', <?php echo wp_json_encode( $spam_count ); ?> )
-				.attr( 'data-nonce', <?php echo wp_json_encode( $nonce ); ?> )
-				.text( <?php echo wp_json_encode( __( 'Empty Spam', 'jetpack' ) ); ?> )
-				;
-
-			jetpack_empty_spam_feedbacks_button_container.append( jetpack_empty_spam_feedbacks_button );
-
-			var jetpack_empty_spam_feedbacks_spinner = $( '<span />' )
-				.addClass( 'jetpack-empty-spam-spinner' )
-				;
-
-			jetpack_empty_spam_feedbacks_button_container.append( jetpack_empty_spam_feedbacks_spinner );
-
-			// Add the button both above and below the list of spam feedbacks.
-			$( '.tablenav.top .actions, .tablenav.bottom .actions' ).not( '.bulkactions' ).append( jetpack_empty_spam_feedbacks_button_container );
-		} );
-	</script>
-	<?php
-}
-
-/**
  * Handle a bulk spam report
  */
 add_action( 'admin_init', 'grunion_handle_bulk_spam' );
@@ -850,12 +792,37 @@ function grunion_add_admin_scripts() {
 			'_inc/build/contact-form/js/grunion-admin.min.js',
 			'modules/contact-form/js/grunion-admin.js'
 		),
-		array( 'jquery' )
+		array( 'jquery' ),
+		JETPACK__VERSION,
+		true
 	);
 
 	wp_enqueue_script( 'grunion-admin' );
 
 	wp_enqueue_style( 'grunion.css' );
+
+	// Only add to feedback, only to spam view.
+	if ( empty( $_GET['post_status'] ) || 'spam' !== $_GET['post_status'] ) {
+		return;
+	}
+
+	$feedbacks_count = wp_count_posts( 'feedback' );
+	$nonce           = wp_create_nonce( 'jetpack_delete_spam_feedbacks' );
+	$success_url     = remove_query_arg( array( 'jetpack_empty_feedback_spam_error', 'post_status' ) ); // Go to the "All Feedback" page.
+	$failure_url     = add_query_arg( 'jetpack_empty_feedback_spam_error', '1' ); // Refresh the current page and show an error.
+	$spam_count      = $feedbacks_count->spam;
+
+	$button_parameters = array(
+		/* translators: The placeholder is for showing how much of the process has completed, as a percent. e.g., "Emptying Spam (40%)" */
+		'progress_label' => __( 'Emptying Spam (%1$s%)', 'jetpack' ),
+		'success_url'    => $success_url,
+		'failure_url'    => $failure_url,
+		'spam_count'     => $spam_count,
+		'nonce'          => $nonce,
+		'label'          => __( 'Empty Spam', 'jetpack' ),
+	);
+
+	wp_localize_script( 'grunion-admin', 'jetpack_empty_spam_button_parameters', $button_parameters );
 }
 
 add_action( 'admin_enqueue_scripts', 'grunion_add_admin_scripts' );
