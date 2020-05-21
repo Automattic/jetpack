@@ -31,7 +31,8 @@ let FeatureToggle = props => {
 		upgradeLink,
 		optionsLink,
 		isPaid = false,
-		isLinkExternal = false,
+		isButtonLinkExternal = false,
+		isOptionsLinkExternal = false,
 	} = props;
 
 	const [ windowWidth, setWindowWidth ] = useState( false );
@@ -57,9 +58,9 @@ let FeatureToggle = props => {
 	let buttonContent;
 	if ( ! checked && upgradeLink ) {
 		buttonContent = (
-			<Button href={ upgradeLink } primary target={ isLinkExternal ? '_blank' : '' }>
+			<Button href={ upgradeLink } primary target={ isButtonLinkExternal ? '_blank' : '' }>
 				{ __( 'Upgrade now' ) }
-				{ isLinkExternal && (
+				{ isButtonLinkExternal && (
 					<span>
 						<Gridicon icon="external" />
 					</span>
@@ -68,9 +69,9 @@ let FeatureToggle = props => {
 		);
 	} else if ( configureLink ) {
 		buttonContent = (
-			<Button href={ configureLink } target={ isLinkExternal ? '_blank' : '' }>
+			<Button href={ configureLink } target={ isButtonLinkExternal ? '_blank' : '' }>
 				{ __( 'Configure' ) }
-				{ isLinkExternal && (
+				{ isButtonLinkExternal && (
 					<span>
 						<Gridicon icon="external" />
 					</span>
@@ -89,14 +90,18 @@ let FeatureToggle = props => {
 
 	let optionsLinkElement;
 	if ( optionsLink ) {
+		const externalLinkProps = isOptionsLinkExternal
+			? { target: '_blank', rel: 'noopener noreferrer' }
+			: {};
+
 		optionsLinkElement = (
 			<a
 				href={ optionsLink }
-				target="_blank"
-				rel="noopener noreferrer"
 				className="jp-setup-wizard-view-options-link"
+				{ ...externalLinkProps }
 			>
 				{ __( 'View options' ) }
+				{ isOptionsLinkExternal && <Gridicon icon="external" size="18" /> }
 			</a>
 		);
 	}
@@ -152,7 +157,8 @@ FeatureToggle.propTypes = {
 	optionsLink: PropTypes.string,
 	isPaid: PropTypes.bool,
 	isDisabled: PropTypes.bool,
-	isLinkExternal: PropTypes.bool,
+	isButtonLinkExternal: PropTypes.bool,
+	isOptionsLinkExternal: PropTypes.bool,
 };
 
 FeatureToggle = connect(

@@ -68,8 +68,10 @@ const features = {
 			);
 
 			let optionsLink;
+			let isOptionsLinkExternal = false;
 			if ( inCurrentPlan ) {
 				optionsLink = getRedirectUrl( 'jetpack-setup-wizard-anti-spam-get-started' );
+				isOptionsLinkExternal = true;
 			}
 
 			let upgradeLink;
@@ -89,6 +91,7 @@ const features = {
 				isDisabled: inCurrentPlan,
 				isPaid: true,
 				optionsLink,
+				isOptionsLinkExternal,
 				upgradeLink,
 				info,
 			};
@@ -589,7 +592,7 @@ const features = {
 				details: __( 'Automaticaly share content on your favorite social media accounts.' ),
 				checked: getSetting( state, 'publicize' ),
 				configureLink: getRedirectUrl( 'calypso-marketing-connections', { site: siteRawUrl } ),
-				isLinkExternal: true,
+				isButtonLinkExternal: true,
 			};
 		},
 		mapDispatchToProps: dispatch => {
@@ -835,11 +838,11 @@ const features = {
 
 			let info;
 			let configureLink;
-			let isLinkExternal = false;
+			let isButtonLinkExternal = false;
 			if ( inCurrentPlan ) {
 				info = getInfoString( sitePlan.product_name );
 				configureLink = getRedirectUrl( 'jetpack-setup-wizard-simple-payments-support' );
-				isLinkExternal = true;
+				isButtonLinkExternal = true;
 			}
 
 			return {
@@ -851,7 +854,7 @@ const features = {
 				configureLink,
 				upgradeLink,
 				info,
-				isLinkExternal,
+				isButtonLinkExternal,
 			};
 		},
 	},
@@ -966,6 +969,7 @@ const features = {
 				details: 'Add beautifully laid out galleries as a Gutenberg block',
 				checked: getSetting( state, 'tiled-gallery' ),
 				optionsLink: 'https://jetpack.com/support/jetpack-blocks/tiled-gallery-block/',
+				isOptionsLinkExternal: true,
 			};
 		},
 		mapDispatchToProps: dispatch => {
