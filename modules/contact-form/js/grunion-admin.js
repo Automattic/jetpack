@@ -72,28 +72,24 @@ jQuery( function( $ ) {
 			empty_spam_buttons.data( 'progress-label' ).replace( '%1$s', percentage_complete )
 		);
 
-		$.post(
-			ajaxurl,
-			{
-				action: 'jetpack_delete_spam_feedbacks',
-				limit: limit,
-				nonce: nonce,
-			},
-			function( result ) {
-				if ( 'error' in result ) {
-					// An error is only returned in the case of a missing nonce, so we don't need the actual error message.
-					window.location.href = empty_spam_buttons.data( 'failure-url' );
-					return;
-				}
+		$.post( ajaxurl, {
+			action: 'jetpack_delete_spam_feedbacks',
+			limit: limit,
+			nonce: nonce,
+		} )
+			.fail( function( result ) {
+				// An error is only returned in the case of a missing nonce or invalid permissions, so we don't need the actual error message.
+				window.location.href = empty_spam_buttons.data( 'failure-url' );
+				return;
+			} )
+			.done( function( result ) {
+				deleted_spam_count += result.data.counts.deleted;
 
-				deleted_spam_count += result.counts.deleted;
-
-				if ( result.counts.deleted < limit ) {
+				if ( result.data.counts.deleted < limit ) {
 					window.location.href = empty_spam_buttons.data( 'success-url' );
 				} else {
 					grunion_delete_spam( limit );
 				}
-			}
-		);
+			} );
 	}
 } );

@@ -946,10 +946,9 @@ add_action( 'wp_ajax_grunion_recheck_queue', 'grunion_recheck_queue' );
  */
 function grunion_delete_spam_feedbacks() {
 	if ( ! wp_verify_nonce( $_POST['nonce'], 'jetpack_delete_spam_feedbacks' ) ) {
-		wp_send_json(
-			array(
-				'error' => __( 'You don&#8217;t have permission to do that.', 'jetpack' ),
-			)
+		wp_send_json_error(
+			__( 'You don&#8217;t have permission to do that.', 'jetpack' ),
+			403
 		);
 
 		return;
@@ -967,10 +966,9 @@ function grunion_delete_spam_feedbacks() {
 
 	foreach ( $spam_feedbacks as $feedback ) {
 		if ( ! current_user_can( 'delete_post', $feedback->ID ) ) {
-			wp_send_json(
-				array(
-					'error' => __( 'You don&#8217;t have permission to do that.', 'jetpack' ),
-				)
+			wp_send_json_error(
+				__( 'You don&#8217;t have permission to do that.', 'jetpack' ),
+				403
 			);
 
 			return;
@@ -983,8 +981,11 @@ function grunion_delete_spam_feedbacks() {
 
 	wp_send_json(
 		array(
-			'counts' => array(
-				'deleted' => $deleted_feedbacks,
+			'success' => true,
+			'data'    => array(
+				'counts' => array(
+					'deleted' => $deleted_feedbacks,
+				),
 			),
 		)
 	);
