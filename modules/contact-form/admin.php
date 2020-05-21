@@ -954,15 +954,21 @@ function grunion_delete_spam_feedbacks() {
 		return;
 	}
 
-	$query = 'post_type=feedback&post_status=spam';
-
-	if ( isset( $_POST['limit'] ) ) {
-		$query .= '&posts_per_page=' . intval( $_POST['limit'] );
-	}
-
-	$spam_feedbacks = get_posts( $query );
-
 	$deleted_feedbacks = 0;
+
+	$delete_limit = 25;
+	$delete_limit = apply_filters( 'jetpack_delete_spam_feedbacks_limit', $delete_limit );
+	$delete_limit = intval( $delete_limit );
+	$delete_limit = max( 1, min( 100, $delete_limit ) ); // Allow a range of 1-100 for the delete limit.
+
+	$query_args = array(
+		'post_type'      => 'feedback',
+		'post_status'    => 'spam',
+		'posts_per_page' => $delete_limit,
+	);
+
+	$query          = new WP_Query( $query_args );
+	$spam_feedbacks = $query->get_posts();
 
 	foreach ( $spam_feedbacks as $feedback ) {
 		if ( ! current_user_can( 'delete_post', $feedback->ID ) ) {
@@ -985,6 +991,7 @@ function grunion_delete_spam_feedbacks() {
 			'data'    => array(
 				'counts' => array(
 					'deleted' => $deleted_feedbacks,
+					'limit'   => $delete_limit,
 				),
 			),
 		)

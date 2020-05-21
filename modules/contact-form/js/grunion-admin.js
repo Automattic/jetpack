@@ -55,10 +55,10 @@ jQuery( function( $ ) {
 
 		initial_spam_count = parseInt( $( this ).data( 'spam-feedbacks-count' ), 10 );
 
-		grunion_delete_spam( 25 );
+		grunion_delete_spam();
 	} );
 
-	function grunion_delete_spam( limit ) {
+	function grunion_delete_spam() {
 		var empty_spam_buttons = $( '.jetpack-empty-spam' );
 
 		var nonce = empty_spam_buttons.data( 'nonce' );
@@ -74,7 +74,6 @@ jQuery( function( $ ) {
 
 		$.post( ajaxurl, {
 			action: 'jetpack_delete_spam_feedbacks',
-			limit: limit,
 			nonce: nonce,
 		} )
 			.fail( function( result ) {
@@ -85,10 +84,10 @@ jQuery( function( $ ) {
 			.done( function( result ) {
 				deleted_spam_count += result.data.counts.deleted;
 
-				if ( result.data.counts.deleted < limit ) {
+				if ( result.data.counts.deleted < result.data.counts.limit ) {
 					window.location.href = empty_spam_buttons.data( 'success-url' );
 				} else {
-					grunion_delete_spam( limit );
+					grunion_delete_spam();
 				}
 			} );
 	}
