@@ -99,7 +99,7 @@ class Declarations extends PersistentList {
 		if ( ( $handle = fopen( $file_path, 'r' ) ) !== false ) {
 			while ( ( $data = fgetcsv( $handle, 1000, ',' ) ) !== false ) {
 				$num = count( $data );
-				@list( $type, $file, $line, $class_name, $name, $static, $params_json ) = $data;
+				@list( $type, $file, $line, $class_name, $name, $static, $params_json, $deprecated ) = $data;
 				switch ( $type ) {
 					case 'class':
 						$this->add( new Declarations\Class_( $file, $line, $class_name ) );
@@ -115,7 +115,7 @@ class Declarations extends PersistentList {
 
 					case 'method':
 						$params      = json_decode( $params_json );
-						$declaration = new Declarations\Class_Method( $file, $line, $class_name, $name, $static );
+						$declaration = new Declarations\Class_Method( $file, $line, $class_name, $name, $static, $deprecated );
 						if ( is_array( $params ) ) {
 							foreach ( $params as $param ) {
 								$declaration->add_param( $param->name, $param->default, $param->type, $param->byRef, $param->variadic );
@@ -128,7 +128,7 @@ class Declarations extends PersistentList {
 
 					case 'function':
 						$params      = json_decode( $params_json );
-						$declaration = new Declarations\Function_( $file, $line, $name );
+						$declaration = new Declarations\Function_( $file, $line, $name, $deprecated );
 						if ( is_array( $params ) ) {
 							foreach ( $params as $param ) {
 								$declaration->add_param( $param->name, $param->default, $param->type, $param->byRef, $param->variadic );

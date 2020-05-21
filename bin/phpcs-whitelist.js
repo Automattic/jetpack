@@ -1,4 +1,6 @@
 // If the file path starts with anything like in the array below, it should be linted.
+// New files must be added here when they're created.
+// If you are able to clear all errors from a file, please add it here.
 module.exports = [
 	'3rd-party/3rd-party.php',
 	'3rd-party/bbpress.php',
@@ -20,12 +22,13 @@ module.exports = [
 	'_inc/lib/class.jetpack-password-checker.php',
 	'_inc/lib/components.php',
 	'_inc/lib/core-api/class.jetpack-core-api-site-endpoints.php',
-	'_inc/lib/core-api/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-instagram.php',
+	'_inc/lib/core-api/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-instagram-gallery.php',
 	'_inc/lib/core-api/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-podcast-player.php',
 	'_inc/lib/core-api/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-resolve-redirect.php',
 	'_inc/lib/core-api/wpcom-endpoints/memberships.php',
 	'_inc/lib/debugger/',
 	'_inc/lib/plans.php',
+	'_inc/social-logos.php',
 	'jetpack.php',
 	'json-endpoints/jetpack/class-jetpack-json-api-delete-backup-helper-script-endpoint.php',
 	'json-endpoints/jetpack/class-jetpack-json-api-install-backup-helper-script-endpoint.php',
@@ -36,6 +39,7 @@ module.exports = [
 	'modules/module-info.php',
 	'modules/post-by-email.php',
 	'modules/post-by-email/',
+	'modules/publicize.php',
 	'modules/search/class-jetpack-instant-search.php',
 	'modules/search/class-jetpack-search-customize.php',
 	'modules/search/class.jetpack-search-options.php',

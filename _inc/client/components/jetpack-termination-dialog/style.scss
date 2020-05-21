@@ -120,7 +120,7 @@
 	@include breakpoint( '>480px' ) {
 		margin-top: 37px;
 	}
-	@include breakpoint( '>680px' ) {
+	@include breakpoint( '>660px' ) {
 		margin-bottom: 0;
 	}
 }
@@ -201,4 +201,18 @@
 a.jetpack-termination-dialog__link {
 	font-style: normal !important;
 	text-decoration: underline !important;
+}
+
+ul.jetpack-termination-dialog__active-plugins-list {
+
+	list-style-type: none;
+
+	li {
+		svg {
+			color: red;
+			margin-right: 10px;
+			vertical-align: sub;
+		}
+	}
+
 }

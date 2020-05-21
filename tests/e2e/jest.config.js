@@ -5,10 +5,11 @@
 
 module.exports = {
 	preset: 'jest-puppeteer',
+	globalTeardown: './lib/global-teardown.js',
 	setupFiles: [ '<rootDir>/lib/setup.js' ],
 	setupFilesAfterEnv: [
+		'jest-allure/dist/setup',
 		'<rootDir>/lib/setup-env.js',
-		'<rootDir>/lib/jest.test.failure.js',
 		'expect-puppeteer',
 	],
 };

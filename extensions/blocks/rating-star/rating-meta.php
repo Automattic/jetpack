@@ -14,7 +14,7 @@ if ( ! function_exists( 'jetpack_rating_meta_get_symbol_low_fidelity' ) ) {
 	 * @return string
 	 */
 	function jetpack_rating_meta_get_symbol_low_fidelity() {
-		return '⭐';
+		return '<span aria-hidden="true">⭐</span>';
 	}
 }
 
@@ -61,6 +61,26 @@ if ( ! function_exists( 'jetpack_rating_meta_get_symbol_high_fidelity' ) ) {
 	}
 }
 
+if ( ! function_exists( 'jetpack_rating_get_schema_for_symbol' ) ) {
+	/**
+	 * Returns an itemprop and content for rating symbols
+	 *
+	 * @param  integer $position   the position of the symbol.
+	 * @param  integer $max_rating the maximum symbol score.
+	 *
+	 * @return string
+	 */
+	function jetpack_rating_get_schema_for_symbol( $position, $max_rating ) {
+		$schema = '';
+		if ( 1 === $position ) {
+			$schema = 'itemprop="worstRating" content="0.5"';
+		} elseif ( $max_rating === $position ) {
+			$schema = 'itemprop="bestRating" content="' . esc_attr( $max_rating ) . '"';
+		}
+		return $schema;
+	}
+}
+
 if ( ! function_exists( 'jetpack_rating_meta_get_symbols' ) ) {
 	/**
 	 * Returns the symbol for the block.
@@ -74,7 +94,7 @@ if ( ! function_exists( 'jetpack_rating_meta_get_symbols' ) ) {
 		// These are hidden by default, then unhid when CSS loads.
 		$symbols_hifi = array();
 		for ( $pos = 1; $pos <= $attributes['maxRating']; $pos++ ) {
-			$symbols_hifi[] = '<span style="display: none;">' . jetpack_rating_meta_get_symbol_high_fidelity( $attributes, $pos ) . '</span>';
+			$symbols_hifi[] = '<span style="display: none;" ' . jetpack_rating_get_schema_for_symbol( $pos, $attributes['maxRating'] ) . '>' . jetpack_rating_meta_get_symbol_high_fidelity( $attributes, $pos ) . '</span>';
 		}
 
 		// Output fallback symbols for low fidelity contexts, like AMP,
@@ -99,9 +119,11 @@ if ( ! function_exists( 'jetpack_rating_meta_render_block' ) ) {
 	function jetpack_rating_meta_render_block( $attributes ) {
 		$classname = empty( $attributes['className'] ) ? '' : ' ' . $attributes['className'];
 		return sprintf(
-			'<div class="%1$s" style="text-align:%3$s">%2$s</div>',
+			'<div class="%1$s" style="text-align:%4$s" itemprop="reviewRating" itemscope itemtype="http://schema.org/Rating">%2$s%3$s</div>',
 			esc_attr( 'wp-block-jetpack-rating-' . $attributes['ratingStyle'] . $classname ),
 			jetpack_rating_meta_get_symbols( $attributes ),
+			// translators: %1$s is awarded rating score, %2$s is the best possible rating.
+			'<span itemprop="ratingValue" class="screen-reader-text" content="' . esc_attr( $attributes['rating'] ) . '">' . sprintf( __( 'Rating: %1$s out of %2$s.', 'jetpack' ), esc_attr( $attributes['rating'] ), esc_attr( $attributes['maxRating'] ) ) . '</span>',
 			( isset( $attributes['align'] ) ) ? esc_attr( $attributes['align'] ) : ''
 		);
 	}

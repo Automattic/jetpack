@@ -43,7 +43,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 *
 	 * @author zinigor
 	 * @since 3.8.2
-	 * @param Array $data an array of data returned by the filter
+	 * @param array $data an array of data returned by the filter
 	 * @return String $query_string
 	 */
 	protected function _get_query( $data ) {

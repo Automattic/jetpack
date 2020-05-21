@@ -3,6 +3,9 @@
  * This is Calypso skin of the wp-admin interface that is conditionally triggered via the ?calypsoify=1 param.
  * Ported from an internal Automattic plugin.
  */
+
+use Automattic\Jetpack\Redirect;
+
 class Jetpack_Calypsoify {
 
 	/**
@@ -282,10 +285,16 @@ class Jetpack_Calypsoify {
 		);
 	}
 
-	public function insert_sidebar_html() { 
-		$heading = ( isset( $_GET['post_type'] ) && 'feedback' === $_GET['post_type'] ) ? __( 'Feedback', 'jetpack' ) : __( 'Plugins', 'jetpack' );
+	/**
+	 * Inserts Sidebar HTML
+	 *
+	 * @return void
+	 */
+	public function insert_sidebar_html() {
+		$heading       = ( isset( $_GET['post_type'] ) && 'feedback' === $_GET['post_type'] ) ? __( 'Feedback', 'jetpack' ) : __( 'Plugins', 'jetpack' );
+		$stats_day_url = Redirect::get_url( 'calypso-stats-day' );
 		?>
-		<a href="<?php echo esc_url( 'https://wordpress.com/stats/day/' . Jetpack::build_raw_urls( home_url() ) ); ?>" id="calypso-sidebar-header">
+		<a href="<?php echo esc_url( $stats_day_url ); ?>" id="calypso-sidebar-header">
 			<svg class="gridicon gridicons-chevron-left" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M14 20l-8-8 8-8 1.414 1.414L8.828 12l6.586 6.586"></path></g></svg>
 
 			<ul>
@@ -301,15 +310,15 @@ class Jetpack_Calypsoify {
 
 		// Add proper links to masterbar top sections.
 		$my_sites_node       = (object) $wp_admin_bar->get_node( 'blog' );
-		$my_sites_node->href = 'https://wordpress.com/stats/day/' . Jetpack::build_raw_urls( home_url() );
+		$my_sites_node->href = Redirect::get_url( 'calypso-stats-day' );
 		$wp_admin_bar->add_node( $my_sites_node );
 
 		$reader_node       = (object) $wp_admin_bar->get_node( 'newdash' );
-		$reader_node->href = 'https://wordpress.com/read';
+		$reader_node->href = Redirect::get_url( 'calypso-read' );
 		$wp_admin_bar->add_node( $reader_node );
 
 		$me_node       = (object) $wp_admin_bar->get_node( 'my-account' );
-		$me_node->href = 'https://wordpress.com/me';
+		$me_node->href = Redirect::get_url( 'calypso-me' );
 		$wp_admin_bar->add_node( $me_node );
 	}
 
@@ -407,11 +416,26 @@ class Jetpack_Calypsoify {
 	}
 
 	/**
-	 * Returns the URL for switching the user's editor to the Calypso (WordPress.com Classic) editor.
+	 * Returns the URL for switching the user's editor to the Classic editor.
 	 *
 	 * @return string
 	 */
 	public function get_switch_to_classic_editor_url() {
+		// phpcs:ignore WordPress.Security.NonceVerification
+		if ( isset( $_GET['editor/after-deprecation'] ) ) {
+			$post_id    = get_the_ID();
+			$post_type  = get_current_screen()->post_type;
+			$path       = is_null( $post_id ) ? 'post-new.php' : 'post.php';
+			$query_args = array(
+				'post'       => $post_id,
+				'action'     => ( $post_id ) ? 'edit' : null,
+				'post_type'  => ( 'post' !== $post_type ) ? $post_type : null,
+				'set-editor' => 'classic',
+			);
+
+			return add_query_arg( $query_args, admin_url( $path ) );
+		}
+
 		return add_query_arg(
 			'set-editor',
 			'classic',
@@ -491,7 +515,7 @@ class Jetpack_Calypsoify {
 
 	/**
 	 * Remove the parentheses from list table view counts when Calypsofied.
-	 * 
+	 *
 	 * @param array $views Array of views. See: WP_List_Table::get_views().
 	 * @return array Filtered views.
 	 */

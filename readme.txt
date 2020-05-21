@@ -1,7 +1,7 @@
 === Jetpack by WordPress.com ===
 Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, scarstocea, scottsweb, sdquirk, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Jetpack, WordPress.com, backup, security, related posts, CDN, speed, anti-spam, social sharing, SEO, video, stats
-Stable tag: 8.4.1
+Stable tag: 8.4.2
 Requires at least: 5.3
 Requires PHP: 5.6
 Tested up to: 5.4
@@ -96,87 +96,45 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
-= 8.4.1 =
+= 8.5 =
 
-* Release date: April 7, 2020
-
-**Bug Fixes**
-
-* Secure Sign On: fix conflict that would block one from logging in to their site via the Secure Sign On option.
-
-= 8.4 =
-
-* Release date: April 7, 2020
-* Release post: https://wp.me/p1moTy-oPp
+* Release date: May 5, 2020
+* Release post: https://wp.me/p1moTy-p00
 
 **Major Enhancements**
 
-* Search: our new Instant search experience will allow your visitors to get search results as soon as they start typing.
+* Podcast Player: you can now embed and play recent podcast episodes in any post or page.
 
 **Enhancements**
 
-* Autoloader: improve performance when loading a large number of files.
-* Blocks: improve discoverability of multiple blocks by reviewing keywords used in the block search.
-* Blocks: improve the display of error notices in Jetpack's embed blocks.
-* Blocks: better differentiate paid blocks from free ones.
-* Blocks: improve layout of block style previews.
-* Calendly block: display an error when the embed URL is not found.
-* Comment Likes: improve performance by removing dependency on Noticons.
-* Contact Info Widget: improve the display of Map API key notices.
-* Custom CSS: add support for more CSS 3.0 properties: mask , scroll, and object-fit.
-* Dashboard notices: allow the use of different Jetpack logos.
-* Embeds: enable inline PDF previews.
-* Eventbrite Block: offer additional alignment options.
-* Facebook Embeds and Facebook Page Plugin Widget: improve performance and compatibility with caching plugins.
-* Facebook Page Plugin Widget: add new layout options (Cover Photo and Call To Action).
-* Gravatar Hovercards: avoid loading Gravatar assets when not needed on the page.
-* Gravatar Hovercards: improve performance of the feature by avoiding the use of jQuery.
-* Infinite Scroll: improve performance of the feature by avoiding the use of jQuery.
-* Jetpack Videos: improve performance of Video queries with better caching.
-* Lazy Images: improve performance of the feature by avoiding the use of jQuery.
-* Likes: improve performance when loading resources used by the Likes feature on the front-end of your site.
-* Map Block: slightly decrease Zoom on maps with multiple points.
-* Map Block: improve the look of the map style picker.
-* Protect: improve detection of IP on servers using custom IP Headers.
-* Revue Block: update the layout of the default placeholder appearing when you first insert the block.
-* Site Health: add new card informing you of your site's synchronization status with WordPress.com.
-* Social Menus: add Ravelry support.
-* Widgets: add Ravelry support to Social Icons widget.
-* Widgets: improve performance of the Search and Milestone widgets.
-* WooCommerce Analytics: add additional information to events (plugin version, information about blocks and shortcodes).
-* WordAds Block: update "hide on mobile" toggle layout.
-* WordAds: update ad loader support for Google Chrome.
-* WordAds: improve performance of the display of all ads.
-* WordPress.com Toolbar: log user out of WordPress.com when attempting to log out from the site.
+* Comments: update how comment types are stored to be fully compatible with upcoming WordPress Core changes.
+* OpenTable Block: add a warning notice when their selected combination of style and align options may cause display issues.
+* Publicize: allow site owners to set a filter to enable embedding media directly into Twitter embeds.
+* Revue Block: add new customization options.
+* Search: add new option to configure the Instant Search overlay.
+* Sync: improve performance of the synchronization process on sites with plugins generating an important amount of posts.
 
 **Improved compatibility**
 
-* Blocks: ensure that all blocks are displayed nicely, even when using the latest version of the Gutenberg plugin.
-* Blocks on International sites: ensure that blocks can be translated when using Jetpack's Site Accelerator feature.
-* Comment Likes / AMP Plugin: avoid loading Likes on AMP views.
-* General: Jetpack now requires WordPress 5.3 and newer.
-* Multisite Networks: better detect the main site of a network when synchronizing data with WordPress.com.
-* Recurring Payments Block: implement AMP view for full compatibility with the AMP plugin.
+* Ad Block: ensure full compatibility of the feature with the AMP plugin.
+* Carousel: ensure full compatibility of the feature with the AMP plugin.
+* Embeds: ensure that all recipes, as well as Google Maps embeds and Scribd embeds, can be viewed with no errors in AMP views.
+* General: when using a beta version of Jetpack via the Jetpack Beta Plugin, allow Multisite connections to be managed in Network Admin.
+* Shortcodes: improve behavior of the Archives shortcode in AMP views.
+* Widgets: ensure that the Twitter Timeline and Internet Defense League widgets are compatible with the AMP plugin.
 
 **Bug fixes**
 
-* Connection: ensure that the "Disconnect" button is easily accessible on mobile.
-* Connection: fix connection issues for sites with a plan in a "pending" state.
-* Connection: improve connection flow when starting to connect your site from the WordPress.com dashboard.
-* Dashboard: clarify wording and display of the Backup & Scan cards.
-* Dashboard: fix layout issues within the Stats Widget in the dashboard.
-* Form Block: fix button colors not saving correctly.
-* Google Calendar Block: ensure calendars are properly displayed regardless of the width option picked in block styles.
-* Publicize Block: update wording in custom message field to clarify how the feature works.
-* Pinterest Block: check for valid Pinterest URLs when embedding them into a new block.
-* OpenTable Block: fix layout issue when using Wide and Full-width sizes.
-* OpenTable Block: fix PHP warning occuring when a block is created but not configured.
-* Recurring Payments Block: ensure that the minimum payment option respects the chosen currency for the button.
-* Shortcodes: Fix Crowdsignal poll embeds when using the P2 theme.
-* Simple Payments Block: avoid issues when pasting email addresses into the email field.
-* Site Logo: avoid PHP notices in the Customizer, when no logo is set yet.
-* Widgets: fix conflicts between some themes and the live countdown feature in the Milestone Widget.
-* Widgets: avoid display issues in the Top Posts Widget, when displaying posts from Custom Post Types.
+* Dashboard: fix layout issue when using the monthly / yearly toggle in the Jetpack dashboard.
+* Contact Form: avoid making unnecessary requests to the Akismet API.
+* Crowdsignal: fix survey embeds when posts are loaded via Infinite Scroll.
+* Embeds: provide helpful feedback when inline PDFs cannot be displayed in mobile browsers.
+* General: fix comment notification overrides that direct moderation links to the WordPress.com interface.
+* General: improve deprecated hook notices to handle anonymous functions.
+* Site Health Tools: reduce false positives in Jetpack connection tests.
+* Slideshow Block: avoid layout issues when a block is added to a column block.
+* Subscriptions Block: fix layout issue in email input box.
+* Sync: improve performance of the synchronization process when processing a large amount of Akismet feedback.
 
 --------
 

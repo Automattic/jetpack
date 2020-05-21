@@ -658,4 +658,8 @@ abstract class SAL_Site {
 	function get_site_segment() {
 		return false;
 	}
+
+	function get_site_creation_flow() {
+		return get_option( 'site_creation_flow' );
+	}
 }

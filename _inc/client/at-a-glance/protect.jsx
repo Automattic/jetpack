@@ -6,6 +6,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
 import { numberFormat, translate as __ } from 'i18n-calypso';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -28,7 +29,7 @@ class DashProtect extends Component {
 		const labelName = __( 'Protect' );
 		const support = {
 			text: __( 'Protects your site from traditional and distributed brute force login attacks.' ),
-			link: 'https://jetpack.com/support/protect/',
+			link: getRedirectUrl( 'jetpack-support-protect' ),
 		};
 
 		if ( this.props.getOptionValue( 'protect' ) ) {

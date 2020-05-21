@@ -6,6 +6,7 @@ import { translate as __ } from 'i18n-calypso';
 import Card from 'components/card';
 import CompactFormToggle from 'components/form/form-toggle/compact';
 import analytics from 'lib/analytics';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -74,7 +75,7 @@ export const Ads = withModuleSettingsFormHelpers(
 						module={ { module: 'wordads' } }
 						support={ {
 							text: __( 'Displays high-quality ads on your site that allow you to earn income.' ),
-							link: 'https://jetpack.com/support/ads/',
+							link: getRedirectUrl( 'jetpack-support-ads' ),
 						} }
 					>
 						<p>
@@ -89,7 +90,7 @@ export const Ads = withModuleSettingsFormHelpers(
 										components: {
 											link: (
 												<a
-													href="https://wordpress.com/automattic-ads-tos/"
+													href={ getRedirectUrl( 'wpcom-automattic-ads-tos' ) }
 													target="_blank"
 													rel="noopener noreferrer"
 													onClick={ this.trackConfigureWidgetClick }
@@ -214,7 +215,9 @@ export const Ads = withModuleSettingsFormHelpers(
 													link1: <a href="/ads.txt" target="_blank" rel="noopener noreferrer" />,
 													link2: (
 														<a
-															href="https://jetpack.com/2018/11/09/how-jetpack-ads-members-can-increase-their-earnings-with-ads-txt/"
+															href={ getRedirectUrl(
+																'jetpack-how-jetpack-ads-members-can-increase-their-earnings-with-ads-txt'
+															) }
 															target="_blank"
 															rel="noopener noreferrer"
 														/>

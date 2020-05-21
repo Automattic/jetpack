@@ -4,6 +4,7 @@
 import React, { Component } from 'react';
 import { translate as __ } from 'i18n-calypso';
 import CompactFormToggle from 'components/form/form-toggle/compact';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -69,7 +70,7 @@ export const SSO = withModuleSettingsFormHelpers(
 							text: __(
 								'Allows registered users to log in to your site with their WordPress.com accounts.'
 							),
-							link: 'https://jetpack.com/support/sso/',
+							link: getRedirectUrl( 'jetpack-support-sso' ),
 						} }
 					>
 						<p>

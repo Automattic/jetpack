@@ -37,6 +37,25 @@ function jetpack_register_block( $slug, $args = array() ) {
 		return false;
 	}
 
+	$feature_name = Jetpack_Gutenberg::remove_extension_prefix( $slug );
+	// If the block is dynamic, and a Jetpack block, wrap the render_callback to check availability.
+	if (
+		isset( $args['plan_check'], $args['render_callback'] )
+		&& true === $args['plan_check']
+	) {
+		$args['render_callback'] = Jetpack_Gutenberg::get_render_callback_with_availability_check( $feature_name, $args['render_callback'] );
+		$method_name             = 'set_availability_for_plan';
+	} else {
+		$method_name = 'set_extension_available';
+	}
+
+	add_action(
+		'jetpack_register_gutenberg_extensions',
+		function() use ( $feature_name, $method_name ) {
+			call_user_func( array( 'Jetpack_Gutenberg', $method_name ), $feature_name );
+		}
+	);
+
 	return register_block_type( $slug, $args );
 }
 
@@ -165,8 +184,8 @@ class Jetpack_Gutenberg {
 	 *
 	 * @return string The unprefixed extension name.
 	 */
-	private static function remove_extension_prefix( $extension_name ) {
-		if ( wp_startswith( $extension_name, 'jetpack/' ) || wp_startswith( $extension_name, 'jetpack-' ) ) {
+	public static function remove_extension_prefix( $extension_name ) {
+		if ( 0 === strpos( $extension_name, 'jetpack/' ) || 0 === strpos( $extension_name, 'jetpack-' ) ) {
 			return substr( $extension_name, strlen( 'jetpack/' ) );
 		}
 		return $extension_name;
@@ -438,6 +457,28 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
+	 * Return true if the extension has been registered and there's nothing in the availablilty array.
+	 *
+	 * @param string $extension The name of the extension.
+	 *
+	 * @return bool whether the extension has been registered and there's nothing in the availablilty array.
+	 */
+	public static function is_registered_and_no_entry_in_availability( $extension ) {
+		return self::is_registered( 'jetpack/' . $extension ) && ! isset( self::$availability[ $extension ] );
+	}
+
+	/**
+	 * Return true if the extension has a true entry in the availablilty array.
+	 *
+	 * @param string $extension The name of the extension.
+	 *
+	 * @return bool whether the extension has a true entry in the availablilty array.
+	 */
+	public static function is_available( $extension ) {
+		return isset( self::$availability[ $extension ] ) && true === self::$availability[ $extension ];
+	}
+
+	/**
 	 * Get availability of each block / plugin.
 	 *
 	 * @return array A list of block and plugins and their availablity status
@@ -458,9 +499,7 @@ class Jetpack_Gutenberg {
 		$available_extensions = array();
 
 		foreach ( self::$extensions as $extension ) {
-			$is_available = self::is_registered( 'jetpack/' . $extension ) ||
-			( isset( self::$availability[ $extension ] ) && true === self::$availability[ $extension ] );
-
+			$is_available                       = self::is_registered_and_no_entry_in_availability( $extension ) || self::is_available( $extension );
 			$available_extensions[ $extension ] = array(
 				'available' => $is_available,
 			);
@@ -697,15 +736,17 @@ class Jetpack_Gutenberg {
 		);
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$user      = wp_get_current_user();
-			$user_data = array(
+			$user                      = wp_get_current_user();
+			$user_data                 = array(
 				'userid'   => $user->ID,
 				'username' => $user->user_login,
 			);
-			$blog_id   = get_current_blog_id();
+			$blog_id                   = get_current_blog_id();
+			$is_current_user_connected = true;
 		} else {
-			$user_data = Jetpack_Tracks_Client::get_connected_user_tracks_identity();
-			$blog_id   = Jetpack_Options::get_option( 'id', 0 );
+			$user_data                 = Jetpack_Tracks_Client::get_connected_user_tracks_identity();
+			$blog_id                   = Jetpack_Options::get_option( 'id', 0 );
+			$is_current_user_connected = Jetpack::is_user_connected();
 		}
 
 		wp_localize_script(
@@ -713,7 +754,10 @@ class Jetpack_Gutenberg {
 			'Jetpack_Editor_Initial_State',
 			array(
 				'available_blocks' => self::get_availability(),
-				'jetpack'          => array( 'is_active' => Jetpack::is_active() ),
+				'jetpack'          => array(
+					'is_active'                 => Jetpack::is_active(),
+					'is_current_user_connected' => $is_current_user_connected,
+				),
 				'siteFragment'     => $site_fragment,
 				'tracksUserData'   => $user_data,
 				'wpcomBlogId'      => $blog_id,
@@ -783,7 +827,7 @@ class Jetpack_Gutenberg {
 
 		// Add any extra classes.
 		if ( is_array( $extra ) && ! empty( $extra ) ) {
-			$classes = array_merge( $classes, $extra );
+			$classes = array_merge( $classes, array_filter( $extra ) );
 		}
 
 		return implode( ' ', $classes );
@@ -937,4 +981,146 @@ class Jetpack_Gutenberg {
 		return false;
 	}
 
+	/**
+	 * Output an UpgradeNudge Component on the frontend of a site.
+	 *
+	 * @since 8.4.0
+	 *
+	 * @param string $plan The plan that users need to purchase to make the block work.
+	 *
+	 * @return string
+	 */
+	public static function upgrade_nudge( $plan ) {
+		if (
+			! current_user_can( 'manage_options' )
+			/** This filter is documented in class.jetpack-gutenberg.php */
+			|| ! apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false )
+			/** This filter is documented in _inc/lib/admin-pages/class.jetpack-react-page.php */
+			|| ! apply_filters( 'jetpack_show_promotions', true )
+			|| is_feed()
+		) {
+			return;
+		}
+
+		jetpack_require_lib( 'components' );
+		return Jetpack_Components::render_upgrade_nudge(
+			array(
+				'plan' => $plan,
+			)
+		);
+	}
+
+	/**
+	 * Output a notice within a block.
+	 *
+	 * @since 8.6.0
+	 *
+	 * @param string $message Notice we want to output.
+	 * @param string $status  Status of the notice. Can be one of success, info, warning, error. info by default.
+	 * @param string $classes List of CSS classes.
+	 *
+	 * @return string
+	 */
+	public static function notice( $message, $status = 'info', $classes = '' ) {
+		if (
+			empty( $message )
+			|| ! in_array( $status, array( 'success', 'info', 'warning', 'error' ), true )
+		) {
+			return '';
+		}
+
+		$color = '';
+		switch ( $status ) {
+			case 'success':
+				$color = '#46b450';
+				break;
+			case 'warning':
+				$color = '#ffb900';
+				break;
+			case 'error':
+				$color = '#dc3232';
+				break;
+			case 'info':
+			default:
+				$color = '#00a0d2';
+				break;
+		}
+
+		return sprintf(
+			'<div class="jetpack-block__notice %1$s %3$s" style="border-left:5px solid %4$s;padding:1em;background-color:#f8f9f9;">%2$s</div>',
+			esc_attr( $status ),
+			wp_kses(
+				$message,
+				array(
+					'br' => array(),
+					'p'  => array(),
+				)
+			),
+			esc_attr( $classes ),
+			sanitize_hex_color( $color )
+		);
+	}
+
+	/**
+	 * Set the availability of the block as the editor
+	 * is loaded.
+	 *
+	 * @param string $slug Slug of the block.
+	 */
+	public static function set_availability_for_plan( $slug ) {
+		$is_available = true;
+		$plan         = '';
+		$slug         = self::remove_extension_prefix( $slug );
+
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			if ( ! class_exists( 'Store_Product_List' ) ) {
+				require WP_CONTENT_DIR . '/admin-plugins/wpcom-billing/store-product-list.php';
+			}
+			$features_data = Store_Product_List::get_site_specific_features_data();
+			$is_available  = in_array( $slug, $features_data['active'], true );
+			if ( ! empty( $features_data['available'][ $slug ] ) ) {
+				$plan = $features_data['available'][ $slug ][0];
+			}
+		} elseif ( ! jetpack_is_atomic_site() ) {
+			/*
+			 * If it's Atomic then assume all features are available
+			 * otherwise check against the Jetpack plan.
+			 */
+			$is_available = Jetpack_Plan::supports( $slug );
+			$plan         = Jetpack_Plan::get_minimum_plan_for_feature( $slug );
+		}
+		if ( $is_available ) {
+			self::set_extension_available( $slug );
+		} else {
+			self::set_extension_unavailable(
+				$slug,
+				'missing_plan',
+				array(
+					'required_feature' => $slug,
+					'required_plan'    => $plan,
+				)
+			);
+		}
+	}
+
+	/**
+	 * Wraps the suplied render_callback in a function to check
+	 * the availability of the block before rendering it.
+	 *
+	 * @param string   $slug The block slug, used to check for availability.
+	 * @param callable $render_callback The render_callback that will be called if the block is available.
+	 */
+	public static function get_render_callback_with_availability_check( $slug, $render_callback ) {
+		return function ( $prepared_attributes, $block_content ) use ( $render_callback, $slug ) {
+			$availability = self::get_availability();
+			$bare_slug    = self::remove_extension_prefix( $slug );
+			if ( isset( $availability[ $bare_slug ] ) && $availability[ $bare_slug ]['available'] ) {
+				return call_user_func( $render_callback, $prepared_attributes, $block_content );
+			} elseif ( isset( $availability[ $bare_slug ]['details']['required_plan'] ) ) {
+				return self::upgrade_nudge( $availability[ $bare_slug ]['details']['required_plan'] );
+			}
+
+			return null;
+		};
+	}
 }

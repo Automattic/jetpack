@@ -61,7 +61,7 @@ for package in packages/*; do
 	cp -r $BASE/packages/$NAME/. .
 
 	# Before we commit any changes, ensure that the repo has the basics we need for any package.
-	if [ ! -f "composer.json" -o ! -d "src" ]; then
+	if [ ! -f "composer.json" ]; then
 		echo "  Those changes remove essential parts of the package. They will not be committed."
 	# Commit if there is any change that could be committed
 	elif [ -n "$(git status --porcelain)" ]; then

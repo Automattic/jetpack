@@ -13,6 +13,7 @@ import { translate as __ } from 'i18n-calypso';
 import { noop } from 'lodash';
 import UrlSearch from 'mixins/url-search';
 import analytics from 'lib/analytics';
+import { withRouter } from 'react-router-dom';
 
 /**
  * Internal dependencies
@@ -40,8 +41,8 @@ export const NavigationSettings = createReactClass( {
 
 	UNSAFE_componentWillMount() {
 		// We need to handle the search term not only on route update but also on page load in case of some external redirects
-		this.onRouteChange( this.context.router.getCurrentLocation() );
-		this.context.router.listen( this.onRouteChange );
+		this.onRouteChange( this.props.location );
+		this.props.history.listen( this.onRouteChange );
 	},
 
 	onRouteChange( newRoute ) {
@@ -88,9 +89,9 @@ export const NavigationSettings = createReactClass( {
 	/**
 	 * The UrlSearch mixin callback to form a new location href string.
 	 *
-	 * @param {string} href the current location string
-	 * @param {string} keyword the new search keyword
-	 * @return {string} href the new location string
+	 * @param {string} href - the current location string
+	 * @param {string} keyword - the new search keyword
+	 * @returns {string} href the new location string
 	 */
 	buildUrl: function( href, keyword ) {
 		const splitUrl = href.split( '#' ),
@@ -108,13 +109,14 @@ export const NavigationSettings = createReactClass( {
 		let navItems, sharingTab;
 		if ( this.props.userCanManageModules ) {
 			navItems = (
-				<NavTabs selectedText={ this.props.route.name }>
+				<NavTabs selectedText={ this.props.routeName }>
 					{ this.props.hasAnySecurityFeature && (
 						<NavItem
 							path="#security"
 							onClick={ this.handleClickForTracking( 'security' ) }
 							selected={
-								this.props.route.path === '/security' || this.props.route.path === '/settings'
+								this.props.location.pathname === '/security' ||
+								this.props.location.pathname === '/settings'
 							}
 						>
 							{ __( 'Security', { context: 'Navigation item.' } ) }
@@ -124,7 +126,7 @@ export const NavigationSettings = createReactClass( {
 						<NavItem
 							path="#performance"
 							onClick={ this.handleClickForTracking( 'performance' ) }
-							selected={ this.props.route.path === '/performance' }
+							selected={ this.props.location.pathname === '/performance' }
 						>
 							{ __( 'Performance', { context: 'Navigation item.' } ) }
 						</NavItem>
@@ -140,7 +142,7 @@ export const NavigationSettings = createReactClass( {
 						<NavItem
 							path="#writing"
 							onClick={ this.handleClickForTracking( 'writing' ) }
-							selected={ this.props.route.path === '/writing' }
+							selected={ this.props.location.pathname === '/writing' }
 						>
 							{ __( 'Writing', { context: 'Navigation item.' } ) }
 						</NavItem>
@@ -149,7 +151,7 @@ export const NavigationSettings = createReactClass( {
 						<NavItem
 							path="#sharing"
 							onClick={ this.handleClickForTracking( 'sharing' ) }
-							selected={ this.props.route.path === '/sharing' }
+							selected={ this.props.location.pathname === '/sharing' }
 						>
 							{ __( 'Sharing', { context: 'Navigation item.' } ) }
 						</NavItem>
@@ -163,7 +165,7 @@ export const NavigationSettings = createReactClass( {
 						<NavItem
 							path="#discussion"
 							onClick={ this.handleClickForTracking( 'discussion' ) }
-							selected={ this.props.route.path === '/discussion' }
+							selected={ this.props.location.pathname === '/discussion' }
 						>
 							{ __( 'Discussion', { context: 'Navigation item.' } ) }
 						</NavItem>
@@ -180,7 +182,7 @@ export const NavigationSettings = createReactClass( {
 						<NavItem
 							path="#traffic"
 							onClick={ this.handleClickForTracking( 'traffic' ) }
-							selected={ this.props.route.path === '/traffic' }
+							selected={ this.props.location.pathname === '/traffic' }
 						>
 							{ __( 'Traffic', { context: 'Navigation item.' } ) }
 						</NavItem>
@@ -197,20 +199,21 @@ export const NavigationSettings = createReactClass( {
 					<NavItem
 						path="#sharing"
 						onClick={ this.handleClickForTracking( 'sharing' ) }
-						selected={ this.props.route.path === '/sharing' }
+						selected={ this.props.location.pathname === '/sharing' }
 					>
 						{ __( 'Sharing', { context: 'Navigation item.' } ) }
 					</NavItem>
 				);
 			}
 			navItems = (
-				<NavTabs selectedText={ this.props.route.name }>
+				<NavTabs selectedText={ this.props.routeName }>
 					{ this.props.hasAnyOfTheseModules( [ 'post-by-email' ] ) && (
 						<NavItem
 							path="#writing"
 							onClick={ this.handleClickForTracking( 'writing' ) }
 							selected={
-								this.props.route.path === '/writing' || this.props.route.path === '/settings'
+								this.props.location.pathname === '/writing' ||
+								this.props.location.pathname === '/settings'
 							}
 						>
 							{ __( 'Writing', { context: 'Navigation item.' } ) }
@@ -227,7 +230,7 @@ export const NavigationSettings = createReactClass( {
 		return (
 			<div id="jp-navigation" className="dops-navigation">
 				<QuerySitePlugins />
-				<SectionNav selectedText={ this.props.route.name }>
+				<SectionNav selectedText={ this.props.routeName }>
 					{ navItems }
 					{ this.maybeShowSearch() }
 				</SectionNav>
@@ -235,10 +238,6 @@ export const NavigationSettings = createReactClass( {
 		);
 	},
 } );
-
-NavigationSettings.contextTypes = {
-	router: PropTypes.object.isRequired,
-};
 
 NavigationSettings.propTypes = {
 	userCanManageModules: PropTypes.bool.isRequired,
@@ -248,6 +247,7 @@ NavigationSettings.propTypes = {
 	isSiteConnected: PropTypes.bool.isRequired,
 	isModuleActivated: PropTypes.func.isRequired,
 	searchHasFocus: PropTypes.bool.isRequired,
+	location: PropTypes.object.isRequired,
 };
 
 NavigationSettings.defaultProps = {
@@ -278,4 +278,4 @@ export default connect(
 	dispatch => ( {
 		searchForTerm: term => dispatch( filterSearch( term ) ),
 	} )
-)( NavigationSettings );
+)( withRouter( NavigationSettings ) );

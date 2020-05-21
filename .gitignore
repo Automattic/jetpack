@@ -10,6 +10,7 @@ vendor/wp-coding-standards
 vendor/automattic/jetpack-autoloader
 /wpcom-test-backup/
 /.vscode/
+/logs
 
 
 ## FILES
@@ -17,6 +18,7 @@ vendor/automattic/jetpack-autoloader
 *.code-workspace
 # Custom environment for docker-compose (used by docker-compose.yml)
 /.env
+/docker/compose-extras.yml
 languages/messages.pot
 .idea
 *.iml

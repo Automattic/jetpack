@@ -234,7 +234,7 @@ class Jetpack_Cxn_Test_Base {
 
 		foreach ( $results as $test => $result ) {
 			// We do not want tests that passed or ones that are misconfigured (no pass status or no failure message).
-			if ( ! isset( $result['pass'] ) || false !== $result['pass'] || ! isset( $result['message'] ) ) {
+			if ( ! isset( $result['pass'] ) || false !== $result['pass'] || ! isset( $result['short_description'] ) ) {
 				unset( $results[ $test ] );
 			}
 		}
@@ -247,7 +247,6 @@ class Jetpack_Cxn_Test_Base {
 	 * Possible Args:
 	 * - name: string The raw method name that runs the test. Default 'unnamed_test'.
 	 * - label: bool|string If false, tests will be labeled with their `name`. You can pass a string to override this behavior. Default false.
-	 * - pass: bool|string True if the test passed. Default true.
 	 * - short_description: bool|string A brief, non-html description that will appear in CLI results. Default 'Test passed!'.
 	 * - long_description: bool|string An html description that will appear in the site health page. Default false.
 	 * - severity: bool|string 'critical', 'recommended', or 'good'. Default: false.
@@ -260,20 +259,14 @@ class Jetpack_Cxn_Test_Base {
 	 * @return array Test results.
 	 */
 	public static function passing_test( $args ) {
-		return wp_parse_args(
-			$args,
-			array(
-				'name'                => 'unnamed_test',
-				'label'               => false,
-				'pass'                => true,
-				'short_description'   => __( 'Test passed!', 'jetpack' ),
-				'long_description'    => false,
-				'severity'            => false,
-				'action'              => false,
-				'action_label'        => false,
-				'show_in_site_health' => true,
-			)
-		);
+		$defaults                      = self::test_result_defaults();
+		$defaults['short_description'] = __( 'Test passed!', 'jetpack' );
+
+		$args = wp_parse_args( $args, $defaults );
+
+		$args['pass'] = true;
+
+		return $args;
 	}
 
 	/**
@@ -281,7 +274,6 @@ class Jetpack_Cxn_Test_Base {
 	 * Possible Args:
 	 * - name: string The raw method name that runs the test. Default unnamed_test.
 	 * - label: bool|string If false, tests will be labeled with their `name`. You can pass a string to override this behavior. Default false.
-	 * - pass: bool|string True if the test passed. Default 'skipped'.
 	 * - short_description: bool|string A brief, non-html description that will appear in CLI results, and as headings in admin UIs. Default false.
 	 * - long_description: bool|string An html description that will appear in the site health page. Default false.
 	 * - severity: bool|string 'critical', 'recommended', or 'good'. Default: false.
@@ -294,20 +286,41 @@ class Jetpack_Cxn_Test_Base {
 	 * @return array Test results.
 	 */
 	public static function skipped_test( $args = array() ) {
-		return wp_parse_args(
+		$args = wp_parse_args(
 			$args,
-			array(
-				'name'                => 'unnamed_test',
-				'label'               => false,
-				'pass'                => 'skipped',
-				'short_description'   => false,
-				'long_description'    => false,
-				'severity'            => false,
-				'action'              => false,
-				'action_label'        => false,
-				'show_in_site_health' => true,
-			)
+			self::test_result_defaults()
 		);
+
+		$args['pass'] = 'skipped';
+
+		return $args;
+	}
+
+	/**
+	 * Helper function to return consistent responses for an informational test.
+	 * Possible Args:
+	 * - name: string The raw method name that runs the test. Default unnamed_test.
+	 * - label: bool|string If false, tests will be labeled with their `name`. You can pass a string to override this behavior. Default false.
+	 * - short_description: bool|string A brief, non-html description that will appear in CLI results, and as headings in admin UIs. Default false.
+	 * - long_description: bool|string An html description that will appear in the site health page. Default false.
+	 * - severity: bool|string 'critical', 'recommended', or 'good'. Default: false.
+	 * - action: bool|string A URL for the recommended action. Default: false
+	 * - action_label: bool|string The label for the recommended action. Default: false
+	 * - show_in_site_health: bool True if the test should be shown on the Site Health page. Default: true
+	 *
+	 * @param array $args Arguments to override defaults.
+	 *
+	 * @return array Test results.
+	 */
+	public static function informational_test( $args = array() ) {
+		$args = wp_parse_args(
+			$args,
+			self::test_result_defaults()
+		);
+
+		$args['pass'] = 'informational';
+
+		return $args;
 	}
 
 	/**
@@ -315,7 +328,6 @@ class Jetpack_Cxn_Test_Base {
 	 * Possible Args:
 	 * - name: string The raw method name that runs the test. Default unnamed_test.
 	 * - label: bool|string If false, tests will be labeled with their `name`. You can pass a string to override this behavior. Default false.
-	 * - pass: bool|string True if the test passed. Default false.
 	 * - short_description: bool|string A brief, non-html description that will appear in CLI results, and as headings in admin UIs. Default 'Test failed!'.
 	 * - long_description: bool|string An html description that will appear in the site health page. Default false.
 	 * - severity: bool|string 'critical', 'recommended', or 'good'. Default: 'critical'.
@@ -330,19 +342,34 @@ class Jetpack_Cxn_Test_Base {
 	 * @return array Test results.
 	 */
 	public static function failing_test( $args ) {
-		return wp_parse_args(
-			$args,
-			array(
-				'name'                => 'unnamed_test',
-				'label'               => false,
-				'pass'                => false,
-				'short_description'   => __( 'Test failed!', 'jetpack' ),
-				'long_description'    => false,
-				'severity'            => 'critical',
-				'action'              => false,
-				'action_label'        => false,
-				'show_in_site_health' => true,
-			)
+		$defaults                      = self::test_result_defaults();
+		$defaults['short_description'] = __( 'Test failed!', 'jetpack' );
+		$defaults['severity']          = 'critical';
+
+		$args = wp_parse_args( $args, $defaults );
+
+		$args['pass'] = false;
+
+		return $args;
+	}
+
+	/**
+	 * Provides defaults for test arguments.
+	 *
+	 * @since 8.5.0
+	 *
+	 * @return array Result defaults.
+	 */
+	private static function test_result_defaults() {
+		return array(
+			'name'                => 'unnamed_test',
+			'label'               => false,
+			'short_description'   => false,
+			'long_description'    => false,
+			'severity'            => false,
+			'action'              => false,
+			'action_label'        => false,
+			'show_in_site_health' => true,
 		);
 	}
 
@@ -367,6 +394,11 @@ class Jetpack_Cxn_Test_Base {
 					WP_CLI::log( WP_CLI::colorize( '%gPassed:%n  ' . $test['name'] ) );
 				} elseif ( 'skipped' === $test['pass'] ) {
 					WP_CLI::log( WP_CLI::colorize( '%ySkipped:%n ' . $test['name'] ) );
+					if ( $test['short_description'] ) {
+						WP_CLI::log( '         ' . $test['short_description'] ); // Number of spaces to "tab indent" the reason.
+					}
+				} elseif ( 'informational' === $test['pass'] ) {
+					WP_CLI::log( WP_CLI::colorize( '%yInfo:%n    ' . $test['name'] ) );
 					if ( $test['short_description'] ) {
 						WP_CLI::log( '         ' . $test['short_description'] ); // Number of spaces to "tab indent" the reason.
 					}

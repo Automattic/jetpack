@@ -3,6 +3,7 @@
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Tracking;
+use Automattic\Jetpack\Redirect;
 
 require_once( JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-helpers.php' );
 require_once( JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-notices.php' );
@@ -465,7 +466,17 @@ class Jetpack_SSO {
 
 		?>
 		<div id="jetpack-sso-wrap">
-			<?php if ( $display_name && $gravatar ) : ?>
+			<?php
+				/**
+				 * Allow extension above Jetpack's SSO form.
+				 *
+				 * @module sso
+				 *
+				 * @since 8.6.0
+				 */
+				do_action( 'jetpack_sso_login_form_above_wpcom' );
+				
+				if ( $display_name && $gravatar ) : ?>
 				<div id="jetpack-sso-wrap__user">
 					<img width="72" height="72" src="<?php echo esc_html( $gravatar ); ?>" />
 
@@ -503,22 +514,32 @@ class Jetpack_SSO {
 				<?php endif; ?>
 			</div>
 
-			<?php if ( ! Jetpack_SSO_Helpers::should_hide_login_form() ) : ?>
-				<div class="jetpack-sso-or">
-					<span><?php esc_html_e( 'Or', 'jetpack' ); ?></span>
-				</div>
+			<?php
+				/**
+				 * Allow extension below Jetpack's SSO form.
+				 *
+				 * @module sso
+				 *
+				 * @since 8.6.0
+				 */
+				do_action( 'jetpack_sso_login_form_below_wpcom' );
+				
+				if ( ! Jetpack_SSO_Helpers::should_hide_login_form() ) : ?>
+					<div class="jetpack-sso-or">
+						<span><?php esc_html_e( 'Or', 'jetpack' ); ?></span>
+					</div>
 
-				<a href="<?php echo esc_url( add_query_arg( 'jetpack-sso-show-default-form', '1' ) ); ?>" class="jetpack-sso-toggle wpcom">
-					<?php
-						esc_html_e( 'Log in with username and password', 'jetpack' )
-					?>
-				</a>
+					<a href="<?php echo esc_url( add_query_arg( 'jetpack-sso-show-default-form', '1' ) ); ?>" class="jetpack-sso-toggle wpcom">
+						<?php
+							esc_html_e( 'Log in with username and password', 'jetpack' )
+						?>
+					</a>
 
-				<a href="<?php echo esc_url( add_query_arg( 'jetpack-sso-show-default-form', '0' ) ); ?>" class="jetpack-sso-toggle default">
-					<?php
-						esc_html_e( 'Log in with WordPress.com', 'jetpack' )
-					?>
-				</a>
+					<a href="<?php echo esc_url( add_query_arg( 'jetpack-sso-show-default-form', '0' ) ); ?>" class="jetpack-sso-toggle default">
+						<?php
+							esc_html_e( 'Log in with WordPress.com', 'jetpack' )
+						?>
+					</a>
 			<?php endif; ?>
 		</div>
 		<?php
@@ -929,10 +950,10 @@ class Jetpack_SSO {
 	/**
 	 * Build WordPress.com SSO URL with appropriate query parameters.
 	 *
-	 * @param  array  $args Optional query parameters.
-	 * @return string       WordPress.com SSO URL
+	 * @param array $args Optional query parameters.
+	 * @return string WordPress.com SSO URL
 	 */
-	function build_sso_url( $args = array() ) {
+	public function build_sso_url( $args = array() ) {
 		$sso_nonce = ! empty( $args['sso_nonce'] ) ? $args['sso_nonce'] : self::request_initial_nonce();
 		$defaults = array(
 			'action'       => 'jetpack-sso',
@@ -947,7 +968,17 @@ class Jetpack_SSO {
 			return $args['sso_nonce'];
 		}
 
-		return add_query_arg( $args, 'https://wordpress.com/wp-login.php' );
+		$query = add_query_arg( $args, '' );
+		$query = trim( $query, '?' );
+
+		$url = Redirect::get_url(
+			'wpcom-login',
+			array(
+				'query' => $query,
+			)
+		);
+
+		return $url;
 	}
 
 	/**
@@ -955,10 +986,10 @@ class Jetpack_SSO {
 	 * including the parameters necessary to force the user to reauthenticate
 	 * on WordPress.com.
 	 *
-	 * @param  array  $args Optional query parameters.
-	 * @return string       WordPress.com SSO URL
+	 * @param array $args Optional query parameters.
+	 * @return string WordPress.com SSO URL
 	 */
-	function build_reauth_and_sso_url( $args = array() ) {
+	public function build_reauth_and_sso_url( $args = array() ) {
 		$sso_nonce = ! empty( $args['sso_nonce'] ) ? $args['sso_nonce'] : self::request_initial_nonce();
 		$redirect = $this->build_sso_url( array( 'force_auth' => '1', 'sso_nonce' => $sso_nonce ) );
 
@@ -981,7 +1012,17 @@ class Jetpack_SSO {
 			return $args['sso_nonce'];
 		}
 
-		return add_query_arg( $args, 'https://wordpress.com/wp-login.php' );
+		$query = add_query_arg( $args, '' );
+		$query = trim( $query, '?' );
+
+		$url = Redirect::get_url(
+			'wpcom-login',
+			array(
+				'query' => $query,
+			)
+		);
+
+		return $url;
 	}
 
 	/**

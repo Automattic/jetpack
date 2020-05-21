@@ -17,6 +17,9 @@ import {
 	JETPACK_SITE_PURCHASES_FETCH,
 	JETPACK_SITE_PURCHASES_FETCH_RECEIVE,
 	JETPACK_SITE_PURCHASES_FETCH_FAIL,
+	JETPACK_SITE_CONNECTED_PLUGINS_FETCH,
+	JETPACK_SITE_CONNECTED_PLUGINS_FETCH_RECEIVE,
+	JETPACK_SITE_CONNECTED_PLUGINS_FETCH_FAIL,
 } from 'state/action-types';
 import restApi from 'rest-api';
 
@@ -129,6 +132,29 @@ export const fetchSitePurchases = () => {
 				dispatch( {
 					type: JETPACK_SITE_PURCHASES_FETCH_FAIL,
 					error,
+				} );
+			} );
+	};
+};
+
+export const fetchConnectedPlugins = () => {
+	return dispatch => {
+		dispatch( {
+			type: JETPACK_SITE_CONNECTED_PLUGINS_FETCH,
+		} );
+		return restApi
+			.fetchConnectedPlugins()
+			.then( connectedPlugins => {
+				dispatch( {
+					type: JETPACK_SITE_CONNECTED_PLUGINS_FETCH_RECEIVE,
+					connectedPlugins: connectedPlugins,
+				} );
+				return connectedPlugins;
+			} )
+			.catch( error => {
+				dispatch( {
+					type: JETPACK_SITE_CONNECTED_PLUGINS_FETCH_FAIL,
+					error: error,
 				} );
 			} );
 	};

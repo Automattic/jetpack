@@ -3,6 +3,7 @@
  */
 import React, { Component } from 'react';
 import { translate as __ } from 'i18n-calypso';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -32,7 +33,7 @@ export const Likes = withModuleSettingsFormHelpers(
 							text: __(
 								'Adds like buttons to your content so that visitors can show their appreciation or enjoyment.'
 							),
-							link: 'https://jetpack.com/support/likes/',
+							link: getRedirectUrl( 'jetpack-support-likes' ),
 						} }
 					>
 						<p>{ __( 'When visitors enjoy your content, let them show it with a Like.' ) }</p>

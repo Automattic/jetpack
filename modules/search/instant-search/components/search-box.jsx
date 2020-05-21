@@ -28,15 +28,21 @@ const SearchBox = props => {
 	const inputRef = useRef( null );
 
 	useEffect( () => {
-		props.isVisible ? stealFocusWithInput( inputRef.current )() : restoreFocus();
-	}, [ props.isVisible ] );
+		if ( props.isVisible ) {
+			stealFocusWithInput( inputRef.current )();
+		} else if ( props.shouldRestoreFocus ) {
+			restoreFocus();
+		}
+	}, [ props.isVisible, props.shouldRestoreFocus ] );
 
 	return (
 		<Fragment>
 			<div className="jetpack-instant-search__box">
 				{ /* TODO: Add support for preserving label text */ }
 				<label className="jetpack-instant-search__box-label" htmlFor={ inputId }>
-					<span className="screen-reader-text assistive-text">{ __( 'Site Search', 'jetpack' ) }</span>
+					<span className="screen-reader-text assistive-text">
+						{ __( 'Site Search', 'jetpack' ) }
+					</span>
 					<div className="jetpack-instant-search__box-gridicon">
 						<Gridicon icon="search" size={ 24 } />
 					</div>
@@ -50,12 +56,14 @@ const SearchBox = props => {
 						value={ props.query }
 					/>
 
-					<button className="screen-reader-text assistive-text">{ __( 'Search', 'jetpack' ) }</button>
+					<button className="screen-reader-text assistive-text">
+						{ __( 'Search', 'jetpack' ) }
+					</button>
 				</label>
 			</div>
 
-			{ props.enableFilters && ! props.widget && (
-				<div className="jetpack-instant-search__box-filter-area">
+			<div className="jetpack-instant-search__box-filter-area">
+				{ props.enableFilters && (
 					<div
 						role="button"
 						onClick={ props.toggleFilters }
@@ -76,9 +84,9 @@ const SearchBox = props => {
 								: __( 'Show filters', 'jetpack' ) }
 						</span>
 					</div>
-					<SearchSort onChange={ props.onChangeSort } value={ getSortQuery() } />
-				</div>
-			) }
+				) }
+				<SearchSort onChange={ props.onChangeSort } value={ getSortQuery() } />
+			</div>
 		</Fragment>
 	);
 };

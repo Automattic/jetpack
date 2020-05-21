@@ -34,6 +34,8 @@ function blockScripts( type, inputDir, presetBlocks ) {
 const presetPath = path.join( __dirname, 'extensions', 'index.json' );
 const presetIndex = require( presetPath );
 const presetProductionBlocks = _.get( presetIndex, [ 'production' ], [] );
+const presetNoPostEditorBlocks = _.get( presetIndex, [ 'no-post-editor' ], [] );
+
 const presetExperimentalBlocks = [
 	...presetProductionBlocks,
 	..._.get( presetIndex, [ 'experimental' ], [] ),
@@ -68,6 +70,11 @@ const editorBetaScript = [
 	...blockScripts( 'editor', path.join( __dirname, 'extensions' ), presetBetaBlocks ),
 ];
 
+const editorNoPostEditorScript = [
+	editorSetup,
+	...blockScripts( 'editor', path.join( __dirname, 'extensions' ), presetNoPostEditorBlocks ),
+];
+
 const extensionsWebpackConfig = getBaseWebpackConfig(
 	{ WP: true },
 	{
@@ -75,6 +82,7 @@ const extensionsWebpackConfig = getBaseWebpackConfig(
 			editor: editorScript,
 			'editor-experimental': editorExperimentalScript,
 			'editor-beta': editorBetaScript,
+			'editor-no-post-editor': editorNoPostEditorScript,
 			...viewBlocksScripts,
 		},
 		'output-chunk-filename': '[name].[chunkhash].js',
@@ -104,10 +112,6 @@ const componentsWebpackConfig = getBaseWebpackConfig(
 module.exports = [
 	{
 		...extensionsWebpackConfig,
-		resolve: {
-			...extensionsWebpackConfig.resolve,
-			modules: [ path.resolve( __dirname, '_inc/client' ), 'node_modules' ],
-		},
 		// The `module` override fixes https://github.com/Automattic/jetpack/issues/12511.
 		// @TODO Remove once there's a fix in `@automattic/calypso-build`
 		module: {
@@ -129,10 +133,6 @@ module.exports = [
 	},
 	{
 		...componentsWebpackConfig,
-		resolve: {
-			...componentsWebpackConfig.resolve,
-			modules: [ path.resolve( __dirname, '_inc/client' ), 'node_modules' ],
-		},
 		plugins: [
 			...componentsWebpackConfig.plugins,
 			new webpack.NormalModuleReplacementPlugin(

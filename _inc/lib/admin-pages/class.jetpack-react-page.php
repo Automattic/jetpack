@@ -48,6 +48,16 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	}
 
 	/**
+	 * Add Jetpack Setup sub-link for eligible users
+	 */
+	function jetpack_add_set_up_sub_nav_item() {
+		if ( $this->show_setup_wizard() ) {
+			global $submenu;
+			$submenu['jetpack'][] = array( __( 'Set up', 'jetpack' ), 'jetpack_admin_page', 'admin.php?page=jetpack#/setup' );
+		}
+	}
+
+	/**
 	 * Add Jetpack Dashboard sub-link and point it to AAG if the user can view stats, manage modules or if Protect is active.
 	 *
 	 * Works in Dev Mode or when user is connected.
@@ -253,6 +263,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'getModules'                  => $modules,
 			'rawUrl'                      => Jetpack::build_raw_urls( get_home_url() ),
 			'adminUrl'                    => esc_url( admin_url() ),
+			'siteTitle'                   => (string) htmlspecialchars_decode( get_option( 'blogname' ), ENT_QUOTES ),
 			'stats'                       => array(
 				// data is populated asynchronously on page load.
 				'data'  => array(
@@ -285,6 +296,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				'isAtomicSite'               => jetpack_is_atomic_site(),
 				'plan'                       => Jetpack_Plan::get(),
 				'showBackups'                => Jetpack::show_backups_ui(),
+				'showSetupWizard'            => $this->show_setup_wizard(),
 				'isMultisite'                => is_multisite(),
 			),
 			'themeData'                   => array(
@@ -300,12 +312,14 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				'messageCode'      => Jetpack::state( 'message' ),
 				'errorCode'        => Jetpack::state( 'error' ),
 				'errorDescription' => Jetpack::state( 'error_description' ),
+				'messageContent'   => Jetpack::state( 'message_content' ),
 			),
 			'tracksUserData'              => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
 			'currentIp'                   => function_exists( 'jetpack_protect_get_ip' ) ? jetpack_protect_get_ip() : false,
 			'lastPostUrl'                 => esc_url( $last_post ),
 			'externalServicesConnectUrls' => $this->get_external_services_connect_urls(),
 			'calypsoEnv'                  => Jetpack::get_calypso_env(),
+			'products'                    => Jetpack::get_products_for_purchase(),
 		);
 	}
 
@@ -329,6 +343,25 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		$core_api_endpoint = new Jetpack_Core_API_Data();
 		$settings = $core_api_endpoint->get_all_options();
 		return $settings->data;
+	}
+
+
+	/**
+	 * Returns a boolean for whether the Setup Wizard should be displayed or not.
+	 *
+	 * @return bool True if the Setup Wizard should be displayed, false otherwise.
+	 */
+	public function show_setup_wizard() {
+		/**
+		 * Determines if the Setup Wizard is displayed or not.
+		 *
+		 * @since 8.5.0
+		 *
+		 * @param array $jetpack_show_setup_wizard If true, the Setup Wizard will be displayed. Otherwise it will not display.
+		 */
+		return apply_filters( 'jetpack_show_setup_wizard', false )
+			&& Jetpack::is_active()
+			&& current_user_can( 'jetpack_manage_modules' );
 	}
 }
 
@@ -361,7 +394,7 @@ function jetpack_current_user_data() {
 		'username'    => $current_user->user_login,
 		'id'          => $current_user->ID,
 		'wpcomUser'   => $dotcom_data,
-		'gravatar'    => get_avatar( $current_user->ID, 40, 'mm', '', array( 'force_display' => true ) ),
+		'gravatar'    => get_avatar_url( $current_user->ID, 64, 'mm', '', array( 'force_display' => true ) ),
 		'permissions' => array(
 			'admin_page'         => current_user_can( 'jetpack_admin_page' ),
 			'connect'            => current_user_can( 'jetpack_connect' ),

@@ -5,6 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import { includes, map, reduce } from 'lodash';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -77,8 +78,8 @@ class PlanGrid extends React.Component {
 		const currently = __( 'You’re currently on Jetpack %(plan)s.', {
 			args: { plan: this.props.sitePlan.product_name_short },
 		} );
-		const myPlanUrl = `https://wordpress.com/plans/my-plan/${ this.props.siteRawUrl }`;
-		const plansUrl = `https://wordpress.com/plans/${ this.props.siteRawUrl }`;
+		const myPlanUrl = getRedirectUrl( 'calypso-plans-my-plan', { site: this.props.siteRawUrl } );
+		const plansUrl = getRedirectUrl( 'calypso-plans', { site: this.props.siteRawUrl } );
 
 		return (
 			<div className="plans-mobile-notice dops-card">
@@ -241,7 +242,7 @@ class PlanGrid extends React.Component {
 	 * @return {ReactElement} <td>s with buttons
 	 */
 	renderTopButtons() {
-		const { planDuration } = this.props.planDuration;
+		const { planDuration } = this.props;
 		return map( this.getPlans(), ( plan, planType ) => {
 			const { siteRawUrl, plansUpgradeUrl, sitePlan } = this.props;
 			const isActivePlan = this.isCurrentPlanType( planType );

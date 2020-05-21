@@ -27,3 +27,11 @@ These are some things to keep in mind when writing code for Jetpack plugin. Plea
 - Where it applies, make strings available for translation.
 - Instead of `__`, `_e`, `_x` and similar functions, use their safe versions `esc_html__`, `esc_html_e`, `esc_html_x` and others where possible.
 - Add the `jetpack` text domain to the translation functions.
+
+## Where should my code live? 
+
+Here are some general guidelines when considering adding new functionality: 
+
+- [Packages](../packages/README.md#should-my-code-be-in-a-package)
+- Modules (@todo)
+- module-extras.php (@todo)

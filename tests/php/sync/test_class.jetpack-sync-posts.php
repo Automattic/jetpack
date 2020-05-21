@@ -8,6 +8,8 @@ use Automattic\Jetpack\Sync\Settings;
 
 /**
  * Testing CRUD on Posts
+ *
+ * @group jetpack-sync
  */
 class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
@@ -610,18 +612,66 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $this->post->post_content, $synced_post->post_content );
 	}
 
+	/**
+	 * Tests that jetpack_sync_save_post events are not sent for blacklisted post_types
+	 */
 	function test_filters_out_blacklisted_post_types() {
 		$args = array(
 			'public' => true,
 			'label'  => 'Snitch'
 		);
 		register_post_type( 'snitch', $args );
+		$this->server_event_storage->reset();
 
 		$post_id = $this->factory->post->create( array( 'post_type' => 'snitch' ) );
 
 		$this->sender->do_sync();
 
 		$this->assertFalse( $this->server_replica_storage->get_post( $post_id ) );
+		$sync_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
+		$this->assertFalse( $sync_event );
+	}
+
+	/**
+	 * Tests that jetpack_published_post events are not sent for blacklisted post_types.
+	 */
+	public function test_filters_out_blacklisted_post_types_jetpack_published_post() {
+		$args = array(
+			'public' => true,
+			'label'  => 'Snitch',
+		);
+		register_post_type( 'snitch', $args );
+		$this->server_event_storage->reset();
+
+		$post_id = $this->factory->post->create( array( 'post_type' => 'snitch' ) );
+
+		$this->sender->do_sync();
+
+		$this->assertFalse( $this->server_replica_storage->get_post( $post_id ) );
+		$sync_event = $this->server_event_storage->get_most_recent_event( 'jetpack_published_post' );
+		$this->assertFalse( $sync_event );
+	}
+
+	/**
+	 * Tests that deleted_post events are not sent for blacklisted post_types.
+	 */
+	public function test_filters_out_blacklisted_post_types_deleted_posts() {
+
+		$args = array(
+			'public' => true,
+			'label'  => 'Snitch',
+		);
+		register_post_type( 'snitch', $args );
+		$this->server_event_storage->reset();
+
+		$post_id = $this->factory->post->create( array( 'post_type' => 'snitch' ) );
+		wp_delete_post( $post_id, true );
+
+		$this->sender->do_sync();
+		$deleted_event = $this->server_event_storage->get_most_recent_event( 'deleted_post' );
+
+		$this->assertFalse( $deleted_event );
+
 	}
 
 	function test_filters_out_blacklisted_post_types_and_their_post_meta() {
@@ -961,7 +1011,7 @@ That was a cool video.';
 
 		$oembeded =
 			'<p>Check out this cool video:</p>
-<p><span class="embed-youtube" style="text-align:center; display: block;"><iframe class=\'youtube-player\' type=\'text/html\' #DIMENSIONS# src=\'https://www.youtube.com/embed/dQw4w9WgXcQ?version=3&#038;rel=1&#038;fs=1&#038;autohide=2&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;wmode=transparent\' allowfullscreen=\'true\' style=\'border:0;\'></iframe></span></p>
+<p><span class="embed-youtube" style="text-align:center; display: block;"><iframe class=\'youtube-player\' #DIMENSIONS# src=\'https://www.youtube.com/embed/dQw4w9WgXcQ?version=3&#038;rel=1&#038;fs=1&#038;autohide=2&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;wmode=transparent\' allowfullscreen=\'true\' style=\'border:0;\'></iframe></span></p>
 <p>That was a cool video.</p>'. "\n";
 
 		$filtered = '<p>Check out this cool video:</p>
@@ -1154,6 +1204,97 @@ That was a cool video.';
 		$this->assertEquals( $events[2]->action, 'jetpack_sync_save_post' );
 		$this->assertEquals( $events[3]->action, 'jetpack_published_post' );
 	}
+
+	/**
+	 * Test if `Modules\Posts\daily_akismet_meta_cleanup_before` will properly chunk it's parameters in chunks of 100
+	 *
+	 * @throws ReflectionException Throw if Reflection fails to initialize.
+	 */
+	public function test_sync_jetpack_posts_akismet_post_meta_delete_is_chunked() {
+		$ids = array_fill( 0, 1450, 1234 );
+
+		$mocked = $this->getMockBuilder( stdClass::class )
+						->setMethods( array( 'chunked_call' ) )
+						->getMock();
+
+		$mocked->expects( $this->exactly( 15 ) )
+				->method( 'chunked_call' );
+
+		add_action( 'jetpack_post_meta_batch_delete', array( $mocked, 'chunked_call' ), 10, 2 );
+
+		/**
+		 * Override `action_handler` private property as it's used directly in the method and it's not initialized
+		 * to a function during method call, without calling `Modules\Posts\init_listeners()` to set it.
+		 */
+		$test_instance = new Modules\Posts();
+		$test_ref      = new ReflectionObject( $test_instance );
+		$property_ref  = $test_ref->getProperty( 'action_handler' );
+		$property_ref->setAccessible( true );
+		$property_ref->setValue( $test_instance, function () {} );
+
+		$test_instance->daily_akismet_meta_cleanup_before( $ids );
+	}
+
+	/**
+	 * Test if `Modules\Posts\daily_akismet_meta_cleanup_before` will properly return with invalid input
+	 *
+	 * @throws ReflectionException Throw if Reflection fails to initialize.
+	 */
+	public function test_sync_jetpack_posts_akismet_post_meta_delete_invalid_data() {
+		$ids = 'test_invalid_value';
+
+		$mocked = $this->getMockBuilder( stdClass::class )
+						->setMethods( array( 'chunked_call' ) )
+						->getMock();
+
+		$mocked->expects( $this->never() )
+				->method( 'chunked_call' );
+
+		add_action( 'jetpack_post_meta_batch_delete', array( $mocked, 'chunked_call' ), 10, 2 );
+
+		/**
+		 * Override `action_handler` private property as it's used directly in the method and it's not initialized
+		 * to a function during method call, without calling `Modules\Posts\init_listeners()` to set it.
+		 */
+		$test_instance = new Modules\Posts();
+		$test_ref      = new ReflectionObject( $test_instance );
+		$property_ref  = $test_ref->getProperty( 'action_handler' );
+		$property_ref->setAccessible( true );
+		$property_ref->setValue( $test_instance, function () {} );
+
+		$test_instance->daily_akismet_meta_cleanup_before( $ids );
+	}
+
+	/**
+	 * Test if `Modules\Posts\daily_akismet_meta_cleanup_before` will properly return with empty input
+	 *
+	 * @throws ReflectionException Throw if Reflection fails to initialize.
+	 */
+	public function test_sync_jetpack_posts_akismet_post_meta_delete_empty() {
+		$ids = array();
+
+		$mocked = $this->getMockBuilder( stdClass::class )
+						->setMethods( array( 'chunked_call' ) )
+						->getMock();
+
+		$mocked->expects( $this->never() )
+			->method( 'chunked_call' );
+
+		add_action( 'jetpack_post_meta_batch_delete', array( $mocked, 'chunked_call' ), 10, 2 );
+
+		/**
+		 * Override `action_handler` private property as it's used directly in the method and it's not initialized
+		 * to a function during method call, without calling `Modules\Posts\init_listeners()` to set it.
+		 */
+		$test_instance = new Modules\Posts();
+		$test_ref      = new ReflectionObject( $test_instance );
+		$property_ref  = $test_ref->getProperty( 'action_handler' );
+		$property_ref->setAccessible( true );
+		$property_ref->setValue( $test_instance, function () {} );
+
+		$test_instance->daily_akismet_meta_cleanup_before( $ids );
+	}
+
 
 	function add_a_hello_post_type() {
 		if ( ! $this->test_already  ) {

@@ -198,6 +198,6 @@ class Test_Constants extends TestCase {
 		$this->assertFalse( Constants::is_true( 'FOO' ), 'false constant returns true' );
 		Constants::set_constant( 'FOO', true );
 
-		$this->assertTrue( Constants::is_true( 'FOO' ), 'true constant returns false');
+		$this->assertTrue( Constants::is_true( 'FOO' ), 'true constant returns false' );
 	}
 }

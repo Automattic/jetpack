@@ -1,22 +1,39 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase
+/**
+ * Connection Manager functionality testing.
+ *
+ * @package automattic/jetpack-connection
+ */
 
 namespace Automattic\Jetpack\Connection;
 
+use Automattic\Jetpack\Connection\Test\Mock\Hooks;
+use Automattic\Jetpack\Connection\Test\Mock\Options;
+use Automattic\Jetpack\Constants;
 use phpmock\Mock;
 use phpmock\MockBuilder;
+use phpmock\MockEnabledException;
 use PHPUnit\Framework\TestCase;
 
-use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Connection\Utils;
-
+/**
+ * Connection Manager functionality testing.
+ */
 class ManagerTest extends TestCase {
 
-	protected $arguments_stack = [];
+	/**
+	 * Temporary stack for `wp_redirect`.
+	 *
+	 * @var array
+	 */
+	protected $arguments_stack = array();
 
+	/**
+	 * Initialize the object before running the test method.
+	 */
 	public function setUp() {
 		$this->manager = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
-							  ->setMethods( array( 'get_access_token' ) )
-							  ->getMock();
+			->setMethods( array( 'get_access_token' ) )
+			->getMock();
 
 		$builder = new MockBuilder();
 		$builder->setNamespace( __NAMESPACE__ )
@@ -34,7 +51,7 @@ class ManagerTest extends TestCase {
 				->setName( 'wp_redirect' )
 				->setFunction(
 					function( $url ) {
-						$this->arguments_stack['wp_redirect'] [] = [ $url ];
+						$this->arguments_stack['wp_redirect'] [] = array( $url );
 						return true;
 					}
 				);
@@ -53,6 +70,9 @@ class ManagerTest extends TestCase {
 		$this->constants_apply_filters = $builder->build();
 	}
 
+	/**
+	 * Clean up the testing environment.
+	 */
 	public function tearDown() {
 		unset( $this->manager );
 		Constants::clear_constants();
@@ -60,31 +80,40 @@ class ManagerTest extends TestCase {
 	}
 
 	/**
+	 * Test the `is_active` functionality when connected.
+	 *
 	 * @covers Automattic\Jetpack\Connection\Manager::is_active
 	 */
 	public function test_is_active_when_connected() {
-		$access_token = (object) [
+		$access_token = (object) array(
 			'secret'           => 'abcd1234',
 			'external_user_id' => 1,
-		];
+		);
 		$this->manager->expects( $this->once() )
-					  ->method( 'get_access_token' )
-					  ->will( $this->returnValue( $access_token ) );
+			->method( 'get_access_token' )
+			->will( $this->returnValue( $access_token ) );
 
 		$this->assertTrue( $this->manager->is_active() );
 	}
 
 	/**
+	 * Test the `is_active` functionality when not connected.
+	 *
 	 * @covers Automattic\Jetpack\Connection\Manager::is_active
 	 */
 	public function test_is_active_when_not_connected() {
 		$this->manager->expects( $this->once() )
-					  ->method( 'get_access_token' )
-					  ->will( $this->returnValue( false ) );
+			->method( 'get_access_token' )
+			->will( $this->returnValue( false ) );
 
 		$this->assertFalse( $this->manager->is_active() );
 	}
 
+	/**
+	 * Test the `api_url` generation.
+	 *
+	 * @covers Automattic\Jetpack\Connection\Manager::api_url
+	 */
 	public function test_api_url_defaults() {
 		$this->apply_filters->enable();
 		$this->constants_apply_filters->enable();
@@ -128,6 +157,7 @@ class ManagerTest extends TestCase {
 		$builder->setNamespace( __NAMESPACE__ )
 				->setName( 'apply_filters' )
 				->setFunction(
+					// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 					function( $filter_name, $return_value ) {
 						$this->arguments_stack[ $filter_name ] [] = func_get_args();
 						return 'completely overwrite';
@@ -156,6 +186,8 @@ class ManagerTest extends TestCase {
 	}
 
 	/**
+	 * Test the `is_user_connected` functionality.
+	 *
 	 * @covers Automattic\Jetpack\Connection\Manager::is_user_connected
 	 */
 	public function test_is_user_connected_with_default_user_id_logged_out() {
@@ -165,6 +197,8 @@ class ManagerTest extends TestCase {
 	}
 
 	/**
+	 * Test the `is_user_connected` functionality.
+	 *
 	 * @covers Automattic\Jetpack\Connection\Manager::is_user_connected
 	 */
 	public function test_is_user_connected_with_false_user_id_logged_out() {
@@ -174,46 +208,52 @@ class ManagerTest extends TestCase {
 	}
 
 	/**
+	 * Test the `is_user_connected` functionality
+	 *
 	 * @covers Automattic\Jetpack\Connection\Manager::is_user_connected
 	 */
 	public function test_is_user_connected_with_user_id_logged_out_not_connected() {
 		$this->mock_function( 'absint', 1 );
 		$this->manager->expects( $this->once() )
-					  ->method( 'get_access_token' )
-					  ->will( $this->returnValue( false ) );
+			->method( 'get_access_token' )
+			->will( $this->returnValue( false ) );
 
 		$this->assertFalse( $this->manager->is_user_connected( 1 ) );
 	}
 
 
 	/**
+	 * Test the `is_user_connected` functionality.
+	 *
 	 * @covers Automattic\Jetpack\Connection\Manager::is_user_connected
 	 */
 	public function test_is_user_connected_with_default_user_id_logged_in() {
 		$this->mock_function( 'get_current_user_id', 1 );
-		$access_token = (object) [
+		$access_token = (object) array(
 			'secret'           => 'abcd1234',
 			'external_user_id' => 1,
-		];
+		);
 		$this->manager->expects( $this->once() )
-					  ->method( 'get_access_token' )
-					  ->will( $this->returnValue( $access_token ) );
+			->method( 'get_access_token' )
+			->will( $this->returnValue( $access_token ) );
 
 		$this->assertTrue( $this->manager->is_user_connected() );
 	}
 
 	/**
+	 * Test the `is_user_connected` functionality.
+	 *
 	 * @covers Automattic\Jetpack\Connection\Manager::is_user_connected
 	 */
 	public function test_is_user_connected_with_user_id_logged_in() {
 		$this->mock_function( 'absint', 1 );
-		$access_token = (object) [
+		$access_token = (object) array(
 			'secret'           => 'abcd1234',
 			'external_user_id' => 1,
-		];
+		);
 		$this->manager->expects( $this->once() )
-					  ->method( 'get_access_token' )
-					  ->will( $this->returnValue( $access_token ) );
+			->method( 'get_access_token' )
+			->will( $this->returnValue( $access_token ) );
 
 		$this->assertTrue( $this->manager->is_user_connected( 1 ) );
 	}
@@ -222,16 +262,25 @@ class ManagerTest extends TestCase {
 	 * Mock a global function and make it return a certain value.
 	 *
 	 * @param string $function_name Name of the function.
-	 * @param mixed  $return_value  Return value of the function.
-	 * @return phpmock\Mock The mock object.
+	 * @param mixed  $return_value Return value of the function.
+	 *
+	 * @return Mock The mock object.
+	 * @throws MockEnabledException PHPUnit wasn't able to enable mock functions.
 	 */
 	protected function mock_function( $function_name, $return_value = null ) {
 		$builder = new MockBuilder();
 		$builder->setNamespace( __NAMESPACE__ )
 			->setName( $function_name )
-			->setFunction( function() use ( &$return_value ) {
-				return $return_value;
-			} );
-		return $builder->build()->enable();
+			->setFunction(
+				function() use ( &$return_value ) {
+					return $return_value;
+				}
+			);
+
+		$mock = $builder->build();
+		$mock->enable();
+
+		return $mock;
 	}
+
 }

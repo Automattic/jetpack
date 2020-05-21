@@ -613,14 +613,14 @@ class Jetpack_Subscriptions {
 			check_admin_referer( 'blogsub_subscribe_' . get_current_blog_id() );
 		}
 
-		if ( empty( $_REQUEST['email'] ) )
+		if ( empty( $_REQUEST['email'] ) || ! is_string( $_REQUEST['email'] ) )
 			return false;
 
 		$redirect_fragment = false;
 		if ( isset( $_REQUEST['redirect_fragment'] ) ) {
 			$redirect_fragment = preg_replace( '/[^a-z0-9_-]/i', '', $_REQUEST['redirect_fragment'] );
 		}
-		if ( !$redirect_fragment ) {
+		if ( !$redirect_fragment || ! is_string( $redirect_fragment ) ) {
 			$redirect_fragment = 'subscribe-blog';
 		}
 
@@ -817,7 +817,7 @@ class Jetpack_Subscriptions {
 		 * @since 5.5.0
 		 *
 		 * @param NULL|WP_Error $result Result of form submission: NULL on success, WP_Error otherwise.
-		 * @param Array $post_ids An array of post IDs that the user subscribed to, 0 means blog subscription.
+		 * @param array $post_ids An array of post IDs that the user subscribed to, 0 means blog subscription.
 		 */
 		do_action( 'jetpack_subscriptions_comment_form_submission', $result, $post_ids );
 	}

@@ -89,7 +89,7 @@ class ActiveCard extends Component {
 			devMode = this.props.devMode;
 
 		return (
-			<SettingsCard header={ m.name } action={ m.module } hideButton>
+			<SettingsCard module={ m.module } header={ m.name } action={ m.module } hideButton>
 				<SettingsGroup
 					disableInDevMode={ devMode }
 					module={ { module: m.module } }

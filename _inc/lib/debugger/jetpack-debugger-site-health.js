@@ -5,7 +5,7 @@
 
 jQuery( document ).ready( function( $ ) {
 	var JetpackSync = {
-		inProgress: false,
+		inProgress: true,
 		progressPercent: 0,
 		interval: false,
 		init: function() {
@@ -14,12 +14,12 @@ jQuery( document ).ready( function( $ ) {
 			JetpackSync.interval = setInterval( JetpackSync.checkProgress, 3000 );
 			$( 'body' ).on(
 				'click',
-				'[aria-controls=health-check-accordion-block-jetpack_test__sync_health]',
+				'[aria-controls=health-check-accordion-block-jetpack_test__full_sync_health]',
 				JetpackSync.setProgress
 			);
 		},
 		accordionButton: function() {
-			return $( '[aria-controls=health-check-accordion-block-jetpack_test__sync_health]' );
+			return $( '[aria-controls=health-check-accordion-block-jetpack_test__full_sync_health]' );
 		},
 		accordionIsOpen: function() {
 			return JetpackSync.accordionButton().attr( 'aria-expanded' );
@@ -63,7 +63,9 @@ jQuery( document ).ready( function( $ ) {
 	};
 
 	if ( jetpackSiteHealth.progressPercent ) {
-		JetpackSync.init();
+		setTimeout( function() {
+			JetpackSync.init();
+		}, 5000 );
 	}
 
 	$( 'body' ).on( 'click', '#full_sync_request_link', function() {

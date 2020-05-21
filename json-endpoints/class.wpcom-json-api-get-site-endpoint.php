@@ -142,7 +142,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'site_goals',
 		'site_segment',
 		'import_engine',
-		'is_wpforteams_site'
+		'is_wpforteams_site',
+		'site_creation_flow',
 	);
 
 	protected static $jetpack_response_field_additions = array(
@@ -611,6 +612,12 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 				case 'is_wpforteams_site':
 					$options[ $key ] = $site->is_wpforteams_site();
+					break;
+				case 'site_creation_flow':
+					$site_creation_flow = $site->get_site_creation_flow();
+					if ( $site_creation_flow ) {
+						$options[ $key ] = $site_creation_flow;
+					}
 					break;
 			}
 		}

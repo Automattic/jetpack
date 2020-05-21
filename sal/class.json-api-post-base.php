@@ -141,7 +141,7 @@ abstract class SAL_Post {
 				$metadata[] = array(
 					'id'    => $meta['meta_id'],
 					'key'   => $meta['meta_key'],
-					'value' => maybe_unserialize( $meta['meta_value'] ),
+					'value' => $this->safe_maybe_unserialize( $meta['meta_value'] ),
 				);
 			}
 		}
@@ -678,5 +678,21 @@ abstract class SAL_Post {
 		}
 
 		return (object) $response;
+	}
+
+	/**
+	 * Temporary wrapper around maybe_unserialize() to catch exceptions thrown by unserialize().
+	 *
+	 * Can be removed after https://core.trac.wordpress.org/ticket/45895 lands in Core.
+	 *
+	 * @param  string $original Serialized string.
+	 * @return string Unserialized string or original string if an exception was raised.
+	 **/
+	protected function safe_maybe_unserialize( $original ) {
+		try {
+			return maybe_unserialize( $original );
+		} catch ( Exception $e ) {
+			return $original;
+		}
 	}
 }

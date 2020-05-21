@@ -102,6 +102,7 @@ class Defaults {
 		'jetpack_autoupdate_translations',
 		'carousel_background_color',
 		'carousel_display_exif',
+		'carousel_display_comments',
 		'jetpack_portfolio',
 		'jetpack_portfolio_posts_per_page',
 		'jetpack_testimonial',
@@ -158,6 +159,9 @@ class Defaults {
 		'site_user_type',
 		'site_vertical',
 		'jetpack_excluded_extensions',
+		'jetpack_publicize_options',
+		'jetpack_connection_active_plugins',
+		'jetpack_sync_non_blocking', // is non-blocking Jetpack Sync flow enabled.
 	);
 
 	/**
@@ -372,6 +376,7 @@ class Defaults {
 	 * @var array Blacklisted post types.
 	 */
 	public static $blacklisted_post_types = array(
+		'ai_log', // Logger - https://github.com/alleyinteractive/logger.
 		'ai1ec_event',
 		'bwg_album',
 		'bwg_gallery',
@@ -387,6 +392,7 @@ class Defaults {
 		'jp_sitemap_master',
 		'jp_vid_sitemap',
 		'jp_vid_sitemap_index',
+		'msm_sitemap', // Metro Sitemap Plugin.
 		'postman_sent_mail',
 		'rssap-feed',
 		'rssmi_feed_item',
@@ -396,6 +402,7 @@ class Defaults {
 		'snitch',
 		'vip-legacy-redirect',
 		'wp_automatic',
+		'wp_log', // WP Logging Plugin.
 		'wp-rest-api-log', // https://wordpress.org/plugins/wp-rest-api-log/.
 		'wpephpcompat_jobs',
 		'wprss_feed_item',
@@ -1041,14 +1048,14 @@ class Defaults {
 	 *
 	 * @var int Number of queue items.
 	 */
-	public static $default_max_queue_size = 1000;
+	public static $default_max_queue_size = 5000;
 
 	/**
 	 * Default maximum lag allowed in the queue.
 	 *
 	 * @var int Number of seconds
 	 */
-	public static $default_max_queue_lag = 900; // 15 minutes.
+	public static $default_max_queue_lag = 7200; // 2 hours.
 
 	/**
 	 * Default for default writes per sec.

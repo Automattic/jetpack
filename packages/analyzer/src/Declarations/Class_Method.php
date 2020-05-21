@@ -10,12 +10,14 @@ class Class_Method extends Declaration {
 	public $method_name;
 	public $params;
 	public $static;
+	public $deprecated;
 
-	function __construct( $path, $line, $class_name, $method_name, $static ) {
+	function __construct( $path, $line, $class_name, $method_name, $static, $deprecated = false ) {
 		$this->class_name  = $class_name;
 		$this->method_name = $method_name;
 		$this->params      = array();
 		$this->static      = $static;
+		$this->deprecated  = $deprecated;
 		parent::__construct( $path, $line );
 	}
 
@@ -33,6 +35,7 @@ class Class_Method extends Declaration {
 			$this->method_name,
 			$this->static,
 			json_encode( $this->params ),
+			$this->deprecated,
 		);
 	}
 

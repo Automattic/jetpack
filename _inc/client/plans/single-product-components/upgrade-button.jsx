@@ -14,9 +14,8 @@ export default function UpgradeButton( { selectedUpgrade, onClickHandler } ) {
 		return null;
 	}
 	const { link, name, type } = selectedUpgrade;
-
 	return (
-		<div className="single-product-backup__upgrade-button-container">
+		<div className="single-product__upgrade-button-container">
 			<Button href={ link } onClick={ onClickHandler( type ) } primary>
 				{ __( 'Upgrade to %(name)s', {
 					args: { name },

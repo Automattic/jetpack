@@ -1,6 +1,7 @@
 <?php
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Redirect;
 
 /*
 Plugin Name: The Neverending Home Page.
@@ -390,11 +391,12 @@ class The_Neverending_Home_Page {
 	}
 
 	function infinite_setting_html_calypso_placeholder() {
-		$details = get_blog_details();
+		$details     = get_blog_details();
+		$writing_url = Redirect::get_url( 'calypso-settings-writing', array( 'site' => $details->domain ) );
 		echo '<span>' . sprintf(
 			/* translators: Variables are the enclosing link to the settings page */
 			esc_html__( 'This option has moved. You can now manage it %1$shere%2$s.', 'jetpack' ),
-			'<a href="' . esc_url( 'https://wordpress.com/settings/writing/' . $details->domain ) . '">',
+			'<a href="' . esc_url( $writing_url ) . '">',
 			'</a>'
 		) . '</span>';
 	}
@@ -1054,7 +1056,19 @@ class The_Neverending_Home_Page {
 			global $wp_scripts;
 
 			// Identify new scripts needed by the latest set of IS posts
-			$new_scripts = array_diff( $wp_scripts->done, $initial_scripts );
+			$new_scripts = array_filter(
+				$wp_scripts->done,
+				function ( $script_name ) use ( $initial_scripts ) {
+					// Jetpack block scripts should always be sent, even if they've been
+					// sent before. These scripts only run once on when loaded, they don't
+					// watch for new blocks being added.
+					if ( 0 === strpos( $script_name, 'jetpack-block-' ) ) {
+						return true;
+					}
+
+					return ! in_array( $script_name, $initial_scripts, true );
+				}
+			);
 
 			// If new scripts are needed, extract relevant data from $wp_scripts
 			if ( ! empty( $new_scripts ) ) {
@@ -1071,9 +1085,11 @@ class The_Neverending_Home_Page {
 
 					// Provide basic script data
 					$script_data = array(
-						'handle'     => $handle,
-						'footer'     => ( is_array( $wp_scripts->in_footer ) && in_array( $handle, $wp_scripts->in_footer ) ),
-						'extra_data' => $wp_scripts->print_extra_script( $handle, false )
+						'handle'        => $handle,
+						'footer'        => ( is_array( $wp_scripts->in_footer ) && in_array( $handle, $wp_scripts->in_footer, true ) ),
+						'extra_data'    => $wp_scripts->print_extra_script( $handle, false ),
+						'before_handle' => $wp_scripts->print_inline_script( $handle, 'before', false ),
+						'after_handle'  => $wp_scripts->print_inline_script( $handle, 'after', false ),
 					);
 
 					// Base source

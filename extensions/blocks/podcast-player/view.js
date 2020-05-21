@@ -1,4 +1,5 @@
 /* global jetpackPodcastPlayers */
+
 /**
  * External dependencies
  */
@@ -7,7 +8,7 @@ import debugFactory from 'debug';
 /**
  * WordPress dependencies
  */
-import { render, createElement } from '@wordpress/element';
+import { render, createElement, unmountComponentAtNode } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -21,15 +22,18 @@ const playerInstances = {};
 
 /**
  * Downgrades the block to use the static markup as rendered on the server.
- * @param {Element} block The root element of the block.
+ *
+ * @param {Element} block - The root element of the block.
  */
 const downgradeBlockToStatic = function( block ) {
 	block.classList.add( 'is-default' );
+	block.setAttribute( 'data-jetpack-block-initialized', 'true' );
 };
 
 /**
  * Initialize player instance.
- * @param {string} id The id of the block element in document.
+ *
+ * @param {string} id - The id of the block element in document.
  */
 const initializeBlock = function( id ) {
 	// Find DOM node.
@@ -41,7 +45,11 @@ const initializeBlock = function( id ) {
 		return;
 	}
 
-	// Load data from the embedded JSON.
+	if ( block.getAttribute( 'data-jetpack-block-initialized' ) === 'true' ) {
+		return;
+	}
+
+	// Load data from the embedded JSON and remove it from the HTML.
 	const dataContainer = block.querySelector( 'script[type="application/json"]' );
 	if ( ! dataContainer ) {
 		downgradeBlockToStatic( block );
@@ -55,6 +63,10 @@ const initializeBlock = function( id ) {
 		downgradeBlockToStatic( block );
 		return;
 	}
+	dataContainer.remove();
+
+	// Save the static markup.
+	const fallbackHTML = block.innerHTML;
 
 	// Abort if not tracks found.
 	if ( ! data || ! data.tracks.length ) {
@@ -67,6 +79,12 @@ const initializeBlock = function( id ) {
 		// Prepare component.
 		const component = createElement( PodcastPlayer, {
 			...data,
+			onError: function() {
+				// Unmount React version and bring back the static HTML.
+				unmountComponentAtNode( block );
+				block.innerHTML = fallbackHTML;
+				downgradeBlockToStatic( block );
+			},
 		} );
 
 		// Render and save instance to the list of active ones.
@@ -75,6 +93,8 @@ const initializeBlock = function( id ) {
 		debug( 'unable to render', err );
 		downgradeBlockToStatic( block );
 	}
+
+	block.setAttribute( 'data-jetpack-block-initialized', 'true' );
 };
 
 // Initialize queued players.

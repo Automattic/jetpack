@@ -8,6 +8,7 @@ import Button from 'components/button';
 import ClipboardButtonInput from 'components/clipboard-button-input';
 import Card from 'components/card';
 import analytics from 'lib/analytics';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -57,7 +58,7 @@ class PostByEmail extends React.Component {
 					module={ postByEmail }
 					support={ {
 						text: __( 'Allows you to publish new posts by sending an email to a special address.' ),
-						link: 'https://jetpack.com/support/post-by-email/',
+						link: getRedirectUrl( 'jetpack-support-post-by-email' ),
 					} }
 				>
 					<p>

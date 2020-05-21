@@ -2,6 +2,7 @@
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Tracking;
+use Automattic\Jetpack\Redirect;
 
 /**
  * Disable direct access and execution.
@@ -226,7 +227,7 @@ class Jetpack_Plugin_Search {
 					'Learn more about these suggestions.',
 					'jetpack'
 				),
-				'supportLink'    => 'https://jetpack.com/redirect/?source=plugin-hint-learn-support',
+				'supportLink'    => Redirect::get_url( 'plugin-hint-learn-support' ),
 				'hideText'       => esc_html__( 'Hide this suggestion', 'jetpack' ),
 			)
 		);
@@ -277,7 +278,7 @@ class Jetpack_Plugin_Search {
 				'requires_connection' => true,
 				'module' => 'akismet',
 				'sort' => '16',
-				'learn_more_button' => 'https://jetpack.com/features/security/spam-filtering/',
+				'learn_more_button' => Redirect::get_url( 'plugin-hint-upgrade-akismet' ),
 				'configure_url' => admin_url( 'admin.php?page=akismet-key-config' ),
 			),
 		);
@@ -429,20 +430,29 @@ class Jetpack_Plugin_Search {
 	 *
 	 */
 	private function get_configure_url( $feature, $configure_url ) {
-		$siteFragment = Jetpack::build_raw_urls( get_home_url() );
 		switch ( $feature ) {
 			case 'sharing':
 			case 'publicize':
-				$configure_url = "https://wordpress.com/marketing/connections/$siteFragment";
+				$configure_url = Redirect::get_url( 'calypso-marketing-connections' );
 				break;
 			case 'seo-tools':
-				$configure_url = "https://wordpress.com/marketing/traffic/$siteFragment#seo";
+				$configure_url = Redirect::get_url(
+					'calypso-marketing-traffic',
+					array(
+						'anchor' => 'seo',
+					)
+				);
 				break;
 			case 'google-analytics':
-				$configure_url = "https://wordpress.com/marketing/traffic/$siteFragment#analytics";
+				$configure_url = Redirect::get_url(
+					'calypso-marketing-traffic',
+					array(
+						'anchor' => 'analytics',
+					)
+				);
 				break;
 			case 'wordads':
-				$configure_url = "https://wordpress.com/ads/settings/$siteFragment";
+				$configure_url = Redirect::get_url( 'wpcom-ads-settings' );
 				break;
 		}
 		return $configure_url;
@@ -465,7 +475,7 @@ class Jetpack_Plugin_Search {
 			$links['jp_get_started'] = '<a
 				id="plugin-select-settings"
 				class="jetpack-plugin-search__primary jetpack-plugin-search__get-started button"
-				href="https://jetpack.com/redirect/?source=plugin-hint-learn-' . $plugin['module'] . '"
+				href="' . esc_url( Redirect::get_url( 'plugin-hint-learn-' . $plugin['module'] ) ) . '"
 				data-module="' . esc_attr( $plugin['module'] ) . '"
 				data-track="get_started"
 				>' . esc_html__( 'Get started', 'jetpack' ) . '</a>';
@@ -502,7 +512,7 @@ class Jetpack_Plugin_Search {
 			$links['jp_get_started'] = '<a
 				id="plugin-select-settings"
 				class="jetpack-plugin-search__primary jetpack-plugin-search__get-started button"
-				href="https://jetpack.com/redirect/?source=plugin-hint-learn-' . $plugin['module'] . '"
+				href="' . esc_url( Redirect::get_url( 'plugin-hint-learn-' . $plugin['module'] ) ) . '"
 				data-module="' . esc_attr( $plugin['module'] ) . '"
 				data-track="get_started"
 				>' . esc_html__( 'Get started', 'jetpack' ) . '</a>';

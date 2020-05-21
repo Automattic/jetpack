@@ -6,6 +6,7 @@
 
 import React, { Component } from 'react';
 import { translate as __ } from 'i18n-calypso';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -40,7 +41,7 @@ export const ManagePlugins = withModuleSettingsFormHelpers(
 					onClick={ this.trackClickConfigure }
 					target="_blank"
 					rel="noopener noreferrer"
-					href={ 'https://wordpress.com/plugins/manage/' + this.props.siteRawUrl }
+					href={ getRedirectUrl( 'calypso-plugins-manage', { site: this.props.siteRawUrl } ) }
 				>
 					{ __( 'Choose which plugins to auto-update' ) }
 				</Card>

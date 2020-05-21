@@ -104,6 +104,11 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
+		fetchConnectedPlugins: () =>
+			getRequest( `${ apiRoot }jetpack/v4/connection/plugins`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
 		fetchModules: () =>
 			getRequest( `${ apiRoot }jetpack/v4/module/all`, getParams )
 				.then( checkStatus )
@@ -243,6 +248,12 @@ function JetpackRestApiClient( root, nonce ) {
 
 		fetchRewindStatus: () =>
 			getRequest( `${ apiRoot }jetpack/v4/rewind`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse )
+				.then( body => JSON.parse( body.data ) ),
+
+		fetchScanStatus: () =>
+			getRequest( `${ apiRoot }jetpack/v4/scan`, getParams )
 				.then( checkStatus )
 				.then( parseJsonResponse )
 				.then( body => JSON.parse( body.data ) ),
