@@ -81,7 +81,7 @@ jobs:
           sudo apt install -y php-fpm nginx
           sudo systemctl start mysql.service
 
-          - name: Setup tmate session
+      - name: Setup tmate session
         uses: mxschmitt/action-tmate@v2
 
       - run: ./tests/e2e/bin/setup-e2e-travis.sh
