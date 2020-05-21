@@ -8,6 +8,7 @@ import classnames from 'classnames';
  */
 import { useCallback } from '@wordpress/element';
 import { Spinner } from '@wordpress/components';
+import { ENTER, SPACE } from '@wordpress/keycodes';
 
 function MediaItem( props ) {
 	const onClick = useCallback( () => {
@@ -16,9 +17,9 @@ function MediaItem( props ) {
 		}
 	}, [ props.onClick ] );
 
-	// Catch space and enter keypresses.
+	// Catch space and enter key presses.
 	const onKeyDown = event => {
-		if ( event.which === 13 || event.which === 32 ) {
+		if ( ENTER === event.keyCode || SPACE === event.keyCode ) {
 			// Prevent spacebar from scrolling the page down.
 			event.preventDefault();
 			onClick( event );
