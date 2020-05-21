@@ -4,7 +4,7 @@
 import { __ } from '@wordpress/i18n';
 import { BaseControl, Button, ButtonGroup } from '@wordpress/components';
 
-const JetpackFieldWidth = ( { setAttributes, width } ) => {
+export default function JetpackFieldWidth( { setAttributes, width } ) {
 	return (
 		<BaseControl
 			label={ __( 'Field Width', 'jetpack' ) }
@@ -30,6 +30,4 @@ const JetpackFieldWidth = ( { setAttributes, width } ) => {
 			</ButtonGroup>
 		</BaseControl>
 	);
-};
-
-export default JetpackFieldWidth;
+}
