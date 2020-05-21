@@ -399,7 +399,11 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 		$image_src = wp_get_attachment_image_src( $id, 'full' );
 
 		if ( empty( $image_src[0] ) ) {
-			$response = new WP_Error( 'rest_upload_error', 'Could not retrieve source URL.', array( 'status' => 400 ) );
+			$response = new WP_Error(
+				'rest_upload_error',
+				__( 'Could not retrieve source URL.', 'jetpack' ),
+				array( 'status' => 400 )
+			);
 		} else {
 			$response = array(
 				'id'      => $id,
