@@ -136,5 +136,3 @@ class Assets {
 	}
 
 }
-
-

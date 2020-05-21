@@ -60,8 +60,9 @@ class Admin_Bar_Notice {
 	 * @return bool
 	 */
 	private function should_try_to_display_notice() {
+		// Jetpack Scan is currently not supported on multisite.
 		if ( is_multisite() ) {
-			return false; // Jetpack Scan is currently not supported on multisite.
+			return false;
 		}
 
 		// Check if VaultPress is active.
@@ -69,8 +70,9 @@ class Admin_Bar_Notice {
 			return false;
 		}
 
+		// Only show the notice to admins.
 		if ( ! current_user_can( 'manage_options' ) ) {
-			return false; // Only show the notice to admins.
+			return false;
 		}
 
 		return true;
@@ -110,10 +112,9 @@ class Admin_Bar_Notice {
 			return;
 		}
 
-		$hide_wording_on_mobile = '@media screen and (max-width: 959px ) { #wpadminbar #wp-admin-bar-jetpack-scan-notice { width:32px; } #wpadminbar #wp-admin-bar-jetpack-scan-notice a { color: transparent!important; }';
 		// We might be showing the threats in the admin bar lets make sure that they look great!
-		$style = '#wp-admin-bar-jetpack-scan-notice svg { float:left; margin-top: 4px; margin-right: 6px; width: 18px; height: 22px; }' . $hide_wording_on_mobile;
-
+		$hide_wording_on_mobile = '@media screen and (max-width: 959px ) { #wpadminbar #wp-admin-bar-jetpack-scan-notice { width:32px; } #wpadminbar #wp-admin-bar-jetpack-scan-notice a { color: transparent!important; }';
+		$style                  = '#wp-admin-bar-jetpack-scan-notice svg { float:left; margin-top: 4px; margin-right: 6px; width: 18px; height: 22px; }' . $hide_wording_on_mobile;
 		if ( is_rtl() ) {
 			$style = '#wp-admin-bar-jetpack-scan-notice svg { float:right; margin-top: 4px; margin-left: 6px; width: 18px; height: 22px; }' . $hide_wording_on_mobile;
 		}
@@ -145,7 +146,6 @@ class Admin_Bar_Notice {
 			),
 		);
 
-		// No need to do anything...
 		if ( $has_threats ) {
 			$node['href']            = esc_url( Redirect::get_url( 'calypso-scanner' ) );
 			$node['meta']['onclick'] = 'window.open( this.href ); return false;';
@@ -156,7 +156,6 @@ class Admin_Bar_Notice {
 				),
 				$this->get_icon()
 			);
-
 		}
 
 		$wp_admin_bar->add_node( $node );
@@ -182,7 +181,6 @@ class Admin_Bar_Notice {
 			return null;
 		}
 
-		// Return true if there is at least one threat found.
 		return (bool) isset( $scan_state->threats[0] );
 	}
 
