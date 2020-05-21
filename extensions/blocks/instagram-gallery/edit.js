@@ -28,7 +28,11 @@ import { __, sprintf, _n } from '@wordpress/i18n';
  * Internal dependencies
  */
 import defaultAttributes from './attributes';
-import { IS_CURRENT_USER_CONNECTED_TO_WPCOM, MAX_IMAGE_COUNT } from './constants';
+import {
+	IS_CURRENT_USER_CONNECTED_TO_WPCOM,
+	MAX_IMAGE_COUNT,
+	NEW_INSTAGRAM_CONNECTION,
+} from './constants';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import useConnectInstagram from './use-connect-instagram';
 import useConnectWpcom from './use-connect-wpcom';
@@ -139,7 +143,7 @@ const InstagramGalleryEdit = props => {
 	};
 
 	const connectBlockToInstagram = () => {
-		if ( selectedAccount && 'jetpack-new-instagram-connection' !== selectedAccount ) {
+		if ( selectedAccount && NEW_INSTAGRAM_CONNECTION !== selectedAccount ) {
 			setAttributes( {
 				accessToken: selectedAccount,
 				instagramUser: find( userConnections, { token: selectedAccount } ).username,
@@ -167,7 +171,7 @@ const InstagramGalleryEdit = props => {
 			} ) ),
 			{
 				label: __( 'Add a new account', 'jetpack' ),
-				value: 'jetpack-new-instagram-connection',
+				value: NEW_INSTAGRAM_CONNECTION,
 			},
 		];
 		const isButtonDisabled =
@@ -182,6 +186,14 @@ const InstagramGalleryEdit = props => {
 						options={ radioOptions }
 						selected={ selectedAccount }
 					/>
+				) }
+				{ NEW_INSTAGRAM_CONNECTION === selectedAccount && (
+					<p className="wp-block-jetpack-instagram-gallery__new-account-instructions">
+						{ __(
+							'If you are currently logged in to Instagram on this device, you might need to log out of it first.',
+							'jetpack'
+						) }
+					</p>
 				) }
 				<Button disabled={ isButtonDisabled } isLarge isPrimary onClick={ connectBlockToInstagram }>
 					{ isConnecting && __( 'Connecting…', 'jetpack' ) }
