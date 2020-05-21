@@ -9,7 +9,7 @@ const FILTERS = [
 	{ label: __( 'Category', 'jetpack' ), value: 'category' },
 	{ label: __( 'After date', 'jetpack' ), value: 'startDate' },
 	{ label: __( 'Before date', 'jetpack' ), value: 'endDate' },
-	{ label: __( 'Favourite Media Only', 'jetpack' ), value: 'favorite' },
+	{ label: __( 'Favorites', 'jetpack' ), value: 'favorite' },
 	{ label: __( 'Media Type', 'jetpack' ), value: 'mediaType' },
 ];
 

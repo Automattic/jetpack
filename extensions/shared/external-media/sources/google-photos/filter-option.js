@@ -53,7 +53,7 @@ function DateOption( { value, name, updateFilter } ) {
 }
 
 function FavoriteOption() {
-	return <span>{ __( 'Only favorites', 'jetpack' ) }</span>;
+	return <span>{ __( 'Favorites', 'jetpack' ) }</span>;
 }
 
 function MediaTypeOption( { value, updateFilter } ) {
