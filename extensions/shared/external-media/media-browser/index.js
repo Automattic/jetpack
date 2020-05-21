@@ -20,7 +20,7 @@ const MAX_SELECTED = 10;
 
 const EmptyResults = memo( () => (
 	<div className="jetpack-external-media-browser__empty">
-		<p>{ __( 'We found nothing.', 'jetpack' ) }</p>
+		<p>{ __( 'Sorry, but nothing matched your search criteria.', 'jetpack' ) }</p>
 	</div>
 ) );
 
