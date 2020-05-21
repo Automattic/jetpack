@@ -1,11 +1,11 @@
 name: E2E tests
 # Trigger on every push
 on: push
-env:
-  DB_NAME: jetpack_test
-  DB_HOST: 127.0.0.1
-  DB_USERNAME: root
-  DB_PASSWORD: root
+# env:
+#   DB_NAME: jetpack_test
+#   DB_HOST: 127.0.0.1
+#   DB_USERNAME: root
+#   DB_PASSWORD: root
 
 jobs:
   # wp:
@@ -81,8 +81,8 @@ jobs:
           sudo apt install -y php-fpm nginx
           sudo systemctl start mysql.service
 
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v2
+      # - name: Setup tmate session
+      #   uses: mxschmitt/action-tmate@v2
 
       - run: ./tests/e2e/bin/setup-e2e-travis.sh
 

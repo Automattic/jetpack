@@ -3,10 +3,10 @@
 
 set -ex
 
-# DB_NAME=jetpack_test
-# DB_USERNAME=root
-# DB_PASSWORD=""
-# DB_HOST=${4-localhost}
+DB_NAME=jetpack_test
+DB_USERNAME=root
+DB_PASSWORD=""
+DB_HOST=localhost
 WP_VERSION=latest
 WP_CORE_DIR=$HOME/wordpress
 
