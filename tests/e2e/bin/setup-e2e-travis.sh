@@ -5,16 +5,12 @@ set -ex
 
 DB_NAME=jetpack_test
 DB_USERNAME=root
-DB_PASSWORD=""
+DB_PASSWORD=root
 DB_HOST=localhost
 WP_VERSION=latest
 WP_CORE_DIR=$HOME/wordpress
 
-
 WORKING_DIR="$PWD"
-PHP_VERSION=${TRAVIS_PHP_VERSION-7.4}
-USER="www-data"
-
 
 get_ngrok_url() {
 	echo $(curl -s localhost:4040/api/tunnels/command_line | jq --raw-output .public_url)
@@ -76,9 +72,12 @@ setup_nginx() {
 	PHP_FPM_CONF="$NGINX_DIR/php-fpm.conf"
 
 	if [ $TRAVIS = "true" ]; then
+		PHP_VERSION=${TRAVIS_PHP_VERSION-7.4}
 		PHP_FPM_BIN="$HOME/.phpenv/versions/$PHP_VERSION/sbin/php-fpm"
+		USER="travis"
 	else
 		PHP_FPM_BIN="php-fpm7.4"
+		USER="www-data"
 	fi
 
 	# remove default nginx site configs

@@ -86,6 +86,8 @@ jobs:
 
       - run: ./tests/e2e/bin/setup-e2e-travis.sh
 
+      - run: curl localhost -v
+
       - name: Build Jetpack
         run: yarn && yarn build-production
 
