@@ -10,11 +10,12 @@ env:
 jobs:
   wp:
     runs-on: ubuntu-latest
+    container: node:10.18-jessie
     services:
       mysql:
         image: mysql:5.7
-        ports:
-          - 3306/tcp
+        # ports:
+        #   - 3306/tcp
         env:
           MYSQL_ALLOW_EMPTY_PASSWORD: false
           MYSQL_ROOT_PASSWORD: root
@@ -22,10 +23,9 @@ jobs:
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3 --name wpsql
       wp:
         image: wordpress
-        ports:
-          - 8080:80
+        # ports:
+        #   - 80:80
         env:
-          WORDPRESS_DB_HOST: 127.0.0.1
           WORDPRESS_DB_USER: root
           WORDPRESS_DB_PASSWORD: root
           WORDPRESS_DB_NAME: jetpack_test
@@ -38,10 +38,12 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - run: curl localhost:8080 -v || exit 0
+      - run: curl localhost:80 -v || exit 0
       - run: docker ps -a
       - run: sudo systemctl start mysql.service
       - run: echo ${{ job.services.mysql.ports['3306'] }}
+      - run: echo ${{ job.services.mysql.network }}
+      - run: echo ${{ job.container.network }}
 
 
       - name: Setup tmate session
@@ -59,7 +61,7 @@ jobs:
 
           CLI_CMD="docker run -it --rm --volumes-from wpcnt --network host wordpress:cli"
 
-          $CLI_CMD core config --dbname=$DB_NAME --dbuser=$DB_USERNAME --dbpass=$DB_PASSWORD --dbhost=127.0.0.1 --dbprefix=wp_
+          $CLI_CMD core config --dbname=$DB_NAME --dbuser=$DB_USERNAME --dbpass=$DB_PASSWORD --dbhost=127.0.0.1:32768 --dbprefix=wp_
 
           $CLI_CMD db reset --yes --quiet
 
