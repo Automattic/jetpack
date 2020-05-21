@@ -7,7 +7,7 @@ const featureGroups = {
 	security: {
 		title: __( 'Security' ),
 		details: __(
-			'Keep your site totally backed up, prevent unwanted intrusions, find issues with malware scanning, and stop spammers in their tracks.'
+			'Keep your site backed up, prevent unwanted intrusions, find issues with malware scanning, and stop spammers in their tracks.'
 		),
 		features: [ 'backups', 'scan', 'anti-spam', 'brute-force-protect', 'monitor', 'sso' ],
 	},
