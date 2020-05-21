@@ -1,4 +1,5 @@
 @import '../_inc/client/scss/variables/_colors.scss';
+@import '../_inc/client/scss/calypso-colors.scss';
 
 #TB_window.jetpack-disconnect-modal {
 
@@ -61,7 +62,6 @@
 
 						&.dashicons {
 							color: $alert-hot-red;
-
 						}
 
 					}
@@ -88,7 +88,7 @@
 
 		&:hover,
 		&:focus {
-			color: #a2a2a2;
+			color: $gray;
 			outline: none;
 			box-shadow: none;
 		}
@@ -102,8 +102,8 @@
 		position: absolute;
 		bottom: 0px;
 		width: 100%;
-		border-top: 1px solid #ddd;
-		background-color: white;
+		border-top: 1px solid $light-gray-700;
+		background-color: $white;
 	}
 
 	.jetpack_deactivation_dialog_content__buttons-row {
@@ -130,11 +130,11 @@
 		.jetpack_deactivation_dialog_content__buttons {
 
 			button {
-				background: #f3f5f6;
-				border-color: #0071a1;
+				background: $blue-grey-light;
+				border-color: $blue-medium-dark;
 				border-style: solid;
 				border-width: 1px;
-				color: #0071a1;
+				color: $blue-medium-dark;
 				cursor: pointer;
 				display: inline-block;
 				margin: 0;
@@ -161,9 +161,9 @@
 				}
 
 				&#jetpack_deactivation_dialog_content__button-deactivate {
-					background: #d94f4f;
-					border-color: #a02222;
-					color: white;
+					background: $alert-red;
+					border-color: darken( $alert-red, 20% );
+					color: $white;
 				}
 			}
 
