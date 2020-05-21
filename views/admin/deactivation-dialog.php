@@ -16,8 +16,8 @@
 		<?php
 		echo esc_html(
 			sprintf(
-				// translators: %d is the number of additional plugins using the jetpack connection.
-				_n( // phpcs:ignore WordPress.WP.I18n.MismatchedPlaceholders
+				/* translators: %d is the number of additional plugins using the jetpack connection. */
+				_n(
 					'The Jetpack Connection is also used by %d other plugin, and it will lose connection.',
 					'The Jetpack Connection is also used by %d other plugins, and they will lose connection.',
 					count( $data ),
