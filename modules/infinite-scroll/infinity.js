@@ -391,15 +391,11 @@
 
 					// Output extra data, if present
 					if ( item.extra_data ) {
-						var data = document.createElement( 'script' ),
-							dataContent = document.createTextNode(
-								'//<![CDATA[ \n' + item.extra_data + '\n//]]>'
-							);
+						self.appendInlineScript( item.extra_data, elementToAppendTo );
+					}
 
-						data.type = 'text/javascript';
-						data.appendChild( dataContent );
-
-						document.getElementsByTagName( elementToAppendTo )[ 0 ].appendChild( data );
+					if ( item.before_handle ) {
+						self.appendInlineScript( item.before_handle, elementToAppendTo );
 					}
 
 					// Build script tag and append to DOM in requested location
@@ -411,6 +407,12 @@
 					// Dynamically loaded scripts are async by default.
 					// We don't want that, it breaks stuff, e.g. wp-mediaelement init.
 					script.async = false;
+
+					if ( item.after_handle ) {
+						script.onload = function() {
+							self.appendInlineScript( item.after_handle, elementToAppendTo );
+						};
+					}
 
 					// If MediaElement.js is loaded in by item set of posts, don't initialize the players a second time as it breaks them all
 					if ( 'wp-mediaelement' === item.handle ) {
@@ -523,6 +525,26 @@
 		};
 
 		return xhr;
+	};
+
+	/**
+	 * Given JavaScript blob and the name of a parent tag, this helper function will
+	 * generate a script tag, insert the JavaScript blob, and append it to the parent.
+	 *
+	 * It's important to note that the JavaScript blob will be evaluated immediately. If
+	 * you need a parent script to load first, use that script element's onload handler.
+	 *
+	 * @param {string} script    The blob of JavaScript to run.
+	 * @param {string} parentTag The tag name of the parent element.
+	 */
+	Scroller.prototype.appendInlineScript = function( script, parentTag ) {
+		var element = document.createElement( 'script' ),
+			scriptContent = document.createTextNode( '//<![CDATA[ \n' + script + '\n//]]>' );
+
+		element.type = 'text/javascript';
+		element.appendChild( scriptContent );
+
+		document.getElementsByTagName( parentTag )[ 0 ].appendChild( element );
 	};
 
 	/**
