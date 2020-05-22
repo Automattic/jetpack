@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\JITMS\JITM;
+use Automattic\Jetpack\JITMS\Pre_Connection_JITM;
 use phpmock\functions\FunctionProvider;
 use phpmock\Mock;
 use phpmock\MockBuilder;
@@ -63,6 +64,21 @@ class Test_Jetpack_JITM extends TestCase {
 
 		$jitm = new JITM();
 		$this->assertTrue( $jitm->register() );
+
+		$this->clear_mock_filters();
+	}
+
+	/**
+	 * Pre-connection JITMs are disabled by default,
+	 * unless a filter is used.
+	 */
+	public function test_pre_connection_jitms_disabled() {
+		$this->mock_filters( array(
+			array( 'jetpack_pre_connection_prompt_helpers', false, false ),
+		), "Automattic\Jetpack\JITMS" );
+
+		$jitm = new Pre_Connection_JITM();
+		$this->assertEmpty( $jitm->get_messages( '/wp:edit-post:admin_notices/', '', false ) );
 
 		$this->clear_mock_filters();
 	}
