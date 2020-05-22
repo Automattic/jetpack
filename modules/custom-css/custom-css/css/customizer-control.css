@@ -44,7 +44,11 @@
 	padding-top: 3px;
 	opacity: .8;
 }
-
+@-moz-document url-prefix() {
+	#customize-control-wpcom_custom_css_content_width_control input[type="text"] + span {
+		top: 47px;
+	}
+}
 #customize-control-wpcom_custom_css_content_width_control input[type="text"]:focus + span {
 	opacity: 1;
 }
@@ -143,3 +147,4 @@ body.editing-css .wp-full-overlay.expanded {
 input[type=jetpackCss] {
 	display: none;
 }
+

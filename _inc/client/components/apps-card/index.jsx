@@ -24,7 +24,7 @@ class AppsCard extends React.Component {
 		analytics.tracks.recordJetpackClick( {
 			target: 'apps-card',
 			button: 'apps-download',
-			page: this.props.path,
+			page: this.props.path
 		} );
 	};
 
@@ -33,7 +33,7 @@ class AppsCard extends React.Component {
 		analytics.tracks.recordJetpackClick( {
 			target: 'apps-card',
 			button: 'dismiss',
-			page: this.props.path,
+			page: this.props.path
 		} );
 	};
 
@@ -42,22 +42,14 @@ class AppsCard extends React.Component {
 			return null;
 		}
 
-		const classes = classNames( this.props.className, 'jp-apps-card' );
+		const classes = classNames(
+				this.props.className,
+				'jp-apps-card'
+		);
 
 		return (
 			<div className={ classes }>
 				<Card className="jp-apps-card__content">
-					{ this.props.userCanManageOptions && (
-						<Button
-							borderless
-							compact
-							className="jp-apps-card__dismiss"
-							href="javascript:void(0)"
-							onClick={ this.dismissCard }
-						>
-							<span className="dashicons dashicons-no" />
-						</Button>
-					) }
 					<div className="jp-apps-card__top">
 						<img src={ imagePath + 'get-apps.svg' } alt="" />
 					</div>
@@ -68,18 +60,24 @@ class AppsCard extends React.Component {
 						</h3>
 
 						<p className="jp-apps-card__paragraph">
-							{ __(
-								'Manage all your sites from a single dashboard: publish content, track stats, moderate comments, and so much more from anywhere in the world.'
-							) }
+							{ __( 'Manage all your sites from a single dashboard: publish content, track stats, moderate comments, and so much more from anywhere in the world.' ) }
 						</p>
 
 						<Button
 							className="is-primary"
 							onClick={ this.trackDownloadClick }
-							href="https://apps.wordpress.com/get?utm_source=jpdash&utm_medium=cta&utm_campaign=getappscard"
-						>
+							href="https://apps.wordpress.com/get?utm_source=jpdash&utm_medium=cta&utm_campaign=getappscard">
 							{ __( 'Download the free apps' ) }
 						</Button>
+						<br />
+						{
+							this.props.userCanManageOptions && (
+								<a
+									href="javascript:void(0)"
+									onClick={ this.dismissCard }
+									>{ __( 'I already use this app.' ) }</a>
+							)
+						}
 					</div>
 				</Card>
 			</div>
@@ -88,7 +86,7 @@ class AppsCard extends React.Component {
 }
 
 AppsCard.propTypes = {
-	className: PropTypes.string,
+	className: PropTypes.string
 };
 
 export default connect(
@@ -99,11 +97,11 @@ export default connect(
 			userCanManageOptions: userCanManageOptions( state ),
 		};
 	},
-	dispatch => {
+	( dispatch ) => {
 		return {
 			dismissAppCard: () => {
 				return dispatch( updateSettings( { dismiss_dash_app_card: true } ) );
-			},
+			}
 		};
 	}
 )( AppsCard );

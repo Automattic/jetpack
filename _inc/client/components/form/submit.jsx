@@ -1,23 +1,17 @@
-/**
- * External Dependencies
- */
-import React from 'react';
+/** External Dependencies **/
+const React = require( 'react' );
 
-/**
- * Internal Dependencies
- */
-import Button from '../button';
+/** Internal Dependencies **/
+const Button = require( '../button' );
 
 export default class Submit extends React.Component {
 	static displayName = 'Submit';
 
 	render() {
-		const { ...other } = this.props;
+		let { ...other } = this.props;
 
 		return (
-			<Button { ...other } type="submit">
-				{ this.props.children }
-			</Button>
+			<Button { ...other } type="submit">{this.props.children}</Button>
 		);
 	}
 }

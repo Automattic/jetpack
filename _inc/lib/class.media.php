@@ -16,46 +16,43 @@ class Jetpack_Media {
 	 * The returned name has the `{basename}-{hash}-{random-number}.{ext}` shape.
 	 * The hash is built according to the filename trying to avoid name collisions
 	 * with other media files.
-	 *
-	 * @param  number $media_id - media post ID.
-	 * @param  string $new_filename - the new filename.
+	 * 
+	 * @param  number $media_id - media post ID
+	 * @param  string $new_filename - the new filename
 	 * @return string A random filename.
 	 */
 	public static function generate_new_filename( $media_id, $new_filename ) {
-		// Get the right filename extension.
+		// get the right filename extension
 		$new_filename_paths = pathinfo( $new_filename );
-		$new_file_ext       = $new_filename_paths['extension'];
+		$new_file_ext = $new_filename_paths['extension'];
 
-		// Get the file parts from the current attachment.
-		$current_file         = get_attached_file( $media_id );
-		$current_file_parts   = pathinfo( $current_file );
-		$current_file_ext     = $current_file_parts['extension'];
-		$current_file_dirname = $current_file_parts['dirname'];
-
-		// Take out filename from the original file or from the current attachment.
+		// take out filename from the original file or from the current attachment
 		$original_media = (array) self::get_original_media( $media_id );
 
 		if ( ! empty( $original_media ) ) {
 			$original_file_parts = pathinfo( $original_media['file'] );
-			$filename_base       = $original_file_parts['filename'];
+			$filename_base = $original_file_parts['filename'];
 		} else {
+			$current_file = get_attached_file( $media_id );
+			$current_file_parts = pathinfo( $current_file );
+			$current_file_ext = $current_file_parts['filename'];
 			$filename_base = $current_file_parts['filename'];
 		}
 
-		// Add unique seed based on the filename.
-		$filename_base .= '-' . crc32( $filename_base ) . '-';
+		// add unique seed based on the filename
+		$filename_base .=  '-' . crc32( $filename_base ) . '-';
 
 		$number_suffix = time() . rand( 100, 999 );
 
 		do {
-			$filename  = $filename_base;
+			$filename = $filename_base;
 			$filename .= $number_suffix;
-			$file_ext  = $new_file_ext ? $new_file_ext : $current_file_ext;
+			$file_ext = $new_file_ext ? $new_file_ext : $current_file_ext;
 
 			$new_filename = "{$filename}.{$file_ext}";
-			$new_path     = "{$current_file_dirname}/$new_filename";
+			$new_path = "{$current_file_parts['dirname']}/$new_filename";
 			$number_suffix++;
-		} while ( file_exists( $new_path ) );
+		} while( file_exists( $new_path ) );
 
 		return $new_filename;
 	}
@@ -73,7 +70,7 @@ class Jetpack_Media {
 	 * @param  number $media_id
 	 * @return string
 	 */
-	private static function get_time_string_from_guid( $media_id ) {
+	private function get_time_string_from_guid( $media_id ) {
 		$time = date( "Y/m", strtotime( current_time( 'mysql' ) ) );
 
 		if ( $media = get_post( $media_id ) ) {
@@ -88,7 +85,7 @@ class Jetpack_Media {
 
 	/**
 	 * Return an array of allowed mime_type items used to upload a media file.
-	 *
+	 * 	
 	 * @return array mime_type array
 	 */
 	static function get_allowed_mime_types( $default_mime_types ) {
@@ -113,12 +110,58 @@ class Jetpack_Media {
 	 * @return bool
 	 */
 	protected static function is_file_supported_for_sideloading( $file ) {
-		return jetpack_is_file_supported_for_sideloading( $file );
+		if ( class_exists( 'finfo' ) ) { // php 5.3+
+			// phpcs:ignore PHPCompatibility.PHP.NewClasses.finfoFound
+			$finfo = new finfo( FILEINFO_MIME );
+			$mime = explode( '; ', $finfo->file( $file ) );
+			$type = $mime[0];
+
+		} elseif ( function_exists( 'mime_content_type' ) ) { // PHP 5.2
+			$type = mime_content_type( $file );
+
+		} else {
+			return false;
+		}
+
+		/**
+		 * Filter the list of supported mime types for media sideloading.
+		 *
+		 * @since 4.0
+		 *
+		 * @module json-api
+		 *
+		 * @param array $supported_mime_types Array of the supported mime types for media sideloading.
+		 */
+		$supported_mime_types = apply_filters( 'jetpack_supported_media_sideload_types', array(
+			'image/png',
+			'image/jpeg',
+			'image/gif',
+			'image/bmp',
+			'video/quicktime',
+			'video/mp4',
+			'video/mpeg',
+			'video/ogg',
+			'video/3gpp',
+			'video/3gpp2',
+			'video/h261',
+			'video/h262',
+			'video/h264',
+			'video/x-msvideo',
+			'video/x-ms-wmv',
+			'video/x-ms-asf',
+		) );
+
+		// If the type returned was not an array as expected, then we know we don't have a match.
+		if ( ! is_array( $supported_mime_types ) ) {
+			return false;
+		}
+
+		return in_array( $type, $supported_mime_types );
 	}
 
 	/**
 	 * Try to remove the temporal file from the given file array.
-	 *
+	 * 	
 	 * @param  array $file_array Array with data about the temporal file
 	 * @return bool `true` if the file has been removed. `false` either the file doesn't exist or it couldn't be removed.
 	 */
@@ -130,11 +173,11 @@ class Jetpack_Media {
 	}
 
 	/**
-	 * Save the given temporal file considering file type,
+	 * Save the given temporal file considering file type, 
 	 * correct location according to the original file path, etc.
 	 * The file type control is done through of `jetpack_supported_media_sideload_types` filter,
 	 * which allows define to the users their own file types list.
-	 *
+	 * 
 	 * @param  array  $file_array file to save
 	 * @param  number $media_id
 	 * @return array|WP_Error an array with information about the new file saved or a WP_Error is something went wrong.
@@ -185,9 +228,9 @@ class Jetpack_Media {
 
 	/**
 	 * Return an object with an snapshot of a revision item.
-	 *
+	 * 
 	 * @param  object $media_item - media post object
-	 * @return object a revision item
+	 * @return object a revision item 
 	 */
 	public static function get_snapshot( $media_item ) {
 		$current_file = get_attached_file( $media_item->ID );
@@ -199,7 +242,7 @@ class Jetpack_Media {
 			'file'             => (string) $file_paths['basename'],
 			'extension'        => (string) $file_paths['extension'],
 			'mime_type'        => (string) $media_item->post_mime_type,
-			'size'             => (int) filesize( $current_file ),
+			'size'             => (int) filesize( $current_file ) 
 		);
 
 		return (object) $snapshot;
@@ -207,7 +250,7 @@ class Jetpack_Media {
 
 	/**
 	 * Add a new item into revision_history array.
-	 *
+	 * 
 	 * @param  object $media_item - media post object
 	 * @param  file $file - file recently added
 	 * @param  bool $has_original_media - condition is the original media has been already added
@@ -222,7 +265,7 @@ class Jetpack_Media {
 	}
 	/**
 	 * Return the `revision_history` of the given media.
-	 *
+	 * 
 	 * @param  number $media_id - media post ID
 	 * @return array `revision_history` array
 	 */
@@ -251,7 +294,7 @@ class Jetpack_Media {
 	/**
 	 * Try to delete a file according to the dirname of
 	 * the media attached file and the filename.
-	 *
+	 * 
 	 * @param  number $media_id - media post ID
 	 * @param  string $filename - basename of the file ( name-of-file.ext )
 	 * @return bool `true` is the file has been removed, `false` if not.
@@ -282,7 +325,7 @@ class Jetpack_Media {
 	 *   'from' => (int) <from>,
 	 *   'to' =>   (int) <to>,
 	 * )
-	 *
+	 * 
 	 * Also, it removes the file defined in each item.
 	 *
 	 * @param  number $media_id - media post ID
@@ -321,7 +364,7 @@ class Jetpack_Media {
 	/**
 	 * Limit the number of items of the `revision_history` array.
 	 * When the stack is overflowing the oldest item is remove from there (FIFO).
-	 *
+	 * 
 	 * @param  number $media_id - media post ID
 	 * @param  number [$limit] - maximun amount of items. 20 as default.
 	 * @return array items removed from `revision_history`
@@ -350,7 +393,7 @@ class Jetpack_Media {
 
 	/**
 	 * Remove the original file and clean the post metadata.
-	 *
+	 * 
 	 * @param  number $media_id - media post ID
 	 */
 	public static function clean_original_media( $media_id ) {
@@ -369,7 +412,7 @@ class Jetpack_Media {
 	 *   - remove all media files tied to the `revision_history` items.
 	 *   - clean `revision_history` meta data.
 	 *   - remove and clean the `original_media`
-	 *
+	 * 
 	 * @param  number $media_id - media post ID
 	 * @return array results of removing these files
 	 */
@@ -399,25 +442,23 @@ class Jetpack_Media {
 	 * - update attachment file
 	 * - preserve original media file
 	 * - trace revision history
-	 *
-	 * @param  number $media_id - media post ID.
-	 * @param  array  $file_array - temporal file.
+	 * 
+	 * @param  number $media_id - media post ID
+	 * @param  array $file_array - temporal file
 	 * @return {Post|WP_Error} Updated media item or a WP_Error is something went wrong.
 	 */
 	public static function edit_media_file( $media_id, $file_array ) {
-		$media_item         = get_post( $media_id );
+		$media_item = get_post( $media_id );
 		$has_original_media = self::get_original_media( $media_id );
 
 		if ( ! $has_original_media ) {
-
 			// The first time that the media is updated
-			// the original media is stored into the revision_history.
+			// the original media is stored into the revision_history
 			$snapshot = self::get_snapshot( $media_item );
-			//phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			add_post_meta( $media_id, self::$WP_ORIGINAL_MEDIA, $snapshot, true );
 		}
 
-		// Save temporary file in the correct location.
+		// save temporary file in the correct location
 		$uploaded_file = self::save_temporary_file( $file_array, $media_id );
 
 		if ( is_wp_error( $uploaded_file ) ) {
@@ -425,30 +466,27 @@ class Jetpack_Media {
 			return $uploaded_file;
 		}
 
-		// Revision_history control.
+		// revision_history control
 		self::register_revision( $media_item, $uploaded_file, $has_original_media );
 
-		$uploaded_path     = $uploaded_file['file'];
+		$uploaded_path = $uploaded_file['file'];
 		$udpated_mime_type = $uploaded_file['type'];
-		$was_updated       = update_attached_file( $media_id, $uploaded_path );
+		$was_updated = update_attached_file( $media_id, $uploaded_path );
 
 		if ( ! $was_updated ) {
 			return WP_Error( 'update_error', 'Media update error' );
 		}
 
-		// Check maximum amount of revision_history before updating the attachment metadata.
-		self::limit_revision_history( $media_id );
-
 		$new_metadata = wp_generate_attachment_metadata( $media_id, $uploaded_path );
 		wp_update_attachment_metadata( $media_id, $new_metadata );
 
-		$edited_action = wp_update_post(
-			(object) array(
-				'ID'             => $media_id,
-				'post_mime_type' => $udpated_mime_type,
-			),
-			true
-		);
+		// check maximum amount of revision_history
+		self::limit_revision_history( $media_id );
+
+		$edited_action = wp_update_post( (object) array(
+			'ID'              => $media_id,
+			'post_mime_type'  => $udpated_mime_type
+		), true );
 
 		if ( is_wp_error( $edited_action ) ) {
 			return $edited_action;
@@ -464,3 +502,4 @@ function clean_revision_history( $media_id ) {
 };
 
 add_action( 'delete_attachment', 'clean_revision_history' );
+

@@ -7,7 +7,6 @@ import { connect } from 'react-redux';
 import Button from 'components/button';
 import { translate as __ } from 'i18n-calypso';
 import analytics from 'lib/analytics';
-import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -20,13 +19,13 @@ import {
 	getConnectUrl as _getConnectUrl,
 	unlinkUser,
 	isCurrentUserLinked as _isCurrentUserLinked,
-	isUnlinkingUser as _isUnlinkingUser,
+	isUnlinkingUser as _isUnlinkingUser
 } from 'state/connection';
 import { getSiteRawUrl } from 'state/initial-state';
 import onKeyDownCallback from 'utils/onkeydown-callback';
-import JetpackDisconnectModal from 'components/jetpack-termination-dialog/disconnect-modal';
+import JetpackDisconnectDialog from 'components/jetpack-disconnect-dialog';
 
-import './style.scss';
+require( './style.scss' );
 
 export class ConnectButton extends React.Component {
 	static displayName = 'ConnectButton';
@@ -40,11 +39,11 @@ export class ConnectButton extends React.Component {
 	static defaultProps = {
 		connectUser: false,
 		from: '',
-		asLink: false,
+		asLink: false
 	};
 
 	state = {
-		showModal: false,
+		showModal: false
 	};
 
 	handleOpenModal = e => {
@@ -73,8 +72,7 @@ export class ConnectButton extends React.Component {
 						className="jp-jetpack-unlink__button"
 						onKeyDown={ onKeyDownCallback( this.props.unlinkUser ) }
 						onClick={ this.props.unlinkUser }
-						disabled={ this.props.isUnlinking }
-					>
+						disabled={ this.props.isUnlinking } >
 						{ __( 'Unlink me from WordPress.com' ) }
 					</a>
 				</div>
@@ -90,15 +88,13 @@ export class ConnectButton extends React.Component {
 		const buttonProps = {
 				className: 'is-primary jp-jetpack-connect__button',
 				href: connectUrl,
-				disabled: this.props.fetchingConnectUrl,
+				disabled: this.props.fetchingConnectUrl
 			},
 			connectLegend = __( 'Link to WordPress.com' );
 
-		return this.props.asLink ? (
-			<a { ...buttonProps }>{ connectLegend }</a>
-		) : (
-			<Button { ...buttonProps }>{ connectLegend }</Button>
-		);
+		return this.props.asLink
+			? <a { ...buttonProps }>{ connectLegend }</a>
+			: <Button { ...buttonProps }>{ connectLegend }</Button>;
 	};
 
 	renderContent = () => {
@@ -113,8 +109,7 @@ export class ConnectButton extends React.Component {
 					tabIndex="0"
 					onKeyDown={ onKeyDownCallback( this.handleOpenModal ) }
 					onClick={ this.handleOpenModal }
-					disabled={ this.props.isDisconnecting }
-				>
+					disabled={ this.props.isDisconnecting }>
 					{ __( 'Manage site connection' ) }
 				</a>
 			);
@@ -128,51 +123,37 @@ export class ConnectButton extends React.Component {
 		const buttonProps = {
 				className: 'jp-jetpack-connect__button',
 				href: connectUrl,
-				disabled: this.props.fetchingConnectUrl,
+				disabled: this.props.fetchingConnectUrl
 			},
 			connectLegend = __( 'Set up Jetpack' );
 
-		return this.props.asLink ? (
-			<a { ...buttonProps }>{ connectLegend }</a>
-		) : (
-			<Button { ...buttonProps }>{ connectLegend }</Button>
-		);
+		return this.props.asLink
+			? <a { ...buttonProps }>{ connectLegend }</a>
+			: <Button { ...buttonProps }>{ connectLegend }</Button>;
 	};
 
 	render() {
 		return (
 			<div>
-				{ ! this.props.isSiteConnected && (
+				{ ! this.props.isSiteConnected &&
 					<p className="jp-banner__tos-blurb">
-						{ __(
-							'By clicking the button below, you agree to our {{tosLink}}Terms of Service{{/tosLink}} and to {{shareDetailsLink}}share details{{/shareDetailsLink}} with WordPress.com.',
-							{
-								components: {
-									tosLink: (
-										<a
-											href={ getRedirectUrl( 'wpcom-tos' ) }
-											rel="noopener noreferrer"
-											target="_blank"
-										/>
-									),
-									shareDetailsLink: (
-										<a
-											href={ getRedirectUrl( 'jetpack-support-what-data-does-jetpack-sync' ) }
-											rel="noopener noreferrer"
-											target="_blank"
-										/>
-									),
-								},
+					{ __(
+						'By clicking the button below, you agree to our {{tosLink}}Terms of Service{{/tosLink}} and to {{shareDetailsLink}}share details{{/shareDetailsLink}} with WordPress.com.',
+						{
+							components: {
+								tosLink: <a href="https://wordpress.com/tos" rel="noopener noreferrer" target="_blank" />,
+								shareDetailsLink: <a href="https://jetpack.com/support/what-data-does-jetpack-sync" rel="noopener noreferrer" target="_blank" />
 							}
-						) }
+						}
+					) }
 					</p>
-				) }
+				}
 				{ this.renderContent() }
 				{ this.props.children }
-				<JetpackDisconnectModal
+				<JetpackDisconnectDialog
 					show={ this.state.showModal }
-					showSurvey={ false }
 					toggleModal={ this.toggleVisibility }
+					disconnectSite={ this.disconnectSite }
 				/>
 			</div>
 		);
@@ -188,17 +169,17 @@ export default connect(
 			fetchingConnectUrl: _isFetchingConnectUrl( state ),
 			connectUrl: _getConnectUrl( state ),
 			isLinked: _isCurrentUserLinked( state ),
-			isUnlinking: _isUnlinkingUser( state ),
+			isUnlinking: _isUnlinkingUser( state )
 		};
 	},
-	dispatch => {
+	( dispatch ) => {
 		return {
 			disconnectSite: () => {
 				return dispatch( disconnectSite() );
 			},
 			unlinkUser: () => {
 				return dispatch( unlinkUser() );
-			},
+			}
 		};
 	}
 )( ConnectButton );

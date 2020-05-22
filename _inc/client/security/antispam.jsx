@@ -8,7 +8,10 @@ import TextInput from 'components/text-input';
 import FoldableCard from 'components/foldable-card';
 import FormInputValidation from 'components/form-input-validation';
 import Gridicon from 'components/gridicon';
-import { assign, debounce, isEmpty, trim } from 'lodash';
+import debounce from 'lodash/debounce';
+import assign from 'lodash/assign';
+import isEmpty from 'lodash/isEmpty';
+import trim from 'lodash/trim';
 import { isAkismetKeyValid, checkAkismetKey, isCheckingAkismetKey } from 'state/at-a-glance';
 import { FEATURE_SPAM_AKISMET_PLUS } from 'lib/plans/constants';
 import analytics from 'lib/analytics';
@@ -17,11 +20,13 @@ import analytics from 'lib/analytics';
  * Internal dependencies
  */
 import { FormFieldset, FormLabel } from 'components/forms';
-import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import {
+	ModuleSettingsForm as moduleSettingsForm,
+} from 'components/module-settings/module-settings-form';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 
-export const Antispam = withModuleSettingsFormHelpers(
+export const Antispam = moduleSettingsForm(
 	class extends Component {
 		state = {
 			apiKey: this.props.getOptionValue( 'wordpress_api_key' ),
@@ -31,7 +36,7 @@ export const Antispam = withModuleSettingsFormHelpers(
 
 		keyChanged = false;
 
-		UNSAFE_componentWillMount() {
+		componentWillMount() {
 			this.debouncedCheckApiKeyTyped = debounce( this.checkApiKeyTyped, 500 );
 		}
 
@@ -118,10 +123,7 @@ export const Antispam = withModuleSettingsFormHelpers(
 			} else if ( this.props.isCheckingAkismetKey ) {
 				akismetStatus = (
 					<div className="form-input-validation is-warning">
-						<span>
-							<Gridicon size={ 24 } icon="sync" />
-							{ __( 'Checking key…' ) }
-						</span>
+						<span><Gridicon size={ 24 } icon="sync" />{ __( 'Checking key…' ) }</span>
 					</div>
 				);
 				explanation = false;
@@ -130,7 +132,7 @@ export const Antispam = withModuleSettingsFormHelpers(
 			return (
 				<SettingsCard
 					{ ...this.props }
-					header={ __( 'Anti-spam', { context: 'Settings header' } ) }
+					header={ __( 'Spam filtering', { context: 'Settings header' } ) }
 					saveDisabled={ this.props.isSavingAnyOption( 'wordpress_api_key' ) }
 					feature={ FEATURE_SPAM_AKISMET_PLUS }
 				>
@@ -140,14 +142,14 @@ export const Antispam = withModuleSettingsFormHelpers(
 								text: __( 'Removes spam from comments and contact forms.' ),
 								link: 'https://akismet.com/jetpack/',
 							} }
-						>
+							>
 							<FormFieldset>
 								<FormLabel>
 									<span className="jp-form-label-wide">{ __( 'Your API key' ) }</span>
 									<TextInput { ...textProps } />
 									{ akismetStatus }
 								</FormLabel>
-								{ explanation && (
+								{ explanation &&
 									<p className="jp-form-setting-explanation">
 										{ __(
 											"If you don't already have an API key, then {{a}}get your API key here{{/a}}, and you'll be guided through the process of getting one.",
@@ -157,8 +159,7 @@ export const Antispam = withModuleSettingsFormHelpers(
 												},
 											}
 										) }
-									</p>
-								) }
+									</p> }
 							</FormFieldset>
 						</SettingsGroup>
 					</FoldableCard>

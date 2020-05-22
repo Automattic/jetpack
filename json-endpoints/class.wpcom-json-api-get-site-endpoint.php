@@ -41,7 +41,6 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'logo'              => '(array) The site logo, set in the Customizer',
 		'visible'           => '(bool) If this site is visible in the user\'s site list',
 		'is_private'        => '(bool) If the site is a private site or not',
-		'is_coming_soon'    => '(bool) If the site is marked as "coming soon" or not',
 		'single_user_site'  => '(bool) Whether the site is single user. Only returned for WP.com sites and for Jetpack sites with version 3.4 or higher.',
 		'is_vip'            => '(bool) If the site is a VIP site or not.',
 		'is_following'      => '(bool) If the current user is subscribed to this site in the reader',
@@ -51,11 +50,6 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'jetpack_modules'   => '(array) A list of active Jetpack modules.',
 		'meta'              => '(object) Meta data',
 		'quota'             => '(array) An array describing how much space a user has left for uploads',
-		'launch_status'     => '(string) A string describing the launch status of a site',
-		'site_migration'    => '(array) Data about any migration into the site.',
-		'is_fse_active'     => '(bool) If the site has Full Site Editing active or not.',
-		'is_fse_eligible'   => '(bool) If the site is capable of Full Site Editing or not',
-		'is_core_site_editor_enabled'	=> '(bool) If the site has the core site editor enabled.',
 	);
 
 	protected static $no_member_fields = array(
@@ -72,14 +66,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'logo',
 		'visible',
 		'is_private',
-		'is_coming_soon',
 		'is_following',
 		'meta',
-		'launch_status',
-		'site_migration',
-		'is_fse_active',
-		'is_fse_eligible',
-		'is_core_site_editor_enabled',
 	);
 
 	protected static $site_options_format = array(
@@ -121,7 +109,6 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'wordads',
 		'publicize_permanently_disabled',
 		'frame_nonce',
-		'jetpack_frame_nonce',
 		'page_on_front',
 		'page_for_posts',
 		'headstart',
@@ -133,22 +120,16 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'podcasting_archive',
 		'is_domain_only',
 		'is_automated_transfer',
-		'is_wpcom_atomic',
 		'is_wpcom_store',
 		'signup_is_store',
 		'has_pending_automated_transfer',
 		'woocommerce_is_active',
 		'design_type',
-		'site_goals',
-		'site_segment',
-		'import_engine',
-		'is_wpforteams_site',
-		'site_creation_flow',
+		'site_goals'
 	);
 
 	protected static $jetpack_response_field_additions = array(
 		'subscribers_count',
-		'site_migration',
 	);
 
 	protected static $jetpack_response_field_member_additions = array(
@@ -160,17 +141,11 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'publicize_permanently_disabled',
 		'ak_vp_bundle_enabled',
 		'is_automated_transfer',
-		'is_wpcom_atomic',
 		'is_wpcom_store',
 		'woocommerce_is_active',
 		'frame_nonce',
-		'jetpack_frame_nonce',
 		'design_type',
-		'wordads',
-		// Use the site registered date from wpcom, since it is only available in a multisite context
-		// and defaults to `0000-00-00T00:00:00+00:00` from the Jetpack site.
-		// See https://github.com/Automattic/jetpack/blob/58638f46094b36f5df9cbc4570006544f0ad300c/sal/class.json-api-site-base.php#L387.
-		'created_at',
+		'wordads'
 	);
 
 	private $site;
@@ -238,44 +213,44 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			array_intersect( $default_fields, $this->fields_to_include ) :
 			$default_fields;
 
-		$has_blog_access = $this->has_blog_access( $this->api->token_details );
-		$has_user_access = $this->has_user_access();
-
-		if ( ! $has_user_access && ! $has_blog_access ) {
-			// Public access without user or blog auth, only return `$no_member_fields`.
+		if ( ! $this->has_blog_access( $this->api->token_details, $blog_id ) ) {
 			$response_keys = array_intersect( $response_keys, self::$no_member_fields );
-		} elseif ( $has_user_access && ! current_user_can( 'edit_posts' ) ) {
-			// Subscriber level user, don't return site options.
-			$response_keys = array_diff( $response_keys, array( 'options' ) );
 		}
 
 		return $this->render_response_keys( $response_keys );
 	}
 
 	/**
-	 * Checks that the current user has access to the current blog.
+	 * Checks that the current user has access to the current blog,
+	 * and failing that checks that we have a valid blog token.
 	 *
-	 * @return bool Whether or not the current user can access the current blog.
-	 */
-	private function has_user_access() {
-		return is_user_member_of_blog( get_current_user_id(), get_current_blog_id() );
-	}
-
-	/**
-	 * Checks if the request has a valid blog token for the current blog.
+	 * @param $token_details array Details obtained from the authorization token
+	 * @param $blog_id int The server-side blog id on wordpress.com
 	 *
-	 * @param array $token_details Access token for the api request.
 	 * @return bool
 	 */
-	private function has_blog_access( $token_details ) {
+	private function has_blog_access( $token_details, $blog_id ) {
+		$current_blog_id = (  defined( 'IS_WPCOM' ) && IS_WPCOM ) ?
+			$blog_id :
+			get_current_blog_id();
+
+		if ( is_user_member_of_blog( get_current_user_id(), $current_blog_id ) ) {
+			return true;
+		}
+
 		$token_details = (array) $token_details;
 		if ( ! isset( $token_details['access'], $token_details['auth'], $token_details['blog_id'] ) ) {
 			return false;
 		}
 
-		return 'jetpack' === $token_details['auth'] &&
+		if (
+			'jetpack' === $token_details['auth'] &&
 			'blog' === $token_details['access'] &&
-			get_current_blog_id() === $token_details['blog_id'];
+			$current_blog_id === $token_details['blog_id']
+		) {
+			return true;
+		}
+		return false;
 	}
 
 	private function render_response_keys( &$response_keys ) {
@@ -314,13 +289,6 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$response[ $key ] = $this->site->user_can_manage();
 			case 'is_private' :
 				$response[ $key ] = $this->site->is_private();
-				break;
-			case 'is_coming_soon' :
-				// This option is stored on wp.com for both simple and atomic sites. @see mu-plugins/private-blog.php
-				$response[ $key ] = $this->site->is_coming_soon();;
-				break;
-			case 'launch_status' :
-				$response[ $key ] = $this->site->get_launch_status();
 				break;
 			case 'visible' :
 				$response[ $key ] = $this->site->is_visible();
@@ -385,8 +353,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$response[ $key ] = $this->site->get_capabilities();
 				break;
 			case 'jetpack_modules':
-				if ( is_user_member_of_blog() ) {
-					$response[ $key ] = $this->site->get_jetpack_modules();
+				$jetpack_modules = $this->site->get_jetpack_modules();
+				if ( ! is_null( $jetpack_modules ) ) {
+					$response[ $key ] = $jetpack_modules;
 				}
 				break;
 			case 'plan' :
@@ -395,24 +364,16 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			case 'quota' :
 				$response[ $key ] = $this->site->get_quota();
 				break;
-			case 'site_migration' :
-				$response[ $key ] = $this->site->get_migration_meta();
-				break;
-			case 'is_fse_active':
-				$response[ $key ] = $this->site->is_fse_active();
-				break;
-			case 'is_fse_eligible':
-				$response[ $key ] = $this->site->is_fse_eligible();
-				break;
-			case 'is_core_site_editor_enabled':
-				$response[ $key ] = $this->site->is_core_site_editor_enabled();
-				break;
 		}
 
 		do_action( 'post_render_site_response_key', $key );
 	}
 
 	protected function render_option_keys( &$options_response_keys ) {
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			return array();
+		}
+
 		$options = array();
 		$site = $this->site;
 
@@ -529,9 +490,6 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'frame_nonce' :
 					$options[ $key ] = $site->get_frame_nonce();
 					break;
-				case 'jetpack_frame_nonce' :
-					$options[ $key ] = $site->get_jetpack_frame_nonce();
-					break;
 				case 'page_on_front' :
 					if ( $custom_front_page ) {
 						$options[ $key ] = $site->get_page_on_front();
@@ -572,9 +530,6 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'blog_public':
 					$options[ $key ] = $site->get_blog_public();
 					break;
-				case 'is_wpcom_atomic':
-					$options[ $key ] = $site->is_wpcom_atomic();
-					break;
 				case 'is_wpcom_store':
 					$options[ $key ] = $site->is_wpcom_store();
 					break;
@@ -602,22 +557,6 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'site_goals':
 					$options[ $key ] = $site->get_site_goals();
-					break;
-				case 'site_segment':
-					$options[ $key ] = $site->get_site_segment();
-					break;
-				case 'import_engine':
-					$options[ $key ] = $site->get_import_engine();
-					break;
-
-				case 'is_wpforteams_site':
-					$options[ $key ] = $site->is_wpforteams_site();
-					break;
-				case 'site_creation_flow':
-					$site_creation_flow = $site->get_site_creation_flow();
-					if ( $site_creation_flow ) {
-						$options[ $key ] = $site_creation_flow;
-					}
 					break;
 			}
 		}
@@ -658,7 +597,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			$response->{ $key } = $value;
 		}
 
-		if ( $this->has_user_access() || $this->has_blog_access( $this->api->token_details ) ) {
+		if ( $this->has_blog_access( $this->api->token_details, $response->ID ) ) {
 			$wpcom_member_response = $this->render_response_keys( self::$jetpack_response_field_member_additions );
 
 			foreach( $wpcom_member_response as $key => $value ) {
@@ -670,7 +609,6 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			unset( $response->is_vip );
 			unset( $response->single_user_site );
 			unset( $response->is_private );
-			unset( $response->is_coming_soon );
 			unset( $response->capabilities );
 			unset( $response->lang );
 			unset( $response->user_can_manage );

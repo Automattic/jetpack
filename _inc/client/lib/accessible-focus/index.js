@@ -20,4 +20,4 @@ function accessibleFocus() {
 	} );
 }
 
-export default accessibleFocus;
+module.exports = accessibleFocus;

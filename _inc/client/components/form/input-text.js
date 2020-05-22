@@ -1,23 +1,17 @@
-/**
- * External Dependencies
- */
-import React from 'react';
-import ReactDOM from 'react-dom';
-import Formsy from 'formsy-react';
-import classNames from 'classnames';
-import Payment from 'payment';
-import createReactClass from 'create-react-class';
-import PropTypes from 'prop-types';
+/** External Dependencies **/
+const React = require( 'react' ),
+	Formsy = require( 'formsy-react' ),
+	classNames = require( 'classnames' ),
+	Payment = require( 'payment' );
+const createReactClass = require( 'create-react-class' );
+const PropTypes = require( 'prop-types' );
+/** Internal Dependencies **/
+const Label = require( './label' ),
+	getUniqueId = require( './counter' ),
+	FormInputValidation = require( '../form-input-validation' ),
+	requiredFieldErrorFormatter = require( './required-error-label' );
 
-/**
- * Internal Dependencies
- */
-import Label from './label';
-import getUniqueId from './counter';
-import FormInputValidation from '../form-input-validation';
-import requiredFieldErrorFormatter from './required-error-label';
-
-export default createReactClass( {
+module.exports = createReactClass( {
 	displayName: 'TextInput',
 
 	mixins: [ Formsy.Mixin ],
@@ -33,9 +27,12 @@ export default createReactClass( {
 		formatter: PropTypes.oneOf( [ 'cardNumber', 'cardExpiry', 'cardCVV', 'cardCVC' ] ),
 		labelSuffix: PropTypes.any,
 		required: PropTypes.any,
-		validations: PropTypes.oneOfType( [ PropTypes.string, PropTypes.object ] ),
+		validations: PropTypes.oneOfType( [
+			PropTypes.string,
+			PropTypes.object
+		] ),
 		validationError: PropTypes.string,
-		onChange: PropTypes.func,
+		onChange: PropTypes.func
 	},
 
 	getInitialState: function() {
@@ -64,7 +61,7 @@ export default createReactClass( {
 	},
 
 	focus: function() {
-		ReactDOM.findDOMNode( this.refs.input ).focus();
+		React.findDOMNode( this.refs.input ).focus();
 	},
 
 	getDefaultProps: function() {
@@ -86,11 +83,9 @@ export default createReactClass( {
 				return;
 			}
 			this.setState( { animating: true } );
-			requestAnimationFrame(
-				function() {
-					this.setState( { floated: true } );
-				}.bind( this )
-			);
+			requestAnimationFrame( function() {
+				this.setState( { floated: true } );
+			}.bind( this ) );
 		}
 	},
 
@@ -111,17 +106,8 @@ export default createReactClass( {
 
 		if ( this.props.label ) {
 			return (
-				<Label
-					className={ className }
-					labelClassName={ labelClass }
-					style={ style }
-					label={ label }
-					labelSuffix={ labelSuffix }
-					htmlFor={ this.state.uniqueId }
-					required={ this.props.required }
-					description={ this.props.description }
-				>
-					{ this._renderInput( this.props.label, null, null, ...other ) }
+				<Label className={ className } labelClassName={ labelClass } style={ style } label={ label } labelSuffix={ labelSuffix } htmlFor={ this.state.uniqueId } required={ this.props.required } description={ this.props.description }>
+					{this._renderInput( this.props.label, null, null, ...other )}
 				</Label>
 			);
 		}
@@ -136,9 +122,7 @@ export default createReactClass( {
 		if ( ! this.isPristine() ) {
 			errorMessage = this.showError() ? this.getErrorMessage() : null;
 			if ( ! errorMessage ) {
-				errorMessage = this.showRequired()
-					? requiredFieldErrorFormatter( this.props.label || this.props.placeholder || '' )
-					: null;
+				errorMessage = this.showRequired() ? requiredFieldErrorFormatter( this.props.label || this.props.placeholder || '' ) : null;
 			}
 		}
 
@@ -158,15 +142,14 @@ export default createReactClass( {
 					placeholder={ this.props.placeholder }
 					onChange={ this.changeValue }
 					onClick={ this.props.onClick }
-					value={ this.getValue() }
-				/>
+					value={ this.getValue() } />
 
-				{ this.props.children }
-				<div className="clear" />
+				{this.props.children}
+				<div className="clear"></div>
 				<div role="alert">
-					{ errorMessage && <FormInputValidation text={ errorMessage } isError={ true } /> }
+					{errorMessage && ( <FormInputValidation text={ errorMessage } isError={ true } /> )}
 				</div>
 			</div>
 		);
-	},
+	}
 } );

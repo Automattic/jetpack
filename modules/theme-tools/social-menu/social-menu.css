@@ -121,7 +121,7 @@ Genericons
 }
 
 /* Pinterest */
-.jetpack-social-navigation-genericons a[href*="pinterest."]:before {
+.jetpack-social-navigation-genericons a[href*="pinterest.com"]:before {
 	content: "\f210";
 }
 

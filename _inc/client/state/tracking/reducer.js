@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-import { assign } from 'lodash';
 import { combineReducers } from 'redux';
+import assign from 'lodash/assign';
 
 /**
  * Internal dependencies
@@ -13,7 +13,7 @@ import {
 	USER_TRACKING_SETTINGS_FETCH_SUCCESS,
 	USER_TRACKING_SETTINGS_UPDATE,
 	USER_TRACKING_SETTINGS_UPDATE_FAIL,
-	USER_TRACKING_SETTINGS_UPDATE_SUCCESS,
+	USER_TRACKING_SETTINGS_UPDATE_SUCCESS
 } from 'state/action-types';
 
 export const initialRequestsState = {

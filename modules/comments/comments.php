@@ -1,7 +1,6 @@
 <?php
 
 require dirname( __FILE__ ) . '/base.php';
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 
 /**
  * Main Comments class
@@ -100,7 +99,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			'jetpack',
 			'wordpress',
 			'twitter',
-			'facebook',
+			'facebook'
 		);
 	}
 
@@ -116,7 +115,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 
 		// Selfishly add only our actions back to the comment form
 		add_action( 'comment_form_before', array( $this, 'comment_form_before' ) );
-		add_action( 'comment_form_after', array( $this, 'comment_form_after' ), 1 ); // Set very early since we remove everything outputed before our action.
+		add_action( 'comment_form_after',  array( $this, 'comment_form_after'  ), 1 ); // Set very early since we remove everything outputed before our action.
 
 		// Before a comment is posted
 		add_action( 'pre_comment_on_post', array( $this, 'pre_comment_on_post' ), 1 );
@@ -156,7 +155,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 
 		// Detect whether it's a Facebook or Twitter avatar
 		$foreign_avatar          = get_comment_meta( $comment->comment_ID, 'hc_avatar', true );
-		$foreign_avatar_hostname = wp_parse_url( $foreign_avatar, PHP_URL_HOST );
+		$foreign_avatar_hostname = parse_url( $foreign_avatar, PHP_URL_HOST );
 		if ( ! $foreign_avatar_hostname ||
 			! preg_match( '/\.?(graph\.facebook\.com|twimg\.com)$/', $foreign_avatar_hostname ) ) {
 			return $avatar;
@@ -174,7 +173,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	 */
 	public function comment_form_before() {
 		/**
-		 * Filters the setting that determines if Jetpack comments should be enabled for
+		 * Filters the setting that determines if Jetpagk comments should be enabled for
 		 * the current post type.
 		 *
 		 * @module comments
@@ -272,37 +271,18 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 				$params['_wp_unfiltered_html_comment'] = wp_create_nonce( 'unfiltered-html-comment_' . get_the_ID() );
 			}
 		} else {
-			$commenter                     = wp_get_current_commenter();
+			$commenter = wp_get_current_commenter();
 			$params['show_cookie_consent'] = (int) has_action( 'set_comment_cookies', 'wp_set_comment_cookies' );
-			$params['has_cookie_consent']  = (int) ! empty( $commenter['comment_author_email'] );
+			$params['has_cookie_consent'] = (int) ! empty( $commenter['comment_author_email'] );
 		}
 
-		$blog_token = Jetpack_Data::get_access_token();
-		list( $token_key ) = explode( '.', $blog_token->secret, 2 );
-		// Prophylactic check: anything else should never happen.
-		if ( $token_key && $token_key !== $blog_token->secret ) {
-			// Is the token a Special Token (@see class.jetpack-data.php)?
-			if ( preg_match( '/^;.\d+;\d+;$/', $token_key, $matches ) ) {
-				// The token key for a Special Token is public.
-				$params['token_key'] = $token_key;
-			} else {
-				/*
-				 * The token key for a Normal Token is public but
-				 * looks like sensitive data. Since there can only be
-				 * one Normal Token per site, avoid concern by
-				 * sending the magic "use the Normal Token" token key.
-				 */
-				$params['token_key'] = Connection_Manager::MAGIC_NORMAL_TOKEN_KEY;
-			}
-		}
-
-		$signature = Jetpack_Comments::sign_remote_comment_parameters( $params, $blog_token->secret );
+		$signature = Jetpack_Comments::sign_remote_comment_parameters( $params, Jetpack_Options::get_option( 'blog_token' ) );
 		if ( is_wp_error( $signature ) ) {
 			$signature = 'error';
 		}
 
 		$params['sig']    = $signature;
-		$url_origin       = 'https://jetpack.wordpress.com';
+		$url_origin       = set_url_scheme( 'http://jetpack.wordpress.com' );
 		$url              = "{$url_origin}/jetpack-comment/?" . http_build_query( $params );
 		$url              = "{$url}#parent=" . urlencode( set_url_scheme( 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] ) );
 		$this->signed_url = $url;
@@ -334,7 +314,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 				</h3>
 			<?php endif; ?>
 			<form id="commentform" class="comment-form">
-				<iframe title="<?php esc_attr_e( 'Comment Form', 'jetpack' ); ?>" src="<?php echo esc_url( $url ); ?>" style="width:100%; height: <?php echo $height; ?>px; border:0;" name="jetpack_remote_comment" class="jetpack_remote_comment" id="jetpack_remote_comment" sandbox="allow-same-origin allow-top-navigation allow-scripts allow-forms allow-popups"></iframe>
+				<iframe title="<?php esc_attr_e( 'Comment Form' , 'jetpack' ); ?>" src="<?php echo esc_url( $url ); ?>" style="width:100%; height: <?php echo $height; ?>px; border:0;" name="jetpack_remote_comment" class="jetpack_remote_comment" id="jetpack_remote_comment" sandbox="allow-same-origin allow-top-navigation allow-scripts allow-forms allow-popups"></iframe>
 				<?php if ( ! Jetpack_AMP_Support::is_amp_request() ) : ?>
 					<!--[if !IE]><!-->
 					<script>
@@ -364,7 +344,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	 * @since JetpackComments (1.4)
 	 */
 	public function watch_comment_parent() {
-		$url_origin = 'https://jetpack.wordpress.com';
+		$url_origin = set_url_scheme( 'http://jetpack.wordpress.com' );
 		?>
 
 		<!--[if IE]>
@@ -475,7 +455,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		$post_array = stripslashes_deep( $_POST );
 
 		// Bail if missing the Jetpack token
-		if ( ! isset( $post_array['sig'] ) || ! isset( $post_array['token_key'] ) ) {
+		if ( ! isset( $post_array['sig'] ) ) {
 			unset( $_POST['hc_post_as'] );
 
 			return;
@@ -485,18 +465,14 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			$post_array['hc_avatar'] = htmlentities( $post_array['hc_avatar'] );
 		}
 
-		$blog_token = Jetpack_Data::get_access_token( false, $post_array['token_key'] );
-		if ( ! $blog_token ) {
-			wp_die( __( 'Unknown security token.', 'jetpack' ), 400 );
-		}
-		$check = Jetpack_Comments::sign_remote_comment_parameters( $post_array, $blog_token->secret );
+		$check = Jetpack_Comments::sign_remote_comment_parameters( $post_array, Jetpack_Options::get_option( 'blog_token' ) );
 		if ( is_wp_error( $check ) ) {
 			wp_die( $check );
 		}
 
 		// Bail if token is expired or not valid
-		if ( ! hash_equals( $check, $post_array['sig'] ) ) {
-			wp_die( __( 'Invalid security token.', 'jetpack' ), 400 );
+		if ( $check !== $post_array['sig'] ) {
+			wp_die( __( 'Invalid security token.', 'jetpack' ) );
 		}
 
 		/** This filter is documented in modules/comments/comments.php */
@@ -504,7 +480,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			// In case the comment POST is legit, but the comments are
 			// now disabled, we don't allow the comment
 
-			wp_die( __( 'Comments are not allowed.', 'jetpack' ), 403 );
+			wp_die( __( 'Comments are not allowed.', 'jetpack' ) );
 		}
 	}
 
@@ -522,28 +498,26 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		$comment_meta = array();
 
 		switch ( $this->is_highlander_comment_post() ) {
-			case 'facebook':
+			case 'facebook' :
 				$comment_meta['hc_post_as']         = 'facebook';
 				$comment_meta['hc_avatar']          = stripslashes( $_POST['hc_avatar'] );
 				$comment_meta['hc_foreign_user_id'] = stripslashes( $_POST['hc_userid'] );
 				break;
 
-			case 'twitter':
+			case 'twitter' :
 				$comment_meta['hc_post_as']         = 'twitter';
 				$comment_meta['hc_avatar']          = stripslashes( $_POST['hc_avatar'] );
 				$comment_meta['hc_foreign_user_id'] = stripslashes( $_POST['hc_userid'] );
 				break;
 
-			// phpcs:ignore WordPress.WP.CapitalPDangit
-			case 'wordpress':
-				// phpcs:ignore WordPress.WP.CapitalPDangit
+			case 'wordpress' :
 				$comment_meta['hc_post_as']         = 'wordpress';
 				$comment_meta['hc_avatar']          = stripslashes( $_POST['hc_avatar'] );
 				$comment_meta['hc_foreign_user_id'] = stripslashes( $_POST['hc_userid'] );
 				$comment_meta['hc_wpcom_id_sig']    = stripslashes( $_POST['hc_wpcom_id_sig'] ); //since 1.9
 				break;
 
-			case 'jetpack':
+			case 'jetpack' :
 				$comment_meta['hc_post_as']         = 'jetpack';
 				$comment_meta['hc_avatar']          = stripslashes( $_POST['hc_avatar'] );
 				$comment_meta['hc_foreign_user_id'] = stripslashes( $_POST['hc_userid'] );

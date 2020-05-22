@@ -11,10 +11,10 @@ import { connect } from 'react-redux';
 import { getSearchTerm } from 'state/search';
 
 export class Tracker extends Component {
-	UNSAFE_componentWillReceiveProps( nextProps ) {
+	componentWillReceiveProps( nextProps ) {
 		const record = this.props.analytics.tracks.recordEvent;
 
-		if ( nextProps.searchTerm !== this.props.searchTerm && nextProps.searchTerm.length >= 3 ) {
+		if ( nextProps.searchTerm !== this.props.searchTerm ) {
 			record( 'jetpack_wpa_search_term', { term: nextProps.searchTerm } );
 		}
 	}
@@ -26,11 +26,13 @@ export class Tracker extends Component {
 
 Tracker.propTypes = {
 	analytics: PropTypes.object,
-	searchTerm: PropTypes.string,
+	searchTerm: PropTypes.string
 };
 
-export default connect( state => {
-	return {
-		searchTerm: getSearchTerm( state ),
-	};
-} )( Tracker );
+export default connect(
+	( state ) => {
+		return {
+			searchTerm: getSearchTerm( state )
+		};
+	}
+)( Tracker );

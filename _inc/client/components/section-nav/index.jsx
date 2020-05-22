@@ -3,21 +3,21 @@
 /**
  * External Dependencies
  */
-import PropTypes from 'prop-types';
+const PropTypes = require( 'prop-types' );
+const React = require( 'react' ),
+	isEqual = require( 'lodash/isEqual' ),
+	classNames = require( 'classnames' );
 
-import React from 'react';
-import { isEqual } from 'lodash';
-import classNames from 'classnames';
-import createReactClass from 'create-react-class';
+const createReactClass = require( 'create-react-class' );
 
 /**
  * Internal Dependencies
  */
-import NavTabs from './tabs';
+const NavTabs = require( './tabs' ),
+	NavItem = require( './item' ),
+	Search = require( 'components/search' );
 
-import NavItem from './item';
-import Search from 'components/search';
-import './style.scss';
+require( './style.scss' );
 
 /**
  * Main
@@ -30,26 +30,26 @@ const SectionNav = createReactClass( {
 		selectedText: PropTypes.node,
 		selectedCount: PropTypes.number,
 		hasPinnedItems: PropTypes.bool,
-		onMobileNavPanelOpen: PropTypes.func,
+		onMobileNavPanelOpen: PropTypes.func
 	},
 
 	getInitialState: function() {
 		return {
-			mobileOpen: false,
+			mobileOpen: false
 		};
 	},
 
 	getDefaultProps: function() {
 		return {
-			onMobileNavPanelOpen: () => {},
+			onMobileNavPanelOpen: () => {}
 		};
 	},
 
-	UNSAFE_componentWillMount: function() {
+	componentWillMount: function() {
 		this.checkForSiblingControls( this.props.children );
 	},
 
-	UNSAFE_componentWillReceiveProps: function( nextProps ) {
+	componentWillReceiveProps: function( nextProps ) {
 		if ( isEqual( this.props, nextProps ) ) {
 			return;
 		}
@@ -68,13 +68,13 @@ const SectionNav = createReactClass( {
 		if ( ! children ) {
 			className = classNames( {
 				'dops-section-nav': true,
-				'is-empty': true,
+				'is-empty': true
 			} );
 
 			return (
 				<div className={ className }>
 					<div className="dops-section-nav__panel">
-						<NavItem />
+						<NavItem></NavItem>
 					</div>
 				</div>
 			);
@@ -83,70 +83,68 @@ const SectionNav = createReactClass( {
 		className = classNames( {
 			'dops-section-nav': true,
 			'is-open': this.state.mobileOpen,
-			'has-pinned-items': this.hasPinnedSearch || this.props.hasPinnedItems,
+			'has-pinned-items': this.hasPinnedSearch || this.props.hasPinnedItems
 		} );
 
 		return (
 			<div className={ className }>
 				<div
 					className="dops-section-nav__mobile-header"
-					role="button"
-					onClick={ this.toggleMobileOpenState }
-					tabIndex={ 0 }
-					onKeyUp={ this.toggleMobileOpenState }
+					onTouchTap={ this.toggleMobileOpenState }
 				>
-					<span className="dops-section-nav__mobile-header-text">{ this.props.selectedText }</span>
+					<span className="dops-section-nav__mobile-header-text">
+						{ this.props.selectedText }
+					</span>
 				</div>
 
-				<div className="dops-section-nav__panel">{ children }</div>
+				<div className="dops-section-nav__panel">
+					{ children }
+				</div>
 			</div>
 		);
 	},
 
 	getChildren: function() {
-		return React.Children.map(
-			this.props.children,
-			function( child ) {
-				const extraProps = {
-					hasSiblingControls: this.hasSiblingControls,
-					closeSectionNavMobilePanel: this.closeMobilePanel,
-				};
+		return React.Children.map( this.props.children, function( child ) {
+			const extraProps = {
+				hasSiblingControls: this.hasSiblingControls,
+				closeSectionNavMobilePanel: this.closeMobilePanel
+			};
 
-				if ( ! child ) {
-					return null;
+			if ( ! child ) {
+				return null;
+			}
+
+			// Propagate 'selectedText' to NavItem component
+			if (
+				child.type === NavTabs &&
+				! child.props.selectedText &&
+				typeof this.props.selectedText === 'string'
+			) {
+				extraProps.selectedText = this.props.selectedText;
+			}
+
+			// Propagate 'selectedCount' to NavItem component
+			if ( child.type === NavTabs && this.props.selectedCount ) {
+				extraProps.selectedCount = this.props.selectedCount;
+			}
+
+			if ( child.type === Search ) {
+				if ( child.props.pinned ) {
+					this.hasPinnedSearch = true;
 				}
 
-				// Propagate 'selectedText' to NavItem component
-				if (
-					child.type === NavTabs &&
-					! child.props.selectedText &&
-					typeof this.props.selectedText === 'string'
-				) {
-					extraProps.selectedText = this.props.selectedText;
-				}
+				extraProps.onSearch = this.generateOnSearch( child.props.onSearch );
+			}
 
-				// Propagate 'selectedCount' to NavItem component
-				if ( child.type === NavTabs && this.props.selectedCount ) {
-					extraProps.selectedCount = this.props.selectedCount;
-				}
-
-				if ( child.type === Search ) {
-					if ( child.props.pinned ) {
-						this.hasPinnedSearch = true;
-					}
-
-					extraProps.onSearch = this.generateOnSearch( child.props.onSearch );
-				}
-
-				return React.cloneElement( child, extraProps );
-			}.bind( this )
-		);
+			return React.cloneElement( child, extraProps );
+		}.bind( this ) );
 	},
 
 	closeMobilePanel: function() {
 		if ( window.innerWidth < 480 && this.state.mobileOpen ) {
 			this.setState( {
-				mobileOpen: false,
+				mobileOpen: false
 			} );
 		}
 	},
@@ -155,7 +153,7 @@ const SectionNav = createReactClass( {
 		const mobileOpen = ! this.state.mobileOpen;
 
 		this.setState( {
-			mobileOpen: mobileOpen,
+			mobileOpen: mobileOpen
 		} );
 
 		if ( mobileOpen ) {
@@ -173,16 +171,13 @@ const SectionNav = createReactClass( {
 	checkForSiblingControls: function( children ) {
 		this.hasSiblingControls = false;
 
-		React.Children.forEach(
-			children,
-			function( child, index ) {
-				// Checking for at least 2 controls groups that are not search or null
-				if ( index && child && child.type !== Search ) {
-					this.hasSiblingControls = true;
-				}
-			}.bind( this )
-		);
+		React.Children.forEach( children, function( child, index ) {
+			// Checking for at least 2 controls groups that are not search or null
+			if ( index && child && child.type !== Search ) {
+				this.hasSiblingControls = true;
+			}
+		}.bind( this ) );
 	},
 } );
 
-export default SectionNav;
+module.exports = SectionNav;

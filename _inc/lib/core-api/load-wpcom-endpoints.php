@@ -33,13 +33,5 @@ function wpcom_rest_api_v2_load_plugin( $class_name ) {
 	}
 }
 
-require dirname( __FILE__ ) . '/class-wpcom-rest-field-controller.php';
-
-/**
- * Load the REST API v2 plugin files during the plugins_loaded action.
- */
-function load_wpcom_rest_api_v2_plugin_files() {
-	wpcom_rest_api_v2_load_plugin_files( 'wpcom-endpoints/*.php' );
-	wpcom_rest_api_v2_load_plugin_files( 'wpcom-fields/*.php' );
-}
-add_action( 'plugins_loaded', 'load_wpcom_rest_api_v2_plugin_files' );
+// Now load the endpoint files.
+wpcom_rest_api_v2_load_plugin_files( 'wpcom-endpoints/*.php' );

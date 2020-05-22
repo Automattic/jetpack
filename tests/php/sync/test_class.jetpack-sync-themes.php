@@ -25,6 +25,21 @@ class Dummy_Sync_Test_WP_Upgrader {
 	}
 }
 
+// Used to suppress echo'd output from Theme_Upgrader_Skin so that test_theme_install() will pass under Travis environments that failed because of output
+class Test_Upgrader_Skin extends Theme_Upgrader_Skin {
+
+	public function __construct($args = array()) {
+		$defaults = array( 'url' => '', 'theme' => '', 'nonce' => '', 'title' => __('Update Theme') );
+		$args = wp_parse_args($args, $defaults);
+		$this->theme = $args['theme'];
+		parent::__construct($args);
+	}
+	public function feedback($string) {}
+	public function header() {}
+	public function footer() {}
+	public function decrement_update_count( $arg ) {}
+}
+
 /**
  * Testing CRUD on Options
  */
@@ -405,7 +420,6 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 	private function install_theme( $slug ) {
 		require_once ABSPATH . 'wp-admin/includes/theme-install.php';
 		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
-		require_once __DIR__ . '/class.silent-upgrader-skin.php';
 
 		$api = themes_api(
 			'theme_information',
@@ -418,7 +432,7 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 			wp_die( $api );
 		}
 
-		$upgrader = new Theme_Upgrader( new Silent_Upgrader_Skin() );
+		$upgrader = new Theme_Upgrader( new Test_Upgrader_Skin( compact( 'title', 'nonce', 'url', 'theme' ) ) );
 		$upgrader->install( $api->download_link );
 	}
 }

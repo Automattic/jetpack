@@ -10,39 +10,36 @@ import NavTabs from 'components/section-nav/tabs';
 import NavItem from 'components/section-nav/item';
 import Search from 'components/search';
 import { translate as __ } from 'i18n-calypso';
-import { noop } from 'lodash';
+import noop from 'lodash/noop';
 import UrlSearch from 'mixins/url-search';
 import analytics from 'lib/analytics';
-import { withRouter } from 'react-router-dom';
+import intersection from 'lodash/intersection';
 
 /**
  * Internal dependencies
  */
-import { filterSearch, getSearchTerm } from 'state/search';
+import {
+	filterSearch,
+	getSearchTerm
+} from 'state/search';
 import {
 	userCanManageModules as _userCanManageModules,
 	userIsSubscriber as _userIsSubscriber,
-	userCanPublish,
+	userCanPublish
 } from 'state/initial-state';
 import { isSiteConnected, isCurrentUserLinked } from 'state/connection';
-import {
-	getModules,
-	hasAnyOfTheseModules,
-	hasAnyPerformanceFeature,
-	hasAnySecurityFeature,
-	isModuleActivated,
-} from 'state/modules';
+import { isModuleActivated, getModules } from 'state/modules';
 import { isPluginActive } from 'state/site/plugins';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 
 export const NavigationSettings = createReactClass( {
 	displayName: 'NavigationSettings',
 	mixins: [ UrlSearch ],
+	moduleList: [],
 
-	UNSAFE_componentWillMount() {
-		// We need to handle the search term not only on route update but also on page load in case of some external redirects
-		this.onRouteChange( this.props.location );
-		this.props.history.listen( this.onRouteChange );
+	componentWillMount() {
+		this.context.router.listen( this.onRouteChange );
+		this.moduleList = Object.keys( this.props.moduleList );
 	},
 
 	onRouteChange( newRoute ) {
@@ -82,16 +79,16 @@ export const NavigationSettings = createReactClass( {
 	trackNavClick( target ) {
 		analytics.tracks.recordJetpackClick( {
 			target: 'nav_item',
-			path: target,
+			path: target
 		} );
 	},
 
-	/**
+    /**
 	 * The UrlSearch mixin callback to form a new location href string.
 	 *
-	 * @param {string} href - the current location string
-	 * @param {string} keyword - the new search keyword
-	 * @returns {string} href the new location string
+	 * @param {string} href the current location string
+	 * @param {string} keyword the new search keyword
+	 * @return {string} href the new location string
 	 */
 	buildUrl: function( href, keyword ) {
 		const splitUrl = href.split( '#' ),
@@ -99,6 +96,17 @@ export const NavigationSettings = createReactClass( {
 
 		this.props.searchForTerm( keyword );
 		return '#' + splitHash[ 0 ] + ( keyword ? '?term=' + keyword : '' );
+	},
+
+    /**
+	 * Check that the module list includes at least one of these modules.
+	 *
+	 * @param  {array}   modules Modules that are probably included in the module list.
+	 *
+	 * @return {boolean}         True if at least one of the modules is included in the list.
+	 */
+	hasAnyOfThese( modules = [] ) {
+		return 0 < intersection( this.moduleList, modules ).length;
 	},
 
 	handleClickForTracking( target ) {
@@ -109,84 +117,88 @@ export const NavigationSettings = createReactClass( {
 		let navItems, sharingTab;
 		if ( this.props.userCanManageModules ) {
 			navItems = (
-				<NavTabs selectedText={ this.props.routeName }>
-					{ this.props.hasAnySecurityFeature && (
-						<NavItem
-							path="#security"
-							onClick={ this.handleClickForTracking( 'security' ) }
-							selected={
-								this.props.location.pathname === '/security' ||
-								this.props.location.pathname === '/settings'
-							}
-						>
-							{ __( 'Security', { context: 'Navigation item.' } ) }
-						</NavItem>
-					) }
-					{ this.props.hasAnyPerformanceFeature && (
-						<NavItem
-							path="#performance"
-							onClick={ this.handleClickForTracking( 'performance' ) }
-							selected={ this.props.location.pathname === '/performance' }
-						>
-							{ __( 'Performance', { context: 'Navigation item.' } ) }
-						</NavItem>
-					) }
-					{ this.props.hasAnyOfTheseModules( [
-						'masterbar',
-						'markdown',
-						'custom-content-types',
-						'post-by-email',
-						'infinite-scroll',
-						'copy-post',
-					] ) && (
-						<NavItem
-							path="#writing"
-							onClick={ this.handleClickForTracking( 'writing' ) }
-							selected={ this.props.location.pathname === '/writing' }
-						>
-							{ __( 'Writing', { context: 'Navigation item.' } ) }
-						</NavItem>
-					) }
-					{ this.props.hasAnyOfTheseModules( [ 'publicize', 'sharedaddy', 'likes' ] ) && (
-						<NavItem
-							path="#sharing"
-							onClick={ this.handleClickForTracking( 'sharing' ) }
-							selected={ this.props.location.pathname === '/sharing' }
-						>
-							{ __( 'Sharing', { context: 'Navigation item.' } ) }
-						</NavItem>
-					) }
-					{ this.props.hasAnyOfTheseModules( [
-						'comments',
-						'gravatar-hovercards',
-						'markdown',
-						'subscriptions',
-					] ) && (
-						<NavItem
-							path="#discussion"
-							onClick={ this.handleClickForTracking( 'discussion' ) }
-							selected={ this.props.location.pathname === '/discussion' }
-						>
-							{ __( 'Discussion', { context: 'Navigation item.' } ) }
-						</NavItem>
-					) }
-					{ this.props.hasAnyOfTheseModules( [
-						'seo-tools',
-						'wordads',
-						'stats',
-						'related-posts',
-						'verification-tools',
-						'sitemaps',
-						'google-analytics',
-					] ) && (
-						<NavItem
-							path="#traffic"
-							onClick={ this.handleClickForTracking( 'traffic' ) }
-							selected={ this.props.location.pathname === '/traffic' }
-						>
-							{ __( 'Traffic', { context: 'Navigation item.' } ) }
-						</NavItem>
-					) }
+				<NavTabs selectedText={ this.props.route.name }>
+					{
+						this.hasAnyOfThese( [
+							'masterbar',
+							'markdown',
+							'after-the-deadline',
+							'custom-content-types',
+							'photon',
+							'carousel',
+							'post-by-email',
+							'infinite-scroll',
+							'minileven'
+						] ) && (
+							<NavItem
+								path="#writing"
+								onClick={ this.handleClickForTracking( 'writing' ) }
+								selected={ this.props.route.path === '/writing' || this.props.route.path === '/settings' }>
+								{ __( 'Writing', { context: 'Navigation item.' } ) }
+							</NavItem>
+						)
+					}
+					{
+						this.hasAnyOfThese( [
+							'publicize',
+							'sharedaddy',
+							'likes'
+						] ) && (
+							<NavItem
+								path="#sharing"
+								onClick={ this.handleClickForTracking( 'sharing' ) }
+								selected={ this.props.route.path === '/sharing' }>
+								{ __( 'Sharing', { context: 'Navigation item.' } ) }
+							</NavItem>
+						)
+					}
+					{
+						this.hasAnyOfThese( [
+							'comments',
+							'gravatar-hovercards',
+							'markdown',
+							'subscriptions'
+						] ) && (
+							<NavItem
+								path="#discussion"
+								onClick={ this.handleClickForTracking( 'discussion' ) }
+								selected={ this.props.route.path === '/discussion' }>
+								{ __( 'Discussion', { context: 'Navigation item.' } ) }
+							</NavItem>
+						)
+					}
+					{
+						this.hasAnyOfThese( [
+							'seo-tools',
+							'wordads',
+							'stats',
+							'related-posts',
+							'verification-tools',
+							'sitemaps',
+							'google-analytics'
+						] ) && (
+							<NavItem
+								path="#traffic"
+								onClick={ this.handleClickForTracking( 'traffic' ) }
+								selected={ this.props.route.path === '/traffic' }>
+								{ __( 'Traffic', { context: 'Navigation item.' } ) }
+							</NavItem>
+						)
+					}
+					{
+						( this.hasAnyOfThese( [
+							'protect',
+							'sso',
+							'vaultpress'
+						] ) || this.props.isPluginActive( 'akismet/akismet.php' ) ) && (
+							<NavItem
+								path="#security"
+								onClick={ this.handleClickForTracking( 'security' ) }
+								selected={ this.props.route.path === '/security' }>
+								{ __( 'Security', { context: 'Navigation item.' } ) }
+							</NavItem>
+						)
+					}
 				</NavTabs>
 			);
 		} else if ( this.props.isSubscriber ) {
@@ -195,30 +207,32 @@ export const NavigationSettings = createReactClass( {
 			if ( ! this.props.isModuleActivated( 'publicize' ) || ! this.props.userCanPublish ) {
 				sharingTab = '';
 			} else {
-				sharingTab = this.props.hasAnyOfTheseModules( [ 'publicize' ] ) && (
+				sharingTab = this.hasAnyOfThese( [
+					'publicize'
+				] ) && (
 					<NavItem
 						path="#sharing"
 						onClick={ this.handleClickForTracking( 'sharing' ) }
-						selected={ this.props.location.pathname === '/sharing' }
-					>
+						selected={ this.props.route.path === '/sharing' }>
 						{ __( 'Sharing', { context: 'Navigation item.' } ) }
 					</NavItem>
 				);
 			}
 			navItems = (
-				<NavTabs selectedText={ this.props.routeName }>
-					{ this.props.hasAnyOfTheseModules( [ 'post-by-email' ] ) && (
-						<NavItem
-							path="#writing"
-							onClick={ this.handleClickForTracking( 'writing' ) }
-							selected={
-								this.props.location.pathname === '/writing' ||
-								this.props.location.pathname === '/settings'
-							}
-						>
-							{ __( 'Writing', { context: 'Navigation item.' } ) }
-						</NavItem>
-					) }
+				<NavTabs selectedText={ this.props.route.name }>
+					{
+						this.hasAnyOfThese( [
+							'after-the-deadline',
+							'post-by-email'
+						] ) && (
+							<NavItem
+								path="#writing"
+								onClick={ this.handleClickForTracking( 'writing' ) }
+								selected={ this.props.route.path === '/writing' || this.props.route.path === '/settings' }>
+								{ __( 'Writing', { context: 'Navigation item.' } ) }
+							</NavItem>
+						)
+					}
 					{
 						// Give only Publicize to non admin users
 						sharingTab
@@ -230,14 +244,18 @@ export const NavigationSettings = createReactClass( {
 		return (
 			<div id="jp-navigation" className="dops-navigation">
 				<QuerySitePlugins />
-				<SectionNav selectedText={ this.props.routeName }>
+				<SectionNav selectedText={ this.props.route.name }>
 					{ navItems }
 					{ this.maybeShowSearch() }
 				</SectionNav>
 			</div>
 		);
-	},
+	}
 } );
+
+NavigationSettings.contextTypes = {
+	router: PropTypes.object.isRequired
+};
 
 NavigationSettings.propTypes = {
 	userCanManageModules: PropTypes.bool.isRequired,
@@ -246,8 +264,7 @@ NavigationSettings.propTypes = {
 	isLinked: PropTypes.bool.isRequired,
 	isSiteConnected: PropTypes.bool.isRequired,
 	isModuleActivated: PropTypes.func.isRequired,
-	searchHasFocus: PropTypes.bool.isRequired,
-	location: PropTypes.object.isRequired,
+	searchHasFocus: PropTypes.bool.isRequired
 };
 
 NavigationSettings.defaultProps = {
@@ -257,25 +274,26 @@ NavigationSettings.defaultProps = {
 	isLinked: false,
 	isSiteConnected: false,
 	isModuleActivated: noop,
-	searchHasFocus: false,
+	searchHasFocus: false
 };
 
 export default connect(
-	state => ( {
-		hasAnyOfTheseModules: modules => hasAnyOfTheseModules( state, modules ),
-		hasAnyPerformanceFeature: hasAnyPerformanceFeature( state ),
-		hasAnySecurityFeature: hasAnySecurityFeature( state ),
-		userCanManageModules: _userCanManageModules( state ),
-		isSubscriber: _userIsSubscriber( state ),
-		userCanPublish: userCanPublish( state ),
-		isLinked: isCurrentUserLinked( state ),
-		isSiteConnected: isSiteConnected( state ),
-		isModuleActivated: module => isModuleActivated( state, module ),
-		moduleList: getModules( state ),
-		isPluginActive: plugin_slug => isPluginActive( state, plugin_slug ),
-		searchTerm: getSearchTerm( state ),
-	} ),
-	dispatch => ( {
-		searchForTerm: term => dispatch( filterSearch( term ) ),
-	} )
-)( withRouter( NavigationSettings ) );
+	( state ) => {
+		return {
+			userCanManageModules: _userCanManageModules( state ),
+			isSubscriber: _userIsSubscriber( state ),
+			userCanPublish: userCanPublish( state ),
+			isLinked: isCurrentUserLinked( state ),
+			isSiteConnected: isSiteConnected( state ),
+			isModuleActivated: module => isModuleActivated( state, module ),
+			moduleList: getModules( state ),
+			isPluginActive: plugin_slug => isPluginActive( state, plugin_slug ),
+			searchTerm: getSearchTerm( state )
+		};
+	},
+	( dispatch ) => {
+		return {
+			searchForTerm: ( term ) => dispatch( filterSearch( term ) )
+		};
+	}
+)( NavigationSettings );

@@ -7,10 +7,14 @@ import { connect } from 'react-redux';
 /**
  * Internal dependencies
  */
-import { fetchUserConnectionData, isFetchingUserData, isDevMode } from 'state/connection';
+import {
+	fetchUserConnectionData,
+	isFetchingUserData
+} from 'state/connection';
+import { isDevMode } from 'state/connection';
 
 export class QueryUserConnectionData extends React.Component {
-	UNSAFE_componentWillMount() {
+	componentWillMount() {
 		if ( ! ( this.props.isFetchingUserData || this.props.isDevMode ) ) {
 			this.props.fetchUserConnectionData();
 		}
@@ -22,15 +26,15 @@ export class QueryUserConnectionData extends React.Component {
 }
 
 export default connect(
-	state => {
+	( state ) => {
 		return {
 			isFetchingUserData: isFetchingUserData( state ),
-			isDevMode: isDevMode( state ),
+			isDevMode: isDevMode( state )
 		};
 	},
-	dispatch => {
+	( dispatch ) => {
 		return {
-			fetchUserConnectionData: () => dispatch( fetchUserConnectionData() ),
+			fetchUserConnectionData: () => dispatch( fetchUserConnectionData() )
 		};
 	}
 )( QueryUserConnectionData );

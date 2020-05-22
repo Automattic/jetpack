@@ -1,17 +1,17 @@
 /**
  * External dependencies
  */
-import React from 'react';
+const React = require( 'react' ),
+	PureRenderMixin = require( 'react-pure-render/mixin' );
 
-import PureRenderMixin from 'react-pure-render/mixin';
-import createReactClass from 'create-react-class';
+const createReactClass = require( 'create-react-class' );
 
 /**
  * Internal dependencies
  */
-import Spinner from 'components/spinner';
+const Spinner = require( 'components/spinner' );
 
-export default createReactClass( {
+module.exports = createReactClass( {
 	displayName: 'Spinner',
 
 	mixins: [ PureRenderMixin ],
@@ -23,17 +23,10 @@ export default createReactClass( {
 					<a href="/devdocs/design/spinner">Spinner</a>
 				</h2>
 				<p>
-					<strong>Please exercise caution in deciding to use a spinner in your component.</strong> A
-					lone spinner is a poor user-experience and conveys little context to what the user should
-					expect from the page. Refer to{' '}
-					<a href="/devdocs/docs/reactivity.md">
-						the <em>Reactivity and Loading States</em> guide
-					</a>{' '}
-					for more information on building fast interfaces and making the most of data already
-					available to use.
+					<strong>Please exercise caution in deciding to use a spinner in your component.</strong> A lone spinner is a poor user-experience and conveys little context to what the user should expect from the page. Refer to <a href="/devdocs/docs/reactivity.md">the <em>Reactivity and Loading States</em> guide</a> for more information on building fast interfaces and making the most of data already available to use.
 				</p>
 				<Spinner />
 			</div>
 		);
-	},
+	}
 } );

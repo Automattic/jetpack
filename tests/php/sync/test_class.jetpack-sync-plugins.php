@@ -16,6 +16,10 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_installing_and_removing_plugin_is_synced() {
+		if ( defined( 'PHP_VERSION_ID' ) && PHP_VERSION_ID < 50300 ) {
+			$this->markTestIncomplete("Right now this doesn't work on PHP 5.2");
+		}
+
 		$this->resetCallableAndConstantTimeouts();
 		$this->sender->do_sync();
 		$this->server_event_storage->reset();
@@ -190,16 +194,8 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
 		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 
-		$plugin_defaults = array(
-			'title'  => '',
-			'url'    => '',
-			'nonce'  => '',
-			'plugin' => '',
-			'api'    => '',
-		);
-
 		$upgrader = new Plugin_Upgrader(
-			new Automatic_Upgrader_Skin( $plugin_defaults )
+			new Automatic_Upgrader_Skin( compact( 'title', 'url', 'nonce', 'plugin', 'api' ) )
 		);
 		// 'https://downloads.wordpress.org/plugin/the.1.1.zip' Install it from local disk
 		$upgrader->install( ABSPATH . self::PLUGIN_ZIP );

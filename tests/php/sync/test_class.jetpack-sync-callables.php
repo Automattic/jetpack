@@ -1,14 +1,6 @@
 <?php
 
-use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Sync\Defaults;
-use Automattic\Jetpack\Sync\Functions;
-use Automattic\Jetpack\Sync\Modules;
-use Automattic\Jetpack\Sync\Modules\Callables;
-use Automattic\Jetpack\Sync\Modules\WP_Super_Cache;
-use Automattic\Jetpack\Sync\Sender;
-use Automattic\Jetpack\Sync\Settings;
-
+require_once dirname( __FILE__ ) . '/../../../sync/class.jetpack-sync-functions.php';
 
 require_once 'test_class.jetpack-sync-base.php';
 
@@ -30,7 +22,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		$this->resetCallableAndConstantTimeouts();
 
-		$this->callable_module = Modules::get_module( "functions" );
+		$this->callable_module = Jetpack_Sync_Modules::get_module( "functions" );
 		set_current_screen( 'post-user' ); // this only works in is_admin()
 	}
 
@@ -46,7 +38,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	public function test_sync_jetpack_updates() {
 		$this->sender->do_sync();
 		$updates = $this->server_replica_storage->get_callable( 'updates' );
-		$this->assertEqualsObject( Jetpack::get_updates(), $updates, 'The updates object should match' );
+		$this->assertEqualsObject( Jetpack::get_updates(), $updates );
 	}
 
 
@@ -60,49 +52,41 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	public function test_sync_callable_whitelist() {
 		// $this->setSyncClientDefaults();
 
-		add_filter( 'jetpack_set_available_extensions',  array( $this, 'add_test_block' ) );
-		Jetpack_Gutenberg::init();
-		jetpack_register_block( 'jetpack/test' );
-
 		$callables = array(
 			'wp_max_upload_size'               => wp_max_upload_size(),
 			'is_main_network'                  => Jetpack::is_multi_network(),
 			'is_multi_site'                    => is_multisite(),
-			'main_network_site'                => Functions::main_network_site_url(),
+			'main_network_site'                => Jetpack_Sync_Functions::main_network_site_url(),
 			'single_user_site'                 => Jetpack::is_single_user_site(),
 			'updates'                          => Jetpack::get_updates(),
-			'home_url'                         => Functions::home_url(),
-			'site_url'                         => Functions::site_url(),
-			'has_file_system_write_access'     => Functions::file_system_write_access(),
-			'is_version_controlled'            => Functions::is_version_controlled(),
-			'taxonomies'                       => Functions::get_taxonomies(),
-			'post_types'                       => Functions::get_post_types(),
-			'post_type_features'               => Functions::get_post_type_features(),
-			'rest_api_allowed_post_types'      => Functions::rest_api_allowed_post_types(),
-			'rest_api_allowed_public_metadata' => Functions::rest_api_allowed_public_metadata(),
+			'home_url'                         => Jetpack_Sync_Functions::home_url(),
+			'site_url'                         => Jetpack_Sync_Functions::site_url(),
+			'has_file_system_write_access'     => Jetpack_Sync_Functions::file_system_write_access(),
+			'is_version_controlled'            => Jetpack_Sync_Functions::is_version_controlled(),
+			'taxonomies'                       => Jetpack_Sync_Functions::get_taxonomies(),
+			'post_types'                       => Jetpack_Sync_Functions::get_post_types(),
+			'post_type_features'               => Jetpack_Sync_Functions::get_post_type_features(),
+			'rest_api_allowed_post_types'      => Jetpack_Sync_Functions::rest_api_allowed_post_types(),
+			'rest_api_allowed_public_metadata' => Jetpack_Sync_Functions::rest_api_allowed_public_metadata(),
 			'sso_is_two_step_required'         => Jetpack_SSO_Helpers::is_two_step_required(),
 			'sso_should_hide_login_form'       => Jetpack_SSO_Helpers::should_hide_login_form(),
 			'sso_match_by_email'               => Jetpack_SSO_Helpers::match_by_email(),
 			'sso_new_user_override'            => Jetpack_SSO_Helpers::new_user_override(),
 			'sso_bypass_default_login_form'    => Jetpack_SSO_Helpers::bypass_login_forward_wpcom(),
-			'wp_version'                       => Functions::wp_version(),
-			'get_plugins'                      => Functions::get_plugins(),
-			'get_plugins_action_links'         => Functions::get_plugins_action_links(),
+			'wp_version'                       => Jetpack_Sync_Functions::wp_version(),
+			'get_plugins'                      => Jetpack_Sync_Functions::get_plugins(),
+			'get_plugins_action_links'		   => Jetpack_Sync_functions::get_plugins_action_links(),
 			'active_modules'                   => Jetpack::get_active_modules(),
-			'hosting_provider'                 => Functions::get_hosting_provider(),
+			'hosting_provider'                 => Jetpack_Sync_Functions::get_hosting_provider(),
 			'locale'                           => get_locale(),
-			'site_icon_url'                    => Functions::site_icon_url(),
-			'shortcodes'                       => Functions::get_shortcodes(),
-			'roles'                            => Functions::roles(),
-			'timezone'                         => Functions::get_timezone(),
-			'available_jetpack_blocks'         => Jetpack_Gutenberg::get_availability(),
-			'paused_themes'                    => Functions::get_paused_themes(),
-			'paused_plugins'                   => Functions::get_paused_plugins(),
-			'main_network_site_wpcom_id'       => Functions::main_network_site_wpcom_id(),
+			'site_icon_url'                    => Jetpack_Sync_Functions::site_icon_url(),
+			'shortcodes'                       => Jetpack_Sync_Functions::get_shortcodes(),
+			'roles'                            => Jetpack_Sync_Functions::roles(),
+			'timezone'                         => Jetpack_Sync_Functions::get_timezone(),
 		);
 
 		if ( function_exists( 'wp_cache_is_enabled' ) ) {
-			$callables['wp_super_cache_globals'] = WP_Super_Cache::get_wp_super_cache_globals();
+			$callables['wp_super_cache_globals'] = Jetpack_Sync_Module_WP_Super_Cache::get_wp_super_cache_globals();
 		}
 
 		if ( is_multisite() ) {
@@ -137,12 +121,6 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$unique_whitelist = array_unique( $whitelist_keys );
 		$this->assertEquals( count( $unique_whitelist ), count( $whitelist_keys ), 'The duplicate keys are: ' . print_r( array_diff_key( $whitelist_keys, array_unique( $whitelist_keys ) ), 1 ) );
 
-		remove_filter( 'jetpack_set_available_extensions',  array( $this, 'add_test_block' ) );
-		Jetpack_Gutenberg::reset();
-	}
-
-	public function add_test_block() {
-		return array( 'test' );
 	}
 
 	function assertCallableIsSynced( $name, $value ) {
@@ -150,8 +128,8 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_white_listed_callables_doesnt_get_synced_twice() {
-		delete_transient( Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
-		delete_option( Callables::CALLABLES_CHECKSUM_OPTION_NAME );
+		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
+		delete_option( Jetpack_Sync_Module_Callables::CALLABLES_CHECKSUM_OPTION_NAME );
 		$this->callable_module->set_callable_whitelist( array( 'jetpack_foo' => 'jetpack_foo_is_callable' ) );
 		$this->sender->do_sync();
 
@@ -160,7 +138,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		$this->server_replica_storage->reset();
 
-		delete_transient( Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
+		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
 		$this->sender->do_sync();
 
 		$this->assertEquals( null, $this->server_replica_storage->get_callable( 'jetpack_foo' ) );
@@ -259,8 +237,8 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_home_site_urls_synced_while_migrate_for_idc_set() {
-		delete_transient( Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
-		delete_option( Callables::CALLABLES_CHECKSUM_OPTION_NAME );
+		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
+		delete_option( Jetpack_Sync_Module_Callables::CALLABLES_CHECKSUM_OPTION_NAME );
 
 		$home_option    = get_option( 'home' );
 		$siteurl_option = get_option( 'siteurl' );
@@ -275,7 +253,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		// Second, let's make sure that values don't get synced again if the migrate_for_idc option is not set
 		$this->server_replica_storage->reset();
-		delete_transient( Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
+		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
 		$this->sender->do_sync();
 
 		$this->assertEquals( null, $this->server_replica_storage->get_callable( 'home_url' ) );
@@ -286,7 +264,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		Jetpack_Options::update_option( 'migrate_for_idc', true );
 
 		$this->server_replica_storage->reset();
-		delete_transient( Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
+		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
 		$this->sender->do_sync();
 
 		$this->assertEquals( $home_option,  $this->server_replica_storage->get_callable( 'home_url' ) );
@@ -334,19 +312,19 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 	function test_get_protocol_normalized_url_works_with_no_history() {
 		$callable_type = 'home_url';
-		$option_key = Functions::HTTPS_CHECK_OPTION_PREFIX . $callable_type;
+		$option_key = Jetpack_Sync_Functions::HTTPS_CHECK_OPTION_PREFIX . $callable_type;
 		delete_option( $option_key );
 
 		$this->assertStringStartsWith(
 			'http://',
-			Functions::get_protocol_normalized_url( $callable_type, $this->return_example_com() )
+			Jetpack_Sync_Functions::get_protocol_normalized_url( $callable_type, $this->return_example_com() )
 		);
 
 		delete_option( $option_key );
 
 		$this->assertStringStartsWith(
 			'https://',
-			Functions::get_protocol_normalized_url( $callable_type, $this->return_https_example_com() )
+			Jetpack_Sync_Functions::get_protocol_normalized_url( $callable_type, $this->return_https_example_com() )
 		);
 
 		$this->assertCount( 1, get_option( $option_key ) );
@@ -356,39 +334,39 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 	function test_get_protocol_normalized_url_stores_max_history() {
 		$callable_type = 'home_url';
-		$option_key = Functions::HTTPS_CHECK_OPTION_PREFIX . $callable_type;
+		$option_key = Jetpack_Sync_Functions::HTTPS_CHECK_OPTION_PREFIX . $callable_type;
 		delete_option( $option_key );
 		for ( $i = 0; $i < 20; $i++ ) {
-			Functions::get_protocol_normalized_url( $callable_type, $this->return_example_com() );
+			Jetpack_Sync_Functions::get_protocol_normalized_url( $callable_type, $this->return_example_com() );
 		}
 
-		$this->assertCount( Functions::HTTPS_CHECK_HISTORY, get_option( $option_key ) );
+		$this->assertCount( Jetpack_Sync_Functions::HTTPS_CHECK_HISTORY, get_option( $option_key ) );
 		delete_option( $option_key );
 	}
 
 	function test_get_protocol_normalized_url_returns_http_when_https_falls_off() {
 		$callable_type = 'home_url';
-		$option_key = Functions::HTTPS_CHECK_OPTION_PREFIX . $callable_type;
+		$option_key = Jetpack_Sync_Functions::HTTPS_CHECK_OPTION_PREFIX . $callable_type;
 		delete_option( $option_key );
 
 		// Start with one https scheme
 		$this->assertStringStartsWith(
 			'https://',
-			Functions::get_protocol_normalized_url( $callable_type, $this->return_https_example_com() )
+			Jetpack_Sync_Functions::get_protocol_normalized_url( $callable_type, $this->return_https_example_com() )
 		);
 
 		// Now add enough http schemes to fill up the history
-		for ( $i = 1; $i < Functions::HTTPS_CHECK_HISTORY; $i++ ) {
+		for ( $i = 1; $i < Jetpack_Sync_Functions::HTTPS_CHECK_HISTORY; $i++ ) {
 			$this->assertStringStartsWith(
 				'https://',
-				Functions::get_protocol_normalized_url( $callable_type, $this->return_example_com() )
+				Jetpack_Sync_Functions::get_protocol_normalized_url( $callable_type, $this->return_example_com() )
 			);
 		}
 
 		// Now that the history is full, this one should cause the function to return false.
 		$this->assertStringStartsWith(
 			'http://',
-			Functions::get_protocol_normalized_url( $callable_type, $this->return_example_com() )
+			Jetpack_Sync_Functions::get_protocol_normalized_url( $callable_type, $this->return_example_com() )
 		);
 	}
 
@@ -396,24 +374,24 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$test_url = 'http:///example.com';
 		$this->assertEquals(
 			$test_url,
-			Functions::get_protocol_normalized_url( 'home_url', $test_url )
+			Jetpack_Sync_Functions::get_protocol_normalized_url( 'home_url', $test_url )
 		);
 	}
 
 	function test_get_protocol_normalized_url_cleared_on_reset_data() {
-		Functions::get_protocol_normalized_url( 'home_url', get_home_url() );
-		Functions::get_protocol_normalized_url( 'site_url', get_site_url() );
-		Functions::get_protocol_normalized_url( 'main_network_site_url', network_site_url() );
+		Jetpack_Sync_Functions::get_protocol_normalized_url( 'home_url', get_home_url() );
+		Jetpack_Sync_Functions::get_protocol_normalized_url( 'site_url', get_site_url() );
+		Jetpack_Sync_Functions::get_protocol_normalized_url( 'main_network_site_url', network_site_url() );
 
 		$url_callables = array( 'home_url', 'site_url', 'main_network_site_url' );
 		foreach( $url_callables as $callable ) {
-			$this->assertInternalType( 'array', get_option( Functions::HTTPS_CHECK_OPTION_PREFIX . $callable) );
+			$this->assertInternalType( 'array', get_option( Jetpack_Sync_Functions::HTTPS_CHECK_OPTION_PREFIX . $callable) );
 		}
 
-		Sender::get_instance()->uninstall();
+		Jetpack_Sync_Sender::get_instance()->uninstall();
 
 		foreach( $url_callables as $callable ) {
-			$this->assertFalse( get_option( Functions::HTTPS_CHECK_OPTION_PREFIX . $callable ) );
+			$this->assertFalse( get_option( Jetpack_Sync_Functions::HTTPS_CHECK_OPTION_PREFIX . $callable ) );
 		}
 	}
 
@@ -421,8 +399,8 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		// a lot of sites accept www.domain.com or just domain.com, and we want to prevent lots of
 		// switching back and forth, so we force the domain to be the one in the siteurl option
 		$this->setSyncClientDefaults();
-		delete_transient( Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
-		delete_option( Callables::CALLABLES_CHECKSUM_OPTION_NAME );
+		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
+		delete_option( Jetpack_Sync_Module_Callables::CALLABLES_CHECKSUM_OPTION_NAME );
 
 		$original_site_url = site_url();
 
@@ -433,67 +411,30 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		add_filter( 'site_url', array( $this, 'add_www_subdomain_to_siteurl' ) );
 
-		delete_transient( Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
-		delete_option( Callables::CALLABLES_CHECKSUM_OPTION_NAME );
+		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
+		delete_option( Jetpack_Sync_Module_Callables::CALLABLES_CHECKSUM_OPTION_NAME );
 		$this->sender->do_sync();
 
 		$this->assertEquals( $original_site_url, $this->server_replica_storage->get_callable( 'site_url' ) );
 	}
 
-	function test_sync_limited_set_of_callables_if_cron() {
-		$all_callables = array_keys( Defaults::get_callable_whitelist() );
-		$always_updated = Callables::ALWAYS_SEND_UPDATES_TO_THESE_OPTIONS;
-
-		foreach ( $always_updated as $key => $option ) {
-			if ( array_key_exists( $option, Callables::OPTION_NAMES_TO_CALLABLE_NAMES ) ) {
-				$always_updated[ $key ] = Callables::OPTION_NAMES_TO_CALLABLE_NAMES[ $option ];
-			}
-
-		}
-
+	function test_only_syncs_if_is_admin_and_not_cron() {
 		// non-admin
 		set_current_screen( 'front' );
-		Settings::set_doing_cron( true );
+		$this->sender->do_sync();
+		$this->assertEquals( null, $this->server_replica_storage->get_callable( 'site_url' ) );
+
+		set_current_screen( 'post-user' );
+
+		// admin but in cron (for some reason)
+		Jetpack_Sync_Settings::set_doing_cron( true );
 
 		$this->sender->do_sync();
+		$this->assertEquals( null, $this->server_replica_storage->get_callable( 'site_url' ) );
 
-		foreach ( $all_callables as $callable ) {
-			if ( in_array( $callable, $always_updated, true ) ) {
-				$this->assertNotNull( $this->server_replica_storage->get_callable( $callable ) );
-			} else {
-				$this->assertEquals( null, $this->server_replica_storage->get_callable( $callable ) );
-			}
-		}
-
-		Settings::set_doing_cron( false );
-	}
-
-	function test_sync_limited_set_of_callables_if_wp_cli() {
-		$all_callables = array_keys( Defaults::get_callable_whitelist() );
-		$always_updated = Callables::ALWAYS_SEND_UPDATES_TO_THESE_OPTIONS;
-
-		foreach ( $always_updated as $key => $option ) {
-			if ( array_key_exists( $option, Callables::OPTION_NAMES_TO_CALLABLE_NAMES ) ) {
-				$always_updated[ $key ] = Callables::OPTION_NAMES_TO_CALLABLE_NAMES[ $option ];
-			}
-
-		}
-
-		// non-admin
-		set_current_screen( 'front' );
-		Constants::set_constant( 'WP_CLI', true );
-
+		Jetpack_Sync_Settings::set_doing_cron( false );
 		$this->sender->do_sync();
-
-		foreach ( $all_callables as $callable ) {
-			if ( in_array( $callable, $always_updated, true ) ) {
-				$this->assertNotNull( $this->server_replica_storage->get_callable( $callable ) );
-			} else {
-				$this->assertEquals( null, $this->server_replica_storage->get_callable( $callable ) );
-			}
-		}
-
-		Constants::set_constant( 'WP_CLI', false );
+		$this->assertEquals( site_url(), $this->server_replica_storage->get_callable( 'site_url' ) );
 	}
 
 	function test_site_icon_url_returns_false_when_no_site_icon() {
@@ -531,7 +472,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		// adds taxonomies.
 		$test = new ABC_FOO_TEST_Taxonomy_Example();
 		$this->setSyncClientDefaults();
-		$sync_callable_taxonomies = Functions::get_taxonomies();
+		$sync_callable_taxonomies = Jetpack_Sync_Functions::get_taxonomies();
 
 		$this->assertNull( $sync_callable_taxonomies['example']->update_count_callback );
 		$this->assertNull( $sync_callable_taxonomies['example']->meta_box_cb );
@@ -543,22 +484,22 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 	function test_sanitize_sync_taxonomies_method() {
 
-		$sanitized = Functions::sanitize_taxonomy( (object) array( 'meta_box_cb' => 'post_tags_meta_box' ) );
+		$sanitized = Jetpack_Sync_Functions::sanitize_taxonomy( (object) array( 'meta_box_cb' => 'post_tags_meta_box' ) );
 		$this->assertEquals( $sanitized->meta_box_cb, 'post_tags_meta_box' );
 
-		$sanitized = Functions::sanitize_taxonomy( (object) array( 'meta_box_cb' => 'post_categories_meta_box' ) );
+		$sanitized = Jetpack_Sync_Functions::sanitize_taxonomy( (object) array( 'meta_box_cb' => 'post_categories_meta_box' ) );
 		$this->assertEquals( $sanitized->meta_box_cb, 'post_categories_meta_box' );
 
-		$sanitized = Functions::sanitize_taxonomy( (object) array( 'meta_box_cb' => 'banana' ) );
+		$sanitized = Jetpack_Sync_Functions::sanitize_taxonomy( (object) array( 'meta_box_cb' => 'banana' ) );
 		$this->assertEquals( $sanitized->meta_box_cb, null );
 
-		$sanitized = Functions::sanitize_taxonomy( (object) array( 'update_count_callback' => 'banana' ) );
+		$sanitized = Jetpack_Sync_Functions::sanitize_taxonomy( (object) array( 'update_count_callback' => 'banana' ) );
 		$this->assertFalse( isset( $sanitized->update_count_callback ) );
 
-		$sanitized = Functions::sanitize_taxonomy( (object) array( 'rest_controller_class' => 'banana' ) );
+		$sanitized = Jetpack_Sync_Functions::sanitize_taxonomy( (object) array( 'rest_controller_class' => 'banana' ) );
 		$this->assertEquals( $sanitized->rest_controller_class, null );
 
-		$sanitized = Functions::sanitize_taxonomy( (object) array( 'rest_controller_class' => 'WP_REST_Terms_Controller' ) );
+		$sanitized = Jetpack_Sync_Functions::sanitize_taxonomy( (object) array( 'rest_controller_class' => 'WP_REST_Terms_Controller' ) );
 
 		$this->assertEquals( $sanitized->rest_controller_class, 'WP_REST_Terms_Controller' );
 	}
@@ -572,7 +513,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$post_type_object->add_hooks();
 		$post_type_object->register_taxonomies();
 
-		$sanitized = Functions::sanitize_post_type( $post_type_object );
+		$sanitized = Jetpack_Sync_Functions::sanitize_post_type( $post_type_object );
 		$this->assert_sanitized_post_type_default( $sanitized, $label );
 
 	}
@@ -586,7 +527,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$post_type_object->add_hooks();
 		$post_type_object->register_taxonomies();
 
-		$sanitized = Functions::sanitize_post_type( $post_type_object );
+		$sanitized = Jetpack_Sync_Functions::sanitize_post_type( $post_type_object );
 		$this->assert_sanitized_post_type_default( $sanitized, $label );
 	}
 
@@ -657,7 +598,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$post_type_object->add_hooks();
 		$post_type_object->register_taxonomies();
 
-		$sanitized = Functions::sanitize_post_type( $post_type_object );
+		$sanitized = Jetpack_Sync_Functions::sanitize_post_type( $post_type_object );
 		foreach( $args as $arg_key => $arg_value ) {
 			//
 			if ( in_array( $arg_key, array( 'labels', 'capabilities', 'supports' ) ) ) {
@@ -669,19 +610,24 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 	function test_get_post_types_method() {
 		global $wp_post_types;
-		$synced = Functions::get_post_types();
+		$synced = Jetpack_Sync_Functions::get_post_types();
 		foreach( $wp_post_types as $post_type => $post_type_object ) {
 			$post_type_object->rest_controller_class = false;
 			if ( ! isset( $post_type_object->supports ) ) {
 				$post_type_object->supports = array();
 			}
-			$synced_post_type = Functions::expand_synced_post_type( $synced[ $post_type ], $post_type );
+			$synced_post_type = Jetpack_Sync_Functions::expand_synced_post_type( $synced[ $post_type ], $post_type );
 			$this->assertEqualsObject( $post_type_object, $synced_post_type, 'POST TYPE :'. $post_type . ' not equal' );
 		}
 	}
 
 	function test_register_post_types_callback_error() {
-		register_post_type( 'testing', array( 'register_meta_box_cb' => function() {} ) );
+		if ( version_compare(PHP_VERSION, '5.4', '<' ) ) {
+			$this->markTestSkipped( 'Callbacks are only available in PHP 5.4 and greater' );
+			return;
+		}
+		// This file needs to be included conditionally so PHP 5.2 does not error due to static analysis of this file.
+		require_once dirname( __FILE__ ) . '/anonymous_function_test_for_register_post_types_callback_error.php';
 		$this->sender->do_sync();
 
 		$post_types =  $this->server_replica_storage->get_callable( 'post_types' );
@@ -690,60 +636,60 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 	function test_get_raw_url_by_option_bypasses_filters() {
 		add_filter( 'option_home', array( $this, '__return_filtered_url' ) );
-		$this->assertTrue( 'http://filteredurl.com' !== Functions::get_raw_url( 'home' ) );
+		$this->assertTrue( 'http://filteredurl.com' !== Jetpack_Sync_Functions::get_raw_url( 'home' ) );
 		remove_filter( 'option_home', array( $this, '__return_filtered_url' ) );
 	}
 
 	function test_get_raw_url_by_constant_bypasses_filters() {
-		Constants::set_constant( 'WP_HOME', 'http://constanturl.com' );
-		Constants::set_constant( 'WP_SITEURL', 'http://constanturl.com' );
+		Jetpack_Constants::set_constant( 'WP_HOME', 'http://constanturl.com' );
+		Jetpack_Constants::set_constant( 'WP_SITEURL', 'http://constanturl.com' );
 		add_filter( 'option_home', array( $this, '__return_filtered_url' ) );
 		add_filter( 'option_siteurl', array( $this, '__return_filtered_url' ) );
 
 		if ( is_multisite() ) {
-			$this->assertTrue( $this->__return_filtered_url() !== Functions::get_raw_url( 'home' ) );
-			$this->assertTrue( $this->__return_filtered_url() !== Functions::get_raw_url( 'siteurl' ) );
+			$this->assertTrue( $this->__return_filtered_url() !== Jetpack_Sync_Functions::get_raw_url( 'home' ) );
+			$this->assertTrue( $this->__return_filtered_url() !== Jetpack_Sync_Functions::get_raw_url( 'siteurl' ) );
 		} else {
-			$this->assertEquals( 'http://constanturl.com', Functions::get_raw_url( 'home' ) );
-			$this->assertEquals( 'http://constanturl.com', Functions::get_raw_url( 'siteurl' ) );
+			$this->assertEquals( 'http://constanturl.com', Jetpack_Sync_Functions::get_raw_url( 'home' ) );
+			$this->assertEquals( 'http://constanturl.com', Jetpack_Sync_Functions::get_raw_url( 'siteurl' ) );
 		}
 
 		remove_filter( 'option_home', array( $this, '__return_filtered_url' ) );
 		remove_filter( 'option_siteurl', array( $this, '__return_filtered_url' ) );
-		Constants::clear_constants();
+		Jetpack_Constants::clear_constants();
 	}
 
 	function test_get_raw_url_returns_with_http_if_is_ssl() {
 		$home_option = get_option( 'home' );
 
 		// Test without https first
-		$this->assertEquals( $home_option, Functions::get_raw_url( 'home' ) );
+		$this->assertEquals( $home_option, Jetpack_Sync_Functions::get_raw_url( 'home' ) );
 
 		// Now, with https
 		$_SERVER['HTTPS'] = 'on';
 		$this->assertEquals(
 			set_url_scheme( $home_option, 'http' ),
-			Functions::get_raw_url( 'home' )
+			Jetpack_Sync_Functions::get_raw_url( 'home' )
 		);
 		unset( $_SERVER['HTTPS'] );
 	}
 
 	function test_raw_home_url_is_https_when_is_ssl() {
-		Constants::set_constant( 'JETPACK_SYNC_USE_RAW_URL', true );
+		Jetpack_Constants::set_constant( 'JETPACK_SYNC_USE_RAW_URL', true );
 
 		$home_option = get_option( 'home' );
 
 		// Test without https first
 		$this->assertEquals(
 			$home_option,
-			Functions::home_url()
+			Jetpack_Sync_Functions::home_url()
 		);
 
 		// Now, with https
 		$_SERVER['HTTPS'] = 'on';
 		$this->assertEquals(
 			set_url_scheme( $home_option, 'https' ),
-			Functions::home_url()
+			Jetpack_Sync_Functions::home_url()
 		);
 		unset( $_SERVER['HTTPS'] );
 	}
@@ -753,22 +699,19 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		add_filter( 'option_siteurl', array( $this, '__return_filtered_url' ) );
 
 		// Test with constant first
-		$this->assertTrue( 'http://filteredurl.com' !== Functions::home_url() );
+		$this->assertTrue( 'http://filteredurl.com' !== Jetpack_Sync_Functions::home_url() );
 
 		// Now, without, which should return the filtered URL
-		Constants::set_constant( 'JETPACK_SYNC_USE_RAW_URL', false );
-		$this->assertEquals( $this->__return_filtered_url(), Functions::home_url() );
-		Constants::clear_constants();
+		Jetpack_Constants::set_constant( 'JETPACK_SYNC_USE_RAW_URL', false );
+		$this->assertEquals( $this->__return_filtered_url(), Jetpack_Sync_Functions::home_url() );
+		Jetpack_Constants::clear_constants();
 
 		remove_filter( 'option_home', array( $this, '__return_filtered_url' ) );
 		remove_filter( 'option_siteurl', array( $this, '__return_filtered_url' ) );
 	}
 
 	function test_plugin_action_links_get_synced() {
-		// Makes sure that we start fresh
-		delete_transient( 'jetpack_plugin_api_action_links_refresh' );
 		$helper_all = new Jetpack_Sync_Test_Helper();
-
 		$helper_all->array_override = array( '<a href="fun.php">fun</a>' );
 		add_filter( 'plugin_action_links', array( $helper_all, 'filter_override_array' ), 10 );
 
@@ -776,10 +719,10 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$helper_jetpack->array_override = array( '<a href="settings.php">settings</a>', '<a href="https://jetpack.com/support">support</a>' );
 		add_filter( 'plugin_action_links_jetpack/jetpack.php', array( $helper_jetpack, 'filter_override_array' ), 10 );
 
-		set_current_screen( 'banana' );
+		$callables_module = new Jetpack_Sync_Module_Callables(); // Do the admin init here so that we calculate the plugin links
+		$callables_module->set_plugin_action_links();
 		// Let's see if the original values get synced
 		$this->sender->do_sync();
-
 		$plugins_action_links = $this->server_replica_storage->get_callable( 'get_plugins_action_links' );
 
 		$expected_array = array(
@@ -792,46 +735,33 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			)
 		);
 
-		$this->assertEquals( $expected_array, $this->extract_plugins_we_are_testing( $plugins_action_links )  );
+		$this->assertEquals( $this->extract_plugins_we_are_testing( $plugins_action_links ), $expected_array );
 
 		$helper_all->array_override = array( '<a href="not-fun.php">not fun</a>' );
-
 		$this->resetCallableAndConstantTimeouts();
-
-		set_current_screen( 'banana' );
+		$callables_module->set_plugin_action_links();
 		$this->sender->do_sync();
 
 		$plugins_action_links = $this->server_replica_storage->get_callable( 'get_plugins_action_links' );
-
+		
 		// Nothing should have changed since we cache the results.
 		$this->assertEquals( $this->extract_plugins_we_are_testing( $plugins_action_links ), $expected_array );
 
-		if ( file_exists( WP_CONTENT_DIR . '/plugins/hello.php' )  ) {
-			activate_plugin('hello.php', '', false, true );
-		}
-		if ( file_exists( WP_CONTENT_DIR . '/plugins/hello-dolly/hello.php' ) ) {
-			activate_plugin('hello-dolly/hello.php', '', false, true );
-		}
-
+		activate_plugin('hello.php', '', false, true );
 		$this->resetCallableAndConstantTimeouts();
-		set_current_screen( 'banana' );
+		$callables_module->set_plugin_action_links();
 		$this->sender->do_sync();
 
 		$plugins_action_links = $this->server_replica_storage->get_callable( 'get_plugins_action_links' );
 
 		// Links should have changes now since we activated the plugin.
 		$expected_array['hello.php'] = array( 'not fun' => admin_url( 'not-fun.php' ) );
-		$this->assertEquals( $this->extract_plugins_we_are_testing( $plugins_action_links ), $expected_array, 'Array was not updated to the new value as expected' );
+		$this->assertEquals( $this->extract_plugins_we_are_testing( $plugins_action_links ), $expected_array );
 	}
 
 	function extract_plugins_we_are_testing( $plugins_action_links ) {
 		$only_plugins_we_care_about = array();
-		if ( isset( $plugins_action_links['hello.php'] ) ) {
-			$only_plugins_we_care_about['hello.php'] = isset( $plugins_action_links['hello.php'] ) ? $plugins_action_links['hello.php'] : '';
-		} else {
-			$only_plugins_we_care_about['hello.php'] = isset( $plugins_action_links['hello-dolly/hello.php'] ) ? $plugins_action_links['hello-dolly/hello.php'] : '';
-		}
-
+		$only_plugins_we_care_about['hello.php'] = isset( $plugins_action_links['hello.php'] ) ? $plugins_action_links['hello.php'] : '';
 		$only_plugins_we_care_about['jetpack/jetpack.php'] = isset( $plugins_action_links['jetpack/jetpack.php'] ) ? $plugins_action_links['jetpack/jetpack.php'] : '';
 		return $only_plugins_we_care_about;
 	}
@@ -846,15 +776,14 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		delete_transient( 'jetpack_plugin_api_action_links_refresh' );
 		add_filter( 'plugin_action_links', array( $this, 'cause_fatal_error' ) );
-
-		set_current_screen( 'plugins' );
+		$callables_module = new Jetpack_Sync_Module_Callables(); // Do the admin init here so that we calculate the plugin links
+		$callables_module->set_plugin_action_links();
 
 		$this->resetCallableAndConstantTimeouts();
-		set_current_screen( 'plugins' );
+		$callables_module->set_plugin_action_links();
 		$this->sender->do_sync();
 		$plugins_action_links = $this->server_replica_storage->get_callable( 'get_plugins_action_links' );
-		$plugins_action_links = $this->extract_plugins_we_are_testing( $plugins_action_links );
-		$this->assertTrue( isset( $plugins_action_links['hello.php']['world'] ), 'World is not set' );
+		$this->assertTrue( isset( $plugins_action_links['hello.php']['world'] ) );
 	}
 
 	function __return_filtered_url() {
@@ -862,7 +791,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function add_www_subdomain_to_siteurl( $url ) {
-		$parsed_url = wp_parse_url( $url );
+		$parsed_url = parse_url( $url );
 
 		return "{$parsed_url['scheme']}://www.{$parsed_url['host']}";
 	}
@@ -870,7 +799,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	function test_taxonomies_objects_do_not_have_meta_box_callback() {
 
 		new ABC_FOO_TEST_Taxonomy_Example();
-		$taxonomies = Functions::get_taxonomies();
+		$taxonomies = Jetpack_Sync_Functions::get_taxonomies();
 		$taxonomy = $taxonomies['example'];
 
 		$this->assertInternalType( 'object', $taxonomy );
@@ -898,13 +827,13 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		}
 	}
 
-	function test_force_sync_callable_on_plugin_update() {
+	function test_force_sync_callabled_on_plugin_update() {
 		// fake the cron so that we really prevent the callables from being called
-		Settings::$is_doing_cron = true;
+		Jetpack_Sync_Settings::$is_doing_cron = true;
 
 		$this->callable_module->set_callable_whitelist( array( 'jetpack_foo' => 'jetpack_foo_is_callable_random' ) );
 		$this->sender->do_sync();
-		$this->server_replica_storage->get_callable( 'jetpack_foo' );
+		$synced_value = $this->server_replica_storage->get_callable( 'jetpack_foo' );
 
 		$this->server_replica_storage->reset();
 
@@ -926,7 +855,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		$this->sender->do_sync();
 		$synced_value3 = $this->server_replica_storage->get_callable( 'jetpack_foo' );
-		Settings::$is_doing_cron = false;
+		Jetpack_Sync_Settings::$is_doing_cron = false;
 		$this->assertNotEmpty( $synced_value3, 'value is empty!' );
 
 	}
@@ -981,16 +910,15 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$_GET['signature'] = base64_encode( hash_hmac( 'sha1', $normalize , 'secret', true ) );
 
 		// call one of the authenticated endpoints
-		Constants::set_constant( 'XMLRPC_REQUEST', true );
+		Jetpack_Constants::set_constant( 'XMLRPC_REQUEST', true );
 		$jetpack = Jetpack::init();
-		$connection = Jetpack::connection();
-		$connection->xmlrpc_methods( array() );
-		$connection->require_jetpack_authentication();
-		$connection->verify_xml_rpc_signature();
+		$jetpack->xmlrpc_methods( array() );
+		$jetpack->require_jetpack_authentication();
+		$jetpack->verify_xml_rpc_signature();
 	}
 
 	function mock_authenticated_xml_rpc_cleanup( $user_id ) {
-		Constants::clear_constants();
+		Jetpack_Constants::clear_constants();
 		remove_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ), 10 );
 
 		unset( $_GET['token'] );
@@ -1003,7 +931,6 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		unset( $_SERVER['REQUEST_METHOD'] );
 		$jetpack = Jetpack::init();
 		$jetpack->reset_saved_auth_state();
-		Jetpack::connection()->reset_raw_post_data();
 		wp_set_current_user( $user_id );
 		self::$admin_id = null;
 	}
@@ -1019,31 +946,31 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	function test_get_timezone_from_timezone_string() {
 		update_option( 'timezone_string', 'America/Rankin_Inlet' );
 		update_option( 'gmt_offset', '' );
-		$this->assertEquals( 'America/Rankin Inlet', Functions::get_timezone() );
+		$this->assertEquals( 'America/Rankin Inlet', Jetpack_Sync_Functions::get_timezone() );
 	}
 
 	function test_get_timezone_from_gmt_offset_zero() {
 		update_option( 'timezone_string', '' );
 		update_option( 'gmt_offset', '0' );
-		$this->assertEquals( 'UTC+0', Functions::get_timezone() );
+		$this->assertEquals( 'UTC+0', Jetpack_Sync_Functions::get_timezone() );
 	}
 
 	function test_get_timezone_from_gmt_offset_plus() {
 		update_option( 'timezone_string', '' );
 		update_option( 'gmt_offset', '1' );
-		$this->assertEquals( 'UTC+1', Functions::get_timezone() );
+		$this->assertEquals( 'UTC+1', Jetpack_Sync_Functions::get_timezone() );
 	}
 
 	function test_get_timezone_from_gmt_offset_fractions() {
 		update_option( 'timezone_string', '' );
 		update_option( 'gmt_offset', '5.5' );
-		$this->assertEquals( 'UTC+5:30', Functions::get_timezone() );
+		$this->assertEquals( 'UTC+5:30', Jetpack_Sync_Functions::get_timezone() );
 	}
 
 	function test_get_timezone_from_gmt_offset_minus() {
 		update_option( 'timezone_string', '' );
 		update_option( 'gmt_offset', '-1' );
-		$this->assertEquals( 'UTC-1', Functions::get_timezone() );
+		$this->assertEquals( 'UTC-1', Jetpack_Sync_Functions::get_timezone() );
 	}
 
 	public function test_sync_callable_recursive_gets_checksum() {
@@ -1052,117 +979,6 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 		$synced_value = $this->server_replica_storage->get_callable( 'jetpack_banana' );
 		$this->assertTrue( ! empty( $synced_value ), 'We couldn\'t synced a value!' );
-	}
-
-	/**
-	 * Test get_hosting_provider() callable to ensure that known hosts have the
-	 * right hosting provider returned.
-	 *
-	 * @return void
-	 */
-	public function test_get_hosting_provider_callable_with_unknown_host() {
-		$this->assertEquals( Functions::get_hosting_provider(), 'unknown' );
-	}
-
-	/**
-	 * Test getting a hosting provider by a known constant
-	 *
-	 * @return void
-	 */
-	public function test_get_hosting_provider_by_known_constant() {
-		$functions = new Functions();
-		Constants::set_constant( 'GD_SYSTEM_PLUGIN_DIR', 'set' );
-		$this->assertEquals( $functions->get_hosting_provider_by_known_constant(), 'gd-managed-wp' );
-		Constants::clear_constants();
-
-		Constants::set_constant( 'UNKNOWN', 'set' );
-		$this->assertFalse( $functions->get_hosting_provider_by_known_constant() );
-		Constants::clear_constants();
-	}
-
-	/**
-	 * Test getting a hosting provider by a known class
-	 *
-	 * @return void
-	 */
-	public function test_get_hosting_provider_by_known_class() {
-		$functions = new Functions();
-
-		$this->assertFalse( $functions->get_hosting_provider_by_known_class() );
-
-		$class_mock = $this->getMockBuilder( '\\WPaaS\\Plugin' )
-					->getMock(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-
-		$this->assertEquals( $functions->get_hosting_provider_by_known_class(), 'gd-managed-wp' );
-
-	}
-
-	/**
-	 * Test getting a hosting provider by a known function
-	 *
-	 * @return bool
-	 */
-	public function test_get_hosting_provider_by_known_function() {
-
-		/**
-		 * Stub is_wpe for testing function exists
-		 *
-		 * @return boolean
-		 */
-		function is_wpe() {
-			return true;
-		}
-
-		$functions = new Functions();
-
-		// Get hosting provider by known function.
-		$this->assertEquals( $functions->get_hosting_provider_by_known_function(), 'wpe' );
-	}
-
-	/**
-	 * Test getting the main network site wpcom ID in multisite installs
-	 *
-	 * @return void
-	 */
-	public function test_get_main_network_site_wpcom_id_multisite() {
-		if ( ! is_multisite() ) {
-			$this->markTestSkipped( 'Only used on multisite' );
-		}
-
-		// set the Jetpack ID for this site.
-		$main_network_wpcom_id = 12345;
-		\Jetpack_Options::update_option( 'id', $main_network_wpcom_id );
-
-		$user_id = $this->factory->user->create();
-
-		// NOTE this is necessary because WPMU causes certain assumptions about transients.
-		// to be wrong, and tests to explode. @see: https://github.com/sheabunge/WordPress/commit/ff4f1bb17095c6af8a0f35ac304f79074f3c3ff6 .
-		global $wpdb;
-
-		$suppress      = $wpdb->suppress_errors();
-		$other_blog_id = wpmu_create_blog( 'foo.com', '', 'My Blog', $user_id );
-		$wpdb->suppress_errors( $suppress );
-
-		switch_to_blog( $other_blog_id );
-
-		$functions = new Functions();
-		$this->assertEquals( $main_network_wpcom_id, $functions->main_network_site_wpcom_id() );
-
-		restore_current_blog();
-	}
-
-	/**
-	 * Test getting the main network site wpcom ID in single site installs
-	 *
-	 * @return void
-	 */
-	public function test_get_main_network_site_wpcom_id_single() {
-		// set the Jetpack ID for this site.
-		$main_network_wpcom_id = 7891011;
-		\Jetpack_Options::update_option( 'id', $main_network_wpcom_id );
-
-		$functions = new Functions();
-		$this->assertEquals( $main_network_wpcom_id, $functions->main_network_site_wpcom_id() );
 	}
 
 }

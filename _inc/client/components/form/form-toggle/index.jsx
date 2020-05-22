@@ -1,4 +1,5 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
+/* eslint-disable jsx-a11y/onclick-has-role */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 
 /**
@@ -13,7 +14,7 @@ import classNames from 'classnames';
  */
 import Popover from 'components/popover';
 
-import './style.scss';
+require( './style.scss' );
 
 export default class FormToggle extends Component {
 	static propTypes = {
@@ -26,7 +27,7 @@ export default class FormToggle extends Component {
 		toggling: PropTypes.bool,
 		'aria-label': PropTypes.string,
 		children: PropTypes.node,
-		disabledReason: PropTypes.node,
+		disabledReason: PropTypes.node
 	};
 
 	static defaultProps = {
@@ -39,7 +40,7 @@ export default class FormToggle extends Component {
 	};
 
 	state = {
-		showPopover: false,
+		showPopover: false
 	};
 
 	static idNum = 0;
@@ -60,7 +61,7 @@ export default class FormToggle extends Component {
 		this.setState( { showPopover: false } );
 	};
 
-	UNSAFE_componentWillMount() {
+	componentWillMount() {
 		this.id = this.constructor.idNum++;
 	}
 
@@ -104,9 +105,8 @@ export default class FormToggle extends Component {
 				context={ this.refs && this.refs.toggleSwitch }
 				position={ this.props.disabledPopoverPosition }
 				onClose={ this._onPopoverClose }
-				className="dops-info-popover__tooltip"
-			>
-				{ this.props.disabledReason }
+				className="dops-info-popover__tooltip">
+					{ this.props.disabledReason }
 			</Popover>
 		);
 	};
@@ -114,7 +114,7 @@ export default class FormToggle extends Component {
 	render() {
 		const id = this.props.id || 'toggle-' + this.id;
 		const toggleClasses = classNames( 'form-toggle', this.props.className, {
-			'is-toggling': this.props.toggling,
+			'is-toggling': this.props.toggling
 		} );
 
 		return (
@@ -126,7 +126,7 @@ export default class FormToggle extends Component {
 					readOnly={ true }
 					disabled={ this.props.disabled }
 				/>
-				<label className="form-toggle__label" htmlFor={ id }>
+				<label className="form-toggle__label" htmlFor={ id } >
 					<span
 						className="form-toggle__switch"
 						disabled={ this.props.disabled }
@@ -138,7 +138,7 @@ export default class FormToggle extends Component {
 						aria-label={ this.props[ 'aria-label' ] }
 						tabIndex={ this.props.disabled ? -1 : 0 }
 						ref="toggleSwitch"
-					/>
+					></span>
 					<span className="form-toggle__label-content" onClick={ this.onLabelClick }>
 						{ this.props.children }
 					</span>

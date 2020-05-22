@@ -1,8 +1,10 @@
+
 /**
  * External dependencies
  */
 import { combineReducers } from 'redux';
-import { assign, get } from 'lodash';
+import get from 'lodash/get';
+import assign from 'lodash/assign';
 
 /**
  * Internal dependencies
@@ -12,12 +14,21 @@ import {
 	JETPACK_NOTICES_DISMISS_SUCCESS,
 	DISCONNECT_SITE_SUCCESS,
 	RESET_OPTIONS_SUCCESS,
+	JUMPSTART_ACTIVATE_SUCCESS,
+	JUMPSTART_SKIP,
+
 } from 'state/action-types';
 
 const notice = ( state = false, action ) => {
 	switch ( action.type ) {
 		case DISCONNECT_SITE_SUCCESS:
 			return 'disconnected';
+
+		case JUMPSTART_ACTIVATE_SUCCESS:
+			return 'new_connection_jumpstart';
+
+		case JUMPSTART_SKIP:
+			return 'new_connection_no_jumpstart';
 
 		default:
 			return state;
@@ -42,7 +53,7 @@ const dismissed = ( state = window.Initial_State.dismissedNotices, action ) => {
 
 export const reducer = combineReducers( {
 	notice,
-	dismissed,
+	dismissed
 } );
 
 /**
@@ -73,16 +84,6 @@ export function getJetpackStateNoticesErrorCode( state ) {
  */
 export function getJetpackStateNoticesMessageCode( state ) {
 	return get( state.jetpack.initialState, [ 'jetpackStateNotices', 'messageCode' ] );
-}
-
-/**
- * Returns the message content passed from PHP to the intial state of the app.
- *
- * @param {Object} state Global state tree
- * @return {string} The message content.
- */
-export function getJetpackStateNoticesMessageContent( state ) {
-	return get( state.jetpack.initialState, [ 'jetpackStateNotices', 'messageContent' ] );
 }
 
 /**

@@ -89,11 +89,11 @@ abstract class Abstract_Jetpack_Site extends SAL_Site {
 	}
 
 	function get_jetpack_modules() {
-		return array_values( Jetpack_Options::get_option( 'active_modules', array() ) );
-	}
+		if ( is_user_member_of_blog() ) {
+			return array_values( Jetpack_Options::get_option( 'active_modules', array() ) );
+		}
 
-	function is_module_active( $module ) {
-		return in_array ( $module, Jetpack_Options::get_option( 'active_modules', array() ), true );
+		return null;
 	}
 
 	function is_vip() {

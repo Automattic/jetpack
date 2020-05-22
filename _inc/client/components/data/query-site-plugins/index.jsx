@@ -1,3 +1,4 @@
+
 /**
  * External dependencies
  */
@@ -7,10 +8,13 @@ import { connect } from 'react-redux';
 /**
  * Internal dependencies
  */
-import { fetchPluginsData, isFetchingPluginsData } from 'state/site/plugins';
+import {
+	fetchPluginsData,
+	isFetchingPluginsData
+} from 'state/site/plugins';
 
 export class QuerySitePlugins extends React.Component {
-	UNSAFE_componentWillMount() {
+	componentWillMount() {
 		if ( ! this.props.isFetchingPluginsData ) {
 			this.props.fetchPluginsData();
 		}
@@ -22,14 +26,14 @@ export class QuerySitePlugins extends React.Component {
 }
 
 export default connect(
-	state => {
+	( state ) => {
 		return {
-			isFetchingPluginsData: isFetchingPluginsData( state ),
+			isFetchingPluginsData: isFetchingPluginsData( state )
 		};
 	},
-	dispatch => {
+	( dispatch ) => {
 		return {
-			fetchPluginsData: () => dispatch( fetchPluginsData() ),
+			fetchPluginsData: () => dispatch( fetchPluginsData() )
 		};
 	}
 )( QuerySitePlugins );

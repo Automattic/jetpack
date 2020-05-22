@@ -11,7 +11,7 @@ import { bindActionCreators } from 'redux';
 import { isCheckingAkismetKey, checkAkismetKey } from 'state/at-a-glance';
 
 class QueryAkismetKeyCheck extends Component {
-	UNSAFE_componentWillMount() {
+	componentWillMount() {
 		if ( ! this.props.isCheckingAkismetKey ) {
 			this.props.checkAkismetKey();
 		}
@@ -23,22 +23,17 @@ class QueryAkismetKeyCheck extends Component {
 }
 
 QueryAkismetKeyCheck.defaultProps = {
-	checkAkismetKey: () => {},
+	checkAkismetKey: () => {}
 };
 
-export default connect(
-	state => {
-		return {
-			checkAkismetKey: checkAkismetKey(),
-			isCheckingAkismetKey: isCheckingAkismetKey( state ),
-		};
-	},
-	dispatch => {
-		return bindActionCreators(
-			{
-				checkAkismetKey,
-			},
-			dispatch
-		);
-	}
+export default connect( ( state ) => {
+	return {
+		checkAkismetKey: checkAkismetKey(),
+		isCheckingAkismetKey: isCheckingAkismetKey( state )
+	};
+}, ( dispatch ) => {
+	return bindActionCreators( {
+		checkAkismetKey
+	}, dispatch );
+}
 )( QueryAkismetKeyCheck );

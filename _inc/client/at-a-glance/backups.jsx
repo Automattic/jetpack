@@ -6,21 +6,20 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
 import { translate as __ } from 'i18n-calypso';
-import { get, isEmpty, noop } from 'lodash';
-import getRedirectUrl from 'lib/jp-redirect';
+import noop from 'lodash/noop';
+import isEmpty from 'lodash/isEmpty';
+import get from 'lodash/get';
 
 /**
  * Internal dependencies
  */
 import Card from 'components/card';
-import JetpackBanner from 'components/jetpack-banner';
 import QueryVaultPressData from 'components/data/query-vaultpress-data';
-import { getPlanClass, PLAN_JETPACK_PREMIUM } from 'lib/plans/constants';
 import { getSitePlan } from 'state/site';
 import { isPluginInstalled } from 'state/site/plugins';
 import { getVaultPressData } from 'state/at-a-glance';
 import { isDevMode } from 'state/connection';
-import { getUpgradeUrl, showBackups } from 'state/initial-state';
+import { showBackups } from 'state/initial-state';
 
 /**
  * Displays a card for Backups based on the props given.
@@ -28,22 +27,21 @@ import { getUpgradeUrl, showBackups } from 'state/initial-state';
  * @param   {object} props Settings to render the card.
  * @returns {object}       Backups card
  */
-const renderCard = props => (
+const renderCard = ( props ) => (
 	<DashItem
-		label={ __( 'Backup' ) }
+		label={ __( 'Backups' ) }
 		module={ props.feature || 'backups' }
 		support={ {
-			text: __(
-				'Jetpack Backups allow you to easily restore or download a backup from a specific moment.'
-			),
-			link: getRedirectUrl( 'jetpack-support-backup' ),
+			text: __( 'Jetpack Backups allow you to easily restore or download a backup from a specific moment.' ),
+			link: 'https://jetpack.com/support/backups/',
 		} }
 		className={ props.className }
 		status={ props.status }
 		pro={ true }
-		overrideContent={ props.overrideContent }
 	>
-		<p className="jp-dash-item__description">{ props.content }</p>
+		<p className="jp-dash-item__description">
+			{ props.content }
+		</p>
 	</DashItem>
 );
 
@@ -51,24 +49,23 @@ class DashBackups extends Component {
 	static propTypes = {
 		siteRawUrl: PropTypes.string.isRequired,
 		getOptionValue: PropTypes.func.isRequired,
-		rewindStatus: PropTypes.string.isRequired,
+		isRewindActive: PropTypes.bool.isRequired,
 
 		// Connected props
 		vaultPressData: PropTypes.any.isRequired,
 		sitePlan: PropTypes.object.isRequired,
 		isDevMode: PropTypes.bool.isRequired,
 		isVaultPressInstalled: PropTypes.bool.isRequired,
-		upgradeUrl: PropTypes.string.isRequired,
 	};
 
 	static defaultProps = {
 		siteRawUrl: '',
 		getOptionValue: noop,
+		isRewindActive: false,
 		vaultPressData: '',
 		sitePlan: '',
 		isDevMode: false,
 		isVaultPressInstalled: false,
-		rewindStatus: '',
 	};
 
 	getVPContent() {
@@ -90,14 +87,8 @@ class DashBackups extends Component {
 						&nbsp;
 						{ __( '{{a}}View backup details{{/a}}.', {
 							components: {
-								a: (
-									<a
-										href={ getRedirectUrl( 'vaultpress-dashboard' ) }
-										target="_blank"
-										rel="noopener noreferrer"
-									/>
-								),
-							},
+								a: <a href="https://dashboard.vaultpress.com" target="_blank" rel="noopener noreferrer" />
+							}
 						} ) }
 					</span>
 				),
@@ -110,104 +101,31 @@ class DashBackups extends Component {
 				return renderCard( {
 					className: 'jp-dash-item__is-inactive',
 					status: isVaultPressInstalled ? 'pro-inactive' : 'pro-uninstalled',
-					content: __(
-						'To automatically back up your entire site, please {{a}}install and activate{{/a}} VaultPress.',
-						{
-							components: {
-								a: (
-									<a
-										href={ getRedirectUrl( 'calypso-plugins-setup', {
-											site: siteRawUrl,
-											query: 'only=backups',
-										} ) }
-										target="_blank"
-										rel="noopener noreferrer"
-									/>
-								),
-							},
+					content: __( 'To automatically back up your entire site, please {{a}}install and activate{{/a}} VaultPress.', {
+						components: {
+							a: <a href={ `https://wordpress.com/plugins/setup/${ siteRawUrl }?only=backups` } target="_blank" rel="noopener noreferrer" />
 						}
-					),
+					} )
 				} );
 			}
 
 			return renderCard( {
 				className: 'jp-dash-item__is-inactive',
 				status: 'no-pro-uninstalled-or-inactive',
-				overrideContent: (
-					<JetpackBanner
-						callToAction={ __( 'Upgrade' ) }
-						title={ __(
-							'Never worry about losing your site – automatic backups keep your content safe.'
-						) }
-						disableHref="false"
-						href={ this.props.upgradeUrl }
-						eventFeature="backups"
-						path="dashboard"
-						plan={ PLAN_JETPACK_PREMIUM }
-						icon="history"
-					/>
-				),
+				content: __( 'To automatically back up your entire site, please {{a}}upgrade your account{{/a}}.', {
+					components: {
+						a:
+							<a href={ `https://jetpack.com/redirect/?source=aag-backups&site=${ siteRawUrl }` } target="_blank" rel="noopener noreferrer" />
+					}
+				} ),
 			} );
 		}
 
 		return renderCard( {
 			className: '',
 			status: '',
-			content: __( 'Loading…' ),
+			content: __( 'Loading…' )
 		} );
-	}
-
-	getRewindContent() {
-		const { planClass, rewindStatus, siteRawUrl } = this.props;
-		const buildAction = ( url, message ) => (
-			<Card compact key="manage-backups" className="jp-dash-item__manage-in-wpcom" href={ url }>
-				{ message }
-			</Card>
-		);
-		const buildCard = message =>
-			renderCard( {
-				className: 'jp-dash-item__is-active',
-				status: 'is-working',
-				feature: 'rewind',
-				content: message,
-			} );
-
-		switch ( rewindStatus ) {
-			case 'provisioning':
-				return (
-					<React.Fragment>
-						{ buildCard( __( "We are configuring your site's backups." ) ) }
-					</React.Fragment>
-				);
-			case 'awaiting_credentials':
-				return (
-					<React.Fragment>
-						{ buildCard(
-							__( "You need to enter your server's credentials to finish the setup." )
-						) }
-						{ buildAction(
-							getRedirectUrl( 'calypso-settings-security', { site: siteRawUrl } ),
-							__( 'Enter credentials' )
-						) }
-					</React.Fragment>
-				);
-			case 'active':
-				const message = [ 'is-business-plan', 'is-realtime-backup-plan' ].includes( planClass )
-					? __( 'We are backing up your site in real-time.' )
-					: __( 'We are backing up your site daily.' );
-
-				return (
-					<React.Fragment>
-						{ buildCard( message ) }
-						{ buildAction(
-							getRedirectUrl( 'calypso-activity-log', { site: siteRawUrl, query: 'group=rewind' } ),
-							__( "View your site's backups" )
-						) }
-					</React.Fragment>
-				);
-		}
-
-		return false;
 	}
 
 	render() {
@@ -218,38 +136,62 @@ class DashBackups extends Component {
 		if ( this.props.isDevMode ) {
 			return (
 				<div className="jp-dash-item__interior">
-					{ renderCard( {
-						className: 'jp-dash-item__is-inactive',
-						status: 'no-pro-uninstalled-or-inactive',
-						content: __( 'Unavailable in Dev Mode.' ),
-					} ) }
+					{
+						renderCard( {
+							className: 'jp-dash-item__is-inactive',
+							status: 'no-pro-uninstalled-or-inactive',
+							content: __( 'Unavailable in Dev Mode.' ),
+						} )
+					}
 				</div>
 			);
 		}
 
+		const data = get( this.props.vaultPressData, 'data', '' );
+		const siteId = data && data.site_id;
+
 		return (
 			<div>
 				<QueryVaultPressData />
-				{ 'unavailable' === this.props.rewindStatus ? (
-					this.getVPContent()
-				) : (
-					<div className="jp-dash-item">{ this.getRewindContent() }</div>
-				) }
+				{
+					this.props.isRewindActive
+						? (
+							<div className="jp-dash-item">
+								{
+									renderCard( {
+										className: 'jp-dash-item__is-active',
+										status: 'is-working',
+										content: __( 'Your site is being backed up in real-time.' ),
+										feature: 'rewind',
+									} )
+								}
+								{
+									<Card
+										key="manage-backups"
+										className="jp-dash-item__manage-in-wpcom"
+										compact
+										href={ `https://dashboard.vaultpress.com/${ siteId }/backups/` }
+									>
+										{ __( 'View backup history' ) }
+									</Card>
+								}
+							</div>
+						)
+						: this.getVPContent()
+				}
 			</div>
 		);
 	}
 }
 
-export default connect( state => {
-	const sitePlan = getSitePlan( state );
-
-	return {
-		vaultPressData: getVaultPressData( state ),
-		sitePlan,
-		planClass: getPlanClass( sitePlan ),
-		isDevMode: isDevMode( state ),
-		isVaultPressInstalled: isPluginInstalled( state, 'vaultpress/vaultpress.php' ),
-		showBackups: showBackups( state ),
-		upgradeUrl: getUpgradeUrl( state, 'aag-backups' ),
-	};
-} )( DashBackups );
+export default connect(
+	( state ) => {
+		return {
+			vaultPressData: getVaultPressData( state ),
+			sitePlan: getSitePlan( state ),
+			isDevMode: isDevMode( state ),
+			isVaultPressInstalled: isPluginInstalled( state, 'vaultpress/vaultpress.php' ),
+			showBackups: showBackups( state ),
+		};
+	}
+)( DashBackups );

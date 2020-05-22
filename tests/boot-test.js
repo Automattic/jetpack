@@ -1,3 +1,4 @@
+require( 'babel-core/register' );
 const Chai = require( 'chai' ),
 	sinonChai = require( 'sinon-chai' ),
 	sinon = require( 'sinon' ),
@@ -13,5 +14,5 @@ module.exports = {
 		nock.cleanAll();
 		nock.enableNetConnect();
 		nock.restore();
-	},
+	}
 };

@@ -1,8 +1,8 @@
 // ==========================================================================
-// Animations
+// Animation for miles!
 // ==========================================================================
 
-@keyframes jetpack-candy {
+@keyframes "candy" {
 	0% {
 		transform: scale(1);
 	}
@@ -14,25 +14,5 @@
 	}
 	100% {
 		transform: scale(1);
-	}
-}
-
-@keyframes jetpack-loading-fade {
-	0% {
-		opacity: .5;
-	}
-
-	50% {
-		opacity: 1;
-	}
-
-	100% {
-		opacity: .5;
-	}
-}
-
-@keyframes jetpack-rotate {
-	to {
-		transform: rotate(1turn);
 	}
 }

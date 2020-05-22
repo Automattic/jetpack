@@ -1,7 +1,5 @@
 <?php
 
-use Automattic\Jetpack\Redirect;
-
 if ( ! class_exists( 'Jetpack_SSO_Notices' ) ) :
 
 /**
@@ -27,8 +25,8 @@ class Jetpack_SSO_Notices {
 				),
 				array(  'a' => array( 'href' => array() ) )
 			),
-			Redirect::get_url( 'calypso-me-security-two-step' ),
-			Redirect::get_url( 'wpcom-support-security-two-step-authentication' )
+			'https://wordpress.com/me/security/two-step',
+			'https://support.wordpress.com/security/two-step-authentication/'
 		);
 
 		$message .= sprintf( '<p class="message" id="login_error">%s</p>', $error );
@@ -137,7 +135,7 @@ class Jetpack_SSO_Notices {
 
 	/**
 	 * Message displayed when the site admin has disabled the default WordPress
-	 * login form in Settings > General > Secure Sign On
+	 * login form in Settings > General > Single Sign On
 	 *
 	 * @since 2.7
 	 * @param string $message

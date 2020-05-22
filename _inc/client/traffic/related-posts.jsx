@@ -6,14 +6,16 @@ import React from 'react';
 import { translate as __ } from 'i18n-calypso';
 import Card from 'components/card';
 import CompactFormToggle from 'components/form/form-toggle/compact';
-import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
  */
-import { FormFieldset, FormLabel } from 'components/forms';
+import {
+	FormFieldset,
+	FormLabel
+} from 'components/forms';
 import { ModuleToggle } from 'components/module-toggle';
-import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 
@@ -25,7 +27,7 @@ class RelatedPostsComponent extends React.Component {
 	 */
 	state = {
 		show_headline: this.props.getOptionValue( 'show_headline', 'related-posts' ),
-		show_thumbnails: this.props.getOptionValue( 'show_thumbnails', 'related-posts' ),
+		show_thumbnails: this.props.getOptionValue( 'show_thumbnails', 'related-posts' )
 	};
 
 	/**
@@ -36,7 +38,7 @@ class RelatedPostsComponent extends React.Component {
 	updateOptions = optionName => {
 		this.setState(
 			{
-				[ optionName ]: ! this.state[ optionName ],
+				[ optionName ]: ! this.state[ optionName ]
 			},
 			this.props.updateFormStateModuleOption( 'related-posts', optionName )
 		);
@@ -58,38 +60,18 @@ class RelatedPostsComponent extends React.Component {
 		const isRelatedPostsActive = this.props.getOptionValue( 'related-posts' ),
 			unavailableInDevMode = this.props.isUnavailableInDevMode( 'related-posts' );
 		return (
-			<SettingsCard { ...this.props } hideButton module="related-posts">
+			<SettingsCard
+				{ ...this.props }
+				hideButton
+				module="related-posts">
 				<SettingsGroup
 					hasChild
 					disableInDevMode
 					module={ this.props.getModule( 'related-posts' ) }
 					support={ {
-						text: __(
-							'The feature helps visitors find more of your content by ' +
-								'displaying related posts at the bottom of each post.'
-						),
-						link: getRedirectUrl( 'jetpack-support-related-posts' ),
+						link: 'https://jetpack.com/support/related-posts/',
 					} }
-				>
-					<p>
-						{ __(
-							'Keep your visitors engaged with related content at the bottom of each post. ' +
-								"These settings won't apply to {{a}}related posts added using the block editor{{/a}}.",
-							{
-								components: {
-									a: (
-										<a
-											href={ getRedirectUrl(
-												'jetpack-support-jetpack-blocks-related-posts-block'
-											) }
-											target="_blank"
-											rel="noopener noreferrer"
-										/>
-									),
-								},
-							}
-						) }
-					</p>
+					>
 					<ModuleToggle
 						slug="related-posts"
 						disabled={ unavailableInDevMode }
@@ -97,105 +79,92 @@ class RelatedPostsComponent extends React.Component {
 						toggling={ this.props.isSavingAnyOption( 'related-posts' ) }
 						toggleModule={ this.props.toggleModuleNow }
 					>
-						<span className="jp-form-toggle-explanation">
-							{ __( 'Show related content after posts' ) }
-						</span>
+					<span className="jp-form-toggle-explanation">
+						{
+							__( 'Show related content after posts' )
+						}
+					</span>
 					</ModuleToggle>
 					<FormFieldset>
 						<CompactFormToggle
-							checked={ this.state.show_headline }
-							disabled={
-								! isRelatedPostsActive ||
-								unavailableInDevMode ||
-								this.props.isSavingAnyOption( [ 'related-posts', 'show_headline' ] )
-							}
-							onChange={ this.handleShowHeadlineToggleChange }
-						>
-							<span className="jp-form-toggle-explanation">
-								{ __( 'Highlight related content with a heading' ) }
-							</span>
+									checked={ this.state.show_headline }
+									disabled={ ! isRelatedPostsActive || unavailableInDevMode || this.props.isSavingAnyOption( [ 'related-posts', 'show_headline' ] ) }
+									onChange={ this.handleShowHeadlineToggleChange }>
+									<span className="jp-form-toggle-explanation">
+										{
+											__( 'Highlight related content with a heading' )
+										}
+									</span>
 						</CompactFormToggle>
 						<CompactFormToggle
-							checked={ this.state.show_thumbnails }
-							disabled={
-								! isRelatedPostsActive ||
-								unavailableInDevMode ||
-								this.props.isSavingAnyOption( [ 'related-posts', 'show_thumbnails' ] )
-							}
-							onChange={ this.handleShowThumbnailsToggleChange }
-						>
-							<span className="jp-form-toggle-explanation">
-								{ __( 'Show a thumbnail image where available' ) }
-							</span>
+									checked={ this.state.show_thumbnails }
+									disabled={ ! isRelatedPostsActive || unavailableInDevMode || this.props.isSavingAnyOption( [ 'related-posts', 'show_thumbnails' ] ) }
+									onChange={ this.handleShowThumbnailsToggleChange }>
+									<span className="jp-form-toggle-explanation">
+										{
+											__( 'Show a thumbnail image where available' )
+										}
+									</span>
 						</CompactFormToggle>
-						{ isRelatedPostsActive && (
-							<div>
-								<FormLabel className="jp-form-label-wide">
-									{ __( 'Preview', {
-										context: 'A header for a preview area in the configuration screen.',
-									} ) }
-								</FormLabel>
-								<Card className="jp-related-posts-preview">
-									{ this.state.show_headline && (
-										<div className="jp-related-posts-preview__title">{ __( 'Related' ) }</div>
-									) }
-									{ [
+						<FormLabel className="jp-form-label-wide">
+							{ __( 'Preview', { context: 'A header for a preview area in the configuration screen.' } ) }
+						</FormLabel>
+						<Card className="jp-related-posts-preview">
+							{
+								this.state.show_headline && (
+									<div className="jp-related-posts-preview__title">{ __( 'Related' ) }</div>
+								)
+							}
+							{
+								[
+									{
+										url: '1-wpios-ipad-3-1-viewsite.png',
+										text: __( 'Big iPhone/iPad Update Now Available' ),
+										context: __( 'In "Mobile"', {
+											comment: 'It refers to the category where a post was found. Used in an example preview.'
+										} )
+									},
+									{
+										url: 'wordpress-com-news-wordpress-for-android-ui-update2.jpg',
+										text: __( 'The WordPress for Android App Gets a Big Facelift' ),
+										context: __( 'In "Mobile"', {
+											comment: 'It refers to the category where a post was found. Used in an example preview.'
+										} )
+									},
+									{
+										url: 'videopresswedding.jpg',
+										text: __( 'Upgrade Focus: VideoPress For Weddings' ),
+										context: __( 'In "Upgrade"', {
+											comment: 'It refers to the category where a post was found. Used in an example preview.'
+										} )
+									}
+								].map( ( item, index ) => (
+									<div key={ `preview_${ index }` } className="jp-related-posts-preview__item">
 										{
-											url: 'cat-blog.png',
-											text: __( 'Big iPhone/iPad Update Now Available' ),
-											context: __( 'In "Mobile"', {
-												comment:
-													'It refers to the category where a post was found. Used in an example preview.',
-											} ),
-										},
-										{
-											url: 'devices.jpg',
-											text: __( 'The WordPress for Android App Gets a Big Facelift' ),
-											context: __( 'In "Mobile"', {
-												comment:
-													'It refers to the category where a post was found. Used in an example preview.',
-											} ),
-										},
-										{
-											url: 'mobile-wedding.jpg',
-											text: __( 'Upgrade Focus: VideoPress For Weddings' ),
-											context: __( 'In "Upgrade"', {
-												comment:
-													'It refers to the category where a post was found. Used in an example preview.',
-											} ),
-										},
-									].map( ( item, index ) => (
-										<div key={ `preview_${ index }` } className="jp-related-posts-preview__item">
-											{ this.state.show_thumbnails && (
-												<img
-													src={ `https://jetpackme.files.wordpress.com/2019/03/${ item.url }` }
-													alt={ item.text }
-												/>
-											) }
-											<h4 className="jp-related-posts-preview__post-title">
-												<a href="#/traffic">{ item.text }</a>
-											</h4>
-											<p className="jp-related-posts-preview__post-context">{ item.context }</p>
-										</div>
-									) ) }
-								</Card>
-							</div>
-						) }
+											this.state.show_thumbnails && (
+												<img src={ `https://jetpackme.files.wordpress.com/2014/08/${ item.url }?w=350&h=200&crop=1` } alt={ item.text } />
+											)
+										}
+										<h4 className="jp-related-posts-preview__post-title"><a href="#/traffic">{ item.text }</a></h4>
+										<p className="jp-related-posts-preview__post-context">
+											{ item.context }
+										</p>
+									</div>
+								) )
+							}
+						</Card>
 					</FormFieldset>
 				</SettingsGroup>
-				{ ! this.props.isUnavailableInDevMode( 'related-posts' ) && isRelatedPostsActive && (
-					<Card
-						compact
-						className="jp-settings-card__configure-link"
-						onClick={ this.trackConfigureClick }
-						href={ this.props.configureUrl }
-					>
-						{ __( 'Configure related posts in the Customizer' ) }
-					</Card>
-				) }
+				{
+					! this.props.isUnavailableInDevMode( 'related-posts' ) && (
+						<Card compact className="jp-settings-card__configure-link" onClick={ this.trackConfigureClick } href={ this.props.configureUrl }>
+							{ __( 'Configure related posts in the Customizer' ) }
+						</Card>
+					)
+				}
 			</SettingsCard>
 		);
 	}
 }
 
-export const RelatedPosts = withModuleSettingsFormHelpers( RelatedPostsComponent );
+export const RelatedPosts = moduleSettingsForm( RelatedPostsComponent );

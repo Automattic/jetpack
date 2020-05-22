@@ -1,53 +1,56 @@
 ( function( $ ) {
+
 	var resizeTimer;
 
 	function responsiveVideos() {
-		$( '.jetpack-video-wrapper' )
-			.find( 'embed, iframe, object' )
-			.each( function() {
-				var _this, videoWidth, videoHeight, videoRatio, videoWrapper, videoMargin, containerWidth;
 
-				_this = $( this );
-				videoMargin = 0;
+		$( '.jetpack-video-wrapper' ).find( 'embed, iframe, object' ).each( function() {
+			var _this, videoWidth, videoHeight, videoRatio, videoWrapper, videoMargin, containerWidth;
 
-				if (
-					_this
-						.parents( '.jetpack-video-wrapper' )
-						.prev( 'p' )
-						.css( 'text-align' ) === 'center'
-				) {
-					videoMargin = '0 auto';
-				}
+			_this = $( this );
+			videoMargin = 0;
 
-				if ( ! _this.attr( 'data-ratio' ) ) {
-					_this
-						.attr( 'data-ratio', this.height / this.width )
-						.attr( 'data-width', this.width )
-						.attr( 'data-height', this.height )
-						.css( {
-							display: 'block',
-							margin: videoMargin,
-						} );
-				}
+			if ( _this.parents( '.jetpack-video-wrapper' ).prev( 'p' ).css( 'text-align' ) === 'center' ) {
+				videoMargin = '0 auto';
+			}
 
-				videoWidth = _this.attr( 'data-width' );
-				videoHeight = _this.attr( 'data-height' );
-				videoRatio = _this.attr( 'data-ratio' );
-				videoWrapper = _this.parent();
-				containerWidth = videoWrapper.width();
+			if ( ! _this.attr( 'data-ratio' ) ) {
+				_this
+					.attr( 'data-ratio', this.height / this.width )
+					.attr( 'data-width', this.width )
+					.attr( 'data-height', this.height )
+					.css( {
+						'display' : 'block',
+						'margin'  : videoMargin
+					} );
+			}
 
-				if ( videoRatio === 'Infinity' ) {
-					videoWidth = '100%';
-				}
+			videoWidth     = _this.attr( 'data-width' );
+			videoHeight    = _this.attr( 'data-height' );
+			videoRatio     = _this.attr( 'data-ratio' );
+			videoWrapper   = _this.parent();
+			containerWidth = videoWrapper.width();
 
-				_this.removeAttr( 'height' ).removeAttr( 'width' );
+			if ( videoRatio === 'Infinity' ) {
+				videoWidth = '100%';
+			}
 
-				if ( videoWidth > containerWidth ) {
-					_this.width( containerWidth ).height( containerWidth * videoRatio );
-				} else {
-					_this.width( videoWidth ).height( videoHeight );
-				}
-			} );
+			_this
+				.removeAttr( 'height' )
+				.removeAttr( 'width' );
+
+			if ( videoWidth > containerWidth ) {
+				_this
+					.width( containerWidth )
+					.height( containerWidth * videoRatio );
+			} else {
+				_this
+					.width( videoWidth )
+					.height( videoHeight );
+			}
+
+		} );
+
 	}
 
 	$( document ).ready( function() {
@@ -60,4 +63,5 @@
 			.on( 'post-load.jetpack', responsiveVideos )
 			.resize();
 	} );
+
 } )( jQuery );

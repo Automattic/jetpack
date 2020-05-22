@@ -10,28 +10,33 @@ import classNames from 'classnames';
  */
 import Card from 'components/card';
 
-import './style.scss';
+require( './style.scss' );
 
 export default class SectionHeader extends React.Component {
 	static displayName = 'SectionHeader';
 
 	static propTypes = {
-		label: PropTypes.string,
+		label: PropTypes.string
 	};
 
 	static defaultProps = {
-		label: '',
+		label: ''
 	};
 
 	render() {
-		const classes = classNames( this.props.className, 'dops-section-header' );
+		const classes = classNames(
+			this.props.className,
+			'dops-section-header'
+		);
 
 		return (
 			<Card compact className={ classes }>
 				<div className="dops-section-header__label">
 					<span className="dops-section-header__label-text">{ this.props.label }</span>
 				</div>
-				<div className="dops-section-header__actions">{ this.props.children }</div>
+				<div className="dops-section-header__actions">
+					{ this.props.children }
+				</div>
 			</Card>
 		);
 	}

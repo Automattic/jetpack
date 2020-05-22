@@ -57,42 +57,31 @@
 .jp-form-input-with-prefix {
 	display: inline-flex;
 	width: 100%;
-	margin-bottom: rem( 24px );
+	margin-top: rem( 24px );
+
+	&:first-of-type {
+		margin-top: 0;
+	}
 
 	span:first-child {
 		min-width: rem( 60px );
 		text-align: center;
-		background: #f6f6f6;
+		background: #f3f6f8;
 		border: 1px solid #c8d7e1;
 		color: #4f748e;
 		padding: rem( 8px ) rem( 14px );
 		white-space: nowrap;
-
-		@include breakpoint( '<660px' ) {
-			display: block;
-			text-align: left;
-		}
 	}
 
 	input[type="text"] {
 		width: 100%;
-		@include breakpoint( '>660px' ) {
-			border-left: 0;
-		}
-		@include breakpoint( '<660px' ) {
-			border-top: 0;
-		}
-	}
-
-	@include breakpoint( '<660px' ) {
-		display: block;
-		box-sizing: border-box;
+		border-left: 0;
 	}
 }
 
 .jp-form-input-suffix {
 	text-align: center;
-	background: #f6f6f6;
+	background: #f3f6f8;
 	border: 1px solid #c8d7e1;
 	color: #4f748e;
 	padding: rem( 8px ) rem( 14px );

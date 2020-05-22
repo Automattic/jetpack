@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import {
 	items as itemsReducer,
 	requests as requestsReducer,
-	initialRequestsState,
+	initialRequestsState
 } from '../reducer';
 
 describe( 'items reducer', () => {
@@ -14,11 +14,11 @@ describe( 'items reducer', () => {
 
 	let settings = {
 		a: {
-			name: 'setting-a',
+			name: 'setting-a'
 		},
 		b: {
-			name: 'setting-b',
-		},
+			name: 'setting-b'
+		}
 	};
 
 	describe( '#settingsFetch', () => {
@@ -26,7 +26,7 @@ describe( 'items reducer', () => {
 			const stateIn = {};
 			const action = {
 				type: 'JETPACK_SETTINGS_FETCH_RECEIVE',
-				settings: settings,
+				settings: settings
 			};
 			let stateOut = itemsReducer( stateIn, action );
 			expect( Object.keys( stateOut ).length ).to.equal( Object.keys( action.settings ).length );
@@ -39,8 +39,8 @@ describe( 'items reducer', () => {
 			const action = {
 				type: 'JETPACK_SETTING_UPDATE_SUCCESS',
 				updatedOption: {
-					setting_name: 'new-value',
-				},
+					setting_name: 'new-value'
+				}
 			};
 			let stateOut = itemsReducer( stateIn, action );
 			expect( stateOut.setting_name ).to.equal( 'new-value' );
@@ -54,8 +54,8 @@ describe( 'items reducer', () => {
 				type: 'JETPACK_SETTINGS_UPDATE_SUCCESS',
 				updatedOptions: {
 					setting_name: 'new-value',
-					setting_name_other: 'other-new-value',
-				},
+					setting_name_other: 'other-new-value'
+				}
 			};
 			let stateOut = itemsReducer( stateIn, action );
 			expect( stateOut.setting_name ).to.equal( 'new-value' );
@@ -64,13 +64,13 @@ describe( 'items reducer', () => {
 	} );
 
 	describe( '#initialState', () => {
-		it( "should replace .items with the initial state's settings list", () => {
+		it( 'should replace .items with the initial state\'s settings list', () => {
 			const stateIn = {};
 			const action = {
 				type: 'JETPACK_SET_INITIAL_STATE',
 				initialState: {
-					settings: settings,
-				},
+					settings: settings
+				}
 			};
 			let stateOut = itemsReducer( stateIn, action );
 			expect( stateOut ).to.eql( action.initialState.settings );
@@ -88,7 +88,7 @@ describe( 'requests reducer', () => {
 		it( 'should set fetchingSettingsList to true when fetching', () => {
 			const stateIn = {};
 			const action = {
-				type: 'JETPACK_SETTINGS_FETCH',
+				type: 'JETPACK_SETTINGS_FETCH'
 			};
 			let stateOut = requestsReducer( stateIn, action );
 			expect( stateOut.fetchingSettingsList ).to.be.true;
@@ -97,7 +97,7 @@ describe( 'requests reducer', () => {
 		it( 'should set fetchingSettingsList to false when setting was updated', () => {
 			const stateIn = {};
 			const action = {
-				type: 'JETPACK_SETTINGS_FETCH_RECEIVE',
+				type: 'JETPACK_SETTINGS_FETCH_RECEIVE'
 			};
 			let stateOut = requestsReducer( stateIn, action );
 			expect( stateOut.fetchingSettingsList ).to.be.false;
@@ -106,7 +106,7 @@ describe( 'requests reducer', () => {
 		it( 'should set fetchingSettingsList to false when updating a setting failed', () => {
 			const stateIn = {};
 			const action = {
-				type: 'JETPACK_SETTINGS_FETCH_FAIL',
+				type: 'JETPACK_SETTINGS_FETCH_FAIL'
 			};
 			let stateOut = requestsReducer( stateIn, action );
 			expect( stateOut.fetchingSettingsList ).to.be.false;
@@ -120,8 +120,8 @@ describe( 'requests reducer', () => {
 				type: 'JETPACK_SETTING_UPDATE',
 				updatedOptions: {
 					settingOne: 'new-value-one',
-					settingTwo: 'new-value-two',
-				},
+					settingTwo: 'new-value-two'
+				}
 			};
 			let stateOut = requestsReducer( stateIn, action );
 			expect( stateOut.settingsSent.settingOne ).to.be.true;
@@ -134,39 +134,12 @@ describe( 'requests reducer', () => {
 				type: 'JETPACK_SETTING_UPDATE_SUCCESS',
 				updatedOptions: {
 					settingOne: 'new-value-one',
-					settingTwo: 'new-value-two',
-				},
+					settingTwo: 'new-value-two'
+				}
 			};
 			let stateOut = requestsReducer( stateIn, action );
 			expect( stateOut.settingsSent.settingOne ).to.be.false;
 			expect( stateOut.settingsSent.settingTwo ).to.be.false;
-		} );
-
-		it( 'should set updatedSettings to true when a setting was successfully updated', () => {
-			const action = {
-				type: 'JETPACK_SETTING_UPDATE_SUCCESS',
-				success: { success: true },
-				updatedOptions: {
-					settingOne: 'new-value-one',
-					settingTwo: 'new-value-two',
-				},
-			};
-			const stateOut = requestsReducer( null, action );
-			expect( stateOut.updatedSettings.settingOne ).to.be.true;
-			expect( stateOut.updatedSettings.settingTwo ).to.be.true;
-		} );
-		it( 'should set updatedSettings to false when a setting failed to update', () => {
-			const action = {
-				type: 'JETPACK_SETTING_UPDATE_SUCCESS',
-				success: false,
-				updatedOptions: {
-					settingOne: 'new-value-one',
-					settingTwo: 'new-value-two',
-				},
-			};
-			const stateOut = requestsReducer( null, action );
-			expect( stateOut.updatedSettings.settingOne ).to.be.false;
-			expect( stateOut.updatedSettings.settingTwo ).to.be.false;
 		} );
 	} );
 
@@ -177,8 +150,8 @@ describe( 'requests reducer', () => {
 				type: 'JETPACK_SETTINGS_UPDATE',
 				updatedOptions: {
 					settingOne: 'new-value-one',
-					settingTwo: 'new-value-two',
-				},
+					settingTwo: 'new-value-two'
+				}
 			};
 			let stateOut = requestsReducer( stateIn, action );
 			expect( stateOut.settingsSent.settingOne ).to.be.true;
@@ -191,8 +164,8 @@ describe( 'requests reducer', () => {
 				type: 'JETPACK_SETTINGS_UPDATE_SUCCESS',
 				updatedOptions: {
 					settingOne: 'new-value-one',
-					settingTwo: 'new-value-two',
-				},
+					settingTwo: 'new-value-two'
+				}
 			};
 			let stateOut = requestsReducer( stateIn, action );
 			expect( stateOut.settingsSent.settingOne ).to.be.false;

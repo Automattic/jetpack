@@ -10,7 +10,7 @@ import { connect } from 'react-redux';
 import { isFetchingStatsData, fetchStatsData } from 'state/at-a-glance';
 
 class QueryStatsData extends Component {
-	UNSAFE_componentWillMount() {
+	componentWillMount() {
 		if ( ! this.props.fetchingStatsData ) {
 			this.props.fetchStatsData( this.props.range );
 		}
@@ -22,21 +22,19 @@ class QueryStatsData extends Component {
 }
 
 QueryStatsData.defaultProps = {
-	fetchStatsData: () => {},
+	fetchStatsData: () => {}
 };
 
-export default connect(
-	state => {
-		return {
-			fetchStatsData: range => fetchStatsData( state, range ),
-			fetchingStatsData: isFetchingStatsData( state ),
-		};
-	},
-	dispatch => {
-		return {
-			fetchStatsData: range => {
-				return dispatch( fetchStatsData( range ) );
-			},
-		};
-	}
+export default connect( ( state ) => {
+	return {
+		fetchStatsData: ( range ) => fetchStatsData( state, range ),
+		fetchingStatsData: isFetchingStatsData( state )
+	};
+}, ( dispatch ) => {
+	return {
+		fetchStatsData: ( range ) => {
+			return dispatch( fetchStatsData( range ) );
+		}
+	};
+}
 )( QueryStatsData );

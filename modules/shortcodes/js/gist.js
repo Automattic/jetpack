@@ -1,23 +1,19 @@
-( function( $, undefined ) {
+;(function( $, undefined ) {
 	var gistStylesheetLoaded = false,
 		gistEmbed = function() {
 			$( '.gist-oembed' ).each( function( i, el ) {
-				var url = 'https://gist.github.com/' + $( el ).data( 'gist' ),
-					ts = parseInt( $( el ).data( 'ts' ), 10 );
+				var url = 'https://gist.github.com/' + $( el ).data( 'gist' );
 
 				$.ajax( {
 					url: url,
-					dataType: 'jsonp',
+					dataType: 'jsonp'
 				} ).done( function( response ) {
-					if ( ts && 8 !== ts ) {
-						$( el ).replaceWith( $( response.div ).css( 'tab-size', ts.toString() ) );
-					} else {
-						$( el ).replaceWith( response.div );
-					}
+					$( el ).replaceWith( response.div );
 
 					if ( ! gistStylesheetLoaded ) {
-						var stylesheet =
-							'<link rel="stylesheet" href="' + response.stylesheet + '" type="text/css" />';
+						var stylesheet = '<link rel="stylesheet" href="' +
+										response.stylesheet +
+										'" type="text/css" />';
 
 						$( 'head' ).append( stylesheet );
 
@@ -29,4 +25,4 @@
 
 	$( document ).ready( gistEmbed );
 	$( 'body' ).on( 'post-load', gistEmbed );
-} )( jQuery );
+})( jQuery );

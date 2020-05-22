@@ -1,5 +1,0 @@
-version: '3.3'
-#services:
-#  wordpress:
-#    volumes:
-#      - /Users/myself/checkouts/vaultpress:/var/www/html/wp-content/plugins/vaultpress

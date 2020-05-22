@@ -4,10 +4,10 @@
  *
  * @copyright 2012-2013 Leaf Corcoran
  *
- * @license https://opensource.org/licenses/gpl-license GPL-3.0
- * @license https://opensource.org/licenses/MIT MIT
+ * @license http://opensource.org/licenses/gpl-license GPL-3.0
+ * @license http://opensource.org/licenses/MIT MIT
  *
- * @link https://leafo.net/scssphp
+ * @link http://leafo.net/scssphp
  */
 
 /**
@@ -2380,7 +2380,7 @@ class scssc {
 	/**
 	 * CSS Colors
 	 *
-	 * @see https://www.w3.org/TR/css-color-3/
+	 * @see http://www.w3.org/TR/css3-color
 	 */
 	static protected $cssColors = array(
 		'aliceblue' => '240,248,255',

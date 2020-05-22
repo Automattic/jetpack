@@ -1,7 +1,7 @@
 <?php
 
 /*
- * Exports translations from https://translate.wordpress.org/api/projects/jetpack
+ * Exports translations from http://translate.wordpress.org/api/projects/jetpack
  *
  * php export-translations.php DIRECTORY SOURCE_URL
  */
@@ -22,11 +22,10 @@ function die_error( $message ) {
 }
 
 /**
- * Converts GlotPress URL into a GlotPress API URL.
+ * Converts GlotPress URL into a GlotPress API URL
  *
- * @param string $url GlotPres URL.
- *
- * @return string $api_url GlotPress API URL.
+ * @param sring $url URL
+ * @return sstring API URL
  */
 function apize_url( $url ) {
 	if ( false !== strpos( $url, '/api' ) ) {
@@ -155,13 +154,12 @@ foreach ( $available_sets as $id => $set ) {
 	}
 
 	$output_file = "{$temp_file_path}/jetpack-{$map[$full_locale]}.po";
-	$input_url   = sprintf( '%s/%s/%s/export-translations/?format=po', $source_url, $set->locale, $set->slug );
-	$exec        = sprintf( 'curl --silent --location --output %s %s', escapeshellarg( $output_file ), escapeshellarg( $input_url ) );
+	$input_url   = sprintf( '%s/%s/%s/export-translations?format=po', $source_url, $set->locale, $set->slug );
+	$exec        = sprintf( 'curl -s -o %s %s', escapeshellarg( $output_file ), escapeshellarg( $input_url ) );
 	echo "Downloading $input_url to" . PHP_EOL . $output_file . PHP_EOL;
 	exec( $exec );
-
-	echo "\nSuccessfully downloaded " . $output_file . " with size of " . filesize( $output_file ) . "\n";
 }
+
 echo "\n";
 
 // Convert PO files to MO files
