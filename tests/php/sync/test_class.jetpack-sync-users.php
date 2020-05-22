@@ -1,5 +1,8 @@
 <?php
 
+use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Sync\Users;
+use Automattic\Jetpack\Sync\Modules;
 
 /**
  * Testing CRUD on Users
@@ -27,11 +30,11 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 
 		unset( $user->allcaps['subscriber'] );
 		unset( $user->allcaps['level_0'] );
-		$this->assertEqualsObject( $user, $server_user );
+		$this->assertEqualsObject( $user, $server_user, 'The replicastore user must equal the initial user.' );
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_register_user' );
 
-		$user_sync_module = Jetpack_Sync_Modules::get_module( "users" );
+		$user_sync_module = Modules::get_module( "users" );
 		$synced_user = $event->args[0];
 
 		// grab the codec - we need to simulate the stripping of types that comes with encoding/decoding
@@ -44,7 +47,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		// TODO: this is to address a testing bug, alas :/
 		unset( $retrieved_user->data->allowed_mime_types );
 
-		$this->assertEquals( $synced_user, $retrieved_user );
+		$this->assertEquals( $synced_user, $retrieved_user, 'Retrieved user must equal the synced user.' );
 
 	}
 
@@ -415,7 +418,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$save_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_user' );
 		$this->assertFalse( (bool) $save_event );
 
-		$user_sync_module = Jetpack_Sync_Modules::get_module( "users" );
+		$user_sync_module = Modules::get_module( "users" );
 		$synced_user = $add_event->args[0];
 
 		// grab the codec - we need to simulate the stripping of types that comes with encoding/decoding
@@ -445,9 +448,9 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 
 		$this->sender->do_sync();
 
-		$event                    = $this->server_event_storage->get_most_recent_event( 'wp_login' );
+		$event                    = $this->server_event_storage->get_most_recent_event( 'jetpack_wp_login' );
 		$user_data_sent_to_server = $event->args[1];
-		$this->assertEquals( 'foobar', $event->args[0] );
+		$this->assertEquals( 'foobar', $user_data_sent_to_server->data->user_login );
 		$this->assertEquals( $user_id, $user_data_sent_to_server->ID );
 		$this->assertFalse( isset( $user_data_sent_to_server->data->user_pass ) );
 
@@ -518,22 +521,22 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		) );
 
 		// maybe
-		Jetpack_Sync_Users::maybe_demote_master_user( $current_master_id );
+		Users::maybe_demote_master_user( $current_master_id );
 		$this->assertEquals( $new_master_id, Jetpack_Options::get_option( 'master_user' ) );
 
 		// don't demote user that if the user is still an admin.
-		Jetpack_Sync_Users::maybe_demote_master_user( $new_master_id );
+		Users::maybe_demote_master_user( $new_master_id );
 		$this->assertEquals( 'administrator', $new_master->roles[0] );
 		$this->assertEquals( $new_master_id, Jetpack_Options::get_option( 'master_user' ), 'Do not demote the master user if the user is still an admin' );
 
 		$new_master->set_role( 'author' );
 		// don't demote user if the user one the only admin that is connected.
-		Jetpack_Sync_Users::maybe_demote_master_user( $new_master_id );
+		Users::maybe_demote_master_user( $new_master_id );
 		$this->assertEquals( $new_master_id, Jetpack_Options::get_option( 'master_user' ), 'Do not demote user if the user is the only connected user.' );
 	}
 
 	public function test_returns_user_object_by_id() {
-		$user_sync_module = Jetpack_Sync_Modules::get_module( "users" );
+		$user_sync_module = Modules::get_module( "users" );
 
 		// get the synced object
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_register_user' );
@@ -710,12 +713,12 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 	public function test_invite_user_sync_invite_event() {
 		$this->server_event_storage->reset();
 		// Fake it till you make it
-		Jetpack_Constants::set_constant( 'JETPACK_INVITE_ACCEPTED', true );
+		Constants::set_constant( 'JETPACK_INVITE_ACCEPTED', true );
 		// We modify the input here to mimick the same call structure of the update user endpoint.
 		Jetpack_SSO_Helpers::generate_user( $this->get_invite_user_data() );
 		$this->sender->do_sync();
 
-		Jetpack_Constants::clear_constants();
+		Constants::clear_constants();
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_user' );
 		$this->assertFalse( $event );
@@ -729,12 +732,12 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 	public function test_invite_user_sync_invite_event_false() {
 		$this->server_event_storage->reset();
 		// Fake it till we make it
-		Jetpack_Constants::set_constant( 'JETPACK_INVITE_ACCEPTED', false );
+		Constants::set_constant( 'JETPACK_INVITE_ACCEPTED', false );
 		// We modify the input here to mimick the same call structure of the update user endpoint.
 		Jetpack_SSO_Helpers::generate_user( $this->get_invite_user_data() );
 		$this->sender->do_sync();
 
-		Jetpack_Constants::clear_constants();
+		Constants::clear_constants();
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_user' );
 		$this->assertFalse( $event );
@@ -743,6 +746,39 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$this->assertFalse( isset( $event->args[1]['invitation_accepted'] ) );
 		$this->assertEquals( 'editor' , $event->args[0]->roles[0] );
 	}
+
+	function test_sends_insecure_password_flag() {
+		$user = get_user_by( 'ID', $this->user_id );
+
+		do_action( 'authenticate', $user, $user->user_login, 'admin' );
+		do_action( 'wp_login', $user->user_login, $user );
+
+		$this->sender->do_sync();
+
+		$action = $this->server_event_storage->get_most_recent_event( 'jetpack_wp_login' );
+
+		$this->assertInstanceOf( 'stdClass', $action );
+		$this->assertArrayHasKey( 'warning', $action->args[2] );
+	}
+
+	function test_does_not_send_insecure_password_flags_on_secure_password() {
+		$user = get_user_by( 'ID', $this->user_id );
+
+		do_action( 'authenticate', $user, $user->user_login, wp_generate_password( 25 ) );
+		do_action( 'wp_login', $user->user_login, $user );
+
+		$this->sender->do_sync();
+
+		$action = $this->server_event_storage->get_most_recent_event( 'jetpack_wp_login' );
+
+		foreach( $action->args as $value ) {
+			if ( ! is_array( $value ) ) {
+				continue;
+			}
+			$this->assertArrayNotHasKey( 'warning', $value );
+		}
+	}
+
 
 	protected function assertUsersEqual( $user1, $user2 ) {
 		// order-independent comparison

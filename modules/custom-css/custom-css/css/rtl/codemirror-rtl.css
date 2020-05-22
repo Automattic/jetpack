@@ -7,7 +7,7 @@
   height: 300px;
 }
 .CodeMirror-scroll {
-  /* Set scrolling behaviour here */
+  /* Set scrolling behavior here */
   overflow: auto;
 }
 

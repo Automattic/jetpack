@@ -384,42 +384,6 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test permission to read and manage Jetpack Jumpstart.
-	 *
-	 * @since 4.5.0
-	 */
-	public function test_read_manage_jumpstart_permission() {
-
-		// Current user doesn't have credentials, so checking permissions should fail
-		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::manage_modules_permission_check() );
-		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::update_settings_permission_check() );
-
-		// Create a user
-		$user = $this->create_and_get_user();
-
-		// Add Jetpack capability
-		$user->add_cap( 'jetpack_configure_modules' );
-
-		// Setup global variables so this is the current user
-		wp_set_current_user( $user->ID );
-
-		// User is not admin, so this should still fail
-		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::manage_modules_permission_check() );
-		$this->assertInstanceOf( 'WP_Error', Jetpack_Core_Json_Api_Endpoints::update_settings_permission_check() );
-
-		// Set user as admin
-		$user->set_role( 'administrator' );
-
-		// Reset user and setup globals again to reflect the role change.
-		wp_set_current_user( 0 );
-		wp_set_current_user( $user->ID );
-
-		// User has the capability and is connected so this should work this time
-		$this->assertTrue( Jetpack_Core_Json_Api_Endpoints::manage_modules_permission_check() );
-		$this->assertTrue( Jetpack_Core_Json_Api_Endpoints::update_settings_permission_check() );
-	}
-
-	/**
 	 * Test information about connection status.
 	 *
 	 * @since 4.4.0
@@ -607,7 +571,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		wp_set_current_user( $user->ID );
 
 		// Build URL to compare scheme and host with the one in response
-		$admin_url = parse_url( admin_url() );
+		$admin_url = wp_parse_url( admin_url() );
 
 		// Create REST request in JSON format and dispatch
 		$response = $this->create_and_get_request( 'connection/url' );
@@ -616,7 +580,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$this->assertResponseStatus( 200, $response );
 
 		// Format data to test it
-		$response->data = parse_url( $response->data );
+		$response->data = wp_parse_url( $response->data );
 		parse_str( $response->data['query'], $response->data['query'] );
 
 		// It has a nonce
@@ -674,7 +638,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		// Success, URL was built
 		$this->assertResponseStatus( 200, $response );
 
-		$response->data = parse_url( $response->data );
+		$response->data = wp_parse_url( $response->data );
 		parse_str( $response->data['query'], $response->data['query'] );
 
 		// Because dotcom will not respond to a fake token, the method
@@ -824,41 +788,6 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test fetching current Jumpstart status when not authenticated.
-	 *
-	 * @since 4.5.0
-	 */
-	public function test_fetch_current_jumpstart_status_noauth() {
-		// Create REST request in JSON format and dispatch
-		$response = $this->create_and_get_request( 'jumpstart', array(), 'GET' );
-
-		// Fails because user is not authenticated
-		$this->assertResponseStatus( 401, $response );
-		$this->assertResponseData( array( 'code' => 'invalid_user_permission_manage_settings' ), $response );
-	}
-
-	/**
-	 * Test fetching and managing Jumpstart when authenticated.
-	 *
-	 * @since 4.5.0
-	 */
-	public function test_fetch_manage_current_jumpstart_status_auth() {
-		// Create a user and set it up as current.
-		$user = $this->create_and_get_user( 'administrator' );
-		$user->add_cap( 'jetpack_configure_modules' );
-		$user->add_cap( 'jetpack_activate_modules' );
-		wp_set_current_user( $user->ID );
-
-		// Test retrieval of current Jumpstart status
-		$response = $this->create_and_get_request( 'jumpstart', 'GET' );
-		$this->assertResponseStatus( 200, $response );
-
-		// Test deactivation of Jumpstart
-		$response = $this->create_and_get_request( 'jumpstart', array( 'active' => false ), 'POST' );
-		$this->assertResponseStatus( 200, $response );
-	}
-
-	/**
 	 * Test fetching milestone widget data.
 	 *
 	 * @since 5.5.0
@@ -999,20 +928,17 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 * Test changing the master user.
 	 *
 	 * @since 6.2.0
+	 * @since 7.7.0 No longer need to be master user to update.
 	 */
 	public function test_change_owner() {
 
 		// Create a user and set it up as current.
-		$user = $this->create_and_get_user();
-		$user->add_cap( 'jetpack_connect_user' );
+		$user = $this->create_and_get_user( 'administrator' );
+		$user->add_cap( 'jetpack_disconnect' );
 		wp_set_current_user( $user->ID );
 
 		// Mock site already registered
 		Jetpack_Options::update_option( 'user_tokens', array( $user->ID => "honey.badger.$user->ID" ) );
-
-		// Attempt change, fail because not master user
-		$response = $this->create_and_get_request( 'connection/owner', array( 'owner' => 999 ), 'POST' );
-		$this->assertResponseStatus( 403, $response );
 
 		// Set up user as master user
 		Jetpack_Options::update_option( 'master_user', $user->ID );
@@ -1040,5 +966,35 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		remove_filter( 'http_response', array( $this, 'mock_xmlrpc_success' ), 10 );
 	}
 
+	/**
+	 * Test saving and retrieving the Setup Wizard questionnaire responses.
+	 *
+	 * @since 4.4.0
+	 */
+	public function test_setup_wizard() {
+		// Create a user and set it up as current.
+		$user = $this->create_and_get_user( 'administrator' );
+		$user->add_cap( 'jetpack_configure_modules' );
+		wp_set_current_user( $user->ID );
+
+		$test_data = array(
+			'param1' => 'val1',
+			'param2' => 'val2',
+		);
+
+		$response = $this->create_and_get_request(
+			'setup/questionnaire',
+			array(
+				'questionnaire' => $test_data,
+			),
+			'POST'
+		);
+		$this->assertResponseStatus( 200, $response );
+		$this->assertEquals( true, $response->get_data() );
+
+		$response = $this->create_and_get_request( 'setup/questionnaire', array(), 'GET' );
+		$this->assertResponseStatus( 200, $response );
+		$this->assertResponseData( $test_data, $response );
+	}
 
 } // class end

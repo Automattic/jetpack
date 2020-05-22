@@ -1,0 +1,39 @@
+/**
+ * Editor styles for Podcast Player
+ */
+
+/* Back-compat for pre-G2 ToolbarButton elements containing text */
+.block-editor-block-contextual-toolbar[data-type='jetpack/podcast-player']
+	.components-toolbar__control,
+[data-type='jetpack/podcast-player']
+	.block-editor-block-contextual-toolbar
+	.components-toolbar__control {
+	width: auto;
+	padding: 0 1em;
+}
+
+.jetpack-podcast-player__interactive-overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	opacity: 0;
+}
+
+// Placeholder styles
+.jetpack-podcast-player__placeholder {
+	.components-base-control,
+	.components-base-control__field {
+		display: flex;
+		flex-grow: 1;
+	}
+
+	.components-base-control__field {
+		margin-bottom: 0;
+	}
+
+	.components-placeholder__learn-more {
+		margin-top: 1em;
+	}
+}

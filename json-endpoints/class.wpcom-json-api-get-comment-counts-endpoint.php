@@ -55,7 +55,7 @@ class WPCOM_JSON_API_GET_Comment_Counts_Endpoint extends WPCOM_JSON_API_Endpoint
 			return new WP_Error( 'invalid_input', 'Provided post_id does not exist', 400 );
 		}
 
-		$comment_counts = get_object_vars( wp_count_comments( $post_id ) );
+		$comment_counts = get_object_vars( $this->api->wp_count_comments( $post_id ) );
 
 		// Keys coming from wp_count_comments don't match the ones that we use in
 		// wp-admin and Calypso and are not consistent. Let's normalize the response.

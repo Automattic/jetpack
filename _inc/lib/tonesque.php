@@ -1,13 +1,13 @@
 <?php
 /*
 Plugin Name: Tonesque
-Plugin URI: http://automattic.com/
+Plugin URI: https://automattic.com/
 Description: Grab an average color representation from an image.
 Version: 1.0
 Author: Automattic, Matias Ventura
-Author URI: http://automattic.com/
+Author URI: https://automattic.com/
 License: GNU General Public License v2 or later
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
 */
 
 class Tonesque {
@@ -203,13 +203,13 @@ class Tonesque {
 
 		switch ( $type ) {
 			case 'rgb' :
-				$color = implode( $c->toRgbInt(), ',' );
+				$color = implode( ',', $c->toRgbInt() );
 				break;
 			case 'hex' :
 				$color = $c->toHex();
 				break;
 			case 'hsv' :
-				$color = implode( $c->toHsvInt(), ',' );
+				$color = implode( ',', $c->toHsvInt() );
 				break;
 			default:
 				return $color = $c->toHex();
@@ -231,7 +231,7 @@ class Tonesque {
 			return false;
 
 		$c = $this->color->getMaxContrastColor();
-		return implode( $c->toRgbInt(), ',' );
+		return implode( ',', $c->toRgbInt() );
 	}
 
 };

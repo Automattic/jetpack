@@ -6,6 +6,8 @@
  *
  * [gravatar email="user@example.org" size="48"]
  * [gravatar_profile who="user@example.org"]
+ *
+ * @package Jetpack
  */
 
 add_shortcode( 'gravatar', 'jetpack_gravatar_shortcode' );
@@ -21,10 +23,13 @@ add_shortcode( 'gravatar_profile', 'jetpack_gravatar_profile_shortcode' );
  * @return bool|string
  */
 function jetpack_gravatar_shortcode( $atts ) {
-	$atts = shortcode_atts( array(
-		'email' => '',
-		'size'  => 96,
-	), $atts );
+	$atts = shortcode_atts(
+		array(
+			'email' => '',
+			'size'  => 96,
+		),
+		$atts
+	);
 
 	if ( empty( $atts['email'] ) || ! is_email( $atts['email'] ) ) {
 		return false;
@@ -60,15 +65,19 @@ function jetpack_gravatar_shortcode( $atts ) {
  * @return string
  */
 function jetpack_gravatar_profile_shortcode( $atts ) {
-	// Give each use of the shortcode a unique ID
+	// Give each use of the shortcode a unique ID.
 	static $instance = 0;
 
-	// Process passed attributes
-	$atts = shortcode_atts( array(
-		'who' => null,
-	), $atts, 'jetpack_gravatar_profile' );
+	// Process passed attributes.
+	$atts = shortcode_atts(
+		array(
+			'who' => null,
+		),
+		$atts,
+		'jetpack_gravatar_profile'
+	);
 
-	// Can specify username, user ID, or email address
+	// Can specify username, user ID, or email address.
 	if ( is_numeric( $atts['who'] ) ) {
 		$user = get_user_by( 'id', (int) $atts['who'] );
 	} elseif ( is_email( $atts['who'] ) ) {
@@ -79,13 +88,13 @@ function jetpack_gravatar_profile_shortcode( $atts ) {
 		$user = false;
 	}
 
-	// Bail if we don't have a user
+	// Bail if we don't have a user.
 	if ( false === $user ) {
 		return false;
 	}
 
-	// Render the shortcode
-	$gravatar_url  = set_url_scheme( 'http://gravatar.com/' . $user->user_login );
+	// Render the shortcode.
+	$gravatar_url = 'https://gravatar.com/' . $user->user_login;
 
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 		$avatar_url    = wpcom_get_avatar_url( $user->ID, 96 );
@@ -132,7 +141,10 @@ function jetpack_gravatar_profile_shortcode( $atts ) {
 			<div class="grofile-right">
 				<p class="grofile-name fn">
 					<strong><?php echo esc_html( $user->display_name ); ?></strong>
-					<?php if ( ! empty( $user_location ) ) : ?><br><span class="grofile-location adr"><?php echo esc_html( $user_location ); ?></span><?php endif; ?>
+					<?php
+					if ( ! empty( $user_location ) ) :
+						?>
+						<br><span class="grofile-location adr"><?php echo esc_html( $user_location ); ?></span><?php endif; ?>
 				</p>
 				<p class="grofile-bio"><strong><?php esc_html_e( 'Bio:', 'jetpack' ); ?></strong> <?php echo wp_kses_post( $user->description ); ?></p>
 				<p class="grofile-view">
@@ -141,9 +153,10 @@ function jetpack_gravatar_profile_shortcode( $atts ) {
 			</div>
 			<span class="grofile-clear">&nbsp;</span>
 		</div>
-	</div><?php
+	</div>
+	<?php
 
-	// Increment and return the rendered profile
+	// Increment and return the rendered profile.
 	$instance++;
 
 	return ob_get_clean();

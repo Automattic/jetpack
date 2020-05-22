@@ -1,6 +1,5 @@
 <?php
 
-
 /**
  * Provides an interface for easily building a complex search query that
  * combines multiple ranking signals.
@@ -16,6 +15,8 @@
  * All ES queries take a standard form with main query (with some filters),
  *  wrapped in a function_score
  *
+ * Most functions are chainable, e.g. $bldr->add_filter( ... )->add_query( ... )->build_query();
+ *
  * Bucketed queries use an aggregation to diversify results. eg a bunch
  *  of separate filters where to get different sets of results.
  *
@@ -27,10 +28,12 @@ class Jetpack_WPES_Query_Builder {
 
 	// Custom boosting with function_score
 	protected $functions = array();
+	protected $weighting_functions = array();
 	protected $decays    = array();
 	protected $scripts   = array();
 	protected $functions_max_boost  = 2.0;
 	protected $functions_score_mode = 'multiply';
+	protected $functions_boost_mode = 'multiply';
 	protected $query_bool_boost     = null;
 
 	// General aggregations for buckets and metrics
@@ -46,11 +49,20 @@ class Jetpack_WPES_Query_Builder {
 	protected $bucket_filters        = array();
 	protected $bucket_sub_aggs       = array();
 
+	public function get_langs() {
+		if ( isset( $this->langs ) ) {
+			return $this->langs;
+		}
+		return false;
+	}
+
 	////////////////////////////////////
 	// Methods for building a query
 
 	public function add_filter( $filter ) {
 		$this->es_filters[] = $filter;
+
+		return $this;
 	}
 
 	public function add_query( $query, $type = 'must' ) {
@@ -68,6 +80,23 @@ class Jetpack_WPES_Query_Builder {
 				$this->must_queries[] = $query;
 				break;
 		}
+
+		return $this;
+	}
+
+	/**
+	 * Add any weighting function to the query
+	 *
+	 * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-function-score-query.html
+	 *
+	 * @param $function array A function structure to apply to the query
+	 *
+	 * @return void
+	 */
+	public function add_weighting_function( $function ) {
+		$this->weighting_functions[] = $function;
+
+		return $this;
 	}
 
 	/**
@@ -84,6 +113,8 @@ class Jetpack_WPES_Query_Builder {
 	 */
 	public function add_function( $function, $params ) {
 		$this->functions[ $function ][] = $params;
+
+		return $this;
 	}
 
 	/**
@@ -101,6 +132,8 @@ class Jetpack_WPES_Query_Builder {
 	 */
 	public function add_decay( $function, $params ) {
 		$this->decays[ $function ][] = $params;
+
+		return $this;
 	}
 
 	/**
@@ -114,19 +147,40 @@ class Jetpack_WPES_Query_Builder {
 	 */
 	public function add_score_mode_to_functions( $mode='multiply' ) {
 		$this->functions_score_mode = $mode;
+
+		return $this;
+	}
+
+	public function add_boost_mode_to_functions( $mode='multiply' ) {
+		$this->functions_boost_mode = $mode;
+
+		return $this;
 	}
 
 	public function add_max_boost_to_functions( $boost ) {
 		$this->functions_max_boost = $boost;
+
+		return $this;
 	}
 
 	public function add_boost_to_query_bool( $boost ) {
 		$this->query_bool_boost = $boost;
+
+		return $this;
 	}
 
 	public function add_aggs( $aggs_name, $aggs ) {
 		$this->aggs_query = true;
 		$this->aggs[$aggs_name] = $aggs;
+
+		return $this;
+	}
+
+	public function set_all_aggs( $aggs ) {
+		$this->aggs_query = true;
+		$this->aggs = $aggs;
+
+		return $this;
 	}
 
 	public function add_aggs_sub_aggs( $aggs_name, $sub_aggs ) {
@@ -134,12 +188,16 @@ class Jetpack_WPES_Query_Builder {
 			$this->aggs[$aggs_name]['aggs'] = array();
 		}
 		$this->aggs[$aggs_name]['aggs'] = $sub_aggs;
+
+		return $this;
 	}
 
 	public function add_bucketed_query( $name, $query ) {
 		$this->_add_bucket_filter( $name, $query );
 
 		$this->add_query( $query, 'dis_max' );
+
+		return $this;
 	}
 
 	public function add_bucketed_terms( $name, $field, $terms, $boost = 1 ) {
@@ -163,10 +221,14 @@ class Jetpack_WPES_Query_Builder {
 				'boost' => $boost,
 			),
 		), 'dis_max' );
+
+		return $this;
 	}
 
 	public function add_bucket_sub_aggs( $agg ) {
 		$this->bucket_sub_aggs = array_merge( $this->bucket_sub_aggs, $agg );
+
+		return $this;
 	}
 
 	protected function _add_bucket_filter( $name, $filter ) {
@@ -203,15 +265,11 @@ class Jetpack_WPES_Query_Builder {
 		}
 
 		if ( empty( $this->should_queries ) ) {
-			if ( 1 == count( $this->must_queries ) ) {
-				$query = $this->must_queries[0];
-			} else {
-				$query = array(
-					'bool' => array(
-						'must' => $this->must_queries,
-					),
-				);
-			}
+			$query = array(
+				'bool' => array(
+					'must' => $this->must_queries,
+				),
+			);
 		} else {
 			$query = array(
 				'bool' => array(
@@ -226,7 +284,7 @@ class Jetpack_WPES_Query_Builder {
 		}
 
 		// If there are any function score adjustments, then combine those
-		if ( $this->functions || $this->decays || $this->scripts ) {
+		if ( $this->functions || $this->decays || $this->scripts || $this->weighting_functions ) {
 			$weighting_functions = array();
 
 			if ( $this->functions ) {
@@ -275,6 +333,7 @@ class Jetpack_WPES_Query_Builder {
 					'functions' => $weighting_functions,
 					'max_boost' => $this->functions_max_boost,
 					'score_mode' => $this->functions_score_mode,
+					'boost_mode' => $this->functions_boost_mode,
 				),
 			);
 		} // End if().

@@ -5,23 +5,22 @@ import React, { Component } from 'react';
 import { translate as __ } from 'i18n-calypso';
 import Button from 'components/button';
 import Textarea from 'components/textarea';
-import includes from 'lodash/includes';
+import { includes } from 'lodash';
 import FoldableCard from 'components/foldable-card';
 import classNames from 'classnames';
 import analytics from 'lib/analytics';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
  */
 import { FormFieldset, FormLegend, FormLabel } from 'components/forms';
 import { ModuleToggle } from 'components/module-toggle';
-import {
-	ModuleSettingsForm as moduleSettingsForm,
-} from 'components/module-settings/module-settings-form';
+import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 
-export const Protect = moduleSettingsForm(
+export const Protect = withModuleSettingsFormHelpers(
 	class extends Component {
 		state = {
 			whitelist: this.props.getOptionValue( 'jetpack_protect_global_whitelist' )
@@ -108,12 +107,14 @@ export const Protect = moduleSettingsForm(
 							disableInDevMode
 							module={ this.props.getModule( 'protect' ) }
 							support={ {
-								text: __( 'Protects your site from traditional and distributed brute force login attacks.' ),
-								link: 'https://jetpack.com/support/protect/',
+								text: __(
+									'Protects your site from traditional and distributed brute force login attacks.'
+								),
+								link: getRedirectUrl( 'jetpack-support-protect' ),
 							} }
-							>
+						>
 							<FormFieldset>
-								{ this.props.currentIp &&
+								{ this.props.currentIp && (
 									<div>
 										<div className="jp-form-label-wide">
 											{ __( 'Your current IP: %(ip)s', { args: { ip: this.props.currentIp } } ) }
@@ -122,27 +123,30 @@ export const Protect = moduleSettingsForm(
 											<Button
 												disabled={
 													! isProtectActive ||
-														unavailableInDevMode ||
-														this.currentIpIsWhitelisted() ||
-														this.props.isSavingAnyOption(
-															[ 'protect', 'jetpack_protect_global_whitelist' ]
-														)
+													unavailableInDevMode ||
+													this.currentIpIsWhitelisted() ||
+													this.props.isSavingAnyOption( [
+														'protect',
+														'jetpack_protect_global_whitelist',
+													] )
 												}
 												onClick={ this.addToWhitelist }
 											>
 												{ __( 'Add to whitelist' ) }
 											</Button>
 										}
-									</div> }
+									</div>
+								) }
 								<FormLabel>
 									<FormLegend>{ __( 'Whitelisted IP addresses' ) }</FormLegend>
 									<Textarea
 										disabled={
 											! isProtectActive ||
-												unavailableInDevMode ||
-												this.props.isSavingAnyOption(
-													[ 'protect', 'jetpack_protect_global_whitelist' ]
-												)
+											unavailableInDevMode ||
+											this.props.isSavingAnyOption( [
+												'protect',
+												'jetpack_protect_global_whitelist',
+											] )
 										}
 										name={ 'jetpack_protect_global_whitelist' }
 										placeholder={ 'Example: 12.12.12.1-12.12.12.100' }

@@ -28,7 +28,7 @@ class VideoPress_XMLRPC {
 	 */
 	public static function init() {
 		if ( is_null( self::$instance ) ) {
-			self::$instance = new VideoPress_XMLRPC;
+			self::$instance = new VideoPress_XMLRPC();
 		}
 
 		return self::$instance;
@@ -43,8 +43,8 @@ class VideoPress_XMLRPC {
 	 */
 	public function xmlrpc_methods( $methods ) {
 
-		$methods['jetpack.createMediaItem']           = array( $this, 'create_media_item' );
-		$methods['jetpack.updateVideoPressMediaItem'] = array( $this, 'update_videopress_media_item' );
+		$methods['jetpack.createMediaItem']             = array( $this, 'create_media_item' );
+		$methods['jetpack.updateVideoPressMediaItem']   = array( $this, 'update_videopress_media_item' );
 		$methods['jetpack.updateVideoPressPosterImage'] = array( $this, 'update_poster_image' );
 
 		return $methods;
@@ -68,11 +68,14 @@ class VideoPress_XMLRPC {
 
 			$media_id = videopress_create_new_media_item( $title, $guid );
 
-			wp_update_attachment_metadata( $media_id, array(
-				'original' => array(
-					'url' => $media_item['url'],
-				),
-			) );
+			wp_update_attachment_metadata(
+				$media_id,
+				array(
+					'original' => array(
+						'url' => $media_item['url'],
+					),
+				)
+			);
 
 			$media_item['post'] = get_post( $media_id );
 		}
@@ -90,11 +93,11 @@ class VideoPress_XMLRPC {
 		$id     = $request['post_id'];
 		$status = $request['status'];
 		$format = $request['format'];
-        $info   = $request['info'];
+		$info   = $request['info'];
 
-        if ( ! $attachment = get_post( $id ) )  {
-            return false;
-        }
+		if ( ! $attachment = get_post( $id ) ) {
+			return false;
+		}
 
 		$attachment->guid = $info['original'];
 
@@ -103,18 +106,18 @@ class VideoPress_XMLRPC {
 		// Update the vp guid and set it to a direct meta property.
 		update_post_meta( $id, 'videopress_guid', $info['guid'] );
 
-        $meta = wp_get_attachment_metadata( $id );
+		$meta = wp_get_attachment_metadata( $id );
 
-        $meta['width']             = $info['width'];
-        $meta['height']            = $info['height'];
-        $meta['original']['url']   = $info['original'];
+		$meta['width']             = $info['width'];
+		$meta['height']            = $info['height'];
+		$meta['original']['url']   = $info['original'];
 		$meta['videopress']        = $info;
 		$meta['videopress']['url'] = 'https://videopress.com/v/' . $info['guid'];
 
-        // Update file statuses
+		// Update file statuses
 		$valid_formats = array( 'hd', 'ogg', 'mp4', 'dvd' );
 		if ( in_array( $format, $valid_formats ) ) {
-            $meta['file_statuses'][ $format ] = $status;
+			$meta['file_statuses'][ $format ] = $status;
 		}
 
 		if ( ! get_post_meta( $id, '_thumbnail_id', true ) ) {
@@ -145,14 +148,14 @@ class VideoPress_XMLRPC {
 		$post_id = $request['post_id'];
 		$poster  = $request['poster'];
 
-		if ( ! $attachment = get_post( $post_id ) )  {
+		if ( ! $attachment = get_post( $post_id ) ) {
 			return false;
 		}
 
 		// We add ssl => 1 to make sure that the videos.files.wordpress.com domain is parsed as photon.
 		$poster = apply_filters( 'jetpack_photon_url', $poster, array( 'ssl' => 1 ), 'https' );
 
-		$meta = wp_get_attachment_metadata( $post_id );
+		$meta                         = wp_get_attachment_metadata( $post_id );
 		$meta['videopress']['poster'] = $poster;
 		wp_update_attachment_metadata( $post_id, $meta );
 

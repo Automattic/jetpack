@@ -11,12 +11,29 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		// Preserving global variables
 		global $content_width;
 		$this->_globals['content_width'] = $content_width;
+
+		// Setup the Photon filters.
+		// WP_UnitTestCase resets the action/filter state after
+		// every test:
+		// https://core.trac.wordpress.org/browser/trunk/tests/phpunit/includes/testcase.php?rev=43005#L273
+		// So we need to set these Photon filters for each test.
+		// see ::tearDown() ...
+		Jetpack_Photon::instance();
 	}
 
 	public function tearDown() {
 		// Restoring global variables
 		global $content_width;
 		$content_width = $this->_globals['content_width'];
+
+		// ... see ::setUp()
+		// Unfortunately Jetpack_Photon::instance() won't run Jetpack_Photon->setup()
+		// each time Jetpack_Photon::instance() is called, since it's gated by a
+		// static variable.
+		// l337 h4X0Ring required:
+		$instance = new ReflectionProperty( 'Jetpack_Photon', '__instance' );
+		$instance->setAccessible( true );
+		$instance->setValue( null );
 
 		parent::tearDown();
 	}
@@ -26,7 +43,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 *
 	 * @author zinigor
 	 * @since 3.8.2
-	 * @param Array $data an array of data returned by the filter
+	 * @param array $data an array of data returned by the filter
 	 * @return String $query_string
 	 */
 	protected function _get_query( $data ) {
@@ -301,6 +318,26 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		$this->assertEquals(
 			'fit=1024%2C768',
 			$this->_get_query( Jetpack_Photon::instance()->filter_image_downsize( false, $test_image, 'large' ) )
+		);
+
+		wp_delete_attachment( $test_image );
+		$this->_remove_image_sizes();
+	}
+
+	/**
+	 * @author emilyatmobtown
+	 * @covers Jetpack_Photon::filter_image_downsize
+	 */
+	public function test_photon_return_medium_large_size_dimensions() {
+		global $content_width;
+		$content_width = 0;
+
+		$test_image = $this->_get_image();
+
+		// Using the default "Large" size with a soft crop.
+		$this->assertEquals(
+			'fit=768%2C576',
+			$this->_get_query( Jetpack_Photon::instance()->filter_image_downsize( false, $test_image, 'medium_large' ) )
 		);
 
 		wp_delete_attachment( $test_image );
@@ -787,6 +824,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 		$this->assertArrayNotHasKey( 'width', $attributes );
 		$this->assertArrayNotHasKey( 'height', $attributes );
+		$this->assertContains( 'data-recalc-dims', $filtered_content );
 	}
 
 	/**
@@ -798,9 +836,9 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	public function test_photon_filter_the_content_width_height_attributes_when_image_args_filtered( $filter_callback, $has_attributes, $width, $height ) {
 		list( $sample_html ) = $this->get_photon_sample_content( 'a-tags-without-images.html' );
 
-		add_filter( 'jetpack_photon_post_image_args', array( $this, $filter_callback ) );
+		add_filter( 'jetpack_photon_post_image_args', $filter_callback, 10, 2 );
 		$filtered_content = Jetpack_Photon::filter_the_content( $sample_html );
-		remove_filter( 'jetpack_photon_post_image_args', array( $this, $filter_callback ) );
+		remove_filter( 'jetpack_photon_post_image_args', $filter_callback, 10, 2 );
 
 		$first_line = strtok( $filtered_content, "\n" ); // Should contain an image tag on the first line
 		$attributes = wp_kses_hair( $first_line, wp_allowed_protocols() );
@@ -818,28 +856,96 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		}
 	}
 
+	/**
+	 * Checks that Photon ignores data-width and data-height attributes when parsing the attributes.
+	 *
+	 * @author mmtr
+	 * @covers Jetpack_Photon::filter_the_content
+	 * @since 8.0.0
+	 */
+	public function test_photon_filter_the_content_ignores_data_width_and_data_height_attributes() {
+		$sample_html      = '<img src="http://example.com/test.png" class="test" data-width="100" data-height="200" />';
+		$filtered_content = Jetpack_Photon::filter_the_content( $sample_html );
+		$attributes       = wp_kses_hair( $filtered_content, wp_allowed_protocols() );
+		$query_str        = wp_parse_url( $attributes['src']['value'], PHP_URL_QUERY );
+		parse_str( $query_str, $query_params );
+
+		$this->assertArrayNotHasKey( 'resize', $query_params );
+	}
+
+	/**
+	 * Checks that Photon parses correctly the width and height attributes when they are not preceded by a space.
+	 *
+	 * @author mmtr
+	 * @covers Jetpack_Photon::filter_the_content
+	 * @since 8.0.0
+	 */
+	public function test_photon_filter_the_content_parses_width_height_when_no_spaces_between_attributes() {
+		$sample_html      = '<img src="http://example.com/test.png" class="test"width="100"height="200" />';
+		$filtered_content = Jetpack_Photon::filter_the_content( $sample_html );
+		$attributes       = wp_kses_hair( $filtered_content, wp_allowed_protocols() );
+		$query_str        = wp_parse_url( $attributes['src']['value'], PHP_URL_QUERY );
+		parse_str( $query_str, $query_params );
+
+		$this->assertArrayHasKey( 'resize', $query_params );
+		$this->assertEquals( '100,200', $query_params['resize'] );
+	}
+
 	public function photon_attributes_when_filtered_data_provider() {
+		$assert_details = function ( $details ) {
+			$this->assertInternalType( 'array', $details );
+			$this->assertArrayHasKey( 'tag', $details );
+			$this->assertArrayHasKey( 'src', $details );
+			$this->assertArrayHasKey( 'src_orig', $details );
+			$this->assertArrayHasKey( 'width', $details );
+			$this->assertArrayHasKey( 'width_orig', $details );
+			$this->assertArrayHasKey( 'height', $details );
+			$this->assertArrayHasKey( 'height_orig', $details );
+			$this->assertArrayHasKey( 'transform', $details );
+			$this->assertArrayHasKey( 'transform_orig', $details );
+		};
+
 		return array(
 			'photon_post_image_args_force_resize' => array(
-				'photon_post_image_args_force_resize',
+				function( $args, $details ) use ( $assert_details ) {
+					$assert_details( $details );
+					return array(
+						'resize' => '300,250'
+					);
+				},
 				true,
 				300,
 				250
 			),
 			'photon_post_image_args_force_fit' => array(
-				'photon_post_image_args_force_fit',
+				function ( $args, $details ) use ( $assert_details ) {
+					$assert_details( $details );
+					return array(
+						'fit' => '600,600'
+					);
+				},
 				true,
 				600,
 				600
 			),
 			'photon_post_image_args_force_lb' => array(
-				'photon_post_image_args_force_lb',
+				function ( $args, $details ) use ( $assert_details ) {
+					$assert_details( $details );
+					return array(
+						'lb' => '800,100,000000'
+					);
+				},
 				true,
 				800,
 				100
 			),
 			'photon_post_image_args_force_width_only' => array(
-				'photon_post_image_args_force_width_only',
+				function ( $args, $details ) use ( $assert_details ) {
+					$assert_details( $details );
+					return array(
+						'w' => '104'
+					);
+				},
 				false,
 				false,
 				false
@@ -847,27 +953,170 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		);
 	}
 
-	public function photon_post_image_args_force_resize() {
+	/**
+	 * @author westonruter
+	 * @covers Jetpack_Photon::filter_the_content
+	 * @dataProvider photon_attributes_when_amp_response
+	 * @since 7.6.0
+	 *
+	 * @param string $sample_html Sample HTML.
+	 * @param string $photon_src  Photon URL suffix (after the subdomain).
+	 */
+	public function test_photon_filter_the_content_for_amp_responses( $sample_html, $photon_src ) {
+		add_filter( 'jetpack_is_amp_request', '__return_true' );
+		$filtered_content = Jetpack_Photon::filter_the_content( $sample_html );
+		$attributes = wp_kses_hair( $filtered_content, wp_allowed_protocols() );
+		$this->assertStringEndsWith( $photon_src, html_entity_decode( $attributes['src']['value'] ) );
+		$this->assertArrayHasKey( 'width', $attributes );
+		$this->assertArrayHasKey( 'height', $attributes );
+		$this->assertNotContains( 'data-recalc-dims', $filtered_content );
+	}
+
+	/**
+	 * Data provider for testing AMP responses.
+	 *
+	 * @return array
+	 */
+	public function photon_attributes_when_amp_response() {
 		return array(
-			'resize' => '300,250'
+			'amp-img' => array(
+				'<amp-img class="aligncenter wp-image-6372" title="Tube Bomber salmon dry fly" alt="Tube Bomber salmon dry fly" src="http://www.fishmadman.com/pages/wp-content/uploads/2012/02/Rav-fra-2004-2009-11-1024x611.jpg" width="102" height="61"></amp-img>',
+				'.wp.com/www.fishmadman.com/pages/wp-content/uploads/2012/02/Rav-fra-2004-2009-11-1024x611.jpg?resize=102%2C61',
+			),
+			'amp-anim' => array(
+				'<amp-anim alt="LOL" src="https://example.com/lol.gif" width="32" height="32"></amp-anim>',
+				'.wp.com/example.com/lol.gif?resize=32%2C32&ssl=1',
+			),
 		);
 	}
 
-	public function photon_post_image_args_force_fit() {
-		return array(
-			'fit' => '600,600'
+	/**
+	 * @author westonruter
+	 * @covers Jetpack_Photon::filter_the_content
+	 * @covers Jetpack_AMP_Support::filter_photon_post_image_args_for_stories
+	 * @since 7.6.0
+	 */
+	public function test_photon_filter_the_content_for_amp_story() {
+		$post_type = 'amp_story';
+		add_filter( 'jetpack_is_amp_request', '__return_true' );
+		register_post_type( $post_type, array( 'public' => true ) );
+		Jetpack_AMP_Support::init();
+		$post = $this->factory()->post->create_and_get( compact( 'post_type' ) );
+		$this->go_to( get_permalink( $post ) );
+		$this->assertTrue( is_singular( $post_type ) );
+
+		$content = implode(
+			"\n",
+			array(
+				'<!-- wp:amp/amp-story-page {"mediaId":2414,"mediaType":"image","focalPoint":{"x":0.4900990099009901,"y":0.5131578947368421}} -->',
+				'<amp-story-page style="background-color:#ffffff" id="a6c81a13-14a0-464b-88fa-9612e86bacf7" class="wp-block-amp-amp-story-page"><amp-story-grid-layer template="fill"><amp-img layout="fill" src="https://example.com/wp-content/uploads/2019/06/huge.jpg" style="object-position:49.00990099009901% 51.31578947368421%"></amp-img></amp-story-grid-layer><amp-story-grid-layer template="fill"></amp-story-grid-layer></amp-story-page>',
+				'<!-- /wp:amp/amp-story-page -->',
+			)
 		);
+
+		$filtered_content = apply_filters( 'the_content', $content, $post->ID );
+
+		$this->assertContains(
+			'.wp.com/example.com/wp-content/uploads/2019/06/huge.jpg?h=1280&#038;ssl=1',
+			$filtered_content
+		);
+
+		unregister_post_type( $post_type );
 	}
 
-	public function photon_post_image_args_force_lb() {
-		return array(
-			'lb' => '800,100,000000'
-		);
+	/**
+	 * @group rest-api
+	 */
+	public function test_photon_cdn_in_rest_response_with_view_context() {
+		$test_image = $this->_get_image();
+
+		$request = new WP_REST_Request( 'GET', sprintf( '/wp/v2/media/%d', $test_image ) );
+		$request->set_query_params( array( 'context' => 'view' ) );
+		$response = rest_get_server()->dispatch( $request );
+		$data = $response->get_data();
+
+		$this->assertArrayHasKey( 'media_details', $data );
+		$this->assertArrayHasKey( 'sizes', $data['media_details'] );
+		$this->assertArrayHasKey( 'full', $data['media_details']['sizes'] );
+		$this->assertArrayHasKey( 'medium_large', $data['media_details']['sizes'] );
+		$this->assertArrayHasKey( 'source_url', $data['media_details']['sizes']['full'] );
+		$this->assertArrayHasKey( 'source_url', $data['media_details']['sizes']['medium_large'] );
+
+		$this->assertContains( '?', $data['media_details']['sizes']['full']['source_url'] );
+		$this->assertContains( '?', $data['media_details']['sizes']['medium_large']['source_url'] );
+		}
+
+	/**
+	 * @group rest-api
+	 */
+	public function test_photon_cdn_in_rest_response_with_edit_context() {
+		$test_image = $this->_get_image();
+
+		$admin = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $admin );
+
+		$request = new WP_REST_Request( 'GET', sprintf( '/wp/v2/media/%d', $test_image ) );
+		$request->set_query_params( array( 'context' => 'edit' ) );
+		$response = rest_get_server()->dispatch( $request );
+		$data = $response->get_data();
+
+		$this->assertArrayHasKey( 'media_details', $data );
+		$this->assertArrayHasKey( 'sizes', $data['media_details'] );
+		$this->assertArrayHasKey( 'full', $data['media_details']['sizes'] );
+		$this->assertArrayHasKey( 'medium_large', $data['media_details']['sizes'] );
+		$this->assertArrayHasKey( 'source_url', $data['media_details']['sizes']['full'] );
+		$this->assertArrayHasKey( 'source_url', $data['media_details']['sizes']['medium_large'] );
+
+		$this->assertNotContains( '?', $data['media_details']['sizes']['full']['source_url'] );
+		$this->assertNotContains( '?', $data['media_details']['sizes']['medium_large']['source_url'] );
+
+
+		// Subsequent ?context=view requests should still be Photonized
+		$request = new WP_REST_Request( 'GET', sprintf( '/wp/v2/media/%d', $test_image ) );
+		$request->set_query_params( array( 'context' => 'view' ) );
+		$response = rest_get_server()->dispatch( $request );
+		$data = $response->get_data();
+
+		$this->assertArrayHasKey( 'media_details', $data );
+		$this->assertArrayHasKey( 'sizes', $data['media_details'] );
+		$this->assertArrayHasKey( 'full', $data['media_details']['sizes'] );
+		$this->assertArrayHasKey( 'medium_large', $data['media_details']['sizes'] );
+		$this->assertArrayHasKey( 'source_url', $data['media_details']['sizes']['full'] );
+		$this->assertArrayHasKey( 'source_url', $data['media_details']['sizes']['medium_large'] );
+
+		$this->assertContains( '?', $data['media_details']['sizes']['full']['source_url'] );
+		$this->assertContains( '?', $data['media_details']['sizes']['medium_large']['source_url'] );
 	}
 
-	public function photon_post_image_args_force_width_only() {
-		return array(
-			'w' => '104'
-		);
+	/**
+	 * @covers Jetpack_Photon::strip_image_dimensions_maybe
+	 */
+	public function test_photon_strip_image_dimensions_maybe_ignores_external_files() {
+		$ext_domain = 'https://some.domain/wp-content/uploads/2019/1/test-image-300x300.jpg';
+
+		$this->assertEquals( $ext_domain, Jetpack_Photon::strip_image_dimensions_maybe( $ext_domain ) );
+	}
+
+	/**
+	 * @covers Jetpack_Photon::strip_image_dimensions_maybe
+	 */
+	public function test_photon_strip_image_dimensions_maybe_strips_resized_string() {
+		$orig_filename = '2004-07-22-DSC_0007.jpg';
+		$filename = '2004-07-22-DSC_0007-150x150.jpg';
+		$filepath = DIR_TESTDATA . '/images/' . $orig_filename;
+		$contents = file_get_contents( $filepath );
+
+		$upload = wp_upload_bits( basename( $filepath ), null, $contents );
+
+		$upload_dir = wp_get_upload_dir();
+
+		$id  = $this->_make_attachment( $upload );
+		$url = $upload_dir['url'] . '/' . $filename;
+
+		$expected = wp_get_attachment_url( $id );
+
+		$this->assertEquals( $expected, Jetpack_Photon::strip_image_dimensions_maybe( $url ) );
+
+		wp_delete_attachment( $id );
 	}
 }

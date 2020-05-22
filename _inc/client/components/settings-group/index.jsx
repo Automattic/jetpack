@@ -6,8 +6,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import Card from 'components/card';
 import classNames from 'classnames';
-import includes from 'lodash/includes';
-import noop from 'lodash/noop';
+import { includes, noop } from 'lodash';
 
 /**
  * Internal dependencies
@@ -22,32 +21,31 @@ export const SettingsGroup = props => {
 
 	// Non admin users only get Publicize, After the Deadline, and Post by Email settings.
 	// composing is not a module slug but it's used so the Composing card is rendered to show AtD.
-	if ( module.module && ! props.userCanManageModules && ! includes( [ 'after-the-deadline', 'post-by-email', 'publicize' ], module.module ) ) {
+	if (
+		module.module &&
+		! props.userCanManageModules &&
+		! includes( [ 'post-by-email', 'publicize' ], module.module )
+	) {
 		return <span />;
 	}
 
 	const disableInDevMode = props.disableInDevMode && props.isUnavailableInDevMode( module.module );
 	let displayFadeBlock = disableInDevMode;
 
-	if ( ( 'post-by-email' === module.module && ! props.isLinked ) ||
-		( 'after-the-deadline' === module.module && ( ! props.userCanManageModules && props.userCanEditPosts && ! props.isModuleActivated( 'after-the-deadline' ) ) ) ) {
+	if ( 'post-by-email' === module.module && ! props.isLinked ) {
 		displayFadeBlock = true;
 	}
 
 	return (
-		<div className="jp-form-settings-group">
-			<Card className={ classNames( {
-				'jp-form-has-child': props.hasChild,
-				'jp-form-settings-disable': disableInDevMode
-			} ) }>
+		<div className={ classNames( 'jp-form-settings-group', props.className ) }>
+			<Card
+				className={ classNames( {
+					'jp-form-has-child': props.hasChild,
+					'jp-form-settings-disable': disableInDevMode,
+				} ) }
+			>
 				{ displayFadeBlock && <div className="jp-form-block-fade" /> }
-				{
-					props.support.link &&
-						<SupportInfo
-							module={ module }
-							{ ...props.support }
-						/>
-				}
+				{ props.support.link && <SupportInfo module={ module } { ...props.support } /> }
 				{ props.children }
 			</Card>
 		</div>
@@ -62,7 +60,8 @@ SettingsGroup.propTypes = {
 	isSitePublic: PropTypes.bool.isRequired,
 	userCanManageModules: PropTypes.bool.isRequired,
 	isLinked: PropTypes.bool.isRequired,
-	isUnavailableInDevMode: PropTypes.func.isRequired
+	isUnavailableInDevMode: PropTypes.func.isRequired,
+	className: PropTypes.string,
 };
 
 SettingsGroup.defaultProps = {
@@ -73,19 +72,18 @@ SettingsGroup.defaultProps = {
 	isSitePublic: true,
 	userCanManageModules: false,
 	isLinked: false,
-	isUnavailableInDevMode: noop
+	isUnavailableInDevMode: noop,
+	className: '',
 };
 
-export default connect(
-	state => {
-		return {
-			isDevMode: isDevMode( state ),
-			isSitePublic: isSitePublic( state ),
-			userCanManageModules: userCanManageModules( state ),
-			userCanEditPosts: userCanEditPosts( state ),
-			isLinked: isCurrentUserLinked( state ),
-			isModuleActivated: module => isModuleActivated( state, module ),
-			isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name )
-		};
-	}
-)( SettingsGroup );
+export default connect( state => {
+	return {
+		isDevMode: isDevMode( state ),
+		isSitePublic: isSitePublic( state ),
+		userCanManageModules: userCanManageModules( state ),
+		userCanEditPosts: userCanEditPosts( state ),
+		isLinked: isCurrentUserLinked( state ),
+		isModuleActivated: module => isModuleActivated( state, module ),
+		isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
+	};
+} )( SettingsGroup );

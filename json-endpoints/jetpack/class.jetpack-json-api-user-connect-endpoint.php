@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Connection\Utils as Connection_Utils;
+
 class Jetpack_JSON_API_User_Connect_Endpoint extends Jetpack_JSON_API_Endpoint {
 
 	protected $needed_capabilities = 'create_users';
@@ -8,7 +10,7 @@ class Jetpack_JSON_API_User_Connect_Endpoint extends Jetpack_JSON_API_Endpoint {
 	private $user_token;
 
 	function result() {
-		Jetpack::update_user_token( $this->user_id, sprintf( '%s.%d', $this->user_token, $this->user_id ), false );
+		Connection_Utils::update_user_token( $this->user_id, sprintf( '%s.%d', $this->user_token, $this->user_id ), false );
 		return array( 'success' => Jetpack::is_user_connected( $this->user_id ) );
 	}
 

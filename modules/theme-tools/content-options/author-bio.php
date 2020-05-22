@@ -26,7 +26,7 @@ function jetpack_author_bio() {
 	if ( ! is_single() ) {
 		return;
 	}
-?>
+	?>
 	<div class="entry-author">
 		<div class="author-avatar">
 			<?php
@@ -56,5 +56,5 @@ function jetpack_author_bio() {
 			</a>
 		</p><!-- .author-bio -->
 	</div><!-- .entry-auhtor -->
-<?php
+	<?php
 }

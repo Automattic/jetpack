@@ -74,7 +74,7 @@ function jetpack_is_shop_page() {
 	$current_page_id      = $wp_query->get( 'page_id' );
 	$is_static_front_page = 'page' === get_option( 'show_on_front' );
 
-	if ( $is_static_front_page && $front_page_id === $current_page_id  ) {
+	if ( $is_static_front_page && $front_page_id === $current_page_id ) {
 		$is_shop_page = ( $current_page_id === wc_get_page_id( 'shop' ) ) ? true : false;
 	} else {
 		$is_shop_page = is_shop();

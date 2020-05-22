@@ -1,7 +1,4 @@
-/* jshint onevar:false, smarttabs:true */
-
-( function($) {
-
+( function( $ ) {
 	function TiledGalleryCollection() {
 		this.galleries = [];
 		this.findAndSetupNewGalleries();
@@ -15,7 +12,7 @@
 	};
 
 	TiledGalleryCollection.prototype.resizeAll = function() {
-		$.each(this.galleries, function(i, gallery) {
+		$.each( this.galleries, function( i, gallery ) {
 			gallery.resize();
 		} );
 	};
@@ -36,7 +33,8 @@
 	 * Selector for all resizeable elements inside a Tiled Gallery
 	 */
 
-	TiledGallery.prototype.resizeableElementsSelector = '.gallery-row, .gallery-group, .tiled-gallery-item img';
+	TiledGallery.prototype.resizeableElementsSelector =
+		'.gallery-row, .gallery-group, .tiled-gallery-item img';
 
 	/**
 	 * Story
@@ -48,19 +46,29 @@
 
 		// Add hover effects to bring the caption up and down for each item
 		this.gallery.find( '.tiled-gallery-item' ).hover(
-			function() { $( this ).find( '.tiled-gallery-caption' ).stop(true, true).slideDown( 'fast' ); },
-			function() { $( this ).find( '.tiled-gallery-caption' ).stop(true, true).slideUp( 'fast' ); }
+			function() {
+				$( this )
+					.find( '.tiled-gallery-caption' )
+					.stop( true, true )
+					.slideDown( 'fast' );
+			},
+			function() {
+				$( this )
+					.find( '.tiled-gallery-caption' )
+					.stop( true, true )
+					.slideUp( 'fast' );
+			}
 		);
 	};
 
 	TiledGallery.prototype.getExtraDimension = function( el, attribute, mode ) {
 		if ( mode === 'horizontal' ) {
-			var left = ( attribute === 'border' ) ? 'borderLeftWidth' : attribute + 'Left';
-			var right = ( attribute === 'border' ) ? 'borderRightWidth' : attribute + 'Right';
-			return ( parseInt( el.css( left ), 10 ) || 0 ) +  ( parseInt( el.css( right ), 10 ) || 0 );
+			var left = attribute === 'border' ? 'borderLeftWidth' : attribute + 'Left';
+			var right = attribute === 'border' ? 'borderRightWidth' : attribute + 'Right';
+			return ( parseInt( el.css( left ), 10 ) || 0 ) + ( parseInt( el.css( right ), 10 ) || 0 );
 		} else if ( mode === 'vertical' ) {
-			var top = ( attribute === 'border' ) ? 'borderTopWidth' : attribute + 'Top';
-			var bottom = ( attribute === 'border' ) ? 'borderBottomWidth' : attribute + 'Bottom';
+			var top = attribute === 'border' ? 'borderTopWidth' : attribute + 'Top';
+			var bottom = attribute === 'border' ? 'borderBottomWidth' : attribute + 'Bottom';
 			return ( parseInt( el.css( top ), 10 ) || 0 ) + ( parseInt( el.css( bottom ), 10 ) || 0 );
 		} else {
 			return 0;
@@ -75,7 +83,7 @@
 		var resizeRatio = Math.min( 1, currentWidth / originalWidth );
 
 		var self = this;
-		this.gallery.find( this.resizeableElementsSelector ).each( function () {
+		this.gallery.find( this.resizeableElementsSelector ).each( function() {
 			var thisGalleryElement = $( this );
 
 			var marginWidth = self.getExtraDimension( thisGalleryElement, 'margin', 'horizontal' );
@@ -89,8 +97,10 @@
 
 			// Take all outer dimensions into account when resizing so that images
 			// scale with constant empty space between them
-			var outerWidth = thisGalleryElement.data( 'original-width' ) + paddingWidth + borderWidth + marginWidth;
-			var outerHeight = thisGalleryElement.data( 'original-height' ) + paddingHeight + borderHeight + marginHeight;
+			var outerWidth =
+				thisGalleryElement.data( 'original-width' ) + paddingWidth + borderWidth + marginWidth;
+			var outerHeight =
+				thisGalleryElement.data( 'original-height' ) + paddingHeight + borderHeight + marginHeight;
 
 			// Subtract margins so that images don't overflow on small browser windows
 			thisGalleryElement
@@ -103,7 +113,11 @@
 	 * Resizing logic
 	 */
 
-	var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+	var requestAnimationFrame =
+		window.requestAnimationFrame ||
+		window.mozRequestAnimationFrame ||
+		window.webkitRequestAnimationFrame ||
+		window.msRequestAnimationFrame;
 
 	function attachResizeInAnimationFrames( tiledGalleries ) {
 		var resizing = false;
@@ -171,6 +185,5 @@
 				}
 			} );
 		}
-	});
-
-})(jQuery);
+	} );
+} )( jQuery );

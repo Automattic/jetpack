@@ -1,49 +1,60 @@
-/* jshint onevar: false, smarttabs: true, devel: true */
 /* global Jetpack_Comics_Options */
 
-jQuery( function ( $ ) {
+jQuery( function( $ ) {
 	/**
 	 * Enable front-end uploading of images for Comics users.
 	 */
 	var Jetpack_Comics = {
-		init : function () {
-			$( document ).on( 'dragover.jetpack-comics', 'body, #jetpack-comic-drop-zone', this.onDragOver );
-			$( document ).on( 'dragleave.jetpack-comics', 'body, #jetpack-comic-drop-zone', this.onDragLeave );
+		init: function() {
+			$( document ).on(
+				'dragover.jetpack-comics',
+				'body, #jetpack-comic-drop-zone',
+				this.onDragOver
+			);
+			$( document ).on(
+				'dragleave.jetpack-comics',
+				'body, #jetpack-comic-drop-zone',
+				this.onDragLeave
+			);
 			$( document ).on( 'drop.jetpack-comics', 'body, #jetpack-comic-drop-zone', this.onDrop );
 
-			$( 'body' ).append( $( '<div id="jetpack-comic-drop-zone"><p class="dragging" /><p class="uploading" /></div>' ) );
+			$( 'body' ).append(
+				$( '<div id="jetpack-comic-drop-zone"><p class="dragging" /><p class="uploading" /></div>' )
+			);
 			$( '#jetpack-comic-drop-zone' )
 				.find( '.dragging' )
-					.text( Jetpack_Comics_Options.labels.dragging )
+				.text( Jetpack_Comics_Options.labels.dragging )
 				.end()
 				.find( '.uploading' )
-					.text( Jetpack_Comics_Options.labels.uploading )
-					.prepend( $( '<span class="spinner"/>' ) );
+				.text( Jetpack_Comics_Options.labels.uploading )
+				.prepend( $( '<span class="spinner"/>' ) );
 
 			if ( ! ( 'FileReader' in window && 'File' in window ) ) {
 				$( '#jetpack-comic-drop-zone .dragging' ).text( Jetpack_Comics_Options.labels.unsupported );
-				$( document ).off( 'drop.jetpack-comics' ).on( 'drop.jetpack-comics', 'body, #jetpack-comic-drop-zone', this.onDragLeave );
+				$( document )
+					.off( 'drop.jetpack-comics' )
+					.on( 'drop.jetpack-comics', 'body, #jetpack-comic-drop-zone', this.onDragLeave );
 			}
 		},
 
 		/**
 		 * Only upload image files.
 		 */
-		filterImageFiles : function ( files ) {
+		filterImageFiles: function( files ) {
 			var validFiles = [];
 
 			for ( var i = 0, _len = files.length; i < _len; i++ ) {
-				if ( files[i].type.match( /^image\//i ) ) {
-					validFiles.push( files[i] );
+				if ( files[ i ].type.match( /^image\//i ) ) {
+					validFiles.push( files[ i ] );
 				}
 			}
 
 			return validFiles;
 		},
 
-		dragTimeout : null,
+		dragTimeout: null,
 
-		onDragOver: function ( event ) {
+		onDragOver: function( event ) {
 			event.preventDefault();
 
 			clearTimeout( Jetpack_Comics.dragTimeout );
@@ -51,17 +62,17 @@ jQuery( function ( $ ) {
 			$( 'body' ).addClass( 'dragging' );
 		},
 
-		onDragLeave: function ( /*event*/ ) {
+		onDragLeave: function(/*event*/) {
 			clearTimeout( Jetpack_Comics.dragTimeout );
 
 			// In Chrome, the screen flickers because we're moving the drop zone in front of 'body'
 			// so the dragover/dragleave events happen frequently.
-			Jetpack_Comics.dragTimeout = setTimeout( function () {
+			Jetpack_Comics.dragTimeout = setTimeout( function() {
 				$( 'body' ).removeClass( 'dragging' );
 			}, 100 );
 		},
 
-		onDrop: function ( event ) {
+		onDrop: function( event ) {
 			event.preventDefault();
 			event.stopPropagation();
 
@@ -96,25 +107,26 @@ jQuery( function ( $ ) {
 				type: 'POST',
 				dataType: 'json',
 				xhrFields: {
-					withCredentials: true
-				}
+					withCredentials: true,
+				},
 			} )
-			.done( function( data ) {
-				$( '#jetpack-comic-drop-zone .uploading' ).text( Jetpack_Comics_Options.labels.processing );
+				.done( function( data ) {
+					$( '#jetpack-comic-drop-zone .uploading' ).text(
+						Jetpack_Comics_Options.labels.processing
+					);
 
-				if ( 'url' in data ) {
-					document.location.href = data.url;
-				}
-				else if ( 'error' in data ) {
-					alert( data.error );
+					if ( 'url' in data ) {
+						document.location.href = data.url;
+					} else if ( 'error' in data ) {
+						alert( data.error );
 
-					$( 'body' ).removeClass( 'uploading' );
-				}
-			} )
-			.fail( function ( /*req*/ ) {
-				alert( Jetpack_Comics_Options.labels.error );
-			} );
-		}
+						$( 'body' ).removeClass( 'uploading' );
+					}
+				} )
+				.fail( function(/*req*/) {
+					alert( Jetpack_Comics_Options.labels.error );
+				} );
+		},
 	};
 
 	Jetpack_Comics.init();

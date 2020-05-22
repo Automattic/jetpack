@@ -15,16 +15,17 @@
 function jetpack_server_sandbox_request_parameters( $sandbox, $url, $headers ) {
 	$host = '';
 
-	$url_host = parse_url( $url, PHP_URL_HOST );
+	$url_host = wp_parse_url( $url, PHP_URL_HOST );
 
 	switch ( $url_host ) {
 	case 'public-api.wordpress.com' :
 	case 'jetpack.wordpress.com' :
+	case 'jetpack.com' :
 	case 'dashboard.wordpress.com' :
 		$host = isset( $headers['Host'] ) ? $headers['Host'] : $url_host;
 		$url = preg_replace(
 			'@^(https?://)' . preg_quote( $url_host, '@' ) . '(?=[/?#].*|$)@',
-			'\\1' . $sandbox,
+			'${1}' . $sandbox,
 			$url,
 			1
 		);

@@ -18,6 +18,9 @@ wp --allow-root core install \
 	--admin_email=${WP_ADMIN_EMAIL} \
 	--skip-email
 
+# Discourage search engines from indexing. Can be changed via UI in Settings->Reading.
+wp --allow-root option update blog_public 0
+
 # Install Query Monitor plugin
 # https://wordpress.org/plugins/query-monitor/
 wp --allow-root plugin install query-monitor --activate

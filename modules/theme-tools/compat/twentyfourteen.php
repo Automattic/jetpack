@@ -43,7 +43,7 @@ add_action( 'featured_content_default_settings', 'twentyfourteen_featured_conten
  * Removes sharing markup from post content if we're not in the loop and it's a
  * formatted post.
  *
- * @param bool $show Whether to show sharing options.
+ * @param bool    $show Whether to show sharing options.
  * @param WP_Post $post The post to share.
  * @return bool
  */

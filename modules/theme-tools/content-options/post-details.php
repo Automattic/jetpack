@@ -11,7 +11,7 @@ function jetpack_post_details_enqueue_scripts() {
 	}
 
 	list( $date_option, $categories_option, $tags_option, $author_option, $comment_option ) = $options;
-	list( $date, $categories, $tags, $author, $comment ) = $definied;
+	list( $date, $categories, $tags, $author, $comment )                                    = $definied;
 
 	$elements = array();
 
@@ -63,7 +63,7 @@ function jetpack_post_details_body_classes( $classes ) {
 	}
 
 	list( $date_option, $categories_option, $tags_option, $author_option, $comment_option ) = $options;
-	list( $date, $categories, $tags, $author, $comment ) = $definied;
+	list( $date, $categories, $tags, $author, $comment )                                    = $definied;
 
 	// If date option is unticked, add a class of 'date-hidden' to the body.
 	if ( 1 != $date_option && ! empty( $date ) ) {
@@ -132,11 +132,11 @@ function jetpack_post_details_should_run() {
 		return $void;
 	}
 
-	$date_option       = get_option( 'jetpack_content_post_details_date', 1 );
-	$categories_option = get_option( 'jetpack_content_post_details_categories', 1 );
-	$tags_option       = get_option( 'jetpack_content_post_details_tags', 1 );
-	$author_option     = get_option( 'jetpack_content_post_details_author', 1 );
-	$comment_option    = get_option( 'jetpack_content_post_details_comment', 1 );
+	$date_option       = Jetpack_Options::get_option_and_ensure_autoload( 'jetpack_content_post_details_date', 1 );
+	$categories_option = Jetpack_Options::get_option_and_ensure_autoload( 'jetpack_content_post_details_categories', 1 );
+	$tags_option       = Jetpack_Options::get_option_and_ensure_autoload( 'jetpack_content_post_details_tags', 1 );
+	$author_option     = Jetpack_Options::get_option_and_ensure_autoload( 'jetpack_content_post_details_author', 1 );
+	$comment_option    = Jetpack_Options::get_option_and_ensure_autoload( 'jetpack_content_post_details_comment', 1 );
 
 	$options  = array( $date_option, $categories_option, $tags_option, $author_option, $comment_option );
 	$definied = array( $date, $categories, $tags, $author, $comment );

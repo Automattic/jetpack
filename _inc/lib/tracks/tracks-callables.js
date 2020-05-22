@@ -8,6 +8,9 @@
 // Load tracking scripts
 window._tkq = window._tkq || [];
 
+var _user;
+var debug = console.error; // eslint-disable-line no-console
+
 function buildQuerystring( group, name ) {
 	var uriComponent = '';
 
@@ -23,7 +26,6 @@ function buildQuerystring( group, name ) {
 }
 
 var analytics = {
-
 	initialize: function( userId, username ) {
 		analytics.setUser( userId, username );
 		analytics.identifyUser();
@@ -32,8 +34,13 @@ var analytics = {
 	mc: {
 		bumpStat: function( group, name ) {
 			var uriComponent = buildQuerystring( group, name ); // prints debug info
-			new Image().src = document.location.protocol + '//pixel.wp.com/g.gif?v=wpcom-no-pv' + uriComponent + '&t=' + Math.random();
-		}
+			new Image().src =
+				document.location.protocol +
+				'//pixel.wp.com/g.gif?v=wpcom-no-pv' +
+				uriComponent +
+				'&t=' +
+				Math.random();
+		},
 	},
 
 	tracks: {
@@ -50,9 +57,9 @@ var analytics = {
 
 		recordPageView: function( urlPath ) {
 			analytics.tracks.recordEvent( 'jetpack_page_view', {
-				'path': urlPath
+				path: urlPath,
 			} );
-		}
+		},
 	},
 
 	setUser: function( userId, username ) {
@@ -68,5 +75,5 @@ var analytics = {
 
 	clearedIdentity: function() {
 		window._tkq.push( [ 'clearIdentity' ] );
-	}
+	},
 };

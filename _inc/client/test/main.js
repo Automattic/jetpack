@@ -5,7 +5,7 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { expect } from 'chai';
 import Enzyme, { shallow } from 'enzyme';
-import Adapter from 'enzyme-adapter-react-15';
+import Adapter from 'enzyme-adapter-react-16';
 
 Enzyme.configure( { adapter: new Adapter() } );
 

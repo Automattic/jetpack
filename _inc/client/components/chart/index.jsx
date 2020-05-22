@@ -1,18 +1,17 @@
 /**
  * External dependencies
  */
-const React = require( 'react' ),
-	PropTypes = require( 'prop-types' ),
-	noop = require( 'lodash/noop' ),
-	throttle = require( 'lodash/throttle' );
+import React from 'react';
+import PropTypes from 'prop-types';
+import { noop, throttle } from 'lodash';
+import { translate as __ } from 'i18n-calypso';
 
 /**
  * Internal dependencies
  */
-const BarContainer = require( './bar-container' ),
-	touchDetect = require( 'lib/touch-detect' );
-
-require( './style.scss' );
+import BarContainer from './bar-container';
+import { hasTouch } from 'lib/touch-detect';
+import './style.scss';
 
 export default class ModuleChart extends React.Component {
 	static displayName = 'ModuleChart';
@@ -22,33 +21,33 @@ export default class ModuleChart extends React.Component {
 		data: PropTypes.array,
 		minTouchBarWidth: PropTypes.number,
 		minBarWidth: PropTypes.number,
-		barClick: PropTypes.func
+		barClick: PropTypes.func,
 	};
 
 	static defaultProps = {
 		minTouchBarWidth: 42,
 		minBarWidth: 15,
-		barClick: noop
+		barClick: noop,
 	};
 
 	state = {
 		maxBars: 100, // arbitrarily high number. This will be calculated by resize method
-		width: 650
+		width: 650,
 	};
 
-    // Add listener for window resize
+	// Add listener for window resize
 	componentDidMount() {
 		this.resize = throttle( this.resize, 400 );
 		window.addEventListener( 'resize', this.resize );
 		this.resize();
 	}
 
-    // Remove listener
+	// Remove listener
 	componentWillUnmount() {
 		window.removeEventListener( 'resize', this.resize );
 	}
 
-	componentWillReceiveProps( nextProps ) {
+	UNSAFE_componentWillReceiveProps( nextProps ) {
 		if ( this.props.loading && ! nextProps.loading ) {
 			this.resize();
 		}
@@ -59,8 +58,8 @@ export default class ModuleChart extends React.Component {
 		let width = node.clientWidth - 82,
 			maxBars;
 
-		if ( touchDetect.hasTouch() ) {
-			width = ( width <= 0 ) ? 350 : width; // mobile safari bug with zero width
+		if ( hasTouch() ) {
+			width = width <= 0 ? 350 : width; // mobile safari bug with zero width
 			maxBars = Math.floor( width / this.props.minTouchBarWidth );
 		} else {
 			maxBars = Math.floor( width / this.props.minBarWidth );
@@ -68,14 +67,14 @@ export default class ModuleChart extends React.Component {
 
 		this.setState( {
 			maxBars: maxBars,
-			width: width
+			width: width,
 		} );
 	};
 
-	getYAxisMax = ( values ) => {
+	getYAxisMax = values => {
 		const max = Math.max.apply( null, values ),
-			operand = Math.pow( 10, ( max.toString().length - 1 ) );
-		let rounded = ( Math.ceil( ( max + 1 ) / operand ) * operand );
+			operand = Math.pow( 10, max.toString().length - 1 );
+		let rounded = Math.ceil( ( max + 1 ) / operand ) * operand;
 
 		if ( rounded < 10 ) {
 			rounded = 10;
@@ -102,7 +101,7 @@ export default class ModuleChart extends React.Component {
 		return data;
 	};
 
-	isEmptyChart = ( values ) => {
+	isEmptyChart = values => {
 		values = values.filter( function( value ) {
 			return value > 0;
 		}, this );
@@ -122,8 +121,9 @@ export default class ModuleChart extends React.Component {
 			emptyChart = (
 				<div className="dops-chart__empty">
 					<span className="dops-chart__empty_notice">
-						{ /* Translate this. */ }
-						No activity this period
+						{ __( 'No activity this period', {
+							context: 'Notice in the empty statistics chart',
+						} ) }
 					</span>
 				</div>
 			);
@@ -132,17 +132,27 @@ export default class ModuleChart extends React.Component {
 		return (
 			<div ref="chart" className="dops-chart">
 				<div className="dops-chart__y-axis-markers">
-					<div className="dops-chart__y-axis-marker is-hundred"></div>
-					<div className="dops-chart__y-axis-marker is-fifty"></div>
-					<div className="dops-chart__y-axis-marker is-zero"></div>
+					<div className="dops-chart__y-axis-marker is-hundred" />
+					<div className="dops-chart__y-axis-marker is-fifty" />
+					<div className="dops-chart__y-axis-marker is-zero" />
 				</div>
 				<div className="dops-chart__y-axis">
-					<div className="dops-chart__y-axis-width-fix">{ new Number( 100000 ).toLocaleString() }</div>
+					<div className="dops-chart__y-axis-width-fix">
+						{ new Number( 100000 ).toLocaleString() }
+					</div>
 					<div className="dops-chart__y-axis-label is-hundred">{ yAxisMax.toLocaleString() }</div>
-					<div className="dops-chart__y-axis-label is-fifty">{ ( yAxisMax / 2 ).toLocaleString() }</div>
+					<div className="dops-chart__y-axis-label is-fifty">
+						{ ( yAxisMax / 2 ).toLocaleString() }
+					</div>
 					<div className="dops-chart__y-axis-label is-zero">{ 0 }</div>
 				</div>
-				<BarContainer barClick={ this.props.barClick } data={ data } yAxisMax={ yAxisMax } chartWidth={ this.state.width } isTouch={ touchDetect.hasTouch() } />
+				<BarContainer
+					barClick={ this.props.barClick }
+					data={ data }
+					yAxisMax={ yAxisMax }
+					chartWidth={ this.state.width }
+					isTouch={ hasTouch() }
+				/>
 				{ emptyChart }
 			</div>
 		);

@@ -1,6 +1,9 @@
 /**
  * External dependencies
+ *
+ * @format
  */
+
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
 
@@ -8,74 +11,78 @@ import { translate as __ } from 'i18n-calypso';
  * Internal dependencies
  */
 import Discussion from 'discussion';
-import Security from 'security/index.jsx';
+import Performance from 'performance';
+import Privacy from 'privacy';
+import SearchableModules from 'searchable-modules';
+import Security from 'security';
+import Sharing from 'sharing';
 import Traffic from 'traffic';
-import Writing from 'writing/index.jsx';
-import Sharing from 'sharing/index.jsx';
-import SearchableModules from 'searchable-modules/index.jsx';
-import Privacy from 'privacy/index.jsx';
+import Writing from 'writing';
+import { withRouter } from 'react-router-dom';
 
-export default class extends React.Component {
+class Settings extends React.Component {
 	static displayName = 'SearchableSettings';
 
 	render() {
 		const commonProps = {
-			route: this.props.route,
 			searchTerm: this.props.searchTerm,
 			rewindStatus: this.props.rewindStatus,
+			userCanManageModules: this.props.userCanManageModules,
 		};
 
 		return (
 			<div className="jp-settings-container">
 				<div className="jp-no-results">
 					{ commonProps.searchTerm
-						? __(
-							'No search results found for %(term)s',
-							{
+						? __( 'No search results found for %(term)s', {
 								args: {
-									term: commonProps.searchTerm
-								}
-							}
-						)
-						: __( 'Enter a search term to find settings or close search.' )
-					}
+									term: commonProps.searchTerm,
+								},
+						  } )
+						: __( 'Enter a search term to find settings or close search.' ) }
 				</div>
-				<Discussion
-					siteRawUrl={ this.props.siteRawUrl }
-					active={ ( '/discussion' === this.props.route.path ) }
-					{ ...commonProps }
-				/>
 				<Security
 					siteAdminUrl={ this.props.siteAdminUrl }
 					siteRawUrl={ this.props.siteRawUrl }
-					active={ ( '/security' === this.props.route.path ) }
+					active={
+						'/security' === this.props.location.pathname ||
+						( '/settings' === this.props.location.pathname && commonProps.userCanManageModules )
+					}
+					{ ...commonProps }
+				/>
+				<Discussion
+					siteRawUrl={ this.props.siteRawUrl }
+					active={ '/discussion' === this.props.location.pathname }
+					{ ...commonProps }
+				/>
+				<Performance
+					active={ '/performance' === this.props.location.pathname }
 					{ ...commonProps }
 				/>
 				<Traffic
 					siteRawUrl={ this.props.siteRawUrl }
 					siteAdminUrl={ this.props.siteAdminUrl }
-					active={ ( '/traffic' === this.props.route.path ) }
+					active={ '/traffic' === this.props.location.pathname }
 					{ ...commonProps }
 				/>
 				<Writing
 					siteAdminUrl={ this.props.siteAdminUrl }
-					active={ (
-						'/writing' === this.props.route.path ||
-						'/settings' === this.props.route.path
-					) }
+					active={
+						'/writing' === this.props.location.pathname ||
+						( '/settings' === this.props.location.pathname && ! commonProps.userCanManageModules )
+					}
 					{ ...commonProps }
 				/>
 				<Sharing
 					siteAdminUrl={ this.props.siteAdminUrl }
-					active={ ( '/sharing' === this.props.route.path ) }
+					active={ '/sharing' === this.props.location.pathname }
 					{ ...commonProps }
 				/>
-				<Privacy
-					active={ ( '/privacy' === this.props.route.path ) }
-					{ ...commonProps }
-				/>
+				<Privacy active={ '/privacy' === this.props.location.pathname } { ...commonProps } />
 				<SearchableModules searchTerm={ this.props.searchTerm } />
 			</div>
 		);
 	}
 }
+
+export default withRouter( Settings );

@@ -11,6 +11,8 @@
  * Additional Search Queries: like, likes, wordpress.com
  */
 
+use Automattic\Jetpack\Assets;
+
 Jetpack::dns_prefetch( array(
 	'//widgets.wp.com',
 	'//s0.wp.com',
@@ -27,7 +29,7 @@ class Jetpack_Likes {
 		static $instance = NULL;
 
 		if ( ! $instance ) {
-			$instance = new Jetpack_Likes;
+			$instance = new Jetpack_Likes();
 		}
 
 		return $instance;
@@ -37,7 +39,10 @@ class Jetpack_Likes {
 		$this->in_jetpack = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? false : true;
 		$this->settings = new Jetpack_Likes_Settings();
 
-		add_action( 'init', array( &$this, 'action_init' ) );
+		// We need to run on wp hook rather than init because we check is_amp_endpoint()
+		// when bootstrapping hooks
+		add_action( 'wp', array( &$this, 'action_init' ), 99 );
+
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
 
 		if ( $this->in_jetpack ) {
@@ -45,8 +50,7 @@ class Jetpack_Likes {
 			add_action( 'jetpack_deactivate_module_likes', array( $this, 'delete_social_notifications_like' ) );
 
 			Jetpack::enable_module_configurable( __FILE__ );
-			Jetpack::module_configuration_load( __FILE__, array( $this, 'configuration_redirect' ) );
-
+			add_filter( 'jetpack_module_configuration_url_likes', array( $this, 'jetpack_likes_configuration_url' ) );
 			add_action( 'admin_print_scripts-settings_page_sharing', array( &$this, 'load_jp_css' ) );
 			add_filter( 'sharing_show_buttons_on_row_start', array( $this, 'configuration_target_area' ) );
 
@@ -113,12 +117,15 @@ class Jetpack_Likes {
 		delete_option( 'social_notifications_like' );
 	}
 
+
 	/**
-	 * Redirects to the likes section of the sharing page.
+	 * Overrides default configuration url
+	 *
+	 * @uses admin_url
+	 * @return string module settings URL
 	 */
-	function configuration_redirect() {
-		wp_safe_redirect( admin_url( 'options-general.php?page=sharing#likes' ) );
-		die();
+	function jetpack_likes_configuration_url() {
+		return admin_url( 'options-general.php?page=sharing#likes' );
 	}
 
 	/**
@@ -151,7 +158,7 @@ class Jetpack_Likes {
 	static function is_post_likeable( $post_id = 0 ) {
 		_deprecated_function( __METHOD__, 'jetpack-5.4', 'Jetpack_Likes_Settings()->is_post_likeable' );
 		$settings = new Jetpack_Likes_Settings();
-		return $settings->is_post_likeable();
+		return $settings->is_post_likeable( $post_id );
 	}
 
 	/**
@@ -246,7 +253,7 @@ class Jetpack_Likes {
 	}
 
 	function action_init() {
-		if ( is_admin() ) {
+		if ( is_admin() || ! $this->settings->is_likes_visible() ) {
 			return;
 		}
 
@@ -258,7 +265,10 @@ class Jetpack_Likes {
 			return;
 		}
 
-		if ( Jetpack_AMP_Support::is_amp_request() ) {
+		if (
+			class_exists( 'Jetpack_AMP_Support' )
+			&& Jetpack_AMP_Support::is_amp_request()
+		) {
 			return;
 		}
 
@@ -270,8 +280,8 @@ class Jetpack_Likes {
 			add_filter( 'post_flair', array( &$this, 'post_likes' ), 30, 1 );
 			add_filter( 'post_flair_block_css', array( $this, 'post_flair_service_enabled_like' ) );
 
-			wp_enqueue_script( 'postmessage', '/wp-content/js/postmessage.js', array( 'jquery' ), JETPACK__VERSION, false );
-			wp_enqueue_script( 'jetpack_resize', '/wp-content/js/jquery/jquery.jetpack-resize.js', array( 'jquery' ), JETPACK__VERSION, false );
+			wp_enqueue_script( 'postmessage', '/wp-content/js/postmessage.js', array( 'jquery' ), JETPACK__VERSION, true );
+			wp_enqueue_script( 'jetpack_resize', '/wp-content/js/jquery/jquery.jetpack-resize.js', array( 'jquery' ), JETPACK__VERSION, true );
 			wp_enqueue_script( 'jetpack_likes_queuehandler', plugins_url( 'queuehandler.js' , __FILE__ ), array( 'jquery', 'postmessage', 'jetpack_resize' ), JETPACK__VERSION, true );
 			wp_enqueue_style( 'jetpack_likes', plugins_url( 'jetpack-likes.css', __FILE__ ), array(), JETPACK__VERSION );
 		}
@@ -283,24 +293,24 @@ class Jetpack_Likes {
 	function register_scripts() {
 		wp_register_script(
 			'postmessage',
-			Jetpack::get_file_url_for_environment( '_inc/build/postmessage.min.js', '_inc/postmessage.js' ),
+			Assets::get_file_url_for_environment( '_inc/build/postmessage.min.js', '_inc/postmessage.js' ),
 			array( 'jquery' ),
 			JETPACK__VERSION,
-			false
+			true
 		);
 		wp_register_script(
 			'jetpack_resize',
-			Jetpack::get_file_url_for_environment(
+			Assets::get_file_url_for_environment(
 				'_inc/build/jquery.jetpack-resize.min.js',
 				'_inc/jquery.jetpack-resize.js'
 			),
 			array( 'jquery' ),
 			JETPACK__VERSION,
-			false
+			true
 		);
 		wp_register_script(
 			'jetpack_likes_queuehandler',
-			Jetpack::get_file_url_for_environment(
+			Assets::get_file_url_for_environment(
 				'_inc/build/likes/queuehandler.min.js',
 				'modules/likes/queuehandler.js'
 			),
@@ -361,7 +371,7 @@ class Jetpack_Likes {
 			if ( $this->in_jetpack ) {
 				wp_enqueue_script(
 					'likes-post-count',
-					Jetpack::get_file_url_for_environment(
+					Assets::get_file_url_for_environment(
 						'_inc/build/likes/post-count.min.js',
 						'modules/likes/post-count.js'
 					),
@@ -370,7 +380,7 @@ class Jetpack_Likes {
 				);
 				wp_enqueue_script(
 					'likes-post-count-jetpack',
-					Jetpack::get_file_url_for_environment(
+					Assets::get_file_url_for_environment(
 						'_inc/build/likes/post-count-jetpack.min.js',
 						'modules/likes/post-count-jetpack.js'
 					),
@@ -418,7 +428,7 @@ class Jetpack_Likes {
 		$date = $columns['date'];
 		unset( $columns['date'] );
 
-		$columns['likes'] = '<span class="vers"><img title="' . esc_attr__( 'Likes', 'jetpack' ) . '" alt="' . esc_attr__( 'Likes', 'jetpack' ) . '" src="//s0.wordpress.com/i/like-grey-icon.png" /></span>';
+		$columns['likes'] = '<span class="vers"><img title="' . esc_attr__( 'Likes', 'jetpack' ) . '" alt="' . esc_attr__( 'Likes', 'jetpack' ) . '" src="//s0.wordpress.com/i/like-grey-icon.png" /><span class="screen-reader-text">' . __( 'Likes', 'jetpack' ) . '</span></span>';
 		$columns['date'] = $date;
 
 		return $columns;
@@ -437,7 +447,7 @@ class Jetpack_Likes {
 		} else {
 			$blog_id = Jetpack_Options::get_option( 'id' );
 			$url = home_url();
-			$url_parts = parse_url( $url );
+			$url_parts = wp_parse_url( $url );
 			$domain = $url_parts['host'];
 		}
 		// make sure to include the scripts before the iframe otherwise weird things happen
@@ -522,7 +532,7 @@ class Jetpack_Likes {
 		} else {
 			$blog_id = Jetpack_Options::get_option( 'id' );
 			$url = home_url();
-			$url_parts = parse_url( $url );
+			$url_parts = wp_parse_url( $url );
 			$domain = $url_parts['host'];
 		}
 		// make sure to include the scripts before the iframe otherwise weird things happen
@@ -542,5 +552,108 @@ class Jetpack_Likes {
 		$wp_admin_bar->add_node( $node );
 	}
 }
+
+/**
+ * Callback to get the value for the jetpack_likes_enabled field.
+ *
+ * Warning: this behavior is somewhat complicated!
+ * When the switch_like_status post_meta is unset, we follow the global setting in Sharing.
+ * When it is set to 0, we disable likes on the post, regardless of the global setting.
+ * When it is set to 1, we enable likes on the post, regardless of the global setting.
+ */
+function jetpack_post_likes_get_value( array $post ) {
+	$post_likes_switched = get_post_meta( $post['id'], 'switch_like_status', true );
+
+	/** This filter is documented in modules/jetpack-likes-settings.php */
+	$sitewide_likes_enabled = (bool) apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) );
+
+	// an empty string: post meta was not set, so go with the global setting
+	if ( "" === $post_likes_switched ) {
+		return $sitewide_likes_enabled;
+	}
+
+	// user overrode the global setting to disable likes
+	elseif ( "0" === $post_likes_switched ) {
+		return false;
+	}
+
+	// user overrode the global setting to enable likes
+	elseif ( "1" === $post_likes_switched ) {
+		return true;
+	}
+
+	// no default fallback, let's stay explicit
+}
+
+/**
+ * Callback to set switch_like_status post_meta when jetpack_likes_enabled is updated.
+ *
+ * Warning: this behavior is somewhat complicated!
+ * When the switch_like_status post_meta is unset, we follow the global setting in Sharing.
+ * When it is set to 0, we disable likes on the post, regardless of the global setting.
+ * When it is set to 1, we enable likes on the post, regardless of the global setting.
+ */
+function jetpack_post_likes_update_value( $enable_post_likes, $post_object ) {
+	/** This filter is documented in modules/jetpack-likes-settings.php */
+	$sitewide_likes_enabled = (bool) apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) );
+
+	$should_switch_status = $enable_post_likes !== $sitewide_likes_enabled;
+
+	if ( $should_switch_status ) {
+		// set the meta to 0 if the user wants to disable likes, 1 if user wants to enable
+		$switch_like_status = ( $enable_post_likes ? 1 : 0 );
+		return update_post_meta( $post_object->ID, 'switch_like_status', $switch_like_status );
+	} else {
+		// unset the meta otherwise
+		return delete_post_meta( $post_object->ID, 'switch_like_status' );
+	}
+}
+
+/**
+ * Add Likes post_meta to the REST API Post response.
+ *
+ * @action rest_api_init
+ * @uses register_rest_field
+ * @link https://developer.wordpress.org/rest-api/extending-the-rest-api/modifying-responses/
+ */
+function jetpack_post_likes_register_rest_field() {
+	$post_types = get_post_types( array( 'public' => true ) );
+	foreach ( $post_types as $post_type ) {
+		register_rest_field(
+			$post_type,
+			'jetpack_likes_enabled',
+			array(
+				'get_callback'    => 'jetpack_post_likes_get_value',
+				'update_callback' => 'jetpack_post_likes_update_value',
+				'schema'          => array(
+					'description' => __( 'Are Likes enabled?', 'jetpack' ),
+					'type'        => 'boolean',
+				),
+			)
+		);
+
+		/**
+		 * Ensures all public internal post-types support `likes`
+		 * This feature support flag is used by the REST API and Gutenberg.
+		 */
+		add_post_type_support( $post_type, 'jetpack-post-likes' );
+	}
+}
+
+// Add Likes post_meta to the REST API Post response.
+add_action( 'rest_api_init', 'jetpack_post_likes_register_rest_field' );
+
+// Some CPTs (e.g. Jetpack portfolios and testimonials) get registered with
+// restapi_theme_init because they depend on theme support, so let's also hook to that
+add_action( 'restapi_theme_init', 'jetpack_post_likes_register_rest_field', 20 );
+
+/**
+ * Set the Likes and Sharing Gutenberg extension availability
+ */
+function jetpack_post_likes_set_extension_availability() {
+	Jetpack_Gutenberg::set_extension_available( 'likes' );
+}
+
+add_action( 'jetpack_register_gutenberg_extensions', 'jetpack_post_likes_set_extension_availability' );
 
 Jetpack_Likes::init();

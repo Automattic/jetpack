@@ -122,6 +122,7 @@
 				float: right;
 				padding: 0 0 1px;
 				visibility: visible;
+				position: static;
 
 				span {
 					margin-left: 5px;
@@ -135,7 +136,6 @@
 					padding-left: 10px;
 					visibility: visible;
 				};
-
 			}
 		}
 	}
@@ -148,12 +148,6 @@
 		}
 		&.unavailable {
 			opacity: 0.3;
-		}
-		td .row-actions span a {
-			opacity: 0;
-			&:focus {
-				opacity: 1;
-			}
 		}
 	}
 	&>thead>tr>th {

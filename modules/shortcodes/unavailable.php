@@ -1,4 +1,10 @@
-<?php
+<?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * Display a message on the frontend when we retire a shortcode,
+ * explaining why the shortcode is not available anymore.
+ *
+ * @package Jetpack
+ */
 
 /**
  * Class Jetpack_Shortcode_Unavailable
@@ -20,7 +26,7 @@ class Jetpack_Shortcode_Unavailable {
 	 * already claimed them, add a handler to nullify their output.
 	 */
 	public function add_shortcodes() {
-		foreach ( $this->shortcodes as $shortcode => $message ) {
+		foreach ( array_keys( $this->shortcodes ) as $shortcode ) {
 			if ( ! shortcode_exists( $shortcode ) ) {
 				add_shortcode( $shortcode, array( $this, 'stub_shortcode' ) );
 			}
@@ -31,9 +37,10 @@ class Jetpack_Shortcode_Unavailable {
 	 * Nullify the output of unavailable shortcodes.  Includes a filter to make
 	 * it easier to notify admins that a shortcode that they used is unavailable.
 	 *
-	 * @param $atts
-	 * @param string $content
-	 * @param string $shortcode
+	 * @param array  $atts      Shortcode attributes.
+	 * @param string $content   Post content.
+	 * @param string $shortcode Shortcode name.
+	 *
 	 * @return mixed|void
 	 */
 	public function stub_shortcode( $atts, $content = '', $shortcode = '' ) {
@@ -57,6 +64,18 @@ class Jetpack_Shortcode_Unavailable {
 	}
 }
 
-new Jetpack_Shortcode_Unavailable( array(
-	'blip.tv' => __( 'The Blip.tv service has been shut down since August 20th, 2015.', 'jetpack' ),
-) );
+/**
+ * Init class.
+ */
+function jetpack_init_shortcode_unavailable() {
+	new Jetpack_Shortcode_Unavailable(
+		array(
+			'digg'                    => __( 'The Digg API was shut down in 2014.', 'jetpack' ),
+			'blip.tv'                 => __( 'The Blip.tv service has been shut down since August 20th, 2015.', 'jetpack' ),
+			'googlevideo'             => __( 'The Google Video embed service is not available anymore, it has been replaced by YouTube.', 'jetpack' ),
+			'jetpack-email-subscribe' => __( 'The Email Subscribe shortcode is now available as a block in the Block editor.', 'jetpack' ),
+			'lytro'                   => __( 'Lytro has been shut down since March 2019.', 'jetpack' ),
+		)
+	);
+}
+add_action( 'init', 'jetpack_init_shortcode_unavailable' );

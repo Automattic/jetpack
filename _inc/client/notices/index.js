@@ -1,17 +1,20 @@
 /**
  * External Dependencies
  */
-const debug = require( 'debug' )( 'calypso:notices' );
+import debugFactory from 'debug';
+import Emitter from 'mixins/emitter';
 
-const Emitter = require( 'mixins/emitter' );
+/**
+ * Internal Dependencies
+ */
+import './style.scss';
 
+const debug = debugFactory( 'calypso:notices' );
 debug( 'initializing notices' );
 
 const list = { containerNames: {} };
 Emitter( list );
 let delayedNotices = [];
-
-require( './style.scss' );
 
 const notices = {
 	/**
@@ -22,7 +25,7 @@ const notices = {
 	 * @param {String} status   the classname to affect the notice color.
 	 * @return {object} notice
 	 */
-	'new': function( text, options, status ) {
+	new: function( text, options, status ) {
 		// Set container
 		const container = options.overlay ? 'overlay-notices' : 'notices';
 
@@ -40,7 +43,7 @@ const notices = {
 			container: container,
 			button: options.button,
 			href: options.href,
-			onClick: ( event ) => {
+			onClick: event => {
 				if ( typeof options.onClick === 'function' ) {
 					const closeFn = notices.removeNotice.bind( notices, noticeObject );
 					return options.onClick( event, closeFn );
@@ -50,7 +53,7 @@ const notices = {
 			arrow: options.arrow,
 			isCompact: options.isCompact,
 			showDismiss: options.showDismiss,
-			persistent: options.persistent
+			persistent: options.persistent,
 		};
 
 		// if requested, delay the notice until the next page load
@@ -144,7 +147,8 @@ const notices = {
 	 */
 	clearNoticesOnNavigation: function( context, next ) {
 		debug( 'clearNoticesOnNavigation' );
-		let length, container,
+		let length,
+			container,
 			changed = false;
 		const isNoticePersistent = function( notice ) {
 			return notice.persistent;
@@ -200,8 +204,7 @@ const notices = {
 		if ( noticeObject.success ) {
 			return 'is-success';
 		}
-	}
-
+	},
 };
 
 export default notices;

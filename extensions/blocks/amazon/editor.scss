@@ -1,0 +1,21 @@
+/**
+ * Editor styles for Amazon
+ */
+
+.wp-block-jetpack-amazon {
+	font-size: 14px;
+
+	&-title {
+		font-weight: bold;
+		line-height: 1.3em;
+
+		a {
+			text-decoration: none;
+		}
+	}
+
+	&-button {
+		justify-content: center;
+		width: 100%;
+	}
+}

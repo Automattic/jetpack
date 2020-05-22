@@ -8,7 +8,7 @@
 class WordAds_Sidebar_Widget extends WP_Widget {
 
 	private static $allowed_tags = array( 'mrec', 'wideskyscraper' );
-	private static $num_widgets = 0;
+	private static $num_widgets  = 0;
 
 	function __construct() {
 		parent::__construct(
@@ -16,8 +16,8 @@ class WordAds_Sidebar_Widget extends WP_Widget {
 			/** This filter is documented in modules/widgets/facebook-likebox.php */
 			apply_filters( 'jetpack_widget_name', 'Ads' ),
 			array(
-				'description' => __( 'Insert an ad unit wherever you can place a widget.', 'jetpack' ),
-				'customize_selective_refresh' => true
+				'description'                 => __( 'Insert an ad unit wherever you can place a widget.', 'jetpack' ),
+				'customize_selective_refresh' => true,
 			)
 		);
 	}
@@ -33,10 +33,10 @@ class WordAds_Sidebar_Widget extends WP_Widget {
 		}
 
 		self::$num_widgets++;
-		$about = __( 'Advertisements', 'jetpack' );
-		$width = WordAds::$ad_tag_ids[$instance['unit']]['width'];
-		$height = WordAds::$ad_tag_ids[$instance['unit']]['height'];
-		$unit_id = 1 == self::$num_widgets ? 3 : self::$num_widgets + 3; // 2nd belowpost is '4'
+		$about      = __( 'Advertisements', 'jetpack' );
+		$width      = WordAds::$ad_tag_ids[ $instance['unit'] ]['width'];
+		$height     = WordAds::$ad_tag_ids[ $instance['unit'] ]['height'];
+		$unit_id    = 1 == self::$num_widgets ? 3 : self::$num_widgets + 3; // 2nd belowpost is '4'
 		$section_id = 0 === $wordads->params->blog_id ?
 			WORDADS_API_TEST_ID :
 			$wordads->params->blog_id . $unit_id;
@@ -46,7 +46,7 @@ class WordAds_Sidebar_Widget extends WP_Widget {
 			$unit = 'mrec';
 			if ( 'leaderboard' == $instance['unit'] && ! $this->params->mobile_device ) {
 				$unit = 'leaderboard';
-			} else if ( 'wideskyscraper' == $instance['unit'] ) {
+			} elseif ( 'wideskyscraper' == $instance['unit'] ) {
 				$unit = 'widesky';
 			}
 
@@ -80,15 +80,15 @@ HTML;
 			<select class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'unit' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'unit' ) ); ?>">
 		<?php
 		foreach ( WordAds::$ad_tag_ids as $ad_unit => $properties ) {
-				if ( ! in_array( $ad_unit, self::$allowed_tags ) ) {
-					continue;
-				}
-
-				$splits = explode( '_', $properties['tag'] );
-				$unit_pretty = "{$splits[0]} {$splits[1]}";
-				$selected = selected( $ad_unit, $unit, false );
-				echo "<option value='", esc_attr( $ad_unit ) ,"' ", $selected, '>', esc_html( $unit_pretty ) , '</option>';
+			if ( ! in_array( $ad_unit, self::$allowed_tags ) ) {
+				continue;
 			}
+
+				$splits      = explode( '_', $properties['tag'] );
+				$unit_pretty = "{$splits[0]} {$splits[1]}";
+				$selected    = selected( $ad_unit, $unit, false );
+				echo "<option value='", esc_attr( $ad_unit ) ,"' ", $selected, '>', esc_html( $unit_pretty ) , '</option>';
+		}
 		?>
 			</select>
 		</p>

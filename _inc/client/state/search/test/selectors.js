@@ -10,9 +10,9 @@ describe( 'Module found selector', () => {
 			jetpack: {
 				modules: {
 					items: {
-						manage: {
-							module: 'manage',
-							name: 'Manage',
+						photon: {
+							module: 'photon',
+							name: 'Photon',
 							description: 'Description',
 							learn_more_button: 'Learn more',
 							long_description: 'Long Description',
@@ -32,7 +32,7 @@ describe( 'Module found selector', () => {
 
 	describe( 'when there is no search term', () => {
 		it( 'returns true for every module', () => {
-			expect( isModuleFound( state, 'manage' ) ).to.be.true;
+			expect( isModuleFound( state, 'photon' ) ).to.be.true;
 		} );
 		it( 'returns false for modules that do not exist', () => {
 			expect( isModuleFound( state, 'make-everything-fast' ) ).to.be.false;
@@ -42,7 +42,7 @@ describe( 'Module found selector', () => {
 
 	describe( 'for an existing module', () => {
 		[
-			'manage',
+			'photon',
 			'Description',
 			'Learn',
 			'Long',
@@ -56,7 +56,7 @@ describe( 'Module found selector', () => {
 				it( 'should match', () => {
 					state.jetpack.search.searchTerm = term;
 
-					expect( isModuleFound( state, 'manage' ) ).to.be.true;
+					expect( isModuleFound( state, 'photon' ) ).to.be.true;
 				} );
 			} );
 		} );
@@ -71,7 +71,7 @@ describe( 'Module found selector', () => {
 				it( 'should not match', () => {
 					state.jetpack.search.searchTerm = term;
 
-					expect( isModuleFound( state, 'manage' ) ).to.be.false;
+					expect( isModuleFound( state, 'photon' ) ).to.be.false;
 				} );
 			} );
 		} );

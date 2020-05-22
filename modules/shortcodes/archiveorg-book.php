@@ -4,10 +4,12 @@
  *
  * Usage:
  * [archiveorg-book goodytwoshoes00newyiala]
- * [archiveorg-book http://www.archive.org/stream/goodytwoshoes00newyiala]
+ * [archiveorg-book https://www.archive.org/stream/goodytwoshoes00newyiala]
  * [archiveorg id=goodytwoshoes00newyiala width=480 height=430]
 
- *<iframe src='https://www.archive.org/stream/goodytwoshoes00newyiala?ui=embed#mode/1up' width='480px' height='430px' frameborder='0' ></iframe>
+ * <iframe src='https://www.archive.org/stream/goodytwoshoes00newyiala?ui=embed#mode/1up' width='480px' height='430px' frameborder='0' ></iframe>
+ *
+ * @package Jetpack
  */
 
 /**
@@ -15,13 +17,13 @@
  *
  * @since 4.5.0
  *
- * @param $atts
+ * @param array $atts Shortcode attributes.
  *
  * @return int|string
  */
 function jetpack_shortcode_get_archiveorg_book_id( $atts ) {
 	if ( isset( $atts[0] ) ) {
-		$atts[0] = trim( $atts[0] , '=' );
+		$atts[0] = trim( $atts[0], '=' );
 		if ( preg_match( '#archive.org/stream/(.+)/?$#i', $atts[0], $match ) ) {
 			$id = $match[1];
 		} else {
@@ -47,11 +49,14 @@ function jetpack_archiveorg_book_shortcode( $atts ) {
 		$atts['id'] = jetpack_shortcode_get_archiveorg_book_id( $atts );
 	}
 
-	$atts = shortcode_atts( array(
-		'id'       => '',
-		'width'    => 480,
-		'height'   => 430,
-	), $atts );
+	$atts = shortcode_atts(
+		array(
+			'id'     => '',
+			'width'  => 480,
+			'height' => 430,
+		),
+		$atts
+	);
 
 	if ( ! $atts['id'] ) {
 		return '<!-- error: missing archive.org book ID -->';
@@ -71,9 +76,11 @@ function jetpack_archiveorg_book_shortcode( $atts ) {
 		$height = intval( $atts['height'] );
 	}
 
-	$url = esc_url( set_url_scheme( "http://archive.org/stream/{$id}?ui=embed#mode/1up" ) );
+	$url = esc_url( "https://archive.org/stream/{$id}?ui=embed#mode/1up" );
 
-	$html = "<div class='embed-archiveorg-book' style='text-align:center;'><iframe src='$url' width='$width' height='$height' style='border:0;' webkitallowfullscreen='true' mozallowfullscreen='true' allowfullscreen></iframe></div>";
+	$title = esc_html__( 'Archive.org Book', 'jetpack' );
+
+	$html = "<div class='embed-archiveorg-book' style='text-align:center;'><iframe title='$title' src='$url' width='$width' height='$height' style='border:0;' webkitallowfullscreen='true' mozallowfullscreen='true' allowfullscreen></iframe></div>";
 	return $html;
 }
 
@@ -84,7 +91,7 @@ add_shortcode( 'archiveorg-book', 'jetpack_archiveorg_book_shortcode' );
  *
  * @since 4.5.0
  *
- * @param string $content
+ * @param string $content Post content.
  *
  * @return mixed
  */
@@ -101,13 +108,13 @@ function jetpack_archiveorg_book_embed_to_shortcode( $content ) {
 
 	foreach ( $matches as $match ) {
 		$url = explode( '?', $match[3] );
-		$id = $url[0];
+		$id  = $url[0];
 
 		$params = $match[4];
 
 		$params = wp_kses_hair( $params, array( 'http' ) );
 
-		$width = isset( $params['width'] ) ? absint( $params['width']['value'] ) : 0;
+		$width  = isset( $params['width'] ) ? absint( $params['width']['value'] ) : 0;
 		$height = isset( $params['height'] ) ? absint( $params['height']['value'] ) : 0;
 
 		$wh = '';
@@ -116,7 +123,7 @@ function jetpack_archiveorg_book_embed_to_shortcode( $content ) {
 		}
 
 		$shortcode = '[archiveorg-book ' . $id . $wh . ']';
-		$content = str_replace( $match[0], $shortcode, $content );
+		$content   = str_replace( $match[0], $shortcode, $content );
 	}
 
 	return $content;

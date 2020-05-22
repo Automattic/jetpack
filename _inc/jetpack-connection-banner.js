@@ -22,7 +22,7 @@
 		var data = {
 			action: 'jetpack_connection_banner',
 			nonce: jp_banner.connectionBannerNonce,
-			dismissBanner: true
+			dismissBanner: true,
 		};
 
 		$.post( jp_banner.ajax_url, data, function( response ) {
@@ -32,9 +32,13 @@
 		} );
 	} );
 
-	nav.on( 'click', '.vertical-menu__feature-item:not( .vertical-menu__feature-item-is-selected )', function() {
-		transitionSlideToIndex( $( this ).index() );
-	} );
+	nav.on(
+		'click',
+		'.vertical-menu__feature-item:not( .vertical-menu__feature-item-is-selected )',
+		function() {
+			transitionSlideToIndex( $( this ).index() );
+		}
+	);
 
 	nextFeatureButtons.on( 'click', function( e ) {
 		e.preventDefault();
@@ -52,9 +56,7 @@
 			.find( '.vertical-menu__feature-item-is-selected' )
 			.removeClass( 'vertical-menu__feature-item-is-selected' );
 
-		contentContainer
-			.find( '.jp__slide-is-active' )
-			.removeClass( 'jp__slide-is-active' );
+		contentContainer.find( '.jp__slide-is-active' ).removeClass( 'jp__slide-is-active' );
 
 		// Add classes to selected menu item and content
 		nav

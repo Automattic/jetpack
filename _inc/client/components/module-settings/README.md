@@ -23,9 +23,9 @@ This HOC provides the wrapped component with the following property methods
 * setUnsavedOptionFlag()
 * clearUnsavedOptionFlag()
 
-## module-settings-form
+## with-module-settings-form-helps
 
-A High Order Component that provide a &lt;form&gt; with functionality to handle input values on the forms own React component state.
+A High Order Component that provides helpers (as props)  &lt;form&gt; with functionality to handle input values on the forms own React component state.
 
 _Basically useful for using in composition with the connectModuleOptions HOC._
 

@@ -29,7 +29,14 @@ class Jetpack_Sitemap_Finder {
 	 * @return string Complete URI of the given sitemap file.
 	 */
 	public function construct_sitemap_url( $filename ) {
-		return jetpack_sitemap_uri( $filename );
+		$url = jetpack_sitemap_uri( $filename );
+
+		if ( pathinfo( $filename, PATHINFO_EXTENSION ) === 'xsl' ) {
+			// strip scheme for sites where sitemap could be access via http or https
+			$url = preg_replace( '/^https?:/', '', $url );
+		}
+
+		return $url;
 	}
 
 	/**

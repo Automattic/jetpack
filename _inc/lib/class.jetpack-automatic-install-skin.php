@@ -65,8 +65,11 @@ class Jetpack_Automatic_Install_Skin extends Automatic_Upgrader_Skin {
 
 	/**
 	 * Overwrites the feedback function
+	 *
+	 * @param string|array|WP_Error $data    Data.
+	 * @param mixed                 ...$args Optional text replacements.
 	 */
-	public function feedback( $data ) {
+	public function feedback( $data, ...$args ) {
 
 		$current_error = null;
 		if ( is_wp_error( $data ) ) {
@@ -86,8 +89,6 @@ class Jetpack_Automatic_Install_Skin extends Automatic_Upgrader_Skin {
 		}
 
 		if ( strpos( $string, '%' ) !== false ) {
-			$args = func_get_args();
-			$args = array_splice( $args, 1 );
 			if ( ! empty( $args ) ) {
 				$string = vsprintf( $string, $args );
 			}

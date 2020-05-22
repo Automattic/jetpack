@@ -1,27 +1,25 @@
-/* jshint onevar: false, smarttabs: true */
-
-(function( $ ){
+( function( $ ) {
 	var menuSelector, nonceInput, methods;
 
 	methods = {
-		init : function( /*options*/ ) {
-			var $this = this, tbody, row;
+		init: function(/*options*/) {
+			var $this = this,
+				tbody,
+				row;
 
-			this
-				.on( 'keypress.manyItemsTable', function( event ) {
-					if ( 13 !== event.which ) {
-						return;
-					}
+			this.on( 'keypress.manyItemsTable', function( event ) {
+				if ( 13 !== event.which ) {
+					return;
+				}
 
-					event.preventDefault();
-					if ( 'function' === typeof FormData ) {
-						methods.submitRow.apply( $this );
-					}
-					methods.addRow.apply( $this );
-				} )
-				.on( 'focus.manyItemsTable', ':input', function( /*event*/ ) {
-					$this.data( 'currentRow', $( this ).parents( 'tr:first' ) );
-				} );
+				event.preventDefault();
+				if ( 'function' === typeof FormData ) {
+					methods.submitRow.apply( $this );
+				}
+				methods.addRow.apply( $this );
+			} ).on( 'focus.manyItemsTable', ':input', function(/*event*/) {
+				$this.data( 'currentRow', $( this ).parents( 'tr:first' ) );
+			} );
 
 			tbody = this.find( 'tbody:last' );
 			row = tbody.find( 'tr:first' ).clone();
@@ -37,18 +35,22 @@
 			return this;
 		},
 
-		destroy : function() {
+		destroy: function() {
 			this.off( '.manyItemsTable' );
 
 			return this;
 		},
 
-		submitRow : function() {
+		submitRow: function() {
 			var submittedRow, currentInputs, allInputs, partialFormData;
 
 			submittedRow = this.data( 'currentRow' );
 			currentInputs = submittedRow.find( ':input' );
-			allInputs = this.data( 'form' ).find( ':input' ).not( currentInputs ).attr( 'disabled', true ).end();
+			allInputs = this.data( 'form' )
+				.find( ':input' )
+				.not( currentInputs )
+				.attr( 'disabled', true )
+				.end();
 
 			partialFormData = new FormData( this.data( 'form' ).get( 0 ) );
 			partialFormData.append( 'ajax', '1' );
@@ -62,7 +64,7 @@
 				type: 'POST',
 				data: partialFormData,
 				processData: false,
-				contentType: false
+				contentType: false,
 			} ).complete( function( xhr ) {
 				submittedRow.html( xhr.responseText );
 			} );
@@ -72,23 +74,23 @@
 			return this;
 		},
 
-		addRow : function() {
+		addRow: function() {
 			var row = this.data( 'row' ).clone();
 			row.appendTo( this.data( 'tbody' ) );
 			row.find( ':input:first' ).focus();
 
 			return this;
-		}
+		},
 	};
 
 	$.fn.manyItemsTable = function( method ) {
 		// Method calling logic
-		if ( methods[method] ) {
+		if ( methods[ method ] ) {
 			return methods[ method ].apply( this, Array.prototype.slice.call( arguments, 1 ) );
 		} else if ( typeof method === 'object' || ! method ) {
 			return methods.init.apply( this, arguments );
 		} else {
-			$.error( 'Method ' +  method + ' does not exist on jQuery.manyItemsTable' );
+			$.error( 'Method ' + method + ' does not exist on jQuery.manyItemsTable' );
 			return this;
 		}
 	};
@@ -97,11 +99,12 @@
 		var tbody = this.find( 'tbody:last' ),
 			row = tbody.find( 'tr:first' ).clone();
 
-		$( row ).find( 'input, textarea' ).val( '' );
+		$( row )
+			.find( 'input, textarea' )
+			.val( '' );
 		$( row ).appendTo( tbody );
 	};
-
-})( jQuery );
+} )( jQuery );
 
 jQuery( '.many-items-table' ).one( 'focus', ':input', function( event ) {
 	jQuery( event.delegateTarget ).manyItemsTable();
@@ -109,4 +112,3 @@ jQuery( '.many-items-table' ).one( 'focus', ':input', function( event ) {
 jQuery( '.many-items-table' ).on( 'click', 'a.nova-new-row', function( event ) {
 	jQuery( event.delegateTarget ).clickAddRow();
 } );
-

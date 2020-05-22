@@ -4,9 +4,11 @@ Plugin Name: Milestone
 Description: Countdown to a specific date.
 Version: 1.0
 Author: Automattic Inc.
-Author URI: http://automattic.com/
+Author URI: https://automattic.com/
 License: GPLv2 or later
 */
+
+use Automattic\Jetpack\Assets;
 
 function jetpack_register_widget_milestone() {
 	register_widget( 'Milestone_Widget' );
@@ -62,7 +64,7 @@ class Milestone_Widget extends WP_Widget {
 			wp_enqueue_style( 'milestone-admin', self::$url . 'style-admin.css', array(), '20161215' );
 			wp_enqueue_script(
 				'milestone-admin-js',
-				Jetpack::get_file_url_for_environment(
+				Assets::get_file_url_for_environment(
 					'_inc/build/widgets/milestone/admin.min.js',
 					'modules/widgets/milestone/admin.js'
 				),
@@ -74,13 +76,17 @@ class Milestone_Widget extends WP_Widget {
 	}
 
 	public static function enqueue_template() {
+		if ( Jetpack_AMP_Support::is_amp_request() ) {
+			return;
+		}
+
 		wp_enqueue_script(
 			'milestone',
-			Jetpack::get_file_url_for_environment(
+			Assets::get_file_url_for_environment(
 				'_inc/build/widgets/milestone/milestone.min.js',
 				'modules/widgets/milestone/milestone.js'
 			),
-			array( 'jquery' ),
+			array(),
 			'20160520',
 			true
 		);
@@ -175,6 +181,10 @@ class Milestone_Widget extends WP_Widget {
 	 * Hooks into the "wp_footer" action.
 	 */
 	function localize_script() {
+		if ( Jetpack_AMP_Support::is_amp_request() ) {
+			return;
+		}
+
 		if ( empty( self::$config_js['instances'] ) ) {
 			wp_dequeue_script( 'milestone' );
 			return;
@@ -195,15 +205,23 @@ class Milestone_Widget extends WP_Widget {
 			echo $args['before_title'] . $title . $args['after_title'];
 		}
 
-		$data = $this->get_widget_data( $instance );
-
-		self::$config_js['instances'][] = array(
+		$data   = $this->get_widget_data( $instance );
+		$config = array(
 			'id'      => $args['widget_id'],
 			'message' => $data['message'],
-			'refresh' => $data['refresh']
+			'refresh' => $data['refresh'],
 		);
 
-		echo '<div class="milestone-content">';
+		/*
+		 * Sidebars may be configured to not expose the `widget_id`. Example: `twentytwenty` footer areas.
+		 *
+		 * We need our own unique identifier.
+		 */
+		$config['content_id'] = $args['widget_id'] . '-content';
+
+		self::$config_js['instances'][] = $config;
+
+		echo sprintf( '<div id="%s" class="milestone-content">', esc_html( $config['content_id'] ) );
 
 		echo '<div class="milestone-header">';
 		echo '<strong class="event">' . esc_html( $instance['event'] ) . '</strong>';
@@ -523,7 +541,7 @@ class Milestone_Widget extends WP_Widget {
 	 * Sanitize an instance of this widget.
 	 *
 	 * Date ranges match the documentation for mktime in the php manual.
-	 * @see http://php.net/manual/en/function.mktime.php#refsect1-function.mktime-parameters
+	 * @see https://php.net/manual/en/function.mktime.php#refsect1-function.mktime-parameters
 	 *
 	 * @uses Milestone_Widget::sanitize_range().
 	 */

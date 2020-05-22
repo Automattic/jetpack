@@ -15,10 +15,10 @@ describe( 'Navigation', () => {
 	let testProps = {
 			userCanManageModules: false,
 			userCanViewStats: false,
-			route: {
-				name: 'At a Glance',
-				path: '/dashboard'
+			location: {
+				pathname: '/dashboard'
 			},
+			routeName: 'At a Glance',
 			isModuleActivated: module => false
 		};
 	const wrapper = shallow( <Navigation { ...testProps } /> );
@@ -66,12 +66,12 @@ describe( 'Navigation', () => {
 
 		const wrapperManage = shallow( <Navigation { ...testProps } /> );
 
-		it( 'renders 2 NavItem components', () => {
-			expect( wrapperManage.find( 'NavItem' ) ).to.have.length( 2 );
+		it( 'renders 1 NavItem component', () => {
+			expect( wrapperManage.find( 'NavItem' ) ).to.have.length( 1 );
 		} );
 
-		it( 'renders tabs with At a Glance, Plans', () => {
-			expect( wrapperManage.find( 'NavItem' ).children().map( item => item.text() ).join() ).to.be.equal( 'At a Glance,Plans' );
+		it( 'renders At a Glance tab', () => {
+			expect( wrapperManage.find( 'NavItem' ).children().map( item => item.text() ).join() ).to.be.equal( 'At a Glance' );
 		} );
 
 	} );

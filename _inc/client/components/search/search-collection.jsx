@@ -25,16 +25,16 @@ class Hider extends React.Component {
 
 class FilterSummary extends React.Component {
 	static defaultProps = {
-		noResultsText: 'No Results Found'
+		noResultsText: 'No Results Found',
 	};
 
 	static propTypes = {
-		noResultsText: PropTypes.string
+		noResultsText: PropTypes.string,
 	};
 
 	render() {
 		if ( this.props.items.length === 0 ) {
-			return ( <p>{ this.props.noResultsText }</p> );
+			return <p>{ this.props.noResultsText }</p>;
 		}
 		return null;
 	}
@@ -43,12 +43,14 @@ class FilterSummary extends React.Component {
 export default class Collection extends React.Component {
 	static displayName = 'Collection';
 
-	shouldWeHide = ( example ) => {
+	shouldWeHide = example => {
 		const filter = this.props.filter || '';
 		let searchString = example.props.searchTerms;
 
 		if ( this.props.component ) {
-			return example.type.displayName.toLowerCase() !== this.props.component.replace( /-([a-z])/g, '$1' );
+			return (
+				example.type.displayName.toLowerCase() !== this.props.component.replace( /-([a-z])/g, '$1' )
+			);
 		}
 
 		if ( example.props.searchKeywords ) {
@@ -58,14 +60,14 @@ export default class Collection extends React.Component {
 		return ! ( ! filter || searchString.toLowerCase().indexOf( filter ) > -1 );
 	};
 
-	visibleExamples = ( examples ) => {
-		return examples.filter( ( child ) => {
+	visibleExamples = examples => {
+		return examples.filter( child => {
 			return ! child.props.hide;
 		} );
 	};
 
 	render() {
-		const examples = React.Children.map( this.props.children, ( example ) => {
+		const examples = React.Children.map( this.props.children, example => {
 			return (
 				<Hider hide={ this.shouldWeHide( example ) } key={ 'example-' + example.type.displayName }>
 					{ example }

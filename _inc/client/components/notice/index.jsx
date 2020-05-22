@@ -4,15 +4,14 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import classnames from 'classnames';
-import noop from 'lodash/noop';
+import { noop } from 'lodash';
 import onKeyDownCallback from 'utils/onkeydown-callback';
 
 /**
  * Internal dependencies
  */
 import Gridicon from 'components/gridicon';
-
-require( './style.scss' );
+import './style.scss';
 
 export default class SimpleNotice extends React.Component {
 	static displayName = 'SimpleNotice';
@@ -22,7 +21,7 @@ export default class SimpleNotice extends React.Component {
 		status: null,
 		showDismiss: true,
 		className: '',
-		onDismissClick: noop
+		onDismissClick: noop,
 	};
 
 	static propTypes = {
@@ -33,10 +32,10 @@ export default class SimpleNotice extends React.Component {
 		duration: PropTypes.number,
 		text: PropTypes.oneOfType( [
 			PropTypes.oneOfType( [ PropTypes.string, PropTypes.node ] ),
-			PropTypes.arrayOf( PropTypes.oneOfType( [ PropTypes.string, PropTypes.node ] ) )
+			PropTypes.arrayOf( PropTypes.oneOfType( [ PropTypes.string, PropTypes.node ] ) ),
 		] ),
 		icon: PropTypes.string,
-		className: PropTypes.string
+		className: PropTypes.string,
 	};
 
 	dismissTimeout = null;
@@ -87,7 +86,7 @@ export default class SimpleNotice extends React.Component {
 			showDismiss = ! isCompact, // by default, show on normal notices, don't show on compact ones
 			status,
 			text,
-			dismissText
+			dismissText,
 		} = this.props;
 		const classes = classnames( 'dops-notice', status, className, {
 			'is-compact': isCompact,
@@ -104,7 +103,13 @@ export default class SimpleNotice extends React.Component {
 				</span>
 				{ text ? children : null }
 				{ showDismiss && (
-					<span role="button" onKeyDown={ onKeyDownCallback( onDismissClick ) } tabIndex="0" className="dops-notice__dismiss" onClick={ onDismissClick }>
+					<span
+						role="button"
+						onKeyDown={ onKeyDownCallback( onDismissClick ) }
+						tabIndex="0"
+						className="dops-notice__dismiss"
+						onClick={ onDismissClick }
+					>
 						<Gridicon icon="cross" size={ 24 } />
 						<span className="dops-notice__screen-reader-text screen-reader-text">
 							{ dismissText }

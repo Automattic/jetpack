@@ -3,6 +3,7 @@
  */
 import React, { Component } from 'react';
 import { translate as __ } from 'i18n-calypso';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -10,13 +11,11 @@ import { translate as __ } from 'i18n-calypso';
 import analytics from 'lib/analytics';
 import Card from 'components/card';
 import { ModuleToggle } from 'components/module-toggle';
-import {
-	ModuleSettingsForm as moduleSettingsForm,
-} from 'components/module-settings/module-settings-form';
+import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 
-export const Monitor = moduleSettingsForm(
+export const Monitor = withModuleSettingsFormHelpers(
 	class extends Component {
 		trackConfigureClick = () => {
 			analytics.tracks.recordJetpackClick( 'configure-monitor' );
@@ -37,8 +36,10 @@ export const Monitor = moduleSettingsForm(
 						disableInDevMode
 						module={ this.props.getModule( 'monitor' ) }
 						support={ {
-							text: __( 'Keep tabs on your site and receive alerts the moment downtime is detected.' ),
-							link: 'https://jetpack.com/support/monitor/',
+							text: __(
+								'Jetpack will continuously monitor your site, and alert you the moment downtime is detected.'
+							),
+							link: getRedirectUrl( 'jetpack-support-monitor' ),
 						} }
 					>
 						<ModuleToggle
@@ -49,7 +50,9 @@ export const Monitor = moduleSettingsForm(
 							toggleModule={ this.props.toggleModuleNow }
 						>
 							<span className="jp-form-toggle-explanation">
-								{ __( "Monitor your site's downtime" ) }
+								{ __(
+									'Get alerts if your site goes offline. We’ll let you know when it’s back up, too.'
+								) }
 							</span>
 						</ModuleToggle>
 					</SettingsGroup>
@@ -58,7 +61,10 @@ export const Monitor = moduleSettingsForm(
 							compact
 							className="jp-settings-card__configure-link"
 							onClick={ this.trackConfigureClick }
-							href={ 'https://wordpress.com/settings/security/' + this.props.siteRawUrl }
+							target="_blank"
+							href={ getRedirectUrl( 'calypso-settings-security', {
+								site: this.props.siteRawUrl,
+							} ) }
 						>
 							{ __( 'Configure your notification settings' ) }
 						</Card>

@@ -1,17 +1,18 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
-/* eslint-disable jsx-a11y/onclick-has-role */
 /**
  * External dependencies
  */
-const PropTypes = require( 'prop-types' );
-const React = require( 'react' ),
-	classNames = require( 'classnames' );
+import PropTypes from 'prop-types';
+
+import React from 'react';
+import classNames from 'classnames';
 
 /**
  * Internal dependencies
  */
-const Tooltip = require( 'components/tooltip' ),
-	Gridicon = require( 'components/gridicon' );
+import Tooltip from 'components/tooltip';
+
+import Gridicon from 'components/gridicon';
 
 export default class ModuleChartBar extends React.Component {
 	static displayName = 'ModuleChartBar';
@@ -23,7 +24,7 @@ export default class ModuleChartBar extends React.Component {
 		clickHandler: PropTypes.func,
 		data: PropTypes.object.isRequired,
 		max: PropTypes.number,
-		count: PropTypes.number
+		count: PropTypes.number,
 	};
 
 	state = { showPopover: false };
@@ -39,20 +40,20 @@ export default class ModuleChartBar extends React.Component {
 			spacerClassOptions = {
 				'dops-chart__bar-section': true,
 				'is-spacer': true,
-				'is-ghost': ( 100 === remain ) && ! this.props.active
+				'is-ghost': 100 === remain && ! this.props.active,
 			};
-		let nestedBar,
-			nestedPercentage,
-			nestedStyle;
+		let nestedBar, nestedPercentage, nestedStyle;
 
 		const remainStyle = {
-			height: remainFloor + '%'
+			height: remainFloor + '%',
 		};
 
-		sections.push( <div key="spacer" className={ classNames( spacerClassOptions ) } style={ remainStyle } /> );
+		sections.push(
+			<div key="spacer" className={ classNames( spacerClassOptions ) } style={ remainStyle } />
+		);
 
 		const valueStyle = {
-			top: remainFloor + '%'
+			top: remainFloor + '%',
 		};
 
 		if ( nestedValue ) {
@@ -60,18 +61,33 @@ export default class ModuleChartBar extends React.Component {
 
 			nestedStyle = { height: nestedPercentage + '%' };
 
-			nestedBar = ( <div key="nestedValue" className="dops-chart__bar-section-inner" style={ nestedStyle } /> );
+			nestedBar = (
+				<div key="nestedValue" className="dops-chart__bar-section-inner" style={ nestedStyle } />
+			);
 		}
 
-		sections.push( <div ref="valueBar" key="value" className="dops-chart__bar-section is-bar" style={ valueStyle }>{ nestedBar }</div> );
+		sections.push(
+			<div
+				ref="valueBar"
+				key="value"
+				className="dops-chart__bar-section is-bar"
+				style={ valueStyle }
+			>
+				{ nestedBar }
+			</div>
+		);
 
-		sections.push( <div key="label" className="dops-chart__bar-label">{ this.props.label }</div> );
+		sections.push(
+			<div key="label" className="dops-chart__bar-label">
+				{ this.props.label }
+			</div>
+		);
 
 		return sections;
 	};
 
 	clickHandler = () => {
-		if ( 'function' === typeof( this.props.clickHandler ) ) {
+		if ( 'function' === typeof this.props.clickHandler ) {
 			this.props.clickHandler( this.props.data );
 		}
 	};
@@ -100,16 +116,19 @@ export default class ModuleChartBar extends React.Component {
 			let gridiconSpan;
 
 			if ( options.icon ) {
-				gridiconSpan = ( <Gridicon icon={ options.icon } size={ 18 } /> );
+				gridiconSpan = <Gridicon icon={ options.icon } size={ 18 } />;
 			}
 
 			wrapperClasses.push( options.className );
 
 			return (
-				<li key={ i } className={ wrapperClasses.join( ' ' ) } >
+				<li key={ i } className={ wrapperClasses.join( ' ' ) }>
 					<span className="dops-wrapper">
 						<span className="value">{ options.value }</span>
-						<span className="label">{ gridiconSpan }{ options.label }</span>
+						<span className="label">
+							{ gridiconSpan }
+							{ options.label }
+						</span>
 					</span>
 				</li>
 			);
@@ -124,9 +143,7 @@ export default class ModuleChartBar extends React.Component {
 				isVisible={ this.state.showPopover }
 				position={ this.props.tooltipPosition }
 			>
-				<ul>
-					{ listItemElements }
-				</ul>
+				<ul>{ listItemElements }</ul>
 			</Tooltip>
 		);
 	};
@@ -140,19 +157,23 @@ export default class ModuleChartBar extends React.Component {
 		}
 
 		const barStyle = {
-			width: ( ( 1 / count ) * 100 ) + '%'
+			width: ( 1 / count ) * 100 + '%',
 		};
 
 		return (
-			<div onClick={ this.clickHandler }
+			<div
+				role="button"
+				tabIndex={ 0 }
+				onClick={ this.clickHandler }
 				onMouseEnter={ this.mouseEnter }
 				onMouseLeave={ this.mouseLeave }
 				className={ classNames( barClass ) }
-				style={ barStyle }>
+				style={ barStyle }
+			>
 				{ this.buildSections() }
-				<div className="dops-chart__bar-marker is-hundred"></div>
-				<div className="dops-chart__bar-marker is-fifty"></div>
-				<div className="dops-chart__bar-marker is-zero"></div>
+				<div className="dops-chart__bar-marker is-hundred" />
+				<div className="dops-chart__bar-marker is-fifty" />
+				<div className="dops-chart__bar-marker is-zero" />
 				{ this.renderTooltip() }
 			</div>
 		);

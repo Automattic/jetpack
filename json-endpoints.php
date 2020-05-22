@@ -42,6 +42,7 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-roles-endpoint.ph
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-terms-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-users-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-site-user-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-bulk-update-comments-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-comment-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-media-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-post-endpoint.php' );

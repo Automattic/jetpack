@@ -1,129 +1,94 @@
 /**
  * External dependencies
  */
-import PropTypes from 'prop-types';
-import React from 'react';
-import { Component } from 'react';
+import React, { Component } from 'react';
 import { translate as __ } from 'i18n-calypso';
-import Button from 'components/button';
-import { connect } from 'react-redux';
 
 /**
  * Internal dependencies
  */
-import JetpackDialogue from 'components/jetpack-dialogue';
-import decodeEntities from 'lib/decode-entities';
-import { imagePath } from 'constants/urls';
-import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
-import { getModule } from 'state/modules';
-import { ModuleToggle } from 'components/module-toggle';
-import SettingsGroup from 'components/settings-group';
-const UpgradeNoticeContent = moduleSettingsForm(
+import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import analytics from 'lib/analytics';
+import ModernOverlay from 'components/jetpack-dialogue-modern';
+
+const UpgradeNoticeContent = withModuleSettingsFormHelpers(
 	class extends Component {
-		toggleModule = ( name, value ) => {
-			this.props.updateOptions( { [ name ]: ! value } );
+		componentDidMount() {
+			jQuery( 'body' ).addClass( 'jp-dialogue-modern-showing' );
+			analytics.tracks.recordEvent( 'jetpack_warm_welcome_view', { version: this.props.version } );
+		}
+
+		componentWillUnmount() {
+			jQuery( 'body' ).removeClass( 'jp-dialogue-modern-showing' );
+		}
+
+		trackLearnMoreClick = () => {
+			analytics.tracks.recordJetpackClick( {
+				target: 'warm_welcome_view_editor',
+				version: this.props.version,
+			} );
+		};
+
+		dismissNotice = () => {
+			analytics.tracks.recordJetpackClick( {
+				target: 'warm_welcome_dismiss',
+				version: this.props.version,
+			} );
+
+			this.props.dismiss();
 		};
 
 		renderInnerContent() {
-			const lazyImages = this.props.module( 'lazy-images' );
+			const domparser = new DOMParser();
+			const dom_content = domparser.parseFromString( this.props.releasePostContent, 'text/html' );
+			const els = dom_content.getElementsByTagName( 'a' );
+			for ( let i = 0; i < els.length; i++ ) {
+				els[ i ].setAttribute( 'target', '_blank' );
+				els[ i ].setAttribute( 'rel', 'noopener noreferrer' );
+			}
+			const content = dom_content.body.innerHTML;
+
+			/*eslint-disable react/no-danger*/
 			return (
-				<div>
-					<p>
-						{ __( 'This release of Jetpack brings major new features and big improvements to your WordPress site.' ) }
-					</p>
-
-					<h2>
-						{ __( 'Speed up your site and its content' ) }
-					</h2>
-
-					<p>
-						{ __( 'Sites with large numbers of images can now activate the Lazy Loading Images feature, which significantly ' +
-							'speeds up loading times for visitors. Instead of waiting for the entire page to load, ' +
-							'Jetpack will instead show pages instantly, and only download additional images when they are about to come into view.' ) }
-					</p>
-
-					<p>
-						{ __( 'If this sounds like a great improvement (and it is) you can enable it now by clicking the toggle below.' ) }
-					</p>
-
-					<div className="jp-upgrade-notice__enable-module">
-
-						<SettingsGroup
-							hasChild
-							disableInDevMode
-							module={ lazyImages }>
-
-							<ModuleToggle
-								slug="lazy-images"
-								disabled={ false }
-								activated={ this.props.getOptionValue( 'lazy-images' ) }
-								toggling={ this.props.isSavingAnyOption( 'lazy-images' ) }
-								toggleModule={ this.toggleModule }
-							>
-								<span className="jp-form-toggle-explanation">
-									{ decodeEntities( lazyImages.description ) }
-								</span>
-							</ModuleToggle>
-						</SettingsGroup>
-					</div>
-
-					<p>
-						{ __( 'We have also upgraded all our Premium plan customers to unlimited high-speed video storage ' +
-							'(up from 13GB), and significantly reduced the CSS and JavaScript assets that Jetpack downloads ' +
-							'when using features like infinite scroll and embedding rich content.' ) }
-					</p>
-
-					<h2>
-						{ __( 'Faster, more relevant search results' ) }
-					</h2>
-
-					<a href="https://wp.me/p1moTy-731" rel="noopener noreferrer" target="_blank">
-						<img src="https://jetpackme.files.wordpress.com/2018/02/jetpack-elasticsearch-powered-search.png" width="700" alt={ __( 'Elasticsearch' ) } />
-					</a>
-
-					<p>
-						{ __( 'Our faster site search is now available to all Professional' +
-							' plan customers. This replaces the default WordPress search with an Elasticsearch-powered infrastructure that returns faster, more ' +
-							'relevant results to users.' ) }
-					</p>
-
-					<div className="jp-dialogue__cta-container">
-						<Button
-							primary={ true }
-							href="https://jetpack.com/?p=27095"
-						>
-							{ __( 'Read the full announcement!' ) }
-						</Button>
-
-						<p className="jp-dialogue__note">
-							<a href="https://jetpack.com/pricing">{ __( 'Compare paid plans' ) }</a>
-						</p>
-					</div>
+				<div className="jp-upgrade-notice__content">
+					{ /*
+					 * The release post content is santized before reaching this point.
+					 * See Jetpack::send_update_modal_data().
+					 */ }
+					<div dangerouslySetInnerHTML={ { __html: content } } />
 				</div>
 			);
+			/*eslint-enable react/no-danger*/
 		}
 
 		render() {
+			const { featuredImage } = this.props;
+			let featuredImageComponent = null,
+				{ title } = this.props;
+
+			if ( featuredImage && featuredImage.length > 0 ) {
+				featuredImageComponent = <img src={ featuredImage } alt={ '' } />;
+			}
+
+			if ( ! title || 0 === title.length ) {
+				title = __( 'New in Jetpack %(version)s', {
+					args: {
+						version: this.props.version,
+					},
+					comment: '%(version) is a version number.',
+				} );
+			}
+
 			return (
-				<JetpackDialogue
-					svg={ <img src={ imagePath + 'jetpack-search.svg' } width="250" alt={ __( 'Jetpack Search' ) } /> }
-					title={ __( 'Major new features from Jetpack' ) }
+				<ModernOverlay
+					svg={ featuredImageComponent }
+					title={ title }
 					content={ this.renderInnerContent() }
-					dismiss={ this.props.dismiss }
+					dismiss={ this.dismissNotice }
 				/>
 			);
 		}
 	}
 );
 
-JetpackDialogue.propTypes = {
-	dismiss: PropTypes.func
-};
-
-export default connect(
-	( state ) => {
-		return {
-			module: ( module_name ) => getModule( state, module_name ),
-		};
-	}
-)( UpgradeNoticeContent );
+export default UpgradeNoticeContent;

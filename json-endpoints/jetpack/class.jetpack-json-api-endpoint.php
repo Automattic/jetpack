@@ -58,7 +58,7 @@ abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 * Switches to the blog and checks current user capabilities.
 	 * @return bool|WP_Error a WP_Error object or true if things are good.
 	 */
-	protected function validate_call( $_blog_id, $capability, $check_manage_active = true ) {
+	protected function validate_call( $_blog_id, $capability, $check_validation = true ) {
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $_blog_id ) );
 		if ( is_wp_error( $blog_id ) ) {
 			return $blog_id;
@@ -68,7 +68,20 @@ abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
 			return $error;
 		}
 
-		if ( $check_manage_active &&  'GET' !== $this->method && ! Jetpack::is_module_active( 'manage' ) ) {
+		if (
+			$check_validation &&
+			'GET' !== $this->method &&
+			/**
+			 * Filter to disallow JSON API requests to the site.
+			 * Setting to false disallows you to manage your site remotely from WordPress.com
+			 * and disallows plugin auto-updates.
+			 *
+			 * @since 7.3.0
+			 *
+			 * @param bool $check_validation Whether to allow API requests to manage the site
+			 */
+			! apply_filters( 'jetpack_json_manage_api_enabled', $check_validation )
+		) {
 			return new WP_Error( 'unauthorized_full_access', __( 'Full management mode is off for this site.', 'jetpack' ), 403 );
 		}
 

@@ -5,16 +5,16 @@ import PropTypes from 'prop-types';
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
 import classNames from 'classnames';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
  */
 import JetpackBanner from 'components/jetpack-banner';
 
-require( './style.scss' );
+import './style.scss';
 
 class ModuleOverridenBanner extends JetpackBanner {
-
 	static propTypes = {
 		moduleName: PropTypes.string.isRequired,
 	};
@@ -28,17 +28,17 @@ class ModuleOverridenBanner extends JetpackBanner {
 
 		const translationArgs = {
 			args: {
-				moduleName: this.props.moduleName
+				moduleName: this.props.moduleName,
 			},
 			components: {
 				link: (
 					<a
-						href="http://jetpack.com/support/module-overrides/"
+						href={ getRedirectUrl( 'jetpack-support-module-overrides' ) }
 						target="_blank"
 						rel="noopener noreferrer"
 					/>
-				)
-			}
+				),
+			},
 		};
 
 		const classes = classNames( 'module-overridden-banner', {
@@ -57,7 +57,6 @@ class ModuleOverridenBanner extends JetpackBanner {
 			/>
 		);
 	}
-
 }
 
 export default ModuleOverridenBanner;

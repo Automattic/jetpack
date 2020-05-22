@@ -1,0 +1,26 @@
+@import '~@wordpress/base-styles/z-index';
+@import '~@wordpress/base-styles/colors';
+@import '~@wordpress/base-styles/variables';
+@import '~@wordpress/base-styles/breakpoints';
+@import '~@wordpress/base-styles/mixins';
+@import '~@wordpress/base-styles/animations';
+
+/**
+ * Following is a fix for column contents overflowing the parent container
+ * when vertically aligned. This has been taken from newer versions of
+ * Gutenberg and WP core to provide the fix for WP 5.3.
+ *
+ * TO-DO: remove once the minimum WP version required by Jetpack is WP 5.4.
+ *
+ * Issue: https://github.com/Automattic/jetpack/issues/14524
+ *
+ * See: https://github.com/WordPress/gutenberg/commit/bef41793a12b76a5220d177a768f8fe56deb5eba
+ * See: https://github.com/WordPress/WordPress/commit/f616ffb9c1a0abcdbe3306fd9e695ef3173a18c6
+ */
+.wp-block-column {
+	&.is-vertically-aligned-top,
+	&.is-vertically-aligned-center,
+	&.is-vertically-aligned-bottom {
+		width: 100%;
+	}
+}

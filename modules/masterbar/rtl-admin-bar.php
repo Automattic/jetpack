@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 if ( ! class_exists( 'WP_Admin_Bar' ) ) {
 	require_once ABSPATH . '/wp-includes/class-wp-admin-bar.php';
@@ -11,7 +11,10 @@ if ( ! class_exists( 'WP_Admin_Bar' ) ) {
  * the output of render method should be the same as the one of base class.
  */
 class RTL_Admin_Bar extends WP_Admin_Bar {
-	function render() {
+	/**
+	 * Display the admin bar.
+	 */
+	public function render() {
 		global $is_IE;
 		$root = $this->_bind();
 
@@ -31,9 +34,9 @@ class RTL_Admin_Bar extends WP_Admin_Bar {
 		}
 
 		?>
-		<div id="wpadminbar" class="<?php echo $class; ?>">
+		<div id="wpadminbar" class="<?php echo esc_attr( $class ); ?>">
 			<?php if ( ! is_admin() ) : ?>
-				<a class="screen-reader-shortcut" href="#wp-toolbar" tabindex="1"><?php _e( 'Skip to toolbar', 'jetpack' ); ?></a>
+				<a class="screen-reader-shortcut" href="#wp-toolbar" tabindex="1"><?php esc_html_e( 'Skip to toolbar', 'jetpack' ); ?></a>
 			<?php endif; ?>
 			<div class="quicklinks" id="wp-toolbar" role="navigation" aria-label="<?php esc_attr_e( 'Toolbar', 'jetpack' ); ?>" tabindex="0">
 				<?php
@@ -43,7 +46,7 @@ class RTL_Admin_Bar extends WP_Admin_Bar {
 				?>
 			</div>
 			<?php if ( is_user_logged_in() ) : ?>
-				<a class="screen-reader-shortcut" href="<?php echo esc_url( wp_logout_url() ); ?>"><?php _e( 'Log Out', 'jetpack' ); ?></a>
+				<a class="screen-reader-shortcut" href="<?php echo esc_url( wp_logout_url() ); ?>"><?php esc_html_e( 'Log Out', 'jetpack' ); ?></a>
 			<?php endif; ?>
 		</div>
 

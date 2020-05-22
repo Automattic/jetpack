@@ -4,14 +4,3 @@
 // Buttons
 // ==========================================================================
 
-.jp-jetpack-connect__button {
-	background: $green-primary;
-	border-color: $green-secondary;
-	color: $white;
-
-	&:hover, &:focus {
-		background: $green-secondary;
-		border-color: $green-dark;
-		color: $white;
-	}
-}

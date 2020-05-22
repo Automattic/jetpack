@@ -6,13 +6,17 @@
 // load the module from `node_modules/` instead of the core’s `events.js`
 // file. Webpack uses the same module on the client side, too, which
 // makes for a nice consistency.
-const EventEmitter = require( 'events/' ).EventEmitter,
-	assign = require( 'lodash/assign' );
 
-module.exports = function( prototype ) {
+/**
+ * External Dependencies
+ */
+import { assign } from 'lodash';
+import { EventEmitter } from 'events';
+
+export default function( prototype ) {
 	assign( prototype, EventEmitter.prototype );
 	prototype.emitChange = function() {
 		this.emit( 'change' );
 	};
 	prototype.off = prototype.removeListener;
-};
+}

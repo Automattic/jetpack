@@ -1,36 +1,40 @@
 /* global FB, jpfbembed */
-(function( window ) {
+( function( window ) {
 	var facebookEmbed = function() {
-		var fbroot, src;
+		var fbroot, src, newScript, firstScript;
 
 		if ( 'undefined' !== typeof FB && FB.XFBML ) {
 			FB.XFBML.parse();
 		} else {
 			fbroot = document.createElement( 'div' );
 			fbroot.id = 'fb-root';
-			document.getElementsByTagName( 'body' )[0].appendChild( fbroot );
+			document.getElementsByTagName( 'body' )[ 0 ].appendChild( fbroot );
 
 			src = '//connect.facebook.net/' + jpfbembed.locale + '/sdk.js#xfbml=1';
 			if ( jpfbembed.appid ) {
 				src += '&appId=' + jpfbembed.appid;
 			}
 			src += '&version=v2.3';
-			jQuery.getScript( src );
+
+			newScript = document.createElement( 'script' );
+			newScript.setAttribute( 'src', src );
+			firstScript = document.querySelector( 'script' );
+			firstScript.parentNode.insertBefore( newScript, firstScript );
 		}
 	};
 
 	window.fbAsyncInit = function() {
 		FB.init( {
-			appId  : jpfbembed.appid,
-			version: 'v2.3'
+			appId: jpfbembed.appid,
+			version: 'v2.3',
 		} );
 
 		FB.XFBML.parse();
 	};
 
 	if ( 'undefined' !== typeof infiniteScroll ) {
-		jQuery( document.body ).on( 'post-load', facebookEmbed );
+		document.body.addEventListener( 'post-load', facebookEmbed );
 	}
 
 	facebookEmbed();
-})( this );
+} )( this );

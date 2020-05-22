@@ -2,7 +2,7 @@
 
 /**
  * lessphp v0.5.0
- * http://leafo.net/lessphp
+ * https://leafo.net/lessphp
  *
  * LESS CSS compiler, adapted from http://lesscss.org
  *
@@ -746,7 +746,7 @@ class lessc {
 					if ($suffix !== null &&
 						$subProp[0] == "assign" &&
 						is_string($subProp[1]) &&
-						$subProp[1]{0} != $this->vPrefix)
+						$subProp[1][0] != $this->vPrefix)
 					{
 						$subProp[2] = array(
 							'list', ' ',
@@ -999,14 +999,7 @@ class lessc {
 			// IE8 can't handle data uris larger than 32KB
 			if($fsize/1024 < 32) {
 				if(is_null($mime)) {
-					if(class_exists('finfo')) { // php 5.3+
-						// phpcs:ignore PHPCompatibility.PHP.NewClasses.finfoFound
-						$finfo = new finfo(FILEINFO_MIME);
-						$mime = explode('; ', $finfo->file($fullpath));
-						$mime = $mime[0];
-					} elseif(function_exists('mime_content_type')) { // PHP 5.2
-						$mime = mime_content_type($fullpath);
-					}
+					$mime = jetpack_mime_content_type( $fullpath );
 				}
 
 				if(!is_null($mime)) // fallback if the mime type is still unknown
@@ -1202,7 +1195,7 @@ class lessc {
 
 	// mixes two colors by weight
 	// mix(@color1, @color2, [@weight: 50%]);
-	// http://sass-lang.com/docs/yardoc/Sass/Script/Functions.html#mix-instance_method
+	// https://sass-lang.com/documentation/functions/color#mix
 	protected function lib_mix($args) {
 		if ($args[0] != "list" || count($args[2]) < 2)
 			$this->throwError("mix expects (color1, color2, weight)");
@@ -1858,7 +1851,7 @@ class lessc {
 		$this->pushEnv();
 		$parser = new lessc_parser($this, __METHOD__);
 		foreach ($args as $name => $strValue) {
-			if ($name{0} != '@') $name = '@'.$name;
+			if ($name[0] != '@') $name = '@'.$name;
 			$parser->count = 0;
 			$parser->buffer = (string)$strValue;
 			if (!$parser->propertyValue($value)) {
@@ -2517,7 +2510,7 @@ class lessc_parser {
 				$hidden = true;
 				if (!isset($block->args)) {
 					foreach ($block->tags as $tag) {
-						if (!is_string($tag) || $tag{0} != $this->lessc->mPrefix) {
+						if (!is_string($tag) || $tag[0] != $this->lessc->mPrefix) {
 							$hidden = false;
 							break;
 						}
@@ -2571,7 +2564,7 @@ class lessc_parser {
 	protected function fixTags($tags) {
 		// move @ tags out of variable namespace
 		foreach ($tags as &$tag) {
-			if ($tag{0} == $this->lessc->vPrefix)
+			if ($tag[0] == $this->lessc->vPrefix)
 				$tag[0] = $this->lessc->mPrefix;
 		}
 		return $tags;
@@ -2593,7 +2586,7 @@ class lessc_parser {
 
 	/**
 	 * Attempt to consume an expression.
-	 * @link http://en.wikipedia.org/wiki/Operator-precedence_parser#Pseudo-code
+	 * @link https://en.wikipedia.org/wiki/Operator-precedence_parser#Pseudo-code
 	 */
 	protected function expression(&$out) {
 		if ($this->value($lhs)) {

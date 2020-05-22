@@ -1,3 +1,5 @@
+@import '../../scss/calypso-colors';
+
 .jp-dash-item {
 	.jp-dash-item__content a {
 		font-style: italic;
@@ -33,9 +35,9 @@
 	font-weight: 500;
 	font-size: rem( 32px );
 	display: inline-block;
-	border: 1px solid $dashboard-number-border;
+	border: 1px solid $light-gray-700;
 	border-radius: 4px;
-	padding: 0px 4px;
+	padding: 0 4px;
 	min-width: 36px;
 	text-align: center;
 
@@ -45,6 +47,23 @@
 
 	+ .jp-dash-item__description {
 		max-width: 61%;
+	}
+	&.is-alert {
+		color: $white;
+		background: $alert-red;
+		border-color: $alert-red;
+	}
+}
+
+.jp-dash-item__title {
+	max-width: calc( 100% - 18px ); // For the support icon
+
+	&.jp-dash-item__title_fullwidth {
+		flex-basis: 100%;
+	}
+
+	&.jp-dash-item__title_top {
+		margin-top: 0;
 	}
 }
 
@@ -72,13 +91,14 @@
 .jp-dash-item {
 	.dops-section-header__actions {
 		.dops-notice {
-			margin-top: rem( 2px );
+			margin-top: rem( -1px );
+			margin-bottom: rem( -1px );
 		}
 	}
 }
 .jp-dash-item__active-label {
 	display: inline-block;
-	padding: rem( 6px ) 0;
+	padding: rem( 6px ) 0 0;
 	color: darken( $gray, 10% );
 	color: $gray;
 	font-size: rem( 12px );
@@ -88,15 +108,12 @@
 
 // conditional styles for content when items are inactive
 .jp-dash-item__is-inactive {
-	.dops-card {
-		background-color: $gray-light;
-	}
 	.dops-section-header__label {
 		padding-right: rem( 8px );
 	}
 	.dops-section-header__label-text {
 		&:before {
-			@include long-content-fade( $size: 8px, $color : $gray-light );
+			@include long-content-fade( $size: 8px, $color : $white );
 		}
 	}
 	.jp-dash-item__description {

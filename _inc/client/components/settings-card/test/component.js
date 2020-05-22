@@ -5,6 +5,7 @@ import React from 'react';
 import { expect } from 'chai';
 import { shallow } from 'enzyme';
 import sinon from 'sinon';
+import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
@@ -19,7 +20,7 @@ describe( 'SettingsCard', () => {
 		getModule: () => (
 			{
 				name: 'Comments',
-				learn_more_button: 'https://jetpack.com/support/protect'
+				learn_more_button: getRedirectUrl( 'jetpack-support-protect' )
 			}
 		),
 		isSavingAnyOption: () => false,
@@ -37,7 +38,6 @@ describe( 'SettingsCard', () => {
 
 	const allCardsNonAdminCantAccess = [
 			'widget-visibility',
-			'minileven',
 			'contact-form',
 			'sitemaps',
 			'latex',
@@ -73,7 +73,6 @@ describe( 'SettingsCard', () => {
 			'photon'
 		],
 		allCardsForNonAdmin = [
-			'composing',
 			'post-by-email'
 		];
 
@@ -95,7 +94,7 @@ describe( 'SettingsCard', () => {
 
 		Object.assign( testProps, {
 			header: 'A custom header',
-			support: 'https://jetpack.com/'
+			support: getRedirectUrl( 'jetpack' )
 		} );
 
 		const wrapper = shallow( <SettingsCard { ...testProps } ><p>Child</p></SettingsCard> );
@@ -172,13 +171,13 @@ describe( 'SettingsCard', () => {
 			userCanManageModules: false
 		} );
 
-		it( 'does not render cards that are not Composing or Post by Email', () => {
+		it( 'does not render cards that are not Post by Email', () => {
 			allCardsNonAdminCantAccess.forEach( item => {
 				expect( shallow( <SettingsCard { ...testProps } module={ item } ><p>Child</p></SettingsCard> ).find( 'form' ) ).to.have.length( 0 );
 			} );
 		} );
 
-		it( 'renders Composing and Post by Email cards', () => {
+		it( 'renders Post by Email cards', () => {
 			allCardsForNonAdmin.forEach( item => {
 				expect( shallow( <SettingsCard { ...testProps } module={ item } ><p>Child</p></SettingsCard> ).find( 'form' ) ).to.have.length( 1 );
 			} );

@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+
 /**
 * Required for class.media-extractor.php to match expected function naming convention.
 *
@@ -22,7 +24,7 @@ function jetpack_get_youtube_id( $url ) {
 	}
 
 	$url = youtube_sanitize_url( $url );
-	$url = parse_url( $url );
+	$url = wp_parse_url( $url );
 	$id  = false;
 
 	if ( ! isset( $url['query'] ) )
@@ -54,7 +56,7 @@ function youtube_sanitize_url( $url ) {
 	$url = trim( $url );
 	$url = str_replace( array( 'youtu.be/', '/v/', '#!v=', '&amp;', '&#038;', 'playlist' ), array( 'youtu.be/?v=', '/?v=', '?v=', '&', '&', 'videoseries' ), $url );
 
-	// Replace any extra question marks with ampersands - the result of a URL like "http://www.youtube.com/v/9FhMMmqzbD8?fs=1&hl=en_US" being passed in.
+	// Replace any extra question marks with ampersands - the result of a URL like "https://www.youtube.com/v/9FhMMmqzbD8?fs=1&hl=en_US" being passed in.
 	$query_string_start = strpos( $url, "?" );
 
 	if ( false !== $query_string_start ) {
@@ -88,3 +90,11 @@ if ( ! function_exists( 'wp_in' ) ) :
 		return false !== strpos( $haystack, $needle );
 	}
 endif;
+
+/**
+ * @deprecated 7.5 Use Connection_Manager instead.
+ */
+function jetpack_sha1_base64( $text ) {
+	$connection = new Connection_Manager();
+	return $connection->sha1_base64( $text );
+}

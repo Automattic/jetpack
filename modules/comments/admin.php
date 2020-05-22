@@ -24,7 +24,7 @@ class Jetpack_Comments_Settings {
 	public static function init() {
 		static $instance = false;
 
-		if ( !$instance ) {
+		if ( ! $instance ) {
 			$instance = new Jetpack_Comments_Settings( Jetpack_Comments::init() );
 		}
 
@@ -51,9 +51,9 @@ class Jetpack_Comments_Settings {
 
 		// Possible color schemes
 		$this->color_schemes = array(
-			'light'        => __( 'Light',        'jetpack' ),
-			'dark'         => __( 'Dark',         'jetpack' ),
-			'transparent'  => __( 'Transparent',  'jetpack' ),
+			'light'       => __( 'Light', 'jetpack' ),
+			'dark'        => __( 'Dark', 'jetpack' ),
+			'transparent' => __( 'Transparent', 'jetpack' ),
 		);
 	}
 
@@ -128,7 +128,8 @@ class Jetpack_Comments_Settings {
 	public function comment_form_greeting_setting() {
 
 		// The greeting
-		$greeting = get_option( 'highlander_comment_form_prompt', $this->default_greeting ); ?>
+		$greeting = get_option( 'highlander_comment_form_prompt', $this->default_greeting );
+		?>
 
 		<input type="text" name="highlander_comment_form_prompt" id="jetpack-comment-form-greeting" value="<?php echo esc_attr( $greeting ); ?>" class="regular-text">
 		<p class="description"><?php _e( 'A few catchy words to motivate your readers to comment', 'jetpack' ); ?></p>
@@ -162,12 +163,13 @@ class Jetpack_Comments_Settings {
 	public function comment_form_color_scheme_setting() {
 
 		// The color scheme
-		$scheme = get_option( 'jetpack_comment_form_color_scheme', $this->jetpack_comments->default_color_scheme ); ?>
+		$scheme = get_option( 'jetpack_comment_form_color_scheme', $this->jetpack_comments->default_color_scheme );
+		?>
 
 		<fieldset>
 			<legend class="screen-reader-text"><?php _e( 'Color Scheme', 'jetpack' ); ?></legend>
 
-			<?php foreach( $this->color_schemes as $key => $label ) : ?>
+			<?php foreach ( $this->color_schemes as $key => $label ) : ?>
 
 				<label>
 					<input type="radio" name="jetpack_comment_form_color_scheme" id="jetpack-comment-form-color-scheme" value="<?php echo $key; ?>" <?php checked( $scheme, $key ); ?>>
@@ -193,7 +195,7 @@ class Jetpack_Comments_Settings {
 
 		// Delete the option if it's...
 		if (
-			empty( $val ) || !in_array( $val, array_keys( $this->color_schemes ) ) // ... unknown
+			empty( $val ) || ! in_array( $val, array_keys( $this->color_schemes ) ) // ... unknown
 		||
 			$val == $this->jetpack_comments->default_color_scheme // ... or the default
 		) {

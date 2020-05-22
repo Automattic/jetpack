@@ -3,14 +3,12 @@
 /**
  * External Dependencies
  */
-const React = require( 'react' );
+import React from 'react';
 
 class SelectDropdownSeparator extends React.Component {
 	render() {
-		return (
-			<li className="dops-select-dropdown__separator" />
-		);
+		return <li className="dops-select-dropdown__separator" />;
 	}
 }
 
-module.exports = SelectDropdownSeparator;
+export default SelectDropdownSeparator;

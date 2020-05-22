@@ -8,20 +8,22 @@
  * [archiveorg id=Experime1940 width=640 height=480 autoplay=1]
 
  * <iframe src="http://archive.org/embed/Experime1940&autoplay=1&poster=http://archive.org/images/map.png" width="640" height="480" frameborder="0" webkitallowfullscreen="true" mozallowfullscreen="true" allowfullscreen></iframe>
-*/
+ *
+ * @package Jetpack
+ */
 
 /**
  * Get ID of requested archive.org embed.
  *
  * @since 4.5.0
  *
- * @param array $atts
+ * @param array $atts Shortcode attributes.
  *
  * @return int|string
  */
 function jetpack_shortcode_get_archiveorg_id( $atts ) {
 	if ( isset( $atts[0] ) ) {
-		$atts[0] = trim( $atts[0] , '=' );
+		$atts[0] = trim( $atts[0], '=' );
 		if ( preg_match( '#archive.org/(details|embed)/(.+)/?$#i', $atts[0], $match ) ) {
 			$id = $match[2];
 		} else {
@@ -47,13 +49,16 @@ function jetpack_archiveorg_shortcode( $atts ) {
 		$atts['id'] = jetpack_shortcode_get_archiveorg_id( $atts );
 	}
 
-	$atts = shortcode_atts( array(
-		'id'       => '',
-		'width'    => 640,
-		'height'   => 480,
-		'autoplay' => 0,
-		'poster'   => ''
-	), $atts );
+	$atts = shortcode_atts(
+		array(
+			'id'       => '',
+			'width'    => 640,
+			'height'   => 480,
+			'autoplay' => 0,
+			'poster'   => '',
+		),
+		$atts
+	);
 
 	if ( ! $atts['id'] ) {
 		return '<!-- error: missing archive.org ID -->';
@@ -85,9 +90,11 @@ function jetpack_archiveorg_shortcode( $atts ) {
 		$poster = '';
 	}
 
-	$url = esc_url( set_url_scheme( "https://archive.org/embed/{$id}{$autoplay}{$poster}" ) );
+	$url = esc_url( "https://archive.org/embed/{$id}{$autoplay}{$poster}" );
 
-	$html = "<div class='embed-archiveorg' style='text-align:center;'><iframe src='$url' width='$width' height='$height' style='border:0;' webkitallowfullscreen='true' mozallowfullscreen='true' allowfullscreen></iframe></div>";
+	$title = esc_html__( 'Archive.org', 'jetpack' );
+
+	$html = "<div class='embed-archiveorg' style='text-align:center;'><iframe title='$title' src='$url' width='$width' height='$height' style='border:0;' webkitallowfullscreen='true' mozallowfullscreen='true' allowfullscreen></iframe></div>";
 
 	return $html;
 }
@@ -99,7 +106,7 @@ add_shortcode( 'archiveorg', 'jetpack_archiveorg_shortcode' );
  *
  * @since 4.5.0
  *
- * @param string $content
+ * @param string $content Post content.
  *
  * @return mixed
  */
@@ -116,17 +123,19 @@ function jetpack_archiveorg_embed_to_shortcode( $content ) {
 
 	foreach ( $matches as $match ) {
 		$url = explode( '&amp;', $match[1] );
-		$id = 'id=' . $url[0];
+		$id  = 'id=' . $url[0];
 
-		$autoplay = '';
-		$poster = '';
-		for ( $ii = 1; $ii < count( $url ); $ii++ ) {
-			if ( 'autoplay=1' === $url[$ii] ) {
+		$autoplay  = '';
+		$poster    = '';
+		$url_count = count( $url );
+
+		for ( $ii = 1; $ii < $url_count; $ii++ ) {
+			if ( 'autoplay=1' === $url[ $ii ] ) {
 				$autoplay = ' autoplay="1"';
 			}
 
 			$map_matches = array();
-			if ( preg_match( '/^poster=(.+)$/', $url[$ii], $map_matches ) ) {
+			if ( preg_match( '/^poster=(.+)$/', $url[ $ii ], $map_matches ) ) {
 				$poster = " poster=\"{$map_matches[1]}\"";
 			}
 		}
@@ -135,7 +144,7 @@ function jetpack_archiveorg_embed_to_shortcode( $content ) {
 
 		$params = wp_kses_hair( $params, array( 'http' ) );
 
-		$width = isset( $params['width'] ) ? (int) $params['width']['value'] : 0;
+		$width  = isset( $params['width'] ) ? (int) $params['width']['value'] : 0;
 		$height = isset( $params['height'] ) ? (int) $params['height']['value'] : 0;
 
 		$wh = '';
@@ -144,7 +153,7 @@ function jetpack_archiveorg_embed_to_shortcode( $content ) {
 		}
 
 		$shortcode = '[archiveorg ' . $id . $wh . $autoplay . $poster . ']';
-		$content = str_replace( $match[0], $shortcode, $content );
+		$content   = str_replace( $match[0], $shortcode, $content );
 	}
 
 	return $content;

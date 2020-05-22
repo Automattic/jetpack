@@ -11,6 +11,9 @@ import {
 	getModuleOverride,
 	isModuleForcedActive,
 	isModuleForcedInactive,
+	hasAnyOfTheseModules,
+	hasAnyPerformanceFeature,
+	hasAnySecurityFeature,
 } from '../reducer';
 
 let state = {
@@ -146,6 +149,101 @@ describe( 'items selectors', () => {
 
 		it( 'should return false when module not overriden', () => {
 			expect( isModuleForcedInactive( state, 'module-c' ) ).to.be.false;
+		} );
+	} );
+
+	describe( '#hasAnyOfTheseModules', () => {
+		it( 'should return true when at least one of the passed modules is available', () => {
+			expect( hasAnyOfTheseModules( state, [ 'module-b' ] ) ).to.be.true;
+		} );
+
+		it( 'should return false when none of the passed modules is available', () => {
+			expect( hasAnyOfTheseModules( state, [ 'module-d' ] ) ).to.be.false;
+		} );
+	} );
+
+	describe( '#hasAnyPerformanceFeature', () => {
+		it( 'should return true when at least one of the performance modules is available', () => {
+			const stateIn = {
+				jetpack: {
+					modules: {
+						items: {
+							'lazy-images': {},
+						}
+					},
+				}
+			};
+			expect( hasAnyPerformanceFeature( stateIn ) ).to.be.true;
+		} );
+
+		it( 'should return false when at least one of the performance modules is available', () => {
+			const stateIn = {
+				jetpack: {
+					modules: {
+						items: {}
+					},
+				}
+			};
+			expect( hasAnyPerformanceFeature( stateIn ) ).to.be.false;
+		} );
+	} );
+
+	describe( '#hasAnySecurityFeature', () => {
+		it( 'should return true when none of the performance modules is available', () => {
+			const stateIn = {
+				jetpack: {
+					modules: {
+						items: {
+							'protect': {},
+						}
+					},
+					pluginsData: {
+						items: {
+							'akismet/akismet.php': {
+								active: false,
+							}
+						}
+					}
+				}
+			};
+			expect( hasAnySecurityFeature( stateIn ) ).to.be.true;
+		} );
+
+		it( 'should return true when at least the Akismet plugin is active', () => {
+			const stateIn = {
+				jetpack: {
+					modules: {
+						items: {}
+					},
+					pluginsData: {
+						items: {
+							'akismet/akismet.php': {
+								active: true,
+							}
+						}
+					}
+				}
+			};
+			expect( hasAnySecurityFeature( stateIn ) ).to.be.true;
+		} );
+
+		it( 'should return false when none of the security features are available', () => {
+			const stateIn = {
+				jetpack: {
+					modules: {
+						items: {
+						}
+					},
+					pluginsData: {
+						items: {
+							'akismet/akismet.php': {
+								active: false,
+							}
+						}
+					}
+				}
+			};
+			expect( hasAnySecurityFeature( stateIn ) ).to.be.false;
 		} );
 	} );
 } );

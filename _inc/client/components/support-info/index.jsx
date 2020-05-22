@@ -12,7 +12,7 @@ import analytics from 'lib/analytics';
 import InfoPopover from 'components/info-popover';
 import ExternalLink from 'components/external-link';
 
-require( './style.scss' );
+import './style.scss';
 
 export default class SupportInfo extends Component {
 	static propTypes = {
@@ -45,21 +45,21 @@ export default class SupportInfo extends Component {
 	trackInfoClick() {
 		analytics.tracks.recordJetpackClick( {
 			target: 'info-icon',
-			feature: this.getModule().module
+			feature: this.getModule().module,
 		} );
 	}
 
 	trackLearnMoreClick() {
 		analytics.tracks.recordJetpackClick( {
 			target: 'learn-more',
-			feature: this.getModule().module
+			feature: this.getModule().module,
 		} );
 	}
 
 	trackPrivacyInfoClick() {
 		analytics.tracks.recordJetpackClick( {
 			target: 'privacy-info',
-			feature: this.getModule().module
+			feature: this.getModule().module,
 		} );
 	}
 

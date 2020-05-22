@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { isMobile } from '@automattic/viewport';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import classnames from 'classnames';
@@ -9,9 +10,7 @@ import classnames from 'classnames';
  * Internal dependencies
  */
 import Popover from 'components/popover';
-import viewport from 'lib/viewport';
-
-require( './style.scss' );
+import './style.scss';
 
 /**
  * Module variables
@@ -28,17 +27,17 @@ class Tooltip extends Component {
 		rootClassName: PropTypes.string,
 		status: PropTypes.string,
 		showDelay: PropTypes.number,
-		showOnMobile: PropTypes.bool
+		showOnMobile: PropTypes.bool,
 	};
 
 	static defaultProps = {
 		showDelay: 100,
 		position: 'top',
-		showOnMobile: false
+		showOnMobile: false,
 	};
 
 	render() {
-		if ( ! this.props.showOnMobile && viewport.isMobile() ) {
+		if ( ! this.props.showOnMobile && isMobile() ) {
 			return null;
 		}
 
@@ -51,7 +50,7 @@ class Tooltip extends Component {
 
 		return (
 			<Popover
-				autoPosition= { this.props.autoPosition }
+				autoPosition={ this.props.autoPosition }
 				className={ classes }
 				rootClassName={ this.props.rootClassName }
 				context={ this.props.context }

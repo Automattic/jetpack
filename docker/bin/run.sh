@@ -5,7 +5,7 @@ set -e
 # These commands will be run each time the container is run.
 #
 # If you modify anything here, remember to build the image again by running:
-# yarn docker:build
+# yarn docker:build-image
 
 user="${APACHE_RUN_USER:-www-data}"
 group="${APACHE_RUN_GROUP:-www-data}"
@@ -79,6 +79,9 @@ fi
 if [ ! -f /tmp/wordpress-develop/wp-tests-config.php ]; then
 	cp /tmp/wp-tests-config.php /tmp/wordpress-develop/wp-tests-config.php
 fi
+
+# Add a PsySH dependency to wp-cli
+echo 'require: /usr/local/bin/psysh' >> /var/www/html/wp-cli.yml
 
 WP_HOST_PORT=":$HOST_PORT"
 

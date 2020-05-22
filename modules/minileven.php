@@ -1,136 +1,54 @@
 <?php
-
 /**
- * Module Name: Mobile Theme
- * Module Description: Enable the Jetpack Mobile theme
- * Sort Order: 21
- * Recommendation Order: 11
- * First Introduced: 1.8
- * Requires Connection: No
- * Auto Activate: No
- * Module Tags: Appearance, Mobile, Recommended
- * Feature: Appearance
- * Additional Search Queries: mobile, theme, minileven
+ * Deprecated since 8.3.0
+ *
+ * Originally we created the mobile theme feature as a fall-back
+ * when the regular theme did not include a mobile view.
+ * Most themes include a mobile view by default now, so the feature is no longer necessary.
+ *
+ * Visit this page for some alternatives:
+ * https://jetpack.com/support/mobile-theme/
+ *
+ * If you MUST continue to use this module, you can use this standalone plugin as a temporary solution:
+ * https://github.com/Automattic/minileven
+ * However, we do not recommend it.
+ *
+ * @deprecated
+ * @package Jetpack
  */
 
-function jetpack_load_minileven() {
-	include dirname( __FILE__ ) . "/minileven/minileven.php";
-
-	if ( Jetpack_Options::get_option_and_ensure_autoload( 'wp_mobile_app_promos', '0' ) != '1' )
-		remove_action( 'wp_mobile_theme_footer', 'jetpack_mobile_app_promo' );
+/**
+ * Deactivate module if it is still active.
+ *
+ * @since 8.3.0
+ */
+if ( Jetpack::is_module_active( 'minileven' ) ) {
+	Jetpack::deactivate_module( 'minileven' );
 }
 
-add_action( 'jetpack_modules_loaded', 'minileven_loaded' );
+// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+_deprecated_file( basename( __FILE__ ), 'jetpack-8.3.0' );
 
-function minileven_loaded() {
-	Jetpack::enable_module_configurable( __FILE__ );
-	Jetpack::module_configuration_load( __FILE__, 'minileven_configuration_load' );
-	Jetpack::module_configuration_screen( __FILE__, 'minileven_configuration_screen' );
+/**
+ * Check if we are on mobile.
+ */
+function jetpack_check_mobile() {
+	_deprecated_function( __FUNCTION__, 'jetpack-8.3.0', 'jetpack_is_mobile' );
+
+	return jetpack_is_mobile();
 }
 
-function minileven_configuration_load() {
-	if ( isset( $_POST['action'] ) && $_POST['action'] == 'save_options' && $_POST['_wpnonce'] == wp_create_nonce( 'minileven' ) ) {
-		if ( isset( $_POST['wp_mobile_excerpt'] ) ) {
-			update_option( 'wp_mobile_excerpt', '1' == $_POST['wp_mobile_excerpt'] ? '1' : '0' );
-		}
-
-		if ( isset( $_POST['wp_mobile_featured_images'] ) ) {
-			update_option( 'wp_mobile_featured_images', '1' == $_POST['wp_mobile_featured_images'] ? '1' : '0' );
-		}
-
-		update_option( 'wp_mobile_app_promos', ( isset( $_POST['wp_mobile_app_promos'] ) ) ? '1' : '0' );
-
-		Jetpack::state( 'message', 'module_configured' );
-		wp_safe_redirect( Jetpack::module_configuration_url( 'minileven' ) );
-		exit;
-	}
+/**
+ * Should exclude from mobile?
+ */
+function jetpack_mobile_exclude() {
+	_deprecated_function( __FUNCTION__, 'jetpack-8.3.0' );
 }
 
-function minileven_configuration_screen() {
-	$excerpts = ( 0 == get_option( 'wp_mobile_excerpt' ) ) ? 0 : 1;
-	$featured_images = ( 0 == get_option( 'wp_mobile_featured_images' ) ) ? 0 : 1;
-	$promos = ( '1' == get_option( 'wp_mobile_app_promos' ) ) ? 1 : 0;
-
-	?>
-	<form method="post">
-		<input type="hidden" name="action" value="save_options" />
-		<?php wp_nonce_field( 'minileven' ); ?>
-		<table id="menu" class="form-table">
-			<tr valign="top">
-				<th scope="row"><?php _e( 'Excerpts', 'jetpack' ); ?></th>
-				<td>
-					<label>
-						<input name="wp_mobile_excerpt" type="radio" value="1" class="code" <?php checked( 1, $excerpts, true ); ?> />
-						<?php _e( 'Enable excerpts on front page and on archive pages', 'jetpack' ); ?>
-					</label>
-					<br />
-					<label>
-						<input name="wp_mobile_excerpt" type="radio" value="0" class="code" <?php checked( 0, $excerpts, true ); ?> />
-						<?php _e( 'Show full posts on front page and on archive pages', 'jetpack' ); ?>
-					</label>
-				</td>
-			</tr>
-			<tr valign="top">
-				<th scope="row"><?php _e( 'Featured Images', 'jetpack' ); ?></th>
-				<td>
-					<label>
-						<input name="wp_mobile_featured_images" type="radio" value="0" class="code" <?php checked( 0, $featured_images, true ); ?> />
-						<?php _e( 'Hide all featured images', 'jetpack' ); ?>
-					</label>
-					<br />
-					<label>
-						<input name="wp_mobile_featured_images" type="radio" value="1" class="code" <?php checked( 1, $featured_images, true ); ?> />
-						<?php _e( 'Display featured images', 'jetpack' ); ?>
-					</label>
-				</td>
-			</tr>
-			<tr valign="top">
-				<th scope="row"><?php _e( 'Mobile App Promos', 'jetpack' ); ?></th>
-				<td>
-					<label>
-						<input name="wp_mobile_app_promos" type="checkbox" value="1" <?php checked( 1, $promos, true ); ?> />
-						<?php _e ( 'Show a promo for the WordPress mobile apps in the footer of the mobile theme.', 'jetpack' ); ?>
-					</label>
-				</td>
-			</tr>
-		</table>
-		<p class="submit">
-			<input type="submit" class="button-primary" value="<?php esc_attr_e( 'Save configuration', 'jetpack' ); ?>" />
-		</p>
-	</form>
-	<h3><?php _e( 'Mobile Apps', 'jetpack' ); ?></h3>
-	<p><?php _e( 'Take WordPress with you.', 'jetpack' ); ?></p>
-	<a href="https://wordpress.org/mobile/" target="_blank"><img src="<?php echo plugin_dir_url( __FILE__ ); ?>/minileven/images/wp-app-devices.png" width="332" height="73" /></a>
-	<p><?php printf( __( 'We have apps for <a href="%s" target="_blank">iOS (iPhone, iPad, iPod Touch) and Android</a>!', 'jetpack' ), 'https://apps.wordpress.org/' ); ?></p>
-	<?php
+/**
+ * Setup function for the Mobile theme.
+ * Can be overwritten in child themes.
+ */
+function minileven_setup() {
+	_deprecated_function( __FUNCTION__, 'jetpack-8.3.0' );
 }
-
-function minileven_theme_root( $theme_root ) {
-	if ( jetpack_check_mobile() ) {
-		return dirname( __FILE__ ) . '/minileven/theme';
-	}
-
-	return $theme_root;
-}
-
-add_filter( 'theme_root', 'minileven_theme_root' );
-
-function minileven_theme_root_uri( $theme_root_uri ) {
-	if ( jetpack_check_mobile() ) {
-		return plugins_url( 'modules/minileven/theme', dirname( __FILE__ ) );
-	}
-
-	return $theme_root_uri;
-}
-
-add_filter( 'theme_root_uri', 'minileven_theme_root_uri' );
-
-function minileven_enabled( $wp_mobile_disable_option ) {
-	return true;
-}
-
-if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-	add_filter( 'option_wp_mobile_disable', 'minileven_enabled' );
-}
-
-jetpack_load_minileven();

@@ -41,10 +41,10 @@ function jetpack_get_site_logo( $show = 'url' ) {
  * @since 3.6.0
  *
  * @return array $dimensions {
- *		An array of dimensions of the Site Logo.
+ *      An array of dimensions of the Site Logo.
  *
- * 		@type string $width Width of the logo in pixels.
- * 		@type string $height Height of the logo in pixels.
+ *      @type string $width Width of the logo in pixels.
+ *      @type string $height Height of the logo in pixels.
  * }
  */
 function jetpack_get_site_logo_dimensions() {
@@ -54,8 +54,8 @@ function jetpack_get_site_logo_dimensions() {
 	// If the size is the default `thumbnail`, get its dimensions. Otherwise, get them from $_wp_additional_image_sizes
 	if ( empty( $size ) ) {
 		return false;
-	} else if ( 'thumbnail' == $size ) {
-		$dimensions  = array(
+	} elseif ( 'thumbnail' == $size ) {
+		$dimensions = array(
 			'width'  => get_option( 'thumbnail_size_w' ),
 			'height' => get_option( 'thumbnail_size_h' ),
 		);
@@ -66,9 +66,9 @@ function jetpack_get_site_logo_dimensions() {
 			return false;
 		}
 
-		$dimensions  = array(
-			'width'  => $_wp_additional_image_sizes[ $size ][ 'width' ],
-			'height' => $_wp_additional_image_sizes[ $size ][ 'height' ],
+		$dimensions = array(
+			'width'  => $_wp_additional_image_sizes[ $size ]['width'],
+			'height' => $_wp_additional_image_sizes[ $size ]['height'],
 		);
 	}
 
@@ -101,39 +101,45 @@ function jetpack_has_site_logo() {
  * @since 1.0
  */
 function jetpack_the_site_logo() {
-	$logo = site_logo()->logo;
-	$logo_id = get_theme_mod( 'custom_logo' ); // Check for WP 4.5 Site Logo
-	$logo_id = $logo_id ? $logo_id : $logo['id']; // Use WP Core logo if present, otherwise use Jetpack's.
 	$size = site_logo()->theme_size();
-	$html = '';
 
 	// If no logo is set, but we're in the Customizer, leave a placeholder (needed for the live preview).
-	if ( ! jetpack_has_site_logo() ) {
-		if ( jetpack_is_customize_preview() ) {
-			$html = sprintf( '<a href="%1$s" class="site-logo-link" style="display:none;"><img class="site-logo" data-size="%2$s" /></a>',
+	if (
+		! jetpack_has_site_logo()
+		&& jetpack_is_customize_preview()
+	) {
+		/*
+		 * Reason: the output is escaped in the sprintf.
+		 * phpcs:disable WordPress.Security.EscapeOutput
+		 */
+		/** This filter is documented in modules/theme-tools/site-logo/inc/functions.php */
+		echo apply_filters(
+			'jetpack_the_site_logo',
+			sprintf(
+				'<a href="%1$s" class="site-logo-link" style="display:none;"><img class="site-logo" data-size="%2$s" /></a>',
 				esc_url( home_url( '/' ) ),
 				esc_attr( $size )
-			);
-		}
-	}
-
-	// We have a logo. Logo is go.
-	else {
-		$html = sprintf( '<a href="%1$s" class="site-logo-link" rel="home" itemprop="url">%2$s</a>',
-			esc_url( home_url( '/' ) ),
-			wp_get_attachment_image(
-				$logo_id,
-				$size,
-				false,
-				array(
-					'class'     => "site-logo attachment-$size",
-					'data-size' => $size,
-					'itemprop'  => "logo"
-				)
-			)
+			),
+			array(),
+			$size
 		);
+		/* phpcs:enable WordPress.Security.EscapeOutput */
+		return;
 	}
 
+	// Check for WP 4.5 Site Logo and Jetpack logo.
+	$logo_id      = get_theme_mod( 'custom_logo' );
+	$jetpack_logo = site_logo()->logo;
+
+	// Use WP Core logo if present, otherwise use Jetpack's.
+	if ( ! $logo_id && isset( $jetpack_logo['id'] ) ) {
+		$logo_id = $jetpack_logo['id'];
+	}
+
+	/*
+	 * Reason: the output is escaped in the sprintf.
+	 * phpcs:disable WordPress.Security.EscapeOutput
+	 */
 	/**
 	 * Filter the Site Logo output.
 	 *
@@ -142,10 +148,29 @@ function jetpack_the_site_logo() {
 	 * @since 3.2.0
 	 *
 	 * @param string $html Site Logo HTML output.
-	 * @param array $logo Array of Site Logo details.
+	 * @param array $jetpack_logo Array of Site Logo details.
 	 * @param string $size Size specified in add_theme_support declaration, or 'thumbnail' default.
 	 */
-	echo apply_filters( 'jetpack_the_site_logo', $html, $logo, $size );
+	echo apply_filters(
+		'jetpack_the_site_logo',
+		sprintf(
+			'<a href="%1$s" class="site-logo-link" rel="home" itemprop="url">%2$s</a>',
+			esc_url( home_url( '/' ) ),
+			wp_get_attachment_image(
+				$logo_id,
+				$size,
+				false,
+				array(
+					'class'     => "site-logo attachment-$size",
+					'data-size' => $size,
+					'itemprop'  => 'logo',
+				)
+			)
+		),
+		$jetpack_logo,
+		$size
+	);
+	/* phpcs:enable WordPress.Security.EscapeOutput */
 }
 
 /**

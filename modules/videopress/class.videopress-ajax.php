@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Connection\Client;
+
 class VideoPress_AJAX {
 
 	/**
@@ -15,10 +17,14 @@ class VideoPress_AJAX {
 	private function __construct() {
 		add_action( 'wp_ajax_videopress-get-upload-token', array( $this, 'wp_ajax_videopress_get_upload_token' ) );
 
-		add_action( 'wp_ajax_videopress-update-transcoding-status', array(
-			$this,
-			'wp_ajax_update_transcoding_status'
-		), -1 );
+		add_action(
+			'wp_ajax_videopress-update-transcoding-status',
+			array(
+				$this,
+				'wp_ajax_update_transcoding_status',
+			),
+			-1
+		);
 	}
 
 	/**
@@ -28,7 +34,7 @@ class VideoPress_AJAX {
 	 */
 	public static function init() {
 		if ( is_null( self::$instance ) ) {
-			self::$instance = new VideoPress_AJAX;
+			self::$instance = new VideoPress_AJAX();
 		}
 
 		return self::$instance;
@@ -49,7 +55,7 @@ class VideoPress_AJAX {
 		);
 
 		$endpoint = "sites/{$options['shadow_blog_id']}/media/token";
-		$result   = Jetpack_Client::wpcom_json_api_request_as_blog( $endpoint, Jetpack_Client::WPCOM_JSON_API_VERSION, $args );
+		$result   = Client::wpcom_json_api_request_as_blog( $endpoint, Client::WPCOM_JSON_API_VERSION, $args );
 
 		if ( is_wp_error( $result ) ) {
 			wp_send_json_error( array( 'message' => __( 'Could not obtain a VideoPress upload token. Please try again later.', 'jetpack' ) ) );
@@ -86,10 +92,12 @@ class VideoPress_AJAX {
 			return;
 		}
 
-		wp_send_json_success( array(
-			'message' => __( 'Status updated', 'jetpack' ),
-			'status'  => videopress_get_transcoding_status( $post_id )
-		) );
+		wp_send_json_success(
+			array(
+				'message' => __( 'Status updated', 'jetpack' ),
+				'status'  => videopress_get_transcoding_status( $post_id ),
+			)
+		);
 	}
 }
 

@@ -1,14 +1,17 @@
 <?php
 
+use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Redirect;
+
 /*
 Plugin Name: The Neverending Home Page.
-Plugin URI: http://automattic.com/
+Plugin URI: https://automattic.com/
 Description: Adds infinite scrolling support to the front-end blog post view for themes, pulling the next set of posts automatically into view when the reader approaches the bottom of the page.
 Version: 1.1
 Author: Automattic
-Author URI: http://automattic.com/
+Author URI: https://automattic.com/
 License: GNU General Public License v2 or later
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
 */
 
 /**
@@ -16,6 +19,7 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
  * styling from each theme; including fixed footer.
  */
 class The_Neverending_Home_Page {
+
 	/**
 	 * Register actions and filters, plus parse IS settings
 	 *
@@ -23,16 +27,17 @@ class The_Neverending_Home_Page {
 	 * @return null
 	 */
 	function __construct() {
-		add_action( 'pre_get_posts',                  array( $this, 'posts_per_page_query' ) );
-
-		add_action( 'admin_init',                     array( $this, 'settings_api_init' ) );
-		add_action( 'template_redirect',              array( $this, 'action_template_redirect' ) );
-		add_action( 'template_redirect',              array( $this, 'ajax_response' ) );
-		add_action( 'custom_ajax_infinite_scroll',    array( $this, 'query' ) );
-		add_filter( 'infinite_scroll_query_args',     array( $this, 'inject_query_args' ) );
-		add_filter( 'infinite_scroll_allowed_vars',   array( $this, 'allowed_query_vars' ) );
-		add_action( 'the_post',                       array( $this, 'preserve_more_tag' ) );
-		add_action( 'wp_footer',                      array( $this, 'footer' ) );
+		add_action( 'pre_get_posts', array( $this, 'posts_per_page_query' ) );
+		add_action( 'admin_init', array( $this, 'settings_api_init' ) );
+		add_action( 'template_redirect', array( $this, 'action_template_redirect' ) );
+		add_action( 'customize_preview_init', array( $this, 'init_customizer_assets' ) );
+		add_action( 'template_redirect', array( $this, 'ajax_response' ) );
+		add_action( 'custom_ajax_infinite_scroll', array( $this, 'query' ) );
+		add_filter( 'infinite_scroll_query_args', array( $this, 'inject_query_args' ) );
+		add_filter( 'infinite_scroll_allowed_vars', array( $this, 'allowed_query_vars' ) );
+		add_action( 'the_post', array( $this, 'preserve_more_tag' ) );
+		add_action( 'wp_footer', array( $this, 'footer' ) );
+		add_filter( 'infinite_scroll_additional_scripts', array( $this, 'add_mejs_config' ) );
 
 		// Plugin compatibility
 		add_filter( 'grunion_contact_form_redirect_url', array( $this, 'filter_grunion_redirect_url' ) );
@@ -150,8 +155,6 @@ class The_Neverending_Home_Page {
 								break;
 
 							default:
-								continue;
-
 								break;
 						}
 					}
@@ -388,11 +391,12 @@ class The_Neverending_Home_Page {
 	}
 
 	function infinite_setting_html_calypso_placeholder() {
-		$details = get_blog_details();
+		$details     = get_blog_details();
+		$writing_url = Redirect::get_url( 'calypso-settings-writing', array( 'site' => $details->domain ) );
 		echo '<span>' . sprintf(
 			/* translators: Variables are the enclosing link to the settings page */
-			esc_html__( 'This option has moved. You can now manage it %1$shere%2$s.' ),
-			'<a href="' . esc_url( 'https://wordpress.com/settings/writing/' . $details->domain ) . '">',
+			esc_html__( 'This option has moved. You can now manage it %1$shere%2$s.', 'jetpack' ),
+			'<a href="' . esc_url( $writing_url ) . '">',
 			'</a>'
 		) . '</span>';
 	}
@@ -434,12 +438,12 @@ class The_Neverending_Home_Page {
 		// Add our scripts.
 		wp_register_script(
 			'the-neverending-homepage',
-			Jetpack::get_file_url_for_environment(
+			Assets::get_file_url_for_environment(
 				'_inc/build/infinite-scroll/infinity.min.js',
 				'modules/infinite-scroll/infinity.js'
 			),
-			array( 'jquery' ),
-			'4.0.0',
+			array(),
+			JETPACK__VERSION . '-is5.0.0', // Added for ability to cachebust on WP.com.
 			true
 		);
 
@@ -457,8 +461,6 @@ class The_Neverending_Home_Page {
 		// Add our default styles.
 		wp_enqueue_style( 'the-neverending-homepage' );
 
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_spinner_scripts' ) );
-
 		add_action( 'wp_footer', array( $this, 'action_wp_footer_settings' ), 2 );
 
 		add_action( 'wp_footer', array( $this, 'action_wp_footer' ), 21 ); // Core prints footer scripts at priority 20, so we just need to be one later than that
@@ -467,10 +469,24 @@ class The_Neverending_Home_Page {
 	}
 
 	/**
-	 * Enqueue spinner scripts.
+	 * Initialize the Customizer logic separately from the main JS.
+	 *
+	 * @since 8.4.0
 	 */
-	function enqueue_spinner_scripts() {
-		wp_enqueue_script( 'jquery.spin' );
+	public function init_customizer_assets() {
+		// Add our scripts.
+		wp_register_script(
+			'the-neverending-homepage-customizer',
+			Assets::get_file_url_for_environment(
+				'_inc/build/infinite-scroll/infinity-customizer.min.js',
+				'modules/infinite-scroll/infinity-customizer.js'
+			),
+			array( 'customize-base' ),
+			JETPACK__VERSION . '-is5.0.0', // Added for ability to cachebust on WP.com.
+			true
+		);
+
+		wp_enqueue_script( 'the-neverending-homepage-customizer' );
 	}
 
 	/**
@@ -898,7 +914,9 @@ class The_Neverending_Home_Page {
 		?>
 		<script type="text/javascript">
 		//<![CDATA[
-		var infiniteScroll = <?php echo json_encode( array( 'settings' => $js_settings ) ); ?>;
+		var infiniteScroll = JSON.parse( decodeURIComponent( '<?php echo
+			rawurlencode( json_encode( array( 'settings' => $js_settings ) ) );
+		?>' ) );
 		//]]>
 		</script>
 		<?php
@@ -996,8 +1014,25 @@ class The_Neverending_Home_Page {
 		$styles = apply_filters( 'infinite_scroll_existing_stylesheets', $styles );
 
 		?><script type="text/javascript">
-			jQuery.extend( infiniteScroll.settings.scripts, <?php echo json_encode( $scripts ); ?> );
-			jQuery.extend( infiniteScroll.settings.styles, <?php echo json_encode( $styles ); ?> );
+			(function() {
+				var extend = function(out) {
+					out = out || {};
+
+					for (var i = 1; i < arguments.length; i++) {
+						if (!arguments[i])
+						continue;
+
+						for (var key in arguments[i]) {
+						if (arguments[i].hasOwnProperty(key))
+							out[key] = arguments[i][key];
+						}
+					}
+
+					return out;
+				};
+				extend( window.infiniteScroll.settings.scripts, <?php echo wp_json_encode( $scripts ); ?> );
+				extend( window.infiniteScroll.settings.styles, <?php echo wp_json_encode( $styles ); ?> );
+			})();
 		</script><?php
 	}
 
@@ -1021,7 +1056,19 @@ class The_Neverending_Home_Page {
 			global $wp_scripts;
 
 			// Identify new scripts needed by the latest set of IS posts
-			$new_scripts = array_diff( $wp_scripts->done, $initial_scripts );
+			$new_scripts = array_filter(
+				$wp_scripts->done,
+				function ( $script_name ) use ( $initial_scripts ) {
+					// Jetpack block scripts should always be sent, even if they've been
+					// sent before. These scripts only run once on when loaded, they don't
+					// watch for new blocks being added.
+					if ( 0 === strpos( $script_name, 'jetpack-block-' ) ) {
+						return true;
+					}
+
+					return ! in_array( $script_name, $initial_scripts, true );
+				}
+			);
 
 			// If new scripts are needed, extract relevant data from $wp_scripts
 			if ( ! empty( $new_scripts ) ) {
@@ -1029,14 +1076,20 @@ class The_Neverending_Home_Page {
 
 				foreach ( $new_scripts as $handle ) {
 					// Abort if somehow the handle doesn't correspond to a registered script
-					if ( ! isset( $wp_scripts->registered[ $handle ] ) )
+					// or if the script doesn't have `src` set.
+					$script_not_registered = ! isset( $wp_scripts->registered[ $handle ] );
+					$empty_src             = empty( $wp_scripts->registered[ $handle ]->src );
+					if ( $script_not_registered || $empty_src ) {
 						continue;
+					}
 
 					// Provide basic script data
 					$script_data = array(
-						'handle'     => $handle,
-						'footer'     => ( is_array( $wp_scripts->in_footer ) && in_array( $handle, $wp_scripts->in_footer ) ),
-						'extra_data' => $wp_scripts->print_extra_script( $handle, false )
+						'handle'        => $handle,
+						'footer'        => ( is_array( $wp_scripts->in_footer ) && in_array( $handle, $wp_scripts->in_footer, true ) ),
+						'extra_data'    => $wp_scripts->print_extra_script( $handle, false ),
+						'before_handle' => $wp_scripts->print_inline_script( $handle, 'before', false ),
+						'after_handle'  => $wp_scripts->print_inline_script( $handle, 'after', false ),
 					);
 
 					// Base source
@@ -1211,8 +1264,6 @@ class The_Neverending_Home_Page {
 	 * @return string or null
 	 */
 	function query() {
-		global $wp_customize;
-		global $wp_version;
 		if ( ! isset( $_REQUEST['page'] ) || ! current_theme_supports( 'infinite-scroll' ) )
 			die;
 
@@ -1536,7 +1587,7 @@ class The_Neverending_Home_Page {
 	 *
 	 */
 	private function default_footer() {
-		if ( function_exists( 'get_privacy_policy_url' ) && ( '' !== get_privacy_policy_url() ) ) {
+		if ( '' !== get_privacy_policy_url() ) {
 			$credits = get_the_privacy_policy_link() . '<span role="separator" aria-hidden="true"> / </span>';
 		} else {
 			$credits = '';
@@ -1601,6 +1652,33 @@ class The_Neverending_Home_Page {
 
 		return $url;
 	}
+
+	/**
+	 * When the MediaElement is loaded in dynamically, we need to enforce that
+	 * its settings are added to the page as well.
+	 *
+	 * @param array $scripts_data New scripts exposed to the infinite scroll.
+	 *
+	 * @since 8.4.0
+	 */
+	public function add_mejs_config( $scripts_data ) {
+		foreach ( $scripts_data as $key => $data ) {
+			if ( 'mediaelement-core' === $data['handle'] ) {
+				$mejs_settings = array(
+					'pluginPath'  => includes_url( 'js/mediaelement/', 'relative' ),
+					'classPrefix' => 'mejs-',
+					'stretching'  => 'responsive',
+				);
+
+				$scripts_data[ $key ]['extra_data'] = sprintf(
+					'window.%s = %s',
+					'_wpmejsSettings',
+					wp_json_encode( apply_filters( 'mejs_settings', $mejs_settings ) )
+				);
+			}
+		}
+		return $scripts_data;
+	}
 };
 
 /**
@@ -1610,7 +1688,7 @@ function the_neverending_home_page_init() {
 	if ( ! current_theme_supports( 'infinite-scroll' ) )
 		return;
 
-	new The_Neverending_Home_Page;
+	new The_Neverending_Home_Page();
 }
 add_action( 'init', 'the_neverending_home_page_init', 20 );
 

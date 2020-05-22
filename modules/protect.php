@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Protect
- * Module Description: Block suspicious-looking sign in activity
+ * Module Description: Enabling brute force protection will prevent bots and hackers from attempting to log in to your website with common username and password combinations.
  * Sort Order: 1
  * Recommendation Order: 4
  * First Introduced: 3.4
@@ -9,8 +9,11 @@
  * Auto Activate: Yes
  * Module Tags: Recommended
  * Feature: Security
- * Additional Search Queries: security, secure, protection, botnet, brute force, protect, login
+ * Additional Search Queries: security, jetpack protect, secure, protection, botnet, brute force, protect, login, bot, password, passwords, strong passwords, strong password, wp-login.php,  protect admin
  */
+
+use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 
 include_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
 
@@ -59,6 +62,12 @@ class Jetpack_Protect_Module {
 
 		// This is a backup in case $pagenow fails for some reason
 		add_action( 'login_form', array ( $this, 'check_login_ability' ), 1 );
+
+		// Load math fallback after math page form submission
+		if ( isset( $_POST[ 'jetpack_protect_process_math_form' ] ) ) {
+			include_once dirname( __FILE__ ) . '/protect/math-fallback.php';
+			new Jetpack_Protect_Math_Authenticate;
+		}
 
 		// Runs a script every day to clean up expired transients so they don't
 		// clog up our users' databases
@@ -133,53 +142,77 @@ class Jetpack_Protect_Module {
 				require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
 			}
 
-			if ( ! ( is_plugin_active_for_network( 'jetpack/jetpack.php' ) || is_plugin_active_for_network( 'jetpack-dev/jetpack.php' ) ) ) {
-				add_action( 'load-index.php', array ( $this, 'prepare_jetpack_protect_multisite_notice' ) );
+			if ( ! is_plugin_active_for_network( plugin_basename( JETPACK__PLUGIN_FILE ) ) ) {
+				add_action( 'load-index.php', array( $this, 'prepare_jetpack_protect_multisite_notice' ) );
+				add_action( 'wp_ajax_jetpack-protect-dismiss-multisite-banner', array( $this, 'ajax_dismiss_handler' ) );
 			}
 		}
 	}
 
 	public function prepare_jetpack_protect_multisite_notice() {
-		add_action( 'admin_print_styles', array ( $this, 'admin_banner_styles' ) );
-		add_action( 'admin_notices', array ( $this, 'admin_jetpack_manage_notice' ) );
-	}
-
-	public function admin_banner_styles() {
-		global $wp_styles;
-
-		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
-
-		wp_enqueue_style( 'jetpack', plugins_url( "css/jetpack-banners{$min}.css", JETPACK__PLUGIN_FILE ), false, JETPACK__VERSION );
-		$wp_styles->add_data( 'jetpack', 'rtl', true );
-	}
-
-	public function admin_jetpack_manage_notice() {
-
 		$dismissed = get_site_option( 'jetpack_dismissed_protect_multisite_banner' );
-
 		if ( $dismissed ) {
 			return;
 		}
 
-		$referer     = '&_wp_http_referer=' . add_query_arg( '_wp_http_referer', null );
-		$opt_out_url = wp_nonce_url( Jetpack::admin_url( 'jetpack-notice=jetpack-protect-multisite-opt-out' . $referer ), 'jetpack_protect_multisite_banner_opt_out' );
+		add_action( 'admin_notices', array ( $this, 'admin_jetpack_manage_notice' ) );
+	}
 
+	public function ajax_dismiss_handler() {
+		check_ajax_referer( 'jetpack_protect_multisite_banner_opt_out' );
+
+		if ( ! current_user_can( 'manage_network' ) ) {
+			wp_send_json_error( new WP_Error( 'insufficient_permissions' ) );
+		}
+
+		update_site_option( 'jetpack_dismissed_protect_multisite_banner', true );
+
+		wp_send_json_success();
+	}
+
+	/**
+	 * Displays a warning about Jetpack Protect's network activation requirement.
+	 * Attaches some custom JS to Core's `is-dismissible` UI to save the dismissed state.
+	 */
+	public function admin_jetpack_manage_notice() {
 		?>
-		<div id="message" class="updated jetpack-message jp-banner is-opt-in protect-error"
-		     style="display:block !important;">
-			<a class="jp-banner__dismiss" href="<?php echo esc_url( $opt_out_url ); ?>"
-			   title="<?php esc_attr_e( 'Dismiss this notice.', 'jetpack' ); ?>"></a>
+		<div class="jetpack-protect-warning notice notice-warning is-dismissible" data-dismiss-nonce="<?php echo esc_attr( wp_create_nonce( 'jetpack_protect_multisite_banner_opt_out' ) ); ?>">
+			<h2><?php esc_html_e( 'Jetpack Brute Force Attack Prevention cannot keep your site secure', 'jetpack' ); ?></h2>
 
-			<div class="jp-banner__content">
-				<h2><?php esc_html_e( 'Protect cannot keep your site secure.', 'jetpack' ); ?></h2>
+			<p><?php esc_html_e( "Thanks for activating Jetpack's brute force attack prevention feature! To start protecting your whole WordPress Multisite Network, please network activate the Jetpack plugin. Due to the way logins are handled on WordPress Multisite Networks, Jetpack must be network activated in order for the brute force attack prevention feature to work properly.", 'jetpack' ); ?></p>
 
-				<p><?php printf( __( 'Thanks for activating Protect! To start protecting your site, please network activate Jetpack on your Multisite installation and activate Protect on your primary site. Due to the way logins are handled on WordPress Multisite, Jetpack must be network-enabled in order for Protect to work properly. <a href="%s" target="_blank">Learn More</a>', 'jetpack' ), 'http://jetpack.com/support/multisite-protect' ); ?></p>
-			</div>
-			<div class="jp-banner__action-container is-opt-in">
-				<a href="<?php echo esc_url( network_admin_url( 'plugins.php' ) ); ?>" class="jp-banner__button"
-				   id="wpcom-connect"><?php _e( 'View Network Admin', 'jetpack' ); ?></a>
-			</div>
+			<p>
+				<a class="button-primary" href="<?php echo esc_url( network_admin_url( 'plugins.php' ) ); ?>">
+					<?php esc_html_e( 'View Network Admin', 'jetpack' ); ?>
+				</a>
+				<a class="button" href="<?php echo esc_url( __( 'https://jetpack.com/support/multisite-protect', 'jetpack' ) ); ?>" target="_blank">
+					<?php esc_html_e( 'Learn More' ); ?>
+				</a>
+			</p>
 		</div>
+		<script>
+			jQuery( function( $ ) {
+				$( '.jetpack-protect-warning' ).on( 'click', 'button.notice-dismiss', function( event ) {
+					event.preventDefault();
+
+					wp.ajax.post(
+						'jetpack-protect-dismiss-multisite-banner',
+						{
+							_wpnonce: $( event.delegateTarget ).data( 'dismiss-nonce' ),
+						}
+					).fail( function( error ) { <?php
+						// A failure here is really strange, and there's not really anything a site owner can do to fix one.
+						// Just log the error for now to help debugging. ?>
+
+						if ( 'function' === typeof error.done && '-1' === error.responseText ) {
+							console.error( 'Notice dismissal failed: check_ajax_referer' );
+						} else {
+							console.error( 'Notice dismissal failed: ' + JSON.stringify( error ) );
+						}
+					} )
+				} );
+			} );
+		</script>
 		<?php
 	}
 
@@ -216,7 +249,6 @@ class Jetpack_Protect_Module {
 		}
 
 		// Request the key
-		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client( array (
 			'user_id' => get_current_user_id()
 		) );
@@ -305,9 +337,6 @@ class Jetpack_Protect_Module {
 	 */
 	public function modules_loaded() {
 		Jetpack::enable_module_configurable( __FILE__ );
-		Jetpack::module_configuration_load( __FILE__, array ( $this, 'configuration_load' ) );
-		Jetpack::module_configuration_head( __FILE__, array ( $this, 'configuration_head' ) );
-		Jetpack::module_configuration_screen( __FILE__, array ( $this, 'configuration_screen' ) );
 	}
 
 	/**
@@ -378,7 +407,7 @@ class Jetpack_Protect_Module {
 		);
 
 		foreach ( $ip_related_headers as $header ) {
-			if ( isset( $_SERVER[ $header ] ) ) {
+			if ( ! empty( $_SERVER[ $header ] ) ) {
 				$output[ $header ] = $_SERVER[ $header ];
 			}
 		}
@@ -435,7 +464,7 @@ class Jetpack_Protect_Module {
 		/**
 		 * JETPACK_ALWAYS_PROTECT_LOGIN will always disable the login page, and use a page provided by Jetpack.
 		 */
-		if ( Jetpack_Constants::is_true( 'JETPACK_ALWAYS_PROTECT_LOGIN' ) ) {
+		if ( Constants::is_true( 'JETPACK_ALWAYS_PROTECT_LOGIN' ) ) {
 			$this->kill_login();
 		}
 
@@ -618,44 +647,6 @@ class Jetpack_Protect_Module {
 			include_once dirname( __FILE__ ) . '/protect/math-fallback.php';
 			new Jetpack_Protect_Math_Authenticate;
 		}
-	}
-
-	/**
-	 * Get or delete API key
-	 */
-	public function configuration_load() {
-
-		if ( isset( $_POST['action'] ) && $_POST['action'] == 'jetpack_protect_save_whitelist' && wp_verify_nonce( $_POST['_wpnonce'], 'jetpack-protect' ) ) {
-			$whitelist             = str_replace( ' ', '', $_POST['whitelist'] );
-			$whitelist             = explode( PHP_EOL, $whitelist );
-			$result                = jetpack_protect_save_whitelist( $whitelist );
-			$this->whitelist_saved = ! is_wp_error( $result );
-			$this->whitelist_error = is_wp_error( $result );
-		}
-
-		if ( isset( $_POST['action'] ) && 'get_protect_key' == $_POST['action'] && wp_verify_nonce( $_POST['_wpnonce'], 'jetpack-protect' ) ) {
-			$result = $this->get_protect_key();
-			// Only redirect on success
-			// If it fails we need access to $this->api_key_error
-			if ( $result ) {
-				wp_safe_redirect( Jetpack::module_configuration_url( 'protect' ) );
-				exit;
-			}
-		}
-
-		$this->api_key = get_site_option( 'jetpack_protect_key', false );
-		$this->user_ip = jetpack_protect_get_ip();
-	}
-
-	public function configuration_head() {
-		wp_enqueue_style( 'jetpack-protect' );
-	}
-
-	/**
-	 * Prints the configuration screen
-	 */
-	public function configuration_screen() {
-		require_once dirname( __FILE__ ) . '/protect/config-ui.php';
 	}
 
 	/**
@@ -875,7 +866,7 @@ class Jetpack_Protect_Module {
 		}
 
 		//Check to see if we can use SSL
-		$this->api_endpoint = Jetpack::fix_url_for_bad_hosts( JETPACK_PROTECT__API_HOST );
+		$this->api_endpoint = Connection_Utils::fix_url_for_bad_hosts( JETPACK_PROTECT__API_HOST );
 
 		return $this->api_endpoint;
 	}
@@ -891,14 +882,14 @@ class Jetpack_Protect_Module {
 			$uri = network_home_url();
 		}
 
-		$uridata = parse_url( $uri );
+		$uridata = wp_parse_url( $uri );
 
 		$domain = $uridata['host'];
 
 		// If we still don't have the site_url, get it
 		if ( ! $domain ) {
 			$uri     = get_site_url( 1 );
-			$uridata = parse_url( $uri );
+			$uridata = wp_parse_url( $uri );
 			$domain  = $uridata['host'];
 		}
 

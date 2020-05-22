@@ -1,7 +1,15 @@
 <?php
 
+use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Roles;
+use Automattic\Jetpack\Sync\Modules;
+use Automattic\Jetpack\Sync\Defaults;
+use Automattic\Jetpack\Sync\Settings;
+
 /**
  * Testing CRUD on Posts
+ *
+ * @group jetpack-sync
  */
 class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
@@ -10,7 +18,6 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 	public function setUp() {
 		parent::setUp();
-
 		$user_id = $this->factory->user->create();
 
 		// create a post
@@ -25,17 +32,17 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
 		$this->assertEquals( $this->post->ID, $event->args[0] );
 
-		$post_sync_module = Jetpack_Sync_Modules::get_module( "posts" );
+		$post_sync_module = Modules::get_module( "posts" );
 
 		$this->post = $post_sync_module->filter_post_content_and_add_links( $this->post );
-		$this->assertEqualsObject( $this->post, $event->args[1] );
+		$this->assertEqualsObject( $this->post, $event->args[1], 'Synced post does not match local post.' );
 	}
 
 	public function test_add_post_syncs_post_data() {
 		// post stored by server should equal post in client
 		$this->assertEquals( 1, $this->server_replica_storage->post_count() );
 
-		$post_sync_module = Jetpack_Sync_Modules::get_module( "posts" );
+		$post_sync_module = Modules::get_module( "posts" );
 
 		$this->post = $post_sync_module->filter_post_content_and_add_links( $this->post );
 		$this->assertEquals( $this->post, $this->server_replica_storage->get_post( $this->post->ID ) );
@@ -46,7 +53,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
 		$this->assertFalse( $event->args[3]['is_auto_save'] );
 
-		Jetpack_Constants::set_constant( 'DOING_AUTOSAVE', true );
+		Constants::set_constant( 'DOING_AUTOSAVE', true );
 
 		//Performing sync here (even though setup() does it) to sync REQUEST_URI
 		$user_id = $this->factory->user->create();
@@ -206,7 +213,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		$meta_attachment_metadata = $this->server_replica_storage->get_metadata( 'post', $attach_id, '_wp_attachment_metadata', true );
-		$this->assertEqualsObject( get_post_meta( $attach_id, '_wp_attachment_metadata', true ), $meta_attachment_metadata );
+		$this->assertEqualsObject( get_post_meta( $attach_id, '_wp_attachment_metadata', true ), $meta_attachment_metadata, 'Synced meta does not match local meta.' );
 
 		$meta_thumbnail_id = $this->server_replica_storage->get_metadata( 'post', $this->post->ID, '_thumbnail_id', true );
 		$this->assertEquals( get_post_meta( $this->post->ID, '_thumbnail_id', true ), $meta_thumbnail_id );
@@ -402,7 +409,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_sync_post_filtered_content_was_filtered() {
-		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
+		Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 		add_shortcode( 'foo', array( $this, 'foo_shortcode' ) );
 		$this->post->post_content = "[foo]";
 
@@ -415,7 +422,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_sync_disabled_post_filtered_content() {
-		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 0 ) );
+		Settings::update_settings( array( 'render_filtered_content' => 0 ) );
 
 		add_shortcode( 'foo', array( $this, 'foo_shortcode' ) );
 		$this->post->post_content = "[foo]";
@@ -427,11 +434,11 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $post_on_server->post_content, '[foo]' );
 		$this->assertTrue( empty( $post_on_server->post_content_filtered ) );
 
-		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
+		Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 	}
 
 	function test_sync_post_filtered_excerpt_was_filtered() {
-		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
+		Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 
 		add_shortcode( 'foo', array( $this, 'foo_shortcode' ) );
 		$this->post->post_excerpt = "[foo]";
@@ -446,7 +453,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_sync_post_filter_do_not_expand_jetpack_shortcodes() {
-		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
+		Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 
 		add_filter( 'jetpack_sync_do_not_expand_shortcodes', array( $this, 'do_not_expand_shortcode' ) );
 		add_shortcode( 'foo', array( $this, 'foo_shortcode' ) );
@@ -557,6 +564,8 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( '', $synced_post->post_content_filtered );
 		$this->assertEquals( '', $synced_post->post_excerpt_filtered );
 
+		$this->assertEquals( 'unregister_post_type', $synced_post->post_type );
+
 		// Also works for post type that was never registed
 		$post_id = $this->factory->post->create( array( 'post_type' => 'does_not_exist' ) );
 		$this->sender->do_sync();
@@ -565,6 +574,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 'jetpack_sync_non_registered_post_type', $synced_post->post_status );
 		$this->assertEquals( '', $synced_post->post_content_filtered );
 		$this->assertEquals( '', $synced_post->post_excerpt_filtered );
+		$this->assertEquals( 'does_not_exist', $synced_post->post_type );
 	}
 
 	function test_sync_post_jetpack_sync_prevent_sending_post_data_filter() {
@@ -589,6 +599,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( strtotime( $this->post->post_modified ) <= strtotime( $post->post_modified ) );
 		$this->assertTrue( strtotime( $this->post->post_modified_gmt ) <= strtotime( $post->post_modified_gmt ) );
 		$this->assertEquals( 'jetpack_sync_blocked', $post->post_status );
+		$this->assertEquals( 'post', $post->post_type );
 
 
 		// Since the filter is not there any more the sync should happen as expected.
@@ -601,18 +612,66 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $this->post->post_content, $synced_post->post_content );
 	}
 
+	/**
+	 * Tests that jetpack_sync_save_post events are not sent for blacklisted post_types
+	 */
 	function test_filters_out_blacklisted_post_types() {
 		$args = array(
 			'public' => true,
 			'label'  => 'Snitch'
 		);
 		register_post_type( 'snitch', $args );
+		$this->server_event_storage->reset();
 
 		$post_id = $this->factory->post->create( array( 'post_type' => 'snitch' ) );
 
 		$this->sender->do_sync();
 
 		$this->assertFalse( $this->server_replica_storage->get_post( $post_id ) );
+		$sync_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
+		$this->assertFalse( $sync_event );
+	}
+
+	/**
+	 * Tests that jetpack_published_post events are not sent for blacklisted post_types.
+	 */
+	public function test_filters_out_blacklisted_post_types_jetpack_published_post() {
+		$args = array(
+			'public' => true,
+			'label'  => 'Snitch',
+		);
+		register_post_type( 'snitch', $args );
+		$this->server_event_storage->reset();
+
+		$post_id = $this->factory->post->create( array( 'post_type' => 'snitch' ) );
+
+		$this->sender->do_sync();
+
+		$this->assertFalse( $this->server_replica_storage->get_post( $post_id ) );
+		$sync_event = $this->server_event_storage->get_most_recent_event( 'jetpack_published_post' );
+		$this->assertFalse( $sync_event );
+	}
+
+	/**
+	 * Tests that deleted_post events are not sent for blacklisted post_types.
+	 */
+	public function test_filters_out_blacklisted_post_types_deleted_posts() {
+
+		$args = array(
+			'public' => true,
+			'label'  => 'Snitch',
+		);
+		register_post_type( 'snitch', $args );
+		$this->server_event_storage->reset();
+
+		$post_id = $this->factory->post->create( array( 'post_type' => 'snitch' ) );
+		wp_delete_post( $post_id, true );
+
+		$this->sender->do_sync();
+		$deleted_event = $this->server_event_storage->get_most_recent_event( 'deleted_post' );
+
+		$this->assertFalse( $deleted_event );
+
 	}
 
 	function test_filters_out_blacklisted_post_types_and_their_post_meta() {
@@ -643,7 +702,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		// first, show that post is being synced
 		$this->assertTrue( !! $this->server_replica_storage->get_post( $post_id ) );
 
-		Jetpack_Sync_Settings::update_settings( array( 'post_types_blacklist' => array( 'filter_me' ) ) );
+		Settings::update_settings( array( 'post_types_blacklist' => array( 'filter_me' ) ) );
 
 		$post_id = $this->factory->post->create( array( 'post_type' => 'filter_me' ) );
 
@@ -652,11 +711,11 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertFalse( $this->server_replica_storage->get_post( $post_id ) );
 
 		// also assert that the post types blacklist still contains the hard-coded values
-		$setting = Jetpack_Sync_Settings::get_setting( 'post_types_blacklist' );
+		$setting = Settings::get_setting( 'post_types_blacklist' );
 
 		$this->assertTrue( in_array( 'filter_me', $setting ) );
 
-		foreach( Jetpack_Sync_Defaults::$blacklisted_post_types as $hardcoded_blacklist_post_type ) {
+		foreach( Defaults::$blacklisted_post_types as $hardcoded_blacklist_post_type ) {
 			$this->assertTrue( in_array( $hardcoded_blacklist_post_type, $setting ) );
 		}
 	}
@@ -667,7 +726,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertTrue( apply_filters( 'publicize_should_publicize_published_post', true, get_post( $post_id ) ) );
 
-		Jetpack_Sync_Settings::update_settings( array( 'post_types_blacklist' => array( 'dont_publicize_me' ) ) );
+		Settings::update_settings( array( 'post_types_blacklist' => array( 'dont_publicize_me' ) ) );
 
 		$this->assertFalse( apply_filters( 'publicize_should_publicize_published_post', true, get_post( $post_id ) ) );
 
@@ -677,7 +736,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_returns_post_object_by_id() {
-		$post_sync_module = Jetpack_Sync_Modules::get_module( "posts" );
+		$post_sync_module = Modules::get_module( "posts" );
 
 		$post_id = $this->factory->post->create();
 
@@ -698,7 +757,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_remove_contact_form_shortcode_from_filtered_content() {
-		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
+		Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 
 		require_once JETPACK__PLUGIN_DIR . 'modules/contact-form/grunion-contact-form.php';
 
@@ -719,7 +778,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 	function test_remove_likes_from_filtered_content() {
 		// this only applies to rendered content, which is off by default
-		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
+		Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 
 		// initial sync sets the screen to 'sync', then `is_admin` returns `true`
 		set_current_screen( 'front' );
@@ -746,10 +805,14 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 	function test_remove_sharedaddy_from_filtered_content() {
 		// this only applies to rendered content, which is off by default
-		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
+		Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 
-		require_once JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing.php';
-		require_once JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php';
+		if ( class_exists( 'Sharing_Service' ) ) {
+			Sharing_Service::init();
+		} else {
+			require_once JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing.php';
+			require_once JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php';
+		}
 
 		set_current_screen( 'front' );
 		add_filter( 'sharing_show', '__return_true' );
@@ -777,7 +840,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 	function test_remove_related_posts_from_filtered_content() {
 		// this only applies to rendered content, which is off by default
-		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
+		Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 
 		require_once JETPACK__PLUGIN_DIR . 'modules/related-posts.php';
 		require_once JETPACK__PLUGIN_DIR . 'modules/related-posts/jetpack-related-posts.php';
@@ -800,7 +863,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 	function test_remove_related_posts_shortcode_from_filtered_content() {
 		// this only applies to rendered content, which is off by default
-		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
+		Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 
 		require_once JETPACK__PLUGIN_DIR . 'modules/related-posts.php';
 		require_once JETPACK__PLUGIN_DIR . 'modules/related-posts/jetpack-related-posts.php';
@@ -889,7 +952,7 @@ POST_CONTENT;
 
 	function test_that_we_apply_the_right_filters_to_post_content_and_excerpt() {
 		// this only applies to rendered content, which is off by default
-		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
+		Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 
 		add_filter( 'the_content', array( $this, 'the_content_filter' ), 1000 );
 		add_filter( 'the_excerpt', array( $this, 'the_excerpt_filter' ), 1000 );
@@ -937,7 +1000,7 @@ POST_CONTENT;
 
 	function test_embed_shortcode_is_disabled_on_the_content_filter_during_sync() {
 		// this only applies to rendered content, which is off by default
-		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
+		Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 
 		$content =
 			'Check out this cool video:
@@ -948,7 +1011,7 @@ That was a cool video.';
 
 		$oembeded =
 			'<p>Check out this cool video:</p>
-<p><span class="embed-youtube" style="text-align:center; display: block;"><iframe class=\'youtube-player\' type=\'text/html\' #DIMENSIONS# src=\'http://www.youtube.com/embed/dQw4w9WgXcQ?version=3&#038;rel=1&#038;fs=1&#038;autohide=2&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;wmode=transparent\' allowfullscreen=\'true\' style=\'border:0;\'></iframe></span></p>
+<p><span class="embed-youtube" style="text-align:center; display: block;"><iframe class=\'youtube-player\' #DIMENSIONS# src=\'https://www.youtube.com/embed/dQw4w9WgXcQ?version=3&#038;rel=1&#038;fs=1&#038;autohide=2&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;wmode=transparent\' allowfullscreen=\'true\' style=\'border:0;\'></iframe></span></p>
 <p>That was a cool video.</p>'. "\n";
 
 		$filtered = '<p>Check out this cool video:</p>
@@ -1035,7 +1098,8 @@ That was a cool video.';
 		$this->assertEquals( $author->display_name, $event->args[1]['author']['display_name'] ); // since 5.4 ?
 		$this->assertEquals( $author->ID, $event->args[1]['author']['id'] ); // since 5.4 ?
 		$this->assertEquals( $author->user_email, $event->args[1]['author']['email'] ); // since 5.4 ?
-		$this->assertEquals( Jetpack::translate_user_to_role( $author ), $event->args[1]['author']['translated_role'] ); // since 5.4 ?
+		$roles = new Roles();
+		$this->assertEquals( $roles->translate_user_to_role( $author ), $event->args[1]['author']['translated_role'] ); // since 5.4 ?
 		$this->assertTrue( isset( $event->args[1]['author']['wpcom_user_id'] ) );
 	}
 
@@ -1140,6 +1204,97 @@ That was a cool video.';
 		$this->assertEquals( $events[2]->action, 'jetpack_sync_save_post' );
 		$this->assertEquals( $events[3]->action, 'jetpack_published_post' );
 	}
+
+	/**
+	 * Test if `Modules\Posts\daily_akismet_meta_cleanup_before` will properly chunk it's parameters in chunks of 100
+	 *
+	 * @throws ReflectionException Throw if Reflection fails to initialize.
+	 */
+	public function test_sync_jetpack_posts_akismet_post_meta_delete_is_chunked() {
+		$ids = array_fill( 0, 1450, 1234 );
+
+		$mocked = $this->getMockBuilder( stdClass::class )
+						->setMethods( array( 'chunked_call' ) )
+						->getMock();
+
+		$mocked->expects( $this->exactly( 15 ) )
+				->method( 'chunked_call' );
+
+		add_action( 'jetpack_post_meta_batch_delete', array( $mocked, 'chunked_call' ), 10, 2 );
+
+		/**
+		 * Override `action_handler` private property as it's used directly in the method and it's not initialized
+		 * to a function during method call, without calling `Modules\Posts\init_listeners()` to set it.
+		 */
+		$test_instance = new Modules\Posts();
+		$test_ref      = new ReflectionObject( $test_instance );
+		$property_ref  = $test_ref->getProperty( 'action_handler' );
+		$property_ref->setAccessible( true );
+		$property_ref->setValue( $test_instance, function () {} );
+
+		$test_instance->daily_akismet_meta_cleanup_before( $ids );
+	}
+
+	/**
+	 * Test if `Modules\Posts\daily_akismet_meta_cleanup_before` will properly return with invalid input
+	 *
+	 * @throws ReflectionException Throw if Reflection fails to initialize.
+	 */
+	public function test_sync_jetpack_posts_akismet_post_meta_delete_invalid_data() {
+		$ids = 'test_invalid_value';
+
+		$mocked = $this->getMockBuilder( stdClass::class )
+						->setMethods( array( 'chunked_call' ) )
+						->getMock();
+
+		$mocked->expects( $this->never() )
+				->method( 'chunked_call' );
+
+		add_action( 'jetpack_post_meta_batch_delete', array( $mocked, 'chunked_call' ), 10, 2 );
+
+		/**
+		 * Override `action_handler` private property as it's used directly in the method and it's not initialized
+		 * to a function during method call, without calling `Modules\Posts\init_listeners()` to set it.
+		 */
+		$test_instance = new Modules\Posts();
+		$test_ref      = new ReflectionObject( $test_instance );
+		$property_ref  = $test_ref->getProperty( 'action_handler' );
+		$property_ref->setAccessible( true );
+		$property_ref->setValue( $test_instance, function () {} );
+
+		$test_instance->daily_akismet_meta_cleanup_before( $ids );
+	}
+
+	/**
+	 * Test if `Modules\Posts\daily_akismet_meta_cleanup_before` will properly return with empty input
+	 *
+	 * @throws ReflectionException Throw if Reflection fails to initialize.
+	 */
+	public function test_sync_jetpack_posts_akismet_post_meta_delete_empty() {
+		$ids = array();
+
+		$mocked = $this->getMockBuilder( stdClass::class )
+						->setMethods( array( 'chunked_call' ) )
+						->getMock();
+
+		$mocked->expects( $this->never() )
+			->method( 'chunked_call' );
+
+		add_action( 'jetpack_post_meta_batch_delete', array( $mocked, 'chunked_call' ), 10, 2 );
+
+		/**
+		 * Override `action_handler` private property as it's used directly in the method and it's not initialized
+		 * to a function during method call, without calling `Modules\Posts\init_listeners()` to set it.
+		 */
+		$test_instance = new Modules\Posts();
+		$test_ref      = new ReflectionObject( $test_instance );
+		$property_ref  = $test_ref->getProperty( 'action_handler' );
+		$property_ref->setAccessible( true );
+		$property_ref->setValue( $test_instance, function () {} );
+
+		$test_instance->daily_akismet_meta_cleanup_before( $ids );
+	}
+
 
 	function add_a_hello_post_type() {
 		if ( ! $this->test_already  ) {

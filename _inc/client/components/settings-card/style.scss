@@ -103,12 +103,23 @@
 	.dops-banner__icon-circle {
 		background: none !important;
 		padding: 0 0 0 3px;
-	}
 
-	svg.gridicon.gridicons-checkmark-circle {
-		width: 28px;
-		height: 28px;
-		color: #4ab866;
+		svg.gridicon {
+			width: 28px;
+			height: 28px;
+
+			&.gridicons-info {
+				color: $blue-wordpress;
+			}
+
+			&.gridicons-notice {
+				color: $alert-yellow;
+			}
+
+			&.gridicons-checkmark-circle {
+				color: $alert-green;
+			}
+		}
 	}
 
 	.dops-banner__description {

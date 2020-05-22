@@ -1,8 +1,11 @@
+@import '../../scss/calypso-colors';
+
 .jp-masthead {
 	background-color: $white;
 	text-align: center;
-	box-shadow: 0 1px 0 transparentize( lighten( $gray, 20% ), .5 ),
-		0 1px 2px lighten( $gray, 30% );
+	box-shadow:
+		0 1px 0 $light-gray-700,
+		0 1px 1px 1px  rgba(0,0,0,.04);
 
 	@media (max-width: rem( 782px ) ) {
 		padding: 0 rem( 24px );
@@ -18,8 +21,12 @@
 	flex-wrap: wrap;
 	margin: 0 auto;
 	width: 100%;
-	max-width: rem( 720px );
+	max-width: rem( 1040px );
 	padding-bottom: rem( 6px );
+
+	@media (max-width: 1250px) {
+		max-width: 95%;
+	}
 }
 
 .jp-masthead__logo-container {
@@ -63,8 +70,22 @@
 	.dops-button-group {
 		flex-grow: 1;
 		align-self: center;
+		/* This fixes an unwanted space between the buttons in the network settings caused by a line break. */
+		/* Fixed here to keep PHP code readable. It's safe: .dops-button and .dops-button.is-compact specify a font size. */
+		font-size: 0;
 	}
 	@include breakpoint( "<480px" ) {
 		text-align: left;
 	}
+}
+
+#sandbox-domain-badge {
+	background: #d54e21;
+	text-transform: uppercase;
+	letter-spacing: 0.2em;
+	text-shadow: none;
+	font-size: 9px;
+	font-weight: bold;
+	cursor: pointer;
+	color: #ffffff;
 }

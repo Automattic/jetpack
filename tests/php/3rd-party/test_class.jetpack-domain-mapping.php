@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Constants;
+
 require_once JETPACK__PLUGIN_DIR . '3rd-party/domain-mapping.php';
 
 // Extend with a public constructor so we can test
@@ -10,7 +12,7 @@ class MockDomainMapping extends Jetpack_3rd_Party_Domain_Mapping  {
 
 class WP_Test_Domain_Mapping extends WP_UnitTestCase {
 	function tearDown() {
-		Jetpack_Constants::clear_constants();
+		Constants::clear_constants();
 		foreach ( $this->get_jetpack_sync_filters() as $filter ) {
 			remove_all_filters( $filter );
 		}
@@ -35,7 +37,7 @@ class WP_Test_Domain_Mapping extends WP_UnitTestCase {
 	}
 
 	function test_domain_mapping_should_stop_search_after_hooking_once() {
-		Jetpack_Constants::set_constant( 'SUNRISE', true );
+		Constants::set_constant( 'SUNRISE', true );
 
 		$stub = $this->getMockBuilder( 'MockDomainMapping' )
 			->setMethods( array( 'hook_wordpress_mu_domain_mapping', 'hook_wpmu_dev_domain_mapping' ) )
@@ -55,7 +57,7 @@ class WP_Test_Domain_Mapping extends WP_UnitTestCase {
 	}
 
 	function test_domain_mapping_mu_domain_mapping_not_hooked_when_function_not_exists() {
-		Jetpack_Constants::set_constant( 'SUNRISE_LOADED', true );
+		Constants::set_constant( 'SUNRISE_LOADED', true );
 
 		$stub = $this->getMockBuilder( 'MockDomainMapping' )
 			->setMethods( array( 'function_exists' ) )
@@ -74,7 +76,7 @@ class WP_Test_Domain_Mapping extends WP_UnitTestCase {
 	}
 
 	function test_domain_mapping_mu_domain_mapping_hooked_when_function_exists() {
-		Jetpack_Constants::set_constant( 'SUNRISE_LOADED', true );
+		Constants::set_constant( 'SUNRISE_LOADED', true );
 
 		$stub = $this->getMockBuilder( 'MockDomainMapping' )
 			->setMethods( array( 'function_exists' ) )
