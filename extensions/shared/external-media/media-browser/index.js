@@ -71,6 +71,17 @@ function MediaBrowser( props ) {
 		nextPage();
 	};
 
+	const shouldFocusOnInsert = index => {
+		/**
+		 * We only want to send focus to an image if:
+		 * - previousMediaCount is not 0 (we don't want to focus the first image on initial modal load)
+		 * - new images have been added to to the media (we don't want to focus the previous count if no new images were found)
+		 */
+		return (
+			previousMediaCount && previousMediaCount !== media.length && index === previousMediaCount
+		);
+	};
+
 	return (
 		<div className={ wrapper }>
 			<ul className={ classes }>
@@ -79,7 +90,7 @@ function MediaBrowser( props ) {
 						item={ item }
 						key={ item.ID }
 						onClick={ onSelectImage }
-						isFocusedOnInsert={ previousMediaCount && index === previousMediaCount }
+						isFocusedOnInsert={ shouldFocusOnInsert( index ) }
 						isSelected={ selected.find( toFind => toFind.ID === item.ID ) }
 					/>
 				) ) }
