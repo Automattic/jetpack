@@ -42,6 +42,13 @@ if ( ! pr.body.includes( 'Proposed changelog entry' ) ) {
 	);
 }
 
+// Privacy section filled in
+if ( ! pr.body.includes( 'data or activity we track or use' ) ) {
+	warn(
+		'The Privacy section is missing for this PR. Please specify whether this PR includes any changes to data or privacy.'
+	);
+}
+
 // Check if newly added .php files were added to phpcs linter whitelist
 if ( newFiles.length > 0 ) {
 	const newPHPFiles = newFiles.filter(
