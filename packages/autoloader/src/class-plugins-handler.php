@@ -7,40 +7,38 @@
 class Plugins_Handler {
 
 	/**
-	 * Returns an array containing the directories of all active plugins and all
-	 * known activating plugins.
+	 * Returns an array containing the directories of all active plugins and all known activating plugins.
 	 *
-	 * @return Array An array of plugin directories as strings.
+	 * @return Array An array of plugin directories as strings or an empty array.
 	 */
 	public function get_all_active_plugins() {
 		$active_plugins = array_merge( $this->get_multisite_plugins(), $this->get_active_plugins() );
 
 		$plugins = array_unique( array_merge( $active_plugins, $this->get_all_activating_plugins() ) );
-		$plugins = array_filter( $plugins, array( $this, 'is_directory_plugin' ) );
-
-		$plugin_dirs = array_map( array( $this, 'remove_plugin_file' ), $plugins );
-		return $plugin_dirs;
+		return $plugins;
 	}
 
 	/**
-	 * Get the active sitewide plugins in a multisite environment.
+	 * Returns an array containing the directories for the active sitewide plugins in a multisite environment.
 	 *
-	 * @return Array The active sitewide plugins.
+	 * @return Array The directories for the active sitewide plugins or an empty array.
 	 */
 	protected function get_multisite_plugins() {
-		return is_multisite()
+		$multisite_plugins = is_multisite()
 			? array_keys( get_site_option( 'active_sitewide_plugins', array() ) )
 			: array();
 
+		return $this->convert_plugins_to_dirs( $multisite_plugins );
 	}
 
 	/**
-	 * Get the currently active plugins.
+	 * Returns an array containing the directories for the currently active plugins.
 	 *
-	 * @return Array The active plugins.
+	 * @return Array The active plugins directories or an empty array.
 	 */
 	protected function get_active_plugins() {
-		return (array) get_option( 'active_plugins', array() );
+		$active_plugins = (array) get_option( 'active_plugins', array() );
+		return $this->convert_plugins_to_dirs( $active_plugins );
 	}
 
 	/**
@@ -55,15 +53,30 @@ class Plugins_Handler {
 	}
 
 	/**
-	 * The input is a string with the format 'dir/file.php'. This
-	 * method removes the 'file.php' part, which is not needed.
+	 * Returns the plugin's directory.
+	 *
+	 * The input is a string with the format 'dir/file.php'. This method removes the 'file.php' part. The directory
+	 * alone can be used to identify the plugin.
 	 *
 	 * @param string $plugin The plugin string with the format 'dir/file.php'.
 	 *
 	 * @return string The plugin's directory.
 	 */
-	private function remove_plugin_file( $plugin ) {
+	private function remove_plugin_file_from_string( $plugin ) {
 		return explode( '/', $plugin )[0];
+	}
+
+	/**
+	 * Converts an array of plugin strings with the format 'dir/file.php' to an array of directories. Also removes any
+	 * single-file plugins since they cannot have packages.
+	 *
+	 * @param Array $plugins The array of plugin strings with the format 'dir/file.php'.
+	 *
+	 * @return Array An array of plugin directories.
+	 */
+	private function convert_plugins_to_dirs( $plugins ) {
+		$plugins = array_filter( $plugins, array( $this, 'is_directory_plugin' ) );
+		return array_map( array( $this, 'remove_plugin_file_from_string' ), $plugins );
 	}
 
 	/**
@@ -94,9 +107,9 @@ class Plugins_Handler {
 	}
 
 	/**
-	 * Returns the names of activating plugins if the plugins are activating via a request.
+	 * Returns an array containing the directories of plugins that are activating via a request.
 	 *
-	 * @return Array The array of the activating plugins or empty array.
+	 * @return Array An array of directories of the activating plugins or an empty array.
 	 */
 	private function get_plugins_activating_via_request() {
 
@@ -105,6 +118,8 @@ class Plugins_Handler {
 		$action = isset( $_REQUEST['action'] ) ? $_REQUEST['action'] : false;
 		$plugin = isset( $_REQUEST['plugin'] ) ? $_REQUEST['plugin'] : false;
 		$nonce  = isset( $_REQUEST['_wpnonce'] ) ? $_REQUEST['_wpnonce'] : false;
+
+		$activating_plugins = array();
 
 		/**
 		 * Note: we're not actually checking the nonce here becase it's too early
@@ -116,32 +131,32 @@ class Plugins_Handler {
 
 		// In case of a single plugin activation there will be a plugin slug.
 		if ( 'activate' === $action && ! empty( $nonce ) ) {
-			return array( wp_unslash( $plugin ) );
+			$activating_plugins = array( wp_unslash( $plugin ) );
 		}
 
 		$plugins = isset( $_REQUEST['checked'] ) ? $_REQUEST['checked'] : array();
 
 		// In case of bulk activation there will be an array of plugins.
 		if ( 'activate-selected' === $action && ! empty( $nonce ) ) {
-			return array_map( 'wp_unslash', $plugins );
+			$activating_plugins = array_map( 'wp_unslash', $plugins );
 		}
 
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
-		return array();
+		return $this->convert_plugins_to_dirs( $activating_plugins );
 	}
 
 	/**
-	 * Returns an array of the names of all known activating plugins. This includes
-	 * plugins activating via a request and plugins that are activating via other
-	 * methods.
+	 * Returns an array containing the directories of all known activating plugins. This includes plugins activating
+	 * via a request and plugins that are activating via other methods.
 	 *
-	 * @return Array The array of all activating plugins or empty array.
+	 * @return Array An array of the directories of all activating plugins or an empty array.
 	 */
 	private function get_all_activating_plugins() {
 		global $jetpack_autoloader_activating_plugins;
 
 		$activating_plugins = $this->get_plugins_activating_via_request();
+
 		return array_unique( array_merge( $activating_plugins, $jetpack_autoloader_activating_plugins ) );
 	}
 
