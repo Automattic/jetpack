@@ -12,16 +12,23 @@ class Plugins_Handler {
 	 * @return Array An array of plugin directories as strings or an empty array.
 	 */
 	public function get_all_active_plugins() {
-		$active_plugins = array_merge( $this->get_multisite_plugins(), $this->get_active_plugins() );
+		global $jetpack_autoloader_activating_plugins;
 
-		$plugins = array_unique( array_merge( $active_plugins, $this->get_all_activating_plugins() ) );
+		$active_plugins    = $this->convert_plugins_to_dirs( $this->get_active_plugins() );
+		$multisite_plugins = $this->convert_plugins_to_dirs( $this->get_multisite_plugins() );
+		$active_plugins    = array_merge( $multisite_plugins, $active_plugins );
+
+		$activating_plugins = $this->convert_plugins_to_dirs( $this->get_plugins_activating_via_request() );
+		$activating_plugins = array_unique( array_merge( $activating_plugins, $jetpack_autoloader_activating_plugins ) );
+
+		$plugins = array_unique( array_merge( $active_plugins, $activating_plugins ) );
 		return $plugins;
 	}
 
 	/**
-	 * Returns an array containing the directories for the active sitewide plugins in a multisite environment.
+	 * Returns an array containing the names for the active sitewide plugins in a multisite environment.
 	 *
-	 * @return Array The directories for the active sitewide plugins or an empty array.
+	 * @return Array The names of the active sitewide plugins or an empty array.
 	 */
 	protected function get_multisite_plugins() {
 		$multisite_plugins = is_multisite()
@@ -32,9 +39,9 @@ class Plugins_Handler {
 	}
 
 	/**
-	 * Returns an array containing the directories for the currently active plugins.
+	 * Returns an array containing the names of the currently active plugins.
 	 *
-	 * @return Array The active plugins directories or an empty array.
+	 * @return Array The active plugins' names or an empty array.
 	 */
 	protected function get_active_plugins() {
 		$active_plugins = (array) get_option( 'active_plugins', array() );
@@ -107,9 +114,9 @@ class Plugins_Handler {
 	}
 
 	/**
-	 * Returns an array containing the directories of plugins that are activating via a request.
+	 * Returns an array containing the names of plugins that are activating via a request.
 	 *
-	 * @return Array An array of directories of the activating plugins or an empty array.
+	 * @return Array An array of names of the activating plugins or an empty array.
 	 */
 	private function get_plugins_activating_via_request() {
 
@@ -118,8 +125,6 @@ class Plugins_Handler {
 		$action = isset( $_REQUEST['action'] ) ? $_REQUEST['action'] : false;
 		$plugin = isset( $_REQUEST['plugin'] ) ? $_REQUEST['plugin'] : false;
 		$nonce  = isset( $_REQUEST['_wpnonce'] ) ? $_REQUEST['_wpnonce'] : false;
-
-		$activating_plugins = array();
 
 		/**
 		 * Note: we're not actually checking the nonce here becase it's too early
@@ -131,33 +136,19 @@ class Plugins_Handler {
 
 		// In case of a single plugin activation there will be a plugin slug.
 		if ( 'activate' === $action && ! empty( $nonce ) ) {
-			$activating_plugins = array( wp_unslash( $plugin ) );
+			return array( wp_unslash( $plugin ) );
 		}
 
 		$plugins = isset( $_REQUEST['checked'] ) ? $_REQUEST['checked'] : array();
 
 		// In case of bulk activation there will be an array of plugins.
 		if ( 'activate-selected' === $action && ! empty( $nonce ) ) {
-			$activating_plugins = array_map( 'wp_unslash', $plugins );
+			return array_map( 'wp_unslash', $plugins );
 		}
 
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
-		return $this->convert_plugins_to_dirs( $activating_plugins );
-	}
-
-	/**
-	 * Returns an array containing the directories of all known activating plugins. This includes plugins activating
-	 * via a request and plugins that are activating via other methods.
-	 *
-	 * @return Array An array of the directories of all activating plugins or an empty array.
-	 */
-	private function get_all_activating_plugins() {
-		global $jetpack_autoloader_activating_plugins;
-
-		$activating_plugins = $this->get_plugins_activating_via_request();
-
-		return array_unique( array_merge( $activating_plugins, $jetpack_autoloader_activating_plugins ) );
+		return array();
 	}
 
 	/**

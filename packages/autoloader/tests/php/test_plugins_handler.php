@@ -12,11 +12,13 @@ use PHPUnit\Framework\TestCase;
  */
 class PluginsHandlerTest extends TestCase {
 
-	const DEFAULT_ACTIVE_PLUGINS    = array( 'test1/test1.php', 'test2/test2.php' );
-	const DEFAULT_MULTISITE_PLUGINS = array(
+	const DEFAULT_ACTIVE_PLUGINS        = array( 'test1/test1.php', 'test2/test2.php' );
+	const DEFAULT_ACTIVE_PLUGIN_DIRS    = array( 'test1', 'test2' );
+	const DEFAULT_MULTISITE_PLUGINS     = array(
 		'multi1/multi1.php' => 'details',
 		'multi2/multi2.php' => 'details',
 	);
+	const DEFAULT_MULTISITE_PLUGIN_DIRS = array( 'multi1', 'multi2' );
 
 	/**
 	 * This method is called before each test.
@@ -114,7 +116,7 @@ class PluginsHandlerTest extends TestCase {
 
 		$current_plugin = 'unknown';
 
-		// 'unknown/unknown.php' is not in self::DEFAULT_ACTIVE_PLUGINS.
+		// 'unknown' is not in self::DEFAULT_ACTIVE_PLUGINS.
 		$this->plugins_handler
 			->method( 'get_current_plugin_dir' )
 			->willReturn( $current_plugin );
@@ -136,11 +138,12 @@ class PluginsHandlerTest extends TestCase {
 		global $jetpack_autoloader_activating_plugins;
 
 		// Activating plugin.
-		$activating_plugin                     = 'activating/activating.php';
+		$activating_plugin                     = 'activating';
 		$jetpack_autoloader_activating_plugins = array( $activating_plugin );
 
 		// Plugin activating via a request.
-		$request_plugin       = 'request/request.php';
+		$request_plugin_dir   = 'request';
+		$request_plugin       = $request_plugin_dir . '/request.php';
 		$_REQUEST['action']   = 'activate';
 		$_REQUEST['plugin']   = $request_plugin;
 		$_REQUEST['_wpnonce'] = '123abc';
@@ -150,12 +153,12 @@ class PluginsHandlerTest extends TestCase {
 
 		$expected_output = array_merge(
 			array( $activating_plugin ),
-			array( $request_plugin ),
-			self::DEFAULT_ACTIVE_PLUGINS
+			array( $request_plugin_dir ),
+			self::DEFAULT_ACTIVE_PLUGIN_DIRS
 		);
 
 		$actual_output = $this->plugins_handler->get_all_active_plugins();
-		$this->assertEquals( sort( $expected_output ), sort( $actual_output ) );
+		$this->assertEqualsCanonicalizing( $expected_output, $actual_output );
 	}
 
 	/**
@@ -168,16 +171,21 @@ class PluginsHandlerTest extends TestCase {
 		global $jetpack_autoloader_activating_plugins;
 
 		// Activating plugins.
-		$activating_plugins = array( 'activating1/activating1.php', 'activating2/activating2.php' );
+		$activating_plugins = array( 'activating1', 'activating2' );
 
 		$jetpack_autoloader_activating_plugins = $activating_plugins;
 
 		// Plugins activating via a request.
-		$request_plugins = array(
-			'request1/request1.php',
-			'request2/request2.php',
-			'request3/request3.php',
+		$request_plugin_dirs = array(
+			'request1',
+			'request2',
+			'request3',
 		);
+
+		$request_plugins = array();
+		foreach ( $request_plugin_dirs as $request_plugin ) {
+			$request_plugins[] = $request_plugin . '/' . $request_plugin . '.php';
+		}
 
 		$_REQUEST['action']   = 'activate-selected';
 		$_REQUEST['checked']  = $request_plugins;
@@ -188,12 +196,12 @@ class PluginsHandlerTest extends TestCase {
 
 		$expected_output = array_merge(
 			$activating_plugins,
-			$request_plugins,
-			self::DEFAULT_ACTIVE_PLUGINS
+			$request_plugin_dirs,
+			self::DEFAULT_ACTIVE_PLUGIN_DIRS
 		);
 
 		$actual_output = $this->plugins_handler->get_all_active_plugins();
-		$this->assertEquals( sort( $expected_output ), sort( $actual_output ) );
+		$this->assertEqualsCanonicalizing( $expected_output, $actual_output );
 	}
 
 	/**
@@ -206,7 +214,7 @@ class PluginsHandlerTest extends TestCase {
 		global $jetpack_autoloader_activating_plugins;
 
 		// Activating plugin.
-		$activating_plugin                     = 'activating/activating.php';
+		$activating_plugin                     = 'activating';
 		$jetpack_autoloader_activating_plugins = array( $activating_plugin );
 
 		// Plugin activating via a request without a nonce.
@@ -220,11 +228,11 @@ class PluginsHandlerTest extends TestCase {
 		// The plugin activating via a request should not be in the output.
 		$expected_output = array_merge(
 			array( $activating_plugin ),
-			self::DEFAULT_ACTIVE_PLUGINS
+			self::DEFAULT_ACTIVE_PLUGIN_DIRS
 		);
 
 		$actual_output = $this->plugins_handler->get_all_active_plugins();
-		$this->assertEquals( sort( $expected_output ), sort( $actual_output ) );
+		$this->assertEqualsCanonicalizing( $expected_output, $actual_output );
 	}
 
 	/**
@@ -242,9 +250,9 @@ class PluginsHandlerTest extends TestCase {
 		// Use default active plugins.
 		$this->set_up_mocks();
 
-		$expected_output = self::DEFAULT_ACTIVE_PLUGINS;
+		$expected_output = self::DEFAULT_ACTIVE_PLUGIN_DIRS;
 		$actual_output   = $this->plugins_handler->get_all_active_plugins();
-		$this->assertEquals( sort( $expected_output ), sort( $actual_output ) );
+		$this->assertEqualsCanonicalizing( $expected_output, $actual_output );
 	}
 
 
@@ -255,12 +263,13 @@ class PluginsHandlerTest extends TestCase {
 	 * @covers Plugins_Handler::get_all_active_plugins
 	 */
 	public function test_get_all_active_plugins_single_active() {
-		$active_plugin = array( 'test/test.php' );
+		$active_plugin_dir = 'test';
+		$active_plugin     = array( $active_plugin_dir . '/test.php' );
 		$this->set_up_mocks( $active_plugin );
 
-		$expected_output = $active_plugin;
+		$expected_output = array( $active_plugin_dir );
 		$actual_output   = $this->plugins_handler->get_all_active_plugins();
-		$this->assertEquals( sort( $expected_output ), sort( $actual_output ) );
+		$this->assertEqualsCanonicalizing( $expected_output, $actual_output );
 	}
 
 	/**
@@ -269,29 +278,15 @@ class PluginsHandlerTest extends TestCase {
 	 *
 	 * @covers Plugins_Handler::get_all_active_plugins
 	 */
-	public function test_get_all_active_plugins_single_file_plugin_skip() {
-		$active_dir_plugin = array( 'test/test.php' );
-		$active_plugins    = array_merge( $active_dir_plugin, array( 'single_file.php' ) );
+	public function test_get_all_active_plugins_single_file_plugin() {
+		$active_plugin_dir = 'test';
+		$active_plugin     = array( $active_plugin_dir . '/test.php' );
+		$active_plugins    = array_merge( $active_plugin, array( 'single_file.php' ) );
 		$this->set_up_mocks( $active_plugins );
 
-		$expected_output = $active_dir_plugin;
+		$expected_output = array( $active_plugin_dir );
 		$actual_output   = $this->plugins_handler->get_all_active_plugins();
-		$this->assertEquals( sort( $expected_output ), sort( $actual_output ) );
-	}
-
-	/**
-	 * Tests get_all_active_plugins with a single-file plugin and single-file
-	 * plugins not skipped.
-	 *
-	 * @covers Plugins_Handler::get_all_active_plugins
-	 */
-	public function test_get_all_active_plugins_single_file_plugin_dont_skip() {
-		$active_plugins = array( 'test/test.php', 'single_file.php' );
-		$this->set_up_mocks( $active_plugins );
-
-		$expected_output = $active_plugins;
-		$actual_output   = $this->plugins_handler->get_all_active_plugins( false );
-		$this->assertEquals( sort( $expected_output ), sort( $actual_output ) );
+		$this->assertEqualsCanonicalizing( $expected_output, $actual_output );
 	}
 
 	/**
@@ -304,11 +299,12 @@ class PluginsHandlerTest extends TestCase {
 		global $jetpack_autoloader_activating_plugins;
 
 		// Activating plugin.
-		$activating_plugin                     = 'activating/activating.php';
+		$activating_plugin                     = 'activating_plugin';
 		$jetpack_autoloader_activating_plugins = array( $activating_plugin );
 
 		// Plugin activating via a request.
-		$request_plugin       = 'request/request.php';
+		$request_plugin_dir   = 'request';
+		$request_plugin       = $request_plugin_dir . '/request.php';
 		$_REQUEST['action']   = 'activate';
 		$_REQUEST['plugin']   = $request_plugin;
 		$_REQUEST['_wpnonce'] = '123abc';
@@ -317,12 +313,12 @@ class PluginsHandlerTest extends TestCase {
 
 		$expected_output = array_merge(
 			array( $activating_plugin ),
-			array( $request_plugin ),
-			self::DEFAULT_ACTIVE_PLUGINS,
-			array_keys( self::DEFAULT_MULTISITE_PLUGINS )
+			array( $request_plugin_dir ),
+			self::DEFAULT_ACTIVE_PLUGIN_DIRS,
+			self::DEFAULT_MULTISITE_PLUGIN_DIRS
 		);
 
 		$actual_output = $this->plugins_handler->get_all_active_plugins();
-		$this->assertEquals( sort( $expected_output ), sort( $actual_output ) );
+		$this->assertEqualsCanonicalizing( $expected_output, $actual_output );
 	}
 }
