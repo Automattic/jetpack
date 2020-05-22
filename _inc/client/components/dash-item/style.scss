@@ -48,6 +48,11 @@
 	+ .jp-dash-item__description {
 		max-width: 61%;
 	}
+	&.is-alert {
+		color: $white;
+		background: $alert-red;
+		border-color: $alert-red;
+	}
 }
 
 .jp-dash-item__title {

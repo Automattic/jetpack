@@ -1285,21 +1285,41 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return array|WP_Error Result from WPCOM API or error.
 	 */
 	public static function scan_state() {
+
+		if ( ! isset( $_GET['_cacheBuster'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$scan_state = get_transient( 'jetpack_scan_state' );
+			if ( ! empty( $scan_state ) ) {
+				return $scan_state;
+			}
+		}
 		$site_id = Jetpack_Options::get_option( 'id' );
 
 		if ( ! $site_id ) {
 			return new WP_Error( 'site_id_missing' );
 		}
-
+		// The default timeout was too short in come cases.
+		add_filter( 'http_request_timeout', array( __CLASS__, 'increase_timeout_30' ), PHP_INT_MAX - 1 );
 		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/scan', $site_id ) . '?force=wpcom', '2', array(), null, 'wpcom' );
+		remove_filter( 'http_request_timeout', array( __CLASS__, 'increase_timeout_30' ), PHP_INT_MAX - 1 );
 
 		if ( wp_remote_retrieve_response_code( $response ) !== 200 ) {
 			return new WP_Error( 'scan_state_fetch_failed' );
 		}
 
-		$body = wp_remote_retrieve_body( $response );
+		$body   = wp_remote_retrieve_body( $response );
+		$result = json_decode( $body );
+		set_transient( 'jetpack_scan_state', $result, 30 * MINUTE_IN_SECONDS );
 
-		return json_decode( $body );
+		return $result;
+	}
+
+	/**
+	 * Increases the request timeout value to 30 seconds.
+	 *
+	 * @return int Always returns 30.
+	 */
+	public static function increase_timeout_30() {
+		return 30; // 30 Seconds
 	}
 
 	/**

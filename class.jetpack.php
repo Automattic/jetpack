@@ -85,15 +85,6 @@ class Jetpack {
 	);
 
 	/**
-	 * The handles of scripts that can be loaded asynchronously.
-	 *
-	 * @var array
-	 */
-	public $async_script_handles = array(
-		'woocommerce-analytics',
-	);
-
-	/**
 	 * Contains all assets that have had their URL rewritten to minified versions.
 	 *
 	 * @var array
@@ -738,11 +729,6 @@ class Jetpack {
 		if ( ! has_action( 'shutdown', array( $this, 'push_stats' ) ) ) {
 			add_action( 'shutdown', array( $this, 'push_stats' ) );
 		}
-
-		/*
-		 * Load some scripts asynchronously.
-		 */
-		add_action( 'script_loader_tag', array( $this, 'script_add_async' ), 10, 3 );
 
 		// Actions for Manager::authorize().
 		add_action( 'jetpack_authorize_starting', array( $this, 'authorize_starting' ) );
@@ -6853,21 +6839,11 @@ endif;
 	}
 
 	/**
-	 * Add an async attribute to scripts that can be loaded asynchronously.
-	 * https://www.w3schools.com/tags/att_script_async.asp
-	 *
-	 * @since 7.7.0
-	 *
-	 * @param string $tag    The <script> tag for the enqueued script.
-	 * @param string $handle The script's registered handle.
-	 * @param string $src    The script's source URL.
+	 * @deprecated
+	 * @see Automattic\Jetpack\Assets\add_aync_script
 	 */
 	public function script_add_async( $tag, $handle, $src ) {
-		if ( in_array( $handle, $this->async_script_handles, true ) ) {
-			return preg_replace( '/^<script /i', '<script async ', $tag );
-		}
-
-		return $tag;
+		_deprecated_function( __METHOD__, 'jetpack-8.6.0' );
 	}
 
 	/*
@@ -7255,8 +7231,8 @@ endif;
 	}
 
 	/**
-	 * Checks for whether Jetpack Backup & Scan is enabled.
-	 * Will return true if the state of Backup & Scan is anything except "unavailable".
+	 * Checks for whether Jetpack Backup is enabled.
+	 * Will return true if the state of Backup is anything except "unavailable".
 	 *
 	 * @return bool|int|mixed
 	 */
