@@ -11,7 +11,7 @@ import { bindActionCreators } from 'redux';
 import { isFetchingPluginUpdates, fetchPluginUpdates } from 'state/at-a-glance';
 
 class QueryPluginUpdates extends Component {
-	UNSAFE_componentWillMount() {
+	componentWillMount() {
 		if ( ! this.props.fetchingPluginUpdates ) {
 			this.props.fetchPluginUpdates();
 		}
@@ -23,22 +23,17 @@ class QueryPluginUpdates extends Component {
 }
 
 QueryPluginUpdates.defaultProps = {
-	fetchPluginUpdates: () => {},
+	fetchPluginUpdates: () => {}
 };
 
-export default connect(
-	state => {
-		return {
-			fetchPluginUpdates: fetchPluginUpdates(),
-			fetchingPluginUpdates: isFetchingPluginUpdates( state ),
-		};
-	},
-	dispatch => {
-		return bindActionCreators(
-			{
-				fetchPluginUpdates,
-			},
-			dispatch
-		);
-	}
+export default connect( ( state ) => {
+	return {
+		fetchPluginUpdates: fetchPluginUpdates(),
+		fetchingPluginUpdates: isFetchingPluginUpdates( state ),
+	};
+}, ( dispatch ) => {
+	return bindActionCreators( {
+		fetchPluginUpdates
+	}, dispatch );
+}
 )( QueryPluginUpdates );

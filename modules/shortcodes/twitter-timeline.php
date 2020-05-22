@@ -1,18 +1,6 @@
 <?php
-/**
- * Twitter Timeline Shortcode.
- *
- * Examples:
- * [twitter-timeline username=jetpack]
- *
- * @package Jetpack
- */
+add_shortcode( 'twitter-timeline', 'twitter_timeline_shortcode' );
 
-/**
- * Render the Twitter shortcode.
- *
- * @param array $atts Shortcode attributes.
- */
 function twitter_timeline_shortcode( $atts ) {
 	$default_atts = array(
 		'username' => '',
@@ -51,11 +39,7 @@ function twitter_timeline_shortcode( $atts ) {
 
 	$output .= '>';
 
-	$output .= sprintf(
-		/* Translators: placeholder is a Twitter username. */
-		__( 'Tweets by @%s', 'jetpack' ),
-		$atts['username']
-	);
+	$output .= sprintf( __( 'Tweets by @%s', 'jetpack' ), $atts['username'] );
 
 	$output .= '</a>';
 
@@ -63,11 +47,7 @@ function twitter_timeline_shortcode( $atts ) {
 
 	return $output;
 }
-add_shortcode( 'twitter-timeline', 'twitter_timeline_shortcode' );
 
-/**
- * Enqueue the js used by the Twitter shortcode.
- */
 function twitter_timeline_js() {
 	if ( is_customize_preview() ) {
 		wp_enqueue_script( 'jetpack-twitter-timeline' );

@@ -12,7 +12,6 @@
 @import 'functions/rem';
 
 // Variables
-@import '../../../node_modules/@automattic/calypso-color-schemes/src/__color-studio/color-variables.scss';
 @import 'variables/colors';
 @import 'variables/layout';
 
@@ -31,7 +30,9 @@
 @import '../components/footer/style';
 @import '../components/dev-card/style';
 @import '../components/loading-placeholder/style';
+@import '../components/jetpack-connect/style';
 @import '../components/jetpack-notices/style';
+@import '../components/jumpstart/style';
 @import '../components/masthead/style';
 @import '../components/module-settings/style';
 @import '../components/support-card/style';
@@ -45,16 +46,11 @@
 @import '../components/settings-group/style';
 @import '../components/apps-card/style';
 @import '../components/jetpack-dialogue/style';
-@import '../components/jetpack-dialogue-modern/style';
-@import '../components/about-page/style';
-@import '../components/mobile-magic-link/style';
+@import '../components/welcome-new-plan/style';
+
 
 // Page Templates
 @import '../at-a-glance/style';
-@import '../my-plan/style';
-@import '../performance/style';
 @import '../plans/style';
-@import '../plans-prompt/style';
 @import '../settings/style';
-@import '../setup-wizard/style';
 @import '../traffic/style';

@@ -8,10 +8,11 @@ import { bindActionCreators } from 'redux';
 /**
  * Internal dependencies
  */
-import { fetchModules, isFetchingModulesList } from 'state/modules';
+import { fetchModules } from 'state/modules';
+import { isFetchingModulesList } from 'state/modules';
 
 class QueryModules extends Component {
-	UNSAFE_componentWillMount() {
+	componentWillMount() {
 		if ( ! this.props.fetchingModulesList ) {
 			this.props.fetchModules();
 		}
@@ -23,21 +24,16 @@ class QueryModules extends Component {
 }
 
 QueryModules.defaultProps = {
-	fetchModules: () => {},
+	fetchModules: () => {}
 };
 
-export default connect(
-	state => {
-		return {
-			fetchingModulesList: isFetchingModulesList( state ),
-		};
-	},
-	dispatch => {
-		return bindActionCreators(
-			{
-				fetchModules,
-			},
-			dispatch
-		);
-	}
+export default connect( ( state ) => {
+	return {
+		fetchingModulesList: isFetchingModulesList( state )
+	};
+}, ( dispatch ) => {
+	return bindActionCreators( {
+		fetchModules
+	}, dispatch );
+}
 )( QueryModules );

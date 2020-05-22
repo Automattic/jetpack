@@ -12,7 +12,7 @@ import { isFetchingProtectData, fetchProtectCount } from 'state/at-a-glance';
 import { isModuleActivated as _isModuleActivated } from 'state/modules';
 
 class QueryProtectCount extends Component {
-	UNSAFE_componentWillMount() {
+	componentWillMount() {
 		if ( ! this.props.fetchingProtectData && this.props.isModuleActivated( 'protect' ) ) {
 			this.props.fetchProtectCount();
 		}
@@ -24,23 +24,18 @@ class QueryProtectCount extends Component {
 }
 
 QueryProtectCount.defaultProps = {
-	fetchProtectCount: () => {},
+	fetchProtectCount: () => {}
 };
 
-export default connect(
-	state => {
-		return {
-			fetchProtectCount: fetchProtectCount(),
-			fetchingProtectData: isFetchingProtectData( state ),
-			isModuleActivated: slug => _isModuleActivated( state, slug ),
-		};
-	},
-	dispatch => {
-		return bindActionCreators(
-			{
-				fetchProtectCount,
-			},
-			dispatch
-		);
-	}
+export default connect( ( state ) => {
+	return {
+		fetchProtectCount: fetchProtectCount(),
+		fetchingProtectData: isFetchingProtectData( state ),
+		isModuleActivated: ( slug ) => _isModuleActivated( state, slug )
+	};
+}, ( dispatch ) => {
+	return bindActionCreators( {
+		fetchProtectCount
+	}, dispatch );
+}
 )( QueryProtectCount );

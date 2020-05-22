@@ -1,14 +1,14 @@
 /**
  * External dependencies
  */
-import React from 'react';
-import classNames from 'classnames';
-import { omit } from 'lodash';
+const React = require( 'react' ),
+	classNames = require( 'classnames' ),
+	omit = require( 'lodash/omit' );
 
 /**
  * Internal dependencies
  */
-import Toggle from 'components/form/form-toggle';
+const Toggle = require( 'components/form/form-toggle' );
 
 export default class CompactFormToggle extends React.Component {
 	static displayName = 'CompactFormToggle';

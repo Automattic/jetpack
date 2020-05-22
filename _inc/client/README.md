@@ -74,6 +74,12 @@ import { translate as __ } from 'i18n-calypso';
 
 Some static HTML is generated from the JSX files and rendered on build time before a release to provide a non-javascript UI with basic functionality if the browser does not report javascript capabilities.
 
+#### Things we do to maintain compatibility for older browser
+
+* We include a **Babel** plugin in the building toolchain to translate incompatible object methods names which may be parsed as keywords in old javascript engines. (e.g. `.catch()`).
+* **Fetch API polyfill**. We use the [whatwg-fetch](https://github.com/github/fetch) polyfill.
+* **Promises Polyfill**. We use the [es6-promise](https://github.com/stefanpenner/es6-promise) polyfill.
+
 ## Internal API
 
 ### Action types
@@ -81,6 +87,7 @@ Some static HTML is generated from the JSX files and rendered on build time befo
 Action types dispatched during the UI lifecycle are listed in `state/action-types.js`.
 
 ### Available state selectors
+
 
 * **getActiveStatsTab( state )**
 * **getAdminEmailAddress( state )**
@@ -94,6 +101,7 @@ Action types dispatched during the UI lifecycle are listed in `state/action-type
 * **getJetpackStateNoticesErrorCode( state )**
 * **getJetpackStateNoticesErrorDescription( state )**
 * **getJetpackStateNoticesMessageCode( state )**
+* **getJumpStartStatus( state )**
 * **getLastDownTime( state )**
 * **getModule( state, name )**
 * **getModuleOption( state, module_slug, option_name )** {
@@ -117,7 +125,6 @@ Action types dispatched during the UI lifecycle are listed in `state/action-type
 * **getUserWpComEmail( state )**
 * **getUserWpComLogin( state )**
 * **getUsername( state )**
-* **isGutenbergAvailable( state )**
 
 ### Available action creators (thunks)
 
@@ -140,6 +147,8 @@ Action types dispatched during the UI lifecycle are listed in `state/action-type
 * **fetchStatsData( range )**
 * **fetchUserConnectionData()**
 * **filterSearch( term )**
+* **jumpStartActivate()**
+* **jumpStartSkip()**
 * **regeneratePostByEmailAddress()**
 * **resetOptions( options )**
 * **setInitialState()**

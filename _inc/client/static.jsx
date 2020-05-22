@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
+import Server from 'react-dom/server';
 import React from 'react';
-import { renderToStaticMarkup } from 'react-dom/server';
 import { Provider } from 'react-redux';
 
 /**
@@ -12,30 +12,41 @@ import store from 'state/redux-store';
 import StaticMain from 'static-main';
 import StaticWarning from 'components/jetpack-notices/static-warning';
 
-const staticHtml = renderToStaticMarkup(
-	<div>
+window.staticHtml = Server.renderToStaticMarkup(
+		<div>
+			<Provider store={ store }>
+				<StaticMain />
+			</Provider>
+		</div>
+	);
+
+window.noscriptNotice = Server.renderToStaticMarkup(
 		<Provider store={ store }>
-			<StaticMain />
+			<noscript>
+				<StaticWarning />
+			</noscript>
 		</Provider>
-	</div>
-);
+	);
 
-const noscriptNotice = renderToStaticMarkup(
-	<Provider store={ store }>
-		<noscript>
+window.versionNotice = Server.renderToStaticMarkup(
+		<Provider store={ store }>
 			<StaticWarning />
-		</noscript>
-	</Provider>
-);
+		</Provider>
+	);
 
-const versionNotice = renderToStaticMarkup(
-	<Provider store={ store }>
-		<StaticWarning />
-	</Provider>
-);
+window.ieNotice = Server.renderToStaticMarkup(
+		<Provider store={ store }>
+			<div id="ie-legacy-notice" style={ { display: 'none' } }>
+				<StaticWarning />
+			</div>
+		</Provider>
+	);
 
-export default () => ( {
-	'static.html': staticHtml,
-	'static-noscript-notice.html': noscriptNotice,
-	'static-version-notice.html': versionNotice,
-} );
+window.ieNotice = window.ieNotice +
+	'<script type="text/javascript">\n' +
+	'/*@cc_on\n' +
+	'if ( @_jscript_version <= 10) {\n' +
+	"jQuery( '#ie-legacy-notice' ).show();\n" +
+	'}\n' +
+	'@*/\n' +
+	'</script>';

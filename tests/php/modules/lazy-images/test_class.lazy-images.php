@@ -208,11 +208,6 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 	}
 
 	function test_compat_with_wp_kses_post() {
-		global $wp_version;
-		if ( version_compare( $wp_version, 5.0, '>=' ) ) {
-			$this->markTestSkipped( 'WP 5.0 allow all data attributes' );
-			return;
-		}
 		$instance = Jetpack_Lazy_Images::instance();
 		remove_filter( 'wp_kses_allowed_html', array( $instance, 'allow_lazy_attributes' ) );
 
@@ -267,34 +262,6 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 			'does_not-skip' => array(
 				'<img src="image.jpg" srcset="medium.jpg 1000w, large.jpg 2000w" class="wp-post-image"/>',
 				false,
-			),
-		);
-	}
-
-	/**
-	 * @dataProvider get_dont_process_images_with_skip_lazy_data_attribute_data
-	 */
-	function test_dont_process_images_with_skip_lazy_data_attribute( $input, $should_skip = true ) {
-		$instance = Jetpack_Lazy_Images::instance();
-		$output = $instance->add_image_placeholders( $input );
-
-		if ( $should_skip ) {
-			$this->assertNotContains( 'srcset="placeholder.jpg"', $output );
-		} else {
-			$this->assertContains( 'srcset="placeholder.jpg"', $output );
-		}
-	}
-
-	function get_dont_process_images_with_skip_lazy_data_attribute_data() {
-		return array(
-			'skip_lazy_attr_only' => array(
-				'<img src="image.jpg" srcset="medium.jpg 1000w, large.jpg 2000w" data-skip-lazy/>',
-			),
-			'skip-lazy-attr-true' => array(
-				'<img src="image.jpg" srcset="medium.jpg 1000w, large.jpg 2000w" data-skip-lazy="true"/>',
-			),
-			'skip-lazy-attr-1' => array(
-				'<img src="image.jpg" srcset="medium.jpg 1000w, large.jpg 2000w" data-skip-lazy="1"/>',
 			),
 		);
 	}

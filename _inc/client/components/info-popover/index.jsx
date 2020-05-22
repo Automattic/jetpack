@@ -4,19 +4,20 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import createReactClass from 'create-react-class';
-import { noop } from 'lodash';
+import noop from 'lodash/noop';
 
 /**
- * Internal dependencies
- */
+* Internal dependencies
+*/
 import Popover from 'components/popover';
 import Gridicon from 'components/gridicon';
 import classNames from 'classnames';
 import analytics from 'lib/analytics';
 
-import './style.scss';
+require( './style.scss' );
 
 export default createReactClass( {
+
 	displayName: 'InfoPopover',
 
 	propTypes: {
@@ -28,20 +29,20 @@ export default createReactClass( {
 		popoverName: PropTypes.string,
 		onClick: PropTypes.func,
 		ignoreContext: PropTypes.shape( {
-			getDOMNode: PropTypes.function,
+			getDOMNode: PropTypes.function
 		} ),
 	},
 
 	getDefaultProps() {
 		return {
 			position: 'bottom',
-			onClick: noop,
+			onClick: noop
 		};
 	},
 
 	getInitialState() {
 		return {
-			showPopover: false,
+			showPopover: false
 		};
 	},
 
@@ -55,11 +56,11 @@ export default createReactClass( {
 		return (
 			<button ref="infoPopover" className={ classes } onClick={ this._onClick }>
 				<Gridicon icon="info-outline" size={ 18 } />
-				{ this.props.screenReaderText ? (
-					<span className="screen-reader-text">{ this.props.screenReaderText }</span>
-				) : (
-					''
-				) }
+				{
+					this.props.screenReaderText
+						? <span className="screen-reader-text">{ this.props.screenReaderText }</span>
+						: ''
+				}
 				<Popover
 					id={ this.props.id }
 					isVisible={ this.state.showPopover }
@@ -67,10 +68,13 @@ export default createReactClass( {
 					ignoreContext={ this.props.ignoreContext }
 					position={ this.props.position }
 					onClose={ this._onClose }
-					className={ classNames( 'dops-info-popover__tooltip', this.props.className ) }
+					className={ classNames(
+							'dops-info-popover__tooltip',
+							this.props.className
+						) }
 					rootClassName={ this.props.rootClassName }
-				>
-					{ this.props.children }
+					>
+						{ this.props.children }
 				</Popover>
 			</button>
 		);
@@ -79,10 +83,8 @@ export default createReactClass( {
 	_onClick( event ) {
 		this.props.onClick();
 		event.preventDefault();
-		this.setState(
-			{
-				showPopover: ! this.state.showPopover,
-			},
+		this.setState( {
+			showPopover: ! this.state.showPopover },
 			this._recordStats
 		);
 	},
@@ -98,5 +100,5 @@ export default createReactClass( {
 			const dialogState = this.state.showPopover ? ' Opened' : ' Closed';
 			analytics.ga.recordEvent( gaEventCategory, 'InfoPopover: ' + popoverName + dialogState );
 		}
-	},
+	}
 } );

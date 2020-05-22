@@ -1,14 +1,11 @@
 <?php
-
-use Automattic\Jetpack\Assets;
-
 /**
  * Plugin Name: Google Translate Widget for WordPress.com
- * Plugin URI: https://automattic.com
+ * Plugin URI: http://automattic.com
  * Description: Add a widget for automatic translation
  * Author: Artur Piszek
  * Version: 0.1
- * Author URI: https://automattic.com
+ * Author URI: http://automattic.com
  * Text Domain: jetpack
  */
 if ( ! defined( 'ABSPATH' ) ) {
@@ -34,8 +31,8 @@ class Jetpack_Google_Translate_Widget extends WP_Widget {
 			/** This filter is documented in modules/widgets/facebook-likebox.php */
 			apply_filters( 'jetpack_widget_name', __( 'Google Translate', 'jetpack' ) ),
 			array(
-				'description'                 => __( 'Provide your readers with the option to translate your site into their preferred language.', 'jetpack' ),
-				'customize_selective_refresh' => true,
+				'description' => __( 'Provide your readers with the option to translate your site into their preferred language.', 'jetpack' ),
+				'customize_selective_refresh' => true
 			)
 		);
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
@@ -49,7 +46,7 @@ class Jetpack_Google_Translate_Widget extends WP_Widget {
 	public function enqueue_scripts() {
 		wp_register_script(
 			'google-translate-init',
-			Assets::get_file_url_for_environment(
+			Jetpack::get_file_url_for_environment(
 				'_inc/build/widgets/google-translate/google-translate.min.js',
 				'modules/widgets/google-translate/google-translate.js'
 			)
@@ -92,19 +89,17 @@ class Jetpack_Google_Translate_Widget extends WP_Widget {
 	public function widget( $args, $instance ) {
 		// We never should show more than 1 instance of this.
 		if ( null === self::$instance ) {
-			$instance = wp_parse_args(
-				$instance, array(
-					'title' => $this->default_title,
-				)
-			);
+			$instance = wp_parse_args( $instance, array(
+				'title' => $this->default_title,
+			) );
 
 			/**
 			 * Filter the layout of the Google Translate Widget.
 			 *
 			 * 3 different integers are accepted.
-			 *  0 for the vertical layout.
-			 *  1 for the horizontal layout.
-			 *  2 for the dropdown only.
+			 * 	0 for the vertical layout.
+			 * 	1 for the horizontal layout.
+			 * 	2 for the dropdown only.
 			 *
 			 * @see https://translate.google.com/manager/website/
 			 *
@@ -187,7 +182,7 @@ class Jetpack_Google_Translate_Widget extends WP_Widget {
 	 * @return array $instance Updated safe values to be saved.
 	 */
 	public function update( $new_instance, $old_instance ) {
-		$instance          = array();
+		$instance = array();
 		$instance['title'] = wp_kses( $new_instance['title'], array() );
 		if ( $instance['title'] === $this->default_title ) {
 			$instance['title'] = false; // Store as false in case of language change

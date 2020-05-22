@@ -1,13 +1,10 @@
 <?php
 
+require_once JETPACK__PLUGIN_DIR . 'class.jetpack-signature.php';
+
 require_once JETPACK__PLUGIN_DIR . '/tests/php/lib/class-wp-test-jetpack-rest-testcase.php';
 require_once JETPACK__PLUGIN_DIR . '/tests/php/lib/class-wp-test-spy-rest-server.php';
 
-/**
- * Test class for Jetpack
- *
- * @covers Jetpack
- */
 class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testcase {
 	protected static $admin_id;
 
@@ -38,7 +35,6 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 	public function tearDown() {
 		parent::tearDown();
 		unset(
-			$_SERVER['HTTP_CONTENT_TYPE'],
 			$_GET['_for'],
 			$_GET['token'],
 			$_GET['timestamp'],
@@ -63,6 +59,8 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 
 	/**
 	 * @author roccotripaldi
+	 * @covers Jetpack->wp_rest_authenticate
+	 * @requires PHP 5.2
 	 */
 	public function test_jetpack_rest_api_authentication_fail_no_token_or_signature() {
 		global $wp_version;
@@ -80,6 +78,8 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 
 	/**
 	 * @author jnylen0
+	 * @covers Jetpack->wp_rest_authenticate
+	 * @requires PHP 5.2
 	 */
 	public function test_jetpack_rest_api_authentication_fail_no_token() {
 		$_GET['signature'] = 'invalid';
@@ -91,6 +91,8 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 
 	/**
 	 * @author jnylen0
+	 * @covers Jetpack->wp_rest_authenticate
+	 * @requires PHP 5.2
 	 */
 	public function test_jetpack_rest_api_authentication_fail_no_signature() {
 		$_GET['token'] = 'invalid';
@@ -102,6 +104,8 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 
 	/**
 	 * @author roccotripaldi
+	 * @covers Jetpack->wp_rest_authenticate
+	 * @requires PHP 5.2
 	 */
 	public function test_jetpack_rest_api_authentication_fail_invalid_token() {
 		$_GET['token'] = 'invalid';
@@ -114,6 +118,8 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 
 	/**
 	 * @author jnylen0
+	 * @covers Jetpack->wp_rest_authenticate
+	 * @requires PHP 5.2
 	 */
 	public function test_jetpack_rest_api_authentication_fail_bad_nonce() {
 		add_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ), 10, 2 );
@@ -124,15 +130,17 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 		$_GET['signature'] = 'abc';
 		$this->request = new WP_REST_Request( 'GET', '/jetpack/v4/module/protect' );
 		$response = $this->server->dispatch( $this->request );
-		$this->assertErrorResponse( 'rest_invalid_signature', $response );
-		$this->assertEquals( 400, $response->get_status() );
+		$this->assertErrorResponse( 'invalid_signature', $response );
+		$this->assertEquals( 500, $response->get_status() );
 		$data = $response->get_data();
-		$this->assertEquals( 'The request is not signed correctly.', $data['message'] );
+		$this->assertEquals( 'The required "nonce" parameter is malformed.', $data['message'] );
 		$this->assertEquals( 0, get_current_user_id() );
 	}
 
 	/**
 	 * @author jnylen0
+	 * @covers Jetpack->wp_rest_authenticate
+	 * @requires PHP 5.2
 	 */
 	public function test_jetpack_rest_api_authentication_fail_bad_signature() {
 		add_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ), 10, 2 );
@@ -149,6 +157,8 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 
 	/**
 	 * @author jnylen0
+	 * @covers Jetpack->wp_rest_authenticate
+	 * @requires PHP 5.2
 	 */
 	public function test_jetpack_rest_api_get_authentication_success() {
 		add_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ), 10, 2 );
@@ -177,13 +187,15 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 
 	/**
 	 * @author jnylen0
+	 * @covers Jetpack->wp_rest_authenticate
+	 * @requires PHP 5.2
 	 */
 	public function test_jetpack_rest_api_post_authentication_fail_bad_signature() {
 		add_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ), 10, 2 );
 		$_GET['token'] = 'pretend_this_is_valid:1:' . self::$admin_id;
 		$_GET['timestamp'] = (string) time();
 		$_GET['nonce'] = 'testing123';
-		$_GET['body-hash'] = Jetpack::connection()->sha1_base64( '{"modules":[]}' );
+		$_GET['body-hash'] = jetpack_sha1_base64( '{"modules":[]}' );
 		$_GET['signature'] = 'abc';
 		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/module/all/active' );
 		$this->request->set_header( 'Content-Type', 'application/json' );
@@ -195,6 +207,8 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 
 	/**
 	 * @author jnylen0
+	 * @covers Jetpack->wp_rest_authenticate
+	 * @requires PHP 5.2
 	 */
 	public function test_jetpack_rest_api_post_authentication_fail_bad_body_hash() {
 		add_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ), 10, 2 );
@@ -206,7 +220,7 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 			$_GET['token'],
 			$_GET['timestamp'],
 			$_GET['nonce'],
-			Jetpack::connection()->sha1_base64( '{"modules":[]}' ),
+			jetpack_sha1_base64( '{"modules":[]}' ),
 			'GET',
 			'example.org',
 			'80',
@@ -217,24 +231,22 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 		$this->request->set_header( 'Content-Type', 'application/json' );
 		$this->request->set_body( '{"modules":[]}' );
 		$response = $this->server->dispatch( $this->request );
-		$this->assertErrorResponse( 'rest_invalid_signature', $response );
-		$this->assertEquals( 400, $response->get_status() );
+		$this->assertErrorResponse( 'invalid_body_hash', $response );
+		$this->assertEquals( 500, $response->get_status() );
 		$this->assertEquals( 0, get_current_user_id() );
 	}
 
 	/**
 	 * @author jnylen0
+	 * @covers Jetpack->wp_rest_authenticate
+	 * @requires PHP 5.2
 	 */
 	public function test_jetpack_rest_api_post_authentication_success() {
-		$_SERVER['HTTP_CONTENT_TYPE'] = 'application/json';
-		$body = '{"modules":[]}';
-
 		add_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ), 10, 2 );
-
 		$_GET['token'] = 'pretend_this_is_valid:1:' . self::$admin_id;
 		$_GET['timestamp'] = (string) time();
 		$_GET['nonce'] = 'testing123';
-		$_GET['body-hash'] = Jetpack::connection()->sha1_base64( $body );
+		$_GET['body-hash'] = jetpack_sha1_base64( '{"modules":[]}' );
 		$_GET['signature'] = base64_encode( hash_hmac( 'sha1', implode( "\n", array(
 			$_GET['token'],
 			$_GET['timestamp'],
@@ -246,115 +258,13 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 			'/jetpack/v4/module/all/active',
 			'qstest=yep',
 		) ) . "\n", 'secret', true ) );
-
 		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/module/all/active' );
-		$this->request->set_header( 'Content-Type', $_SERVER['HTTP_CONTENT_TYPE'] );
-		$this->request->set_body( $body );
-
+		$this->request->set_header( 'Content-Type', 'application/json' );
+		$this->request->set_body( '{"modules":[]}' );
 		$response = $this->server->dispatch( $this->request );
-		$data = $response->get_data();
-
-		// Success here is a 200. When we pass an empty array of modules,
-		// there's nothing to do.
 		$this->assertEquals( 200, $response->get_status() );
+		$data = $response->get_data();
 		$this->assertEquals( 'success', $data['code'] );
-		$this->assertEquals( self::$admin_id, get_current_user_id() );
-	}
-
-	/**
-	 * Test for urlencoded request
-	 */
-	public function test_jetpack_rest_api_post_urlencoded_authentication_success() {
-		$_SERVER['HTTP_CONTENT_TYPE'] = 'application/x-www-form-urlencoded';
-		$body = 'modules[]=nope';
-
-		add_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ), 10, 2 );
-
-		$_GET['token'] = 'pretend_this_is_valid:1:' . self::$admin_id;
-		$_GET['timestamp'] = (string) time();
-		$_GET['nonce'] = 'testing123';
-		$_GET['body-hash'] = Jetpack::connection()->sha1_base64( $body );
-		$_GET['signature'] = base64_encode( hash_hmac( 'sha1', implode( "\n", array(
-			$_GET['token'],
-			$_GET['timestamp'],
-			$_GET['nonce'],
-			$_GET['body-hash'],
-			'POST',
-			'example.org',
-			'80',
-			'/jetpack/v4/module/all/active',
-			'qstest=yep',
-		) ) . "\n", 'secret', true ) );
-
-		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/module/all/active' );
-		$this->request->set_header( 'Content-Type', $_SERVER['HTTP_CONTENT_TYPE'] );
-		$this->request->set_body( $body );
-		$this->request->set_body_params( wp_parse_args( $body ) );
-
-		$response = $this->server->dispatch( $this->request );
-		$data = $response->get_data();
-
-		// "Success" here is a 400, since we passed in an invalid module name.
-		// Check error code and params info to make sure we've made it through
-		// the auth code. "success" is an activate_modules() - not an auth error.
-		$this->assertEquals( 400, $response->get_status() );
-		$this->assertEquals( 'rest_invalid_param', $data['code'] );
-		$this->assertEquals( 'modules must be a list of valid modules', $data['data']['params']['modules'] );
-		$this->assertEquals( self::$admin_id, get_current_user_id() );
-	}
-
-	/**
-	 * Test for multipart request
-	 */
-	public function test_jetpack_rest_api_post_multipart_authentication_success() {
-		$_SERVER['HTTP_CONTENT_TYPE'] = 'multipart/form-data; boundary=------------------------test';
-
-		// Even though we're sending multipart/form-data, Jetpack always signs
-		// application/x-www-form-urlencoded-like data (typically generated from $_POST).
-		$body = '_jetpack_is_multipart=1&modules%5B0%5D=nope';
-
-		// Populate $_POST like Jetpack expects
-		$original_post = isset( $_POST ) ? $_POST : 'unset';
-		parse_str( $body, $GLOBALS['_POST'] );
-
-		add_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ), 10, 2 );
-
-		$_GET['token'] = 'pretend_this_is_valid:1:' . self::$admin_id;
-		$_GET['timestamp'] = (string) time();
-		$_GET['nonce'] = 'testing123';
-		$_GET['body-hash'] = Jetpack::connection()->sha1_base64( $body );
-		$_GET['signature'] = base64_encode( hash_hmac( 'sha1', implode( "\n", array(
-			$_GET['token'],
-			$_GET['timestamp'],
-			$_GET['nonce'],
-			$_GET['body-hash'],
-			'POST',
-			'example.org',
-			'80',
-			'/jetpack/v4/module/all/active',
-			'qstest=yep',
-		) ) . "\n", 'secret', true ) );
-
-		$this->request = new WP_REST_Request( 'POST', '/jetpack/v4/module/all/active' );
-		$this->request->set_header( 'Content-Type', $_SERVER['HTTP_CONTENT_TYPE'] );
-		$this->request->set_body( '' ); // file_get_contents( 'php://input' ) returns '' for multipart/form-data
-		$this->request->set_body_params( $_POST );
-
-		$response = $this->server->dispatch( $this->request );
-		$data = $response->get_data();
-
-		if ( 'unset' === $original_post ) {
-			unset( $GLOBALS['_POST'] );
-		} else {
-			$GLOBALS['_POST'] = $original_post;
-		}
-
-		// "Success" here is a 400, since we passed in an invalid module name.
-		// Check error code and params info to make sure we've made it through
-		// the auth code. "success" is an activate_modules() - not an auth error.
-		$this->assertEquals( 400, $response->get_status() );
-		$this->assertEquals( 'rest_invalid_param', $data['code'] );
-		$this->assertEquals( 'modules must be a list of valid modules', $data['data']['params']['modules'] );
 		$this->assertEquals( self::$admin_id, get_current_user_id() );
 	}
 
@@ -385,7 +295,7 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 		if ( $user_id ) {
 			wp_set_current_user( $user_id );
 		}
-		$auth = $server->check_authentication( null );
+		$auth = $server->check_authentication();
 		if ( true === $auth ) {
 			return $result;
 		}

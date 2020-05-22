@@ -1,9 +1,8 @@
 /**
  * External dependencies
  */
-import { expect } from 'chai';
-
-import useMockery from 'test/helpers/use-mockery';
+const expect = require( 'chai' ).expect,
+	useMockery = require( 'test/helpers/use-mockery' );
 
 /**
  * Internal dependencies

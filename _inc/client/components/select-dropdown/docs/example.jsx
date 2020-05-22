@@ -1,20 +1,20 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
+/* eslint-disable jsx-a11y/onclick-has-role */
 /**
  * External dependencies
  */
-import React from 'react';
+const React = require( 'react' ),
+	PureRenderMixin = require( 'react-pure-render/mixin' );
 
-import PureRenderMixin from 'react-pure-render/mixin';
-import createReactClass from 'create-react-class';
+const createReactClass = require( 'create-react-class' );
 
 /**
  * Internal dependencies
  */
-import SelectDropdown from 'components/select-dropdown';
-
-import DropdownItem from 'components/select-dropdown/item';
-import DropdownLabel from 'components/select-dropdown/label';
-import DropdownSeparator from 'components/select-dropdown/separator';
+const SelectDropdown = require( 'components/select-dropdown' ),
+	DropdownItem = require( 'components/select-dropdown/item' ),
+	DropdownLabel = require( 'components/select-dropdown/label' ),
+	DropdownSeparator = require( 'components/select-dropdown/separator' );
 
 const SelectDropdownDemo = createReactClass( {
 	displayName: 'SelectDropdown',
@@ -25,7 +25,7 @@ const SelectDropdownDemo = createReactClass( {
 		return {
 			childSelected: 'Published',
 			selectedCount: 10,
-			compactButtons: false,
+			compactButtons: false
 		};
 	},
 
@@ -37,8 +37,8 @@ const SelectDropdownDemo = createReactClass( {
 				{ value: 'scheduled', label: 'Scheduled' },
 				{ value: 'drafts', label: 'Drafts' },
 				null,
-				{ value: 'trashed', label: 'Trashed' },
-			],
+				{ value: 'trashed', label: 'Trashed' }
+			]
 		};
 	},
 
@@ -60,22 +60,14 @@ const SelectDropdownDemo = createReactClass( {
 			<div className="design-assets__group">
 				<h2>
 					<a href="/devdocs/design/select-dropdown">Select Dropdown</a>
-					<a
-						className="design-assets__toggle button"
-						role="button"
-						tabIndex={ 0 }
-						onClick={ this.toggleButtons }
-					>
-						{ toggleButtonsText }
-					</a>
+					<a className="design-assets__toggle button" onClick={ this.toggleButtons }>{ toggleButtonsText }</a>
 				</h2>
 
 				<h3>Items passed as options prop</h3>
 				<SelectDropdown
 					compact={ this.state.compactButtons }
 					options={ this.props.options }
-					onSelect={ this.onDropdownSelect }
-				/>
+					onSelect={ this.onDropdownSelect } />
 
 				<h3 style={ { marginTop: 20 } }>Items passed as children</h3>
 				<SelectDropdown
@@ -84,9 +76,8 @@ const SelectDropdownDemo = createReactClass( {
 					selectedText={ this.state.childSelected }
 					selectedCount={ this.state.selectedCount }
 				>
-					<DropdownLabel>
-						<strong>Statuses</strong>
-					</DropdownLabel>
+
+					<DropdownLabel><strong>Statuses</strong></DropdownLabel>
 
 					<DropdownItem
 						count={ 10 }
@@ -128,11 +119,11 @@ const SelectDropdownDemo = createReactClass( {
 	selectItem: function( childSelected, count ) {
 		this.setState( {
 			childSelected: childSelected,
-			selectedCount: count,
+			selectedCount: count
 		} );
 	},
 
-	onDropdownSelect: function() {},
+	onDropdownSelect: function() {}
 } );
 
-export default SelectDropdownDemo;
+module.exports = SelectDropdownDemo;

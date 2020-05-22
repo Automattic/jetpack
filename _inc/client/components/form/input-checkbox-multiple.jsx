@@ -1,22 +1,19 @@
-/**
- * External Dependencies
- */
-import PropTypes from 'prop-types';
-import React from 'react';
-import ReactDOM from 'react-dom';
-import { isArray, map } from 'lodash';
-import Formsy from 'formsy-react';
-import createReactClass from 'create-react-class';
+/** External Dependencies **/
+const PropTypes = require( 'prop-types' );
+const React = require( 'react' ),
+	isArray = require( 'lodash/isArray' ),
+	map = require( 'lodash/map' ),
+	Formsy = require( 'formsy-react' );
 
-/**
- * Internal Dependencies
- */
-import Label from './label';
-import getUniqueId from './counter';
-import FormInputValidation from '../form-input-validation';
-import requiredFieldErrorFormatter from './required-error-label';
+const createReactClass = require( 'create-react-class' );
 
-export default createReactClass( {
+/** Internal Dependencies **/
+const Label = require( './label' ),
+	getUniqueId = require( './counter' ),
+	FormInputValidation = require( '../form-input-validation' ),
+	requiredFieldErrorFormatter = require( './required-error-label' );
+
+module.exports = createReactClass( {
 	displayName: 'MultiCheckboxInput',
 
 	mixins: [ Formsy.Mixin ],
@@ -42,7 +39,7 @@ export default createReactClass( {
 
 	getInitialState: function() {
 		return {
-			uniqueId: getUniqueId(),
+			uniqueId: getUniqueId()
 		};
 	},
 
@@ -74,9 +71,9 @@ export default createReactClass( {
 	},
 
 	unHighlightAllSites: function( event ) {
-		const checked = $( ReactDOM.findDOMNode( this.refs.allItems ) ).prop( 'checked' );
+		const checked = $( React.findDOMNode( this.refs.allItems ) ).prop( 'checked' );
 		if ( checked && ! event.target.checked ) {
-			$( ReactDOM.findDOMNode( this.refs.allItems ) ).prop( 'checked', false );
+			$( React.findDOMNode( this.refs.allItems ) ).prop( 'checked', false );
 		}
 	},
 
@@ -85,18 +82,11 @@ export default createReactClass( {
 		const currentSelected = this.getValue();
 
 		return this.props.choices.map( ( choice, i ) => {
-			const checked = -1 !== currentSelected.indexOf( choice.value );
+			const checked = ( -1 !== currentSelected.indexOf( choice.value ) );
 			return (
 				<div className="dops-form-checkbox" key={ i }>
 					<Label inline label={ choice.label } htmlFor={ uniqueId + i }>
-						<input
-							type="checkbox"
-							id={ uniqueId + i }
-							name={ this.props.name + '[]' }
-							defaultValue={ choice.value }
-							checked={ checked }
-							onChange={ this.changeValue }
-						/>
+						<input type="checkbox" id={ uniqueId + i } name={ this.props.name + '[]' } defaultValue={ choice.value } checked={ checked } onChange={ this.changeValue } />
 					</Label>
 				</div>
 			);
@@ -112,9 +102,7 @@ export default createReactClass( {
 		if ( ! this.isPristine() ) {
 			errorMessage = this.showError() ? this.getErrorMessage() : null;
 			if ( ! errorMessage ) {
-				errorMessage = this.showRequired()
-					? requiredFieldErrorFormatter( this.props.label || this.props.placeholder || '' )
-					: null;
+				errorMessage = this.showRequired() ? requiredFieldErrorFormatter( this.props.label || this.props.placeholder || '' ) : null;
 			}
 		}
 
@@ -122,14 +110,7 @@ export default createReactClass( {
 			selectAll = (
 				<div className="dops-form-checkbox">
 					<Label inline label={ this.props.selectAllLabel } htmlFor={ uniqueId + 'all' }>
-						<input
-							type="checkbox"
-							ref="allItems"
-							id={ uniqueId + 'all' }
-							name={ this.props.name + '-all' }
-							defaultChecked={ false }
-							onChange={ this.highlightAllSites }
-						/>
+						<input type="checkbox" ref="allItems" id={ uniqueId + 'all' } name={ this.props.name + '-all' } defaultChecked={ false } onChange={ this.highlightAllSites } />
 					</Label>
 				</div>
 			);
@@ -140,12 +121,10 @@ export default createReactClass( {
 				{ selectAll }
 				{ selectAll && <hr /> }
 				{ checkboxes }
-				{ errorMessage && <FormInputValidation text={ errorMessage } isError={ true } /> }
+				{ errorMessage && ( <FormInputValidation text={ errorMessage } isError={ true } /> ) }
 
-				{ this.props.description && (
-					<p className="dops-field-description">{ this.props.description }</p>
-				) }
+				{ this.props.description && <p className="dops-field-description">{ this.props.description }</p> }
 			</div>
 		);
-	},
+	}
 } );

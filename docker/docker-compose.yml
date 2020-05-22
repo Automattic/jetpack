@@ -15,6 +15,8 @@ services:
     volumes:
       - ./data/mysql:/var/lib/mysql
     restart: always
+    ports:
+      - "${PORT_MYSQL:-3306}:3306"
     env_file:
       - default.env
       - .env
@@ -61,7 +63,8 @@ services:
     depends_on:
       - db
       - maildev
-    image: automattic/jetpack-wordpress-dev:latest
+    build: .
+    image: jetpack_wordpress:localbuild
     volumes:
       - ..:/var/www/html/wp-content/plugins/jetpack
       ## Kludge for not having docker contain recursive stuff
@@ -80,4 +83,4 @@ services:
       - default.env
       - .env
     environment:
-      - HOST_PORT=${PORT_WORDPRESS:-80}
+      - HOST_PORT=${PORT_WORDPRESS}

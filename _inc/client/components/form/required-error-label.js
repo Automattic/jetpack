@@ -1,3 +1,4 @@
-export default function( label ) {
+
+module.exports = function( label ) {
 	return label + ' is required';
-}
+};

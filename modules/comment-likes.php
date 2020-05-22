@@ -11,24 +11,25 @@
  * Additional Search Queries: like widget, like button, like, likes
  */
 
-use Automattic\Jetpack\Assets;
-
-Jetpack::dns_prefetch(
-	array(
-		'//widgets.wp.com',
-	)
-);
+Jetpack::dns_prefetch( array(
+	'//widgets.wp.com',
+	'//s0.wp.com',
+	'//s1.wp.com',
+	'//s2.wp.com',
+	'//0.gravatar.com',
+	'//1.gravatar.com',
+	'//2.gravatar.com',
+) );
 
 require_once dirname( __FILE__ ) . '/likes/jetpack-likes-master-iframe.php';
 require_once dirname( __FILE__ ) . '/likes/jetpack-likes-settings.php';
 
 class Jetpack_Comment_Likes {
-
 	public static function init() {
 		static $instance = NULL;
 
 		if ( ! $instance ) {
-			$instance = new Jetpack_Comment_Likes();
+			$instance = new Jetpack_Comment_Likes;
 		}
 
 		return $instance;
@@ -38,10 +39,10 @@ class Jetpack_Comment_Likes {
 		$this->settings  = new Jetpack_Likes_Settings();
 		$this->blog_id   = Jetpack_Options::get_option( 'id' );
 		$this->url       = home_url();
-		$this->url_parts = wp_parse_url( $this->url );
+		$this->url_parts = parse_url( $this->url );
 		$this->domain    = $this->url_parts['host'];
 
-		add_action( 'template_redirect', array( $this, 'frontend_init' ) );
+		add_action( 'init', array( $this, 'frontend_init' ) );
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
 
 		if ( ! Jetpack::is_module_active( 'likes' ) ) {
@@ -104,7 +105,7 @@ class Jetpack_Comment_Likes {
 		wp_enqueue_style( 'comment-like-count', plugins_url( 'comment-likes/admin-style.css', __FILE__ ), array(), JETPACK__VERSION );
 		wp_enqueue_script(
 			'comment-like-count',
-			Assets::get_file_url_for_environment(
+			Jetpack::get_file_url_for_environment(
 				'_inc/build/comment-likes/comment-like-count.min.js',
 				'modules/comment-likes/comment-like-count.js'
 			),
@@ -120,6 +121,10 @@ class Jetpack_Comment_Likes {
 	}
 
 	public function frontend_init() {
+		if ( is_admin() ) {
+			return;
+		}
+
 		if ( Jetpack_AMP_Support::is_amp_request() ) {
 			return;
 		}
@@ -129,30 +134,26 @@ class Jetpack_Comment_Likes {
 	}
 
 	public function load_styles_register_scripts() {
-		if ( ! $this->settings->is_likes_visible() ) {
-			return;
-		}
-
 		if ( ! wp_style_is( 'open-sans', 'registered' ) ) {
 			wp_register_style( 'open-sans', 'https://fonts.googleapis.com/css?family=Open+Sans', array(), JETPACK__VERSION );
 		}
 		wp_enqueue_style( 'jetpack_likes', plugins_url( 'likes/style.css', __FILE__ ), array( 'open-sans' ), JETPACK__VERSION );
 		wp_enqueue_script(
 			'postmessage',
-			Assets::get_file_url_for_environment( '_inc/build/postmessage.min.js', '_inc/postmessage.js' ),
+			Jetpack::get_file_url_for_environment( '_inc/build/postmessage.min.js', '_inc/postmessage.js' ),
 			array( 'jquery' ),
 			JETPACK__VERSION,
-			true
+			false
 		);
 		wp_enqueue_script(
 			'jetpack_resize',
-			Assets::get_file_url_for_environment(
+			Jetpack::get_file_url_for_environment(
 				'_inc/build/jquery.jetpack-resize.min.js',
 				'_inc/jquery.jetpack-resize.js'
 			),
 			array( 'jquery' ),
 			JETPACK__VERSION,
-			true
+			false
 		);
 		wp_enqueue_script( 'jetpack_likes_queuehandler', plugins_url( 'likes/queuehandler.js' , __FILE__ ), array( 'jquery', 'postmessage', 'jetpack_resize' ), JETPACK__VERSION, true );
 	}

@@ -17,36 +17,39 @@ import { removeNotice } from './state/notices/actions';
 
 const debug = debugModule( 'calypso:notices' );
 
-import './style.scss';
+require( './style.scss' );
 
 class NoticesList extends React.Component {
 	static displayName = 'NoticesList';
 
 	static propTypes = {
 		id: PropTypes.string,
-		notices: PropTypes.oneOfType( [ PropTypes.object, PropTypes.array ] ),
+		notices: PropTypes.oneOfType( [
+			PropTypes.object,
+			PropTypes.array
+		] )
 	};
 
 	static defaultProps = {
 		id: 'overlay-notices',
-		notices: Object.freeze( [] ),
+		notices: Object.freeze( [] )
 	};
 
-	UNSAFE_componentWillMount() {
+	componentWillMount() {
 		debug( 'Mounting Global Notices React component.' );
 	}
 
-	removeNotice = notice => {
+	removeNotice = ( notice ) => {
 		if ( notice ) {
 			notices.removeNotice( notice );
 		}
 	};
 
-	handleLocalNoticeDismissClick = notice => {
+	handleLocalNoticeDismissClick = ( notice ) => {
 		return () => this.removeNotice( notice );
 	};
 
-	handleReduxNoticeDismissClick = noticeId => {
+	handleReduxNoticeDismissClick = ( noticeId ) => {
 		return () => this.props.removeNotice( noticeId );
 	};
 
@@ -63,32 +66,32 @@ class NoticesList extends React.Component {
 					onDismissClick={ this.handleLocalNoticeDismissClick( notice ) }
 					showDismiss={ notice.showDismiss }
 				>
-					{ notice.button && (
-						<NoticeAction href={ notice.href } onClick={ notice.onClick }>
+					{ notice.button &&
+						<NoticeAction
+							href={ notice.href }
+							onClick={ notice.onClick }
+						>
 							{ notice.button }
-						</NoticeAction>
-					) }
-				</SimpleNotice>
+						</NoticeAction> }
+					</SimpleNotice>
 			);
 		}, this );
 
 		//This is an interim solution for displaying both notices from redux store
 		//and from the old component. When all notices are moved to redux store, this component
 		//needs to be updated.
-		noticesList = noticesList.concat(
-			this.props.storeNotices.map( function( notice, index ) {
-				return (
-					<SimpleNotice
-						key={ 'notice-' + index }
-						status={ notice.status }
-						duration={ notice.duration || null }
-						showDismiss={ notice.showDismiss }
-						onDismissClick={ this.handleReduxNoticeDismissClick( notice.noticeId ) }
-						text={ notice.text }
-					/>
-				);
-			}, this )
-		);
+		noticesList = noticesList.concat( this.props.storeNotices.map( function( notice, index ) {
+			return (
+				<SimpleNotice
+					key={ 'notice-' + index }
+					status={ notice.status }
+					duration = { notice.duration || null }
+					showDismiss={ notice.showDismiss }
+					onDismissClick={ this.handleReduxNoticeDismissClick( notice.noticeId ) }
+					text={ notice.text }>
+				</SimpleNotice>
+			);
+		}, this ) );
 
 		if ( ! noticesList.length ) {
 			return null;
@@ -105,7 +108,7 @@ class NoticesList extends React.Component {
 export default connect(
 	state => {
 		return {
-			storeNotices: state.globalNotices,
+			storeNotices: state.globalNotices
 		};
 	},
 	dispatch => bindActionCreators( { removeNotice }, dispatch )

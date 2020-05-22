@@ -1,17 +1,17 @@
 /**
  * External dependencies
  */
-import PropTypes from 'prop-types';
-import React from 'react';
-import classnames from 'classnames';
-import { assign, omit } from 'lodash';
-
+const PropTypes = require( 'prop-types' );
+const React = require( 'react' );
+const classnames = require( 'classnames' );
+import assign from 'lodash/assign';
+import omit from 'lodash/omit';
 /**
  * Internal dependencies
  */
-import Gridicon from '../gridicon';
+const Gridicon = require( '../gridicon' );
 
-import './style.scss';
+require( './style.scss' );
 
 class CardSection extends React.Component {
 	static propTypes = {
@@ -19,18 +19,18 @@ class CardSection extends React.Component {
 		vertical: PropTypes.any,
 		style: PropTypes.object,
 		className: PropTypes.string,
-		device: PropTypes.oneOf( [ 'desktop', 'tablet', 'phone' ] ),
+		device: PropTypes.oneOf( [ 'desktop', 'tablet', 'phone' ] )
 	};
 
 	static defaultProps = { vertical: null };
 
 	render() {
 		return (
-			<div
-				className={ classnames( 'dops-card-section', this.props.className ) }
-				style={ this.props.style }
-			>
-				{ this.props.title ? this._renderWithTitle() : this.props.children }
+			<div className={ classnames( 'dops-card-section', this.props.className ) } style={ this.props.style }>
+				{this.props.title
+					? this._renderWithTitle()
+					: this.props.children
+				}
 			</div>
 		);
 	}
@@ -42,10 +42,10 @@ class CardSection extends React.Component {
 		return (
 			<div className={ wrapperClassName }>
 				<h4 ref="label" className="dops-card-section-label">
-					{ this.props.title }
+					{this.props.title}
 				</h4>
 				<div ref="content" className="dops-card-section-content">
-					{ this.props.children }
+					{this.props.children}
 				</div>
 			</div>
 		);
@@ -54,7 +54,11 @@ class CardSection extends React.Component {
 
 class CardFooter extends React.Component {
 	render() {
-		return <div className="dops-card-footer">{ this.props.children }</div>;
+		return (
+			<div className="dops-card-footer">
+				{this.props.children}
+			</div>
+		);
 	}
 }
 
@@ -67,37 +71,32 @@ class Card extends React.Component {
 		style: PropTypes.object,
 		className: PropTypes.string,
 		href: PropTypes.string,
-		onClick: PropTypes.func,
 		title: PropTypes.string,
 		tagName: PropTypes.string,
 		target: PropTypes.string,
 		compact: PropTypes.bool,
-		children: PropTypes.node,
+		children: PropTypes.node
 	};
 
 	static defaultProps = {
 		iconColor: '#787878',
 		className: '',
-		tagName: 'div',
-		onClick: () => {},
+		tagName: 'div'
 	};
 
 	render() {
 		const className = classnames( 'dops-card', this.props.className, {
 			'is-card-link': !! this.props.href,
-			'is-compact': this.props.compact,
+			'is-compact': this.props.compact
 		} );
 
-		const omitProps = [ 'compact', 'tagName', 'meta', 'iconColor' ];
+		const omitProps = [ 'compact', 'tagName', 'meta', 'iconColor' ];
 
 		let linkIndicator;
 		if ( this.props.href ) {
-			linkIndicator = (
-				<Gridicon
-					className="dops-card__link-indicator"
-					icon={ this.props.target ? 'external' : 'chevron-right' }
-				/>
-			);
+			linkIndicator = <Gridicon
+				className="dops-card__link-indicator"
+				icon={ this.props.target ? 'external' : 'chevron-right' } />;
 		} else {
 			omitProps.push( 'href', 'target' );
 		}
@@ -107,8 +106,10 @@ class Card extends React.Component {
 			fancyTitle = (
 				<h2 className="dops-card-title">
 					{ this.props.title }
-					{ this.props.meta && <span className="dops-card-meta">{ this.props.meta }</span> }
-					{ ( this.props.icon || this.props.iconLabel ) && this._renderIcon() }
+					{ this.props.meta && <span className="dops-card-meta">{ this.props.meta }</span>}
+					{( this.props.icon || this.props.iconLabel ) && (
+						this._renderIcon()
+					)}
 				</h2>
 			);
 		}
@@ -125,9 +126,7 @@ class Card extends React.Component {
 	_renderIcon = () => {
 		return (
 			<span className="dops-card-icon" style={ { color: this.props.iconColor } }>
-				{ this.props.icon && (
-					<Gridicon icon={ this.props.icon } style={ { backgroundColor: this.props.iconColor } } />
-				) }
+				{ this.props.icon && <Gridicon icon={ this.props.icon } style={ { backgroundColor: this.props.iconColor } } />}
 				{ this.props.iconLabel }
 			</span>
 		);
@@ -137,4 +136,4 @@ class Card extends React.Component {
 Card.Section = CardSection;
 Card.Footer = CardFooter;
 
-export default Card;
+module.exports = Card;

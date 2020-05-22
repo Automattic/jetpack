@@ -1,13 +1,14 @@
 /**
  * External dependencies
  */
-import React, { Component } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
+import { Component } from 'react';
 
 /**
  * Internal dependencies
  */
-import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import { getModule } from 'state/modules';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsGroup from 'components/settings-group';
@@ -22,7 +23,11 @@ class ModuleSettingsComponent extends Component {
 		const module = this.props.module( this.props.module_slug );
 		return (
 			<div className="jp-upgrade-notice__enable-module">
-				<SettingsGroup hasChild disableInDevMode module={ module }>
+				<SettingsGroup
+					hasChild
+					disableInDevMode
+					module={ module }>
+
 					<ModuleToggle
 						slug={ this.props.module_slug }
 						disabled={ false }
@@ -40,8 +45,10 @@ class ModuleSettingsComponent extends Component {
 	}
 }
 
-export default connect( state => {
-	return {
-		module: module_name => getModule( state, module_name ),
-	};
-} )( withModuleSettingsFormHelpers( ModuleSettingsComponent ) );
+export default connect(
+	( state ) => {
+		return {
+			module: ( module_name ) => getModule( state, module_name ),
+		};
+	}
+)( moduleSettingsForm( ModuleSettingsComponent ) );

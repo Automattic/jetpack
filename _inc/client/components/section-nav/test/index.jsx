@@ -1,15 +1,14 @@
-/**
- * External Dependencies
- */
-import { assert } from 'chai';
-import sinon from 'sinon';
-import useMockery from 'test/helpers/use-mockery';
-import useFakeDom from 'test/helpers/use-fake-dom';
+const assert = require( 'chai' ).assert,
+	sinon = require( 'sinon' ),
+	useMockery = require( 'test/helpers/use-mockery' ),
+	useFakeDom = require( 'test/helpers/use-fake-dom' );
 let ReactDom, React, TestUtils, SectionNav;
 
 function createComponent( component, props, children ) {
 	const shallowRenderer = TestUtils.createRenderer();
-	shallowRenderer.render( React.createElement( component, props, children ) );
+	shallowRenderer.render(
+		React.createElement( component, props, children )
+	);
 	return shallowRenderer.getRenderOutput();
 }
 
@@ -20,6 +19,7 @@ describe( 'section-nav', function() {
 		ReactDom = require( 'react-dom' );
 		React = require( 'react' );
 		TestUtils = require( 'react-addons-test-utils' );
+		require( 'react-tap-event-plugin' )();
 
 		const EMPTY_COMPONENT = require( 'test/helpers/react/empty-component' );
 
@@ -31,15 +31,11 @@ describe( 'section-nav', function() {
 	describe( 'rendering', function() {
 		before( function() {
 			const selectedText = 'test';
-			const children = <p>mmyellow</p>;
+			const children = ( <p>mmyellow</p> );
 
-			this.sectionNav = createComponent(
-				SectionNav,
-				{
-					selectedText: selectedText,
-				},
-				children
-			);
+			this.sectionNav = createComponent( SectionNav, {
+				selectedText: selectedText
+			}, children );
 
 			this.panelElem = this.sectionNav.props.children[ 1 ];
 			this.headerElem = this.sectionNav.props.children[ 0 ];
@@ -70,56 +66,32 @@ describe( 'section-nav', function() {
 
 	describe( 'interaction', function() {
 		it( 'should call onMobileNavPanelOpen function passed as a prop when tapped', function( done ) {
-			const elem = React.createElement(
-				SectionNav,
-				{
-					selectedText: 'placeholder',
-					onMobileNavPanelOpen: function() {
-						done();
-					},
-				},
-				<p>placeholder</p>
-			);
+			const elem = React.createElement( SectionNav, {
+				selectedText: 'placeholder',
+				onMobileNavPanelOpen: function() {
+					done();
+				}
+			}, ( <p>placeholder</p> ) );
 			const tree = TestUtils.renderIntoDocument( elem );
 			assert( ! tree.state.mobileOpen );
-			TestUtils.Simulate.touchTap(
-				ReactDom.findDOMNode(
-					TestUtils.findRenderedDOMComponentWithClass( tree, 'section-nav__mobile-header' )
-				)
-			);
+			TestUtils.Simulate.touchTap( ReactDom.findDOMNode( TestUtils.findRenderedDOMComponentWithClass( tree, 'section-nav__mobile-header' ) ) );
 			assert( tree.state.mobileOpen );
 		} );
 
 		it( 'should call onMobileNavPanelOpen function passed as a prop twice when tapped three times', function( done ) {
 			const spy = sinon.spy();
-			const elem = React.createElement(
-				SectionNav,
-				{
-					selectedText: 'placeholder',
-					onMobileNavPanelOpen: spy,
-				},
-				<p>placeholder</p>
-			);
+			const elem = React.createElement( SectionNav, {
+				selectedText: 'placeholder',
+				onMobileNavPanelOpen: spy
+			}, ( <p>placeholder</p> ) );
 			const tree = TestUtils.renderIntoDocument( elem );
 
 			assert( ! tree.state.mobileOpen );
-			TestUtils.Simulate.touchTap(
-				ReactDom.findDOMNode(
-					TestUtils.findRenderedDOMComponentWithClass( tree, 'section-nav__mobile-header' )
-				)
-			);
+			TestUtils.Simulate.touchTap( ReactDom.findDOMNode( TestUtils.findRenderedDOMComponentWithClass( tree, 'section-nav__mobile-header' ) ) );
 			assert( tree.state.mobileOpen );
-			TestUtils.Simulate.touchTap(
-				ReactDom.findDOMNode(
-					TestUtils.findRenderedDOMComponentWithClass( tree, 'section-nav__mobile-header' )
-				)
-			);
+			TestUtils.Simulate.touchTap( ReactDom.findDOMNode( TestUtils.findRenderedDOMComponentWithClass( tree, 'section-nav__mobile-header' ) ) );
 			assert( ! tree.state.mobileOpen );
-			TestUtils.Simulate.touchTap(
-				ReactDom.findDOMNode(
-					TestUtils.findRenderedDOMComponentWithClass( tree, 'section-nav__mobile-header' )
-				)
-			);
+			TestUtils.Simulate.touchTap( ReactDom.findDOMNode( TestUtils.findRenderedDOMComponentWithClass( tree, 'section-nav__mobile-header' ) ) );
 			assert( tree.state.mobileOpen );
 
 			assert( spy.calledTwice );

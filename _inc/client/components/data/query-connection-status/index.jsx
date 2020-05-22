@@ -11,7 +11,7 @@ import { bindActionCreators } from 'redux';
 import { fetchSiteConnectionStatus } from 'state/connection';
 
 class QueryConnectionStatus extends Component {
-	UNSAFE_componentWillMount() {
+	componentWillMount() {
 		this.props.fetchSiteConnectionStatus();
 	}
 
@@ -21,21 +21,16 @@ class QueryConnectionStatus extends Component {
 }
 
 QueryConnectionStatus.defaultProps = {
-	fetchSiteConnectionStatus: () => {},
+	fetchSiteConnectionStatus: () => {}
 };
 
-export default connect(
-	() => {
-		return {
-			fetchSiteConnectionStatus: fetchSiteConnectionStatus(),
-		};
-	},
-	dispatch => {
-		return bindActionCreators(
-			{
-				fetchSiteConnectionStatus,
-			},
-			dispatch
-		);
-	}
+export default connect( () => {
+	return {
+		fetchSiteConnectionStatus: fetchSiteConnectionStatus()
+	};
+}, ( dispatch ) => {
+	return bindActionCreators( {
+		fetchSiteConnectionStatus
+	}, dispatch );
+}
 )( QueryConnectionStatus );

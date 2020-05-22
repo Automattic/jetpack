@@ -19,7 +19,6 @@ class WordAds_Admin {
 
 	/**
 	 * Output the API connection debug
-	 *
 	 * @since 4.5.0
 	 */
 	function debug_output() {

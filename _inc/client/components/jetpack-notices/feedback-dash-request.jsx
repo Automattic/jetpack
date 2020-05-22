@@ -10,12 +10,11 @@ import NoticeAction from 'components/notice/notice-action.jsx';
 /**
  * Internal dependencies
  */
-import { isDevVersion as _isDevVersion } from 'state/initial-state';
 import {
 	isNoticeDismissed as _isNoticeDismissed,
-	dismissJetpackNotice,
+	dismissJetpackNotice
 } from 'state/jetpack-notices';
-import { JETPACK_CONTACT_SUPPORT, JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
+import { JETPACK_CONTACT_SUPPORT } from 'constants/urls';
 
 class FeedbackDashRequest extends React.Component {
 	static displayName = 'FeedbackDashRequest';
@@ -25,10 +24,6 @@ class FeedbackDashRequest extends React.Component {
 			return;
 		}
 
-		const supportURl = this.props.isDevVersion
-			? JETPACK_CONTACT_BETA_SUPPORT
-			: JETPACK_CONTACT_SUPPORT;
-
 		return (
 			<div>
 				<SimpleNotice
@@ -37,29 +32,36 @@ class FeedbackDashRequest extends React.Component {
 					onDismissClick={ this.props.dismissNotice }
 					text={ __( 'What would you like to see on your Jetpack Dashboard?' ) }
 				>
-					<NoticeAction href={ supportURl }>{ __( 'Let us know!' ) }</NoticeAction>
+					<NoticeAction
+						href={ JETPACK_CONTACT_SUPPORT }
+					>
+						{ __( 'Let us know!' ) }
+					</NoticeAction>
 				</SimpleNotice>
 			</div>
 		);
 	};
 
 	render() {
-		return <div>{ this.renderContent() }</div>;
+		return (
+			<div>
+				{ this.renderContent() }
+			</div>
+		);
 	}
 }
 
 export default connect(
 	state => {
 		return {
-			isDevVersion: _isDevVersion( state ),
-			isDismissed: notice => _isNoticeDismissed( state, notice ),
+			isDismissed: ( notice ) => _isNoticeDismissed( state, notice )
 		};
 	},
-	dispatch => {
+	( dispatch ) => {
 		return {
 			dismissNotice: () => {
 				return dispatch( dismissJetpackNotice( 'feedback_dash_request' ) );
-			},
+			}
 		};
 	}
 )( FeedbackDashRequest );

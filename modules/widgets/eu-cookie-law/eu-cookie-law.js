@@ -1,52 +1,36 @@
-( function() {
-	var cookieValue = document.cookie.replace(
-			/(?:(?:^|.*;\s*)eucookielaw\s*\=\s*([^;]*).*$)|^.*$/,
-			'$1'
-		),
-		overlay = document.getElementById( 'eu-cookie-law' ),
-		widget = document.querySelector( '.widget_eu_cookie_law_widget' ),
-		getScrollTop,
+( function( $ ) {
+	var cookieValue = document.cookie.replace( /(?:(?:^|.*;\s*)eucookielaw\s*\=\s*([^;]*).*$)|^.*$/, '$1' ),
+		overlay = $( '#eu-cookie-law' ),
 		initialScrollPosition,
 		scrollFunction;
 
-	/**
-	 * Gets the amount that the window is scrolled.
-	 *
-	 * @return int The distance from the top of the document.
-	 */
-	getScrollTop = function() {
-		return Math.abs( document.body.getBoundingClientRect().y );
-	};
-
-	if ( overlay.classList.contains( 'top' ) ) {
-		widget.classList.add( 'top' );
+	if ( overlay.hasClass( 'top' ) ) {
+		$( '.widget_eu_cookie_law_widget' ).addClass( 'top' );
 	}
 
-	if ( overlay.classList.contains( 'ads-active' ) ) {
-		var adsCookieValue = document.cookie.replace(
-			/(?:(?:^|.*;\s*)personalized-ads-consent\s*\=\s*([^;]*).*$)|^.*$/,
-			'$1'
-		);
+	if ( overlay.hasClass( 'ads-active' ) ) {
+		var adsCookieValue = document.cookie.replace( /(?:(?:^|.*;\s*)personalized-ads-consent\s*\=\s*([^;]*).*$)|^.*$/, '$1' );
 		if ( '' !== cookieValue && '' !== adsCookieValue ) {
-			overlay.parentNode.removeChild( overlay );
+			overlay.remove();
 		}
 	} else if ( '' !== cookieValue ) {
-		overlay.parentNode.removeChild( overlay );
+		overlay.remove();
 	}
 
-	document.body.appendChild( widget );
-	overlay.querySelector( 'form' ).addEventListener( 'submit', accept );
+	$( '.widget_eu_cookie_law_widget' ).appendTo( 'body' ).fadeIn();
 
-	if ( overlay.classList.contains( 'hide-on-scroll' ) ) {
-		initialScrollPosition = getScrollTop();
+	overlay.find( 'form' ).on( 'submit', accept );
+
+	if ( overlay.hasClass( 'hide-on-scroll' ) ) {
+		initialScrollPosition = $( window ).scrollTop();
 		scrollFunction = function() {
-			if ( Math.abs( getScrollTop() - initialScrollPosition ) > 50 ) {
+			if ( Math.abs( $( window ).scrollTop() - initialScrollPosition ) > 50 ) {
 				accept();
 			}
 		};
-		window.addEventListener( 'scroll', scrollFunction );
-	} else if ( overlay.classList.contains( 'hide-on-time' ) ) {
-		setTimeout( accept, overlay.getAttribute( 'data-hide-timeout' ) * 1000 );
+		$( window ).on( 'scroll', scrollFunction );
+	} else if ( overlay.hasClass( 'hide-on-time' ) ) {
+		setTimeout( accept, overlay.data( 'hide-timeout' ) * 1000 );
 	}
 
 	var accepted = false;
@@ -60,33 +44,20 @@
 			event.preventDefault();
 		}
 
-		if ( overlay.classList.contains( 'hide-on-scroll' ) ) {
-			window.removeEventListener( 'scroll', scrollFunction );
+		if ( overlay.hasClass( 'hide-on-scroll' ) ) {
+			$( window ).off( 'scroll', scrollFunction );
 		}
 
 		var expireTime = new Date();
-		expireTime.setTime(
-			expireTime.getTime() + overlay.getAttribute( 'data-consent-expiration' ) * 24 * 60 * 60 * 1000
-		);
+		expireTime.setTime( expireTime.getTime() + ( overlay.data( 'consent-expiration' ) * 24 * 60 * 60 * 1000 ) );
 
-		document.cookie =
-			'eucookielaw=' + expireTime.getTime() + ';path=/;expires=' + expireTime.toGMTString();
-		if (
-			overlay.classList.contains( 'ads-active' ) &&
-			overlay.classList.contains( 'hide-on-button' )
-		) {
-			document.cookie =
-				'personalized-ads-consent=' +
-				expireTime.getTime() +
-				';path=/;expires=' +
-				expireTime.toGMTString();
+		document.cookie = 'eucookielaw=' + expireTime.getTime() + ';path=/;expires=' + expireTime.toGMTString();
+		if ( overlay.hasClass( 'ads-active' ) && overlay.hasClass( 'hide-on-button' ) ) {
+			document.cookie = 'personalized-ads-consent=' + expireTime.getTime() + ';path=/;expires=' + expireTime.toGMTString();
 		}
 
-		overlay.classList.add( 'hide' );
-		setTimeout( function() {
-			overlay.parentNode.removeChild( overlay );
-			var widgetSection = document.querySelector( '.widget.widget_eu_cookie_law_widget' );
-			widgetSection.parentNode.removeChild( widgetSection );
-		}, 400 );
+		overlay.fadeOut( 400, function() {
+			overlay.remove();
+		} );
 	}
-} )();
+} )( jQuery );

@@ -2,10 +2,9 @@ jQuery( document ).ready( function( $ ) {
 	var body = $( 'body' ),
 		toggleSSO = $( '.jetpack-sso-toggle' ),
 		userLogin = $( '#user_login' ),
-		userPassword = $( '#user_pass' ),
-		ssoWrap = $( '#jetpack-sso-wrap' ),
+		ssoWrap   = $( '#jetpack-sso-wrap' ),
 		loginForm = $( '#loginform' ),
-		overflow = $( '<div class="jetpack-sso-clear"></div>' );
+		overflow  = $( '<div class="jetpack-sso-clear"></div>' );
 
 	// The overflow div is a poor man's clearfloat. We reposition the remember me
 	// checkbox and the submit button within that to clear the float on the
@@ -28,7 +27,6 @@ jQuery( document ).ready( function( $ ) {
 		body.toggleClass( 'jetpack-sso-form-display' );
 		if ( ! body.hasClass( 'jetpack-sso-form-display' ) ) {
 			userLogin.focus();
-			userPassword.prop( 'disabled', false );
 		}
 	} );
 } );

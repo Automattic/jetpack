@@ -1,12 +1,4 @@
 <?php
-/**
- * Functionality that is executed when Jetpack is uninstalled via built-in WordPress commands.
- *
- * @package Jetpack
- */
-
-use Automattic\Jetpack\Sync\Sender;
-use Automattic\Jetpack\Backup\Helper_Script_Manager;
 
 if (
 	!defined( 'WP_UNINSTALL_PLUGIN' )
@@ -19,11 +11,8 @@ if (
 	exit;
 }
 
-if ( ! defined( 'JETPACK__PLUGIN_DIR' ) ) {
-	define( 'JETPACK__PLUGIN_DIR', plugin_dir_path( __FILE__ )  );
-}
-
-require JETPACK__PLUGIN_DIR . 'vendor/autoload_packages.php';
+define( 'JETPACK__PLUGIN_DIR', plugin_dir_path( __FILE__ )  );
+require_once JETPACK__PLUGIN_DIR . 'class.jetpack-options.php';
 
 Jetpack_Options::delete_all_known_options();
 
@@ -41,7 +30,5 @@ delete_transient( 'jetpack_register'    );
 add_filter( 'jetpack_sync_modules', '__return_empty_array', 100 );
 
 // Jetpack Sync
-Sender::get_instance()->uninstall();
-
-// Jetpack Backup: Cleanup any leftover Helper Scripts
-Helper_Script_Manager::delete_all_helper_scripts();
+require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-sender.php';
+Jetpack_Sync_Sender::get_instance()->uninstall();

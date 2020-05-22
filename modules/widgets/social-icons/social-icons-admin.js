@@ -11,18 +11,14 @@
 			containment: widget,
 			forcePlaceholderSize: true,
 			update: function() {
-				livePreviewUpdate(
-					$( this )
-						.parents( '.form' )
-						.find( '.widget-control-save' )
-				);
-			},
+				livePreviewUpdate( $( this ).parents( '.form' ).find( '.widget-control-save' ) );
+			}
 		} );
 	}
 
 	// Live preview update.
 	function livePreviewUpdate( button ) {
-		if ( ! $( document.body ).hasClass( 'wp-customizer' ) || ! button.length ) {
+		if ( ! $( document.body ).hasClass( 'wp-customizer' ) || ! button.length  ) {
 			return;
 		}
 
@@ -36,16 +32,13 @@
 
 			var template, widgetContent, widgetList, widgetLastItem, urlId, urlName;
 
-			template = $( $.trim( $( '#tmpl-jetpack-widget-social-icons-template' ).html() ) );
+			template      = $( $.trim( $( '#tmpl-jetpack-widget-social-icons-template' ).html() ) );
 			widgetContent = $( this ).parents( '.widget-content' );
-			widgetList = widgetContent.find( '.jetpack-social-icons-widget-list' );
-			urlId = widgetList.data( 'url-icon-id' );
-			urlName = widgetList.data( 'url-icon-name' );
+			widgetList    = widgetContent.find( '.jetpack-social-icons-widget-list' );
+			urlId         = widgetList.data( 'url-icon-id');
+			urlName       = widgetList.data( 'url-icon-name' );
 
-			template
-				.find( '.jetpack-widget-social-icons-url input' )
-				.attr( 'id', urlId )
-				.attr( 'name', urlName + '[]' );
+			template.find( '.jetpack-widget-social-icons-url input' ).attr( 'id', urlId ).attr( 'name', urlName + '[]' );
 
 			widgetList.append( template );
 
@@ -54,34 +47,24 @@
 		} );
 
 		// Remove an item.
-		$( document ).on( 'click', '.jetpack-widget-social-icons-remove-item-button', function(
-			event
-		) {
+		$( document ).on( 'click', '.jetpack-widget-social-icons-remove-item-button', function( event ) {
 			event.preventDefault();
 
-			var button = $( this )
-				.parents( '.form' )
-				.find( '.widget-control-save' );
+			var button = $( this ).parents( '.form' ).find( '.widget-control-save' );
 
-			$( this )
-				.parents( '.jetpack-social-icons-widget-item' )
-				.remove();
+			$( this ).parents( '.jetpack-social-icons-widget-item' ).remove();
 
 			livePreviewUpdate( button );
 		} );
 
 		// Event handler for widget open button.
-		$( document ).on(
-			'click',
-			'div.widget[id*="jetpack_widget_social_icons"] .widget-title, div.widget[id*="jetpack_widget_social_icons"] .widget-action',
-			function() {
-				if ( $( this ).parents( '#available-widgets' ).length ) {
-					return;
-				}
-
-				initWidget( $( this ).parents( '.widget[id*="jetpack_widget_social_icons"]' ) );
+		$( document ).on( 'click', 'div.widget[id*="jetpack_widget_social_icons"] .widget-title, div.widget[id*="jetpack_widget_social_icons"] .widget-action', function() {
+			if ( $( this ).parents( '#available-widgets' ).length ) {
+				return;
 			}
-		);
+
+			initWidget( $( this ).parents( '.widget[id*="jetpack_widget_social_icons"]' ) );
+		} );
 
 		// Event handler for widget added.
 		$( document ).on( 'widget-added', function( event, widget ) {
@@ -101,21 +84,13 @@
 
 		// Live preview update on input focus out.
 		$( document ).on( 'focusout', 'input[name*="jetpack_widget_social_icons"]', function() {
-			livePreviewUpdate(
-				$( this )
-					.parents( '.form' )
-					.find( '.widget-control-save' )
-			);
+			livePreviewUpdate( $( this ).parents( '.form' ).find( '.widget-control-save' ) );
 		} );
 
 		// Live preview update on input enter key.
 		$( document ).on( 'keydown', 'input[name*="jetpack_widget_social_icons"]', function( event ) {
 			if ( event.keyCode === 13 ) {
-				livePreviewUpdate(
-					$( this )
-						.parents( '.form' )
-						.find( '.widget-control-save' )
-				);
+				livePreviewUpdate( $( this ).parents( '.form' ).find( '.widget-control-save' ) );
 			}
 		} );
 
@@ -124,21 +99,13 @@
 			clearTimeout( timeout );
 
 			timeout = setTimeout( function() {
-				livePreviewUpdate(
-					$( this )
-						.parents( '.form' )
-						.find( '.widget-control-save' )
-				);
+				livePreviewUpdate( $( this ).parents( '.form' ).find( '.widget-control-save' ) );
 			}, 1000 );
 		} );
 
 		// Live preview update on select change.
 		$( document ).on( 'change', 'select[name*="jetpack_widget_social_icons"]', function() {
-			livePreviewUpdate(
-				$( this )
-					.parents( '.form' )
-					.find( '.widget-control-save' )
-			);
+			livePreviewUpdate( $( this ).parents( '.form' ).find( '.widget-control-save' ) );
 		} );
 	} );
 } )( jQuery );

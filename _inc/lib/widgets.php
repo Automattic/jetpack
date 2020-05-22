@@ -557,15 +557,11 @@ class Jetpack_Widgets {
 
 		// Add a Tracks event for non-Headstart activity.
 		if ( ! defined( 'HEADSTART' ) ) {
-			$tracking = new Automattic\Jetpack\Tracking();
-			$tracking->tracks_record_event(
-				wp_get_current_user(),
-				'wpcom_widgets_activate_widget',
-				array(
-					'widget'   => $id_base,
-					'settings' => wp_json_encode( $settings ),
-				)
-			);
+			jetpack_require_lib( 'tracks/client' );
+			jetpack_tracks_record_event( wp_get_current_user(), 'wpcom_widgets_activate_widget', array(
+				'widget' => $id_base,
+				'settings' => json_encode( $settings ),
+			) );
 		}
 
 		return self::get_widget_by_id( $widget_id );

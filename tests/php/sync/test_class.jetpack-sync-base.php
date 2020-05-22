@@ -1,16 +1,13 @@
 <?php
 
-use Automattic\Jetpack\Sync\Modules\Callables;
-use Automattic\Jetpack\Sync\Listener;
-use Automattic\Jetpack\Sync\Modules;
-use Automattic\Jetpack\Sync\Main;
-use Automattic\Jetpack\Sync\Modules\Constants;
-use Automattic\Jetpack\Sync\Replicastore;
-use Automattic\Jetpack\Sync\Sender;
-use Automattic\Jetpack\Sync\Server;
-use Automattic\Jetpack\Sync\Modules\Posts;
-
+$sync_dir        = dirname( __FILE__ ) . '/../../../sync/';
 $sync_server_dir = dirname( __FILE__ ) . '/server/';
+
+require_once $sync_dir . 'class.jetpack-sync-server.php';
+require_once $sync_dir . 'class.jetpack-sync-users.php';
+require_once $sync_dir . 'class.jetpack-sync-listener.php';
+require_once $sync_dir . 'class.jetpack-sync-sender.php';
+require_once $sync_dir . 'class.jetpack-sync-wp-replicastore.php';
 
 require_once $sync_server_dir . 'class.jetpack-sync-test-replicastore.php';
 require_once $sync_server_dir . 'class.jetpack-sync-server-replicator.php';
@@ -19,7 +16,7 @@ require_once $sync_server_dir . 'class.jetpack-sync-test-helper.php';
 
 /*
  * Base class for Sync tests - establishes connection between local
- * Automattic\Jetpack\Sync\Sender and dummy server implementation,
+ * Jetpack_Sync_Sender and dummy server implementation,
  * and registers a Replicastore and Eventstore implementation to
  * process events.
  */
@@ -36,14 +33,14 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 	public function setUp() {
 
 		$_SERVER['HTTP_USER_AGENT'] = 'Jetpack Unit Tests';
-		$this->listener = Listener::get_instance();
-		$this->sender   = Sender::get_instance();
+		$this->listener = Jetpack_Sync_Listener::get_instance();
+		$this->sender   = Jetpack_Sync_Sender::get_instance();
 
 		parent::setUp();
 
 		$this->setSyncClientDefaults();
 
-		$this->server = new Server();
+		$this->server = new Jetpack_Sync_Server();
 
 		// bind the sender to the server
 		remove_all_filters( 'jetpack_sync_send_data' );
@@ -65,17 +62,17 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 
 	public function setSyncClientDefaults() {
 		$this->sender->set_defaults();
-		Modules::set_defaults();
+		Jetpack_Sync_Modules::set_defaults();
 		$this->sender->set_dequeue_max_bytes( 5000000 ); // process 5MB of items at a time
 		$this->sender->set_sync_wait_time( 0 ); // disable rate limiting
 		// don't sync callables or constants every time - slows down tests
-		set_transient( Callables::CALLABLES_AWAIT_TRANSIENT_NAME, 60 );
-		set_transient( Constants::CONSTANTS_AWAIT_TRANSIENT_NAME, 60 );
+		set_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME, 60 );
+		set_transient( Jetpack_Sync_Module_Constants::CONSTANTS_AWAIT_TRANSIENT_NAME, 60 );
 	}
 
 	protected function resetCallableAndConstantTimeouts() {
-		delete_transient( Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
-		delete_transient( Constants::CONSTANTS_AWAIT_TRANSIENT_NAME );
+		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
+		delete_transient( Jetpack_Sync_Module_Constants::CONSTANTS_AWAIT_TRANSIENT_NAME );	
 	}
 
 	public function test_pass() {
@@ -84,11 +81,11 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 	}
 
 	protected function assertDataIsSynced() {
-		$local  = new Replicastore();
+		$local  = new Jetpack_Sync_WP_Replicastore();
 		$remote = $this->server_replica_storage;
 
 		// Also pass the posts though the same filter other wise they woun't match any more.
-		$posts_sync_module = new Posts();
+		$posts_sync_module = new Jetpack_Sync_Module_Posts();
 
 		$local_posts = array_map( array(
 			$posts_sync_module,

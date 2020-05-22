@@ -7,10 +7,14 @@ import { connect } from 'react-redux';
 /**
  * Internal dependencies
  */
-import { fetchConnectUrl, isFetchingConnectUrl, isDevMode } from 'state/connection';
+import {
+	fetchConnectUrl,
+	isFetchingConnectUrl
+} from 'state/connection';
+import { isDevMode } from 'state/connection';
 
 export class QueryConnectUrl extends React.Component {
-	UNSAFE_componentWillMount() {
+	componentWillMount() {
 		if ( ! ( this.props.isFetchingConnectUrl || this.props.isDevMode ) ) {
 			this.props.fetchConnectUrl();
 		}
@@ -22,15 +26,15 @@ export class QueryConnectUrl extends React.Component {
 }
 
 export default connect(
-	state => {
+	( state ) => {
 		return {
 			isFetchingConnectUrl: isFetchingConnectUrl( state ),
-			isDevMode: isDevMode( state ),
+			isDevMode: isDevMode( state )
 		};
 	},
-	dispatch => {
+	( dispatch ) => {
 		return {
-			fetchConnectUrl: () => dispatch( fetchConnectUrl() ),
+			fetchConnectUrl: () => dispatch( fetchConnectUrl() )
 		};
 	}
 )( QueryConnectUrl );

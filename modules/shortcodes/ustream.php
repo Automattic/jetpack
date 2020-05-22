@@ -1,6 +1,7 @@
 <?php
+
 /**
- * Ustream.tv shortcode
+ * ustream.tv shortcode
  *
  * Example:
  * [ustream id=1524 live=1]
@@ -8,8 +9,6 @@
  *
  * Embed code example, from http://www.ustream.tv/leolaporte
  * <iframe src="http://www.ustream.tv/embed/recorded/1524?v=3&#038;wmode=direct" width="480" height="296" scrolling="no" frameborder="0" style="border: 0 none transparent;"></iframe>
- *
- * @package Jetpack
  */
 
 add_shortcode( 'ustream', 'ustream_shortcode' );
@@ -20,7 +19,7 @@ add_shortcode( 'ustreamsocial', 'ustreamsocial_shortcode' );
  *
  * @since 4.5.0
  *
- * @param array $atts array of user-supplied arguments.
+ * @param $atts array of user-supplied arguments.
  *
  * @return string HTML output.
  */
@@ -38,59 +37,52 @@ function ustream_shortcode( $atts ) {
 		'version'   => 3,
 		'hwaccel'   => 1,
 	);
-	$atts     = array_map( 'intval', shortcode_atts( $defaults, $atts ) );
 
-	if ( 0 >= $atts['id'] ) {
+	$atts = array_map( 'intval', shortcode_atts( $defaults, $atts ) );
+
+	$ustream_id = $atts['id'];
+	$width      = $atts['width'];
+	$height     = $atts['height'];
+	$live       = $atts['live'];
+	$highlight  = $atts['highlight'];
+	$version    = $atts['version'];
+	$hwaccel    = $atts['hwaccel'];
+
+	$version = 'v=' . esc_attr( $version );
+
+	if ( 0 >= $ustream_id ) {
 		return '<!-- ustream error: bad video ID -->';
 	}
 
-	if ( 0 >= $atts['height'] ) {
+	if ( 0 >= $height ) {
 		return '<!-- ustream error: height invalid -->';
 	}
 
-	if ( 0 >= $atts['width'] ) {
+	if ( 0 >= $width ) {
 		return '<!-- ustream error: width invalid -->';
 	}
 
-	if ( $atts['live'] ) {
+	if ( $live ) {
 		$recorded = '';
 	} else {
 		$recorded = 'recorded/';
 	}
 
-	if ( ! $atts['live'] && ( 0 < $atts['highlight'] ) ) {
-		$highlight = sprintf( '/highlight/%d', esc_attr( $atts['highlight'] ) );
+	if ( ! $live && ( 0 < $highlight ) ) {
+		$highlight = "/highlight/$highlight";
 	} else {
 		$highlight = '';
 	}
 
-	$url_base = sprintf(
-		'https://www.ustream.tv/embed/%s%d%s',
-		$recorded,
-		esc_attr( $atts['id'] ),
-		$highlight
-	);
-
-	$video_options = array(
-		'html5ui' => 1,
-		'v'       => absint( $atts['version'] ),
-	);
-
-	if ( 0 < $atts['hwaccel'] ) {
-		$video_options['wmode'] = 'direct';
+	if ( 0 < $hwaccel ) {
+		$wmode = '&amp;wmode=direct';
+	} else {
+		$wmode = '';
 	}
 
-	$url = add_query_arg(
-		$video_options,
-		$url_base
-	);
-
-	$output = sprintf(
-		'<iframe src="%1$s" width="%2$d" height="%3$d" scrolling="no" style="border: 0 none transparent;"></iframe>',
-		esc_url( $url ),
-		absint( $atts['width'] ),
-		absint( $atts['height'] )
-	);
+	$url    = 'http://www.ustream.tv/embed/' . $recorded . esc_attr( $ustream_id ) . $highlight . '?' . $version . $wmode;
+	$url    = set_url_scheme( $url );
+	$output = '<iframe src="' . esc_url( $url ) . '" width="' . esc_attr( $width ) . '" height="' . esc_attr( $height ) . '" scrolling="no" style="border: 0 none transparent;"></iframe>';
 
 	return $output;
 }
@@ -100,7 +92,7 @@ function ustream_shortcode( $atts ) {
  *
  * @since 4.5.0
  *
- * @param array $atts array of user-supplied arguments.
+ * @param $atts array of user-supplied arguments.
  *
  * @return string HTML output.
  */
@@ -110,26 +102,26 @@ function ustreamsocial_shortcode( $atts ) {
 		'height' => 420,
 		'width'  => 320,
 	);
-	$atts     = array_map( 'intval', shortcode_atts( $defaults, $atts ) );
 
-	if ( 0 >= $atts['id'] ) {
+	$atts = array_map( 'intval', shortcode_atts( $defaults, $atts ) );
+
+	$ustream_id = $atts['id'];
+	$width      = $atts['width'];
+	$height     = $atts['height'];
+
+	if ( 0 >= $ustream_id ) {
 		return '<!-- ustreamsocial error: bad social stream ID -->';
 	}
 
-	if ( 0 >= $atts['height'] ) {
+	if ( 0 >= $height ) {
 		return '<!-- ustreamsocial error: height invalid -->';
 	}
 
-	if ( 0 >= $atts['width'] ) {
+	if ( 0 >= $width ) {
 		return '<!-- ustreamsocial error: width invalid -->';
 	}
 
-	$url = 'https://www.ustream.tv/socialstream/' . esc_attr( $atts['id'] );
+	$url = set_url_scheme( "http://www.ustream.tv/socialstream/$ustream_id" );
 
-	return sprintf(
-		'<iframe id="SocialStream" src="%1$s" class="" name="SocialStream" width="%2$d" height="%3$d" scrolling="no" allowtransparency="true" style="visibility: visible; margin-top: 0; margin-bottom: 0; border: 0;"></iframe>',
-		esc_url( $url ),
-		absint( $atts['width'] ),
-		absint( $atts['height'] )
-	);
+	return '<iframe id="SocialStream" class="" name="SocialStream" width="' . esc_attr( $width ) . '" height="' . esc_attr( $height ) . '" scrolling="no" allowtransparency="true" src="' . esc_url( $url ) . '" style="visibility: visible; margin-top: 0; margin-bottom: 0; border: 0;"></iframe>';
 }

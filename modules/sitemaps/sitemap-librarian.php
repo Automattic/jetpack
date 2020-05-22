@@ -10,7 +10,6 @@
  * @package Jetpack
  */
 
-/* Ensure sitemap constants are available. */
 require_once dirname( __FILE__ ) . '/sitemap-constants.php';
 
 /**
@@ -40,14 +39,12 @@ class Jetpack_Sitemap_Librarian {
 	 * }
 	 */
 	public function read_sitemap_data( $name, $type ) {
-		$post_array = get_posts(
-			array(
-				'numberposts' => 1,
-				'title'       => $name,
-				'post_type'   => $type,
-				'post_status' => 'draft',
-			)
-		);
+		$post_array = get_posts( array(
+			'numberposts' => 1,
+			'title' => $name,
+			'post_type' => $type,
+			'post_status' => 'draft'
+		) );
 
 		$the_post = array_shift( $post_array );
 
@@ -86,25 +83,21 @@ class Jetpack_Sitemap_Librarian {
 
 		if ( null === $the_post ) {
 			// Post does not exist.
-			wp_insert_post(
-				array(
-					'post_title'   => $name,
-					'post_content' => base64_encode( $contents ),
-					'post_type'    => $type,
-					'post_date'    => date( 'Y-m-d H:i:s', strtotime( $timestamp ) ),
-				)
-			);
+			wp_insert_post(array(
+				'post_title'   => $name,
+				'post_content' => base64_encode( $contents ),
+				'post_type'    => $type,
+				'post_date'    => date( 'Y-m-d H:i:s', strtotime( $timestamp ) ),
+			));
 		} else {
 			// Post does exist.
-			wp_insert_post(
-				array(
-					'ID'           => $the_post['id'],
-					'post_title'   => $name,
-					'post_content' => base64_encode( $contents ),
-					'post_type'    => $type,
-					'post_date'    => date( 'Y-m-d H:i:s', strtotime( $timestamp ) ),
-				)
-			);
+			wp_insert_post(array(
+				'ID'           => $the_post['id'],
+				'post_title'   => $name,
+				'post_content' => base64_encode( $contents ),
+				'post_type'    => $type,
+				'post_date'    => date( 'Y-m-d H:i:s', strtotime( $timestamp ) ),
+			));
 		}
 	}
 
@@ -167,8 +160,8 @@ class Jetpack_Sitemap_Librarian {
 		$any_left = true;
 
 		while ( true === $any_left ) {
-			$position++;
-			$name     = jp_sitemap_filename( $type, $position );
+			$position += 1;
+			$name = jp_sitemap_filename( $type, $position );
 			$any_left = $this->delete_sitemap_data( $name, $type );
 		}
 	}
@@ -195,18 +188,16 @@ class Jetpack_Sitemap_Librarian {
 	 * @access protected
 	 * @since 5.3.0
 	 *
-	 * @param String $type Type of sitemap.
+	 * @param String $type
 	 */
 	protected function delete_sitemap_type_data( $type ) {
-		$ids = get_posts(
-			array(
-				'post_type'   => $type,
-				'post_status' => 'draft',
-				'fields'      => 'ids',
-			)
-		);
+		$ids = get_posts( array(
+			'post_type' => $type,
+			'post_status' => 'draft',
+			'fields' => 'ids'
+		) );
 
-		foreach ( $ids as $id ) {
+		foreach( $ids as $id ) {
 			wp_trash_post( $id );
 		}
 	}
@@ -306,7 +297,7 @@ class Jetpack_Sitemap_Librarian {
 			$wpdb->prepare(
 				"SELECT MAX(comment_date_gmt)
 					FROM $wpdb->comments
-					WHERE comment_post_ID = %d AND comment_approved = '1' AND comment_type in ( '', 'comment' )",
+					WHERE comment_post_ID = %d AND comment_approved = '1' AND comment_type=''",
 				$post_id
 			)
 		);

@@ -1,21 +1,18 @@
-/**
- * External Dependencies
- */
-import PropTypes from 'prop-types';
-import React from 'react';
-import classNames from 'classnames';
-import Formsy from 'formsy-react';
-import createReactClass from 'create-react-class';
+/** External Dependencies **/
+const PropTypes = require( 'prop-types' );
+const React = require( 'react' ),
+	classNames = require( 'classnames' ),
+	Formsy = require( 'formsy-react' );
 
-/**
- * Internal Dependencies
- */
-import Label from './label';
-import getUniqueId from './counter';
-import FormInputValidation from '../form-input-validation';
-import requiredFieldErrorFormatter from './required-error-label';
+const createReactClass = require( 'create-react-class' );
 
-export default createReactClass( {
+/** Internal Dependencies **/
+const Label = require( './label' ),
+	getUniqueId = require( './counter' ),
+	FormInputValidation = require( '../form-input-validation' ),
+	requiredFieldErrorFormatter = require( './required-error-label' );
+
+module.exports = createReactClass( {
 	displayName: 'CheckboxInput',
 
 	mixins: [ Formsy.Mixin ],
@@ -29,12 +26,12 @@ export default createReactClass( {
 		labelSuffix: PropTypes.any,
 		required: PropTypes.any,
 		validations: PropTypes.string,
-		validationError: PropTypes.string,
+		validationError: PropTypes.string
 	},
 
 	getInitialState: function() {
 		return {
-			uniqueId: getUniqueId(),
+			uniqueId: getUniqueId()
 		};
 	},
 
@@ -54,42 +51,29 @@ export default createReactClass( {
 		if ( ! this.isPristine() ) {
 			errorMessage = this.showError() ? this.getErrorMessage() : null;
 			if ( ! errorMessage ) {
-				errorMessage = this.showRequired()
-					? requiredFieldErrorFormatter( this.props.label || this.props.placeholder || '' )
-					: null;
+				errorMessage = this.showRequired() ? requiredFieldErrorFormatter( this.props.label || this.props.placeholder || '' ) : null;
 			}
 		}
 
-		const className = classNames(
-			{
-				'dops-field': true,
-				'dops-form-checkbox': true,
-				'dops-form-error': errorMessage,
-			},
-			this.props.className
-		);
+		const className = classNames( {
+			'dops-field': true,
+			'dops-form-checkbox': true,
+			'dops-form-error': errorMessage,
+		}, this.props.className );
 
 		return (
 			<div className={ className } style={ style }>
-				<Label
-					inline
-					label={ label }
-					labelSuffix={ labelSuffix }
-					htmlFor={ uniqueId }
-					required={ this.props.required }
-					description={ this.props.description }
-				>
+				<Label inline label={ label } labelSuffix={ labelSuffix } htmlFor={ uniqueId } required={ this.props.required } description={ this.props.description }>
 					<input
 						type="checkbox"
 						id={ uniqueId }
 						{ ...other }
 						onChange={ this.changeValue }
 						checked={ this.getValue() }
-						className="dops-form-checkbox"
-					/>
+						className="dops-form-checkbox" />
 				</Label>
-				{ errorMessage && <FormInputValidation text={ errorMessage } isError={ true } /> }
+				{errorMessage && ( <FormInputValidation text={ errorMessage } isError={ true } /> )}
 			</div>
 		);
-	},
+	}
 } );

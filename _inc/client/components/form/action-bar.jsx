@@ -1,20 +1,18 @@
-/**
- * External Dependencies
- */
-import PropTypes from 'prop-types';
-import React from 'react';
+/** External Dependencies **/
+const PropTypes = require( 'prop-types' );
+const React = require( 'react' );
 
 export default class ActionBar extends React.Component {
 	static displayName = 'ActionBar';
 
 	static propTypes = {
-		style: PropTypes.object,
+		style: PropTypes.object
 	};
 
 	render() {
 		return (
 			<div className="dops-form-actionbar" style={ this.props.style }>
-				{ this.props.children }
+				{this.props.children}
 			</div>
 		);
 	}

@@ -1,4 +1,278 @@
-@import '../scss/calypso-colors';
+.jp-landing__plans.dops-card {
+	padding: 0;
+}
+
+.jp-landing__plans {
+
+	.dops-button {
+		margin-right: 10px;
+	}
+}
+
+.plans-mobile-notice {
+	@include breakpoint( ">660px" ) {
+		display: none;
+	}
+	.dops-button:first-of-type {
+		margin-right: 6px;
+		margin-bottom: 6px;
+	}
+}
+
+.plans-mobile-notice.dops-card h2 {
+	margin-top: 0;
+}
+
+.jp-landing-plans__header {
+	background: $gray-dark;
+
+	@include breakpoint( ">660px" ) {
+		padding: rem( 32px ) 0 0;
+	}
+
+	@include breakpoint( "<660px" ) {
+		padding: rem( 32px );
+	}
+}
+
+.jp-landing-plans__header-img-container {
+	margin: rem( 32px ) 0 0;
+	overflow: hidden;
+
+	@include breakpoint( ">660px" ) {
+		display: flex;
+		flex-wrap: nowrap;
+		flex-direction: row;
+		align-items: center;
+	}
+
+	@include breakpoint( "<660px" ) {
+		margin-bottom: 0;
+	}
+}
+
+.jp-landing-plans__header-img {
+	max-width: 100%;
+}
+
+.jp-landing-plans__header-col-left {
+	flex-basis: 45%;
+
+	@include breakpoint( ">660px" ) {
+		padding-left: rem( 32px );
+	}
+}
+
+.jp-landing-plans__header-col-right {
+	flex-basis: 55%;
+
+	@include breakpoint( ">660px" ) {
+		padding: 0 rem( 32px );
+	}
+
+	@include breakpoint( "<660px" ) {
+		text-align: center;
+		padding-top: rem( 32px );
+	}
+}
+
+// clouds are a little hacky, but works for IE11 -jg
+.jp-landing-plans__clouds {
+	position: relative;
+	overflow: hidden;
+	padding-top: rem( 80px );
+
+	img {
+		position: absolute;
+		bottom: -2px;
+		left: -5%;
+		right: -5%;
+		height: auto;
+		width: 110%;
+	}
+
+	@include breakpoint( "<660px" ) {
+		display: none;
+	}
+}
+// end IE11 cloud hack
+
+.jp-landing-plans__header-img {
+	max-width: 100%;
+}
+
+.jp-landing-plans__header-col-left {
+	flex-basis: 45%;
+
+	@include breakpoint( ">660px" ) {
+		padding-left: rem( 32px );
+	}
+}
+
+.jp-landing-plans__header-col-right {
+	flex-basis: 55%;
+
+	@include breakpoint( ">660px" ) {
+		padding: 0 rem( 32px );
+	}
+
+	@include breakpoint( "<660px" ) {
+		text-align: center;
+	}
+}
+
+.jp-landing-plans__header-title,
+.jp-landing-plans__header-description {
+	line-height: 1.5;
+
+	@include breakpoint( ">660px" ) {
+		text-align: center;
+	}
+}
+
+.jp-landing-plans__header-title,
+.jp-landing-plans__header-subtitle {
+	color: $white;
+	font-weight: 400;
+	margin: 0;
+}
+
+.jp-landing-plans__header-title {
+	font-size: rem( 20px );
+}
+
+.jp-landing-plans__header-description {
+	font-size: rem( 14px );
+	margin: 0;
+	padding-bottom: rem( 16px );
+}
+
+.jp-landing-plans__header-subtitle {
+	font-size: rem( 16px );
+	line-height: 1.25;
+}
+
+.jp-landing-plans__header-description,
+.jp-landing-plans__header-text {
+	color: lighten($gray, 10%);
+}
+
+.jp-landing-plans__header-text {
+	font-size: rem( 14px );
+	padding: rem( 24px ) 0;
+	margin: 0;
+}
+
+.jp-landing-plans__header-btn-container {
+	margin: 0;
+}
+
+.jp-landing__plan-features-card {
+	box-shadow: 0 0 0 1px transparentize( lighten( $gray, 20% ), .5 ),
+		0 1px 2px lighten( $gray, 30% );
+	border-radius: 3px;
+
+	@include breakpoint( ">660px" ) {
+		margin-bottom: rem( 32px );
+	}
+
+	@include breakpoint( "<660px" ) {
+		margin-bottom: rem( 16px );
+	}
+
+	@include breakpoint( ">480px" ) {
+		padding: rem( 32px );
+	}
+
+	@include breakpoint( "<480px" ) {
+		padding: rem( 16px );
+	}
+
+	&:last-of-type {
+		margin-bottom: 0;
+	}
+}
+
+.jp-landing__plan-features-title {
+	margin: 0;
+}
+
+.jp-landing__plan-features {
+
+	@include breakpoint( ">660px" ) {
+		padding: 0 rem( 32px ) rem( 32px );
+	}
+
+	@include breakpoint( "<660px" ) {
+		padding: rem( 16px );
+	}
+}
+
+.jp-landing__plan-card {
+
+	@include breakpoint( ">660px" ) {
+		display: flex;
+		flex-wrap: nowrap;
+	}
+
+	@include breakpoint( ">660px" ) {
+		padding: rem( 32px );
+	}
+
+	@include breakpoint( "<660px" ) {
+		padding: rem( 32px ) rem( 32px ) rem( 16px );
+	}
+
+	.jp-landing__plan-features-title,
+	.jp-landing__plan-features-text {
+		padding: 0;
+
+		@include breakpoint( ">660px" ) {
+			margin-left: rem( 32px );
+		}
+	}
+
+	.jp-landing__plan-features-title {
+		margin-bottom: rem( 16px );
+	}
+}
+
+.jp-landing__plan-card-img {
+
+	@include breakpoint( "<660px" ) {
+		margin: 0 0 rem( 32px ) 0;
+	}
+
+	@include breakpoint( "<480px" ) {
+		width: 100%;
+		max-width: 100%;
+		text-align: center;
+	}
+}
+
+.jp-landing__plan-icon {
+	width: rem( 200px );
+}
+
+.jp-landing__plan-card-img.is-placeholder {
+	width: rem( 120px );
+	height: rem( 85px );
+
+	& + .jp-landing__plan-card-current {
+		width: 80%;
+	}
+}
+
+.jp-landing__plan-features-title.is-placeholder {
+	height: rem( 24px );
+	max-width: 50%;
+}
+
+.jp-landing__plan-features-text.is-placeholder {
+	height: rem( 44px );
+	max-width: 75%;
+}
+
 // Plans Tables
 
 $plan-features-header-banner-height: 20px;
@@ -21,7 +295,7 @@ $plan-features-sidebar-width: 272px;
 .plan-features__notice {
 	margin-bottom: 16px;
 
-	@include breakpoint( '>1040px' ) {
+	@include breakpoint( ">1040px" ) {
 		margin-bottom: 32px;
 		margin-top: -19px;
 	}
@@ -41,18 +315,17 @@ $plan-features-sidebar-width: 272px;
 	width: 100%;
 	text-align: center;
 
-	@include breakpoint( '>660px' ) {
+	@include breakpoint( ">660px" ) {
 		display: table;
 	}
 
-	@include breakpoint( '<660px' ) {
+	@include breakpoint( "<660px" ) {
 		display: none;
 	}
 
-	@include breakpoint( '<1040px' ) {
+	@include breakpoint( "<1040px" ) {
 		border-spacing: 0;
-		margin-left: 15px;
-		margin-right: 15px;
+		margin: 0 15px;
 		width: calc( 100% - 30px );
 	}
 }
@@ -62,8 +335,8 @@ $plan-features-sidebar-width: 272px;
 }
 
 .plan-features__table-item {
-	border-right: solid 1px $light-gray-700;
-	border-left: solid 1px $light-gray-700;
+	border-right: solid 1px lighten( $gray, 27% );
+	border-left: solid 1px lighten( $gray, 27% );
 	background-color: $white;
 	position: relative;
 
@@ -100,12 +373,12 @@ $plan-features-sidebar-width: 272px;
 }
 
 .plan-features__table-item.has-partial-border {
-	&:after {
+	&::after {
 		content: '';
 		display: block;
 		height: 1px;
 		width: calc( 100% - 24px );
-		border-bottom: 1px solid $light-gray-700;
+		border-bottom: 1px solid lighten( $gray, 27% );
 		position: absolute;
 		bottom: 0;
 		margin: 0 12px;
@@ -113,11 +386,11 @@ $plan-features-sidebar-width: 272px;
 }
 
 .plan-features__table-item.has-border-bottom {
-	border-bottom: solid 1px $light-gray-700;
+	border-bottom: solid 1px lighten( $gray, 27% );
 }
 
 .plan-features__table-item.has-border-top {
-	border-top: solid 1px $light-gray-700;
+	border-top: solid 1px lighten( $gray, 27% );
 }
 
 .plan-features__table-item.is-placeholder {
@@ -144,7 +417,7 @@ $plan-features-sidebar-width: 272px;
 	padding: 15px 15px 0 15px;
 	background-color: $white;
 
-	@include breakpoint( '<960px' ) {
+	@include breakpoint( "<960px" ) {
 		padding: 12px 12px 0 12px;
 	}
 }
@@ -155,7 +428,7 @@ $plan-features-sidebar-width: 272px;
 	font-weight: normal;
 	margin: 0;
 
-	@include breakpoint( '<960px' ) {
+	@include breakpoint( "<960px" ) {
 		font-size: 20px;
 	}
 }
@@ -181,11 +454,11 @@ $plan-features-sidebar-width: 272px;
 	color: $gray-dark;
 	text-align: center;
 
-	@include breakpoint( '<960px' ) {
+	@include breakpoint( "<960px" ) {
 		font-size: 12px;
 	}
 
-	@include breakpoint( '<1040px' ) {
+	@include breakpoint( "<1040px" ) {
 		margin: 0 12px;
 	}
 }
@@ -194,72 +467,12 @@ $plan-features-sidebar-width: 272px;
 	display: inline-block;
 	margin-left: 10px;
 	color: $gray;
+ }
+
+.plan-price {
+	padding-top: 15px;
+	padding-bottom: 15px;
 }
-
-.plan-features {
-	.plan-price {
-		padding-top: 15px;
-		padding-bottom: 15px;
-	}
-
-	.plan-price__yearly {
-		color: $gray-dark;
-
-		abbr {
-			text-underline-position: under;
-		}
-	}
-}
-
-.plans-mobile-notice,
-.plans-mobile-notice.dops-card {
-	@include breakpoint( '>660px' ) {
-		display: none;
-	}
-	.dops-button:first-of-type {
-		margin-right: 6px;
-		margin-bottom: 6px;
-	}
-}
-
-.plan-grid-period {
-	margin-bottom: 12px;
-	text-align: center;
-
-	@include breakpoint( '<660px' ) {
-		display: none;
-	}
-}
-
-.product-selector {
-	@include breakpoint( '<660px' ) {
-		display: none;
-	}
-}
-
-.plans-mobile-notice.dops-card h2 {
-	margin-top: 0;
-}
-.plan-grid-skeletons {
-	display: flex;
-	margin: 60px -10px 0;
-
-	@include breakpoint( '<1040px' ) {
-		margin-left: -1px;
-		margin-right: -1px;
-	}
-
-	@include breakpoint( '<660px' ) {
-		display: none;
-	}
-}
-
-.plan-grid-skeletons__plan {
-	flex: 1;
-	height: 545px;
-	margin: 0 10px;
-
-	@include breakpoint( '<1040px' ) {
-		margin: 0 1px;
-	}
+.plan-price__yearly {
+	color: $gray-dark;
 }

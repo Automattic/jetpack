@@ -455,44 +455,34 @@ new Jetpack_JSON_API_Sync_Endpoint( array(
 ) );
 
 // GET /sites/%s/sync/status
-new Jetpack_JSON_API_Sync_Status_Endpoint(
-	array(
-		'description'      => 'Status of the current full sync or the previous full sync',
-		'method'           => 'GET',
-		'path'             => '/sites/%s/sync/status',
-		'stat'             => 'sync-status',
-		'path_labels'      => array(
-			'$site' => '(int|string) The site ID, The site domain',
-		),
-		'query_parameters' => array(
-			'fields' => '(string|null) List of comma-separated fields to return (see `response_format`).',
-		),
-		'response_format'  => array(
-			'posts_checksum'        => '(string|null) Posts checksum. Needs to be requested using the filter parameter.',
-			'comments_checksum'     => '(string|null) Comments checksum. Needs to be requested using the filter parameter.',
-			'post_meta_checksum'    => '(string|null) Post Meta checksum. Needs to be requested using the filter parameter.',
-			'comment_meta_checksum' => '(string|null) Comment Meta checksum. Needs to be requested using the filter parameter.',
-			'started'               => '(int|null) The unix timestamp when the last sync started',
-			'queue_finished'        => '(int|null) The unix timestamp when the enqueuing was done for the last sync',
-			'send_started'          => '(int|null) The unix timestamp when the last send process started',
-			'finished'              => '(int|null) The unix timestamp when the last sync finished',
-			'total'                 => '(array) Count of actions that could be sent',
-			'queue'                 => '(array) Count of actions that have been added to the queue',
-			'sent'                  => '(array) Count of actions that have been sent',
-			'config'                => '(array) Configuration of the last full sync',
-			'queue_size'            => '(int) Number of items in the sync queue',
-			'queue_lag'             => '(float) Time delay of the oldest item in the sync queue',
-			'queue_next_sync'       => '(float) Time in seconds before trying to sync again',
-			'full_queue_size'       => '(int) Number of items in the full sync queue',
-			'full_queue_lag'        => '(float) Time delay of the oldest item in the full sync queue',
-			'full_queue_next_sync'  => '(float) Time in seconds before trying to sync the full sync queue again',
-			'cron_size'             => '(int) Size of the current cron array',
-			'next_cron'             => '(int) The number of seconds till the next item in cron.',
-			'progress'              => '(array) Full Sync status by module',
-		),
-		'example_request'  => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync/status',
-	)
-);
+new Jetpack_JSON_API_Sync_Status_Endpoint( array(
+	'description'     => 'Status of the current full sync or the previous full sync',
+	'method'          => 'GET',
+	'path'            => '/sites/%s/sync/status',
+	'stat'            => 'sync-status',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain'
+	),
+	'response_format' => array(
+		'started' => '(int|null) The unix timestamp when the last sync started',
+		'queue_finished' => '(int|null) The unix timestamp when the enqueuing was done for the last sync',
+		'send_started' => '(int|null) The unix timestamp when the last sent process started',
+		'finished' => '(int|null) The unix timestamp when the last sync finished',
+		'total'  => '(array) Count of actions that could be sent',
+		'queue'  => '(array) Count of actions that have been added to the queue',
+		'sent'  => '(array) Count of actions that have been sent',
+		'config' => '(array) Configuration of the last full sync',
+		'queue_size' => '(int) Number of items in the  sync queue',
+		'queue_lag' => '(float) Time delay of the oldest item in the sync queue',
+		'queue_next_sync' => '(float) Time in seconds before trying to sync again',
+		'full_queue_size' => '(int) Number of items in the full sync queue',
+		'full_queue_lag' => '(float) Time delay of the oldest item in the full sync queue',
+		'full_queue_next_sync' => '(float) Time in seconds before trying to sync the full sync queue again',
+		'cron_size' => '(int) Size of the current cron array',
+		'next_cron' => '(int) The number of seconds till the next item in cron.',
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync/status'
+) );
 
 
 // GET /sites/%s/data-checksums
@@ -528,12 +518,10 @@ new Jetpack_JSON_API_Sync_Histogram_Endpoint( array(
 		'start_id' => '(int=0) Starting ID for the range',
 		'end_id' => '(int=null) Ending ID for the range',
 		'columns' => '(string) Columns to checksum',
-		'strip_non_ascii' => '(bool=true) Strip non-ascii characters from all columns',
-		'shared_salt' => '(string) Salt to reduce the collision and improve validation',
+		'strip_non_ascii', '(bool=true) Strip non-ascii characters from all columns',
 	),
 	'response_format' => array(
-		'histogram' => '(array) Associative array of histograms by ID range, e.g. "500-999" => "abcd1234"',
-		'type'      => '(string) Type of checksum algorithm',
+		'histogram' => '(array) Associative array of histograms by ID range, e.g. "500-999" => "abcd1234"'
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/data-histogram'
 ) );
@@ -554,12 +542,9 @@ $sync_settings_response = array(
 	'render_filtered_content'  => '(int|bool=true) Set to 1 or true to render filtered content.',
 	'max_enqueue_full_sync'    => '(int|bool=false) Maximum number of rows to enqueue during each full sync process',
 	'max_queue_size_full_sync' => '(int|bool=false) Maximum queue size that full sync is allowed to use',
-	'full_sync_send_duration'  => '(float) Max full sync duration per request',
 	'sync_via_cron'            => '(int|bool=false) Set to 1 or true to avoid using cron for sync.',
 	'cron_sync_time_limit'	   => '(int|bool=false) Limit cron jobs to number of seconds',
 	'enqueue_wait_time'        => '(int|bool=false) Wait time in seconds between attempting to continue a full sync, via requests',
-	'sync_sender_enabled'      => '(int|bool=false) Set to 1 or true to enable the default sender for the incremental queue.',
-	'full_sync_sender_enabled' => '(int|bool=false) Set to 1 or true to enable the default sender for the "full sync" queue.',
 );
 
 // GET /sites/%s/sync/settings
@@ -651,26 +636,6 @@ new Jetpack_JSON_API_Sync_Unlock_Endpoint( array(
 	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync/unlock'
 ) );
 
-// GET /sites/%s/sync/object-id-range
-new Jetpack_JSON_API_Sync_Object_Id_Range( array(
-	'description'     => 'Gets minimum and maximum object ids for each batch of given batch size.',
-	'method'          => 'GET',
-	'path'            => '/sites/%s/sync/object-id-range',
-	'group'           => '__do_not_document',
-	'stat'            => 'sync-object-id-range',
-	'path_labels' => array(
-		'$site' => '(int|string) The site ID, The site domain'
-	),
-	'query_parameters' => array(
-		'batch_size' => '(int=1000) The amount of objects per batch.',
-		'sync_module' => '(string=posts) The sync module used to enumerate the ranges.',
-	),
-	'response_format' => array(
-		'ranges' => '(array) An array of range objects with min and max properties for each batch.',
-	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync/object-id-range?batch_size=100&sync_module=comments'
-) );
-
 // POST /sites/%s/sync/checkout
 new Jetpack_JSON_API_Sync_Checkout_Endpoint( array(
 	'description'     => 'Locks the queue and returns items and the buffer ID.',
@@ -686,7 +651,6 @@ new Jetpack_JSON_API_Sync_Checkout_Endpoint( array(
 		'number_of_items'   => '(int=10) Maximum number of items from the queue to be returned',
 		'encode'            => '(bool=true) Use the default encode method',
 		'force'             => '(bool=false) Force unlock the queue',
-		'pop'               => '(bool=false) Pop from the queue without checkout, use carefully 😱',
 	),
 	'response_format' => array(
 		'buffer_id' => '(string) Buffer ID that we are using',
@@ -710,9 +674,8 @@ new Jetpack_JSON_API_Sync_Close_Endpoint( array(
 	),
 	'request_format' => array(
 		'item_ids'  => '(array) Item IDs to delete from the queue.',
-		'queue'     => '(string) sync or full_sync',
-		'buffer_id' => '(string) buffer ID that was opened during the checkout step.',
-		'continue'  => '(bool=false) Perform another checkout from queue.',
+		'queue'      => '(string) sync or full_sync',
+		'buffer_id'  => '(string) buffer ID that was opened during the checkout step.',
 	),
 	'response_format' => array(
 		'success' => '(bool) Closed the buffer successfully?'
@@ -993,35 +956,6 @@ new Jetpack_JSON_API_Cron_Unschedule_Endpoint( array(
 
 //	BACKUPS
 
-// GET /sites/%s/database-object/backup
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-get-database-object-backup-endpoint.php' );
-new Jetpack_JSON_API_Get_Database_Object_Backup_Endpoint( array(
-	'description'    => 'Fetch a backup of a database object, along with all of its metadata',
-	'group'          => '__do_not_document',
-	'method'         => 'GET',
-	'path'           => '/sites/%s/database-object/backup',
-	'stat'           => 'database-objects:1:backup',
-	'allow_jetpack_site_auth' => true,
-	'path_labels'    => array(
-		'$site' => '(int|string) The site ID, The site domain',
-	),
-	'query_parameters' => array(
-		'object_type' => '(string) Type of object to fetch from the database',
-		'object_id'   => '(int) ID of the database object to fetch',
-	),
-	'response_format' => array(
-		'object'   => '(array) Database object row',
-		'meta'     => '(array) Associative array of key/value metadata associated with the row',
-		'children' => '(array) Where appropriate, child records associated with the object. eg: Woocommerce tax rate locations',
-	),
-	'example_request_data' => array(
-		'headers' => array(
-			'authorization' => 'Bearer YOUR_API_TOKEN'
-		),
-	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/database-object/backup'
-) );
-
 // GET /sites/%s/comments/%d/backup
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-get-comment-backup-endpoint.php' );
 new Jetpack_JSON_API_Get_Comment_Backup_Endpoint( array(
@@ -1087,9 +1021,8 @@ new Jetpack_JSON_API_Get_Post_Backup_Endpoint( array(
 		'$post' => '(int) The post ID',
 	),
 	'response_format' => array(
-		'post'  => '(array) Post table row',
-		'meta'  => '(array) Associative array of key/value postmeta data',
-		'terms' => '(array) List of terms attached to the post object',
+		'post' => '(array) Post table row',
+		'meta' => '(array) Associative array of key/value postmeta data',
 	),
 	'example_request_data' => array(
 		'headers' => array(
@@ -1230,95 +1163,4 @@ new Jetpack_JSON_API_User_Create_Endpoint( array(
     }',
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/users/create'
 
-) );
-
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-jps-woocommerce-connect-endpoint.php' );
-
-// POST /sites/%s/jps/woo-connect
-new Jetpack_JSON_API_JPS_WooCommerce_Connect_Endpoint( array(
-	'description'    => 'Attempts to connect the WooCommerce plugin for this site to WooCommerce.com.',
-	'group'          => '__do_not_document',
-	'method'         => 'POST',
-	'path'           => '/sites/%s/jps/woo-connect',
-	'stat'           => 'jps:woo-connect',
-	'allow_jetpack_site_auth' => true,
-	'path_labels'    => array(
-		'$site' => '(int|string) The site ID, The site domain',
-	),
-	'request_format'  => array(
-		'access_token'        => '(string) The access token for WooCommerce to connect to WooCommerce.com',
-		'access_token_secret' => '(string) The access token secret for WooCommerce to connect to WooCommerce.com',
-		'user_id'             => '(int) The user\'s ID after registering for a host plan',
-		'site_id'             => '(int) The site\'s ID after registering for a host plan',
-	),
-	'response_format' => array(
-		'success' => '(bool) Setting access token and access token secret successful?',
-	),
-	'example_request_data' => array(
-		'headers' => array(
-			'authorization' => 'Bearer YOUR_API_TOKEN',
-		),
-		'body' => array(
-			'access_token'        => '123456789',
-			'access_token_secret' => 'abcdefghiklmnop',
-			'user_id'             => 1,
-			'site_id'             => 2,
-		),
-	),
-	'example_response' => '{ "success": true }',
-	'example_request'  => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/jps/woo-connect'
-) );
-
-// POST /sites/%s/install-backup-helper-script
-require_once( $json_jetpack_endpoints_dir . 'class-jetpack-json-api-install-backup-helper-script-endpoint.php' );
-new Jetpack_JSON_API_Install_Backup_Helper_Script_Endpoint( array(
-	'description'             => 'Setup a Helper Script, to allow Jetpack Backup to connect to this site',
-	'group'                   => '__do_not_document',
-	'method'                  => 'POST',
-	'stat'                    => 'install-backup-helper-script',
-	'path'                    => '/sites/%s/install-backup-helper-script',
-	'allow_jetpack_site_auth' => true,
-	'path_labels'             => array(
-		'$site' => '(int|string) The site ID, The site domain',
-	),
-	'request_format'          => array(
-		'helper' => '(string) Base64-encoded Helper Script contents',
-	),
-	'response_format'         => array(
-		'abspath' => '(string) WordPress install path',
-		'path'    => '(string) Path of the helper script',
-		'url'     => '(string) URL to access the helper script',
-	),
-	'example_request_data'    => array(
-		'headers' => array(
-			'authorization' => 'Bearer YOUR_API_TOKEN',
-		),
-	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/install-backup-helper-script'
-) );
-
-// POST /sites/%s/delete-backup-helper-script
-require_once( $json_jetpack_endpoints_dir . 'class-jetpack-json-api-delete-backup-helper-script-endpoint.php' );
-new Jetpack_JSON_API_Delete_Backup_Helper_Script_Endpoint( array(
-	'description'             => 'Delete a Helper Script',
-	'group'                   => '__do_not_document',
-	'method'                  => 'POST',
-	'stat'                    => 'delete-backup-helper-script',
-	'path'                    => '/sites/%s/delete-backup-helper-script',
-	'allow_jetpack_site_auth' => true,
-	'path_labels'             => array(
-		'$site' => '(int|string) The site ID, The site domain',
-	),
-	'response_format'         => array(
-		'success' => '(bool) Deleted the Helper Script successfully?'
-	),
-	'request_format'          => array(
-		'path' => '(string) Path to Helper Script to delete',
-	),
-	'example_request_data'    => array(
-		'headers' => array(
-			'authorization' => 'Bearer YOUR_API_TOKEN',
-		),
-	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/delete-backup-helper-script'
 ) );

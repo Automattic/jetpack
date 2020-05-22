@@ -4,18 +4,19 @@
 import React, { Component } from 'react';
 import { translate as __ } from 'i18n-calypso';
 import CompactFormToggle from 'components/form/form-toggle/compact';
-import getRedirectUrl from 'lib/jp-redirect';
 
 /**
  * Internal dependencies
  */
 import { FormFieldset } from 'components/forms';
 import { ModuleToggle } from 'components/module-toggle';
-import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import {
+	ModuleSettingsForm as moduleSettingsForm,
+} from 'components/module-settings/module-settings-form';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 
-export const SSO = withModuleSettingsFormHelpers(
+export const SSO = moduleSettingsForm(
 	class extends Component {
 		/**
 		 * Get options for initial state.
@@ -32,11 +33,11 @@ export const SSO = withModuleSettingsFormHelpers(
 
 		handleTwoStepToggleChange = () => {
 			this.updateOptions( 'jetpack_sso_require_two_step' );
-		};
+		}
 
 		handleMatchByEmailToggleChange = () => {
 			this.updateOptions( 'jetpack_sso_match_by_email' );
-		};
+		}
 
 		/**
 		 * Update state so toggles are updated.
@@ -60,26 +61,17 @@ export const SSO = withModuleSettingsFormHelpers(
 					{ ...this.props }
 					hideButton
 					module="sso"
-					header={ __( 'WordPress.com login', { context: 'Settings header, noun.' } ) }
+					header={ __( 'WordPress.com log in', { context: 'Settings header' } ) }
 				>
 					<SettingsGroup
 						hasChild
 						disableInDevMode
 						module={ this.props.getModule( 'sso' ) }
 						support={ {
-							text: __(
-								'Allows registered users to log in to your site with their WordPress.com accounts.'
-							),
-							link: getRedirectUrl( 'jetpack-support-sso' ),
+							text: __( 'Allows registered users to log in to your site with their WordPress.com accounts.' ),
+							link: 'https://jetpack.com/support/sso/',
 						} }
-					>
-						<p>
-							{ __(
-								'Add an extra layer of security to your website by enabling WordPress.com login and secure ' +
-									'authentication. If you have multiple sites with this option enabled, you will be able to log in to every ' +
-									'one of them with the same credentials.'
-							) }
-						</p>
+						>
 						<ModuleToggle
 							slug="sso"
 							disabled={ unavailableInDevMode }
@@ -96,8 +88,8 @@ export const SSO = withModuleSettingsFormHelpers(
 								checked={ this.state.jetpack_sso_match_by_email }
 								disabled={
 									! isSSOActive ||
-									unavailableInDevMode ||
-									this.props.isSavingAnyOption( [ 'sso', 'jetpack_sso_match_by_email' ] )
+										unavailableInDevMode ||
+										this.props.isSavingAnyOption( [ 'sso', 'jetpack_sso_match_by_email' ] )
 								}
 								onChange={ this.handleMatchByEmailToggleChange }
 							>
@@ -109,8 +101,8 @@ export const SSO = withModuleSettingsFormHelpers(
 								checked={ this.state.jetpack_sso_require_two_step }
 								disabled={
 									! isSSOActive ||
-									unavailableInDevMode ||
-									this.props.isSavingAnyOption( [ 'sso', 'jetpack_sso_require_two_step' ] )
+										unavailableInDevMode ||
+										this.props.isSavingAnyOption( [ 'sso', 'jetpack_sso_require_two_step' ] )
 								}
 								onChange={ this.handleTwoStepToggleChange }
 							>

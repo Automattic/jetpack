@@ -23,22 +23,19 @@
 #page .entry-content h3.sd-title,
 #page .entry-summary h3.sd-title,
 #primary div.sharedaddy .jp-relatedposts-headline em,
-.pd-rating,
-.cs-rating {
+.pd-rating {
 	color: #767676;
 	font-size: 11px;
 	text-transform: uppercase;
 }
 
-.pd-rating,
-.cs-rating {
+.pd-rating {
 	min-height: 23px;
 	margin-bottom: 5px;
 }
 
 .wp-multiplayer,
 .PDS_Poll,
-.CSS_Poll,
 .entry-content .slideshow-window {
 	margin-bottom: 24px;
 }

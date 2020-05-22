@@ -1,16 +1,16 @@
 /* eslint jsx-a11y/no-onchange: 0 */
 /**
- * External dependencies
- */
-import React from 'react';
+* External dependencies
+*/
+const React = require( 'react' ),
+	PureRenderMixin = require( 'react-pure-render/mixin' );
 
-import PureRenderMixin from 'react-pure-render/mixin';
-import createReactClass from 'create-react-class';
+const createReactClass = require( 'create-react-class' );
 
 /**
- * Internal dependencies
- */
-import InfoPopover from 'components/info-popover';
+* Internal dependencies
+*/
+const InfoPopover = require( 'components/info-popover' );
 
 const InfoPopoverExample = createReactClass( {
 	displayName: 'InfoPopover',
@@ -27,13 +27,8 @@ const InfoPopoverExample = createReactClass( {
 		const id = 'example-select';
 		return (
 			<div>
-				<label htmlFor={ id }>
-					Position
-					<select
-						id={ id }
-						value={ this.state.popoverPosition }
-						onChange={ this._changePopoverPosition }
-					>
+				<label htmlFor={ id }>Position
+					<select id={ id } value={ this.state.popoverPosition } onChange={ this._changePopoverPosition }>
 						<option value="top">top</option>
 						<option value="top left">top left</option>
 						<option value="top right">top right</option>
@@ -47,7 +42,10 @@ const InfoPopoverExample = createReactClass( {
 
 				<br />
 
-				<InfoPopover id="popover__info-popover-example" position={ this.state.popoverPosition }>
+				<InfoPopover
+					id="popover__info-popover-example"
+					position={ this.state.popoverPosition }
+				>
 					Some informational text.
 				</InfoPopover>
 			</div>
@@ -56,7 +54,8 @@ const InfoPopoverExample = createReactClass( {
 
 	_changePopoverPosition: function( event ) {
 		this.setState( { popoverPosition: event.target.value } );
-	},
+	}
+
 } );
 
-export default InfoPopoverExample;
+module.exports = InfoPopoverExample;

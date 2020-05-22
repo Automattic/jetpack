@@ -1,6 +1,4 @@
-<?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
-
-use Automattic\Jetpack\Assets;
+<?php
 
 /**
  * Embed recipe 'cards' in post, with basic styling and print functionality
@@ -10,66 +8,80 @@ use Automattic\Jetpack\Assets;
  * - basic styles/themecolor styles
  * - validation/sanitization
  * - print styles
- *
- * @package Jetpack
- */
-
-/**
- * Register and display Recipes in posts.
  */
 class Jetpack_Recipes {
 
-	/**
-	 * Have scripts and styles been enqueued already.
-	 *
-	 * @var bool
-	 */
 	private $scripts_and_style_included = false;
 
-	/**
-	 * Constructor
-	 */
-	public function __construct() {
+	function __construct() {
 		add_action( 'init', array( $this, 'action_init' ) );
+
+		add_filter( 'wp_kses_allowed_html', array( $this, 'add_recipes_kses_rules' ), 10, 2 );
 	}
 
 	/**
-	 * Returns KSES tags with Schema-specific attributes.
+	 * Add Schema-specific attributes to our allowed tags in wp_kses,
+	 * so we can have better Schema.org compliance.
 	 *
-	 * @since 8.0.0
-	 *
-	 * @return array Array to be used by KSES.
+	 * @param array $allowedtags Array of allowed HTML tags in recipes.
+	 * @param array $context Context to judge allowed tags by.
 	 */
-	private static function kses_tags() {
-		$allowedtags = wp_kses_allowed_html( 'post' );
-		// Create an array of all the tags we'd like to add the itemprop attribute to.
-		$tags = array( 'li', 'ol', 'ul', 'img', 'p', 'h3', 'time', 'span' );
-		foreach ( $tags as $tag ) {
-			if ( ! isset( $allowedtags[ $tag ] ) ) {
-				$allowedtags[ $tag ] = array();
+	function add_recipes_kses_rules( $allowedtags, $context ) {
+		if ( in_array( $context, array( '', 'post', 'data' ) ) ) :
+			// Create an array of all the tags we'd like to add the itemprop attribute to.
+			$tags = array( 'li', 'ol', 'ul', 'img', 'p', 'h3', 'time' );
+			foreach ( $tags as $tag ) {
+				$allowedtags = $this->add_kses_rule(
+					$allowedtags,
+					$tag,
+					array(
+						'class'    => array(),
+						'itemprop' => array(),
+						'datetime'  => array(),
+					)
+				);
 			}
-			$allowedtags[ $tag ]['class']    = array();
-			$allowedtags[ $tag ]['itemprop'] = array();
-			$allowedtags[ $tag ]['datetime'] = array();
-		}
 
-		// Allow the handler <a on=""> in AMP.
-		$allowedtags['a']['on'] = array();
+			// Allow itemscope and itemtype for divs.
+			$allowedtags = $this->add_kses_rule(
+				$allowedtags,
+				'div',
+				array(
+					'class'    => array(),
+					'itemscope' => array(),
+					'itemtype' => array(),
+				)
+			);
+		endif;
 
-		// Allow itemscope and itemtype for divs.
-		if ( ! isset( $allowedtags['div'] ) ) {
-			$allowedtags['div'] = array();
-		}
-		$allowedtags['div']['class']     = array();
-		$allowedtags['div']['itemscope'] = array();
-		$allowedtags['div']['itemtype']  = array();
 		return $allowedtags;
+	}
+
+	/**
+	 * Function to add a new property rule to our kses array.
+	 * Used by add_recipe_kses_rules() above.
+	 *
+	 * @param array  $all_tags Array of allowed HTML tags in recipes.
+	 * @param string $tag      New HTML tag to add to the array of allowed HTML.
+	 * @param array  $rules    Array of allowed attributes for that HTML tag.
+	 */
+	private function add_kses_rule( $all_tags, $tag, $rules ) {
+
+		// If the tag doesn't already exist, add it.
+		if ( ! isset( $all_tags[ $tag ] ) ) {
+			$all_tags[ $tag ] = array();
+		}
+
+		// Merge the new tags with existing tags.
+		$all_tags[ $tag ] = array_merge( $all_tags[ $tag ], $rules );
+
+		return $all_tags;
 	}
 
 	/**
 	 * Register our shortcode and enqueue necessary files.
 	 */
-	public function action_init() {
+	function action_init() {
 		// Enqueue styles if [recipe] exists.
 		add_action( 'wp_head', array( $this, 'add_scripts' ), 1 );
 
@@ -78,14 +90,12 @@ class Jetpack_Recipes {
 		add_shortcode( 'recipe-notes', array( $this, 'recipe_notes_shortcode' ) );
 		add_shortcode( 'recipe-ingredients', array( $this, 'recipe_ingredients_shortcode' ) );
 		add_shortcode( 'recipe-directions', array( $this, 'recipe_directions_shortcode' ) );
-		add_shortcode( 'recipe-nutrition', array( $this, 'recipe_nutrition_shortcode' ) );
-		add_shortcode( 'recipe-image', array( $this, 'recipe_image_shortcode' ) );
 	}
 
 	/**
 	 * Enqueue scripts and styles
 	 */
-	public function add_scripts() {
+	function add_scripts() {
 		if ( empty( $GLOBALS['posts'] ) || ! is_array( $GLOBALS['posts'] ) ) {
 			return;
 		}
@@ -107,24 +117,18 @@ class Jetpack_Recipes {
 		// add $themecolors-defined styles.
 		wp_add_inline_style( 'jetpack-recipes-style', self::themecolor_styles() );
 
-		if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
-			return;
-		}
-
 		wp_enqueue_script(
 			'jetpack-recipes-printthis',
-			Assets::get_file_url_for_environment( '_inc/build/shortcodes/js/recipes-printthis.min.js', 'modules/shortcodes/js/recipes-printthis.js' ),
+			Jetpack::get_file_url_for_environment( '_inc/build/shortcodes/js/recipes-printthis.min.js', 'modules/shortcodes/js/recipes-printthis.js' ),
 			array( 'jquery' ),
-			'20170202',
-			false
+			'20170202'
 		);
 
 		wp_enqueue_script(
 			'jetpack-recipes-js',
-			Assets::get_file_url_for_environment( '_inc/build/shortcodes/js/recipes.min.js', 'modules/shortcodes/js/recipes.js' ),
+			Jetpack::get_file_url_for_environment( '_inc/build/shortcodes/js/recipes.min.js', 'modules/shortcodes/js/recipes.js' ),
 			array( 'jquery', 'jetpack-recipes-printthis' ),
-			'20131230',
-			false
+			'20131230'
 		);
 
 		$title_var     = wp_title( '|', false, 'right' );
@@ -136,7 +140,7 @@ class Jetpack_Recipes {
 			'jetpack_recipes_vars',
 			array(
 				'pageTitle' => $title_var,
-				'loadCSS'   => $print_css_var,
+				'loadCSS' => $print_css_var,
 			)
 		);
 	}
@@ -150,24 +154,19 @@ class Jetpack_Recipes {
 	 *
 	 * @return string HTML for recipe shortcode.
 	 */
-	public static function recipe_shortcode( $atts, $content = '' ) {
+	static function recipe_shortcode( $atts, $content = '' ) {
 		$atts = shortcode_atts(
 			array(
 				'title'       => '', // string.
 				'servings'    => '', // intval.
-				'time'        => '', // strtotime-compatible time description.
+				'time'        => '', // string.
 				'difficulty'  => '', // string.
-				'print'       => '', // URL for external print version.
+				'print'       => '', // string.
 				'source'      => '', // string.
-				'sourceurl'   => '', // URL string. Only used if source set.
-				'image'       => '', // URL or attachment ID.
+				'sourceurl'   => '', // string.
+				'image'       => '', // string.
 				'description' => '', // string.
-				'cooktime'    => '', // strtotime-compatible time description.
-				'preptime'    => '', // strtotime-compatible time description.
-				'rating'      => '', // string.
-			),
-			$atts,
-			'recipe'
+			), $atts, 'recipe'
 		);
 
 		return self::recipe_shortcode_html( $atts, $content );
@@ -181,41 +180,43 @@ class Jetpack_Recipes {
 	 *
 	 * @return string HTML output
 	 */
-	private static function recipe_shortcode_html( $atts, $content = '' ) {
+	static function recipe_shortcode_html( $atts, $content = '' ) {
 
-		$html = '<div class="hrecipe h-recipe jetpack-recipe" itemscope itemtype="https://schema.org/Recipe">';
+		$html = '<div class="hrecipe jetpack-recipe" itemscope itemtype="https://schema.org/Recipe">';
 
 		// Print the recipe title if exists.
 		if ( '' !== $atts['title'] ) {
-			$html .= '<h3 class="p-name jetpack-recipe-title fn" itemprop="name">' . esc_html( $atts['title'] ) . '</h3>';
+			$html .= '<h3 class="jetpack-recipe-title" itemprop="name">' . esc_html( $atts['title'] ) . '</h3>';
 		}
 
 		// Print the recipe meta if exists.
-		if (
-			'' !== $atts['servings']
-			|| '' !== $atts['time']
-			|| '' !== $atts['difficulty']
-			|| '' !== $atts['print']
-			|| '' !== $atts['preptime']
-			|| '' !== $atts['cooktime']
-			|| '' !== $atts['rating']
-		) {
+		if ( '' !== $atts['servings'] || '' != $atts['time'] || '' != $atts['difficulty'] || '' != $atts['print'] ) {
 			$html .= '<ul class="jetpack-recipe-meta">';
 
 			if ( '' !== $atts['servings'] ) {
 				$html .= sprintf(
-					'<li class="jetpack-recipe-servings p-yield yield" itemprop="recipeYield"><strong>%1$s: </strong>%2$s</li>',
+					'<li class="jetpack-recipe-servings" itemprop="recipeYield"><strong>%1$s: </strong>%2$s</li>',
 					esc_html_x( 'Servings', 'recipe', 'jetpack' ),
 					esc_html( $atts['servings'] )
 				);
 			}
 
-			$time_types = array( 'preptime', 'cooktime', 'time' );
-			foreach ( $time_types as $time_type ) {
-				if ( '' === $atts[ $time_type ] ) {
-					continue;
+			if ( '' !== $atts['time'] ) {
+				// Get a time that's supported by Schema.org.
+				$duration = WPCOM_JSON_API_Date::format_duration( $atts['time'] );
+				// If no duration can be calculated, let's output what the user provided.
+				if ( empty( $duration ) ) {
+					$duration = $atts['time'];
 				}
-				$html .= self::output_time( $atts[ $time_type ], $time_type );
+
+				$html .= sprintf(
+					'<li class="jetpack-recipe-time">
+					<time itemprop="totalTime" datetime="%3$s"><strong>%1$s: </strong>%2$s</time>
+					</li>',
+					esc_html_x( 'Time', 'recipe', 'jetpack' ),
+					esc_html( $atts['time'] ),
+					esc_attr( $duration )
+				);
 			}
 
 			if ( '' !== $atts['difficulty'] ) {
@@ -223,17 +224,6 @@ class Jetpack_Recipes {
 					'<li class="jetpack-recipe-difficulty"><strong>%1$s: </strong>%2$s</li>',
 					esc_html_x( 'Difficulty', 'recipe', 'jetpack' ),
 					esc_html( $atts['difficulty'] )
-				);
-			}
-
-			if ( '' !== $atts['rating'] ) {
-				$html .= sprintf(
-					'<li class="jetpack-recipe-rating">
-						<strong>%1$s: </strong>
-						<span itemprop="contentRating">%2$s</span>
-					</li>',
-					esc_html_x( 'Rating', 'recipe', 'jetpack' ),
-					esc_html( $atts['rating'] )
 				);
 			}
 
@@ -262,24 +252,21 @@ class Jetpack_Recipes {
 			}
 
 			if ( 'false' !== $atts['print'] ) {
-				$is_amp       = class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request();
-				$print_action = $is_amp ? 'on="tap:AMP.print"' : '';
-				$print_text   = $is_amp ? esc_html__( 'Print page', 'jetpack' ) : esc_html_x( 'Print', 'recipe', 'jetpack' );
-				$html        .= sprintf(
-					'<li class="jetpack-recipe-print"><a href="#" %1$s>%2$s</a></li>',
-					$print_action,
-					$print_text
+				$html .= sprintf(
+					'<li class="jetpack-recipe-print"><a href="#">%1$s</a></li>',
+					esc_html_x( 'Print', 'recipe', 'jetpack' )
 				);
 			}
 
 			$html .= '</ul>';
-		}
+		} // End if().
 
-		// Output the image if we have one and it's not shown elsewhere.
+		// Output the image, if we have one.
 		if ( '' !== $atts['image'] ) {
-			if ( ! has_shortcode( $content, 'recipe-image' ) ) {
-				$html .= self::output_image_html( $atts['image'] );
-			}
+			$html .= sprintf(
+				'<img class="jetpack-recipe-image" itemprop="image" src="%1$s" />',
+				esc_url( $atts['image'] )
+			);
 		}
 
 		// Output the description, if we have one.
@@ -302,34 +289,10 @@ class Jetpack_Recipes {
 		}
 
 		// Sanitize html.
-		$html = wp_kses( $html, self::kses_tags() );
+		$html = wp_kses_post( $html );
 
 		// Return the HTML block.
 		return $html;
-	}
-
-	/**
-	 * Our [recipe-image] shortcode.
-	 * Controls placement of image in recipe.
-	 *
-	 * @param array $atts Array of shortcode attributes.
-	 *
-	 * @return string HTML for recipe notes shortcode.
-	 */
-	public static function recipe_image_shortcode( $atts ) {
-		$atts = shortcode_atts(
-			array(
-				'image' => '', // string.
-				0       => '', // string.
-			),
-			$atts,
-			'recipe-image'
-		);
-		$src  = $atts['image'];
-		if ( ! empty( $atts[0] ) ) {
-			$src = $atts[0];
-		}
-		return self::output_image_html( $src );
 	}
 
 	/**
@@ -341,14 +304,10 @@ class Jetpack_Recipes {
 	 *
 	 * @return string HTML for recipe notes shortcode.
 	 */
-	public static function recipe_notes_shortcode( $atts, $content = '' ) {
-		$atts = shortcode_atts(
-			array(
-				'title' => '', // string.
-			),
-			$atts,
-			'recipe-notes'
-		);
+	static function recipe_notes_shortcode( $atts, $content = '' ) {
+		$atts = shortcode_atts( array(
+			'title' => '', // string.
+		), $atts, 'recipe-notes' );
 
 		$html = '';
 
@@ -365,7 +324,7 @@ class Jetpack_Recipes {
 		$html .= '</div>';
 
 		// Sanitize html.
-		$html = wp_kses( $html, self::kses_tags() );
+		$html = wp_kses_post( $html );
 
 		// Return the HTML block.
 		return $html;
@@ -380,14 +339,10 @@ class Jetpack_Recipes {
 	 *
 	 * @return string HTML for recipe ingredients shortcode.
 	 */
-	public static function recipe_ingredients_shortcode( $atts, $content = '' ) {
-		$atts = shortcode_atts(
-			array(
-				'title' => esc_html_x( 'Ingredients', 'recipe', 'jetpack' ), // string.
-			),
-			$atts,
-			'recipe-ingredients'
-		);
+	static function recipe_ingredients_shortcode( $atts, $content = '' ) {
+		$atts = shortcode_atts( array(
+			'title' => esc_html_x( 'Ingredients', 'recipe', 'jetpack' ), // string.
+		), $atts, 'recipe-ingredients' );
 
 		$html = '<div class="jetpack-recipe-ingredients">';
 
@@ -402,44 +357,7 @@ class Jetpack_Recipes {
 		$html .= '</div>';
 
 		// Sanitize html.
-		$html = wp_kses( $html, self::kses_tags() );
-
-		// Return the HTML block.
-		return $html;
-	}
-
-	/**
-	 * Our [recipe-nutrition] shortcode.
-	 * Outputs notes, styled in a div.
-	 *
-	 * @param array  $atts    Array of shortcode attributes.
-	 * @param string $content Post content.
-	 *
-	 * @return string HTML for recipe nutrition shortcode.
-	 */
-	public static function recipe_nutrition_shortcode( $atts, $content = '' ) {
-		$atts = shortcode_atts(
-			array(
-				'title' => esc_html_x( 'Nutrition', 'recipe', 'jetpack' ), // string.
-			),
-			$atts,
-			'recipe-nutrition'
-		);
-
-		$html = '<div class="jetpack-recipe-nutrition p-nutrition nutrition">';
-
-		// Print a title unless the user has opted to exclude it.
-		if ( 'false' !== $atts['title'] ) {
-			$html .= '<h4 class="jetpack-recipe-nutrition-title">' . esc_html( $atts['title'] ) . '</h4>';
-		}
-
-		// Format content using list functionality.
-		$html .= self::output_list_content( $content, 'nutrition' );
-
-		$html .= '</div>';
-
-		// Sanitize html.
-		$html = wp_kses( $html, self::kses_tags() );
+		$html = wp_kses_post( $html );
 
 		// Return the HTML block.
 		return $html;
@@ -459,28 +377,18 @@ class Jetpack_Recipes {
 	 *
 	 * @return string content formatted as a list item
 	 */
-	private static function output_list_content( $content, $type ) {
+	static function output_list_content( $content, $type ) {
 		$html = '';
 
 		switch ( $type ) {
-			case 'directions':
+			case 'directions' :
 				$list_item_replacement = '<li class="jetpack-recipe-directions">${1}</li>';
 				$itemprop              = ' itemprop="recipeInstructions"';
 				$listtype              = 'ol';
 				break;
-			case 'ingredients':
-				$list_item_replacement = '<li class="jetpack-recipe-ingredient p-ingredient ingredient" itemprop="recipeIngredient">${1}</li>';
+			case 'ingredients' :
+				$list_item_replacement = '<li class="jetpack-recipe-ingredient" itemprop="recipeIngredient">${1}</li>';
 				$itemprop              = '';
-				$listtype              = 'ul';
-				break;
-			case 'nutrition':
-				$list_item_replacement = '<li class="jetpack-recipe-nutrition">${1}</li>';
-				$itemprop              = ' itemprop="nutrition"';
-				$listtype              = 'ul';
-				break;
-			case 'nutrition':
-				$list_item_replacement = '<li class="jetpack-recipe-nutrition nutrition">${1}</li>';
-				$itemprop              = ' itemprop="nutrition"';
 				$listtype              = 'ul';
 				break;
 			default:
@@ -493,11 +401,11 @@ class Jetpack_Recipes {
 		if (
 			strpos( $content, '&#8211;' ) !== false ||
 			strpos( $content, '&#8212;' ) !== false ||
-			strpos( $content, '-' ) !== false ||
-			strpos( $content, '*' ) !== false ||
-			strpos( $content, '#' ) !== false ||
-			strpos( $content, '–' ) !== false || // ndash.
-			strpos( $content, '—' ) !== false || // mdash.
+			strpos( $content, '-' )       !== false ||
+			strpos( $content, '*' )       !== false ||
+			strpos( $content, '#' )       !== false ||
+			strpos( $content, '–' )       !== false || // ndash.
+			strpos( $content, '—' )       !== false || // mdash.
 			preg_match( '/\d+\.\s/', $content )
 		) {
 			// Remove breaks and extra whitespace.
@@ -513,10 +421,10 @@ class Jetpack_Recipes {
 			if ( 0 !== count( $ul_matches[0] ) || 0 !== count( $ol_matches[0] ) ) {
 
 				if ( 0 !== count( $ol_matches[0] ) ) {
-					$listtype          = 'ol';
+					$listtype = 'ol';
 					$list_item_pattern = $ol_pattern;
 				} else {
-					$listtype          = 'ul';
+					$listtype = 'ul';
 					$list_item_pattern = $ul_pattern;
 				}
 				$html .= '<' . $listtype . $itemprop . '>';
@@ -525,7 +433,7 @@ class Jetpack_Recipes {
 
 				// Strip out any empty <p> tags and stray </p> tags, because those are just silly.
 				$empty_p_pattern = '/(<p>)*\s*<\/p>/mi';
-				$html            = preg_replace( $empty_p_pattern, '', $html );
+				$html = preg_replace( $empty_p_pattern, '', $html );
 			} else {
 				$html .= do_shortcode( $content );
 			}
@@ -546,16 +454,12 @@ class Jetpack_Recipes {
 	 *
 	 * @return string HTML for recipe directions shortcode.
 	 */
-	public static function recipe_directions_shortcode( $atts, $content = '' ) {
-		$atts = shortcode_atts(
-			array(
+	static function recipe_directions_shortcode( $atts, $content = '' ) {
+		$atts = shortcode_atts( array(
 				'title' => esc_html_x( 'Directions', 'recipe', 'jetpack' ), // string.
-			),
-			$atts,
-			'recipe-directions'
-		);
+		), $atts, 'recipe-directions' );
 
-		$html = '<div class="jetpack-recipe-directions e-instructions">';
+		$html = '<div class="jetpack-recipe-directions">';
 
 		// Print a title unless the user has specified to exclude it.
 		if ( 'false' !== $atts['title'] ) {
@@ -568,112 +472,10 @@ class Jetpack_Recipes {
 		$html .= '</div>';
 
 		// Sanitize html.
-		$html = wp_kses( $html, self::kses_tags() );
+		$html = wp_kses_post( $html );
 
 		// Return the HTML block.
 		return $html;
-	}
-
-	/**
-	 * Outputs time meta tag.
-	 *
-	 * @param string $time_str  Raw time to output.
-	 * @param string $time_type Type of time to show.
-	 *
-	 * @return string HTML for recipe time meta.
-	 */
-	private static function output_time( $time_str, $time_type ) {
-		// Get a time that's supported by Schema.org.
-		$duration = WPCOM_JSON_API_Date::format_duration( $time_str );
-		// If no duration can be calculated, let's output what the user provided.
-		if ( ! $duration ) {
-			$duration = $time_str;
-		}
-
-		switch ( $time_type ) {
-			case 'cooktime':
-				$title    = _x( 'Cook Time', 'recipe', 'jetpack' );
-				$itemprop = 'cookTime';
-				break;
-			case 'preptime':
-				$title    = _x( 'Prep Time', 'recipe', 'jetpack' );
-				$itemprop = 'prepTime';
-				break;
-			default:
-				$title    = _x( 'Time', 'recipe', 'jetpack' );
-				$itemprop = 'totalTime';
-				break;
-		}
-
-		return sprintf(
-			'<li class="jetpack-recipe-%3$s">
-				<time itemprop="%4$s" datetime="%5$s"><strong>%1$s:</strong> <span class="%3$s">%2$s</span></time>
-			</li>',
-			esc_html( $title ),
-			esc_html( $time_str ),
-			esc_attr( $time_type ),
-			esc_attr( $itemprop ),
-			esc_attr( $duration )
-		);
-	}
-
-	/**
-	 * Outputs image tag for recipe.
-	 *
-	 * @param string $src The image source.
-	 *
-	 * @return string
-	 */
-	private static function output_image_html( $src ) {
-		// Exit if there is no provided source.
-		if ( ! $src ) {
-			return '';
-		}
-
-		$image_attrs = array(
-			'class'    => 'jetpack-recipe-image u-photo photo',
-			'itemprop' => 'image',
-		);
-
-		if (
-			function_exists( 'wp_lazy_loading_enabled' )
-			&& wp_lazy_loading_enabled( 'img', 'wp_get_attachment_image' )
-		) {
-			$image_attrs['loading'] = 'lazy';
-		}
-
-		// If it's numeric, this may be an attachment.
-		if ( is_numeric( $src ) ) {
-			return wp_get_attachment_image(
-				$src,
-				'full',
-				false,
-				$image_attrs
-			);
-		}
-
-		// Check if it's an absolute or relative URL, and return if not.
-		if (
-			0 !== strpos( $src, '/' )
-			&& false === filter_var( $src, FILTER_VALIDATE_URL )
-		) {
-			return '';
-		}
-
-		$image_attrs_markup = '';
-		foreach ( $image_attrs as $name => $value ) {
-			$image_attrs_markup .= sprintf(
-				' %1$s="%2$s"',
-				esc_attr( $name ),
-				esc_attr( $value )
-			);
-		}
-
-		return sprintf(
-			'<img%1$s src="%2$s" />',
-			$image_attrs_markup,
-			esc_url( $src )
-		);
 	}
 
 	/**
@@ -682,7 +484,7 @@ class Jetpack_Recipes {
 	 * @print style block
 	 * @return string $style
 	 */
-	public function themecolor_styles() {
+	function themecolor_styles() {
 		global $themecolors;
 		$style = '';
 
