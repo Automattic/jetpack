@@ -27,7 +27,7 @@ const EmptyResults = memo( () => (
 function MediaBrowser( props ) {
 	const { media, isLoading, pageHandle, className, multiple, setPath, nextPage, onCopy } = props;
 	const [ selected, setSelected ] = useState( [] );
-	const [ focusedItemIndex, setFocusedItemIndex ] = useState( -1 );
+	const [ previousMediaCount, setPreviousMediaCount ] = useState( 0 );
 
 	const onSelectImage = useCallback(
 		newlySelected => {
@@ -66,7 +66,7 @@ function MediaBrowser( props ) {
 
 	const onLoadMoreClick = () => {
 		if ( media.length ) {
-			setFocusedItemIndex( media.length );
+			setPreviousMediaCount( media.length );
 		}
 		nextPage();
 	};
@@ -79,7 +79,7 @@ function MediaBrowser( props ) {
 						item={ item }
 						key={ item.ID }
 						onClick={ onSelectImage }
-						isFocused={ index === focusedItemIndex }
+						isFocused={ previousMediaCount && index === previousMediaCount }
 						isSelected={ selected.find( toFind => toFind.ID === item.ID ) }
 					/>
 				) ) }
