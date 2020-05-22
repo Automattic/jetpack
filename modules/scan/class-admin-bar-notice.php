@@ -114,7 +114,7 @@ class Admin_Bar_Notice {
 		}
 
 		// We might be showing the threats in the admin bar lets make sure that they look great!
-		$hide_wording_on_mobile = '@media screen and (max-width: 959px ) { #wpadminbar #wp-admin-bar-jetpack-scan-notice { width:32px; } #wpadminbar #wp-admin-bar-jetpack-scan-notice a { color: transparent!important; }';
+		$hide_wording_on_mobile = '#wp-admin-bar-jetpack-scan-notice .is-hidden { display:none; } @media screen and (max-width: 959px ) { #wpadminbar #wp-admin-bar-jetpack-scan-notice { width:32px; } #wpadminbar #wp-admin-bar-jetpack-scan-notice a { color: transparent!important; }';
 		$style                  = '#wp-admin-bar-jetpack-scan-notice svg { float:left; margin-top: 4px; margin-right: 6px; width: 18px; height: 22px; }' . $hide_wording_on_mobile;
 		if ( is_rtl() ) {
 			$style = '#wp-admin-bar-jetpack-scan-notice svg { float:right; margin-top: 4px; margin-left: 6px; width: 18px; height: 22px; }' . $hide_wording_on_mobile;
@@ -142,14 +142,15 @@ class Admin_Bar_Notice {
 			'title'  => '',
 			'parent' => 'top-secondary',
 			'meta'   => array(
-				'title' => esc_attr__( 'Visit your scan dashboard', 'jetpack' ),
-				'class' => 'error',
+				'title' => esc_attr__( 'View security scan details', 'jetpack' ),
+				'class' => 'error is-hidden',
 			),
 		);
 
 		if ( $has_threats ) {
 			$node['href']            = esc_url( Redirect::get_url( 'calypso-scanner' ) );
 			$node['meta']['onclick'] = 'window.open( this.href ); return false;';
+			$node['meta']['class']   = 'error';
 			$node['title']           = sprintf(
 				esc_html(
 				/* translators: %s is the alert icon */
