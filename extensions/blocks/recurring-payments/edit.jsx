@@ -417,7 +417,7 @@ class MembershipsButtonEdit extends Component {
 							) }
 						>
 							<Button isSecondary isLarge href={ this.state.upgradeURL } target="_blank">
-								{ __( 'Upgrade Your Plan', 'jetpack' ) }
+								{ __( 'Upgrade your plan', 'jetpack' ) }
 							</Button>
 							{ this.renderDisclaimer() }
 						</Placeholder>
