@@ -77,6 +77,10 @@ const FieldDefaults = {
 			type: 'string',
 			default: '',
 		},
+		width: {
+			type: 'number',
+			default: 100,
+		},
 	},
 	transforms: {
 		to: [
@@ -161,6 +165,7 @@ const editField = type => props => {
 			defaultValue={ props.attributes.defaultValue }
 			placeholder={ props.attributes.placeholder }
 			id={ props.attributes.id }
+			width={ props.attributes.width }
 		/>
 	);
 };
@@ -174,6 +179,7 @@ const editMultiField = type => props => (
 		type={ type }
 		isSelected={ props.isSelected }
 		id={ props.attributes.id }
+		width={ props.attributes.width }
 	/>
 );
 
@@ -284,6 +290,7 @@ export const childBlocks = [
 					defaultValue={ props.attributes.defaultValue }
 					placeholder={ props.attributes.placeholder }
 					id={ props.attributes.id }
+					width={ props.attributes.width }
 				/>
 			),
 		},
@@ -306,6 +313,7 @@ export const childBlocks = [
 					isSelected={ props.isSelected }
 					defaultValue={ props.attributes.defaultValue }
 					id={ props.attributes.id }
+					width={ props.attributes.width }
 				/>
 			),
 			attributes: {

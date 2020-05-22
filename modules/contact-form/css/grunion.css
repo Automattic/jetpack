@@ -104,6 +104,39 @@
 	margin-top: 7px;
 }
 
+.wp-block-jetpack-contact-form {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	flex-direction: row;
+}
+
+.wp-block-jetpack-contact-form .grunion-field-wrap, .wp-block-jetpack-button {
+	flex: 0 0 100%;
+}
+
+.wp-block-jetpack-contact-form .grunion-field-wrap {
+	/* Use transparent border to maintain consistent
+	 * space between elements with flexbox */
+	border-right: 15px solid transparent;
+}
+
+.wp-block-jetpack-contact-form .grunion-field-width-25-wrap {
+	flex: 0 0 25%;
+}
+
+.wp-block-jetpack-contact-form .grunion-field-width-50-wrap {
+	flex: 0 0 50%;
+}
+
+.wp-block-jetpack-contact-form .grunion-field-width-75-wrap {
+	flex: 0 0 75%;
+}
+
+.grunion-field-checkbox-wrap {
+	align-self: center;
+}
+
 @media only screen and (min-width: 600px) {
 	.contact-form input[type='text'],
 	.contact-form input[type='email'],
