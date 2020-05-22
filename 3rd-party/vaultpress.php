@@ -25,7 +25,7 @@ function jetpack_vaultpress_rewind_enabled_notice() {
 				echo sprintf(
 					wp_kses(
 						/* Translators: first variable is the URL of the web site without the protocol, e.g. mysite.com */
-						__( 'You can access your backups or scan at this <a href="%s" target="_blank" rel="noopener noreferrer">new dashboard</a>.', 'jetpack' ),
+						__( 'You can access your backups at this <a href="%s" target="_blank" rel="noopener noreferrer">new dashboard</a>.', 'jetpack' ),
 						array(
 							'a' => array(
 								'href'   => array(),
