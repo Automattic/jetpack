@@ -60,4 +60,6 @@ module.exports = [
 	'modules/wpcom-tos/wpcom-tos.php',
 	'packages',
 	'tests/e2e/plugins/e2e-plan-data-interceptor.php',
+	'_inc/lib/class-jetpack-wizard.php',
+	'class-jetpack-wizard-banner.php',
 ];
