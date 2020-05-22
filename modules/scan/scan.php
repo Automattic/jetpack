@@ -9,5 +9,7 @@
 namespace Automattic\Jetpack\Scan;
 
 require_once 'class-admin-bar-notice.php';
+require_once 'class-admin-sidebar-link.php';
 
 Admin_Bar_Notice::instance();
+new Admin_Sidebar_Link();
