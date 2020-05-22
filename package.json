@@ -43,7 +43,7 @@
 		"docker:stop": "yarn docker:compose stop",
 		"docker:down": "yarn docker:compose down",
 		"docker:build": "docker run -it --rm  -v ${PWD}:/usr/src/app -w /usr/src/app node yarn build",
-		"docker:build-image": "yarn docker:compose build",
+		"docker:build-image": "docker build -t automattic/jetpack-wordpress-dev docker",
 		"docker:wp": "yarn docker:compose exec wordpress wp --allow-root --path=/var/www/html/",
 		"docker:install": "yarn docker:compose exec wordpress bash -c \"/var/scripts/install.sh\"",
 		"docker:uninstall": "yarn docker:compose exec wordpress bash -c \"/var/scripts/uninstall.sh\"",
@@ -236,6 +236,7 @@
 		"**/mkdirp/minimist": "^0.2.1",
 		"**/optimist/minimist": "^0.2.1",
 		"**/mapbox-gl/minimist": "^0.2.1",
-		"**/@mapbox/geojson-rewind/minimist": "^1.2.3"
+		"**/@mapbox/geojson-rewind/minimist": "^1.2.3",
+		"**/@wordpress/compose/mousetrap": "^1.6.5"
 	}
 }

@@ -202,3 +202,17 @@ a.jetpack-termination-dialog__link {
 	font-style: normal !important;
 	text-decoration: underline !important;
 }
+
+ul.jetpack-termination-dialog__active-plugins-list {
+
+	list-style-type: none;
+
+	li {
+		svg {
+			color: red;
+			margin-right: 10px;
+			vertical-align: sub;
+		}
+	}
+
+}

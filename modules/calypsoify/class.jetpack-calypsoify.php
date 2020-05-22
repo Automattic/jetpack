@@ -416,11 +416,26 @@ class Jetpack_Calypsoify {
 	}
 
 	/**
-	 * Returns the URL for switching the user's editor to the Calypso (WordPress.com Classic) editor.
+	 * Returns the URL for switching the user's editor to the Classic editor.
 	 *
 	 * @return string
 	 */
 	public function get_switch_to_classic_editor_url() {
+		// phpcs:ignore WordPress.Security.NonceVerification
+		if ( isset( $_GET['editor/after-deprecation'] ) ) {
+			$post_id    = get_the_ID();
+			$post_type  = get_current_screen()->post_type;
+			$path       = is_null( $post_id ) ? 'post-new.php' : 'post.php';
+			$query_args = array(
+				'post'       => $post_id,
+				'action'     => ( $post_id ) ? 'edit' : null,
+				'post_type'  => ( 'post' !== $post_type ) ? $post_type : null,
+				'set-editor' => 'classic',
+			);
+
+			return add_query_arg( $query_args, admin_url( $path ) );
+		}
+
 		return add_query_arg(
 			'set-editor',
 			'classic',

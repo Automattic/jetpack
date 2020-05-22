@@ -95,8 +95,10 @@ jQuery( document ).ready( function( $ ) {
 					left: 0,
 				} );
 
-			var buttons =
-				'<a class="jp-carousel-commentlink" href="#">' + jetpackCarouselStrings.comment + '</a>';
+			var displayComments = 1 === +jetpackCarouselStrings.display_comments;
+			var buttons = displayComments
+				? '<a class="jp-carousel-commentlink" href="#">' + jetpackCarouselStrings.comment + '</a>'
+				: '';
 			if ( 1 === Number( jetpackCarouselStrings.is_logged_in ) ) {
 			}
 
@@ -113,8 +115,11 @@ jQuery( document ).ready( function( $ ) {
 					width: '250px',
 				} );
 
+			if ( 0 < buttons.children().length ) {
+				imageMeta.append( buttons );
+			}
+
 			imageMeta
-				.append( buttons )
 				.append( "<ul class='jp-carousel-image-exif' style='display:none;'></ul>" )
 				.append( "<a class='jp-carousel-image-download' style='display:none;'></a>" )
 				.append( "<div class='jp-carousel-image-map' style='display:none;'></div>" );
@@ -126,69 +131,6 @@ jQuery( document ).ready( function( $ ) {
 					'margin-top': imageMeta.css( 'margin-top' ),
 				} );
 
-			var commentFormMarkup = '<div id="jp-carousel-comment-form-container">';
-
-			if (
-				jetpackCarouselStrings.local_comments_commenting_as &&
-				jetpackCarouselStrings.local_comments_commenting_as.length
-			) {
-				// Comments not enabled, fallback to local comments
-
-				if (
-					1 !== Number( jetpackCarouselStrings.is_logged_in ) &&
-					1 === Number( jetpackCarouselStrings.comment_registration )
-				) {
-					commentFormMarkup +=
-						'<div id="jp-carousel-comment-form-commenting-as">' +
-						jetpackCarouselStrings.local_comments_commenting_as +
-						'</div>';
-				} else {
-					commentFormMarkup += '<form id="jp-carousel-comment-form">';
-					commentFormMarkup +=
-						'<textarea name="comment" class="jp-carousel-comment-form-field jp-carousel-comment-form-textarea" id="jp-carousel-comment-form-comment-field" placeholder="' +
-						jetpackCarouselStrings.write_comment +
-						'"></textarea>';
-					commentFormMarkup += '<div id="jp-carousel-comment-form-submit-and-info-wrapper">';
-					commentFormMarkup +=
-						'<div id="jp-carousel-comment-form-commenting-as">' +
-						jetpackCarouselStrings.local_comments_commenting_as +
-						'</div>';
-					commentFormMarkup +=
-						'<input type="submit" name="submit" class="jp-carousel-comment-form-button" id="jp-carousel-comment-form-button-submit" value="' +
-						jetpackCarouselStrings.post_comment +
-						'" />';
-					commentFormMarkup += '<span id="jp-carousel-comment-form-spinner">&nbsp;</span>';
-					commentFormMarkup += '<div id="jp-carousel-comment-post-results"></div>';
-					commentFormMarkup += '</div>';
-					commentFormMarkup += '</form>';
-				}
-			}
-			commentFormMarkup += '</div>';
-
-			commentForm = $( commentFormMarkup ).css( {
-				width: '100%',
-				'margin-top': '20px',
-				color: '#999',
-			} );
-
-			comments = $( '<div></div>' )
-				.addClass( 'jp-carousel-comments' )
-				.css( {
-					width: '100%',
-					bottom: '10px',
-					'margin-top': '20px',
-				} );
-
-			var commentsLoading = $(
-				'<div id="jp-carousel-comments-loading"><span>' +
-					jetpackCarouselStrings.loading_comments +
-					'</span></div>'
-			).css( {
-				width: '100%',
-				bottom: '10px',
-				'margin-top': '20px',
-			} );
-
 			var leftWidth = $( window ).width() - screenPadding * 2 - ( imageMeta.width() + 40 );
 			leftWidth += 'px';
 
@@ -197,10 +139,77 @@ jQuery( document ).ready( function( $ ) {
 				.css( {
 					width: Math.floor( leftWidth ),
 				} )
-				.append( titleAndDescription )
-				.append( commentForm )
-				.append( comments )
-				.append( commentsLoading );
+				.append( titleAndDescription );
+
+			if ( displayComments ) {
+				var commentFormMarkup = '<div id="jp-carousel-comment-form-container">';
+
+				if (
+					jetpackCarouselStrings.local_comments_commenting_as &&
+					jetpackCarouselStrings.local_comments_commenting_as.length
+				) {
+					// Comments not enabled, fallback to local comments
+
+					if (
+						1 !== Number( jetpackCarouselStrings.is_logged_in ) &&
+						1 === Number( jetpackCarouselStrings.comment_registration )
+					) {
+						commentFormMarkup +=
+							'<div id="jp-carousel-comment-form-commenting-as">' +
+							jetpackCarouselStrings.local_comments_commenting_as +
+							'</div>';
+					} else {
+						commentFormMarkup += '<form id="jp-carousel-comment-form">';
+						commentFormMarkup +=
+							'<textarea name="comment" class="jp-carousel-comment-form-field jp-carousel-comment-form-textarea" id="jp-carousel-comment-form-comment-field" placeholder="' +
+							jetpackCarouselStrings.write_comment +
+							'"></textarea>';
+						commentFormMarkup += '<div id="jp-carousel-comment-form-submit-and-info-wrapper">';
+						commentFormMarkup +=
+							'<div id="jp-carousel-comment-form-commenting-as">' +
+							jetpackCarouselStrings.local_comments_commenting_as +
+							'</div>';
+						commentFormMarkup +=
+							'<input type="submit" name="submit" class="jp-carousel-comment-form-button" id="jp-carousel-comment-form-button-submit" value="' +
+							jetpackCarouselStrings.post_comment +
+							'" />';
+						commentFormMarkup += '<span id="jp-carousel-comment-form-spinner">&nbsp;</span>';
+						commentFormMarkup += '<div id="jp-carousel-comment-post-results"></div>';
+						commentFormMarkup += '</div>';
+						commentFormMarkup += '</form>';
+					}
+				}
+				commentFormMarkup += '</div>';
+
+				commentForm = $( commentFormMarkup ).css( {
+					width: '100%',
+					'margin-top': '20px',
+					color: '#999',
+				} );
+
+				comments = $( '<div></div>' )
+					.addClass( 'jp-carousel-comments' )
+					.css( {
+						width: '100%',
+						bottom: '10px',
+						'margin-top': '20px',
+					} );
+
+				var commentsLoading = $(
+					'<div id="jp-carousel-comments-loading"><span>' +
+						jetpackCarouselStrings.loading_comments +
+						'</span></div>'
+				).css( {
+					width: '100%',
+					bottom: '10px',
+					'margin-top': '20px',
+				} );
+
+				leftColWrapper
+					.append( commentForm )
+					.append( comments )
+					.append( commentsLoading );
+			}
 
 			var fadeaway = $( '<div></div>' ).addClass( 'jp-carousel-fadeaway' );
 
@@ -823,13 +832,16 @@ jQuery( document ).ready( function( $ ) {
 			gallery.jp_carousel( 'updateExif', imageMeta );
 			gallery.jp_carousel( 'updateFullSizeLink', current );
 			gallery.jp_carousel( 'updateMap', imageMeta );
-			gallery.jp_carousel( 'testCommentsOpened', current.data( 'comments-opened' ) );
-			gallery.jp_carousel( 'getComments', {
-				attachment_id: attachmentId,
-				offset: 0,
-				clear: true,
-			} );
-			$( '#jp-carousel-comment-post-results' ).slideUp();
+
+			if ( 1 === +jetpackCarouselStrings.display_comments ) {
+				gallery.jp_carousel( 'testCommentsOpened', current.data( 'comments-opened' ) );
+				gallery.jp_carousel( 'getComments', {
+					attachment_id: attachmentId,
+					offset: 0,
+					clear: true,
+				} );
+				$( '#jp-carousel-comment-post-results' ).slideUp();
+			}
 
 			// $('<div />').text(sometext).html() is a trick to go to HTML to plain
 			// text (including HTML entities decode, etc)

@@ -710,8 +710,9 @@ new Jetpack_JSON_API_Sync_Close_Endpoint( array(
 	),
 	'request_format' => array(
 		'item_ids'  => '(array) Item IDs to delete from the queue.',
-		'queue'      => '(string) sync or full_sync',
-		'buffer_id'  => '(string) buffer ID that was opened during the checkout step.',
+		'queue'     => '(string) sync or full_sync',
+		'buffer_id' => '(string) buffer ID that was opened during the checkout step.',
+		'continue'  => '(bool=false) Perform another checkout from queue.',
 	),
 	'response_format' => array(
 		'success' => '(bool) Closed the buffer successfully?'

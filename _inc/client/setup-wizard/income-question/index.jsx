@@ -1,7 +1,8 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { useCallback } from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { translate as __ } from 'i18n-calypso';
 
@@ -11,10 +12,11 @@ import { translate as __ } from 'i18n-calypso';
 import { ChecklistAnswer } from '../checklist-answer';
 import Button from 'components/button';
 import { imagePath } from 'constants/urls';
+import { saveSetupWizardQuestionnnaire } from 'state/setup-wizard';
 
 import './style.scss';
 
-const IncomeQuestion = props => {
+let IncomeQuestion = props => {
 	return (
 		<div className="jp-setup-wizard-main">
 			<img
@@ -28,25 +30,29 @@ const IncomeQuestion = props => {
 					args: { siteUrl: props.siteTitle },
 				} ) }
 			</h1>
-			<p className="jp-setup-wizard-subtitle">{ __( 'Check all that apply' ) }</p>
+			<h2 className="jp-setup-wizard-subtitle">{ __( 'Check all that apply' ) }</h2>
 			<div className="jp-setup-wizard-income-answer-container">
 				<ChecklistAnswer
+					answerKey="advertising-revenue"
 					title={ __( 'Advertising or affiliate marketing' ) }
 					details={ __( "You're planning on putting ads and or affiliate links on your website." ) }
 				/>
 				<ChecklistAnswer
+					answerKey="store-revenue"
 					title={ __( 'Online store' ) }
 					details={ __(
 						"You're planning on selling physical goods, digital downloads, or services directly to your customers."
 					) }
 				/>
 				<ChecklistAnswer
+					answerKey="appointments-revenue"
 					title={ __( 'Appointments / bookings' ) }
 					details={ __(
 						'Your services require booking appointments online, for example a hair salon or accountant.'
 					) }
 				/>
 				<ChecklistAnswer
+					answerKey="location-revenue"
 					title={ __( 'Physical location' ) }
 					details={ __(
 						'You have a physical store or business and this website will help drive foot traffic to your location.'
@@ -54,10 +60,19 @@ const IncomeQuestion = props => {
 				/>
 			</div>
 			<div className="jp-setup-wizard-advance-container">
-				<Button href="#/setup/updates" primary className="jp-setup-wizard-button">
+				<Button
+					href="#/setup/updates"
+					primary
+					className="jp-setup-wizard-button"
+					onClick={ props.saveQuestionnaire }
+				>
 					{ __( 'Continue' ) }
 				</Button>
-				<a className="jp-setup-wizard-skip-link" href="">
+				<a
+					className="jp-setup-wizard-skip-link"
+					href="#/setup/updates"
+					onClick={ props.saveQuestionnaire }
+				>
 					{ __( 'None of these apply' ) }
 				</a>
 			</div>
@@ -68,5 +83,12 @@ const IncomeQuestion = props => {
 IncomeQuestion.propTypes = {
 	siteTitle: PropTypes.string.isRequired,
 };
+
+IncomeQuestion = connect(
+	state => ( {} ),
+	dispatch => ( {
+		saveQuestionnaire: () => dispatch( saveSetupWizardQuestionnnaire() ),
+	} )
+)( IncomeQuestion );
 
 export { IncomeQuestion };

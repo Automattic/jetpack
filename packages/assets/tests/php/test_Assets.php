@@ -11,11 +11,17 @@ function plugins_url( $path, $plugin_path ) {
 	return $plugin_path . $path;
 }
 
+function wp_enqueue_script( $handle, $src = '', $deps = array(), $ver = false, $in_footer = false ) {
+	$GLOBALS['_was_called_wp_enqueue_script'][] = array( $handle, $src, $deps, $ver, $in_footer );
+}
+
 class AssetsTest extends TestCase {
+
 	public function setUp() {
 		Monkey\setUp();
 		$plugin_file = dirname( dirname( dirname( dirname( __DIR__ ) ) ) ) . '/jetpack.php';
 		Jetpack_Constants::set_constant( 'JETPACK__PLUGIN_FILE', $plugin_file );
+
 	}
 
 	/**
@@ -23,6 +29,7 @@ class AssetsTest extends TestCase {
 	 */
 	public function tearDown() {
 		Monkey\tearDown();
+		$GLOBALS['_was_called_wp_enqueue_script'] = array();
 	}
 
 	/**
@@ -54,20 +61,40 @@ class AssetsTest extends TestCase {
 
 	function get_file_url_for_environment_data_provider() {
 		return array(
-			'script-debug-true' => array(
+			'script-debug-true'  => array(
 				'_inc/build/shortcodes/js/instagram.js',
 				'modules/shortcodes/js/instagram.js',
 				true,
 				'non_min_path',
-				'min_path'
+				'min_path',
 			),
 			'script-debug-false' => array(
 				'_inc/build/shortcodes/js/instagram.js',
 				'modules/shortcodes/js/instagram.js',
 				false,
 				'min_path',
-				'non_min_path'
+				'non_min_path',
 			),
+		);
+	}
+
+	/**
+	 * Test that enqueue_async_script calls adds the script_loader_tag filter
+	 */
+	public function test_enqueue_async_script_adds_script_loader_tag_filter() {
+		Assets::enqueue_async_script( 'handle', 'minpath.js', 'path.js', array(), '123', true );
+		$asset_instance = Assets::instance();
+		self::assertTrue( has_filter( 'script_loader_tag', array( $asset_instance, 'script_add_async' ) ) );
+	}
+
+	/**
+	 * Test that enqueue_async_script calls wp_enqueue_script
+	 */
+	public function test_enqueue_async_script_calls_wp_enqueue_script() {
+		Assets::enqueue_async_script( 'handle', '/minpath.js', '/path.js', array(), '123', true );
+		$this->assertEquals(
+			$GLOBALS['_was_called_wp_enqueue_script'],
+			array( array( 'handle', Assets::get_file_url_for_environment( '/minpath.js', '/path.js' ), array(), '123', true ) )
 		);
 	}
 }

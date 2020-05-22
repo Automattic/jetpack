@@ -279,7 +279,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 								),
 							)
 						),
-						esc_url( Redirect::get_url( 'jetpack-support-extra-sidebar-widgets-contact-info-widget' ) )
+						( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? 'https://wordpress.com/support/widgets/contact-info/' : esc_url( Redirect::get_url( 'jetpack-support-extra-sidebar-widgets-contact-info-widget' ) )
 					);
 					?>
 					</small>

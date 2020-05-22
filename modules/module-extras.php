@@ -45,6 +45,7 @@ $tools = array(
 $connected_tools = array(
 	'calypsoify/class.jetpack-calypsoify.php',
 	'plugin-search.php',
+	'scan/scan.php', // Shows Jetpack Scan alerts in the admin bar if threats found.
 	'simple-payments/simple-payments.php',
 	'wpcom-block-editor/class-jetpack-wpcom-block-editor.php',
 	'wpcom-tos/wpcom-tos.php',

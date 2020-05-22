@@ -97,6 +97,9 @@ class Manager {
 			10,
 			2
 		);
+
+		add_action( 'plugins_loaded', __NAMESPACE__ . '\Plugin_Storage::configure', 100 );
+
 	}
 
 	/**

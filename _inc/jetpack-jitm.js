@@ -201,6 +201,11 @@ jQuery( document ).ready( function( $ ) {
 	};
 
 	var reFetch = function() {
+		// Do not render JITMs if the Wizard Banner is displayed.
+		if ( $( '#jp-wizard-banner' ).length ) {
+			return;
+		}
+
 		$( '.jetpack-jitm-message' ).each( function() {
 			var $el = $( this );
 

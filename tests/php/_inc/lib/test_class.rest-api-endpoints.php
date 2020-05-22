@@ -985,7 +985,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$response = $this->create_and_get_request(
 			'setup/questionnaire',
 			array(
-				'option_values' => $test_data,
+				'questionnaire' => $test_data,
 			),
 			'POST'
 		);

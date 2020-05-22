@@ -9,3 +9,5 @@ export const IS_CURRENT_USER_CONNECTED_TO_WPCOM = get( window.Jetpack_Editor_Ini
 ] );
 
 export const MAX_IMAGE_COUNT = 30;
+
+export const NEW_INSTAGRAM_CONNECTION = 'jetpack-new-instagram-connection';

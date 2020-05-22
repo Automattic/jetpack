@@ -25,6 +25,16 @@
 	top: 3em;
 }
 
+amp-consent.widget_eu_cookie_law_widget.widget.top {
+	top: 1em;
+	margin: 0;
+}
+
+.admin-bar amp-consent.widget_eu_cookie_law_widget.widget.top {
+	top: 0;
+	margin-top: 3em;
+}
+
 #eu-cookie-law {
 	background-color: #fff;
 	border: 1px solid #dedede;

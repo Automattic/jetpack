@@ -2,20 +2,13 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { PlainText } from '@wordpress/block-editor';
-import { ToggleControl } from '@wordpress/components';
+import { RichText } from '@wordpress/block-editor';
 
-const JetpackFieldLabel = ( {
-	setAttributes,
-	label,
-	labelFieldName,
-	resetFocus,
-	isSelected,
-	required,
-} ) => {
+const JetpackFieldLabel = ( { setAttributes, label, labelFieldName, resetFocus, required } ) => {
 	return (
 		<div className="jetpack-field-label">
-			<PlainText
+			<RichText
+				tagName="label"
 				value={ label }
 				className="jetpack-field-label__input"
 				onChange={ value => {
@@ -26,19 +19,11 @@ const JetpackFieldLabel = ( {
 					}
 					setAttributes( { label: value } );
 				} }
-				placeholder={ __( 'Write label…', 'jetpack' ) }
+				placeholder={ __( 'Add label…', 'jetpack' ) }
+				withoutInteractiveFormatting
+				allowedFormats={ [ 'core/bold', 'core/italic' ] }
 			/>
-			{ isSelected && (
-				<ToggleControl
-					label={ __( 'Required', 'jetpack' ) }
-					className="jetpack-field-label__required"
-					checked={ required }
-					onChange={ value => setAttributes( { required: value } ) }
-				/>
-			) }
-			{ ! isSelected && required && (
-				<span className="required">{ __( '(required)', 'jetpack' ) }</span>
-			) }
+			{ required && <span className="required">{ __( '(required)', 'jetpack' ) }</span> }
 		</div>
 	);
 };

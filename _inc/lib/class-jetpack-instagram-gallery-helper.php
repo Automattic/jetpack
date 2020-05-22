@@ -88,13 +88,4 @@ class Jetpack_Instagram_Gallery_Helper {
 		}
 		return (int) $site_id;
 	}
-
-	/**
-	 * Delete the Instagram Gallery cache associated to an access token.
-	 *
-	 * @param string $access_token The Instagram access token.
-	 */
-	public static function delete_instagram_gallery_cache( $access_token ) {
-		delete_transient( self::TRANSIENT_KEY_PREFIX . $access_token );
-	}
 }

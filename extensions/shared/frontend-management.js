@@ -18,11 +18,17 @@ export class FrontendManagement {
 
 		const blockNodeList = rootNode.querySelectorAll( blockClass );
 		for ( const node of blockNodeList ) {
+			if ( node.getAttribute( 'data-jetpack-block-initialized' ) === 'true' ) {
+				continue;
+			}
+
 			const data = this.extractAttributesFromContainer( node, attributes );
 			assign( data, options.props );
 			const children = this.extractChildrenFromContainer( node );
 			const el = createElement( component, data, children );
 			render( el, selector ? node.querySelector( selector ) : node );
+
+			node.setAttribute( 'data-jetpack-block-initialized', true );
 		}
 	}
 	extractAttributesFromContainer( node, attributes ) {

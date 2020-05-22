@@ -4,6 +4,7 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Scan\Admin_Bar_Notice;
 
 require_once dirname( __FILE__ ) . '/rtl-admin-bar.php';
 
@@ -367,6 +368,11 @@ class A8C_WPCOM_Masterbar {
 		// Recovery mode exit.
 		if ( function_exists( 'wp_admin_bar_recovery_mode_menu' ) ) {
 			wp_admin_bar_recovery_mode_menu( $wp_admin_bar );
+		}
+
+		if ( class_exists( 'Automattic\Jetpack\Scan\Admin_Bar_Notice' ) ) {
+			$scan_admin_bar_notice = Admin_Bar_Notice::instance();
+			$scan_admin_bar_notice->add_threats_to_toolbar( $wp_admin_bar );
 		}
 	}
 

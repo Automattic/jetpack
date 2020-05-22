@@ -107,6 +107,9 @@
 		<testsuite name="geo-location">
 			<directory prefix="test_" suffix=".php">tests/php/modules/geo-location</directory>
 		</testsuite>
+		<testsuite name="google-analytics">
+			<directory prefix="test" suffix=".php">tests/php/modules/google-analytics</directory>
+		</testsuite>
 		<testsuite name="deprecation">
 			<file>tests/php/test_deprecation.php</file>
 		</testsuite>

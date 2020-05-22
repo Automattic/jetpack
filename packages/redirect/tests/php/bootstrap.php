@@ -14,6 +14,10 @@ function wp_parse_url( $url ) {
 	return parse_url( $url );
 }
 
+function apply_filters( $hook, $string ) {
+	return $string;
+}
+
 function wp_parse_args( $args, $defaults = '' ) {
 	if ( is_object( $args ) ) {
 		$parsed_args = get_object_vars( $args );
