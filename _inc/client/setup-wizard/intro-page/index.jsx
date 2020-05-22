@@ -45,7 +45,7 @@ const IntroPage = props => {
 						{ __( 'Business Use' ) }
 					</Button>
 				</div>
-				<a className="jp-setup-wizard-skip-link" href="">
+				<a className="jp-setup-wizard-skip-link" href="#/setup/features">
 					{ __( 'Skip to recommended features' ) }
 				</a>
 			</div>
