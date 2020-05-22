@@ -123,12 +123,9 @@ add_filter( 'pre_kses', 'flickr_embed_to_shortcode' );
 function flickr_shortcode_handler( $atts ) {
 	$atts = shortcode_atts(
 		array(
-			'video'     => 0,
-			'photo'     => 0,
-			'show_info' => 0,
-			'w'         => 400,
-			'h'         => 300,
-			'secret'    => 0,
+			'video' => 0,
+			'w'     => '',
+			'h'     => '',
 		),
 		$atts,
 		'flickr'
@@ -148,30 +145,10 @@ function flickr_shortcode_handler( $atts ) {
 
 	if ( 'video' === $showing ) {
 
-		if ( ! is_numeric( $src ) && ! preg_match( '~^(https?:)?//([\da-z\-]+\.)*?((static)?flickr\.com|flic\.kr)/.*~i', $src ) ) {
-			return '';
+		if ( preg_match( '/^https?:\/\/(www\.)?flickr\.com\/.+/', $atts['video'] ) || preg_match( '/^https?:\/\/flic\.kr\/.+/', $atts['video'] ) ) {
+			return flickr_shortcode_video_markup( $atts );
 		}
-
-		if ( preg_match( '!photos/(([0-9a-zA-Z-_]+)|([0-9]+@N[0-9]+))/([0-9]+)/?$!', $src, $m ) ) {
-			$atts['photo_id'] = $m[4];
-		} else {
-			$atts['photo_id'] = $atts['video'];
-		}
-
-		if (
-			! isset( $atts['show_info'] )
-			|| in_array( $atts['show_info'], array( 'yes', 'true' ), true )
-		) {
-			$atts['show_info'] = 'true';
-		} elseif ( in_array( $atts['show_info'], array( 'false', 'no' ), true ) ) {
-			$atts['show_info'] = 'false';
-		}
-
-		if ( isset( $atts['secret'] ) ) {
-			$atts['secret'] = preg_replace( '![^\w]+!i', '', $atts['secret'] );
-		}
-
-		return flickr_shortcode_video_markup( $atts );
+		return '';
 	} elseif ( 'photo' === $showing ) {
 
 		if ( ! preg_match( '~^(https?:)?//([\da-z\-]+\.)*?((static)?flickr\.com|flic\.kr)/.*~i', $src ) ) {
@@ -200,14 +177,21 @@ function flickr_shortcode_handler( $atts ) {
 function flickr_shortcode_video_markup( $atts ) {
 	$atts = array_map( 'esc_attr', $atts );
 
-	$photo_vars = "photo_id=$atts[photo_id]";
-	if ( isset( $atts['secret'] ) ) {
-		$photo_vars .= "&amp;photo_secret=$atts[secret]";
+	$provider = 'https://www.flickr.com/services/oembed/';
+	$oembed   = _wp_oembed_get_object();
+	$data     = (array) $oembed->fetch( $provider, $atts['video'] );
+
+	$html = $data['html'];
+
+	if ( ! empty( $atts['w'] ) && is_numeric( $atts['w'] ) ) {
+		$html = preg_replace( '/(width=\")\d+(\")/', '${1}' . $atts['w'] . '${2}', $html );
 	}
 
-	return <<<EOD
-<object type="application/x-shockwave-flash" width="$atts[w]" height="$atts[h]" data="https://www.flickr.com/apps/video/stewart.swf?v=1.161" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"> <param name="flashvars" value="$photo_vars&amp;flickr_show_info_box=$atts[show_info]"></param><param name="movie" value="https://www.flickr.com/apps/video/stewart.swf?v=1.161"></param><param name="bgcolor" value="#000000"></param><param name="allowFullScreen" value="true"></param><param name="wmode" value="opaque"></param><embed type="application/x-shockwave-flash" src="https://www.flickr.com/apps/video/stewart.swf?v=1.161" bgcolor="#000000" allowfullscreen="true" flashvars="$photo_vars&amp;flickr_show_info_box=$atts[show_info]" wmode="opaque" height="$atts[h]" width="$atts[w]"></embed></object>
-EOD;
+	if ( ! empty( $atts['h'] ) && is_numeric( $atts['h'] ) ) {
+		$html = preg_replace( '/(height=\")\d+(\")/', '${1}' . $atts['h'] . '${2}', $html );
+	}
+
+	return $html;
 }
 
 add_shortcode( 'flickr', 'flickr_shortcode_handler' );
