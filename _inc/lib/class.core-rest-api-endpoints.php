@@ -547,7 +547,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 					'callback'            => __CLASS__ . '::update_setup_questionnaire',
 					'permission_callback' => __CLASS__ . '::update_settings_permission_check',
 					'args'                => array(
-						'option_values' => array(
+						'questionnaire' => array(
 							'required' => true,
 							'type'     => 'object',
 						),
@@ -567,8 +567,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 	public static function update_setup_questionnaire( $request ) {
 		// TODO: add validation.
 
-		$option_values = empty( $request['option_values'] ) ? array() : $request['option_values'];
-		Jetpack_Options::update_option( 'setup_questionnaire', $option_values );
+		$questionnaire = empty( $request['questionnaire'] ) ? (object) array() : $request['questionnaire'];
+		Jetpack_Options::update_option( 'setup_questionnaire', $questionnaire );
 		return true;
 	}
 
@@ -578,7 +578,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return array Questionnaire settings.
 	 */
 	public static function get_setup_questionnaire() {
-		return Jetpack_Options::get_option( 'setup_questionnaire', array() );
+		return Jetpack_Options::get_option( 'setup_questionnaire', (object) array() );
 	}
 
 	public static function get_plans( $request ) {

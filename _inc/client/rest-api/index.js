@@ -241,6 +241,11 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( parseJsonResponse )
 				.then( body => JSON.parse( body.data ) ),
 
+		fetchSetupQuestionnaire: () =>
+			getRequest( `${ apiRoot }jetpack/v4/setup/questionnaire`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
 		fetchProducts: () =>
 			getRequest( `${ apiRoot }jetpack/v4/products`, getParams )
 				.then( checkStatus )
@@ -294,6 +299,13 @@ function JetpackRestApiClient( root, nonce ) {
 		submitSurvey: surveyResponse =>
 			postRequest( `${ apiRoot }jetpack/v4/marketing/survey`, postParams, {
 				body: JSON.stringify( surveyResponse ),
+			} )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
+		saveSetupQuestionnaire: newQuestionnaire =>
+			postRequest( `${ apiRoot }jetpack/v4/setup/questionnaire`, postParams, {
+				body: JSON.stringify( { questionnaire: newQuestionnaire } ),
 			} )
 				.then( checkStatus )
 				.then( parseJsonResponse ),

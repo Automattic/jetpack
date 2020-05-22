@@ -4,16 +4,19 @@
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React, { useCallback, useState, useEffect } from 'react';
+import { connect } from 'react-redux';
 
 /**
  * Internal dependencies
  */
 import Gridicon from 'components/gridicon';
+import { getSetupWizardAnswer, updateSetupWizardQuestionnaire } from 'state/setup-wizard';
 
 import './style.scss';
 
-const ChecklistAnswer = props => {
-	const [ checked, setChecked ] = useState( false );
+let ChecklistAnswer = props => {
+	const { checked, title, details, answerKey, updateChecklistAnswerQuestion } = props;
+
 	const [ expanded, setExpanded ] = useState( false );
 	const [ windowWidth, setWindowWidth ] = useState( false );
 
@@ -34,7 +37,8 @@ const ChecklistAnswer = props => {
 			return;
 		}
 
-		setChecked( ! checked );
+		const newCheckedValue = ! checked;
+		updateChecklistAnswerQuestion( { [ answerKey ]: newCheckedValue } );
 	}, [ checked, windowWidth ] );
 
 	const toggleCheckboxSmallWindow = useCallback( () => {
@@ -42,7 +46,8 @@ const ChecklistAnswer = props => {
 			return;
 		}
 
-		setChecked( ! checked );
+		const newCheckedValue = ! checked;
+		updateChecklistAnswerQuestion( { [ answerKey ]: newCheckedValue } );
 	}, [ checked, windowWidth ] );
 
 	const toggleExpanded = useCallback( () => {
@@ -72,14 +77,14 @@ const ChecklistAnswer = props => {
 				/>
 			</div>
 			<div className="jp-checklist-answer-title">
-				<p>{ props.title }</p>
+				<p>{ title }</p>
 			</div>
 			<div
 				className={ classNames( 'jp-checklist-answer-details', {
 					expanded,
 				} ) }
 			>
-				<p>{ props.details }</p>
+				<p>{ details }</p>
 			</div>
 			<div
 				className={ classNames( 'jp-checklist-answer-chevron-container', {
@@ -97,8 +102,18 @@ const ChecklistAnswer = props => {
 };
 
 ChecklistAnswer.propTypes = {
+	answerKey: PropTypes.string.isRequired,
 	title: PropTypes.string.isRequired,
 	details: PropTypes.string.isRequired,
 };
+
+ChecklistAnswer = connect(
+	( state, ownProps ) => ( {
+		checked: getSetupWizardAnswer( state, ownProps.answerKey ),
+	} ),
+	dispatch => ( {
+		updateChecklistAnswerQuestion: answer => dispatch( updateSetupWizardQuestionnaire( answer ) ),
+	} )
+)( ChecklistAnswer );
 
 export { ChecklistAnswer };

@@ -12,6 +12,7 @@ import QuerySite from 'components/data/query-site';
 import QueryRewindStatus from 'components/data/query-rewind-status';
 import QueryVaultPressData from 'components/data/query-vaultpress-data';
 import QueryAkismetKeyCheck from 'components/data/query-akismet-key-check';
+import QuerySetupWizardQuestionnaire from 'components/data/query-setup-wizard-questionnaire';
 import { getSiteTitle } from 'state/initial-state';
 
 import { IntroPage } from './intro-page';
@@ -28,6 +29,7 @@ const SetupWizardComponent = props => {
 			<QueryRewindStatus />
 			<QueryVaultPressData />
 			<QueryAkismetKeyCheck />
+			<QuerySetupWizardQuestionnaire />
 			<Switch>
 				<Route exact path={ `${ path }` }>
 					<IntroPage siteTitle={ props.siteTitle } />
