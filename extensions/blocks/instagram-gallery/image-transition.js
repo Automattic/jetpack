@@ -1,11 +1,12 @@
 /**
+ * External dependencies
+ */
+import classnames from 'classnames';
+
+/**
  * WordPress dependencies
  */
 import { useEffect, useState, useRef } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
 
 export default function ImageTransition( { src, alt } ) {
 	const [ loaded, setLoaded ] = useState( false );
@@ -32,40 +33,15 @@ export default function ImageTransition( { src, alt } ) {
 		}
 	}, [ src ] );
 
-	const imageStyle = {
-		opacity: '0',
-		transition: `opacity .5s ease-in-out`,
-	};
-
-	const imageLoadedStyle = {
-		opacity: '1',
-	};
-
-	const containerStyle = {
-		opacity: '1',
-		backgroundColor: '#A7A79F',
-		height: containerHeight,
-		display: 'block',
-	};
-
-	const containerLoadedStyle = {
-		height: 'auto',
-		animation: 'none',
-	};
+	const containerClasses = classnames( 'wp-block-jetpack-instagram-gallery__placeholder', {
+		'is-loaded': loaded,
+	} );
+	const containerStyles = loaded ? {} : { height: containerHeight };
+	const imageClasses = classnames( { 'is-loaded': loaded } );
 
 	return (
-		<>
-			<span
-				style={ loaded ? { ...containerStyle, ...containerLoadedStyle } : containerStyle }
-				className="wp-block-jetpack-instagram-gallery__placeholder"
-			>
-				<img
-					ref={ img }
-					alt={ alt }
-					src={ src }
-					style={ loaded ? { ...imageStyle, ...imageLoadedStyle } : imageStyle }
-				/>
-			</span>
-		</>
+		<span style={ containerStyles } className={ containerClasses }>
+			<img alt={ alt } className={ imageClasses } ref={ img } src={ src } />
+		</span>
 	);
 }
