@@ -65,7 +65,8 @@ class Admin_Bar_Notice {
 			return false;
 		}
 
-		// Check if VaultPress is active.
+		// Check if VaultPress is active, the assumtion there is that VaultPress is working.
+		// It has its own notice in the admin bar.
 		if ( class_exists( 'VaultPress' ) ) {
 			return false;
 		}
@@ -180,7 +181,7 @@ class Admin_Bar_Notice {
 		if ( empty( $scan_state ) ) {
 			return null;
 		}
-
+		// Return true if there is at least one threat found.
 		return (bool) isset( $scan_state->threats[0] );
 	}
 
