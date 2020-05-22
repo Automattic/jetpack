@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\JITMS;
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\JITMS\JITM;
