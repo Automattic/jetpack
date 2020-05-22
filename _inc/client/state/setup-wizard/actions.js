@@ -6,9 +6,12 @@ import {
 	JETPACK_SETUP_WIZARD_QUESTIONNAIRE_FETCH,
 	JETPACK_SETUP_WIZARD_QUESTIONNAIRE_FETCH_RECEIVE,
 	JETPACK_SETUP_WIZARD_QUESTIONNAIRE_FETCH_FAIL,
-	JETPACK_SETUP_WIZARD_QUESTIONNAIRE_UPDATE,
 	JETPACK_SETUP_WIZARD_QUESTIONNAIRE_SAVE_SUCCESS,
 	JETPACK_SETUP_WIZARD_QUESTIONNAIRE_SAVE_FAIL,
+	JETPACK_SETUP_WIZARD_QUESTIONNAIRE_UPDATE,
+	JETPACK_SETUP_WIZARD_QUESTIONNAIRE_UPDATE_SUCCESS,
+	JETPACK_SETUP_WIZARD_QUESTIONNAIRE_UPDATE_FAIL,
+	JETPACK_SETUP_WIZARD_STATUS_UPDATE,
 } from 'state/action-types';
 
 export const fetchSetupWizardQuestionnaire = () => {
@@ -34,11 +37,35 @@ export const updateSetupWizardQuestionnaire = answer => {
 export const saveSetupWizardQuestionnnaire = () => {
 	return ( dispatch, getState ) => {
 		dispatch( { type: JETPACK_SETUP_WIZARD_QUESTIONNAIRE_UPDATE } );
+
+		const setupWizard = getState().jetpack.setupWizard;
+
 		return restApi
-			.saveSetupQuestionnaire( getState().jetpack.setupWizard.questionnaire )
+			.saveSetupQuestionnaire( {
+				questionnaire: setupWizard.questionnaire,
+				status: setupWizard.status,
+			} )
 			.then( () => {
 				dispatch( { type: JETPACK_SETUP_WIZARD_QUESTIONNAIRE_SAVE_SUCCESS } );
 			} )
 			.catch( error => dispatch( { type: JETPACK_SETUP_WIZARD_QUESTIONNAIRE_SAVE_FAIL, error } ) );
+	};
+};
+
+export const updateSetupWizardStatus = status => {
+	return ( dispatch, getState ) => {
+		dispatch( { type: JETPACK_SETUP_WIZARD_STATUS_UPDATE, status } );
+
+		const setupWizard = getState().jetpack.setupWizard;
+		return restApi
+			.saveSetupQuestionnaire( {
+				status: setupWizard.status,
+			} )
+			.then( () => {
+				dispatch( { type: JETPACK_SETUP_WIZARD_QUESTIONNAIRE_UPDATE_SUCCESS } );
+			} )
+			.catch( error =>
+				dispatch( { type: JETPACK_SETUP_WIZARD_QUESTIONNAIRE_UPDATE_FAIL, error } )
+			);
 	};
 };

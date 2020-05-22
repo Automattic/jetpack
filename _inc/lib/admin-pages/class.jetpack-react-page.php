@@ -320,6 +320,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'externalServicesConnectUrls' => $this->get_external_services_connect_urls(),
 			'calypsoEnv'                  => Jetpack::get_calypso_env(),
 			'products'                    => Jetpack::get_products_for_purchase(),
+			'setupWizardStatus'           => Jetpack_Options::get_option( 'setup_wizard_status', 'not-started' ),
 		);
 	}
 
@@ -359,9 +360,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		 *
 		 * @param array $jetpack_show_setup_wizard If true, the Setup Wizard will be displayed. Otherwise it will not display.
 		 */
-		return apply_filters( 'jetpack_show_setup_wizard', false )
-			&& Jetpack::is_active()
-			&& current_user_can( 'jetpack_manage_modules' );
+		return Jetpack_Wizard::can_be_displayed();
 	}
 
 	/**

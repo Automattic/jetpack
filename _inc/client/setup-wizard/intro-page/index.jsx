@@ -11,13 +11,17 @@ import { translate as __ } from 'i18n-calypso';
  */
 import Button from 'components/button';
 import { imagePath } from 'constants/urls';
-import analytics from 'lib/analytics';
-import { saveSetupWizardQuestionnnaire, updateSetupWizardQuestionnaire } from 'state/setup-wizard';
+import {
+	saveSetupWizardQuestionnnaire,
+	updateSetupWizardQuestionnaire,
+	updateSetupWizardStatus,
+} from 'state/setup-wizard';
 
 import './style.scss';
 
 let IntroPage = props => {
 	useEffect( () => {
+		props.updateStatus( 'intro-page' );
 		analytics.tracks.recordEvent( 'jetpack_wizard_page_view', { step: 'intro-page' } );
 	}, [] );
 
@@ -107,6 +111,7 @@ IntroPage = connect(
 	dispatch => ( {
 		updateSiteUseQuestion: answer => dispatch( updateSetupWizardQuestionnaire( answer ) ),
 		saveQuestionnaire: () => dispatch( saveSetupWizardQuestionnnaire() ),
+		updateStatus: status => dispatch( updateSetupWizardStatus( status ) ),
 	} )
 )( IntroPage );
 
