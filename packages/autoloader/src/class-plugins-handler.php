@@ -7,23 +7,19 @@
 class Plugins_Handler {
 
 	/**
-	 * Returns an array containing all active plugins and all known activating
-	 * plugins.
+	 * Returns an array containing the directories of all active plugins and all
+	 * known activating plugins.
 	 *
-	 * @param bool $skip_single_file_plugins If true, plugins with no dedicated directories will be skipped.
-	 *
-	 * @return Array An array of plugin names as strings.
+	 * @return Array An array of plugin directories as strings.
 	 */
-	public function get_all_active_plugins( $skip_single_file_plugins = true ) {
+	public function get_all_active_plugins() {
 		$active_plugins = array_merge( $this->get_multisite_plugins(), $this->get_active_plugins() );
 
 		$plugins = array_unique( array_merge( $active_plugins, $this->get_all_activating_plugins() ) );
+		$plugins = array_filter( $plugins, array( $this, 'is_directory_plugin' ) );
 
-		if ( $skip_single_file_plugins ) {
-			$plugins = array_filter( $plugins, array( $this, 'is_directory_plugin' ) );
-		}
-
-		return $plugins;
+		$plugin_dirs = array_map( array( $this, 'remove_plugin_file' ), $plugins );
+		return $plugin_dirs;
 	}
 
 	/**
@@ -35,6 +31,7 @@ class Plugins_Handler {
 		return is_multisite()
 			? array_keys( get_site_option( 'active_sitewide_plugins', array() ) )
 			: array();
+
 	}
 
 	/**
@@ -58,6 +55,18 @@ class Plugins_Handler {
 	}
 
 	/**
+	 * The input is a string with the format 'dir/file.php'. This
+	 * method removes the 'file.php' part, which is not needed.
+	 *
+	 * @param string $plugin The plugin string with the format 'dir/file.php'.
+	 *
+	 * @return string The plugin's directory.
+	 */
+	private function remove_plugin_file( $plugin ) {
+		return explode( '/', $plugin )[0];
+	}
+
+	/**
 	 * Checks whether the autoloader should be reset. The autoloader should be reset
 	 * when a plugin is activating via a method other than a request, for example
 	 * using WP-CLI. When this occurs, the activating plugin was not known when
@@ -73,7 +82,7 @@ class Plugins_Handler {
 		global $jetpack_autoloader_activating_plugins;
 
 		$plugins        = $this->get_all_active_plugins();
-		$current_plugin = $this->get_current_plugin();
+		$current_plugin = $this->get_current_plugin_dir();
 		$plugin_unknown = ! in_array( $current_plugin, $plugins, true );
 
 		if ( $plugin_unknown ) {
@@ -137,17 +146,11 @@ class Plugins_Handler {
 	}
 
 	/**
-	 * Returns the name of the current plugin.
+	 * Returns the directory of the current plugin.
 	 *
-	 * @return String The name of the current plugin.
+	 * @return String The directory of the current plugin.
 	 */
-	public function get_current_plugin() {
-		if ( ! function_exists( 'get_plugins' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/plugin.php';
-		}
-
-		$dir  = explode( '/', plugin_basename( __FILE__ ) )[0];
-		$file = array_keys( get_plugins( "/$dir" ) )[0];
-		return "$dir/$file";
+	public function get_current_plugin_dir() {
+		return explode( '/', plugin_basename( __FILE__ ) )[0];
 	}
 }

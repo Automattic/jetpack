@@ -25,7 +25,7 @@ class PluginsHandlerTest extends TestCase {
 		$this->plugins_handler = $this->getMockBuilder( 'Plugins_Handler' )
 			->setMethods(
 				array(
-					'get_current_plugin',
+					'get_current_plugin_dir',
 					'get_multisite_plugins',
 					'get_active_plugins',
 				)
@@ -95,8 +95,8 @@ class PluginsHandlerTest extends TestCase {
 
 		// 'test1/test1.php' is in self::DEFAULT_ACTIVE_PLUGINS.
 		$this->plugins_handler
-			->method( 'get_current_plugin' )
-			->willReturn( 'test1/test1.php' );
+			->method( 'get_current_plugin_dir' )
+			->willReturn( 'test1' );
 
 		$this->set_up_mocks();
 
@@ -112,11 +112,11 @@ class PluginsHandlerTest extends TestCase {
 	public function test_should_autoloader_reset_unknown_plugin() {
 		global $jetpack_autoloader_activating_plugins;
 
-		$current_plugin = 'unknown/unknown.php';
+		$current_plugin = 'unknown';
 
 		// 'unknown/unknown.php' is not in self::DEFAULT_ACTIVE_PLUGINS.
 		$this->plugins_handler
-			->method( 'get_current_plugin' )
+			->method( 'get_current_plugin_dir' )
 			->willReturn( $current_plugin );
 
 		$this->set_up_mocks();
