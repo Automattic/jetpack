@@ -1,5 +1,19 @@
 @import './view.scss';
 
+.wp-block-jetpack-instagram-gallery .components-placeholder {
+	.components-radio-control {
+		margin-bottom: $default-block-margin;
+		label {
+			font-weight: normal;
+		}
+	}
+
+	.wp-block-jetpack-instagram-gallery__new-account-instructions {
+		font-family: $default-font;
+		font-size: $default-font-size;
+	}
+}
+
 .wp-block-jetpack-instagram-gallery__count-notice {
 	.components-notice {
 		margin: 0 0 15px 0;

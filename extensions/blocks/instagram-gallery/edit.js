@@ -2,7 +2,7 @@
  * External dependencies
  */
 import classnames from 'classnames';
-import { isEmpty, isEqual, times } from 'lodash';
+import { find, isEmpty, isEqual, map, times } from 'lodash';
 
 /**
  * WordPress dependencies
@@ -15,19 +15,24 @@ import {
 	PanelBody,
 	PanelRow,
 	Placeholder,
+	RadioControl,
 	RangeControl,
 	Spinner,
 	ToggleControl,
 	withNotices,
 } from '@wordpress/components';
-import { useEffect } from '@wordpress/element';
+import { useEffect, useState } from '@wordpress/element';
 import { __, sprintf, _n } from '@wordpress/i18n';
 
 /**
  * Internal dependencies
  */
 import defaultAttributes from './attributes';
-import { IS_CURRENT_USER_CONNECTED_TO_WPCOM, MAX_IMAGE_COUNT } from './constants';
+import {
+	IS_CURRENT_USER_CONNECTED_TO_WPCOM,
+	MAX_IMAGE_COUNT,
+	NEW_INSTAGRAM_CONNECTION,
+} from './constants';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import useConnectInstagram from './use-connect-instagram';
 import useConnectWpcom from './use-connect-wpcom';
@@ -47,27 +52,36 @@ const InstagramGalleryEdit = props => {
 		spacing,
 	} = attributes;
 
-	const { images, isLoadingGallery, setImages } = useInstagramGallery( {
-		accessToken,
-		noticeOperations,
-		setAttributes,
-	} );
-	const { isConnecting, connectToService, disconnectFromService } = useConnectInstagram( {
-		accessToken,
-		noticeOperations,
-		setAttributes,
-		setImages,
-	} );
-	const { isRequestingWpcomConnectUrl, wpcomConnectUrl } = useConnectWpcom();
-
-	const unselectedCount = count > images.length ? images.length : count;
-
 	useEffect( () => {
 		const validatedAttributes = getValidatedAttributes( defaultAttributes, attributes );
 		if ( ! isEqual( validatedAttributes, attributes ) ) {
 			setAttributes( validatedAttributes );
 		}
 	}, [ attributes, setAttributes ] );
+
+	const [ selectedAccount, setSelectedAccount ] = useState( accessToken );
+	const { isRequestingWpcomConnectUrl, wpcomConnectUrl } = useConnectWpcom();
+	const { images, isLoadingGallery, setImages } = useInstagramGallery( {
+		accessToken,
+		noticeOperations,
+		setAttributes,
+		setSelectedAccount,
+	} );
+	const {
+		connectToService,
+		disconnectFromService,
+		isConnecting,
+		isRequestingUserConnections,
+		userConnections,
+	} = useConnectInstagram( {
+		accessToken,
+		noticeOperations,
+		setAttributes,
+		setImages,
+		setSelectedAccount,
+	} );
+
+	const unselectedCount = count > images.length ? images.length : count;
 
 	const showPlaceholder = ! isLoadingGallery && ( ! accessToken || isEmpty( images ) );
 	const showSidebar = ! showPlaceholder;
@@ -128,25 +142,81 @@ const InstagramGalleryEdit = props => {
 		);
 	};
 
+	const connectBlockToInstagram = () => {
+		if ( selectedAccount && NEW_INSTAGRAM_CONNECTION !== selectedAccount ) {
+			setAttributes( {
+				accessToken: selectedAccount,
+				instagramUser: find( userConnections, { token: selectedAccount } ).username,
+			} );
+			return;
+		}
+		connectToService();
+	};
+
+	const renderPlaceholderInstructions = () => {
+		if ( ! IS_CURRENT_USER_CONNECTED_TO_WPCOM ) {
+			return __( "First, you'll need to connect to WordPress.com.", 'jetpack' );
+		}
+		if ( ! isRequestingUserConnections && ! userConnections.length ) {
+			return __( 'Connect to Instagram to start sharing your images.', 'jetpack' );
+		}
+	};
+
+	const renderInstagramConnection = () => {
+		const hasUserConnections = userConnections.length > 0;
+		const radioOptions = [
+			...map( userConnections, connection => ( {
+				label: `@${ connection.username }`,
+				value: connection.token,
+			} ) ),
+			{
+				label: __( 'Add a new account', 'jetpack' ),
+				value: NEW_INSTAGRAM_CONNECTION,
+			},
+		];
+		const isButtonDisabled =
+			isConnecting || isRequestingUserConnections || ( hasUserConnections && ! selectedAccount );
+
+		return (
+			<div>
+				{ hasUserConnections && (
+					<RadioControl
+						label={ __( 'Select your Instagram account:', 'jetpack' ) }
+						onChange={ value => setSelectedAccount( value ) }
+						options={ radioOptions }
+						selected={ selectedAccount }
+					/>
+				) }
+				{ NEW_INSTAGRAM_CONNECTION === selectedAccount && (
+					<p className="wp-block-jetpack-instagram-gallery__new-account-instructions">
+						{ __(
+							'If you are currently logged in to Instagram on this device, you might need to log out of it first.',
+							'jetpack'
+						) }
+					</p>
+				) }
+				<Button disabled={ isButtonDisabled } isLarge isPrimary onClick={ connectBlockToInstagram }>
+					{ isConnecting && __( 'Connecting…', 'jetpack' ) }
+					{ isRequestingUserConnections && __( 'Loading your connections…', 'jetpack' ) }
+					{ ! isConnecting &&
+						! isRequestingUserConnections &&
+						__( 'Connect to Instagram', 'jetpack' ) }
+				</Button>
+			</div>
+		);
+	};
+
 	return (
 		<div className={ blockClasses }>
 			{ showPlaceholder && (
 				<Placeholder
 					icon="instagram"
-					instructions={
-						! IS_CURRENT_USER_CONNECTED_TO_WPCOM
-							? __( "First, you'll need to connect to WordPress.com.", 'jetpack' )
-							: __( 'Connect to Instagram to start sharing your images.', 'jetpack' )
-					}
+					instructions={ renderPlaceholderInstructions() }
 					label={ __( 'Latest Instagram Posts', 'jetpack' ) }
 					notices={ noticeUI }
 				>
 					{ IS_CURRENT_USER_CONNECTED_TO_WPCOM ? (
-						<Button disabled={ isConnecting } isLarge isPrimary onClick={ connectToService }>
-							{ isConnecting
-								? __( 'Connecting…', 'jetpack' )
-								: __( 'Connect to Instagram', 'jetpack' ) }
-						</Button>
+						renderInstagramConnection()
 					) : (
 						<Button
 							disabled={ isRequestingWpcomConnectUrl || ! wpcomConnectUrl }
@@ -192,24 +262,9 @@ const InstagramGalleryEdit = props => {
 						</PanelRow>
 						{ IS_CURRENT_USER_CONNECTED_TO_WPCOM && (
 							<PanelRow>
-								<div>
-									<Button
-										disabled={ isConnecting }
-										isDestructive
-										isLink
-										onClick={ () => disconnectFromService( accessToken ) }
-									>
-										{ isConnecting
-											? __( 'Disconnecting…', 'jetpack' )
-											: __( 'Disconnect your account', 'jetpack' ) }
-									</Button>
-									<p className="wp-block-jetpack-instagram-gallery__disconnection-warning">
-										{ __(
-											'This will invalidate all Latest Instagram Posts blocks and Instagram widgets associated to this account.',
-											'jetpack'
-										) }
-									</p>
-								</div>
+								<Button isDestructive isLink onClick={ () => disconnectFromService( accessToken ) }>
+									{ __( 'Disconnect your account', 'jetpack' ) }
+								</Button>
 							</PanelRow>
 						) }
 					</PanelBody>

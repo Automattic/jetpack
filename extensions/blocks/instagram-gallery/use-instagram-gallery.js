@@ -8,7 +8,6 @@ import { isArray, isEmpty } from 'lodash';
  */
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
-import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 
@@ -17,22 +16,18 @@ import { addQueryArgs } from '@wordpress/url';
  */
 import { MAX_IMAGE_COUNT } from './constants';
 
-export default function useInstagramGallery( { accessToken, noticeOperations, setAttributes } ) {
-	const { isTokenDisconnected } = useSelect( select => {
-		const { isInstagramGalleryTokenDisconnected } = select( 'jetpack/instagram-gallery' );
-		return { isTokenDisconnected: isInstagramGalleryTokenDisconnected( accessToken ) };
-	} );
-
-	const { connectInstagramGalleryToken, disconnectInstagramGalleryToken } = useDispatch(
-		'jetpack/instagram-gallery'
-	);
-
+export default function useInstagramGallery( {
+	accessToken,
+	noticeOperations,
+	setAttributes,
+	setSelectedAccount,
+} ) {
 	const [ images, setImages ] = useState( [] );
 	const [ isLoadingGallery, setIsLoadingGallery ] = useState( false );
 
 	useEffect( () => {
-		// If the block doesn't have a token, or it's already marked as disconnected, don't bother trying to load the gallery.
-		if ( ! accessToken || isTokenDisconnected ) {
+		// If the block doesn't have a token don't bother trying to load the gallery.
+		if ( ! accessToken ) {
 			return;
 		}
 
@@ -56,7 +51,8 @@ export default function useInstagramGallery( { accessToken, noticeOperations, se
 						__( 'An error occurred. Please try again later.', 'jetpack' )
 					);
 					setImages( [] );
-					disconnectInstagramGalleryToken( accessToken );
+					setAttributes( { accessToken: undefined, instagramUser: undefined } );
+					setSelectedAccount( undefined );
 					return;
 				}
 
@@ -66,23 +62,16 @@ export default function useInstagramGallery( { accessToken, noticeOperations, se
 					);
 				}
 
-				connectInstagramGalleryToken( accessToken );
 				setAttributes( { instagramUser: externalName } );
 				setImages( imageList );
 			} )
 			.catch( () => {
 				setIsLoadingGallery( false );
 				setImages( [] );
-				disconnectInstagramGalleryToken( accessToken );
+				setAttributes( { accessToken: undefined, instagramUser: undefined } );
+				setSelectedAccount( undefined );
 			} );
-	}, [
-		accessToken,
-		connectInstagramGalleryToken,
-		disconnectInstagramGalleryToken,
-		isTokenDisconnected,
-		noticeOperations,
-		setAttributes,
-	] );
+	}, [ accessToken, noticeOperations, setAttributes, setSelectedAccount ] );
 
 	return { images, isLoadingGallery, setImages };
 }
