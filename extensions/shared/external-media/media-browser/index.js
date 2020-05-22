@@ -79,7 +79,7 @@ function MediaBrowser( props ) {
 						item={ item }
 						key={ item.ID }
 						onClick={ onSelectImage }
-						isFocused={ previousMediaCount && index === previousMediaCount }
+						isFocusedOnInsert={ previousMediaCount && index === previousMediaCount }
 						isSelected={ selected.find( toFind => toFind.ID === item.ID ) }
 					/>
 				) ) }
