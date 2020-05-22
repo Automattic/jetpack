@@ -6,16 +6,14 @@ import { __, _x } from '@wordpress/i18n';
 import { useEffect, useState } from '@wordpress/element';
 import {
 	Button,
-	Placeholder,
 	BaseControl,
 	TextControl,
 	TextareaControl,
 	SelectControl,
-	Toolbar,
-	Popover,
 	Icon,
 	PanelBody,
-	PanelRow,
+	ToolbarGroup,
+	Dropdown,
 } from '@wordpress/components';
 import {
 	BlockControls,
@@ -23,6 +21,7 @@ import {
 	RichText,
 	PanelColorSettings,
 } from '@wordpress/block-editor';
+import { DOWN } from '@wordpress/keycodes';
 
 /**
  * Internal dependencies
@@ -91,14 +90,6 @@ export default function WhatsAppButtonEdit( { attributes, setAttributes, classNa
 		setIsValidPhoneNumber( validatePhoneNumber( '' ) );
 	};
 
-	const toolbarControls = [
-		{
-			icon: 'edit',
-			title: __( 'Edit WhatsApp phone number', 'jetpack' ),
-			onClick: () => this.setState( { editing: true } ),
-		},
-	];
-
 	const setBackgroundColor = color => {
 		setAttributes( { backgroundColor: color } );
 
@@ -109,42 +100,81 @@ export default function WhatsAppButtonEdit( { attributes, setAttributes, classNa
 		setAttributes( { colorClass: 'light' } );
 	};
 
+	const renderSettingsToggle = ( isOpen, onToggle ) => {
+		const openOnArrowDown = event => {
+			if ( ! isOpen && event.keyCode === DOWN ) {
+				event.preventDefault();
+				event.stopPropagation();
+				onToggle();
+			}
+		};
+
+		return (
+			<Button
+				className="components-toolbar__control jetpack-contact-form__toggle"
+				label={ __( 'Edit Form Settings' ) }
+				onClick={ onToggle }
+				onKeyDown={ openOnArrowDown }
+				icon={ <Icon icon="edit" /> }
+			/>
+		);
+	};
+
+	const renderSettings = () => {
+		return (
+			<>
+				<BaseControl
+					label={ __( 'Phone Number', 'jetpack' ) }
+					help={ __(
+						'Enter the phone number you use for WhatsApp and would like to be contacted on.',
+						'jetpack'
+					) }
+					className="jetpack-whatsapp-button__phonenumber"
+				>
+					<SelectControl
+						value={ countryCode }
+						onChange={ value => setAttributes( { countryCode: value } ) }
+						options={ countryCodes }
+					/>
+					<TextControl
+						placeholder={ __( 'Your phone number…', 'jetpack' ) }
+						onBlur={ newPhoneNumber => onBlurPhoneNumber( newPhoneNumber ) }
+						value={ phoneNumber }
+					/>
+				</BaseControl>
+
+				<TextareaControl
+					label={ __( 'Default First Message', 'jetpack' ) }
+					help={ __(
+						'The default first message that will be sent by visitors when using this button.',
+						'jetpack'
+					) }
+					value={ firstMessage }
+					onChange={ text => setAttributes( { firstMessage: text } ) }
+				/>
+			</>
+		);
+	};
+
 	return (
 		<div className={ className + ' is-color-' + colorClass }>
-			<BlockControls>
-				<Toolbar controls={ toolbarControls } />
-			</BlockControls>
+			{ ToolbarGroup && (
+				<BlockControls>
+					<ToolbarGroup>
+						<Dropdown
+							position="bottom right"
+							className="jetpack-contact-form-settings-selector"
+							contentClassName="jetpack-contact-form__popover"
+							renderToggle={ ( { isOpen, onToggle } ) => renderSettingsToggle( isOpen, onToggle ) }
+							renderContent={ () => renderSettings() }
+						/>
+					</ToolbarGroup>
+				</BlockControls>
+			) }
 
 			<InspectorControls>
 				<PanelBody title="WhatsApp Button Settings" initialOpen={ true }>
-					<BaseControl
-						label={ __( 'Phone Number', 'jetpack' ) }
-						help={ __(
-							'Enter the phone number you use for WhatsApp and would like to be contacted on.',
-							'jetpack'
-						) }
-					>
-						<SelectControl
-							value={ countryCode }
-							onChange={ value => setAttributes( { countryCode: value } ) }
-							options={ countryCodes }
-						/>
-						<TextControl
-							placeholder={ __( 'Your phone number…', 'jetpack' ) }
-							onBlur={ newPhoneNumber => onBlurPhoneNumber( newPhoneNumber ) }
-							value={ phoneNumber }
-						/>
-					</BaseControl>
-
-					<TextareaControl
-						label={ __( 'Default First Message', 'jetpack' ) }
-						help={ __(
-							'The default first message that will be sent by visitors when using this button.',
-							'jetpack'
-						) }
-						value={ firstMessage }
-						onChange={ text => setAttributes( { firstMessage: text } ) }
-					/>
+					{ renderSettings() }
 				</PanelBody>
 
 				<PanelColorSettings
