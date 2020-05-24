@@ -18,12 +18,20 @@ import { fetchSettings, isFetchingSettingsList } from 'state/settings';
 import './style.scss';
 
 class RecommendedFeatures extends Component {
-	componentDidMount() {
+	componentDidMount = () => {
 		if ( ! this.props.isFetchingSettingsList ) {
 			this.props.fetchSettings();
 		}
 		analytics.tracks.recordEvent( 'jetpack_wizard_page_view', { step: 'features-page' } );
-	}
+	};
+
+	onDoneButtonClick = () => {
+		analytics.tracks.recordEvent( 'jetpack_wizard_features_done' );
+	};
+
+	onExploreMoreButtonClick = () => {
+		analytics.tracks.recordEvent( 'jetpack_wizard_features_explore_more' );
+	};
 
 	render() {
 		return (
@@ -51,10 +59,12 @@ class RecommendedFeatures extends Component {
 					);
 				} ) }
 				<div className="jp-setup-wizard-recommended-features-buttons-container">
-					<Button primary href="#/dashboard">
+					<Button primary href="#/dashboard" onClick={ this.onDoneButtonClick }>
 						{ __( 'I’m done for now' ) }
 					</Button>
-					<Button href="#/settings">{ __( 'Explore more features' ) }</Button>
+					<Button href="#/settings" onClick={ this.onExploreMoreButtonClick }>
+						{ __( 'Explore more features' ) }
+					</Button>
 				</div>
 			</div>
 		);

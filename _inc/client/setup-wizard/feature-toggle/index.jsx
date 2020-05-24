@@ -13,6 +13,7 @@ import { connect } from 'react-redux';
  */
 import Button from 'components/button';
 import Gridicon from 'components/gridicon';
+import analytics from 'lib/analytics';
 
 import {
 	mapStateToFeatureToggleProps,
@@ -23,6 +24,7 @@ import './style.scss';
 
 let FeatureToggle = props => {
 	const {
+		feature,
 		title,
 		details,
 		info,
@@ -52,13 +54,40 @@ let FeatureToggle = props => {
 	const onToggleChange = useCallback( () => {
 		if ( 'function' === typeof props.onToggleChange ) {
 			props.onToggleChange( checked );
+			analytics.tracks.recordEvent( 'jetpack_wizard_feature_toggled', {
+				feature,
+				newValue: ! checked,
+			} );
 		}
 	}, [ checked, props.onToggleChange ] );
+
+	const onUpgradeButtonClick = useCallback( () => {
+		analytics.tracks.recordEvent( 'jetpack_wizard_feature_upgrade', {
+			feature,
+		} );
+	}, [ feature ] );
+
+	const onConfigureButtonClick = useCallback( () => {
+		analytics.tracks.recordEvent( 'jetpack_wizard_feature_configure', {
+			feature,
+		} );
+	}, [ feature ] );
+
+	const onViewOptionsClick = useCallback( () => {
+		analytics.tracks.recordEvent( 'jetpack_wizard_feature_view_options', {
+			feature,
+		} );
+	}, [ feature ] );
 
 	let buttonContent;
 	if ( ! checked && upgradeLink ) {
 		buttonContent = (
-			<Button href={ upgradeLink } primary target={ isButtonLinkExternal ? '_blank' : '' }>
+			<Button
+				href={ upgradeLink }
+				primary
+				target={ isButtonLinkExternal ? '_blank' : '' }
+				onClick={ onUpgradeButtonClick }
+			>
 				{ __( 'Upgrade now' ) }
 				{ isButtonLinkExternal && (
 					<span>
@@ -69,7 +98,11 @@ let FeatureToggle = props => {
 		);
 	} else if ( configureLink ) {
 		buttonContent = (
-			<Button href={ configureLink } target={ isButtonLinkExternal ? '_blank' : '' }>
+			<Button
+				href={ configureLink }
+				target={ isButtonLinkExternal ? '_blank' : '' }
+				onClick={ onConfigureButtonClick }
+			>
 				{ __( 'Configure' ) }
 				{ isButtonLinkExternal && (
 					<span>
@@ -99,6 +132,7 @@ let FeatureToggle = props => {
 				href={ optionsLink }
 				className="jp-setup-wizard-view-options-link"
 				{ ...externalLinkProps }
+				onClick={ onViewOptionsClick }
 			>
 				{ __( 'View options' ) }
 				{ isOptionsLinkExternal && <Gridicon icon="external" size="18" /> }
@@ -147,6 +181,7 @@ let FeatureToggle = props => {
 };
 
 FeatureToggle.propTypes = {
+	feature: PropTypes.string.isRequired,
 	title: PropTypes.string.isRequired,
 	details: PropTypes.string.isRequired,
 	info: PropTypes.string,

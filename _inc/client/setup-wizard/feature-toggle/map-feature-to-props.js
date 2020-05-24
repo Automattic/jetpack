@@ -40,6 +40,7 @@ const features = {
 			}
 
 			return {
+				feature: 'ads',
 				title: __( 'Ads' ),
 				details: __( 'Generate income with high-quality ads.' ),
 				checked: getSetting( state, 'wordads' ),
@@ -85,6 +86,7 @@ const features = {
 			}
 
 			return {
+				feature: 'anti-spam',
 				title: __( 'Anti-spam' ),
 				details: __( 'No more approving or vetting.' ),
 				checked: true === isAkismetKeyValid( state ),
@@ -135,6 +137,7 @@ const features = {
 			}
 
 			return {
+				feature: 'backups',
 				title: __( 'Daily or Real-time backups' ),
 				details: __( 'Get time travel for your site with Jetpack Backup.' ),
 				checked: backupsActive,
@@ -150,6 +153,7 @@ const features = {
 	'beautiful-math': {
 		mapStateToProps: state => {
 			return {
+				feature: 'beautiful-math',
 				title: __( 'Beautiful math' ),
 				details: __( 'Display math and formulas beautifully.' ),
 				checked: getSetting( state, 'latex' ),
@@ -168,6 +172,7 @@ const features = {
 	'brute-force-protect': {
 		mapStateToProps: state => {
 			return {
+				feature: 'brute-force-protect',
 				title: __( 'Brute force protection' ),
 				details: __( 'Stop malicious login attempts.' ),
 				checked: getSetting( state, 'protect' ),
@@ -186,6 +191,7 @@ const features = {
 	carousel: {
 		mapStateToProps: state => {
 			return {
+				feature: 'carousel',
 				title: __( 'Carousel' ),
 				details: __(
 					'Create full-screen carousel slideshows for the images in your posts and pages.'
@@ -206,6 +212,7 @@ const features = {
 	'comment-likes': {
 		mapStateToProps: state => {
 			return {
+				feature: 'comment-likes',
 				title: __( 'Comment Likes' ),
 				details: __( 'Increase engagement with liking on comments.' ),
 				checked: getSetting( state, 'comment-likes' ),
@@ -225,6 +232,7 @@ const features = {
 	comments: {
 		mapStateToProps: state => {
 			return {
+				feature: 'comments',
 				title: __( 'Comments' ),
 				details: __( 'An enhanced comments section with better verfiication.' ),
 				checked: getSetting( state, 'comments' ),
@@ -243,6 +251,7 @@ const features = {
 	'contact-form': {
 		mapStateToProps: state => {
 			return {
+				feature: 'contact-form',
 				title: __( 'Contact Form' ),
 				details: __( 'Gutenberg ready forms!' ),
 				checked: getSetting( state, 'contact-form' ),
@@ -261,6 +270,7 @@ const features = {
 	'copy-post': {
 		mapStateToProps: state => {
 			return {
+				feature: 'copy-post',
 				title: __( 'Copy Post' ),
 				details: __( 'Simply duplicate content.' ),
 				checked: getSetting( state, 'copy-post' ),
@@ -279,6 +289,7 @@ const features = {
 	'custom-css': {
 		mapStateToProps: state => {
 			return {
+				feature: 'custom-css',
 				title: __( 'Custom CSS' ),
 				details: __( 'Enable an enhanced CSS customization panel.' ),
 				checked: getSetting( state, 'custom-css' ),
@@ -297,6 +308,7 @@ const features = {
 	'enhanced-distribution': {
 		mapStateToProps: state => {
 			return {
+				feature: 'enhanced-distribution',
 				title: __( 'Enhanced Distribution' ),
 				details: __( 'Increase reach and traffic.' ),
 				checked: getSetting( state, 'enhanced-distribution' ),
@@ -315,6 +327,7 @@ const features = {
 	'extra-sidebar-widgets': {
 		mapStateToProps: state => {
 			return {
+				feature: 'extra-sidebar-widgets',
 				title: __( 'Extra Sidebar Widgets' ),
 				details: __( 'Add more widgets.' ),
 				checked: getSetting( state, 'widgets' ),
@@ -350,6 +363,7 @@ const features = {
 			}
 
 			return {
+				feature: 'google-analytics',
 				title: __( 'Google Analytics' ),
 				details: __( 'Add your Google Analytics account.' ),
 				checked: getSetting( state, 'google-analytics' ),
@@ -371,6 +385,7 @@ const features = {
 	'gravatar-hovercards': {
 		mapStateToProps: state => {
 			return {
+				feature: 'gravatar-hovercards',
 				title: __( 'Gravatar Hovercards' ),
 				details: __( 'Give comments life.' ),
 				checked: getSetting( state, 'gravatar-hovercards' ),
@@ -389,6 +404,7 @@ const features = {
 	'infinite-scroll': {
 		mapStateToProps: state => {
 			return {
+				feature: 'infinite-scroll',
 				title: __( 'Infinite Scroll' ),
 				details: __(
 					'Create a smooth, uninterrupted reading experience by loading more content as visitors scroll to the bottom of your archive pages.'
@@ -412,6 +428,7 @@ const features = {
 	'json-api': {
 		mapStateToProps: state => {
 			return {
+				feature: 'json-api',
 				title: __( 'JSON API' ),
 				details: __( 'JSON API access for developers.' ),
 				checked: getSetting( state, 'json-api' ),
@@ -430,6 +447,7 @@ const features = {
 	'lazy-images': {
 		mapStateToProps: state => {
 			return {
+				feature: 'lazy-images',
 				title: __( 'Lazy Loading Images' ),
 				details: __( 'Further improve site speed and only load images visitors need.' ),
 				checked: getSetting( state, 'lazy-images' ),
@@ -448,6 +466,7 @@ const features = {
 	likes: {
 		mapStateToProps: state => {
 			return {
+				feature: 'likes',
 				title: __( 'Likes' ),
 				details: __( 'Add a like button to your posts.' ),
 				checked: getSetting( state, 'likes' ),
@@ -466,6 +485,7 @@ const features = {
 	markdown: {
 		mapStateToProps: state => {
 			return {
+				feature: 'markdown',
 				title: __( 'Markdown' ),
 				details: __( 'Write faster rich-text.' ),
 				checked: getSetting( state, 'markdown' ),
@@ -484,6 +504,7 @@ const features = {
 	masterbar: {
 		mapStateToProps: state => {
 			return {
+				feature: 'masterbar',
 				title: __( 'WordPress.com Toolbar' ),
 				details: __( 'The WordPress.com toolbar replaces the default WordPress admin toolbar.' ),
 				checked: getSetting( state, 'masterbar' ),
@@ -502,6 +523,7 @@ const features = {
 	monitor: {
 		mapStateToProps: state => {
 			return {
+				feature: 'monitor',
 				title: __( 'Downtime Monitoring' ),
 				details: __( 'Get an alert immediately if your site goes down.' ),
 				checked: getSetting( state, 'monitor' ),
@@ -520,6 +542,7 @@ const features = {
 	notifications: {
 		mapStateToProps: state => {
 			return {
+				feature: 'notifications',
 				title: __( 'Notifications' ),
 				details: __( 'Stay up-to-date with your site.' ),
 				checked: getSetting( state, 'notes' ),
@@ -538,6 +561,7 @@ const features = {
 	portfolio: {
 		mapStateToProps: state => {
 			return {
+				feature: 'portfolio',
 				title: __( 'Portfolio: Custom content types' ),
 				details: __( 'Use portfolios on your site to showcase your best work.' ),
 				checked: getSetting( state, 'jetpack_portfolio' ),
@@ -566,6 +590,7 @@ const features = {
 	'post-by-email': {
 		mapStateToProps: state => {
 			return {
+				feature: 'post-by-email',
 				title: __( 'Post by email' ),
 				details: __(
 					'Post by email is a quick way to publish new posts without visiting your site.'
@@ -588,6 +613,7 @@ const features = {
 			const siteRawUrl = getSiteRawUrl( state );
 
 			return {
+				feature: 'publicize',
 				title: __( 'Publicize' ),
 				details: __( 'Automaticaly share content on your favorite social media accounts.' ),
 				checked: getSetting( state, 'publicize' ),
@@ -607,6 +633,7 @@ const features = {
 	'related-posts': {
 		mapStateToProps: state => {
 			return {
+				feature: 'related-posts',
 				title: __( 'Related posts' ),
 				details: __(
 					'Keep your visitors engaged with related content at the bottom of each post.'
@@ -653,6 +680,7 @@ const features = {
 			}
 
 			return {
+				feature: 'scan',
 				title: __( 'Security scanning' ),
 				details: __( 'Stop threats to keep your website safe.' ),
 				checked: isScanEnabled,
@@ -680,6 +708,7 @@ const features = {
 			}
 
 			return {
+				feature: 'search',
 				title: __( 'Search' ),
 				details: __(
 					'Incredibly powerful and customizable, Jetpack Search helps your visitors instantly find the right content – right when they need it.'
@@ -702,6 +731,7 @@ const features = {
 	sso: {
 		mapStateToProps: state => {
 			return {
+				feature: 'sso',
 				title: __( 'Secure Sign On' ),
 				details: __( 'Add an extra layer of security.' ),
 				checked: getSetting( state, 'sso' ),
@@ -735,6 +765,7 @@ const features = {
 			}
 
 			return {
+				feature: 'seo',
 				title: __( 'SEO' ),
 				details: __( 'Take control of the way search engines represent your site.' ),
 				checked: getSetting( state, 'seo-tools' ),
@@ -755,6 +786,7 @@ const features = {
 	sitemaps: {
 		mapStateToProps: state => {
 			return {
+				feature: 'sitemaps',
 				title: __( 'Sitemaps' ),
 				details: __( 'Automatically generate sitemaps for all your content.' ),
 				checked: getSetting( state, 'sitemaps' ),
@@ -773,6 +805,7 @@ const features = {
 	sharing: {
 		mapStateToProps: state => {
 			return {
+				feature: 'sharing',
 				title: __( 'Sharing' ),
 				details: __( 'Increase sharing of your posts and pages. ' ),
 				checked: getSetting( state, 'sharedaddy' ),
@@ -791,6 +824,7 @@ const features = {
 	shortcodes: {
 		mapStateToProps: state => {
 			return {
+				feature: 'shortcodes',
 				title: __( 'Shortcode Embeds' ),
 				details: __( 'Embed YouTube videos, and other content easily.' ),
 				checked: getSetting( state, 'shortcodes' ),
@@ -809,6 +843,7 @@ const features = {
 	shortlinks: {
 		mapStateToProps: state => {
 			return {
+				feature: 'shortlinks',
 				title: __( 'WP.me Shortlinks' ),
 				details: __( 'Build quick links for sharing.' ),
 				checked: getSetting( state, 'shortlinks' ),
@@ -846,6 +881,7 @@ const features = {
 			}
 
 			return {
+				feature: 'simple-payments-block',
 				title: __( 'Simple Payments Block' ),
 				details: __( 'A simple way to accept payments.' ),
 				checked: inCurrentPlan,
@@ -862,6 +898,7 @@ const features = {
 	'site-accelerator': {
 		mapStateToProps: state => {
 			return {
+				feature: 'site-accelerator',
 				title: __( 'Site Accelerator' ),
 				details: __( 'Enable for faster images and a faster site.' ),
 				checked: getSetting( state, 'photon' ) && getSetting( state, 'photon-cdn' ),
@@ -882,6 +919,7 @@ const features = {
 	'site-stats': {
 		mapStateToProps: state => {
 			return {
+				feature: 'site-stats',
 				title: __( 'Site Stats' ),
 				details: __( 'Track your site visitors and learn about your most popular content.' ),
 				checked: getSetting( state, 'stats' ),
@@ -900,6 +938,7 @@ const features = {
 	'site-verification': {
 		mapStateToProps: state => {
 			return {
+				feature: 'site-verification',
 				title: __( 'Site verification' ),
 				details: __( 'Verify your site with Google, Bing, Yandex, and Pinterest.' ),
 				checked: getSetting( state, 'verification-tools' ),
@@ -918,6 +957,7 @@ const features = {
 	subscriptions: {
 		mapStateToProps: state => {
 			return {
+				feature: 'subscriptions',
 				title: __( 'Subscriptions' ),
 				details: __( 'Send post notifications to your visitors.' ),
 				checked: getSetting( state, 'subscriptions' ),
@@ -936,6 +976,7 @@ const features = {
 	testimonials: {
 		mapStateToProps: state => {
 			return {
+				feature: 'testimonials',
 				title: __( 'Testimonial: Custom content type' ),
 				details: __( 'Add testimonials to your website to attract new customers.' ),
 				checked: getSetting( state, 'jetpack_testimonial' ),
@@ -965,6 +1006,7 @@ const features = {
 	'tiled-galleries': {
 		mapStateToProps: state => {
 			return {
+				feature: 'tiled-galleries',
 				title: __( 'Tiled Galleries' ),
 				details: 'Add beautifully laid out galleries as a Gutenberg block',
 				checked: getSetting( state, 'tiled-gallery' ),
@@ -1001,6 +1043,7 @@ const features = {
 			}
 
 			return {
+				feature: 'videopress',
 				title: __( 'VideoPress' ),
 				details: __( 'Host fast, high-quality, ad-free video.' ),
 				checked: getSetting( state, 'videopress' ),
@@ -1022,6 +1065,7 @@ const features = {
 	'widget-visibility': {
 		mapStateToProps: state => {
 			return {
+				feature: 'widget-visibility',
 				title: __( 'Widget Visibility' ),
 				details: __( 'Control your widgets at the post or page level.' ),
 				checked: getSetting( state, 'widget-visibility' ),
