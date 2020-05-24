@@ -23,12 +23,26 @@ let UpdatesQuestion = props => {
 	const onYesButtonClick = useCallback( () => {
 		props.updateUpdatesQuestion( { 'site-updates': true } );
 		props.saveQuestionnaire();
-	} );
+		analytics.tracks.recordEvent( 'jetpack_wizard_question_answered', {
+			question: 'updates',
+			answer: 'yes',
+		} );
+	}, [] );
 
 	const onNoButtonClick = useCallback( () => {
 		props.updateUpdatesQuestion( { 'site-updates': false } );
 		props.saveQuestionnaire();
-	} );
+		analytics.tracks.recordEvent( 'jetpack_wizard_question_answered', {
+			question: 'updates',
+			answer: 'no',
+		} );
+	}, [] );
+
+	const onSkipLinkClick = useCallback( () => {
+		analytics.tracks.recordEvent( 'jetpack_setup_wizard_question_skipped', {
+			question: 'updates',
+		} );
+	}, [] );
 
 	return (
 		<div className="jp-setup-wizard-main jp-setup-wizard-updates-main">
@@ -58,7 +72,7 @@ let UpdatesQuestion = props => {
 					{ __( 'No' ) }
 				</Button>
 			</div>
-			<a className="jp-setup-wizard-skip-link" href="#/setup/features">
+			<a className="jp-setup-wizard-skip-link" href="#/setup/features" onClick={ onSkipLinkClick }>
 				{ __( 'Skip' ) }
 			</a>
 		</div>
