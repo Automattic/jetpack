@@ -24,12 +24,26 @@ let IntroPage = props => {
 	const onPersonalButtonClick = useCallback( () => {
 		props.updateSiteUseQuestion( { use: 'personal' } );
 		props.saveQuestionnaire();
-	} );
+		analytics.tracks.recordEvent( 'jetpack_wizard_question_answered', {
+			question: 'use',
+			answer: 'personal',
+		} );
+	}, [] );
 
 	const onBusinessButtonClick = useCallback( () => {
 		props.updateSiteUseQuestion( { use: 'business' } );
 		props.saveQuestionnaire();
-	} );
+		analytics.tracks.recordEvent( 'jetpack_wizard_question_answered', {
+			question: 'use',
+			answer: 'business',
+		} );
+	}, [] );
+
+	const onSkipLinkClick = useCallback( () => {
+		analytics.tracks.recordEvent( 'jetpack_setup_wizard_question_skipped', {
+			question: 'use',
+		} );
+	}, [] );
 
 	return (
 		<div className="jp-setup-wizard-main">
@@ -72,7 +86,11 @@ let IntroPage = props => {
 						{ __( 'Business Use' ) }
 					</Button>
 				</div>
-				<a className="jp-setup-wizard-skip-link" href="#/setup/features">
+				<a
+					className="jp-setup-wizard-skip-link"
+					href="#/setup/features"
+					onClick={ onSkipLinkClick }
+				>
 					{ __( 'Skip to recommended features' ) }
 				</a>
 			</div>
