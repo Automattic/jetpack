@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { useCallback } from 'react';
+import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { translate as __ } from 'i18n-calypso';
@@ -12,11 +12,16 @@ import { translate as __ } from 'i18n-calypso';
 import { ChecklistAnswer } from '../checklist-answer';
 import Button from 'components/button';
 import { imagePath } from 'constants/urls';
+import analytics from 'lib/analytics';
 import { saveSetupWizardQuestionnnaire } from 'state/setup-wizard';
 
 import './style.scss';
 
 let IncomeQuestion = props => {
+	useEffect( () => {
+		analytics.tracks.recordEvent( 'jetpack_wizard_page_view', { step: 'income-page' } );
+	}, [] );
+
 	return (
 		<div className="jp-setup-wizard-main">
 			<img

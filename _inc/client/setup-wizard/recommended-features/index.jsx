@@ -12,6 +12,7 @@ import { FeatureToggleGroup } from '../feature-toggle-group';
 import { recommendedFeatureGroups } from '../feature-toggle-group/content';
 import Button from 'components/button';
 import { imagePath } from 'constants/urls';
+import analytics from 'lib/analytics';
 import { fetchSettings, isFetchingSettingsList } from 'state/settings';
 
 import './style.scss';
@@ -21,6 +22,7 @@ class RecommendedFeatures extends Component {
 		if ( ! this.props.isFetchingSettingsList ) {
 			this.props.fetchSettings();
 		}
+		analytics.tracks.recordEvent( 'jetpack_wizard_page_view', { step: 'features-page' } );
 	}
 
 	render() {

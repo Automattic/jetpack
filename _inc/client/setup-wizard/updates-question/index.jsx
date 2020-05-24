@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 
@@ -10,11 +10,16 @@ import { translate as __ } from 'i18n-calypso';
  */
 import Button from 'components/button';
 import { imagePath } from 'constants/urls';
+import analytics from 'lib/analytics';
 import { saveSetupWizardQuestionnnaire, updateSetupWizardQuestionnaire } from 'state/setup-wizard';
 
 import './style.scss';
 
 let UpdatesQuestion = props => {
+	useEffect( () => {
+		analytics.tracks.recordEvent( 'jetpack_wizard_page_view', { step: 'updates-page' } );
+	}, [] );
+
 	const onYesButtonClick = useCallback( () => {
 		props.updateUpdatesQuestion( { 'site-updates': true } );
 		props.saveQuestionnaire();

@@ -2,7 +2,7 @@
  * External dependencies
  */
 import PropTypes from 'prop-types';
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 
@@ -11,11 +11,16 @@ import { translate as __ } from 'i18n-calypso';
  */
 import Button from 'components/button';
 import { imagePath } from 'constants/urls';
+import analytics from 'lib/analytics';
 import { saveSetupWizardQuestionnnaire, updateSetupWizardQuestionnaire } from 'state/setup-wizard';
 
 import './style.scss';
 
 let IntroPage = props => {
+	useEffect( () => {
+		analytics.tracks.recordEvent( 'jetpack_wizard_page_view', { step: 'intro-page' } );
+	}, [] );
+
 	const onPersonalButtonClick = useCallback( () => {
 		props.updateSiteUseQuestion( { use: 'personal' } );
 		props.saveQuestionnaire();
