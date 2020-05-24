@@ -124,6 +124,7 @@ function flickr_shortcode_handler( $atts ) {
 	$atts = shortcode_atts(
 		array(
 			'video' => 0,
+			'photo' => 0,
 			'w'     => '',
 			'h'     => '',
 		),
@@ -145,10 +146,14 @@ function flickr_shortcode_handler( $atts ) {
 
 	if ( 'video' === $showing ) {
 
-		if ( preg_match( '/^https?:\/\/(www\.)?flickr\.com\/.+/', $atts['video'] ) || preg_match( '/^https?:\/\/flic\.kr\/.+/', $atts['video'] ) ) {
-			return flickr_shortcode_video_markup( $atts );
+		$video_id = flick_shortcode_video_id( $src );
+
+		if ( empty( $video_id ) ) {
+			return '';
 		}
-		return '';
+
+		$atts = array_map( 'esc_attr', $atts );
+		return flickr_shortcode_video_markup( $atts, $video_id, $src );
 	} elseif ( 'photo' === $showing ) {
 
 		if ( ! preg_match( '~^(https?:)?//([\da-z\-]+\.)*?((static)?flickr\.com|flic\.kr)/.*~i', $src ) ) {
@@ -172,16 +177,35 @@ function flickr_shortcode_handler( $atts ) {
 /**
  * Return HTML markup for a Flickr embed.
  *
- * @param array $atts Shortcode attributes.
+ * @param array  $atts Shortcode attributes.
+ * @param string $id Video ID.
+ * @param string $video_param video param of the shortcode.
  */
-function flickr_shortcode_video_markup( $atts ) {
-	$atts = array_map( 'esc_attr', $atts );
+function flickr_shortcode_video_markup( $atts, $id, $video_param ) {
 
-	$provider = 'https://www.flickr.com/services/oembed/';
-	$oembed   = _wp_oembed_get_object();
-	$data     = (array) $oembed->fetch( $provider, $atts['video'] );
+	$transient_name = "flick_video_$id";
+	$html           = get_transient( $transient_name );
 
-	$html = $data['html'];
+	if ( empty( $html ) ) {
+		$video_url = '';
+		if ( ! is_numeric( $video_param ) ) {
+			$video_url = $video_param;
+		} else {
+			// Get the URL of the video from the page of the video.
+			$video_page_content = wp_remote_get( "http://flickr.com/photo.gne?id=$video_param" );
+
+			// Extract the URL from the og:url meta tag.
+			preg_match( '/property=\"og:url\"\scontent=\"([^\"]+)\"/', $video_page_content['body'], $matches );
+
+			$video_url = $matches[1];
+		}
+
+		$provider = 'https://www.flickr.com/services/oembed/';
+		$oembed   = _wp_oembed_get_object();
+		$data     = (array) $oembed->fetch( $provider, $video_url );
+		$html     = $data['html'];
+		set_transient( $transient_name, $html, 2592000 ); // 30 days transient.
+	}
 
 	if ( ! empty( $atts['w'] ) && is_numeric( $atts['w'] ) ) {
 		$html = preg_replace( '/(width=\")\d+(\")/', '${1}' . $atts['w'] . '${2}', $html );
@@ -192,6 +216,30 @@ function flickr_shortcode_video_markup( $atts ) {
 	}
 
 	return $html;
+}
+
+/**
+ * Extract the id of the flickr video from the video param.
+ *
+ * @param string $video_param Video parameter of the shortcode.
+ */
+function flick_shortcode_video_id( $video_param ) {
+	if ( preg_match( '/^https?:\/\/(www\.)?flickr\.com\/.+/', $video_param ) || preg_match( '/^https?:\/\/flic\.kr\/.+/', $video_param ) ) {
+
+		// Extract the video id from the url.
+		preg_match( '/\d+/', $video_param, $matches );
+
+		if ( empty( $matches ) ) {
+			return false;
+		}
+
+		return $matches[0];
+
+	} elseif ( is_numeric( $video_param ) ) {
+		return $video_param;
+	}
+
+	return false;
 }
 
 add_shortcode( 'flickr', 'flickr_shortcode_handler' );
