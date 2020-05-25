@@ -45,7 +45,6 @@ export const saveSetupWizardQuestionnnaire = () => {
 		return restApi
 			.saveSetupQuestionnaire( {
 				questionnaire: setupWizard.questionnaire,
-				status: setupWizard.status,
 			} )
 			.then( () => {
 				dispatch( { type: JETPACK_SETUP_WIZARD_QUESTIONNAIRE_SAVE_SUCCESS } );
