@@ -22,11 +22,30 @@ class Admin_Sidebar_Link {
 	const SCHEDULE_ACTION_HOOK = 'jetpack_scan_refresh_states_event';
 
 	/**
-	 * Constructor.
+	 * The singleton instance of this class.
 	 *
+	 * @var Admin_Sidebar_Link
+	 */
+	protected static $instance;
+
+	/**
+	 * Get the singleton instance of the class.
+	 *
+	 * @return Admin_Sidebar_Link
+	 */
+	public static function instance() {
+		if ( ! isset( self::$instance ) ) {
+			self::$instance = new Admin_Sidebar_Link();
+			self::$instance->init_hooks();
+		}
+
+		return self::$instance;
+	}
+
+	/**
 	 * Adds action hooks.
 	 */
-	public function __construct() {
+	public function init_hooks() {
 		add_action( 'jetpack_admin_menu', array( $this, 'maybe_add_admin_link' ), 99 );
 		add_action( self::SCHEDULE_ACTION_HOOK, array( $this, 'refresh_state_cache' ) );
 	}
@@ -75,7 +94,7 @@ class Admin_Sidebar_Link {
 	 *
 	 * @return boolean
 	 */
-	protected function should_show_link() {
+	private function should_show_link() {
 		// Jetpack Scan/Backup is currently not supported on multisite.
 		if ( is_multisite() ) {
 			return false;
@@ -95,7 +114,7 @@ class Admin_Sidebar_Link {
 	 *
 	 * @return boolean
 	 */
-	protected function has_scan() {
+	private function has_scan() {
 		$this->maybe_refresh_transient_cache();
 		$scan_state = get_transient( 'jetpack_scan_state' );
 		return ! $scan_state || 'unavailable' !== $scan_state->state;
@@ -106,7 +125,7 @@ class Admin_Sidebar_Link {
 	 *
 	 * @return boolean
 	 */
-	protected function has_backup() {
+	private function has_backup() {
 		$this->maybe_refresh_transient_cache();
 		$rewind_state = get_transient( 'jetpack_rewind_state' );
 		return ! $rewind_state || 'unavailable' !== $rewind_state->state;
@@ -115,7 +134,8 @@ class Admin_Sidebar_Link {
 	/**
 	 * Triggers a cron job to refresh the Scan and Rewind state cache.
 	 */
-	protected function maybe_refresh_transient_cache() {
+	private function maybe_refresh_transient_cache() {
+
 		if ( false !== get_transient( 'jetpack_scan_state' ) && false !== get_transient( 'jetpack_rewind_state' ) ) {
 			return;
 		}
