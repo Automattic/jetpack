@@ -61,8 +61,10 @@ class Admin_Sidebar_Link {
 		$has_scan   = $this->has_scan();
 		$has_backup = $this->has_backup();
 
+		$url = Redirect::get_url( 'calypso-backups' );
 		if ( $has_scan && ! $has_backup ) {
 			$menu_label = __( 'Scan', 'jetpack' );
+			$url        = Redirect::get_url( 'calypso-scanner' );
 		} elseif ( ! $has_scan && $has_backup ) {
 			$menu_label = __( 'Backup', 'jetpack' );
 		} else {
@@ -73,7 +75,7 @@ class Admin_Sidebar_Link {
 		$new_link = array(
 			esc_html( $menu_label ) . ' <span class="dashicons dashicons-external"></span>',
 			'manage_options', // Check permissions here.
-			esc_url( Redirect::get_url( 'calypso-backups' ) ),
+			esc_url( $url ),
 		);
 
 		// Splice the nav menu item into the Jetpack nav.
