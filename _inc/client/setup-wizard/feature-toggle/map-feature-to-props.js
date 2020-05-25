@@ -977,7 +977,7 @@ const features = {
 		mapStateToProps: state => {
 			return {
 				feature: 'testimonials',
-				title: __( 'Testimonial: Custom content type' ),
+				title: __( 'Testimonial: Custom content types' ),
 				details: __( 'Add testimonials to your website to attract new customers.' ),
 				checked: getSetting( state, 'jetpack_testimonial' ),
 				optionsLink: '#/settings?term=testimonials',
