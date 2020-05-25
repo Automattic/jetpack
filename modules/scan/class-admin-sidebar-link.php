@@ -65,6 +65,19 @@ class Admin_Sidebar_Link {
 			return;
 		}
 
+		$new_link = $this->get_new_link();
+
+		// Splice the nav menu item into the Jetpack nav.
+		global $submenu;
+		array_splice( $submenu['jetpack'], 2, 0, array( $new_link ) );
+	}
+
+	/**
+	 * Retuns the new link.
+	 *
+	 *  @return array Link array to be added to the sidebar.
+	 */
+	private function get_new_link() {
 		$has_scan   = $this->has_scan();
 		$has_backup = $this->has_backup();
 
@@ -79,15 +92,12 @@ class Admin_Sidebar_Link {
 			$menu_label = __( 'Backup & Scan', 'jetpack' );
 		}
 
-		$new_link = array(
+		return array(
 			esc_html( $menu_label ) . ' <span class="dashicons dashicons-external"></span>',
 			'manage_options', // Check permissions here.
 			esc_url( $url ),
 		);
 
-		// Splice the nav menu item into the Jetpack nav.
-		global $submenu;
-		array_splice( $submenu['jetpack'], 2, 0, array( $new_link ) );
 	}
 
 	/**
