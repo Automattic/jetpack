@@ -63,7 +63,7 @@ export default {
 
 		const newAttributes = {
 			...omit( attributes, deprecatedAttributes ),
-			className: className.replace( 'is-style-outline', '' ),
+			className: className && className.replace( 'is-style-outline', '' ),
 		};
 		const buttonAttributes = pick( attributes, deprecatedAttributes );
 
@@ -74,13 +74,15 @@ export default {
 					buttonAttributes.text || _x( 'Register', 'verb: e.g. register for an event.', 'jetpack' ),
 				...buttonAttributes,
 				uniqueId: 'eventbrite-widget-id',
-				className: -1 !== className.indexOf( 'is-style-outline' ) ? 'is-style-outline' : '',
+				className:
+					className && -1 !== className.indexOf( 'is-style-outline' ) ? 'is-style-outline' : '',
 			} ),
 		];
 
 		return [ newAttributes, newInnerBlocks ];
 	},
 	isEligible: ( attributes, innerBlocks ) =>
-		isEmpty( innerBlocks ) || some( pick( attributes, deprecatedAttributes ), Boolean ),
+		'modal' === attributes.style &&
+		( isEmpty( innerBlocks ) || some( pick( attributes, deprecatedAttributes ), Boolean ) ),
 	save,
 };
