@@ -5,6 +5,7 @@ use Automattic\Jetpack\Config;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Utils as Connection_Utils;
+use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Roles;
@@ -3645,6 +3646,7 @@ p {
 
 		add_action( 'load-plugins.php', array( $this, 'intercept_plugin_error_scrape_init' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_menu_css' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'deactivate_dialog' ) );
 		add_filter( 'plugin_action_links_' . plugin_basename( JETPACK__PLUGIN_DIR . 'jetpack.php' ), array( $this, 'plugin_action_links' ) );
 
 		if ( self::is_active() || $is_development_mode ) {
@@ -4050,6 +4052,62 @@ p {
 		}
 
 		return array_merge( $jetpack_home, $actions );
+	}
+
+	/**
+	 * Adds the deactivation warning modal if there are other active plugins using the connection
+	 *
+	 * @param string $hook The current admin page.
+	 *
+	 * @return void
+	 */
+	public function deactivate_dialog( $hook ) {
+		if (
+			'plugins.php' === $hook
+			&& self::is_active()
+		) {
+
+			$active_plugins_using_connection = Connection_Plugin_Storage::get_all();
+
+			if ( count( $active_plugins_using_connection ) > 1 ) {
+
+				add_thickbox();
+				wp_enqueue_script(
+					'jetpack-deactivate-dialog-js',
+					Assets::get_file_url_for_environment(
+						'_inc/build/jetpack-deactivate-dialog.min.js',
+						'_inc/jetpack-deactivate-dialog.js'
+					),
+					array( 'jquery' ),
+					JETPACK__VERSION,
+					true
+				);
+
+				wp_localize_script(
+					'jetpack-deactivate-dialog-js',
+					'deactivate_dialog',
+					array(
+						'title'            => __( 'Deactivate Jetpack', 'jetpack' ),
+						'deactivate_label' => __( 'Disconnect and Deactivate', 'jetpack' ),
+					)
+				);
+
+				add_action( 'admin_footer', array( $this, 'deactivate_dialog_content' ) );
+
+				wp_enqueue_style( 'jetpack-deactivate-dialog', plugins_url( 'css/jetpack-deactivate-dialog.css', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
+			}
+		}
+	}
+
+	/**
+	 * Outputs the content of the deactivation modal
+	 *
+	 * @return void
+	 */
+	public function deactivate_dialog_content() {
+		$active_plugins_using_connection = Connection_Plugin_Storage::get_all();
+		unset( $active_plugins_using_connection['jetpack'] );
+		$this->load_view( 'admin/deactivation-dialog.php', $active_plugins_using_connection );
 	}
 
 	/**
