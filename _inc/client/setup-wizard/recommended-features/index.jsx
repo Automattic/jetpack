@@ -29,6 +29,7 @@ class RecommendedFeatures extends Component {
 	onDoneButtonClick = () => {
 		this.props.updateStatus( 'completed' );
 		analytics.tracks.recordEvent( 'jetpack_wizard_features_done' );
+		window.location.reload();
 	};
 
 	onExploreMoreButtonClick = () => {
