@@ -3,6 +3,8 @@
  */
 import { __, _x } from '@wordpress/i18n';
 import { useEffect, useState } from '@wordpress/element';
+import { withDispatch } from '@wordpress/data';
+import { compose } from '@wordpress/compose';
 import {
 	Button,
 	BaseControl,
@@ -27,9 +29,10 @@ import { DOWN } from '@wordpress/keycodes';
  */
 import { countryCodes } from '../shared/countrycodes.js';
 import renderMaterialIcon from '../../../shared/render-material-icon';
+import HelpMessage from '../../../shared/help-message';
 import './view.scss';
 
-export default function WhatsAppButtonEdit( { attributes, setAttributes, className } ) {
+const WhatsAppButtonEdit = ( { attributes, setAttributes, className, selectBlock, clientId } ) => {
 	const {
 		countryCode,
 		phoneNumber,
@@ -39,7 +42,7 @@ export default function WhatsAppButtonEdit( { attributes, setAttributes, classNa
 		backgroundColor,
 	} = attributes;
 
-	const [ isValidPhoneNumber, setIsValidPhoneNumber ] = useState( false );
+	const [ isValidPhoneNumber, setIsValidPhoneNumber ] = useState( true );
 
 	const getCountryCode = async () => {
 		setAttributes( { countryCode: '1' } );
@@ -68,11 +71,10 @@ export default function WhatsAppButtonEdit( { attributes, setAttributes, classNa
 	};
 
 	useEffect( () => {
-		if ( undefined !== countryCode ) {
-			return;
+		if ( undefined === countryCode ) {
+			getCountryCode();
+			selectBlock( clientId );
 		}
-
-		getCountryCode();
 	} );
 
 	const validatePhoneNumber = newPhoneNumber => {
@@ -83,10 +85,6 @@ export default function WhatsAppButtonEdit( { attributes, setAttributes, classNa
 		}
 
 		return phoneNumberRegEx.test( countryCode.replace( /\D/g, '' ) + newPhoneNumber );
-	};
-
-	const onBlurPhoneNumber = e => {
-		setIsValidPhoneNumber( validatePhoneNumber( '' ) );
 	};
 
 	const setBackgroundColor = color => {
@@ -111,7 +109,7 @@ export default function WhatsAppButtonEdit( { attributes, setAttributes, classNa
 		return (
 			<Button
 				className="components-toolbar__control jetpack-contact-form__toggle"
-				label={ __( 'Edit Form Settings' ) }
+				label={ __( 'WhatsApp Button Settings' ) }
 				onClick={ onToggle }
 				onKeyDown={ openOnArrowDown }
 				icon={ renderMaterialIcon(
@@ -137,12 +135,28 @@ export default function WhatsAppButtonEdit( { attributes, setAttributes, classNa
 						onChange={ value => setAttributes( { countryCode: value } ) }
 						options={ countryCodes }
 					/>
+
 					<TextControl
 						placeholder={ __( 'Your phone number…', 'jetpack' ) }
-						onBlur={ newPhoneNumber => onBlurPhoneNumber( newPhoneNumber ) }
-						onChange={ newPhoneNumber => setAttributes( { phoneNumber: newPhoneNumber } ) }
+						onChange={ newPhoneNumber => {
+							setAttributes( { phoneNumber: newPhoneNumber } );
+
+							if ( newPhoneNumber.length === 0 ) {
+								setIsValidPhoneNumber( true );
+							}
+
+							if ( newPhoneNumber.length > 2 ) {
+								setIsValidPhoneNumber( validatePhoneNumber( phoneNumber ) );
+							}
+						} }
 						value={ phoneNumber }
 					/>
+
+					{ ! isValidPhoneNumber && (
+						<HelpMessage isError className="jetpack-whatsapp-error">
+							{ __( 'Please enter a valid phone number.', 'jetpack' ) }
+						</HelpMessage>
+					) }
 				</BaseControl>
 
 				<TextareaControl
@@ -165,8 +179,8 @@ export default function WhatsAppButtonEdit( { attributes, setAttributes, classNa
 					<ToolbarGroup>
 						<Dropdown
 							position="bottom right"
-							className="jetpack-contact-form-settings-selector"
-							contentClassName="jetpack-contact-form__popover"
+							className="jetpack-whatsapp-button-settings-selector"
+							contentClassName="jetpack-whatsapp-button__popover"
 							renderToggle={ ( { isOpen, onToggle } ) => renderSettingsToggle( isOpen, onToggle ) }
 							renderContent={ () => renderSettings() }
 						/>
@@ -232,4 +246,11 @@ export default function WhatsAppButtonEdit( { attributes, setAttributes, classNa
 			/>
 		</div>
 	);
-}
+};
+
+export default compose( [
+	withDispatch( dispatch => {
+		const { selectBlock } = dispatch( 'core/block-editor' );
+		return { selectBlock };
+	} ),
+] )( WhatsAppButtonEdit );
