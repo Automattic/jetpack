@@ -223,7 +223,9 @@ export default function WhatsAppButtonEdit( { attributes, setAttributes, classNa
 				withoutInteractiveFormatting
 				allowedFormats={ [] }
 				className="whatsapp-block__button"
+				multiline="false"
 				tagName="a"
+				preserveWhiteSpace={ false }
 				style={ {
 					backgroundColor: backgroundColor,
 				} }

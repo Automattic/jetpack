@@ -18,7 +18,7 @@ const variations = [
 			'jetpack'
 		),
 		icon: whatsAppIcon,
-		innerBlocks: [ [ 'jetpack/whatsapp-button' ] ],
+		innerBlocks: [ [ 'jetpack/whatsapp-button', {} ] ],
 	},
 ];
 
