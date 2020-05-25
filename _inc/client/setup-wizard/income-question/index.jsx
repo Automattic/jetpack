@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { translate as __ } from 'i18n-calypso';
@@ -12,11 +12,34 @@ import { translate as __ } from 'i18n-calypso';
 import { ChecklistAnswer } from '../checklist-answer';
 import Button from 'components/button';
 import { imagePath } from 'constants/urls';
-import { saveSetupWizardQuestionnnaire } from 'state/setup-wizard';
+import analytics from 'lib/analytics';
+import { getSetupWizardAnswer, saveSetupWizardQuestionnnaire } from 'state/setup-wizard';
 
 import './style.scss';
 
 let IncomeQuestion = props => {
+	useEffect( () => {
+		analytics.tracks.recordEvent( 'jetpack_wizard_page_view', { step: 'income-page' } );
+	}, [] );
+
+	const onContinueClick = useCallback( () => {
+		props.saveQuestionnaire();
+		for ( const answer in props.answers ) {
+			if ( props.answers[ answer ] ) {
+				analytics.tracks.recordEvent( 'jetpack_wizard_question_answered', {
+					question: 'income',
+					answer: answer,
+				} );
+			}
+		}
+	}, [ props.answers ] );
+
+	const onNoneApplyClick = useCallback( () => {
+		analytics.tracks.recordEvent( 'jetpack_setup_wizard_question_skipped', {
+			question: 'income',
+		} );
+	} );
+
 	return (
 		<div className="jp-setup-wizard-main">
 			<img
@@ -64,14 +87,14 @@ let IncomeQuestion = props => {
 					href="#/setup/updates"
 					primary
 					className="jp-setup-wizard-button"
-					onClick={ props.saveQuestionnaire }
+					onClick={ onContinueClick }
 				>
 					{ __( 'Continue' ) }
 				</Button>
 				<a
 					className="jp-setup-wizard-skip-link"
 					href="#/setup/updates"
-					onClick={ props.saveQuestionnaire }
+					onClick={ onNoneApplyClick }
 				>
 					{ __( 'None of these apply' ) }
 				</a>
@@ -85,7 +108,14 @@ IncomeQuestion.propTypes = {
 };
 
 IncomeQuestion = connect(
-	state => ( {} ),
+	state => ( {
+		answers: [
+			'advertising-revenue',
+			'store-revenue',
+			'appointments-revenue',
+			'location-revenue',
+		].reduce( ( acc, curr ) => ( { ...acc, [ curr ]: getSetupWizardAnswer( state, curr ) } ), {} ),
+	} ),
 	dispatch => ( {
 		saveQuestionnaire: () => dispatch( saveSetupWizardQuestionnnaire() ),
 	} )

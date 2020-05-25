@@ -2,7 +2,7 @@
  * External dependencies
  */
 import PropTypes from 'prop-types';
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 
@@ -11,20 +11,39 @@ import { translate as __ } from 'i18n-calypso';
  */
 import Button from 'components/button';
 import { imagePath } from 'constants/urls';
+import analytics from 'lib/analytics';
 import { saveSetupWizardQuestionnnaire, updateSetupWizardQuestionnaire } from 'state/setup-wizard';
 
 import './style.scss';
 
 let IntroPage = props => {
+	useEffect( () => {
+		analytics.tracks.recordEvent( 'jetpack_wizard_page_view', { step: 'intro-page' } );
+	}, [] );
+
 	const onPersonalButtonClick = useCallback( () => {
 		props.updateSiteUseQuestion( { use: 'personal' } );
 		props.saveQuestionnaire();
-	} );
+		analytics.tracks.recordEvent( 'jetpack_wizard_question_answered', {
+			question: 'use',
+			answer: 'personal',
+		} );
+	}, [] );
 
 	const onBusinessButtonClick = useCallback( () => {
 		props.updateSiteUseQuestion( { use: 'business' } );
 		props.saveQuestionnaire();
-	} );
+		analytics.tracks.recordEvent( 'jetpack_wizard_question_answered', {
+			question: 'use',
+			answer: 'business',
+		} );
+	}, [] );
+
+	const onSkipLinkClick = useCallback( () => {
+		analytics.tracks.recordEvent( 'jetpack_setup_wizard_question_skipped', {
+			question: 'use',
+		} );
+	}, [] );
 
 	return (
 		<div className="jp-setup-wizard-main">
@@ -67,7 +86,11 @@ let IntroPage = props => {
 						{ __( 'Business Use' ) }
 					</Button>
 				</div>
-				<a className="jp-setup-wizard-skip-link" href="#/setup/features">
+				<a
+					className="jp-setup-wizard-skip-link"
+					href="#/setup/features"
+					onClick={ onSkipLinkClick }
+				>
 					{ __( 'Skip to recommended features' ) }
 				</a>
 			</div>
