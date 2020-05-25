@@ -87,7 +87,7 @@ class Admin_Sidebar_Link {
 
 		// Splice the nav menu item into the Jetpack nav.
 		global $submenu;
-		array_splice( $submenu['jetpack'], 1, 0, array( $new_link ) );
+		array_splice( $submenu['jetpack'], 2, 0, array( $new_link ) );
 	}
 
 	/**
