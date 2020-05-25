@@ -54,7 +54,7 @@ let IntroPage = props => {
 				alt={ __( 'A jetpack site powering up' ) }
 			/>
 			<h1 className="jp-setup-wizard-header">
-				{ __( 'Set up Jetpack for better site security, performance, and more' ) }
+				{ __( 'Set up Jetpack for better site security, performance, and more.' ) }
 			</h1>
 			<p className="jp-setup-wizard-paragraph">
 				{ __( 'Jetpack is a cloud-powered tool built by Automattic.' ) }

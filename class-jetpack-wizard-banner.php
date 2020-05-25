@@ -152,7 +152,7 @@ class Jetpack_Wizard_Banner {
 						?>
 					</div>
 					<h2 class="jp-wizard-banner-wizard-header">
-						<?php esc_html_e( 'Set up Jetpack for better site security, performance, and more', 'jetpack' ); ?>
+						<?php esc_html_e( 'Set up Jetpack for better site security, performance, and more.', 'jetpack' ); ?>
 					</h2>
 					<p class="jp-wizard-banner-wizard-paragraph">
 						<?php esc_html_e( 'Jetpack is a cloud-powered tool built by Automattic.', 'jetpack' ); ?>
