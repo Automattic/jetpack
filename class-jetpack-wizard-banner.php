@@ -125,15 +125,15 @@ class Jetpack_Wizard_Banner {
 		$tracking = new Tracking();
 
 		if ( isset( $_REQUEST['personal'] ) ) {
-			$tracking->record_user_event( 'jetpack_setup_wizard_banner_click', array( 'button' => 'personal' ) );
+			$tracking->record_user_event( 'setup_wizard_banner_click', array( 'button' => 'personal' ) );
 		}
 
 		if ( isset( $_REQUEST['business'] ) ) {
-			$tracking->record_user_event( 'jetpack_setup_wizard_banner_click', array( 'button' => 'business' ) );
+			$tracking->record_user_event( 'setup_wizard_banner_click', array( 'button' => 'business' ) );
 		}
 
 		if ( isset( $_REQUEST['skip'] ) ) {
-			$tracking->record_user_event( 'jetpack_setup_wizard_banner_click', array( 'button' => 'skip' ) );
+			$tracking->record_user_event( 'setup_wizard_banner_click', array( 'button' => 'skip' ) );
 		}
 
 		if (
@@ -141,7 +141,7 @@ class Jetpack_Wizard_Banner {
 			&& isset( $_REQUEST['dismissBanner'] )
 		) {
 			Jetpack_Options::update_option( 'dismissed_wizard_banner', 1 );
-			$tracking->record_user_event( 'jetpack_setup_wizard_banner_dismiss' );
+			$tracking->record_user_event( 'setup_wizard_banner_dismiss' );
 			wp_send_json_success();
 		}
 
