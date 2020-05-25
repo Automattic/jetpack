@@ -12,6 +12,8 @@ import {
 	JETPACK_SETUP_WIZARD_QUESTIONNAIRE_UPDATE_SUCCESS,
 	JETPACK_SETUP_WIZARD_QUESTIONNAIRE_UPDATE_FAIL,
 	JETPACK_SETUP_WIZARD_STATUS_UPDATE,
+	JETPACK_SETUP_WIZARD_STATUS_UPDATE_SUCCESS,
+	JETPACK_SETUP_WIZARD_STATUS_UPDATE_FAIL,
 } from 'state/action-types';
 
 export const fetchSetupWizardQuestionnaire = () => {
@@ -62,10 +64,8 @@ export const updateSetupWizardStatus = status => {
 				status: setupWizard.status,
 			} )
 			.then( () => {
-				dispatch( { type: JETPACK_SETUP_WIZARD_QUESTIONNAIRE_UPDATE_SUCCESS } );
+				dispatch( { type: JETPACK_SETUP_WIZARD_STATUS_UPDATE_SUCCESS } );
 			} )
-			.catch( error =>
-				dispatch( { type: JETPACK_SETUP_WIZARD_QUESTIONNAIRE_UPDATE_FAIL, error } )
-			);
+			.catch( error => dispatch( { type: JETPACK_SETUP_WIZARD_STATUS_UPDATE_FAIL, error } ) );
 	};
 };

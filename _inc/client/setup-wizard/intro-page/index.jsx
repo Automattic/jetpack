@@ -11,6 +11,7 @@ import { translate as __ } from 'i18n-calypso';
  */
 import Button from 'components/button';
 import { imagePath } from 'constants/urls';
+import analytics from 'lib/analytics';
 import {
 	saveSetupWizardQuestionnnaire,
 	updateSetupWizardQuestionnaire,
