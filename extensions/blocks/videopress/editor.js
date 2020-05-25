@@ -5,6 +5,7 @@ import { Button } from '@wordpress/components';
 import { createBlobURL } from '@wordpress/blob';
 import { createBlock } from '@wordpress/blocks';
 import { mediaUpload } from '@wordpress/editor';
+import { useBlockEditContext } from '@wordpress/block-editor';
 import { addFilter } from '@wordpress/hooks';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
@@ -24,7 +25,8 @@ import './editor.scss';
 
 const videoPressNoPlanMediaPlaceholder = createHigherOrderComponent(
 	OriginalPlaceholder => props => {
-		if ( ! props.className || props.className.indexOf( 'wp-block-video' ) === -1 ) {
+		const { name } = useBlockEditContext();
+		if ( name !== 'core/video' ) {
 			return <OriginalPlaceholder { ...props } />;
 		}
 
