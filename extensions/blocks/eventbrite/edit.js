@@ -13,19 +13,19 @@ import {
 	ExternalLink,
 	withNotices,
 } from '@wordpress/components';
-import { BlockControls, BlockIcon } from '@wordpress/block-editor';
+import { BlockControls, BlockIcon, InnerBlocks } from '@wordpress/block-editor';
 import { withDispatch } from '@wordpress/data';
 import { compose } from '@wordpress/compose';
 
 /**
  * Internal dependencies
  */
+import { innerButtonBlock } from './';
 import attributeDetails from './attributes';
 import { convertToLink, eventIdFromUrl } from './utils';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import { icon, URL_REGEX, EVENTBRITE_EXAMPLE_URL } from '.';
 import { isAtomicSite, isSimpleSite } from '../../shared/site-type-utils';
-import ModalButtonPreview from './modal-button-preview';
 import EventbriteInPageExample from './eventbrite-in-page-example.png';
 import BlockStylesSelector from '../../shared/components/block-styles-selector';
 import testEmbedUrl from '../../shared/test-embed-url';
@@ -301,7 +301,10 @@ class EventbriteEdit extends Component {
 				<>
 					{ this.renderBlockControls() }
 					{ style === 'modal' ? (
-						<ModalButtonPreview { ...this.props } />
+						<InnerBlocks
+							template={ [ [ innerButtonBlock.name, innerButtonBlock.attributes ] ] }
+							templateLock="all"
+						/>
 					) : (
 						this.renderInlinePreview()
 					) }
