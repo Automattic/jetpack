@@ -58,8 +58,8 @@ class Jetpack_Wizard_Banner {
 			return false;
 		}
 
-		// We already display the wizard at the Jetpack area.
-		if ( false !== strpos( get_current_screen()->id, 'jetpack' ) ) {
+		// Only the dashboard and plugins pages should see the banner.
+		if ( ! in_array( get_current_screen()->id, array( 'dashboard', 'plugins' ), true ) ) {
 			return false;
 		}
 
