@@ -49,5 +49,7 @@ const SetupWizardComponent = props => {
 };
 
 export const SetupWizard = connect( state => {
-	return { siteTitle: getSiteTitle( state ) };
+	return {
+		siteTitle: getSiteTitle( state ),
+	};
 } )( SetupWizardComponent );

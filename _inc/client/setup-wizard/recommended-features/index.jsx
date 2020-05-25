@@ -9,11 +9,11 @@ import { connect } from 'react-redux';
  * Internal dependencies
  */
 import { FeatureToggleGroup } from '../feature-toggle-group';
-import { recommendedFeatureGroups } from '../feature-toggle-group/content';
 import Button from 'components/button';
 import { imagePath } from 'constants/urls';
 import analytics from 'lib/analytics';
 import { fetchSettings, isFetchingSettingsList } from 'state/settings';
+import { getRecommendedFeatureGroups } from 'state/setup-wizard';
 
 import './style.scss';
 
@@ -49,7 +49,7 @@ class RecommendedFeatures extends Component {
 				<p className="jp-setup-wizard-recommended-features-p2">
 					{ __( 'You can change your feature settings at any time.' ) }
 				</p>
-				{ recommendedFeatureGroups.map( featureGroup => {
+				{ this.props.recommendedFeatureGroups.map( featureGroup => {
 					return (
 						<FeatureToggleGroup
 							title={ featureGroup.title }
@@ -74,6 +74,7 @@ class RecommendedFeatures extends Component {
 RecommendedFeatures = connect(
 	state => ( {
 		isFetchingSettingsList: isFetchingSettingsList( state ),
+		recommendedFeatureGroups: getRecommendedFeatureGroups( state ),
 	} ),
 	dispatch => ( {
 		fetchSettings: () => dispatch( fetchSettings() ),
