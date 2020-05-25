@@ -548,17 +548,28 @@ class Jetpack_Core_Json_Api_Endpoints {
 					'permission_callback' => __CLASS__ . '::update_settings_permission_check',
 					'args'                => array(
 						'questionnaire' => array(
-							'required' => false,
-							'type'     => 'object',
+							'required'          => false,
+							'type'              => 'object',
+							'validate_callback' => __CLASS__ . '::validate_setup_wizard_questionnaire',
 						),
 						'status'        => array(
-							'required' => false,
-							'type'     => 'string',
+							'required'          => false,
+							'type'              => 'string',
+							'validate_callback' => __CLASS__ . '::validate_string',
 						),
 					),
 				),
 			)
 		);
+	}
+
+	/**
+	 * Get the settings for the wizard questionnaire
+	 *
+	 * @return array Questionnaire settings.
+	 */
+	public static function get_setup_wizard_questionnaire() {
+		return Jetpack_Options::get_option( 'setup_wizard_questionnaire', (object) array() );
 	}
 
 	/**
@@ -583,12 +594,33 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
-	 * Get the settings for the wizard questionnaire
+	 * Validate the answers on the setup wizard questionnaire
 	 *
-	 * @return array Questionnaire settings.
+	 * @param array           $value Value to check received by request.
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 * @param string          $param Name of the parameter passed to endpoint holding $value.
+	 *
+	 * @return bool|WP_Error
 	 */
-	public static function get_setup_wizard_questionnaire() {
-		return Jetpack_Options::get_option( 'setup_wizard_questionnaire', (object) array() );
+	public static function validate_setup_wizard_questionnaire( $value, $request, $param ) {
+		if ( ! is_array( $value ) ) {
+			/* translators: Name of a parameter that must be an object */
+			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be an object.', 'jetpack' ), $param ) );
+		}
+
+		foreach ( $value as $answer_key => $answer ) {
+			if ( is_string( $answer ) ) {
+				$validate = self::validate_string( $answer, $request, $param );
+			} else {
+				$validate = self::validate_boolean( $answer, $request, $param );
+			}
+
+			if ( is_wp_error( $validate ) ) {
+				return $validate;
+			}
+		}
+
+		return true;
 	}
 
 	public static function get_plans( $request ) {
