@@ -54,9 +54,38 @@ class CustomAutoloaderPlugin implements PluginInterface, EventSubscriberInterfac
 	}
 
 	/**
+	 * Do nothing.
+	 * phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	 *
+	 * @param Composer    $composer Composer object.
+	 * @param IOInterface $io IO object.
+	 */
+	public function deactivate( Composer $composer, IOInterface $io ) {
+		/*
+		 * Intentionally left empty. This is a PluginInterface method.
+		 * phpcs:enable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		 */
+	}
+
+	/**
+	 * Do nothing.
+	 * phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	 *
+	 * @param Composer    $composer Composer object.
+	 * @param IOInterface $io IO object.
+	 */
+	public function uninstall( Composer $composer, IOInterface $io ) {
+		/*
+		 * Intentionally left empty. This is a PluginInterface method.
+		 * phpcs:enable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		 */
+	}
+
+
+	/**
 	 * Tell composer to listen for events and do something with them.
 	 *
-	 * @return array List of succribed events.
+	 * @return array List of subscribed events.
 	 */
 	public static function getSubscribedEvents() {
 		return array(
