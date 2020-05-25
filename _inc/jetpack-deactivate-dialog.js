@@ -44,9 +44,7 @@
 	deactivateLinkElem.html( deactivate_dialog.deactivate_label );
 	deactivateLinkElem.on( 'click', function( e ) {
 		observer.observe( body, { childList: true } );
-		analytics.tracks.recordEvent( 'jetpack_wpa_click', {
-			target: 'disconnect_and_deactivate',
-		} );
+		analytics.tracks.recordEvent( 'jetpack_termination_dialog_open', tracksProps );
 	} );
 
 	$( '#jetpack_deactivation_dialog_content__button-cancel' ).on( 'click', function( e ) {
