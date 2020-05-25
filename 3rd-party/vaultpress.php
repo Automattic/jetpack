@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Redirect;
+
 /**
  * Notify user that VaultPress has been disabled. Hide VaultPress notice that requested attention.
  *
@@ -22,8 +24,8 @@ function jetpack_vaultpress_rewind_enabled_notice() {
 			<?php
 				echo sprintf(
 					wp_kses(
-						/* Translators: first variable is the URL of the web site without the protocol, e.g. mysite.com */
-						__( 'You can access your backups on your site\'s <a href="https://wordpress.com/activity-log/%s" target="_blank" rel="noopener noreferrer">Activity</a> page.', 'jetpack' ),
+						/* Translators: first variable is the full URL to the new dashboard */
+						__( 'You can access your backups at <a href="%s" target="_blank" rel="noopener noreferrer">this  dashboard</a>.', 'jetpack' ),
 						array(
 							'a' => array(
 								'href'   => array(),
@@ -32,7 +34,7 @@ function jetpack_vaultpress_rewind_enabled_notice() {
 							),
 						)
 					),
-					esc_attr( Jetpack::build_raw_urls( get_home_url() ) )
+					esc_url( Redirect::get_url( 'calypso-backups' ) )
 				);
 			?>
 		</p>
