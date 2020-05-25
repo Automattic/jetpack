@@ -3,6 +3,7 @@
  */
 import React, { useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
+import { useLocation } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { translate as __ } from 'i18n-calypso';
 
@@ -13,14 +14,32 @@ import { ChecklistAnswer } from '../checklist-answer';
 import Button from 'components/button';
 import { imagePath } from 'constants/urls';
 import analytics from 'lib/analytics';
-import { getSetupWizardAnswer, saveSetupWizardQuestionnnaire } from 'state/setup-wizard';
+import {
+	getSetupWizardAnswer,
+	saveSetupWizardQuestionnnaire,
+	updateSetupWizardQuestionnaire,
+} from 'state/setup-wizard';
 
 import './style.scss';
 
 let IncomeQuestion = props => {
+	const location = useLocation();
+
 	useEffect( () => {
 		analytics.tracks.recordEvent( 'jetpack_wizard_page_view', { step: 'income-page' } );
-	}, [] );
+
+		const queryParams = new URLSearchParams( location.search );
+		const useAnswer = queryParams.get( 'use' );
+
+		if ( [ 'personal', 'business' ].includes( useAnswer ) ) {
+			props.updateSiteUseQuestion( { use: useAnswer } );
+			props.saveQuestionnaire();
+			analytics.tracks.recordEvent( 'jetpack_wizard_question_answered', {
+				question: 'use',
+				answer: useAnswer,
+			} );
+		}
+	}, [ location ] );
 
 	const onContinueClick = useCallback( () => {
 		props.saveQuestionnaire();
@@ -118,6 +137,7 @@ IncomeQuestion = connect(
 	} ),
 	dispatch => ( {
 		saveQuestionnaire: () => dispatch( saveSetupWizardQuestionnnaire() ),
+		updateSiteUseQuestion: answer => dispatch( updateSetupWizardQuestionnaire( answer ) ),
 	} )
 )( IncomeQuestion );
 
