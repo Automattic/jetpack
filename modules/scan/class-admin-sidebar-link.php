@@ -82,7 +82,7 @@ class Admin_Sidebar_Link {
 		}
 
 		// Check if VaultPress is active, the assumption there is that VaultPress is working.
-		// It has its own notice in the admin bar.
+		// It has its link the adminbar.
 		if ( class_exists( 'VaultPress' ) ) {
 			return false;
 		}
