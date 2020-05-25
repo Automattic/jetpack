@@ -149,7 +149,7 @@ class Admin_Sidebar_Link {
 		}
 
 		// Do we have a jetpack_scan and jetpack_rewind state set?
-		if ( false !== get_transient( 'jetpack_scan_state' ) && false !== get_transient( 'jetpack_rewind_state' ) ) {
+		if ( get_transient( 'jetpack_scan_state' ) && get_transient( 'jetpack_rewind_state' ) ) {
 			return;
 		}
 
