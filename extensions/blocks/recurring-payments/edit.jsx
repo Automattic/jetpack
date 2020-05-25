@@ -56,7 +56,9 @@ class MembershipsButtonEdit extends Component {
 			products: [],
 			siteSlug: '',
 			editedProductCurrency: 'USD',
-			editedProductPrice: minimumTransactionAmountForCurrency( 'USD' ),
+			editedProductPrice: formatCurrency( minimumTransactionAmountForCurrency( 'USD' ), 'USD', {
+				symbol: '',
+			} ),
 			editedProductPriceValid: true,
 			editedProductTitle: '',
 			editedProductTitleValid: true,
