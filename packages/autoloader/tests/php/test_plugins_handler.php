@@ -158,7 +158,10 @@ class PluginsHandlerTest extends TestCase {
 		);
 
 		$actual_output = $this->plugins_handler->get_all_active_plugins();
-		$this->assertEqualsCanonicalizing( $expected_output, $actual_output );
+
+		sort( $actual_output );
+		sort( $expected_output );
+		$this->assertEquals( $expected_output, $actual_output );
 	}
 
 	/**
@@ -201,7 +204,10 @@ class PluginsHandlerTest extends TestCase {
 		);
 
 		$actual_output = $this->plugins_handler->get_all_active_plugins();
-		$this->assertEqualsCanonicalizing( $expected_output, $actual_output );
+
+		sort( $actual_output );
+		sort( $expected_output );
+		$this->assertEquals( $expected_output, $actual_output );
 	}
 
 	/**
@@ -232,7 +238,10 @@ class PluginsHandlerTest extends TestCase {
 		);
 
 		$actual_output = $this->plugins_handler->get_all_active_plugins();
-		$this->assertEqualsCanonicalizing( $expected_output, $actual_output );
+
+		sort( $actual_output );
+		sort( $expected_output );
+		$this->assertEquals( $expected_output, $actual_output );
 	}
 
 	/**
@@ -252,7 +261,10 @@ class PluginsHandlerTest extends TestCase {
 
 		$expected_output = self::DEFAULT_ACTIVE_PLUGIN_DIRS;
 		$actual_output   = $this->plugins_handler->get_all_active_plugins();
-		$this->assertEqualsCanonicalizing( $expected_output, $actual_output );
+
+		sort( $actual_output );
+		sort( $expected_output );
+		$this->assertEquals( $expected_output, $actual_output );
 	}
 
 
@@ -269,7 +281,10 @@ class PluginsHandlerTest extends TestCase {
 
 		$expected_output = array( $active_plugin_dir );
 		$actual_output   = $this->plugins_handler->get_all_active_plugins();
-		$this->assertEqualsCanonicalizing( $expected_output, $actual_output );
+
+		sort( $actual_output );
+		sort( $expected_output );
+		$this->assertEquals( $expected_output, $actual_output );
 	}
 
 	/**
@@ -286,7 +301,10 @@ class PluginsHandlerTest extends TestCase {
 
 		$expected_output = array( $active_plugin_dir );
 		$actual_output   = $this->plugins_handler->get_all_active_plugins();
-		$this->assertEqualsCanonicalizing( $expected_output, $actual_output );
+
+		sort( $actual_output );
+		sort( $expected_output );
+		$this->assertEquals( $expected_output, $actual_output );
 	}
 
 	/**
@@ -319,6 +337,9 @@ class PluginsHandlerTest extends TestCase {
 		);
 
 		$actual_output = $this->plugins_handler->get_all_active_plugins();
-		$this->assertEqualsCanonicalizing( $expected_output, $actual_output );
+
+		sort( $actual_output );
+		sort( $expected_output );
+		$this->assertEquals( $expected_output, $actual_output );
 	}
 }
