@@ -29,6 +29,13 @@ class Admin_Sidebar_Link {
 	protected static $instance;
 
 	/**
+	 * Used to check if we need to schedule the refresh or we need to do it.
+	 *
+	 * @var boolean | null
+	 */
+	private $schedule_refresh_checked;
+
+	/**
 	 * Get the singleton instance of the class.
 	 *
 	 * @return Admin_Sidebar_Link
@@ -137,7 +144,11 @@ class Admin_Sidebar_Link {
 	 * Triggers a cron job to refresh the Scan and Rewind state cache.
 	 */
 	private function maybe_refresh_transient_cache() {
+		if ( $this->schedule_refresh_checked ) {
+			return;
+		}
 
+		// Do we have a jetpack_scan and jetpack_rewind state set?
 		if ( false !== get_transient( 'jetpack_scan_state' ) && false !== get_transient( 'jetpack_rewind_state' ) ) {
 			return;
 		}
@@ -145,5 +156,7 @@ class Admin_Sidebar_Link {
 		if ( false === wp_next_scheduled( self::SCHEDULE_ACTION_HOOK ) ) {
 			wp_schedule_single_event( time(), self::SCHEDULE_ACTION_HOOK );
 		}
+
+		$this->schedule_refresh_checked = true;
 	}
 }
