@@ -196,14 +196,19 @@ function flickr_shortcode_video_markup( $atts, $id, $video_param ) {
 
 			// Extract the URL from the og:url meta tag.
 			preg_match( '/property=\"og:url\"\scontent=\"([^\"]+)\"/', $video_page_content['body'], $matches );
-
+			if ( empty( $matches[1] ) ) {
+				return '';
+			}
 			$video_url = $matches[1];
 		}
 
 		$provider = 'https://www.flickr.com/services/oembed/';
 		$oembed   = _wp_oembed_get_object();
 		$data     = (array) $oembed->fetch( $provider, $video_url );
-		$html     = $data['html'];
+		if ( empty( $data['html'] ) ) {
+			return '';
+		}
+		$html = $data['html'];
 		set_transient( $transient_name, $html, 2592000 ); // 30 days transient.
 	}
 
