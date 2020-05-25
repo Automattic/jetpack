@@ -33,7 +33,7 @@
 
 	var body = $( 'body' )[ 0 ];
 
-	deactivateLinkElem.attr( 'href', '#TB_inline?inlineId=jetpack_deactivation_dialog' );
+	deactivateLinkElem.attr( 'href', 'plugins.php#TB_inline?inlineId=jetpack_deactivation_dialog' );
 	deactivateLinkElem.attr( 'title', deactivate_dialog.title );
 	deactivateLinkElem.addClass( 'thickbox' );
 	deactivateLinkElem.html( deactivate_dialog.deactivate_label );
