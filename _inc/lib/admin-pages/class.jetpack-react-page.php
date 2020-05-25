@@ -353,13 +353,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	 * @return bool True if the Setup Wizard should be displayed, false otherwise.
 	 */
 	public function show_setup_wizard() {
-		/**
-		 * Determines if the Setup Wizard is displayed or not.
-		 *
-		 * @since 8.5.0
-		 *
-		 * @param array $jetpack_show_setup_wizard If true, the Setup Wizard will be displayed. Otherwise it will not display.
-		 */
 		return Jetpack_Wizard::can_be_displayed();
 	}
 
