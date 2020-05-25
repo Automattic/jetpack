@@ -69,7 +69,7 @@ class Admin_Sidebar_Link {
 
 		// Splice the nav menu item into the Jetpack nav.
 		global $submenu;
-		array_splice( $submenu['jetpack'], 2, 0, array( $new_link ) );
+		array_splice( $submenu['jetpack'], $this->get_link_offset(), 0, array( $new_link ) );
 	}
 
 	/**
@@ -98,6 +98,24 @@ class Admin_Sidebar_Link {
 			esc_url( $url ),
 		);
 
+	}
+
+	/**
+	 * We create a menu offset by counting all the pages that have a jetpack_admin_page set as the link.
+	 *
+	 * This makes it so that the highlight of the pages works as expected. When you click on the Setting or Dashboard.
+	 *
+	 * @return int Menu offset.
+	 */
+	private function get_link_offset() {
+		global $submenu;
+		$offset = 0;
+		foreach ( $submenu['jetpack'] as $link ) {
+			if ( 'jetpack_admin_page' !== $link[1] ) {
+				return $offset;
+			}
+			$offset++;
+		}
 	}
 
 	/**
@@ -170,3 +188,5 @@ class Admin_Sidebar_Link {
 		$this->schedule_refresh_checked = true;
 	}
 }
+
+
