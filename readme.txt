@@ -113,6 +113,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Blocks: use the Mailchimp logo for the Mailchimp block icon.
 * Blocks: add Schema.org metadata to the Star Rating block.
 * Blocks: add alignment options to the Revue block's button.
+* Blocks: add an example usage of the Podcast Player Block.
 * Connection Flow: add new tools allowing for a better Jetpack onboarding for new Jetpack site owners.
 * Connection Flow: ensure connection can happen on sites that can be a bit slower.
 * Dashboard: add new sections for the upcoming Scan feature.
