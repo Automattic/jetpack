@@ -107,7 +107,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
-*
+* Dashboard: add new sections for the upcoming Scan feature.
 
 **Improved compatibility**
 
