@@ -145,6 +145,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Site Accelerator: avoid breaking links when linking to Wikimedia images.
 * Site Health Tools: correct issue that prevented the WordPress Site Health area from completing all checks.
 * Synchronization: ensure data is properly handled when customizing the Sync experience.
+* Theme Tools: add correct schema.org value for Jetpack Breadcrumbs.
 
 --------
 
