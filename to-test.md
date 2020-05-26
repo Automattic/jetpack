@@ -2,6 +2,10 @@
 
 ### Blocks
 
+#### Latest Instagram Posts
+
+This new block allows you to display an automatically updating list of the latest posts from your Instagram feed. Give it a try with your own Instagram account, and let us know what you think!
+
 ### Scan
 
 You can now purchase [Jetpack Scan](https://jetpack.com/upgrade/scan/), a Jetpack service that will scan all files on your site and offer one-click fixes to keep your site one step ahead of security threats.
