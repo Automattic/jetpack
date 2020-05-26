@@ -132,6 +132,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Blocks: avoid layout issues with the OpenTable block's button.
 * Blocks: fix SVG attributes naming.
+* Blocks: ensure Podcast Player icons are always visible, even on sites where WordPress lives in a subdirectory.
 * Dashboard: avoid broken profile image in the Jetpack Dashboard.
 * Embeds: stop using deprecated WordPress option.
 * Embeds: ensure that all valid Spotify embeds are being rendered.
