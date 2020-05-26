@@ -134,6 +134,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Dashboard: avoid broken profile image in the Jetpack Dashboard.
 * Embeds: stop using deprecated WordPress option.
 * Embeds: ensure that all valid Spotify embeds are being rendered.
+* Infinite Scroll: fix issues with sites that may customize post queries.
 * Search: fix issues with the Instant Search layout when the number of posts per page is set to more than 20.
 * Site Accelerator: avoid breaking links when linking to Wikimedia images.
 * Site Health Tools: correct issue that prevented the WordPress Site Health area from completing all checks.
