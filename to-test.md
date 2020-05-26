@@ -14,7 +14,7 @@ This new block allows you to display an automatically updating list of the lates
 
 We've also made some changes to the Form block. When you insert a new Form block, you can now choose to create one of our pre-built forms: RSVP, Registration, Appointment, or Feedback.
 
-Give it a try by creating a new Form block and picking one of the options. You can also play with the different customization options for each field once you've done so.
+Give it a try by creating a new Form block and picking one of the options. You can also play with the different customization options for each field once you've done so. One of the new options you can play with is the width of each field; this allows you to have multiple fields next to each other within a form.
 
 #### Subscriptions
 
