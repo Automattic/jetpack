@@ -63,12 +63,10 @@ function MediaBrowser( props ) {
 		[ className ]: true,
 	} );
 
-	const focusedItemIndex = useRef( -1 );
+	const prevMediaCount = useRef();
 
 	const onLoadMoreClick = () => {
-		if ( media.length ) {
-			focusedItemIndex.current = media.length;
-		}
+		prevMediaCount.current = media.length;
 		nextPage();
 	};
 
@@ -80,7 +78,7 @@ function MediaBrowser( props ) {
 						item={ item }
 						key={ item.ID }
 						onClick={ onSelectImage }
-						focusOnMount={ index === focusedItemIndex.current }
+						focusOnMount={ index === prevMediaCount.current }
 						isSelected={ selected.find( toFind => toFind.ID === item.ID ) }
 					/>
 				) ) }
