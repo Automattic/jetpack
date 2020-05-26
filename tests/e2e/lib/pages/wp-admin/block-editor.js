@@ -37,7 +37,6 @@ export default class BlockEditorPage extends Page {
 	async insertBlock( blockName, blockTitle ) {
 		await searchForBlock( blockTitle );
 		const blockIconSelector = `.editor-block-list-item-jetpack-${ blockName }`;
-		// const jetpackPanelSelector = '.components-panel__body .jetpack-logo';
 		await scrollIntoView( this.page, blockIconSelector );
 		await waitAndClick( this.page, blockIconSelector );
 		const blockInfo = await this.getInsertedBlock();
