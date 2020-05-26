@@ -32,6 +32,10 @@ import renderMaterialIcon from '../../../shared/render-material-icon';
 import HelpMessage from '../../../shared/help-message';
 import './view.scss';
 
+const WHATSAPP_GREEN = '#25D366';
+const WHATSAPP_DARK = '#465B64';
+const WHATSAPP_LIGHT = '#F4F4F4';
+
 const WhatsAppButtonEdit = ( { attributes, setAttributes, className, selectBlock, clientId } ) => {
 	const {
 		countryCode,
@@ -90,7 +94,7 @@ const WhatsAppButtonEdit = ( { attributes, setAttributes, className, selectBlock
 	const setBackgroundColor = color => {
 		setAttributes( { backgroundColor: color } );
 
-		if ( color === undefined || color === '#25D366' || color === '#465B64' ) {
+		if ( color === undefined || color === WHATSAPP_GREEN || color === WHATSAPP_DARK ) {
 			return setAttributes( { colorClass: 'dark' } );
 		}
 
@@ -206,17 +210,17 @@ const WhatsAppButtonEdit = ( { attributes, setAttributes, className, selectBlock
 								{
 									name: _x( 'WhatsApp Green', 'background color name', 'jetpack' ),
 									slug: 'whatsapp-green',
-									color: '#25D366',
+									color: WHATSAPP_GREEN,
 								},
 								{
 									name: _x( 'WhatsApp Dark', 'background color name', 'jetpack' ),
 									slug: 'whatsapp-dark',
-									color: '#465B64',
+									color: WHATSAPP_DARK,
 								},
 								{
 									name: _x( 'WhatsApp Light', 'background color name', 'jetpack' ),
 									slug: 'whatsapp-light',
-									color: '#F4F4F4',
+									color: WHATSAPP_LIGHT,
 								},
 								{
 									name: _x( 'White', 'background color name', 'jetpack' ),
