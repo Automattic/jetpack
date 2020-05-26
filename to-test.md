@@ -24,6 +24,10 @@ We've made a lot of improvements to the Subscriptions block in this release. You
 - Saving the post and confirming the settings and design updates pass through to the front end of the site.
 - Adding the subscription form widget to a widget area and confirming this still renders and works correctly.
 
+### Carousel
+
+We've added a new toggle under Jetpack > Settings > Writing in your dashboard. It allows you to hide the comments area in the image lightbox. Try toggling it off and ensure that the carousel no longer displays the Comment button, the text box to add a comment, and the comments list.
+
 ### Connection tools
 
 We've started working on a number of interface changes to improve the onboarding experience for new Jetpack site owners. To test those changes, you'll want to add the following filters to your test site:
