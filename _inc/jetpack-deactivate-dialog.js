@@ -79,6 +79,8 @@
 	$( '#jetpack_deactivation_dialog_content__button-deactivate' ).on( 'click', function( e ) {
 		e.preventDefault();
 
+		$( this ).prop( 'disabled', true );
+
 		window.jpTracksAJAX
 			.record_ajax_event( 'termination_dialog_termination_click', 'click', tracksProps )
 			.always( function() {
