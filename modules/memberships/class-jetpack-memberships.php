@@ -229,14 +229,12 @@ class Jetpack_Memberships {
 			$subscribe_url = $this->get_subscription_url( $plan_id );
 			$content       = preg_replace( '/href="#"/', 'href="' . $subscribe_url . '"', $content );
 
-			// Needed for arbitrary target=_blank on WPCOM VIP.
-			if ( isset( $attrs['submitButtonAttributes'] ) ) {
-				$content = preg_replace(
-					'/target="_blank"/',
-					sanitize_text_field( $attrs['submitButtonAttributes'] ),
-					$content
-				);
-			}
+			// Allow for WPCOM VIP custom attributes or remove target="_blank" to match original behaviour.
+			$html_attributes = isset( $attrs['submitButtonAttributes'] )
+				? sanitize_text_field( $attrs['submitButtonAttributes'] )
+				: '';
+
+			$content = preg_replace( '/target="_blank"/', $html_attributes, $content );
 
 			return $content;
 		}

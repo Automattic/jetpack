@@ -50,7 +50,11 @@ export const settings = {
 		},
 	},
 	edit,
-	save: () => <InnerBlocks.Content />,
+	save: ( { className } ) => (
+		<div className={ className }>
+			<InnerBlocks.Content />
+		</div>
+	),
 	supports: {
 		html: false,
 		align: true,
