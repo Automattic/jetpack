@@ -26,7 +26,7 @@ function MediaItem( props ) {
 		}
 	};
 
-	const { item, isFocused, isSelected, isCopying = false } = props;
+	const { item, focusOnMount, isSelected, isCopying = false } = props;
 	const { thumbnails, caption, name, title, type, children = 0 } = item;
 	const { medium = null, fmt_hd = null } = thumbnails;
 	const alt = title || caption || name;
@@ -38,9 +38,14 @@ function MediaItem( props ) {
 	} );
 
 	const itemEl = useRef( null );
+
 	useEffect( () => {
-		isFocused && itemEl.current.focus();
-	}, [ isFocused ] );
+		if ( focusOnMount ) {
+			itemEl.current.focus();
+		}
+		// Passing empty dependency array to focus on mount only.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [] );
 
 	/* eslint-disable jsx-a11y/no-noninteractive-element-to-interactive-role */
 	return (
