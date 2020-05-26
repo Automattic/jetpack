@@ -126,6 +126,7 @@ function flickr_shortcode_handler( $atts ) {
 			'video'    => 0,
 			'photo'    => 0,
 			'w'        => '',
+			'h'        => '',
 			'controls' => 'yes',
 			'autoplay' => '',
 		),
@@ -230,6 +231,10 @@ function flickr_shortcode_video_markup( $atts, $id, $video_param ) {
 
 	if ( ! empty( $atts['w'] ) && is_numeric( $atts['w'] ) ) {
 		$style .= sprintf( 'width: %dpx;', $atts['w'] );
+	}
+
+	if ( ! empty( $atts['h'] ) && is_numeric( $atts['h'] ) ) {
+		$style .= sprintf( 'height: %dpx;', $atts['h'] );
 	}
 
 	$controls = 'yes' === $atts['controls'] ? 'controls' : '';
