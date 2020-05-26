@@ -384,3 +384,14 @@ function getProductOptions( state, product, siteProducts ) {
 		};
 	} );
 }
+
+/**
+ * The status of the Setup Wizard when the application loaded.
+ *
+ * @param {*} state Global state tree
+ *
+ * @return {string} The Setup Wizard status.
+ */
+export function getInitialSetupWizardStatus( state ) {
+	return get( state.jetpack.initialState, 'setupWizardStatus', '' );
+}

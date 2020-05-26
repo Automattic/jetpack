@@ -18,6 +18,7 @@ import {
 	getSetupWizardAnswer,
 	saveSetupWizardQuestionnnaire,
 	updateSetupWizardQuestionnaire,
+	updateSetupWizardStatus,
 } from 'state/setup-wizard';
 
 import './style.scss';
@@ -26,6 +27,7 @@ let IncomeQuestion = props => {
 	const location = useLocation();
 
 	useEffect( () => {
+		props.updateStatus( 'income-page' );
 		analytics.tracks.recordEvent( 'jetpack_wizard_page_view', { step: 'income-page' } );
 
 		const queryParams = new URLSearchParams( location.search );
@@ -138,6 +140,7 @@ IncomeQuestion = connect(
 	dispatch => ( {
 		saveQuestionnaire: () => dispatch( saveSetupWizardQuestionnnaire() ),
 		updateSiteUseQuestion: answer => dispatch( updateSetupWizardQuestionnaire( answer ) ),
+		updateStatus: status => dispatch( updateSetupWizardStatus( status ) ),
 	} )
 )( IncomeQuestion );
 

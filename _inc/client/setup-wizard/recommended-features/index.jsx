@@ -13,7 +13,7 @@ import Button from 'components/button';
 import { imagePath } from 'constants/urls';
 import analytics from 'lib/analytics';
 import { fetchSettings, isFetchingSettingsList } from 'state/settings';
-import { getRecommendedFeatureGroups } from 'state/setup-wizard';
+import { getRecommendedFeatureGroups, updateSetupWizardStatus } from 'state/setup-wizard';
 
 import './style.scss';
 
@@ -22,11 +22,16 @@ class RecommendedFeatures extends Component {
 		if ( ! this.props.isFetchingSettingsList ) {
 			this.props.fetchSettings();
 		}
+		this.props.updateStatus( 'features-page' );
 		analytics.tracks.recordEvent( 'jetpack_wizard_page_view', { step: 'features-page' } );
 	};
 
 	onDoneButtonClick = () => {
+		this.props.updateStatus( 'completed' );
 		analytics.tracks.recordEvent( 'jetpack_wizard_features_done' );
+		window.setTimeout( () => {
+			window.location.reload();
+		}, 200 );
 	};
 
 	onExploreMoreButtonClick = () => {
@@ -78,6 +83,7 @@ RecommendedFeatures = connect(
 	} ),
 	dispatch => ( {
 		fetchSettings: () => dispatch( fetchSettings() ),
+		updateStatus: status => dispatch( updateSetupWizardStatus( status ) ),
 	} )
 )( RecommendedFeatures );
 

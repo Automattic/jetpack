@@ -303,9 +303,9 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
-		saveSetupQuestionnaire: newQuestionnaire =>
+		saveSetupQuestionnaire: props =>
 			postRequest( `${ apiRoot }jetpack/v4/setup/questionnaire`, postParams, {
-				body: JSON.stringify( { questionnaire: newQuestionnaire } ),
+				body: JSON.stringify( props ),
 			} )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
