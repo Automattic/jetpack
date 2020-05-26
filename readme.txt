@@ -115,7 +115,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Improved compatibility**
 
-*
+* Connection tools: ensure better compatibility with other plugins that may rely on a Jetpack connection.
 
 **Bug fixes**
 
