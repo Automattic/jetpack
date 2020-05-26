@@ -107,6 +107,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
+* Blocks: add more customization options to the Subscriptions block.
 * Dashboard: add new sections for the upcoming Scan feature.
 * Performance: improve autoloading of Jetpack options.
 * Twitter Cards: use additional post-specific media for Twitter card tags.

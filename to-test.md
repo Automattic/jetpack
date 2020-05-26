@@ -6,6 +6,14 @@
 
 This new block allows you to display an automatically updating list of the latest posts from your Instagram feed. Give it a try with your own Instagram account, and let us know what you think!
 
+#### Subscriptions
+
+We've made a lot of improvements to the Subscriptions block in this release. You now have several options to customize the look of the different elements of the form. To test this, we recommend: 
+
+- Inserting a subscriptions form block on your site and try all of the new settings in the sidebar for customization.
+- Saving the post and confirming the settings and design updates pass through to the front end of the site.
+- Adding the subscription form widget to a widget area and confirming this still renders and works correctly.
+
 ### Scan
 
 You can now purchase [Jetpack Scan](https://jetpack.com/upgrade/scan/), a Jetpack service that will scan all files on your site and offer one-click fixes to keep your site one step ahead of security threats.
