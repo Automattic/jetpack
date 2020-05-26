@@ -4083,14 +4083,6 @@ p {
 					true
 				);
 
-				wp_enqueue_script(
-					'jp-tracks-functions',
-					plugins_url( '_inc/lib/tracks/tracks-callables.js', JETPACK__PLUGIN_FILE ),
-					array(),
-					JETPACK__VERSION,
-					false
-				);
-
 				wp_localize_script(
 					'jetpack-deactivate-dialog-js',
 					'deactivate_dialog',
