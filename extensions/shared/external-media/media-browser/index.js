@@ -6,7 +6,7 @@ import classnames from 'classnames';
 /**
  * WordPress dependencies
  */
-import { memo, useCallback, useState } from '@wordpress/element';
+import { memo, useCallback, useState, useRef } from '@wordpress/element';
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
@@ -27,7 +27,6 @@ const EmptyResults = memo( () => (
 function MediaBrowser( props ) {
 	const { media, isLoading, pageHandle, className, multiple, setPath, nextPage, onCopy } = props;
 	const [ selected, setSelected ] = useState( [] );
-	const [ focusedItemIndex, setFocusedItemIndex ] = useState( -1 );
 
 	const onSelectImage = useCallback(
 		newlySelected => {
@@ -64,9 +63,11 @@ function MediaBrowser( props ) {
 		[ className ]: true,
 	} );
 
+	const focusedItemIndex = useRef( -1 );
+
 	const onLoadMoreClick = () => {
 		if ( media.length ) {
-			setFocusedItemIndex( media.length );
+			focusedItemIndex.current = media.length;
 		}
 		nextPage();
 	};
@@ -79,7 +80,7 @@ function MediaBrowser( props ) {
 						item={ item }
 						key={ item.ID }
 						onClick={ onSelectImage }
-						focusOnMount={ index === focusedItemIndex }
+						focusOnMount={ index === focusedItemIndex.current }
 						isSelected={ selected.find( toFind => toFind.ID === item.ID ) }
 					/>
 				) ) }
