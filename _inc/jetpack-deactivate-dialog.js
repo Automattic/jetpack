@@ -44,16 +44,21 @@
 	deactivateLinkElem.html( deactivate_dialog.deactivate_label );
 	deactivateLinkElem.on( 'click', function( e ) {
 		observer.observe( body, { childList: true } );
-		analytics.tracks.recordEvent( 'jetpack_termination_dialog_open', tracksProps );
+		window.jpTracksAJAX.record_ajax_event( 'termination_dialog_open', 'click', tracksProps );
 	} );
 
 	$( '#jetpack_deactivation_dialog_content__button-cancel' ).on( 'click', function( e ) {
 		tb_remove();
-		analytics.tracks.recordEvent( 'jetpack_termination_dialog_close_click', tracksProps );
+		window.jpTracksAJAX.record_ajax_event( 'termination_dialog_close_click', 'click', tracksProps );
 	} );
 
 	$( '#jetpack_deactivation_dialog_content__button-deactivate' ).on( 'click', function( e ) {
-		analytics.tracks.recordEvent( 'jetpack_termination_dialog_termination_click', tracksProps );
-		deactivateJetpack();
+		e.preventDefault();
+
+		window.jpTracksAJAX
+			.record_ajax_event( 'termination_dialog_termination_click', 'click', tracksProps )
+			.always( function() {
+				deactivateJetpack();
+			} );
 	} );
 } )( jQuery );
