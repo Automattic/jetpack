@@ -116,6 +116,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Improved compatibility**
 
 * Connection tools: ensure better compatibility with other plugins that may rely on a Jetpack connection.
+* SSO: allow third-party plugins to hook into Jetpack's Secure Sign On login form.
 
 **Bug fixes**
 
