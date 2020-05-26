@@ -236,7 +236,6 @@ class ProStatus extends React.Component {
 								<SimpleNotice showDismiss={ false } status="is-error" isCompact>
 									{ __( 'Threat', 'Threats', {
 										count: scanStatus.threats.length,
-										context: 'A caption for a small button to fix security issues.',
 									} ) }
 								</SimpleNotice>
 							);
