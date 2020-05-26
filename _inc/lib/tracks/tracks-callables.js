@@ -9,7 +9,7 @@
 window._tkq = window._tkq || [];
 
 var _user;
-var debug = console.error; // eslint-disable-line no-console
+var debugSet = localStorage.getItem( 'debug' ) === 'dops:analytics';
 
 function buildQuerystring( group, name ) {
 	var uriComponent = '';
@@ -53,6 +53,10 @@ var analytics = {
 			}
 
 			window._tkq.push( [ 'recordEvent', eventName, eventProperties ] );
+
+			if ( debugSet ) {
+				console.log( 'Tracks event sent: ', eventName, eventProperties );
+			}
 		},
 
 		recordPageView: function( urlPath ) {
