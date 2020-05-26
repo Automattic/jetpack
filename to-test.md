@@ -55,6 +55,18 @@ We would encourage you to give the service a try, and give us your feedback on a
 - A new admin bar item appearing when threats are detected on your site.
 - An updated interface under Jetpack > Dashboard and Jetpack > Settings to display the status of Scan whether you've purchased Jetpack Scan or you use one of our Jetpack Plans offering the Scan feature.
 
+### Sync
+
+We're working on a new experimental feature aiming to minimize the impact of Sync on servers, by having Synchronization actions processed by WordPress.com asynchronously.
+
+To enable and test this feature, add the following to a functionality plugin on your site:
+
+```php
+add_filter( 'jetpack_sync_non_blocking', '__return_true' );
+```
+
+You can then test features that rely on Sync, such as Publicize or email subscriptions.
+
 ### Others
 
 - If you have the opportunity to test in an older browser like IE11, please do so. You may catch some interesting bugs!

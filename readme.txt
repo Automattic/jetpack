@@ -120,6 +120,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Dashboard: add new sections for the upcoming Scan feature.
 * Performance: improve autoloading of Jetpack options.
 * Twitter Cards: use additional post-specific media for Twitter card tags.
+* Synchronization: new experimental feature aiming to minimize the impact of Sync on servers, by having Synchronization actions processed by WordPress.com asynchronously.
 * WordPress.com Toolbar: remove retired "Recommendations" link.
 * WordPress.com Block Editor: offer an option to "Switch to Classic Editor".
 
