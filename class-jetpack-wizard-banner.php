@@ -7,6 +7,7 @@
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
+use Automattic\Jetpack\Tracking;
 
 /**
  * Jetpack_Wizard_Banner
@@ -121,11 +122,26 @@ class Jetpack_Wizard_Banner {
 	public static function ajax_callback() {
 		check_ajax_referer( 'jp-wizard-banner-nonce', 'nonce' );
 
+		$tracking = new Tracking();
+
+		if ( isset( $_REQUEST['personal'] ) ) {
+			$tracking->record_user_event( 'setup_wizard_banner_click', array( 'button' => 'personal' ) );
+		}
+
+		if ( isset( $_REQUEST['business'] ) ) {
+			$tracking->record_user_event( 'setup_wizard_banner_click', array( 'button' => 'business' ) );
+		}
+
+		if ( isset( $_REQUEST['skip'] ) ) {
+			$tracking->record_user_event( 'setup_wizard_banner_click', array( 'button' => 'skip' ) );
+		}
+
 		if (
 			current_user_can( 'jetpack_manage_modules' )
 			&& isset( $_REQUEST['dismissBanner'] )
 		) {
 			Jetpack_Options::update_option( 'dismissed_wizard_banner', 1 );
+			$tracking->record_user_event( 'setup_wizard_banner_dismiss' );
 			wp_send_json_success();
 		}
 
@@ -172,12 +188,14 @@ class Jetpack_Wizard_Banner {
 						</h2>
 						<div class="jp-wizard-banner-wizard-answer-buttons">
 							<a
+								id="jp-wizard-banner-personal-button"
 								class="button button-primary jp-wizard-banner-wizard-button"
 								href="<?php echo esc_url( Jetpack::admin_url( 'page=jetpack#/setup/income?use=personal' ) ); ?>"
 							>
 							<?php esc_html_e( 'Personal Use', 'jetpack' ); ?>
 							</a>
 							<a
+								id="jp-wizard-banner-business-button"
 								class="button button-primary jp-wizard-banner-wizard-button"
 								href="<?php echo esc_url( Jetpack::admin_url( 'page=jetpack#/setup/income?use=business' ) ); ?>"
 							>
