@@ -8,7 +8,7 @@
  * [flickr video=2402990826]
  * [flickr video=2402990826 show_info=no]
  * [flickr video=2402990826 w=200 h=150]
- * [flickr video=2402990826 secret=846d9c1b39]
+ * [flickr video=2402990826]
  *
  * @package Jetpack
  */
@@ -162,6 +162,8 @@ function flickr_shortcode_handler( $atts ) {
 			return '';
 		}
 
+		$height = empty( $atts['h'] ) ? 'auto' : esc_attr( $atts['h'] );
+
 		$src = sprintf( '%s/player/', untrailingslashit( $src ) );
 
 		$allow_full_screen = 'allowfullscreen webkitallowfullscreen mozallowfullscreen oallowfullscreen msallowfullscreen';
@@ -170,7 +172,7 @@ function flickr_shortcode_handler( $atts ) {
 			$allow_full_screen = '';
 		}
 
-		return sprintf( '<iframe src="%s" height="%s" width="%s"  frameborder="0" %s></iframe>', esc_url( $src ), esc_attr( $atts['h'] ), esc_attr( $atts['w'] ), $allow_full_screen );
+		return sprintf( '<iframe src="%s" height="%s" width="%s"  frameborder="0" %s></iframe>', esc_url( $src ), $height, esc_attr( $atts['w'] ), $allow_full_screen );
 	}
 
 	return false;
