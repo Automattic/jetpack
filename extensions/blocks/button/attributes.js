@@ -15,6 +15,9 @@ export default {
 	uniqueId: {
 		type: 'string',
 	},
+	passthroughAttributes: {
+		type: 'object',
+	},
 	text: {
 		type: 'string',
 	},
