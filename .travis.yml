@@ -30,7 +30,7 @@ env:
 # Define a matrix of additional build configurations
 # The versions listed above will automatically create our first configuration,
 # so it doesn't need to be re-defined below.
-matrix:
+jobs:
   fast_finish: true
   include:
   - if: branch !~ /(^branch-.*-built)/
