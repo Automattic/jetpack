@@ -91,7 +91,7 @@ export default {
 	},
 	migrate: attributes => {
 		const newAttributes = omit( attributes, deprecatedAttributes );
-		const buttonAttributes = migrateAttributes( pick( attributes, deprecatedAttributes ) );
+		const buttonAttributes = migrateAttributes( attributes );
 		const newInnerBlocks = [
 			createBlock( 'jetpack/button', {
 				element: 'button',
