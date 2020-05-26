@@ -119,6 +119,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Connection Flow: add new tools allowing for a better Jetpack onboarding for new Jetpack site owners.
 * Connection Flow: ensure connection can happen on sites that can be a bit slower.
 * Dashboard: add new sections for the upcoming Scan feature.
+* Dashboard: allow for easy copying of Sitemap URLs from within the dashboard.
 * Infinite Scroll: add support for running inline scripts.
 * Performance: improve autoloading of Jetpack options.
 * Twitter Cards: use additional post-specific media for Twitter card tags.
