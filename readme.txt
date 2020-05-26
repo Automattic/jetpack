@@ -110,6 +110,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Blocks: add more customization options to the Subscriptions block.
 * Blocks: use the Mailchimp logo for the Mailchimp block icon.
+* Blocks: add Schema.org metadata to the Star Rating block.
 * Connection Flow: add new tools allowing for a better Jetpack onboarding for new Jetpack site owners.
 * Dashboard: add new sections for the upcoming Scan feature.
 * Performance: improve autoloading of Jetpack options.
