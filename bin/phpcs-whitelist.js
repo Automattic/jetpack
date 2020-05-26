@@ -10,6 +10,7 @@ module.exports = [
 	'class.jetpack-bbpress-json-api.compat.php',
 	'class.jetpack-gutenberg.php',
 	'class.jetpack-plan.php',
+	'class-jetpack-wizard-banner.php',
 	'docker',
 	'extensions/',
 	'functions.cookies.php',
@@ -20,6 +21,7 @@ module.exports = [
 	'_inc/lib/class-jetpack-mapbox-helper.php',
 	'_inc/lib/class-jetpack-podcast-helper.php',
 	'_inc/lib/class.jetpack-password-checker.php',
+	'_inc/lib/class-jetpack-wizard.php',
 	'_inc/lib/components.php',
 	'_inc/lib/core-api/class.jetpack-core-api-site-endpoints.php',
 	'_inc/lib/core-api/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-instagram-gallery.php',
@@ -62,6 +64,4 @@ module.exports = [
 	'packages',
 	'tests/e2e/plugins/e2e-plan-data-interceptor.php',
 	'views/admin/deactivation-dialog.php',
-	'_inc/lib/class-jetpack-wizard.php',
-	'class-jetpack-wizard-banner.php',
 ];
