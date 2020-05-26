@@ -129,6 +129,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Improved compatibility**
 
+* Blocks: ensure that the Video block can still be used to upload videos with the latest version of the Gutenberg plugin.
 * Connection tools: ensure better compatibility with other plugins that may rely on a Jetpack connection.
 * Google Analytics: ensure compatibility with the AMP plugin.
 * Shortcodes & Embeds: ensure that the slideshow and TED shortcodes are compatible with the AMP plugin.
