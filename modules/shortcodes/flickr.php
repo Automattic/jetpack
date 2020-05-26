@@ -123,10 +123,11 @@ add_filter( 'pre_kses', 'flickr_embed_to_shortcode' );
 function flickr_shortcode_handler( $atts ) {
 	$atts = shortcode_atts(
 		array(
-			'video' => 0,
-			'photo' => 0,
-			'w'     => '',
-			'h'     => '',
+			'video'    => 0,
+			'photo'    => 0,
+			'w'        => '',
+			'controls' => 'yes',
+			'autoplay' => '',
 		),
 		$atts,
 		'flickr'
@@ -183,10 +184,10 @@ function flickr_shortcode_handler( $atts ) {
  */
 function flickr_shortcode_video_markup( $atts, $id, $video_param ) {
 
-	$transient_name = "flick_video_$id";
-	$html           = get_transient( $transient_name );
+	$transient_name = "flickr_video_$id";
+	$video_src      = get_transient( $transient_name );
 
-	if ( empty( $html ) ) {
+	if ( empty( $video_src ) ) {
 		$video_url = '';
 		if ( ! is_numeric( $video_param ) ) {
 			$video_url = $video_param;
@@ -208,19 +209,39 @@ function flickr_shortcode_video_markup( $atts, $id, $video_param ) {
 		if ( empty( $data['html'] ) ) {
 			return '';
 		}
-		$html = $data['html'];
-		set_transient( $transient_name, $html, 2592000 ); // 30 days transient.
+
+		// Get the embed url.
+		preg_match( '/src=\"([^\"]+)\"/', $data['html'], $matches );
+
+		$embed_url = $matches[1];
+
+		$embed_page = wp_remote_get( $embed_url );
+
+		// Get the video url from embed html markup.
+
+		preg_match( '/video.+src=\"([^\"]+)\"/', $embed_page['body'], $matches );
+
+		$video_src = $matches[1];
+
+		set_transient( $transient_name, $video_src, 2592000 ); // 30 days transient.
 	}
+
+	$style = 'max-width: 100%;';
 
 	if ( ! empty( $atts['w'] ) && is_numeric( $atts['w'] ) ) {
-		$html = preg_replace( '/(width=\")\d+(\")/', '${1}' . $atts['w'] . '${2}', $html );
+		$style .= sprintf( 'width: %dpx;', $atts['w'] );
 	}
 
-	if ( ! empty( $atts['h'] ) && is_numeric( $atts['h'] ) ) {
-		$html = preg_replace( '/(height=\")\d+(\")/', '${1}' . $atts['h'] . '${2}', $html );
-	}
+	$controls = 'yes' === $atts['controls'] ? 'controls' : '';
+	$autoplay = 'yes' === $atts['autoplay'] ? 'autoplay' : '';
 
-	return $html;
+	return sprintf(
+		'<div class="flick_video" style="%s"><video src="%s" %s %s /></div>',
+		$style,
+		$video_src,
+		$controls,
+		$autoplay
+	);
 }
 
 /**
