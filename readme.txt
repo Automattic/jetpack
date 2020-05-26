@@ -118,6 +118,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Connection Flow: add new tools allowing for a better Jetpack onboarding for new Jetpack site owners.
 * Connection Flow: ensure connection can happen on sites that can be a bit slower.
 * Dashboard: add new sections for the upcoming Scan feature.
+* Infinite Scroll: add support for running inline scripts.
 * Performance: improve autoloading of Jetpack options.
 * Twitter Cards: use additional post-specific media for Twitter card tags.
 * Synchronization: new experimental feature aiming to minimize the impact of Sync on servers, by having Synchronization actions processed by WordPress.com asynchronously.
@@ -134,6 +135,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Blocks: avoid layout issues with the OpenTable block's button.
 * Blocks: fix SVG attributes naming.
+* Blocks: fix infinite scroll compatibility.
 * Blocks: ensure Podcast Player icons are always visible, even on sites where WordPress lives in a subdirectory.
 * Dashboard: avoid broken profile image in the Jetpack Dashboard.
 * Embeds: stop using deprecated WordPress option.
