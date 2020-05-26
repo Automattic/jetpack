@@ -17,10 +17,10 @@
 						// NodeList is static, we need to modify this in the DOM
 
 						$( '#TB_window' ).addClass( 'jetpack-disconnect-modal' );
-						centralizeDeactivationModal();
+						deactivationModalCentralize();
 
 						$( '#TB_closeWindowButton, #TB_overlay' ).on( 'click', function( e ) {
-							trackDeactivationModalClose();
+							deactivationModalTrackCloseEvent();
 						} );
 
 						document.onkeyup = function( e ) {
@@ -33,7 +33,7 @@
 							}
 							if ( keycode == 27 ) {
 								// close
-								trackDeactivationModalClose();
+								deactivationModalTrackCloseEvent();
 							}
 						};
 
@@ -44,13 +44,13 @@
 		} );
 	} );
 
-	window.centralizeDeactivationModal = function() {
+	window.deactivationModalCentralize = function() {
 		var modal = $( '#TB_window.jetpack-disconnect-modal' );
 		var top = $( window ).height() / 2 - $( modal ).height() / 2;
 		$( modal ).css( 'top', top + 'px' );
 	};
 
-	window.trackDeactivationModalClose = function() {
+	window.deactivationModalTrackCloseEvent = function() {
 		window.jpTracksAJAX.record_ajax_event( 'termination_dialog_close_click', 'click', tracksProps );
 		document.onkeyup = '';
 	};
@@ -73,7 +73,7 @@
 
 	$( '#jetpack_deactivation_dialog_content__button-cancel' ).on( 'click', function( e ) {
 		tb_remove();
-		trackDeactivationModalClose();
+		deactivationModalTrackCloseEvent();
 	} );
 
 	$( '#jetpack_deactivation_dialog_content__button-deactivate' ).on( 'click', function( e ) {
