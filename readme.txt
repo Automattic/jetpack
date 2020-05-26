@@ -120,6 +120,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Bug fixes**
 
 * Blocks: fix SVG attributes naming.
+* Dashboard: avoid broken profile image in the Jetpack Dashboard.
 
 --------
 
