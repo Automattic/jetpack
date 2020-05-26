@@ -121,7 +121,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Improved compatibility**
 
 * Connection tools: ensure better compatibility with other plugins that may rely on a Jetpack connection.
-* Shortcodes & Embeds: ensure that the TED shortcode is compatible with the AMP plugin.
+* Shortcodes & Embeds: ensure that the slideshow and TED shortcodes are compatible with the AMP plugin.
 * SSO: allow third-party plugins to hook into Jetpack's Secure Sign On login form.
 
 **Bug fixes**
