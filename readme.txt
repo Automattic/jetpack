@@ -131,6 +131,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Google Analytics: ensure compatibility with the AMP plugin.
 * Shortcodes & Embeds: ensure that the slideshow and TED shortcodes are compatible with the AMP plugin.
 * SSO: allow third-party plugins to hook into Jetpack's Secure Sign On login form.
+* Widgets: ensure that the Cookies & Consent widget is compatible with the AMP plugin.
 
 **Bug fixes**
 
