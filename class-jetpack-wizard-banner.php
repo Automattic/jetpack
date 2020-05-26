@@ -72,6 +72,10 @@ class Jetpack_Wizard_Banner {
 			return false;
 		}
 
+		if ( 'not-started' !== Jetpack_Options::get_option( 'setup_wizard_status', 'not-started' ) ) {
+			return false;
+		}
+
 		return true;
 	}
 
