@@ -441,8 +441,8 @@ _x( "See threats", "A caption for a small button to fix security issues.", "jetp
 _x( "Secure", "Short message informing user that the site is secure.", "jetpack" ), // _inc/client/pro-status/index.jsx:122
 __( "ACTIVE", "jetpack" ), // _inc/client/pro-status/index.jsx:136
 _x( "Set up", "Caption for a button to set up a feature.", "jetpack" ), // _inc/client/pro-status/index.jsx:172
-_nx( "Threat", "Threats", 1, "A caption for a small button to fix security issues.", "jetpack" ), // _inc/client/pro-status/index.jsx:237
-__( "Action needed", "jetpack" ), // _inc/client/pro-status/index.jsx:250
+_n( "Threat", "Threats", 1, "jetpack" ), // _inc/client/pro-status/index.jsx:237
+__( "Action needed", "jetpack" ), // _inc/client/pro-status/index.jsx:249
 __( "Activate", "jetpack" ), // _inc/client/searchable-modules/index.jsx:61
 __( "Checking your spam protection…", "jetpack" ), // _inc/client/security/antispam.jsx:88
 __( "Fetching key…", "jetpack" ), // _inc/client/security/antispam.jsx:92
