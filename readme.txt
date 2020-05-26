@@ -134,6 +134,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Embeds: ensure that all valid Spotify embeds are being rendered.
 * Search: fix issues with the Instant Search layout when the number of posts per page is set to more than 20.
 * Site Accelerator: avoid breaking links when linking to Wikimedia images.
+* Site Health Tools: correct issue that prevented the WordPress Site Health area from completing all checks.
 * Synchronization: ensure data is properly handled when customizing the Sync experience.
 
 --------
