@@ -1,4 +1,7 @@
-.grofile-wrap {
+/**
+ * Styles for the [gravatar_profile] shortcode when it is called from an AMP context
+ */
+ .grofile-wrap {
 	border: solid 1px #eee;
 	padding: 10px;
 }
