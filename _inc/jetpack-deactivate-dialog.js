@@ -18,6 +18,25 @@
 
 						$( '#TB_window' ).addClass( 'jetpack-disconnect-modal' );
 						centralizeDeactivationModal();
+
+						$( '#TB_closeWindowButton, #TB_overlay' ).on( 'click', function( e ) {
+							trackDeactivationModalClose();
+						} );
+
+						document.onkeyup = function( e ) {
+							if ( e === null ) {
+								// ie
+								keycode = event.keyCode;
+							} else {
+								// mozilla
+								keycode = e.which;
+							}
+							if ( keycode == 27 ) {
+								// close
+								trackDeactivationModalClose();
+							}
+						};
+
 						observer.disconnect();
 					}
 				} );
@@ -29,6 +48,11 @@
 		var modal = $( '#TB_window.jetpack-disconnect-modal' );
 		var top = $( window ).height() / 2 - $( modal ).height() / 2;
 		$( modal ).css( 'top', top + 'px' );
+	};
+
+	window.trackDeactivationModalClose = function() {
+		window.jpTracksAJAX.record_ajax_event( 'termination_dialog_close_click', 'click', tracksProps );
+		document.onkeyup = '';
 	};
 
 	var body = $( 'body' )[ 0 ];
@@ -49,7 +73,7 @@
 
 	$( '#jetpack_deactivation_dialog_content__button-cancel' ).on( 'click', function( e ) {
 		tb_remove();
-		window.jpTracksAJAX.record_ajax_event( 'termination_dialog_close_click', 'click', tracksProps );
+		trackDeactivationModalClose();
 	} );
 
 	$( '#jetpack_deactivation_dialog_content__button-deactivate' ).on( 'click', function( e ) {
