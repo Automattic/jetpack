@@ -131,6 +131,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Blocks: ensure that the Video block can still be used to upload videos with the latest version of the Gutenberg plugin.
 * Connection tools: ensure better compatibility with other plugins that may rely on a Jetpack connection.
+* Contact Form: improve compatibility with the Akismet service.
 * Google Analytics: ensure compatibility with the AMP plugin.
 * Shortcodes & Embeds: ensure that the slideshow and TED shortcodes are compatible with the AMP plugin.
 * SSO: allow third-party plugins to hook into Jetpack's Secure Sign On login form.
