@@ -18,6 +18,23 @@ We've made a lot of improvements to the Subscriptions block in this release. You
 - Saving the post and confirming the settings and design updates pass through to the front end of the site.
 - Adding the subscription form widget to a widget area and confirming this still renders and works correctly.
 
+### Connection tools
+
+We've started working on a number of interface changes to improve the onboarding experience for new Jetpack site owners. To test those changes, you'll want to add the following filters to your test site:
+
+```php
+add_filter( 'jetpack_pre_connection_prompt_helpers', '__return_true' );
+add_filter( 'jetpack_show_setup_wizard', '__return_true' );
+```
+
+It will give you access to new tools:
+
+- Even before you are connected to WordPress.com, you will see messages inviting you to connect under the Posts, Upload, and Widgets admin pages.
+- Until you connect your site to WordPress.com, you will not be able to dismiss the Jetpack connection banner appearing at the top of the dashboard.
+- Once you've connected your site to WordPress.com, you will be offered a new setup experience, available under Jetpack > Set Up or by clicking in the new banner appearing on the main dashboard screen.
+
+Give those a try, and let us know what you think about them.
+
 ### Scan
 
 You can now purchase [Jetpack Scan](https://jetpack.com/upgrade/scan/), a Jetpack service that will scan all files on your site and offer one-click fixes to keep your site one step ahead of security threats.
