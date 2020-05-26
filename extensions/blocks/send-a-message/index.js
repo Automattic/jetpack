@@ -39,7 +39,13 @@ export const settings = {
 	},
 	attributes: {},
 	edit,
-	save: InnerBlocks.Content,
+	save: props => {
+		return (
+			<div className={ props.className }>
+				<InnerBlocks.Content />
+			</div>
+		);
+	},
 	variations,
 	example: {},
 };
