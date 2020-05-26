@@ -121,6 +121,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Performance: improve autoloading of Jetpack options.
 * Twitter Cards: use additional post-specific media for Twitter card tags.
 * WordPress.com Toolbar: remove retired "Recommendations" link.
+* WordPress.com Block Editor: offer an option to "Switch to Classic Editor".
 
 **Improved compatibility**
 
