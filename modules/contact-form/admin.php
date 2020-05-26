@@ -933,6 +933,15 @@ function grunion_delete_spam_feedbacks() {
 	$deleted_feedbacks = 0;
 
 	$delete_limit = 25;
+	/**
+	 * Filter the amount of Spam feedback one can delete at once.
+	 *
+	 * @module contact-form
+	 *
+	 * @since 8.6.0
+	 *
+	 * @param int $delete_limit Number of spam to process at once. Default to 25.
+	 */
 	$delete_limit = apply_filters( 'jetpack_delete_spam_feedbacks_limit', $delete_limit );
 	$delete_limit = intval( $delete_limit );
 	$delete_limit = max( 1, min( 100, $delete_limit ) ); // Allow a range of 1-100 for the delete limit.
