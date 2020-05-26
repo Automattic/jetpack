@@ -129,6 +129,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Blocks: avoid layout issues with the OpenTable block's button.
 * Blocks: fix SVG attributes naming.
 * Dashboard: avoid broken profile image in the Jetpack Dashboard.
+* Embeds: stop using deprecated WordPress option.
 * Search: fix issues with the Instant Search layout when the number of posts per page is set to more than 20.
 * Site Accelerator: avoid breaking links when linking to Wikimedia images.
 * Synchronization: ensure data is properly handled when customizing the Sync experience.
