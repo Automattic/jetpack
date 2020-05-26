@@ -108,6 +108,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
+* Blocks: add new RSVP, Registration, Appointment, and Feedback form options to the existing Form block.
 * Blocks: add more customization options to the Subscriptions block.
 * Blocks: use the Mailchimp logo for the Mailchimp block icon.
 * Blocks: add Schema.org metadata to the Star Rating block.

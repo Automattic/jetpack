@@ -10,6 +10,12 @@ This new block allows you to display and compare two images thanks to a slider. 
 
 This new block allows you to display an automatically updating list of the latest posts from your Instagram feed. Give it a try with your own Instagram account, and let us know what you think!
 
+#### Form Block
+
+We've also made some changes to the Form block. When you insert a new Form block, you can now choose to create one of our pre-built forms: RSVP, Registration, Appointment, or Feedback.
+
+Give it a try by creating a new Form block and picking one of the options. You can also play with the different customization options for each field once you've done so.
+
 #### Subscriptions
 
 We've made a lot of improvements to the Subscriptions block in this release. You now have several options to customize the look of the different elements of the form. To test this, we recommend: 
