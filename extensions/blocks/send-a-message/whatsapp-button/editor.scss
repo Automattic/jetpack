@@ -36,3 +36,10 @@
 		margin: -3px 5px 0 0;
 	}
 }
+
+// Make sure form settings dropdown looks good on older Gutenberg versions
+.jetpack-whatsapp-button__popover {
+	.components-popover__content {
+		padding: 12px;
+	}
+}
