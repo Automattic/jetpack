@@ -125,6 +125,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
+* Blocks: avoid layout issues with the OpenTable block's button.
 * Blocks: fix SVG attributes naming.
 * Dashboard: avoid broken profile image in the Jetpack Dashboard.
 * Search: fix issues with the Instant Search layout when the number of posts per page is set to more than 20.
