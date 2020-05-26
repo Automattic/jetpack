@@ -2,6 +2,10 @@
 
 ### Blocks
 
+#### Image Compare
+
+This new block allows you to display and compare two images thanks to a slider. Give it a try by uploading 2 different images into the block (works best with images of the same size).
+
 #### Latest Instagram Posts
 
 This new block allows you to display an automatically updating list of the latest posts from your Instagram feed. Give it a try with your own Instagram account, and let us know what you think!

@@ -103,7 +103,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Major Enhancements**
 
-* Latest Instagram Posts: this new block allows you to insert lists of the latest posts from your Instagram feed, on any post or page of your site.
+* Image Compare Block: show off your before / after pictures! This new block allows you to easily compare two images with a slider.
+* Latest Instagram Posts Block: this new block allows you to insert lists of the latest posts from your Instagram feed, on any post or page of your site.
 
 **Enhancements**
 
