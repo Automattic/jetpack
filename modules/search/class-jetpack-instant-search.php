@@ -83,8 +83,8 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			$widget_options = end( $widget_options );
 		}
 
-		$overlay_widget_ids      = array_key_exists( 'jetpack-instant-search-sidebar', get_option( 'sidebars_widgets', array() ) ) ?
-			get_option( 'sidebars_widgets', array() )['jetpack-instant-search-sidebar'] : array();
+		$overlay_widget_ids      = is_active_sidebar( 'jetpack-instant-search-sidebar' ) ?
+			wp_get_sidebars_widgets()['jetpack-instant-search-sidebar'] : array();
 		$filters                 = Jetpack_Search_Helpers::get_filters_from_widgets();
 		$widgets                 = array();
 		$widgets_outside_overlay = array();

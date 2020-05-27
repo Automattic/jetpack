@@ -630,10 +630,10 @@ class Jetpack_Search_Widget extends WP_Widget {
 	 * @return boolean Whether the widget is within the overlay sidebar.
 	 */
 	public function is_within_overlay() {
-		return in_array(
+		// NOTE: This will always return false for widgets that hasn't been published by the Customizer.
+		return is_active_sidebar( 'jetpack-instant-search-sidebar' ) && in_array(
 			$this->id,
-			array_key_exists( 'jetpack-instant-search-sidebar', get_option( 'sidebars_widgets', array() ) ) ?
-				get_option( 'sidebars_widgets', array() )['jetpack-instant-search-sidebar'] : array(),
+			wp_get_sidebars_widgets()['jetpack-instant-search-sidebar'],
 			true
 		);
 	}
