@@ -30,8 +30,8 @@ class WPCOM_REST_API_V2_Endpoint_Gather_Tweetstorm extends WP_REST_Controller {
 			}
 		}
 
-		if ( ! class_exists( 'Jetpack_Instagram_Gallery_Helper' ) ) {
-			\jetpack_require_lib( 'class-jetpack-instagram-gallery-helper' );
+		if ( ! class_exists( 'Jetpack_Gathering_Tweetstorm_Helper' ) ) {
+			\jetpack_require_lib( 'class-jetpack-gathering-tweetstorm-helper' );
 		}
 
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
@@ -46,7 +46,7 @@ class WPCOM_REST_API_V2_Endpoint_Gather_Tweetstorm extends WP_REST_Controller {
 			$this->rest_base,
 			array(
 				'args'     => array(
-					'tweet' => array(
+					'url' => array(
 						'description' => __( 'The tweet URL to gather from.', 'jetpack' ),
 						'type'        => 'string',
 						'required'    => true,
