@@ -115,6 +115,10 @@
 	flex: 0 0 100%;
 }
 
+.wp-block-jetpack-button.alignright button {
+	float: right;
+}
+
 .wp-block-jetpack-contact-form .grunion-field-wrap {
 	/* Use transparent border to maintain consistent
 	 * space between elements with flexbox */
