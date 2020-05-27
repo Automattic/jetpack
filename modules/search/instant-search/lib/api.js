@@ -11,7 +11,7 @@ import Cache from 'cache';
  * Internal dependencies
  */
 import { getFilterKeys } from './filters';
-import { MINUTE_IN_MILLISECONDS } from './constants';
+import { MINUTE_IN_MILLISECONDS, SORT_DIRECTION_ASC, SORT_DIRECTION_DESC } from './constants';
 
 const isLengthyArray = array => Array.isArray( array ) && array.length > 0;
 // Cache contents evicted after fixed time-to-live
@@ -128,6 +128,16 @@ function buildFilterObject( filterQuery, adminQueryFilter ) {
 	return filter;
 }
 
+// Values of this map correspond to a sort value expected by the API
+const SORT_QUERY_MAP = new Map( [
+	[ 'oldest', 'date_asc' ],
+	[ 'newest', 'date_desc' ],
+	[ 'relevance', 'score_default' ],
+] );
+function mapSortToApiValue( sort ) {
+	return SORT_QUERY_MAP.get( sort, 'score_default' );
+}
+
 export function search( {
 	aggregations,
 	filter,
@@ -178,7 +188,7 @@ export function search( {
 			highlight_fields: highlightFields,
 			filter: buildFilterObject( filter, adminQueryFilter ),
 			query: encodeURIComponent( query ),
-			sort,
+			sort: mapSortToApiValue( sort ),
 			page_handle: pageHandle,
 			size: postsPerPage,
 		} )

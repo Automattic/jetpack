@@ -10,12 +10,11 @@ import { decode, encode } from 'qss';
 import {
 	SERVER_OBJECT_NAME,
 	SORT_DIRECTION_ASC,
-	SORT_DIRECTION_DESC,
 	RESULT_FORMAT_MINIMAL,
 	RESULT_FORMAT_PRODUCT,
 } from './constants';
 import { getFilterKeys, getUnselectableFilterKeys, mapFilterToFilterKey } from './filters';
-import { getSortOption } from './sort';
+import { VALID_SORT_KEYS } from './sort';
 
 const knownResultFormats = [ RESULT_FORMAT_MINIMAL, RESULT_FORMAT_PRODUCT ];
 
@@ -51,97 +50,54 @@ export function setSearchQuery( searchValue ) {
 	pushQueryString( encode( query ) );
 }
 
-const DEFAULT_SORT_MAP = new Map( [
-	// Old sort keys for backward compatibility
-	[ 'date|DESC', 'date_desc' ],
-	[ 'date|ASC', 'date_asc' ],
-	[ 'relevance|DESC', 'score_default' ],
-	// New sort keys from the customizer
-	[ 'newest', 'date_desc' ],
-	[ 'oldest', 'date_asc' ],
-	[ 'relevance', 'score_default' ],
-] );
-
-const INVERTED_SORT_MAP = new Map( [
-	[ 'date_desc', 'date|DESC' ],
-	[ 'date_asc', 'date|ASC' ],
-	[ 'score_default', 'relevance|DESC' ],
-] );
-
-// Convert a sort option like 'date|DESC' or 'relevance' to a sort key like 'date_desc'
-export function getSortKeyFromSortOption( sortOption ) {
-	if ( ! DEFAULT_SORT_MAP.has( sortOption ) ) {
-		return null;
-	}
-	return DEFAULT_SORT_MAP.get( sortOption );
-}
-
-// Convert a sort key like 'date_desc' to a sort option like 'date|DESC'
-// Used primarily for setting sort select elements' value outside of the Instant Search app.
-export function getSortOptionFromSortKey( sortKey ) {
-	if ( ! INVERTED_SORT_MAP.has( sortKey ) ) {
-		return null;
-	}
-
-	return INVERTED_SORT_MAP.get( sortKey );
-}
-
 export function determineDefaultSort( initialSort ) {
-	const query = getQuery();
-	if ( 'orderby' in query ) {
-		return getSortQuery();
+	const sortFromQuery = getSortQuery();
+	if ( sortFromQuery ) {
+		return sortFromQuery;
 	}
 
-	const sortKeyFromSortOption = getSortKeyFromSortOption( initialSort );
-	if ( sortKeyFromSortOption ) {
-		return sortKeyFromSortOption;
+	const sortFromLegacyValues = mapOrderByToSort();
+	if ( sortFromLegacyValues ) {
+		return sortFromLegacyValues;
 	}
 
-	return 'score_default';
+	if ( VALID_SORT_KEYS.includes( initialSort ) ) {
+		return initialSort;
+	}
+
+	return 'relevance';
 }
 
-const ORDERED_SORT_TYPES = [ 'date', 'price', 'rating' ];
-const SORT_QUERY_MAP = {
-	date: {
-		[ SORT_DIRECTION_ASC ]: 'date_asc',
-		[ SORT_DIRECTION_DESC ]: 'date_desc',
-	},
-	price: {
-		[ SORT_DIRECTION_ASC ]: 'price_asc',
-		[ SORT_DIRECTION_DESC ]: 'price_desc',
-	},
-	rating: {
-		[ SORT_DIRECTION_ASC ]: 'rating_asc',
-		[ SORT_DIRECTION_DESC ]: 'rating_desc',
-	},
-	recency: 'score_recency',
-	keyword: 'score_keyword',
-	popularity: 'score_popularity',
-};
-
-export function getSortQuery( initialSort ) {
+function mapOrderByToSort() {
+	// This is only for handling legacy order/orderby values.
 	const query = getQuery();
-
 	const { order, orderby } = query;
-	if ( ORDERED_SORT_TYPES.includes( orderby ) && order ) {
-		return SORT_QUERY_MAP[ orderby ][ order ];
-	} else if ( Object.keys( SORT_QUERY_MAP ).includes( orderby ) ) {
-		return SORT_QUERY_MAP[ orderby ];
-	}
 
-	return initialSort;
+	if ( 'date' === orderby ) {
+		return order === SORT_DIRECTION_ASC ? 'oldest' : 'newest';
+	} else if ( 'relevance' === orderby ) {
+		return 'relevance';
+	}
+	return null;
 }
 
-export function setSortQuery( sortKey ) {
+export function getSortQuery( initialSort = null ) {
 	const query = getQuery();
-	const sortOption = getSortOption( sortKey );
+	if ( VALID_SORT_KEYS.includes( query.sort ) ) {
+		return query.sort;
+	} else if ( VALID_SORT_KEYS.includes( initialSort ) || initialSort === null ) {
+		return initialSort;
+	}
+	return null;
+}
 
-	if ( ! sortOption ) {
+export function setSortQuery( sort ) {
+	if ( ! VALID_SORT_KEYS.includes( sort ) ) {
 		return false;
 	}
 
-	query.orderby = sortOption.field;
-	query.order = sortOption.direction;
+	const query = getQuery();
+	query.sort = sort;
 	pushQueryString( encode( query ) );
 }
 

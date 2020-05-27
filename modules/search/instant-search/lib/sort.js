@@ -3,26 +3,16 @@
  */
 import { __ } from '@wordpress/i18n';
 
-/**
- * Internal dependencies
- */
-import { SORT_DIRECTION_ASC, SORT_DIRECTION_DESC } from './constants';
-
+export const VALID_SORT_KEYS = [ 'newest', 'oldest', 'relevance' ];
 const sortOptions = {
-	score_default: {
+	relevance: {
 		label: __( 'Relevance', 'jetpack' ),
-		field: 'relevance',
-		direction: SORT_DIRECTION_DESC,
 	},
-	date_desc: {
+	newest: {
 		label: __( 'Newest', 'jetpack' ),
-		field: 'date',
-		direction: SORT_DIRECTION_DESC,
 	},
-	date_asc: {
+	oldest: {
 		label: __( 'Oldest', 'jetpack' ),
-		field: 'date',
-		direction: SORT_DIRECTION_ASC,
 	},
 };
 
