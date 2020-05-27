@@ -335,25 +335,6 @@ class WPcom_Instagram_Widget extends WP_Widget {
 				wp_die( __( 'Missing or invalid security nonce.', 'wpcomsh' ) );
 			}
 
-			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-				Keyring::init()->get_token_store()->delete( array( 'type' => 'access', 'id' => $instance['token_id'] ) );
-			} else {
-				$site = Jetpack_Options::get_option( 'id' );
-				$path = sprintf( '/sites/%s/instagram/%s', $site, $instance['token_id'] );
-
-				$result = $this->wpcom_json_api_request_as_blog( $path, 2, array(
-					'headers' => array( 'content-type' => 'application/json' ),
-					'method' => 'DELETE'
-				), null, 'wpcom' );
-
-				$response_code = wp_remote_retrieve_response_code( $result );
-
-				if ( 200 !== $response_code ) {
-					do_action( 'wpcomsh_log', 'Instagram widget: failed to remove keyring token: API returned code ' . $response_code );
-					return 'ERROR';
-				}
-			}
-
 			$instance['token_id'] = $this->defaults['token_id'];
 
 			$this->update_widget_token_id( $instance['token_id'] );
