@@ -102,6 +102,7 @@ export default {
 		return [ newAttributes, newInnerBlocks ];
 	},
 	isEligible: ( attributes, innerBlocks ) =>
-		isEmpty( innerBlocks ) || some( pick( attributes, deprecatedAttributes ), Boolean ),
+		'link' === attributes.style &&
+		( isEmpty( innerBlocks ) || some( pick( attributes, deprecatedAttributes ), Boolean ) ),
 	save: ( { attributes: { url } } ) => <a href={ url }>{ url }</a>,
 };
