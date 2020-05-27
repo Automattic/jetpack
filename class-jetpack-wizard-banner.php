@@ -73,7 +73,7 @@ class Jetpack_Wizard_Banner {
 			return false;
 		}
 
-		if ( 'not-started' !== Jetpack_Options::get_option( 'setup_wizard_status', 'not-started' ) ) {
+		if ( ! in_array( Jetpack_Options::get_option( 'setup_wizard_status', 'not-started' ), array( 'not-started', 'intro-page' ), true ) ) {
 			return false;
 		}
 
