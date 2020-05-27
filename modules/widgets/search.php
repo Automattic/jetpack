@@ -463,7 +463,9 @@ class Jetpack_Search_Widget extends WP_Widget {
 
 		// TODO: create new search box?
 		if ( ! empty( $instance['search_box_enabled'] ) ) {
-			Jetpack_Search_Template_Tags::render_widget_search_form( array(), '', '' );
+			Jetpack_Search_Template_Tags::render_instant_widget_search_form(
+				empty( $instance['post_types'] ) ? array() : $instance['post_types']
+			);
 		}
 
 		if ( $display_filters ) {
@@ -652,7 +654,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 		$instance['title']              = sanitize_text_field( $new_instance['title'] );
 		$instance['search_box_enabled'] = empty( $new_instance['search_box_enabled'] ) ? '0' : '1';
 		$instance['user_sort_enabled']  = empty( $new_instance['user_sort_enabled'] ) ? '0' : '1';
-		$instance['sort']               = $new_instance['sort'];
+		$instance['sort']               = empty( $new_instance['user_sort_enabled'] ) ? null : $new_instance['sort'];
 		$instance['post_types']         = empty( $new_instance['post_types'] ) || empty( $instance['search_box_enabled'] )
 			? array()
 			: array_map( 'sanitize_key', $new_instance['post_types'] );
