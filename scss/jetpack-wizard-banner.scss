@@ -1,8 +1,8 @@
 @import 'node_modules/@automattic/color-studio/dist/color-variables.scss';
 @import '../_inc/client/scss/mixin_breakpoint';
 
-
 .jp-wizard-banner {
+	position: relative;
 	text-align: left;
 	background: $studio-white;
 	padding: 2rem;
@@ -56,20 +56,6 @@
 
 	@include breakpoint( '<960px' ) {
 		display: none;
-	}
-}
-
-.wizard-banner-dismiss {
-	float: right;
-	height: 20px;
-	width: 20px;
-	margin-top: 80px;
-	margin-right: 30px;
-	position: fixed;
-
-	@include breakpoint( '<660px' ) {
-		margin-top: 95px;
-		margin-right: 25px;
 	}
 }
 
