@@ -9,7 +9,7 @@
  * License: GPL2+
  * Text Domain: jetpack
  * Domain Path: /languages/
- * Requires at least: 5.3
+ * Requires WP: 5.3
  * Requires PHP: 5.6
  *
  * @package Jetpack
