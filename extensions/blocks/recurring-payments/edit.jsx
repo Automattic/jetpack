@@ -125,11 +125,26 @@ class MembershipsButtonEdit extends Component {
 		);
 	};
 
-	handleCurrencyChange = editedProductCurrency =>
+	handleCurrencyChange = editedProductCurrency => {
+		let editedProductPrice = this.state.editedProductPrice;
+
+		if ( ! isPriceValid( editedProductCurrency, editedProductPrice ) ) {
+			editedProductPrice = formatCurrency(
+				minimumTransactionAmountForCurrency( editedProductCurrency ),
+				editedProductCurrency,
+				{
+					symbol: '',
+				}
+			);
+		}
+
 		this.setState( {
 			editedProductCurrency,
-			editedProductPriceValid: isPriceValid( editedProductCurrency, this.state.editedProductPrice ),
+			editedProductPrice,
+			editedProductPriceValid: true,
 		} );
+	};
+
 	handleRenewIntervalChange = editedProductRenewInterval =>
 		this.setState( { editedProductRenewInterval } );
 
