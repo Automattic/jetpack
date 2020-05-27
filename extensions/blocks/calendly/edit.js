@@ -33,8 +33,16 @@ import attributeDetails from './attributes';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import { getAttributesFromEmbedCode } from './utils';
 import BlockStylesSelector from '../../shared/components/block-styles-selector';
-import { CALENDLY_EXAMPLE_URL, innerButtonBlock } from './';
+import { CALENDLY_EXAMPLE_URL } from './';
 import testEmbedUrl from '../../shared/test-embed-url';
+
+export const innerButtonBlock = {
+	name: 'jetpack/button',
+	attributes: {
+		element: 'button',
+		text: __( 'Schedule time with me', 'jetpack' ),
+	},
+};
 
 function CalendlyEdit( props ) {
 	const {

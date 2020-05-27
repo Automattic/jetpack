@@ -21,15 +21,6 @@ import './editor.scss';
 import { supportsCollections } from '../../shared/block-category';
 
 export const CALENDLY_EXAMPLE_URL = 'https://calendly.com/wordpresscom/jetpack-block-example';
-
-export const innerButtonBlock = {
-	name: 'jetpack/button',
-	attributes: {
-		element: 'button',
-		text: __( 'Schedule time with me', 'jetpack' ),
-	},
-};
-
 export const name = 'calendly';
 export const title = __( 'Calendly', 'jetpack' );
 export const settings = {
@@ -58,7 +49,6 @@ export const settings = {
 			style: 'inline',
 			url: CALENDLY_EXAMPLE_URL,
 		},
-		innerBlocks: [ innerButtonBlock ],
 	},
 	transforms: {
 		from: [
