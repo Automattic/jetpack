@@ -1,4 +1,15 @@
+/**
+ * Adds the Deactivation modal.
+ *
+ * Depends on _inc/lib/tracks/tracks-callables.js and //stats.wp.com/w.js
+ *
+ */
 ( function( $ ) {
+	// Initialize Tracks and bump stats.
+	var tracksUser = deactivate_dialog.tracksUserData;
+
+	analytics.initialize( tracksUser.userid, tracksUser.username );
+
 	var deactivateLinkElem = $(
 		'tr[data-slug=jetpack] > td.plugin-title > div > span.deactivate > a'
 	);
@@ -51,7 +62,7 @@
 	};
 
 	window.deactivationModalTrackCloseEvent = function() {
-		window.jpTracksAJAX.record_ajax_event( 'termination_dialog_close_click', 'click', tracksProps );
+		analytics.tracks.recordEvent( 'jetpack_termination_dialog_close_click', tracksProps );
 		document.onkeyup = '';
 	};
 
@@ -68,7 +79,7 @@
 	deactivateLinkElem.html( deactivate_dialog.deactivate_label );
 	deactivateLinkElem.on( 'click', function( e ) {
 		observer.observe( body, { childList: true } );
-		window.jpTracksAJAX.record_ajax_event( 'termination_dialog_open', 'click', tracksProps );
+		analytics.tracks.recordEvent( 'jetpack_termination_dialog_open', tracksProps );
 	} );
 
 	$( '#jetpack_deactivation_dialog_content__button-cancel' ).on( 'click', function( e ) {
@@ -80,11 +91,7 @@
 		e.preventDefault();
 
 		$( this ).prop( 'disabled', true );
-
-		window.jpTracksAJAX
-			.record_ajax_event( 'termination_dialog_termination_click', 'click', tracksProps )
-			.always( function() {
-				deactivateJetpack();
-			} );
+		analytics.tracks.recordEvent( 'jetpack_termination_dialog_termination_click', tracksProps );
+		deactivateJetpack();
 	} );
 } )( jQuery );
