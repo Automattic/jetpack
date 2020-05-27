@@ -98,7 +98,8 @@ export const getAttributesFromEmbedCode = embedCode => {
 	}
 
 	if ( 'link' === newStyle ) {
-		newAttributes.buttonAttributes = {};
+		const urlObject = new URL( newUrl );
+		newAttributes.buttonAttributes = { url: urlObject.origin + urlObject.pathname };
 
 		const text = getTextFromEmbedCode( embedCode );
 		if ( text ) {
@@ -107,11 +108,13 @@ export const getAttributesFromEmbedCode = embedCode => {
 
 		const textColor = getTextColorFromEmbedCode( embedCode );
 		if ( textColor ) {
+			newAttributes.buttonAttributes.textColor = undefined;
 			newAttributes.buttonAttributes.customTextColor = textColor;
 		}
 
 		const backgroundColor = getBackgroundColorFromEmbedCode( embedCode );
 		if ( backgroundColor ) {
+			newAttributes.buttonAttributes.backgroundColor = undefined;
 			newAttributes.buttonAttributes.customBackgroundColor = backgroundColor;
 		}
 	}

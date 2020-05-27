@@ -22,6 +22,7 @@ import {
 import { useEffect, useState } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { getBlockDefaultClassName } from '@wordpress/blocks';
+import { select, dispatch } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -98,6 +99,16 @@ function CalendlyEdit( props ) {
 		}
 
 		if ( newAttributes.buttonAttributes && 'link' === newAttributes.style ) {
+			const innerButtons = select( 'core/editor' ).getBlocksByClientId( clientId );
+
+			if ( innerButtons.length ) {
+				innerButtons[ 0 ].innerBlocks.forEach( block => {
+					dispatch( 'core/editor' ).updateBlockAttributes(
+						block.clientId,
+						newAttributes.buttonAttributes
+					);
+				} );
+			}
 			setEmbedButtonAttributes( newAttributes.buttonAttributes );
 		}
 
