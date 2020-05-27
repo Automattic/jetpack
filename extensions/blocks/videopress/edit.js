@@ -22,6 +22,7 @@ import {
 	MediaUpload,
 	MediaUploadCheck,
 	RichText,
+	__experimentalBlock as Block,
 } from '@wordpress/block-editor';
 import { Component, createRef, Fragment } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
@@ -272,7 +273,7 @@ const VideoPressEdit = CoreVideoEdit =>
 			return (
 				<Fragment>
 					{ blockSettings }
-					<figure className={ classnames( className, 'wp-block-embed', 'is-type-video' ) }>
+					<Block.figure>
 						{ /*
 							Disable the video player so the user clicking on it won't play the
 							video when the controls are enabled.
@@ -291,7 +292,7 @@ const VideoPressEdit = CoreVideoEdit =>
 								inlineToolbar
 							/>
 						) }
-					</figure>
+					</Block.figure>
 				</Fragment>
 			);
 		}
