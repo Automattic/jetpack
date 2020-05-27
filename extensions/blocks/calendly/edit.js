@@ -41,6 +41,7 @@ export const innerButtonBlock = {
 	attributes: {
 		element: 'button',
 		text: __( 'Schedule time with me', 'jetpack' ),
+		uniqueId: 'calendly-widget-id',
 	},
 };
 

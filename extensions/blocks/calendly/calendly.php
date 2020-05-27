@@ -88,11 +88,7 @@ function load_assets( $attr, $content ) {
 		if ( false === strpos( $content, 'wp-block-jetpack-calendly__fallback' ) ) {
 			$content = deprecated_render_button_v1( $attr, $block_id, $classes, $url );
 		} else {
-			$content = preg_replace(
-				'/data-id-attr="placeholder"/',
-				'id="' . esc_attr( $block_id ) . '"',
-				$content
-			);
+			$content = str_replace( 'calendly-widget-id', esc_attr( $block_id ), $content );
 		}
 
 		if ( ! $is_amp_request ) {
