@@ -31,6 +31,7 @@ const migrateAttributes = oldAttributes => ( {
 	customTextColor: oldAttributes.customTextButtonColor,
 	backgroundColor: oldAttributes.submitButtonBackgroundColor || oldAttributes.backgroundButtonColor,
 	customBackgroundColor: oldAttributes.customBackgroundButtonColor,
+	url: oldAttributes.url,
 } );
 
 export default {
@@ -94,7 +95,8 @@ export default {
 		const buttonAttributes = migrateAttributes( attributes );
 		const newInnerBlocks = [
 			createBlock( 'jetpack/button', {
-				element: 'button',
+				element: 'a',
+				uniqueId: 'calendly-widget-id',
 				...buttonAttributes,
 			} ),
 		];

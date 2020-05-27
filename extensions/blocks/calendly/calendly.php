@@ -84,8 +84,8 @@ function load_assets( $attr, $content ) {
 			wp_enqueue_style( 'jetpack-calendly-external-css', 'https://assets.calendly.com/assets/external/widget.css', null, JETPACK__VERSION );
 		}
 
-		// Render deprecated version of Calendly block if needed. New markup contains fallback link.
-		if ( false === strpos( $content, 'wp-block-jetpack-calendly__fallback' ) ) {
+		// Render deprecated version of Calendly block if needed. New markup block button class before rendering here.
+		if ( false === strpos( $content, 'wp-block-jetpack-button' ) ) {
 			$content = deprecated_render_button_v1( $attr, $block_id, $classes, $url );
 		} else {
 			$content = str_replace( 'calendly-widget-id', esc_attr( $block_id ), $content );
@@ -165,9 +165,7 @@ function enqueue_calendly_js() {
 			if ( widget ) {
 				widget.addEventListener( 'click', function( event ) {
 					event.preventDefault();
-					Calendly.initPopupWidget( {
-						url: event.target.href || event.target.parentElement.nextElementSibling.href,
-					} );
+					Calendly.initPopupWidget( { url: event.target.href } );
 				} );
 				widget.addEventListener( 'keydown', function( event ) {
 					// Enter and space keys.

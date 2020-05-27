@@ -36,15 +36,6 @@ import BlockStylesSelector from '../../shared/components/block-styles-selector';
 import { CALENDLY_EXAMPLE_URL } from './';
 import testEmbedUrl from '../../shared/test-embed-url';
 
-export const innerButtonBlock = {
-	name: 'jetpack/button',
-	attributes: {
-		element: 'button',
-		text: __( 'Schedule time with me', 'jetpack' ),
-		uniqueId: 'calendly-widget-id',
-	},
-};
-
 function CalendlyEdit( props ) {
 	const {
 		attributes,
@@ -191,6 +182,16 @@ function CalendlyEdit( props ) {
 			></iframe>
 		</>
 	);
+
+	const innerButtonBlock = {
+		name: 'jetpack/button',
+		attributes: {
+			element: 'a',
+			text: __( 'Schedule time with me', 'jetpack' ),
+			uniqueId: 'calendly-widget-id',
+			url,
+		},
+	};
 
 	const buttonPreview = (
 		<InnerBlocks
