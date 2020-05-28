@@ -171,7 +171,7 @@ function enqueue_calendly_js() {
 	wp_add_inline_script(
 		'jetpack-calendly-external-js',
 		"function calendly_attach_link_events( elementId ) {
-			var widget = document.querySelector( '#' + elementId + ' > a' );
+			var widget = document.getElementById( elementId );
 			if ( widget ) {
 				widget.addEventListener( 'click', function( event ) {
 					event.preventDefault();
@@ -226,7 +226,7 @@ function deprecated_render_button_v1( $attributes, $block_id, $classes, $url ) {
 	}
 
 	return sprintf(
-		'<div class="%1$s" id="%2$s"><a class="%3$s" href="%4$s" role="button">%5$s</a></div>',
+		'<div class="%1$s"><a id="%2$s" class="%3$s" href="%4$s" role="button">%5$s</a></div>',
 		esc_attr( $classes ),
 		esc_attr( $block_id ),
 		! empty( $submit_button_classes ) ? esc_attr( $submit_button_classes ) : 'wp-block-button__link',
