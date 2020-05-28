@@ -540,7 +540,18 @@ class MembershipsButtonEdit extends Component {
 				{ ( ( ( this.hasUpgradeNudge || ! this.state.shouldUpgrade ) &&
 					connected !== API_STATE_LOADING ) ||
 					this.props.attributes.planId ) && (
-					<InnerBlocks template={ [ [ 'jetpack/button', { element: 'a' } ] ] } templateLock="all" />
+					<InnerBlocks
+						template={ [
+							[
+								'jetpack/button',
+								{
+									element: 'a',
+									uniqueId: 'recurring-payments-id',
+								},
+							],
+						] }
+						templateLock="all"
+					/>
 				) }
 				{ this.hasUpgradeNudge && connected === API_STATE_NOTCONNECTED && (
 					<div className="wp-block-jetpack-recurring-payments disclaimer-only">

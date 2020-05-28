@@ -58,6 +58,7 @@ export default {
 		const newInnerBlocks = [
 			createBlock( 'jetpack/button', {
 				element: 'a',
+				uniqueId: 'recurring-payments-id',
 				...buttonAttributes,
 			} ),
 		];

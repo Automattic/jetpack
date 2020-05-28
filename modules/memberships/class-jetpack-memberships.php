@@ -224,10 +224,10 @@ class Jetpack_Memberships {
 
 		if ( ! empty( $content ) ) {
 			$block_id = esc_attr( wp_unique_id( 'recurring-payments-block-' ) );
-			$content  = preg_replace( '/data-id-attr="placeholder"/', 'id="' . $block_id . '"', $content );
+			$content  = str_replace( 'recurring-payments-id', $block_id, $content );
 
 			$subscribe_url = $this->get_subscription_url( $plan_id );
-			$content       = preg_replace( '/href="#"/', 'href="' . $subscribe_url . '"', $content );
+			$content       = str_replace( 'href="#"', 'href="' . $subscribe_url . '"', $content );
 
 			// Allow for WPCOM VIP custom attributes or remove target="_blank" to match original behaviour.
 			$html_attributes = isset( $attrs['submitButtonAttributes'] )
