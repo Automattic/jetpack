@@ -171,7 +171,7 @@ function enqueue_calendly_js() {
 	wp_add_inline_script(
 		'jetpack-calendly-external-js',
 		"function calendly_attach_link_events( elementId ) {
-			var widget = document.getElementById( elementId );
+			var widget = document.querySelector( '#' + elementId + ' > a' );
 			if ( widget ) {
 				widget.addEventListener( 'click', function( event ) {
 					event.preventDefault();
