@@ -78,17 +78,9 @@ function GooglePhotosMedia( props ) {
 		}
 	}, [ lastQuery, listUrl, getNextPage, path ] );
 
-	const filtersFormEl = useRef( null );
-
-	useEffect( () => {
-		const firstInputEl = filtersFormEl.current.elements[ 0 ];
-
-		firstInputEl.focus();
-	} );
-
 	return (
 		<div className="jetpack-external-media-wrapper__google">
-			<form ref={ filtersFormEl } className="jetpack-external-media-header__view">
+			<div className="jetpack-external-media-header__view">
 				<SelectControl
 					className="jetpack-external-media-header__select"
 					label={ __( 'View', 'jetpack' ) }
@@ -106,7 +98,7 @@ function GooglePhotosMedia( props ) {
 						canChangeMedia={ ! imageOnly }
 					/>
 				) }
-			</form>
+			</div>
 
 			<div className="jetpack-external-media-header__filter">
 				{ path.ID === PATH_RECENT && (
