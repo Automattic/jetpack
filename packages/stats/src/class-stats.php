@@ -136,7 +136,7 @@ class Stats {
 	 *
 	 * @return bool If it worked.
 	 */
-	private function do_server_side_stat( $url ) {
+	public function do_server_side_stat( $url ) {
 		$response = wp_remote_get( esc_url_raw( $url ) );
 		if ( is_wp_error( $response ) ) {
 			return false;
