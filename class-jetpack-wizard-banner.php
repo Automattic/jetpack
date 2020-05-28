@@ -227,7 +227,7 @@ class Jetpack_Wizard_Banner {
 				</div>
 
 				<span
-					class="notice-dismiss wizard-banner-dismiss"
+					class="notice-dismiss"
 					title="<?php esc_attr_e( 'Dismiss this notice', 'jetpack' ); ?>">
 				</span>
 
