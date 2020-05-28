@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { omit, pick, some } from 'lodash';
+import { isEmpty, omit, pick, some } from 'lodash';
 
 /**
  * WordPress dependencies
@@ -65,6 +65,7 @@ export default {
 
 		return [ newAttributes, newInnerBlocks ];
 	},
-	isEligible: attributes => some( pick( attributes, deprecatedAttributes ), Boolean ),
+	isEligible: ( attributes, innerBlocks ) =>
+		isEmpty( innerBlocks ) || some( pick( attributes, deprecatedAttributes ), Boolean ),
 	save: () => null,
 };
