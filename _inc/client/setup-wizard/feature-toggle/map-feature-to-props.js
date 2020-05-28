@@ -13,7 +13,14 @@ import { getVaultPressData, isAkismetKeyValid } from 'state/at-a-glance';
 import { getSiteRawUrl } from 'state/initial-state';
 import { getRewindStatus } from 'state/rewind';
 import { getSetting, updateSettings } from 'state/settings';
-import { getSitePlan, hasActiveSearchPurchase } from 'state/site';
+import {
+	getActiveBackupPurchase,
+	getActiveScanPurchase,
+	getSitePlan,
+	hasActiveBackupPurchase,
+	hasActiveScanPurchase,
+	hasActiveSearchPurchase,
+} from 'state/site';
 
 function getInfoString( productName ) {
 	return __( 'Included with %(productName)s', { args: { productName } } );
@@ -102,46 +109,41 @@ const features = {
 
 	backups: {
 		mapStateToProps: state => {
-			const vaultPressData = getVaultPressData( state );
-			const isVaultPressEnabled = get( vaultPressData, [ 'data', 'features', 'backups' ], false );
-
-			const rewindStatus = getRewindStatus( state );
-			const rewindState = get( rewindStatus, 'state', false );
-
 			const sitePlan = getSitePlan( state );
 			const planClass = getPlanClass( sitePlan.product_slug );
-
-			const backupsActive = true === isVaultPressEnabled || 'active' === rewindState;
-
-			const inCurrentPlan = [
-				'is-personal-plan',
-				'is-premium-plan',
-				'is-business-plan',
-				'is-daily-backup-plan',
-				'is-realtime-backup-plan',
-			].includes( planClass );
+			const isBackupsPurchased =
+				hasActiveBackupPurchase( state ) ||
+				[
+					'is-personal-plan',
+					'is-premium-plan',
+					'is-business-plan',
+					'is-daily-backup-plan',
+					'is-realtime-backup-plan',
+				].includes( planClass );
 
 			let optionsLink;
-			if ( inCurrentPlan ) {
+			if ( isBackupsPurchased ) {
 				optionsLink = '#/settings?term=backup';
 			}
 
 			let upgradeLink;
-			if ( ! inCurrentPlan ) {
+			if ( ! isBackupsPurchased ) {
 				upgradeLink = '#/plans';
 			}
 
 			let info;
-			if ( inCurrentPlan ) {
-				info = getInfoString( sitePlan.product_name );
+			if ( isBackupsPurchased ) {
+				const backupsPurchase = getActiveBackupPurchase( state );
+				const productName = backupsPurchase ? backupsPurchase.product_name : sitePlan.product_name;
+				info = getInfoString( productName );
 			}
 
 			return {
 				feature: 'backups',
 				title: __( 'Daily or Real-time backups' ),
 				details: __( 'Get time travel for your site with Jetpack Backup.' ),
-				checked: backupsActive,
-				isDisabled: inCurrentPlan,
+				checked: isBackupsPurchased,
+				isDisabled: isBackupsPurchased,
 				optionsLink,
 				upgradeLink,
 				info,
@@ -653,38 +655,35 @@ const features = {
 
 	scan: {
 		mapStateToProps: state => {
-			const vaultPressData = getVaultPressData( state );
-			const isScanEnabled =
-				true === get( vaultPressData, [ 'data', 'features', 'security' ], false );
-
 			const sitePlan = getSitePlan( state );
 			const planClass = getPlanClass( sitePlan.product_slug );
-
-			const inCurrentPlan = [ 'is-premium-plan', 'is-business-plan', 'is-scan-plan' ].includes(
-				planClass
-			);
+			const isScanPurchased =
+				hasActiveScanPurchase( state ) ||
+				[ 'is-premium-plan', 'is-business-plan', 'is-scan-plan' ].includes( planClass );
 
 			let optionsLink;
-			if ( inCurrentPlan ) {
+			if ( isScanPurchased ) {
 				optionsLink = '#/settings?term=scan';
 			}
 
 			let upgradeLink;
-			if ( ! inCurrentPlan ) {
+			if ( ! isScanPurchased ) {
 				upgradeLink = '#/plans';
 			}
 
 			let info;
-			if ( inCurrentPlan ) {
-				info = getInfoString( sitePlan.product_name );
+			if ( isScanPurchased ) {
+				const scanPurchase = getActiveScanPurchase( state );
+				const productName = scanPurchase ? scanPurchase.product_name : sitePlan.product_name;
+				info = getInfoString( productName );
 			}
 
 			return {
 				feature: 'scan',
 				title: __( 'Security scanning' ),
 				details: __( 'Stop threats to keep your website safe.' ),
-				checked: isScanEnabled,
-				isDisabled: inCurrentPlan,
+				checked: isScanPurchased,
+				isDisabled: isScanPurchased,
 				isPaid: true,
 				optionsLink,
 				upgradeLink,

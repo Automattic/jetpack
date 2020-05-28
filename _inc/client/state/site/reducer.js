@@ -7,7 +7,12 @@ import { assign, find, get, merge } from 'lodash';
 /**
  * Internal dependencies
  */
-import { isJetpackProduct, isJetpackSearch } from 'lib/plans/constants';
+import {
+	isJetpackProduct,
+	isJetpackBackup,
+	isJetpackScan,
+	isJetpackSearch,
+} from 'lib/plans/constants';
 import {
 	JETPACK_SITE_DATA_FETCH,
 	JETPACK_SITE_DATA_FETCH_RECEIVE,
@@ -232,6 +237,26 @@ export function getActiveProductPurchases( state ) {
 	return getActiveSitePurchases( state ).filter( purchase =>
 		isJetpackProduct( purchase.product_slug )
 	);
+}
+
+export function getActiveBackupPurchase( state ) {
+	return find( getActiveProductPurchases( state ), product =>
+		isJetpackBackup( product.product_slug )
+	);
+}
+
+export function hasActiveBackupPurchase( state ) {
+	return !! getActiveBackupPurchase( state );
+}
+
+export function getActiveScanPurchase( state ) {
+	return find( getActiveProductPurchases( state ), product =>
+		isJetpackScan( product.product_slug )
+	);
+}
+
+export function hasActiveScanPurchase( state ) {
+	return !! getActiveScanPurchase( state );
 }
 
 export function getActiveSearchPurchase( state ) {
