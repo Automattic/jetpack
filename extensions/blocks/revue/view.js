@@ -13,6 +13,10 @@ if ( typeof window !== 'undefined' && window.jQuery ) {
 		const revueBlocks = document.querySelectorAll( '.wp-block-jetpack-revue' );
 
 		revueBlocks.forEach( block => {
+			if ( block.getAttribute( 'data-jetpack-block-initialized' ) === 'true' ) {
+				return;
+			}
+
 			const form = block.querySelector( '.wp-block-jetpack-revue__form' );
 			if ( ! form ) {
 				return;
@@ -24,6 +28,8 @@ if ( typeof window !== 'undefined' && window.jQuery ) {
 				form.classList.remove( 'is-visible' );
 				message.classList.add( 'is-visible' );
 			} );
+
+			block.setAttribute( 'data-jetpack-block-initialized', 'true' );
 		} );
 	} );
 }

@@ -42,6 +42,13 @@ if ( ! pr.body.includes( 'Proposed changelog entry' ) ) {
 	);
 }
 
+// Privacy section filled in
+if ( ! pr.body.includes( 'data or activity we track or use' ) ) {
+	warn(
+		'The Privacy section is missing for this PR. Please specify whether this PR includes any changes to data or privacy.'
+	);
+}
+
 // Check if newly added .php files were added to phpcs linter whitelist
 if ( newFiles.length > 0 ) {
 	const newPHPFiles = newFiles.filter(
@@ -80,7 +87,16 @@ When this PR is ready for review, please apply the \`[Status] Needs Review\` lab
 	setReleaseDates();
 }
 
-// Adds release and code freeze dates according to x.x milestone due date
+// Add note about E2E dashboard
+if ( process.env.TRAVIS_PULL_REQUEST ) {
+	const dashboardUrl = `https://jetpack-e2e-dashboard.herokuapp.com/pr-${ process.env.TRAVIS_PULL_REQUEST }`;
+	const msg = `E2E results is available here (for debugging purposes): [${ dashboardUrl }](${ dashboardUrl })`;
+	markdown( '\n\n' + msg );
+}
+
+/**
+ * Adds release and code freeze dates according to x.x milestone due date
+ */
 function setReleaseDates() {
 	schedule( async () => {
 		let jetpackReleaseDate;

@@ -45,8 +45,13 @@ import restApi from 'rest-api';
 import QueryRewindStatus from 'components/data/query-rewind-status';
 import { getRewindStatus } from 'state/rewind';
 
-const setupRoute = '/setup';
-const setupRoutes = [ setupRoute, '/setup/income', '/setup/updates' ];
+const setupRoutes = [
+	'/setup',
+	'/setup/intro',
+	'/setup/income',
+	'/setup/updates',
+	'/setup/features',
+];
 
 const dashboardRoutes = [ '/', '/dashboard', '/my-plan', '/plans' ];
 const settingsRoutes = [
@@ -229,8 +234,10 @@ class Main extends React.Component {
 				);
 				break;
 			case '/setup':
+			case '/setup/intro':
 			case '/setup/income':
 			case '/setup/updates':
+			case '/setup/features':
 				if ( this.props.showSetupWizard ) {
 					navComponent = null;
 					pageComponent = <SetupWizard />;
@@ -377,7 +384,7 @@ window.wpNavMenuClassChange = function( pageOrder = { setup: -1, dashboard: 1, s
 
 	// Set the current sub-nav item according to the current hash route
 	hash = hash.split( '?' )[ 0 ].replace( /#/, '' );
-	if ( hash === setupRoute ) {
+	if ( setupRoutes.includes( hash ) ) {
 		getJetpackSubNavItem( pageOrder.setup ).classList.add( 'current' );
 	} else if ( dashboardRoutes.includes( hash ) ) {
 		getJetpackSubNavItem( pageOrder.dashboard ).classList.add( 'current' );

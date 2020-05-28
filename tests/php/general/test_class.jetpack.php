@@ -1282,4 +1282,42 @@ EXPECTED;
 		$_GET['calypso_env'] = 'production';
 		$this->assertEquals( 'https://wordpress.com/', Jetpack::get_calypso_host() );
 	}
+
+	/**
+	 * Tests the Jetpack::should_set_cookie() method.
+	 *
+	 * @param string  $key The state key test value.
+	 * @param string  $set_screen The $current_screen->base test value.
+	 * @param boolean $expected_output The expected output of Jetpack::should_set_cookie().
+	 *
+	 * @covers Jetpack::should_set_cookie
+	 * @dataProvider should_set_cookie_provider
+	 */
+	public function test_should_set_cookie( $key, $set_screen, $expected_output ) {
+		global $current_screen;
+		$old_current_screen   = $current_screen;
+		$current_screen       = new stdClass();
+		$current_screen->base = $set_screen;
+
+		$this->assertEquals( $expected_output, Jetpack::should_set_cookie( $key ) );
+		$current_screen = $old_current_screen;
+	}
+
+	/**
+	 * The data provider for test_should_set_cookie(). Provides an array of
+	 * test data. Each data set is an array with the structure:
+	 *     [0] => The state key test value.
+	 *     [1] => The $current_screen->base test value.
+	 *     [2] => The expected output of Jetpack::should_set_cookie().
+	 */
+	public function should_set_cookie_provider() {
+		return array(
+			array( 'display_update_modal', 'toplevel_page_jetpack', false ),
+			array( 'display_update_modal', 'test_page', true ),
+			array( 'display_update_modal', null, true ),
+			array( 'message', 'toplevel_page_jetpack', true ),
+			array( 'message', 'test_page', true ),
+			array( 'message', null, true ),
+		);
+	}
 } // end class

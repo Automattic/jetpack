@@ -870,6 +870,8 @@ function grunion_recheck_queue() {
 			continue;
 		}
 		
+		$meta['recheck_reason'] = 'recheck_queue';
+
 		/**
 		 * Filter whether the submitted feedback is considered as spam.
 		 *

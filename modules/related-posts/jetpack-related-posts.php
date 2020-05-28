@@ -1617,6 +1617,7 @@ EOT;
 		$enabled = is_single()
 			&& ! is_attachment()
 			&& ! is_admin()
+			&& ! is_embed()
 			&& ( ! $this->_allow_feature_toggle() || $this->get_option( 'enabled' ) );
 
 		/**

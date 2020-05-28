@@ -53,6 +53,27 @@ const renderCard = props => (
 	</DashItem>
 );
 
+const renderAction = ( url, message ) => (
+	<Card
+		compact
+		key="manage-scan"
+		className="jp-dash-item__manage-in-wpcom"
+		href={ url }
+		target="_blank"
+		rel="noopener noreferrer"
+	>
+		{ message }
+	</Card>
+);
+
+const renderActiveCard = message => {
+	return renderCard( {
+		className: 'jp-dash-item__is-active',
+		status: 'is-working',
+		content: message,
+	} );
+};
+
 class DashScan extends Component {
 	static propTypes = {
 		siteRawUrl: PropTypes.string.isRequired,
@@ -95,25 +116,7 @@ class DashScan extends Component {
 				// Check for threats
 				const threats = this.props.scanThreats;
 				if ( threats !== 0 ) {
-					return renderCard( {
-						content: [
-							<h3 className="jp-dash-item__title jp-dash-item__title_fullwidth jp-dash-item__title_top">
-								{ __( 'Uh oh, %(number)s threat found.', 'Uh oh, %(number)s threats found.', {
-									count: threats,
-									args: { number: numberFormat( threats ) },
-								} ) }
-							</h3>,
-							<p className="jp-dash-item__description">
-								{ __( '{{a}}View details at VaultPress.com{{/a}}', {
-									components: { a: <a href={ getRedirectUrl( 'vaultpress-dashboard' ) } /> },
-								} ) }
-								<br />
-								{ __( '{{a}}Contact Support{{/a}}', {
-									components: { a: <a href={ getRedirectUrl( 'jetpack-support' ) } /> },
-								} ) }
-							</p>,
-						],
-					} );
+					return this.renderThreatsFound( threats, getRedirectUrl( 'vaultpress-dashboard' ) );
 				}
 
 				// All good
@@ -184,54 +187,73 @@ class DashScan extends Component {
 		);
 	}
 
+	renderThreatsFound( numberOfThreats, dashboardUrl ) {
+		const { siteRawUrl } = this.props;
+		return (
+			<>
+				{ renderActiveCard( [
+					<h2 className="jp-dash-item__count is-alert">{ numberFormat( numberOfThreats ) }</h2>,
+					<p className="jp-dash-item__description">
+						{ __(
+							'Security threat found. Please {{a}}fix it{{/a}} as soon as possible.',
+							'Security threats found. Please {{a}}fix these{{/a}} as soon as possible.',
+							{
+								count: numberOfThreats,
+								components: {
+									a: <a href={ dashboardUrl } target="_blank" rel="noopener noreferrer" />,
+								},
+							}
+						) }
+					</p>,
+				] ) }
+				{ renderAction( dashboardUrl, __( 'View security scan details' ) ) }
+			</>
+		);
+	}
+
 	getRewindContent() {
 		const { scanStatus, siteRawUrl } = this.props;
-		const buildAction = ( url, message ) => (
-			<Card compact key="manage-backups" className="jp-dash-item__manage-in-wpcom" href={ url }>
-				{ message }
-			</Card>
-		);
-		const buildCard = message =>
-			renderCard( {
-				className: 'jp-dash-item__is-active',
-				status: 'is-working',
-				content: message,
-			} );
+
+		const scanDashboardUrl = getRedirectUrl( 'calypso-scanner', {
+			site: siteRawUrl,
+		} );
+
+		if ( Array.isArray( scanStatus.threats ) && scanStatus.threats.length > 0 ) {
+			return this.renderThreatsFound( scanStatus.threats.length, scanDashboardUrl );
+		}
 
 		if ( scanStatus.credentials && scanStatus.credentials.length === 0 ) {
 			return (
-				<React.Fragment>
-					{ buildCard( __( "You need to enter your server's credentials to finish the setup." ) ) }
-					{ buildAction(
+				<>
+					{ renderActiveCard(
+						__( "You need to enter your server's credentials to finish the setup." )
+					) }
+					{ renderAction(
 						getRedirectUrl( 'calypso-settings-security', { site: siteRawUrl } ),
 						__( 'Enter credentials' )
 					) }
-				</React.Fragment>
+				</>
 			);
 		}
 
 		switch ( scanStatus.state ) {
 			case 'provisioning':
-				return (
-					<React.Fragment>
-						{ buildCard( __( 'We are configuring your site protection.' ) ) }
-					</React.Fragment>
-				);
+				return <>{ renderActiveCard( __( 'We are configuring your site protection.' ) ) }</>;
 			case 'idle':
 			case 'scanning':
 				return (
-					<React.Fragment>
-						{ buildCard(
+					<>
+						{ renderActiveCard(
 							__(
 								'We are making sure your site stays free of security threats. ' +
 									'You will be notified if we find one.'
 							)
 						) }
-						{ buildAction(
+						{ renderAction(
 							getRedirectUrl( 'calypso-scanner', { site: siteRawUrl } ),
 							__( 'View security scan details' )
 						) }
-					</React.Fragment>
+					</>
 				);
 		}
 

@@ -539,22 +539,37 @@ class Jetpack_Core_Json_Api_Endpoints {
 			array(
 				array(
 					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => __CLASS__ . '::get_setup_questionnaire',
+					'callback'            => __CLASS__ . '::get_setup_wizard_questionnaire',
 					'permission_callback' => __CLASS__ . '::update_settings_permission_check',
 				),
 				array(
 					'methods'             => WP_REST_Server::EDITABLE,
-					'callback'            => __CLASS__ . '::update_setup_questionnaire',
+					'callback'            => __CLASS__ . '::update_setup_wizard_questionnaire',
 					'permission_callback' => __CLASS__ . '::update_settings_permission_check',
 					'args'                => array(
-						'option_values' => array(
-							'required' => true,
-							'type'     => 'object',
+						'questionnaire' => array(
+							'required'          => false,
+							'type'              => 'object',
+							'validate_callback' => __CLASS__ . '::validate_setup_wizard_questionnaire',
+						),
+						'status'        => array(
+							'required'          => false,
+							'type'              => 'string',
+							'validate_callback' => __CLASS__ . '::validate_string',
 						),
 					),
 				),
 			)
 		);
+	}
+
+	/**
+	 * Get the settings for the wizard questionnaire
+	 *
+	 * @return array Questionnaire settings.
+	 */
+	public static function get_setup_wizard_questionnaire() {
+		return Jetpack_Options::get_option( 'setup_wizard_questionnaire', (object) array() );
 	}
 
 	/**
@@ -564,21 +579,48 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @return bool true.
 	 */
-	public static function update_setup_questionnaire( $request ) {
-		// TODO: add validation.
+	public static function update_setup_wizard_questionnaire( $request ) {
+		$questionnaire = $request['questionnaire'];
+		if ( ! empty( $questionnaire ) ) {
+			Jetpack_Options::update_option( 'setup_wizard_questionnaire', $questionnaire );
+		}
 
-		$option_values = empty( $request['option_values'] ) ? array() : $request['option_values'];
-		Jetpack_Options::update_option( 'setup_questionnaire', $option_values );
+		$status = $request['status'];
+		if ( ! empty( $status ) ) {
+			Jetpack_Options::update_option( 'setup_wizard_status', $status );
+		}
+
 		return true;
 	}
 
 	/**
-	 * Get the settings for the wizard questionnaire
+	 * Validate the answers on the setup wizard questionnaire
 	 *
-	 * @return array Questionnaire settings.
+	 * @param array           $value Value to check received by request.
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 * @param string          $param Name of the parameter passed to endpoint holding $value.
+	 *
+	 * @return bool|WP_Error
 	 */
-	public static function get_setup_questionnaire() {
-		return Jetpack_Options::get_option( 'setup_questionnaire', array() );
+	public static function validate_setup_wizard_questionnaire( $value, $request, $param ) {
+		if ( ! is_array( $value ) ) {
+			/* translators: Name of a parameter that must be an object */
+			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be an object.', 'jetpack' ), $param ) );
+		}
+
+		foreach ( $value as $answer_key => $answer ) {
+			if ( is_string( $answer ) ) {
+				$validate = self::validate_string( $answer, $request, $param );
+			} else {
+				$validate = self::validate_boolean( $answer, $request, $param );
+			}
+
+			if ( is_wp_error( $validate ) ) {
+				return $validate;
+			}
+		}
+
+		return true;
 	}
 
 	public static function get_plans( $request ) {
@@ -1232,15 +1274,24 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return new WP_Error( 'site_id_missing' );
 		}
 
+		if ( ! isset( $_GET['_cacheBuster'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$rewind_state = get_transient( 'jetpack_rewind_state' );
+			if ( $rewind_state ) {
+				return $rewind_state;
+			}
+		}
+
 		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/rewind', $site_id ) .'?force=wpcom', '2', array(), null, 'wpcom' );
 
 		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
 			return new WP_Error( 'rewind_data_fetch_failed' );
 		}
 
-		$body = wp_remote_retrieve_body( $response );
+		$body   = wp_remote_retrieve_body( $response );
+		$result = json_decode( $body );
+		set_transient( 'jetpack_rewind_state', $result, 30 * MINUTE_IN_SECONDS );
 
-		return json_decode( $body );
+		return $result;
 	}
 
 	/**
@@ -1285,21 +1336,41 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return array|WP_Error Result from WPCOM API or error.
 	 */
 	public static function scan_state() {
+
+		if ( ! isset( $_GET['_cacheBuster'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$scan_state = get_transient( 'jetpack_scan_state' );
+			if ( ! empty( $scan_state ) ) {
+				return $scan_state;
+			}
+		}
 		$site_id = Jetpack_Options::get_option( 'id' );
 
 		if ( ! $site_id ) {
 			return new WP_Error( 'site_id_missing' );
 		}
-
+		// The default timeout was too short in come cases.
+		add_filter( 'http_request_timeout', array( __CLASS__, 'increase_timeout_30' ), PHP_INT_MAX - 1 );
 		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/scan', $site_id ) . '?force=wpcom', '2', array(), null, 'wpcom' );
+		remove_filter( 'http_request_timeout', array( __CLASS__, 'increase_timeout_30' ), PHP_INT_MAX - 1 );
 
 		if ( wp_remote_retrieve_response_code( $response ) !== 200 ) {
 			return new WP_Error( 'scan_state_fetch_failed' );
 		}
 
-		$body = wp_remote_retrieve_body( $response );
+		$body   = wp_remote_retrieve_body( $response );
+		$result = json_decode( $body );
+		set_transient( 'jetpack_scan_state', $result, 30 * MINUTE_IN_SECONDS );
 
-		return json_decode( $body );
+		return $result;
+	}
+
+	/**
+	 * Increases the request timeout value to 30 seconds.
+	 *
+	 * @return int Always returns 30.
+	 */
+	public static function increase_timeout_30() {
+		return 30; // 30 Seconds
 	}
 
 	/**

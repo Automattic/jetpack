@@ -17,7 +17,7 @@ export const name = 'image-compare';
 
 export const settings = {
 	title: __( 'Image Compare', 'jetpack' ),
-	description: __( 'Compare two images with a slider.', 'jetpack' ),
+	description: __( 'Compare two images with a slider. Works best with images of the same size.', 'jetpack' ),
 
 	icon,
 

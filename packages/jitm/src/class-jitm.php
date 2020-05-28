@@ -8,8 +8,6 @@
 namespace Automattic\Jetpack\JITMS;
 
 use Automattic\Jetpack\Assets;
-use Automattic\Jetpack\Connection\Manager;
-use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\JITMS\Post_Connection_JITM;

@@ -56,7 +56,9 @@ class MembershipsButtonEdit extends Component {
 			products: [],
 			siteSlug: '',
 			editedProductCurrency: 'USD',
-			editedProductPrice: minimumTransactionAmountForCurrency( 'USD' ),
+			editedProductPrice: formatCurrency( minimumTransactionAmountForCurrency( 'USD' ), 'USD', {
+				symbol: '',
+			} ),
 			editedProductPriceValid: true,
 			editedProductTitle: '',
 			editedProductTitleValid: true,
@@ -322,6 +324,7 @@ class MembershipsButtonEdit extends Component {
 				<Button
 					className="membership-button__field-button"
 					isLarge
+					isSecondary
 					key={ product.id }
 					onClick={ () => this.setMembershipAmount( product.id ) }
 				>
@@ -417,7 +420,7 @@ class MembershipsButtonEdit extends Component {
 							) }
 						>
 							<Button isSecondary isLarge href={ this.state.upgradeURL } target="_blank">
-								{ __( 'Upgrade Your Plan', 'jetpack' ) }
+								{ __( 'Upgrade your plan', 'jetpack' ) }
 							</Button>
 							{ this.renderDisclaimer() }
 						</Placeholder>

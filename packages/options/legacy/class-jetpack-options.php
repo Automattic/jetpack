@@ -71,6 +71,7 @@ class Jetpack_Options {
 					'mapbox_api_key',              // (string) Mapbox API Key, for use with Map block.
 					'mailchimp',                   // (string) Mailchimp keyring data, for mailchimp block.
 					'xmlrpc_errors',               // (array) Keys are XML-RPC signature error codes. Values are truthy.
+					'dismissed_wizard_banner',     // (int) True if the Wizard banner has been dismissed.
 				);
 
 			case 'private':
@@ -109,7 +110,8 @@ class Jetpack_Options {
 			'sso_first_login',              // (bool)   Is this the first time the user logins via SSO.
 			'dismissed_hints',              // (array)  Part of Plugin Search Hints. List of cards that have been dismissed.
 			'first_admin_view',             // (bool)   Set to true the first time the user views the admin. Usually after the initial connection.
-			'setup_questionnaire',           // (array)  List of user choices from the setup wizard.
+			'setup_wizard_questionnaire',   // (array)  List of user choices from the setup wizard.
+			'setup_wizard_status',          // (string) Status of the setup wizard.
 		);
 	}
 

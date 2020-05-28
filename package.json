@@ -236,6 +236,7 @@
 		"**/mkdirp/minimist": "^0.2.1",
 		"**/optimist/minimist": "^0.2.1",
 		"**/mapbox-gl/minimist": "^0.2.1",
-		"**/@mapbox/geojson-rewind/minimist": "^1.2.3"
+		"**/@mapbox/geojson-rewind/minimist": "^1.2.3",
+		"**/@wordpress/compose/mousetrap": "^1.6.5"
 	}
 }

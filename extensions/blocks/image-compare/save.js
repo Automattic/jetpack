@@ -8,7 +8,7 @@ const save = ( { attributes, className } ) => {
 
 	return (
 		<figure className={ className }>
-			<div className="juxtapose" data-mode={ orientation }>
+			<div className="juxtapose" data-mode={ orientation || 'horizontal' }>
 				<img
 					id={ imageBefore.id }
 					src={ imageBefore.url }

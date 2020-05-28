@@ -21,6 +21,12 @@ class Replicastore implements Replicastore_Interface {
 		global $wpdb;
 
 		$wpdb->query( "DELETE FROM $wpdb->posts" );
+
+		// Delete comments from cache.
+		$comment_ids = $wpdb->get_col( "SELECT comment_ID FROM $wpdb->comments" );
+		if ( ! empty( $comment_ids ) ) {
+			clean_comment_cache( $comment_ids );
+		}
 		$wpdb->query( "DELETE FROM $wpdb->comments" );
 
 		// Also need to delete terms from cache.
@@ -426,6 +432,8 @@ class Replicastore implements Replicastore_Interface {
 		} else {
 			$wpdb->insert( $wpdb->comments, $comment );
 		}
+		// Remove comment from cache.
+		clean_comment_cache( $comment['comment_ID'] );
 
 		wp_update_comment_count( $comment['comment_post_ID'] );
 	}

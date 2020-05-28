@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { Fragment } from '@wordpress/element';
 import { TextareaControl, Disabled } from '@wordpress/components';
 
 /**
@@ -12,17 +11,12 @@ import JetpackFieldLabel from './jetpack-field-label';
 import JetpackFieldControls from './jetpack-field-controls';
 
 export default function JetpackFieldTextarea( props ) {
-	const { id, required, label, setAttributes, isSelected, placeholder } = props;
+	const { id, required, label, setAttributes, placeholder, width } = props;
 
 	return (
-		<Fragment>
+		<>
 			<div className="jetpack-field">
-				<JetpackFieldLabel
-					required={ required }
-					label={ label }
-					setAttributes={ setAttributes }
-					isSelected={ isSelected }
-				/>
+				<JetpackFieldLabel required={ required } label={ label } setAttributes={ setAttributes } />
 				<Disabled>
 					<TextareaControl
 						placeholder={ placeholder }
@@ -33,7 +27,12 @@ export default function JetpackFieldTextarea( props ) {
 				</Disabled>
 			</div>
 
-			<JetpackFieldControls id={ id } required={ required } setAttributes={ setAttributes } />
-		</Fragment>
+			<JetpackFieldControls
+				id={ id }
+				required={ required }
+				setAttributes={ setAttributes }
+				width={ width }
+			/>
+		</>
 	);
 }

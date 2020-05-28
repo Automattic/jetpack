@@ -2,7 +2,8 @@
  * External dependencies
  */
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, { useCallback, useEffect } from 'react';
+import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 
 /**
@@ -10,10 +11,45 @@ import { translate as __ } from 'i18n-calypso';
  */
 import Button from 'components/button';
 import { imagePath } from 'constants/urls';
+import analytics from 'lib/analytics';
+import {
+	saveSetupWizardQuestionnnaire,
+	updateSetupWizardQuestionnaire,
+	updateSetupWizardStatus,
+} from 'state/setup-wizard';
 
 import './style.scss';
 
-const IntroPage = props => {
+let IntroPage = props => {
+	useEffect( () => {
+		props.updateStatus( 'intro-page' );
+		analytics.tracks.recordEvent( 'jetpack_wizard_page_view', { step: 'intro-page' } );
+	}, [] );
+
+	const onPersonalButtonClick = useCallback( () => {
+		props.updateSiteUseQuestion( { use: 'personal' } );
+		props.saveQuestionnaire();
+		analytics.tracks.recordEvent( 'jetpack_wizard_question_answered', {
+			question: 'use',
+			answer: 'personal',
+		} );
+	}, [] );
+
+	const onBusinessButtonClick = useCallback( () => {
+		props.updateSiteUseQuestion( { use: 'business' } );
+		props.saveQuestionnaire();
+		analytics.tracks.recordEvent( 'jetpack_wizard_question_answered', {
+			question: 'use',
+			answer: 'business',
+		} );
+	}, [] );
+
+	const onSkipLinkClick = useCallback( () => {
+		analytics.tracks.recordEvent( 'jetpack_setup_wizard_question_skipped', {
+			question: 'use',
+		} );
+	}, [] );
+
 	return (
 		<div className="jp-setup-wizard-main">
 			<img
@@ -23,7 +59,7 @@ const IntroPage = props => {
 				alt={ __( 'A jetpack site powering up' ) }
 			/>
 			<h1 className="jp-setup-wizard-header">
-				{ __( 'Set up Jetpack for better site security, performance, and more' ) }
+				{ __( 'Set up Jetpack for better site security, performance, and more.' ) }
 			</h1>
 			<p className="jp-setup-wizard-paragraph">
 				{ __( 'Jetpack is a cloud-powered tool built by Automattic.' ) }
@@ -38,14 +74,28 @@ const IntroPage = props => {
 					{ __( 'What will %(siteTitle)s be used for?', { args: { siteTitle: props.siteTitle } } ) }
 				</h2>
 				<div className="jp-setup-wizard-answer-buttons">
-					<Button href="#/setup/income" primary className="jp-setup-wizard-button">
+					<Button
+						href="#/setup/income"
+						primary
+						className="jp-setup-wizard-button"
+						onClick={ onPersonalButtonClick }
+					>
 						{ __( 'Personal Use' ) }
 					</Button>
-					<Button href="#/setup/income" primary className="jp-setup-wizard-button">
+					<Button
+						href="#/setup/income"
+						primary
+						className="jp-setup-wizard-button"
+						onClick={ onBusinessButtonClick }
+					>
 						{ __( 'Business Use' ) }
 					</Button>
 				</div>
-				<a className="jp-setup-wizard-skip-link" href="">
+				<a
+					className="jp-setup-wizard-skip-link"
+					href="#/setup/features"
+					onClick={ onSkipLinkClick }
+				>
 					{ __( 'Skip to recommended features' ) }
 				</a>
 			</div>
@@ -56,5 +106,14 @@ const IntroPage = props => {
 IntroPage.propTypes = {
 	siteTitle: PropTypes.string.isRequired,
 };
+
+IntroPage = connect(
+	state => ( {} ),
+	dispatch => ( {
+		updateSiteUseQuestion: answer => dispatch( updateSetupWizardQuestionnaire( answer ) ),
+		saveQuestionnaire: () => dispatch( saveSetupWizardQuestionnnaire() ),
+		updateStatus: status => dispatch( updateSetupWizardStatus( status ) ),
+	} )
+)( IntroPage );
 
 export { IntroPage };

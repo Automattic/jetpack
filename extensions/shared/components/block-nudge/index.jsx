@@ -24,7 +24,7 @@ export const BlockNudge = ( { autosaveAndRedirect, buttonLabel, href, icon, subt
 				</Button>,
 			]
 		}
-		className="jetpack-block-nudge"
+		className="jetpack-block-nudge wp-block"
 	>
 		<span className="jetpack-block-nudge__info">
 			{ icon }

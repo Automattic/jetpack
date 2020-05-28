@@ -22,6 +22,7 @@ import { reducer as rewind } from 'state/rewind/reducer';
 import { reducer as scan } from 'state/scan/reducer';
 import { reducer as search } from 'state/search/reducer';
 import { reducer as settings } from 'state/settings/reducer';
+import { reducer as setupWizard } from 'state/setup-wizard/reducer';
 import { reducer as siteData } from 'state/site/reducer';
 import { reducer as siteProducts } from 'state/site-products/reducer';
 import { reducer as siteVerify } from 'state/site-verify/reducer';
@@ -45,6 +46,7 @@ const jetpackReducer = combineReducers( {
 	scan,
 	search,
 	settings,
+	setupWizard,
 	siteData,
 	siteProducts,
 	siteVerify,
