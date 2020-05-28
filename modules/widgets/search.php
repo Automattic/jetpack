@@ -689,7 +689,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 	 *
 	 * @since 5.0.0
 	 *
-	 * @param array $instance Current settings.
+	 * @param array $instance Previously saved values from database.
 	 */
 	public function form( $instance ) {
 		$instance = $this->jetpack_search_populate_defaults( $instance );
@@ -728,6 +728,19 @@ class Jetpack_Search_Widget extends WP_Widget {
 						<?php checked( $instance['search_box_enabled'] ); ?>
 					/>
 					<?php esc_html_e( 'Show search box', 'jetpack' ); ?>
+				</label>
+			</p>
+
+			<p>
+				<label>
+					<input
+						type="checkbox"
+						class="jetpack-search-filters-widget__sort-controls-enabled"
+						name="<?php echo esc_attr( $this->get_field_name( 'user_sort_enabled' ) ); ?>"
+						<?php checked( $instance['user_sort_enabled'] ); ?>
+						<?php disabled( ! $instance['search_box_enabled'] ); ?>
+					/>
+					<?php esc_html_e( 'Show sort selection dropdown', 'jetpack' ); ?>
 				</label>
 			</p>
 
