@@ -7,8 +7,8 @@
  * [flickr video=www.flickr.com/photos/kalakeli/49931239842]
  * [flickr video=49931239842]
  * [flickr video=49931239842 w=200 h=150]
- * [flickr video=2402990826 autoplay="yes" controls="no"]
- * [flickr video=2402990826 autoplay="no" controls=yes w=200 h=150]
+ * [flickr video=49931239842 autoplay="yes" controls="no"]
+ * [flickr video=49931239842 autoplay="no" controls="yes" w=200 h=150]
  *
  * @package Jetpack
  */
