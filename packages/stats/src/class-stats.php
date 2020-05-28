@@ -158,7 +158,7 @@ class Stats {
 	 */
 	public function build_stats_url( $args ) {
 		$defaults = array(
-			'v'    => 'wpcom-no-pv',
+			'v'    => 'wpcom2',
 			'rand' => md5( wp_rand( 0, 999 ) . time() ),
 		);
 		$args     = wp_parse_args( $args, $defaults );
