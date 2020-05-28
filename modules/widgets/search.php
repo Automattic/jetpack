@@ -730,18 +730,6 @@ class Jetpack_Search_Widget extends WP_Widget {
 					<?php esc_html_e( 'Show search box', 'jetpack' ); ?>
 				</label>
 			</p>
-			<p>
-				<label>
-					<input
-						type="checkbox"
-						class="jetpack-search-filters-widget__sort-controls-enabled"
-						name="<?php echo esc_attr( $this->get_field_name( 'user_sort_enabled' ) ); ?>"
-						<?php checked( $instance['user_sort_enabled'] ); ?>
-						<?php disabled( ! $instance['search_box_enabled'] ); ?>
-					/>
-					<?php esc_html_e( 'Show sort selection dropdown', 'jetpack' ); ?>
-				</label>
-			</p>
 
 			<p class="jetpack-search-filters-widget__post-types-select">
 				<label><?php esc_html_e( 'Post types to search (minimum of 1):', 'jetpack' ); ?></label>

@@ -14,7 +14,6 @@ import uniqueId from 'lodash/uniqueId';
  */
 import Gridicon from './gridicon';
 import SearchSort from './search-sort';
-import { getSortQuery } from '../lib/query-string';
 
 let initiallyFocusedElement = null;
 const stealFocusWithInput = inputElement => () => {
@@ -85,7 +84,7 @@ const SearchBox = props => {
 						</span>
 					</div>
 				) }
-				<SearchSort onChange={ props.onChangeSort } value={ getSortQuery() } />
+				{ props.enableSort && <SearchSort onChange={ props.onChangeSort } value={ props.sort } /> }
 			</div>
 		</Fragment>
 	);
