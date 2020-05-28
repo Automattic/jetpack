@@ -44,6 +44,21 @@ const PRODUCT_NOT_ADDING = 0;
 const PRODUCT_FORM = 1;
 const PRODUCT_FORM_SUBMITTED = 2;
 
+/**
+ * Formats a price with the right format for a numeric input value.
+ *
+ * @param {number} price Price to format.
+ * @param {string} currency Currency code.
+ * @returns {string} Formatted price.
+ */
+const formatPriceForNumberInputValue = ( price, currency ) => {
+	// By using `formatCurrency` we ensure the resulting price contains the relevant decimals for the given currency (i.e. 0.5 > 0.50).
+	return formatCurrency( price, currency, {
+		decimal: '.', // Values for numeric inputs need to use a dot notation for decimals.
+		symbol: '', // Values for numeric inputs cannot contain any currency symbol, only numbers.
+	} );
+};
+
 class MembershipsButtonEdit extends Component {
 	constructor() {
 		super( ...arguments );
@@ -56,9 +71,10 @@ class MembershipsButtonEdit extends Component {
 			products: [],
 			siteSlug: '',
 			editedProductCurrency: 'USD',
-			editedProductPrice: formatCurrency( minimumTransactionAmountForCurrency( 'USD' ), 'USD', {
-				symbol: '',
-			} ),
+			editedProductPrice: formatPriceForNumberInputValue(
+				minimumTransactionAmountForCurrency( 'USD' ),
+				'USD'
+			),
 			editedProductPriceValid: true,
 			editedProductTitle: '',
 			editedProductTitleValid: true,
@@ -129,12 +145,9 @@ class MembershipsButtonEdit extends Component {
 		let editedProductPrice = this.state.editedProductPrice;
 
 		if ( ! isPriceValid( editedProductCurrency, editedProductPrice ) ) {
-			editedProductPrice = formatCurrency(
+			editedProductPrice = formatPriceForNumberInputValue(
 				minimumTransactionAmountForCurrency( editedProductCurrency ),
-				editedProductCurrency,
-				{
-					symbol: '',
-				}
+				editedProductCurrency
 			);
 		}
 
