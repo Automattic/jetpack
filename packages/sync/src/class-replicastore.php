@@ -1229,7 +1229,7 @@ class Replicastore implements Replicastore_Interface {
 		global $wpdb;
 
 		// The term relationship table's unique key is a combination of 2 columns. `DISTINCT` helps us get a more acurate query.
-		$distinct_sql = ( $wpdb->term_relationships === $object_table ) ? 'DISTINCT' : '';
+		$distinct_sql = ( $wpdb->term_relationships === $object_table || in_array( $object_table, $this->get_meta_tables() ) ) ? 'DISTINCT' : '';
 		$where_sql    = $where ? "WHERE $where" : '';
 
 		// Since MIN() and MAX() do not work with LIMIT, we'll need to adjust the dataset we query if a limit is present.
@@ -1238,6 +1238,8 @@ class Replicastore implements Replicastore_Interface {
 		$from = $bucket_size ?
 			"( SELECT $distinct_sql $id_field FROM $object_table $where_sql ORDER BY $id_field ASC LIMIT $bucket_size ) as ids" :
 			"$object_table $where_sql ORDER BY $id_field ASC";
+
+		error_log( "SELECT MIN($id_field) as min, MAX($id_field) as max FROM $from" );
 
 		return $wpdb->get_row(
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
@@ -1280,8 +1282,8 @@ class Replicastore implements Replicastore_Interface {
 			case 'post_meta':
 				$object_table = $wpdb->postmeta;
 				$where_sql    = Settings::get_whitelisted_post_meta_sql();
-				$object_count = $this->meta_count( $object_table, $where_sql, $start_id, $end_id );
-				$id_field     = 'meta_id';
+				$object_count = $this->meta_count( $object_table, 'post_id', $where_sql, $start_id, $end_id );
+				$id_field     = 'post_id';
 				break;
 			case 'comments':
 				$object_count = $this->comment_count( null, $start_id, $end_id );
@@ -1292,7 +1294,7 @@ class Replicastore implements Replicastore_Interface {
 			case 'comment_meta':
 				$object_table = $wpdb->commentmeta;
 				$where_sql    = Settings::get_whitelisted_comment_meta_sql();
-				$object_count = $this->meta_count( $object_table, $where_sql, $start_id, $end_id );
+				$object_count = $this->meta_count( $object_table, 'comment_id', $where_sql, $start_id, $end_id );
 				$id_field     = 'meta_id';
 				break;
 			case 'terms':
@@ -1390,20 +1392,23 @@ class Replicastore implements Replicastore_Interface {
 		$sanitized_columns = preg_grep( '/^[0-9,a-z,A-Z$_]+$/i', $columns );
 
 		if ( $strip_non_ascii ) {
-			$columns_sql = implode( ',', array_map( array( $this, 'strip_non_ascii_sql' ), $sanitized_columns ) );
-		} else {
-			$columns_sql = implode( ',', $sanitized_columns );
+			$sanitized_columns = array_map( array( $this, 'strip_non_ascii_sql' ), $sanitized_columns );
 		}
+
+		$columns_sql = implode( ',', $sanitized_columns );
+
+		$limits_sql = '';
 
 		if ( null !== $min_id && null !== $max_id ) {
 			if ( $min_id === $max_id ) {
 				$min_id     = intval( $min_id );
 				$where_sql .= " AND $id_column = $min_id LIMIT 1";
 			} else {
-				$min_id     = intval( $min_id );
-				$max_id     = intval( $max_id );
-				$size       = $max_id - $min_id;
-				$where_sql .= " AND $id_column >= $min_id AND $id_column <= $max_id LIMIT $size";
+				$min_id      = intval( $min_id );
+				$max_id      = intval( $max_id );
+				$size        = $max_id - $min_id;
+				$where_sql  .= " AND $id_column >= $min_id AND $id_column <= $max_id";
+				$limits_sql .= " LIMIT $size";
 			}
 		} else {
 			if ( null !== $min_id ) {
@@ -1417,13 +1422,58 @@ class Replicastore implements Replicastore_Interface {
 			}
 		}
 
-		$query = <<<ENDSQL
-			SELECT CAST( SUM( CRC32( CONCAT_WS( '#', '%s', {$columns_sql} ) ) ) AS UNSIGNED INT )
-			FROM $table
-			WHERE $where_sql;
-ENDSQL;
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-		$result = $wpdb->get_var( $wpdb->prepare( $query, $salt ) );
+		if ( in_array( $table, $this->get_meta_tables() ) ) {
+			/**
+			 * TODO:
+			 *  We need a way to specify what the meta columns to order by are.
+			 *  Or we can rely on the right one being always first.
+			 *  In WordPress the meta tables always have the same structure - `meta_key`, `meta_value` and
+			 *  a link to the primary object/table they relate to. We can hardcode `meta_key` here, but
+			 *  it won't be very flexible if we want to do this for custom tables or offer it to other plugins
+			 *  in the future.
+			 */
+			/**
+			 * Ensure that the results are always ordered the same when calculating the checksum.
+			 *
+			 * To do this, the concatenated values are ordered by `meta_key` before calculating their checksum.
+			 */
+			$sort_column = $sanitized_columns[0];
+
+			$query = "
+				SELECT
+				       CAST( SUM(meta_checksum) AS UNSIGNED INT)
+				FROM
+				     (
+						SELECT
+						    {$id_column},
+						    CRC32( GROUP_CONCAT(
+						        CONCAT_WS( '#', '%s',  {$columns_sql} )
+						        ORDER BY {$sort_column} ASC
+						        SEPARATOR ';'
+						    ) ) AS meta_checksum
+						FROM
+						    {$table}
+						WHERE
+							{$where_sql}
+						GROUP BY {$id_column}
+						{$limits_sql}
+					) as meta_checksums
+			";
+		} else {
+			$query = "
+				SELECT
+					CAST( SUM( CRC32( CONCAT_WS( '#', '%s', {$columns_sql} ) ) ) AS UNSIGNED INT )
+				FROM
+					$table
+				WHERE
+					$where_sql
+				{$limits_sql}
+			";
+		}
+
+		$query  = $wpdb->prepare( $query, $salt );
+		$result = $wpdb->get_var( $query );
+
 		if ( $wpdb->last_error ) {
 			return new \WP_Error( 'database_error', $wpdb->last_error );
 		}
@@ -1443,31 +1493,57 @@ ENDSQL;
 	}
 
 	/**
+	 * Gets a list of the site's meta tables.
+	 *
+	 * Used to check if a table that we work on is a meta table.
+	 *
+	 * @return array List of meta tables for the site.
+	 */
+	public function get_meta_tables() {
+		global $wpdb;
+		return array( $wpdb->postmeta, $wpdb->commentmeta, $wpdb->termmeta, $wpdb->usermeta );
+	}
+
+	/**
 	 * Count the meta values in a table, within a specified range.
 	 *
 	 * @access private
 	 *
-	 * @todo Refactor to not use interpolated values when preparing the SQL query.
+	 * @param string $table                   Table name.
+	 * @param string $parent_object_id_column The meta table parent object ID column
+	 * @param string $where_sql               Additional WHERE SQL.
+	 * @param int    $min_id                  Minimum meta ID.
+	 * @param int    $max_id                  Maximum meta ID.
 	 *
-	 * @param string $table     Table name.
-	 * @param string $where_sql Additional WHERE SQL.
-	 * @param int    $min_id    Minimum meta ID.
-	 * @param int    $max_id    Maximum meta ID.
 	 * @return int Number of meta values.
 	 */
-	private function meta_count( $table, $where_sql, $min_id, $max_id ) {
+	private function meta_count( $table, $parent_object_id_column, $where_sql, $min_id, $max_id ) {
 		global $wpdb;
 
+		$replacements = array();
+
 		if ( ! empty( $min_id ) ) {
-			$where_sql .= ' AND meta_id >= ' . intval( $min_id );
+			$where_sql     .= " AND $parent_object_id_column >= %d ";
+			$replacements[] = intval( $min_id );
 		}
 
 		if ( ! empty( $max_id ) ) {
-			$where_sql .= ' AND meta_id <= ' . intval( $max_id );
+			$where_sql     .= " AND $parent_object_id_column <= %d ";
+			$replacements[] = intval( $max_id );
 		}
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		return $wpdb->get_var( "SELECT COUNT(*) FROM $table WHERE $where_sql" );
+		$query_string = "
+			SELECT
+				COUNT(DISTINCT $parent_object_id_column)
+			FROM
+				$table
+			WHERE
+				$where_sql
+		";
+
+		$query = $wpdb->prepare( $query_string, $replacements );
+
+		return $wpdb->get_var( $query );
 	}
 
 	/**
