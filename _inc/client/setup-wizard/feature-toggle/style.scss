@@ -96,6 +96,8 @@
 	text-align: left;
 
 	@include breakpoint( $greater-than-vertical-break ) {
+		font-size: 15px;
+
 		span {
 			font-weight: bold;
 			margin-right: 0.5rem;
