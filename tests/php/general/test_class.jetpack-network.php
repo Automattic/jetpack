@@ -1,6 +1,6 @@
 <?php
 if ( is_multisite() ) :
-
+//phpcs:disable Generic.WhiteSpace.ScopeIndent
 class WP_Test_Jetpack_Network extends WP_UnitTestCase {
 
 	/**
@@ -154,6 +154,51 @@ class WP_Test_Jetpack_Network extends WP_UnitTestCase {
 		$default = array( 'just', 'a', 'sample' );
 		$value = Jetpack_Options::get_option_and_ensure_autoload( 'jetpack_file_data', $default );
 		$this->assertEquals( $default, Jetpack_Options::get_option( 'file_data' ) );
+	}
+
+	/**
+	 * Tests the Jetpack_Network::set_multisite_disconnect_cap method.
+	 *
+	 * @param bool $is_super_admin Whether the current user is a super admin.
+	 * @param bool $connection_override The sub-site connection override setting.
+	 * @param bool $disconnect_allowed Whether the disconnect capability should be allowed.
+	 *
+	 * @covers Jetpack_Network::set_multisite_disconnect_cap
+	 * @dataProvider data_provider_test_set_multisite_disconnect_caps
+	 */
+	public function test_set_multisite_disconnect_cap( $is_super_admin, $connection_override, $disconnect_allowed ) {
+		$test_cap        = array( 'test_cap' );
+		$expected_output = $disconnect_allowed ? $test_cap : array( 'do_not_allow' );
+
+		$user_id = $this->factory->user->create( array( 'user_login' => 'test_user' ) );
+		wp_set_current_user( $user_id );
+		if ( $is_super_admin ) {
+			grant_super_admin( $user_id );
+		}
+
+		update_site_option( 'jetpack-network-settings', array( 'sub-site-connection-override' => $connection_override ) );
+
+		$this->assertEquals( $expected_output, Jetpack_Network::init()->set_multisite_disconnect_cap( $test_cap ) );
+	}
+
+	/**
+	 * Data provider for test_set_multisite_disconnect_caps.
+	 *
+	 * Each test data set is provided as an array:
+	 * array {
+	 *     bool $is_super_admin Whether the current user is a super admin.
+	 *     bool $connection_override The sub-site connection override setting.
+	 *     bool $disconnect_allowed Whether the user should have the jetpack_disconnect capability. This value is set
+	 *                              based on the values of $is_super_admin and $connection_override.
+	 * }
+	 */
+	public function data_provider_test_set_multisite_disconnect_caps() {
+		return array(
+			'is_super_admin: true; connection_override: true'   => array( true, true, true ),
+			'is_super_admin: true; connection_override: false'  => array( true, false, true ),
+			'is_super_admin: false; connection_override: true'  => array( false, true, true ),
+			'is_super_admin: false; connection_override: false' => array( false, false, false ),
+		);
 	}
 
 } // end class
