@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "76b0cce3e2c32a81a3cce4d8d3ed0665",
+    "content-hash": "fe8578a0e340075562699bf58b871f92",
     "packages": [
         {
             "name": "automattic/jetpack-abtest",
@@ -453,6 +453,34 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Utilities, related with user roles and capabilities."
+        },
+        {
+            "name": "automattic/jetpack-stats",
+            "version": "dev-add/stats-package",
+            "dist": {
+                "type": "path",
+                "url": "./packages/stats",
+                "reference": "e3a93a090bf12666c2953425852a16b1357f1dd2"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Used to bump stats using http://pixel.wp.com/g.gif."
         },
         {
             "name": "automattic/jetpack-status",
@@ -912,16 +940,16 @@
         },
         {
             "name": "squizlabs/php_codesniffer",
-            "version": "3.5.4",
+            "version": "3.5.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/squizlabs/PHP_CodeSniffer.git",
-                "reference": "dceec07328401de6211037abbb18bda423677e26"
+                "reference": "73e2e7f57d958e7228fce50dc0c61f58f017f9f6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/dceec07328401de6211037abbb18bda423677e26",
-                "reference": "dceec07328401de6211037abbb18bda423677e26",
+                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/73e2e7f57d958e7228fce50dc0c61f58f017f9f6",
+                "reference": "73e2e7f57d958e7228fce50dc0c61f58f017f9f6",
                 "shasum": ""
             },
             "require": {
@@ -959,7 +987,7 @@
                 "phpcs",
                 "standards"
             ],
-            "time": "2020-01-30T22:20:29+00:00"
+            "time": "2020-04-17T01:09:41+00:00"
         },
         {
             "name": "wp-coding-standards/wpcs",
@@ -1025,6 +1053,7 @@
         "automattic/jetpack-partner": 20,
         "automattic/jetpack-redirect": 20,
         "automattic/jetpack-roles": 20,
+        "automattic/jetpack-stats": 20,
         "automattic/jetpack-status": 20,
         "automattic/jetpack-sync": 20,
         "automattic/jetpack-terms-of-service": 20,
@@ -1037,6 +1066,5 @@
         "ext-json": "*",
         "ext-openssl": "*"
     },
-    "platform-dev": [],
-    "plugin-api-version": "1.1.0"
+    "platform-dev": []
 }
