@@ -34,7 +34,7 @@ import attributeDetails from './attributes';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import { getAttributesFromEmbedCode } from './utils';
 import BlockStylesSelector from '../../shared/components/block-styles-selector';
-import { CALENDLY_EXAMPLE_URL } from './';
+import { CALENDLY_EXAMPLE_URL, innerButtonBlock } from './';
 import testEmbedUrl from '../../shared/test-embed-url';
 
 function CalendlyEdit( props ) {
@@ -194,20 +194,13 @@ function CalendlyEdit( props ) {
 		</>
 	);
 
-	const innerButtonBlock = {
-		name: 'jetpack/button',
-		attributes: {
-			element: 'a',
-			text: __( 'Schedule time with me', 'jetpack' ),
-			uniqueId: 'calendly-widget-id',
-			url,
-		},
-	};
-
 	const buttonPreview = (
 		<InnerBlocks
 			template={ [
-				[ innerButtonBlock.name, { ...innerButtonBlock.attributes, ...embedButtonAttributes } ],
+				[
+					innerButtonBlock.name,
+					{ ...innerButtonBlock.attributes, url, ...embedButtonAttributes },
+				],
 			] }
 			templateLock="all"
 		/>
