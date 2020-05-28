@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React from 'react';
-import { Redirect, Route, Switch, useLocation, useRouteMatch } from 'react-router-dom';
+import { Redirect, Route, Switch } from 'react-router-dom';
 import { connect } from 'react-redux';
 
 /**
