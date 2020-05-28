@@ -253,7 +253,7 @@ const features = {
 			return {
 				feature: 'contact-form',
 				title: __( 'Contact Form' ),
-				details: __( 'Gutenberg ready forms!' ),
+				details: __( 'Add contact forms using the block editor.' ),
 				checked: getSetting( state, 'contact-form' ),
 				optionsLink: '#/settings?term=contact%20form',
 			};
@@ -1008,7 +1008,7 @@ const features = {
 			return {
 				feature: 'tiled-galleries',
 				title: __( 'Tiled Galleries' ),
-				details: 'Add beautifully laid out galleries as a Gutenberg block',
+				details: 'Add beautifully laid out galleries using the block editor.',
 				checked: getSetting( state, 'tiled-gallery' ),
 				optionsLink: 'https://jetpack.com/support/jetpack-blocks/tiled-gallery-block/',
 				isOptionsLinkExternal: true,
