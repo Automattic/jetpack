@@ -20,6 +20,8 @@
 	@include breakpoint( $less-than-vertical-break ) {
 		grid-template-rows: 65px auto auto;
 		grid-template-columns: 90px auto;
+
+		border-width: 1px 0;
 	}
 
 	.dops-button {
