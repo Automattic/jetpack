@@ -3,36 +3,63 @@
  */
 import { __, _x } from '@wordpress/i18n';
 import { BlockIcon } from '@wordpress/block-editor';
-import { Button, Placeholder, withNotices } from '@wordpress/components';
+import { createBlock } from '@wordpress/blocks';
+import { Button, Placeholder, withNotices, Spinner } from '@wordpress/components';
 import { useState } from '@wordpress/element';
+import { isEmpty } from 'lodash';
 
 /**
  * Internal dependencies
  */
-import './editor.scss';
 import icon from './icon';
+import useGatherTweetstorm from './use-gather-tweetstorm';
 
-function GatheringTweetstormsEdit( {
-	attributes,
-	className,
-	noticeOperations,
-	noticeUI,
-	setAttributes,
-} ) {
-	/**
-	 * Write the block editor UI.
-	 *
-	 * @returns {object} The UI displayed when user edits this block.
-	 */
-	const [ embedUrl, setEmbedUrl ] = useState( '' );
+function GatheringTweetstormsEdit( { className, noticeOperations, noticeUI, onReplace } ) {
+	const [ url, setUrl ] = useState( '' );
+	const [ submitted, setSubmitted ] = useState( false );
 
-	/* Call this function when you want to show an error in the placeholder. */
-	const setErrorNotice = () => {
-		noticeOperations.removeAllNotices();
-		noticeOperations.createErrorNotice( __( 'Put error message here.', 'jetpack' ) );
+	const { blocks, isGatheringStorm } = useGatherTweetstorm( {
+		url: submitted ? url : '',
+		noticeOperations,
+	} );
+
+	if ( ! isEmpty( blocks ) ) {
+		setSubmitted( false );
+
+		onReplace(
+			blocks.map( block => {
+				switch ( block.type ) {
+					case 'paragraph':
+						return createBlock( 'core/paragraph', { content: block.content } );
+					case 'gallery':
+						return createBlock( 'core/gallery', { images: block.images } );
+					case 'image':
+						return createBlock( 'core/image', { url: block.url, alt: block.alt } );
+					case 'video':
+						return createBlock( 'core/video', { src: block.url, caption: block.alt } );
+					case 'embed':
+						return createBlock( 'core/embed', { url: block.url } );
+				}
+			} )
+		);
+	}
+
+	const submitForm = event => {
+		if ( event ) {
+			event.preventDefault();
+		}
+
+		setSubmitted( true );
 	};
 
-	const submitForm = () => {};
+	if ( isGatheringStorm ) {
+		return (
+			<div className="wp-block-embed is-loading">
+				<Spinner />
+				<p>{ __( 'Gathering tweets…', 'jetpack' ) }</p>
+			</div>
+		);
+	}
 
 	return (
 		<div className={ className }>
@@ -45,14 +72,14 @@ function GatheringTweetstormsEdit( {
 					<input
 						type="text"
 						id="embedCode"
-						onChange={ event => setEmbedUrl( event.target.value ) }
+						onChange={ event => setUrl( event.target.value ) }
 						placeholder={ __( 'Tweet URL', 'jetpack' ) }
-						value={ embedUrl }
+						value={ url }
 						className="components-placeholder__input"
 					/>
 					<div>
 						<Button isSecondary isLarge type="submit">
-							{ _x( 'Gather Tweetstorm', 'button label', 'jetpack' ) }
+							{ _x( 'Gather Tweets', 'button label', 'jetpack' ) }
 						</Button>
 					</div>
 				</form>
@@ -61,4 +88,4 @@ function GatheringTweetstormsEdit( {
 	);
 }
 
-export default GatheringTweetstormsEdit;
+export default withNotices( GatheringTweetstormsEdit );

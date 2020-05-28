@@ -42,8 +42,13 @@ class Jetpack_Gathering_Tweetstorm_Helper {
 			return $response;
 		}
 
-		$storm = wp_remote_retrieve_body( $response );
-		return json_decode( $storm );
+		$data = json_decode( wp_remote_retrieve_body( $response ) );
+
+		if ( wp_remote_retrieve_response_code( $response ) >= 400 ) {
+			return new WP_Error( $data->code, $data->message, $data->data );
+		}
+
+		return $data;
 	}
 
 	/**

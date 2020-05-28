@@ -18,9 +18,10 @@ class WPCOM_REST_API_V2_Endpoint_Gather_Tweetstorm extends WP_REST_Controller {
 	 * Constructor.
 	 */
 	public function __construct() {
-		$this->namespace = 'wpcom/v2';
-		$this->rest_base = 'gather-tweetstorm';
-		$this->is_wpcom  = false;
+		$this->namespace                    = 'wpcom/v2';
+		$this->rest_base                    = 'gather-tweetstorm';
+		$this->wpcom_is_wpcom_only_endpoint = true;
+		$this->is_wpcom                     = false;
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$this->is_wpcom = true;
