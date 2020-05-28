@@ -6,7 +6,7 @@ import classnames from 'classnames';
 /**
  * WordPress dependencies
  */
-import { memo, useCallback, useState } from '@wordpress/element';
+import { memo, useCallback, useState, useRef } from '@wordpress/element';
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
@@ -63,14 +63,22 @@ function MediaBrowser( props ) {
 		[ className ]: true,
 	} );
 
+	const prevMediaCount = useRef( 0 );
+
+	const onLoadMoreClick = () => {
+		prevMediaCount.current = media.length;
+		nextPage();
+	};
+
 	return (
 		<div className={ wrapper }>
 			<ul className={ classes }>
-				{ media.map( item => (
+				{ media.map( ( item, index ) => (
 					<MediaItem
 						item={ item }
 						key={ item.ID }
 						onClick={ onSelectImage }
+						focusOnMount={ !! prevMediaCount.current && index === prevMediaCount.current }
 						isSelected={ selected.find( toFind => toFind.ID === item.ID ) }
 					/>
 				) ) }
@@ -84,7 +92,7 @@ function MediaBrowser( props ) {
 						isSecondary
 						className="jetpack-external-media-browser__loadmore"
 						disabled={ isLoading }
-						onClick={ nextPage }
+						onClick={ onLoadMoreClick }
 					>
 						{ __( 'Load More', 'jetpack' ) }
 					</Button>
