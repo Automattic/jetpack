@@ -58,12 +58,23 @@ function PexelsMedia( props ) {
 	useEffect( getNextPage, [] );
 
 	const searchFormEl = useRef( null );
-	useEffect( () => {
-		const searchInputEl = searchFormEl.current.elements[ 0 ];
 
-		searchInputEl.focus();
-		searchInputEl.select();
-	}, [] );
+	const focusSearchInput = () => {
+		if ( ! searchFormEl.current ) {
+			return;
+		}
+
+		const formElements = Array.from( searchFormEl.current.elements );
+		// TextControl does not support ref forwarding, so we need to find the input:
+		const searchInputEl = formElements.find( element => element.type === 'search' );
+
+		if ( searchInputEl ) {
+			searchInputEl.focus();
+			searchInputEl.select();
+		}
+	};
+
+	useEffect( focusSearchInput, [] );
 
 	return (
 		<div className="jetpack-external-media-wrapper__pexels">
