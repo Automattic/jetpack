@@ -247,18 +247,13 @@ class Main extends React.Component {
 				}
 				break;
 			default:
-				if ( this.props.showSetupWizard ) {
-					this.props.history.replace( '/setup' );
-					navComponent = null;
-					pageComponent = <SetupWizard />;
-				} else {
-					this.props.history.replace( '/dashboard' );
-					pageComponent = this.getAtAGlance();
-				}
+				this.props.history.replace( '/dashboard' );
+				pageComponent = this.getAtAGlance();
+				break;
 		}
 
 		const pageOrder = this.props.showSetupWizard
-			? { setup: 1, dashboard: 2, settings: 3 }
+			? { dashboard: 1, setup: 2, settings: 3 }
 			: { setup: -1, dashboard: 1, settings: 2 };
 
 		window.wpNavMenuClassChange( pageOrder );
