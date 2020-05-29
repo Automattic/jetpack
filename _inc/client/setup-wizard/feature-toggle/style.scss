@@ -13,7 +13,7 @@
 
 	@include breakpoint( $greater-than-vertical-break ) {
 		&.jp-setup-wizard-fixed-right-column {
-			grid-template-columns: 100px auto 220px;
+			grid-template-columns: 100px auto 240px;
 		}
 	}
 
@@ -112,7 +112,7 @@
 .jp-setup-wizard-feature-toggle-button-container {
 	display: flex;
 	flex-direction: column;
-	align-items: center;
+	align-items: flex-end;
 	justify-content: center;
 
 	padding-right: 1rem;
