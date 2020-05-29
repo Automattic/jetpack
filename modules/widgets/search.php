@@ -640,17 +640,13 @@ class Jetpack_Search_Widget extends WP_Widget {
 	public function update( $new_instance, $old_instance ) {
 		$instance = array();
 
-		$instance['title']      = sanitize_text_field( $new_instance['title'] );
-		$instance['sort']       = $new_instance['sort'];
-		$instance['post_types'] = empty( $new_instance['post_types'] )
+		$instance['title']              = sanitize_text_field( $new_instance['title'] );
+		$instance['search_box_enabled'] = empty( $new_instance['search_box_enabled'] ) ? '0' : '1';
+		$instance['user_sort_enabled']  = empty( $new_instance['user_sort_enabled'] ) ? '0' : '1';
+		$instance['sort']               = $new_instance['sort'];
+		$instance['post_types']         = empty( $new_instance['post_types'] ) || empty( $instance['search_box_enabled'] )
 			? array()
 			: array_map( 'sanitize_key', $new_instance['post_types'] );
-
-		if ( ! Jetpack_Search_Options::is_instant_enabled() ) {
-			$instance['search_box_enabled'] = empty( $new_instance['search_box_enabled'] ) ? '0' : '1';
-			$instance['user_sort_enabled']  = empty( $new_instance['user_sort_enabled'] ) ? '0' : '1';
-			$instance['post_types']         = empty( $instance['search_box_enabled'] ) ? array() : $instance['post_types'];
-		}
 
 		$filters = array();
 		if ( isset( $new_instance['filter_type'] ) ) {
