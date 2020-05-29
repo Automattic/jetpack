@@ -16,6 +16,7 @@ import getRedirectUrl from 'lib/jp-redirect';
  */
 import { getPlanClass, FEATURE_SECURITY_SCANNING_JETPACK } from 'lib/plans/constants';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import QueryRewindStatus from 'components/data/query-rewind-status';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { getVaultPressData, getVaultPressScanThreatCount } from 'state/at-a-glance';
@@ -254,6 +255,7 @@ export const BackupsScan = withModuleSettingsFormHelpers(
 					action="scan"
 					hideButton
 				>
+					<QueryRewindStatus />
 					<SettingsGroup
 						disableInDevMode
 						module={ { module: 'backups' } }
