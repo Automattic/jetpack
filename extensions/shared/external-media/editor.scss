@@ -357,6 +357,7 @@ $grid-size: 8px;
 	justify-content: space-between;
 }
 
-.jetpack-external-media-browse-button {
-	margin-right: 8px !important;
+// Reset placeholder button margin.
+.components-placeholder__fieldset .components-dropdown .components-button {
+	margin-right: 8px;
 }
