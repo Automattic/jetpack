@@ -57,7 +57,9 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 			'jetpack-social-menu',
 			'jetpack-responsive-videos',
 			'infinite-scroll',
-			'site-logo'
+			'site-logo',
+			'editor-color-palette',
+			'editor-gradient-presets',
 		);
 
 		// this forces theme mods to be saved as an option so that this test is valid

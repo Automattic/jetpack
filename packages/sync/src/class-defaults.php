@@ -803,6 +803,8 @@ class Defaults {
 		'jetpack-responsive-videos',
 		'infinite-scroll',
 		'site-logo',
+		'editor-color-palette',
+		'editor-gradient-presets',
 	);
 
 	/**
