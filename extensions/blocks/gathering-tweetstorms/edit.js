@@ -3,7 +3,6 @@
  */
 import { __, _x } from '@wordpress/i18n';
 import { BlockIcon } from '@wordpress/block-editor';
-import { createBlock } from '@wordpress/blocks';
 import { Button, Placeholder, withNotices, Spinner } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { isEmpty } from 'lodash';
@@ -18,32 +17,23 @@ function GatheringTweetstormsEdit( { className, noticeOperations, noticeUI, onRe
 	const [ url, setUrl ] = useState( '' );
 	const [ submitted, setSubmitted ] = useState( false );
 
-	const { blocks, isGatheringStorm } = useGatherTweetstorm( {
+	const { blocks, isGatheringStorm, unleashStorm } = useGatherTweetstorm( {
 		url: submitted ? url : '',
 		noticeOperations,
+		onReplace,
 	} );
 
+	// If we've discovered blocks, replace the current block with those blocks.
 	if ( ! isEmpty( blocks ) ) {
 		setSubmitted( false );
-
-		onReplace(
-			blocks.map( block => {
-				switch ( block.type ) {
-					case 'paragraph':
-						return createBlock( 'core/paragraph', { content: block.content } );
-					case 'gallery':
-						return createBlock( 'core/gallery', { images: block.images } );
-					case 'image':
-						return createBlock( 'core/image', { url: block.url, alt: block.alt } );
-					case 'video':
-						return createBlock( 'core/video', { src: block.url, caption: block.alt } );
-					case 'embed':
-						return createBlock( 'core/embed', { url: block.url } );
-				}
-			} )
-		);
+		unleashStorm();
 	}
 
+	/**
+	 * Event handler for when the form is submitted.
+	 *
+	 * @param {*} event - Event object.
+	 */
 	const submitForm = event => {
 		if ( event ) {
 			event.preventDefault();

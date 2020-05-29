@@ -8,6 +8,7 @@ import { __, _x } from '@wordpress/i18n';
  */
 import edit from './edit';
 import icon from './icon';
+import { supportsCollections } from '../../shared/block-category';
 
 export const name = 'gathering-tweetstorms';
 export const title = __( 'Gathering Tweetstorms', 'jetpack' );
@@ -15,7 +16,7 @@ export const settings = {
 	title,
 	description: __( 'Convert a tweetstorm into a post.', 'jetpack' ),
 	icon,
-	category: 'jetpack',
+	category: supportsCollections() ? 'embed' : 'jetpack',
 	keywords: [ _x( 'twitter', 'jetpack' ) ],
 	supports: {
 		align: false,
