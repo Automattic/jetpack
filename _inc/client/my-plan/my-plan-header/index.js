@@ -30,7 +30,7 @@ class MyPlanHeader extends React.Component {
 			};
 		}
 
-		const purchase = find( purchases, purchaseObj => purchaseObj.product_slug === productSlug );
+		const purchase = find( purchases, ( purchaseObj ) => purchaseObj.product_slug === productSlug );
 		let expiration;
 		if ( purchase ) {
 			expiration = (
@@ -197,7 +197,7 @@ MyPlanHeader.propTypes = {
 	purchases: PropTypes.array,
 };
 
-export default connect( state => {
+export default connect( ( state ) => {
 	return {
 		siteSlug: getSiteRawUrl( state ),
 		displayBackups: showBackups( state ),

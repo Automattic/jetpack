@@ -43,7 +43,7 @@ export const SSO = withModuleSettingsFormHelpers(
 		 *
 		 * @param {string} optionName The slug of the option to update
 		 */
-		updateOptions = optionName => {
+		updateOptions = ( optionName ) => {
 			this.setState(
 				{
 					[ optionName ]: ! this.state[ optionName ],

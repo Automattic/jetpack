@@ -28,7 +28,7 @@ function filterOnly( level ) {
 const stringFormat = format.combine(
 	format.timestamp(),
 	format.errors( { stack: true } ),
-	format.printf( info => {
+	format.printf( ( info ) => {
 		let msg = `${ info.timestamp } ${ info.level }: ${ info.message }`;
 		if ( info.stack ) {
 			msg = msg + `\n${ info.stack }`;
@@ -62,7 +62,7 @@ const logger = createLogger( {
 
 			format: format.combine(
 				filterOnly( 'slack' ),
-				format.printf( info => {
+				format.printf( ( info ) => {
 					if ( typeof info.message === 'object' ) {
 						const obj = info.message;
 

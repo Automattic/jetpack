@@ -20,7 +20,7 @@ import {
 
 import './style.scss';
 
-let IntroPage = props => {
+let IntroPage = ( props ) => {
 	useEffect( () => {
 		props.updateStatus( 'intro-page' );
 		analytics.tracks.recordEvent( 'jetpack_wizard_page_view', { step: 'intro-page' } );
@@ -108,11 +108,11 @@ IntroPage.propTypes = {
 };
 
 IntroPage = connect(
-	state => ( {} ),
-	dispatch => ( {
-		updateSiteUseQuestion: answer => dispatch( updateSetupWizardQuestionnaire( answer ) ),
+	( state ) => ( {} ),
+	( dispatch ) => ( {
+		updateSiteUseQuestion: ( answer ) => dispatch( updateSetupWizardQuestionnaire( answer ) ),
 		saveQuestionnaire: () => dispatch( saveSetupWizardQuestionnnaire() ),
-		updateStatus: status => dispatch( updateSetupWizardStatus( status ) ),
+		updateStatus: ( status ) => dispatch( updateSetupWizardStatus( status ) ),
 	} )
 )( IntroPage );
 

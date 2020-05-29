@@ -23,7 +23,7 @@ export default class ModuleChartBarContainer extends React.Component {
 		barClick: PropTypes.func,
 	};
 
-	buildBars = max => {
+	buildBars = ( max ) => {
 		const numberBars = this.props.data.length,
 			width = this.props.chartWidth,
 			barWidth = width / numberBars;

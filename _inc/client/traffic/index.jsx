@@ -126,15 +126,15 @@ export class Traffic extends React.Component {
 	}
 }
 
-export default connect( state => {
+export default connect( ( state ) => {
 	return {
-		module: module_name => getModule( state, module_name ),
+		module: ( module_name ) => getModule( state, module_name ),
 		settings: getSettings( state ),
 		isDevMode: isDevMode( state ),
-		isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
-		isModuleFound: module_name => isModuleFound( state, module_name ),
+		isUnavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name ),
+		isModuleFound: ( module_name ) => isModuleFound( state, module_name ),
 		isSiteConnected: isSiteConnected( state ),
 		lastPostUrl: getLastPostUrl( state ),
-		getModuleOverride: module_name => getModuleOverride( state, module_name ),
+		getModuleOverride: ( module_name ) => getModuleOverride( state, module_name ),
 	};
 } )( Traffic );

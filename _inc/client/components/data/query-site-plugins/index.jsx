@@ -22,12 +22,12 @@ export class QuerySitePlugins extends React.Component {
 }
 
 export default connect(
-	state => {
+	( state ) => {
 		return {
 			isFetchingPluginsData: isFetchingPluginsData( state ),
 		};
 	},
-	dispatch => {
+	( dispatch ) => {
 		return {
 			fetchPluginsData: () => dispatch( fetchPluginsData() ),
 		};

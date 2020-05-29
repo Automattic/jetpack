@@ -39,7 +39,7 @@ export default class TextInput extends React.Component {
 		);
 	}
 
-	selectOnFocus = event => {
+	selectOnFocus = ( event ) => {
 		event.target.select();
 	};
 }

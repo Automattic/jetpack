@@ -62,8 +62,8 @@ export const settings = {
 			},
 			{
 				type: 'raw',
-				isMatch: node => node.nodeName === 'P' && URL_REGEX.test( node.textContent ),
-				transform: node => {
+				isMatch: ( node ) => node.nodeName === 'P' && URL_REGEX.test( node.textContent ),
+				transform: ( node ) => {
 					return createBlock( 'jetpack/google-calendar', {
 						url: node.textContent.trim(),
 					} );
@@ -71,8 +71,8 @@ export const settings = {
 			},
 			{
 				type: 'raw',
-				isMatch: node => node.nodeName === 'FIGURE' && IFRAME_REGEX.test( node.innerHTML ),
-				transform: node => {
+				isMatch: ( node ) => node.nodeName === 'FIGURE' && IFRAME_REGEX.test( node.innerHTML ),
+				transform: ( node ) => {
 					const { url, height } = extractAttributesFromIframe( node.innerHTML.trim() );
 					return createBlock( 'jetpack/google-calendar', { url, height } );
 				},

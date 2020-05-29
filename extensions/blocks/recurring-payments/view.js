@@ -29,7 +29,7 @@ function handleIframeResult( eventFromIframe ) {
 }
 
 function activateSubscription( block, checkoutURL ) {
-	block.addEventListener( 'click', event => {
+	block.addEventListener( 'click', ( event ) => {
 		event.preventDefault();
 		window.scrollTo( 0, 0 );
 		tb_show( null, checkoutURL + '&display=alternate&TB_iframe=true', null );
@@ -46,7 +46,7 @@ const initializeMembershipButtonBlocks = () => {
 	const membershipButtonBlocks = Array.prototype.slice.call(
 		document.querySelectorAll( '.' + blockClassName + ' a' )
 	);
-	membershipButtonBlocks.forEach( block => {
+	membershipButtonBlocks.forEach( ( block ) => {
 		if ( block.getAttribute( 'data-jetpack-block-initialized' ) === 'true' ) {
 			return;
 		}

@@ -50,7 +50,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 			return;
 		}
 
-		this.props.checkVerifyStatusGoogle().then( response => {
+		this.props.checkVerifyStatusGoogle().then( ( response ) => {
 			// if the site is not in google search console anymore, reset the verification token
 			// and call checkVerifyStatusGoogle to unverify it
 			if (
@@ -79,7 +79,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 		this.props.createNotice( 'is-info', __( 'Verifying…' ), { id: 'verifying-site-google' } );
 		this.props
 			.checkVerifyStatusGoogle( keyringId )
-			.then( response => {
+			.then( ( response ) => {
 				if ( ! response ) {
 					return;
 				}
@@ -123,14 +123,14 @@ class GoogleVerificationServiceComponent extends React.Component {
 
 		analytics.tracks.recordEvent( 'jetpack_site_verification_google_auto_verify_click' );
 
-		requestExternalAccess( this.props.googleSiteVerificationConnectUrl, keyringId => {
+		requestExternalAccess( this.props.googleSiteVerificationConnectUrl, ( keyringId ) => {
 			if ( keyringId ) {
 				this.checkAndVerifySite( keyringId );
 			}
 		} );
 	};
 
-	handleClickSetManually = event => {
+	handleClickSetManually = ( event ) => {
 		analytics.tracks.recordEvent( 'jetpack_site_verification_google_manual_verify_click', {
 			is_owner: this.props.isOwner,
 		} );
@@ -138,7 +138,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 		this.toggleVerifyMethod( event );
 	};
 
-	handleClickEdit = event => {
+	handleClickEdit = ( event ) => {
 		analytics.tracks.recordEvent( 'jetpack_site_verification_google_edit_click', {
 			is_owner: this.props.isOwner,
 		} );
@@ -146,7 +146,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 		this.toggleVerifyMethod( event );
 	};
 
-	handleClickCancel = event => {
+	handleClickCancel = ( event ) => {
 		analytics.tracks.recordEvent( 'jetpack_site_verification_google_cancel_click', {
 			is_owner: this.props.isOwner,
 		} );
@@ -155,7 +155,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 		this.toggleVerifyMethod( event );
 	};
 
-	quickSave = event => {
+	quickSave = ( event ) => {
 		analytics.tracks.recordEvent( 'jetpack_site_verification_google_manual_verify_save', {
 			is_owner: this.props.isOwner,
 			is_empty: ! this.props.value,
@@ -170,7 +170,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 		} );
 	};
 
-	handleOnTextInputKeyPress = event => {
+	handleOnTextInputKeyPress = ( event ) => {
 		if ( event.key === 'Enter' ) {
 			this.quickSave();
 		}
@@ -329,7 +329,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 }
 
 export default connect(
-	state => {
+	( state ) => {
 		return {
 			fetchingSiteData: isFetchingSiteData( state ),
 			googleSiteVerificationConnectUrl: getExternalServiceConnectUrl(

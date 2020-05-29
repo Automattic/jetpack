@@ -41,7 +41,7 @@ class MyPlanBody extends React.Component {
 		plan: '',
 	};
 
-	trackPlansClick = target => {
+	trackPlansClick = ( target ) => {
 		analytics.tracks.recordJetpackClick( {
 			page: 'my-plan',
 			target: target,
@@ -49,7 +49,7 @@ class MyPlanBody extends React.Component {
 		} );
 	};
 
-	handleButtonClickForTracking = target => {
+	handleButtonClickForTracking = ( target ) => {
 		return () => this.trackPlansClick( target );
 	};
 
@@ -90,7 +90,7 @@ class MyPlanBody extends React.Component {
 				! this.props.showBackups ||
 				( ! rewindActive && 'unavailable' !== get( this.props.rewindStatus, [ 'state' ], false ) );
 
-		const getJetpackBackupCard = args => {
+		const getJetpackBackupCard = ( args ) => {
 			const { title, description } = args;
 
 			return (
@@ -792,26 +792,26 @@ class MyPlanBody extends React.Component {
 }
 
 export default connect(
-	state => {
+	( state ) => {
 		return {
 			isFetchingPluginsData: isFetchingPluginsData( state ),
-			isPluginActive: plugin_slug => isPluginActive( state, plugin_slug ),
-			isPluginInstalled: plugin_slug => isPluginInstalled( state, plugin_slug ),
-			isModuleActivated: module_slug => _isModuleActivated( state, module_slug ),
-			isActivatingModule: module_slug => isActivatingModule( state, module_slug ),
-			getModuleOverride: module_slug => getModuleOverride( state, module_slug ),
+			isPluginActive: ( plugin_slug ) => isPluginActive( state, plugin_slug ),
+			isPluginInstalled: ( plugin_slug ) => isPluginInstalled( state, plugin_slug ),
+			isModuleActivated: ( module_slug ) => _isModuleActivated( state, module_slug ),
+			isActivatingModule: ( module_slug ) => isActivatingModule( state, module_slug ),
+			getModuleOverride: ( module_slug ) => getModuleOverride( state, module_slug ),
 			showBackups: showBackups( state ),
-			getFeatureState: feature => getSetting( state, feature ),
-			isActivatingFeature: feature => isUpdatingSetting( state, feature ),
+			getFeatureState: ( feature ) => getSetting( state, feature ),
+			isActivatingFeature: ( feature ) => isUpdatingSetting( state, feature ),
 		};
 	},
-	dispatch => {
+	( dispatch ) => {
 		return {
 			fetchPluginsData: () => dispatch( fetchPluginsData() ),
-			activateModule: slug => {
+			activateModule: ( slug ) => {
 				return dispatch( activateModule( slug ) );
 			},
-			activateFeature: feature => dispatch( updateSettings( { [ feature ]: true } ) ),
+			activateFeature: ( feature ) => dispatch( updateSettings( { [ feature ]: true } ) ),
 		};
 	}
 )( MyPlanBody );

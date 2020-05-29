@@ -17,6 +17,6 @@ export function QuerySiteProducts( props ) {
 }
 
 export default connect(
-	state => ( { isFetchingSiteProducts: isFetchingSiteProducts( state ) } ),
-	dispatch => ( { fetchSiteProducts: () => dispatch( fetchSiteProducts() ) } )
+	( state ) => ( { isFetchingSiteProducts: isFetchingSiteProducts( state ) } ),
+	( dispatch ) => ( { fetchSiteProducts: () => dispatch( fetchSiteProducts() ) } )
 )( QuerySiteProducts );

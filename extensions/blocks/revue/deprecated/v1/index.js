@@ -83,7 +83,7 @@ export default {
 			type: 'string',
 		},
 	},
-	migrate: attributes => {
+	migrate: ( attributes ) => {
 		const newAttributes = omit( attributes, deprecatedAttributes );
 		const buttonAttributes = pick( attributes, deprecatedAttributes );
 

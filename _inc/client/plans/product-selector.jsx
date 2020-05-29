@@ -48,7 +48,7 @@ class ProductSelector extends Component {
 	}
 
 	getProduct( key ) {
-		return this.props.productsForPurchase.find( product => product.key === key );
+		return this.props.productsForPurchase.find( ( product ) => product.key === key );
 	}
 
 	getSelectedType( key ) {
@@ -60,7 +60,7 @@ class ProductSelector extends Component {
 
 	getProductOption( key, optionType ) {
 		const product = this.getProduct( key );
-		return product.options.find( option => option.type === optionType );
+		return product.options.find( ( option ) => option.type === optionType );
 	}
 
 	getOptionName( key, option ) {
@@ -88,7 +88,7 @@ class ProductSelector extends Component {
 	}
 
 	getPurchase( product ) {
-		return this.props.activeSitePurchases.find( item => {
+		return this.props.activeSitePurchases.find( ( item ) => {
 			const planClass = getPlanClass( item.product_slug ).substring( 3 ); // removes the is-
 			if ( product.includedInPlans.includes( planClass ) ) {
 				return item;
@@ -131,7 +131,7 @@ class ProductSelector extends Component {
 	}
 }
 
-export default connect( state => {
+export default connect( ( state ) => {
 	return {
 		activeSitePurchases: getActiveSitePurchases( state ),
 		productsForPurchase: getProductsForPurchase( state ),

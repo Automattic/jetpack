@@ -11,10 +11,10 @@ export const StarBlockIcon = () => {
 	);
 };
 
-const getColor = props => ( props && props.color ? props.color : 'currentColor' );
-const getClassName = props => ( props && props.className ? props.className : '' );
+const getColor = ( props ) => ( props && props.color ? props.color : 'currentColor' );
+const getClassName = ( props ) => ( props && props.className ? props.className : '' );
 
-export const StarIcon = props => {
+export const StarIcon = ( props ) => {
 	const color = getColor( props );
 	const className = getClassName( props );
 

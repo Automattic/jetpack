@@ -37,14 +37,14 @@ export default function getRedirectUrl( source, args = {} ) {
 
 	const acceptedArgs = [ 'site', 'path', 'query', 'anchor' ];
 
-	Object.keys( args ).map( argName => {
+	Object.keys( args ).map( ( argName ) => {
 		if ( acceptedArgs.includes( argName ) ) {
 			queryVars[ argName ] = encodeURIComponent( args[ argName ] );
 		}
 	} );
 
 	const queryString = Object.keys( queryVars )
-		.map( key => key + '=' + queryVars[ key ] )
+		.map( ( key ) => key + '=' + queryVars[ key ] )
 		.join( '&' );
 
 	return `https://jetpack.com/redirect/?` + queryString;

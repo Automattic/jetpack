@@ -20,7 +20,7 @@ import { __ } from '@wordpress/i18n';
  */
 import './style.scss';
 
-const addPreviewAttribute = block => {
+const addPreviewAttribute = ( block ) => {
 	return {
 		...block,
 		attributes: {
@@ -63,7 +63,7 @@ export default function BlockStylesSelector( {
 } ) {
 	let block;
 	if ( useSelect ) {
-		block = useSelect( select => {
+		block = useSelect( ( select ) => {
 			const { getBlock } = select( 'core/block-editor' );
 			return getBlock( clientId );
 		} );
@@ -76,7 +76,7 @@ export default function BlockStylesSelector( {
 					isCollapsed={ true }
 					icon="admin-appearance"
 					label={ __( 'Style', 'jetpack' ) }
-					controls={ styleOptions.map( styleOption => ( {
+					controls={ styleOptions.map( ( styleOption ) => ( {
 						title: styleOption.label,
 						isActive: styleOption.value === activeStyle,
 						onClick: () => onSelectStyle( { style: styleOption.value } ),
@@ -87,7 +87,7 @@ export default function BlockStylesSelector( {
 			<InspectorControls>
 				<PanelBody title={ title ? title : __( 'Styles', 'jetpack' ) }>
 					<div className="block-editor-block-styles jetpack-block-styles-selector">
-						{ styleOptions.map( styleOption => {
+						{ styleOptions.map( ( styleOption ) => {
 							const optionAttributes = {
 								...attributes,
 								style: styleOption.value,
@@ -102,7 +102,7 @@ export default function BlockStylesSelector( {
 									onClick={ () => {
 										onSelectStyle( { style: styleOption.value } );
 									} }
-									onKeyDown={ event => {
+									onKeyDown={ ( event ) => {
 										if ( ENTER === event.keyCode || SPACE === event.keyCode ) {
 											event.preventDefault();
 											onSelectStyle( { style: styleOption.value } );

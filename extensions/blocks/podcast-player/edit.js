@@ -97,11 +97,11 @@ const PodcastPlayerEdit = ( {
 	const [ isInteractive, setIsInteractive ] = useState( false );
 
 	const fetchFeed = useCallback(
-		urlToFetch => {
+		( urlToFetch ) => {
 			cancellableFetch.current = makeCancellable( fetchPodcastFeed( urlToFetch ) );
 
 			cancellableFetch.current.promise.then(
-				response => {
+				( response ) => {
 					if ( response?.isCanceled ) {
 						debug( 'Block was unmounted during fetch', response );
 						return; // bail if canceled to avoid setting state
@@ -115,7 +115,7 @@ const PodcastPlayerEdit = ( {
 							return replaceWithEmbedBlock();
 					}
 				},
-				error => {
+				( error ) => {
 					if ( error?.isCanceled ) {
 						debug( 'Block was unmounted during fetch', error );
 						return; // bail if canceled to avoid setting state
@@ -170,7 +170,7 @@ const PodcastPlayerEdit = ( {
 	 * @param {object} event - Form on submit event object.
 	 */
 	const checkPodcastLink = useCallback(
-		event => {
+		( event ) => {
 			event.preventDefault();
 			removeAllNotices();
 
@@ -256,7 +256,7 @@ const PodcastPlayerEdit = ( {
 		);
 	}
 
-	const createColorChangeHandler = ( colorAttr, handler ) => color => {
+	const createColorChangeHandler = ( colorAttr, handler ) => ( color ) => {
 		setAttributes( { [ colorAttr ]: color } );
 		handler( color );
 	};
@@ -293,7 +293,7 @@ const PodcastPlayerEdit = ( {
 					<RangeControl
 						label={ __( 'Number of items', 'jetpack' ) }
 						value={ itemsToShow }
-						onChange={ value => setAttributes( { itemsToShow: value } ) }
+						onChange={ ( value ) => setAttributes( { itemsToShow: value } ) }
 						min={ DEFAULT_MIN_ITEMS }
 						max={ DEFAULT_MAX_ITEMS }
 						required
@@ -302,13 +302,13 @@ const PodcastPlayerEdit = ( {
 					<ToggleControl
 						label={ __( 'Show Cover Art', 'jetpack' ) }
 						checked={ showCoverArt }
-						onChange={ value => setAttributes( { showCoverArt: value } ) }
+						onChange={ ( value ) => setAttributes( { showCoverArt: value } ) }
 					/>
 
 					<ToggleControl
 						label={ __( 'Show Episode Description', 'jetpack' ) }
 						checked={ showEpisodeDescription }
-						onChange={ value => setAttributes( { showEpisodeDescription: value } ) }
+						onChange={ ( value ) => setAttributes( { showEpisodeDescription: value } ) }
 					/>
 				</PanelBody>
 				<PanelColorSettings

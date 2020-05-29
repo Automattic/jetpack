@@ -48,12 +48,12 @@ if ( program.args.length ) {
 			case 'gui':
 				mocha.addFile( '_inc/client/test/main.js' );
 
-				glob.sync( '_inc/client/**/test/component.js' ).forEach( file => {
+				glob.sync( '_inc/client/**/test/component.js' ).forEach( ( file ) => {
 					mocha.addFile( file );
 				} );
 				break;
 			case 'modules':
-				glob.sync( 'modules/**/test-*.js' ).forEach( file => {
+				glob.sync( 'modules/**/test-*.js' ).forEach( ( file ) => {
 					mocha.addFile( file );
 				} );
 				break;
@@ -64,7 +64,7 @@ if ( program.args.length ) {
 		} );
 	}
 } else {
-	glob.sync( '_inc/client/state/**/test/*.js' ).forEach( file => {
+	glob.sync( '_inc/client/state/**/test/*.js' ).forEach( ( file ) => {
 		mocha.addFile( file );
 	} );
 }

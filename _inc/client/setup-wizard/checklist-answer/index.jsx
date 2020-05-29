@@ -14,7 +14,7 @@ import { getSetupWizardAnswer, updateSetupWizardQuestionnaire } from 'state/setu
 
 import './style.scss';
 
-let ChecklistAnswer = props => {
+let ChecklistAnswer = ( props ) => {
 	const { checked, title, details, answerKey, updateChecklistAnswerQuestion } = props;
 
 	const [ expanded, setExpanded ] = useState( false );
@@ -111,8 +111,9 @@ ChecklistAnswer = connect(
 	( state, ownProps ) => ( {
 		checked: getSetupWizardAnswer( state, ownProps.answerKey ),
 	} ),
-	dispatch => ( {
-		updateChecklistAnswerQuestion: answer => dispatch( updateSetupWizardQuestionnaire( answer ) ),
+	( dispatch ) => ( {
+		updateChecklistAnswerQuestion: ( answer ) =>
+			dispatch( updateSetupWizardQuestionnaire( answer ) ),
 	} )
 )( ChecklistAnswer );
 

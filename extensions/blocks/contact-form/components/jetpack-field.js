@@ -24,7 +24,7 @@ export default function JetpackField( props ) {
 						type={ type }
 						placeholder={ placeholder }
 						value={ placeholder }
-						onChange={ value => setAttributes( { placeholder: value } ) }
+						onChange={ ( value ) => setAttributes( { placeholder: value } ) }
 						title={ __( 'Set the placeholder text', 'jetpack' ) }
 					/>
 				</Disabled>
@@ -40,8 +40,8 @@ export default function JetpackField( props ) {
 	);
 }
 
-const withCustomClassName = createHigherOrderComponent( BlockListBlock => {
-	return props => {
+const withCustomClassName = createHigherOrderComponent( ( BlockListBlock ) => {
+	return ( props ) => {
 		if ( props.name.indexOf( 'jetpack/field' ) > -1 ) {
 			const customClassName = props.attributes.width
 				? 'jetpack-field__width-' + props.attributes.width

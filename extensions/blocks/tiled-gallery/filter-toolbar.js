@@ -110,7 +110,7 @@ export default function FilterToolbar( { value, onChange } ) {
 				);
 			} }
 			renderContent={ ( { onClose } ) => {
-				const applyOrUnset = nextValue => () => {
+				const applyOrUnset = ( nextValue ) => () => {
 					onChange( value === nextValue ? undefined : nextValue );
 					onClose();
 				};

@@ -64,7 +64,7 @@ class SeoComponent extends React.Component {
 	}
 }
 
-export const SEO = connect( state => {
+export const SEO = connect( ( state ) => {
 	return {
 		sitePlan: getSitePlan( state ),
 	};

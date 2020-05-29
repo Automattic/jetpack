@@ -22,7 +22,7 @@ import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 
 class PostByEmail extends React.Component {
-	regeneratePostByEmailAddress = event => {
+	regeneratePostByEmailAddress = ( event ) => {
 		analytics.tracks.recordJetpackClick( 'pbe-regenerage-email' );
 		event.preventDefault();
 		this.props.regeneratePostByEmailAddress();
@@ -117,9 +117,9 @@ class PostByEmail extends React.Component {
 	}
 }
 
-export default connect( state => {
+export default connect( ( state ) => {
 	return {
-		module: module_name => getModule( state, module_name ),
-		isModuleFound: module_name => _isModuleFound( state, module_name ),
+		module: ( module_name ) => getModule( state, module_name ),
+		isModuleFound: ( module_name ) => _isModuleFound( state, module_name ),
 	};
 } )( withModuleSettingsFormHelpers( PostByEmail ) );

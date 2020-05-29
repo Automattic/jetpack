@@ -44,7 +44,7 @@ class JetpackBanner extends Banner {
 	}
 }
 
-export default connect( state => {
+export default connect( ( state ) => {
 	return {
 		arePromotionsActive: arePromotionsActive( state ),
 		userCanPurchasePlan: userCanManageModules( state ),

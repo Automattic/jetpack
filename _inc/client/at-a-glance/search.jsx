@@ -27,7 +27,7 @@ import { getUpgradeUrl, isAtomicSite } from 'state/initial-state';
  * @param   {object} props Settings to render the card.
  * @returns {object}       Search card
  */
-const renderCard = props => (
+const renderCard = ( props ) => (
 	<DashItem
 		label={ __( 'Search' ) }
 		module="search"
@@ -169,7 +169,7 @@ class DashSearch extends Component {
 	}
 }
 
-export default connect( state => {
+export default connect( ( state ) => {
 	return {
 		isAtomicSite: isAtomicSite( state ),
 		isBusinessPlan: 'is-business-plan' === getPlanClass( getSitePlan( state ).product_slug ),

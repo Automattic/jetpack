@@ -98,7 +98,7 @@ class SelectDropdown extends Component {
 			return;
 		}
 
-		const selectedItem = find( props.options, value => ! value.isLabel );
+		const selectedItem = find( props.options, ( value ) => ! value.isLabel );
 		return selectedItem && selectedItem.value;
 	}
 
@@ -327,7 +327,7 @@ class SelectDropdown extends Component {
 
 		if ( this.props.options.length ) {
 			items = map(
-				filter( this.props.options, item => {
+				filter( this.props.options, ( item ) => {
 					return item && ! item.isLabel;
 				} ),
 				'value'

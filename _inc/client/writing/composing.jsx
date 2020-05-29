@@ -25,7 +25,7 @@ export class Composing extends React.Component {
 	 * @param {string} module the slug of the module to update
 	 * @returns {*}           the updated value
 	 */
-	updateFormStateByMarkdown = module => {
+	updateFormStateByMarkdown = ( module ) => {
 		if ( !! this.props.getSettingCurrentValue( 'wpcom_publish_comments_with_markdown', module ) ) {
 			return this.props.updateFormStateModuleOption( module, 'wpcom_publish_posts_with_markdown' );
 		}
@@ -170,9 +170,9 @@ export class Composing extends React.Component {
 	}
 }
 
-export default connect( state => {
+export default connect( ( state ) => {
 	return {
-		module: module_name => getModule( state, module_name ),
-		isModuleFound: module_name => _isModuleFound( state, module_name ),
+		module: ( module_name ) => getModule( state, module_name ),
+		isModuleFound: ( module_name ) => _isModuleFound( state, module_name ),
 	};
 } )( withModuleSettingsFormHelpers( Composing ) );

@@ -43,7 +43,7 @@ const SelectDropdownDemo = createReactClass( {
 	},
 
 	handleSelectItem: function ( childSelected, count ) {
-		return event => {
+		return ( event ) => {
 			event.preventDefault();
 			this.selectItem( childSelected, count );
 		};

@@ -21,7 +21,7 @@ export default function JetpackFieldTextarea( props ) {
 					<TextareaControl
 						placeholder={ placeholder }
 						value={ placeholder }
-						onChange={ value => setAttributes( { placeholder: value } ) }
+						onChange={ ( value ) => setAttributes( { placeholder: value } ) }
 						title={ __( 'Set the placeholder text', 'jetpack' ) }
 					/>
 				</Disabled>

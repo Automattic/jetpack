@@ -29,7 +29,7 @@ export class PodcastPlayer extends Component {
 		hasUserInteraction: false,
 	};
 
-	playerRef = player => {
+	playerRef = ( player ) => {
 		this.player = player;
 		this.play = player ? player.play : noop;
 		this.pause = player ? player.pause : noop;
@@ -54,7 +54,7 @@ export class PodcastPlayer extends Component {
 	 * @public
 	 * @param {number} track - The track number
 	 */
-	selectTrack = track => {
+	selectTrack = ( track ) => {
 		const { currentTrack } = this.state;
 
 		// Current track already selected.
@@ -79,7 +79,7 @@ export class PodcastPlayer extends Component {
 	 * @private
 	 * @param {number} track - The track number
 	 */
-	loadAndPlay = track => {
+	loadAndPlay = ( track ) => {
 		// Record that user has interacted.
 		this.recordUserInteraction();
 
@@ -112,7 +112,7 @@ export class PodcastPlayer extends Component {
 	 * @param {number} track - The track number
 	 * @returns {object} Track object.
 	 */
-	getTrack = track => {
+	getTrack = ( track ) => {
 		return this.props.tracks[ track ];
 	};
 
@@ -122,7 +122,7 @@ export class PodcastPlayer extends Component {
 	 * @private
 	 * @param {object} error - The error object
 	 */
-	handleError = error => {
+	handleError = ( error ) => {
 		// If an error happens before any user interaction, our player is broken beyond repair.
 		if ( ! this.state.hasUserInteraction ) {
 			// There is a known error where IE11 doesn't support the <audio> element by

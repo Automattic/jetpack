@@ -41,7 +41,7 @@ class ThemeEnhancements extends React.Component {
 	 *
 	 * @param {string} radio Update options to save when Infinite Scroll options change.
 	 */
-	updateInfiniteMode = radio => {
+	updateInfiniteMode = ( radio ) => {
 		this.setState(
 			{
 				infinite_mode: radio,
@@ -101,7 +101,7 @@ class ThemeEnhancements extends React.Component {
 		infinite_mode: this.getInfiniteMode(),
 	};
 
-	handleInfiniteScrollModeChange = key => {
+	handleInfiniteScrollModeChange = ( key ) => {
 		return () => this.updateInfiniteMode( key );
 	};
 
@@ -161,7 +161,7 @@ class ThemeEnhancements extends React.Component {
 									key: 'infinite_scroll',
 									label: __( 'Load more posts as the reader scrolls down' ),
 								},
-							].map( radio => (
+							].map( ( radio ) => (
 								<FormLabel key={ `${ infScr.module }_${ radio.key }` }>
 									<input
 										type="radio"
@@ -216,10 +216,10 @@ class ThemeEnhancements extends React.Component {
 	}
 }
 
-export default connect( state => {
+export default connect( ( state ) => {
 	return {
-		module: module_name => getModule( state, module_name ),
+		module: ( module_name ) => getModule( state, module_name ),
 		isInfiniteScrollSupported: currentThemeSupports( state, 'infinite-scroll' ),
-		isModuleFound: module_name => isModuleFound( state, module_name ),
+		isModuleFound: ( module_name ) => isModuleFound( state, module_name ),
 	};
 } )( withModuleSettingsFormHelpers( ThemeEnhancements ) );

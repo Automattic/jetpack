@@ -12,7 +12,7 @@ if ( typeof window !== 'undefined' && window.jQuery ) {
 	domReady( function () {
 		const revueBlocks = document.querySelectorAll( '.wp-block-jetpack-revue' );
 
-		revueBlocks.forEach( block => {
+		revueBlocks.forEach( ( block ) => {
 			if ( block.getAttribute( 'data-jetpack-block-initialized' ) === 'true' ) {
 				return;
 			}

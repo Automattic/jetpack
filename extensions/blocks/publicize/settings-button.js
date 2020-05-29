@@ -37,7 +37,7 @@ class PublicizeSettingsButton extends Component {
 	 *
 	 * @param {object} event Event instance for onClick.
 	 */
-	settingsClick = event => {
+	settingsClick = ( event ) => {
 		const href = this.getButtonLink();
 		const { refreshCallback } = this.props;
 		event.preventDefault();

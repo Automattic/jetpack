@@ -25,8 +25,8 @@ export class LocationSearch extends Component {
 			name: 'placeSearch',
 			options: this.search,
 			isDebounced: true,
-			getOptionLabel: option => <span>{ option.place_name }</span>,
-			getOptionKeywords: option => [ option.place_name ],
+			getOptionLabel: ( option ) => <span>{ option.place_name }</span>,
+			getOptionKeywords: ( option ) => [ option.place_name ],
 			getOptionCompletion: this.getOptionCompletion,
 		};
 	}
@@ -35,7 +35,7 @@ export class LocationSearch extends Component {
 			this.containerRef.current.querySelector( 'input' ).focus();
 		}, 50 );
 	}
-	getOptionCompletion = option => {
+	getOptionCompletion = ( option ) => {
 		const { value } = option;
 		const point = {
 			placeTitle: value.text,
@@ -51,7 +51,7 @@ export class LocationSearch extends Component {
 		return value.text;
 	};
 
-	search = value => {
+	search = ( value ) => {
 		const { apiKey, onError } = this.props;
 		const url =
 			'https://api.mapbox.com/geocoding/v5/mapbox.places/' +

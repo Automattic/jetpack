@@ -47,14 +47,14 @@ export function connectModuleOptions( Component ) {
 				getSettingCurrentValue: ( setting_name, moduleName = '' ) =>
 					getSetting( state, setting_name, moduleName ),
 				getSiteRoles: () => getSiteRoles( state ),
-				isUpdating: settingName => isUpdatingSetting( state, settingName ),
+				isUpdating: ( settingName ) => isUpdatingSetting( state, settingName ),
 				adminEmailAddress: getAdminEmailAddress( state ),
 				currentIp: getCurrentIp( state ),
 				siteAdminUrl: getSiteAdminUrl( state ),
 				isCurrentUserLinked: isCurrentUserLinked( state ),
 			};
 		},
-		dispatch => ( {
+		( dispatch ) => ( {
 			updateOptions: ( newOptions, messages = {} ) => {
 				return dispatch( updateSettings( newOptions, messages ) );
 			},
@@ -62,7 +62,7 @@ export function connectModuleOptions( Component ) {
 				const messages = {
 					progress: __( 'Updating Post by Email address…' ),
 					success: __( 'Regenerated Post by Email address.' ),
-					error: error =>
+					error: ( error ) =>
 						__( 'Error regenerating Post by Email address. %(error)s', { args: { error: error } } ),
 				};
 

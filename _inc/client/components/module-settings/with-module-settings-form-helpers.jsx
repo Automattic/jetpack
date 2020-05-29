@@ -23,7 +23,7 @@ export function withModuleSettingsFormHelpers( InnerComponent ) {
 			options: {},
 		};
 
-		onOptionChange = event => {
+		onOptionChange = ( event ) => {
 			const optionName = event.target.name;
 			let optionValue;
 			// Get the option value from the `checked` property if present.
@@ -57,7 +57,7 @@ export function withModuleSettingsFormHelpers( InnerComponent ) {
 			return true;
 		};
 
-		resetFormStateOption = optionToReset => {
+		resetFormStateOption = ( optionToReset ) => {
 			this.setState( { options: omit( this.state.options, [ optionToReset ] ) } );
 			return true;
 		};
@@ -102,7 +102,7 @@ export function withModuleSettingsFormHelpers( InnerComponent ) {
 		 *
 		 * @param {String} module	the module slug.
 		 */
-		toggleModuleNow = module => {
+		toggleModuleNow = ( module ) => {
 			this.props.updateOptions( { [ module ]: ! this.getOptionValue( module ) } );
 		};
 
@@ -112,7 +112,7 @@ export function withModuleSettingsFormHelpers( InnerComponent ) {
 			}
 		}
 
-		onSubmit = event => {
+		onSubmit = ( event ) => {
 			event.preventDefault();
 			this.props
 				.updateOptions( this.state.options )
@@ -180,7 +180,7 @@ export function withModuleSettingsFormHelpers( InnerComponent ) {
 		 * Tracks form submissions
 		 * @param {Object } options options passed to recordEvent
 		 */
-		trackFormSubmission = options => {
+		trackFormSubmission = ( options ) => {
 			analytics.tracks.recordEvent( 'jetpack_wpa_settings_form_submit', options );
 		};
 

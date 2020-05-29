@@ -25,7 +25,7 @@ function handleObservedResize( galleries ) {
 			const { width: galleryWidth } = gallery.contentRect;
 			// We can't use childNodes becuase post content may contain unexpected text nodes
 			const rows = Array.from( gallery.target.querySelectorAll( '.tiled-gallery__row' ) );
-			rows.forEach( row => handleRowResize( row, galleryWidth ) );
+			rows.forEach( ( row ) => handleRowResize( row, galleryWidth ) );
 		}
 	} );
 }
@@ -56,7 +56,7 @@ const observeGalleries = () => {
 
 	const observer = new ResizeObserver( handleObservedResize );
 
-	galleries.forEach( gallery => {
+	galleries.forEach( ( gallery ) => {
 		if ( gallery.getAttribute( 'data-jetpack-block-initialized' ) === 'true' ) {
 			return;
 		}

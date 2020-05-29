@@ -27,13 +27,13 @@ QueryPluginUpdates.defaultProps = {
 };
 
 export default connect(
-	state => {
+	( state ) => {
 		return {
 			fetchPluginUpdates: fetchPluginUpdates(),
 			fetchingPluginUpdates: isFetchingPluginUpdates( state ),
 		};
 	},
-	dispatch => {
+	( dispatch ) => {
 		return bindActionCreators(
 			{
 				fetchPluginUpdates,

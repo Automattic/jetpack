@@ -29,7 +29,7 @@ class QuerySiteChecklist extends Component {
 }
 
 export default connect(
-	state => ( {
+	( state ) => ( {
 		isLoading: isLoading( state ),
 	} ),
 	{ requestSiteChecklist }

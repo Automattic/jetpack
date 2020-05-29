@@ -21,21 +21,21 @@ import {
 } from '../lib/query-string';
 import PreselectedSearchFilters from './preselected-search-filters';
 
-const noop = event => event.preventDefault();
+const noop = ( event ) => event.preventDefault();
 
 class SearchForm extends Component {
 	state = {
 		showFilters: !! this.props.widget,
 	};
 
-	onChangeQuery = event => setSearchQuery( event.target.value );
-	onChangeSort = sort => {
+	onChangeQuery = ( event ) => setSearchQuery( event.target.value );
+	onChangeSort = ( sort ) => {
 		setSortQuery( sort );
 		this.hideFilters();
 	};
 
 	hideFilters = () => this.setState( () => ( { showFilters: false } ) );
-	toggleFilters = event => {
+	toggleFilters = ( event ) => {
 		if (
 			event.type === 'click' ||
 			( event.type === 'keydown' && ( event.key === 'Enter' || event.key === ' ' ) )
@@ -44,12 +44,12 @@ class SearchForm extends Component {
 			if ( event.key === ' ' ) {
 				event.preventDefault();
 			}
-			this.setState( state => ( { showFilters: ! state.showFilters } ) );
+			this.setState( ( state ) => ( { showFilters: ! state.showFilters } ) );
 		}
 	};
 
 	hasSelectableFilters = () =>
-		this.props.widgets.some( widget => Array( widget.filters ) && widget.filters.length > 0 );
+		this.props.widgets.some( ( widget ) => Array( widget.filters ) && widget.filters.length > 0 );
 
 	hasPreselectedFilters = () =>
 		hasPreselectedFilters( this.props.widgets, this.props.widgetsOutsideOverlay );

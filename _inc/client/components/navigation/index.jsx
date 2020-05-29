@@ -22,7 +22,7 @@ import {
 import { isCurrentUserLinked, isDevMode } from 'state/connection';
 
 export class Navigation extends React.Component {
-	trackNavClick = target => {
+	trackNavClick = ( target ) => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'nav_item',
 			path: target,
@@ -102,11 +102,11 @@ Navigation.propTypes = {
 	isDevMode: PropTypes.bool.isRequired,
 };
 
-export default connect( state => {
+export default connect( ( state ) => {
 	return {
 		userCanManageModules: _userCanManageModules( state ),
 		userCanViewStats: _userCanViewStats( state ),
-		isModuleActivated: module_name => _isModuleActivated( state, module_name ),
+		isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
 		isDevMode: isDevMode( state ),
 		isLinked: isCurrentUserLinked( state ),
 	};

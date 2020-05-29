@@ -71,7 +71,7 @@ export default class ModuleChart extends React.Component {
 		} );
 	};
 
-	getYAxisMax = values => {
+	getYAxisMax = ( values ) => {
 		const max = Math.max.apply( null, values ),
 			operand = Math.pow( 10, max.toString().length - 1 );
 		let rounded = Math.ceil( ( max + 1 ) / operand ) * operand;
@@ -101,7 +101,7 @@ export default class ModuleChart extends React.Component {
 		return data;
 	};
 
-	isEmptyChart = values => {
+	isEmptyChart = ( values ) => {
 		values = values.filter( function ( value ) {
 			return value > 0;
 		}, this );

@@ -33,7 +33,7 @@ registerStore( 'wordpress-com/plans', {
 
 	selectors: {
 		getPlan( state, planSlug ) {
-			return state.find( plan => plan.product_slug === planSlug );
+			return state.find( ( plan ) => plan.product_slug === planSlug );
 		},
 	},
 
@@ -44,7 +44,7 @@ registerStore( 'wordpress-com/plans', {
 			// (To reproduce, note that you need to call `apiFetch` with `
 			// `{ credentials: 'same-origin', mode: 'cors' }`, since its defaults are
 			// different from `fetch`'s.)
-			return fetch( url ).then( response => response.json() );
+			return fetch( url ).then( ( response ) => response.json() );
 		},
 	},
 

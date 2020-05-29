@@ -31,7 +31,7 @@ class JetpackStateNotices extends React.Component {
 		this.setState( { showNotice: false } );
 	};
 
-	getErrorFromKey = key => {
+	getErrorFromKey = ( key ) => {
 		const errorDesc = this.props.jetpackStateNoticesErrorDescription || false;
 		let message = '';
 
@@ -191,7 +191,7 @@ class JetpackStateNotices extends React.Component {
 		return <div>{ message }</div>;
 	};
 
-	getMessageFromKey = key => {
+	getMessageFromKey = ( key ) => {
 		let message = '',
 			status = 'is-info',
 			action;
@@ -295,7 +295,7 @@ class JetpackStateNotices extends React.Component {
 	}
 }
 
-export default connect( state => {
+export default connect( ( state ) => {
 	return {
 		currentVersion: getCurrentVersion( state ),
 		jetpackStateNoticesErrorCode: getJetpackStateNoticesErrorCode( state ),

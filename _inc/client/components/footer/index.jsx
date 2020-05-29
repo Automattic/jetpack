@@ -255,7 +255,7 @@ export class Footer extends React.Component {
 }
 
 export default connect(
-	state => {
+	( state ) => {
 		return {
 			currentVersion: getCurrentVersion( state ),
 			displayDevCard: canDisplayDevCard( state ),
@@ -266,7 +266,7 @@ export default connect(
 			userCanManageOptions: userCanManageOptions( state ),
 		};
 	},
-	dispatch => {
+	( dispatch ) => {
 		return {
 			resetOptions: () => {
 				return dispatch( resetOptions( 'options' ) );

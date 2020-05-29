@@ -97,7 +97,7 @@ class SubmitButton extends Component {
 					<RichText
 						placeholder={ __( 'Add text…', 'jetpack' ) }
 						value={ attributes.submitButtonText }
-						onChange={ nextValue => setAttributes( { submitButtonText: nextValue } ) }
+						onChange={ ( nextValue ) => setAttributes( { submitButtonText: nextValue } ) }
 						className={ buttonClasses }
 						style={ buttonStyle }
 						keepPlaceholderOnFocus

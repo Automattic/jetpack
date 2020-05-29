@@ -36,17 +36,17 @@ class NoticesList extends React.Component {
 		debug( 'Mounting Global Notices React component.' );
 	}
 
-	removeNotice = notice => {
+	removeNotice = ( notice ) => {
 		if ( notice ) {
 			notices.removeNotice( notice );
 		}
 	};
 
-	handleLocalNoticeDismissClick = notice => {
+	handleLocalNoticeDismissClick = ( notice ) => {
 		return () => this.removeNotice( notice );
 	};
 
-	handleReduxNoticeDismissClick = noticeId => {
+	handleReduxNoticeDismissClick = ( noticeId ) => {
 		return () => this.props.removeNotice( noticeId );
 	};
 
@@ -103,10 +103,10 @@ class NoticesList extends React.Component {
 }
 
 export default connect(
-	state => {
+	( state ) => {
 		return {
 			storeNotices: state.globalNotices,
 		};
 	},
-	dispatch => bindActionCreators( { removeNotice }, dispatch )
+	( dispatch ) => bindActionCreators( { removeNotice }, dispatch )
 )( NoticesList );

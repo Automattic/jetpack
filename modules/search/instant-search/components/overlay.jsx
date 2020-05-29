@@ -10,7 +10,7 @@ import { useEffect } from 'preact/hooks';
  * Internal dependencies
  */
 
-const closeOnEscapeKey = callback => event => {
+const closeOnEscapeKey = ( callback ) => ( event ) => {
 	event.key === 'Escape' && callback();
 };
 

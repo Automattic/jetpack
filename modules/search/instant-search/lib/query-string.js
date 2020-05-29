@@ -159,7 +159,7 @@ export function getFilterQuery( filterKey ) {
 
 	return Object.assign(
 		{},
-		...getFilterKeys().map( key => ( {
+		...getFilterKeys().map( ( key ) => ( {
 			[ key ]: getFilterQueryByKey( key ),
 		} ) )
 	);
@@ -168,16 +168,16 @@ export function getFilterQuery( filterKey ) {
 // These filter keys have been activated/selected outside of the overlay sidebar
 export function getPreselectedFilterKeys( overlayWidgets ) {
 	return getUnselectableFilterKeys( overlayWidgets ).filter(
-		key => Array.isArray( getFilterQueryByKey( key ) ) && getFilterQueryByKey( key ).length > 0
+		( key ) => Array.isArray( getFilterQueryByKey( key ) ) && getFilterQueryByKey( key ).length > 0
 	);
 }
 
 export function getPreselectedFilters( widgetsInOverlay, widgetsOutsideOverlay ) {
 	const keys = getPreselectedFilterKeys( widgetsInOverlay );
 	return widgetsOutsideOverlay
-		.map( widget => widget.filters )
+		.map( ( widget ) => widget.filters )
 		.reduce( ( prev, current ) => prev.concat( current ), [] )
-		.filter( filter => keys.includes( mapFilterToFilterKey( filter ) ) );
+		.filter( ( filter ) => keys.includes( mapFilterToFilterKey( filter ) ) );
 }
 
 export function hasPreselectedFilters( widgetsInOverlay, widgetsOutsideOverlay ) {
@@ -185,12 +185,12 @@ export function hasPreselectedFilters( widgetsInOverlay, widgetsOutsideOverlay )
 }
 
 export function hasFilter() {
-	return getFilterKeys().some( key => getFilterQueryByKey( key ).length > 0 );
+	return getFilterKeys().some( ( key ) => getFilterQueryByKey( key ).length > 0 );
 }
 
 export function clearFiltersFromQuery() {
 	const query = getQuery();
-	getFilterKeys().forEach( key => delete query[ key ] );
+	getFilterKeys().forEach( ( key ) => delete query[ key ] );
 	pushQueryString( encode( query ) );
 }
 
@@ -217,8 +217,8 @@ export function restorePreviousHref( initialHref, callback ) {
 		const query = getQuery();
 		const keys = [ ...getFilterKeys(), 's' ];
 		// If initialHref has search or filter query values, clear them and reload.
-		if ( Object.keys( query ).some( key => keys.includes( key ) ) ) {
-			keys.forEach( key => delete query[ key ] );
+		if ( Object.keys( query ).some( ( key ) => keys.includes( key ) ) ) {
+			keys.forEach( ( key ) => delete query[ key ] );
 			pushQueryString( encode( query ), false );
 			window.location.reload( true );
 			return;

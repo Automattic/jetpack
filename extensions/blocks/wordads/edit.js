@@ -23,7 +23,7 @@ import mobileLeaderboardExample from './example_320x50.png';
 import wideSkyscraperExample from './example_160x600.png';
 
 class WordAdsEdit extends Component {
-	handleHideMobileChange = hideMobile => {
+	handleHideMobileChange = ( hideMobile ) => {
 		this.props.setAttributes( { hideMobile: !! hideMobile } );
 	};
 
@@ -61,7 +61,7 @@ class WordAdsEdit extends Component {
 				<BlockControls>
 					<FormatPicker
 						value={ format }
-						onChange={ nextFormat => setAttributes( { format: nextFormat } ) }
+						onChange={ ( nextFormat ) => setAttributes( { format: nextFormat } ) }
 					/>
 				</BlockControls>
 				<div className={ `wp-block-jetpack-wordads jetpack-wordads-${ format }` }>

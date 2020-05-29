@@ -9,20 +9,20 @@ import {
 import restApi from 'rest-api';
 
 export const fetchRewindStatus = () => {
-	return dispatch => {
+	return ( dispatch ) => {
 		dispatch( {
 			type: REWIND_STATUS_FETCH,
 		} );
 		return restApi
 			.fetchRewindStatus()
-			.then( status => {
+			.then( ( status ) => {
 				dispatch( {
 					type: REWIND_STATUS_FETCH_RECEIVE,
 					status: status,
 				} );
 				return status;
 			} )
-			.catch( error => {
+			.catch( ( error ) => {
 				dispatch( {
 					type: REWIND_STATUS_FETCH_FAIL,
 					error: error,

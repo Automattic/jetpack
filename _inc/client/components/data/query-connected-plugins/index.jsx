@@ -26,10 +26,10 @@ class QueryConnectedPlugins extends Component {
 }
 
 export default connect(
-	state => ( {
+	( state ) => ( {
 		isFetchingConnectedPlugins: isFetchingConnectedPlugins( state ),
 	} ),
-	dispatch => ( {
+	( dispatch ) => ( {
 		fetchConnectedPlugins: () => {
 			dispatch( fetchConnectedPlugins() );
 		},

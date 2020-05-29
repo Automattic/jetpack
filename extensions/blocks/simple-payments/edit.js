@@ -150,14 +150,14 @@ class SimplePaymentsEdit extends Component {
 
 		this.setState( { isSavingProduct: true }, () => {
 			saveEntityRecord( 'postType', SIMPLE_PAYMENTS_PRODUCT_POST_TYPE, this.toApi() )
-				.then( record => {
+				.then( ( record ) => {
 					if ( record ) {
 						setAttributes( { productId: record.id } );
 					}
 
 					return record;
 				} )
-				.catch( error => {
+				.catch( ( error ) => {
 					// Nothing we can do about errors without details at the moment
 					if ( ! error || ! error.data ) {
 						return;
@@ -336,20 +336,20 @@ class SimplePaymentsEdit extends Component {
 		return true;
 	};
 
-	handleEmailChange = email => {
+	handleEmailChange = ( email ) => {
 		this.props.setAttributes( { email } );
 		this.setState( { fieldEmailError: null } );
 	};
 
-	handleFeaturedMediaSelect = media => {
+	handleFeaturedMediaSelect = ( media ) => {
 		this.props.setAttributes( { featuredMediaId: get( media, 'id', 0 ) } );
 	};
 
-	handleContentChange = content => {
+	handleContentChange = ( content ) => {
 		this.props.setAttributes( { content } );
 	};
 
-	handlePriceChange = price => {
+	handlePriceChange = ( price ) => {
 		price = parseFloat( price );
 		if ( ! isNaN( price ) ) {
 			this.props.setAttributes( { price } );
@@ -359,20 +359,20 @@ class SimplePaymentsEdit extends Component {
 		this.setState( { fieldPriceError: null } );
 	};
 
-	handleCurrencyChange = currency => {
+	handleCurrencyChange = ( currency ) => {
 		this.props.setAttributes( { currency } );
 	};
 
-	handleMultipleChange = multiple => {
+	handleMultipleChange = ( multiple ) => {
 		this.props.setAttributes( { multiple: !! multiple } );
 	};
 
-	handleTitleChange = title => {
+	handleTitleChange = ( title ) => {
 		this.props.setAttributes( { title } );
 		this.setState( { fieldTitleError: null } );
 	};
 
-	getCurrencyList = SUPPORTED_CURRENCY_LIST.map( value => {
+	getCurrencyList = SUPPORTED_CURRENCY_LIST.map( ( value ) => {
 		const { symbol } = getCurrencyDefaults( value );
 		// if symbol is equal to the code (e.g., 'CHF' === 'CHF'), don't duplicate it.
 		// trim the dot at the end, e.g., 'kr.' becomes 'kr'

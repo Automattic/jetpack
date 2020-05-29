@@ -53,7 +53,7 @@ export function MyPlan( props ) {
 	);
 }
 
-export default connect( state => {
+export default connect( ( state ) => {
 	return {
 		activeFeatures: getActiveFeatures( state ),
 		activeProducts: getActiveProductPurchases( state ),

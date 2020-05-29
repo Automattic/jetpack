@@ -61,7 +61,7 @@ class SiteStatsComponent extends React.Component {
 				toggled = true;
 			}
 		} else if ( includes( value, optionName ) ) {
-			value = filter( value, item => {
+			value = filter( value, ( item ) => {
 				return item !== optionName;
 			} );
 		}
@@ -223,7 +223,7 @@ class SiteStatsComponent extends React.Component {
 						</FormFieldset>
 						<FormFieldset>
 							<FormLegend>{ __( 'Count logged in page views from' ) }</FormLegend>
-							{ Object.keys( siteRoles ).map( key => (
+							{ Object.keys( siteRoles ).map( ( key ) => (
 								<CompactFormToggle
 									checked={ this.state[ `count_roles_${ key }` ] }
 									disabled={
@@ -244,7 +244,7 @@ class SiteStatsComponent extends React.Component {
 								<span className="jp-form-toggle-explanation">{ siteRoles.administrator.name }</span>
 							</CompactFormToggle>
 							{ Object.keys( siteRoles ).map(
-								key =>
+								( key ) =>
 									'administrator' !== key && (
 										<CompactFormToggle
 											checked={ this.state[ `roles_${ key }` ] }

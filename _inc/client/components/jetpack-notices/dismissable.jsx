@@ -36,13 +36,13 @@ class DismissableNotices extends React.Component {
 }
 
 export default connect(
-	state => {
+	( state ) => {
 		return {
 			jetpackNotices: _getJetpackNotices( state ),
-			isDismissed: notice => _isNoticeDismissed( state, notice ),
+			isDismissed: ( notice ) => _isNoticeDismissed( state, notice ),
 		};
 	},
-	dispatch => {
+	( dispatch ) => {
 		return bindActionCreators(
 			{
 				dismissJetpackActionNotice,

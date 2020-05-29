@@ -211,7 +211,7 @@ DashConnections.propTypes = {
 	username: PropTypes.any.isRequired,
 };
 
-export default connect( state => {
+export default connect( ( state ) => {
 	return {
 		siteConnectionStatus: getSiteConnectionStatus( state ),
 		isDevMode: isDevMode( state ),

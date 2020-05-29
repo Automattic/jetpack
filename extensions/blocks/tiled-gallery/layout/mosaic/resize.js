@@ -13,7 +13,7 @@ import { GUTTER_WIDTH } from '../../constants';
 function adjustFit( parts, target ) {
 	const diff = target - parts.reduce( ( sum, n ) => sum + n, 0 );
 	const partialDiff = diff / parts.length;
-	return parts.map( p => p + partialDiff );
+	return parts.map( ( p ) => p + partialDiff );
 }
 
 export function handleRowResize( row, width ) {
@@ -79,7 +79,8 @@ function applyColRatio( row, { rawHeight, rowWidth } ) {
 	const cols = getRowCols( row );
 
 	const colWidths = cols.map(
-		col => ( rawHeight - GUTTER_WIDTH * ( col.childElementCount - 1 ) ) * getColumnRatio( col )[ 0 ]
+		( col ) =>
+			( rawHeight - GUTTER_WIDTH * ( col.childElementCount - 1 ) ) * getColumnRatio( col )[ 0 ]
 	);
 
 	const adjustedWidths = adjustFit( colWidths, rowWidth );
@@ -96,7 +97,7 @@ function applyColRatio( row, { rawHeight, rowWidth } ) {
 }
 
 function applyImgRatio( col, { colHeight, width, rawWidth } ) {
-	const imgHeights = getColImgs( col ).map( img => rawWidth / getImageRatio( img ) );
+	const imgHeights = getColImgs( col ).map( ( img ) => rawWidth / getImageRatio( img ) );
 	const adjustedHeights = adjustFit( imgHeights, colHeight );
 
 	// Set size of col children, not the <img /> element

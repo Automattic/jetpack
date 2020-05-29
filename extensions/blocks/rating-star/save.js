@@ -12,11 +12,11 @@ import { range } from 'lodash';
 // have filled and stroke UTF-8 equivalents but other symbols don't (dollar, chilli).
 // We can't provide the full styled experience using UTF-8, so we optimize
 // for consistency.
-export default fallbackSymbol =>
+export default ( fallbackSymbol ) =>
 	function ( { className, attributes: { align, rating, color } } ) {
 		return (
 			<figure className={ className } style={ { textAlign: align } }>
-				{ range( 1, rating + 1 ).map( position => (
+				{ range( 1, rating + 1 ).map( ( position ) => (
 					<span key={ position } style={ { color } }>
 						{ fallbackSymbol }
 					</span>

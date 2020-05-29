@@ -37,13 +37,13 @@ class QuerySetupWizardQuestionnaire extends Component {
 }
 
 export default connect(
-	state => {
+	( state ) => {
 		return {
 			isFetchingSetupWizardQuestionnaire: isFetchingSetupWizardQuestionnaire( state ),
 			isDevMode: isDevMode( state ),
 		};
 	},
-	dispatch => {
+	( dispatch ) => {
 		return {
 			fetchSetupWizardQuestionnaire: () => dispatch( fetchSetupWizardQuestionnaire() ),
 		};

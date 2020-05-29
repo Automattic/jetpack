@@ -27,7 +27,7 @@ export default {
 		customTextButtonColor: { type: 'string' },
 		submitButtonClasses: { type: 'string' },
 	},
-	migrate: attr => {
+	migrate: ( attr ) => {
 		return {
 			subscribePlaceholder: attr.subscribePlaceholder,
 			showSubscribersTotal: attr.showSubscribersTotal,

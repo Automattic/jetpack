@@ -6,7 +6,7 @@ import { createElement, render } from '@wordpress/element';
 
 export class FrontendManagement {
 	blockIterator( rootNode, blocks ) {
-		blocks.forEach( block => {
+		blocks.forEach( ( block ) => {
 			this.initializeFrontendReactBlocks( block.component, block.options, rootNode );
 		} );
 	}
@@ -53,7 +53,7 @@ export class FrontendManagement {
 	}
 	extractChildrenFromContainer( node ) {
 		const children = [ ...node.childNodes ];
-		return children.map( child => {
+		return children.map( ( child ) => {
 			const attr = {};
 			for ( let i = 0; i < child.attributes.length; i++ ) {
 				const attribute = child.attributes[ i ];

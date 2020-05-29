@@ -17,13 +17,13 @@ import SearchSort from './search-sort';
 import { getSortQuery } from '../lib/query-string';
 
 let initiallyFocusedElement = null;
-const stealFocusWithInput = inputElement => () => {
+const stealFocusWithInput = ( inputElement ) => () => {
 	initiallyFocusedElement = document.activeElement;
 	inputElement.focus();
 };
 const restoreFocus = () => initiallyFocusedElement && initiallyFocusedElement.focus();
 
-const SearchBox = props => {
+const SearchBox = ( props ) => {
 	const [ inputId ] = useState( () => uniqueId( 'jetpack-instant-search__box-input-' ) );
 	const inputRef = useRef( null );
 

@@ -222,7 +222,7 @@ class JetpackNotices extends React.Component {
 	}
 }
 
-export default connect( state => {
+export default connect( ( state ) => {
 	return {
 		connectUrl: _getConnectUrl( state ),
 		siteConnectionStatus: getSiteConnectionStatus( state ),

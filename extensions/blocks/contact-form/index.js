@@ -88,61 +88,61 @@ const FieldDefaults = {
 				type: 'block',
 				blocks: [ 'jetpack/field-text' ],
 				isMatch: ( { options } ) => ! options.length,
-				transform: attributes => createBlock( 'jetpack/field-text', attributes ),
+				transform: ( attributes ) => createBlock( 'jetpack/field-text', attributes ),
 			},
 			{
 				type: 'block',
 				blocks: [ 'jetpack/field-name' ],
 				isMatch: ( { options } ) => ! options.length,
-				transform: attributes => createBlock( 'jetpack/field-name', attributes ),
+				transform: ( attributes ) => createBlock( 'jetpack/field-name', attributes ),
 			},
 			{
 				type: 'block',
 				blocks: [ 'jetpack/field-email' ],
 				isMatch: ( { options } ) => ! options.length,
-				transform: attributes => createBlock( 'jetpack/field-email', attributes ),
+				transform: ( attributes ) => createBlock( 'jetpack/field-email', attributes ),
 			},
 			{
 				type: 'block',
 				blocks: [ 'jetpack/field-url' ],
 				isMatch: ( { options } ) => ! options.length,
-				transform: attributes => createBlock( 'jetpack/field-url', attributes ),
+				transform: ( attributes ) => createBlock( 'jetpack/field-url', attributes ),
 			},
 			{
 				type: 'block',
 				blocks: [ 'jetpack/field-date' ],
 				isMatch: ( { options } ) => ! options.length,
-				transform: attributes => createBlock( 'jetpack/field-date', attributes ),
+				transform: ( attributes ) => createBlock( 'jetpack/field-date', attributes ),
 			},
 			{
 				type: 'block',
 				blocks: [ 'jetpack/field-telephone' ],
 				isMatch: ( { options } ) => ! options.length,
-				transform: attributes => createBlock( 'jetpack/field-telephone', attributes ),
+				transform: ( attributes ) => createBlock( 'jetpack/field-telephone', attributes ),
 			},
 			{
 				type: 'block',
 				blocks: [ 'jetpack/field-textarea' ],
 				isMatch: ( { options } ) => ! options.length,
-				transform: attributes => createBlock( 'jetpack/field-textarea', attributes ),
+				transform: ( attributes ) => createBlock( 'jetpack/field-textarea', attributes ),
 			},
 			{
 				type: 'block',
 				blocks: [ 'jetpack/field-checkbox-multiple' ],
 				isMatch: ( { options } ) => 1 <= options.length,
-				transform: attributes => createBlock( 'jetpack/field-checkbox-multiple', attributes ),
+				transform: ( attributes ) => createBlock( 'jetpack/field-checkbox-multiple', attributes ),
 			},
 			{
 				type: 'block',
 				blocks: [ 'jetpack/field-radio' ],
 				isMatch: ( { options } ) => 1 <= options.length,
-				transform: attributes => createBlock( 'jetpack/field-radio', attributes ),
+				transform: ( attributes ) => createBlock( 'jetpack/field-radio', attributes ),
 			},
 			{
 				type: 'block',
 				blocks: [ 'jetpack/field-select' ],
 				isMatch: ( { options } ) => 1 <= options.length,
-				transform: attributes => createBlock( 'jetpack/field-select', attributes ),
+				transform: ( attributes ) => createBlock( 'jetpack/field-select', attributes ),
 			},
 		],
 	},
@@ -154,7 +154,7 @@ const getFieldLabel = ( { attributes, name: blockName } ) => {
 	return null === attributes.label ? getBlockType( blockName ).title : attributes.label;
 };
 
-const editField = type => props => {
+const editField = ( type ) => ( props ) => {
 	return (
 		<JetpackField
 			type={ type }
@@ -170,7 +170,7 @@ const editField = type => props => {
 	);
 };
 
-const editMultiField = type => props => (
+const editMultiField = ( type ) => ( props ) => (
 	<JetpackFieldMultiple
 		label={ getFieldLabel( props ) }
 		required={ props.attributes.required }
@@ -281,7 +281,7 @@ export const childBlocks = [
 				'jetpack'
 			),
 			icon: renderMaterialIcon( <Path d="M21 11.01L3 11v2h18zM3 16h12v2H3zM21 6H3v2.01L21 8z" /> ),
-			edit: props => (
+			edit: ( props ) => (
 				<JetpackFieldTextarea
 					label={ getFieldLabel( props ) }
 					required={ props.attributes.required }
@@ -305,7 +305,7 @@ export const childBlocks = [
 			icon: renderMaterialIcon(
 				<Path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM17.99 9l-1.41-1.42-6.59 6.59-2.58-2.57-1.42 1.41 4 3.99z" />
 			),
-			edit: props => (
+			edit: ( props ) => (
 				<JetpackFieldCheckbox
 					label={ props.attributes.label } // label intentinally left blank
 					required={ props.attributes.required }

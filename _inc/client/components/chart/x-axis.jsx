@@ -42,7 +42,7 @@ export default class ModuleChartXAxis extends React.Component {
 		this.resize( nextProps );
 	}
 
-	resize = nextProps => {
+	resize = ( nextProps ) => {
 		let props = this.props;
 
 		const node = this.refs.axis;

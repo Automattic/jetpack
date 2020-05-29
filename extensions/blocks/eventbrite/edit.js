@@ -49,7 +49,7 @@ class EventbriteEdit extends Component {
 		this.setUrl( url );
 	}
 
-	setUrl = url => {
+	setUrl = ( url ) => {
 		const { attributes, noticeOperations, setAttributes } = this.props;
 		const { style } = attributes;
 
@@ -63,7 +63,7 @@ class EventbriteEdit extends Component {
 		};
 
 		testEmbedUrl( newAttributes.url, this.setIsResolvingUrl )
-			.then( resolvedUrl => {
+			.then( ( resolvedUrl ) => {
 				const newValidatedAttributes = getValidatedAttributes( attributeDetails, {
 					...newAttributes,
 					url: resolvedUrl,
@@ -78,7 +78,7 @@ class EventbriteEdit extends Component {
 			} );
 	};
 
-	setIsResolvingUrl = isResolvingUrl => this.setState( { isResolvingUrl } );
+	setIsResolvingUrl = ( isResolvingUrl ) => this.setState( { isResolvingUrl } );
 
 	setErrorNotice = () => {
 		const { noticeOperations, onReplace } = this.props;
@@ -95,7 +95,7 @@ class EventbriteEdit extends Component {
 		);
 	};
 
-	submitForm = event => {
+	submitForm = ( event ) => {
 		if ( event ) {
 			event.preventDefault();
 		}
@@ -210,7 +210,7 @@ class EventbriteEdit extends Component {
 							className="components-placeholder__input"
 							aria-label={ __( 'Eventbrite URL', 'jetpack' ) }
 							placeholder={ __( 'Enter an event URL to embed here…', 'jetpack' ) }
-							onChange={ event => this.setState( { editedUrl: event.target.value } ) }
+							onChange={ ( event ) => this.setState( { editedUrl: event.target.value } ) }
 						/>
 						<Button isLarge isSecondary type="submit">
 							{ _x( 'Embed', 'submit button label', 'jetpack' ) }
@@ -332,7 +332,7 @@ export default compose(
 				if ( styles.length > 0 ) {
 					dispatch( 'core/blocks' ).removeBlockStyles(
 						name,
-						MODAL_BUTTON_STYLES.map( style => style.name )
+						MODAL_BUTTON_STYLES.map( ( style ) => style.name )
 					);
 				}
 			},

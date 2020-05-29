@@ -40,7 +40,7 @@ class Slideshow extends Component {
 	componentDidMount() {
 		const { onError } = this.props;
 		this.buildSwiper()
-			.then( swiper => {
+			.then( ( swiper ) => {
 				this.swiperInstance = swiper;
 				this.initializeResizeObserver( swiper );
 			} )
@@ -78,7 +78,7 @@ class Slideshow extends Component {
 			}
 			this.swiperInstance && this.swiperInstance.destroy( true, true );
 			this.buildSwiper( realIndex )
-				.then( swiper => {
+				.then( ( swiper ) => {
 					this.swiperInstance = swiper;
 					this.initializeResizeObserver( swiper );
 				} )
@@ -88,7 +88,7 @@ class Slideshow extends Component {
 		}
 	}
 
-	initializeResizeObserver = swiper => {
+	initializeResizeObserver = ( swiper ) => {
 		this.clearResizeObserver();
 		this.resizeObserver = new ResizeObserver( () => {
 			this.clearPendingRequestAnimationFrame();

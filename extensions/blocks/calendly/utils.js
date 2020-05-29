@@ -3,14 +3,14 @@
  */
 export const REGEX = /(^|\/\/)(calendly\.com[^"']*)/i;
 
-export const getURLFromEmbedCode = embedCode => {
+export const getURLFromEmbedCode = ( embedCode ) => {
 	const url = embedCode.match( REGEX );
 	if ( url ) {
 		return 'https://' + url[ 2 ];
 	}
 };
 
-export const getSubmitButtonTextFromEmbedCode = embedCode => {
+export const getSubmitButtonTextFromEmbedCode = ( embedCode ) => {
 	let submitButtonText = embedCode.match( /false;"\>([^<]+)\<\// );
 	if ( submitButtonText ) {
 		return submitButtonText[ 1 ];
@@ -22,21 +22,21 @@ export const getSubmitButtonTextFromEmbedCode = embedCode => {
 	}
 };
 
-const getSubmitButtonTextColorFromEmbedCode = embedCode => {
+const getSubmitButtonTextColorFromEmbedCode = ( embedCode ) => {
 	const submitButtonTextColor = embedCode.match( /textColor: '([^']*?)'/ );
 	if ( submitButtonTextColor ) {
 		return submitButtonTextColor[ 1 ];
 	}
 };
 
-const getSubmitButtonBackgroundColorFromEmbedCode = embedCode => {
+const getSubmitButtonBackgroundColorFromEmbedCode = ( embedCode ) => {
 	const submitButtonBackgroundColor = embedCode.match( /color: '([^']*?)'/ );
 	if ( submitButtonBackgroundColor ) {
 		return submitButtonBackgroundColor[ 1 ];
 	}
 };
 
-export const getAttributesFromUrl = url => {
+export const getAttributesFromUrl = ( url ) => {
 	const attributes = {};
 	const urlObject = new URL( url );
 	attributes.url = urlObject.origin + urlObject.pathname;
@@ -70,7 +70,7 @@ export const getAttributesFromUrl = url => {
 	return attributes;
 };
 
-const getStyleFromEmbedCode = embedCode => {
+const getStyleFromEmbedCode = ( embedCode ) => {
 	if ( embedCode.indexOf( 'data-url' ) > 0 ) {
 		return 'inline';
 	}
@@ -80,7 +80,7 @@ const getStyleFromEmbedCode = embedCode => {
 	}
 };
 
-export const getAttributesFromEmbedCode = embedCode => {
+export const getAttributesFromEmbedCode = ( embedCode ) => {
 	if ( ! embedCode ) {
 		return;
 	}

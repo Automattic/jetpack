@@ -11,7 +11,7 @@ const JetpackFieldLabel = ( { setAttributes, label, labelFieldName, resetFocus, 
 				tagName="label"
 				value={ label }
 				className="jetpack-field-label__input"
-				onChange={ value => {
+				onChange={ ( value ) => {
 					resetFocus && resetFocus();
 					if ( labelFieldName ) {
 						setAttributes( { [ labelFieldName ]: value } );

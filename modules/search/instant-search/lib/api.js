@@ -13,7 +13,7 @@ import Cache from 'cache';
 import { getFilterKeys } from './filters';
 import { MINUTE_IN_MILLISECONDS } from './constants';
 
-const isLengthyArray = array => Array.isArray( array ) && array.length > 0;
+const isLengthyArray = ( array ) => Array.isArray( array ) && array.length > 0;
 // Cache contents evicted after fixed time-to-live
 const cache = new Cache( 5 * MINUTE_IN_MILLISECONDS );
 const backupCache = new Cache( 30 * MINUTE_IN_MILLISECONDS );
@@ -21,7 +21,7 @@ const backupCache = new Cache( 30 * MINUTE_IN_MILLISECONDS );
 export function buildFilterAggregations( widgets = [] ) {
 	const aggregation = {};
 	widgets.forEach( ( { filters: widgetFilters } ) =>
-		widgetFilters.forEach( filter => {
+		widgetFilters.forEach( ( filter ) => {
 			aggregation[ filter.filter_id ] = generateAggregation( filter );
 		} )
 	);
@@ -77,29 +77,35 @@ function generateDateRangeFilter( fieldName, input, type ) {
 
 const filterKeyToEsFilter = new Map( [
 	// Post type
-	[ 'post_types', postType => ( { term: { post_type: postType } } ) ],
+	[ 'post_types', ( postType ) => ( { term: { post_type: postType } } ) ],
 
 	// Built-in taxonomies
-	[ 'category', category => ( { term: { 'category.slug': category } } ) ],
-	[ 'post_tag', tag => ( { term: { 'tag.slug': tag } } ) ],
+	[ 'category', ( category ) => ( { term: { 'category.slug': category } } ) ],
+	[ 'post_tag', ( tag ) => ( { term: { 'tag.slug': tag } } ) ],
 
 	// Dates
-	[ 'month_post_date', datestring => generateDateRangeFilter( 'date', datestring, 'month' ) ],
+	[ 'month_post_date', ( datestring ) => generateDateRangeFilter( 'date', datestring, 'month' ) ],
 	[
 		'month_post_date_gmt',
-		datestring => generateDateRangeFilter( 'date_gmt', datestring, 'month' ),
+		( datestring ) => generateDateRangeFilter( 'date_gmt', datestring, 'month' ),
 	],
-	[ 'month_post_modified', datestring => generateDateRangeFilter( 'date', datestring, 'month' ) ],
+	[
+		'month_post_modified',
+		( datestring ) => generateDateRangeFilter( 'date', datestring, 'month' ),
+	],
 	[
 		'month_post_modified_gmt',
-		datestring => generateDateRangeFilter( 'date_gmt', datestring, 'month' ),
+		( datestring ) => generateDateRangeFilter( 'date_gmt', datestring, 'month' ),
 	],
-	[ 'year_post_date', datestring => generateDateRangeFilter( 'date', datestring, 'year' ) ],
-	[ 'year_post_date_gmt', datestring => generateDateRangeFilter( 'date_gmt', datestring, 'year' ) ],
-	[ 'year_post_modified', datestring => generateDateRangeFilter( 'date', datestring, 'year' ) ],
+	[ 'year_post_date', ( datestring ) => generateDateRangeFilter( 'date', datestring, 'year' ) ],
+	[
+		'year_post_date_gmt',
+		( datestring ) => generateDateRangeFilter( 'date_gmt', datestring, 'year' ),
+	],
+	[ 'year_post_modified', ( datestring ) => generateDateRangeFilter( 'date', datestring, 'year' ) ],
 	[
 		'year_post_modified_gmt',
-		datestring => generateDateRangeFilter( 'date_gmt', datestring, 'year' ),
+		( datestring ) => generateDateRangeFilter( 'date_gmt', datestring, 'year' ),
 	],
 ] );
 
@@ -113,9 +119,9 @@ function buildFilterObject( filterQuery, adminQueryFilter ) {
 
 	const filter = { bool: { must: [] } };
 	getFilterKeys()
-		.filter( key => isLengthyArray( filterQuery[ key ] ) )
-		.forEach( key => {
-			filterQuery[ key ].forEach( item => {
+		.filter( ( key ) => isLengthyArray( filterQuery[ key ] ) )
+		.forEach( ( key ) => {
+			filterQuery[ key ].forEach( ( item ) => {
 				if ( filterKeyToEsFilter.has( key ) ) {
 					filter.bool.must.push( filterKeyToEsFilter.get( key )( item ) );
 				} else {
@@ -148,13 +154,13 @@ export function search( {
 	if ( ! navigator.onLine && backupCache.get( key ) ) {
 		return backupCache
 			.get( key )
-			.then( data => ( { _isCached: true, _isError: false, _isOffline: true, ...data } ) );
+			.then( ( data ) => ( { _isCached: true, _isError: false, _isOffline: true, ...data } ) );
 	}
 	// Use cached value from the last 5 minutes
 	if ( cache.get( key ) ) {
 		return cache
 			.get( key )
-			.then( data => ( { _isCached: true, _isError: false, _isOffline: false, ...data } ) );
+			.then( ( data ) => ( { _isCached: true, _isError: false, _isOffline: false, ...data } ) );
 	}
 
 	let fields = [
@@ -190,7 +196,7 @@ export function search( {
 	return fetch(
 		`https://public-api.wordpress.com/rest/v1.3/sites/${ siteId }/search?${ queryString }`
 	)
-		.catch( error => {
+		.catch( ( error ) => {
 			// TODO: Display a message about falling back to a cached value in the interface
 			// Fallback to either cache if we run into any errors
 			const fallbackValue = cache.get( key ) || backupCache.get( key );
@@ -199,7 +205,7 @@ export function search( {
 			}
 			throw error;
 		} )
-		.then( response => {
+		.then( ( response ) => {
 			const json = response.json();
 			cache.put( key, json );
 			backupCache.put( key, json );

@@ -27,7 +27,7 @@ class CommentsComponent extends React.Component {
 	 * @param {string} module	the module slug.
 	 * @returns {*}             the updated value
 	 */
-	updateFormStateByMarkdown = module => {
+	updateFormStateByMarkdown = ( module ) => {
 		if ( !! this.props.getSettingCurrentValue( 'wpcom_publish_posts_with_markdown', module ) ) {
 			return this.props.updateFormStateModuleOption(
 				module,

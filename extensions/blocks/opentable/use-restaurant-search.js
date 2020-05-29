@@ -20,8 +20,8 @@ export default function useRestaurantSearch( searchTerm, maxResults ) {
 				'&query=' +
 				encodeURIComponent( input )
 		)
-			.then( result => result.json() )
-			.then( restaurantResponse =>
+			.then( ( result ) => result.json() )
+			.then( ( restaurantResponse ) =>
 				setRestaurants( unionBy( restaurants, restaurantResponse.items, 'rid' ) )
 			);
 	};

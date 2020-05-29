@@ -21,8 +21,8 @@ import {
 } from 'state/action-types';
 import restApi from 'rest-api';
 
-export const resetOptions = options => {
-	return dispatch => {
+export const resetOptions = ( options ) => {
+	return ( dispatch ) => {
 		dispatch( {
 			type: RESET_OPTIONS,
 		} );
@@ -43,7 +43,7 @@ export const resetOptions = options => {
 					} )
 				);
 			} )
-			.catch( error => {
+			.catch( ( error ) => {
 				dispatch( {
 					type: RESET_OPTIONS_FAIL,
 					error: error,
@@ -57,7 +57,7 @@ export const resetOptions = options => {
 };
 
 export const enableDevCard = () => {
-	return dispatch => {
+	return ( dispatch ) => {
 		dispatch( {
 			type: DEV_CARD_DISPLAY,
 		} );
@@ -65,15 +65,15 @@ export const enableDevCard = () => {
 };
 
 export const disableDevCard = () => {
-	return dispatch => {
+	return ( dispatch ) => {
 		dispatch( {
 			type: DEV_CARD_HIDE,
 		} );
 	};
 };
 
-export const switchPlanPreview = slug => {
-	return dispatch => {
+export const switchPlanPreview = ( slug ) => {
+	return ( dispatch ) => {
 		dispatch( {
 			type: JETPACK_SITE_DATA_FETCH_RECEIVE,
 			siteData: { plan: { product_slug: slug } },
@@ -169,10 +169,10 @@ const isUnlinked = {
 	},
 };
 
-export const switchUserPermission = slug => {
+export const switchUserPermission = ( slug ) => {
 	let userPerms = {};
 
-	return dispatch => {
+	return ( dispatch ) => {
 		switch ( slug ) {
 			case 'admin_master':
 				userPerms = adminMasterPerms;
@@ -209,8 +209,8 @@ export const switchUserPermission = slug => {
 	};
 };
 
-export const switchThreats = count => {
-	return dispatch => {
+export const switchThreats = ( count ) => {
+	return ( dispatch ) => {
 		dispatch( {
 			type: MOCK_SWITCH_THREATS,
 			mockCount: count,
@@ -218,8 +218,8 @@ export const switchThreats = count => {
 	};
 };
 
-export const switchRewindState = state => {
-	return dispatch => {
+export const switchRewindState = ( state ) => {
+	return ( dispatch ) => {
 		dispatch( {
 			type: MOCK_SWITCH_REWIND_STATE,
 			rewindState: { state: state },
@@ -227,7 +227,7 @@ export const switchRewindState = state => {
 	};
 };
 
-export const switchScanState = state => dispatch => {
+export const switchScanState = ( state ) => ( dispatch ) => {
 	dispatch( {
 		type: MOCK_SWITCH_SCAN_STATE,
 		scanState: { state },

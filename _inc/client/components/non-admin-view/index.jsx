@@ -28,7 +28,7 @@ class NonAdminView extends React.Component {
 		);
 	}
 
-	renderMainContent = route => {
+	renderMainContent = ( route ) => {
 		let pageComponent,
 			navComponent = <Navigation { ...this.props } />;
 		switch ( route ) {
@@ -75,12 +75,12 @@ NonAdminView.propTypes = {
 	siteConnectionStatus: PropTypes.any.isRequired,
 };
 
-export default connect( state => {
+export default connect( ( state ) => {
 	return {
 		userCanViewStats: _userCanViewStats( state ),
 		siteConnectionStatus: getSiteConnectionStatus( state ),
 		isSubscriber: _userIsSubscriber( state ),
-		isModuleActivated: module_name => _isModuleActivated( state, module_name ),
+		isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
 		userCanManageModules: userCanManageModules( state ),
 	};
 } )( NonAdminView );

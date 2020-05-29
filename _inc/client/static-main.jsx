@@ -31,8 +31,8 @@ class StaticMain extends React.Component {
 }
 
 export default connect(
-	state => {
+	( state ) => {
 		return state;
 	},
-	dispatch => bindActionCreators( { setInitialState }, dispatch )
+	( dispatch ) => bindActionCreators( { setInitialState }, dispatch )
 )( StaticMain );

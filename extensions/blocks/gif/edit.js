@@ -23,7 +23,7 @@ class GifEdit extends Component {
 		results: null,
 	};
 
-	onFormSubmit = event => {
+	onFormSubmit = ( event ) => {
 		event.preventDefault();
 		this.onSubmit();
 	};
@@ -34,7 +34,7 @@ class GifEdit extends Component {
 		this.parseSearch( searchText );
 	};
 
-	parseSearch = searchText => {
+	parseSearch = ( searchText ) => {
 		let giphyID = null;
 		// If search is hardcoded Giphy URL following this pattern: https://giphy.com/embed/4ZFekt94LMhNK
 		if ( searchText.indexOf( '//giphy.com/gifs' ) !== -1 ) {
@@ -58,13 +58,13 @@ class GifEdit extends Component {
 		return this.fetch( this.urlForSearch( searchText ) );
 	};
 
-	urlForSearch = searchText => {
+	urlForSearch = ( searchText ) => {
 		return `https://api.giphy.com/v1/gifs/search?q=${ encodeURIComponent(
 			searchText
 		) }&api_key=${ encodeURIComponent( GIPHY_API_KEY ) }&limit=10`;
 	};
 
-	urlForId = giphyId => {
+	urlForId = ( giphyId ) => {
 		return `https://api.giphy.com/v1/gifs/${ encodeURIComponent(
 			giphyId
 		) }?api_key=${ encodeURIComponent( GIPHY_API_KEY ) }`;
@@ -75,7 +75,7 @@ class GifEdit extends Component {
 		return split[ split.length - 1 ];
 	};
 
-	fetch = url => {
+	fetch = ( url ) => {
 		const xhr = new XMLHttpRequest();
 		xhr.open( 'GET', url );
 		xhr.onload = () => {
@@ -99,7 +99,7 @@ class GifEdit extends Component {
 		xhr.send();
 	};
 
-	selectGiphy = giphy => {
+	selectGiphy = ( giphy ) => {
 		const { setAttributes } = this.props;
 		const calculatedPaddingTop = Math.floor(
 			( giphy.images.original.height / giphy.images.original.width ) * 100
@@ -120,7 +120,7 @@ class GifEdit extends Component {
 		return searchText && searchText.length > 0;
 	};
 
-	thumbnailClicked = thumbnail => {
+	thumbnailClicked = ( thumbnail ) => {
 		this.selectGiphy( thumbnail );
 	};
 
@@ -140,7 +140,7 @@ class GifEdit extends Component {
 					type="text"
 					className="wp-block-jetpack-gif_input components-placeholder__input"
 					placeholder={ __( 'Enter search terms, e.g. cat…', 'jetpack' ) }
-					onChange={ event => setAttributes( { searchText: event.target.value } ) }
+					onChange={ ( event ) => setAttributes( { searchText: event.target.value } ) }
 					value={ searchText }
 				/>
 				<Button isDefault onClick={ this.onSubmit }>
@@ -172,7 +172,7 @@ class GifEdit extends Component {
 						{ isSelected && inputFields }
 						{ isSelected && results && results.length > 1 && (
 							<div className="wp-block-jetpack-gif_thumbnails-container">
-								{ results.map( thumbnail => {
+								{ results.map( ( thumbnail ) => {
 									const thumbnailStyle = {
 										backgroundImage: `url(${ thumbnail.images.downsized_still.url })`,
 									};
@@ -207,7 +207,7 @@ class GifEdit extends Component {
 								unstableOnFocus={ () => {
 									this.setState( { captionFocus: true } );
 								} }
-								onChange={ value => setAttributes( { caption: value } ) }
+								onChange={ ( value ) => setAttributes( { caption: value } ) }
 								placeholder={ __( 'Write caption…', 'jetpack' ) }
 								tagName="figcaption"
 								value={ caption }

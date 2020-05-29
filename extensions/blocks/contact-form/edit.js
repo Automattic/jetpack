@@ -76,7 +76,7 @@ function JetpackContactFormEdit( {
 	const [ emailErrors, setEmailErrors ] = useState( false );
 	const formClassnames = classnames( className, 'jetpack-contact-form' );
 
-	const createBlocksFromInnerBlocksTemplate = innerBlocksTemplate => {
+	const createBlocksFromInnerBlocksTemplate = ( innerBlocksTemplate ) => {
 		const blocks = map( innerBlocksTemplate, ( [ name, attr, innerBlocks = [] ] ) =>
 			createBlock( name, attr, createBlocksFromInnerBlocksTemplate( innerBlocks ) )
 		);
@@ -84,7 +84,7 @@ function JetpackContactFormEdit( {
 		return blocks;
 	};
 
-	const setVariation = variation => {
+	const setVariation = ( variation ) => {
 		if ( variation.attributes ) {
 			setAttributes( variation.attributes );
 		}
@@ -103,7 +103,7 @@ function JetpackContactFormEdit( {
 		}
 	} );
 
-	const validateEmail = email => {
+	const validateEmail = ( email ) => {
 		email = email.trim();
 
 		if ( email.length === 0 ) {
@@ -141,7 +141,7 @@ function JetpackContactFormEdit( {
 				);
 			}
 
-			const inValidEmails = emailErrors.map( error => error.email );
+			const inValidEmails = emailErrors.map( ( error ) => error.email );
 
 			return sprintf(
 				__( '%s are not a valid email address.', 'jetpack' ),
@@ -152,7 +152,7 @@ function JetpackContactFormEdit( {
 		return null;
 	};
 
-	const onBlurEmailField = e => {
+	const onBlurEmailField = ( e ) => {
 		if ( e.target.value.length === 0 ) {
 			setEmailErrors( false );
 			setAttributes( { to: adminEmail } );
@@ -167,7 +167,7 @@ function JetpackContactFormEdit( {
 		}
 	};
 
-	const onChangeEmailField = email => {
+	const onChangeEmailField = ( email ) => {
 		setEmailErrors( false );
 		setAttributes( { to: email.trim() } );
 	};
@@ -183,7 +183,7 @@ function JetpackContactFormEdit( {
 					}` }
 					label={ __( 'Email address to send to', 'jetpack' ) }
 					placeholder={ __( 'name@example.com', 'jetpack' ) }
-					onKeyDown={ e => {
+					onKeyDown={ ( e ) => {
 						if ( event.key === 'Enter' ) {
 							e.preventDefault();
 							e.stopPropagation();
@@ -203,7 +203,7 @@ function JetpackContactFormEdit( {
 					label={ __( 'Email subject line', 'jetpack' ) }
 					value={ subject }
 					placeholder={ __( 'Enter a subject', 'jetpack' ) }
-					onChange={ newSubject => setAttributes( { subject: newSubject } ) }
+					onChange={ ( newSubject ) => setAttributes( { subject: newSubject } ) }
 					help={ __(
 						'Choose a subject line that you recognize as an email from your website.',
 						'jetpack'
@@ -218,7 +218,7 @@ function JetpackContactFormEdit( {
 						{ label: __( 'Show a custom text message', 'jetpack' ), value: 'message' },
 						{ label: __( 'Redirect to another webpage', 'jetpack' ), value: 'redirect' },
 					] }
-					onChange={ newMessage => setAttributes( { customThankyou: newMessage } ) }
+					onChange={ ( newMessage ) => setAttributes( { customThankyou: newMessage } ) }
 				/>
 
 				{ 'message' === customThankyou && (
@@ -226,7 +226,7 @@ function JetpackContactFormEdit( {
 						label={ __( 'Message Text', 'jetpack' ) }
 						value={ customThankyouMessage }
 						placeholder={ __( 'Thank you for your submission!', 'jetpack' ) }
-						onChange={ newMessage => setAttributes( { customThankyouMessage: newMessage } ) }
+						onChange={ ( newMessage ) => setAttributes( { customThankyouMessage: newMessage } ) }
 					/>
 				) }
 
@@ -239,7 +239,7 @@ function JetpackContactFormEdit( {
 							id={ `contact-form-${ instanceId }-thankyou-url` }
 							value={ customThankyouRedirect }
 							className="jetpack-contact-form__thankyou-redirect-url"
-							onChange={ newURL => setAttributes( { customThankyouRedirect: newURL } ) }
+							onChange={ ( newURL ) => setAttributes( { customThankyouRedirect: newURL } ) }
 						/>
 					</BaseControl>
 				) }
@@ -248,7 +248,7 @@ function JetpackContactFormEdit( {
 	};
 
 	const renderFormSettingsToggle = ( isOpen, onToggle ) => {
-		const openOnArrowDown = event => {
+		const openOnArrowDown = ( event ) => {
 			if ( ! isOpen && event.keyCode === DOWN ) {
 				event.preventDefault();
 				event.stopPropagation();
@@ -338,7 +338,7 @@ export default compose( [
 			adminEmail: get( getSite && getSite(), [ 'email' ] ),
 		};
 	} ),
-	withDispatch( dispatch => {
+	withDispatch( ( dispatch ) => {
 		const { replaceInnerBlocks, selectBlock } = dispatch( 'core/block-editor' );
 		return { replaceInnerBlocks, selectBlock };
 	} ),

@@ -147,8 +147,8 @@ export async function clickAndWaitForNewPage( page, selector, timeout = 25000 ) 
 			reject( 'Timed out in ' + timeout + 'ms.' );
 		}, timeout );
 	} );
-	const newTabTarget = new Promise( resolve => {
-		const listener = async target => {
+	const newTabTarget = new Promise( ( resolve ) => {
+		const listener = async ( target ) => {
 			if ( target.type() === 'page' ) {
 				browser.removeListener( 'targetcreated', listener );
 				resolve( target );
@@ -171,7 +171,7 @@ export async function clickAndWaitForNewPage( page, selector, timeout = 25000 ) 
  */
 export async function scrollIntoView( page, selector ) {
 	await waitForSelector( page, selector );
-	return await page.evaluate( s => document.querySelector( s ).scrollIntoView(), selector );
+	return await page.evaluate( ( s ) => document.querySelector( s ).scrollIntoView(), selector );
 }
 
 export async function logHTML() {

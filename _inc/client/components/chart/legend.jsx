@@ -60,7 +60,7 @@ class Legend extends React.Component {
 		clickHandler: PropTypes.func.isRequired,
 	};
 
-	onFilterChange = chartItem => {
+	onFilterChange = ( chartItem ) => {
 		this.props.clickHandler( chartItem );
 	};
 

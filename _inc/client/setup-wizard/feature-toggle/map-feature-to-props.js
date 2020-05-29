@@ -28,7 +28,7 @@ function getInfoString( productName ) {
 
 const features = {
 	ads: {
-		mapStateToProps: state => {
+		mapStateToProps: ( state ) => {
 			const sitePlan = getSitePlan( state );
 			const planClass = getPlanClass( sitePlan.product_slug );
 
@@ -57,9 +57,9 @@ const features = {
 				info,
 			};
 		},
-		mapDispatchToProps: dispatch => {
+		mapDispatchToProps: ( dispatch ) => {
 			return {
-				onToggleChange: currentCheckedValue => {
+				onToggleChange: ( currentCheckedValue ) => {
 					return dispatch( updateSettings( { wordads: ! currentCheckedValue } ) );
 				},
 			};
@@ -67,7 +67,7 @@ const features = {
 	},
 
 	'anti-spam': {
-		mapStateToProps: state => {
+		mapStateToProps: ( state ) => {
 			const sitePlan = getSitePlan( state );
 			const planClass = getPlanClass( sitePlan.product_slug );
 
@@ -108,7 +108,7 @@ const features = {
 	},
 
 	backups: {
-		mapStateToProps: state => {
+		mapStateToProps: ( state ) => {
 			const sitePlan = getSitePlan( state );
 			const planClass = getPlanClass( sitePlan.product_slug );
 			const isBackupsPurchased =
@@ -153,7 +153,7 @@ const features = {
 	},
 
 	'beautiful-math': {
-		mapStateToProps: state => {
+		mapStateToProps: ( state ) => {
 			return {
 				feature: 'beautiful-math',
 				title: __( 'Beautiful math' ),
@@ -162,9 +162,9 @@ const features = {
 				optionsLink: '#/settings?term=latex',
 			};
 		},
-		mapDispatchToProps: dispatch => {
+		mapDispatchToProps: ( dispatch ) => {
 			return {
-				onToggleChange: currentCheckedValue => {
+				onToggleChange: ( currentCheckedValue ) => {
 					return dispatch( updateSettings( { latex: ! currentCheckedValue } ) );
 				},
 			};
@@ -172,7 +172,7 @@ const features = {
 	},
 
 	'brute-force-protect': {
-		mapStateToProps: state => {
+		mapStateToProps: ( state ) => {
 			return {
 				feature: 'brute-force-protect',
 				title: __( 'Brute force protection' ),
@@ -181,9 +181,9 @@ const features = {
 				optionsLink: '#/settings?term=brute%20force',
 			};
 		},
-		mapDispatchToProps: dispatch => {
+		mapDispatchToProps: ( dispatch ) => {
 			return {
-				onToggleChange: currentCheckedValue => {
+				onToggleChange: ( currentCheckedValue ) => {
 					return dispatch( updateSettings( { protect: ! currentCheckedValue } ) );
 				},
 			};
@@ -191,7 +191,7 @@ const features = {
 	},
 
 	carousel: {
-		mapStateToProps: state => {
+		mapStateToProps: ( state ) => {
 			return {
 				feature: 'carousel',
 				title: __( 'Carousel' ),
@@ -202,9 +202,9 @@ const features = {
 				optionsLink: '#/settings?term=carousel',
 			};
 		},
-		mapDispatchToProps: dispatch => {
+		mapDispatchToProps: ( dispatch ) => {
 			return {
-				onToggleChange: currentCheckedValue => {
+				onToggleChange: ( currentCheckedValue ) => {
 					return dispatch( updateSettings( { carousel: ! currentCheckedValue } ) );
 				},
 			};
@@ -212,7 +212,7 @@ const features = {
 	},
 
 	'comment-likes': {
-		mapStateToProps: state => {
+		mapStateToProps: ( state ) => {
 			return {
 				feature: 'comment-likes',
 				title: __( 'Comment Likes' ),
@@ -222,9 +222,9 @@ const features = {
 			};
 		},
 
-		mapDispatchToProps: dispatch => {
+		mapDispatchToProps: ( dispatch ) => {
 			return {
-				onToggleChange: currentCheckedValue => {
+				onToggleChange: ( currentCheckedValue ) => {
 					return dispatch( updateSettings( { 'comment-likes': ! currentCheckedValue } ) );
 				},
 			};
@@ -232,7 +232,7 @@ const features = {
 	},
 
 	comments: {
-		mapStateToProps: state => {
+		mapStateToProps: ( state ) => {
 			return {
 				feature: 'comments',
 				title: __( 'Comments' ),
@@ -241,9 +241,9 @@ const features = {
 				optionsLink: '#/settings?term=comments',
 			};
 		},
-		mapDispatchToProps: dispatch => {
+		mapDispatchToProps: ( dispatch ) => {
 			return {
-				onToggleChange: currentCheckedValue => {
+				onToggleChange: ( currentCheckedValue ) => {
 					return dispatch( updateSettings( { comments: ! currentCheckedValue } ) );
 				},
 			};
@@ -251,7 +251,7 @@ const features = {
 	},
 
 	'contact-form': {
-		mapStateToProps: state => {
+		mapStateToProps: ( state ) => {
 			return {
 				feature: 'contact-form',
 				title: __( 'Contact Form' ),
@@ -260,9 +260,9 @@ const features = {
 				optionsLink: '#/settings?term=contact%20form',
 			};
 		},
-		mapDispatchToProps: dispatch => {
+		mapDispatchToProps: ( dispatch ) => {
 			return {
-				onToggleChange: currentCheckedValue => {
+				onToggleChange: ( currentCheckedValue ) => {
 					return dispatch( updateSettings( { 'contact-form': ! currentCheckedValue } ) );
 				},
 			};
@@ -270,7 +270,7 @@ const features = {
 	},
 
 	'copy-post': {
-		mapStateToProps: state => {
+		mapStateToProps: ( state ) => {
 			return {
 				feature: 'copy-post',
 				title: __( 'Copy Post' ),
@@ -279,9 +279,9 @@ const features = {
 				optionsLink: '#/settings?term=copy%20post',
 			};
 		},
-		mapDispatchToProps: dispatch => {
+		mapDispatchToProps: ( dispatch ) => {
 			return {
-				onToggleChange: currentCheckedValue => {
+				onToggleChange: ( currentCheckedValue ) => {
 					return dispatch( updateSettings( { 'copy-post': ! currentCheckedValue } ) );
 				},
 			};
@@ -289,7 +289,7 @@ const features = {
 	},
 
 	'custom-css': {
-		mapStateToProps: state => {
+		mapStateToProps: ( state ) => {
 			return {
 				feature: 'custom-css',
 				title: __( 'Custom CSS' ),
@@ -298,9 +298,9 @@ const features = {
 				optionsLink: '#/settings?term=custom%20css',
 			};
 		},
-		mapDispatchToProps: dispatch => {
+		mapDispatchToProps: ( dispatch ) => {
 			return {
-				onToggleChange: currentCheckedValue => {
+				onToggleChange: ( currentCheckedValue ) => {
 					return dispatch( updateSettings( { 'custom-css': ! currentCheckedValue } ) );
 				},
 			};
@@ -308,7 +308,7 @@ const features = {
 	},
 
 	'enhanced-distribution': {
-		mapStateToProps: state => {
+		mapStateToProps: ( state ) => {
 			return {
 				feature: 'enhanced-distribution',
 				title: __( 'Enhanced Distribution' ),
@@ -317,9 +317,9 @@ const features = {
 				optionsLink: '#/traffic?term=enhanced',
 			};
 		},
-		mapDispatchToProps: dispatch => {
+		mapDispatchToProps: ( dispatch ) => {
 			return {
-				onToggleChange: currentCheckedValue => {
+				onToggleChange: ( currentCheckedValue ) => {
 					return dispatch( updateSettings( { 'enhanced-distribution': ! currentCheckedValue } ) );
 				},
 			};
@@ -327,7 +327,7 @@ const features = {
 	},
 
 	'extra-sidebar-widgets': {
-		mapStateToProps: state => {
+		mapStateToProps: ( state ) => {
 			return {
 				feature: 'extra-sidebar-widgets',
 				title: __( 'Extra Sidebar Widgets' ),
@@ -336,9 +336,9 @@ const features = {
 				optionsLink: '#/traffic?term=extra',
 			};
 		},
-		mapDispatchToProps: dispatch => {
+		mapDispatchToProps: ( dispatch ) => {
 			return {
-				onToggleChange: currentCheckedValue => {
+				onToggleChange: ( currentCheckedValue ) => {
 					return dispatch( updateSettings( { widgets: ! currentCheckedValue } ) );
 				},
 			};
@@ -346,7 +346,7 @@ const features = {
 	},
 
 	'google-analytics': {
-		mapStateToProps: state => {
+		mapStateToProps: ( state ) => {
 			const sitePlan = getSitePlan( state );
 			const planClass = getPlanClass( sitePlan.product_slug );
 
@@ -375,9 +375,9 @@ const features = {
 				info,
 			};
 		},
-		mapDispatchToProps: dispatch => {
+		mapDispatchToProps: ( dispatch ) => {
 			return {
-				onToggleChange: currentCheckedValue => {
+				onToggleChange: ( currentCheckedValue ) => {
 					return dispatch( updateSettings( { 'google-analytics': ! currentCheckedValue } ) );
 				},
 			};
@@ -385,7 +385,7 @@ const features = {
 	},
 
 	'gravatar-hovercards': {
-		mapStateToProps: state => {
+		mapStateToProps: ( state ) => {
 			return {
 				feature: 'gravatar-hovercards',
 				title: __( 'Gravatar Hovercards' ),
@@ -394,9 +394,9 @@ const features = {
 				optionsLink: '#/traffic?term=hovercards',
 			};
 		},
-		mapDispatchToProps: dispatch => {
+		mapDispatchToProps: ( dispatch ) => {
 			return {
-				onToggleChange: currentCheckedValue => {
+				onToggleChange: ( currentCheckedValue ) => {
 					return dispatch( updateSettings( { 'gravatar-hovercards': ! currentCheckedValue } ) );
 				},
 			};
@@ -404,7 +404,7 @@ const features = {
 	},
 
 	'infinite-scroll': {
-		mapStateToProps: state => {
+		mapStateToProps: ( state ) => {
 			return {
 				feature: 'infinite-scroll',
 				title: __( 'Infinite Scroll' ),
@@ -415,9 +415,9 @@ const features = {
 				optionsLink: '#/settings?term=infinite',
 			};
 		},
-		mapDispatchToProps: dispatch => {
+		mapDispatchToProps: ( dispatch ) => {
 			return {
-				onToggleChange: currentCheckedValue => {
+				onToggleChange: ( currentCheckedValue ) => {
 					if ( currentCheckedValue ) {
 						return dispatch( updateSettings( { 'infinite-scroll': false } ) );
 					}
@@ -428,7 +428,7 @@ const features = {
 	},
 
 	'json-api': {
-		mapStateToProps: state => {
+		mapStateToProps: ( state ) => {
 			return {
 				feature: 'json-api',
 				title: __( 'JSON API' ),
@@ -437,9 +437,9 @@ const features = {
 				optionsLink: '/wp-admin/admin.php?page=jetpack#/traffic?term=json',
 			};
 		},
-		mapDispatchToProps: dispatch => {
+		mapDispatchToProps: ( dispatch ) => {
 			return {
-				onToggleChange: currentCheckedValue => {
+				onToggleChange: ( currentCheckedValue ) => {
 					return dispatch( updateSettings( { 'json-api': ! currentCheckedValue } ) );
 				},
 			};
@@ -447,7 +447,7 @@ const features = {
 	},
 
 	'lazy-images': {
-		mapStateToProps: state => {
+		mapStateToProps: ( state ) => {
 			return {
 				feature: 'lazy-images',
 				title: __( 'Lazy Loading Images' ),
@@ -456,9 +456,9 @@ const features = {
 				optionsLink: '#/settings?term=lazy',
 			};
 		},
-		mapDispatchToProps: dispatch => {
+		mapDispatchToProps: ( dispatch ) => {
 			return {
-				onToggleChange: currentCheckedValue => {
+				onToggleChange: ( currentCheckedValue ) => {
 					return dispatch( updateSettings( { 'lazy-images': ! currentCheckedValue } ) );
 				},
 			};
@@ -466,7 +466,7 @@ const features = {
 	},
 
 	likes: {
-		mapStateToProps: state => {
+		mapStateToProps: ( state ) => {
 			return {
 				feature: 'likes',
 				title: __( 'Likes' ),
@@ -475,9 +475,9 @@ const features = {
 				optionsLink: '#/settings?term=likes',
 			};
 		},
-		mapDispatchToProps: dispatch => {
+		mapDispatchToProps: ( dispatch ) => {
 			return {
-				onToggleChange: currentCheckedValue => {
+				onToggleChange: ( currentCheckedValue ) => {
 					return dispatch( updateSettings( { likes: ! currentCheckedValue } ) );
 				},
 			};
@@ -485,7 +485,7 @@ const features = {
 	},
 
 	markdown: {
-		mapStateToProps: state => {
+		mapStateToProps: ( state ) => {
 			return {
 				feature: 'markdown',
 				title: __( 'Markdown' ),
@@ -494,9 +494,9 @@ const features = {
 				optionsLink: '#/traffic?term=markdown',
 			};
 		},
-		mapDispatchToProps: dispatch => {
+		mapDispatchToProps: ( dispatch ) => {
 			return {
-				onToggleChange: currentCheckedValue => {
+				onToggleChange: ( currentCheckedValue ) => {
 					return dispatch( updateSettings( { markdown: ! currentCheckedValue } ) );
 				},
 			};
@@ -504,7 +504,7 @@ const features = {
 	},
 
 	masterbar: {
-		mapStateToProps: state => {
+		mapStateToProps: ( state ) => {
 			return {
 				feature: 'masterbar',
 				title: __( 'WordPress.com Toolbar' ),
@@ -513,9 +513,9 @@ const features = {
 				optionsLink: '#/settings?term=toolbar',
 			};
 		},
-		mapDispatchToProps: dispatch => {
+		mapDispatchToProps: ( dispatch ) => {
 			return {
-				onToggleChange: currentCheckedValue => {
+				onToggleChange: ( currentCheckedValue ) => {
 					return dispatch( updateSettings( { masterbar: ! currentCheckedValue } ) );
 				},
 			};
@@ -523,7 +523,7 @@ const features = {
 	},
 
 	monitor: {
-		mapStateToProps: state => {
+		mapStateToProps: ( state ) => {
 			return {
 				feature: 'monitor',
 				title: __( 'Downtime Monitoring' ),
@@ -532,9 +532,9 @@ const features = {
 				optionsLink: '#/settings?term=monitor',
 			};
 		},
-		mapDispatchToProps: dispatch => {
+		mapDispatchToProps: ( dispatch ) => {
 			return {
-				onToggleChange: currentCheckedValue => {
+				onToggleChange: ( currentCheckedValue ) => {
 					return dispatch( updateSettings( { monitor: ! currentCheckedValue } ) );
 				},
 			};
@@ -542,7 +542,7 @@ const features = {
 	},
 
 	notifications: {
-		mapStateToProps: state => {
+		mapStateToProps: ( state ) => {
 			return {
 				feature: 'notifications',
 				title: __( 'Notifications' ),
@@ -551,9 +551,9 @@ const features = {
 				optionsLink: '#/settings?term=push',
 			};
 		},
-		mapDispatchToProps: dispatch => {
+		mapDispatchToProps: ( dispatch ) => {
 			return {
-				onToggleChange: currentCheckedValue => {
+				onToggleChange: ( currentCheckedValue ) => {
 					return dispatch( updateSettings( { notes: ! currentCheckedValue } ) );
 				},
 			};
@@ -561,7 +561,7 @@ const features = {
 	},
 
 	portfolio: {
-		mapStateToProps: state => {
+		mapStateToProps: ( state ) => {
 			return {
 				feature: 'portfolio',
 				title: __( 'Portfolio: Custom content types' ),
@@ -570,9 +570,9 @@ const features = {
 				optionsLink: '/wp-admin/admin.php?page=jetpack#/settings?term=portfolios',
 			};
 		},
-		mapDispatchToProps: dispatch => {
+		mapDispatchToProps: ( dispatch ) => {
 			return {
-				onToggleChange: currentCheckedValue => {
+				onToggleChange: ( currentCheckedValue ) => {
 					return dispatch( ( dispatchProp, getState ) => {
 						const jetpack_portfolio = ! currentCheckedValue;
 						const jetpack_testimonial = getSetting( getState(), 'jetpack_testimonial' );
@@ -590,7 +590,7 @@ const features = {
 	},
 
 	'post-by-email': {
-		mapStateToProps: state => {
+		mapStateToProps: ( state ) => {
 			return {
 				feature: 'post-by-email',
 				title: __( 'Post by email' ),
@@ -601,9 +601,9 @@ const features = {
 				configureLink: '#/traffic?term=post%20by%20email',
 			};
 		},
-		mapDispatchToProps: dispatch => {
+		mapDispatchToProps: ( dispatch ) => {
 			return {
-				onToggleChange: currentCheckedValue => {
+				onToggleChange: ( currentCheckedValue ) => {
 					return dispatch( updateSettings( { 'post-by-email': ! currentCheckedValue } ) );
 				},
 			};
@@ -611,7 +611,7 @@ const features = {
 	},
 
 	publicize: {
-		mapStateToProps: state => {
+		mapStateToProps: ( state ) => {
 			const siteRawUrl = getSiteRawUrl( state );
 
 			return {
@@ -623,9 +623,9 @@ const features = {
 				isButtonLinkExternal: true,
 			};
 		},
-		mapDispatchToProps: dispatch => {
+		mapDispatchToProps: ( dispatch ) => {
 			return {
-				onToggleChange: currentCheckedValue => {
+				onToggleChange: ( currentCheckedValue ) => {
 					return dispatch( updateSettings( { publicize: ! currentCheckedValue } ) );
 				},
 			};
@@ -633,7 +633,7 @@ const features = {
 	},
 
 	'related-posts': {
-		mapStateToProps: state => {
+		mapStateToProps: ( state ) => {
 			return {
 				feature: 'related-posts',
 				title: __( 'Related posts' ),
@@ -644,9 +644,9 @@ const features = {
 				optionsLink: '#/settings?term=related%20posts',
 			};
 		},
-		mapDispatchToProps: dispatch => {
+		mapDispatchToProps: ( dispatch ) => {
 			return {
-				onToggleChange: currentCheckedValue => {
+				onToggleChange: ( currentCheckedValue ) => {
 					return dispatch( updateSettings( { 'related-posts': ! currentCheckedValue } ) );
 				},
 			};
@@ -654,7 +654,7 @@ const features = {
 	},
 
 	scan: {
-		mapStateToProps: state => {
+		mapStateToProps: ( state ) => {
 			const sitePlan = getSitePlan( state );
 			const planClass = getPlanClass( sitePlan.product_slug );
 			const isScanPurchased =
@@ -693,7 +693,7 @@ const features = {
 	},
 
 	search: {
-		mapStateToProps: state => {
+		mapStateToProps: ( state ) => {
 			let upgradeLink;
 			let optionsLink;
 			const sitePlan = getSitePlan( state );
@@ -718,9 +718,9 @@ const features = {
 				optionsLink,
 			};
 		},
-		mapDispatchToProps: dispatch => {
+		mapDispatchToProps: ( dispatch ) => {
 			return {
-				onToggleChange: currentCheckedValue => {
+				onToggleChange: ( currentCheckedValue ) => {
 					return dispatch( updateSettings( { search: ! currentCheckedValue } ) );
 				},
 			};
@@ -728,7 +728,7 @@ const features = {
 	},
 
 	sso: {
-		mapStateToProps: state => {
+		mapStateToProps: ( state ) => {
 			return {
 				feature: 'sso',
 				title: __( 'Secure Sign On' ),
@@ -737,9 +737,9 @@ const features = {
 				optionsLink: '#/settings?term=secure%20sign%20on',
 			};
 		},
-		mapDispatchToProps: dispatch => {
+		mapDispatchToProps: ( dispatch ) => {
 			return {
-				onToggleChange: currentCheckedValue => {
+				onToggleChange: ( currentCheckedValue ) => {
 					return dispatch( updateSettings( { sso: ! currentCheckedValue } ) );
 				},
 			};
@@ -747,7 +747,7 @@ const features = {
 	},
 
 	seo: {
-		mapStateToProps: state => {
+		mapStateToProps: ( state ) => {
 			const sitePlan = getSitePlan( state );
 			const planClass = getPlanClass( sitePlan.product_slug );
 
@@ -773,9 +773,9 @@ const features = {
 				isPaid: true,
 			};
 		},
-		mapDispatchToProps: dispatch => {
+		mapDispatchToProps: ( dispatch ) => {
 			return {
-				onToggleChange: currentCheckedValue => {
+				onToggleChange: ( currentCheckedValue ) => {
 					return dispatch( updateSettings( { 'seo-tools': ! currentCheckedValue } ) );
 				},
 			};
@@ -783,7 +783,7 @@ const features = {
 	},
 
 	sitemaps: {
-		mapStateToProps: state => {
+		mapStateToProps: ( state ) => {
 			return {
 				feature: 'sitemaps',
 				title: __( 'Sitemaps' ),
@@ -792,9 +792,9 @@ const features = {
 				optionsLink: '#/settings?term=sitemaps',
 			};
 		},
-		mapDispatchToProps: dispatch => {
+		mapDispatchToProps: ( dispatch ) => {
 			return {
-				onToggleChange: currentCheckedValue => {
+				onToggleChange: ( currentCheckedValue ) => {
 					return dispatch( updateSettings( { sitemaps: ! currentCheckedValue } ) );
 				},
 			};
@@ -802,7 +802,7 @@ const features = {
 	},
 
 	sharing: {
-		mapStateToProps: state => {
+		mapStateToProps: ( state ) => {
 			return {
 				feature: 'sharing',
 				title: __( 'Sharing' ),
@@ -811,9 +811,9 @@ const features = {
 				optionsLink: '#/settings?term=sharedaddy',
 			};
 		},
-		mapDispatchToProps: dispatch => {
+		mapDispatchToProps: ( dispatch ) => {
 			return {
-				onToggleChange: currentCheckedValue => {
+				onToggleChange: ( currentCheckedValue ) => {
 					return dispatch( updateSettings( { sharedaddy: ! currentCheckedValue } ) );
 				},
 			};
@@ -821,7 +821,7 @@ const features = {
 	},
 
 	shortcodes: {
-		mapStateToProps: state => {
+		mapStateToProps: ( state ) => {
 			return {
 				feature: 'shortcodes',
 				title: __( 'Shortcode Embeds' ),
@@ -830,9 +830,9 @@ const features = {
 				optionsLink: '#/traffic?term=embeds',
 			};
 		},
-		mapDispatchToProps: dispatch => {
+		mapDispatchToProps: ( dispatch ) => {
 			return {
-				onToggleChange: currentCheckedValue => {
+				onToggleChange: ( currentCheckedValue ) => {
 					return dispatch( updateSettings( { shortcodes: ! currentCheckedValue } ) );
 				},
 			};
@@ -840,7 +840,7 @@ const features = {
 	},
 
 	shortlinks: {
-		mapStateToProps: state => {
+		mapStateToProps: ( state ) => {
 			return {
 				feature: 'shortlinks',
 				title: __( 'WP.me Shortlinks' ),
@@ -849,9 +849,9 @@ const features = {
 				optionsLink: '#/settings?term=shortlink',
 			};
 		},
-		mapDispatchToProps: dispatch => {
+		mapDispatchToProps: ( dispatch ) => {
 			return {
-				onToggleChange: currentCheckedValue => {
+				onToggleChange: ( currentCheckedValue ) => {
 					return dispatch( updateSettings( { shortlinks: ! currentCheckedValue } ) );
 				},
 			};
@@ -859,7 +859,7 @@ const features = {
 	},
 
 	'simple-payments-block': {
-		mapStateToProps: state => {
+		mapStateToProps: ( state ) => {
 			const sitePlan = getSitePlan( state );
 			const planClass = getPlanClass( sitePlan.product_slug );
 
@@ -895,7 +895,7 @@ const features = {
 	},
 
 	'site-accelerator': {
-		mapStateToProps: state => {
+		mapStateToProps: ( state ) => {
 			return {
 				feature: 'site-accelerator',
 				title: __( 'Site Accelerator' ),
@@ -904,9 +904,9 @@ const features = {
 				optionsLink: '#/settings?term=image%20optimize',
 			};
 		},
-		mapDispatchToProps: dispatch => {
+		mapDispatchToProps: ( dispatch ) => {
 			return {
-				onToggleChange: currentCheckedValue => {
+				onToggleChange: ( currentCheckedValue ) => {
 					return dispatch(
 						updateSettings( { photon: ! currentCheckedValue, 'photon-cdn': ! currentCheckedValue } )
 					);
@@ -916,7 +916,7 @@ const features = {
 	},
 
 	'site-stats': {
-		mapStateToProps: state => {
+		mapStateToProps: ( state ) => {
 			return {
 				feature: 'site-stats',
 				title: __( 'Site Stats' ),
@@ -925,9 +925,9 @@ const features = {
 				optionsLink: '#/settings?term=site%20stats',
 			};
 		},
-		mapDispatchToProps: dispatch => {
+		mapDispatchToProps: ( dispatch ) => {
 			return {
-				onToggleChange: currentCheckedValue => {
+				onToggleChange: ( currentCheckedValue ) => {
 					return dispatch( updateSettings( { stats: ! currentCheckedValue } ) );
 				},
 			};
@@ -935,7 +935,7 @@ const features = {
 	},
 
 	'site-verification': {
-		mapStateToProps: state => {
+		mapStateToProps: ( state ) => {
 			return {
 				feature: 'site-verification',
 				title: __( 'Site verification' ),
@@ -944,9 +944,9 @@ const features = {
 				configureLink: '#/settings?term=verify',
 			};
 		},
-		mapDispatchToProps: dispatch => {
+		mapDispatchToProps: ( dispatch ) => {
 			return {
-				onToggleChange: currentCheckedValue => {
+				onToggleChange: ( currentCheckedValue ) => {
 					return dispatch( updateSettings( { 'verification-tools': ! currentCheckedValue } ) );
 				},
 			};
@@ -954,7 +954,7 @@ const features = {
 	},
 
 	subscriptions: {
-		mapStateToProps: state => {
+		mapStateToProps: ( state ) => {
 			return {
 				feature: 'subscriptions',
 				title: __( 'Subscriptions' ),
@@ -963,9 +963,9 @@ const features = {
 				optionsLink: '#/settings?term=subscriptions',
 			};
 		},
-		mapDispatchToProps: dispatch => {
+		mapDispatchToProps: ( dispatch ) => {
 			return {
-				onToggleChange: currentCheckedValue => {
+				onToggleChange: ( currentCheckedValue ) => {
 					return dispatch( updateSettings( { subscriptions: ! currentCheckedValue } ) );
 				},
 			};
@@ -973,7 +973,7 @@ const features = {
 	},
 
 	testimonials: {
-		mapStateToProps: state => {
+		mapStateToProps: ( state ) => {
 			return {
 				feature: 'testimonials',
 				title: __( 'Testimonial: Custom content types' ),
@@ -982,9 +982,9 @@ const features = {
 				optionsLink: '#/settings?term=testimonials',
 			};
 		},
-		mapDispatchToProps: dispatch => {
+		mapDispatchToProps: ( dispatch ) => {
 			return {
-				onToggleChange: currentCheckedValue => {
+				onToggleChange: ( currentCheckedValue ) => {
 					return dispatch( ( dispatchProp, getState ) => {
 						const jetpack_portfolio = getSetting( getState(), 'jetpack_portfolio' );
 						const jetpack_testimonial = ! currentCheckedValue;
@@ -1003,7 +1003,7 @@ const features = {
 	},
 
 	'tiled-galleries': {
-		mapStateToProps: state => {
+		mapStateToProps: ( state ) => {
 			return {
 				feature: 'tiled-galleries',
 				title: __( 'Tiled Galleries' ),
@@ -1013,9 +1013,9 @@ const features = {
 				isOptionsLinkExternal: true,
 			};
 		},
-		mapDispatchToProps: dispatch => {
+		mapDispatchToProps: ( dispatch ) => {
 			return {
-				onToggleChange: currentCheckedValue => {
+				onToggleChange: ( currentCheckedValue ) => {
 					return dispatch( updateSettings( { 'tiled-gallery': ! currentCheckedValue } ) );
 				},
 			};
@@ -1023,7 +1023,7 @@ const features = {
 	},
 
 	videopress: {
-		mapStateToProps: state => {
+		mapStateToProps: ( state ) => {
 			const sitePlan = getSitePlan( state );
 			const planClass = getPlanClass( sitePlan.product_slug );
 
@@ -1052,9 +1052,9 @@ const features = {
 				info,
 			};
 		},
-		mapDispatchToProps: dispatch => {
+		mapDispatchToProps: ( dispatch ) => {
 			return {
-				onToggleChange: currentCheckedValue => {
+				onToggleChange: ( currentCheckedValue ) => {
 					return dispatch( updateSettings( { videopress: ! currentCheckedValue } ) );
 				},
 			};
@@ -1062,7 +1062,7 @@ const features = {
 	},
 
 	'widget-visibility': {
-		mapStateToProps: state => {
+		mapStateToProps: ( state ) => {
 			return {
 				feature: 'widget-visibility',
 				title: __( 'Widget Visibility' ),
@@ -1071,9 +1071,9 @@ const features = {
 				optionsLink: '#/settings?term=visibility',
 			};
 		},
-		mapDispatchToProps: dispatch => {
+		mapDispatchToProps: ( dispatch ) => {
 			return {
-				onToggleChange: currentCheckedValue => {
+				onToggleChange: ( currentCheckedValue ) => {
 					return dispatch( updateSettings( { 'widget-visibility': ! currentCheckedValue } ) );
 				},
 			};

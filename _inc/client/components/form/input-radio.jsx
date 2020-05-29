@@ -28,7 +28,7 @@ class Radios extends React.Component {
 		choices: [],
 	};
 
-	onChange = event => {
+	onChange = ( event ) => {
 		this.props.changeValue( event );
 	};
 

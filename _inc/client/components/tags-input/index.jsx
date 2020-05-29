@@ -9,7 +9,7 @@ class JetpackTagsInput extends React.Component {
 		tags: this.props.value || [],
 	};
 
-	handleChange = tags => {
+	handleChange = ( tags ) => {
 		this.setState( { tags } );
 		if ( this.props.onChange ) {
 			this.props.onChange( {

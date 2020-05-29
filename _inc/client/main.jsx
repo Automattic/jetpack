@@ -156,7 +156,7 @@ class Main extends React.Component {
 		}
 	}
 
-	renderMainContent = route => {
+	renderMainContent = ( route ) => {
 		if ( ! this.props.userCanManageModules ) {
 			if ( ! this.props.siteConnectionStatus ) {
 				return false;
@@ -332,7 +332,7 @@ class Main extends React.Component {
 }
 
 export default connect(
-	state => {
+	( state ) => {
 		return {
 			siteConnectionStatus: getSiteConnectionStatus( state ),
 			isLinked: isCurrentUserLinked( state ),
@@ -351,7 +351,7 @@ export default connect(
 			showSetupWizard: showSetupWizard( state ),
 		};
 	},
-	dispatch => ( {
+	( dispatch ) => ( {
 		setInitialState: () => {
 			return dispatch( setInitialState() );
 		},
@@ -374,7 +374,7 @@ window.wpNavMenuClassChange = function ( pageOrder = { setup: -1, dashboard: 1, 
 		jQuery( obj ).removeClass( 'current' );
 	} );
 
-	const getJetpackSubNavItem = subNavItemIndex => {
+	const getJetpackSubNavItem = ( subNavItemIndex ) => {
 		return jQuery( '#toplevel_page_jetpack' )
 			.find( 'li' )
 			.filter( function ( index ) {

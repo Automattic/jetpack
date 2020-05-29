@@ -43,7 +43,7 @@ const VIDEO_POSTER_ALLOWED_MEDIA_TYPES = [ 'image' ];
 // see https://github.com/Automattic/jetpack/issues/15922.)
 const BlockFigureWrapper = Block ? Block.figure : 'figure';
 
-const VideoPressEdit = CoreVideoEdit =>
+const VideoPressEdit = ( CoreVideoEdit ) =>
 	class extends Component {
 		constructor() {
 			super( ...arguments );
@@ -124,7 +124,7 @@ const VideoPressEdit = CoreVideoEdit =>
 			} );
 		};
 
-		onSelectPoster = image => {
+		onSelectPoster = ( image ) => {
 			const { setAttributes } = this.props;
 			setAttributes( { poster: image.url } );
 		};
@@ -137,13 +137,13 @@ const VideoPressEdit = CoreVideoEdit =>
 			this.posterImageButton.current.focus();
 		};
 
-		toggleAttribute = attribute => {
-			return newValue => {
+		toggleAttribute = ( attribute ) => {
+			return ( newValue ) => {
 				this.props.setAttributes( { [ attribute ]: newValue } );
 			};
 		};
 
-		getAutoplayHelp = checked => {
+		getAutoplayHelp = ( checked ) => {
 			return checked
 				? __( 'Note: Autoplaying videos may cause usability issues for some visitors.', 'jetpack' )
 				: null;
@@ -203,7 +203,7 @@ const VideoPressEdit = CoreVideoEdit =>
 							<SelectControl
 								label={ __( 'Preload', 'jetpack' ) }
 								value={ preload }
-								onChange={ value => setAttributes( { preload: value } ) }
+								onChange={ ( value ) => setAttributes( { preload: value } ) }
 								options={ [
 									{ value: 'auto', label: _x( 'Auto', 'VideoPress preload setting', 'jetpack' ) },
 									{
@@ -296,7 +296,7 @@ const VideoPressEdit = CoreVideoEdit =>
 								tagName="figcaption"
 								placeholder={ __( 'Write caption…', 'jetpack' ) }
 								value={ caption }
-								onChange={ value => setAttributes( { caption: value } ) }
+								onChange={ ( value ) => setAttributes( { caption: value } ) }
 								inlineToolbar
 							/>
 						) }
@@ -332,8 +332,8 @@ export default createHigherOrderComponent(
 				url,
 			};
 		} ),
-		withDispatch( dispatch => {
-			const invalidateCachedEmbedPreview = url => {
+		withDispatch( ( dispatch ) => {
+			const invalidateCachedEmbedPreview = ( url ) => {
 				dispatch( 'core/data' ).invalidateResolution( 'core', 'getEmbedPreview', [ url ] );
 			};
 			return {

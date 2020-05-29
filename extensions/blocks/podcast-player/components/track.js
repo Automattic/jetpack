@@ -63,7 +63,7 @@ const Track = memo(
 					href={ track.link || track.src }
 					role="button"
 					aria-current={ ariaCurrent }
-					onClick={ e => {
+					onClick={ ( e ) => {
 						// Prevent handling clicks if a modifier is in use.
 						if ( e.shiftKey || e.metaKey || e.altKey ) {
 							return;
@@ -75,7 +75,7 @@ const Track = memo(
 						// Select track.
 						selectTrack( index );
 					} }
-					onKeyDown={ e => {
+					onKeyDown={ ( e ) => {
 						// Only handle the Space key.
 						if ( event.key !== ' ' ) {
 							return;

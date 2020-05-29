@@ -27,13 +27,13 @@ QueryAkismetKeyCheck.defaultProps = {
 };
 
 export default connect(
-	state => {
+	( state ) => {
 		return {
 			checkAkismetKey: checkAkismetKey(),
 			isCheckingAkismetKey: isCheckingAkismetKey( state ),
 		};
 	},
-	dispatch => {
+	( dispatch ) => {
 		return bindActionCreators(
 			{
 				checkAkismetKey,

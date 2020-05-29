@@ -88,6 +88,6 @@ export function PlanConflictWarning( { activeSitePurchases, location: { pathname
 
 const PlanConflictWarningWithRouter = withRouter( PlanConflictWarning );
 
-export default connect( state => ( {
+export default connect( ( state ) => ( {
 	activeSitePurchases: getActiveSitePurchases( state ),
 } ) )( PlanConflictWarningWithRouter );

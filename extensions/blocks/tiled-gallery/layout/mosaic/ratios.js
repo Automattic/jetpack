@@ -46,7 +46,7 @@ export function ratiosToColumns( ratios, columnCount ) {
 
 	// We skip the last column in the loop and add rest later
 	for ( let i = 0; i < columnCount - 1; i++ ) {
-		const colSize = takeWhile( toProcess, ratio => {
+		const colSize = takeWhile( toProcess, ( ratio ) => {
 			const shouldTake = accumulatedRatio <= ( i + 1 ) * targetColRatio;
 			if ( shouldTake ) {
 				accumulatedRatio += ratio;
@@ -247,12 +247,12 @@ function isFourValidCandidate( processed, toProcess ) {
 }
 
 function isNotRecentShape( shape, numRecents ) {
-	return recents =>
-		! some( takeRight( recents, numRecents ), recentShape => isEqual( recentShape, shape ) );
+	return ( recents ) =>
+		! some( takeRight( recents, numRecents ), ( recentShape ) => isEqual( recentShape, shape ) );
 }
 
 function checkNextRatios( shape ) {
-	return ratios =>
+	return ( ratios ) =>
 		ratios.length >= shape.length &&
 		every( zipWith( shape, ratios.slice( 0, shape.length ), ( f, r ) => f( r ) ) );
 }
@@ -271,10 +271,10 @@ function isPanoramic( ratio ) {
 
 // >=
 function gte( n ) {
-	return m => m >= n;
+	return ( m ) => m >= n;
 }
 
 // <
 function lt( n ) {
-	return m => m < n;
+	return ( m ) => m < n;
 }

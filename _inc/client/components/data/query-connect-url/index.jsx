@@ -22,13 +22,13 @@ export class QueryConnectUrl extends React.Component {
 }
 
 export default connect(
-	state => {
+	( state ) => {
 		return {
 			isFetchingConnectUrl: isFetchingConnectUrl( state ),
 			isDevMode: isDevMode( state ),
 		};
 	},
-	dispatch => {
+	( dispatch ) => {
 		return {
 			fetchConnectUrl: () => dispatch( fetchConnectUrl() ),
 		};

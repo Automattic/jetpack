@@ -26,8 +26,8 @@ import {
 import restApi from 'rest-api';
 
 export const fetchSiteConnectionStatus = () => {
-	return dispatch => {
-		return restApi.fetchSiteConnectionStatus().then( siteConnected => {
+	return ( dispatch ) => {
+		return restApi.fetchSiteConnectionStatus().then( ( siteConnected ) => {
 			dispatch( {
 				type: JETPACK_CONNECTION_STATUS_FETCH,
 				siteConnected: siteConnected,
@@ -37,7 +37,7 @@ export const fetchSiteConnectionStatus = () => {
 };
 
 export const fetchSiteConnectionTest = () => {
-	return dispatch => {
+	return ( dispatch ) => {
 		dispatch(
 			createNotice( 'is-info', __( 'Testing Jetpack Connection' ), {
 				id: 'test-jetpack-connection',
@@ -45,7 +45,7 @@ export const fetchSiteConnectionTest = () => {
 		);
 		return restApi
 			.fetchSiteConnectionTest()
-			.then( connectionTest => {
+			.then( ( connectionTest ) => {
 				dispatch( {
 					type: JETPACK_CONNECTION_TEST_FETCH,
 					connectionTest: connectionTest,
@@ -59,7 +59,7 @@ export const fetchSiteConnectionTest = () => {
 					)
 				);
 			} )
-			.catch( error => {
+			.catch( ( error ) => {
 				dispatch( removeNotice( 'test-jetpack-connection' ) );
 				dispatch(
 					createNotice(
@@ -77,19 +77,19 @@ export const fetchSiteConnectionTest = () => {
 };
 
 export const fetchConnectUrl = () => {
-	return dispatch => {
+	return ( dispatch ) => {
 		dispatch( {
 			type: CONNECT_URL_FETCH,
 		} );
 		return restApi
 			.fetchConnectUrl()
-			.then( connectUrl => {
+			.then( ( connectUrl ) => {
 				dispatch( {
 					type: CONNECT_URL_FETCH_SUCCESS,
 					connectUrl: connectUrl,
 				} );
 			} )
-			.catch( error => {
+			.catch( ( error ) => {
 				dispatch( {
 					type: CONNECT_URL_FETCH_FAIL,
 					error: error,
@@ -99,19 +99,19 @@ export const fetchConnectUrl = () => {
 };
 
 export const fetchUserConnectionData = () => {
-	return dispatch => {
+	return ( dispatch ) => {
 		dispatch( {
 			type: USER_CONNECTION_DATA_FETCH,
 		} );
 		return restApi
 			.fetchUserConnectionData()
-			.then( userConnectionData => {
+			.then( ( userConnectionData ) => {
 				dispatch( {
 					type: USER_CONNECTION_DATA_FETCH_SUCCESS,
 					userConnectionData: userConnectionData,
 				} );
 			} )
-			.catch( error => {
+			.catch( ( error ) => {
 				dispatch( {
 					type: USER_CONNECTION_DATA_FETCH_FAIL,
 					error: error,
@@ -121,7 +121,7 @@ export const fetchUserConnectionData = () => {
 };
 
 export const disconnectSite = ( reloadAfter = false ) => {
-	return dispatch => {
+	return ( dispatch ) => {
 		dispatch( {
 			type: DISCONNECT_SITE,
 		} );
@@ -130,7 +130,7 @@ export const disconnectSite = ( reloadAfter = false ) => {
 		);
 		return restApi
 			.disconnectSite()
-			.then( disconnectingSite => {
+			.then( ( disconnectingSite ) => {
 				dispatch( {
 					type: DISCONNECT_SITE_SUCCESS,
 					disconnectingSite: disconnectingSite,
@@ -143,7 +143,7 @@ export const disconnectSite = ( reloadAfter = false ) => {
 					window.location.reload();
 				}
 			} )
-			.catch( error => {
+			.catch( ( error ) => {
 				dispatch( {
 					type: DISCONNECT_SITE_FAIL,
 					error: error,
@@ -165,7 +165,7 @@ export const disconnectSite = ( reloadAfter = false ) => {
 };
 
 export const unlinkUser = () => {
-	return dispatch => {
+	return ( dispatch ) => {
 		dispatch( {
 			type: UNLINK_USER,
 		} );
@@ -174,7 +174,7 @@ export const unlinkUser = () => {
 		);
 		return restApi
 			.unlinkUser()
-			.then( userUnlinked => {
+			.then( ( userUnlinked ) => {
 				dispatch( {
 					type: UNLINK_USER_SUCCESS,
 					userUnlinked: userUnlinked,
@@ -187,7 +187,7 @@ export const unlinkUser = () => {
 					} )
 				);
 			} )
-			.catch( error => {
+			.catch( ( error ) => {
 				dispatch( {
 					type: UNLINK_USER_FAIL,
 					error: error,

@@ -33,7 +33,7 @@ export const Protect = withModuleSettingsFormHelpers(
 			return !! includes( this.state.whitelist, this.props.currentIp );
 		};
 
-		updateText = event => {
+		updateText = ( event ) => {
 			// Enable button if IP is not in the textarea
 			this.currentIpIsWhitelisted();
 

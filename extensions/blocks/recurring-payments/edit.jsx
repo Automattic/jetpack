@@ -76,7 +76,7 @@ class MembershipsButtonEdit extends Component {
 		this.apiCall();
 	};
 
-	onError = message => {
+	onError = ( message ) => {
 		const { noticeOperations } = this.props;
 		noticeOperations.removeAllNotices();
 		noticeOperations.createErrorNotice( message );
@@ -87,7 +87,7 @@ class MembershipsButtonEdit extends Component {
 		const method = 'GET';
 		const fetch = { path, method };
 		apiFetch( fetch ).then(
-			result => {
+			( result ) => {
 				if (
 					result.errors &&
 					Object.values( result.errors ) &&
@@ -116,7 +116,7 @@ class MembershipsButtonEdit extends Component {
 					products: removeInvalidProducts( products ),
 				} );
 			},
-			result => {
+			( result ) => {
 				const connectURL = null;
 				const connected = API_STATE_NOTCONNECTED;
 				this.setState( { connected, connectURL } );
@@ -125,15 +125,15 @@ class MembershipsButtonEdit extends Component {
 		);
 	};
 
-	handleCurrencyChange = editedProductCurrency =>
+	handleCurrencyChange = ( editedProductCurrency ) =>
 		this.setState( {
 			editedProductCurrency,
 			editedProductPriceValid: isPriceValid( editedProductCurrency, this.state.editedProductPrice ),
 		} );
-	handleRenewIntervalChange = editedProductRenewInterval =>
+	handleRenewIntervalChange = ( editedProductRenewInterval ) =>
 		this.setState( { editedProductRenewInterval } );
 
-	handlePriceChange = price => {
+	handlePriceChange = ( price ) => {
 		const editedProductPrice = parseFloat( price );
 		const editedProductPriceValid = isPriceValid(
 			this.state.editedProductCurrency,
@@ -146,7 +146,7 @@ class MembershipsButtonEdit extends Component {
 		} );
 	};
 
-	handleTitleChange = editedProductTitle =>
+	handleTitleChange = ( editedProductTitle ) =>
 		this.setState( {
 			editedProductTitle,
 			editedProductTitleValid: editedProductTitle.length > 0,
@@ -175,7 +175,7 @@ class MembershipsButtonEdit extends Component {
 		};
 		const fetch = { path, method, data };
 		apiFetch( fetch ).then(
-			result => {
+			( result ) => {
 				this.setState( {
 					addingMembershipAmount: PRODUCT_NOT_ADDING,
 					products: this.state.products.concat( [
@@ -191,14 +191,14 @@ class MembershipsButtonEdit extends Component {
 				// After successful adding of product, we want to select it. Presumably that is the product user wants.
 				this.setMembershipAmount( result.id );
 			},
-			result => {
+			( result ) => {
 				this.setState( { addingMembershipAmount: PRODUCT_FORM } );
 				this.onError( result.message );
 			}
 		);
 	};
 
-	renderAmount = product => {
+	renderAmount = ( product ) => {
 		const amount = formatCurrency( parseFloat( product.price ), product.currency );
 		if ( product.interval === '1 month' ) {
 			return sprintf( __( '%s / month', 'jetpack' ), amount );
@@ -212,7 +212,7 @@ class MembershipsButtonEdit extends Component {
 		return sprintf( __( '%s / %s', 'jetpack' ), amount, product.interval );
 	};
 
-	renderAddMembershipAmount = forceShowForm => {
+	renderAddMembershipAmount = ( forceShowForm ) => {
 		if ( this.state.addingMembershipAmount === PRODUCT_NOT_ADDING && ! forceShowForm ) {
 			return (
 				<Button
@@ -305,14 +305,14 @@ class MembershipsButtonEdit extends Component {
 			</div>
 		);
 	};
-	getFormattedPriceByProductId = id => {
+	getFormattedPriceByProductId = ( id ) => {
 		const product = this.state.products
-			.filter( prod => parseInt( prod.id ) === parseInt( id ) )
+			.filter( ( prod ) => parseInt( prod.id ) === parseInt( id ) )
 			.pop();
 		return formatCurrency( parseFloat( product.price ), product.currency );
 	};
 
-	setMembershipAmount = id =>
+	setMembershipAmount = ( id ) =>
 		this.props.setAttributes( {
 			planId: id,
 			submitButtonText: this.getFormattedPriceByProductId( id ) + __( ' Contribution', 'jetpack' ),
@@ -320,7 +320,7 @@ class MembershipsButtonEdit extends Component {
 
 	renderMembershipAmounts = () => (
 		<div>
-			{ this.state.products.map( product => (
+			{ this.state.products.map( ( product ) => (
 				<Button
 					className="membership-button__field-button"
 					isLarge
@@ -385,7 +385,7 @@ class MembershipsButtonEdit extends Component {
 						label={ __( 'Payment plan', 'jetpack' ) }
 						value={ this.props.attributes.planId }
 						onChange={ this.setMembershipAmount }
-						options={ products.map( product => ( {
+						options={ products.map( ( product ) => ( {
 							label: this.renderAmount( product ),
 							value: product.id,
 							key: product.id,
@@ -507,6 +507,6 @@ class MembershipsButtonEdit extends Component {
 }
 
 export default compose( [
-	withSelect( select => ( { postId: select( 'core/editor' ).getCurrentPostId() } ) ),
+	withSelect( ( select ) => ( { postId: select( 'core/editor' ).getCurrentPostId() } ) ),
 	withNotices,
 ] )( MembershipsButtonEdit );

@@ -88,7 +88,7 @@ export class Security extends Component {
 		}
 
 		const planClass = getPlanClass( get( this.props.sitePlan, [ 'product_slug' ] ) );
-		const activePlanClasses = this.props.activeSitePurchases.map( purchase =>
+		const activePlanClasses = this.props.activeSitePurchases.map( ( purchase ) =>
 			getPlanClass( purchase.product_slug )
 		);
 
@@ -135,17 +135,17 @@ export class Security extends Component {
 	}
 }
 
-export default connect( state => {
+export default connect( ( state ) => {
 	return {
 		activeSitePurchases: getActiveSitePurchases( state ),
-		module: module_name => getModule( state, module_name ),
+		module: ( module_name ) => getModule( state, module_name ),
 		settings: getSettings( state ),
 		sitePlan: getSitePlan( state ),
 		isDevMode: isDevMode( state ),
-		isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
-		isModuleFound: module_name => isModuleFound( state, module_name ),
-		isPluginActive: plugin_slug => isPluginActive( state, plugin_slug ),
-		isPluginInstalled: plugin_slug => isPluginInstalled( state, plugin_slug ),
+		isUnavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name ),
+		isModuleFound: ( module_name ) => isModuleFound( state, module_name ),
+		isPluginActive: ( plugin_slug ) => isPluginActive( state, plugin_slug ),
+		isPluginInstalled: ( plugin_slug ) => isPluginInstalled( state, plugin_slug ),
 		vaultPressData: getVaultPressData( state ),
 	};
 } )( Security );

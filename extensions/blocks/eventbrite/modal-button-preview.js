@@ -51,7 +51,7 @@ const INITIAL_BORDER_RADIUS_POSITION = 5;
 
 function BorderPanel( { borderRadius = '', setAttributes } ) {
 	const setBorderRadius = useCallback(
-		newBorderRadius => {
+		( newBorderRadius ) => {
 			setAttributes( { borderRadius: newBorderRadius } );
 		},
 		[ setAttributes ]
@@ -110,7 +110,7 @@ class ButtonEdit extends Component {
 					placeholder={ placeholder || __( 'Add text…', 'jetpack' ) }
 					value={ text }
 					keepPlaceholderOnFocus={ true }
-					onChange={ value => setAttributes( { text: value } ) }
+					onChange={ ( value ) => setAttributes( { text: value } ) }
 					withoutInteractiveFormatting
 					className={ classnames( 'wp-block-button__link', {
 						'has-background': backgroundColor.color,

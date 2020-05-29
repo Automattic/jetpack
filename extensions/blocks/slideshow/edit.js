@@ -63,21 +63,21 @@ class SlideshowEdit extends Component {
 
 		this.props.setAttributes( attributes );
 	}
-	onSelectImages = images => {
+	onSelectImages = ( images ) => {
 		const { sizeSlug } = this.props.attributes;
-		const mapped = images.map( image => pickRelevantMediaFiles( image, sizeSlug ) );
+		const mapped = images.map( ( image ) => pickRelevantMediaFiles( image, sizeSlug ) );
 		this.setAttributes( {
 			images: mapped,
 		} );
 	};
-	onRemoveImage = index => {
+	onRemoveImage = ( index ) => {
 		return () => {
 			const images = filter( this.props.attributes.images, ( img, i ) => index !== i );
 			this.setState( { selectedImage: null } );
 			this.setAttributes( { images } );
 		};
 	};
-	addFiles = files => {
+	addFiles = ( files ) => {
 		const currentImages = this.props.attributes.images || [];
 		const sizeSlug = this.props.attributes.sizeSlug;
 		const { lockPostSaving, unlockPostSaving, noticeOperations } = this.props;
@@ -86,28 +86,30 @@ class SlideshowEdit extends Component {
 		mediaUpload( {
 			allowedTypes: ALLOWED_MEDIA_TYPES,
 			filesList: files,
-			onFileChange: images => {
-				const imagesNormalized = images.map( image => pickRelevantMediaFiles( image, sizeSlug ) );
+			onFileChange: ( images ) => {
+				const imagesNormalized = images.map( ( image ) =>
+					pickRelevantMediaFiles( image, sizeSlug )
+				);
 				this.setAttributes( {
 					images: [ ...currentImages, ...imagesNormalized ],
 				} );
-				if ( ! imagesNormalized.every( image => isBlobURL( image.url ) ) ) {
+				if ( ! imagesNormalized.every( ( image ) => isBlobURL( image.url ) ) ) {
 					unlockPostSaving( lockName );
 				}
 			},
 			onError: noticeOperations.createErrorNotice,
 		} );
 	};
-	uploadFromFiles = event => this.addFiles( event.target.files );
+	uploadFromFiles = ( event ) => this.addFiles( event.target.files );
 	getImageSizeOptions() {
 		const { imageSizes } = this.props;
 		return map( imageSizes, ( { name, slug } ) => ( { value: slug, label: name } ) );
 	}
-	updateImagesSize = sizeSlug => {
+	updateImagesSize = ( sizeSlug ) => {
 		const { images } = this.props.attributes;
 		const { resizedImages } = this.props;
 
-		const updatedImages = images.map( image => {
+		const updatedImages = images.map( ( image ) => {
 			const resizedImage = resizedImages.find(
 				( { id } ) => parseInt( id, 10 ) === parseInt( image.id, 10 )
 			);
@@ -132,7 +134,7 @@ class SlideshowEdit extends Component {
 				imageSizeOptions={ imageSizeOptions }
 				onChangeImageSize={ this.updateImagesSize }
 				onSelectImages={ this.onSelectImages }
-				setAttributes={ attrs => this.setAttributes( attrs ) }
+				setAttributes={ ( attrs ) => this.setAttributes( attrs ) }
 			/>
 		);
 
@@ -205,7 +207,7 @@ export default compose(
 			resizedImages,
 		};
 	} ),
-	withDispatch( dispatch => {
+	withDispatch( ( dispatch ) => {
 		const { lockPostSaving, unlockPostSaving } = dispatch( 'core/editor' );
 		return {
 			lockPostSaving,

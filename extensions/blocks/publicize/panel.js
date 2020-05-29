@@ -23,7 +23,7 @@ import PublicizeSettingsButton from './settings-button';
 
 const PublicizePanel = ( { connections, refreshConnections } ) => (
 	<Fragment>
-		{ connections && connections.some( connection => connection.enabled ) && (
+		{ connections && connections.some( ( connection ) => connection.enabled ) && (
 			<PublicizeConnectionVerify />
 		) }
 		<div>
@@ -42,10 +42,10 @@ const PublicizePanel = ( { connections, refreshConnections } ) => (
 );
 
 export default compose( [
-	withSelect( select => ( {
+	withSelect( ( select ) => ( {
 		connections: select( 'core/editor' ).getEditedPostAttribute( 'jetpack_publicize_connections' ),
 	} ) ),
-	withDispatch( dispatch => ( {
+	withDispatch( ( dispatch ) => ( {
 		refreshConnections: dispatch( 'core/editor' ).refreshPost,
 	} ) ),
 ] )( PublicizePanel );

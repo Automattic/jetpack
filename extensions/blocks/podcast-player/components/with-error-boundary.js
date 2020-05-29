@@ -19,7 +19,7 @@ export default function withErrorBoundary( WrappedComponent ) {
 			this.props.onError( error, errorInfo );
 		};
 
-		static getDerivedStateFromError = error => {
+		static getDerivedStateFromError = ( error ) => {
 			// There is a known error where IE11 doesn't support the <audio> element by
 			// default but errors instead. If the user is using IE11 we thus provide
 			// additional instructions on how they can turn on <audio> support.

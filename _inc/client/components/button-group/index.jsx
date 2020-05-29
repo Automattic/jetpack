@@ -12,7 +12,7 @@ export default class ButtonGroup extends React.Component {
 	static propTypes = {
 		children( props ) {
 			let error = null;
-			React.Children.forEach( props.children, child => {
+			React.Children.forEach( props.children, ( child ) => {
 				if ( ! child.props || child.props.type !== 'button' ) {
 					error = new Error( 'All children elements should be a Button.' );
 				}

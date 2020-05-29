@@ -26,7 +26,7 @@ export class MobileMagicLink extends React.Component {
 		showModal: false,
 	};
 
-	handleOpenModal = e => {
+	handleOpenModal = ( e ) => {
 		e.preventDefault();
 		analytics.tracks.recordJetpackClick( 'login_to_mobile_app_modal' );
 		this.toggleModalVisibility();
@@ -38,7 +38,7 @@ export class MobileMagicLink extends React.Component {
 		} );
 	};
 
-	clickSendLoginEmail = e => {
+	clickSendLoginEmail = ( e ) => {
 		e.preventDefault();
 		analytics.tracks.recordJetpackClick( 'login_to_mobile_send_link' );
 		this.toggleModalVisibility();
@@ -95,7 +95,7 @@ export class MobileMagicLink extends React.Component {
 }
 
 export default connect(
-	state => {
+	( state ) => {
 		return {
 			isSiteConnected: _getSiteConnectionStatus( state ),
 			isLinked: _isCurrentUserLinked( state ),

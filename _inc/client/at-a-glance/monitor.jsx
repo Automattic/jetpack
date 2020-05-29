@@ -80,7 +80,7 @@ class DashMonitor extends Component {
 	}
 }
 
-export default connect( state => ( {
+export default connect( ( state ) => ( {
 	isDevMode: isDevMode( state ),
 	isModuleAvailable: isModuleAvailable( state, 'monitor' ),
 } ) )( DashMonitor );

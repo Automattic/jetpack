@@ -326,7 +326,7 @@ const constrainLeft = function ( off, el ) {
 	return off;
 };
 
-const isElement = obj => {
+const isElement = ( obj ) => {
 	try {
 		//Using W3 DOM2 (works for FF, Opera and Chrom)
 		return obj instanceof HTMLElement;

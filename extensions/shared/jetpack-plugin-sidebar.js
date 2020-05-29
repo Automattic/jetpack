@@ -19,7 +19,7 @@ export { Fill as default };
 registerPlugin( 'jetpack-sidebar', {
 	render: () => (
 		<Slot>
-			{ fills => {
+			{ ( fills ) => {
 				if ( ! fills.length ) {
 					return null;
 				}

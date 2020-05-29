@@ -8,7 +8,7 @@ import { __ } from '@wordpress/i18n';
  */
 import colorValidator from '../../shared/colorValidator';
 
-const urlValidator = url => ! url || url.startsWith( 'https://calendly.com/' );
+const urlValidator = ( url ) => ! url || url.startsWith( 'https://calendly.com/' );
 
 export default {
 	backgroundColor: {

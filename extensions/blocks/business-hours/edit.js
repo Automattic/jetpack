@@ -42,7 +42,7 @@ class BusinessHours extends Component {
 	apiFetch() {
 		this.setState( { data: defaultLocalization }, () => {
 			apiFetch( { path: '/wpcom/v2/business-hours/localized-week' } ).then(
-				data => {
+				( data ) => {
 					this.setState( { localization: data, hasFetched: true } );
 				},
 				() => {

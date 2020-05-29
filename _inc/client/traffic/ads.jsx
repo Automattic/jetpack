@@ -26,7 +26,7 @@ export const Ads = withModuleSettingsFormHelpers(
 		 *
 		 * @param {string} optionName the slug of the option to update
 		 */
-		updateOptions = optionName => {
+		updateOptions = ( optionName ) => {
 			this.props.updateFormStateModuleOption( 'wordads', optionName );
 		};
 
@@ -38,7 +38,7 @@ export const Ads = withModuleSettingsFormHelpers(
 			analytics.tracks.recordJetpackClick( 'place_ad_widget' );
 		};
 
-		handleChange = setting => {
+		handleChange = ( setting ) => {
 			return () => this.updateOptions( setting );
 		};
 

@@ -28,14 +28,14 @@ QueryVaultPressData.defaultProps = {
 };
 
 export default connect(
-	state => {
+	( state ) => {
 		return {
 			fetchVaultPressData: fetchVaultPressData(),
 			fetchingVaultPressData: isFetchingVaultPressData( state ),
-			isModuleActivated: slug => _isModuleActivated( state, slug ),
+			isModuleActivated: ( slug ) => _isModuleActivated( state, slug ),
 		};
 	},
-	dispatch => {
+	( dispatch ) => {
 		return bindActionCreators(
 			{
 				fetchVaultPressData,

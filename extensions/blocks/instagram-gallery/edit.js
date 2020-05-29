@@ -40,7 +40,7 @@ import useInstagramGallery from './use-instagram-gallery';
 import ImageTransition from './image-transition';
 import './editor.scss';
 
-const InstagramGalleryEdit = props => {
+const InstagramGalleryEdit = ( props ) => {
 	const { attributes, className, isSelected, noticeOperations, noticeUI, setAttributes } = props;
 	const {
 		accessToken,
@@ -122,7 +122,7 @@ const InstagramGalleryEdit = props => {
 		}
 	};
 
-	const renderImage = index => {
+	const renderImage = ( index ) => {
 		if ( images[ index ] ) {
 			const image = images[ index ];
 			return (
@@ -165,7 +165,7 @@ const InstagramGalleryEdit = props => {
 	const renderInstagramConnection = () => {
 		const hasUserConnections = userConnections.length > 0;
 		const radioOptions = [
-			...map( userConnections, connection => ( {
+			...map( userConnections, ( connection ) => ( {
 				label: `@${ connection.username }`,
 				value: connection.token,
 			} ) ),
@@ -182,7 +182,7 @@ const InstagramGalleryEdit = props => {
 				{ hasUserConnections && (
 					<RadioControl
 						label={ __( 'Select your Instagram account:', 'jetpack' ) }
-						onChange={ value => setSelectedAccount( value ) }
+						onChange={ ( value ) => setSelectedAccount( value ) }
 						options={ radioOptions }
 						selected={ selectedAccount }
 					/>
@@ -239,7 +239,7 @@ const InstagramGalleryEdit = props => {
 
 			{ showGallery && (
 				<div className={ gridClasses } style={ gridStyle }>
-					{ times( isSelected ? count : unselectedCount, index => (
+					{ times( isSelected ? count : unselectedCount, ( index ) => (
 						<span
 							className={ classnames( 'wp-block-jetpack-instagram-gallery__grid-post' ) }
 							key={ index }
@@ -273,21 +273,21 @@ const InstagramGalleryEdit = props => {
 						<RangeControl
 							label={ __( 'Number of Posts', 'jetpack' ) }
 							value={ count }
-							onChange={ value => setAttributes( { count: value } ) }
+							onChange={ ( value ) => setAttributes( { count: value } ) }
 							min={ 1 }
 							max={ MAX_IMAGE_COUNT }
 						/>
 						<RangeControl
 							label={ __( 'Number of Columns', 'jetpack' ) }
 							value={ columns }
-							onChange={ value => setAttributes( { columns: value } ) }
+							onChange={ ( value ) => setAttributes( { columns: value } ) }
 							min={ 1 }
 							max={ 6 }
 						/>
 						<RangeControl
 							label={ __( 'Image Spacing (px)', 'jetpack' ) }
 							value={ spacing }
-							onChange={ value => setAttributes( { spacing: value } ) }
+							onChange={ ( value ) => setAttributes( { spacing: value } ) }
 							min={ 0 }
 							max={ 50 }
 						/>

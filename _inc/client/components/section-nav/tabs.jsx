@@ -152,7 +152,7 @@ class NavTabs extends React.Component {
 		}
 	};
 
-	keyHandler = event => {
+	keyHandler = ( event ) => {
 		switch ( event.keyCode ) {
 			case 32: // space
 			case 13: // enter

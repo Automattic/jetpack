@@ -24,20 +24,20 @@ import {
 import restApi from 'rest-api';
 
 export const fetchSiteData = () => {
-	return dispatch => {
+	return ( dispatch ) => {
 		dispatch( {
 			type: JETPACK_SITE_DATA_FETCH,
 		} );
 		return restApi
 			.fetchSiteData()
-			.then( siteData => {
+			.then( ( siteData ) => {
 				dispatch( {
 					type: JETPACK_SITE_DATA_FETCH_RECEIVE,
 					siteData: siteData,
 				} );
 				return siteData;
 			} )
-			.catch( error => {
+			.catch( ( error ) => {
 				dispatch( {
 					type: JETPACK_SITE_DATA_FETCH_FAIL,
 					error: error,
@@ -47,19 +47,19 @@ export const fetchSiteData = () => {
 };
 
 export const fetchSiteBenefits = () => {
-	return dispatch => {
+	return ( dispatch ) => {
 		dispatch( {
 			type: JETPACK_SITE_BENEFITS_FETCH,
 		} );
 		return restApi
 			.fetchSiteBenefits()
-			.then( siteBenefits => {
+			.then( ( siteBenefits ) => {
 				dispatch( {
 					type: JETPACK_SITE_BENEFITS_FETCH_RECEIVE,
 					siteBenefits: siteBenefits,
 				} );
 			} )
-			.catch( error => {
+			.catch( ( error ) => {
 				dispatch( {
 					type: JETPACK_SITE_BENEFITS_FETCH_FAIL,
 					error: error,
@@ -69,20 +69,20 @@ export const fetchSiteBenefits = () => {
 };
 
 export const fetchSiteFeatures = () => {
-	return dispatch => {
+	return ( dispatch ) => {
 		dispatch( {
 			type: JETPACK_SITE_FEATURES_FETCH,
 		} );
 		return restApi
 			.fetchSiteFeatures()
-			.then( siteFeatures => {
+			.then( ( siteFeatures ) => {
 				dispatch( {
 					type: JETPACK_SITE_FEATURES_FETCH_RECEIVE,
 					siteFeatures: siteFeatures,
 				} );
 				return siteFeatures;
 			} )
-			.catch( error => {
+			.catch( ( error ) => {
 				dispatch( {
 					type: JETPACK_SITE_FEATURES_FETCH_FAIL,
 					error: error,
@@ -92,20 +92,20 @@ export const fetchSiteFeatures = () => {
 };
 
 export const fetchAvailablePlans = () => {
-	return dispatch => {
+	return ( dispatch ) => {
 		dispatch( {
 			type: JETPACK_SITE_PLANS_FETCH,
 		} );
 		return restApi
 			.getPlans()
-			.then( sitePlans => {
+			.then( ( sitePlans ) => {
 				dispatch( {
 					type: JETPACK_SITE_PLANS_FETCH_RECEIVE,
 					plans: sitePlans,
 				} );
 				return sitePlans;
 			} )
-			.catch( error => {
+			.catch( ( error ) => {
 				dispatch( {
 					type: JETPACK_SITE_PLANS_FETCH_FAIL,
 					error: error,
@@ -115,20 +115,20 @@ export const fetchAvailablePlans = () => {
 };
 
 export const fetchSitePurchases = () => {
-	return dispatch => {
+	return ( dispatch ) => {
 		dispatch( {
 			type: JETPACK_SITE_PURCHASES_FETCH,
 		} );
 		return restApi
 			.fetchSitePurchases()
-			.then( purchases => {
+			.then( ( purchases ) => {
 				dispatch( {
 					type: JETPACK_SITE_PURCHASES_FETCH_RECEIVE,
 					purchases,
 				} );
 				return purchases;
 			} )
-			.catch( error => {
+			.catch( ( error ) => {
 				dispatch( {
 					type: JETPACK_SITE_PURCHASES_FETCH_FAIL,
 					error,
@@ -138,20 +138,20 @@ export const fetchSitePurchases = () => {
 };
 
 export const fetchConnectedPlugins = () => {
-	return dispatch => {
+	return ( dispatch ) => {
 		dispatch( {
 			type: JETPACK_SITE_CONNECTED_PLUGINS_FETCH,
 		} );
 		return restApi
 			.fetchConnectedPlugins()
-			.then( connectedPlugins => {
+			.then( ( connectedPlugins ) => {
 				dispatch( {
 					type: JETPACK_SITE_CONNECTED_PLUGINS_FETCH_RECEIVE,
 					connectedPlugins: connectedPlugins,
 				} );
 				return connectedPlugins;
 			} )
-			.catch( error => {
+			.catch( ( error ) => {
 				dispatch( {
 					type: JETPACK_SITE_CONNECTED_PLUGINS_FETCH_FAIL,
 					error: error,

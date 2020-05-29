@@ -17,14 +17,16 @@ import { FormFieldset } from 'components/forms';
 import './style.scss';
 
 const shuffleAnswers = memoize(
-	answers => {
+	( answers ) => {
 		const shuffles = shuffle( answers.filter( ( { doNotShuffle } ) => ! doNotShuffle ) );
-		return answers.map( answer => ( answer.doNotShuffle ? answer : shuffles.pop() ) );
+		return answers.map( ( answer ) => ( answer.doNotShuffle ? answer : shuffles.pop() ) );
 	},
 	// this creates a unique id for the set for answers give to the question so that any change that would
 	// require a reshuffle gets one. Will resemble: "answer1_false-answer2_false-answer3_true"
-	answers =>
-		answers.map( answer => values( pick( answer, 'id', 'doNotShuffle' ) ).join( '_' ) ).join( '-' )
+	( answers ) =>
+		answers
+			.map( ( answer ) => values( pick( answer, 'id', 'doNotShuffle' ) ).join( '_' ) )
+			.join( '-' )
 );
 
 class MultipleChoiceQuestion extends Component {
@@ -80,7 +82,7 @@ class MultipleChoiceQuestion extends Component {
 			<FormFieldset className="multiple-choice-question">
 				<h2 className="multiple-choice-question__question">{ question }</h2>
 				{ subHeader && <h3 className="multiple-choice-question__subheader">{ subHeader }</h3> }
-				{ shuffledAnswers.map( answer => (
+				{ shuffledAnswers.map( ( answer ) => (
 					<MultipleChoiceAnswer
 						key={ answer.id }
 						answer={ answer }

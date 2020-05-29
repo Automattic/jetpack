@@ -155,7 +155,7 @@
 			return `
 				<ul style="list-style: none; padding-left: 0; display: flex; flex-wrap: wrap;">
 					${ options
-						.map( option => {
+						.map( ( option ) => {
 							return getOption( option, columnWidth );
 						} )
 						.join( '' ) }

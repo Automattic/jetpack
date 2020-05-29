@@ -39,7 +39,7 @@ export const settings = {
 	edit,
 	save: ( { attributes: { rid } } ) => (
 		<>
-			{ rid.map( restaurantId => (
+			{ rid.map( ( restaurantId ) => (
 				<a href={ `https://www.opentable.com/restref/client/?rid=${ restaurantId }` }>
 					{ `https://www.opentable.com/restref/client/?rid=${ restaurantId }` }
 				</a>
@@ -62,11 +62,11 @@ export const settings = {
 		from: [
 			{
 				type: 'raw',
-				isMatch: node =>
+				isMatch: ( node ) =>
 					node.nodeName === 'P' &&
 					node.textContent.indexOf( 'http' ) === 0 &&
 					( ridRegex.test( node.textContent ) || restRefRegex.test( node.textContent ) ),
-				transform: node => {
+				transform: ( node ) => {
 					const newAttributes = getAttributesFromEmbedCode( node.textContent );
 					return createBlock( 'jetpack/opentable', newAttributes );
 				},

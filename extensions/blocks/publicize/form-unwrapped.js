@@ -38,7 +38,7 @@ class PublicizeFormUnwrapped extends Component {
 	 * @return {boolean} True if whole form should be disabled.
 	 */
 	isDisabled() {
-		return this.props.connections.every( connection => ! connection.toggleable );
+		return this.props.connections.every( ( connection ) => ! connection.toggleable );
 	}
 
 	getShareMessage() {
@@ -48,7 +48,7 @@ class PublicizeFormUnwrapped extends Component {
 			: shareMessage;
 	}
 
-	onMessageChange = event => {
+	onMessageChange = ( event ) => {
 		const { messageChange } = this.props;
 		this.setState( { hasEditedShareMessage: true } );
 		messageChange( event );
@@ -78,7 +78,7 @@ class PublicizeFormUnwrapped extends Component {
 					) ) }
 				</ul>
 				<PublicizeSettingsButton refreshCallback={ refreshCallback } />
-				{ connections.some( connection => connection.enabled ) && (
+				{ connections.some( ( connection ) => connection.enabled ) && (
 					<Fragment>
 						<label className="jetpack-publicize-message-note" htmlFor={ this.fieldId }>
 							{ __( 'Customize your message', 'jetpack' ) }

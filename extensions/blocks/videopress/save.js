@@ -9,7 +9,7 @@ import { RichText } from '@wordpress/block-editor';
  */
 import { getVideoPressUrl } from './url';
 
-const VideoPressSave = CoreVideoSave => props => {
+const VideoPressSave = ( CoreVideoSave ) => ( props ) => {
 	const {
 		attributes: { autoplay, caption, controls, guid, loop, muted, poster, preload } = {},
 	} = props;

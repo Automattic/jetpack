@@ -23,7 +23,7 @@ class GalleryImageEdit extends Component {
 		}
 	};
 
-	onImageKeyDown = event => {
+	onImageKeyDown = ( event ) => {
 		if (
 			this.img.current === document.activeElement &&
 			this.props.isSelected &&

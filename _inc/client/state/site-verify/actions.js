@@ -15,13 +15,13 @@ import { translate as __ } from 'i18n-calypso';
 import { createNotice } from 'components/global-notices/state/notices/actions';
 
 export const checkVerifyStatusGoogle = ( keyringId = null ) => {
-	return dispatch => {
+	return ( dispatch ) => {
 		dispatch( {
 			type: JETPACK_SITE_VERIFY_GOOGLE_STATUS_FETCH,
 		} );
 		return restApi
 			.fetchVerifySiteGoogleStatus( keyringId )
-			.then( data => {
+			.then( ( data ) => {
 				if ( data.errors && data.errors.length > 0 ) {
 					const errorCode = Object.keys( data.errors )[ 0 ];
 					const errorMessage = data.errors[ errorCode ];
@@ -46,7 +46,7 @@ export const checkVerifyStatusGoogle = ( keyringId = null ) => {
 
 				return data;
 			} )
-			.catch( error => {
+			.catch( ( error ) => {
 				dispatch( {
 					type: JETPACK_SITE_VERIFY_GOOGLE_STATUS_FETCH_FAIL,
 					error: error.response,
@@ -55,14 +55,14 @@ export const checkVerifyStatusGoogle = ( keyringId = null ) => {
 	};
 };
 
-export const verifySiteGoogle = keyringId => {
-	return dispatch => {
+export const verifySiteGoogle = ( keyringId ) => {
+	return ( dispatch ) => {
 		dispatch( {
 			type: JETPACK_SITE_VERIFY_GOOGLE_REQUEST,
 		} );
 		return restApi
 			.verifySiteGoogle( keyringId )
-			.then( data => {
+			.then( ( data ) => {
 				if ( data.errors && data.errors.length > 0 ) {
 					const errorCode = Object.keys( data.errors )[ 0 ];
 					const errorMessage = data.errors[ errorCode ];
@@ -95,7 +95,7 @@ export const verifySiteGoogle = keyringId => {
 
 				return data;
 			} )
-			.catch( error => {
+			.catch( ( error ) => {
 				dispatch( {
 					type: JETPACK_SITE_VERIFY_GOOGLE_REQUEST_FAIL,
 					error: error.response,

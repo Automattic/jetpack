@@ -11,11 +11,11 @@ export function getTasks( state ) {
 	return get( state, [ 'jetpack', 'checklist', 'checklist', 'tasks' ] );
 }
 
-const memoizedChecklistCompletion = memoize( tasks => {
+const memoizedChecklistCompletion = memoize( ( tasks ) => {
 	const taskKeys = Object.keys( tasks );
 
 	return {
-		completed: taskKeys.filter( key => tasks[ key ].completed ).length,
+		completed: taskKeys.filter( ( key ) => tasks[ key ].completed ).length,
 		total: taskKeys.length,
 	};
 } );

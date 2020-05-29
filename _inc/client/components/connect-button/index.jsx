@@ -47,7 +47,7 @@ export class ConnectButton extends React.Component {
 		showModal: false,
 	};
 
-	handleOpenModal = e => {
+	handleOpenModal = ( e ) => {
 		analytics.tracks.recordJetpackClick( 'manage_site_connection' );
 		e.preventDefault();
 		this.toggleVisibility();
@@ -180,7 +180,7 @@ export class ConnectButton extends React.Component {
 }
 
 export default connect(
-	state => {
+	( state ) => {
 		return {
 			siteRawUrl: getSiteRawUrl( state ),
 			isSiteConnected: _getSiteConnectionStatus( state ),
@@ -191,7 +191,7 @@ export default connect(
 			isUnlinking: _isUnlinkingUser( state ),
 		};
 	},
-	dispatch => {
+	( dispatch ) => {
 		return {
 			disconnectSite: () => {
 				return dispatch( disconnectSite() );

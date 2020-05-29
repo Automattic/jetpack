@@ -12,7 +12,7 @@ import { addQueryArgs } from '@wordpress/url';
 import { IS_CURRENT_USER_CONNECTED_TO_WPCOM } from './constants';
 
 export default function useConnectWpcom() {
-	const { isAutoDraft } = useSelect( select => {
+	const { isAutoDraft } = useSelect( ( select ) => {
 		const { status } = select( 'core/editor' ).getCurrentPost();
 		return { isAutoDraft: 'auto-draft' === status };
 	} );
@@ -38,7 +38,7 @@ export default function useConnectWpcom() {
 				from: 'jetpack-block-editor',
 				redirect: window.location.href,
 			} ),
-		} ).then( connectUrl => {
+		} ).then( ( connectUrl ) => {
 			setWpcomConnectUrl( connectUrl );
 			setRequestingWpcomConnectUrl( false );
 		} );

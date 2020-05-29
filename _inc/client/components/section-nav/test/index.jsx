@@ -16,7 +16,7 @@ function createComponent( component, props, children ) {
 describe( 'section-nav', function () {
 	useFakeDom( '<html><body><script></script><div id="container"></div></body></html>' );
 
-	useMockery( mockery => {
+	useMockery( ( mockery ) => {
 		ReactDom = require( 'react-dom' );
 		React = require( 'react' );
 		TestUtils = require( 'react-addons-test-utils' );

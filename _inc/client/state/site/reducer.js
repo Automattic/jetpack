@@ -230,17 +230,17 @@ export function getSitePurchases( state ) {
  * @return {Array}  Active purchases for the site
  */
 export function getActiveSitePurchases( state ) {
-	return getSitePurchases( state ).filter( purchase => '1' === purchase.active );
+	return getSitePurchases( state ).filter( ( purchase ) => '1' === purchase.active );
 }
 
 export function getActiveProductPurchases( state ) {
-	return getActiveSitePurchases( state ).filter( purchase =>
+	return getActiveSitePurchases( state ).filter( ( purchase ) =>
 		isJetpackProduct( purchase.product_slug )
 	);
 }
 
 export function getActiveBackupPurchase( state ) {
-	return find( getActiveProductPurchases( state ), product =>
+	return find( getActiveProductPurchases( state ), ( product ) =>
 		isJetpackBackup( product.product_slug )
 	);
 }
@@ -250,7 +250,7 @@ export function hasActiveBackupPurchase( state ) {
 }
 
 export function getActiveScanPurchase( state ) {
-	return find( getActiveProductPurchases( state ), product =>
+	return find( getActiveProductPurchases( state ), ( product ) =>
 		isJetpackScan( product.product_slug )
 	);
 }
@@ -260,7 +260,7 @@ export function hasActiveScanPurchase( state ) {
 }
 
 export function getActiveSearchPurchase( state ) {
-	return find( getActiveProductPurchases( state ), product =>
+	return find( getActiveProductPurchases( state ), ( product ) =>
 		isJetpackSearch( product.product_slug )
 	);
 }
@@ -285,5 +285,5 @@ export function getConnectedPlugins( state ) {
 	}
 
 	const plugins = get( state.jetpack.siteData, [ 'data', 'site', 'connectedPlugins' ], [] );
-	return plugins.filter( plugin => 'jetpack' !== plugin.slug );
+	return plugins.filter( ( plugin ) => 'jetpack' !== plugin.slug );
 }

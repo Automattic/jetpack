@@ -15,7 +15,7 @@ import JetpackColophon from './jetpack-colophon';
 import PreselectedSearchFilters from './preselected-search-filters';
 import { hasPreselectedFilters } from '../lib/query-string';
 
-const SearchSidebar = props => {
+const SearchSidebar = ( props ) => {
 	return (
 		<div className="jetpack-instant-search__sidebar">
 			<PreselectedSearchFilters

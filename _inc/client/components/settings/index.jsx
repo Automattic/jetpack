@@ -45,14 +45,14 @@ export class Settings extends React.Component {
 }
 
 export default connect(
-	state => {
+	( state ) => {
 		return {
-			isSettingActivated: setting_name => isSettingActivated( state, setting_name ),
+			isSettingActivated: ( setting_name ) => isSettingActivated( state, setting_name ),
 			isFetchingSettingsList: isFetchingSettingsList( state ),
 			settings: fetchSettings( state ),
 		};
 	},
-	dispatch => {
+	( dispatch ) => {
 		return {
 			fetchSettings: () => dispatch( fetchSettings() ),
 			toggleSetting: ( setting_name, activated ) => {

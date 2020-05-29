@@ -26,15 +26,15 @@ QueryStatsData.defaultProps = {
 };
 
 export default connect(
-	state => {
+	( state ) => {
 		return {
-			fetchStatsData: range => fetchStatsData( state, range ),
+			fetchStatsData: ( range ) => fetchStatsData( state, range ),
 			fetchingStatsData: isFetchingStatsData( state ),
 		};
 	},
-	dispatch => {
+	( dispatch ) => {
 		return {
-			fetchStatsData: range => {
+			fetchStatsData: ( range ) => {
 				return dispatch( fetchStatsData( range ) );
 			},
 		};

@@ -201,22 +201,22 @@ class RelatedPostsEdit extends Component {
 						<ToggleControl
 							label={ __( 'Display thumbnails', 'jetpack' ) }
 							checked={ displayThumbnails }
-							onChange={ value => setAttributes( { displayThumbnails: value } ) }
+							onChange={ ( value ) => setAttributes( { displayThumbnails: value } ) }
 						/>
 						<ToggleControl
 							label={ __( 'Display date', 'jetpack' ) }
 							checked={ displayDate }
-							onChange={ value => setAttributes( { displayDate: value } ) }
+							onChange={ ( value ) => setAttributes( { displayDate: value } ) }
 						/>
 						<ToggleControl
 							label={ __( 'Display context (category or tag)', 'jetpack' ) }
 							checked={ displayContext }
-							onChange={ value => setAttributes( { displayContext: value } ) }
+							onChange={ ( value ) => setAttributes( { displayContext: value } ) }
 						/>
 						<RangeControl
 							label={ __( 'Number of posts', 'jetpack' ) }
 							value={ postsToShow }
-							onChange={ value =>
+							onChange={ ( value ) =>
 								setAttributes( { postsToShow: Math.min( value, MAX_POSTS_TO_SHOW ) } )
 							}
 							min={ 1 }
@@ -241,7 +241,7 @@ class RelatedPostsEdit extends Component {
 
 export default compose(
 	withInstanceId,
-	withSelect( select => {
+	withSelect( ( select ) => {
 		const { getCurrentPost } = select( 'core/editor' );
 		const posts = get( getCurrentPost(), 'jetpack-related-posts', [] );
 

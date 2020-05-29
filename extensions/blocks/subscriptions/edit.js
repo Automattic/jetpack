@@ -137,7 +137,7 @@ function SubscriptionEdit( props ) {
 		[ buttonGradient.gradientClass ]: buttonGradient.gradientClass,
 	};
 
-	const getPaddingStyleValue = paddingValue => {
+	const getPaddingStyleValue = ( paddingValue ) => {
 		const value = paddingValue ? paddingValue : DEFAULT_PADDING_VALUE;
 
 		return (
@@ -152,7 +152,7 @@ function SubscriptionEdit( props ) {
 		);
 	};
 
-	const getSpacingStyleValue = spacingValue => {
+	const getSpacingStyleValue = ( spacingValue ) => {
 		return spacingValue ? spacingValue : DEFAULT_SPACING_VALUE;
 	};
 
@@ -183,7 +183,7 @@ function SubscriptionEdit( props ) {
 	};
 
 	const getSubscriberCount = () => {
-		apiFetch( { path: '/wpcom/v2/subscribers/count' } ).then( count => {
+		apiFetch( { path: '/wpcom/v2/subscribers/count' } ).then( ( count ) => {
 			// Handle error condition
 			if ( ! count.hasOwnProperty( 'count' ) ) {
 				setSubscriberCountString( __( 'Subscriber count unavailable', 'jetpack' ) );
@@ -235,7 +235,7 @@ function SubscriptionEdit( props ) {
 							},
 							{
 								colorValue: borderColor.color,
-								onColorChange: newBorderColor => {
+								onColorChange: ( newBorderColor ) => {
 									// Note: setBorderColor from withColors hook does not
 									// work correctly with shortcode border color rendering.
 									setAttributes( {
@@ -276,7 +276,7 @@ function SubscriptionEdit( props ) {
 							},
 							{
 								value: borderColor.color,
-								onColorChange: newBorderColor => {
+								onColorChange: ( newBorderColor ) => {
 									// Note: setBorderColor from withColors hook does not
 									// work correctly with shortcode border color rendering.
 									setAttributes( {
@@ -309,7 +309,7 @@ function SubscriptionEdit( props ) {
 					<FontSizePicker
 						withSlider={ true }
 						value={ fontSize.size }
-						onChange={ selectedFontSize => {
+						onChange={ ( selectedFontSize ) => {
 							// Note: setFontSize from withFontSizes hook does not
 							// work correctly with shortcode font size rendering.
 							const newFontSize = selectedFontSize ? selectedFontSize : DEFAULT_FONTSIZE_VALUE;
@@ -333,7 +333,7 @@ function SubscriptionEdit( props ) {
 						max={ MAX_BORDER_RADIUS_VALUE }
 						initialPosition={ DEFAULT_BORDER_RADIUS_VALUE }
 						allowReset
-						onChange={ newBorderRadius => setAttributes( { borderRadius: newBorderRadius } ) }
+						onChange={ ( newBorderRadius ) => setAttributes( { borderRadius: newBorderRadius } ) }
 					/>
 
 					<RangeControl
@@ -343,7 +343,7 @@ function SubscriptionEdit( props ) {
 						max={ MAX_BORDER_WEIGHT_VALUE }
 						initialPosition={ DEFAULT_BORDER_WEIGHT_VALUE }
 						allowReset
-						onChange={ newBorderWeight => setAttributes( { borderWeight: newBorderWeight } ) }
+						onChange={ ( newBorderWeight ) => setAttributes( { borderWeight: newBorderWeight } ) }
 					/>
 				</PanelBody>
 
@@ -359,7 +359,7 @@ function SubscriptionEdit( props ) {
 						max={ MAX_PADDING_VALUE }
 						initialPosition={ DEFAULT_PADDING_VALUE }
 						allowReset
-						onChange={ newPaddingValue => setAttributes( { padding: newPaddingValue } ) }
+						onChange={ ( newPaddingValue ) => setAttributes( { padding: newPaddingValue } ) }
 					/>
 
 					<RangeControl
@@ -369,7 +369,7 @@ function SubscriptionEdit( props ) {
 						max={ MAX_SPACING_VALUE }
 						initialPosition={ DEFAULT_SPACING_VALUE }
 						allowReset
-						onChange={ newSpacingValue => setAttributes( { spacing: newSpacingValue } ) }
+						onChange={ ( newSpacingValue ) => setAttributes( { spacing: newSpacingValue } ) }
 					/>
 				</PanelBody>
 
@@ -422,7 +422,7 @@ function SubscriptionEdit( props ) {
 							'wp-block-jetpack-subscriptions__button',
 							'wp-block-button__link'
 						) }
-						onChange={ value => setAttributes( { submitButtonText: value } ) }
+						onChange={ ( value ) => setAttributes( { submitButtonText: value } ) }
 						style={ buttonStyles }
 						value={ submitButtonText }
 						withoutInteractiveFormatting

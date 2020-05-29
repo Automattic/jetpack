@@ -100,7 +100,7 @@ export const settings = {
 		},
 	},
 
-	edit: props => <BusinessHours { ...props } />,
+	edit: ( props ) => <BusinessHours { ...props } />,
 
 	save: () => null,
 

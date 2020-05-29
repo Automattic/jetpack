@@ -159,9 +159,9 @@ export class DashItem extends Component {
 	}
 }
 
-export default connect( state => {
+export default connect( ( state ) => {
 	return {
-		getModule: module_name => _getModule( state, module_name ),
+		getModule: ( module_name ) => _getModule( state, module_name ),
 		isDevMode: isDevMode( state ),
 		userCanToggle: userCanManageModules( state ),
 		siteRawUrl: getSiteRawUrl( state ),

@@ -37,23 +37,23 @@ import { getScanStatus } from 'state/scan';
 export class DevCard extends React.Component {
 	static displayName = 'DevCard';
 
-	onPlanChange = event => {
+	onPlanChange = ( event ) => {
 		this.props.switchPlanPreview( event.target.value );
 	};
 
-	onPermissionsChange = event => {
+	onPermissionsChange = ( event ) => {
 		this.props.switchUserPermissions( event.target.value );
 	};
 
-	onThreatsChange = event => {
+	onThreatsChange = ( event ) => {
 		this.props.switchThreats( event.target.value );
 	};
 
-	onRewindStatusChange = event => {
+	onRewindStatusChange = ( event ) => {
 		this.props.switchRewindState( event.target.value );
 	};
 
-	onScanStatusChange = event => {
+	onScanStatusChange = ( event ) => {
 		this.props.switchScanState( event.target.value );
 	};
 
@@ -439,7 +439,7 @@ export class DevCard extends React.Component {
 }
 
 export default connect(
-	state => {
+	( state ) => {
 		return {
 			isDevVersion: _isDevVersion( state ),
 			sitePlan: getSitePlan( state ),
@@ -454,24 +454,24 @@ export default connect(
 			scanStatus: getScanStatus( state ),
 		};
 	},
-	dispatch => {
+	( dispatch ) => {
 		return {
-			switchPlanPreview: slug => {
+			switchPlanPreview: ( slug ) => {
 				return dispatch( switchPlanPreview( slug ) );
 			},
-			switchUserPermissions: slug => {
+			switchUserPermissions: ( slug ) => {
 				return dispatch( switchUserPermission( slug ) );
 			},
-			switchThreats: count => {
+			switchThreats: ( count ) => {
 				return dispatch( switchThreats( parseInt( count ) ) );
 			},
 			disableDevCard: () => {
 				return dispatch( disableDevCard() );
 			},
-			switchRewindState: rewindState => {
+			switchRewindState: ( rewindState ) => {
 				return dispatch( switchRewindState( rewindState ) );
 			},
-			switchScanState: scanState => dispatch( switchScanState( scanState ) ),
+			switchScanState: ( scanState ) => dispatch( switchScanState( scanState ) ),
 		};
 	}
 )( DevCard );

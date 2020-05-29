@@ -6,7 +6,7 @@ import { Fragment } from '@wordpress/element';
 
 const hasAddress = ( { address, addressLine2, addressLine3, city, region, postal, country } ) => {
 	return [ address, addressLine2, addressLine3, city, region, postal, country ].some(
-		value => value !== ''
+		( value ) => value !== ''
 	);
 };
 
@@ -65,7 +65,7 @@ export const googleMapsUrl = ( {
 	);
 };
 
-const save = props =>
+const save = ( props ) =>
 	hasAddress( props.attributes ) && (
 		<div className={ props.className }>
 			{ props.attributes.linkToGoogleMaps && (

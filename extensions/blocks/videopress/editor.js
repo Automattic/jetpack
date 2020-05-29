@@ -24,7 +24,7 @@ import withHasWarningIsInteractiveClassNames from '../../shared/with-has-warning
 import './editor.scss';
 
 const videoPressNoPlanMediaPlaceholder = createHigherOrderComponent(
-	OriginalPlaceholder => props => {
+	( OriginalPlaceholder ) => ( props ) => {
 		const { name } = useBlockEditContext();
 		if ( name !== 'core/video' ) {
 			return <OriginalPlaceholder { ...props } />;
@@ -130,13 +130,13 @@ const addVideoPressSupport = ( settings, name ) => {
 				from: [
 					{
 						type: 'files',
-						isMatch: files => every( files, file => file.type.indexOf( 'video/' ) === 0 ),
+						isMatch: ( files ) => every( files, ( file ) => file.type.indexOf( 'video/' ) === 0 ),
 						// We define a higher priority (lower number) than the default of 10. This ensures that this
 						// transformation prevails over the core video block default transformations.
 						priority: 9,
 						transform: ( files, onChange ) => {
 							const blocks = [];
-							files.forEach( file => {
+							files.forEach( ( file ) => {
 								const block = createBlock( 'core/video', {
 									src: createBlobURL( file ),
 								} );
@@ -183,7 +183,7 @@ const addVideoPressSupport = ( settings, name ) => {
 				...( deprecated || [] ),
 				{
 					attributes,
-					isEligible: attrs => ! attrs.guid,
+					isEligible: ( attrs ) => ! attrs.guid,
 					save,
 					supports,
 					isDeprecation: true,

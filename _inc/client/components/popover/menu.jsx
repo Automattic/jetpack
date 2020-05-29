@@ -53,7 +53,7 @@ class PopoverMenu extends React.Component {
 		);
 	}
 
-	_setPropsOnChild = child => {
+	_setPropsOnChild = ( child ) => {
 		if ( child == null ) {
 			return child;
 		}
@@ -80,7 +80,7 @@ class PopoverMenu extends React.Component {
 		}
 	};
 
-	_isInvalidTarget = target => {
+	_isInvalidTarget = ( target ) => {
 		return target.tagName === 'HR';
 	};
 
@@ -114,7 +114,7 @@ class PopoverMenu extends React.Component {
 			: sibling;
 	};
 
-	_onKeyDown = event => {
+	_onKeyDown = ( event ) => {
 		const target = event.target;
 		let handled = false,
 			elementToFocus;
@@ -145,7 +145,7 @@ class PopoverMenu extends React.Component {
 		}
 	};
 
-	_onClose = action => {
+	_onClose = ( action ) => {
 		if ( this._previouslyFocusedElement ) {
 			this._previouslyFocusedElement.focus();
 			this._previouslyFocusedElement = null;

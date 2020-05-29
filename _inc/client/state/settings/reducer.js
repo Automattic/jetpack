@@ -140,7 +140,7 @@ export function isUpdatingSetting( state, settings = '' ) {
 			filter( state.jetpack.settings.requests.settingsSent, ( item, key ) =>
 				includes( settings, key )
 			),
-			item => item
+			( item ) => item
 		);
 	}
 	return state.jetpack.settings.requests.settingsSent[ settings ];

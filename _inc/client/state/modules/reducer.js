@@ -40,7 +40,7 @@ export const items = ( state = {}, action ) => {
 			} );
 		case JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS:
 			const updatedModule = assign( {}, state[ action.module ] );
-			Object.keys( action.newOptionValues ).forEach( key => {
+			Object.keys( action.newOptionValues ).forEach( ( key ) => {
 				updatedModule.options[ key ].current_value = action.newOptionValues[ key ];
 			} );
 			return assign( {}, state, {
@@ -94,7 +94,7 @@ export const requests = ( state = initialRequestsState, action ) => {
 		case JETPACK_MODULE_UPDATE_OPTIONS:
 			const updatingOption = assign( {}, state.updatingOption );
 			updatingOption[ action.module ] = assign( {}, updatingOption[ action.module ] );
-			Object.keys( action.newOptionValues ).forEach( key => {
+			Object.keys( action.newOptionValues ).forEach( ( key ) => {
 				updatingOption[ action.module ][ key ] = true;
 			} );
 			return assign( {}, state, {
@@ -104,7 +104,7 @@ export const requests = ( state = initialRequestsState, action ) => {
 		case JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS:
 			const _updatingOption = assign( {}, state.updatingOption );
 			_updatingOption[ action.module ] = assign( {}, _updatingOption[ action.module ] );
-			Object.keys( action.newOptionValues ).forEach( key => {
+			Object.keys( action.newOptionValues ).forEach( ( key ) => {
 				_updatingOption[ action.module ][ key ] = false;
 			} );
 			return assign( {}, state, {
@@ -216,8 +216,8 @@ export function getModule( state, name ) {
  */
 export function getModulesByFeature( state, feature ) {
 	return Object.keys( state.jetpack.modules.items )
-		.filter( name => state.jetpack.modules.items[ name ].feature.indexOf( feature ) !== -1 )
-		.map( name => state.jetpack.modules.items[ name ] );
+		.filter( ( name ) => state.jetpack.modules.items[ name ].feature.indexOf( feature ) !== -1 )
+		.map( ( name ) => state.jetpack.modules.items[ name ] );
 }
 
 /**
@@ -230,7 +230,7 @@ export function getModulesByFeature( state, feature ) {
  */
 export function getModulesThatRequireConnection( state ) {
 	return Object.keys( state.jetpack.modules.items ).filter(
-		module_slug => state.jetpack.modules.items[ module_slug ].requires_connection
+		( module_slug ) => state.jetpack.modules.items[ module_slug ].requires_connection
 	);
 }
 

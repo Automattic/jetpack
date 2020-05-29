@@ -28,7 +28,7 @@ import { getUpgradeUrl, showBackups } from 'state/initial-state';
  * @param   {object} props Settings to render the card.
  * @returns {object}       Backups card
  */
-const renderCard = props => (
+const renderCard = ( props ) => (
 	<DashItem
 		label={ __( 'Backup' ) }
 		module={ props.feature || 'backups' }
@@ -164,7 +164,7 @@ class DashBackups extends Component {
 				{ message }
 			</Card>
 		);
-		const buildCard = message =>
+		const buildCard = ( message ) =>
 			renderCard( {
 				className: 'jp-dash-item__is-active',
 				status: 'is-working',
@@ -240,7 +240,7 @@ class DashBackups extends Component {
 	}
 }
 
-export default connect( state => {
+export default connect( ( state ) => {
 	const sitePlan = getSitePlan( state );
 
 	return {

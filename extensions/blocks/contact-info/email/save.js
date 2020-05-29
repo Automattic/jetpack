@@ -4,7 +4,7 @@
 import emailValidator from 'email-validator';
 import { Fragment } from '@wordpress/element';
 
-const renderEmail = inputText => {
+const renderEmail = ( inputText ) => {
 	const explodedInput = inputText.split( /(\s+)/ ).map( ( email, i ) => {
 		// Remove and punctuation from the end of the email address.
 		const emailToValidate = email.replace( /([.,/#!$%^&*;:{}=\-_`~()\][])+$/g, '' );

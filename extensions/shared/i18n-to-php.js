@@ -64,4 +64,4 @@ export const _nx = ( single, plural, number, context, domain ) => (
 // for which we need to add an extra `str_replace()` step. This is done in `components.php`.
 // TODO: Provide a wrapper around `@wordpress/i18n`'s `sprintf` that accepts React elements
 // as first argument, and remove the `str_replace()` call in `components.php`.
-export const sprintf = x => x;
+export const sprintf = ( x ) => x;

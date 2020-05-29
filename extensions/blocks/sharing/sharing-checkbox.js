@@ -18,7 +18,7 @@ const SharingCheckbox = ( { isSharingEnabled, editPost } ) => (
 			<CheckboxControl
 				label={ __( 'Show sharing buttons.', 'jetpack' ) }
 				checked={ isSharingEnabled }
-				onChange={ value => {
+				onChange={ ( value ) => {
 					editPost( { jetpack_sharing_enabled: value } );
 				} }
 			/>
@@ -27,7 +27,7 @@ const SharingCheckbox = ( { isSharingEnabled, editPost } ) => (
 );
 
 // Fetch the post meta.
-const applyWithSelect = withSelect( select => {
+const applyWithSelect = withSelect( ( select ) => {
 	const { getEditedPostAttribute } = select( 'core/editor' );
 	const isSharingEnabled = getEditedPostAttribute( 'jetpack_sharing_enabled' );
 
@@ -35,7 +35,7 @@ const applyWithSelect = withSelect( select => {
 } );
 
 // Provide method to update post meta.
-const applyWithDispatch = withDispatch( dispatch => {
+const applyWithDispatch = withDispatch( ( dispatch ) => {
 	const { editPost } = dispatch( 'core/editor' );
 
 	return { editPost };

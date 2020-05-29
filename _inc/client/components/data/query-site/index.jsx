@@ -51,14 +51,14 @@ class QuerySite extends Component {
 }
 
 export default connect(
-	state => {
+	( state ) => {
 		return {
 			isFetchingSiteData: isFetchingSiteData( state ),
 			isDevMode: isDevMode( state ),
 			sitePlan: getSitePlan( state ),
 		};
 	},
-	dispatch => {
+	( dispatch ) => {
 		return {
 			fetchSiteData: () => dispatch( fetchSiteData() ),
 			fetchSiteFeatures: () => dispatch( fetchSiteFeatures() ),

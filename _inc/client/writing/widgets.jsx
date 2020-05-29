@@ -84,7 +84,7 @@ export default withModuleSettingsFormHelpers(
 			widgetVisibilityActive: ownProps.getOptionValue( 'widget-visibility' ),
 			widgetsActive: ownProps.getOptionValue( 'widgets' ),
 			widgetsModule: getModule( state, 'widgets' ),
-			isModuleFound: module_name => isModuleFound( state, module_name ),
+			isModuleFound: ( module_name ) => isModuleFound( state, module_name ),
 		};
 	} )( Widgets )
 );

@@ -6,7 +6,7 @@ function extractHexCode( input ) {
 	if ( output.length === 3 ) {
 		output = output
 			.split( '' )
-			.map( letter => `${ letter }${ letter }` )
+			.map( ( letter ) => `${ letter }${ letter }` )
 			.join( '' );
 	}
 	return output;

@@ -41,7 +41,7 @@ class AddressEdit extends Component {
 			<ToggleControl
 				label={ __( 'Link address to Google Maps', 'jetpack' ) }
 				checked={ linkToGoogleMaps }
-				onChange={ newlinkToGoogleMaps => {
+				onChange={ ( newlinkToGoogleMaps ) => {
 					setAttributes( { linkToGoogleMaps: newlinkToGoogleMaps } );
 					onFocus();
 				} }
@@ -55,7 +55,7 @@ class AddressEdit extends Component {
 						value={ address }
 						placeholder={ __( 'Street Address', 'jetpack' ) }
 						aria-label={ __( 'Street Address', 'jetpack' ) }
-						onChange={ newAddress => setAttributes( { address: newAddress } ) }
+						onChange={ ( newAddress ) => setAttributes( { address: newAddress } ) }
 						onKeyDown={ this.preventEnterKey }
 						onFocus={ onFocus }
 					/>
@@ -63,7 +63,7 @@ class AddressEdit extends Component {
 						value={ addressLine2 }
 						placeholder={ __( 'Address Line 2', 'jetpack' ) }
 						aria-label={ __( 'Address Line 2', 'jetpack' ) }
-						onChange={ newAddressLine2 => setAttributes( { addressLine2: newAddressLine2 } ) }
+						onChange={ ( newAddressLine2 ) => setAttributes( { addressLine2: newAddressLine2 } ) }
 						onKeyDown={ this.preventEnterKey }
 						onFocus={ onFocus }
 					/>
@@ -71,7 +71,7 @@ class AddressEdit extends Component {
 						value={ addressLine3 }
 						placeholder={ __( 'Address Line 3', 'jetpack' ) }
 						aria-label={ __( 'Address Line 3', 'jetpack' ) }
-						onChange={ newAddressLine3 => setAttributes( { addressLine3: newAddressLine3 } ) }
+						onChange={ ( newAddressLine3 ) => setAttributes( { addressLine3: newAddressLine3 } ) }
 						onKeyDown={ this.preventEnterKey }
 						onFocus={ onFocus }
 					/>
@@ -79,7 +79,7 @@ class AddressEdit extends Component {
 						value={ city }
 						placeholder={ __( 'City', 'jetpack' ) }
 						aria-label={ __( 'City', 'jetpack' ) }
-						onChange={ newCity => setAttributes( { city: newCity } ) }
+						onChange={ ( newCity ) => setAttributes( { city: newCity } ) }
 						onKeyDown={ this.preventEnterKey }
 						onFocus={ onFocus }
 					/>
@@ -87,7 +87,7 @@ class AddressEdit extends Component {
 						value={ region }
 						placeholder={ __( 'State/Province/Region', 'jetpack' ) }
 						aria-label={ __( 'State/Province/Region', 'jetpack' ) }
-						onChange={ newRegion => setAttributes( { region: newRegion } ) }
+						onChange={ ( newRegion ) => setAttributes( { region: newRegion } ) }
 						onKeyDown={ this.preventEnterKey }
 						onFocus={ onFocus }
 					/>
@@ -95,7 +95,7 @@ class AddressEdit extends Component {
 						value={ postal }
 						placeholder={ __( 'Postal/Zip Code', 'jetpack' ) }
 						aria-label={ __( 'Postal/Zip Code', 'jetpack' ) }
-						onChange={ newPostal => setAttributes( { postal: newPostal } ) }
+						onChange={ ( newPostal ) => setAttributes( { postal: newPostal } ) }
 						onKeyDown={ this.preventEnterKey }
 						onFocus={ onFocus }
 					/>
@@ -103,7 +103,7 @@ class AddressEdit extends Component {
 						value={ country }
 						placeholder={ __( 'Country', 'jetpack' ) }
 						aria-label={ __( 'Country', 'jetpack' ) }
-						onChange={ newCountry => setAttributes( { country: newCountry } ) }
+						onChange={ ( newCountry ) => setAttributes( { country: newCountry } ) }
 						onKeyDown={ this.preventEnterKey }
 						onFocus={ onFocus }
 					/>

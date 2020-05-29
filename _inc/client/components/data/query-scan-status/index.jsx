@@ -34,13 +34,13 @@ class QueryScanStatus extends Component {
 }
 
 export default connect(
-	state => {
+	( state ) => {
 		return {
 			isFetchingScanStatus: isFetchingScanStatus( state ),
 			isDevMode: isDevMode( state ),
 		};
 	},
-	dispatch => {
+	( dispatch ) => {
 		return {
 			fetchScan: () => dispatch( fetchScanStatus() ),
 		};

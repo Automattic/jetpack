@@ -26,10 +26,10 @@ class QuerySiteBenefits extends Component {
 }
 
 export default connect(
-	state => ( {
+	( state ) => ( {
 		isFetchingSiteBenefits: isFetchingSiteBenefits( state ),
 	} ),
-	dispatch => ( {
+	( dispatch ) => ( {
 		fetchSiteBenefits: () => dispatch( fetchSiteBenefits() ),
 	} )
 )( QuerySiteBenefits );

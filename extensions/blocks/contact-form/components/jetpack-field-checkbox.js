@@ -37,7 +37,7 @@ function JetpackFieldCheckbox( props ) {
 							<ToggleControl
 								label={ __( 'Checked by default', 'jetpack' ) }
 								checked={ defaultValue }
-								onChange={ value => setAttributes( { defaultValue: value } ) }
+								onChange={ ( value ) => setAttributes( { defaultValue: value } ) }
 							/>
 
 							<JetpackFieldWidth setAttributes={ setAttributes } width={ width } />

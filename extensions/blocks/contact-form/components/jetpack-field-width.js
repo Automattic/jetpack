@@ -15,7 +15,7 @@ export default function JetpackFieldWidth( { setAttributes, width } ) {
 			className="jetpack-field-label__width"
 		>
 			<ButtonGroup aria-label={ __( 'Field Width', 'jetpack' ) }>
-				{ [ 25, 50, 75, 100 ].map( widthValue => {
+				{ [ 25, 50, 75, 100 ].map( ( widthValue ) => {
 					return (
 						<Button
 							key={ widthValue }

@@ -30,7 +30,7 @@ class PublicizeConnectionVerify extends Component {
 	 *
 	 * @param {object} event Event instance for onClick.
 	 */
-	refreshConnectionClick = event => {
+	refreshConnectionClick = ( event ) => {
 		const { href, title } = event.target;
 		event.preventDefault();
 		// open a popup window
@@ -46,7 +46,9 @@ class PublicizeConnectionVerify extends Component {
 
 	renderRefreshableConnections() {
 		const { failedConnections } = this.props;
-		const refreshableConnections = failedConnections.filter( connection => connection.can_refresh );
+		const refreshableConnections = failedConnections.filter(
+			( connection ) => connection.can_refresh
+		);
 
 		if ( refreshableConnections.length ) {
 			return (
@@ -57,7 +59,7 @@ class PublicizeConnectionVerify extends Component {
 							'jetpack'
 						) }
 					</p>
-					{ refreshableConnections.map( connection => (
+					{ refreshableConnections.map( ( connection ) => (
 						<Button
 							href={ connection.refresh_url }
 							isSmall
@@ -78,11 +80,11 @@ class PublicizeConnectionVerify extends Component {
 	renderNonRefreshableConnections() {
 		const { failedConnections } = this.props;
 		const nonRefreshableConnections = failedConnections.filter(
-			connection => ! connection.can_refresh
+			( connection ) => ! connection.can_refresh
 		);
 
 		if ( nonRefreshableConnections.length ) {
-			return nonRefreshableConnections.map( connection => (
+			return nonRefreshableConnections.map( ( connection ) => (
 				<Notice className="jetpack-publicize-notice" isDismissible={ false } status="error">
 					<p>{ connection.test_message }</p>
 				</Notice>
@@ -103,10 +105,10 @@ class PublicizeConnectionVerify extends Component {
 }
 
 export default compose( [
-	withSelect( select => ( {
+	withSelect( ( select ) => ( {
 		failedConnections: select( 'jetpack/publicize' ).getFailedConnections(),
 	} ) ),
-	withDispatch( dispatch => ( {
+	withDispatch( ( dispatch ) => ( {
 		refreshConnections: dispatch( 'jetpack/publicize' ).refreshConnectionTestResults,
 	} ) ),
 ] )( PublicizeConnectionVerify );

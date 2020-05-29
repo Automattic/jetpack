@@ -133,7 +133,7 @@ export default class SearchFilter extends Component {
 			[
 				...this.props.aggregation.buckets
 					// TODO: Remove this filter; API should only be sending buckets with document counts.
-					.filter( bucket => !! bucket && bucket.doc_count > 0 )
+					.filter( ( bucket ) => !! bucket && bucket.doc_count > 0 )
 					.map( this.renderDate ),
 			]
 				// TODO: Remove this reverse & slice when API adds filter count support

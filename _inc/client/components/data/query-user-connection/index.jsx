@@ -22,13 +22,13 @@ export class QueryUserConnectionData extends React.Component {
 }
 
 export default connect(
-	state => {
+	( state ) => {
 		return {
 			isFetchingUserData: isFetchingUserData( state ),
 			isDevMode: isDevMode( state ),
 		};
 	},
-	dispatch => {
+	( dispatch ) => {
 		return {
 			fetchUserConnectionData: () => dispatch( fetchUserConnectionData() ),
 		};

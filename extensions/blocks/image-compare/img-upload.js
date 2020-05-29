@@ -6,7 +6,7 @@ import { MediaPlaceholder } from '@wordpress/block-editor';
 import { withNotices } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 
-const ImgUpload = props => {
+const ImgUpload = ( props ) => {
 	const { image, noticeOperations, noticeUI, onChange, placeHolderTitle, placeHolderLabel } = props;
 
 	const renderImage = <img id={ image.id } src={ image.url } alt={ image.alt } />;
@@ -18,7 +18,7 @@ const ImgUpload = props => {
 				accept="image/*"
 				allowedTypes={ [ 'image' ] }
 				onSelect={ onChange }
-				onError={ msg => noticeOperations.createErrorNotice( msg ) }
+				onError={ ( msg ) => noticeOperations.createErrorNotice( msg ) }
 				notices={ noticeUI }
 			/>
 		</Fragment>

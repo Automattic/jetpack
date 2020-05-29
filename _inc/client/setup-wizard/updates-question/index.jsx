@@ -19,7 +19,7 @@ import {
 
 import './style.scss';
 
-let UpdatesQuestion = props => {
+let UpdatesQuestion = ( props ) => {
 	useEffect( () => {
 		props.updateStatus( 'updates-page' );
 		analytics.tracks.recordEvent( 'jetpack_wizard_page_view', { step: 'updates-page' } );
@@ -85,11 +85,11 @@ let UpdatesQuestion = props => {
 };
 
 UpdatesQuestion = connect(
-	state => ( {} ),
-	dispatch => ( {
-		updateUpdatesQuestion: answer => dispatch( updateSetupWizardQuestionnaire( answer ) ),
+	( state ) => ( {} ),
+	( dispatch ) => ( {
+		updateUpdatesQuestion: ( answer ) => dispatch( updateSetupWizardQuestionnaire( answer ) ),
 		saveQuestionnaire: () => dispatch( saveSetupWizardQuestionnnaire() ),
-		updateStatus: status => dispatch( updateSetupWizardStatus( status ) ),
+		updateStatus: ( status ) => dispatch( updateSetupWizardStatus( status ) ),
 	} )
 )( UpdatesQuestion );
 

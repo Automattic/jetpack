@@ -27,7 +27,7 @@ export default class SearchFilters extends Component {
 		this.props.onChange && this.props.onChange();
 	};
 
-	onClearFilters = event => {
+	onClearFilters = ( event ) => {
 		event.preventDefault();
 
 		if (
@@ -41,8 +41,8 @@ export default class SearchFilters extends Component {
 
 	hasActiveFilters() {
 		return Object.keys( this.getFilters() )
-			.map( key => this.getFilters()[ key ] )
-			.some( value => Array.isArray( value ) && value.length );
+			.map( ( key ) => this.getFilters()[ key ] )
+			.some( ( value ) => Array.isArray( value ) && value.length );
 	}
 
 	getFilters() {
@@ -83,12 +83,12 @@ export default class SearchFilters extends Component {
 					</a>
 				) }
 				{ get( this.props.widget, 'filters' )
-					.map( configuration =>
+					.map( ( configuration ) =>
 						aggregations
 							? { configuration, results: aggregations[ configuration.filter_id ] }
 							: null
 					)
-					.filter( data => !! data )
+					.filter( ( data ) => !! data )
 					.filter(
 						( { results } ) =>
 							!! results && Array.isArray( results.buckets ) && results.buckets.length > 0

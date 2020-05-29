@@ -33,7 +33,7 @@ class RelatedPostsComponent extends React.Component {
 	 *
 	 * @param {string} optionName Slug of option to update.
 	 */
-	updateOptions = optionName => {
+	updateOptions = ( optionName ) => {
 		this.setState(
 			{
 				[ optionName ]: ! this.state[ optionName ],

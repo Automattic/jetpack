@@ -22,7 +22,7 @@ import {
 
 import './style.scss';
 
-let FeatureToggle = props => {
+let FeatureToggle = ( props ) => {
 	const {
 		feature,
 		title,

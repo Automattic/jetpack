@@ -90,7 +90,7 @@ function OpenTableEdit( {
 		}
 	}, [ __isBlockPreview, align, isPlaceholder, noticeOperations, rid, style ] );
 
-	const parseEmbedCode = embedCode => {
+	const parseEmbedCode = ( embedCode ) => {
 		const newAttributes = getAttributesFromEmbedCode( embedCode );
 		if ( ! newAttributes ) {
 			noticeOperations.removeAllNotices();
@@ -114,7 +114,7 @@ function OpenTableEdit( {
 	const styleOptions = getStyleOptions( rid );
 	const styleValues = getStyleValues( rid );
 
-	const updateStyle = newStyle => {
+	const updateStyle = ( newStyle ) => {
 		setAttributes( newStyle );
 		// If the old style was wide
 		// then reset the alignment
@@ -129,7 +129,7 @@ function OpenTableEdit( {
 		}
 	};
 
-	const getTypeAndTheme = fromStyle =>
+	const getTypeAndTheme = ( fromStyle ) =>
 		rid.length > 1
 			? [ 'multi', 'button' !== fromStyle ? fromStyle : 'standard' ]
 			: [
@@ -137,7 +137,7 @@ function OpenTableEdit( {
 					'button' === fromStyle ? 'standard' : fromStyle,
 			  ];
 
-	const blockPreview = styleOveride => {
+	const blockPreview = ( styleOveride ) => {
 		const [ type, theme ] = getTypeAndTheme( styleOveride ? styleOveride : style );
 		return (
 			<>
@@ -156,7 +156,7 @@ function OpenTableEdit( {
 		);
 	};
 
-	const onPickerSubmit = input => {
+	const onPickerSubmit = ( input ) => {
 		if ( Array.isArray( input ) ) {
 			setAttributes( {
 				rid: input,
@@ -198,7 +198,7 @@ function OpenTableEdit( {
 					<SelectControl
 						label={ __( 'Language', 'jetpack' ) }
 						value={ lang }
-						onChange={ newLang => setAttributes( { lang: newLang } ) }
+						onChange={ ( newLang ) => setAttributes( { lang: newLang } ) }
 						options={ languageOptions }
 					/>
 					<ToggleControl

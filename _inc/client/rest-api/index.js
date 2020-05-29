@@ -78,7 +78,7 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
-		updateUserTrackingSettings: newSettings =>
+		updateUserTrackingSettings: ( newSettings ) =>
 			postRequest( `${ apiRoot }jetpack/v4/tracking/settings`, postParams, {
 				body: JSON.stringify( newSettings ),
 			} )
@@ -114,19 +114,19 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
-		fetchModule: slug =>
+		fetchModule: ( slug ) =>
 			getRequest( `${ apiRoot }jetpack/v4/module/${ slug }`, getParams )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
-		activateModule: slug =>
+		activateModule: ( slug ) =>
 			postRequest( `${ apiRoot }jetpack/v4/module/${ slug }/active`, postParams, {
 				body: JSON.stringify( { active: true } ),
 			} )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
-		deactivateModule: slug =>
+		deactivateModule: ( slug ) =>
 			postRequest( `${ apiRoot }jetpack/v4/module/${ slug }/active`, postParams, {
 				body: JSON.stringify( { active: false } ),
 			} ),
@@ -138,7 +138,7 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
-		updateSettings: newOptionValues =>
+		updateSettings: ( newOptionValues ) =>
 			postRequest( `${ apiRoot }jetpack/v4/settings`, postParams, {
 				body: JSON.stringify( newOptionValues ),
 			} )
@@ -150,7 +150,7 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
-		resetOptions: options =>
+		resetOptions: ( options ) =>
 			postRequest( `${ apiRoot }jetpack/v4/options/${ options }`, postParams, {
 				body: JSON.stringify( { reset: true } ),
 			} )
@@ -177,14 +177,14 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
-		checkAkismetKeyTyped: apiKey =>
+		checkAkismetKeyTyped: ( apiKey ) =>
 			postRequest( `${ apiRoot }jetpack/v4/module/akismet/key/check`, postParams, {
 				body: JSON.stringify( { api_key: apiKey } ),
 			} )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
-		fetchStatsData: range =>
+		fetchStatsData: ( range ) =>
 			getRequest( statsDataUrl( range ), getParams )
 				.then( checkStatus )
 				.then( parseJsonResponse )
@@ -205,7 +205,7 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
-		updateSetting: updatedSetting =>
+		updateSetting: ( updatedSetting ) =>
 			postRequest( `${ apiRoot }jetpack/v4/settings`, postParams, {
 				body: JSON.stringify( updatedSetting ),
 			} )
@@ -216,13 +216,13 @@ function JetpackRestApiClient( root, nonce ) {
 			getRequest( `${ apiRoot }jetpack/v4/site`, getParams )
 				.then( checkStatus )
 				.then( parseJsonResponse )
-				.then( body => JSON.parse( body.data ) ),
+				.then( ( body ) => JSON.parse( body.data ) ),
 
 		fetchSiteFeatures: () =>
 			getRequest( `${ apiRoot }jetpack/v4/site/features`, getParams )
 				.then( checkStatus )
 				.then( parseJsonResponse )
-				.then( body => JSON.parse( body.data ) ),
+				.then( ( body ) => JSON.parse( body.data ) ),
 
 		fetchSiteProducts: () =>
 			getRequest( `${ apiRoot }jetpack/v4/site/products`, getParams )
@@ -233,13 +233,13 @@ function JetpackRestApiClient( root, nonce ) {
 			getRequest( `${ apiRoot }jetpack/v4/site/purchases`, getParams )
 				.then( checkStatus )
 				.then( parseJsonResponse )
-				.then( body => JSON.parse( body.data ) ),
+				.then( ( body ) => JSON.parse( body.data ) ),
 
 		fetchSiteBenefits: () =>
 			getRequest( `${ apiRoot }jetpack/v4/site/benefits`, getParams )
 				.then( checkStatus )
 				.then( parseJsonResponse )
-				.then( body => JSON.parse( body.data ) ),
+				.then( ( body ) => JSON.parse( body.data ) ),
 
 		fetchSetupQuestionnaire: () =>
 			getRequest( `${ apiRoot }jetpack/v4/setup/questionnaire`, getParams )
@@ -255,15 +255,15 @@ function JetpackRestApiClient( root, nonce ) {
 			getRequest( `${ apiRoot }jetpack/v4/rewind`, getParams )
 				.then( checkStatus )
 				.then( parseJsonResponse )
-				.then( body => JSON.parse( body.data ) ),
+				.then( ( body ) => JSON.parse( body.data ) ),
 
 		fetchScanStatus: () =>
 			getRequest( `${ apiRoot }jetpack/v4/scan`, getParams )
 				.then( checkStatus )
 				.then( parseJsonResponse )
-				.then( body => JSON.parse( body.data ) ),
+				.then( ( body ) => JSON.parse( body.data ) ),
 
-		dismissJetpackNotice: notice =>
+		dismissJetpackNotice: ( notice ) =>
 			postRequest( `${ apiRoot }jetpack/v4/notice/${ notice }`, postParams, {
 				body: JSON.stringify( { dismissed: true } ),
 			} )
@@ -275,7 +275,7 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
-		fetchVerifySiteGoogleStatus: keyringId => {
+		fetchVerifySiteGoogleStatus: ( keyringId ) => {
 			const request =
 				keyringId !== null
 					? getRequest( `${ apiRoot }jetpack/v4/verify-site/google/${ keyringId }`, getParams )
@@ -284,7 +284,7 @@ function JetpackRestApiClient( root, nonce ) {
 			return request.then( checkStatus ).then( parseJsonResponse );
 		},
 
-		verifySiteGoogle: keyringId =>
+		verifySiteGoogle: ( keyringId ) =>
 			postRequest( `${ apiRoot }jetpack/v4/verify-site/google`, postParams, {
 				body: JSON.stringify( { keyring_id: keyringId } ),
 			} )
@@ -296,14 +296,14 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
-		submitSurvey: surveyResponse =>
+		submitSurvey: ( surveyResponse ) =>
 			postRequest( `${ apiRoot }jetpack/v4/marketing/survey`, postParams, {
 				body: JSON.stringify( surveyResponse ),
 			} )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
-		saveSetupQuestionnaire: props =>
+		saveSetupQuestionnaire: ( props ) =>
 			postRequest( `${ apiRoot }jetpack/v4/setup/questionnaire`, postParams, {
 				body: JSON.stringify( props ),
 			} )
@@ -371,7 +371,7 @@ function checkStatus( response ) {
 		} );
 	}
 
-	return response.json().then( json => {
+	return response.json().then( ( json ) => {
 		const error = new Error( `${ json.message } (Status ${ response.status })` );
 		error.response = json;
 		throw error;
@@ -379,7 +379,9 @@ function checkStatus( response ) {
 }
 
 function parseJsonResponse( response ) {
-	return response.json().catch( e => catchJsonParseError( e, response.redirected, response.url ) );
+	return response
+		.json()
+		.catch( ( e ) => catchJsonParseError( e, response.redirected, response.url ) );
 }
 
 function catchJsonParseError( e, redirected, url ) {

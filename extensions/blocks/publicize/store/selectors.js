@@ -6,7 +6,7 @@
  * @return {Array} List of connections.
  */
 export function getFailedConnections( state ) {
-	return state.filter( connection => false === connection.test_success );
+	return state.filter( ( connection ) => false === connection.test_success );
 }
 
 /**
@@ -19,6 +19,6 @@ export function getFailedConnections( state ) {
  */
 export function getMustReauthConnections( state ) {
 	return state
-		.filter( connection => 'must_reauth' === connection.test_success )
-		.map( connection => connection.service_name );
+		.filter( ( connection ) => 'must_reauth' === connection.test_success )
+		.map( ( connection ) => connection.service_name );
 }

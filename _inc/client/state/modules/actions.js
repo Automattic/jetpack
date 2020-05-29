@@ -29,20 +29,20 @@ import { getModule } from 'state/modules/reducer';
 import restApi from 'rest-api';
 
 export const fetchModules = () => {
-	return dispatch => {
+	return ( dispatch ) => {
 		dispatch( {
 			type: JETPACK_MODULES_LIST_FETCH,
 		} );
 		return restApi
 			.fetchModules()
-			.then( modules => {
+			.then( ( modules ) => {
 				dispatch( {
 					type: JETPACK_MODULES_LIST_RECEIVE,
 					modules: modules,
 				} );
 				return modules;
 			} )
-			.catch( error => {
+			.catch( ( error ) => {
 				dispatch( {
 					type: JETPACK_MODULES_LIST_FETCH_FAIL,
 					error: error,
@@ -52,20 +52,20 @@ export const fetchModules = () => {
 };
 
 export const fetchModule = () => {
-	return dispatch => {
+	return ( dispatch ) => {
 		dispatch( {
 			type: JETPACK_MODULE_FETCH,
 		} );
 		return restApi
 			.fetchModule()
-			.then( data => {
+			.then( ( data ) => {
 				dispatch( {
 					type: JETPACK_MODULE_RECEIVE,
 					module: data,
 				} );
 				return data;
 			} )
-			.catch( error => {
+			.catch( ( error ) => {
 				dispatch( {
 					type: JETPACK_MODULE_FETCH_FAIL,
 					error: error,
@@ -116,7 +116,7 @@ export const activateModule = ( slug, reloadAfter = false ) => {
 					window.location.reload();
 				}
 			} )
-			.catch( error => {
+			.catch( ( error ) => {
 				dispatch( {
 					type: JETPACK_MODULE_ACTIVATE_FAIL,
 					module: slug,
@@ -182,7 +182,7 @@ export const deactivateModule = ( slug, reloadAfter = false ) => {
 					window.location.reload();
 				}
 			} )
-			.catch( error => {
+			.catch( ( error ) => {
 				dispatch( {
 					type: JETPACK_MODULE_DEACTIVATE_FAIL,
 					module: slug,
@@ -229,7 +229,7 @@ export const updateModuleOptions = ( module, newOptionValues ) => {
 		);
 		return restApi
 			.updateModuleOptions( slug, newOptionValues )
-			.then( success => {
+			.then( ( success ) => {
 				dispatch( {
 					type: JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS,
 					module: slug,
@@ -250,7 +250,7 @@ export const updateModuleOptions = ( module, newOptionValues ) => {
 					)
 				);
 			} )
-			.catch( error => {
+			.catch( ( error ) => {
 				dispatch( {
 					type: JETPACK_MODULE_UPDATE_OPTIONS_FAIL,
 					module: slug,
@@ -301,7 +301,7 @@ export const regeneratePostByEmailAddress = () => {
 		);
 		return restApi
 			.updateModuleOptions( slug, payload )
-			.then( success => {
+			.then( ( success ) => {
 				const newOptionValues = {
 					post_by_email_address: success.post_by_email_address,
 				};
@@ -324,7 +324,7 @@ export const regeneratePostByEmailAddress = () => {
 					)
 				);
 			} )
-			.catch( error => {
+			.catch( ( error ) => {
 				dispatch( {
 					type: JETPACK_MODULE_UPDATE_OPTIONS_FAIL,
 					module: slug,
@@ -375,7 +375,7 @@ export function maybeHideNavMenuItem( module, values ) {
 export function maybeReloadAfterAction( newOptionValue ) {
 	const reloadForOptionValues = [ 'masterbar', 'jetpack_testimonial', 'jetpack_portfolio' ];
 
-	if ( some( reloadForOptionValues, optionValue => optionValue in newOptionValue ) ) {
+	if ( some( reloadForOptionValues, ( optionValue ) => optionValue in newOptionValue ) ) {
 		window.location.reload();
 	}
 }

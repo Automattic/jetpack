@@ -58,7 +58,7 @@ const attributes = {
 
 export default {
 	attributes,
-	migrate: oldAttributes => {
+	migrate: ( oldAttributes ) => {
 		// If the old block has classNames set, clean up any old "is-style-*" classes
 		// that will clash with the new one we're adding.
 		const className = (

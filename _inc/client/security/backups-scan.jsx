@@ -286,7 +286,7 @@ export const BackupsScan = withModuleSettingsFormHelpers(
 	}
 );
 
-export default connect( state => {
+export default connect( ( state ) => {
 	return {
 		sitePlan: getSitePlan( state ),
 		vaultPressData: getVaultPressData( state ),

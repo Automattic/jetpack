@@ -32,11 +32,11 @@ class QueryProducts extends Component {
 }
 
 export default connect(
-	state => ( {
+	( state ) => ( {
 		isFetchingProducts: isFetchingProducts( state ),
 		products: getProducts( state ),
 	} ),
-	dispatch => ( {
+	( dispatch ) => ( {
 		fetchProducts: () => dispatch( fetchProducts() ),
 	} )
 )( QueryProducts );

@@ -34,7 +34,7 @@ export class ModuleSettingRadios extends React.Component {
 		const validValues = this.props.validValues;
 		return (
 			<div>
-				{ Object.keys( validValues ).map( key => (
+				{ Object.keys( validValues ).map( ( key ) => (
 					<FormLabel key={ `option-${ props.option_name }-${ key }` }>
 						<FormRadio
 							name={ props.name }
@@ -60,7 +60,7 @@ export class ModuleSettingSelect extends React.Component {
 				value={ this.props.value }
 				onBlur={ this.props.onOptionChange }
 			>
-				{ Object.keys( validValues ).map( key => {
+				{ Object.keys( validValues ).map( ( key ) => {
 					return (
 						<option value={ key } key={ `option-${ this.props.option_name }-${ key }` }>
 							{ validValues[ key ] }
@@ -77,7 +77,7 @@ export class ModuleSettingMultipleSelectCheckboxes extends React.Component {
 		always_checked: [],
 	};
 
-	onOptionChange = event => {
+	onOptionChange = ( event ) => {
 		const justUpdated = event.target.value;
 		const currentValue = this.props.getOptionValue( this.props.name );
 		const newValue =
@@ -87,18 +87,18 @@ export class ModuleSettingMultipleSelectCheckboxes extends React.Component {
 		this.props.updateFormStateOptionValue( this.props.name, newValue );
 	};
 
-	isAlwaysChecked = key => {
+	isAlwaysChecked = ( key ) => {
 		return this.props.always_checked.indexOf( key ) !== -1;
 	};
 
-	shouldBeChecked = key => {
+	shouldBeChecked = ( key ) => {
 		return (
 			this.isAlwaysChecked( key ) ||
 			this.props.getOptionValue( this.props.name ).indexOf( key ) !== -1
 		);
 	};
 
-	shouldBeDisabled = key => {
+	shouldBeDisabled = ( key ) => {
 		return this.isAlwaysChecked( key ) || this.props.isUpdating( this.props.name );
 	};
 
@@ -107,7 +107,7 @@ export class ModuleSettingMultipleSelectCheckboxes extends React.Component {
 		const validValues = this.props.validValues;
 		return (
 			<div>
-				{ Object.keys( validValues ).map( key => (
+				{ Object.keys( validValues ).map( ( key ) => (
 					<FormLabel key={ `option-${ props.option_name }-${ key }` }>
 						<Checkbox
 							name={ props.name }

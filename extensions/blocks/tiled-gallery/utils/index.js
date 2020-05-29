@@ -83,7 +83,7 @@ export function photonizedImgProps( img, galleryAtts = {} ) {
 		const maxWidth = Math.min( PHOTON_MAX_RESIZE, width, height );
 
 		srcSet = range( minWidth, maxWidth, step )
-			.map( srcsetWidth => {
+			.map( ( srcsetWidth ) => {
 				const srcsetSrc = photonImplementation( url, {
 					resize: `${ srcsetWidth },${ srcsetWidth }`,
 					strip: 'info',
@@ -97,7 +97,7 @@ export function photonizedImgProps( img, galleryAtts = {} ) {
 		const maxWidth = Math.min( PHOTON_MAX_RESIZE, width );
 
 		srcSet = range( minWidth, maxWidth, step )
-			.map( srcsetWidth => {
+			.map( ( srcsetWidth ) => {
 				const srcsetSrc = photonImplementation( url, {
 					strip: 'info',
 					width: srcsetWidth,

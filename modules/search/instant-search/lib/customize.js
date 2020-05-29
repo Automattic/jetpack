@@ -36,8 +36,8 @@ export function bindCustomizerChanges( callback ) {
 		return;
 	}
 
-	CUSTOMIZE_SETTINGS.forEach( setting => {
-		window.wp.customize( setting, value => {
+	CUSTOMIZE_SETTINGS.forEach( ( setting ) => {
+		window.wp.customize( setting, ( value ) => {
 			value.bind( function ( newValue ) {
 				const newOvelayOptions = { [ SETTINGS_TO_STATE_MAP.get( setting ) ]: newValue };
 

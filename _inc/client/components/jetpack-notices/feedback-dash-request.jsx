@@ -49,13 +49,13 @@ class FeedbackDashRequest extends React.Component {
 }
 
 export default connect(
-	state => {
+	( state ) => {
 		return {
 			isDevVersion: _isDevVersion( state ),
-			isDismissed: notice => _isNoticeDismissed( state, notice ),
+			isDismissed: ( notice ) => _isNoticeDismissed( state, notice ),
 		};
 	},
-	dispatch => {
+	( dispatch ) => {
 		return {
 			dismissNotice: () => {
 				return dispatch( dismissJetpackNotice( 'feedback_dash_request' ) );

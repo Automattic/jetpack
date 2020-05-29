@@ -32,7 +32,7 @@ function toggleModuleFactory( {
 	toggleModuleNow,
 	updateOptions,
 } ) {
-	return module => {
+	return ( module ) => {
 		toggleModuleNow( module );
 		if ( hasActiveSearchPurchase && getOptionValue( 'search' ) ) {
 			updateOptions( { instant_search_enabled: true } );
@@ -141,7 +141,7 @@ function Search( props ) {
 	);
 }
 
-export default connect( state => {
+export default connect( ( state ) => {
 	const planClass = getPlanClass( getSitePlan( state ).product_slug );
 	return {
 		isAtomicSite: isAtomicSite( state ),

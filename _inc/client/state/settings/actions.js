@@ -37,20 +37,20 @@ export const clearUnsavedSettingsFlag = () => {
 };
 
 export const fetchSettings = () => {
-	return dispatch => {
+	return ( dispatch ) => {
 		dispatch( {
 			type: JETPACK_SETTINGS_FETCH,
 		} );
 		return restApi
 			.fetchSettings()
-			.then( settings => {
+			.then( ( settings ) => {
 				dispatch( {
 					type: JETPACK_SETTINGS_FETCH_RECEIVE,
 					settings: settings,
 				} );
 				return settings;
 			} )
-			.catch( error => {
+			.catch( ( error ) => {
 				dispatch( {
 					type: JETPACK_SETTINGS_FETCH_FAIL,
 					error: error,
@@ -59,22 +59,22 @@ export const fetchSettings = () => {
 	};
 };
 
-export const updateSetting = updatedOption => {
-	return dispatch => {
+export const updateSetting = ( updatedOption ) => {
+	return ( dispatch ) => {
 		dispatch( {
 			type: JETPACK_SETTING_UPDATE,
 			updatedOption,
 		} );
 		return restApi
 			.updateSetting( updatedOption )
-			.then( success => {
+			.then( ( success ) => {
 				dispatch( {
 					type: JETPACK_SETTING_UPDATE_SUCCESS,
 					updatedOption,
 					success: success,
 				} );
 			} )
-			.catch( error => {
+			.catch( ( error ) => {
 				dispatch( {
 					type: JETPACK_SETTING_UPDATE_FAIL,
 					success: false,
@@ -86,14 +86,14 @@ export const updateSetting = updatedOption => {
 };
 
 export const updateSettings = ( newOptionValues, noticeMessages = {} ) => {
-	return dispatch => {
+	return ( dispatch ) => {
 		const messages = {
 			progress: __( 'Updating settings…' ),
 			success: __( 'Updated settings.' ),
 			// We try to get a message or an error code if this is an unexpected WP_Error coming from the API.
 			// Otherwise we try to show error.name (coming from the custom errors defined in rest-api/index.js and if that's not useful
 			// then we try to let Javascript stringify the error object.
-			error: error =>
+			error: ( error ) =>
 				__( 'Error updating settings. %(error)s', {
 					args: { error: error.message || error.code || error.name || error },
 				} ),
@@ -107,7 +107,7 @@ export const updateSettings = ( newOptionValues, noticeMessages = {} ) => {
 		// Adapt message for masterbar toggle, since it needs to reload.
 		if (
 			'object' === typeof newOptionValues &&
-			some( reloadForOptionValues, optionValue => optionValue in newOptionValues )
+			some( reloadForOptionValues, ( optionValue ) => optionValue in newOptionValues )
 		) {
 			messages.success = __( 'Updated settings. Refreshing page…' );
 		}
@@ -118,7 +118,7 @@ export const updateSettings = ( newOptionValues, noticeMessages = {} ) => {
 		const suppressNoticeFor = [ 'dismiss_dash_app_card', 'dismiss_empty_stats_card' ];
 		if (
 			'object' === typeof newOptionValues &&
-			! some( suppressNoticeFor, optionValue => optionValue in newOptionValues )
+			! some( suppressNoticeFor, ( optionValue ) => optionValue in newOptionValues )
 		) {
 			dispatch( createNotice( 'is-info', messages.progress, { id: 'module-setting-update' } ) );
 		}
@@ -130,7 +130,7 @@ export const updateSettings = ( newOptionValues, noticeMessages = {} ) => {
 
 		return restApi
 			.updateSettings( newOptionValues )
-			.then( success => {
+			.then( ( success ) => {
 				dispatch( {
 					type: JETPACK_SETTINGS_UPDATE_SUCCESS,
 					updatedOptions: mapUpdateSettingsResponseFromApi( success, newOptionValues ),
@@ -143,7 +143,7 @@ export const updateSettings = ( newOptionValues, noticeMessages = {} ) => {
 				dispatch( removeNotice( 'module-setting-update-success' ) );
 				if (
 					'object' === typeof newOptionValues &&
-					! some( suppressNoticeFor, optionValue => optionValue in newOptionValues )
+					! some( suppressNoticeFor, ( optionValue ) => optionValue in newOptionValues )
 				) {
 					dispatch(
 						createNotice( 'is-success', messages.success, {
@@ -153,7 +153,7 @@ export const updateSettings = ( newOptionValues, noticeMessages = {} ) => {
 					);
 				}
 			} )
-			.catch( error => {
+			.catch( ( error ) => {
 				dispatch( {
 					type: JETPACK_SETTINGS_UPDATE_FAIL,
 					success: false,

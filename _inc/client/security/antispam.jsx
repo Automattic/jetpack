@@ -35,7 +35,7 @@ export const Antispam = withModuleSettingsFormHelpers(
 			this.debouncedCheckApiKeyTyped = debounce( this.checkApiKeyTyped, 500 );
 		}
 
-		checkApiKeyTyped = event => {
+		checkApiKeyTyped = ( event ) => {
 			if ( 0 < event.currentTarget.value.length ) {
 				this.props.checkAkismetKey( event.currentTarget.value );
 			}
@@ -45,7 +45,7 @@ export const Antispam = withModuleSettingsFormHelpers(
 			} );
 		};
 
-		updateText = event => {
+		updateText = ( event ) => {
 			const currentEvent = assign( {}, event );
 			currentEvent.currentTarget.value = trim( currentEvent.currentTarget.value );
 			this.setState(
@@ -169,13 +169,13 @@ export const Antispam = withModuleSettingsFormHelpers(
 );
 
 export default connect(
-	state => {
+	( state ) => {
 		return {
 			isAkismetKeyValid: isAkismetKeyValid( state ),
 			isCheckingAkismetKey: isCheckingAkismetKey( state ),
 		};
 	},
-	dispatch => {
+	( dispatch ) => {
 		return {
 			checkAkismetKey: ( apiKey = '' ) => dispatch( checkAkismetKey( apiKey ) ),
 		};

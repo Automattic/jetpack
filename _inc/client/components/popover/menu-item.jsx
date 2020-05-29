@@ -29,7 +29,7 @@ class MenuItem extends React.Component {
 		);
 	}
 
-	_onMouseOver = event => {
+	_onMouseOver = ( event ) => {
 		event.target.focus();
 	};
 }

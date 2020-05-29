@@ -27,7 +27,7 @@ class DayEdit extends Component {
 							value={ opening }
 							className="business-hours__open"
 							placeholder={ defaultOpen }
-							onChange={ value => {
+							onChange={ ( value ) => {
 								this.setHour( value, 'opening', intervalIndex );
 							} }
 						/>
@@ -37,7 +37,7 @@ class DayEdit extends Component {
 							value={ closing }
 							className="business-hours__close"
 							placeholder={ defaultClose }
-							onChange={ value => {
+							onChange={ ( value ) => {
 								this.setHour( value, 'closing', intervalIndex );
 							} }
 						/>
@@ -78,7 +78,7 @@ class DayEdit extends Component {
 		const { day, attributes, setAttributes } = this.props;
 		const { days } = attributes;
 		setAttributes( {
-			days: days.map( value => {
+			days: days.map( ( value ) => {
 				if ( value.name === day.name ) {
 					return {
 						...value,
@@ -98,12 +98,12 @@ class DayEdit extends Component {
 		} );
 	};
 
-	toggleClosed = nextValue => {
+	toggleClosed = ( nextValue ) => {
 		const { day, attributes, setAttributes } = this.props;
 		const { days } = attributes;
 
 		setAttributes( {
-			days: days.map( value => {
+			days: days.map( ( value ) => {
 				if ( value.name === day.name ) {
 					const hours = nextValue
 						? [
@@ -128,7 +128,7 @@ class DayEdit extends Component {
 		const { days } = attributes;
 		day.hours.push( { opening: '', closing: '' } );
 		setAttributes( {
-			days: days.map( value => {
+			days: days.map( ( value ) => {
 				if ( value.name === day.name ) {
 					return {
 						...value,
@@ -140,12 +140,12 @@ class DayEdit extends Component {
 		} );
 	};
 
-	removeInterval = hourIndex => {
+	removeInterval = ( hourIndex ) => {
 		const { day, attributes, setAttributes } = this.props;
 		const { days } = attributes;
 
 		setAttributes( {
-			days: days.map( value => {
+			days: days.map( ( value ) => {
 				if ( day.name === value.name ) {
 					return {
 						...value,

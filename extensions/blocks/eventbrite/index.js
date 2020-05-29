@@ -60,10 +60,10 @@ export const settings = {
 		from: [
 			{
 				type: 'raw',
-				isMatch: node =>
+				isMatch: ( node ) =>
 					node.nodeName === 'P' &&
 					( URL_REGEX.test( node.textContent ) || CUSTOM_URL_REGEX.test( node.textContent ) ),
-				transform: node =>
+				transform: ( node ) =>
 					createBlock( 'jetpack/eventbrite', {
 						url: node.textContent.trim(),
 					} ),

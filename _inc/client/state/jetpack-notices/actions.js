@@ -9,22 +9,22 @@ import {
 } from 'state/action-types';
 import restApi from 'rest-api';
 
-export const dismissJetpackNotice = notice => {
-	return dispatch => {
+export const dismissJetpackNotice = ( notice ) => {
+	return ( dispatch ) => {
 		dispatch( {
 			type: JETPACK_NOTICES_DISMISS,
 			notice: notice,
 		} );
 		return restApi
 			.dismissJetpackNotice( notice )
-			.then( dismissedNotices => {
+			.then( ( dismissedNotices ) => {
 				dispatch( {
 					type: JETPACK_NOTICES_DISMISS_SUCCESS,
 					dismissedNotices: dismissedNotices,
 					success: true,
 				} );
 			} )
-			.catch( error => {
+			.catch( ( error ) => {
 				dispatch( {
 					type: JETPACK_NOTICES_DISMISS_FAIL,
 					error: error,
@@ -33,8 +33,8 @@ export const dismissJetpackNotice = notice => {
 	};
 };
 
-export const dismissJetpackActionNotice = notice => {
-	return dispatch => {
+export const dismissJetpackActionNotice = ( notice ) => {
+	return ( dispatch ) => {
 		dispatch( {
 			type: JETPACK_ACTION_NOTICES_DISMISS,
 			notice: notice,

@@ -87,7 +87,7 @@ export default class BlockEditorPage extends Page {
 
 	async findAvailableBlock( blockSlug ) {
 		const allBlocks = await this.getAllAvailableBlocks();
-		return allBlocks.find( b => b.includes( blockSlug ) );
+		return allBlocks.find( ( b ) => b.includes( blockSlug ) );
 	}
 
 	async getAllAvailableBlocks() {
@@ -95,7 +95,7 @@ export default class BlockEditorPage extends Page {
 			wp.data
 				.select( 'core/blocks' )
 				.getBlockTypes()
-				.map( b => b.name )
+				.map( ( b ) => b.name )
 		);
 	}
 }

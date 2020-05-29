@@ -60,7 +60,7 @@ class GoogleCalendarEdit extends Component {
 		this.setState( { interactive: true } );
 	};
 
-	handleEmbed = event => {
+	handleEmbed = ( event ) => {
 		if ( event ) {
 			event.preventDefault();
 		}
@@ -102,7 +102,7 @@ class GoogleCalendarEdit extends Component {
 					className="components-placeholder__input"
 					aria-label={ __( 'Google Calendar URL or iframe', 'jetpack' ) }
 					placeholder={ __( 'Enter URL or iframe to embed here…', 'jetpack' ) }
-					onChange={ event => this.setState( { editedEmbed: event.target.value } ) }
+					onChange={ ( event ) => this.setState( { editedEmbed: event.target.value } ) }
 				/>
 				<Button isSecondary isLarge type="submit">
 					{ _x( 'Embed', 'button label', 'jetpack' ) }

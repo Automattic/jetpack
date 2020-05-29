@@ -43,7 +43,7 @@ export default ( {
 						label={ __( 'Autoplay', 'jetpack' ) }
 						help={ __( 'Autoplay between slides', 'jetpack' ) }
 						checked={ autoplay }
-						onChange={ value => {
+						onChange={ ( value ) => {
 							setAttributes( { autoplay: value } );
 						} }
 					/>
@@ -51,7 +51,7 @@ export default ( {
 						<RangeControl
 							label={ __( 'Delay between transitions (in seconds)', 'jetpack' ) }
 							value={ delay }
-							onChange={ value => {
+							onChange={ ( value ) => {
 								setAttributes( { delay: value } );
 							} }
 							min={ 1 }
@@ -71,7 +71,7 @@ export default ( {
 					<SelectControl
 						label={ __( 'Transition effect', 'jetpack' ) }
 						value={ effect }
-						onChange={ value => {
+						onChange={ ( value ) => {
 							setAttributes( { effect: value } );
 						} }
 						options={ effectOptions }
@@ -96,7 +96,7 @@ export default ( {
 							allowedTypes={ allowedMediaTypes }
 							multiple
 							gallery
-							value={ images.map( img => img.id ) }
+							value={ images.map( ( img ) => img.id ) }
 							render={ ( { open } ) => (
 								<EditButton label={ __( 'Edit Slideshow', 'jetpack' ) } onClick={ open } />
 							) }

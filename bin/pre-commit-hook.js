@@ -17,7 +17,7 @@ let exitCode = 0;
 function parseGitDiffToPathArray( command ) {
 	return execSync( command, { encoding: 'utf8' } )
 		.split( '\n' )
-		.map( name => name.trim() );
+		.map( ( name ) => name.trim() );
 }
 
 /**
@@ -27,7 +27,7 @@ function parseGitDiffToPathArray( command ) {
  * @return {boolean}        If the file matches the whitelist.
  */
 function phpcsFilesToFilter( file ) {
-	if ( -1 !== whitelist.findIndex( filePath => file.startsWith( filePath ) ) ) {
+	if ( -1 !== whitelist.findIndex( ( filePath ) => file.startsWith( filePath ) ) ) {
 		return true;
 	}
 
@@ -41,7 +41,7 @@ function phpcsFilesToFilter( file ) {
  * @return {boolean}        If the file matches the whitelist.
  */
 function filterJsFiles( file ) {
-	return [ '.js', '.json', '.jsx' ].some( extension => file.endsWith( extension ) );
+	return [ '.js', '.json', '.jsx' ].some( ( extension ) => file.endsWith( extension ) );
 }
 
 // Filter callback for JS files
@@ -71,7 +71,7 @@ const dirtyFiles = parseGitDiffToPathArray( 'git diff --name-only --diff-filter=
 	Boolean
 );
 const jsFiles = gitFiles.filter( filterJsFiles );
-const phpFiles = gitFiles.filter( name => name.endsWith( '.php' ) );
+const phpFiles = gitFiles.filter( ( name ) => name.endsWith( '.php' ) );
 const phpcsFiles = phpFiles.filter( phpcsFilesToFilter );
 
 /**
@@ -154,14 +154,14 @@ function exit( exitCodePassed ) {
 	process.exit( exitCodePassed );
 }
 
-dirtyFiles.forEach( file =>
+dirtyFiles.forEach( ( file ) =>
 	console.log(
 		chalk.red( `${ file } will not be auto-formatted because it has unstaged changes.` )
 	)
 );
 
-const toPrettify = jsFiles.filter( file => checkFileAgainstDirtyList( file, dirtyFiles ) );
-toPrettify.forEach( file => console.log( `Prettier formatting staged file: ${ file }` ) );
+const toPrettify = jsFiles.filter( ( file ) => checkFileAgainstDirtyList( file, dirtyFiles ) );
+toPrettify.forEach( ( file ) => console.log( `Prettier formatting staged file: ${ file }` ) );
 
 if ( toPrettify.length ) {
 	execSync(
@@ -191,7 +191,7 @@ if ( phpLintResult && phpLintResult.status ) {
 }
 
 let phpcbfResult, phpcsResult;
-const toPhpcbf = phpcsFiles.filter( file => checkFileAgainstDirtyList( file, dirtyFiles ) );
+const toPhpcbf = phpcsFiles.filter( ( file ) => checkFileAgainstDirtyList( file, dirtyFiles ) );
 if ( phpcsFiles.length > 0 ) {
 	if ( toPhpcbf.length > 0 ) {
 		phpcbfResult = spawnSync( 'vendor/bin/phpcbf', [ ...toPhpcbf ], {

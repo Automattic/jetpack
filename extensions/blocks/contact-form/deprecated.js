@@ -76,7 +76,7 @@ export default [
 
 			return [ newAttributes, newInnerBlocks ];
 		},
-		isEligible: attr => {
+		isEligible: ( attr ) => {
 			if ( attr.has_form_settings_set || attr.hasFormSettingsSet ) {
 				return true;
 			}

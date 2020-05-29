@@ -82,7 +82,7 @@ function swiperApplyAria( swiper ) {
 }
 
 function swiperPaginationRender( swiper ) {
-	forEach( swiper.pagination.bullets, bullet => {
+	forEach( swiper.pagination.bullets, ( bullet ) => {
 		bullet.addEventListener( 'click', () => {
 			const currentSlide = swiper.slides[ swiper.realIndex ];
 			setTimeout( () => {

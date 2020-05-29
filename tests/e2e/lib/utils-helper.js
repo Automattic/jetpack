@@ -12,14 +12,14 @@ import logger from './logger';
  * @return {Promise<string>} output
  */
 export async function execShellCommand( cmd ) {
-	return new Promise( resolve => {
+	return new Promise( ( resolve ) => {
 		const cmdExec = exec( cmd, ( error, stdout ) => {
 			if ( error ) {
 				logger.warn( error );
 			}
 			return resolve( stdout ? stdout : error );
 		} );
-		cmdExec.stdout.on( 'data', data => logger.info( data ) );
+		cmdExec.stdout.on( 'data', ( data ) => logger.info( data ) );
 	} );
 }
 

@@ -70,7 +70,7 @@ class Modal extends React.Component {
 		}
 	}
 
-	handleEscapeKey = e => {
+	handleEscapeKey = ( e ) => {
 		if ( e.keyCode === 27 ) {
 			// escape key maps to keycode `27`
 			this.maybeClose();
@@ -85,13 +85,13 @@ class Modal extends React.Component {
 
 	// this exists so we can differentiate between click events on the background
 	// which initiated there vs. drags that ended there (most notably from the slider in a modal)
-	handleMouseDownOverlay = e => {
+	handleMouseDownOverlay = ( e ) => {
 		e.preventDefault();
 		e.stopPropagation();
 		this.setState( { overlayMouseDown: true } );
 	};
 
-	handleClickOverlay = e => {
+	handleClickOverlay = ( e ) => {
 		e.preventDefault();
 		e.stopPropagation();
 		if ( this.state.overlayMouseDown && this.props.onRequestClose && ! preventCloseFlag ) {
@@ -101,7 +101,7 @@ class Modal extends React.Component {
 	};
 
 	// prevent clicks from propagating to background
-	handleMouseEventModal = e => {
+	handleMouseEventModal = ( e ) => {
 		e.stopPropagation();
 	};
 

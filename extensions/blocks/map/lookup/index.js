@@ -51,7 +51,7 @@ export class Lookup extends Component {
 		this.debouncedLoadOptions.cancel();
 	}
 
-	select = option => {
+	select = ( option ) => {
 		const { completer } = this.props;
 		const getOptionCompletion = completer.getOptionCompletion || {};
 		getOptionCompletion( option );
@@ -70,7 +70,7 @@ export class Lookup extends Component {
 		const { options } = completer;
 		const promise = ( this.activePromise = Promise.resolve(
 			typeof options === 'function' ? options( query ) : options
-		).then( optionsData => {
+		).then( ( optionsData ) => {
 			if ( promise !== this.activePromise ) {
 				// Another promise has become active since this one was asked to resolve, so do nothing,
 				// or else we might end triggering a race condition updating the state.
@@ -96,7 +96,7 @@ export class Lookup extends Component {
 		} ) );
 	}
 
-	onChange = query => {
+	onChange = ( query ) => {
 		const { completer } = this.props;
 		const { options } = this.state;
 
@@ -119,7 +119,7 @@ export class Lookup extends Component {
 		}
 	};
 
-	onKeyDown = event => {
+	onKeyDown = ( event ) => {
 		const { isOpen, selectedIndex, filteredOptions } = this.state;
 		if ( ! isOpen ) {
 			return;

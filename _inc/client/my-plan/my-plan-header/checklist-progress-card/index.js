@@ -65,7 +65,7 @@ class ChecklistProgressCard extends Component {
 	}
 }
 
-export default connect( state => {
+export default connect( ( state ) => {
 	return {
 		siteSlug: getSiteRawUrl( state ),
 		...getChecklistCompletion( state ), // add completed and total

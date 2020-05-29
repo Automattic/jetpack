@@ -83,7 +83,7 @@ function CalendlyEdit( props ) {
 		} );
 	}, [] );
 
-	const parseEmbedCode = event => {
+	const parseEmbedCode = ( event ) => {
 		if ( ! event ) {
 			setErrorNotice();
 			return;
@@ -115,7 +115,7 @@ function CalendlyEdit( props ) {
 				<input
 					type="text"
 					id="embedCode"
-					onChange={ event => setEmbedCode( event.target.value ) }
+					onChange={ ( event ) => setEmbedCode( event.target.value ) }
 					placeholder={ __( 'Calendly web address or embed code…', 'jetpack' ) }
 					value={ embedCode }
 					className="components-placeholder__input"
@@ -237,7 +237,7 @@ function CalendlyEdit( props ) {
 						<input
 							type="text"
 							id="embedCode"
-							onChange={ event => setEmbedCode( event.target.value ) }
+							onChange={ ( event ) => setEmbedCode( event.target.value ) }
 							placeholder={ __( 'Calendly web address or embed code…', 'jetpack' ) }
 							value={ embedCode }
 							className="components-placeholder__input"

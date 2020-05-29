@@ -10,7 +10,7 @@ export default {
 		subscribeButton: { type: 'string', default: __( 'Subscribe', 'jetpack' ) },
 		showSubscribersTotal: { type: 'boolean', default: false },
 	},
-	migrate: attr => {
+	migrate: ( attr ) => {
 		return {
 			subscribeButton: '',
 			submitButtonText: attr.subscribeButton,
@@ -21,7 +21,7 @@ export default {
 		};
 	},
 
-	isEligible: attr => {
+	isEligible: ( attr ) => {
 		if ( ! isEmpty( attr.subscribeButton ) ) {
 			return false;
 		}

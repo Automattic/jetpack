@@ -8,7 +8,7 @@ import { get } from 'lodash';
 import { withDispatch, withSelect } from '@wordpress/data';
 
 class SeoPanel extends Component {
-	onMessageChange = event => {
+	onMessageChange = ( event ) => {
 		this.props.updateSeoDescription( event.target.value );
 	};
 
@@ -35,14 +35,14 @@ class SeoPanel extends Component {
 }
 
 export default compose( [
-	withSelect( select => ( {
+	withSelect( ( select ) => ( {
 		seoDescription: get(
 			select( 'core/editor' ).getEditedPostAttribute( 'meta' ),
 			[ 'advanced_seo_description' ],
 			''
 		),
 	} ) ),
-	withDispatch( dispatch => ( {
+	withDispatch( ( dispatch ) => ( {
 		updateSeoDescription( seoDescription ) {
 			dispatch( 'core/editor' ).editPost( {
 				meta: {

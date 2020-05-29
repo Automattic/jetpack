@@ -55,7 +55,7 @@ export default function registerJetpackBlock( name, settings, childBlocks = [] )
 
 	// Register child blocks. Using `registerBlockType()` directly avoids availability checks -- if
 	// their parent is available, we register them all, without checking for their individual availability.
-	childBlocks.forEach( childBlock =>
+	childBlocks.forEach( ( childBlock ) =>
 		registerBlockType( `jetpack/${ childBlock.name }`, childBlock.settings )
 	);
 

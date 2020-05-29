@@ -17,8 +17,8 @@ import { PanelBody, RangeControl } from '@wordpress/components';
 import { ENTER } from '@wordpress/keycodes';
 
 const Rating = ( { id, setRating, children } ) => {
-	const setNewRating = newRating => () => setRating( newRating );
-	const maybeSetNewRating = newRating => ( { keyCode } ) =>
+	const setNewRating = ( newRating ) => () => setRating( newRating );
+	const maybeSetNewRating = ( newRating ) => ( { keyCode } ) =>
 		keyCode === ENTER ? setRating( newRating ) : null;
 
 	return (
@@ -34,11 +34,11 @@ const Rating = ( { id, setRating, children } ) => {
 	);
 };
 
-export default Symbol =>
+export default ( Symbol ) =>
 	function ( { className, setAttributes, attributes: { align, color, rating, maxRating } } ) {
-		const setNewMaxRating = newMaxRating => setAttributes( { maxRating: newMaxRating } );
-		const setNewColor = newColor => setAttributes( { color: newColor } );
-		const setNewRating = newRating => {
+		const setNewMaxRating = ( newMaxRating ) => setAttributes( { maxRating: newMaxRating } );
+		const setNewColor = ( newColor ) => setAttributes( { color: newColor } );
+		const setNewRating = ( newRating ) => {
 			if ( newRating === rating ) {
 				// Same number clicked twice.
 				// Check if a half rating.
@@ -55,11 +55,11 @@ export default Symbol =>
 				<BlockControls>
 					<AlignmentToolbar
 						value={ align }
-						onChange={ nextAlign => setAttributes( { align: nextAlign } ) }
+						onChange={ ( nextAlign ) => setAttributes( { align: nextAlign } ) }
 					/>
 				</BlockControls>
 				<div className={ className } style={ { textAlign: align } }>
-					{ range( 1, maxRating + 1 ).map( position => (
+					{ range( 1, maxRating + 1 ).map( ( position ) => (
 						<Rating key={ position } id={ position } setRating={ setNewRating }>
 							<span>
 								<Symbol

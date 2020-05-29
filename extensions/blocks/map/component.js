@@ -37,7 +37,7 @@ export class Map extends Component {
 		const { onMarkerClick, deleteActiveMarker, updateActiveMarker } = this;
 		const currentPoint = get( activeMarker, 'props.point' ) || {};
 		const { title, caption } = currentPoint;
-		const addPoint = Children.map( children, child => {
+		const addPoint = Children.map( children, ( child ) => {
 			const tagName = get( child, 'props.tagName' );
 			if ( 'AddPoint' === tagName ) {
 				return child;
@@ -71,7 +71,7 @@ export class Map extends Component {
 						<TextControl
 							label={ __( 'Marker Title', 'jetpack' ) }
 							value={ title }
-							onChange={ value => updateActiveMarker( { title: value } ) }
+							onChange={ ( value ) => updateActiveMarker( { title: value } ) }
 						/>
 						<TextareaControl
 							className="wp-block-jetpack-map__marker-caption"
@@ -79,7 +79,7 @@ export class Map extends Component {
 							value={ caption }
 							rows="2"
 							tag="textarea"
-							onChange={ value => updateActiveMarker( { caption: value } ) }
+							onChange={ ( value ) => updateActiveMarker( { caption: value } ) }
 						/>
 						<Button onClick={ deleteActiveMarker } className="wp-block-jetpack-map__delete-btn">
 							<Dashicon icon="trash" size="15" /> { __( 'Delete Marker', 'jetpack' ) }
@@ -164,7 +164,7 @@ export class Map extends Component {
 		}
 	}
 	/* Event handling */
-	onMarkerClick = marker => {
+	onMarkerClick = ( marker ) => {
 		const { onMarkerClick } = this.props;
 		this.setState( { activeMarker: marker } );
 		onMarkerClick();
@@ -175,7 +175,7 @@ export class Map extends Component {
 	clearCurrentMarker = () => {
 		this.setState( { activeMarker: null } );
 	};
-	updateActiveMarker = updates => {
+	updateActiveMarker = ( updates ) => {
 		const { points } = this.props;
 		const { activeMarker } = this.state;
 		const { index } = activeMarker.props;
@@ -241,7 +241,7 @@ export class Map extends Component {
 			return;
 		}
 		const bounds = new mapboxgl.LngLatBounds();
-		points.forEach( point => {
+		points.forEach( ( point ) => {
 			bounds.extend( [ point.coordinates.longitude, point.coordinates.latitude ] );
 		} );
 		onSetMapCenter( bounds.getCenter() );
@@ -342,7 +342,7 @@ export class Map extends Component {
 
 		const fullscreenControl = new mapboxgl.FullscreenControl();
 
-		map.on( 'error', e => {
+		map.on( 'error', ( e ) => {
 			onError( 'mapbox_error', e.error.message );
 		} );
 		const zoomControl = new mapboxgl.NavigationControl( {
@@ -377,7 +377,7 @@ export class Map extends Component {
 			window.addEventListener( 'resize', this.debouncedSizeMap );
 		} );
 	}
-	googlePoint2Mapbox = google_point =>
+	googlePoint2Mapbox = ( google_point ) =>
 		google_point.hasOwnProperty( 'lat' ) && google_point.hasOwnProperty( 'lng' )
 			? google_point // Already a valid Mapbox point.
 			: {

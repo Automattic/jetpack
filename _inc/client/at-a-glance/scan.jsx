@@ -30,7 +30,7 @@ import getRedirectUrl from 'lib/jp-redirect';
  * @param   {object} props Settings to render the card.
  * @returns {object}       Security Scan card
  */
-const renderCard = props => (
+const renderCard = ( props ) => (
 	<DashItem
 		label={ __( 'Scan' ) }
 		module={ props.feature || 'scan' }
@@ -66,7 +66,7 @@ const renderAction = ( url, message ) => (
 	</Card>
 );
 
-const renderActiveCard = message => {
+const renderActiveCard = ( message ) => {
 	return renderCard( {
 		className: 'jp-dash-item__is-active',
 		status: 'is-working',
@@ -301,7 +301,7 @@ class DashScan extends Component {
 	}
 }
 
-export default connect( state => {
+export default connect( ( state ) => {
 	const sitePlan = getSitePlan( state );
 
 	return {

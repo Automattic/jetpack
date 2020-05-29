@@ -25,7 +25,7 @@ export default ( { stripeConnectUrl } ) => (
 			/>
 		}
 		href={ stripeConnectUrl }
-		onClick={ blockName =>
+		onClick={ ( blockName ) =>
 			void analytics.tracks.recordEvent( 'jetpack_editor_block_stripe_connect_click', {
 				block: blockName,
 			} )

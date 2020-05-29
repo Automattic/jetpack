@@ -30,7 +30,7 @@ export default connect(
 			fetchSiteConnectionStatus: fetchSiteConnectionStatus(),
 		};
 	},
-	dispatch => {
+	( dispatch ) => {
 		return bindActionCreators(
 			{
 				fetchSiteConnectionStatus,

@@ -11,7 +11,7 @@ import React from 'react';
  * Module variables
  */
 const { Component } = React;
-const stopPropagation = event => event.stopPropagation();
+const stopPropagation = ( event ) => event.stopPropagation();
 
 class SelectDropdownLabel extends Component {
 	render() {

@@ -127,7 +127,7 @@ SupportCard.propTypes = {
 	className: PropTypes.string,
 };
 
-export default connect( state => {
+export default connect( ( state ) => {
 	return {
 		sitePlan: getSitePlan( state ),
 		siteConnectionStatus: getSiteConnectionStatus( state ),

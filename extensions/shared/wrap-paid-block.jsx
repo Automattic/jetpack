@@ -11,7 +11,7 @@ import UpgradeNudge from './components/upgrade-nudge';
 
 export default ( { requiredPlan, customTitle, customSubTitle } ) =>
 	createHigherOrderComponent(
-		WrappedComponent => props => (
+		( WrappedComponent ) => ( props ) => (
 			// Wraps the input component in a container, without mutating it. Good!
 			<Fragment>
 				{ ( ! props?.attributes?.__isBlockPreview ?? false ) && (

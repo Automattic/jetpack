@@ -158,7 +158,7 @@ class ProStatus extends React.Component {
 	 *
 	 * @return {component} A Button component.
 	 */
-	getSetUpButton = feature => {
+	getSetUpButton = ( feature ) => {
 		return (
 			<Button
 				onClick={ handleClickForTracking( 'set_up', feature ) }
@@ -303,7 +303,7 @@ class ProStatus extends React.Component {
 	}
 }
 
-export default connect( state => {
+export default connect( ( state ) => {
 	const sitePlan = getSitePlan( state );
 
 	return {
@@ -316,8 +316,8 @@ export default connect( state => {
 		sitePlan,
 		planClass: getPlanClass( get( sitePlan, 'product_slug', '' ) ),
 		fetchingPluginsData: isFetchingPluginsData( state ),
-		pluginActive: plugin_slug => isPluginActive( state, plugin_slug ),
-		pluginInstalled: plugin_slug => isPluginInstalled( state, plugin_slug ),
+		pluginActive: ( plugin_slug ) => isPluginActive( state, plugin_slug ),
+		pluginInstalled: ( plugin_slug ) => isPluginInstalled( state, plugin_slug ),
 		isDevMode: isDevMode( state ),
 		fetchingSiteData: isFetchingSiteData( state ),
 		isAkismetKeyValid: isAkismetKeyValid( state ),

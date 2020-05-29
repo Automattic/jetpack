@@ -110,8 +110,8 @@ class ModuleToggleComponent extends Component {
 	}
 }
 
-export const ModuleToggle = connect( state => {
+export const ModuleToggle = connect( ( state ) => {
 	return {
-		getModuleOverride: module_name => getModuleOverride( state, module_name ),
+		getModuleOverride: ( module_name ) => getModuleOverride( state, module_name ),
 	};
 } )( ModuleToggleComponent );

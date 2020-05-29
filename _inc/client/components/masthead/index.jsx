@@ -115,7 +115,7 @@ export class Masthead extends React.Component {
 }
 
 export default connect(
-	state => {
+	( state ) => {
 		return {
 			siteConnectionStatus: getSiteConnectionStatus( state ),
 			sandboxDomain: getSandboxDomain( state ),
@@ -123,7 +123,7 @@ export default connect(
 			userCanEditPosts: userCanEditPosts( state ),
 		};
 	},
-	dispatch => {
+	( dispatch ) => {
 		return {
 			testConnection: () => dispatch( fetchSiteConnectionTest() ),
 		};

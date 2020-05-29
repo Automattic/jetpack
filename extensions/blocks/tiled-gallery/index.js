@@ -48,7 +48,7 @@ const styleNames = {
 	[ LAYOUT_COLUMN ]: _x( 'Tiled columns', 'Tiled gallery layout', 'jetpack' ),
 	[ LAYOUT_SQUARE ]: _x( 'Square tiles', 'Tiled gallery layout', 'jetpack' ),
 };
-const layoutStylesWithLabels = LAYOUT_STYLES.map( style => ( {
+const layoutStylesWithLabels = LAYOUT_STYLES.map( ( style ) => ( {
 	...style,
 	label: styleNames[ style.name ],
 } ) );
@@ -227,8 +227,8 @@ export const settings = {
 				type: 'block',
 				isMultiBlock: true,
 				blocks: [ 'core/image' ],
-				isMatch: images => getValidImages( images ).length > 0,
-				transform: images => {
+				isMatch: ( images ) => getValidImages( images ).length > 0,
+				transform: ( images ) => {
 					const validImages = getValidImages( images );
 					return createBlock( `jetpack/${ name }`, {
 						images: validImages.map( ( { id, url, alt } ) => ( {

@@ -80,7 +80,7 @@ class DashActivity extends Component {
 	}
 }
 
-export default connect( state => ( {
+export default connect( ( state ) => ( {
 	sitePlan: getSitePlan( state ),
 	inDevMode: isDevMode( state ),
 } ) )( DashActivity );

@@ -343,7 +343,7 @@ export function getProductsForPurchase( state ) {
 	const products = get( state.jetpack.initialState, 'products', [] );
 	const siteProducts = getSiteProducts( state );
 
-	return products.map( product => {
+	return products.map( ( product ) => {
 		const optionKey = product.options[ 0 ].key;
 		return {
 			title: product.title,
@@ -365,7 +365,7 @@ export function getProductsForPurchase( state ) {
 }
 
 function getProductOptions( state, product, siteProducts ) {
-	return product.options.map( option => {
+	return product.options.map( ( option ) => {
 		return {
 			name: option.name,
 			type: option.type,

@@ -174,7 +174,7 @@ class Search extends React.Component {
 	//This is fix for IE11. Does not work on Edge.
 	//On IE11 scrollLeft value for input is always 0.
 	//We are calculating it manually using TextRange object.
-	getScrollLeft = inputElement => {
+	getScrollLeft = ( inputElement ) => {
 		//TextRange is IE11 specific so this checks if we are not on IE11.
 		if ( ! inputElement.createTextRange ) {
 			return inputElement.scrollLeft;
@@ -213,7 +213,7 @@ class Search extends React.Component {
 		this.setState( { keyword: '' } );
 	};
 
-	onBlur = event => {
+	onBlur = ( event ) => {
 		if ( this.props.onBlur ) {
 			this.props.onBlur( event );
 		}
@@ -227,7 +227,7 @@ class Search extends React.Component {
 		} );
 	};
 
-	openSearch = event => {
+	openSearch = ( event ) => {
 		this.props.onClick();
 		event.preventDefault();
 		this.setState( {
@@ -238,7 +238,7 @@ class Search extends React.Component {
 		analytics.ga.recordEvent( this.props.analyticsGroup, 'Clicked Open Search' );
 	};
 
-	closeSearch = event => {
+	closeSearch = ( event ) => {
 		event.preventDefault();
 
 		if ( this.props.disabled ) {
@@ -264,7 +264,7 @@ class Search extends React.Component {
 		analytics.ga.recordEvent( this.props.analyticsGroup, 'Clicked Close Search' );
 	};
 
-	keyUp = event => {
+	keyUp = ( event ) => {
 		if ( event.key === 'Enter' && isMobile() ) {
 			//dismiss soft keyboards
 			this.blur();
@@ -280,7 +280,7 @@ class Search extends React.Component {
 		this.scrollOverlay();
 	};
 
-	keyDown = event => {
+	keyDown = ( event ) => {
 		this.scrollOverlay();
 		if ( event.key === 'Escape' && event.target.value === '' ) {
 			this.closeSearch( event );

@@ -92,14 +92,14 @@ AppsCard.propTypes = {
 };
 
 export default connect(
-	state => {
+	( state ) => {
 		return {
 			isAppsCardDismissed: appsCardDismissed( state ),
 			arePromotionsActive: arePromotionsActive( state ),
 			userCanManageOptions: userCanManageOptions( state ),
 		};
 	},
-	dispatch => {
+	( dispatch ) => {
 		return {
 			dismissAppCard: () => {
 				return dispatch( updateSettings( { dismiss_dash_app_card: true } ) );

@@ -197,15 +197,15 @@ class Privacy extends React.Component {
 }
 
 export default connect(
-	state => ( {
+	( state ) => ( {
 		settings: getSettings( state ),
 		trackingSettings: getTrackingSettings( state ),
 		isUpdatingTrackingSettings: isUpdatingTrackingSettings( state ),
 		isFetchingTrackingSettings: isFetchingTrackingSettingsList( state ),
 	} ),
-	dispatch => {
+	( dispatch ) => {
 		return {
-			setTrackingSettings: newValue => {
+			setTrackingSettings: ( newValue ) => {
 				analytics.tracks.setOptOut( newValue ); // Sets opt-out cookie.
 				dispatch( updateTrackingSettings( { tracks_opt_out: newValue } ) );
 			},

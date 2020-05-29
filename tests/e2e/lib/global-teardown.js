@@ -29,9 +29,9 @@ async function processSlackLog() {
 	const messages = log
 		.trim()
 		.split( '\n' )
-		.map( string => JSON.parse( string ) );
+		.map( ( string ) => JSON.parse( string ) );
 
-	const failures = messages.filter( json => json.type === 'failure' );
+	const failures = messages.filter( ( json ) => json.type === 'failure' );
 
 	const response = await sendMessageToSlack( getResultMessage( failures.length ) );
 	const options = { thread_ts: response.ts };

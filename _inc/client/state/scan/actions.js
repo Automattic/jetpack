@@ -9,20 +9,20 @@ import {
 import restApi from 'rest-api';
 
 export const fetchScanStatus = () => {
-	return dispatch => {
+	return ( dispatch ) => {
 		dispatch( {
 			type: SCAN_STATUS_FETCH,
 		} );
 		return restApi
 			.fetchScanStatus()
-			.then( status => {
+			.then( ( status ) => {
 				dispatch( {
 					type: SCAN_STATUS_FETCH_RECEIVE,
 					status: status,
 				} );
 				return status;
 			} )
-			.catch( error => {
+			.catch( ( error ) => {
 				dispatch( {
 					type: SCAN_STATUS_FETCH_FAIL,
 					error: error,

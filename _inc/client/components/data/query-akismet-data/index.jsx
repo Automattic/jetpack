@@ -27,13 +27,13 @@ QueryAkismetData.defaultProps = {
 };
 
 export default connect(
-	state => {
+	( state ) => {
 		return {
 			fetchAkismetData: fetchAkismetData(),
 			fetchingAkismetData: isFetchingAkismetData( state ),
 		};
 	},
-	dispatch => {
+	( dispatch ) => {
 		return bindActionCreators(
 			{
 				fetchAkismetData,

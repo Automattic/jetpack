@@ -366,7 +366,7 @@ class PlanGrid extends React.Component {
 	}
 }
 
-export default connect( state => {
+export default connect( ( state ) => {
 	const userId = getUserId( state );
 	return {
 		plans: getAvailablePlans( state ),
@@ -375,7 +375,7 @@ export default connect( state => {
 		userId,
 		showBackups: showBackups( state ),
 		planDuration: getPlanDuration( state ),
-		plansUpgradeUrl: planType => getUpgradeUrl( state, `plans-${ planType }`, userId ),
+		plansUpgradeUrl: ( planType ) => getUpgradeUrl( state, `plans-${ planType }`, userId ),
 		plansLearnMoreUpgradeUrl: getUpgradeUrl( state, 'plans-learn-more', userId ),
 		isFetchingData: isFetchingSiteData( state ),
 	};

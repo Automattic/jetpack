@@ -47,8 +47,8 @@ import JetpackBanner from 'components/jetpack-banner';
 import ModuleOverridenBanner from 'components/module-overridden-banner';
 import { getModuleOverride, getModule } from 'state/modules';
 
-export const SettingsCard = props => {
-	const trackBannerClick = feature => {
+export const SettingsCard = ( props ) => {
+	const trackBannerClick = ( feature ) => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'upgrade-banner',
 			feature: feature,
@@ -56,7 +56,7 @@ export const SettingsCard = props => {
 		} );
 	};
 
-	const handleClickForTracking = feature => {
+	const handleClickForTracking = ( feature ) => {
 		return () => trackBannerClick( feature );
 	};
 
@@ -368,7 +368,7 @@ SettingsCard.defaultProps = {
 	saveDisabled: false,
 };
 
-export default connect( state => {
+export default connect( ( state ) => {
 	return {
 		sitePlan: getSitePlan( state ),
 		fetchingSiteData: isFetchingSiteData( state ),
@@ -377,8 +377,8 @@ export default connect( state => {
 		isAkismetKeyValid: isAkismetKeyValid( state ),
 		isCheckingAkismetKey: isCheckingAkismetKey( state ),
 		vaultPressData: getVaultPressData( state ),
-		getModuleOverride: module_name => getModuleOverride( state, module_name ),
-		getModule: module_name => getModule( state, module_name ),
+		getModuleOverride: ( module_name ) => getModuleOverride( state, module_name ),
+		getModule: ( module_name ) => getModule( state, module_name ),
 		activeFeatures: getActiveFeatures( state ),
 		videoPremiumUpgradeUrl: getUpgradeUrl( state, 'settings-video-premium' ),
 		adsUpgradeUrl: getUpgradeUrl( state, 'settings-ads' ),

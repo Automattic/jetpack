@@ -12,7 +12,7 @@ import { FeatureToggle } from '../feature-toggle';
 
 import './style.scss';
 
-const FeatureToggleGroup = props => {
+const FeatureToggleGroup = ( props ) => {
 	const { title, details, features } = props;
 
 	return (
@@ -20,7 +20,7 @@ const FeatureToggleGroup = props => {
 			<h2>{ title }</h2>
 			<p className="jp-setup-wizard-feature-toggle-group-details">{ details }</p>
 			<div className="jp-setup-wizard-feature-toggle-group-toggles-area-container">
-				{ features.map( feature => {
+				{ features.map( ( feature ) => {
 					return (
 						<div className="jp-setup-wizard-feature-toggle-group-toggle-container">
 							<FeatureToggle feature={ feature } />

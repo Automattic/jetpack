@@ -72,7 +72,7 @@ class DashPhoton extends Component {
 	}
 }
 
-export default connect( state => ( {
+export default connect( ( state ) => ( {
 	isDevMode: isDevMode( state ),
 	isModuleAvailable: isModuleAvailable( state, 'photon' ),
 } ) )( DashPhoton );

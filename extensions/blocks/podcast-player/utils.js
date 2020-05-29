@@ -49,8 +49,8 @@ export function makeCancellable( promise ) {
 
 	const wrappedPromise = new Promise( ( resolve, reject ) => {
 		promise.then(
-			val => ( hasCanceled_ ? reject( { isCanceled: true } ) : resolve( val ) ),
-			error => ( hasCanceled_ ? reject( { isCanceled: true } ) : reject( error ) )
+			( val ) => ( hasCanceled_ ? reject( { isCanceled: true } ) : resolve( val ) ),
+			( error ) => ( hasCanceled_ ? reject( { isCanceled: true } ) : reject( error ) )
 		);
 	} );
 
@@ -120,7 +120,7 @@ const generateColorsObject = ( {
  * Memoized version of generateColorsObject.
  * @see {@link generateColorsObject} for params and return type.
  */
-export const getColorsObject = memoize( generateColorsObject, config => {
+export const getColorsObject = memoize( generateColorsObject, ( config ) => {
 	// Cache key is a string with all arguments joined into one string.
 	return Object.values( config ).join();
 } );

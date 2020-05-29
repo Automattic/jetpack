@@ -23,7 +23,7 @@ import {
 
 import './style.scss';
 
-let IncomeQuestion = props => {
+let IncomeQuestion = ( props ) => {
 	const location = useLocation();
 
 	useEffect( () => {
@@ -129,7 +129,7 @@ IncomeQuestion.propTypes = {
 };
 
 IncomeQuestion = connect(
-	state => ( {
+	( state ) => ( {
 		answers: [
 			'advertising-revenue',
 			'store-revenue',
@@ -137,10 +137,10 @@ IncomeQuestion = connect(
 			'location-revenue',
 		].reduce( ( acc, curr ) => ( { ...acc, [ curr ]: getSetupWizardAnswer( state, curr ) } ), {} ),
 	} ),
-	dispatch => ( {
+	( dispatch ) => ( {
 		saveQuestionnaire: () => dispatch( saveSetupWizardQuestionnnaire() ),
-		updateSiteUseQuestion: answer => dispatch( updateSetupWizardQuestionnaire( answer ) ),
-		updateStatus: status => dispatch( updateSetupWizardStatus( status ) ),
+		updateSiteUseQuestion: ( answer ) => dispatch( updateSetupWizardQuestionnaire( answer ) ),
+		updateStatus: ( status ) => dispatch( updateSetupWizardStatus( status ) ),
 	} )
 )( IncomeQuestion );
 

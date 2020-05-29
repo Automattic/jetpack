@@ -205,7 +205,7 @@ class DashAkismet extends Component {
 	}
 }
 
-export default connect( state => ( {
+export default connect( ( state ) => ( {
 	akismetData: getAkismetData( state ),
 	sitePlan: getSitePlan( state ),
 	isDevMode: isDevMode( state ),

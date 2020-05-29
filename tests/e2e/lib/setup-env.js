@@ -74,7 +74,7 @@ async function setupBrowser() {
  * Taken from Gutenberg project: https://github.com/WordPress/gutenberg/blob/master/packages/e2e-tests/config/setup-test-framework.js#L127
  */
 function observeConsoleLogging() {
-	page.on( 'console', message => {
+	page.on( 'console', ( message ) => {
 		const type = message.type();
 		if ( ! [ 'warning', 'error' ].includes( type ) ) {
 			return;

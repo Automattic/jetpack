@@ -117,7 +117,7 @@ class DashPluginUpdates extends Component {
 	}
 }
 
-export default connect( state => ( {
+export default connect( ( state ) => ( {
 	pluginUpdates: getPluginUpdates( state ),
 	isDevMode: isDevMode( state ),
 } ) )( DashPluginUpdates );

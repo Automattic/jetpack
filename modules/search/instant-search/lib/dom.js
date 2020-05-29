@@ -1,7 +1,7 @@
 export function getCheckedInputNames( parentDom ) {
 	return [ ...parentDom.querySelectorAll( 'input[type="checkbox"]' ).values() ]
-		.filter( input => input.checked )
-		.map( input => input.name );
+		.filter( ( input ) => input.checked )
+		.map( ( input ) => input.name );
 }
 
 export function getThemeOptions( searchOptions ) {

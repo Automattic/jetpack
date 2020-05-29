@@ -27,7 +27,7 @@ export class CustomContentTypes extends React.Component {
 		portfolio: this.props.getOptionValue( 'jetpack_portfolio', 'custom-content-types' ),
 	};
 
-	updateCPTs = type => {
+	updateCPTs = ( type ) => {
 		const deactivate =
 			'testimonial' === type
 				? ! ( ! this.state.testimonial || this.state.portfolio )
@@ -40,7 +40,7 @@ export class CustomContentTypes extends React.Component {
 		} );
 	};
 
-	linkIfActiveCPT = type => {
+	linkIfActiveCPT = ( type ) => {
 		return this.props.getSettingCurrentValue( `jetpack_${ type }`, 'custom-content-types' ) ? (
 			<a href={ `${ this.props.siteAdminUrl }edit.php?post_type=jetpack-${ type }` } />
 		) : (
@@ -168,9 +168,9 @@ export default withModuleSettingsFormHelpers(
 			'custom-content-types'
 		);
 		return {
-			module: module_name => getModule( state, module_name ),
-			isModuleFound: module_name => _isModuleFound( state, module_name ),
-			getModuleOverride: module_name => getModuleOverride( state, module_name ),
+			module: ( module_name ) => getModule( state, module_name ),
+			isModuleFound: ( module_name ) => _isModuleFound( state, module_name ),
+			getModuleOverride: ( module_name ) => getModuleOverride( state, module_name ),
 			portfolioActive,
 			testimonialActive,
 		};

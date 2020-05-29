@@ -20,8 +20,8 @@ const transforms = {
 			type: 'block',
 			isMultiBlock: true,
 			blocks: [ 'core/image' ],
-			isMatch: images => getValidImages( images ).length > 0,
-			transform: images => {
+			isMatch: ( images ) => getValidImages( images ).length > 0,
+			transform: ( images ) => {
 				const validImages = getValidImages( images );
 				return createBlock( 'jetpack/slideshow', {
 					images: validImages.map( ( { alt, caption, id, url } ) => ( {

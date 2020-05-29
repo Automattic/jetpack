@@ -118,7 +118,7 @@ export class Sitemaps extends React.Component {
 	}
 }
 
-export default connect( state => {
+export default connect( ( state ) => {
 	return {
 		isSiteVisibleToSearchEngines: isSiteVisibleToSearchEngines( state ),
 		siteAdminUrl: getSiteAdminUrl( state ),

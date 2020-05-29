@@ -26,7 +26,7 @@ class MarkdownEdit extends Component {
 		activePanel: PANEL_EDITOR,
 	};
 
-	bindInput = ref => void ( this.input = ref );
+	bindInput = ( ref ) => void ( this.input = ref );
 
 	componentDidUpdate( prevProps ) {
 		if (
@@ -51,9 +51,9 @@ class MarkdownEdit extends Component {
 		return ! source || source.trim() === '';
 	}
 
-	updateSource = source => this.props.setAttributes( { source } );
+	updateSource = ( source ) => this.props.setAttributes( { source } );
 
-	handleKeyDown = e => {
+	handleKeyDown = ( e ) => {
 		const { attributes, removeBlock } = this.props;
 		const { source } = attributes;
 
@@ -64,7 +64,7 @@ class MarkdownEdit extends Component {
 		}
 	};
 
-	toggleMode = mode => () => this.setState( { activePanel: mode } );
+	toggleMode = ( mode ) => () => this.setState( { activePanel: mode } );
 
 	renderToolbarButton( mode, label ) {
 		const { activePanel } = this.state;
@@ -120,7 +120,7 @@ class MarkdownEdit extends Component {
 }
 
 export default compose( [
-	withSelect( select => ( {
+	withSelect( ( select ) => ( {
 		currentBlockId: select( 'core/block-editor' ).getSelectedBlockClientId(),
 	} ) ),
 	withDispatch( ( dispatch, { currentBlockId } ) => ( {

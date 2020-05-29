@@ -59,7 +59,7 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 				const messages = {
 					progress: __( 'Disabling site accelerator…' ),
 					success: __( 'Site accelerator is no longer speeding up your site!' ),
-					error: error =>
+					error: ( error ) =>
 						__( 'Error disabling site accelerator. %(error)s', { args: { error: error } } ),
 				};
 				let settings = {};
@@ -84,7 +84,7 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 				const messages = {
 					progress: __( 'Enabling Site accelerator…' ),
 					success: __( 'Site accelerator is now speeding up your site!' ),
-					error: error =>
+					error: ( error ) =>
 						__( 'Error enabling Site accelerator. %(error)s', { args: { error: error } } ),
 				};
 				let settings = {};
@@ -314,10 +314,10 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 	}
 );
 
-export default connect( state => {
+export default connect( ( state ) => {
 	return {
-		module: module_name => getModule( state, module_name ),
-		isModuleFound: module_name => _isModuleFound( state, module_name ),
-		getModuleOverride: module_name => getModuleOverride( state, module_name ),
+		module: ( module_name ) => getModule( state, module_name ),
+		isModuleFound: ( module_name ) => _isModuleFound( state, module_name ),
+		getModuleOverride: ( module_name ) => getModuleOverride( state, module_name ),
 	};
 } )( SpeedUpSite );

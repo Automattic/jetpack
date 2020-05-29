@@ -37,7 +37,7 @@ class ShortlinksPanel extends Component {
 	}
 }
 
-const Shortlinks = withSelect( select => {
+const Shortlinks = withSelect( ( select ) => {
 	const currentPost = select( 'core/editor' ).getCurrentPost();
 	return {
 		shortlink: get( currentPost, 'jetpack_shortlink', '' ),

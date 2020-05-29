@@ -16,7 +16,7 @@ import {
 
 export default function ButtonBorderPanel( { borderRadius = '', setAttributes } ) {
 	const setBorderRadius = useCallback(
-		newBorderRadius => setAttributes( { borderRadius: newBorderRadius } ),
+		( newBorderRadius ) => setAttributes( { borderRadius: newBorderRadius } ),
 		[ setAttributes ]
 	);
 

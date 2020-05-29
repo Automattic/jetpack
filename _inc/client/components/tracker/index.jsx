@@ -29,7 +29,7 @@ Tracker.propTypes = {
 	searchTerm: PropTypes.string,
 };
 
-export default connect( state => {
+export default connect( ( state ) => {
 	return {
 		searchTerm: getSearchTerm( state ),
 	};

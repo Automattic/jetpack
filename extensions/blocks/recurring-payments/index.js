@@ -106,7 +106,7 @@ export const SUPPORTED_CURRENCIES = {
  *
  * @type Array<CurrencyDetails>
  */
-export const CURRENCY_OPTIONS = Object.keys( SUPPORTED_CURRENCIES ).map( value => {
+export const CURRENCY_OPTIONS = Object.keys( SUPPORTED_CURRENCIES ).map( ( value ) => {
 	const { symbol } = getCurrencyDefaults( value );
 	const label = symbol === value ? value : `${ value } ${ trimEnd( symbol, '.' ) }`;
 	return { value, label };
@@ -157,5 +157,5 @@ export function isPriceValid( currency, price ) {
  * @return {Array<Product>} List of producits with invalid products removed.
  */
 export function removeInvalidProducts( products ) {
-	return products.filter( product => isPriceValid( product.currency, product.price ) );
+	return products.filter( ( product ) => isPriceValid( product.currency, product.price ) );
 }

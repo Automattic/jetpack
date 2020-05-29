@@ -18,7 +18,7 @@ import { withSelect, withDispatch } from '@wordpress/data';
 import PublicizeFormUnwrapped, { MAXIMUM_MESSAGE_LENGTH } from './form-unwrapped';
 
 const PublicizeForm = compose( [
-	withSelect( select => {
+	withSelect( ( select ) => {
 		const meta = select( 'core/editor' ).getEditedPostAttribute( 'meta' );
 		const postTitle = select( 'core/editor' ).getEditedPostAttribute( 'title' );
 		const message = get( meta, [ 'jetpack_publicize_message' ], '' );
@@ -41,7 +41,7 @@ const PublicizeForm = compose( [
 		 * @param {number}  id ID of the connection being enabled/disabled
 		 */
 		toggleConnection( id ) {
-			const newConnections = connections.map( connection => ( {
+			const newConnections = connections.map( ( connection ) => ( {
 				...connection,
 				enabled: connection.id === id ? ! connection.enabled : connection.enabled,
 			} ) );

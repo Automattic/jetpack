@@ -34,7 +34,7 @@ import {
 import { isDevMode } from 'state/connection';
 import { getModuleOverride } from 'state/modules';
 
-const renderPairs = layout =>
+const renderPairs = ( layout ) =>
 	layout.map( ( item, layoutIndex ) => [
 		item.header,
 		chunk( item.cards, 2 ).map( ( [ left, right ], cardIndex ) => (
@@ -177,13 +177,13 @@ class AtAGlance extends Component {
 	} // render
 }
 
-export default connect( state => {
+export default connect( ( state ) => {
 	return {
 		userCanManageModules: userCanManageModules( state ),
 		userCanViewStats: userCanViewStats( state ),
 		userIsSubscriber: userIsSubscriber( state ),
 		isDevMode: isDevMode( state ),
-		getModuleOverride: module_name => getModuleOverride( state, module_name ),
+		getModuleOverride: ( module_name ) => getModuleOverride( state, module_name ),
 		multisite: isMultisite( state ),
 	};
 } )( withModuleSettingsFormHelpers( AtAGlance ) );

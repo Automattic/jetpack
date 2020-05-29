@@ -37,14 +37,14 @@ class QueryRewindStatus extends Component {
 }
 
 export default connect(
-	state => {
+	( state ) => {
 		return {
 			isFetchingRewindStatus: isFetchingRewindStatus( state ),
 			isDevMode: isDevMode( state ),
 			sitePlan: getSitePlan( state ),
 		};
 	},
-	dispatch => {
+	( dispatch ) => {
 		return {
 			fetchRewind: () => dispatch( fetchRewindStatus() ),
 		};

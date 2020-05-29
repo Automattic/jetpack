@@ -29,11 +29,11 @@ const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) 
 		[ resizeListener, sizes ] = useResizeObserver();
 
 		useDebounce(
-			sz => {
+			( sz ) => {
 				if ( sz > 0 ) {
 					if ( typeof juxtapose !== 'undefined' && juxtapose.sliders ) {
 						// only update for *this* slide
-						juxtapose.sliders.forEach( elem => {
+						juxtapose.sliders.forEach( ( elem ) => {
 							const parentElem = elem.wrapper.parentElement;
 							if ( parentElem.id === clientId ) {
 								elem.optimizeWrapper( sz );
@@ -70,7 +70,7 @@ const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) 
 							{ label: __( 'Side by side', 'jetpack' ), value: 'horizontal' },
 							{ label: __( 'Above and below', 'jetpack' ), value: 'vertical' },
 						] }
-						onChange={ value => {
+						onChange={ ( value ) => {
 							setAttributes( {
 								orientation: value,
 							} );
@@ -88,7 +88,7 @@ const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) 
 								alt: imageBefore.alt,
 							} }
 							placeHolderLabel={ __( 'Image before', 'jetpack' ) }
-							onChange={ img => {
+							onChange={ ( img ) => {
 								if ( img.media_type === 'image' || img.type === 'image' ) {
 									const { src } = photonizedImgProps( img );
 									setAttributes( {
@@ -112,7 +112,7 @@ const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) 
 								alt: imageAfter.alt,
 							} }
 							placeHolderLabel={ __( 'Image after', 'jetpack' ) }
-							onChange={ img => {
+							onChange={ ( img ) => {
 								if ( img.media_type === 'image' || img.type === 'image' ) {
 									const { src } = photonizedImgProps( img );
 									setAttributes( {
@@ -136,7 +136,7 @@ const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) 
 					tagName="figcaption"
 					placeholder={ __( 'Write caption', 'jetpack' ) }
 					value={ caption }
-					onChange={ value => setAttributes( { caption: value } ) }
+					onChange={ ( value ) => setAttributes( { caption: value } ) }
 					inlineToolbar
 				/>
 			) }

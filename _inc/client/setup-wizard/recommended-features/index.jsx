@@ -55,7 +55,7 @@ class RecommendedFeatures extends Component {
 					{ __( 'You can change your feature settings at any time.' ) }
 				</p>
 				<div className="jp-setup-wizard-feature-groups-container">
-					{ this.props.recommendedFeatureGroups.map( featureGroup => {
+					{ this.props.recommendedFeatureGroups.map( ( featureGroup ) => {
 						return (
 							<FeatureToggleGroup
 								title={ featureGroup.title }
@@ -79,13 +79,13 @@ class RecommendedFeatures extends Component {
 }
 
 RecommendedFeatures = connect(
-	state => ( {
+	( state ) => ( {
 		isFetchingSettingsList: isFetchingSettingsList( state ),
 		recommendedFeatureGroups: getRecommendedFeatureGroups( state ),
 	} ),
-	dispatch => ( {
+	( dispatch ) => ( {
 		fetchSettings: () => dispatch( fetchSettings() ),
-		updateStatus: status => dispatch( updateSetupWizardStatus( status ) ),
+		updateStatus: ( status ) => dispatch( updateSetupWizardStatus( status ) ),
 	} )
 )( RecommendedFeatures );
 

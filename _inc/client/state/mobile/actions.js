@@ -11,7 +11,7 @@ import { translate as __ } from 'i18n-calypso';
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 
 export const sendMobileLoginEmail = () => {
-	return dispatch => {
+	return ( dispatch ) => {
 		dispatch( {
 			type: JETPACK_MOBILE_LOGIN_SEND_LOGIN_EMAIL,
 		} );
@@ -25,7 +25,7 @@ export const sendMobileLoginEmail = () => {
 		);
 		return restApi
 			.sendMobileLoginEmail()
-			.then( data => {
+			.then( ( data ) => {
 				dispatch( removeNotice( 'mobile-login-email-send' ) );
 				dispatch( {
 					type: JETPACK_MOBILE_LOGIN_SEND_LOGIN_EMAIL_SUCCESS,
@@ -39,7 +39,7 @@ export const sendMobileLoginEmail = () => {
 
 				return data;
 			} )
-			.catch( error => {
+			.catch( ( error ) => {
 				dispatch( {
 					type: JETPACK_MOBILE_LOGIN_SEND_LOGIN_EMAIL_FAIL,
 					error: error.response,

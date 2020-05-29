@@ -13,7 +13,7 @@ export function globalNotices( state = [], action ) {
 		case NEW_NOTICE:
 			return [ action.notice, ...state ];
 		case REMOVE_NOTICE:
-			return state.filter( notice => notice.noticeId !== action.noticeId );
+			return state.filter( ( notice ) => notice.noticeId !== action.noticeId );
 	}
 	return state;
 }

@@ -49,7 +49,7 @@ const JetpackFieldControls = ( { setAttributes, width, id, required } ) => {
 						label={ __( 'Field is required', 'jetpack' ) }
 						className="jetpack-field-label__required"
 						checked={ required }
-						onChange={ value => setAttributes( { required: value } ) }
+						onChange={ ( value ) => setAttributes( { required: value } ) }
 						help={ __(
 							'Does this field have to be completed for the form to be submitted?',
 							'jetpack'
@@ -64,7 +64,7 @@ const JetpackFieldControls = ( { setAttributes, width, id, required } ) => {
 				<TextControl
 					label={ __( 'Unique CSS ID', 'jetpack' ) }
 					value={ id }
-					onChange={ value => setAttributes( { id: value } ) }
+					onChange={ ( value ) => setAttributes( { id: value } ) }
 					help={ __( 'A unique ID that can be used in CSS or as an anchor.', 'jetpack' ) }
 				/>
 			</InspectorAdvancedControls>

@@ -15,7 +15,7 @@ if ( pr.body.length < 10 ) {
 }
 
 // Keep track of commits which skipped pre-commit hook
-const notVerifiedCommits = danger.git.commits.filter( commit =>
+const notVerifiedCommits = danger.git.commits.filter( ( commit ) =>
 	commit.message.includes( '[not verified]' )
 );
 if ( notVerifiedCommits.length > 0 ) {
@@ -24,7 +24,7 @@ if ( notVerifiedCommits.length > 0 ) {
 
 // Use labels please!
 const ghLabels = github.issue.labels;
-if ( ! ghLabels.find( l => l.name.toLowerCase().includes( '[status]' ) ) ) {
+if ( ! ghLabels.find( ( l ) => l.name.toLowerCase().includes( '[status]' ) ) ) {
 	warn(
 		'The PR is missing at least one `[Status]` label. Suggestions: `[Status] In Progress`, `[Status] Needs Review`'
 	);
@@ -52,13 +52,13 @@ if ( ! pr.body.includes( 'data or activity we track or use' ) ) {
 // Check if newly added .php files were added to phpcs linter whitelist
 if ( newFiles.length > 0 ) {
 	const newPHPFiles = newFiles.filter(
-		fileName => fileName.includes( '.php' ) && ! fileName.includes( 'tests/php' )
+		( fileName ) => fileName.includes( '.php' ) && ! fileName.includes( 'tests/php' )
 	);
 
 	const notWhitelistedFiles = [];
 
-	newPHPFiles.forEach( file => {
-		const whitelistedPath = phpWhitelist.find( path => file.includes( path ) );
+	newPHPFiles.forEach( ( file ) => {
+		const whitelistedPath = phpWhitelist.find( ( path ) => file.includes( path ) );
 		if ( ! whitelistedPath ) {
 			notWhitelistedFiles.push( file );
 		}
@@ -109,9 +109,9 @@ function setReleaseDates() {
 		// Find a milestone which name is a version number
 		// and it's due dates is earliest in a future
 		const nextMilestone = milestones.data
-			.filter( m => m.title.match( /\d\.\d/ ) )
+			.filter( ( m ) => m.title.match( /\d\.\d/ ) )
 			.sort( ( m1, m2 ) => parseFloat( m1.title ) - parseFloat( m2.title ) )
-			.find( milestone => milestone.due_on && moment( milestone.due_on ) > moment() );
+			.find( ( milestone ) => milestone.due_on && moment( milestone.due_on ) > moment() );
 
 		if ( nextMilestone ) {
 			jetpackReleaseDate = moment( nextMilestone.due_on ).format( 'LL' );

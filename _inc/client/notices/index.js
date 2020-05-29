@@ -43,7 +43,7 @@ const notices = {
 			container: container,
 			button: options.button,
 			href: options.href,
-			onClick: event => {
+			onClick: ( event ) => {
 				if ( typeof options.onClick === 'function' ) {
 					const closeFn = notices.removeNotice.bind( notices, noticeObject );
 					return options.onClick( event, closeFn );

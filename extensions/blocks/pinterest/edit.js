@@ -52,7 +52,7 @@ class PinterestEdit extends Component {
 		return null;
 	}
 
-	setUrl = url => {
+	setUrl = ( url ) => {
 		const { noticeOperations, setAttributes } = this.props;
 
 		if ( ! url || PINTEREST_EXAMPLE_URL === url ) {
@@ -60,7 +60,7 @@ class PinterestEdit extends Component {
 		}
 
 		testEmbedUrl( url, this.setIsResolvingUrl )
-			.then( resolvedUrl => {
+			.then( ( resolvedUrl ) => {
 				setAttributes( { url: resolvedUrl } );
 				this.setState( { editedUrl: resolvedUrl } );
 				noticeOperations.removeAllNotices();
@@ -71,7 +71,7 @@ class PinterestEdit extends Component {
 			} );
 	};
 
-	setIsResolvingUrl = isResolvingUrl => this.setState( { isResolvingUrl } );
+	setIsResolvingUrl = ( isResolvingUrl ) => this.setState( { isResolvingUrl } );
 
 	setErrorNotice = () => {
 		const { noticeOperations, onReplace } = this.props;
@@ -97,7 +97,7 @@ class PinterestEdit extends Component {
 		this.setState( { interactive: true } );
 	};
 
-	submitForm = event => {
+	submitForm = ( event ) => {
 		if ( event ) {
 			event.preventDefault();
 		}
@@ -162,7 +162,7 @@ class PinterestEdit extends Component {
 								className="components-placeholder__input"
 								aria-label={ __( 'Pinterest URL', 'jetpack' ) }
 								placeholder={ __( 'Enter URL to embed here…', 'jetpack' ) }
-								onChange={ event => this.setState( { editedUrl: event.target.value } ) }
+								onChange={ ( event ) => this.setState( { editedUrl: event.target.value } ) }
 							/>
 							<Button isLarge isSecondary type="submit">
 								{ _x( 'Embed', 'button label', 'jetpack' ) }

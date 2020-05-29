@@ -59,7 +59,7 @@ export default function RevueEdit( { attributes, className, setAttributes } ) {
 		}
 	}, [] );
 
-	const saveUsername = event => {
+	const saveUsername = ( event ) => {
 		event.preventDefault();
 		setAttributes( { revueUsername: username.trim() } );
 	};
@@ -80,7 +80,7 @@ export default function RevueEdit( { attributes, className, setAttributes } ) {
 					<form onSubmit={ saveUsername }>
 						<input
 							className="components-placeholder__input"
-							onChange={ event => setUsername( event.target.value.trim() ) }
+							onChange={ ( event ) => setUsername( event.target.value.trim() ) }
 							placeholder={ __( 'Enter your Revue username here…', 'jetpack' ) }
 							type="text"
 							value={ username }
@@ -115,7 +115,7 @@ export default function RevueEdit( { attributes, className, setAttributes } ) {
 							/>
 							<TextControl
 								label={ __( 'Revue Username', 'jetpack' ) }
-								onChange={ value => {
+								onChange={ ( value ) => {
 									setUsername( value.trim() );
 									setAttributes( { revueUsername: value.trim() } );
 								} }
@@ -133,7 +133,7 @@ export default function RevueEdit( { attributes, className, setAttributes } ) {
 								setAttributes={ setAttributes }
 							/>
 						}
-						onChange={ value => setAttributes( { emailPlaceholder: value } ) }
+						onChange={ ( value ) => setAttributes( { emailPlaceholder: value } ) }
 						placeholder={ emailPlaceholder }
 						value={ emailPlaceholder }
 					/>
@@ -146,7 +146,7 @@ export default function RevueEdit( { attributes, className, setAttributes } ) {
 									setAttributes={ setAttributes }
 								/>
 							}
-							onChange={ value => setAttributes( { firstNamePlaceholder: value } ) }
+							onChange={ ( value ) => setAttributes( { firstNamePlaceholder: value } ) }
 							placeholder={ firstNamePlaceholder }
 							value={ firstNamePlaceholder }
 						/>
@@ -160,7 +160,7 @@ export default function RevueEdit( { attributes, className, setAttributes } ) {
 									setAttributes={ setAttributes }
 								/>
 							}
-							onChange={ value => setAttributes( { lastNamePlaceholder: value } ) }
+							onChange={ ( value ) => setAttributes( { lastNamePlaceholder: value } ) }
 							placeholder={ lastNamePlaceholder }
 							value={ lastNamePlaceholder }
 						/>

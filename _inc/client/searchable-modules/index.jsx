@@ -21,7 +21,7 @@ import { isDevMode, isUnavailableInDevMode } from 'state/connection';
 
 export const SearchableModules = withModuleSettingsFormHelpers(
 	class extends Component {
-		handleBannerClick = module => {
+		handleBannerClick = ( module ) => {
 			return () => this.props.updateOptions( { [ module ]: true } );
 		};
 
@@ -102,12 +102,12 @@ class ActiveCard extends Component {
 	}
 }
 
-export default connect( state => {
+export default connect( ( state ) => {
 	return {
 		modules: getModules( state ),
-		isModuleFound: module_name => isModuleFound( state, module_name ),
+		isModuleFound: ( module_name ) => isModuleFound( state, module_name ),
 		canManageModules: userCanManageModules( state ),
-		isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
+		isUnavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name ),
 		isDevMode: isDevMode( state ),
 	};
 } )( SearchableModules );

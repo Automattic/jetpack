@@ -57,21 +57,21 @@ function AmazonEdit( {
 		// It would be great if we didn't have to embed the ASIN like this but I think that
 		// requires changes to core
 		setSuggestions(
-			data.products.map( dataProduct => `${ dataProduct.title } (ASIN:${ dataProduct.asin })` )
+			data.products.map( ( dataProduct ) => `${ dataProduct.title } (ASIN:${ dataProduct.asin })` )
 		);
 	};
 
 	const idRegex = /^(\d+)$|\(ASIN:(.+)\)$/;
-	const onChange = selectedProducts => {
+	const onChange = ( selectedProducts ) => {
 		// This code extracts the amazon ID from FormToken Field
 		// We have to match the ID because FormTokenField only returns the value
 		// of the field selected, rather than an associative key pair.
 		// TODO improve/replace FormTokenField so that we can associate data
 		// with each of the selected token.
-		const selectedIds = selectedProducts.map( selectedProduct => {
+		const selectedIds = selectedProducts.map( ( selectedProduct ) => {
 			const parsed = idRegex.exec( selectedProduct );
 			const selectedId = parsed[ 1 ] || parsed[ 2 ];
-			return data.products.filter( filteredProduct => filteredProduct.asin === selectedId );
+			return data.products.filter( ( filteredProduct ) => filteredProduct.asin === selectedId );
 		} );
 		setAttributes( { asin: selectedIds[ 0 ][ 0 ].asin } );
 	};
@@ -135,18 +135,18 @@ function AmazonEdit( {
 						colorSettings={ [
 							{
 								value: backgroundColor,
-								onChange: newBackgroundColor =>
+								onChange: ( newBackgroundColor ) =>
 									setAttributes( { backgroundColor: newBackgroundColor } ),
 								label: __( 'Background Color', 'jetpack' ),
 							},
 							{
 								value: textColor,
-								onChange: newTextColor => setAttributes( { textColor: newTextColor } ),
+								onChange: ( newTextColor ) => setAttributes( { textColor: newTextColor } ),
 								label: __( 'Text Color', 'jetpack' ),
 							},
 							{
 								value: buttonAndLinkColor,
-								onChange: newButtonAndLinkColor =>
+								onChange: ( newButtonAndLinkColor ) =>
 									setAttributes( { buttonAndLinkColor: newButtonAndLinkColor } ),
 								label: __( 'Button & Link Color', 'jetpack' ),
 							},
@@ -175,7 +175,7 @@ function AmazonEdit( {
 			imageUrlMedium,
 			imageWidthMedium,
 			imageHeightMedium,
-		} = data.products.filter( productDataItem => productDataItem.asin === asin )[ 0 ];
+		} = data.products.filter( ( productDataItem ) => productDataItem.asin === asin )[ 0 ];
 
 		// TODO - we should be able to get this from API in a neater way once we have access
 		const seller = 'TODO';
@@ -218,7 +218,7 @@ function AmazonEdit( {
 				{ showSeller && seller && (
 					<div className={ `${ defaultClassName }-seller` }>
 						{ seller.length > 0 && typeof seller !== 'string'
-							? seller.map( singleSeller => singleSeller )
+							? seller.map( ( singleSeller ) => singleSeller )
 							: seller }
 					</div>
 				) }

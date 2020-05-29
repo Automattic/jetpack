@@ -38,7 +38,7 @@ export const BlockNudge = ( { autosaveAndRedirect, buttonLabel, href, icon, subt
 
 export default compose( [
 	withDispatch( ( dispatch, { blockName, href, onClick } ) => ( {
-		autosaveAndRedirect: async event => {
+		autosaveAndRedirect: async ( event ) => {
 			event.preventDefault(); // Don't follow the href before autosaving
 			onClick( blockName );
 			await dispatch( 'core/editor' ).autosave();

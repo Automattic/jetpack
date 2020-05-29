@@ -25,11 +25,11 @@ const FILTER_KEYS = Object.freeze( [
 export function getFilterKeys() {
 	// Extract taxonomy names from server widget data
 	const taxonomies = window[ SERVER_OBJECT_NAME ].widgets
-		.map( w => w.filters )
-		.filter( filters => Array.isArray( filters ) )
+		.map( ( w ) => w.filters )
+		.filter( ( filters ) => Array.isArray( filters ) )
 		.reduce( ( filtersA, filtersB ) => filtersA.concat( filtersB ), [] )
-		.filter( filter => filter.type === 'taxonomy' )
-		.map( filter => filter.taxonomy );
+		.filter( ( filter ) => filter.type === 'taxonomy' )
+		.map( ( filter ) => filter.taxonomy );
 	return [ ...FILTER_KEYS, ...taxonomies ];
 }
 
@@ -49,7 +49,7 @@ export function getUnselectableFilterKeys( overlayWidgets ) {
 function extractFilters( widget ) {
 	return widget.filters
 		.map( mapFilterToFilterKey )
-		.filter( filterName => typeof filterName === 'string' );
+		.filter( ( filterName ) => typeof filterName === 'string' );
 }
 
 export function mapFilterToFilterKey( filter ) {

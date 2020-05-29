@@ -72,7 +72,7 @@ export const getFailedTestMessage = ( { name, block, error } ) => {
 	return message;
 };
 
-export const getResultMessage = failureCount => {
+export const getResultMessage = ( failureCount ) => {
 	let buildInfo = `*BUILD #${ TRAVIS_BUILD_NUMBER } FAILED:*
 
 *Total failures:* ${ failureCount }

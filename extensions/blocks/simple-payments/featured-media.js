@@ -12,7 +12,7 @@ import { Toolbar, ToolbarButton } from '@wordpress/components';
  */
 import EditButton from '../../shared/edit-button';
 
-const onSelectMedia = setAttributes => media =>
+const onSelectMedia = ( setAttributes ) => ( media ) =>
 	setAttributes( {
 		featuredMediaId: get( media, 'id', 0 ),
 		featuredMediaUrl: get( media, 'url', null ),

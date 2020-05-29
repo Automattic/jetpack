@@ -215,7 +215,7 @@ class JetpackTerminationDialog extends Component {
 }
 
 export default connect(
-	state => ( {
+	( state ) => ( {
 		isDevVersion: isDevVersion( state ),
 		siteBenefits: getSiteBenefits( state ),
 		siteId: getSiteID( state ),

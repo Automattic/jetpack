@@ -24,8 +24,8 @@ export default function RestaurantPicker( props ) {
 
 	const idRegex = /^(\d+)$|\(\#(\d+)\)$/;
 
-	const onChange = selected => {
-		const selectedIds = selected.map( restaurant => {
+	const onChange = ( selected ) => {
+		const selectedIds = selected.map( ( restaurant ) => {
 			const parsed = idRegex.exec( restaurant );
 			const selectedId = parsed[ 1 ] || parsed[ 2 ];
 
@@ -36,10 +36,10 @@ export default function RestaurantPicker( props ) {
 	};
 
 	const restaurantNames = restaurants
-		.filter( restaurant => selectedRestaurants.indexOf( restaurant.rid.toString() ) )
-		.map( restaurant => restaurant.name + ` (#${ restaurant.rid })` );
+		.filter( ( restaurant ) => selectedRestaurants.indexOf( restaurant.rid.toString() ) )
+		.map( ( restaurant ) => restaurant.name + ` (#${ restaurant.rid })` );
 
-	const onSubmit = event => {
+	const onSubmit = ( event ) => {
 		event.preventDefault();
 		props.onSubmit( isEmpty( selectedRestaurants ) ? input : selectedRestaurants );
 	};
@@ -48,7 +48,7 @@ export default function RestaurantPicker( props ) {
 		<FormTokenField
 			value={ selectedRestaurants }
 			suggestions={ restaurantNames }
-			saveTransform={ token => ( possibleEmbed.test( token ) ? '' : token.trim() ) }
+			saveTransform={ ( token ) => ( possibleEmbed.test( token ) ? '' : token.trim() ) }
 			onInputChange={ setInput }
 			maxSuggestions={ MAX_SUGGESTIONS }
 			label={ _n( 'Restaurant', 'Restaurants', selectedRestaurants.length, 'jetpack' ) }

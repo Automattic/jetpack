@@ -11,7 +11,7 @@ describe( 'Search', function () {
 	let React, TestUtils, EMPTY_COMPONENT;
 
 	useFakeDom();
-	useMockery( mockery => {
+	useMockery( ( mockery ) => {
 		React = require( 'react' );
 		TestUtils = require( 'react-addons-test-utils' );
 

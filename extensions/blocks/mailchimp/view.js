@@ -47,7 +47,7 @@ function activateSubscription( block, blogId ) {
 	const processingEl = block.querySelector( '.' + blockClassName + '_processing' );
 	const errorEl = block.querySelector( '.' + blockClassName + '_error' );
 	const successEl = block.querySelector( '.' + blockClassName + '_success' );
-	form.addEventListener( 'submit', e => {
+	form.addEventListener( 'submit', ( e ) => {
 		e.preventDefault();
 		const emailField = form.querySelector( 'input[name=email]' );
 		const params = [].slice
@@ -62,7 +62,7 @@ function activateSubscription( block, blogId ) {
 		block.classList.add( 'is-processing' );
 		processingEl.classList.add( 'is-visible' );
 		fetchSubscription( blogId, email, params ).then(
-			response => {
+			( response ) => {
 				processingEl.classList.remove( 'is-visible' );
 				if ( response.error && response.error !== 'member_exists' ) {
 					errorEl.classList.add( 'is-visible' );
@@ -80,7 +80,7 @@ function activateSubscription( block, blogId ) {
 
 const initializeMailchimpBlocks = () => {
 	const mailchimpBlocks = Array.from( document.querySelectorAll( '.' + blockClassName ) );
-	mailchimpBlocks.forEach( block => {
+	mailchimpBlocks.forEach( ( block ) => {
 		if ( block.getAttribute( 'data-jetpack-block-initialized' ) === 'true' ) {
 			return;
 		}

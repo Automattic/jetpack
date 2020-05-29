@@ -155,6 +155,6 @@ class Banner extends Component {
 	}
 }
 
-export default connect( state => ( {
+export default connect( ( state ) => ( {
 	currentVersion: getCurrentVersion( state ),
 } ) )( Banner );

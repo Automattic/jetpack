@@ -48,7 +48,7 @@ export const NavigationSettings = createReactClass( {
 	onRouteChange( newRoute ) {
 		const search = newRoute.search || '',
 			pairs = search.substr( 1 ).split( '&' ),
-			term = pairs.filter( item => {
+			term = pairs.filter( ( item ) => {
 				return 0 === item.indexOf( 'term=' );
 			} );
 
@@ -261,8 +261,8 @@ NavigationSettings.defaultProps = {
 };
 
 export default connect(
-	state => ( {
-		hasAnyOfTheseModules: modules => hasAnyOfTheseModules( state, modules ),
+	( state ) => ( {
+		hasAnyOfTheseModules: ( modules ) => hasAnyOfTheseModules( state, modules ),
 		hasAnyPerformanceFeature: hasAnyPerformanceFeature( state ),
 		hasAnySecurityFeature: hasAnySecurityFeature( state ),
 		userCanManageModules: _userCanManageModules( state ),
@@ -270,12 +270,12 @@ export default connect(
 		userCanPublish: userCanPublish( state ),
 		isLinked: isCurrentUserLinked( state ),
 		isSiteConnected: isSiteConnected( state ),
-		isModuleActivated: module => isModuleActivated( state, module ),
+		isModuleActivated: ( module ) => isModuleActivated( state, module ),
 		moduleList: getModules( state ),
-		isPluginActive: plugin_slug => isPluginActive( state, plugin_slug ),
+		isPluginActive: ( plugin_slug ) => isPluginActive( state, plugin_slug ),
 		searchTerm: getSearchTerm( state ),
 	} ),
-	dispatch => ( {
-		searchForTerm: term => dispatch( filterSearch( term ) ),
+	( dispatch ) => ( {
+		searchForTerm: ( term ) => dispatch( filterSearch( term ) ),
 	} )
 )( withRouter( NavigationSettings ) );

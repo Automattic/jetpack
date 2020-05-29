@@ -8,7 +8,7 @@ import { translate as __ } from 'i18n-calypso';
 import Button from 'components/button';
 import SelectDropdown from 'components/select-dropdown';
 
-export const FormFieldset = props => {
+export const FormFieldset = ( props ) => {
 	return (
 		<fieldset
 			{ ...omit( props, 'className' ) }
@@ -107,7 +107,7 @@ export class FormTextInput extends React.Component {
 		);
 	}
 
-	selectOnFocus = event => {
+	selectOnFocus = ( event ) => {
 		event.target.select();
 	};
 }
@@ -174,7 +174,7 @@ export class FormButton extends React.Component {
 }
 
 export class FormSelect extends React.Component {
-	handleOnSelect = option => {
+	handleOnSelect = ( option ) => {
 		this.props.onOptionChange( {
 			target: {
 				type: 'select',

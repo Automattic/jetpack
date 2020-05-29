@@ -73,36 +73,40 @@ class SearchApp extends Component {
 		window.addEventListener( 'queryStringChange', this.onChangeQueryString );
 
 		this.updateEventListeners( this.state.overlayOptions.overlayTrigger );
-		document.querySelectorAll( this.props.themeOptions.searchSortSelector ).forEach( select => {
+		document.querySelectorAll( this.props.themeOptions.searchSortSelector ).forEach( ( select ) => {
 			select.addEventListener( 'change', this.handleSortChange );
 		} );
 
-		document.querySelectorAll( this.props.themeOptions.filterInputSelector ).forEach( element => {
-			element.addEventListener( 'click', this.handleFilterInputClick );
-		} );
+		document
+			.querySelectorAll( this.props.themeOptions.filterInputSelector )
+			.forEach( ( element ) => {
+				element.addEventListener( 'click', this.handleFilterInputClick );
+			} );
 	}
 
 	removeEventListeners() {
 		window.removeEventListener( 'popstate', this.onPopstate );
 		window.removeEventListener( 'queryStringChange', this.onChangeQueryString );
 
-		document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( input => {
+		document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( ( input ) => {
 			input.form.removeEventListener( 'submit', this.handleSubmit );
 			input.removeEventListener( 'input', this.handleInput );
 			input.removeEventListener( 'focus', this.handleInputFocus );
 		} );
 
-		document.querySelectorAll( this.props.themeOptions.searchSortSelector ).forEach( select => {
+		document.querySelectorAll( this.props.themeOptions.searchSortSelector ).forEach( ( select ) => {
 			select.removeEventListener( 'change', this.handleSortChange );
 		} );
 
-		document.querySelectorAll( this.props.themeOptions.filterInputSelector ).forEach( element => {
-			element.removeEventListener( 'click', this.handleFilterInputClick );
-		} );
+		document
+			.querySelectorAll( this.props.themeOptions.filterInputSelector )
+			.forEach( ( element ) => {
+				element.removeEventListener( 'click', this.handleFilterInputClick );
+			} );
 	}
 
 	updateEventListeners( type ) {
-		document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( input => {
+		document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( ( input ) => {
 			if ( type === 'results' ) {
 				// Remove focus event listener
 				input.removeEventListener( 'focus', this.handleInputFocus );
@@ -136,12 +140,12 @@ class SearchApp extends Component {
 		return !! this.state.response.page_handle && ! this.state.hasError;
 	}
 
-	handleSubmit = event => {
+	handleSubmit = ( event ) => {
 		event.preventDefault();
 		this.handleInput.flush();
 	};
 
-	handleInput = debounce( event => {
+	handleInput = debounce( ( event ) => {
 		// Reference: https://rawgit.com/w3c/input-events/v1/index.html#interface-InputEvent-Attributes
 		if ( event.inputType.includes( 'delete' ) || event.inputType.includes( 'format' ) ) {
 			return;
@@ -151,11 +155,11 @@ class SearchApp extends Component {
 
 	handleInputFocus = () => this.showResults();
 
-	handleSortChange = event => {
+	handleSortChange = ( event ) => {
 		setSortQuery( getSortKeyFromSortOption( event.target.value ) );
 	};
 
-	handleFilterInputClick = event => {
+	handleFilterInputClick = ( event ) => {
 		event.preventDefault();
 
 		if ( event.target.dataset.filterType ) {
@@ -168,9 +172,9 @@ class SearchApp extends Component {
 		this.showResults();
 	};
 
-	handleOverlayOptionsUpdate = newOverlayOptions => {
+	handleOverlayOptionsUpdate = ( newOverlayOptions ) => {
 		this.setState(
-			state => ( { overlayOptions: { ...state.overlayOptions, ...newOverlayOptions } } ),
+			( state ) => ( { overlayOptions: { ...state.overlayOptions, ...newOverlayOptions } } ),
 			() => {
 				this.updateEventListeners( this.state.overlayOptions.overlayTrigger );
 				this.showResults();
@@ -189,7 +193,7 @@ class SearchApp extends Component {
 		} );
 	};
 
-	onChangeQuery = event => setSearchQuery( event.target.value );
+	onChangeQuery = ( event ) => setSearchQuery( event.target.value );
 
 	onPopstate = () => {
 		this.onChangeQueryString();
@@ -202,11 +206,11 @@ class SearchApp extends Component {
 			}
 		} );
 
-		document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( input => {
+		document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( ( input ) => {
 			input.value = getSearchQuery();
 		} );
 
-		document.querySelectorAll( this.props.themeOptions.searchSortSelector ).forEach( select => {
+		document.querySelectorAll( this.props.themeOptions.searchSortSelector ).forEach( ( select ) => {
 			select.value = getSortOptionFromSortKey( getSortQuery() );
 		} );
 
@@ -240,7 +244,7 @@ class SearchApp extends Component {
 			postsPerPage: this.props.options.postsPerPage,
 			adminQueryFilter: this.props.options.adminQueryFilter,
 		} )
-			.then( newResponse => {
+			.then( ( newResponse ) => {
 				if ( this.state.requestId === requestId ) {
 					const response = { ...newResponse };
 					if ( !! pageHandle ) {
@@ -260,7 +264,7 @@ class SearchApp extends Component {
 				}
 				this.setState( { isLoading: false } );
 			} )
-			.catch( error => {
+			.catch( ( error ) => {
 				if ( error instanceof ProgressEvent ) {
 					this.setState( { isLoading: false, hasError: true } );
 					return;

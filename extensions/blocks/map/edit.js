@@ -69,12 +69,12 @@ class MapEdit extends Component {
 		this.mapRef = createRef();
 	}
 
-	addPoint = point => {
+	addPoint = ( point ) => {
 		const { attributes, setAttributes } = this.props;
 		const { points } = attributes;
 		const newPoints = points.slice( 0 );
 		let duplicateFound = false;
-		points.map( existingPoint => {
+		points.map( ( existingPoint ) => {
 			if ( existingPoint.id === point.id ) {
 				duplicateFound = true;
 			}
@@ -86,12 +86,12 @@ class MapEdit extends Component {
 		setAttributes( { points: newPoints } );
 		this.setState( { addPointVisibility: false } );
 	};
-	updateAlignment = value => {
+	updateAlignment = ( value ) => {
 		this.props.setAttributes( { align: value } );
 		// Allow one cycle for alignment change to take effect
 		setTimeout( this.mapRef.current.sizeMap, 0 );
 	};
-	updateAPIKeyControl = event => {
+	updateAPIKeyControl = ( event ) => {
 		this.setState( {
 			apiKeyControl: event.target.value,
 		} );
@@ -152,7 +152,7 @@ class MapEdit extends Component {
 	 *
 	 * @param {Event} event The change event object.
 	 */
-	onHeightChange = event => {
+	onHeightChange = ( event ) => {
 		const { attributes, setAttributes } = this.props;
 		const { mapHeight } = attributes;
 
@@ -253,7 +253,7 @@ class MapEdit extends Component {
 						colorSettings={ [
 							{
 								value: markerColor,
-								onChange: value => setAttributes( { markerColor: value } ),
+								onChange: ( value ) => setAttributes( { markerColor: value } ),
 								label: __( 'Marker Color', 'jetpack' ),
 							},
 						] }
@@ -267,7 +267,7 @@ class MapEdit extends Component {
 								type="number"
 								id={ `block-jetpack-map-height-input-${ instanceId }` }
 								className="wp-block-jetpack-map__height_input"
-								onChange={ event => {
+								onChange={ ( event ) => {
 									setAttributes( { mapHeight: event.target.value } );
 									// If this input isn't focussed, the onBlur handler won't be triggered
 									// to commit the map size, so we need to check for that.
@@ -292,7 +292,7 @@ class MapEdit extends Component {
 							}
 							disabled={ points.length > 1 }
 							value={ zoom }
-							onChange={ value => {
+							onChange={ ( value ) => {
 								setAttributes( { zoom: value } );
 								setTimeout( this.mapRef.current.updateZoom, 0 );
 							} }
@@ -302,26 +302,26 @@ class MapEdit extends Component {
 						<ToggleControl
 							label={ __( 'Show street names', 'jetpack' ) }
 							checked={ mapDetails }
-							onChange={ value => setAttributes( { mapDetails: value } ) }
+							onChange={ ( value ) => setAttributes( { mapDetails: value } ) }
 						/>
 						<ToggleControl
 							label={ __( 'Scroll to zoom', 'jetpack' ) }
 							help={ __( 'Allow the map to capture scrolling, and zoom in or out.', 'jetpack' ) }
 							checked={ scrollToZoom }
-							onChange={ value => setAttributes( { scrollToZoom: value } ) }
+							onChange={ ( value ) => setAttributes( { scrollToZoom: value } ) }
 						/>
 						<ToggleControl
 							label={ __( 'Show Fullscreen Button', 'jetpack' ) }
 							help={ __( 'Allow your visitors to display the map in fullscreen.', 'jetpack' ) }
 							checked={ showFullscreenButton }
-							onChange={ value => setAttributes( { showFullscreenButton: value } ) }
+							onChange={ ( value ) => setAttributes( { showFullscreenButton: value } ) }
 						/>
 					</PanelBody>
 					{ points.length ? (
 						<PanelBody title={ __( 'Markers', 'jetpack' ) } initialOpen={ false }>
 							<Locations
 								points={ points }
-								onChange={ value => {
+								onChange={ ( value ) => {
 									setAttributes( { points: value } );
 								} }
 							/>
@@ -341,7 +341,7 @@ class MapEdit extends Component {
 							}
 							label={ __( 'Mapbox Access Token', 'jetpack' ) }
 							value={ apiKeyControl }
-							onChange={ value => this.setState( { apiKeyControl: value } ) }
+							onChange={ ( value ) => this.setState( { apiKeyControl: value } ) }
 						/>
 						<ButtonGroup>
 							<Button
@@ -450,13 +450,13 @@ class MapEdit extends Component {
 								zoom={ zoom }
 								mapCenter={ mapCenter }
 								markerColor={ markerColor }
-								onSetZoom={ value => {
+								onSetZoom={ ( value ) => {
 									setAttributes( { zoom: value } );
 								} }
 								admin={ true }
 								apiKey={ apiKey }
-								onSetPoints={ value => setAttributes( { points: value } ) }
-								onSetMapCenter={ value => setAttributes( { mapCenter: value } ) }
+								onSetPoints={ ( value ) => setAttributes( { points: value } ) }
+								onSetMapCenter={ ( value ) => setAttributes( { mapCenter: value } ) }
 								onMapLoaded={ () => this.setState( { addPointVisibility: ! points.length } ) }
 								onMarkerClick={ () => this.setState( { addPointVisibility: false } ) }
 								onError={ this.onError }
@@ -476,7 +476,7 @@ class MapEdit extends Component {
 				</div>
 			</Fragment>
 		);
-		const mapStyleObject = settings.styles.find( styleObject => styleObject.name === mapStyle );
+		const mapStyleObject = settings.styles.find( ( styleObject ) => styleObject.name === mapStyle );
 		const placholderPreview = (
 			<div>
 				<img
@@ -499,7 +499,7 @@ class MapEdit extends Component {
 
 export default compose( [
 	withNotices,
-	withDispatch( dispatch => {
+	withDispatch( ( dispatch ) => {
 		const { toggleSelection } = dispatch( 'core/block-editor' );
 
 		return {

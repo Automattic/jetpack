@@ -100,7 +100,7 @@ class DashProtect extends Component {
 	}
 }
 
-export default connect( state => ( {
+export default connect( ( state ) => ( {
 	protectCount: getProtectCount( state ),
 	isDevMode: isDevMode( state ),
 	isModuleAvailable: isModuleAvailable( state, 'protect' ),

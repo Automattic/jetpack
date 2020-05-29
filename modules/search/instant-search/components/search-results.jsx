@@ -144,12 +144,12 @@ class SearchResults extends Component {
 		);
 	}
 
-	closeOverlay = event => {
+	closeOverlay = ( event ) => {
 		event.preventDefault();
 		this.props.closeOverlay();
 	};
 
-	onKeyPressHandler = event => {
+	onKeyPressHandler = ( event ) => {
 		if ( event.key === 'Enter' ) {
 			event.preventDefault();
 			this.props.closeOverlay();

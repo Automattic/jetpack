@@ -46,7 +46,7 @@ class MultipleChoiceAnswer extends Component {
 		onAnswerChange( id, textResponse );
 	};
 
-	handleTextChange = event => {
+	handleTextChange = ( event ) => {
 		const {
 			onAnswerChange,
 			answer: { id },

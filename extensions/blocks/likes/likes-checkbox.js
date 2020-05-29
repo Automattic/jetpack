@@ -18,7 +18,7 @@ const LikesCheckbox = ( { areLikesEnabled, editPost } ) => (
 			<CheckboxControl
 				label={ __( 'Show likes.', 'jetpack' ) }
 				checked={ areLikesEnabled }
-				onChange={ value => {
+				onChange={ ( value ) => {
 					editPost( { jetpack_likes_enabled: value } );
 				} }
 			/>
@@ -27,7 +27,7 @@ const LikesCheckbox = ( { areLikesEnabled, editPost } ) => (
 );
 
 // Fetch the post meta.
-const applyWithSelect = withSelect( select => {
+const applyWithSelect = withSelect( ( select ) => {
 	const { getEditedPostAttribute } = select( 'core/editor' );
 	const areLikesEnabled = getEditedPostAttribute( 'jetpack_likes_enabled' );
 
@@ -35,7 +35,7 @@ const applyWithSelect = withSelect( select => {
 } );
 
 // Provide method to update post meta.
-const applyWithDispatch = withDispatch( dispatch => {
+const applyWithDispatch = withDispatch( ( dispatch ) => {
 	const { editPost } = dispatch( 'core/editor' );
 
 	return { editPost };

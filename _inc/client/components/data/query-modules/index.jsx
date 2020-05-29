@@ -27,12 +27,12 @@ QueryModules.defaultProps = {
 };
 
 export default connect(
-	state => {
+	( state ) => {
 		return {
 			fetchingModulesList: isFetchingModulesList( state ),
 		};
 	},
-	dispatch => {
+	( dispatch ) => {
 		return bindActionCreators(
 			{
 				fetchModules,

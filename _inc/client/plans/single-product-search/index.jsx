@@ -134,7 +134,7 @@ export function SingleProductSearchCard( props ) {
 	);
 }
 
-export default connect( state => ( {
+export default connect( ( state ) => ( {
 	planDuration: getPlanDuration( state ),
 	searchInfoUrl: getUpgradeUrl( state, 'aag-search' ), // Redirect to https://jetpack.com/upgrade/search/
 	searchUpgradeMonthlyUrl: getUpgradeUrl( state, 'jetpack-search-monthly' ),

@@ -38,7 +38,7 @@ class DayPreview extends Component {
 		const { day, localization } = this.props;
 		const hours = day.hours.filter(
 			// remove any malformed or empty intervals
-			interval => this.formatTime( interval.opening ) && this.formatTime( interval.closing )
+			( interval ) => this.formatTime( interval.opening ) && this.formatTime( interval.closing )
 		);
 		return (
 			<div className="jetpack-business-hours__item">

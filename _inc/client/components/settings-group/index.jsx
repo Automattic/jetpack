@@ -16,7 +16,7 @@ import { isDevMode, isUnavailableInDevMode, isCurrentUserLinked } from 'state/co
 import { userCanManageModules, isSitePublic, userCanEditPosts } from 'state/initial-state';
 import { isModuleActivated } from 'state/modules';
 
-export const SettingsGroup = props => {
+export const SettingsGroup = ( props ) => {
 	const module = props.module;
 
 	// Non admin users only get Publicize, After the Deadline, and Post by Email settings.
@@ -76,14 +76,14 @@ SettingsGroup.defaultProps = {
 	className: '',
 };
 
-export default connect( state => {
+export default connect( ( state ) => {
 	return {
 		isDevMode: isDevMode( state ),
 		isSitePublic: isSitePublic( state ),
 		userCanManageModules: userCanManageModules( state ),
 		userCanEditPosts: userCanEditPosts( state ),
 		isLinked: isCurrentUserLinked( state ),
-		isModuleActivated: module => isModuleActivated( state, module ),
-		isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
+		isModuleActivated: ( module ) => isModuleActivated( state, module ),
+		isUnavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name ),
 	};
 } )( SettingsGroup );

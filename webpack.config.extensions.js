@@ -27,7 +27,7 @@ const viewSetup = path.join( __dirname, 'extensions', 'view' );
 
 function blockScripts( type, inputDir, presetBlocks ) {
 	return presetBlocks
-		.map( block => path.join( inputDir, 'blocks', block, `${ type }.js` ) )
+		.map( ( block ) => path.join( inputDir, 'blocks', block, `${ type }.js` ) )
 		.filter( fs.existsSync );
 }
 
@@ -90,8 +90,8 @@ const extensionsWebpackConfig = getBaseWebpackConfig(
 	}
 );
 
-const transpileConfig = extensionsWebpackConfig.module.rules.find( rule =>
-	rule.use.some( loader => loader.options.presets )
+const transpileConfig = extensionsWebpackConfig.module.rules.find( ( rule ) =>
+	rule.use.some( ( loader ) => loader.options.presets )
 );
 
 const componentsWebpackConfig = getBaseWebpackConfig(

@@ -21,7 +21,7 @@ import { IncomeQuestion } from './income-question';
 import { UpdatesQuestion } from './updates-question';
 import { RecommendedFeatures } from './recommended-features';
 
-const SetupWizardComponent = props => {
+const SetupWizardComponent = ( props ) => {
 	const { siteTitle, status } = props;
 
 	let redirectPath;
@@ -70,7 +70,7 @@ const SetupWizardComponent = props => {
 	);
 };
 
-export const SetupWizard = connect( state => {
+export const SetupWizard = connect( ( state ) => {
 	return {
 		siteTitle: getSiteTitle( state ),
 		status: getSetupWizardStatus( state ),

@@ -35,7 +35,7 @@ export const settings = {
 	deprecated: [
 		{
 			attributes: omit( mapSettings.attributes, 'showFullscreenButton' ),
-			migrate: attributes => ( { ...attributes, showFullscreenButton: true } ),
+			migrate: ( attributes ) => ( { ...attributes, showFullscreenButton: true } ),
 			save,
 		},
 		deprecatedV1,

@@ -34,7 +34,7 @@ export default class Mosaic extends Component {
 		}
 	}
 
-	handleGalleryResize = entries => {
+	handleGalleryResize = ( entries ) => {
 		if ( this.pendingRaf ) {
 			cancelAnimationFrame( this.pendingRaf );
 			this.pendingRaf = null;
@@ -42,7 +42,7 @@ export default class Mosaic extends Component {
 		this.pendingRaf = requestAnimationFrame( () => {
 			for ( const { contentRect, target } of entries ) {
 				const { width } = contentRect;
-				getGalleryRows( target ).forEach( row => handleRowResize( row, width ) );
+				getGalleryRows( target ).forEach( ( row ) => handleRowResize( row, width ) );
 			}
 		} );
 	};

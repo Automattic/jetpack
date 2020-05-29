@@ -57,7 +57,7 @@ class PublicizeConnection extends Component {
 
 	connectionIsFailing() {
 		const { failedConnections, name } = this.props;
-		return failedConnections.some( connection => connection.service_name === name );
+		return failedConnections.some( ( connection ) => connection.service_name === name );
 	}
 
 	render() {
@@ -94,7 +94,7 @@ class PublicizeConnection extends Component {
 	}
 }
 
-export default withSelect( select => ( {
+export default withSelect( ( select ) => ( {
 	failedConnections: select( 'jetpack/publicize' ).getFailedConnections(),
 	mustReauthConnections: select( 'jetpack/publicize' ).getMustReauthConnections(),
 } ) )( PublicizeConnection );

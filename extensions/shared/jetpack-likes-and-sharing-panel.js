@@ -18,7 +18,7 @@ registerPlugin( 'jetpack-likes-and-sharing-panel', {
 	render() {
 		return (
 			<Slot>
-				{ fills => {
+				{ ( fills ) => {
 					if ( ! fills.length ) {
 						return null;
 					}

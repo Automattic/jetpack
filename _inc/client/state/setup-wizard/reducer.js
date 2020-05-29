@@ -52,7 +52,7 @@ const status = ( state = '', action ) => {
 
 export const reducer = combineReducers( { questionnaire, requests, status } );
 
-export const isFetchingSetupWizardQuestionnaire = state => {
+export const isFetchingSetupWizardQuestionnaire = ( state ) => {
 	return !! state.jetpack.setupWizard.requests.isFetchingSetupQuestionnaire;
 };
 
@@ -60,7 +60,7 @@ export const getSetupWizardAnswer = ( state, question ) => {
 	return get( state.jetpack.setupWizard.questionnaire, question );
 };
 
-export const getRecommendedFeatureGroups = state => {
+export const getRecommendedFeatureGroups = ( state ) => {
 	const answers = state.jetpack.setupWizard.questionnaire;
 
 	if ( ! answers ) {
@@ -92,7 +92,7 @@ export const getRecommendedFeatureGroups = state => {
 	);
 
 	// Note these are in a list here to guarantee order
-	return [ 'security', 'performance', 'marketing', 'publishing' ].map( featureGroupKey => ( {
+	return [ 'security', 'performance', 'marketing', 'publishing' ].map( ( featureGroupKey ) => ( {
 		...getFeatureGroupContent( featureGroupKey ),
 		features: intersection( featureGroups[ featureGroupKey ], recommendedFeatures ).sort(),
 	} ) );
@@ -131,7 +131,7 @@ function getFeatureGroupContent( featureGroupKey ) {
 	}
 }
 
-export const getSetupWizardStatus = state => {
+export const getSetupWizardStatus = ( state ) => {
 	return '' === state.jetpack.setupWizard.status
 		? getInitialSetupWizardStatus( state )
 		: state.jetpack.setupWizard.status;

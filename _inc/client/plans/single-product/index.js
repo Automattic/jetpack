@@ -65,7 +65,7 @@ function renderPossiblePurchase( product, props ) {
 			{ product.showPromotion && <PromoNudge percent={ product.promotionPercentage } /> }
 			<ProductOptionsLabel product={ product } />
 			<div className="single-product__radio-buttons-container">
-				{ product.options.map( option => {
+				{ product.options.map( ( option ) => {
 					return (
 						<PlanRadioButton
 							product={ product }

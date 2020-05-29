@@ -17,7 +17,7 @@ import { speak } from '@wordpress/a11y';
 const meJsSettings = typeof _wpmejsSettings !== 'undefined' ? _wpmejsSettings : {};
 
 class AudioPlayer extends Component {
-	audioRef = el => {
+	audioRef = ( el ) => {
 		if ( el ) {
 			// Construct audio element.
 			const audio = document.createElement( 'audio' );
@@ -73,7 +73,7 @@ class AudioPlayer extends Component {
 		}
 	};
 
-	setAudioSource = src => {
+	setAudioSource = ( src ) => {
 		this.audio.src = src;
 	};
 

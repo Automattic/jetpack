@@ -28,7 +28,7 @@ export default function useConnectInstagram( {
 
 		setIsRequestingConnections( true );
 		apiFetch( { path: '/wpcom/v2/instagram-gallery/connections' } )
-			.then( connections => {
+			.then( ( connections ) => {
 				setIsRequestingConnections( false );
 				setUserConnections( connections );
 			} )
@@ -43,7 +43,7 @@ export default function useConnectInstagram( {
 
 		setIsConnecting( true );
 		apiFetch( { path: '/wpcom/v2/instagram-gallery/connect-url' } )
-			.then( connectUrl => {
+			.then( ( connectUrl ) => {
 				const popupMonitor = new PopupMonitor();
 
 				popupMonitor.open(
@@ -61,7 +61,7 @@ export default function useConnectInstagram( {
 					}
 				} );
 
-				popupMonitor.on( 'close', name => {
+				popupMonitor.on( 'close', ( name ) => {
 					if ( `connect-to-instagram-popup` === name ) {
 						setIsConnecting( false );
 					}

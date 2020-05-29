@@ -24,7 +24,7 @@ export class Locations extends Component {
 		};
 	}
 
-	onDeletePoint = e => {
+	onDeletePoint = ( e ) => {
 		const index = parseInt( e.target.getAttribute( 'data-id' ) );
 		const { points, onChange } = this.props;
 
@@ -48,13 +48,13 @@ export class Locations extends Component {
 				<TextControl
 					label="Marker Title"
 					value={ point.title }
-					onChange={ title => this.setMarkerField( 'title', title, index ) }
+					onChange={ ( title ) => this.setMarkerField( 'title', title, index ) }
 				/>
 				<TextareaControl
 					label="Marker Caption"
 					value={ point.caption }
 					rows="3"
-					onChange={ caption => this.setMarkerField( 'caption', caption, index ) }
+					onChange={ ( caption ) => this.setMarkerField( 'caption', caption, index ) }
 				/>
 				<Button
 					data-id={ index }

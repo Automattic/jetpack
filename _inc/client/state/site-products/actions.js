@@ -9,19 +9,19 @@ import {
 import restApi from 'rest-api';
 
 export const fetchSiteProducts = () => {
-	return dispatch => {
+	return ( dispatch ) => {
 		dispatch( {
 			type: JETPACK_SITE_PRODUCTS_FETCH,
 		} );
 		return restApi
 			.fetchSiteProducts()
-			.then( response => {
+			.then( ( response ) => {
 				dispatch( {
 					type: JETPACK_SITE_PRODUCTS_FETCH_RECEIVE,
 					siteProducts: response.data,
 				} );
 			} )
-			.catch( error => {
+			.catch( ( error ) => {
 				dispatch( {
 					type: JETPACK_SITE_PRODUCTS_FETCH_FAIL,
 					error,

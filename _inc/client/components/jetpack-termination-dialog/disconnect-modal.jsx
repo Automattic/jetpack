@@ -49,7 +49,7 @@ class JetpackDisconnectModal extends Component {
 	}
 }
 
-export default connect( null, dispatch => {
+export default connect( null, ( dispatch ) => {
 	return {
 		disconnectSite: () => {
 			return dispatch( disconnectSite( true ) );

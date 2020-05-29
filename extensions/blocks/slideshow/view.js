@@ -19,7 +19,7 @@ import {
 if ( typeof window !== 'undefined' ) {
 	domReady( function () {
 		const slideshowBlocks = document.getElementsByClassName( 'wp-block-jetpack-slideshow' );
-		forEach( slideshowBlocks, slideshowBlock => {
+		forEach( slideshowBlocks, ( slideshowBlock ) => {
 			if ( slideshowBlock.getAttribute( 'data-jetpack-block-initialized' ) === 'true' ) {
 				return;
 			}
@@ -54,7 +54,7 @@ if ( typeof window !== 'undefined' ) {
 					transitionEnd: swiperApplyAria,
 				}
 			)
-				.then( swiper => {
+				.then( ( swiper ) => {
 					new ResizeObserver( () => {
 						if ( pendingRequestAnimationFrame ) {
 							cancelAnimationFrame( pendingRequestAnimationFrame );

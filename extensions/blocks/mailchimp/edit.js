@@ -46,7 +46,7 @@ class MailchimpSubscribeEdit extends Component {
 		this.apiCall();
 	};
 
-	onError = message => {
+	onError = ( message ) => {
 		const { noticeOperations } = this.props;
 		noticeOperations.removeAllNotices();
 		noticeOperations.createErrorNotice( message );
@@ -57,13 +57,13 @@ class MailchimpSubscribeEdit extends Component {
 		const method = 'GET';
 		const fetch = { path, method };
 		apiFetch( fetch ).then(
-			result => {
+			( result ) => {
 				const connectURL = result.connect_url;
 				const connected =
 					result.code === 'connected' ? API_STATE_CONNECTED : API_STATE_NOTCONNECTED;
 				this.setState( { connected, connectURL } );
 			},
-			result => {
+			( result ) => {
 				const connectURL = null;
 				const connected = API_STATE_NOTCONNECTED;
 				this.setState( { connected, connectURL } );
@@ -72,7 +72,7 @@ class MailchimpSubscribeEdit extends Component {
 		);
 	};
 
-	auditionNotification = notification => {
+	auditionNotification = ( notification ) => {
 		this.setState( { audition: notification } );
 		if ( this.timeout ) {
 			clearTimeout( this.timeout );
@@ -84,31 +84,31 @@ class MailchimpSubscribeEdit extends Component {
 		this.setState( { audition: null } );
 	};
 
-	updateProcessingText = processingLabel => {
+	updateProcessingText = ( processingLabel ) => {
 		const { setAttributes } = this.props;
 		setAttributes( { processingLabel } );
 		this.auditionNotification( NOTIFICATION_PROCESSING );
 	};
 
-	updateSuccessText = successLabel => {
+	updateSuccessText = ( successLabel ) => {
 		const { setAttributes } = this.props;
 		setAttributes( { successLabel } );
 		this.auditionNotification( NOTIFICATION_SUCCESS );
 	};
 
-	updateErrorText = errorLabel => {
+	updateErrorText = ( errorLabel ) => {
 		const { setAttributes } = this.props;
 		setAttributes( { errorLabel } );
 		this.auditionNotification( NOTIFICATION_ERROR );
 	};
 
-	updateEmailPlaceholder = emailPlaceholder => {
+	updateEmailPlaceholder = ( emailPlaceholder ) => {
 		const { setAttributes } = this.props;
 		setAttributes( { emailPlaceholder } );
 		this.clearAudition();
 	};
 
-	labelForAuditionType = audition => {
+	labelForAuditionType = ( audition ) => {
 		const { attributes } = this.props;
 		const { processingLabel, successLabel, errorLabel } = attributes;
 		if ( audition === NOTIFICATION_PROCESSING ) {
@@ -121,7 +121,7 @@ class MailchimpSubscribeEdit extends Component {
 		return null;
 	};
 
-	roleForAuditionType = audition => {
+	roleForAuditionType = ( audition ) => {
 		if ( audition === NOTIFICATION_ERROR ) {
 			return 'alert';
 		}
@@ -202,7 +202,7 @@ class MailchimpSubscribeEdit extends Component {
 							// Create a Set to insure no duplicate interests
 							const deDupedInterests = [ ...new Set( [ ...interests, id ] ) ];
 							// Filter the clicked interest based on checkbox's state.
-							const updatedInterests = deDupedInterests.filter( item =>
+							const updatedInterests = deDupedInterests.filter( ( item ) =>
 								item === id && ! checked ? false : item
 							);
 							setAttributes( {
@@ -219,13 +219,13 @@ class MailchimpSubscribeEdit extends Component {
 						label={ __( 'Signup Field Tag', 'jetpack' ) }
 						placeholder={ __( 'SIGNUP' ) }
 						value={ signupFieldTag }
-						onChange={ value => setAttributes( { signupFieldTag: value } ) }
+						onChange={ ( value ) => setAttributes( { signupFieldTag: value } ) }
 					/>
 					<TextControl
 						label={ __( 'Signup Field Value', 'jetpack' ) }
 						placeholder={ __( 'website' ) }
 						value={ signupFieldValue }
-						onChange={ value => setAttributes( { signupFieldValue: value } ) }
+						onChange={ ( value ) => setAttributes( { signupFieldValue: value } ) }
 					/>
 					<ExternalLink href="https://mailchimp.com/help/determine-webpage-signup-location/">
 						{ __( 'Learn about signup location tracking', 'jetpack' ) }
@@ -255,7 +255,7 @@ class MailchimpSubscribeEdit extends Component {
 					tagName="p"
 					placeholder={ __( 'Write consent text', 'jetpack' ) }
 					value={ consentText }
-					onChange={ value => setAttributes( { consentText: value } ) }
+					onChange={ ( value ) => setAttributes( { consentText: value } ) }
 					inlineToolbar
 				/>
 				{ audition && (

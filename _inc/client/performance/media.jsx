@@ -78,11 +78,11 @@ class Media extends React.Component {
 	}
 }
 
-export default connect( state => {
+export default connect( ( state ) => {
 	return {
-		module: module_name => getModule( state, module_name ),
-		isModuleFound: module_name => _isModuleFound( state, module_name ),
+		module: ( module_name ) => getModule( state, module_name ),
+		isModuleFound: ( module_name ) => _isModuleFound( state, module_name ),
 		sitePlan: getSitePlan( state ),
-		getModuleOverride: module_name => getModuleOverride( state, module_name ),
+		getModuleOverride: ( module_name ) => getModuleOverride( state, module_name ),
 	};
 } )( withModuleSettingsFormHelpers( Media ) );

@@ -57,7 +57,7 @@ class DurationSwitcher extends React.Component {
 }
 
 export default connect(
-	state => {
+	( state ) => {
 		return {
 			planDuration: getPlanDuration( state ),
 		};

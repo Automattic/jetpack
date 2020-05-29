@@ -11,7 +11,7 @@ import { h } from 'preact';
 import { getPreselectedFilters } from '../lib/query-string';
 import SearchFilters from './search-filters';
 
-const PreselectedSearchFilters = props => {
+const PreselectedSearchFilters = ( props ) => {
 	const preselectedFilters = getPreselectedFilters( props.widgets, props.widgetsOutsideOverlay );
 
 	return (

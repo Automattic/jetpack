@@ -76,8 +76,8 @@ export const settings = {
 		from: [
 			{
 				type: 'raw',
-				isMatch: node => node.nodeName === 'P' && URL_REGEX.test( node.textContent ),
-				transform: node => {
+				isMatch: ( node ) => node.nodeName === 'P' && URL_REGEX.test( node.textContent ),
+				transform: ( node ) => {
 					return createBlock( 'jetpack/pinterest', {
 						url: node.textContent.trim(),
 					} );

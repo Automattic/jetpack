@@ -19,7 +19,7 @@ class ClipboardInput extends Component {
 
 	onFinishCopy = () => this.setState( { hasCopied: false } );
 
-	onFocus = event => event.target.select();
+	onFocus = ( event ) => event.target.select();
 
 	render() {
 		const { link } = this.props;

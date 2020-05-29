@@ -2,7 +2,7 @@ export const embedRegex = /<\s*script[^>]*src\s*=\s*["']?([^"']*)/i;
 export const restRefRegex = /restref=([0-9]+)&/;
 export const ridRegex = /rid=([0-9]+)&/;
 
-const getAttributesFromUrl = url => {
+const getAttributesFromUrl = ( url ) => {
 	let src = '';
 	if ( url.indexOf( 'http' ) === 0 ) {
 		src = new URL( url );
@@ -60,7 +60,7 @@ const getAttributesFromUrl = url => {
 	return newAttributes;
 };
 
-const getUrlFromEmbedCode = embedCode => {
+const getUrlFromEmbedCode = ( embedCode ) => {
 	const scriptTagAttributes = embedCode.match( embedRegex );
 	if ( scriptTagAttributes && scriptTagAttributes[ 1 ] ) {
 		return scriptTagAttributes[ 1 ];
@@ -71,7 +71,7 @@ const getUrlFromEmbedCode = embedCode => {
 	}
 };
 
-export const getAttributesFromEmbedCode = embedCode => {
+export const getAttributesFromEmbedCode = ( embedCode ) => {
 	if ( ! embedCode ) {
 		return;
 	}

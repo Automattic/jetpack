@@ -139,7 +139,7 @@ const Popovers = createReactClass( {
 	},
 
 	handleClick( i, positions ) {
-		return event => {
+		return ( event ) => {
 			const index = parseInt( event.currentTarget.innerText );
 			if ( i === 4 ) {
 				return null;

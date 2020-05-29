@@ -21,7 +21,7 @@ const requestExternalAccess = ( url, cb ) => {
 		cb( keyringId );
 	} );
 
-	popupMonitor.on( 'message', message => ( lastMessage = message ) );
+	popupMonitor.on( 'message', ( message ) => ( lastMessage = message ) );
 };
 
 export default requestExternalAccess;

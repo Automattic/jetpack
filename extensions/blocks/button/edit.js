@@ -37,7 +37,7 @@ function ButtonEdit( {
 } ) {
 	const { borderRadius, element, placeholder, text } = attributes;
 
-	const onChange = value => {
+	const onChange = ( value ) => {
 		// TODO: Remove `replace` once minimum Gutenberg version is 8.0 (to fully support `disableLineBreaks`)
 		const newValue = 'input' === element ? value.replace( /<br>/gim, ' ' ) : value;
 		setAttributes( { text: newValue } );

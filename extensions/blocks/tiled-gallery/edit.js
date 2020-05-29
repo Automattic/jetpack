@@ -53,7 +53,7 @@ export function defaultColumnsNumber( attributes ) {
 	return Math.min( 3, attributes.images.length );
 }
 
-export const pickRelevantMediaFiles = image => {
+export const pickRelevantMediaFiles = ( image ) => {
 	const imageProps = pick( image, [ [ 'alt' ], [ 'id' ], [ 'link' ] ] );
 	imageProps.url =
 		get( image, [ 'sizes', 'large', 'url' ] ) ||
@@ -92,21 +92,21 @@ class TiledGalleryEdit extends Component {
 		this.props.setAttributes( attributes );
 	}
 
-	addFiles = files => {
+	addFiles = ( files ) => {
 		const currentImages = this.props.attributes.images || [];
 		const { noticeOperations } = this.props;
 		mediaUpload( {
 			allowedTypes: ALLOWED_MEDIA_TYPES,
 			filesList: files,
-			onFileChange: images => {
-				const imagesNormalized = images.map( image => pickRelevantMediaFiles( image ) );
+			onFileChange: ( images ) => {
+				const imagesNormalized = images.map( ( image ) => pickRelevantMediaFiles( image ) );
 				this.setAttributes( { images: currentImages.concat( imagesNormalized ) } );
 			},
 			onError: noticeOperations.createErrorNotice,
 		} );
 	};
 
-	onRemoveImage = index => () => {
+	onRemoveImage = ( index ) => () => {
 		const images = filter( this.props.attributes.images, ( img, i ) => index !== i );
 		const { columns } = this.props.attributes;
 		this.setState( {
@@ -118,7 +118,7 @@ class TiledGalleryEdit extends Component {
 		} );
 	};
 
-	onSelectImage = index => () => {
+	onSelectImage = ( index ) => () => {
 		if ( this.state.selectedImage !== index ) {
 			this.setState( {
 				selectedImage: index,
@@ -126,11 +126,11 @@ class TiledGalleryEdit extends Component {
 		}
 	};
 
-	onSelectImages = images => {
+	onSelectImages = ( images ) => {
 		const { columns } = this.props.attributes;
 		this.setAttributes( {
 			columns: columns ? Math.min( images.length, columns ) : columns,
-			images: images.map( image => pickRelevantMediaFiles( image ) ),
+			images: images.map( ( image ) => pickRelevantMediaFiles( image ) ),
 		} );
 	};
 
@@ -142,7 +142,7 @@ class TiledGalleryEdit extends Component {
 		this.setAttributes( { images } );
 	};
 
-	onMoveForward = oldIndex => {
+	onMoveForward = ( oldIndex ) => {
 		return () => {
 			if ( oldIndex === this.props.attributes.images.length - 1 ) {
 				return;
@@ -151,7 +151,7 @@ class TiledGalleryEdit extends Component {
 		};
 	};
 
-	onMoveBackward = oldIndex => {
+	onMoveBackward = ( oldIndex ) => {
 		return () => {
 			if ( oldIndex === 0 ) {
 				return;
@@ -160,11 +160,11 @@ class TiledGalleryEdit extends Component {
 		};
 	};
 
-	setColumnsNumber = value => this.setAttributes( { columns: value } );
+	setColumnsNumber = ( value ) => this.setAttributes( { columns: value } );
 
-	setRoundedCorners = value => this.setAttributes( { roundedCorners: value } );
+	setRoundedCorners = ( value ) => this.setAttributes( { roundedCorners: value } );
 
-	setImageAttributes = index => attributes => {
+	setImageAttributes = ( index ) => ( attributes ) => {
 		const {
 			attributes: { images },
 		} = this.props;
@@ -180,9 +180,9 @@ class TiledGalleryEdit extends Component {
 		} );
 	};
 
-	setLinkTo = value => this.setAttributes( { linkTo: value } );
+	setLinkTo = ( value ) => this.setAttributes( { linkTo: value } );
 
-	uploadFromFiles = event => this.addFiles( event.target.files );
+	uploadFromFiles = ( event ) => this.addFiles( event.target.files );
 
 	render() {
 		const { selectedImage } = this.state;
@@ -215,7 +215,7 @@ class TiledGalleryEdit extends Component {
 								allowedTypes={ ALLOWED_MEDIA_TYPES }
 								multiple
 								gallery
-								value={ images.map( img => img.id ) }
+								value={ images.map( ( img ) => img.id ) }
 								render={ ( { open } ) => (
 									<EditButton label={ __( 'Edit Gallery', 'jetpack' ) } onClick={ open } />
 								) }
@@ -223,7 +223,7 @@ class TiledGalleryEdit extends Component {
 						</Toolbar>
 						<FilterToolbar
 							value={ imageFilter }
-							onChange={ value => {
+							onChange={ ( value ) => {
 								setAttributes( { imageFilter: value } );
 								this.setState( { selectedImage: null } );
 							} }

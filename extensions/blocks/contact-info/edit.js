@@ -33,7 +33,7 @@ const ALLOWED_BLOCKS = [
 
 const TEMPLATE = [ [ 'jetpack/email' ], [ 'jetpack/phone' ], [ 'jetpack/address' ] ];
 
-const ContactInfoEdit = props => {
+const ContactInfoEdit = ( props ) => {
 	const { isSelected } = props;
 
 	return (

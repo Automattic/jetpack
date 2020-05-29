@@ -8,21 +8,21 @@ import {
 	JETPACK_MARKETING_SUBMIT_DISCONNECT_SURVEY_FAIL,
 } from 'state/action-types';
 
-const dispatchSurvey = surveyResponse => dispatch => {
+const dispatchSurvey = ( surveyResponse ) => ( dispatch ) => {
 	dispatch( {
 		type: JETPACK_MARKETING_SUBMIT_DISCONNECT_SURVEY,
 	} );
 
 	return restApi
 		.submitSurvey( surveyResponse )
-		.then( data => {
+		.then( ( data ) => {
 			dispatch( {
 				type: JETPACK_MARKETING_SUBMIT_DISCONNECT_SURVEY_SUCCESS,
 			} );
 
 			return data;
 		} )
-		.catch( error => {
+		.catch( ( error ) => {
 			dispatch( {
 				type: JETPACK_MARKETING_SUBMIT_DISCONNECT_SURVEY_FAIL,
 				error: error.response,

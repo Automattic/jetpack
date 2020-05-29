@@ -344,7 +344,7 @@ export class DashStats extends Component {
 }
 
 export default connect(
-	state => ( {
+	( state ) => ( {
 		isModuleAvailable: isModuleAvailable( state, 'stats' ),
 		activeTab: getActiveStatsTab( state ),
 		isDevMode: isDevMode( state ),
@@ -354,10 +354,10 @@ export default connect(
 			? getInitialStateStatsData( state )
 			: getStatsData( state ),
 		isEmptyStatsCardDismissed: emptyStatsCardDismissed( state ),
-		getModuleOverride: module_name => getModuleOverride( state, module_name ),
+		getModuleOverride: ( module_name ) => getModuleOverride( state, module_name ),
 	} ),
-	dispatch => ( {
-		switchView: tab => dispatch( statsSwitchTab( tab ) ),
-		fetchStatsData: range => dispatch( fetchStatsData( range ) ),
+	( dispatch ) => ( {
+		switchView: ( tab ) => dispatch( statsSwitchTab( tab ) ),
+		fetchStatsData: ( range ) => dispatch( fetchStatsData( range ) ),
 	} )
 )( DashStats );

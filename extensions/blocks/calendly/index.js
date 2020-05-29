@@ -54,8 +54,8 @@ export const settings = {
 		from: [
 			{
 				type: 'raw',
-				isMatch: node => node.nodeName === 'P' && REGEX.test( node.textContent ),
-				transform: node => {
+				isMatch: ( node ) => node.nodeName === 'P' && REGEX.test( node.textContent ),
+				transform: ( node ) => {
 					const newAttributes = getAttributesFromEmbedCode( node.textContent );
 					return createBlock( 'jetpack/calendly', newAttributes );
 				},

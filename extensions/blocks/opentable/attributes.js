@@ -5,7 +5,7 @@ import { __ } from '@wordpress/i18n';
 import { select } from '@wordpress/data';
 import { compact, isEmpty } from 'lodash';
 
-const optionValues = options => options.map( option => option.value );
+const optionValues = ( options ) => options.map( ( option ) => option.value );
 
 export const languageOptions = [
 	{ value: 'en-US', label: 'English' },
@@ -18,7 +18,7 @@ export const languageOptions = [
 ];
 export const languageValues = optionValues( languageOptions );
 
-export const getStyleOptions = rid =>
+export const getStyleOptions = ( rid ) =>
 	compact( [
 		{ value: 'standard', label: __( 'Standard (224 x 301 pixels)', 'jetpack' ) },
 		{ value: 'tall', label: __( 'Tall (288 x 490 pixels)', 'jetpack' ) },
@@ -28,7 +28,7 @@ export const getStyleOptions = rid =>
 			label: __( 'Button (210 x 113 pixels)', 'jetpack' ),
 		},
 	] );
-export const getStyleValues = rid => optionValues( getStyleOptions( rid ) );
+export const getStyleValues = ( rid ) => optionValues( getStyleOptions( rid ) );
 
 const { siteLocale } = select( 'core/block-editor' ).getSettings();
 const defaultLanguage =

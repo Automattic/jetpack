@@ -17,7 +17,7 @@ class MailchimpGroups extends Component {
 			method: 'GET',
 			path: '/wpcom/v2/mailchimp/groups',
 		};
-		apiFetch( args ).then( response => {
+		apiFetch( args ).then( ( response ) => {
 			const { interest_categories } = response;
 			this.setState( { interest_categories } );
 		} );
@@ -28,13 +28,13 @@ class MailchimpGroups extends Component {
 		return (
 			<Fragment>
 				{ interest_categories &&
-					( interest_categories || [] ).map( interest_category =>
-						interest_category.interests.map( interest => (
+					( interest_categories || [] ).map( ( interest_category ) =>
+						interest_category.interests.map( ( interest ) => (
 							<CheckboxControl
 								label={ interest.name }
 								value={ interest.id }
 								checked={ interests.includes( interest.id ) }
-								onChange={ checked => onChange( interest.id, checked ) }
+								onChange={ ( checked ) => onChange( interest.id, checked ) }
 								key={ interest.id }
 							/>
 						) )
