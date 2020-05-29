@@ -24,7 +24,7 @@ class Pre_Connection_JITM extends JITM {
 				'message_path'   => '/wp:edit-post:admin_notices/',
 				'message'        => __( 'Do you know which of these posts gets the most traffic?', 'jetpack' ),
 				'description'    => __( 'Setup Jetpack to get in-depth stats about your content and visitors.', 'jetpack' ),
-				'button_link'    => esc_url( \Jetpack::init()->build_connect_url( true, false, 'pre-connection-jitm-posts' ) ),
+				'button_link'    => \Jetpack::admin_url( '#/setup' ),
 				'button_caption' => __( 'Setup Jetpack', 'jetpack' ),
 			),
 			array(
@@ -32,7 +32,7 @@ class Pre_Connection_JITM extends JITM {
 				'message_path'   => '/wp:upload:admin_notices/',
 				'message'        => __( 'Do you want lightning-fast images?', 'jetpack' ),
 				'description'    => __( 'Setup Jetpack, enable Site Accelerator, and start serving your images lightning fast, for free.', 'jetpack' ),
-				'button_link'    => esc_url( \Jetpack::init()->build_connect_url( true, false, 'pre-connection-jitm-upload' ) ),
+				'button_link'    => \Jetpack::admin_url( '#/setup' ),
 				'button_caption' => __( 'Setup Jetpack', 'jetpack' ),
 			),
 			array(
@@ -40,7 +40,7 @@ class Pre_Connection_JITM extends JITM {
 				'message_path'   => '/wp:widgets:admin_notices/',
 				'message'        => __( 'Looking for even more widgets?', 'jetpack' ),
 				'description'    => __( 'Setup Jetpack for great additional widgets that display business contact info and maps, blog stats, and top posts.', 'jetpack' ),
-				'button_link'    => esc_url( \Jetpack::init()->build_connect_url( true, false, 'pre-connection-jitm-widgets' ) ),
+				'button_link'    => \Jetpack::admin_url( '#/setup' ),
 				'button_caption' => __( 'Setup Jetpack', 'jetpack' ),
 			),
 		);
