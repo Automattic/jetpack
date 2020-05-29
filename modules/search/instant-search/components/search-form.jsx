@@ -17,6 +17,7 @@ import {
 	getSearchQuery,
 	hasPreselectedFilters,
 	setSearchQuery,
+	setSortQuery,
 } from '../lib/query-string';
 import PreselectedSearchFilters from './preselected-search-filters';
 
@@ -29,7 +30,7 @@ class SearchForm extends Component {
 
 	onChangeQuery = event => setSearchQuery( event.target.value );
 	onChangeSort = sort => {
-		this.props.onChangeSort( sort );
+		setSortQuery( sort );
 		this.hideFilters();
 	};
 
@@ -66,7 +67,6 @@ class SearchForm extends Component {
 						query={ getSearchQuery() }
 						shouldRestoreFocus={ this.props.overlayTrigger !== 'immediate' }
 						showFilters={ this.state.showFilters }
-						sort={ this.props.sort }
 						toggleFilters={ this.toggleFilters }
 					/>
 				</div>
