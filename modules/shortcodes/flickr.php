@@ -52,9 +52,9 @@ function jetpack_flickr_photo_to_shortcode( $content ) {
 		return $content;
 	}
 
-	$src    = str_replace( 'player/', '', $matches[1] );
-	$width  = $matches[2];
-	$height = $matches[3];
+	$src    = esc_attr( str_replace( 'player/', '', $matches[1] ) );
+	$width  = esc_attr( $matches[2] );
+	$height = esc_attr( $matches[3] );
 
 	/** This action is documented in modules/shortcodes/youtube.php */
 	do_action( 'jetpack_embed_to_shortcode', 'flickr_photo', $src );
