@@ -409,6 +409,7 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 				'id'      => $id,
 				'caption' => $item['caption'],
 				'alt'     => $item['title'],
+				'type'    => 'image',
 				'url'     => $image_src[0],
 			);
 		}
