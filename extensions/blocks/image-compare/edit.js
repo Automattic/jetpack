@@ -91,13 +91,15 @@ const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) 
 							onChange={ img => {
 								if ( img.media_type === 'image' || img.type === 'image' ) {
 									const { src } = photonizedImgProps( img );
-									const { width, height } = img.media_details;
+									const { alt, id, media_details } = img;
+									const width = media_details?.width ?? img.width;
+									const height = media_details?.height ?? img.height;
 
 									setAttributes( {
 										imageBefore: {
-											id: img.id,
+											id,
 											url: src ? src : img.url,
-											alt: img.alt,
+											alt,
 											width,
 											height,
 										},
@@ -117,13 +119,15 @@ const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) 
 							onChange={ img => {
 								if ( img.media_type === 'image' || img.type === 'image' ) {
 									const { src } = photonizedImgProps( img );
-									const { width, height } = img.media_details;
+									const { alt, id, media_details } = img;
+									const width = media_details?.width ?? img.width;
+									const height = media_details?.height ?? img.height;
 
 									setAttributes( {
 										imageAfter: {
-											id: img.id,
+											id,
 											url: src ? src : img.url,
-											alt: img.alt,
+											alt,
 											width,
 											height,
 										},
