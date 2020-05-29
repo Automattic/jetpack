@@ -45,11 +45,11 @@ export default function useConnectWpcom() {
 			setRequestingWpcomConnectUrl( false );
 		} );
 	}, [
+		currentUserConnected,
 		isAutoDraft,
 		isRequestingWpcomConnectUrl,
 		savePost,
 		wpcomConnectUrl,
-		currentUserConnected,
 	] );
 
 	return { isRequestingWpcomConnectUrl, wpcomConnectUrl };
