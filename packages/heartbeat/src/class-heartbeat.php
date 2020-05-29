@@ -186,7 +186,8 @@ class Heartbeat {
 	 */
 	public function deactivate() {
 		// Deal with the old pre-3.0 weekly one.
-		if ( $timestamp = wp_next_scheduled( 'jetpack_heartbeat' ) ) {
+		$timestamp = wp_next_scheduled( 'jetpack_heartbeat' );
+		if ( $timestamp ) {
 			wp_unschedule_event( $timestamp, 'jetpack_heartbeat' );
 		}
 
