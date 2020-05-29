@@ -91,13 +91,15 @@ const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) 
 							onChange={ img => {
 								if ( img.media_type === 'image' || img.type === 'image' ) {
 									const { src } = photonizedImgProps( img );
+									const { width, height } = img.media_details;
+
 									setAttributes( {
 										imageBefore: {
 											id: img.id,
 											url: src ? src : img.url,
 											alt: img.alt,
-											width: img.width,
-											height: img.height,
+											width,
+											height,
 										},
 									} );
 								}
@@ -115,13 +117,15 @@ const Edit = ( { attributes, className, clientId, isSelected, setAttributes } ) 
 							onChange={ img => {
 								if ( img.media_type === 'image' || img.type === 'image' ) {
 									const { src } = photonizedImgProps( img );
+									const { width, height } = img.media_details;
+
 									setAttributes( {
 										imageAfter: {
 											id: img.id,
 											url: src ? src : img.url,
 											alt: img.alt,
-											width: img.width,
-											height: img.height,
+											width,
+											height,
 										},
 									} );
 								}
