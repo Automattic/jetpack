@@ -35,7 +35,6 @@ import useConnectWpcom from './use-connect-wpcom';
 import useInstagramGallery from './use-instagram-gallery';
 import ImageTransition from './image-transition';
 import isCurrentUserConnected from '../../shared/is-current-user-connected';
-import { isCurrentUserLinked } from '../../../_inc/client/state/connection';
 import './editor.scss';
 
 const InstagramGalleryEdit = props => {
