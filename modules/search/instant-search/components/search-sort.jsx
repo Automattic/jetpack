@@ -8,7 +8,7 @@ import { h, Component } from 'preact';
 /**
  * Internal dependencies
  */
-import { getSortOptions } from '../lib/sort';
+import { SORT_OPTIONS } from '../lib/constants';
 
 export default class SearchSort extends Component {
 	handleKeyPress = event => {
@@ -25,10 +25,9 @@ export default class SearchSort extends Component {
 	};
 
 	render() {
-		const sortOptions = getSortOptions();
 		return (
 			<div className="jetpack-instant-search__box-filter-order">
-				{ Object.keys( sortOptions ).map( sortKey => (
+				{ [ ...SORT_OPTIONS.entries() ].map( ( [ sortKey, label ] ) => (
 					<a
 						class={ `jetpack-instant-search__box-filter-option ${
 							this.props.value === sortKey ? 'is-selected' : ''
@@ -40,7 +39,7 @@ export default class SearchSort extends Component {
 						role="button"
 						tabIndex={ 0 }
 					>
-						{ sortOptions[ sortKey ].label }
+						{ label }
 					</a>
 				) ) }
 			</div>
