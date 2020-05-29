@@ -9,7 +9,7 @@ import { addQueryArgs } from '@wordpress/url';
 /**
  * Internal dependencies
  */
-import { IS_CURRENT_USER_CONNECTED_TO_WPCOM } from './constants';
+import isCurrentUserConnected from '../../shared/is-current-user-connected';
 
 export default function useConnectWpcom() {
 	const { isAutoDraft } = useSelect( select => {
@@ -22,8 +22,10 @@ export default function useConnectWpcom() {
 	const [ wpcomConnectUrl, setWpcomConnectUrl ] = useState();
 	const [ isRequestingWpcomConnectUrl, setRequestingWpcomConnectUrl ] = useState( false );
 
+	const currentUserConnected = isCurrentUserConnected();
+
 	useEffect( () => {
-		if ( IS_CURRENT_USER_CONNECTED_TO_WPCOM || wpcomConnectUrl || isRequestingWpcomConnectUrl ) {
+		if ( currentUserConnected || wpcomConnectUrl || isRequestingWpcomConnectUrl ) {
 			return;
 		}
 
@@ -42,7 +44,13 @@ export default function useConnectWpcom() {
 			setWpcomConnectUrl( connectUrl );
 			setRequestingWpcomConnectUrl( false );
 		} );
-	}, [ isAutoDraft, isRequestingWpcomConnectUrl, savePost, wpcomConnectUrl ] );
+	}, [
+		isAutoDraft,
+		isRequestingWpcomConnectUrl,
+		savePost,
+		wpcomConnectUrl,
+		currentUserConnected,
+	] );
 
 	return { isRequestingWpcomConnectUrl, wpcomConnectUrl };
 }
