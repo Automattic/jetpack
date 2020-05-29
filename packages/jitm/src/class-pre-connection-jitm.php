@@ -100,6 +100,10 @@ class Pre_Connection_JITM extends JITM {
 			return array();
 		}
 
+		if ( ! current_user_can( 'install_plugins' ) ) {
+			return array();
+		}
+
 		$messages = $this->filter_messages( $message_path );
 
 		if ( empty( $messages ) ) {
