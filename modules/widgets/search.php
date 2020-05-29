@@ -825,7 +825,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 	 */
 	private function form_for_instant_search( $instance ) {
 		$instance = $this->populate_defaults_for_instant_search( $instance );
-		$classes  = sprintf( 'jetpack-search-filters-widget %s %s', $this->id );
+		$classes  = sprintf( 'jetpack-search-filters-widget %s', $this->id );
 
 		?>
 		<div class="<?php echo esc_attr( $classes ); ?>">
