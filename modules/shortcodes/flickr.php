@@ -10,66 +10,42 @@
  * [flickr video=49931239842 autoplay="yes" controls="no"]
  * [flickr video=49931239842 autoplay="no" controls="yes" w=200 h=150]
  *
- * @package Jetpack
- */
-
-/*
  * <div class="flick_video" style="max-width: 100%;width: 500px;height: 300px;"><video src="https://www.flickr.com/photos/kalakeli/49931239842/play/360p/183f75d545/" controls autoplay ></video></div>
+ *
+ * @package Jetpack
  */
 
 /**
  * Transform embed to shortcode on save.
  *
  * @param string $content Post content.
+ *
+ * @return string Shortcode or the embed content itself.
  */
 function flickr_embed_to_shortcode( $content ) {
 	if ( ! is_string( $content ) ) {
 		return $content;
 	}
 
-	$type = '';
-
 	if ( false !== strpos( $content, '<div class="flickr_video"' ) && false !== strpos( $content, '<video' ) ) {
-		$type = 'video';
+		return jetpack_flickr_video_to_shortcode( $content );
+	} elseif ( preg_match( '/<iframe src="(https?:)?\/\/([\da-z\-]+\.)*?((static)?flickr\.com|flic\.kr)\/[^\"]+\"/', $content ) ) {
+		return jetpack_flickr_photo_to_shortcode( $content );
 	}
 
-	if ( preg_match( '/<iframe src="(https?:)?\/\/([\da-z\-]+\.)*?((static)?flickr\.com|flic\.kr)\/[^\"]+\"/', $content ) ) {
-		$type = 'photo';
-	}
+	return $content;
+}
 
-	if ( empty( $type ) ) {
-		return $content;
-	}
-
-	if ( 'video' === $type ) {
-		// Get video src.
-		preg_match( '/<video src=\"([^\"]+)\"/', $content, $matches );
-
-		if ( empty( $matches[1] ) ) {
-			return $content;
-		}
-
-		preg_match( '/\d+/', $matches[1], $matches );
-
-		$video_id = $matches[0];
-
-		// Get width.
-		preg_match( '/width:\s(\d+)px/', $content, $matches );
-
-		$width = empty( $matches[1] ) ? '' : 'w=' . $matches[1];
-		// Get height.
-		preg_match( '/height:\s(\d+)px/', $content, $matches );
-
-		$height = empty( $matches[1] ) ? '' : 'h=' . $matches[1];
-
-		$controls = false !== strpos( $content, 'controls' ) ? 'yes' : 'no';
-
-		$autoplay = false !== strpos( $content, 'autoplay' ) ? 'yes' : 'no';
-
-		return '[flickr video="' . $video_id . '" ' . $width . ' ' . $height . ' controls="' . $controls . '" autoplay="' . $autoplay . '"]';
-
-	}
-
+/**
+ * Transforms embed to shortcode on save when the photo param is used.
+ * If embed content can not be transformed to a valid shortcode,
+ * the embed content itself is returned.
+ *
+ * @param string $content Embed output.
+ *
+ * @return string Shortcode or the embed content.
+ */
+function jetpack_flickr_photo_to_shortcode( $content ) {
 	preg_match( '/<iframe src=\"([^\"]+)\"\s+height=\"([^\"]+)\"\s+width=\"([^\"]+)\"/', $content, $matches );
 
 	if ( empty( $matches[1] ) ) {
@@ -80,14 +56,59 @@ function flickr_embed_to_shortcode( $content ) {
 	$width  = $matches[2];
 	$height = $matches[3];
 
+	/** This action is documented in modules/shortcodes/youtube.php */
+	do_action( 'jetpack_embed_to_shortcode', 'flickr_photo', $src );
+
 	return '[flickr photo="' . $src . '" w=' . $width . ' h=' . $height . ']';
 }
+
+/**
+ * Transforms embed to shortcode on save when the video param is used.
+ * If embed content can not be transformed to a valid shortcode,
+ * the embed content itself is returned.
+ *
+ * @param string $content Embed output.
+ *
+ * @return string Shortcode or the embed content.
+ */
+function jetpack_flickr_video_to_shortcode( $content ) {
+	// Get video src.
+	preg_match( '/<video src=\"([^\"]+)\"/', $content, $matches );
+
+	if ( empty( $matches[1] ) ) {
+		return $content;
+	}
+
+	preg_match( '/(https?:)?\/\/([\da-z\-]+\.)*?((static)?flickr\.com|flic\.kr)\/photos\/([^\/]+)\/\d+\//', $matches[1], $matches );
+
+	$video_src = esc_attr( $matches[0] );
+
+	// Get width and height.
+
+	preg_match( '/style=\"max-width: 100%;(width:\s(\d+)px;)?(height:\s(\d+)px;)?/', $content, $matches );
+
+	$width = empty( $matches[2] ) ? '' : 'w=' . esc_attr( $matches[2] );
+
+	$height = empty( $matches[4] ) ? '' : 'h=' . esc_attr( $matches[4] );
+
+	$controls = false !== strpos( $content, 'controls' ) ? 'yes' : 'no';
+
+	$autoplay = false !== strpos( $content, 'autoplay' ) ? 'yes' : 'no';
+
+	/** This action is documented in modules/shortcodes/youtube.php */
+	do_action( 'jetpack_embed_to_shortcode', 'flickr_video', $video_src );
+
+	return '[flickr video="' . $video_src . '" ' . $width . ' ' . $height . ' controls="' . $controls . '" autoplay="' . $autoplay . '"]';
+}
+
 add_filter( 'pre_kses', 'flickr_embed_to_shortcode' );
 
 /**
  * Flickr Shortcode handler.
  *
  * @param array $atts Shortcode attributes.
+ *
+ * @return string Shortcode Output.
  */
 function flickr_shortcode_handler( $atts ) {
 	$atts = shortcode_atts(
@@ -153,6 +174,8 @@ function flickr_shortcode_handler( $atts ) {
  * @param array  $atts Shortcode attributes.
  * @param string $id Video ID.
  * @param string $video_param video param of the shortcode.
+ *
+ * @return string Shortcode ouput for video.
  */
 function flickr_shortcode_video_markup( $atts, $id, $video_param ) {
 
@@ -213,8 +236,8 @@ function flickr_shortcode_video_markup( $atts, $id, $video_param ) {
 
 	return sprintf(
 		'<div class="flick_video" style="%s"><video src="%s" %s %s /></div>',
-		$style,
-		$video_src,
+		esc_attr( $style ),
+		esc_attr( $video_src ),
 		$controls,
 		$autoplay
 	);
@@ -224,6 +247,8 @@ function flickr_shortcode_video_markup( $atts, $id, $video_param ) {
  * Extract the id of the flickr video from the video param.
  *
  * @param string $video_param Video parameter of the shortcode.
+ *
+ * @return string|boolean ID of the video or false in case the ID can not be extracted.
  */
 function flick_shortcode_video_id( $video_param ) {
 	if ( preg_match( '/^https?:\/\/(www\.)?flickr\.com\/.+/', $video_param ) || preg_match( '/^https?:\/\/flic\.kr\/.+/', $video_param ) ) {

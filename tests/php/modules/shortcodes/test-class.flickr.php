@@ -66,19 +66,34 @@ class WP_Test_Jetpack_Shortcodes_Flickr extends WP_UnitTestCase {
 	}
 
 	/**
+	 * @author carlosenamdev
+	 * @covers ::flickr_shortcode_handler
+	 * @since 3.2
+	 */
+	public function test_shortcodes_flickr_photo() {
+		$photo_link = 'https://www.flickr.com/photos/142669105@N04/26934351532';
+
+		$content = '[flickr photo="' . $photo_link . '"]';
+
+		$shortcode_content = do_shortcode( $content );
+
+		$this->assertContains( $photo_link, $shortcode_content );
+	}
+
+	/**
 	 * @author scotchfield
 	 * @covers ::flickr_shortcode_handler
 	 * @since 3.2
 	 */
-	public function test_shortcodes_flickr_video_http() {
+	public function test_shortcodes_flickr_video_link() {
 
-		$video_id = '49931239842';
+		$video_link = 'https://www.flickr.com/photos/kalakeli/49931239842';
 
-		$content = '[flickr video="' . $video_id . '"]';
+		$content = '[flickr video="' . $video_link . '"]';
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertContains( $video_id, $shortcode_content );
+		$this->assertContains( $video_link, $shortcode_content );
 	}
 
 	/**
@@ -89,20 +104,6 @@ class WP_Test_Jetpack_Shortcodes_Flickr extends WP_UnitTestCase {
 	public function test_shortcodes_flickr_video_id() {
 		$video_id = '49931239842';
 		$content  = '[flickr video="' . $video_id . '"]';
-
-		$shortcode_content = do_shortcode( $content );
-
-		$this->assertContains( $video_id, $shortcode_content );
-	}
-
-	/**
-	 * @author scotchfield
-	 * @covers ::flickr_shortcode_handler
-	 * @since 3.2
-	 */
-	public function test_shortcodes_flickr_video_id_show_info() {
-		$video_id = '49931239842';
-		$content  = "[flickr video='$video_id']";
 
 		$shortcode_content = do_shortcode( $content );
 
@@ -128,17 +129,63 @@ class WP_Test_Jetpack_Shortcodes_Flickr extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @author scotchfield
-	 * @covers ::flickr_shortcode_handler
-	 * @since 3.2
+	 * Test the flickr_shortcode_video_markup function when the transient is not set.
 	 */
-	public function test_shortcodes_flickr_video_id_show_info_secret() {
-		$video_id = '49931239842';
-		$content  = '[flickr video=' . $video_id . ']';
+	public function test_flickr_shortcode_video_markup_no_transient() {
+		$output = '<div class="flick_video" style="max-width: 100%;width: 500px;height: 200px;"><video src="https://www.flickr.com/photos/kalakeli/49931239842/play/360p/183f75d545/" controls  /></div>';
 
-		$shortcode_content = do_shortcode( $content );
+		$atts = array(
+			'w'        => 500,
+			'h'        => 200,
+			'controls' => 'yes',
+			'autoplay' => 'no',
+		);
 
-		$this->assertContains( $video_id, $shortcode_content );
+		$shortcode_output = flickr_shortcode_video_markup( $atts, '49931239842', 'https://www.flickr.com/photos/kalakeli/49931239842' );
+
+		$this->assertEquals( $output, $shortcode_output );
+
+	}
+
+	/**
+	 * Test the flickr_shortcode_video_markup function when the transient is set.
+	 */
+	public function test_flickr_shortcode_video_markup_transient() {
+		$output = '<div class="flick_video" style="max-width: 100%;width: 500px;height: 200px;"><video src="https://www.flickr.com/photos/kalakeli/49931239842/play/360p/183f75d545/" controls  /></div>';
+
+		set_transient( 'flickr_video_49931239842', 'https://www.flickr.com/photos/kalakeli/49931239842/play/360p/183f75d545/', 2592000 );
+
+		$atts = array(
+			'w'        => 500,
+			'h'        => 200,
+			'controls' => 'yes',
+			'autoplay' => 'no',
+		);
+
+		$shortcode_output = flickr_shortcode_video_markup( $atts, '49931239842', 'https://www.flickr.com/photos/kalakeli/49931239842' );
+
+		$this->assertEquals( $output, $shortcode_output );
+
+		delete_transient( 'flickr_video_49931239842' );
+
+	}
+
+	/**
+	 * Test the flickr_shortcode_video_markup function when the video id is equals to the video param.
+	 */
+	public function test_flickr_shortcode_video_markup_id_equals_video_param() {
+		$output = '<div class="flick_video" style="max-width: 100%;width: 500px;height: 200px;"><video src="https://www.flickr.com/photos/kalakeli/49931239842/play/360p/183f75d545/" controls  /></div>';
+
+		$atts = array(
+			'w'        => 500,
+			'h'        => 200,
+			'controls' => 'yes',
+			'autoplay' => 'no',
+		);
+
+		$shortcode_output = flickr_shortcode_video_markup( $atts, '49931239842', '49931239842' );
+
+		$this->assertEquals( $output, $shortcode_output );
 	}
 
 	/**
@@ -155,11 +202,14 @@ class WP_Test_Jetpack_Shortcodes_Flickr extends WP_UnitTestCase {
 		$this->assertEquals( $shortcode_content, '[flickr photo="http://www.flickr.com/photos/batmoo/5265478228" w=375 h=500]' );
 	}
 
-	public function test_shortcodes_flickr_reversal_embed_to_shortcode() {
+	/**
+	 * Shortcode reversals.
+	 */
+	public function test_shortcodes_flickr_reversal_video_to_shortcode() {
 		$content = '<div class="flickr_video" style="max-width: 100%;width: 500px;height: 300px;"><video src="https://www.flickr.com/photos/kalakeli/49931239842/play/360p/183f75d545/" controls autoplay /></div>';
 
 		$shortcode_content = wp_kses_post( $content );
 
-		$this->assertEquals( $shortcode_content, '[flickr video="49931239842" w=500 h=300 controls="yes" autoplay="yes"]' );
+		$this->assertEquals( $shortcode_content, '[flickr video="https://www.flickr.com/photos/kalakeli/49931239842/" w=500 h=300 controls="yes" autoplay="yes"]' );
 	}
 }
