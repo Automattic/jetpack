@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Connection;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Tracking;
+use Automattic\Jetpack\Heartbeat;
 
 /**
  * The Jetpack Connection Manager class that is used as a single gateway between WordPress.com
@@ -99,6 +100,9 @@ class Manager {
 		);
 
 		add_action( 'plugins_loaded', __NAMESPACE__ . '\Plugin_Storage::configure', 100 );
+
+		Heartbeat::init();
+		add_filter( 'jetpack_heartbeat_stats_array', array( $manager, 'add_stats_to_heartbeat' ) );
 
 	}
 
@@ -2273,6 +2277,28 @@ class Manager {
 	 */
 	public function get_connected_plugins() {
 		return Plugin_Storage::get_all();
+	}
+
+	/**
+	 * If connection is active, add the list of plugins using connection to the heartbeat (except Jetpack itself)
+	 *
+	 * @param array $stats The Heartbeat stats array.
+	 * @return array $stats
+	 */
+	public function add_stats_to_heartbeat( $stats ) {
+
+		if ( ! $this->is_active() ) {
+			return $stats;
+		}
+
+		$active_plugins_using_connection = Plugin_Storage::get_all();
+		foreach ( $active_plugins_using_connection as $plugin_slug => $plugin_details ) {
+			if ( 'jetpack' !== $plugin_slug ) {
+				$stats_group           = isset( $active_plugins_using_connection['jetpack'] ) ? 'combined-connection' : 'standalone-connection';
+				$stats[ $stats_group ] = $plugin_slug;
+			}
+		}
+		return $stats;
 	}
 
 }
