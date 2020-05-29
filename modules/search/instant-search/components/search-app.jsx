@@ -24,8 +24,6 @@ import {
 	hasFilter,
 	setSearchQuery,
 	setSortQuery,
-	getSortKeyFromSortOption,
-	getSortOptionFromSortKey,
 	setFilterQuery,
 	restorePreviousHref,
 } from '../lib/query-string';
@@ -73,10 +71,6 @@ class SearchApp extends Component {
 		window.addEventListener( 'queryStringChange', this.onChangeQueryString );
 
 		this.updateEventListeners( this.state.overlayOptions.overlayTrigger );
-		document.querySelectorAll( this.props.themeOptions.searchSortSelector ).forEach( select => {
-			select.addEventListener( 'change', this.handleSortChange );
-		} );
-
 		document.querySelectorAll( this.props.themeOptions.filterInputSelector ).forEach( element => {
 			element.addEventListener( 'click', this.handleFilterInputClick );
 		} );
@@ -90,10 +84,6 @@ class SearchApp extends Component {
 			input.form.removeEventListener( 'submit', this.handleSubmit );
 			input.removeEventListener( 'input', this.handleInput );
 			input.removeEventListener( 'focus', this.handleInputFocus );
-		} );
-
-		document.querySelectorAll( this.props.themeOptions.searchSortSelector ).forEach( select => {
-			select.removeEventListener( 'change', this.handleSortChange );
 		} );
 
 		document.querySelectorAll( this.props.themeOptions.filterInputSelector ).forEach( element => {
@@ -153,10 +143,6 @@ class SearchApp extends Component {
 
 	handleInputFocus = () => this.showResults();
 
-	handleSortChange = event => {
-		setSortQuery( getSortKeyFromSortOption( event.target.value ) );
-	};
-
 	handleFilterInputClick = event => {
 		event.preventDefault();
 
@@ -206,10 +192,6 @@ class SearchApp extends Component {
 
 		document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( input => {
 			input.value = getSearchQuery();
-		} );
-
-		document.querySelectorAll( this.props.themeOptions.searchSortSelector ).forEach( select => {
-			select.value = getSortOptionFromSortKey( getSortQuery() );
 		} );
 
 		// NOTE: This is necessary to ensure that the search query has been propagated to SearchBox
