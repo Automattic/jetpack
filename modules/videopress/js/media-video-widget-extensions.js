@@ -1,12 +1,12 @@
 window.wp = window.wp || {};
 
-( function( wp ) {
+( function ( wp ) {
 	if ( wp.mediaWidgets ) {
 		// Over-ride core media_video#mapMediaToModelProps to set the url based upon videopress_guid if it exists.
-		wp.mediaWidgets.controlConstructors.media_video.prototype.mapMediaToModelProps = ( function(
+		wp.mediaWidgets.controlConstructors.media_video.prototype.mapMediaToModelProps = ( function (
 			originalMapMediaToModelProps
 		) {
-			return function( mediaFrameProps ) {
+			return function ( mediaFrameProps ) {
 				var newProps, originalProps, videoPressGuid;
 				originalProps = originalMapMediaToModelProps.call( this, mediaFrameProps );
 				newProps = _.extend( {}, originalProps );
@@ -36,10 +36,10 @@ window.wp = window.wp || {};
 		} )( wp.mediaWidgets.controlConstructors.media_video.prototype.mapMediaToModelProps );
 
 		// Over-ride core media_video#isHostedVideo() to add support for videopress oembed urls.
-		wp.mediaWidgets.controlConstructors.media_video.prototype.isHostedVideo = ( function(
+		wp.mediaWidgets.controlConstructors.media_video.prototype.isHostedVideo = ( function (
 			originalIsHostedVideo
 		) {
-			return function( url ) {
+			return function ( url ) {
 				var parsedUrl = document.createElement( 'a' );
 				parsedUrl.href = url;
 				if ( 'videopress.com' === parsedUrl.hostname ) {

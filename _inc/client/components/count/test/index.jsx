@@ -10,14 +10,14 @@ import useMockery from 'test/helpers/use-mockery';
  */
 import useI18n from 'test/helpers/use-i18n';
 
-describe( 'Count', function() {
+describe( 'Count', function () {
 	let React, ReactInjection, TestUtils, Count, renderer;
 
 	// really only using Mockery for the clean module cache
 	useMockery();
 	useI18n();
 
-	before( function() {
+	before( function () {
 		React = require( 'react' );
 		ReactInjection = require( 'react/lib/ReactInjection' );
 		TestUtils = require( 'react-addons-test-utils' );
@@ -26,11 +26,11 @@ describe( 'Count', function() {
 		Count = require( '../' );
 	} );
 
-	beforeEach( function() {
+	beforeEach( function () {
 		renderer = TestUtils.createRenderer();
 	} );
 
-	it( 'should render the passed count', function() {
+	it( 'should render the passed count', function () {
 		renderer.render( <Count count={ 23 } /> );
 		const result = renderer.getRenderOutput();
 
@@ -38,35 +38,35 @@ describe( 'Count', function() {
 		expect( result.props.children ).to.equal( '23' );
 	} );
 
-	it( 'should use the correct class name', function() {
+	it( 'should use the correct class name', function () {
 		renderer.render( <Count count={ 23 } /> );
 		const result = renderer.getRenderOutput();
 
 		expect( result.props.className ).to.equal( 'count' );
 	} );
 
-	it( 'should internationalize the passed count', function() {
+	it( 'should internationalize the passed count', function () {
 		renderer.render( <Count count={ 2317 } /> );
 		const result = renderer.getRenderOutput();
 
 		expect( result.props.children ).to.equal( '2,317' );
 	} );
 
-	it( 'should render zero', function() {
+	it( 'should render zero', function () {
 		renderer.render( <Count count={ 0 } /> );
 		const result = renderer.getRenderOutput();
 
 		expect( result.props.children ).to.equal( '0' );
 	} );
 
-	it( 'should render negative numbers', function() {
+	it( 'should render negative numbers', function () {
 		renderer.render( <Count count={ -1000 } /> );
 		const result = renderer.getRenderOutput();
 
 		expect( result.props.children ).to.equal( '-1,000' );
 	} );
 
-	it( 'should cut off floating point numbers', function() {
+	it( 'should cut off floating point numbers', function () {
 		renderer.render( <Count count={ 3.1415926 } /> );
 		const result = renderer.getRenderOutput();
 

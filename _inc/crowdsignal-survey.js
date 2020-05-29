@@ -1,4 +1,4 @@
-( function( d, c, j ) {
+( function ( d, c, j ) {
 	if ( ! d.getElementById( j ) ) {
 		var pd = d.createElement( c ),
 			s;

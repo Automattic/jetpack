@@ -2,7 +2,7 @@ const keyboardNavigationKeycodes = [ 9, 32, 37, 38, 39, 40 ]; // keyCodes for ta
 let keyboardNavigation = false;
 
 function accessibleFocus() {
-	document.addEventListener( 'keydown', function( event ) {
+	document.addEventListener( 'keydown', function ( event ) {
 		if ( keyboardNavigation ) {
 			return;
 		}
@@ -11,7 +11,7 @@ function accessibleFocus() {
 			document.documentElement.classList.add( 'dops-accessible-focus' );
 		}
 	} );
-	document.addEventListener( 'mouseup', function() {
+	document.addEventListener( 'mouseup', function () {
 		if ( ! keyboardNavigation ) {
 			return;
 		}

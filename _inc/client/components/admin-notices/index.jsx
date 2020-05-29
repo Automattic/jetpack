@@ -11,22 +11,19 @@ class AdminNotices extends React.Component {
 
 		const $vpDeactivationNotice = jQuery( '.vp-deactivated' );
 		if ( $vpDeactivationNotice.length > 0 ) {
-			$vpDeactivationNotice.each( function() {
+			$vpDeactivationNotice.each( function () {
 				const $notice = jQuery( this )
 					.addClass( 'dops-notice is-success is-dismissable' )
 					.removeClass( 'wrap vp-notice notice notice-success' );
 				const icon =
 					'<span class="dops-notice__icon-wrapper"><svg class="gridicon gridicons-notice dops-notice__icon" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9 19.414l-6.707-6.707 1.414-1.414L9 16.586 20.293 5.293l1.414 1.414"/></svg></span>';
 				$notice.wrapInner( '<span class="dops-notice__content">' );
-				$notice
-					.find( '.dops-notice__content' )
-					.before( icon )
-					.css( 'display', 'block' );
+				$notice.find( '.dops-notice__content' ).before( icon ).css( 'display', 'block' );
 				$notice.find( '.dops-notice__content' ).after( dismiss );
-				$notice.find( 'h2' ).replaceWith( function() {
+				$notice.find( 'h2' ).replaceWith( function () {
 					return jQuery( '<strong />', { html: this.innerHTML } );
 				} );
-				$notice.find( 'p' ).replaceWith( function() {
+				$notice.find( 'p' ).replaceWith( function () {
 					return jQuery( '<div/>', { html: this.innerHTML } );
 				} );
 				$notice.prependTo( $adminNotices ).css( 'display', 'flex' );
@@ -35,7 +32,7 @@ class AdminNotices extends React.Component {
 
 		const $vpNotice = jQuery( '.vp-notice' );
 		if ( $vpNotice.length > 0 ) {
-			$vpNotice.each( function() {
+			$vpNotice.each( function () {
 				const $notice = jQuery( this );
 				// If the notice doesn't have an icon, it's one of the old VP notices.
 				if ( 0 === $notice.find( '.dops-notice__icon' ).length ) {
@@ -47,14 +44,11 @@ class AdminNotices extends React.Component {
 						? '<span class="dops-notice__icon-wrapper"><svg class="gridicon gridicons-notice dops-notice__icon" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9 19.414l-6.707-6.707 1.414-1.414L9 16.586 20.293 5.293l1.414 1.414"/></svg></span>'
 						: '<span class="dops-notice__icon-wrapper"><svg class="gridicon gridicons-notice dops-notice__icon" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm1 15h-2v-2h2v2zm0-4h-2l-.5-6h3l-.5 6z"/></svg></span>';
 					$notice.find( '.dops-notice__content' ).before( icon );
-					$notice
-						.find( '.vp-message' )
-						.removeClass( 'vp-message' )
-						.addClass( 'dops-notice__text' );
-					$notice.find( 'h3' ).replaceWith( function() {
+					$notice.find( '.vp-message' ).removeClass( 'vp-message' ).addClass( 'dops-notice__text' );
+					$notice.find( 'h3' ).replaceWith( function () {
 						return jQuery( '<strong />', { html: this.innerHTML } );
 					} );
-					$notice.find( 'p' ).replaceWith( function() {
+					$notice.find( 'p' ).replaceWith( function () {
 						return jQuery( '<div/>', { html: this.innerHTML } );
 					} );
 					$notice.css( 'display', 'flex' );
@@ -66,7 +60,7 @@ class AdminNotices extends React.Component {
 
 		const $wcNotice = jQuery( '.woocommerce-message' );
 		if ( $wcNotice.length > 0 ) {
-			$wcNotice.each( function() {
+			$wcNotice.each( function () {
 				const $notice = jQuery( this )
 					.addClass( 'dops-notice' )
 					.removeClass( 'updated wc-connect' );
@@ -76,12 +70,9 @@ class AdminNotices extends React.Component {
 					.removeClass( 'button-primary' )
 					.detach()
 					.appendTo( $notice );
-				$notice
-					.find( 'p' )
-					.not( '.submit' )
-					.wrapAll( '<span class="dops-notice__text"/>' );
+				$notice.find( 'p' ).not( '.submit' ).wrapAll( '<span class="dops-notice__text"/>' );
 				const $dopsNotice = $notice.find( '.dops-notice__text' );
-				$dopsNotice.find( 'p' ).replaceWith( function() {
+				$dopsNotice.find( 'p' ).replaceWith( function () {
 					return jQuery( '<div/>', { html: this.innerHTML, class: 'dops-notice__moved_text' } );
 				} );
 				$dopsNotice.find( 'br' ).remove();
@@ -105,28 +96,22 @@ class AdminNotices extends React.Component {
 					.removeClass( 'dops-notice__action' )
 					.detach()
 					.appendTo( $notice.find( '.dops-notice__text' ) );
-				$notice
-					.find( '.dops-notice__action:first' )
-					.detach()
-					.appendTo( $notice );
+				$notice.find( '.dops-notice__action:first' ).detach().appendTo( $notice );
 			} );
 		}
 
 		// Hide the rest of the core notices, they don't look very good above the react app.
 		const $allNotices = jQuery( '.notice' );
 		if ( $allNotices.length > 0 ) {
-			$allNotices.each( function() {
+			$allNotices.each( function () {
 				const $notice = jQuery( this );
 				$notice.hide();
 			} );
 		}
 
 		if ( $adminNotices.length > 0 ) {
-			jQuery( '.dops-notice__dismiss' ).click( function() {
-				jQuery( this )
-					.parent()
-					.closest( 'div' )
-					.hide();
+			jQuery( '.dops-notice__dismiss' ).click( function () {
+				jQuery( this ).parent().closest( 'div' ).hide();
 			} );
 		}
 	}

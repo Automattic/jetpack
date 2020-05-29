@@ -9,7 +9,7 @@ import domReady from '@wordpress/dom-ready';
 import './view.scss';
 
 if ( typeof window !== 'undefined' && window.jQuery ) {
-	domReady( function() {
+	domReady( function () {
 		const revueBlocks = document.querySelectorAll( '.wp-block-jetpack-revue' );
 
 		revueBlocks.forEach( block => {

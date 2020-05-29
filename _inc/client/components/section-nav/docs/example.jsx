@@ -24,7 +24,7 @@ const SectionNavigation = createReactClass( {
 
 	mixins: [ PureRenderMixin ],
 
-	getInitialState: function() {
+	getInitialState: function () {
 		return {
 			basicTabsSelectedIndex: 0,
 			manyTabsSelectedIndex: 0,
@@ -33,7 +33,7 @@ const SectionNavigation = createReactClass( {
 		};
 	},
 
-	getDefaultProps: function() {
+	getDefaultProps: function () {
 		return {
 			basicTabs: [
 				'Days',
@@ -79,13 +79,13 @@ const SectionNavigation = createReactClass( {
 		};
 	},
 
-	render: function() {
+	render: function () {
 		const demoSections = {};
 
 		forEach( this.props, ( prop, key ) => {
 			demoSections[ key ] = [];
 
-			prop.forEach( function( item, index ) {
+			prop.forEach( function ( item, index ) {
 				demoSections[ key ].push(
 					<NavItem
 						key={ key + '-' + index }
@@ -143,21 +143,21 @@ const SectionNavigation = createReactClass( {
 		);
 	},
 
-	getSelectedText: function( section ) {
+	getSelectedText: function ( section ) {
 		const selected = this.state[ section + 'SelectedIndex' ],
 			text = this.props[ section ][ selected ];
 
 		return 'object' === typeof text ? text.name : text;
 	},
 
-	getSelectedCount: function( section ) {
+	getSelectedCount: function ( section ) {
 		const selected = this.state[ section + 'SelectedIndex' ],
 			selectedItem = this.props[ section ][ selected ];
 
 		return 'object' === typeof selectedItem ? selectedItem.count || null : null;
 	},
 
-	getSiblingDemoSelectedText: function() {
+	getSiblingDemoSelectedText: function () {
 		return (
 			<span>
 				<span>{ this.getSelectedText( 'siblingTabs' ) }</span>
@@ -166,8 +166,8 @@ const SectionNavigation = createReactClass( {
 		);
 	},
 
-	handleNavItemClick: function( section, index ) {
-		return function() {
+	handleNavItemClick: function ( section, index ) {
+		return function () {
 			const stateUpdate = {};
 
 			stateUpdate[ section + 'SelectedIndex' ] = index;
@@ -175,7 +175,7 @@ const SectionNavigation = createReactClass( {
 		}.bind( this );
 	},
 
-	demoSearch: function() {},
+	demoSearch: function () {},
 } );
 
 export default SectionNavigation;

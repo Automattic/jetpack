@@ -1,16 +1,16 @@
 /* global MilestoneConfig */
 
-var Milestone = ( function() {
-	var Milestone = function( args ) {
+var Milestone = ( function () {
+	var Milestone = function ( args ) {
 		var widget_content = document.getElementById( args.content_id ),
 			id = args.id,
 			refresh = args.refresh * 1000;
 
-		this.timer = function() {
+		this.timer = function () {
 			var instance = this;
 			var xhr = new XMLHttpRequest();
 
-			xhr.onload = function() {
+			xhr.onload = function () {
 				var response = JSON.parse( xhr.responseText ),
 					httpCheck = xhr.status >= 200 && xhr.status < 300,
 					responseCheck =
@@ -26,7 +26,7 @@ var Milestone = ( function() {
 						return;
 					}
 
-					setTimeout( function() {
+					setTimeout( function () {
 						instance.timer();
 					}, refresh );
 				}
@@ -40,12 +40,12 @@ var Milestone = ( function() {
 			this.timer();
 		}
 	};
-	return function( args ) {
+	return function ( args ) {
 		return new Milestone( args );
 	};
 } )();
 
-( function() {
+( function () {
 	var i,
 		MilestoneInstances = {};
 

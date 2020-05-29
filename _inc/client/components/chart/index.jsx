@@ -94,7 +94,7 @@ export default class ModuleChart extends React.Component {
 	getValues = () => {
 		let data = this.getData();
 
-		data = data.map( function( item ) {
+		data = data.map( function ( item ) {
 			return item.value;
 		}, this );
 
@@ -102,7 +102,7 @@ export default class ModuleChart extends React.Component {
 	};
 
 	isEmptyChart = values => {
-		values = values.filter( function( value ) {
+		values = values.filter( function ( value ) {
 			return value > 0;
 		}, this );
 

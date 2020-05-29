@@ -115,15 +115,11 @@ function setReleaseDates() {
 
 		if ( nextMilestone ) {
 			jetpackReleaseDate = moment( nextMilestone.due_on ).format( 'LL' );
-			codeFreezeDate = moment( nextMilestone.due_on )
-				.subtract( 7, 'd' )
-				.format( 'LL' );
+			codeFreezeDate = moment( nextMilestone.due_on ).subtract( 7, 'd' ).format( 'LL' );
 		} else {
 			// Fallback to raw math calculation
 			// Calculate next release date
-			const firstTuesdayOfMonth = moment()
-				.add( 1, 'months' )
-				.startOf( 'month' );
+			const firstTuesdayOfMonth = moment().add( 1, 'months' ).startOf( 'month' );
 			while ( firstTuesdayOfMonth.day() !== 2 ) {
 				firstTuesdayOfMonth.add( 1, 'day' );
 			}

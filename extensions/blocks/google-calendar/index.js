@@ -48,7 +48,7 @@ export const settings = {
 			{
 				type: 'shortcode',
 				tag: 'googleapps',
-				isMatch: function( attributes ) {
+				isMatch: function ( attributes ) {
 					return attributes.named.domain === 'calendar';
 				},
 				attributes: {

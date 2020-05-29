@@ -27,25 +27,25 @@ import {
 	watchPackages as sass_watch_packages,
 } from './tools/builder/sass';
 
-gulp.task( 'old-styles:watch', function() {
+gulp.task( 'old-styles:watch', function () {
 	return gulp.watch( 'scss/**/*.scss', gulp.parallel( 'old-styles' ) );
 } );
 
-gulp.task( 'blocks:watch', function() {
+gulp.task( 'blocks:watch', function () {
 	const child = require( 'child_process' ).execFile( 'yarn', [ 'build-extensions', '--watch' ] );
 
-	child.stdout.on( 'data', function( data ) {
+	child.stdout.on( 'data', function ( data ) {
 		log( data.toString() );
 	} );
 } );
 
-gulp.task( 'search:watch', function() {
+gulp.task( 'search:watch', function () {
 	const child = require( 'child_process' ).execFile( 'yarn', [
 		'build-search:scripts',
 		'--watch',
 	] );
 
-	child.stdout.on( 'data', function( data ) {
+	child.stdout.on( 'data', function ( data ) {
 		log( data.toString() );
 	} );
 } );
@@ -55,20 +55,20 @@ gulp.task( 'search:watch', function() {
 */
 
 // Should not be run independently, run gulp languages instead
-gulp.task( 'languages:get', function( callback ) {
+gulp.task( 'languages:get', function ( callback ) {
 	const process = spawn( 'php', [
 		'tools/export-translations.php',
 		'.',
 		'https://translate.wordpress.org/projects/wp-plugins/jetpack/dev',
 	] );
 
-	process.stderr.on( 'data', function( data ) {
+	process.stderr.on( 'data', function ( data ) {
 		log( data.toString() );
 	} );
-	process.stdout.on( 'data', function( data ) {
+	process.stdout.on( 'data', function ( data ) {
 		log( data.toString() );
 	} );
-	process.on( 'exit', function( code ) {
+	process.on( 'exit', function ( code ) {
 		if ( 0 !== code ) {
 			log( 'Failed getting languages: process exited with code ', code );
 			// Make the task fail if there was a problem as this could mean that we were going to ship a Jetpack version
@@ -80,20 +80,20 @@ gulp.task( 'languages:get', function( callback ) {
 } );
 
 // Should not be run independently, run gulp languages instead
-gulp.task( 'languages:build', function( done ) {
+gulp.task( 'languages:build', function ( done ) {
 	const terms = [];
 
 	// Defining global that will be used from jetpack-strings.js
 	global.$jetpack_strings = [];
-	global.array = function() {};
+	global.array = function () {};
 
 	// Plural gettext call doesn't make a difference for Jed, the singular value is still used as the key.
-	global.__ = global._n = function( term ) {
+	global.__ = global._n = function ( term ) {
 		terms[ term ] = '';
 	};
 
 	// Context prefixes the term and is separated with a unicode character U+0004
-	global._x = function( term, context ) {
+	global._x = function ( term, context ) {
 		terms[ context + '\u0004' + term ] = '';
 	};
 
@@ -106,7 +106,7 @@ gulp.task( 'languages:build', function( done ) {
 		)
 		.pipe( rename( 'jetpack-strings.js' ) )
 		.pipe( gulp.dest( '_inc' ) )
-		.on( 'end', function() {
+		.on( 'end', function () {
 			// Requiring the file that will call __, _x and _n
 			require( './_inc/jetpack-strings.js' );
 
@@ -120,13 +120,13 @@ gulp.task( 'languages:build', function( done ) {
 						} )
 					)
 					.pipe(
-						json_transform( function( data ) {
+						json_transform( function ( data ) {
 							const localeData = data.locale_data.jetpack;
 							const filtered = {
 								'': localeData[ '' ],
 							};
 
-							Object.keys( localeData ).forEach( function( term ) {
+							Object.keys( localeData ).forEach( function ( term ) {
 								if ( terms.hasOwnProperty( term ) ) {
 									filtered[ term ] = localeData[ term ];
 
@@ -150,7 +150,7 @@ gulp.task( 'languages:build', function( done ) {
 					// of '_inc/build/admin.js'.
 					.pipe( rename( { suffix: '-1bac79e646a8bf4081a5011ab72d5807' } ) )
 					.pipe( gulp.dest( 'languages/json/' ) )
-					.on( 'end', function() {
+					.on( 'end', function () {
 						fs.unlinkSync( './_inc/jetpack-strings.js' );
 						done();
 					} )
@@ -158,15 +158,15 @@ gulp.task( 'languages:build', function( done ) {
 		} );
 } );
 
-gulp.task( 'php:module-headings', function( callback ) {
+gulp.task( 'php:module-headings', function ( callback ) {
 	const process = spawn( 'php', [ 'tools/build-module-headings-translations.php' ] );
-	process.stderr.on( 'data', function( data ) {
+	process.stderr.on( 'data', function ( data ) {
 		log( data.toString() );
 	} );
-	process.stdout.on( 'data', function( data ) {
+	process.stdout.on( 'data', function ( data ) {
 		log( data.toString() );
 	} );
-	process.on( 'exit', function( code ) {
+	process.on( 'exit', function ( code ) {
 		if ( 0 !== code ) {
 			log( 'Failed building module headings translations: process exited with code ', code );
 		}
@@ -175,25 +175,25 @@ gulp.task( 'php:module-headings', function( callback ) {
 } );
 
 // Should not be run independently, run gulp languages instead
-gulp.task( 'languages:cleanup', function( done ) {
+gulp.task( 'languages:cleanup', function ( done ) {
 	const language_packs = [];
 
 	request(
 		'https://api.wordpress.org/translations/plugins/1.0/?slug=jetpack&version=' + meta.version,
-		function( error, response, body ) {
+		function ( error, response, body ) {
 			if ( error || 200 !== response.statusCode ) {
 				done( 'Failed to reach wordpress.org translation API: ' + error );
 			}
 
 			body = JSON.parse( body );
 
-			body.translations.forEach( function( language ) {
+			body.translations.forEach( function ( language ) {
 				language_packs.push( './languages/jetpack-' + language.language + '.*' );
 			} );
 
 			log( 'Cleaning up languages for which Jetpack has language packs:' );
-			del( language_packs ).then( function( paths ) {
-				paths.forEach( function( item ) {
+			del( language_packs ).then( function ( paths ) {
+				paths.forEach( function ( item ) {
 					log( item );
 				} );
 				done();
@@ -202,7 +202,7 @@ gulp.task( 'languages:cleanup', function( done ) {
 	);
 } );
 
-gulp.task( 'languages:extract', function( done ) {
+gulp.task( 'languages:extract', function ( done ) {
 	const paths = [];
 
 	return gulp
@@ -213,11 +213,11 @@ gulp.task( 'languages:extract', function( done ) {
 			'_inc/blocks/**/*.js',
 		] )
 		.pipe(
-			tap( function( file ) {
+			tap( function ( file ) {
 				paths.push( file.path );
 			} )
 		)
-		.on( 'end', function() {
+		.on( 'end', function () {
 			i18n_calypso( {
 				projectName: 'Jetpack',
 				inputPaths: paths,

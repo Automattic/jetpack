@@ -16,7 +16,7 @@ let _superProps, _user;
 window._tkq = window._tkq || [];
 window.ga =
 	window.ga ||
-	function() {
+	function () {
 		( window.ga.q = window.ga.q || [] ).push( arguments );
 	};
 window.ga.l = +new Date();
@@ -57,22 +57,22 @@ function buildQuerystringNoPrefix( group, name ) {
 }
 
 const analytics = {
-	initialize: function( userId, username, superProps ) {
+	initialize: function ( userId, username, superProps ) {
 		analytics.setUser( userId, username );
 		analytics.setSuperProps( superProps );
 		analytics.identifyUser();
 	},
 
-	setUser: function( userId, username ) {
+	setUser: function ( userId, username ) {
 		_user = { ID: userId, username: username };
 	},
 
-	setSuperProps: function( superProps ) {
+	setSuperProps: function ( superProps ) {
 		_superProps = superProps;
 	},
 
 	mc: {
-		bumpStat: function( group, name ) {
+		bumpStat: function ( group, name ) {
 			const uriComponent = buildQuerystring( group, name ); // prints debug info
 			if ( config( 'mc_analytics_enabled' ) ) {
 				new Image().src =
@@ -84,7 +84,7 @@ const analytics = {
 			}
 		},
 
-		bumpStatWithPageView: function( group, name ) {
+		bumpStatWithPageView: function ( group, name ) {
 			// this function is fairly dangerous, as it bumps page views for wpcom and should only be called in very specific cases.
 			const uriComponent = buildQuerystringNoPrefix( group, name ); // prints debug info
 			if ( config( 'mc_analytics_enabled' ) ) {
@@ -100,20 +100,20 @@ const analytics = {
 
 	// pageView is a wrapper for pageview events across Tracks and GA
 	pageView: {
-		record: function( urlPath, pageTitle ) {
+		record: function ( urlPath, pageTitle ) {
 			analytics.tracks.recordPageView( urlPath );
 			analytics.ga.recordPageView( urlPath, pageTitle );
 		},
 	},
 
 	purchase: {
-		record: function( transactionId, itemName, itemId, revenue, price, qty, currency ) {
+		record: function ( transactionId, itemName, itemId, revenue, price, qty, currency ) {
 			analytics.ga.recordPurchase( transactionId, itemName, itemId, revenue, price, qty, currency );
 		},
 	},
 
 	tracks: {
-		recordEvent: function( eventName, eventProperties ) {
+		recordEvent: function ( eventName, eventProperties ) {
 			eventProperties = eventProperties || {};
 
 			if ( eventName.indexOf( 'akismet_' ) !== 0 && eventName.indexOf( 'jetpack_' ) !== 0 ) {
@@ -134,19 +134,19 @@ const analytics = {
 			window._tkq.push( [ 'recordEvent', eventName, eventProperties ] );
 		},
 
-		recordJetpackClick: function( target ) {
+		recordJetpackClick: function ( target ) {
 			const props = 'object' === typeof target ? target : { target: target };
 
 			analytics.tracks.recordEvent( 'jetpack_wpa_click', props );
 		},
 
-		recordPageView: function( urlPath ) {
+		recordPageView: function ( urlPath ) {
 			analytics.tracks.recordEvent( 'akismet_page_view', {
 				path: urlPath,
 			} );
 		},
 
-		setOptOut: function( isOptingOut ) {
+		setOptOut: function ( isOptingOut ) {
 			debug( 'Pushing setOptOut: %o', isOptingOut );
 			window._tkq.push( [ 'setOptOut', isOptingOut ] );
 		},
@@ -156,7 +156,7 @@ const analytics = {
 	ga: {
 		initialized: false,
 
-		initialize: function() {
+		initialize: function () {
 			let parameters = {};
 			if ( ! analytics.ga.initialized ) {
 				if ( _user ) {
@@ -169,7 +169,7 @@ const analytics = {
 			}
 		},
 
-		recordPageView: function( urlPath, pageTitle ) {
+		recordPageView: function ( urlPath, pageTitle ) {
 			analytics.ga.initialize();
 
 			debug( 'Recording Page View ~ [URL: ' + urlPath + '] [Title: ' + pageTitle + ']' );
@@ -186,7 +186,7 @@ const analytics = {
 			}
 		},
 
-		recordEvent: function( category, action, label, value ) {
+		recordEvent: function ( category, action, label, value ) {
 			analytics.ga.initialize();
 
 			let debugText = 'Recording Event ~ [Category: ' + category + '] [Action: ' + action + ']';
@@ -206,7 +206,7 @@ const analytics = {
 			}
 		},
 
-		recordPurchase: function( transactionId, itemName, itemId, revenue, price, qty, currency ) {
+		recordPurchase: function ( transactionId, itemName, itemId, revenue, price, qty, currency ) {
 			window.ga( 'require', 'ecommerce' );
 			window.ga( 'ecommerce:addTransaction', {
 				id: transactionId, // Transaction ID. Required.
@@ -227,18 +227,18 @@ const analytics = {
 		},
 	},
 
-	identifyUser: function() {
+	identifyUser: function () {
 		// Don't identify the user if we don't have one
 		if ( _user ) {
 			window._tkq.push( [ 'identifyUser', _user.ID, _user.username ] );
 		}
 	},
 
-	setProperties: function( properties ) {
+	setProperties: function ( properties ) {
 		window._tkq.push( [ 'setProperties', properties ] );
 	},
 
-	clearedIdentity: function() {
+	clearedIdentity: function () {
 		window._tkq.push( [ 'clearIdentity' ] );
 	},
 };

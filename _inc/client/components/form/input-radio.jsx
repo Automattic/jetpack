@@ -75,27 +75,27 @@ export default createReactClass( {
 		validationError: PropTypes.string,
 	},
 
-	getInitialState: function() {
+	getInitialState: function () {
 		return {
 			uniqueId: getUniqueId(),
 			selectedItem: this.props.selected,
 		};
 	},
 
-	UNSAFE_componentWillMount: function() {
+	UNSAFE_componentWillMount: function () {
 		this.setValue( this.props.selected );
 	},
 
-	getDefaultProps: function() {
+	getDefaultProps: function () {
 		return { required: false };
 	},
 
-	changeValue: function( event ) {
+	changeValue: function ( event ) {
 		this.setState( { selectedItem: event.target.value } );
 		this.setValue( event.target.value );
 	},
 
-	render: function() {
+	render: function () {
 		let errorMessage;
 
 		if ( ! this.isPristine() ) {

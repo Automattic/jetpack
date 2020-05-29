@@ -1,5 +1,5 @@
 /* global tinyMCE, vpEditorView */
-( function( $, wp, vpEditorView ) {
+( function ( $, wp, vpEditorView ) {
 	wp.mce = wp.mce || {};
 	if ( 'undefined' === typeof wp.mce.views ) {
 		return;
@@ -19,7 +19,7 @@
 		},
 		coerce: wp.media.coerce,
 		template: wp.template( 'videopress_iframe_vnext' ),
-		getContent: function() {
+		getContent: function () {
 			var urlargs = 'for=' + encodeURIComponent( vpEditorView.home_url_host ),
 				named = this.shortcode.attrs.named,
 				options,
@@ -70,7 +70,7 @@
 
 			return this.template( options );
 		},
-		edit: function( data ) {
+		edit: function ( data ) {
 			var shortcode_data = wp.shortcode.next( this.shortcode_string, data ),
 				named = shortcode_data.shortcode.attrs.named,
 				editor = tinyMCE.activeEditor,
@@ -83,7 +83,7 @@
 			 *
 			 * @returns {string}
 			 */
-			tinyMCE.ui.TextBox.prototype.renderHtml = function() {
+			tinyMCE.ui.TextBox.prototype.renderHtml = function () {
 				var self = this,
 					settings = self.settings,
 					element = document.createElement( settings.multiline ? 'textarea' : 'input' ),
@@ -129,10 +129,10 @@
 				return element.outerHTML;
 			};
 
-			tinyMCE.ui.FormItem.prototype.renderHtml = function() {
+			tinyMCE.ui.FormItem.prototype.renderHtml = function () {
 				_.each(
 					vpEditorView.modal_labels,
-					function( value, key ) {
+					function ( value, key ) {
 						if ( value === this.settings.items.text ) {
 							this.classes.add( 'videopress-field-' + key );
 						}
@@ -163,7 +163,7 @@
 			 */
 			_.each(
 				this.defaults,
-				function( value, key ) {
+				function ( value, key ) {
 					named[ key ] = this.coerce( named, key );
 				},
 				this
@@ -238,7 +238,7 @@
 						checked: named.flashonly,
 					},
 				],
-				onsubmit: function( e ) {
+				onsubmit: function ( e ) {
 					var args = {
 						tag: renderer.shortcode_string,
 						type: 'single',
@@ -254,7 +254,7 @@
 
 					_.each(
 						renderer.defaults,
-						function( value, key ) {
+						function ( value, key ) {
 							args.attrs.named[ key ] = this.coerce( args.attrs.named, key );
 
 							if ( value === args.attrs.named[ key ] ) {
@@ -266,9 +266,9 @@
 
 					editor.insertContent( wp.shortcode.string( args ) );
 				},
-				onopen: function( e ) {
+				onopen: function ( e ) {
 					var prefix = 'mce-videopress-field-';
-					_.each( [ 'w', 'at' ], function( value ) {
+					_.each( [ 'w', 'at' ], function ( value ) {
 						e.target.$el
 							.find( '.' + prefix + value + ' .mce-container-body' )
 							.append(
@@ -284,7 +284,7 @@
 					} );
 					$( 'body' ).addClass( 'modal-open' );
 				},
-				onclose: function() {
+				onclose: function () {
 					$( 'body' ).removeClass( 'modal-open' );
 				},
 			} );

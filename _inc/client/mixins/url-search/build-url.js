@@ -12,7 +12,7 @@ import { pick } from 'lodash';
  * @param  {string} search Search terms
  * @return {string}        Path including search terms
  */
-export default function( uri, search ) {
+export default function ( uri, search ) {
 	let parsedUrl = url.parse( uri, true );
 
 	if ( search ) {

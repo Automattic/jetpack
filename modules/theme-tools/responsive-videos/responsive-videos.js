@@ -1,20 +1,17 @@
-( function( $ ) {
+( function ( $ ) {
 	var resizeTimer;
 
 	function responsiveVideos() {
 		$( '.jetpack-video-wrapper' )
 			.find( 'embed, iframe, object' )
-			.each( function() {
+			.each( function () {
 				var _this, videoWidth, videoHeight, videoRatio, videoWrapper, videoMargin, containerWidth;
 
 				_this = $( this );
 				videoMargin = 0;
 
 				if (
-					_this
-						.parents( '.jetpack-video-wrapper' )
-						.prev( 'p' )
-						.css( 'text-align' ) === 'center'
+					_this.parents( '.jetpack-video-wrapper' ).prev( 'p' ).css( 'text-align' ) === 'center'
 				) {
 					videoMargin = '0 auto';
 				}
@@ -50,10 +47,10 @@
 			} );
 	}
 
-	$( document ).ready( function() {
+	$( document ).ready( function () {
 		$( window )
 			.on( 'load.jetpack', responsiveVideos )
-			.on( 'resize.jetpack', function() {
+			.on( 'resize.jetpack', function () {
 				clearTimeout( resizeTimer );
 				resizeTimer = setTimeout( responsiveVideos, 500 );
 			} )

@@ -35,7 +35,7 @@ export default async function createSwiper(
 		on: mapValues(
 			callbacks,
 			callback =>
-				function() {
+				function () {
 					callback( this );
 				}
 		),

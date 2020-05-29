@@ -31,7 +31,7 @@ function JetpackLikesPostMessage( message, target ) {
 
 function JetpackLikesBatchHandler() {
 	var requests = [];
-	jQuery( 'div.jetpack-likes-widget-unloaded' ).each( function() {
+	jQuery( 'div.jetpack-likes-widget-unloaded' ).each( function () {
 		if ( jetpackLikesWidgetBatch.indexOf( this.id ) > -1 ) {
 			return;
 		}
@@ -89,7 +89,7 @@ function JetpackLikesMessageListener( event, message ) {
 
 	switch ( event.event ) {
 		case 'masterReady':
-			jQuery( document ).ready( function() {
+			jQuery( document ).ready( function () {
 				jetpackLikesMasterReady = true;
 
 				var stylesData = {
@@ -165,7 +165,7 @@ function JetpackLikesMessageListener( event, message ) {
 
 			$container.find( '.likes-text span' ).text( event.total );
 
-			jQuery.each( event.likers, function( i, liker ) {
+			jQuery.each( event.likers, function ( i, liker ) {
 				var element;
 
 				if ( 'http' !== liker.profile_URL.substr( 0, 4 ) ) {
@@ -230,7 +230,7 @@ function JetpackLikesMessageListener( event, message ) {
 
 pm.bind( 'likesMessage', JetpackLikesMessageListener );
 
-jQuery( document ).click( function( e ) {
+jQuery( document ).click( function ( e ) {
 	var $container = jQuery( '#likes-other-gravatars' );
 
 	if ( $container.has( e.target ).length === 0 ) {
@@ -324,7 +324,7 @@ function jetpackLoadLikeWidgetIframe( wrapperID ) {
 		.removeClass( 'jetpack-likes-widget-unloaded' )
 		.addClass( 'jetpack-likes-widget-loading' );
 
-	$wrapper.find( 'iframe' ).load( function( e ) {
+	$wrapper.find( 'iframe' ).load( function ( e ) {
 		var $iframe = jQuery( e.target );
 
 		JetpackLikesPostMessage(
@@ -345,7 +345,7 @@ function jetpackLoadLikeWidgetIframe( wrapperID ) {
 function jetpackGetUnloadedWidgetsInView() {
 	var $unloadedWidgets = jQuery( 'div.jetpack-likes-widget-unloaded' );
 
-	return $unloadedWidgets.filter( function() {
+	return $unloadedWidgets.filter( function () {
 		return jetpackIsScrolledIntoView( this );
 	} );
 }
@@ -364,9 +364,7 @@ function jetpackUnloadScrolledOutWidgets() {
 		var currentWidgetIframe = jetpackCommentLikesLoadedWidgets[ i ];
 
 		if ( ! jetpackIsScrolledIntoView( currentWidgetIframe ) ) {
-			var $widgetWrapper = jQuery( currentWidgetIframe )
-				.parent()
-				.parent();
+			var $widgetWrapper = jQuery( currentWidgetIframe ).parent().parent();
 
 			// Restore parent class to 'unloaded' so this widget can be picked up by queue manager again if needed.
 			$widgetWrapper
@@ -385,9 +383,9 @@ function jetpackUnloadScrolledOutWidgets() {
 	}
 }
 
-var jetpackWidgetsDelayedExec = function( after, fn ) {
+var jetpackWidgetsDelayedExec = function ( after, fn ) {
 	var timer;
-	return function() {
+	return function () {
 		timer && clearTimeout( timer );
 		timer = setTimeout( fn, after );
 	};

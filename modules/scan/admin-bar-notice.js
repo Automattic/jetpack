@@ -1,4 +1,4 @@
-( function( localized ) {
+( function ( localized ) {
 	function ready( fn ) {
 		if ( document.readyState != 'loading' ) {
 			fn();
@@ -10,7 +10,7 @@
 	function fetch_scan_treats_and_add_link() {
 		var xhrRequest = new XMLHttpRequest();
 		xhrRequest.open( 'GET', localized.scan_endpoint, true );
-		xhrRequest.onload = function() {
+		xhrRequest.onload = function () {
 			if ( this.status == 200 ) {
 				// Success!
 				var body = JSON.parse( this.response );
@@ -30,7 +30,7 @@
 		xhrRequest.send();
 	}
 
-	ready( function() {
+	ready( function () {
 		fetch_scan_treats_and_add_link();
 	} );
 

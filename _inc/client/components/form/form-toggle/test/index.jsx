@@ -11,9 +11,9 @@ import { unique } from 'lodash';
  */
 import CompactFormToggle from 'components/forms/form-toggle/compact';
 
-describe( 'CompactFormToggle', function() {
-	describe( 'rendering', function() {
-		it( 'should have is-compact class', function() {
+describe( 'CompactFormToggle', function () {
+	describe( 'rendering', function () {
+		it( 'should have is-compact class', function () {
 			const toggle = TestUtils.renderIntoDocument( <CompactFormToggle /> ),
 				toggleInput = TestUtils.scryRenderedDOMComponentsWithClass( toggle, 'form-toggle' );
 
@@ -26,28 +26,28 @@ describe( 'CompactFormToggle', function() {
 	} );
 } );
 
-describe( 'FormToggle', function() {
-	afterEach( function() {
+describe( 'FormToggle', function () {
+	afterEach( function () {
 		ReactDOM.unmountComponentAtNode( document.body );
 	} );
 
-	describe( 'rendering', function() {
-		it( 'should have form-toggle class', function() {
+	describe( 'rendering', function () {
+		it( 'should have form-toggle class', function () {
 			const toggle = TestUtils.renderIntoDocument( <CompactFormToggle /> ),
 				toggleInput = TestUtils.scryRenderedDOMComponentsWithClass( toggle, 'form-toggle' );
 
 			assert( 0 < toggleInput.length, 'a form toggle was rendered' );
 		} );
 
-		it( 'should not have is-compact class', function() {
+		it( 'should not have is-compact class', function () {
 			const toggle = TestUtils.renderIntoDocument( <CompactFormToggle /> ),
 				toggleInput = TestUtils.scryRenderedDOMComponentsWithClass( toggle, 'is-compact' );
 
 			assert( 0 === toggleInput.length, 'no form toggle with is-compact class' );
 		} );
 
-		it( 'should be checked when checked is true', function() {
-			[ true, false ].forEach( function( bool ) {
+		it( 'should be checked when checked is true', function () {
+			[ true, false ].forEach( function ( bool ) {
 				const toggle = TestUtils.renderIntoDocument( <CompactFormToggle checked={ bool } /> ),
 					toggleInput = TestUtils.scryRenderedDOMComponentsWithClass( toggle, 'form-toggle' );
 
@@ -59,7 +59,7 @@ describe( 'FormToggle', function() {
 			} );
 		} );
 
-		it( 'should not be disabled when disabled is false', function() {
+		it( 'should not be disabled when disabled is false', function () {
 			const toggle = TestUtils.renderIntoDocument(
 					<CompactFormToggle checked={ false } disabled={ false } />
 				),
@@ -72,7 +72,7 @@ describe( 'FormToggle', function() {
 			);
 		} );
 
-		it( 'should be disabled when disabled is true', function() {
+		it( 'should be disabled when disabled is true', function () {
 			const toggle = TestUtils.renderIntoDocument(
 					<CompactFormToggle checked={ false } disabled={ true } />
 				),
@@ -85,7 +85,7 @@ describe( 'FormToggle', function() {
 			);
 		} );
 
-		it( 'should have a label whose htmlFor matches the checkbox id', function() {
+		it( 'should have a label whose htmlFor matches the checkbox id', function () {
 			const toggle = TestUtils.renderIntoDocument( <CompactFormToggle checked={ false } /> ),
 				toggleInput = TestUtils.scryRenderedDOMComponentsWithClass( toggle, 'form-toggle__switch' ),
 				toggleLabel = TestUtils.scryRenderedDOMComponentsWithTag( toggle, 'label' );
@@ -93,7 +93,7 @@ describe( 'FormToggle', function() {
 			assert( toggleInput[ 0 ].getDOMNode().id === toggleLabel[ 0 ].getDOMNode().htmlFor );
 		} );
 
-		it( 'should create unique ids for each toggle', function() {
+		it( 'should create unique ids for each toggle', function () {
 			const toggles = TestUtils.renderIntoDocument(
 					<div>
 						<CompactFormToggle checked={ false } />
@@ -102,7 +102,7 @@ describe( 'FormToggle', function() {
 					</div>
 				),
 				toggleInputs = TestUtils.scryRenderedDOMComponentsWithClass( toggles, 'form-toggle' ),
-				ids = toggleInputs.map( function( input ) {
+				ids = toggleInputs.map( function ( input ) {
 					return input.getDOMNode().id;
 				} );
 

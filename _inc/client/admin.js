@@ -30,7 +30,7 @@ if ( 'undefined' !== typeof Initial_State.locale[ '' ] ) {
 	// Overloading the toLocaleString method to use the set locale
 	Number.prototype.realToLocaleString = Number.prototype.toLocaleString;
 
-	Number.prototype.toLocaleString = function( locale, options ) {
+	Number.prototype.toLocaleString = function ( locale, options ) {
 		locale = locale || Initial_State.localeSlug;
 		options = options || {};
 

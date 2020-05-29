@@ -38,7 +38,7 @@ export function bindCustomizerChanges( callback ) {
 
 	CUSTOMIZE_SETTINGS.forEach( setting => {
 		window.wp.customize( setting, value => {
-			value.bind( function( newValue ) {
+			value.bind( function ( newValue ) {
 				const newOvelayOptions = { [ SETTINGS_TO_STATE_MAP.get( setting ) ]: newValue };
 
 				// If Instant Search hasn't been injected, update initial server object state

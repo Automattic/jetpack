@@ -1,14 +1,14 @@
 /* globals plupload, pluploadL10n, error */
 window.wp = window.wp || {};
 
-( function( wp ) {
+( function ( wp ) {
 	var VideoPress = {
 		originalOptions: {},
 
 		/**
 		 * This is the standard uploader response handler.
 		 */
-		handleStandardResponse: function( response, file ) {
+		handleStandardResponse: function ( response, file ) {
 			if ( ! _.isObject( response ) || _.isUndefined( response.success ) ) {
 				return error( pluploadL10n.default_error, null, file );
 			} else if ( ! response.success ) {
@@ -21,7 +21,7 @@ window.wp = window.wp || {};
 		/**
 		 * Handle response from the WPCOM Rest API.
 		 */
-		handleRestApiResponse: function( response, file ) {
+		handleRestApiResponse: function ( response, file ) {
 			if ( response.media.length !== 1 ) {
 				return error( pluploadL10n.default_error, null, file );
 			}
@@ -80,7 +80,7 @@ window.wp = window.wp || {};
 		 *
 		 * @param up
 		 */
-		resetToOriginalOptions: function( up ) {
+		resetToOriginalOptions: function ( up ) {
 			if ( typeof VideoPress.originalOptions.url !== 'undefined' ) {
 				up.setOption( 'url', VideoPress.originalOptions.url );
 				delete VideoPress.originalOptions.url;
@@ -112,18 +112,18 @@ window.wp = window.wp || {};
 		 * Adds a filter that checks all files to see if they are videopress files and if they are
 		 * it will download extra metadata for them.
 		 */
-		plupload.addFileFilter( 'videopress_check_uploads', function( maxSize, file, cb ) {
+		plupload.addFileFilter( 'videopress_check_uploads', function ( maxSize, file, cb ) {
 			var mimeParts = file.type.split( '/' );
 			var self = this;
 
 			if ( mimeParts[ 0 ] === 'video' ) {
 				media
 					.ajax( 'videopress-get-upload-token', { async: false, data: { filename: file.name } } )
-					.done( function( response ) {
+					.done( function ( response ) {
 						file.videopress = response;
 						cb( true );
 					} )
-					.fail( function( response ) {
+					.fail( function ( response ) {
 						self.trigger( 'Error', {
 							code: plupload.VIDEOPRESS_TOKEN_FAILURE,
 							message: plupload.translate(

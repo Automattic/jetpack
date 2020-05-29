@@ -20,7 +20,7 @@
  * Stop listening to all resize postMessage events:
  * Jetpack.resizeable( 'off' );
  */
-( function( $ ) {
+( function ( $ ) {
 	var listening = false, // Are we listening for resize postMessage events
 		sourceOrigins = [], // What origins are allowed to send resize postMessage events
 		$sources = false, // What iframe elements are we tracking resize postMessage events from
@@ -45,7 +45,7 @@
 			 * @param string context: jQuery selector
 			 * @return jQuery|undefined object on which to perform operations or undefined when context cannot be determined
 			 */
-			getTarget: function( context ) {
+			getTarget: function ( context ) {
 				if ( this instanceof jQuery ) {
 					return context ? this.filter( context ) : this;
 				}
@@ -64,7 +64,7 @@
 		 * @param ...
 		 * @return mixed|jQuery (chainable)
 		 */
-		$.fn.Jetpack = function( namespace ) {
+		$.fn.Jetpack = function ( namespace ) {
 			if ( 'function' === typeof Jetpack[ namespace ] ) {
 				// Send the call to the correct Jetpack.namespace
 				return Jetpack[ namespace ].apply( this, Array.prototype.slice.call( arguments, 1 ) );
@@ -81,7 +81,7 @@
 			 * Defines the Jetpack.resizeable() namespace.
 			 * See below for non-trivial definition for browsers with postMessage.
 			 */
-			resizeable: function() {
+			resizeable: function () {
 				$.error( 'Browser does not support window.postMessage' );
 			},
 		} );
@@ -97,22 +97,20 @@
 	 * @param string URL
 	 * @return string origin
 	 */
-	URLtoOrigin = function( URL ) {
+	URLtoOrigin = function ( URL ) {
 		if ( ! URL.match( /^https?:\/\// ) ) {
 			URL = document.location.href;
 		}
-		return URL.split( '/' )
-			.slice( 0, 3 )
-			.join( '/' );
+		return URL.split( '/' ).slice( 0, 3 ).join( '/' );
 	};
 
 	/**
 	 * Binds global resize postMessage event handler
 	 */
-	setupListener = function() {
+	setupListener = function () {
 		listening = true;
 
-		$( window ).on( 'message.JetpackResizeableIframe', function( e ) {
+		$( window ).on( 'message.JetpackResizeableIframe', function ( e ) {
 			var event = e.originalEvent,
 				data;
 
@@ -146,7 +144,7 @@
 
 			// Find the correct iframe and resize it
 			$sources
-				.filter( function() {
+				.filter( function () {
 					if ( 'undefined' !== typeof data.name ) {
 						return this.name === data.name;
 					} else {
@@ -161,7 +159,7 @@
 	/**
 	 * Unbinds global resize postMessage event handler
 	 */
-	destroyListener = function() {
+	destroyListener = function () {
 		listening = false;
 		$( window ).off( 'message.JetpackResizeableIframe' );
 
@@ -181,7 +179,7 @@
 		 * @param string context jQuery selector.
 		 * @return jQuery (chainable)
 		 */
-		on: function( context ) {
+		on: function ( context ) {
 			var target = Jetpack.getTarget.call( this, context );
 
 			if ( ! listening ) {
@@ -189,7 +187,7 @@
 			}
 
 			target
-				.each( function() {
+				.each( function () {
 					sourceOrigins.push( URLtoOrigin( $( this ).attr( 'src' ) ) );
 				} )
 				.addClass( 'jetpack-resizeable' );
@@ -208,7 +206,7 @@
 		 * @param string context jQuery selector
 		 * @return jQuery (chainable)
 		 */
-		off: function( context ) {
+		off: function ( context ) {
 			var target = Jetpack.getTarget.call( this, context );
 
 			if ( 'undefined' === typeof target ) {
@@ -218,7 +216,7 @@
 			}
 
 			target
-				.each( function() {
+				.each( function () {
 					var origin = URLtoOrigin( $( this ).attr( 'src' ) ),
 						pos = $.inArray( origin, sourceOrigins );
 
@@ -243,10 +241,10 @@
 		 * @param string context jQuery selector
 		 * @return jQuery (chainable)
 		 */
-		resize: function( dimensions, context ) {
+		resize: function ( dimensions, context ) {
 			var target = Jetpack.getTarget.call( this, context );
 
-			$.each( [ 'width', 'height' ], function( i, variable ) {
+			$.each( [ 'width', 'height' ], function ( i, variable ) {
 				var value = 0,
 					container;
 				if ( 'undefined' !== typeof dimensions[ variable ] ) {
@@ -276,7 +274,7 @@
 		 * @param ...
 		 * @return mixed|jQuery (chainable)
 		 */
-		resizeable: function( method ) {
+		resizeable: function ( method ) {
 			if ( methods[ method ] ) {
 				// Send the call to the correct Jetpack.resizeable() method
 				return methods[ method ].apply( this, Array.prototype.slice.call( arguments, 1 ) );

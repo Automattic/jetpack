@@ -18,7 +18,7 @@ const myCustomLevels = {
  * @param {string} level
  */
 function filterOnly( level ) {
-	return format( function( info ) {
+	return format( function ( info ) {
 		if ( info[ LEVEL ] === level ) {
 			return info;
 		}

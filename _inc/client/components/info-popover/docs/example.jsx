@@ -17,13 +17,13 @@ const InfoPopoverExample = createReactClass( {
 
 	mixins: [ PureRenderMixin ],
 
-	getInitialState: function() {
+	getInitialState: function () {
 		return {
 			popoverPosition: 'bottom left',
 		};
 	},
 
-	render: function() {
+	render: function () {
 		const id = 'example-select';
 		return (
 			<div>
@@ -54,7 +54,7 @@ const InfoPopoverExample = createReactClass( {
 		);
 	},
 
-	_changePopoverPosition: function( event ) {
+	_changePopoverPosition: function ( event ) {
 		this.setState( { popoverPosition: event.target.value } );
 	},
 } );

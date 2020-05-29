@@ -1,7 +1,7 @@
 /* eslint-disable no-var */
 /* global wp, calypsoifyGutenberg */
 
-jQuery( function( $ ) {
+jQuery( function ( $ ) {
 	if (
 		wp &&
 		wp.data &&
@@ -11,7 +11,7 @@ jQuery( function( $ ) {
 		wp.data.dispatch( 'core/edit-post' ).toggleFeature( 'fullscreenMode' );
 	}
 
-	var editPostHeaderInception = setInterval( function() {
+	var editPostHeaderInception = setInterval( function () {
 		// Legacy selector for Gutenberg plugin < v7.7
 		var legacyButton = $( '.edit-post-fullscreen-mode-close__toolbar a' );
 		// Updated selector for Gutenberg plugin => v7.7
@@ -33,7 +33,7 @@ jQuery( function( $ ) {
 		theButton.attr( 'href', calypsoifyGutenberg.closeUrl );
 	} );
 
-	$( 'body.revision-php a' ).each( function() {
+	$( 'body.revision-php a' ).each( function () {
 		var href = $( this ).attr( 'href' );
 		$( this ).attr( 'href', href.replace( '&classic-editor', '' ) );
 	} );

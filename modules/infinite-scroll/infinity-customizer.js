@@ -1,9 +1,9 @@
 /* globals wp */
-( function( $ ) {
+( function ( $ ) {
 	/**
 	 * Ready, set, go!
 	 */
-	$( document ).ready( function() {
+	$( document ).ready( function () {
 		// Integrate with Selective Refresh in the Customizer.
 		if ( 'undefined' !== typeof wp && wp.customize && wp.customize.selectiveRefresh ) {
 			/**
@@ -19,7 +19,7 @@
 			 *
 			 * @param {wp.customize.selectiveRefresh.Placement} placement
 			 */
-			wp.customize.selectiveRefresh.bind( 'partial-content-rendered', function( placement ) {
+			wp.customize.selectiveRefresh.bind( 'partial-content-rendered', function ( placement ) {
 				var content;
 				if ( 'string' === typeof placement.addedContent ) {
 					content = placement.addedContent;
@@ -39,7 +39,7 @@
 			 * since then this will be handled by Selective Refresh in core.
 			 */
 			if ( 'undefined' === typeof MutationObserver ) {
-				$( document.body ).on( 'post-load', function( e, response ) {
+				$( document.body ).on( 'post-load', function ( e, response ) {
 					var rootElement = null;
 					if ( response.html && -1 !== response.html.indexOf( 'data-customize-partial' ) ) {
 						if ( window.infiniteScroll.settings.id ) {

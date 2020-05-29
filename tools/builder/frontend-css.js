@@ -69,13 +69,13 @@ const separate_list = [
 
 const cwd = process.cwd() + '/';
 
-const pathModifier = function( url, filePath ) {
+const pathModifier = function ( url, filePath ) {
 	const f = filePath.replace( cwd, '' );
 	return transformRelativePath( url, f );
 };
 
 // Frontend CSS.  Auto-prefix and minimize.
-gulp.task( 'frontendcss', function() {
+gulp.task( 'frontendcss', function () {
 	return gulp
 		.src( concat_list )
 		.pipe( modifyCssUrls( { modify: pathModifier } ) )
@@ -93,12 +93,12 @@ gulp.task( 'frontendcss', function() {
 		.pipe( rtlcss() )
 		.pipe( rename( { suffix: '-rtl' } ) )
 		.pipe( gulp.dest( 'css/' ) )
-		.on( 'end', function() {
+		.on( 'end', function () {
 			log( 'Front end modules CSS finished.' );
 		} );
 } );
 
-gulp.task( 'frontendcss:separate', function() {
+gulp.task( 'frontendcss:separate', function () {
 	return gulp
 		.src( separate_list )
 		.pipe( modifyCssUrls( { modify: pathModifier } ) )
@@ -107,7 +107,7 @@ gulp.task( 'frontendcss:separate', function() {
 		.pipe( rtlcss() )
 		.pipe( rename( { suffix: '-rtl' } ) )
 		.pipe(
-			gulp.dest( function( file ) {
+			gulp.dest( function ( file ) {
 				return path.dirname( file.path );
 			} )
 		);

@@ -17,7 +17,7 @@ import {
 } from './swiper-callbacks';
 
 if ( typeof window !== 'undefined' ) {
-	domReady( function() {
+	domReady( function () {
 		const slideshowBlocks = document.getElementsByClassName( 'wp-block-jetpack-slideshow' );
 		forEach( slideshowBlocks, slideshowBlock => {
 			if ( slideshowBlock.getAttribute( 'data-jetpack-block-initialized' ) === 'true' ) {

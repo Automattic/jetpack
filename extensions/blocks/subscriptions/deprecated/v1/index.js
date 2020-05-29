@@ -27,7 +27,7 @@ export default {
 		}
 		return true;
 	},
-	save: function( { attributes } ) {
+	save: function ( { attributes } ) {
 		return (
 			<RawHTML>{ `[jetpack_subscription_form show_subscribers_total="${ attributes.showSubscribersTotal }" show_only_email_and_button="true"]` }</RawHTML>
 		);

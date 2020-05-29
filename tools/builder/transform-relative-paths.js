@@ -1,6 +1,6 @@
 module.exports = {
 	/* Replace relative paths with new paths */
-	transformRelativePath: function( relPath, filepath ) {
+	transformRelativePath: function ( relPath, filepath ) {
 		// If wrapped in singly quotes, strip them
 		if ( 0 === relPath.indexOf( "'" ) ) {
 			relPath = relPath.substr( 1, relPath.length - 2 );

@@ -1,18 +1,18 @@
-( function( $ ) {
+( function ( $ ) {
 	function TiledGalleryCollection() {
 		this.galleries = [];
 		this.findAndSetupNewGalleries();
 	}
 
-	TiledGalleryCollection.prototype.findAndSetupNewGalleries = function() {
+	TiledGalleryCollection.prototype.findAndSetupNewGalleries = function () {
 		var self = this;
-		$( '.tiled-gallery.tiled-gallery-unresized' ).each( function() {
+		$( '.tiled-gallery.tiled-gallery-unresized' ).each( function () {
 			self.galleries.push( new TiledGallery( $( this ) ) );
 		} );
 	};
 
-	TiledGalleryCollection.prototype.resizeAll = function() {
-		$.each( this.galleries, function( i, gallery ) {
+	TiledGalleryCollection.prototype.resizeAll = function () {
+		$.each( this.galleries, function ( i, gallery ) {
 			gallery.resize();
 		} );
 	};
@@ -40,28 +40,22 @@
 	 * Story
 	 */
 
-	TiledGallery.prototype.addCaptionEvents = function() {
+	TiledGallery.prototype.addCaptionEvents = function () {
 		// Hide captions
 		this.gallery.find( '.tiled-gallery-caption' ).hide();
 
 		// Add hover effects to bring the caption up and down for each item
 		this.gallery.find( '.tiled-gallery-item' ).hover(
-			function() {
-				$( this )
-					.find( '.tiled-gallery-caption' )
-					.stop( true, true )
-					.slideDown( 'fast' );
+			function () {
+				$( this ).find( '.tiled-gallery-caption' ).stop( true, true ).slideDown( 'fast' );
 			},
-			function() {
-				$( this )
-					.find( '.tiled-gallery-caption' )
-					.stop( true, true )
-					.slideUp( 'fast' );
+			function () {
+				$( this ).find( '.tiled-gallery-caption' ).stop( true, true ).slideUp( 'fast' );
 			}
 		);
 	};
 
-	TiledGallery.prototype.getExtraDimension = function( el, attribute, mode ) {
+	TiledGallery.prototype.getExtraDimension = function ( el, attribute, mode ) {
 		if ( mode === 'horizontal' ) {
 			var left = attribute === 'border' ? 'borderLeftWidth' : attribute + 'Left';
 			var right = attribute === 'border' ? 'borderRightWidth' : attribute + 'Right';
@@ -75,7 +69,7 @@
 		}
 	};
 
-	TiledGallery.prototype.resize = function() {
+	TiledGallery.prototype.resize = function () {
 		// Resize everything in the gallery based on the ratio of the current content width
 		// to the original content width;
 		var originalWidth = this.gallery.data( 'original-width' );
@@ -83,7 +77,7 @@
 		var resizeRatio = Math.min( 1, currentWidth / originalWidth );
 
 		var self = this;
-		this.gallery.find( this.resizeableElementsSelector ).each( function() {
+		this.gallery.find( this.resizeableElementsSelector ).each( function () {
 			var thisGalleryElement = $( this );
 
 			var marginWidth = self.getExtraDimension( thisGalleryElement, 'margin', 'horizontal' );
@@ -130,21 +124,21 @@
 			}
 		}
 
-		$( window ).resize( function() {
+		$( window ).resize( function () {
 			clearTimeout( resizeTimeout );
 
 			if ( ! resizing ) {
 				requestAnimationFrame( handleFrame );
 			}
 			resizing = true;
-			resizeTimeout = setTimeout( function() {
+			resizeTimeout = setTimeout( function () {
 				resizing = false;
 			}, 15 );
 		} );
 	}
 
 	function attachPlainResize( tiledGalleries ) {
-		$( window ).resize( function() {
+		$( window ).resize( function () {
 			tiledGalleries.resizeAll();
 		} );
 	}
@@ -153,17 +147,17 @@
 	 * Ready, set...
 	 */
 
-	$( document ).ready( function() {
+	$( document ).ready( function () {
 		var tiledGalleries = new TiledGalleryCollection();
 
-		$( 'body' ).on( 'post-load', function( e, maybeResize ) {
+		$( 'body' ).on( 'post-load', function ( e, maybeResize ) {
 			if ( 'string' === typeof maybeResize && 'resize' === maybeResize ) {
 				tiledGalleries.resizeAll();
 			} else {
 				tiledGalleries.findAndSetupNewGalleries();
 			}
 		} );
-		$( document ).on( 'page-rendered.wpcom-newdash', function() {
+		$( document ).on( 'page-rendered.wpcom-newdash', function () {
 			tiledGalleries.findAndSetupNewGalleries();
 		} );
 
@@ -179,7 +173,7 @@
 		}
 
 		if ( 'undefined' !== typeof wp && wp.customize && wp.customize.selectiveRefresh ) {
-			wp.customize.selectiveRefresh.bind( 'partial-content-rendered', function( placement ) {
+			wp.customize.selectiveRefresh.bind( 'partial-content-rendered', function ( placement ) {
 				if ( wp.isJetpackWidgetPlaced( placement, 'gallery' ) ) {
 					tiledGalleries.findAndSetupNewGalleries();
 				}

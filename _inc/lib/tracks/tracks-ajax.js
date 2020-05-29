@@ -1,9 +1,9 @@
 /* global jpTracksAJAX, jQuery */
-( function( $, jpTracksAJAX ) {
+( function ( $, jpTracksAJAX ) {
 	window.jpTracksAJAX = window.jpTracksAJAX || {};
 	var debugSet = localStorage.getItem( 'debug' ) === 'dops:analytics';
 
-	window.jpTracksAJAX.record_ajax_event = function( eventName, eventType, eventProp ) {
+	window.jpTracksAJAX.record_ajax_event = function ( eventName, eventType, eventProp ) {
 		var data = {
 			tracksNonce: jpTracksAJAX.jpTracksAJAX_nonce,
 			action: 'jetpack_tracks',
@@ -16,7 +16,7 @@
 			type: 'POST',
 			url: jpTracksAJAX.ajaxurl,
 			data: data,
-			success: function( response ) {
+			success: function ( response ) {
 				if ( debugSet ) {
 					// eslint-disable-next-line
 					console.log( 'AJAX tracks event recorded: ', data, response );
@@ -25,8 +25,8 @@
 		} );
 	};
 
-	$( document ).ready( function() {
-		$( 'body' ).on( 'click', '.jptracks a, a.jptracks', function( event ) {
+	$( document ).ready( function () {
+		$( 'body' ).on( 'click', '.jptracks a, a.jptracks', function ( event ) {
 			var $this = $( event.target );
 			// We know that the jptracks element is either this, or its ancestor
 			var $jptracks = $this.closest( '.jptracks' );
@@ -47,7 +47,7 @@
 
 			event.preventDefault();
 
-			window.jpTracksAJAX.record_ajax_event( eventName, 'click', eventProp ).always( function() {
+			window.jpTracksAJAX.record_ajax_event( eventName, 'click', eventProp ).always( function () {
 				// Continue on to whatever url they were trying to get to.
 				if ( url && ! $this.hasClass( 'thickbox' ) ) {
 					if ( newTabWindow ) {

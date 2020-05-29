@@ -33,23 +33,23 @@ const SectionNav = createReactClass( {
 		onMobileNavPanelOpen: PropTypes.func,
 	},
 
-	getInitialState: function() {
+	getInitialState: function () {
 		return {
 			mobileOpen: false,
 		};
 	},
 
-	getDefaultProps: function() {
+	getDefaultProps: function () {
 		return {
 			onMobileNavPanelOpen: () => {},
 		};
 	},
 
-	UNSAFE_componentWillMount: function() {
+	UNSAFE_componentWillMount: function () {
 		this.checkForSiblingControls( this.props.children );
 	},
 
-	UNSAFE_componentWillReceiveProps: function( nextProps ) {
+	UNSAFE_componentWillReceiveProps: function ( nextProps ) {
 		if ( isEqual( this.props, nextProps ) ) {
 			return;
 		}
@@ -61,7 +61,7 @@ const SectionNav = createReactClass( {
 		}
 	},
 
-	render: function() {
+	render: function () {
 		const children = this.getChildren();
 		let className;
 
@@ -103,10 +103,10 @@ const SectionNav = createReactClass( {
 		);
 	},
 
-	getChildren: function() {
+	getChildren: function () {
 		return React.Children.map(
 			this.props.children,
-			function( child ) {
+			function ( child ) {
 				const extraProps = {
 					hasSiblingControls: this.hasSiblingControls,
 					closeSectionNavMobilePanel: this.closeMobilePanel,
@@ -143,7 +143,7 @@ const SectionNav = createReactClass( {
 		);
 	},
 
-	closeMobilePanel: function() {
+	closeMobilePanel: function () {
 		if ( window.innerWidth < 480 && this.state.mobileOpen ) {
 			this.setState( {
 				mobileOpen: false,
@@ -151,7 +151,7 @@ const SectionNav = createReactClass( {
 		}
 	},
 
-	toggleMobileOpenState: function() {
+	toggleMobileOpenState: function () {
 		const mobileOpen = ! this.state.mobileOpen;
 
 		this.setState( {
@@ -163,19 +163,19 @@ const SectionNav = createReactClass( {
 		}
 	},
 
-	generateOnSearch: function( existingOnSearch ) {
-		return function() {
+	generateOnSearch: function ( existingOnSearch ) {
+		return function () {
 			existingOnSearch.apply( this, arguments );
 			this.closeMobilePanel();
 		}.bind( this );
 	},
 
-	checkForSiblingControls: function( children ) {
+	checkForSiblingControls: function ( children ) {
 		this.hasSiblingControls = false;
 
 		React.Children.forEach(
 			children,
-			function( child, index ) {
+			function ( child, index ) {
 				// Checking for at least 2 controls groups that are not search or null
 				if ( index && child && child.type !== Search ) {
 					this.hasSiblingControls = true;

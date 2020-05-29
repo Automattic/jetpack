@@ -38,7 +38,7 @@ const admincss = [
 ];
 
 // Minimizes admin css for modules.  Outputs to same folder as min.css
-gulp.task( 'admincss', function() {
+gulp.task( 'admincss', function () {
 	return gulp
 		.src( admincss, { base: './' } )
 		.pipe( autoprefixer() )
@@ -50,13 +50,13 @@ gulp.task( 'admincss', function() {
 			)
 		)
 		.pipe( gulp.dest( '.' ) )
-		.on( 'end', function() {
+		.on( 'end', function () {
 			log( 'Admin modules CSS finished.' );
 		} );
 } );
 
 // Admin RTL CSS for modules.  Auto-prefix, RTL, Minify, RTL the minimized version.
-gulp.task( 'admincss:rtl', function() {
+gulp.task( 'admincss:rtl', function () {
 	return gulp
 		.src( admincss, { base: './' } )
 		.pipe( autoprefixer() )
@@ -71,7 +71,7 @@ gulp.task( 'admincss:rtl', function() {
 		.pipe( cleanCSS() )
 		.pipe( rename( { suffix: '.min' } ) )
 		.pipe( gulp.dest( '.' ) )
-		.on( 'end', function() {
+		.on( 'end', function () {
 			log( 'Admin modules RTL CSS finished.' );
 		} );
 } );

@@ -32,16 +32,16 @@ GrunionFB_i18n = jQuery.extend(
 GrunionFB_i18n.moveInstructions = GrunionFB_i18n.moveInstructions.replace( '\n', '<br />' );
 
 FB.span = jQuery( '<span>' );
-FB.esc_html = function( string ) {
+FB.esc_html = function ( string ) {
 	return FB.span.text( string ).html();
 };
 
-FB.esc_attr = function( string ) {
+FB.esc_attr = function ( string ) {
 	string = FB.esc_html( string );
 	return string.replace( '"', '&quot;' ).replace( "'", '&#039;' );
 };
 
-FB.ContactForm = ( function() {
+FB.ContactForm = ( function () {
 	var fbForm = {
 		// Main object that generated shortcode via AJAX call
 		action: 'grunion_shortcode',
@@ -134,10 +134,8 @@ FB.ContactForm = ( function() {
 				jQuery( '#fb-new-label' ).val( GrunionFB_i18n.newLabel );
 				jQuery( '#fb-new-type' ).val( 'text' );
 				jQuery( '#fb-field-id' ).val( grunionNewCount );
-				setTimeout( function() {
-					jQuery( '#fb-new-label' )
-						.focus()
-						.select();
+				setTimeout( function () {
+					jQuery( '#fb-new-label' ).focus().select();
 				}, 100 );
 			} else {
 				jQuery( '#fb-new-field' ).hide();
@@ -258,7 +256,7 @@ FB.ContactForm = ( function() {
 				jQuery( '#fb-field-subject' ).val( fbForm.subject );
 			}
 			// Loop over and add fields
-			jQuery.each( fbForm.fields, function( index, value ) {
+			jQuery.each( fbForm.fields, function ( index, value ) {
 				jQuery( '#fb-extra-fields' ).before(
 					'<div class="fb-new-fields ui-state-default" fieldid="' +
 						index +
@@ -274,7 +272,7 @@ FB.ContactForm = ( function() {
 					'select' === value.type ||
 					'checkbox-multiple' === value.type
 				) {
-					jQuery.each( value.options, function( i, value ) {
+					jQuery.each( value.options, function ( i, value ) {
 						optionsCache[ index ].options[ i ] = value;
 					} );
 				}
@@ -364,10 +362,8 @@ FB.ContactForm = ( function() {
 	function editField( that ) {
 		try {
 			scroll( 0, 0 );
-			setTimeout( function() {
-				jQuery( '#fb-new-label' )
-					.focus()
-					.select();
+			setTimeout( function () {
+				jQuery( '#fb-new-label' ).focus().select();
 			}, 100 );
 			var thisId = that.parent().attr( 'fieldid' );
 			loadFieldEditor( thisId );
@@ -380,7 +376,7 @@ FB.ContactForm = ( function() {
 	function grabShortcode() {
 		try {
 			// Takes fbForm object and returns shortcode syntax
-			jQuery.post( ajaxurl, fbForm, function( response ) {
+			jQuery.post( ajaxurl, fbForm, function ( response ) {
 				shortcode = response;
 			} );
 		} catch ( e ) {
@@ -518,7 +514,7 @@ FB.ContactForm = ( function() {
 			if ( ! data ) {
 				fbForm.fields = defaultFields;
 			} else {
-				jQuery.each( data.fields, function( index, value ) {
+				jQuery.each( data.fields, function ( index, value ) {
 					if ( 1 === parseInt( value.required, 10 ) ) {
 						value.required = 'true';
 					}
@@ -577,12 +573,12 @@ FB.ContactForm = ( function() {
 	function sendShortcodeToEditor() {
 		try {
 			// Serialize fields
-			jQuery( 'div#sortable div.fb-new-fields' ).each( function( index ) {
+			jQuery( 'div#sortable div.fb-new-fields' ).each( function ( index ) {
 				var thisId = jQuery( this ).attr( 'fieldid' );
 				fbForm.fields[ thisId ].order = index;
 			} );
 			// Export to WYSIWYG editor
-			jQuery.post( ajaxurl, fbForm, function( response ) {
+			jQuery.post( ajaxurl, fbForm, function ( response ) {
 				var isVisual = jQuery( '#edButtonPreview', window.parent.document ).hasClass( 'active' );
 				/* WP 3.3+ */
 				if ( ! isVisual ) {
@@ -654,7 +650,7 @@ FB.ContactForm = ( function() {
 			var newMessage = ! message ? GrunionFB_i18n.savedMessage : message;
 			jQuery( '#fb-success' ).text( newMessage );
 			jQuery( '#fb-success' ).slideDown( 'fast' );
-			setTimeout( function() {
+			setTimeout( function () {
 				jQuery( '#fb-success' ).slideUp( 'fast' );
 			}, 2500 );
 		} catch ( e ) {
@@ -679,9 +675,7 @@ FB.ContactForm = ( function() {
 				jQuery( '#tab-settings a' ).addClass( 'current' );
 				jQuery( '#fb-preview-form, #fb-desc, #fb-add-field' ).hide();
 				jQuery( '#fb-email-settings, #fb-email-desc' ).show();
-				jQuery( '#fb-field-my-email' )
-					.focus()
-					.select();
+				jQuery( '#fb-field-my-email' ).focus().select();
 			}
 		} catch ( e ) {
 			if ( debug ) {
@@ -906,10 +900,8 @@ FB.ContactForm = ( function() {
 						fbForm.fields[ thisId ].options[ optionsCount ] = GrunionFB_i18n.firstOptionLabel;
 					}
 					jQuery( '#fb-options' ).show();
-					setTimeout( function() {
-						jQuery( '#fb-option0' )
-							.focus()
-							.select();
+					setTimeout( function () {
+						jQuery( '#fb-option0' ).focus().select();
 					}, 100 );
 					break;
 				case 'email':
@@ -962,10 +954,8 @@ FB.ContactForm = ( function() {
 						fbForm.fields[ thisId ].options[ optionsCount ] = GrunionFB_i18n.firstOptionLabel;
 					}
 					jQuery( '#fb-options' ).show();
-					setTimeout( function() {
-						jQuery( '#fb-option0' )
-							.focus()
-							.select();
+					setTimeout( function () {
+						jQuery( '#fb-option0' ).focus().select();
 					}, 100 );
 					break;
 				case 'select':
@@ -989,10 +979,8 @@ FB.ContactForm = ( function() {
 						fbForm.fields[ thisId ].options[ optionsCount ] = GrunionFB_i18n.firstOptionLabel;
 					}
 					jQuery( '#fb-options' ).show();
-					setTimeout( function() {
-						jQuery( '#fb-option0' )
-							.focus()
-							.select();
+					setTimeout( function () {
+						jQuery( '#fb-option0' ).focus().select();
 					}, 100 );
 					break;
 				case 'text':
@@ -1023,7 +1011,7 @@ FB.ContactForm = ( function() {
 		}
 	}
 	return {
-		resizePop: function() {
+		resizePop: function () {
 			try {
 				//Thickbox won't resize for some reason, we are manually doing it here
 				var totalWidth = jQuery( 'body', window.parent.document ).width();
@@ -1050,7 +1038,7 @@ FB.ContactForm = ( function() {
 				}
 			}
 		},
-		init: function() {
+		init: function () {
 			// Scroll to top of page
 			window.parent.scroll( 0, 0 );
 			//Check for existing form data
@@ -1073,88 +1061,90 @@ FB.ContactForm = ( function() {
 
 			var $doc = jQuery( document );
 
-			jQuery.post( ajaxurl, data, function( response ) {
+			jQuery.post( ajaxurl, data, function ( response ) {
 				// Setup fbForm
 				parseShortcode( jQuery.parseJSON( response ) );
 				// Now build out the preview form
 				buildPreview();
 			} );
 			// actions
-			jQuery( '.fb-add-field' ).click( function() {
+			jQuery( '.fb-add-field' ).click( function () {
 				addField();
 				hideDesc();
 				return false;
 			} );
-			jQuery( '#fb-new-label' ).keyup( function() {
+			jQuery( '#fb-new-label' ).keyup( function () {
 				updateLabel();
 			} );
-			jQuery( '#fb-new-type' ).change( function() {
+			jQuery( '#fb-new-type' ).change( function () {
 				updateType();
 			} );
-			jQuery( '#fb-new-required' ).click( function() {
+			jQuery( '#fb-new-required' ).click( function () {
 				updateRequired();
 			} );
-			$doc.on( 'click', '.fb-remove', function() {
+			$doc.on( 'click', '.fb-remove', function () {
 				showDesc();
 				deleteField( jQuery( this ) );
 				grabShortcode();
 			} );
-			jQuery( '#fb-preview' ).submit( function() {
+			jQuery( '#fb-preview' ).submit( function () {
 				sendShortcodeToEditor();
 				return false;
 			} );
-			jQuery( '#TB_overlay, #TB_closeWindowButton', window.parent.document ).mousedown( function() {
-				if ( confirm( GrunionFB_i18n.exitConfirmMessage ) ) {
-					hidePopup();
+			jQuery( '#TB_overlay, #TB_closeWindowButton', window.parent.document ).mousedown(
+				function () {
+					if ( confirm( GrunionFB_i18n.exitConfirmMessage ) ) {
+						hidePopup();
+					}
 				}
-			} );
-			$doc.on( 'click', '#fb-another-option', function() {
+			);
+			$doc.on( 'click', '#fb-another-option', function () {
 				addOption();
 			} );
-			$doc.on( 'keyup', '.fb-options', function() {
+			$doc.on( 'keyup', '.fb-options', function () {
 				updateOption( jQuery( this ) );
 			} );
-			$doc.on( 'click', '.fb-remove-option', function() {
+			$doc.on( 'click', '.fb-remove-option', function () {
 				removeOption( jQuery( this ).attr( 'optionid' ) );
 			} );
-			jQuery( '#tab-preview a' ).click( function() {
+			jQuery( '#tab-preview a' ).click( function () {
 				switchTabs( 'preview' );
 				return false;
 			} );
-			jQuery( '#fb-prev-form' ).click( function() {
+			jQuery( '#fb-prev-form' ).click( function () {
 				switchTabs( 'preview' );
 				return false;
 			} );
-			jQuery( '#tab-settings a' ).click( function() {
+			jQuery( '#tab-settings a' ).click( function () {
 				switchTabs();
 				return false;
 			} );
-			jQuery( '#fb-field-my-email' ).blur( function() {
+			jQuery( '#fb-field-my-email' ).blur( function () {
 				updateMyEmail();
 			} );
-			jQuery( '#fb-field-subject' ).blur( function() {
+			jQuery( '#fb-field-subject' ).blur( function () {
 				updateSubject();
 			} );
-			$doc.on( 'mouseenter', '.fb-form-case .fb-new-fields', function() {
+			$doc.on( 'mouseenter', '.fb-form-case .fb-new-fields', function () {
 				hideShowEditLink( 'show', jQuery( this ) );
 			} );
-			$doc.on( 'mouseleave', '.fb-form-case .fb-new-fields', function() {
+			$doc.on( 'mouseleave', '.fb-form-case .fb-new-fields', function () {
 				hideShowEditLink( 'hide' );
 				return false;
 			} );
-			$doc.on( 'click', '.fb-edit-field', function() {
+			$doc.on( 'click', '.fb-edit-field', function () {
 				editField( jQuery( this ) );
 				return false;
 			} );
-			$doc.on( 'click', '.fb-edit-field .fb-reorder', function() {
+			$doc.on( 'click', '.fb-edit-field .fb-reorder', function () {
 				return false;
 			} );
-			$doc.on( 'click', '#fb-save-field', function() {
+			$doc.on( 'click', '#fb-save-field', function () {
 				showDesc();
 				showAndHideMessage();
 				return false;
 			} );
-			jQuery( '#fb-feedback' ).click( function() {
+			jQuery( '#fb-feedback' ).click( function () {
 				var thisHref = jQuery( this ).attr( 'href' );
 				window.parent.location = thisHref;
 				return false;
@@ -1163,7 +1153,7 @@ FB.ContactForm = ( function() {
 				axis: 'y',
 				handle: '.fb-reorder',
 				revert: true,
-				start: function() {
+				start: function () {
 					jQuery( '.fb-edit-field' ).hide();
 				},
 			} );

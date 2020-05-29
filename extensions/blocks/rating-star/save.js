@@ -13,7 +13,7 @@ import { range } from 'lodash';
 // We can't provide the full styled experience using UTF-8, so we optimize
 // for consistency.
 export default fallbackSymbol =>
-	function( { className, attributes: { align, rating, color } } ) {
+	function ( { className, attributes: { align, rating, color } } ) {
 		return (
 			<figure className={ className } style={ { textAlign: align } }>
 				{ range( 1, rating + 1 ).map( position => (

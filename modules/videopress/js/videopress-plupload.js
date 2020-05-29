@@ -2,7 +2,7 @@
 
 window.wp = window.wp || {};
 
-( function( exports, $ ) {
+( function ( exports, $ ) {
 	var Uploader, vp;
 
 	if ( typeof _wpPluploadSettings === 'undefined' ) {
@@ -24,7 +24,7 @@ window.wp = window.wp || {};
 	 * @param {object} options.params    An object of parameters to pass to $_POST when uploading the file.
 	 *                                   Extends this.plupload.multipart_params under the hood.
 	 */
-	Uploader = function( options ) {
+	Uploader = function ( options ) {
 		var self = this,
 			isIE =
 				navigator.userAgent.indexOf( 'Trident/' ) !== -1 ||
@@ -131,7 +131,7 @@ window.wp = window.wp || {};
 		 * @param  {object}        data
 		 * @param  {plupload.File} file     File that was uploaded.
 		 */
-		error = function( message, data, file ) {
+		error = function ( message, data, file ) {
 			if ( file.attachment ) {
 				file.attachment.destroy();
 			}
@@ -150,7 +150,7 @@ window.wp = window.wp || {};
 		 *
 		 * @param {plupload.Uploader} uploader Uploader instance.
 		 */
-		this.uploader.bind( 'init', function( uploader ) {
+		this.uploader.bind( 'init', function ( uploader ) {
 			var timer,
 				active,
 				dragdrop,
@@ -170,7 +170,7 @@ window.wp = window.wp || {};
 			}
 
 			// 'dragenter' doesn't fire correctly, simulate it with a limited 'dragover'.
-			dropzone.bind( 'dragover.wp-uploader', function() {
+			dropzone.bind( 'dragover.wp-uploader', function () {
 				if ( timer ) {
 					clearTimeout( timer );
 				}
@@ -183,13 +183,13 @@ window.wp = window.wp || {};
 				active = true;
 			} );
 
-			dropzone.bind( 'dragleave.wp-uploader, drop.wp-uploader', function() {
+			dropzone.bind( 'dragleave.wp-uploader, drop.wp-uploader', function () {
 				// Using an instant timer prevents the drag-over class from
 				// being quickly removed and re-added when elements inside the
 				// dropzone are repositioned.
 				//
 				// @see https://core.trac.wordpress.org/ticket/21705
-				timer = setTimeout( function() {
+				timer = setTimeout( function () {
 					active = false;
 					dropzone.trigger( 'dropzone:leave' ).removeClass( 'drag-over' );
 				}, 0 );
@@ -199,7 +199,7 @@ window.wp = window.wp || {};
 			$( self ).trigger( 'uploader:ready' );
 		} );
 
-		this.uploader.bind( 'postinit', function( up ) {
+		this.uploader.bind( 'postinit', function ( up ) {
 			up.refresh();
 			self.init();
 		} );
@@ -221,8 +221,8 @@ window.wp = window.wp || {};
 		 * @param {plupload.Uploader} uploader Uploader instance.
 		 * @param {Array}             files    Array of file objects that were added to queue by the user.
 		 */
-		this.uploader.bind( 'FilesAdded', function( up, files ) {
-			_.each( files, function( file ) {
+		this.uploader.bind( 'FilesAdded', function ( up, files ) {
+			_.each( files, function ( file ) {
 				var attributes, image;
 
 				// Ignore failed uploads.
@@ -267,7 +267,7 @@ window.wp = window.wp || {};
 			up.start();
 		} );
 
-		this.uploader.bind( 'UploadProgress', function( up, file ) {
+		this.uploader.bind( 'UploadProgress', function ( up, file ) {
 			file.attachment.set( _.pick( file, 'loaded', 'percent' ) );
 			self.progress( file.attachment );
 		} );
@@ -280,7 +280,7 @@ window.wp = window.wp || {};
 		 * @param {Object}            response Object with response properties.
 		 * @return {mixed}
 		 */
-		this.uploader.bind( 'FileUploaded', function( up, file, response ) {
+		this.uploader.bind( 'FileUploaded', function ( up, file, response ) {
 			var complete;
 
 			try {
@@ -295,14 +295,14 @@ window.wp = window.wp || {};
 				response = vp.handleStandardResponse( response, file );
 			}
 
-			_.each( [ 'file', 'loaded', 'size', 'percent' ], function( key ) {
+			_.each( [ 'file', 'loaded', 'size', 'percent' ], function ( key ) {
 				file.attachment.unset( key );
 			} );
 
 			file.attachment.set( _.extend( response.data, { uploading: false } ) );
 			wp.media.model.Attachment.get( response.data.id, file.attachment );
 
-			complete = Uploader.queue.all( function( attachment ) {
+			complete = Uploader.queue.all( function ( attachment ) {
 				return ! attachment.get( 'uploading' );
 			} );
 
@@ -320,7 +320,7 @@ window.wp = window.wp || {};
 		 * @param {plupload.Uploader} uploader Uploader instance.
 		 * @param {Object}            error    Contains code, message and sometimes file and other details.
 		 */
-		this.uploader.bind( 'Error', function( up, pluploadError ) {
+		this.uploader.bind( 'Error', function ( up, pluploadError ) {
 			var message = pluploadL10n.default_error,
 				key;
 
@@ -345,14 +345,14 @@ window.wp = window.wp || {};
 		/**
 		 * Add in a way for the uploader to reset itself when uploads are complete.
 		 */
-		this.uploader.bind( 'UploadComplete', function( up ) {
+		this.uploader.bind( 'UploadComplete', function ( up ) {
 			vp && vp.resetToOriginalOptions( up );
 		} );
 
 		/**
 		 * Before we upload, check to see if this file is a videopress upload, if so, set new options and save the old ones.
 		 */
-		this.uploader.bind( 'BeforeUpload', function( up, file ) {
+		this.uploader.bind( 'BeforeUpload', function ( up, file ) {
 			if ( typeof file.videopress !== 'undefined' ) {
 				vp.originalOptions.url = up.getOption( 'url' );
 				vp.originalOptions.multipart_params = up.getOption( 'multipart_params' );
@@ -389,7 +389,7 @@ window.wp = window.wp || {};
 		HTTP_ERROR: pluploadL10n.http_error,
 		SECURITY_ERROR: pluploadL10n.security_error,
 
-		FILE_SIZE_ERROR: function( file ) {
+		FILE_SIZE_ERROR: function ( file ) {
 			return pluploadL10n.file_exceeds_size_limit.replace( '%s', file.name );
 		},
 	};
@@ -407,7 +407,7 @@ window.wp = window.wp || {};
 		 * param( map )
 		 *    Sets values for a map of data.
 		 */
-		param: function( key, value ) {
+		param: function ( key, value ) {
 			if ( arguments.length === 1 && typeof key === 'string' ) {
 				return this.uploader.settings.multipart_params[ key ];
 			}
@@ -423,13 +423,13 @@ window.wp = window.wp || {};
 		 * Make a few internal event callbacks available on the wp.Uploader object
 		 * to change the Uploader internals if absolutely necessary.
 		 */
-		init: function() {},
-		error: function() {},
-		success: function() {},
-		added: function() {},
-		progress: function() {},
-		complete: function() {},
-		refresh: function() {
+		init: function () {},
+		error: function () {},
+		success: function () {},
+		added: function () {},
+		progress: function () {},
+		complete: function () {},
+		refresh: function () {
 			var node, attached, container, id;
 
 			if ( this.browser ) {

@@ -1,12 +1,12 @@
 var wpPostLikeCount = wpPostLikeCount || {};
 
-( function( $ ) {
+( function ( $ ) {
 	wpPostLikeCount = jQuery.extend( wpPostLikeCount, {
 		jsonAPIbase: 'https://public-api.wordpress.com/rest/v1',
 		APIqueue: [],
 
-		wpPostLikeCount: function() {
-			$( '.post-like-count' ).each( function() {
+		wpPostLikeCount: function () {
+			$( '.post-like-count' ).each( function () {
 				var post_id = $( this ).attr( 'data-post-id' );
 				var blog_id = $( this ).attr( 'data-blog-id' );
 				wpPostLikeCount.APIqueue.push( '/sites/' + blog_id + '/posts/' + post_id + '/likes' );
@@ -14,7 +14,7 @@ var wpPostLikeCount = wpPostLikeCount || {};
 			wpPostLikeCount.getCounts();
 		},
 
-		showCount: function( post_id, count ) {
+		showCount: function ( post_id, count ) {
 			if ( count > 0 ) {
 				$( '#post-like-count-' + post_id )
 					.find( '.comment-count' )
@@ -28,11 +28,11 @@ var wpPostLikeCount = wpPostLikeCount || {};
 			}
 		},
 
-		getCounts: function() {
+		getCounts: function () {
 			var batchRequest = {
 				path: '/batch',
 				data: '',
-				success: function( response ) {
+				success: function ( response ) {
 					for ( var path in response ) {
 						if ( ! response[ path ].error_data ) {
 							var urlPieces = path.split( '/' ); // pieces[4] = post id;
@@ -41,7 +41,7 @@ var wpPostLikeCount = wpPostLikeCount || {};
 						}
 					}
 				},
-				error: function(/*response*/) {},
+				error: function (/*response*/) {},
 			};
 
 			var amp = '';
@@ -57,6 +57,6 @@ var wpPostLikeCount = wpPostLikeCount || {};
 	} );
 } )( jQuery );
 
-jQuery( document ).ready( function(/*$*/) {
+jQuery( document ).ready( function (/*$*/) {
 	wpPostLikeCount.wpPostLikeCount();
 } );

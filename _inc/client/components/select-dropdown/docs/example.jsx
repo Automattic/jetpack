@@ -21,7 +21,7 @@ const SelectDropdownDemo = createReactClass( {
 
 	mixins: [ PureRenderMixin ],
 
-	getInitialState: function() {
+	getInitialState: function () {
 		return {
 			childSelected: 'Published',
 			selectedCount: 10,
@@ -29,7 +29,7 @@ const SelectDropdownDemo = createReactClass( {
 		};
 	},
 
-	getDefaultProps: function() {
+	getDefaultProps: function () {
 		return {
 			options: [
 				{ value: 'status-options', label: 'Statuses', isLabel: true },
@@ -42,18 +42,18 @@ const SelectDropdownDemo = createReactClass( {
 		};
 	},
 
-	handleSelectItem: function( childSelected, count ) {
+	handleSelectItem: function ( childSelected, count ) {
 		return event => {
 			event.preventDefault();
 			this.selectItem( childSelected, count );
 		};
 	},
 
-	toggleButtons: function() {
+	toggleButtons: function () {
 		this.setState( { compactButtons: ! this.state.compactButtons } );
 	},
 
-	render: function() {
+	render: function () {
 		const toggleButtonsText = this.state.compactButtons ? 'Normal Buttons' : 'Compact Buttons';
 
 		return (
@@ -125,14 +125,14 @@ const SelectDropdownDemo = createReactClass( {
 		);
 	},
 
-	selectItem: function( childSelected, count ) {
+	selectItem: function ( childSelected, count ) {
 		this.setState( {
 			childSelected: childSelected,
 			selectedCount: count,
 		} );
 	},
 
-	onDropdownSelect: function() {},
+	onDropdownSelect: function () {},
 } );
 
 export default SelectDropdownDemo;

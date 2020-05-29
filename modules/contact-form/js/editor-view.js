@@ -1,5 +1,5 @@
 /* global grunionEditorView, tinyMCE, QTags, wp */
-( function( $, wp, grunionEditorView ) {
+( function ( $, wp, grunionEditorView ) {
 	wp.mce = wp.mce || {};
 	if ( 'undefined' === typeof wp.mce.views ) {
 		return;
@@ -24,7 +24,7 @@
 		edit_template: wp.template( 'grunion-field-edit' ),
 		editor_inline: wp.template( 'grunion-editor-inline' ),
 		editor_option: wp.template( 'grunion-field-edit-option' ),
-		getContent: function() {
+		getContent: function () {
 			var content = this.shortcode.content,
 				index = 0,
 				field,
@@ -59,11 +59,11 @@
 
 			return this.template( options );
 		},
-		edit: function( data, update_callback ) {
+		edit: function ( data, update_callback ) {
 			var shortcode_data = wp.shortcode.next( this.shortcode_string, data ),
 				shortcode = shortcode_data.shortcode,
 				$tinyMCE_document = $( tinyMCE.activeEditor.getDoc() ),
-				$view = $tinyMCE_document.find( '.wpview.wpview-wrap' ).filter( function() {
+				$view = $tinyMCE_document.find( '.wpview.wpview-wrap' ).filter( function () {
 					return $( this ).attr( 'data-mce-selected' );
 				} ),
 				$editframe = $( '<iframe scrolling="no" class="inline-edit-contact-form" />' ),
@@ -86,14 +86,14 @@
 				fields += this.edit_template( named );
 			}
 
-			$editframe.on( 'checkheight', function() {
+			$editframe.on( 'checkheight', function () {
 				var innerDoc = this.contentDocument ? this.contentDocument : this.contentWindow.document;
 				this.style.height = '10px';
 				this.style.height = 5 + innerDoc.body.scrollHeight + 'px';
 				tinyMCE.activeEditor.execCommand( 'wpAutoResize' );
 			} );
 
-			$editframe.on( 'load', function() {
+			$editframe.on( 'load', function () {
 				var stylesheet_url =
 						1 === window.isRtl
 							? grunionEditorView.inline_editing_style_rtl
@@ -103,18 +103,11 @@
 						'<link rel="stylesheet" href="' + grunionEditorView.dashicons_css_url + '" />'
 					);
 
-				$stylesheet.on( 'load', function() {
-					$editframe
-						.contents()
-						.find( 'body' )
-						.css( 'visibility', 'visible' );
+				$stylesheet.on( 'load', function () {
+					$editframe.contents().find( 'body' ).css( 'visibility', 'visible' );
 					$editframe.trigger( 'checkheight' );
 				} );
-				$editframe
-					.contents()
-					.find( 'head' )
-					.append( $stylesheet )
-					.append( $dashicons_css );
+				$editframe.contents().find( 'head' ).append( $stylesheet ).append( $dashicons_css );
 
 				$editframe
 					.contents()
@@ -128,17 +121,14 @@
 					)
 					.css( 'visibility', 'hidden' );
 
-				$editframe
-					.contents()
-					.find( 'input:first' )
-					.focus();
+				$editframe.contents().find( 'input:first' ).focus();
 
-				setTimeout( function() {
+				setTimeout( function () {
 					$editframe.trigger( 'checkheight' );
 				}, 250 );
 
 				// Add a second timeout for super long forms racing, and to not slow it down for shorter forms unnecessarily.
-				setTimeout( function() {
+				setTimeout( function () {
 					$editframe.trigger( 'checkheight' );
 				}, 500 );
 
@@ -149,56 +139,46 @@
 
 				// Now, add all the listeners!
 
-				$editfields.on( 'change select', 'select[name=type]', function() {
+				$editfields.on( 'change select', 'select[name=type]', function () {
 					$( this ).closest( '.grunion-field-edit' )[ 0 ].className =
 						'card is-compact grunion-field-edit grunion-field-' + $( this ).val();
 					$editframe.trigger( 'checkheight' );
 				} );
 
-				$editfields.on( 'click', '.delete-option', function( e ) {
+				$editfields.on( 'click', '.delete-option', function ( e ) {
 					e.preventDefault();
-					$( this )
-						.closest( 'li' )
-						.remove();
+					$( this ).closest( 'li' ).remove();
 					$editframe.trigger( 'checkheight' );
 				} );
 
-				$editfields.on( 'click', '.add-option', function( e ) {
+				$editfields.on( 'click', '.add-option', function ( e ) {
 					var $new_option = $( wp.mce.grunion_wp_view_renderer.editor_option() );
 					e.preventDefault();
-					$( this )
-						.closest( 'li' )
-						.before( $new_option );
+					$( this ).closest( 'li' ).before( $new_option );
 					$editframe.trigger( 'checkheight' );
 					$new_option.find( 'input:first' ).focus();
 				} );
 
-				$editfields.on( 'click', '.delete-field', function( e ) {
+				$editfields.on( 'click', '.delete-field', function ( e ) {
 					e.preventDefault();
-					$( this )
-						.closest( '.card' )
-						.remove();
+					$( this ).closest( '.card' ).remove();
 					$editframe.trigger( 'checkheight' );
 				} );
 
-				$buttons.find( 'input[name=submit]' ).on( 'click', function() {
+				$buttons.find( 'input[name=submit]' ).on( 'click', function () {
 					var new_data = shortcode;
 
 					new_data.type = 'closed';
 					new_data.attrs = {};
 					new_data.content = '';
 
-					$editfields.children().each( function() {
+					$editfields.children().each( function () {
 						var field_shortcode = {
 								tag: 'contact-field',
 								type: 'single',
 								attrs: {
-									label: $( this )
-										.find( 'input[name=label]' )
-										.val(),
-									type: $( this )
-										.find( 'select[name=type]' )
-										.val(),
+									label: $( this ).find( 'input[name=label]' ).val(),
+									type: $( this ).find( 'select[name=type]' ).val(),
 								},
 							},
 							options = [];
@@ -209,7 +189,7 @@
 
 						$( this )
 							.find( 'input[name=option]' )
-							.each( function() {
+							.each( function () {
 								if ( $( this ).val() ) {
 									options.push( $( this ).val() );
 								}
@@ -221,37 +201,21 @@
 						new_data.content += wp.shortcode.string( field_shortcode );
 					} );
 
-					if (
-						$editframe
-							.contents()
-							.find( 'input[name=to]' )
-							.val()
-					) {
-						new_data.attrs.to = $editframe
-							.contents()
-							.find( 'input[name=to]' )
-							.val();
+					if ( $editframe.contents().find( 'input[name=to]' ).val() ) {
+						new_data.attrs.to = $editframe.contents().find( 'input[name=to]' ).val();
 					}
-					if (
-						$editframe
-							.contents()
-							.find( 'input[name=subject]' )
-							.val()
-					) {
-						new_data.attrs.subject = $editframe
-							.contents()
-							.find( 'input[name=subject]' )
-							.val();
+					if ( $editframe.contents().find( 'input[name=subject]' ).val() ) {
+						new_data.attrs.subject = $editframe.contents().find( 'input[name=subject]' ).val();
 					}
 
 					update_callback( wp.shortcode.string( new_data ) );
 				} );
 
-				$buttons.find( 'input[name=cancel]' ).on( 'click', function() {
+				$buttons.find( 'input[name=cancel]' ).on( 'click', function () {
 					update_callback( wp.shortcode.string( shortcode ) );
 				} );
 
-				$buttons.find( 'input[name=add-field]' ).on( 'click', function() {
+				$buttons.find( 'input[name=add-field]' ).on( 'click', function () {
 					var $new_field = $( wp.mce.grunion_wp_view_renderer.edit_template( {} ) );
 					$editfields.append( $new_field );
 					$editfields.sortable( 'refresh' );
@@ -266,12 +230,12 @@
 	wp.mce.views.register( 'contact-form', wp.mce.grunion_wp_view_renderer );
 
 	// Add the 'text' editor button.
-	QTags.addButton( 'grunion_shortcode', grunionEditorView.labels.quicktags_label, function() {
+	QTags.addButton( 'grunion_shortcode', grunionEditorView.labels.quicktags_label, function () {
 		QTags.insertContent( '[contact-form]' + grunionEditorView.default_form + '[/contact-form]' );
 	} );
 
 	var $wp_content_wrap = $( '#wp-content-wrap' );
-	$( '#insert-jetpack-contact-form' ).on( 'click', function( e ) {
+	$( '#insert-jetpack-contact-form' ).on( 'click', function ( e ) {
 		e.preventDefault();
 		if ( $wp_content_wrap.hasClass( 'tmce-active' ) ) {
 			tinyMCE.execCommand( 'grunion_add_form' );

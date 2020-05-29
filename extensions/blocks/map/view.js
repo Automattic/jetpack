@@ -12,7 +12,7 @@ import { settings } from './settings.js';
 import FrontendManagement from '../../shared/frontend-management.js';
 import { getActiveStyleName } from '../../shared/block-styles';
 
-domReady( function() {
+domReady( function () {
 	const frontendManagement = new FrontendManagement();
 	// Add apiKey to attibutes so FrontendManagement knows about it.
 	// It is dynamically being added on the php side.

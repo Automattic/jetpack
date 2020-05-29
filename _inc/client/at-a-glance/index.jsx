@@ -166,8 +166,10 @@ class AtAGlance extends Component {
 		) : (
 			<div>
 				{ stats }
-				{ // Site Security
-				this.props.getOptionValue( 'protect' ) && securityHeader }
+				{
+					// Site Security
+					this.props.getOptionValue( 'protect' ) && securityHeader
+				}
 				{ protect }
 				{ connections }
 			</div>

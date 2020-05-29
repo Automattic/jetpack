@@ -21,17 +21,17 @@ const Buttons = createReactClass( {
 
 	mixins: [ PureRenderMixin ],
 
-	getInitialState: function() {
+	getInitialState: function () {
 		return {
 			compact: false,
 		};
 	},
 
-	toggleButtons: function() {
+	toggleButtons: function () {
 		this.setState( { compact: ! this.state.compact } );
 	},
 
-	render: function() {
+	render: function () {
 		return (
 			<div>
 				<a

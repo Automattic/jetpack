@@ -37,13 +37,13 @@ export default createReactClass( {
 		onChange: PropTypes.func,
 	},
 
-	getInitialState: function() {
+	getInitialState: function () {
 		return {
 			uniqueId: getUniqueId(),
 		};
 	},
 
-	handleChange: function( event ) {
+	handleChange: function ( event ) {
 		this.setValue( event.target.value );
 
 		if ( this.props.onChange ) {
@@ -51,7 +51,7 @@ export default createReactClass( {
 		}
 	},
 
-	render: function() {
+	render: function () {
 		let errorMessage, labelClass;
 
 		if ( ! this.isPristine() ) {

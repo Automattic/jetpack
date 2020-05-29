@@ -1,6 +1,6 @@
-jQuery( document ).ready( function( $ ) {
+jQuery( document ).ready( function ( $ ) {
 	var templates = {
-		default: function( envelope ) {
+		default: function ( envelope ) {
 			var html =
 				'<div class="jitm-card jitm-banner ' +
 				( envelope.CTA.message ? 'has-call-to-action' : '' ) +
@@ -104,11 +104,11 @@ jQuery( document ).ready( function( $ ) {
 		},
 	};
 
-	var setJITMContent = function( $el, response, redirect ) {
+	var setJITMContent = function ( $el, response, redirect ) {
 		var template;
 
-		var render = function( $my_template ) {
-			return function( e ) {
+		var render = function ( $my_template ) {
+			return function ( e ) {
 				e.preventDefault();
 
 				$my_template.hide();
@@ -153,7 +153,7 @@ jQuery( document ).ready( function( $ ) {
 		}
 
 		// Handle Module activation button if it exists.
-		$template.find( '#jitm-banner__activate a' ).click( function() {
+		$template.find( '#jitm-banner__activate a' ).click( function () {
 			var $activate_button = $( this );
 
 			// Do not allow any requests if the button is disabled.
@@ -169,26 +169,26 @@ jQuery( document ).ready( function( $ ) {
 					$activate_button.data( 'module' ) +
 					'/active',
 				method: 'POST',
-				beforeSend: function( xhr ) {
+				beforeSend: function ( xhr ) {
 					xhr.setRequestHeader( 'X-WP-Nonce', $el.data( 'nonce' ) );
 
 					// Change the button status to disabled as the change is in progress.
 					$( '#jitm-banner__activate a' ).text( window.jitm_config.activating_module_text );
 					$( '#jitm-banner__activate a' ).attr( 'disabled', true );
 				},
-			} ).done( function() {
+			} ).done( function () {
 				$( '#jitm-banner__activate a' ).text( window.jitm_config.activated_module_text );
 				$( '#jitm-banner__activate a' ).attr( 'disabled', true );
 
 				// Hide the JITM after 2 seconds.
-				setTimeout( function() {
+				setTimeout( function () {
 					$template.fadeOut( 'slow' );
 				}, 2000 );
 			} );
 		} );
 
 		// Handle CTA ajax actions.
-		$template.find( '.jitm-button[data-ajax-action]' ).click( function( e ) {
+		$template.find( '.jitm-button[data-ajax-action]' ).click( function ( e ) {
 			e.preventDefault();
 			var button = $( this );
 			button.attr( 'disabled', true );
@@ -196,23 +196,23 @@ jQuery( document ).ready( function( $ ) {
 				action: button.data( 'ajax-action' ),
 				_nonce: $el.data( 'ajax-nonce' ),
 			} )
-				.done( function() {
+				.done( function () {
 					$template.fadeOut( 'slow' );
 				} )
-				.fail( function() {
+				.fail( function () {
 					button.attr( 'disabled', false );
 				} );
 			return false;
 		} );
 	};
 
-	var reFetch = function() {
+	var reFetch = function () {
 		// Do not render JITMs if the Wizard Banner is displayed.
 		if ( $( '#jp-wizard-banner' ).length ) {
 			return;
 		}
 
-		$( '.jetpack-jitm-message' ).each( function() {
+		$( '.jetpack-jitm-message' ).each( function () {
 			var $el = $( this );
 
 			var message_path = $el.data( 'message-path' );
@@ -235,7 +235,7 @@ jQuery( document ).ready( function( $ ) {
 				query: query,
 				full_jp_logo_exists: full_jp_logo_exists,
 				_wpnonce: $el.data( 'nonce' ),
-			} ).then( function( response ) {
+			} ).then( function ( response ) {
 				if ( 'object' === typeof response && response[ '1' ] ) {
 					response = [ response[ '1' ] ];
 				}
@@ -253,7 +253,7 @@ jQuery( document ).ready( function( $ ) {
 
 	reFetch();
 
-	$( window ).bind( 'hashchange', function( e ) {
+	$( window ).bind( 'hashchange', function ( e ) {
 		var newURL = e.originalEvent.newURL;
 
 		if ( newURL.indexOf( 'jetpack#/' ) >= 0 ) {

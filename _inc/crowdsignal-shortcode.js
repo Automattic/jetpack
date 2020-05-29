@@ -1,4 +1,4 @@
-( function( d, c, j ) {
+( function ( d, c, j ) {
 	var crowdsignal_shortcode_options;
 	if (
 		crowdsignal_shortcode_options &&

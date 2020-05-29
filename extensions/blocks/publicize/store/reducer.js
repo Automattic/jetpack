@@ -6,7 +6,7 @@
  *
  * @return {Object} Updated state.
  */
-export default function( state = [], action ) {
+export default function ( state = [], action ) {
 	switch ( action.type ) {
 		case 'SET_CONNECTION_TEST_RESULTS':
 			return action.results;

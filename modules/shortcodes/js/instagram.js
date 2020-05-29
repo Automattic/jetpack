@@ -1,7 +1,7 @@
 /* global window */
 
-( function() {
-	var instagramEmbed = function() {
+( function () {
+	var instagramEmbed = function () {
 		if (
 			'undefined' !== typeof window.instgrm &&
 			window.instgrm.Embeds &&

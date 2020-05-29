@@ -12,13 +12,13 @@ import buildUrl from './build-url';
 const debug = debugFactory( 'calypso:url-search' );
 
 export default {
-	getInitialState: function() {
+	getInitialState: function () {
 		return {
 			searchOpen: false,
 		};
 	},
 
-	UNSAFE_componentWillReceiveProps: function( nextProps ) {
+	UNSAFE_componentWillReceiveProps: function ( nextProps ) {
 		if ( ! nextProps.search ) {
 			this.setState( {
 				searchOpen: false,
@@ -26,7 +26,7 @@ export default {
 		}
 	},
 
-	doSearch: function( keywords ) {
+	doSearch: function ( keywords ) {
 		let searchURL;
 
 		this.setState( {
@@ -54,7 +54,7 @@ export default {
 		}
 	},
 
-	getSearchOpen: function() {
+	getSearchOpen: function () {
 		return this.state.searchOpen !== false || this.props.search;
 	},
 };

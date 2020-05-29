@@ -1,5 +1,5 @@
 let idCounter = 0;
 
-export default function() {
+export default function () {
 	return 'formId-' + idCounter++;
 }

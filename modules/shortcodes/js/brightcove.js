@@ -1,5 +1,5 @@
 /* global brightcove, brightcoveData */
-( function( $ ) {
+( function ( $ ) {
 	var script = document.createElement( 'script' ),
 		tld = 'co.jp' === brightcoveData.tld ? 'co.jp' : 'com',
 		timer = false;

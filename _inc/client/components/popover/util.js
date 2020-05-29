@@ -319,7 +319,7 @@ function _offset( box, doc ) {
  * @param  {Number} ew tip element width
  * @return {Number}    the best width
  */
-const constrainLeft = function( off, el ) {
+const constrainLeft = function ( off, el ) {
 	const ew = getBoundingClientRect( el ).width;
 	off.left = Math.max( 0, Math.min( off.left, viewport.width - ew ) );
 

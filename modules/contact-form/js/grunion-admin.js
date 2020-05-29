@@ -1,12 +1,10 @@
 /* global ajaxurl */
-jQuery( function( $ ) {
-	$( document ).on( 'click', '#jetpack-check-feedback-spam:not(.button-disabled)', function( e ) {
+jQuery( function ( $ ) {
+	$( document ).on( 'click', '#jetpack-check-feedback-spam:not(.button-disabled)', function ( e ) {
 		e.preventDefault();
 
 		$( '#jetpack-check-feedback-spam:not(.button-disabled)' ).addClass( 'button-disabled' );
-		$( '.jetpack-check-feedback-spam-spinner' )
-			.addClass( 'spinner' )
-			.show();
+		$( '.jetpack-check-feedback-spam-spinner' ).addClass( 'spinner' ).show();
 		grunion_check_for_spam( 0, 100 );
 	} );
 
@@ -18,7 +16,7 @@ jQuery( function( $ ) {
 				offset: offset,
 				limit: limit,
 			},
-			function( result ) {
+			function ( result ) {
 				if ( result.processed < limit ) {
 					window.location.reload();
 				} else {
