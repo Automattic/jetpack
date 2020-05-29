@@ -7,6 +7,8 @@ require_once dirname( dirname( __DIR__ ) ) . '/lib/class-wp-test-jetpack-rest-te
 
 /**
  * Class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media
+ *
+ * @coversDefaultClass WPCOM_REST_API_V2_Endpoint_External_Media
  */
 class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_REST_Testcase {
 
