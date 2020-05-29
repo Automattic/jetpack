@@ -306,16 +306,16 @@
         },
         {
             "name": "automattic/jetpack-jitm",
-            "version": "v1.6.1",
+            "version": "v1.6.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-jitm.git",
-                "reference": "dc393a53681364e8e783431c1106a988797e813f"
+                "reference": "b759d7c56a52ea0b3a8f3babfc0f318498041535"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-jitm/zipball/dc393a53681364e8e783431c1106a988797e813f",
-                "reference": "dc393a53681364e8e783431c1106a988797e813f",
+                "url": "https://api.github.com/repos/Automattic/jetpack-jitm/zipball/b759d7c56a52ea0b3a8f3babfc0f318498041535",
+                "reference": "b759d7c56a52ea0b3a8f3babfc0f318498041535",
                 "shasum": ""
             },
             "require": {
@@ -345,7 +345,7 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Just in time messages for Jetpack",
-            "time": "2020-05-28T08:26:22+00:00"
+            "time": "2020-05-29T09:51:58+00:00"
         },
         {
             "name": "automattic/jetpack-logo",
