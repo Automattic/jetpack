@@ -63,6 +63,10 @@ class Pre_Connection_JITM extends JITM {
 				continue;
 			}
 
+			if ( 'jpsetup-posts' === $message['id'] && wp_count_posts()->publish < 5 ) {
+				continue;
+			}
+
 			$obj                 = new \stdClass();
 			$obj->CTA            = array( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 				'message'   => $message['button_caption'],
