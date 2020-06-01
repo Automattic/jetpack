@@ -18,12 +18,8 @@ class WordAds_California_Privacy {
 	 * Initializes required scripts and shortcode.
 	 */
 	public static function init() {
-
-		// Initialize required scripts.
-		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ) );
-
 		// Initialize shortcode.
-		self::init_shortcode();
+		add_shortcode( 'ccpa-do-not-sell-link', array( __CLASS__, 'do_not_sell_link_shortcode' ) );
 	}
 
 	/**
@@ -70,13 +66,6 @@ class WordAds_California_Privacy {
 	}
 
 	/**
-	 * Initializes the [ccpa-do-not-sell-link] shortcode.
-	 */
-	private static function init_shortcode() {
-		add_shortcode( 'ccpa-do-not-sell-link', array( __CLASS__, 'do_not_sell_link_shortcode' ) );
-	}
-
-	/**
 	 * Outputs [ccpa-do-not-sell-link] shortcode markup.
 	 *
 	 * @param array  $attributes The shortcode attributes.
@@ -85,6 +74,15 @@ class WordAds_California_Privacy {
 	 * @return string The generated shortcode markup.
 	 */
 	public static function do_not_sell_link_shortcode( $attributes, $content ) {
+
+		// If in the customizer always display the link.
+		if ( is_customize_preview() ) {
+			return '<a href="#" class="ccpa-do-not-sell">' . self::get_optout_link_text() . '</a>';
+		}
+
+		// Load required scripts if the shortcode/widget is loaded on the page.
+		self::enqueue_scripts();
+
 		return '<a href="#" class="ccpa-do-not-sell" style="display: none;">' . self::get_optout_link_text() . '</a>';
 	}
 
