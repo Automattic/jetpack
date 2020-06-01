@@ -12,12 +12,7 @@ import {
 	loginToWpSite,
 	loginToWpcomIfNeeded,
 } from '../lib/flows/jetpack-connect';
-import {
-	execWpCommand,
-	getNgrokSiteUrl,
-	resetWordpressInstall,
-	execSyncShellCommand,
-} from '../lib/utils-helper';
+import { execWpCommand, getNgrokSiteUrl, resetWordpressInstall } from '../lib/utils-helper';
 import Sidebar from '../lib/pages/wp-admin/sidebar';
 import JetpackPage from '../lib/pages/wp-admin/jetpack';
 import CheckoutPage from '../lib/pages/wpcom/checkout';
