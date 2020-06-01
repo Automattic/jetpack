@@ -237,7 +237,7 @@ class WordAds_California_Privacy {
 								<div class="components-modal__header-heading-container">
 									<h1 id="dialog_label" class="components-modal__header-heading"><?php esc_html_e( 'Do Not Sell My Personal Information', 'jetpack' ); ?></h1>
 								</div>
-								<button type="button" aria-label="Close dialog" class="components-button components-icon-button">
+								<button type="button" aria-label="<?php esc_html_e( 'Close dialog', 'jetpack' ); ?>" class="components-button components-icon-button">
 									<svg aria-hidden="true" role="img" focusable="false" class="dashicon dashicons-no-alt" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20">
 										<path d="M14.95 6.46L11.41 10l3.54 3.54-1.41 1.41L10 11.42l-3.53 3.53-1.42-1.42L8.58 10 5.05 6.47l1.42-1.42L10 8.58l3.54-3.53z"></path>
 									</svg>
