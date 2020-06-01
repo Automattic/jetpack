@@ -300,7 +300,6 @@ const VideoPressEdit = CoreVideoEdit =>
 			// as far as the user is concerned. We're just catching the first click so that
 			// the block can be selected without interacting with the embed preview that the overlay covers.
 			/* eslint-disable jsx-a11y/no-static-element-interactions */
-			// @todo: remove the key prop from Sandbox below when fix for https://github.com/WordPress/gutenberg/issues/16831 is available
 			return (
 				<Fragment>
 					{ blockSettings }
