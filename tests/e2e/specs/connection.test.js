@@ -9,7 +9,7 @@ import JetpackPage from '../lib/pages/wp-admin/jetpack';
 
 describe( 'Connection', () => {
 	catchBeforeAll( async () => {
-		await execWpCommand( 'wp config set JETPACK_SHOULD_USE_CONNECTION_IFRAME false' );
+		await execWpCommand( 'wp config set JETPACK_SHOULD_USE_CONNECTION_IFRAME true' );
 		await execWpCommand( 'wp option delete jetpack_private_options' );
 		page.reload();
 	} );
@@ -19,7 +19,7 @@ describe( 'Connection', () => {
 			'wp option update jetpack_private_options --format=json',
 			'< jetpack_private_options.txt'
 		);
-		await execWpCommand( 'wp config set JETPACK_SHOULD_USE_CONNECTION_IFRAME true' );
+		await execWpCommand( 'wp config set JETPACK_SHOULD_USE_CONNECTION_IFRAME false' );
 	} );
 
 	it( 'In-place', async () => {
