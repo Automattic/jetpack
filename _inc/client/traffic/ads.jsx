@@ -7,6 +7,7 @@ import Card from 'components/card';
 import CompactFormToggle from 'components/form/form-toggle/compact';
 import analytics from 'lib/analytics';
 import getRedirectUrl from 'lib/jp-redirect';
+import ExternalLink from 'components/external-link';
 
 /**
  * Internal dependencies
@@ -219,8 +220,8 @@ export const Ads = withModuleSettingsFormHelpers(
 								'Enables a targeted advertising opt-out link for California consumers, as required by the California Consumer Privacy Act (CCPA).'
 							),
 							link: this.props.isAtomicSite
-								? 'https://wordpress.com/support/your-wordpress-com-site-and-the-ccpa/'
-								: 'https://jetpack.com/support/ads/',
+								? getRedirectUrl( 'wpcom-support-ccpa' )
+								: getRedirectUrl( 'jetpack-support-ads' ),
 						} }
 					>
 						<CompactFormToggle
@@ -246,11 +247,12 @@ export const Ads = withModuleSettingsFormHelpers(
 												components: {
 													br: <br />,
 													link: (
-														<a
+														<ExternalLink
+															icon={ true }
 															href={
 																this.props.isAtomicSite
-																	? 'https://wordpress.com/support/your-wordpress-com-site-and-the-ccpa/'
-																	: 'https://jetpack.com/support/ads/'
+																	? getRedirectUrl( 'wpcom-support-ccpa' )
+																	: getRedirectUrl( 'jetpack-support-ads' )
 															}
 															target="_blank"
 															rel="noopener noreferrer"
