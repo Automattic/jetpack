@@ -37,7 +37,7 @@ class WordAds_California_Privacy {
 				'modules/wordads/js/wordads-ccpa.js'
 			),
 			array(),
-			'1.0.0',
+			JETPACK__VERSION,
 			true
 		);
 
@@ -46,10 +46,10 @@ class WordAds_California_Privacy {
 			'ccpaSettings',
 			array(
 				'defaultOptinCookieString' => esc_html( self::get_optin_cookie_string() ),
-				'cleanslateUrl'            => esc_url( WORDADS_URL ) . 'css/cleanslate.css',
-				'ccpaCssUrl'               => esc_url( WORDADS_URL ) . 'css/wordads-ccpa.min.css',
+				'cleanslateUrl'            => esc_url( WORDADS_URL . 'css/cleanslate.css' ),
+				'ccpaCssUrl'               => esc_url( WORDADS_URL . 'css/wordads-ccpa.min.css' ),
 				'ajaxUrl'                  => esc_url( admin_url( 'admin-ajax.php' ) ),
-				'ajaxNonce'                => esc_html( wp_create_nonce( 'ccpa_optout' ) ),
+				'ajaxNonce'                => wp_create_nonce( 'ccpa_optout' ),
 				'forceApplies'             => wp_json_encode( is_user_logged_in() && current_user_can( 'manage_options' ) ),
 				'strings'                  => array(
 					'pleaseWait' => esc_html__( 'Please Wait', 'jetpack' )
