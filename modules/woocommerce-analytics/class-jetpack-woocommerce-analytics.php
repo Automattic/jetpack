@@ -9,7 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-require_once plugin_basename( 'classes/wp-woocommerce-analytics-universal.php' );
+require_once plugin_basename( 'classes/class-jetpack-woocommerce-analytics-universal.php' );
 
 /**
  * Class Jetpack_WooCommerce_Analytics
@@ -37,7 +37,7 @@ class Jetpack_WooCommerce_Analytics {
 	 *
 	 * @return bool
 	 */
-	public static function shouldTrackStore() {
+	public static function should_track_store() {
 		/**
 		 * Make sure WooCommerce is installed and active
 		 *
@@ -79,7 +79,7 @@ class Jetpack_WooCommerce_Analytics {
 	 * Function to instantiate our class and make it a singleton
 	 */
 	public static function get_instance() {
-		if ( ! self::shouldTrackStore() ) {
+		if ( ! self::should_track_store() ) {
 			return;
 		}
 		if ( ! self::$instance ) {
