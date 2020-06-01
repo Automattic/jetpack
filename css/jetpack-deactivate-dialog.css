@@ -197,6 +197,11 @@ https://github.com/thoughtbot/bourbon
   margin-bottom: 0px;
 }
 
+#TB_window.jetpack-disconnect-modal .jetpack_deactivation_dialog_content__buttons-row .jetpack_deactivation_dialog_content__buttons button#jetpack_deactivation_dialog_content__button-deactivate[disabled], #TB_window.jetpack-disconnect-modal .jetpack_deactivation_dialog_content__buttons-row .jetpack_deactivation_dialog_content__buttons button#jetpack_deactivation_dialog_content__button-deactivate:disabled {
+  background: #eba3a3;
+  border-color: #e48484;
+}
+
 #jetpack_deactivation_dialog {
   display: none;
 }

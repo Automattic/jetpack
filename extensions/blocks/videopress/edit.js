@@ -22,6 +22,7 @@ import {
 	MediaUpload,
 	MediaUploadCheck,
 	RichText,
+	__experimentalBlock as Block,
 } from '@wordpress/block-editor';
 import { Component, createRef, Fragment } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
@@ -35,6 +36,12 @@ import Loading from './loading';
 import { getVideoPressUrl } from './url';
 
 const VIDEO_POSTER_ALLOWED_MEDIA_TYPES = [ 'image' ];
+
+// For Gutenberg versions that support it, use the figure block wrapper (from '@wordpress/block-editor')
+// to wrap the VideoPress component the same way the underlying `core/video` block is wrapped.
+// (Otherwise there's an issue with Gutenberg >= 8.1 where the VideoPress block becomes unselectable,
+// see https://github.com/Automattic/jetpack/issues/15922.)
+const BlockFigureWrapper = Block ? Block.figure : 'figure';
 
 const VideoPressEdit = CoreVideoEdit =>
 	class extends Component {
@@ -272,7 +279,9 @@ const VideoPressEdit = CoreVideoEdit =>
 			return (
 				<Fragment>
 					{ blockSettings }
-					<figure className={ classnames( className, 'wp-block-embed', 'is-type-video' ) }>
+					<BlockFigureWrapper
+						className={ classnames( className, 'wp-block-embed', 'is-type-video' ) }
+					>
 						{ /*
 							Disable the video player so the user clicking on it won't play the
 							video when the controls are enabled.
@@ -291,7 +300,7 @@ const VideoPressEdit = CoreVideoEdit =>
 								inlineToolbar
 							/>
 						) }
-					</figure>
+					</BlockFigureWrapper>
 				</Fragment>
 			);
 		}

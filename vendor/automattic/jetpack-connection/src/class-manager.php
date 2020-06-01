@@ -856,6 +856,7 @@ class Manager {
 				'state'           => get_current_user_id(),
 				'site_created'    => $this->get_assumed_site_creation_date(),
 				'jetpack_version' => Constants::get_constant( 'JETPACK__VERSION' ),
+				'ABSPATH'         => Constants::get_constant( 'ABSPATH' ),
 			)
 		);
 

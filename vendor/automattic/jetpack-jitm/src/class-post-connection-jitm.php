@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\JITMS;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Partner;
+use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\JITMS\JITM;
 
@@ -177,9 +178,8 @@ class Post_Connection_JITM extends JITM {
 			$this->tracking->record_user_event( 'delete_connection_owner_notice_view' );
 		}
 
-		$connection_manager = new Manager();
-		$connected_admins   = $connection_manager->get_connected_users( 'jetpack_disconnect' );
-		$user               = is_a( $connection_owner_userdata, 'WP_User' ) ? esc_html( $connection_owner_userdata->data->user_login ) : '';
+		$connected_admins = $connection_manager->get_connected_users( 'jetpack_disconnect' );
+		$user             = is_a( $connection_owner_userdata, 'WP_User' ) ? esc_html( $connection_owner_userdata->data->user_login ) : '';
 
 		echo "<div class='notice notice-warning' id='jetpack-notice-switch-connection-owner'>";
 		echo '<h2>' . esc_html__( 'Important notice about your Jetpack connection:', 'jetpack' ) . '</h2>';

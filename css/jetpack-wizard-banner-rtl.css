@@ -2,6 +2,7 @@
 * Do not modify this file directly.  It is compiled SASS code.
 */
 .jp-wizard-banner {
+  position: relative;
   text-align: right;
   background: #fff;
   padding: 2rem;
@@ -33,6 +34,7 @@
 
 .jp-wizard-banner-grid {
   display: flex;
+  max-width: 1000px;
 }
 
 .jp-wizard-banner-grid-a {
@@ -67,22 +69,6 @@
 @media (max-width: 960px) {
   .powering-up-img {
     display: none;
-  }
-}
-
-.wizard-banner-dismiss {
-  float: left;
-  height: 20px;
-  width: 20px;
-  margin-top: 80px;
-  margin-left: 30px;
-  position: fixed;
-}
-
-@media (max-width: 660px) {
-  .wizard-banner-dismiss {
-    margin-top: 95px;
-    margin-left: 25px;
   }
 }
 
