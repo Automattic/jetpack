@@ -122,7 +122,9 @@ class WordAds_Ccpa_Do_Not_Sell_Link_Widget extends WP_Widget {
 	}
 
 	public function widget( $args, $instance ) {
+		echo $args['before_widget'];
 		echo do_shortcode( '[ccpa-do-not-sell-link]' );
+		echo $args['after_widget'];
 	}
 }
 
