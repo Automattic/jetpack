@@ -4,7 +4,7 @@
 import { Path, Polygon, SVG } from '@wordpress/components';
 import classNames from 'classnames';
 
-export default ( { size = 24, className } ) => (
+export const JetpackLogo = ( { size = 24, className } ) => (
 	<SVG
 		className={ classNames( 'jetpack-logo', className ) }
 		width={ size }
