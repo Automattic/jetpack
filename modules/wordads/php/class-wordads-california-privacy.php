@@ -100,7 +100,7 @@ class WordAds_California_Privacy {
 
 	/**
 	 * Builds the value of the opt-out cookie.
-	 * Format matches spec of [IAB U.S. Privacy String](https://iabtechlab.com/wp-content/uploads/2019/11/U.S.-Privacy-String-v1.0-IAB-Tech-Lab.pdf).
+	 * Format matches spec of [IAB U.S. Privacy String](https://github.com/InteractiveAdvertisingBureau/USPrivacy/blob/master/CCPA/US%20Privacy%20String.md).
 	 *
 	 * @param bool $optout True if setting an opt-out cookie.
 	 *
@@ -119,7 +119,7 @@ class WordAds_California_Privacy {
 
 	/**
 	 * Gets the name to be used for the opt-out cookie.
-	 * Name matches spec of [IAB U.S. Privacy String](https://iabtechlab.com/wp-content/uploads/2019/11/U.S.-Privacy-String-v1.0-IAB-Tech-Lab.pdf).
+	 * Name matches spec of [IAB U.S. Privacy String](https://github.com/InteractiveAdvertisingBureau/USPrivacy/blob/master/CCPA/US%20Privacy%20String.md).
 	 *
 	 * @return string The name of the opt-out cookie.
 	 */
