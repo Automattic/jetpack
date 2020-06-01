@@ -24,19 +24,19 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	 * Jetpack_WooCommerce_Analytics_Universal constructor.
 	 */
 	public function __construct() {
-		// loading _wca
+		// loading _wca.
 		add_action( 'wp_head', array( $this, 'wp_head_top' ), 1 );
 
-		// add to carts from non-product pages or lists (search, store etc.)
+		// add to carts from non-product pages or lists -- search, store etc.
 		add_action( 'wp_head', array( $this, 'loop_session_events' ), 2 );
 
 		// loading s.js.
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_tracking_script' ) );
 
-		// Capture cart events
+		// Capture cart events.
 		add_action( 'woocommerce_add_to_cart', array( $this, 'capture_add_to_cart' ), 10, 6 );
 
-		// single product page view
+		// single product page view.
 		add_action( 'woocommerce_after_single_product', array( $this, 'capture_product_view' ) );
 
 		add_action( 'woocommerce_after_cart', array( $this, 'remove_from_cart' ) );
@@ -50,7 +50,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		// Send events after checkout block.
 		add_action( 'woocommerce_blocks_enqueue_checkout_block_scripts_after', array( $this, 'checkout_process' ) );
 
-		// order confirmed
+		// order confirmed.
 		add_action( 'woocommerce_thankyou', array( $this, 'order_process' ), 10, 1 );
 		add_action( 'woocommerce_after_cart', array( $this, 'remove_from_cart_via_quantity' ), 10, 1 );
 	}
@@ -222,7 +222,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	/**
 	 * Gather relevant product information
 	 *
-	 * @param array $product product
+	 * @param array $product product.
 	 * @return array
 	 */
 	public function get_product_details( $product ) {
@@ -347,13 +347,13 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	 */
 	public function capture_add_to_cart( $cart_item_key, $product_id, $quantity, $variation_id, $variation, $cart_item_data ) {
 		$referer_postid = isset( $_SERVER['HTTP_REFERER'] ) ? url_to_postid( $_SERVER['HTTP_REFERER'] ) : 0;
-		// if the referring post is not a product OR the product being added is not the same as post
-		// (eg. related product list on single product page) then include a product view event
+		// if the referring post is not a product OR the product being added is not the same as post.
+		// (eg. related product list on single product page) then include a product view event.
 		$product_by_referer_postid = wc_get_product( $referer_postid );
 		if ( ! $product_by_referer_postid instanceof WC_Product || (int) $product_id !== $referer_postid ) {
 			$this->capture_event_in_session_data( $product_id, $quantity, 'woocommerceanalytics_product_view' );
 		}
-		// add cart event to the session data
+		// add cart event to the session data.
 		$this->capture_event_in_session_data( $product_id, $quantity, 'woocommerceanalytics_add_to_cart' );
 	}
 
@@ -371,7 +371,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 
 		$quantity = ( $quantity == 0 ) ? 1 : $quantity;
 
-		// check for existing data
+		// check for existing data.
 		if ( is_object( WC()->session ) ) {
 			$data = WC()->session->get( 'wca_session_data' );
 			if ( empty( $data ) || ! is_array( $data ) ) {
@@ -381,14 +381,14 @@ class Jetpack_WooCommerce_Analytics_Universal {
 			$data = array();
 		}
 
-		// extract new event data
+		// extract new event data.
 		$new_data = array(
 			'event'      => $event,
 			'product_id' => (string) $product_id,
 			'quantity'   => (string) $quantity,
 		);
 
-		// append new data
+		// append new data.
 		$data[] = $new_data;
 
 		WC()->session->set( 'wca_session_data', $data );

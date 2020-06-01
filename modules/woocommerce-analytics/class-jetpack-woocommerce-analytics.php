@@ -46,19 +46,19 @@ class Jetpack_WooCommerce_Analytics {
 		if ( ! in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', Jetpack::get_active_plugins() ) ) ) {
 			return false;
 		}
-		// Tracking only Site pages
+		// Tracking only Site pages.
 		if ( is_admin() ) {
 			return false;
 		}
-		// Don't track site admins
+		// Don't track site admins.
 		if ( is_user_logged_in() && in_array( 'administrator', wp_get_current_user()->roles ) ) {
 			return false;
 		}
-		// Make sure Jetpack is installed and active
+		// Make sure Jetpack is installed and active.
 		if ( ! Jetpack::is_active() ) {
 			return false;
 		}
-		// Ensure the WooCommerce class exists and is a valid version
+		// Ensure the WooCommerce class exists and is a valid version.
 		$minimum_woocommerce_active = class_exists( 'WooCommerce' ) && version_compare( WC_VERSION, '3.0', '>=' );
 		if ( ! $minimum_woocommerce_active ) {
 			return false;
