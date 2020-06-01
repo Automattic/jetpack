@@ -25,7 +25,7 @@ class WordAds_Params {
 			'wordads_custom_adstxt'           => '',
 			'wordads_custom_adstxt_enabled'   => false,
 			'wordads_ccpa_enabled'            => false,
-			'wordads_ccpa_privacy_policy_url' => '',
+			'wordads_ccpa_privacy_policy_url' => get_option( 'wp_page_for_privacy_policy' ) ? get_permalink( (int) get_option( 'wp_page_for_privacy_policy' ) ) : '',
 		);
 
 		// grab settings, or set as default if it doesn't exist
