@@ -54,94 +54,94 @@ __( "Included in your {{planLink}}Personal Plan{{/planLink}}", "jetpack" ), // _
 __( "Included in your {{planLink}}Premium Plan{{/planLink}}", "jetpack" ), // _inc/client/plans/single-product/index.js:153
 __( "Included in your {{planLink}}Professional Plan{{/planLink}}", "jetpack" ), // _inc/client/plans/single-product/index.js:160
 _n( "Your current site record size: %s record", "Your current site record size: %s records", 1, "jetpack" ), // _inc/client/plans/single-product-components/product-options-label.js:13
-__( "Included with %(productName)s", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:19
-__( "Ads", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:44
-__( "Generate income with high-quality ads.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:45
-__( "Anti-spam", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:90
-__( "No more approving or vetting.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:91
-__( "Daily or Real-time backups", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:141
-__( "Get time travel for your site with Jetpack Backup.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:142
-__( "Beautiful math", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:157
-__( "Display math and formulas beautifully.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:158
-__( "Brute force protection", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:176
-__( "Stop malicious login attempts.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:177
-__( "Carousel", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:195
-__( "Create full-screen carousel slideshows for the images in your posts and pages.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:196
-__( "Comment Likes", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:216
-__( "Increase engagement with liking on comments.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:217
-__( "Comments", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:236
-__( "An enhanced comments section with better verfiication.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:237
-__( "Contact Form", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:255
-__( "Gutenberg ready forms!", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:256
-__( "Copy Post", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:274
-__( "Simply duplicate content.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:275
-__( "Custom CSS", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:293
-__( "Enable an enhanced CSS customization panel.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:294
-__( "Enhanced Distribution", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:312
-__( "Increase reach and traffic.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:313
-__( "Extra Sidebar Widgets", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:331
-__( "Add more widgets.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:332
-__( "Google Analytics", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:367
-__( "Add your Google Analytics account.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:368
-__( "Gravatar Hovercards", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:389
-__( "Give comments life.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:390
-__( "Infinite Scroll", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:408
-__( "Create a smooth, uninterrupted reading experience by loading more content as visitors scroll to the bottom of your archive pages.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:409
-__( "JSON API", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:432
-__( "JSON API access for developers.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:433
-__( "Lazy Loading Images", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:451
-__( "Further improve site speed and only load images visitors need.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:452
-__( "Likes", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:470
-__( "Add a like button to your posts.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:471
-__( "Markdown", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:489
-__( "Write faster rich-text.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:490
-__( "WordPress.com Toolbar", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:508
-__( "The WordPress.com toolbar replaces the default WordPress admin toolbar.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:509
-__( "Downtime Monitoring", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:527
-__( "Get an alert immediately if your site goes down.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:528
-__( "Notifications", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:546
-__( "Stay up-to-date with your site.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:547
-__( "Portfolio: Custom content types", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:565
-__( "Use portfolios on your site to showcase your best work.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:566
-__( "Post by email", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:594
-__( "Post by email is a quick way to publish new posts without visiting your site.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:595
-__( "Publicize", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:617
-__( "Automaticaly share content on your favorite social media accounts.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:618
-__( "Related posts", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:637
-__( "Keep your visitors engaged with related content at the bottom of each post.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:638
-__( "Security scanning", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:684
-__( "Stop threats to keep your website safe.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:685
-__( "Search", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:712
-__( "Incredibly powerful and customizable, Jetpack Search helps your visitors instantly find the right content – right when they need it.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:713
-__( "Secure Sign On", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:735
-__( "Add an extra layer of security.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:736
-__( "SEO", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:769
-__( "Take control of the way search engines represent your site.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:770
-__( "Sitemaps", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:790
-__( "Automatically generate sitemaps for all your content.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:791
-__( "Sharing", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:809
-__( "Increase sharing of your posts and pages. ", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:810
-__( "Shortcode Embeds", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:828
-__( "Embed YouTube videos, and other content easily.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:829
-__( "WP.me Shortlinks", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:847
-__( "Build quick links for sharing.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:848
-__( "Simple Payments Block", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:885
-__( "A simple way to accept payments.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:886
-__( "Site Accelerator", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:902
-__( "Enable for faster images and a faster site.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:903
-__( "Site Stats", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:923
-__( "Track your site visitors and learn about your most popular content.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:924
-__( "Site verification", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:942
-__( "Verify your site with Google, Bing, Yandex, and Pinterest.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:943
-__( "Subscriptions", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:961
-__( "Send post notifications to your visitors.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:962
-__( "Testimonial: Custom content types", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:980
-__( "Add testimonials to your website to attract new customers.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:981
-__( "Tiled Galleries", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:1010
-__( "VideoPress", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:1047
-__( "Host fast, high-quality, ad-free video.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:1048
-__( "Widget Visibility", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:1069
-__( "Control your widgets at the post or page level.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:1070
+__( "Included with %(productName)s", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:26
+__( "Ads", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:51
+__( "Generate income with high-quality ads.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:52
+__( "Anti-spam", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:97
+__( "No more approving or vetting.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:98
+__( "Daily or Real-time backups", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:143
+__( "Get time travel for your site with Jetpack Backup.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:144
+__( "Beautiful math", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:159
+__( "Display math and formulas beautifully.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:160
+__( "Brute force protection", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:178
+__( "Stop malicious login attempts.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:179
+__( "Carousel", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:197
+__( "Create full-screen carousel slideshows for the images in your posts and pages.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:198
+__( "Comment Likes", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:218
+__( "Increase engagement with liking on comments.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:219
+__( "Comments", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:238
+__( "An enhanced comments section with better verfiication.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:239
+__( "Contact Form", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:257
+__( "Add contact forms using the block editor.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:258
+__( "Copy Post", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:276
+__( "Simply duplicate content.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:277
+__( "Custom CSS", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:295
+__( "Enable an enhanced CSS customization panel.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:296
+__( "Enhanced Distribution", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:314
+__( "Increase reach and traffic.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:315
+__( "Extra Sidebar Widgets", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:333
+__( "Add more widgets.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:334
+__( "Google Analytics", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:369
+__( "Add your Google Analytics account.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:370
+__( "Gravatar Hovercards", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:391
+__( "Give comments life.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:392
+__( "Infinite Scroll", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:410
+__( "Create a smooth, uninterrupted reading experience by loading more content as visitors scroll to the bottom of your archive pages.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:411
+__( "JSON API", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:434
+__( "JSON API access for developers.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:435
+__( "Lazy Loading Images", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:453
+__( "Further improve site speed and only load images visitors need.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:454
+__( "Likes", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:472
+__( "Add a like button to your posts.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:473
+__( "Markdown", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:491
+__( "Write faster rich-text.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:492
+__( "WordPress.com Toolbar", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:510
+__( "The WordPress.com toolbar replaces the default WordPress admin toolbar.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:511
+__( "Downtime Monitoring", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:529
+__( "Get an alert immediately if your site goes down.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:530
+__( "Notifications", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:548
+__( "Stay up-to-date with your site.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:549
+__( "Portfolio: Custom content types", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:567
+__( "Use portfolios on your site to showcase your best work.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:568
+__( "Post by email", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:596
+__( "Post by email is a quick way to publish new posts without visiting your site.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:597
+__( "Publicize", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:619
+__( "Automaticaly share content on your favorite social media accounts.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:620
+__( "Related posts", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:639
+__( "Keep your visitors engaged with related content at the bottom of each post.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:640
+__( "Security scanning", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:683
+__( "Stop threats to keep your website safe.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:684
+__( "Search", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:711
+__( "Incredibly powerful and customizable, Jetpack Search helps your visitors instantly find the right content – right when they need it.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:712
+__( "Secure Sign On", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:734
+__( "Add an extra layer of security.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:735
+__( "SEO", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:768
+__( "Take control of the way search engines represent your site.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:769
+__( "Sitemaps", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:789
+__( "Automatically generate sitemaps for all your content.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:790
+__( "Sharing", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:808
+__( "Increase sharing of your posts and pages. ", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:809
+__( "Shortcode Embeds", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:827
+__( "Embed YouTube videos, and other content easily.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:828
+__( "WP.me Shortlinks", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:846
+__( "Build quick links for sharing.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:847
+__( "Simple Payments Block", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:884
+__( "A simple way to accept payments.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:885
+__( "Site Accelerator", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:901
+__( "Enable for faster images and a faster site.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:902
+__( "Site Stats", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:922
+__( "Track your site visitors and learn about your most popular content.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:923
+__( "Site verification", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:941
+__( "Verify your site with Google, Bing, Yandex, and Pinterest.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:942
+__( "Subscriptions", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:960
+__( "Send post notifications to your visitors.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:961
+__( "Testimonial: Custom content types", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:979
+__( "Add testimonials to your website to attract new customers.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:980
+__( "Tiled Galleries", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:1009
+__( "VideoPress", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:1046
+__( "Host fast, high-quality, ad-free video.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:1047
+__( "Widget Visibility", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:1068
+__( "Control your widgets at the post or page level.", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/map-feature-to-props.js:1069
 __( "Testing Jetpack Connection", "jetpack" ), // _inc/client/state/connection/actions.js:42
 __( "There was an error testing Jetpack. Error: %(error)s", "jetpack" ), // _inc/client/state/connection/actions.js:67
 __( "Disconnecting Jetpack", "jetpack" ), // _inc/client/state/connection/actions.js:129
@@ -444,8 +444,6 @@ _x( "Set up", "Caption for a button to set up a feature.", "jetpack" ), // _inc/
 _n( "Threat", "Threats", 1, "jetpack" ), // _inc/client/pro-status/index.jsx:237
 __( "Action needed", "jetpack" ), // _inc/client/pro-status/index.jsx:249
 __( "Activate", "jetpack" ), // _inc/client/searchable-modules/index.jsx:61
-__( "No search results found for %(term)s", "jetpack" ), // _inc/client/settings/index.jsx:37
-__( "Enter a search term to find settings or close search.", "jetpack" ), // _inc/client/settings/index.jsx:42
 __( "Checking your spam protection…", "jetpack" ), // _inc/client/security/antispam.jsx:88
 __( "Fetching key…", "jetpack" ), // _inc/client/security/antispam.jsx:92
 __( "Your site needs an Antispam key.", "jetpack" ), // _inc/client/security/antispam.jsx:97
@@ -458,32 +456,32 @@ _x( "Anti-spam", "Settings header", "jetpack" ), // _inc/client/security/antispa
 __( "Removes spam from comments and contact forms.", "jetpack" ), // _inc/client/security/antispam.jsx:140
 __( "Your API key", "jetpack" ), // _inc/client/security/antispam.jsx:146
 __( "If you don't already have an API key, then {{a}}get your API key here{{/a}}, and you'll be guided through the process of getting one.", "jetpack" ), // _inc/client/security/antispam.jsx:152
-_x( "Backups and security scanning", "Settings header", "jetpack" ), // _inc/client/security/backups-scan.jsx:30
-__( "Backs up your site to the global WordPress.com servers, allowing you to restore your content in the event of an emergency or error.", "jetpack" ), // _inc/client/security/backups-scan.jsx:38
-__( "Checking site status…", "jetpack" ), // _inc/client/security/backups-scan.jsx:45
-__( "Provisioning", "jetpack" ), // _inc/client/security/backups-scan.jsx:71
-__( "Backups and Scan are being configured for your site.", "jetpack" ), // _inc/client/security/backups-scan.jsx:73
-__( "Awaiting credentials", "jetpack" ), // _inc/client/security/backups-scan.jsx:78
-__( "You need to enter your server credentials to finish configuring Backups and Scan.", "jetpack" ), // _inc/client/security/backups-scan.jsx:80
-__( "Active", "jetpack" ), // _inc/client/security/backups-scan.jsx:87
-__( "Your site is being backed up in real time and regularly scanned for security threats.", "jetpack" ), // _inc/client/security/backups-scan.jsx:89
-__( "Oops!", "jetpack" ), // _inc/client/security/backups-scan.jsx:96
-__( "The Jetpack Backup and Scan status could not be retrieved at this time.", "jetpack" ), // _inc/client/security/backups-scan.jsx:98
-__( "Unavailable in Dev Mode.", "jetpack" ), // _inc/client/security/backups-scan.jsx:108
-_x( "Backups and security scanning", "Settings header", "jetpack" ), // _inc/client/security/backups-scan.jsx:130
-__( "Unavailable in Dev Mode.", "jetpack" ), // _inc/client/security/backups-scan.jsx:161
-_n( "Uh oh, %(number)s threat found.", "Uh oh, %(number)s threats found.", 1, "jetpack" ), // _inc/client/security/backups-scan.jsx:172
-__( "{{a}}View details{{/a}}", "jetpack" ), // _inc/client/security/backups-scan.jsx:181
-__( "{{a}}Contact Support{{/a}}", "jetpack" ), // _inc/client/security/backups-scan.jsx:185
-__( "Your site is backed up and threat-free.", "jetpack" ), // _inc/client/security/backups-scan.jsx:191
-__( "Your site is backed up.", "jetpack" ), // _inc/client/security/backups-scan.jsx:203
-__( "You have paid for backups but they're not yet active.", "jetpack" ), // _inc/client/security/backups-scan.jsx:209
-__( "Click \"Set Up\" to finish installation.", "jetpack" ), // _inc/client/security/backups-scan.jsx:210
-__( "You have paid for backups and security scanning but they’re not yet active.", "jetpack" ), // _inc/client/security/backups-scan.jsx:214
-__( "Click \"Set Up\" to finish installation.", "jetpack" ), // _inc/client/security/backups-scan.jsx:217
-_x( "Backups and security scanning", "Settings header", "jetpack" ), // _inc/client/security/backups-scan.jsx:253
-__( "Backs up your site to the global WordPress.com servers, allowing you to restore your content in the event of an emergency or error.", "jetpack" ), // _inc/client/security/backups-scan.jsx:261
-__( "Configure your Security Scans", "jetpack" ), // _inc/client/security/backups-scan.jsx:278
+_x( "Backups and security scanning", "Settings header", "jetpack" ), // _inc/client/security/backups-scan.jsx:31
+__( "Backs up your site to the global WordPress.com servers, allowing you to restore your content in the event of an emergency or error.", "jetpack" ), // _inc/client/security/backups-scan.jsx:39
+__( "Checking site status…", "jetpack" ), // _inc/client/security/backups-scan.jsx:46
+__( "Provisioning", "jetpack" ), // _inc/client/security/backups-scan.jsx:72
+__( "Backups and Scan are being configured for your site.", "jetpack" ), // _inc/client/security/backups-scan.jsx:74
+__( "Awaiting credentials", "jetpack" ), // _inc/client/security/backups-scan.jsx:79
+__( "You need to enter your server credentials to finish configuring Backups and Scan.", "jetpack" ), // _inc/client/security/backups-scan.jsx:81
+__( "Active", "jetpack" ), // _inc/client/security/backups-scan.jsx:88
+__( "Your site is being backed up in real time and regularly scanned for security threats.", "jetpack" ), // _inc/client/security/backups-scan.jsx:90
+__( "Oops!", "jetpack" ), // _inc/client/security/backups-scan.jsx:97
+__( "The Jetpack Backup and Scan status could not be retrieved at this time.", "jetpack" ), // _inc/client/security/backups-scan.jsx:99
+__( "Unavailable in Dev Mode.", "jetpack" ), // _inc/client/security/backups-scan.jsx:109
+_x( "Backups and security scanning", "Settings header", "jetpack" ), // _inc/client/security/backups-scan.jsx:131
+__( "Unavailable in Dev Mode.", "jetpack" ), // _inc/client/security/backups-scan.jsx:162
+_n( "Uh oh, %(number)s threat found.", "Uh oh, %(number)s threats found.", 1, "jetpack" ), // _inc/client/security/backups-scan.jsx:173
+__( "{{a}}View details{{/a}}", "jetpack" ), // _inc/client/security/backups-scan.jsx:182
+__( "{{a}}Contact Support{{/a}}", "jetpack" ), // _inc/client/security/backups-scan.jsx:186
+__( "Your site is backed up and threat-free.", "jetpack" ), // _inc/client/security/backups-scan.jsx:192
+__( "Your site is backed up.", "jetpack" ), // _inc/client/security/backups-scan.jsx:204
+__( "You have paid for backups but they're not yet active.", "jetpack" ), // _inc/client/security/backups-scan.jsx:210
+__( "Click \"Set Up\" to finish installation.", "jetpack" ), // _inc/client/security/backups-scan.jsx:211
+__( "You have paid for backups and security scanning but they’re not yet active.", "jetpack" ), // _inc/client/security/backups-scan.jsx:215
+__( "Click \"Set Up\" to finish installation.", "jetpack" ), // _inc/client/security/backups-scan.jsx:218
+_x( "Backups and security scanning", "Settings header", "jetpack" ), // _inc/client/security/backups-scan.jsx:254
+__( "Backs up your site to the global WordPress.com servers, allowing you to restore your content in the event of an emergency or error.", "jetpack" ), // _inc/client/security/backups-scan.jsx:263
+__( "Configure your Security Scans", "jetpack" ), // _inc/client/security/backups-scan.jsx:280
 __( "Security", "jetpack" ), // _inc/client/security/index.jsx:115
 __( "Your site is protected by Jetpack. You’ll be notified if anything needs attention.", "jetpack" ), // _inc/client/security/index.jsx:116
 __( "Backs up your site to the global WordPress.com servers, allowing you to restore your content in the event of an emergency or error.", "jetpack" ), // _inc/client/security/jetpack-backup.jsx:34
@@ -518,6 +516,8 @@ __( "Allows registered users to log in to your site with their WordPress.com acc
 __( "Add an extra layer of security to your website by enabling WordPress.com login and secure authentication. If you have multiple sites with this option enabled, you will be able to log in to every one of them with the same credentials.", "jetpack" ), // _inc/client/security/sso.jsx:77
 __( "Match accounts using email addresses", "jetpack" ), // _inc/client/security/sso.jsx:105
 __( "Require accounts to use WordPress.com Two-Step Authentication", "jetpack" ), // _inc/client/security/sso.jsx:118
+__( "No search results found for %(term)s", "jetpack" ), // _inc/client/settings/index.jsx:37
+__( "Enter a search term to find settings or close search.", "jetpack" ), // _inc/client/settings/index.jsx:42
 __( "Sharing", "jetpack" ), // _inc/client/sharing/index.jsx:59
 __( "Share your content to social media, reaching new audiences and increasing engagement.", "jetpack" ), // _inc/client/sharing/index.jsx:60
 _x( "Like buttons", "Settings header", "jetpack" ), // _inc/client/sharing/likes.jsx:25
@@ -695,14 +695,14 @@ __( "Get WordPress Apps for every device", "jetpack" ), // _inc/client/component
 __( "Manage all your sites from a single dashboard: publish content, track stats, moderate comments, and so much more from anywhere in the world.", "jetpack" ), // _inc/client/components/apps-card/index.jsx:71
 __( "Download the free apps", "jetpack" ), // _inc/client/components/apps-card/index.jsx:81
 _x( "No activity this period", "Notice in the empty statistics chart", "jetpack" ), // _inc/client/components/chart/index.jsx:124
+_x( "Updates needed", "Short warning message", "jetpack" ), // _inc/client/components/dash-item/index.jsx:105
+__( "Active", "jetpack" ), // _inc/client/components/dash-item/index.jsx:111
+_x( "Paid", "Short label appearing near a paid feature configuration block.", "jetpack" ), // _inc/client/components/dash-item/index.jsx:123
 __( "Unlink me from WordPress.com", "jetpack" ), // _inc/client/components/connect-button/index.jsx:78
 __( "Link to WordPress.com", "jetpack" ), // _inc/client/components/connect-button/index.jsx:95
 __( "Manage site connection", "jetpack" ), // _inc/client/components/connect-button/index.jsx:118
 __( "Set up Jetpack", "jetpack" ), // _inc/client/components/connect-button/index.jsx:133
 __( "By clicking the button below, you agree to our {{tosLink}}Terms of Service{{/tosLink}} and to {{shareDetailsLink}}share details{{/shareDetailsLink}} with WordPress.com.", "jetpack" ), // _inc/client/components/connect-button/index.jsx:147
-_x( "Updates needed", "Short warning message", "jetpack" ), // _inc/client/components/dash-item/index.jsx:105
-__( "Active", "jetpack" ), // _inc/client/components/dash-item/index.jsx:111
-_x( "Paid", "Short label appearing near a paid feature configuration block.", "jetpack" ), // _inc/client/components/dash-item/index.jsx:123
 __( "This will reset all Jetpack options, are you sure?", "jetpack" ), // _inc/client/components/footer/index.jsx:37
 _x( "Reset Options (dev only)", "Navigation item.", "jetpack" ), // _inc/client/components/footer/index.jsx:101
 __( "Access the full list of Jetpack modules available on your site.", "jetpack" ), // _inc/client/components/footer/index.jsx:116
@@ -785,14 +785,13 @@ __( "share your experience", "jetpack" ), // _inc/client/components/jetpack-term
 __( "Please let us know why you're disconnecting Jetpack", "jetpack" ), // _inc/client/components/jetpack-termination-dialog/survey.jsx:44
 __( "Please let us know why you're disabling Jetpack", "jetpack" ), // _inc/client/components/jetpack-termination-dialog/survey.jsx:45
 __( "Your feedback will help us improve the product.", "jetpack" ), // _inc/client/components/jetpack-termination-dialog/survey.jsx:56
-__( "Dashboard", "jetpack" ), // _inc/client/components/masthead/index.jsx:97
-__( "Settings", "jetpack" ), // _inc/client/components/masthead/index.jsx:105
 __( "Email me a link to log in to the app", "jetpack" ), // _inc/client/components/mobile-magic-link/index.jsx:52
 __( "Easily log in to the WordPress app by clicking the link we'll send to the email address on your account.", "jetpack" ), // _inc/client/components/mobile-magic-link/index.jsx:54
 _x( "Cancel", "A caption for a button to cancel an action.", "jetpack" ), // _inc/client/components/mobile-magic-link/index.jsx:63
 _x( "Send link", "A caption for a button to log in to the WordPress mobile app.", "jetpack" ), // _inc/client/components/mobile-magic-link/index.jsx:68
 __( "Log in to the WordPress mobile app", "jetpack" ), // _inc/client/components/mobile-magic-link/index.jsx:89
-__( "%(moduleName)s has been disabled by a site administrator. {{link}}Learn more{{/link}}.", "jetpack" ), // _inc/client/components/module-overridden-banner/index.jsx:53
+__( "Dashboard", "jetpack" ), // _inc/client/components/masthead/index.jsx:97
+__( "Settings", "jetpack" ), // _inc/client/components/masthead/index.jsx:105
 __( "Updating Post by Email address…", "jetpack" ), // _inc/client/components/module-settings/connect-module-options.jsx:63
 __( "Regenerated Post by Email address.", "jetpack" ), // _inc/client/components/module-settings/connect-module-options.jsx:64
 __( "Error regenerating Post by Email address. %(error)s", "jetpack" ), // _inc/client/components/module-settings/connect-module-options.jsx:66
@@ -812,13 +811,10 @@ __( "{{a}}Manage Likes visibility from the Sharing Module Settings{{/a}}", "jetp
 __( "{{link}}Configure your Monitor notification settings on WordPress.com{{/link}}", "jetpack" ), // _inc/client/components/module-settings/index.jsx:200
 __( "By default ads are shown at the end of every page, post, or the first article on your front page. You can also add them to the top of your site and to any widget area to increase your earnings!", "jetpack" ), // _inc/client/components/module-settings/index.jsx:227
 __( "Display an ad unit at the top of your site.", "jetpack" ), // _inc/client/components/module-settings/index.jsx:236
+__( "%(moduleName)s has been disabled by a site administrator. {{link}}Learn more{{/link}}.", "jetpack" ), // _inc/client/components/module-overridden-banner/index.jsx:53
 __( "This feature has been enabled by a site administrator. {{link}}Learn more{{/link}}.", "jetpack" ), // _inc/client/components/module-toggle/index.jsx:79
 __( "This feature has been disabled by a site administrator. {{link}}Learn more{{/link}}.", "jetpack" ), // _inc/client/components/module-toggle/index.jsx:84
 __( "This feature is being managed by a site administrator. {{link}}Learn more{{/link}}.", "jetpack" ), // _inc/client/components/module-toggle/index.jsx:89
-_x( "At a Glance", "Navigation item.", "jetpack" ), // _inc/client/components/navigation/index.jsx:56
-_x( "My Plan", "Navigation item.", "jetpack" ), // _inc/client/components/navigation/index.jsx:64
-_x( "Plans", "Navigation item.", "jetpack" ), // _inc/client/components/navigation/index.jsx:73
-_x( "At a Glance", "Navigation item.", "jetpack" ), // _inc/client/components/navigation/index.jsx:87
 __( "Search for a Jetpack feature.", "jetpack" ), // _inc/client/components/navigation-settings/index.jsx:71
 _x( "Security", "Navigation item.", "jetpack" ), // _inc/client/components/navigation-settings/index.jsx:122
 _x( "Performance", "Navigation item.", "jetpack" ), // _inc/client/components/navigation-settings/index.jsx:131
@@ -828,6 +824,10 @@ _x( "Discussion", "Navigation item.", "jetpack" ), // _inc/client/components/nav
 _x( "Traffic", "Navigation item.", "jetpack" ), // _inc/client/components/navigation-settings/index.jsx:187
 _x( "Sharing", "Navigation item.", "jetpack" ), // _inc/client/components/navigation-settings/index.jsx:204
 _x( "Writing", "Navigation item.", "jetpack" ), // _inc/client/components/navigation-settings/index.jsx:219
+_x( "At a Glance", "Navigation item.", "jetpack" ), // _inc/client/components/navigation/index.jsx:56
+_x( "My Plan", "Navigation item.", "jetpack" ), // _inc/client/components/navigation/index.jsx:64
+_x( "Plans", "Navigation item.", "jetpack" ), // _inc/client/components/navigation/index.jsx:73
+_x( "At a Glance", "Navigation item.", "jetpack" ), // _inc/client/components/navigation/index.jsx:87
 __( "Purchased on %s.", "jetpack" ), // _inc/client/components/product-expiration/index.jsx:35
 __( "Expired on %s.", "jetpack" ), // _inc/client/components/product-expiration/index.jsx:49
 __( "Renews on %s.", "jetpack" ), // _inc/client/components/product-expiration/index.jsx:53
@@ -907,8 +907,8 @@ __( "A rocketship using Jetpack to reach new heights", "jetpack" ), // _inc/clie
 __( "Get started with Jetpack’s powerful features", "jetpack" ), // _inc/client/setup-wizard/recommended-features/index.jsx:48
 __( "Jetpack has a lot of features so we’ve made a few recommendations for you below.", "jetpack" ), // _inc/client/setup-wizard/recommended-features/index.jsx:50
 __( "You can change your feature settings at any time.", "jetpack" ), // _inc/client/setup-wizard/recommended-features/index.jsx:55
-__( "I’m done for now", "jetpack" ), // _inc/client/setup-wizard/recommended-features/index.jsx:68
-__( "Explore more features", "jetpack" ), // _inc/client/setup-wizard/recommended-features/index.jsx:71
+__( "I’m done for now", "jetpack" ), // _inc/client/setup-wizard/recommended-features/index.jsx:70
+__( "Explore more features", "jetpack" ), // _inc/client/setup-wizard/recommended-features/index.jsx:73
 __( "A jetpack site using publicize to share posts", "jetpack" ), // _inc/client/setup-wizard/updates-question/index.jsx:56
 __( "Will %(siteTitle)s have blog posts, news, or regular updates?", "jetpack" ), // _inc/client/setup-wizard/updates-question/index.jsx:59
 __( "Yes", "jetpack" ), // _inc/client/setup-wizard/updates-question/index.jsx:70
