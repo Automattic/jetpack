@@ -3,8 +3,13 @@
 
 .jp-setup-wizard-feature-toggle-group {
 	margin-bottom: 75px;
+
 	@include breakpoint( $less-than-vertical-break ) {
 		margin-bottom: 50px;
+	}
+
+	&:last-child {
+		margin-bottom: 0;
 	}
 
 	h2 {
