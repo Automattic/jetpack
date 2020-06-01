@@ -80,7 +80,7 @@
 		wrapper.outerHTML =
 			'<div id="ccpa-loading" class="cleanslate ccpa__loading-wrapper">' +
 			'<div class="ccpa__loading-overlay">' +
-			'<span class="ccpa__loading-message">Please Wait...</span>' +
+			'<span class="ccpa__loading-message">' + ccpaSettings.strings.pleaseWait + '...</span>' +
 			'</div>' +
 			'</div>';
 	};
