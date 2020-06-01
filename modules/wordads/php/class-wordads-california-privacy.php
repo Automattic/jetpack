@@ -134,7 +134,13 @@ class WordAds_California_Privacy {
 	 * @return string The domain to set for the opt-out cookie.
 	 */
 	public static function get_cookie_domain() {
-		return '.wordpress.com' === substr( $_SERVER['HTTP_HOST'], -strlen( '.wordpress.com' ) ) ? '.wordpress.com' : '.' . $_SERVER['HTTP_HOST'];
+		$host = 'localhost';
+
+		if ( isset( $_SERVER['HTTP_HOST'] ) ) {
+			$host = $_SERVER['HTTP_HOST'];
+		}
+
+		return '.wordpress.com' === substr( $host, -strlen( '.wordpress.com' ) ) ? '.wordpress.com' : '.' . $host;
 	}
 
 	/**
