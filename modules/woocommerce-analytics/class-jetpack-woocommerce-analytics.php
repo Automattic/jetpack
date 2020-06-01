@@ -43,7 +43,7 @@ class Jetpack_WooCommerce_Analytics {
 		 *
 		 * This action is documented in https://docs.woocommerce.com/document/create-a-plugin
 		 */
-		if ( ! in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', Jetpack::get_active_plugins() ) ) ) {
+		if ( ! in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', Jetpack::get_active_plugins() ), true ) ) {
 			return false;
 		}
 		// Tracking only Site pages.
@@ -51,7 +51,7 @@ class Jetpack_WooCommerce_Analytics {
 			return false;
 		}
 		// Don't track site admins.
-		if ( is_user_logged_in() && in_array( 'administrator', wp_get_current_user()->roles ) ) {
+		if ( is_user_logged_in() && in_array( 'administrator', wp_get_current_user()->roles, true ) ) {
 			return false;
 		}
 		// Make sure Jetpack is installed and active.

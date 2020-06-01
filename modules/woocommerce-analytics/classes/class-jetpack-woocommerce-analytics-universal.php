@@ -60,11 +60,9 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	 */
 	public function wp_head_top() {
 		if ( is_cart() || is_checkout() || is_checkout_pay_page() || is_order_received_page() || is_add_payment_method_page() ) {
-			$prevent_referrer_code = '<script>window._wca_prevent_referrer = true;</script>';
-			echo "$prevent_referrer_code\r\n";
+			echo '<script>window._wca_prevent_referrer = true;</script>' . "\r\n";
 		}
-		$wca_code = '<script>window._wca = window._wca || [];</script>';
-		echo "$wca_code\r\n";
+		echo '<script>window._wca = window._wca || [];</script>' . "\r\n";
 	}
 
 
@@ -369,7 +367,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 			return;
 		}
 
-		$quantity = ( $quantity == 0 ) ? 1 : $quantity;
+		$quantity = ( 0 === $quantity ) ? 1 : $quantity;
 
 		// check for existing data.
 		if ( is_object( WC()->session ) ) {
