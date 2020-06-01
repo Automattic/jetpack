@@ -11,7 +11,8 @@ describe( 'Connection', () => {
 	catchBeforeAll( async () => {
 		await execWpCommand( 'wp config set JETPACK_SHOULD_USE_CONNECTION_IFRAME true' );
 		await execWpCommand( 'wp option delete jetpack_private_options' );
-		page.reload();
+		await page.reload();
+		await page.reload();
 	} );
 
 	afterAll( async () => {
