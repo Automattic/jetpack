@@ -336,12 +336,14 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	}
 
 	/**
-	 * @param $cart_item_key
-	 * @param $product_id
-	 * @param $quantity
-	 * @param $variation_id
-	 * @param $variation
-	 * @param $cart_item_data
+	 * Track adding items to the cart.
+	 *
+	 * @param string $cart_item_key Cart item key.
+	 * @param int    $product_id Product added to cart.
+	 * @param int    $quantity Quantity added to cart.
+	 * @param int    $variation_id Product variation.
+	 * @param array  $variation Variation attributes..
+	 * @param array  $cart_item_data Other cart data.
 	 */
 	public function capture_add_to_cart( $cart_item_key, $product_id, $quantity, $variation_id, $variation, $cart_item_data ) {
 		$referer_postid = isset( $_SERVER['HTTP_REFERER'] ) ? url_to_postid( $_SERVER['HTTP_REFERER'] ) : 0;
@@ -356,9 +358,11 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	}
 
 	/**
-	 * @param $product_id
-	 * @param $quantity
-	 * @param $event
+	 * Track in-session data.
+	 *
+	 * @param int    $product_id Product ID.
+	 * @param int    $quantity Quantity.
+	 * @param string $event Fired event.
 	 */
 	public function capture_event_in_session_data( $product_id, $quantity, $event ) {
 
