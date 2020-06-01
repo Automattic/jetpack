@@ -178,7 +178,6 @@ class WordAds_California_Privacy {
 	 */
 	public static function handle_optout_request() {
 		check_ajax_referer( 'ccpa_optout', 'security' );
-		header( 'Content-Type: text/plain; charset=utf-8' );
 
 		$optout = 'true' === $_POST['optout'];
 		$optout ? self::set_optout_cookie() : self::set_optin_cookie();
@@ -190,6 +189,8 @@ class WordAds_California_Privacy {
 	 * Handler for modal popup notice markup.
 	 */
 	public static function handle_optout_markup() {
+		check_ajax_referer( 'ccpa_optout', 'security' );
+
 		header( 'Content-Type: text/html; charset=utf-8' );
 		$policy_url = get_option( 'wordads_ccpa_privacy_policy_url' );
 

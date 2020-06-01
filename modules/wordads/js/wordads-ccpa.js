@@ -99,7 +99,7 @@
 		injectLoadingMessage();
 
 		var request = new XMLHttpRequest();
-		request.open( 'GET', ccpaSettings.ajaxUrl + '?action=privacy_optout_markup', true );
+		request.open( 'GET', ccpaSettings.ajaxUrl + '?action=privacy_optout_markup&security=' + ccpaSettings.ajaxNonce, true );
 		request.onreadystatechange = function() {
 			if ( 4 === this.readyState ) {
 				if ( 200 === this.status ) {
