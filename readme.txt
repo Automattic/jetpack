@@ -96,6 +96,15 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
+= 8.6.1 =
+
+* Release date: June 2, 2020
+
+**Bug Fixes**
+
+* Resolves PHP notice when generating Twitter Cards for posts with images without saved size information.
+* Resolves an issue that can lead to excessive SQL queries.
+
 = 8.6 =
 
 * Release date: June 2, 2020

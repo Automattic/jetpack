@@ -412,25 +412,15 @@ __( "Speed up image load times", "jetpack" ), // _inc/client/performance/speed-u
 __( "Speed up static file load times", "jetpack" ), // _inc/client/performance/speed-up-site.jsx:275
 __( "Lazy-loading images will improve your site’s speed and create a smoother viewing experience. Images will load as visitors scroll down the screen, instead of all at once.", "jetpack" ), // _inc/client/performance/speed-up-site.jsx:292
 __( "Enable Lazy Loading for images", "jetpack" ), // _inc/client/performance/speed-up-site.jsx:306
+__( "Explore our Jetpack plans", "jetpack" ), // _inc/client/plans-prompt/index.jsx:30
+__( "Now that you're set up, pick a plan that fits your needs.", "jetpack" ), // _inc/client/plans-prompt/index.jsx:32
+__( "Start with free", "jetpack" ), // _inc/client/plans-prompt/index.jsx:48
 __( "You’re currently on Jetpack %(plan)s.", "jetpack" ), // _inc/client/plans/plan-grid.jsx:78
 __( "Your Plan", "jetpack" ), // _inc/client/plans/plan-grid.jsx:86
 __( "Manage your plan", "jetpack" ), // _inc/client/plans/plan-grid.jsx:88
 __( "View all Jetpack plans", "jetpack" ), // _inc/client/plans/plan-grid.jsx:90
 __( "Solutions", "jetpack" ), // _inc/client/plans/product-selector.jsx:42
 __( "Looking for specific features? We've got you covered.", "jetpack" ), // _inc/client/plans/product-selector.jsx:44
-__( "Explore our Jetpack plans", "jetpack" ), // _inc/client/plans-prompt/index.jsx:30
-__( "Now that you're set up, pick a plan that fits your needs.", "jetpack" ), // _inc/client/plans-prompt/index.jsx:32
-__( "Start with free", "jetpack" ), // _inc/client/plans-prompt/index.jsx:48
-__( "Setting up", "jetpack" ), // _inc/client/pro-status/index.jsx:80
-__( "Action needed", "jetpack" ), // _inc/client/pro-status/index.jsx:85
-__( "Connected", "jetpack" ), // _inc/client/pro-status/index.jsx:90
-_x( "Threats", "A caption for a small button to fix security issues.", "jetpack" ), // _inc/client/pro-status/index.jsx:106
-_x( "See threats", "A caption for a small button to fix security issues.", "jetpack" ), // _inc/client/pro-status/index.jsx:110
-_x( "Secure", "Short message informing user that the site is secure.", "jetpack" ), // _inc/client/pro-status/index.jsx:122
-__( "ACTIVE", "jetpack" ), // _inc/client/pro-status/index.jsx:136
-_x( "Set up", "Caption for a button to set up a feature.", "jetpack" ), // _inc/client/pro-status/index.jsx:172
-_n( "Threat", "Threats", 1, "jetpack" ), // _inc/client/pro-status/index.jsx:237
-__( "Action needed", "jetpack" ), // _inc/client/pro-status/index.jsx:249
 _x( "privacy", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:69
 _x( "tracks", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:70
 _x( "data", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:71
@@ -443,7 +433,16 @@ __( "Share information with our analytics tool about your use of services while 
 __( "This information helps us improve our products, make marketing to you more relevant, personalize your WordPress.com experience, and more as detailed in our {{pp}}privacy policy{{/pp}}.", "jetpack" ), // _inc/client/privacy/index.jsx:140
 __( "We use other tracking tools, including some from third parties. {{cookiePolicyLink}}Read about these{{/cookiePolicyLink}} and how to control them.", "jetpack" ), // _inc/client/privacy/index.jsx:157
 __( "For more information on how specific Jetpack features use data and track activity, please refer to our {{privacyCenterLink}}Privacy Center{{/privacyCenterLink}}.", "jetpack" ), // _inc/client/privacy/index.jsx:175
-__( "Activate", "jetpack" ), // _inc/client/searchable-modules/index.jsx:61
+__( "Setting up", "jetpack" ), // _inc/client/pro-status/index.jsx:80
+__( "Action needed", "jetpack" ), // _inc/client/pro-status/index.jsx:85
+__( "Connected", "jetpack" ), // _inc/client/pro-status/index.jsx:90
+_x( "Threats", "A caption for a small button to fix security issues.", "jetpack" ), // _inc/client/pro-status/index.jsx:106
+_x( "See threats", "A caption for a small button to fix security issues.", "jetpack" ), // _inc/client/pro-status/index.jsx:110
+_x( "Secure", "Short message informing user that the site is secure.", "jetpack" ), // _inc/client/pro-status/index.jsx:122
+__( "ACTIVE", "jetpack" ), // _inc/client/pro-status/index.jsx:136
+_x( "Set up", "Caption for a button to set up a feature.", "jetpack" ), // _inc/client/pro-status/index.jsx:172
+_n( "Threat", "Threats", 1, "jetpack" ), // _inc/client/pro-status/index.jsx:237
+__( "Action needed", "jetpack" ), // _inc/client/pro-status/index.jsx:249
 __( "Checking your spam protection…", "jetpack" ), // _inc/client/security/antispam.jsx:88
 __( "Fetching key…", "jetpack" ), // _inc/client/security/antispam.jsx:92
 __( "Your site needs an Antispam key.", "jetpack" ), // _inc/client/security/antispam.jsx:97
@@ -516,6 +515,7 @@ __( "Allows registered users to log in to your site with their WordPress.com acc
 __( "Add an extra layer of security to your website by enabling WordPress.com login and secure authentication. If you have multiple sites with this option enabled, you will be able to log in to every one of them with the same credentials.", "jetpack" ), // _inc/client/security/sso.jsx:77
 __( "Match accounts using email addresses", "jetpack" ), // _inc/client/security/sso.jsx:105
 __( "Require accounts to use WordPress.com Two-Step Authentication", "jetpack" ), // _inc/client/security/sso.jsx:118
+__( "Activate", "jetpack" ), // _inc/client/searchable-modules/index.jsx:61
 __( "No search results found for %(term)s", "jetpack" ), // _inc/client/settings/index.jsx:37
 __( "Enter a search term to find settings or close search.", "jetpack" ), // _inc/client/settings/index.jsx:42
 __( "Sharing", "jetpack" ), // _inc/client/sharing/index.jsx:59
@@ -793,32 +793,9 @@ _x( "Cancel", "A caption for a button to cancel an action.", "jetpack" ), // _in
 _x( "Send link", "A caption for a button to log in to the WordPress mobile app.", "jetpack" ), // _inc/client/components/mobile-magic-link/index.jsx:68
 __( "Log in to the WordPress mobile app", "jetpack" ), // _inc/client/components/mobile-magic-link/index.jsx:89
 __( "%(moduleName)s has been disabled by a site administrator. {{link}}Learn more{{/link}}.", "jetpack" ), // _inc/client/components/module-overridden-banner/index.jsx:53
-__( "Updating Post by Email address…", "jetpack" ), // _inc/client/components/module-settings/connect-module-options.jsx:63
-__( "Regenerated Post by Email address.", "jetpack" ), // _inc/client/components/module-settings/connect-module-options.jsx:64
-__( "Error regenerating Post by Email address. %(error)s", "jetpack" ), // _inc/client/components/module-settings/connect-module-options.jsx:66
-__( "The easiest way to upload ad-free and unbranded videos to your site. You get stats on video playback and shares and the player is lightweight and responsive.", "jetpack" ), // _inc/client/components/module-settings/index.jsx:28
-__( "To get started, click on Add Media in your post editor and upload a video; we’ll take care of the rest!", "jetpack" ), // _inc/client/components/module-settings/index.jsx:33
-__( "Subscriber", "jetpack" ), // _inc/client/components/module-settings/index.jsx:52
-__( "Big iPhone/iPad Update Now Available", "jetpack" ), // _inc/client/components/module-settings/index.jsx:74
-__( "The WordPress for Android App Gets a Big Facelift", "jetpack" ), // _inc/client/components/module-settings/index.jsx:78
-__( "Upgrade Focus: VideoPress For Weddings", "jetpack" ), // _inc/client/components/module-settings/index.jsx:82
-_x( "Related", "A heading for a block of related posts.", "jetpack" ), // _inc/client/components/module-settings/index.jsx:90
-__( "{{span}}You can now also configure related posts in the Customizer. {{ExternalLink}}Try it out!{{/ExternalLink}}{{/span}}", "jetpack" ), // _inc/client/components/module-settings/index.jsx:111
-__( "Highlight related content with a heading", "jetpack" ), // _inc/client/components/module-settings/index.jsx:136
-__( "Show a thumbnail image where available", "jetpack" ), // _inc/client/components/module-settings/index.jsx:141
-_x( "Preview", "Noun, a header for a preview block in a configuration screen.", "jetpack" ), // _inc/client/components/module-settings/index.jsx:145
-__( "WordPress.com Likes are:", "jetpack" ), // _inc/client/components/module-settings/index.jsx:169
-__( "{{a}}Manage Likes visibility from the Sharing Module Settings{{/a}}", "jetpack" ), // _inc/client/components/module-settings/index.jsx:182
-__( "{{link}}Configure your Monitor notification settings on WordPress.com{{/link}}", "jetpack" ), // _inc/client/components/module-settings/index.jsx:200
-__( "By default ads are shown at the end of every page, post, or the first article on your front page. You can also add them to the top of your site and to any widget area to increase your earnings!", "jetpack" ), // _inc/client/components/module-settings/index.jsx:227
-__( "Display an ad unit at the top of your site.", "jetpack" ), // _inc/client/components/module-settings/index.jsx:236
 __( "This feature has been enabled by a site administrator. {{link}}Learn more{{/link}}.", "jetpack" ), // _inc/client/components/module-toggle/index.jsx:79
 __( "This feature has been disabled by a site administrator. {{link}}Learn more{{/link}}.", "jetpack" ), // _inc/client/components/module-toggle/index.jsx:84
 __( "This feature is being managed by a site administrator. {{link}}Learn more{{/link}}.", "jetpack" ), // _inc/client/components/module-toggle/index.jsx:89
-_x( "At a Glance", "Navigation item.", "jetpack" ), // _inc/client/components/navigation/index.jsx:56
-_x( "My Plan", "Navigation item.", "jetpack" ), // _inc/client/components/navigation/index.jsx:64
-_x( "Plans", "Navigation item.", "jetpack" ), // _inc/client/components/navigation/index.jsx:73
-_x( "At a Glance", "Navigation item.", "jetpack" ), // _inc/client/components/navigation/index.jsx:87
 __( "Search for a Jetpack feature.", "jetpack" ), // _inc/client/components/navigation-settings/index.jsx:71
 _x( "Security", "Navigation item.", "jetpack" ), // _inc/client/components/navigation-settings/index.jsx:122
 _x( "Performance", "Navigation item.", "jetpack" ), // _inc/client/components/navigation-settings/index.jsx:131
@@ -849,11 +826,44 @@ __( "Ask a question", "jetpack" ), // _inc/client/components/support-card/index.
 __( "Search our support site", "jetpack" ), // _inc/client/components/support-card/index.jsx:106
 __( "Get a faster resolution to your support questions.", "jetpack" ), // _inc/client/components/support-card/index.jsx:113
 __( "Upgrade", "jetpack" ), // _inc/client/components/support-card/index.jsx:115
+__( "Updating Post by Email address…", "jetpack" ), // _inc/client/components/module-settings/connect-module-options.jsx:63
+__( "Regenerated Post by Email address.", "jetpack" ), // _inc/client/components/module-settings/connect-module-options.jsx:64
+__( "Error regenerating Post by Email address. %(error)s", "jetpack" ), // _inc/client/components/module-settings/connect-module-options.jsx:66
+__( "The easiest way to upload ad-free and unbranded videos to your site. You get stats on video playback and shares and the player is lightweight and responsive.", "jetpack" ), // _inc/client/components/module-settings/index.jsx:28
+__( "To get started, click on Add Media in your post editor and upload a video; we’ll take care of the rest!", "jetpack" ), // _inc/client/components/module-settings/index.jsx:33
+__( "Subscriber", "jetpack" ), // _inc/client/components/module-settings/index.jsx:52
+__( "Big iPhone/iPad Update Now Available", "jetpack" ), // _inc/client/components/module-settings/index.jsx:74
+__( "The WordPress for Android App Gets a Big Facelift", "jetpack" ), // _inc/client/components/module-settings/index.jsx:78
+__( "Upgrade Focus: VideoPress For Weddings", "jetpack" ), // _inc/client/components/module-settings/index.jsx:82
+_x( "Related", "A heading for a block of related posts.", "jetpack" ), // _inc/client/components/module-settings/index.jsx:90
+__( "{{span}}You can now also configure related posts in the Customizer. {{ExternalLink}}Try it out!{{/ExternalLink}}{{/span}}", "jetpack" ), // _inc/client/components/module-settings/index.jsx:111
+__( "Highlight related content with a heading", "jetpack" ), // _inc/client/components/module-settings/index.jsx:136
+__( "Show a thumbnail image where available", "jetpack" ), // _inc/client/components/module-settings/index.jsx:141
+_x( "Preview", "Noun, a header for a preview block in a configuration screen.", "jetpack" ), // _inc/client/components/module-settings/index.jsx:145
+__( "WordPress.com Likes are:", "jetpack" ), // _inc/client/components/module-settings/index.jsx:169
+__( "{{a}}Manage Likes visibility from the Sharing Module Settings{{/a}}", "jetpack" ), // _inc/client/components/module-settings/index.jsx:182
+__( "{{link}}Configure your Monitor notification settings on WordPress.com{{/link}}", "jetpack" ), // _inc/client/components/module-settings/index.jsx:200
+__( "By default ads are shown at the end of every page, post, or the first article on your front page. You can also add them to the top of your site and to any widget area to increase your earnings!", "jetpack" ), // _inc/client/components/module-settings/index.jsx:227
+__( "Display an ad unit at the top of your site.", "jetpack" ), // _inc/client/components/module-settings/index.jsx:236
+_x( "At a Glance", "Navigation item.", "jetpack" ), // _inc/client/components/navigation/index.jsx:56
+_x( "My Plan", "Navigation item.", "jetpack" ), // _inc/client/components/navigation/index.jsx:64
+_x( "Plans", "Navigation item.", "jetpack" ), // _inc/client/components/navigation/index.jsx:73
+_x( "At a Glance", "Navigation item.", "jetpack" ), // _inc/client/components/navigation/index.jsx:87
+/* translators: %(version) is a version number. */
+__( "New in Jetpack %(version)s", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:74
 __( "Learn more", "jetpack" ), // _inc/client/components/support-info/index.jsx:79
 __( "Learn more", "jetpack" ), // _inc/client/components/support-info/index.jsx:89
 __( "Privacy information", "jetpack" ), // _inc/client/components/support-info/index.jsx:99
-/* translators: %(version) is a version number. */
-__( "New in Jetpack %(version)s", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:74
+__( "Up to 100 records", "jetpack" ), // _inc/client/plans/single-product-search/index.jsx:33
+__( "Up to 1,000 records", "jetpack" ), // _inc/client/plans/single-product-search/index.jsx:35
+__( "Up to 10,000 records", "jetpack" ), // _inc/client/plans/single-product-search/index.jsx:37
+__( "Up to 100,000 records", "jetpack" ), // _inc/client/plans/single-product-search/index.jsx:39
+__( "Up to 1,000,000 records", "jetpack" ), // _inc/client/plans/single-product-search/index.jsx:41
+__( "Up to %(tierMaximumRecords)s records", "jetpack" ), // _inc/client/plans/single-product-search/index.jsx:44
+__( "Learn more", "jetpack" ), // _inc/client/plans/single-product-search/index.jsx:88
+_n( "Your current site record size: %s record", "Your current site record size: %s records", 1, "jetpack" ), // _inc/client/plans/single-product-search/index.jsx:92
+__( "Records are all posts, pages, custom post types, and other types of content indexed by Jetpack Search.", "jetpack" ), // _inc/client/plans/single-product-search/index.jsx:98
+__( "Upgrade to Jetpack Search", "jetpack" ), // _inc/client/plans/single-product-search/index.jsx:129
 __( "Up to 100 records", "jetpack" ), // _inc/client/plans/single-product-components/plan-radio-button.jsx:26
 __( "Up to 1,000 records", "jetpack" ), // _inc/client/plans/single-product-components/plan-radio-button.jsx:28
 __( "Up to 10,000 records", "jetpack" ), // _inc/client/plans/single-product-components/plan-radio-button.jsx:30
@@ -869,19 +879,20 @@ __( "Included in your {{planLink}}Premium Plan{{/planLink}}", "jetpack" ), // _i
 __( "Included in your {{planLink}}Professional Plan{{/planLink}}", "jetpack" ), // _inc/client/plans/single-product-components/purchased-product-card.jsx:90
 /* translators: Button to purchase product upgrade. %(name)s is the product name. */
 __( "Upgrade to %(name)s", "jetpack" ), // _inc/client/plans/single-product-components/upgrade-button.jsx:20
-__( "Up to 100 records", "jetpack" ), // _inc/client/plans/single-product-search/index.jsx:33
-__( "Up to 1,000 records", "jetpack" ), // _inc/client/plans/single-product-search/index.jsx:35
-__( "Up to 10,000 records", "jetpack" ), // _inc/client/plans/single-product-search/index.jsx:37
-__( "Up to 100,000 records", "jetpack" ), // _inc/client/plans/single-product-search/index.jsx:39
-__( "Up to 1,000,000 records", "jetpack" ), // _inc/client/plans/single-product-search/index.jsx:41
-__( "Up to %(tierMaximumRecords)s records", "jetpack" ), // _inc/client/plans/single-product-search/index.jsx:44
-__( "Learn more", "jetpack" ), // _inc/client/plans/single-product-search/index.jsx:88
-_n( "Your current site record size: %s record", "Your current site record size: %s records", 1, "jetpack" ), // _inc/client/plans/single-product-search/index.jsx:92
-__( "Records are all posts, pages, custom post types, and other types of content indexed by Jetpack Search.", "jetpack" ), // _inc/client/plans/single-product-search/index.jsx:98
-__( "Upgrade to Jetpack Search", "jetpack" ), // _inc/client/plans/single-product-search/index.jsx:129
 __( "Upgrade now", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/index.jsx:91
 __( "Configure", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/index.jsx:106
 __( "View options", "jetpack" ), // _inc/client/setup-wizard/feature-toggle/index.jsx:137
+__( "A rocketship using Jetpack to reach new heights", "jetpack" ), // _inc/client/setup-wizard/recommended-features/index.jsx:46
+__( "Get started with Jetpack’s powerful features", "jetpack" ), // _inc/client/setup-wizard/recommended-features/index.jsx:48
+__( "Jetpack has a lot of features so we’ve made a few recommendations for you below.", "jetpack" ), // _inc/client/setup-wizard/recommended-features/index.jsx:50
+__( "You can change your feature settings at any time.", "jetpack" ), // _inc/client/setup-wizard/recommended-features/index.jsx:55
+__( "I’m done for now", "jetpack" ), // _inc/client/setup-wizard/recommended-features/index.jsx:70
+__( "Explore more features", "jetpack" ), // _inc/client/setup-wizard/recommended-features/index.jsx:73
+__( "A jetpack site using publicize to share posts", "jetpack" ), // _inc/client/setup-wizard/updates-question/index.jsx:56
+__( "Will %(siteTitle)s have blog posts, news, or regular updates?", "jetpack" ), // _inc/client/setup-wizard/updates-question/index.jsx:59
+__( "Yes", "jetpack" ), // _inc/client/setup-wizard/updates-question/index.jsx:70
+__( "No", "jetpack" ), // _inc/client/setup-wizard/updates-question/index.jsx:77
+__( "Skip", "jetpack" ), // _inc/client/setup-wizard/updates-question/index.jsx:81
 __( "A jetpack site generating revenue", "jetpack" ), // _inc/client/setup-wizard/income-question/index.jsx:70
 __( "Do you intend to make money directly from %(siteUrl)s?", "jetpack" ), // _inc/client/setup-wizard/income-question/index.jsx:73
 __( "Check all that apply", "jetpack" ), // _inc/client/setup-wizard/income-question/index.jsx:77
@@ -903,17 +914,6 @@ __( "What will %(siteTitle)s be used for?", "jetpack" ), // _inc/client/setup-wi
 __( "Personal Use", "jetpack" ), // _inc/client/setup-wizard/intro-page/index.jsx:83
 __( "Business Use", "jetpack" ), // _inc/client/setup-wizard/intro-page/index.jsx:91
 __( "Skip to recommended features", "jetpack" ), // _inc/client/setup-wizard/intro-page/index.jsx:99
-__( "A rocketship using Jetpack to reach new heights", "jetpack" ), // _inc/client/setup-wizard/recommended-features/index.jsx:46
-__( "Get started with Jetpack’s powerful features", "jetpack" ), // _inc/client/setup-wizard/recommended-features/index.jsx:48
-__( "Jetpack has a lot of features so we’ve made a few recommendations for you below.", "jetpack" ), // _inc/client/setup-wizard/recommended-features/index.jsx:50
-__( "You can change your feature settings at any time.", "jetpack" ), // _inc/client/setup-wizard/recommended-features/index.jsx:55
-__( "I’m done for now", "jetpack" ), // _inc/client/setup-wizard/recommended-features/index.jsx:70
-__( "Explore more features", "jetpack" ), // _inc/client/setup-wizard/recommended-features/index.jsx:73
-__( "A jetpack site using publicize to share posts", "jetpack" ), // _inc/client/setup-wizard/updates-question/index.jsx:56
-__( "Will %(siteTitle)s have blog posts, news, or regular updates?", "jetpack" ), // _inc/client/setup-wizard/updates-question/index.jsx:59
-__( "Yes", "jetpack" ), // _inc/client/setup-wizard/updates-question/index.jsx:70
-__( "No", "jetpack" ), // _inc/client/setup-wizard/updates-question/index.jsx:77
-__( "Skip", "jetpack" ), // _inc/client/setup-wizard/updates-question/index.jsx:81
 __( "Verifying…", "jetpack" ), // _inc/client/traffic/verification-services/google.jsx:79
 __( "Site failed to verify: %(error)s", "jetpack" ), // _inc/client/traffic/verification-services/google.jsx:101
 __( "Google", "jetpack" ), // _inc/client/traffic/verification-services/google.jsx:187
