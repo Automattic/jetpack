@@ -67,7 +67,7 @@ describe( 'Connection', () => {
 			await ( await ThankYouPage.init( page ) ).waitForSetupAndProceed();
 			const p = await MyPlanPage.init( page );
 			await p.reload( { waitFor: 'networkidle0' } );
-			// await p.reload( { waitFor: 'networkidle0' } );
+			await p.reload( { waitFor: 'networkidle0' } );
 			// await p.reload( { waitFor: 'networkidle0' } );
 
 			await ( await MyPlanPage.init( page ) ).returnToWPAdmin();
