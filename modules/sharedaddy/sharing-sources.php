@@ -1199,11 +1199,11 @@ class Share_Print extends Sharing_Source {
 	 * @param \WP_Post $post The current post being viewed.
 	 */
 	public function get_amp_display( $post ) {
-		$attrs = array(
-			'on' => 'tap:AMP.print',
-		);
+		if ( empty( $post ) ) {
+			return false;
+		}
 
-		return $this->build_amp_markup( $attrs );
+		return '<button class="amp-social-share print" on="tap:AMP.print">Print</button>';
 	}
 }
 

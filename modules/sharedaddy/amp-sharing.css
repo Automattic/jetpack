@@ -1,4 +1,5 @@
-amp-social-share {
+amp-social-share,
+.amp-social-share {
 	border-radius: 50%;
 	color: #fff;
 	-webkit-border-radius: 50%;
@@ -9,7 +10,8 @@ amp-social-share {
 	margin: 0 5px 5px 0;
 }
 
-amp-social-share::before {
+amp-social-share::before,
+.amp-social-share::before {
 	display: inline-block;
 	font: normal 18px/1 'social-logos';
 	padding: 7px;
@@ -19,11 +21,15 @@ amp-social-share::before {
 	text-align: center;
 }
 
-amp-social-share[type='print'] {
+.amp-social-share.print {
 	background: #e9e9e9;
+	font-size: 0;
+	cursor: pointer;
+	display: inline-block;
+	vertical-align: top;
 }
 
-amp-social-share[type='print']::before {
+.amp-social-share.print::before {
 	content: '\f469';
 	color: #656565;
 }
