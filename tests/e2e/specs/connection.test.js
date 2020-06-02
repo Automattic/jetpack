@@ -65,12 +65,12 @@ describe( 'Connection', () => {
 		await step( 'Can process payment for Personal plan', async () => {
 			await ( await CheckoutPage.init( page ) ).processPurchase( cardCredentials );
 			await ( await ThankYouPage.init( page ) ).waitForSetupAndProceed();
-			const p = await MyPlanPage.init( page );
-			await p.reload( { waitFor: 'networkidle0' } );
-			await p.reload( { waitFor: 'networkidle0' } );
-			// await p.reload( { waitFor: 'networkidle0' } );
+			const myPlanPage = await MyPlanPage.init( page );
+			// NOTE: it is a workaround for a some sort of race condition in plan upgrade flow, when the new plan is associated to a different blogID.
+			await myPlanPage.reload( { waitFor: 'networkidle0' } );
+			await myPlanPage.reload( { waitFor: 'networkidle0' } );
 
-			await ( await MyPlanPage.init( page ) ).returnToWPAdmin();
+			await myPlanPage.returnToWPAdmin();
 			await syncJetpackPlanData( 'personal', false );
 		} );
 
