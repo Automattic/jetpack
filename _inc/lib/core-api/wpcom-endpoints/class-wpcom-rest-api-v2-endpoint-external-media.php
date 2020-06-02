@@ -231,6 +231,14 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 				$response = json_decode( wp_remote_retrieve_body( $response ) );
 				break;
 
+			case 401:
+				$response = new WP_Error(
+					'authorization_required',
+					__( 'You are not connected to that service.', 'jetpack' ),
+					array( 'status' => 403 )
+				);
+				break;
+
 			case 403:
 				$error    = json_decode( wp_remote_retrieve_body( $response ) );
 				$response = new WP_Error( $error->code, $error->message, $error->data );
