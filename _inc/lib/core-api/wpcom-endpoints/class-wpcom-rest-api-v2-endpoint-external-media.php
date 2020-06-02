@@ -21,34 +21,32 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 	 * @var array
 	 */
 	public $media_schema = array(
-		'items' => array(
-			'type'       => 'object',
-			'required'   => true,
-			'properties' => array(
-				'caption' => array(
-					'type' => 'string',
-				),
-				'guid'    => array(
-					'items' => array(
-						'caption' => array(
-							'type' => 'string',
-						),
-						'name'    => array(
-							'type' => 'string',
-						),
-						'title'   => array(
-							'type' => 'string',
-						),
-						'url'     => array(
-							'format' => 'uri',
-							'type'   => 'string',
-						),
+		'type'       => 'object',
+		'required'   => true,
+		'properties' => array(
+			'caption' => array(
+				'type' => 'string',
+			),
+			'guid'    => array(
+				'items' => array(
+					'caption' => array(
+						'type' => 'string',
 					),
-					'type'  => 'array',
+					'name'    => array(
+						'type' => 'string',
+					),
+					'title'   => array(
+						'type' => 'string',
+					),
+					'url'     => array(
+						'format' => 'uri',
+						'type'   => 'string',
+					),
 				),
-				'title'   => array(
-					'type' => 'string',
-				),
+				'type'  => 'array',
+			),
+			'title'   => array(
+				'type' => 'string',
 			),
 		),
 	);
@@ -120,7 +118,7 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 				'args'                => array(
 					'media' => array(
 						'description'       => __( 'Media data to copy.', 'jetpack' ),
-						'items'             => array_values( $this->media_schema ),
+						'items'             => $this->media_schema,
 						'required'          => true,
 						'type'              => 'array',
 						'sanitize_callback' => array( $this, 'sanitize_media' ),
@@ -157,7 +155,7 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 	public function sanitize_media( $param ) {
 		$param = $this->prepare_media_param( $param );
 
-		return rest_sanitize_value_from_schema( $param, $this->media_schema['items'] );
+		return rest_sanitize_value_from_schema( $param, $this->media_schema );
 	}
 
 	/**
@@ -169,7 +167,7 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 	public function validate_media( $param ) {
 		$param = $this->prepare_media_param( $param );
 
-		return rest_validate_value_from_schema( $param, $this->media_schema['items'], 'media' );
+		return rest_validate_value_from_schema( $param, $this->media_schema, 'media' );
 	}
 
 	/**
