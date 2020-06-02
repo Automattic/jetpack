@@ -164,7 +164,7 @@ export async function clickAndWaitForNewPage( page, selector, timeout = 25000 ) 
 		}, timeout );
 	} );
 	const newTabTarget = new Promise( resolve => {
-		const listener = async target => {
+		const listener = target => {
 			if ( target.type() === 'page' ) {
 				browser.removeListener( 'targetcreated', listener );
 				resolve( target );

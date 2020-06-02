@@ -19,5 +19,6 @@ module.exports = {
 		'wpcalypso/import-docblock': 0,
 		'no-console': 0,
 		'jest/no-jasmine-globals': 0,
+		'require-await': 1,
 	},
 };
