@@ -421,6 +421,16 @@ __( "Looking for specific features? We've got you covered.", "jetpack" ), // _in
 __( "Explore our Jetpack plans", "jetpack" ), // _inc/client/plans-prompt/index.jsx:30
 __( "Now that you're set up, pick a plan that fits your needs.", "jetpack" ), // _inc/client/plans-prompt/index.jsx:32
 __( "Start with free", "jetpack" ), // _inc/client/plans-prompt/index.jsx:48
+__( "Setting up", "jetpack" ), // _inc/client/pro-status/index.jsx:80
+__( "Action needed", "jetpack" ), // _inc/client/pro-status/index.jsx:85
+__( "Connected", "jetpack" ), // _inc/client/pro-status/index.jsx:90
+_x( "Threats", "A caption for a small button to fix security issues.", "jetpack" ), // _inc/client/pro-status/index.jsx:106
+_x( "See threats", "A caption for a small button to fix security issues.", "jetpack" ), // _inc/client/pro-status/index.jsx:110
+_x( "Secure", "Short message informing user that the site is secure.", "jetpack" ), // _inc/client/pro-status/index.jsx:122
+__( "ACTIVE", "jetpack" ), // _inc/client/pro-status/index.jsx:136
+_x( "Set up", "Caption for a button to set up a feature.", "jetpack" ), // _inc/client/pro-status/index.jsx:172
+_n( "Threat", "Threats", 1, "jetpack" ), // _inc/client/pro-status/index.jsx:237
+__( "Action needed", "jetpack" ), // _inc/client/pro-status/index.jsx:249
 _x( "privacy", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:69
 _x( "tracks", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:70
 _x( "data", "Search term.", "jetpack" ), // _inc/client/privacy/index.jsx:71
@@ -433,16 +443,6 @@ __( "Share information with our analytics tool about your use of services while 
 __( "This information helps us improve our products, make marketing to you more relevant, personalize your WordPress.com experience, and more as detailed in our {{pp}}privacy policy{{/pp}}.", "jetpack" ), // _inc/client/privacy/index.jsx:140
 __( "We use other tracking tools, including some from third parties. {{cookiePolicyLink}}Read about these{{/cookiePolicyLink}} and how to control them.", "jetpack" ), // _inc/client/privacy/index.jsx:157
 __( "For more information on how specific Jetpack features use data and track activity, please refer to our {{privacyCenterLink}}Privacy Center{{/privacyCenterLink}}.", "jetpack" ), // _inc/client/privacy/index.jsx:175
-__( "Setting up", "jetpack" ), // _inc/client/pro-status/index.jsx:80
-__( "Action needed", "jetpack" ), // _inc/client/pro-status/index.jsx:85
-__( "Connected", "jetpack" ), // _inc/client/pro-status/index.jsx:90
-_x( "Threats", "A caption for a small button to fix security issues.", "jetpack" ), // _inc/client/pro-status/index.jsx:106
-_x( "See threats", "A caption for a small button to fix security issues.", "jetpack" ), // _inc/client/pro-status/index.jsx:110
-_x( "Secure", "Short message informing user that the site is secure.", "jetpack" ), // _inc/client/pro-status/index.jsx:122
-__( "ACTIVE", "jetpack" ), // _inc/client/pro-status/index.jsx:136
-_x( "Set up", "Caption for a button to set up a feature.", "jetpack" ), // _inc/client/pro-status/index.jsx:172
-_n( "Threat", "Threats", 1, "jetpack" ), // _inc/client/pro-status/index.jsx:237
-__( "Action needed", "jetpack" ), // _inc/client/pro-status/index.jsx:249
 __( "Activate", "jetpack" ), // _inc/client/searchable-modules/index.jsx:61
 __( "Checking your spam protection…", "jetpack" ), // _inc/client/security/antispam.jsx:88
 __( "Fetching key…", "jetpack" ), // _inc/client/security/antispam.jsx:92
