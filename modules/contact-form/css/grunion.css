@@ -161,3 +161,15 @@
 		width: 100%;
 	}
 }
+
+/** For the "Empty Spam" button on /wp-admin/edit.php?post_status=spam&post_type=feedback **/
+.jetpack-empty-spam-container {
+	display: inline-block;
+}
+.jetpack-empty-spam {
+	display: inline-block;
+}
+.jetpack-empty-spam-spinner {
+	display: inline-block;
+	margin-top: 7px;
+}
