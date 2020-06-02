@@ -54,15 +54,17 @@ class RecommendedFeatures extends Component {
 				<p className="jp-setup-wizard-recommended-features-p2">
 					{ __( 'You can change your feature settings at any time.' ) }
 				</p>
-				{ this.props.recommendedFeatureGroups.map( featureGroup => {
-					return (
-						<FeatureToggleGroup
-							title={ featureGroup.title }
-							details={ featureGroup.details }
-							features={ featureGroup.features }
-						/>
-					);
-				} ) }
+				<div className="jp-setup-wizard-feature-groups-container">
+					{ this.props.recommendedFeatureGroups.map( featureGroup => {
+						return (
+							<FeatureToggleGroup
+								title={ featureGroup.title }
+								details={ featureGroup.details }
+								features={ featureGroup.features }
+							/>
+						);
+					} ) }
+				</div>
 				<div className="jp-setup-wizard-recommended-features-buttons-container">
 					<Button primary href="#/dashboard" onClick={ this.onDoneButtonClick }>
 						{ __( 'I’m done for now' ) }

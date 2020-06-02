@@ -171,6 +171,12 @@
 					border-color: darken( $alert-red, 20% );
 					color: $white;
 					margin-bottom: 0px;
+
+					&[disabled],
+					&:disabled {
+						background: lighten( $alert-red, 20% );
+						border-color: tint( $alert-red, 30% );
+					}
 				}
 			}
 

@@ -79,12 +79,19 @@
     schema-utils "^1.0.0"
     webpack-sources "^1.1.0"
 
-"@automattic/popup-monitor@1.0.0":
+"@automattic/popup-monitor@^1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@automattic/popup-monitor/-/popup-monitor-1.0.0.tgz#57809015748e2a66d115666b887bd25af645635a"
   integrity sha512-hZzcOOfNB150rq/mTEWjDHM16Kuuia8OlAAHosylpacPDYJnh2zjPg910fpApuUrhRnOSaiZ+sv3Ydkt0LdTZg==
   dependencies:
     lodash "^4.17.15"
+
+"@automattic/request-external-access@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@automattic/request-external-access/-/request-external-access-1.0.0.tgz#ea55d20b78bc5fa104422775c0b9f2377c142f6a"
+  integrity sha512-vhN72lwPFzhCVMP1l2ODBqt7fI5jfeJz1JyBnq/AUCg9PpsJfdk4vZxhSOLhSSds8VMkU5WaNnaztkYfkkYOiA==
+  dependencies:
+    "@automattic/popup-monitor" "^1.0.0"
 
 "@automattic/viewport@1.0.0":
   version "1.0.0"

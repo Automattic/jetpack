@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React from 'react';
-import { Redirect, Route, Switch, useRouteMatch } from 'react-router-dom';
+import { Redirect, Route, Switch } from 'react-router-dom';
 import { connect } from 'react-redux';
 
 /**
@@ -23,7 +23,6 @@ import { RecommendedFeatures } from './recommended-features';
 
 const SetupWizardComponent = props => {
 	const { siteTitle, status } = props;
-	const { path } = useRouteMatch();
 
 	let redirectPath;
 	switch ( status ) {
@@ -53,17 +52,17 @@ const SetupWizardComponent = props => {
 			<QueryAkismetKeyCheck />
 			<QuerySetupWizardQuestionnaire />
 			<Switch>
-				<Redirect exact from={ path } to={ path + redirectPath } />
-				<Route path={ `${ path }/intro` }>
+				<Redirect exact from={ '/setup' } to={ '/setup' + redirectPath } />
+				<Route path={ `/setup/intro` }>
 					<IntroPage siteTitle={ siteTitle } />
 				</Route>
-				<Route path={ `${ path }/income` }>
+				<Route path={ `/setup/income` }>
 					<IncomeQuestion siteTitle={ siteTitle } />
 				</Route>
-				<Route path={ `${ path }/updates` }>
+				<Route path={ `/setup/updates` }>
 					<UpdatesQuestion siteTitle={ siteTitle } />
 				</Route>
-				<Route path={ `${ path }/features` }>
+				<Route path={ `/setup/features` }>
 					<RecommendedFeatures />
 				</Route>
 			</Switch>
