@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { addFilter } from '@wordpress/hooks';
-import { useState } from '@wordpress/element';
+import { useState, useEffect } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -44,40 +44,33 @@ const addTweetstormToTweets = ( blockSettings, blockName ) => {
 				onReplace,
 			} );
 
-			/**
-			 * Generate prompt to import the tweetstorm.
-			 */
-			const addStormImportMessage = () => {
-				setMessageDisplayed( true );
+			useEffect( () => {
+				if ( blocks.length > 1 && ! messageDisplayed ) {
+					setMessageDisplayed( true );
 
-				noticeOperations.removeAllNotices();
-				noticeOperations.createNotice( {
-					content: (
-						<div className="gathering-tweetstorms__embed-import-notice">
-							<div className="gathering-tweetstorms__embed-import-message">
-								{ __(
-									'It looks like this is the first tweet in a tweetstorm. Would you like to import the tweetstorm content directly into this post?',
-									'jetpack'
-								) }
+					noticeOperations.removeAllNotices();
+					noticeOperations.createNotice( {
+						content: (
+							<div className="gathering-tweetstorms__embed-import-notice">
+								<div className="gathering-tweetstorms__embed-import-message">
+									{ __(
+										'It looks like this is the first tweet in a tweetstorm. Would you like to import the tweetstorm content directly into this post?',
+										'jetpack'
+									) }
+								</div>
+								<Button
+									className="gathering-tweetstorms__embed-import-button"
+									isLarge
+									isPrimary
+									onClick={ unleashStorm }
+								>
+									{ __( 'Import Tweetstorm', 'jetpack' ) }
+								</Button>
 							</div>
-							<Button
-								className="gathering-tweetstorms__embed-import-button"
-								isLarge
-								isPrimary
-								onClick={ unleashStorm }
-							>
-								{ __( 'Import Tweetstorm', 'jetpack' ) }
-							</Button>
-						</div>
-					),
-				} );
-			};
-
-			if ( blocks.length > 1 && ! messageDisplayed ) {
-				// Since this is a render function, we need to use a timeout to call
-				// addStormImportMessage, since that function changes the state.
-				setTimeout( addStormImportMessage );
-			}
+						),
+					} );
+				}
+			}, [ blocks.length, messageDisplayed, setMessageDisplayed, noticeOperations, unleashStorm ] );
 
 			return (
 				<>

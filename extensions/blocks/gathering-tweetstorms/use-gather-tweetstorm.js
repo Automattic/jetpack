@@ -11,6 +11,7 @@ import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 import { createBlock } from '@wordpress/blocks';
+import { useSelect, dispatch } from '@wordpress/data';
 
 /**
  * Given a tweet URL, find any tweetstorm replies it has, and replace the current
@@ -27,11 +28,21 @@ import { createBlock } from '@wordpress/blocks';
 export default function useGatherTweetstorm( { url, noticeOperations, onReplace } ) {
 	const [ blocks, setBlocks ] = useState( [] );
 	const [ isGatheringStorm, setIsGatheringStorm ] = useState( false );
+	const [ twitterUser, setTwitterUser ] = useState( '' );
+
+	const connections = useSelect( select => {
+		return select( 'core/editor' ).getEditedPostAttribute( 'jetpack_publicize_connections' );
+	} );
 
 	useEffect( () => {
 		if ( isEmpty( url ) ) {
 			setBlocks( [] );
 			return;
+		}
+
+		const userResult = url.match( /^https?:\/\/(?:www\.)?twitter\.com\/([^/]*)/ );
+		if ( userResult[ 1 ] ) {
+			setTwitterUser( userResult[ 1 ] );
 		}
 
 		noticeOperations && noticeOperations.removeAllNotices();
@@ -48,6 +59,7 @@ export default function useGatherTweetstorm( { url, noticeOperations, onReplace 
 						noticeOperations.createErrorNotice(
 							__( 'An error occurred. Please try again later.', 'jetpack' )
 						);
+
 					setBlocks( [] );
 					return;
 				}
@@ -88,6 +100,32 @@ export default function useGatherTweetstorm( { url, noticeOperations, onReplace 
 							return createBlock( 'core/embed', { url: block.url } );
 					}
 				} )
+			);
+
+			const verifiedConnection = connections.some( el => {
+				if ( 'twitter' !== el.service_name ) {
+					return false;
+				}
+
+				if ( `@${ twitterUser }` !== el.display_name ) {
+					return false;
+				}
+
+				return true;
+			} );
+
+			if ( ! verifiedConnection ) {
+				dispatch( 'core/notices' ).createWarningNotice(
+					__(
+						'We were unable to verify that this tweetstorm was published on a Twitter account belonging to you. Please ensure you have permission to reproduce it before publishing.',
+						'jetpack'
+					)
+				);
+			}
+
+			dispatch( 'core/notices' ).createSuccessNotice(
+				__( 'Tweetstorm successfully imported', 'jetpack' ),
+				{ type: 'snackbar' }
 			);
 		}
 	};

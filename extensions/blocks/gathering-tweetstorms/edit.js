@@ -4,7 +4,7 @@
 import { __, _x } from '@wordpress/i18n';
 import { BlockIcon } from '@wordpress/block-editor';
 import { Button, Placeholder, withNotices, Spinner } from '@wordpress/components';
-import { useState } from '@wordpress/element';
+import { useState, useEffect } from '@wordpress/element';
 import { isEmpty } from 'lodash';
 
 /**
@@ -24,10 +24,12 @@ function GatheringTweetstormsEdit( { className, noticeOperations, noticeUI, onRe
 	} );
 
 	// If we've discovered blocks, replace the current block with those blocks.
-	if ( ! isEmpty( blocks ) ) {
-		setSubmitted( false );
-		unleashStorm();
-	}
+	useEffect( () => {
+		if ( ! isEmpty( blocks ) ) {
+			setSubmitted( false );
+			unleashStorm();
+		}
+	}, [ blocks, setSubmitted, unleashStorm ] );
 
 	/**
 	 * Event handler for when the form is submitted.
