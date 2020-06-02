@@ -69,6 +69,7 @@ describe( 'Connection', () => {
 			// NOTE: it is a workaround for a some sort of race condition in plan upgrade flow, when the new plan is associated to a different blogID.
 			await myPlanPage.reload( { waitFor: 'networkidle0' } );
 			await myPlanPage.reload( { waitFor: 'networkidle0' } );
+			await myPlanPage.reload( { waitFor: 'networkidle0' } );
 
 			await myPlanPage.returnToWPAdmin();
 			await syncJetpackPlanData( 'personal', false );
