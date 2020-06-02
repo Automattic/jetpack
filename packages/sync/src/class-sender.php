@@ -264,13 +264,17 @@ class Sender {
 			return;
 		}
 		$this->continue_full_sync_enqueue();
+
 		// immediate full sync sends data in continue_full_sync_enqueue.
 		if ( false === strpos( get_class( $sync_module ), 'Full_Sync_Immediately' ) ) {
+			echo "Not full sync immediate\n";
 			return $this->do_sync_and_set_delays( $this->full_sync_queue );
 		} else {
 			if ( $sync_module->get_status()['finished'] ) {
+				echo "Is finished\n";
 				return false;
 			} else {
+				echo "Not finished\n";
 				return true;
 			}
 		}

@@ -460,6 +460,36 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $user_id, $decoded_object->ID );
 	}
 
+	function test_do_full_sync_returns_not_true_if_lock() {
+		$sync_module = Modules::get_module( 'full-sync' );
+		if ( ! $sync_module ) {
+			$this->fail( 'Could not fetch full-sync module' );
+		}
+
+		$sync_module->update_status(
+			array(
+				'started'  => true,
+				'finished' => false,
+			)
+		);
+
+		// $sender = $this->createMock( 'Automattic\Jetpack\Sync\Sender' );
+		$sender = $this->getMockBuilder( 'Automattic\Jetpack\Sync\Sender' )
+			->disableOriginalConstructor()
+			->setMethods( array( 'do_sync_and_set_delays' ) )
+			->getMock();
+
+		$sender
+			->method( 'do_sync_and_set_delays' )
+			->willReturn( new \WP_Error( 'unclosed_buffer', 'There is an unclosed buffer' ) );
+
+		$result = $sender->do_full_sync();
+
+		var_dump( $result );
+
+		$this->assertNotTrue( 'WP_Error', $result );
+	}
+
 	function run_filter( $data ) {
 		$this->filter_ran = true;
 		return $data;
