@@ -107,6 +107,7 @@ var jetpackLazyImagesModule = function() {
 
 		srcset = image.getAttribute( 'data-lazy-srcset' );
 		sizes = image.getAttribute( 'data-lazy-sizes' );
+		src = image.getAttribute( 'data-lazy-src' );
 
 		// Remove lazy attributes.
 		image.removeAttribute( 'data-lazy-srcset' ),
@@ -125,6 +126,10 @@ var jetpackLazyImagesModule = function() {
 			image.removeAttribute( 'srcset' );
 		} else {
 			image.setAttribute( 'srcset', srcset );
+		}
+
+		if ( src ) {
+			image.setAttribute( 'src', src );
 		}
 
 		// Fire an event so that third-party code can perform actions after an image is loaded.

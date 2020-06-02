@@ -247,12 +247,10 @@ class Jetpack_Lazy_Images {
 			}
 		}
 
-		// We set this, adding the query arg so that it doesn't exactly equal the src attribute, so that photon JavaScript
-		// will hold off on processing this image.
-		$attributes['data-lazy-src'] = esc_url_raw( add_query_arg( 'is-pending-load', true, $attributes['src'] ) );
+		$attributes['data-lazy-src'] = $attributes['src'];
+		$attributes['src']           = self::get_placeholder_image( $attributes );
 
-		$attributes['srcset'] = self::get_placeholder_image();
-		$attributes['class']  = sprintf(
+		$attributes['class'] = sprintf(
 			'%s jetpack-lazy-image',
 			empty( $old_attributes['class'] )
 				? ''
@@ -302,9 +300,13 @@ class Jetpack_Lazy_Images {
 	/**
 	 * Retrieves the placeholder image after running it through the lazyload_images_placeholder_image filter.
 	 *
+	 * @param array $attributes An array of attributes to be added to the image.
+	 *
 	 * @return string The placeholder image source.
 	 */
-	private static function get_placeholder_image() {
+	public static function get_placeholder_image( $attributes = array() ) {
+		$image_dimensions = self::get_image_dimensions( $attributes );
+
 		/**
 		 * Allows plugins and themes to modify the placeholder image.
 		 *
@@ -320,7 +322,76 @@ class Jetpack_Lazy_Images {
 		 */
 		return apply_filters(
 			'lazyload_images_placeholder_image',
-			'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
+			(
+				! empty( $image_dimensions )
+					? sprintf(
+						"data:image/svg+xml,%%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 %d %d'%%3E%%3C/svg%%3E",
+						$image_dimensions['width'],
+						$image_dimensions['height']
+					)
+					: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
+			)
+		);
+	}
+
+	/**
+	 * Given the attributes about an image, will attempt to determine the height, width, and aspect ratio of an image.
+	 *
+	 * @param array $attributes An array of image attributes.
+	 *
+	 * @return bool|array
+	 */
+	public static function get_image_dimensions( $attributes ) {
+		$width  = 0;
+		$height = 0;
+
+		do {
+			if ( ! empty( $attributes['width'] ) && ! empty( $attributes['height'] ) ) {
+				$width  = intval( $attributes['width'] );
+				$height = intval( $attributes['height'] );
+				continue;
+			}
+
+			if ( ! empty( $attributes['data-orig-size'] ) ) {
+				$split = explode( ',', $attributes['data-orig-size'] );
+				if ( 2 === count( $split ) ) {
+					$width  = trim( $split[0] );
+					$height = trim( $split[1] );
+
+					continue;
+				}
+			}
+
+			$attachment_id = ! empty( $attributes['data-id'] ) ? $attributes['data-id'] : null;
+			if ( is_null( $attachment_id ) ) {
+				$attachment_id = ! empty( $attributes['data-attachment-id'] )
+					? $attributes['data-attachment-id']
+					: null;
+			}
+
+			if ( is_null( $attachment_id ) && ! empty( $attributes['class'] ) && false !== strpos( $attributes['class'], 'wp-image-' ) ) {
+				$attachment_id = str_replace( 'wp-image-', '', preg_replace( '/(wp-image-(\d+)\s)/', '$2', $attributes['class'] ) );
+			}
+
+			if ( empty( $attachment_id ) ) {
+				continue;
+			}
+
+			// Default to full since we're mostly interested in aspect ratio.
+			$image_src = wp_get_attachment_image_src( $attachment_id, 'full' );
+			if ( ! empty( $image_src ) && count( $image_src ) >= 3 ) {
+				$width  = $image_src[1];
+				$height = $image_src[2];
+			}
+		} while ( false );
+
+		if ( empty( $width ) || empty( $height ) ) {
+			return false;
+		}
+
+		return array(
+			'width'  => $width,
+			'height' => $height,
 		);
 	}
 
