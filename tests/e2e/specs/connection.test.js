@@ -67,8 +67,8 @@ describe( 'Connection', () => {
 			await ( await ThankYouPage.init( page ) ).waitForSetupAndProceed();
 			const p = await MyPlanPage.init( page );
 			await p.reload( { waitFor: 'networkidle0' } );
-			await p.reload( { waitFor: 'networkidle0' } );
-			await p.reload( { waitFor: 'networkidle0' } );
+			// await p.reload( { waitFor: 'networkidle0' } );
+			// await p.reload( { waitFor: 'networkidle0' } );
 
 			await ( await MyPlanPage.init( page ) ).returnToWPAdmin();
 			await syncJetpackPlanData( 'personal', false );
@@ -76,11 +76,6 @@ describe( 'Connection', () => {
 
 		await step( 'Can assert that site has a Personal plan', async () => {
 			const jetpackPage = await JetpackPage.init( page );
-
-			const blogToken = await execWpCommand( 'wp jetpack options get blog_token' );
-			const blogId = await execWpCommand( 'wp jetpack options get id' );
-			console.log( '!!!!!!1', blogToken, blogId );
-
 			expect( await jetpackPage.isPlan( 'personal' ) ).toBeTruthy();
 		} );
 
@@ -90,10 +85,6 @@ describe( 'Connection', () => {
 			await jetpackPage.openPlans();
 			const plansPage = await PlansPage.init( page );
 			await plansPage.select( 'premium' );
-
-			const blogToken = await execWpCommand( 'wp jetpack options get blog_token' );
-			const blogId = await execWpCommand( 'wp jetpack options get id' );
-			console.log( '!!!!!!2', blogToken, blogId );
 		} );
 
 		await step( 'Can process payment for Premium plan', async () => {
@@ -101,24 +92,11 @@ describe( 'Connection', () => {
 			await ( await ThankYouPage.init( page ) ).waitForSetupAndProceed();
 			await ( await MyPlanPage.init( page ) ).returnToWPAdmin();
 
-			let blogToken = await execWpCommand( 'wp jetpack options get blog_token' );
-			let blogId = await execWpCommand( 'wp jetpack options get id' );
-			console.log( '!!!!!!3', blogToken, blogId );
-
 			await syncJetpackPlanData( 'premium', false );
-
-			blogToken = await execWpCommand( 'wp jetpack options get blog_token' );
-			blogId = await execWpCommand( 'wp jetpack options get id' );
-			console.log( '!!!!!!4', blogToken, blogId );
 		} );
 
 		await step( 'Can assert that site has a Premium plan', async () => {
 			const jetpackPage = await JetpackPage.init( page );
-
-			const blogToken = await execWpCommand( 'wp jetpack options get blog_token' );
-			const blogId = await execWpCommand( 'wp jetpack options get id' );
-			console.log( '!!!!!!5', blogToken, blogId );
-
 			expect( await jetpackPage.isPlan( 'premium' ) ).toBeTruthy();
 		} );
 	} );
