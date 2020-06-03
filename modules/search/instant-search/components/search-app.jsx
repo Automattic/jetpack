@@ -136,6 +136,20 @@ class SearchApp extends Component {
 		return !! this.state.response.page_handle && ! this.state.hasError;
 	}
 
+	handleDatasetAttributes = form => {
+		try {
+			if ( 'postTypeWhitelist' in form.dataset ) {
+				setFilterQuery(
+					'post_types',
+					JSON.parse( decodeURIComponent( form.dataset.postTypeWhitelist ) )
+				);
+			}
+		} catch ( error ) {
+			// Unexpected value found at data-post-type-whitelist.
+			return;
+		}
+	};
+
 	handleSubmit = event => {
 		event.preventDefault();
 		this.handleInput.flush();
@@ -146,10 +160,14 @@ class SearchApp extends Component {
 		if ( event.inputType.includes( 'delete' ) || event.inputType.includes( 'format' ) ) {
 			return;
 		}
+		this.handleDatasetAttributes( event.target.form );
 		setSearchQuery( event.target.value );
 	}, 200 );
 
-	handleInputFocus = () => this.showResults();
+	handleInputFocus = () => {
+		this.handleDatasetAttributes( event.target.form );
+		this.showResults();
+	};
 
 	handleSortChange = event => {
 		setSortQuery( getSortKeyFromSortOption( event.target.value ) );

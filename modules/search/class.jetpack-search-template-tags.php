@@ -261,7 +261,7 @@ class Jetpack_Search_Template_Tags {
 
 		$fields_to_inject = array(
 			'orderby' => $orderby,
-			'order'   => $order
+			'order'   => $order,
 		);
 
 		// If the widget has specified post types to search within and IF the post types differ
@@ -276,6 +276,27 @@ class Jetpack_Search_Template_Tags {
 		echo '<div class="jetpack-search-form">';
 		echo $form;
 		echo '</div>';
+	}
+
+	/**
+	 * Renders the search box for the Instant Search version of the Jetpack Search widget on the frontend.
+	 *
+	 * @since 8.6.0
+	 *
+	 * @param array $post_types_whitelist Array of post types to limit search results to.
+	 */
+	public static function render_instant_widget_search_form( $post_types_whitelist ) {
+		$form = get_search_form( false );
+
+		if ( ! empty( $post_types_whitelist ) ) {
+			$form = str_replace(
+				'<form',
+				'<form data-post-type-whitelist=' . rawurlencode( wp_json_encode( $post_types_whitelist ) ),
+				$form
+			);
+		}
+
+		echo '<div class="jetpack-search-form">' . $form . '</div>'; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**

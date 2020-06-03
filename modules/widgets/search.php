@@ -461,9 +461,10 @@ class Jetpack_Search_Widget extends WP_Widget {
 			do_action( 'jetpack_search_render_filters_widget_title', $title, $args['before_title'], $args['after_title'] );
 		}
 
-		// TODO: create new search box?
 		if ( ! empty( $instance['search_box_enabled'] ) ) {
-			Jetpack_Search_Template_Tags::render_widget_search_form( array(), '', '' );
+			Jetpack_Search_Template_Tags::render_instant_widget_search_form(
+				empty( $instance['post_types'] ) ? array() : $instance['post_types']
+			);
 		}
 
 		if ( $display_filters ) {
