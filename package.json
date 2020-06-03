@@ -117,7 +117,7 @@
     "jshint": "2.9.1",
     "jshint-stylish": "~2.1.0",
     "json-loader": "^0.5.7",
-    "lodash": "^4.9.0",
+    "lodash": "^4.17.13",
     "node-sass": "4.9.0",
     "page": "1.7.1",
     "plugin-error": "^1.0.0",
