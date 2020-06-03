@@ -8,6 +8,7 @@ amp-social-share,
 	width: 32px;
 	height: 32px;
 	margin: 0 5px 5px 0;
+	vertical-align: middle;
 }
 
 amp-social-share::before,
@@ -26,7 +27,9 @@ amp-social-share::before,
 	font-size: 0;
 	cursor: pointer;
 	display: inline-block;
-	vertical-align: top;
+	vertical-align: middle;
+	border: none;
+	padding: 0;
 }
 
 .amp-social-share.print::before {

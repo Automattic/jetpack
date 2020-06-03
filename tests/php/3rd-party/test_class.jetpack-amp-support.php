@@ -49,7 +49,7 @@ class WP_Test_Jetpack_AMP_Support extends WP_UnitTestCase {
 
 		$social_icons = Jetpack_AMP_Support::render_sharing_html( '<div class="sd-content"><ul><li>Print</li></ul></div>', $services );
 
-		$this->assertEquals( '<div class="sd-content"><amp-social-share type="print" height="32px" width="32px" on="tap:AMP.print"></amp-social-share></div>', $social_icons );
+		$this->assertEquals( '<div class="sd-content"><button class="amp-social-share print" on="tap:AMP.print">Print</button></div>', $social_icons );
 
 		// Whatsapp.
 		$services = array(

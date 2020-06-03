@@ -431,8 +431,8 @@ class Jetpack_AMP_Support {
 		 * phpcs:disable WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 		 * phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
 		 */
-		echo file_get_contents( JETPACK_SOCIAL_LOGOS_DIR . '_inc/social-logos/social-logos.css' );
-		echo file_get_contents( WP_SHARING_PLUGIN_DIR . 'modules/sharedaddy/amp-sharing.css' );
+		echo file_get_contents( JETPACK_SOCIAL_LOGOS_DIR . 'social-logos.css' );
+		echo file_get_contents( WP_SHARING_PLUGIN_DIR . 'amp-sharing.css' );
 
 		/*
 		 * phpcs:enable WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
