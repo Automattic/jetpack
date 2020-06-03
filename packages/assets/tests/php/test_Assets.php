@@ -15,6 +15,18 @@ function wp_enqueue_script( $handle, $src = '', $deps = array(), $ver = false, $
 	$GLOBALS['_was_called_wp_enqueue_script'][] = array( $handle, $src, $deps, $ver, $in_footer );
 }
 
+/**
+ * A wrapper for PHP's parse_url()
+ *
+ * @param string $url       The URL to parse.
+ * @param int    $component The specific component to retrieve. Use one of the PHP
+ *                          predefined constants to specify which one.
+ *                          Defaults to -1 (= return all parts as an array).
+ */
+function wp_parse_url( $url, $component = -1 ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	return parse_url( $url ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
+}
+
 class AssetsTest extends TestCase {
 
 	public function setUp() {
@@ -43,6 +55,18 @@ class AssetsTest extends TestCase {
 		// note the double-$$ here, $(non_)min_path is referenced by var name
 		$this->assertContains( $$expected, $file_url );
 		$this->assertNotContains( $$not_expected, $file_url );
+	}
+
+	/**
+	 * Test that get_file_url_for_environment returns a full URL when given a full URL
+	 *
+	 * @author jeherve
+	 */
+	public function test_get_file_url_for_environment_full_url() {
+		$path     = 'https://jetpack.com';
+		$file_url = Assets::get_file_url_for_environment( $path, $path );
+
+		$this->assertEquals( $path, $file_url );
 	}
 
 	/**
