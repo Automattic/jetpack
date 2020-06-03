@@ -466,6 +466,28 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $user_id, $decoded_object->ID );
 	}
 
+	/**
+	 * This test was created in response to the 8.6 launch that caused performance issues due to looping.
+	 * For more context see p1HpG7-9pe-p2.
+	 *
+	 * @return void
+	 */
+	public function test_do_full_sync_returns_error_if_lock() {
+		$sender = $this->getMockBuilder( 'Automattic\Jetpack\Sync\Sender' )
+			->disableOriginalConstructor()
+			->setMethods( array( 'do_sync_and_set_delays' ) )
+			->getMock();
+
+		$sender
+			->expects( $this->once() )
+			->method( 'do_sync_and_set_delays' )
+			->willReturn( new \WP_Error( 'unclosed_buffer', 'There is an unclosed buffer' ) );
+
+		$result = $sender->do_full_sync();
+
+		$this->assertInstanceOf( 'WP_Error', $result );
+	}
+
 	function run_filter( $data ) {
 		$this->filter_ran = true;
 		return $data;
