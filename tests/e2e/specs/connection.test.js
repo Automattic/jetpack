@@ -67,10 +67,9 @@ describe( 'Connection', () => {
 			await ( await ThankYouPage.init( page ) ).waitForSetupAndProceed();
 			const myPlanPage = await MyPlanPage.init( page );
 			// NOTE: it is a workaround for a some sort of race condition in plan upgrade flow, when the new plan is associated to a different blogID.
-			await myPlanPage.reload( { waitFor: 'networkidle0' } );
-			await myPlanPage.reload( { waitFor: 'networkidle0' } );
-			await myPlanPage.reload( { waitFor: 'networkidle0' } );
-			await myPlanPage.reload( { waitFor: 'networkidle0' } );
+			// await myPlanPage.reload( { waitFor: 'networkidle0' } );
+			// await myPlanPage.reload( { waitFor: 'networkidle0' } );
+			// await myPlanPage.reload( { waitFor: 'networkidle0' } );
 
 			await myPlanPage.returnToWPAdmin();
 			await syncJetpackPlanData( 'personal', false );
@@ -79,6 +78,12 @@ describe( 'Connection', () => {
 		await step( 'Can assert that site has a Personal plan', async () => {
 			const jetpackPage = await JetpackPage.init( page );
 			expect( await jetpackPage.isPlan( 'personal' ) ).toBeTruthy();
+		} );
+
+		await step( 'Can re-login to WP admin', async () => {
+			await ( await Sidebar.init( page ) ).logout();
+			await loginToWpSite();
+			await ( await Sidebar.init( page ) ).selectJetpack();
 		} );
 
 		await step( 'Can visit plans page and select a Premium plan', async () => {

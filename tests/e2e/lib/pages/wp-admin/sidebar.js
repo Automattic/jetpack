@@ -49,4 +49,12 @@ export default class Sidebar extends Page {
 
 		return await waitAndClick( this.page, menuItemSelector );
 	}
+
+	async logout() {
+		const accountBarSelector = '#wp-admin-bar-my-account';
+		const logoutOptionSelector = '#wp-admin-bar-logout';
+		await waitForSelector( this.page, accountBarSelector );
+		await this.page.hover( accountBarSelector );
+		return await waitAndClick( this.page, logoutOptionSelector );
+	}
 }
