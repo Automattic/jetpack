@@ -70,6 +70,7 @@ describe( 'Connection', () => {
 			await myPlanPage.reload( { waitFor: 'networkidle0' } );
 			await myPlanPage.reload( { waitFor: 'networkidle0' } );
 			await myPlanPage.reload( { waitFor: 'networkidle0' } );
+			await myPlanPage.reload( { waitFor: 'networkidle0' } );
 
 			await myPlanPage.returnToWPAdmin();
 			await syncJetpackPlanData( 'personal', false );
