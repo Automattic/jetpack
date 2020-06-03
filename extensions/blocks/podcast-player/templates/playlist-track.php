@@ -34,7 +34,7 @@ if ( $is_active ) {
 >
 	<a
 		class="jetpack-podcast-player__track-link jetpack-podcast-player__link"
-		href="<?php echo esc_url( $attachment['link'] ); ?>"
+		href="<?php echo esc_url( empty( $attachment['link'] ) ? $attachment['src'] : $attachment['link'] ); ?>"
 		role="button"
 		<?php echo $is_active ? 'aria-current="track"' : ''; ?>
 	>
