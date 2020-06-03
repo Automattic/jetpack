@@ -104,12 +104,14 @@ class AssetsTest extends TestCase {
 	 * Test that get_file_url_for_environment returns a full URL when given a full URL
 	 *
 	 * @author jeherve
+	 * @dataProvider get_file_url_for_environment_full_urls_data_provider
+	 *
+	 * @param string $url Full URL we want to enqueue.
 	 */
-	public function test_get_file_url_for_environment_full_url() {
-		$path     = 'https://jetpack.com';
-		$file_url = Assets::get_file_url_for_environment( $path, $path );
+	public function test_get_file_url_for_environment_full_url( $url ) {
+		$file_url = Assets::get_file_url_for_environment( $url, $url );
 
-		$this->assertEquals( $path, $file_url );
+		$this->assertEquals( $url, $file_url );
 	}
 
 	/**
@@ -145,6 +147,16 @@ class AssetsTest extends TestCase {
 				'min_path',
 				'non_min_path',
 			),
+		);
+	}
+
+	/**
+	 * Possible values for test_get_file_url_for_environment.
+	 */
+	public function get_file_url_for_environment_full_urls_data_provider() {
+		return array(
+			'full_url'          => array( 'https://jetpack.com' ),
+			'protocol_relative' => array( '//jetpack.com' ),
 		);
 	}
 
