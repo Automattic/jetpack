@@ -66,7 +66,7 @@ class WPCOM_REST_API_V2_Endpoint_Tweetstorm_Gather extends WP_REST_Controller {
 	 * @return mixed
 	 */
 	public function gather_tweetstorm( $request ) {
-		return Jetpack_Gathering_Tweetstorm_Helper::gather( $request['url'] );
+		return Jetpack_Tweetstorm_Helper::gather( $request['url'] );
 	}
 }
 

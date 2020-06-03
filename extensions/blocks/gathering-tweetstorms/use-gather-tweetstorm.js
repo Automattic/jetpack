@@ -49,7 +49,7 @@ export default function useGatherTweetstorm( { url, noticeOperations, onReplace 
 		setIsGatheringStorm( true );
 
 		apiFetch( {
-			path: addQueryArgs( '/wpcom/v2/gather-tweetstorm', { url } ),
+			path: addQueryArgs( '/wpcom/v2/tweetstorm/gather', { url } ),
 		} )
 			.then( blockList => {
 				setIsGatheringStorm( false );
