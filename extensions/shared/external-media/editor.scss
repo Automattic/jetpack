@@ -358,6 +358,9 @@ $grid-size: 8px;
 }
 
 // Reset placeholder button margin.
-.components-placeholder__fieldset .components-dropdown .components-button {
-	margin-right: 8px;
+.components-placeholder__fieldset,
+.editor-post-featured-image {
+	.components-dropdown .components-button {
+		margin-right: 8px;
+	}
 }
