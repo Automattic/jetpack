@@ -1,6 +1,6 @@
 <?php
 /**
- * Gathering Tweetstorm block and API helper.
+ * Tweetstorm block and API helper.
  *
  * @package jetpack
  */
@@ -8,9 +8,9 @@
 use Automattic\Jetpack\Connection\Client;
 
 /**
- * Class Jetpack_Gathering_Tweetstorm_Helper
+ * Class Jetpack_Tweetstorm_Helper
  */
-class Jetpack_Gathering_Tweetstorm_Helper {
+class Jetpack_Tweetstorm_Helper {
 	/**
 	 * Gather the Tweetstorm.
 	 *
@@ -32,7 +32,7 @@ class Jetpack_Gathering_Tweetstorm_Helper {
 		}
 
 		$response = Client::wpcom_json_api_request_as_blog(
-			sprintf( '/sites/%d/gather-tweetstorm?url=%s', $site_id, rawurlencode( $url ) ),
+			sprintf( '/sites/%d/tweetstorm/gather?url=%s', $site_id, rawurlencode( $url ) ),
 			2,
 			array( 'headers' => array( 'content-type' => 'application/json' ) ),
 			null,

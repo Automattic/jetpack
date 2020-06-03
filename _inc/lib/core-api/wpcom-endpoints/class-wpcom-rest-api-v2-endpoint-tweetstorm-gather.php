@@ -13,13 +13,13 @@ use Automattic\Jetpack\Connection\Client;
  *
  * @since ...
  */
-class WPCOM_REST_API_V2_Endpoint_Gather_Tweetstorm extends WP_REST_Controller {
+class WPCOM_REST_API_V2_Endpoint_Tweetstorm_Gather extends WP_REST_Controller {
 	/**
 	 * Constructor.
 	 */
 	public function __construct() {
 		$this->namespace                    = 'wpcom/v2';
-		$this->rest_base                    = 'gather-tweetstorm';
+		$this->rest_base                    = 'tweetstorm/gather';
 		$this->wpcom_is_wpcom_only_endpoint = true;
 		$this->is_wpcom                     = false;
 
@@ -70,4 +70,4 @@ class WPCOM_REST_API_V2_Endpoint_Gather_Tweetstorm extends WP_REST_Controller {
 	}
 }
 
-wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Gather_Tweetstorm' );
+wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Tweetstorm_Gather' );
