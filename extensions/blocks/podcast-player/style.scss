@@ -280,7 +280,18 @@ $jetpack-podcast-player-error: $alert-red;
 		height: $current-track-title-icon-size;
 		margin-left: $gutter-s / 2;
 		vertical-align: top;
-		color: currentColor;
+
+		&,
+		&:active,
+		&:visited {
+			color: currentColor;
+		}
+
+		&:hover,
+		&:focus {
+			color: inherit;
+			color: var( --jetpack-podcast-player-secondary );
+		}
 
 		svg {
 			width: $current-track-title-icon-size;
