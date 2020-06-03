@@ -522,7 +522,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 			'progress' => array(),
 			'config'   => array(),
 		);
-		\Jetpack_Options::update_raw_option('jetpack_sync_full_status', $settings );
+		\Jetpack_Options::update_raw_option( 'jetpack_sync_full_status', $settings );
 
 		$result = $this->sender->do_full_sync();
 
@@ -546,7 +546,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 			'progress' => array(),
 			'config'   => array(),
 		);
-		\Jetpack_Options::update_raw_option('jetpack_sync_full_status', $settings );
+		\Jetpack_Options::update_raw_option( 'jetpack_sync_full_status', $settings );
 
 		// establish lock.
 		$this->assertTrue( ( new Lock() )->attempt( 'full_sync' ) );
