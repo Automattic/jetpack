@@ -104,30 +104,27 @@ const filterKeyToEsFilter = new Map( [
 ] );
 
 function buildFilterObject( filterQuery, adminQueryFilter ) {
-	if ( ! filterQuery && ! adminQueryFilter ) {
-		return {};
-	}
-	if ( ! filterQuery ) {
-		return adminQueryFilter;
-	}
-
 	const filter = { bool: { must: [] } };
-	getFilterKeys()
-		.filter( key => isLengthyArray( filterQuery[ key ] ) )
-		.forEach( key => {
-			filterQuery[ key ].forEach( item => {
-				if ( filterKeyToEsFilter.has( key ) ) {
-					filter.bool.must.push( filterKeyToEsFilter.get( key )( item ) );
-				} else {
-					// If key is not in the standard map, assume to be a custom taxonomy
-					filter.bool.must.push( { term: { [ `taxonomy.${ key }.slug` ]: item } } );
-				}
+
+	if ( filterQuery ) {
+		getFilterKeys()
+			.filter( key => isLengthyArray( filterQuery[ key ] ) )
+			.forEach( key => {
+				filterQuery[ key ].forEach( item => {
+					if ( filterKeyToEsFilter.has( key ) ) {
+						filter.bool.must.push( filterKeyToEsFilter.get( key )( item ) );
+					} else {
+						// If key is not in the standard map, assume to be a custom taxonomy
+						filter.bool.must.push( { term: { [ `taxonomy.${ key }.slug` ]: item } } );
+					}
+				} );
 			} );
-		} );
+	}
 
 	if ( adminQueryFilter ) {
 		filter.bool.must.push( adminQueryFilter );
 	}
+
 	return filter;
 }
 
