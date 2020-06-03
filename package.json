@@ -73,7 +73,7 @@
     "css-loader": "0.23.1",
     "del": "^2.2.0",
     "es6-promise": "3.0.2",
-    "eslint": "3.8.1",
+    "eslint": "4.18.2",
     "eslint-config-wpcalypso": "0.7.1",
     "eslint-loader": "^1.1.0",
     "eslint-plugin-jsx-a11y": "^4.0.0",
