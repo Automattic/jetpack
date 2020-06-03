@@ -3772,12 +3772,12 @@ p {
 				$response = $this->upload_handler( true );
 				break;
 			default:
-				$response = new Jetpack_Error( 'unknown_handler', 'Unknown Handler', 400 );
+				$response = new WP_Error( 'unknown_handler', 'Unknown Handler', 400 );
 				break;
 		}
 
 		if ( ! $response ) {
-			$response = new Jetpack_Error( 'unknown_error', 'Unknown Error', 400 );
+			$response = new WP_Error( 'unknown_error', 'Unknown Error', 400 );
 		}
 
 		if ( is_wp_error( $response ) ) {
@@ -3812,27 +3812,27 @@ p {
 	 */
 	function upload_handler( $update_media_item = false ) {
 		if ( 'POST' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) ) {
-			return new Jetpack_Error( 405, get_status_header_desc( 405 ), 405 );
+			return new WP_Error( 405, get_status_header_desc( 405 ), 405 );
 		}
 
 		$user = wp_authenticate( '', '' );
 		if ( ! $user || is_wp_error( $user ) ) {
-			return new Jetpack_Error( 403, get_status_header_desc( 403 ), 403 );
+			return new WP_Error( 403, get_status_header_desc( 403 ), 403 );
 		}
 
 		wp_set_current_user( $user->ID );
 
 		if ( ! current_user_can( 'upload_files' ) ) {
-			return new Jetpack_Error( 'cannot_upload_files', 'User does not have permission to upload files', 403 );
+			return new WP_Error( 'cannot_upload_files', 'User does not have permission to upload files', 403 );
 		}
 
 		if ( empty( $_FILES ) ) {
-			return new Jetpack_Error( 'no_files_uploaded', 'No files were uploaded: nothing to process', 400 );
+			return new WP_Error( 'no_files_uploaded', 'No files were uploaded: nothing to process', 400 );
 		}
 
 		foreach ( array_keys( $_FILES ) as $files_key ) {
 			if ( ! isset( $_POST[ "_jetpack_file_hmac_{$files_key}" ] ) ) {
-				return new Jetpack_Error( 'missing_hmac', 'An HMAC for one or more files is missing', 400 );
+				return new WP_Error( 'missing_hmac', 'An HMAC for one or more files is missing', 400 );
 			}
 		}
 
@@ -3840,7 +3840,7 @@ p {
 
 		$token = Jetpack_Data::get_access_token( get_current_user_id() );
 		if ( ! $token || is_wp_error( $token ) ) {
-			return new Jetpack_Error( 'unknown_token', 'Unknown Jetpack token', 403 );
+			return new WP_Error( 'unknown_token', 'Unknown Jetpack token', 403 );
 		}
 
 		$uploaded_files = array();
@@ -3871,7 +3871,7 @@ p {
 
 			if ( $update_media_item ) {
 				if ( ! isset( $post_id ) || $post_id === 0 ) {
-					return new Jetpack_Error( 'invalid_input', 'Media ID must be defined.', 400 );
+					return new WP_Error( 'invalid_input', 'Media ID must be defined.', 400 );
 				}
 
 				$media_array = $_FILES['media'];
