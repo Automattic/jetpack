@@ -950,7 +950,7 @@ class Manager {
 	 * @since 2.6
 	 *
 	 * @param Mixed $response the response object, or the error object.
-	 * @return string|WP_Error A JSON object on success or Jetpack_Error on failures
+	 * @return string|WP_Error A JSON object on success or WP_Error on failures
 	 **/
 	protected function validate_remote_register_response( $response ) {
 		if ( is_wp_error( $response ) ) {
