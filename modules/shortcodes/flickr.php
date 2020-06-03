@@ -159,7 +159,7 @@ function flickr_shortcode_handler( $atts ) {
 		$allow_full_screen = 'allowfullscreen webkitallowfullscreen mozallowfullscreen oallowfullscreen msallowfullscreen';
 
 		if ( Jetpack_AMP_Support::is_amp_request() ) {
-			$allow_full_screen = '';
+			$allow_full_screen = str_replace( ' oallowfullscreen msallowfullscreen', '', $allow_full_screen );
 		}
 
 		return sprintf( '<iframe src="%s" height="%s" width="%s"  frameborder="0" %s></iframe>', esc_url( $src ), $height, esc_attr( $atts['w'] ), $allow_full_screen );
