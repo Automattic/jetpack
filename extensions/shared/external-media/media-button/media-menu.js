@@ -13,6 +13,10 @@ function MediaButtonMenu( props ) {
 	const { mediaProps, open, setSelectedSource, isFeatured, isReplace } = props;
 	const originalComponent = mediaProps.render;
 
+	if ( isFeatured && mediaProps.value === undefined ) {
+		return originalComponent( { open } );
+	}
+
 	if ( isReplace ) {
 		return (
 			<MediaSources
@@ -36,9 +40,10 @@ function MediaButtonMenu( props ) {
 		open();
 	};
 
-	if ( isFeatured && mediaProps.value === undefined ) {
-		return originalComponent( { open } );
-	}
+	const label =
+		mediaProps.allowedTypes.length > 1
+			? __( 'Select Media', 'jetpack' )
+			: __( 'Select Image', 'jetpack' );
 
 	return (
 		<>
@@ -55,11 +60,11 @@ function MediaButtonMenu( props ) {
 						aria-expanded={ isOpen }
 						onClick={ onToggle }
 					>
-						{ __( 'Select Image', 'jetpack' ) }
+						{ label }
 					</Button>
 				) }
 				renderContent={ ( { onToggle } ) => (
-					<NavigableMenu aria-label={ __( 'Select Image', 'jetpack' ) }>
+					<NavigableMenu aria-label={ label }>
 						<MenuGroup>
 							<MenuItem icon="admin-media" onClick={ () => openLibrary( onToggle ) }>
 								{ __( 'Media Library', 'jetpack' ) }
