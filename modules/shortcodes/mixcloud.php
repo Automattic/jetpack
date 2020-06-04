@@ -79,6 +79,10 @@ function mixcloud_shortcode( $atts, $content = null ) {
 
 	$response_body = json_decode( $mixcloud_response['body'] );
 
-	return $response_body->html;
+	$html = $response_body->html;
+
+	$html = preg_replace( '/>/', '/sandbox="allow-popups allow-scripts allow-same-origin allow-presentation">/', $html, 1 );
+
+	return $html;
 }
 add_shortcode( 'mixcloud', 'mixcloud_shortcode' );
