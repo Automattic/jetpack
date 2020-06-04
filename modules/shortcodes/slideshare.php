@@ -92,12 +92,12 @@ function slideshare_shortcode( $atts ) {
 	}
 
 	// check the margin width; if not empty, cast as int.
-	if ( ! empty( $attr['mw'] ) || '0' === $attr['mw'] ) {
+	if ( ( ! empty( $attr['mw'] ) || '0' === $attr['mw'] ) && ! Jetpack_AMP_Support::is_amp_request() ) {
 		$player .= " marginwidth='" . intval( $attr['mw'] ) . "'";
 	}
 
 	// check the margin height, if not empty, cast as int.
-	if ( ! empty( $attr['mh'] ) || '0' === $attr['mh'] ) {
+	if ( ( ! empty( $attr['mh'] ) || '0' === $attr['mh'] ) && ! Jetpack_AMP_Support::is_amp_request() ) {
 		$player .= " marginheight='" . intval( $attr['mh'] ) . "'";
 	}
 
