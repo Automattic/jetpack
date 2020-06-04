@@ -15,7 +15,7 @@ const PreselectedSearchFilters = props => {
 	const preselectedFilters = getPreselectedFilters( props.widgets, props.widgetsOutsideOverlay );
 
 	return (
-		<div className="jetpack-instant-search__testing">
+		<div className="jetpack-instant-search__preselected-filters">
 			{ preselectedFilters.length > 0 && (
 				<SearchFilters
 					loading={ props.isLoading }
