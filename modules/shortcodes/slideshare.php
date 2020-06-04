@@ -114,7 +114,7 @@ function slideshare_shortcode( $atts ) {
 		}
 	}
 
-	$player .= ' allowfullscreen webkitallowfullscreen mozallowfullscreen></iframe>';
+	$player .= ' sandbox="allow-popups allow-scripts allow-same-origin allow-presentation" allowfullscreen webkitallowfullscreen mozallowfullscreen></iframe>';
 
 	/**
 	 * Filter the returned SlideShare shortcode.
