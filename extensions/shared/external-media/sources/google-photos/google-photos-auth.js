@@ -20,8 +20,7 @@ import AuthInstructions from './auth-instructions';
 import AuthProgress from './auth-progress';
 
 function GooglePhotosAuth( props ) {
-	const { getMedia } = props;
-
+	const { setAuthenticated } = props;
 	const [ isAuthing, setIsAuthing ] = useState( false );
 
 	const onAuthorize = useCallback( () => {
@@ -39,15 +38,14 @@ function GooglePhotosAuth( props ) {
 				// Open authorize URL in a window and let it play out
 				requestExternalAccess( service.connect_URL, () => {
 					setIsAuthing( false );
-					const url = getApiUrl( 'list', SOURCE_GOOGLE_PHOTOS );
-					getMedia( url, true );
+					setAuthenticated( true );
 				} );
 			} )
 			.catch( () => {
 				// Not much we can tell the user at this point so let them try and auth again
 				setIsAuthing( false );
 			} );
-	}, [ getMedia ] );
+	}, [ setAuthenticated ] );
 
 	return (
 		<div className="jetpack-external-media-auth">

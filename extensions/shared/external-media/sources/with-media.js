@@ -48,10 +48,12 @@ export default function withMedia() {
 					nextHandle: false,
 					isLoading: false,
 					isCopying: null,
-					requiresAuth: false,
+					isAuthenticated: true,
 					path: { ID: PATH_RECENT },
 				};
 			}
+
+			setAuthenticated = isAuthenticated => this.setState( { isAuthenticated } );
 
 			mergeMedia( initial, media ) {
 				return uniqBy( initial.concat( media ), 'ID' );
@@ -88,7 +90,7 @@ export default function withMedia() {
 
 			handleApiError = error => {
 				if ( error.code === 'authorization_required' ) {
-					this.setState( { requiresAuth: true, isLoading: false, isCopying: false } );
+					this.setState( { isAuthenticated: false, isLoading: false, isCopying: false } );
 					return;
 				}
 
@@ -121,7 +123,7 @@ export default function withMedia() {
 				const path = this.getRequestUrl( url );
 				const method = 'GET';
 
-				this.setState( { requiresAuth: false } );
+				this.setAuthenticated( true );
 
 				apiFetch( {
 					path,
@@ -174,7 +176,7 @@ export default function withMedia() {
 			}
 
 			renderContent() {
-				const { media, isLoading, nextHandle, requiresAuth, path } = this.state;
+				const { media, isLoading, nextHandle, isAuthenticated, path } = this.state;
 				const { noticeUI, allowedTypes, multiple = false } = this.props;
 
 				return (
@@ -189,7 +191,8 @@ export default function withMedia() {
 							media={ media }
 							pageHandle={ nextHandle }
 							allowedTypes={ allowedTypes }
-							requiresAuth={ requiresAuth }
+							isAuthenticated={ isAuthenticated }
+							setAuthenticated={ this.setAuthenticated }
 							multiple={ multiple }
 							path={ path }
 							onChangePath={ this.onChangePath }
