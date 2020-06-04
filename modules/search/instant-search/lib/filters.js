@@ -24,7 +24,10 @@ const FILTER_KEYS = Object.freeze( [
 
 export function getFilterKeys() {
 	// Extract taxonomy names from server widget data
-	const taxonomies = window[ SERVER_OBJECT_NAME ].widgets
+	const taxonomies = [
+		...window[ SERVER_OBJECT_NAME ].widgets,
+		...window[ SERVER_OBJECT_NAME ].widgetsOutsideOverlay,
+	]
 		.map( w => w.filters )
 		.filter( filters => Array.isArray( filters ) )
 		.reduce( ( filtersA, filtersB ) => filtersA.concat( filtersB ), [] )
