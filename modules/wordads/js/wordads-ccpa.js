@@ -80,7 +80,9 @@
 		wrapper.outerHTML =
 			'<div id="ccpa-loading" class="cleanslate ccpa__loading-wrapper">' +
 			'<div class="ccpa__loading-overlay">' +
-			'<span class="ccpa__loading-message">' + ccpaSettings.strings.pleaseWait + '...</span>' +
+			'<span class="ccpa__loading-message">' +
+			ccpaSettings.strings.pleaseWait +
+			'...</span>' +
 			'</div>' +
 			'</div>';
 	};
@@ -99,7 +101,11 @@
 		injectLoadingMessage();
 
 		var request = new XMLHttpRequest();
-		request.open( 'GET', ccpaSettings.ajaxUrl + '?action=privacy_optout_markup&security=' + ccpaSettings.ajaxNonce, true );
+		request.open(
+			'GET',
+			ccpaSettings.ajaxUrl + '?action=privacy_optout_markup&security=' + ccpaSettings.ajaxNonce,
+			true
+		);
 		request.onreadystatechange = function() {
 			if ( 4 === this.readyState ) {
 				if ( 200 === this.status ) {
@@ -181,7 +187,6 @@
 				e.preventDefault();
 
 				if ( ! ccpaSettings.stylesLoaded ) {
-
 					// Load wordads-ccpa.min.css
 					var ccpaCss = document.createElement( 'link' );
 					ccpaCss.rel = 'stylesheet';
@@ -203,12 +208,6 @@
 
 	// Initialization.
 	document.addEventListener( 'DOMContentLoaded', function() {
-		// Check for override.
-		if ( 'true' === ccpaSettings.forceApplies ) {
-			doNotSellCallback();
-			return;
-		}
-
 		// CCPA consent value storage.
 		var usprivacyCookie = cookieLib.getItem( 'usprivacy' );
 
@@ -254,6 +253,12 @@
 					setDefaultOptInCookie();
 				}
 			}
+		}
+
+		// Check for override for site admins.
+		if ( 'true' === ccpaSettings.forceApplies ) {
+			doNotSellCallback();
+			return;
 		}
 	} );
 } )();
