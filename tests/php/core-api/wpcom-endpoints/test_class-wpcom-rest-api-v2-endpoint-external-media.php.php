@@ -20,6 +20,20 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 	private static $user_id = 0;
 
 	/**
+	 * Name of test image.
+	 *
+	 * @var string
+	 */
+	private $image_name = 'example_image';
+
+	/**
+	 * Path to test image.
+	 *
+	 * @var string
+	 */
+	private $image_path = DIR_TESTDATA . '/images/test-image.jpg';
+
+	/**
 	 * Create shared database fixtures.
 	 *
 	 * @param WP_UnitTest_Factory $factory Fixture factory.
@@ -90,11 +104,26 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 	 * Tests list response with unauthenticated Google Photos.
 	 */
 	public function test_copy_image() {
-		$this->markTestSkipped(
-			'This test might not work if we cannot fake a remote image.'
-		);
 		add_filter( 'pre_http_request', array( $this, 'mock_image_data' ), 10, 3 );
-		$iptc_file = DIR_TESTDATA . '/images/test-image-iptc.jpg';
+
+		add_filter(
+			'wp_handle_sideload_prefilter',
+			function( $file ) {
+				copy( $this->image_path, $file['tmp_name'] );
+
+				return $file;
+			}
+		);
+		add_filter(
+			'wp_check_filetype_and_ext',
+			function() {
+				return array(
+					'ext'             => 'jpg',
+					'type'            => 'image/jpeg',
+					'proper_filename' => basename( $this->image_path ),
+				);
+			}
+		);
 
 		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/external-media/copy/pexels' );
 		$request->set_body_params(
@@ -103,8 +132,8 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 					array(
 						'guid' => wp_json_encode(
 							array(
-								'url'  => $iptc_file,
-								'name' => 'example_image',
+								'url'  => $this->image_path,
+								'name' => $this->image_name,
 							)
 						),
 					),
@@ -112,15 +141,23 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 			)
 		);
 		$response = $this->server->dispatch( $request );
-		$error    = $response->get_data();
-
-		$this->assertObjectHasAttribute( 'code', $error );
-		$this->assertObjectHasAttribute( 'message', $error );
-		$this->assertObjectHasAttribute( 'data', $error );
-		$this->assertEquals( 'authorization_required', $error->code );
-		$this->assertEquals( 403, $error->data->status );
-
+		$data     = $response->get_data()[0];
 		remove_filter( 'pre_http_request', array( $this, 'mock_image_data' ) );
+
+		$this->assertArrayHasKey( 'id', $data );
+		$this->assertArrayHasKey( 'caption', $data );
+		$this->assertArrayHasKey( 'alt', $data );
+		$this->assertArrayHasKey( 'type', $data );
+		$this->assertArrayHasKey( 'url', $data );
+		$this->assertEquals( 'image', $data['type'] );
+		$this->assertInternalType( 'int', $data['id'] );
+		$this->assertEmpty( $data['caption'] );
+		$this->assertEmpty( $data['alt'] );
+
+		$tmp_name = $this->get_temp_name( $this->image_path );
+		if ( file_exists( $tmp_name ) ) {
+			unlink( $tmp_name );
+		}
 	}
 
 	/**
@@ -210,7 +247,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 	 * @return array
 	 */
 	public function mock_image_data( $response, $args, $url ) {
-		$this->assertEquals( 'https://example.com/image.png', $url );
+		$this->assertEquals( $this->image_path, $url );
 
 		return array(
 			'headers'  => array(
@@ -247,5 +284,53 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 				'message' => 'OK',
 			),
 		);
+	}
+
+	/**
+	 * Re-creates a temporary file name so we can clean up after ourselves.
+	 *
+	 * @param string $filename File name.
+	 * @param string $dir      Temp directory. Dafault empty.
+	 *
+	 * @return string|string[]|null
+	 */
+	public function get_temp_name( $filename, $dir = '' ) {
+		if ( empty( $dir ) ) {
+			$dir = get_temp_dir();
+		}
+
+		if ( empty( $filename ) || in_array( $filename, array( '.', '/', '\\' ), true ) ) {
+			$filename = uniqid();
+		}
+
+		// Use the basename of the given file without the extension as the name for the temporary directory.
+		$temp_filename = basename( $filename );
+		$temp_filename = preg_replace( '|\.[^.]*$|', '', $temp_filename );
+
+		// If the folder is falsey, use its parent directory name instead.
+		if ( ! $temp_filename ) {
+			return wp_tempnam( dirname( $filename ), $dir );
+		}
+
+		// Suffix some random data to avoid filename conflicts.
+		$temp_filename .= '-' . wp_generate_password( 6, false );
+		$temp_filename .= '.tmp';
+
+		add_filter( 'wp_unique_filename', array( $this, 'get_file_name' ) );
+		$temp_filename = $dir . wp_unique_filename( $dir, $temp_filename );
+		remove_filter( 'wp_unique_filename', array( $this, 'get_file_name' ) );
+
+		return $temp_filename;
+	}
+
+	/**
+	 * Filter callback to provide a similar file name as in tested class.
+	 *
+	 * @see WPCOM_REST_API_V2_Endpoint_External_Media::tmp_name()
+	 *
+	 * @return string
+	 */
+	public function get_file_name() {
+		return $this->image_name;
 	}
 }
