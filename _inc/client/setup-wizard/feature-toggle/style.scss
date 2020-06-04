@@ -4,22 +4,24 @@
 
 .jp-setup-wizard-feature-toggle {
 	border: 1px solid #ccd0d4;
-	border-radius: 4px;
 
 	display: grid;
-
 	grid-template-rows: 100px;
 	grid-template-columns: 100px auto auto;
 
 	@include breakpoint( $greater-than-vertical-break ) {
+		border-radius: 4px;
+
 		&.jp-setup-wizard-fixed-right-column {
-			grid-template-columns: 100px auto 220px;
+			grid-template-columns: 100px auto 240px;
 		}
 	}
 
 	@include breakpoint( $less-than-vertical-break ) {
 		grid-template-rows: 65px auto auto;
 		grid-template-columns: 90px auto;
+
+		border-width: 1px 0;
 	}
 
 	.dops-button {
@@ -96,6 +98,8 @@
 	text-align: left;
 
 	@include breakpoint( $greater-than-vertical-break ) {
+		font-size: 15px;
+
 		span {
 			font-weight: bold;
 			margin-right: 0.5rem;
@@ -110,7 +114,7 @@
 .jp-setup-wizard-feature-toggle-button-container {
 	display: flex;
 	flex-direction: column;
-	align-items: center;
+	align-items: flex-end;
 	justify-content: center;
 
 	padding-right: 1rem;
