@@ -23,7 +23,7 @@ if ( ! isset( $title ) && empty( $track ) && ! isset( $track['title'] ) ) {
 ?>
 
 <h2 id="<?php echo esc_attr( $player_id ); ?>__title" class="jetpack-podcast-player__title">
-	<?php if ( ! empty( $track ) && isset( $track['title'] ) && isset( $track['link'] ) && isset( $track['src'] ) ) : ?>
+	<?php if ( isset( $track['title'], $track['link'], $track['src'] ) ) : ?>
 		<span
 			class="jetpack-podcast-player__current-track-title <?php echo esc_attr( $primary_colors['class'] ); ?>"
 			<?php echo isset( $primary_colors['style'] ) ? 'style="' . esc_attr( $primary_colors['style'] ) . '"' : ''; ?>
