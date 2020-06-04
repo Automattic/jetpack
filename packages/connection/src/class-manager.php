@@ -74,6 +74,13 @@ class Manager {
 	public static function configure() {
 		$manager = new self();
 
+		add_filter(
+			'jetpack_constant_default_value',
+			__NAMESPACE__ . '\Utils::jetpack_api_constant_filter',
+			10,
+			2
+		);
+
 		$manager->setup_xmlrpc_handlers(
 			$_GET, // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$manager->is_active(),
@@ -91,15 +98,7 @@ class Manager {
 			wp_schedule_event( time(), 'hourly', 'jetpack_clean_nonces' );
 		}
 
-		add_filter(
-			'jetpack_constant_default_value',
-			__NAMESPACE__ . '\Utils::jetpack_api_constant_filter',
-			10,
-			2
-		);
-
 		add_action( 'plugins_loaded', __NAMESPACE__ . '\Plugin_Storage::configure', 100 );
-
 	}
 
 	/**
