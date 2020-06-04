@@ -31,7 +31,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 	 *
 	 * @var string
 	 */
-	private $image_path = DIR_TESTDATA . '/images/test-image.jpg';
+	private static $image_path;
 
 	/**
 	 * Create shared database fixtures.
@@ -39,7 +39,8 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 	 * @param WP_UnitTest_Factory $factory Fixture factory.
 	 */
 	public static function wpSetUpBeforeClass( $factory ) {
-		self::$user_id = $factory->user->create( array( 'role' => 'administrator' ) );
+		static::$user_id    = $factory->user->create( array( 'role' => 'administrator' ) );
+		static::$image_path = dirname( dirname( __DIR__ ) ) . '/files/jetpack.jpg';
 	}
 
 	/**
@@ -48,7 +49,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 	public function setUp() {
 		parent::setUp();
 
-		wp_set_current_user( self::$user_id );
+		wp_set_current_user( static::$user_id );
 
 		add_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ) );
 	}
@@ -104,12 +105,17 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 	 * Tests list response with unauthenticated Google Photos.
 	 */
 	public function test_copy_image() {
+		$tmp_name = $this->get_temp_name( static::$image_path );
+		if ( file_exists( $tmp_name ) ) {
+			unlink( $tmp_name );
+		}
+
 		add_filter( 'pre_http_request', array( $this, 'mock_image_data' ), 10, 3 );
 
 		add_filter(
 			'wp_handle_sideload_prefilter',
 			function( $file ) {
-				copy( $this->image_path, $file['tmp_name'] );
+				copy( static::$image_path, $file['tmp_name'] );
 
 				return $file;
 			}
@@ -120,7 +126,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 				return array(
 					'ext'             => 'jpg',
 					'type'            => 'image/jpeg',
-					'proper_filename' => basename( $this->image_path ),
+					'proper_filename' => basename( static::$image_path ),
 				);
 			}
 		);
@@ -132,7 +138,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 					array(
 						'guid' => wp_json_encode(
 							array(
-								'url'  => $this->image_path,
+								'url'  => static::$image_path,
 								'name' => $this->image_name,
 							)
 						),
@@ -153,11 +159,6 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 		$this->assertInternalType( 'int', $data['id'] );
 		$this->assertEmpty( $data['caption'] );
 		$this->assertEmpty( $data['alt'] );
-
-		$tmp_name = $this->get_temp_name( $this->image_path );
-		if ( file_exists( $tmp_name ) ) {
-			unlink( $tmp_name );
-		}
 	}
 
 	/**
@@ -183,7 +184,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 	public function mock_jetpack_private_options() {
 		return array(
 			'user_tokens' => array(
-				self::$user_id => 'pretend_this_is_valid.secret.' . self::$user_id,
+				static::$user_id => 'pretend_this_is_valid.secret.' . static::$user_id,
 			),
 		);
 	}
@@ -247,7 +248,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 	 * @return array
 	 */
 	public function mock_image_data( $response, $args, $url ) {
-		$this->assertEquals( $this->image_path, $url );
+		$this->assertEquals( static::$image_path, $url );
 
 		return array(
 			'headers'  => array(
