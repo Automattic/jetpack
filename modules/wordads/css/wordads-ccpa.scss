@@ -1,5 +1,8 @@
 $z-index-max: 2147483647;
 
+/* Include Cleanslate */
+@import "cleanslate";
+
 body.admin-bar .cleanslate .components-modal__frame {
 	@media (max-width: 599px) {
 		top: 46px !important;

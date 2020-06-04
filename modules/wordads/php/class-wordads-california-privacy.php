@@ -42,8 +42,7 @@ class WordAds_California_Privacy {
 			'ccpaSettings',
 			array(
 				'defaultOptinCookieString' => esc_html( self::get_optin_cookie_string() ),
-				'cleanslateUrl'            => esc_url( WORDADS_URL . 'css/cleanslate.css' ),
-				'ccpaCssUrl'               => esc_url( WORDADS_URL . 'css/wordads-ccpa.min.css' ),
+				'ccpaCssUrl'               => esc_url( WORDADS_URL . 'css/wordads-ccpa.min.css?ver=' . JETPACK__VERSION ),
 				'ajaxUrl'                  => esc_url( admin_url( 'admin-ajax.php' ) ),
 				'ajaxNonce'                => wp_create_nonce( 'ccpa_optout' ),
 				'forceApplies'             => wp_json_encode( is_user_logged_in() && current_user_can( 'manage_options' ) ),

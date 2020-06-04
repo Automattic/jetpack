@@ -181,12 +181,6 @@
 				e.preventDefault();
 
 				if ( ! ccpaSettings.stylesLoaded ) {
-					// Load cleanslate.css
-					var cleanslate = document.createElement( 'link' );
-					cleanslate.rel = 'stylesheet';
-					cleanslate.type = 'text/css';
-					cleanslate.href = ccpaSettings.cleanslateUrl;
-					document.getElementsByTagName( 'HEAD' )[ 0 ].appendChild( cleanslate );
 
 					// Load wordads-ccpa.min.css
 					var ccpaCss = document.createElement( 'link' );
