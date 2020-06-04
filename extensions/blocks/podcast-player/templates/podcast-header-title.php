@@ -19,11 +19,9 @@ namespace Automattic\Jetpack\Extensions\Podcast_Player;
 
 if ( ! isset( $title ) && empty( $track ) && ! isset( $track['title'] ) ) {
 	return;
-} elseif ( isset( $track['link'] ) && ! empty( $track['link'] ) ) {
-	$track_link = $track['link'];
-} elseif ( isset( $track['src'] ) && ! empty( $track['src'] ) ) {
-	$track_link = $track['src'];
 }
+
+$track_link = empty( $track['link'] ) ? $track['src'] : $track['link'];
 
 ?>
 
