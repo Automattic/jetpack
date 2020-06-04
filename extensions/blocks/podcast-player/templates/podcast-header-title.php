@@ -25,8 +25,6 @@ $track_link = empty( $track['link'] ) ? $track['src'] : $track['link'];
 
 ?>
 
-
-
 <h2 id="<?php echo esc_attr( $player_id ); ?>__title" class="jetpack-podcast-player__title">
 	<?php if ( ! empty( $track ) && isset( $track['title'] ) ) : ?>
 		<span
