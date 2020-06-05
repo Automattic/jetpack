@@ -21,6 +21,7 @@ const isImageOnly = allowed => allowed && allowed.length === 1 && allowed[ 0 ] =
 function GooglePhotosMedia( props ) {
 	const {
 		media,
+		isCopying,
 		isLoading,
 		pageHandle,
 		multiple,
@@ -118,6 +119,7 @@ function GooglePhotosMedia( props ) {
 				className="jetpack-external-media-browser__google"
 				key={ listUrl }
 				media={ media }
+				isCopying={ isCopying }
 				isLoading={ isLoading }
 				nextPage={ getNextPage }
 				onCopy={ onCopy }
