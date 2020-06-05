@@ -294,6 +294,7 @@ $jetpack-podcast-player-error: $alert-red;
 		}
 
 		svg {
+			display: block;
 			width: $current-track-title-icon-size;
 			height: $current-track-title-icon-size;
 			fill: currentColor;
