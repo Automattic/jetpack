@@ -100,6 +100,21 @@ class Manager {
 
 		add_action( 'plugins_loaded', __NAMESPACE__ . '\Plugin_Storage::configure', 100 );
 
+		add_action( 'admin_notices', array( $manager, 'admin_notices' ) );
+
+	}
+
+	/**
+	 * Add notices to the Admin Notices section if there are known connection errors
+	 *
+	 * @return void
+	 */
+	public function admin_notices() {
+		$errors_manager = new Errors();
+		$errors         = $errors_manager->get_stored_errors();
+		if ( count( $errors ) ) {
+			// build the error message.
+		}
 	}
 
 	/**
@@ -371,7 +386,7 @@ class Manager {
 			empty( $token_key )
 		||
 			empty( $version ) || strval( $jetpack_api_version ) !== $version ) {
-			return new \WP_Error( 'malformed_token', 'Malformed token in request', compact( 'signature_details' ) );
+			return new Connection_Error( 'malformed_token', 'Malformed token in request', compact( 'signature_details' ) );
 		}
 
 		if ( '0' === $user_id ) {
@@ -380,7 +395,7 @@ class Manager {
 		} else {
 			$token_type = 'user';
 			if ( empty( $user_id ) || ! ctype_digit( $user_id ) ) {
-				return new \WP_Error(
+				return new Connection_Error(
 					'malformed_user_id',
 					'Malformed user_id in request',
 					compact( 'signature_details' )
@@ -390,7 +405,7 @@ class Manager {
 
 			$user = new \WP_User( $user_id );
 			if ( ! $user || ! $user->exists() ) {
-				return new \WP_Error(
+				return new Connection_Error(
 					'unknown_user',
 					sprintf( 'User %d does not exist', $user_id ),
 					compact( 'signature_details' )
@@ -403,7 +418,7 @@ class Manager {
 			$token->add_data( compact( 'signature_details' ) );
 			return $token;
 		} elseif ( ! $token ) {
-			return new \WP_Error(
+			return new Connection_Error(
 				'unknown_token',
 				sprintf( 'Token %s:%s:%d does not exist', $token_key, $version, $user_id ),
 				compact( 'signature_details' )
@@ -445,7 +460,7 @@ class Manager {
 		$signature_details['url'] = $jetpack_signature->current_request_url;
 
 		if ( ! $signature ) {
-			return new \WP_Error(
+			return new Connection_Error(
 				'could_not_sign',
 				'Unknown signature error',
 				compact( 'signature_details' )
@@ -461,7 +476,7 @@ class Manager {
 
 		// Use up the nonce regardless of whether the signature matches.
 		if ( ! $this->add_nonce( $timestamp, $nonce ) ) {
-			return new \WP_Error(
+			return new Connection_Error(
 				'invalid_nonce',
 				'Could not add nonce',
 				compact( 'signature_details' )
@@ -475,7 +490,7 @@ class Manager {
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! hash_equals( $signature, $_GET['signature'] ) ) {
-			return new \WP_Error(
+			return new Connection_Error(
 				'signature_mismatch',
 				'Signature mismatch',
 				compact( 'signature_details' )
