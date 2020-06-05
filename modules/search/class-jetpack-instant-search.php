@@ -134,7 +134,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			'homeUrl'               => home_url(),
 			'locale'                => str_replace( '_', '-', Jetpack_Search_Helpers::is_valid_locale( get_locale() ) ? get_locale() : 'en_US' ),
 			'postsPerPage'          => $posts_per_page,
-			'siteId'                => Jetpack::get_option( 'id' ),
+			'siteId'                => $this->jetpack_blog_id,
 
 			'postTypes'             => $post_type_labels,
 			'widgets'               => array_values( $widgets ),
