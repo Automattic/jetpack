@@ -1,3 +1,5 @@
 {
-	"baseDir": "docs/regression-checklist"
+	"tests_dir": "docs/regression-checklist/test-suites/",
+	"mapping_file": "docs/regression-checklist/mapping.json",
+	"tests_repo": "brbrr/jetpack"
 }
