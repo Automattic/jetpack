@@ -65,6 +65,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		$script_version = self::get_asset_version( $script_relative_path );
 		$script_path    = plugins_url( $script_relative_path, JETPACK__PLUGIN_FILE );
 		wp_enqueue_script( 'jetpack-instant-search', $script_path, array(), $script_version, true );
+		wp_set_script_translations( 'jetpack-instant-search', 'jetpack' );
 		$this->load_and_initialize_tracks();
 		$this->inject_javascript_options();
 
