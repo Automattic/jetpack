@@ -386,7 +386,7 @@ class Manager {
 			empty( $token_key )
 		||
 			empty( $version ) || strval( $jetpack_api_version ) !== $version ) {
-			return new Connection_Error( 'malformed_token', 'Malformed token in request', compact( 'signature_details' ) );
+			return new Connection_Error( 'malformed_token', compact( 'signature_details' ) );
 		}
 
 		if ( '0' === $user_id ) {
@@ -397,7 +397,6 @@ class Manager {
 			if ( empty( $user_id ) || ! ctype_digit( $user_id ) ) {
 				return new Connection_Error(
 					'malformed_user_id',
-					'Malformed user_id in request',
 					compact( 'signature_details' )
 				);
 			}
@@ -407,7 +406,6 @@ class Manager {
 			if ( ! $user || ! $user->exists() ) {
 				return new Connection_Error(
 					'unknown_user',
-					sprintf( 'User %d does not exist', $user_id ),
 					compact( 'signature_details' )
 				);
 			}
@@ -420,7 +418,6 @@ class Manager {
 		} elseif ( ! $token ) {
 			return new Connection_Error(
 				'unknown_token',
-				sprintf( 'Token %s:%s:%d does not exist', $token_key, $version, $user_id ),
 				compact( 'signature_details' )
 			);
 		}
@@ -462,7 +459,6 @@ class Manager {
 		if ( ! $signature ) {
 			return new Connection_Error(
 				'could_not_sign',
-				'Unknown signature error',
 				compact( 'signature_details' )
 			);
 		} elseif ( is_wp_error( $signature ) ) {
@@ -478,7 +474,6 @@ class Manager {
 		if ( ! $this->add_nonce( $timestamp, $nonce ) ) {
 			return new Connection_Error(
 				'invalid_nonce',
-				'Could not add nonce',
 				compact( 'signature_details' )
 			);
 		}
@@ -492,7 +487,6 @@ class Manager {
 		if ( ! hash_equals( $signature, $_GET['signature'] ) ) {
 			return new Connection_Error(
 				'signature_mismatch',
-				'Signature mismatch',
 				compact( 'signature_details' )
 			);
 		}
