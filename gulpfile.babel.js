@@ -211,6 +211,8 @@ gulp.task( 'languages:extract', function( done ) {
 			'_inc/client/**/*.jsx',
 			'_inc/blocks/*.js',
 			'_inc/blocks/**/*.js',
+			'modules/search/**/*.js',
+			'modules/search/**/*.jsx',
 		] )
 		.pipe(
 			tap( function( file ) {
