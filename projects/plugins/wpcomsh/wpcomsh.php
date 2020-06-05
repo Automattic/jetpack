@@ -2,13 +2,13 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 2.4.119
+ * Version: 2.4.120
  * Author: Automattic
  * Author URI: http://automattic.com/
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.4.119' );
+define( 'WPCOMSH_VERSION', '2.4.120' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -1043,3 +1043,36 @@ function wpcomsh_make_content_clickable($content) {
 
 add_filter( 'the_content', 'wpcomsh_make_content_clickable', 120 );
 add_filter( 'the_excerpt', 'wpcomsh_make_content_clickable', 120 );
+
+function wpcomsh_hide_scan_threats_from_transients( $response ) {
+	if ( ! empty( $response->threats ) ) {
+		$response->threats = [];
+	}
+	return $response;
+}
+add_filter( 'transient_jetpack_scan_state', 'wpcomsh_hide_scan_threats_from_transients' );
+
+function wpcom_hide_scan_threats_from_api( $response ) {
+	if (
+		! ( $response instanceof WP_REST_Response )
+		|| $response->get_matched_route() !== '/jetpack/v4/scan'
+	) {
+		return $response;
+	}
+	$response_data = $response->get_data();
+	if ( empty( $response_data['data'] ) ) {
+		return $response;
+	}
+
+	$json_body = json_decode( $response_data['data'], true );
+	if ( null === $json_body || empty( $json_body['threats'] ) ) {
+		return $response;
+	}
+
+	$json_body['threats'] = [];
+	$response_data['data'] = json_encode( $json_body );
+	$response->set_data( $response_data );
+
+	return $response;
+}
+add_filter( 'rest_post_dispatch', 'wpcom_hide_scan_threats_from_api' );
