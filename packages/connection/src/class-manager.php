@@ -519,8 +519,8 @@ class Manager {
 	 * @return bool
 	 */
 	public function is_registered() {
-		$has_blog_id    = ! ! \Jetpack_Options::get_option( 'id' );
-		$has_blog_token = ! ! $this->get_access_token( false );
+		$has_blog_id    = (bool) \Jetpack_Options::get_option( 'id' );
+		$has_blog_token = (bool) $this->get_access_token( false );
 		return $has_blog_id && $has_blog_token;
 	}
 
