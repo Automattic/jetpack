@@ -91,7 +91,9 @@ function slideshare_shortcode( $atts ) {
 		$player .= " frameborder='" . intval( $attr['fb'] ) . "'";
 	}
 
-	if ( class_exists( 'Jetpack_AMP_Support' ) && ! Jetpack_AMP_Support::is_amp_request() ) {
+	$is_amp = class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ? true : false;
+
+	if ( ! $is_amp ) {
 		// check the margin width; if not empty, cast as int.
 		if ( ( ! empty( $attr['mw'] ) || '0' === $attr['mw'] ) ) {
 			$player .= " marginwidth='" . intval( $attr['mw'] ) . "'";
