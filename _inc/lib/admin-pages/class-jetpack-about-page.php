@@ -70,6 +70,22 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 		// required for modal popup JS and styling.
 		wp_enqueue_style( 'thickbox' );
 		wp_enqueue_script( 'thickbox' );
+
+		$dependencies = $this->get_dependencies();
+		wp_enqueue_script(
+			'jetpack-wp',
+			plugins_url( 'dist/main.js', JETPACK__PLUGIN_FILE ),
+			$dependencies['dependencies'],
+			$dependencies['version'],
+			true
+		);
+	}
+
+	/**
+	 * Returns WordPress script depencency names to be added as a parameter for wp_enqueue_script.
+	 */
+	public function get_dependencies() {
+		return require_once dirname( dirname( dirname( dirname( __FILE__ ) ) ) ) . '/dist/main.asset.php';
 	}
 
 	/**
