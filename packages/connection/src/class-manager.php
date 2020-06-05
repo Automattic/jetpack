@@ -1338,7 +1338,7 @@ class Manager {
 		 * Fires upon the disconnect attempt.
 		 * Return `false` to prevent the disconnect.
 		 *
-		 * @since 8.6.0
+		 * @since 8.7.0
 		 */
 		if ( ! apply_filters( 'jetpack_connection_delete_all_tokens', true, $this ) ) {
 			return false;
@@ -1384,7 +1384,7 @@ class Manager {
 		 * Fires upon the disconnect attempt.
 		 * Return `false` to prevent the disconnect.
 		 *
-		 * @since 8.6.0
+		 * @since 8.7.0
 		 */
 		if ( ! apply_filters( 'jetpack_connection_disconnect_site_wpcom', true, $this ) ) {
 			return false;
@@ -2318,7 +2318,7 @@ class Manager {
 
 	/**
 	 * Get all connected plugins information, excluding those disconnected by user.
-	 * WARNING: the method cannot be called until Jetpack Config has been run (`plugins_loaded`, priority 2).
+	 * WARNING: the method cannot be called until Plugin_Storage::configure is called, which happens on plugins_loaded
 	 * Even if you don't use Jetpack Config, it may be introduced later by other plugins,
 	 * so please make sure not to run the method too early in the code.
 	 *
