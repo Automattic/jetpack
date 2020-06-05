@@ -19,26 +19,9 @@ import { __ } from '@wordpress/i18n';
 import { PATH_RECENT } from '../constants';
 import MediaItem from '../media-browser/media-item';
 
-const CopyingMedia = ( { items } ) => {
-	const classname =
-		items.length === 1
-			? 'jetpack-external-media-browser__single'
-			: 'jetpack-external-media-browser';
-
-	return (
-		<div className={ classname }>
-			<div className="jetpack-external-media-browser__media">
-				{ items.map( item => (
-					<MediaItem item={ item } key={ item.ID } isSelected isCopying />
-				) ) }
-			</div>
-		</div>
-	);
-};
-
 export default function withMedia() {
 	return createHigherOrderComponent( OriginalComponent => {
-		// Grandfathered class as it was ported from an older codebase.
+		// Legacy class as it was ported from an older codebase.
 		class WithMediaComponent extends Component {
 			constructor( props ) {
 				super( props );
@@ -175,35 +158,9 @@ export default function withMedia() {
 				event.stopPropagation();
 			}
 
-			renderContent() {
-				const { media, isLoading, nextHandle, isAuthenticated, path } = this.state;
-				const { noticeUI, allowedTypes, multiple = false } = this.props;
-
-				return (
-					// eslint-disable-next-line jsx-a11y/no-static-element-interactions
-					<div onMouseDown={ this.stopPropagation }>
-						{ noticeUI }
-
-						<OriginalComponent
-							getMedia={ this.getMedia }
-							copyMedia={ this.copyMedia }
-							isLoading={ isLoading }
-							media={ media }
-							pageHandle={ nextHandle }
-							allowedTypes={ allowedTypes }
-							isAuthenticated={ isAuthenticated }
-							setAuthenticated={ this.setAuthenticated }
-							multiple={ multiple }
-							path={ path }
-							onChangePath={ this.onChangePath }
-						/>
-					</div>
-				);
-			}
-
 			render() {
-				const { isCopying } = this.state;
-				const { onClose } = this.props;
+				const { isAuthenticated, isCopying, isLoading, media, nextHandle, path } = this.state;
+				const { allowedTypes, multiple = false, noticeUI, onClose } = this.props;
 
 				const classes = classnames( {
 					'jetpack-external-media-browser': true,
@@ -216,7 +173,25 @@ export default function withMedia() {
 						title={ isCopying ? __( 'Copying Media', 'jetpack' ) : __( 'Select Media', 'jetpack' ) }
 						className={ classes }
 					>
-						{ isCopying ? <CopyingMedia items={ isCopying } /> : this.renderContent() }
+						{ /* eslint-disable-next-line jsx-a11y/no-static-element-interactions */ }
+						<div onMouseDown={ this.stopPropagation }>
+							{ noticeUI }
+
+							<OriginalComponent
+								getMedia={ this.getMedia }
+								copyMedia={ this.copyMedia }
+								isCopying={ isCopying }
+								isLoading={ isLoading }
+								media={ media }
+								pageHandle={ nextHandle }
+								allowedTypes={ allowedTypes }
+								isAuthenticated={ isAuthenticated }
+								setAuthenticated={ this.setAuthenticated }
+								multiple={ multiple }
+								path={ path }
+								onChangePath={ this.onChangePath }
+							/>
+						</div>
 					</Modal>
 				);
 			}

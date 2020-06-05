@@ -15,7 +15,7 @@ import MediaBrowser from '../media-browser';
 import { getApiUrl } from './api';
 
 function PexelsMedia( props ) {
-	const { media, isLoading, pageHandle, multiple, copyMedia, getMedia } = props;
+	const { media, isCopying, isLoading, pageHandle, multiple, copyMedia, getMedia } = props;
 
 	const [ searchQuery, setSearchQuery ] = useState( sample( PEXELS_EXAMPLE_QUERIES ) );
 	const [ lastSearchQuery, setLastSearchQuery ] = useState( '' );
@@ -103,6 +103,7 @@ function PexelsMedia( props ) {
 				key={ lastSearchQuery }
 				className="jetpack-external-media-browser__pexels"
 				media={ media }
+				isCopying={ isCopying }
 				isLoading={ isLoading }
 				nextPage={ getNextPage }
 				onCopy={ onCopy }
