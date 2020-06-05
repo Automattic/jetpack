@@ -1,4 +1,4 @@
-/* global window,ml,jetpackMailerliteSettings */
+/* global ml,jetpackMailerliteSettings */
 
 ( function() {
 	window.ml_account = ml(
