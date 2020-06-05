@@ -40,10 +40,15 @@ function MediaButtonMenu( props ) {
 		open();
 	};
 
-	const label =
-		mediaProps.allowedTypes.length > 1
-			? __( 'Select Media', 'jetpack' )
-			: __( 'Select Image', 'jetpack' );
+	let label = __( 'Select Image', 'jetpack' );
+
+	if ( mediaProps.multiple ) {
+		label = __( 'Select Images', 'jetpack' );
+	}
+
+	if ( mediaProps.allowedTypes.length > 1 ) {
+		label = __( 'Select Media', 'jetpack' );
+	}
 
 	return (
 		<>
