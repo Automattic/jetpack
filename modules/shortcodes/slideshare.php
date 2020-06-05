@@ -91,14 +91,16 @@ function slideshare_shortcode( $atts ) {
 		$player .= " frameborder='" . intval( $attr['fb'] ) . "'";
 	}
 
-	// check the margin width; if not empty, cast as int.
-	if ( ( ! empty( $attr['mw'] ) || '0' === $attr['mw'] ) && ! Jetpack_AMP_Support::is_amp_request() ) {
-		$player .= " marginwidth='" . intval( $attr['mw'] ) . "'";
-	}
+	if ( class_exists( 'Jetpack_AMP_Support' ) && ! Jetpack_AMP_Support::is_amp_request() ) {
+		// check the margin width; if not empty, cast as int.
+		if ( ( ! empty( $attr['mw'] ) || '0' === $attr['mw'] ) ) {
+			$player .= " marginwidth='" . intval( $attr['mw'] ) . "'";
+		}
 
-	// check the margin height, if not empty, cast as int.
-	if ( ( ! empty( $attr['mh'] ) || '0' === $attr['mh'] ) && ! Jetpack_AMP_Support::is_amp_request() ) {
-		$player .= " marginheight='" . intval( $attr['mh'] ) . "'";
+		// check the margin height, if not empty, cast as int.
+		if ( ( ! empty( $attr['mh'] ) || '0' === $attr['mh'] ) ) {
+			$player .= " marginheight='" . intval( $attr['mh'] ) . "'";
+		}
 	}
 
 	if ( ! empty( $attr['style'] ) ) {
