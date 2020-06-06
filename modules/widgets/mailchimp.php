@@ -69,11 +69,85 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 		 *
 		 * @return array
 		 */
-		function update( $new_instance, $old_instance ) {
+		public function update( $new_instance, $old_instance ) {
 			$instance         = array();
 			$instance['code'] = MailChimp_Subscriber_Popup::reversal( $new_instance['code'] );
 
 			return $instance;
+		}
+
+		/**
+		 * Output the mailchimp form.
+		 *
+		 * @return void
+		 */
+		public function mailchimp_form() {
+			?>
+			<div class="mailchimp_form">
+				<div class="section">
+					<div class="section_toggler">
+						<span class="section_title"><?php echo esc_html__( 'Text Elements', 'jetpack' ); ?></span>
+					</div>
+					<div class="section_content">
+						<div class="field">
+							<label for="jetpack_mailchimp_email"><?php echo esc_html__( 'Email Placeholder', 'jetpack' ); ?></label>
+							<input type="text" placeholder="<?php echo esc_html__( 'Enter your email', 'jetpack' ); ?>" value="" id="jetpack_mailchimp_email">
+						</div>
+					</div>
+				</div>
+				<div class="section">
+					<div class="section_toggler">
+						<span class="section_title"><?php echo esc_html__( 'Notifications', 'jetpack' ); ?></span>
+					</div>
+					<div class="section_content">
+						<div class="field">
+							<label for="jetpack_mailchimp_processing_text"><?php echo esc_html__( 'Processing', 'jetpack' ); ?></label>
+							<input type="text" placeholder="<?php echo esc_html__( 'Processing', 'jetpack' ); ?>" value="" id="jetpack_mailchimp_processing_text">
+						</div>
+						<div class="field">
+							<label for="jetpack_mailchimp_success_text"><?php echo esc_html__( 'Success text', 'jetpack' ); ?></label>
+							<input type="text" placeholder="<?php echo esc_html__( 'Success! You\'re on the list.', 'jetpack' ); ?>" value="" id="jetpack_mailchimp_success_text">
+						</div>
+						<div class="field">
+							<label for="jetpack_mailchimp_error_text"><?php echo esc_html__( 'Error text', 'jetpack' ); ?></label>
+							<input type="text" placeholder="<?php echo esc_html__( 'Whoops! There was an error and we couldn\'t process your subscription. Please reload the page and try again.', 'jetpack' ); ?>" value="" id="jetpack_mailchimp_error_text">
+						</div>
+					</div>
+				</div>
+				<div class="section">
+					<div class="section_toggler">
+						<span class="section_title"><?php echo esc_html__( 'Mailchimp Groups', 'jetpack' ); ?></span>
+					</div>
+					<div class="section_content">
+						<a href=""><?php echo esc_html__( 'Learn about groups', 'jetpack' ); ?></a>
+					</div>
+				</div>
+				<div class="section">
+					<div class="section_toggler">
+						<span class="section_title"><?php echo esc_html__( 'Signup Location Tracking', 'jetpack' ); ?></span>
+					</div>
+					<div class="section_content">
+						<div class="field">
+							<label for="jetpack_mailchimp_signup_tag"><?php echo esc_html__( 'Signup Field Tag', 'jetpack' ); ?></label>
+							<input type="text" placeholder="<?php echo esc_html__( 'SIGNUP', 'jetpack' ); ?>" value="" id="jetpack_mailchimp_signup_tag">
+						</div>
+						<div class="field">
+							<label for="jetpack_mailchimp_signup_value"><?php echo esc_html__( 'Signup Field Value', 'jetpack' ); ?></label>
+							<input type="text" placeholder="<?php echo esc_html__( 'website', 'jetpack' ); ?>" value="" id="jetpack_mailchimp_signup_value">
+						</div>
+						<a href=""><?php echo esc_html__( 'Learn about signup location tracking(opens in a new tab)', 'jetpack' ); ?></a>
+					</div>
+				</div>
+				<div class="section">
+					<div class="section_toggler">
+						<span class="section_title"><?php echo esc_html__( 'Mailchimp Groups', 'jetpack' ); ?></span>
+					</div>
+					<div class="section_content">
+						<a href=""><?php echo esc_html__( 'Manage Connection', 'jetpack' ); ?></a>
+					</div>
+				</div>
+			</div>
+			<?php
 		}
 
 
@@ -84,8 +158,14 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 		 *
 		 * @return void
 		 */
-		function form( $instance ) {
+		public function form( $instance ) {
 			$instance = wp_parse_args( $instance, array( 'code' => '' ) );
+
+			if ( empty( $instance['code'] ) ) {
+				$this->mailchimp_form();
+				return;
+			}
+
 			?>
 
 			<p>
@@ -93,6 +173,9 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 					<?php printf( __( 'Code: <a href="%s" target="_blank">( ? )</a>', 'jetpack' ), 'https://en.support.wordpress.com/mailchimp/' ); ?>
 				</label>
 				<textarea class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'code' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'code' ) ); ?>" rows="3"><?php echo esc_textarea( $instance['code'] ); ?></textarea>
+			</p>
+			<p class="mailchimp_form_wrapper">
+				<?php $this->mailchimp_form(); ?>
 			</p>
 
 			<?php
