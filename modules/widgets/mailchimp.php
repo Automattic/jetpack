@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Assets;
+
 if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 
 	if ( ! class_exists( 'MailChimp_Subscriber_Popup' ) ) {
@@ -32,6 +34,8 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 					'customize_selective_refresh' => true,
 				)
 			);
+
+			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
 		}
 
 		/**
@@ -64,8 +68,8 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 		/**
 		 * Deals with the settings when they are saved by the admin.
 		 *
-		 * @param array $new_instance New configuration values
-		 * @param array $old_instance Old configuration values
+		 * @param array $new_instance New configuration values.
+		 * @param array $old_instance Old configuration values.
 		 *
 		 * @return array
 		 */
@@ -148,6 +152,28 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 				</div>
 			</div>
 			<?php
+		}
+
+		/**
+		 * Add the scripts for the widget.
+		 *
+		 * @return void
+		 */
+		public function enqueue_admin_scripts() {
+			global $pagenow;
+
+			if ( 'widgets.php' === $pagenow ) {
+				wp_enqueue_script(
+					'mailchimp-admin',
+					Assets::get_file_url_for_environment(
+						'_inc/build/widgets/mailchimp/js/admin.min.js',
+						'modules/widgets/mailchimp/js/admin.js'
+					),
+					array(),
+					'20200607',
+					true
+				);
+			}
 		}
 
 
