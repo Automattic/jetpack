@@ -21,23 +21,22 @@ const Playlist = memo( ( { playerId, tracks, selectTrack, currentTrack, playerSt
 			aria-labelledby={ `jetpack-podcast-player__tracklist-title--${ playerId }` }
 			aria-describedby={ `jetpack-podcast-player__tracklist-description--${ playerId }` }
 		>
-			{ tracks?.length > 1 &&
-				tracks.map( ( track, index ) => {
-					const isActive = currentTrack === index;
+			{ tracks.map( ( track, index ) => {
+				const isActive = currentTrack === index;
 
-					return (
-						<Track
-							key={ track.id }
-							index={ index }
-							track={ track }
-							selectTrack={ selectTrack }
-							isActive={ isActive }
-							isPlaying={ isActive && playerState === STATE_PLAYING }
-							isError={ isActive && playerState === STATE_ERROR }
-							colors={ colors }
-						/>
-					);
-				} ) }
+				return (
+					<Track
+						key={ track.id }
+						index={ index }
+						track={ track }
+						selectTrack={ selectTrack }
+						isActive={ isActive }
+						isPlaying={ isActive && playerState === STATE_PLAYING }
+						isError={ isActive && playerState === STATE_ERROR }
+						colors={ colors }
+					/>
+				);
+			} ) }
 		</ol>
 	);
 } );
