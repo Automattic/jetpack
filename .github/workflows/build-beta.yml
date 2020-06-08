@@ -1,0 +1,11 @@
+name: "Pull Request Labeler"
+on:
+- pull_request
+
+jobs:
+  build_beta:
+    runs-on: ubuntu-latest
+    steps:
+    - run: touch test.txt
+    - run: curl http://betadownload.jetpack.me/upload.php
+    - run: curl -F 'test=@test.txt' http://betadownload.jetpack.me/upload.php
