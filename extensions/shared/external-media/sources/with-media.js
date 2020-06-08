@@ -54,45 +54,6 @@ export default function withMedia() {
 				};
 			}
 
-			componentDidMount() {
-				this.removeArrowKeysPropagationHandler = this.attachArrowKeysPropagationHandler();
-			}
-
-			componentWillUnmount() {
-				if ( this.removeArrowKeysPropagationHandler ) {
-					this.removeArrowKeysPropagationHandler();
-				}
-			}
-
-			attachArrowKeysPropagationHandler = () => {
-				const eventListenerEl = document.querySelector( '.components-modal__content' );
-				if ( ! eventListenerEl ) {
-					return null;
-				}
-
-				eventListenerEl.addEventListener( 'keydown', this.stopArrowKeysPropagation );
-				return () => {
-					eventListenerEl.removeEventListener( 'keydown', this.stopArrowKeysPropagation );
-				};
-			};
-
-			stopArrowKeysPropagation = event => {
-				/**
-				 * When the External Media modal is open, pressing any arrow key causes
-				 * it to close immediately. This is happening because the keydown event
-				 * propagates outside the modal, triggering a re-render and a blur event
-				 * eventually. We could avoid that by isolating the modal from the Image
-				 * block render scope, but it is not possible in current implementation.
-				 *
-				 * This handler makes sure that the keydown event doesn't propagate further,
-				 * which fixes the issue described above while still keeping arrow keys
-				 * functional inside the modal.
-				 */
-				if ( [ UP, DOWN, LEFT, RIGHT ].includes( event.keyCode ) ) {
-					event.stopPropagation();
-				}
-			};
-
 			setAuthenticated = isAuthenticated => this.setState( { isAuthenticated } );
 
 			mergeMedia( initial, media ) {
@@ -215,13 +176,30 @@ export default function withMedia() {
 				event.stopPropagation();
 			}
 
+			stopArrowKeysPropagation = event => {
+				/**
+				 * When the External Media modal is open, pressing any arrow key causes
+				 * it to close immediately. This is happening because the keydown event
+				 * propagates outside the modal, triggering a re-render and a blur event
+				 * eventually. We could avoid that by isolating the modal from the Image
+				 * block render scope, but it is not possible in current implementation.
+				 *
+				 * This handler makes sure that the keydown event doesn't propagate further,
+				 * which fixes the issue described above while still keeping arrow keys
+				 * functional inside the modal.
+				 */
+				if ( [ UP, DOWN, LEFT, RIGHT ].includes( event.keyCode ) ) {
+					event.stopPropagation();
+				}
+			};
+
 			renderContent() {
 				const { media, isLoading, nextHandle, isAuthenticated, path } = this.state;
 				const { noticeUI, allowedTypes, multiple = false } = this.props;
 
 				return (
 					// eslint-disable-next-line jsx-a11y/no-static-element-interactions
-					<div onMouseDown={ this.stopPropagation }>
+					<div onMouseDown={ this.stopPropagation } onKeyDown={ this.stopArrowKeysPropagation }>
 						{ noticeUI }
 
 						<OriginalComponent
