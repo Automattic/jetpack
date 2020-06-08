@@ -42,8 +42,10 @@ $grid-size: 8px;
 	pointer-events: none;
 }
 
-@media ( min-width: 600px ) {
-	.components-modal__content {
+.components-modal__content {
+	width: 100%;
+
+	@media ( min-width: 600px ) {
 		width: 90vw;
 		height: 90vh;
 	}
