@@ -10,6 +10,11 @@ import { createHigherOrderComponent } from '@wordpress/compose';
 import { Fragment } from '@wordpress/element';
 import { useBlockEditContext } from '@wordpress/block-editor';
 
+/**
+ * Module Constants
+ */
+const ALLOWED_MEDIA_TYPES = [ 'image' ];
+
 export default createHigherOrderComponent(
 	CoreMediaPlaceholder => props => {
 		const { name } = useBlockEditContext();
@@ -19,7 +24,10 @@ export default createHigherOrderComponent(
 
 		return (
 			<Fragment>
-				<CoreMediaPlaceholder { ...props } />
+				<CoreMediaPlaceholder
+					{ ...props }
+					allowedTypes={ ALLOWED_MEDIA_TYPES }
+				/>
 			</Fragment>
 		);
 	},
