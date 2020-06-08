@@ -157,7 +157,7 @@
 						'" width="' +
 						post.img.width +
 						'" alt="' +
-						post.title +
+						post.img.alt_text +
 						'" />' +
 						anchor[ 1 ];
 				} else {
