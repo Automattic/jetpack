@@ -11,7 +11,8 @@ import apiFetch from '@wordpress/api-fetch';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { Component } from '@wordpress/element';
 import { withNotices, Modal } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
+import { speak } from '@wordpress/a11y';
 
 /**
  * Internal dependencies
@@ -125,6 +126,18 @@ export default function withMedia() {
 			copyMedia = ( items, apiUrl ) => {
 				this.setState( { isCopying: items } );
 				this.props.noticeOperations.removeAllNotices();
+
+				// Announce the action with appended string of all the images' alt text.
+				speak(
+					sprintf(
+						__( 'Inserting: %s', 'jetpack' ),
+						items
+							.map( item => item.title )
+							.filter( item => item )
+							.join( ', ' )
+					),
+					'polite'
+				);
 
 				apiFetch( {
 					path: apiUrl,
