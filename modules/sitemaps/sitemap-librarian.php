@@ -11,7 +11,7 @@
  */
 
 /* Ensure sitemap constants are available. */
-require_once dirname( __FILE__ ) . '/sitemap-constants.php';
+require_once __DIR__ . '/sitemap-constants.php';
 
 /**
  * This object handles any database interaction required
