@@ -187,6 +187,9 @@ export default function withMedia() {
 				 * This handler makes sure that the keydown event doesn't propagate further,
 				 * which fixes the issue described above while still keeping arrow keys
 				 * functional inside the modal.
+				 *
+				 * This can be removed once
+				 * https://github.com/WordPress/gutenberg/issues/22940 is fixed.
 				 */
 				if ( [ UP, DOWN, LEFT, RIGHT ].includes( event.keyCode ) ) {
 					event.stopPropagation();
