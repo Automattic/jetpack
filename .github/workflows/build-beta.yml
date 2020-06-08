@@ -16,3 +16,12 @@ jobs:
         name: test
         path: test.txt
     - run: curl -L https://api.github.com/repos/automattic/jetpack/actions/runs/$GITHUB_RUN_ID/artifacts
+    - uses: octokit/request-action@v2.x
+      id: get_latest_release
+      with:
+        route: GET /repos/:repository/actions/:run_id/artifacts
+        repository: ${{ github.repository }}
+        run_ud: $GITHUB_RUN_ID
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - run: "echo latest release: ${{ steps.get_latest_release.outputs.data }}"
