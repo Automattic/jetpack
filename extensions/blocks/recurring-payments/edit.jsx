@@ -78,7 +78,7 @@ class MembershipsButtonEdit extends Component {
 			editedProductPriceValid: true,
 			editedProductTitle: '',
 			editedProductTitleValid: true,
-			editedProductRenewInterval: '1 month',
+			editedProductRenewInterval: 'one-time',
 		};
 		this.timeout = null;
 
@@ -248,7 +248,7 @@ class MembershipsButtonEdit extends Component {
 					isLarge
 					onClick={ () => this.setState( { addingMembershipAmount: PRODUCT_FORM } ) }
 				>
-					{ __( 'Add a plan', 'jetpack' ) }
+					{ __( 'Add a payment plan', 'jetpack' ) }
 				</Button>
 			);
 		}
@@ -310,6 +310,10 @@ class MembershipsButtonEdit extends Component {
 							label: __( 'Yearly', 'jetpack' ),
 							value: '1 year',
 						},
+						{
+							label: __( 'One-Time Payment', 'jetpack' ),
+							value: 'one-time',
+						},
 					] }
 					value={ this.state.editedProductRenewInterval }
 				/>
@@ -320,7 +324,7 @@ class MembershipsButtonEdit extends Component {
 						className="membership-button__field-button membership-button__add-amount"
 						onClick={ this.saveProduct }
 					>
-						{ __( 'Add this plan', 'jetpack' ) }
+						{ __( 'Add this payment plan', 'jetpack' ) }
 					</Button>
 					<Button
 						isLarge
@@ -375,7 +379,7 @@ class MembershipsButtonEdit extends Component {
 		return (
 			<div className="membership-button__disclaimer">
 				<ExternalLink href="https://en.support.wordpress.com/recurring-payments-button/#related-fees">
-					{ __( 'Read more about Recurring Payments and related fees.', 'jetpack' ) }
+					{ __( 'Read more about Payments and related fees.', 'jetpack' ) }
 				</ExternalLink>
 			</div>
 		);
@@ -417,7 +421,7 @@ class MembershipsButtonEdit extends Component {
 
 		const inspectorControls = (
 			<InspectorControls>
-				<PanelBody title={ __( 'Product', 'jetpack' ) }>
+				<PanelBody title={ __( 'Payment plan', 'jetpack' ) }>
 					<SelectControl
 						label={ __( 'Payment plan', 'jetpack' ) }
 						value={ this.props.attributes.planId }
@@ -431,7 +435,7 @@ class MembershipsButtonEdit extends Component {
 				</PanelBody>
 				<PanelBody title={ __( 'Management', 'jetpack' ) }>
 					<ExternalLink href={ `https://wordpress.com/earn/payments/${ this.state.siteSlug }` }>
-						{ __( 'See your earnings, subscriber list, and products.', 'jetpack' ) }
+						{ __( 'See your earnings, subscriber list, and payment plans.', 'jetpack' ) }
 					</ExternalLink>
 				</PanelBody>
 			</InspectorControls>
@@ -449,10 +453,10 @@ class MembershipsButtonEdit extends Component {
 					<div className="wp-block-jetpack-recurring-payments">
 						<Placeholder
 							icon={ <BlockIcon icon={ icon } /> }
-							label={ __( 'Recurring Payments', 'jetpack' ) }
+							label={ __( 'Payments', 'jetpack' ) }
 							notices={ notices }
 							instructions={ __(
-								"You'll need to upgrade your plan to use the Recurring Payments button.",
+								"You'll need to upgrade your plan to use the Payments block.",
 								'jetpack'
 							) }
 						>
@@ -477,7 +481,7 @@ class MembershipsButtonEdit extends Component {
 						<div className="wp-block-jetpack-recurring-payments">
 							<Placeholder
 								icon={ <BlockIcon icon={ icon } /> }
-								label={ __( 'Recurring Payments', 'jetpack' ) }
+								label={ __( 'Payments', 'jetpack' ) }
 								notices={ notices }
 							>
 								<div className="components-placeholder__instructions">
@@ -498,7 +502,7 @@ class MembershipsButtonEdit extends Component {
 						<div className="wp-block-jetpack-recurring-payments">
 							<Placeholder
 								icon={ <BlockIcon icon={ icon } /> }
-								label={ __( 'Recurring Payments', 'jetpack' ) }
+								label={ __( 'Payments', 'jetpack' ) }
 								notices={ notices }
 							>
 								<div className="components-placeholder__instructions">
