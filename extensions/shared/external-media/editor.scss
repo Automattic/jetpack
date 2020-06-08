@@ -21,7 +21,7 @@ $grid-size: 8px;
  * Media item container
  */
 
-.jetpack-external-media-browser:not( .jetpack-external-media-browser__is-copying ) {
+.jetpack-external-media-browser:not( .jetpack-external-media-browser--is-copying ) {
 	.is-error {
 		margin-bottom: 1em;
 		margin-left: 0;
@@ -38,7 +38,7 @@ $grid-size: 8px;
 	}
 }
 
-.jetpack-external-media-browser__is-copying {
+.jetpack-external-media-browser--is-copying {
 	pointer-events: none;
 }
 
