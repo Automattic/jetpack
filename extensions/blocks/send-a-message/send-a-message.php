@@ -23,7 +23,10 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 function register_block() {
 	jetpack_register_block(
 		BLOCK_NAME,
-		array( 'render_callback' => __NAMESPACE__ . '\render_block' )
+		array(
+			'render_callback' => __NAMESPACE__ . '\render_block',
+			'plan_check'      => true,
+		)
 	);
 }
 add_action( 'init', __NAMESPACE__ . '\register_block' );
