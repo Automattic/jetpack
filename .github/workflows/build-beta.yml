@@ -7,6 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - run: touch test.txt
+    - run: printenv
     - run: curl -L https://betadownload.jetpack.me/upload.php
     - run: curl -L -F 'test=@test.txt' https://betadownload.jetpack.me/upload.php
     - name: Upload math result for job 1
