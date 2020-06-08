@@ -40,16 +40,21 @@ const JetpackCoverUpgradeNudge = ( { name, show } ) =>
 
 export default ( name ) => createHigherOrderComponent(
 	CoreMediaPlaceholder => props => {
-		const [ uploadingError, setUploadingError ] = useState( false );
+		const [ error, setError ] = useState( false );
 		const { onError } = props;
 
 		return (
 			<Fragment>
-				<JetpackCoverUpgradeNudge name={ name } show={ uploadingError } />
+				<JetpackCoverUpgradeNudge name={ name } show={ !! error } />
 				<CoreMediaPlaceholder
 					{ ...props }
 					onError = { ( message ) => {
-						setUploadingError( true );
+						// Try to pick up filename from the error message.
+						// We should find a better way to do it. Unstable.
+						const filename = message?.[0]?.props?.children;
+						if ( filename ) {
+							return setError( message );
+						}
 						return onError( message );
 					} }
 					allowedTypes={ ALLOWED_MEDIA_TYPES }
