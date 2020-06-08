@@ -38,6 +38,10 @@ $grid-size: 8px;
 	}
 }
 
+.jetpack-external-media-browser__is-copying {
+	pointer-events: none;
+}
+
 @media ( min-width: 600px ) {
 	.components-modal__content {
 		width: 90vw;
