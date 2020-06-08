@@ -26,36 +26,37 @@ new WPCOM_JSON_API_GET_Site_Endpoint( array(
 class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 	public static $site_format = array(
-		'ID'                => '(int) Site ID',
-		'name'              => '(string) Title of site',
-		'description'       => '(string) Tagline or description of site',
-		'URL'               => '(string) Full URL to the site',
-		'user_can_manage'   => '(bool) The current user can manage this site', // deprecated
-		'capabilities'      => '(array) Array of capabilities for the current user on this site.',
-		'jetpack'           => '(bool)  Whether the site is a Jetpack site or not',
-		'is_multisite'      => '(bool) Whether the site is a Multisite site or not. Always true for WP.com sites.',
-		'post_count'        => '(int) The number of posts the site has',
-		'subscribers_count' => '(int) The number of subscribers the site has',
-		'lang'              => '(string) Primary language code of the site',
-		'icon'              => '(array) An array of icon formats for the site',
-		'logo'              => '(array) The site logo, set in the Customizer',
-		'visible'           => '(bool) If this site is visible in the user\'s site list',
-		'is_private'        => '(bool) If the site is a private site or not',
-		'is_coming_soon'    => '(bool) If the site is marked as "coming soon" or not',
-		'single_user_site'  => '(bool) Whether the site is single user. Only returned for WP.com sites and for Jetpack sites with version 3.4 or higher.',
-		'is_vip'            => '(bool) If the site is a VIP site or not.',
-		'is_following'      => '(bool) If the current user is subscribed to this site in the reader',
-		'options'           => '(array) An array of options/settings for the blog. Only viewable by users with post editing rights to the site. Note: Post formats is deprecated, please see /sites/$id/post-formats/',
-		'plan'              => '(array) Details of the current plan for this site.',
-		'updates'           => '(array) An array of available updates for plugins, themes, wordpress, and languages.',
-		'jetpack_modules'   => '(array) A list of active Jetpack modules.',
-		'meta'              => '(object) Meta data',
-		'quota'             => '(array) An array describing how much space a user has left for uploads',
-		'launch_status'     => '(string) A string describing the launch status of a site',
-		'site_migration'    => '(array) Data about any migration into the site.',
-		'is_fse_active'     => '(bool) If the site has Full Site Editing active or not.',
-		'is_fse_eligible'   => '(bool) If the site is capable of Full Site Editing or not',
-		'is_core_site_editor_enabled'	=> '(bool) If the site has the core site editor enabled.',
+		'ID'                          => '(int) Site ID',
+		'name'                        => '(string) Title of site',
+		'description'                 => '(string) Tagline or description of site',
+		'URL'                         => '(string) Full URL to the site',
+		'user_can_manage'             => '(bool) The current user can manage this site', // deprecated.
+		'capabilities'                => '(array) Array of capabilities for the current user on this site.',
+		'jetpack'                     => '(bool)  Whether the site is a Jetpack site or not',
+		'is_multisite'                => '(bool) Whether the site is a Multisite site or not. Always true for WP.com sites.',
+		'post_count'                  => '(int) The number of posts the site has',
+		'subscribers_count'           => '(int) The number of subscribers the site has',
+		'lang'                        => '(string) Primary language code of the site',
+		'icon'                        => '(array) An array of icon formats for the site',
+		'logo'                        => '(array) The site logo, set in the Customizer',
+		'visible'                     => '(bool) If this site is visible in the user\'s site list',
+		'is_private'                  => '(bool) If the site is a private site or not',
+		'is_coming_soon'              => '(bool) If the site is marked as "coming soon" or not',
+		'single_user_site'            => '(bool) Whether the site is single user. Only returned for WP.com sites and for Jetpack sites with version 3.4 or higher.',
+		'is_vip'                      => '(bool) If the site is a VIP site or not.',
+		'is_following'                => '(bool) If the current user is subscribed to this site in the reader',
+		'options'                     => '(array) An array of options/settings for the blog. Only viewable by users with post editing rights to the site. Note: Post formats is deprecated, please see /sites/$id/post-formats/',
+		'plan'                        => '(array) Details of the current plan for this site.',
+		'updates'                     => '(array) An array of available updates for plugins, themes, wordpress, and languages.',
+		'jetpack_modules'             => '(array) A list of active Jetpack modules.',
+		'meta'                        => '(object) Meta data',
+		'quota'                       => '(array) An array describing how much space a user has left for uploads',
+		'launch_status'               => '(string) A string describing the launch status of a site',
+		'site_migration'              => '(array) Data about any migration into the site.',
+		'is_fse_active'               => '(bool) If the site has Full Site Editing active or not.',
+		'is_fse_eligible'             => '(bool) If the site is capable of Full Site Editing or not',
+		'is_core_site_editor_enabled' => '(bool) If the site has the core site editor enabled.',
+		'is_white_glove'              => '(bool) If the product being purchased is coming from the white glove offer, check pau2Xa-13X-p2',
 	);
 
 	protected static $no_member_fields = array(
@@ -406,6 +407,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				break;
 			case 'is_core_site_editor_enabled':
 				$response[ $key ] = $this->site->is_core_site_editor_enabled();
+				break;
+			case 'is_white_glove':
+				$response[ $key ] = $this->site->is_white_glove();
 				break;
 		}
 
