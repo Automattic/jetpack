@@ -72,7 +72,7 @@ class Jetpack_Options {
 					'mailchimp',                   // (string) Mailchimp keyring data, for mailchimp block.
 					'xmlrpc_errors',               // (array) Keys are XML-RPC signature error codes. Values are truthy.
 					'dismissed_wizard_banner',     // (int) True if the Wizard banner has been dismissed.
-					'connection_plugins_disabled', // (array)  Set of plugin slugs that aren't allowed to use `jetpack-connection` upon user request.
+					'connection_disabled_plugins', // (array)  Set of plugin slugs that aren't allowed to use `jetpack-connection` upon user request.
 				);
 
 			case 'private':

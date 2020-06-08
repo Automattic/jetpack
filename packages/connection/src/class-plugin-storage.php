@@ -22,7 +22,7 @@ class Plugin_Storage {
 
 	const ACTIVE_PLUGINS_OPTION_NAME = 'jetpack_connection_active_plugins';
 
-	const PLUGINS_DISABLED_OPTION_NAME = 'connection_plugins_disabled';
+	const PLUGINS_DISABLED_OPTION_NAME = 'connection_disabled_plugins';
 
 	/**
 	 * Whether this class was configured for the first time or not.

@@ -112,16 +112,34 @@ function your_plugin_disconnect_site() {
 	$manager = new Manager( 'plugin-slug' );
 
 	// Mark the plugin connection as disabled.
-	$manager->disable_plugin();
-
-	// If no other plugins use the connection, this will destroy the blog tokens on both this site, and the tokens stored on wordpress.com
-	$manager->disconnect_site_wpcom();
-
-	// If no other plugins use the connection, this will clear all the tokens!
-	$manager->delete_all_connection_tokens();
+	// If there are no other plugins using the connection, destroy blog and user tokens,
+	// as well as the tokens stored in wordpress.com
+	$manager->remove_connection();
 
 	// Your error handling and decorations
 }
+```
+
+
+#### Custom Disconnect
+
+Method `$manager->remove_connection()` essentially calls `disable_plugin()`, `disconnect_site_wpcom()`, and `delete_all_connection_tokens()`.
+Its purpose is to simplify the disconnection process.
+If you need to customize the disconnect process, or perform a partial disconnect, you can call these methods one by one.
+
+```php
+// Mark the plugin connection as disabled.
+
+$manager = new Manager( 'plugin-slug' );
+
+// Mark the plugin connection as disabled.
+$manager->disable_plugin();
+
+// If no other plugins use the connection, this will destroy the blog tokens on both this site, and the tokens stored on wordpress.com
+$manager->disconnect_site_wpcom();
+
+// If no other plugins use the connection, this will clear all the tokens!
+$manager->delete_all_connection_tokens();
 ```
 
 ### Soft and Hard Disconnect
@@ -132,17 +150,28 @@ Below is some basic information on how they differ.
 
 #### Soft Disconnect
 
-Soft disconnect means that all the tokens are preserved, but the connection for other plugins is preserved (no tokens are removed).
+Soft disconnect means that all the tokens are preserved, and the connection for other plugins stays active.
 Technically speaking, soft disconnect happens when you call `$manager->disable_plugin();`.
 Next time you try to use the connection, you call `$manager->is_plugin_enabled()`, which will return `false`.
 
 Calling `$manager->disconnect_site_wpcom()` and `$manager->delete_all_connection_tokens()` afterwards is still needed.
-These calls will determine if the plugin being disabled is the only one using the connection, and perform *soft* or *hard* disconnect accordingly.
+These calls will determine if the aforementioned plugin is the only one using the connection, and perform *soft* or *hard* disconnect accordingly.
 
 #### Hard Disconnect
 
 If there are no other plugins using the connection, or all of them have already been *softly disconnected*, the package will perform the *hard disconnect*.
 In that case methods `disconnect_site_wpcom()` and `delete_all_connection_tokens()` will actually remove the tokens and run the `deregister` API request.
+
+You can explicitly request hard disconnect by providing the argument `$ignore_connected_plugins`:
+```php
+$manager = new Manager( 'plugin-slug' );
+
+$manager->disable_plugin();
+
+// The `$ignore_connected_plugins` argument is set to `true`, so the Connection Manager will perform the hard disconnect.
+$manager->disconnect_site_wpcom( true );
+$manager->delete_all_connection_tokens( true );
+```
 
 #### Using the connection
 If the plugin was *softly* disconnected, the access tokens will still be accessible.

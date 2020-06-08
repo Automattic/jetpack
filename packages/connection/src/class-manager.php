@@ -1397,6 +1397,25 @@ class Manager {
 	}
 
 	/**
+	 * Disconnect the plugin and remove the tokens.
+	 * This function will automatically perform "soft" or "hard" disconnect depending on whether other plugins are using the connection.
+	 * This is a proxy method to simplify the Connection package API.
+	 *
+	 * @see Manager::disable_plugin()
+	 * @see Manager::disconnect_site_wpcom()
+	 * @see Manager::delete_all_connection_tokens()
+	 *
+	 * @return bool
+	 */
+	public function remove_connection() {
+		$this->disable_plugin();
+		$this->disconnect_site_wpcom();
+		$this->delete_all_connection_tokens();
+
+		return true;
+	}
+
+	/**
 	 * Responds to a WordPress.com call to register the current site.
 	 * Should be changed to protected.
 	 *
