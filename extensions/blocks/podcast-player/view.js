@@ -97,13 +97,9 @@ const initializeBlock = function( id ) {
 	block.setAttribute( 'data-jetpack-block-initialized', 'true' );
 };
 
-// Initialize queued players.
-if ( window.jetpackPodcastPlayers !== undefined ) {
-	jetpackPodcastPlayers.forEach( initializeBlock );
-}
-
-// Replace the queue with an immediate initialization for async loaded players.
-window.jetpackPodcastPlayers = {
-	push: initializeBlock,
-	playerInstances,
-};
+document
+	.querySelectorAll( '.wp-block-jetpack-podcast-player:not([data-jetpack-block-initialized])' )
+	.forEach( player => {
+		player.classList.remove( 'is-default' );
+		initializeBlock( player.id );
+	} );
