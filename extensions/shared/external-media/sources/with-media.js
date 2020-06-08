@@ -172,10 +172,6 @@ export default function withMedia() {
 				this.setState( { path }, cb );
 			};
 
-			stopPropagation( event ) {
-				event.stopPropagation();
-			}
-
 			stopArrowKeysPropagation = event => {
 				/**
 				 * When the External Media modal is open, pressing any arrow key causes
@@ -202,7 +198,7 @@ export default function withMedia() {
 
 				return (
 					// eslint-disable-next-line jsx-a11y/no-static-element-interactions
-					<div onMouseDown={ this.stopPropagation } onKeyDown={ this.stopArrowKeysPropagation }>
+					<div onKeyDown={ this.stopArrowKeysPropagation }>
 						{ noticeUI }
 
 						<OriginalComponent
