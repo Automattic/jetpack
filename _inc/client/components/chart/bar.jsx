@@ -86,6 +86,12 @@ export default class ModuleChartBar extends React.Component {
 		return sections;
 	};
 
+	keyHandler = ( key ) => {
+		if ( 'function' === typeof this.props.clickHandler && key.keyCode === 13 ) {
+			this.props.clickHandler( this.props.data );
+		}
+	};
+
 	clickHandler = () => {
 		if ( 'function' === typeof this.props.clickHandler ) {
 			this.props.clickHandler( this.props.data );
@@ -164,6 +170,7 @@ export default class ModuleChartBar extends React.Component {
 			<div
 				role="button"
 				tabIndex={ 0 }
+				onKeyUp={ this.keyHandler }
 				onClick={ this.clickHandler }
 				onMouseEnter={ this.mouseEnter }
 				onMouseLeave={ this.mouseLeave }
