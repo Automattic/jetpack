@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 if ( '1' == get_option( 'blog_public' ) ) { // loose comparison okay.
-	include_once 'sitemaps/sitemaps.php';
+	include_once __DIR__ . '/sitemaps/sitemaps.php';
 }
 
 add_action( 'jetpack_activate_module_sitemaps', 'jetpack_sitemap_on_activate' );
