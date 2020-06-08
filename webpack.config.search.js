@@ -2,6 +2,7 @@
  * External dependencies
  */
 const getBaseWebpackConfig = require( '@automattic/calypso-build/webpack.config.js' );
+const DependencyExtractionWebpackPlugin = require( '@wordpress/dependency-extraction-webpack-plugin' );
 const path = require( 'path' );
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
@@ -48,5 +49,9 @@ module.exports = [
 					maxEntrypointSize: 122880,
 					hints: 'error',
 			  },
+		plugins: [
+			...sharedWebpackConfig.plugins,
+			new DependencyExtractionWebpackPlugin( { injectPolyfill: true } ),
+		],
 	},
 ];
