@@ -17,7 +17,6 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { PATH_RECENT } from '../constants';
-import MediaItem from '../media-browser/media-item';
 
 export default function withMedia() {
 	return createHigherOrderComponent( OriginalComponent => {
