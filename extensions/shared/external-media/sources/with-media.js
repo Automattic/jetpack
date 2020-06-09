@@ -176,7 +176,7 @@ export default function withMedia() {
 
 				const classes = classnames( {
 					'jetpack-external-media-browser': true,
-					'jetpack-external-media-browser__is-copying': isCopying,
+					'jetpack-external-media-browser--is-copying': isCopying,
 				} );
 
 				return (
