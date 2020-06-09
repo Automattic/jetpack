@@ -53,11 +53,11 @@ function MediaItem( props ) {
 		<li
 			ref={ itemEl }
 			className={ classes }
-			onClick={ ! isCopying && onClick }
-			onKeyDown={ ! isCopying && onKeyDown }
+			onClick={ isCopying ? undefined : onClick }
+			onKeyDown={ isCopying ? undefined : onKeyDown }
 			role="checkbox"
 			tabIndex="0"
-			aria-checked={ isSelected ? 'true' : 'false' }
+			aria-checked={ !! isSelected }
 			aria-disabled={ !! isCopying }
 		>
 			<img src={ medium || fmt_hd } alt={ alt } title={ alt } />
