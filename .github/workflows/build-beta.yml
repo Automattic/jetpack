@@ -6,22 +6,19 @@ jobs:
   build_beta:
     runs-on: ubuntu-latest
     steps:
-    - run: touch test.txt
     - run: printenv
-    - run: curl -L https://betadownload.jetpack.me/upload.php
-    - run: curl -L -F 'test=@test.txt' https://betadownload.jetpack.me/upload.php
-    - name: Upload math result for job 1
+    - name: Checkout Jetpack
+      uses: actions/checkout@master
+    - run:  ls -la
+    - run: pwd
+    - name: Build jetpack
+    - run: |
+        yarn build-production
+        bin/prepare-built-branch.sh
+    - name: Upload jetpack build
       uses: actions/upload-artifact@v1
       with:
         name: test
         path: test.txt
-    - run: curl -L https://api.github.com/repos/automattic/jetpack/actions/runs/$GITHUB_RUN_ID/artifacts
-    - uses: octokit/request-action@v2.x
-      id: get_latest_release
-      with:
-        route: GET /repos/:repository/actions/:run_id/artifacts
-        repository: ${{ github.repository }}
-        run_ud: $GITHUB_RUN_ID
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    - run: "echo latest release: ${{ steps.get_latest_release.outputs.data }}"
+    - run: curl -L https://betadownload.jetpack.me/beta.php
+
