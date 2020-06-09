@@ -20,7 +20,7 @@ import UpgradeNudge from "../../components/upgrade-nudge";
 /**
  * Module Constants
  */
-const ALLOWED_MEDIA_TYPES = [ 'image' ];
+const ALLOWED_MEDIA_TYPES = [ 'image', 'video' ];
 
 const JetpackCoverUpgradeNudge = ( { name, show } ) =>
 	show
