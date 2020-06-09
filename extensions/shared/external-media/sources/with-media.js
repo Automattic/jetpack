@@ -207,7 +207,9 @@ export default function withMedia() {
 				const { isAuthenticated, isCopying, isLoading, media, nextHandle, path } = this.state;
 				const { allowedTypes, multiple = false, noticeUI, onClose } = this.props;
 
-				const title = isCopying ? __( 'Inserting media', 'jetpack' ) : __( 'Select media', 'jetpack' );
+				const title = isCopying
+					? __( 'Inserting media', 'jetpack' )
+					: __( 'Select media', 'jetpack' );
 				const classes = classnames( {
 					'jetpack-external-media-browser': true,
 					'jetpack-external-media-browser--is-copying': isCopying,
@@ -217,10 +219,25 @@ export default function withMedia() {
 					<Modal
 						onRequestClose={ onClose }
 						title={ title }
+						aria={ {
+							describedby: 'jetpack-external-media-browser__description',
+						} }
 						className={ classes }
 					>
 						<div ref={ this.modalRef }>
 							{ noticeUI }
+
+							<p
+								id="jetpack-external-media-browser__description"
+								class="jetpack-external-media-browser--visually-hidden"
+							>
+								{ isCopying
+									? __(
+											'When the media is finished copying and inserting, you will be returned to the editor.',
+											'jetpack'
+									  )
+									: __( 'Select the media you would like to insert into the editor.', 'jetpack' ) }
+							</p>
 
 							<OriginalComponent
 								getMedia={ this.getMedia }
