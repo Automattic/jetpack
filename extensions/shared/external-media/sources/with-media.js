@@ -54,28 +54,20 @@ export default function withMedia() {
 				};
 			}
 
-			componentDidMount() {
-				this.arrowKeysPropagationHandler = this.attachArrowKeysPropagationHandler();
-			}
+			modalRef = el => {
+				if ( el ) {
+					// Find the modal wrapper.
+					this.modalElement = el.closest( '.jetpack-external-media-browser' );
 
-			componentWillUnmount() {
-				if ( this.arrowKeysPropagationHandler ) {
-					this.arrowKeysPropagationHandler.remove();
+					// Attach the listener if found.
+					if ( this.modalElement ) {
+						this.modalElement.addEventListener( 'keydown', this.stopArrowKeysPropagation );
+					}
+				} else if ( this.modalElement ) {
+					// Remove listeners when unmounting.
+					this.modalElement.removeEventListener( 'keydown', this.stopArrowKeysPropagation );
+					this.modalElement = null;
 				}
-			}
-
-			attachArrowKeysPropagationHandler = () => {
-				const eventListenerEl = document.querySelector( '.jetpack-external-media-browser' );
-				if ( ! eventListenerEl ) {
-					return null;
-				}
-
-				eventListenerEl.addEventListener( 'keydown', this.stopArrowKeysPropagation );
-				return {
-					remove() {
-						eventListenerEl.removeEventListener( 'keydown', this.stopArrowKeysPropagation );
-					},
-				};
 			};
 
 			stopArrowKeysPropagation = event => {
@@ -257,7 +249,9 @@ export default function withMedia() {
 						title={ isCopying ? __( 'Copying Media', 'jetpack' ) : __( 'Select Media', 'jetpack' ) }
 						className={ classes }
 					>
-						{ isCopying ? <CopyingMedia items={ isCopying } /> : this.renderContent() }
+						<div ref={ this.modalRef }>
+							{ isCopying ? <CopyingMedia items={ isCopying } /> : this.renderContent() }
+						</div>
 					</Modal>
 				);
 			}
