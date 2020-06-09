@@ -13,13 +13,16 @@ import { createHigherOrderComponent } from '@wordpress/compose';
  */
 import coverEditMediaPlaceholder from './cover-media-placeholder';
 import { isSimpleSite } from '../../site-type-utils';
+import getJetpackExtensionAvailability from '../../get-jetpack-extension-availability';
 
 const extendCoreCoverBlock = createHigherOrderComponent(
 	( BlockEdit ) => ( props ) => {
 		const { name } = props;
+		const { unavailableReason } = getJetpackExtensionAvailability( 'videopress' );
 		if (
 			( ! name || name !== 'core/cover' ) || // extend only for cover block
-			! isSimpleSite() // only for Simple sites
+			! isSimpleSite() || // only for Simple sites
+			! [ 'missing_plan', 'unknown' ].includes( unavailableReason )
 		) {
 			return <BlockEdit { ...props } />;
 		}
