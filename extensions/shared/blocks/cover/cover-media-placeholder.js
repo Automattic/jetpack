@@ -2,13 +2,15 @@
 /**
  * External dependencies
  */
+import { filter } from 'lodash';
 
 /**
  * WordPress dependencies
  */
-import { createHigherOrderComponent } from '@wordpress/compose';
+import { createHigherOrderComponent, compose } from '@wordpress/compose';
 import { Fragment, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { withSelect } from '@wordpress/data';
 
 /**
  * Internal dependencies
@@ -38,7 +40,7 @@ const JetpackCoverUpgradeNudge = ( { name, show } ) =>
 		/>
 		: null;
 
-export default ( name ) => createHigherOrderComponent(
+const JetpackCoverMediaPlaceholder = ( name ) => createHigherOrderComponent(
 	CoreMediaPlaceholder => props => {
 		const [ error, setError ] = useState( false );
 		const { onError } = props;
@@ -64,3 +66,15 @@ export default ( name ) => createHigherOrderComponent(
 	},
 	'JetpackCoverMediaPlaceholder'
 );
+
+export default ( name ) => compose( [
+	withSelect( ( select ) => {
+		const { getEditorSettings } = select( 'core/editor' );
+		const wpAllowedVideoMimeTypes = filter( getEditorSettings().allowedMimeTypes, type => /^video\//.test( type ) );
+
+		return {
+			wpAllowedVideoMimeTypes
+		};
+	} ),
+	JetpackCoverMediaPlaceholder( name )
+] );
