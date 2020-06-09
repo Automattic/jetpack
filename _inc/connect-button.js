@@ -120,7 +120,16 @@ jQuery( document ).ready( function( $ ) {
 			loadingText.after( spinner );
 		},
 		handleConnectionSuccess: function( data ) {
-			jetpackConnectButton.fetchPlanType();
+			var isReconnected = data.hasOwnProperty( 'isReconnected' ) && data.isReconnected;
+
+			jetpackConnectButton.fetchPlanType(
+				isReconnected ? jetpackConnectButton.handleAuthorizationComplete : null
+			);
+
+			if ( isReconnected ) {
+				return;
+			}
+
 			window.addEventListener( 'message', jetpackConnectButton.receiveData );
 			jetpackConnectIframe.attr( 'src', data.authorizeUrl + '&from=' + connectButtonFrom );
 			jetpackConnectIframe.on( 'load', function() {
@@ -137,7 +146,7 @@ jQuery( document ).ready( function( $ ) {
 			link.href = jpConnect.preFetchScript;
 			document.head.appendChild( link );
 		},
-		fetchPlanType: function() {
+		fetchPlanType: function( callback ) {
 			$.ajax( {
 				url: jpConnect.apiBaseUrl + '/site',
 				type: 'GET',
@@ -148,6 +157,10 @@ jQuery( document ).ready( function( $ ) {
 					var siteData = JSON.parse( data.data );
 					jetpackConnectButton.isPaidPlan =
 						siteData.options.is_pending_plan || ! siteData.plan.is_free;
+
+					if ( callback ) {
+						callback();
+					}
 				},
 			} );
 		},

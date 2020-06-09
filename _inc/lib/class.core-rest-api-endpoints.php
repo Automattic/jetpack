@@ -1456,10 +1456,16 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return $response;
 		}
 
-		return rest_ensure_response(
-			array(
-				'authorizeUrl' => Jetpack::build_authorize_url( false, true )
-			) );
+		$response = array();
+
+		if ( Jetpack::is_active() ) {
+			// Jetpack has been softly reconnected, no need to re-authorize the user.
+			$response['isReconnected'] = true;
+		} else {
+			$response['authorizeUrl'] = Jetpack::build_authorize_url( false, true );
+		}
+
+		return rest_ensure_response( $response );
 	}
 
 	/**

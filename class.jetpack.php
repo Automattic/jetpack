@@ -1599,7 +1599,8 @@ class Jetpack {
 	 * @return bool
 	 */
 	public static function is_active() {
-		return self::connection()->is_active();
+		$connection = self::connection();
+		return $connection->is_active() && $connection->is_plugin_enabled();
 	}
 
 	/**
@@ -3335,10 +3336,10 @@ p {
 			$tracking = new Tracking();
 			$tracking->record_user_event( 'disconnect_site', array() );
 
-			$connection->disconnect_site_wpcom( true );
+			$connection->disconnect_site_wpcom();
 		}
 
-		$connection->delete_all_connection_tokens( true );
+		$connection->delete_all_connection_tokens();
 		Jetpack_IDC::clear_all_idc_options();
 
 		if ( $update_activated_state ) {
@@ -3369,6 +3370,8 @@ p {
 
 		// Disable the Heartbeat cron
 		Jetpack_Heartbeat::init()->deactivate();
+
+		$connection->disable_plugin();
 	}
 
 	/**
@@ -3392,6 +3395,11 @@ p {
 		$terms_of_service = new Terms_Of_Service();
 		// The user has agreed to the TOS at some point by now.
 		$terms_of_service->agree();
+
+		if ( self::soft_reconnect() ) {
+			// Softly reconnected, nothing else to do here.
+			return true;
+		}
 
 		// Let's get some testing in beta versions and such.
 		if ( self::is_development_version() && defined( 'PHP_URL_HOST' ) ) {
@@ -3418,6 +3426,17 @@ p {
 		} else {
 			return true;
 		}
+	}
+
+	/**
+	 * If the plugin was currently disconnected by user request, make sure to remove that flag and allow it to be reconnected.
+	 *
+	 * @return bool If the connection is now active (reconnected soft disconnect), returns `true`, otherwise `false`.
+	 */
+	public static function soft_reconnect() {
+		self::connection()->enable_plugin();
+
+		return self::is_active();
 	}
 
 	/**
@@ -4207,6 +4226,25 @@ p {
 
 		if ( isset( $_GET['action'] ) ) {
 			switch ( $_GET['action'] ) {
+				case 'pre_authorize':
+					if ( ! current_user_can( 'jetpack_connect' ) ) {
+						$error = 'cheatin';
+						break;
+					}
+
+					check_admin_referer( 'jetpack-pre_authorize' );
+
+					if ( self::soft_reconnect() && self::is_user_connected() ) {
+						wp_safe_redirect( self::admin_url( 'page=jetpack' ) );
+						exit;
+					}
+
+					$redirect = empty( $_GET['redirect'] ) ? false : $_GET['redirect'];
+					$iframe   = empty( $_GET['iframe'] ) ? false : $_GET['iframe'];
+
+					// phpcs:ignore WordPress.Security.SafeRedirect
+					wp_redirect( self::build_authorize_url( $redirect, $iframe, true ) );
+					exit;
 				case 'authorize':
 					if ( self::is_active() && self::is_user_connected() ) {
 						self::state( 'message', 'already_authorized' );
@@ -4226,6 +4264,12 @@ p {
 					self::log( 'register' );
 					self::maybe_set_version_option();
 					$registered = self::try_registration();
+
+					if ( true === $registered && self::is_active() ) {
+						wp_safe_redirect( self::admin_url( 'page=jetpack' ) );
+						exit;
+					}
+
 					if ( is_wp_error( $registered ) ) {
 						$error = $registered->get_error_code();
 						self::state( 'error', $error );
@@ -4763,7 +4807,7 @@ endif;
 	 */
 	function build_connect_url( $raw = false, $redirect = false, $from = false, $register = false ) {
 		$site_id    = Jetpack_Options::get_option( 'id' );
-		$blog_token = Jetpack_Data::get_access_token();
+		$blog_token = $this->connection_manager->get_access_token();
 
 		if ( $register || ! $blog_token || ! $site_id ) {
 			$url = self::nonce_url_no_esc( self::admin_url( 'action=register' ), 'jetpack-register' );
@@ -4824,7 +4868,16 @@ endif;
 		return apply_filters( 'jetpack_build_connection_url', $url, $raw );
 	}
 
-	public static function build_authorize_url( $redirect = false, $iframe = false ) {
+	/**
+	 * Builds an URL for the Jetpack authorize page
+	 *
+	 * @param string|false $redirect URL the user should be sent to after authorization process is complete.
+	 * @param bool         $iframe Whether the authorization process happens in an iframe (in-place connection).
+	 * @param bool         $skip_pre_authorize Whether to use the `pre-authorize` action, or send to the authorization flow directly.
+	 *
+	 * @return string
+	 */
+	public static function build_authorize_url( $redirect = false, $iframe = false, $skip_pre_authorize = false ) {
 
 		add_filter( 'jetpack_connect_request_body', array( __CLASS__, 'filter_connect_request_body' ) );
 		add_filter( 'jetpack_connect_redirect_url', array( __CLASS__, 'filter_connect_redirect_url' ) );
@@ -4834,8 +4887,17 @@ endif;
 			add_filter( 'jetpack_use_iframe_authorization_flow', '__return_true' );
 		}
 
-		$c8n = self::connection();
-		$url = $c8n->get_authorization_url( wp_get_current_user(), $redirect );
+		if ( $skip_pre_authorize ) {
+			$url = self::connection()->get_authorization_url( wp_get_current_user(), $redirect );
+		} else {
+			$url_args = array(
+				'action'   => 'pre_authorize',
+				'redirect' => $redirect,
+				'iframe'   => $iframe,
+			);
+
+			$url = self::nonce_url_no_esc( self::admin_url( $url_args ), 'jetpack-pre_authorize' );
+		}
 
 		remove_filter( 'jetpack_connect_request_body', array( __CLASS__, 'filter_connect_request_body' ) );
 		remove_filter( 'jetpack_connect_redirect_url', array( __CLASS__, 'filter_connect_redirect_url' ) );
