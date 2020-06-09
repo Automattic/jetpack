@@ -12,11 +12,15 @@ import { createHigherOrderComponent } from '@wordpress/compose';
  * Internal dependencies
  */
 import coverEditMediaPlaceholder from './cover-media-placeholder';
+import { isSimpleSite } from '../../site-type-utils';
 
 const extendCoreCoverBlock = createHigherOrderComponent(
 	( BlockEdit ) => ( props ) => {
 		const { name } = props;
-		if ( ! name || name !== 'core/cover' ) {
+		if (
+			( ! name || name !== 'core/cover' ) || // extend only for cover block
+			! isSimpleSite() // only for Simple sites
+		) {
 			return <BlockEdit { ...props } />;
 		}
 
