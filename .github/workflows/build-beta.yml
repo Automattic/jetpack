@@ -12,7 +12,7 @@ jobs:
     - run:  ls -la
     - run: pwd
     - name: Build jetpack
-    - run: |
+      run: |
         yarn build-production
         bin/prepare-built-branch.sh
     - name: Upload jetpack build
