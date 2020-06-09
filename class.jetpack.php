@@ -3655,7 +3655,7 @@ p {
 		add_filter( 'plugin_action_links_' . plugin_basename( JETPACK__PLUGIN_DIR . 'jetpack.php' ), array( $this, 'plugin_action_links' ) );
 
 		if ( self::is_active() || $is_development_mode ) {
-			// Artificially throw errors in certain whitelisted cases during plugin activation
+			// Artificially throw errors in certain specific cases during plugin activation.
 			add_action( 'activate_plugin', array( $this, 'throw_error_on_activate_plugin' ) );
 		}
 
@@ -3680,7 +3680,7 @@ p {
 
 	/**
 	 * Sometimes a plugin can activate without causing errors, but it will cause errors on the next page load.
-	 * This function artificially throws errors for such cases (whitelisted).
+	 * This function artificially throws errors for such cases (per a specific list).
 	 *
 	 * @param string $plugin The activated plugin.
 	 */
@@ -4219,7 +4219,7 @@ p {
 		}
 
 		if ( isset( $_GET['connect_url_redirect'] ) ) {
-			// @todo: Add validation against a known whitelist
+			// @todo: Add validation against a known allowed list.
 			$from = ! empty( $_GET['from'] ) ? $_GET['from'] : 'iframe';
 			// User clicked in the iframe to link their accounts
 			if ( ! self::is_user_connected() ) {
@@ -5214,7 +5214,7 @@ endif;
 			'/jetpack/v4/settings',
 		);
 
-		// Whitelist the action
+		// Only allow valid actions.
 		if ( ! in_array( $action, $valid_actions ) ) {
 			return false;
 		}
@@ -5990,11 +5990,11 @@ endif;
 		} else {
 			$domain = $host;
 		}
-		// Array of Automattic domains
-		$domain_whitelist = array( 'wordpress.com', 'wp.com' );
+		// Array of Automattic domains.
+		$domains_allowed = array( 'wordpress.com', 'wp.com' );
 
-		// Return $url if not an Automattic domain
-		if ( ! in_array( $domain, $domain_whitelist ) ) {
+		// Return $url if not an Automattic domain.
+		if ( ! in_array( $domain, $domains_allowed, true ) ) {
 			return $url;
 		}
 
@@ -6054,7 +6054,7 @@ endif;
 		update_user_meta( $user->ID, 'jetpack_json_api_' . $this->json_api_authorization_request['client_id'], $token );
 	}
 
-	// Add public-api.wordpress.com to the safe redirect whitelist - only added when someone allows API access
+	// Add public-api.wordpress.com to the safe redirect allowed list - only added when someone allows API access.
 	function allow_wpcom_public_api_domain( $domains ) {
 		$domains[] = 'public-api.wordpress.com';
 		return $domains;
@@ -6064,7 +6064,7 @@ endif;
 		return preg_match( '/https?%3A%2F%2F/i', $redirect_url ) > 0;
 	}
 
-	// Add all wordpress.com environments to the safe redirect whitelist
+	// Add all wordpress.com environments to the safe redirect allowed list.
 	function allow_wpcom_environments( $domains ) {
 		$domains[] = 'wordpress.com';
 		$domains[] = 'wpcalypso.wordpress.com';
@@ -6279,12 +6279,12 @@ endif;
 	}
 
 	/**
-	 * Checks whether the home and siteurl specifically are whitelisted
+	 * Checks whether the home and siteurl specifically are allowed.
 	 * Written so that we don't have re-check $key and $value params every time
-	 * we want to check if this site is whitelisted, for example in footer.php
+	 * we want to check if this site is allowed, for example in footer.php
 	 *
 	 * @since  3.8.0
-	 * @return bool True = already whitelisted False = not whitelisted
+	 * @return bool True = already allowed False = not on the allowed list.
 	 */
 	public static function is_staging_site() {
 		_deprecated_function( 'Jetpack::is_staging_site', 'jetpack-8.1', '/Automattic/Jetpack/Status->is_staging_site' );
