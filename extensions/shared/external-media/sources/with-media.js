@@ -182,7 +182,9 @@ export default function withMedia() {
 				return (
 					<Modal
 						onRequestClose={ onClose }
-						title={ isCopying ? __( 'Copying Media', 'jetpack' ) : __( 'Select Media', 'jetpack' ) }
+						title={
+							isCopying ? __( 'Inserting media', 'jetpack' ) : __( 'Select media', 'jetpack' )
+						}
 						className={ classes }
 					>
 						{ /* eslint-disable-next-line jsx-a11y/no-static-element-interactions */ }
