@@ -155,8 +155,8 @@ class AssetsTest extends TestCase {
 	 */
 	public function get_file_url_for_environment_full_urls_data_provider() {
 		return array(
-			'full_url'          => array( 'https://jetpack.com' ),
-			'protocol_relative' => array( '//jetpack.com' ),
+			'full_url'          => array( 'https://jetpack.com/scripts/test.js' ),
+			'protocol_relative' => array( '//jetpack.com/styles/test.css' ),
 		);
 	}
 
