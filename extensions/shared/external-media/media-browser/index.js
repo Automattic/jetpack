@@ -101,7 +101,7 @@ function MediaBrowser( props ) {
 
 	return (
 		<div className={ wrapper }>
-			<ul className={ classes }>
+			<div role="presentation" className={ classes }>
 				{ media.map( ( item, index ) => (
 					<MediaItem
 						item={ item }
@@ -115,19 +115,19 @@ function MediaBrowser( props ) {
 
 				{ media.length === 0 && ! isLoading && <EmptyResults /> }
 				{ isLoading && <MediaPlaceholder /> }
+			</div>
 
-				{ pageHandle && ! isLoading && (
-					<Button
-						isLarge
-						isSecondary
-						className="jetpack-external-media-browser__loadmore"
-						disabled={ isLoading || isCopying }
-						onClick={ onLoadMoreClick }
-					>
-						{ __( 'Load More', 'jetpack' ) }
-					</Button>
-				) }
-			</ul>
+			{ pageHandle && ! isLoading && (
+				<Button
+					isLarge
+					isSecondary
+					className="jetpack-external-media-browser__loadmore"
+					disabled={ isLoading }
+					onClick={ onLoadMoreClick }
+				>
+					{ __( 'Load More', 'jetpack' ) }
+				</Button>
+			) }
 
 			{ hasMediaItems && <SelectButton /> }
 		</div>

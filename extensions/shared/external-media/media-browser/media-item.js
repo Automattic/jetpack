@@ -50,7 +50,7 @@ function MediaItem( props ) {
 
 	/* eslint-disable jsx-a11y/no-noninteractive-element-to-interactive-role */
 	return (
-		<li
+		<div
 			ref={ itemEl }
 			className={ classes }
 			onClick={ isCopying ? undefined : onClick }
@@ -77,7 +77,9 @@ function MediaItem( props ) {
 					<div className="jetpack-external-media-browser__media__count">{ children }</div>
 				</div>
 			) }
-		</li>
+
+			{ isSelected && isCopying && <Spinner /> }
+		</div>
 	);
 }
 
