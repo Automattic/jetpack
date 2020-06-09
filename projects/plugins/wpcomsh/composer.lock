@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "70495c2c57f48f85d63fcf184cedb286",
+    "content-hash": "ae847624a2230f8d5170893342f87fb5",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -103,16 +103,16 @@
         },
         {
             "name": "automattic/wc-calypso-bridge",
-            "version": "v1.1.6",
+            "version": "v1.1.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/wc-calypso-bridge.git",
-                "reference": "805f1de14007764d97fc06e3b333899257b91c5b"
+                "reference": "6aab0eecc87603c68f96a7674cdbc8e4e8882ef1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/805f1de14007764d97fc06e3b333899257b91c5b",
-                "reference": "805f1de14007764d97fc06e3b333899257b91c5b",
+                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/6aab0eecc87603c68f96a7674cdbc8e4e8882ef1",
+                "reference": "6aab0eecc87603c68f96a7674cdbc8e4e8882ef1",
                 "shasum": ""
             },
             "require": {
@@ -121,18 +121,29 @@
             "require-dev": {
                 "bjornjohansen/wp-pre-commit-hook": "^0.2.2",
                 "dealerdirect/phpcodesniffer-composer-installer": "0.4.4",
+                "phpunit/phpunit": "7.5.20",
                 "squizlabs/php_codesniffer": "*",
                 "wimg/php-compatibility": "9.0.0",
                 "woocommerce/woocommerce-sniffs": "*",
                 "wp-coding-standards/wpcs": "1.1.0"
             },
             "type": "library",
+            "extra": {
+                "scripts-description": {
+                    "test": "Run unit tests",
+                    "phpcs": "Analyze code against the WordPress coding standards with PHP_CodeSniffer",
+                    "phpcbf": "Fix coding standards warnings/errors automatically with PHP Code Beautifier"
+                }
+            },
             "autoload": {
                 "files": [
                     "wc-calypso-bridge.php"
                 ]
             },
             "scripts": {
+                "test": [
+                    "phpunit"
+                ],
                 "phpcs": [
                     "phpcs -s -p"
                 ],
@@ -140,7 +151,7 @@
                     "phpcbf -p"
                 ]
             },
-            "time": "2020-05-05T20:25:35+00:00"
+            "time": "2020-06-05T00:58:40+00:00"
         },
         {
             "name": "composer/installers",
@@ -296,5 +307,6 @@
     "platform": [],
     "platform-dev": {
         "php": ">=7.0.0"
-    }
+    },
+    "plugin-api-version": "1.1.0"
 }
