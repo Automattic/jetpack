@@ -11,6 +11,8 @@ jobs:
       uses: actions/checkout@master
     - run:  ls -la
     - run: pwd
+    - run: echo $PWD
+    - run: echo $GITHUB_RUN_ID
     - name: Build jetpack
       run: |
         yarn build-production
