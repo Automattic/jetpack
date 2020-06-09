@@ -2,7 +2,7 @@
 /**
  * External dependencies
  */
-import { filter } from 'lodash';
+import { pickBy, keys, map, flatten } from 'lodash';
 
 /**
  * WordPress dependencies
@@ -70,10 +70,14 @@ const JetpackCoverMediaPlaceholder = ( name ) => createHigherOrderComponent(
 export default ( name ) => compose( [
 	withSelect( ( select ) => {
 		const { getEditorSettings } = select( 'core/editor' );
-		const wpAllowedVideoMimeTypes = filter( getEditorSettings().allowedMimeTypes, type => /^video\//.test( type ) );
+		const wpAllowedMimeTypes = getEditorSettings().allowedMimeTypes || [];
+
+		const wpAllowedVideoMimeTypes = pickBy( wpAllowedMimeTypes, ( type ) => /^video\//.test( type ) );
+		const wpAllowedVideoFileExtensions = flatten( map( keys( wpAllowedVideoMimeTypes ), ext => ext.split( '|' ) ) );
 
 		return {
-			wpAllowedVideoMimeTypes
+			wpAllowedVideoMimeTypes,
+			wpAllowedVideoFileExtensions,
 		};
 	} ),
 	JetpackCoverMediaPlaceholder( name )
