@@ -60,7 +60,7 @@ function MediaItem( props ) {
 			aria-checked={ !! isSelected }
 			aria-disabled={ !! isCopying }
 		>
-			<img src={ medium || fmt_hd } alt={ alt } title={ alt } />
+			<img src={ medium || fmt_hd } alt={ alt } />
 
 			{ type === 'folder' && (
 				<div className="jetpack-external-media-browser__media__info">
