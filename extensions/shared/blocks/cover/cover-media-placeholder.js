@@ -4,7 +4,7 @@
  */
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useBlockEditContext } from '@wordpress/block-editor';
-import { Fragment, useState } from '@wordpress/element';
+import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -54,7 +54,7 @@ export default createHigherOrderComponent(
 		const [ error, setError ] = useState( false );
 
 		return (
-			<Fragment>
+			<div className="jetpack-cover-media-placeholder">
 				<JetpackCoverUpgradeNudge name={ name } show={ !! error } />
 				<CoreMediaPlaceholder
 					{ ...props }
@@ -84,7 +84,7 @@ export default createHigherOrderComponent(
 					} }
 					allowedTypes={ ALLOWED_MEDIA_TYPES }
 				/>
-			</Fragment>
+			</div>
 		);
 	},
 	'JetpackCoverMediaPlaceholder'
