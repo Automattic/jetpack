@@ -559,7 +559,7 @@
 * Stats: improve performance of the Stats tracking pixel by eliminating blocking JavaScript.
 * Stats: improve Cache performance by switching from the WordPress Options API to the WordPress Transient API.
 * Support links: use the Beta support form when on a development version.
-* Sync: add a term taxonomy blacklist option, and start blacklisting taxonomies that do not need to be synchronized with WordPress.com.
+* Sync: add a term taxonomy blocklist option, and start blocklisting taxonomies that do not need to be synchronized with WordPress.com.
 * Sync: improve reliability of the synchronization of taxonomies.
 * Videos: ensure any deprecations added in the core video block are not overwritten.
 * Widgets: allow the customization of avatar image options in the Top Posts Widget, via a filter.
@@ -582,7 +582,7 @@
 * Custom CSS: fix Media Width label layout issue in Firefox.
 * Dashboard Notices: fix layout issues on sites using an RTL language.
 * Sync: fix home and Site URL synchronization issues on sites with custom Cron implementations.
-* WordPress.com Activity Log: add Action Scheduler to the list of blacklisted post types
+* WordPress.com Activity Log: add Action Scheduler to the list of blocklisted post types
 
 = 7.5.3 =
 
@@ -1030,7 +1030,7 @@
 * Admin Page: make the Jetpack dashboard wider on large screens for a better experience.
 * Affiliate tools: offer options for affiliate partners to manage affiliation links on their site.
 * Carousel: add support for the new Tiled Gallery block.
-* Contact Form: use the comment blacklist to filter contact form submissions.
+* Contact Form: use the comment blocklist to filter contact form submissions.
 * Dashboard notices: automatically dismiss notices once a feature has been activated.
 * Dashboard notices: fix styling to work better with the Hello Dolly plugin.
 * Internationalization: add new locales, ensure existing ones are up to date.
@@ -1593,7 +1593,7 @@ On the 1st of August, 2018 Facebook sunsets its API allowing to post updates to 
 * Admin Page: Jetpack's Admin Page javascript code is now fully compatible with React 16.
 * JSON API: Updated the modules endpoint Jetpack's JSON API to reply with a new property `override` that indicates if a module was either enabled or disabled by a filter.
 * Lazy Images: Updated the library used as IntersectionObserver for Lazy Images. We now use the W3C IntersectionObserver polyfill.
-* Lazy Images: Jetpack now allows the lazy images module to skip images with the skip-lazy css class or any given class of your choice by using the jetpack_lazy_images_blacklisted_classes filter.
+* Lazy Images: Jetpack now allows the lazy images module to skip images with the skip-lazy css class or any given class of your choice by using the jetpack_lazy_images_blocklisted_classes filter.
 * Masterbar: Updated the sign out button behavior of the Masterbar to not sign you out of WordPress.com when you sign out of your site for regular Jetpack sites.
 * REST API: Updated the modules endpoint in Jetpack's REST API to be aware of modules that have been filtered through option_jetpack_active_modules allowing for better compatibility with custom Jetpack installation where the administrator decides to filter out specific Jetpack modules.
 * Sync: Added the jetpack_sync_action_before_enqueue action that's done when anything gets enqueued before being synchronized to WordPress.com servers.
@@ -1889,7 +1889,7 @@ list of Related Posts.
 * Toolbar: always display the Toolbar when it's active, regardless of other admin bar settings.
 * Widget Visibility: make sure rules are correctly migrated from the old Jetpack image widget to the new WordPress Image Widget.
 * Avoid errors showing that Jetpack is out of date on WordPress.com, when running a Multisite network.
-* WP CLI: avoid warnings when using the `wp jetpack protect whitelist list` command to list the whitelisted IP addresses in the Protect feature.
+* WP CLI: avoid warnings when using the `wp jetpack protect safelist list` command to list the safelisted IP addresses in the Protect feature.
 * Avoid displaying raw HTML in the Stats Configuration screen.
 * Comment edits are reflected properly in wordpress.com.
 
@@ -2257,7 +2257,7 @@ list of Related Posts.
 * Infinite Scroll now works beautifully with the Twenty Seventeen Theme.
 * Translate new terms easier with an improvement to the translator comments.
 * We switched to use Core functions to retrieve the list of sites in a multisite network for more accurate results.
-* We added Product visibility to post meta whitelist, for better control of products displayed in Related Posts.
+* We added Product visibility to post meta safelist, for better control of products displayed in Related Posts.
 * We no longer sync specific post meta data added by Postman or WP RSS Multi Importer to avoid performance issues during the sync process.
 * We're now avoiding conflicts with plugins adding the core Video upload library to the post editor.
 * Removed deprecated compatibility code for older versions of WordPress.
@@ -2368,7 +2368,7 @@ This release introduces a brand-new module, Jetpack Ads, a brand-new VideoPress 
 * We've added a token-based authentication mechanism to the REST API in order for the site to be able to receive authenticated requests from WordPress.com.
 * Use `sync` commands in Jetpack's WP CLI.
 * You can now set the value for options directly in the Contact Form shortcode.
-* Updated some verbiage around IP Whitelisting on the Protect settings screen.
+* Updated some verbiage around IP safelisting on the Protect settings screen.
 * Custom sharing buttons got some new variables.
 * RIP blip.tv — we've removed your shortcode.
 * Improved Image and Display Posts Widget settings to provide more explanation and better error messages.
@@ -2474,7 +2474,7 @@ monthly (as opposed to annually) wouldn’t be able to enable SEO Tools.
 * Unsaved changes were getting lost when users were navigating away from settings so we put in a confirmation message to prevent this from happening.
 * We've stopped counting carousel views in stats by default, you can use the `jetpack_enable_carousel_stats` filter to enable counting them again.
 * Stats are now responding faster.
-* There were several improvements and repairs made to sync including additional endpoints, performance enhancements, whitelisted data, better decision making around when to sync information, and more.
+* There were several improvements and repairs made to sync including additional endpoints, performance enhancements, safelisted data, better decision making around when to sync information, and more.
 * Markdown now has a CSS class on footnotes.
 
 **Improved Compatibility:**
@@ -2610,7 +2610,7 @@ also improved security on CSVs exported from your contact form.
 * The YouTube shortcode now uses the content width defined by the theme when
 available, even if an embed size was defined in an old version of WordPress.
 * Breadcrumbs now support hierarchical post types and taxonomies.
-* We’ve added the Portfolio Post Type to the WordPress.com REST API whitelist.
+* We’ve added the Portfolio Post Type to the WordPress.com REST API safelist.
 * There are a few new parameters for the Dailymotion shortcode.
 
 **Improved Compatibility:**
@@ -3362,7 +3362,7 @@ of js
 * Enhancement: Stats: No longer track stats for preview pages
 * Enhancement: Tiled Gallery: Improve the shapes and distributions of shapes
 in the Tiled Gallery, based on observations for its usage.
-* Enhancement: Protect: Whitelist for multisite globally and locally
+* Enhancement: Protect: safelist for multisite globally and locally
 * Enhancement: Sharing: LinkedIn always uses https for share counts. (saved
 extra http request)
 * Bug Fix: Carousel: Jetpack Carousel now supports HTML5 gallery
@@ -3509,7 +3509,7 @@ to /sites/%s/posts/ via JSON API
 * Enhancement: Notifications: Changes to load the new notifications client.
 * Enhancement: Protect: Add a filter so that user can add thier own bots
 * Enhancement: Protect: Add security reporting
-* Enhancement: Protect: Add/whitelist endpoints via JSON API for Jetpack
+* Enhancement: Protect: Add/safelist endpoints via JSON API for Jetpack
 Protect
 * Enhancement: Publicize: update connection confirmation message
 * Enhancement: Sharing: Add custom service name as a class
@@ -3686,13 +3686,13 @@ Release Date: August 7, 2014
 submitted/approved since release.
 * Bug Fix: Social Links: Add a function check to better degrade if Publicize
 isn't around.
-* Bug Fix: Open Graph: Add WordPress SEO back to the blacklist, until they
+* Bug Fix: Open Graph: Add WordPress SEO back to the blocklist, until they
 update how they opt us out.
 * Bug Fix: Asset Minification: Add another caveat ( empty $plugin ) to short
 out on.
 * Bug Fix: Deprecated Hooks: Fixing our expectations where something that
 should be an array occasionally wasn't.
-* Bug Fix: Custom CSS: Add extra whitelist rule for -o-keyframe rules.
+* Bug Fix: Custom CSS: Add extra safelist rule for -o-keyframe rules.
 
 = 3.1 =
 Release Date: July 31, 2014

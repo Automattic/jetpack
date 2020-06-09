@@ -123,8 +123,8 @@ class Jetpack_Lazy_Images {
 	 * @param string $classes A string of space-separated classes.
 	 * @return bool
 	 */
-	public static function should_skip_image_with_blacklisted_class( $classes ) {
-		$blacklisted_classes = array(
+	public static function should_skip_image_with_blocklisted_class( $classes ) {
+		$blocklisted_classes = array(
 			'skip-lazy',
 			'gazette-featured-content-thumbnail',
 		);
@@ -138,13 +138,13 @@ class Jetpack_Lazy_Images {
 		 *
 		 * @param array An array of strings where each string is a class.
 		 */
-		$blacklisted_classes = apply_filters( 'jetpack_lazy_images_blacklisted_classes', $blacklisted_classes );
+		$blocklisted_classes = apply_filters( 'jetpack_lazy_images_blacklisted_classes', $blocklisted_classes );
 
-		if ( ! is_array( $blacklisted_classes ) || empty( $blacklisted_classes ) ) {
+		if ( ! is_array( $blocklisted_classes ) || empty( $blocklisted_classes ) ) {
 			return false;
 		}
 
-		foreach ( $blacklisted_classes as $class ) {
+		foreach ( $blocklisted_classes as $class ) {
 			if ( false !== strpos( $classes, $class ) ) {
 				return true;
 			}
@@ -198,7 +198,7 @@ class Jetpack_Lazy_Images {
 			return $attributes;
 		}
 
-		if ( ! empty( $attributes['class'] ) && self::should_skip_image_with_blacklisted_class( $attributes['class'] ) ) {
+		if ( ! empty( $attributes['class'] ) && self::should_skip_image_with_blocklisted_class( $attributes['class'] ) ) {
 			return $attributes;
 		}
 
