@@ -9,6 +9,7 @@ import classnames from 'classnames';
 import { useRef, useEffect, useCallback } from '@wordpress/element';
 import { Spinner } from '@wordpress/components';
 import { ENTER, SPACE } from '@wordpress/keycodes';
+import { __ } from '@wordpress/i18n';
 
 function MediaItem( props ) {
 	const onClick = useCallback( () => {
@@ -68,7 +69,14 @@ function MediaItem( props ) {
 				</div>
 			) }
 
-			{ isSelected && isCopying && <Spinner /> }
+			{ true && ( //isSelected && isCopying &&
+				<div className="jetpack-external-media-browser__media__copying_indicator">
+					<Spinner />
+					<div className="jetpack-external-media-browser__media__copying_indicator__label">
+						{ __( 'Inserting Image…', 'jetpack' ) }
+					</div>
+				</div>
+			) }
 		</li>
 	);
 }
