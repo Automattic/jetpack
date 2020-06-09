@@ -22,12 +22,11 @@ jobs:
           ${{ runner.os }}-yarn-
     - name: Build jetpack
       run: |
-        yarn build-production
-        bin/prepare-built-branch.sh
+        ./tools/build-jetpack.sh -d -b $GITHUB_HEAD_REF
     - name: Upload jetpack build
       uses: actions/upload-artifact@v1
       with:
         name: jetpack
-        path: .
+        path: /tmp/jetpack
     - run: curl -L https://betadownload.jetpack.me/beta.php?run_id=$GITHUB_RUN_ID&branch=$GITHUB_HEAD_REF&ref=GITHUB_REF&repo=$GITHUB_REPOSITORY&commit=$GITHUB_SHA
 
