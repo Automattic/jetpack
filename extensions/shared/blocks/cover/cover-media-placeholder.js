@@ -42,8 +42,8 @@ const JetpackCoverUpgradeNudge = ( { name, show } ) =>
 
 const JetpackCoverMediaPlaceholder = ( name ) => createHigherOrderComponent(
 	CoreMediaPlaceholder => props => {
+		const { onError, allowedVideoFileExtensions } = props;
 		const [ error, setError ] = useState( false );
-		const { onError } = props;
 
 		return (
 			<Fragment>
@@ -55,7 +55,10 @@ const JetpackCoverMediaPlaceholder = ( name ) => createHigherOrderComponent(
 						// We should find a better way to do it. Unstable.
 						const filename = message?.[0]?.props?.children;
 						if ( filename ) {
-							return setError( message );
+							const fileExtension = ( filename.split( '.' ) )?.[ 1 ];
+							if ( allowedVideoFileExtensions.includes( fileExtension ) ) {
+								return setError( message );
+							}
 						}
 						return onError( message );
 					} }
@@ -71,13 +74,12 @@ export default ( name ) => compose( [
 	withSelect( ( select ) => {
 		const { getEditorSettings } = select( 'core/editor' );
 		const wpAllowedMimeTypes = getEditorSettings().allowedMimeTypes || [];
-
-		const wpAllowedVideoMimeTypes = pickBy( wpAllowedMimeTypes, ( type ) => /^video\//.test( type ) );
-		const wpAllowedVideoFileExtensions = flatten( map( keys( wpAllowedVideoMimeTypes ), ext => ext.split( '|' ) ) );
+		const allowedVideoMimeTypes = pickBy( wpAllowedMimeTypes, ( type ) => /^video\//.test( type ) );
+		const allowedVideoFileExtensions = flatten( map( keys( allowedVideoMimeTypes ), ext => ext.split( '|' ) ) );
 
 		return {
-			wpAllowedVideoMimeTypes,
-			wpAllowedVideoFileExtensions,
+			allowedVideoMimeTypes,
+			allowedVideoFileExtensions,
 		};
 	} ),
 	JetpackCoverMediaPlaceholder( name )
