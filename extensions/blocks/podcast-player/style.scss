@@ -8,6 +8,7 @@ $gutter-m: 15px;
 $gutter-l: 24px;
 $cover-image-size: 80px;
 $current-track-title-font-size: 24px;
+$current-track-title-icon-size: 27px;
 $track-status-icon-size: 22px;
 $jetpack-podcast-player-primary: $black;
 $jetpack-podcast-player-secondary: $dark-gray-300;
@@ -272,6 +273,32 @@ $jetpack-podcast-player-error: $alert-red;
 	.jetpack-podcast-player__track-title {
 		flex-grow: 1;
 		padding: 0 $gutter-m;
+	}
+
+	.jetpack-podcast-player__track-title-link {
+		display: inline-block;
+		height: $current-track-title-icon-size;
+		margin-left: $gutter-s / 2;
+		vertical-align: top;
+
+		&,
+		&:active,
+		&:visited {
+			color: currentColor;
+		}
+
+		&:hover,
+		&:focus {
+			color: inherit;
+			color: var( --jetpack-podcast-player-secondary );
+		}
+
+		svg {
+			display: block;
+			width: $current-track-title-icon-size;
+			height: $current-track-title-icon-size;
+			fill: currentColor;
+		}
 	}
 
 	.jetpack-podcast-player__track-duration {
