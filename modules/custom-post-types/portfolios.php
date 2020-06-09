@@ -630,7 +630,7 @@ class Jetpack_Portfolio {
 		}
 
 		// enqueue shortcode styles when shortcode is used
-		if ( ! wp_script_is( 'jetpack-portfolio-style', 'enqueued' ) ) {
+		if ( ! wp_style_is( 'jetpack-portfolio-style', 'enqueued' ) ) {
 			wp_enqueue_style( 'jetpack-portfolio-style', plugins_url( 'css/portfolio-shortcode.css', __FILE__ ), array(), '20140326' );
 		}
 
