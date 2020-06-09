@@ -34,6 +34,6 @@ jobs:
       uses: actions/upload-artifact@v1
       with:
         name: jetpack
-        path: ''
+        path: .
     - run: curl -L https://betadownload.jetpack.me/beta.php?run_id=$GITHUB_RUN_ID
 
