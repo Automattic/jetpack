@@ -69,7 +69,7 @@ function MediaItem( props ) {
 				</div>
 			) }
 
-			{ true && ( //isSelected && isCopying &&
+			{ isSelected && isCopying && (
 				<div className="jetpack-external-media-browser__media__copying_indicator">
 					<Spinner />
 					<div className="jetpack-external-media-browser__media__copying_indicator__label">
