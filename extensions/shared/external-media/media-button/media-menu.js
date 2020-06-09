@@ -27,19 +27,6 @@ function MediaButtonMenu( props ) {
 		);
 	}
 
-	const dropdownOpen = onToggle => {
-		onToggle();
-		open();
-	};
-	const changeSource = ( source, onToggle ) => {
-		setSelectedSource( source );
-		onToggle();
-	};
-	const openLibrary = onToggle => {
-		onToggle();
-		open();
-	};
-
 	let label = __( 'Select Image', 'jetpack' );
 
 	if ( mediaProps.multiple ) {
@@ -56,11 +43,12 @@ function MediaButtonMenu( props ) {
 
 			<Dropdown
 				position="bottom right"
+				contentClassName="jetpack-external-media-button-menu__options"
 				renderToggle={ ( { isOpen, onToggle } ) => (
 					<Button
 						isTertiary={ ! isFeatured }
 						isPrimary={ isFeatured }
-						className="jetpack-external-media-browse-button"
+						className="jetpack-external-media-button-menu"
 						aria-haspopup="true"
 						aria-expanded={ isOpen }
 						onClick={ onToggle }
@@ -68,17 +56,14 @@ function MediaButtonMenu( props ) {
 						{ label }
 					</Button>
 				) }
-				renderContent={ ( { onToggle } ) => (
+				renderContent={ () => (
 					<NavigableMenu aria-label={ label }>
 						<MenuGroup>
-							<MenuItem icon="admin-media" onClick={ () => openLibrary( onToggle ) }>
+							<MenuItem icon="admin-media" onClick={ open }>
 								{ __( 'Media Library', 'jetpack' ) }
 							</MenuItem>
 
-							<MediaSources
-								open={ () => dropdownOpen( onToggle ) }
-								setSource={ source => changeSource( source, onToggle ) }
-							/>
+							<MediaSources open={ open } setSource={ setSelectedSource } />
 						</MenuGroup>
 					</NavigableMenu>
 				) }

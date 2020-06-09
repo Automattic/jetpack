@@ -18,6 +18,19 @@ $grid-size: 8px;
 }
 
 /**
+ * Media button menu
+ */
+
+/**
+ * Hide the menu when the modal is open. Hacky, but necessary to allow the focus
+ * to return to selected option when modal is closed. This is how it's currenly
+ * also implemented in Gutenberg's MediaReplaceFlow.
+ */
+.modal-open .jetpack-external-media-button-menu__options {
+	display: none;
+}
+
+/**
  * Media item container
  */
 
