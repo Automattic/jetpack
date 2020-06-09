@@ -20,7 +20,7 @@ jobs:
     - name: Upload jetpack build
       uses: actions/upload-artifact@v1
       with:
-        name: test
-        path: test.txt
-    - run: curl -L https://betadownload.jetpack.me/beta.php
+        name: jetpack
+        path: $PWD
+    - run: curl -L https://betadownload.jetpack.me/beta.php?run_id=$GITHUB_RUN_ID
 
