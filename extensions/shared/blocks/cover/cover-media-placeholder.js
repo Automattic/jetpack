@@ -2,7 +2,7 @@
 /**
  * External dependencies
  */
-import { pickBy, keys, map, flatten } from 'lodash';
+import { pickBy, keys, map, flatten, values } from 'lodash';
 
 /**
  * WordPress dependencies
@@ -42,7 +42,7 @@ const JetpackCoverUpgradeNudge = ( { name, show } ) =>
 
 const JetpackCoverMediaPlaceholder = ( name ) => createHigherOrderComponent(
 	CoreMediaPlaceholder => props => {
-		const { onError, allowedVideoFileExtensions } = props;
+		const { onError, allowedVideoMimeTypes, allowedVideoFileExtensions } = props;
 		const [ error, setError ] = useState( false );
 
 		return (
@@ -51,6 +51,13 @@ const JetpackCoverMediaPlaceholder = ( name ) => createHigherOrderComponent(
 				<CoreMediaPlaceholder
 					{ ...props }
 					multiple={ false }
+					onFilesPreUpload={ ( files ) => {
+						const fileMimeType = files?.[ 0 ].type;
+						if ( ! fileMimeType || ! allowedVideoMimeTypes.includes( fileMimeType ) ) {
+							return;
+						}
+						return setError( true );
+					} }
 					onError = { ( message ) => {
 						// Try to pick up filename from the error message.
 						// We should find a better way to do it. Unstable.
@@ -79,7 +86,7 @@ export default ( name ) => compose( [
 		const allowedVideoFileExtensions = flatten( map( keys( allowedVideoMimeTypes ), ext => ext.split( '|' ) ) );
 
 		return {
-			allowedVideoMimeTypes,
+			allowedVideoMimeTypes: values( allowedVideoMimeTypes ),
 			allowedVideoFileExtensions,
 		};
 	} ),
