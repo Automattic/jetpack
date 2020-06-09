@@ -11,7 +11,7 @@ let exitCode = 0;
 /**
  * Parses the output of a git diff command into file paths.
  *
- * @param   {String} command Command to run. Expects output like `git diff --name-only […]`
+ * @param   {string} command - Command to run. Expects output like `git diff --name-only […]`
  * @returns {Array}          Paths output from git command
  */
 function parseGitDiffToPathArray( command ) {
@@ -23,8 +23,8 @@ function parseGitDiffToPathArray( command ) {
 /**
  * Provides filter to determine which PHP files to run through phpcs.
  *
- * @param {String} file File name of php file modified.
- * @return {boolean}        If the file matches the whitelist.
+ * @param {string} file - File name of php file modified.
+ * @returns {boolean}        If the file matches the whitelist.
  */
 function phpcsFilesToFilter( file ) {
 	if ( -1 !== whitelist.findIndex( filePath => file.startsWith( filePath ) ) ) {
@@ -37,14 +37,20 @@ function phpcsFilesToFilter( file ) {
 /**
  * Provides filter to determine which JS files to run through Prettify and linting.
  *
- * @param {String} file File name of js file modified.
- * @return {boolean}        If the file matches the whitelist.
+ * @param {string} file - File name of js file modified.
+ * @returns {boolean}        If the file matches the whitelist.
  */
 function filterJsFiles( file ) {
 	return [ '.js', '.json', '.jsx' ].some( extension => file.endsWith( extension ) );
 }
 
-// Filter callback for JS files
+/**
+ * Filter callback for JS files
+ *
+ * @param {string} file - File name
+ * @returns {boolean}     Result
+ *
+ */
 function filterEslintFiles( file ) {
 	const rootMatch = /^([a-zA-Z-]+\.)/g; // *.js(x)
 	const folderMatches =
@@ -52,7 +58,9 @@ function filterEslintFiles( file ) {
 	return ! file.endsWith( '.json' ) && ( folderMatches || file.match( rootMatch ) );
 }
 
-// Logging function that is used when check is failed
+/**
+ * Logging function that is used when check is failed
+ */
 function checkFailed() {
 	console.log(
 		chalk.red( 'COMMIT ABORTED:' ),
@@ -64,22 +72,12 @@ function checkFailed() {
 	exitCode = 1;
 }
 
-const gitFiles = parseGitDiffToPathArray(
-	'git diff --cached --name-only --diff-filter=ACM'
-).filter( Boolean );
-const dirtyFiles = parseGitDiffToPathArray( 'git diff --name-only --diff-filter=ACM' ).filter(
-	Boolean
-);
-const jsFiles = gitFiles.filter( filterJsFiles );
-const phpFiles = gitFiles.filter( name => name.endsWith( '.php' ) );
-const phpcsFiles = phpFiles.filter( phpcsFilesToFilter );
-
 /**
  * Filters out unstaged changes so we do not add an entire file without intention.
  *
- * @param {String} file File name to check against the dirty list.
- * @param {Array} filesList Dirty files list.
- * @return {boolean}    If the file should be checked.
+ * @param {string} file - File name to check against the dirty list.
+ * @param {Array} filesList - Dirty files list.
+ * @returns {boolean}    If the file should be checked.
  */
 function checkFileAgainstDirtyList( file, filesList ) {
 	return -1 === filesList.indexOf( file );
@@ -96,7 +94,8 @@ function capturePreCommitDate() {
 
 /**
  * Spawns a eslint process against list of files
- * @param {Array} toLintFiles List of files to lint
+ *
+ * @param {Array} toLintFiles - List of files to lint
  *
  * @returns {Int} shell return code
  */
@@ -116,7 +115,7 @@ function runJSLinter( toLintFiles ) {
 /**
  * Run phpcs-changed.
  *
- * @param {Array} phpFilesToCheck Array of PHP files changed.
+ * @param {Array} phpFilesToCheck - Array of PHP files changed.
  */
 function runPHPCSChanged( phpFilesToCheck ) {
 	let phpChangedFail, phpFileChangedResult;
@@ -147,12 +146,22 @@ function runPHPCSChanged( phpFilesToCheck ) {
 /**
  * Exit
  *
- * @param {Number} exitCodePassed Shell exit code.
+ * @param {number} exitCodePassed - Shell exit code.
  */
 function exit( exitCodePassed ) {
 	capturePreCommitDate();
 	process.exit( exitCodePassed );
 }
+
+const gitFiles = parseGitDiffToPathArray(
+	'git diff --cached --name-only --diff-filter=ACM'
+).filter( Boolean );
+const dirtyFiles = parseGitDiffToPathArray( 'git diff --name-only --diff-filter=ACM' ).filter(
+	Boolean
+);
+const jsFiles = gitFiles.filter( filterJsFiles );
+const phpFiles = gitFiles.filter( name => name.endsWith( '.php' ) );
+const phpcsFiles = phpFiles.filter( phpcsFilesToFilter );
 
 dirtyFiles.forEach( file =>
 	console.log(
