@@ -88,12 +88,15 @@ function PexelsMedia( props ) {
 					type="search"
 					value={ searchQuery }
 					onChange={ setSearchQuery }
+					disabled={ !! isCopying }
 				/>
 				<Button
 					isPrimary
 					onClick={ onSearch }
 					type="submit"
-					disabled={ ! searchQuery.length || searchQuery === previousSearchQueryValue.current }
+					disabled={
+						! searchQuery.length || searchQuery === previousSearchQueryValue.current || isCopying
+					}
 				>
 					{ __( 'Search', 'jetpack' ) }
 				</Button>

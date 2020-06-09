@@ -121,7 +121,7 @@ function MediaBrowser( props ) {
 						isLarge
 						isSecondary
 						className="jetpack-external-media-browser__loadmore"
-						disabled={ isLoading }
+						disabled={ isLoading || isCopying }
 						onClick={ onLoadMoreClick }
 					>
 						{ __( 'Load More', 'jetpack' ) }
