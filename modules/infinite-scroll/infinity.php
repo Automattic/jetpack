@@ -881,6 +881,8 @@ class The_Neverending_Home_Page {
 			'query_before'    => current_time( 'mysql' ),
 			'last_post_date'  => self::get_last_post_date(),
 			'body_class'	  => self::body_class(),
+			'loading_text'	  => esc_js( __( 'Loading' ) ),
+			'loaded_text'	  => esc_js( __( 'Loaded new posts' ) ),
 		);
 
 		// Optional order param
@@ -1033,7 +1035,9 @@ class The_Neverending_Home_Page {
 				extend( window.infiniteScroll.settings.scripts, <?php echo wp_json_encode( $scripts ); ?> );
 				extend( window.infiniteScroll.settings.styles, <?php echo wp_json_encode( $styles ); ?> );
 			})();
-		</script><?php
+		</script>
+		<span id="infinite-aria" aria-live="assertive"></span>
+		<?php
 	}
 
 	/**
@@ -1382,8 +1386,13 @@ class The_Neverending_Home_Page {
 				$wrapper_classes = is_string( self::get_settings()->wrapper ) ? self::get_settings()->wrapper : 'infinite-wrap';
 				$wrapper_classes .= ' infinite-view-' . $page;
 				$wrapper_classes = trim( $wrapper_classes );
+				$aria_label = sprintf(
+					/* translators: %1$s is the page count */
+					__( 'Page: %1$s.', 'jetpack' ),
+					$page
+				);
 
-				$results['html'] = '<div class="' . esc_attr( $wrapper_classes ) . '" id="infinite-view-' . $page . '" data-page-num="' . $page . '">' . $results['html'] . '</div>';
+				$results['html'] = '<div class="' . esc_attr( $wrapper_classes ) . '" id="infinite-view-' . $page . '" data-page-num="' . $page . '" tabindex="0" aria-label="' . esc_attr( $aria_label ) . '">' . $results['html'] . '</div>';
 			}
 
 			// Fire wp_footer to ensure that all necessary scripts are enqueued. Output isn't used, but scripts are extracted in self::action_wp_footer.
