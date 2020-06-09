@@ -13,6 +13,7 @@ import { Component } from '@wordpress/element';
 import { withNotices, Modal } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { speak } from '@wordpress/a11y';
+import { UP, DOWN, LEFT, RIGHT } from '@wordpress/keycodes';
 
 /**
  * Internal dependencies
@@ -35,6 +36,42 @@ export default function withMedia() {
 					path: { ID: PATH_RECENT },
 				};
 			}
+
+			modalRef = el => {
+				if ( el ) {
+					// Find the modal wrapper.
+					this.modalElement = el.closest( '.jetpack-external-media-browser' );
+
+					// Attach the listener if found.
+					if ( this.modalElement ) {
+						this.modalElement.addEventListener( 'keydown', this.stopArrowKeysPropagation );
+					}
+				} else if ( this.modalElement ) {
+					// Remove listeners when unmounting.
+					this.modalElement.removeEventListener( 'keydown', this.stopArrowKeysPropagation );
+					this.modalElement = null;
+				}
+			};
+
+			stopArrowKeysPropagation = event => {
+				/**
+				 * When the External Media modal is open, pressing any arrow key causes
+				 * it to close immediately. This is happening because the keydown event
+				 * propagates outside the modal, triggering a re-render and a blur event
+				 * eventually. We could avoid that by isolating the modal from the Image
+				 * block render scope, but it is not possible in current implementation.
+				 *
+				 * This handler makes sure that the keydown event doesn't propagate further,
+				 * which fixes the issue described above while still keeping arrow keys
+				 * functional inside the modal.
+				 *
+				 * This can be removed once
+				 * https://github.com/WordPress/gutenberg/issues/22940 is fixed.
+				 */
+				if ( [ UP, DOWN, LEFT, RIGHT ].includes( event.keyCode ) ) {
+					event.stopPropagation();
+				}
+			};
 
 			setAuthenticated = isAuthenticated => this.setState( { isAuthenticated } );
 
@@ -166,14 +203,11 @@ export default function withMedia() {
 				this.setState( { path }, cb );
 			};
 
-			stopPropagation( event ) {
-				event.stopPropagation();
-			}
-
 			render() {
 				const { isAuthenticated, isCopying, isLoading, media, nextHandle, path } = this.state;
 				const { allowedTypes, multiple = false, noticeUI, onClose } = this.props;
 
+				const title = isCopying ? __( 'Inserting media', 'jetpack' ) : __( 'Select media', 'jetpack' );
 				const classes = classnames( {
 					'jetpack-external-media-browser': true,
 					'jetpack-external-media-browser--is-copying': isCopying,
@@ -182,13 +216,10 @@ export default function withMedia() {
 				return (
 					<Modal
 						onRequestClose={ onClose }
-						title={
-							isCopying ? __( 'Inserting media', 'jetpack' ) : __( 'Select media', 'jetpack' )
-						}
+						title={ title }
 						className={ classes }
 					>
-						{ /* eslint-disable-next-line jsx-a11y/no-static-element-interactions */ }
-						<div onMouseDown={ this.stopPropagation }>
+						<div ref={ this.modalRef }>
 							{ noticeUI }
 
 							<OriginalComponent
