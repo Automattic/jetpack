@@ -576,7 +576,9 @@ class Jetpack_Testimonial {
 		}
 
 		// enqueue shortcode styles when shortcode is used
-		wp_enqueue_style( 'jetpack-testimonial-style', plugins_url( 'css/testimonial-shortcode.css', __FILE__ ), array(), '20140326' );
+		if ( ! wp_style_is( 'jetpack-testimonial-style', 'enqueued' ) ) {
+			wp_enqueue_style( 'jetpack-testimonial-style', plugins_url( 'css/testimonial-shortcode.css', __FILE__ ), array(), '20140326' );
+		}
 
 		return self::jetpack_testimonial_shortcode_html( $atts );
 	}
