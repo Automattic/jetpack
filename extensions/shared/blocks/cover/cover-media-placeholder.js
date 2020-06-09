@@ -8,7 +8,6 @@
  */
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { Fragment, useState } from '@wordpress/element';
-import { useBlockEditContext } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
 
 /**
@@ -39,13 +38,8 @@ const JetpackCoverUpgradeNudge = ( { name, show } ) =>
 		/>
 		: null;
 
-export default createHigherOrderComponent(
+export default ( name ) => createHigherOrderComponent(
 	CoreMediaPlaceholder => props => {
-		const { name } = useBlockEditContext();
-		if ( name !== 'core/cover' ) {
-			return <CoreMediaPlaceholder { ...props } />;
-		}
-
 		const [ uploadingError, setUploadingError ] = useState( false );
 		const { onError } = props;
 
