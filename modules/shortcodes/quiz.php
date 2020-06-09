@@ -195,7 +195,7 @@ class Quiz_Shortcode {
 	}
 
 	/**
-	 * Strip line breaks, restrict allowed HTML to a few whitelisted tags and execute nested shortcodes.
+	 * Strip line breaks, restrict allowed HTML to a few allowed tags and execute nested shortcodes.
 	 *
 	 * @since 4.5.0
 	 *

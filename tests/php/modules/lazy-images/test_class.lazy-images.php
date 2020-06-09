@@ -303,7 +303,7 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 	 * @dataProvider get_should_skip_image_with_blacklisted_class_data
 	 */
 	function test_should_skip_image_with_blacklisted_class( $expected, $input, $empty_blacklisted_classes = false ) {
-		$this->assertSame( $expected, Jetpack_Lazy_Images::should_skip_image_with_blacklisted_class( $input ) );
+		$this->assertSame( $expected, Jetpack_Lazy_Images::should_skip_image_with_blocked_class( $input ) );
 	}
 
 	function get_should_skip_image_with_blacklisted_class_data() {
@@ -334,7 +334,7 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 
 		foreach ( $filter_callbacks as $callback ) {
 			add_filter( 'jetpack_lazy_images_blacklisted_classes', $callback );
-			$this->assertSame( false, Jetpack_Lazy_Images::should_skip_image_with_blacklisted_class( $classes ) );
+			$this->assertSame( false, Jetpack_Lazy_Images::should_skip_image_with_blocked_class( $classes ) );
 			remove_filter( 'jetpack_lazy_images_blacklisted_classes', $callback );
 		}
 	}

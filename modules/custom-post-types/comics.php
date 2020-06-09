@@ -27,7 +27,7 @@ class Jetpack_Comic {
 		// Make sure the post types are loaded for imports
 		add_action( 'import_start', array( $this, 'register_post_types' ) );
 
-		// Add to REST API post type whitelist
+		// Add to REST API post type allowed list.
 		add_filter( 'rest_api_allowed_post_types', array( $this, 'allow_rest_api_type' ) );
 
 		// If called via REST API, we need to register later in lifecycle
@@ -503,7 +503,7 @@ class Jetpack_Comic {
 	}
 
 	/**
-	 * Add to REST API post type whitelist
+	 * Add to REST API post type allowed list.
 	 */
 	public function allow_rest_api_type( $post_types ) {
 		$post_types[] = self::POST_TYPE;
