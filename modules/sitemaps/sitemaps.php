@@ -32,15 +32,15 @@
  */
 
 /* Include all of the sitemap subclasses. */
-require_once dirname( __FILE__ ) . '/sitemap-constants.php';
-require_once dirname( __FILE__ ) . '/sitemap-buffer.php';
-require_once dirname( __FILE__ ) . '/sitemap-stylist.php';
-require_once dirname( __FILE__ ) . '/sitemap-librarian.php';
-require_once dirname( __FILE__ ) . '/sitemap-finder.php';
-require_once dirname( __FILE__ ) . '/sitemap-builder.php';
+require_once __DIR__ . '/sitemap-constants.php';
+require_once __DIR__ . '/sitemap-buffer.php';
+require_once __DIR__ . '/sitemap-stylist.php';
+require_once __DIR__ . '/sitemap-librarian.php';
+require_once __DIR__ . '/sitemap-finder.php';
+require_once __DIR__ . '/sitemap-builder.php';
 
 if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-	require_once dirname( __FILE__ ) . '/sitemap-logger.php';
+	require_once __DIR__ . '/sitemap-logger.php';
 }
 
 /**
