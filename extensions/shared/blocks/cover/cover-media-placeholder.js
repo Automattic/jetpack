@@ -12,6 +12,8 @@ import { __ } from '@wordpress/i18n';
  */
 import UpgradeNudge from "../../components/upgrade-nudge";
 import { videoFileExtensions, videoFileMimeTypes } from './utils';
+import { isSimpleSite } from "../../site-type-utils";
+import getJetpackExtensionAvailability from "../../get-jetpack-extension-availability";
 
 /**
  * Module Constants
@@ -39,7 +41,12 @@ const JetpackCoverUpgradeNudge = ( { name, show } ) =>
 export default createHigherOrderComponent(
 	CoreMediaPlaceholder => props => {
 		const { name } = useBlockEditContext();
-		if ( name !== 'core/cover' ) {
+		const { unavailableReason } = getJetpackExtensionAvailability( 'videopress' );
+		if (
+			( ! name || name !== 'core/cover' ) || // extend only for cover block
+			! isSimpleSite() || // only for Simple sites
+			! [ 'missing_plan', 'unknown' ].includes( unavailableReason )
+		) {
 			return <CoreMediaPlaceholder { ...props } />;
 		}
 
