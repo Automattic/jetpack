@@ -54,6 +54,50 @@ export default function withMedia() {
 				};
 			}
 
+			componentDidMount() {
+				this.arrowKeysPropagationHandler = this.attachArrowKeysPropagationHandler();
+			}
+
+			componentWillUnmount() {
+				if ( this.arrowKeysPropagationHandler ) {
+					this.arrowKeysPropagationHandler.remove();
+				}
+			}
+
+			attachArrowKeysPropagationHandler = () => {
+				const eventListenerEl = document.querySelector( '.jetpack-external-media-browser' );
+				if ( ! eventListenerEl ) {
+					return null;
+				}
+
+				eventListenerEl.addEventListener( 'keydown', this.stopArrowKeysPropagation );
+				return {
+					remove() {
+						eventListenerEl.removeEventListener( 'keydown', this.stopArrowKeysPropagation );
+					},
+				};
+			};
+
+			stopArrowKeysPropagation = event => {
+				/**
+				 * When the External Media modal is open, pressing any arrow key causes
+				 * it to close immediately. This is happening because the keydown event
+				 * propagates outside the modal, triggering a re-render and a blur event
+				 * eventually. We could avoid that by isolating the modal from the Image
+				 * block render scope, but it is not possible in current implementation.
+				 *
+				 * This handler makes sure that the keydown event doesn't propagate further,
+				 * which fixes the issue described above while still keeping arrow keys
+				 * functional inside the modal.
+				 *
+				 * This can be removed once
+				 * https://github.com/WordPress/gutenberg/issues/22940 is fixed.
+				 */
+				if ( [ UP, DOWN, LEFT, RIGHT ].includes( event.keyCode ) ) {
+					event.stopPropagation();
+				}
+			};
+
 			setAuthenticated = isAuthenticated => this.setState( { isAuthenticated } );
 
 			mergeMedia( initial, media ) {
@@ -172,33 +216,13 @@ export default function withMedia() {
 				this.setState( { path }, cb );
 			};
 
-			stopArrowKeysPropagation = event => {
-				/**
-				 * When the External Media modal is open, pressing any arrow key causes
-				 * it to close immediately. This is happening because the keydown event
-				 * propagates outside the modal, triggering a re-render and a blur event
-				 * eventually. We could avoid that by isolating the modal from the Image
-				 * block render scope, but it is not possible in current implementation.
-				 *
-				 * This handler makes sure that the keydown event doesn't propagate further,
-				 * which fixes the issue described above while still keeping arrow keys
-				 * functional inside the modal.
-				 *
-				 * This can be removed once
-				 * https://github.com/WordPress/gutenberg/issues/22940 is fixed.
-				 */
-				if ( [ UP, DOWN, LEFT, RIGHT ].includes( event.keyCode ) ) {
-					event.stopPropagation();
-				}
-			};
-
 			renderContent() {
 				const { media, isLoading, nextHandle, isAuthenticated, path } = this.state;
 				const { noticeUI, allowedTypes, multiple = false } = this.props;
 
 				return (
 					// eslint-disable-next-line jsx-a11y/no-static-element-interactions
-					<div onKeyDown={ this.stopArrowKeysPropagation }>
+					<div>
 						{ noticeUI }
 
 						<OriginalComponent
