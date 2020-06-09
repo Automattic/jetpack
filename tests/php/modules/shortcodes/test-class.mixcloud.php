@@ -2,7 +2,7 @@
 /**
  * WP_Test_Jetpack_Shortcodes_Mixcloud class
  *
- * @package JetPack
+ * @package Jetpack
  */
 
 /**
