@@ -53,6 +53,10 @@ const JetpackCoverMediaPlaceholder = ( name ) => createHigherOrderComponent(
 					{ ...props }
 					multiple={ false }
 					onFilesPreUpload={ ( files ) => {
+						// TRY/Experimental.
+						// Adding `onFilesPreUpload` prop hasn't been shiped yet.
+						// PR: https://github.com/WordPress/gutenberg/pull/22995
+						// Remove this code block in case the PR does isn't merged.
 						const fileMimeType = files?.[ 0 ].type;
 						if ( ! fileMimeType || ! videoFileMimeTypes.includes( fileMimeType ) ) {
 							return;
