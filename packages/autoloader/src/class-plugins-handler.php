@@ -31,11 +31,9 @@ class Plugins_Handler {
 	 * @return Array The names of the active sitewide plugins or an empty array.
 	 */
 	protected function get_multisite_plugins() {
-		$multisite_plugins = is_multisite()
+		return is_multisite()
 			? array_keys( get_site_option( 'active_sitewide_plugins', array() ) )
 			: array();
-
-		return $this->convert_plugins_to_dirs( $multisite_plugins );
 	}
 
 	/**
@@ -44,8 +42,7 @@ class Plugins_Handler {
 	 * @return Array The active plugins' names or an empty array.
 	 */
 	protected function get_active_plugins() {
-		$active_plugins = (array) get_option( 'active_plugins', array() );
-		return $this->convert_plugins_to_dirs( $active_plugins );
+		return (array) get_option( 'active_plugins', array() );
 	}
 
 	/**
