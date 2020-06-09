@@ -31,7 +31,7 @@ const extendCoreCoverBlock = createHigherOrderComponent(
 		addFilter(
 			'editor.MediaPlaceholder',
 			'jetpack/cover-edit-media-placeholder',
-			coverEditMediaPlaceholder( name )
+			coverEditMediaPlaceholder
 		);
 
 		return <BlockEdit { ...props } />;

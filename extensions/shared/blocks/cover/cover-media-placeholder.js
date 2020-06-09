@@ -8,6 +8,7 @@ import { pickBy, keys, map, flatten, values } from 'lodash';
  * WordPress dependencies
  */
 import { createHigherOrderComponent, compose } from '@wordpress/compose';
+import { useBlockEditContext } from '@wordpress/block-editor';
 import { Fragment, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { withSelect } from '@wordpress/data';
@@ -41,8 +42,13 @@ const JetpackCoverUpgradeNudge = ( { name, show } ) =>
 		/>
 		: null;
 
-const JetpackCoverMediaPlaceholder = ( name ) => createHigherOrderComponent(
+const JetpackCoverMediaPlaceholder = createHigherOrderComponent(
 	CoreMediaPlaceholder => props => {
+		const { name } = useBlockEditContext();
+		if ( name !== 'core/cover' ) {
+			return <CoreMediaPlaceholder { ...props } />;
+		}
+
 		const { onError } = props;
 		const [ error, setError ] = useState( false );
 
@@ -83,7 +89,7 @@ const JetpackCoverMediaPlaceholder = ( name ) => createHigherOrderComponent(
 	'JetpackCoverMediaPlaceholder'
 );
 
-export default ( name ) => compose( [
+export default compose( [
 	withSelect( ( select ) => {
 		const { getEditorSettings } = select( 'core/editor' );
 		const wpAllowedMimeTypes = getEditorSettings().allowedMimeTypes || [];
@@ -95,5 +101,5 @@ export default ( name ) => compose( [
 			allowedVideoFileExtensions,
 		};
 	} ),
-	JetpackCoverMediaPlaceholder( name )
+	JetpackCoverMediaPlaceholder
 ] );
