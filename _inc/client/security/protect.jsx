@@ -23,41 +23,41 @@ import SettingsGroup from 'components/settings-group';
 export const Protect = withModuleSettingsFormHelpers(
 	class extends Component {
 		state = {
-			allowlist: this.props.getOptionValue( 'jetpack_protect_global_whitelist' )
+			safelist: this.props.getOptionValue( 'jetpack_protect_global_whitelist' )
 				? this.props.getOptionValue( 'jetpack_protect_global_whitelist' ).local
 				: '',
 		};
 
-		currentIpIsAlwaysAllowed = () => {
-			// get current allowlist in textarea from this.state.allowlist;
-			return !! includes( this.state.allowlist, this.props.currentIp );
+		currentIpIsSafelisted = () => {
+			// get current safelist in textarea from this.state.safelist;
+			return !! includes( this.state.safelist, this.props.currentIp );
 		};
 
 		updateText = event => {
 			// Enable button if IP is not in the textarea
-			this.currentIpIsAlwaysAllowed();
+			this.currentIpIsSafelisted();
 
 			// Update textarea value
 			this.setState( {
-				allowlist: event.target.value,
+				safelist: event.target.value,
 			} );
 
 			// Add textarea content to form values to save
 			this.props.onOptionChange( event );
 		};
 
-		addToAlwaysAllow = () => {
-			const newAllowlist =
-				this.state.allowlist +
-				( 0 >= this.state.allowlist.length ? '' : '\n' ) +
+		addToSafelist = () => {
+			const newSafelist =
+				this.state.safelist +
+				( 0 >= this.state.safelist.length ? '' : '\n' ) +
 				this.props.currentIp;
 
 			// Update form value manually
-			this.props.updateFormStateOptionValue( 'jetpack_protect_global_whitelist', newAllowlist );
+			this.props.updateFormStateOptionValue( 'jetpack_protect_global_whitelist', newSafelist );
 
-			// add to current state this.state.allowlist;
+			// add to current state this.state.safelist;
 			this.setState( {
-				allowlist: newAllowlist,
+				safelist: newSafelist,
 			} );
 
 			analytics.tracks.recordJetpackClick( {
@@ -124,13 +124,13 @@ export const Protect = withModuleSettingsFormHelpers(
 												disabled={
 													! isProtectActive ||
 													unavailableInDevMode ||
-													this.currentIpIsAlwaysAllowed() ||
+													this.currentIpIsSafelisted() ||
 													this.props.isSavingAnyOption( [
 														'protect',
 														'jetpack_protect_global_whitelist',
 													] )
 												}
-												onClick={ this.addToAlwaysAllow }
+												onClick={ this.addToSafelist }
 											>
 												{ __( 'Add to Always Allowed list' ) }
 											</Button>
@@ -151,7 +151,7 @@ export const Protect = withModuleSettingsFormHelpers(
 										name={ 'jetpack_protect_global_whitelist' }
 										placeholder={ 'Example: 12.12.12.1-12.12.12.100' }
 										onChange={ this.updateText }
-										value={ this.state.allowlist }
+										value={ this.state.safelist }
 									/>
 								</FormLabel>
 								<span className="jp-form-setting-explanation">
