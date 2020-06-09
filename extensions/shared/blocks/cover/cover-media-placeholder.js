@@ -16,6 +16,7 @@ import { withSelect } from '@wordpress/data';
  * Internal dependencies
  */
 import UpgradeNudge from "../../components/upgrade-nudge";
+import { videoFileExtensions, videoFileMimeTypes } from './utils';
 
 /**
  * Module Constants
@@ -42,7 +43,7 @@ const JetpackCoverUpgradeNudge = ( { name, show } ) =>
 
 const JetpackCoverMediaPlaceholder = ( name ) => createHigherOrderComponent(
 	CoreMediaPlaceholder => props => {
-		const { onError, allowedVideoMimeTypes, allowedVideoFileExtensions } = props;
+		const { onError } = props;
 		const [ error, setError ] = useState( false );
 
 		return (
@@ -53,7 +54,7 @@ const JetpackCoverMediaPlaceholder = ( name ) => createHigherOrderComponent(
 					multiple={ false }
 					onFilesPreUpload={ ( files ) => {
 						const fileMimeType = files?.[ 0 ].type;
-						if ( ! fileMimeType || ! allowedVideoMimeTypes.includes( fileMimeType ) ) {
+						if ( ! fileMimeType || ! videoFileMimeTypes.includes( fileMimeType ) ) {
 							return;
 						}
 						return setError( true );
@@ -64,7 +65,7 @@ const JetpackCoverMediaPlaceholder = ( name ) => createHigherOrderComponent(
 						const filename = message?.[0]?.props?.children;
 						if ( filename ) {
 							const fileExtension = ( filename.split( '.' ) )?.[ 1 ];
-							if ( allowedVideoFileExtensions.includes( fileExtension ) ) {
+							if ( videoFileExtensions.includes( fileExtension ) ) {
 								return setError( message );
 							}
 						}
