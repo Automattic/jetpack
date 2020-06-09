@@ -91,7 +91,7 @@ function slideshare_shortcode( $atts ) {
 		$player .= " frameborder='" . intval( $attr['fb'] ) . "'";
 	}
 
-	$is_amp = class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ? true : false;
+	$is_amp = ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() );
 
 	if ( ! $is_amp ) {
 		// check the margin width; if not empty, cast as int.
