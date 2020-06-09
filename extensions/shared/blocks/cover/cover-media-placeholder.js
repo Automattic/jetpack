@@ -50,6 +50,7 @@ const JetpackCoverMediaPlaceholder = ( name ) => createHigherOrderComponent(
 				<JetpackCoverUpgradeNudge name={ name } show={ !! error } />
 				<CoreMediaPlaceholder
 					{ ...props }
+					multiple={ false }
 					onError = { ( message ) => {
 						// Try to pick up filename from the error message.
 						// We should find a better way to do it. Unstable.
