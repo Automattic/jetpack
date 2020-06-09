@@ -34,7 +34,7 @@ function MediaItem( props ) {
 		'jetpack-external-media-browser__media__item': true,
 		'jetpack-external-media-browser__media__item__selected': isSelected,
 		'jetpack-external-media-browser__media__folder': type === 'folder',
-		'is-transient': isSelected && isCopying,
+		'is-transient': isCopying,
 	} );
 
 	const itemEl = useRef( null );
