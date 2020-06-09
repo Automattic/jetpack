@@ -154,7 +154,7 @@ abstract class SAL_Site {
 	}
 
 	public function get_products() {
-		return [];
+		return array();
 	}
 
 	public function get_post_by_id( $post_id, $context ) {
