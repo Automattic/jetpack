@@ -26,10 +26,10 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-yarn-
 
-    # - name: Build jetpack
-    #   run: |
-    #     yarn build-production
-    #     bin/prepare-built-branch.sh
+    - name: Build jetpack
+      run: |
+        yarn build-production
+        bin/prepare-built-branch.sh
     - name: Upload jetpack build
       uses: actions/upload-artifact@v1
       with:
