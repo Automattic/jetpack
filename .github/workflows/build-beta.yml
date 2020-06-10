@@ -26,7 +26,7 @@ jobs:
           ${{ runner.os }}-yarn-
     - name: Build jetpack
       run: |
-        BRANCH=${$GITHUB_REF:11}
+        BRANCH=${GITHUB_REF:11}
         ./tools/build-jetpack.sh -d -b $BRANCH Automattic/jetpack /tmp/jetpack
     - name: Upload jetpack build
       uses: actions/upload-artifact@v2
@@ -36,7 +36,7 @@ jobs:
     - name: Inform beta builder
       run: |
         VERSION=$(cat /tmp/jetpack/version.txt)
-        BRANCH=${$GITHUB_REF:11}
+        BRANCH=${GITHUB_REF:11}
         curl -L "https://betadownload.jetpack.me/beta.php?run_id=$GITHUB_RUN_ID&branch=$BRANCH&pr=${{ steps.findPr.outputs.pr }}&repo=$GITHUB_REPOSITORY&commit=$GITHUB_SHA&version=$VERSION"
 
     - name: Inform beta builder2
