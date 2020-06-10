@@ -162,13 +162,13 @@ export default function withMedia() {
 
 			copyMedia = ( items, apiUrl ) => {
 				this.setState( { isCopying: items } );
+				this.props.noticeOperations.removeAllNotices();
 
-				// If we have a modal element set, focus it. Otherwise focus is reset to the body instead of staying within the Modal.
+				// If we have a modal element set, focus it.
+				// Otherwise focus is reset to the body instead of staying within the Modal.
 				if ( this.modalElement ) {
 					this.modalElement.focus();
 				}
-
-				this.props.noticeOperations.removeAllNotices();
 
 				// Announce the action with appended string of all the images' alt text.
 				speak(
