@@ -1,3 +1,12 @@
 .jetpack-cover-media-placeholder {
 	width: 100%;
+
+	// tweak Upgrade nudge.
+	.block-editor-warning__contents {
+		flex-wrap: initial;
+
+		.block-editor-warning__actions {
+			align-self: center;
+		}
+	}
 }
