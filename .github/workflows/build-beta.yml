@@ -32,13 +32,13 @@ jobs:
 
   inform:
     runs-on: ubuntu-latest
+    needs: build_beta
     steps:
     # Find the PR associated with this push, if there is one.
     - uses: jwalton/gh-find-current-pr@v1
       id: findPr
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
-
     - name: Inform beta builder
       run: |
         VERSION=$(cat /tmp/jetpack/version.txt)
