@@ -13,6 +13,7 @@ import { addFilter } from '@wordpress/hooks';
 import coverEditMediaPlaceholder from './cover-media-placeholder';
 import isCurrentUserConnected from "../../is-current-user-connected";
 import './editor.scss';
+import coverMediaReplaceFlow from './cover-replace-control-button';
 
 if ( isCurrentUserConnected() ) {
 	// Take the control of MediaPlaceholder.
@@ -20,5 +21,12 @@ if ( isCurrentUserConnected() ) {
 		'editor.MediaPlaceholder',
 		'jetpack/cover-edit-media-placeholder',
 		coverEditMediaPlaceholder
+	);
+
+// Take the control of the Replace block button control.
+	addFilter(
+		'editor.MediaReplaceFlow',
+		'jetpack/cover-edit-media-placeholder',
+		coverMediaReplaceFlow
 	);
 }
