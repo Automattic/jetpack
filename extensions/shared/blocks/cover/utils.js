@@ -1,28 +1,48 @@
 
 /**
+ * External dependencies
+ */
+import { pickBy, flatten, map, keys, values } from 'lodash';
+
+/**
  * Internal dependencies
  */
 import { isSimpleSite } from "../../site-type-utils";
 import getJetpackExtensionAvailability from "../../get-jetpack-extension-availability";
 
-export const videoFileExtensions = [
-	'ogv',
-	'mp4',
-	'm4v',
-	'mov',
-	'qt',
-	'wmv',
-	'avi',
-	'mpeg',
-	'mpg',
-	'mpe',
-	'3gp',
-	'3gpp',
-	'3g2',
-	'3gp2',
-	'3gp',
-	'3g2',
-];
+/**
+ * Check if the given file is a video.
+ *
+ * @param   {string|object} file - file to check.
+ * @returns {boolean}       True if it's a video file. Otherwise, False.
+ */
+export function isVideoFile( file ) {
+	// Pick up allowed mime types from the window object.
+	const allowedMimeTypes = window?.Jetpack_Editor_Initial_State?.allowedMimeTypes;
+	if ( ! allowedMimeTypes ) {
+		return false;
+	}
+
+	if ( ! file ) {
+		return false;
+	}
+
+	let allowedVideoMimeTypes = pickBy( allowedMimeTypes, ( type ) => /^video\//.test( type ) );
+	const allowedVideoFileExtensions = flatten( map( keys( allowedVideoMimeTypes ), ext => ext.split( '|' ) ) );
+
+	if ( typeof file === 'string' ) {
+		const fileExtension = ( file.split( '.' ) )?.[ 1 ];
+		return fileExtension && allowedVideoFileExtensions.includes( fileExtension );
+	}
+
+	allowedVideoMimeTypes = values( allowedVideoMimeTypes );
+
+	if ( typeof file === 'object' ) {
+		return file.type && allowedVideoMimeTypes.includes( file.type );
+	}
+
+	return false;
+}
 
 /**
  * Check if the cover block should show the upgrade nudge.

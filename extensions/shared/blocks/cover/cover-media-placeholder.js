@@ -10,7 +10,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import UpgradeNudge from "../../components/upgrade-nudge";
-import { videoFileExtensions, isUpgradable } from './utils';
+import { isUpgradable, isVideoFile } from './utils';
 
 /**
  * Module Constants
@@ -63,16 +63,10 @@ export default CoreMediaPlaceholder => props => {
 					// Try to pick up filename from the error message.
 					// We should find a better way to do it. Unstable.
 					const filename = message?.[0]?.props?.children;
-					if ( ! filename ) {
-						return onError( message );
+					if ( filename && isVideoFile( filename ) ) {
+						return setError( message );
 					}
-
-					const fileExtension = ( filename.split( '.' ) )?.[ 1 ];
-					if ( ! videoFileExtensions.includes( fileExtension ) ) {
-						return onError( message );
-					}
-
-					return setError( message );
+					return onError( message );
 				} }
 				allowedTypes={ ALLOWED_MEDIA_TYPES }
 			/>
