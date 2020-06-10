@@ -1,5 +1,5 @@
 name: "Beta builder"
-on: [push, pull_request]
+on: push
 
 jobs:
   build_beta:
@@ -9,6 +9,11 @@ jobs:
     - name: Checkout Jetpack
       uses: actions/checkout@master
     - run: cat $GITHUB_EVENT_PATH
+          # Find the PR associated with this push, if there is one.
+    - uses: jwalton/gh-find-current-pr@v1
+      id: findPr
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
     - name: Get yarn cache directory path
       id: yarn-cache-dir-path
       run: echo "::set-output name=dir::$(yarn cache dir)"
@@ -21,7 +26,7 @@ jobs:
           ${{ runner.os }}-yarn-
     - name: Build jetpack
       run: |
-        ./tools/build-jetpack.sh -d -b $GITHUB_HEAD_REF Automattic/jetpack /tmp/jetpack
+        ./tools/build-jetpack.sh -d -b $GITHUB_REF Automattic/jetpack /tmp/jetpack
     - name: Upload jetpack build
       uses: actions/upload-artifact@v2
       with:
@@ -30,11 +35,11 @@ jobs:
     - name: Inform beta builder
       run: |
         VERSION=$(cat /tmp/jetpack/version.txt)
-        curl -L "https://betadownload.jetpack.me/beta.php?run_id=$GITHUB_RUN_ID&branch=$GITHUB_HEAD_REF&ref=$GITHUB_REF&repo=$GITHUB_REPOSITORY&commit=$GITHUB_SHA&version=$VERSION"
+        curl -L "https://betadownload.jetpack.me/beta.php?run_id=$GITHUB_RUN_ID&branch=$GITHUB_HEAD_REF&pr=${{ steps.findPr.outputs.pr }}&repo=$GITHUB_REPOSITORY&commit=$GITHUB_SHA&version=$VERSION"
 
 
     - name: Inform beta builder2
       run: |
         VERSION=$(cat /tmp/jetpack/version.txt)
-        curl -L "https://betadownload.jetpack.me/beta.php?version=$VERSION" -H "Content-Type: application/json" -X POST -d '$(cat $GITHUB_EVENT_PATH)'
+        curl -L "https://betadownload.jetpack.me/beta.php?version=$VERSION&pr=${{ steps.findPr.outputs.pr }}" -H "Content-Type: application/json" -X POST -d '$(cat $GITHUB_EVENT_PATH)'
 
