@@ -8,10 +8,8 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import UpgradeNudge from '../../components/upgrade-nudge';
-import { videoFileExtensions } from './utils';
-import { isSimpleSite } from '../../site-type-utils';
-import getJetpackExtensionAvailability from '../../get-jetpack-extension-availability';
+import UpgradeNudge from "../../components/upgrade-nudge";
+import { isUpgradable, isVideoFile } from './utils';
 
 /**
  * Module Constants
@@ -48,14 +46,7 @@ const JetpackCoverUpgradeNudge = ( { name, show } ) =>
 export default CoreMediaPlaceholder => props => {
 	const [ error, setError ] = useState( false );
 	const { name } = useBlockEditContext();
-	const { unavailableReason } = getJetpackExtensionAvailability( 'videopress' );
-
-	if (
-		! name ||
-		name !== 'core/cover' || // extend only for cover block
-		! isSimpleSite() || // only for Simple sites
-		! [ 'missing_plan', 'unknown' ].includes( unavailableReason )
-	) {
+	if ( ! name || ! isUpgradable( name ) ) {
 		return <CoreMediaPlaceholder { ...props } />;
 	}
 
@@ -70,16 +61,10 @@ export default CoreMediaPlaceholder => props => {
 					// Try to pick up filename from the error message.
 					// We should find a better way to do it. Unstable.
 					const filename = message?.[ 0 ]?.props?.children;
-					if ( ! filename ) {
-						return onError( message );
+					if ( filename && isVideoFile( filename ) ) {
+						return setError( message );
 					}
-
-					const fileExtension = filename.split( '.' )?.[ 1 ];
-					if ( ! videoFileExtensions.includes( fileExtension ) ) {
-						return onError( message );
-					}
-
-					return setError( message );
+					return onError( message );
 				} }
 				allowedTypes={ ALLOWED_MEDIA_TYPES }
 			/>
