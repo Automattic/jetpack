@@ -881,8 +881,8 @@ class The_Neverending_Home_Page {
 			'query_before'    => current_time( 'mysql' ),
 			'last_post_date'  => self::get_last_post_date(),
 			'body_class'	  => self::body_class(),
-			'loading_text'	  => esc_js( __( 'Loading' ) ),
-			'loaded_text'	  => esc_js( __( 'Loaded new posts' ) ),
+			'loading_text'	  => esc_js( __( 'Loading', 'jetpack' ) ),
+			'loaded_text'	  => esc_js( __( 'Loaded new posts', 'jetpack' ) ),
 		);
 
 		// Optional order param
