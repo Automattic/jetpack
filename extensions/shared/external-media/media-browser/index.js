@@ -9,6 +9,7 @@ import classnames from 'classnames';
 import { memo, useCallback, useState, useRef } from '@wordpress/element';
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { UP, DOWN, LEFT, RIGHT } from '@wordpress/keycodes';
 
 /**
  * Internal dependencies
@@ -37,6 +38,7 @@ function MediaBrowser( props ) {
 		onCopy,
 	} = props;
 	const [ selected, setSelected ] = useState( [] );
+	const [ focused, setFocused ] = useState( -1 );
 
 	const onSelectImage = useCallback(
 		newlySelected => {
@@ -73,10 +75,10 @@ function MediaBrowser( props ) {
 		[ className ]: true,
 	} );
 
-	const prevMediaCount = useRef( 0 );
-
 	const onLoadMoreClick = () => {
-		prevMediaCount.current = media.length;
+		if ( media.length ) {
+			setFocused( media.length );
+		}
 		nextPage();
 	};
 
@@ -99,15 +101,53 @@ function MediaBrowser( props ) {
 		);
 	};
 
+	const handleArrowKeysNavigation = key => {
+		switch ( key ) {
+			case LEFT:
+				if ( focused >= 1 ) {
+					setFocused( focused - 1 );
+				}
+				break;
+			case RIGHT:
+				if ( focused < media.length ) {
+					setFocused( focused + 1 );
+				}
+				break;
+			case UP:
+				if ( focused >= 5 ) {
+					setFocused( focused - 5 );
+				}
+				break;
+			case DOWN:
+				if ( focused < media.length - 5 ) {
+					setFocused( focused + 5 );
+				}
+				break;
+		}
+	};
+
+	const handleListKeyDown = event => {
+		if ( [ LEFT, RIGHT, UP, DOWN ].includes( event.keyCode ) ) {
+			handleArrowKeysNavigation( event.keyCode );
+			// ToDo: make only content scrollable, leave the form stick to top
+			event.target.scrollIntoView(); // this doesn't work well - needs a few style tweaks first
+			event.stopPropagation();
+			event.preventDefault();
+		}
+	};
+
 	return (
 		<div className={ wrapper }>
-			<div role="presentation" className={ classes }>
+			<div role="presentation" className={ classes } onKeyDown={ handleListKeyDown }>
 				{ media.map( ( item, index ) => (
 					<MediaItem
 						item={ item }
 						key={ item.ID }
-						onClick={ onSelectImage }
-						focusOnMount={ !! prevMediaCount.current && index === prevMediaCount.current }
+						onClick={ image => {
+							onSelectImage( image );
+							setFocused( index );
+						} }
+						focus={ index === focused }
 						isSelected={ selected.find( toFind => toFind.ID === item.ID ) }
 						isCopying={ isCopying }
 					/>
