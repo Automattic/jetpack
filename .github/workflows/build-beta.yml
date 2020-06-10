@@ -19,7 +19,7 @@ jobs:
     - name: Inform beta builder2
       run: |
         DATA=$(cat $GITHUB_EVENT_PATH)
-        echo curl -L -v -H "Content-Type: application/json" -X POST -d '$DATA' "https://betadownload.jetpack.me/beta.php?version=$VERSION&pr=}"
+        curl -L -v -H "Content-Type: application/json" -X POST -d '$DATA' "https://betadownload.jetpack.me/beta.php?version=$VERSION&pr=${{ steps.findPr.outputs.pr }}"
 
 
     - name: Get yarn cache directory path
