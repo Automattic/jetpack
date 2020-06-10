@@ -39,8 +39,6 @@ export default function withMedia() {
 
 			modalRef = el => {
 				if ( el ) {
-					// Store modal content.
-					this.contentElement = el;
 					// Find the modal wrapper.
 					this.modalElement = el.closest( '.jetpack-external-media-browser' );
 
@@ -52,7 +50,6 @@ export default function withMedia() {
 					// Remove listeners when unmounting.
 					this.modalElement.removeEventListener( 'keydown', this.stopArrowKeysPropagation );
 					this.modalElement = null;
-					this.contentElement = null;
 				}
 			};
 
@@ -71,11 +68,8 @@ export default function withMedia() {
 				 * This can be removed once
 				 * https://github.com/WordPress/gutenberg/issues/22940 is fixed.
 				 */
-				if (
-					[ UP, DOWN, LEFT, RIGHT ].includes( event.keyCode ) &&
-					! this.contentElement.contains( event.target ) // Let event through to enable arrow keys navigation.
-				) {
-					event.stopPropagation();
+				if ( [ UP, DOWN, LEFT, RIGHT ].includes( event.keyCode ) ) {
+					event.preventDefault();
 				}
 			};
 
