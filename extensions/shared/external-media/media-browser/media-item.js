@@ -60,21 +60,21 @@ function MediaItem( props ) {
 			aria-checked={ !! isSelected }
 			aria-disabled={ !! isCopying }
 		>
-			<img src={ medium || fmt_hd } alt={ alt } title={ alt } />
-
-			{ type === 'folder' && (
-				<div className="jetpack-external-media-browser__media__info">
-					<div className="jetpack-external-media-browser__media__name">{ name }</div>
-					<div className="jetpack-external-media-browser__media__count">{ children }</div>
-				</div>
-			) }
-
 			{ isSelected && isCopying && (
 				<div className="jetpack-external-media-browser__media__copying_indicator">
 					<Spinner />
 					<div className="jetpack-external-media-browser__media__copying_indicator__label">
 						{ __( 'Inserting Image…', 'jetpack' ) }
 					</div>
+				</div>
+			) }
+
+			<img src={ medium || fmt_hd } alt={ alt } />
+
+			{ type === 'folder' && (
+				<div className="jetpack-external-media-browser__media__info">
+					<div className="jetpack-external-media-browser__media__name">{ name }</div>
+					<div className="jetpack-external-media-browser__media__count">{ children }</div>
 				</div>
 			) }
 		</li>
