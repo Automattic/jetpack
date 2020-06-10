@@ -38,8 +38,6 @@ jobs:
         VERSION=$(cat /tmp/jetpack/version.txt)
         BRANCH=${$GITHUB_REF:11}
         curl -L "https://betadownload.jetpack.me/beta.php?run_id=$GITHUB_RUN_ID&branch=$BRANCH&pr=${{ steps.findPr.outputs.pr }}&repo=$GITHUB_REPOSITORY&commit=$GITHUB_SHA&version=$VERSION"
-      env:
-
 
     - name: Inform beta builder2
       run: |
