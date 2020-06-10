@@ -6,7 +6,7 @@ import classnames from 'classnames';
 /**
  * WordPress dependencies
  */
-import { memo, useCallback, useState, useRef } from '@wordpress/element';
+import { memo, useCallback, useState, useRef, useEffect } from '@wordpress/element';
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { UP, DOWN, LEFT, RIGHT } from '@wordpress/keycodes';
@@ -39,7 +39,9 @@ function MediaBrowser( props ) {
 	} = props;
 	const [ selected, setSelected ] = useState( [] );
 	const [ focused, setFocused ] = useState( -1 );
-	const [ columns, setColumns ] = useState( 5 );
+	const [ columns, setColumns ] = useState( -1 );
+
+	const gridEl = useRef( null );
 
 	const onSelectImage = useCallback(
 		newlySelected => {
@@ -102,6 +104,31 @@ function MediaBrowser( props ) {
 		);
 	};
 
+	/**
+	 * Counts how many items are in a row by checking how many of the grid's child items have a matching offsetTop.
+	 */
+	const checkColumns = () => {
+		let perRow = 1;
+
+		const items = gridEl.current.children;
+
+		if ( items.length > 0 ) {
+			const firstOffset = items[ 0 ].offsetTop;
+
+			// Check how many items have a matching offsetTop.
+			// This will give us the total number of items in a row.
+			while ( perRow < items.length && items[ perRow ].offsetTop === firstOffset ) {
+				++perRow;
+			}
+		}
+
+		setColumns( perRow );
+	};
+
+	useEffect( () => {
+		checkColumns();
+	}, [ media ] );
+
 	const handleArrowKeysNavigation = ( keyCode, index ) => {
 		switch ( keyCode ) {
 			case LEFT:
@@ -129,7 +156,7 @@ function MediaBrowser( props ) {
 
 	return (
 		<div className={ wrapper }>
-			<ul className={ classes }>
+			<ul ref={ gridEl } className={ classes }>
 				{ media.map( ( item, index ) => (
 					<MediaItem
 						item={ item }
