@@ -29,12 +29,7 @@ const JetpackCoverUpgradeNudge = ( { name, show } ) =>
 				knownPlan: __( 'To use a video in this block, upgrade to %(planName)s plan.', 'jetpack' ),
 				unknownPlan: __( 'To use a video in this block, upgrade to a paid plan.', 'jetpack' ),
 			} }
-			subtitle={ __(
-				'Upload unlimited videos to your website and \
-				display them using a fast, unbranded, \
-				customizable player.',
-				'jetpack'
-			) }
+			subtitle={ false }
 		/>
 		: null;
 
