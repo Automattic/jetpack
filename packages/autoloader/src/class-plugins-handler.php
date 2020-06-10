@@ -173,7 +173,7 @@ class Plugins_Handler {
 		if ( isset( $hook_extra['plugin'] ) ) {
 			$plugin = $hook_extra['plugin'];
 
-			if ( ! is_directory_plugin( $plugin ) ) {
+			if ( ! $this->is_directory_plugin( $plugin ) ) {
 				// Single-file plugins don't use packages, so bail.
 				return $response;
 			}
