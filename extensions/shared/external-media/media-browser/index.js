@@ -39,6 +39,7 @@ function MediaBrowser( props ) {
 	} = props;
 	const [ selected, setSelected ] = useState( [] );
 	const [ focused, setFocused ] = useState( -1 );
+	const [ columns, setColumns ] = useState( 5 );
 
 	const onSelectImage = useCallback(
 		newlySelected => {
@@ -114,13 +115,13 @@ function MediaBrowser( props ) {
 				}
 				break;
 			case UP:
-				if ( index >= 5 ) {
-					setFocused( index - 5 );
+				if ( index >= columns ) {
+					setFocused( index - columns );
 				}
 				break;
 			case DOWN:
-				if ( index < media.length - 5 ) {
-					setFocused( index + 5 );
+				if ( index < media.length - columns ) {
+					setFocused( index + columns );
 				}
 				break;
 		}
