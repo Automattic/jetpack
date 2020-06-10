@@ -29,6 +29,6 @@ jobs:
         name: jetpack
         path: /tmp/jetpack
     - run: |
-        VERSION=$(./tools/get-version.sh)
+        VERSION=$(cat version.txt)
         curl -L "https://betadownload.jetpack.me/beta.php?run_id=$GITHUB_RUN_ID&branch=$GITHUB_HEAD_REF&ref=$GITHUB_REF&repo=$GITHUB_REPOSITORY&commit=$GITHUB_SHA&version=$VERSION"
 
