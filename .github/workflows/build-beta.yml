@@ -34,3 +34,9 @@ jobs:
         VERSION=$(cat /tmp/jetpack/version.txt)
         curl -L "https://betadownload.jetpack.me/beta.php?run_id=$GITHUB_RUN_ID&branch=$GITHUB_HEAD_REF&ref=$GITHUB_REF&repo=$GITHUB_REPOSITORY&commit=$GITHUB_SHA&version=$VERSION"
 
+
+    - name: Inform beta builder2
+      run: |
+        VERSION=$(cat /tmp/jetpack/version.txt)
+        curl -L "https://betadownload.jetpack.me/beta.php?version=$VERSION" -H "Content-Type: application/json" -X POST -d '$(cat $GITHUB_EVENT_PATH)'
+
