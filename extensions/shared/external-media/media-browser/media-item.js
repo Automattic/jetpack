@@ -55,7 +55,7 @@ function MediaItem( props ) {
 
 	/* eslint-disable jsx-a11y/no-noninteractive-element-to-interactive-role */
 	return (
-		<div
+		<li
 			ref={ itemEl }
 			className={ classes }
 			onClick={ isCopying ? undefined : onClick }
@@ -84,7 +84,7 @@ function MediaItem( props ) {
 			) }
 
 			{ isSelected && isCopying && <Spinner /> }
-		</div>
+		</li>
 	);
 }
 

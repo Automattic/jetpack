@@ -128,7 +128,7 @@ function MediaBrowser( props ) {
 
 	return (
 		<div className={ wrapper }>
-			<div role="presentation" className={ classes }>
+			<ul className={ classes }>
 				{ media.map( ( item, index ) => (
 					<MediaItem
 						item={ item }
@@ -148,7 +148,7 @@ function MediaBrowser( props ) {
 
 				{ media.length === 0 && ! isLoading && <EmptyResults /> }
 				{ isLoading && <MediaPlaceholder /> }
-			</div>
+			</ul>
 
 			{ pageHandle && ! isLoading && (
 				<Button
