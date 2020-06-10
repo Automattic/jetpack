@@ -423,7 +423,7 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "Utilities to build URLs to the jetpack.com/redirect service"
+            "description": "Utilities to build URLs to the jetpack.com/redirect/ service"
         },
         {
             "name": "automattic/jetpack-roles",
