@@ -35,7 +35,7 @@ class Jetpack_Portfolio {
 		// Make sure the post types are loaded for imports
 		add_action( 'import_start',                                                    array( $this, 'register_post_types' ) );
 
-		// Add to REST API post type whitelist
+		// Add to REST API post type allowed list.
 		add_filter( 'rest_api_allowed_post_types',                                     array( $this, 'allow_portfolio_rest_api_type' ) );
 
 		$setting = Jetpack_Options::get_option_and_ensure_autoload( self::OPTION_NAME, '0' );
@@ -541,7 +541,7 @@ class Jetpack_Portfolio {
 	}
 
 	/**
-	 * Add to REST API post type whitelist
+	 * Add to REST API post type allowed list.
 	 */
 	function allow_portfolio_rest_api_type( $post_types ) {
 		$post_types[] = self::CUSTOM_POST_TYPE;

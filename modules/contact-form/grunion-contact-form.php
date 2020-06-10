@@ -140,7 +140,7 @@ class Grunion_Contact_Form_Plugin {
 			add_filter( 'widget_text', array( $this, 'widget_shortcode_hack' ), 5 );
 		}
 
-		add_filter( 'jetpack_contact_form_is_spam', array( $this, 'is_spam_blacklist' ), 10, 2 );
+		add_filter( 'jetpack_contact_form_is_spam', array( $this, 'is_spam_blocklist' ), 10, 2 );
 
 		// Akismet to the rescue
 		if ( defined( 'AKISMET_VERSION' ) || function_exists( 'akismet_http_post' ) ) {
@@ -201,7 +201,7 @@ class Grunion_Contact_Form_Plugin {
 			)
 		);
 
-		// Add to REST API post type whitelist
+		// Add to REST API post type allowed list.
 		add_filter( 'rest_api_allowed_post_types', array( $this, 'allow_feedback_rest_api_type' ) );
 
 		// Add "spam" as a post status
@@ -373,7 +373,7 @@ class Grunion_Contact_Form_Plugin {
 	}
 
 	/**
-	 * Add to REST API post type whitelist
+	 * Add to REST API post type allowed list.
 	 */
 	function allow_feedback_rest_api_type( $post_types ) {
 		$post_types[] = 'feedback';
@@ -640,8 +640,8 @@ class Grunion_Contact_Form_Plugin {
 	}
 
 	/**
-	 * Check if a submission matches the Comment Blacklist.
-	 * The Comment Blacklist is a means to moderate discussion, and contact
+	 * Check if a submission matches the Comment Blocklist.
+	 * The Comment Blocklist is a means to moderate discussion, and contact
 	 * forms are 1:1 discussion forums, ripe for abuse by users who are being
 	 * removed from the public discussion.
 	 * Attached to `jetpack_contact_form_is_spam`
@@ -650,7 +650,7 @@ class Grunion_Contact_Form_Plugin {
 	 * @param array $form
 	 * @return bool TRUE => spam, FALSE => not spam
 	 */
-	function is_spam_blacklist( $is_spam, $form = array() ) {
+	public function is_spam_blocklist( $is_spam, $form = array() ) {
 		if ( $is_spam ) {
 			return $is_spam;
 		}
@@ -2171,7 +2171,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		$compiled_form = array();
 
-		// "Standard" field whitelist
+		// "Standard" field allowed list.
 		foreach ( $field_value_map as $type => $meta_key ) {
 			if ( isset( $field_ids[ $type ] ) ) {
 				$field = $form->fields[ $field_ids[ $type ] ];
@@ -2351,28 +2351,28 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	/**
 	 * Loops through $this->fields to generate a (structured) list of field IDs.
 	 *
-	 * Important: Currently the whitelisted fields are defined as follows:
+	 * Important: Currently the allowed fields are defined as follows:
 	 *  `name`, `email`, `url`, `subject`, `textarea`
 	 *
 	 * If you need to add new fields to the Contact Form, please don't add them
-	 * to the whitelisted fields and leave them as extra fields.
+	 * to the allowed fields and leave them as extra fields.
 	 *
 	 * The reasoning behind this is that both the admin Feedback view and the CSV
 	 * export will not include any fields that are added to the list of
-	 * whitelisted fields without taking proper care to add them to all the
+	 * allowed fields without taking proper care to add them to all the
 	 * other places where they accessed/used/saved.
 	 *
 	 * The safest way to add new fields is to add them to the dropdown and the
 	 * HTML list ( @see Grunion_Contact_Form_Field::render ) and don't add them
-	 * to the list of whitelisted fields. This way they will become a part of the
+	 * to the list of allowed fields. This way they will become a part of the
 	 * `extra fields` which are saved in the post meta and will be properly
 	 * handled by the admin Feedback view and the CSV Export without any extra
 	 * work.
 	 *
-	 * If there is need to add a field to the whitelisted fields, then please
+	 * If there is need to add a field to the allowed fields, then please
 	 * take proper care to add logic to handle the field in the following places:
 	 *
-	 *  - Below in the switch statement - so the field is recognized as whitelisted.
+	 *  - Below in the switch statement - so the field is recognized as allowed.
 	 *
 	 *  - Grunion_Contact_Form::process_submission - validation and logic.
 	 *
@@ -2393,10 +2393,10 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	 */
 	function get_field_ids() {
 		$field_ids = array(
-			'all'   => array(), // array of all field_ids
-			'extra' => array(), // array of all non-whitelisted field IDs
+			'all'   => array(), // array of all field_ids.
+			'extra' => array(), // array of all non-allowed field IDs.
 
-			// Whitelisted "standard" field IDs:
+			// Allowed "standard" field IDs:
 			// 'email'    => field_id,
 			// 'name'     => field_id,
 			// 'url'      => field_id,
@@ -2409,7 +2409,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 			$type = $field->get_attribute( 'type' );
 			if ( isset( $field_ids[ $type ] ) ) {
-				// This type of field is already present in our whitelist of "standard" fields for this form
+				// This type of field is already present in our allowed list of "standard" fields for this form
 				// Put it in extra
 				$field_ids['extra'][] = $id;
 				continue;

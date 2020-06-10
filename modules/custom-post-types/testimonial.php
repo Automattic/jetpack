@@ -30,7 +30,7 @@ class Jetpack_Testimonial {
 		// If called via REST API, we need to register later in lifecycle
 		add_action( 'restapi_theme_init',          array( $this, 'maybe_register_cpt' ) );
 
-		// Add to REST API post type whitelist
+		// Add to REST API post type allowed list.
 		add_filter( 'rest_api_allowed_post_types', array( $this, 'allow_cpt_rest_api_type' ) );
 
 		$this->maybe_register_cpt();
@@ -185,7 +185,7 @@ class Jetpack_Testimonial {
 	}
 
 	/**
-	 * Add to REST API post type whitelist
+	 * Add to REST API post type allowed list.
 	 */
 	function allow_cpt_rest_api_type( $post_types ) {
 		$post_types[] = self::CUSTOM_POST_TYPE;
