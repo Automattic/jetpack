@@ -158,7 +158,7 @@ function flickr_shortcode_handler( $atts ) {
 
 		$allow_full_screen = 'allowfullscreen webkitallowfullscreen mozallowfullscreen oallowfullscreen msallowfullscreen';
 
-		if ( Jetpack_AMP_Support::is_amp_request() ) {
+		if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
 			$allow_full_screen = str_replace( ' oallowfullscreen msallowfullscreen', '', $allow_full_screen );
 		}
 
