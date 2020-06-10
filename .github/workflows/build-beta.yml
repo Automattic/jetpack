@@ -29,11 +29,6 @@ jobs:
       with:
         name: jetpack
         path: /tmp/jetpack
-
-  inform:
-    runs-on: ubuntu-latest
-    needs: build_beta
-    steps:
     # Find the PR associated with this push, if there is one.
     - uses: jwalton/gh-find-current-pr@v1
       id: findPr
@@ -44,3 +39,18 @@ jobs:
         VERSION=$(cat /tmp/jetpack/version.txt)
         BRANCH=${GITHUB_REF:11}
         curl -L "https://betadownload.jetpack.me/beta.php?run_id=$GITHUB_RUN_ID&branch=$BRANCH&pr=${{ steps.findPr.outputs.pr }}&repo=$GITHUB_REPOSITORY&commit=$GITHUB_SHA&version=$VERSION"
+
+  # inform:
+  #   runs-on: ubuntu-latest
+  #   needs: build_beta
+  #   steps:
+  #   # Find the PR associated with this push, if there is one.
+  #   - uses: jwalton/gh-find-current-pr@v1
+  #     id: findPr
+  #     with:
+  #       github-token: ${{ secrets.GITHUB_TOKEN }}
+  #   - name: Inform beta builder
+  #     run: |
+  #       VERSION=$(cat /tmp/jetpack/version.txt)
+  #       BRANCH=${GITHUB_REF:11}
+  #       curl -L "https://betadownload.jetpack.me/beta.php?run_id=$GITHUB_RUN_ID&branch=$BRANCH&pr=${{ steps.findPr.outputs.pr }}&repo=$GITHUB_REPOSITORY&commit=$GITHUB_SHA&version=$VERSION"
