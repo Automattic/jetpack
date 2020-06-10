@@ -26,7 +26,7 @@ const JetpackCoverUpgradeNudge = ( { name, show } ) =>
 			plan="value_bundle"
 			blockName={ name }
 			title={ {
-				knownPlan: __( 'To use a video in this block, upgrade to %(planName)s plan.', 'jetpack' ),
+				knownPlan: __( 'To use a video in this block, upgrade to %(planName)s.', 'jetpack' ),
 				unknownPlan: __( 'To use a video in this block, upgrade to a paid plan.', 'jetpack' ),
 			} }
 			subtitle={ __(
