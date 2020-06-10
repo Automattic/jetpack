@@ -90,14 +90,7 @@ setup_nginx() {
 
 
 	# Figure out domain name and replace the value in config
-	# DOMAIN_NAME=$(echo $WP_SITE_URL | awk -F/ '{print $3}')
-	# DOMAIN_NAME="localhost"
 	DOMAIN_NAME="*.ngrok.io"
-	if [ -z "$DOMAIN_NAME" ]; then
-		echo "DOMAIN_NAME is empty! Does ngrok started correctly?"
-		exit 1
-	fi
-
 	SED_ARG="s+%WP_DOMAIN%+$DOMAIN_NAME+g"
 	sed -i $SED_ARG $CONFIG_DIR/travis_default-site.conf
 
@@ -186,6 +179,10 @@ else
 
 	install_wp
 	prepare_jetpack
+fi
+
+if [ -n $LATEST_GUTENBERG ]; then
+	wp --path=$WP_CORE_DIR plugin install gutenberg --activate
 fi
 
 echo $WP_SITE_URL
