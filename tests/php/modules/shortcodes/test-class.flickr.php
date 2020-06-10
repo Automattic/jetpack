@@ -23,6 +23,16 @@ class WP_Test_Jetpack_Shortcodes_Flickr extends WP_UnitTestCase {
 				);
 			}
 
+			if ( 0 === strpos( $url, 'https://www.flickr.com/services/oembed/' ) ) {
+				$body = array(
+					'html' => '<iframe src="https://embedr.flickr.com/photos/49931239842" width="500" height="281" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>',
+				);
+
+				return array(
+					'body' => wp_json_encode( $body ),
+				);
+			}
+
 			return $preempt;
 		};
 
@@ -38,9 +48,8 @@ class WP_Test_Jetpack_Shortcodes_Flickr extends WP_UnitTestCase {
 	 * Runs on every test.
 	 */
 	public function tearDown() {
-		parent::tearDown();
-
 		remove_filter( 'pre_http_request', $this->pre_http_req_function );
+		parent::tearDown();
 	}
 
 	/**
@@ -191,15 +200,15 @@ class WP_Test_Jetpack_Shortcodes_Flickr extends WP_UnitTestCase {
 	/**
 	 * Shortcode reversals.
 	 */
-	public function test_shortcodes_flickr_reversal_iframe_to_link() {
+	public function test_shortcodes_flickr_reversal_iframe_to_shortcode() {
 		if ( defined( 'TESTING_IN_JETPACK' ) && TESTING_IN_JETPACK ) {
 			self::markTestSkipped( 'This test only runs on WPCOM' );
 		}
-		$content = '<iframe src="http://www.flickr.com/photos/batmoo/5265478228/player/" height="500" width="375"  frameborder="0" allowfullscreen webkitallowfullscreen mozallowfullscreen oallowfullscreen msallowfullscreen></iframe>';
+		$content = '<iframe src="http://www.flickr.com/photos/batmoo/5265478228/player/" height="500" width="375" frameborder="0" allowfullscreen webkitallowfullscreen mozallowfullscreen oallowfullscreen msallowfullscreen></iframe>';
 
 		$shortcode_content = wp_kses_post( $content );
 
-		$this->assertEquals( $shortcode_content, '[flickr photo="http://www.flickr.com/photos/batmoo/5265478228" w=375 h=500]' );
+		$this->assertEquals( $shortcode_content, '[flickr photo="http://www.flickr.com/photos/batmoo/5265478228/" w=375 h=500]' );
 	}
 
 	/**

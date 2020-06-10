@@ -46,15 +46,15 @@ function flickr_embed_to_shortcode( $content ) {
  * @return string Shortcode or the embed content.
  */
 function jetpack_flickr_photo_to_shortcode( $content ) {
-	preg_match( '/<iframe src=\"([^\"]+)\"\s+height=\"([^\"]+)\"\s+width=\"([^\"]+)\"/', $content, $matches );
+	preg_match( '/<iframe src=\"([^\"]+)\"(\s+height=\"([^\"]*)\")?(\s+width=\"([^\"]*)\")?/', $content, $matches );
 
 	if ( empty( $matches[1] ) ) {
 		return $content;
 	}
 
 	$src    = esc_attr( str_replace( 'player/', '', $matches[1] ) );
-	$width  = esc_attr( $matches[2] );
-	$height = esc_attr( $matches[3] );
+	$height = empty( $matches[3] ) ? '"auto"' : esc_attr( $matches[3] );
+	$width  = empty( $matches[5] ) ? '' : esc_attr( $matches[5] );
 
 	/** This action is documented in modules/shortcodes/youtube.php */
 	do_action( 'jetpack_embed_to_shortcode', 'flickr_photo', $src );
@@ -180,7 +180,8 @@ function flickr_shortcode_handler( $atts ) {
 function flickr_shortcode_video_markup( $atts, $id, $video_param ) {
 
 	$transient_name = "flickr_video_$id";
-	$video_src      = get_transient( $transient_name );
+	// $video_src      = get_transient( $transient_name );
+	$video_src = '';
 
 	if ( empty( $video_src ) ) {
 		$video_url = '';
