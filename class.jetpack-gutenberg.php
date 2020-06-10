@@ -773,6 +773,7 @@ class Jetpack_Gutenberg {
 				'siteFragment'     => $site_fragment,
 				'tracksUserData'   => $user_data,
 				'wpcomBlogId'      => $blog_id,
+				'allowedMimeTypes' => wp_get_mime_types(),
 			)
 		);
 
