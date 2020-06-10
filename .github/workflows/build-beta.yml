@@ -1,5 +1,5 @@
 name: "Beta builder"
-on: [pull_request, push]
+on: [push, pull_request]
 
 jobs:
   build_beta:
