@@ -1,6 +1,6 @@
 name: "Beta builder"
 on:
-- pull_request
+- push
 
 jobs:
   build_beta:
@@ -28,7 +28,8 @@ jobs:
       with:
         name: jetpack
         path: /tmp/jetpack
-    - run: |
-        VERSION=$(cat version.txt)
+    - name: Inform beta builder
+      run: |
+        VERSION=$(cat /tmp/jetpack/version.txt)
         curl -L "https://betadownload.jetpack.me/beta.php?run_id=$GITHUB_RUN_ID&branch=$GITHUB_HEAD_REF&ref=$GITHUB_REF&repo=$GITHUB_REPOSITORY&commit=$GITHUB_SHA&version=$VERSION"
 
