@@ -1,7 +1,7 @@
 name: "Beta builder"
 on:
-- push
 - pull_request
+- push
 
 jobs:
   build_beta:
