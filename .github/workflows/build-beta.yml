@@ -18,7 +18,8 @@ jobs:
 
     - name: Inform beta builder2
       run: |
-        curl -L -v -H "Content-Type: application/json" -X POST -d '$(cat $GITHUB_EVENT_PATH)' "https://betadownload.jetpack.me/beta.php?version=$VERSION&pr=${{ steps.findPr.outputs.pr }}"
+        DATA=$(cat $GITHUB_EVENT_PATH)
+        echo curl -L -v -H "Content-Type: application/json" -X POST -d '$DATA' "https://betadownload.jetpack.me/beta.php?version=$VERSION&pr=}"
 
 
     - name: Get yarn cache directory path
@@ -49,5 +50,6 @@ jobs:
     - name: Inform beta builder2
       run: |
         VERSION=$(cat /tmp/jetpack/version.txt)
-        curl -L -v -H "Content-Type: application/json" -X POST -d '$(cat $GITHUB_EVENT_PATH)' "https://betadownload.jetpack.me/beta.php?version=$VERSION&pr=${{ steps.findPr.outputs.pr }}"
+        DATA=$(cat $GITHUB_EVENT_PATH)
+        curl -L -v -H "Content-Type: application/json" -X POST -d '$DATA' "https://betadownload.jetpack.me/beta.php?version=$VERSION&pr=${{ steps.findPr.outputs.pr }}"
 
