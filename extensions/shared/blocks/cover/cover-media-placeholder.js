@@ -11,7 +11,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import UpgradeNudge from "../../components/upgrade-nudge";
-import { videoFileExtensions, videoFileMimeTypes } from './utils';
+import { videoFileExtensions } from './utils';
 import { isSimpleSite } from "../../site-type-utils";
 import getJetpackExtensionAvailability from "../../get-jetpack-extension-availability";
 
@@ -59,17 +59,6 @@ export default createHigherOrderComponent(
 				<CoreMediaPlaceholder
 					{ ...props }
 					multiple={ false }
-					onFilesPreUpload={ ( files ) => {
-						// TRY/Experimental.
-						// Adding `onFilesPreUpload` prop hasn't been shiped yet.
-						// PR: https://github.com/WordPress/gutenberg/pull/22995
-						// Remove this code block in case the PR does isn't merged.
-						const fileMimeType = files?.[ 0 ].type;
-						if ( ! fileMimeType || ! videoFileMimeTypes.includes( fileMimeType ) ) {
-							return;
-						}
-						return setError( true );
-					} }
 					onError = { ( message ) => {
 						// Try to pick up filename from the error message.
 						// We should find a better way to do it. Unstable.
