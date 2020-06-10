@@ -70,24 +70,6 @@ gulp.task( 'sass:instant-search', function( done ) {
 		} );
 } );
 
-gulp.task( 'sass:wordads', function( done ) {
-	log( 'Building WordAds CSS bundle...' );
-
-	return gulp
-		.src( './modules/wordads/css/*.scss' )
-		.pipe( sass( { outputStyle: 'compressed' } ) )
-		.pipe(
-			prepend.prependText( '/* Do not modify this file directly.  It is compiled SASS code. */\n' )
-		)
-		.pipe( autoprefixer() )
-		.pipe( rename( { suffix: '.min' } ) )
-		.pipe( gulp.dest( './modules/wordads/css' ) )
-		.on( 'end', function() {
-			log( 'WordAds CSS finished.' );
-			done();
-		} );
-} );
-
 function doRTL( files, done ) {
 	let dest = './_inc/build',
 		renameArgs = { suffix: '.rtl' },
@@ -249,7 +231,7 @@ gulp.task(
 );
 
 export const build = gulp.parallel(
-	gulp.series( 'sass:dashboard', 'sass:calypsoify', 'sass:instant-search', 'sass:wordads' ),
+	gulp.series( 'sass:dashboard', 'sass:calypsoify', 'sass:instant-search' ),
 	'sass:old',
 	'sass:packages'
 );
@@ -257,13 +239,7 @@ export const build = gulp.parallel(
 export const watch = function() {
 	return gulp.watch(
 		[ './**/*.scss', ...alwaysIgnoredPaths ],
-		gulp.series(
-			'sass:dashboard',
-			'sass:instant-search',
-			'sass:calypsoify',
-			'sass:wordads',
-			'sass:old'
-		)
+		gulp.series( 'sass:dashboard', 'sass:instant-search', 'sass:calypsoify', 'sass:old' )
 	);
 };
 
