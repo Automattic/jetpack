@@ -1,0 +1,29 @@
+{
+	"name": "automattic/jetpack-sample",
+	"description": "Sample package to test soft wordpress",
+	"type": "library",
+	"license": "GPL-2.0-or-later",
+	"require-dev": {
+		"phpunit/phpunit": "^5.7 || ^6.5 || ^7.5",
+		"roots/wordpress": "^5.2"
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
+	"scripts": {
+		"phpunit": [
+			"@composer install",
+			"./vendor/phpunit/phpunit/phpunit --colors=always"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../*"
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true
+}
