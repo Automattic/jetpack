@@ -162,6 +162,12 @@ export default function withMedia() {
 
 			copyMedia = ( items, apiUrl ) => {
 				this.setState( { isCopying: items } );
+
+				// If we have a modal element set, focus it. Otherwise focus is reset to the body instead of staying within the Modal.
+				if ( this.modalElement ) {
+					this.modalElement.focus();
+				}
+
 				this.props.noticeOperations.removeAllNotices();
 
 				// Announce the action with appended string of all the images' alt text.
@@ -207,18 +213,16 @@ export default function withMedia() {
 				const { isAuthenticated, isCopying, isLoading, media, nextHandle, path } = this.state;
 				const { allowedTypes, multiple = false, noticeUI, onClose } = this.props;
 
-				const title = isCopying ? __( 'Inserting media', 'jetpack' ) : __( 'Select media', 'jetpack' );
+				const title = isCopying
+					? __( 'Inserting media', 'jetpack' )
+					: __( 'Select media', 'jetpack' );
 				const classes = classnames( {
 					'jetpack-external-media-browser': true,
 					'jetpack-external-media-browser--is-copying': isCopying,
 				} );
 
 				return (
-					<Modal
-						onRequestClose={ onClose }
-						title={ title }
-						className={ classes }
-					>
+					<Modal onRequestClose={ onClose } title={ title } className={ classes }>
 						<div ref={ this.modalRef }>
 							{ noticeUI }
 
