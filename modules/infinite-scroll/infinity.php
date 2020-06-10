@@ -1394,7 +1394,7 @@ class The_Neverending_Home_Page {
 				$wrapper_classes = trim( $wrapper_classes );
 				$aria_label = sprintf(
 					/* translators: %1$s is the page count */
-					__( 'Page: %1$s.', 'jetpack' ),
+					__( 'Page: %1$d.', 'jetpack' ),
 					$page
 				);
 
