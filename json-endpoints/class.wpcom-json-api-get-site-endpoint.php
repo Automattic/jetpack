@@ -144,6 +144,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'import_engine',
 		'is_wpforteams_site',
 		'site_creation_flow',
+		'is_cloud_eligible',
 	);
 
 	protected static $jetpack_response_field_additions = array(
@@ -154,6 +155,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 	protected static $jetpack_response_field_member_additions = array(
 		'capabilities',
 		'plan',
+		'products',
 	);
 
 	protected static $jetpack_response_option_additions = array(
@@ -392,6 +394,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			case 'plan' :
 				$response[ $key ] = $this->site->get_plan();
 				break;
+			case 'products' :
+				$response[ $key ] = $this->site->get_products();
+				break;
 			case 'quota' :
 				$response[ $key ] = $this->site->get_quota();
 				break;
@@ -619,6 +624,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 						$options[ $key ] = $site_creation_flow;
 					}
 					break;
+				case 'is_cloud_eligible':
+					$options[ $key ] = $site->is_cloud_eligible();
+					break;
 			}
 		}
 
@@ -676,6 +684,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			unset( $response->user_can_manage );
 			unset( $response->is_multisite );
 			unset( $response->plan );
+			unset( $response->products );
 		}
 
 		// render additional options
