@@ -10,9 +10,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import UpgradeNudge from "../../components/upgrade-nudge";
-import { videoFileExtensions } from './utils';
-import { isSimpleSite } from "../../site-type-utils";
-import getJetpackExtensionAvailability from "../../get-jetpack-extension-availability";
+import { videoFileExtensions, isUpgradable } from './utils';
 
 /**
  * Module Constants
@@ -48,14 +46,9 @@ const JetpackCoverUpgradeNudge = ( { name, show } ) =>
 
 export default CoreMediaPlaceholder => props => {
 	const [ error, setError ] = useState( false );
-	const { name } = useBlockEditContext();
-	const { unavailableReason } = getJetpackExtensionAvailability( 'videopress' );
 
-	if (
-		( ! name || name !== 'core/cover' ) || // extend only for cover block
-		! isSimpleSite() || // only for Simple sites
-		! [ 'missing_plan', 'unknown' ].includes( unavailableReason )
-	) {
+	const { name } = useBlockEditContext();
+	if ( ! isUpgradable( name ) ) {
 		return <CoreMediaPlaceholder { ...props } />;
 	}
 
