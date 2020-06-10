@@ -101,44 +101,34 @@ function MediaBrowser( props ) {
 		);
 	};
 
-	const handleArrowKeysNavigation = key => {
-		switch ( key ) {
+	const handleArrowKeysNavigation = ( keyCode, index ) => {
+		switch ( keyCode ) {
 			case LEFT:
-				if ( focused >= 1 ) {
-					setFocused( focused - 1 );
+				if ( index >= 1 ) {
+					setFocused( index - 1 );
 				}
 				break;
 			case RIGHT:
-				if ( focused < media.length ) {
-					setFocused( focused + 1 );
+				if ( index < media.length ) {
+					setFocused( index + 1 );
 				}
 				break;
 			case UP:
-				if ( focused >= 5 ) {
-					setFocused( focused - 5 );
+				if ( index >= 5 ) {
+					setFocused( index - 5 );
 				}
 				break;
 			case DOWN:
-				if ( focused < media.length - 5 ) {
-					setFocused( focused + 5 );
+				if ( index < media.length - 5 ) {
+					setFocused( index + 5 );
 				}
 				break;
-		}
-	};
-
-	const handleListKeyDown = event => {
-		if ( [ LEFT, RIGHT, UP, DOWN ].includes( event.keyCode ) ) {
-			handleArrowKeysNavigation( event.keyCode );
-			// ToDo: make only content scrollable, leave the form stick to top
-			event.target.scrollIntoView(); // this doesn't work well - needs a few style tweaks first
-			event.stopPropagation();
-			event.preventDefault();
 		}
 	};
 
 	return (
 		<div className={ wrapper }>
-			<div role="presentation" className={ classes } onKeyDown={ handleListKeyDown }>
+			<div role="presentation" className={ classes }>
 				{ media.map( ( item, index ) => (
 					<MediaItem
 						item={ item }
@@ -146,6 +136,9 @@ function MediaBrowser( props ) {
 						onClick={ image => {
 							onSelectImage( image );
 							setFocused( index );
+						} }
+						onKeyDown={ event => {
+							handleArrowKeysNavigation( event.keyCode, index );
 						} }
 						focus={ index === focused }
 						isSelected={ selected.find( toFind => toFind.ID === item.ID ) }

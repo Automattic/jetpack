@@ -18,14 +18,21 @@ function MediaItem( props ) {
 		}
 	}, [ props.onClick ] );
 
-	// Catch space and enter key presses.
-	const onKeyDown = event => {
-		if ( ENTER === event.keyCode || SPACE === event.keyCode ) {
-			// Prevent spacebar from scrolling the page down.
-			event.preventDefault();
-			onClick( event );
-		}
-	};
+	const onKeyDown = useCallback(
+		event => {
+			// Catch space and enter key presses.
+			if ( ENTER === event.keyCode || SPACE === event.keyCode ) {
+				// Prevent spacebar from scrolling the page down.
+				event.preventDefault();
+				onClick( event );
+			}
+
+			if ( props.onKeyDown ) {
+				props.onKeyDown( event );
+			}
+		},
+		[ props.onKeyDown ]
+	);
 
 	const { item, focus, isSelected, isCopying = false } = props;
 	const { thumbnails, caption, name, title, type, children = 0 } = item;
