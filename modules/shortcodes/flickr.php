@@ -180,8 +180,7 @@ function flickr_shortcode_handler( $atts ) {
 function flickr_shortcode_video_markup( $atts, $id, $video_param ) {
 
 	$transient_name = "flickr_video_$id";
-	// $video_src      = get_transient( $transient_name );
-	$video_src = '';
+	$video_src      = get_transient( $transient_name );
 
 	if ( empty( $video_src ) ) {
 		$video_url = '';
