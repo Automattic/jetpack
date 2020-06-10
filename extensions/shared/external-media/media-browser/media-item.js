@@ -12,16 +12,11 @@ import { ENTER, SPACE } from '@wordpress/keycodes';
 import { __ } from '@wordpress/i18n';
 
 function MediaItem( props ) {
-	const onClick = useCallback(
-		event => {
-			event.stopPropagation();
-
-			if ( props.onClick ) {
-				props.onClick( props.item );
-			}
-		},
-		[ props.onClick ]
-	);
+	const onClick = useCallback( () => {
+		if ( props.onClick ) {
+			props.onClick( props.item );
+		}
+	}, [ props.onClick ] );
 
 	// Catch space and enter key presses.
 	const onKeyDown = event => {

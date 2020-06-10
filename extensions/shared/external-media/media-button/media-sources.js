@@ -10,17 +10,12 @@ import { Fragment } from '@wordpress/element';
 import { mediaSources } from '../sources';
 
 function MediaSources( { originalButton = null, open, setSource } ) {
-	const onClick = ( event, id ) => {
-		event.stopPropagation();
-		setSource( id );
-	};
-
 	return (
 		<Fragment>
 			{ originalButton && originalButton( { open } ) }
 
 			{ mediaSources.map( ( { icon, id, label } ) => (
-				<MenuItem icon={ icon } key={ id } onClick={ event => onClick( event, id ) }>
+				<MenuItem icon={ icon } key={ id } onClick={ () => setSource( id ) }>
 					{ label }
 				</MenuItem>
 			) ) }

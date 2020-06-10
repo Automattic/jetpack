@@ -42,8 +42,6 @@ function MediaBrowser( props ) {
 		newlySelected => {
 			let newSelected = [ newlySelected ];
 
-			event.stopPropagation();
-
 			if ( newlySelected.type === 'folder' ) {
 				setPath( newlySelected.ID );
 			} else if ( multiple ) {
@@ -61,14 +59,9 @@ function MediaBrowser( props ) {
 		[ selected, multiple, setPath ]
 	);
 
-	const onCopyAndInsert = useCallback(
-		event => {
-			event.stopPropagation();
-
-			onCopy( selected );
-		},
-		[ selected, onCopy ]
-	);
+	const onCopyAndInsert = useCallback( () => {
+		onCopy( selected );
+	}, [ selected, onCopy ] );
 
 	const hasMediaItems = media.filter( item => item.type !== 'folder' ).length > 0;
 	const classes = classnames( {
@@ -82,9 +75,7 @@ function MediaBrowser( props ) {
 
 	const prevMediaCount = useRef( 0 );
 
-	const onLoadMoreClick = event => {
-		event.stopPropagation();
-
+	const onLoadMoreClick = () => {
 		prevMediaCount.current = media.length;
 		nextPage();
 	};

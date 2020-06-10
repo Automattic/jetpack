@@ -50,53 +50,39 @@ function MediaButtonMenu( props ) {
 		label = __( 'Select Media', 'jetpack' );
 	}
 
-	const toggle = ( { isOpen, onToggle } ) => {
-		const onClick = event => {
-			event.stopPropagation();
-			onToggle();
-		};
-
-		return (
-			<Button
-				isTertiary={ ! isFeatured }
-				isPrimary={ isFeatured }
-				className="jetpack-external-media-browse-button"
-				aria-haspopup="true"
-				aria-expanded={ isOpen }
-				onClick={ onClick }
-			>
-				{ label }
-			</Button>
-		);
-	};
-
-	const content = ( { onToggle } ) => {
-		const openMediaLibrary = event => {
-			event.stopPropagation();
-			openLibrary( onToggle );
-		};
-
-		return (
-			<NavigableMenu aria-label={ label }>
-				<MenuGroup>
-					<MenuItem icon="admin-media" onClick={ openMediaLibrary }>
-						{ __( 'Media Library', 'jetpack' ) }
-					</MenuItem>
-
-					<MediaSources
-						open={ () => dropdownOpen( onToggle ) }
-						setSource={ source => changeSource( source, onToggle ) }
-					/>
-				</MenuGroup>
-			</NavigableMenu>
-		);
-	};
-
 	return (
 		<>
 			{ isFeatured && originalComponent( { open } ) }
 
-			<Dropdown position="bottom right" renderToggle={ toggle } renderContent={ content } />
+			<Dropdown
+				position="bottom right"
+				renderToggle={ ( { isOpen, onToggle } ) => (
+					<Button
+						isTertiary={ ! isFeatured }
+						isPrimary={ isFeatured }
+						className="jetpack-external-media-browse-button"
+						aria-haspopup="true"
+						aria-expanded={ isOpen }
+						onClick={ onToggle }
+					>
+						{ label }
+					</Button>
+				) }
+				renderContent={ ( { onToggle } ) => (
+					<NavigableMenu aria-label={ label }>
+						<MenuGroup>
+							<MenuItem icon="admin-media" onClick={ () => openLibrary( onToggle ) }>
+								{ __( 'Media Library', 'jetpack' ) }
+							</MenuItem>
+
+							<MediaSources
+								open={ () => dropdownOpen( onToggle ) }
+								setSource={ source => changeSource( source, onToggle ) }
+							/>
+						</MenuGroup>
+					</NavigableMenu>
+				) }
+			/>
 		</>
 	);
 }
