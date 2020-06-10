@@ -770,9 +770,10 @@ class Jetpack_Gutenberg {
 					'is_active'                 => Jetpack::is_active(),
 					'is_current_user_connected' => $is_current_user_connected,
 				),
-				'siteFragment'     => $site_fragment,
-				'tracksUserData'   => $user_data,
-				'wpcomBlogId'      => $blog_id,
+				'siteFragment'       => $site_fragment,
+				'tracksUserData'     => $user_data,
+				'wpcomBlogId'        => $blog_id,
+				'allowed_mime_types' => wp_get_mime_types(),
 			)
 		);
 
