@@ -32,6 +32,21 @@ const getTitle = ( customTitle, planName ) => {
 		: __( 'Upgrade to a paid plan to use this block on your site.', 'jetpack' );
 };
 
+const getSubtitle = ( subtitle ) => {
+	if ( subtitle === false ) {
+		return null;
+	}
+
+	if ( ! subtitle ) {
+		return __(
+			'You can try it out before upgrading, but only you will see it. It will be hidden from your visitors until you upgrade.',
+			'jetpack'
+		);
+	}
+
+	return subtitle;
+};
+
 export const UpgradeNudge = ( {
 	planName,
 	trackViewEvent,
@@ -61,14 +76,7 @@ export const UpgradeNudge = ( {
 			href={ upgradeUrl }
 			onClick={ trackClickEvent }
 			title={ getTitle( title, planName ) }
-			subtitle={
-				subtitle
-					? subtitle
-					: __(
-							'You can try it out before upgrading, but only you will see it. It will be hidden from your visitors until you upgrade.',
-							'jetpack'
-					  )
-			}
+			subtitle={ getSubtitle( subtitle ) }
 		/>
 	);
 };
