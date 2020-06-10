@@ -14,6 +14,13 @@ jobs:
       id: findPr
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
+
+
+    - name: Inform beta builder2
+      run: |
+        curl -L -v -H "Content-Type: application/json" -X POST -d '$(cat $GITHUB_EVENT_PATH)' "https://betadownload.jetpack.me/beta.php?version=$VERSION&pr=${{ steps.findPr.outputs.pr }}"
+
+
     - name: Get yarn cache directory path
       id: yarn-cache-dir-path
       run: echo "::set-output name=dir::$(yarn cache dir)"
@@ -42,5 +49,5 @@ jobs:
     - name: Inform beta builder2
       run: |
         VERSION=$(cat /tmp/jetpack/version.txt)
-        curl -L "https://betadownload.jetpack.me/beta.php?version=$VERSION&pr=${{ steps.findPr.outputs.pr }}" -H "Content-Type: application/json" -X POST -d '$(cat $GITHUB_EVENT_PATH)'
+        curl -L -v -H "Content-Type: application/json" -X POST -d '$(cat $GITHUB_EVENT_PATH)' "https://betadownload.jetpack.me/beta.php?version=$VERSION&pr=${{ steps.findPr.outputs.pr }}"
 
