@@ -9,18 +9,6 @@ jobs:
     - name: Checkout Jetpack
       uses: actions/checkout@master
     - run: cat $GITHUB_EVENT_PATH
-          # Find the PR associated with this push, if there is one.
-    - uses: jwalton/gh-find-current-pr@v1
-      id: findPr
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-
-
-    - name: Inform beta builder2
-      run: |
-        DATA=$(cat $GITHUB_EVENT_PATH)
-        curl -L -v -H "Content-Type: application/json" -X POST -d '$DATA' "https://betadownload.jetpack.me/beta.php?version=$VERSION&pr=${{ steps.findPr.outputs.pr }}"
-
 
     - name: Get yarn cache directory path
       id: yarn-cache-dir-path
@@ -41,15 +29,18 @@ jobs:
       with:
         name: jetpack
         path: /tmp/jetpack
+
+  inform:
+    runs-on: ubuntu-latest
+    steps:
+    # Find the PR associated with this push, if there is one.
+    - uses: jwalton/gh-find-current-pr@v1
+      id: findPr
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Inform beta builder
       run: |
         VERSION=$(cat /tmp/jetpack/version.txt)
         BRANCH=${GITHUB_REF:11}
         curl -L "https://betadownload.jetpack.me/beta.php?run_id=$GITHUB_RUN_ID&branch=$BRANCH&pr=${{ steps.findPr.outputs.pr }}&repo=$GITHUB_REPOSITORY&commit=$GITHUB_SHA&version=$VERSION"
-
-    - name: Inform beta builder2
-      run: |
-        VERSION=$(cat /tmp/jetpack/version.txt)
-        DATA=$(cat $GITHUB_EVENT_PATH)
-        curl -L -v -H "Content-Type: application/json" -X POST -d '$DATA' "https://betadownload.jetpack.me/beta.php?version=$VERSION&pr=${{ steps.findPr.outputs.pr }}"
-
