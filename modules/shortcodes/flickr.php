@@ -53,7 +53,7 @@ function jetpack_flickr_photo_to_shortcode( $content ) {
 	}
 
 	$src    = esc_attr( str_replace( 'player/', '', $matches[1] ) );
-	$height = empty( $matches[3] ) ? '"auto"' : esc_attr( $matches[3] );
+	$height = empty( $matches[3] ) ? '' : esc_attr( $matches[3] );
 	$width  = empty( $matches[5] ) ? '' : esc_attr( $matches[5] );
 
 	/** This action is documented in modules/shortcodes/youtube.php */
