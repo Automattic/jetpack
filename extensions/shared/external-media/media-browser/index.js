@@ -159,23 +159,6 @@ function MediaBrowser( props ) {
 		}
 	}, [ media ] );
 
-	const handleMediaItemClick = ( event, { item, index } ) => {
-		select( item, index );
-	};
-
-	const handleMediaItemKeyDown = ( event, { item, index } ) => {
-		if ( [ LEFT, RIGHT, UP, DOWN ].includes( event.keyCode ) ) {
-			navigate( event.keyCode, index );
-		}
-
-		if ( [ SPACE, ENTER ].includes( event.keyCode ) ) {
-			select( item, index );
-			event.preventDefault(); // Prevent space from scrolling the page down.
-		}
-
-		event.stopPropagation();
-	};
-
 	const handleLoadMoreButtonClick = () => {
 		if ( media.length ) {
 			setFocused( media.length );
@@ -186,6 +169,27 @@ function MediaBrowser( props ) {
 	const handleSelectButtonClick = useCallback( () => {
 		onCopy( selected );
 	}, [ selected, onCopy ] );
+
+	const handleMediaItemClick = ( event, { item, index } ) => {
+		select( item, index );
+	};
+
+	const handleMediaItemKeyDown = ( event, { item, index } ) => {
+		if ( [ LEFT, RIGHT, UP, DOWN ].includes( event.keyCode ) ) {
+			navigate( event.keyCode, index );
+		}
+
+		if ( SPACE === event.keyCode ) {
+			select( item, index );
+			event.preventDefault(); // Prevent space from scrolling the page down.
+		}
+
+		if ( ENTER === event.keyCode ) {
+			handleSelectButtonClick();
+		}
+
+		event.stopPropagation();
+	};
 
 	return (
 		<div className={ wrapper }>
