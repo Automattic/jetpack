@@ -63,7 +63,7 @@ function MediaBrowser( props ) {
 	const gridEl = useRef( null );
 
 	const select = useCallback(
-		( newlySelected, index ) => {
+		newlySelected => {
 			let newSelected = [ newlySelected ];
 
 			if ( newlySelected.type === 'folder' ) {
@@ -171,7 +171,7 @@ function MediaBrowser( props ) {
 	}, [ selected, onCopy ] );
 
 	const handleMediaItemClick = ( event, { item, index } ) => {
-		select( item, index );
+		select( item );
 		setFocused( index );
 	};
 
@@ -179,10 +179,10 @@ function MediaBrowser( props ) {
 		if ( [ LEFT, RIGHT, UP, DOWN ].includes( event.keyCode ) ) {
 			navigate( event.keyCode, index );
 		} else if ( SPACE === event.keyCode ) {
-			select( item, index );
+			select( item );
 			event.preventDefault(); // Prevent space from scrolling the page down.
 		} else if ( ENTER === event.keyCode ) {
-			select( item, index );
+			select( item );
 		}
 
 		event.stopPropagation();
