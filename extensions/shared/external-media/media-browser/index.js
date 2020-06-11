@@ -178,15 +178,11 @@ function MediaBrowser( props ) {
 	const handleMediaItemKeyDown = ( event, { item, index } ) => {
 		if ( [ LEFT, RIGHT, UP, DOWN ].includes( event.keyCode ) ) {
 			navigate( event.keyCode, index );
-		}
-
-		if ( SPACE === event.keyCode ) {
+		} else if ( SPACE === event.keyCode ) {
 			select( item, index );
 			event.preventDefault(); // Prevent space from scrolling the page down.
-		}
-
-		if ( ENTER === event.keyCode ) {
-			handleSelectButtonClick();
+		} else if ( ENTER === event.keyCode ) {
+			select( item, index );
 		}
 
 		event.stopPropagation();
