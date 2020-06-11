@@ -152,7 +152,7 @@ class WP_Test_Jetpack_Shortcodes_GoogleApps extends WP_UnitTestCase {
 	}
 
 	function test_calendar_variation_1() {
-		$embed     = '<iframe src="https://www.google.com/calendar/embed?src=serjant%40gmail.com&ctz=Europe/Sofia" style="border: 0;" width="800" height="600" frameborder="0" scrolling="no"></iframe>';
+		$embed     = '<iframe src="https://www.google.com/calendar/embed?src=serjant%40gmail.com&ctz=Europe/Sofia" style="border: 0;" width="800" height="600" frameborder="0"></iframe>';
 		$shortcode = googleapps_embed_to_shortcode( $embed );
 
 		$expected_shortcode = '[googleapps domain="www" dir="calendar/embed" query="src=serjant%40gmail.com&amp;ctz=Europe/Sofia" width="800" height="600" /]';
@@ -170,7 +170,7 @@ class WP_Test_Jetpack_Shortcodes_GoogleApps extends WP_UnitTestCase {
 	}
 
 	function test_calendar_variation_3() {
-		$embed     = '<iframe src="https://calendar.google.com/calendar/embed?src=jb4bu80jirp0u11a6niie21pp4%40group.calendar.google.com&ctz=America/New_York" style="border: 0;" width="800" height="600" frameborder="0" scrolling="no"></iframe>';
+		$embed     = '<iframe src="https://calendar.google.com/calendar/embed?src=jb4bu80jirp0u11a6niie21pp4%40group.calendar.google.com&ctz=America/New_York" style="border: 0;" width="800" height="600" frameborder="0"></iframe>';
 		$shortcode = googleapps_embed_to_shortcode( $embed );
 
 		$expected_shortcode = '[googleapps domain="calendar" dir="calendar/embed" query="src=jb4bu80jirp0u11a6niie21pp4%40group.calendar.google.com&amp;ctz=America/New_York" width="800" height="600" /]';

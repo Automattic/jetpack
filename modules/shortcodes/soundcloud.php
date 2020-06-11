@@ -151,7 +151,7 @@ function soundcloud_shortcode( $atts, $content = null ) {
 	);
 
 	return sprintf(
-		'<iframe width="%1$s" height="%2$d" scrolling="no" frameborder="no" src="%3$s"></iframe>',
+		'<iframe width="%1$s" height="%2$d" frameborder="no" src="%3$s"></iframe>',
 		esc_attr( $width ),
 		esc_attr( $height ),
 		$url

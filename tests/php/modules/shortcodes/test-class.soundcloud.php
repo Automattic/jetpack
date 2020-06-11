@@ -97,7 +97,7 @@ class WP_Test_Jetpack_Shortcodes_Soundcloud extends WP_UnitTestCase {
 	 * Shortcode reversals.
 	 */
 	public function test_shortcodes_soundcloud_reversal_player() {
-		$content = '<iframe width="100%" height="450" scrolling="no" frameborder="no" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/4142297&amp;auto_play=false&amp;hide_related=false&amp;show_comments=true&amp;show_user=true&amp;show_reposts=false&amp;visual=true"></iframe>';
+		$content = '<iframe width="100%" height="450" frameborder="no" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/4142297&amp;auto_play=false&amp;hide_related=false&amp;show_comments=true&amp;show_user=true&amp;show_reposts=false&amp;visual=true"></iframe>';
 
 		$shortcode_content = jetpack_soundcloud_embed_reversal( $content );
 		$shortcode_content = str_replace( "\n", '', $shortcode_content );

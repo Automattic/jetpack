@@ -28,7 +28,7 @@ new WPCOM_JSON_API_Render_Embed_Reversal_Endpoint( array(
 		),
 
 		'body' => array(
-			'maybe_embed' => '<iframe width="480" height="302" src="http://www.ustream.tv/embed/recorded/26370522/highlight/299667?v=3&amp;wmode=direct" scrolling="no" frameborder="0"></iframe>',
+			'maybe_embed' => '<iframe width="480" height="302" src="http://www.ustream.tv/embed/recorded/26370522/highlight/299667?v=3&amp;wmode=direct" frameborder="0"></iframe>',
 		)
 	),
 ) );

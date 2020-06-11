@@ -540,7 +540,7 @@ class Jetpack_Likes {
 
 		$src = sprintf( 'https://widgets.wp.com/likes/#blog_id=%2$d&amp;post_id=%3$d&amp;origin=%1$s://%4$s', $protocol, $blog_id, $post_id, $domain );
 
-		$html = "<iframe class='admin-bar-likes-widget jetpack-likes-widget' scrolling='no' frameBorder='0' name='admin-bar-likes-widget' src='$src'></iframe>";
+		$html = "<iframe class='admin-bar-likes-widget jetpack-likes-widget' frameBorder='0' name='admin-bar-likes-widget' src='$src'></iframe>";
 
 		$node = array(
 				'id'   => 'admin-bar-likes-widget',

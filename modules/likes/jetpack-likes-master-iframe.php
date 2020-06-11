@@ -32,7 +32,7 @@ function jetpack_likes_master_iframe() {
 	/* translators: The value of %d is not available at the time of output */
 	$likersText = wp_kses( __( '<span>%d</span> bloggers like this:', 'jetpack' ), array( 'span' => array() ) );
 	?>
-	<iframe src='<?php echo $src; ?>' scrolling='no' id='likes-master' name='likes-master' style='display:none;'></iframe>
+	<iframe src='<?php echo $src; ?>' id='likes-master' name='likes-master' style='display:none;'></iframe>
 	<div id='likes-other-gravatars'><div class="likes-text"><?php echo $likersText; ?></div><ul class="wpl-avatars sd-like-gravatars"></ul></div>
 	<?php
 }

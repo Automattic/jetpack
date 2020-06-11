@@ -67,7 +67,7 @@ function wpcom_twitchtv_shortcode( $atts ) {
 	$url = add_query_arg( $url_args, 'https://player.twitch.tv/' );
 
 	return sprintf(
-		'<iframe src="%s" width="%d" height="%d" frameborder="0" scrolling="no" allowfullscreen sandbox="allow-popups allow-scripts allow-same-origin allow-presentation"></iframe>',
+		'<iframe src="%s" width="%d" height="%d" frameborder="0" allowfullscreen sandbox="allow-popups allow-scripts allow-same-origin allow-presentation"></iframe>',
 		esc_url( $url ),
 		esc_attr( $width ),
 		esc_attr( $height )

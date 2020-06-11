@@ -51,14 +51,14 @@ function load_assets( $attr ) {
 
 	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
 		return sprintf(
-			'<div class="%1$s"><amp-iframe src="%2$s" frameborder="0" style="border:0" scrolling="no" height="%3$d" sandbox="allow-scripts allow-same-origin" layout="responsive"></amp-iframe></div>',
+			'<div class="%1$s"><amp-iframe src="%2$s" frameborder="0" style="border:0" height="%3$d" sandbox="allow-scripts allow-same-origin" layout="responsive"></amp-iframe></div>',
 			esc_attr( $classes ),
 			esc_url( $url ),
 			absint( $height )
 		);
 	} else {
 		return sprintf(
-			'<div class="%1$s"><iframe src="%2$s" frameborder="0" style="border:0" scrolling="no" height="%3$d"></iframe></div>',
+			'<div class="%1$s"><iframe src="%2$s" frameborder="0" style="border:0" height="%3$d"></iframe></div>',
 			esc_attr( $classes ),
 			esc_url( $url ),
 			absint( $height )

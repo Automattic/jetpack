@@ -123,7 +123,7 @@ class GoogleCalendarEdit extends Component {
 
 		const iframeHeight = this.props.isMobile ? '300' : height;
 
-		const html = `<iframe src="${ url }" style="border:0" scrolling="no" frameborder="0" height="${ iframeHeight }"></iframe>`;
+		const html = `<iframe src="${ url }" style="border:0" frameborder="0" height="${ iframeHeight }"></iframe>`;
 
 		const permissionsLink = (
 			<ExternalLink href="https://en.support.wordpress.com/google-calendar/">

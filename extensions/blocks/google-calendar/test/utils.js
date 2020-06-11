@@ -5,7 +5,7 @@ import { extractAttributesFromIframe } from '../utils';
 
 describe( 'extractAttributesFromIframe', () => {
 	it( 'should extract url, width and height from iframe embed', () => {
-		const iframeEmbed = '<iframe src="https://calendar.google.com/calendar/embed?src=test.user%40a8c.com&ctz=Pacific%2FAuckland" style="border: 0" width="800" height="600" frameborder="0" scrolling="no"></iframe>'
+		const iframeEmbed = '<iframe src="https://calendar.google.com/calendar/embed?src=test.user%40a8c.com&ctz=Pacific%2FAuckland" style="border: 0" width="800" height="600" frameborder="0"></iframe>'
 		expect( extractAttributesFromIframe( iframeEmbed ) ).toEqual( {
 			url: 'https://calendar.google.com/calendar/embed?src=test.user%40a8c.com&ctz=Pacific%2FAuckland',
 			height: '600',

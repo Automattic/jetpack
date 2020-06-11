@@ -21,17 +21,17 @@ class WP_Test_Jetpack_Shortcodes_Googlemaps extends WP_UnitTestCase {
 			'non_amp'         => array(
 				'[googlemaps https://mapsengine.google.com/map/embed?mid=zbBhkou4wwtE.kUmp8K6QJ7SA&amp;w=640&amp;h=480]',
 				true,
-				'<div class="googlemaps"><iframe width="640" height="480" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" sandbox="allow-popups allow-scripts allow-same-origin" src="https://mapsengine.google.com/map/embed?mid=zbBhkou4wwtE.kUmp8K6QJ7SA"></iframe></div>',
+				'<div class="googlemaps"><iframe width="640" height="480" frameborder="0" marginheight="0" marginwidth="0" sandbox="allow-popups allow-scripts allow-same-origin" src="https://mapsengine.google.com/map/embed?mid=zbBhkou4wwtE.kUmp8K6QJ7SA"></iframe></div>',
 			),
 			'amp'             => array(
 				'[googlemaps https://mapsengine.google.com/map/embed?mid=zbBhkou4wwtE.kUmp8K6QJ7SA&amp;w=640&amp;h=480]',
 				false,
-				'<div class="googlemaps"><iframe width="640" height="480" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://mapsengine.google.com/map/embed?mid=zbBhkou4wwtE.kUmp8K6QJ7SA"></iframe></div>',
+				'<div class="googlemaps"><iframe width="640" height="480" frameborder="0" marginheight="0" marginwidth="0" src="https://mapsengine.google.com/map/embed?mid=zbBhkou4wwtE.kUmp8K6QJ7SA"></iframe></div>',
 			),
 			'align_attribute' => array(
 				'[googlemaps https://mapsengine.google.com/map/embed?mid=zbBhkou4wwtE.kUmp8K6QJ7SA align="center"]',
 				false,
-				'<div class="googlemaps aligncenter"><iframe width="425" height="350" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://mapsengine.google.com/map/embed?mid=zbBhkou4wwtE.kUmp8K6QJ7SA"></iframe></div>',
+				'<div class="googlemaps aligncenter"><iframe width="425" height="350" frameborder="0" marginheight="0" marginwidth="0" src="https://mapsengine.google.com/map/embed?mid=zbBhkou4wwtE.kUmp8K6QJ7SA"></iframe></div>',
 			),
 		);
 	}

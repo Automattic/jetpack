@@ -86,7 +86,7 @@ function ustream_shortcode( $atts ) {
 	);
 
 	$output = sprintf(
-		'<iframe src="%1$s" width="%2$d" height="%3$d" scrolling="no" style="border: 0 none transparent;"></iframe>',
+		'<iframe src="%1$s" width="%2$d" height="%3$d" style="border: 0 none transparent;"></iframe>',
 		esc_url( $url ),
 		absint( $atts['width'] ),
 		absint( $atts['height'] )
@@ -127,7 +127,7 @@ function ustreamsocial_shortcode( $atts ) {
 	$url = 'https://www.ustream.tv/socialstream/' . esc_attr( $atts['id'] );
 
 	return sprintf(
-		'<iframe id="SocialStream" src="%1$s" class="" name="SocialStream" width="%2$d" height="%3$d" scrolling="no" allowtransparency="true" style="visibility: visible; margin-top: 0; margin-bottom: 0; border: 0;"></iframe>',
+		'<iframe id="SocialStream" src="%1$s" class="" name="SocialStream" width="%2$d" height="%3$d" allowtransparency="true" style="visibility: visible; margin-top: 0; margin-bottom: 0; border: 0;"></iframe>',
 		esc_url( $url ),
 		absint( $atts['width'] ),
 		absint( $atts['height'] )

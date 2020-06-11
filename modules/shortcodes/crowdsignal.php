@@ -550,7 +550,7 @@ if (
 							}
 
 							return sprintf(
-								'<iframe src="%1$s?iframe=1" frameborder="0" width="%2$d" height="%3$d" scrolling="auto" allowtransparency="true" marginheight="0" marginwidth="0">%4$s</iframe>',
+								'<iframe src="%1$s?iframe=1" frameborder="0" width="%2$d" height="%3$d" allowtransparency="true" marginheight="0" marginwidth="0">%4$s</iframe>',
 								esc_url( $survey_url ),
 								absint( $attributes['width'] ),
 								absint( $attributes['height'] ),

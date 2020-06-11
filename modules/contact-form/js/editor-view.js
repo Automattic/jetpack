@@ -66,7 +66,7 @@
 				$view = $tinyMCE_document.find( '.wpview.wpview-wrap' ).filter( function() {
 					return $( this ).attr( 'data-mce-selected' );
 				} ),
-				$editframe = $( '<iframe scrolling="no" class="inline-edit-contact-form" />' ),
+				$editframe = $( '<iframe class="inline-edit-contact-form" />' ),
 				index = 0,
 				named,
 				fields = '',

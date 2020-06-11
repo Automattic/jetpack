@@ -155,7 +155,7 @@ function jetpack_hulu_shortcode( $atts ) {
 	$height     = round( ( $width / 640 ) * 360 );
 
 	$html = sprintf(
-		'<div class="embed-hulu" style="text-align: center;"><iframe src="%s" width="%s" height="%s" style="border:0;" scrolling="no" webkitAllowFullScreen
+		'<div class="embed-hulu" style="text-align: center;"><iframe src="%s" width="%s" height="%s" style="border:0;" webkitAllowFullScreen
 mozallowfullscreen allowfullscreen></iframe></div>',
 		esc_url( $iframe_url ),
 		esc_attr( $width ),

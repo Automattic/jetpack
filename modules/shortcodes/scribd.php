@@ -70,7 +70,7 @@ function scribd_shortcode_markup( $atts ) {
 	);
 
 	return sprintf(
-		'<iframe class="scribd_iframe_embed" src="%1$s" %2$s data-auto-height="true" scrolling="no" id="scribd_%3$d" width="100%%" height="500" frameborder="0"></iframe>
+		'<iframe class="scribd_iframe_embed" src="%1$s" %2$s data-auto-height="true" id="scribd_%3$d" width="100%%" height="500" frameborder="0"></iframe>
 		<div style="font-size:10px;text-align:center;width:100%%"><a href="https://www.scribd.com/doc/%3$d" rel="noopener noreferrer" target="_blank">%4$s</a></div>',
 		$url,
 		$sandbox,

@@ -130,7 +130,7 @@ function jetpack_googlemaps_shortcode( $atts ) {
 
 		return sprintf(
 			'<div class="%1$s">
-				<iframe width="%2$d" height="%3$d" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" %5$s src="%4$s"></iframe>
+				<iframe width="%2$d" height="%3$d" frameborder="0" marginheight="0" marginwidth="0" %5$s src="%4$s"></iframe>
 			</div>',
 			esc_attr( $css_class ),
 			absint( $width ),
