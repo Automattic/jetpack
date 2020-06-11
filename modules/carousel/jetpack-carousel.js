@@ -367,7 +367,7 @@ jQuery( document ).ready( function( $ ) {
 							e.preventDefault();
 							e.stopPropagation();
 
-							$( '#jp-carousel-comment-form-spinner' ).css( 'display', 'inline-block' );
+							$( '#jp-carousel-comment-form-spinner' ).show();
 
 							var ajaxData = {
 								action: 'post_attachment_comment',
@@ -451,7 +451,7 @@ jQuery( document ).ready( function( $ ) {
 									$( '#jp-carousel-comment-form-button-submit' ).val(
 										jetpackCarouselStrings.post_comment
 									);
-									$( '#jp-carousel-comment-form-spinner' ).css( 'display', 'none' );
+									$( '#jp-carousel-comment-form-spinner' ).hide();
 								},
 								error: function(/*xhr, status, error*/) {
 									// TODO: Add error handling and display here
@@ -1585,7 +1585,7 @@ jQuery( document ).ready( function( $ ) {
 				.html( '<span class="jp-carousel-comment-post-error">' + args.error + '</span>' )
 				.slideDown( 'fast' );
 
-			$( '#jp-carousel-comment-form-spinner' ).css( 'display', 'none' );
+			$( '#jp-carousel-comment-form-spinner' ).hide();
 		},
 
 		setCommentIframeSrc: function( attachment_id ) {
