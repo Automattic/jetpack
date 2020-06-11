@@ -48,6 +48,7 @@ const JetpackCoverUpgradeNudge = ( { name, show } ) =>
 
 export default createHigherOrderComponent(
 	CoreMediaPlaceholder => props => {
+		const [ error, setError ] = useState( false );
 		const { name } = useBlockEditContext();
 		const { unavailableReason } = getJetpackExtensionAvailability( 'videopress' );
 		if (
@@ -59,8 +60,6 @@ export default createHigherOrderComponent(
 		}
 
 		const { onError } = props;
-		const [ error, setError ] = useState( false );
-
 		return (
 			<div className="jetpack-cover-media-placeholder">
 				<JetpackCoverUpgradeNudge name={ name } show={ !! error } />
