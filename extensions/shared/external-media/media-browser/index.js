@@ -154,8 +154,9 @@ function MediaBrowser( props ) {
 	}, [] ); // eslint-disable-line react-hooks/exhaustive-deps
 
 	useEffect( () => {
-		if ( media.length ) {
-			checkColumns(); // Set columns value when media are loaded.
+		// Set columns value once when media are loaded.
+		if ( media.length && columns.current === -1 ) {
+			checkColumns();
 		}
 	}, [ media ] );
 
