@@ -129,7 +129,19 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 		public function form( $instance ) {
 			$instance = wp_parse_args(
 				$instance,
-				array( 'code' => '' )
+				array(
+					'code'              => '',
+					'email_placeholder' => '',
+					'processing_text'   => '',
+					'success_text'      => '',
+					'error_text'        => '',
+					'groups'            => '',
+					'signup_tag'        => '',
+					'signup_value'      => '',
+					'button_color'      => '',
+					'text_color'        => '',
+					'css_class'         => '',
+				)
 			);
 
 			$this->form_sections = array(
@@ -226,7 +238,7 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 				),
 
 				array(
-					'title'         => __( 'Mailchimp Groups', 'jetpack' ),
+					'title'         => __( 'Mailchimp Connection', 'jetpack' ),
 					'extra_content' => array(
 						array(
 							'text' => __( 'Manage Connection', 'jetpack' ),
@@ -240,15 +252,21 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 					'title'  => __( 'Button Color Settings', 'jetpack' ),
 					'fields' => array(
 						array(
-							'id'    => 'jetpack_mailchimp_button_color',
-							'type'  => 'color',
-							'value' => esc_html( $instance['button_color'] ),
+							'id'      => 'jetpack_mailchimp_button_color',
+							'type'    => 'color',
+							'value'   => esc_html( $instance['button_color'] ),
+							'default' => '#cd2653',
+							'name'    => esc_attr( $this->get_field_name( 'button_color' ) ),
+							'label'   => __( 'Button Color', 'jetpack' ),
 						),
 
 						array(
-							'id'    => 'jetpack_mailchimp_button_text_color',
-							'type'  => 'color',
-							'value' => esc_html( $instance['text_color'] ),
+							'id'      => 'jetpack_mailchimp_button_text_color',
+							'type'    => 'color',
+							'value'   => esc_html( $instance['text_color'] ),
+							'default' => '#ffffff',
+							'name'    => esc_attr( $this->get_field_name( 'text_color' ) ),
+							'label'   => __( 'Button Text Color', 'jetpack' ),
 						),
 					),
 				),

@@ -22,6 +22,7 @@
 				if ( 'connected' === data.code ) {
 					formWrapper.append( getForm() );
 					generateGroupsField();
+					generateColorFields();
 				} else {
 					formWrapper.append( getPlaceholder() );
 				}
@@ -54,6 +55,11 @@
 			text: mailchimpAdmin.placeholderData.recheckText,
 		} );
 
+		recheckButton.click( function( e ) {
+			e.preventDefault();
+			apiCall();
+		} );
+
 		var placeholder = $( '<div>', { class: 'jetpack_mailchimp_placeholder' } );
 		placeholder
 			.append( brand )
@@ -68,18 +74,58 @@
 	 * Get Mailchimp Groups
 	 */
 	function generateGroupsField() {
+		/**
+		 * Change the value of the input for thr groups.
+		 * @param {string} groupId Id of the group that was checked/unchecked.
+		 * @param {boolean} add If true then the group id is added, if false the group id is removed from the hidden input value.
+		 */
+		function generateHiddenFieldValue( groupId, add ) {
+			var groupsInput = $( '#jetpack_mailchimp_groups' );
+
+			var groupsValue = groupsInput.val();
+			var arrayGroups = groupsValue.length > 0 ? groupsValue.split( '_' ) : [];
+
+			if ( add ) {
+				if ( ! arrayGroups.includes( groupId ) ) {
+					arrayGroups.push( groupId );
+				}
+			} else {
+				var index = arrayGroups.indexOf( groupId );
+				if ( -1 < index ) {
+					arrayGroups.splice( index, 1 );
+				}
+			}
+
+			groupsInput.val( arrayGroups.join( '_' ) );
+		}
+
+		/**
+		 * Fill the groups field with the group retrieved from the server.
+		 * @param {object} groups Object containing the groups.
+		 */
 		function fillGroupsField( groups ) {
 			var groupsWrapper = $( '.jetpack_mailchimp_groups_wrapper' );
-			groups.forEach( function( group ) {
-				var checkboxWrapper = $( '<div>', { class: 'jetpack_mailchimp_checkbox_wrapper' } );
-				var checkbox = $( '<input>', { type: 'checkbox', value: group.id } );
-				checkboxWrapper.append( checkbox );
-				checkboxWrapper.append( $( '<label>', { text: group.name } ) );
-				groupsWrapper.append( checkboxWrapper );
+			groups.interest_categories.forEach( function( interest_category ) {
+				interest_category.interests.forEach( function( interest ) {
+					var checkboxWrapper = $( '<div>', { class: 'jetpack_mailchimp_checkbox_wrapper' } );
+					var checkbox = $( '<input>', { type: 'checkbox', value: interest.id } );
+					checkbox.change( function() {
+						var checked = $( this ).is( ':checked' );
+						var groupId = $( this ).val();
+						generateHiddenFieldValue( groupId, checked );
+					} );
+					checkboxWrapper.append( checkbox );
+					checkboxWrapper.append( $( '<label>', { text: interest.name } ) );
+					groupsWrapper.append( checkboxWrapper );
+				} );
 			} );
 
 			groupsWrapper.append(
-				$( '<input>', { type: 'hidden', name: mailchimpAdmin.groupsFieldName } )
+				$( '<input>', {
+					type: 'hidden',
+					name: mailchimpAdmin.groupsFieldName,
+					id: 'jetpack_mailchimp_groups',
+				} )
 			);
 		}
 
@@ -87,9 +133,21 @@
 			url: '/wp-json/wpcom/v2/mailchimp/groups',
 			type: 'GET',
 			success: function( data ) {
-				if ( 'undefined' === data.error ) {
+				if ( 'undefined' === typeof data.error ) {
 					fillGroupsField( data );
 				}
+			},
+		} );
+	}
+
+	/**
+	 * Generate the color pickers.
+	 */
+	function generateColorFields() {
+		$( '.jetpack_mailchimp_color_input' ).wpColorPicker( {
+			change: function( e, ui ) {
+				var target = $( this ).attr( 'target' );
+				$( '#' + target ).val( ui.color.toString() );
 			},
 		} );
 	}
@@ -122,10 +180,9 @@
 							var label = $( '<label>', { for: field.id, text: field.title } );
 							var input = $( '<input>', {
 								type: 'text',
-								placeholder: field.placeholder,
 								id: field.id,
 								name: field.name,
-								value: field.value,
+								value: field.value ? field.value : field.placeholder,
 							} );
 							fieldWrapper.append( label ).append( input );
 							break;
@@ -136,12 +193,24 @@
 							break;
 
 						case 'color':
-							var input = $( '<div>', {
+							var inputColor = $( '<input>', {
 								class: 'jetpack_mailchimp_color_input',
-								type: 'text',
-								value: field.value,
+								target: field.id,
+								value: field.value ? field.value : field.default,
 							} );
-							fieldWrapper.append( input );
+
+							var input = $( '<input>', {
+								type: 'hidden',
+								value: field.value ? field.value : field.default,
+								name: field.name,
+								id: field.id,
+							} );
+
+							var label = $( '<label>', { text: field.label } );
+							fieldWrapper
+								.append( label )
+								.append( inputColor )
+								.append( input );
 							break;
 					}
 
