@@ -170,7 +170,7 @@ function MediaBrowser( props ) {
 
 		if ( [ SPACE, ENTER ].includes( event.keyCode ) ) {
 			select( item, index );
-			event.preventDefault(); // Prevent space from scrolling the page down;
+			event.preventDefault(); // Prevent space from scrolling the page down.
 		}
 	};
 
