@@ -2,6 +2,7 @@
  * External dependencies
  */
 import classnames from 'classnames';
+import { debounce } from 'lodash';
 
 /**
  * WordPress dependencies
@@ -142,8 +143,20 @@ function MediaBrowser( props ) {
 		columns.current = perRow;
 	};
 
+	const checkColumnsDebounced = debounce( checkColumns, 400 );
+
 	useEffect( () => {
-		checkColumns();
+		// Add listener on mount:
+		window.addEventListener( 'resize', checkColumnsDebounced );
+		return () => {
+			window.removeEventListener( 'resize', checkColumnsDebounced );
+		};
+	}, [] ); // eslint-disable-line react-hooks/exhaustive-deps
+
+	useEffect( () => {
+		if ( media.length ) {
+			checkColumns(); // Set columns value when media are loaded.
+		}
 	}, [ media ] );
 
 	const handleMediaItemClick = ( event, { item, index } ) => {
