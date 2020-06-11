@@ -70,13 +70,16 @@ export default createHigherOrderComponent(
 						// Try to pick up filename from the error message.
 						// We should find a better way to do it. Unstable.
 						const filename = message?.[0]?.props?.children;
-						if ( filename ) {
-							const fileExtension = ( filename.split( '.' ) )?.[ 1 ];
-							if ( videoFileExtensions.includes( fileExtension ) ) {
-								return setError( message );
-							}
+						if ( ! filename ) {
+							return onError( message );
 						}
-						return onError( message );
+
+						const fileExtension = ( filename.split( '.' ) )?.[ 1 ];
+						if ( ! videoFileExtensions.includes( fileExtension ) ) {
+							return onError( message );
+						}
+
+						return setError( message );
 					} }
 					allowedTypes={ ALLOWED_MEDIA_TYPES }
 				/>
