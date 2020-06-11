@@ -73,7 +73,7 @@ export default function withMedia() {
 				 */
 				if (
 					[ UP, DOWN, LEFT, RIGHT ].includes( event.keyCode ) &&
-					! this.contentElement.contains( event.target ) // Let event through to enable arrow keys navigation.
+					! event.target.classList.contains( 'jetpack-external-media-browser__media__item' ) // Only let arrow key navigation on media grid items through. All others need to be stopped.
 				) {
 					event.stopPropagation();
 				}
