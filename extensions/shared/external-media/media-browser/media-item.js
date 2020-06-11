@@ -75,8 +75,6 @@ function MediaItem( props ) {
 					<div className="jetpack-external-media-browser__media__count">{ children }</div>
 				</div>
 			) }
-
-			{ isSelected && isCopying && <Spinner /> }
 		</li>
 	);
 }
