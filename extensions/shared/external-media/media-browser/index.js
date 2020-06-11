@@ -146,7 +146,7 @@ function MediaBrowser( props ) {
 	const checkColumnsDebounced = debounce( checkColumns, 400 );
 
 	useEffect( () => {
-		// Add listener on mount:
+		// Re-set columns on window resize:
 		window.addEventListener( 'resize', checkColumnsDebounced );
 		return () => {
 			window.removeEventListener( 'resize', checkColumnsDebounced );
