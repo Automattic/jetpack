@@ -5,7 +5,7 @@
 
 $grid-size: 8px;
 
-@keyframes loading-fade {
+@keyframes external-media-loading-fade {
 	0% {
 		opacity: 0.5;
 	}
@@ -72,7 +72,7 @@ $grid-size: 8px;
 }
 
 @media ( min-width: 600px ) {
-	.components-modal__content {
+	.jetpack-external-media-browser .components-modal__content {
 		width: 90vw;
 		height: 90vh;
 	}
@@ -196,7 +196,7 @@ $grid-size: 8px;
 		width: 100px;
 		height: 100px;
 		margin: $grid-size * 2;
-		animation: loading-fade 1.6s ease-in-out infinite;
+		animation: external-media-loading-fade 1.6s ease-in-out infinite;
 		background-color: $light-gray-secondary;
 		border: 0;
 	}
@@ -358,6 +358,9 @@ $grid-size: 8px;
 }
 
 // Reset placeholder button margin.
-.components-placeholder__fieldset .components-dropdown .components-button {
-	margin-right: 8px;
+.components-placeholder__fieldset,
+.editor-post-featured-image {
+	.components-dropdown .jetpack-external-media-browse-button {
+		margin-right: 8px;
+	}
 }
