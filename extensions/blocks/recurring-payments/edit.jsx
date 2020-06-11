@@ -518,7 +518,7 @@ class MembershipsButtonEdit extends Component {
 								'backgroundButtonColor',
 								'textButtonColor',
 								'customBackgroundButtonColor',
-								'customBackgroundButtonColor',
+								'customTextButtonColor',
 							] ),
 							setAttributes: this.props.setAttributes,
 						} }
