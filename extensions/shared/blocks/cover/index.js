@@ -18,6 +18,7 @@ import coverMediaReplaceFlow from './cover-replace-control-button';
 import { isUpgradable } from "./utils";
 import './editor.scss';
 
+
 if ( isCurrentUserConnected() ) {
 	// Take the control of MediaPlaceholder.
 	addFilter(
@@ -29,6 +30,15 @@ if ( isCurrentUserConnected() ) {
 	const jetpackEditBlock = BlockEdit => props => {
 		const { name } = useBlockEditContext();
 		const [ showNudge, setShowNudge ] = useState( false );
+
+		// Remove Nudge of the block changes its attributes.
+		const { attributes } = props;
+		useEffect( () => {
+			if ( ! isUpgradable( name ) ) {
+				return;
+			}
+			setShowNudge( false );
+		}, [ attributes, name ] );
 
 		useEffect( () => {
 			// Take the control of the Replace block button control.
