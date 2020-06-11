@@ -33,7 +33,9 @@ function MediaButton( props ) {
 	};
 
 	return (
-		<>
+		// No added functionality, just capping event propagation.
+		// eslint-disable-next-line  jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
+		<div onClick={ event => event.stopPropagation() }>
 			<MediaButtonMenu
 				{ ...props }
 				setSelectedSource={ setSelectedSource }
@@ -42,7 +44,7 @@ function MediaButton( props ) {
 			/>
 
 			{ ExternalLibrary && <ExternalLibrary onClose={ closeLibrary } { ...mediaProps } /> }
-		</>
+		</div>
 	);
 }
 
