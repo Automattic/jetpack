@@ -5,7 +5,7 @@
 
 $grid-size: 8px;
 
-@keyframes external-media-loading-fade {
+@keyframes jetpack-external-media-loading-fade {
 	0% {
 		opacity: 0.5;
 	}
@@ -196,7 +196,7 @@ $grid-size: 8px;
 		width: 100px;
 		height: 100px;
 		margin: $grid-size * 2;
-		animation: external-media-loading-fade 1.6s ease-in-out infinite;
+		animation: jetpack-external-media-loading-fade 1.6s ease-in-out infinite;
 		background-color: $light-gray-secondary;
 		border: 0;
 	}
