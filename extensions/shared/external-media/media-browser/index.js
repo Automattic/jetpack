@@ -196,7 +196,7 @@ function MediaBrowser( props ) {
 
 			{ hasMediaItems && (
 				<SelectButton
-					isCopying
+					isCopying={ isCopying }
 					disabled={ selected.length === 0 || isCopying }
 					onClick={ handleSelectButtonClick }
 				/>
