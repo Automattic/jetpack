@@ -7,12 +7,13 @@ import classnames from 'classnames';
 /**
  * WordPress dependencies
  */
-import apiFetch from '@wordpress/api-fetch';
-import { createHigherOrderComponent } from '@wordpress/compose';
-import { Component } from '@wordpress/element';
-import { withNotices, Modal } from '@wordpress/components';
-import { __, sprintf } from '@wordpress/i18n';
 import { speak } from '@wordpress/a11y';
+import apiFetch from '@wordpress/api-fetch';
+import { withNotices, Modal } from '@wordpress/components';
+import { createHigherOrderComponent } from '@wordpress/compose';
+import { select } from '@wordpress/data';
+import { Component } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
 import { UP, DOWN, LEFT, RIGHT } from '@wordpress/keycodes';
 
 /**
@@ -161,8 +162,13 @@ export default function withMedia() {
 			};
 
 			copyMedia = ( items, apiUrl ) => {
+				const { addToGallery, multiple, noticeOperations, onClose, onSelect, value } = this.props;
+				const galleryImages = addToGallery
+					? value.map( id => select( 'core' ).getMedia( Number( id ) ) )
+					: [];
+
 				this.setState( { isCopying: items } );
-				this.props.noticeOperations.removeAllNotices();
+				noticeOperations.removeAllNotices();
 
 				// If we have a modal element set, focus it.
 				// Otherwise focus is reset to the body instead of staying within the Modal.
@@ -194,13 +200,12 @@ export default function withMedia() {
 					},
 				} )
 					.then( result => {
-						const { value, addToGallery, multiple } = this.props;
 						const media = multiple ? result : result[ 0 ];
 
-						this.props.onClose();
+						onClose();
 
 						// Select the image(s). This will close the modal
-						this.props.onSelect( addToGallery ? value.concat( result ) : media );
+						onSelect( addToGallery ? galleryImages.concat( result ) : media );
 					} )
 					.catch( this.handleApiError );
 			};
