@@ -95,80 +95,6 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 		}
 
 		/**
-		 * Output the mailchimp form.
-		 *
-		 * @return void
-		 */
-		public function form_data() {
-			?>
-			<div class="mailchimp_form">
-				<div class="section">
-					<div class="section_toggler">
-						<span class="section_title"><?php echo esc_html__( 'Text Elements', 'jetpack' ); ?></span>
-					</div>
-					<div class="section_content">
-						<div class="field">
-							<label for="jetpack_mailchimp_email"><?php echo esc_html__( 'Email Placeholder', 'jetpack' ); ?></label>
-							<input type="text" placeholder="<?php echo esc_html__( 'Enter your email', 'jetpack' ); ?>" value="" id="jetpack_mailchimp_email">
-						</div>
-					</div>
-				</div>
-				<div class="section">
-					<div class="section_toggler">
-						<span class="section_title"><?php echo esc_html__( 'Notifications', 'jetpack' ); ?></span>
-					</div>
-					<div class="section_content">
-						<div class="field">
-							<label for="jetpack_mailchimp_processing_text"><?php echo esc_html__( 'Processing', 'jetpack' ); ?></label>
-							<input type="text" placeholder="<?php echo esc_html__( 'Processing', 'jetpack' ); ?>" value="" id="jetpack_mailchimp_processing_text">
-						</div>
-						<div class="field">
-							<label for="jetpack_mailchimp_success_text"><?php echo esc_html__( 'Success text', 'jetpack' ); ?></label>
-							<input type="text" placeholder="<?php echo esc_html__( 'Success! You\'re on the list.', 'jetpack' ); ?>" value="" id="jetpack_mailchimp_success_text">
-						</div>
-						<div class="field">
-							<label for="jetpack_mailchimp_error_text"><?php echo esc_html__( 'Error text', 'jetpack' ); ?></label>
-							<input type="text" placeholder="<?php echo esc_html__( 'Whoops! There was an error and we couldn\'t process your subscription. Please reload the page and try again.', 'jetpack' ); ?>" value="" id="jetpack_mailchimp_error_text">
-						</div>
-					</div>
-				</div>
-				<div class="section">
-					<div class="section_toggler">
-						<span class="section_title"><?php echo esc_html__( 'Mailchimp Groups', 'jetpack' ); ?></span>
-					</div>
-					<div class="section_content">
-						<a href=""><?php echo esc_html__( 'Learn about groups', 'jetpack' ); ?></a>
-					</div>
-				</div>
-				<div class="section">
-					<div class="section_toggler">
-						<span class="section_title"><?php echo esc_html__( 'Signup Location Tracking', 'jetpack' ); ?></span>
-					</div>
-					<div class="section_content">
-						<div class="field">
-							<label for="jetpack_mailchimp_signup_tag"><?php echo esc_html__( 'Signup Field Tag', 'jetpack' ); ?></label>
-							<input type="text" placeholder="<?php echo esc_html__( 'SIGNUP', 'jetpack' ); ?>" value="" id="jetpack_mailchimp_signup_tag">
-						</div>
-						<div class="field">
-							<label for="jetpack_mailchimp_signup_value"><?php echo esc_html__( 'Signup Field Value', 'jetpack' ); ?></label>
-							<input type="text" placeholder="<?php echo esc_html__( 'website', 'jetpack' ); ?>" value="" id="jetpack_mailchimp_signup_value">
-						</div>
-						<a href=""><?php echo esc_html__( 'Learn about signup location tracking(opens in a new tab)', 'jetpack' ); ?></a>
-					</div>
-				</div>
-				<div class="section">
-					<div class="section_toggler">
-						<span class="section_title"><?php echo esc_html__( 'Mailchimp Groups', 'jetpack' ); ?></span>
-					</div>
-					<div class="section_content">
-						<a href=""><?php echo esc_html__( 'Manage Connection', 'jetpack' ); ?></a>
-					</div>
-				</div>
-			</div>
-			<?php
-		}
-
-		/**
 		 * Enqueue the scripts for the widget.
 		 *
 		 * @return void
@@ -183,10 +109,12 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 						'_inc/build/widgets/mailchimp/js/admin.min.js',
 						'modules/widgets/mailchimp/js/admin.js'
 					),
-					array( 'jquery' ),
+					array( 'jquery', 'wp-color-picker' ),
 					'20200607',
 					true
 				);
+
+				wp_enqueue_style( 'wp-color-picker' );
 			}
 		}
 
@@ -206,118 +134,145 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 
 			$this->form_sections = array(
 				array(
-					'title'  => esc_html__( 'Text Elements', 'jetpack' ),
+					'title'  => __( 'Text Elements', 'jetpack' ),
 					'fields' => array(
 						array(
-							'title'       => esc_html__( 'Email Placeholder', 'jetpack' ),
+							'title'       => __( 'Email Placeholder', 'jetpack' ),
 							'id'          => 'jetpack_mailchimp_email',
-							'placeholder' => esc_html__( 'Enter your email', 'jetpack' ),
+							'placeholder' => __( 'Enter your email', 'jetpack' ),
 							'type'        => 'text',
+							'name'        => esc_attr( $this->get_field_name( 'email_placeholder' ) ),
+							'value'       => esc_html( $instance['email_placeholder'] ),
 						),
 					),
 				),
 
 				array(
-					'title'  => esc_html__( 'Notifications', 'jetpack' ),
+					'title'  => __( 'Notifications', 'jetpack' ),
 					'fields' => array(
 						array(
-							'title'       => esc_html__( 'Processing', 'jetpack' ),
+							'title'       => __( 'Processing', 'jetpack' ),
 							'id'          => 'jetpack_mailchimp_processing_text',
-							'placeholder' => esc_html__( 'Processing', 'jetpack' ),
+							'placeholder' => __( 'Processing', 'jetpack' ),
 							'type'        => 'text',
+							'name'        => esc_attr( $this->get_field_name( 'processing_text' ) ),
+							'value'       => esc_html( $instance['processing_text'] ),
 						),
 
 						array(
-							'title'       => esc_html__( 'Success text', 'jetpack' ),
+							'title'       => __( 'Success text', 'jetpack' ),
 							'id'          => 'jetpack_mailchimp_success_text',
-							'placeholder' => esc_html__( 'Success! You\'re on the list.', 'jetpack' ),
+							'placeholder' => __( 'Success! You\'re on the list.', 'jetpack' ),
 							'type'        => 'text',
+							'name'        => esc_attr( $this->get_field_name( 'success_text' ) ),
+							'value'       => esc_html( $instance['success_text'] ),
 						),
 
 						array(
-							'title'       => esc_html__( 'Error text', 'jetpack' ),
+							'title'       => __( 'Error text', 'jetpack' ),
 							'id'          => 'jetpack_mailchimp_error_text',
-							'placeholder' => esc_html__( 'Whoops! There was an error and we couldn\'t process your subscription. Please reload the page and try again.', 'jetpack' ),
+							'placeholder' => __( 'Whoops! There was an error and we couldn\'t process your subscription. Please reload the page and try again.', 'jetpack' ),
 							'type'        => 'text',
+							'name'        => esc_attr( $this->get_field_name( 'error_text' ) ),
+							'value'       => esc_html( $instance['error_text'] ),
 						),
 					),
 				),
 
 				array(
-					'title'  => esc_html__( 'Mailchimp Groups', 'jetpack' ),
-					'fields' => array(
+					'title'         => __( 'Mailchimp Groups', 'jetpack' ),
+					'fields'        => array(
 						array(
 							'type' => 'groups',
 						),
 					),
+					'extra_content' => array(
+						array(
+							'text' => __( 'Learn about groups', 'jetpack' ),
+							'link' => 'https://mailchimp.com/help/send-groups-audience/',
+							'type' => 'link',
+						),
+					),
 				),
 
 				array(
-					'title'         => esc_html__( 'Signup Location Tracking', 'jetpack' ),
+					'title'         => __( 'Signup Location Tracking', 'jetpack' ),
 					'fields'        => array(
 						array(
-							'title'       => esc_html__( 'Signup Field Tag', 'jetpack' ),
+							'title'       => __( 'Signup Field Tag', 'jetpack' ),
 							'id'          => 'jetpack_mailchimp_signup_tag',
-							'placeholder' => esc_html__( 'SIGNUP', 'jetpack' ),
+							'placeholder' => __( 'SIGNUP', 'jetpack' ),
 							'type'        => 'text',
+							'name'        => esc_attr( $this->get_field_name( 'signup_tag' ) ),
+							'value'       => esc_html( $instance['signup_tag'] ),
 						),
 
 						array(
-							'title'       => esc_html__( 'Signup Field Value', 'jetpack' ),
+							'title'       => __( 'Signup Field Value', 'jetpack' ),
 							'id'          => 'jetpack_mailchimp_signup_value',
-							'placeholder' => esc_html__( 'website', 'jetpack' ),
+							'placeholder' => __( 'website', 'jetpack' ),
 							'type'        => 'text',
+							'name'        => esc_attr( $this->get_field_name( 'signup_value' ) ),
+							'value'       => esc_html( $instance['signup_value'] ),
 						),
 					),
 					'extra_content' => array(
-						'text' => esc_html__( 'Learn about signup location tracking(opens in a new tab)', 'jetpack' ),
-						'link' => 'https://mailchimp.com/help/determine-webpage-signup-location/',
-						'type' => 'link',
+						array(
+							'text' => __( 'Learn about signup location tracking(opens in a new tab)', 'jetpack' ),
+							'link' => 'https://mailchimp.com/help/determine-webpage-signup-location/',
+							'type' => 'link',
+						),
 					),
 				),
 
 				array(
-					'title'         => esc_html__( 'Mailchimp Groups', 'jetpack' ),
+					'title'         => __( 'Mailchimp Groups', 'jetpack' ),
 					'extra_content' => array(
-						'text' => esc_html__( 'Manage Connection', 'jetpack' ),
-						'link' => 'https://jetpack.com/redirect?source=calypso-marketing-connections&site=[site_url]&query=mailchimp',
-						'type' => 'link',
-					),
-				),
-
-				array(
-					'title'  => esc_html__( 'Button Color Settings', 'jetpack' ),
-					'fields' => array(
 						array(
-							'id'   => 'jetpack_mailchimp_button_color',
-							'type' => 'color',
-						),
-
-						array(
-							'id'   => 'jetpack_mailchimp_button_text_color',
-							'type' => 'color',
+							'text' => __( 'Manage Connection', 'jetpack' ),
+							'link' => 'https://jetpack.com/redirect?source=calypso-marketing-connections&site=[site_url]&query=mailchimp',
+							'type' => 'link',
 						),
 					),
 				),
 
 				array(
-					'title'  => esc_html__( 'Advanced', 'jetpack' ),
+					'title'  => __( 'Button Color Settings', 'jetpack' ),
 					'fields' => array(
 						array(
-							'title'       => esc_html__( 'Additional CSS class(es)', 'jetpack' ),
+							'id'    => 'jetpack_mailchimp_button_color',
+							'type'  => 'color',
+							'value' => esc_html( $instance['button_color'] ),
+						),
+
+						array(
+							'id'    => 'jetpack_mailchimp_button_text_color',
+							'type'  => 'color',
+							'value' => esc_html( $instance['text_color'] ),
+						),
+					),
+				),
+
+				array(
+					'title'  => __( 'Advanced', 'jetpack' ),
+					'fields' => array(
+						array(
+							'title'       => __( 'Additional CSS class(es)', 'jetpack' ),
 							'id'          => 'jetpack_mailchimp_css_class',
 							'placeholder' => '',
-							'help_text'   => esc_html__( 'Separate multiple classes with spaces.', 'jetpack' ),
+							'help_text'   => __( 'Separate multiple classes with spaces.', 'jetpack' ),
 							'type'        => 'text',
+							'name'        => esc_attr( $this->get_field_name( 'css_class' ) ),
+							'value'       => esc_html( $instance['css_class'] ),
 						),
 					),
 				),
 			);
 
 			$this->placeholder_data = array(
-				'instructions'    => esc_html__( 'You need to connect your Mailchimp account and choose a list in order to start collecting Email subscribers.', 'jetpack' ),
-				'setupButtonText' => esc_html__( 'Set up Mailchimp form', 'jetpack' ),
-				'recheckText'     => esc_html__( 'Re-check Connection', 'jetpack' ),
+				'instructions'    => __( 'You need to connect your Mailchimp account and choose a list in order to start collecting Email subscribers.', 'jetpack' ),
+				'setupButtonText' => __( 'Set up Mailchimp form', 'jetpack' ),
+				'recheckText'     => __( 'Re-check Connection', 'jetpack' ),
 			);
 
 			wp_localize_script(
@@ -326,6 +281,8 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 				array(
 					'formSections'    => $this->form_sections,
 					'placeholderData' => $this->placeholder_data,
+					'groups'          => esc_html( $instance['groups'] ),
+					'groupsFieldName' => esc_attr( $this->get_field_name( 'groups' ) ),
 				)
 			);
 
