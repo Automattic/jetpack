@@ -6,33 +6,26 @@ import classnames from 'classnames';
 /**
  * WordPress dependencies
  */
-import { useRef, useEffect, useCallback } from '@wordpress/element';
+import { useRef, useEffect } from '@wordpress/element';
 import { Spinner } from '@wordpress/components';
-import { ENTER, SPACE } from '@wordpress/keycodes';
 import { __ } from '@wordpress/i18n';
 
 function MediaItem( props ) {
-	const onClick = useCallback( () => {
+	const onClick = event => {
+		const { item, index } = props;
+
 		if ( props.onClick ) {
-			props.onClick( props.item );
+			props.onClick( event, { item, index } );
 		}
-	}, [ props.onClick ] );
+	};
 
-	const onKeyDown = useCallback(
-		event => {
-			// Catch space and enter key presses.
-			if ( ENTER === event.keyCode || SPACE === event.keyCode ) {
-				// Prevent spacebar from scrolling the page down.
-				event.preventDefault();
-				onClick( event );
-			}
+	const onKeyDown = event => {
+		const { item, index } = props;
 
-			if ( props.onKeyDown ) {
-				props.onKeyDown( event );
-			}
-		},
-		[ props.onKeyDown ]
-	);
+		if ( props.onKeyDown ) {
+			props.onKeyDown( event, { item, index } );
+		}
+	};
 
 	const { item, focus, isSelected, isCopying = false } = props;
 	const { thumbnails, caption, name, title, type, children = 0 } = item;

@@ -9,7 +9,7 @@ import classnames from 'classnames';
 import { memo, useCallback, useState, useRef, useEffect } from '@wordpress/element';
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { UP, DOWN, LEFT, RIGHT } from '@wordpress/keycodes';
+import { UP, DOWN, LEFT, RIGHT, SPACE, ENTER } from '@wordpress/keycodes';
 
 /**
  * Internal dependencies
@@ -24,6 +24,25 @@ const EmptyResults = memo( () => (
 		<p>{ __( 'Sorry, but nothing matched your search criteria.', 'jetpack' ) }</p>
 	</div>
 ) );
+
+const LoadMoreButton = ( { onClick } ) => (
+	<Button
+		isLarge
+		isSecondary
+		className="jetpack-external-media-browser__loadmore"
+		onClick={ onClick }
+	>
+		{ __( 'Load More', 'jetpack' ) }
+	</Button>
+);
+
+const SelectButton = ( { disabled, isCopying, onClick } ) => (
+	<div className="jetpack-external-media-browser__media__toolbar">
+		<Button isPrimary isLarge isBusy={ isCopying } disabled={ disabled } onClick={ onClick }>
+			{ isCopying ? __( 'Inserting…', 'jetpack' ) : __( 'Select', 'jetpack' ) }
+		</Button>
+	</div>
+);
 
 function MediaBrowser( props ) {
 	const {
@@ -43,8 +62,8 @@ function MediaBrowser( props ) {
 
 	const gridEl = useRef( null );
 
-	const onSelectImage = useCallback(
-		newlySelected => {
+	const select = useCallback(
+		( newlySelected, index ) => {
 			let newSelected = [ newlySelected ];
 
 			if ( newlySelected.type === 'folder' ) {
@@ -60,13 +79,10 @@ function MediaBrowser( props ) {
 			}
 
 			setSelected( newSelected );
+			setFocused( index );
 		},
 		[ selected, multiple, setPath ]
 	);
-
-	const onCopyAndInsert = useCallback( () => {
-		onCopy( selected );
-	}, [ selected, onCopy ] );
 
 	const hasMediaItems = media.filter( item => item.type !== 'folder' ).length > 0;
 	const classes = classnames( {
@@ -78,58 +94,7 @@ function MediaBrowser( props ) {
 		[ className ]: true,
 	} );
 
-	const onLoadMoreClick = () => {
-		if ( media.length ) {
-			setFocused( media.length );
-		}
-		nextPage();
-	};
-
-	const SelectButton = () => {
-		const disabled = selected.length === 0 || isCopying;
-		const label = isCopying ? __( 'Inserting…', 'jetpack' ) : __( 'Select', 'jetpack' );
-
-		return (
-			<div className="jetpack-external-media-browser__media__toolbar">
-				<Button
-					isPrimary
-					isLarge
-					isBusy={ isCopying }
-					disabled={ disabled }
-					onClick={ onCopyAndInsert }
-				>
-					{ label }
-				</Button>
-			</div>
-		);
-	};
-
-	/**
-	 * Counts how many items are in a row by checking how many of the grid's child items have a matching offsetTop.
-	 */
-	const checkColumns = () => {
-		let perRow = 1;
-
-		const items = gridEl.current.children;
-
-		if ( items.length > 0 ) {
-			const firstOffset = items[ 0 ].offsetTop;
-
-			// Check how many items have a matching offsetTop.
-			// This will give us the total number of items in a row.
-			while ( perRow < items.length && items[ perRow ].offsetTop === firstOffset ) {
-				++perRow;
-			}
-		}
-
-		setColumns( perRow );
-	};
-
-	useEffect( () => {
-		checkColumns();
-	}, [ media ] );
-
-	const handleArrowKeysNavigation = ( keyCode, index ) => {
+	const navigate = ( keyCode, index ) => {
 		switch ( keyCode ) {
 			case LEFT:
 				if ( index >= 1 ) {
@@ -154,20 +119,70 @@ function MediaBrowser( props ) {
 		}
 	};
 
+	/**
+	 * Counts how many items are in a row by checking how many of the grid's child
+	 * items have a matching offsetTop.
+	 */
+	const checkColumns = () => {
+		let perRow = 1;
+
+		const items = gridEl.current.children;
+
+		if ( items.length > 0 ) {
+			const firstOffset = items[ 0 ].offsetTop;
+
+			/**
+			 *Check how many items have a matching offsetTop. This will give us the
+			 * total number of items in a row.
+			 */
+			while ( perRow < items.length && items[ perRow ].offsetTop === firstOffset ) {
+				++perRow;
+			}
+		}
+
+		setColumns( perRow );
+	};
+
+	useEffect( () => {
+		checkColumns();
+	}, [ media ] );
+
+	const handleMediaItemClick = ( event, { item, index } ) => {
+		select( item, index );
+	};
+
+	const handleMediaItemKeyDown = ( event, { item, index } ) => {
+		if ( [ LEFT, RIGHT, UP, DOWN ].includes( event.keyCode ) ) {
+			navigate( event.keyCode, index );
+		}
+
+		if ( [ SPACE, ENTER ].includes( event.keyCode ) ) {
+			select( item, index );
+			event.preventDefault(); // Prevent space from scrolling the page down;
+		}
+	};
+
+	const handleLoadMoreButtonClick = () => {
+		if ( media.length ) {
+			setFocused( media.length );
+		}
+		nextPage();
+	};
+
+	const handleSelectButtonClick = useCallback( () => {
+		onCopy( selected );
+	}, [ selected, onCopy ] );
+
 	return (
 		<div className={ wrapper }>
 			<ul ref={ gridEl } className={ classes }>
 				{ media.map( ( item, index ) => (
 					<MediaItem
 						item={ item }
+						index={ index }
 						key={ item.ID }
-						onClick={ image => {
-							onSelectImage( image );
-							setFocused( index );
-						} }
-						onKeyDown={ event => {
-							handleArrowKeysNavigation( event.keyCode, index );
-						} }
+						onClick={ handleMediaItemClick }
+						onKeyDown={ handleMediaItemKeyDown }
 						focus={ index === focused }
 						isSelected={ selected.find( toFind => toFind.ID === item.ID ) }
 						isCopying={ isCopying }
@@ -178,19 +193,15 @@ function MediaBrowser( props ) {
 				{ isLoading && <MediaPlaceholder /> }
 			</ul>
 
-			{ pageHandle && ! isLoading && (
-				<Button
-					isLarge
-					isSecondary
-					className="jetpack-external-media-browser__loadmore"
-					disabled={ isLoading }
-					onClick={ onLoadMoreClick }
-				>
-					{ __( 'Load More', 'jetpack' ) }
-				</Button>
-			) }
+			{ pageHandle && ! isLoading && <LoadMoreButton onClick={ handleLoadMoreButtonClick } /> }
 
-			{ hasMediaItems && <SelectButton /> }
+			{ hasMediaItems && (
+				<SelectButton
+					isCopying
+					disabled={ selected.length === 0 || isCopying }
+					onClick={ handleSelectButtonClick }
+				/>
+			) }
 		</div>
 	);
 }
