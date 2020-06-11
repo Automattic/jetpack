@@ -531,7 +531,7 @@ domReady( function() {
 		);
 	};
 
-	//Enable HTML Implementation
+	// Scan page and add juxtapose sliders.
 	juxtapose.scanPage = function() {
 		const elements = document.querySelectorAll( '.juxtapose' );
 		for ( let i = 0; i < elements.length; i++ ) {
@@ -541,4 +541,7 @@ domReady( function() {
 
 	juxtapose.JXSlider = JXSlider;
 	window.juxtapose = juxtapose;
+
+	// Required for front-end.
+	juxtapose.scanPage();
 } );
