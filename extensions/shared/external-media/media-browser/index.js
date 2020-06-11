@@ -58,8 +58,7 @@ function MediaBrowser( props ) {
 	} = props;
 	const [ selected, setSelected ] = useState( [] );
 	const [ focused, setFocused ] = useState( -1 );
-	const [ columns, setColumns ] = useState( -1 );
-
+	const columns = useRef( -1 );
 	const gridEl = useRef( null );
 
 	const select = useCallback(
@@ -107,13 +106,13 @@ function MediaBrowser( props ) {
 				}
 				break;
 			case UP:
-				if ( index >= columns ) {
-					setFocused( index - columns );
+				if ( index >= columns.current ) {
+					setFocused( index - columns.current );
 				}
 				break;
 			case DOWN:
-				if ( index < media.length - columns ) {
-					setFocused( index + columns );
+				if ( index < media.length - columns.current ) {
+					setFocused( index + columns.current );
 				}
 				break;
 		}
@@ -132,7 +131,7 @@ function MediaBrowser( props ) {
 			const firstOffset = items[ 0 ].offsetTop;
 
 			/**
-			 *Check how many items have a matching offsetTop. This will give us the
+			 * Check how many items have a matching offsetTop. This will give us the
 			 * total number of items in a row.
 			 */
 			while ( perRow < items.length && items[ perRow ].offsetTop === firstOffset ) {
@@ -140,7 +139,7 @@ function MediaBrowser( props ) {
 			}
 		}
 
-		setColumns( perRow );
+		columns.current = perRow;
 	};
 
 	useEffect( () => {
