@@ -172,7 +172,6 @@ function MediaBrowser( props ) {
 
 	const handleMediaItemClick = ( event, { item, index } ) => {
 		select( item );
-		setFocused( index );
 	};
 
 	const handleMediaItemKeyDown = ( event, { item, index } ) => {
