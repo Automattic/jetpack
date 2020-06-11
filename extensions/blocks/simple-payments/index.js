@@ -29,7 +29,7 @@ export const name = 'simple-payments';
 const supportLink =
 	isSimpleSite() || isAtomicSite()
 		? 'https://wordpress.com/support/pay-with-paypal-button/'
-		: 'http://jetpack.com/support/jetpack-blocks/pay-with-paypal-button/';
+		: 'https://jetpack.com/support/jetpack-blocks/pay-with-paypal-button/';
 
 export const settings = {
 	title: __( 'Pay with PayPal button', 'jetpack' ),
