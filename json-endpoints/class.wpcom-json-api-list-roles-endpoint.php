@@ -86,6 +86,8 @@ class WPCOM_JSON_API_List_Roles_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 	// /sites/%s/roles/ -> $blog_id
 	function callback( $path = '', $blog_id = 0 ) {
+		require_lib( 'wpforteams' );
+
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
 		if ( is_wp_error( $blog_id ) ) {
 			return $blog_id;
@@ -127,9 +129,19 @@ class WPCOM_JSON_API_List_Roles_Endpoint extends WPCOM_JSON_API_Endpoint {
 			}
 		}
 
+		if ( WPForTeams\is_wpforteams_site( $blog_id ) ) {
+			$roles = $this->get_wpforteams_roles( $roles );
+		}
+
 		// Sort the array so roles with the most number of capabilities comes first, then the next role, and so on
 		usort( $roles, array( 'self', 'role_sort' ) );
 
 		return array( 'roles' => $roles );
+	}
+
+	private function get_wpforteams_roles( $roles ) {
+		return array_filter( (array) $roles, function( $role ) {
+			return $role->name !== 'contributor';
+		});
 	}
 }
