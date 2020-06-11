@@ -170,7 +170,10 @@ class Jetpack_Comic {
 	}
 
 	public function register_scripts() {
-		wp_enqueue_style( 'jetpack-comics-style', plugins_url( 'comics/comics.css', __FILE__ ) );
+		// These assets change very infrequently, don't base it on JETPACK_VERSION.
+		$version = '2020-06-11';
+
+		wp_enqueue_style( 'jetpack-comics-style', plugins_url( 'comics/comics.css', __FILE__ ), array(), $version );
 		wp_style_add_data( 'jetpack-comics-style', 'rtl', 'replace' );
 
 		$is_amp = class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request();
@@ -181,7 +184,7 @@ class Jetpack_Comic {
 					'_inc/build/custom-post-types/comics/comics.min.js',
 					'modules/custom-post-types/comics/comics.js'
 				),
-				array( 'jquery', 'jquery.spin' ),
+				array( 'jquery' ),
 				JETPACK__VERSION,
 				false
 			);
