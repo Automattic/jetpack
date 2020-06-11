@@ -172,6 +172,8 @@ function MediaBrowser( props ) {
 			select( item, index );
 			event.preventDefault(); // Prevent space from scrolling the page down.
 		}
+
+		event.stopPropagation();
 	};
 
 	const handleLoadMoreButtonClick = () => {
