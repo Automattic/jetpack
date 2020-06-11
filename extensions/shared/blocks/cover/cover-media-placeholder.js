@@ -31,7 +31,7 @@ const ALLOWED_MEDIA_TYPES = [ 'image', 'video' ];
  * @param {boolean} props.show - Show the Nudge component.
  * @returns {*} Nudge component or Null.
  */
-const JetpackCoverUpgradeNudge = ( { name, show } ) =>
+export const JetpackCoverUpgradeNudge = ( { name, show } ) =>
 	show
 		? <UpgradeNudge
 			plan="value_bundle"
