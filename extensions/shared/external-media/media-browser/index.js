@@ -79,7 +79,6 @@ function MediaBrowser( props ) {
 			}
 
 			setSelected( newSelected );
-			setFocused( index );
 		},
 		[ selected, multiple, setPath ]
 	);
@@ -173,6 +172,7 @@ function MediaBrowser( props ) {
 
 	const handleMediaItemClick = ( event, { item, index } ) => {
 		select( item, index );
+		setFocused( index );
 	};
 
 	const handleMediaItemKeyDown = ( event, { item, index } ) => {
