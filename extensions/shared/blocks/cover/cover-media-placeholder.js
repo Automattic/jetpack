@@ -20,6 +20,19 @@ import getJetpackExtensionAvailability from "../../get-jetpack-extension-availab
  */
 const ALLOWED_MEDIA_TYPES = [ 'image', 'video' ];
 
+/**
+ * Nudge shows when the user tries to upload a video file.
+ * Unlike the core/video block, handled/extended by the videopress block,
+ * the nudge is not shown permanently.
+ * It's handled by the MediaPlaceholder component.
+ * For this reason, we can't wrap the edit setting
+ * with the wrapPaidBlock() HOC, as the videopress does.
+ *
+ * @param {object}  props - Information about the user.
+ * @param {string}  props.name - Show the Nudge component.
+ * @param {boolean} props.show - Show the Nudge component.
+ * @returns {*} Nudge component or Null.
+ */
 const JetpackCoverUpgradeNudge = ( { name, show } ) =>
 	show
 		? <UpgradeNudge
