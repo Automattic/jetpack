@@ -37,7 +37,7 @@ export default function withMedia() {
 				};
 			}
 
-			modalRef = el => {
+			contentRef = el => {
 				if ( el ) {
 					// Store modal content.
 					this.contentElement = el;
@@ -242,7 +242,7 @@ export default function withMedia() {
 						aria={ { describedby } }
 						className={ classes }
 					>
-						<div ref={ this.modalRef } className="jetpack-external-media-wrapper">
+						<div ref={ this.contentRef } className="jetpack-external-media-wrapper">
 							{ noticeUI }
 
 							<p id={ describedby } className="jetpack-external-media-browser--visually-hidden">
