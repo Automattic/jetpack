@@ -98,8 +98,7 @@ export const getAttributesFromEmbedCode = embedCode => {
 	}
 
 	if ( 'link' === newStyle ) {
-		const urlObject = new URL( newUrl );
-		newAttributes.buttonAttributes = { url: urlObject.origin + urlObject.pathname };
+		newAttributes.buttonAttributes = {};
 
 		const text = getTextFromEmbedCode( embedCode );
 		if ( text ) {

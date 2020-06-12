@@ -90,7 +90,6 @@ describe( 'getAttributesFromEmbedCode', () => {
 			{
 				"style": "link",
 				"buttonAttributes": {
-					"url": "https://calendly.com/wordpresscom/jetpack-block-example",
 					"text": "Schedule time with me",
 					"backgroundColor": undefined,
 					"customBackgroundColor": "#00a2ff",
@@ -108,10 +107,7 @@ describe( 'getAttributesFromEmbedCode', () => {
 		).toEqual(
 			{
 				"style": "link",
-				"buttonAttributes": {
-					"url": "https://calendly.com/wordpresscom/jetpack-block-example",
-					"text": "Schedule time with me"
-				},
+				"buttonAttributes": { "text": "Schedule time with me" },
 				"url": "https://calendly.com/wordpresscom/jetpack-block-example"
 			}
 		);
@@ -141,7 +137,6 @@ describe( 'getAttributesFromEmbedCode', () => {
 				"primaryColor": "1d73a4",
 				"style": "link",
 				"buttonAttributes": {
-					"url": "https://calendly.com/wordpresscom/jetpack-block-example",
 					"text": "Schedule some time with me",
 					"backgroundColor": undefined,
 					"customBackgroundColor": "#000609",
@@ -162,10 +157,7 @@ describe( 'getAttributesFromEmbedCode', () => {
 				"backgroundColor": "e32424",
 				"primaryColor": "0e425f",
 				"style": "link",
-				"buttonAttributes": {
-					"url": "https://calendly.com/wordpresscom/jetpack-block-example",
-					"text": "Schedule some time with me"
-				},
+				"buttonAttributes": { "text": "Schedule some time with me" },
 				"textColor": "2a74ef",
 				"url": "https://calendly.com/wordpresscom/jetpack-block-example"
 			}

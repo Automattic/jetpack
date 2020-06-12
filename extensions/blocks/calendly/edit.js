@@ -199,7 +199,11 @@ function CalendlyEdit( props ) {
 			template={ [
 				[
 					innerButtonBlock.name,
-					{ ...innerButtonBlock.attributes, url, ...embedButtonAttributes },
+					{
+						...innerButtonBlock.attributes,
+						...embedButtonAttributes,
+						passthroughAttributes: { url: 'url' },
+					},
 				],
 			] }
 			templateLock="all"
