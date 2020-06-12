@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-03-27 11:20:41+0000\n"
+"PO-Revision-Date: 2020-06-08 15:57:22+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -11,52 +11,72 @@ msgstr ""
 "Language: pl\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
 
-#: wpcomsh.php:943
+#: widgets/instagram/instagram.php:357
+msgid "In order to continue using this widget you must reconnect to Instagram."
+msgstr ""
+
+#: widgets/instagram/instagram.php:265
+msgid "In order to continue using this widget you must <a href=\"%s\">reconnect to Instagram</a>."
+msgstr ""
+
+#: private-site/access-denied-preview-login-template.php:61
+msgid "This site is private. You need to log in to the preview to see it."
+msgstr ""
+
+#: private-site/access-denied-preview-login-template.php:58
+msgid "This site is private. You need to log in as a user with permissions before previewing it."
+msgstr ""
+
+#: private-site/access-denied-coming-soon-template.php:52
+msgid "Start your website"
+msgstr ""
+
+#: private-site/access-denied-coming-soon-template.php:48
+msgid "Build a website. Sell your stuff. Write a blog. And so much more."
+msgstr ""
+
+#: private-site/access-denied-coming-soon-template.php:43
+msgid "Coming Soon"
+msgstr "Wkrótce"
+
+#: wpcomsh.php:936
 msgid "Disk space quota"
 msgstr ""
 
-#: wpcomsh.php:939
+#: wpcomsh.php:932
 msgid "Disk space used"
 msgstr ""
 
-#: widgets/instagram/instagram.php:454
+#: widgets/instagram/instagram.php:450
 msgid "<strong>Connected Instagram Account</strong><br /> <a href=\"%1$s\">%2$s</a> | <a href=\"%3$s\">remove</a>"
 msgstr ""
 
-#: widgets/instagram/instagram.php:429
+#: widgets/instagram/instagram.php:425
 msgid "Having trouble? Try <a href=\"%s\" target=\"_blank\">logging into the correct account</a> on Instagram.com first."
 msgstr ""
 
-#: widgets/instagram/instagram.php:421
+#: widgets/instagram/instagram.php:417
 msgid "Connect Instagram Account"
 msgstr ""
 
-#: widgets/instagram/instagram.php:417 widgets/instagram/instagram.php:451
+#: widgets/instagram/instagram.php:413 widgets/instagram/instagram.php:447
 msgid "Instagram is currently experiencing connectivity issues, please try again later to connect."
 msgstr ""
 
-#: widgets/instagram/instagram.php:393
+#: widgets/instagram/instagram.php:388
 msgid "Connecting…"
 msgstr "Łączenie..."
 
-#: widgets/instagram/instagram.php:366
+#: widgets/instagram/instagram.php:361
 msgid "<strong>Important: You must first click Save to activate this widget <em>before</em> connecting your account.</strong> After saving the widget, click the button below to connect your Instagram account."
 msgstr ""
 
-#: widgets/instagram/instagram.php:362
-msgid "Your current connection will stop working on 31 March 2020 due to changes in Instagram's service. <br /><br />Please reconnect to Instagram in order to continue using this widget"
-msgstr ""
-
-#: widgets/instagram/instagram.php:315
+#: widgets/instagram/instagram.php:335
 msgid "Missing or invalid security nonce."
 msgstr ""
 
-#: widgets/instagram/instagram.php:254
+#: widgets/instagram/instagram.php:271
 msgid "In order to use this Instagram widget, you must <a href=\"%s\">configure it</a> first."
-msgstr ""
-
-#: widgets/instagram/instagram.php:247
-msgid "In order to continue using this Instagram widget after %s, you must <a href=\"%s\">re-connect</a>."
 msgstr ""
 
 #: widgets/category-cloud.php:167
@@ -99,31 +119,31 @@ msgstr "Twoje najczęściej używane kategorie w formacie chmury."
 msgid "Category Cloud"
 msgstr "Chmura kategorii"
 
-#: private-site/private-site.php:124
+#: private-site/private-site.php:162
 msgid "Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings."
 msgstr ""
 
-#: private-site/logged-in-banner.php:62
+#: private-site/logged-in-banner.php:72
 msgid "Update visibility"
 msgstr ""
 
-#: private-site/logged-in-banner.php:62
+#: private-site/logged-in-banner.php:68
 msgid "Launch site"
 msgstr ""
 
-#: private-site/logged-in-banner.php:59
+#: private-site/logged-in-banner.php:63
 msgid "Dismiss"
 msgstr "Zignoruj"
 
-#: private-site/logged-in-banner.php:52
+#: private-site/logged-in-banner.php:56
 msgid "Your site has been launched; now you can share it with the world!"
 msgstr ""
 
-#: private-site/logged-in-banner.php:50
+#: private-site/logged-in-banner.php:52
 msgid "Your site is marked as \"Coming Soon\" and hidden from visitors until it's ready."
 msgstr ""
 
-#: private-site/logged-in-banner.php:48
+#: private-site/logged-in-banner.php:54
 msgid "Your site hasn't been launched yet. Only you can see it until it is launched."
 msgstr ""
 
@@ -323,10 +343,6 @@ msgstr ""
 msgid "Unable to fetch the requested data."
 msgstr ""
 
-#: private-site/access-denied-coming-soon-template.php:142
-msgid "Log in here"
-msgstr "Zaloguj się tutaj"
-
 #: footer-credit/theme-optimizations.php:37
 msgid "Create a free website or blog at WordPress.com"
 msgstr "Stwórz darmową stronę albo bloga na WordPress.com"
@@ -418,12 +434,8 @@ msgstr "Zapisz"
 msgid "Activate &amp; Save"
 msgstr ""
 
-#: private-site/private-site.php:130
+#: private-site/private-site.php:168
 msgid "Manage your site visibility settings"
-msgstr ""
-
-#: private-site/access-denied-coming-soon-template.php:140
-msgid "Something new is coming."
 msgstr ""
 
 #: wpcomsh.php:338
@@ -773,15 +785,16 @@ msgstr ""
 msgid "Author Grid"
 msgstr "Siatka autorów"
 
-#: private-site/private-site.php:453
+#: private-site/private-site.php:555
 msgid "Private Site"
 msgstr ""
 
-#: private-site/private-site.php:291 private-site/private-site.php:393
-#: private-site/private-site.php:554
+#: private-site/private-site.php:391 private-site/private-site.php:493
+#: private-site/private-site.php:687
 msgid "This site is private."
 msgstr ""
 
+#: private-site/access-denied-coming-soon-template.php:51
 #: private-site/access-denied-private-site-template.php:45
 msgid "Log in"
 msgstr "Zaloguj się"

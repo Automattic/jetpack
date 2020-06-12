@@ -7,6 +7,8 @@ define( 'WPCOMSH_CLI_DONT_DEACTIVATE_PLUGINS', array(
 	'akismet',
 	'amp',
 	'jetpack',
+	// Avoid deactivating the file shim before the Atomic media backfill is complete
+	'wpcom-file-shim',
 ) );
 
 /**

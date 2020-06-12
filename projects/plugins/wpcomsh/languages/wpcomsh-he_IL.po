@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-04-02 00:54:04+0000\n"
+"PO-Revision-Date: 2020-06-08 15:57:26+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -11,53 +11,73 @@ msgstr ""
 "Language: he_IL\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
 
-#: wpcomsh.php:943
+#: widgets/instagram/instagram.php:357
+msgid "In order to continue using this widget you must reconnect to Instagram."
+msgstr ""
+
+#: widgets/instagram/instagram.php:265
+msgid "In order to continue using this widget you must <a href=\"%s\">reconnect to Instagram</a>."
+msgstr ""
+
+#: private-site/access-denied-preview-login-template.php:61
+msgid "This site is private. You need to log in to the preview to see it."
+msgstr ""
+
+#: private-site/access-denied-preview-login-template.php:58
+msgid "This site is private. You need to log in as a user with permissions before previewing it."
+msgstr ""
+
+#: private-site/access-denied-coming-soon-template.php:52
+msgid "Start your website"
+msgstr "להתחיל וליצור את האתר שלך"
+
+#: private-site/access-denied-coming-soon-template.php:48
+msgid "Build a website. Sell your stuff. Write a blog. And so much more."
+msgstr ""
+
+#: private-site/access-denied-coming-soon-template.php:43
+msgid "Coming Soon"
+msgstr "בקרוב"
+
+#: wpcomsh.php:936
 msgid "Disk space quota"
 msgstr "מכסה לשטח אחסון בדיסק"
 
-#: wpcomsh.php:939
+#: wpcomsh.php:932
 msgid "Disk space used"
 msgstr "שטח אחסון שנוצל בדיסק"
 
-#: widgets/instagram/instagram.php:454
+#: widgets/instagram/instagram.php:450
 msgid "<strong>Connected Instagram Account</strong><br /> <a href=\"%1$s\">%2$s</a> | <a href=\"%3$s\">remove</a>"
 msgstr "<strong>מחובר לחשבון Instagram</strong><br /> <a href=\"%1$s\">%2$s</a> | <a href=\"%3$s\">להסיר</a>"
 
-#: widgets/instagram/instagram.php:429
+#: widgets/instagram/instagram.php:425
 msgid "Having trouble? Try <a href=\"%s\" target=\"_blank\">logging into the correct account</a> on Instagram.com first."
 msgstr "נתקלת בבעיה? ניתן לנסות <a href=\"%s\" target=\"_blank\">להיכנס לחשבון המתאים</a> ב-Instagram.com תחילה."
 
-#: widgets/instagram/instagram.php:421
+#: widgets/instagram/instagram.php:417
 msgid "Connect Instagram Account"
 msgstr "אשר גישה ל-Instagram"
 
-#: widgets/instagram/instagram.php:417 widgets/instagram/instagram.php:451
+#: widgets/instagram/instagram.php:413 widgets/instagram/instagram.php:447
 msgid "Instagram is currently experiencing connectivity issues, please try again later to connect."
 msgstr "קיימות כעת בעיות התחברות עם Instagram, יש לנסות להתחבר שוב מאוחר יותר."
 
-#: widgets/instagram/instagram.php:393
+#: widgets/instagram/instagram.php:388
 msgid "Connecting…"
 msgstr "מתחבר..."
 
-#: widgets/instagram/instagram.php:366
+#: widgets/instagram/instagram.php:361
 msgid "<strong>Important: You must first click Save to activate this widget <em>before</em> connecting your account.</strong> After saving the widget, click the button below to connect your Instagram account."
 msgstr "<strong>חשוב: עליך קודם ללחוץ על 'שמירה' כדי להפעיל את הווידג'ט <em>לפני</em> ביצוע החיבור לחשבון שלך.</strong> אחרי ששמרת את הווידג'ט, יש ללחוץ על הכפתור שלמטה כדי לחבר את החשבון שלך ב-Instagram."
 
-#: widgets/instagram/instagram.php:362
-msgid "Your current connection will stop working on 31 March 2020 due to changes in Instagram's service. <br /><br />Please reconnect to Instagram in order to continue using this widget"
-msgstr "החיבור הנוכחי שלך יפסיק לעבוד ב-31 במרץ 2020 עקב שינויים בשירות של Instagram. <br /><br />עליך לחבר את Instagram מחדש כדי להמשיך להשתמש בווידג'ט"
-
-#: widgets/instagram/instagram.php:315
+#: widgets/instagram/instagram.php:335
 msgid "Missing or invalid security nonce."
 msgstr "רכיב nonce של אבטחה חסר או לא חוקי."
 
-#: widgets/instagram/instagram.php:254
+#: widgets/instagram/instagram.php:271
 msgid "In order to use this Instagram widget, you must <a href=\"%s\">configure it</a> first."
 msgstr "על מנת להשתמש בוידג'ט Instagram זה, יש <a href=\"%s\">לקבוע תצורתו</a> תחילה."
-
-#: widgets/instagram/instagram.php:247
-msgid "In order to continue using this Instagram widget after %s, you must <a href=\"%s\">re-connect</a>."
-msgstr "כדי להמשיך להשתמש בווידג'ט של Instagram אחרי %s, עליך <a href=\"%s\">לחבר אותו מחדש</a>."
 
 #: widgets/category-cloud.php:167
 msgid "Click for more information"
@@ -99,31 +119,31 @@ msgstr "הקטגוריות הנפוצות ביותר שלך בפורמט ענן.
 msgid "Category Cloud"
 msgstr "ענן קטגוריות"
 
-#: private-site/private-site.php:124
+#: private-site/private-site.php:162
 msgid "Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings."
 msgstr "השירות של Jetpack מנותק והאתר פרטי. יש לחבר מחדש את Jetpack כדי לנהל את הגדרות הנראות של האתר."
 
-#: private-site/logged-in-banner.php:62
+#: private-site/logged-in-banner.php:72
 msgid "Update visibility"
 msgstr "לעדכן את הנראות"
 
-#: private-site/logged-in-banner.php:62
+#: private-site/logged-in-banner.php:68
 msgid "Launch site"
 msgstr "השקת האתר"
 
-#: private-site/logged-in-banner.php:59
+#: private-site/logged-in-banner.php:63
 msgid "Dismiss"
 msgstr "לסגור הודעה זו"
 
-#: private-site/logged-in-banner.php:52
+#: private-site/logged-in-banner.php:56
 msgid "Your site has been launched; now you can share it with the world!"
 msgstr "האתר שלך הושק. עכשיו אפשר לשתף אותו עם שאר העולם!"
 
-#: private-site/logged-in-banner.php:50
+#: private-site/logged-in-banner.php:52
 msgid "Your site is marked as \"Coming Soon\" and hidden from visitors until it's ready."
 msgstr "האתר שלך מוגדר כ'בקרוב' ומוסתר ממבקרים עד שיהיה מוכן לצפייה."
 
-#: private-site/logged-in-banner.php:48
+#: private-site/logged-in-banner.php:54
 msgid "Your site hasn't been launched yet. Only you can see it until it is launched."
 msgstr "טרם השקת את האתר שלך. עד שהאתר יושק, התוכן מוצג רק לך."
 
@@ -323,10 +343,6 @@ msgstr "הצג את פרופיל about.me שלך יחד עם תמונה ממוז
 msgid "Unable to fetch the requested data."
 msgstr "אין אפשרות להביא את הנתונים שביקשת."
 
-#: private-site/access-denied-coming-soon-template.php:142
-msgid "Log in here"
-msgstr "יש להתחבר כאן"
-
 #: footer-credit/theme-optimizations.php:37
 msgid "Create a free website or blog at WordPress.com"
 msgstr "יצירה של אתר חינמי או בלוג ב־WordPress.com"
@@ -418,13 +434,9 @@ msgstr "שמירה"
 msgid "Activate &amp; Save"
 msgstr "להפעיל ולשמור"
 
-#: private-site/private-site.php:130
+#: private-site/private-site.php:168
 msgid "Manage your site visibility settings"
 msgstr "לנהל את הגדרות הנראות של האתר שלך"
-
-#: private-site/access-denied-coming-soon-template.php:140
-msgid "Something new is coming."
-msgstr "משהו חדש מגיע."
 
 #: wpcomsh.php:338
 msgid "This plugin was installed by WordPress.com and provides features offered in your plan subscription."
@@ -773,15 +785,16 @@ msgstr "הצג רשת של תמונות אוואטאר של המחבר."
 msgid "Author Grid"
 msgstr "רשת כותבים"
 
-#: private-site/private-site.php:453
+#: private-site/private-site.php:555
 msgid "Private Site"
 msgstr "אתר פרטי"
 
-#: private-site/private-site.php:291 private-site/private-site.php:393
-#: private-site/private-site.php:554
+#: private-site/private-site.php:391 private-site/private-site.php:493
+#: private-site/private-site.php:687
 msgid "This site is private."
 msgstr "אתר זה פרטי."
 
+#: private-site/access-denied-coming-soon-template.php:51
 #: private-site/access-denied-private-site-template.php:45
 msgid "Log in"
 msgstr "להתחבר"

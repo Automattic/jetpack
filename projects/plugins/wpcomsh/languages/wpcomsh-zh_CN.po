@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-04-02 00:54:04+0000\n"
+"PO-Revision-Date: 2020-06-08 15:57:26+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -11,53 +11,73 @@ msgstr ""
 "Language: zh_CN\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
 
-#: wpcomsh.php:943
+#: widgets/instagram/instagram.php:357
+msgid "In order to continue using this widget you must reconnect to Instagram."
+msgstr ""
+
+#: widgets/instagram/instagram.php:265
+msgid "In order to continue using this widget you must <a href=\"%s\">reconnect to Instagram</a>."
+msgstr ""
+
+#: private-site/access-denied-preview-login-template.php:61
+msgid "This site is private. You need to log in to the preview to see it."
+msgstr ""
+
+#: private-site/access-denied-preview-login-template.php:58
+msgid "This site is private. You need to log in as a user with permissions before previewing it."
+msgstr ""
+
+#: private-site/access-denied-coming-soon-template.php:52
+msgid "Start your website"
+msgstr "开始打造您的网站"
+
+#: private-site/access-denied-coming-soon-template.php:48
+msgid "Build a website. Sell your stuff. Write a blog. And so much more."
+msgstr ""
+
+#: private-site/access-denied-coming-soon-template.php:43
+msgid "Coming Soon"
+msgstr "快来了"
+
+#: wpcomsh.php:936
 msgid "Disk space quota"
 msgstr "磁盘空间配额"
 
-#: wpcomsh.php:939
+#: wpcomsh.php:932
 msgid "Disk space used"
 msgstr "已用磁盘空间"
 
-#: widgets/instagram/instagram.php:454
+#: widgets/instagram/instagram.php:450
 msgid "<strong>Connected Instagram Account</strong><br /> <a href=\"%1$s\">%2$s</a> | <a href=\"%3$s\">remove</a>"
 msgstr "<strong>已连接的 Instagram 帐户</strong><br /> <a href=\"%1$s\">%2$s</a> | <a href=\"%3$s\">移除</a>"
 
-#: widgets/instagram/instagram.php:429
+#: widgets/instagram/instagram.php:425
 msgid "Having trouble? Try <a href=\"%s\" target=\"_blank\">logging into the correct account</a> on Instagram.com first."
 msgstr "遇到问题？首先尝试在 Instagram.com 上<a href=\"%s\" target=\"_blank\">登录正确的帐户</a>。"
 
-#: widgets/instagram/instagram.php:421
+#: widgets/instagram/instagram.php:417
 msgid "Connect Instagram Account"
 msgstr "授予 Instagram 访问权限"
 
-#: widgets/instagram/instagram.php:417 widgets/instagram/instagram.php:451
+#: widgets/instagram/instagram.php:413 widgets/instagram/instagram.php:447
 msgid "Instagram is currently experiencing connectivity issues, please try again later to connect."
 msgstr "Instagram 目前遇到连接问题，请稍后再尝试连接。"
 
-#: widgets/instagram/instagram.php:393
+#: widgets/instagram/instagram.php:388
 msgid "Connecting…"
 msgstr "正在连接…"
 
-#: widgets/instagram/instagram.php:366
+#: widgets/instagram/instagram.php:361
 msgid "<strong>Important: You must first click Save to activate this widget <em>before</em> connecting your account.</strong> After saving the widget, click the button below to connect your Instagram account."
 msgstr "<strong>重要提示：在连接您的帐户<em>之前</em>，您必须先点击“保存”以激活此小工具。</strong>保存该小工具之后，点击下方按钮以连接您的 Instagram 帐户。"
 
-#: widgets/instagram/instagram.php:362
-msgid "Your current connection will stop working on 31 March 2020 due to changes in Instagram's service. <br /><br />Please reconnect to Instagram in order to continue using this widget"
-msgstr "因 Instagram 服务有变更，您目前的连接将于 2020 年 3 月 31 日停止运行。<br /><br />请重新连接到 Instagram，以继续使用此小工具"
-
-#: widgets/instagram/instagram.php:315
+#: widgets/instagram/instagram.php:335
 msgid "Missing or invalid security nonce."
 msgstr "安全 Nonce 缺失或无效"
 
-#: widgets/instagram/instagram.php:254
+#: widgets/instagram/instagram.php:271
 msgid "In order to use this Instagram widget, you must <a href=\"%s\">configure it</a> first."
 msgstr "为了使用此 Instagram 小工具，您必须先对其进行<a href=\"%s\">配置</a>。"
-
-#: widgets/instagram/instagram.php:247
-msgid "In order to continue using this Instagram widget after %s, you must <a href=\"%s\">re-connect</a>."
-msgstr "为在 %s之后继续使用 Instagram 小工具，您必须<a href=\"%s\">重新连接</a>。"
 
 #: widgets/category-cloud.php:167
 msgid "Click for more information"
@@ -99,31 +119,31 @@ msgstr "您最常用的云格式类别。"
 msgid "Category Cloud"
 msgstr "分类"
 
-#: private-site/private-site.php:124
+#: private-site/private-site.php:162
 msgid "Jetpack is disconnected & site is private. Reconnect Jetpack to manage site visibility settings."
 msgstr "已断开与 Jetpack 的连接，且站点为私人站点。重新连接 Jetpack 以管理站点可见性设置。"
 
-#: private-site/logged-in-banner.php:62
+#: private-site/logged-in-banner.php:72
 msgid "Update visibility"
 msgstr "更新可见性"
 
-#: private-site/logged-in-banner.php:62
+#: private-site/logged-in-banner.php:68
 msgid "Launch site"
 msgstr "发布站点"
 
-#: private-site/logged-in-banner.php:59
+#: private-site/logged-in-banner.php:63
 msgid "Dismiss"
 msgstr "不再显示"
 
-#: private-site/logged-in-banner.php:52
+#: private-site/logged-in-banner.php:56
 msgid "Your site has been launched; now you can share it with the world!"
 msgstr "您的站点已启动，您现在可以与全世界分享了！"
 
-#: private-site/logged-in-banner.php:50
+#: private-site/logged-in-banner.php:52
 msgid "Your site is marked as \"Coming Soon\" and hidden from visitors until it's ready."
 msgstr "您的站点已标记为“即将推出”，并且会在准备就绪之前对访客隐藏。"
 
-#: private-site/logged-in-banner.php:48
+#: private-site/logged-in-banner.php:54
 msgid "Your site hasn't been launched yet. Only you can see it until it is launched."
 msgstr "您的站点尚未发布。站点只有在发布后您才能看到。"
 
@@ -323,10 +343,6 @@ msgstr "以缩略图形式显示您的 about.me 个人资料"
 msgid "Unable to fetch the requested data."
 msgstr "无法提取所请求的数据。"
 
-#: private-site/access-denied-coming-soon-template.php:142
-msgid "Log in here"
-msgstr "在此处登录"
-
 #: footer-credit/theme-optimizations.php:37
 msgid "Create a free website or blog at WordPress.com"
 msgstr "通过访问 WordPress.com 创建免费网站或博客"
@@ -418,13 +434,9 @@ msgstr "保存"
 msgid "Activate &amp; Save"
 msgstr "激活并保存"
 
-#: private-site/private-site.php:130
+#: private-site/private-site.php:168
 msgid "Manage your site visibility settings"
 msgstr "管理您的站点可见性设置"
-
-#: private-site/access-denied-coming-soon-template.php:140
-msgid "Something new is coming."
-msgstr "即将推出新内容。"
 
 #: wpcomsh.php:338
 msgid "This plugin was installed by WordPress.com and provides features offered in your plan subscription."
@@ -773,15 +785,16 @@ msgstr "显示作者头像网格。"
 msgid "Author Grid"
 msgstr "作者网格"
 
-#: private-site/private-site.php:453
+#: private-site/private-site.php:555
 msgid "Private Site"
 msgstr "私人站点"
 
-#: private-site/private-site.php:291 private-site/private-site.php:393
-#: private-site/private-site.php:554
+#: private-site/private-site.php:391 private-site/private-site.php:493
+#: private-site/private-site.php:687
 msgid "This site is private."
 msgstr "此站点是私人站点。"
 
+#: private-site/access-denied-coming-soon-template.php:51
 #: private-site/access-denied-private-site-template.php:45
 msgid "Log in"
 msgstr "登录"
