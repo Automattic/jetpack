@@ -1,4 +1,4 @@
-/* global mailchimpAdmin*/
+/* global mailchimpAdmin */
 
 ( function( $ ) {
 	var icon =
@@ -47,25 +47,27 @@
 	 * In case the site is not connected, this is shown.
 	 */
 	function showPlaceholder() {
+		var placeholderData = JSON.parse( mailchimpAdmin.placeholderData );
+
 		var brand = $( '<div>', { class: 'jetpack_mailchimp_placeholder_brand' } );
 		brand.append( icon );
 		brand.append( $( '<span>', { text: 'Mailchimp' } ) );
 
 		var instructions = $( '<div>', {
 			class: 'jetpack_mailchimp_placeholder_instructions',
-			text: mailchimpAdmin.placeholderData.instructions,
+			text: placeholderData.instructions,
 		} );
 
 		var setupFormButton = $( '<a>', {
 			class: 'jetpack_mailchimp_placeholder_setup',
-			text: mailchimpAdmin.placeholderData.setupButtonText,
+			text: placeholderData.setupButtonText,
 			href: connectURL,
 			target: '_blank',
 		} );
 
 		var recheckButton = $( '<button>', {
 			class: 'jetpack_mailchimp_recheck_button',
-			text: mailchimpAdmin.placeholderData.recheckText,
+			text: placeholderData.recheckText,
 		} );
 
 		recheckButton.click( function( e ) {
@@ -93,7 +95,7 @@
 		 * @param {boolean} add If true then the group id is added, if false the group id is removed from the hidden input value.
 		 */
 		function generateHiddenFieldValue( groupId, add ) {
-			var groupsInput = $( '#jetpack_mailchimp_groups' );
+			var groupsInput = $( '.widgets-holder-wrap #jetpack_mailchimp_groups' );
 
 			var groupsValue = groupsInput.val();
 			var arrayGroups = groupsValue.length > 0 ? groupsValue.split( '_' ) : [];
@@ -118,15 +120,20 @@
 		 */
 		function fillGroupsField( groups ) {
 			var groupsWrapper = $( '.jetpack_mailchimp_groups_wrapper' );
+
+			var groupsServer = mailchimpAdmin.groups.split( '_' );
 			groups.interest_categories.forEach( function( interest_category ) {
 				interest_category.interests.forEach( function( interest ) {
 					var checkboxWrapper = $( '<div>', { class: 'jetpack_mailchimp_checkbox_wrapper' } );
-					var checkbox = $( '<input>', { type: 'checkbox', value: interest.id } );
+
+					var checked = groupsServer.includes( interest.id );
+					var checkbox = $( '<input>', { type: 'checkbox', value: interest.id, checked: checked } );
 					checkbox.change( function() {
 						var checked = $( this ).is( ':checked' );
 						var groupId = $( this ).val();
 						generateHiddenFieldValue( groupId, checked );
 					} );
+
 					checkboxWrapper.append( checkbox );
 					checkboxWrapper.append( $( '<label>', { text: interest.name } ) );
 					groupsWrapper.append( checkboxWrapper );
@@ -137,6 +144,7 @@
 				$( '<input>', {
 					type: 'hidden',
 					name: mailchimpAdmin.groupsFieldName,
+					value: mailchimpAdmin.groups,
 					id: 'jetpack_mailchimp_groups',
 				} )
 			);
@@ -160,7 +168,9 @@
 		$( '.jetpack_mailchimp_color_input' ).wpColorPicker( {
 			change: function( e, ui ) {
 				var target = $( this ).attr( 'target' );
-				$( '#' + target ).val( ui.color.toString() );
+				$( '.widgets-holder-wrap #' + target ).val( ui.color.toString() );
+				// So the 'Save' button is activated and value sent to the server.
+				$( '.widgets-holder-wrap #' + target ).trigger( 'change' );
 			},
 		} );
 	}
@@ -171,7 +181,7 @@
 	function showForm() {
 		var form = $( '<div>', { class: 'jetpack_mailchimp_form' } );
 
-		var sections = mailchimpAdmin.formSections;
+		var sections = JSON.parse( mailchimpAdmin.formData );
 
 		sections.forEach( function( section ) {
 			var sectionEl = $( '<div>', { class: 'jetpack_mailchimp_section' } );
@@ -208,6 +218,7 @@
 						case 'color':
 							var inputColor = $( '<input>', {
 								class: 'jetpack_mailchimp_color_input',
+								type: 'text',
 								target: field.id,
 								value: field.value ? field.value : field.default,
 							} );
@@ -236,7 +247,7 @@
 					switch ( extra.type ) {
 						case 'link':
 							var link = $( '<a>', {
-								href: extra.link,
+								href: 'connect_url' === extra.link ? connectURL : extra.link,
 								text: extra.text,
 								target: '_blank',
 								class: 'jetpack_mailchimp_link',
@@ -270,6 +281,7 @@
 						$( '.mailchimp_code' ).remove();
 						$( '.jetpack_mailchimp_new_form_wrapper' ).hide();
 						apiCall();
+						mailchimpAdmin.oldForm = false;
 					} else {
 						$( this ).removeAttr( 'checked' );
 					}
@@ -283,5 +295,7 @@
 		init();
 	} );
 
-	init();
+	$( document ).ready( function() {
+		init();
+	} );
 } )( jQuery );

@@ -89,7 +89,18 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 		 */
 		public function update( $new_instance, $old_instance ) {
 			$instance         = array();
-			$instance['code'] = MailChimp_Subscriber_Popup::reversal( $new_instance['code'] );
+			$instance['code'] = empty( $new_instance['code'] ) ? '' : MailChimp_Subscriber_Popup::reversal( $new_instance['code'] );
+
+			$instance['email_placeholder'] = sanitize_text_field( $new_instance['email_placeholder'] );
+			$instance['processing_text']   = sanitize_text_field( $new_instance['processing_text'] );
+			$instance['success_text']      = sanitize_text_field( $new_instance['success_text'] );
+			$instance['error_text']        = sanitize_text_field( $new_instance['error_text'] );
+			$instance['groups']            = sanitize_text_field( $new_instance['groups'] );
+			$instance['signup_tag']        = sanitize_text_field( $new_instance['signup_tag'] );
+			$instance['signup_value']      = sanitize_text_field( $new_instance['signup_value'] );
+			$instance['button_color']      = sanitize_text_field( $new_instance['button_color'] );
+			$instance['text_color']        = sanitize_text_field( $new_instance['text_color'] );
+			$instance['css_class']         = sanitize_text_field( $new_instance['css_class'] );
 
 			return $instance;
 		}
@@ -174,7 +185,7 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 						array(
 							'title'       => __( 'Success text', 'jetpack' ),
 							'id'          => 'jetpack_mailchimp_success_text',
-							'placeholder' => __( 'Success! You\'re on the list.', 'jetpack' ),
+							'placeholder' => __( 'Success! You are on the list.', 'jetpack' ),
 							'type'        => 'text',
 							'name'        => esc_attr( $this->get_field_name( 'success_text' ) ),
 							'value'       => esc_html( $instance['success_text'] ),
@@ -183,7 +194,7 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 						array(
 							'title'       => __( 'Error text', 'jetpack' ),
 							'id'          => 'jetpack_mailchimp_error_text',
-							'placeholder' => __( 'Whoops! There was an error and we couldn\'t process your subscription. Please reload the page and try again.', 'jetpack' ),
+							'placeholder' => __( 'Whoops! There was an error and we could not process your subscription. Please reload the page and try again.', 'jetpack' ),
 							'type'        => 'text',
 							'name'        => esc_attr( $this->get_field_name( 'error_text' ) ),
 							'value'       => esc_html( $instance['error_text'] ),
@@ -242,7 +253,7 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 					'extra_content' => array(
 						array(
 							'text' => __( 'Manage Connection', 'jetpack' ),
-							'link' => 'https://jetpack.com/redirect?source=calypso-marketing-connections&site=[site_url]&query=mailchimp',
+							'link' => 'connect_url',
 							'type' => 'link',
 						),
 					),
@@ -293,25 +304,13 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 				'recheckText'     => __( 'Re-check Connection', 'jetpack' ),
 			);
 
-			wp_localize_script(
-				'mailchimp-admin',
-				'mailchimpAdmin',
-				array(
-					'formSections'    => $this->form_sections,
-					'placeholderData' => $this->placeholder_data,
-					'groups'          => esc_html( $instance['groups'] ),
-					'groupsFieldName' => esc_attr( $this->get_field_name( 'groups' ) ),
-					'oldForm'         => ! empty( $instance['code'] ),
-				)
-			);
-
 			if ( ! empty( $instance['code'] ) ) {
 				?>
 					<p class="mailchimp_code">
 					<label for="<?php echo esc_attr( $this->get_field_id( 'code' ) ); ?>">
 						<?php
 							/* translators: %1$s is replaced mailchimp suppoert link */
-							echo esc_html( sprintf( __( 'Code: <a href="%s" target="_blank">( ? )</a>', 'jetpack' ), 'https://en.support.wordpress.com/mailchimp/' ) );
+							echo sprintf( __( 'Code: <a href="%s" target="_blank">( ? )</a>', 'jetpack' ), 'https://en.support.wordpress.com/mailchimp/' );
 						?>
 					</label>
 					<textarea class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'code' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'code' ) ); ?>" rows="3"><?php echo esc_textarea( $instance['code'] ); ?></textarea>
@@ -325,6 +324,14 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 			?>
 			<div class="mailchimp_widget_jetpack_form_wrapper"></div>
 			<script>
+
+				var mailchimpAdmin = {
+					formData: '<?php echo wp_json_encode( $this->form_sections ); ?>',
+					groups: '<?php echo esc_html( $instance['groups'] ); ?>',
+					placeholderData: '<?php echo wp_json_encode( $this->placeholder_data ); ?>',
+					oldForm: <?php echo ! empty( $instance['code'] ) ? 'true' : 'false'; ?>,
+					groupsFieldName: '<?php echo esc_attr( $this->get_field_name( 'groups' ) ); ?>'
+				}
 				jQuery( window ).trigger( 'jetpack_mailchimp_load_form' );
 			</script>
 			<?php
