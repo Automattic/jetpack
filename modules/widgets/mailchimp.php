@@ -301,28 +301,32 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 					'placeholderData' => $this->placeholder_data,
 					'groups'          => esc_html( $instance['groups'] ),
 					'groupsFieldName' => esc_attr( $this->get_field_name( 'groups' ) ),
+					'oldForm'         => ! empty( $instance['code'] ),
 				)
 			);
 
-			if ( empty( $instance['code'] ) ) {
+			if ( ! empty( $instance['code'] ) ) {
 				?>
-					<div class="mailchimp_widget_jetpack_form_wrapper"></div>
+					<p class="mailchimp_code">
+					<label for="<?php echo esc_attr( $this->get_field_id( 'code' ) ); ?>">
+						<?php
+							/* translators: %1$s is replaced mailchimp suppoert link */
+							echo esc_html( sprintf( __( 'Code: <a href="%s" target="_blank">( ? )</a>', 'jetpack' ), 'https://en.support.wordpress.com/mailchimp/' ) );
+						?>
+					</label>
+					<textarea class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'code' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'code' ) ); ?>" rows="3"><?php echo esc_textarea( $instance['code'] ); ?></textarea>
+				</p>
+				<p class="jetpack_mailchimp_new_form_wrapper">
+					<input type="checkbox" id="jetpack_mailchimp_new_form" name="<?php echo esc_attr( $this->get_field_name( 'new_form' ) ); ?>" > <?php echo esc_html__( 'Check this if you want to use the new form for this widget (the code in the box above will be deleted)', 'jetpack' ); ?>
+				</p>
 				<?php
-				return;
 			}
 
 			?>
-
-			<p class="mailchimp_code">
-				<label for="<?php echo esc_attr( $this->get_field_id( 'code' ) ); ?>">
-					<?php printf( __( 'Code: <a href="%s" target="_blank">( ? )</a>', 'jetpack' ), 'https://en.support.wordpress.com/mailchimp/' ); ?>
-				</label>
-				<textarea class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'code' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'code' ) ); ?>" rows="3"><?php echo esc_textarea( $instance['code'] ); ?></textarea>
-			</p>
-			<p>
-				<input type="checkbox" id="jetpack_mailchimp_new_form" name="<?php echo esc_attr( $this->get_field_name( 'new_form' ) ); ?>" > <?php echo esc_html__( 'Check if you want to use the new form for this widget (the code in the box above will be deleted)', 'jetpack' ); ?>
-			</p>
 			<div class="mailchimp_widget_jetpack_form_wrapper"></div>
+			<script>
+				jQuery( window ).trigger( 'jetpack_mailchimp_load_form' );
+			</script>
 			<?php
 		}
 
