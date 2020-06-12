@@ -64,6 +64,9 @@ function wpcom_twitchtv_shortcode( $atts ) {
 		$url_args['channel'] = $user_id;
 	}
 
+	// See https://discuss.dev.twitch.tv/t/twitch-embedded-player-updates-in-2020/23956.
+	$url_args['parent'] = $_SERVER['HTTP_HOST'];
+
 	$url = add_query_arg( $url_args, 'https://player.twitch.tv/' );
 
 	return sprintf(
