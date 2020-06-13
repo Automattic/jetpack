@@ -12,13 +12,8 @@ import { Spinner } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import createSwiper from './create-swiper';
-import {
-	swiperApplyAria,
-	swiperInit,
-	swiperPaginationRender,
-	swiperResize,
-} from './swiper-callbacks';
+import './style.scss';
+import player from './player';
 
 class Story extends Component {
 	pendingRequestAnimationFrame = null;
@@ -31,18 +26,6 @@ class Story extends Component {
 		this.btnNextRef = createRef();
 		this.btnPrevRef = createRef();
 		this.paginationRef = createRef();
-	}
-
-	componentDidMount() {
-		const { onError } = this.props;
-		this.buildSwiper()
-			.then( swiper => {
-				this.swiperInstance = swiper;
-				this.initializeResizeObserver( swiper );
-			} )
-			.catch( () => {
-				onError( __( 'The Swiper library could not be loaded.', 'jetpack' ) );
-			} );
 	}
 
 	componentWillUnmount() {
@@ -66,15 +49,6 @@ class Story extends Component {
 			} else {
 				realIndex = prevProps.mediaFiles.length;
 			}
-			this.swiperInstance && this.swiperInstance.destroy( true, true );
-			this.buildSwiper( realIndex )
-				.then( swiper => {
-					this.swiperInstance = swiper;
-					this.initializeResizeObserver( swiper );
-				} )
-				.catch( () => {
-					onError( __( 'The Swiper library could not be loaded.', 'jetpack' ) );
-				} );
 		}
 	}
 
@@ -83,11 +57,11 @@ class Story extends Component {
 		this.resizeObserver = new ResizeObserver( () => {
 			this.clearPendingRequestAnimationFrame();
 			this.pendingRequestAnimationFrame = requestAnimationFrame( () => {
-				swiperResize( swiper );
-				swiper.update();
+				//swiperResize( swiper );
+				//swiper.update();
 			} );
 		} );
-		this.resizeObserver.observe( swiper.el );
+		//this.resizeObserver.observe( swiper.el );
 	};
 
 	clearPendingRequestAnimationFrame = () => {
@@ -111,22 +85,21 @@ class Story extends Component {
 		/* eslint-disable jsx-a11y/anchor-is-valid */
 		return (
 			<div className={ className } data-autoplay={ false } data-effect={ 'slide' }>
-				<div className="wp-block-jetpack-story_container swiper-container" ref={ this.storyRef }>
+				<div className="wp-block-jetpack-story_container wp-story-container" ref={ this.storyRef }>
 					<div
-						className="wp-block-jetpack-story_pagination swiper-pagination swiper-pagination-white"
+						className="wp-block-jetpack-story_pagination wp-story-pagination"
 						ref={ this.paginationRef }
 					/>
 					<a
-						aria-label="Pause Story"
-						className="wp-block-jetpack-story_button-pause"
+						aria-label="Play Story"
+						className="wp-block-jetpack-story_button-play-pause wp-story-button-play-pause"
 						role="button"
 					/>
-					<ul className="wp-block-jetpack-story_swiper-wrapper swiper-wrapper">
+					<ul className="wp-block-jetpack-story_wrapper wp-story-wrapper">
 						{ mediaFiles.map( ( { alt, caption, id, mime, type, url } ) => (
 							<li
 								className={ classnames(
-									'wp-block-jetpack-story_slide',
-									'swiper-slide',
+									'wp-block-jetpack-story_slide wp-story-slide',
 									isBlobURL( url ) && 'is-transient'
 								) }
 								key={ id }
@@ -136,7 +109,7 @@ class Story extends Component {
 										<img
 											alt={ alt }
 											className={
-												`swiper-lazy wp-block-jetpack-story_image wp-image-${ id }` /* wp-image-${ id } makes WordPress add a srcset */
+												`wp-block-jetpack-story_image wp-image-${ id }` /* wp-image-${ id } makes WordPress add a srcset */
 											}
 											data-id={ id }
 											src={ url }
@@ -148,7 +121,7 @@ class Story extends Component {
 											title={ alt }
 											type={ mime }
 											className={
-												`wp-block-jetpack-story_video wp-video-${ id }` /* wp-image-${ id } makes WordPress add a srcset */
+												`wp-block-jetpack-story_video intrinsic-ignore wp-video-${ id }` /* wp-image-${ id } makes WordPress add a srcset */
 											}
 											data-id={ id }
 											src={ url }
@@ -171,33 +144,6 @@ class Story extends Component {
 			window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches
 		);
 	};
-
-	buildSwiper = ( initialSlide = 0 ) =>
-		// Using refs instead of className-based selectors allows us to
-		// have multiple swipers on one page without collisions, and
-		// without needing to add IDs or the like.
-		createSwiper(
-			this.storyRef.current,
-			{
-				loop: true,
-				initialSlide,
-				navigation: {
-					nextEl: this.btnNextRef.current,
-					prevEl: this.btnPrevRef.current,
-				},
-				pagination: {
-					clickable: true,
-					el: this.paginationRef.current,
-					type: 'bullets',
-				},
-			},
-			{
-				init: swiperInit,
-				mediaFilesReady: swiperResize,
-				paginationRender: swiperPaginationRender,
-				transitionEnd: swiperApplyAria,
-			}
-		);
 }
 
 export default Story;
