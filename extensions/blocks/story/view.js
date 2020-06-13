@@ -1,3 +1,4 @@
+/* global _wpmejsSettings, MediaElementPlayer */
 /**
  * External dependencies
  */
@@ -8,13 +9,9 @@ import ResizeObserver from 'resize-observer-polyfill';
 /**
  * Internal dependencies
  */
-import createSwiper from './create-swiper';
-import {
-	swiperApplyAria,
-	swiperInit,
-	swiperPaginationRender,
-	swiperResize,
-} from './swiper-callbacks';
+import './style.scss';
+import player from './player';
+import { playerApplyAria, playerInit, playerResize } from './player-callbacks';
 
 if ( typeof window !== 'undefined' ) {
 	domReady( function() {
@@ -24,45 +21,28 @@ if ( typeof window !== 'undefined' ) {
 				return;
 			}
 
-			const storyContainer = storyBlock.getElementsByClassName( 'swiper-container' )[ 0 ];
-			let pendingRequestAnimationFrame = null;
-			createSwiper(
-				storyContainer,
-				{
-					init: true,
-					initialSlide: 0,
-					loop: true,
-					keyboard: {
-						enabled: true,
-						onlyInViewport: true,
-					},
-				},
-				{
-					init: swiperInit,
-					imagesReady: swiperResize,
-					paginationRender: swiperPaginationRender,
-					transitionEnd: swiperApplyAria,
-				}
-			)
-				.then( swiper => {
-					new ResizeObserver( () => {
-						if ( pendingRequestAnimationFrame ) {
-							cancelAnimationFrame( pendingRequestAnimationFrame );
-							pendingRequestAnimationFrame = null;
-						}
-						pendingRequestAnimationFrame = requestAnimationFrame( () => {
-							swiperResize( swiper );
-							swiper.update();
-						} );
-					} ).observe( swiper.el );
-				} )
-				.catch( () => {
-					storyBlock
-						.querySelector( '.wp-block-jetpack-story_container' )
-						.classList.add( 'wp-swiper-initialized' );
-				} );
+			const storyContainer = storyBlock.getElementsByClassName( 'wp-story-container' )[ 0 ];
 
-			storyBlock.setAttribute( 'data-jetpack-block-initialized', 'true' );
+			const splayer = player( storyContainer, null, {
+				init: playerInit,
+				imagesReady: playerResize,
+				transitionEnd: playerApplyAria,
+			} );
+
+			storyContainer.addEventListener( 'click', () => {
+				splayer.play();
+			} );
+			let pendingRequestAnimationFrame = null;
+			new ResizeObserver( () => {
+				if ( pendingRequestAnimationFrame ) {
+					cancelAnimationFrame( pendingRequestAnimationFrame );
+					pendingRequestAnimationFrame = null;
+				}
+				pendingRequestAnimationFrame = requestAnimationFrame( () => {
+					//swiperResize( swiper );
+					//swiper.update();
+				} );
+			} ).observe( storyContainer );
 		} );
 	} );
 }

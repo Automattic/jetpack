@@ -38,9 +38,11 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  */
 function load_assets( $attr, $content ) {
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
+
 	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
 		return render_amp( $attr );
 	}
+
 	return $content;
 }
 
@@ -69,7 +71,7 @@ function render_amp( $attr ) {
 		esc_attr( $classes ),
 		absint( $wp_block_jetpack_story_id ),
 		amp_carousel( $attr, $wp_block_jetpack_story_id ),
-		$autoplay ? autoplay_ui( $wp_block_jetpack_story_id ) : '',
+		autoplay_ui( $wp_block_jetpack_story_id ),
 		bullets( $ids, $wp_block_jetpack_story_id )
 	);
 }
