@@ -2,6 +2,8 @@
 
 use Automattic\Jetpack\Assets;
 
+use function Automattic\Jetpack\Extensions\Mailchimp\load_assets as render_block;
+
 if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 
 	if ( ! class_exists( 'MailChimp_Subscriber_Popup' ) ) {
@@ -63,15 +65,22 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 		public function widget( $args, $instance ) {
 			$instance = wp_parse_args( $instance, array( 'code' => '' ) );
 
-			// Regular expresion that will match maichimp shortcode.
-			$regex = '(\[mailchimp_subscriber_popup[^\]]+\])';
+			if ( ! empty( $instance['code'] ) ) {
+				// Regular expresion that will match maichimp shortcode.
+				$regex = '(\[mailchimp_subscriber_popup[^\]]+\])';
 
-			// Check if the shortcode exists.
-			preg_match( $regex, $instance['code'], $matches );
+				// Check if the shortcode exists.
+				preg_match( $regex, $instance['code'], $matches );
 
-			// Process the shortcode only, if exists.
-			if ( ! empty( $matches[0] ) ) {
-				echo do_shortcode( $matches[0] );
+				// Process the shortcode only, if exists.
+				if ( ! empty( $matches[0] ) ) {
+					echo do_shortcode( $matches[0] );
+				}
+			} else {
+				// Use the same ouput as the mailchimp block.
+				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				echo render_block( $instance );
+
 			}
 
 			/** This action is documented in modules/widgets/gravatar-profile.php */
@@ -89,18 +98,18 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 		 */
 		public function update( $new_instance, $old_instance ) {
 			$instance         = array();
-			$instance['code'] = empty( $new_instance['code'] ) ? '' : MailChimp_Subscriber_Popup::reversal( $new_instance['code'] );
+			$instance['code'] = ! empty( $new_instance['new_form'] ) && 'on' === $new_instance['new_form'] ? '' : MailChimp_Subscriber_Popup::reversal( $new_instance['code'] );
 
-			$instance['email_placeholder'] = sanitize_text_field( $new_instance['email_placeholder'] );
-			$instance['processing_text']   = sanitize_text_field( $new_instance['processing_text'] );
-			$instance['success_text']      = sanitize_text_field( $new_instance['success_text'] );
-			$instance['error_text']        = sanitize_text_field( $new_instance['error_text'] );
-			$instance['groups']            = sanitize_text_field( $new_instance['groups'] );
-			$instance['signup_tag']        = sanitize_text_field( $new_instance['signup_tag'] );
-			$instance['signup_value']      = sanitize_text_field( $new_instance['signup_value'] );
-			$instance['button_color']      = sanitize_text_field( $new_instance['button_color'] );
-			$instance['text_color']        = sanitize_text_field( $new_instance['text_color'] );
-			$instance['css_class']         = sanitize_text_field( $new_instance['css_class'] );
+			$instance['emailPlaceholder']            = sanitize_text_field( $new_instance['emailPlaceholder'] );
+			$instance['processingLabel']             = sanitize_text_field( $new_instance['processingLabel'] );
+			$instance['successLabel']                = sanitize_text_field( $new_instance['successLabel'] );
+			$instance['errorLabel']                  = sanitize_text_field( $new_instance['errorLabel'] );
+			$instance['interests']                   = sanitize_text_field( $new_instance['interests'] );
+			$instance['signupFieldTag']              = sanitize_text_field( $new_instance['signupFieldTag'] );
+			$instance['signupFieldValue']            = sanitize_text_field( $new_instance['signupFieldValue'] );
+			$instance['customBackgroundButtonColor'] = sanitize_text_field( $new_instance['customBackgroundButtonColor'] );
+			$instance['customTextButtonColor']       = sanitize_text_field( $new_instance['customTextButtonColor'] );
+			$instance['css_class']                   = sanitize_text_field( $new_instance['css_class'] );
 
 			return $instance;
 		}
@@ -164,8 +173,8 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 							'id'          => 'jetpack_mailchimp_email',
 							'placeholder' => __( 'Enter your email', 'jetpack' ),
 							'type'        => 'text',
-							'name'        => esc_attr( $this->get_field_name( 'email_placeholder' ) ),
-							'value'       => esc_html( $instance['email_placeholder'] ),
+							'name'        => esc_attr( $this->get_field_name( 'emailPlaceholder' ) ),
+							'value'       => esc_html( $instance['emailPlaceholder'] ),
 						),
 					),
 				),
@@ -175,11 +184,11 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 					'fields' => array(
 						array(
 							'title'       => __( 'Processing', 'jetpack' ),
-							'id'          => 'jetpack_mailchimp_processing_text',
+							'id'          => 'jetpack_mailchimp_processing_label',
 							'placeholder' => __( 'Processing', 'jetpack' ),
 							'type'        => 'text',
-							'name'        => esc_attr( $this->get_field_name( 'processing_text' ) ),
-							'value'       => esc_html( $instance['processing_text'] ),
+							'name'        => esc_attr( $this->get_field_name( 'processingLabel' ) ),
+							'value'       => esc_html( $instance['processingLabel'] ),
 						),
 
 						array(
@@ -187,17 +196,17 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 							'id'          => 'jetpack_mailchimp_success_text',
 							'placeholder' => __( 'Success! You are on the list.', 'jetpack' ),
 							'type'        => 'text',
-							'name'        => esc_attr( $this->get_field_name( 'success_text' ) ),
-							'value'       => esc_html( $instance['success_text'] ),
+							'name'        => esc_attr( $this->get_field_name( 'successLabel' ) ),
+							'value'       => esc_html( $instance['successLabel'] ),
 						),
 
 						array(
 							'title'       => __( 'Error text', 'jetpack' ),
-							'id'          => 'jetpack_mailchimp_error_text',
+							'id'          => 'jetpack_mailchimp_error_label',
 							'placeholder' => __( 'Whoops! There was an error and we could not process your subscription. Please reload the page and try again.', 'jetpack' ),
 							'type'        => 'text',
-							'name'        => esc_attr( $this->get_field_name( 'error_text' ) ),
-							'value'       => esc_html( $instance['error_text'] ),
+							'name'        => esc_attr( $this->get_field_name( 'errorLabel' ) ),
+							'value'       => esc_html( $instance['errorLabel'] ),
 						),
 					),
 				),
@@ -226,8 +235,8 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 							'id'          => 'jetpack_mailchimp_signup_tag',
 							'placeholder' => __( 'SIGNUP', 'jetpack' ),
 							'type'        => 'text',
-							'name'        => esc_attr( $this->get_field_name( 'signup_tag' ) ),
-							'value'       => esc_html( $instance['signup_tag'] ),
+							'name'        => esc_attr( $this->get_field_name( 'signupFieldTag' ) ),
+							'value'       => esc_html( $instance['signupFieldTag'] ),
 						),
 
 						array(
@@ -235,8 +244,8 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 							'id'          => 'jetpack_mailchimp_signup_value',
 							'placeholder' => __( 'website', 'jetpack' ),
 							'type'        => 'text',
-							'name'        => esc_attr( $this->get_field_name( 'signup_value' ) ),
-							'value'       => esc_html( $instance['signup_value'] ),
+							'name'        => esc_attr( $this->get_field_name( 'signupFieldValue' ) ),
+							'value'       => esc_html( $instance['signupFieldValue'] ),
 						),
 					),
 					'extra_content' => array(
@@ -265,18 +274,18 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 						array(
 							'id'      => 'jetpack_mailchimp_button_color',
 							'type'    => 'color',
-							'value'   => esc_html( $instance['button_color'] ),
+							'value'   => esc_html( $instance['customBackgroundButtonColor'] ),
 							'default' => '#cd2653',
-							'name'    => esc_attr( $this->get_field_name( 'button_color' ) ),
+							'name'    => esc_attr( $this->get_field_name( 'customBackgroundButtonColor' ) ),
 							'label'   => __( 'Button Color', 'jetpack' ),
 						),
 
 						array(
 							'id'      => 'jetpack_mailchimp_button_text_color',
 							'type'    => 'color',
-							'value'   => esc_html( $instance['text_color'] ),
+							'value'   => esc_html( $instance['customTextButtonColor'] ),
 							'default' => '#ffffff',
-							'name'    => esc_attr( $this->get_field_name( 'text_color' ) ),
+							'name'    => esc_attr( $this->get_field_name( 'customTextButtonColor' ) ),
 							'label'   => __( 'Button Text Color', 'jetpack' ),
 						),
 					),
@@ -327,10 +336,10 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 
 				var mailchimpAdmin = {
 					formData: '<?php echo wp_json_encode( $this->form_sections ); ?>',
-					groups: '<?php echo esc_html( $instance['groups'] ); ?>',
 					placeholderData: '<?php echo wp_json_encode( $this->placeholder_data ); ?>',
 					oldForm: <?php echo ! empty( $instance['code'] ) ? 'true' : 'false'; ?>,
-					groupsFieldName: '<?php echo esc_attr( $this->get_field_name( 'groups' ) ); ?>'
+					groups: '<?php echo esc_html( $instance['interests'] ); ?>',
+					groupsFieldName: '<?php echo esc_attr( $this->get_field_name( 'interests' ) ); ?>'
 				}
 				jQuery( window ).trigger( 'jetpack_mailchimp_load_form' );
 			</script>

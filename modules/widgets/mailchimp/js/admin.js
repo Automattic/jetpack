@@ -273,7 +273,7 @@
 		if ( ! mailchimpAdmin.oldForm ) {
 			apiCall();
 		} else {
-			$( '#jetpack_mailchimp_new_form' ).change( function() {
+			$( '.widgets-holder-wrap #jetpack_mailchimp_new_form' ).change( function() {
 				if ( $( this ).is( ':checked' ) ) {
 					var answer = confirm( 'Are you sure?' );
 
@@ -281,7 +281,6 @@
 						$( '.mailchimp_code' ).remove();
 						$( '.jetpack_mailchimp_new_form_wrapper' ).hide();
 						apiCall();
-						mailchimpAdmin.oldForm = false;
 					} else {
 						$( this ).removeAttr( 'checked' );
 					}
