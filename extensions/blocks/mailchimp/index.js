@@ -2,11 +2,13 @@
  * External dependencies
  */
 import { __, _x } from '@wordpress/i18n';
+import { InnerBlocks } from '@wordpress/block-editor';
 import { Path, SVG, G } from '@wordpress/components';
 
 /**
  * Internal dependencies
  */
+import deprecatedV1 from './deprecated/v1';
 import edit from './edit';
 import './editor.scss';
 import { supportsCollections } from '../../shared/block-category';
@@ -29,6 +31,15 @@ export const icon = (
 	</SVG>
 );
 
+export const innerButtonBlock = {
+	name: 'jetpack/button',
+	attributes: {
+		element: 'button',
+		text: __( 'Join my email list', 'jetpack' ),
+		uniqueId: 'mailchimp-widget-id',
+	},
+};
+
 export const settings = {
 	title: __( 'Mailchimp', 'jetpack' ),
 	icon,
@@ -43,25 +54,6 @@ export const settings = {
 		emailPlaceholder: {
 			type: 'string',
 			default: __( 'Enter your email', 'jetpack' ),
-		},
-		submitButtonText: {
-			type: 'string',
-			default: __( 'Join my email list', 'jetpack' ),
-		},
-		backgroundButtonColor: {
-			type: 'string',
-		},
-		textButtonColor: {
-			type: 'string',
-		},
-		submitButtonClasses: {
-			type: 'string',
-		},
-		customBackgroundButtonColor: {
-			type: 'string',
-		},
-		customTextButtonColor: {
-			type: 'string',
 		},
 		consentText: {
 			type: 'string',
@@ -101,10 +93,12 @@ export const settings = {
 		},
 	},
 	edit,
-	save: () => null,
+	save: () => <InnerBlocks.Content />,
 	example: {
 		attributes: {
 			preview: true,
 		},
+		innerBlocks: [ innerButtonBlock ],
 	},
+	deprecated: [ deprecatedV1 ],
 };
