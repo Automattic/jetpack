@@ -32,6 +32,16 @@ const getTitle = ( customTitle, planName ) => {
 		: __( 'Upgrade to a paid plan to use this block on your site.', 'jetpack' );
 };
 
+/**
+ * Return the nudge description translated to the user language, or Null.
+ * `subtitle` param accepts three types:
+ * - A string, in which case it will translate and returned.
+ * - False (boolean), in which case it will return false
+ * - Undefined: it will return the default nudge description.
+ *
+ * @param {string|boolean} subtitle - Subtitle to translate, or False.
+ * @returns {string|null} Nudge description, or Null.
+ */
 const getSubtitle = ( subtitle ) => {
 	if ( subtitle === false ) {
 		return null;
