@@ -5,21 +5,21 @@ jobs:
   build_beta:
     runs-on: ubuntu-latest
     steps:
-    - run: printenv
-    - name: Checkout Jetpack
-      uses: actions/checkout@master
-    - run: cat $GITHUB_EVENT_PATH
+    # - run: printenv
+    # - name: Checkout Jetpack
+    #   uses: actions/checkout@master
+    # - run: cat $GITHUB_EVENT_PATH
 
-    - name: Get yarn cache directory path
-      id: yarn-cache-dir-path
-      run: echo "::set-output name=dir::$(yarn cache dir)"
-    - uses: actions/cache@v2
-      id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
-      with:
-        path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-        key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-yarn-
+    # - name: Get yarn cache directory path
+    #   id: yarn-cache-dir-path
+    #   run: echo "::set-output name=dir::$(yarn cache dir)"
+    # - uses: actions/cache@v2
+    #   id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+    #   with:
+    #     path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+    #     key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+    #     restore-keys: |
+    #       ${{ runner.os }}-yarn-
     - name: Build jetpack
       run: |
         BRANCH=${GITHUB_REF:11}
