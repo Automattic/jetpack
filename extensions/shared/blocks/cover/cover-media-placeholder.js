@@ -2,7 +2,6 @@
 /**
  * WordPress dependencies
  */
-import { createHigherOrderComponent } from '@wordpress/compose';
 import { useBlockEditContext } from '@wordpress/block-editor';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -24,7 +23,8 @@ const ALLOWED_MEDIA_TYPES = [ 'image', 'video' ];
  * Nudge shows when the user tries to upload a video file.
  * Unlike the core/video block, handled/extended by the videopress block,
  * the nudge is not shown permanently.
- * It's handled by the MediaPlaceholder component.
+ * It's handled by the MediaPlaceholder component
+ * when the user tries to upload a video file.
  * For this reason, we can't wrap the edit setting
  * with the wrapPaidBlock() HOC, as the videopress does.
  *
@@ -50,6 +50,7 @@ export default CoreMediaPlaceholder => props => {
 	const [ error, setError ] = useState( false );
 	const { name } = useBlockEditContext();
 	const { unavailableReason } = getJetpackExtensionAvailability( 'videopress' );
+
 	if (
 		( ! name || name !== 'core/cover' ) || // extend only for cover block
 		! isSimpleSite() || // only for Simple sites
