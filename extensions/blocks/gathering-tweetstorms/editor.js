@@ -7,14 +7,10 @@ import { useState, useEffect } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import registerJetpackBlock from '../../shared/register-jetpack-block';
-import { name, settings } from '.';
 import useGatherTweetstorm from './use-gather-tweetstorm';
 import { withNotices, Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import './editor.scss';
-
-registerJetpackBlock( name, settings );
 
 /**
  * Intercepts the registration of the Core Twitter embed block, and adds functionality
