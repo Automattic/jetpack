@@ -12,22 +12,28 @@ import { createHigherOrderComponent } from '@wordpress/compose';
 /**
  * Internal dependencies
  */
+import { CoverMediaContext } from './index';
 import { isUpgradable } from "./utils";
 
-export default ( onNudgeShow ) => createHigherOrderComponent( MediaReplaceFlow => props => {
+export default createHigherOrderComponent( MediaReplaceFlow => props => {
 	const { name } = useBlockEditContext();
 	if ( ! isUpgradable( name ) ) {
 		return <MediaReplaceFlow { ...props } />;
 	}
 
 	const { createNotice } = props;
-
-	return <MediaReplaceFlow
-		{ ...props }
-		createNotice={ ( status, msg, options ) => {
-			onNudgeShow( status, msg, options );
-			createNotice( status, msg, options );
-		} }
-	/>;
+	return (
+		<CoverMediaContext.Consumer>
+			{ ( { onFilesUpload } ) => (
+				<MediaReplaceFlow
+					{ ...props }
+					onFilesUpload={ onFilesUpload }
+					createNotice={ ( status, msg, options ) => {
+						createNotice( status, msg, options );
+					} }
+				/>
+			) }
+		</CoverMediaContext.Consumer>
+	);
 }, 'withNudgeHandling' );
 
