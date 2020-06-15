@@ -187,14 +187,14 @@ function grofiles_get_avatar( $avatar, $author ) {
 
 				$profile      = $response_body->entry[0];
 				$display_name = $profile->displayName; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-				$location     = $profile->currentLocation; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-				$description  = $profile->aboutMe; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				$location     = isset( $profile->currentLocation ) ? $profile->currentLocation : ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				$description  = isset( $profile->aboutMe ) ? $profile->aboutMe : ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
 				$avatar = '
 					<figure data-amp-lightbox="true">
 						' . $avatar . '
 						<figcaption>
-							' . $display_name . ' – ' . $location . ' – ' . $description . '
+							' . $display_name . ( ! empty( $location ) ? ' – ' . $location : '' ) . ( ! empty( $description ) ? ' – ' . $description : '' ) . '
 						</figcaption>
 					</figure>
 				';
