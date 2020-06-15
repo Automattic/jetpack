@@ -1,7 +1,8 @@
 /**
  * External dependencies
  */
-import { merge } from 'lodash';
+import { merge, range } from 'lodash';
+import { EventEmitter } from 'events';
 
 /**
  * Internal dependencies
@@ -29,102 +30,106 @@ export default function player( container, params ) {
 
 	const slides = [ ...container.querySelectorAll( 'li.wp-story-slide' ) ];
 	const currentSlideStatus = {
-		elapsed: 0,
-		started: null,
+		currentTime: 0,
+		duration: null,
 		timeout: null,
 	};
 	let currentSlideIndex = 0;
 	let playing = false;
 
+	const playerEvents = new EventEmitter();
+	playerEvents.on( 'play', () => ( playing = true ) );
+	playerEvents.on( 'pause', () => ( playing = false ) );
+	playerEvents.on( 'end', () => ( playing = false ) );
+
 	const resetCurrentSlideStatus = () => {
-		currentSlideStatus.elapsed = 0;
-		currentSlideStatus.started = false;
 		clearTimeout( currentSlideStatus.timeout );
 		currentSlideStatus.timeout = null;
+		currentSlideStatus.currentTime = 0;
+		currentSlideStatus.duration = null;
+		const slideElement = slides[ currentSlideIndex ];
+		const video = slideElement.querySelector( 'video' );
+		if ( video ) {
+			video.currentTime = 0;
+		}
 	};
 
-	const showSlide = ( slideIndex, play = false ) => {
-		resetCurrentSlideStatus();
+	const showSlide = ( slideIndex, play = true ) => {
+		currentSlideIndex = slideIndex;
+
 		slides.forEach( ( slide, index ) => {
 			if ( index !== slideIndex ) {
 				slide.style.display = 'none';
 			}
 		} );
 		slides[ slideIndex ].style.display = 'block';
+
+		resetCurrentSlideStatus();
+		playerEvents.emit( 'seek', slideIndex );
+
 		if ( play ) {
+			playing = false;
 			// eslint-disable-next-line no-use-before-define
 			playCurrentSlide();
 		}
 	};
 
 	const tryNextSlide = () => {
-		const playNextSlide = playing;
-		playing = false;
 		if ( currentSlideIndex < slides.length - 1 ) {
-			currentSlideIndex++;
-			showSlide( currentSlideIndex, playNextSlide );
+			showSlide( currentSlideIndex + 1 );
 		}
 	};
 
-	const updateProgress = event => {
-		const percentage = Math.round( ( 100 * event.target.currentTime ) / event.target.duration );
-		const bullet = container.querySelector(
-			`.wp-story-pagination-bullets > .wp-story-pagination-bullet:nth-child(${ currentSlideIndex +
-				1 })`
-		);
-		bullet.querySelector(
-			'.wp-story-pagination-bullet-bar-progress'
-		).style.width = `${ percentage }%`;
+	const trackCurrentSlideProgress = onComplete => {
+		const slideElement = slides[ currentSlideIndex ];
+		const video = slideElement.querySelector( 'video' );
+		currentSlideStatus.duration = video ? video.duration : settings.imageTime;
+		const trackProgress = () => {
+			const percentage = Math.round(
+				( 100 * currentSlideStatus.currentTime ) / currentSlideStatus.duration
+			);
+			if ( currentSlideStatus.currentTime >= currentSlideStatus.duration ) {
+				playerEvents.emit( 'slide-progress', 100, currentSlideStatus );
+				clearTimeout( currentSlideStatus.timeout );
+				onComplete();
+				return;
+			}
+			if ( video ) {
+				currentSlideStatus.currentTime = video.currentTime;
+			} else {
+				currentSlideStatus.currentTime += settings.renderInterval;
+			}
+			playerEvents.emit( 'slide-progress', percentage, currentSlideStatus );
+			currentSlideStatus.timeout = setTimeout( trackProgress, settings.renderInterval );
+		};
+		trackProgress();
 	};
 
 	const playCurrentSlide = () => {
 		if ( playing ) {
 			return;
 		}
-		playing = true;
 		const slideElement = slides[ currentSlideIndex ];
 		const video = slideElement.querySelector( 'video' );
-		if ( ! video ) {
-			currentSlideStatus.started = Date.now();
-			currentSlideStatus.interval = setInterval( () => {
-				currentSlideStatus.elapsed += settings.renderInterval;
-				if ( currentSlideStatus.elapsed >= settings.imageTime ) {
-					clearInterval( currentSlideStatus.interval );
-					tryNextSlide();
-					return;
-				}
-				updateProgress( {
-					target: {
-						duration: settings.imageTime,
-						currentTime: currentSlideStatus.elapsed,
-					},
-				} );
-			}, settings.renderInterval );
-			//currentSlideStatus.timeout = setTimeout( tryNextSlide, settings.imageTime - currentSlideStatus.elapsed );
-			return;
+		if ( video ) {
+			if ( ! video.getAttribute( 'wp-story-attached' ) ) {
+				video.setAttribute( 'wp-story-attached', 'true' );
+				video.muted = settings.startMuted;
+			}
+			video.play();
 		}
-		if ( ! video.getAttribute( 'attached' ) ) {
-			video.addEventListener( 'timeupdate', updateProgress, false );
-			video.addEventListener( 'ended', tryNextSlide, false );
-			video.muted = settings.startMuted;
-			video.setAttribute( 'attached', true );
-		}
-		video.play();
+		trackCurrentSlideProgress( tryNextSlide );
+		playerEvents.emit( 'play' );
 	};
 
 	const pauseCurrentSlide = () => {
-		if ( ! playing ) {
-			return;
-		}
-		playing = false;
 		const slideElement = slides[ currentSlideIndex ];
 		const video = slideElement.querySelector( 'video' );
 		if ( video ) {
 			video.pause();
-		} else {
-			clearInterval( currentSlideStatus.interval );
-			currentSlideStatus.interval = null;
 		}
+		clearTimeout( currentSlideStatus.timeout );
+		playerEvents.emit( 'pause' );
 	};
 
 	const initPlayer = () => {
@@ -133,21 +138,22 @@ export default function player( container, params ) {
 			container.style.opacity = 1;
 			waitMediaReady( slides[ 0 ] ).then( () => {
 				container.classList.add( 'wp-story-initialized' );
-				showSlide( 0 );
+				playerEvents.emit( 'ready' );
 			} );
 		}
+
 		// show progress
 		const paginationElement = container.querySelector( '.wp-story-pagination' );
 		paginationElement.classList.add( 'wp-story-pagination-bullets' );
-		slides.forEach( ( slide, index ) => {
-			const bulletElement = settings.pagination.renderBullet( {
+		const bullets = slides.map( ( slide, index ) => {
+			return settings.pagination.renderBullet( paginationElement, {
 				index,
 				onClick: () => showSlide( index ),
 			} );
-			paginationElement.appendChild( bulletElement );
 		} );
+
 		// show play pause button
-		const playButton = settings.callbacks.renderPlayButton( {
+		const playButton = settings.callbacks.renderPlayButton( container, {
 			onClick: () => {
 				if ( ! playing ) {
 					playCurrentSlide();
@@ -156,17 +162,43 @@ export default function player( container, params ) {
 				}
 			},
 		} );
-		playButton.classList.add( 'wp-story-overlay' );
-		container.appendChild( playButton );
+
+		// Everything not core to the player is handled as side-effect using events
+		playerEvents.on( 'play', () => {
+			container.classList.remove( 'wp-story-paused' );
+			container.classList.add( 'wp-story-playing' );
+			playButton.hide();
+		} );
+		playerEvents.on( 'pause', () => {
+			container.classList.remove( 'wp-story-playing' );
+			container.classList.add( 'wp-story-paused' );
+			playButton.show();
+		} );
+		playerEvents.on( 'slide-progress', percentage => {
+			if ( bullets[ currentSlideIndex ] ) {
+				bullets[ currentSlideIndex ].setProgress( percentage );
+			}
+		} );
+		playerEvents.on( 'seek', slideIndex => {
+			bullets.slice( 0, slideIndex ).forEach( bullet => {
+				bullet.setProgress( 100 );
+			} );
+			bullets.slice( slideIndex, slides.length ).forEach( bullet => {
+				bullet.setProgress( 0 );
+			} );
+		} );
+		playerEvents.emit( 'init' );
+		playerEvents.on( 'ready', () => showSlide( 0, false ) );
+
+		return {
+			play: playCurrentSlide,
+			pause: pauseCurrentSlide,
+			goToSlide: showSlide,
+			on: playerEvents.on.bind( playerEvents ),
+		};
 	};
 
-	initPlayer();
-
-	return {
-		play: playCurrentSlide,
-		pause: pauseCurrentSlide,
-		goToSlide: showSlide,
-	};
+	return initPlayer();
 }
 
 async function waitMediaReady( element ) {
@@ -190,9 +222,9 @@ async function waitMediaReady( element ) {
 	);
 }
 
-function renderPlayButton( { onClick } ) {
+function renderPlayButton( container, { onClick } ) {
 	const playOverlay = htmlToElement( `
-		<div class="wp-story-overlay-play mejs-overlay mejs-layer mejs-overlay-play">
+		<div class="wp-story-overlay mejs-overlay mejs-layer mejs-overlay-play">
 			<div class="wp-story-button-play mejs-overlay-button"
 				role="button"
 				tabIndex="0"
@@ -201,19 +233,22 @@ function renderPlayButton( { onClick } ) {
 			</div>
 		</div>
 	` );
-	playOverlay.addEventListener(
-		'click',
-		event => {
-			const playButton = playOverlay.children[ 0 ];
-			playButton.style.display = playButton.style.display === 'none' ? 'block' : 'none';
-			onClick( event );
-		},
-		false
-	);
-	return playOverlay;
+	const playButton = playOverlay.children[ 0 ];
+	const showPlayButton = () => {
+		playButton.style.display = 'block';
+	};
+	const hidePlayButton = () => {
+		playButton.style.display = 'none';
+	};
+	playOverlay.addEventListener( 'click', onClick, false );
+	container.appendChild( playOverlay );
+	return {
+		show: showPlayButton,
+		hide: hidePlayButton,
+	};
 }
 
-function renderBullet( { index, onClick } ) {
+function renderBullet( container, { index, onClick } ) {
 	const bulletElement = htmlToElement( `
 		<button class="wp-story-pagination-bullet" role="button" aria-label="Go to slide ${ index }">
 			<div class="wp-story-pagination-bullet-bar">
@@ -222,7 +257,13 @@ function renderBullet( { index, onClick } ) {
 		</button>
 	` );
 	bulletElement.addEventListener( 'click', onClick, false );
-	return bulletElement;
+	container.appendChild( bulletElement );
+	const progressBar = bulletElement.querySelector( '.wp-story-pagination-bullet-bar-progress' );
+	return {
+		setProgress: percentage => {
+			progressBar.style.width = `${ percentage }%`;
+		},
+	};
 }
 
 function htmlToElement( html ) {
