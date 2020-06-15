@@ -12,9 +12,10 @@ import { useEffect, useState, Fragment, createContext } from '@wordpress/element
 /**
  * Internal dependencies
  */
-import coverEditMediaPlaceholder, { JetpackCoverUpgradeNudge } from './cover-media-placeholder';
+import coverEditMediaPlaceholder from './cover-media-placeholder';
 import isCurrentUserConnected from "../../is-current-user-connected";
 import coverMediaReplaceFlow from './cover-replace-control-button';
+import { JetpackCoverUpgradeNudge } from './components';
 import { isUpgradable, isVideoFile } from "./utils";
 import './editor.scss';
 
