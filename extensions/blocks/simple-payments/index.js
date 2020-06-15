@@ -32,7 +32,7 @@ const supportLink =
 		: 'https://jetpack.com/support/jetpack-blocks/pay-with-paypal-button/';
 
 export const settings = {
-	title: __( 'Pay with PayPal button', 'jetpack' ),
+	title: __( 'Pay with PayPal', 'jetpack' ),
 
 	description: (
 		<Fragment>

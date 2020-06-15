@@ -16,7 +16,7 @@ export default class SimplePaymentBlock {
 	}
 
 	static title() {
-		return 'Pay with PayPal Button';
+		return 'Pay with PayPal';
 	}
 
 	async fillDetails( {

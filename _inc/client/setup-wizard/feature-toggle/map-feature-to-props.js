@@ -881,7 +881,7 @@ const features = {
 
 			return {
 				feature: 'simple-payments-block',
-				title: __( 'Pay with PayPal Button' ),
+				title: __( 'Pay with PayPal' ),
 				details: __( 'A simple way to accept payments.' ),
 				checked: inCurrentPlan,
 				isDisabled: inCurrentPlan,
