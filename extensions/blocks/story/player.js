@@ -14,7 +14,10 @@ const defaultSettings = {
 	startMuted: true,
 	playInFullScreen: false,
 	pagination: {
-		renderBullets,
+		renderBullet,
+	},
+	callbacks: {
+		renderPlayButton,
 	},
 };
 
@@ -40,7 +43,7 @@ export default function player( container, params ) {
 		currentSlideStatus.timeout = null;
 	};
 
-	const showSlide = slideIndex => {
+	const showSlide = ( slideIndex, play = false ) => {
 		resetCurrentSlideStatus();
 		slides.forEach( ( slide, index ) => {
 			if ( index !== slideIndex ) {
@@ -48,16 +51,18 @@ export default function player( container, params ) {
 			}
 		} );
 		slides[ slideIndex ].style.display = 'block';
-		if ( playing ) {
+		if ( play ) {
 			// eslint-disable-next-line no-use-before-define
 			playCurrentSlide();
 		}
 	};
 
 	const tryNextSlide = () => {
+		const playNextSlide = playing;
+		playing = false;
 		if ( currentSlideIndex < slides.length - 1 ) {
 			currentSlideIndex++;
-			showSlide( currentSlideIndex );
+			showSlide( currentSlideIndex, playNextSlide );
 		}
 	};
 
@@ -73,6 +78,9 @@ export default function player( container, params ) {
 	};
 
 	const playCurrentSlide = () => {
+		if ( playing ) {
+			return;
+		}
 		playing = true;
 		const slideElement = slides[ currentSlideIndex ];
 		const video = slideElement.querySelector( 'video' );
@@ -95,9 +103,12 @@ export default function player( container, params ) {
 			//currentSlideStatus.timeout = setTimeout( tryNextSlide, settings.imageTime - currentSlideStatus.elapsed );
 			return;
 		}
-		video.addEventListener( 'timeupdate', updateProgress, false );
-		video.addEventListener( 'ended', tryNextSlide, false );
-		video.muted = settings.startMuted;
+		if ( ! video.getAttribute( 'attached' ) ) {
+			video.addEventListener( 'timeupdate', updateProgress, false );
+			video.addEventListener( 'ended', tryNextSlide, false );
+			video.muted = settings.startMuted;
+			video.setAttribute( 'attached', true );
+		}
 		video.play();
 	};
 
@@ -106,10 +117,14 @@ export default function player( container, params ) {
 			return;
 		}
 		playing = false;
-		//clearTimeout( currentSlideStatus.timeout );
-		clearInterval( currentSlideStatus.interval );
-		currentSlideStatus.timeout = null;
-		currentSlideStatus.interval = null;
+		const slideElement = slides[ currentSlideIndex ];
+		const video = slideElement.querySelector( 'video' );
+		if ( video ) {
+			video.pause();
+		} else {
+			clearInterval( currentSlideStatus.interval );
+			currentSlideStatus.interval = null;
+		}
 	};
 
 	const initPlayer = () => {
@@ -125,11 +140,24 @@ export default function player( container, params ) {
 		const paginationElement = container.querySelector( '.wp-story-pagination' );
 		paginationElement.classList.add( 'wp-story-pagination-bullets' );
 		slides.forEach( ( slide, index ) => {
-			const bulletElement = htmlToElement( settings.pagination.renderBullets( index ) );
+			const bulletElement = settings.pagination.renderBullet( {
+				index,
+				onClick: () => showSlide( index ),
+			} );
 			paginationElement.appendChild( bulletElement );
-			bulletElement.addEventListener( 'click', () => showSlide( index ), false );
 		} );
 		// show play pause button
+		const playButton = settings.callbacks.renderPlayButton( {
+			onClick: () => {
+				if ( ! playing ) {
+					playCurrentSlide();
+				} else {
+					pauseCurrentSlide();
+				}
+			},
+		} );
+		playButton.classList.add( 'wp-story-overlay' );
+		container.appendChild( playButton );
 	};
 
 	initPlayer();
@@ -162,14 +190,39 @@ async function waitMediaReady( element ) {
 	);
 }
 
-function renderBullets( index ) {
-	return `
+function renderPlayButton( { onClick } ) {
+	const playOverlay = htmlToElement( `
+		<div class="wp-story-overlay-play mejs-overlay mejs-layer mejs-overlay-play">
+			<div class="wp-story-button-play mejs-overlay-button"
+				role="button"
+				tabIndex="0"
+				aria-label="Play"
+				aria-pressed="false">
+			</div>
+		</div>
+	` );
+	playOverlay.addEventListener(
+		'click',
+		event => {
+			const playButton = playOverlay.children[ 0 ];
+			playButton.style.display = playButton.style.display === 'none' ? 'block' : 'none';
+			onClick( event );
+		},
+		false
+	);
+	return playOverlay;
+}
+
+function renderBullet( { index, onClick } ) {
+	const bulletElement = htmlToElement( `
 		<button class="wp-story-pagination-bullet" role="button" aria-label="Go to slide ${ index }">
 			<div class="wp-story-pagination-bullet-bar">
 				<div class="wp-story-pagination-bullet-bar-progress"></div>
 			</div>
 		</button>
-	`;
+	` );
+	bulletElement.addEventListener( 'click', onClick, false );
+	return bulletElement;
 }
 
 function htmlToElement( html ) {

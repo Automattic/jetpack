@@ -23,15 +23,12 @@ if ( typeof window !== 'undefined' ) {
 
 			const storyContainer = storyBlock.getElementsByClassName( 'wp-story-container' )[ 0 ];
 
-			const splayer = player( storyContainer, null, {
+			player( storyContainer, null, {
 				init: playerInit,
 				imagesReady: playerResize,
 				transitionEnd: playerApplyAria,
 			} );
 
-			storyContainer.addEventListener( 'click', () => {
-				splayer.play();
-			} );
 			let pendingRequestAnimationFrame = null;
 			new ResizeObserver( () => {
 				if ( pendingRequestAnimationFrame ) {

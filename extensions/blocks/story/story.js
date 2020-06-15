@@ -90,11 +90,6 @@ class Story extends Component {
 						className="wp-block-jetpack-story_pagination wp-story-pagination"
 						ref={ this.paginationRef }
 					/>
-					<a
-						aria-label="Play Story"
-						className="wp-block-jetpack-story_button-play-pause wp-story-button-play-pause"
-						role="button"
-					/>
 					<ul className="wp-block-jetpack-story_wrapper wp-story-wrapper">
 						{ mediaFiles.map( ( { alt, caption, id, mime, type, url } ) => (
 							<li
