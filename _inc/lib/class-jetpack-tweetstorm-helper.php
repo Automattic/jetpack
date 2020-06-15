@@ -3,12 +3,15 @@
  * Tweetstorm block and API helper.
  *
  * @package jetpack
+ * @since 8.7.0
  */
 
 use Automattic\Jetpack\Connection\Client;
 
 /**
  * Class Jetpack_Tweetstorm_Helper
+ *
+ * @since 8.7.0
  */
 class Jetpack_Tweetstorm_Helper {
 	/**

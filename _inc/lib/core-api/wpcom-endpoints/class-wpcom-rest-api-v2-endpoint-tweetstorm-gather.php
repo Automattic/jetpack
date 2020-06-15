@@ -3,7 +3,7 @@
  * REST API endpoint for the Gathering Tweetstorms block.
  *
  * @package Jetpack
- * @since ...
+ * @since 8.7.0
  */
 
 use Automattic\Jetpack\Connection\Client;
@@ -11,7 +11,7 @@ use Automattic\Jetpack\Connection\Client;
 /**
  * Tweetstorm gatherer.
  *
- * @since ...
+ * @since 8.7.0
  */
 class WPCOM_REST_API_V2_Endpoint_Tweetstorm_Gather extends WP_REST_Controller {
 	/**
