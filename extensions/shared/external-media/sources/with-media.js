@@ -10,8 +10,8 @@ import classnames from 'classnames';
 import { speak } from '@wordpress/a11y';
 import apiFetch from '@wordpress/api-fetch';
 import { withNotices, Modal } from '@wordpress/components';
-import { createHigherOrderComponent } from '@wordpress/compose';
-import { select } from '@wordpress/data';
+import { compose, createHigherOrderComponent } from '@wordpress/compose';
+import { withSelect } from '@wordpress/data';
 import { Component } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { UP, DOWN, LEFT, RIGHT } from '@wordpress/keycodes';
@@ -162,10 +162,16 @@ export default function withMedia() {
 			};
 
 			copyMedia = ( items, apiUrl ) => {
-				const { addToGallery, multiple, noticeOperations, onClose, onSelect, value } = this.props;
-				const galleryImages = addToGallery
-					? value.map( id => select( 'core' ).getMedia( Number( id ) ) )
-					: [];
+				const {
+					addToGallery,
+					getMediaById,
+					multiple,
+					noticeOperations,
+					onClose,
+					onSelect,
+					value,
+				} = this.props;
+				const galleryImages = addToGallery ? value.map( getMediaById ) : [];
 
 				this.setState( { isCopying: items } );
 				noticeOperations.removeAllNotices();
@@ -268,6 +274,11 @@ export default function withMedia() {
 			}
 		}
 
-		return withNotices( WithMediaComponent );
+		return compose( [
+			withNotices,
+			withSelect( select => ( {
+				getMediaById: id => select( 'core' ).getMedia( Number( id ) ),
+			} ) ),
+		] )( WithMediaComponent );
 	} );
 }
