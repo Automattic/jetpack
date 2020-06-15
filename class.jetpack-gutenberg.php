@@ -1136,4 +1136,37 @@ class Jetpack_Gutenberg {
 			return null;
 		};
 	}
+
+	/**
+	 * If the user chose a custom initial block for the current site, insert that block in new posts,
+	 * unless something else already inserted content in the post (e.g. post formats default blocks).
+
+	 * @param array   $settings Default editor settings.
+	 * @param WP_Post $post     Post being edited.
+	 *
+	 * @return array The filtered settings.
+	 */
+	public static function insert_custom_initial_block( $settings, $post ) {
+		$is_new_post = 'auto-draft' === $post->post_status;
+
+		$allowed_initial_blocks = array(
+			'core/paragraph',
+			'core/freeform',
+			'core/html',
+			'jetpack/markdown',
+		);
+
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended
+		if (
+			isset( $_GET['custom-initial-block'] ) &&
+			in_array( $_GET['custom-initial-block'], $allowed_initial_blocks, true ) &&
+			$is_new_post &&
+			! isset( $settings['template'] )
+		) {
+			$settings['template'] = array( array( $_GET['custom-initial-block'] ) );
+		}
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+
+		return $settings;
+	}
 }
