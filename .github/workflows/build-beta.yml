@@ -6,8 +6,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     # - run: printenv
-    # - name: Checkout Jetpack
-    #   uses: actions/checkout@master
+    - name: Checkout Jetpack
+      uses: actions/checkout@master
     # - run: cat $GITHUB_EVENT_PATH
 
     # - name: Get yarn cache directory path
