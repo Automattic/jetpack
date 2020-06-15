@@ -42,10 +42,14 @@
 			align-items: center;
 			display: flex;
 			height: 100%;
+			width: 100%;
 			justify-content: center;
 			margin: 0;
 			position: relative;
-			width: 100%;
+
+			video {
+				width: 100%;
+			}
 		}
 	}
 
@@ -58,10 +62,10 @@
 		object-fit: contain;
 	}
 
-	.wp-story-button-prev,
-	.wp-story-button-next,
-	.wp-story-button-pause,
-	.wp-story-button-play {
+	.wp-story-button-fullscreen-prev,
+	.wp-story-button-fullscreen-next,
+	.wp-story-button-fullscreen-pause,
+	.wp-story-button-fullscreen-play {
 		background-color: rgba( 0, 0, 0, 0.5 );
 		background-position: center;
 		background-repeat: no-repeat;
@@ -90,11 +94,6 @@
 		margin: 0;
 	}
 
-	.wp-story-button-prev,
-	.wp-story-button-next {
-		display: none;
-	}
-
 	&.player-container-rtl .player-button-prev.player-button-white,
 	&.player-container-rtl .wp-block-jetpack-story_button-prev,
 	.player-button-next.player-button-white,
@@ -109,15 +108,15 @@
 		background-image: url( "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='24'%20height='24'%20viewBox='0%200%2024%2024'%3E%3Cpath%20d='M18%204.12L10.12%2012%2018%2019.88%2015.88%2022l-10-10%2010-10z'%20fill='white'/%3E%3Cpath%20fill='none'%20d='M0 0h24v24H0z'/%3E%3C/svg%3E" );
 	}
 
-	.wp-story-button-pause,
-	.wp-story-button-play {
-		background-image: url( "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='24'%20height='24'%20viewBox='0%200%2024%2024'%3E%3Cpath%20d='M6%2019h4V5H6v14zm8-14v14h4V5h-4z'%20fill='white'/%3E%3Cpath%20d='M0%200h24v24H0z'%20fill='none'/%3E%3C/svg%3E" );
-		display: none;
-		margin-top: 0;
+	.wp-story-overlay-play {
+		width: 100%;
+		height: 100%;
 		position: absolute;
-		right: 10px;
-		top: 10px;
-		z-index: 1;
+
+		.wp-story-button-play {
+			//background-image: url( "data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='24'%20height='24'%20viewBox='0%200%2024%2024'%3E%3Cpath%20d='M6%2019h4V5H6v14zm8-14v14h4V5h-4z'%20fill='white'/%3E%3Cpath%20d='M0%200h24v24H0z'%20fill='none'/%3E%3C/svg%3E" );
+			z-index: 1;
+		}
 	}
 
 	.wp-story-pagination {

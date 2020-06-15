@@ -37,6 +37,8 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * @return string
  */
 function load_assets( $attr, $content ) {
+	wp_enqueue_style( 'wp-mediaelement' );
+
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 
 	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
