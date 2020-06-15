@@ -33,7 +33,7 @@
 		"wordads"
 	],
 	"beta": [ "amazon" ],
-	"experimental": [ "seo" ],
+	"experimental": [ "custom-initial-block", "seo" ],
 	"no-post-editor": [
 		"business-hours",
 		"button",
