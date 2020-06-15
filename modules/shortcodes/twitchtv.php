@@ -65,7 +65,10 @@ function wpcom_twitchtv_shortcode( $atts ) {
 	}
 
 	// See https://discuss.dev.twitch.tv/t/twitch-embedded-player-updates-in-2020/23956.
-	$url_args['parent'] = $_SERVER['HTTP_HOST'];
+	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+	$url_args['parent'] = isset( $_SERVER['HTTP_HOST'] )
+		? rawurlencode( wp_unslash( $_SERVER['HTTP_HOST'] ) ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		: '';
 
 	$url = add_query_arg( $url_args, 'https://player.twitch.tv/' );
 
