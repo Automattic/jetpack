@@ -267,7 +267,7 @@ class Replicastore implements Replicastore_Interface {
 	 */
 	public function posts_checksum( $min_id = null, $max_id = null ) {
 		global $wpdb;
-		return $this->table_checksum( $wpdb->posts, Defaults::$default_post_checksum_columns, 'ID', Settings::get_blacklisted_post_types_sql(), $min_id, $max_id );
+		return $this->table_checksum( $wpdb->posts, Defaults::$default_post_checksum_columns, 'ID', Settings::get_blocklist_post_types_sql(), $min_id, $max_id );
 	}
 
 	/**
@@ -281,7 +281,7 @@ class Replicastore implements Replicastore_Interface {
 	 */
 	public function post_meta_checksum( $min_id = null, $max_id = null ) {
 		global $wpdb;
-		return $this->table_checksum( $wpdb->postmeta, Defaults::$default_post_meta_checksum_columns, 'meta_id', Settings::get_whitelisted_post_meta_sql(), $min_id, $max_id );
+		return $this->table_checksum( $wpdb->postmeta, Defaults::$default_post_meta_checksum_columns, 'meta_id', Settings::get_allowed_post_meta_sql(), $min_id, $max_id );
 	}
 
 	/**
@@ -396,7 +396,7 @@ class Replicastore implements Replicastore_Interface {
 		$comment = $comment->to_array();
 
 		// Filter by fields on comment table.
-		$comment_fields_whitelist = array(
+		$comment_fields_allowlist = array(
 			'comment_ID',
 			'comment_post_ID',
 			'comment_author',
@@ -415,7 +415,7 @@ class Replicastore implements Replicastore_Interface {
 		);
 
 		foreach ( $comment as $key => $value ) {
-			if ( ! in_array( $key, $comment_fields_whitelist, true ) ) {
+			if ( ! in_array( $key, $comment_fields_allowlist, true ) ) {
 				unset( $comment[ $key ] );
 			}
 		}
@@ -519,7 +519,7 @@ class Replicastore implements Replicastore_Interface {
 	 */
 	public function comment_meta_checksum( $min_id = null, $max_id = null ) {
 		global $wpdb;
-		return $this->table_checksum( $wpdb->commentmeta, Defaults::$default_comment_meta_checksum_columns, 'meta_id', Settings::get_whitelisted_comment_meta_sql(), $min_id, $max_id );
+		return $this->table_checksum( $wpdb->commentmeta, Defaults::$default_comment_meta_checksum_columns, 'meta_id', Settings::get_allowed_comment_meta_sql(), $min_id, $max_id );
 	}
 
 	/**
@@ -531,8 +531,8 @@ class Replicastore implements Replicastore_Interface {
 	 */
 	public function options_checksum() {
 		global $wpdb;
-		$options_whitelist = "'" . implode( "', '", Defaults::$default_options_whitelist ) . "'";
-		$where_sql         = "option_name IN ( $options_whitelist )";
+		$options_allowlist = "'" . implode( "', '", Defaults::$default_options_allowlist ) . "'";
+		$where_sql         = "option_name IN ( $options_allowlist )";
 
 		return $this->table_checksum( $wpdb->options, Defaults::$default_option_checksum_columns, null, $where_sql, null, null );
 	}
@@ -1275,11 +1275,11 @@ class Replicastore implements Replicastore_Interface {
 				$object_count = $this->post_count( null, $start_id, $end_id );
 				$object_table = $wpdb->posts;
 				$id_field     = 'ID';
-				$where_sql    = Settings::get_blacklisted_post_types_sql();
+				$where_sql    = Settings::get_blocklist_post_types_sql();
 				break;
 			case 'post_meta':
 				$object_table = $wpdb->postmeta;
-				$where_sql    = Settings::get_whitelisted_post_meta_sql();
+				$where_sql    = Settings::get_allowed_post_meta_sql();
 				$object_count = $this->meta_count( $object_table, $where_sql, $start_id, $end_id );
 				$id_field     = 'meta_id';
 				break;
@@ -1291,7 +1291,7 @@ class Replicastore implements Replicastore_Interface {
 				break;
 			case 'comment_meta':
 				$object_table = $wpdb->commentmeta;
-				$where_sql    = Settings::get_whitelisted_comment_meta_sql();
+				$where_sql    = Settings::get_allowed_comment_meta_sql();
 				$object_count = $this->meta_count( $object_table, $where_sql, $start_id, $end_id );
 				$id_field     = 'meta_id';
 				break;

@@ -207,7 +207,7 @@ class Jetpack_Sync_Test_Replicastore implements Replicastore_Interface {
 	}
 
 	function options_checksum() {
-		return strtoupper( dechex( array_reduce( Defaults::$default_options_whitelist, array( $this, 'option_checksum' ), 0 ) ) );
+		return strtoupper( dechex( array_reduce( Defaults::$default_options_allowlist, array( $this, 'option_checksum' ), 0 ) ) );
 	}
 
 	private function option_checksum( $carry, $option_name ) {

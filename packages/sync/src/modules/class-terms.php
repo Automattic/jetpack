@@ -104,8 +104,8 @@ class Terms extends Module {
 		add_action( 'delete_term', $callable, 10, 4 );
 		add_action( 'set_object_terms', $callable, 10, 6 );
 		add_action( 'deleted_term_relationships', $callable, 10, 2 );
-		add_filter( 'jetpack_sync_before_enqueue_jetpack_sync_save_term', array( $this, 'filter_blacklisted_taxonomies' ) );
-		add_filter( 'jetpack_sync_before_enqueue_jetpack_sync_add_term', array( $this, 'filter_blacklisted_taxonomies' ) );
+		add_filter( 'jetpack_sync_before_enqueue_jetpack_sync_save_term', array( $this, 'filter_blocked_taxonomies' ) );
+		add_filter( 'jetpack_sync_before_enqueue_jetpack_sync_add_term', array( $this, 'filter_blocked_taxonomies' ) );
 	}
 
 	/**
@@ -153,7 +153,7 @@ class Terms extends Module {
 	 * @return string WHERE SQL clause, or `null` if no comments are specified in the module config.
 	 */
 	public function get_where_sql( $config ) {
-		$where_sql = Settings::get_blacklisted_taxonomies_sql();
+		$where_sql = Settings::get_blocked_taxonomies_sql();
 
 		if ( is_array( $config ) ) {
 			$where_sql .= ' AND term_taxonomy_id IN (' . implode( ',', array_map( 'intval', $config ) ) . ')';
@@ -238,17 +238,17 @@ class Terms extends Module {
 	}
 
 	/**
-	 * Filter blacklisted taxonomies.
+	 * Filter blocked taxonomies.
 	 *
 	 * @access public
 	 *
 	 * @param array $args Hook args.
-	 * @return array|boolean False if not whitelisted, the original hook args otherwise.
+	 * @return array|boolean False if not allowed, the original hook args otherwise.
 	 */
-	public function filter_blacklisted_taxonomies( $args ) {
+	public function filter_blocked_taxonomies( $args ) {
 		$term = $args[0];
 
-		if ( in_array( $term->taxonomy, Settings::get_setting( 'taxonomies_blacklist' ), true ) ) {
+		if ( in_array( $term->taxonomy, Settings::get_setting( 'taxonomies_blocklist' ), true ) ) {
 			return false;
 		}
 

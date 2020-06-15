@@ -17,12 +17,12 @@ class WP_Super_Cache extends Module {
 	 * @todo Should we refactor this to use $this->set_defaults() instead?
 	 */
 	public function __construct() {
-		add_filter( 'jetpack_sync_constants_whitelist', array( $this, 'add_wp_super_cache_constants_whitelist' ), 10 );
-		add_filter( 'jetpack_sync_callable_whitelist', array( $this, 'add_wp_super_cache_callable_whitelist' ), 10 );
+		add_filter( 'jetpack_sync_constants_allowlist', array( $this, 'add_wp_super_cache_constants_allowlist' ), 10 );
+		add_filter( 'jetpack_sync_callable_allowlist', array( $this, 'add_wp_super_cache_callable_allowlist' ), 10 );
 	}
 
 	/**
-	 * Whitelist for constants we are interested to sync.
+	 * Allowlist for constants we are interested to sync.
 	 *
 	 * @access public
 	 * @static
@@ -38,7 +38,7 @@ class WP_Super_Cache extends Module {
 	);
 
 	/**
-	 * Container for the whitelist for WP_Super_Cache callables we are interested to sync.
+	 * Container for the allowlist for WP_Super_Cache callables we are interested to sync.
 	 *
 	 * @access public
 	 * @static
@@ -135,22 +135,22 @@ class WP_Super_Cache extends Module {
 	}
 
 	/**
-	 * Add WP_Super_Cache constants to the constants whitelist.
+	 * Add WP_Super_Cache constants to the constants allowlist.
 	 *
-	 * @param array $list Existing constants whitelist.
-	 * @return array Updated constants whitelist.
+	 * @param array $list Existing constants allowlist.
+	 * @return array Updated constants allowlist.
 	 */
-	public function add_wp_super_cache_constants_whitelist( $list ) {
+	public function add_wp_super_cache_constants_allowlist( $list ) {
 		return array_merge( $list, self::$wp_super_cache_constants );
 	}
 
 	/**
-	 * Add WP_Super_Cache callables to the callables whitelist.
+	 * Add WP_Super_Cache callables to the callables allowlist.
 	 *
-	 * @param array $list Existing callables whitelist.
-	 * @return array Updated callables whitelist.
+	 * @param array $list Existing callables allowlist.
+	 * @return array Updated callables allowlist.
 	 */
-	public function add_wp_super_cache_callable_whitelist( $list ) {
+	public function add_wp_super_cache_callable_allowlist( $list ) {
 		return array_merge( $list, self::$wp_super_cache_callables );
 	}
 }

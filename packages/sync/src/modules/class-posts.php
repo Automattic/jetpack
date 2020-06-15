@@ -120,14 +120,14 @@ class Posts extends Module {
 
 		add_action( 'deleted_post', $callable, 10 );
 		add_action( 'jetpack_published_post', $callable, 10, 2 );
-		add_filter( 'jetpack_sync_before_enqueue_deleted_post', array( $this, 'filter_blacklisted_post_types_deleted' ) );
+		add_filter( 'jetpack_sync_before_enqueue_deleted_post', array( $this, 'filter_blocked_post_types_deleted' ) );
 
 		add_action( 'transition_post_status', array( $this, 'save_published' ), 10, 3 );
-		add_filter( 'jetpack_sync_before_enqueue_jetpack_sync_save_post', array( $this, 'filter_blacklisted_post_types' ) );
+		add_filter( 'jetpack_sync_before_enqueue_jetpack_sync_save_post', array( $this, 'filter_blocked_post_types' ) );
 
 		// Listen for meta changes.
 		$this->init_listeners_for_meta_type( 'post', $callable );
-		$this->init_meta_whitelist_handler( 'post', array( $this, 'filter_meta' ) );
+		$this->init_meta_allowlist_handler( 'post', array( $this, 'filter_meta' ) );
 
 		add_action( 'jetpack_daily_akismet_meta_cleanup_before', array( $this, 'daily_akismet_meta_cleanup_before' ) );
 		add_action( 'jetpack_daily_akismet_meta_cleanup_after', array( $this, 'daily_akismet_meta_cleanup_after' ) );
@@ -243,7 +243,7 @@ class Posts extends Module {
 	 * @return string WHERE SQL clause, or `null` if no comments are specified in the module config.
 	 */
 	public function get_where_sql( $config ) {
-		$where_sql = Settings::get_blacklisted_post_types_sql();
+		$where_sql = Settings::get_blocklist_post_types_sql();
 
 		// Config is a list of post IDs to sync.
 		if ( is_array( $config ) ) {
@@ -277,12 +277,12 @@ class Posts extends Module {
 	}
 
 	/**
-	 * Filter all blacklisted post types.
+	 * Filter all blocked post types.
 	 *
 	 * @param array $args Hook arguments.
-	 * @return array|false Hook arguments, or false if the post type is a blacklisted one.
+	 * @return array|false Hook arguments, or false if the post type is a blocked one.
 	 */
-	public function filter_blacklisted_post_types_deleted( $args ) {
+	public function filter_blocked_post_types_deleted( $args ) {
 
 		// deleted_post is called after the SQL delete but before cache cleanup.
 		// There is the potential we can't detect post_type at this point.
@@ -294,15 +294,15 @@ class Posts extends Module {
 	}
 
 	/**
-	 * Filter all blacklisted post types.
+	 * Filter all blocked post types.
 	 *
 	 * @param array $args Hook arguments.
-	 * @return array|false Hook arguments, or false if the post type is a blacklisted one.
+	 * @return array|false Hook arguments, or false if the post type is a blocked one.
 	 */
-	public function filter_blacklisted_post_types( $args ) {
+	public function filter_blocked_post_types( $args ) {
 		$post = $args[1];
 
-		if ( in_array( $post->post_type, Settings::get_setting( 'post_types_blacklist' ), true ) ) {
+		if ( in_array( $post->post_type, Settings::get_setting( 'post_types_blocklist' ), true ) ) {
 			return false;
 		}
 
@@ -310,13 +310,13 @@ class Posts extends Module {
 	}
 
 	/**
-	 * Filter all meta that is not blacklisted, or is stored for a disallowed post type.
+	 * Filter all meta that is not blocked, or is stored for a disallowed post type.
 	 *
 	 * @param array $args Hook arguments.
 	 * @return array|false Hook arguments, or false if meta was filtered.
 	 */
 	public function filter_meta( $args ) {
-		if ( $this->is_post_type_allowed( $args[1] ) && $this->is_whitelisted_post_meta( $args[2] ) ) {
+		if ( $this->is_post_type_allowed( $args[1] ) && $this->is_allowed_post_meta( $args[2] ) ) {
 			return $args;
 		}
 
@@ -324,19 +324,19 @@ class Posts extends Module {
 	}
 
 	/**
-	 * Whether a post meta key is whitelisted.
+	 * Whether a post meta key is allowed.
 	 *
 	 * @param string $meta_key Meta key.
-	 * @return boolean Whether the post meta key is whitelisted.
+	 * @return boolean Whether the post meta key is allowed.
 	 */
-	public function is_whitelisted_post_meta( $meta_key ) {
+	public function is_allowed_post_meta( $meta_key ) {
 		// The _wpas_skip_ meta key is used by Publicize.
-		return in_array( $meta_key, Settings::get_setting( 'post_meta_whitelist' ), true ) || wp_startswith( $meta_key, '_wpas_skip_' );
+		return in_array( $meta_key, Settings::get_setting( 'post_meta_allowlist' ), true ) || wp_startswith( $meta_key, '_wpas_skip_' );
 	}
 
 	/**
 	 * Whether a post type is allowed.
-	 * A post type will be disallowed if it's present in the post type blacklist.
+	 * A post type will be disallowed if it's present in the post type blocklist.
 	 *
 	 * @param int $post_id ID of the post.
 	 * @return boolean Whether the post type is allowed.
@@ -345,7 +345,7 @@ class Posts extends Module {
 		$post = get_post( intval( $post_id ) );
 
 		if ( isset( $post->post_type ) ) {
-			return ! in_array( $post->post_type, Settings::get_setting( 'post_types_blacklist' ), true );
+			return ! in_array( $post->post_type, Settings::get_setting( 'post_types_blocklist' ), true );
 		}
 		return false;
 	}
@@ -616,8 +616,8 @@ class Posts extends Module {
 		 */
 		$flags = apply_filters( 'jetpack_published_post_flags', $post_flags, $post );
 
-		// Only Send Pulished Post event if post_type is not blacklisted.
-		if ( ! in_array( $post->post_type, Settings::get_setting( 'post_types_blacklist' ), true ) ) {
+		// Only Send Pulished Post event if post_type is not blocklisted.
+		if ( ! in_array( $post->post_type, Settings::get_setting( 'post_types_blocklist' ), true ) ) {
 			/**
 			 * Action that gets synced when a post type gets published.
 			 *
@@ -675,7 +675,7 @@ class Posts extends Module {
 
 		return array(
 			$posts,
-			$this->get_metadata( $post_ids, 'post', Settings::get_setting( 'post_meta_whitelist' ) ),
+			$this->get_metadata( $post_ids, 'post', Settings::get_setting( 'post_meta_allowlist' ) ),
 			$this->get_term_relationships( $post_ids ),
 			$previous_interval_end,
 		);

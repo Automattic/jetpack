@@ -87,7 +87,7 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		// LEFT OUT: featured_images_enabled - a quick look inside Jetpack shows that this is equivalent
 		// to 'post-thumbnails', so not worth syncing
 
-		// theme name and options should be whitelisted as a synced option
+		// theme name and options should be allowed as a synced option.
 		$this->assertEquals( $this->theme, $this->server_replica_storage->get_option( 'stylesheet' ) );
 
 		$local_value = get_option( 'theme_mods_' . $this->theme );

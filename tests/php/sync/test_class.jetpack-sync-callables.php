@@ -34,8 +34,11 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		set_current_screen( 'post-user' ); // this only works in is_admin()
 	}
 
-	function test_white_listed_function_is_synced() {
-		$this->callable_module->set_callable_whitelist( array( 'jetpack_foo' => 'jetpack_foo_is_callable' ) );
+	/**
+	 * Test that the allowed functions list is synced.
+	 */
+	public function test_allowed_function_is_synced() {
+		$this->callable_module->set_callable_allowlist( array( 'jetpack_foo' => 'jetpack_foo_is_callable' ) );
 
 		$this->sender->do_sync();
 
@@ -57,7 +60,10 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $synced_value, $wp_version );
 	}
 
-	public function test_sync_callable_whitelist() {
+	/**
+	 * Test the sync callable allow list.
+	 */
+	public function test_sync_callable_allowlist() {
 		// $this->setSyncClientDefaults();
 
 		add_filter( 'jetpack_set_available_extensions',  array( $this, 'add_test_block' ) );
@@ -126,16 +132,16 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			$this->assertCallableIsSynced( $name, $value );
 		}
 
-		$whitelist_keys = array_keys( $this->callable_module->get_callable_whitelist() );
+		$allowlist_keys = array_keys( $this->callable_module->get_callable_allowlist() );
 		$callables_keys = array_keys( $callables );
 
 		// Are we testing all the callables in the defaults?
-		$whitelist_and_callable_keys_difference = array_diff( $whitelist_keys, $callables_keys );
-		$this->assertTrue( empty( $whitelist_and_callable_keys_difference ), 'Some whitelisted options don\'t have a test: ' . print_r( $whitelist_and_callable_keys_difference, 1 ) );
+		$allowlist_and_callable_keys_difference = array_diff( $allowlist_keys, $callables_keys );
+		$this->assertTrue( empty( $allowlist_and_callable_keys_difference ), 'Some allowed options don\'t have a test: ' . print_r( $allowlist_and_callable_keys_difference, 1 ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
 
 		// Are there any duplicate keys?
-		$unique_whitelist = array_unique( $whitelist_keys );
-		$this->assertEquals( count( $unique_whitelist ), count( $whitelist_keys ), 'The duplicate keys are: ' . print_r( array_diff_key( $whitelist_keys, array_unique( $whitelist_keys ) ), 1 ) );
+		$unique_allowlist = array_unique( $allowlist_keys );
+		$this->assertEquals( count( $unique_allowlist ), count( $allowlist_keys ), 'The duplicate keys are: ' . print_r( array_diff_key( $allowlist_keys, array_unique( $allowlist_keys ) ), 1 ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
 
 		remove_filter( 'jetpack_set_available_extensions',  array( $this, 'add_test_block' ) );
 		Jetpack_Gutenberg::reset();
@@ -149,10 +155,13 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEqualsObject( $value, $this->server_replica_storage->get_callable( $name ), 'Function ' . $name . ' didn\'t have the expected value of ' . json_encode( $value ) );
 	}
 
-	function test_white_listed_callables_doesnt_get_synced_twice() {
+	/**
+	 * Test that allowed callables do not sync twice.
+	 */
+	public function test_allowed_callables_doesnt_get_synced_twice() {
 		delete_transient( Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
 		delete_option( Callables::CALLABLES_CHECKSUM_OPTION_NAME );
-		$this->callable_module->set_callable_whitelist( array( 'jetpack_foo' => 'jetpack_foo_is_callable' ) );
+		$this->callable_module->set_callable_allowlist( array( 'jetpack_foo' => 'jetpack_foo_is_callable' ) );
 		$this->sender->do_sync();
 
 		$synced_value = $this->server_replica_storage->get_callable( 'jetpack_foo' );
@@ -441,7 +450,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_sync_limited_set_of_callables_if_cron() {
-		$all_callables = array_keys( Defaults::get_callable_whitelist() );
+		$all_callables  = array_keys( Defaults::get_callable_allowlist() );
 		$always_updated = Callables::ALWAYS_SEND_UPDATES_TO_THESE_OPTIONS;
 
 		foreach ( $always_updated as $key => $option ) {
@@ -468,8 +477,11 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		Settings::set_doing_cron( false );
 	}
 
-	function test_sync_limited_set_of_callables_if_wp_cli() {
-		$all_callables = array_keys( Defaults::get_callable_whitelist() );
+	/**
+	 * Tests if sync works with callables via WP CLI.
+	 */
+	public function test_sync_limited_set_of_callables_if_wp_cli() {
+		$all_callables  = array_keys( Defaults::get_callable_allowlist() );
 		$always_updated = Callables::ALWAYS_SEND_UPDATES_TO_THESE_OPTIONS;
 
 		foreach ( $always_updated as $key => $option ) {
@@ -902,7 +914,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		// fake the cron so that we really prevent the callables from being called
 		Settings::$is_doing_cron = true;
 
-		$this->callable_module->set_callable_whitelist( array( 'jetpack_foo' => 'jetpack_foo_is_callable_random' ) );
+		$this->callable_module->set_callable_allowlist( array( 'jetpack_foo' => 'jetpack_foo_is_callable_random' ) );
 		$this->sender->do_sync();
 		$this->server_replica_storage->get_callable( 'jetpack_foo' );
 
@@ -1048,7 +1060,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 	public function test_sync_callable_recursive_gets_checksum() {
 
-		$this->callable_module->set_callable_whitelist( array( 'jetpack_banana' => 'jetpack_recursive_banana' ) );
+		$this->callable_module->set_callable_allowlist( array( 'jetpack_banana' => 'jetpack_recursive_banana' ) );
 		$this->sender->do_sync();
 		$synced_value = $this->server_replica_storage->get_callable( 'jetpack_banana' );
 		$this->assertTrue( ! empty( $synced_value ), 'We couldn\'t synced a value!' );

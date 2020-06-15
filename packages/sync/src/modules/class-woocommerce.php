@@ -12,13 +12,13 @@ namespace Automattic\Jetpack\Sync\Modules;
  */
 class WooCommerce extends Module {
 	/**
-	 * Whitelist for order item meta we are interested to sync.
+	 * Allowlist for order item meta we are interested to sync.
 	 *
 	 * @access private
 	 *
 	 * @var array
 	 */
-	private $order_item_meta_whitelist = array(
+	private $order_item_meta_allowlist = array(
 		// See https://github.com/woocommerce/woocommerce/blob/master/includes/data-stores/class-wc-order-item-product-store.php#L20 .
 		'_product_id',
 		'_variation_id',
@@ -79,15 +79,15 @@ class WooCommerce extends Module {
 		global $wpdb;
 		$this->order_item_table_name = $wpdb->prefix . 'woocommerce_order_items';
 
-		// Options, constants and post meta whitelists.
-		add_filter( 'jetpack_sync_options_whitelist', array( $this, 'add_woocommerce_options_whitelist' ), 10 );
-		add_filter( 'jetpack_sync_constants_whitelist', array( $this, 'add_woocommerce_constants_whitelist' ), 10 );
-		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'add_woocommerce_post_meta_whitelist' ), 10 );
-		add_filter( 'jetpack_sync_comment_meta_whitelist', array( $this, 'add_woocommerce_comment_meta_whitelist' ), 10 );
+		// Options, constants and post meta allowlists.
+		add_filter( 'jetpack_sync_options_allowlist', array( $this, 'add_woocommerce_options_allowlist' ), 10 );
+		add_filter( 'jetpack_sync_constants_allowlist', array( $this, 'add_woocommerce_constants_allowlist' ), 10 );
+		add_filter( 'jetpack_sync_post_meta_allowlist', array( $this, 'add_woocommerce_post_meta_allowlist' ), 10 );
+		add_filter( 'jetpack_sync_comment_meta_allowlist', array( $this, 'add_woocommerce_comment_meta_allowlist' ), 10 );
 
 		add_filter( 'jetpack_sync_before_enqueue_woocommerce_new_order_item', array( $this, 'filter_order_item' ) );
 		add_filter( 'jetpack_sync_before_enqueue_woocommerce_update_order_item', array( $this, 'filter_order_item' ) );
-		add_filter( 'jetpack_sync_whitelisted_comment_types', array( $this, 'add_review_comment_types' ) );
+		add_filter( 'jetpack_sync_allowlisted_comment_types', array( $this, 'add_review_comment_types' ) );
 
 		// Blacklist Action Scheduler comment types.
 		add_filter( 'jetpack_sync_prevent_sending_comment_data', array( $this, 'filter_action_scheduler_comments' ), 10, 2 );
@@ -219,7 +219,7 @@ class WooCommerce extends Module {
 
 		return array(
 			$order_items,
-			$this->get_metadata( $order_item_ids, 'order_item', $this->order_item_meta_whitelist ),
+			$this->get_metadata( $order_item_ids, 'order_item', $this->order_item_meta_allowlist ),
 		);
 	}
 
@@ -286,43 +286,43 @@ class WooCommerce extends Module {
 	}
 
 	/**
-	 * Add WooCommerce options to the options whitelist.
+	 * Add WooCommerce options to the options allowlist.
 	 *
-	 * @param array $list Existing options whitelist.
-	 * @return array Updated options whitelist.
+	 * @param array $list Existing options allowlist.
+	 * @return array Updated options allowlist.
 	 */
-	public function add_woocommerce_options_whitelist( $list ) {
-		return array_merge( $list, self::$wc_options_whitelist );
+	public function add_woocommerce_options_allowlist( $list ) {
+		return array_merge( $list, self::$wc_options_allowlist );
 	}
 
 	/**
-	 * Add WooCommerce constants to the constants whitelist.
+	 * Add WooCommerce constants to the constants allowlist.
 	 *
-	 * @param array $list Existing constants whitelist.
-	 * @return array Updated constants whitelist.
+	 * @param array $list Existing constants allowlist.
+	 * @return array Updated constants allowlist.
 	 */
-	public function add_woocommerce_constants_whitelist( $list ) {
-		return array_merge( $list, self::$wc_constants_whitelist );
+	public function add_woocommerce_constants_allowlist( $list ) {
+		return array_merge( $list, self::$wc_constants_allowlist );
 	}
 
 	/**
-	 * Add WooCommerce post meta to the post meta whitelist.
+	 * Add WooCommerce post meta to the post meta allowlist.
 	 *
-	 * @param array $list Existing post meta whitelist.
-	 * @return array Updated post meta whitelist.
+	 * @param array $list Existing post meta allowlist.
+	 * @return array Updated post meta allowlist.
 	 */
-	public function add_woocommerce_post_meta_whitelist( $list ) {
-		return array_merge( $list, self::$wc_post_meta_whitelist );
+	public function add_woocommerce_post_meta_allowlist( $list ) {
+		return array_merge( $list, self::$wc_post_meta_allowlist );
 	}
 
 	/**
-	 * Add WooCommerce comment meta to the comment meta whitelist.
+	 * Add WooCommerce comment meta to the comment meta allowlist.
 	 *
-	 * @param array $list Existing comment meta whitelist.
-	 * @return array Updated comment meta whitelist.
+	 * @param array $list Existing comment meta allowlist.
+	 * @return array Updated comment meta allowlist.
 	 */
-	public function add_woocommerce_comment_meta_whitelist( $list ) {
-		return array_merge( $list, self::$wc_comment_meta_whitelist );
+	public function add_woocommerce_comment_meta_allowlist( $list ) {
+		return array_merge( $list, self::$wc_comment_meta_allowlist );
 	}
 
 	/**
@@ -359,14 +359,14 @@ class WooCommerce extends Module {
 	}
 
 	/**
-	 * Whitelist for options we are interested to sync.
+	 * Allowlist for options we are interested to sync.
 	 *
 	 * @access private
 	 * @static
 	 *
 	 * @var array
 	 */
-	private static $wc_options_whitelist = array(
+	private static $wc_options_allowlist = array(
 		'woocommerce_currency',
 		'woocommerce_db_version',
 		'woocommerce_weight_unit',
@@ -404,14 +404,14 @@ class WooCommerce extends Module {
 	);
 
 	/**
-	 * Whitelist for constants we are interested to sync.
+	 * Allowlist for constants we are interested to sync.
 	 *
 	 * @access private
 	 * @static
 	 *
 	 * @var array
 	 */
-	private static $wc_constants_whitelist = array(
+	private static $wc_constants_allowlist = array(
 		// WooCommerce constants.
 		'WC_PLUGIN_FILE',
 		'WC_ABSPATH',
@@ -428,14 +428,14 @@ class WooCommerce extends Module {
 	);
 
 	/**
-	 * Whitelist for post meta we are interested to sync.
+	 * Allowlist for post meta we are interested to sync.
 	 *
 	 * @access private
 	 * @static
 	 *
 	 * @var array
 	 */
-	private static $wc_post_meta_whitelist = array(
+	private static $wc_post_meta_allowlist = array(
 		// WooCommerce products.
 		// See https://github.com/woocommerce/woocommerce/blob/8ed6e7436ff87c2153ed30edd83c1ab8abbdd3e9/includes/data-stores/class-wc-product-data-store-cpt.php#L21 .
 		'_visibility',
@@ -544,14 +544,14 @@ class WooCommerce extends Module {
 	);
 
 	/**
-	 * Whitelist for comment meta we are interested to sync.
+	 * Allowlist for comment meta we are interested to sync.
 	 *
 	 * @access private
 	 * @static
 	 *
 	 * @var array
 	 */
-	private static $wc_comment_meta_whitelist = array(
+	private static $wc_comment_meta_allowlist = array(
 		'rating',
 	);
 }

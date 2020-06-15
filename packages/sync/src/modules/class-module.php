@@ -274,6 +274,7 @@ abstract class Module {
 	 */
 	public function get_next_chunk( $config, $status, $chunk_size ) {
 		global $wpdb;
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		return $wpdb->get_col(
 			<<<SQL
 SELECT {$this->id_field()}
@@ -284,6 +285,7 @@ ORDER BY {$this->id_field()}
 DESC LIMIT {$chunk_size}
 SQL
 		);
+		// phpcs:enable
 	}
 
 	/**
@@ -374,18 +376,18 @@ SQL
 	}
 
 	/**
-	 * Get metadata of a particular object type within the designated meta key whitelist.
+	 * Get metadata of a particular object type within the designated meta key allowlist.
 	 *
 	 * @access protected
 	 *
-	 * @todo Refactor to use $wpdb->prepare() on the SQL query.
-	 *
 	 * @param array  $ids                Object IDs.
 	 * @param string $meta_type          Meta type.
-	 * @param array  $meta_key_whitelist Meta key whitelist.
+	 * @param array  $meta_key_allowlist Meta key allowlist.
+	 *
 	 * @return array Unserialized meta values.
+	 * @todo Refactor to use $wpdb->prepare() on the SQL query.
 	 */
-	protected function get_metadata( $ids, $meta_type, $meta_key_whitelist ) {
+	protected function get_metadata( $ids, $meta_type, $meta_key_allowlist ) {
 		global $wpdb;
 		$table = _get_meta_table( $meta_type );
 		$id    = $meta_type . '_id';
@@ -393,14 +395,14 @@ SQL
 			return array();
 		}
 
-		$private_meta_whitelist_sql = "'" . implode( "','", array_map( 'esc_sql', $meta_key_whitelist ) ) . "'";
+		$private_meta_allowlist_sql = "'" . implode( "','", array_map( 'esc_sql', $meta_key_allowlist ) ) . "'";
 
 		return array_map(
 			array( $this, 'unserialize_meta' ),
 			$wpdb->get_results(
 				// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
 				"SELECT $id, meta_key, meta_value, meta_id FROM $table WHERE $id IN ( " . implode( ',', wp_parse_id_list( $ids ) ) . ' )' .
-				" AND meta_key IN ( $private_meta_whitelist_sql ) ",
+				" AND meta_key IN ( $private_meta_allowlist_sql ) ",
 				// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQL.NotPrepared
 				OBJECT
 			)
@@ -422,17 +424,17 @@ SQL
 	}
 
 	/**
-	 * Initialize meta whitelist handler for the particular meta type.
+	 * Initialize meta allowlist handler for the particular meta type.
 	 *
 	 * @access public
 	 *
 	 * @param string   $meta_type         Meta type.
-	 * @param callable $whitelist_handler Action handler callable.
+	 * @param callable $allowlist_handler Action handler callable.
 	 */
-	public function init_meta_whitelist_handler( $meta_type, $whitelist_handler ) {
-		add_filter( "jetpack_sync_before_enqueue_added_{$meta_type}_meta", $whitelist_handler );
-		add_filter( "jetpack_sync_before_enqueue_updated_{$meta_type}_meta", $whitelist_handler );
-		add_filter( "jetpack_sync_before_enqueue_deleted_{$meta_type}_meta", $whitelist_handler );
+	public function init_meta_allowlist_handler( $meta_type, $allowlist_handler ) {
+		add_filter( "jetpack_sync_before_enqueue_added_{$meta_type}_meta", $allowlist_handler );
+		add_filter( "jetpack_sync_before_enqueue_updated_{$meta_type}_meta", $allowlist_handler );
+		add_filter( "jetpack_sync_before_enqueue_deleted_{$meta_type}_meta", $allowlist_handler );
 	}
 
 	/**
@@ -572,11 +574,9 @@ SQL
 	 *
 	 * @access public
 	 *
-	 * @param array $config Full sync configuration for this sync module.
-	 * @return string WHERE SQL clause, or `null` if no comments are specified in the module config.
+	 * @return string '1=1'
 	 */
 	public function get_where_sql( $config ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return '1=1';
 	}
-
 }

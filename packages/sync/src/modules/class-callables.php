@@ -31,13 +31,13 @@ class Callables extends Module {
 	const CALLABLES_AWAIT_TRANSIENT_NAME = 'jetpack_sync_callables_await';
 
 	/**
-	 * Whitelist for callables we want to sync.
+	 * Allowlist for callables we want to sync.
 	 *
 	 * @access private
 	 *
 	 * @var array
 	 */
-	private $callable_whitelist;
+	private $callable_allowlist;
 
 	/**
 	 * For some options, we should always send the change right away!
@@ -81,15 +81,15 @@ class Callables extends Module {
 
 	/**
 	 * Set module defaults.
-	 * Define the callable whitelist based on whether this is a single site or a multisite installation.
+	 * Define the callable allowlist based on whether this is a single site or a multisite installation.
 	 *
 	 * @access public
 	 */
 	public function set_defaults() {
 		if ( is_multisite() ) {
-			$this->callable_whitelist = array_merge( Defaults::get_callable_whitelist(), Defaults::get_multisite_callable_whitelist() );
+			$this->callable_allowlist = array_merge( Defaults::get_callable_allowlist(), Defaults::get_multisite_callable_allowlist() );
 		} else {
-			$this->callable_whitelist = Defaults::get_callable_whitelist();
+			$this->callable_allowlist = Defaults::get_callable_allowlist();
 		}
 	}
 
@@ -160,29 +160,29 @@ class Callables extends Module {
 	}
 
 	/**
-	 * Set the callable whitelist.
+	 * Set the callable allowlist.
 	 *
 	 * @access public
 	 *
-	 * @param array $callables The new callables whitelist.
+	 * @param array $callables The new callables allowlist.
 	 */
-	public function set_callable_whitelist( $callables ) {
-		$this->callable_whitelist = $callables;
+	public function set_callable_allowlist( $callables ) {
+		$this->callable_allowlist = $callables;
 	}
 
 	/**
-	 * Get the callable whitelist.
+	 * Get the callable allowlist.
 	 *
 	 * @access public
 	 *
-	 * @return array The callables whitelist.
+	 * @return array The callables allowlist.
 	 */
-	public function get_callable_whitelist() {
-		return $this->callable_whitelist;
+	public function get_callable_allowlist() {
+		return $this->callable_allowlist;
 	}
 
 	/**
-	 * Retrieve all callables as per the current callables whitelist.
+	 * Retrieve all callables as per the current callables allowlist.
 	 *
 	 * @access public
 	 *
@@ -193,8 +193,8 @@ class Callables extends Module {
 		$current_user_id = get_current_user_id();
 		wp_set_current_user( \Jetpack_Options::get_option( 'master_user' ) );
 		$callables = array_combine(
-			array_keys( $this->get_callable_whitelist() ),
-			array_map( array( $this, 'get_callable' ), array_values( $this->get_callable_whitelist() ) )
+			array_keys( $this->get_callable_allowlist() ),
+			array_map( array( $this, 'get_callable' ), array_values( $this->get_callable_allowlist() ) )
 		);
 		wp_set_current_user( $current_user_id );
 		return $callables;
@@ -511,12 +511,10 @@ class Callables extends Module {
 	/**
 	 * Return Total number of objects.
 	 *
-	 * @param array $config Full Sync config.
-	 *
 	 * @return int total
 	 */
 	public function total( $config ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		return count( $this->get_callable_whitelist() );
+		return count( $this->get_callable_allowlist() );
 	}
 
 }

@@ -272,7 +272,7 @@ class Listener {
 		}
 
 		/**
-		 * Add an action hook to execute when anything on the whitelist gets sent to the queue to sync.
+		 * Add an action hook to execute when anything on the allowlist gets sent to the queue to sync.
 		 *
 		 * @module sync
 		 *

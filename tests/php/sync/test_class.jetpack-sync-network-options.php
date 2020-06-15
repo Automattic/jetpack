@@ -16,7 +16,7 @@ class WP_Test_Jetpack_Sync_Network_Options extends WP_Test_Jetpack_Sync_Base {
 
 		$this->network_options_module = Modules::get_module( "network_options" );
 
-		$this->network_options_module->set_network_options_whitelist( array( 'test_network_option' ) );
+		$this->network_options_module->set_network_options_allowlist( array( 'test_network_option' ) );
 		add_site_option( 'test_network_option', 'foo' );
 		$this->sender->do_sync();
 	}
@@ -53,7 +53,10 @@ class WP_Test_Jetpack_Sync_Network_Options extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( false, $synced_option_value );
 	}
 
-	public function test_don_t_sync_network_option_if_not_on_whitelist() {
+	/**
+	 * Tests that we do not sync network options not allowed.
+	 */
+	public function test_don_t_sync_network_option_if_not_on_allowlist() {
 		if ( ! is_multisite() ) {
 			$this->markTestSkipped( 'Run it in multi site mode' );
 		}

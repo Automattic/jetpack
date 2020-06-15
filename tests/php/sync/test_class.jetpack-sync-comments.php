@@ -98,7 +98,7 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 
 	public function test_do_sync_comments_with_known_comment_types() {
 		$this->server_event_storage->reset();
-		add_filter( 'jetpack_sync_whitelisted_comment_types', array( $this, 'add_custom_comment_type' ) );
+		add_filter( 'jetpack_sync_allowlisted_comment_types', array( $this, 'add_custom_comment_type' ) );
 
 		$comment_data = array(
 			'comment_post_ID'  => $this->post_id,
@@ -107,11 +107,11 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 			'comment_author'   => 'fun author',
 			'comment_content'  => 'fun!',
 			'comment_agent'    => 'fun things!',
-			'comment_type'     => 'product_feedback', // This should be whitelisted in the filter.
+			'comment_type'     => 'product_feedback', // This should be allowed in the filter.
 		);
 		wp_insert_comment( $comment_data );
 		$this->sender->do_sync();
-		remove_filter( 'jetpack_sync_whitelisted_comment_types', array( $this, 'add_custom_comment_type' ) );
+		remove_filter( 'jetpack_sync_allowlisted_comment_types', array( $this, 'add_custom_comment_type' ) );
 
 		$event = $this->server_event_storage->get_most_recent_event( 'wp_insert_comment' );
 		$this->assertNotFalse( $event ); // This should be something other then false.
@@ -434,18 +434,18 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	/**
-	 * @covers Automattic\Jetpack\Sync\Modules\Comments::get_whitelisted_comment_types()
+	 * @covers Automattic\Jetpack\Sync\Modules\Comments::get_allowed_comment_types()
 	 */
 	public function test_allows_custom_comment_types() {
 		$comments_sync_module = Modules::get_module( 'comments' );
 
-		$this->assertNotContains( 'product_feedback', $comments_sync_module->get_whitelisted_comment_types() );
+		$this->assertNotContains( 'product_feedback', $comments_sync_module->get_allowed_comment_types() );
 
-		add_filter( 'jetpack_sync_whitelisted_comment_types', array( $this, 'add_custom_comment_type' ) );
+		add_filter( 'jetpack_sync_allowlisted_comment_types', array( $this, 'add_custom_comment_type' ) );
 
-		$this->assertContains( 'product_feedback', $comments_sync_module->get_whitelisted_comment_types() );
+		$this->assertContains( 'product_feedback', $comments_sync_module->get_allowed_comment_types() );
 
-		remove_filter( 'jetpack_sync_whitelisted_comment_types', array( $this, 'add_custom_comment_type' ) );
+		remove_filter( 'jetpack_sync_allowlisted_comment_types', array( $this, 'add_custom_comment_type' ) );
 	}
 
 	public function add_custom_comment_type( $comment_types ) {
@@ -454,7 +454,7 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	/*
-	 * Verify Whitelist is applied to all actions.
+	 * Verify allowlist is applied to all actions.
 	 */
 
 	/**
@@ -648,9 +648,9 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	/**
-	 * Test that `trashed_post_comments` and `untrashed_post_comments` are not sent for blacklisted post_types.
+	 * Test that `trashed_post_comments` and `untrashed_post_comments` are not sent for blocked post_types.
 	 */
-	public function test_post_comments_blacklisted_post_type() {
+	public function test_post_comments_blocked_post_type() {
 		$args = array(
 			'public' => true,
 			'label'  => 'Snitch',

@@ -91,27 +91,27 @@ class Comments extends Module {
 		add_filter( 'wp_update_comment_data', array( $this, 'handle_comment_contents_modification' ), 10, 3 );
 
 		// comment actions.
-		add_filter( 'jetpack_sync_before_enqueue_wp_insert_comment', array( $this, 'only_allow_white_listed_comment_types' ) );
-		add_filter( 'jetpack_sync_before_enqueue_deleted_comment', array( $this, 'only_allow_white_listed_comment_types' ) );
-		add_filter( 'jetpack_sync_before_enqueue_trashed_comment', array( $this, 'only_allow_white_listed_comment_types' ) );
-		add_filter( 'jetpack_sync_before_enqueue_untrashed_comment', array( $this, 'only_allow_white_listed_comment_types' ) );
-		add_filter( 'jetpack_sync_before_enqueue_spammed_comment', array( $this, 'only_allow_white_listed_comment_types' ) );
-		add_filter( 'jetpack_sync_before_enqueue_unspammed_comment', array( $this, 'only_allow_white_listed_comment_types' ) );
+		add_filter( 'jetpack_sync_before_enqueue_wp_insert_comment', array( $this, 'only_allow_listed_comment_types' ) );
+		add_filter( 'jetpack_sync_before_enqueue_deleted_comment', array( $this, 'only_allow_listed_comment_types' ) );
+		add_filter( 'jetpack_sync_before_enqueue_trashed_comment', array( $this, 'only_allow_listed_comment_types' ) );
+		add_filter( 'jetpack_sync_before_enqueue_untrashed_comment', array( $this, 'only_allow_listed_comment_types' ) );
+		add_filter( 'jetpack_sync_before_enqueue_spammed_comment', array( $this, 'only_allow_listed_comment_types' ) );
+		add_filter( 'jetpack_sync_before_enqueue_unspammed_comment', array( $this, 'only_allow_listed_comment_types' ) );
 
 		// comment status transitions.
 		add_filter( 'jetpack_sync_before_enqueue_comment_approved_to_unapproved', array( $this, 'only_allow_white_listed_comment_type_transitions' ) );
 		add_filter( 'jetpack_sync_before_enqueue_comment_unapproved_to_approved', array( $this, 'only_allow_white_listed_comment_type_transitions' ) );
 
 		// Post Actions.
-		add_filter( 'jetpack_sync_before_enqueue_trashed_post_comments', array( $this, 'filter_blacklisted_post_types' ) );
-		add_filter( 'jetpack_sync_before_enqueue_untrash_post_comments', array( $this, 'filter_blacklisted_post_types' ) );
+		add_filter( 'jetpack_sync_before_enqueue_trashed_post_comments', array( $this, 'filter_blocked_post_types' ) );
+		add_filter( 'jetpack_sync_before_enqueue_untrash_post_comments', array( $this, 'filter_blocked_post_types' ) );
 
 		/**
 		 * Even though it's messy, we implement these hooks because
 		 * the edit_comment hook doesn't include the data
 		 * so this saves us a DB read for every comment event.
 		 */
-		foreach ( $this->get_whitelisted_comment_types() as $comment_type ) {
+		foreach ( $this->get_allowed_comment_types() as $comment_type ) {
 			foreach ( array( 'unapproved', 'approved' ) as $comment_status ) {
 				$comment_action_name = "comment_{$comment_status}_{$comment_type}";
 				add_action( $comment_action_name, $callable, 10, 2 );
@@ -120,7 +120,7 @@ class Comments extends Module {
 
 		// Listen for meta changes.
 		$this->init_listeners_for_meta_type( 'comment', $callable );
-		$this->init_meta_whitelist_handler( 'comment', array( $this, 'filter_meta' ) );
+		$this->init_meta_allowlist_handler( 'comment', array( $this, 'filter_meta' ) );
 	}
 
 	/**
@@ -180,28 +180,40 @@ class Comments extends Module {
 	 *
 	 * @return array Defaults to [ '', 'trackback', 'pingback' ].
 	 */
-	public function get_whitelisted_comment_types() {
+	public function get_allowed_comment_types() {
 		/**
 		 * Comment types present in this list will sync their status changes to WordPress.com.
 		 *
 		 * @since 7.6.0
+		 * @deprecated 8.7.0
 		 *
 		 * @param array A list of comment types.
 		 */
-		return apply_filters(
+		$list = apply_filters_deprecated(
 			'jetpack_sync_whitelisted_comment_types',
-			array( '', 'comment', 'trackback', 'pingback' )
+			array( array( '', 'comment', 'trackback', 'pingback' ) ),
+			'Jetpack 8.7.0',
+			'jetpack_sync_allowed_comment_types'
 		);
+
+		/**
+		 * Comment types present in this list will sync their status changes to WordPress.com.
+		 *
+		 * @since 8.7.0
+		 *
+		 * @param array A list of comment types.
+		 */
+		return apply_filters( 'jetpack_sync_allowed_comment_types', $list );
 	}
 
 	/**
-	 * Prevents any comment types that are not in the whitelist from being enqueued and sent to WordPress.com.
+	 * Prevents any comment types that are not in the allowlist from being enqueued and sent to WordPress.com.
 	 *
 	 * @param array $args Arguments passed to wp_insert_comment, deleted_comment, spammed_comment, etc.
 	 *
 	 * @return bool or array $args Arguments passed to wp_insert_comment, deleted_comment, spammed_comment, etc.
 	 */
-	public function only_allow_white_listed_comment_types( $args ) {
+	public function only_allow_listed_comment_types( $args ) {
 		$comment = false;
 
 		if ( isset( $args[1] ) ) {
@@ -212,7 +224,7 @@ class Comments extends Module {
 			$comment = get_comment( $args[0] );
 		}
 
-		if ( false !== $comment && ! in_array( $comment->comment_type, $this->get_whitelisted_comment_types(), true ) ) {
+		if ( false !== $comment && ! in_array( $comment->comment_type, $this->get_allowed_comment_types(), true ) ) {
 			return false;
 		}
 
@@ -220,12 +232,12 @@ class Comments extends Module {
 	}
 
 	/**
-	 * Filter all blacklisted post types.
+	 * Filter all blocked post types.
 	 *
 	 * @param array $args Hook arguments.
-	 * @return array|false Hook arguments, or false if the post type is a blacklisted one.
+	 * @return array|false Hook arguments, or false if the post type is a blocked one.
 	 */
-	public function filter_blacklisted_post_types( $args ) {
+	public function filter_blocked_post_types( $args ) {
 		$post_id      = $args[0];
 		$posts_module = Modules::get_module( 'posts' );
 
@@ -237,16 +249,16 @@ class Comments extends Module {
 	}
 
 	/**
-	 * Prevents any comment types that are not in the whitelist from being enqueued and sent to WordPress.com.
+	 * Prevents any comment types that are not in the allowlist from being enqueued and sent to WordPress.com.
 	 *
 	 * @param array $args Arguments passed to wp_{old_status}_to_{new_status}.
 	 *
-	 * @return bool or array $args Arguments passed to wp_{old_status}_to_{new_status}
+	 * @return bool|array $args Arguments passed to wp_{old_status}_to_{new_status}
 	 */
 	public function only_allow_white_listed_comment_type_transitions( $args ) {
 		$comment = $args[0];
 
-		if ( ! in_array( $comment->comment_type, $this->get_whitelisted_comment_types(), true ) ) {
+		if ( ! in_array( $comment->comment_type, $this->get_allowed_comment_types(), true ) ) {
 			return false;
 		}
 
@@ -255,7 +267,7 @@ class Comments extends Module {
 
 	/**
 	 * Whether a comment type is allowed.
-	 * A comment type is allowed if it's present in the comment type whitelist.
+	 * A comment type is allowed if it's present in the comment type allowlist.
 	 *
 	 * @param int $comment_id ID of the comment.
 	 * @return boolean Whether the comment type is allowed.
@@ -264,7 +276,7 @@ class Comments extends Module {
 		$comment = get_comment( $comment_id );
 
 		if ( isset( $comment->comment_type ) ) {
-			return in_array( $comment->comment_type, $this->get_whitelisted_comment_types(), true );
+			return in_array( $comment->comment_type, $this->get_allowed_comment_types(), true );
 		}
 		return false;
 	}
@@ -277,7 +289,7 @@ class Comments extends Module {
 	public function init_before_send() {
 		add_filter( 'jetpack_sync_before_send_wp_insert_comment', array( $this, 'expand_wp_insert_comment' ) );
 
-		foreach ( $this->get_whitelisted_comment_types() as $comment_type ) {
+		foreach ( $this->get_allowed_comment_types() as $comment_type ) {
 			foreach ( array( 'unapproved', 'approved' ) as $comment_status ) {
 				$comment_action_name = "comment_{$comment_status}_{$comment_type}";
 				add_filter(
@@ -434,27 +446,27 @@ class Comments extends Module {
 	}
 
 	/**
-	 * Whether a certain comment meta key is whitelisted for sync.
+	 * Whether a certain comment meta key is allowed for sync.
 	 *
 	 * @access public
 	 *
 	 * @param string $meta_key Comment meta key.
-	 * @return boolean Whether the meta key is whitelisted.
+	 * @return boolean Whether the meta key is allowed.
 	 */
-	public function is_whitelisted_comment_meta( $meta_key ) {
-		return in_array( $meta_key, Settings::get_setting( 'comment_meta_whitelist' ), true );
+	public function is_allowed_comment_meta( $meta_key ) {
+		return in_array( $meta_key, Settings::get_setting( 'comment_meta_allowlist' ), true );
 	}
 
 	/**
-	 * Handler for filtering out non-whitelisted comment meta.
+	 * Handler for filtering out non-allowed comment meta.
 	 *
 	 * @access public
 	 *
 	 * @param array $args Hook args.
-	 * @return array|boolean False if not whitelisted, the original hook args otherwise.
+	 * @return array|boolean False if not allowed, the original hook args otherwise.
 	 */
 	public function filter_meta( $args ) {
-		if ( $this->is_comment_type_allowed( $args[1] ) && $this->is_whitelisted_comment_meta( $args[2] ) ) {
+		if ( $this->is_comment_type_allowed( $args[1] ) && $this->is_allowed_comment_meta( $args[2] ) ) {
 			return $args;
 		}
 
@@ -482,7 +494,7 @@ class Comments extends Module {
 
 		return array(
 			$comments,
-			$this->get_metadata( $comment_ids, 'comment', Settings::get_setting( 'comment_meta_whitelist' ) ),
+			$this->get_metadata( $comment_ids, 'comment', Settings::get_setting( 'comment_meta_allowlist' ) ),
 			$previous_interval_end,
 		);
 	}

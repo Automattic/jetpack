@@ -462,7 +462,7 @@ class Themes extends Module {
 
 		/**
 		 * Fires when the client needs to sync theme support info
-		 * Only sends theme support attributes whitelisted in Defaults::$default_theme_support_whitelist
+		 * Only sends theme support attributes allowed in Defaults::$default_theme_support_allowlist
 		 *
 		 * @since 4.2.0
 		 *
@@ -794,7 +794,7 @@ class Themes extends Module {
 		if ( null === $theme ) {
 			$theme = wp_get_theme();
 
-			foreach ( Defaults::$default_theme_support_whitelist as $theme_feature ) {
+			foreach ( Defaults::$default_theme_support_allowlist as $theme_feature ) {
 				$has_support = current_theme_supports( $theme_feature );
 				if ( $has_support ) {
 					$theme_support[ $theme_feature ] = $_wp_theme_features[ $theme_feature ];
@@ -845,12 +845,9 @@ class Themes extends Module {
 	/**
 	 * Return Total number of objects.
 	 *
-	 * @param array $config Full Sync config.
-	 *
 	 * @return int total
 	 */
 	public function total( $config ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return 1;
 	}
-
 }

@@ -21,7 +21,7 @@ class Settings {
 	const SETTINGS_OPTION_PREFIX = 'jetpack_sync_settings_';
 
 	/**
-	 * A whitelist of valid settings.
+	 * A allowlist of valid settings.
 	 *
 	 * @access public
 	 * @static
@@ -38,8 +38,8 @@ class Settings {
 		'max_queue_size'                         => true,
 		'max_queue_lag'                          => true,
 		'queue_max_writes_sec'                   => true,
-		'post_types_blacklist'                   => true,
-		'taxonomies_blacklist'                   => true,
+		'post_types_blocklist'                   => true,
+		'taxonomies_blocklist'                   => true,
 		'disable'                                => true,
 		'network_disable'                        => true,
 		'render_filtered_content'                => true,
@@ -155,17 +155,17 @@ class Settings {
 		}
 		$default_array_value = null;
 		switch ( $setting ) {
-			case 'post_types_blacklist':
-				$default_array_value = Defaults::$blacklisted_post_types;
+			case 'post_types_blocklist':
+				$default_array_value = Defaults::$blocked_post_types;
 				break;
-			case 'taxonomies_blacklist':
-				$default_array_value = Defaults::$blacklisted_taxonomies;
+			case 'taxonomies_blocklist':
+				$default_array_value = Defaults::$blocked_taxonomies;
 				break;
 			case 'post_meta_whitelist':
-				$default_array_value = Defaults::get_post_meta_whitelist();
+				$default_array_value = Defaults::get_post_meta_allowlist();
 				break;
 			case 'comment_meta_whitelist':
-				$default_array_value = Defaults::get_comment_meta_whitelist();
+				$default_array_value = Defaults::get_comment_meta_allowlist();
 				break;
 			case 'known_importers':
 				$default_array_value = Defaults::get_known_importers();
@@ -226,7 +226,7 @@ class Settings {
 	}
 
 	/**
-	 * Returns escaped SQL for blacklisted post types.
+	 * Returns escaped SQL for blocklisted post types.
 	 * Can be injected directly into a WHERE clause.
 	 *
 	 * @access public
@@ -234,12 +234,12 @@ class Settings {
 	 *
 	 * @return string SQL WHERE clause.
 	 */
-	public static function get_blacklisted_post_types_sql() {
-		return 'post_type NOT IN (\'' . join( '\', \'', array_map( 'esc_sql', self::get_setting( 'post_types_blacklist' ) ) ) . '\')';
+	public static function get_blocklist_post_types_sql() {
+		return 'post_type NOT IN (\'' . join( '\', \'', array_map( 'esc_sql', self::get_setting( 'post_types_blocklist' ) ) ) . '\')';
 	}
 
 	/**
-	 * Returns escaped SQL for blacklisted taxonomies.
+	 * Returns escaped SQL for blocked taxonomies.
 	 * Can be injected directly into a WHERE clause.
 	 *
 	 * @access public
@@ -247,12 +247,12 @@ class Settings {
 	 *
 	 * @return string SQL WHERE clause.
 	 */
-	public static function get_blacklisted_taxonomies_sql() {
-		return "taxonomy NOT IN ('" . join( "', '", array_map( 'esc_sql', self::get_setting( 'taxonomies_blacklist' ) ) ) . "')";
+	public static function get_blocked_taxonomies_sql() {
+		return "taxonomy NOT IN ('" . join( "', '", array_map( 'esc_sql', self::get_setting( 'taxonomies_blocklist' ) ) ) . "')";
 	}
 
 	/**
-	 * Returns escaped SQL for blacklisted post meta.
+	 * Returns escaped SQL for allowed post meta.
 	 * Can be injected directly into a WHERE clause.
 	 *
 	 * @access public
@@ -260,12 +260,12 @@ class Settings {
 	 *
 	 * @return string SQL WHERE clause.
 	 */
-	public static function get_whitelisted_post_meta_sql() {
+	public static function get_allowed_post_meta_sql() {
 		return 'meta_key IN (\'' . join( '\', \'', array_map( 'esc_sql', self::get_setting( 'post_meta_whitelist' ) ) ) . '\')';
 	}
 
 	/**
-	 * Returns escaped SQL for blacklisted comment meta.
+	 * Returns escaped SQL for allowed comment meta.
 	 * Can be injected directly into a WHERE clause.
 	 *
 	 * @access public
@@ -273,7 +273,7 @@ class Settings {
 	 *
 	 * @return string SQL WHERE clause.
 	 */
-	public static function get_whitelisted_comment_meta_sql() {
+	public static function get_allowed_comment_meta_sql() {
 		return 'meta_key IN (\'' . join( '\', \'', array_map( 'esc_sql', self::get_setting( 'comment_meta_whitelist' ) ) ) . '\')';
 	}
 

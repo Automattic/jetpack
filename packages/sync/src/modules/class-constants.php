@@ -85,26 +85,26 @@ class Constants extends Module {
 	}
 
 	/**
-	 * Set the constants whitelist.
+	 * Set the constants allowlist.
 	 *
 	 * @access public
 	 * @todo We don't seem to use this one. Should we remove it?
 	 *
-	 * @param array $constants The new constants whitelist.
+	 * @param array $constants The new constants allowlist.
 	 */
-	public function set_constants_whitelist( $constants ) {
-		$this->constants_whitelist = $constants;
+	public function set_constants_allowlist( $constants ) {
+		$this->constants_allowlist = $constants;
 	}
 
 	/**
-	 * Get the constants whitelist.
+	 * Get the constants allowlist.
 	 *
 	 * @access public
 	 *
-	 * @return array The constants whitelist.
+	 * @return array The constants allowlist.
 	 */
-	public function get_constants_whitelist() {
-		return Defaults::get_constants_whitelist();
+	public function get_constants_allowlist() {
+		return Defaults::get_constants_allowlist();
 	}
 
 	/**
@@ -216,7 +216,7 @@ class Constants extends Module {
 	}
 
 	/**
-	 * Retrieve all constants as per the current constants whitelist.
+	 * Retrieve all constants as per the current constants allowlist.
 	 * Public so that we don't have to store an option for each constant.
 	 *
 	 * @access public
@@ -224,11 +224,11 @@ class Constants extends Module {
 	 * @return array All constants.
 	 */
 	public function get_all_constants() {
-		$constants_whitelist = $this->get_constants_whitelist();
+		$constants_allowlist = $this->get_constants_allowlist();
 
 		return array_combine(
-			$constants_whitelist,
-			array_map( array( $this, 'get_constant' ), $constants_whitelist )
+			$constants_allowlist,
+			array_map( array( $this, 'get_constant' ), $constants_allowlist )
 		);
 	}
 
@@ -275,11 +275,9 @@ class Constants extends Module {
 	/**
 	 * Return Total number of objects.
 	 *
-	 * @param array $config Full Sync config.
-	 *
 	 * @return int total
 	 */
 	public function total( $config ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		return count( $this->get_constants_whitelist() );
+		return count( $this->get_constants_allowlist() );
 	}
 }

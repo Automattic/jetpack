@@ -14,7 +14,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 
 		$this->options_module = Modules::get_module( "options" );
 
-		$this->options_module->set_options_whitelist( array( 'test_option' ) );
+		$this->options_module->set_options_allowlist( array( 'test_option' ) );
 
 		add_option( 'test_option', 'foo' );
 
@@ -40,7 +40,10 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( false, $synced_option_value );
 	}
 
-	public function test_don_t_sync_option_if_not_on_whitelist() {
+	/**
+	 * Tests that we don't sync if something isn't on the allowlist.
+	 */
+	public function test_don_t_sync_option_if_not_on_allowlist() {
 		add_option( 'don_t_sync_test_option', 'foo' );
 		$this->sender->do_sync();
 		$synced_option_value = $this->server_replica_storage->get_option( 'don_t_sync_test_option' );
@@ -48,8 +51,8 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_sync_options_that_use_filter() {
-		add_filter( 'jetpack_options_whitelist', array( $this, 'add_jetpack_options_whitelist_filter' ) );
-		$this->options_module->update_options_whitelist();
+		add_filter( 'jetpack_options_allowlist', array( $this, 'add_jetpack_options_allowlist_filter' ) );
+		$this->options_module->update_options_allowlist();
 		update_option( 'foo_option_bar', '123' );
 		$this->sender->do_sync();
 
@@ -58,7 +61,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 
 	public function test_sync_default_options() {
 		$this->setSyncClientDefaults();
-		// check that these values exists in the whitelist options
+		// check that these values exists in the allowlist options.
 		$options = array(
 			'stylesheet'                               => 'test',
 			'blogname'                                 => 'test',
@@ -118,7 +121,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'moderation_notify'                        => 'pineapple',
 			'social_notifications_reblog'              => 'pineapple',
 			'social_notifications_subscribe'           => 'pineapple',
-			'comment_whitelist'                        => 'pineapple',
+			'comment_whitelist'                        => 'pineapple', // Core option.
 			'comment_max_links'                        => 99,
 			'moderation_keys'                          => 'pineapple',
 			'jetpack_wga'                              => 'pineapple',
@@ -215,7 +218,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 		$theme_mod_key             = 'theme_mods_' . get_option( 'stylesheet' );
 		$options[ $theme_mod_key ] = 'pineapple';
 
-		$whitelist = $this->options_module->get_options_whitelist();
+		$allowlist = $this->options_module->get_options_allowlist();
 
 		// update all the options.
 		foreach ( $options as $option_name => $value ) {
@@ -228,12 +231,12 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			$this->assertOptionIsSynced( $option_name, $value );
 		}
 		$option_keys                          = array_keys( $options );
-		$whitelist_and_option_keys_difference = array_diff( $whitelist, $option_keys );
+		$allowlist_and_option_keys_difference = array_diff( $allowlist, $option_keys );
 		// Are we testing all the options
-		$unique_whitelist = array_unique( $whitelist );
+		$unique_allowlist = array_unique( $allowlist );
 
-		$this->assertEquals( count( $unique_whitelist ), count( $whitelist ), 'The duplicate keys are: ' . print_r( array_diff_key( $whitelist, array_unique( $whitelist ) ), 1 ) );
-		$this->assertTrue( empty( $whitelist_and_option_keys_difference ), 'Some whitelisted options don\'t have a test: ' . print_r( $whitelist_and_option_keys_difference, 1 ) );
+		$this->assertEquals( count( $unique_allowlist ), count( $allowlist ), 'The duplicate keys are: ' . print_r( array_diff_key( $allowlist, array_unique( $allowlist ) ), 1 ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
+		$this->assertTrue( empty( $allowlist_and_option_keys_difference ), 'Some allowed options don\'t have a test: ' . print_r( $allowlist_and_option_keys_difference, 1 ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
 	}
 
 	public function test_sync_default_contentless_options() {
@@ -272,20 +275,30 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 		);
 	}
 
-	public function test_add_whitelisted_option_on_init_89() {
+	/**
+	 * Add an option allowed late.
+	 */
+	public function test_add_allowlisted_option_on_init_89() {
 		add_action( 'init', array( $this, 'add_option_on_89' ), 89 );
 		do_action( 'init' );
 
-		$whitelist = $this->options_module->get_options_whitelist();
+		$allowlist = $this->options_module->get_options_allowlist();
 
-		$this->assertTrue( in_array( 'foo_option_bar', $whitelist ) );
+		$this->assertTrue( in_array( 'foo_option_bar', $allowlist, true ) );
 	}
 
 	function assertOptionIsSynced( $option_name, $value ) {
 		$this->assertEqualsObject( $value, $this->server_replica_storage->get_option( $option_name ), 'Option ' . $option_name . ' did\'t have the extected value of ' . json_encode( $value ) );
 	}
 
-	public function add_jetpack_options_whitelist_filter( $options ) {
+	/**
+	 * Filters the allowed option list.
+	 *
+	 * @param array $options Allowlist.
+	 *
+	 * @return mixed
+	 */
+	public function add_jetpack_options_allowlist_filter( $options ) {
 		$options[] = 'foo_option_bar';
 		return $options;
 	}
@@ -293,6 +306,6 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 
 
 	function add_option_on_89() {
-		add_filter( 'jetpack_options_whitelist', array( $this, 'add_jetpack_options_whitelist_filter' ) );
+		add_filter( 'jetpack_options_allowlist', array( $this, 'add_jetpack_options_allowlist_filter' ) );
 	}
 }

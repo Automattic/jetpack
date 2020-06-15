@@ -415,7 +415,7 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 
 		$helper                 = new Jetpack_Sync_Test_Helper();
 		$helper->array_override = array( 'TEST_SYNC_ALL_CONSTANTS' );
-		add_filter( 'jetpack_sync_constants_whitelist', array( $helper, 'filter_override_array' ) );
+		add_filter( 'jetpack_sync_constants_allowlist', array( $helper, 'filter_override_array' ) );
 
 		$this->sender->do_sync();
 
@@ -435,7 +435,7 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 		$this->resetCallableAndConstantTimeouts();
 		$helper                 = new Jetpack_Sync_Test_Helper();
 		$helper->array_override = array( 'FOO_SYNC_ALL_CONSTANTS' );
-		add_filter( 'jetpack_sync_constants_whitelist', array( $helper, 'filter_override_array' ) );
+		add_filter( 'jetpack_sync_constants_allowlist', array( $helper, 'filter_override_array' ) );
 		$this->full_sync->start();
 		$this->sender->do_full_sync();
 
@@ -452,7 +452,7 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_sends_all_functions() {
-		Modules::get_module( "functions" )->set_callable_whitelist( array( 'jetpack_foo' => 'jetpack_foo_full_sync_callable' ) );
+		Modules::get_module( 'functions' )->set_callable_allowlist( array( 'jetpack_foo' => 'jetpack_foo_full_sync_callable' ) );
 		$this->sender->do_sync();
 
 		// reset the storage, check value, and do full sync - storage should be set!
@@ -467,7 +467,7 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_sends_all_functions_inverse() {
-		Modules::get_module( "functions" )->set_callable_whitelist( array( 'jetpack_foo' => 'jetpack_foo_full_sync_callable' ) );
+		Modules::get_module( 'functions' )->set_callable_allowlist( array( 'jetpack_foo' => 'jetpack_foo_full_sync_callable' ) );
 
 		// reset the storage, check value, and do full sync - storage should be set!
 		$this->server_replica_storage->reset();
@@ -490,10 +490,11 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 
 	function test_full_sync_sends_all_options() {
 		delete_option( 'non_existant' );
-		Modules::get_module( "options" )->set_options_whitelist( array(
-			'my_option',
-			'my_prefix_value',
-			'non_existant'
+		Modules::get_module( 'options' )->set_options_allowlist(
+			array(
+				'my_option',
+				'my_prefix_value',
+				'non_existant',
 		) );
 		update_option( 'my_option', 'foo' );
 		update_option( 'my_prefix_value', 'bar' );
@@ -534,9 +535,10 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 			$this->markTestSkipped( 'Run it in multi site mode' );
 		}
 
-		Modules::get_module( "network_options" )->set_network_options_whitelist( array(
-			'my_option',
-			'my_prefix_value'
+		Modules::get_module( 'network_options' )->set_network_options_allowlist(
+			array(
+				'my_option',
+				'my_prefix_value',
 		) );
 		update_site_option( 'my_option', 'foo' );
 		update_site_option( 'my_prefix_value', 'bar' );
@@ -566,7 +568,7 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 	function test_full_sync_sends_all_post_meta() {
 		$post_id = $this->factory->post->create();
 
-		Settings::update_settings( array( 'post_meta_whitelist' => array( 'test_meta_key', 'test_meta_array' ) ) );
+		Settings::update_settings( array( 'post_meta_allowlist' => array( 'test_meta_key', 'test_meta_array' ) ) );
 
 		add_post_meta( $post_id, 'test_meta_key', 'foo' );
 		add_post_meta( $post_id, 'test_meta_array', array( 'foo', 'bar' ) );
@@ -599,7 +601,7 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 		$post_id = $this->factory->post->create();
 
 		$meta_module = Modules::get_module( "meta" );
-		Settings::update_settings( array( 'post_meta_whitelist' => array( 'a_public_meta' ) ) );
+		Settings::update_settings( array( 'post_meta_allowlist' => array( 'a_public_meta' ) ) );
 
 		// forbidden private meta
 		add_post_meta( $post_id, '_test_meta_key', 'foo1' );
@@ -659,7 +661,7 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 		$comment_ids = $this->factory->comment->create_post_comments( $post_id );
 		$comment_id  = $comment_ids[0];
 
-		Settings::update_settings( array( 'comment_meta_whitelist' => array( 'test_meta_key' ) ) );
+		Settings::update_settings( array( 'comment_meta_allowlist' => array( 'test_meta_key' ) ) );
 
 		add_comment_meta( $comment_id, 'test_meta_key', 'foo' );
 
@@ -903,7 +905,7 @@ class WP_Test_Jetpack_Sync_Full_Immediately extends WP_Test_Jetpack_Sync_Base {
 		$this->assertInternalType( 'int', $full_sync_status['started'] );
 		$this->assertFalse( $full_sync_status['finished'] );
 		$this->assertInternalType( 'array', $full_sync_status['progress'] );
-		$this->assertEquals( count( \Automattic\Jetpack\Sync\Defaults::get_constants_whitelist() ), $full_sync_status['progress']['constants']['total'] );
+		$this->assertEquals( count( \Automattic\Jetpack\Sync\Defaults::get_constants_allowlist() ), $full_sync_status['progress']['constants']['total'] );
 	}
 
 	function test_full_sync_status_after_end() {

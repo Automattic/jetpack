@@ -14,13 +14,13 @@ use Automattic\Jetpack\Sync\Defaults;
  */
 class Network_Options extends Module {
 	/**
-	 * Whitelist for network options we want to sync.
+	 * Allowlist for network options we want to sync.
 	 *
 	 * @access private
 	 *
 	 * @var array
 	 */
-	private $network_options_whitelist;
+	private $network_options_allowlist;
 
 	/**
 	 * Sync module name.
@@ -50,10 +50,10 @@ class Network_Options extends Module {
 		add_action( 'update_site_option', $callable, 10, 3 );
 		add_action( 'delete_site_option', $callable, 10, 1 );
 
-		$whitelist_network_option_handler = array( $this, 'whitelist_network_options' );
-		add_filter( 'jetpack_sync_before_enqueue_delete_site_option', $whitelist_network_option_handler );
-		add_filter( 'jetpack_sync_before_enqueue_add_site_option', $whitelist_network_option_handler );
-		add_filter( 'jetpack_sync_before_enqueue_update_site_option', $whitelist_network_option_handler );
+		$allowlist_network_option_handler = array( $this, 'allowlist_network_options' );
+		add_filter( 'jetpack_sync_before_enqueue_delete_site_option', $allowlist_network_option_handler );
+		add_filter( 'jetpack_sync_before_enqueue_add_site_option', $allowlist_network_option_handler );
+		add_filter( 'jetpack_sync_before_enqueue_update_site_option', $allowlist_network_option_handler );
 	}
 
 	/**
@@ -89,12 +89,12 @@ class Network_Options extends Module {
 
 	/**
 	 * Set module defaults.
-	 * Define the network options whitelist based on the default one.
+	 * Define the network options allowlist based on the default one.
 	 *
 	 * @access public
 	 */
 	public function set_defaults() {
-		$this->network_options_whitelist = Defaults::$default_network_options_whitelist;
+		$this->network_options_allowlist = Defaults::$default_network_options_allowlist;
 	}
 
 	/**
@@ -176,7 +176,7 @@ class Network_Options extends Module {
 	}
 
 	/**
-	 * Retrieve all network options as per the current network options whitelist.
+	 * Retrieve all network options as per the current network options allowlist.
 	 *
 	 * @access public
 	 *
@@ -184,7 +184,7 @@ class Network_Options extends Module {
 	 */
 	public function get_all_network_options() {
 		$options = array();
-		foreach ( $this->network_options_whitelist as $option ) {
+		foreach ( $this->network_options_allowlist as $option ) {
 			$options[ $option ] = get_site_option( $option );
 		}
 
@@ -192,37 +192,37 @@ class Network_Options extends Module {
 	}
 
 	/**
-	 * Set the network options whitelist.
+	 * Set the network options allowlist.
 	 *
 	 * @access public
 	 *
-	 * @param array $options The new network options whitelist.
+	 * @param array $options The new network options allowlist.
 	 */
-	public function set_network_options_whitelist( $options ) {
-		$this->network_options_whitelist = $options;
+	public function set_network_options_allowlist( $options ) {
+		$this->network_options_allowlist = $options;
 	}
 
 	/**
-	 * Get the network options whitelist.
+	 * Get the network options allowlist.
 	 *
 	 * @access public
 	 *
-	 * @return array The network options whitelist.
+	 * @return array The network options allowlist.
 	 */
-	public function get_network_options_whitelist() {
-		return $this->network_options_whitelist;
+	public function get_network_options_allowlist() {
+		return $this->network_options_allowlist;
 	}
 
 	/**
-	 * Reject non-whitelisted network options.
+	 * Reject non-allowed network options.
 	 *
 	 * @access public
 	 *
 	 * @param array $args The hook parameters.
-	 * @return array|false $args The hook parameters, false if not a whitelisted network option.
+	 * @return array|false $args The hook parameters, false if not an allowed network option.
 	 */
-	public function whitelist_network_options( $args ) {
-		if ( ! $this->is_whitelisted_network_option( $args[0] ) ) {
+	public function allowlist_network_options( $args ) {
+		if ( ! $this->is_allowed_network_option( $args[0] ) ) {
 			return false;
 		}
 
@@ -230,15 +230,15 @@ class Network_Options extends Module {
 	}
 
 	/**
-	 * Whether the option is a whitelisted network option in a multisite system.
+	 * Whether the option is a allowed network option in a multisite system.
 	 *
 	 * @access public
 	 *
 	 * @param string $option Option name.
-	 * @return boolean True if this is a whitelisted network option.
+	 * @return boolean True if this is a allowed network option.
 	 */
-	public function is_whitelisted_network_option( $option ) {
-		return is_multisite() && in_array( $option, $this->network_options_whitelist, true );
+	public function is_allowed_network_option( $option ) {
+		return is_multisite() && in_array( $option, $this->network_options_allowlist, true );
 	}
 
 	/**
@@ -260,12 +260,9 @@ class Network_Options extends Module {
 	/**
 	 * Return Total number of objects.
 	 *
-	 * @param array $config Full Sync config.
-	 *
 	 * @return int total
 	 */
 	public function total( $config ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		return count( $this->network_options_whitelist );
+		return count( $this->network_options_allowlist );
 	}
-
 }

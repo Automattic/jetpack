@@ -82,8 +82,8 @@ class Actions {
 		// Sync connected user role changes to WordPress.com.
 		Users::init();
 
-		// Publicize filter to prevent publicizing blacklisted post types.
-		add_filter( 'publicize_should_publicize_published_post', array( __CLASS__, 'prevent_publicize_blacklisted_posts' ), 10, 2 );
+		// Publicize filter to prevent publicizing b;pcled post types.
+		add_filter( 'publicize_should_publicize_published_post', array( __CLASS__, 'prevent_publicize_blocked_posts' ), 10, 2 );
 
 		/**
 		 * Fires on every request before default loading sync listener code.
@@ -246,8 +246,8 @@ class Actions {
 	 * @param \WP_Post $post              The post to test for Publicizability.
 	 * @return bool
 	 */
-	public static function prevent_publicize_blacklisted_posts( $should_publicize, $post ) {
-		if ( in_array( $post->post_type, Settings::get_setting( 'post_types_blacklist' ), true ) ) {
+	public static function prevent_publicize_blocked_posts( $should_publicize, $post ) {
+		if ( in_array( $post->post_type, Settings::get_setting( 'post_types_blocklist' ), true ) ) {
 			return false;
 		}
 

@@ -74,7 +74,7 @@ class Jetpack_Sync_Settings {
 	 */
 	public static function get_blacklisted_post_types_sql() {
 		_deprecated_function( __METHOD__, 'jetpack-7.5', 'Automattic\Jetpack\Sync\Settings' );
-		return Settings::get_blacklisted_post_types_sql();
+		return Settings::get_blocklist_post_types_sql();
 	}
 
 	/**
@@ -86,7 +86,7 @@ class Jetpack_Sync_Settings {
 	 */
 	public static function get_whitelisted_post_meta_sql() {
 		_deprecated_function( __METHOD__, 'jetpack-7.5', 'Automattic\Jetpack\Sync\Settings' );
-		return Settings::get_whitelisted_post_meta_sql();
+		return Settings::get_allowed_post_meta_sql();
 	}
 
 	/**
@@ -96,7 +96,7 @@ class Jetpack_Sync_Settings {
 	 */
 	public static function get_whitelisted_comment_meta_sql() {
 		_deprecated_function( __METHOD__, 'jetpack-7.5', 'Automattic\Jetpack\Sync\Settings' );
-		return Settings::get_whitelisted_comment_meta_sql();
+		return Settings::get_allowed_comment_meta_sql();
 	}
 
 	/**

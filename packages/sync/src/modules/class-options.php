@@ -14,13 +14,13 @@ use Automattic\Jetpack\Sync\Defaults;
  */
 class Options extends Module {
 	/**
-	 * Whitelist for options we want to sync.
+	 * Allowlist for options we want to sync.
 	 *
 	 * @access private
 	 *
 	 * @var array
 	 */
-	private $options_whitelist;
+	private $options_allowlist;
 
 	/**
 	 * Contentless options we want to sync.
@@ -60,10 +60,10 @@ class Options extends Module {
 		add_action( 'update_option_site_icon', array( $this, 'jetpack_sync_core_icon' ) );
 		add_action( 'delete_option_site_icon', array( $this, 'jetpack_sync_core_icon' ) );
 
-		$whitelist_option_handler = array( $this, 'whitelist_options' );
-		add_filter( 'jetpack_sync_before_enqueue_deleted_option', $whitelist_option_handler );
-		add_filter( 'jetpack_sync_before_enqueue_added_option', $whitelist_option_handler );
-		add_filter( 'jetpack_sync_before_enqueue_updated_option', $whitelist_option_handler );
+		$allowlist_option_handler = array( $this, 'allowlist_options' );
+		add_filter( 'jetpack_sync_before_enqueue_deleted_option', $allowlist_option_handler );
+		add_filter( 'jetpack_sync_before_enqueue_added_option', $allowlist_option_handler );
+		add_filter( 'jetpack_sync_before_enqueue_updated_option', $allowlist_option_handler );
 	}
 
 	/**
@@ -89,12 +89,12 @@ class Options extends Module {
 
 	/**
 	 * Set module defaults.
-	 * Define the options whitelist and contentless options.
+	 * Define the options allowlist and contentless options.
 	 *
 	 * @access public
 	 */
 	public function set_defaults() {
-		$this->update_options_whitelist();
+		$this->update_options_allowlist();
 		$this->update_options_contentless();
 	}
 
@@ -105,9 +105,9 @@ class Options extends Module {
 	 */
 	public function set_late_default() {
 		/** This filter is already documented in json-endpoints/jetpack/class.wpcom-json-api-get-option-endpoint.php */
-		$late_options = apply_filters( 'jetpack_options_whitelist', array() );
+		$late_options = apply_filters( 'jetpack_options_allowlist', array() );
 		if ( ! empty( $late_options ) && is_array( $late_options ) ) {
-			$this->options_whitelist = array_merge( $this->options_whitelist, $late_options );
+			$this->options_allowlist = array_merge( $this->options_allowlist, $late_options );
 		}
 	}
 
@@ -178,7 +178,7 @@ class Options extends Module {
 	}
 
 	/**
-	 * Retrieve all options as per the current options whitelist.
+	 * Retrieve all options as per the current options allowlist.
 	 * Public so that we don't have to store so much data all the options twice.
 	 *
 	 * @access public
@@ -188,7 +188,7 @@ class Options extends Module {
 	public function get_all_options() {
 		$options       = array();
 		$random_string = wp_generate_password();
-		foreach ( $this->options_whitelist as $option ) {
+		foreach ( $this->options_allowlist as $option ) {
 			$option_value = get_option( $option, $random_string );
 			if ( $option_value !== $random_string ) {
 				$options[ $option ] = $option_value;
@@ -207,34 +207,34 @@ class Options extends Module {
 	}
 
 	/**
-	 * Update the options whitelist to the default one.
+	 * Update the options allowlist to the default one.
 	 *
 	 * @access public
 	 */
-	public function update_options_whitelist() {
-		$this->options_whitelist = Defaults::get_options_whitelist();
+	public function update_options_allowlist() {
+		$this->options_allowlist = Defaults::get_options_allowlist();
 	}
 
 	/**
-	 * Set the options whitelist.
+	 * Set the options allowlist.
 	 *
 	 * @access public
 	 *
-	 * @param array $options The new options whitelist.
+	 * @param array $options The new options allowlist.
 	 */
-	public function set_options_whitelist( $options ) {
-		$this->options_whitelist = $options;
+	public function set_options_allowlist( $options ) {
+		$this->options_allowlist = $options;
 	}
 
 	/**
-	 * Get the options whitelist.
+	 * Get the options allowlist.
 	 *
 	 * @access public
 	 *
-	 * @return array The options whitelist.
+	 * @return array The options allowlist.
 	 */
-	public function get_options_whitelist() {
-		return $this->options_whitelist;
+	public function get_options_allowlist() {
+		return $this->options_allowlist;
 	}
 
 	/**
@@ -258,16 +258,16 @@ class Options extends Module {
 	}
 
 	/**
-	 * Reject any options that aren't whitelisted or contentless.
+	 * Reject any options that aren't allowed or contentless.
 	 *
 	 * @access public
 	 *
 	 * @param array $args The hook parameters.
 	 * @return array $args The hook parameters.
 	 */
-	public function whitelist_options( $args ) {
-		// Reject non-whitelisted options.
-		if ( ! $this->is_whitelisted_option( $args[0] ) ) {
+	public function allowlist_options( $args ) {
+		// Reject non-allowed options.
+		if ( ! $this->is_allowed_option( $args[0] ) ) {
 			return false;
 		}
 
@@ -291,15 +291,15 @@ class Options extends Module {
 	}
 
 	/**
-	 * Whether a certain option is whitelisted for sync.
+	 * Whether a certain option is allowed for sync.
 	 *
 	 * @access public
 	 *
 	 * @param string $option Option name.
-	 * @return boolean Whether the option is whitelisted.
+	 * @return boolean Whether the option is allowed.
 	 */
-	public function is_whitelisted_option( $option ) {
-		return in_array( $option, $this->options_whitelist, true ) || 'theme_mods_' === substr( $option, 0, 11 );
+	public function is_allowed_option( $option ) {
+		return in_array( $option, $this->options_allowlist, true ) || 'theme_mods_' === substr( $option, 0, 11 );
 	}
 
 	/**
@@ -364,12 +364,10 @@ class Options extends Module {
 	/**
 	 * Return Total number of objects.
 	 *
-	 * @param array $config Full Sync config.
-	 *
 	 * @return int total
 	 */
 	public function total( $config ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		return count( Defaults::get_options_whitelist() );
+		return count( Defaults::get_options_allowlist() );
 	}
 
 }

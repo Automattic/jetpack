@@ -86,10 +86,10 @@ class Jetpack_Sync_Actions extends Automattic\Jetpack\Sync\Actions {
 	 * @param WP_Post $post the post object.
 	 * @return Boolean whether to prevent publicizing.
 	 */
-	public static function prevent_publicize_blacklisted_posts( $should_publicize, $post ) {
+	public static function prevent_publicize_blocked_posts( $should_publicize, $post ) {
 		_deprecated_function( __METHOD__, 'jetpack-7.5', 'Automattic\Jetpack\Sync\Actions' );
 
-		return Actions::prevent_publicize_blacklisted_posts( $should_publicize, $post );
+		return Actions::prevent_publicize_blocked_posts( $should_publicize, $post );
 	}
 
 	/**

@@ -19,7 +19,7 @@ class Defaults {
 	 *
 	 * @var array
 	 */
-	public static $default_options_whitelist = array(
+	public static $default_options_allowlist = array(
 		'stylesheet',
 		'blogname',
 		'blogdescription',
@@ -130,7 +130,7 @@ class Defaults {
 		'advanced_seo_title_formats', // Jetpack_SEO_Titles::TITLE_FORMATS_OPTION.
 		'jetpack_api_cache_enabled',
 		'start_of_week',
-		'blacklist_keys',
+		'blacklist_keys', // Core's comment blocklist.
 		'posts_per_page',
 		'posts_per_rss',
 		'show_on_front',
@@ -168,23 +168,35 @@ class Defaults {
 	);
 
 	/**
-	 * Return options whitelist filtered.
+	 * Return options allowlist filtered.
 	 *
-	 * @return array Options whitelist.
+	 * @return array Options allowlist.
 	 */
-	public static function get_options_whitelist() {
+	public static function get_options_allowlist() {
 		/** This filter is already documented in json-endpoints/jetpack/class.wpcom-json-api-get-option-endpoint.php */
-		$options_whitelist = apply_filters( 'jetpack_options_whitelist', self::$default_options_whitelist );
+		$options_allowlist = apply_filters( 'jetpack_options_allowlist', self::$default_options_allowlist );
 		/**
 		 * Filter the list of WordPress options that are manageable via the JSON API.
 		 *
 		 * @module sync
 		 *
 		 * @since 4.8.0
+		 * @deprecated 8.7.0
 		 *
 		 * @param array The default list of options.
 		 */
-		return apply_filters( 'jetpack_sync_options_whitelist', $options_whitelist );
+		$options_allowlist = apply_filters_deprecated( 'jetpack_sync_options_whitelist', array( $options_allowlist ), 'Jetpack 8.7.0', 'jetpack_sync_options_allowlist' );
+
+		/**
+		 * Filter the list of WordPress options that are manageable via the JSON API.
+		 *
+		 * @module sync
+		 *
+		 * @since 8.7.0
+		 *
+		 * @param array The default list of options.
+		 */
+		return apply_filters( 'jetpack_sync_options_allowlist', $options_allowlist );
 	}
 
 	/**
@@ -220,11 +232,11 @@ class Defaults {
 	}
 
 	/**
-	 * Array of defaulted constants whitelisted.
+	 * Array of defaulted constants allowlisted.
 	 *
-	 * @var array Default constants whitelist
+	 * @var array Default constants allowlist
 	 */
-	public static $default_constants_whitelist = array(
+	public static $default_constants_allowlist = array(
 		'EMPTY_TRASH_DAYS',
 		'WP_POST_REVISIONS',
 		'AUTOMATIC_UPDATER_DISABLED',
@@ -248,29 +260,41 @@ class Defaults {
 	);
 
 	/**
-	 * Get constants whitelisted by Sync.
+	 * Get constants allowlisted by Sync.
 	 *
 	 * @return array Constants accessible via sync.
 	 */
-	public static function get_constants_whitelist() {
+	public static function get_constants_allowlist() {
 		/**
 		 * Filter the list of PHP constants that are manageable via the JSON API.
 		 *
 		 * @module sync
 		 *
 		 * @since 4.8.0
+		 * @deprecated 8.7.0
 		 *
 		 * @param array The default list of constants options.
 		 */
-		return apply_filters( 'jetpack_sync_constants_whitelist', self::$default_constants_whitelist );
+		$allowlist = apply_filters_deprecated( 'jetpack_sync_constants_whitelist', array( self::$default_constants_allowlist ), 'Jetpack 8.7.0', 'jetpack_sync_constants_allowlist' );
+
+		/**
+		 * Filter the list of PHP constants that are manageable via the JSON API.
+		 *
+		 * @module sync
+		 *
+		 * @since 8.7.0
+		 *
+		 * @param array The default list of constants options.
+		 */
+		return apply_filters( 'jetpack_sync_constants_allowlist', $allowlist );
 	}
 
 	/**
 	 * Callables able to be managed via JSON API.
 	 *
-	 * @var array Default whitelist of callables.
+	 * @var array Default allowlist of callables.
 	 */
-	public static $default_callable_whitelist = array(
+	public static $default_callable_allowlist = array(
 		'wp_max_upload_size'               => 'wp_max_upload_size',
 		'is_main_network'                  => array( __CLASS__, 'is_multi_network' ),
 		'is_multi_site'                    => 'is_multisite',
@@ -341,12 +365,12 @@ class Defaults {
 	);
 
 	/**
-	 * Get the whitelist of callables allowed to be managed via the JSON API.
+	 * Get the allowlist of callables allowed to be managed via the JSON API.
 	 *
-	 * @return array Whitelist of callables allowed to be managed via the JSON API.
+	 * @return array Allowlist of callables allowed to be managed via the JSON API.
 	 */
-	public static function get_callable_whitelist() {
-		$default = self::$default_callable_whitelist;
+	public static function get_callable_allowlist() {
+		$default = self::$default_callable_allowlist;
 
 		if ( defined( 'JETPACK__PLUGIN_DIR' ) && include_once JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-helpers.php' ) {
 			$sso_helpers = array(
@@ -365,10 +389,22 @@ class Defaults {
 		 * @module sync
 		 *
 		 * @since 4.8.0
+		 * @deprecated 8.7.0
 		 *
 		 * @param array The default list of callables.
 		 */
-		return apply_filters( 'jetpack_sync_callable_whitelist', $default );
+		$default = apply_filters_deprecated( 'jetpack_sync_callable_whitelist', array( $default ), 'Jetpack 8.7.0', 'jetpack_sync_callable_allowlist' );
+
+		/**
+		 * Filter the list of callables that are manageable via the JSON API.
+		 *
+		 * @module sync
+		 *
+		 * @since 8.7.0
+		 *
+		 * @param array The default list of callables.
+		 */
+		return apply_filters( 'jetpack_sync_callable_allowlist', $default );
 	}
 
 	/**
@@ -376,9 +412,9 @@ class Defaults {
 	 *
 	 * These are usually automated post types (sitemaps, logs, etc).
 	 *
-	 * @var array Blacklisted post types.
+	 * @var array Blocked post types.
 	 */
-	public static $blacklisted_post_types = array(
+	public static $blocked_post_types = array(
 		'ai_log', // Logger - https://github.com/alleyinteractive/logger.
 		'ai1ec_event',
 		'bwg_album',
@@ -422,7 +458,7 @@ class Defaults {
 	 *
 	 * @var array
 	 */
-	public static $blacklisted_taxonomies = array(
+	public static $blocked_taxonomies = array(
 		'ancestors',
 		'archives_link',
 		'attached_file',
@@ -663,9 +699,9 @@ class Defaults {
 	/**
 	 * Default multisite callables able to be managed via JSON API.
 	 *
-	 * @var array multsite callables whitelisted
+	 * @var array multsite callables allowlisted.
 	 */
-	public static $default_multisite_callable_whitelist = array(
+	public static $default_multisite_callable_allowlist = array(
 		'network_name'                        => array( 'Jetpack', 'network_name' ),
 		'network_allow_new_registrations'     => array( 'Jetpack', 'network_allow_new_registrations' ),
 		'network_add_new_users'               => array( 'Jetpack', 'network_add_new_users' ),
@@ -675,29 +711,41 @@ class Defaults {
 	);
 
 	/**
-	 * Get array of multisite callables whitelisted.
+	 * Get array of multisite callables allowed.
 	 *
 	 * @return array Multisite callables managable via JSON API.
 	 */
-	public static function get_multisite_callable_whitelist() {
+	public static function get_multisite_callable_allowlist() {
 		/**
 		 * Filter the list of multisite callables that are manageable via the JSON API.
 		 *
 		 * @module sync
 		 *
 		 * @since 4.8.0
+		 * @deprecated 8.7.0
 		 *
 		 * @param array The default list of multisite callables.
 		 */
-		return apply_filters( 'jetpack_sync_multisite_callable_whitelist', self::$default_multisite_callable_whitelist );
+		$list = apply_filters_deprecated( 'jetpack_sync_multisite_callable_whitelist', array( self::$default_multisite_callable_allowlist ), 'Jetpack 8.7.0', 'jetpack_sync_multisite_callable_allowlist' );
+
+		/**
+		 * Filter the list of multisite callables that are manageable via the JSON API.
+		 *
+		 * @module sync
+		 *
+		 * @since 8.7.0
+		 *
+		 * @param array The default list of multisite callables.
+		 */
+		return apply_filters( 'jetpack_sync_multisite_callable_allowlist', $list );
 	}
 
 	/**
-	 * Array of post meta keys whitelisted.
+	 * Array of post meta keys allowlisted.
 	 *
-	 * @var array Post meta whitelist.
+	 * @var array Post meta allowlist.
 	 */
-	public static $post_meta_whitelist = array(
+	public static $post_meta_allowlist = array(
 		'_feedback_akismet_values',
 		'_feedback_email',
 		'_feedback_extra_fields',
@@ -738,11 +786,23 @@ class Defaults {
 	);
 
 	/**
-	 * Get the post meta key whitelist.
+	 * Get the post meta key allowlist.
 	 *
-	 * @return array Post meta whitelist.
+	 * @return array Post meta allowlist.
 	 */
-	public static function get_post_meta_whitelist() {
+	public static function get_post_meta_allowlist() {
+		/**
+		 * Filter the list of post meta data that are manageable via the JSON API.
+		 *
+		 * @module sync
+		 *
+		 * @since 4.8.0
+		 * @deprecated 8.7.0
+		 *
+		 * @param array The default list of meta data keys.
+		 */
+		$list = apply_filters_deprecated( 'jetpack_sync_post_meta_whitelist', array( self::$post_meta_allowlist ), 'Jetpack 8.7.0', 'jetpack_sync_post_meta_allowlist' );
+
 		/**
 		 * Filter the list of post meta data that are manageable via the JSON API.
 		 *
@@ -752,15 +812,15 @@ class Defaults {
 		 *
 		 * @param array The default list of meta data keys.
 		 */
-		return apply_filters( 'jetpack_sync_post_meta_whitelist', self::$post_meta_whitelist );
+		return apply_filters( 'jetpack_sync_post_meta_allowlist', $list );
 	}
 
 	/**
-	 * Comment meta whitelist.
+	 * Comment meta allowlist.
 	 *
-	 * @var array Comment meta whitelist.
+	 * @var array Comment meta allowlist.
 	 */
-	public static $comment_meta_whitelist = array(
+	public static $comment_meta_allowlist = array(
 		'hc_avatar',
 		'hc_post_as',
 		'hc_wpcom_id_sig',
@@ -768,32 +828,44 @@ class Defaults {
 	);
 
 	/**
-	 * Get the comment meta whitelist.
+	 * Get the comment meta allowlist.
 	 *
 	 * @return array
 	 */
-	public static function get_comment_meta_whitelist() {
+	public static function get_comment_meta_allowlist() {
 		/**
 		 * Filter the list of comment meta data that are manageable via the JSON API.
 		 *
 		 * @module sync
 		 *
 		 * @since 5.7.0
+		 * @deprecated 8.7.0
 		 *
 		 * @param array The default list of comment meta data keys.
 		 */
-		return apply_filters( 'jetpack_sync_comment_meta_whitelist', self::$comment_meta_whitelist );
+		$list = apply_filters_deprecated( 'jetpack_sync_comment_meta_whitelist', array( self::$comment_meta_allowlist ), 'Jetpack 8.7.0', 'jetpack_sync_comment_meta_allowlist' );
+
+		/**
+		 * Filter the list of comment meta data that are manageable via the JSON API.
+		 *
+		 * @module sync
+		 *
+		 * @since 8.7.0
+		 *
+		 * @param array The default list of comment meta data keys.
+		 */
+		return apply_filters( 'jetpack_sync_comment_meta_allowlist', $list );
 	}
 
 	/**
-	 * Default theme support whitelist.
+	 * Default theme support allowlist.
 	 *
 	 * @todo move this to server? - these are theme support values
 	 * that should be synced as jetpack_current_theme_supports_foo option values
 	 *
-	 * @var array Default theme support whitelist.
+	 * @var array Default theme support allowlist.
 	 */
-	public static $default_theme_support_whitelist = array(
+	public static $default_theme_support_allowlist = array(
 		'post-thumbnails',
 		'post-formats',
 		'custom-header',
@@ -814,17 +886,17 @@ class Defaults {
 	);
 
 	/**
-	 * Is an option whitelisted?
+	 * Is an option allowed?
 	 *
 	 * @param string $option Option name.
-	 * @return bool If option is on the whitelist.
+	 * @return bool If option is on the allowlist.
 	 */
-	public static function is_whitelisted_option( $option ) {
-		$whitelisted_options = self::get_options_whitelist();
-		foreach ( $whitelisted_options as $whitelisted_option ) {
-			if ( '/' === $whitelisted_option[0] && preg_match( $whitelisted_option, $option ) ) {
+	public static function is_allowed_option( $option ) {
+		$allowed_options = self::get_options_allowlist();
+		foreach ( $allowed_options as $allowed_option ) {
+			if ( '/' === $allowed_option[0] && preg_match( $allowed_option, $option ) ) {
 				return true;
-			} elseif ( $whitelisted_option === $option ) {
+			} elseif ( $allowed_option === $option ) {
 				return true;
 			}
 		}
@@ -833,11 +905,11 @@ class Defaults {
 	}
 
 	/**
-	 * Default whitelist of capabilities to sync.
+	 * Default allowlist of capabilities to sync.
 	 *
 	 * @var array Array of WordPress capabilities.
 	 */
-	public static $default_capabilities_whitelist = array(
+	public static $default_capabilities_allowlist = array(
 		'switch_themes',
 		'edit_themes',
 		'edit_theme_options',
@@ -897,21 +969,33 @@ class Defaults {
 	);
 
 	/**
-	 * Get default capabilities whitelist.
+	 * Get default capabilities allowlist..
 	 *
 	 * @return array
 	 */
-	public static function get_capabilities_whitelist() {
+	public static function get_capabilities_allowlist() {
 		/**
 		 * Filter the list of capabilities that we care about
 		 *
 		 * @module sync
 		 *
 		 * @since 5.5.0
+		 * @deprecated 8.7.0
 		 *
 		 * @param array The default list of capabilities.
 		 */
-		return apply_filters( 'jetpack_sync_capabilities_whitelist', self::$default_capabilities_whitelist );
+		$list = apply_filters_deprecated( 'jetpack_sync_capabilities_whitelist', array( self::$default_capabilities_allowlist ), 'Jetpack 8.7.0', 'jetpack_sync_capabilities_allowlist' );
+
+		/**
+		 * Filter the list of capabilities that we care about
+		 *
+		 * @module sync
+		 *
+		 * @since 8.7.0
+		 *
+		 * @param array The default list of capabilities.
+		 */
+		return apply_filters( 'jetpack_sync_capabilities_allowlist', $list );
 	}
 
 	/**
@@ -944,7 +1028,7 @@ class Defaults {
 	 *
 	 * @var array network options
 	 */
-	public static $default_network_options_whitelist = array(
+	public static $default_network_options_allowlist = array(
 		'site_name',
 		'jetpack_protect_key',
 		'jetpack_protect_global_whitelist',
@@ -1073,39 +1157,39 @@ class Defaults {
 	public static $default_queue_max_writes_sec = 100; // 100 rows a second.
 
 	/**
-	 * Default for post types blacklist.
+	 * Default for post types blocklist.
 	 *
 	 * @var array Empty array.
 	 */
-	public static $default_post_types_blacklist = array();
+	public static $default_post_types_blocklist = array();
 
 	/**
-	 * Default for taxonomies blacklist.
+	 * Default for taxonomies blocklist.
 	 *
 	 * @var array Empty array.
 	 */
-	public static $default_taxonomies_blacklist = array();
+	public static $default_taxonomies_blocklist = array();
 
 	/**
-	 * Default for taxonomies whitelist.
+	 * Default for taxonomies allowlist.
 	 *
 	 * @var array Empty array.
 	 */
-	public static $default_taxonomy_whitelist = array();
+	public static $default_taxonomy_allowlist = array();
 
 	/**
-	 * Default for post meta whitelist.
+	 * Default for post meta allowlist.
 	 *
 	 * @var array Empty array.
 	 */
-	public static $default_post_meta_whitelist = array();
+	public static $default_post_meta_allowlist = array();
 
 	/**
-	 * Default for comment meta whitelist.
+	 * Default for comment meta allowlist.
 	 *
 	 * @var array Empty array.
 	 */
-	public static $default_comment_meta_whitelist = array();
+	public static $default_comment_meta_allowlist = array();
 
 	/**
 	 * Default for disabling sync across the site.

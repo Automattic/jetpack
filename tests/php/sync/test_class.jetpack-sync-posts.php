@@ -613,9 +613,9 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	/**
-	 * Tests that jetpack_sync_save_post events are not sent for blacklisted post_types
+	 * Tests that jetpack_sync_save_post events are not sent for blocked post_types
 	 */
-	function test_filters_out_blacklisted_post_types() {
+	public function test_filters_out_blocked_post_types() {
 		$args = array(
 			'public' => true,
 			'label'  => 'Snitch'
@@ -633,9 +633,9 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	/**
-	 * Tests that jetpack_published_post events are not sent for blacklisted post_types.
+	 * Tests that jetpack_published_post events are not sent for blocked post_types.
 	 */
-	public function test_filters_out_blacklisted_post_types_jetpack_published_post() {
+	public function test_filters_out_blocked_post_types_jetpack_published_post() {
 		$args = array(
 			'public' => true,
 			'label'  => 'Snitch',
@@ -653,9 +653,9 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	/**
-	 * Tests that deleted_post events are not sent for blacklisted post_types.
+	 * Tests that deleted_post events are not sent for blocked post_types.
 	 */
-	public function test_filters_out_blacklisted_post_types_deleted_posts() {
+	public function test_filters_out_blocked_post_types_deleted_posts() {
 
 		$args = array(
 			'public' => true,
@@ -674,7 +674,10 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 	}
 
-	function test_filters_out_blacklisted_post_types_and_their_post_meta() {
+	/**
+	 * Filters out blocked CPTs and their meta.
+	 */
+	public function test_filters_out_blocked_post_types_and_their_post_meta() {
 		$args = array(
 			'public' => true,
 			'label'  => 'Snitch'
@@ -692,7 +695,10 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 	}
 
-	function test_post_types_blacklist_can_be_appended_in_settings() {
+	/**
+	 * Tests if blocked CPTs can be added via settings.
+	 */
+	public function test_post_types_blocked_can_be_appended_in_settings() {
 		register_post_type( 'filter_me', array( 'public' => true, 'label' => 'Filter Me' ) );
 
 		$post_id = $this->factory->post->create( array( 'post_type' => 'filter_me' ) );
@@ -702,7 +708,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		// first, show that post is being synced
 		$this->assertTrue( !! $this->server_replica_storage->get_post( $post_id ) );
 
-		Settings::update_settings( array( 'post_types_blacklist' => array( 'filter_me' ) ) );
+		Settings::update_settings( array( 'post_types_blocklist' => array( 'filter_me' ) ) );
 
 		$post_id = $this->factory->post->create( array( 'post_type' => 'filter_me' ) );
 
@@ -710,23 +716,26 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertFalse( $this->server_replica_storage->get_post( $post_id ) );
 
-		// also assert that the post types blacklist still contains the hard-coded values
-		$setting = Settings::get_setting( 'post_types_blacklist' );
+		// also assert that the post types blocklist still contains the hard-coded values.
+		$setting = Settings::get_setting( 'post_types_blocklist' );
 
 		$this->assertTrue( in_array( 'filter_me', $setting ) );
 
-		foreach( Defaults::$blacklisted_post_types as $hardcoded_blacklist_post_type ) {
-			$this->assertTrue( in_array( $hardcoded_blacklist_post_type, $setting ) );
+		foreach ( Defaults::$blocked_post_types as $hardcoded_blocked_post_type ) {
+			$this->assertTrue( in_array( $hardcoded_blocked_post_type, $setting, true ) );
 		}
 	}
 
-	function test_does_not_publicize_blacklisted_post_types() {
+	/**
+	 * Tests that publicize does not work for blocked post types.
+	 */
+	public function test_does_not_publicize_blocked_post_types() {
 		register_post_type( 'dont_publicize_me', array( 'public' => true, 'label' => 'Filter Me' ) );
 		$post_id = $this->factory->post->create( array( 'post_type' => 'dont_publicize_me' ) );
 
 		$this->assertTrue( apply_filters( 'publicize_should_publicize_published_post', true, get_post( $post_id ) ) );
 
-		Settings::update_settings( array( 'post_types_blacklist' => array( 'dont_publicize_me' ) ) );
+		Settings::update_settings( array( 'post_types_blocklist' => array( 'dont_publicize_me' ) ) );
 
 		$this->assertFalse( apply_filters( 'publicize_should_publicize_published_post', true, get_post( $post_id ) ) );
 

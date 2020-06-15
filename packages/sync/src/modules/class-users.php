@@ -236,7 +236,7 @@ class Users extends Module {
 		if ( is_wp_error( $user ) ) {
 			return $user_capabilities;
 		}
-		foreach ( Defaults::get_capabilities_whitelist() as $capability ) {
+		foreach ( Defaults::get_capabilities_allowlist() as $capability ) {
 			if ( user_can( $user, $capability ) ) {
 				$user_capabilities[ $capability ] = true;
 			}
