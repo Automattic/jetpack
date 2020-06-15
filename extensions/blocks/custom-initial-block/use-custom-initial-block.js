@@ -6,8 +6,10 @@ import { get, isEmpty } from 'lodash';
 /**
  * WordPress dependencies
  */
+import apiFetch from '@wordpress/api-fetch';
 import { createBlock } from '@wordpress/blocks';
 import { useDispatch, useSelect } from '@wordpress/data';
+import { useState } from '@wordpress/element';
 import { addQueryArgs } from '@wordpress/url';
 
 export default function useCustomInitialBlock() {
@@ -15,19 +17,39 @@ export default function useCustomInitialBlock() {
 		postBlocks: select( 'core/block-editor' ).getBlocks(),
 	} ) );
 	const { insertBlock, replaceBlock } = useDispatch( 'core/block-editor' );
+	const [ isSaving, setIsSaving ] = useState( false );
 
-	const setCustomInitialBlock = block => () => {
+	const setCustomInitialBlock = block => async () => {
+		setIsSaving( true );
+
+		let shouldReload = true;
 		if ( isEmpty( postBlocks ) ) {
-			return insertBlock( createBlock( block ), 0 );
+			shouldReload = false;
+			insertBlock( createBlock( block ), 0 );
+		} else if (
+			postBlocks.length === 1 &&
+			isEmpty( get( postBlocks, [ 0, 'attributes', 'content' ] ) )
+		) {
+			shouldReload = false;
+			replaceBlock( get( postBlocks, [ 0, 'clientId' ] ), createBlock( block ) );
 		}
 
-		if ( postBlocks.length === 1 && isEmpty( get( postBlocks, [ 0, 'attributes', 'content' ] ) ) ) {
-			return replaceBlock( get( postBlocks, [ 0, 'clientId' ] ), createBlock( block ) );
+		await apiFetch( {
+			path: '/wpcom/v2/custom-initial-block',
+			method: 'POST',
+			data: { block },
+		} );
+
+		setIsSaving( false );
+
+		if ( ! shouldReload ) {
+			return;
 		}
 
-		const reloadUrl = addQueryArgs( document.location.href, { 'custom-initial-block': block } );
-		document.location.href = reloadUrl;
+		document.location.href = addQueryArgs( document.location.href, {
+			'custom-initial-block': block,
+		} );
 	};
 
-	return { setCustomInitialBlock };
+	return { isSaving, setCustomInitialBlock };
 }

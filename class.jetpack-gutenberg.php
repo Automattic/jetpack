@@ -1149,17 +1149,10 @@ class Jetpack_Gutenberg {
 	public static function insert_custom_initial_block( $settings, $post ) {
 		$is_new_post = 'auto-draft' === $post->post_status;
 
-		$allowed_initial_blocks = array(
-			'core/paragraph',
-			'core/freeform',
-			'core/html',
-			'jetpack/markdown',
-		);
-
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended
 		if (
 			isset( $_GET['custom-initial-block'] ) &&
-			in_array( $_GET['custom-initial-block'], $allowed_initial_blocks, true ) &&
+			self::is_custom_initial_block_allowed( $_GET['custom-initial-block'] ) &&
 			$is_new_post &&
 			! isset( $settings['template'] )
 		) {
@@ -1168,5 +1161,27 @@ class Jetpack_Gutenberg {
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		return $settings;
+	}
+
+	/**
+	 * Check if the block name is allowed to be used as custom initial block.
+	 *
+	 * @param string $block The block name to test.
+	 *
+	 * @return bool
+	 */
+	public static function is_custom_initial_block_allowed( $block ) {
+		if ( empty( $block ) ) {
+			return false;
+		}
+
+		$allowed_initial_blocks = array(
+			'core/paragraph',
+			'core/freeform',
+			'core/html',
+			'jetpack/markdown',
+		);
+
+		return in_array( $block, $allowed_initial_blocks, true );
 	}
 }

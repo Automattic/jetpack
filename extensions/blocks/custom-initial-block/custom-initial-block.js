@@ -33,20 +33,29 @@ const markdown = (
 	</SVG>
 );
 export default function CustomInitialBlock() {
-	const { setCustomInitialBlock } = useCustomInitialBlock();
+	const { isSaving, setCustomInitialBlock } = useCustomInitialBlock();
 
 	return (
 		<>
 			<PluginMoreMenuItem
+				disabled={ isSaving }
 				icon="editor-kitchensink"
 				onClick={ setCustomInitialBlock( 'core/freeform' ) }
 			>
 				Use Classic block as default
 			</PluginMoreMenuItem>
-			<PluginMoreMenuItem icon={ markdown } onClick={ setCustomInitialBlock( 'jetpack/markdown' ) }>
+			<PluginMoreMenuItem
+				disabled={ isSaving }
+				icon={ markdown }
+				onClick={ setCustomInitialBlock( 'jetpack/markdown' ) }
+			>
 				Use Markdown block as default
 			</PluginMoreMenuItem>
-			<PluginMoreMenuItem icon={ html } onClick={ setCustomInitialBlock( 'core/html' ) }>
+			<PluginMoreMenuItem
+				disabled={ isSaving }
+				icon={ html }
+				onClick={ setCustomInitialBlock( 'core/html' ) }
+			>
 				Use HTML block as default
 			</PluginMoreMenuItem>
 		</>
