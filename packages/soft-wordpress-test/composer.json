@@ -5,7 +5,7 @@
 	"license": "GPL-2.0-or-later",
 	"require-dev": {
 		"phpunit/phpunit": "^5.7 || ^6.5 || ^7.5",
-		"roots/wordpress": "^5.2"
+		"leogermani/wordbless": "@dev"
 	},
 	"autoload": {
 		"classmap": [
@@ -16,12 +16,17 @@
 		"phpunit": [
 			"@composer install",
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
-		]
+		],
+		"post-update-cmd": "php -r \"copy('vendor/leogermani/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
 	},
 	"repositories": [
 		{
 			"type": "path",
 			"url": "../*"
+		},
+		{
+			"type": "vcs",
+			"url": "https://github.com/leogermani/wordbless"
 		}
 	],
 	"minimum-stability": "dev",
