@@ -47,11 +47,11 @@ describe( 'Paid blocks', () => {
 		} );
 	} );
 
-	it( 'Simple Payment block', async () => {
+	it( 'Pay with PayPal', async () => {
 		let blockEditor;
 		let blockInfo;
 
-		await step( 'Can visit the block editor and add a Simple Payment block', async () => {
+		await step( 'Can visit the block editor and add a Pay with PayPal button', async () => {
 			blockEditor = await BlockEditorPage.visit( page );
 			await blockEditor.waitForAvailableBlock( SimplePaymentBlock.name() );
 
@@ -61,12 +61,12 @@ describe( 'Paid blocks', () => {
 			);
 		} );
 
-		await step( 'Can fill details of Simple Payment block', async () => {
+		await step( 'Can fill details of Pay with PayPal button', async () => {
 			const spBlock = new SimplePaymentBlock( blockInfo, page );
 			await spBlock.fillDetails();
 		} );
 
-		await step( 'Can publish a post and assert that Simple Payment block is rendered', async () => {
+		await step( 'Can publish a post and assert that Pay with PayPal button is rendered', async () => {
 			await blockEditor.focus();
 			await blockEditor.publishPost();
 			await blockEditor.viewPost();
