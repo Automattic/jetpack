@@ -3,11 +3,12 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
+import { createContext } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
-import UpgradeNudge from "../components/upgrade-nudge";
+import UpgradeNudge from "../../components/upgrade-nudge";
 
 /**
  * Nudge shows when the user tries to upload a video file.
@@ -35,3 +36,29 @@ export const JetpackCoverUpgradeNudge = ( { name, show } ) =>
 			subtitle={ false }
 		/>
 		: null;
+
+/**
+ * Cover Media context
+ * Used to connect the CoverEdit with
+ * the Media Replace Flow.
+ */
+export const CoverMediaContext = createContext();
+
+/**
+ * Cover Media Provider will populate the properties
+ * from the CoverEdit to the Media Replace Flow component.
+ *
+ * @param {object}  props - Provider properties.
+ * @param {string}  props.onFilesUpload - Callback function before to upload files.
+ * @param {boolean} props.children - Provider Children.
+ * @returns {*} Provider component.
+ */
+export const CoverMediaProvider = ( { onFilesUpload, children } ) => {
+	return (
+		<CoverMediaContext.Provider value={ {
+			onFilesUpload,
+		} }>
+			{ children }
+		</CoverMediaContext.Provider>
+	);
+};

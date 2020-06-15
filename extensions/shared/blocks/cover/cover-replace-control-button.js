@@ -12,7 +12,7 @@ import { createHigherOrderComponent } from '@wordpress/compose';
 /**
  * Internal dependencies
  */
-import { CoverMediaContext } from './index';
+import { CoverMediaContext } from './components';
 import { isUpgradable } from "./utils";
 
 export default createHigherOrderComponent( MediaReplaceFlow => props => {

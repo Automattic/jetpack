@@ -7,7 +7,7 @@
  */
 import { addFilter } from '@wordpress/hooks';
 import { useBlockEditContext } from '@wordpress/block-editor';
-import { useEffect, useState, Fragment, createContext } from '@wordpress/element';
+import { useEffect, useState, Fragment } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -15,39 +15,15 @@ import { useEffect, useState, Fragment, createContext } from '@wordpress/element
 import coverEditMediaPlaceholder from './cover-media-placeholder';
 import isCurrentUserConnected from "../../is-current-user-connected";
 import coverMediaReplaceFlow from './cover-replace-control-button';
-import { JetpackCoverUpgradeNudge } from './components';
+import { JetpackCoverUpgradeNudge, CoverMediaProvider } from './components';
 import { isUpgradable, isVideoFile } from "./utils";
+
 import './editor.scss';
-
-/**
- * Cover Media context
- * Used to connect the CoverEdit with
- * the Media Replace Flow.
- */
-export const CoverMediaContext = createContext();
-
-/**
- * Cover Media Provider will populate the properties
- * from the CoverEdit to the Media Replace Flow component.
- *
- * @param {object}  props - Provider properties.
- * @param {string}  props.onFilesUpload - Callback function before to upload files.
- * @param {boolean} props.children - Provider Children.
- * @returns {*} Provider component.
- */
-const CoverMediaProvider = ( { onFilesUpload, children } ) => {
-	return (
-		<CoverMediaContext.Provider value={ {
-			onFilesUpload,
-		} }>
-			{ children }
-		</CoverMediaContext.Provider>
-	);
-};
 
 const jetpackEditBlock = BlockEdit => props => {
 	const { name } = useBlockEditContext();
 	const [ showNudge, setShowNudge ] = useState( false );
+	console.log( { name } );
 
 	// Remove Nudge if the block changes its attributes.
 	const { attributes } = props;
