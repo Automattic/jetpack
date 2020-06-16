@@ -130,6 +130,15 @@ class WPCOM_JSON_API_List_Roles_Endpoint extends WPCOM_JSON_API_Endpoint {
 		// Sort the array so roles with the most number of capabilities comes first, then the next role, and so on
 		usort( $roles, array( 'self', 'role_sort' ) );
 
+		/**
+		 * Filter for curating the list of roles available for a wpcom site.
+		 *
+		 * @module json-api
+		 *
+		 * @since 5.4.2
+		 *
+		 * @param array List of role objects available to the site.
+		 */
 		$roles = apply_filters( 'wpcom_api_site_roles', $roles );
 
 		return array( 'roles' => $roles );
