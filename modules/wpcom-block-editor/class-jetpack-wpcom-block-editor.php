@@ -110,12 +110,12 @@ class Jetpack_WPCOM_Block_Editor {
 	 * while trying to access the block editor from wordpress.com.
 	 */
 	public function allow_block_editor_login() {
-		$this->check_iframe_cookie_setting();
-
 		// phpcs:ignore WordPress.Security.NonceVerification
 		if ( empty( $_REQUEST['redirect_to'] ) ) {
 			return;
 		}
+
+		$this->check_iframe_cookie_setting();
 
 		// phpcs:ignore WordPress.Security.NonceVerification
 		$query = wp_parse_url( urldecode( $_REQUEST['redirect_to'] ), PHP_URL_QUERY );
