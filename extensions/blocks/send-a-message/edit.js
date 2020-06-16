@@ -3,9 +3,7 @@
  */
 import { InnerBlocks } from '@wordpress/block-editor';
 
-export default function SendAMessageEdit( props ) {
-	const { className } = props;
-
+export default function SendAMessageEdit( { className } ) {
 	// Default template is single WhatsApp block until we offer
 	// more services
 	const DEFAULT_TEMPLATE = [ [ 'jetpack/whatsapp-button', {} ] ];
