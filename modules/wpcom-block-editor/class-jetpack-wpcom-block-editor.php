@@ -92,7 +92,7 @@ class Jetpack_WPCOM_Block_Editor {
 	 * force the editor to break out of the iFrame.
 	 */
 	private function check_iframe_cookie_setting() {
-		if ( ! strpos( $_SERVER['QUERY_STRING'], 'calypsoify%3D1%26block-editor' ) || isset( $_COOKIE['wordpress_test_cookie'] ) ) {
+		if ( ! isset( $_SERVER['QUERY_STRING'] ) || ! strpos( $_SERVER['QUERY_STRING'], 'calypsoify%3D1%26block-editor' ) || isset( $_COOKIE['wordpress_test_cookie'] ) ) {
 			return;
 		}
 
