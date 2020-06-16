@@ -29,6 +29,7 @@ const jetpackEditBlock = createHigherOrderComponent(
 
 		// Remove Nudge if the block changes its attributes.
 		const { attributes } = props;
+		const { align } = attributes;
 		useEffect( () => setShowNudge( false ), [ attributes ] );
 
 		if ( ! isUpgradable( name ) ) {
@@ -50,7 +51,7 @@ const jetpackEditBlock = createHigherOrderComponent(
 		return (
 			<Fragment>
 				<CoverMediaProvider onFilesUpload={ handleFilesPreUpload }>
-					<JetpackCoverUpgradeNudge show={ showNudge } name={ name } />
+					<JetpackCoverUpgradeNudge show={ showNudge } name={ name } align={ align } />
 					<BlockEdit { ...props } />
 				</CoverMediaProvider>
 			</Fragment>

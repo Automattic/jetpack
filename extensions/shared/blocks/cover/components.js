@@ -24,17 +24,19 @@ import UpgradeNudge from "../../components/upgrade-nudge";
  * @param {boolean} props.show - Show the Nudge component.
  * @returns {*} Nudge component or Null.
  */
-export const JetpackCoverUpgradeNudge = ( { name, show } ) =>
+export const JetpackCoverUpgradeNudge = ( { name, show, align } ) =>
 	show
-		? <UpgradeNudge
-			plan="value_bundle"
-			blockName={ name }
-			title={ {
-				knownPlan: __( 'To use a video in this block, upgrade to %(planName)s.', 'jetpack' ),
-				unknownPlan: __( 'To use a video in this block, upgrade to a paid plan.', 'jetpack' ),
-			} }
-			subtitle={ false }
-		/>
+		? <div className="jetpack-upgrade-nudge-wrapper wp-block" data-align={ align }>
+			<UpgradeNudge
+				plan="value_bundle"
+				blockName={ name }
+				title={ {
+					knownPlan: __( 'To use a video in this block, upgrade to %(planName)s.', 'jetpack' ),
+					unknownPlan: __( 'To use a video in this block, upgrade to a paid plan.', 'jetpack' ),
+				} }
+				subtitle={ false }
+			/>
+		</div>
 		: null;
 
 /**
