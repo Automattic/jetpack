@@ -14,26 +14,30 @@ class Test_Mobile extends TestCase {
 	/**
 	 * The is_mobile tests.
 	 *
-	 * @param string $ua              User agent string.
-	 * @param bool   $expected_dumb   Expected value for `dumb` mobile detection.
-	 * @param bool   $expected_smart  Expected value for `smart` mobile detection.
-	 * @param bool   $expected_mobile Expected value for `any` mobile detection.
+	 * @param string $ua                   User agent string.
+	 * @param bool   $expected_dumb        Expected value for `dumb` mobile detection.
+	 * @param bool   $expected_smart       Expected value for `smart` mobile detection.
+	 * @param bool   $expected_mobile      Expected value for `any` mobile detection.
+	 * @param bool   $expected_ua_returned Expected value for UA returned by the method.
 	 *
 	 * @return void
 	 *
 	 * @dataProvider ua_provider
 	 */
-	public function test_is_mobile( $ua, $expected_dumb, $expected_smart, $expected_mobile ) {
+	public function test_is_mobile( $ua, $expected_dumb, $expected_smart, $expected_mobile, $expected_ua_returned ) {
 		$_SERVER['HTTP_USER_AGENT'] = $ua;
 
-		$dumb_test   = Mobile::is_mobile( 'dumb', false );
-		$smart_test  = Mobile::is_mobile( 'smart', false );
-		$mobile_test = Mobile::is_mobile( 'any', false );
+		$dumb_test      = Mobile::is_mobile( 'dumb', false );
+		$smart_test     = Mobile::is_mobile( 'smart', false );
+		$mobile_test    = Mobile::is_mobile( 'any', false );
+		$mobile_test_ua = Mobile::is_mobile( 'any', true );
 
 		$this->assertEquals( $dumb_test, $expected_dumb );
 		$this->assertEquals( $smart_test, $expected_smart );
 		$this->assertEquals( $mobile_test, $expected_mobile );
+		$this->assertEquals( $mobile_test_ua, $expected_mobile ? $expected_ua_returned : false );
 	}
+
 
 	/**
 	 * Data provider for test_is_mobile.
@@ -49,6 +53,7 @@ class Test_Mobile extends TestCase {
 				true,
 				false,
 				true,
+				'nokia',
 			),
 
 			// Samsung Galaxy S8 smart phone.
@@ -57,6 +62,7 @@ class Test_Mobile extends TestCase {
 				false,
 				true,
 				true,
+				'android',
 			),
 
 			// iPhone X smart phone.
@@ -65,6 +71,7 @@ class Test_Mobile extends TestCase {
 				false,
 				true,
 				true,
+				'iphone',
 			),
 
 			// iPad 2 10.5 tablet.
@@ -73,6 +80,7 @@ class Test_Mobile extends TestCase {
 				false,
 				false,
 				false, // not considered a mobile device, this is intended.
+				false,
 			),
 
 			// Kindle 3.
@@ -81,6 +89,7 @@ class Test_Mobile extends TestCase {
 				false,
 				true,
 				true,
+				'android',
 			),
 
 			// Huawei p20 smartphone.
@@ -89,6 +98,7 @@ class Test_Mobile extends TestCase {
 				false,
 				true,
 				true,
+				'android',
 			),
 
 			// Googlebot smartphone.
@@ -97,11 +107,13 @@ class Test_Mobile extends TestCase {
 				false,
 				true,
 				true,
+				'android',
 			),
 
 			// Googlebot desktop.
 			array(
 				'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
+				false,
 				false,
 				false,
 				false,
