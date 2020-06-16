@@ -47,6 +47,8 @@ class Full_Sync_Immediately extends Module {
 	 * Initialize action listeners for full sync.
 	 *
 	 * @access public
+	 *
+	 * @param callable $callable Action handler callable.
 	 */
 	public function init_full_sync_listeners( $callable ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	}

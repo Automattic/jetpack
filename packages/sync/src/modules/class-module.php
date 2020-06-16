@@ -574,7 +574,8 @@ SQL
 	 *
 	 * @access public
 	 *
-	 * @return string '1=1'
+	 * @param array $config Full sync configuration for this sync module.
+	 * @return string WHERE SQL clause, or `null` if no comments are specified in the module config.
 	 */
 	public function get_where_sql( $config ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return '1=1';
