@@ -10,19 +10,17 @@ namespace Automattic\Jetpack;
 /**
  * Class Automattic\Jetpack\Mobile
  *
- * @todo Description.
+ * Determine if the current User Agent matches the passed $kind.
  */
 class Mobile {
 
 	/**
-	 * Determine if the current User Agent matches the passed $kind
+	 * Determine if the current User Agent matches the passed $kind.
 	 *
-	 * @param string $kind Category of mobile device to check for.
-	 *                         Either: any, dumb, smart.
-	 * @param bool   $return_matched_agent Boolean indicating if the UA should be returned
+	 * @param string $kind                 Category of mobile device to check for. Either: any, dumb, smart.
+	 * @param bool   $return_matched_agent Boolean indicating if the UA should be returned.
 	 *
-	 * @return bool|string Boolean indicating if current UA matches $kind. If
-	 *                              $return_matched_agent is true, returns the UA string
+	 * @return bool|string Boolean indicating if current UA matches $kind. If `$return_matched_agent` is true, returns the UA string.
 	 */
 	public static function is_mobile( $kind = 'any', $return_matched_agent = false ) {
 		$kinds         = array(
