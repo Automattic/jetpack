@@ -73,13 +73,13 @@ const InstagramGalleryEdit = props => {
 	} = useConnectInstagram( {
 		accessToken,
 		noticeOperations,
+		selectedAccount,
 		setAttributes,
 		setImages,
 		setSelectedAccount,
 	} );
 
 	const currentUserConnected = isCurrentUserConnected();
-	const hasUserConnections = userConnections.length > 0;
 	const unselectedCount = count > images.length ? images.length : count;
 
 	const showPlaceholder = ! isLoadingGallery && ( ! accessToken || isEmpty( images ) );
@@ -142,7 +142,7 @@ const InstagramGalleryEdit = props => {
 	};
 
 	const connectBlockToInstagram = () => {
-		if ( hasUserConnections && selectedAccount && NEW_INSTAGRAM_CONNECTION !== selectedAccount ) {
+		if ( selectedAccount && NEW_INSTAGRAM_CONNECTION !== selectedAccount ) {
 			setAttributes( {
 				accessToken: selectedAccount,
 				instagramUser: find( userConnections, { token: selectedAccount } ).username,
@@ -162,6 +162,7 @@ const InstagramGalleryEdit = props => {
 	};
 
 	const renderInstagramConnection = () => {
+		const hasUserConnections = userConnections.length > 0;
 		const radioOptions = [
 			...map( userConnections, connection => ( {
 				label: `@${ connection.username }`,
