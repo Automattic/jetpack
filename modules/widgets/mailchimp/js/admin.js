@@ -39,7 +39,7 @@
 	 */
 	function showLoading() {
 		var loading = $( '<div>', { class: 'jetpack-mailchimp-loading' } );
-		var animation = $( '<div>', { class: 'jetpack-mailchimp-loading-animation' } );
+		var animation = $( '<div>', { class: 'jetpack-mailchimp-spinner' } );
 		loading.append( icon ).append( animation );
 		formWrapper.append( loading );
 	}
