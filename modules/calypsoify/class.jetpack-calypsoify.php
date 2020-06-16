@@ -33,19 +33,25 @@ class Jetpack_Calypsoify {
 	 * force the editor to break out of the iFrame.
 	 */
 	function check_iframe_cookie_setting() {
+		var_dump( 'check_iframe_cookie_setting' );
+		var_dump( strpos($_SERVER['QUERY_STRING'], 'calypsoify%3D1%26block-editor' ) );
+		var_dump( isset( $_COOKIE['wordpress_test_cookie'] ) );
+		var_dump( $_GET['calypsoify_cookie_check'] );
+		var_dump( $_SERVER['REQUEST_URI'] );
+		exit;
 		if ( ! strpos($_SERVER['QUERY_STRING'], 'calypsoify%3D1%26block-editor' ) || isset( $_COOKIE['wordpress_test_cookie'] ) ) {
 			return;
 		}
-	
+
 		if ( ! $_GET['calypsoify_cookie_check'] ) {
 			header( 'Location: ' . $_SERVER['REQUEST_URI'] . '&calypsoify_cookie_check=true' );
 			exit;
 		}
-	
+
 		header('X-Frame-Options: DENY');
 		exit;
 	 }
-	 
+
 	public static function getInstance() {
 		if ( ! self::$instance ) {
 			self::$instance = new self();
