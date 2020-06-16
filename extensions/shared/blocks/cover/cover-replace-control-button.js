@@ -38,6 +38,12 @@ export default createHigherOrderComponent( MediaReplaceFlow => props => {
 						if ( isVideoFile( preUploadFile.current ) ) {
 							return null;
 						}
+
+						// Try to pick file type from notice message.
+						// Unstable. Not reliable. Fallback.
+						if ( isVideoFile( msg.split( ':' )[ 0 ] ) ) {
+							return null;
+						}
 						createNotice( status, msg, options );
 					} }
 				/>
