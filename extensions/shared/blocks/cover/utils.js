@@ -6,8 +6,8 @@ import { pickBy, flatten, map, keys, values } from 'lodash';
 /**
  * Internal dependencies
  */
-import { isSimpleSite } from "../../site-type-utils";
-import getJetpackExtensionAvailability from "../../get-jetpack-extension-availability";
+import { isSimpleSite } from '../../site-type-utils';
+import getJetpackExtensionAvailability from '../../get-jetpack-extension-availability';
 
 /**
  * Check if the given file is a video.
