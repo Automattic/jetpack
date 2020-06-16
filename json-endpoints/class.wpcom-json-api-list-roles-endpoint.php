@@ -135,9 +135,9 @@ class WPCOM_JSON_API_List_Roles_Endpoint extends WPCOM_JSON_API_Endpoint {
 		 *
 		 * @module json-api
 		 *
-		 * @since 5.4.2
+		 * @since 8.7.0
 		 *
-		 * @param array List of role objects available to the site.
+		 * @param array $roles List of role objects available to the site.
 		 */
 		$roles = apply_filters( 'wpcom_api_site_roles', $roles );
 
