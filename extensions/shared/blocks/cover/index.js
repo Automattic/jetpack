@@ -8,6 +8,8 @@
 import { addFilter } from '@wordpress/hooks';
 import { useBlockEditContext } from '@wordpress/block-editor';
 import { useEffect, useState, Fragment } from '@wordpress/element';
+import { createHigherOrderComponent } from '@wordpress/compose';
+
 
 /**
  * Internal dependencies
@@ -20,40 +22,42 @@ import { isUpgradable, isVideoFile } from "./utils";
 
 import './editor.scss';
 
-const jetpackEditBlock = BlockEdit => props => {
-	const { name } = useBlockEditContext();
-	const [ showNudge, setShowNudge ] = useState( false );
-	console.log( { name } );
+const jetpackEditBlock = createHigherOrderComponent(
+	BlockEdit => props => {
+		const { name } = useBlockEditContext();
+		const [ showNudge, setShowNudge ] = useState( false );
 
-	// Remove Nudge if the block changes its attributes.
-	const { attributes } = props;
-	useEffect( () => setShowNudge( false ), [ attributes ] );
+		// Remove Nudge if the block changes its attributes.
+		const { attributes } = props;
+		useEffect( () => setShowNudge( false ), [ attributes ] );
 
-	if ( ! isUpgradable( name ) ) {
-		return <BlockEdit { ...props } />;
-	}
-
-	const handleFilesPreUpload = ( files ) => {
-		if ( ! files?.length ) {
-			return;
+		if ( ! isUpgradable( name ) ) {
+			return <BlockEdit { ...props } />;
 		}
 
-		if ( ! isVideoFile( files[ 0 ] ) ) {
-			return;
-		}
+		const handleFilesPreUpload = ( files ) => {
+			if ( ! files?.length ) {
+				return;
+			}
 
-		setShowNudge( true );
-	};
+			if ( ! isVideoFile( files[ 0 ] ) ) {
+				return;
+			}
 
-	return (
-		<Fragment>
-			<CoverMediaProvider onFilesUpload={ handleFilesPreUpload }>
-				<JetpackCoverUpgradeNudge show={ showNudge } name={ name } />
-				<BlockEdit { ...props } />
-			</CoverMediaProvider>
-		</Fragment>
-	);
-};
+			setShowNudge( true );
+		};
+
+		return (
+			<Fragment>
+				<CoverMediaProvider onFilesUpload={ handleFilesPreUpload }>
+					<JetpackCoverUpgradeNudge show={ showNudge } name={ name } />
+					<BlockEdit { ...props } />
+				</CoverMediaProvider>
+			</Fragment>
+		);
+	},
+	'JetpackCoverEdit'
+);
 
 if ( isCurrentUserConnected() ) {
 	// Take the control of MediaPlaceholder.
