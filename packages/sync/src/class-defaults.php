@@ -1019,6 +1019,12 @@ class Defaults {
 	 * @return mixed Value will be a string, int, array, based on the particular setting requested.
 	 */
 	public static function get_default_setting( $setting ) {
+		if ( 'post_meta_whitelist' === $setting ) {
+			$setting = 'post_meta_allowlist';
+		} elseif ( 'comment_meta_whitelist' === $setting ) {
+			$setting = 'comment_meta_allowlist';
+		}
+
 		$default_name = "default_$setting"; // e.g. default_dequeue_max_bytes.
 		return self::$$default_name;
 	}
