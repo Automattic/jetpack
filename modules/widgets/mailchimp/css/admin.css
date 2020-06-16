@@ -113,3 +113,58 @@
     transform-origin: 6px 6px;
     animation: spinner_animation 1s infinite linear;
 }
+
+.jetpack-mailchimp-placeholder {
+    padding: 15px;
+}
+
+.jetpack-mailchimp-placeholder-brand {
+    margin-bottom: 15px;;
+}
+
+.jetpack-mailchimp-placeholder-brand svg, .jetpack-mailchimp-placeholder-brand span {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.jetpack-mailchimp-placeholder-brand span {
+    margin-left: 10px;
+    font-weight: bold;
+}
+
+.jetpack-mailchimp-placeholder-instructions {
+    margin-bottom: 15px;
+}
+
+.jetpack-mailchimp-placeholder-setup {
+    display: inline-block;
+    margin-bottom: 15px;
+    padding: 12px;
+    border-width: 1px;
+    border-style: solid;
+    white-space: nowrap;
+    color: #0075af;
+    border-color: #0075af;
+    background: #f3f5f6;
+    text-decoration: none;
+}
+
+.jetpack-mailchimp-placeholder-setup:hover {
+    color: #0075af;
+    background: #f1f1f1;
+}
+
+.jetpack-mailchimp-recheck-button {
+    display: block;
+    padding: 0;
+    border: none;
+    background: none;
+    color: #0073aa;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.jetpack-mailchimp-recheck-button:hover {
+    color: #00a0d2;
+}
+
