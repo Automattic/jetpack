@@ -48,5 +48,5 @@ export default createHigherOrderComponent(
 			</div>
 		);
 	},
-	'JepackCoverMediaPlaceholder'
+	'JetpackCoverMediaPlaceholder'
 );

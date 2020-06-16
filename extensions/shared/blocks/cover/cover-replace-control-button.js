@@ -35,5 +35,5 @@ export default createHigherOrderComponent( MediaReplaceFlow => props => {
 			) }
 		</CoverMediaContext.Consumer>
 	);
-}, 'withNudgeHandling' );
+}, 'JetpackCoverMediaReplaceFlow' );
 
