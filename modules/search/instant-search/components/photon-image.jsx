@@ -8,8 +8,7 @@ import photon from 'photon';
 
 const PhotonImage = ( { src, maxWidth = 300, maxHeight = 300, alt, ...otherProps } ) => {
 	const photonSrc = photon( src, { resize: `${ maxWidth },${ maxHeight }` } );
-
-	return <img src={ photonSrc } alt={ alt } { ...otherProps } />;
+	return <img src={ photonSrc !== null ? photonSrc : src } alt={ alt } { ...otherProps } />;
 };
 
 export default PhotonImage;
