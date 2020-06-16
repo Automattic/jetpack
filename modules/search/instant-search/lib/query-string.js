@@ -163,16 +163,6 @@ export function setFilterQuery( filterKey, filterValue ) {
 	pushQueryString( encode( query ) );
 }
 
-export function getResultFormatQuery() {
-	const query = getQuery();
-
-	if ( knownResultFormats.includes( query.result_format ) ) {
-		return query.result_format;
-	}
-
-	return RESULT_FORMAT_MINIMAL;
-}
-
 export function restorePreviousHref( initialHref, callback ) {
 	if ( history.pushState ) {
 		window.history.pushState( null, null, initialHref );

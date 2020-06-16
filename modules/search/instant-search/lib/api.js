@@ -175,13 +175,13 @@ export function search( {
 		'post_type',
 		'has.image',
 		'shortcode_types',
+		'image.url.raw',
 	];
 	const highlightFields = [ 'title', 'content', 'comments' ];
 
 	switch ( resultFormat ) {
-		case 'engagement':
 		case 'product':
-			fields = fields.concat( [ 'image.url.raw', 'wc.price' ] );
+			fields = fields.concat( [ 'wc.price' ] );
 	}
 
 	const queryString = encode(

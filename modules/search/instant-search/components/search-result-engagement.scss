@@ -1,0 +1,45 @@
+.jetpack-instant-search__search-results-list.is-format-product {
+	display: flex;
+	flex-wrap: wrap;
+	padding: 0;
+}
+
+.jetpack-instant-search__search-result-engagement {
+	display: flex;
+	flex-direction: row;
+	margin: 1em 0 2em 0;
+
+	&:last-child {
+		margin-right: 0;
+	}
+
+	.jetpack-instant-search__search-result-engagement__title {
+		margin: 0 0 0.25em 0;
+		width: 100%;
+	}
+}
+
+.jetpack-instant-search__search-result-engagement__image-container {
+	flex-basis: 30%;
+	margin-right: 1em;
+}
+.jetpack-instant-search__search-result-engagement__image,
+.jetpack-instant-search__search-result-engagement__image-placeholder {
+	min-height: 190px;
+	width: 100%;
+	border-radius: 5px;
+}
+.jetpack-instant-search__search-result-engagement__image-placeholder {
+	align-items: center;
+	border: 1px solid gray;
+	display: flex;
+	justify-content: center;
+}
+
+.jetpack-instant-search__search-result-engagement__copy-container {
+	flex-basis: 70%;
+}
+
+.jetpack-instant-search__search-result-engagement__img {
+	margin: 0.5em 0.5em 0.5em 0;
+}
