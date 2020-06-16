@@ -24,8 +24,28 @@ class Jetpack_Calypsoify {
 
 	private function __construct() {
 		add_action( 'wp_loaded', array( $this, 'setup' ) );
+		add_action( 'login_init', array( $this, 'check_iframe_cookie_setting') );
 	}
 
+	/**
+	 * Checks to see if cookie can be set in current context. If 3rd party cookie blocking
+	 * is enabled the editor can't load in iFrame, so emiting X-Frame-Options: DENY will
+	 * force the editor to break out of the iFrame.
+	 */
+	function check_iframe_cookie_setting() {
+		if ( ! strpos($_GET['redirect_to'], 'calypsoify=1&block-editor=1' ) || isset( $_COOKIE['wordpress_test_cookie'] ) ) {
+			return;
+		}
+	
+		if ( ! isset( $_GET['calypsoify_cookie_check'] ) ) {
+			header( 'Location: ' . $_SERVER['REQUEST_URI'] . '&calypsoify_cookie_check=true' );
+			exit;
+		}
+	
+		header('X-Frame-Options: DENY');
+		exit;
+	 }
+	 
 	public static function getInstance() {
 		if ( ! self::$instance ) {
 			self::$instance = new self();
