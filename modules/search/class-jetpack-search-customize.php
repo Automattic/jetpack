@@ -118,6 +118,29 @@ class Jetpack_Search_Customize {
 			)
 		);
 
+		$id = $setting_prefix . 'result_format';
+		$wp_customize->add_setting(
+			$id,
+			array(
+				'default'   => 'immediate',
+				'transport' => 'postMessage',
+				'type'      => 'option',
+			)
+		);
+		$wp_customize->add_control(
+			$id,
+			array(
+				'label'       => __( 'Result Format', 'jetpack' ),
+				'description' => __( 'Choose how the search results look.', 'jetpack' ),
+				'section'     => $section_id,
+				'type'        => 'select',
+				'choices'     => array(
+					'minimal'    => __( 'Minimal', 'jetpack' ),
+					'engagement' => __( 'Engagement', 'jetpack' ),
+				),
+			)
+		);
+
 		$id = $setting_prefix . 'opacity';
 		$wp_customize->add_setting(
 			$id,

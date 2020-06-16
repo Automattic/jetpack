@@ -11,6 +11,7 @@ const SETTINGS_TO_STATE_MAP = new Map( [
 	[ 'jetpack_search_opacity', 'opacity' ],
 	[ 'jetpack_search_overlay_trigger', 'overlayTrigger' ],
 	[ 'jetpack_search_show_powered_by', 'showPoweredBy' ],
+	[ 'jetpack_search_result_format', 'resultFormat' ],
 ] );
 
 export function isInCustomizer() {
