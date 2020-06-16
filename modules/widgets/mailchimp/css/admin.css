@@ -1,0 +1,77 @@
+.mailchimp-widget-jetpack-form-wrapper {
+    margin: 0 -15px 0 -15px;
+}
+
+.jetpack-mailchimp-section-toggler {
+    position: relative;
+    padding: 15px;
+    cursor: pointer;
+}
+
+.jetpack-mailchimp-section-toggler:before {
+    content: ' ';
+    position: absolute;
+    top: 50%;
+    right: 4%;
+    width: 8px;
+    height: 8px;
+    margin-top: -3px;
+    border-right: 2px solid #000;
+    border-bottom: 2px solid #000;
+    transform: rotate(-135deg);
+    transition: transform 0.2s;
+}
+
+.jetpack-mailchimp-closed:before {
+    transform: rotate(45deg);
+}
+
+.jetpack-mailchimp-section-title {
+    font-weight: bold;
+}
+
+.jetpack-mailchimp-section-toggler:hover {
+    background: #f3f4f5;
+}
+
+.jetpack-mailchimp-section-content {
+    padding: 0 15px;
+}
+
+.jetpack-mailchimp-section-content .jetpack-mailchimp-field:last-child {
+    margin-bottom: 8px;
+}
+
+.jetpack-mailchimp-field {
+    margin-bottom: 24px;
+}
+
+.jetpack-mailchimp-field.jetpack-mailchimp-groups {
+    margin-bottom: 0;
+}
+
+.jetpack-mailchimp-field label {
+    color: #555d66;
+    margin-bottom: 5px;
+}
+
+.jetpack-mailchimp-field.jetpack-mailchimp-text label, .jetpack-mailchimp-field.jetpack-mailchimp-number label {
+    display: block;
+}
+
+.jetpack-mailchimp-field.jetpack-mailchimp-text input, .jetpack-mailchimp-field.jetpack-mailchimp-number input {
+    width: 100%;
+}
+
+.jetpack-mailchimp-field.jetpack-mailchimp-checkbox label {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.jetpack-mailchimp-field.jetpack-mailchimp-color label {
+    display: block;
+}
+
+.jetpack-mailchimp-checkbox-wrapper {
+    margin-bottom: 24px;
+}

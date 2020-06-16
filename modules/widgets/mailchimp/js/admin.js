@@ -9,7 +9,7 @@
 	/**
 	 * Whether the site is connected to Mailchimp or no.
 	 */
-	var formWrapper = $( '.mailchimp_widget_jetpack_form_wrapper' );
+	var formWrapper = $( '.mailchimp-widget-jetpack-form-wrapper' );
 
 	/**
 	 * Check the connectivity with MailChimp.
@@ -38,8 +38,8 @@
 	 * Show the loading div
 	 */
 	function showLoading() {
-		var loading = $( '<div>', { class: 'jetpack_mailchimp_loading' } );
-		var animation = $( '<div>', { class: 'jetpack_mailchimp_loading_animation' } );
+		var loading = $( '<div>', { class: 'jetpack-mailchimp-loading' } );
+		var animation = $( '<div>', { class: 'jetpack-mailchimp-loading-animation' } );
 		loading.append( icon ).append( animation );
 		formWrapper.append( loading );
 	}
@@ -50,24 +50,24 @@
 	function showPlaceholder() {
 		var placeholderData = JSON.parse( mailchimpAdmin.placeholderData );
 
-		var brand = $( '<div>', { class: 'jetpack_mailchimp_placeholder_brand' } );
+		var brand = $( '<div>', { class: 'jetpack-mailchimp-placeholder-brand' } );
 		brand.append( icon );
 		brand.append( $( '<span>', { text: 'Mailchimp' } ) );
 
 		var instructions = $( '<div>', {
-			class: 'jetpack_mailchimp_placeholder_instructions',
+			class: 'jetpack-mailchimp-placeholder-instructions',
 			text: placeholderData.instructions,
 		} );
 
 		var setupFormButton = $( '<a>', {
-			class: 'jetpack_mailchimp_placeholder_setup',
+			class: 'jetpack-mailchimp-placeholder-setup',
 			text: placeholderData.setupButtonText,
 			href: connectURL,
 			target: '_blank',
 		} );
 
 		var recheckButton = $( '<button>', {
-			class: 'jetpack_mailchimp_recheck_button',
+			class: 'jetpack-mailchimp-recheck-button',
 			text: placeholderData.recheckText,
 		} );
 
@@ -76,7 +76,7 @@
 			apiCall();
 		} );
 
-		var placeholder = $( '<div>', { class: 'jetpack_mailchimp_placeholder' } );
+		var placeholder = $( '<div>', { class: 'jetpack-mailchimp-placeholder' } );
 		placeholder
 			.append( brand )
 			.append( instructions )
@@ -91,12 +91,12 @@
 	 */
 	function generateGroupsField() {
 		/**
-		 * Change the value of the input for thr groups.
+		 * Change the value of the input for the groups.
 		 * @param {string} groupId Id of the group that was checked/unchecked.
 		 * @param {boolean} add If true then the group id is added, if false the group id is removed from the hidden input value.
 		 */
 		function generateHiddenFieldValue( groupId, add ) {
-			var groupsInput = $( '.widgets-holder-wrap #jetpack_mailchimp_groups' );
+			var groupsInput = $( '.widgets-holder-wrap #jetpack-mailchimp-interests' );
 
 			var groupsValue = groupsInput.val();
 			var arrayGroups = groupsValue.length > 0 ? groupsValue.split( '_' ) : [];
@@ -117,36 +117,36 @@
 
 		/**
 		 * Fill the groups field with the group retrieved from the server.
-		 * @param {object} groups Object containing the groups.
+		 * @param {object} interests Object containing the interests.
 		 */
-		function fillGroupsField( groups ) {
-			var groupsWrapper = $( '.jetpack_mailchimp_groups_wrapper' );
+		function fillGroupsField( interests ) {
+			var interestsWrapper = $( '.jetpack-mailchimp-interests-wrapper' );
 
-			var groupsServer = mailchimpAdmin.groups.split( '_' );
-			groups.interest_categories.forEach( function( interest_category ) {
+			var interestsServer = mailchimpAdmin.interests.split( '_' );
+			interests.interest_categories.forEach( function( interest_category ) {
 				interest_category.interests.forEach( function( interest ) {
-					var checkboxWrapper = $( '<div>', { class: 'jetpack_mailchimp_checkbox_wrapper' } );
+					var checkboxWrapper = $( '<div>', { class: 'jetpack-mailchimp-checkbox-wrapper' } );
 
-					var checked = groupsServer.includes( interest.id );
+					var checked = interestsServer.includes( interest.id );
 					var checkbox = $( '<input>', { type: 'checkbox', value: interest.id, checked: checked } );
 					checkbox.change( function() {
 						var checked = $( this ).is( ':checked' );
-						var groupId = $( this ).val();
-						generateHiddenFieldValue( groupId, checked );
+						var interestId = $( this ).val();
+						generateHiddenFieldValue( interestId, checked );
 					} );
 
 					checkboxWrapper.append( checkbox );
 					checkboxWrapper.append( $( '<label>', { text: interest.name } ) );
-					groupsWrapper.append( checkboxWrapper );
+					interestsWrapper.append( checkboxWrapper );
 				} );
 			} );
 
-			groupsWrapper.append(
+			interestsWrapper.append(
 				$( '<input>', {
 					type: 'hidden',
-					name: mailchimpAdmin.groupsFieldName,
-					value: mailchimpAdmin.groups,
-					id: 'jetpack_mailchimp_groups',
+					name: mailchimpAdmin.interestsFieldName,
+					value: mailchimpAdmin.interests,
+					id: 'jetpack-mailchimp-interests',
 				} )
 			);
 		}
@@ -166,7 +166,7 @@
 	 * Generate the color pickers.
 	 */
 	function generateColorFields() {
-		$( '.jetpack_mailchimp_color_input' ).wpColorPicker( {
+		$( '.jetpack-mailchimp-color-input' ).wpColorPicker( {
 			change: function( e, ui ) {
 				var target = $( this ).attr( 'target' );
 				$( '.widgets-holder-wrap #' + target ).val( ui.color.toString() );
@@ -180,25 +180,25 @@
 	 * Generates the widget form.
 	 */
 	function showForm() {
-		var form = $( '<div>', { class: 'jetpack_mailchimp_form' } );
+		var form = $( '<div>', { class: 'jetpack-mailchimp-form' } );
 
 		var sections = JSON.parse( mailchimpAdmin.formData );
 
 		sections.forEach( function( section ) {
-			var sectionEl = $( '<div>', { class: 'jetpack_mailchimp_section' } );
+			var sectionEl = $( '<div>', { class: 'jetpack-mailchimp-section' } );
 
-			var sectionToggler = $( '<div>', { class: 'jetpack_mailchimp_section_toggler' } );
+			var sectionToggler = $( '<div>', { class: 'jetpack-mailchimp-section-toggler' } );
 			var sectionTitle = $( '<span>', {
-				class: 'jetpack_mailchimp_section_title',
+				class: 'jetpack-mailchimp-section-title',
 				text: section.title,
 			} );
 			sectionToggler.append( sectionTitle );
 
-			var sectionContent = $( '<div>', { class: 'jetpack_mailchimp_section_content' } );
+			var sectionContent = $( '<div>', { class: 'jetpack-mailchimp-section-content' } );
 
 			if ( 'undefined' !== typeof section.fields ) {
 				section.fields.forEach( function( field ) {
-					var fieldWrapper = $( '<div>', { class: 'jetpack_mailchimp_field' } );
+					var fieldWrapper = $( '<div>', { class: 'jetpack-mailchimp-field' } );
 					switch ( field.type ) {
 						case 'text':
 						case 'number':
@@ -213,13 +213,13 @@
 							break;
 
 						case 'groups':
-							var groupsWrapper = $( '<div>', { class: 'jetpack_mailchimp_groups_wrapper' } );
+							var groupsWrapper = $( '<div>', { class: 'jetpack-mailchimp-interests-wrapper' } );
 							fieldWrapper.append( groupsWrapper );
 							break;
 
 						case 'color':
 							var inputColor = $( '<input>', {
-								class: 'jetpack_mailchimp_color_input',
+								class: 'jetpack-mailchimp-color-input',
 								type: 'text',
 								target: field.id,
 								value: field.value ? field.value : field.default,
@@ -251,6 +251,7 @@
 							break;
 					}
 
+					fieldWrapper.addClass( 'jetpack-mailchimp-' + field.type );
 					sectionContent.append( fieldWrapper );
 				} );
 			}
@@ -263,7 +264,7 @@
 								href: 'connect_url' === extra.link ? connectURL : extra.link,
 								text: extra.text,
 								target: '_blank',
-								class: 'jetpack_mailchimp_link',
+								class: 'jetpack-mailchimp-link',
 							} );
 							sectionContent.append( link );
 							break;
@@ -286,16 +287,16 @@
 		if ( ! mailchimpAdmin.oldForm ) {
 			apiCall();
 		} else {
-			$( '.widgets-holder-wrap #jetpack_mailchimp_new_form' ).change( function() {
+			$( '.widgets-holder-wrap #jetpack-mailchimp-new-form' ).change( function() {
 				if ( $( this ).is( ':checked' ) ) {
 					var answer = confirm( 'Are you sure?' );
 
 					if ( answer ) {
-						$( '.mailchimp_code' ).remove();
-						$( '.jetpack_mailchimp_new_form_wrapper' ).hide();
+						$( '.mailchimp-code' ).remove();
+						$( '.jetpack-mailchimp-new-form-wrapper' ).hide();
 						apiCall();
 					} else {
-						$( this ).removeAttr( 'checked' );
+						$( this ).removeProp( 'checked' );
 					}
 				}
 			} );
@@ -304,11 +305,20 @@
 
 	// This is executed only after the form is saved.
 	$( window ).on( 'jetpack_mailchimp_load_form', function() {
-		formWrapper = $( '.mailchimp_widget_jetpack_form_wrapper' );
+		formWrapper = $( '.mailchimp-widget-jetpack-form-wrapper' );
 		init();
 	} );
 
 	$( document ).ready( function() {
 		init();
+	} );
+
+	// Form events.
+	var widgetsWrap = $( '.widgets-holder-wrap' );
+	widgetsWrap.on( 'click', '.jetpack-mailchimp-section-toggler', function() {
+		$( this )
+			.next()
+			.slideToggle();
+		$( this ).toggleClass( 'jetpack-mailchimp-closed' );
 	} );
 } )( jQuery );
