@@ -1,0 +1,146 @@
+/*!
+* Do not modify this file directly.  It is compiled SASS code.
+*/
+.jp-wizard-banner {
+  position: relative;
+  text-align: right;
+  background: #fff;
+  padding: 2rem;
+  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.03), 0px 1px 2px rgba(0, 0, 0, 0.03);
+  border: 1px solid #dcdcde;
+  margin: 40px 2px 0 20px;
+}
+
+@media (max-width: 660px) {
+  .jp-wizard-banner {
+    margin: 45px 2px 0 20px;
+  }
+}
+
+.jp-wizard-banner-wizard-header {
+  margin-bottom: 1rem !important;
+  margin-top: 1rem !important;
+  font-weight: 500;
+  font-size: 1.5em;
+  line-height: 150%;
+}
+
+@media (max-width: 660px) {
+  .jp-wizard-banner-wizard-header {
+    text-align: right;
+    font-weight: 400;
+  }
+}
+
+.jp-wizard-banner-grid {
+  display: flex;
+  max-width: 1000px;
+}
+
+.jp-wizard-banner-grid-a {
+  width: 95%;
+}
+
+@media (max-width: 960px) {
+  .jp-wizard-banner-grid-a {
+    width: 100%;
+  }
+}
+
+.jp-wizard-banner-grid-b {
+  width: 20%;
+  display: block;
+  min-width: 200px;
+}
+
+@media (max-width: 960px) {
+  .jp-wizard-banner-grid-b {
+    display: none;
+  }
+}
+
+.powering-up-img {
+  border: none;
+  margin-left: 1rem;
+  margin-top: 3rem;
+  margin-right: 1rem;
+}
+
+@media (max-width: 960px) {
+  .powering-up-img {
+    display: none;
+  }
+}
+
+.jp-wizard-banner-wizard-paragraph {
+  font-size: 1rem;
+}
+
+@media (min-width: 661px) {
+  .jp-wizard-banner-wizard-paragraph {
+    margin: 0;
+  }
+}
+
+@media (max-width: 660px) {
+  .jp-wizard-banner-wizard-paragraph {
+    text-align: right;
+  }
+}
+
+.jp-wizard-banner-wizard-intro-question {
+  box-sizing: border-box;
+  max-width: 720px;
+  padding: 1.5rem 0 1.5rem;
+  text-align: center;
+  margin-top: 2rem;
+}
+
+@media (min-width: 481px) {
+  .jp-wizard-banner-wizard-intro-question {
+    border: 1px solid #dddddd;
+    border-radius: 4px;
+  }
+}
+
+@media (max-width: 480px) {
+  .jp-wizard-banner-wizard-intro-question h2 {
+    text-align: right;
+  }
+}
+
+.jp-wizard-banner-wizard-answer-buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+@media (max-width: 480px) {
+  .jp-wizard-banner-wizard-answer-buttons {
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+}
+
+.jp-wizard-banner-wizard-button {
+  margin: 1rem;
+  width: 160px;
+  margin-left: 10px !important;
+}
+
+@media (max-width: 480px) {
+  .jp-wizard-banner-wizard-button {
+    width: 100%;
+    margin: 0.5rem 0;
+  }
+}
+
+.jp-wizard-banner-wizard-skip-link {
+  text-decoration: underline !important;
+  color: #000;
+  margin-top: 1rem;
+  display: block;
+}
+
+/*# sourceMappingURL=jetpack-wizard-banner-rtl.css.map */
