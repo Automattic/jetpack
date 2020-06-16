@@ -33,6 +33,8 @@ class Jetpack_Calypsoify {
 	 * force the editor to break out of the iFrame.
 	 */
 	function check_iframe_cookie_setting() {
+		echo 'here!';
+		exit;
 		if ( ! strpos($_GET['redirect_to'], 'calypsoify=1&block-editor=1' ) || isset( $_COOKIE['wordpress_test_cookie'] ) ) {
 			return;
 		}
