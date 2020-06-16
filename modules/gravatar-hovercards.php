@@ -177,7 +177,7 @@ function grofiles_get_avatar( $avatar, $author ) {
 
 				$response_body = wp_cache_get( $cache_key, $cache_group );
 				if ( false === $response_body ) {
-					$response = wp_remote_get( 'https://en.gravatar.com/' . $email_hash . '.json' );
+					$response = wp_remote_get( esc_url_raw( 'https://en.gravatar.com/' . $email_hash . '.json' ) );
 
 					if ( is_array( $response ) && ! is_wp_error( $response ) ) {
 						$response_body = json_decode( $response['body'] );
@@ -194,7 +194,7 @@ function grofiles_get_avatar( $avatar, $author ) {
 					<figure data-amp-lightbox="true">
 						' . $avatar . '
 						<figcaption>
-							' . $display_name . ( ! empty( $location ) ? ' – ' . $location : '' ) . ( ! empty( $description ) ? ' – ' . $description : '' ) . '
+							' . esc_html( $display_name ) . ( ! empty( $location ) ? ' – ' . esc_html( $location ) : '' ) . ( ! empty( $description ) ? ' – ' . esc_html( $description ) : '' ) . '
 						</figcaption>
 					</figure>
 				';
