@@ -33,13 +33,11 @@ class Jetpack_Calypsoify {
 	 * force the editor to break out of the iFrame.
 	 */
 	function check_iframe_cookie_setting() {
-		echo 'here!';
-		exit;
-		if ( ! strpos($_GET['redirect_to'], 'calypsoify=1&block-editor=1' ) || isset( $_COOKIE['wordpress_test_cookie'] ) ) {
+		if ( ! strpos($_SERVER['QUERY_STRING'], 'calypsoify%3D1%26block-editor' ) || isset( $_COOKIE['wordpress_test_cookie'] ) ) {
 			return;
 		}
 	
-		if ( ! isset( $_GET['calypsoify_cookie_check'] ) ) {
+		if ( ! $_GET['calypsoify_cookie_check'] ) {
 			header( 'Location: ' . $_SERVER['REQUEST_URI'] . '&calypsoify_cookie_check=true' );
 			exit;
 		}
