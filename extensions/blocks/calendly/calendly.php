@@ -164,7 +164,7 @@ function enqueue_calendly_js() {
 		'jetpack-calendly-external-js',
 		'https://assets.calendly.com/assets/external/widget.js',
 		null,
-		JETPACK_VERSION,
+		JETPACK__VERSION,
 		false
 	);
 
