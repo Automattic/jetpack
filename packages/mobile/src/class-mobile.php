@@ -25,13 +25,13 @@ class Mobile {
 	 *                              $return_matched_agent is true, returns the UA string
 	 */
 	public static function is_mobile( $kind = 'any', $return_matched_agent = false ) {
-		static $kinds         = array(
+		$kinds         = array(
 			'smart' => false,
 			'dumb'  => false,
 			'any'   => false,
 		);
-		static $first_run     = true;
-		static $matched_agent = '';
+		$first_run     = true;
+		$matched_agent = '';
 
 		// If an invalid kind is passed in, reset it to default.
 		if ( ! isset( $kinds[ $kind ] ) ) {
