@@ -37,6 +37,15 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_status' ),
 					'permission_callback' => array( $this, 'get_status_permission_check' ),
+					'args'                => array(
+						'type'              => array(
+							'type'     => 'string',
+							'required' => false,
+						),
+						'validate_callback' => function( $param ) {
+							return in_array( $param, array( 'donation' ), true );
+						},
+					),
 				),
 			)
 		);
