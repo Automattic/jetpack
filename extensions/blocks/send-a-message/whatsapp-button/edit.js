@@ -3,8 +3,7 @@
  */
 import { __, _x } from '@wordpress/i18n';
 import { useEffect, useState } from '@wordpress/element';
-import { withDispatch } from '@wordpress/data';
-import { compose } from '@wordpress/compose';
+import { useDispatch } from '@wordpress/data';
 import {
 	Button,
 	BaseControl,
@@ -36,7 +35,7 @@ const WHATSAPP_GREEN = '#25D366';
 const WHATSAPP_DARK = '#465B64';
 const WHATSAPP_LIGHT = '#F4F4F4';
 
-const WhatsAppButtonEdit = ( { attributes, setAttributes, className, selectBlock, clientId } ) => {
+export default function WhatsAppButtonEdit( { attributes, setAttributes, className, clientId } ) {
 	const {
 		countryCode,
 		phoneNumber,
@@ -47,6 +46,7 @@ const WhatsAppButtonEdit = ( { attributes, setAttributes, className, selectBlock
 	} = attributes;
 
 	const [ isValidPhoneNumber, setIsValidPhoneNumber ] = useState( true );
+	const { selectBlock } = useDispatch( 'core/block-editor' );
 
 	const getCountryCode = async () => {
 		setAttributes( { countryCode: '1' } );
@@ -253,11 +253,4 @@ const WhatsAppButtonEdit = ( { attributes, setAttributes, className, selectBlock
 			/>
 		</div>
 	);
-};
-
-export default compose( [
-	withDispatch( dispatch => {
-		const { selectBlock } = dispatch( 'core/block-editor' );
-		return { selectBlock };
-	} ),
-] )( WhatsAppButtonEdit );
+}
