@@ -43,7 +43,7 @@ export const settings = {
 	},
 	attributes,
 	edit,
-	save: save,
+	save,
 	example: {
 		attributes: {
 			countryCode: '1',
