@@ -161,10 +161,10 @@ class Settings {
 			case 'taxonomies_blocklist':
 				$default_array_value = Defaults::$blocked_taxonomies;
 				break;
-			case 'post_meta_whitelist':
+			case 'post_meta_allowlist':
 				$default_array_value = Defaults::get_post_meta_allowlist();
 				break;
-			case 'comment_meta_whitelist':
+			case 'comment_meta_allowlist':
 				$default_array_value = Defaults::get_comment_meta_allowlist();
 				break;
 			case 'known_importers':
@@ -261,7 +261,7 @@ class Settings {
 	 * @return string SQL WHERE clause.
 	 */
 	public static function get_allowed_post_meta_sql() {
-		return 'meta_key IN (\'' . join( '\', \'', array_map( 'esc_sql', self::get_setting( 'post_meta_whitelist' ) ) ) . '\')';
+		return 'meta_key IN (\'' . join( '\', \'', array_map( 'esc_sql', self::get_setting( 'post_meta_allowlist' ) ) ) . '\')';
 	}
 
 	/**
@@ -274,7 +274,7 @@ class Settings {
 	 * @return string SQL WHERE clause.
 	 */
 	public static function get_allowed_comment_meta_sql() {
-		return 'meta_key IN (\'' . join( '\', \'', array_map( 'esc_sql', self::get_setting( 'comment_meta_whitelist' ) ) ) . '\')';
+		return 'meta_key IN (\'' . join( '\', \'', array_map( 'esc_sql', self::get_setting( 'comment_meta_allowlist' ) ) ) . '\')';
 	}
 
 	/**
