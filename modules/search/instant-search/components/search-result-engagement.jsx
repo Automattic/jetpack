@@ -47,9 +47,10 @@ export default function SearchResultEngagement( props ) {
 				>
 					{ firstImage ? (
 						<PhotonImage
+							alt=""
 							className="jetpack-instant-search__search-result-engagement__image"
 							src={ `//${ firstImage }` }
-							alt=""
+							useDiv
 						/>
 					) : (
 						<div className="jetpack-instant-search__search-result-engagement__image-placeholder">
