@@ -35,6 +35,7 @@ export const settings = {
 		_x( 'support', 'keyword', 'jetpack' ),
 	],
 	supports: {
+		html: false,
 		align: [ 'left', 'center', 'right' ],
 	},
 	attributes: {},
