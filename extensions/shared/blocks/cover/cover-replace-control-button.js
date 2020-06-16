@@ -8,15 +8,17 @@
  */
 import { useBlockEditContext } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
+import { useRef } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
 import { CoverMediaContext } from './components';
-import { isUpgradable } from "./utils";
+import { isUpgradable, isVideoFile } from "./utils";
 
 export default createHigherOrderComponent( MediaReplaceFlow => props => {
 	const { name } = useBlockEditContext();
+	const preUploadFile = useRef();
 	if ( ! isUpgradable( name ) ) {
 		return <MediaReplaceFlow { ...props } />;
 	}
@@ -27,8 +29,15 @@ export default createHigherOrderComponent( MediaReplaceFlow => props => {
 			{ ( { onFilesUpload } ) => (
 				<MediaReplaceFlow
 					{ ...props }
-					onFilesUpload={ onFilesUpload }
+					onFilesUpload={ ( files ) => {
+						preUploadFile.current = files?.length ? files[ 0 ] : null;
+						onFilesUpload( files );
+					} }
 					createNotice={ ( status, msg, options ) => {
+						// Detect video file from callback and reference instance.
+						if ( isVideoFile( preUploadFile.current ) ) {
+							return null;
+						}
 						createNotice( status, msg, options );
 					} }
 				/>
