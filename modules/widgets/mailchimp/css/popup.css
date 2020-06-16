@@ -1,0 +1,64 @@
+.jetpack_mailchimp_widget_overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    z-index: 9999;
+    background:rgba( 0,0,0, 0.8 );
+}
+
+.jetpack_mailchimp_widget_form {
+    position: relative;
+    width: 40%;
+    margin: 200px auto 0 auto;
+    padding: 20px;
+    background: #fff;
+    box-shadow: 0 12px 24px rgba(36,28,21,.16);
+}
+
+.jetpack_mailchimp_widget_form input {
+    width: 100%;
+}
+
+.jetpack_mailchimp_widget_close {
+    position: absolute;
+    top: -20px;
+    width: 40px;
+    height: 40px;
+    background: #fff;
+    right: -20px;
+    z-index: 9999;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(36,28,21,.12);
+}
+
+.jetpack_mailchimp_widget_close:before, .jetpack_mailchimp_widget_close:after {
+    content: ' ';
+    position: absolute;
+    top: 7px;
+    left: 19px;
+    height: 26px;
+    width: 2px;
+    background: #7d7676;
+}
+
+.jetpack_mailchimp_widget_close:hover:before, .jetpack_mailchimp_widget_close:hover:after {
+    background: #000;
+}
+
+.jetpack_mailchimp_widget_close:before {
+    transform: rotate(45deg);
+}
+
+.jetpack_mailchimp_widget_close:after {
+    transform: rotate(-45deg);
+}
+
+@media screen and ( max-width: 1000px ) {
+    .jetpack_mailchimp_widget_form {
+        width: 80%;
+        margin-top: 117px;
+    }
+}

@@ -2,6 +2,8 @@
 
 use Automattic\Jetpack\Assets;
 
+use Jetpack_AMP_Support;
+
 use function Automattic\Jetpack\Extensions\Mailchimp\load_assets as render_block;
 
 if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
@@ -63,7 +65,15 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 		 * @return void Echoes it's output
 		 **/
 		public function widget( $args, $instance ) {
-			$instance = wp_parse_args( $instance, array( 'code' => '' ) );
+			$instance = wp_parse_args(
+				$instance,
+				array(
+					'code'      => '',
+					'cssClass'  => '',
+					'popupMode' => '',
+					'delay'     => '0',
+				)
+			);
 
 			if ( ! empty( $instance['code'] ) ) {
 				// Regular expresion that will match maichimp shortcode.
@@ -77,10 +87,53 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 					echo do_shortcode( $matches[0] );
 				}
 			} else {
-				// Use the same ouput as the mailchimp block.
-				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				echo render_block( $instance );
+				$instance['interests'] = explode( '_', $instance['interests'] );
 
+				$is_amp_request = class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request();
+
+				$popup_mode   = 'on' === $instance['popupMode'];
+				$hidden_style = '';
+				if ( $popup_mode && ! $is_amp_request ) {
+					$hidden_style = 'style=display:none;';
+
+					wp_enqueue_script(
+						'jetpack-mailchimp-popup',
+						Assets::get_file_url_for_environment(
+							'_inc/build/widgets/mailchimp/js/popup.min.js',
+							'modules/widgets/mailchimp/js/popup.js'
+						),
+						array( 'jquery' ),
+						'20200615',
+						true
+					);
+
+					wp_localize_script(
+						'jetpack-mailchimp-popup',
+						'jetpackMailchimpPopup',
+						array(
+							'delay' => $instance['delay'],
+						)
+					);
+
+					wp_enqueue_style(
+						'jetpack-mailchimp-popup-style',
+						Assets::get_file_url_for_environment(
+							'_inc/build/widgets/mailchimp/css/popup.min.css',
+							'modules/widgets/mailchimp/css/popup.css'
+						),
+						array(),
+						'20200615'
+					);
+				}
+
+				echo sprintf(
+					'<div class="%s" %s >%s</div>',
+					'jetpack_mailchimp_widget_form',
+					esc_html( $hidden_style ),
+					// Use the same ouput as the mailchimp block.
+					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					render_block( $instance )
+				);
 			}
 
 			/** This action is documented in modules/widgets/gravatar-profile.php */
@@ -97,8 +150,11 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 		 * @return array
 		 */
 		public function update( $new_instance, $old_instance ) {
-			$instance         = array();
-			$instance['code'] = ! empty( $new_instance['new_form'] ) && 'on' === $new_instance['new_form'] ? '' : MailChimp_Subscriber_Popup::reversal( $new_instance['code'] );
+			$instance = array();
+
+			if ( empty( $new_instance['code'] ) || ( ! empty( $new_instance['new_form'] ) && 'on' === $new_instance['new_form'] ) ) {
+				$instance['code'] = '';
+			}
 
 			$instance['emailPlaceholder']            = sanitize_text_field( $new_instance['emailPlaceholder'] );
 			$instance['processingLabel']             = sanitize_text_field( $new_instance['processingLabel'] );
@@ -110,6 +166,8 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 			$instance['customBackgroundButtonColor'] = sanitize_text_field( $new_instance['customBackgroundButtonColor'] );
 			$instance['customTextButtonColor']       = sanitize_text_field( $new_instance['customTextButtonColor'] );
 			$instance['css_class']                   = sanitize_text_field( $new_instance['css_class'] );
+			$instance['popupMode']                   = ! empty( $new_instance['popupMode'] ) && 'on' === $new_instance['popupMode'] ? 'on' : 'off';
+			$instance['delay']                       = sanitize_text_field( $new_instance['delay'] );
 
 			return $instance;
 		}
@@ -124,7 +182,7 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 
 			if ( 'widgets.php' === $pagenow ) {
 				wp_enqueue_script(
-					'mailchimp-admin',
+					'jetpack-mailchimp-admin',
 					Assets::get_file_url_for_environment(
 						'_inc/build/widgets/mailchimp/js/admin.min.js',
 						'modules/widgets/mailchimp/js/admin.js'
@@ -300,8 +358,23 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 							'placeholder' => '',
 							'help_text'   => __( 'Separate multiple classes with spaces.', 'jetpack' ),
 							'type'        => 'text',
-							'name'        => esc_attr( $this->get_field_name( 'css_class' ) ),
-							'value'       => esc_html( $instance['css_class'] ),
+							'name'        => esc_attr( $this->get_field_name( 'cssClass' ) ),
+							'value'       => esc_html( $instance['cssClass'] ),
+						),
+
+						array(
+							'title' => __( 'Activate popup mode', 'jetpack' ),
+							'type'  => 'checkbox',
+							'name'  => esc_attr( $this->get_field_name( 'popupMode' ) ),
+							'value' => esc_html( $instance['popupMode'] ),
+						),
+
+						array(
+							'title'       => __( 'Popup delay (miliseconds)', 'jetpack' ),
+							'type'        => 'number',
+							'name'        => esc_attr( $this->get_field_name( 'delay' ) ),
+							'value'       => esc_html( $instance['delay'] ),
+							'placeholder' => '0',
 						),
 					),
 				),
