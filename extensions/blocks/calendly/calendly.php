@@ -69,7 +69,8 @@ function load_assets( $attr, $content ) {
 		enqueue_calendly_js();
 	}
 
-	$url = add_query_arg(
+	$base_url = $url;
+	$url      = add_query_arg(
 		array(
 			'hide_event_type_details' => (int) $hide_event_type_details,
 			'background_color'        => sanitize_hex_color_no_hash( $background_color ),
@@ -89,6 +90,7 @@ function load_assets( $attr, $content ) {
 			$content = deprecated_render_button_v1( $attr, $block_id, $classes, $url );
 		} else {
 			$content = str_replace( 'calendly-widget-id', esc_attr( $block_id ), $content );
+			$content = str_replace( $base_url, $url, $content );
 		}
 
 		if ( ! $is_amp_request ) {
