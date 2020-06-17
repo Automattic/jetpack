@@ -27,7 +27,7 @@ export function isVideoFile( file ) {
 	}
 
 	let allowedVideoMimeTypes = pickBy( allowedMimeTypes, ( type ) => /^video\//.test( type ) );
-	const allowedVideoFileExtensions = flatten( map( keys( allowedVideoMimeTypes ), ext => ext.split( '|' ) ) );
+	const allowedVideoFileExtensions = flatten( map( keys( allowedVideoMimeTypes ), ( ext ) => ext.split( '|' ) ) );
 
 	if ( typeof file === 'string' ) {
 		const fileExtension = file.split( '.' ).pop();
