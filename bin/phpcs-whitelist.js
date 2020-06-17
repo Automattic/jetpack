@@ -65,5 +65,6 @@ module.exports = [
 	'modules/wpcom-tos/wpcom-tos.php',
 	'packages',
 	'tests/e2e/plugins/e2e-plan-data-interceptor.php',
+	'tests/php/general/test-class.jetpack-network.php',
 	'views/admin/deactivation-dialog.php',
 ];
