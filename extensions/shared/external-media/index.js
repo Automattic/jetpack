@@ -31,7 +31,7 @@ if ( isCurrentUserConnected() ) {
 			const { addToGallery = false, allowedTypes } = props;
 			let { render } = props;
 
-			// Only replace button for components that expect images.
+			// Only replace button for components that expect images, except existing galleries.
 			if ( allowedTypes.indexOf( 'image' ) > -1 && ! addToGallery ) {
 				render = button => <MediaButton { ...button } mediaProps={ props } />;
 			}
