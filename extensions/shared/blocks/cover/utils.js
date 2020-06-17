@@ -30,7 +30,7 @@ export function isVideoFile( file ) {
 	const allowedVideoFileExtensions = flatten( map( keys( allowedVideoMimeTypes ), ext => ext.split( '|' ) ) );
 
 	if ( typeof file === 'string' ) {
-		const fileExtension = ( file.split( '.' ) )?.[ 1 ];
+		const fileExtension = file.split( '.' ).pop();
 		return fileExtension && allowedVideoFileExtensions.includes( fileExtension );
 	}
 
