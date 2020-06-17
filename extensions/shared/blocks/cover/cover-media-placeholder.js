@@ -32,7 +32,7 @@ export default createHigherOrderComponent(
 		return (
 			<div className="jetpack-cover-media-placeholder">
 				<CoverMediaContext.Consumer>
-					{ ( onFilesUpload = noop ) => (
+					{ ( onFilesUpload ) => (
 						<CoreMediaPlaceholder
 							{ ...props }
 							onFilesPreUpload={ onFilesUpload }
