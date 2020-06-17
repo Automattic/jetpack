@@ -212,7 +212,7 @@ class Jetpack_Search_Customize {
 			array(
 				'type'    => 'checkbox',
 				'section' => $section_id,
-				'label'   => __( 'Infinite Scroll Results', 'jetpack' ),
+				'label'   => __( 'Enable infinite scrolling', 'jetpack' ),
 			)
 		);
 
