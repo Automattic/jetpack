@@ -19,7 +19,7 @@ class Connection_Error extends \WP_Error {
 	 */
 	public $error_info = array();
 
-	public function __construct( $error_code, $data ) {
+	public function __construct( $error_code, $data, $report = true ) {
 
 		$this->errors_handler = new Errors();
 
@@ -33,8 +33,33 @@ class Connection_Error extends \WP_Error {
 
 		$this->error_info[ $error_code ] = $error;
 
-		$this->errors_handler->report_error( $this );
+		if ( $report ) {
+			$this->errors_handler->report_error( $this );
+		}
 
+	}
+
+	public function get_info( $info_key = '', $code = '' ) {
+		if ( empty( $code ) ) {
+			$code = $this->get_error_code();
+		}
+		if ( isset( $this->error_info[ $code ] ) ) {
+			if ( empty( $info_key ) ) {
+				return $this->error_info[ $code ];
+			}
+
+			if ( isset( $this->error_info[ $code ][ $info_key ] ) ) {
+				return $this->error_info[ $code ][ $info_key ];
+			}
+		}
+	}
+
+	public function get_title( $code = '' ) {
+		return $this->get_info( 'title', $code );
+	}
+
+	public function get_fix_tip( $code = '' ) {
+		return $this->get_info( 'fix_tip', $code );
 	}
 
 }

@@ -100,21 +100,9 @@ class Manager {
 
 		add_action( 'plugins_loaded', __NAMESPACE__ . '\Plugin_Storage::configure', 100 );
 
-		add_action( 'admin_notices', array( $manager, 'admin_notices' ) );
+		$manager->error_handler = new Error_Handler();
+		add_action( 'admin_notices', array( $manager->error_handler, 'admin_notices' ) );
 
-	}
-
-	/**
-	 * Add notices to the Admin Notices section if there are known connection errors
-	 *
-	 * @return void
-	 */
-	public function admin_notices() {
-		$errors_manager = new Errors();
-		$errors         = $errors_manager->get_stored_errors();
-		if ( count( $errors ) ) {
-			// build the error message.
-		}
 	}
 
 	/**
@@ -327,23 +315,19 @@ class Manager {
 		if ( is_null( $this->xmlrpc_verification ) ) {
 			$this->xmlrpc_verification = $this->internal_verify_xml_rpc_signature();
 
-			if ( is_wp_error( $this->xmlrpc_verification ) ) {
+			if ( is_wp_error( $this->xmlrpc_verification ) && $this->xmlrpc_request_came_from_wpcom() ) {
 				/**
 				 * Action for logging XMLRPC signature verification errors. This data is sensitive.
-				 *
-				 * Error codes:
-				 * - malformed_token
-				 * - malformed_user_id
-				 * - unknown_token
-				 * - could_not_sign
-				 * - invalid_nonce
-				 * - signature_mismatch
 				 *
 				 * @since 7.5.0
 				 *
 				 * @param WP_Error $signature_verification_error The verification error
 				 */
 				do_action( 'jetpack_verify_signature_error', $this->xmlrpc_verification );
+
+				$error_handler = new Error_Handler();
+				$error_handler->report_error( $this->xmlrpc_verification );
+
 			}
 		}
 
@@ -376,9 +360,13 @@ class Manager {
 			'signature' => isset( $_GET['signature'] ) ? wp_unslash( $_GET['signature'] ) : '',
 		);
 
+		//var_dump($_POST); die;
+
 		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		@list( $token_key, $version, $user_id ) = explode( ':', wp_unslash( $_GET['token'] ) );
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+
+		error_log($_GET['token']);
 
 		$jetpack_api_version = Constants::get_constant( 'JETPACK__API_VERSION' );
 
@@ -386,7 +374,7 @@ class Manager {
 			empty( $token_key )
 		||
 			empty( $version ) || strval( $jetpack_api_version ) !== $version ) {
-			return new Connection_Error( 'malformed_token', compact( 'signature_details' ) );
+			return new \WP_Error( 'malformed_token', 'Malformed token in request', compact( 'signature_details' ) );
 		}
 
 		if ( '0' === $user_id ) {
@@ -395,8 +383,9 @@ class Manager {
 		} else {
 			$token_type = 'user';
 			if ( empty( $user_id ) || ! ctype_digit( $user_id ) ) {
-				return new Connection_Error(
+				return new \WP_Error(
 					'malformed_user_id',
+					'Malformed user_id in request',
 					compact( 'signature_details' )
 				);
 			}
@@ -404,8 +393,9 @@ class Manager {
 
 			$user = new \WP_User( $user_id );
 			if ( ! $user || ! $user->exists() ) {
-				return new Connection_Error(
+				return new \WP_Error(
 					'unknown_user',
+					sprintf( 'User %d does not exist', $user_id ),
 					compact( 'signature_details' )
 				);
 			}
@@ -416,8 +406,9 @@ class Manager {
 			$token->add_data( compact( 'signature_details' ) );
 			return $token;
 		} elseif ( ! $token ) {
-			return new Connection_Error(
+			return new \WP_Error(
 				'unknown_token',
+				sprintf( 'Token %s:%s:%d does not exist', $token_key, $version, $user_id ),
 				compact( 'signature_details' )
 			);
 		}
@@ -457,8 +448,9 @@ class Manager {
 		$signature_details['url'] = $jetpack_signature->current_request_url;
 
 		if ( ! $signature ) {
-			return new Connection_Error(
+			return new \WP_Error(
 				'could_not_sign',
+				'Unknown signature error',
 				compact( 'signature_details' )
 			);
 		} elseif ( is_wp_error( $signature ) ) {
@@ -472,8 +464,9 @@ class Manager {
 
 		// Use up the nonce regardless of whether the signature matches.
 		if ( ! $this->add_nonce( $timestamp, $nonce ) ) {
-			return new Connection_Error(
+			return new \WP_Error(
 				'invalid_nonce',
+				'Could not add nonce',
 				compact( 'signature_details' )
 			);
 		}
@@ -485,8 +478,9 @@ class Manager {
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( ! hash_equals( $signature, $_GET['signature'] ) ) {
-			return new Connection_Error(
+			return new \WP_Error(
 				'signature_mismatch',
+				'Signature mismatch',
 				compact( 'signature_details' )
 			);
 		}
@@ -2218,6 +2212,49 @@ class Manager {
 			'value'    => $jetpack_client_id,
 		);
 		return $options;
+	}
+
+	/**
+	 * Check whether the request came from wpcom
+	 *
+	 * @since 8.7.0
+	 *
+	 * @return bool
+	 */
+	public static function xmlrpc_request_came_from_wpcom() {
+
+		return true;
+
+		if ( ! isset( $_GET['signature'], $_GET['timestamp'], $_GET['url'] ) ) {
+			return false;
+		}
+		$signature = base64_decode( $_GET['signature'] );
+
+		$signature_data = wp_json_encode(
+			array(
+				'rest_route' => $_GET['rest_route'],
+				'timestamp' => intval( $_GET['timestamp'] ),
+				'url' => wp_unslash( $_GET['url'] ),
+			)
+		);
+
+		if (
+			! function_exists( 'openssl_verify' )
+			|| 1 !== openssl_verify(
+				$signature_data,
+				$signature,
+				JETPACK__DEBUGGER_PUBLIC_KEY
+			)
+		) {
+			return false;
+		}
+
+		// signature timestamp must be within 5min of current time
+		if ( abs( time() - intval( $_GET['timestamp'] ) ) > 300 ) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
