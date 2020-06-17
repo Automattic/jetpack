@@ -138,6 +138,9 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			'siteId'                => $this->jetpack_blog_id,
 
 			'postTypes'             => $post_type_labels,
+
+			// search options.
+			'defaultSort'           => get_option( $prefix . 'default_sort', 'relevance' ),
 			'widgets'               => array_values( $widgets ),
 			'widgetsOutsideOverlay' => array_values( $widgets_outside_overlay ),
 		);

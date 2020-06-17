@@ -12,7 +12,6 @@ export function getThemeOptions( searchOptions ) {
 			'.search-form input.search-field:not(.jetpack-instant-search__box-input)',
 			'.searchform input.search-field:not(.jetpack-instant-search__box-input)',
 		].join( ', ' ),
-		searchSortSelector: [ '.jetpack-search-sort' ],
 		filterInputSelector: [ 'a.jetpack-search-filter__link' ],
 	};
 	return searchOptions.theme_options ? { ...options, ...searchOptions.theme_options } : options;

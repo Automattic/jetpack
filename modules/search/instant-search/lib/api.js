@@ -131,6 +131,16 @@ function buildFilterObject( filterQuery, adminQueryFilter ) {
 	return filter;
 }
 
+// Maps sort values to values expected by the API
+const SORT_QUERY_MAP = new Map( [
+	[ 'oldest', 'date_asc' ],
+	[ 'newest', 'date_desc' ],
+	[ 'relevance', 'score_default' ],
+] );
+function mapSortToApiValue( sort ) {
+	return SORT_QUERY_MAP.get( sort, 'score_default' );
+}
+
 export function search( {
 	aggregations,
 	filter,
@@ -181,7 +191,7 @@ export function search( {
 			highlight_fields: highlightFields,
 			filter: buildFilterObject( filter, adminQueryFilter ),
 			query: encodeURIComponent( query ),
-			sort,
+			sort: mapSortToApiValue( sort ),
 			page_handle: pageHandle,
 			size: postsPerPage,
 		} )
