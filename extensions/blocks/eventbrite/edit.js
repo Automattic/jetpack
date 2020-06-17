@@ -270,32 +270,26 @@ class EventbriteEdit extends Component {
 		const { url, style } = attributes;
 		const { editingUrl, isResolvingUrl } = this.state;
 
-		let component;
-
 		if ( isResolvingUrl ) {
-			component = this.renderLoading();
-		} else if ( editingUrl || ! url || this.cannotEmbed() ) {
-			component = this.renderEditEmbed();
-		} else {
-			component = (
-				<>
-					{ this.renderBlockControls() }
-					{ style === 'modal' ? (
-						<InnerBlocks
-							template={ [ [ innerButtonBlock.name, innerButtonBlock.attributes ] ] }
-							templateLock="all"
-						/>
-					) : (
-						this.renderInlinePreview()
-					) }
-				</>
-			);
+			return this.renderLoading();
+		}
+
+		if ( editingUrl || ! url || this.cannotEmbed() ) {
+			return this.renderEditEmbed();
 		}
 
 		return (
 			<>
 				{ this.renderInspectorControls() }
-				{ component }
+				{ this.renderBlockControls() }
+				{ style === 'modal' ? (
+					<InnerBlocks
+						template={ [ [ innerButtonBlock.name, innerButtonBlock.attributes ] ] }
+						templateLock="all"
+					/>
+				) : (
+					this.renderInlinePreview()
+				) }
 			</>
 		);
 	}

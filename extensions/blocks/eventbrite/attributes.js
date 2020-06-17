@@ -10,5 +10,6 @@ export default {
 	},
 	style: {
 		type: 'string',
+		default: 'inline',
 	},
 };
