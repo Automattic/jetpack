@@ -65,6 +65,8 @@ export const settings = {
 		_x( 'purchase', 'block search term', 'jetpack' ),
 		_x( 'sell', 'block search term', 'jetpack' ),
 		_x( 'shop', 'block search term', 'jetpack' ),
+		_x( 'simple', 'block search term', 'jetpack' ),
+		_x( 'payments', 'block search term', 'jetpack' ),
 		'PayPal',
 	],
 
