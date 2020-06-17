@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { __, _x } from '@wordpress/i18n';
-import { useEffect, useState } from '@wordpress/element';
+import { useEffect, useState, useCallback } from '@wordpress/element';
 import { useDispatch } from '@wordpress/data';
 import {
 	Button,
@@ -48,7 +48,7 @@ export default function WhatsAppButtonEdit( { attributes, setAttributes, classNa
 	const [ isValidPhoneNumber, setIsValidPhoneNumber ] = useState( true );
 	const { selectBlock } = useDispatch( 'core/block-editor' );
 
-	const getCountryCode = async () => {
+	const getCountryCode = useCallback( async () => {
 		setAttributes( { countryCode: '1' } );
 
 		const geoFetch = await fetch( 'http://ip-api.com/json/?fields=countryCode' )
@@ -72,14 +72,14 @@ export default function WhatsAppButtonEdit( { attributes, setAttributes, classNa
 				}
 			} );
 		}
-	};
+	}, [ setAttributes ] );
 
 	useEffect( () => {
 		if ( undefined === countryCode ) {
 			getCountryCode();
 			selectBlock( clientId );
 		}
-	} );
+	}, [ clientId, countryCode, getCountryCode, selectBlock ] );
 
 	const validatePhoneNumber = newPhoneNumber => {
 		// No alphabetical characters but allow dots, dashes, and brackets.
