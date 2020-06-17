@@ -3,17 +3,22 @@
  */
 import { merge, range } from 'lodash';
 import { EventEmitter } from 'events';
+import ResizeObserver from 'resize-observer-polyfill';
 
 /**
  * Internal dependencies
  */
 import './player.scss';
 
+const MOBILE_ASPECT_RATIO = 720 / 1280;
+const SANITY_MAX_HEIGHT = 512; // 40% of 1280
+
 const defaultSettings = {
+	autoload: true,
 	imageTime: 5000,
 	renderInterval: 50,
 	startMuted: true,
-	playInFullScreen: false,
+	playInFullScreen: true,
 	pagination: {
 		renderBullet,
 	},
@@ -22,13 +27,16 @@ const defaultSettings = {
 	},
 };
 
-export default function player( container, params ) {
+export default function player( rootElement, params ) {
 	const settings = merge( {}, defaultSettings, params );
-	if ( typeof container === 'string' ) {
-		container = document.querySelector( container );
+	if ( typeof rootElement === 'string' ) {
+		rootElement = document.querySelectorAll( rootElement );
 	}
 
-	const slides = [ ...container.querySelectorAll( 'li.wp-story-slide' ) ];
+	const container = rootElement.querySelector( '.wp-story-container' );
+	const slidesWrapper = container.querySelector( '.wp-story-wrapper' );
+	const slides = [ ...slidesWrapper.querySelectorAll( 'li.wp-story-slide' ) ];
+
 	const currentSlideStatus = {
 		currentTime: 0,
 		duration: null,
@@ -77,6 +85,8 @@ export default function player( container, params ) {
 	const tryNextSlide = () => {
 		if ( currentSlideIndex < slides.length - 1 ) {
 			showSlide( currentSlideIndex + 1 );
+		} else {
+			playerEvents.emit( 'end' );
 		}
 	};
 
@@ -132,16 +142,22 @@ export default function player( container, params ) {
 		playerEvents.emit( 'pause' );
 	};
 
-	const initPlayer = () => {
-		if ( slides.length > 0 ) {
-			container.style.display = 'block';
-			container.style.opacity = 1;
-			waitMediaReady( slides[ 0 ] ).then( () => {
-				container.classList.add( 'wp-story-initialized' );
-				playerEvents.emit( 'ready' );
-			} );
-		}
+	const goFullScreen = () => {
+		document.body.classList.add( 'wp-story-in-fullscreen' );
+		rootElement.classList.add( 'wp-story-fullscreen' );
+	};
 
+	const exitFullScreen = () => {
+		document.body.classList.remove( 'wp-story-in-fullscreen' );
+		rootElement.classList.remove( 'wp-story-fullscreen' );
+	};
+
+	const resize = () => {
+		const slidesMaxHeight = slidesWrapper.offsetHeight;
+		container.style.width = `${ MOBILE_ASPECT_RATIO * slidesMaxHeight }px`;
+	};
+
+	const initPlayer = () => {
 		// show progress
 		const paginationElement = container.querySelector( '.wp-story-pagination' );
 		paginationElement.classList.add( 'wp-story-pagination-bullets' );
@@ -156,6 +172,9 @@ export default function player( container, params ) {
 		const playButton = settings.callbacks.renderPlayButton( container, {
 			onClick: () => {
 				if ( ! playing ) {
+					if ( settings.playInFullScreen ) {
+						goFullScreen();
+					}
 					playCurrentSlide();
 				} else {
 					pauseCurrentSlide();
@@ -165,13 +184,13 @@ export default function player( container, params ) {
 
 		// Everything not core to the player is handled as side-effect using events
 		playerEvents.on( 'play', () => {
-			container.classList.remove( 'wp-story-paused' );
-			container.classList.add( 'wp-story-playing' );
+			rootElement.classList.remove( 'wp-story-paused' );
+			rootElement.classList.add( 'wp-story-playing' );
 			playButton.hide();
 		} );
 		playerEvents.on( 'pause', () => {
-			container.classList.remove( 'wp-story-playing' );
-			container.classList.add( 'wp-story-paused' );
+			rootElement.classList.remove( 'wp-story-playing' );
+			rootElement.classList.add( 'wp-story-paused' );
 			playButton.show();
 		} );
 		playerEvents.on( 'slide-progress', percentage => {
@@ -187,18 +206,41 @@ export default function player( container, params ) {
 				bullet.setProgress( 0 );
 			} );
 		} );
-		playerEvents.emit( 'init' );
+		playerEvents.on( 'end', () => {} );
 		playerEvents.on( 'ready', () => showSlide( 0, false ) );
 
-		return {
-			play: playCurrentSlide,
-			pause: pauseCurrentSlide,
-			goToSlide: showSlide,
-			on: playerEvents.on.bind( playerEvents ),
-		};
+		rootElement.classList.add( 'wp-story-initialized' );
+		playerEvents.emit( 'init' );
+
+		if ( slides.length > 0 ) {
+			waitMediaReady( slides[ 0 ] ).then( () => {
+				playerEvents.emit( 'ready' );
+			} );
+
+			let pendingRequestAnimationFrame = null;
+			new ResizeObserver( () => {
+				if ( pendingRequestAnimationFrame ) {
+					cancelAnimationFrame( pendingRequestAnimationFrame );
+					pendingRequestAnimationFrame = null;
+				}
+				pendingRequestAnimationFrame = requestAnimationFrame( () => {
+					resize();
+				} );
+			} ).observe( container );
+		}
 	};
 
-	return initPlayer();
+	if ( settings.autoload ) {
+		initPlayer();
+	}
+
+	return {
+		load: initPlayer,
+		play: playCurrentSlide,
+		pause: pauseCurrentSlide,
+		goToSlide: showSlide,
+		on: playerEvents.on.bind( playerEvents ),
+	};
 }
 
 async function waitMediaReady( element ) {
@@ -206,7 +248,7 @@ async function waitMediaReady( element ) {
 	return await Promise.all(
 		mediaElements.map( mediaElement => {
 			const elementTag = mediaElement.tagName.toLowerCase();
-			if ( 'img' === mediaElement.tagName.toLowerCase() ) {
+			if ( 'img' === elementTag ) {
 				if ( mediaElement.complete ) {
 					return;
 				}
@@ -214,6 +256,9 @@ async function waitMediaReady( element ) {
 					mediaElement.addEventListener( 'load', resolve, { once: true } );
 				} );
 			} else if ( 'video' === elementTag ) {
+				if ( mediaElement.HAVE_ENOUGH_DATA === mediaElement.readyState ) {
+					return;
+				}
 				return new Promise( resolve => {
 					mediaElement.addEventListener( 'canplaythrough', resolve, { once: true } );
 				} );
