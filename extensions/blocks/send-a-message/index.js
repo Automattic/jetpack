@@ -36,7 +36,6 @@ export const settings = {
 	],
 	supports: {
 		html: false,
-		align: [ 'left', 'center', 'right' ],
 	},
 	attributes: {},
 	edit,
