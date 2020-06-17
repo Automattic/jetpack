@@ -66,14 +66,17 @@ describe( 'Paid blocks', () => {
 			await spBlock.fillDetails();
 		} );
 
-		await step( 'Can publish a post and assert that Pay with PayPal button is rendered', async () => {
-			await blockEditor.focus();
-			await blockEditor.publishPost();
-			await blockEditor.viewPost();
+		await step(
+			'Can publish a post and assert that Pay with PayPal button is rendered',
+			async () => {
+				await blockEditor.focus();
+				await blockEditor.publishPost();
+				await blockEditor.viewPost();
 
-			const frontend = await PostFrontendPage.init( page );
-			await frontend.isRenderedBlockPresent( SimplePaymentBlock );
-		} );
+				const frontend = await PostFrontendPage.init( page );
+				await frontend.isRenderedBlockPresent( SimplePaymentBlock );
+			}
+		);
 	} );
 
 	it( 'WordAds block', async () => {
