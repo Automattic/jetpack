@@ -3,7 +3,6 @@
  */
 import classnames from 'classnames';
 import ResizeObserver from 'resize-observer-polyfill';
-import { __ } from '@wordpress/i18n';
 import { Component, createRef } from '@wordpress/element';
 import { isBlobURL } from '@wordpress/blob';
 import { isEqual } from 'lodash';
@@ -79,58 +78,7 @@ class Story extends Component {
 	};
 
 	render() {
-		const { className, mediaFiles } = this.props;
-		// Note: React omits the data attribute if the value is null, but NOT if it is false.
-		// This is the reason for the unusual logic related to autoplay below.
-		/* eslint-disable jsx-a11y/anchor-is-valid */
-		return (
-			<div className={ className } data-autoplay={ false } data-effect={ 'slide' }>
-				<div className="wp-block-jetpack-story_container wp-story-container" ref={ this.storyRef }>
-					<div
-						className="wp-block-jetpack-story_pagination wp-story-pagination"
-						ref={ this.paginationRef }
-					/>
-					<ul className="wp-block-jetpack-story_wrapper wp-story-wrapper">
-						{ mediaFiles.map( ( { alt, caption, id, mime, type, url } ) => (
-							<li
-								className={ classnames(
-									'wp-block-jetpack-story_slide wp-story-slide',
-									isBlobURL( url ) && 'is-transient'
-								) }
-								key={ id }
-							>
-								<figure>
-									{ 'image' === type && (
-										<img
-											alt={ alt }
-											className={
-												`wp-block-jetpack-story_image wp-image-${ id }` /* wp-image-${ id } makes WordPress add a srcset */
-											}
-											data-id={ id }
-											src={ url }
-										/>
-									) }
-									{ 'video' === type && (
-										// eslint-disable-next-line jsx-a11y/media-has-caption
-										<video
-											title={ alt }
-											type={ mime }
-											className={
-												`wp-block-jetpack-story_video intrinsic-ignore wp-video-${ id }` /* wp-image-${ id } makes WordPress add a srcset */
-											}
-											data-id={ id }
-											src={ url }
-										/>
-									) }
-									{ isBlobURL( url ) && <Spinner /> }
-								</figure>
-							</li>
-						) ) }
-					</ul>
-				</div>
-			</div>
-		);
-		/* eslint-enable jsx-a11y/anchor-is-valid */
+		return null;
 	}
 
 	prefersReducedMotion = () => {

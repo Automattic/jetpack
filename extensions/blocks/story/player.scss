@@ -3,11 +3,9 @@
 
 .wp-story-container {
 	overflow: hidden;
-	opacity: 0;
 	margin-left: auto;
 	margin-right: auto;
 	position: relative;
-	overflow: hidden;
 	list-style: none;
 	padding: 0;
 	z-index: 1;
@@ -44,13 +42,17 @@
 		}
 	}
 
-	.wp-story-image {
+	.wp-story-image, .wp-story-video {
 		display: block;
 		height: auto;
+		width: auto;
 		max-height: 100%;
 		max-width: 100%;
-		width: auto;
-		object-fit: contain;
+		//object-fit: contain;
+	}
+
+	.wp-story-controls {
+		display: none;
 	}
 
 	.wp-story-button-fullscreen-prev,
@@ -122,7 +124,7 @@
 			flex: 1;
 			background-color: transparent;
 			opacity: 1;
-			margin: 0 4px;
+			margin: 0 2px;
 			padding: 6px 0;
 			width: 15px;
 			vertical-align: top;
@@ -134,18 +136,106 @@
 
 			.wp-story-pagination-bullet-bar {
 				width: 100%;
-				height: 3px;
-				border-radius: 1.5px;
+				height: 2px;
+				//border-radius: 1.5px;
 				background: rgba(170, 170, 170, 0.8);
 			}
 
 			.wp-story-pagination-bullet-bar-progress {
 				width: 0;
 				opacity: 1;
-				height: 3px;
+				height: 2px;
 				background-color: #fff;
 				transition: width 50ms;
 			}
 		}
 	}
+}
+
+.wp-story-fullscreen {
+	position: fixed;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	margin: 0;
+	z-index: 99999;
+	width: 100% !important;
+	max-width: 100% !important;
+	height: 100%;
+	background-color: #0e1112;
+
+	.wp-story-container {
+		margin: auto;
+		min-height: 500px;
+		height: 100%;
+		max-width:100%;
+		max-height:100%;
+	}
+
+	.wp-story-wrapper {
+		display: block;
+		position: absolute;
+		height: auto;
+		bottom: 0;
+		top: 0;
+		left: 0;
+		right: 0;
+		margin-top: 80px;
+		margin-bottom: 20px;
+	}
+
+	.wp-story-slide {
+		height:100%;
+		width:auto;
+	}
+
+	.wp-story-controls {
+		margin-top: 10px;
+		display: flex;
+		flex-direction: row;
+		color: #fff;
+		font-family: "Noto Sans", Arial, sans-serif;
+		line-height: 15px;
+		align-items: center;
+
+		img {
+			margin: 5px;
+		}
+
+		.wp-story-site-name {
+			font-size: 13px;
+			font-weight: 300;
+		}
+
+		.wp-story-site-description {
+			font-size: 12px;
+			font-weight: 200;
+		}
+	}
+
+	.wp-story-pagination-bullets {
+		position: absolute;
+		top: 43px;
+		padding: 6px 0;
+
+		.wp-story-pagination-bullet {
+			justify-content: space-between;
+
+			&:first-child {
+				margin-left: 0;
+			}
+			&:last-child {
+				margin-right: 0;
+			}
+		}
+
+	}
+}
+
+body.wp-story-in-fullscreen {
+	overflow: hidden;
+	padding-right: 15px; /* Avoid width reflow */
+	position: fixed;
+	width: 100%;
 }

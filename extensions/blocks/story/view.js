@@ -1,10 +1,8 @@
-/* global _wpmejsSettings, MediaElementPlayer */
 /**
  * External dependencies
  */
 import { forEach } from 'lodash';
 import domReady from '@wordpress/dom-ready';
-import ResizeObserver from 'resize-observer-polyfill';
 
 /**
  * Internal dependencies
@@ -21,25 +19,11 @@ if ( typeof window !== 'undefined' ) {
 				return;
 			}
 
-			const storyContainer = storyBlock.getElementsByClassName( 'wp-story-container' )[ 0 ];
-
-			player( storyContainer, null, {
+			player( storyBlock, null, {
 				init: playerInit,
 				imagesReady: playerResize,
 				transitionEnd: playerApplyAria,
 			} );
-
-			let pendingRequestAnimationFrame = null;
-			new ResizeObserver( () => {
-				if ( pendingRequestAnimationFrame ) {
-					cancelAnimationFrame( pendingRequestAnimationFrame );
-					pendingRequestAnimationFrame = null;
-				}
-				pendingRequestAnimationFrame = requestAnimationFrame( () => {
-					//swiperResize( swiper );
-					//swiper.update();
-				} );
-			} ).observe( storyContainer );
 		} );
 	} );
 }
