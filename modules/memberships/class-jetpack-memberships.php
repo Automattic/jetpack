@@ -205,7 +205,7 @@ class Jetpack_Memberships {
 	 *
 	 * @return string|void
 	 */
-	public function render_button( $attrs, $content ) {
+	public function render_button( $attrs, $content = null ) {
 		Jetpack_Gutenberg::load_assets_as_required( self::$button_block_name, array( 'thickbox', 'wp-polyfill' ) );
 
 		if ( empty( $attrs['planId'] ) ) {
@@ -223,20 +223,10 @@ class Jetpack_Memberships {
 		add_thickbox();
 
 		if ( ! empty( $content ) ) {
-			$block_id = esc_attr( wp_unique_id( 'recurring-payments-block-' ) );
-			$content  = str_replace( 'recurring-payments-id', $block_id, $content );
-
+			$block_id      = esc_attr( wp_unique_id( 'recurring-payments-block-' ) );
+			$content       = str_replace( 'recurring-payments-id', $block_id, $content );
 			$subscribe_url = $this->get_subscription_url( $plan_id );
-			$content       = str_replace( 'href="#"', 'href="' . $subscribe_url . '"', $content );
-
-			// Allow for WPCOM VIP custom attributes or remove target="_blank" to match original behaviour.
-			$html_attributes = isset( $attrs['submitButtonAttributes'] )
-				? sanitize_text_field( $attrs['submitButtonAttributes'] )
-				: '';
-
-			$content = preg_replace( '/target="_blank"/', $html_attributes, $content );
-
-			return $content;
+			return str_replace( 'href="#"', 'href="' . $subscribe_url . '"', $content );
 		}
 
 		return $this->deprecated_render_button_v1( $attrs, $plan_id );
