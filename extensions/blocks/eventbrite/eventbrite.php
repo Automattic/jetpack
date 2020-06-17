@@ -117,10 +117,10 @@ function render_block( $attr, $content ) {
 	);
 
 	// Replace the placeholder id saved in the post_content with a unique id used by widget.js.
-	$content = str_replace( 'eventbrite-widget-id', $widget_id, $content );
+	$content = str_replace( 'eventbrite-widget-id', esc_attr( $widget_id ), $content );
 
 	// Fallback for block version deprecated/v2.
-	$content = preg_replace( '/eventbrite-widget-\d+/', $widget_id, $content );
+	$content = preg_replace( '/eventbrite-widget-\d+/', esc_attr( $widget_id ), $content );
 
 	return $content;
 }
