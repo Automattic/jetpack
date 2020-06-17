@@ -119,10 +119,6 @@ class EventbriteEdit extends Component {
 		const { style } = this.props.attributes;
 		const { attributes, clientId, setAttributes } = this.props;
 
-		if ( this.cannotEmbed() ) {
-			return;
-		}
-
 		const embedTypes = [
 			{
 				value: 'inline',
