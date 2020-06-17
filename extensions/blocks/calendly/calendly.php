@@ -213,7 +213,7 @@ function deprecated_render_button_v1( $attributes, $block_id, $classes, $url ) {
 	 */
 	if ( ! empty( $submit_button_text_color ) || ! empty( $submit_button_background_color ) ) {
 		$inline_styles = sprintf(
-			'#%1$s .wp-block-button__link{%2$s%3$s}',
+			'#%1$s{%2$s%3$s}',
 			esc_attr( $block_id ),
 			! empty( $submit_button_text_color )
 				? 'color:#' . sanitize_hex_color_no_hash( $submit_button_text_color ) . ';'
@@ -226,7 +226,7 @@ function deprecated_render_button_v1( $attributes, $block_id, $classes, $url ) {
 	}
 
 	return sprintf(
-		'<div class="%1$s"><a id="%2$s" class="%3$s" href="%4$s" role="button">%5$s</a></div>',
+		'<div class="wp-block-button %1$s"><a id="%2$s" class="%3$s" href="%4$s" role="button">%5$s</a></div>',
 		esc_attr( $classes ),
 		esc_attr( $block_id ),
 		! empty( $submit_button_classes ) ? esc_attr( $submit_button_classes ) : 'wp-block-button__link',
