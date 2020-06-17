@@ -16,13 +16,13 @@ import getJetpackExtensionAvailability from '../../get-jetpack-extension-availab
  * @returns {boolean}       True if it's a video file. Otherwise, False.
  */
 export function isVideoFile( file ) {
-	// Pick up allowed mime types from the window object.
-	const allowedMimeTypes = window?.Jetpack_Editor_Initial_State?.allowedMimeTypes;
-	if ( ! allowedMimeTypes ) {
+	if ( ! file ) {
 		return false;
 	}
 
-	if ( ! file ) {
+	// Pick up allowed mime types from the window object.
+	const allowedMimeTypes = window?.Jetpack_Editor_Initial_State?.allowedMimeTypes;
+	if ( ! allowedMimeTypes ) {
 		return false;
 	}
 
