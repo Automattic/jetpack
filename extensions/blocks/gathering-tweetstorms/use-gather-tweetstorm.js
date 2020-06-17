@@ -40,10 +40,13 @@ export default function useGatherTweetstorm( { url, noticeOperations, onReplace 
 			return;
 		}
 
-		const userResult = url.match( /^https?:\/\/(?:www\.)?twitter\.com\/([^/]*)/ );
-		if ( userResult[ 1 ] ) {
-			setTwitterUser( userResult[ 1 ] );
+		const userResult = url.match( /^https?:\/\/(?:www\.)?twitter\.com\/([^/]+)\/\d+/ );
+		if ( isEmpty( userResult ) ) {
+			setBlocks( [] );
+			return;
 		}
+
+		setTwitterUser( userResult[ 1 ] );
 
 		noticeOperations && noticeOperations.removeAllNotices();
 		setIsGatheringStorm( true );
