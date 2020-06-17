@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import classnames from 'classnames';
 import { RichText } from '@wordpress/block-editor';
 
 /**
@@ -33,8 +34,10 @@ export default function SendAMessageSave( { attributes, className } ) {
 		return url;
 	};
 
+	const cssClassNames = classnames( className, colorClass ? 'is-color-' + colorClass : undefined );
+
 	return (
-		<div className={ className + ' is-color-' + colorClass }>
+		<div className={ cssClassNames }>
 			<a
 				className="whatsapp-block__button"
 				href={ getWhatsAppUrl() }
