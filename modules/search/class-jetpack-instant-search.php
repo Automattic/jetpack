@@ -66,6 +66,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		$script_version = Jetpack_Search_Helpers::get_asset_version( $script_relative_path );
 		$script_path    = plugins_url( $script_relative_path, JETPACK__PLUGIN_FILE );
 		wp_enqueue_script( 'jetpack-instant-search', $script_path, array(), $script_version, true );
+		wp_set_script_translations( 'jetpack-instant-search', 'jetpack' );
 		$this->load_and_initialize_tracks();
 		$this->inject_javascript_options();
 
@@ -137,8 +138,11 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			'homeUrl'               => home_url(),
 			'locale'                => str_replace( '_', '-', Jetpack_Search_Helpers::is_valid_locale( get_locale() ) ? get_locale() : 'en_US' ),
 			'postsPerPage'          => $posts_per_page,
-			'siteId'                => Jetpack::get_option( 'id' ),
+			'siteId'                => $this->jetpack_blog_id,
 			'postTypes'             => $post_type_labels,
+
+			// search options.
+			'defaultSort'           => get_option( $prefix . 'default_sort', 'relevance' ),
 
 			// widget info.
 			'widgets'               => array_values( $widgets ),

@@ -563,20 +563,20 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 *
 	 * ## OPTIONS
 	 *
-	 * whitelist: Whitelist an IP address.  You can also read or clear the whitelist.
+	 * allow: Add an IP address to an always allow list.  You can also read or clear the allow list.
 	 *
 	 *
 	 * ## EXAMPLES
 	 *
-	 * wp jetpack protect whitelist <ip address>
-	 * wp jetpack protect whitelist list
-	 * wp jetpack protect whitelist clear
+	 * wp jetpack protect allow <ip address>
+	 * wp jetpack protect allow list
+	 * wp jetpack protect allow clear
 	 *
-	 * @synopsis <whitelist> [<ip|ip_low-ip_high|list|clear>]
+	 * @synopsis <allow> [<ip|ip_low-ip_high|list|clear>]
 	 */
 	public function protect( $args, $assoc_args ) {
 		$action = isset( $args[0] ) ? $args[0] : 'prompt';
-		if ( ! in_array( $action, array( 'whitelist' ) ) ) {
+		if ( ! in_array( $action, array( 'whitelist', 'allow' ), true ) ) { // Still allow "whitelist" for legacy support.
 			/* translators: %s is a command like "prompt" */
 			WP_CLI::error( sprintf( __( '%s is not a valid command.', 'jetpack' ), $action ) );
 		}
@@ -585,96 +585,96 @@ class Jetpack_CLI extends WP_CLI_Command {
 			/* translators: %s is a module name */
 			WP_CLI::error( sprintf( _x( '%1$s is not active. You can activate it with "wp jetpack module activate %2$s"', '"wp jetpack module activate" is a command - do not translate', 'jetpack' ), __FUNCTION__, __FUNCTION__ ) );
 		}
-		if ( in_array( $action, array( 'whitelist' ) ) ) {
+		if ( in_array( $action, array( 'allow', 'whitelist' ), true ) ) {
 			if ( isset( $args[1] ) ) {
-				$action = 'whitelist';
+				$action = 'allow';
 			} else {
 				$action = 'prompt';
 			}
 		}
 		switch ( $action ) {
-			case 'whitelist':
-				$whitelist         = array();
-				$new_ip            = $args[1];
-				$current_whitelist = get_site_option( 'jetpack_protect_whitelist', array() );
+			case 'allow':
+				$allow         = array();
+				$new_ip        = $args[1];
+				$current_allow = get_site_option( 'jetpack_protect_whitelist', array() ); // @todo Update the option name.
 
-				// Build array of IPs that are already whitelisted.
+				// Build array of IPs that are already on the allowed list.
 				// Re-build manually instead of using jetpack_protect_format_whitelist() so we can easily get
 				// low & high range params for jetpack_protect_ip_address_is_in_range();
-				foreach ( $current_whitelist as $whitelisted ) {
+				foreach ( $current_allow as $allowed ) {
 
 					// IP ranges
-					if ( $whitelisted->range ) {
+					if ( $allowed->range ) {
 
-						// Is it already whitelisted?
-						if ( jetpack_protect_ip_address_is_in_range( $new_ip, $whitelisted->range_low, $whitelisted->range_high ) ) {
+						// Is it already on the allowed list?
+						if ( jetpack_protect_ip_address_is_in_range( $new_ip, $allowed->range_low, $allowed->range_high ) ) {
 							/* translators: %s is an IP address */
-							WP_CLI::error( sprintf( __( '%s has already been whitelisted', 'jetpack' ), $new_ip ) );
+							WP_CLI::error( sprintf( __( '%s is already on the always allow list.', 'jetpack' ), $new_ip ) );
 							break;
 						}
-						$whitelist[] = $whitelisted->range_low . ' - ' . $whitelisted->range_high;
+						$allow[] = $allowed->range_low . ' - ' . $allowed->range_high;
 
 					} else { // Individual IPs
 
-						// Check if the IP is already whitelisted (single IP only)
-						if ( $new_ip == $whitelisted->ip_address ) {
+						// Check if the IP is already on the allow list (single IP only).
+						if ( $new_ip === $allowed->ip_address ) {
 							/* translators: %s is an IP address */
-							WP_CLI::error( sprintf( __( '%s has already been whitelisted', 'jetpack' ), $new_ip ) );
+							WP_CLI::error( sprintf( __( '%s is already on the always allow list.', 'jetpack' ), $new_ip ) );
 							break;
 						}
-						$whitelist[] = $whitelisted->ip_address;
+						$allow[] = $allowed->ip_address;
 
 					}
 				}
 
 				/*
-				 * List the whitelist
-				 * Done here because it's easier to read the $whitelist array after it's been rebuilt
+				 * List the allowed IPs.
+				 * Done here because it's easier to read the $allow array after it's been rebuilt.
 				 */
 				if ( isset( $args[1] ) && 'list' == $args[1] ) {
-					if ( ! empty( $whitelist ) ) {
-						WP_CLI::success( __( 'Here are your whitelisted IPs:', 'jetpack' ) );
-						foreach ( $whitelist as $ip ) {
+					if ( ! empty( $allow ) ) {
+						WP_CLI::success( __( 'Here are your always allowed IPs:', 'jetpack' ) );
+						foreach ( $allow as $ip ) {
 							WP_CLI::line( "\t" . str_pad( $ip, 24 ) );
 						}
 					} else {
-						WP_CLI::line( __( 'Whitelist is empty.', 'jetpack' ) );
+						WP_CLI::line( __( 'Always allow list is empty.', 'jetpack' ) );
 					}
 					break;
 				}
 
 				/*
-				 * Clear the whitelist
+				 * Clear the always allow list.
 				 */
 				if ( isset( $args[1] ) && 'clear' == $args[1] ) {
-					if ( ! empty( $whitelist ) ) {
-						$whitelist = array();
-						jetpack_protect_save_whitelist( $whitelist );
-						WP_CLI::success( __( 'Cleared all whitelisted IPs', 'jetpack' ) );
+					if ( ! empty( $allow ) ) {
+						$allow = array();
+						jetpack_protect_save_whitelist( $allow ); // @todo Need to update function name in the Protect module.
+						WP_CLI::success( __( 'Cleared all IPs from the always allow list.', 'jetpack' ) );
 					} else {
-						WP_CLI::line( __( 'Whitelist is empty.', 'jetpack' ) );
+						WP_CLI::line( __( 'Always allow list is empty.', 'jetpack' ) );
 					}
 					break;
 				}
 
-				// Append new IP to whitelist array
-				array_push( $whitelist, $new_ip );
+				// Append new IP to allow array.
+				array_push( $allow, $new_ip );
 
-				// Save whitelist if there are no errors
-				$result = jetpack_protect_save_whitelist( $whitelist );
+				// Save allow list if there are no errors.
+				$result = jetpack_protect_save_whitelist( $allow ); // @todo Need to update function name in the Protect module.
 				if ( is_wp_error( $result ) ) {
 					WP_CLI::error( $result );
 				}
 
 				/* translators: %s is an IP address */
-				WP_CLI::success( sprintf( __( '%s has been whitelisted.', 'jetpack' ), $new_ip ) );
+				WP_CLI::success( sprintf( __( '%s has been added to the always allowed list.', 'jetpack' ), $new_ip ) );
 				break;
 			case 'prompt':
 				WP_CLI::error(
 					__( 'No command found.', 'jetpack' ) . "\n" .
-					__( 'Please enter the IP address you want to whitelist.', 'jetpack' ) . "\n" .
-					_x( 'You can save a range of IPs {low_range}-{high_range}. No spaces allowed.  (example: 1.1.1.1-2.2.2.2)', 'Instructions on how to whitelist IP ranges - low_range/high_range should be translated.', 'jetpack' ) . "\n" .
-					_x( "You can also 'list' or 'clear' the whitelist.", "'list' and 'clear' are commands and should not be translated", 'jetpack' ) . "\n"
+					__( 'Please enter the IP address you want to always allow.', 'jetpack' ) . "\n" .
+					_x( 'You can save a range of IPs {low_range}-{high_range}. No spaces allowed.  (example: 1.1.1.1-2.2.2.2)', 'Instructions on how to add IP ranges - low_range/high_range should be translated.', 'jetpack' ) . "\n" .
+					_x( "You can also 'list' or 'clear' the always allowed list.", "'list' and 'clear' are commands and should not be translated", 'jetpack' ) . "\n"
 				);
 				break;
 		}

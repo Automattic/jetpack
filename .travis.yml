@@ -100,11 +100,39 @@ matrix:
     name: "Legacy full sync"
     env: LEGACY_FULL_SYNC=1 WP_BRANCH=latest
 
+  - php: "7.4"
+    name: "E2E tests latest Gutenberg"
+    env: LATEST_GUTENBERG=1
+    # Since build secrets are not available for forks, we would not be able to (and don't want) decrypt the config file
+    # so we just skip the E2E job all together
+    if: branch !~ /(^branch-.*-built)/ AND env(RUN_E2E) = true AND fork = false
+    before_script:
+    # Enable user namespace cloning
+    - "sysctl kernel.unprivileged_userns_clone=1"
+    - nvm install
+    - yarn && yarn build-production
+    - ./tests/e2e/bin/setup-e2e-travis.sh
+    - yarn test-decrypt-config
+    script:
+    - yarn test-e2e --runInBand --verbose
+    after_script:
+    - sudo apt-add-repository -y ppa:qameta/allure
+    - sudo apt-get update
+    - sudo apt-get -y install allure
+    - ./tests/e2e/bin/push-allure-artifacts.sh
+    addons:
+      apt:
+        packages:
+          - nginx
+          # This is required to run new chrome on old trusty
+          - libnss3
+
   allow_failures:
     - name: "PHP Nightly"
     - name: "Spell check Markdown files"
     - name: "Code Coverage"
     - name: "E2E tests"
+    - name: "E2E tests latest Gutenberg"
 
 cache:
   directories:

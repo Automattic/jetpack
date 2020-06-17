@@ -335,14 +335,14 @@ class Jetpack_Calypsoify {
 	 */
 	private function get_calypso_origin() {
 		$origin    = ! empty( $_GET['origin'] ) ? $_GET['origin'] : 'https://wordpress.com';
-		$whitelist = array(
+		$allowed = array(
 			'http://calypso.localhost:3000',
 			'http://127.0.0.1:41050', // Desktop App
 			'https://wpcalypso.wordpress.com',
 			'https://horizon.wordpress.com',
 			'https://wordpress.com',
 		);
-		return in_array( $origin, $whitelist ) ? $origin : 'https://wordpress.com';
+		return in_array( $origin, $allowed, true ) ? $origin : 'https://wordpress.com';
 
 		function get_site_suffix() {
 			if ( class_exists( 'Jetpack' ) && method_exists( 'Jetpack', 'build_raw_urls' ) ) {

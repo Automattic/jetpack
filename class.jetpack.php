@@ -209,6 +209,7 @@ class Jetpack {
 			'All in One SEO Pack'            => 'all-in-one-seo-pack/all_in_one_seo_pack.php',
 			'All in One SEO Pack Pro'        => 'all-in-one-seo-pack-pro/all_in_one_seo_pack.php',
 			'The SEO Framework'              => 'autodescription/autodescription.php',
+			'Rank Math'                      => 'seo-by-rank-math/rank-math.php',
 		),
 		'verification-tools' => array(
 			'WordPress SEO by Yoast'         => 'wordpress-seo/wp-seo.php',
@@ -216,6 +217,7 @@ class Jetpack {
 			'All in One SEO Pack'            => 'all-in-one-seo-pack/all_in_one_seo_pack.php',
 			'All in One SEO Pack Pro'        => 'all-in-one-seo-pack-pro/all_in_one_seo_pack.php',
 			'The SEO Framework'              => 'autodescription/autodescription.php',
+			'Rank Math'                      => 'seo-by-rank-math/rank-math.php',
 		),
 		'widget-visibility'  => array(
 			'Widget Logic'    => 'widget-logic/widget_logic.php',
@@ -237,6 +239,7 @@ class Jetpack {
 			'Simple Sitemap'                       => 'simple-sitemap/simple-sitemap.php',
 			'XML Sitemaps'                         => 'xml-sitemaps/xml-sitemaps.php',
 			'MSM Sitemaps'                         => 'msm-sitemap/msm-sitemap.php',
+			'Rank Math'                            => 'seo-by-rank-math/rank-math.php',
 		),
 		'lazy-images'        => array(
 			'Lazy Load'              => 'lazy-load/lazy-load.php',
@@ -304,6 +307,7 @@ class Jetpack {
 		'zoltonorg-social-plugin/zosp.php',                      // Zolton.org Social Plugin
 		'wp-fb-share-like-button/wp_fb_share-like_widget.php',   // WP Facebook Like Button
 		'open-graph-metabox/open-graph-metabox.php',              // Open Graph Metabox
+		'seo-by-rank-math/rank-math.php',                        // Rank Math.
 	);
 
 	/**
@@ -321,6 +325,7 @@ class Jetpack {
 		'twitter-cards-meta/twitter-cards-meta.php', // Twitter Cards Meta
 		'wp-to-twitter/wp-to-twitter.php',           // WP to Twitter
 		'wp-twitter-cards/twitter_cards.php',        // WP Twitter Cards
+		'seo-by-rank-math/rank-math.php',            // Rank Math.
 	);
 
 	/**
@@ -1054,7 +1059,15 @@ class Jetpack {
 		}
 	}
 
-	function jetpack_custom_caps( $caps, $cap, $user_id, $args ) {
+	/**
+	 * Sets the Jetpack custom capabilities.
+	 *
+	 * @param string[] $caps    Array of the user's capabilities.
+	 * @param string   $cap     Capability name.
+	 * @param int      $user_id The user ID.
+	 * @param array    $args    Adds the context to the cap. Typically the object ID.
+	 */
+	public function jetpack_custom_caps( $caps, $cap, $user_id, $args ) {
 		$is_development_mode = ( new Status() )->is_development_mode();
 		switch ( $cap ) {
 			case 'jetpack_connect':
@@ -1063,30 +1076,17 @@ class Jetpack {
 					$caps = array( 'do_not_allow' );
 					break;
 				}
-				/**
-				 * Pass through. If it's not development mode, these should match disconnect.
-				 * Let users disconnect if it's development mode, just in case things glitch.
-				 */
+				// Pass through. If it's not development mode, these should match disconnect.
+				// Let users disconnect if it's development mode, just in case things glitch.
 			case 'jetpack_disconnect':
 				/**
-				 * In multisite, can individual site admins manage their own connection?
+				 * Filters the jetpack_disconnect capability.
 				 *
-				 * Ideally, this should be extracted out to a separate filter in the Jetpack_Network class.
+				 * @since 8.7.0
+				 *
+				 * @param array An array containing the capability name.
 				 */
-				if ( is_multisite() && ! is_super_admin() && is_plugin_active_for_network( 'jetpack/jetpack.php' ) ) {
-					if ( ! Jetpack_Network::init()->get_option( 'sub-site-connection-override' ) ) {
-						/**
-						 * We need to update the option name -- it's terribly unclear which
-						 * direction the override goes.
-						 *
-						 * @todo: Update the option name to `sub-sites-can-manage-own-connections`
-						 */
-						$caps = array( 'do_not_allow' );
-						break;
-					}
-				}
-
-				$caps = array( 'manage_options' );
+				$caps = apply_filters( 'jetpack_disconnect_cap', array( 'manage_options' ) );
 				break;
 			case 'jetpack_manage_modules':
 			case 'jetpack_activate_modules':
@@ -3650,7 +3650,7 @@ p {
 		add_filter( 'plugin_action_links_' . plugin_basename( JETPACK__PLUGIN_DIR . 'jetpack.php' ), array( $this, 'plugin_action_links' ) );
 
 		if ( self::is_active() || $is_development_mode ) {
-			// Artificially throw errors in certain whitelisted cases during plugin activation
+			// Artificially throw errors in certain specific cases during plugin activation.
 			add_action( 'activate_plugin', array( $this, 'throw_error_on_activate_plugin' ) );
 		}
 
@@ -3675,7 +3675,7 @@ p {
 
 	/**
 	 * Sometimes a plugin can activate without causing errors, but it will cause errors on the next page load.
-	 * This function artificially throws errors for such cases (whitelisted).
+	 * This function artificially throws errors for such cases (per a specific list).
 	 *
 	 * @param string $plugin The activated plugin.
 	 */
@@ -3772,12 +3772,12 @@ p {
 				$response = $this->upload_handler( true );
 				break;
 			default:
-				$response = new Jetpack_Error( 'unknown_handler', 'Unknown Handler', 400 );
+				$response = new WP_Error( 'unknown_handler', 'Unknown Handler', 400 );
 				break;
 		}
 
 		if ( ! $response ) {
-			$response = new Jetpack_Error( 'unknown_error', 'Unknown Error', 400 );
+			$response = new WP_Error( 'unknown_error', 'Unknown Error', 400 );
 		}
 
 		if ( is_wp_error( $response ) ) {
@@ -3812,27 +3812,27 @@ p {
 	 */
 	function upload_handler( $update_media_item = false ) {
 		if ( 'POST' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) ) {
-			return new Jetpack_Error( 405, get_status_header_desc( 405 ), 405 );
+			return new WP_Error( 405, get_status_header_desc( 405 ), 405 );
 		}
 
 		$user = wp_authenticate( '', '' );
 		if ( ! $user || is_wp_error( $user ) ) {
-			return new Jetpack_Error( 403, get_status_header_desc( 403 ), 403 );
+			return new WP_Error( 403, get_status_header_desc( 403 ), 403 );
 		}
 
 		wp_set_current_user( $user->ID );
 
 		if ( ! current_user_can( 'upload_files' ) ) {
-			return new Jetpack_Error( 'cannot_upload_files', 'User does not have permission to upload files', 403 );
+			return new WP_Error( 'cannot_upload_files', 'User does not have permission to upload files', 403 );
 		}
 
 		if ( empty( $_FILES ) ) {
-			return new Jetpack_Error( 'no_files_uploaded', 'No files were uploaded: nothing to process', 400 );
+			return new WP_Error( 'no_files_uploaded', 'No files were uploaded: nothing to process', 400 );
 		}
 
 		foreach ( array_keys( $_FILES ) as $files_key ) {
 			if ( ! isset( $_POST[ "_jetpack_file_hmac_{$files_key}" ] ) ) {
-				return new Jetpack_Error( 'missing_hmac', 'An HMAC for one or more files is missing', 400 );
+				return new WP_Error( 'missing_hmac', 'An HMAC for one or more files is missing', 400 );
 			}
 		}
 
@@ -3840,7 +3840,7 @@ p {
 
 		$token = Jetpack_Data::get_access_token( get_current_user_id() );
 		if ( ! $token || is_wp_error( $token ) ) {
-			return new Jetpack_Error( 'unknown_token', 'Unknown Jetpack token', 403 );
+			return new WP_Error( 'unknown_token', 'Unknown Jetpack token', 403 );
 		}
 
 		$uploaded_files = array();
@@ -3871,7 +3871,7 @@ p {
 
 			if ( $update_media_item ) {
 				if ( ! isset( $post_id ) || $post_id === 0 ) {
-					return new Jetpack_Error( 'invalid_input', 'Media ID must be defined.', 400 );
+					return new WP_Error( 'invalid_input', 'Media ID must be defined.', 400 );
 				}
 
 				$media_array = $_FILES['media'];
@@ -4214,7 +4214,7 @@ p {
 		}
 
 		if ( isset( $_GET['connect_url_redirect'] ) ) {
-			// @todo: Add validation against a known whitelist
+			// @todo: Add validation against a known allowed list.
 			$from = ! empty( $_GET['from'] ) ? $_GET['from'] : 'iframe';
 			// User clicked in the iframe to link their accounts
 			if ( ! self::is_user_connected() ) {
@@ -5209,7 +5209,7 @@ endif;
 			'/jetpack/v4/settings',
 		);
 
-		// Whitelist the action
+		// Only allow valid actions.
 		if ( ! in_array( $action, $valid_actions ) ) {
 			return false;
 		}
@@ -5985,11 +5985,11 @@ endif;
 		} else {
 			$domain = $host;
 		}
-		// Array of Automattic domains
-		$domain_whitelist = array( 'wordpress.com', 'wp.com' );
+		// Array of Automattic domains.
+		$domains_allowed = array( 'wordpress.com', 'wp.com' );
 
-		// Return $url if not an Automattic domain
-		if ( ! in_array( $domain, $domain_whitelist ) ) {
+		// Return $url if not an Automattic domain.
+		if ( ! in_array( $domain, $domains_allowed, true ) ) {
 			return $url;
 		}
 
@@ -6049,7 +6049,7 @@ endif;
 		update_user_meta( $user->ID, 'jetpack_json_api_' . $this->json_api_authorization_request['client_id'], $token );
 	}
 
-	// Add public-api.wordpress.com to the safe redirect whitelist - only added when someone allows API access
+	// Add public-api.wordpress.com to the safe redirect allowed list - only added when someone allows API access.
 	function allow_wpcom_public_api_domain( $domains ) {
 		$domains[] = 'public-api.wordpress.com';
 		return $domains;
@@ -6059,7 +6059,7 @@ endif;
 		return preg_match( '/https?%3A%2F%2F/i', $redirect_url ) > 0;
 	}
 
-	// Add all wordpress.com environments to the safe redirect whitelist
+	// Add all wordpress.com environments to the safe redirect allowed list.
 	function allow_wpcom_environments( $domains ) {
 		$domains[] = 'wordpress.com';
 		$domains[] = 'wpcalypso.wordpress.com';
@@ -6274,12 +6274,12 @@ endif;
 	}
 
 	/**
-	 * Checks whether the home and siteurl specifically are whitelisted
+	 * Checks whether the home and siteurl specifically are allowed.
 	 * Written so that we don't have re-check $key and $value params every time
-	 * we want to check if this site is whitelisted, for example in footer.php
+	 * we want to check if this site is allowed, for example in footer.php
 	 *
 	 * @since  3.8.0
-	 * @return bool True = already whitelisted False = not whitelisted
+	 * @return bool True = already allowed False = not on the allowed list.
 	 */
 	public static function is_staging_site() {
 		_deprecated_function( 'Jetpack::is_staging_site', 'jetpack-8.1', '/Automattic/Jetpack/Status->is_staging_site' );

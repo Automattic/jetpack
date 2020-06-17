@@ -1,0 +1,366 @@
+/**
+ * External Media
+ */
+@import '../styles/gutenberg-base-styles.scss';
+
+$grid-size: 8px;
+
+@keyframes jetpack-external-media-loading-fade {
+	0% {
+		opacity: 0.5;
+	}
+	50% {
+		opacity: 1;
+	}
+	100% {
+		opacity: 0.5;
+	}
+}
+
+/**
+ * Media item container
+ */
+
+.jetpack-external-media-browser__is-copying {
+	max-height: 20%;
+	max-width: 20%;
+	min-width: 480px;
+	min-height: 360px + 56px;
+
+	.jetpack-external-media-browser__single {
+		height: 300px;
+	}
+
+	.jetpack-external-media-browser__media {
+		height: 100%;
+	}
+
+	.is-transient {
+		border: 0;
+		background: 0;
+		padding: 0;
+		height: 100%;
+
+		&.jetpack-external-media-browser__media__item__selected {
+			box-shadow: none;
+			border-radius: 0;
+		}
+
+		img {
+			width: 100%;
+			height: 100%;
+			object-fit: contain;
+		}
+	}
+}
+
+.jetpack-external-media-browser:not( .jetpack-external-media-browser__is-copying ) {
+	.is-error {
+		margin-bottom: 1em;
+		margin-left: 0;
+		margin-right: 0;
+	}
+
+	.components-placeholder {
+		background-color: transparent;
+	}
+
+	.components-modal__content {
+		overflow: auto;
+		padding-bottom: 0;
+	}
+}
+
+@media ( min-width: 600px ) {
+	.jetpack-external-media-browser .components-modal__content {
+		width: 90vw;
+		height: 90vh;
+	}
+}
+
+.jetpack-external-media-browser__single {
+	position: relative;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	.is-transient img {
+		opacity: 0.3;
+	}
+
+	.components-spinner {
+		position: absolute;
+		top: 50%;
+		right: 50%;
+		margin-top: -9px;
+		margin-right: -9px;
+	}
+}
+
+.jetpack-external-media-browser {
+	background: white;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+
+	.jetpack-external-media-browser__media {
+		width: 100%;
+	}
+
+	// Individual Thumbnails
+	.jetpack-external-media-browser__media__item {
+		height: 0;
+		width: 50%;
+		padding-top: 50%;
+		display: inline-flex;
+		position: relative;
+
+		// Unset button appearance.
+		border: 0;
+		background: transparent;
+
+		img {
+			display: block;
+			position: absolute;
+			top: $grid-size;
+			left: $grid-size;
+			width: calc( 100% - #{$grid-size * 2} );
+			height: calc( 100% - #{$grid-size * 2} );
+			object-fit: contain;
+		}
+
+		&.is-transient img {
+			opacity: 0.3;
+		}
+
+		.components-spinner {
+			position: absolute;
+			top: 50%;
+			right: 50%;
+			margin-top: -9px;
+			margin-right: -9px;
+		}
+	}
+
+	.jetpack-external-media-browser__media__folder {
+		float: left;
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: space-between;
+		align-items: center;
+		align-content: flex-start;
+		margin-bottom: 36px;
+	}
+
+	.jetpack-external-media-browser__media__info {
+		font-size: 12px;
+		font-weight: bold;
+		width: 100%;
+		display: flex;
+		justify-content: space-between;
+		padding: 3px;
+	}
+
+	.jetpack-external-media-browser__media__count {
+		background-color: #ddd;
+		padding: 3px 4px;
+		border-radius: 8px;
+		margin-bottom: auto;
+	}
+
+	// Resting, focus and selected.
+	$border-width: 8px;
+
+	.jetpack-external-media-browser__media__item {
+		border: $border-width solid transparent;
+
+		&:focus {
+			outline: none;
+			box-shadow: inset 0 0 0 2px $blue-medium-focus;
+			border-radius: 2px + $border-width; // Add the 4px from the transparent.
+		}
+
+		&__selected {
+			box-shadow: inset 0 0 0 6px $blue-medium-focus;
+			border-radius: 2px + $border-width; // Add the 4px from the transparent.
+		}
+
+		&__selected:focus {
+			box-shadow: inset 0 0 0 2px $blue-medium-focus, inset 0 0 0 3px white,
+				inset 0 0 0 6px $blue-medium-focus;
+		}
+	}
+
+	// Transient placeholder when media are loading.
+	.jetpack-external-media-browser__media__placeholder {
+		width: 100px;
+		height: 100px;
+		margin: $grid-size * 2;
+		animation: jetpack-external-media-loading-fade 1.6s ease-in-out infinite;
+		background-color: $light-gray-secondary;
+		border: 0;
+	}
+
+	// Toolbar for "insert" and pagination button.
+	.jetpack-external-media-browser__media__toolbar {
+		position: fixed;
+		position: sticky;
+		bottom: 0;
+		left: 0;
+		width: 100%;
+		background: white;
+		padding: 20px 0;
+		display: flex;
+		justify-content: flex-end;
+	}
+
+	.jetpack-external-media-browser__loadmore {
+		clear: both;
+		display: block;
+		margin: 24px auto 48px auto;
+	}
+}
+
+// Show more thumbs beyond mobile.
+@media only screen and ( min-width: 600px ) {
+	.jetpack-external-media-browser .jetpack-external-media-browser__media__item {
+		width: 20%;
+		padding-top: 20%;
+	}
+}
+
+/**
+ * The specific wrappers for Google and Pexels.
+ */
+
+.jetpack-external-media-header__view {
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+	margin-bottom: 48px;
+
+	select {
+		max-width: 200px !important;
+	}
+}
+
+.jetpack-external-media-header__filter,
+.jetpack-external-media-header__view {
+	label {
+		margin-right: 10px;
+	}
+
+	.components-base-control {
+		padding-right: $grid-size;
+		margin-bottom: 0;
+	}
+
+	.components-base-control__label {
+		margin-bottom: 0;
+	}
+
+	.components-base-control__field {
+		display: flex;
+		align-items: center;
+		margin-bottom: 0;
+	}
+
+	.components-base-control + .components-base-control {
+		padding-left: $grid-size * 2;
+	}
+}
+
+.jetpack-external-media-header__filter {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+
+	.jetpack-external-media-googlephotos-filter {
+		display: flex;
+		align-items: center;
+		margin-right: 7px;
+	}
+}
+
+.jetpack-external-media-header__pexels {
+	display: flex;
+	margin-bottom: 48px;
+
+	.components-base-control {
+		flex: 1;
+		margin-right: 12px;
+	}
+
+	.components-base-control__field {
+		margin-bottom: 0;
+	}
+
+	.components-base-control__field,
+	.components-text-control__input {
+		height: 100%;
+	}
+}
+
+/**
+ * Basic Responsiveness
+ */
+
+.jetpack-external-media-placeholder__open-modal {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 0;
+	position: absolute;
+	right: 0;
+	margin-top: -48px;
+	z-index: 1;
+
+	.components-button {
+		margin: 0;
+		padding: 12px;
+		background: none;
+
+		&::before {
+			content: none;
+		}
+
+		svg {
+			display: block;
+			fill: currentColor;
+		}
+	}
+}
+
+.jetpack-external-media-browsing
+	> div.components-placeholder:not( .jetpack-external-media-replacedholder ) {
+	display: none;
+}
+
+.jetpack-external-media-browser__empty {
+	width: 100%;
+	text-align: center;
+	padding-top: 2em;
+}
+
+.jetpack-external-media-auth {
+	max-width: 340px;
+	margin: 0 auto;
+	text-align: center;
+
+	p {
+		margin: 2em 0;
+	}
+}
+
+.jetpack-external-media-filters {
+	display: flex;
+	justify-content: space-between;
+}
+
+// Reset placeholder button margin.
+.components-placeholder__fieldset,
+.editor-post-featured-image {
+	.components-dropdown .jetpack-external-media-browse-button {
+		margin-right: 8px;
+	}
+}

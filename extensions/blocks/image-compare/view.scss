@@ -165,22 +165,20 @@ div.jx-image {
 	top: auto;
 }
 
-div.jx-image img {
-	height: 100%;
-	width: auto;
+div.jx-slider div.jx-image img {
+	height: 100% !important;
+	width: auto !important;
 	z-index: 5;
 	position: absolute;
 	margin-bottom: 0;
 
-	max-height: none;
-	max-width: none;
-	max-height: initial;
-	max-width: initial;
+	max-width: none !important;
+	max-height: none !important;
 }
 
-.vertical div.jx-image img {
-	height: auto;
-	width: 100%;
+div.jx-slider.vertical div.jx-image img {
+	height: auto !important;
+	width: 100% !important;
 }
 
 div.jx-image.jx-left {
@@ -278,7 +276,7 @@ div.jx-controller:focus,
 div.jx-image.jx-left div.jx-label:focus,
 div.jx-image.jx-right div.jx-label:focus,
 
-figcaption {
+figure.wp-block-jetpack-image-compare figcaption {
 	text-align: center;
 	font-size: 85%;
 }

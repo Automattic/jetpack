@@ -8,30 +8,30 @@
  */
 
 /* Include sitemap subclasses, if not already, and include proper buffer based on phpxml's availability. */
-require_once dirname( __FILE__ ) . '/sitemap-constants.php';
-require_once dirname( __FILE__ ) . '/sitemap-buffer.php';
+require_once __DIR__ . '/sitemap-constants.php';
+require_once __DIR__ . '/sitemap-buffer.php';
 
 if ( ! class_exists( 'DOMDocument' ) ) {
-	require_once dirname( __FILE__ ) . '/sitemap-buffer-fallback.php';
-	require_once dirname( __FILE__ ) . '/sitemap-buffer-image-fallback.php';
-	require_once dirname( __FILE__ ) . '/sitemap-buffer-master-fallback.php';
-	require_once dirname( __FILE__ ) . '/sitemap-buffer-news-fallback.php';
-	require_once dirname( __FILE__ ) . '/sitemap-buffer-page-fallback.php';
-	require_once dirname( __FILE__ ) . '/sitemap-buffer-video-fallback.php';
+	require_once __DIR__ . '/sitemap-buffer-fallback.php';
+	require_once __DIR__ . '/sitemap-buffer-image-fallback.php';
+	require_once __DIR__ . '/sitemap-buffer-master-fallback.php';
+	require_once __DIR__ . '/sitemap-buffer-news-fallback.php';
+	require_once __DIR__ . '/sitemap-buffer-page-fallback.php';
+	require_once __DIR__ . '/sitemap-buffer-video-fallback.php';
 } else {
-	require_once dirname( __FILE__ ) . '/sitemap-buffer-image.php';
-	require_once dirname( __FILE__ ) . '/sitemap-buffer-master.php';
-	require_once dirname( __FILE__ ) . '/sitemap-buffer-news.php';
-	require_once dirname( __FILE__ ) . '/sitemap-buffer-page.php';
-	require_once dirname( __FILE__ ) . '/sitemap-buffer-video.php';
+	require_once __DIR__ . '/sitemap-buffer-image.php';
+	require_once __DIR__ . '/sitemap-buffer-master.php';
+	require_once __DIR__ . '/sitemap-buffer-news.php';
+	require_once __DIR__ . '/sitemap-buffer-page.php';
+	require_once __DIR__ . '/sitemap-buffer-video.php';
 }
 
-require_once dirname( __FILE__ ) . '/sitemap-librarian.php';
-require_once dirname( __FILE__ ) . '/sitemap-finder.php';
-require_once dirname( __FILE__ ) . '/sitemap-state.php';
+require_once __DIR__ . '/sitemap-librarian.php';
+require_once __DIR__ . '/sitemap-finder.php';
+require_once __DIR__ . '/sitemap-state.php';
 
 if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-	require_once dirname( __FILE__ ) . '/sitemap-logger.php';
+	require_once __DIR__ . '/sitemap-logger.php';
 }
 
 /**
@@ -1319,7 +1319,7 @@ class Jetpack_Sitemap_Builder {
 
 		/** This filter is already documented in core/wp-includes/feed.php */
 		$content = apply_filters( 'the_content_feed', $content, 'rss2' );
-		
+
 		// Include thumbnails for VideoPress videos, use blank image for others
 		if ( 'complete' === get_post_meta( $post->ID, 'videopress_status', true ) && has_post_thumbnail( $post ) ) {
 			$video_thumbnail_url = get_the_post_thumbnail_url( $post );

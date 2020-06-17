@@ -44,6 +44,21 @@ const PRODUCT_NOT_ADDING = 0;
 const PRODUCT_FORM = 1;
 const PRODUCT_FORM_SUBMITTED = 2;
 
+/**
+ * Formats a price with the right format for a numeric input value.
+ *
+ * @param {number} price Price to format.
+ * @param {string} currency Currency code.
+ * @returns {string} Formatted price.
+ */
+const formatPriceForNumberInputValue = ( price, currency ) => {
+	// By using `formatCurrency` we ensure the resulting price contains the relevant decimals for the given currency (i.e. 0.5 > 0.50).
+	return formatCurrency( price, currency, {
+		decimal: '.', // Values for numeric inputs need to use a dot notation for decimals.
+		symbol: '', // Values for numeric inputs cannot contain any currency symbol, only numbers.
+	} );
+};
+
 class MembershipsButtonEdit extends Component {
 	constructor() {
 		super( ...arguments );
@@ -56,9 +71,10 @@ class MembershipsButtonEdit extends Component {
 			products: [],
 			siteSlug: '',
 			editedProductCurrency: 'USD',
-			editedProductPrice: formatCurrency( minimumTransactionAmountForCurrency( 'USD' ), 'USD', {
-				symbol: '',
-			} ),
+			editedProductPrice: formatPriceForNumberInputValue(
+				minimumTransactionAmountForCurrency( 'USD' ),
+				'USD'
+			),
 			editedProductPriceValid: true,
 			editedProductTitle: '',
 			editedProductTitleValid: true,
@@ -125,11 +141,23 @@ class MembershipsButtonEdit extends Component {
 		);
 	};
 
-	handleCurrencyChange = editedProductCurrency =>
+	handleCurrencyChange = editedProductCurrency => {
+		let editedProductPrice = this.state.editedProductPrice;
+
+		if ( ! isPriceValid( editedProductCurrency, editedProductPrice ) ) {
+			editedProductPrice = formatPriceForNumberInputValue(
+				minimumTransactionAmountForCurrency( editedProductCurrency ),
+				editedProductCurrency
+			);
+		}
+
 		this.setState( {
 			editedProductCurrency,
-			editedProductPriceValid: isPriceValid( editedProductCurrency, this.state.editedProductPrice ),
+			editedProductPrice,
+			editedProductPriceValid: true,
 		} );
+	};
+
 	handleRenewIntervalChange = editedProductRenewInterval =>
 		this.setState( { editedProductRenewInterval } );
 
@@ -312,11 +340,20 @@ class MembershipsButtonEdit extends Component {
 		return formatCurrency( parseFloat( product.price ), product.currency );
 	};
 
-	setMembershipAmount = id =>
+	setMembershipAmount = id => {
+		const currentPlanId = this.props.attributes.planId;
+		const currentText = this.props.attributes.submitButtonText;
+		const defaultTextForNewPlan =
+			this.getFormattedPriceByProductId( id ) + __( ' Contribution', 'jetpack' );
+		const defaultTextForCurrentPlan = currentPlanId
+			? this.getFormattedPriceByProductId( currentPlanId ) + __( ' Contribution', 'jetpack' )
+			: undefined;
+		const text = currentText === defaultTextForCurrentPlan ? defaultTextForNewPlan : currentText;
 		this.props.setAttributes( {
 			planId: id,
-			submitButtonText: this.getFormattedPriceByProductId( id ) + __( ' Contribution', 'jetpack' ),
+			submitButtonText: text,
 		} );
+	};
 
 	renderMembershipAmounts = () => (
 		<div>
@@ -490,7 +527,7 @@ class MembershipsButtonEdit extends Component {
 								'backgroundButtonColor',
 								'textButtonColor',
 								'customBackgroundButtonColor',
-								'customBackgroundButtonColor',
+								'customTextButtonColor',
 							] ),
 							setAttributes: this.props.setAttributes,
 						} }

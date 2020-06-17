@@ -517,7 +517,7 @@ class Jetpack_Subscriptions {
 	 * @param array  $post_ids (optional) defaults to 0 for blog posts only: array of post IDs to subscribe to blog's posts
 	 * @param bool   $async    (optional) Should the subscription be performed asynchronously?  Defaults to true.
 	 *
-	 * @return true|Jetpack_Error true on success
+	 * @return true|WP_Error true on success
 	 *	invalid_email   : not a valid email address
 	 *	invalid_post_id : not a valid post ID
 	 *	unknown_post_id : unknown post
@@ -530,7 +530,7 @@ class Jetpack_Subscriptions {
 	 */
 	function subscribe( $email, $post_ids = 0, $async = true, $extra_data = array() ) {
 		if ( !is_email( $email ) ) {
-			return new Jetpack_Error( 'invalid_email' );
+			return new WP_Error( 'invalid_email' );
 		}
 
 		if ( !$async ) {
@@ -540,9 +540,9 @@ class Jetpack_Subscriptions {
 		foreach ( (array) $post_ids as $post_id ) {
 			$post_id = (int) $post_id;
 			if ( $post_id < 0 ) {
-				return new Jetpack_Error( 'invalid_post_id' );
+				return new WP_Error( 'invalid_post_id' );
 			} else if ( $post_id && !$post = get_post( $post_id ) ) {
-				return new Jetpack_Error( 'unknown_post_id' );
+				return new WP_Error( 'unknown_post_id' );
 			}
 
 			if ( $async ) {
@@ -573,28 +573,28 @@ class Jetpack_Subscriptions {
 			}
 
 			if ( !is_array( $response[0] ) || empty( $response[0]['status'] ) ) {
-				$r[] = new Jetpack_Error( 'unknown' );
+				$r[] = new WP_Error( 'unknown' );
 				continue;
 			}
 
 			switch ( $response[0]['status'] ) {
 				case 'error':
-					$r[] = new Jetpack_Error( 'not_subscribed' );
+					$r[] = new WP_Error( 'not_subscribed' );
 					continue 2;
 				case 'disabled':
-					$r[] = new Jetpack_Error( 'disabled' );
+					$r[] = new WP_Error( 'disabled' );
 					continue 2;
 				case 'active':
-					$r[] = new Jetpack_Error( 'active' );
+					$r[] = new WP_Error( 'active' );
 					continue 2;
 				case 'confirming':
 					$r[] = true;
 					continue 2;
 				case 'pending':
-					$r[] = new Jetpack_Error( 'pending' );
+					$r[] = new WP_Error( 'pending' );
 					continue 2;
 				default:
-					$r[] = new Jetpack_Error( 'unknown_status', (string) $response[0]['status'] );
+					$r[] = new WP_Error( 'unknown_status', (string) $response[0]['status'] );
 					continue 2;
 			}
 		}

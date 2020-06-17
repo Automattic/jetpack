@@ -23,25 +23,25 @@ class Pre_Connection_JITM extends JITM {
 				'id'             => 'jpsetup-posts',
 				'message_path'   => '/wp:edit-post:admin_notices/',
 				'message'        => __( 'Do you know which of these posts gets the most traffic?', 'jetpack' ),
-				'description'    => __( 'Setup Jetpack to get in-depth stats about your content and visitors.', 'jetpack' ),
-				'button_link'    => esc_url( \Jetpack::init()->build_connect_url( true, false, 'pre-connection-jitm-posts' ) ),
-				'button_caption' => __( 'Setup Jetpack', 'jetpack' ),
+				'description'    => __( 'Set up Jetpack to get in-depth stats about your content and visitors.', 'jetpack' ),
+				'button_link'    => \Jetpack::admin_url( '#/setup' ),
+				'button_caption' => __( 'Set up Jetpack', 'jetpack' ),
 			),
 			array(
 				'id'             => 'jpsetup-upload',
 				'message_path'   => '/wp:upload:admin_notices/',
 				'message'        => __( 'Do you want lightning-fast images?', 'jetpack' ),
-				'description'    => __( 'Setup Jetpack, enable Site Accelerator, and start serving your images lightning fast, for free.', 'jetpack' ),
-				'button_link'    => esc_url( \Jetpack::init()->build_connect_url( true, false, 'pre-connection-jitm-upload' ) ),
-				'button_caption' => __( 'Setup Jetpack', 'jetpack' ),
+				'description'    => __( 'Set up Jetpack, enable Site Accelerator, and start serving your images lightning fast, for free.', 'jetpack' ),
+				'button_link'    => \Jetpack::admin_url( '#/setup' ),
+				'button_caption' => __( 'Set up Jetpack', 'jetpack' ),
 			),
 			array(
 				'id'             => 'jpsetup-widgets',
 				'message_path'   => '/wp:widgets:admin_notices/',
 				'message'        => __( 'Looking for even more widgets?', 'jetpack' ),
-				'description'    => __( 'Setup Jetpack for great additional widgets that display business contact info and maps, blog stats, and top posts.', 'jetpack' ),
-				'button_link'    => esc_url( \Jetpack::init()->build_connect_url( true, false, 'pre-connection-jitm-widgets' ) ),
-				'button_caption' => __( 'Setup Jetpack', 'jetpack' ),
+				'description'    => __( 'Set up Jetpack for great additional widgets that display business contact info and maps, blog stats, and top posts.', 'jetpack' ),
+				'button_link'    => \Jetpack::admin_url( '#/setup' ),
+				'button_caption' => __( 'Set up Jetpack', 'jetpack' ),
 			),
 		);
 	}
@@ -60,6 +60,10 @@ class Pre_Connection_JITM extends JITM {
 
 		foreach ( $messages as $message ) {
 			if ( ! preg_match( $message['message_path'], $message_path ) ) {
+				continue;
+			}
+
+			if ( 'jpsetup-posts' === $message['id'] && wp_count_posts()->publish < 5 ) {
 				continue;
 			}
 
@@ -97,6 +101,10 @@ class Pre_Connection_JITM extends JITM {
 		/** This filter is documented in  class.jetpack-connection-banner.php */
 		if ( ! apply_filters( 'jetpack_pre_connection_prompt_helpers', false ) ) {
 			// If filter jetpack_pre_connection_prompt_helpers is not set, return an empty array.
+			return array();
+		}
+
+		if ( ! current_user_can( 'install_plugins' ) ) {
 			return array();
 		}
 
