@@ -184,15 +184,16 @@ class Jetpack_Search_Customize {
 		$wp_customize->add_setting(
 			$id,
 			array(
-				'default'   => true,
-				'transport' => 'postMessage',
-				'type'      => 'option',
+				'default'           => true,
+				'sanitize_callback' => 'rest_sanitize_boolean',
+				'transport'         => 'postMessage',
+				'type'              => 'option',
 			)
 		);
 		$wp_customize->add_control(
 			$id,
 			array(
-				'label'   => __( 'Show Sort Selector', 'jetpack' ),
+				'label'   => __( 'Show sort selector', 'jetpack' ),
 				'section' => $section_id,
 				'type'    => 'checkbox',
 			)
@@ -202,9 +203,10 @@ class Jetpack_Search_Customize {
 		$wp_customize->add_setting(
 			$id,
 			array(
-				'default'   => true,
-				'transport' => 'postMessage',
-				'type'      => 'option',
+				'default'           => true,
+				'sanitize_callback' => 'rest_sanitize_boolean',
+				'transport'         => 'postMessage',
+				'type'              => 'option',
 			)
 		);
 		$wp_customize->add_control(
@@ -220,9 +222,10 @@ class Jetpack_Search_Customize {
 		$wp_customize->add_setting(
 			$id,
 			array(
-				'default'   => true,
-				'transport' => 'postMessage',
-				'type'      => 'option',
+				'default'           => true,
+				'sanitize_callback' => 'rest_sanitize_boolean',
+				'transport'         => 'postMessage',
+				'type'              => 'option',
 			)
 		);
 		$wp_customize->add_control(
