@@ -13,11 +13,6 @@ import { CoverMediaProvider, JetpackCoverUpgradeNudge } from "./components";
 
 export default createHigherOrderComponent(
 	BlockEdit => props => {
-		const { name } = useBlockEditContext();
-		if ( ! isUpgradable( name ) ) {
-			return <BlockEdit { ...props } />;
-		}
-
 		const [ showNudge, setShowNudge ] = useState( false );
 
 		const { attributes } = props;
@@ -31,6 +26,11 @@ export default createHigherOrderComponent(
 			}
 			setShowNudge( true );
 		} );
+
+		const { name } = useBlockEditContext();
+		if ( ! isUpgradable( name ) ) {
+			return <BlockEdit { ...props } />;
+		}
 
 		return (
 			<Fragment>
