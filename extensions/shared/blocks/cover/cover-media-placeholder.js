@@ -1,10 +1,5 @@
 
 /**
- * External dependencies
- */
-import { noop } from 'lodash';
-
-/**
  * WordPress dependencies
  */
 import { useBlockEditContext } from '@wordpress/block-editor';
