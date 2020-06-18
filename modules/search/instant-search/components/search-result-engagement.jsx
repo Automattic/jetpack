@@ -54,6 +54,8 @@ export default function SearchResultEngagement( props ) {
 					target="_blank"
 				>
 					{ firstImage ? (
+						// NOTE: Wouldn't it be amazing if we filled the container's background
+						//       with the primary color of the image?
 						<PhotonImage
 							alt=""
 							className="jetpack-instant-search__search-result-engagement__image"
