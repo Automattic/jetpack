@@ -122,7 +122,7 @@ class Jetpack_Search_Customize {
 		$wp_customize->add_setting(
 			$id,
 			array(
-				'default'   => 'immediate',
+				'default'   => 'engagement',
 				'transport' => 'postMessage',
 				'type'      => 'option',
 			)
