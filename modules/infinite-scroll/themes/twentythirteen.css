@@ -88,3 +88,7 @@
 		padding-left: 0;
 	}
 }
+
+#infinite-handle button {
+	border-bottom: none;
+}
