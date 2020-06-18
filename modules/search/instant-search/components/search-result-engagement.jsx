@@ -14,6 +14,14 @@ import SearchResultComments from './search-result-comments';
 import PhotonImage from './photon-image';
 import Gridicon from './gridicon';
 
+function formatPostTypeHeader( postType ) {
+	// jetpack_support -> Jetpack Support
+	return postType
+		.split( '_' )
+		.map( capitalize )
+		.join( ' ' );
+}
+
 function getGridiconName( postType ) {
 	if ( postType === 'post' || postType === 'page' ) {
 		return `${ postType }s`;
@@ -63,7 +71,7 @@ export default function SearchResultEngagement( props ) {
 			<div className="jetpack-instant-search__search-result-engagement__copy-container">
 				<div className="jetpack-instant-search__search-result-engagement__type-and-date">
 					<span className="jetpack-instant-search__search-result-engagement__post-type">
-						{ capitalize( fields.post_type ) }
+						{ formatPostTypeHeader( fields.post_type ) }
 					</span>{ ' ' }
 					<span className="jetpack-instant-search__search-result-engagement__date">
 						{ formatDateString( fields.date ) }

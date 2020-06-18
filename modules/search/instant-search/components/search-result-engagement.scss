@@ -18,6 +18,14 @@
 		width: 100%;
 	}
 }
+.jetpack-instant-search__search-result-engagement__date {
+	.jetpack-instant-search__overlay--light & {
+		color: $studio-gray-70;
+	}
+	.jetpack-instant-search__overlay--dark & {
+		color: $studio-gray-30;
+	}
+}
 
 .jetpack-instant-search__search-result-engagement__image-container {
 	flex-basis: 30%;
@@ -32,16 +40,27 @@
 .jetpack-instant-search__search-result-engagement__image {
 	background-size: contain;
 	background-position: center;
+	background-repeat: no-repeat;
+	.jetpack-instant-search__overlay--light & {
+		background-color: $studio-gray-20;
+	}
+	.jetpack-instant-search__overlay--dark & {
+		background-color: $studio-gray-80;
+	}
 }
 .jetpack-instant-search__search-result-engagement__image-placeholder {
 	align-items: center;
-	border: 1px solid gray;
+	border: 1px solid $studio-gray-50;
 	display: flex;
 	justify-content: center;
 }
 
 .jetpack-instant-search__search-result-engagement__copy-container {
 	flex-basis: 70%;
+}
+
+.jetpack-instant-search__search-result-engagement__content {
+	font-size: 0.9em;
 }
 
 .jetpack-instant-search__search-result-engagement__img {
