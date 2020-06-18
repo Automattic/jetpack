@@ -12,7 +12,8 @@ if [ -z $(command -v jq) ]; then
 		exit 1;
 	else
 		brew install jq 2>/dev/null
-		echo "Done!"
+		echo "Done! You can now run the script again to start the revert."
+		exit 1;
 	fi
 fi
 
