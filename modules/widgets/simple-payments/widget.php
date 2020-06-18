@@ -1,6 +1,6 @@
 <?php
 /**
- * Display the Pay with PayPal button Widget.
+ * Display the Pay with PayPal Widget.
  *
  * @package Jetpack
  */

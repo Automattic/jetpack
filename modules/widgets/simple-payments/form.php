@@ -1,6 +1,6 @@
 <?php
 /**
- * Display the Pay with PayPal button Form.
+ * Display the Pay with PayPal Form.
  *
  * @package Jetpack
  */

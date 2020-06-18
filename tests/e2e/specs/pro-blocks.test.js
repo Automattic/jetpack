@@ -51,7 +51,7 @@ describe( 'Paid blocks', () => {
 		let blockEditor;
 		let blockInfo;
 
-		await step( 'Can visit the block editor and add a Pay with PayPal button', async () => {
+		await step( 'Can visit the block editor and add a Pay with PayPal block', async () => {
 			blockEditor = await BlockEditorPage.visit( page );
 			await blockEditor.waitForAvailableBlock( SimplePaymentBlock.name() );
 
@@ -61,13 +61,13 @@ describe( 'Paid blocks', () => {
 			);
 		} );
 
-		await step( 'Can fill details of Pay with PayPal button', async () => {
+		await step( 'Can fill details of Pay with PayPal block', async () => {
 			const spBlock = new SimplePaymentBlock( blockInfo, page );
 			await spBlock.fillDetails();
 		} );
 
 		await step(
-			'Can publish a post and assert that Pay with PayPal button is rendered',
+			'Can publish a post and assert that Pay with PayPal block is rendered',
 			async () => {
 				await blockEditor.focus();
 				await blockEditor.publishPost();
