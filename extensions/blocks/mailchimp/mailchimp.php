@@ -106,7 +106,7 @@ function load_assets( $attr, $content ) {
 						value="<?php echo esc_attr( $values['signupFieldValue'] ); ?>"
 					/>
 				<?php endif; ?>
-				<?php echo render_button( $attr, $content ); // phpcs:ignore ?>
+				<?php echo render_button( $attr, $content ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 				<p id="wp-block-jetpack-mailchimp_consent-text">
 					<?php echo wp_kses_post( $values['consentText'] ); ?>
 				</p>
