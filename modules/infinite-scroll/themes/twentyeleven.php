@@ -70,7 +70,7 @@ function amp_twentyeleven_infinite_scroll_render_hooks() {
  * @return mixed
  */
 function twentyeleven_amp_infinite_footers( $footers, $buffer ) {
-	// Collect the footer wrapper.
+	// Collect the sidebar wrapper.
 	preg_match(
 		'/<div id="secondary".*<!-- #secondary .widget-area -->/s',
 		$buffer,
@@ -78,6 +78,7 @@ function twentyeleven_amp_infinite_footers( $footers, $buffer ) {
 	);
 	$footers[] = reset( $footer );
 
+	// Collect the footer wrapper.
 	preg_match(
 		'/<footer id="colophon".*<!-- #colophon -->/s',
 		$buffer,
