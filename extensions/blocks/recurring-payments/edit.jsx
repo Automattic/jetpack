@@ -78,7 +78,7 @@ class MembershipsButtonEdit extends Component {
 			editedProductPriceValid: true,
 			editedProductTitle: '',
 			editedProductTitleValid: true,
-			editedProductRenewInterval: 'one-time',
+			editedProductRenewInterval: '1 month',
 		};
 		this.timeout = null;
 
