@@ -43,3 +43,27 @@
 		padding-bottom: 40px;
 	}
 }
+
+#main {
+	overflow: hidden;
+}
+
+@media only screen and (max-device-width: 480px) and (min-device-width: 320px) {
+	#page {
+		margin: 0 auto;
+	}
+}
+
+@media (max-width: 800px) {
+	#main,
+	#secondary {
+		float: none;
+		margin: 0;
+		width: auto;
+	}
+
+	#secondary {
+		background-color: #fff;
+		padding: 0 7.6% 2em;
+	}
+}
