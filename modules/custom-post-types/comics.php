@@ -170,10 +170,7 @@ class Jetpack_Comic {
 	}
 
 	public function register_scripts() {
-		// These assets change very infrequently, don't base it on JETPACK_VERSION.
-		$version = '2020-06-11';
-
-		wp_enqueue_style( 'jetpack-comics-style', plugins_url( 'comics/comics.css', __FILE__ ), array(), $version );
+		wp_enqueue_style( 'jetpack-comics-style', plugins_url( 'comics/comics.css', __FILE__ ), array(), JETPACK__VERSION );
 		wp_style_add_data( 'jetpack-comics-style', 'rtl', 'replace' );
 
 		$is_amp = class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request();
