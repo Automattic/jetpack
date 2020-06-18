@@ -315,7 +315,7 @@ class Manager {
 		if ( is_null( $this->xmlrpc_verification ) ) {
 			$this->xmlrpc_verification = $this->internal_verify_xml_rpc_signature();
 
-			if ( is_wp_error( $this->xmlrpc_verification ) && $this->xmlrpc_request_came_from_wpcom() ) {
+			if ( is_wp_error( $this->xmlrpc_verification ) ) {
 				/**
 				 * Action for logging XMLRPC signature verification errors. This data is sensitive.
 				 *
@@ -360,13 +360,11 @@ class Manager {
 			'signature' => isset( $_GET['signature'] ) ? wp_unslash( $_GET['signature'] ) : '',
 		);
 
-		//var_dump($_POST); die;
+		// var_dump($_POST); die;
 
 		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		@list( $token_key, $version, $user_id ) = explode( ':', wp_unslash( $_GET['token'] ) );
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
-
-		error_log($_GET['token']);
 
 		$jetpack_api_version = Constants::get_constant( 'JETPACK__API_VERSION' );
 
@@ -2212,49 +2210,6 @@ class Manager {
 			'value'    => $jetpack_client_id,
 		);
 		return $options;
-	}
-
-	/**
-	 * Check whether the request came from wpcom
-	 *
-	 * @since 8.7.0
-	 *
-	 * @return bool
-	 */
-	public static function xmlrpc_request_came_from_wpcom() {
-
-		return true;
-
-		if ( ! isset( $_GET['signature'], $_GET['timestamp'], $_GET['url'] ) ) {
-			return false;
-		}
-		$signature = base64_decode( $_GET['signature'] );
-
-		$signature_data = wp_json_encode(
-			array(
-				'rest_route' => $_GET['rest_route'],
-				'timestamp' => intval( $_GET['timestamp'] ),
-				'url' => wp_unslash( $_GET['url'] ),
-			)
-		);
-
-		if (
-			! function_exists( 'openssl_verify' )
-			|| 1 !== openssl_verify(
-				$signature_data,
-				$signature,
-				JETPACK__DEBUGGER_PUBLIC_KEY
-			)
-		) {
-			return false;
-		}
-
-		// signature timestamp must be within 5min of current time
-		if ( abs( time() - intval( $_GET['timestamp'] ) ) > 300 ) {
-			return false;
-		}
-
-		return true;
 	}
 
 	/**

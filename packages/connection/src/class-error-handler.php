@@ -20,6 +20,13 @@ class Error_Handler {
 	const STORED_ERRORS_OPTION = 'jetpack_xmlrpc_errors';
 
 	/**
+	 * The prefix of the transient that controls the gate for each error code
+	 *
+	 * @var string
+	 */
+	const ERROR_REPORTING_GATE = 'jetpack_connection_error_reporting_gate_';
+
+	/**
 	 * Return the code and details of all known errors.
 	 *
 	 * @return array
@@ -27,7 +34,7 @@ class Error_Handler {
 	public function get_errors() {
 
 		$errors = array(
-			'unknown_error' => array(
+			'unknown_error'   => array(
 				'title'        => __( 'Unknown connection error', 'jetpack' ),
 				'fix_tip'      => __( 'Unknown connection error', 'jetpack' ),
 				'fix_url'      => '',
@@ -42,10 +49,10 @@ class Error_Handler {
 				'fix_callback' => array( $this, 'fix_disconnect' ), // a callback that will be invoked to try to fix the issue locally.
 			),
 
-			'unknown_user' => array(
-				'title'        => __( 'Unknown User', 'jetpack' ),
-				'fix_tip'      => __( 'There is a connection between WordPress.com and a user that no longer exists on your site. If a user was deleted, information on WordPress.com must be updated and you might need to reconnect with a different user.', 'jetpack' ),
-				'fix_url'      => '', // The URL of a call to action button to fix it.
+			'unknown_user'    => array(
+				'title'   => __( 'Unknown User', 'jetpack' ),
+				'fix_tip' => __( 'There is a connection between WordPress.com and a user that no longer exists on your site. If a user was deleted, information on WordPress.com must be updated and you might need to reconnect with a different user.', 'jetpack' ),
+				'fix_url' => '', // The URL of a call to action button to fix it.
 				// 'fix_label'    => 'Reconnect', // The label of a call to action button to fix it.
 				// 'fix_callback' => array( $this, 'fix_disconnect' ), // a callback that will be invoked to try to fix the issue locally.
 			),
@@ -59,11 +66,38 @@ class Error_Handler {
 	 * Keep track of a connection error that was encoutered
 	 *
 	 * @param \WP_Error $error the error object.
+	 * @param boolean   $force Force the report, even if should_report_error is false.
 	 * @return void
 	 */
-	public function report_error( \WP_Error $error ) {
-		$this->store_error( $error );
-		$this->inform_wpcom( $error );
+	public function report_error( \WP_Error $error, $force = false ) {
+		if ( $this->should_report_error( $error ) || $force ) {
+			$this->store_error( $error );
+			$this->inform_wpcom( $error );
+		}
+	}
+
+	/**
+	 * Checks the status of the gate
+	 *
+	 * This protects the site (and WPCOM) against over loads.
+	 *
+	 * @param \WP_Error $error the error object.
+	 * @return boolean $should_report True if gate is open and the error should be reported.
+	 */
+	public function should_report_error( \WP_Error $error ) {
+
+		if ( defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG ) {
+			return true;
+		}
+
+		$transient = self::ERROR_REPORTING_GATE . $error->get_error_code();
+
+		if ( get_transient( $transient ) ) {
+			return false;
+		}
+
+		set_transient( $transient, true, HOUR_IN_SECONDS );
+		return true;
 	}
 
 	/**
