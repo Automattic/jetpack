@@ -6,6 +6,7 @@ Description: <code>l( 'Code is Poetry' )</code>
 Version: 1.0
 Author: Automattic
 Author URI: http://automattic.com/
+Text Domain: jetpack
 */
 
 
@@ -29,12 +30,12 @@ Author URI: http://automattic.com/
  * The extra line and ID will help you to indentify and correlate log entries.
  *
  * Example:
- * 	wpsh> l('yo')
- * 	wpsh> l('dude')
+ *  wpsh> l('yo')
+ *  wpsh> l('dude')
  * /tmp/php-errors:
- * 	[21-Jun-2012 14:45:13] 1566-32201 => /home/wpcom/public_html/bin/wpshell/wpshell.php
- * 	[21-Jun-2012 14:45:13] 1566-32201 yo
- * 	[21-Jun-2012 14:50:23] 1566-32201 dude
+ *  [21-Jun-2012 14:45:13] 1566-32201 => /home/wpcom/public_html/bin/wpshell/wpshell.php
+ *  [21-Jun-2012 14:45:13] 1566-32201 yo
+ *  [21-Jun-2012 14:50:23] 1566-32201 dude
  *
  * l() returns its input so you can safely wrap most kinds of expressions to log them.
  * l($arg1, $arg2) will call l($arg1) and l($arg2) and then return $arg1.
@@ -43,32 +44,35 @@ Author URI: http://automattic.com/
  */
 function l( $stuff = null ) {
 	// Do nothing when debugging is off
-	if ( !defined( 'WP_DEBUG' ) || WP_DEBUG === false ) {
+	if ( ! defined( 'WP_DEBUG' ) || WP_DEBUG === false ) {
 		return $stuff;
 	}
 	static $pageload;
 	// Call l() on each argument
 	if ( func_num_args() > 1 ) {
-		foreach ( func_get_args() as $arg )
-			l($arg);
+		foreach ( func_get_args() as $arg ) {
+			l( $arg );
+		}
 		return $stuff;
 	}
-	if ( !isset( $pageload ) ) {
+	if ( ! isset( $pageload ) ) {
 		$pageload = substr( md5( mt_rand() ), 0, 4 );
-		if ( !empty( $_SERVER['argv'] ) )
+		if ( ! empty( $_SERVER['argv'] ) ) {
 			$hint = implode( ' ', $_SERVER['argv'] );
-		elseif ( isset( $_SERVER['HTTP_HOST'] ) && isset( $_SERVER['REQUEST_URI'] ) )
+		} elseif ( isset( $_SERVER['HTTP_HOST'] ) && isset( $_SERVER['REQUEST_URI'] ) ) {
 			$hint = $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-		else
+		} else {
 			$hint = php_sapi_name();
-		error_log( sprintf( "[%s-%s => %s]", $pageload, getmypid(), $hint ) );
+		}
+		error_log( sprintf( '[%s-%s => %s]', $pageload, getmypid(), $hint ) );
 	}
 	$pid = $pageload . '-' . getmypid();
 	if ( is_null( $stuff ) ) {
 		// Log the file and line number
-		$backtrace = debug_backtrace(false);
-		while ( isset( $backtrace[1]['function'] ) && $backtrace[1]['function'] == __FUNCTION__ )
+		$backtrace = debug_backtrace( false );
+		while ( isset( $backtrace[1]['function'] ) && $backtrace[1]['function'] == __FUNCTION__ ) {
 			array_shift( $backtrace );
+		}
 		$log = sprintf( '%s line %d', $backtrace[0]['file'], $backtrace[0]['line'] );
 	} elseif ( is_bool( $stuff ) ) {
 		$log = $stuff ? 'TRUE' : 'FALSE';
@@ -82,43 +86,50 @@ function l( $stuff = null ) {
 		// Using json_encode_pretty() all the time is much slower.
 		do {
 			$in_ob_handler = false;
-			$ob_status = ob_get_status(true);
-			if ( ! $ob_status )
+			$ob_status     = ob_get_status( true );
+			if ( ! $ob_status ) {
 				break;
-			foreach ( $ob_status as $ob )
+			}
+			foreach ( $ob_status as $ob ) {
 				$obs[] = $ob['name'];
+			}
 			// This is not perfect: anonymous handlers appear as default.
-			if ( $obs == array( 'default output handler' ) )
+			if ( $obs == array( 'default output handler' ) ) {
 				break;
-			$backtrace = debug_backtrace(false);
+			}
+			$backtrace = debug_backtrace( false );
 			foreach ( $backtrace as $level ) {
 				$caller = '';
-				if ( isset( $level['class'] ) )
+				if ( isset( $level['class'] ) ) {
 					$caller = $level['class'] . '::';
+				}
 				$caller .= $level['function'];
-				$bts[] = $caller;
+				$bts[]   = $caller;
 			}
-			if ( array_intersect( $obs, $bts ) )
+			if ( array_intersect( $obs, $bts ) ) {
 				$in_ob_handler = true;
+			}
 		} while ( false );
-		if ( $in_ob_handler )
+		if ( $in_ob_handler ) {
 			$log = l_json_encode_pretty( $stuff );
-		else
+		} else {
 			$log = print_r( $stuff, true );
+		}
 	}
-	error_log( sprintf( "[%s] %s", $pid, $log ) );
+	error_log( sprintf( '[%s] %s', $pid, $log ) );
 	return $stuff;
 }
 
 // Log only once (suppresses logging on subsequent calls from the same file+line)
 function lo( $stuff ) {
 	static $callers = array();
-	$backtrace = debug_backtrace(false);
-	$caller = md5( $backtrace[0]['file'] . $backtrace[0]['line'] );
-	if ( isset( $callers[$caller] ) )
+	$backtrace      = debug_backtrace( false );
+	$caller         = md5( $backtrace[0]['file'] . $backtrace[0]['line'] );
+	if ( isset( $callers[ $caller ] ) ) {
 		return $stuff;
-	$callers[$caller] = true;
-	$args = func_get_args();
+	}
+	$callers[ $caller ] = true;
+	$args               = func_get_args();
 	return call_user_func_array( 'l', $args );
 }
 
@@ -131,49 +142,49 @@ function l_json_encode_pretty( $data ) {
 
 	// Adapted from http://us3.php.net/manual/en/function.json-encode.php#80339
 	$json = json_encode( $data );
-	$len = strlen( $json );
+	$len  = strlen( $json );
 
-	$tab = "\t";
-	$new_json = "";
+	$tab          = "\t";
+	$new_json     = '';
 	$indent_level = 0;
-	$in_string = false;
+	$in_string    = false;
 
 	$slashed = false;
 	for ( $c = 0; $c < $len; $c++ ) {
-		$char = $json[$c];
+		$char = $json[ $c ];
 		if ( $in_string ) {
-			if ( '"' === $char && $c > 0 && !$slashed ) {
+			if ( '"' === $char && $c > 0 && ! $slashed ) {
 				$in_string = false;
 			}
 			$new_json .= $char;
 		} else {
-			switch( $char ) {
-			case '{':
-			case '[':
-				$new_json .= $char . "\n" . str_repeat( $tab, ++$indent_level );
-				break;
-			case '}':
-			case ']':
-				$new_json .= "\n" . str_repeat( $tab, --$indent_level ) . $char;
-				break;
-			case ',':
-				$new_json .= ",\n" . str_repeat( $tab, $indent_level );
-				break;
-			case ':':
-				$new_json .= ": ";
-				break;
-			case '"':
-				if ( $c > 0 && !$slashed ) {
-					$in_string = true;
-				}
-				// no break
-			default:
-				$new_json .= $char;
-				break;
+			switch ( $char ) {
+				case '{':
+				case '[':
+					$new_json .= $char . "\n" . str_repeat( $tab, ++$indent_level );
+					break;
+				case '}':
+				case ']':
+					$new_json .= "\n" . str_repeat( $tab, --$indent_level ) . $char;
+					break;
+				case ',':
+					$new_json .= ",\n" . str_repeat( $tab, $indent_level );
+					break;
+				case ':':
+					$new_json .= ': ';
+					break;
+				case '"':
+					if ( $c > 0 && ! $slashed ) {
+						$in_string = true;
+					}
+					// no break
+				default:
+					$new_json .= $char;
+					break;
 			}
 		}
 		if ( '\\' == $char ) {
-			$slashed = !$slashed;
+			$slashed = ! $slashed;
 		} else {
 			$slashed = false;
 		}
@@ -190,14 +201,14 @@ function l_json_encode_pretty( $data ) {
  * do_stuff();
  * $elapsed = e('stuff');
  */
-function e($name = '') {
+function e( $name = '' ) {
 	static $times = array();
-	if ( !array_key_exists($name, $times ) ) {
-		$times[$name] = microtime( true );
+	if ( ! array_key_exists( $name, $times ) ) {
+		$times[ $name ] = microtime( true );
 		return;
 	}
-	$elapsed = microtime( true ) - $times[$name];
-	unset( $times[$name] );
+	$elapsed = microtime( true ) - $times[ $name ];
+	unset( $times[ $name ] );
 	return $elapsed;
 }
 
@@ -210,10 +221,11 @@ function e($name = '') {
  * do_stuff();
  * el($name);
  */
-function el($name = '') {
+function el( $name = '' ) {
 	$elapsed = e( $name );
-	if ( $elapsed !== null )
+	if ( $elapsed !== null ) {
 		l( sprintf( "%9.6f e('%s')", $elapsed, $name ) );
+	}
 	return $elapsed;
 }
 
@@ -224,16 +236,18 @@ function el($name = '') {
 function t() {
 	static $start;
 	$now = microtime( true );
-	if ( !isset( $start ) )
+	if ( ! isset( $start ) ) {
 		$start = $now;
+	}
 
-	$backtrace = debug_backtrace(false);
-	while ( isset( $backtrace[1]['function'] ) && $backtrace[1]['function'] == __FUNCTION__ )
+	$backtrace = debug_backtrace( false );
+	while ( isset( $backtrace[1]['function'] ) && $backtrace[1]['function'] == __FUNCTION__ ) {
 		array_shift( $backtrace );
+	}
 
-	$file = $backtrace[0]['file'];
-	$line = $backtrace[0]['line'];
-	$format = 't() => %9.6f at %s line %d';
+	$file    = $backtrace[0]['file'];
+	$line    = $backtrace[0]['line'];
+	$format  = 't() => %9.6f at %s line %d';
 	$elapsed = $now - $start;
 	l( sprintf( $format, $elapsed, $file, $line ) );
 }

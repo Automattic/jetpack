@@ -6,6 +6,7 @@ Description: Disable deleting and updating -actions for Jetpack plugin. Being ab
 Version: 2.0
 Author: Automattic
 Author URI: http://automattic.com/
+Text Domain: jetpack
 */
 
 // These are the plugins we don't want to update or delete
@@ -50,7 +51,7 @@ add_action( 'delete_plugin', 'jetpack_docker_disable_delete_plugin', 10, 2 );
  */
 function jetpack_docker_disable_plugin_update( $plugins ) {
 	global $jetpack_docker_avoided_plugins;
-	foreach( $jetpack_docker_avoided_plugins as $avoided_plugin ) {
+	foreach ( $jetpack_docker_avoided_plugins as $avoided_plugin ) {
 		if ( isset( $plugins->response[ $avoided_plugin ] ) ) {
 			unset( $plugins->response[ $avoided_plugin ] );
 		}

@@ -4,6 +4,7 @@
  * Plugin URI: https://github.com/automattic/jetpack
  * Author: Jetpack Team
  * Version: 1.0.0
+ * Text Domain: jetpack
  *
  * @package jetpack-test-plugin-e2e-plan-data
  */

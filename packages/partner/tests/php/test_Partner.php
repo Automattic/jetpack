@@ -1,6 +1,7 @@
 <?php
 
 namespace Automattic\Jetpack;
+
 use PHPUnit\Framework\TestCase;
 
 use Brain\Monkey;
@@ -80,8 +81,8 @@ class Partner_Test extends TestCase {
 	 * @throws Monkey\Expectation\Exception\ExpectationArgsRequired
 	 */
 	public function test_partner_code_is_set_via_filter( $code_type, $option_name, $query_string_name ) {
-		Functions\expect( 'get_option' )->once()->with( $option_name)->andReturn( '' );
-		Filters\expectApplied( $option_name )->once()->with('')->with( self::TEST_CODE );
+		Functions\expect( 'get_option' )->once()->with( $option_name )->andReturn( '' );
+		Filters\expectApplied( $option_name )->once()->with( '' )->with( self::TEST_CODE );
 		$this->assertEquals( self::TEST_CODE, Partner::init()->get_partner_code( $code_type ) );
 	}
 }
