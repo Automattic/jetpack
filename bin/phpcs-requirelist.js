@@ -46,7 +46,7 @@ module.exports = [
 	'modules/scan/',
 	'modules/search/class-jetpack-instant-search.php',
 	'modules/search/class-jetpack-search-customize.php',
-	'modules/search/class.jetpack-search-options.php',
+	'modules/search/class-jetpack-search-options.php',
 	'modules/search/class.jetpack-search.php',
 	'modules/sharedaddy.php',
 	'modules/shortcodes/',
