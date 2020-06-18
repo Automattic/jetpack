@@ -144,67 +144,14 @@ function lo( $stuff ) {
 /**
  * Pretty print for JSON (stolen from public.api)
  *
+ * Previously, this function actually did stuff, but since JSON_PRETTY_PRINT is available as of PHP 5.4, let's use that.
+ *
  * @param mixed $data Data to encode.
  *
  * @return false|string
  */
 function l_json_encode_pretty( $data ) {
-	if ( defined( 'JSON_PRETTY_PRINT' ) ) {
-		// Added in PHP 5.4.0.
-		return json_encode( $data, JSON_PRETTY_PRINT );
-	}
-
-	// Adapted from http://us3.php.net/manual/en/function.json-encode.php#80339
-	$json = json_encode( $data );
-	$len  = strlen( $json );
-
-	$tab          = "\t";
-	$new_json     = '';
-	$indent_level = 0;
-	$in_string    = false;
-
-	$slashed = false;
-	for ( $c = 0; $c < $len; $c++ ) {
-		$char = $json[ $c ];
-		if ( $in_string ) {
-			if ( '"' === $char && $c > 0 && ! $slashed ) {
-				$in_string = false;
-			}
-			$new_json .= $char;
-		} else {
-			switch ( $char ) {
-				case '{':
-				case '[':
-					$new_json .= $char . "\n" . str_repeat( $tab, ++$indent_level );
-					break;
-				case '}':
-				case ']':
-					$new_json .= "\n" . str_repeat( $tab, --$indent_level ) . $char;
-					break;
-				case ',':
-					$new_json .= ",\n" . str_repeat( $tab, $indent_level );
-					break;
-				case ':':
-					$new_json .= ': ';
-					break;
-				case '"':
-					if ( $c > 0 && ! $slashed ) {
-						$in_string = true;
-					}
-					// no break
-				default:
-					$new_json .= $char;
-					break;
-			}
-		}
-		if ( '\\' == $char ) {
-			$slashed = ! $slashed;
-		} else {
-			$slashed = false;
-		}
-	}
-
-	return $new_json;
+	return wp_json_encode( $data, JSON_PRETTY_PRINT );
 }
 
 /**
