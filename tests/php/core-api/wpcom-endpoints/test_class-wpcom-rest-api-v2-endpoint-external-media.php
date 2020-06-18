@@ -69,7 +69,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 	public function test_list_pexels_empty() {
 		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_api_response_list_pexels' ), 10, 3 );
 
-		$request  = wp_rest_request( Requests::GET, '/wpcom/v2/external-media/list/pexels' );
+		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/external-media/list/pexels' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
@@ -88,7 +88,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 	public function test_list_google_photos_unauthenticated() {
 		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_api_response_list_google_photos_unauthenticated' ), 10, 3 );
 
-		$request  = wp_rest_request( Requests::GET, '/wpcom/v2/external-media/list/google_photos' );
+		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/external-media/list/google_photos' );
 		$response = $this->server->dispatch( $request );
 		$error    = $response->get_data();
 
@@ -111,25 +111,8 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 		}
 
 		add_filter( 'pre_http_request', array( $this, 'mock_image_data' ), 10, 3 );
-
-		add_filter(
-			'wp_handle_sideload_prefilter',
-			function( $file ) {
-				copy( static::$image_path, $file['tmp_name'] );
-
-				return $file;
-			}
-		);
-		add_filter(
-			'wp_check_filetype_and_ext',
-			function() {
-				return array(
-					'ext'             => 'jpg',
-					'type'            => 'image/jpeg',
-					'proper_filename' => basename( static::$image_path ),
-				);
-			}
-		);
+		add_filter( 'wp_handle_sideload_prefilter', array( $this, 'copy_image' ) );
+		add_filter( 'wp_check_filetype_and_ext', array( $this, 'mock_extensions' ) );
 
 		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/external-media/copy/pexels' );
 		$request->set_body_params(
@@ -148,7 +131,10 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 		);
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data()[0];
+
 		remove_filter( 'pre_http_request', array( $this, 'mock_image_data' ) );
+		remove_filter( 'wp_handle_sideload_prefilter', array( $this, 'copy_image' ) );
+		remove_filter( 'wp_check_filetype_and_ext', array( $this, 'mock_extensions' ) );
 
 		$this->assertArrayHasKey( 'id', $data );
 		$this->assertArrayHasKey( 'caption', $data );
@@ -166,7 +152,8 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 	 */
 	public function test_connection_google_photos() {
 		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_api_response_connection_google_photos' ), 10, 3 );
-		$request  = wp_rest_request( Requests::GET, '/wpcom/v2/external-media/connection/google_photos' );
+
+		$request  = new WP_REST_Request( Requests::GET, '/wpcom/v2/external-media/connection/google_photos' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
@@ -333,5 +320,30 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_External_Media extends WP_Test_Jetpack_
 	 */
 	public function get_file_name() {
 		return $this->image_name;
+	}
+
+	/**
+	 * Copies file contents into temp file.
+	 *
+	 * @param array $file File information.
+	 * @return mixed
+	 */
+	public function copy_image( $file ) {
+		copy( static::$image_path, $file['tmp_name'] );
+
+		return $file;
+	}
+
+	/**
+	 * Returns an array of allowed image extensions.
+	 *
+	 * @return array
+	 */
+	public function mock_extensions() {
+		return array(
+			'ext'             => 'jpg',
+			'type'            => 'image/jpeg',
+			'proper_filename' => basename( static::$image_path ),
+		);
 	}
 }
