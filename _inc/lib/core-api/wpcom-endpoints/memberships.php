@@ -152,7 +152,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	/**
 	 * Get a status of connection for the site. If this is Jetpack, pass the request to wpcom.
 	 *
-	 * @param object $request - request passed from WP.
+	 * @param \WP_REST_Request $request - request passed from WP.
 	 *
 	 * @return WP_Error|array ['products','connected_account_id','connect_url','should_upgrade_to_access_memberships','upgrade_url']
 	 */
@@ -188,4 +188,3 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Jetpack::is_active() ) {
 	wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Memberships' );
 }
-
