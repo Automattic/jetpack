@@ -40,7 +40,7 @@ export default function useGatherTweetstorm( { url, noticeOperations, onReplace 
 			return;
 		}
 
-		const userResult = url.match( /^https?:\/\/(?:www\.)?twitter\.com\/([^/]+)\/\d+/ );
+		const userResult = url.match( /^https?:\/\/(?:www\.)?twitter\.com\/([^/]+)\/status\/\d+/ );
 		if ( isEmpty( userResult ) ) {
 			setBlocks( [] );
 			return;
