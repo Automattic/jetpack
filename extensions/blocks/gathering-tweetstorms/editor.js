@@ -18,13 +18,12 @@ import './editor.scss';
  * to import the tweetstorm.
  *
  * @param {object} blockSettings - The settings of the block being registered.
- * @param {string} blockName - The name of the block being registered.
  *
  * @returns {object} The blockSettings, with our extra functionality inserted.
  */
-const addTweetstormToTweets = ( blockSettings, blockName ) => {
-	// Bail if this is not the Twitter embed block or if the hook has been triggered by a deprecation.
-	if ( 'core-embed/twitter' !== blockName || blockSettings.isDeprecation ) {
+const addTweetstormToTweets = blockSettings => {
+	// Bail if this is not the Twitter embed block, or if the hook has been triggered by a deprecation.
+	if ( 'core-embed/twitter' !== blockSettings.name || blockSettings.isDeprecation ) {
 		return blockSettings;
 	}
 
