@@ -7,22 +7,16 @@
 
 namespace Automattic\Jetpack\Connection;
 
-use Automattic\Jetpack\Config;
-use Jetpack_Options;
 use WP_Error;
 
 /**
- * The class serves a single purpose - to store the data that plugins use the connection, along with some auxiliary information.
- * Well, we don't really store all that. The information is provided on runtime,
- * so all we need to do is to save the data into the class property and retrieve it from there on demand.
- *
- * @todo Adapt for multisite installations.
+ * The class serves a single purpose - to store the data which plugins use the connection, along with some auxiliary information.
  */
 class Plugin_Storage {
 
 	const ACTIVE_PLUGINS_OPTION_NAME = 'jetpack_connection_active_plugins';
 
-	const PLUGINS_DISABLED_OPTION_NAME = 'connection_disabled_plugins';
+	const PLUGINS_DISABLED_OPTION_NAME = 'jetpack_connection_disabled_plugins';
 
 	/**
 	 * Whether this class was configured for the first time or not.
@@ -185,7 +179,7 @@ class Plugin_Storage {
 
 		if ( ! in_array( $slug, $disconnects, true ) ) {
 			$disconnects[] = $slug;
-			Jetpack_Options::update_option( self::PLUGINS_DISABLED_OPTION_NAME, $disconnects );
+			update_option( self::PLUGINS_DISABLED_OPTION_NAME, $disconnects );
 		}
 
 		return true;
@@ -204,7 +198,7 @@ class Plugin_Storage {
 		$slug_index = array_search( $slug, $disconnects, true );
 		if ( false !== $slug_index ) {
 			unset( $disconnects[ $slug_index ] );
-			Jetpack_Options::update_option( self::PLUGINS_DISABLED_OPTION_NAME, $disconnects );
+			update_option( self::PLUGINS_DISABLED_OPTION_NAME, $disconnects );
 		}
 
 		return true;
@@ -216,7 +210,7 @@ class Plugin_Storage {
 	 * @return array
 	 */
 	public static function get_all_disabled_plugins() {
-		return Jetpack_Options::get_option( self::PLUGINS_DISABLED_OPTION_NAME, array() );
+		return get_option( self::PLUGINS_DISABLED_OPTION_NAME, array() );
 	}
 
 }
