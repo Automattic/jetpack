@@ -14,6 +14,8 @@ $grid-size-large: 16px;
 	}
 }
 
+@import 'node_modules/@automattic/color-studio/dist/color-variables.scss';
+
 @import './components/gridicon/style.scss';
 @import './components/jetpack-colophon.scss';
 @import './components/notice.scss';
