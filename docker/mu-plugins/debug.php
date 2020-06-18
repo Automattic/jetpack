@@ -1,33 +1,29 @@
 <?php
-
-/*
-Plugin Name: Automattic Debug Helpers
-Description: <code>l( 'Code is Poetry' )</code>
-Version: 1.0
-Author: Automattic
-Author URI: http://automattic.com/
-Text Domain: jetpack
-*/
-
-
 /**
- * debug.php
+ * Plugin Name: Automattic Debug Helpers
+ * Description: <code>l( 'Code is Poetry' )</code>
+ * Version: 1.0
+ * Author: Automattic
+ * Author URI: https://automattic.com/
+ * Text Domain: jetpack
  *
- * This file contains helpful debugging functions
+ * @package Jetpack.
  */
 
+// phpcs:disable WordPress.PHP.DevelopmentFunctions
+
 /**
- * l() -- sweet error logging
+ * Sweet error logging
+ *
+ * The first call of l() will print an extra line containing a random ID & PID
+ * and the script name or URL. The ID prefixes every l() log entry thereafter.
+ * The extra line and ID will help you to identify and correlate log entries.
  *
  * l($something_to_log); // error_log(print_r($something_to_log, true));
  * l(compact('v1','v2'); // log several variables with labels
  * l($thing5, $thing10); // log two things
  * l();                  // log the file:line
  * l(null, $stuff, $ba); // log the file:line, then log two things.
- *
- * The first call of l() will print an extra line containing a random ID & PID
- * and the script name or URL. The ID prefixes every l() log entry thereafter.
- * The extra line and ID will help you to indentify and correlate log entries.
  *
  * Example:
  *  wpsh> l('yo')
@@ -41,22 +37,24 @@ Text Domain: jetpack
  * l($arg1, $arg2) will call l($arg1) and l($arg2) and then return $arg1.
  *
  * A null argument will log the file and line number of the l() call.
+ *
+ * @param mixed $stuff Information to log.
  */
 function l( $stuff = null ) {
-	// Do nothing when debugging is off
+	// Do nothing when debugging is off.
 	if ( ! defined( 'WP_DEBUG' ) || WP_DEBUG === false ) {
 		return $stuff;
 	}
 	static $pageload;
-	// Call l() on each argument
+	// Call l() on each argument.
 	if ( func_num_args() > 1 ) {
-		foreach ( func_get_args() as $arg ) {
+		foreach ( func_get_args() as $arg ) { // phpcs:ignore PHPCompatibility.FunctionUse.ArgumentFunctionsReportCurrentValue.NeedsInspection
 			l( $arg );
 		}
 		return $stuff;
 	}
 	if ( ! isset( $pageload ) ) {
-		$pageload = substr( md5( mt_rand() ), 0, 4 );
+		$pageload = substr( md5( wp_rand() ), 0, 4 );
 		if ( ! empty( $_SERVER['argv'] ) ) {
 			$hint = implode( ' ', $_SERVER['argv'] );
 		} elseif ( isset( $_SERVER['HTTP_HOST'] ) && isset( $_SERVER['REQUEST_URI'] ) ) {
@@ -68,36 +66,42 @@ function l( $stuff = null ) {
 	}
 	$pid = $pageload . '-' . getmypid();
 	if ( is_null( $stuff ) ) {
-		// Log the file and line number
-		$backtrace = debug_backtrace( false );
-		while ( isset( $backtrace[1]['function'] ) && $backtrace[1]['function'] == __FUNCTION__ ) {
+		// Log the file and line number.
+		$backtrace = debug_backtrace( false ); // phpcs:ignore PHPCompatibility.FunctionUse.ArgumentFunctionsReportCurrentValue.NeedsInspection
+		while ( isset( $backtrace[1]['function'] ) && __FUNCTION__ === $backtrace[1]['function'] ) {
 			array_shift( $backtrace );
 		}
 		$log = sprintf( '%s line %d', $backtrace[0]['file'], $backtrace[0]['line'] );
 	} elseif ( is_bool( $stuff ) ) {
 		$log = $stuff ? 'TRUE' : 'FALSE';
 	} elseif ( is_scalar( $stuff ) ) {
-		// Strings and numbers can be logged exactly
+		// Strings and numbers can be logged exactly.
 		$log = $stuff;
 	} else {
-		// Are we in an output buffer handler?
-		// If so, print_r($stuff, true) is fatal so we must avoid that.
-		// This is not as slow as it looks: <1ms when !$in_ob_handler.
-		// Using json_encode_pretty() all the time is much slower.
+		/*
+		 * Are we in an output buffer handler?
+		 * If so, print_r($stuff, true) is fatal so we must avoid that.
+		 * This is not as slow as it looks: <1ms when !$in_ob_handler.
+		 * Using json_encode_pretty() all the time is much slower.
+		 */
 		do {
 			$in_ob_handler = false;
 			$ob_status     = ob_get_status( true );
+			$obs           = array();
+
 			if ( ! $ob_status ) {
 				break;
 			}
+
 			foreach ( $ob_status as $ob ) {
 				$obs[] = $ob['name'];
 			}
 			// This is not perfect: anonymous handlers appear as default.
-			if ( $obs == array( 'default output handler' ) ) {
+			if ( array( 'default output handler' ) === $obs ) {
 				break;
 			}
-			$backtrace = debug_backtrace( false );
+			$backtrace = debug_backtrace( false ); // phpcs:ignore PHPCompatibility.FunctionUse.ArgumentFunctionsReportCurrentValue.NeedsInspection
+			$bts       = array();
 			foreach ( $backtrace as $level ) {
 				$caller = '';
 				if ( isset( $level['class'] ) ) {
@@ -120,23 +124,33 @@ function l( $stuff = null ) {
 	return $stuff;
 }
 
-// Log only once (suppresses logging on subsequent calls from the same file+line)
+/**
+ * Log only once (suppresses logging on subsequent calls from the same file+line).
+ *
+ * @param mixed $stuff Information to log.
+ */
 function lo( $stuff ) {
 	static $callers = array();
+	$args           = func_get_args();
 	$backtrace      = debug_backtrace( false );
 	$caller         = md5( $backtrace[0]['file'] . $backtrace[0]['line'] );
 	if ( isset( $callers[ $caller ] ) ) {
 		return $stuff;
 	}
 	$callers[ $caller ] = true;
-	$args               = func_get_args();
 	return call_user_func_array( 'l', $args );
 }
 
-// Pretty print for JSON (stolen from public.api)
+/**
+ * Pretty print for JSON (stolen from public.api)
+ *
+ * @param mixed $data Data to encode.
+ *
+ * @return false|string
+ */
 function l_json_encode_pretty( $data ) {
 	if ( defined( 'JSON_PRETTY_PRINT' ) ) {
-		// Added in PHP 5.4.0
+		// Added in PHP 5.4.0.
 		return json_encode( $data, JSON_PRETTY_PRINT );
 	}
 
@@ -194,12 +208,18 @@ function l_json_encode_pretty( $data ) {
 }
 
 /**
- * A timer. Call once to start, call again to stop. Returns a float.
+ * A timer.
+ *
+ * Call once to start, call again to stop. Returns a float.
  * Calling e($name) with different names permits simultaneous timers.
  *
  * e('stuff');
  * do_stuff();
  * $elapsed = e('stuff');
+ *
+ * @param string $name Timer name.
+ *
+ * @return mixed void or elapsed time.
  */
 function e( $name = '' ) {
 	static $times = array();
@@ -214,16 +234,19 @@ function e( $name = '' ) {
 
 /**
  * A wrapper for e() which also logs the result with l().
+ *
  * Each log entry begins with a tag common to that pageload.
  * You can save a keystroke by calling e() then el().
  *
  * e($name);
  * do_stuff();
  * el($name);
+ *
+ * @param string $name Timer name.
  */
 function el( $name = '' ) {
 	$elapsed = e( $name );
-	if ( $elapsed !== null ) {
+	if ( null !== $elapsed ) {
 		l( sprintf( "%9.6f e('%s')", $elapsed, $name ) );
 	}
 	return $elapsed;
@@ -241,7 +264,7 @@ function t() {
 	}
 
 	$backtrace = debug_backtrace( false );
-	while ( isset( $backtrace[1]['function'] ) && $backtrace[1]['function'] == __FUNCTION__ ) {
+	while ( isset( $backtrace[1]['function'] ) && __FUNCTION__ === $backtrace[1]['function'] ) {
 		array_shift( $backtrace );
 	}
 
@@ -251,3 +274,5 @@ function t() {
 	$elapsed = $now - $start;
 	l( sprintf( $format, $elapsed, $file, $line ) );
 }
+
+// phpcs:enable
