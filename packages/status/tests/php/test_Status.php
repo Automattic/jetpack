@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:disable
 
 namespace Automattic\Jetpack;
 
@@ -292,6 +292,9 @@ class Test_Status extends TestCase {
 			),
 			'dreampress' => array(
 				'http://ebinnion.stage.site',
+			),
+			'newspack'   => array(
+				'http://test.newspackstaging.com',
 			),
 		);
 	}
