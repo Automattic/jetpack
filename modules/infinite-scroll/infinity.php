@@ -1830,7 +1830,7 @@ class The_Neverending_Home_Page {
 	 *
 	 * @return array
 	 */
-	protected static function amp_next_page() {
+	protected function amp_next_page() {
 		$title = esc_html__( 'Home page', 'jetpack' );
 		$url   = home_url();
 		$image = '';
