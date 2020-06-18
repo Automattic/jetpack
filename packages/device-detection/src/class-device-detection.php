@@ -1,18 +1,18 @@
 <?php
 /**
- * Mobile detection for Jetpack.
+ * Device detection for Jetpack.
  *
- * @package automattic/jetpack-mobile
+ * @package automattic/jetpack-device-detection
  */
 
 namespace Automattic\Jetpack;
 
 /**
- * Class Automattic\Jetpack\Mobile
+ * Class Automattic\Jetpack\Device_Detection
  *
  * Determine if the current User Agent matches the passed $kind.
  */
-class Mobile {
+class Device_Detection {
 
 	/**
 	 * Determine if the current User Agent matches the passed $kind.
