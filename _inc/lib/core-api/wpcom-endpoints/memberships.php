@@ -156,7 +156,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	 *
 	 * @return WP_Error|array ['products','connected_account_id','connect_url','should_upgrade_to_access_memberships','upgrade_url']
 	 */
-	public function get_status( $request ) {
+	public function get_status( \WP_REST_Request $request ) {
 		$product_type = $request['type'];
 		if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
 			jetpack_require_lib( 'memberships' );
