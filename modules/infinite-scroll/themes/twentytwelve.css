@@ -31,3 +31,12 @@
 		padding-bottom: 3.428571429rem;
 	}
 }
+
+#secondary,
+#colophon {
+	margin: 0 1.714285714rem;
+}
+
+#colophon {
+	padding: 1.714285714rem 0;
+}
