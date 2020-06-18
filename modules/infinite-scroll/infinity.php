@@ -440,7 +440,7 @@ class The_Neverending_Home_Page {
 			return;
 
 		// AMP infinite scroll functionality will start on amp_load_hooks().
-		if ( Jetpack_AMP_Support::is_amp_request() ) {
+		if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
 			return;
 		}
 
@@ -1597,7 +1597,7 @@ class The_Neverending_Home_Page {
 	 * @return string or null
 	 */
 	function footer() {
-		if ( Jetpack_AMP_Support::is_amp_request() ) {
+		if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
 			return;
 		}
 
@@ -1727,7 +1727,7 @@ class The_Neverending_Home_Page {
 	 * @return void
 	 */
 	public function amp_load_hooks() {
-		if ( Jetpack_AMP_Support::is_amp_request() ) {
+		if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
 			$template = self::get_settings()->render;
 
 			add_filter( 'jetpack_infinite_scroll_load_scripts_and_styles', '__return_false' );
