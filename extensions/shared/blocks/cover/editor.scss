@@ -1,0 +1,13 @@
+.jetpack-cover-media-placeholder {
+	width: 100%;
+
+	// tweak Upgrade nudge.
+	.block-editor-warning__contents {
+		flex-wrap: initial;
+
+		.jetpack-block-nudge__text-container,
+		.block-editor-warning__actions {
+			align-self: center;
+		}
+	}
+}

@@ -280,3 +280,17 @@
 .entry-content img.latex {
 	display: inline;
 }
+
+/**
+ * .com Toolbar
+ */
+
+/* fix wordpress.com notification iframe width */
+iframe#wpnt-notes-iframe2.wide {
+	width: auto !important;
+}
+
+/* fix site position when overflow nav modal  */
+.admin-bar {
+	position: unset !important;
+}

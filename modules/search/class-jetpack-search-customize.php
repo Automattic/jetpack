@@ -72,6 +72,29 @@ class Jetpack_Search_Customize {
 			)
 		);
 
+		$id = $setting_prefix . 'default_sort';
+		$wp_customize->add_setting(
+			$id,
+			array(
+				'default' => 'relevance',
+				'type'    => 'option',
+			)
+		);
+		$wp_customize->add_control(
+			$id,
+			array(
+				'choices'     => array(
+					'relevance' => __( 'Relevance (recommended)', 'jetpack' ),
+					'newest'    => __( 'Newest first', 'jetpack' ),
+					'oldest'    => __( 'Oldest first', 'jetpack' ),
+				),
+				'description' => __( 'Pick the initial sort for your search results.', 'jetpack' ),
+				'label'       => __( 'Default Sort', 'jetpack' ),
+				'section'     => $section_id,
+				'type'        => 'select',
+			)
+		);
+
 		$id = $setting_prefix . 'overlay_trigger';
 		$wp_customize->add_setting(
 			$id,

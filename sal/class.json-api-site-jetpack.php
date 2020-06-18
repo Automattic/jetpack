@@ -286,6 +286,16 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	}
 
 	/**
+	 * Check if a site is eligible for the White Glove offer.
+	 * pau2Xa-13X-p2
+	 *
+	 * @return bool true if site is eligible for the White Glove offer.
+	 */
+	public function is_white_glove() {
+		return false;
+	}
+
+	/**
 	 * Return the last engine used for an import on the site.
 	 *
 	 * This option is not used in Jetpack.

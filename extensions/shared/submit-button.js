@@ -88,7 +88,7 @@ class SubmitButton extends Component {
 
 		const backgroundColor = backgroundButtonColor.color || fallbackBackgroundColor;
 		const color = textButtonColor.color || fallbackTextColor;
-		const buttonStyle = { border: 'none', backgroundColor, color };
+		const buttonStyle = { backgroundColor, color };
 		const buttonClasses = this.getButtonClasses();
 
 		return (

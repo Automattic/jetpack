@@ -77,7 +77,7 @@ class Jetpack_Sync_Actions extends Automattic\Jetpack\Sync\Actions {
 	}
 
 	/**
-	 * Filters a boolean value that determines whether blacklisted posts should be prevented
+	 * Filters a boolean value that determines whether blocklisted posts should be prevented
 	 * from being publicized.
 	 *
 	 * @deprecated Automattic\Jetpack\Sync\Actions::prevent_publicize_blacklisted_posts

@@ -160,6 +160,7 @@ function render_player( $player_data, $attributes ) {
 				)
 			);
 			?>
+			<?php if ( count( $player_data['tracks'] ) > 1 ) : ?>
 			<ol class="jetpack-podcast-player__tracks">
 				<?php foreach ( $player_data['tracks'] as $track_index => $attachment ) : ?>
 					<?php
@@ -175,6 +176,7 @@ function render_player( $player_data, $attributes ) {
 					?>
 				<?php endforeach; ?>
 			</ol>
+			<?php endif; ?>
 		</section>
 		<?php if ( ! $is_amp ) : ?>
 		<script type="application/json"><?php echo wp_json_encode( $player_props ); ?></script>
