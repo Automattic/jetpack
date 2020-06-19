@@ -35,7 +35,7 @@
 			body.css( 'overflow', 'auto' );
 		} );
 
-		var mailchimpForm = $( '.jetpack-mailchimp-widget-form' ).clone();
+		var mailchimpForm = $( '.jetpack-mailchimp-widget-form' );
 		$( '.jetpack-mailchimp-widget-form' ).remove();
 		mailchimpForm.attr( 'style', '' );
 		mailchimpForm.prepend( closeButton );
@@ -48,9 +48,9 @@
 	$( document ).ready( function() {
 		var cookieName = 'jetpackMailchimpPopUpClosed';
 
-		//if ( 'yes' !== getCookie( cookieName ) ) {
-		setTimeout( generateModal, jetpackMailchimpPopup.delay );
-		setCookie( cookieName, 'yes', 365 );
-		//}
+		if ( 'yes' !== getCookie( cookieName ) ) {
+			setTimeout( generateModal, jetpackMailchimpPopup.delay );
+			setCookie( cookieName, 'yes', 365 );
+		}
 	} );
 } )( jQuery );
