@@ -35,7 +35,9 @@ export default function SearchResultEngagement( props ) {
 		? fields[ 'image.url.raw' ][ 0 ]
 		: fields[ 'image.url.raw' ];
 	return (
-		<li className="jetpack-instant-search__search-result-engagement">
+		<li
+			className={ `jetpack-instant-search__search-result-engagement jetpack-instant-search__search-result-engagement--${ fields.post_type }` }
+		>
 			<div className="jetpack-instant-search__search-result-engagement__image-container">
 				<a
 					className="jetpack-instant-search__result-engagement__image-link"
