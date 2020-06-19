@@ -34,6 +34,7 @@
 	clear: both;
 	margin-right: 7.6923%;
 	margin-left: 7.6923%;
+	margin-bottom: 3.5em;
 	text-align: center;
 }
 
@@ -53,6 +54,11 @@
 #infinite-handle span:hover,
 #infinite-handle span:focus {
 	background: #007acc;
+}
+
+#infinite-handle button {
+	display: block;
+	width: 100%;
 }
 
 #infinite-handle button:focus {
@@ -158,4 +164,8 @@ body #infinite-footer .blog-credits a:focus {
 	.site-main .infinite-loader {
 		margin-bottom: 7.0em;
 	}
+}
+
+body {
+	background-color: #fff;
 }
