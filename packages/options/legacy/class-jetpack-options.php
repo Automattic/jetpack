@@ -628,14 +628,29 @@ class Jetpack_Options {
 	 * @return void
 	 */
 	public static function delete_all_known_options() {
-		// Delete all compact options.
-		foreach ( (array) self::$grouped_options as $option_name ) {
-			delete_option( $option_name );
+		/**
+		 * Allows to exclude particular options from the cleanup.
+		 *
+		 * @since 8.7.0
+		 */
+		$options_to_stay = array_filter( apply_filters( 'jetpack_options_delete_all_ignore', array() ), 'is_array' );
+
+		// Delete the compact options.
+		foreach ( (array) self::$grouped_options as $group => $option_name ) {
+			if ( empty( $options_to_stay[ $group ] ) ) {
+				// Delete all compact options.
+				delete_option( $option_name );
+				continue;
+			}
+
+			self::delete_grouped_option( $group, array_diff( self::get_option_names( $group ), $options_to_stay[ $group ] ) );
 		}
 
 		// Delete all non-compact Jetpack options.
 		foreach ( (array) self::get_option_names( 'non-compact' ) as $option_name ) {
-			self::delete_option( $option_name );
+			if ( empty( $options_to_stay['non-compact'] ) || ! in_array( $option_name, $options_to_stay['non-compact'], true ) ) {
+				self::delete_option( $option_name );
+			}
 		}
 
 		// Delete all options that can be reset via CLI, that aren't Jetpack options.
