@@ -1,3 +1,4 @@
+
 /**
  * WordPress dependencies
  */
@@ -8,10 +9,10 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import UpgradeNudge from '../../components/upgrade-nudge';
+import UpgradeNudge from "../../components/upgrade-nudge";
 import { videoFileExtensions } from './utils';
-import { isSimpleSite } from '../../site-type-utils';
-import getJetpackExtensionAvailability from '../../get-jetpack-extension-availability';
+import { isSimpleSite } from "../../site-type-utils";
+import getJetpackExtensionAvailability from "../../get-jetpack-extension-availability";
 
 /**
  * Module Constants
@@ -33,8 +34,8 @@ const ALLOWED_MEDIA_TYPES = [ 'image', 'video' ];
  * @returns {*} Nudge component or Null.
  */
 const JetpackCoverUpgradeNudge = ( { name, show } ) =>
-	show ? (
-		<UpgradeNudge
+	show
+		? <UpgradeNudge
 			plan="value_bundle"
 			blockName={ name }
 			title={ {
@@ -43,7 +44,7 @@ const JetpackCoverUpgradeNudge = ( { name, show } ) =>
 			} }
 			subtitle={ false }
 		/>
-	) : null;
+		: null;
 
 export default CoreMediaPlaceholder => props => {
 	const [ error, setError ] = useState( false );
@@ -51,8 +52,7 @@ export default CoreMediaPlaceholder => props => {
 	const { unavailableReason } = getJetpackExtensionAvailability( 'videopress' );
 
 	if (
-		! name ||
-		name !== 'core/cover' || // extend only for cover block
+		( ! name || name !== 'core/cover' ) || // extend only for cover block
 		! isSimpleSite() || // only for Simple sites
 		! [ 'missing_plan', 'unknown' ].includes( unavailableReason )
 	) {
@@ -66,15 +66,15 @@ export default CoreMediaPlaceholder => props => {
 			<CoreMediaPlaceholder
 				{ ...props }
 				multiple={ false }
-				onError={ message => {
+				onError = { ( message ) => {
 					// Try to pick up filename from the error message.
 					// We should find a better way to do it. Unstable.
-					const filename = message?.[ 0 ]?.props?.children;
+					const filename = message?.[0]?.props?.children;
 					if ( ! filename ) {
 						return onError( message );
 					}
 
-					const fileExtension = filename.split( '.' )?.[ 1 ];
+					const fileExtension = ( filename.split( '.' ) )?.[ 1 ];
 					if ( ! videoFileExtensions.includes( fileExtension ) ) {
 						return onError( message );
 					}

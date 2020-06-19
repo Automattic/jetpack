@@ -33,8 +33,7 @@ $track_link = empty( $track['link'] ) ? $track['src'] : $track['link'];
 		echo esc_html( $track['title'] );
 		if ( ! empty( $track_link ) ) :
 			// Prevent whitespace between title and link to cause a jump when JS kicks in.
-			?>
-			<a
+			?><a
 				class="jetpack-podcast-player__track-title-link"
 				href="<?php echo esc_url( $track_link ); ?>"
 				target="_blank"
