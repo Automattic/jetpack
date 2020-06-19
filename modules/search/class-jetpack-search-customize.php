@@ -183,7 +183,7 @@ class Jetpack_Search_Customize {
 		$wp_customize->add_setting(
 			$id,
 			array(
-				'default'           => true,
+				'default'           => '1',
 				'sanitize_callback' => 'rest_sanitize_boolean',
 				'transport'         => 'postMessage',
 				'type'              => 'option',
@@ -202,7 +202,7 @@ class Jetpack_Search_Customize {
 		$wp_customize->add_setting(
 			$id,
 			array(
-				'default'           => true,
+				'default'           => '1',
 				'sanitize_callback' => 'rest_sanitize_boolean',
 				'transport'         => 'postMessage',
 				'type'              => 'option',
@@ -221,7 +221,7 @@ class Jetpack_Search_Customize {
 		$wp_customize->add_setting(
 			$id,
 			array(
-				'default'           => true,
+				'default'           => '1',
 				'sanitize_callback' => 'rest_sanitize_boolean',
 				'transport'         => 'postMessage',
 				'type'              => 'option',

@@ -125,12 +125,12 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		$options = array(
 			'overlayOptions'        => array(
 				'colorTheme'      => get_option( $prefix . 'color_theme', 'light' ),
-				'enableInfScroll' => (bool) get_option( $prefix . 'inf_scroll' ),
-				'enableSort'      => (bool) get_option( $prefix . 'enable_sort' ),
+				'enableInfScroll' => get_option( $prefix . 'inf_scroll', '1' ) === '1',
+				'enableSort'      => get_option( $prefix . 'enable_sort', '1' ) === '1',
 				'highlightColor'  => get_option( $prefix . 'highlight_color', '#FFC' ),
 				'opacity'         => (int) get_option( $prefix . 'opacity', 97 ),
 				'overlayTrigger'  => get_option( $prefix . 'overlay_trigger', 'immediate' ),
-				'showPoweredBy'   => (bool) get_option( $prefix . 'show_powered_by' ),
+				'showPoweredBy'   => get_option( $prefix . 'show_powered_by', '1' ) === '1',
 			),
 
 			// core config.
