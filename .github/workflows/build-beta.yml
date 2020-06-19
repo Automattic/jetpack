@@ -7,7 +7,7 @@ jobs:
     steps:
     - name: Checkout Jetpack
       uses: actions/checkout@master
-    - name: Build jetpack
+    - name: Build jetpack1
       run: |
         BRANCH=${GITHUB_REF:11}
         ./tools/build-jetpack.sh -d -b $BRANCH Automattic/jetpack /tmp/artifact/jetpack-dev
