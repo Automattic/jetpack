@@ -38,15 +38,9 @@
 	border-radius: 5px;
 }
 .jetpack-instant-search__search-result-engagement__image {
-	background-size: contain;
+	background-size: cover;
 	background-position: center;
 	background-repeat: no-repeat;
-	.jetpack-instant-search__overlay--light & {
-		background-color: $studio-gray-20;
-	}
-	.jetpack-instant-search__overlay--dark & {
-		background-color: $studio-gray-80;
-	}
 }
 .jetpack-instant-search__search-result-engagement__image-placeholder {
 	align-items: center;
