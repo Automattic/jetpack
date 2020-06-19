@@ -43,7 +43,7 @@ class Label_Control extends WP_Customize_Control {
 			<span class="description customize-control-description">
 				<?php echo esc_html( $this->description ); ?>
 			</span>
-		<?php endif;
+			<?php
+		endif;
 	}
 }
-?>
