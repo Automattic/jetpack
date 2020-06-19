@@ -122,6 +122,14 @@
 	display: block;
 }
 
+amp-next-page {
+	background-color: #fff;
+}
+
+#secondary {
+	padding: 1em 2em 2em;
+}
+
 @media screen and (min-width: 44.375em) {
 	#infinite-handle {
 		margin: 0 0 1em 0;
