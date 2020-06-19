@@ -96,6 +96,7 @@ class Status {
 				'#\.staging\.wpengine\.com$#i', // WP Engine.
 				'#\.staging\.kinsta\.com$#i',   // Kinsta.com.
 				'#\.stage\.site$#i',            // DreamPress.
+				'#\.newspackstaging\.com$#i',   // Newspack.
 			),
 			'constants' => array(
 				'IS_WPE_SNAPSHOT',      // WP Engine.

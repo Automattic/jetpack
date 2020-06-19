@@ -73,6 +73,7 @@ const InstagramGalleryEdit = props => {
 	} = useConnectInstagram( {
 		accessToken,
 		noticeOperations,
+		selectedAccount,
 		setAttributes,
 		setImages,
 		setSelectedAccount,
