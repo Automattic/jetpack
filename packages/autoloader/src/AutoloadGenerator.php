@@ -156,7 +156,7 @@ class AutoloadGenerator extends BaseGenerator {
 					$paths = is_array( $paths ) ? $paths : array( $paths );
 					foreach ( $paths as $path ) {
 						$relativePath = empty( $installPath ) ? ( empty( $path ) ? '.' : $path ) : $installPath . '/' . $path;
-						$autoloads[ $this->getFileIdentifier( $package, $path ) ]  = array(
+						$autoloads[ $this->getFileIdentifier( $package, $path ) ] = array(
 							'path'    => $relativePath,
 							'version' => $package->getVersion(), // Version of the file comes from the package - should we try to parse it?
 						);

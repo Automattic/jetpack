@@ -9,7 +9,7 @@ class WP_Test_File_Loader extends TestCase {
 		parent::setup();
 		global $jetpack_packages_files;
 		self::$jetpack_packages_files = $jetpack_packages_files;
-		$jetpack_packages_files = array();
+		$jetpack_packages_files       = array();
 	}
 
 	function tearDown() {

@@ -13,15 +13,17 @@ class Test_Abtest extends TestCase {
 	 */
 	public function setUp() {
 		$this->abtest = $this->getMockBuilder( 'Automattic\\Jetpack\\Abtest' )
-					 ->setMethods( [ 'request_variation' ] )
+					 ->setMethods( array( 'request_variation' ) )
 					 ->getMock();
 
 		$builder = new MockBuilder();
 		$builder->setNamespace( __NAMESPACE__ )
 			->setName( 'is_wp_error' )
-			->setFunction( function( $object ) {
-				return is_a( $object, __NAMESPACE__ . '\\Error' );
-			} );
+			->setFunction(
+				function( $object ) {
+					return is_a( $object, __NAMESPACE__ . '\\Error' );
+				}
+			);
 		$mock = $builder->build();
 		$mock->enable();
 	}
@@ -55,12 +57,16 @@ class Test_Abtest extends TestCase {
 	public function test_when_test_inactive_or_does_not_exist() {
 		$this->abtest->expects( $this->once() )
 			 ->method( 'request_variation' )
-			 ->willReturn( [
-				'body' => json_encode( [
-					'code'    => 'incorrect_test_name',
-					'message' => 'This A/B test does not exist or is currently inactive.',
-				] ),
-			] );
+			->willReturn(
+				array(
+					'body' => json_encode(
+						array(
+							'code'    => 'incorrect_test_name',
+							'message' => 'This A/B test does not exist or is currently inactive.',
+						)
+					),
+				)
+			);
 
 		$result = $this->abtest->get_variation( 'example_test' );
 		$this->assertNull( $result );
@@ -72,9 +78,11 @@ class Test_Abtest extends TestCase {
 	public function test_when_error_or_malformed_response() {
 		$this->abtest->expects( $this->once() )
 			 ->method( 'request_variation' )
-			 ->willReturn( [
-				'status' => 500,
-			] );
+			->willReturn(
+				array(
+					'status' => 500,
+				)
+			);
 
 		$result = $this->abtest->get_variation( 'some_test' );
 		$this->assertNull( $result );
@@ -86,11 +94,15 @@ class Test_Abtest extends TestCase {
 	public function test_when_response_in_unexpected_format() {
 		$this->abtest->expects( $this->once() )
 			 ->method( 'request_variation' )
-			 ->willReturn( [
-				'body' => json_encode( [
-					'foo' => 'bar',
-				] ),
-			] );
+			->willReturn(
+				array(
+					'body' => json_encode(
+						array(
+							'foo' => 'bar',
+						)
+					),
+				)
+			);
 
 		$result = $this->abtest->get_variation( 'some_test' );
 		$this->assertNull( $result );
@@ -103,11 +115,15 @@ class Test_Abtest extends TestCase {
 		$variation = 'original';
 		$this->abtest->expects( $this->once() )
 			 ->method( 'request_variation' )
-			 ->willReturn( [
-				'body' => json_encode( [
-					'variation' => $variation,
-				] ),
-			] );
+			->willReturn(
+				array(
+					'body' => json_encode(
+						array(
+							'variation' => $variation,
+						)
+					),
+				)
+			);
 
 		$result = $this->abtest->get_variation( 'some_test' );
 		$this->assertEquals( $variation, $result );

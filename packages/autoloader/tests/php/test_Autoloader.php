@@ -10,7 +10,7 @@ class WP_Test_Autoloader extends TestCase {
 		parent::setup();
 		global $jetpack_packages_classes;
 		self::$jetpack_packages_classes = $jetpack_packages_classes;
-		$jetpack_packages_classes = array();
+		$jetpack_packages_classes       = array();
 	}
 
 	function tearDown() {
