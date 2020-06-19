@@ -8,21 +8,59 @@
 namespace Automattic\Jetpack;
 
 /**
- * Class Automattic\Jetpack\Device_Detection
+ * Class Device_Detection
  *
  * Determine if the current User Agent matches the passed $kind.
  */
 class Device_Detection {
 
 	/**
+	 * Returns information about the current device accessing the page.
+	 *
+	 * @param string $ua (Optional) User-Agent string.
+	 *
+	 * @return array Device information.
+	 *
+	 * array(
+	 *  'is_mobile'            => (bool) Whether the current device is a mobile phone.
+	 *  'is_smartphone'        => (bool) Whether the current device is a smartphone.
+	 *  'is_tablet'            => (bool) Whether the current device is a tablet device.
+	 *  'is_handheld'          => (bool) Whether the current device is a handheld device.
+	 *  'is_desktop'           => (bool) Whether the current device is a laptop / desktop device.
+	 *  'platform'             => (string) Detected platform.
+	 *  'is_mobile_matched_ua' => (string) Matched UA.
+	 * );
+	 */
+	public static function get_info( $ua = '' ) {
+		$ua_info = new Jetpack_User_Agent_Info( $ua );
+
+		$info = array(
+			'is_mobile'            => self::is_mobile( 'any', false, $ua_info ),
+			'is_mobile_matched_ua' => self::is_mobile( 'any', true, $ua_info ),
+			'is_smartphone'        => self::is_mobile( 'smart', false, $ua_info ),
+			'is_tablet'            => $ua_info->is_tablet(),
+			'platform'             => $ua_info->get_platform(),
+		);
+
+		$info['is_handheld'] = $info['is_mobile'] || $info['is_tablet'];
+		$info['is_desktop']  = ! $info['is_handheld'];
+
+		if ( function_exists( 'apply_filters' ) ) {
+			$info = apply_filters( 'jetpack_device_detection_get_info', $info, $ua, $ua_info );
+		}
+		return $info;
+	}
+
+	/**
 	 * Determine if the current User Agent matches the passed $kind.
 	 *
-	 * @param string $kind                 Category of mobile device to check for. Either: any, dumb, smart.
-	 * @param bool   $return_matched_agent Boolean indicating if the UA should be returned.
+	 * @param string                  $kind                 Category of mobile device to check for. Either: any, dumb, smart.
+	 * @param bool                    $return_matched_agent Boolean indicating if the UA should be returned.
+	 * @param Jetpack_User_Agent_Info $ua_info              Boolean indicating if the UA should be returned.
 	 *
 	 * @return bool|string Boolean indicating if current UA matches $kind. If `$return_matched_agent` is true, returns the UA string.
 	 */
-	public static function is_mobile( $kind = 'any', $return_matched_agent = false ) {
+	private static function is_mobile( $kind = 'any', $return_matched_agent = false, $ua_info ) {
 		$kinds         = array(
 			'smart' => false,
 			'dumb'  => false,
@@ -35,29 +73,6 @@ class Device_Detection {
 		if ( ! isset( $kinds[ $kind ] ) ) {
 				$kind = 'any';
 		}
-
-		if ( function_exists( 'apply_filters' ) ) {
-			/**
-			 * Filter the value of jetpack_is_mobile before it is calculated.
-			 *
-			 * Passing a truthy value to the filter will short-circuit determining the
-			 * mobile type, returning the passed value instead.
-			 *
-			 * @since  4.2.0
-			 *
-			 * @param bool|string $matches Boolean if current UA matches $kind or not. If
-			 *                             $return_matched_agent is true, should return the UA string
-			 * @param string      $kind Category of mobile device being checked
-			 * @param bool        $return_matched_agent Boolean indicating if the UA should be returned
-			 */
-			$pre = apply_filters( 'pre_jetpack_is_mobile', null, $kind, $return_matched_agent );
-
-			if ( null !== $pre ) {
-				return $pre;
-			}
-		}
-
-		$ua_info = new Jetpack_User_Agent_Info();
 
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) || strpos( strtolower( $_SERVER['HTTP_USER_AGENT'] ), 'ipad' ) ) {
 			return false;
@@ -120,21 +135,6 @@ class Device_Detection {
 		if ( $return_matched_agent ) {
 			$value = $matched_agent;
 		}
-
-		if ( function_exists( 'apply_filters' ) ) {
-			/**
-			 * Filter the value of jetpack_is_mobile
-			 *
-			 * @since  4.2.0
-			 *
-			 * @param bool|string $matches Boolean if current UA matches $kind or not. If
-			 *                             $return_matched_agent is true, should return the UA string
-			 * @param string      $kind Category of mobile device being checked
-			 * @param bool        $return_matched_agent Boolean indicating if the UA should be returned
-			 */
-			$value = apply_filters( 'jetpack_is_mobile', $value, $kind, $return_matched_agent );
-		}
-
 		return $value;
 	}
 }
@@ -211,10 +211,19 @@ class Jetpack_User_Agent_Info {
 		'googlebot-mobile',
 	);
 
-	// The constructor. Initializes default variables.
-	function __construct() {
-		if ( ! empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-			$this->useragent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+
+	/**
+	 * The constructor.
+	 *
+	 * @param string $ua (Optional) User agent.
+	 */
+	function __construct( $ua = '' ) {
+		if ( $ua ) {
+			$this->useragent = $ua;
+		} else {
+			if ( ! empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+				$this->useragent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+			}
 		}
 	}
 
@@ -483,7 +492,7 @@ class Jetpack_User_Agent_Info {
 
 	// Detects if the user is using a tablet.
 	// props Corey Gilmore, BGR.com
-	static function is_tablet() {
+	function is_tablet() {
 		return ( 0 // never true, but makes it easier to manage our list of tablet conditions
 				|| self::is_ipad()
 				|| self::is_android_tablet()
@@ -500,7 +509,7 @@ class Jetpack_User_Agent_Info {
 	 *  DEPRECATED: use is_iphone_or_ipod
 	 *
 	 */
-	static function is_iphoneOrIpod() {
+	function is_iphoneOrIpod() {
 
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
 			return false;

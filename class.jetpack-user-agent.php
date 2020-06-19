@@ -1,6 +1,6 @@
 <?php
 
-use Automattic\Jetpack\Mobile;
+use Automattic\Jetpack\Device_Detection;
 
 /**
  * Determine if the current User Agent matches the passed $kind
@@ -13,5 +13,25 @@ use Automattic\Jetpack\Mobile;
  *                              $return_matched_agent is true, returns the UA string
  */
 function jetpack_is_mobile( $kind = 'any', $return_matched_agent = false ) {
-	return Mobile::is_mobile( $kind, $return_matched_agent );
+	$pre = apply_filters( 'pre_jetpack_is_mobile', null, $kind, $return_matched_agent );
+	if ( $pre ) {
+		return $pre;
+	}
+
+	$return = false;
+	$device_info = Device_Detection::get_info();
+
+	if ( 'any' === $kind ) {
+		$return = $device_info['is_mobile'];
+	} elseif ( 'smart' === $kind ) {
+		$return = $device_info['is_smartphone'];
+	} elseif ( 'dumb' === $kind ) {
+		$return = $device_info['is_mobile'] && ! $device_info['is_smartphone'];
+	}
+
+	if ( $return_matched_agent && true === $return ) {
+		$return = $device_info['is_mobile_matched_ua'];
+	}
+
+	return apply_filters( 'jetpack_is_mobile', $return, $kind, $return_matched_agent );
 }

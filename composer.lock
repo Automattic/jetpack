@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "516b69b56fe0fb3d622c5b0c4ae08bf1",
+    "content-hash": "f2fe81abca953731aa65af154e8a06f7",
     "packages": [
         {
             "name": "automattic/jetpack-abtest",
@@ -246,6 +246,35 @@
             "description": "A wrapper for defining constants in a more testable way."
         },
         {
+            "name": "automattic/jetpack-device-detection",
+            "version": "dev-add/jetpack-mobile-package",
+            "dist": {
+                "type": "path",
+                "url": "./packages/device-detection",
+                "reference": "4d838c69f4869dbba9ee2752ff7c1f13b79a7d76"
+            },
+            "require-dev": {
+                "php-mock/php-mock": "^2.1",
+                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "@composer install",
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "A way to detect device types based on User-Agent header."
+        },
+        {
             "name": "automattic/jetpack-error",
             "version": "dev-retry/phpcs-changed",
             "dist": {
@@ -339,35 +368,6 @@
                 "GPL-2.0-or-later"
             ],
             "description": "A logo for Jetpack"
-        },
-        {
-            "name": "automattic/jetpack-mobile",
-            "version": "dev-add/jetpack-mobile-package",
-            "dist": {
-                "type": "path",
-                "url": "./packages/mobile",
-                "reference": "94290882430845c38fd49de8b5c108ecb385d78c"
-            },
-            "require-dev": {
-                "php-mock/php-mock": "^2.1",
-                "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5"
-            },
-            "type": "library",
-            "autoload": {
-                "classmap": [
-                    "src/"
-                ]
-            },
-            "scripts": {
-                "phpunit": [
-                    "@composer install",
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
-                ]
-            },
-            "license": [
-                "GPL-2.0-or-later"
-            ],
-            "description": "A method to detect mobile devices, formerly jetpack_is_mobile."
         },
         {
             "name": "automattic/jetpack-options",
@@ -1047,10 +1047,10 @@
         "automattic/jetpack-config": 20,
         "automattic/jetpack-connection": 20,
         "automattic/jetpack-constants": 20,
+        "automattic/jetpack-device-detection": 20,
         "automattic/jetpack-error": 20,
         "automattic/jetpack-jitm": 20,
         "automattic/jetpack-logo": 20,
-        "automattic/jetpack-mobile": 20,
         "automattic/jetpack-options": 20,
         "automattic/jetpack-partner": 20,
         "automattic/jetpack-redirect": 20,

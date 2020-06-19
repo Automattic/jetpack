@@ -1,6 +1,6 @@
 {
-	"name": "automattic/jetpack-mobile",
-	"description": "A method to detect mobile devices, formerly jetpack_is_mobile.",
+	"name": "automattic/jetpack-device-detection",
+	"description": "A way to detect device types based on User-Agent header.",
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require": {},
