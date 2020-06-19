@@ -8,7 +8,6 @@
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Constants;
-require_once __DIR__ . '/class.jetpack-search-helpers.php';
 
 /**
  * Class to load Instant Search experience on the site.
