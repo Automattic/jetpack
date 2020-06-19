@@ -1,4 +1,9 @@
 <?php
+/**
+ * Tests the Roles package/
+ *
+ * @package automattic/jetpack-roles
+ */
 
 namespace Automattic\Jetpack;
 
@@ -7,6 +12,11 @@ use PHPUnit\Framework\TestCase;
 use phpmock\Mock;
 use phpmock\MockBuilder;
 
+/**
+ * Class Test_Roles
+ *
+ * @package Automattic\Jetpack
+ */
 class Test_Roles extends TestCase {
 	/**
 	 * Test setup.
@@ -23,6 +33,8 @@ class Test_Roles extends TestCase {
 	}
 
 	/**
+	 * Tests the current user by role.
+	 *
 	 * @covers Automattic\Jetpack\Roles::translate_current_user_to_role
 	 */
 	public function test_current_user_to_role_with_role() {
@@ -32,6 +44,8 @@ class Test_Roles extends TestCase {
 	}
 
 	/**
+	 * Tests the current user by capability.
+	 *
 	 * @covers Automattic\Jetpack\Roles::translate_current_user_to_role
 	 */
 	public function test_current_user_to_role_with_capability() {
@@ -41,6 +55,8 @@ class Test_Roles extends TestCase {
 	}
 
 	/**
+	 * Test current user with no match.
+	 *
 	 * @covers Automattic\Jetpack\Roles::translate_current_user_to_role
 	 */
 	public function test_current_user_to_role_with_no_match() {
@@ -50,6 +66,8 @@ class Test_Roles extends TestCase {
 	}
 
 	/**
+	 * Test translating an user to a role by role.
+	 *
 	 * @covers Automattic\Jetpack\Roles::translate_user_to_role
 	 */
 	public function test_user_to_role_with_role() {
@@ -60,6 +78,8 @@ class Test_Roles extends TestCase {
 	}
 
 	/**
+	 * Test translating an user to a role by capablity.
+	 *
 	 * @covers Automattic\Jetpack\Roles::translate_user_to_role
 	 */
 	public function test_user_to_role_with_capability() {
@@ -70,6 +90,8 @@ class Test_Roles extends TestCase {
 	}
 
 	/**
+	 * Test translating an user to a role with no match.
+	 *
 	 * @covers Automattic\Jetpack\Roles::translate_user_to_role
 	 */
 	public function test_user_to_role_with_no_match() {
@@ -80,6 +102,8 @@ class Test_Roles extends TestCase {
 	}
 
 	/**
+	 * Test translating a role to a cap with an existing role.
+	 *
 	 * @covers Automattic\Jetpack\Roles::translate_role_to_cap
 	 */
 	public function test_role_to_cap_existing_role() {
@@ -87,6 +111,8 @@ class Test_Roles extends TestCase {
 	}
 
 	/**
+	 * Test translating a role to a cap with a non-existing role.
+	 *
 	 * @covers Automattic\Jetpack\Roles::translate_role_to_cap
 	 */
 	public function test_role_to_cap_non_existing_role() {
@@ -111,7 +137,7 @@ class Test_Roles extends TestCase {
 				function( $arg_1, $arg_2 = null ) use ( &$return_value, &$arg_1_value, &$arg_2_value ) {
 					// Return the value if we don't care about arguments.
 					if ( is_null( $arg_1 ) && is_null( $arg_2 ) ) {
-						  return $return_value;
+						return $return_value;
 					}
 
 					// Return the value if we don't care about the second argument, but the first one matches.
