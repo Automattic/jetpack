@@ -1,26 +1,49 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName
+/**
+ * Testing file for the autoloader.
+ *
+ * @package automattic/jetpack-autoloader
+ */
 
 use Automattic\Jetpack\Autoloader as Autoloader;
 use PHPUnit\Framework\TestCase;
-use Jetpack\TestCase_ABC\className_ABC;
+use Jetpack\TestCase_ABC\ClassName_ABC;
 
+/**
+ * Class WP_Test_Autoloader
+ */
 class WP_Test_Autoloader extends TestCase {
-	static $jetpack_packages_classes;
-	function setup() {
+	/**
+	 * Jetpack package classes.
+	 *
+	 * @var $jetpack_packages_classes
+	 */
+	public static $jetpack_packages_classes;
+
+	/**
+	 * Test setup.
+	 */
+	public function setup() {
 		parent::setup();
 		global $jetpack_packages_classes;
 		self::$jetpack_packages_classes = $jetpack_packages_classes;
 		$jetpack_packages_classes       = array();
 	}
 
-	function tearDown() {
+	/**
+	 * Test tear down.
+	 */
+	public function tearDown() {
 		parent::tearDown();
-		// re-apply the global
+		// re-apply the global.
 		global $jetpack_packages_classes;
 		$jetpack_packages_classes = self::$jetpack_packages_classes;
 	}
 
-	function test_enqueueing_adds_to_the_global_array() {
+	/**
+	 * Ensure enqueuing adds to the global array.
+	 */
+	public function test_enqueueing_adds_to_the_global_array() {
 		Autoloader\enqueue_package_class( 'className', '1', 'path_to_class' );
 
 		global $jetpack_packages_classes;
@@ -29,7 +52,10 @@ class WP_Test_Autoloader extends TestCase {
 		$this->assertEquals( $jetpack_packages_classes['className']['path'], 'path_to_class' );
 	}
 
-	function test_enqueueing_adds_the_latest_version_to_the_global_array() {
+	/**
+	 * Tests that the latest version is added to the global array.
+	 */
+	public function test_enqueueing_adds_the_latest_version_to_the_global_array() {
 		Autoloader\enqueue_package_class( 'className', '1', 'path_to_class' );
 		Autoloader\enqueue_package_class( 'className', '2', 'path_to_class_v2' );
 
@@ -40,7 +66,10 @@ class WP_Test_Autoloader extends TestCase {
 
 	}
 
-	function test_enqueueing_always_adds_the_dev_version_to_the_global_array() {
+	/**
+	 * Tests that the dev version is added to the global array.
+	 */
+	public function test_enqueueing_always_adds_the_dev_version_to_the_global_array() {
 
 		Autoloader\enqueue_package_class( 'className', '1', 'path_to_class' );
 		Autoloader\enqueue_package_class( 'className', 'dev-howdy', 'path_to_class_dev' );
@@ -52,10 +81,13 @@ class WP_Test_Autoloader extends TestCase {
 		$this->assertEquals( $jetpack_packages_classes['className']['path'], 'path_to_class_dev' );
 	}
 
-	function test_enqueue_class_to_autoload_works_as_expected() {
-		Autoloader\enqueue_package_class( 'Jetpack\TestCase_ABC\className_ABC', '1', dirname( __FILE__ ) . '/path_to_class.php' );
+	/**
+	 * Ensures that an autoloaded class is available.
+	 */
+	public function test_enqueue_class_to_autoload_works_as_expected() {
+		Autoloader\enqueue_package_class( 'Jetpack\TestCase_ABC\ClassName_ABC', '1', dirname( __FILE__ ) . '/path_to_class.php' );
 
-		$class = new className_ABC();
+		$class = new ClassName_ABC();
 
 		$this->assertTrue( $class->return_true() );
 	}
