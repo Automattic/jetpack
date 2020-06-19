@@ -9,9 +9,19 @@ import { h } from 'preact';
  * Internal dependencies
  */
 import { formatDateString } from '../lib/date';
+import { capitalize } from '../lib/strings';
 import SearchResultComments from './search-result-comments';
 import PhotonImage from './photon-image';
 import Gridicon from './gridicon';
+
+function formatPostTypeHeader( postType ) {
+	if ( postType.split( '_' ).length > 1 ) {
+		// jetpack_support -> Other
+		return 'Other';
+	}
+	// post -> Post, article -> Article, etc.
+	return capitalize( postType );
+}
 
 function getGridiconName( postType ) {
 	if ( postType === 'post' || postType === 'page' ) {
@@ -64,8 +74,13 @@ export default function SearchResultEngagement( props ) {
 			</div>
 
 			<div className="jetpack-instant-search__search-result-engagement__copy-container">
-				<div className="jetpack-instant-search__search-result-engagement__date">
-					{ formatDateString( fields.date ) }
+				<div className="jetpack-instant-search__search-result-engagement__type-and-date">
+					<span className="jetpack-instant-search__search-result-engagement__post-type">
+						{ formatPostTypeHeader( fields.post_type ) }
+					</span>{ ' ' }
+					<span className="jetpack-instant-search__search-result-engagement__date">
+						{ formatDateString( fields.date ) }
+					</span>
 				</div>
 				<h3 className="jetpack-instant-search__search-result-engagement__title">
 					<a
