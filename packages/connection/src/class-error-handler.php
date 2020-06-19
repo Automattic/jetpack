@@ -17,7 +17,7 @@ class Error_Handler {
 	 *
 	 * @var string
 	 */
-	const STORED_ERRORS_OPTION = 'jetpack_xmlrpc_errors';
+	const STORED_ERRORS_OPTION = 'jetpack_connection_xmlrpc_errors';
 
 	/**
 	 * The prefix of the transient that controls the gate for each error code
@@ -70,33 +70,73 @@ class Error_Handler {
 	 * @return boolean False if stored errors were not updated and true if stored errors were updated.
 	 */
 	public function store_error( \WP_Error $error ) {
-		$stored_errors                             = $this->get_stored_errors();
-		$stored_errors[ $error->get_error_code() ] = array(
-			'error_code'    => $error->get_error_code(),
+		$stored_errors = $this->get_stored_errors();
+
+		$data       = $error->get_error_data();
+		$error_code = $error->get_error_code();
+
+		if ( ! isset( $data['signature_details'] ) || ! is_array( $data['signature_details'] ) ) {
+			return false;
+		}
+
+		$data = $data['signature_details'];
+
+		if ( ! isset( $data['token'] ) || empty( $data['token'] ) ) {
+			return false;
+		}
+
+		$user_id = $this->get_user_id_from_token( $data['token'] );
+
+		if ( ! isset( $stored_errors[ $error_code ] ) || ! is_array( $stored_errors[ $error_code ] ) ) {
+			$stored_errors[ $error_code ] = array();
+		}
+
+		$stored_errors[ $error_code ][ $user_id ] = array(
+			'error_code'    => $error_code,
 			'error_message' => $error->get_error_message(),
-			'error_data'    => $error->get_error_data(),
+			'error_data'    => $data,
 			'timestamp'     => time(),
 			'nonce'         => wp_generate_password( 10, false ),
 		);
+
+		// Let's store a maximum of 5 different user ids for each error code.
+		if ( count( $stored_errors[ $error_code ] ) > 5 ) {
+			array_shift( $stored_errors[ $error_code ] );
+		}
+
 		return update_option( self::STORED_ERRORS_OPTION, $stored_errors );
+	}
+
+	/**
+	 * Extracts the user ID from a token
+	 *
+	 * @param string $token the token used to make the xml-rpc request.
+	 * @return string $the user id or `invalid` if user id not present.
+	 */
+	public function get_user_id_from_token( $token ) {
+		$parsed_token = explode( ':', wp_unslash( $token ) );
+
+		if ( isset( $parsed_token[2] ) && ! empty( $parsed_token[2] ) && ctype_digit( $parsed_token[2] ) ) {
+			$user_id = $parsed_token[2];
+		} else {
+			$user_id = 'invalid';
+		}
+
+		return $user_id;
+
 	}
 
 	/**
 	 * Gets the reported errors stored in the database
 	 *
-	 * @return \WP_Error[] $errors
+	 * @return array $errors
 	 */
 	public function get_stored_errors() {
 		$stored_errors = get_option( self::STORED_ERRORS_OPTION );
 		if ( ! is_array( $stored_errors ) ) {
 			$stored_errors = array();
 		}
-		return array_map(
-			function( $error ) {
-				return new \WP_Error( $error['error_code'], $error['error_message'], $error['error_data'] );
-			},
-			$stored_errors
-		);
+		return $stored_errors;
 	}
 
 	/**
