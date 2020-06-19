@@ -1,11 +1,12 @@
 .jetpack-instant-search__search-result-minimal {
 	padding: 0.125em 0;
-	margin: 1em 0;
+	margin: 2em 0;
 	position: relative;
 }
 
 .jetpack-instant-search__search-result-title {
 	clear: none;
+	margin: 0;
 	overflow: hidden;
 
 	.gridicon {
