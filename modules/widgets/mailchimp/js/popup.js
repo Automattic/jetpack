@@ -27,16 +27,16 @@
 	 */
 	function generateModal() {
 		var body = $( 'body' );
-		var overlay = $( '<div>', { class: 'jetpack_mailchimp_widget_overlay' } );
-		var closeButton = $( '<span>', { class: 'jetpack_mailchimp_widget_close' } );
+		var overlay = $( '<div>', { class: 'jetpack-mailchimp-widget-overlay' } );
+		var closeButton = $( '<span>', { class: 'jetpack-mailchimp-widget-close' } );
 
 		closeButton.click( function() {
 			overlay.remove();
 			body.css( 'overflow', 'auto' );
 		} );
 
-		var mailchimpForm = $( '.jetpack_mailchimp_widget_form' ).clone();
-		$( '.jetpack_mailchimp_widget_form' ).remove();
+		var mailchimpForm = $( '.jetpack-mailchimp-widget-form' ).clone();
+		$( '.jetpack-mailchimp-widget-form' ).remove();
 		mailchimpForm.attr( 'style', '' );
 		mailchimpForm.prepend( closeButton );
 

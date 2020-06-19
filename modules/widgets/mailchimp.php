@@ -87,53 +87,84 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 					echo do_shortcode( $matches[0] );
 				}
 			} else {
-				$instance['interests'] = explode( '_', $instance['interests'] );
+				$instance['interests'] = empty( $instance['interests'] ) ? array() : explode( '_', $instance['interests'] );
 
 				$is_amp_request = class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request();
 
-				$popup_mode   = 'on' === $instance['popupMode'];
-				$hidden_style = '';
-				if ( $popup_mode && ! $is_amp_request ) {
-					$hidden_style = 'style=display:none;';
+				$popup_mode = 'on' === $instance['popupMode'];
+				// Use the same outpu as the block.
+				$output       = render_block( $instance );
+				$form_classes = 'jetpack-mailchimp-widget-form';
 
-					wp_enqueue_script(
-						'jetpack-mailchimp-popup',
-						Assets::get_file_url_for_environment(
-							'_inc/build/widgets/mailchimp/js/popup.min.js',
-							'modules/widgets/mailchimp/js/popup.js'
-						),
-						array( 'jquery' ),
-						'20200615',
-						true
-					);
-
-					wp_localize_script(
-						'jetpack-mailchimp-popup',
-						'jetpackMailchimpPopup',
-						array(
-							'delay' => $instance['delay'],
-						)
-					);
-
-					wp_enqueue_style(
-						'jetpack-mailchimp-popup-style',
-						Assets::get_file_url_for_environment(
-							'_inc/build/widgets/mailchimp/css/popup.min.css',
-							'modules/widgets/mailchimp/css/popup.css'
-						),
-						array(),
-						'20200615'
-					);
+				if ( ! empty( $instance['cssClass'] ) ) {
+					$form_classes .= ' ' . $instance['cssClass'];
 				}
 
-				echo sprintf(
-					'<div class="%s" %s >%s</div>',
-					'jetpack_mailchimp_widget_form',
-					esc_html( $hidden_style ),
-					// Use the same ouput as the mailchimp block.
-					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-					render_block( $instance )
-				);
+				if ( $popup_mode ) {
+
+					if ( $is_amp_request ) {
+
+						wp_enqueue_style(
+							'jetpack-mailchimp-popup-style',
+							Assets::get_file_url_for_environment(
+								'_inc/build/widgets/mailchimp/css/popup-amp.min.css',
+								'modules/widgets/mailchimp/css/popup-amp.css'
+							),
+							array(),
+							'20200618'
+						);
+
+						$output = sprintf(
+							'<amp-user-notification class="%2$s-wrapper" id="%2$s" layout="nodisplay">
+								<div class="%1$s">
+									<button class="%2$s-close" on="tap:%2$s.dismiss"></button>
+									%3$s
+								</div>
+							</amp-user-notification>',
+							$form_classes,
+							'jetpack-mailchimp-widget',
+							$output
+						);
+					} else {
+
+						wp_enqueue_script(
+							'jetpack-mailchimp-popup',
+							Assets::get_file_url_for_environment(
+								'_inc/build/widgets/mailchimp/js/popup.min.js',
+								'modules/widgets/mailchimp/js/popup.js'
+							),
+							array( 'jquery' ),
+							'20200615',
+							true
+						);
+
+						wp_localize_script(
+							'jetpack-mailchimp-popup',
+							'jetpackMailchimpPopup',
+							array(
+								'delay' => $instance['delay'],
+							)
+						);
+
+						wp_enqueue_style(
+							'jetpack-mailchimp-popup-style',
+							Assets::get_file_url_for_environment(
+								'_inc/build/widgets/mailchimp/css/popup.min.css',
+								'modules/widgets/mailchimp/css/popup.css'
+							),
+							array(),
+							'20200615'
+						);
+
+						$output = sprintf(
+							'<div class="%s" style="display:none;">%s</div>',
+							$form_classes,
+							$output
+						);
+					}
+				}
+				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				echo $output;
 			}
 
 			/** This action is documented in modules/widgets/gravatar-profile.php */
@@ -229,8 +260,8 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 					'customBackgroundButtonColor' => '',
 					'customTextButtonColor'       => '',
 					'cssClass'                    => '',
-					'delay'                       => '',
 					'popupMode'                   => '',
+					'delay'                       => '',
 				)
 			);
 
@@ -242,6 +273,7 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 							'title'       => __( 'Email Placeholder', 'jetpack' ),
 							'id'          => 'jetpack-mailchimp-email',
 							'placeholder' => __( 'Enter your email', 'jetpack' ),
+							'default'     => __( 'Enter your email', 'jetpack' ),
 							'type'        => 'text',
 							'name'        => esc_attr( $this->get_field_name( 'emailPlaceholder' ) ),
 							'value'       => esc_html( $instance['emailPlaceholder'] ),
@@ -256,6 +288,7 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 							'title'       => __( 'Processing', 'jetpack' ),
 							'id'          => 'jetpack-mailchimp-processing-label',
 							'placeholder' => __( 'Processing', 'jetpack' ),
+							'default'     => __( 'Processing', 'jetpack' ),
 							'type'        => 'text',
 							'name'        => esc_attr( $this->get_field_name( 'processingLabel' ) ),
 							'value'       => esc_html( $instance['processingLabel'] ),
@@ -265,6 +298,7 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 							'title'       => __( 'Success text', 'jetpack' ),
 							'id'          => 'jetpack-mailchimp-success-text',
 							'placeholder' => __( 'Success! You are on the list.', 'jetpack' ),
+							'default'     => __( 'Success! You are on the list.', 'jetpack' ),
 							'type'        => 'text',
 							'name'        => esc_attr( $this->get_field_name( 'successLabel' ) ),
 							'value'       => esc_html( $instance['successLabel'] ),
@@ -274,6 +308,7 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 							'title'       => __( 'Error text', 'jetpack' ),
 							'id'          => 'jetpack-mailchimp-error-label',
 							'placeholder' => __( 'Whoops! There was an error and we could not process your subscription. Please reload the page and try again.', 'jetpack' ),
+							'default'     => __( 'Whoops! There was an error and we could not process your subscription. Please reload the page and try again.', 'jetpack' ),
 							'type'        => 'text',
 							'name'        => esc_attr( $this->get_field_name( 'errorLabel' ) ),
 							'value'       => esc_html( $instance['errorLabel'] ),
@@ -304,6 +339,7 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 							'title'       => __( 'Signup Field Tag', 'jetpack' ),
 							'id'          => 'jetpack-mailchimp-signup-tag',
 							'placeholder' => __( 'SIGNUP', 'jetpack' ),
+							'default'     => '',
 							'type'        => 'text',
 							'name'        => esc_attr( $this->get_field_name( 'signupFieldTag' ) ),
 							'value'       => esc_html( $instance['signupFieldTag'] ),
@@ -313,6 +349,7 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 							'title'       => __( 'Signup Field Value', 'jetpack' ),
 							'id'          => 'jetpack-mailchimp-signup-value',
 							'placeholder' => __( 'website', 'jetpack' ),
+							'default'     => '',
 							'type'        => 'text',
 							'name'        => esc_attr( $this->get_field_name( 'signupFieldValue' ) ),
 							'value'       => esc_html( $instance['signupFieldValue'] ),
@@ -345,7 +382,7 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 							'id'      => 'jetpack-mailchimp-button-color',
 							'type'    => 'color',
 							'value'   => esc_html( $instance['customBackgroundButtonColor'] ),
-							'default' => '#cd2653',
+							'default' => '',
 							'name'    => esc_attr( $this->get_field_name( 'customBackgroundButtonColor' ) ),
 							'label'   => __( 'Button Color', 'jetpack' ),
 						),
@@ -354,7 +391,7 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 							'id'      => 'jetpack-mailchimp-button-text-color',
 							'type'    => 'color',
 							'value'   => esc_html( $instance['customTextButtonColor'] ),
-							'default' => '#ffffff',
+							'default' => '',
 							'name'    => esc_attr( $this->get_field_name( 'customTextButtonColor' ) ),
 							'label'   => __( 'Button Text Color', 'jetpack' ),
 						),
@@ -368,7 +405,7 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 							'title'       => __( 'Additional CSS class(es)', 'jetpack' ),
 							'id'          => 'jetpack-mailchimp-css-class',
 							'placeholder' => '',
-							'help_text'   => __( 'Separate multiple classes with spaces.', 'jetpack' ),
+							'default'     => '',
 							'type'        => 'text',
 							'name'        => esc_attr( $this->get_field_name( 'cssClass' ) ),
 							'value'       => esc_html( $instance['cssClass'] ),
@@ -382,11 +419,12 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 						),
 
 						array(
-							'title'       => __( 'Popup delay (miliseconds)', 'jetpack' ),
+							'title'       => __( 'Popup delay in miliseconds (only non-AMP)', 'jetpack' ),
 							'type'        => 'number',
 							'name'        => esc_attr( $this->get_field_name( 'delay' ) ),
 							'value'       => esc_html( $instance['delay'] ),
-							'placeholder' => '0',
+							'default'     => '0',
+							'placeholder' => '',
 						),
 					),
 				),

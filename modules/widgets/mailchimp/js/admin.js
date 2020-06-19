@@ -207,7 +207,8 @@
 								type: field.type,
 								id: field.id,
 								name: field.name,
-								value: field.value ? field.value : field.placeholder,
+								value: field.value ? field.value : field.default,
+								placeholder: field.placeholder,
 							} );
 							fieldWrapper.append( label ).append( input );
 							break;
