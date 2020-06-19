@@ -18,7 +18,7 @@ use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
 use Automattic\Jetpack\Redirect;
-use Automattic\Jetpack\Jetpack_User_Agent_Info;
+use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 
 /*
 Options:
@@ -713,7 +713,7 @@ class Jetpack {
 		add_action(
 			'plugins_loaded',
 			function() {
-				if ( Jetpack_User_Agent_Info::is_mobile_app() ) {
+				if ( User_Agent_Info::is_mobile_app() ) {
 					add_filter( 'get_edit_post_link', '__return_empty_string' );
 				}
 			}

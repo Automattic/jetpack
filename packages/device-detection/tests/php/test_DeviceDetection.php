@@ -45,7 +45,6 @@ class Test_Device_Detection extends TestCase {
 		$this->assertEquals( $device_info['is_phone'] ? $expected_ua_returned : false, $device_info['is_phone_matched_ua'] );
 	}
 
-
 	/**
 	 * Data provider for test_is_mobile.
 	 *

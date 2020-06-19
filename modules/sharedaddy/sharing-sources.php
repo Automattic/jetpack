@@ -1,5 +1,7 @@
 <?php
 
+use Automattic\Jetpack\Device_Detection\User_Agent_Info;
+
 abstract class Sharing_Source {
 	public	  $button_style;
 	public	  $smart;
@@ -1858,7 +1860,7 @@ class Jetpack_Share_WhatsApp extends Sharing_Source {
 		parent::process_request( $post, $post_data );
 
 		// Firefox for desktop doesn't handle the "api.whatsapp.com" URL properly, so use "web.whatsapp.com"
-		if ( Jetpack_User_Agent_Info::is_firefox_desktop() ) {
+		if ( User_Agent_Info::is_firefox_desktop() ) {
 			$url = 'https://web.whatsapp.com/send?text=';
 		} else {
 			$url = 'https://api.whatsapp.com/send?text=';
