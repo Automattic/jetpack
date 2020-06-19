@@ -54,7 +54,6 @@ function jetpack_twentyfourteen_infinite_scroll_enqueue_styles() {
 }
 add_action( 'wp_enqueue_scripts', 'jetpack_twentyfourteen_infinite_scroll_enqueue_styles', 25 );
 
-
 /**
  * Load AMP theme specific hooks for infinite scroll.
  *
