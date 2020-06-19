@@ -138,14 +138,14 @@ class SearchApp extends Component {
 
 	handleDatasetAttributes = form => {
 		try {
-			if ( 'postTypeWhitelist' in form.dataset ) {
+			if ( 'allowablePostTypes' in form.dataset ) {
 				setFilterQuery(
 					'post_types',
-					JSON.parse( decodeURIComponent( form.dataset.postTypeWhitelist ) )
+					JSON.parse( decodeURIComponent( form.dataset.allowablePostTypes ) )
 				);
 			}
 		} catch ( error ) {
-			// Unexpected value found at data-post-type-whitelist.
+			// Unexpected value found at data-allowable-post-types.
 			return;
 		}
 	};

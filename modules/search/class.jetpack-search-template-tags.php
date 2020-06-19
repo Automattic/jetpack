@@ -283,15 +283,15 @@ class Jetpack_Search_Template_Tags {
 	 *
 	 * @since 8.6.0
 	 *
-	 * @param array $post_types_whitelist Array of post types to limit search results to.
+	 * @param array $allowable_post_types Array of post types to limit search results to.
 	 */
-	public static function render_instant_widget_search_form( $post_types_whitelist ) {
+	public static function render_instant_widget_search_form( $allowable_post_types ) {
 		$form = get_search_form( false );
 
-		if ( ! empty( $post_types_whitelist ) ) {
+		if ( ! empty( $$allowable_post_types ) ) {
 			$form = str_replace(
 				'<form',
-				'<form data-post-type-whitelist=' . rawurlencode( wp_json_encode( $post_types_whitelist ) ),
+				'<form data-allowable-post-types=' . rawurlencode( wp_json_encode( $allowable_post_types ) ),
 				$form
 			);
 		}
