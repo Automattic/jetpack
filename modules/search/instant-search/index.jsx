@@ -23,6 +23,7 @@ const injectSearchApp = () => {
 				...window[ SERVER_OBJECT_NAME ].widgets,
 				...window[ SERVER_OBJECT_NAME ].widgetsOutsideOverlay,
 			] ) }
+			hasOverlayWidgets={ window[ SERVER_OBJECT_NAME ].widgets?.length > 0 }
 			initialHref={ window.location.href }
 			initialOverlayOptions={ window[ SERVER_OBJECT_NAME ].overlayOptions }
 			// NOTE: initialShowResults is only used in the customizer. See lib/customize.js.
