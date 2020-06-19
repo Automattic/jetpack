@@ -419,7 +419,7 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 						),
 
 						array(
-							'title'       => __( 'Popup delay in miliseconds (only non-AMP)', 'jetpack' ),
+							'title'       => __( 'Popup delay in miliseconds', 'jetpack' ),
 							'type'        => 'number',
 							'name'        => esc_attr( $this->get_field_name( 'delay' ) ),
 							'value'       => esc_html( $instance['delay'] ),
