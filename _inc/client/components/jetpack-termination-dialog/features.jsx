@@ -153,8 +153,8 @@ class JetpackTerminationDialogFeatures extends Component {
 					<div className="jetpack-termination-dialog__generic-info">
 						<h2>
 							{ __(
-								'The Jetpack Connection is also used by another plugin, and it will lose connection.',
-								'The Jetpack Connection is also used by other plugins, and they will lose connection.',
+								'If you disconnect Jetpack, the website will still be connected to WordPress.com through the following plugin:',
+								'If you disconnect Jetpack, the website will still be connected to WordPress.com through the following plugins:',
 								{
 									count: connectedPlugins.length,
 								}

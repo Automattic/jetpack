@@ -4,8 +4,9 @@ use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Config;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Connection\Utils as Connection_Utils;
+use Automattic\Jetpack\Connection\Plugin as Connection_Plugin;
 use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
+use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Roles;
@@ -4048,9 +4049,7 @@ p {
 			&& self::is_active()
 		) {
 
-			$active_plugins_using_connection = Connection_Plugin_Storage::get_all();
-
-			if ( count( $active_plugins_using_connection ) > 1 ) {
+			if ( ! ( new Connection_Plugin( 'jetpack' ) )->is_only() ) {
 
 				add_thickbox();
 
@@ -4086,7 +4085,7 @@ p {
 					'deactivate_dialog',
 					array(
 						'title'            => __( 'Deactivate Jetpack', 'jetpack' ),
-						'deactivate_label' => __( 'Disconnect and Deactivate', 'jetpack' ),
+						'deactivate_label' => __( 'Deactivate', 'jetpack' ),
 						'tracksUserData'   => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
 					)
 				);

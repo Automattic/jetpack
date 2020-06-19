@@ -18,8 +18,8 @@
 			sprintf(
 				/* translators: %d is the number of additional plugins using the jetpack connection. */
 				_n(
-					'The Jetpack Connection is also used by %d other plugin, and it will lose connection.',
-					'The Jetpack Connection is also used by %d other plugins, and they will lose connection.',
+					'If you disconnect Jetpack, the website will still be connected to WordPress.com through the following plugin:',
+					'If you disconnect Jetpack, the website will still be connected to WordPress.com through the following plugins:',
 					count( $data ),
 					'jetpack'
 				),
@@ -51,7 +51,7 @@
 			<p><?php esc_html_e( 'Are you sure you want to deactivate?', 'jetpack' ); ?></p>
 			<div class="jetpack_deactivation_dialog_content__buttons">
 				<button type="button" id="jetpack_deactivation_dialog_content__button-cancel"><?php esc_html_e( 'Cancel', 'jetpack' ); ?></button>
-				<button type="button" id="jetpack_deactivation_dialog_content__button-deactivate"><?php esc_html_e( 'Disconnect and Deactivate', 'jetpack' ); ?></button>
+				<button type="button" id="jetpack_deactivation_dialog_content__button-deactivate"><?php esc_html_e( 'Deactivate', 'jetpack' ); ?></button>
 			</div>
 		</div>
 	</div>
