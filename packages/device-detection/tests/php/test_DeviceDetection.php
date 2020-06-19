@@ -27,14 +27,22 @@ class Test_Device_Detection extends TestCase {
 	public function test_is_mobile( $ua, array $expected_types, $expected_ua_returned ) {
 		$_SERVER['HTTP_USER_AGENT'] = $ua;
 
-		$device_info = Device_Detection::get_info();
-		$all_tested_types = [ 'is_mobile', 'is_smartphone', 'is_handheld', 'is_tablet', 'is_desktop' ];
+		$device_info      = Device_Detection::get_info();
+		$all_tested_types = array( 'is_phone', 'is_smartphone', 'is_handheld', 'is_tablet', 'is_desktop' );
 
 		foreach ( $all_tested_types as $type ) {
 			$is_type_match_expected = in_array( $type, $expected_types, true );
+
+			// Test the info returned by `get_info`.
 			$this->assertEquals( $is_type_match_expected, $device_info[ $type ] );
+
+			// Make sure the appropriate type method exists on Device_Detection.
+			$this->assertTrue( method_exists( 'Automattic\Jetpack\Device_Detection', $type ) );
+
+			// Make sure the direct method (e.g. Device_Detection::is_desktop) returns the correct value.
+			$this->assertEquals( $is_type_match_expected, call_user_func( array( 'Automattic\Jetpack\Device_Detection', $type ), $ua ) );
 		}
-		$this->assertEquals( $device_info['is_mobile'] ? $expected_ua_returned : false, $device_info['is_mobile_matched_ua'] );
+		$this->assertEquals( $device_info['is_phone'] ? $expected_ua_returned : false, $device_info['is_phone_matched_ua'] );
 	}
 
 
@@ -50,7 +58,7 @@ class Test_Device_Detection extends TestCase {
 			array(
 				'Nokia6300/2.0 (05.00) Profile/MIDP-2.0 Configuration/CLDC-1.1',
 				array(
-					'is_mobile',
+					'is_phone',
 					'is_handheld',
 				),
 				'nokia',
@@ -60,7 +68,7 @@ class Test_Device_Detection extends TestCase {
 			array(
 				'Mozilla/5.0 (Linux; Android 9; SM-G950F Build/PPR1.180610.011; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/74.0.3729.157 Mobile Safari/537.36',
 				array(
-					'is_mobile',
+					'is_phone',
 					'is_smartphone',
 					'is_handheld',
 				),
@@ -71,7 +79,7 @@ class Test_Device_Detection extends TestCase {
 			array(
 				'Mozilla/5.0 (iPhone; CPU iPhone OS 11_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/11.0 Mobile/15E148 Safari/604.1',
 				array(
-					'is_mobile',
+					'is_phone',
 					'is_smartphone',
 					'is_handheld',
 				),
@@ -92,7 +100,7 @@ class Test_Device_Detection extends TestCase {
 			array(
 				'Mozilla/5.0 (X11; U; Linux armv7l like Android; en-us) AppleWebKit/531.2+ (KHTML, like Gecko) Version/5.0 Safari/533.2+ Kindle/3.0+',
 				array(
-					'is_mobile',
+					'is_phone',
 					'is_smartphone',
 					'is_tablet',
 					'is_handheld',
@@ -104,7 +112,7 @@ class Test_Device_Detection extends TestCase {
 			array(
 				'Mozilla/5.0 (Linux; Android 8.1.0; CLT-L09 Build/HUAWEICLT-L09) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Mobile Safari/537.36',
 				array(
-					'is_mobile',
+					'is_phone',
 					'is_smartphone',
 					'is_handheld',
 				),
@@ -115,7 +123,7 @@ class Test_Device_Detection extends TestCase {
 			array(
 				'Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/W.X.Y.Z‡ Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
 				array(
-					'is_mobile',
+					'is_phone',
 					'is_smartphone',
 					'is_handheld',
 				),

@@ -22,33 +22,93 @@ class Device_Detection {
 	 * @return array Device information.
 	 *
 	 * array(
-	 *  'is_mobile'            => (bool) Whether the current device is a mobile phone.
-	 *  'is_smartphone'        => (bool) Whether the current device is a smartphone.
-	 *  'is_tablet'            => (bool) Whether the current device is a tablet device.
-	 *  'is_handheld'          => (bool) Whether the current device is a handheld device.
-	 *  'is_desktop'           => (bool) Whether the current device is a laptop / desktop device.
-	 *  'platform'             => (string) Detected platform.
-	 *  'is_mobile_matched_ua' => (string) Matched UA.
+	 *  'is_phone'            => (bool) Whether the current device is a mobile phone.
+	 *  'is_smartphone'       => (bool) Whether the current device is a smartphone.
+	 *  'is_tablet'           => (bool) Whether the current device is a tablet device.
+	 *  'is_handheld'         => (bool) Whether the current device is a handheld device.
+	 *  'is_desktop'          => (bool) Whether the current device is a laptop / desktop device.
+	 *  'platform'            => (string) Detected platform.
+	 *  'is_phone_matched_ua' => (string) Matched UA.
 	 * );
 	 */
 	public static function get_info( $ua = '' ) {
 		$ua_info = new Jetpack_User_Agent_Info( $ua );
 
 		$info = array(
-			'is_mobile'            => self::is_mobile( 'any', false, $ua_info ),
-			'is_mobile_matched_ua' => self::is_mobile( 'any', true, $ua_info ),
-			'is_smartphone'        => self::is_mobile( 'smart', false, $ua_info ),
-			'is_tablet'            => $ua_info->is_tablet(),
-			'platform'             => $ua_info->get_platform(),
+			'is_phone'            => self::is_mobile( 'any', false, $ua_info ),
+			'is_phone_matched_ua' => self::is_mobile( 'any', true, $ua_info ),
+			'is_smartphone'       => self::is_mobile( 'smart', false, $ua_info ),
+			'is_tablet'           => $ua_info->is_tablet(),
+			'platform'            => $ua_info->get_platform(),
 		);
 
-		$info['is_handheld'] = $info['is_mobile'] || $info['is_tablet'];
+		$info['is_handheld'] = $info['is_phone'] || $info['is_tablet'];
 		$info['is_desktop']  = ! $info['is_handheld'];
 
 		if ( function_exists( 'apply_filters' ) ) {
 			$info = apply_filters( 'jetpack_device_detection_get_info', $info, $ua, $ua_info );
 		}
 		return $info;
+	}
+
+	/**
+	 * Detects phone devices.
+	 *
+	 * @param string $ua User-Agent string.
+	 *
+	 * @return bool
+	 */
+	public static function is_phone( $ua = '' ) {
+		$device_info = self::get_info( $ua );
+		return true === $device_info['is_phone'];
+	}
+
+	/**
+	 * Detects smartphone devices.
+	 *
+	 * @param string $ua User-Agent string.
+	 *
+	 * @return bool
+	 */
+	public static function is_smartphone( $ua = '' ) {
+		$device_info = self::get_info( $ua );
+		return true === $device_info['is_smartphone'];
+	}
+
+	/**
+	 * Detects tablet devices.
+	 *
+	 * @param string $ua User-Agent string.
+	 *
+	 * @return bool
+	 */
+	public static function is_tablet( $ua = '' ) {
+		$device_info = self::get_info( $ua );
+		return true === $device_info['is_tablet'];
+	}
+
+	/**
+	 * Detects desktop devices.
+	 *
+	 * @param string $ua User-Agent string.
+	 *
+	 * @return bool
+	 */
+	public static function is_desktop( $ua = '' ) {
+		$device_info = self::get_info( $ua );
+		return true === $device_info['is_desktop'];
+	}
+
+	/**
+	 * Detects handheld (i.e. phone + tablet) devices.
+	 *
+	 * @param string $ua User-Agent string.
+	 *
+	 * @return bool
+	 */
+	public static function is_handheld( $ua = '' ) {
+		$device_info = self::get_info( $ua );
+		return true === $device_info['is_handheld'];
 	}
 
 	/**

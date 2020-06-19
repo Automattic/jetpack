@@ -22,15 +22,15 @@ function jetpack_is_mobile( $kind = 'any', $return_matched_agent = false ) {
 	$device_info = Device_Detection::get_info();
 
 	if ( 'any' === $kind ) {
-		$return = $device_info['is_mobile'];
+		$return = $device_info['is_phone'];
 	} elseif ( 'smart' === $kind ) {
 		$return = $device_info['is_smartphone'];
 	} elseif ( 'dumb' === $kind ) {
-		$return = $device_info['is_mobile'] && ! $device_info['is_smartphone'];
+		$return = $device_info['is_phone'] && ! $device_info['is_smartphone'];
 	}
 
 	if ( $return_matched_agent && true === $return ) {
-		$return = $device_info['is_mobile_matched_ua'];
+		$return = $device_info['is_phone_matched_ua'];
 	}
 
 	return apply_filters( 'jetpack_is_mobile', $return, $kind, $return_matched_agent );
