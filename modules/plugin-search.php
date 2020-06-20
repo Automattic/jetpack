@@ -18,7 +18,8 @@ if (
 	/** This filter is documented in _inc/lib/admin-pages/class.jetpack-react-page.php */
 	apply_filters( 'jetpack_show_promotions', true ) &&
 	// Disable feature hints when plugins cannot be installed.
-	! Constants::is_true( 'DISALLOW_FILE_MODS' )
+	! Constants::is_true( 'DISALLOW_FILE_MODS' ) &&
+	jetpack_is_psh_active()
 ) {
 	Jetpack_Plugin_Search::init();
 }
@@ -537,4 +538,22 @@ class Jetpack_Plugin_Search {
 		return $links;
 	}
 
+}
+
+/**
+ * Master control that checks if Plugin search hints is active.
+ *
+ * @since 7.1.1
+ *
+ * @return bool True if PSH is active.
+ */
+function jetpack_is_psh_active() {
+	/**
+	 * Disables the Plugin Search Hints feature found when searching the plugins page.
+	 *
+	 * @since 8.7.0
+	 *
+	 * @param bool Set false to disable the feature.
+	 */
+	return apply_filters( 'jetpack_psh_active', true );
 }
