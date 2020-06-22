@@ -27,7 +27,7 @@ const JetpackCoverBlockEdit = ( blockName ) => createHigherOrderComponent(
 
 		return (
 			<Fragment>
-				<CoverMediaProvider onFilesUpload={ handleFilesPreUpload }>
+				<CoverMediaProvider onFilesUpload={ handleFilesPreUpload } blockName={ blockName }>
 					<JetpackCoverUpgradeNudge show={ showNudge } name={ blockName } align={ attributes.align } />
 					<CoverBlockEdit { ...props } />
 				</CoverMediaProvider>
