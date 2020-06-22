@@ -3,7 +3,7 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { createContext } from '@wordpress/element';
+import { createContext, useMemo } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -52,12 +52,15 @@ export const CoverMediaContext = createContext();
  *
  * @param {object}  props - Provider properties.
  * @param {Function}  props.onFilesUpload - Callback function before to upload files.
+ * @param {string}  props.blockName - Block name.
  * @param {boolean} props.children - Provider Children.
  * @returns {*} Provider component.
  */
-export const CoverMediaProvider = ( { onFilesUpload, children } ) => {
+export const CoverMediaProvider = ( { onFilesUpload, blockName, children } ) => {
+	const memoContextProperties = useMemo( () => ( { onFilesUpload, blockName } ), [ onFilesUpload, blockName ] );
+
 	return (
-		<CoverMediaContext.Provider value={ onFilesUpload }>
+		<CoverMediaContext.Provider value={ memoContextProperties }>
 			{ children }
 		</CoverMediaContext.Provider>
 	);
