@@ -1,4 +1,9 @@
 <?php
+/**
+ * WordAds Admin.
+ *
+ * @package Jetpack.
+ */
 
 /**
  * The standard set of admin pages for the user if Jetpack is installed
@@ -6,12 +11,12 @@
 class WordAds_Admin {
 
 	/**
+	 * WordAds_Admin Constructor.
+	 *
 	 * @since 4.5.0
 	 */
-	function __construct() {
-		global $wordads;
-
-		if ( current_user_can( 'manage_options' ) && isset( $_GET['ads_debug'] ) ) {
+	public function __construct() {
+		if ( current_user_can( 'manage_options' ) && isset( $_GET['ads_debug'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			WordAds_API::update_wordads_status_from_api();
 			add_action( 'admin_notices', array( $this, 'debug_output' ) );
 		}
@@ -22,26 +27,32 @@ class WordAds_Admin {
 	 *
 	 * @since 4.5.0
 	 */
-	function debug_output() {
+	public function debug_output() {
 		global $wordads, $wordads_status_response;
 		$response = $wordads_status_response;
 		if ( empty( $response ) ) {
 			$response = 'No response from API :(';
 		} else {
-			$response = print_r( $response, 1 );
+			$response = print_r( $response, 1 ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
 		}
 
 		$status = $wordads->option( 'wordads_approved' ) ?
-			'<span style="color:green;">Yes</span>' :
-			'<span style="color:red;">No</span>';
+			array(
+				'color'    => 'green',
+				'approved' => 'Yes',
+			) :
+			array(
+				'color'    => 'red',
+				'approved' => 'No',
+			);
 
 		$type = $wordads->option( 'wordads_approved' ) ? 'updated' : 'error';
-		echo <<<HTML
-		<div class="notice $type is-dismissible">
-			<p>Status: $status</p>
-			<pre>$response</pre>
+		?>
+		<div class="notice <?php echo esc_attr( $type ); ?> is-dismissible">
+			<p>Status: <span style="color:<?php echo esc_attr( $status['color'] ); ?>;"><?php echo esc_html( $status ); ?></p>
+			<pre><?php echo esc_html( $response ); ?></pre>
 		</div>
-HTML;
+		<?php
 	}
 }
 

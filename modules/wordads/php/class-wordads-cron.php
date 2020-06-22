@@ -1,4 +1,9 @@
 <?php
+/**
+ * WordAds cron tasks.
+ *
+ * @package Jetpack.
+ */
 
 /**
  * WordAds cron tasks
@@ -12,7 +17,7 @@ class WordAds_Cron {
 	 *
 	 * @since 4.5.0
 	 */
-	function __construct() {
+	public function __construct() {
 		add_action( 'wordads_cron_status', array( $this, 'update_wordads_status' ) );
 	}
 
@@ -21,7 +26,7 @@ class WordAds_Cron {
 	 *
 	 * @since 4.5.0
 	 */
-	static function activate() {
+	public static function activate() {
 		wp_schedule_event( time(), 'daily', 'wordads_cron_status' );
 	}
 
@@ -30,7 +35,7 @@ class WordAds_Cron {
 	 *
 	 * @since 4.5.0
 	 */
-	static function deactivate() {
+	public static function deactivate() {
 		wp_clear_scheduled_hook( 'wordads_cron_status' );
 	}
 
@@ -39,7 +44,7 @@ class WordAds_Cron {
 	 *
 	 * @since 4.5.0
 	 */
-	static function update_wordads_status() {
+	public static function update_wordads_status() {
 		WordAds_API::update_wordads_status_from_api();
 	}
 }
