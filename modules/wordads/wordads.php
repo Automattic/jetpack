@@ -10,6 +10,7 @@ define( 'WORDADS_API_TEST_ID2', '114160' );
 require_once WORDADS_ROOT . '/php/widgets.php';
 require_once WORDADS_ROOT . '/php/api.php';
 require_once WORDADS_ROOT . '/php/cron.php';
+require_once WORDADS_ROOT . '/php/class-wordads-california-privacy.php';
 
 class WordAds {
 
@@ -137,6 +138,10 @@ class WordAds {
 	function __construct() {
 		add_action( 'wp', array( $this, 'init' ) );
 		add_action( 'rest_api_init', array( $this, 'init' ) );
+
+		if ( is_admin() ) {
+			WordAds_California_Privacy::init_ajax_actions();
+		}
 	}
 
 	/**
@@ -158,6 +163,11 @@ class WordAds {
 		}
 
 		$this->insert_adcode();
+
+		// Include California Privacy Act related features if enabled.
+		if ( $this->params->options['wordads_ccpa_enabled'] ) {
+			WordAds_California_Privacy::init();
+		}
 
 		if ( '/ads.txt' === $_SERVER['REQUEST_URI'] ) {
 
@@ -501,6 +511,10 @@ HTML;
 	 * @since 6.5.0
 	 */
 	function insert_custom_adstxt( $adstxt ) {
+		if ( ! $this->option( 'wordads_custom_adstxt_enabled' ) ) {
+			return $adstxt;
+		}
+
 		$custom_adstxt = trim( wp_strip_all_tags( $this->option( 'wordads_custom_adstxt' ) ) );
 		if ( $custom_adstxt ) {
 			$adstxt .= "\n\n#Jetpack - User Custom Entries\n";

@@ -64,7 +64,7 @@ class Jetpack_AMP_Support {
 		add_filter( 'jetpack_photon_post_image_args', array( 'Jetpack_AMP_Support', 'filter_photon_post_image_args_for_stories' ), 10, 2 );
 
 		// Sync the amp-options.
-		add_filter( 'jetpack_options_whitelist', array( 'Jetpack_AMP_Support', 'filter_jetpack_options_whitelist' ) );
+		add_filter( 'jetpack_options_whitelist', array( 'Jetpack_AMP_Support', 'filter_jetpack_options_safelist' ) );
 	}
 
 	/**
@@ -511,14 +511,15 @@ class Jetpack_AMP_Support {
 	/**
 	 *  Adds amp-options to the list of options to sync, if AMP is available
 	 *
-	 * @param array $options_whitelist Whitelist of options to sync.
-	 * @return array Updated options whitelist
+	 * @param array $options_safelist Safelist of options to sync.
+	 *
+	 * @return array Updated options safelist
 	 */
-	public static function filter_jetpack_options_whitelist( $options_whitelist ) {
+	public static function filter_jetpack_options_safelist( $options_safelist ) {
 		if ( function_exists( 'is_amp_endpoint' ) ) {
-			$options_whitelist[] = 'amp-options';
+			$options_safelist[] = 'amp-options';
 		}
-		return $options_whitelist;
+		return $options_safelist;
 	}
 }
 

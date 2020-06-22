@@ -1,4 +1,9 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+/**
+ * Tests for Automattic\Jetpack\Status methods
+ *
+ * @package automattic/jetpack-status
+ */
 
 namespace Automattic\Jetpack;
 
@@ -10,6 +15,9 @@ use Brain\Monkey;
 use Brain\Monkey\Functions;
 use Brain\Monkey\Filters;
 
+/**
+ * Status test suite.
+ */
 class Test_Status extends TestCase {
 	/**
 	 * Default site URL.
@@ -44,6 +52,8 @@ class Test_Status extends TestCase {
 	}
 
 	/**
+	 * Test is_development_mode when not using any filter
+	 *
 	 * @covers Automattic\Jetpack\Status::is_development_mode
 	 */
 	public function test_is_development_mode_default() {
@@ -54,6 +64,8 @@ class Test_Status extends TestCase {
 	}
 
 	/**
+	 * Test is_development_mode when using the jetpack_development_mode filter
+	 *
 	 * @covers Automattic\Jetpack\Status::is_development_mode
 	 */
 	public function test_is_development_mode_filter_true() {
@@ -64,6 +76,8 @@ class Test_Status extends TestCase {
 	}
 
 	/**
+	 * Test when using a bool value for the jetpack_development_mode filter.
+	 *
 	 * @covers Automattic\Jetpack\Status::is_development_mode
 	 */
 	public function test_is_development_mode_filter_bool() {
@@ -74,6 +88,8 @@ class Test_Status extends TestCase {
 	}
 
 	/**
+	 * Test when site url is localhost (dev mode on)
+	 *
 	 * @covers Automattic\Jetpack\Status::is_development_mode
 	 */
 	public function test_is_development_mode_localhost() {
@@ -84,27 +100,36 @@ class Test_Status extends TestCase {
 		$this->assertTrue( $this->status->is_development_mode() );
 	}
 
-    /**
-     * @covers Automattic\Jetpack\Status::is_development_mode
-     *
-     * @runInSeparateProcess
-     */
+	/**
+	 * Test when using the constant to set dev mode
+	 *
+	 * @covers Automattic\Jetpack\Status::is_development_mode
+	 *
+	 * @runInSeparateProcess
+	 */
 	public function test_is_development_mode_constant() {
 		Functions\when( 'site_url' )->justReturn( $this->site_url );
 		Filters\expectApplied( 'jetpack_development_mode' )->once()->with( false )->andReturn( false );
 
-		$constants_mocks = $this->mock_constants( array(
-			array( '\\JETPACK_DEV_DEBUG', true ),
-		) );
+		$constants_mocks = $this->mock_constants(
+			array(
+				array( '\\JETPACK_DEV_DEBUG', true ),
+			)
+		);
 
 		$this->assertTrue( $this->status->is_development_mode() );
 
-		array_map( function( $mock ) {
-			$mock->disable();
-		}, $constants_mocks );
+		array_map(
+			function( $mock ) {
+				$mock->disable();
+			},
+			$constants_mocks
+		);
 	}
 
 	/**
+	 * Test for is_multi_network with a single site
+	 *
 	 * @covers Automattic\Jetpack\Status::is_multi_network
 	 */
 	public function test_is_multi_network_not_multisite() {
@@ -114,6 +139,8 @@ class Test_Status extends TestCase {
 	}
 
 	/**
+	 * Test is_multi_network with a multisite install
+	 *
 	 * @covers Automattic\Jetpack\Status::is_multi_network
 	 */
 	public function test_is_multi_network_when_single_network() {
@@ -126,6 +153,8 @@ class Test_Status extends TestCase {
 	}
 
 	/**
+	 * Test is_multi_network when multiple networks
+	 *
 	 * @covers Automattic\Jetpack\Status::is_multi_network
 	 */
 	public function test_is_multi_network_when_multiple_networks() {
@@ -138,6 +167,8 @@ class Test_Status extends TestCase {
 	}
 
 	/**
+	 * Test cached is_single_user_site
+	 *
 	 * @covers Automattic\Jetpack\Status::is_single_user_site
 	 */
 	public function test_is_single_user_site_with_transient() {
@@ -150,6 +181,8 @@ class Test_Status extends TestCase {
 	}
 
 	/**
+	 * Test is_single_user_site
+	 *
 	 * @covers Automattic\Jetpack\Status::is_single_user_site
 	 */
 	public function test_is_single_user_site_with_one_user() {
@@ -163,6 +196,8 @@ class Test_Status extends TestCase {
 	}
 
 	/**
+	 * Test is_single_user_site with multiple users
+	 *
 	 * @covers Automattic\Jetpack\Status::is_single_user_site
 	 */
 	public function test_is_single_user_site_with_multiple_users() {
@@ -206,7 +241,7 @@ class Test_Status extends TestCase {
 	/**
 	 * Mock a set of constants.
 	 *
-	 * @param array $args Array of sets with constants and their respective values.
+	 * @param array $constants Array of sets with constants and their respective values.
 	 * @return phpmock\Mock The mock object.
 	 */
 	protected function mock_constants( $constants = array() ) {
@@ -214,27 +249,28 @@ class Test_Status extends TestCase {
 			return array( $constant[0], true );
 		};
 
-		return [
+		return array(
 			$this->mock_function_with_args( 'defined', array_map( $prepare_constant, $constants ) ),
-			$this->mock_function_with_args( 'constant', $constants )
-		];
+			$this->mock_function_with_args( 'constant', $constants ),
+		);
 	}
 
 	/**
 	 * Mock $wpdb->get_var() and make it return a certain value.
 	 *
-	 * @param mixed  $return_value  Return value of the function.
-	 * @return PHPUnit\Framework\MockObject\MockObject The mock object.
+	 * @param mixed $return_value  Return value of the function.
+	 *
+	 * PHPUnit\Framework\MockObject\MockObject The mock object.
 	 */
 	protected function mock_wpdb_get_var( $return_value = null ) {
 		global $wpdb;
 
-		$wpdb = $this->getMockBuilder( 'Mock_wpdb' )
-		             ->setMockClassName( 'wpdb' )
-		             ->setMethods( array( 'get_var' ) )
-		             ->getMock();
+		$wpdb = $this->getMockBuilder( 'Mock_wpdb' ) // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+					->setMockClassName( 'wpdb' )
+					->setMethods( array( 'get_var' ) )
+					->getMock();
 		$wpdb->method( 'get_var' )
-		     ->willReturn( $return_value );
+			->willReturn( $return_value );
 
 		$wpdb->prefix   = 'wp_';
 		$wpdb->site     = 'wp_site';
@@ -292,6 +328,9 @@ class Test_Status extends TestCase {
 			),
 			'dreampress' => array(
 				'http://ebinnion.stage.site',
+			),
+			'newspack'   => array(
+				'http://test.newspackstaging.com',
 			),
 		);
 	}

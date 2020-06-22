@@ -1,0 +1,28 @@
+name: "Beta builder"
+on: push
+
+jobs:
+  build_beta:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Jetpack
+      uses: actions/checkout@master
+    - name: Build jetpack
+      run: |
+        BRANCH=${GITHUB_REF:11}
+        ./tools/build-jetpack.sh -d -b $BRANCH Automattic/jetpack /tmp/artifact/jetpack-dev
+    - name: Upload jetpack build
+      uses: actions/upload-artifact@v2
+      with:
+        name: jetpack-dev
+        path: /tmp/artifact
+    # Find the PR associated with this push, if there is one.
+    - uses: jwalton/gh-find-current-pr@v1
+      id: findPr
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Inform beta builder
+      run: |
+        VERSION=$(cat /tmp/artifact/jetpack-dev/version.txt)
+        BRANCH=${GITHUB_REF:11}
+        curl -L "https://betadownload.jetpack.me/gh-action.php?run_id=$GITHUB_RUN_ID&branch=$BRANCH&pr=${{ steps.findPr.outputs.pr }}&repo=$GITHUB_REPOSITORY&commit=$GITHUB_SHA&version=$VERSION"

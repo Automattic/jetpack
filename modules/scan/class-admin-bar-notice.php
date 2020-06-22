@@ -114,7 +114,7 @@ class Admin_Bar_Notice {
 		}
 
 		// We might be showing the threats in the admin bar lets make sure that they look great!
-		$hide_wording_on_mobile = '#wp-admin-bar-jetpack-scan-notice .is-hidden { display:none; } @media screen and (max-width: 959px ) { #wpadminbar #wp-admin-bar-jetpack-scan-notice { width:32px; } #wpadminbar #wp-admin-bar-jetpack-scan-notice a { color: transparent!important; }';
+		$hide_wording_on_mobile = '#wp-admin-bar-jetpack-scan-notice .is-hidden { display:none; } @media screen and (max-width: 959px ) { #wpadminbar #wp-admin-bar-jetpack-scan-notice { width:32px; } #wpadminbar #wp-admin-bar-jetpack-scan-notice a { color: transparent!important; } }';
 		$style                  = '#wp-admin-bar-jetpack-scan-notice svg { float:left; margin-top: 4px; margin-right: 6px; width: 18px; height: 22px; }' . $hide_wording_on_mobile;
 		if ( is_rtl() ) {
 			$style = '#wp-admin-bar-jetpack-scan-notice svg { float:right; margin-top: 4px; margin-left: 6px; width: 18px; height: 22px; }' . $hide_wording_on_mobile;

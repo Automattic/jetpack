@@ -79,14 +79,14 @@
     schema-utils "^1.0.0"
     webpack-sources "^1.1.0"
 
-"@automattic/popup-monitor@^1.0.0":
+"@automattic/popup-monitor@1.0.0", "@automattic/popup-monitor@^1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@automattic/popup-monitor/-/popup-monitor-1.0.0.tgz#57809015748e2a66d115666b887bd25af645635a"
   integrity sha512-hZzcOOfNB150rq/mTEWjDHM16Kuuia8OlAAHosylpacPDYJnh2zjPg910fpApuUrhRnOSaiZ+sv3Ydkt0LdTZg==
   dependencies:
     lodash "^4.17.15"
 
-"@automattic/request-external-access@^1.0.0":
+"@automattic/request-external-access@1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@automattic/request-external-access/-/request-external-access-1.0.0.tgz#ea55d20b78bc5fa104422775c0b9f2377c142f6a"
   integrity sha512-vhN72lwPFzhCVMP1l2ODBqt7fI5jfeJz1JyBnq/AUCg9PpsJfdk4vZxhSOLhSSds8VMkU5WaNnaztkYfkkYOiA==
@@ -1082,7 +1082,7 @@
     core-js-pure "^3.0.0"
     regenerator-runtime "^0.13.4"
 
-"@babel/runtime@^7.1.2", "@babel/runtime@^7.4.0", "@babel/runtime@^7.8.3", "@babel/runtime@^7.9.2":
+"@babel/runtime@^7.1.2", "@babel/runtime@^7.8.3", "@babel/runtime@^7.9.2":
   version "7.9.2"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.9.2.tgz#d90df0583a3a252f09aaa619665367bae518db06"
   integrity sha512-NE2DtOdufG7R5vnfQUTehdTfNycfUANEtCa9PssN9O/xmTzP4E08UI797ixaei6hBEVL9BI/PsdJS5x7mWoB9Q==
@@ -1837,18 +1837,18 @@
   dependencies:
     "@types/node" ">=8.9.0"
 
-"@slack/types@^1.2.1":
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/@slack/types/-/types-1.3.0.tgz#ea71916449ce7cb79fc57ce756743abfeba0f752"
-  integrity sha512-3AjHsDJjJKT3q0hQzFHQN7piYIh99LuN7Po56W/R6P/uscqZqwS5xm1U1cTYGIzk8fmsuW7TvWVg0W85hKY/MQ==
+"@slack/types@^1.7.0":
+  version "1.7.0"
+  resolved "https://registry.yarnpkg.com/@slack/types/-/types-1.7.0.tgz#0a00b60bc6703c1413edd823dcb0f829d16457ed"
+  integrity sha512-aigLPmTO513JxeFyeII/74y+S5jU39tabDWPsZyMHJWCYqK3vCkRvV73NL+Ay+Tq5RC2NgSmkedk1wvQJ6oXLg==
 
-"@slack/web-api@5.8.1":
-  version "5.8.1"
-  resolved "https://registry.yarnpkg.com/@slack/web-api/-/web-api-5.8.1.tgz#90daba7ee2fb5a928a5d34c57fff0cf9ba5ada8c"
-  integrity sha512-MONzkjWOXV39Dejo8B9WSl/F0dxcVh9wyeW6R0jf6T6BhwN4f24iErYtTh19g+MRhb0oiyeKfnFsJTSKQulfDA==
+"@slack/web-api@5.10.0":
+  version "5.10.0"
+  resolved "https://registry.yarnpkg.com/@slack/web-api/-/web-api-5.10.0.tgz#edc42c95aff4b7838be9c9fec1454aa5ef9990d6"
+  integrity sha512-t8c2lcSrdX8LIUOS1RvslbBBKvuNaTtbEcrWai4yDGkiNIxzhk+dHPcJzd7A4A0DkAgiEwXeezR7RCELuG8WgQ==
   dependencies:
     "@slack/logger" ">=1.0.0 <3.0.0"
-    "@slack/types" "^1.2.1"
+    "@slack/types" "^1.7.0"
     "@types/is-stream" "^1.1.0"
     "@types/node" ">=8.9.0"
     "@types/p-queue" "^2.3.2"
@@ -7709,11 +7709,6 @@ growly@^1.3.0:
   resolved "https://registry.yarnpkg.com/growly/-/growly-1.3.0.tgz#f10748cbe76af964b7c96c93c6bcc28af120c081"
   integrity sha1-8QdIy+dq+WS3yWyTxrzCivEgwIE=
 
-gud@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/gud/-/gud-1.0.0.tgz#a489581b17e6a70beca9abe3ae57de7a499852c0"
-  integrity sha512-zGEOVKFM5sVPPrYs7J5/hYEw2Pof8KCyOwyhG8sAF26mCAeUFAcYPu1mwB7hhpIP29zOIBaDqwuHdLp0jvZXjw==
-
 gulp-append-prepend@1.0.8:
   version "1.0.8"
   resolved "https://registry.yarnpkg.com/gulp-append-prepend/-/gulp-append-prepend-1.0.8.tgz#f44efc6b667d784d4b7d932931ff6d072a7d24cd"
@@ -10326,10 +10321,10 @@ map-visit@^1.0.0:
   dependencies:
     object-visit "^1.0.0"
 
-mapbox-gl@1.10.1:
-  version "1.10.1"
-  resolved "https://registry.yarnpkg.com/mapbox-gl/-/mapbox-gl-1.10.1.tgz#7dbd53bdf2f78e45e125c1115e94dea286ef663c"
-  integrity sha512-0aHt+lFUpYfvh0kMIqXqNXqoYMuhuAsMlw87TbhWrw78Tx2zfuPI0Lx31/YPUgJ+Ire0tzQ4JnuBL7acDNXmMg==
+mapbox-gl@1.11.0:
+  version "1.11.0"
+  resolved "https://registry.yarnpkg.com/mapbox-gl/-/mapbox-gl-1.11.0.tgz#7056d7cc1693e157eb5c2beb1476d620670d65e9"
+  integrity sha512-opIQf3C5RoKU5r9bHttTMhGAPcJet1/Cj2mdP7Ma2ylrAHjNPRc1i7KPyq8wjEZdJBMhd5qkIDlzUPM0TSncCQ==
   dependencies:
     "@mapbox/geojson-rewind" "^0.5.0"
     "@mapbox/geojson-types" "^1.0.2"
@@ -10351,7 +10346,7 @@ mapbox-gl@1.10.1:
     potpack "^1.0.1"
     quickselect "^2.0.0"
     rw "^1.3.3"
-    supercluster "^7.0.0"
+    supercluster "^7.1.0"
     tinyqueue "^2.0.3"
     vt-pbf "^3.1.1"
 
@@ -10599,14 +10594,13 @@ min-indent@^1.0.0:
   resolved "https://registry.yarnpkg.com/min-indent/-/min-indent-1.0.0.tgz#cfc45c37e9ec0d8f0a0ec3dd4ef7f7c3abe39256"
   integrity sha1-z8RcN+nsDY8KDsPdTvf3w6vjklY=
 
-mini-create-react-context@^0.3.0:
-  version "0.3.2"
-  resolved "https://registry.yarnpkg.com/mini-create-react-context/-/mini-create-react-context-0.3.2.tgz#79fc598f283dd623da8e088b05db8cddab250189"
-  integrity sha512-2v+OeetEyliMt5VHMXsBhABoJ0/M4RCe7fatd/fBy6SMiKazUSEt3gxxypfnk2SHMkdBYvorHRoQxuGoiwbzAw==
+mini-create-react-context@^0.4.0:
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/mini-create-react-context/-/mini-create-react-context-0.4.0.tgz#df60501c83151db69e28eac0ef08b4002efab040"
+  integrity sha512-b0TytUgFSbgFJGzJqXPKCFCBWigAjpjo+Fl7Vf7ZbKRDptszpppKxXH6DRXEABZ/gcEQczeb0iZ7JvL8e8jjCA==
   dependencies:
-    "@babel/runtime" "^7.4.0"
-    gud "^1.0.0"
-    tiny-warning "^1.0.2"
+    "@babel/runtime" "^7.5.5"
+    tiny-warning "^1.0.3"
 
 minimalistic-assert@^1.0.0, minimalistic-assert@^1.0.1:
   version "1.0.1"
@@ -10625,12 +10619,12 @@ minimatch@3.0.4, minimatch@^3.0.0, minimatch@^3.0.2, minimatch@^3.0.3, minimatch
   dependencies:
     brace-expansion "^1.1.7"
 
-minimist@0.0.8, minimist@^0.2.1, minimist@^1.2.5:
+minimist@0.0.8, minimist@^0.2.1:
   version "0.2.1"
   resolved "https://registry.yarnpkg.com/minimist/-/minimist-0.2.1.tgz#827ba4e7593464e7c221e8c5bed930904ee2c455"
   integrity sha512-GY8fANSrTMfBVfInqJAY41QkOM+upUTytK1jZ0c8+3HdHrJxBJ3rF5i9moClXTE8uUSnUo8cAsCoxDXvSY4DHg==
 
-minimist@^1.1.1, minimist@^1.1.3, minimist@^1.2.0, minimist@^1.2.3:
+minimist@^1.1.1, minimist@^1.1.3, minimist@^1.2.0, minimist@^1.2.3, minimist@^1.2.5:
   version "1.2.5"
   resolved "https://registry.yarnpkg.com/minimist/-/minimist-1.2.5.tgz#67d66014b66a6a8aaa0c083c5fd58df4e4e97602"
   integrity sha512-FM9nNUYrRBAELZQT3xeZQ7fmMOBg6nWNmJKTcgsJeaLstP/UODVpGsr5OhXhhXg6f+qtJ8uiZ+PUxkDWcgIXLw==
@@ -10783,7 +10777,7 @@ moo@^0.5.0:
   resolved "https://registry.yarnpkg.com/moo/-/moo-0.5.1.tgz#7aae7f384b9b09f620b6abf6f74ebbcd1b65dbc4"
   integrity sha512-I1mnb5xn4fO80BH9BLcF0yLypy2UKl+Cb01Fu0hJRkJjlCRtxZMWkTdAtDd5ZqCOxtCkhmRwyI57vWT+1iZ67w==
 
-mousetrap@^1.6.2:
+mousetrap@^1.6.2, mousetrap@^1.6.5:
   version "1.6.5"
   resolved "https://registry.yarnpkg.com/mousetrap/-/mousetrap-1.6.5.tgz#8a766d8c272b08393d5f56074e0b5ec183485bf9"
   integrity sha512-QNo4kEepaIBwiT8CDhP98umTetp+JNfQYBWvC1pc6/OAibuXtRcxZ58Qz8skvEHYvURne/7R8T5VoOI7rDsEUA==
@@ -12989,29 +12983,29 @@ react-resize-aware@^3.0.0:
   resolved "https://registry.yarnpkg.com/react-resize-aware/-/react-resize-aware-3.0.0.tgz#fee9e1c61ac5bb2dd87c59e03703070d01601269"
   integrity sha512-UyLk1KNbFHDye9AFLyr7HBGmzkRDGz2mYp6LDS+LCxM6DXGpviwS5Q4JRzXWdw0tk+n46UE/Kotku/cb8HCh0Q==
 
-react-router-dom@5.1.2:
-  version "5.1.2"
-  resolved "https://registry.yarnpkg.com/react-router-dom/-/react-router-dom-5.1.2.tgz#06701b834352f44d37fbb6311f870f84c76b9c18"
-  integrity sha512-7BPHAaIwWpZS074UKaw1FjVdZBSVWEk8IuDXdB+OkLb8vd/WRQIpA4ag9WQk61aEfQs47wHyjWUoUGGZxpQXew==
+react-router-dom@5.2.0:
+  version "5.2.0"
+  resolved "https://registry.yarnpkg.com/react-router-dom/-/react-router-dom-5.2.0.tgz#9e65a4d0c45e13289e66c7b17c7e175d0ea15662"
+  integrity sha512-gxAmfylo2QUjcwxI63RhQ5G85Qqt4voZpUXSEqCwykV0baaOTQDR1f0PmY8AELqIyVc0NEZUj0Gov5lNGcXgsA==
   dependencies:
     "@babel/runtime" "^7.1.2"
     history "^4.9.0"
     loose-envify "^1.3.1"
     prop-types "^15.6.2"
-    react-router "5.1.2"
+    react-router "5.2.0"
     tiny-invariant "^1.0.2"
     tiny-warning "^1.0.0"
 
-react-router@5.1.2:
-  version "5.1.2"
-  resolved "https://registry.yarnpkg.com/react-router/-/react-router-5.1.2.tgz#6ea51d789cb36a6be1ba5f7c0d48dd9e817d3418"
-  integrity sha512-yjEuMFy1ONK246B+rsa0cUam5OeAQ8pyclRDgpxuSCrAlJ1qN9uZ5IgyKC7gQg0w8OM50NXHEegPh/ks9YuR2A==
+react-router@5.2.0:
+  version "5.2.0"
+  resolved "https://registry.yarnpkg.com/react-router/-/react-router-5.2.0.tgz#424e75641ca8747fbf76e5ecca69781aa37ea293"
+  integrity sha512-smz1DUuFHRKdcJC0jobGo8cVbhO3x50tCL4icacOlcwDOEQPq4TMqwx3sY1TP+DvtTgz4nm3thuo7A+BK2U0Dw==
   dependencies:
     "@babel/runtime" "^7.1.2"
     history "^4.9.0"
     hoist-non-react-statics "^3.1.0"
     loose-envify "^1.3.1"
-    mini-create-react-context "^0.3.0"
+    mini-create-react-context "^0.4.0"
     path-to-regexp "^1.7.0"
     prop-types "^15.6.2"
     react-is "^16.6.0"
@@ -14675,10 +14669,10 @@ stylehacks@^4.0.0:
     postcss "^7.0.0"
     postcss-selector-parser "^3.0.0"
 
-supercluster@^7.0.0:
-  version "7.0.0"
-  resolved "https://registry.yarnpkg.com/supercluster/-/supercluster-7.0.0.tgz#75d474fafb0a055db552ed7bd7bbda583f6ab321"
-  integrity sha512-8VuHI8ynylYQj7Qf6PBMWy1PdgsnBiIxujOgc9Z83QvJ8ualIYWNx2iMKyKeC4DZI5ntD9tz/CIwwZvIelixsA==
+supercluster@^7.1.0:
+  version "7.1.0"
+  resolved "https://registry.yarnpkg.com/supercluster/-/supercluster-7.1.0.tgz#f0a457426ec0ab95d69c5f03b51e049774b94479"
+  integrity sha512-LDasImUAFMhTqhK+cUXfy9C2KTUqJ3gucLjmNLNFmKWOnDUBxLFLH9oKuXOTCLveecmxh8fbk8kgh6Q0gsfe2w==
   dependencies:
     kdbush "^3.0.0"
 
@@ -15002,7 +14996,7 @@ tiny-invariant@^1.0.2:
   resolved "https://registry.yarnpkg.com/tiny-invariant/-/tiny-invariant-1.1.0.tgz#634c5f8efdc27714b7f386c35e6760991d230875"
   integrity sha512-ytxQvrb1cPc9WBEI/HSeYYoGD0kWnGEOR8RY6KomWLBVhqz0RgTwVO9dLrGz7dC+nN9llyI7OKAgRq8Vq4ZBSw==
 
-tiny-warning@^1.0.0, tiny-warning@^1.0.2:
+tiny-warning@^1.0.0, tiny-warning@^1.0.3:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/tiny-warning/-/tiny-warning-1.0.3.tgz#94a30db453df4c643d0fd566060d60a875d84754"
   integrity sha512-lBN9zLN/oAf68o3zNXYrdCt1kP8WsiGW8Oo2ka41b2IM5JL/S1CTyX1rW0mb/zSuJun0ZUrDxx4sqvYS2FWzPA==

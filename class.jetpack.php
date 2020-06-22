@@ -1064,7 +1064,15 @@ class Jetpack {
 		}
 	}
 
-	function jetpack_custom_caps( $caps, $cap, $user_id, $args ) {
+	/**
+	 * Sets the Jetpack custom capabilities.
+	 *
+	 * @param string[] $caps    Array of the user's capabilities.
+	 * @param string   $cap     Capability name.
+	 * @param int      $user_id The user ID.
+	 * @param array    $args    Adds the context to the cap. Typically the object ID.
+	 */
+	public function jetpack_custom_caps( $caps, $cap, $user_id, $args ) {
 		$is_development_mode = ( new Status() )->is_development_mode();
 		switch ( $cap ) {
 			case 'jetpack_connect':
@@ -1073,30 +1081,17 @@ class Jetpack {
 					$caps = array( 'do_not_allow' );
 					break;
 				}
-				/**
-				 * Pass through. If it's not development mode, these should match disconnect.
-				 * Let users disconnect if it's development mode, just in case things glitch.
-				 */
+				// Pass through. If it's not development mode, these should match disconnect.
+				// Let users disconnect if it's development mode, just in case things glitch.
 			case 'jetpack_disconnect':
 				/**
-				 * In multisite, can individual site admins manage their own connection?
+				 * Filters the jetpack_disconnect capability.
 				 *
-				 * Ideally, this should be extracted out to a separate filter in the Jetpack_Network class.
+				 * @since 8.7.0
+				 *
+				 * @param array An array containing the capability name.
 				 */
-				if ( is_multisite() && ! is_super_admin() && is_plugin_active_for_network( 'jetpack/jetpack.php' ) ) {
-					if ( ! Jetpack_Network::init()->get_option( 'sub-site-connection-override' ) ) {
-						/**
-						 * We need to update the option name -- it's terribly unclear which
-						 * direction the override goes.
-						 *
-						 * @todo: Update the option name to `sub-sites-can-manage-own-connections`
-						 */
-						$caps = array( 'do_not_allow' );
-						break;
-					}
-				}
-
-				$caps = array( 'manage_options' );
+				$caps = apply_filters( 'jetpack_disconnect_cap', array( 'manage_options' ) );
 				break;
 			case 'jetpack_manage_modules':
 			case 'jetpack_activate_modules':
@@ -1172,24 +1167,6 @@ class Jetpack {
 	 * @return null
 	 */
 	public function register_assets() {
-		if ( ! wp_script_is( 'spin', 'registered' ) ) {
-			wp_register_script(
-				'spin',
-				Assets::get_file_url_for_environment( '_inc/build/spin.min.js', '_inc/spin.js' ),
-				false,
-				'1.3'
-			);
-		}
-
-		if ( ! wp_script_is( 'jquery.spin', 'registered' ) ) {
-			wp_register_script(
-				'jquery.spin',
-				Assets::get_file_url_for_environment( '_inc/build/jquery.spin.min.js', '_inc/jquery.spin.js' ),
-				array( 'jquery', 'spin' ),
-				'1.3'
-			);
-		}
-
 		if ( ! wp_script_is( 'jetpack-gallery-settings', 'registered' ) ) {
 			wp_register_script(
 				'jetpack-gallery-settings',
@@ -3383,10 +3360,10 @@ p {
 			$tracking = new Tracking();
 			$tracking->record_user_event( 'disconnect_site', array() );
 
-			$connection->disconnect_site_wpcom();
+			$connection->disconnect_site_wpcom( true );
 		}
 
-		$connection->delete_all_connection_tokens();
+		$connection->delete_all_connection_tokens( true );
 		Jetpack_IDC::clear_all_idc_options();
 
 		if ( $update_activated_state ) {

@@ -1,6 +1,6 @@
 {
 	"name": "automattic/jetpack-redirect",
-	"description": "Utilities to build URLs to the jetpack.com/redirect service",
+	"description": "Utilities to build URLs to the jetpack.com/redirect/ service",
 	"type": "library",
 	"license": "GPL-2.0-or-later",
 	"require-dev": {

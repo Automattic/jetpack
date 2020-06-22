@@ -144,6 +144,7 @@ class WP_Test_Jetpack_Shortcodes_Hulu extends WP_UnitTestCase {
 	 * @group external-http
 	 */
 	public function test_shortcodes_hulu_id_via_oembed_http_request() {
+		$this->markTestSkipped('<!-- Hulu Error: Hulu shortcode http error Service Unavailable -->');
 		$content  = "[hulu $this->video_id]";
 		$shortcode_content = do_shortcode( $content );
 

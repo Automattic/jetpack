@@ -481,7 +481,7 @@ class Jetpack_Options {
 
 	/**
 	 * This function checks for a constant that, if present, will disable direct DB queries Jetpack uses to manage certain options and force Jetpack to always use Options API instead.
-	 * Options can be selectively managed via a blacklist by filtering option names via the jetpack_disabled_raw_option filter.
+	 * Options can be selectively managed via a blocklist by filtering option names via the jetpack_disabled_raw_option filter.
 	 *
 	 * @param string $name Option name.
 	 *
@@ -497,7 +497,7 @@ class Jetpack_Options {
 		 *
 		 * @since 5.5.0
 		 *
-		 * @param array $disabled_raw_options An array of option names that you can selectively blacklist from being managed via direct database queries.
+		 * @param array $disabled_raw_options An array of option names that you can selectively blocklist from being managed via direct database queries.
 		 */
 		$disabled_raw_options = apply_filters( 'jetpack_disabled_raw_options', array() );
 		return isset( $disabled_raw_options[ $name ] );

@@ -23,45 +23,45 @@ import SettingsGroup from 'components/settings-group';
 export const Protect = withModuleSettingsFormHelpers(
 	class extends Component {
 		state = {
-			whitelist: this.props.getOptionValue( 'jetpack_protect_global_whitelist' )
+			safelist: this.props.getOptionValue( 'jetpack_protect_global_whitelist' )
 				? this.props.getOptionValue( 'jetpack_protect_global_whitelist' ).local
 				: '',
 		};
 
-		currentIpIsWhitelisted = () => {
-			// get current whitelist in textarea from this.state.whitelist;
-			return !! includes( this.state.whitelist, this.props.currentIp );
+		currentIpIsSafelisted = () => {
+			// get current safelist in textarea from this.state.safelist;
+			return !! includes( this.state.safelist, this.props.currentIp );
 		};
 
 		updateText = event => {
 			// Enable button if IP is not in the textarea
-			this.currentIpIsWhitelisted();
+			this.currentIpIsSafelisted();
 
 			// Update textarea value
 			this.setState( {
-				whitelist: event.target.value,
+				safelist: event.target.value,
 			} );
 
 			// Add textarea content to form values to save
 			this.props.onOptionChange( event );
 		};
 
-		addToWhitelist = () => {
-			const newWhitelist =
-				this.state.whitelist +
-				( 0 >= this.state.whitelist.length ? '' : '\n' ) +
+		addToSafelist = () => {
+			const newSafelist =
+				this.state.safelist +
+				( 0 >= this.state.safelist.length ? '' : '\n' ) +
 				this.props.currentIp;
 
 			// Update form value manually
-			this.props.updateFormStateOptionValue( 'jetpack_protect_global_whitelist', newWhitelist );
+			this.props.updateFormStateOptionValue( 'jetpack_protect_global_whitelist', newSafelist );
 
-			// add to current state this.state.whitelist;
+			// add to current state this.state.safelist;
 			this.setState( {
-				whitelist: newWhitelist,
+				safelist: newSafelist,
 			} );
 
 			analytics.tracks.recordJetpackClick( {
-				target: 'add-to-whitelist',
+				target: 'add-to-whitelist', // Left as-is to preserve historical stats trends.
 				feature: 'protect',
 			} );
 		};
@@ -124,21 +124,21 @@ export const Protect = withModuleSettingsFormHelpers(
 												disabled={
 													! isProtectActive ||
 													unavailableInDevMode ||
-													this.currentIpIsWhitelisted() ||
+													this.currentIpIsSafelisted() ||
 													this.props.isSavingAnyOption( [
 														'protect',
 														'jetpack_protect_global_whitelist',
 													] )
 												}
-												onClick={ this.addToWhitelist }
+												onClick={ this.addToSafelist }
 											>
-												{ __( 'Add to whitelist' ) }
+												{ __( 'Add to Always Allowed list' ) }
 											</Button>
 										}
 									</div>
 								) }
 								<FormLabel>
-									<FormLegend>{ __( 'Whitelisted IP addresses' ) }</FormLegend>
+									<FormLegend>{ __( 'Always allowed IP addresses' ) }</FormLegend>
 									<Textarea
 										disabled={
 											! isProtectActive ||
@@ -151,12 +151,12 @@ export const Protect = withModuleSettingsFormHelpers(
 										name={ 'jetpack_protect_global_whitelist' }
 										placeholder={ 'Example: 12.12.12.1-12.12.12.100' }
 										onChange={ this.updateText }
-										value={ this.state.whitelist }
+										value={ this.state.safelist }
 									/>
 								</FormLabel>
 								<span className="jp-form-setting-explanation">
 									{ __(
-										'You may whitelist an IP address or series of addresses preventing them from ever being blocked by Jetpack. IPv4 and IPv6 are acceptable. To specify a range, enter the low value and high value separated by a dash. Example: 12.12.12.1-12.12.12.100',
+										'You may always allow an IP address or series of addresses preventing them from ever being blocked by Jetpack. IPv4 and IPv6 are acceptable. To specify a range, enter the low value and high value separated by a dash. Example: 12.12.12.1-12.12.12.100',
 										{
 											components: {
 												br: <br />,
