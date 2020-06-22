@@ -64,7 +64,7 @@ function render_amp( $attr ) {
 	);
 	$classes  = Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attr, $extras );
 
-	return sprintf(
+	return empty( $ids ) ? null : sprintf(
 		'<div class="%1$s" id="wp-block-jetpack-slideshow__%2$d"><div class="wp-block-jetpack-slideshow_container swiper-container">%3$s%4$s%5$s</div></div>',
 		esc_attr( $classes ),
 		absint( $wp_block_jetpack_slideshow_id ),
