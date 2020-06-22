@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { flatten, map, keys, values } from 'lodash';
+import { values } from 'lodash';
 
 /**
  * Internal dependencies
@@ -29,7 +29,7 @@ export function isVideoFile( file ) {
 		return false;
 	}
 
-	let allowedVideoMimeTypes = getAllowedVideoTypesByType( 'video' );
+	const allowedVideoMimeTypes = getAllowedVideoTypesByType( 'video' );
 	const allowedVideoFileExtensions = pickFileExtensionsFromMimeTypes( allowedVideoMimeTypes );
 
 	if ( typeof file === 'string' ) {
@@ -38,8 +38,7 @@ export function isVideoFile( file ) {
 	}
 
 	if ( typeof file === 'object' ) {
-		allowedVideoMimeTypes = values( allowedVideoMimeTypes );
-		return file.type && ( allowedVideoMimeTypes ).includes( file.type );
+		return file.type && ( values( allowedVideoMimeTypes ) ).includes( file.type );
 	}
 
 	return false;
