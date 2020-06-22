@@ -1,15 +1,23 @@
 <?php
+/**
+ * Tests the logo package
+ *
+ * @package automattic/jetpack-logo
+ */
 
 use Automattic\Jetpack\Assets\Logo;
 
 use PHPUnit\Framework\TestCase;
 
+/**
+ * Class Test_Logo
+ */
 class Test_Logo extends TestCase {
 
 	/**
 	 * Ensure the rendered logo has all the CSS classes needed for styling.
 	 */
-	function test_constructor_default_logo() {
+	public function test_constructor_default_logo() {
 		$logo        = new Logo();
 		$logo_render = $logo->render();
 		$this->assertContains( '<svg xmlns="http://www.w3.org/2000/svg"', $logo_render );

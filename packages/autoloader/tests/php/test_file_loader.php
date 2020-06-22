@@ -1,25 +1,48 @@
-<?php
+<?php // phpcs:ignore WordPress.Files.FileName
+/**
+ * Testing file for the autoloader package.
+ *
+ * @package automattic/jetpack-autoloader
+ */
 
 use Automattic\Jetpack\Autoloader as Autoloader;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * Class WP_Test_File_Loader
+ */
 class WP_Test_File_Loader extends TestCase {
-	static $jetpack_packages_files;
-	function setup() {
+	/**
+	 * Jetpack Package files.
+	 *
+	 * @var $jetpack_packages_files
+	 */
+	public static $jetpack_packages_files;
+
+	/**
+	 * Test setup.
+	 */
+	public function setup() {
 		parent::setup();
 		global $jetpack_packages_files;
 		self::$jetpack_packages_files = $jetpack_packages_files;
 		$jetpack_packages_files       = array();
 	}
 
-	function tearDown() {
+	/**
+	 * Test tear down.
+	 */
+	public function tearDown() {
 		parent::tearDown();
-		// re-apply the global
+		// re-apply the global.
 		global $jetpack_packages_files;
 		$jetpack_packages_files = self::$jetpack_packages_files;
 	}
 
-	function test_enqueueing_adds_to_the_global_array() {
+	/**
+	 * Does enqueuing add to the global array?
+	 */
+	public function test_enqueueing_adds_to_the_global_array() {
 		Autoloader\enqueue_package_file( 'file_id_10', '1', 'path_to_file.php' );
 
 		global $jetpack_packages_files;
@@ -28,7 +51,10 @@ class WP_Test_File_Loader extends TestCase {
 		$this->assertEquals( $jetpack_packages_files['file_id_10']['path'], 'path_to_file.php' );
 	}
 
-	function test_enqueueing_adds_the_latest_version_to_the_global_array() {
+	/**
+	 * Tests that latest version is added to the global array.
+	 */
+	public function test_enqueueing_adds_the_latest_version_to_the_global_array() {
 		Autoloader\enqueue_package_file( 'file_id', '1', 'path_to_file' );
 		Autoloader\enqueue_package_file( 'file_id', '2', 'path_to_file_v2' );
 
@@ -38,7 +64,10 @@ class WP_Test_File_Loader extends TestCase {
 		$this->assertEquals( $jetpack_packages_files['file_id']['path'], 'path_to_file_v2' );
 	}
 
-	function test_enqueueing_always_adds_the_dev_version_to_the_global_array() {
+	/**
+	 * Tests that dev version is added to array.
+	 */
+	public function test_enqueueing_always_adds_the_dev_version_to_the_global_array() {
 
 		Autoloader\enqueue_package_file( 'file_id', '1', 'path_to_file' );
 		Autoloader\enqueue_package_file( 'file_id', 'dev-howdy', 'path_to_file_dev' );
@@ -50,7 +79,10 @@ class WP_Test_File_Loader extends TestCase {
 		$this->assertEquals( $jetpack_packages_files['file_id']['path'], 'path_to_file_dev' );
 	}
 
-	function test_enqueued_file_is_actually_loaded() {
+	/**
+	 * Tests that a file is loaded.
+	 */
+	public function test_enqueued_file_is_actually_loaded() {
 
 		Autoloader\enqueue_package_file( 'file_id', '1', __DIR__ . '/path_to_file.php' );
 
