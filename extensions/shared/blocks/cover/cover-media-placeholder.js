@@ -4,7 +4,7 @@
  */
 import { useBlockEditContext } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
-import { useContext } from '@wordpress/element';
+import { useContext, useCallback } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -30,13 +30,14 @@ export default createHigherOrderComponent(
 		 * @param {Array} message - Error message provided by the callback.
 		 * @returns {*} Error handling.
 		 */
-		const uploadingErrorHandler = ( message ) => {
+
+		const uploadingErrorHandler = useCallback( ( message ) => {
 			const filename = message?.[ 0 ]?.props?.children;
 			if ( filename && isVideoFile( filename ) ) {
 				return onFilesUpload( [ filename ] );
 			}
 			return onError( message );
-		};
+		}, [ onFilesUpload, onError ] );
 
 		return (
 			<div className="jetpack-cover-media-placeholder">
