@@ -34,8 +34,6 @@ export default createHigherOrderComponent(
 			return <CoreMediaPlaceholder { ...props } />;
 		}
 
-		const { onError } = props;
-
 		/**
 		 * On Uploading error handler.
 		 * Try to pick up filename from the error message.
@@ -51,8 +49,8 @@ export default createHigherOrderComponent(
 			if ( filename && isVideoFile( filename ) ) {
 				return onFilesUpload( [ filename ] );
 			}
-			return onError( message );
-		}, [ onFilesUpload, onError ] );
+			return props.onError( message );
+		}, [ onFilesUpload, props.onError ] );
 
 		return (
 			<div className="jetpack-cover-media-placeholder">
