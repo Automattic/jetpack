@@ -1,6 +1,10 @@
 <?php
 /**
  * Tests for the Automattic\Jetpack\Mobile package.
+ *
+ * @package automattic/jetpack-device-detection
+ *
+ * @phpcs:disable WordPress.Files.FileName
  */
 
 use PHPUnit\Framework\TestCase;
@@ -15,9 +19,7 @@ class Test_Device_Detection extends TestCase {
 	 * The is_mobile tests.
 	 *
 	 * @param string $ua                   User agent string.
-	 * @param bool   $expected_dumb        Expected value for `dumb` mobile detection.
-	 * @param bool   $expected_smart       Expected value for `smart` mobile detection.
-	 * @param bool   $expected_mobile      Expected value for `any` mobile detection.
+	 * @param array  $expected_types       Expected device types to be detected for a user-agent.
 	 * @param bool   $expected_ua_returned Expected value for UA returned by the method.
 	 *
 	 * @return void

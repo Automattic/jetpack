@@ -48,6 +48,15 @@ class Device_Detection {
 		$info['is_desktop']  = ! $info['is_handheld'];
 
 		if ( function_exists( 'apply_filters' ) ) {
+			/**
+			 * Filter the value of Device_Detection::get_info.
+			 *
+			 * @since  8.7.0
+			 *
+			 * @param array           $info    Array of device information.
+			 * @param string          $ua      User agent string passed to Device_Detection::get_info.
+			 * @param User_Agent_Info $ua_info Instance of Automattic\Jetpack\Device_Detection\User_Agent_Info.
+			 */
 			$info = apply_filters( 'jetpack_device_detection_get_info', $info, $ua, $ua_info );
 		}
 		return $info;
@@ -140,7 +149,7 @@ class Device_Detection {
 			return false;
 		}
 
-		// Remove Samsung Galaxy tablets (SCH-I800) from being mobile devices
+		// Remove Samsung Galaxy tablets (SCH-I800) from being mobile devices.
 		if ( strpos( strtolower( $_SERVER['HTTP_USER_AGENT'] ), 'sch-i800' ) ) {
 			return false;
 		}
@@ -156,14 +165,14 @@ class Device_Detection {
 		if ( $first_run ) {
 			$first_run = false;
 
-			// checks for iPhoneTier devices & RichCSS devices
+			// checks for iPhoneTier devices & RichCSS devices.
 			if ( $ua_info->isTierIphone() || $ua_info->isTierRichCSS() ) {
 				$kinds['smart'] = true;
 				$matched_agent  = $ua_info->matched_agent;
 			}
 
 			if ( ! $kinds['smart'] ) {
-				// if smart, we are not dumb so no need to check
+				// if smart, we are not dumb so no need to check.
 				$dumb_agents = $ua_info->dumb_agents;
 				$agent       = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 
