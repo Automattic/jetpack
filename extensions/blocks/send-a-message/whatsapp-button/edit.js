@@ -196,7 +196,7 @@ export default function WhatsAppButtonEdit( { attributes, setAttributes, classNa
 			) }
 
 			<InspectorControls>
-				<PanelBody title="WhatsApp Button Settings" initialOpen={ true }>
+				<PanelBody title={ __( 'WhatsApp Button Settings', 'jetpack' ) } initialOpen={ true }>
 					{ renderSettings() }
 				</PanelBody>
 
