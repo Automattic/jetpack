@@ -18,8 +18,8 @@ import './editor.scss';
 
 if ( isCurrentUserConnected() ) {
 	// Take the control of MediaPlaceholder.
-	addFilter( 'editor.MediaPlaceholder', 'jetpack/cover-edit-media-placeholder', coverEditMediaPlaceholder );
+	// addFilter( 'editor.MediaPlaceholder', 'jetpack/cover-edit-media-placeholder', coverEditMediaPlaceholder );
 
 	// Extend Core CoverEditBlock.
-	addFilter( 'editor.BlockEdit', 'jetpack/cover-block-edit', jetpackCoverBlockEdit );
+	addFilter( 'blocks.registerBlockType', 'jetpack/cover-block-edit', jetpackCoverBlockEdit );
 }
