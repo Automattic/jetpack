@@ -343,12 +343,13 @@ class ManagerTest extends TestCase {
 	/**
 	 * Data provider test_jetpack_connection_custom_caps.
 	 *
-	 * The test data arrays contain:
-	 *    'in dev mode': Whether development mode is active.
-	 *    'custom cap': The custom capbability that is being tested.
-	 *    'expected caps': The expected output of the call to jetpack_connection_custom_caps. An array of strings.
+	 * Structure of the test data arrays:
+	 *     [0] => 'in_dev_mode'   boolean Whether development mode is active.
+	 *     [1] => 'custom_cap'    string The custom capability that is being tested.
+	 *     [2] => 'expected_caps' array The expected output of the call to jetpack_connection_custom_caps.
 	 */
 	public function jetpack_connection_custom_caps_data_provider() {
+
 		return array(
 			'dev mode, jetpack_connect'          => array( true, 'jetpack_connect', array( 'do_not_allow' ) ),
 			'dev mode, jetpack_reconnect'        => array( true, 'jetpack_reconnect', array( 'do_not_allow' ) ),
