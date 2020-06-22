@@ -49,7 +49,7 @@ const addTweetstormToTweets = blockSettings => {
 							<div className="gathering-tweetstorms__embed-import-notice">
 								<div className="gathering-tweetstorms__embed-import-message">
 									{ __(
-										'It looks like this is the first tweet in a tweetstorm. Would you like to import the tweetstorm content directly into this post?',
+										'It looks like this is the first tweet in a Twitter thread. Would you like to import the whole thread directly into this post?',
 										'jetpack'
 									) }
 								</div>
@@ -59,7 +59,7 @@ const addTweetstormToTweets = blockSettings => {
 									isPrimary
 									onClick={ unleashStorm }
 								>
-									{ __( 'Import Tweetstorm', 'jetpack' ) }
+									{ __( 'Unroll thread', 'jetpack' ) }
 								</Button>
 							</div>
 						),

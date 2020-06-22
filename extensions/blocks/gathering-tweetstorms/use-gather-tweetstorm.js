@@ -120,14 +120,14 @@ export default function useGatherTweetstorm( { url, noticeOperations, onReplace 
 			if ( ! verifiedConnection ) {
 				dispatch( 'core/notices' ).createWarningNotice(
 					__(
-						'We were unable to verify that this tweetstorm was published on a Twitter account belonging to you. Please ensure you have permission to reproduce it before publishing.',
+						'We were unable to verify that this Twitter thread was published on a Twitter account belonging to you. Please ensure you have permission to reproduce it before publishing.',
 						'jetpack'
 					)
 				);
 			}
 
 			dispatch( 'core/notices' ).createSuccessNotice(
-				__( 'Tweetstorm successfully imported', 'jetpack' ),
+				__( 'Twitter thread successfully imported', 'jetpack' ),
 				{ type: 'snackbar' }
 			);
 		}
