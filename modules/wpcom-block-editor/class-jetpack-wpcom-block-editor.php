@@ -62,7 +62,7 @@ class Jetpack_WPCOM_Block_Editor {
 	}
 
 	/**
-	 * Prevents frame options header from firing if this is a whitelisted iframe request.
+	 * Prevents frame options header from firing if this is a allowed iframe request.
 	 */
 	public function disable_send_frame_options_header() {
 		// phpcs:ignore WordPress.Security.NonceVerification
@@ -72,7 +72,7 @@ class Jetpack_WPCOM_Block_Editor {
 	}
 
 	/**
-	 * Adds custom admin body class if this is a whitelisted iframe request.
+	 * Adds custom admin body class if this is a allowed iframe request.
 	 *
 	 * @param string $classes Admin body classes.
 	 * @return string
@@ -160,7 +160,7 @@ class Jetpack_WPCOM_Block_Editor {
 	}
 
 	/**
-	 * Checks whether this is a whitelisted iframe request.
+	 * Checks whether this is an allowed iframe request.
 	 *
 	 * @param string $nonce Nonce to verify.
 	 * @return bool

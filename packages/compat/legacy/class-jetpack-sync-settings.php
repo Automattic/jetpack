@@ -68,7 +68,7 @@ class Jetpack_Sync_Settings {
 
 
 	/**
-	 * Return blacklisted post types SQL.
+	 * Return blocklisted post types SQL.
 	 *
 	 * @deprecated See Automattic\Jetpack\Sync\Settings
 	 */
@@ -78,7 +78,7 @@ class Jetpack_Sync_Settings {
 	}
 
 	/**
-	 * Return whitelisted post meta SQL.
+	 * Return allowed post meta SQL.
 	 *
 	 * @deprecated See Automattic\Jetpack\Sync\Settings
 	 *
@@ -90,7 +90,7 @@ class Jetpack_Sync_Settings {
 	}
 
 	/**
-	 * Return whitelsited comment meta SQL
+	 * Return allowed comment meta SQL
 	 *
 	 * @deprecated See Automattic\Jetpack\Sync\Settings
 	 */

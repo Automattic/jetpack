@@ -91,9 +91,10 @@ function onBuild( done, err, stats ) {
 		'comment-likes',
 		'lazy-images',
 		'scan',
+		'wordads',
 	];
 
-	// Source any JS for whitelisted modules, which will minimize us shipping much
+	// Source any JS for allowed modules, which will minimize us shipping much
 	// more JS that we haven't pointed to in PHP yet.
 	// Example output: modules/(shortcodes|widgets)/**/*.js
 	const supportedModulesSource = `modules/@(${ supportedModules.join( '|' ) })/**/*.js`;

@@ -30,7 +30,7 @@ export const BlockNudge = ( { autosaveAndRedirect, buttonLabel, href, icon, subt
 			{ icon }
 			<span className="jetpack-block-nudge__text-container">
 				<span className="jetpack-block-nudge__title">{ title }</span>
-				<span className="jetpack-block-nudge__message">{ subtitle }</span>
+				{ subtitle && <span className="jetpack-block-nudge__message">{ subtitle }</span> }
 			</span>
 		</span>
 	</Warning>

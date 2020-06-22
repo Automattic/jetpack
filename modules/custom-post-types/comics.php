@@ -27,7 +27,7 @@ class Jetpack_Comic {
 		// Make sure the post types are loaded for imports
 		add_action( 'import_start', array( $this, 'register_post_types' ) );
 
-		// Add to REST API post type whitelist
+		// Add to REST API post type allowed list.
 		add_filter( 'rest_api_allowed_post_types', array( $this, 'allow_rest_api_type' ) );
 
 		// If called via REST API, we need to register later in lifecycle
@@ -170,31 +170,37 @@ class Jetpack_Comic {
 	}
 
 	public function register_scripts() {
-		wp_enqueue_style( 'jetpack-comics-style', plugins_url( 'comics/comics.css', __FILE__ ) );
+		wp_enqueue_style( 'jetpack-comics-style', plugins_url( 'comics/comics.css', __FILE__ ), array(), JETPACK__VERSION );
 		wp_style_add_data( 'jetpack-comics-style', 'rtl', 'replace' );
-		wp_enqueue_script(
-			'jetpack-comics',
-			Assets::get_file_url_for_environment(
-				'_inc/build/custom-post-types/comics/comics.min.js',
-				'modules/custom-post-types/comics/comics.js'
-			),
-			array( 'jquery', 'jquery.spin' )
-		);
 
-		$options = array(
-			'nonce' => wp_create_nonce( 'jetpack_comic_upload_nonce' ),
-			'writeURL' => admin_url( 'admin-ajax.php?action=jetpack_comic_upload' ),
-			'labels' => array(
-				'dragging' => __( 'Drop images to upload', 'jetpack' ),
-				'uploading' => __( 'Uploading...', 'jetpack' ),
-				'processing' => __( 'Processing...', 'jetpack' ),
-				'unsupported' => __( "Sorry, your browser isn't supported. Upgrade at browsehappy.com.", 'jetpack' ),
-				'invalidUpload' => __( 'Only images can be uploaded here.', 'jetpack' ),
-				'error' => __( "Your upload didn't complete; try again later or cross your fingers and try again right now.", 'jetpack' ),
-			)
-		);
+		$is_amp = class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request();
+		if ( ! $is_amp ) {
+			wp_enqueue_script(
+				'jetpack-comics',
+				Assets::get_file_url_for_environment(
+					'_inc/build/custom-post-types/comics/comics.min.js',
+					'modules/custom-post-types/comics/comics.js'
+				),
+				array( 'jquery' ),
+				JETPACK__VERSION,
+				false
+			);
 
-		wp_localize_script( 'jetpack-comics', 'Jetpack_Comics_Options', $options );
+			$options = array(
+				'nonce'    => wp_create_nonce( 'jetpack_comic_upload_nonce' ),
+				'writeURL' => admin_url( 'admin-ajax.php?action=jetpack_comic_upload' ),
+				'labels'   => array(
+					'dragging'      => __( 'Drop images to upload', 'jetpack' ),
+					'uploading'     => __( 'Uploading...', 'jetpack' ),
+					'processing'    => __( 'Processing...', 'jetpack' ),
+					'unsupported'   => __( "Sorry, your browser isn't supported. Upgrade at browsehappy.com.", 'jetpack' ),
+					'invalidUpload' => __( 'Only images can be uploaded here.', 'jetpack' ),
+					'error'         => __( "Your upload didn't complete; try again later or cross your fingers and try again right now.", 'jetpack' ),
+				),
+			);
+
+			wp_localize_script( 'jetpack-comics', 'Jetpack_Comics_Options', $options );
+		}
 	}
 
 	public function admin_enqueue_scripts() {
@@ -503,7 +509,7 @@ class Jetpack_Comic {
 	}
 
 	/**
-	 * Add to REST API post type whitelist
+	 * Add to REST API post type allowed list.
 	 */
 	public function allow_rest_api_type( $post_types ) {
 		$post_types[] = self::POST_TYPE;

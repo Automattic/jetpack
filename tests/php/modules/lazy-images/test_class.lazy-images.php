@@ -300,13 +300,16 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @dataProvider get_should_skip_image_with_blacklisted_class_data
+	 * @dataProvider get_should_skip_image_with_blocked_class_data
 	 */
-	function test_should_skip_image_with_blacklisted_class( $expected, $input, $empty_blacklisted_classes = false ) {
-		$this->assertSame( $expected, Jetpack_Lazy_Images::should_skip_image_with_blacklisted_class( $input ) );
+	public function test_should_skip_image_with_blocked_class( $expected, $input, $empty_blocked_classes = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$this->assertSame( $expected, Jetpack_Lazy_Images::should_skip_image_with_blocked_class( $input ) );
 	}
 
-	function get_should_skip_image_with_blacklisted_class_data() {
+	/**
+	 * Data provider.
+	 */
+	public function get_should_skip_image_with_blocked_class_data() {
 		return array(
 			'wp-post-image' => array(
 				false,
@@ -324,22 +327,25 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @dataProvider get_should_skip_image_with_filtered_empty_blacklist_data
+	 * @dataProvider get_should_skip_image_with_filtered_empty_blocked_data
 	 */
-	function test_should_skip_image_with_filtered_empty_blacklist( $classes ) {
+	public function test_should_skip_image_with_filtered_empty_blocklist( $classes ) {
 		$filter_callbacks = array(
 			'__return_empty_string',
 			'__return_empty_array',
 		);
 
 		foreach ( $filter_callbacks as $callback ) {
-			add_filter( 'jetpack_lazy_images_blacklisted_classes', $callback );
-			$this->assertSame( false, Jetpack_Lazy_Images::should_skip_image_with_blacklisted_class( $classes ) );
-			remove_filter( 'jetpack_lazy_images_blacklisted_classes', $callback );
+			add_filter( 'jetpack_lazy_images_blocked_classes', $callback );
+			$this->assertSame( false, Jetpack_Lazy_Images::should_skip_image_with_blocked_class( $classes ) );
+			remove_filter( 'jetpack_lazy_images_blocked_classes', $callback );
 		}
 	}
 
-	function get_should_skip_image_with_filtered_empty_blacklist_data() {
+	/**
+	 * Data provider.
+	 */
+	public function get_should_skip_image_with_filtered_empty_blocked_data() {
 		return array(
 			'wp-post-image' => array(
 				'wp-post-image'

@@ -26,6 +26,8 @@ function grofiles_hovercards_init() {
 	add_action( 'load-options-discussion.php', 'grofiles_admin_cards_forced' );
 
 	add_filter( 'jetpack_module_configuration_url_gravatar-hovercards', 'gravatar_hovercards_configuration_url' );
+
+	add_filter( 'get_comment_author_url', 'grofiles_amp_comment_author_url', 10, 1 );
 }
 
 function gravatar_hovercards_configuration_url() {
@@ -129,6 +131,22 @@ function grofiles_gravatars_to_append( $author = null ) {
 }
 
 /**
+ * In AMP, override the comment URL to allow for interactivity without
+ * navigating to a new page
+ *
+ * @param string $url The comment author's URL.
+ *
+ * @return string The adjusted URL
+ */
+function grofiles_amp_comment_author_url( $url ) {
+	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
+		return '#!';
+	}
+
+	return $url;
+}
+
+/**
  * Stores the user ID or email address for each gravatar generated.
  *
  * Attached to the 'get_avatar' filter.
@@ -139,6 +157,8 @@ function grofiles_gravatars_to_append( $author = null ) {
  * @return The <img/> element of the avatar.
  */
 function grofiles_get_avatar( $avatar, $author ) {
+	$is_amp = class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request();
+
 	if ( is_numeric( $author ) ) {
 		grofiles_gravatars_to_append( $author );
 	} else if ( is_string( $author ) ) {
@@ -149,6 +169,40 @@ function grofiles_get_avatar( $avatar, $author ) {
 				grofiles_gravatars_to_append( $user->ID );
 		}
 	} else if ( isset( $author->comment_type ) ) {
+		if ( $is_amp ) {
+			if ( 1 === preg_match( '/avatar\/([a-zA-Z0-9]+)\?/', $avatar, $email_hash ) ) {
+				$email_hash  = $email_hash[1];
+				$cache_group = 'gravatar_profiles_';
+				$cache_key   = 'gravatar_profile_' . $email_hash;
+
+				$response_body = wp_cache_get( $cache_key, $cache_group );
+				if ( false === $response_body ) {
+					$response = wp_remote_get( esc_url_raw( 'https://en.gravatar.com/' . $email_hash . '.json' ) );
+
+					if ( is_array( $response ) && ! is_wp_error( $response ) ) {
+						$response_body = json_decode( $response['body'] );
+						wp_cache_set( $cache_key, $response_body, $cache_group, 60 * MINUTE_IN_SECONDS );
+					}
+				}
+
+				$profile      = $response_body->entry[0];
+				$display_name = $profile->displayName; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				$location     = isset( $profile->currentLocation ) ? $profile->currentLocation : ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				$description  = isset( $profile->aboutMe ) ? $profile->aboutMe : ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+
+				$avatar = '
+					<figure data-amp-lightbox="true">
+						' . $avatar . '
+						<figcaption>
+							' . esc_html( $display_name ) . ( ! empty( $location ) ? ' – ' . esc_html( $location ) : '' ) . ( ! empty( $description ) ? ' – ' . esc_html( $description ) : '' ) . '
+						</figcaption>
+					</figure>
+				';
+			}
+
+			return $avatar;
+		}
+
 		if ( '' != $author->comment_type && 'comment' != $author->comment_type )
 			return $avatar;
 		if ( $author->user_id )
@@ -182,17 +236,21 @@ function grofiles_attach_cards() {
 		return;
 	}
 
-	wp_enqueue_script( 'grofiles-cards', 'https://secure.gravatar.com/js/gprofiles.js', array(), GROFILES__CACHE_BUSTER, true );
-	wp_enqueue_script( 'wpgroho', plugins_url( 'wpgroho.js', __FILE__ ), array( 'grofiles-cards' ), false, true );
-	if ( is_user_logged_in() ) {
-		$cu = wp_get_current_user();
-		$my_hash = md5( $cu->user_email );
-	} else if ( !empty( $_COOKIE['comment_author_email_' . COOKIEHASH] ) ) {
-		$my_hash = md5( $_COOKIE['comment_author_email_' . COOKIEHASH] );
+	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
+		wp_enqueue_style( 'gravatar-hovercard-style', plugins_url( '/gravatar/gravatar-hovercards-amp.css', __FILE__ ), array(), JETPACK__VERSION );
 	} else {
-		$my_hash = '';
+		wp_enqueue_script( 'grofiles-cards', 'https://secure.gravatar.com/js/gprofiles.js', array(), GROFILES__CACHE_BUSTER, true );
+		wp_enqueue_script( 'wpgroho', plugins_url( 'wpgroho.js', __FILE__ ), array( 'grofiles-cards' ), JETPACK__VERSION, true );
+		if ( is_user_logged_in() ) {
+			$cu      = wp_get_current_user();
+			$my_hash = md5( $cu->user_email );
+		} elseif ( ! empty( $_COOKIE[ 'comment_author_email_' . COOKIEHASH ] ) ) {
+			$my_hash = md5( $_COOKIE[ 'comment_author_email_' . COOKIEHASH ] );
+		} else {
+			$my_hash = '';
+		}
+		wp_localize_script( 'wpgroho', 'WPGroHo', compact( 'my_hash' ) );
 	}
-	wp_localize_script( 'wpgroho', 'WPGroHo', compact( 'my_hash' ) );
 }
 
 function grofiles_attach_cards_forced() {

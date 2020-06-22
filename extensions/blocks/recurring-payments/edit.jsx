@@ -340,11 +340,20 @@ class MembershipsButtonEdit extends Component {
 		return formatCurrency( parseFloat( product.price ), product.currency );
 	};
 
-	setMembershipAmount = id =>
+	setMembershipAmount = id => {
+		const currentPlanId = this.props.attributes.planId;
+		const currentText = this.props.attributes.submitButtonText;
+		const defaultTextForNewPlan =
+			this.getFormattedPriceByProductId( id ) + __( ' Contribution', 'jetpack' );
+		const defaultTextForCurrentPlan = currentPlanId
+			? this.getFormattedPriceByProductId( currentPlanId ) + __( ' Contribution', 'jetpack' )
+			: undefined;
+		const text = currentText === defaultTextForCurrentPlan ? defaultTextForNewPlan : currentText;
 		this.props.setAttributes( {
 			planId: id,
-			submitButtonText: this.getFormattedPriceByProductId( id ) + __( ' Contribution', 'jetpack' ),
+			submitButtonText: text,
 		} );
+	};
 
 	renderMembershipAmounts = () => (
 		<div>
@@ -518,7 +527,7 @@ class MembershipsButtonEdit extends Component {
 								'backgroundButtonColor',
 								'textButtonColor',
 								'customBackgroundButtonColor',
-								'customBackgroundButtonColor',
+								'customTextButtonColor',
 							] ),
 							setAttributes: this.props.setAttributes,
 						} }
