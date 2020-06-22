@@ -1,5 +1,10 @@
 
 /**
+ * External dependencies
+ */
+import { noop } from 'lodash';
+
+/**
  * WordPress dependencies
  */
 import { createHigherOrderComponent } from '@wordpress/compose';
@@ -13,10 +18,22 @@ import { CoverMediaContext } from './components';
 
 export default createHigherOrderComponent(
 	CoreMediaPlaceholder => props => {
-		const { onFilesUpload, blockName: name } = useContext( CoverMediaContext );
+		/*
+		 * Data provided by the cover media context
+		 * could be undefined.
+		 * We need to check data exists before proceeding.
+		 */
+		const coverMediaProvidedData = useContext( CoverMediaContext );
+		if ( ! coverMediaProvidedData ) {
+			return <CoreMediaPlaceholder { ...props } />;
+		}
+
+		// Check if the block is upgradable before to proceeding.
+		const { onFilesUpload, blockName: name } = coverMediaProvidedData;
 		if ( ! name || ! isUpgradable( name ) ) {
 			return <CoreMediaPlaceholder { ...props } />;
 		}
+
 		const { onError } = props;
 
 		/**
