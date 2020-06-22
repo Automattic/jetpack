@@ -1,3 +1,4 @@
+
 export const videoFileExtensions = [
 	'ogv',
 	'mp4',
