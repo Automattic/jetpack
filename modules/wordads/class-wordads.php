@@ -1,4 +1,9 @@
 <?php
+/**
+ * Main WordAds file.
+ *
+ * @package Jetpack
+ */
 
 define( 'WORDADS_ROOT', dirname( __FILE__ ) );
 define( 'WORDADS_BASENAME', plugin_basename( __FILE__ ) );
@@ -7,15 +12,28 @@ define( 'WORDADS_URL', plugins_url( '/', __FILE__ ) );
 define( 'WORDADS_API_TEST_ID', '26942' );
 define( 'WORDADS_API_TEST_ID2', '114160' );
 
-require_once WORDADS_ROOT . '/php/widgets.php';
-require_once WORDADS_ROOT . '/php/api.php';
-require_once WORDADS_ROOT . '/php/cron.php';
+require_once WORDADS_ROOT . '/php/class-wordads-sidebar-widget.php';
+require_once WORDADS_ROOT . '/php/class-wordads-api.php';
+require_once WORDADS_ROOT . '/php/class-wordads-cron.php';
 require_once WORDADS_ROOT . '/php/class-wordads-california-privacy.php';
 
+/**
+ * Primary WordAds class.
+ */
 class WordAds {
 
+	/**
+	 * Ads parameters.
+	 *
+	 * @var null
+	 */
 	public $params = null;
 
+	/**
+	 * Ads.
+	 *
+	 * @var array
+	 */
 	public $ads = array();
 
 	/**
@@ -70,6 +88,13 @@ class WordAds {
 	public static $amp_section_id = 1;
 
 	/**
+	 * Solo unit CSS string.
+	 *
+	 * @var string
+	 */
+	public static $solo_unit_css = 'float:left;margin-right:5px;margin-top:0px;';
+
+	/**
 	 * Checks for AMP support and returns true iff active & AMP request
 	 *
 	 * @return boolean True if supported AMP request
@@ -89,18 +114,16 @@ class WordAds {
 		return self::$amp_section_id++;
 	}
 
-	public static $SOLO_UNIT_CSS = 'float:left;margin-right:5px;margin-top:0px;';
-
 	/**
 	 * Convenience function for grabbing options from params->options
 	 *
-	 * @param  string $option the option to grab
-	 * @param  mixed  $default (optional)
+	 * @param  string $option the option to grab.
+	 * @param  mixed  $default (optional).
 	 * @return option or $default if not set
 	 *
 	 * @since 4.5.0
 	 */
-	function option( $option, $default = false ) {
+	public function option( $option, $default = false ) {
 		if ( ! isset( $this->params->options[ $option ] ) ) {
 			return $default;
 		}
@@ -115,7 +138,7 @@ class WordAds {
 	 *
 	 * @since 7.1.0
 	 */
-	function get_ad_tags() {
+	public function get_ad_tags() {
 		return self::$ad_tag_ids;
 	}
 
@@ -126,8 +149,8 @@ class WordAds {
 	 *
 	 * @since 7.1.0
 	 */
-	function get_solo_unit_css() {
-		return self::$SOLO_UNIT_CSS;
+	public function get_solo_unit_css() {
+		return self::$solo_unit_css;
 	}
 
 	/**
@@ -135,9 +158,10 @@ class WordAds {
 	 *
 	 * @since 4.5.0
 	 */
-	function __construct() {
+	public function __construct() {
 		add_action( 'wp', array( $this, 'init' ) );
 		add_action( 'rest_api_init', array( $this, 'init' ) );
+		add_action( 'widgets_init', array( $this, 'widget_callback' ) );
 
 		if ( is_admin() ) {
 			WordAds_California_Privacy::init_ajax_actions();
@@ -149,8 +173,8 @@ class WordAds {
 	 *
 	 * @since 4.5.0
 	 */
-	function init() {
-		require_once WORDADS_ROOT . '/php/params.php';
+	public function init() {
+		require_once WORDADS_ROOT . '/php/class-wordads-params.php';
 		$this->params = new WordAds_Params();
 
 		if ( $this->should_bail() || self::is_infinite_scroll() ) {
@@ -158,7 +182,7 @@ class WordAds {
 		}
 
 		if ( is_admin() ) {
-			require_once WORDADS_ROOT . '/php/admin.php';
+			require_once WORDADS_ROOT . '/php/class-wordads-admin.php';
 			return;
 		}
 
@@ -171,7 +195,9 @@ class WordAds {
 
 		if ( '/ads.txt' === $_SERVER['REQUEST_URI'] ) {
 
-			if ( false === ( $ads_txt_transient = get_transient( 'jetpack_ads_txt' ) ) ) {
+			$ads_txt_transient = get_transient( 'jetpack_ads_txt' );
+
+			if ( false === ( $ads_txt_transient ) ) {
 				$ads_txt_transient = ! is_wp_error( WordAds_API::get_wordads_ads_txt() ) ? WordAds_API::get_wordads_ads_txt() : '';
 				set_transient( 'jetpack_ads_txt', $ads_txt_transient, DAY_IN_SECONDS );
 			}
@@ -270,7 +296,7 @@ class WordAds {
 	 *
 	 * @since 4.5.0
 	 */
-	function enqueue_scripts() {
+	public function enqueue_scripts() {
 		wp_enqueue_style(
 			'wordads',
 			WORDADS_URL . 'css/style.css',
@@ -283,6 +309,11 @@ class WordAds {
 	 * Add the IPW resource hints
 	 *
 	 * @since 7.9
+	 *
+	 * @param array  $hints Domains for hinting.
+	 * @param string $relation_type Resource type.
+	 *
+	 * @return array Domains for hinting.
 	 */
 	public function resource_hints( $hints, $relation_type ) {
 		if ( 'dns-prefetch' === $relation_type ) {
@@ -313,24 +344,23 @@ class WordAds {
 	 *
 	 * @return [type] [description]
 	 */
-	function insert_head_meta() {
+	public function insert_head_meta() {
 		if ( self::is_amp() ) {
 			return;
 		}
-		$themename = esc_js( get_stylesheet() );
 		$pagetype  = intval( $this->params->get_page_type_ipw() );
 		$data_tags = ( $this->params->cloudflare ) ? ' data-cfasync="false"' : '';
 		$site_id   = $this->params->blog_id;
 		$consent   = intval( isset( $_COOKIE['personalized-ads-consent'] ) );
-		echo <<<HTML
-		<script$data_tags type="text/javascript">
-			var __ATA_PP = { pt: $pagetype, ht: 2, tn: '$themename', amp: false, siteid: $site_id, consent: $consent };
+		?>
+		<script<?php esc_attr( $data_tags ); ?> type="text/javascript">
+			var __ATA_PP = { pt: <?php esc_js( $pagetype ); ?>, ht: 2, tn: '<?php esc_js( get_stylesheet() ); ?>', amp: false, siteid: <?php esc_js( $site_id ); ?>, consent: <?php esc_js( $consent ); ?> };
 			var __ATA = __ATA || {};
 			__ATA.cmd = __ATA.cmd || [];
 			__ATA.criteo = __ATA.criteo || {};
 			__ATA.criteo.cmd = __ATA.criteo.cmd || [];
 		</script>
-HTML;
+		<?php
 	}
 
 	/**
@@ -338,27 +368,29 @@ HTML;
 	 *
 	 * @since 4.5.0
 	 */
-	function insert_head_iponweb() {
+	public function insert_head_iponweb() {
 		if ( self::is_amp() ) {
 			return;
 		}
 		$data_tags = ( $this->params->cloudflare ) ? ' data-cfasync="false"' : '';
-		echo <<<HTML
-		<script$data_tags type="text/javascript">
+		?>
+		<script<?php echo esc_attr( $data_tags ); ?> type="text/javascript">
 		(function(){var g=Date.now||function(){return+new Date};function h(a,b){a:{for(var c=a.length,d="string"==typeof a?a.split(""):a,e=0;e<c;e++)if(e in d&&b.call(void 0,d[e],e,a)){b=e;break a}b=-1}return 0>b?null:"string"==typeof a?a.charAt(b):a[b]};function k(a,b,c){c=null!=c?"="+encodeURIComponent(String(c)):"";if(b+=c){c=a.indexOf("#");0>c&&(c=a.length);var d=a.indexOf("?");if(0>d||d>c){d=c;var e=""}else e=a.substring(d+1,c);a=[a.substr(0,d),e,a.substr(c)];c=a[1];a[1]=b?c?c+"&"+b:b:c;a=a[0]+(a[1]?"?"+a[1]:"")+a[2]}return a};var l=0;function m(a,b){var c=document.createElement("script");c.src=a;c.onload=function(){b&&b(void 0)};c.onerror=function(){b("error")};a=document.getElementsByTagName("head");var d;a&&0!==a.length?d=a[0]:d=document.documentElement;d.appendChild(c)}function n(a){var b=void 0===b?document.cookie:b;return(b=h(b.split("; "),function(c){return-1!=c.indexOf(a+"=")}))?b.split("=")[1]:""}function p(a){return"string"==typeof a&&0<a.length}
 		function r(a,b,c){b=void 0===b?"":b;c=void 0===c?".":c;var d=[];Object.keys(a).forEach(function(e){var f=a[e],q=typeof f;"object"==q&&null!=f||"function"==q?d.push(r(f,b+e+c)):null!==f&&void 0!==f&&(e=encodeURIComponent(b+e),d.push(e+"="+encodeURIComponent(f)))});return d.filter(p).join("&")}function t(a,b){a||((window.__ATA||{}).config=b.c,m(b.url))}var u=Math.floor(1E13*Math.random()),v=window.__ATA||{};window.__ATA=v;v.rid=u;v.createdAt=g();var w=window.__ATA||{},x="s.pubmine.com";
 		w&&w.serverDomain&&(x=w.serverDomain);var y="//"+x+"/conf",z=window.top===window,A=window.__ATA_PP&&window.__ATA_PP.gdpr_applies,B="boolean"===typeof A?Number(A):null,C=window.__ATA_PP||null,D=z?document.referrer?document.referrer:null:null,E=z?window.location.href:document.referrer?document.referrer:null,F,G=n("__ATA_tuuid");F=G?G:null;var H=window.innerWidth+"x"+window.innerHeight,I=n("usprivacy"),J=r({gdpr:B,pp:C,rid:u,src:D,ref:E,tuuid:F,vp:H,us_privacy:I?I:null},"",".");
 		(function(a){var b=void 0===b?"cb":b;l++;var c="callback__"+g().toString(36)+"_"+l.toString(36);a=k(a,b,c);window[c]=function(d){t(void 0,d)};m(a,function(d){d&&t(d)})})(y+"?"+J);}).call(this);
 		</script>
-HTML;
+		<?php
 	}
 
 	/**
 	 * Insert the ad onto the page
 	 *
 	 * @since 4.5.0
+	 *
+	 * @param string $content HTML content.
 	 */
-	function insert_ad( $content ) {
+	public function insert_ad( $content ) {
 		// Don't insert ads in feeds, or for anything but the main display. (This is required for compatibility with the Publicize module).
 		if ( is_feed() || ! is_main_query() || ! in_the_loop() ) {
 			return $content;
@@ -386,8 +418,10 @@ HTML;
 	 * Used for rendering the `wordads` shortcode.
 	 *
 	 * @since 6.1.0
+	 *
+	 * @param string $content HTML content.
 	 */
-	function insert_inline_ad( $content ) {
+	public function insert_inline_ad( $content ) {
 		// Ad JS won't work in XML feeds.
 		if ( is_feed() ) {
 			return $content;
@@ -416,7 +450,7 @@ HTML;
 	 *
 	 * @since 4.5.0
 	 */
-	function insert_header_ad() {
+	public function insert_header_ad() {
 		/**
 		 * Allow third-party tools to disable the display of header ads.
 		 *
@@ -431,7 +465,7 @@ HTML;
 		}
 
 		$ad_type = $this->option( 'wordads_house' ) ? 'house' : 'iponweb';
-		echo $this->get_ad( 'top', $ad_type );
+		echo $this->get_ad( 'top', $ad_type ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**
@@ -439,7 +473,7 @@ HTML;
 	 *
 	 * @since 4.5.0
 	 */
-	function insert_header_ad_special() {
+	public function insert_header_ad_special() {
 		/**
 		 * Allow third-party tools to disable the display of header ads.
 		 *
@@ -467,9 +501,9 @@ HTML;
 		}
 
 		$ad_type = $this->option( 'wordads_house' ) ? 'house' : 'iponweb';
-		echo $this->get_ad( 'top', $ad_type );
+		echo $this->get_ad( 'top', $ad_type ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		if ( ! self::is_amp() ) {
-			echo <<<HTML
+			?>
 		<script type="text/javascript">
 			(function ( selector ) {
 				var main = document.querySelector( selector );
@@ -478,10 +512,10 @@ HTML;
 				if ( main ) {
 					main.parentNode.insertBefore( headerAd, main );
 				}
-			})( '$selector' );
+			})( '<?php echo esc_js( $selector ); ?>' );
 
 		</script>
-HTML;
+			<?php
 		}
 	}
 
@@ -505,12 +539,12 @@ HTML;
 	/**
 	 * Filter the latest ads.txt to include custom user entries. Strips any tags or whitespace.
 	 *
-	 * @param  string $adstxt The ads.txt being filtered
-	 * @return string         Filtered ads.txt with custom entries, if applicable
+	 * @param  string $adstxt The ads.txt being filtered.
+	 * @return string         Filtered ads.txt with custom entries, if applicable.
 	 *
 	 * @since 6.5.0
 	 */
-	function insert_custom_adstxt( $adstxt ) {
+	public function insert_custom_adstxt( $adstxt ) {
 		if ( ! $this->option( 'wordads_custom_adstxt_enabled' ) ) {
 			return $adstxt;
 		}
@@ -527,48 +561,47 @@ HTML;
 	/**
 	 * Get the ad for the spot and type.
 	 *
-	 * @param  string $spot top, side, inline, or belowpost
-	 * @param  string $type iponweb or adsense
+	 * @param  string $spot top, side, inline, or belowpost.
+	 * @param  string $type iponweb or adsense.
 	 */
-	function get_ad( $spot, $type = 'iponweb' ) {
+	public function get_ad( $spot, $type = 'iponweb' ) {
 		$snippet = '';
-		if ( 'iponweb' == $type ) {
-			// Default to mrec
+		if ( 'iponweb' === $type ) {
+			// Default to mrec.
 			$width  = 300;
 			$height = 250;
 
-			$section_id       = WORDADS_API_TEST_ID;
-			$second_belowpost = '';
-			$snippet          = '';
-			if ( 'top' == $spot ) {
-				// mrec for mobile, leaderboard for desktop
+			$section_id = WORDADS_API_TEST_ID;
+			$snippet    = '';
+			if ( 'top' === $spot ) {
+				// mrec for mobile, leaderboard for desktop.
 				$section_id = 0 === $this->params->blog_id ? WORDADS_API_TEST_ID : $this->params->blog_id . '2';
 				$width      = $this->params->mobile_device ? 300 : 728;
 				$height     = $this->params->mobile_device ? 250 : 90;
 				$snippet    = $this->get_ad_snippet( $section_id, $height, $width, $spot );
-			} elseif ( 'belowpost' == $spot ) {
+			} elseif ( 'belowpost' === $spot ) {
 				$section_id = 0 === $this->params->blog_id ? WORDADS_API_TEST_ID : $this->params->blog_id . '1';
 				$width      = 300;
 				$height     = 250;
 
-				$snippet = $this->get_ad_snippet( $section_id, $height, $width, $spot, self::$SOLO_UNIT_CSS );
+				$snippet = $this->get_ad_snippet( $section_id, $height, $width, $spot, self::$solo_unit_css );
 				if ( $this->option( 'wordads_second_belowpost', true ) ) {
 					$section_id2 = 0 === $this->params->blog_id ? WORDADS_API_TEST_ID2 : $this->params->blog_id . '4';
 					$snippet    .= $this->get_ad_snippet( $section_id2, $height, $width, $spot . '2', 'float:left;margin-top:0px;' );
 				}
 			} elseif ( 'inline' === $spot ) {
 				$section_id = 0 === $this->params->blog_id ? WORDADS_API_TEST_ID : $this->params->blog_id . '5';
-				$snippet    = $this->get_ad_snippet( $section_id, $height, $width, $spot, self::$SOLO_UNIT_CSS );
+				$snippet    = $this->get_ad_snippet( $section_id, $height, $width, $spot, self::$solo_unit_css );
 			} elseif ( 'top_amp' === $spot ) {
 				// Ad unit which can safely be inserted below title, above content in a variety of themes.
 				$width   = $this->params->mobile_device ? 320 : 300;
 				$height  = $this->params->mobile_device ? 50 : 250;
 				$snippet = $this->get_ad_snippet( null, $height, $width );
 			}
-		} elseif ( 'house' == $type ) {
-			$leaderboard = 'top' == $spot && ! $this->params->mobile_device;
+		} elseif ( 'house' === $type ) {
+			$leaderboard = 'top' === $spot && ! $this->params->mobile_device;
 			$snippet     = $this->get_house_ad( $leaderboard ? 'leaderboard' : 'mrec' );
-			if ( 'belowpost' == $spot && $this->option( 'wordads_second_belowpost', true ) ) {
+			if ( 'belowpost' === $spot && $this->option( 'wordads_second_belowpost', true ) ) {
 				$snippet .= $this->get_house_ad( $leaderboard ? 'leaderboard' : 'mrec' );
 			}
 		}
@@ -580,11 +613,12 @@ HTML;
 	/**
 	 * Returns the snippet to be inserted into the ad unit
 	 *
-	 * @param  int    $section_id
-	 * @param  int    $height
-	 * @param  int    $width
-	 * @param  int    $location
-	 * @param  string $css
+	 * @param  int    $section_id Ad section.
+	 * @param  int    $height Ad height.
+	 * @param  int    $width Ad width.
+	 * @param  string $location Location.
+	 * @param  string $css CSS.
+	 *
 	 * @return string
 	 *
 	 * @since 5.7
@@ -597,7 +631,7 @@ HTML;
 		);
 
 		if ( self::is_amp() ) {
-			$height         = esc_attr( $height + 15 ); // this will ensure enough padding for "Report this ad"
+			$height         = esc_attr( $height + 15 ); // this will ensure enough padding for "Report this ad".
 			$width          = esc_attr( $width );
 			$amp_section_id = esc_attr( self::get_amp_section_id() );
 			$site_id        = esc_attr( $this->params->blog_id );
@@ -648,13 +682,13 @@ HTML;
 	 *
 	 * @since 7.1
 	 */
-	function get_ad_div( $spot, $snippet, array $css_classes = array() ) {
+	public function get_ad_div( $spot, $snippet, array $css_classes = array() ) {
 		if ( empty( $css_classes ) ) {
 			$css_classes = array();
 		}
 
 		$css_classes[] = 'wpcnt';
-		if ( 'top' == $spot ) {
+		if ( 'top' === $spot ) {
 			$css_classes[] = 'wpcnt-header';
 		}
 
@@ -687,7 +721,7 @@ HTML;
 	/**
 	 * Returns markup for HTML5 house ad base on unit
 	 *
-	 * @param  string $unit mrec, widesky, or leaderboard
+	 * @param  string $unit mrec, widesky, or leaderboard.
 	 * @return string       markup for HTML5 house ad
 	 *
 	 * @since 4.7.0
@@ -730,6 +764,19 @@ HTML;
 	 */
 	public static function activate() {
 		WordAds_API::update_wordads_status_from_api();
+	}
+
+	/**
+	 * Registers the widgets.
+	 */
+	public function widget_callback() {
+			register_widget( 'WordAds_Sidebar_Widget' );
+
+			$ccpa_enabled = get_option( 'wordads_ccpa_enabled' );
+
+		if ( $ccpa_enabled ) {
+			register_widget( 'WordAds_Ccpa_Do_Not_Sell_Link_Widget' );
+		}
 	}
 }
 
