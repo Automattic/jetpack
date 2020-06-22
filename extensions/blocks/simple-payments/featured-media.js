@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { BlockControls, MediaPlaceholder, MediaUpload } from '@wordpress/block-editor';
+import { BlockControls, BlockIcon, MediaPlaceholder, MediaUpload } from '@wordpress/block-editor';
 import { Fragment } from '@wordpress/element';
 import { get } from 'lodash';
 import { Toolbar, ToolbarButton } from '@wordpress/components';
@@ -10,6 +10,7 @@ import { Toolbar, ToolbarButton } from '@wordpress/components';
 /**
  * Internal dependencies
  */
+import icon from './featured-media-icon';
 import EditButton from '../../shared/edit-button';
 
 const onSelectMedia = setAttributes => media =>
@@ -23,7 +24,7 @@ export default ( { featuredMediaId, featuredMediaUrl, featuredMediaTitle, setAtt
 	if ( ! featuredMediaId ) {
 		return (
 			<MediaPlaceholder
-				icon="format-image"
+				icon={ <BlockIcon icon={ icon } /> }
 				labels={ {
 					title: __( 'Product Image', 'jetpack' ),
 				} }
