@@ -116,7 +116,7 @@ export default function WhatsAppButtonEdit( { attributes, setAttributes, classNa
 		return (
 			<Button
 				className="components-toolbar__control jetpack-contact-form__toggle"
-				label={ __( 'WhatsApp Button Settings' ) }
+				label={ __( 'WhatsApp Button Settings', 'jetpack' ) }
 				onClick={ onToggle }
 				onKeyDown={ openOnArrowDown }
 				icon={ renderMaterialIcon(
