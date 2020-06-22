@@ -37,6 +37,15 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_status' ),
 					'permission_callback' => array( $this, 'get_status_permission_check' ),
+					'args'                => array(
+						'type' => array(
+							'type'              => 'string',
+							'required'          => false,
+							'validate_callback' => function( $param ) {
+								return in_array( $param, array( 'donation' ), true );
+							},
+						),
+					),
 				),
 			)
 		);
@@ -143,19 +152,22 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	/**
 	 * Get a status of connection for the site. If this is Jetpack, pass the request to wpcom.
 	 *
+	 * @param \WP_REST_Request $request - request passed from WP.
+	 *
 	 * @return WP_Error|array ['products','connected_account_id','connect_url','should_upgrade_to_access_memberships','upgrade_url']
 	 */
-	public function get_status() {
+	public function get_status( \WP_REST_Request $request ) {
+		$product_type = $request['type'];
 		if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
 			jetpack_require_lib( 'memberships' );
 			$blog_id = get_current_blog_id();
-			return (array) get_memberships_settings_for_site( $blog_id );
+			return (array) get_memberships_settings_for_site( $blog_id, $product_type );
 		} else {
 			$blog_id  = Jetpack_Options::get_option( 'id' );
 			$response = Client::wpcom_json_api_request_as_user(
 				"/sites/$blog_id/{$this->rest_base}/status",
 				'v2',
-				array(),
+				array( 'type' => $product_type ),
 				null
 			);
 			if ( is_wp_error( $response ) ) {
@@ -176,4 +188,3 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Jetpack::is_active() ) {
 	wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Memberships' );
 }
-
