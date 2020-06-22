@@ -8,7 +8,10 @@ import { flatten, map, keys, values } from 'lodash';
  */
 import { isSimpleSite } from '../../site-type-utils';
 import getJetpackExtensionAvailability from '../../get-jetpack-extension-availability';
-import getAllowedMimeTypesBySite, { getAllowedVideoTypesByType } from "../../get-allowed-mime-types";
+import getAllowedMimeTypesBySite, {
+	getAllowedVideoTypesByType,
+	pickFileExtensionsFromMimeTypes,
+} from "../../get-allowed-mime-types";
 
 /**
  * Check if the given file is a video.
@@ -27,7 +30,7 @@ export function isVideoFile( file ) {
 	}
 
 	let allowedVideoMimeTypes = getAllowedVideoTypesByType( 'video' );
-	const allowedVideoFileExtensions = flatten( map( keys( allowedVideoMimeTypes ), ( ext ) => ext.split( '|' ) ) );
+	const allowedVideoFileExtensions = pickFileExtensionsFromMimeTypes( allowedVideoMimeTypes );
 
 	if ( typeof file === 'string' ) {
 		const fileExtension = file.split( '.' ).pop();
@@ -36,7 +39,7 @@ export function isVideoFile( file ) {
 
 	if ( typeof file === 'object' ) {
 		allowedVideoMimeTypes = values( allowedVideoMimeTypes );
-		return file.type && allowedVideoMimeTypes.includes( file.type );
+		return file.type && ( allowedVideoMimeTypes ).includes( file.type );
 	}
 
 	return false;

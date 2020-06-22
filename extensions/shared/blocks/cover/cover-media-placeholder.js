@@ -26,6 +26,7 @@ export default createHigherOrderComponent(
 		 * On Uploading error handler.
 		 * Try to pick up filename from the error message.
 		 * We should find a better way to do it. Unstable.
+		 * This act as a fallback of `onFilesPreUpload()`.
 		 *
 		 * @param {Array} message - Error message provided by the callback.
 		 * @returns {*} Error handling.
