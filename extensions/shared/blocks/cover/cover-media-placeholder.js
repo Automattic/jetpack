@@ -2,7 +2,6 @@
 /**
  * WordPress dependencies
  */
-import { useBlockEditContext } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { useContext, useCallback } from '@wordpress/element';
 
@@ -14,12 +13,10 @@ import { CoverMediaContext } from './components';
 
 export default createHigherOrderComponent(
 	CoreMediaPlaceholder => props => {
-		const { name } = useBlockEditContext();
+		const { onFilesUpload, blockName: name } = useContext( CoverMediaContext );
 		if ( ! name || ! isUpgradable( name ) ) {
 			return <CoreMediaPlaceholder { ...props } />;
 		}
-
-		const onFilesUpload = useContext( CoverMediaContext );
 		const { onError } = props;
 
 		/**
