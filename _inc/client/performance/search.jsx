@@ -18,7 +18,6 @@ import { FormFieldset } from 'components/forms';
 import CompactFormToggle from 'components/form/form-toggle/compact';
 import { FEATURE_SEARCH_JETPACK, getPlanClass } from 'lib/plans/constants';
 import { SEARCH_DESCRIPTION, SEARCH_CUSTOMIZE_CTA, SEARCH_SUPPORT } from 'plans/constants';
-import { isAtomicSite } from 'state/initial-state';
 import { hasUpdatedSetting, isSettingActivated, isUpdatingSetting } from 'state/settings';
 import {
 	getSitePlan,
@@ -92,27 +91,24 @@ function Search( props ) {
 							{ __( 'Enable Search' ) }
 						</ModuleToggle>
 
-						{ ! props.isAtomicSite && (
-							// NOTE: Jetpack Search currently does not support atomic sites.
-							<FormFieldset>
-								<CompactFormToggle
-									checked={ isInstantSearchEnabled }
-									disabled={ ! props.hasActiveSearchPurchase || ! isModuleEnabled }
-									onChange={ toggleInstantSearch }
-									toggling={ props.isSavingAnyOption( 'instant_search_enabled' ) }
-								>
-									<span className="jp-form-toggle-explanation">
-										{ __( 'Enable instant search experience (recommended)' ) }
-									</span>
-								</CompactFormToggle>
-								<p className="jp-form-setting-explanation jp-form-search-setting-explanation">
-									{ __(
-										'Instant search will allow your visitors to get search results as soon as they start typing. ' +
-											'If deactivated, Jetpack Search will still optimize your search results but visitors will have to submit a search query before seeing any results.'
-									) }
-								</p>
-							</FormFieldset>
-						) }
+						<FormFieldset>
+							<CompactFormToggle
+								checked={ isInstantSearchEnabled }
+								disabled={ ! props.hasActiveSearchPurchase || ! isModuleEnabled }
+								onChange={ toggleInstantSearch }
+								toggling={ props.isSavingAnyOption( 'instant_search_enabled' ) }
+							>
+								<span className="jp-form-toggle-explanation">
+									{ __( 'Enable instant search experience (recommended)' ) }
+								</span>
+							</CompactFormToggle>
+							<p className="jp-form-setting-explanation jp-form-search-setting-explanation">
+								{ __(
+									'Instant search will allow your visitors to get search results as soon as they start typing. ' +
+										'If deactivated, Jetpack Search will still optimize your search results but visitors will have to submit a search query before seeing any results.'
+								) }
+							</p>
+						</FormFieldset>
 					</Fragment>
 				) }
 			</SettingsGroup>
@@ -144,7 +140,6 @@ function Search( props ) {
 export default connect( state => {
 	const planClass = getPlanClass( getSitePlan( state ).product_slug );
 	return {
-		isAtomicSite: isAtomicSite( state ),
 		isLoading: isFetchingSitePurchases( state ),
 		hasActiveSearchPurchase: selectHasActiveSearchPurchase( state ),
 		isBusinessPlan: 'is-business-plan' === planClass,
