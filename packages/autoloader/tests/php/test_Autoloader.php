@@ -90,7 +90,7 @@ class WP_Test_Autoloader extends TestCase {
 	 * Tests whether enqueueing works with autoloading.
 	 */
 	public function test_enqueue_class_to_autoload_works_as_expected() {
-		$this->classes_handler->enqueue_package_class( 'Jetpack\TestCase_ABC\className_ABC', '1', dirname( __FILE__ ) . '/path_to_class.php' );
+		$this->classes_handler->enqueue_package_class( 'Jetpack\TestCase_ABC\ClassName_ABC', '1', dirname( __FILE__ ) . '/path_to_class.php' );
 
 		$class = new ClassName_ABC();
 
