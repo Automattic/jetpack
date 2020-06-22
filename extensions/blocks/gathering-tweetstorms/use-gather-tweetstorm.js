@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { isArray, isEmpty } from 'lodash';
+import { isArray, isEmpty, some } from 'lodash';
 
 /**
  * WordPress dependencies
@@ -19,13 +19,19 @@ import { useSelect, dispatch } from '@wordpress/data';
  *
  * @param {object}   o - Function parameters.
  * @param {string}   o.url - The tweet URL.
+ * @param {boolean}  o.displayedTweetstormNotice - Whether the notice has already been displayed on this block.
  * @param {Function} [o.noticeOperations] - Optional. From WordPress' withNotices() HOC.
  * @param {Function} o.onReplace - The onReplace() function passed down from the block.
  *
  * @returns {object} Object containing blocks, whether the API call is still running,
  * and unleashStorm(), a function to replace the current block with the tweetstorm content.
  */
-export default function useGatherTweetstorm( { url, noticeOperations, onReplace } ) {
+export default function useGatherTweetstorm( {
+	url,
+	displayedTweetstormNotice,
+	noticeOperations,
+	onReplace,
+} ) {
 	const [ blocks, setBlocks ] = useState( [] );
 	const [ isGatheringStorm, setIsGatheringStorm ] = useState( false );
 	const [ twitterUser, setTwitterUser ] = useState( '' );
@@ -37,6 +43,10 @@ export default function useGatherTweetstorm( { url, noticeOperations, onReplace 
 	useEffect( () => {
 		if ( isEmpty( url ) ) {
 			setBlocks( [] );
+			return;
+		}
+
+		if ( displayedTweetstormNotice ) {
 			return;
 		}
 
@@ -81,7 +91,7 @@ export default function useGatherTweetstorm( { url, noticeOperations, onReplace 
 				setBlocks( [] );
 				noticeOperations && noticeOperations.createErrorNotice( response.message );
 			} );
-	}, [ url, noticeOperations ] );
+	}, [ url, displayedTweetstormNotice, noticeOperations ] );
 
 	/**
 	 * If the current tweet has produced blocks, replace the current block with those blocks.
@@ -105,7 +115,7 @@ export default function useGatherTweetstorm( { url, noticeOperations, onReplace 
 				} )
 			);
 
-			const verifiedConnection = connections.some( el => {
+			const verifiedConnection = some( connections, el => {
 				if ( 'twitter' !== el.service_name ) {
 					return false;
 				}

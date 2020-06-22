@@ -2,15 +2,16 @@
  * External dependencies
  */
 import { addFilter } from '@wordpress/hooks';
-import { useState, useEffect } from '@wordpress/element';
+import { useEffect } from '@wordpress/element';
 
 /**
  * Internal dependencies
  */
 import useGatherTweetstorm from './use-gather-tweetstorm';
-import { withNotices, Button } from '@wordpress/components';
+import { withNotices, Button, ToolbarButton, ToolbarGroup } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import './editor.scss';
+import { BlockControls } from '@wordpress/editor';
 
 /**
  * Intercepts the registration of the Core Twitter embed block, and adds functionality
@@ -29,19 +30,24 @@ const addTweetstormToTweets = blockSettings => {
 
 	const { edit: CoreTweetEdit } = blockSettings;
 
+	blockSettings.attributes.displayedTweetstormNotice = {
+		type: 'boolean',
+	};
+
 	return {
 		...blockSettings,
 		edit: withNotices( props => {
-			const { noticeOperations, noticeUI, onReplace } = props;
-			const [ messageDisplayed, setMessageDisplayed ] = useState( false );
+			const { noticeOperations, noticeUI, onReplace, setAttributes } = props;
+			const { url, displayedTweetstormNotice } = props.attributes;
 			const { blocks, unleashStorm } = useGatherTweetstorm( {
-				url: props.attributes.url,
+				url,
+				displayedTweetstormNotice,
 				onReplace,
 			} );
 
 			useEffect( () => {
-				if ( blocks.length > 1 && ! messageDisplayed ) {
-					setMessageDisplayed( true );
+				if ( blocks.length > 1 && ! displayedTweetstormNotice ) {
+					setAttributes( { displayedTweetstormNotice: true } );
 
 					noticeOperations.removeAllNotices();
 					noticeOperations.createNotice( {
@@ -65,11 +71,29 @@ const addTweetstormToTweets = blockSettings => {
 						),
 					} );
 				}
-			}, [ blocks.length, messageDisplayed, setMessageDisplayed, noticeOperations, unleashStorm ] );
+			}, [
+				blocks.length,
+				displayedTweetstormNotice,
+				noticeOperations,
+				unleashStorm,
+				setAttributes,
+			] );
 
 			return (
 				<>
 					{ noticeUI }
+					<BlockControls>
+						<ToolbarGroup>
+							<ToolbarButton
+								className="gathering-tweetstorms__embed-toolbar-button"
+								onClick={ () => setAttributes( { displayedTweetstormNotice: false } ) }
+								title={ __( 'Check if this is the start of a Twitter thread.', 'jetpack' ) }
+								showTooltip={ true }
+							>
+								{ __( 'Unroll', 'jetpack' ) }
+							</ToolbarButton>
+						</ToolbarGroup>
+					</BlockControls>
 					<CoreTweetEdit { ...props } />
 				</>
 			);
