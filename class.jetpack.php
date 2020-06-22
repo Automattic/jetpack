@@ -3355,10 +3355,10 @@ p {
 			$tracking = new Tracking();
 			$tracking->record_user_event( 'disconnect_site', array() );
 
-			$connection->disconnect_site_wpcom();
+			$connection->disconnect_site_wpcom( true );
 		}
 
-		$connection->delete_all_connection_tokens();
+		$connection->delete_all_connection_tokens( true );
 		Jetpack_IDC::clear_all_idc_options();
 
 		if ( $update_activated_state ) {
