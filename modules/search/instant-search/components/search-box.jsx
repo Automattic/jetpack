@@ -84,7 +84,7 @@ const SearchBox = props => {
 						</span>
 					</div>
 				) }
-				<SearchSort onChange={ props.onChangeSort } value={ props.sort } />
+				{ props.enableSort && <SearchSort onChange={ props.onChangeSort } value={ props.sort } /> }
 			</div>
 		</Fragment>
 	);

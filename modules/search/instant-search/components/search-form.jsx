@@ -59,6 +59,7 @@ class SearchForm extends Component {
 				<div className="jetpack-instant-search__search-form">
 					<SearchBox
 						enableFilters={ this.hasSelectableFilters() || this.hasPreselectedFilters() }
+						enableSort={ this.props.enableSort }
 						isVisible={ this.props.isVisible }
 						onChangeQuery={ this.onChangeQuery }
 						onChangeSort={ this.onChangeSort }

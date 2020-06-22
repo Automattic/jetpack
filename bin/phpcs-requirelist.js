@@ -48,6 +48,7 @@ module.exports = [
 	'modules/search/class-jetpack-search-customize.php',
 	'modules/search/class-jetpack-search-options.php',
 	'modules/search/class.jetpack-search.php',
+	'modules/search/customize-controls/class-label-control.php',
 	'modules/sharedaddy.php',
 	'modules/shortcodes/',
 	'modules/sitemaps/sitemaps.php',
