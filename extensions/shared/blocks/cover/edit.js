@@ -8,8 +8,8 @@ import { createHigherOrderComponent } from '@wordpress/compose';
 /**
  * Internal dependencies
  */
-import { isUpgradable, isVideoFile } from "./utils";
-import { CoverMediaProvider, JetpackCoverUpgradeNudge } from "./components";
+import { isUpgradable, isVideoFile } from './utils';
+import { CoverMediaProvider, JetpackCoverUpgradeNudge } from './components';
 
 export default createHigherOrderComponent(
 	BlockEdit => props => {

@@ -8,7 +8,7 @@ import { createContext } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import UpgradeNudge from "../../components/upgrade-nudge";
+import UpgradeNudge from '../../components/upgrade-nudge';
 
 /**
  * Nudge shows when the user tries to upload a video file.
