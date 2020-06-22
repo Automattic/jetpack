@@ -80,6 +80,8 @@ class Manager {
 			$manager->verify_xml_rpc_signature()
 		);
 
+		$manager->error_handler = Error_Handler::get_instance();
+
 		if ( $manager->is_active() ) {
 			add_filter( 'xmlrpc_methods', array( $manager, 'public_xmlrpc_methods' ) );
 		} else {
@@ -322,8 +324,7 @@ class Manager {
 				 */
 				do_action( 'jetpack_verify_signature_error', $this->xmlrpc_verification );
 
-				$error_handler = new Error_Handler();
-				$error_handler->report_error( $this->xmlrpc_verification );
+				Error_Handler::get_instance()->report_error( $this->xmlrpc_verification );
 
 			}
 		}
