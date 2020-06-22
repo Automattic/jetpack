@@ -32,7 +32,7 @@ export default class FormInputValidation extends React.Component {
 		return (
 			<div className={ classes }>
 				<span>
-					<Gridicon size={ 24 } icon={ this.props.icon ? this.props.icon : icon } />{' '}
+					<Gridicon size={ 24 } icon={ this.props.icon ? this.props.icon : icon } />{ ' ' }
 					{ this.props.text }
 				</span>
 			</div>

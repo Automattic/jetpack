@@ -226,7 +226,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 					<div className="jp-form-input-with-prefix" key="verification_service_google">
 						<span>{ __( 'Google' ) }</span>
 						<div className="jp-form-site-verification-verified">
-							<Gridicon icon="checkmark-circle" size={ 20 } />{' '}
+							<Gridicon icon="checkmark-circle" size={ 20 } />{ ' ' }
 							<span>{ __( 'Your site is verified with Google' ) }</span>
 						</div>
 						<Button
@@ -257,7 +257,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 												),
 											},
 										}
-									) }{' '}
+									) }{ ' ' }
 									{ __(
 										'Google will email about certain events that occur with your site, ' +
 											'including indications that your website has been {{a1}}hacked{{/a1}}, ' +

@@ -42,7 +42,7 @@ const getTitle = ( customTitle, planName ) => {
  * @param {string|boolean} subtitle - Subtitle to translate, or False.
  * @returns {string|null} Nudge description, or Null.
  */
-const getSubtitle = ( subtitle ) => {
+const getSubtitle = subtitle => {
 	if ( subtitle === false ) {
 		return null;
 	}
