@@ -51,7 +51,7 @@ export default function WhatsAppButtonEdit( { attributes, setAttributes, classNa
 	const getCountryCode = useCallback( async () => {
 		setAttributes( { countryCode: '1' } );
 
-		const geoFetch = await fetch( 'http://ip-api.com/json/?fields=countryCode' )
+		const geoFetch = await fetch( 'https://public-api.wordpress.com/geo/' )
 			.then( response => {
 				if ( ! response.ok ) {
 					return false;
@@ -67,7 +67,7 @@ export default function WhatsAppButtonEdit( { attributes, setAttributes, classNa
 			const geo = await geoFetch.json();
 
 			countryCodes.forEach( item => {
-				if ( item.code === geo.countryCode ) {
+				if ( item.code === geo.country_short ) {
 					setAttributes( { countryCode: item.value } );
 				}
 			} );
