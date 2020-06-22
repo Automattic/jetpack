@@ -78,6 +78,26 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 				),
 			)
 		);
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/products',
+			array(
+				array(
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => array( $this, 'create_products' ),
+					'permission_callback' => array( $this, 'get_status_permission_check' ),
+					'args'                => array(
+						'type' => array(
+							'type'              => 'string',
+							'required'          => true,
+							'validate_callback' => function( $param ) {
+								return in_array( $param, array( 'donation' ), true );
+							},
+						),
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -130,6 +150,50 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 					'price'    => $request['price'],
 					'currency' => $request['currency'],
 					'interval' => $request['interval'],
+				)
+			);
+			if ( is_wp_error( $response ) ) {
+				if ( $response->get_error_code() === 'missing_token' ) {
+					return new WP_Error( 'missing_token', __( 'Please connect your user account to WordPress.com', 'jetpack' ), 404 );
+				}
+				return new WP_Error( 'wpcom_connection_error', __( 'Could not connect to WordPress.com', 'jetpack' ), 404 );
+			}
+			$data = isset( $response['body'] ) ? json_decode( $response['body'], true ) : null;
+			// If endpoint returned error, we have to detect it.
+			if ( 200 !== $response['response']['code'] && $data['code'] && $data['message'] ) {
+				return new WP_Error( $data['code'], $data['message'], 401 );
+			}
+			return $data;
+		}
+
+		return $request;
+	}
+
+	/**
+	 * Automatically generate products according to type.
+	 *
+	 * @param object $request - request passed from WP.
+	 *
+	 * @return array|WP_Error
+	 */
+	public function create_products( $request ) {
+		if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
+			jetpack_require_lib( 'memberships' );
+			$connected_destination_account_id = Jetpack_Memberships::get_connected_account_id();
+			if ( ! $connected_destination_account_id ) {
+				return new WP_Error( 'no-destination-account', __( 'Please set up a Stripe account for this site first', 'jetpack' ) );
+			}
+			return Memberships_Product::generate_default_products( get_current_blog_id(), $request['type'], $connected_destination_account_id );
+		} else {
+			$blog_id  = Jetpack_Options::get_option( 'id' );
+			$response = Client::wpcom_json_api_request_as_user(
+				"/sites/$blog_id/{$this->rest_base}/products",
+				'v2',
+				array(
+					'method' => 'POST',
+				),
+				array(
+					'type' => $request['type'],
 				)
 			);
 			if ( is_wp_error( $response ) ) {
