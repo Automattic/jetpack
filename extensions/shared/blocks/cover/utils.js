@@ -1,13 +1,14 @@
 /**
  * External dependencies
  */
-import { pickBy, flatten, map, keys, values } from 'lodash';
+import { flatten, map, keys, values } from 'lodash';
 
 /**
  * Internal dependencies
  */
 import { isSimpleSite } from '../../site-type-utils';
 import getJetpackExtensionAvailability from '../../get-jetpack-extension-availability';
+import getAllowedMimeTypesBySite, { getAllowedVideoTypesByType } from "../../get-allowed-mime-types";
 
 /**
  * Check if the given file is a video.
@@ -20,13 +21,12 @@ export function isVideoFile( file ) {
 		return false;
 	}
 
-	// Pick up allowed mime types from the window object.
-	const allowedMimeTypes = window?.Jetpack_Editor_Initial_State?.allowedMimeTypes;
+	const allowedMimeTypes = getAllowedMimeTypesBySite();
 	if ( ! allowedMimeTypes ) {
 		return false;
 	}
 
-	let allowedVideoMimeTypes = pickBy( allowedMimeTypes, ( type ) => /^video\//.test( type ) );
+	let allowedVideoMimeTypes = getAllowedVideoTypesByType( 'video' );
 	const allowedVideoFileExtensions = flatten( map( keys( allowedVideoMimeTypes ), ( ext ) => ext.split( '|' ) ) );
 
 	if ( typeof file === 'string' ) {
@@ -34,9 +34,8 @@ export function isVideoFile( file ) {
 		return fileExtension && allowedVideoFileExtensions.includes( fileExtension );
 	}
 
-	allowedVideoMimeTypes = values( allowedVideoMimeTypes );
-
 	if ( typeof file === 'object' ) {
+		allowedVideoMimeTypes = values( allowedVideoMimeTypes );
 		return file.type && allowedVideoMimeTypes.includes( file.type );
 	}
 
