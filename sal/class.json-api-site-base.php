@@ -79,7 +79,19 @@ abstract class SAL_Site {
 
 	abstract public function get_locale();
 
+	/**
+	 * The flag indicates that the site has Jetpack installed
+	 *
+	 * @return bool
+	 */
 	abstract public function is_jetpack();
+
+	/**
+	 * The flag indicates that the site is connected to WP.com via Jetpack Connection
+	 *
+	 * @return bool
+	 */
+	abstract public function is_jetpack_connection();
 
 	abstract public function get_jetpack_modules();
 
