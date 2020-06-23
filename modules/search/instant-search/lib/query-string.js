@@ -2,7 +2,7 @@
  * External dependencies
  */
 import 'url-polyfill';
-import { decode, encode } from 'qss';
+import { encode } from 'qss';
 
 /**
  * Internal dependencies
@@ -15,11 +15,12 @@ import {
 	VALID_SORT_KEYS,
 } from './constants';
 import { getFilterKeys, getUnselectableFilterKeys, mapFilterToFilterKey } from './filters';
+import { decode } from './query-string-decode';
 
 const knownResultFormats = [ RESULT_FORMAT_MINIMAL, RESULT_FORMAT_PRODUCT ];
 
 function getQuery() {
-	return decode( window.location.search.substring( 1 ) );
+	return decode( window.location.search.substring( 1 ), false, false );
 }
 
 function pushQueryString( queryString, shouldEmitEvent = true ) {
@@ -47,6 +48,7 @@ export function setSearchQuery( searchValue ) {
 	} else {
 		query.s = searchValue;
 	}
+
 	pushQueryString( encode( query ) );
 }
 
