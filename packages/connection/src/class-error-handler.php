@@ -203,6 +203,15 @@ class Error_Handler {
 	}
 
 	/**
+	 * Delete the verified errors stored in the database
+	 *
+	 * @return boolean True, if option is successfully deleted. False on failure.
+	 */
+	public function delete_verified_errors() {
+		return delete_option( self::STORED_VERIFIED_ERRORS_OPTION );
+	}
+
+	/**
 	 * Verifies an error based on the nonce
 	 *
 	 * Receives a nonce and finds the related error. If error is found, move it to the verified errors option.
@@ -282,12 +291,13 @@ class Error_Handler {
 		// TODO: decrypt data and confirm it came from WPCOM.
 
 		$error = $this->get_error_by_nonce( $request['nonce'] );
+
 		if ( $error ) {
 			$this->verify_error( $error );
 		}
 
 		// We don't give any useful information away.
-		return true;
+		return new \WP_REST_Response( true, 200 );
 
 	}
 
