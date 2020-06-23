@@ -119,7 +119,7 @@ function render_player( $player_data, $attributes ) {
 	);
 
 	// Generate a unique id for the block instance.
-	$instance_id             = wp_unique_id( 'jetpack-podcast-player-block-' );
+	$instance_id             = wp_unique_id( 'jetpack-podcast-player-block-' . get_the_ID() . '-' );
 	$player_data['playerId'] = $instance_id;
 
 	// Generate object to be used as props for PodcastPlayer.
@@ -182,15 +182,6 @@ function render_player( $player_data, $attributes ) {
 		<script type="application/json"><?php echo wp_json_encode( $player_props ); ?></script>
 		<?php endif; ?>
 	</div>
-	<?php if ( ! $is_amp ) : ?>
-	<script>
-		( function( instanceId ) {
-			document.getElementById( instanceId ).classList.remove( 'is-default' );
-			window.jetpackPodcastPlayers=(window.jetpackPodcastPlayers||[]);
-			window.jetpackPodcastPlayers.push( instanceId );
-		} )( <?php echo wp_json_encode( $instance_id ); ?> );
-	</script>
-	<?php endif; ?>
 	<?php
 	/**
 	 * Enqueue necessary scripts and styles.

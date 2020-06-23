@@ -22,12 +22,14 @@ import applyFallbackStyles from './apply-fallback-styles';
 import ButtonBorderPanel from './button-border-panel';
 import ButtonColorsPanel from './button-colors-panel';
 import { IS_GRADIENT_AVAILABLE } from './constants';
+import usePassthroughAttributes from './use-passthrough-attributes';
 import './editor.scss';
 
 function ButtonEdit( {
 	attributes,
 	backgroundColor,
 	className,
+	clientId,
 	fallbackBackgroundColor,
 	fallbackTextColor,
 	setAttributes,
@@ -36,6 +38,8 @@ function ButtonEdit( {
 	textColor,
 } ) {
 	const { borderRadius, element, placeholder, text } = attributes;
+
+	usePassthroughAttributes( { attributes, clientId, setAttributes } );
 
 	const onChange = value => {
 		// TODO: Remove `replace` once minimum Gutenberg version is 8.0 (to fully support `disableLineBreaks`)
@@ -78,7 +82,7 @@ function ButtonEdit( {
 	return (
 		<div className={ blockClasses }>
 			<RichText
-				allowedFormats={ [] }
+				allowedFormats={ 'input' === element ? [] : undefined }
 				className={ buttonClasses }
 				disableLineBreaks={ 'input' === element }
 				onChange={ onChange }

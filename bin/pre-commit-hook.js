@@ -4,7 +4,7 @@
 const execSync = require( 'child_process' ).execSync;
 const spawnSync = require( 'child_process' ).spawnSync;
 const chalk = require( 'chalk' );
-const whitelist = require( './phpcs-whitelist' );
+const requirelist = require( './phpcs-requirelist' );
 const fs = require( 'fs' );
 let exitCode = 0;
 
@@ -24,10 +24,10 @@ function parseGitDiffToPathArray( command ) {
  * Provides filter to determine which PHP files to run through phpcs.
  *
  * @param {String} file File name of php file modified.
- * @return {boolean}        If the file matches the whitelist.
+ * @return {boolean}        If the file matches the requirelist.
  */
 function phpcsFilesToFilter( file ) {
-	if ( -1 !== whitelist.findIndex( filePath => file.startsWith( filePath ) ) ) {
+	if ( -1 !== requirelist.findIndex( filePath => file.startsWith( filePath ) ) ) {
 		return true;
 	}
 
@@ -38,7 +38,7 @@ function phpcsFilesToFilter( file ) {
  * Provides filter to determine which JS files to run through Prettify and linting.
  *
  * @param {String} file File name of js file modified.
- * @return {boolean}        If the file matches the whitelist.
+ * @return {boolean}        If the file matches the requirelist.
  */
 function filterJsFiles( file ) {
 	return [ '.js', '.json', '.jsx' ].some( extension => file.endsWith( extension ) );
@@ -226,7 +226,7 @@ if ( phpcsResult && phpcsResult.status ) {
 			'they will be reported only after these issues are resolved.'
 	);
 
-	// If we get here, whitelisted files have failed PHPCS. Let's return early and avoid the duplicate information.
+	// If we get here, required files have failed PHPCS. Let's return early and avoid the duplicate information.
 	exit( 1 );
 }
 

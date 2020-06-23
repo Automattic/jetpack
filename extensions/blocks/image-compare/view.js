@@ -309,6 +309,9 @@ domReady( function() {
 				this.imgAfter.loaded === true
 			) {
 				this.wrapper = document.querySelector( this.selector );
+				if ( ! this.wrapper ) {
+					return;
+				}
 				addClass( this.wrapper, 'juxtapose' );
 
 				this.wrapper.style.width = this.imgBefore.image.naturalWidth;
@@ -475,6 +478,11 @@ domReady( function() {
 		const w = element;
 
 		const images = w.querySelectorAll( 'img' );
+		// Bail if two images not found, they are required to build slider.
+		// This potentially happens with different load states in React.
+		if ( images.length < 2 ) {
+			return;
+		}
 
 		const options = {};
 		// don't set empty string into options, that's a false false.
@@ -523,7 +531,7 @@ domReady( function() {
 		);
 	};
 
-	//Enable HTML Implementation
+	// Scan page and add juxtapose sliders.
 	juxtapose.scanPage = function() {
 		const elements = document.querySelectorAll( '.juxtapose' );
 		for ( let i = 0; i < elements.length; i++ ) {
@@ -534,5 +542,6 @@ domReady( function() {
 	juxtapose.JXSlider = JXSlider;
 	window.juxtapose = juxtapose;
 
+	// Required for front-end.
 	juxtapose.scanPage();
 } );

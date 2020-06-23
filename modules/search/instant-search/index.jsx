@@ -27,7 +27,7 @@ const injectSearchApp = () => {
 			initialOverlayOptions={ window[ SERVER_OBJECT_NAME ].overlayOptions }
 			// NOTE: initialShowResults is only used in the customizer. See lib/customize.js.
 			initialShowResults={ window[ SERVER_OBJECT_NAME ].showResults }
-			initialSort={ determineDefaultSort( window[ SERVER_OBJECT_NAME ].sort, getSearchQuery() ) }
+			initialSort={ determineDefaultSort( window[ SERVER_OBJECT_NAME ].defaultSort ) }
 			isSearchPage={ getSearchQuery() !== '' }
 			options={ window[ SERVER_OBJECT_NAME ] }
 			themeOptions={ getThemeOptions( window[ SERVER_OBJECT_NAME ] ) }

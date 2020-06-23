@@ -51,7 +51,7 @@ describe( 'getAttributesFromEmbedCode', () => {
 			}
 		);
 	} );
-	
+
 	test( 'URL without http', () => {
 		expect(
 			getAttributesFromEmbedCode( 'calendly.com/wordpresscom/jetpack-block-example' )
@@ -89,9 +89,13 @@ describe( 'getAttributesFromEmbedCode', () => {
 		).toEqual(
 			{
 				"style": "link",
-				"submitButtonText": "Schedule time with me",
-				"customBackgroundButtonColor": "#00a2ff",
-				"customTextButtonColor": "#ffffff",
+				"buttonAttributes": {
+					"text": "Schedule time with me",
+					"backgroundColor": undefined,
+					"customBackgroundColor": "#00a2ff",
+					"textColor": undefined,
+					"customTextColor": "#ffffff",
+				},
 				"url": "https://calendly.com/wordpresscom/jetpack-block-example"
 			}
 		);
@@ -103,7 +107,7 @@ describe( 'getAttributesFromEmbedCode', () => {
 		).toEqual(
 			{
 				"style": "link",
-				"submitButtonText": "Schedule time with me",
+				"buttonAttributes": { "text": "Schedule time with me" },
 				"url": "https://calendly.com/wordpresscom/jetpack-block-example"
 			}
 		);
@@ -130,11 +134,15 @@ describe( 'getAttributesFromEmbedCode', () => {
 		).toEqual(
 			{
 				"backgroundColor": "c51414",
-				"customBackgroundButtonColor": "#000609",
-				"customTextButtonColor": "#b50000",
 				"primaryColor": "1d73a4",
 				"style": "link",
-				"submitButtonText": "Schedule some time with me",
+				"buttonAttributes": {
+					"text": "Schedule some time with me",
+					"backgroundColor": undefined,
+					"customBackgroundColor": "#000609",
+					"textColor": undefined,
+					"customTextColor": "#b50000",
+				},
 				"textColor": "2563ca",
 				"url": "https://calendly.com/wordpresscom/jetpack-block-example"
 			}
@@ -149,7 +157,7 @@ describe( 'getAttributesFromEmbedCode', () => {
 				"backgroundColor": "e32424",
 				"primaryColor": "0e425f",
 				"style": "link",
-				"submitButtonText": "Schedule some time with me",
+				"buttonAttributes": { "text": "Schedule some time with me" },
 				"textColor": "2a74ef",
 				"url": "https://calendly.com/wordpresscom/jetpack-block-example"
 			}

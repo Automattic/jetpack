@@ -6,7 +6,6 @@ import { isBlobURL } from '@wordpress/blob';
 import {
 	BaseControl,
 	Button,
-	Disabled,
 	IconButton,
 	PanelBody,
 	SandBox,
@@ -51,9 +50,30 @@ const VideoPressEdit = CoreVideoEdit =>
 				media: null,
 				isFetchingMedia: false,
 				fallback: false,
+				interactive: false,
 			};
 			this.posterImageButton = createRef();
 		}
+
+		static getDerivedStateFromProps( nextProps, state ) {
+			if ( ! nextProps.isSelected && state.interactive ) {
+				// We only want to change this when the block is not selected, because changing it when
+				// the block becomes selected makes the overlap disappear too early. Hiding the overlay
+				// happens on mouseup when the overlay is clicked.
+				return { interactive: false };
+			}
+
+			return null;
+		}
+
+		hideOverlay = () => {
+			// This is called onMouseUp on the overlay. We can't respond to the `isSelected` prop
+			// changing, because that happens on mouse down, and the overlay immediately disappears,
+			// and the mouse event can end up in the preview content. We can't use onClick on
+			// the overlay to hide it either, because then the editor misses the mouseup event, and
+			// thinks we're multi-selecting blocks.
+			this.setState( { interactive: true } );
+		};
 
 		componentDidMount() {
 			const { guid } = this.props.attributes;
@@ -160,7 +180,7 @@ const VideoPressEdit = CoreVideoEdit =>
 				preview,
 				setAttributes,
 			} = this.props;
-			const { fallback, isFetchingMedia } = this.state;
+			const { fallback, isFetchingMedia, interactive } = this.state;
 			const { autoplay, caption, controls, loop, muted, poster, preload } = attributes;
 
 			const videoPosterDescription = `video-block__poster-image-description-${ instanceId }`;
@@ -276,21 +296,31 @@ const VideoPressEdit = CoreVideoEdit =>
 
 			const { html, scripts } = preview;
 
+			// Disabled because the overlay div doesn't actually have a role or functionality
+			// as far as the user is concerned. We're just catching the first click so that
+			// the block can be selected without interacting with the embed preview that the overlay covers.
+			/* eslint-disable jsx-a11y/no-static-element-interactions */
 			return (
 				<Fragment>
 					{ blockSettings }
 					<BlockFigureWrapper
 						className={ classnames( className, 'wp-block-embed', 'is-type-video' ) }
 					>
+						<div className="wp-block-embed__wrapper">
+							<SandBox html={ html } scripts={ scripts } />
+						</div>
+
 						{ /*
-							Disable the video player so the user clicking on it won't play the
+							Disable the video player when the block isn't selected,
+							so the user clicking on it won't play the
 							video when the controls are enabled.
-						*/ }
-						<Disabled>
-							<div className="wp-block-embed__wrapper">
-								<SandBox html={ html } scripts={ scripts } />
-							</div>
-						</Disabled>
+						*/
+						! interactive && (
+							<div
+								className="block-library-embed__interactive-overlay"
+								onMouseUp={ this.hideOverlay }
+							/>
+						) }
 						{ ( ! RichText.isEmpty( caption ) || isSelected ) && (
 							<RichText
 								tagName="figcaption"
