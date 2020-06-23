@@ -9,6 +9,17 @@ namespace Automattic\Jetpack\Connection;
 
 /**
  * The Jetpack Connection Errors that handles errors
+ *
+ * This class handles the following workflow:
+ *
+ * 1. A XML-RCP request with an invalid signature triggers a error
+ * 2. Applies a gate to only process each error code once an hour to avoid overflow
+ * 3. It stores the error on the database, but we don't know yet if this is a valid error, because
+ *    we can't confirm it came from WP.com.
+ * 4. It encrypts the error details and send it to thw wp.com server
+ * 5. wp.com checks it and, if valid, sends a new request back to this site using the verify_xml_rpc_error REST endpoint
+ * 6. This endpoint add this error to the Verified errors in the database
+ * 7. Triggers a workflow depending on the error (display user an error message, do some self healing, etc.)
  */
 class Error_Handler {
 
@@ -68,7 +79,10 @@ class Error_Handler {
 	 */
 	public function report_error( \WP_Error $error, $force = false ) {
 		if ( $this->should_report_error( $error ) || $force ) {
-			$this->store_error( $error );
+			$stored_error = $this->store_error( $error );
+			if ( $stored_error ) {
+				$this->send_error_to_wpcom( $stored_error );
+			}
 		}
 	}
 
@@ -105,10 +119,43 @@ class Error_Handler {
 	 * Stores the error in the database so we know there is an issue and can inform the user
 	 *
 	 * @param \WP_Error $error the error object.
-	 * @return boolean False if stored errors were not updated and true if stored errors were updated.
+	 * @return boolean|array False if stored errors were not updated and the error array if it was successfully stored.
 	 */
 	public function store_error( \WP_Error $error ) {
+
 		$stored_errors = $this->get_stored_errors();
+		$error_array   = $this->wp_error_to_array( $error );
+		$error_code    = $error->get_error_code();
+		$user_id       = $error_array['user_id'];
+
+		if ( ! isset( $stored_errors[ $error_code ] ) || ! is_array( $stored_errors[ $error_code ] ) ) {
+			$stored_errors[ $error_code ] = array();
+		}
+
+		$stored_errors[ $error_code ][ $user_id ] = $error_array;
+
+		// Let's store a maximum of 5 different user ids for each error code.
+		if ( count( $stored_errors[ $error_code ] ) > 5 ) {
+			// array_shift will destroy keys here because they are numeric, so manually remove first item.
+			$keys = array_keys( $stored_errors[ $error_code ] );
+			unset( $stored_errors[ $error_code ][ $keys[0] ] );
+		}
+
+		if ( update_option( self::STORED_ERRORS_OPTION, $stored_errors ) ) {
+			return $error_array;
+		}
+
+		return false;
+
+	}
+
+	/**
+	 * Converts a WP_Error object in the array representation we store in the database
+	 *
+	 * @param \WP_Error $error the error object.
+	 * @return boolean|array False if error is invalid or the error array
+	 */
+	public function wp_error_to_array( \WP_Error $error ) {
 
 		$data       = $error->get_error_data();
 		$error_code = $error->get_error_code();
@@ -125,11 +172,7 @@ class Error_Handler {
 
 		$user_id = $this->get_user_id_from_token( $data['token'] );
 
-		if ( ! isset( $stored_errors[ $error_code ] ) || ! is_array( $stored_errors[ $error_code ] ) ) {
-			$stored_errors[ $error_code ] = array();
-		}
-
-		$stored_errors[ $error_code ][ $user_id ] = array(
+		$error_array = array(
 			'error_code'    => $error_code,
 			'user_id'       => $user_id,
 			'error_message' => $error->get_error_message(),
@@ -138,14 +181,23 @@ class Error_Handler {
 			'nonce'         => wp_generate_password( 10, false ),
 		);
 
-		// Let's store a maximum of 5 different user ids for each error code.
-		if ( count( $stored_errors[ $error_code ] ) > 5 ) {
-			// array_shift will destroy keys here because they are numeric, so manually remove first item.
-			$keys = array_keys( $stored_errors[ $error_code ] );
-			unset( $stored_errors[ $error_code ][ $keys[0] ] );
-		}
+		return $error_array;
 
-		return update_option( self::STORED_ERRORS_OPTION, $stored_errors );
+	}
+
+	/**
+	 * Sends the error to WP.com to be verified
+	 *
+	 * @param array $error_array The array representation of the error as it is stored in the database.
+	 * @return void
+	 */
+	public function send_error_to_wpcom( $error_array ) {
+
+		$blog_id = \Jetpack_Options::get_option( 'id' );
+
+		// todo encrypt message.
+		wp_remote_post( "https://wordpress.com/sites/{$blog_id}/jetpack-report-error/", $error_array );
+
 	}
 
 	/**
@@ -173,6 +225,8 @@ class Error_Handler {
 	 * @return array $errors
 	 */
 	public function get_stored_errors() {
+		// todo: add object cache.
+		// todo: garbage collector, delete old unverified errors based on timestamp.
 		$stored_errors = get_option( self::STORED_ERRORS_OPTION );
 		if ( ! is_array( $stored_errors ) ) {
 			$stored_errors = array();
@@ -212,7 +266,7 @@ class Error_Handler {
 	}
 
 	/**
-	 * Verifies an error based on the nonce
+	 * Gets an error based on the nonce
 	 *
 	 * Receives a nonce and finds the related error. If error is found, move it to the verified errors option.
 	 *
