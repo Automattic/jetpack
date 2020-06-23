@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-06-08 15:57:24+0000\n"
+"PO-Revision-Date: 2020-06-16 14:25:07+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -213,7 +213,7 @@ msgstr "ਵਰਗ:"
 
 #: widgets/tag-cloud-widget.php:159
 msgid "The tag cloud will not be displayed since there are no taxonomies that support the tag cloud widget."
-msgstr ""
+msgstr "ਟੈਗਾਂ ਦਾ ਬੱਦਲ ਦਿਖਾਇਆ ਨਹੀਂ ਜਾਵੇਗਾ ਕਿਉਂਕਿ ਟੈਗ ਬੱਦਲ ਵਿਜਟ ਨੂੰ ਸਮਰਥਨ ਕਰਦਾ ਕੋਈ ਵਰਗੀਕਰਨ ਨਹੀਂ ਹੈ।"
 
 #: widgets/tag-cloud-widget.php:152
 msgid "Show tag counts"

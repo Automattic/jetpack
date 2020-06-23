@@ -13,11 +13,11 @@ msgstr ""
 
 #: widgets/instagram/instagram.php:357
 msgid "In order to continue using this widget you must reconnect to Instagram."
-msgstr ""
+msgstr "Para poder seguir utilizando este widget, debes volver a conectarte a Instagram."
 
 #: widgets/instagram/instagram.php:265
 msgid "In order to continue using this widget you must <a href=\"%s\">reconnect to Instagram</a>."
-msgstr ""
+msgstr "Para poder seguir utilizando este widget, debes <a href=\"%s\">volver a conectarte a Instagram</a>."
 
 #: private-site/access-denied-preview-login-template.php:61
 msgid "This site is private. You need to log in to the preview to see it."

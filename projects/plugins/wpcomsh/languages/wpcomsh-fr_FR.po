@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-06-10 07:37:48+0000\n"
+"PO-Revision-Date: 2020-06-16 15:54:04+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -13,11 +13,11 @@ msgstr ""
 
 #: widgets/instagram/instagram.php:357
 msgid "In order to continue using this widget you must reconnect to Instagram."
-msgstr ""
+msgstr "Pour continuer à utiliser ce widget, vous devez vous reconnecter à Instagram."
 
 #: widgets/instagram/instagram.php:265
 msgid "In order to continue using this widget you must <a href=\"%s\">reconnect to Instagram</a>."
-msgstr ""
+msgstr "Pour continuer à utiliser ce widget, vous devez vous <a href=\"%s\">reconnecter à Instagram</a>."
 
 #: private-site/access-denied-preview-login-template.php:61
 msgid "This site is private. You need to log in to the preview to see it."

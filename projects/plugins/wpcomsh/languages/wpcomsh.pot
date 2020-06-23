@@ -1,6 +1,6 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR Automattic
-# This file is distributed under the same license as the WP.com Site Helper package.
+# This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 #, fuzzy
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WP.com Site Helper\n"
 "Report-Msgid-Bugs-To: help@wordpress.com\n"
-"POT-Creation-Date: 2020-06-12 16:13-0700\n"
+"POT-Creation-Date: 2020-06-22 14:35+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -152,12 +152,21 @@ msgid ""
 "obtain privacy policy information for non-participating plugins separately."
 msgstr ""
 
-#: private-site/access-denied-coming-soon-template.php:140
-msgid "Something new is coming."
+#: private-site/access-denied-coming-soon-template.php:43
+msgid "Coming Soon"
 msgstr ""
 
-#: private-site/access-denied-coming-soon-template.php:142
-msgid "Log in here"
+#: private-site/access-denied-coming-soon-template.php:49
+msgid "Build a website. Sell your stuff. Write a blog. And so much more."
+msgstr ""
+
+#: private-site/access-denied-coming-soon-template.php:52
+#: private-site/access-denied-private-site-template.php:45
+msgid "Log in"
+msgstr ""
+
+#: private-site/access-denied-coming-soon-template.php:53
+msgid "Start your website"
 msgstr ""
 
 #: private-site/access-denied-preview-login-template.php:58
@@ -177,10 +186,6 @@ msgstr ""
 
 #: private-site/access-denied-private-site-template.php:45
 msgid "Switch user"
-msgstr ""
-
-#: private-site/access-denied-private-site-template.php:45
-msgid "Log in"
 msgstr ""
 
 #: private-site/logged-in-banner.php:52
@@ -635,7 +640,8 @@ msgid ""
 "\">Posts I Like</a> widget will display them."
 msgstr ""
 
-#: widgets/recent-comments-widget.php:29 widgets/recent-comments-widget.php:146
+#: widgets/recent-comments-widget.php:29
+#: widgets/recent-comments-widget.php:146
 msgid "Recent Comments"
 msgstr ""
 

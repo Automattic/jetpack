@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2020-03-27 11:20:12+0000\n"
+"PO-Revision-Date: 2020-06-16 14:10:31+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -217,7 +217,7 @@ msgstr "Nun s'amosará la nube d'etiquetes porque nun hai taxonomíes que sofite
 
 #: widgets/tag-cloud-widget.php:152
 msgid "Show tag counts"
-msgstr ""
+msgstr "Amosar el contador d'etiquetes"
 
 #: widgets/tag-cloud-widget.php:139
 msgid "Maximum number of tags displayed"
@@ -237,7 +237,7 @@ msgstr "Nube d'etiquetes"
 
 #: widgets/tag-cloud-widget.php:18
 msgid "A cloud of your most used tags."
-msgstr ""
+msgstr "Una ñube de les etiquetes que más uses."
 
 #: widgets/instagram/instagram.php:245
 msgid "New images may take up to %d minutes to show up on your site."
@@ -513,7 +513,7 @@ msgstr ""
 
 #: widgets/reservations.php:55
 msgid "Show:"
-msgstr ""
+msgstr "Amosar:"
 
 #: widgets/reservations.php:50
 msgid "E-mail Subject:"
