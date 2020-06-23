@@ -65,7 +65,12 @@ class Classes_Handler {
 	 * @return Array An array of plugin names and classmap paths.
 	 */
 	public function create_classmap_path_array( $plugin ) {
-		$plugin_path = trailingslashit( WP_PLUGIN_DIR ) . $plugin;
+		if ( 'jetpack' === $plugin ) {
+			$plugin_path = JETPACK__PLUGIN_DIR;
+		} else {
+			$plugin_path = trailingslashit( WP_PLUGIN_DIR ) . $plugin;
+		}
+
 		return trailingslashit( $plugin_path ) . 'vendor/composer/jetpack_autoload_classmap.php';
 	}
 

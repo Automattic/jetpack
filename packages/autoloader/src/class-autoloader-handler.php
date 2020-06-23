@@ -57,7 +57,12 @@ class Autoloader_Handler {
 		$active_plugins = $this->plugins_handler->get_all_active_plugins();
 
 		foreach ( $active_plugins as $plugin ) {
-			$plugin_path   = trailingslashit( WP_PLUGIN_DIR ) . $plugin;
+			if ( 'jetpack' === $plugin ) {
+				$plugin_path = JETPACK__PLUGIN_DIR;
+			} else {
+				$plugin_path = trailingslashit( WP_PLUGIN_DIR ) . $plugin;
+			}
+
 			$classmap_path = trailingslashit( $plugin_path ) . 'vendor/composer/jetpack_autoload_classmap.php';
 
 			if ( file_exists( $classmap_path ) ) {
