@@ -1,0 +1,14 @@
+[
+	{
+		"regex":"packages/connection/*",
+		"testFile": ["packages/connection.md"]
+	},
+	{
+		"regex":"packages/sync/*",
+		"testFile": ["packages/sync.md"]
+	},
+	{
+		"regex":"class.jetpack-gutenberg.php",
+		"testFile": ["extensions/all.md"]
+	}
+]
