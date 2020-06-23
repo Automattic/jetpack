@@ -19,7 +19,14 @@
 		width: 100%;
 	}
 }
-.jetpack-instant-search__search-result-engagement__date {
+.jetpack-instant-search__search-result-engagement__path {
+	font-size: 0.9em;
+	margin-bottom: 0.5em;
+}
+
+.jetpack-instant-search__result-engagement__path-link {
+	text-decoration: none;
+
 	.jetpack-instant-search__overlay--light & {
 		color: $studio-gray-70;
 	}

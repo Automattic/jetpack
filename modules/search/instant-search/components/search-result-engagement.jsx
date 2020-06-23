@@ -8,20 +8,9 @@ import { h } from 'preact';
 /**
  * Internal dependencies
  */
-import { formatDateString } from '../lib/date';
-import { capitalize } from '../lib/strings';
 import SearchResultComments from './search-result-comments';
 import PhotonImage from './photon-image';
 import Gridicon from './gridicon';
-
-function formatPostTypeHeader( postType ) {
-	if ( postType.split( '_' ).length > 1 ) {
-		// jetpack_support -> Other
-		return 'Other';
-	}
-	// post -> Post, article -> Article, etc.
-	return capitalize( postType );
-}
 
 function getGridiconName( postType ) {
 	if ( postType === 'post' || postType === 'page' ) {
@@ -50,13 +39,24 @@ export default function SearchResultEngagement( props ) {
 			jetpack-instant-search__search-result-engagement--${ fields.post_type }` }
 		>
 			<div className="jetpack-instant-search__search-result-engagement__copy-container">
-				<div className="jetpack-instant-search__search-result-engagement__type-and-date">
-					<span className="jetpack-instant-search__search-result-engagement__post-type">
-						{ formatPostTypeHeader( fields.post_type ) }
-					</span>{ ' ' }
-					<span className="jetpack-instant-search__search-result-engagement__date">
-						{ formatDateString( fields.date ) }
-					</span>
+				<div className="jetpack-instant-search__search-result-engagement__path">
+					<a
+						className="jetpack-instant-search__result-engagement__path-link"
+						href={ `//${ fields[ 'permalink.url.raw' ] }` }
+						onClick={ props.onClick }
+						rel="noopener noreferrer"
+						target="_blank"
+					>
+						{ fields[ 'permalink.url.raw' ]
+							.split( '/' )
+							.filter( piece => piece.length > 0 )
+							.map( ( piece, index, pieces ) => (
+								<span className="jetpack-instant-search__search-result-engagement__path-piece">
+									{ piece }
+									{ index !== pieces.length - 1 ? ' › ' : '' }
+								</span>
+							) ) }
+					</a>
 				</div>
 				<h3 className="jetpack-instant-search__search-result-engagement__title">
 					<a
