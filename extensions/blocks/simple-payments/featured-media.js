@@ -10,7 +10,6 @@ import { Toolbar, ToolbarButton } from '@wordpress/components';
 /**
  * Internal dependencies
  */
-import icon from './featured-media-icon';
 import EditButton from '../../shared/edit-button';
 
 const onSelectMedia = setAttributes => media =>
@@ -24,7 +23,7 @@ export default ( { featuredMediaId, featuredMediaUrl, featuredMediaTitle, setAtt
 	if ( ! featuredMediaId ) {
 		return (
 			<MediaPlaceholder
-				icon={ <BlockIcon icon={ icon } /> }
+				icon={ <BlockIcon icon={ 'format-image' } /> }
 				labels={ {
 					title: __( 'Product Image', 'jetpack' ),
 				} }
