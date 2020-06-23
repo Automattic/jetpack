@@ -15,7 +15,7 @@
  * phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
  *
  * To prepare for scanning Jetpack against all plugins of WordPress.org directory you need to
- * use the slurper tool. 
+ * use the slurper tool.
  *
  * @see https://github.com/markjaquith/WordPress-Plugin-Directory-Slurper
  *
@@ -32,10 +32,10 @@ require dirname( dirname( __FILE__ ) ) . '/vendor/autoload.php';
 
 $base_path = dirname( dirname( dirname( __DIR__ ) ) );
 
-$jetpack_new_path   = '/path/to/new/jetpack';
-$jetpack_old_path   = '/path/to/old/jetpack';
-$slurper_path       = '/path/to/slurper/plugins';
-$jetpack_exclude    = array( '.git', 'vendor', 'tests', 'docker', 'bin', 'scss', 'images', 'docs', 'languages', 'node_modules' );
+$jetpack_new_path = '/path/to/new/jetpack';
+$jetpack_old_path = '/path/to/old/jetpack';
+$slurper_path     = '/path/to/slurper/plugins';
+$jetpack_exclude  = array( '.git', 'vendor', 'tests', 'docker', 'bin', 'scss', 'images', 'docs', 'languages', 'node_modules' );
 
 echo "Scanning new declarations\n";
 $jetpack_new_declarations = new Automattic\Jetpack\Analyzer\Declarations();

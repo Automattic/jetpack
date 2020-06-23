@@ -1162,24 +1162,6 @@ class Jetpack {
 	 * @return null
 	 */
 	public function register_assets() {
-		if ( ! wp_script_is( 'spin', 'registered' ) ) {
-			wp_register_script(
-				'spin',
-				Assets::get_file_url_for_environment( '_inc/build/spin.min.js', '_inc/spin.js' ),
-				false,
-				'1.3'
-			);
-		}
-
-		if ( ! wp_script_is( 'jquery.spin', 'registered' ) ) {
-			wp_register_script(
-				'jquery.spin',
-				Assets::get_file_url_for_environment( '_inc/build/jquery.spin.min.js', '_inc/jquery.spin.js' ),
-				array( 'jquery', 'spin' ),
-				'1.3'
-			);
-		}
-
 		if ( ! wp_script_is( 'jetpack-gallery-settings', 'registered' ) ) {
 			wp_register_script(
 				'jetpack-gallery-settings',
@@ -3373,10 +3355,10 @@ p {
 			$tracking = new Tracking();
 			$tracking->record_user_event( 'disconnect_site', array() );
 
-			$connection->disconnect_site_wpcom();
+			$connection->disconnect_site_wpcom( true );
 		}
 
-		$connection->delete_all_connection_tokens();
+		$connection->delete_all_connection_tokens( true );
 		Jetpack_IDC::clear_all_idc_options();
 
 		if ( $update_activated_state ) {

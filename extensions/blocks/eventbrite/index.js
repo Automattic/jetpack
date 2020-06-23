@@ -9,10 +9,19 @@ import { createBlock } from '@wordpress/blocks';
  * Internal dependencies
  */
 import attributes from './attributes';
-import deprecated from './deprecated/v1';
+import deprecated from './deprecated';
 import edit from './edit';
 import save from './save';
 import { supportsCollections } from '../../shared/block-category';
+
+export const innerButtonBlock = {
+	name: 'jetpack/button',
+	attributes: {
+		element: 'a',
+		text: _x( 'Register', 'verb: e.g. register for an event.', 'jetpack' ),
+		uniqueId: 'eventbrite-widget-id',
+	},
+};
 
 // Example URLs
 // https://www.eventbrite.com/e/test-event-tickets-123456789
@@ -77,8 +86,8 @@ export const settings = {
 			url: EVENTBRITE_EXAMPLE_URL,
 			eventId: 123456789,
 			style: 'modal',
-			text: _x( 'Register', 'verb: e.g. register for an event.', 'jetpack' ),
 		},
+		innerBlocks: [ innerButtonBlock ],
 	},
 	deprecated,
 };

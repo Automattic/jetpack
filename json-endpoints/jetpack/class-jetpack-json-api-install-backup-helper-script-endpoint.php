@@ -8,7 +8,7 @@
 
 use Automattic\Jetpack\Backup\Helper_Script_Manager;
 
-class Jetpack_JSON_API_Install_Backup_Helper_Script_Endpoint extends Jetpack_JSON_API_Endpoint { 
+class Jetpack_JSON_API_Install_Backup_Helper_Script_Endpoint extends Jetpack_JSON_API_Endpoint {
 	/**
 	 * This endpoint is only accessible from Jetpack Backup; it requires no further capabilities.
 	 *

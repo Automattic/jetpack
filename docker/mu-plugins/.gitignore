@@ -1,4 +1,7 @@
-*
+/*
 !.gitignore
 !debug.php
 !avoid-plugin-deletion.php
+!jetpack-debug-helper-loader.php
+!/jetpack-debug-helper
+

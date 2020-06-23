@@ -63,8 +63,6 @@ export class PlansPrompt extends React.Component {
 	}
 }
 
-export default connect(
-	state => ( {
-		plans: getAvailablePlans( state ),
-	} )
-)( PlansPrompt );
+export default connect( state => ( {
+	plans: getAvailablePlans( state ),
+} ) )( PlansPrompt );

@@ -11,7 +11,7 @@ import { addFilter } from '@wordpress/hooks';
  * Internal dependencies
  */
 import coverEditMediaPlaceholder from './cover-media-placeholder';
-import isCurrentUserConnected from "../../is-current-user-connected";
+import isCurrentUserConnected from '../../is-current-user-connected';
 import './editor.scss';
 
 if ( isCurrentUserConnected() ) {
