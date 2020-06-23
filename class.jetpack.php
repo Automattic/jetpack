@@ -37,6 +37,7 @@ jetpack_active_modules (array)
 
 jetpack_do_activate (bool)
 	Flag for "activating" the plugin on sites where the activation hook never fired (auto-installs)
+	some random change
 */
 
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.media.php';
