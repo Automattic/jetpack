@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { __experimentalGetSettings } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
 import { SelectControl, Button } from '@wordpress/components';
 import { omit } from 'lodash';
@@ -29,7 +28,7 @@ function CategoryOption( { value, updateFilter } ) {
 function DateOption( { value, updateFilter } ) {
 	return (
 		<SelectControl
-			label={ __( 'Sort by time period', 'jetpack' ) }
+			label={ __( 'Filter by time period', 'jetpack' ) }
 			value={ value?.range || DATE_RANGE_ANY }
 			options={ GOOGLE_PHOTOS_DATE_PRESETS }
 			onChange={ range => updateFilter( { range } ) }
