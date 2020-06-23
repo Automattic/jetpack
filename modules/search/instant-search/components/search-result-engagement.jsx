@@ -46,33 +46,9 @@ export default function SearchResultEngagement( props ) {
 		: fields[ 'image.url.raw' ];
 	return (
 		<li
-			className={ `jetpack-instant-search__search-result-engagement jetpack-instant-search__search-result-engagement--${ fields.post_type }` }
+			className={ `jetpack-instant-search__search-result-engagement 
+			jetpack-instant-search__search-result-engagement--${ fields.post_type }` }
 		>
-			<div className="jetpack-instant-search__search-result-engagement__image-container">
-				<a
-					className="jetpack-instant-search__result-engagement__image-link"
-					href={ `//${ fields[ 'permalink.url.raw' ] }` }
-					onClick={ props.onClick }
-					rel="noopener noreferrer"
-					target="_blank"
-				>
-					{ firstImage ? (
-						// NOTE: Wouldn't it be amazing if we filled the container's background
-						//       with the primary color of the image?
-						<PhotonImage
-							alt=""
-							className="jetpack-instant-search__search-result-engagement__image"
-							src={ `//${ firstImage }` }
-							useDiv
-						/>
-					) : (
-						<div className="jetpack-instant-search__search-result-engagement__image-placeholder">
-							{ getPostTypeIcon( fields.post_type ) }
-						</div>
-					) }
-				</a>
-			</div>
-
 			<div className="jetpack-instant-search__search-result-engagement__copy-container">
 				<div className="jetpack-instant-search__search-result-engagement__type-and-date">
 					<span className="jetpack-instant-search__search-result-engagement__post-type">
@@ -103,6 +79,30 @@ export default function SearchResultEngagement( props ) {
 				/>
 
 				{ highlight.comments && <SearchResultComments comments={ highlight.comments } /> }
+			</div>
+			<div className="jetpack-instant-search__search-result-engagement__image-container">
+				<a
+					className="jetpack-instant-search__result-engagement__image-link"
+					href={ `//${ fields[ 'permalink.url.raw' ] }` }
+					onClick={ props.onClick }
+					rel="noopener noreferrer"
+					target="_blank"
+				>
+					{ firstImage ? (
+						// NOTE: Wouldn't it be amazing if we filled the container's background
+						//       with the primary color of the image?
+						<PhotonImage
+							alt=""
+							className="jetpack-instant-search__search-result-engagement__image"
+							src={ `//${ firstImage }` }
+							useDiv
+						/>
+					) : (
+						<div className="jetpack-instant-search__search-result-engagement__image-placeholder">
+							{ getPostTypeIcon( fields.post_type ) }
+						</div>
+					) }
+				</a>
 			</div>
 		</li>
 	);
