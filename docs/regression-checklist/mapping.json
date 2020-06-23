@@ -1,6 +1,10 @@
 [
 	{
-		"regex":"gutenberg/packages/block-library/src/image/edit.native.js",
-		"testFile": ["gutenberg/image-basic.md", "gutenberg/image-upload.md"]
+		"regex":"packages/connection/*",
+		"testFile": ["connection.md"]
+	},
+	{
+		"regex":"class.jetpack.php",
+		"testFile": ["all.md"]
 	}
 ]
