@@ -296,11 +296,22 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 			'transparent',
 			'noscrollbar',
 		);
-		if ( isset( $new_instance['chrome'] ) ) {
-			foreach ( $new_instance['chrome'] as $chrome ) {
-				if ( in_array( $chrome, $chrome_settings ) ) {
-					$instance['chrome'][] = $chrome;
-				}
+
+		foreach ( $chrome_settings as $chrome ) {
+			switch ( $chrome ) {
+				case 'noheader':
+				case 'nofooter':
+				case 'noborders':
+				case 'noscrollbar':
+					if ( ! isset( $new_instance['chrome'] ) || ! in_array( $chrome, $new_instance['chrome'], true ) ) {
+						$instance['chrome'][] = $chrome;
+					}
+					break;
+				default:
+					if ( isset( $new_instance['chrome'] ) && in_array( $chrome, $new_instance['chrome'], true ) ) {
+						$instance['chrome'][] = $chrome;
+					}
+					break;
 			}
 		}
 
@@ -465,48 +476,53 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 			</label>
 			<br />
 			<input
-				type="checkbox"<?php checked( in_array( 'noheader', $instance['chrome'] ) ); ?>
+				type="checkbox"
+				<?php checked( false, in_array( 'noheader', $instance['chrome'], true ) ); ?>
 				id="<?php echo esc_attr( $this->get_field_id( 'chrome-noheader' ) ); ?>"
 				name="<?php echo esc_attr( $this->get_field_name( 'chrome' ) ); ?>[]"
 				value="noheader"
 			/>
 			<label for="<?php echo esc_attr( $this->get_field_id( 'chrome-noheader' ) ); ?>">
-				<?php esc_html_e( 'No header', 'jetpack' ); ?>
+				<?php esc_html_e( 'Show header', 'jetpack' ); ?>
 			</label>
 			<br />
 			<input
-				type="checkbox"<?php checked( in_array( 'nofooter', $instance['chrome'] ) ); ?>
+				type="checkbox"
+				<?php checked( false, in_array( 'nofooter', $instance['chrome'], true ) ); ?>
 				id="<?php echo esc_attr( $this->get_field_id( 'chrome-nofooter' ) ); ?>"
 				name="<?php echo esc_attr( $this->get_field_name( 'chrome' ) ); ?>[]"
 				value="nofooter"
 			/>
 			<label for="<?php echo esc_attr( $this->get_field_id( 'chrome-nofooter' ) ); ?>">
-				<?php esc_html_e( 'No footer', 'jetpack' ); ?>
+				<?php esc_html_e( 'Show footer', 'jetpack' ); ?>
 			</label>
 			<br />
 			<input
-				type="checkbox"<?php checked( in_array( 'noborders', $instance['chrome'] ) ); ?>
+				type="checkbox"
+				<?php checked( false, in_array( 'noborders', $instance['chrome'], true ) ); ?>
 				id="<?php echo esc_attr( $this->get_field_id( 'chrome-noborders' ) ); ?>"
 				name="<?php echo esc_attr( $this->get_field_name( 'chrome' ) ); ?>[]"
 				value="noborders"
 			/>
 			<label for="<?php echo esc_attr( $this->get_field_id( 'chrome-noborders' ) ); ?>">
-				<?php esc_html_e( 'No borders', 'jetpack' ); ?>
+				<?php esc_html_e( 'Show borders', 'jetpack' ); ?>
 			</label>
 			<br />
 			<input
-				type="checkbox"<?php checked( in_array( 'noscrollbar', $instance['chrome'] ) ); ?>
+				type="checkbox"
+				<?php checked( false, in_array( 'noscrollbar', $instance['chrome'], true ) ); ?>
 				id="<?php echo esc_attr( $this->get_field_id( 'chrome-noscrollbar' ) ); ?>"
 				name="<?php echo esc_attr( $this->get_field_name( 'chrome' ) ); ?>[]"
 				value="noscrollbar"
 				<?php disabled( 'fixed', $instance['tweet-display'] ); ?>
 			/>
 			<label for="<?php echo esc_attr( $this->get_field_id( 'chrome-noscrollbar' ) ); ?>">
-				<?php esc_html_e( 'No scrollbar', 'jetpack' ); ?>
+				<?php esc_html_e( 'Show scrollbar', 'jetpack' ); ?>
 			</label>
 			<br />
 			<input
-				type="checkbox"<?php checked( in_array( 'transparent', $instance['chrome'] ) ); ?>
+				type="checkbox"
+				<?php checked( in_array( 'transparent', $instance['chrome'], true ) ); ?>
 				id="<?php echo esc_attr( $this->get_field_id( 'chrome-transparent' ) ); ?>"
 				name="<?php echo esc_attr( $this->get_field_name( 'chrome' ) ); ?>[]"
 				value="transparent"
