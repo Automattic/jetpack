@@ -351,27 +351,27 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 		?>
 
 		<p class="jetpack-twitter-timeline-widget-id-container">
-			<label for="<?php echo $this->get_field_id( 'widget-id' ); ?>">
+			<label for="<?php echo esc_attr( $this->get_field_id( 'widget-id' ) ); ?>">
 				<?php esc_html_e( 'Twitter username:', 'jetpack' ); ?>
-				<?php echo $this->get_docs_link( '#twitter-username' ); ?>
+				<?php echo esc_html( $this->get_docs_link( '#twitter-username' ) ); ?>
 			</label>
 			<input
 				class="widefat"
-				id="<?php echo $this->get_field_id( 'widget-id' ); ?>"
-				name="<?php echo $this->get_field_name( 'widget-id' ); ?>"
+				id="<?php echo esc_attr( $this->get_field_id( 'widget-id' ) ); ?>"
+				name="<?php echo esc_attr( $this->get_field_name( 'widget-id' ) ); ?>"
 				type="text"
 				value="<?php echo esc_attr( $instance['widget-id'] ); ?>"
 			/>
 		</p>
 
 		<p>
-			<label for="<?php echo $this->get_field_id( 'title' ); ?>">
+			<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>">
 				<?php esc_html_e( 'Title:', 'jetpack' ); ?>
 			</label>
 			<input
 				class="widefat"
-				id="<?php echo $this->get_field_id( 'title' ); ?>"
-				name="<?php echo $this->get_field_name( 'title' ); ?>"
+				id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"
+				name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>"
 				type="text"
 				value="<?php echo esc_attr( $instance['title'] ); ?>"
 			/>
@@ -383,8 +383,8 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 				<li>
 					<label>
 						<input
-							id="<?php echo $this->get_field_id( 'tweet-display' ); ?>-dynamic"
-							name="<?php echo $this->get_field_name( 'tweet-display' ); ?>"
+							id="<?php echo esc_attr( $this->get_field_id( 'tweet-display' ) ); ?>-dynamic"
+							name="<?php echo esc_attr( $this->get_field_name( 'tweet-display' ) ); ?>"
 							type="radio"
 							class="jetpack-twitter-timeline-widget-tweet-display-radio"
 							value="dynamic"
@@ -396,8 +396,8 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 				<li>
 					<label>
 						<input
-							id="<?php echo $this->get_field_id( 'tweet-display' ); ?>-fixed"
-							name="<?php echo $this->get_field_name( 'tweet-display' ); ?>"
+							id="<?php echo esc_attr( $this->get_field_id( 'tweet-display' ) ); ?>-fixed"
+							name="<?php echo esc_attr( $this->get_field_name( 'tweet-display' ) ); ?>"
 							type="radio"
 							class="jetpack-twitter-timeline-widget-tweet-display-radio"
 							value="fixed"
@@ -410,121 +410,121 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 		</p>
 
 		<p class="jetpack-twitter-timeline-widget-height-container" <?php echo ( 'fixed' === $instance['tweet-display'] ) ? ' style="display:none;"' : ''; ?>>
-			<label for="<?php echo $this->get_field_id( 'height' ); ?>">
+			<label for="<?php echo esc_attr( $this->get_field_id( 'height' ) ); ?>">
 				<?php esc_html_e( 'Height (in pixels; at least 200):', 'jetpack' ); ?>
 			</label>
 			<input
 				class="widefat"
-				id="<?php echo $this->get_field_id( 'height' ); ?>"
-				name="<?php echo $this->get_field_name( 'height' ); ?>"
+				id="<?php echo esc_attr( $this->get_field_id( 'height' ) ); ?>"
+				name="<?php echo esc_attr( $this->get_field_name( 'height' ) ); ?>"
 				type="number" min="200"
 				value="<?php echo esc_attr( $instance['height'] ); ?>"
 			/>
 		</p>
 
 		<p class="jetpack-twitter-timeline-widget-tweet-limit-container" <?php echo ( 'dynamic' === $instance['tweet-display'] ) ? ' style="display:none;"' : ''; ?>>
-			<label for="<?php echo $this->get_field_id( 'tweet-limit' ); ?>">
+			<label for="<?php echo esc_attr( $this->get_field_id( 'tweet-limit' ) ); ?>">
 				<?php esc_html_e( 'Number of tweets in the timeline (1 to 20):', 'jetpack' ); ?>
 			</label>
 			<input
 				class="widefat"
-				id="<?php echo $this->get_field_id( 'tweet-limit' ); ?>"
-				name="<?php echo $this->get_field_name( 'tweet-limit' ); ?>"
+				id="<?php echo esc_attr( $this->get_field_id( 'tweet-limit' ) ); ?>"
+				name="<?php echo esc_attr( $this->get_field_name( 'tweet-limit' ) ); ?>"
 				type="number" min="1" max="20"
 				value="<?php echo esc_attr( $instance['tweet-limit'] ); ?>"
 			/>
 		</p>
 
 		<p>
-			<label for="<?php echo $this->get_field_id( 'width' ); ?>">
+			<label for="<?php echo esc_attr( $this->get_field_id( 'width' ) ); ?>">
 				<?php esc_html_e( 'Maximum width (in pixels; 220 to 1200):', 'jetpack' ); ?>
 			</label>
 			<input
 				class="widefat"
-				id="<?php echo $this->get_field_id( 'width' ); ?>"
-				name="<?php echo $this->get_field_name( 'width' ); ?>"
+				id="<?php echo esc_attr( $this->get_field_id( 'width' ) ); ?>"
+				name="<?php echo esc_attr( $this->get_field_name( 'width' ) ); ?>"
 				type="number" min="220" max="1200"
 				value="<?php echo esc_attr( $instance['width'] ); ?>"
 			/>
 		</p>
 
 		<p>
-			<label for="<?php echo $this->get_field_id( 'chrome-noheader' ); ?>">
+			<label for="<?php echo esc_attr( $this->get_field_id( 'chrome-noheader' ) ); ?>">
 				<?php esc_html_e( 'Layout options:', 'jetpack' ); ?>
 			</label>
 			<br />
 			<input
 				type="checkbox"<?php checked( in_array( 'noheader', $instance['chrome'] ) ); ?>
-				id="<?php echo $this->get_field_id( 'chrome-noheader' ); ?>"
-				name="<?php echo $this->get_field_name( 'chrome' ); ?>[]"
+				id="<?php echo esc_attr( $this->get_field_id( 'chrome-noheader' ) ); ?>"
+				name="<?php echo esc_attr( $this->get_field_name( 'chrome' ) ); ?>[]"
 				value="noheader"
 			/>
-			<label for="<?php echo $this->get_field_id( 'chrome-noheader' ); ?>">
+			<label for="<?php echo esc_attr( $this->get_field_id( 'chrome-noheader' ) ); ?>">
 				<?php esc_html_e( 'No header', 'jetpack' ); ?>
 			</label>
 			<br />
 			<input
 				type="checkbox"<?php checked( in_array( 'nofooter', $instance['chrome'] ) ); ?>
-				id="<?php echo $this->get_field_id( 'chrome-nofooter' ); ?>"
-				name="<?php echo $this->get_field_name( 'chrome' ); ?>[]"
+				id="<?php echo esc_attr( $this->get_field_id( 'chrome-nofooter' ) ); ?>"
+				name="<?php echo esc_attr( $this->get_field_name( 'chrome' ) ); ?>[]"
 				value="nofooter"
 			/>
-			<label for="<?php echo $this->get_field_id( 'chrome-nofooter' ); ?>">
+			<label for="<?php echo esc_attr( $this->get_field_id( 'chrome-nofooter' ) ); ?>">
 				<?php esc_html_e( 'No footer', 'jetpack' ); ?>
 			</label>
 			<br />
 			<input
 				type="checkbox"<?php checked( in_array( 'noborders', $instance['chrome'] ) ); ?>
-				id="<?php echo $this->get_field_id( 'chrome-noborders' ); ?>"
-				name="<?php echo $this->get_field_name( 'chrome' ); ?>[]"
+				id="<?php echo esc_attr( $this->get_field_id( 'chrome-noborders' ) ); ?>"
+				name="<?php echo esc_attr( $this->get_field_name( 'chrome' ) ); ?>[]"
 				value="noborders"
 			/>
-			<label for="<?php echo $this->get_field_id( 'chrome-noborders' ); ?>">
+			<label for="<?php echo esc_attr( $this->get_field_id( 'chrome-noborders' ) ); ?>">
 				<?php esc_html_e( 'No borders', 'jetpack' ); ?>
 			</label>
 			<br />
 			<input
 				type="checkbox"<?php checked( in_array( 'noscrollbar', $instance['chrome'] ) ); ?>
-				id="<?php echo $this->get_field_id( 'chrome-noscrollbar' ); ?>"
-				name="<?php echo $this->get_field_name( 'chrome' ); ?>[]"
+				id="<?php echo esc_attr( $this->get_field_id( 'chrome-noscrollbar' ) ); ?>"
+				name="<?php echo esc_attr( $this->get_field_name( 'chrome' ) ); ?>[]"
 				value="noscrollbar"
 				<?php disabled( 'fixed', $instance['tweet-display'] ); ?>
 			/>
-			<label for="<?php echo $this->get_field_id( 'chrome-noscrollbar' ); ?>">
+			<label for="<?php echo esc_attr( $this->get_field_id( 'chrome-noscrollbar' ) ); ?>">
 				<?php esc_html_e( 'No scrollbar', 'jetpack' ); ?>
 			</label>
 			<br />
 			<input
 				type="checkbox"<?php checked( in_array( 'transparent', $instance['chrome'] ) ); ?>
-				id="<?php echo $this->get_field_id( 'chrome-transparent' ); ?>"
-				name="<?php echo $this->get_field_name( 'chrome' ); ?>[]"
+				id="<?php echo esc_attr( $this->get_field_id( 'chrome-transparent' ) ); ?>"
+				name="<?php echo esc_attr( $this->get_field_name( 'chrome' ) ); ?>[]"
 				value="transparent"
 			/>
-			<label for="<?php echo $this->get_field_id( 'chrome-transparent' ); ?>">
+			<label for="<?php echo esc_attr( $this->get_field_id( 'chrome-transparent' ) ); ?>">
 				<?php esc_html_e( 'Transparent background', 'jetpack' ); ?>
 			</label>
 		</p>
 
 		<p>
-			<label for="<?php echo $this->get_field_id( 'border-color' ); ?>">
+			<label for="<?php echo esc_attr( $this->get_field_id( 'border-color' ) ); ?>">
 				<?php esc_html_e( 'Border color (in hex format):', 'jetpack' ); ?>
 			</label>
 			<input
 				class="widefat"
-				id="<?php echo $this->get_field_id( 'border-color' ); ?>"
-				name="<?php echo $this->get_field_name( 'border-color' ); ?>"
+				id="<?php echo esc_attr( $this->get_field_id( 'border-color' ) ); ?>"
+				name="<?php echo esc_attr( $this->get_field_name( 'border-color' ) ); ?>"
 				type="text"
 				value="<?php echo esc_attr( $instance['border-color'] ); ?>"
 			/>
 		</p>
 
 		<p>
-			<label for="<?php echo $this->get_field_id( 'theme' ); ?>">
+			<label for="<?php echo esc_attr( $this->get_field_id( 'theme' ) ); ?>">
 				<?php esc_html_e( 'Timeline theme:', 'jetpack' ); ?>
 			</label>
 			<select
-				name="<?php echo $this->get_field_name( 'theme' ); ?>"
-				id="<?php echo $this->get_field_id( 'theme' ); ?>"
+				name="<?php echo esc_attr( $this->get_field_name( 'theme' ) ); ?>"
+				id="<?php echo esc_attr( $this->get_field_id( 'theme' ) ); ?>"
 				class="widefat"
 			>
 				<option value="light"<?php selected( $instance['theme'], 'light' ); ?>>
