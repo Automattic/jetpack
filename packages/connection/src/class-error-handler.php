@@ -366,10 +366,10 @@ class Error_Handler {
 
 		if ( $error ) {
 			$this->verify_error( $error );
+			return new \WP_REST_Response( true, 200 );
 		}
 
-		// We don't give any useful information away.
-		return new \WP_REST_Response( true, 200 );
+		return new \WP_REST_Response( false, 200 );
 
 	}
 
