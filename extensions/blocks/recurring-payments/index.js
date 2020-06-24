@@ -74,8 +74,7 @@ export const settings = {
  *
  * @link https://stripe.com/docs/currencies#minimum-and-maximum-charge-amounts
  *
- * List has to be in sync with the Memberships API endpoint in Jetpack and the Memberships library in WP.com.
- * @link https://github.com/Automattic/jetpack/blob/2e7e2c4dbe6348933075cef0a8ca75dd21b20657/_inc/lib/core-api/wpcom-endpoints/memberships.php#L24
+ * List has to be in sync with the Memberships library in WP.com.
  * @see Memberships_Product::SUPPORTED_CURRENCIES
  *
  * @type { [currency: string]: number }
