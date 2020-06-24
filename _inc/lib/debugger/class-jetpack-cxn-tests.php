@@ -170,18 +170,35 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 		add_filter( 'http_request_timeout', array( $this, 'increase_timeout' ), PHP_INT_MAX - 1 );
 		$response = Client::_wp_remote_request( Connection_Utils::fix_url_for_bad_hosts( Jetpack::connection()->api_url( 'testblogtoken' ) ), $args );
 
-		if ( empty( $response['response']['code'] ) || 200 !== $response['response']['code'] ) {
-			return self::failing_test(
-				array(
-					'name'              => __FUNCTION__,
-					'short_description' => __( 'Blog token is invalid.', 'jetpack' ),
-					'action'            => admin_url( 'admin.php?page=jetpack#/dashboard' ),
-					'action_label'      => __( 'Disconnect your site from WordPress.com, and connect it again.', 'jetpack' ),
-				)
-			);
-		}
+		$code = empty( $response['response']['code'] ) ? null : (int) $response['response']['code'];
 
-		return self::passing_test( array( 'name' => __FUNCTION__ ) );
+		switch ( $code ) {
+			case 400:
+				return self::failing_test(
+					array(
+						'name'              => __FUNCTION__,
+						'short_description' => __( 'Blog token is invalid.', 'jetpack' ),
+						'action'            => admin_url( 'admin.php?page=jetpack#/dashboard' ),
+						'action_label'      => __( 'Disconnect your site from WordPress.com, and connect it again.', 'jetpack' ),
+					)
+				);
+			case 429:
+				return self::skipped_test(
+					array(
+						'name'              => __FUNCTION__,
+						'short_description' => __( 'Token validation request failed: too many requests.', 'jetpack' ),
+					)
+				);
+			case 200:
+				return self::passing_test( array( 'name' => __FUNCTION__ ) );
+			default:
+				return self::skipped_test(
+					array(
+						'name'              => __FUNCTION__,
+						'short_description' => __( 'Token validation request failed: no response.', 'jetpack' ),
+					)
+				);
+		}
 	}
 
 	/**
