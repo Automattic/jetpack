@@ -1,5 +1,5 @@
 {
-	"name": "automattic/jetpack-stats",
+	"name": "automattic/jetpack-mc-stats",
 	"description": "Used to bump stats using http://pixel.wp.com/g.gif.",
 	"type": "library",
 	"license": "GPL-2.0-or-later",
