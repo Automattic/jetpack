@@ -19,7 +19,7 @@ import { isUpgradable, isVideoFile } from "./utils";
 export default createHigherOrderComponent( MediaReplaceFlow => props => {
 	const { name } = useBlockEditContext();
 	const preUploadFile = useRef();
-	if ( ! isUpgradable( name ) ) {
+	if ( 'core/cover' !== name ) {
 		return <MediaReplaceFlow { ...props } />;
 	}
 
