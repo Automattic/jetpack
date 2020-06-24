@@ -156,44 +156,4 @@ class Plugins_Handler {
 	public function get_current_plugin_dir() {
 		return explode( '/', plugin_basename( __FILE__ ) )[0];
 	}
-
-	/**
-	 * Resets the autoloader after a plugin update.
-	 *
-	 * @param bool  $response   Installation response.
-	 * @param array $hook_extra Extra arguments passed to hooked filters.
-	 * @param array $result     Installation result data.
-	 *
-	 * @return bool The passed in $response param.
-	 */
-	public function reset_maps_after_update( $response, $hook_extra, $result ) {
-		global $jetpack_autoloader_latest_version;
-		global $jetpack_packages_classmap;
-
-		if ( isset( $hook_extra['plugin'] ) ) {
-			$plugin = $hook_extra['plugin'];
-
-			if ( ! $this->is_directory_plugin( $plugin ) ) {
-				// Single-file plugins don't use packages, so bail.
-				return $response;
-			}
-
-			if ( ! is_plugin_active( $plugin ) ) {
-				// The updated plugin isn't active, so bail.
-				return $response;
-			}
-
-			$plugin_path = trailingslashit( WP_PLUGIN_DIR ) . trailingslashit( explode( '/', $plugin )[0] );
-
-			if ( is_readable( $plugin_path . 'vendor/autoload_functions.php' ) ) {
-				// The plugin has a v2.x autoloader, so reset it.
-				$jetpack_autoloader_latest_version = null;
-				$jetpack_packages_classmap         = array();
-
-				require $plugin_path . 'vendor/autoload_packages.php';
-			}
-		}
-
-		return $response;
-	}
 }
