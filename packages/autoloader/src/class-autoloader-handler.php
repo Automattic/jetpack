@@ -73,11 +73,11 @@ class Autoloader_Handler {
 			}
 		}
 
-		// This would happen if Jetpack is loaded a mu-plugin and no other Jetpack ecosystem plugins are installed.
-		// @todo Handle the version global.
 		if ( ! $selected_autoloader_version || ! $selected_autoloader_path ) {
-			require $current_autoloader_path;
-			return;
+			// Something's wrong with the selected version or path, so just use this directory's autoloader.
+			// This would happen if Jetpack is loaded a mu-plugin and no other Jetpack ecosystem plugins are installed.
+			$selected_autoloader_version = $this->get_current_autoloader_version();
+			$selected_autoloader_path    = $current_autoloader_path;
 		}
 
 		$jetpack_autoloader_latest_version = $selected_autoloader_version;
