@@ -402,7 +402,9 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 		</p>
 
 		<p>
-			<label><?php esc_html_e( 'Number of tweets shown:', 'jetpack' ); ?></label>
+			<label>
+				<strong><?php esc_html_e( 'Number of tweets shown:', 'jetpack' ); ?></strong>
+			</label>
 			<ul>
 				<li>
 					<label>
@@ -474,9 +476,10 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 
 		<p>
 			<label for="<?php echo esc_attr( $this->get_field_id( 'chrome-noheader' ) ); ?>">
-				<?php esc_html_e( 'Layout options:', 'jetpack' ); ?>
+				<strong><?php esc_html_e( 'Layout options:', 'jetpack' ); ?></strong>
 			</label>
-			<br />
+		</p>
+		<p>
 			<input
 				type="checkbox"
 				<?php checked( false, in_array( 'noheader', $instance['chrome'], true ) ); ?>
