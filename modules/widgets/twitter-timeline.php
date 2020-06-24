@@ -360,6 +360,14 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 		}
 
 		$instance['type'] = 'profile';
+
+		/**
+		 * Set the tweet-display option to 'fixed' if height is empty and tweet-limit set
+		 * to ensure backwards compatibility with pre-existing widgets.
+		 */
+		if ( empty( $instance['height'] ) && isset( $instance['tweet-limit'] ) ) {
+			$instance['tweet-display'] = 'fixed';
+		}
 		?>
 
 		<p class="jetpack-twitter-timeline-widget-id-container">
