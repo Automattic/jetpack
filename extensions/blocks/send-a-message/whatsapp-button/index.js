@@ -25,7 +25,7 @@ export const defaultFirstMessage = __(
 export const settings = {
 	title,
 	description: __(
-		'Let your visitors to send you a message on WhatsApp with the tap of a button.',
+		'Let your visitors send you a message on WhatsApp with the tap of a button.',
 		'jetpack'
 	),
 	icon,
