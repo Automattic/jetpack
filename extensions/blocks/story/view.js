@@ -9,7 +9,6 @@ import domReady from '@wordpress/dom-ready';
  */
 import './style.scss';
 import player from './player';
-import { playerApplyAria, playerInit, playerResize } from './player-callbacks';
 
 if ( typeof window !== 'undefined' ) {
 	domReady( function() {
@@ -19,11 +18,7 @@ if ( typeof window !== 'undefined' ) {
 				return;
 			}
 
-			player( storyBlock, null, {
-				init: playerInit,
-				imagesReady: playerResize,
-				transitionEnd: playerApplyAria,
-			} );
+			player( storyBlock );
 		} );
 	} );
 }

@@ -56,7 +56,7 @@ function render( $attributes ) {
 		return sprintf(
 			'<img
 				alt="%s"
-				class="wp-block-jetpack-story_image wp-image-%d"
+				class="wp-block-jetpack-story_image wp-story-image wp-image-%d"
 				data-id="%d"
 				src="%s">',
 			esc_attr( $media['alt'] ),
@@ -70,7 +70,7 @@ function render( $attributes ) {
 			'<video
 				title="%s"
 				type="%s"
-				class="wp-block-jetpack-story_video intrinsic-ignore wp-video-%d"
+				class="wp-block-jetpack-story_video wp-story-video intrinsic-ignore wp-video-%d"
 				data-id="%d"
 				src="%s">
 			</video>',
@@ -95,9 +95,9 @@ function render( $attributes ) {
 		);
 	};
 	return sprintf(
-		'<div class="wp-block-jetpack-story aligncenter" data-autoplay="false" data-effect="slide">
+		'<div class="wp-block-jetpack-story wp-story aligncenter">
 			<div class="wp-block-jetpack-story_container wp-story-container" style="display: block; opacity: 1;">
-				<div class="wp-story-controls">
+				<div class="wp-story-meta">
 					<div>
 						<img alt="Site icon" src="%s" width="32" height=32>
 					</div>
@@ -109,12 +109,14 @@ function render( $attributes ) {
 							%s
 						</div>
 					</div>
+					<button class="wp-story-exit-fullscreen mdc-icon-button" aria-label="Exit Fullscreen" aria-pressed="false">
+						<i class="material-icons close md-24"></i>
+					</button>
 				</div>
-				<div class="wp-block-jetpack-story_wrapper wp-story-pagination wp-story-pagination-bullets"></div>
-					<ul class="wp-story-wrapper">
-						%s
-					</ul>
-				</div>
+				<ul class="wp-story-wrapper">
+					%s
+				</ul>
+				<div class="wp-story-pagination wp-story-pagination-bullets"></div>
 			</div>
 		</div>',
 		esc_attr( get_site_icon_url( 32, includes_url( 'images/w-logo-blue.png' ) ) ),

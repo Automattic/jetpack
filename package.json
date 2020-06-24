@@ -131,6 +131,7 @@
 		"gulp-rtlcss": "1.4.1",
 		"gulp-sass": "4.1.0",
 		"gulp-sourcemaps": "2.6.5",
+		"htm": "3.0.4",
 		"i18n-calypso": "4.0.0",
 		"jsdom": "16.3.0",
 		"jsdom-global": "3.0.2",

@@ -9,14 +9,14 @@ import { Path, SVG } from '@wordpress/components';
  */
 import edit from './edit';
 import save from './save';
-import { supportsCollections } from '../../shared/block-category';
 
 /**
  * Example Images
  */
-import storyExample1 from './story_example-1.jpg';
-import storyExample2 from './story_example-2.jpg';
-import storyExample3 from './story_example-3.jpg';
+import storyExample1 from './story_example-1.png';
+import storyExample2 from './story_example-2.png';
+import storyExample3 from './story_example-3.png';
+import storyExample4 from './story_example-4.png';
 
 export const icon = (
 	<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
@@ -42,7 +42,7 @@ const attributes = {
 
 const exampleAttributes = {
 	align: 'center',
-	ids: [ 22, 23 ],
+	ids: [ 22, 23, 24, 25 ],
 	mediaFiles: [
 		{
 			alt: '',
@@ -65,8 +65,16 @@ const exampleAttributes = {
 			caption: '',
 			mime: 'image/jpg',
 			type: 'image',
-			id: 23,
+			id: 24,
 			url: storyExample3,
+		},
+		{
+			alt: '',
+			caption: '',
+			mime: 'image/jpg',
+			type: 'image',
+			id: 25,
+			url: storyExample4,
 		},
 	],
 };
@@ -75,7 +83,7 @@ export const name = 'story';
 
 export const settings = {
 	title: __( 'Story', 'jetpack' ),
-	category: supportsCollections() ? 'layout' : 'jetpack',
+	category: 'media',
 	keywords: [
 		_x( 'image', 'block search term', 'jetpack' ),
 		_x( 'gallery', 'block search term', 'jetpack' ),
