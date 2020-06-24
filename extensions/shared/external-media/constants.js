@@ -3,6 +3,8 @@
  */
 
 import { __ } from '@wordpress/i18n';
+import { dateI18n } from '@wordpress/date';
+import { map, range } from 'lodash';
 
 export const SOURCE_WORDPRESS = 'wordpress';
 export const SOURCE_GOOGLE_PHOTOS = 'google_photos';
@@ -162,9 +164,14 @@ export const GOOGLE_PHOTOS_DATE_PRESETS = [
 		value: DATE_RANGE_LAST_12_MONTHS,
 		label: __( 'Last 12 months', 'jetpack' ),
 	},
-	// TODO: Implement a UI for selecting month & year.
-	//{
-	//	value: DATE_RANGE_CUSTOM,
-	//	label: __( 'Custom Range', 'jetpack' ),
-	//},
+	{
+		value: DATE_RANGE_CUSTOM,
+		label: __( 'Specific Month', 'jetpack' ),
+	},
 ];
+
+export const MONTH_SELECT_OPTIONS = map( range( 0, 12 ), value => ( {
+	// Following call generates a new date object for the particular month and gets its name.
+	label: dateI18n( 'F', new Date( [ 0, value + 1 ] ) ),
+	value,
+} ) );

@@ -2,8 +2,14 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { SelectControl, Button } from '@wordpress/components';
+import {
+	SelectControl,
+	Button,
+	__experimentalNumberControl as BlockEditorNumberControl,
+	TextControl,
+} from '@wordpress/components';
 import { omit } from 'lodash';
+import { useState, Fragment } from '@wordpress/element';
 
 /**
  * Internal dependencies
@@ -12,7 +18,19 @@ import {
 	GOOGLE_PHOTOS_CATEGORIES,
 	GOOGLE_PHOTOS_DATE_PRESETS,
 	DATE_RANGE_ANY,
+	DATE_RANGE_CUSTOM,
+	MONTH_SELECT_OPTIONS,
 } from '../../constants';
+
+/**
+ * This uses the experimental NumberControl from the block editor where available,
+ * otherwise it falls back to a standard TextControl, limited to numbers.
+ */
+const NumberControl =
+	BlockEditorNumberControl ||
+	function CustomNumberControl( props ) {
+		return <TextControl type="number" inputMode="numeric" { ...props } />;
+	};
 
 function CategoryOption( { value, updateFilter } ) {
 	return (
@@ -26,13 +44,44 @@ function CategoryOption( { value, updateFilter } ) {
 }
 
 function DateOption( { value, updateFilter } ) {
+	const selectedRange = value?.range || DATE_RANGE_ANY;
+
+	const [ month, setMonth ] = useState( 0 );
+	const [ year, setYear ] = useState( 2020 );
+
 	return (
-		<SelectControl
-			label={ __( 'Filter by time period', 'jetpack' ) }
-			value={ value?.range || DATE_RANGE_ANY }
-			options={ GOOGLE_PHOTOS_DATE_PRESETS }
-			onChange={ range => updateFilter( { range } ) }
-		/>
+		<div className="jetpack-external-media-date-filter">
+			<SelectControl
+				label={ __( 'Filter by time period', 'jetpack' ) }
+				value={ selectedRange }
+				options={ GOOGLE_PHOTOS_DATE_PRESETS }
+				onChange={ range => updateFilter( { range } ) }
+			/>
+			{ selectedRange === DATE_RANGE_CUSTOM && (
+				<Fragment className="jetpack-external-media-custom-date-filter">
+					<SelectControl
+						label={ __( 'Month', 'jetpack' ) }
+						value={ month }
+						options={ MONTH_SELECT_OPTIONS }
+						onChange={ setMonth }
+					/>
+					<NumberControl
+						label={ __( 'Year', 'jetpack' ) }
+						value={ year }
+						min={ 1970 }
+						onChange={ setYear }
+					/>
+					<Button
+						isSecondary
+						onClick={ () => {
+							updateFilter( { range: selectedRange, month, year } );
+						} }
+					>
+						{ __( 'Apply', 'jetpack' ) }
+					</Button>
+				</Fragment>
+			) }
+		</div>
 	);
 }
 
