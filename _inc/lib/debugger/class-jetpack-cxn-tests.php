@@ -76,7 +76,16 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	 * Is Jetpack even connected and supposed to be talking to WP.com?
 	 */
 	protected function helper_is_jetpack_connected() {
-		return ( Jetpack::is_active() && ! ( new Status() )->is_development_mode() );
+		return Jetpack::is_active() && ! ( new Status() )->is_development_mode();
+	}
+
+	/**
+	 * Retrieve the `blog_token` if it exists.
+	 *
+	 * @return object|false
+	 */
+	protected function helper_get_blog_token() {
+		return Jetpack::connection()->get_access_token();
 	}
 
 	/**
@@ -127,10 +136,69 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	}
 
 	/**
+	 * The test verifies the blog token exists, and sends an API request to WP.com to make sure it's valid.
+	 *
+	 * @return array
+	 */
+	protected function test__validate_blog_token() {
+		$blog_token = $this->helper_get_blog_token();
+
+		if ( ! $blog_token ) {
+			return self::failing_test(
+				array(
+					'name'              => __FUNCTION__,
+					'short_description' => __( 'Blog token is missing.', 'jetpack' ),
+					'action'            => admin_url( 'admin.php?page=jetpack#/dashboard' ),
+					'action_label'      => __( 'Disconnect your site from WordPress.com, and connect it again.', 'jetpack' ),
+				)
+			);
+		}
+
+		$body = array(
+			'client_id'     => Jetpack_Options::get_option( 'id' ),
+			'client_secret' => $blog_token->secret,
+		);
+
+		$args = array(
+			'method'  => 'POST',
+			'body'    => $body,
+			'headers' => array(
+				'Accept' => 'application/json',
+			),
+		);
+
+		add_filter( 'http_request_timeout', array( $this, 'increase_timeout' ), PHP_INT_MAX - 1 );
+		$response = Client::_wp_remote_request( Connection_Utils::fix_url_for_bad_hosts( Jetpack::connection()->api_url( 'testblogtoken' ) ), $args );
+
+		if ( empty( $response['response']['code'] ) || 200 !== $response['response']['code'] ) {
+			return self::failing_test(
+				array(
+					'name'              => __FUNCTION__,
+					'short_description' => __( 'Blog token is invalid.', 'jetpack' ),
+					'action'            => admin_url( 'admin.php?page=jetpack#/dashboard' ),
+					'action_label'      => __( 'Disconnect your site from WordPress.com, and connect it again.', 'jetpack' ),
+				)
+			);
+		}
+
+		return self::passing_test( array( 'name' => __FUNCTION__ ) );
+	}
+
+	/**
 	 * Test if Jetpack is connected.
 	 */
 	protected function test__check_if_connected() {
 		$name = __FUNCTION__;
+
+		if ( ! $this->helper_get_blog_token() ) {
+			return self::skipped_test(
+				array(
+					'name'              => $name,
+					'short_description' => __( 'Blog token is missing.', 'jetpack' ),
+				)
+			);
+		}
+
 		if ( $this->helper_is_jetpack_connected() ) {
 			$result = self::passing_test(
 				array(
