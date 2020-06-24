@@ -2,6 +2,7 @@
 
 /**
  * Testing Backward Compatibility with Olter plugins.
+ * test
  */
 class WP_Test_Jetpack_Sync_Backward_Compatibility extends WP_Test_Jetpack_Sync_Base {
 

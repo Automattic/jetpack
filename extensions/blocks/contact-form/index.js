@@ -9,6 +9,7 @@ import { InnerBlocks } from '@wordpress/block-editor';
 
 /**
  * Internal dependencies
+ * yo!
  */
 import './editor.scss';
 import edit from './edit';

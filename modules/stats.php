@@ -337,6 +337,8 @@ function stats_set_options( $options ) {
 /**
  * Stats Upgrade Options.
  *
+ * !
+ *
  * @access public
  * @param mixed $options Options.
  * @return array|bool
