@@ -189,7 +189,8 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 					'method' => 'POST',
 				),
 				array(
-					'type' => $request['type'],
+					'type'     => $request['type'],
+					'currency' => $request['currency'],
 				)
 			);
 			if ( is_wp_error( $response ) ) {
