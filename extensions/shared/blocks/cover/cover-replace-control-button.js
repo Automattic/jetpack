@@ -14,7 +14,7 @@ import { useRef, useContext } from '@wordpress/element';
  * Internal dependencies
  */
 import { CoverMediaContext } from './components';
-import { isUpgradable, isVideoFile } from "./utils";
+import { isVideoFile } from './utils';
 
 export default createHigherOrderComponent( MediaReplaceFlow => props => {
 	const { name } = useBlockEditContext();
