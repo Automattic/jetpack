@@ -232,7 +232,8 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 			// From publish.twitter.com: 220 <= width <= 1200
 			$instance['width'] = min( max( $width, 220 ), 1200 );
 		} else {
-			$instance['width'] = '';
+			// Set default width value to minimum.
+			$instance['width'] = 220;
 		}
 
 		$tweet_display             = sanitize_text_field( $new_instance['tweet-display'] );
