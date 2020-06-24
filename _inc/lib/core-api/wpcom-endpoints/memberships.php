@@ -87,11 +87,40 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 					'callback'            => array( $this, 'create_products' ),
 					'permission_callback' => array( $this, 'get_status_permission_check' ),
 					'args'                => array(
-						'type' => array(
+						'type'     => array(
 							'type'              => 'string',
 							'required'          => true,
 							'validate_callback' => function( $param ) {
 								return in_array( $param, array( 'donation' ), true );
+							},
+						),
+						'currency' => array(
+							'type'              => 'string',
+							'required'          => false,
+							'validate_callback' => function( $param ) {
+								return in_array(
+									$param,
+									array(
+										'USD',
+										'AUD',
+										'BRL',
+										'CAD',
+										'CHF',
+										'DKK',
+										'EUR',
+										'GBP',
+										'HKD',
+										'INR',
+										'JPY',
+										'MXN',
+										'NOK',
+										'NZD',
+										'PLN',
+										'SEK',
+										'SGD',
+									),
+									true
+								);
 							},
 						),
 					),
@@ -183,7 +212,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 			if ( ! $connected_destination_account_id ) {
 				return new WP_Error( 'no-destination-account', __( 'Please set up a Stripe account for this site first', 'jetpack' ) );
 			}
-			return Memberships_Product::generate_default_products( get_current_blog_id(), $request['type'], $connected_destination_account_id );
+			return Memberships_Product::generate_default_products( get_current_blog_id(), $request['type'], $request['currency'], $connected_destination_account_id );
 		} else {
 			$blog_id  = Jetpack_Options::get_option( 'id' );
 			$response = Client::wpcom_json_api_request_as_user(
