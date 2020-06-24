@@ -45,6 +45,35 @@ class Error_Handler {
 	const ERROR_REPORTING_GATE = 'jetpack_connection_error_reporting_gate_';
 
 	/**
+	 * List of known errors. Only error codes in this list will be handled
+	 *
+	 * @var array
+	 */
+	public $known_errors = array(
+		'malformed_token',
+		'malformed_user_id',
+		'unknown_user',
+		'no_user_tokens',
+		'empty_master_user_option',
+		'no_token_for_user',
+		'token_malformed',
+		'user_id_mismatch',
+		'no_possible_tokens',
+		'no_valid_token',
+		'unknown_token',
+		'could_not_sign',
+		'invalid_scheme',
+		'invalid_secret',
+		'invalid_token',
+		'token_mismatch',
+		'invalid_body',
+		'invalid_signature',
+		'invalid_body_hash',
+		'invalid_nonce',
+		'signature_mismatch',
+	);
+
+	/**
 	 * Holds the instance of this singleton class
 	 *
 	 * @var Error_Handler $instance
@@ -80,7 +109,7 @@ class Error_Handler {
 	 * @return void
 	 */
 	public function report_error( \WP_Error $error, $force = false ) {
-		if ( $this->should_report_error( $error ) || $force ) {
+		if ( in_array( $error->get_error_code(), $this->known_errors, true ) && $this->should_report_error( $error ) || $force ) {
 			$stored_error = $this->store_error( $error );
 			if ( $stored_error ) {
 				$this->send_error_to_wpcom( $stored_error );
