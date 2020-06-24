@@ -14,12 +14,12 @@ export default function Controls( { playing, muted, setPlaying, setMuted } ) {
 			<${SimpleButton}
 				label="Play"
 				onClick=${() => setPlaying( ! playing )}
-				icon=${playing ? 'play_arrow' : 'pause'}
+				icon=${playing ? 'pause' : 'play_arrow'}
 			/>
 			<${SimpleButton}
 				label="Mute"
 				onClick=${() => setMuted( ! muted )}
-				icon=${muted ? 'volume_up' : 'volume_off'}
+				icon=${muted ? 'volume_off' : 'volume_up'}
 			/>
 		</div>
 	`;

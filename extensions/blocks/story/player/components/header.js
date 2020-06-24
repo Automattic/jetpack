@@ -10,7 +10,7 @@ import { SimpleButton } from './button';
 
 export default function Header( {
 	fullscreen,
-	onExitFullscreenPressed,
+	onExitFullscreen,
 	siteDescription,
 	siteIconUrl,
 	siteName,
@@ -18,6 +18,9 @@ export default function Header( {
 	if ( ! fullscreen ) {
 		return null;
 	}
+
+	// TODO: replace this monstruosity (url relative to story/view.js)
+	siteIconUrl = siteIconUrl || '../../../../../../wp-includes/images/w-logo-blue.png';
 
 	return html`
 		<div class="wp-story-meta">
@@ -35,8 +38,8 @@ export default function Header( {
 			<${SimpleButton}
 				className="wp-story-exit-fullscreen"
 				label="Exit Fullscreen"
-				close="close"
-				onclick=${onExitFullscreenPressed}
+				icon="close"
+				onClick=${onExitFullscreen}
 			/>
 		</div>
 	`;

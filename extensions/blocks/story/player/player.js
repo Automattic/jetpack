@@ -13,7 +13,7 @@ import Slide from './slide';
 
 export const playerEvents = new EventEmitter();
 
-export const Player = ( { slides, settings } ) => {
+export const Player = ( { slides, ...settings } ) => {
 	const [ currentSlideIndex, updateSlideIndex ] = useState( 0 );
 	const [ playing, setPlaying ] = useState( false );
 	const [ fullscreen, setFullscreen ] = useState( false );
@@ -70,11 +70,9 @@ export const Player = ( { slides, settings } ) => {
 			style=${{ display: loading ? 'none' : 'block', opacity: 1 }}
 		>
 			${settings.renderers.renderHeader( html, {
-				siteDescription: '',
-				siteIconUrl: '',
-				siteName: '',
+				...settings.metadata,
 				fullscreen,
-				onExitFullscreenPressed: () => setFullscreen( false ),
+				onExitFullscreen: () => setFullscreen( false ),
 			} )}
 			<ul class="wp-story-wrapper">
 				${slides.map(
@@ -124,10 +122,10 @@ export const Player = ( { slides, settings } ) => {
 	`;
 };
 
-export const renderPlayer = ( container, slides, settings ) => {
+export const renderPlayer = ( container, settings ) => {
 	render(
 		html`
-			<${Player} slides=${slides} settings=${settings} />
+			<${Player} ...${settings} />
 		`,
 		container
 	);
