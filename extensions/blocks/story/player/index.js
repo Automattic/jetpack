@@ -43,24 +43,26 @@ export default function player( rootElement, params ) {
 	const container = root.querySelector( '.wp-story-container' );
 	const slidesWrapper = container.querySelector( '.wp-story-wrapper' );
 
-	const fullscreen = false;
+	playerEvents.on( 'go-fullscreen', () => {
+		if ( settings.playInFullScreen ) {
+			document.body.classList.add( 'wp-story-in-fullscreen' );
+			document.getElementsByTagName( 'html' )[ 0 ].classList.add( 'wp-story-in-fullscreen' );
+			container.classList.add( 'wp-story-fullscreen' );
+			rootElement.classList.add( 'wp-story-fullscreen' );
+		}
+	} );
 
-	const goFullScreen = () => {
-		document.body.classList.add( 'wp-story-in-fullscreen' );
-		document.getElementsByTagName( 'html' )[ 0 ].classList.add( 'wp-story-in-fullscreen' );
-		container.classList.add( 'wp-story-fullscreen' );
-		rootElement.classList.add( 'wp-story-fullscreen' );
-	};
-
-	const exitFullScreen = () => {
+	playerEvents.on( 'exit-fullscreen', () => {
 		document.body.classList.remove( 'wp-story-in-fullscreen' );
 		document.getElementsByTagName( 'html' )[ 0 ].classList.remove( 'wp-story-in-fullscreen' );
 		rootElement.classList.remove( 'wp-story-fullscreen' );
 		container.classList.remove( 'wp-story-fullscreen' );
-	};
+	} );
+
+	const isFullscreen = () => container.classList.contains( 'wp-story-fullscreen' );
 
 	const resize = () => {
-		if ( fullscreen ) {
+		if ( isFullscreen() ) {
 			const slidesMaxHeight = slidesWrapper.offsetHeight;
 			if ( ! settings.autoResize ) {
 				container.style.width = `${ settings.defaultAspectRatio * slidesMaxHeight }px`;
@@ -70,22 +72,6 @@ export default function player( rootElement, params ) {
 		}
 	};
 
-	playerEvents.on( 'play', () => {
-		rootElement.classList.remove( 'wp-story-paused' );
-		rootElement.classList.add( 'wp-story-playing' );
-	} );
-	playerEvents.on( 'pause', () => {
-		rootElement.classList.remove( 'wp-story-playing' );
-		rootElement.classList.add( 'wp-story-paused' );
-	} );
-	playerEvents.on( 'mute', () => {
-		rootElement.classList.add( 'wp-story-muted' );
-	} );
-	playerEvents.on( 'unmute', () => {
-		rootElement.classList.remove( 'wp-story-muted' );
-	} );
-
-	/*
 	let pendingRequestAnimationFrame = null;
 	new ResizeObserver( () => {
 		if ( pendingRequestAnimationFrame ) {
@@ -95,7 +81,7 @@ export default function player( rootElement, params ) {
 		pendingRequestAnimationFrame = requestAnimationFrame( () => {
 			resize();
 		} );
-	} ).observe( container );*/
+	} ).observe( container );
 
 	const initPlayer = slides => {
 		renderPlayer( root, slides, settings );

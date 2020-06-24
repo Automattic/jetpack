@@ -69,7 +69,13 @@ export const Player = ( { slides, settings } ) => {
 			class="wp-block-jetpack-story_container wp-story-container"
 			style=${{ display: loading ? 'none' : 'block', opacity: 1 }}
 		>
-			${settings.renderers.renderHeader( html )}
+			${settings.renderers.renderHeader( html, {
+				siteDescription: '',
+				siteIconUrl: '',
+				siteName: '',
+				fullscreen,
+				onExitFullscreenPressed: () => setFullscreen( false ),
+			} )}
 			<ul class="wp-story-wrapper">
 				${slides.map(
 					( media, index ) => html`

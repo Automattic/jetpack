@@ -17,12 +17,9 @@ export function toShadow( rootElement, { mode = 'open', styles = null } ) {
 	const styleElements = typeof styles === 'string' ? document.querySelectorAll( styles ) : styles;
 
 	copyElements( shadowRoot, [ ...styleElements ] );
+	moveElements( shadowRoot, [ ...rootElement.children ] );
 
-	const newRoot = document.createElement( 'div' );
-	shadowRoot.appendChild( newRoot );
-	moveElements( newRoot, [ ...rootElement.children ] );
-
-	return newRoot;
+	return shadowRoot;
 }
 
 export function supportsShadow() {
