@@ -15,6 +15,33 @@ use Automattic\Jetpack\Connection\Client;
 class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 
 	/**
+	 * Currencies should be supported by Stripe.
+	 *
+	 * @link https://stripe.com/docs/currencies
+	 *
+	 * List has to be in sync with the Recurring Payments block in Jetpack and the Memberships library in WP.com.
+	 */
+	const SUPPORTED_CURRENCIES = array(
+		'USD',
+		'AUD',
+		'BRL',
+		'CAD',
+		'CHF',
+		'DKK',
+		'EUR',
+		'GBP',
+		'HKD',
+		'INR',
+		'JPY',
+		'MXN',
+		'NOK',
+		'NZD',
+		'PLN',
+		'SEK',
+		'SGD',
+	);
+
+	/**
 	 * WPCOM_REST_API_V2_Endpoint_Memberships constructor.
 	 */
 	public function __construct() {
@@ -98,29 +125,7 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 							'type'              => 'string',
 							'required'          => false,
 							'validate_callback' => function( $param ) {
-								return in_array(
-									$param,
-									array(
-										'USD',
-										'AUD',
-										'BRL',
-										'CAD',
-										'CHF',
-										'DKK',
-										'EUR',
-										'GBP',
-										'HKD',
-										'INR',
-										'JPY',
-										'MXN',
-										'NOK',
-										'NZD',
-										'PLN',
-										'SEK',
-										'SGD',
-									),
-									true
-								);
+								return in_array( $param, self::SUPPORTED_CURRENCIES, true );
 							},
 						),
 					),
