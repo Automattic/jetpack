@@ -329,7 +329,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 		} else {
 			$base_url = esc_url( Redirect::get_url( 'jetpack-support-extra-sidebar-widgets-twitter-timeline-widget' ) );
 		}
-		return '<a href="' . $base_url . $hash . '" target="_blank"> Need help?</a>';
+		return '<a class="widget-access-link" href="' . $base_url . $hash . '" target="_blank"> Need help?</a>';
 	}
 
 	/**
@@ -373,6 +373,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 								'href'   => array(),
 								'rel'    => array(),
 								'target' => array(),
+								'class'  => array(),
 							),
 						)
 					);
