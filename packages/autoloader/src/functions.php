@@ -86,6 +86,11 @@ function set_up_autoloader() {
 
 	$current_autoloader_version = $autoloader_handler->get_current_autoloader_version();
 
+	if ( ! $jetpack_autoloader_latest_version ) {
+		// Set the lastest version if it hasn't been set yet.
+		$jetpack_autoloader_latest_version = $current_autoloader_version;
+	}
+
 	// This is the latest autoloader, so generate the classmap and filemap and register the autoloader function.
 	if ( empty( $jetpack_packages_classmap ) && $current_autoloader_version === $jetpack_autoloader_latest_version ) {
 		enqueue_files( $plugins_handler, $version_selector );

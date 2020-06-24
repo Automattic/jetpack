@@ -79,7 +79,7 @@ class Autoloader_Handler {
 		}
 
 		$jetpack_autoloader_latest_version = $selected_autoloader_version;
-		if ( $current_autoloader_path !== $selected_autoloader_path ) {
+		if ( $current_autoloader_path !== $selected_autoloader_path && file_exists( $selected_autoloader_path ) ) {
 			require $selected_autoloader_path;
 		}
 	}
