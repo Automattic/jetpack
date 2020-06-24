@@ -76,6 +76,15 @@ class Files_Handler {
 		$active_plugins = $this->plugins_handler->get_all_active_plugins();
 		$plugins_paths  = array_map( array( $this, 'create_filemap_path_array' ), $active_plugins );
 
+		if ( empty( $plugins_paths ) ) {
+			// There may have been a problem generating the plugin paths.
+			// Try to add this directory's filemap as a last resort.
+			$filemap_path = trailingslashit( dirname( __FILE__ ) ) . 'composer/jetpack_autoload_filemap.php';
+			if ( is_readable( $filemap_path ) ) {
+				$plugins_paths = array( $filemap_path );
+			}
+		}
+
 		foreach ( $plugins_paths as $path ) {
 			if ( is_readable( $path ) ) {
 				$file_map = require $path;
