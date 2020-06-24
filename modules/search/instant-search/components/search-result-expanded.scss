@@ -43,6 +43,10 @@
 
 .jetpack-instant-search__result-expanded__copy-container {
 	max-width: 70%;
+
+	.jetpack-instant-search__result-expanded--no-image & {
+		max-width: initial;
+	}
 }
 
 .jetpack-instant-search__result-expanded__content {
