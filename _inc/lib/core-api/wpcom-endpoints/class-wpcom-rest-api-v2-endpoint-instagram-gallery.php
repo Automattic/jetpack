@@ -123,26 +123,7 @@ class WPCOM_REST_API_V2_Endpoint_Instagram_Gallery extends WP_REST_Controller {
 	 * @return mixed
 	 */
 	public function get_instagram_connections() {
-		if ( $this->is_wpcom ) {
-			return WPCOM_Instagram_Gallery_Helper::get_connections();
-		}
-
-		$response = Client::wpcom_json_api_request_as_user( '/me/connections' );
-		if ( is_wp_error( $response ) ) {
-			return $response;
-		}
-		$body = json_decode( wp_remote_retrieve_body( $response ) );
-
-		$connections = array();
-		foreach ( $body->connections as $connection ) {
-			if ( 'instagram-basic-display' === $connection->service && 'ok' === $connection->status ) {
-				$connections[] = array(
-					'token'    => (string) $connection->ID,
-					'username' => $connection->external_name,
-				);
-			}
-		}
-		return $connections;
+		return Jetpack_Instagram_Gallery_Helper::get_instagram_connections();
 	}
 
 	/**

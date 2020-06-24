@@ -14,6 +14,37 @@ class Jetpack_Instagram_Gallery_Helper {
 	const TRANSIENT_KEY_PREFIX = 'jetpack_instagram_gallery_block_';
 
 	/**
+	 * Get a list of stored Instagram connections for the current user.
+	 *
+	 * @return mixed
+	 */
+	public static function get_instagram_connections() {
+		if ( self::is_wpcom() ) {
+			if ( ! class_exists( 'WPCOM_Instagram_Gallery_Helper' ) ) {
+				\jetpack_require_lib( 'instagram-gallery-helper' );
+			}
+			return WPCOM_Instagram_Gallery_Helper::get_connections();
+		}
+
+		$response = Client::wpcom_json_api_request_as_user( '/me/connections' );
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+		$body = json_decode( wp_remote_retrieve_body( $response ) );
+
+		$connections = array();
+		foreach ( $body->connections as $connection ) {
+			if ( 'instagram-basic-display' === $connection->service && 'ok' === $connection->status ) {
+				$connections[] = array(
+					'token'    => (string) $connection->ID,
+					'username' => $connection->external_name,
+				);
+			}
+		}
+		return $connections;
+	}
+
+	/**
 	 * Get the Instagram Gallery.
 	 *
 	 * @param  string $access_token The Instagram access token.
@@ -37,7 +68,7 @@ class Jetpack_Instagram_Gallery_Helper {
 			}
 		}
 
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		if ( self::is_wpcom() ) {
 			if ( ! class_exists( 'WPCOM_Instagram_Gallery_Helper' ) ) {
 				\jetpack_require_lib( 'instagram-gallery-helper' );
 			}
@@ -77,8 +108,7 @@ class Jetpack_Instagram_Gallery_Helper {
 	 * @return mixed
 	 */
 	public static function get_site_id() {
-		$is_wpcom = ( defined( 'IS_WPCOM' ) && IS_WPCOM );
-		$site_id  = $is_wpcom ? get_current_blog_id() : Jetpack_Options::get_option( 'id' );
+		$site_id = self::is_wpcom() ? get_current_blog_id() : Jetpack_Options::get_option( 'id' );
 		if ( ! $site_id ) {
 			return new WP_Error(
 				'unavailable_site_id',
@@ -88,4 +118,12 @@ class Jetpack_Instagram_Gallery_Helper {
 		}
 		return (int) $site_id;
 	}
-}
+
+	/**
+	 * Check if we're in WordPress.com.
+	 *
+	 * @return bool
+	 */
+	private static function is_wpcom() {
+		return defined( 'IS_WPCOM' ) && IS_WPCOM;
+	}}
