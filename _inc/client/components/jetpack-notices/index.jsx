@@ -13,6 +13,7 @@ import getRedirectUrl from 'lib/jp-redirect';
 /**
  * Internal dependencies
  */
+import { getSiteDataErrors } from 'state/site';
 import JetpackStateNotices from './state-notices';
 import {
 	getSiteConnectionStatus,
@@ -176,6 +177,31 @@ export class UserUnlinked extends React.Component {
 	}
 }
 
+export class ErrorNotices extends React.Component {
+	static displayName = 'ErrorNotices';
+
+	render() {
+		if ( this.props.errors.response ) {
+			const code = this.props.errors.response.code,
+				message = this.props.errors.response.message;
+
+			const props = {
+				text: message,
+				status: 'is-error',
+				showDismiss: false,
+			};
+
+			return (
+				<SimpleNotice { ...props }>
+					<NoticeAction href={ '' }>{ __( 'Link to do something' ) }</NoticeAction>
+				</SimpleNotice>
+			);
+		}
+
+		return false;
+	}
+}
+
 UserUnlinked.propTypes = {
 	connectUrl: PropTypes.string.isRequired,
 	siteConnected: PropTypes.bool.isRequired,
@@ -189,6 +215,7 @@ class JetpackNotices extends React.Component {
 			<div aria-live="polite">
 				<NoticesList />
 				<JetpackStateNotices />
+				<ErrorNotices errors={ this.props.siteDataErrors } />
 				<DevVersionNotice
 					isDevVersion={ this.props.isDevVersion }
 					userIsSubscriber={ this.props.userIsSubscriber }
@@ -233,5 +260,6 @@ export default connect( state => {
 		siteDevMode: getSiteDevMode( state ),
 		isStaging: isStaging( state ),
 		isInIdentityCrisis: isInIdentityCrisis( state ),
+		siteDataErrors: getSiteDataErrors( state ),
 	};
 } )( JetpackNotices );
