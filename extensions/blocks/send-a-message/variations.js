@@ -14,7 +14,7 @@ const variations = [
 		name: 'whatsapp-button',
 		title: __( 'WhatsApp Button', 'jetpack' ),
 		description: __(
-			'Let your visitors to send you messages on WhatsApp with the tap of a button.',
+			'Let your visitors send you messages on WhatsApp with the tap of a button.',
 			'jetpack'
 		),
 		icon: whatsAppIcon,
