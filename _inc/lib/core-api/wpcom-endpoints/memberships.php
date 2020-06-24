@@ -20,6 +20,8 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 	 * @link https://stripe.com/docs/currencies
 	 *
 	 * List has to be in sync with the Recurring Payments block in Jetpack and the Memberships library in WP.com.
+	 * @link https://github.com/Automattic/jetpack/blob/2e7e2c4dbe6348933075cef0a8ca75dd21b20657/extensions/blocks/recurring-payments/index.js#L81
+	 * @see Memberships_Product::SUPPORTED_CURRENCIES
 	 */
 	const SUPPORTED_CURRENCIES = array(
 		'USD',
