@@ -1,6 +1,6 @@
 <?php
 /**
- * Display the Simple Payments Form.
+ * Display the Pay with PayPal Form.
  *
  * @package Jetpack
  */
@@ -19,7 +19,7 @@
 </p>
 <p class="jetpack-simple-payments-products-fieldset" <?php if ( empty( $product_posts ) ) { echo 'style="display:none;"'; } ?>>
 	<label for="<?php echo esc_attr( $this->get_field_id( 'product_post_id' ) ); ?>">
-		<?php esc_html_e( 'Select a Simple Payments Button:', 'jetpack' ); ?>
+		<?php esc_html_e( 'Select a Pay with PayPal button:', 'jetpack' ); ?>
 	</label>
 	<select
 		class="widefat jetpack-simple-payments-products"

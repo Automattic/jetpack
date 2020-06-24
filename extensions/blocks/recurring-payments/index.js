@@ -25,13 +25,14 @@ export const icon = (
 );
 
 export const settings = {
-	title: __( 'Recurring Payments', 'jetpack' ),
+	title: __( 'Payments', 'jetpack' ),
 	icon,
-	description: __( 'Button allowing you to sell subscription products.', 'jetpack' ),
+	description: __( 'Button allowing you to sell products and subscriptions.', 'jetpack' ),
 	category: supportsCollections() ? 'earn' : 'jetpack',
 	keywords: [
 		_x( 'sell', 'block search term', 'jetpack' ),
 		_x( 'subscriptions', 'block search term', 'jetpack' ),
+		_x( 'product', 'block search term', 'jetpack' ),
 		'stripe',
 		_x( 'memberships', 'block search term', 'jetpack' ),
 	],

@@ -22,13 +22,11 @@ $jetpack_docker_avoided_plugins = array(
  *                              'deactivate', and 'delete'. With Multisite active this can also include
  *                              'network_active' and 'network_only' items.
  * @param string   $plugin_file Path to the plugin file relative to the plugins directory.
- * @param array    $plugin_data An array of plugin data. See `get_plugin_data()`.
- * @param string   $context     The plugin context. By default this can include 'all', 'active', 'inactive',
  *                              'recently_activated', 'upgrade', 'mustuse', 'dropins', and 'search'.
  *
  * @return mixed
  */
-function jetpack_docker_disable_plugin_deletion_link( $actions, $plugin_file, $plugin_data, $context ) {
+function jetpack_docker_disable_plugin_deletion_link( $actions, $plugin_file ) {
 	global $jetpack_docker_avoided_plugins;
 	if (
 		array_key_exists( 'delete', $actions ) &&
@@ -42,7 +40,7 @@ function jetpack_docker_disable_plugin_deletion_link( $actions, $plugin_file, $p
 	}
 	return $actions;
 }
-add_filter( 'plugin_action_links', 'jetpack_docker_disable_plugin_deletion_link', 10, 4 );
+add_filter( 'plugin_action_links', 'jetpack_docker_disable_plugin_deletion_link', 10, 2 );
 
 /**
  * Fail deletion attempts of our important plugins
