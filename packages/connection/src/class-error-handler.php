@@ -55,6 +55,8 @@ class Error_Handler {
 	 * Initialize hooks
 	 */
 	private function __construct() {
+		defined( 'JETPACK__ERRORS_PUBLIC_KEY' ) || define( 'JETPACK__ERRORS_PUBLIC_KEY', 'KdZY80axKX+nWzfrOcizf0jqiFHnrWCl9X8yuaClKgM=' );
+
 		add_action( 'rest_api_init', array( $this, 'register_verify_error_endpoint' ) );
 	}
 
@@ -189,15 +191,33 @@ class Error_Handler {
 	 * Sends the error to WP.com to be verified
 	 *
 	 * @param array $error_array The array representation of the error as it is stored in the database.
-	 * @return void
+	 * @return bool
 	 */
 	public function send_error_to_wpcom( $error_array ) {
 
 		$blog_id = \Jetpack_Options::get_option( 'id' );
 
-		// todo encrypt message.
-		wp_remote_post( "https://wordpress.com/sites/{$blog_id}/jetpack-report-error/", $error_array );
+		// encrypt data.
+		try {
+			// phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
+			// phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+			$encrypted_data = base64_encode( sodium_crypto_box_seal( wp_json_encode( $error_array ), base64_decode( JETPACK__ERRORS_PUBLIC_KEY ) ) );
+			// phpcs:enable WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
+			// phpcs:enable WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+		} catch ( SodiumException $e ) {
+			// error encrypting data.
+			return false;
+		}
 
+		$args = array(
+			'body' => array(
+				'error_data' => $encrypted_data,
+			),
+		);
+
+		// send encrypted data to WP.com Public-API v2.
+		wp_remote_post( "https://public-api.wordpress.com/wpcom/v2/sites/{$blog_id}/jetpack-report-error/", $args );
+		return true;
 	}
 
 	/**
@@ -341,8 +361,6 @@ class Error_Handler {
 	 * @return boolean
 	 */
 	public function verify_xml_rpc_error( \WP_REST_Request $request ) {
-
-		// TODO: decrypt data and confirm it came from WPCOM.
 
 		$error = $this->get_error_by_nonce( $request['nonce'] );
 
