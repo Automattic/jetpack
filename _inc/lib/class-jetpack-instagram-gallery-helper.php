@@ -145,4 +145,5 @@ class Jetpack_Instagram_Gallery_Helper {
 	 */
 	private static function is_wpcom() {
 		return defined( 'IS_WPCOM' ) && IS_WPCOM;
-	}}
+	}
+}
