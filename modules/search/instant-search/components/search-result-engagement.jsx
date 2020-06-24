@@ -23,6 +23,12 @@ function getPostTypeIcon( postType ) {
 	return <Gridicon icon={ getGridiconName( postType ) } size={ 32 } />;
 }
 
+function splitDomainPath( path ) {
+	const splits = path.split( '/' ).filter( piece => piece.length > 0 );
+	splits.shift(); // Removes domain name from splits; e.g. 'jetpack.com'
+	return splits;
+}
+
 export default function SearchResultEngagement( props ) {
 	const { result_type, fields, highlight } = props.result;
 
@@ -48,15 +54,12 @@ export default function SearchResultEngagement( props ) {
 						rel="noopener noreferrer"
 						target="_blank"
 					>
-						{ fields[ 'permalink.url.raw' ]
-							.split( '/' )
-							.filter( piece => piece.length > 0 )
-							.map( ( piece, index, pieces ) => (
-								<span className="jetpack-instant-search__search-result-engagement__path-piece">
-									{ piece }
-									{ index !== pieces.length - 1 ? ' › ' : '' }
-								</span>
-							) ) }
+						{ splitDomainPath( fields[ 'permalink.url.raw' ] ).map( ( piece, index, pieces ) => (
+							<span className="jetpack-instant-search__search-result-engagement__path-piece">
+								{ piece }
+								{ index !== pieces.length - 1 ? ' › ' : '' }
+							</span>
+						) ) }
 					</a>
 				</div>
 				<h3 className="jetpack-instant-search__search-result-engagement__title">

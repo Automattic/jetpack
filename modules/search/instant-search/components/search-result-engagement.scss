@@ -22,6 +22,9 @@
 .jetpack-instant-search__search-result-engagement__path {
 	font-size: 0.9em;
 	margin-bottom: 0.5em;
+	overflow-x: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .jetpack-instant-search__result-engagement__path-link {
@@ -36,7 +39,7 @@
 }
 
 .jetpack-instant-search__search-result-engagement__copy-container {
-	flex-basis: 70%;
+	max-width: 70%;
 }
 
 .jetpack-instant-search__search-result-engagement__content {
@@ -44,8 +47,8 @@
 }
 
 .jetpack-instant-search__search-result-engagement__image-container {
-	flex-basis: 30%;
 	margin-left: 1em;
+	width: 30%;
 
 	.jetpack-instant-search__search-result-engagement--no-image & {
 		display: none;
