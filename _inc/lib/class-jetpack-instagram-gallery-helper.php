@@ -57,7 +57,26 @@ class Jetpack_Instagram_Gallery_Helper {
 			return $site_id;
 		}
 
+		// Check if the connection exists before trying to retrieve the cached gallery.
+		$connections       = self::get_instagram_connections();
+		$connection_exists = false;
+		foreach ( $connections as $connection ) {
+			if ( $access_token === $connection['token'] ) {
+				$connection_exists = true;
+				break;
+			}
+		}
+
 		$transient_key = self::TRANSIENT_KEY_PREFIX . $access_token;
+
+		if ( ! $connection_exists ) {
+			delete_transient( $transient_key );
+			return new WP_Error(
+				'instagram_connection_unavailable',
+				__( 'The requested Instagram connection is not available anymore.', 'jetpack' ),
+				403
+			);
+		}
 
 		$cached_gallery = get_transient( $transient_key );
 		if ( $cached_gallery ) {
