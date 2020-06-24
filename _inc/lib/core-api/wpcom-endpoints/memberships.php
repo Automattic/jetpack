@@ -238,8 +238,8 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 			}
 			$data = isset( $response['body'] ) ? json_decode( $response['body'], true ) : null;
 			// If endpoint returned error, we have to detect it.
-			if ( 200 !== $response['response']['code'] && $data['code'] && $data['message'] ) {
-				return new WP_Error( $data['code'], $data['message'], 401 );
+			if ( 200 !== $response['response']['code'] && $data['code'] ) {
+				return new WP_Error( $data['code'], $data['message'] ? $data['message'] : '', 401 );
 			}
 			return $data;
 		}
