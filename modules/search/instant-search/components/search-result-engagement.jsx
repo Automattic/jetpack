@@ -36,7 +36,8 @@ export default function SearchResultEngagement( props ) {
 	return (
 		<li
 			className={ `jetpack-instant-search__search-result-engagement 
-			jetpack-instant-search__search-result-engagement--${ fields.post_type }` }
+			jetpack-instant-search__search-result-engagement--${ fields.post_type }
+			${ ! firstImage ? 'jetpack-instant-search__search-result-engagement--no-image' : '' }` }
 		>
 			<div className="jetpack-instant-search__search-result-engagement__copy-container">
 				<div className="jetpack-instant-search__search-result-engagement__path">
@@ -97,11 +98,7 @@ export default function SearchResultEngagement( props ) {
 							src={ `//${ firstImage }` }
 							useDiv
 						/>
-					) : (
-						<div className="jetpack-instant-search__search-result-engagement__image-placeholder">
-							{ getPostTypeIcon( fields.post_type ) }
-						</div>
-					) }
+					) : null }
 				</a>
 			</div>
 		</li>

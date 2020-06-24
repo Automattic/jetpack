@@ -46,6 +46,10 @@
 .jetpack-instant-search__search-result-engagement__image-container {
 	flex-basis: 30%;
 	margin-left: 1em;
+
+	.jetpack-instant-search__search-result-engagement--no-image & {
+		display: none;
+	}
 }
 .jetpack-instant-search__search-result-engagement__image,
 .jetpack-instant-search__search-result-engagement__image-placeholder {
