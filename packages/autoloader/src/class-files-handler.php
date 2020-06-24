@@ -65,12 +65,7 @@ class Files_Handler {
 	 * @return Array An array of plugin names and filemap paths.
 	 */
 	public function create_filemap_path_array( $plugin ) {
-		if ( 'jetpack' === $plugin ) {
-			$plugin_path = JETPACK__PLUGIN_DIR;
-		} else {
-			$plugin_path = trailingslashit( WP_PLUGIN_DIR ) . $plugin;
-		}
-
+		$plugin_path = trailingslashit( WP_PLUGIN_DIR ) . $plugin;
 		return trailingslashit( $plugin_path ) . 'vendor/composer/jetpack_autoload_filemap.php';
 	}
 
