@@ -5,15 +5,8 @@
 	margin-bottom: $jetpack-block-margin-bottom;
 	position: relative;
 
-	.wp-story-container {
-		width: 280px;
-	}
+}
 
-	.wp-block-jetpack-story_slide {
-		background: rgba( 0, 0, 0, 0.1 );
-	}
-
-	&[data-autoplay='true'] .wp-block-jetpack-story_button-pause {
-		display: block;
-	}
+.wp-story-container {
+	width: 280px;
 }
