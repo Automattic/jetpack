@@ -11,7 +11,7 @@ import getJetpackExtensionAvailability from '../../get-jetpack-extension-availab
 import getAllowedMimeTypesBySite, {
 	getAllowedVideoTypesByType,
 	pickFileExtensionsFromMimeTypes,
-} from "../../get-allowed-mime-types";
+} from '../../get-allowed-mime-types';
 
 /**
  * Check if the given file is a video.
@@ -38,7 +38,7 @@ export function isVideoFile( file ) {
 	}
 
 	if ( typeof file === 'object' ) {
-		return file.type && ( values( allowedVideoMimeTypes ) ).includes( file.type );
+		return file.type && values( allowedVideoMimeTypes ).includes( file.type );
 	}
 
 	return false;
@@ -53,7 +53,10 @@ export function isVideoFile( file ) {
 export function isUpgradable( name ) {
 	const { unavailableReason } = getJetpackExtensionAvailability( 'videopress' );
 
-	return name && name === 'core/cover' && // upgrade only for cover block
+	return (
+		name &&
+		name === 'core/cover' && // upgrade only for cover block
 		isSimpleSite() && // only for Simple sites
-		[ 'missing_plan', 'unknown' ].includes( unavailableReason );
+		[ 'missing_plan', 'unknown' ].includes( unavailableReason )
+	);
 }
