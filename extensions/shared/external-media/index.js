@@ -28,11 +28,11 @@ if ( isCurrentUserConnected() ) {
 		'editor.MediaUpload',
 		'external-media/replace-media-upload',
 		OriginalComponent => props => {
-			const { addToGallery = false, allowedTypes } = props;
+			const { allowedTypes, gallery = false, value = false } = props;
 			let { render } = props;
 
 			// Only replace button for components that expect images, except existing galleries.
-			if ( allowedTypes.indexOf( 'image' ) > -1 && ! addToGallery ) {
+			if ( allowedTypes.indexOf( 'image' ) > -1 && ! ( gallery && value ) ) {
 				render = button => <MediaButton { ...button } mediaProps={ props } />;
 			}
 
