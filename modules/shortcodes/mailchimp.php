@@ -92,9 +92,6 @@ class MailChimp_Subscriber_Popup {
 			return $content;
 		}
 
-		require_once ABSPATH . WPINC . '/class-json.php';
-		$wp_json = new Services_JSON();
-
 		// loop through our rules and find valid embeds.
 		foreach ( self::$reversal_regexes as $regex ) {
 
@@ -106,10 +103,10 @@ class MailChimp_Subscriber_Popup {
 				// the regex rule for a specific embed.
 				$replace_regex = sprintf( '#\s*%s\s*#', preg_quote( $matches[0][ $index ], '#' ) );
 
-				$attrs = $wp_json->decode( '{' . $js_vars . '}' );
+				$attrs = json_decode( '{' . $js_vars . '}' );
 
 				if ( $matches[2][ $index ] ) {
-					$config_attrs = $wp_json->decode( '{' . $matches[2][ $index ] . '}' );
+					$config_attrs = json_decode( '{' . $matches[2][ $index ] . '}' );
 					foreach ( $config_attrs as $key => $value ) {
 						$attrs->$key = ( 1 === $value ) ? 'true' : 'false';
 					}

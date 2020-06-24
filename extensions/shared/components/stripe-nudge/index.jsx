@@ -12,7 +12,7 @@ import BlockNudge from '../block-nudge';
 
 import './style.scss';
 
-export default ( { stripeConnectUrl } ) => (
+export default ( { blockName, stripeConnectUrl } ) => (
 	<BlockNudge
 		buttonLabel={ __( 'Connect', 'jetpack' ) }
 		icon={
@@ -25,7 +25,7 @@ export default ( { stripeConnectUrl } ) => (
 			/>
 		}
 		href={ stripeConnectUrl }
-		onClick={ blockName =>
+		onClick={ () =>
 			void analytics.tracks.recordEvent( 'jetpack_editor_block_stripe_connect_click', {
 				block: blockName,
 			} )

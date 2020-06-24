@@ -23,6 +23,10 @@ export const settings = {
 		inserter: false,
 		align: [ 'left', 'right' ],
 	},
+	styles: [
+		{ name: 'fill', label: __( 'Fill', 'jetpack' ), isDefault: true },
+		{ name: 'outline', label: __( 'Outline', 'jetpack' ) },
+	],
 	attributes,
 	edit,
 	save,

@@ -92,30 +92,4 @@ class Test_Plugin extends TestCase {
 		$this->assertArrayNotHasKey( self::PLUGIN_SLUG, Plugin_Storage::get_all() );
 	}
 
-	/**
-	 * Unit test for the `Plugin:is_only()` method.
-	 * Make sure that the method returns true if either is true:
-	 * 1. It's the last active plugin connection.
-	 * 2. There are no active connections, assuming the plugin has just been removed.
-	 *
-	 * @depends test_remove
-	 * @covers Automattic\Jetpack\Connection\Plugin::is_only
-	 */
-	public function test_is_only_active() {
-		$plugin1 = ( new Plugin( self::PLUGIN_SLUG ) )
-			->add( self::PLUGIN_NAME, $this->plugin_args );
-
-		$plugin2 = ( new Plugin( 'plugin-slug-2' ) )
-			->add( 'Plugin Name 2' );
-
-		$this->assertFalse( $plugin1->is_only() );
-		$this->assertFalse( $plugin2->is_only() );
-
-		$plugin2->remove();
-		$this->assertTrue( $plugin1->is_only() );
-
-		$plugin1->remove();
-		$this->assertTrue( $plugin1->is_only() );
-	}
-
 }

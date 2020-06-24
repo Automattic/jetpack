@@ -28,4 +28,8 @@
 	&-color-notice {
 		margin: 0;
 	}
+
+	div[data-align=center] > & {
+		text-align: center;
+	}
 }

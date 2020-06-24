@@ -276,11 +276,11 @@ abstract class Module {
 		global $wpdb;
 		return $wpdb->get_col(
 			<<<SQL
-SELECT {$this->id_field()} 
-FROM {$wpdb->{$this->table_name()}} 
+SELECT {$this->id_field()}
+FROM {$wpdb->{$this->table_name()}}
 WHERE {$this->get_where_sql( $config )}
 AND {$this->id_field()} < {$status['last_sent']}
-ORDER BY {$this->id_field()} 
+ORDER BY {$this->id_field()}
 DESC LIMIT {$chunk_size}
 SQL
 		);
@@ -575,7 +575,7 @@ SQL
 	 * @param array $config Full sync configuration for this sync module.
 	 * @return string WHERE SQL clause, or `null` if no comments are specified in the module config.
 	 */
-	public function get_where_sql( $config ) {
+	public function get_where_sql( $config ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return '1=1';
 	}
 

@@ -90,7 +90,7 @@ describe( 'Paid blocks', () => {
 		await step( 'Can switch to Wide Skyscraper ad format', async () => {
 			const adBlock = new WordAdsBlock( blockInfo, page );
 			await adBlock.focus();
-			await adBlock.switchFormat( 3 ); // switch to Wide Skyscraper ad format
+			await adBlock.switchFormat( 4 ); // switch to Wide Skyscraper ad format
 		} );
 
 		await step( 'Can publish a post and assert that WordAds block is rendered', async () => {

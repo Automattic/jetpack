@@ -63,7 +63,7 @@
 }
 
 .contact-form label span {
-	color: #AAA;
+	font-size: 85%;
 	margin-left: 0.25em;
 	font-weight: normal;
 }
@@ -160,4 +160,16 @@
 	.wp-block-jetpack-contact-form input[type='url'] {
 		width: 100%;
 	}
+}
+
+/** For the "Empty Spam" button on /wp-admin/edit.php?post_status=spam&post_type=feedback **/
+.jetpack-empty-spam-container {
+	display: inline-block;
+}
+.jetpack-empty-spam {
+	display: inline-block;
+}
+.jetpack-empty-spam-spinner {
+	display: inline-block;
+	margin-top: 7px;
 }

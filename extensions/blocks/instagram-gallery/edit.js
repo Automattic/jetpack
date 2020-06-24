@@ -28,16 +28,13 @@ import { __, sprintf, _n } from '@wordpress/i18n';
  * Internal dependencies
  */
 import defaultAttributes from './attributes';
-import {
-	IS_CURRENT_USER_CONNECTED_TO_WPCOM,
-	MAX_IMAGE_COUNT,
-	NEW_INSTAGRAM_CONNECTION,
-} from './constants';
+import { MAX_IMAGE_COUNT, NEW_INSTAGRAM_CONNECTION } from './constants';
 import { getValidatedAttributes } from '../../shared/get-validated-attributes';
 import useConnectInstagram from './use-connect-instagram';
 import useConnectWpcom from './use-connect-wpcom';
 import useInstagramGallery from './use-instagram-gallery';
 import ImageTransition from './image-transition';
+import isCurrentUserConnected from '../../shared/is-current-user-connected';
 import './editor.scss';
 
 const InstagramGalleryEdit = props => {
@@ -76,11 +73,13 @@ const InstagramGalleryEdit = props => {
 	} = useConnectInstagram( {
 		accessToken,
 		noticeOperations,
+		selectedAccount,
 		setAttributes,
 		setImages,
 		setSelectedAccount,
 	} );
 
+	const currentUserConnected = isCurrentUserConnected();
 	const unselectedCount = count > images.length ? images.length : count;
 
 	const showPlaceholder = ! isLoadingGallery && ( ! accessToken || isEmpty( images ) );
@@ -154,7 +153,7 @@ const InstagramGalleryEdit = props => {
 	};
 
 	const renderPlaceholderInstructions = () => {
-		if ( ! IS_CURRENT_USER_CONNECTED_TO_WPCOM ) {
+		if ( ! currentUserConnected ) {
 			return __( "First, you'll need to connect to WordPress.com.", 'jetpack' );
 		}
 		if ( ! isRequestingUserConnections && ! userConnections.length ) {
@@ -215,7 +214,7 @@ const InstagramGalleryEdit = props => {
 					label={ __( 'Latest Instagram Posts', 'jetpack' ) }
 					notices={ noticeUI }
 				>
-					{ IS_CURRENT_USER_CONNECTED_TO_WPCOM ? (
+					{ currentUserConnected ? (
 						renderInstagramConnection()
 					) : (
 						<Button
@@ -260,7 +259,7 @@ const InstagramGalleryEdit = props => {
 								@{ instagramUser }
 							</ExternalLink>
 						</PanelRow>
-						{ IS_CURRENT_USER_CONNECTED_TO_WPCOM && (
+						{ currentUserConnected && (
 							<PanelRow>
 								<Button isDestructive isLink onClick={ () => disconnectFromService( accessToken ) }>
 									{ __( 'Disconnect your account', 'jetpack' ) }

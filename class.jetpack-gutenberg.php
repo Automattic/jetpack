@@ -102,7 +102,7 @@ class Jetpack_Gutenberg {
 	/**
 	 * Only these extensions can be registered. Used to control availability of beta blocks.
 	 *
-	 * @var array Extensions whitelist
+	 * @var array Extensions allowed list.
 	 */
 	private static $extensions = array();
 
@@ -312,7 +312,7 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
-	 * Set up a whitelist of allowed block editor extensions
+	 * Set up a list of allowed block editor extensions
 	 *
 	 * @return void
 	 */
@@ -344,7 +344,7 @@ class Jetpack_Gutenberg {
 		}
 
 		/**
-		 * Filter the whitelist of block editor extensions that are available through Jetpack.
+		 * Filter the list of block editor extensions that are available through Jetpack.
 		 *
 		 * @since 7.0.0
 		 *
@@ -353,7 +353,7 @@ class Jetpack_Gutenberg {
 		self::$extensions = apply_filters( 'jetpack_set_available_extensions', self::get_available_extensions() );
 
 		/**
-		 * Filter the whitelist of block editor plugins that are available through Jetpack.
+		 * Filter the list of block editor plugins that are available through Jetpack.
 		 *
 		 * @deprecated 7.0.0 Use jetpack_set_available_extensions instead
 		 *
@@ -364,7 +364,7 @@ class Jetpack_Gutenberg {
 		self::$extensions = apply_filters( 'jetpack_set_available_blocks', self::$extensions );
 
 		/**
-		 * Filter the whitelist of block editor plugins that are available through Jetpack.
+		 * Filter the list of block editor plugins that are available through Jetpack.
 		 *
 		 * @deprecated 7.0.0 Use jetpack_set_available_extensions instead
 		 *
@@ -429,11 +429,11 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
-	 * Returns a whitelist of Jetpack Gutenberg extensions (blocks and plugins), based on index.json
+	 * Returns a list of Jetpack Gutenberg extensions (blocks and plugins), based on index.json
 	 *
 	 * @return array A list of blocks: eg [ 'publicize', 'markdown' ]
 	 */
-	public static function get_jetpack_gutenberg_extensions_whitelist() {
+	public static function get_jetpack_gutenberg_extensions_allowed_list() {
 		$preset_extensions_manifest = self::preset_exists( 'index' )
 			? self::get_preset( 'index' )
 			: (object) array();
@@ -443,17 +443,29 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
-	 * Returns a diff from a combined list of whitelisted extensions and extensions determined to be excluded
+	 * Returns a list of Jetpack Gutenberg extensions (blocks and plugins), based on index.json
 	 *
-	 * @param  array $whitelisted_extensions An array of whitelisted extensions.
+	 * @deprecated 8.7.0 Use get_jetpack_gutenberg_extensions_allowed_list()
+	 *
+	 * @return array A list of blocks: eg [ 'publicize', 'markdown' ]
+	 */
+	public static function get_jetpack_gutenberg_extensions_whitelist() {
+		_deprecated_function( __FUNCTION__, 'jetpack-8.7.0', 'Jetpack_Gutenberg::get_jetpack_gutenberg_extensions_allowed_list' );
+		return self::get_jetpack_gutenberg_extensions_allowed_list();
+	}
+
+	/**
+	 * Returns a diff from a combined list of allowed extensions and extensions determined to be excluded
+	 *
+	 * @param  array $allowed_extensions An array of allowed extensions.
 	 *
 	 * @return array A list of blocks: eg array( 'publicize', 'markdown' )
 	 */
-	public static function get_available_extensions( $whitelisted_extensions = null ) {
-		$exclusions             = get_option( 'jetpack_excluded_extensions', array() );
-		$whitelisted_extensions = is_null( $whitelisted_extensions ) ? self::get_jetpack_gutenberg_extensions_whitelist() : $whitelisted_extensions;
+	public static function get_available_extensions( $allowed_extensions = null ) {
+		$exclusions         = get_option( 'jetpack_excluded_extensions', array() );
+		$allowed_extensions = is_null( $allowed_extensions ) ? self::get_jetpack_gutenberg_extensions_allowed_list() : $allowed_extensions;
 
-		return array_diff( $whitelisted_extensions, $exclusions );
+		return array_diff( $allowed_extensions, $exclusions );
 	}
 
 	/**
@@ -761,6 +773,7 @@ class Jetpack_Gutenberg {
 				'siteFragment'     => $site_fragment,
 				'tracksUserData'   => $user_data,
 				'wpcomBlogId'      => $blog_id,
+				'allowedMimeTypes' => wp_get_mime_types(),
 			)
 		);
 
@@ -956,7 +969,7 @@ class Jetpack_Gutenberg {
 		}
 
 		/*
-		 * If we're using a whitelist of hosts,
+		 * If we're using an allowed list of hosts,
 		 * check if the URL belongs to one of the domains allowed for that block.
 		 */
 		if (
