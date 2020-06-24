@@ -49,7 +49,10 @@ class Jetpack_Instagram_Gallery_Helper {
 
 			$encoded_gallery = wp_json_encode( $gallery );
 
-			set_transient( $transient_key, $encoded_gallery, HOUR_IN_SECONDS );
+			// Avoid caching the gallery if the fetch failed for unknown reasons.
+			if ( property_exists( $gallery, 'images' ) && 'ERROR' !== $gallery->images ) {
+				set_transient( $transient_key, $encoded_gallery, HOUR_IN_SECONDS );
+			}
 
 			// Make sure the gallery is an object.
 			return json_decode( $encoded_gallery );
