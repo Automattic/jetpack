@@ -16,7 +16,7 @@ NOTE: it might become outdated, so it could be a good idea to generate this file
 
 - Current version
 - Current -1
-- With gutenberg plugin
+- With Gutenberg plugin
 - Classic editor (? I don’t think we still support this actually)
 
 ### PHP versions(Low)
@@ -55,7 +55,7 @@ NOTE: it might become outdated, so it could be a good idea to generate this file
 - [ ] Stats registers views
 - [ ] Stats registers views in AMP views
 - [ ] Lazy loading
-- [ ] Site accelerator (make sure that images and core files are served from wpcom)
+- [ ] Site accelerator (make sure that images and core files are served from WPCOM)
 - [ ] Infinite scroll
 
 ## Products
