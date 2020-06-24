@@ -2,6 +2,7 @@
 /**
  * Handles server-side registration and use of all blocks and plugins available in Jetpack for the block editor, aka Gutenberg.
  * Works in tandem with client-side block registration via `index.json`
+ * Hi !
  *
  * @package Jetpack
  */
