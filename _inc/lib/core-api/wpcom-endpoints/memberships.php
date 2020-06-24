@@ -174,7 +174,12 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 			if ( ! $connected_destination_account_id ) {
 				return new WP_Error( 'no-destination-account', __( 'Please set up a Stripe account for this site first', 'jetpack' ) );
 			}
-			return Memberships_Product::generate_default_products( get_current_blog_id(), $request['type'], $request['currency'], $connected_destination_account_id );
+			$result = Memberships_Product::generate_default_products( get_current_blog_id(), $request['type'], $request['currency'], $connected_destination_account_id );
+			if ( is_wp_error( $result ) ) {
+				$status = 'invalid_param' === $result->get_error_code() ? 400 : 500;
+				return new WP_Error( $result->get_error_code(), $result->get_error_message(), array( 'status' => $status ) );
+			}
+			return $result;
 		} else {
 			$blog_id  = Jetpack_Options::get_option( 'id' );
 			$response = Client::wpcom_json_api_request_as_user(
