@@ -29,7 +29,7 @@ function splitDomainPath( path ) {
 	return splits;
 }
 
-export default function SearchResultEngagement( props ) {
+export default function SearchResultExpanded( props ) {
 	const { result_type, fields, highlight } = props.result;
 
 	if ( result_type !== 'post' ) {
@@ -41,30 +41,30 @@ export default function SearchResultEngagement( props ) {
 		: fields[ 'image.url.raw' ];
 	return (
 		<li
-			className={ `jetpack-instant-search__search-result-engagement 
-			jetpack-instant-search__search-result-engagement--${ fields.post_type }
-			${ ! firstImage ? 'jetpack-instant-search__search-result-engagement--no-image' : '' }` }
+			className={ `jetpack-instant-search__search-result-expanded 
+			jetpack-instant-search__search-result-expanded--${ fields.post_type }
+			${ ! firstImage ? 'jetpack-instant-search__search-result-expanded--no-image' : '' }` }
 		>
-			<div className="jetpack-instant-search__search-result-engagement__copy-container">
-				<div className="jetpack-instant-search__search-result-engagement__path">
+			<div className="jetpack-instant-search__search-result-expanded__copy-container">
+				<div className="jetpack-instant-search__search-result-expanded__path">
 					<a
-						className="jetpack-instant-search__result-engagement__path-link"
+						className="jetpack-instant-search__result-expanded__path-link"
 						href={ `//${ fields[ 'permalink.url.raw' ] }` }
 						onClick={ props.onClick }
 						rel="noopener noreferrer"
 						target="_blank"
 					>
 						{ splitDomainPath( fields[ 'permalink.url.raw' ] ).map( ( piece, index, pieces ) => (
-							<span className="jetpack-instant-search__search-result-engagement__path-piece">
+							<span className="jetpack-instant-search__search-result-expanded__path-piece">
 								{ piece }
 								{ index !== pieces.length - 1 ? ' › ' : '' }
 							</span>
 						) ) }
 					</a>
 				</div>
-				<h3 className="jetpack-instant-search__search-result-engagement__title">
+				<h3 className="jetpack-instant-search__search-result-expanded__title">
 					<a
-						className="jetpack-instant-search__result-engagement__title-link"
+						className="jetpack-instant-search__result-expanded__title-link"
 						href={ `//${ fields[ 'permalink.url.raw' ] }` }
 						onClick={ props.onClick }
 						rel="noopener noreferrer"
@@ -75,7 +75,7 @@ export default function SearchResultEngagement( props ) {
 				</h3>
 
 				<div
-					className="jetpack-instant-search__search-result-engagement__content"
+					className="jetpack-instant-search__search-result-expanded__content"
 					//eslint-disable-next-line react/no-danger
 					dangerouslySetInnerHTML={ {
 						__html: highlight.content.join( ' ... ' ),
@@ -84,9 +84,9 @@ export default function SearchResultEngagement( props ) {
 
 				{ highlight.comments && <SearchResultComments comments={ highlight.comments } /> }
 			</div>
-			<div className="jetpack-instant-search__search-result-engagement__image-container">
+			<div className="jetpack-instant-search__search-result-expanded__image-container">
 				<a
-					className="jetpack-instant-search__result-engagement__image-link"
+					className="jetpack-instant-search__result-expanded__image-link"
 					href={ `//${ fields[ 'permalink.url.raw' ] }` }
 					onClick={ props.onClick }
 					rel="noopener noreferrer"
@@ -97,7 +97,7 @@ export default function SearchResultEngagement( props ) {
 						//       with the primary color of the image?
 						<PhotonImage
 							alt=""
-							className="jetpack-instant-search__search-result-engagement__image"
+							className="jetpack-instant-search__search-result-expanded__image"
 							src={ `//${ firstImage }` }
 							useDiv
 						/>

@@ -391,8 +391,8 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			return;
 		}
 
-		// Set default result format to "engagement".
-		update_option( Jetpack_Search_Options::OPTION_PREFIX . 'result_format', 'engagement' );
+		// Set default result format to "expanded".
+		update_option( Jetpack_Search_Options::OPTION_PREFIX . 'result_format', 'expanded' );
 
 		global $wp_registered_sidebars;
 		$sidebars = get_option( 'sidebars_widgets', array() );

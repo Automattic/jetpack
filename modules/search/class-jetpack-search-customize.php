@@ -135,8 +135,8 @@ class Jetpack_Search_Customize {
 				'section'     => $section_id,
 				'type'        => 'select',
 				'choices'     => array(
-					'minimal'    => __( 'Minimal', 'jetpack' ),
-					'engagement' => __( 'Engagement', 'jetpack' ),
+					'minimal'  => __( 'Minimal', 'jetpack' ),
+					'expanded' => __( 'Expanded', 'jetpack' ),
 				),
 			)
 		);
