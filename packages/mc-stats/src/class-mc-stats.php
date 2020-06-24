@@ -1,16 +1,16 @@
 <?php
 /**
- * Jetpack Stats package.
+ * Jetpack MC Stats package.
  *
- * @package  automattic/jetpack-stats
+ * @package  automattic/jetpack-mc-stats
  */
 
 namespace Automattic\Jetpack;
 
 /**
- * Class Stats, used to record stats using https://pixel.wp.com/g.gif
+ * Class MC Stats, used to record stats using https://pixel.wp.com/g.gif
  */
-class Stats {
+class Mc_Stats {
 
 	/**
 	 * Holds the stats to be processed
