@@ -226,17 +226,7 @@ class Error_Handler {
 
 		$blog_id = \Jetpack_Options::get_option( 'id' );
 
-		// encrypt data.
-		try {
-			// phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
-			// phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
-			$encrypted_data = base64_encode( sodium_crypto_box_seal( wp_json_encode( $error_array ), base64_decode( JETPACK__ERRORS_PUBLIC_KEY ) ) );
-			// phpcs:enable WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
-			// phpcs:enable WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
-		} catch ( SodiumException $e ) {
-			// error encrypting data.
-			return false;
-		}
+		$encrypted_data = $this->encrypt_data_to_wpcom( $error_array );
 
 		$args = array(
 			'body' => array(
@@ -247,6 +237,29 @@ class Error_Handler {
 		// send encrypted data to WP.com Public-API v2.
 		wp_remote_post( "https://public-api.wordpress.com/wpcom/v2/sites/{$blog_id}/jetpack-report-error/", $args );
 		return true;
+	}
+
+	/**
+	 * Encrypt data to be sent over to WP.com
+	 *
+	 * @param array|string $data the data to be encoded.
+	 * @return boolean|string The encoded string on success, false on failure
+	 */
+	public function encrypt_data_to_wpcom( $data ) {
+
+		try {
+			// phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
+			// phpcs:disable WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+			$encrypted_data = base64_encode( sodium_crypto_box_seal( wp_json_encode( $data ), base64_decode( JETPACK__ERRORS_PUBLIC_KEY ) ) );
+			// phpcs:enable WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
+			// phpcs:enable WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+		} catch ( \SodiumException $e ) {
+			// error encrypting data.
+			return false;
+		}
+
+		return $encrypted_data;
+
 	}
 
 	/**

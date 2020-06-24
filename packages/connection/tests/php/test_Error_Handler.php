@@ -195,7 +195,12 @@ class Error_Handler_Test extends BaseTestCase {
 
 	}
 
-	function get_user_id_from_token_data() {
+	/**
+	 * Data provider for test_get_user_id_from_token
+	 *
+	 * @return array
+	 */
+	public function get_user_id_from_token_data() {
 		return array(
 			array(
 				'token'    => 'asdsaddasa:1:3',
@@ -270,6 +275,19 @@ class Error_Handler_Test extends BaseTestCase {
 		$verified_errors = $this->error_handler->get_verified_errors();
 
 		$this->assertEquals( $verified_errors['unknown_user']['3'], $stored_errors['unknown_user']['3'] );
+	}
+
+	/**
+	 * Test encryption available.
+	 */
+	public function test_encryption() {
+		$error = $this->get_sample_error( 'unknown_user', 3 );
+		$this->error_handler->report_error( $error );
+
+		$stored_errors = $this->error_handler->get_stored_errors();
+
+		$this->assertNotFalse( $this->error_handler->encrypt_data_to_wpcom( $stored_errors['unknown_user']['3'] ) );
+
 	}
 
 }
