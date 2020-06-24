@@ -15,35 +15,6 @@ use Automattic\Jetpack\Connection\Client;
 class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 
 	/**
-	 * Currencies should be supported by Stripe.
-	 *
-	 * @link https://stripe.com/docs/currencies
-	 *
-	 * List has to be in sync with the Recurring Payments block in Jetpack and the Memberships library in WP.com.
-	 * @link https://github.com/Automattic/jetpack/blob/2e7e2c4dbe6348933075cef0a8ca75dd21b20657/extensions/blocks/recurring-payments/index.js#L81
-	 * @see Memberships_Product::SUPPORTED_CURRENCIES
-	 */
-	const SUPPORTED_CURRENCIES = array(
-		'USD',
-		'AUD',
-		'BRL',
-		'CAD',
-		'CHF',
-		'DKK',
-		'EUR',
-		'GBP',
-		'HKD',
-		'INR',
-		'JPY',
-		'MXN',
-		'NOK',
-		'NZD',
-		'PLN',
-		'SEK',
-		'SGD',
-	);
-
-	/**
 	 * WPCOM_REST_API_V2_Endpoint_Memberships constructor.
 	 */
 	public function __construct() {
@@ -115,22 +86,6 @@ class WPCOM_REST_API_V2_Endpoint_Memberships extends WP_REST_Controller {
 					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'create_products' ),
 					'permission_callback' => array( $this, 'get_status_permission_check' ),
-					'args'                => array(
-						'type'     => array(
-							'type'              => 'string',
-							'required'          => true,
-							'validate_callback' => function( $param ) {
-								return in_array( $param, array( 'donation' ), true );
-							},
-						),
-						'currency' => array(
-							'type'              => 'string',
-							'required'          => false,
-							'validate_callback' => function( $param ) {
-								return in_array( $param, self::SUPPORTED_CURRENCIES, true );
-							},
-						),
-					),
 				),
 			)
 		);
