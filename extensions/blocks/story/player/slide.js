@@ -39,6 +39,9 @@ export const Slide = ( {
 	useEffect( () => {
 		if ( isVideo() ) {
 			mediaRef.current.muted = muted;
+			if ( ! muted ) {
+				mediaRef.current.volume = settings.volume;
+			}
 		}
 	}, [ muted ] );
 

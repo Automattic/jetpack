@@ -14,6 +14,7 @@ import defaultRenderers from './default-renderers';
 
 const defaultSettings = {
 	slides: [],
+	metadata: {},
 	autoload: true,
 	imageTime: 5000,
 	renderInterval: 50,
@@ -27,6 +28,7 @@ const defaultSettings = {
 	},
 	defaultAspectRatio: 720 / 1280,
 	autoResize: false,
+	volume: 0.5,
 };
 
 export default function player( rootElement, params ) {
@@ -42,6 +44,7 @@ export default function player( rootElement, params ) {
 
 	const container = root.querySelector( '.wp-story-container' );
 	const slidesWrapper = container.querySelector( '.wp-story-wrapper' );
+	const metaWrapper = container.querySelector( '.wp-story-meta' );
 
 	playerEvents.on( 'go-fullscreen', () => {
 		if ( settings.playInFullScreen ) {
@@ -83,17 +86,22 @@ export default function player( rootElement, params ) {
 		} );
 	} ).observe( container );
 
-	const initPlayer = slides => {
-		renderPlayer( root, slides, settings );
+	const initPlayer = ( newSettings = settings ) => {
+		renderPlayer( root, newSettings );
 	};
 
 	if ( settings.autoload ) {
-		let slides = settings.slides || [];
-		if ( slides.length === 0 && slidesWrapper.children.length > 0 ) {
-			slides = parseSlides( slidesWrapper );
+		settings.slides = settings.slides || [];
+		if ( settings.slides.length === 0 && slidesWrapper.children.length > 0 ) {
+			settings.slides = parseSlides( slidesWrapper );
 		}
 
-		initPlayer( slides );
+		settings.metadata = settings.metadata || {};
+		if ( Object.keys( settings.metadata ).length === 0 && metaWrapper.children.length > 0 ) {
+			settings.metadata = parseMeta( metaWrapper );
+		}
+
+		initPlayer( settings );
 	}
 
 	return {
@@ -111,4 +119,19 @@ function parseSlides( slidesWrapper ) {
 		id: element.getAttribute( 'data-id' ),
 		type: element.tagName.toLowerCase() === 'img' ? 'image' : 'video',
 	} ) );
+}
+
+function parseMeta( metaWrapper ) {
+	const siteIconElement = metaWrapper.querySelector( 'div:first-child > img' );
+	const siteNameElement = metaWrapper.querySelector( '.wp-story-site-name' );
+	const siteDescriptionElement = metaWrapper.querySelector( '.wp-story-site-description' );
+	const siteIconUrl = siteIconElement && siteIconElement.src;
+	const siteName = siteNameElement && siteNameElement.innerText;
+	const siteDescription = siteDescriptionElement && siteDescriptionElement.innerText;
+
+	return {
+		siteDescription,
+		siteIconUrl,
+		siteName,
+	};
 }
