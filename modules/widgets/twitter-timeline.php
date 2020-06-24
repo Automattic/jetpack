@@ -353,7 +353,18 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 		<p class="jetpack-twitter-timeline-widget-id-container">
 			<label for="<?php echo esc_attr( $this->get_field_id( 'widget-id' ) ); ?>">
 				<?php esc_html_e( 'Twitter username:', 'jetpack' ); ?>
-				<?php echo esc_html( $this->get_docs_link( '#twitter-username' ) ); ?>
+				<?php
+					echo wp_kses(
+						$this->get_docs_link( '#twitter-username' ),
+						array(
+							'a' => array(
+								'href'   => array(),
+								'rel'    => array(),
+								'target' => array(),
+							),
+						)
+					);
+				?>
 			</label>
 			<input
 				class="widefat"
