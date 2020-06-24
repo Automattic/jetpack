@@ -549,7 +549,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 
 		<p>
 			<label for="<?php echo esc_attr( $this->get_field_id( 'theme' ) ); ?>">
-				<?php esc_html_e( 'Timeline theme:', 'jetpack' ); ?>
+				<?php esc_html_e( 'Color scheme:', 'jetpack' ); ?>
 			</label>
 			<select
 				name="<?php echo esc_attr( $this->get_field_name( 'theme' ) ); ?>"
