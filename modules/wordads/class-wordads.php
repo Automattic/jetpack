@@ -354,8 +354,8 @@ class WordAds {
 		$site_id   = $this->params->blog_id;
 		$consent   = intval( isset( $_COOKIE['personalized-ads-consent'] ) );
 		?>
-		<script<?php esc_attr( $data_tags ); ?> type="text/javascript">
-			var __ATA_PP = { pt: <?php esc_js( $pagetype ); ?>, ht: 2, tn: '<?php esc_js( get_stylesheet() ); ?>', amp: false, siteid: <?php esc_js( $site_id ); ?>, consent: <?php esc_js( $consent ); ?> };
+		<script<?php echo esc_attr( $data_tags ); ?> type="text/javascript">
+			var __ATA_PP = { pt: <?php echo esc_js( $pagetype ); ?>, ht: 2, tn: '<?php echo esc_js( get_stylesheet() ); ?>', amp: false, siteid: <?php echo esc_js( $site_id ); ?>, consent: <?php echo esc_js( $consent ); ?> };
 			var __ATA = __ATA || {};
 			__ATA.cmd = __ATA.cmd || [];
 			__ATA.criteo = __ATA.criteo || {};
