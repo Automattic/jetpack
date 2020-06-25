@@ -7,18 +7,22 @@
 
 use PHPUnit\Framework\TestCase;
 
+define( WP_PLUGIN_DIR, '/var/www/wp-content/plugins' );
+
 /**
  * Provides unit tests for the methods in the Plugins_Handler class.
  */
 class PluginsHandlerTest extends TestCase {
 
-	const DEFAULT_ACTIVE_PLUGINS        = array( 'test1/test1.php', 'test2/test2.php' );
-	const DEFAULT_ACTIVE_PLUGIN_DIRS    = array( 'test1', 'test2' );
-	const DEFAULT_MULTISITE_PLUGINS     = array(
-		'multi1/multi1.php' => 'details',
-		'multi2/multi2.php' => 'details',
+	const DEFAULT_ACTIVE_PLUGINS = array(
+		'/var/www/wp-content/plugins/test_1',
+		'/var/www/wp-content/plugins/test_2',
 	);
-	const DEFAULT_MULTISITE_PLUGIN_DIRS = array( 'multi1', 'multi2' );
+
+	const DEFAULT_MULTISITE_PLUGINS = array(
+		'/var/www/wp-content/plugins/multi_1',
+		'/var/www/wp-content/plugins/multi_2',
+	);
 
 	/**
 	 * This method is called before each test.
@@ -27,9 +31,9 @@ class PluginsHandlerTest extends TestCase {
 		$this->plugins_handler = $this->getMockBuilder( 'Plugins_Handler' )
 			->setMethods(
 				array(
-					'get_current_plugin_dir',
-					'get_multisite_plugins',
-					'get_active_plugins',
+					'get_current_plugin_path',
+					'get_multisite_plugins_paths',
+					'get_active_plugins_paths',
 				)
 			)
 			->getMock();
@@ -46,16 +50,16 @@ class PluginsHandlerTest extends TestCase {
 		$use_multisite = false ) {
 
 		$this->plugins_handler
-			->method( 'get_active_plugins' )
+			->method( 'get_active_plugins_paths' )
 			->willReturn( (array) $active_plugins );
 
 		if ( $use_multisite ) {
 			$this->plugins_handler
-				->method( 'get_multisite_plugins' )
-				->willReturn( array_keys( self::DEFAULT_MULTISITE_PLUGINS ) );
+				->method( 'get_multisite_plugins_paths' )
+				->willReturn( self::DEFAULT_MULTISITE_PLUGINS );
 		} else {
 			$this->plugins_handler
-				->method( 'get_multisite_plugins' )
+				->method( 'get_multisite_plugins_paths' )
 				->willReturn( array() );
 		}
 	}
@@ -93,17 +97,17 @@ class PluginsHandlerTest extends TestCase {
 	 * @covers Plugins_Handler::should_autoloader_reset
 	 */
 	public function test_should_autoloader_reset_known_plugin() {
-		global $jetpack_autoloader_activating_plugins;
+		global $jetpack_autoloader_activating_plugins_paths;
 
-		// 'test1/test1.php' is in self::DEFAULT_ACTIVE_PLUGINS.
+		// '/var/www/wp-content/plugins/test_1' is in self::DEFAULT_ACTIVE_PLUGINS.
 		$this->plugins_handler
-			->method( 'get_current_plugin_dir' )
-			->willReturn( 'test1' );
+			->method( 'get_current_plugin_path' )
+			->willReturn( '/var/www/wp-content/plugins/test_1' );
 
 		$this->set_up_mocks();
 
 		$this->assertFalse( $this->plugins_handler->should_autoloader_reset() );
-		$this->assertEmpty( $jetpack_autoloader_activating_plugins );
+		$this->assertEmpty( $jetpack_autoloader_activating_plugins_paths );
 	}
 
 	/**
@@ -112,34 +116,34 @@ class PluginsHandlerTest extends TestCase {
 	 * @covers Plugins_Handler::should_autoloader_reset
 	 */
 	public function test_should_autoloader_reset_unknown_plugin() {
-		global $jetpack_autoloader_activating_plugins;
+		global $jetpack_autoloader_activating_plugins_paths;
 
-		$current_plugin = 'unknown';
+		$current_plugin = '/var/www/wp-content/plugins/test_unkown/';
 
 		// 'unknown' is not in self::DEFAULT_ACTIVE_PLUGINS.
 		$this->plugins_handler
-			->method( 'get_current_plugin_dir' )
+			->method( 'get_current_plugin_path' )
 			->willReturn( $current_plugin );
 
 		$this->set_up_mocks();
 
 		$this->assertTrue( $this->plugins_handler->should_autoloader_reset() );
-		$this->assertCount( 1, $jetpack_autoloader_activating_plugins );
-		$this->assertEquals( $current_plugin, $jetpack_autoloader_activating_plugins[0] );
+		$this->assertCount( 1, $jetpack_autoloader_activating_plugins_paths );
+		$this->assertEquals( $current_plugin, $jetpack_autoloader_activating_plugins_paths[0] );
 	}
 
 	/**
-	 * Tests get_all_active_plugins() with activating plugins (via request and
+	 * Tests get_all_active_plugins_paths() with activating plugins (via request and
 	 * non-request methods) and a list of active plugins.
 	 *
-	 * @covers Plugins_Handler::get_all_active_plugins
+	 * @covers Plugins_Handler::get_all_active_plugins_paths
 	 */
 	public function test_get_all_active_plugins_everything() {
-		global $jetpack_autoloader_activating_plugins;
+		global $jetpack_autoloader_activating_plugins_paths;
 
 		// Activating plugin.
-		$activating_plugin                     = 'activating';
-		$jetpack_autoloader_activating_plugins = array( $activating_plugin );
+		$activating_plugin                           = '/var/www/wp-content/plugins/activating';
+		$jetpack_autoloader_activating_plugins_paths = array( $activating_plugin );
 
 		// Plugin activating via a request.
 		$request_plugin_dir   = 'request';
@@ -153,11 +157,11 @@ class PluginsHandlerTest extends TestCase {
 
 		$expected_output = array_merge(
 			array( $activating_plugin ),
-			array( $request_plugin_dir ),
-			self::DEFAULT_ACTIVE_PLUGIN_DIRS
+			array( WP_PLUGIN_DIR . '/' . $request_plugin_dir ),
+			self::DEFAULT_ACTIVE_PLUGINS
 		);
 
-		$actual_output = $this->plugins_handler->get_all_active_plugins();
+		$actual_output = $this->plugins_handler->get_all_active_plugins_paths();
 
 		sort( $actual_output );
 		sort( $expected_output );
@@ -165,18 +169,21 @@ class PluginsHandlerTest extends TestCase {
 	}
 
 	/**
-	 * Tests get_all_active_plugins() with multiple plugins activating (via request and
+	 * Tests get_all_active_plugins_paths() with multiple plugins activating (via request and
 	 * non-request methods) and a list of active plugins.
 	 *
-	 * @covers Plugins_Handler::get_all_active_plugins
+	 * @covers Plugins_Handler::get_all_active_plugins_paths
 	 */
 	public function test_get_all_active_plugins_multiple_activating() {
-		global $jetpack_autoloader_activating_plugins;
+		global $jetpack_autoloader_activating_plugins_paths;
 
 		// Activating plugins.
-		$activating_plugins = array( 'activating1', 'activating2' );
+		$activating_plugins = array(
+			'/var/www/wp-content/plugins/activating_1',
+			'/var/www/wp-content/plugins/activating_2',
+		);
 
-		$jetpack_autoloader_activating_plugins = $activating_plugins;
+		$jetpack_autoloader_activating_plugins_paths = $activating_plugins;
 
 		// Plugins activating via a request.
 		$request_plugin_dirs = array(
@@ -190,6 +197,11 @@ class PluginsHandlerTest extends TestCase {
 			$request_plugins[] = $request_plugin . '/' . $request_plugin . '.php';
 		}
 
+		$request_paths = array();
+		foreach ( $request_plugin_dirs as $request_plugin ) {
+			$request_paths[] = WP_PLUGIN_DIR . '/' . $request_plugin;
+		}
+
 		$_REQUEST['action']   = 'activate-selected';
 		$_REQUEST['checked']  = $request_plugins;
 		$_REQUEST['_wpnonce'] = '123abc';
@@ -199,11 +211,11 @@ class PluginsHandlerTest extends TestCase {
 
 		$expected_output = array_merge(
 			$activating_plugins,
-			$request_plugin_dirs,
-			self::DEFAULT_ACTIVE_PLUGIN_DIRS
+			$request_paths,
+			self::DEFAULT_ACTIVE_PLUGINS
 		);
 
-		$actual_output = $this->plugins_handler->get_all_active_plugins();
+		$actual_output = $this->plugins_handler->get_all_active_plugins_paths();
 
 		sort( $actual_output );
 		sort( $expected_output );
@@ -211,17 +223,17 @@ class PluginsHandlerTest extends TestCase {
 	}
 
 	/**
-	 * Tests get_all_active_plugins() with no nonce included in the request. Since
+	 * Tests get_all_active_plugins_paths() with no nonce included in the request. Since
 	 * a nonce isn't included, the plugin will not be activated.
 	 *
-	 * @covers Plugins_Handler::get_all_active_plugins
+	 * @covers Plugins_Handler::get_all_active_plugins_paths
 	 */
 	public function test_get_all_active_plugins_no_nonce() {
-		global $jetpack_autoloader_activating_plugins;
+		global $jetpack_autoloader_activating_plugins_paths;
 
 		// Activating plugin.
-		$activating_plugin                     = 'activating';
-		$jetpack_autoloader_activating_plugins = array( $activating_plugin );
+		$activating_plugin                           = '/var/www/wp-content/plugins/activating';
+		$jetpack_autoloader_activating_plugins_paths = array( $activating_plugin );
 
 		// Plugin activating via a request without a nonce.
 		$request_plugin     = 'request/request.php';
@@ -234,10 +246,10 @@ class PluginsHandlerTest extends TestCase {
 		// The plugin activating via a request should not be in the output.
 		$expected_output = array_merge(
 			array( $activating_plugin ),
-			self::DEFAULT_ACTIVE_PLUGIN_DIRS
+			self::DEFAULT_ACTIVE_PLUGINS
 		);
 
-		$actual_output = $this->plugins_handler->get_all_active_plugins();
+		$actual_output = $this->plugins_handler->get_all_active_plugins_paths();
 
 		sort( $actual_output );
 		sort( $expected_output );
@@ -245,9 +257,9 @@ class PluginsHandlerTest extends TestCase {
 	}
 
 	/**
-	 * Tests get_all_active_plugins() with no activating plugins.
+	 * Tests get_all_active_plugins_paths() with no activating plugins.
 	 *
-	 * @covers Plugins_Handler::get_all_active_plugins
+	 * @covers Plugins_Handler::get_all_active_plugins_paths
 	 */
 	public function test_get_all_active_plugins_no_activating() {
 		// Plugin deactivating via a request.
@@ -259,28 +271,8 @@ class PluginsHandlerTest extends TestCase {
 		// Use default active plugins.
 		$this->set_up_mocks();
 
-		$expected_output = self::DEFAULT_ACTIVE_PLUGIN_DIRS;
-		$actual_output   = $this->plugins_handler->get_all_active_plugins();
-
-		sort( $actual_output );
-		sort( $expected_output );
-		$this->assertEquals( $expected_output, $actual_output );
-	}
-
-
-	/**
-	 * Tests get_all_active_plugins() with no activating plugins and a single
-	 * active plugin.
-	 *
-	 * @covers Plugins_Handler::get_all_active_plugins
-	 */
-	public function test_get_all_active_plugins_single_active() {
-		$active_plugin_dir = 'test';
-		$active_plugin     = array( $active_plugin_dir . '/test.php' );
-		$this->set_up_mocks( $active_plugin );
-
-		$expected_output = array( $active_plugin_dir );
-		$actual_output   = $this->plugins_handler->get_all_active_plugins();
+		$expected_output = self::DEFAULT_ACTIVE_PLUGINS;
+		$actual_output   = $this->plugins_handler->get_all_active_plugins_paths();
 
 		sort( $actual_output );
 		sort( $expected_output );
@@ -288,37 +280,17 @@ class PluginsHandlerTest extends TestCase {
 	}
 
 	/**
-	 * Tests get_all_active_plugins() with an active single-file plugin and single-file
-	 * plugins skipped.
-	 *
-	 * @covers Plugins_Handler::get_all_active_plugins
-	 */
-	public function test_get_all_active_plugins_single_file_plugin() {
-		$active_plugin_dir = 'test';
-		$active_plugin     = array( $active_plugin_dir . '/test.php' );
-		$active_plugins    = array_merge( $active_plugin, array( 'single_file.php' ) );
-		$this->set_up_mocks( $active_plugins );
-
-		$expected_output = array( $active_plugin_dir );
-		$actual_output   = $this->plugins_handler->get_all_active_plugins();
-
-		sort( $actual_output );
-		sort( $expected_output );
-		$this->assertEquals( $expected_output, $actual_output );
-	}
-
-	/**
-	 * Tests get_all_active_plugins with activating plugins (via request and
+	 * Tests get_all_active_plugins_paths with activating plugins (via request and
 	 * non-request methods) and a list of active plugins.
 	 *
-	 * @covers Plugins_Handler::get_all_active_plugins
+	 * @covers Plugins_Handler::get_all_active_plugins_paths
 	 */
 	public function test_get_all_active_plugins_multisite() {
-		global $jetpack_autoloader_activating_plugins;
+		global $jetpack_autoloader_activating_plugins_paths;
 
 		// Activating plugin.
-		$activating_plugin                     = 'activating_plugin';
-		$jetpack_autoloader_activating_plugins = array( $activating_plugin );
+		$activating_plugin                           = '/var/www/wp-content/plugins/activating';
+		$jetpack_autoloader_activating_plugins_paths = array( $activating_plugin );
 
 		// Plugin activating via a request.
 		$request_plugin_dir   = 'request';
@@ -331,12 +303,12 @@ class PluginsHandlerTest extends TestCase {
 
 		$expected_output = array_merge(
 			array( $activating_plugin ),
-			array( $request_plugin_dir ),
-			self::DEFAULT_ACTIVE_PLUGIN_DIRS,
-			self::DEFAULT_MULTISITE_PLUGIN_DIRS
+			array( WP_PLUGIN_DIR . '/' . $request_plugin_dir ),
+			self::DEFAULT_ACTIVE_PLUGINS,
+			self::DEFAULT_MULTISITE_PLUGINS
 		);
 
-		$actual_output = $this->plugins_handler->get_all_active_plugins();
+		$actual_output = $this->plugins_handler->get_all_active_plugins_paths();
 
 		sort( $actual_output );
 		sort( $expected_output );
