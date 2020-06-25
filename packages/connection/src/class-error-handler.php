@@ -21,6 +21,23 @@ namespace Automattic\Jetpack\Connection;
  * 6. This endpoint add this error to the Verified errors in the database
  * 7. Triggers a workflow depending on the error (display user an error message, do some self healing, etc.)
  *
+ * Errors are stored in the database as options in the following format:
+ *
+ * [
+ *   $error_code => [
+ *     $user_id => [
+ *       $error_details
+ *     ]
+ *   ]
+ * ]
+ *
+ * For each error code we store a maximum of 5 errors for 5 different user ids.
+ *
+ * An user ID can be
+ * * 0 for blog tokens
+ * * positive integer for user tokens
+ * * 'invalid' for malformed tokens
+ *
  * @since 8.7.0
  */
 class Error_Handler {
