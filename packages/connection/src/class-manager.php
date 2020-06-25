@@ -1357,6 +1357,9 @@ class Manager {
 		$transient_key = 'jetpack_connected_user_data_' . get_current_user_id();
 		delete_transient( $transient_key );
 
+		// Delete all XML-RPC errors.
+		Error_Handler::get_instance()->delete_all_errors();
+
 		return true;
 	}
 

@@ -87,6 +87,35 @@ class Error_Handler {
 		defined( 'JETPACK__ERRORS_PUBLIC_KEY' ) || define( 'JETPACK__ERRORS_PUBLIC_KEY', 'KdZY80axKX+nWzfrOcizf0jqiFHnrWCl9X8yuaClKgM=' );
 
 		add_action( 'rest_api_init', array( $this, 'register_verify_error_endpoint' ) );
+
+		$this->handle_verified_errors();
+	}
+
+	/**
+	 * Gets the list of verified errors and act upon them
+	 *
+	 * @return void
+	 */
+	public function handle_verified_errors() {
+		$verified_errors = $this->get_verified_errors();
+		foreach ( $verified_errors as $error_code => $user_errors ) {
+
+			switch ( $error_code ) {
+				case 'malformed_token':
+				case 'token_malformed':
+				case 'no_possible_tokens':
+				case 'no_valid_token':
+				case 'unknown_token':
+				case 'could_not_sign':
+				case 'invalid_token':
+				case 'could_not_sign':
+				case 'token_mismatch':
+				case 'invalid_signature':
+				case 'signature_mismatch':
+					new Error_Handlers\Invalid_Blog_Token( $user_errors );
+					break;
+			}
+		}
 	}
 
 	/**
@@ -307,6 +336,16 @@ class Error_Handler {
 			$verified_errors = array();
 		}
 		return $verified_errors;
+	}
+
+	/**
+	 * Delete all stored and verified errors from the database
+	 *
+	 * @return void
+	 */
+	public function delete_all_errors() {
+		$this->delete_stored_errors();
+		$this->delete_verified_errors();
 	}
 
 	/**
