@@ -26,6 +26,33 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	protected $protected_globals;
 
 	/**
+	 * ID for an author-level user created by this class.
+	 *
+	 * @var int
+	 */
+	protected static $author_id;
+
+	/**
+	 * Special setups.
+	 *
+	 * @param Object $factory Testing factory.
+	 */
+	public static function wpSetUpBeforeClass( $factory ) {
+		self::$author_id = $factory->user->create(
+			array(
+				'role' => 'author',
+			)
+		);
+	}
+
+	/**
+	 * Clean up the special sauce.
+	 */
+	public static function wpTearDownAfterClass() {
+		self::delete_user( self::$author_id );
+	}
+
+	/**
 	 * Sets up the test.
 	 */
 	public function setUp() {
@@ -1229,6 +1256,43 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 		$this->assertContains( '?', $data['media_details']['sizes']['full']['source_url'] );
 		$this->assertContains( '?', $data['media_details']['sizes']['medium_large']['source_url'] );
+	}
+
+	/**
+	 * Verifies that the REST API upload endpoint does not return with Photon URLs.
+	 *
+	 * The endpoint sets the context to edit, but not before the callback executes.
+
+	 * @author kraftbj
+	 * @requires PHPUnit 7.5
+	 * @covers Jetpack_Photon::hould_rest_photon_image_downsize_insert_attachment
+	 * @group rest-api
+	 */
+	public function test_photon_cdn_in_rest_response_with_created_item() {
+		$filename = dirname( __FILE__ ) . '/modules/photon/sample-content/test-image-large.png';
+
+		wp_set_current_user( self::$author_id );
+
+		$request = new WP_REST_Request( 'POST', '/wp/v2/media' );
+		$request->set_header( 'Content-Type', 'image/jpeg' );
+		$request->set_header( 'Content-Disposition', 'attachment; filename=test-image-large.png' );
+
+		$request->set_body( file_get_contents( $filename ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		// Make the REST API request.
+		$response = rest_get_server()->dispatch( $request );
+		// Pull the response from the API.
+		$data = $response->get_data();
+
+		// This verifies the file has uploaded. Just a bit of defensive testing.
+		$this->assertEquals( 201, $response->get_status() );
+
+		$large_url = isset( $data['media_details']['sizes']['large']['source_url'] ) ? $data['media_details']['sizes']['large']['source_url'] : false;
+
+		if ( ! $large_url ) {
+			$this->fail( 'REST API media upload failed to return the expected data.' );
+		}
+
+		$this->assertStringNotContainsString( 'wp.com', $large_url );
 	}
 
 	/**
