@@ -7,8 +7,7 @@ import { SelectControl, Button } from '@wordpress/components';
 
 const FILTERS = [
 	{ label: __( 'Category', 'jetpack' ), value: 'category' },
-	{ label: __( 'After date', 'jetpack' ), value: 'startDate' },
-	{ label: __( 'Before date', 'jetpack' ), value: 'endDate' },
+	{ label: __( 'Date', 'jetpack' ), value: 'date' },
 	{ label: __( 'Favorites', 'jetpack' ), value: 'favorite' },
 	{ label: __( 'Media Type', 'jetpack' ), value: 'mediaType' },
 ];
