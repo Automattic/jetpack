@@ -82,7 +82,10 @@ class SearchApp extends Component {
 
 		document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( input => {
 			input.form?.removeEventListener( 'submit', this.handleSubmit );
-			input.removeEventListener( 'focus', this.handleInputFocus );
+			input.removeEventListener( 'focus', this.handleFocusTrigger );
+		} );
+		document.querySelectorAll( this.props.themeOptions.overlayTrigger ).forEach( trigger => {
+			trigger.removeEventListener( 'focus', this.handleFocusTrigger );
 		} );
 
 		document.querySelectorAll( this.props.themeOptions.filterInputSelector ).forEach( element => {
@@ -94,13 +97,19 @@ class SearchApp extends Component {
 		document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( input => {
 			if ( type === 'submit' ) {
 				// Submit trigger should ignore input focus events
-				input.removeEventListener( 'focus', this.handleInputFocus );
+				input.removeEventListener( 'focus', this.handleFocusTrigger );
+				input.form?.addEventListener( 'submit', this.handleSubmit );
+			} else if ( type === 'focus' ) {
+				// Focus trigger should respect both focus and submit events
+				input.addEventListener( 'focus', this.handleFocusTrigger );
 				input.form?.addEventListener( 'submit', this.handleSubmit );
 			}
-			if ( type === 'focus' ) {
-				// Focus trigger should respect both focus and submit events
-				input.addEventListener( 'focus', this.handleInputFocus );
-				input.form?.addEventListener( 'submit', this.handleSubmit );
+		} );
+		document.querySelectorAll( this.props.themeOptions.overlayTrigger ).forEach( trigger => {
+			if ( type === 'submit' ) {
+				trigger.removeEventListener( 'focus', this.handleFocusTrigger );
+			} else if ( type === 'focus' ) {
+				trigger.addEventListener( 'focus', this.handleFocusTrigger );
 			}
 		} );
 	}
@@ -129,7 +138,7 @@ class SearchApp extends Component {
 		setSearchQuery( formData.get( 's' ) );
 	};
 
-	handleInputFocus = () => this.showResults();
+	handleFocusTrigger = () => this.showResults();
 
 	handleFilterInputClick = event => {
 		event.preventDefault();
