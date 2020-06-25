@@ -10,6 +10,7 @@
 namespace Automattic\Jetpack\Extensions\Instagram_Gallery;
 
 use Jetpack;
+use Jetpack_AMP_Support;
 use Jetpack_Gutenberg;
 use Jetpack_Instagram_Gallery_Helper;
 
@@ -86,6 +87,8 @@ function render_block( $attributes, $content ) {
 
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 
+	$is_amp_request = class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request();
+
 	ob_start();
 	?>
 
@@ -101,6 +104,7 @@ function render_block( $attributes, $content ) {
 				<img
 					alt="<?php echo esc_attr( $image->title ? $image->title : $image->link ); ?>"
 					src="<?php echo esc_url( $image->url ); ?>"
+					<?php echo $is_amp_request ? 'layout="responsive"' : ''; ?>
 				/>
 			</a>
 		<?php endforeach; ?>
