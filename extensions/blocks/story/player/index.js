@@ -42,7 +42,13 @@ export default function player( rootElement, params ) {
 			? toShadow( rootElement, settings.shadowDOM )
 			: rootElement;
 
-	const container = root.querySelector( '.wp-story-container' );
+	let container = root.querySelector( '.wp-story-container' );
+	if ( ! container ) {
+		container = document.createElement( 'div' );
+		container.classList.add( 'wp-story-container' );
+		root.appendChild( container );
+	}
+
 	const slidesWrapper = container.querySelector( '.wp-story-wrapper' );
 	const metaWrapper = container.querySelector( '.wp-story-meta' );
 
@@ -92,12 +98,16 @@ export default function player( rootElement, params ) {
 
 	if ( settings.autoload ) {
 		settings.slides = settings.slides || [];
-		if ( settings.slides.length === 0 && slidesWrapper.children.length > 0 ) {
+		if ( settings.slides.length === 0 && slidesWrapper && slidesWrapper.children.length > 0 ) {
 			settings.slides = parseSlides( slidesWrapper );
 		}
 
 		settings.metadata = settings.metadata || {};
-		if ( Object.keys( settings.metadata ).length === 0 && metaWrapper.children.length > 0 ) {
+		if (
+			Object.keys( settings.metadata ).length === 0 &&
+			metaWrapper &&
+			metaWrapper.children.length > 0
+		) {
 			settings.metadata = parseMeta( metaWrapper );
 		}
 

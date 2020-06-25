@@ -24,8 +24,8 @@ export default function Header( {
 
 	return html`
 		<div class="wp-story-meta">
-			<div>
-				<img alt="Site icon" src=${siteIconUrl} width="32" height="32" />
+			<div class="wp-story-icon">
+				<img alt="Site icon" src=${siteIconUrl} />
 			</div>
 			<div>
 				<div class="wp-story-site-name">

@@ -10,6 +10,7 @@ import { EventEmitter } from 'events';
  * Internal dependencies
  */
 import Slide from './slide';
+import ProgressBar from './progress-bar';
 
 export const playerEvents = new EventEmitter();
 
@@ -17,6 +18,7 @@ export const Player = ( { slides, ...settings } ) => {
 	const [ currentSlideIndex, updateSlideIndex ] = useState( 0 );
 	const [ playing, setPlaying ] = useState( false );
 	const [ fullscreen, setFullscreen ] = useState( false );
+	const [ ended, setEnded ] = useState( false );
 	const [ muted, setMuted ] = useState( settings.startMuted );
 	const [ loading, setLoading ] = useState( true );
 	const [ currentSlideProgress, setCurrentSlideProgress ] = useState( 0 );
@@ -30,16 +32,29 @@ export const Player = ( { slides, ...settings } ) => {
 		}
 	};
 
+	const tryPreviousSlide = useCallback( () => {
+		if ( currentSlideIndex > 0 ) {
+			showSlide( currentSlideIndex - 1 );
+		}
+	}, [ currentSlideIndex, slides ] );
+
 	const tryNextSlide = useCallback( () => {
 		if ( currentSlideIndex < slides.length - 1 ) {
 			showSlide( currentSlideIndex + 1 );
 		} else {
 			setPlaying( false );
+			setEnded( true );
 		}
 	}, [ currentSlideIndex, slides ] );
 
 	useEffect( () => {
 		playerEvents.emit( playing ? 'play' : 'pause' );
+	}, [ playing ] );
+
+	useEffect( () => {
+		if ( playing ) {
+			setEnded( false );
+		}
 	}, [ playing ] );
 
 	useEffect( () => {
@@ -93,30 +108,24 @@ export const Player = ( { slides, ...settings } ) => {
 			</ul>
 			${settings.renderers.renderOverlay( html, {
 				playing,
+				ended,
 				onClick: () => {
 					if ( ! fullscreen && ! playing && settings.playInFullScreen ) {
 						setFullscreen( true );
 					}
 					setPlaying( ! playing );
 				},
+				onPreviousSlide: tryPreviousSlide,
+				onNextSlide: tryNextSlide,
 			} )}
-			<div class="wp-story-pagination wp-story-pagination-bullets">
-				${slides.map( ( slide, index ) => {
-					let progress;
-					if ( index < currentSlideIndex ) {
-						progress = 100;
-					} else if ( index > currentSlideIndex ) {
-						progress = 0;
-					} else {
-						progress = currentSlideProgress;
-					}
-					return settings.renderers.renderBullet( html, {
-						index,
-						progress,
-						onClick: useCallback( () => showSlide( index ), [ index ] ),
-					} );
-				} )}
-			</div>
+			<${ProgressBar}
+				slides=${slides}
+				fullscreen=${fullscreen}
+				settings=${settings}
+				currentSlideIndex=${currentSlideIndex}
+				currentSlideProgress=${currentSlideProgress}
+				onSlideSeek=${showSlide}
+			/>
 			${settings.renderers.renderControls( html, { playing, muted, setPlaying, setMuted } )}
 		</div>
 	`;

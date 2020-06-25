@@ -10,7 +10,7 @@ export const Image = ( { alt, url, id, mime, index, mediaRef } ) => html`
 		data-mime=${mime}
 		alt=${alt}
 		src=${url}
-		class="wp-block-jetpack-story_image wp-story-image wp-image-${index}"
+		class="wp-story-image wp-image-${index}"
 	/>
 `;
 
@@ -21,7 +21,7 @@ export const Video = ( { alt, mime, url, id, index, mediaRef } ) => html`
 		title=${alt}
 		type=${mime}
 		src=${url}
-		class="wp-story-video intrinsic-ignore wp-video-${index}"
+		class="wp-story-video intrinsic-ignore"
 	></video>
 `;
 

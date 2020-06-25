@@ -35,13 +35,6 @@
 	/* Support for IE. */
 	font-feature-settings: 'liga';
 
-
-	/* Rules for sizing the icon. */
-	&.md-18 { font-size: 18px; }
-	&.md-24 { font-size: 24px; }
-	&.md-36 { font-size: 36px; }
-	&.md-48 { font-size: 48px; }
-
 	/* Rules for using icons as black on a light background. */
 	&.md-dark { color: rgba(0, 0, 0, 0.54); }
 	&.md-dark.md-inactive { color: rgba(0, 0, 0, 0.26); }
@@ -105,26 +98,21 @@
 	outline: 0;
 
 	&.outlined {
-		background-color: #00000069;
+		background-color: rgba(0,0,0,0.5);
+		&:hover {
+			background-color: rgba(0,0,0,0.3);
+		}
+	}
+
+	&.outlined-w {
+		background-color: rgba(255,255,255,0.2);
+		&:hover {
+			background-color: rgba(255,255,255,0.3);
+		}
 	}
 
 	&.bordered {
 		border: 2px solid #fff;
-	}
-
-	&.md-24 {
-		width: 24px;
-		height: 24px;
-	}
-
-	&.md-48 {
-		width: 48px;
-		height: 48px;
-	}
-
-	&.md-64 {
-		width: 64px;
-		height: 64px;
 	}
 
 	&.circle-icon {
