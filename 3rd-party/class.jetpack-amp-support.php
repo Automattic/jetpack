@@ -424,6 +424,11 @@ class Jetpack_AMP_Support {
 	 * For the AMP Reader mode template, include styles that we need.
 	 */
 	public static function amp_reader_sharing_css() {
+		// If sharing is not enabled, we should not proceed to render the CSS.
+		if ( ! defined( 'JETPACK_SOCIAL_LOGOS_DIR' ) || ! defined( 'WP_SHARING_PLUGIN_DIR' ) ) {
+			return;
+		}
+
 		/*
 		 * We'll need to output the full contents of the 2 files
 		 * in the head on AMP views. We can't rely on regular enqueues here.
