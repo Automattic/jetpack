@@ -59,6 +59,7 @@ class Jetpack_Photon {
 		// Core image retrieval
 		add_filter( 'image_downsize', array( $this, 'filter_image_downsize' ), 10, 3 );
 		add_filter( 'rest_request_before_callbacks', array( $this, 'should_rest_photon_image_downsize' ), 10, 3 );
+		add_action( 'rest_after_insert_attachment', array( $this, 'should_rest_photon_image_downsize_insert_attachment' ), 10, 2 );
 		add_filter( 'rest_request_after_callbacks', array( $this, 'cleanup_rest_photon_image_downsize' ) );
 
 		// Responsive image srcset substitution
@@ -1256,9 +1257,21 @@ class Jetpack_Photon {
 			return $response;
 		}
 
+		$this->should_rest_photon_image_downsize_override( $request );
+
+		return $response;
+
+	}
+
+	/**
+	 * Helper function to check if a WP_REST_Request is the media endpoint in the edit context.
+	 *
+	 * @param WP_REST_Request $request The current REST request.
+	 */
+	private function should_rest_photon_image_downsize_override( WP_REST_Request $request ) {
 		$route = $request->get_route();
 
-		if ( false !== strpos( $route, 'wp/v2/media' ) && 'edit' === $request['context'] ) {
+		if ( false !== strpos( $route, 'wp/v2/media' ) && 'edit' === $request->get_param( 'context' ) ) {
 			// Don't use `__return_true()`: Use something unique. See ::_override_image_downsize_in_rest_edit_context()
 			// Late execution to avoid conflict with other plugins as we really don't want to run in this situation.
 			add_filter(
@@ -1270,8 +1283,23 @@ class Jetpack_Photon {
 				999999
 			);
 		}
+	}
 
-		return $response;
+	/**
+	 * Brings in should_rest_photon_image_downsize for the rest_after_insert_attachment hook.
+	 *
+	 * @since 8.7.0
+	 *
+	 * @param WP_Post         $attachment Inserted or updated attachment object.
+	 * @param WP_REST_Request $request    Request object.
+	 */
+	public function should_rest_photon_image_downsize_insert_attachment( WP_Post $attachment, WP_REST_Request $request ) {
+		if ( ! is_a( $request, 'WP_REST_Request' ) ) {
+			// Something odd is happening.
+			return;
+		}
+
+		$this->should_rest_photon_image_downsize_override( $request );
 
 	}
 
