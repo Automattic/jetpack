@@ -18,6 +18,7 @@ use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 
 /*
 Options:
@@ -709,10 +710,14 @@ class Jetpack {
 			jetpack_require_lib( 'functions.wp-notify' );
 		}
 
-		// Hide edit post link if mobile app.
-		if ( Jetpack_User_Agent_Info::is_mobile_app() ) {
-			add_filter( 'get_edit_post_link', '__return_empty_string' );
-		}
+		add_action(
+			'plugins_loaded',
+			function() {
+				if ( User_Agent_Info::is_mobile_app() ) {
+					add_filter( 'get_edit_post_link', '__return_empty_string' );
+				}
+			}
+		);
 
 		// Update the Jetpack plan from API on heartbeats.
 		add_action( 'jetpack_heartbeat', array( 'Jetpack_Plan', 'refresh_from_wpcom' ) );

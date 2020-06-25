@@ -2,6 +2,7 @@
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 
 class Jetpack_Custom_CSS {
 	static function init() {
@@ -24,7 +25,7 @@ class Jetpack_Custom_CSS {
 		define(
 			'SAFECSS_USE_ACE',
 			! jetpack_is_mobile() &&
-			! Jetpack_User_Agent_Info::is_ipad() &&
+			! User_Agent_Info::is_ipad() &&
 			/**
 			 * Should the Custom CSS module use ACE to process CSS.
 			 * @see https://ace.c9.io/
