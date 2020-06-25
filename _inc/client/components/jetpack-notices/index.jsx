@@ -183,6 +183,10 @@ UserUnlinked.propTypes = {
 };
 
 export class ErrorNoticeCycleConnection extends React.Component {
+	static defaultProps = {
+		text: 'Connection Error, please reconnect.',
+	};
+
 	static propTypes = {
 		text: PropTypes.string.isRequired,
 	};
