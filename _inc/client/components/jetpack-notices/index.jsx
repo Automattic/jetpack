@@ -21,6 +21,7 @@ import {
 	isInIdentityCrisis,
 	isCurrentUserLinked,
 	getConnectUrl as _getConnectUrl,
+	getXmlrpcErrors,
 } from 'state/connection';
 import { isDevVersion, userCanConnectSite, userIsSubscriber } from 'state/initial-state';
 import DismissableNotices from './dismissable';
@@ -176,6 +177,25 @@ export class UserUnlinked extends React.Component {
 	}
 }
 
+export class XmlrpcErrorNotice extends React.Component {
+	static displayName = 'XmlrpcErrorNotice';
+
+	render() {
+		if ( this.props.errors ) {
+			// eslint-disable-next-line
+			console.log( this.props.errors );
+
+			return (
+				<SimpleNotice showDismiss={ false } text={ __( 'Error' ) } status="is-error">
+					<NoticeAction href={ '' }>{ __( 'Reconnect Jetpack to resolve' ) }</NoticeAction>
+				</SimpleNotice>
+			);
+		}
+
+		return false;
+	}
+}
+
 UserUnlinked.propTypes = {
 	connectUrl: PropTypes.string.isRequired,
 	siteConnected: PropTypes.bool.isRequired,
@@ -189,6 +209,7 @@ class JetpackNotices extends React.Component {
 			<div aria-live="polite">
 				<NoticesList />
 				<JetpackStateNotices />
+				<XmlrpcErrorNotice errors={ this.props.xmlrpcErrors } />
 				<DevVersionNotice
 					isDevVersion={ this.props.isDevVersion }
 					userIsSubscriber={ this.props.userIsSubscriber }
@@ -233,5 +254,6 @@ export default connect( state => {
 		siteDevMode: getSiteDevMode( state ),
 		isStaging: isStaging( state ),
 		isInIdentityCrisis: isInIdentityCrisis( state ),
+		xmlrpcErrors: getXmlrpcErrors( state ),
 	};
 } )( JetpackNotices );

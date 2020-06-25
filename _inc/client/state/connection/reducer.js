@@ -281,3 +281,13 @@ export function isUnavailableInDevMode( state, module ) {
 export function getSandboxDomain( state ) {
 	return get( state.jetpack.connection.status, [ 'siteConnected', 'sandboxDomain' ], '' );
 }
+
+/**
+ * Gets the xmlrpc errors
+ *
+ * @param  {Object} state
+ * @return {Object}
+ */
+export function getXmlrpcErrors( state ) {
+	return get( state.jetpack.connection.status, [ 'siteConnected', 'xmlrpcErrors' ], {} );
+}

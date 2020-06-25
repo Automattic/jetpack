@@ -252,6 +252,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				'isPublic'           => '1' == get_option( 'blog_public' ), // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
 				'isInIdentityCrisis' => Jetpack::validate_sync_error_idc_option(),
 				'sandboxDomain'      => JETPACK__SANDBOX_DOMAIN,
+				'xmlrpcErrors'       => get_option( 'jetpack_connection_xmlrpc_errors' ),
 			),
 			'connectUrl'                  => false == $current_user_data['isConnected'] // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
 				? Jetpack::init()->build_connect_url( true, false, false )
