@@ -85,13 +85,19 @@ function render_block( $attributes, $content ) {
 
 	$images = array_slice( $gallery->images, 0, $count );
 
-	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
-
 	$is_amp_request = class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request();
+
+	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 
 	ob_start();
 	?>
-
+	<?php if ( $is_amp_request ) : ?>
+		<style>
+			.wp-block-jetpack-instagram-gallery__grid .wp-block-jetpack-instagram-gallery__grid-post amp-img img {
+				object-fit: cover;
+			}
+		</style>
+	<?php endif; ?>
 	<div class="<?php echo esc_attr( $grid_classes ); ?>" style="<?php echo esc_attr( $grid_style ); ?>">
 		<?php foreach ( $images as $image ) : ?>
 			<a
@@ -104,7 +110,6 @@ function render_block( $attributes, $content ) {
 				<img
 					alt="<?php echo esc_attr( $image->title ? $image->title : $image->link ); ?>"
 					src="<?php echo esc_url( $image->url ); ?>"
-					<?php echo $is_amp_request ? 'layout="responsive"' : ''; ?>
 				/>
 			</a>
 		<?php endforeach; ?>
