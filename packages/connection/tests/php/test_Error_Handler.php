@@ -290,4 +290,37 @@ class Error_Handler_Test extends BaseTestCase {
 
 	}
 
+	/**
+	 * Test Garbage collector.
+	 */
+	public function test_garbage_collector() {
+		$error  = $this->get_sample_error( 'unknown_user', 3 );
+		$error2 = $this->get_sample_error( 'invalid_token', 4 );
+		$error3 = $this->get_sample_error( 'no_user_tokens', 5 );
+		$error4 = $this->get_sample_error( 'no_user_tokens', 6 );
+
+		$this->error_handler->report_error( $error );
+		$this->error_handler->report_error( $error2 );
+		$this->error_handler->report_error( $error3 );
+		$this->error_handler->report_error( $error4 );
+
+		// Manipulate the timestamps directly in the database.
+		$saved_options = get_option( $this->error_handler::STORED_ERRORS_OPTION );
+		$this->assertEquals( 3, count( $saved_options ) );
+		$this->assertEquals( 1, count( $saved_options['no_user_tokens'] ) );
+		$saved_options['invalid_token'][4]['timestamp']  = time() - DAY_IN_SECONDS * 4;
+		$saved_options['no_user_tokens'][6]['timestamp'] = time() - DAY_IN_SECONDS * 4;
+		update_option( $this->error_handler::STORED_ERRORS_OPTION, $saved_options );
+
+		$errors = $this->error_handler->get_stored_errors();
+
+		$this->assertEquals( 2, count( $errors ) );
+
+		$this->assertArrayHasKey( 'unknown_user', $errors );
+		$this->assertArrayHasKey( 'no_user_tokens', $errors );
+		$this->assertArrayNotHasKey( 'invalid_token', $errors );
+
+		$this->assertEquals( 1, count( $errors['no_user_tokens'] ) );
+
+	}
 }

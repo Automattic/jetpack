@@ -45,6 +45,10 @@ class Error_Handler {
 	const ERROR_REPORTING_GATE = 'jetpack_connection_error_reporting_gate_';
 
 	/**
+	 * Time in seconds a test should live in the database before being discarded
+	 */
+	const ERROR_LIFE_TIME = DAY_IN_SECONDS * 3;
+	/**
 	 * List of known errors. Only error codes in this list will be handled
 	 *
 	 * @var array
@@ -316,12 +320,15 @@ class Error_Handler {
 	 * @return array $errors
 	 */
 	public function get_stored_errors() {
-		// todo: add object cache.
-		// todo: garbage collector, delete old unverified errors based on timestamp.
+
 		$stored_errors = get_option( self::STORED_ERRORS_OPTION );
+
 		if ( ! is_array( $stored_errors ) ) {
 			$stored_errors = array();
 		}
+
+		$stored_errors = $this->garbage_collector( $stored_errors );
+
 		return $stored_errors;
 	}
 
@@ -331,11 +338,44 @@ class Error_Handler {
 	 * @return array $errors
 	 */
 	public function get_verified_errors() {
+
 		$verified_errors = get_option( self::STORED_VERIFIED_ERRORS_OPTION );
+
 		if ( ! is_array( $verified_errors ) ) {
 			$verified_errors = array();
 		}
+
+		$verified_errors = $this->garbage_collector( $verified_errors );
+
 		return $verified_errors;
+	}
+
+	/**
+	 * Removes expired errors from the array
+	 *
+	 * This method is calleb by get_stored_errors and get_verified errors and filters their result
+	 * Whenever a new error is stored to the database or verified, this will be triggered and the
+	 * expired error will be permantently removed from the database
+	 *
+	 * @param array $errors array of errors as stored in the database.
+	 * @return array
+	 */
+	private function garbage_collector( $errors ) {
+		foreach ( $errors as $error_code => $users ) {
+			foreach ( $users as $user_id => $error ) {
+				if ( self::ERROR_LIFE_TIME < time() - (int) $error['timestamp'] ) {
+					unset( $errors[ $error_code ][ $user_id ] );
+				}
+			}
+		}
+		// Clear empty error codes.
+		$errors = array_filter(
+			$errors,
+			function( $user_errors ) {
+				return ! empty( $user_errors );
+			}
+		);
+		return $errors;
 	}
 
 	/**
