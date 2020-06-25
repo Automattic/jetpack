@@ -1261,7 +1261,14 @@ class Jetpack_Photon {
 		if ( false !== strpos( $route, 'wp/v2/media' ) && 'edit' === $request['context'] ) {
 			// Don't use `__return_true()`: Use something unique. See ::_override_image_downsize_in_rest_edit_context()
 			// Late execution to avoid conflict with other plugins as we really don't want to run in this situation.
-			add_filter( 'jetpack_photon_override_image_downsize', array( $this, '_override_image_downsize_in_rest_edit_context' ), 999999 );
+			add_filter(
+				'jetpack_photon_override_image_downsize',
+				array(
+					$this,
+					'override_image_downsize_in_rest_edit_context',
+				),
+				999999
+			);
 		}
 
 		return $response;
@@ -1274,11 +1281,18 @@ class Jetpack_Photon {
 	 * every used here, we can always remove it without ever worrying
 	 * about breaking any other configuration.
 	 *
-	 * @param mixed $response
+	 * @param mixed $response REST API Response.
 	 * @return mixed Unchanged $response
 	 */
 	public function cleanup_rest_photon_image_downsize( $response ) {
-		remove_filter( 'jetpack_photon_override_image_downsize', array( $this, '_override_image_downsize_in_rest_edit_context' ), 999999 );
+		remove_filter(
+			'jetpack_photon_override_image_downsize',
+			array(
+				$this,
+				'override_image_downsize_in_rest_edit_context',
+			),
+			999999
+		);
 		return $response;
 	}
 
@@ -1292,7 +1306,7 @@ class Jetpack_Photon {
 	 * @internal
 	 * @return true
 	 */
-	public function _override_image_downsize_in_rest_edit_context() {
+	public function override_image_downsize_in_rest_edit_context() {
 		return true;
 	}
 
