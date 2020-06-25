@@ -20,7 +20,6 @@ export default ( { allowedMediaTypes, attributes: { mediaFiles }, onSelectMedia 
 						onSelect={ onSelectMedia }
 						allowedTypes={ allowedMediaTypes }
 						multiple
-						gallery
 						value={ mediaFiles.map( file => file.id ) }
 						render={ ( { open } ) => (
 							<EditButton label={ __( 'Edit Story', 'jetpack' ) } onClick={ open } />

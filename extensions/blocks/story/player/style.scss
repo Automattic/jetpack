@@ -3,7 +3,6 @@
 
 
 .wp-story-container {
-	overflow: hidden;
 	margin-left: auto;
 	margin-right: auto;
 	position: relative;
@@ -114,17 +113,41 @@
 		bottom: 0;
 		right: 0;
 		left: 0;
-		margin-top: 55px;
-		margin-bottom: 70px;
+		margin-top: 84px;
+		margin-bottom: 84px;
 		cursor: pointer;
 
-		.wp-story-button-play {
-			background: url(/wp-includes/js/mediaelement/mejs-controls.svg) no-repeat;
-			background-position: 0 -39px;
-			height: 80px;
-			width: 80px;
+		.wp-story-button-play,
+		.wp-story-button-replay {
 			cursor: pointer;
 		}
+
+		&.wp-story-ended {
+			background-color: rgba(0,0,0,0.4);
+		}
+	}
+
+	.wp-story-prev-slide,
+	.wp-story-next-slide {
+		display: none;
+		position: absolute;
+
+		button {
+			border-width: 0;
+			&:hover {
+				border-width: 2px;
+			}
+		}
+	}
+
+	.wp-story-prev-slide {
+		margin: auto;
+		left: -84px;
+	}
+
+	.wp-story-next-slide {
+		margin: auto;
+		right: -84px;
 	}
 
 	.wp-story-pagination {
@@ -134,11 +157,11 @@
 	}
 
 	.wp-story-pagination-bullets {
+		display: flex;
 		padding: 6px 10px 0;
 		top: 0;
+		right: 0;
 		left: 0;
-		width: 100%;
-		display: flex;
 
 		.wp-story-pagination-bullet {
 			flex: 1;
@@ -146,7 +169,6 @@
 			opacity: 1;
 			margin: 0 2px;
 			padding: 6px 0;
-			width: 15px;
 			vertical-align: top;
 			border: 0;
 
@@ -156,8 +178,9 @@
 			}
 
 			.wp-story-pagination-bullet-bar {
+				min-width: 12px;
 				width: 100%;
-				height: 2px;
+				height: 4px;
 				//border-radius: 1.5px;
 				background: rgba(170, 170, 170, 0.8);
 			}
@@ -165,7 +188,7 @@
 			.wp-story-pagination-bullet-bar-progress {
 				width: 0;
 				opacity: 1;
-				height: 2px;
+				height: 4px;
 				background-color: #fff;
 				transition: width 50ms;
 			}
@@ -202,8 +225,9 @@
 		top: 0;
 		left: 0;
 		right: 0;
-		margin-top: 55px;
-		margin-bottom: 70px;
+		margin-top: 84px;
+		margin-bottom: 84px;
+		z-index: -1;
 	}
 
 	.wp-story-slide {
@@ -212,26 +236,37 @@
 	}
 
 	.wp-story-meta {
-		margin: 5px 0;
+		padding: 20px 0;
 		display: flex;
 		flex-direction: row;
 		color: #fff;
-		font-family: "Noto Sans", Arial, sans-serif;
-		line-height: 15px;
+		font-family: sans-serif;
+		line-height: 20px;
 		align-items: center;
 
-		img {
-			margin: 5px 10px 5px 0;
+		.wp-story-icon {
+			background-color: #fff;
+			width: 40px;
+			height: 40px;
+			margin: 0 16px 0 0;
+			border: 2px solid #fff;
+			border-radius: 4px;
+
+			img {
+				text-align: center;
+				width: 40px;
+				height: 40px;
+			}
 		}
 
 		.wp-story-site-name {
-			font-size: 12px;
-			font-weight: 300;
+			font-size: 14px;
+			font-weight: 600;
 		}
 
 		.wp-story-site-description {
-			font-size: 10px;
-			font-weight: 200;
+			font-size: 11px;
+			font-weight: 400;
 		}
 
 		.wp-story-exit-fullscreen {
@@ -240,8 +275,13 @@
 		}
 	}
 
+	.wp-story-prev-slide,
+	.wp-story-next-slide {
+		display: block;
+	}
+
 	.wp-story-controls {
-		width: 65px;
+		width: 88px;
 		order: 3;
 		display: flex;
 		flex-direction: row;
@@ -253,10 +293,11 @@
 	}
 
 	.wp-story-pagination-bullets {
+		display: flex;
 		position: absolute;
 		bottom: 42px;
 		top: auto;
-		padding: 6px 0;
+		padding: 14px 0;
 
 		.wp-story-pagination-bullet {
 			justify-content: space-between;
@@ -272,6 +313,43 @@
 	}
 }
 
+@media (max-width: 768px) {
+	.wp-story-container.wp-story-fullscreen {
+
+		.wp-story-wrapper,
+		.wp-story-overlay {
+			margin-top: 0;
+			margin-bottom: 0;
+		}
+
+		.wp-story-overlay {
+			top: 76px;
+			bottom: 76px;
+		}
+
+		.wp-story-meta {
+			padding: 16px;
+			background: rgb(0,0,0);
+			background: linear-gradient(180deg, rgba(0,0,0,0.6320903361344538) 0%, rgba(0,0,0,0) 100%);
+		}
+
+		.wp-story-prev-slide,
+		.wp-story-next-slide {
+			display: none;
+		}
+
+		.wp-story-controls {
+			bottom: 50px;
+			margin: 0 16px;
+		}
+
+		.wp-story-pagination-bullets {
+			bottom: 16px;
+			padding: 10px 16px;
+		}
+	}
+}
+
 html.wp-story-in-fullscreen {
 	overflow: hidden;
 }
@@ -281,4 +359,5 @@ body.wp-story-in-fullscreen {
 	padding-right: 15px; /* Avoid width reflow */
 	position: fixed;
 	width: 100%;
+	height: 100%;
 }

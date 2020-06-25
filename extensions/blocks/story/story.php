@@ -98,7 +98,7 @@ function render( $attributes ) {
 		'<div class="wp-block-jetpack-story wp-story aligncenter">
 			<div class="wp-block-jetpack-story_container wp-story-container" style="display: block; opacity: 1;">
 				<div class="wp-story-meta">
-					<div>
+					<div class="wp-story-icon">
 						<img alt="Site icon" src="%s" width="32" height=32>
 					</div>
 					<div>

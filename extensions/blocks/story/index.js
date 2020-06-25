@@ -85,14 +85,14 @@ export const settings = {
 	title: __( 'Story', 'jetpack' ),
 	category: 'media',
 	keywords: [
+		_x( 'story', 'block search term', 'jetpack' ),
 		_x( 'image', 'block search term', 'jetpack' ),
+		_x( 'video', 'block search term', 'jetpack' ),
 		_x( 'gallery', 'block search term', 'jetpack' ),
-		_x( 'slider', 'block search term', 'jetpack' ),
 	],
 	description: __( 'Add an interactive story.', 'jetpack' ),
 	attributes,
 	supports: {
-		align: [ 'center', 'wide', 'full' ],
 		html: false,
 	},
 	icon,

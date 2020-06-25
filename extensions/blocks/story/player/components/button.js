@@ -9,8 +9,8 @@ import classnames from 'classnames';
  */
 import './icons.scss';
 
-export const MaterialIcon = ( { icon, size } ) => html`
-	<i class="material-icons ${icon} md-${size}"></i>
+export const MaterialIcon = ( { icon, size = 24 } ) => html`
+	<i class="material-icons ${icon}" style=${{ fontSize: size }}></i>
 `;
 
 export const Button = ( {
@@ -31,9 +31,12 @@ export const Button = ( {
 				'circle-icon': circled,
 				outlined: outlined,
 				bordered: bordered,
-				[ `md-${ size }` ]: true,
 				[ className ]: !! className,
 			} )}
+			style=${{
+				width: `${ size }px`,
+				height: `${ size }px`,
+			}}
 			aria-label="${label}"
 			aria-pressed="false"
 			onClick=${onClick}
@@ -53,6 +56,6 @@ export const DecoratedButton = props => html`
 	<${Button} circled outlined bordered size=${64} iconSize=${36} ...${props} />
 `;
 
-export const SimpleButton = props => html`
-	<${Button} buttonSize=${24} ...${props} />
+export const SimpleButton = ( { size = 24, ...props } ) => html`
+	<${Button} size=${size} iconSize=${size} ...${props} />
 `;
