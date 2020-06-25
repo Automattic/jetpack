@@ -99,7 +99,7 @@ class Jetpack_Search_Customize {
 		$wp_customize->add_setting(
 			$id,
 			array(
-				'default'   => 'results',
+				'default'   => 'submit',
 				'transport' => 'postMessage',
 				'type'      => 'option',
 			)
@@ -112,8 +112,8 @@ class Jetpack_Search_Customize {
 				'section'     => $section_id,
 				'type'        => 'select',
 				'choices'     => array(
-					'immediate' => __( 'Open immediately', 'jetpack' ),
-					'results'   => __( 'Open when results are available', 'jetpack' ),
+					'submit' => __( 'When the user presses enter', 'jetpack' ),
+					'focus'  => __( 'When the input receives focus', 'jetpack' ),
 				),
 			)
 		);

@@ -122,6 +122,12 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			$posts_per_page = 20;
 		}
 
+		if ( 'immediate' === get_option( $prefix . 'overlay_trigger' ) ) {
+			update_option( $prefix . 'overlay_trigger', 'focus' );
+		} elseif ( 'results' === get_option( $prefix . 'overlay_trigger' ) ) {
+			update_option( $prefix . 'overlay_trigger', 'submit' );
+		}
+
 		$options = array(
 			'overlayOptions'        => array(
 				'colorTheme'      => get_option( $prefix . 'color_theme', 'light' ),
@@ -129,7 +135,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 				'enableSort'      => get_option( $prefix . 'enable_sort', '1' ) === '1',
 				'highlightColor'  => get_option( $prefix . 'highlight_color', '#FFC' ),
 				'opacity'         => (int) get_option( $prefix . 'opacity', 97 ),
-				'overlayTrigger'  => get_option( $prefix . 'overlay_trigger', 'immediate' ),
+				'overlayTrigger'  => get_option( $prefix . 'overlay_trigger', 'submit' ),
 				'showPoweredBy'   => get_option( $prefix . 'show_powered_by', '1' ) === '1',
 			),
 

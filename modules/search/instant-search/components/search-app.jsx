@@ -81,8 +81,7 @@ class SearchApp extends Component {
 		window.removeEventListener( 'queryStringChange', this.onChangeQueryString );
 
 		document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( input => {
-			input.form.removeEventListener( 'submit', this.handleSubmit );
-			input.removeEventListener( 'input', this.handleInput );
+			input.form?.removeEventListener( 'submit', this.handleSubmit );
 			input.removeEventListener( 'focus', this.handleInputFocus );
 		} );
 
@@ -93,19 +92,15 @@ class SearchApp extends Component {
 
 	updateEventListeners( type ) {
 		document.querySelectorAll( this.props.themeOptions.searchInputSelector ).forEach( input => {
-			if ( type === 'results' ) {
-				// Remove focus event listener
+			if ( type === 'submit' ) {
+				// Submit trigger should ignore input focus events
 				input.removeEventListener( 'focus', this.handleInputFocus );
-				// Add listeners for input and submit
-				input.form.addEventListener( 'submit', this.handleSubmit );
-				input.addEventListener( 'input', this.handleInput );
+				input.form?.addEventListener( 'submit', this.handleSubmit );
 			}
-			if ( type === 'immediate' ) {
-				// Remove listeners for input and submit
-				input.form.removeEventListener( 'submit', this.handleSubmit );
-				input.removeEventListener( 'input', this.handleInput );
-				// Add focus event listener
+			if ( type === 'focus' ) {
+				// Focus trigger should respect both focus and submit events
 				input.addEventListener( 'focus', this.handleInputFocus );
+				input.form?.addEventListener( 'submit', this.handleSubmit );
 			}
 		} );
 	}
@@ -130,16 +125,9 @@ class SearchApp extends Component {
 
 	handleSubmit = event => {
 		event.preventDefault();
-		this.handleInput.flush();
+		const formData = new FormData( event.target );
+		setSearchQuery( formData.get( 's' ) );
 	};
-
-	handleInput = debounce( event => {
-		// Reference: https://rawgit.com/w3c/input-events/v1/index.html#interface-InputEvent-Attributes
-		if ( event.inputType.includes( 'delete' ) || event.inputType.includes( 'format' ) ) {
-			return;
-		}
-		setSearchQuery( event.target.value );
-	}, 200 );
 
 	handleInputFocus = () => this.showResults();
 
