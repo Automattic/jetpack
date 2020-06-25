@@ -13,6 +13,10 @@ function MediaButtonMenu( props ) {
 	const { mediaProps, open, setSelectedSource, isFeatured, isReplace } = props;
 	const originalComponent = mediaProps.render;
 
+	if ( isFeatured && mediaProps.value === undefined ) {
+		return originalComponent( { open } );
+	}
+
 	if ( isReplace ) {
 		return (
 			<MediaSources
@@ -23,21 +27,14 @@ function MediaButtonMenu( props ) {
 		);
 	}
 
-	const dropdownOpen = onToggle => {
-		onToggle();
-		open();
-	};
-	const changeSource = ( source, onToggle ) => {
-		setSelectedSource( source );
-		onToggle();
-	};
-	const openLibrary = onToggle => {
-		onToggle();
-		open();
-	};
+	let label = __( 'Select Image', 'jetpack' );
 
-	if ( isFeatured && mediaProps.value === undefined ) {
-		return originalComponent( { open } );
+	if ( mediaProps.multiple ) {
+		label = __( 'Select Images', 'jetpack' );
+	}
+
+	if ( mediaProps.allowedTypes.length > 1 ) {
+		label = __( 'Select Media', 'jetpack' );
 	}
 
 	return (
@@ -46,29 +43,27 @@ function MediaButtonMenu( props ) {
 
 			<Dropdown
 				position="bottom right"
+				contentClassName="jetpack-external-media-button-menu__options"
 				renderToggle={ ( { isOpen, onToggle } ) => (
 					<Button
 						isTertiary={ ! isFeatured }
 						isPrimary={ isFeatured }
-						className="jetpack-external-media-browse-button"
+						className="jetpack-external-media-button-menu"
 						aria-haspopup="true"
 						aria-expanded={ isOpen }
 						onClick={ onToggle }
 					>
-						{ __( 'Select Image', 'jetpack' ) }
+						{ label }
 					</Button>
 				) }
-				renderContent={ ( { onToggle } ) => (
-					<NavigableMenu aria-label={ __( 'Select Image', 'jetpack' ) }>
+				renderContent={ () => (
+					<NavigableMenu aria-label={ label }>
 						<MenuGroup>
-							<MenuItem icon="admin-media" onClick={ () => openLibrary( onToggle ) }>
+							<MenuItem icon="admin-media" onClick={ open }>
 								{ __( 'Media Library', 'jetpack' ) }
 							</MenuItem>
 
-							<MediaSources
-								open={ () => dropdownOpen( onToggle ) }
-								setSource={ source => changeSource( source, onToggle ) }
-							/>
+							<MediaSources open={ open } setSource={ setSelectedSource } />
 						</MenuGroup>
 					</NavigableMenu>
 				) }
