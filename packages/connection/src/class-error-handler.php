@@ -20,11 +20,15 @@ namespace Automattic\Jetpack\Connection;
  * 5. wp.com checks it and, if valid, sends a new request back to this site using the verify_xml_rpc_error REST endpoint
  * 6. This endpoint add this error to the Verified errors in the database
  * 7. Triggers a workflow depending on the error (display user an error message, do some self healing, etc.)
+ *
+ * @since 8.7.0
  */
 class Error_Handler {
 
 	/**
 	 * The name of the option that stores the errors
+	 *
+	 * @since 8.7.0
 	 *
 	 * @var string
 	 */
@@ -33,6 +37,8 @@ class Error_Handler {
 	/**
 	 * The name of the option that stores the errors
 	 *
+	 * @since 8.7.0
+	 *
 	 * @var string
 	 */
 	const STORED_VERIFIED_ERRORS_OPTION = 'jetpack_connection_xmlrpc_verified_errors';
@@ -40,16 +46,22 @@ class Error_Handler {
 	/**
 	 * The prefix of the transient that controls the gate for each error code
 	 *
+	 * @since 8.7.0
+	 *
 	 * @var string
 	 */
 	const ERROR_REPORTING_GATE = 'jetpack_connection_error_reporting_gate_';
 
 	/**
 	 * Time in seconds a test should live in the database before being discarded
+	 *
+	 * @since 8.7.0
 	 */
 	const ERROR_LIFE_TIME = DAY_IN_SECONDS * 3;
 	/**
 	 * List of known errors. Only error codes in this list will be handled
+	 *
+	 * @since 8.7.0
 	 *
 	 * @var array
 	 */
@@ -80,12 +92,16 @@ class Error_Handler {
 	/**
 	 * Holds the instance of this singleton class
 	 *
+	 * @since 8.7.0
+	 *
 	 * @var Error_Handler $instance
 	 */
 	public static $instance = null;
 
 	/**
-	 * Initialize hooks
+	 * Initialize instance, hookds and load verified errors handlers
+	 *
+	 * @since 8.7.0
 	 */
 	private function __construct() {
 		defined( 'JETPACK__ERRORS_PUBLIC_KEY' ) || define( 'JETPACK__ERRORS_PUBLIC_KEY', 'KdZY80axKX+nWzfrOcizf0jqiFHnrWCl9X8yuaClKgM=' );
@@ -97,6 +113,8 @@ class Error_Handler {
 
 	/**
 	 * Gets the list of verified errors and act upon them
+	 *
+	 * @since 8.7.0
 	 *
 	 * @return void
 	 */
@@ -125,6 +143,8 @@ class Error_Handler {
 	/**
 	 * Gets the instance of this singleton class
 	 *
+	 * @since 8.7.0
+	 *
 	 * @return Error_Handler $instance
 	 */
 	public static function get_instance() {
@@ -136,6 +156,8 @@ class Error_Handler {
 
 	/**
 	 * Keep track of a connection error that was encoutered
+	 *
+	 * @since 8.7.0
 	 *
 	 * @param \WP_Error $error the error object.
 	 * @param boolean   $force Force the report, even if should_report_error is false.
@@ -154,6 +176,8 @@ class Error_Handler {
 	 * Checks the status of the gate
 	 *
 	 * This protects the site (and WPCOM) against over loads.
+	 *
+	 * @since 8.7.0
 	 *
 	 * @param \WP_Error $error the error object.
 	 * @return boolean $should_report True if gate is open and the error should be reported.
@@ -181,6 +205,8 @@ class Error_Handler {
 
 	/**
 	 * Stores the error in the database so we know there is an issue and can inform the user
+	 *
+	 * @since 8.7.0
 	 *
 	 * @param \WP_Error $error the error object.
 	 * @return boolean|array False if stored errors were not updated and the error array if it was successfully stored.
@@ -215,6 +241,8 @@ class Error_Handler {
 
 	/**
 	 * Converts a WP_Error object in the array representation we store in the database
+	 *
+	 * @since 8.7.0
 	 *
 	 * @param \WP_Error $error the error object.
 	 * @return boolean|array False if error is invalid or the error array
@@ -252,6 +280,8 @@ class Error_Handler {
 	/**
 	 * Sends the error to WP.com to be verified
 	 *
+	 * @since 8.7.0
+	 *
 	 * @param array $error_array The array representation of the error as it is stored in the database.
 	 * @return bool
 	 */
@@ -274,6 +304,8 @@ class Error_Handler {
 
 	/**
 	 * Encrypt data to be sent over to WP.com
+	 *
+	 * @since 8.7.0
 	 *
 	 * @param array|string $data the data to be encoded.
 	 * @return boolean|string The encoded string on success, false on failure
@@ -298,6 +330,8 @@ class Error_Handler {
 	/**
 	 * Extracts the user ID from a token
 	 *
+	 * @since 8.7.0
+	 *
 	 * @param string $token the token used to make the xml-rpc request.
 	 * @return string $the user id or `invalid` if user id not present.
 	 */
@@ -317,6 +351,8 @@ class Error_Handler {
 	/**
 	 * Gets the reported errors stored in the database
 	 *
+	 * @since 8.7.0
+	 *
 	 * @return array $errors
 	 */
 	public function get_stored_errors() {
@@ -334,6 +370,8 @@ class Error_Handler {
 
 	/**
 	 * Gets the verified errors stored in the database
+	 *
+	 * @since 8.7.0
 	 *
 	 * @return array $errors
 	 */
@@ -356,6 +394,8 @@ class Error_Handler {
 	 * This method is calleb by get_stored_errors and get_verified errors and filters their result
 	 * Whenever a new error is stored to the database or verified, this will be triggered and the
 	 * expired error will be permantently removed from the database
+	 *
+	 * @since 8.7.0
 	 *
 	 * @param array $errors array of errors as stored in the database.
 	 * @return array
@@ -381,6 +421,8 @@ class Error_Handler {
 	/**
 	 * Delete all stored and verified errors from the database
 	 *
+	 * @since 8.7.0
+	 *
 	 * @return void
 	 */
 	public function delete_all_errors() {
@@ -391,6 +433,8 @@ class Error_Handler {
 	/**
 	 * Delete the reported errors stored in the database
 	 *
+	 * @since 8.7.0
+	 *
 	 * @return boolean True, if option is successfully deleted. False on failure.
 	 */
 	public function delete_stored_errors() {
@@ -399,6 +443,8 @@ class Error_Handler {
 
 	/**
 	 * Delete the verified errors stored in the database
+	 *
+	 * @since 8.7.0
 	 *
 	 * @return boolean True, if option is successfully deleted. False on failure.
 	 */
@@ -410,6 +456,8 @@ class Error_Handler {
 	 * Gets an error based on the nonce
 	 *
 	 * Receives a nonce and finds the related error. If error is found, move it to the verified errors option.
+	 *
+	 * @since 8.7.0
 	 *
 	 * @param string $nonce The nonce created for the error we want to get.
 	 * @return null|array Returns the error array representation or null if error not found.
@@ -428,6 +476,8 @@ class Error_Handler {
 
 	/**
 	 * Adds an error to the verified error list
+	 *
+	 * @since 8.7.0
 	 *
 	 * @param array $error The error array, as it was saved in the unverified errors list.
 	 * @return void

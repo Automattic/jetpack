@@ -10,11 +10,15 @@ namespace Automattic\Jetpack\Connection\Error_Handlers;
 /**
  * This class handles all the error codes that indicates a broken blog token and
  * suggests the user to reconnect.
+ *
+ * @since 8.7.0
  */
 class Invalid_Blog_Token {
 
 	/**
 	 * Set up hooks
+	 *
+	 * @since 8.7.0
 	 *
 	 * @param array $errors The array containing verified errors stored in the database.
 	 */
@@ -29,6 +33,8 @@ class Invalid_Blog_Token {
 
 	/**
 	 * Prints an admin notice for the blog token error
+	 *
+	 * @since 8.7.0
 	 *
 	 * @return void
 	 */
