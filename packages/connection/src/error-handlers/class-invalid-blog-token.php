@@ -26,7 +26,7 @@ class Invalid_Blog_Token {
 
 		// In this class, we will only handle errors with the blog token, so ignoring if there are only errors with user tokens.
 		if ( ! isset( $errors[0] ) || ! isset( $errors['invalid'] ) ) {
-			add_action( 'jetpack_notices', array( $this, 'admin_notice' ) );
+			add_action( 'admin_notices', array( $this, 'admin_notice' ) );
 		}
 
 	}
