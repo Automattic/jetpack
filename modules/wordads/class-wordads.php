@@ -16,6 +16,7 @@ require_once WORDADS_ROOT . '/php/class-wordads-sidebar-widget.php';
 require_once WORDADS_ROOT . '/php/class-wordads-api.php';
 require_once WORDADS_ROOT . '/php/class-wordads-cron.php';
 require_once WORDADS_ROOT . '/php/class-wordads-california-privacy.php';
+require_once WORDADS_ROOT . '/php/class-wordads-ccpa-do-not-sell-link-widget.php';
 
 /**
  * Primary WordAds class.
