@@ -6,6 +6,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import SimpleNotice from 'components/notice';
 import NoticeAction from 'components/notice/notice-action.jsx';
+import NoticeActionDisconnect from './notice-action-disconnect.jsx';
 import { translate as __ } from 'i18n-calypso';
 import NoticesList from 'components/global-notices';
 import getRedirectUrl from 'lib/jp-redirect';
@@ -180,6 +181,25 @@ UserUnlinked.propTypes = {
 	connectUrl: PropTypes.string.isRequired,
 	siteConnected: PropTypes.bool.isRequired,
 };
+
+export class ErrorNoticeCycleConnection extends React.Component {
+	static propTypes = {
+		text: PropTypes.string.isRequired,
+	};
+
+	render() {
+		return (
+			<SimpleNotice
+				showDismiss={ false }
+				text={ this.props.text }
+				status={ 'is-error' }
+				icon={ 'link-break' }
+			>
+				<NoticeActionDisconnect>{ __( 'Reconnect' ) }</NoticeActionDisconnect>
+			</SimpleNotice>
+		);
+	}
+}
 
 class JetpackNotices extends React.Component {
 	static displayName = 'JetpackNotices';

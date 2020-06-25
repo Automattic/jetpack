@@ -8,7 +8,7 @@ import { connect } from 'react-redux';
 /**
  * Internal dependencies
  */
-import NoticeAction from './notice-action';
+import NoticeAction from 'components/notice/notice-action';
 import { disconnectSite } from 'state/connection';
 
 class NoticeActionDisconnect extends React.Component {
