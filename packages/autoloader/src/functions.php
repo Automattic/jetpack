@@ -3,7 +3,7 @@
 
 global $jetpack_packages_classmap;
 global $jetpack_packages_filemap;
-global $jetpack_autoloader_activating_plugins;
+global $jetpack_autoloader_activating_plugins_paths;
 
 if ( ! is_array( $jetpack_packages_classmap ) ) {
 	$jetpack_packages_classmap = array();
@@ -13,8 +13,8 @@ if ( ! is_array( $jetpack_packages_filemap ) ) {
 	$jetpack_packages_filemap = array();
 }
 
-if ( ! is_array( $jetpack_autoloader_activating_plugins ) ) {
-	$jetpack_autoloader_activating_plugins = array();
+if ( ! is_array( $jetpack_autoloader_activating_plugins_paths ) ) {
+	$jetpack_autoloader_activating_plugins_paths = array();
 }
 
 /**

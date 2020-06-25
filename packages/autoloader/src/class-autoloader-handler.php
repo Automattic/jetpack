@@ -54,15 +54,9 @@ class Autoloader_Handler {
 		$selected_autoloader_version = null;
 		$selected_autoloader_path    = null;
 
-		$active_plugins = $this->plugins_handler->get_all_active_plugins();
+		$active_plugins_paths = $this->plugins_handler->get_all_active_plugins_paths();
 
-		foreach ( $active_plugins as $plugin ) {
-			$plugin_path = trailingslashit( WP_PLUGIN_DIR ) . $plugin;
-
-			if ( ! file_exists( $plugin_path ) ) {
-				$plugin_path = trailingslashit( WPMU_PLUGIN_DIR ) . $plugin;
-			}
-
+		foreach ( $active_plugins_paths as $plugin_path ) {
 			$classmap_path = trailingslashit( $plugin_path ) . 'vendor/composer/jetpack_autoload_classmap.php';
 
 			if ( file_exists( $classmap_path ) ) {
@@ -79,6 +73,8 @@ class Autoloader_Handler {
 		}
 
 		$jetpack_autoloader_latest_version = $selected_autoloader_version;
+
+		// $current_autoloader_path is already loaded
 		if ( $current_autoloader_path !== $selected_autoloader_path ) {
 			require $selected_autoloader_path;
 		}
