@@ -71,9 +71,9 @@ class Broken_Token_XmlRpc {
 	 */
 	public function render_ui() {
 		?>
-			<h1>XML-PRC errors</h1>
+			<h1>XML-RPC errors</h1>
 			<p>
-				This page helps you to trigger XML-PRC requests with invalid signatures.
+				This page helps you to trigger XML-RPC requests with invalid signatures.
 			</p>
 			<?php if ( $this->dev_debug_on ) : ?>
 				<div class="notice notice-success">
