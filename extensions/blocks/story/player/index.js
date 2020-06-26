@@ -18,7 +18,7 @@ const defaultSettings = {
 	autoload: true,
 	imageTime: 5000,
 	renderInterval: 50,
-	startMuted: true,
+	startMuted: false,
 	playInFullScreen: true,
 	loadInFullScreen: false,
 	tapToPlayPause: true,
@@ -75,6 +75,14 @@ export default function player( rootElement, params ) {
 			document.body.classList.remove( 'wp-story-in-fullscreen' );
 			document.getElementsByTagName( 'html' )[ 0 ].classList.remove( 'wp-story-in-fullscreen' );
 		}
+	} );
+
+	playerEvents.on( 'end', () => {
+		container.classList.add( 'wp-story-ended' );
+	} );
+
+	playerEvents.on( 'play', () => {
+		container.classList.remove( 'wp-story-ended' );
 	} );
 
 	const resize = () => {
