@@ -294,3 +294,7 @@ iframe#wpnt-notes-iframe2.wide {
 .admin-bar {
 	position: unset !important;
 }
+
+.screen-reader-text {
+	position: absolute;
+}
