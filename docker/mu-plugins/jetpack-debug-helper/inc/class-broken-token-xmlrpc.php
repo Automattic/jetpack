@@ -92,7 +92,7 @@ class Broken_Token_XmlRpc {
 			<div id="current_xmlrpc_errors">
 
 
-				<form action="<?php echo esc_attr( admin_url( 'admin-post.php' ) ); ?>" method="post">
+				<form action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post">
 					<input type="hidden" name="action" value="clear_all_xmlrpc_errors">
 					<?php wp_nonce_field( 'clear-xmlrpc-errors' ); ?>
 					<h2>
@@ -110,7 +110,7 @@ class Broken_Token_XmlRpc {
 					<?php $this->print_current_errors(); ?>
 				</div>
 				<div id="verified-xmlrpc-error">
-					<form action="<?php echo esc_attr( admin_url( 'admin-post.php' ) ); ?>" method="post">
+					<form action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post">
 						<input type="hidden" name="action" value="clear_all_verified_xmlrpc_errors">
 						<?php wp_nonce_field( 'clear-verified-xmlrpc-errors' ); ?>
 						<h2>
