@@ -305,7 +305,7 @@ class Jetpack_WPCOM_Block_Editor {
 			'wpcomGutenberg',
 			array(
 				'switchToClassic' => array(
-					'isVisible' => $this->is_iframed_block_editor(),
+					'isVisible' => $this->is_iframed_block_editor() && ! isset( $_GET['in-editor-deprecation-group'] ), // phpcs:ignore WordPress.Security.NonceVerification
 					'label'     => __( 'Switch to Classic Editor', 'jetpack' ),
 					'url'       => Jetpack_Calypsoify::getInstance()->get_switch_to_classic_editor_url(),
 				),
