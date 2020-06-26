@@ -7,12 +7,13 @@ export async function waitMediaReady( mediaElement ) {
 		await new Promise( resolve => {
 			mediaElement.addEventListener( 'load', resolve, { once: true } );
 		} );
-	} else if ( 'video' === elementTag ) {
+	} else if ( 'video' === elementTag || 'audio' === elementTag ) {
 		if ( mediaElement.HAVE_ENOUGH_DATA === mediaElement.readyState ) {
 			return;
 		}
 		await new Promise( resolve => {
 			mediaElement.addEventListener( 'canplaythrough', resolve, { once: true } );
+			mediaElement.load();
 		} );
 	}
 }
