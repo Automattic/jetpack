@@ -68,10 +68,8 @@ export default function player( rootElement, params ) {
 		container.classList.remove( 'wp-story-fullscreen' );
 	} );
 
-	const isFullscreen = () => container.classList.contains( 'wp-story-fullscreen' );
-
 	const resize = () => {
-		const slidesMaxHeight = container.offsetHeight;
+		const slidesMaxHeight = slidesWrapper.offsetHeight;
 		container.style.width = `${ settings.defaultAspectRatio * slidesMaxHeight }px`;
 	};
 
@@ -84,7 +82,7 @@ export default function player( rootElement, params ) {
 		pendingRequestAnimationFrame = requestAnimationFrame( () => {
 			resize();
 		} );
-	} ).observe( container );
+	} ).observe( slidesWrapper );
 
 	const initPlayer = ( newSettings = settings ) => {
 		renderPlayer( root, newSettings );
