@@ -1,8 +1,9 @@
+/* global jetpack_broken_token_xmlrpc_errors */
 ( function( $ ) {
 	$( '.verify-error' ).click( function( ev ) {
-		var button = this;
+		let button = this;
 		$( button ).prop( 'disabled', true );
-		var orignialValue = $( button ).val();
+		let orignialValue = $( button ).val();
 		$( button ).val( 'Sending request...' );
 
 		$.post(
@@ -10,7 +11,7 @@
 			{
 				nonce: $( this ).data( 'nonce' ),
 			},
-			function( response ) {
+			function() {
 				$( button ).val( 'Updating list...' );
 
 				$.post(
