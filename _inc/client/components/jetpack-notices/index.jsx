@@ -6,7 +6,6 @@ import React from 'react';
 import { connect } from 'react-redux';
 import SimpleNotice from 'components/notice';
 import NoticeAction from 'components/notice/notice-action.jsx';
-import NoticeActionDisconnect from './notice-action-disconnect.jsx';
 import { translate as __ } from 'i18n-calypso';
 import NoticesList from 'components/global-notices';
 import getRedirectUrl from 'lib/jp-redirect';
@@ -23,11 +22,17 @@ import {
 	isCurrentUserLinked,
 	getConnectUrl as _getConnectUrl,
 } from 'state/connection';
-import { isDevVersion, userCanConnectSite, userIsSubscriber } from 'state/initial-state';
+import {
+	isDevVersion,
+	userCanConnectSite,
+	userIsSubscriber,
+	getConnectionErrors,
+} from 'state/initial-state';
 import DismissableNotices from './dismissable';
 import JetpackBanner from 'components/jetpack-banner';
 import { JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
 import PlanConflictWarning from './plan-conflict-warning';
+import JetpackConnectionErrors from './jetpack-connection-errors';
 
 export class DevVersionNotice extends React.Component {
 	static displayName = 'DevVersionNotice';
@@ -182,29 +187,6 @@ UserUnlinked.propTypes = {
 	siteConnected: PropTypes.bool.isRequired,
 };
 
-export class ErrorNoticeCycleConnection extends React.Component {
-	static defaultProps = {
-		text: __( 'Connection Error, please reconnect.' ),
-	};
-
-	static propTypes = {
-		text: PropTypes.string.isRequired,
-	};
-
-	render() {
-		return (
-			<SimpleNotice
-				showDismiss={ false }
-				text={ this.props.text }
-				status={ 'is-error' }
-				icon={ 'link-break' }
-			>
-				<NoticeActionDisconnect>{ __( 'Reconnect' ) }</NoticeActionDisconnect>
-			</SimpleNotice>
-		);
-	}
-}
-
 class JetpackNotices extends React.Component {
 	static displayName = 'JetpackNotices';
 
@@ -212,6 +194,9 @@ class JetpackNotices extends React.Component {
 		return (
 			<div aria-live="polite">
 				<NoticesList />
+				{ this.props.siteConnectionStatus && this.props.connectionErrors && (
+					<JetpackConnectionErrors errors={ this.props.connectionErrors } />
+				) }
 				<JetpackStateNotices />
 				<DevVersionNotice
 					isDevVersion={ this.props.isDevVersion }
@@ -257,5 +242,6 @@ export default connect( state => {
 		siteDevMode: getSiteDevMode( state ),
 		isStaging: isStaging( state ),
 		isInIdentityCrisis: isInIdentityCrisis( state ),
+		connectionErrors: getConnectionErrors( state ),
 	};
 } )( JetpackNotices );

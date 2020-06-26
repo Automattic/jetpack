@@ -252,6 +252,16 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				'isPublic'           => '1' == get_option( 'blog_public' ), // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
 				'isInIdentityCrisis' => Jetpack::validate_sync_error_idc_option(),
 				'sandboxDomain'      => JETPACK__SANDBOX_DOMAIN,
+
+				/**
+				 * Filter to add connection errors
+				 * Format: array( array( 'code' => '...', 'message' => '...', 'action' => '...' ), ... )
+				 *
+				 * @since 8.7.0
+				 *
+				 * @param array $errors Connection errors.
+				 */
+				'errors'             => apply_filters( 'react_connection_errors_initial_state', array() ),
 			),
 			'connectUrl'                  => false == $current_user_data['isConnected'] // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison
 				? Jetpack::init()->build_connect_url( true, false, false )
