@@ -1075,24 +1075,6 @@ class Jetpack {
 	public function jetpack_custom_caps( $caps, $cap, $user_id, $args ) {
 		$is_development_mode = ( new Status() )->is_development_mode();
 		switch ( $cap ) {
-			case 'jetpack_connect':
-			case 'jetpack_reconnect':
-				if ( $is_development_mode ) {
-					$caps = array( 'do_not_allow' );
-					break;
-				}
-				// Pass through. If it's not development mode, these should match disconnect.
-				// Let users disconnect if it's development mode, just in case things glitch.
-			case 'jetpack_disconnect':
-				/**
-				 * Filters the jetpack_disconnect capability.
-				 *
-				 * @since 8.7.0
-				 *
-				 * @param array An array containing the capability name.
-				 */
-				$caps = apply_filters( 'jetpack_disconnect_cap', array( 'manage_options' ) );
-				break;
 			case 'jetpack_manage_modules':
 			case 'jetpack_activate_modules':
 			case 'jetpack_deactivate_modules':
@@ -1121,13 +1103,6 @@ class Jetpack {
 				} else {
 					$caps = array( 'read' );
 				}
-				break;
-			case 'jetpack_connect_user':
-				if ( $is_development_mode ) {
-					$caps = array( 'do_not_allow' );
-					break;
-				}
-				$caps = array( 'read' );
 				break;
 		}
 		return $caps;
