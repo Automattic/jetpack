@@ -229,29 +229,44 @@ EXPECTED;
 	}
 
 	/**
-	 * @author georgestephanis
-	 * @covers Jetpack::dns_prefetch
-	 * @since 3.3.0
+	 * Tests the add_resource_hint function.
+	 *
+	 * @author kraftbj
+	 * @covers Jetpack::add_resource_hint
+	 * @since 8.8.0
 	 */
-	public function test_dns_prefetch() {
-		// Save URLs that are already in to remove them later and perform a clean test.
-		ob_start();
-		Jetpack::dns_prefetch();
-		$remove_this = ob_get_clean();
+	public function test_add_resource_hint_single_string() {
+		/*
+		 * First test is to confirm that the function works when passing a single string with no type.
+		 */
+		$url = '//single-string.example.com';
+		Jetpack::add_resource_hint( $url );
+		$values = apply_filters( 'wp_resource_hints', array(), 'dns-prefetch' );
 
-		Jetpack::dns_prefetch( 'http://example1.com/' );
-		Jetpack::dns_prefetch( array(
-			'http://example2.com/',
-			'https://example3.com',
-		) );
-		Jetpack::dns_prefetch( 'https://example2.com' );
+		$this->assertContains( $url, $values );
+	}
 
-		$expected = "\r\n" .
-		            "<link rel='dns-prefetch' href='//example1.com'/>\r\n" .
-		            "<link rel='dns-prefetch' href='//example2.com'/>\r\n" .
-		            "<link rel='dns-prefetch' href='//example3.com'/>\r\n";
+	/**
+	 * Tests the add_resource_hint function.
+	 *
+	 * @author kraftbj
+	 * @covers Jetpack::add_resource_hint
+	 * @since 8.8.0
+	 */
+	public function test_add_resource_hint_array() {
+		/**
+		 * Next, test an array.
+		 */
+		$urls = array(
+			'//array-1.example.com',
+			'//array-2.example.com',
+		);
+		Jetpack::add_resource_hint( $urls );
+		$values = apply_filters( 'wp_resource_hints', array(), 'dns-prefetch' );
 
-		$this->assertEquals( $expected, str_replace( $remove_this, "\r\n", get_echo( array( 'Jetpack', 'dns_prefetch' ) ) ) );
+		$this->assertContains( $urls[0], $values );
+		$this->assertContains( $urls[1], $values );
+
 	}
 
 	public function test_activating_deactivating_modules_fires_actions() {

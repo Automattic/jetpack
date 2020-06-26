@@ -6891,24 +6891,39 @@ endif;
 	/**
 	 * Stores and prints out domains to prefetch for page speed optimization.
 	 *
-	 * @param mixed $new_urls
+	 * @deprecated 8.8.0 Use Jetpack::add_resource_hints.
+	 *
+	 * @param string|array $urls URLs to hint.
 	 */
-	public static function dns_prefetch( $new_urls = null ) {
-		static $prefetch_urls = array();
-		if ( empty( $new_urls ) && ! empty( $prefetch_urls ) ) {
-			echo "\r\n";
-			foreach ( $prefetch_urls as $this_prefetch_url ) {
-				printf( "<link rel='dns-prefetch' href='%s'/>\r\n", esc_attr( $this_prefetch_url ) );
-			}
-		} elseif ( ! empty( $new_urls ) ) {
-			if ( ! has_action( 'wp_head', array( __CLASS__, __FUNCTION__ ) ) ) {
-				add_action( 'wp_head', array( __CLASS__, __FUNCTION__ ) );
-			}
-			foreach ( (array) $new_urls as $this_new_url ) {
-				$prefetch_urls[] = strtolower( untrailingslashit( preg_replace( '#^https?://#i', '//', $this_new_url ) ) );
-			}
-			$prefetch_urls = array_unique( $prefetch_urls );
+	public static function dns_prefetch( $urls = null ) {
+		if ( $urls ) {
+			self::add_resource_hint( $urls );
 		}
+	}
+
+	/**
+	 * Passes an array of URLs to wp_resource_hints.
+	 *
+	 * @since 8.8.0
+	 *
+	 * @param string|array $urls URLs to hint.
+	 * @param string       $type One of the supported resource types: dns-prefetch (default), preconnect, prefetch, or prerender.
+	 */
+	public static function add_resource_hint( $urls, $type = 'dns-prefetch' ) {
+		add_filter(
+			'wp_resource_hints',
+			function( $hints, $resource_type ) use ( $urls, $type ) {
+				if ( $resource_type === $type ) {
+					// Type casting to array required since the function accepts a single string.
+					foreach ( (array) $urls as $url ) {
+						$hints[] = $url;
+					}
+				}
+				return $hints;
+			},
+			10,
+			2
+		);
 	}
 
 	public function wp_dashboard_setup() {
