@@ -8,7 +8,8 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Connection\Manager;
-use Automattic\Jetpack\JITMS\JITM;
+use Automattic\Jetpack\JITMS\JITM as JITMS_JITM;
+use Automattic\Jetpack\JITM as JITM;
 use Automattic\Jetpack\Connection\Plugin;
 use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
 use Automattic\Jetpack\Sync\Main as Sync_Main;
@@ -91,8 +92,10 @@ class Config {
 		}
 
 		if ( $this->config['jitm'] ) {
-			$this->ensure_class( 'Automattic\Jetpack\JITMS\JITM' )
-				&& $this->ensure_feature( 'jitm' );
+			// Check for the JITM class in both namespaces. The namespace was changed in jetpack-jitm v1.6.
+			( $this->ensure_class( 'Automattic\Jetpack\JITMS\JITM', false )
+				|| $this->ensure_class( 'Automattic\Jetpack\JITM' ) )
+			&& $this->ensure_feature( 'jitm' );
 		}
 	}
 
@@ -100,13 +103,15 @@ class Config {
 	 * Returns true if the required class is available and alerts the user if it's not available
 	 * in case the site is in debug mode.
 	 *
-	 * @param String $classname a fully qualified class name.
+	 * @param String  $classname a fully qualified class name.
+	 * @param Boolean $log_notice whether the E_USER_NOTICE should be generated if the class is not found.
+	 *
 	 * @return Boolean whether the class is available.
 	 */
-	protected function ensure_class( $classname ) {
+	protected function ensure_class( $classname, $log_notice = true ) {
 		$available = class_exists( $classname );
 
-		if ( ! $available && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+		if ( $log_notice && ! $available && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			trigger_error( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
 				sprintf(
 					/* translators: %1$s is a PHP class name. */
@@ -190,7 +195,12 @@ class Config {
 	 * Enables the JITM feature.
 	 */
 	protected function enable_jitm() {
-		JITM::configure();
+		if ( class_exists( 'Automattic\Jetpack\JITMS\JITM' ) ) {
+			JITMS_JITM::configure();
+		} else {
+			// Provides compatibility with jetpack-jitm <v1.6.
+			JITM::configure();
+		}
 
 		return true;
 	}

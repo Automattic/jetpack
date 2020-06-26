@@ -19,6 +19,7 @@ export default function TiledGallerySave( { attributes } ) {
 		columns = defaultColumnsNumber( attributes ),
 		linkTo,
 		roundedCorners,
+		columnWidths,
 	} = attributes;
 
 	return (
@@ -32,6 +33,7 @@ export default function TiledGallerySave( { attributes } ) {
 			layoutStyle={ getActiveStyleName( LAYOUT_STYLES, className ) }
 			linkTo={ linkTo }
 			roundedCorners={ roundedCorners }
+			columnWidths={ columnWidths }
 		/>
 	);
 }

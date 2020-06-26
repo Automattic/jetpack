@@ -9,6 +9,7 @@ import classnames from 'classnames';
 import { useRef, useEffect, useCallback } from '@wordpress/element';
 import { Spinner } from '@wordpress/components';
 import { ENTER, SPACE } from '@wordpress/keycodes';
+import { __ } from '@wordpress/i18n';
 
 function MediaItem( props ) {
 	const onClick = useCallback( () => {
@@ -34,7 +35,7 @@ function MediaItem( props ) {
 		'jetpack-external-media-browser__media__item': true,
 		'jetpack-external-media-browser__media__item__selected': isSelected,
 		'jetpack-external-media-browser__media__folder': type === 'folder',
-		'is-transient': isSelected && isCopying,
+		'is-transient': isCopying,
 	} );
 
 	const itemEl = useRef( null );
@@ -52,13 +53,23 @@ function MediaItem( props ) {
 		<li
 			ref={ itemEl }
 			className={ classes }
-			onClick={ onClick }
-			onKeyDown={ onKeyDown }
+			onClick={ isCopying ? undefined : onClick }
+			onKeyDown={ isCopying ? undefined : onKeyDown }
 			role="checkbox"
 			tabIndex="0"
-			aria-checked={ isSelected ? 'true' : 'false' }
+			aria-checked={ !! isSelected }
+			aria-disabled={ !! isCopying }
 		>
-			<img src={ medium || fmt_hd } alt={ alt } title={ alt } />
+			{ isSelected && isCopying && (
+				<div className="jetpack-external-media-browser__media__copying_indicator">
+					<Spinner />
+					<div className="jetpack-external-media-browser__media__copying_indicator__label">
+						{ __( 'Inserting Image…', 'jetpack' ) }
+					</div>
+				</div>
+			) }
+
+			<img src={ medium || fmt_hd } alt={ alt } />
 
 			{ type === 'folder' && (
 				<div className="jetpack-external-media-browser__media__info">
@@ -66,8 +77,6 @@ function MediaItem( props ) {
 					<div className="jetpack-external-media-browser__media__count">{ children }</div>
 				</div>
 			) }
-
-			{ isSelected && isCopying && <Spinner /> }
 		</li>
 	);
 }

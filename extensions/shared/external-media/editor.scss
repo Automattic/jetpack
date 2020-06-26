@@ -17,44 +17,33 @@ $grid-size: 8px;
 	}
 }
 
+.jetpack-external-media-browser--visually-hidden {
+	position: absolute !important;
+	height: 1px;
+	width: 1px;
+	overflow: hidden;
+	clip: rect( 1px, 1px, 1px, 1px );
+	white-space: nowrap; /* added line */
+}
+
+/**
+ * Media button menu
+ */
+
+/**
+ * Hide the menu when the modal is open. Hacky, but necessary to allow the focus
+ * to return to selected option when modal is closed. This is how it's currenly
+ * also implemented in Gutenberg's MediaReplaceFlow.
+ */
+.modal-open .jetpack-external-media-button-menu__options {
+	display: none;
+}
+
 /**
  * Media item container
  */
 
-.jetpack-external-media-browser__is-copying {
-	max-height: 20%;
-	max-width: 20%;
-	min-width: 480px;
-	min-height: 360px + 56px;
-
-	.jetpack-external-media-browser__single {
-		height: 300px;
-	}
-
-	.jetpack-external-media-browser__media {
-		height: 100%;
-	}
-
-	.is-transient {
-		border: 0;
-		background: 0;
-		padding: 0;
-		height: 100%;
-
-		&.jetpack-external-media-browser__media__item__selected {
-			box-shadow: none;
-			border-radius: 0;
-		}
-
-		img {
-			width: 100%;
-			height: 100%;
-			object-fit: contain;
-		}
-	}
-}
-
-.jetpack-external-media-browser:not( .jetpack-external-media-browser__is-copying ) {
+.jetpack-external-media-browser {
 	.is-error {
 		margin-bottom: 1em;
 		margin-left: 0;
@@ -71,29 +60,16 @@ $grid-size: 8px;
 	}
 }
 
-@media ( min-width: 600px ) {
-	.jetpack-external-media-browser .components-modal__content {
-		width: 90vw;
-		height: 90vh;
-	}
+.jetpack-external-media-browser--is-copying {
+	pointer-events: none;
 }
 
-.jetpack-external-media-browser__single {
-	position: relative;
-	display: flex;
-	justify-content: center;
-	align-items: center;
+.components-modal__content {
+	width: 100%;
 
-	.is-transient img {
-		opacity: 0.3;
-	}
-
-	.components-spinner {
-		position: absolute;
-		top: 50%;
-		right: 50%;
-		margin-top: -9px;
-		margin-right: -9px;
+	@media ( min-width: 600px ) {
+		width: 90vw;
+		height: 90vh;
 	}
 }
 
@@ -132,14 +108,27 @@ $grid-size: 8px;
 		&.is-transient img {
 			opacity: 0.3;
 		}
+	}
+
+	.jetpack-external-media-browser__media__copying_indicator {
+		display: flex;
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		text-align: center;
 
 		.components-spinner {
-			position: absolute;
-			top: 50%;
-			right: 50%;
-			margin-top: -9px;
-			margin-right: -9px;
+			margin-bottom: $grid-size;
 		}
+	}
+
+	.jetpack-external-media-browser__media__copying_indicator__label {
+		font-size: 12px;
 	}
 
 	.jetpack-external-media-browser__media__folder {
@@ -360,7 +349,7 @@ $grid-size: 8px;
 // Reset placeholder button margin.
 .components-placeholder__fieldset,
 .editor-post-featured-image {
-	.components-dropdown .jetpack-external-media-browse-button {
+	.components-dropdown .jetpack-external-media-button-menu {
 		margin-right: 8px;
 	}
 }

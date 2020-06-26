@@ -47,8 +47,12 @@
 
 	@include break-medium() {
 		margin-right: 4em;
+		.jetpack-instant-search__overlay--no-sidebar & {
+			margin-right: 0;
+		}
 	}
 }
+
 .jetpack-instant-search__search-results-secondary {
 	display: none;
 
@@ -62,6 +66,9 @@
 		border: 0;
 		border-radius: 0;
 		box-shadow: none;
+		.jetpack-instant-search__overlay--no-sidebar & {
+			display: none;
+		}
 	}
 }
 

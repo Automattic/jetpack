@@ -25,13 +25,14 @@ export const icon = (
 );
 
 export const settings = {
-	title: __( 'Recurring Payments', 'jetpack' ),
+	title: __( 'Payments', 'jetpack' ),
 	icon,
-	description: __( 'Button allowing you to sell subscription products.', 'jetpack' ),
+	description: __( 'Button allowing you to sell products and subscriptions.', 'jetpack' ),
 	category: supportsCollections() ? 'earn' : 'jetpack',
 	keywords: [
 		_x( 'sell', 'block search term', 'jetpack' ),
 		_x( 'subscriptions', 'block search term', 'jetpack' ),
+		_x( 'product', 'block search term', 'jetpack' ),
 		'stripe',
 		_x( 'memberships', 'block search term', 'jetpack' ),
 	],
@@ -72,7 +73,10 @@ export const settings = {
 /**
  * Currencies we support and Stripe's minimum amount for a transaction in that currency.
  *
- * https://stripe.com/docs/currencies#minimum-and-maximum-charge-amounts
+ * @link https://stripe.com/docs/currencies#minimum-and-maximum-charge-amounts
+ *
+ * List has to be in sync with the Memberships library in WP.com.
+ * @see Memberships_Product::SUPPORTED_CURRENCIES
  *
  * @type { [currency: string]: number }
  */

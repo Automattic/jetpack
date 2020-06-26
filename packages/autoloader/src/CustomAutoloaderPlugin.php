@@ -1,4 +1,4 @@
-<?php // phpcs:ignore WordPress.Files.FileName
+<?php //phpcs:ignore WordPress.Files.FileName.NotHyphenatedLowercase
 /**
  * Custom Autoloader Composer Plugin, hooks into composer events to generate the custom autoloader.
  *
@@ -71,11 +71,19 @@ class CustomAutoloaderPlugin implements PluginInterface, EventSubscriberInterfac
 	 */
 	public function postAutoloadDump( Event $event ) {
 
+		$config = $this->composer->getConfig();
+
+		if ( 'vendor' !== $config->raw()['config']['vendor-dir'] ) {
+			$this->io->writeError( "\n<error>An error occurred while generating the autoloader files:", true );
+			$this->io->writeError( 'The project\'s composer.json or composer environment set a non-default vendor directory.', true );
+			$this->io->writeError( 'The default composer vendor directory must be used.</error>', true );
+			exit();
+		}
+
 		$installationManager = $this->composer->getInstallationManager();
 		$repoManager         = $this->composer->getRepositoryManager();
 		$localRepo           = $repoManager->getLocalRepository();
 		$package             = $this->composer->getPackage();
-		$config              = $this->composer->getConfig();
 		$optimize            = true;
 		$suffix              = $config->get( 'autoloader-suffix' )
 			? $config->get( 'autoloader-suffix' )

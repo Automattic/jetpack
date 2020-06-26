@@ -1,7 +1,17 @@
 <?php
+/**
+ * WordAds Param Class file.
+ *
+ * @package Jetpack.
+ */
 
 use Automattic\Jetpack\Status;
 
+/**
+ * Class WordAds_Params
+ *
+ * Sets parameters for WordAds.
+ */
 class WordAds_Params {
 
 	/**
@@ -10,7 +20,7 @@ class WordAds_Params {
 	 * @since 4.5.0
 	 */
 	public function __construct() {
-		// WordAds setting => default
+		// WordAds setting => default.
 		$settings = array(
 			'wordads_approved'                => false,
 			'wordads_active'                  => false,
@@ -28,7 +38,7 @@ class WordAds_Params {
 			'wordads_ccpa_privacy_policy_url' => get_option( 'wp_page_for_privacy_policy' ) ? get_permalink( (int) get_option( 'wp_page_for_privacy_policy' ) ) : '',
 		);
 
-		// grab settings, or set as default if it doesn't exist
+		// grab settings, or set as default if it doesn't exist.
 		$this->options = array();
 		foreach ( $settings as $setting => $default ) {
 			$option = get_option( $setting, null );
@@ -53,7 +63,7 @@ class WordAds_Params {
 		}
 
 		$this->url = ( is_ssl() ? 'https' : 'http' ) . '://' . $host . $_SERVER['REQUEST_URI'];
-		if ( ! ( false === strpos( $this->url, '?' ) ) && ! isset( $_GET['p'] ) ) {
+		if ( ! ( false === strpos( $this->url, '?' ) ) && ! isset( $_GET['p'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			$this->url = substr( $this->url, 0, strpos( $this->url, '?' ) );
 		}
 
@@ -66,11 +76,13 @@ class WordAds_Params {
 			'Domain'  => esc_js( wp_parse_url( home_url(), PHP_URL_HOST ) ),
 			'PageURL' => esc_js( $this->url ),
 			'LangId'  => false !== strpos( get_bloginfo( 'language' ), 'en' ) ? 1 : 0, // TODO something else?
-			'AdSafe'  => 1, // TODO
+			'AdSafe'  => 1, // TODO.
 		);
 	}
 
 	/**
+	 * Is this a mobile device?
+	 *
 	 * @return boolean true if the user is browsing on a mobile device (iPad not included)
 	 *
 	 * @since 4.5.0
@@ -80,6 +92,8 @@ class WordAds_Params {
 	}
 
 	/**
+	 * Is this site served by CloudFlare?
+	 *
 	 * @return boolean true if site is being served via CloudFlare
 	 *
 	 * @since 4.5.0
@@ -98,12 +112,14 @@ class WordAds_Params {
 	}
 
 	/**
+	 * Is this an iOS device?
+	 *
 	 * @return boolean true if user is browsing in iOS device
 	 *
 	 * @since 4.5.0
 	 */
 	public function is_ios() {
-		return in_array( $this->get_device(), array( 'ipad', 'iphone', 'ipod' ) );
+		return in_array( $this->get_device(), array( 'ipad', 'iphone', 'ipod' ), true );
 	}
 
 	/**
@@ -128,6 +144,8 @@ class WordAds_Params {
 	}
 
 	/**
+	 * Get page type.
+	 *
 	 * @return string The type of page that is being loaded
 	 *
 	 * @since 4.5.0
@@ -159,6 +177,8 @@ class WordAds_Params {
 	}
 
 	/**
+	 * Get IPW code.
+	 *
 	 * @return int The page type code for ipw config
 	 *
 	 * @since 5.6.0
@@ -196,7 +216,7 @@ class WordAds_Params {
 	 */
 	public static function is_static_home() {
 		return is_front_page() &&
-			'page' == get_option( 'show_on_front' ) &&
+			'page' === get_option( 'show_on_front' ) &&
 			get_option( 'page_on_front' );
 	}
 
@@ -227,8 +247,8 @@ class WordAds_Params {
 			return true;
 		}
 
-		// TODO this would be a good place for allowing the user to specify
-		if ( ( is_home() || is_archive() || is_search() ) && 0 == $wp_query->current_post ) {
+		// TODO this would be a good place for allowing the user to specify.
+		if ( ( is_home() || is_archive() || is_search() ) && 0 === $wp_query->current_post ) {
 			return true;
 		}
 

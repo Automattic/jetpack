@@ -51,7 +51,7 @@ class Plugin_Storage {
 		self::$plugins[ $slug ] = $args;
 
 		// if plugin is not in the list of active plugins, refresh the list.
-		if ( ! array_key_exists( $slug, get_option( self::ACTIVE_PLUGINS_OPTION_NAME, array() ) ) ) {
+		if ( ! array_key_exists( $slug, (array) get_option( self::ACTIVE_PLUGINS_OPTION_NAME, array() ) ) ) {
 			self::$refresh_connected_plugins = true;
 		}
 
@@ -147,7 +147,7 @@ class Plugin_Storage {
 		}
 
 		// If a plugin was activated or deactivated.
-		$number_of_plugins_differ = count( self::$plugins ) !== count( get_option( self::ACTIVE_PLUGINS_OPTION_NAME, array() ) );
+		$number_of_plugins_differ = count( self::$plugins ) !== count( (array) get_option( self::ACTIVE_PLUGINS_OPTION_NAME, array() ) );
 
 		if ( $number_of_plugins_differ || true === self::$refresh_connected_plugins ) {
 			self::update_active_plugins_option();
@@ -210,7 +210,7 @@ class Plugin_Storage {
 	 * @return array
 	 */
 	public static function get_all_disabled_plugins() {
-		return get_option( self::PLUGINS_DISABLED_OPTION_NAME, array() );
+		return (array) get_option( self::PLUGINS_DISABLED_OPTION_NAME, array() );
 	}
 
 }
