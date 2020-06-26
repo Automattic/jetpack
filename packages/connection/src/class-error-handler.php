@@ -308,6 +308,10 @@ class Error_Handler {
 
 		$encrypted_data = $this->encrypt_data_to_wpcom( $error_array );
 
+		if ( false === $encrypted_data ) {
+			return false;
+		}
+
 		$args = array(
 			'body' => array(
 				'error_data' => $encrypted_data,
