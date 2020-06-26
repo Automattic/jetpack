@@ -474,7 +474,7 @@ class Error_Handler {
 	/**
 	 * Gets an error based on the nonce
 	 *
-	 * Receives a nonce and finds the related error. If error is found, move it to the verified errors option.
+	 * Receives a nonce and finds the related error.
 	 *
 	 * @since 8.7.0
 	 *
