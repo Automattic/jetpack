@@ -147,7 +147,6 @@ class Error_Handler {
 				case 'unknown_token':
 				case 'could_not_sign':
 				case 'invalid_token':
-				case 'could_not_sign':
 				case 'token_mismatch':
 				case 'invalid_signature':
 				case 'signature_mismatch':
