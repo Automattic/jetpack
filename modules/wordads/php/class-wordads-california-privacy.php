@@ -1,4 +1,9 @@
 <?php
+/**
+ * CCPA Class
+ *
+ * @package Jetpack.
+ */
 
 use Automattic\Jetpack\Assets;
 
@@ -67,12 +72,9 @@ class WordAds_California_Privacy {
 	/**
 	 * Outputs [ccpa-do-not-sell-link] shortcode markup.
 	 *
-	 * @param array  $attributes The shortcode attributes.
-	 * @param string $content The shortcode content.
-	 *
 	 * @return string The generated shortcode markup.
 	 */
-	public static function do_not_sell_link_shortcode( $attributes, $content ) {
+	public static function do_not_sell_link_shortcode() {
 
 		// If in the customizer always display the link.
 		if ( is_customize_preview() ) {
