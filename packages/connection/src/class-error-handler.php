@@ -172,7 +172,7 @@ class Error_Handler {
 	}
 
 	/**
-	 * Keep track of a connection error that was encoutered
+	 * Keep track of a connection error that was encountered
 	 *
 	 * @since 8.7.0
 	 *
