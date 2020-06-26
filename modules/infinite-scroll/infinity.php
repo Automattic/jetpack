@@ -1859,8 +1859,8 @@ class The_Neverending_Home_Page {
 	 * @return array
 	 */
 	protected function amp_next_page() {
-		$title = esc_html__( 'Home page', 'jetpack' );
-		$url   = home_url();
+		$title = '';
+		$url   = '';
 		$image = '';
 
 		if ( ! static::amp_is_last_page() ) {
