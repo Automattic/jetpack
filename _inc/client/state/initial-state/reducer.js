@@ -395,3 +395,15 @@ function getProductOptions( state, product, siteProducts ) {
 export function getInitialSetupWizardStatus( state ) {
 	return get( state.jetpack.initialState, 'setupWizardStatus', '' );
 }
+
+/**
+ * Get the connection errors.
+ *
+ * @param  {Object} state Global state tree.
+ * @returns {Array} Connection errors.
+ */
+export function getConnectionErrors( state ) {
+	return get( state.jetpack.initialState, [ 'connectionStatus', 'errors' ], [] ).filter( error =>
+		error.hasOwnProperty( 'action' )
+	);
+}
