@@ -91,8 +91,12 @@ function render( $attributes ) {
 				: $get_video_template( $media, $index )
 		);
 	};
+	$settings           = array(
+		'loadInFullScreen' => ! is_page() && is_singular(),
+	);
+
 	return sprintf(
-		'<div class="wp-block-jetpack-story wp-story aligncenter">
+		'<div class="wp-block-jetpack-story wp-story aligncenter" data-settings="%s">
 			<div class="wp-block-jetpack-story_container wp-story-container" style="display: block; opacity: 1;">
 				<div class="wp-story-meta">
 					<div class="wp-story-icon">
@@ -116,6 +120,7 @@ function render( $attributes ) {
 				<div class="wp-story-pagination wp-story-pagination-bullets"></div>
 			</div>
 		</div>',
+		filter_var( wp_json_encode( $settings ), FILTER_SANITIZE_SPECIAL_CHARS ),
 		esc_attr( get_site_icon_url( 32, includes_url( 'images/w-logo-blue.png' ) ) ),
 		esc_html( get_bloginfo( 'name' ) ),
 		esc_html( get_bloginfo( 'description' ) ),

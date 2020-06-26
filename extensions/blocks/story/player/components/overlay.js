@@ -18,16 +18,21 @@ export default function Overlay( {
 	onPreviousSlide,
 	tapToPlayPause,
 } ) {
-	const onOverlayClick = useCallback( () => {
+	const onOverlayPressed = useCallback( () => {
 		tapToPlayPause && onClick();
 	}, [ tapToPlayPause, onClick ] );
+
+	const onPlayPressed = useCallback( () => {
+		! tapToPlayPause && onClick();
+	}, [ tapToPlayPause, onClick ] );
+
 	return html`
 		<div
 			class=${classNames( {
 				'wp-story-overlay': true,
 				'wp-story-clickable': tapToPlayPause,
 			} )}
-			onClick=${onOverlayClick}
+			onClick=${onOverlayPressed}
 		>
 			${! playing &&
 				! ended &&
@@ -37,7 +42,7 @@ export default function Overlay( {
 						iconSize=${56}
 						label="Play Story"
 						icon="play_arrow"
-						onClick=${onClick}
+						onClick=${onPlayPressed}
 					/>
 				`}
 			${ended &&
@@ -47,7 +52,7 @@ export default function Overlay( {
 						iconSize=${56}
 						label="Replay Story"
 						icon="replay"
-						onClick=${onClick}
+						onClick=${onPlayPressed}
 					/>
 				`}
 			<div class="wp-story-prev-slide">

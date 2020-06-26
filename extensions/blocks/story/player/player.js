@@ -44,8 +44,16 @@ export const Player = ( { slides, ...settings } ) => {
 		} else {
 			setPlaying( false );
 			setEnded( true );
+			playerEvents.emit( 'end' );
 		}
 	}, [ currentSlideIndex, slides ] );
+
+	const onExitFullscreen = useCallback( () => {
+		setFullscreen( false );
+		if ( settings.playInFullScreen ) {
+			setPlaying( false );
+		}
+	}, [ fullscreen ] );
 
 	useEffect( () => {
 		playerEvents.emit( playing ? 'play' : 'pause' );
@@ -90,7 +98,7 @@ export const Player = ( { slides, ...settings } ) => {
 			${settings.renderers.renderHeader( html, {
 				...settings.metadata,
 				fullscreen,
-				onExitFullscreen: () => setFullscreen( false ),
+				onExitFullscreen,
 			} )}
 			<ul class="wp-story-wrapper">
 				${slides.map(
@@ -116,6 +124,9 @@ export const Player = ( { slides, ...settings } ) => {
 				onClick: () => {
 					if ( ! fullscreen && ! playing && settings.playInFullScreen ) {
 						setFullscreen( true );
+					}
+					if ( ended && ! playing ) {
+						showSlide( 0 );
 					}
 					setPlaying( ! playing );
 				},

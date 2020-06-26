@@ -136,8 +136,12 @@
 			cursor: pointer;
 		}
 
-		&.wp-story-ended {
-			background-color: rgba(0,0,0,0.4);
+
+	}
+
+	&.wp-story-ended {
+		.wp-story-overlay {
+			background-color: rgba(0, 0, 0, 0.4);
 		}
 	}
 

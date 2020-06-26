@@ -18,7 +18,17 @@ if ( typeof window !== 'undefined' ) {
 				return;
 			}
 
-			player( storyBlock );
+			const settingsFromTemplate = storyBlock.getAttribute( 'data-settings' );
+			let settings;
+			if ( settingsFromTemplate ) {
+				try {
+					settings = JSON.parse( settingsFromTemplate );
+				} catch ( e ) {
+					// ignore parsing errors
+				}
+			}
+
+			player( storyBlock, settings );
 		} );
 	} );
 }
