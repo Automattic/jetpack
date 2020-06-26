@@ -174,7 +174,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 
 		switch ( $code ) {
 			case 400:
-				return self::failing_test(
+				$result = self::failing_test(
 					array(
 						'name'              => __FUNCTION__,
 						'short_description' => __( 'Blog token is invalid.', 'jetpack' ),
@@ -182,23 +182,28 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 						'action_label'      => __( 'Disconnect your site from WordPress.com, and connect it again.', 'jetpack' ),
 					)
 				);
+				break;
 			case 429:
-				return self::skipped_test(
+				$result = self::skipped_test(
 					array(
 						'name'              => __FUNCTION__,
 						'short_description' => __( 'Token validation request failed: too many requests.', 'jetpack' ),
 					)
 				);
+				break;
 			case 200:
-				return self::passing_test( array( 'name' => __FUNCTION__ ) );
+				$result = self::passing_test( array( 'name' => __FUNCTION__ ) );
+				break;
 			default:
-				return self::skipped_test(
+				$result = self::skipped_test(
 					array(
 						'name'              => __FUNCTION__,
 						'short_description' => __( 'Token validation request failed: no response.', 'jetpack' ),
 					)
 				);
 		}
+
+		return $result;
 	}
 
 	/**
