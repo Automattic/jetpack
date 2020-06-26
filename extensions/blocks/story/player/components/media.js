@@ -22,6 +22,7 @@ export const Video = ( { alt, mime, url, id, index, mediaRef } ) => html`
 		type=${mime}
 		src=${url}
 		class="wp-story-video intrinsic-ignore"
+		playsinline
 	></video>
 `;
 
