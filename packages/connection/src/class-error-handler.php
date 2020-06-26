@@ -410,7 +410,7 @@ class Error_Handler {
 	/**
 	 * Removes expired errors from the array
 	 *
-	 * This method is calleb by get_stored_errors and get_verified errors and filters their result
+	 * This method is called by get_stored_errors and get_verified errors and filters their result
 	 * Whenever a new error is stored to the database or verified, this will be triggered and the
 	 * expired error will be permantently removed from the database
 	 *
@@ -474,7 +474,7 @@ class Error_Handler {
 	/**
 	 * Gets an error based on the nonce
 	 *
-	 * Receives a nonce and finds the related error. If error is found, move it to the verified errors option.
+	 * Receives a nonce and finds the related error.
 	 *
 	 * @since 8.7.0
 	 *
