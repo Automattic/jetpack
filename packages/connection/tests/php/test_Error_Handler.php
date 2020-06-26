@@ -305,12 +305,12 @@ class Error_Handler_Test extends BaseTestCase {
 		$this->error_handler->report_error( $error4 );
 
 		// Manipulate the timestamps directly in the database.
-		$saved_options = get_option( $this->error_handler::STORED_ERRORS_OPTION );
+		$saved_options = get_option( Error_Handler::STORED_ERRORS_OPTION );
 		$this->assertEquals( 3, count( $saved_options ) );
 		$this->assertEquals( 1, count( $saved_options['no_user_tokens'] ) );
 		$saved_options['invalid_token'][4]['timestamp']  = time() - DAY_IN_SECONDS * 4;
 		$saved_options['no_user_tokens'][6]['timestamp'] = time() - DAY_IN_SECONDS * 4;
-		update_option( $this->error_handler::STORED_ERRORS_OPTION, $saved_options );
+		update_option( Error_Handler::STORED_ERRORS_OPTION, $saved_options );
 
 		$errors = $this->error_handler->get_stored_errors();
 
