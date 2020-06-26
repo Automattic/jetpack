@@ -19,6 +19,8 @@
 		showLoading();
 		$.ajax( {
 			url: '/wp-json/wpcom/v2/mailchimp',
+			data: { _wpnonce: mailchimpAdmin.nonce },
+			dataType: 'json',
 			type: 'GET',
 			success: function( data ) {
 				formWrapper.empty();
@@ -153,7 +155,9 @@
 
 		$.ajax( {
 			url: '/wp-json/wpcom/v2/mailchimp/groups',
+			data: { _wpnonce: mailchimpAdmin.nonce },
 			type: 'GET',
+			dataType: 'json',
 			success: function( data ) {
 				if ( 'undefined' === typeof data.error ) {
 					fillGroupsField( data );

@@ -92,7 +92,7 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 				$is_amp_request = class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request();
 
 				$popup_mode = 'on' === $instance['popupMode'];
-				// Use the same outpu as the block.
+				// Use the same output as the block.
 				$output       = render_block( $instance );
 				$form_classes = 'jetpack-mailchimp-widget-form';
 
@@ -121,7 +121,7 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 									%3$s
 								</div>
 							</amp-user-notification>',
-							$form_classes,
+							esc_attr( $form_classes ),
 							'jetpack-mailchimp-widget',
 							$output
 						);
@@ -229,11 +229,9 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 						'_inc/build/widgets/mailchimp/css/admin.min.css',
 						'modules/widgets/mailchimp/css/admin.css'
 					),
-					array(),
+					array( 'wp-color-picker' ),
 					'20200615'
 				);
-
-				wp_enqueue_style( 'wp-color-picker' );
 			}
 		}
 
@@ -462,8 +460,9 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 					placeholderData: '<?php echo wp_json_encode( $this->placeholder_data ); ?>',
 					oldForm: <?php echo ! empty( $instance['code'] ) ? 'true' : 'false'; ?>,
 					interests: '<?php echo esc_html( $instance['interests'] ); ?>',
-					interestsFieldName: '<?php echo esc_attr( $this->get_field_name( 'interests' ) ); ?>'
-				}
+					interestsFieldName: '<?php echo esc_attr( $this->get_field_name( 'interests' ) ); ?>',
+					nonce: '<?php echo esc_html( wp_create_nonce( 'wp_rest' ) ); ?>'
+				};
 				jQuery( window ).trigger( 'jetpack_mailchimp_load_form' );
 			</script>
 			<?php

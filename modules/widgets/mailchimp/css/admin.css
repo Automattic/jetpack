@@ -1,170 +1,170 @@
 .mailchimp-widget-jetpack-form-wrapper {
-    margin: 0 -15px 0 -15px;
+	margin: 0 -15px 0 -15px;
 }
 
 .jetpack-mailchimp-section-toggler {
-    position: relative;
-    padding: 15px;
-    cursor: pointer;
+	position: relative;
+	padding: 15px;
+	cursor: pointer;
 }
 
 .jetpack-mailchimp-section-toggler:before {
-    content: ' ';
-    position: absolute;
-    top: 50%;
-    right: 4%;
-    width: 8px;
-    height: 8px;
-    margin-top: -3px;
-    border-right: 2px solid #000;
-    border-bottom: 2px solid #000;
-    transform: rotate(-135deg);
-    transition: transform 0.2s;
+	content: ' ';
+	position: absolute;
+	top: 50%;
+	right: 4%;
+	width: 8px;
+	height: 8px;
+	margin-top: -3px;
+	border-right: 2px solid #000;
+	border-bottom: 2px solid #000;
+	transform: rotate(-135deg);
+	transition: transform 0.2s;
 }
 
 .jetpack-mailchimp-closed:before {
-    transform: rotate(45deg);
+	transform: rotate(45deg);
 }
 
 .jetpack-mailchimp-section-title {
-    font-weight: bold;
+	font-weight: bold;
 }
 
 .jetpack-mailchimp-section-toggler:hover {
-    background: #f3f4f5;
+	background: #f3f4f5;
 }
 
 .jetpack-mailchimp-section-content {
-    padding: 0 15px;
+	padding: 0 15px;
 }
 
 .jetpack-mailchimp-section-content .jetpack-mailchimp-field:last-child {
-    margin-bottom: 8px;
+	margin-bottom: 8px;
 }
 
 .jetpack-mailchimp-field {
-    margin-bottom: 24px;
+	margin-bottom: 24px;
 }
 
 .jetpack-mailchimp-field.jetpack-mailchimp-groups {
-    margin-bottom: 0;
+	margin-bottom: 0;
 }
 
 .jetpack-mailchimp-field label {
-    color: #555d66;
-    margin-bottom: 5px;
+	color: #555d66;
+	margin-bottom: 5px;
 }
 
 .jetpack-mailchimp-field.jetpack-mailchimp-text label, .jetpack-mailchimp-field.jetpack-mailchimp-number label {
-    display: block;
+	display: block;
 }
 
 .jetpack-mailchimp-field.jetpack-mailchimp-text input, .jetpack-mailchimp-field.jetpack-mailchimp-number input {
-    width: 100%;
+	width: 100%;
 }
 
 .jetpack-mailchimp-field.jetpack-mailchimp-checkbox label {
-    display: inline-block;
-    vertical-align: middle;
+	display: inline-block;
+	vertical-align: middle;
 }
 
 .jetpack-mailchimp-field.jetpack-mailchimp-color label {
-    display: block;
+	display: block;
 }
 
 .jetpack-mailchimp-checkbox-wrapper {
-    margin-bottom: 24px;
+	margin-bottom: 24px;
 }
 
 .jetpack-mailchimp-loading {
-    padding: 15px;
-    text-align: center;
+	padding: 15px;
+	text-align: center;
 }
 
 @keyframes spinner_animation {
-    from {
-      transform: rotate(0deg);
-    }
-    to {
-      transform: rotate(360deg);
-    }
+	from {
+	  transform: rotate(0deg);
+	}
+	to {
+	  transform: rotate(360deg);
+	}
 }
 
 .jetpack-mailchimp-spinner {
-    position: relative;
-    width: 18px;
-    height: 18px;
-    display: block;
-    background-color: #7e8993;
-    opacity: 0.7;
-    margin: 5px auto 0 auto;
-    border-radius: 100%;
+	position: relative;
+	width: 18px;
+	height: 18px;
+	display: block;
+	background-color: #7e8993;
+	opacity: 0.7;
+	margin: 5px auto 0 auto;
+	border-radius: 100%;
 }
 
 .jetpack-mailchimp-spinner:before {
-    content: "";
-    position: absolute;
-    background-color: #fff;
-    top: 3px;
-    left: 3px;
-    width: 4px;
-    height: 4px;
-    border-radius: 100%;
-    transform-origin: 6px 6px;
-    animation: spinner_animation 1s infinite linear;
+	content: "";
+	position: absolute;
+	background-color: #fff;
+	top: 3px;
+	left: 3px;
+	width: 4px;
+	height: 4px;
+	border-radius: 100%;
+	transform-origin: 6px 6px;
+	animation: spinner_animation 1s infinite linear;
 }
 
 .jetpack-mailchimp-placeholder {
-    padding: 15px;
+	padding: 15px;
 }
 
 .jetpack-mailchimp-placeholder-brand {
-    margin-bottom: 15px;;
+	margin-bottom: 15px;;
 }
 
 .jetpack-mailchimp-placeholder-brand svg, .jetpack-mailchimp-placeholder-brand span {
-    display: inline-block;
-    vertical-align: middle;
+	display: inline-block;
+	vertical-align: middle;
 }
 
 .jetpack-mailchimp-placeholder-brand span {
-    margin-left: 10px;
-    font-weight: bold;
+	margin-left: 10px;
+	font-weight: bold;
 }
 
 .jetpack-mailchimp-placeholder-instructions {
-    margin-bottom: 15px;
+	margin-bottom: 15px;
 }
 
 .jetpack-mailchimp-placeholder-setup {
-    display: inline-block;
-    margin-bottom: 15px;
-    padding: 12px;
-    border-width: 1px;
-    border-style: solid;
-    white-space: nowrap;
-    color: #0075af;
-    border-color: #0075af;
-    background: #f3f5f6;
-    text-decoration: none;
+	display: inline-block;
+	margin-bottom: 15px;
+	padding: 12px;
+	border-width: 1px;
+	border-style: solid;
+	white-space: nowrap;
+	color: #0075af;
+	border-color: #0075af;
+	background: #f3f5f6;
+	text-decoration: none;
 }
 
 .jetpack-mailchimp-placeholder-setup:hover {
-    color: #0075af;
-    background: #f1f1f1;
+	color: #0075af;
+	background: #f1f1f1;
 }
 
 .jetpack-mailchimp-recheck-button {
-    display: block;
-    padding: 0;
-    border: none;
-    background: none;
-    color: #0073aa;
-    text-decoration: underline;
-    cursor: pointer;
+	display: block;
+	padding: 0;
+	border: none;
+	background: none;
+	color: #0073aa;
+	text-decoration: underline;
+	cursor: pointer;
 }
 
 .jetpack-mailchimp-recheck-button:hover {
-    color: #00a0d2;
+	color: #00a0d2;
 }
 
