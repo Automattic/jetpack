@@ -6,7 +6,8 @@
 	"require": {
 		"automattic/jetpack-constants": "@dev",
 		"automattic/jetpack-options": "@dev",
-		"automattic/jetpack-roles": "@dev"
+		"automattic/jetpack-roles": "@dev",
+		"automattic/jetpack-status": "@dev"
 	},
 	"require-dev": {
 		"phpunit/phpunit": "^5.7 || ^6.5 || ^7.5",
