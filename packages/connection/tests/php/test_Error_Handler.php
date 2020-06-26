@@ -286,7 +286,10 @@ class Error_Handler_Test extends BaseTestCase {
 
 		$stored_errors = $this->error_handler->get_stored_errors();
 
-		$this->assertNotFalse( $this->error_handler->encrypt_data_to_wpcom( $stored_errors['unknown_user']['3'] ) );
+		$encrypted = $this->error_handler->encrypt_data_to_wpcom( $stored_errors['unknown_user']['3'] );
+
+		$this->assertInternalType( 'string', $encrypted );
+		$this->assertEquals( 472, strlen( $encrypted ) );
 
 	}
 
