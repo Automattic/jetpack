@@ -14,7 +14,7 @@ const storyPlayerSettings = {
 	slides: [],
 	shadowDOM: { enabled: false },
 	playInFullScreen: false,
-	tapToPlayPause: false,
+	tapToPlayPause: true,
 };
 
 class Story extends Component {
@@ -32,10 +32,10 @@ class Story extends Component {
 		const { mediaFiles, onError } = this.props;
 
 		if ( mediaFiles !== prevProps.mediaFiles ) {
-			/*this.buildStoryPlayer( this.storyRef.current, {
+			this.buildStoryPlayer( this.storyRef.current, {
 				...storyPlayerSettings,
 				slides: mediaFiles,
-			} );*/
+			} );
 		}
 	}
 
