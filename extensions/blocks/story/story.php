@@ -36,9 +36,6 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * @return string
  */
 function load_assets( $attributes ) {
-	// wp-mediaelement syles are needed for the play button.
-	wp_enqueue_style( 'wp-mediaelement' );
-
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 
 	return render( $attributes );

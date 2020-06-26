@@ -20,6 +20,7 @@ const defaultSettings = {
 	renderInterval: 50,
 	startMuted: true,
 	playInFullScreen: true,
+	loadInFullScreen: false,
 	tapToPlayPause: true,
 	renderers: defaultRenderers,
 	shadowDOM: {
@@ -48,47 +49,61 @@ export default function player( rootElement, params ) {
 		container.classList.add( 'wp-story-container' );
 		root.appendChild( container );
 	}
-
-	const slidesWrapper = container.querySelector( '.wp-story-wrapper' );
-	const metaWrapper = container.querySelector( '.wp-story-meta' );
+	const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+		navigator.userAgent
+	);
 
 	playerEvents.on( 'go-fullscreen', () => {
 		if ( settings.playInFullScreen ) {
-			document.body.classList.add( 'wp-story-in-fullscreen' );
-			document.getElementsByTagName( 'html' )[ 0 ].classList.add( 'wp-story-in-fullscreen' );
 			container.classList.add( 'wp-story-fullscreen' );
 			rootElement.classList.add( 'wp-story-fullscreen' );
+			if ( isMobile && document.fullscreenEnabled && ! settings.loadInFullScreen ) {
+				rootElement.requestFullscreen();
+			} else {
+				document.body.classList.add( 'wp-story-in-fullscreen' );
+				document.getElementsByTagName( 'html' )[ 0 ].classList.add( 'wp-story-in-fullscreen' );
+			}
 		}
 	} );
 
 	playerEvents.on( 'exit-fullscreen', () => {
-		document.body.classList.remove( 'wp-story-in-fullscreen' );
-		document.getElementsByTagName( 'html' )[ 0 ].classList.remove( 'wp-story-in-fullscreen' );
 		rootElement.classList.remove( 'wp-story-fullscreen' );
 		container.classList.remove( 'wp-story-fullscreen' );
+		if ( isMobile && document.fullscreenEnabled && ! settings.loadInFullScreen ) {
+			rootElement.exitFullscreen();
+		} else {
+			document.body.classList.remove( 'wp-story-in-fullscreen' );
+			document.getElementsByTagName( 'html' )[ 0 ].classList.remove( 'wp-story-in-fullscreen' );
+		}
 	} );
 
 	const resize = () => {
-		const slidesMaxHeight = slidesWrapper.offsetHeight;
+		const slidesMaxHeight = container.querySelector( '.wp-story-wrapper' ).offsetHeight;
 		container.style.width = `${ settings.defaultAspectRatio * slidesMaxHeight }px`;
 	};
 
-	let pendingRequestAnimationFrame = null;
-	new ResizeObserver( () => {
-		if ( pendingRequestAnimationFrame ) {
-			cancelAnimationFrame( pendingRequestAnimationFrame );
-			pendingRequestAnimationFrame = null;
-		}
-		pendingRequestAnimationFrame = requestAnimationFrame( () => {
-			resize();
-		} );
-	} ).observe( slidesWrapper );
+	playerEvents.on( 'ready', () => {
+		resize();
+		let pendingRequestAnimationFrame = null;
+		new ResizeObserver( () => {
+			if ( pendingRequestAnimationFrame ) {
+				cancelAnimationFrame( pendingRequestAnimationFrame );
+				pendingRequestAnimationFrame = null;
+			}
+			pendingRequestAnimationFrame = requestAnimationFrame( () => {
+				resize();
+			} );
+		} ).observe( container.querySelector( '.wp-story-wrapper' ) );
+	} );
 
 	const initPlayer = ( newSettings = settings ) => {
 		renderPlayer( root, newSettings );
 	};
 
 	if ( settings.autoload ) {
+		const slidesWrapper = container.querySelector( '.wp-story-wrapper' );
+		const metaWrapper = container.querySelector( '.wp-story-meta' );
+
 		settings.slides = settings.slides || [];
 		if ( settings.slides.length === 0 && slidesWrapper && slidesWrapper.children.length > 0 ) {
 			settings.slides = parseSlides( slidesWrapper );

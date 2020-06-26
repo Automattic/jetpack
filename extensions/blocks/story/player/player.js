@@ -66,6 +66,12 @@ export const Player = ( { slides, ...settings } ) => {
 	}, [ fullscreen ] );
 
 	useEffect( () => {
+		if ( settings.loadInFullScreen ) {
+			setFullscreen( true );
+		}
+	}, [] );
+
+	useEffect( () => {
 		playerEvents.emit( 'seek', currentSlideIndex );
 	}, [ currentSlideIndex ] );
 
@@ -80,10 +86,7 @@ export const Player = ( { slides, ...settings } ) => {
 	}, [ currentSlideProgress ] );
 
 	return html`
-		<div
-			class="wp-block-jetpack-story_container wp-story-container"
-			style=${{ display: loading ? 'none' : 'block', opacity: 1 }}
-		>
+		<div class="wp-block-jetpack-story_container wp-story-container">
 			${settings.renderers.renderHeader( html, {
 				...settings.metadata,
 				fullscreen,
