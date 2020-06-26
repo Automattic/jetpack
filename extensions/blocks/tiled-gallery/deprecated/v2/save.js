@@ -2,9 +2,12 @@
  * Internal dependencies
  */
 import Layout from './layout';
-import { defaultColumnsNumber } from './edit';
-import { getActiveStyleName } from '../../shared/block-styles';
+import { getActiveStyleName } from '../../../../shared/block-styles';
 import { LAYOUT_STYLES } from './constants';
+
+function defaultColumnsNumber( attributes ) {
+	return Math.min( 3, attributes.images.length );
+}
 
 export default function TiledGallerySave( { attributes } ) {
 	const { imageFilter, images } = attributes;
@@ -19,7 +22,6 @@ export default function TiledGallerySave( { attributes } ) {
 		columns = defaultColumnsNumber( attributes ),
 		linkTo,
 		roundedCorners,
-		columnWidths,
 	} = attributes;
 
 	return (
@@ -33,7 +35,6 @@ export default function TiledGallerySave( { attributes } ) {
 			layoutStyle={ getActiveStyleName( LAYOUT_STYLES, className ) }
 			linkTo={ linkTo }
 			roundedCorners={ roundedCorners }
-			columnWidths={ columnWidths }
 		/>
 	);
 }

@@ -8,7 +8,6 @@ import classnames from 'classnames';
 /**
  * Internal dependencies
  */
-import GalleryImageEdit from '../gallery-image/edit';
 import GalleryImageSave from '../gallery-image/save';
 import Mosaic from './mosaic';
 import Square from './square';
@@ -22,20 +21,7 @@ export default class Layout extends Component {
 	// - Handlers need to be created by index so that the image changes can be applied correctly.
 	//   This is because the images are stored in an array in the block attributes.
 	renderImage( img, i ) {
-		const {
-			columns,
-			imageFilter,
-			images,
-			isSave,
-			linkTo,
-			layoutStyle,
-			onMoveBackward,
-			onMoveForward,
-			onRemoveImage,
-			onSelectImage,
-			selectedImage,
-			setImageAttributes,
-		} = this.props;
+		const { columns, imageFilter, images, linkTo, layoutStyle, selectedImage } = this.props;
 
 		/* translators: %1$d is the order number of the image, %2$d is the total number of images. */
 		const ariaLabel = sprintf(
@@ -43,12 +29,11 @@ export default class Layout extends Component {
 			i + 1,
 			images.length
 		);
-		const Image = isSave ? GalleryImageSave : GalleryImageEdit;
 
 		const { src, srcSet } = photonizedImgProps( img, { layoutStyle } );
 
 		return (
-			<Image
+			<GalleryImageSave
 				alt={ img.alt }
 				aria-label={ ariaLabel }
 				columns={ columns }
@@ -61,12 +46,7 @@ export default class Layout extends Component {
 				key={ i }
 				link={ img.link }
 				linkTo={ linkTo }
-				onMoveBackward={ isSave ? undefined : onMoveBackward( i ) }
-				onMoveForward={ isSave ? undefined : onMoveForward( i ) }
-				onRemove={ isSave ? undefined : onRemoveImage( i ) }
-				onSelect={ isSave ? undefined : onSelectImage( i ) }
 				origUrl={ img.url }
-				setAttributes={ isSave ? undefined : setImageAttributes( i ) }
 				showMovers={ images.length > 1 }
 				srcSet={ srcSet }
 				url={ src }
@@ -76,18 +56,7 @@ export default class Layout extends Component {
 	}
 
 	render() {
-		const {
-			align,
-			children,
-			className,
-			columns,
-			images,
-			layoutStyle,
-			roundedCorners,
-			onResize,
-			isSave,
-			columnWidths,
-		} = this.props;
+		const { align, children, className, columns, images, layoutStyle, roundedCorners } = this.props;
 		const LayoutRenderer = isSquareishLayout( layoutStyle ) ? Square : Mosaic;
 		const renderedImages = this.props.images.map( this.renderImage, this );
 		const roundedCornersValue =
@@ -102,11 +71,9 @@ export default class Layout extends Component {
 				<LayoutRenderer
 					align={ align }
 					columns={ columns }
-					columnWidths={ isSave ? columnWidths : undefined }
 					images={ images }
 					layoutStyle={ layoutStyle }
 					renderedImages={ renderedImages }
-					onResize={ isSave ? undefined : onResize }
 				/>
 				{ children }
 			</div>

@@ -65,6 +65,7 @@ export const pickRelevantMediaFiles = image => {
 class TiledGalleryEdit extends Component {
 	state = {
 		selectedImage: null,
+		changed: 'undefined' === typeof this.props.attributes.columnWidths ? true : false,
 	};
 
 	static getDerivedStateFromProps( props, state ) {
@@ -104,6 +105,7 @@ class TiledGalleryEdit extends Component {
 			},
 			onError: noticeOperations.createErrorNotice,
 		} );
+		this.setState( { changed: true } );
 	};
 
 	onRemoveImage = index => () => {
@@ -111,6 +113,7 @@ class TiledGalleryEdit extends Component {
 		const { columns } = this.props.attributes;
 		this.setState( {
 			selectedImage: null,
+			changed: true,
 		} );
 		this.setAttributes( {
 			images,
@@ -132,13 +135,17 @@ class TiledGalleryEdit extends Component {
 			columns: columns ? Math.min( images.length, columns ) : columns,
 			images: images.map( image => pickRelevantMediaFiles( image ) ),
 		} );
+		this.setState( { changed: true } );
 	};
 
 	onMove = ( oldIndex, newIndex ) => {
 		const images = [ ...this.props.attributes.images ];
 		images.splice( newIndex, 1, this.props.attributes.images[ oldIndex ] );
 		images.splice( oldIndex, 1, this.props.attributes.images[ newIndex ] );
-		this.setState( { selectedImage: newIndex } );
+		this.setState( {
+			selectedImage: newIndex,
+			changed: true,
+		} );
 		this.setAttributes( { images } );
 	};
 
@@ -158,6 +165,12 @@ class TiledGalleryEdit extends Component {
 			}
 			this.onMove( oldIndex, oldIndex - 1 );
 		};
+	};
+
+	onResize = columnWidths => {
+		if ( this.state.changed ) {
+			this.setAttributes( { columnWidths } );
+		}
 	};
 
 	setColumnsNumber = value => this.setAttributes( { columns: value } );
@@ -303,6 +316,7 @@ class TiledGalleryEdit extends Component {
 					onMoveForward={ this.onMoveForward }
 					onRemoveImage={ this.onRemoveImage }
 					onSelectImage={ this.onSelectImage }
+					onResize={ this.onResize }
 					roundedCorners={ roundedCorners }
 					selectedImage={ isSelected ? selectedImage : null }
 					setImageAttributes={ this.setImageAttributes }

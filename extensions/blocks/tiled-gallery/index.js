@@ -25,7 +25,7 @@ import { isSimpleSite } from '../../shared/site-type-utils';
  */
 import './editor.scss';
 
-import * as deprecatedV1 from './deprecated/v1';
+import { default as deprecated } from './deprecated';
 
 /**
  * Example Images
@@ -76,6 +76,10 @@ const blockAttributes = {
 	},
 	columns: {
 		type: 'number',
+	},
+	columnWidths: {
+		default: [],
+		type: 'array',
 	},
 	ids: {
 		default: [],
@@ -282,7 +286,7 @@ export const settings = {
 	},
 	edit,
 	save,
-	deprecated: [ deprecatedV1 ],
+	deprecated,
 	example: {
 		attributes: exampleAttributes,
 	},
