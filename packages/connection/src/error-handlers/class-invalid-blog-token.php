@@ -39,9 +39,25 @@ class Invalid_Blog_Token {
 	 * @return void
 	 */
 	public function admin_notice() {
+
+		/**
+		 * Filters the message to be displayed in the admin notices area when there's a invalid blog token xmlrpc error
+		 *
+		 * Return an empty value to disable the message.
+		 *
+		 * @since 8.7.0
+		 *
+		 * @param string $message The error message.
+		 */
+		$message = apply_filters( 'jetpack_connection_invalid_blog_token_admin_notice', __( 'Your connection with WordPress.com seems to be broken. If you\'re experiencing issues, please try reconnecting.', 'jetpack' ) );
+
+		if ( empty( $message ) ) {
+			return;
+		}
+
 		?>
 		<div class="notice notice-error is-dismissible jetpack-message jp-connect" style="display:block !important;">
-			<p><?php esc_html_e( 'Your connection with WordPress.com seems to be broken. If you\'re experiencing issues, please try to reconnect.', 'jetpack' ); ?></p>
+			<p><?php echo esc_html( $message ); ?></p>
 		</div>
 		<?php
 	}
