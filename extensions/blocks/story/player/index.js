@@ -20,6 +20,7 @@ const defaultSettings = {
 	renderInterval: 50,
 	startMuted: true,
 	playInFullScreen: true,
+	tapToPlayPause: true,
 	renderers: defaultRenderers,
 	shadowDOM: {
 		enabled: true,
@@ -27,7 +28,6 @@ const defaultSettings = {
 		styles: '#jetpack-block-story-css',
 	},
 	defaultAspectRatio: 720 / 1280,
-	autoResize: false,
 	volume: 0.5,
 };
 
@@ -71,14 +71,8 @@ export default function player( rootElement, params ) {
 	const isFullscreen = () => container.classList.contains( 'wp-story-fullscreen' );
 
 	const resize = () => {
-		if ( isFullscreen() ) {
-			const slidesMaxHeight = slidesWrapper.offsetHeight;
-			if ( ! settings.autoResize ) {
-				container.style.width = `${ settings.defaultAspectRatio * slidesMaxHeight }px`;
-			} else {
-				// TODO: compute from current media width/height
-			}
-		}
+		const slidesMaxHeight = container.offsetHeight;
+		container.style.width = `${ settings.defaultAspectRatio * slidesMaxHeight }px`;
 	};
 
 	let pendingRequestAnimationFrame = null;

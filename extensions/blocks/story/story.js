@@ -14,6 +14,7 @@ const storyPlayerSettings = {
 	slides: [],
 	shadowDOM: { enabled: false },
 	playInFullScreen: false,
+	tapToPlayPause: false,
 };
 
 class Story extends Component {
