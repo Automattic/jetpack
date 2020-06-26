@@ -177,7 +177,7 @@ jQuery( document ).ready( function( $ ) {
 		},
 		handleConnectionError: function( error ) {
 			jetpackConnectButton.isRegistering = false;
-			jetpackConnectButton.handleOriginalFlow();
+			//jetpackConnectButton.handleOriginalFlow();
 		},
 	};
 
