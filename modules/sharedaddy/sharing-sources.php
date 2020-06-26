@@ -1163,7 +1163,7 @@ class Share_Facebook extends Sharing_Source {
 			?><div id="fb-root"></div>
 			<script>(function(d, s, id) { var js, fjs = d.getElementsByTagName(s)[0]; if (d.getElementById(id)) return; js = d.createElement(s); js.id = id; js.src = 'https://connect.facebook.net/<?php echo $locale; ?>/sdk.js#xfbml=1<?php echo $fb_app_id; ?>&version=v2.3'; fjs.parentNode.insertBefore(js, fjs); }(document, 'script', 'facebook-jssdk'));</script>
 			<script>
-			jQuery( document.body ).on( 'post-load', function() {
+			document.body.addEventListener( 'post-load', function() {
 				if ( 'undefined' !== typeof FB ) {
 					FB.XFBML.parse();
 				}
