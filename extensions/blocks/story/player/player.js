@@ -120,7 +120,7 @@ export const Player = ( { slides, ...settings } ) => {
 			${settings.renderers.renderOverlay( html, {
 				playing,
 				ended,
-				tapToPlayPause: settings.tapToPlayPause,
+				tapToPlayPause: ! fullscreen && settings.tapToPlayPause,
 				onClick: () => {
 					if ( ! fullscreen && ! playing && settings.playInFullScreen ) {
 						setFullscreen( true );

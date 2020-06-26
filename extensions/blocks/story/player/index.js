@@ -21,7 +21,7 @@ const defaultSettings = {
 	startMuted: false,
 	playInFullScreen: true,
 	loadInFullScreen: false,
-	tapToPlayPause: true,
+	tapToPlayPause: false, // embed feature
 	renderers: defaultRenderers,
 	shadowDOM: {
 		enabled: true,
