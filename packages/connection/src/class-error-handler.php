@@ -265,8 +265,7 @@ class Error_Handler {
 	 */
 	public function wp_error_to_array( \WP_Error $error ) {
 
-		$data       = $error->get_error_data();
-		$error_code = $error->get_error_code();
+		$data = $error->get_error_data();
 
 		if ( ! isset( $data['signature_details'] ) || ! is_array( $data['signature_details'] ) ) {
 			return false;
@@ -281,7 +280,7 @@ class Error_Handler {
 		$user_id = $this->get_user_id_from_token( $data['token'] );
 
 		$error_array = array(
-			'error_code'    => $error_code,
+			'error_code'    => $error->get_error_code(),
 			'user_id'       => $user_id,
 			'error_message' => $error->get_error_message(),
 			'error_data'    => $data,
