@@ -78,6 +78,19 @@ abstract class Jetpack_Admin_Page {
 		if ( ! self::$block_page_rendering_for_idc ) {
 			add_action( "admin_print_styles-$hook", array( $this, 'additional_styles' ) );
 		}
+		// Secondary user (aka Jetpack already activated by another user) not connected.
+		if (
+			( 'admin.php' === $pagenow && isset( $_GET['page'] ) && 'jetpack' === $_GET['page'] )
+			&& ( Jetpack::is_active() )
+			&& ( ! Jetpack::is_user_connected( get_current_user_id() ) )
+			&& current_user_can( 'jetpack_connect' )
+			&& ! $is_development_mode
+		) {
+			add_action( 'admin_enqueue_scripts', array( 'Jetpack_Connection_Banner', 'enqueue_banner_scripts' ) );
+			add_action( 'admin_enqueue_scripts', array( 'Jetpack_Connection_Banner', 'enqueue_connect_button_scripts' ) );
+			add_action( 'admin_print_styles', array( Jetpack::init(), 'admin_banner_styles' ) );
+			add_action( 'admin_notices', array( 'Jetpack_Connection_Banner', 'render_connect_prompt_full_screen' ) );
+		}
 		// If someone just activated Jetpack, let's show them a fullscreen connection banner.
 		if (
 			( 'admin.php' === $pagenow && isset( $_GET['page'] ) && 'jetpack' === $_GET['page'] )
