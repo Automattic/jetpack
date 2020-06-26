@@ -9,7 +9,7 @@ import PropTypes from 'prop-types';
 /**
  * Internal dependencies
  */
-import { getConnectionErrors } from 'state/initial-state';
+
 import SimpleNotice from 'components/notice';
 import NoticeActionDisconnect from './notice-action-disconnect';
 
@@ -36,7 +36,7 @@ export class ErrorNoticeCycleConnection extends React.Component {
 	}
 }
 
-class JetpackConnectionErrors extends React.Component {
+export default class JetpackConnectionErrors extends React.Component {
 	static propTypes = {
 		errors: PropTypes.array.isRequired,
 	};
@@ -58,9 +58,7 @@ class JetpackConnectionErrors extends React.Component {
 		}
 
 		return (
-			<React.Fragment>
-				{ this.actions[ error.action ]( error.message, error.code ) }{ ' ' }
-			</React.Fragment>
+			<React.Fragment>{ this.actions[ error.action ]( error.message, error.code ) }</React.Fragment>
 		);
 	}
 
@@ -68,9 +66,3 @@ class JetpackConnectionErrors extends React.Component {
 		return this.props.errors.map( error => this.renderOne( error ) );
 	}
 }
-
-export default connect( state => {
-	return {
-		errors: getConnectionErrors( state ),
-	};
-} )( JetpackConnectionErrors );

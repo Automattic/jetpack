@@ -22,7 +22,12 @@ import {
 	isCurrentUserLinked,
 	getConnectUrl as _getConnectUrl,
 } from 'state/connection';
-import { isDevVersion, userCanConnectSite, userIsSubscriber } from 'state/initial-state';
+import {
+	isDevVersion,
+	userCanConnectSite,
+	userIsSubscriber,
+	getConnectionErrors,
+} from 'state/initial-state';
 import DismissableNotices from './dismissable';
 import JetpackBanner from 'components/jetpack-banner';
 import { JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
@@ -189,7 +194,9 @@ class JetpackNotices extends React.Component {
 		return (
 			<div aria-live="polite">
 				<NoticesList />
-				{ this.props.siteConnectionStatus && <JetpackConnectionErrors /> }
+				{ this.props.siteConnectionStatus && this.props.connectionErrors && (
+					<JetpackConnectionErrors errors={ this.props.connectionErrors } />
+				) }
 				<JetpackStateNotices />
 				<DevVersionNotice
 					isDevVersion={ this.props.isDevVersion }
@@ -235,5 +242,6 @@ export default connect( state => {
 		siteDevMode: getSiteDevMode( state ),
 		isStaging: isStaging( state ),
 		isInIdentityCrisis: isInIdentityCrisis( state ),
+		connectionErrors: getConnectionErrors( state ),
 	};
 } )( JetpackNotices );
