@@ -118,6 +118,12 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 					$form_classes .= ' ' . $instance['cssClass'];
 				}
 
+				$output = sprintf(
+					'<div class="%s">%s</div>',
+					esc_attr( $form_classes ),
+					$output
+				);
+
 				if ( $popup_mode ) {
 
 					if ( $is_amp_request ) {
@@ -174,11 +180,7 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 							'20200615'
 						);
 
-						$output = sprintf(
-							'<div class="%s" style="display:none;">%s</div>',
-							esc_attr( $form_classes ),
-							$output
-						);
+						$output = preg_replace( '/(class=".+")\s*(>)/', '$1 style="display:none;"$2', $output, 1 );
 					}
 				}
 				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
