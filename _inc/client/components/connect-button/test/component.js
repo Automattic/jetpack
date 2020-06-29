@@ -22,7 +22,8 @@ describe( 'ConnectButton', () => {
 		isDisconnecting   : false,
 		isLinked          : false,
 		isUnlinking       : false,
-		asLink			  :	false
+		asLink			  :	false,
+		connectInPlace    : false,
 	};
 
 	describe( 'Initially', () => {
@@ -48,6 +49,49 @@ describe( 'ConnectButton', () => {
 
 		it( 'has a link to jetpack.wordpress.com', () => {
 			expect( wrapper.find( 'Button' ).props().href ).to.be.equal( 'https://jetpack.wordpress.com/jetpack.authorize/1/' );
+		} );
+
+	} );
+
+	describe( 'When it is used to link a user in-place', () => {
+
+		const currentTestProps = {
+			isSiteConnected: true,
+			connectUser: true,
+			connectInPlace:  true,
+		};
+		Object.assign( testProps, currentTestProps );
+
+		const wrapper = shallow( <ConnectButton { ...testProps } /> );
+
+		it( 'has a link to jetpack.wordpress.com', () => {
+			expect( wrapper.find( 'Button' ).props().href ).to.be.equal( 'https://jetpack.wordpress.com/jetpack.authorize/1/' );
+		} );
+
+		it( 'has an iframe without src', () => {
+			expect( wrapper.find( 'iframe' ).first() ).to.exist;
+			expect( wrapper.find( 'iframe' ).first().src ).to.not.exist;
+		} );
+
+		it( 'has an onClick method', () => {
+			expect( wrapper.find( '.jp-jetpack-connect__button' ).first().props().onClick ).to.exist;		} );
+
+		it( 'when clicked, loadIframe() is called once', () => {
+			const loadIframe = sinon.spy();
+
+			class ConnectButtonMock extends ConnectButton {
+				constructor( props ) {
+					super( props );
+					this.loadIframe = loadIframe;
+				}
+			}
+			// We need to set the testProps again here, to make sure they are not affected by
+			// other tests running in between.
+			Object.assign( testProps, currentTestProps );
+			const wrapper = shallow( <ConnectButtonMock { ...testProps } /> );
+
+			wrapper.find( '.jp-jetpack-connect__button' ).simulate('click', { preventDefault: () => undefined });
+			expect( loadIframe.calledOnce ).to.be.true;
 		} );
 
 	} );
@@ -103,7 +147,11 @@ describe( 'ConnectButton', () => {
 
 	describe( 'When it is used to disconnect a site', () => {
 
-		testProps.isSiteConnected = true;
+		const currentTestProps = {
+			isSiteConnected: true,
+			connectUser    : false
+		};
+		Object.assign( testProps, currentTestProps );
 
 		const wrapper = shallow( <ConnectButton { ...testProps } /> );
 
@@ -122,6 +170,9 @@ describe( 'ConnectButton', () => {
 				}
 			}
 
+			// We need to set the testProps again here, to make sure they are not affected by
+			// other tests running in between.
+			Object.assign( testProps, currentTestProps );
 			const wrapper = shallow( <ConnectButtonMock { ...testProps } /> );
 
 			wrapper.find( 'a' ).simulate( 'click' );

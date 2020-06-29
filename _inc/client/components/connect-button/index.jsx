@@ -8,6 +8,7 @@ import Button from 'components/button';
 import { translate as __ } from 'i18n-calypso';
 import analytics from 'lib/analytics';
 import getRedirectUrl from 'lib/jp-redirect';
+import UAParser from 'ua-parser-js';
 
 /**
  * Internal dependencies
@@ -15,6 +16,7 @@ import getRedirectUrl from 'lib/jp-redirect';
 import {
 	getSiteConnectionStatus as _getSiteConnectionStatus,
 	disconnectSite,
+	fetchUserConnectionData,
 	isDisconnectingSite as _isDisconnectingSite,
 	isFetchingConnectUrl as _isFetchingConnectUrl,
 	getConnectUrl as _getConnectUrl,
@@ -35,16 +37,19 @@ export class ConnectButton extends React.Component {
 		connectUser: PropTypes.bool,
 		from: PropTypes.string,
 		asLink: PropTypes.bool,
+		connectInPlace: PropTypes.bool,
 	};
 
 	static defaultProps = {
 		connectUser: false,
 		from: '',
 		asLink: false,
+		connectInPlace: true,
 	};
 
 	state = {
 		showModal: false,
+		isAuthorizing: false,
 	};
 
 	handleOpenModal = e => {
@@ -60,6 +65,31 @@ export class ConnectButton extends React.Component {
 
 	toggleVisibility = () => {
 		this.setState( { showModal: ! this.state.showModal } );
+	};
+
+	loadIframe = e => {
+		e.preventDefault();
+		// If the iframe is already loaded, return.
+		if ( this.state.isAuthorizing ) {
+			return;
+		}
+		// This will disable the connect-button and prevent the iframe from reloading.
+		this.setState( { isAuthorizing: true } );
+		// Add an event listener to identify successful authorization via iframe.
+		window.addEventListener( 'message', this.receiveData );
+		this.refs.iframe.height = '220';
+		// TODO: Properly fetch 'connectUrl' for iframe authorization.
+		this.refs.iframe.src = this.props.connectUrl.replace( 'authorize', 'authorize_iframe' );
+	};
+
+	receiveData = e => {
+		if ( e.source === this.refs.iframe.contentWindow && e.data === 'close' ) {
+			// Remove listener, our job here is done.
+			window.removeEventListener( 'message', this.receiveData );
+			// Fetch user connection data after successful authorization to trigger state refresh
+			// for linked user.
+			this.props.fetchUserConnectionData();
+		}
 	};
 
 	renderUserButton = () => {
@@ -90,14 +120,37 @@ export class ConnectButton extends React.Component {
 		const buttonProps = {
 				className: 'is-primary jp-jetpack-connect__button',
 				href: connectUrl,
-				disabled: this.props.fetchingConnectUrl,
+				disabled: this.props.fetchingConnectUrl || this.state.isAuthorizing,
 			},
 			connectLegend = __( 'Link to WordPress.com' );
 
-		return this.props.asLink ? (
-			<a { ...buttonProps }>{ connectLegend }</a>
-		) : (
-			<Button { ...buttonProps }>{ connectLegend }</Button>
+		// Due to the limitation in how 3rd party cookies are handled in Safari,
+		// we're falling back to the original flow on Safari desktop and mobile,
+		// thus ignore the 'connectInPlace' property value.
+		const UA = UAParser();
+		const isSafari = -1 !== UA.browser.name.indexOf( 'Safari' ); // can be 'Safari' or 'Safari Mobile'
+		if ( ! this.props.connectInPlace || isSafari ) {
+			return this.props.asLink ? (
+				<a { ...buttonProps }>{ connectLegend }</a>
+			) : (
+				<Button { ...buttonProps }>{ connectLegend }</Button>
+			);
+		}
+
+		// Secondary users in-place connection flow
+		buttonProps.onClick = this.loadIframe;
+
+		return (
+			<div>
+				{ this.props.asLink ? (
+					<a { ...buttonProps }>{ connectLegend }</a>
+				) : (
+					<Button { ...buttonProps }>{ connectLegend }</Button>
+				) }
+				<div className="connect-iframe-wrap">
+					<iframe title="Link to WordPress" ref="iframe" height="0" width="100%"></iframe>
+				</div>
+			</div>
 		);
 	};
 
@@ -198,6 +251,9 @@ export default connect(
 			},
 			unlinkUser: () => {
 				return dispatch( unlinkUser() );
+			},
+			fetchUserConnectionData: () => {
+				return dispatch( fetchUserConnectionData() );
 			},
 		};
 	}
