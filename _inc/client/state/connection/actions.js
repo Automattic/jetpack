@@ -179,6 +179,7 @@ export const unlinkUser = () => {
 					type: UNLINK_USER_SUCCESS,
 					userUnlinked: userUnlinked,
 				} );
+				dispatch( fetchConnectUrl() );
 				dispatch( removeNotice( 'unlink-user' ) );
 				dispatch(
 					createNotice( 'is-success', __( 'Unlinked from WordPress.com.' ), {
