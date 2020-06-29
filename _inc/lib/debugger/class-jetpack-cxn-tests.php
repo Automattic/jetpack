@@ -454,7 +454,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 		}
 
 		$result       = json_decode( $body );
-		$is_connected = (bool) $result->connected;
+		$is_connected = ! empty( $result->connected );
 		$message      = $result->message . ': ' . wp_remote_retrieve_response_code( $response );
 
 		if ( $is_connected ) {
