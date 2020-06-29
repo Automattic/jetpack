@@ -40,15 +40,17 @@ class Invalid_Blog_Token {
 		}
 
 		// In this class, we will only handle errors with the blog token, so ignoring if there are only errors with user tokens.
-		if ( ! isset( $errors[0] ) || ! isset( $errors['invalid'] ) ) {
-			add_action( 'react_connection_errors_initial_state', array( $this, 'jetpack_react_dashboard_error' ) );
-			// do not add admin notice to the jetpack dashboard.
-			global $pagenow;
-			if ( 'admin.php' === $pagenow || isset( $_GET['page'] ) && 'jetpack' === $_GET['page'] ) { // phpcs:ignore
-				return;
-			}
-			add_action( 'admin_notices', array( $this, 'admin_notice' ) );
+		if ( ! isset( $errors[0] ) && ! isset( $errors['invalid'] ) ) {
+			return;
 		}
+
+		add_action( 'react_connection_errors_initial_state', array( $this, 'jetpack_react_dashboard_error' ) );
+		// do not add admin notice to the jetpack dashboard.
+		global $pagenow;
+		if ( 'admin.php' === $pagenow || isset( $_GET['page'] ) && 'jetpack' === $_GET['page'] ) { // phpcs:ignore
+			return;
+		}
+		add_action( 'admin_notices', array( $this, 'admin_notice' ) );
 
 	}
 
