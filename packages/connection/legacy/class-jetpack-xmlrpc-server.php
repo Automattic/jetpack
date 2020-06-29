@@ -56,12 +56,15 @@ class Jetpack_XMLRPC_Server {
 	 */
 	public function xmlrpc_methods( $core_methods ) {
 		$jetpack_methods = array(
-			'jetpack.jsonAPI'         => array( $this, 'json_api' ),
 			'jetpack.verifyAction'    => array( $this, 'verify_action' ),
 			'jetpack.getUser'         => array( $this, 'get_user' ),
 			'jetpack.remoteRegister'  => array( $this, 'remote_register' ),
 			'jetpack.remoteProvision' => array( $this, 'remote_provision' ),
 		);
+
+		if ( class_exists( 'Jetpack' ) ) {
+			$jetpack_methods['jetpack.jsonAPI'] = array( $this, 'json_api' );
+		}
 
 		$this->user = $this->login();
 
@@ -69,7 +72,6 @@ class Jetpack_XMLRPC_Server {
 			$jetpack_methods = array_merge(
 				$jetpack_methods,
 				array(
-					'jetpack.testConnection'    => array( $this, 'test_connection' ),
 					'jetpack.testAPIUserCode'   => array( $this, 'test_api_user_code' ),
 					'jetpack.featuresAvailable' => array( $this, 'features_available' ),
 					'jetpack.featuresEnabled'   => array( $this, 'features_enabled' ),
@@ -78,6 +80,10 @@ class Jetpack_XMLRPC_Server {
 					'jetpack.idcUrlValidation'  => array( $this, 'validate_urls_for_idc_mitigation' ),
 				)
 			);
+
+			if ( class_exists( 'Jetpack' ) ) {
+				$jetpack_methods['jetpack.testConnection'] = array( $this, 'test_connection' );
+			}
 
 			if ( isset( $core_methods['metaWeblog.editPost'] ) ) {
 				$jetpack_methods['metaWeblog.newMediaObject']      = $core_methods['metaWeblog.newMediaObject'];
