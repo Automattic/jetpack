@@ -7,7 +7,7 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
-
+use Automattic\Jetpack\Status;
 /**
  * Class Jetpack_Tweetstorm_Helper
  *
@@ -21,6 +21,13 @@ class Jetpack_Tweetstorm_Helper {
 	 * @return mixed
 	 */
 	public static function gather( $url ) {
+		if ( ( new Status() )->is_development_mode() ) {
+			return new WP_Error(
+				'dev_mode',
+				__( 'Tweet unrolling is not available in development mode.', 'jetpack' )
+			);
+		}
+
 		$site_id = self::get_site_id();
 		if ( is_wp_error( $site_id ) ) {
 			return $site_id;
