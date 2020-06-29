@@ -30,6 +30,8 @@ export const PLAN_JETPACK_BACKUP_REALTIME = 'jetpack_backup_realtime';
 export const PLAN_JETPACK_BACKUP_REALTIME_MONTHLY = 'jetpack_backup_realtime_monthly';
 export const PLAN_JETPACK_SEARCH = 'jetpack_search';
 export const PLAN_JETPACK_SEARCH_MONTHLY = 'jetpack_search_monthly';
+export const PLAN_WPCOM_SEARCH = 'wpcom_search';
+export const PLAN_WPCOM_SEARCH_MONTHLY = 'wpcom_search_monthly';
 export const PLAN_JETPACK_SCAN = 'jetpack_scan';
 export const PLAN_JETPACK_SCAN_MONTHLY = 'jetpack_scan_monthly';
 export const PLAN_HOST_BUNDLE = 'host-bundle';
@@ -52,7 +54,12 @@ export const JETPACK_BACKUP_PRODUCTS = [
 	PLAN_JETPACK_BACKUP_REALTIME_MONTHLY,
 ];
 
-export const JETPACK_SEARCH_PRODUCTS = [ PLAN_JETPACK_SEARCH, PLAN_JETPACK_SEARCH_MONTHLY ];
+export const JETPACK_SEARCH_PRODUCTS = [
+	PLAN_JETPACK_SEARCH,
+	PLAN_JETPACK_SEARCH_MONTHLY,
+	PLAN_WPCOM_SEARCH,
+	PLAN_WPCOM_SEARCH_MONTHLY,
+];
 
 export const JETPACK_SCAN_PRODUCTS = [ PLAN_JETPACK_SCAN, PLAN_JETPACK_SCAN_MONTHLY ];
 
@@ -193,6 +200,8 @@ export function getPlanClass( plan ) {
 			return 'is-realtime-backup-plan';
 		case PLAN_JETPACK_SEARCH:
 		case PLAN_JETPACK_SEARCH_MONTHLY:
+		case PLAN_WPCOM_SEARCH:
+		case PLAN_WPCOM_SEARCH_MONTHLY:
 			return 'is-search-plan';
 		case PLAN_JETPACK_SCAN:
 		case PLAN_JETPACK_SCAN_MONTHLY:
