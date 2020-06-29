@@ -33,7 +33,7 @@
 		"automattic/jetpack-tracking": "@dev"
 	},
 	"require-dev": {
-		"dealerdirect/phpcodesniffer-composer-installer": "0.6.2",
+		"dealerdirect/phpcodesniffer-composer-installer": "0.7.0",
 		"phpcompatibility/phpcompatibility-wp": "2.1.0",
 		"sirbrillig/phpcs-changed": "2.5.1",
 		"sirbrillig/phpcs-variable-analysis": "2.8.2",
