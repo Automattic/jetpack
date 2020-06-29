@@ -14,7 +14,9 @@ import Card from 'components/card';
 import ConnectButton from 'components/connect-button';
 import Gridicon from 'components/gridicon';
 
-class JetpackConnectionBanner extends Banner {
+class ConnectionBanner extends Banner {
+	// TODO: Make this generic by passing ConnectButton props to ConnectionBanner
+
 	getIcon() {
 		const icon = this.props.icon;
 
@@ -58,4 +60,4 @@ class JetpackConnectionBanner extends Banner {
 	}
 }
 
-export default JetpackConnectionBanner;
+export default ConnectionBanner;
