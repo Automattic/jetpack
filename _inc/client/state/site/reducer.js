@@ -3,7 +3,6 @@
  */
 import { combineReducers } from 'redux';
 import { assign, find, get, merge } from 'lodash';
-import { translate as __ } from 'i18n-calypso';
 
 /**
  * Internal dependencies
@@ -125,11 +124,9 @@ export const errors = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case JETPACK_SITE_DATA_FETCH_FAIL:
 			return assign( {}, state, {
-				message: __(
-					'There seems to be a problem with your connection to WordPress.com. If the problem persists, try reconnecting.'
-				),
+				message: action.error.response.message,
 				action: 'reconnect',
-				code: 'fetch_site_data_fail',
+				code: action.error.response.code,
 			} );
 		default:
 			return state;
