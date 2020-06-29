@@ -74,7 +74,7 @@ class Error_Handler {
 	 *
 	 * @since 8.7.0
 	 */
-	const ERROR_LIFE_TIME = DAY_IN_SECONDS * 3;
+	const ERROR_LIFE_TIME = DAY_IN_SECONDS;
 	/**
 	 * List of known errors. Only error codes in this list will be handled
 	 *
