@@ -52,6 +52,11 @@ function jetpack_get_module_i18n( $key ) {
 				'description' => _x( 'Increase reach and traffic.', 'Module Description', 'jetpack' ),
 			),
 
+			'external-media'        => array(
+				'name'        => _x( 'External Media', 'Module Name', 'jetpack' ),
+				'description' => _x( 'Jetpack’s External Media integrates Google Photos and Pexels free photos into your image blocks.', 'Module Description', 'jetpack' ),
+			),
+
 			'google-analytics' => array(
 				'name' => _x( 'Google Analytics', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Set up Google Analytics without touching a line of code.', 'Module Description', 'jetpack' ),
@@ -296,6 +301,7 @@ function jetpack_get_module_i18n_tag( $key ) {
 			'Developers' =>_x( 'Developers', 'Module Tag', 'jetpack' ),
 
 			// Modules with `Recommended` tag:
+			// - modules/external-media.php
 			//  - modules/lazy-images.php
 			//  - modules/monitor.php
 			//  - modules/photon-cdn.php

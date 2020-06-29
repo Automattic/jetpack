@@ -27,11 +27,8 @@ import { isModuleFound as _isModuleFound } from 'state/search';
  * @returns {object} - Controls for carousel.
  */
 function WritingMedia( props ) {
-	const foundCarousel = props.isModuleFound( 'carousel' );
-
-	if ( ! foundCarousel ) {
-		return null;
-	}
+	const foundCarousel = props.isModuleFound( 'carousel' ),
+		foundExternalMedia = props.isModuleFound( 'external-media' );
 
 	const displayComments = props.getOptionValue( 'carousel_display_comments', 'carousel' );
 	const displayExif = props.getOptionValue( 'carousel_display_exif', 'carousel' );
@@ -65,75 +62,102 @@ function WritingMedia( props ) {
 		</CompactFormToggle>
 	);
 
+	const carouselSettings = (
+		<SettingsGroup
+			hasChild
+			module={ { module: 'carousel' } }
+			support={ {
+				link: getRedirectUrl( 'jetpack-support-carousel' ),
+			} }
+		>
+			<p>
+				{ __(
+					'Create full-screen carousel slideshows for the images in your ' +
+						'posts and pages. Carousel galleries are mobile-friendly and ' +
+						'encourage site visitors to interact with your photos.'
+				) }
+			</p>
+			<ModuleToggle
+				slug="carousel"
+				activated={ isCarouselActive }
+				toggling={ props.isSavingAnyOption( 'carousel' ) }
+				toggleModule={ props.toggleModuleNow }
+			>
+				<span className="jp-form-toggle-explanation">
+					{ __( 'Display images in a full-screen carousel gallery' ) }
+				</span>
+			</ModuleToggle>
+			<FormFieldset>
+				{ renderToggle(
+					displayExif,
+					'carousel_display_exif',
+					handleCarouselDisplayExifChange,
+					__( 'Show photo Exif metadata in carousel (when available)' )
+				) }
+				{ renderToggle(
+					displayComments,
+					'carousel_display_comments',
+					handleCarouselDisplayCommentsChange,
+					__( 'Show comments area in carousel' )
+				) }
+				<FormFieldset>
+					<p className="jp-form-setting-explanation">
+						{ __(
+							'Exif data shows viewers additional technical details of a photo, like its focal length, aperture, and ISO.'
+						) }
+					</p>
+				</FormFieldset>
+				<FormLabel>
+					<FormLegend className="jp-form-label-wide">{ __( 'Carousel color scheme' ) }</FormLegend>
+					<FormSelect
+						name={ 'carousel_background_color' }
+						value={ props.getOptionValue( 'carousel_background_color' ) }
+						disabled={
+							! isCarouselActive ||
+							props.isSavingAnyOption( [ 'carousel', 'carousel_background_color' ] )
+						}
+						{ ...props }
+						validValues={ props.validValues( 'carousel_background_color', 'carousel' ) }
+					/>
+				</FormLabel>
+			</FormFieldset>
+		</SettingsGroup>
+	);
+
+	const externalMediaSettings = (
+		<SettingsGroup
+			module={ props.module( 'external-media' ) }
+			support={ {
+				text: 'External Media description',
+				link: getRedirectUrl( 'jetpack-support-shortcode-embeds' ),
+			} }
+		>
+			<FormFieldset>
+				<ModuleToggle
+					slug="external-media"
+					activated={ !! props.getOptionValue( 'external-media' ) }
+					toggling={ props.isSavingAnyOption( [ 'external-media' ] ) }
+					disabled={ props.isSavingAnyOption( [ 'external-media' ] ) }
+					toggleModule={ props.toggleModuleNow }
+				>
+					<span className="jp-form-toggle-explanation">
+						{ __( 'Use external media libraries' ) }
+					</span>
+				</ModuleToggle>
+			</FormFieldset>
+		</SettingsGroup>
+	);
+
 	return (
 		<SettingsCard
 			{ ...props }
 			module="media"
 			header={ __( 'Media' ) }
-			hideButton={ ! foundCarousel }
+			hideButton={ ! foundCarousel && ! foundExternalMedia }
 			saveDisabled={ props.isSavingAnyOption( 'carousel_background_color' ) }
 		>
-			<SettingsGroup
-				hasChild
-				module={ { module: 'carousel' } }
-				support={ {
-					link: getRedirectUrl( 'jetpack-support-carousel' ),
-				} }
-			>
-				<p>
-					{ __(
-						'Create full-screen carousel slideshows for the images in your ' +
-							'posts and pages. Carousel galleries are mobile-friendly and ' +
-							'encourage site visitors to interact with your photos.'
-					) }
-				</p>
-				<ModuleToggle
-					slug="carousel"
-					activated={ isCarouselActive }
-					toggling={ props.isSavingAnyOption( 'carousel' ) }
-					toggleModule={ props.toggleModuleNow }
-				>
-					<span className="jp-form-toggle-explanation">
-						{ __( 'Display images in a full-screen carousel gallery' ) }
-					</span>
-				</ModuleToggle>
-				<FormFieldset>
-					{ renderToggle(
-						displayExif,
-						'carousel_display_exif',
-						handleCarouselDisplayExifChange,
-						__( 'Show photo Exif metadata in carousel (when available)' )
-					) }
-					{ renderToggle(
-						displayComments,
-						'carousel_display_comments',
-						handleCarouselDisplayCommentsChange,
-						__( 'Show comments area in carousel' )
-					) }
-					<FormFieldset>
-						<p className="jp-form-setting-explanation">
-							{ __(
-								'Exif data shows viewers additional technical details of a photo, like its focal length, aperture, and ISO.'
-							) }
-						</p>
-					</FormFieldset>
-					<FormLabel>
-						<FormLegend className="jp-form-label-wide">
-							{ __( 'Carousel color scheme' ) }
-						</FormLegend>
-						<FormSelect
-							name={ 'carousel_background_color' }
-							value={ props.getOptionValue( 'carousel_background_color' ) }
-							disabled={
-								! isCarouselActive ||
-								props.isSavingAnyOption( [ 'carousel', 'carousel_background_color' ] )
-							}
-							{ ...props }
-							validValues={ props.validValues( 'carousel_background_color', 'carousel' ) }
-						/>
-					</FormLabel>
-				</FormFieldset>
-			</SettingsGroup>
+			{ foundCarousel && carouselSettings }
+			{ foundExternalMedia && externalMediaSettings }
 		</SettingsCard>
 	);
 }
