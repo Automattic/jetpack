@@ -207,6 +207,18 @@ class Error_Handler {
 			return true;
 		}
 
+		/**
+		 * Whether to bypass the gate for XML-RPC error handling
+		 *
+		 * By default, we only process XML-RPC errors once an hour for each error code.
+		 * This is done to avoid overflows. If you need to disable this gate, you can set this variable to true.
+		 *
+		 * This filter is useful for unit testing
+		 *
+		 * @since 8.7.0
+		 *
+		 * @param boolean $bypass_gate whether to bypass the gate. Default is false, do not bypass.
+		 */
 		$bypass_gate = apply_filters( 'jetpack_connection_bypass_error_reporting_gate', false );
 		if ( true === $bypass_gate ) {
 			return true;
