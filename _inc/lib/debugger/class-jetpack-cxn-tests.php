@@ -136,15 +136,17 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	}
 
 	/**
-	 * The test verifies the blog token exists, and sends an API request to WP.com to make sure it's valid.
+	 * The test verifies the blog token exists.
 	 *
 	 * @return array
 	 */
-	protected function test__validate_blog_token() {
+	protected function test__blog_token_if_exists() {
 		$blog_token = $this->helper_get_blog_token();
 
-		if ( ! $blog_token ) {
-			return self::failing_test(
+		if ( $blog_token ) {
+			$result = self::passing_test( array( 'name' => __FUNCTION__ ) );
+		} else {
+			$result = self::failing_test(
 				array(
 					'name'              => __FUNCTION__,
 					'short_description' => __( 'Blog token is missing.', 'jetpack' ),
@@ -152,55 +154,6 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 					'action_label'      => __( 'Disconnect your site from WordPress.com, and connect it again.', 'jetpack' ),
 				)
 			);
-		}
-
-		$body = array(
-			'client_id'     => Jetpack_Options::get_option( 'id' ),
-			'client_secret' => $blog_token->secret,
-		);
-
-		$args = array(
-			'method'  => 'POST',
-			'body'    => $body,
-			'headers' => array(
-				'Accept' => 'application/json',
-			),
-		);
-
-		add_filter( 'http_request_timeout', array( $this, 'increase_timeout' ), PHP_INT_MAX - 1 );
-		$response = Client::_wp_remote_request( Connection_Utils::fix_url_for_bad_hosts( Jetpack::connection()->api_url( 'testblogtoken' ) ), $args );
-
-		$code = empty( $response['response']['code'] ) ? null : (int) $response['response']['code'];
-
-		switch ( $code ) {
-			case 400:
-				$result = self::failing_test(
-					array(
-						'name'              => __FUNCTION__,
-						'short_description' => __( 'Blog token is invalid.', 'jetpack' ),
-						'action'            => admin_url( 'admin.php?page=jetpack#/dashboard' ),
-						'action_label'      => __( 'Disconnect your site from WordPress.com, and connect it again.', 'jetpack' ),
-					)
-				);
-				break;
-			case 429:
-				$result = self::skipped_test(
-					array(
-						'name'              => __FUNCTION__,
-						'short_description' => __( 'Token validation request failed: too many requests.', 'jetpack' ),
-					)
-				);
-				break;
-			case 200:
-				$result = self::passing_test( array( 'name' => __FUNCTION__ ) );
-				break;
-			default:
-				$result = self::skipped_test(
-					array(
-						'name'              => __FUNCTION__,
-						'short_description' => __( 'Token validation request failed: no response.', 'jetpack' ),
-					)
-				);
 		}
 
 		return $result;
