@@ -26,6 +26,8 @@ import {
 	PLAN_VIP,
 	PLAN_JETPACK_SEARCH,
 	PLAN_JETPACK_SEARCH_MONTHLY,
+	PLAN_WPCOM_SEARCH,
+	PLAN_WPCOM_SEARCH_MONTHLY,
 	getPlanClass,
 } from 'lib/plans/constants';
 
@@ -225,6 +227,8 @@ export default class PlanIcon extends Component {
 				return this.getBusinessIcon();
 			case PLAN_JETPACK_SEARCH:
 			case PLAN_JETPACK_SEARCH_MONTHLY:
+			case PLAN_WPCOM_SEARCH:
+			case PLAN_WPCOM_SEARCH_MONTHLY:
 				return this.getSearchIcon();
 			default:
 				return this.getDefaultIcon();
