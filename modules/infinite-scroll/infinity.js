@@ -488,9 +488,11 @@
 			// If 'click' type and there are still posts to fetch, add back the handle
 			if ( type == 'click' ) {
 				// add focus to new posts, only in button mode as we know where page focus currently is
-				document.getElementById( 'infinite-view-' + ( self.page + self.offset - 1 ) ).focus( {
-					preventScroll: true,
-				} );
+				document
+					.querySelector( '#infinite-view-' + ( self.page + self.offset - 1 ) + ' a:first-of-type' )
+					.focus( {
+						preventScroll: true,
+					} );
 
 				if ( response.lastbatch ) {
 					if ( self.click_handle ) {
