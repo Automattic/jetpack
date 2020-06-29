@@ -126,6 +126,9 @@ class Error_Handler {
 		add_action( 'rest_api_init', array( $this, 'register_verify_error_endpoint' ) );
 
 		$this->handle_verified_errors();
+
+		// If the site gets reconnected, clear errors.
+		add_action( 'jetpack_site_registered', array( $this, 'delete_all_errors' ) );
 	}
 
 	/**
