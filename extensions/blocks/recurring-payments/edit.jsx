@@ -421,23 +421,28 @@ class MembershipsButtonEdit extends Component {
 
 		const inspectorControls = (
 			<InspectorControls>
-				<PanelBody title={ __( 'Payment plan', 'jetpack' ) }>
-					<SelectControl
-						label={ __( 'Payment plan', 'jetpack' ) }
-						value={ this.props.attributes.planId }
-						onChange={ this.setMembershipAmount }
-						options={ products.map( product => ( {
-							label: this.renderAmount( product ),
-							value: product.id,
-							key: product.id,
-						} ) ) }
-					/>
-				</PanelBody>
-				<PanelBody title={ __( 'Management', 'jetpack' ) }>
-					<ExternalLink href={ `https://wordpress.com/earn/payments/${ this.state.siteSlug }` }>
-						{ __( 'See your earnings, subscriber list, and payment plans.', 'jetpack' ) }
-					</ExternalLink>
-				</PanelBody>
+				<div
+					className="wp-block-jetpack-recurring-payments-inspector-controls"
+					data-block-id={ this.props.clientId }
+				>
+					<PanelBody title={ __( 'Payment plan', 'jetpack' ) }>
+						<SelectControl
+							label={ __( 'Payment plan', 'jetpack' ) }
+							value={ this.props.attributes.planId }
+							onChange={ this.setMembershipAmount }
+							options={ products.map( product => ( {
+								label: this.renderAmount( product ),
+								value: product.id,
+								key: product.id,
+							} ) ) }
+						/>
+					</PanelBody>
+					<PanelBody title={ __( 'Management', 'jetpack' ) }>
+						<ExternalLink href={ `https://wordpress.com/earn/payments/${ this.state.siteSlug }` }>
+							{ __( 'See your earnings, subscriber list, and payment plans.', 'jetpack' ) }
+						</ExternalLink>
+					</PanelBody>
+				</div>
 			</InspectorControls>
 		);
 
