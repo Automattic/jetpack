@@ -1,6 +1,8 @@
 <?php
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Connection\Plugin as Connection_Plugin;
+use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Partner;
@@ -30,7 +32,8 @@ class MockJetpack extends Jetpack {
 	}
 
 	public function __construct() {
-		$this->connection_manager = new Connection_Manager();
+		$this->connection_manager = new Connection_Manager( 'mock-jetpack' );
+		( new Connection_Plugin( 'mock-jetpack' ) )->add( array( 'name' => 'MockJetpack' ) );
 	}
 }
 
@@ -1223,4 +1226,86 @@ EXPECTED;
 			array( 'message', null, true ),
 		);
 	}
+
+	/**
+	 * Testing the plugin enable/disable functionality.
+	 */
+	public function test_is_enabled() {
+		$connection = MockJetpack::connection();
+
+		$connection->disable_plugin();
+		$this->assertFalse( $connection->is_plugin_enabled() );
+
+		$connection->enable_plugin();
+		$this->assertTrue( $connection->is_plugin_enabled() );
+	}
+
+	/**
+	 * Testing the Jetpack soft/hard disconnect functionality.
+	 */
+	public function test_disconnect() {
+		// Removing the Jetpack plugin from the list to have the cleaner environment. We only use `MockJetpack` here.
+		Connection_Plugin_Storage::delete( 'jetpack' );
+
+		$blog_token = 'sample.token';
+		Jetpack_Options::update_option( 'blog_token', $blog_token );
+
+		$sample_plugin = ( new Connection_Plugin( 'sample-plugin' ) )->add( 'Sample Plugin' );
+		MockJetpack::disconnect();
+
+		$this->assertEquals( $blog_token, Jetpack_Options::get_option( 'blog_token' ) );
+
+		$sample_plugin->disable();
+		MockJetpack::disconnect();
+
+		$this->assertFalse( Jetpack_Options::get_option( 'blog_token' ) );
+	}
+
+	/**
+	 * Testing the registration process (soft and hard reconnect).
+	 */
+	public function test_registration() {
+		// Setting test token.
+		Jetpack_Options::update_option( 'master_user', '1' );
+		Jetpack_Options::update_option( 'user_tokens', array( 1 => 'sample.token.1' ) );
+
+		// Token is already present, softly reconnecting.
+		$this->assertTrue( MockJetpack::try_registration() );
+
+		// Removing the token.
+		Jetpack_Options::delete_option( 'user_tokens' );
+
+		// Token is missing, trying to register with WP.com, sending an API request and failing.
+		add_filter( 'pre_http_request', array( $this, 'fail_http_request' ) );
+		$result = MockJetpack::try_registration();
+		remove_filter( 'pre_http_request', array( $this, 'fail_http_request' ) );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertArrayHasKey( 'register_http_request_failed', $result->errors );
+	}
+
+	/**
+	 * Intentionally fail the API request.
+	 *
+	 * @return WP_Error
+	 */
+	public function fail_http_request() {
+		return new WP_Error( 'stop', 'Go no further!' );
+	}
+
+	/**
+	 * Test the authorization URL:
+	 * - 'action=pre_authorize' in case Jetpack can be softly reconnected,
+	 * - 'jetpack.authorize' if soft reconnect didn't work out.
+	 */
+	public function test_authorize_url() {
+		$this->assertContains( 'admin.php?page=jetpack&action=pre_authorize&_wpnonce=', MockJetpack::build_authorize_url() );
+		$this->assertStringStartsWith(
+			'https://jetpack.wordpress.com/jetpack.authorize/1/?response_type=code',
+			MockJetpack::build_authorize_url( false, false, true )
+		);
+	}
+
+
 } // end class
+
