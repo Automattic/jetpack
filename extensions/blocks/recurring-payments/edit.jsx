@@ -432,7 +432,7 @@ class MembershipsButtonEdit extends Component {
 			this.props.clientId
 		);
 
-		const inspectorControls = showControls ? (
+		const inspectorControls = (
 			<InspectorControls>
 				<PanelBody title={ __( 'Payment plan', 'jetpack' ) }>
 					<SelectControl
@@ -452,7 +452,7 @@ class MembershipsButtonEdit extends Component {
 					</ExternalLink>
 				</PanelBody>
 			</InspectorControls>
-		) : null;
+		);
 
 		return (
 			<Fragment>
