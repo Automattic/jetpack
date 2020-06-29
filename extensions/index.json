@@ -24,6 +24,8 @@
 		"related-posts",
 		"repeat-visitor",
 		"revue",
+		"send-a-message",
+		"send-a-message/whatsapp-button",
 		"sharing",
 		"shortlinks",
 		"simple-payments",
@@ -33,7 +35,7 @@
 		"videopress",
 		"wordads"
 	],
-	"beta": [ "amazon", "send-a-message", "send-a-message/whatsapp-button" ],
+	"beta": [ "amazon" ],
 	"experimental": [ "seo" ],
 	"no-post-editor": [
 		"business-hours",
