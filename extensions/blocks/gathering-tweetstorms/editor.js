@@ -7,7 +7,7 @@ import { addFilter } from '@wordpress/hooks';
  * Internal dependencies
  */
 import useGatherTweetstorm from './use-gather-tweetstorm';
-import { withNotices, ToolbarButton, ToolbarGroup } from '@wordpress/components';
+import { withNotices, Button, ToolbarGroup, Toolbar } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import './editor.scss';
 import { BlockControls } from '@wordpress/editor';
@@ -42,19 +42,38 @@ const addTweetstormToTweets = blockSettings => {
 				<>
 					{ noticeUI }
 					<BlockControls>
-						<ToolbarGroup>
-							<ToolbarButton
-								className="gathering-tweetstorms__embed-toolbar-button"
-								onClick={ () => unleashStorm( url, noticeOperations ) }
-								title={ __(
-									'Import the entire Twitter thread directly into this post.',
-									'jetpack'
-								) }
-								showTooltip={ true }
-							>
-								{ __( 'Unroll', 'jetpack' ) }
-							</ToolbarButton>
-						</ToolbarGroup>
+						{ /* @todo Fallback can be removed when WP 5.4 is the minimum supported version. */ }
+						{ ToolbarGroup ? (
+							<ToolbarGroup>
+								<Button
+									className="gathering-tweetstorms__embed-toolbar-button"
+									onClick={ () => unleashStorm( url, noticeOperations ) }
+									label={ __(
+										'Import the entire Twitter thread directly into this post.',
+										'jetpack'
+									) }
+									showTooltip={ true }
+								>
+									{ __( 'Unroll', 'jetpack' ) }
+								</Button>
+							</ToolbarGroup>
+						) : (
+							<Toolbar
+								controls={ [
+									{
+										title: __(
+											'Import the entire Twitter thread directly into this post.',
+											'jetpack'
+										),
+										onClick: () => unleashStorm( url, noticeOperations ),
+										extraProps: {
+											className: 'gathering-tweetstorms__embed-toolbar-button',
+											children: __( 'Unroll', 'jetpack' ),
+										},
+									},
+								] }
+							/>
+						) }
 					</BlockControls>
 					<CoreTweetEdit { ...props } />
 				</>
