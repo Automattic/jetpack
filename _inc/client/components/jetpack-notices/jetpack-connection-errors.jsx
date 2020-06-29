@@ -63,6 +63,15 @@ export default class JetpackConnectionErrors extends React.Component {
 	}
 
 	render() {
-		return this.props.errors.map( error => this.renderOne( error ) );
+		const errorsToDisplay = {};
+		const errors = this.props.errors.filter( error => error.hasOwnProperty( 'action' ) );
+
+		for ( const error of errors ) {
+			if ( ! errorsToDisplay.hasOwnProperty( error.action ) ) {
+				errorsToDisplay[ error.action ] = error;
+			}
+		}
+
+		return Object.values( errorsToDisplay ).map( error => this.renderOne( error ) );
 	}
 }
