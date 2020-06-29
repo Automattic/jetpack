@@ -2,7 +2,7 @@
 ( function() {
 	// Open closure.
 	// Local vars.
-	var Scroller, ajaxurl, stats, type, text, totop, loading_text, loaded_text;
+	var Scroller, ajaxurl, stats, type, text, totop, loading_text;
 
 	// IE requires special handling
 	var isIE = -1 != navigator.userAgent.search( 'MSIE' );
@@ -380,7 +380,6 @@
 			// On success, let's hide the loader circle.
 			if ( self.click_handle ) {
 				loader.parentNode.removeChild( loader );
-				document.getElementById( 'infinite-aria' ).textContent = loaded_text;
 			}
 
 			// If additional scripts are required by the incoming set of posts, parse them
@@ -882,7 +881,6 @@
 
 		// aria text
 		loading_text = infiniteScroll.settings.loading_text;
-		loaded_text = infiniteScroll.settings.loaded_text;
 
 		// Initialize the scroller (with the ID of the element from the theme)
 		infiniteScroll.scroller = new Scroller( infiniteScroll.settings );
