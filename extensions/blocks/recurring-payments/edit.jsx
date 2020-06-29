@@ -22,6 +22,7 @@ import {
 } from '@wordpress/components';
 import { InspectorControls, BlockIcon } from '@wordpress/block-editor';
 import { Fragment, Component } from '@wordpress/element';
+import { applyFilters } from '@wordpress/hooks';
 
 /**
  * Internal dependencies
@@ -419,32 +420,39 @@ class MembershipsButtonEdit extends Component {
 
 		const stripeConnectUrl = this.getConnectUrl();
 
-		const inspectorControls = (
-			<InspectorControls>
-				<div
-					className="wp-block-jetpack-recurring-payments-inspector-controls"
-					data-block-id={ this.props.clientId }
-				>
-					<PanelBody title={ __( 'Payment plan', 'jetpack' ) }>
-						<SelectControl
-							label={ __( 'Payment plan', 'jetpack' ) }
-							value={ this.props.attributes.planId }
-							onChange={ this.setMembershipAmount }
-							options={ products.map( product => ( {
-								label: this.renderAmount( product ),
-								value: product.id,
-								key: product.id,
-							} ) ) }
-						/>
-					</PanelBody>
-					<PanelBody title={ __( 'Management', 'jetpack' ) }>
-						<ExternalLink href={ `https://wordpress.com/earn/payments/${ this.state.siteSlug }` }>
-							{ __( 'See your earnings, subscriber list, and payment plans.', 'jetpack' ) }
-						</ExternalLink>
-					</PanelBody>
-				</div>
-			</InspectorControls>
+		/**
+		 * Filters the flag that determines if the Recurring Payments block controls should be shown in the inspector.
+		 *
+		 * @param {bool} showControls Whether inspectors controls are shown.
+		 * @param {string} showControls Block ID.
+		 */
+		const showControls = applyFilters(
+			'jetpack.RecurringPayments.showControls',
+			products.length > 0,
+			this.props.clientId
 		);
+
+		const inspectorControls = showControls ? (
+			<InspectorControls>
+				<PanelBody title={ __( 'Payment plan', 'jetpack' ) }>
+					<SelectControl
+						label={ __( 'Payment plan', 'jetpack' ) }
+						value={ this.props.attributes.planId }
+						onChange={ this.setMembershipAmount }
+						options={ products.map( product => ( {
+							label: this.renderAmount( product ),
+							value: product.id,
+							key: product.id,
+						} ) ) }
+					/>
+				</PanelBody>
+				<PanelBody title={ __( 'Management', 'jetpack' ) }>
+					<ExternalLink href={ `https://wordpress.com/earn/payments/${ this.state.siteSlug }` }>
+						{ __( 'See your earnings, subscriber list, and payment plans.', 'jetpack' ) }
+					</ExternalLink>
+				</PanelBody>
+			</InspectorControls>
+		) : null;
 
 		return (
 			<Fragment>
@@ -525,7 +533,7 @@ class MembershipsButtonEdit extends Component {
 							</Placeholder>
 						</div>
 					) }
-				{ products.length > 0 && inspectorControls }
+				{ showControls && inspectorControls }
 				{ ( ( ( this.hasUpgradeNudge || ! this.state.shouldUpgrade ) &&
 					connected !== API_STATE_LOADING ) ||
 					this.props.attributes.planId ) && (
