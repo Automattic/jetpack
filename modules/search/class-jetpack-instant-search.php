@@ -130,6 +130,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 				'highlightColor'  => get_option( $prefix . 'highlight_color', '#FFC' ),
 				'opacity'         => (int) get_option( $prefix . 'opacity', 97 ),
 				'overlayTrigger'  => get_option( $prefix . 'overlay_trigger', 'immediate' ),
+				'resultFormat'    => get_option( $prefix . 'result_format', 'minimal' ),
 				'showPoweredBy'   => get_option( $prefix . 'show_powered_by', '1' ) === '1',
 			),
 
@@ -389,6 +390,9 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 		if ( ! current_user_can( 'edit_theme_options' ) ) {
 			return;
 		}
+
+		// Set default result format to "expanded".
+		update_option( Jetpack_Search_Options::OPTION_PREFIX . 'result_format', 'expanded' );
 
 		global $wp_registered_sidebars;
 		$sidebars = get_option( 'sidebars_widgets', array() );

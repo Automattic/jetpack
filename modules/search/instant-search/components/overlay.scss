@@ -19,11 +19,11 @@ $overlay-vertical-padding: 3.5em;
 	}
 
 	&.jetpack-instant-search__overlay--light {
-		background: #fff;
+		background: $studio-white;
 	}
 
 	&.jetpack-instant-search__overlay--dark {
-		background: #131313;
+		background: $studio-gray-100;
 	}
 
 	*,
