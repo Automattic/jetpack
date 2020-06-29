@@ -1036,7 +1036,13 @@ class The_Neverending_Home_Page {
 				extend( window.infiniteScroll.settings.styles, <?php echo wp_json_encode( $styles ); ?> );
 			})();
 		</script>
-		<span id="infinite-aria" aria-live="assertive"></span>
+		<?php
+		$aria_live = 'assertive';
+		if ( 'scroll' === self::get_settings()->type ) {
+			$aria_live = 'polite';
+		}
+		?>
+		<span id="infinite-aria" aria-live="<?php echo esc_attr( $aria_live ); ?>"></span>
 		<?php
 	}
 
