@@ -195,12 +195,12 @@ class JetpackNotices extends React.Component {
 		return (
 			<div aria-live="polite">
 				<NoticesList />
-				{ this.props.siteConnectionStatus && this.props.connectionErrors && (
-					<JetpackConnectionErrors errors={ this.props.connectionErrors } />
-				) }
-				{ this.props.siteConnectionStatus && this.props.siteDataErrors && (
-					<JetpackConnectionErrors errors={ this.props.siteDataErrors } />
-				) }
+				{ this.props.siteConnectionStatus &&
+					( this.props.connectionErrors || this.props.siteDataErrors ) && (
+						<JetpackConnectionErrors
+							errors={ this.props.connectionErrors.concat( this.props.siteDataErrors ) }
+						/>
+					) }
 				<JetpackStateNotices />
 				<DevVersionNotice
 					isDevVersion={ this.props.isDevVersion }
