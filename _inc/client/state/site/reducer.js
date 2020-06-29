@@ -3,6 +3,7 @@
  */
 import { combineReducers } from 'redux';
 import { assign, find, get, merge } from 'lodash';
+import { translate as __ } from 'i18n-calypso';
 
 /**
  * Internal dependencies
@@ -120,10 +121,36 @@ export const requests = ( state = initialRequestsState, action ) => {
 	}
 };
 
+export const errors = ( state = {}, action ) => {
+	switch ( action.type ) {
+		case JETPACK_SITE_DATA_FETCH_FAIL:
+			return assign( {}, state, {
+				message: __(
+					'There seems to be a problem with your connection to WordPress.com. If the problem persists, try reconnecting.'
+				),
+				action: 'reconnect',
+				code: 'fetch_site_data_fail',
+			} );
+		default:
+			return state;
+	}
+};
+
 export const reducer = combineReducers( {
 	data,
 	requests,
+	errors,
 } );
+
+/**
+ * Returns an object of the siteData errors
+ *
+ * @param  {Object}  state Global state tree
+ * @return {Object}        Error object
+ */
+export function getSiteDataErrors( state ) {
+	return [ get( state.jetpack.siteData, [ 'errors' ], [] ) ];
+}
 
 /**
  * Returns true if currently requesting site data. Otherwise false.

@@ -28,6 +28,7 @@ import {
 	userIsSubscriber,
 	getConnectionErrors,
 } from 'state/initial-state';
+import { getSiteDataErrors } from 'state/site';
 import DismissableNotices from './dismissable';
 import JetpackBanner from 'components/jetpack-banner';
 import { JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
@@ -197,6 +198,9 @@ class JetpackNotices extends React.Component {
 				{ this.props.siteConnectionStatus && this.props.connectionErrors && (
 					<JetpackConnectionErrors errors={ this.props.connectionErrors } />
 				) }
+				{ this.props.siteConnectionStatus && this.props.siteDataErrors && (
+					<JetpackConnectionErrors errors={ this.props.siteDataErrors } />
+				) }
 				<JetpackStateNotices />
 				<DevVersionNotice
 					isDevVersion={ this.props.isDevVersion }
@@ -243,5 +247,6 @@ export default connect( state => {
 		isStaging: isStaging( state ),
 		isInIdentityCrisis: isInIdentityCrisis( state ),
 		connectionErrors: getConnectionErrors( state ),
+		siteDataErrors: getSiteDataErrors( state ),
 	};
 } )( JetpackNotices );
