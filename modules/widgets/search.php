@@ -277,7 +277,6 @@ class Jetpack_Search_Widget extends WP_Widget {
 			(array) $instance,
 			array(
 				'title'      => '',
-				'sort'       => self::DEFAULT_SORT,
 				'filters'    => array(),
 				'post_types' => array(),
 			)
@@ -857,22 +856,6 @@ class Jetpack_Search_Widget extends WP_Widget {
 						<?php echo esc_html( $post_type->label ); ?>
 					</label>
 				<?php endforeach; ?>
-			</p>
-
-			<!-- Default sort order control -->
-			<p>
-				<label>
-					<?php esc_html_e( 'Default sort order:', 'jetpack' ); ?>
-					<select
-						name="<?php echo esc_attr( $this->get_field_name( 'sort' ) ); ?>"
-						class="widefat jetpack-search-filters-widget__sort-order">
-						<?php foreach ( $this->get_sort_types() as $sort_type => $label ) { ?>
-							<option value="<?php echo esc_attr( $sort_type ); ?>" <?php selected( $instance['sort'], $sort_type ); ?>>
-								<?php echo esc_html( $label ); ?>
-							</option>
-						<?php } ?>
-					</select>
-				</label>
 			</p>
 
 			<!-- Filters control -->
