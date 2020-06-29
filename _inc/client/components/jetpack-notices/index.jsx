@@ -192,13 +192,17 @@ class JetpackNotices extends React.Component {
 	static displayName = 'JetpackNotices';
 
 	render() {
+		const siteDataErrors = this.props.siteDataErrors.filter( error =>
+			error.hasOwnProperty( 'action' )
+		);
+
 		return (
 			<div aria-live="polite">
 				<NoticesList />
 				{ this.props.siteConnectionStatus &&
-					( this.props.connectionErrors || this.props.siteDataErrors ) && (
+					( this.props.connectionErrors.length > 0 || siteDataErrors.length > 0 ) && (
 						<JetpackConnectionErrors
-							errors={ this.props.connectionErrors.concat( this.props.siteDataErrors ) }
+							errors={ this.props.connectionErrors.concat( siteDataErrors ) }
 						/>
 					) }
 				<JetpackStateNotices />
