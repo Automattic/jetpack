@@ -385,6 +385,9 @@ class Defaults {
 		'bwg_gallery',
 		'customize_changeset', // WP built-in post type for Customizer changesets.
 		'dn_wp_yt_log',
+		'flamingo_contact', // https://wordpress.org/plugins/flamingo/.
+		'flamingo_inbound',
+		'flamingo_outbound',
 		'http',
 		'idx_page',
 		'jetpack_migration',
