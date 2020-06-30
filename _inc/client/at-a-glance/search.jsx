@@ -24,7 +24,7 @@ import { getUpgradeUrl } from 'state/initial-state';
 /**
  * Displays a card for Search based on the props given.
  *
- * @param   {object} props Settings to render the card.
+ * @param   {object} props - Settings to render the card.
  * @returns {object}       Search card
  */
 const renderCard = props => (
@@ -103,7 +103,7 @@ class DashSearch extends Component {
 						href={ this.props.upgradeUrl }
 						eventFeature="search"
 						path="dashboard"
-						plan={ PLAN_JETPACK_SEARCH }
+						product={ PLAN_JETPACK_SEARCH }
 						icon="search"
 					/>
 				),

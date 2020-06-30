@@ -33,7 +33,7 @@ class Banner extends Component {
 		list: PropTypes.arrayOf( PropTypes.string ),
 		onClick: PropTypes.func,
 		path: PropTypes.string,
-		plan: PropTypes.string,
+		product: PropTypes.string,
 		siteSlug: PropTypes.string,
 		title: PropTypes.string.isRequired,
 	};
@@ -75,12 +75,12 @@ class Banner extends Component {
 	};
 
 	getIcon() {
-		const { icon, plan } = this.props;
+		const { icon, product } = this.props;
 
-		if ( plan && ! icon ) {
+		if ( product && ! icon ) {
 			return (
 				<div className="dops-banner__icon-plan">
-					<PlanIcon plan={ plan } />
+					<PlanIcon plan={ product } />
 				</div>
 			);
 		}
@@ -130,8 +130,8 @@ class Banner extends Component {
 	}
 
 	render() {
-		const { callToAction, className, plan } = this.props;
-		const planClass = getPlanClass( plan );
+		const { callToAction, className, product } = this.props;
+		const planClass = getPlanClass( product );
 
 		const classes = classNames(
 			'dops-banner',

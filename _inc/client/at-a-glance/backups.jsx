@@ -25,7 +25,7 @@ import { getUpgradeUrl, showBackups } from 'state/initial-state';
 /**
  * Displays a card for Backups based on the props given.
  *
- * @param   {object} props Settings to render the card.
+ * @param   {object} props - Settings to render the card.
  * @returns {object}       Backups card
  */
 const renderCard = props => (
@@ -143,7 +143,7 @@ class DashBackups extends Component {
 						href={ this.props.upgradeUrl }
 						eventFeature="backups"
 						path="dashboard"
-						plan={ PLAN_JETPACK_PREMIUM }
+						product={ PLAN_JETPACK_PREMIUM }
 						icon="history"
 					/>
 				),

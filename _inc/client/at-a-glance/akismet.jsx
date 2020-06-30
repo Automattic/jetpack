@@ -91,7 +91,7 @@ class DashAkismet extends Component {
 					href={ this.props.upgradeUrl }
 					eventFeature="akismet"
 					path="dashboard"
-					plan={ PLAN_JETPACK_PREMIUM }
+					product={ PLAN_JETPACK_PREMIUM }
 					icon="flag"
 				/>
 			);

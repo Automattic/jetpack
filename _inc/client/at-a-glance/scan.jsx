@@ -27,7 +27,7 @@ import getRedirectUrl from 'lib/jp-redirect';
 /**
  * Displays a card for Security Scan based on the props given.
  *
- * @param   {object} props Settings to render the card.
+ * @param   {object} props - Settings to render the card.
  * @returns {object}       Security Scan card
  */
 const renderCard = props => (
@@ -181,7 +181,7 @@ class DashScan extends Component {
 				href={ this.props.upgradeUrl }
 				eventFeature="scan"
 				path="dashboard"
-				plan={ PLAN_JETPACK_PREMIUM }
+				product={ PLAN_JETPACK_PREMIUM }
 				icon="lock"
 			/>
 		);

@@ -96,7 +96,7 @@ export const SettingsCard = props => {
 					<JetpackBanner
 						title={ __( 'Host fast, high-quality, ad-free video.' ) }
 						callToAction={ upgradeLabel }
-						plan={ PLAN_JETPACK_PREMIUM }
+						product={ PLAN_JETPACK_PREMIUM }
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
 						href={ props.videoPremiumUpgradeUrl }
@@ -116,7 +116,7 @@ export const SettingsCard = props => {
 					<JetpackBanner
 						title={ __( 'Generate income with high-quality ads.' ) }
 						callToAction={ upgradeLabel }
-						plan={ PLAN_JETPACK_PREMIUM }
+						product={ PLAN_JETPACK_PREMIUM }
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
 						href={ props.adsUpgradeUrl }
@@ -132,7 +132,7 @@ export const SettingsCard = props => {
 					return (
 						<JetpackBanner
 							title={ __( 'Real-time site backups and automatic threat resolution.' ) }
-							plan={ PLAN_JETPACK_BUSINESS }
+							product={ PLAN_JETPACK_BUSINESS }
 							callToAction={ upgradeLabel }
 							feature={ feature }
 							onClick={ handleClickForTracking( feature ) }
@@ -145,7 +145,7 @@ export const SettingsCard = props => {
 					<JetpackBanner
 						callToAction={ upgradeLabel }
 						title={ __( 'Protect against data loss, malware, and malicious attacks.' ) }
-						plan={ PLAN_JETPACK_PREMIUM }
+						product={ PLAN_JETPACK_PREMIUM }
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
 						href={ props.securityPremiumUpgradeUrl }
@@ -163,7 +163,7 @@ export const SettingsCard = props => {
 						title={ __(
 							'Connect your site to Google Analytics in seconds with Jetpack Premium or Professional.'
 						) }
-						plan={ PLAN_JETPACK_PREMIUM }
+						product={ PLAN_JETPACK_PREMIUM }
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
 						href={ props.gaUpgradeUrl }
@@ -180,7 +180,7 @@ export const SettingsCard = props => {
 						title={ __(
 							'Boost your search engine ranking with the powerful SEO tools in Jetpack Premium or Professional.'
 						) }
-						plan={ PLAN_JETPACK_PREMIUM }
+						product={ PLAN_JETPACK_PREMIUM }
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
 						href={ props.seoUpgradeUrl }
@@ -198,7 +198,7 @@ export const SettingsCard = props => {
 						title={ __(
 							'Help visitors quickly find answers with highly relevant instant search results and powerful filtering.'
 						) }
-						plan={ PLAN_JETPACK_SEARCH }
+						product={ PLAN_JETPACK_SEARCH }
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
 						href={ props.searchUpgradeUrl }
@@ -218,7 +218,7 @@ export const SettingsCard = props => {
 					<JetpackBanner
 						callToAction={ upgradeLabel }
 						title={ __( 'Protect your site from spam.' ) }
-						plan={ PLAN_JETPACK_PERSONAL }
+						product={ PLAN_JETPACK_PERSONAL }
 						feature={ feature }
 						href={ props.spamUpgradeUrl }
 					/>

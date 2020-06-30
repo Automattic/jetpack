@@ -111,7 +111,7 @@ class SupportCard extends React.Component {
 				{ this.props.siteConnectionStatus && noPrioritySupport && (
 					<JetpackBanner
 						title={ __( 'Get a faster resolution to your support questions.' ) }
-						plan={ PLAN_JETPACK_PERSONAL }
+						product={ PLAN_JETPACK_PERSONAL }
 						callToAction={ __( 'Upgrade' ) }
 						onClick={ this.trackBannerClick }
 						href={ this.props.supportUpgradeUrl }
