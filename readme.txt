@@ -107,7 +107,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
-*
+* Blocks: add more options to customize the look of the Payments block.
 
 **Improved compatibility**
 
