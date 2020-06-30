@@ -1,64 +1,64 @@
 .jetpack-mailchimp-widget-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
-    z-index: 9999;
-    background:rgba( 0,0,0, 0.8 );
+	position: fixed;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	z-index: 9999;
+	background:rgba( 0,0,0, 0.8 );
 }
 
 .jetpack-mailchimp-widget-form {
-    position: relative;
-    width: 40%;
-    margin: 200px auto 0 auto;
-    padding: 20px;
-    background: #fff;
-    box-shadow: 0 12px 24px rgba(36,28,21,.16);
+	position: relative;
+	width: 40%;
+	margin: 200px auto 0 auto;
+	padding: 20px;
+	background: #fff;
+	box-shadow: 0 12px 24px rgba(36,28,21,.16);
 }
 
 .jetpack-mailchimp-widget-form input {
-    width: 100%;
+	width: 100%;
 }
 
 .jetpack-mailchimp-widget-close {
-    position: absolute;
-    top: -20px;
-    width: 40px;
-    height: 40px;
-    background: #fff;
-    right: -20px;
-    z-index: 9999;
-    border-radius: 50%;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(36,28,21,.12);
+	position: absolute;
+	top: -20px;
+	width: 40px;
+	height: 40px;
+	background: #fff;
+	right: -20px;
+	z-index: 9999;
+	border-radius: 50%;
+	cursor: pointer;
+	box-shadow: 0 4px 12px rgba(36,28,21,.12);
 }
 
 .jetpack-mailchimp-widget-close:before, .jetpack-mailchimp-widget-close:after {
-    content: ' ';
-    position: absolute;
-    top: 7px;
-    left: 19px;
-    height: 26px;
-    width: 2px;
-    background: #7d7676;
+	content: ' ';
+	position: absolute;
+	top: 7px;
+	left: 19px;
+	height: 26px;
+	width: 2px;
+	background: #7d7676;
 }
 
 .jetpack-mailchimp-widget-close:hover:before, .jetpack-mailchimp-widget-close:hover:after {
-    background: #000;
+	background: #000;
 }
 
 .jetpack-mailchimp-widget-close:before {
-    transform: rotate(45deg);
+	transform: rotate(45deg);
 }
 
 .jetpack-mailchimp-widget-close:after {
-    transform: rotate(-45deg);
+	transform: rotate(-45deg);
 }
 
 @media screen and ( max-width: 1000px ) {
-    .jetpack-mailchimp-widget-form {
-        width: 80%;
-        margin-top: 117px;
-    }
+	.jetpack-mailchimp-widget-form {
+		width: 80%;
+		margin-top: 117px;
+	}
 }
