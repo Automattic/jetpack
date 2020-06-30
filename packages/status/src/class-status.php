@@ -89,7 +89,9 @@ class Status {
 	 * @return bool
 	 */
 	public function is_staging_site() {
-		$is_staging = false;
+		// @todo Remove function_exists when WP 5.5 is the minimum version.
+		// Core's wp_get_environment_type allows for a few specific options. We should default to bowing out gracefully for anything other than production.
+		$is_staging = function_exists( 'wp_get_environment_type' ) && 'production' !== wp_get_environment_type();
 
 		$known_staging = array(
 			'urls'      => array(
