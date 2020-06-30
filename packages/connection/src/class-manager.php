@@ -89,6 +89,8 @@ class Manager {
 			$manager->verify_xml_rpc_signature()
 		);
 
+		$manager->error_handler = Error_Handler::get_instance();
+
 		if ( $manager->is_active() ) {
 			add_filter( 'xmlrpc_methods', array( $manager, 'public_xmlrpc_methods' ) );
 		} else {
@@ -319,19 +321,14 @@ class Manager {
 				/**
 				 * Action for logging XMLRPC signature verification errors. This data is sensitive.
 				 *
-				 * Error codes:
-				 * - malformed_token
-				 * - malformed_user_id
-				 * - unknown_token
-				 * - could_not_sign
-				 * - invalid_nonce
-				 * - signature_mismatch
-				 *
 				 * @since 7.5.0
 				 *
 				 * @param WP_Error $signature_verification_error The verification error
 				 */
 				do_action( 'jetpack_verify_signature_error', $this->xmlrpc_verification );
+
+				Error_Handler::get_instance()->report_error( $this->xmlrpc_verification );
+
 			}
 		}
 
@@ -1402,6 +1399,9 @@ class Manager {
 		// Delete cached connected user data.
 		$transient_key = 'jetpack_connected_user_data_' . get_current_user_id();
 		delete_transient( $transient_key );
+
+		// Delete all XML-RPC errors.
+		Error_Handler::get_instance()->delete_all_errors();
 
 		return true;
 	}
