@@ -232,6 +232,15 @@ $grid-size: 8px;
 	select {
 		max-width: 200px !important;
 	}
+	.components-base-control__field {
+		display: flex;
+		flex-direction: column;
+	}
+
+	input[type='number'] {
+		// this input holds only years, so 4 digits width is enough
+		width: 50px;
+	}
 }
 
 .jetpack-external-media-header__filter,
@@ -339,11 +348,16 @@ $grid-size: 8px;
 
 .jetpack-external-media-date-filter {
 	display: flex;
+	flex-wrap: wrap;
 
 	button {
 		// Adjust button to match the size and position of inputs.
-		margin-top: 22px;
+		margin-top: 23px;
 		height: 40px;
+	}
+
+	.components-text-control__input {
+		margin: 1px;
 	}
 }
 
