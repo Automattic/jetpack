@@ -121,6 +121,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Site Stats: improve accessibility of the Stats dashboard.
 * Social Logos: update Facebook Logo design.
 * Widgets: improve accessibility of the Contact Info Widget as well as the Blog Stats Widget.
+* Widgets: improve performance of the Display Posts widget by fetching less data.
 
 **Improved compatibility**
 
