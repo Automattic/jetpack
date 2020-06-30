@@ -22,6 +22,7 @@ import {
 } from '@wordpress/components';
 import { InspectorControls, BlockIcon } from '@wordpress/block-editor';
 import { Fragment, Component } from '@wordpress/element';
+import { applyFilters } from '@wordpress/hooks';
 
 /**
  * Internal dependencies
@@ -419,6 +420,18 @@ class MembershipsButtonEdit extends Component {
 
 		const stripeConnectUrl = this.getConnectUrl();
 
+		/**
+		 * Filters the flag that determines if the Recurring Payments block controls should be shown in the inspector.
+		 *
+		 * @param {bool} showControls Whether inspectors controls are shown.
+		 * @param {string} showControls Block ID.
+		 */
+		const showControls = applyFilters(
+			'jetpack.RecurringPayments.showControls',
+			products.length > 0,
+			this.props.clientId
+		);
+
 		const inspectorControls = (
 			<InspectorControls>
 				<PanelBody title={ __( 'Payment plan', 'jetpack' ) }>
@@ -520,7 +533,7 @@ class MembershipsButtonEdit extends Component {
 							</Placeholder>
 						</div>
 					) }
-				{ products.length > 0 && inspectorControls }
+				{ showControls && inspectorControls }
 				{ ( ( ( this.hasUpgradeNudge || ! this.state.shouldUpgrade ) &&
 					connected !== API_STATE_LOADING ) ||
 					this.props.attributes.planId ) && (

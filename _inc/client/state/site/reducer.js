@@ -120,10 +120,34 @@ export const requests = ( state = initialRequestsState, action ) => {
 	}
 };
 
+export const errors = ( state = {}, action ) => {
+	switch ( action.type ) {
+		case JETPACK_SITE_DATA_FETCH_FAIL:
+			return assign( {}, state, {
+				message: action.error.response.message,
+				action: 'reconnect',
+				code: action.error.response.code,
+			} );
+		default:
+			return state;
+	}
+};
+
 export const reducer = combineReducers( {
 	data,
 	requests,
+	errors,
 } );
+
+/**
+ * Returns an object of the siteData errors
+ *
+ * @param  {Object}  state Global state tree
+ * @return {Object}        Error object
+ */
+export function getSiteDataErrors( state ) {
+	return [ get( state.jetpack.siteData, [ 'errors' ], [] ) ];
+}
 
 /**
  * Returns true if currently requesting site data. Otherwise false.

@@ -49,10 +49,15 @@ class Jetpack_Instagram_Gallery_Helper {
 
 			$encoded_gallery = wp_json_encode( $gallery );
 
-			set_transient( $transient_key, $encoded_gallery, HOUR_IN_SECONDS );
-
 			// Make sure the gallery is an object.
-			return json_decode( $encoded_gallery );
+			$gallery_object = json_decode( $encoded_gallery );
+
+			// Avoid caching the gallery if the fetch failed for unknown reasons.
+			if ( property_exists( $gallery_object, 'images' ) && 'ERROR' !== $gallery_object->images ) {
+				set_transient( $transient_key, $encoded_gallery, HOUR_IN_SECONDS );
+			}
+
+			return $gallery_object;
 		}
 
 		$response = Client::wpcom_json_api_request_as_blog(

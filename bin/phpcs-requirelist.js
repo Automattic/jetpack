@@ -18,6 +18,7 @@ module.exports = [
 	'functions.opengraph.php',
 	'_inc/lib/admin-pages/class-jetpack-about-page.php',
 	'_inc/lib/class-jetpack-instagram-gallery-helper.php',
+	'_inc/lib/class-jetpack-tweetstorm-helper.php',
 	'_inc/lib/class-jetpack-mapbox-helper.php',
 	'_inc/lib/class-jetpack-podcast-helper.php',
 	'_inc/lib/class.jetpack-password-checker.php',
@@ -28,6 +29,7 @@ module.exports = [
 	'_inc/lib/core-api/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-instagram-gallery.php',
 	'_inc/lib/core-api/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-podcast-player.php',
 	'_inc/lib/core-api/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-resolve-redirect.php',
+	'_inc/lib/core-api/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-tweetstorm-gather.php',
 	'_inc/lib/core-api/wpcom-endpoints/memberships.php',
 	'_inc/lib/debugger/',
 	'_inc/lib/plans.php',
@@ -68,5 +70,6 @@ module.exports = [
 	'packages',
 	'tests/e2e/plugins/e2e-plan-data-interceptor.php',
 	'tests/php/general/test-class.jetpack-network.php',
+	'tests/php/test_class.jetpack_photon.php',
 	'views/admin/deactivation-dialog.php',
 ];

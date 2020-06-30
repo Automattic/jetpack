@@ -1728,7 +1728,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			);
 		}
 		if ( $site_data->get_error_code() === 'site_data_fetch_failed' ) {
-			return new WP_Error( 'site_data_fetch_failed', esc_html__( 'Failed fetching site data. Try again later.', 'jetpack' ), array( 'status' => 400 ) );
+			return new WP_Error( 'site_data_fetch_failed', esc_html__( 'Failed fetching site data from WordPress.com. If the problem persists, try reconnecting Jetpack.', 'jetpack' ), array( 'status' => 400 ) );
 		}
 
 		if ( $site_data->get_error_code() === 'site_id_missing' ) {

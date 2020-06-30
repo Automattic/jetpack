@@ -9,9 +9,10 @@ import { h, Component } from 'preact';
  * Internal dependencies
  */
 import SearchResultMinimal from './search-result-minimal';
+import SearchResultExpanded from './search-result-expanded';
 import SearchResultProduct from './search-result-product';
 import { recordTrainTracksRender, recordTrainTracksInteract } from '../lib/tracks';
-import { RESULT_FORMAT_PRODUCT } from '../lib/constants';
+import { RESULT_FORMAT_EXPANDED, RESULT_FORMAT_PRODUCT } from '../lib/constants';
 
 class SearchResult extends Component {
 	componentDidMount() {
@@ -48,6 +49,8 @@ class SearchResult extends Component {
 	render() {
 		if ( this.props.resultFormat === RESULT_FORMAT_PRODUCT ) {
 			return <SearchResultProduct onClick={ this.onClick } { ...this.props } />;
+		} else if ( this.props.resultFormat === RESULT_FORMAT_EXPANDED ) {
+			return <SearchResultExpanded onClick={ this.onClick } { ...this.props } />;
 		}
 
 		return <SearchResultMinimal onClick={ this.onClick } { ...this.props } />;
