@@ -113,6 +113,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Blocks: add episode link and improve the look of the Podcast player when displaying only one episode.
 * Blocks: add more customization options to the buttons offered by the following blocks: Calendly, Mailchimp, Eventbrite.
 * Blocks: rename "Earn" blocks: "Simple Payments" becomes "Pay with Paypal"; "Recurring Payments" becomes "Payments".
+* Connection Flow: improve the display of connection errors when a site cannot be connected to WordPress.com.
 * Contact Form: improve the "Empty Spam" process to better handle large amount of Spam.
 * Jetpack Search: use the full width of the browser when the site does not use any Jetpack Search Sidebar.
 * Performance: switch from JavaScript library to CSS animations to display loading spinners.
