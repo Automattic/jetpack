@@ -12,6 +12,13 @@
 		margin-bottom: 1em;
 	}
 
+	input[name='email'] {
+		&.error:focus,
+		&.error {
+			outline-color: var( --color-error );
+		}
+	}
+
 	.wp-block-jetpack-mailchimp_notification {
 		display: none;
 		margin-bottom: $jetpack-block-margin-bottom;
@@ -48,5 +55,4 @@
 	form.amp-form-submit-error > p {
 		display: none;
 	}
-
 }
