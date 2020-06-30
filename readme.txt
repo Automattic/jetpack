@@ -112,6 +112,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Blocks: add more customization options to the buttons offered by the following blocks: Calendly, Mailchimp, Eventbrite.
 * Blocks: rename "Earn" blocks: "Simple Payments" becomes "Pay with Paypal"; "Recurring Payments" becomes "Payments".
 * Contact Form: improve the "Empty Spam" process to better handle large amount of Spam.
+* Jetpack Search: use the full width of the browser when the site does not use any Jetpack Search Sidebar.
 * Related Posts: improve accessibility of the titles of each Related Post.
 * Site Stats: improve accessibility of the Stats dashboard.
 * Widgets: improve accessibility of the Contact Info Widget.
