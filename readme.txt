@@ -109,6 +109,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Blocks: add more options to customize the look of the Payments block.
 * Blocks: allowing playing a Jetpack video in the block editor.
+* Blocks: add more customization options for the Mailchimp block's button.
 * Contact Form: improve the "Empty Spam" process to better handle large amount of Spam.
 * Related Posts: improve accessibility of the titles of each Related Post.
 * Site Stats: improve accessibility of the Stats dashboard.
