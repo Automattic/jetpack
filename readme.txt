@@ -145,6 +145,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Publicize: avoid layout issues when displaying broken connections in the Publicize block toolbar.
 * Sharing: avoid relying on jQuery for the official Facebook button.
 * Shortcodes / Embeds: fix the Twitch embed according to new Twitch embed requirements.
+* SEO Tools / Open Graph: improve cleaning up of description meta tags.
 
 --------
 
