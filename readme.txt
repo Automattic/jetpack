@@ -143,6 +143,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Forms: improve accessibility of the "Required" text used in form fields.
 * Jetpack Search: load translations in the Search overlay on International sites.
 * Publicize: avoid layout issues when displaying broken connections in the Publicize block toolbar.
+* Sharing: avoid relying on jQuery for the official Facebook button.
 * Shortcodes / Embeds: fix the Twitch embed according to new Twitch embed requirements.
 
 --------
