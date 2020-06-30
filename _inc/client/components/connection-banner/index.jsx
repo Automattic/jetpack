@@ -3,7 +3,6 @@
  */
 import PropTypes from 'prop-types';
 import React from 'react';
-import { noop } from 'lodash';
 import classNames from 'classnames';
 
 /**
@@ -15,7 +14,16 @@ import ConnectButton from 'components/connect-button';
 import Gridicon from 'components/gridicon';
 
 class ConnectionBanner extends Banner {
-	// TODO: Make this generic by passing ConnectButton props to ConnectionBanner
+	static propTypes = {
+		title: PropTypes.string.isRequired,
+		className: PropTypes.string,
+		description: PropTypes.node,
+		icon: PropTypes.string,
+		connectUser: PropTypes.bool,
+		from: PropTypes.string,
+		asLink: PropTypes.bool,
+		connectInPlace: PropTypes.bool,
+	};
 
 	getIcon() {
 		const icon = this.props.icon;
@@ -33,7 +41,14 @@ class ConnectionBanner extends Banner {
 	}
 
 	getContent() {
-		const { description, title } = this.props;
+		const { description, title, connectUser, from, asLink, connectInPlace } = this.props;
+
+		const connectButtonProps = {
+			connectUser: connectUser,
+			from: from,
+			asLink: asLink,
+			connectInPlace: connectInPlace,
+		};
 
 		return (
 			<div className="dops-banner__content">
@@ -42,7 +57,7 @@ class ConnectionBanner extends Banner {
 					{ description && <div className="dops-banner__description">{ description }</div> }
 				</div>
 				<div className="dops-banner__action">
-					<ConnectButton connectUser={ true } from="unlinked-user-connect" />
+					<ConnectButton { ...connectButtonProps } />
 				</div>
 			</div>
 		);
