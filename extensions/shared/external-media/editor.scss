@@ -339,6 +339,12 @@ $grid-size: 8px;
 
 .jetpack-external-media-date-filter {
 	display: flex;
+
+	button {
+		// Adjust button to match the size and position of inputs.
+		margin-top: 22px;
+		height: 40px;
+	}
 }
 
 @media only screen and ( min-width: 600px ) {
@@ -351,5 +357,11 @@ $grid-size: 8px;
 	.jetpack-external-media-header__view {
 		flex-direction: row;
 		align-items: center;
+	}
+}
+
+@media only screen and ( min-width: 783px ) {
+	.jetpack-external-media-date-filter button {
+		height: 30px;
 	}
 }
