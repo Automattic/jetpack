@@ -18,6 +18,7 @@ use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\Plugin\Tracking as Plugin_Tracking;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 
 /*
 Options:
@@ -709,10 +710,14 @@ class Jetpack {
 			jetpack_require_lib( 'functions.wp-notify' );
 		}
 
-		// Hide edit post link if mobile app.
-		if ( Jetpack_User_Agent_Info::is_mobile_app() ) {
-			add_filter( 'get_edit_post_link', '__return_empty_string' );
-		}
+		add_action(
+			'plugins_loaded',
+			function() {
+				if ( User_Agent_Info::is_mobile_app() ) {
+					add_filter( 'get_edit_post_link', '__return_empty_string' );
+				}
+			}
+		);
 
 		// Update the Jetpack plan from API on heartbeats.
 		add_action( 'jetpack_heartbeat', array( 'Jetpack_Plan', 'refresh_from_wpcom' ) );
@@ -1059,40 +1064,17 @@ class Jetpack {
 		}
 	}
 
-	function jetpack_custom_caps( $caps, $cap, $user_id, $args ) {
+	/**
+	 * Sets the Jetpack custom capabilities.
+	 *
+	 * @param string[] $caps    Array of the user's capabilities.
+	 * @param string   $cap     Capability name.
+	 * @param int      $user_id The user ID.
+	 * @param array    $args    Adds the context to the cap. Typically the object ID.
+	 */
+	public function jetpack_custom_caps( $caps, $cap, $user_id, $args ) {
 		$is_development_mode = ( new Status() )->is_development_mode();
 		switch ( $cap ) {
-			case 'jetpack_connect':
-			case 'jetpack_reconnect':
-				if ( $is_development_mode ) {
-					$caps = array( 'do_not_allow' );
-					break;
-				}
-				/**
-				 * Pass through. If it's not development mode, these should match disconnect.
-				 * Let users disconnect if it's development mode, just in case things glitch.
-				 */
-			case 'jetpack_disconnect':
-				/**
-				 * In multisite, can individual site admins manage their own connection?
-				 *
-				 * Ideally, this should be extracted out to a separate filter in the Jetpack_Network class.
-				 */
-				if ( is_multisite() && ! is_super_admin() && is_plugin_active_for_network( 'jetpack/jetpack.php' ) ) {
-					if ( ! Jetpack_Network::init()->get_option( 'sub-site-connection-override' ) ) {
-						/**
-						 * We need to update the option name -- it's terribly unclear which
-						 * direction the override goes.
-						 *
-						 * @todo: Update the option name to `sub-sites-can-manage-own-connections`
-						 */
-						$caps = array( 'do_not_allow' );
-						break;
-					}
-				}
-
-				$caps = array( 'manage_options' );
-				break;
 			case 'jetpack_manage_modules':
 			case 'jetpack_activate_modules':
 			case 'jetpack_deactivate_modules':
@@ -1121,13 +1103,6 @@ class Jetpack {
 				} else {
 					$caps = array( 'read' );
 				}
-				break;
-			case 'jetpack_connect_user':
-				if ( $is_development_mode ) {
-					$caps = array( 'do_not_allow' );
-					break;
-				}
-				$caps = array( 'read' );
 				break;
 		}
 		return $caps;
@@ -1167,24 +1142,6 @@ class Jetpack {
 	 * @return null
 	 */
 	public function register_assets() {
-		if ( ! wp_script_is( 'spin', 'registered' ) ) {
-			wp_register_script(
-				'spin',
-				Assets::get_file_url_for_environment( '_inc/build/spin.min.js', '_inc/spin.js' ),
-				false,
-				'1.3'
-			);
-		}
-
-		if ( ! wp_script_is( 'jquery.spin', 'registered' ) ) {
-			wp_register_script(
-				'jquery.spin',
-				Assets::get_file_url_for_environment( '_inc/build/jquery.spin.min.js', '_inc/jquery.spin.js' ),
-				array( 'jquery', 'spin' ),
-				'1.3'
-			);
-		}
-
 		if ( ! wp_script_is( 'jetpack-gallery-settings', 'registered' ) ) {
 			wp_register_script(
 				'jetpack-gallery-settings',
@@ -3378,10 +3335,10 @@ p {
 			$tracking = new Tracking();
 			$tracking->record_user_event( 'disconnect_site', array() );
 
-			$connection->disconnect_site_wpcom();
+			$connection->disconnect_site_wpcom( true );
 		}
 
-		$connection->delete_all_connection_tokens();
+		$connection->delete_all_connection_tokens( true );
 		Jetpack_IDC::clear_all_idc_options();
 
 		if ( $update_activated_state ) {
@@ -6302,25 +6259,9 @@ endif;
 	public static function validate_sync_error_idc_option() {
 		$is_valid = false;
 
-		$idc_allowed = get_transient( 'jetpack_idc_allowed' );
-		if ( false === $idc_allowed ) {
-			$response = wp_remote_get( 'https://jetpack.com/is-idc-allowed/' );
-			if ( 200 === (int) wp_remote_retrieve_response_code( $response ) ) {
-				$json               = json_decode( wp_remote_retrieve_body( $response ) );
-				$idc_allowed        = isset( $json, $json->result ) && $json->result ? '1' : '0';
-				$transient_duration = HOUR_IN_SECONDS;
-			} else {
-				// If the request failed for some reason, then assume IDC is allowed and set shorter transient.
-				$idc_allowed        = '1';
-				$transient_duration = 5 * MINUTE_IN_SECONDS;
-			}
-
-			set_transient( 'jetpack_idc_allowed', $idc_allowed, $transient_duration );
-		}
-
 		// Is the site opted in and does the stored sync_error_idc option match what we now generate?
 		$sync_error = Jetpack_Options::get_option( 'sync_error_idc' );
-		if ( $idc_allowed && $sync_error && self::sync_idc_optin() ) {
+		if ( $sync_error && self::sync_idc_optin() ) {
 			$local_options = self::get_sync_error_idc_option();
 			// Ensure all values are set.
 			if ( isset( $sync_error['home'] ) && isset( $local_options['home'] ) && isset( $sync_error['siteurl'] ) && isset( $local_options['siteurl'] ) ) {
@@ -6339,7 +6280,7 @@ endif;
 		 */
 		$is_valid = (bool) apply_filters( 'jetpack_sync_error_idc_validation', $is_valid );
 
-		if ( ! $idc_allowed || ( ! $is_valid && $sync_error ) ) {
+		if ( ! $is_valid && $sync_error ) {
 			// Since the option exists, and did not validate, delete it
 			Jetpack_Options::delete_option( 'sync_error_idc' );
 		}

@@ -8,8 +8,10 @@ import { createBlock } from '@wordpress/blocks';
  * Internal dependencies
  */
 import attributes from './attributes';
+import deprecatedV1 from './deprecated/v1';
 import edit from './edit';
 import icon from './icon';
+import save from './save';
 import { getAttributesFromEmbedCode, REGEX } from './utils';
 
 /**
@@ -19,6 +21,16 @@ import './editor.scss';
 import { supportsCollections } from '../../shared/block-category';
 
 export const CALENDLY_EXAMPLE_URL = 'https://calendly.com/wordpresscom/jetpack-block-example';
+
+export const innerButtonBlock = {
+	name: 'jetpack/button',
+	attributes: {
+		element: 'a',
+		text: __( 'Schedule time with me', 'jetpack' ),
+		uniqueId: 'calendly-widget-id',
+		url: CALENDLY_EXAMPLE_URL,
+	},
+};
 
 export const name = 'calendly';
 export const title = __( 'Calendly', 'jetpack' );
@@ -40,15 +52,15 @@ export const settings = {
 		html: false,
 	},
 	edit,
-	save: ( { attributes: { url } } ) => <a href={ url }>{ url }</a>,
+	save,
 	attributes,
 	example: {
 		attributes: {
-			submitButtonText: __( 'Schedule time with me', 'jetpack' ),
 			hideEventTypeDetails: false,
 			style: 'inline',
 			url: CALENDLY_EXAMPLE_URL,
 		},
+		innerBlocks: [ innerButtonBlock ],
 	},
 	transforms: {
 		from: [
@@ -62,4 +74,5 @@ export const settings = {
 			},
 		],
 	},
+	deprecated: [ deprecatedV1 ],
 };

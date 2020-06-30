@@ -31,6 +31,7 @@ class Jetpack_Plan {
 			'supports' => array(
 				'opentable',
 				'calendly',
+				'send-a-message',
 			),
 		),
 		'personal' => array(

@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInitf3594684bf2c735a6e446b3ad6b3f4a0
+class ComposerStaticInit6211293ef1e53cb9cf5f9c5b779eea3e
 {
     public static $files = array (
         'bce4ecd6aabb2a2948e06d0e2c4ea9a6' => __DIR__ . '/..' . '/automattic/jetpack-connection/legacy/load-ixr.php',
@@ -35,6 +35,8 @@ class ComposerStaticInitf3594684bf2c735a6e446b3ad6b3f4a0
         'Automattic\\Jetpack\\Backup\\Helper_Script_Manager' => __DIR__ . '/..' . '/automattic/jetpack-backup/src/class-helper-script-manager.php',
         'Automattic\\Jetpack\\Config' => __DIR__ . '/..' . '/automattic/jetpack-config/src/class-config.php',
         'Automattic\\Jetpack\\Connection\\Client' => __DIR__ . '/..' . '/automattic/jetpack-connection/src/class-client.php',
+        'Automattic\\Jetpack\\Connection\\Error_Handler' => __DIR__ . '/..' . '/automattic/jetpack-connection/src/class-error-handler.php',
+        'Automattic\\Jetpack\\Connection\\Error_Handlers\\Invalid_Blog_Token' => __DIR__ . '/..' . '/automattic/jetpack-connection/src/error-handlers/class-invalid-blog-token.php',
         'Automattic\\Jetpack\\Connection\\Manager' => __DIR__ . '/..' . '/automattic/jetpack-connection/src/class-manager.php',
         'Automattic\\Jetpack\\Connection\\Manager_Interface' => __DIR__ . '/..' . '/automattic/jetpack-connection/src/interface-manager.php',
         'Automattic\\Jetpack\\Connection\\Plugin' => __DIR__ . '/..' . '/automattic/jetpack-connection/src/class-plugin.php',
@@ -43,6 +45,8 @@ class ComposerStaticInitf3594684bf2c735a6e446b3ad6b3f4a0
         'Automattic\\Jetpack\\Connection\\Utils' => __DIR__ . '/..' . '/automattic/jetpack-connection/src/class-utils.php',
         'Automattic\\Jetpack\\Connection\\XMLRPC_Connector' => __DIR__ . '/..' . '/automattic/jetpack-connection/src/class-xmlrpc-connector.php',
         'Automattic\\Jetpack\\Constants' => __DIR__ . '/..' . '/automattic/jetpack-constants/src/class-constants.php',
+        'Automattic\\Jetpack\\Device_Detection' => __DIR__ . '/..' . '/automattic/jetpack-device-detection/src/class-device-detection.php',
+        'Automattic\\Jetpack\\Device_Detection\\User_Agent_Info' => __DIR__ . '/..' . '/automattic/jetpack-device-detection/src/class-user-agent-info.php',
         'Automattic\\Jetpack\\Error' => __DIR__ . '/..' . '/automattic/jetpack-error/src/class-error.php',
         'Automattic\\Jetpack\\JITMS\\JITM' => __DIR__ . '/..' . '/automattic/jetpack-jitm/src/class-jitm.php',
         'Automattic\\Jetpack\\JITMS\\Post_Connection_JITM' => __DIR__ . '/..' . '/automattic/jetpack-jitm/src/class-post-connection-jitm.php',
@@ -114,9 +118,9 @@ class ComposerStaticInitf3594684bf2c735a6e446b3ad6b3f4a0
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInitf3594684bf2c735a6e446b3ad6b3f4a0::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInitf3594684bf2c735a6e446b3ad6b3f4a0::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInitf3594684bf2c735a6e446b3ad6b3f4a0::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit6211293ef1e53cb9cf5f9c5b779eea3e::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit6211293ef1e53cb9cf5f9c5b779eea3e::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit6211293ef1e53cb9cf5f9c5b779eea3e::$classMap;
 
         }, null, ClassLoader::class);
     }

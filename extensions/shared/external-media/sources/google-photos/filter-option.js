@@ -1,16 +1,18 @@
 /**
  * External dependencies
  */
-import { dateI18n, __experimentalGetSettings } from '@wordpress/date';
 import { __ } from '@wordpress/i18n';
-import { SelectControl, Button, DateTimePicker, Dropdown } from '@wordpress/components';
+import { SelectControl, Button } from '@wordpress/components';
 import { omit } from 'lodash';
 
 /**
  * Internal dependencies
  */
-import { GOOGLE_PHOTOS_CATEGORIES } from '../../constants';
-import { getDateValue, getDateName } from './date-formatting';
+import {
+	GOOGLE_PHOTOS_CATEGORIES,
+	GOOGLE_PHOTOS_DATE_PRESETS,
+	DATE_RANGE_ANY,
+} from '../../constants';
 
 function CategoryOption( { value, updateFilter } ) {
 	return (
@@ -23,31 +25,13 @@ function CategoryOption( { value, updateFilter } ) {
 	);
 }
 
-function DateOption( { value, name, updateFilter } ) {
-	const settings = __experimentalGetSettings();
-	const update = ( selected, onToggle ) => {
-		onToggle();
-		updateFilter( selected );
-	};
-
+function DateOption( { value, updateFilter } ) {
 	return (
-		<Dropdown
-			position="bottom left"
-			renderToggle={ ( { onToggle } ) => (
-				<Button onClick={ onToggle } isTertiary>
-					{ value
-						? getDateValue( name, dateI18n( settings.formats.date, value ) )
-						: getDateName( name ) }
-				</Button>
-			) }
-			renderContent={ ( { onToggle } ) => (
-				<div className="jetpack-external-media-header__dropdown">
-					<DateTimePicker
-						onChange={ selected => update( selected, onToggle ) }
-						currentDate={ value }
-					/>
-				</div>
-			) }
+		<SelectControl
+			label={ __( 'Filter by time period', 'jetpack' ) }
+			value={ value?.range || DATE_RANGE_ANY }
+			options={ GOOGLE_PHOTOS_DATE_PRESETS }
+			onChange={ range => updateFilter( { range } ) }
 		/>
 	);
 }
@@ -78,8 +62,8 @@ function getFilterOption( optionName, optionValue, updateFilter ) {
 		return <CategoryOption value={ optionValue } updateFilter={ updateFilter } />;
 	}
 
-	if ( optionName === 'startDate' || optionName === 'endDate' ) {
-		return <DateOption value={ optionValue } name={ optionName } updateFilter={ updateFilter } />;
+	if ( optionName === 'date' ) {
+		return <DateOption value={ optionValue } updateFilter={ updateFilter } />;
 	}
 
 	if ( optionName === 'favorite' ) {
@@ -93,14 +77,16 @@ function getFilterOption( optionName, optionValue, updateFilter ) {
 	return null;
 }
 
-function FilterOption( { children, removeFilter } ) {
+function FilterOption( { children, removeFilter, isRemovable = false } ) {
 	return (
 		<div className="jetpack-external-media-googlephotos-filter">
 			{ children }
 
-			<Button onClick={ removeFilter } isSmall>
-				{ __( 'Remove Filter', 'jetpack' ) }
-			</Button>
+			{ !! isRemovable && (
+				<Button onClick={ removeFilter } isSmall>
+					{ __( 'Remove Filter', 'jetpack' ) }
+				</Button>
+			) }
 		</div>
 	);
 }

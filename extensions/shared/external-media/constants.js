@@ -12,7 +12,7 @@ export const PATH_ROOT = '/';
 export const PATH_OPTIONS = [
 	{
 		value: PATH_RECENT,
-		label: __( 'Recent Photos', 'jetpack' ),
+		label: __( 'Photos', 'jetpack' ),
 	},
 	{
 		value: PATH_ROOT,
@@ -134,4 +134,37 @@ export const PEXELS_EXAMPLE_QUERIES = [
 	'pattern',
 	'abstract',
 	'sky',
+];
+export const DATE_RANGE_ANY = 'ANY';
+export const DATE_RANGE_LAST_7_DAYS = 'LAST_7_DAYS';
+export const DATE_RANGE_LAST_30_DAYS = 'LAST_30_DAYS';
+export const DATE_RANGE_LAST_6_MONTHS = 'LAST_6_MONTHS';
+export const DATE_RANGE_LAST_12_MONTHS = 'LAST_12_MONTHS';
+export const DATE_RANGE_CUSTOM = 'CUSTOM';
+export const GOOGLE_PHOTOS_DATE_PRESETS = [
+	{
+		value: DATE_RANGE_ANY,
+		label: __( 'Any time', 'jetpack' ),
+	},
+	{
+		value: DATE_RANGE_LAST_7_DAYS,
+		label: __( 'Last 7 days', 'jetpack' ),
+	},
+	{
+		value: DATE_RANGE_LAST_30_DAYS,
+		label: __( 'Last 30 days', 'jetpack' ),
+	},
+	{
+		value: DATE_RANGE_LAST_6_MONTHS,
+		label: __( 'Last 6 months', 'jetpack' ),
+	},
+	{
+		value: DATE_RANGE_LAST_12_MONTHS,
+		label: __( 'Last 12 months', 'jetpack' ),
+	},
+	// TODO: Implement a UI for selecting month & year.
+	//{
+	//	value: DATE_RANGE_CUSTOM,
+	//	label: __( 'Custom Range', 'jetpack' ),
+	//},
 ];

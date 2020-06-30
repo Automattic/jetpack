@@ -22,6 +22,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 if ( '1' == get_option( 'blog_public' ) ) { // loose comparison okay.
 	include_once __DIR__ . '/sitemaps/sitemaps.php';
+
+	// Disable WordPress 5.5-era sitemaps.
+	add_filter( 'wp_sitemaps_enabled', '__return_false' );
 }
 
 add_action( 'jetpack_activate_module_sitemaps', 'jetpack_sitemap_on_activate' );

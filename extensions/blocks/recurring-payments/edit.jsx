@@ -22,6 +22,7 @@ import {
 } from '@wordpress/components';
 import { InspectorControls, BlockIcon } from '@wordpress/block-editor';
 import { Fragment, Component } from '@wordpress/element';
+import { applyFilters } from '@wordpress/hooks';
 
 /**
  * Internal dependencies
@@ -248,7 +249,7 @@ class MembershipsButtonEdit extends Component {
 					isLarge
 					onClick={ () => this.setState( { addingMembershipAmount: PRODUCT_FORM } ) }
 				>
-					{ __( 'Add a plan', 'jetpack' ) }
+					{ __( 'Add a payment plan', 'jetpack' ) }
 				</Button>
 			);
 		}
@@ -310,6 +311,10 @@ class MembershipsButtonEdit extends Component {
 							label: __( 'Yearly', 'jetpack' ),
 							value: '1 year',
 						},
+						{
+							label: __( 'One-Time Payment', 'jetpack' ),
+							value: 'one-time',
+						},
 					] }
 					value={ this.state.editedProductRenewInterval }
 				/>
@@ -320,7 +325,7 @@ class MembershipsButtonEdit extends Component {
 						className="membership-button__field-button membership-button__add-amount"
 						onClick={ this.saveProduct }
 					>
-						{ __( 'Add this plan', 'jetpack' ) }
+						{ __( 'Add this payment plan', 'jetpack' ) }
 					</Button>
 					<Button
 						isLarge
@@ -374,8 +379,8 @@ class MembershipsButtonEdit extends Component {
 	renderDisclaimer = () => {
 		return (
 			<div className="membership-button__disclaimer">
-				<ExternalLink href="https://en.support.wordpress.com/recurring-payments-button/#related-fees">
-					{ __( 'Read more about Recurring Payments and related fees.', 'jetpack' ) }
+				<ExternalLink href="https://wordpress.com/support/wordpress-editor/blocks/payments/#related-fees">
+					{ __( 'Read more about Payments and related fees.', 'jetpack' ) }
 				</ExternalLink>
 			</div>
 		);
@@ -415,9 +420,21 @@ class MembershipsButtonEdit extends Component {
 
 		const stripeConnectUrl = this.getConnectUrl();
 
+		/**
+		 * Filters the flag that determines if the Recurring Payments block controls should be shown in the inspector.
+		 *
+		 * @param {bool} showControls Whether inspectors controls are shown.
+		 * @param {string} showControls Block ID.
+		 */
+		const showControls = applyFilters(
+			'jetpack.RecurringPayments.showControls',
+			products.length > 0,
+			this.props.clientId
+		);
+
 		const inspectorControls = (
 			<InspectorControls>
-				<PanelBody title={ __( 'Product', 'jetpack' ) }>
+				<PanelBody title={ __( 'Payment plan', 'jetpack' ) }>
 					<SelectControl
 						label={ __( 'Payment plan', 'jetpack' ) }
 						value={ this.props.attributes.planId }
@@ -431,7 +448,7 @@ class MembershipsButtonEdit extends Component {
 				</PanelBody>
 				<PanelBody title={ __( 'Management', 'jetpack' ) }>
 					<ExternalLink href={ `https://wordpress.com/earn/payments/${ this.state.siteSlug }` }>
-						{ __( 'See your earnings, subscriber list, and products.', 'jetpack' ) }
+						{ __( 'See your earnings, subscriber list, and payment plans.', 'jetpack' ) }
 					</ExternalLink>
 				</PanelBody>
 			</InspectorControls>
@@ -449,10 +466,10 @@ class MembershipsButtonEdit extends Component {
 					<div className="wp-block-jetpack-recurring-payments">
 						<Placeholder
 							icon={ <BlockIcon icon={ icon } /> }
-							label={ __( 'Recurring Payments', 'jetpack' ) }
+							label={ __( 'Payments', 'jetpack' ) }
 							notices={ notices }
 							instructions={ __(
-								"You'll need to upgrade your plan to use the Recurring Payments button.",
+								"You'll need to upgrade your plan to use the Payments block.",
 								'jetpack'
 							) }
 						>
@@ -477,7 +494,7 @@ class MembershipsButtonEdit extends Component {
 						<div className="wp-block-jetpack-recurring-payments">
 							<Placeholder
 								icon={ <BlockIcon icon={ icon } /> }
-								label={ __( 'Recurring Payments', 'jetpack' ) }
+								label={ __( 'Payments', 'jetpack' ) }
 								notices={ notices }
 							>
 								<div className="components-placeholder__instructions">
@@ -498,7 +515,7 @@ class MembershipsButtonEdit extends Component {
 						<div className="wp-block-jetpack-recurring-payments">
 							<Placeholder
 								icon={ <BlockIcon icon={ icon } /> }
-								label={ __( 'Recurring Payments', 'jetpack' ) }
+								label={ __( 'Payments', 'jetpack' ) }
 								notices={ notices }
 							>
 								<div className="components-placeholder__instructions">
@@ -516,7 +533,7 @@ class MembershipsButtonEdit extends Component {
 							</Placeholder>
 						</div>
 					) }
-				{ products.length > 0 && inspectorControls }
+				{ showControls && inspectorControls }
 				{ ( ( ( this.hasUpgradeNudge || ! this.state.shouldUpgrade ) &&
 					connected !== API_STATE_LOADING ) ||
 					this.props.attributes.planId ) && (

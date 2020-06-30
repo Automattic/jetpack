@@ -266,6 +266,24 @@ class Jetpack_Search_Widget extends WP_Widget {
 	}
 
 	/**
+	 * Populates the instance array with appropriate default values.
+	 *
+	 * @since 8.6.0
+	 * @param array $instance Previously saved values from database.
+	 * @return array Instance array with default values approprate for instant search
+	 */
+	public function populate_defaults_for_instant_search( $instance ) {
+		return wp_parse_args(
+			(array) $instance,
+			array(
+				'title'      => '',
+				'filters'    => array(),
+				'post_types' => array(),
+			)
+		);
+	}
+
+	/**
 	 * Responsible for rendering the widget on the frontend.
 	 *
 	 * @since 5.0.0
@@ -421,22 +439,13 @@ class Jetpack_Search_Widget extends WP_Widget {
 		}
 
 		$filters = Jetpack_Search::instance()->get_filters();
-
 		if ( ! Jetpack_Search_Helpers::are_filters_by_widget_disabled() && ! $this->should_display_sitewide_filters() ) {
 			$filters = array_filter( $filters, array( $this, 'is_for_current_widget' ) );
 		}
 
 		$display_filters = ! empty( $filters );
 
-		if ( ! $display_filters && empty( $instance['search_box_enabled'] ) ) {
-			return;
-		}
-
-		$title = isset( $instance['title'] ) ? $instance['title'] : '';
-
-		if ( empty( $title ) ) {
-			$title = '';
-		}
+		$title = ! empty( $instance['title'] ) ? $instance['title'] : '';
 
 		/** This filter is documented in core/src/wp-includes/default-widgets.php */
 		$title = apply_filters( 'widget_title', $title, $instance, $this->id_base );
@@ -461,10 +470,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 			do_action( 'jetpack_search_render_filters_widget_title', $title, $args['before_title'], $args['after_title'] );
 		}
 
-		// TODO: create new search box?
-		if ( ! empty( $instance['search_box_enabled'] ) ) {
-			Jetpack_Search_Template_Tags::render_widget_search_form( array(), '', '' );
-		}
+		Jetpack_Search_Template_Tags::render_widget_search_form( array(), '', '' );
 
 		if ( $display_filters ) {
 			/**
@@ -689,9 +695,13 @@ class Jetpack_Search_Widget extends WP_Widget {
 	 *
 	 * @since 5.0.0
 	 *
-	 * @param array $instance Current settings.
+	 * @param array $instance Previously saved values from database.
 	 */
 	public function form( $instance ) {
+		if ( Jetpack_Search_Options::is_instant_enabled() ) {
+			return $this->form_for_instant_search( $instance );
+		}
+
 		$instance = $this->jetpack_search_populate_defaults( $instance );
 
 		$title = strip_tags( $instance['title'] );
@@ -730,6 +740,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 					<?php esc_html_e( 'Show search box', 'jetpack' ); ?>
 				</label>
 			</p>
+
 			<p>
 				<label>
 					<input
@@ -799,6 +810,74 @@ class Jetpack_Search_Widget extends WP_Widget {
 						</a>
 					</p>
 				<?php endif; ?>
+			<?php endif; ?>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Outputs the widget update form to be used in the Customizer for Instant Search.
+	 *
+	 * @since 8.6.0
+	 *
+	 * @param array $instance Previously saved values from database.
+	 */
+	private function form_for_instant_search( $instance ) {
+		$instance = $this->populate_defaults_for_instant_search( $instance );
+		$classes  = sprintf( 'jetpack-search-filters-widget %s', $this->id );
+
+		?>
+		<div class="<?php echo esc_attr( $classes ); ?>">
+			<!-- Title control -->
+			<p>
+				<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>">
+					<?php esc_html_e( 'Title (optional):', 'jetpack' ); ?>
+				</label>
+				<input
+					class="widefat"
+					id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"
+					name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>"
+					type="text"
+					value="<?php echo esc_attr( wp_strip_all_tags( $instance['title'] ) ); ?>"
+				/>
+			</p>
+
+			<!-- Post types control -->
+			<p class="jetpack-search-filters-widget__post-types-select">
+				<label><?php esc_html_e( 'Post types to search (minimum of 1):', 'jetpack' ); ?></label>
+				<?php foreach ( get_post_types( array( 'exclude_from_search' => false ), 'objects' ) as $post_type ) : ?>
+					<label>
+						<input
+							type="checkbox"
+							value="<?php echo esc_attr( $post_type->name ); ?>"
+							name="<?php echo esc_attr( $this->get_field_name( 'post_types' ) ); ?>[]"
+							<?php checked( empty( $instance['post_types'] ) || in_array( $post_type->name, $instance['post_types'], true ) ); ?>
+						/>&nbsp;
+						<?php echo esc_html( $post_type->label ); ?>
+					</label>
+				<?php endforeach; ?>
+			</p>
+
+			<!-- Filters control -->
+			<?php if ( ! Jetpack_Search_Helpers::are_filters_by_widget_disabled() ) : ?>
+				<div class="jetpack-search-filters-widget__filters">
+					<?php foreach ( (array) $instance['filters'] as $filter ) : ?>
+						<?php $this->render_widget_edit_filter( $filter ); ?>
+					<?php endforeach; ?>
+				</div>
+				<p class="jetpack-search-filters-widget__add-filter-wrapper">
+					<a class="button jetpack-search-filters-widget__add-filter" href="#">
+						<?php esc_html_e( 'Add a filter', 'jetpack' ); ?>
+					</a>
+				</p>
+				<script class="jetpack-search-filters-widget__filter-template" type="text/template">
+					<?php $this->render_widget_edit_filter( array(), true ); ?>
+				</script>
+				<noscript>
+					<p class="jetpack-search-filters-help">
+						<?php echo esc_html_e( 'Adding filters requires JavaScript!', 'jetpack' ); ?>
+					</p>
+				</noscript>
 			<?php endif; ?>
 		</div>
 		<?php
@@ -929,7 +1008,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 
 			<p class="jetpack-search-filters-widget__date-histogram-select">
 				<label>
-					<?php esc_html_e( 'Choose an interval:' ); ?>
+					<?php esc_html_e( 'Choose an interval:', 'jetpack' ); ?>
 					<select name="<?php echo esc_attr( $this->get_field_name( 'date_histogram_interval' ) ); ?>[]" class="widefat date-interval-select">
 						<option value="month" <?php $this->render_widget_option_selected( 'interval', $args['interval'], 'month', $is_template ); ?>>
 							<?php esc_html_e( 'Month', 'jetpack' ); ?>

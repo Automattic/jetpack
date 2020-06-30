@@ -5,6 +5,7 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Scan\Admin_Bar_Notice;
+use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 
 require_once dirname( __FILE__ ) . '/rtl-admin-bar.php';
 
@@ -99,7 +100,7 @@ class A8C_WPCOM_Masterbar {
 		}
 
 		// Don't show the masterbar on WordPress mobile apps.
-		if ( Jetpack_User_Agent_Info::is_mobile_app() ) {
+		if ( User_Agent_Info::is_mobile_app() ) {
 			add_filter( 'show_admin_bar', '__return_false' );
 			return;
 		}
