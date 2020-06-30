@@ -2,6 +2,137 @@
 
 **This is a list detailing changes for all Jetpack releases.**
 
+= 8.7 =
+
+* Release date: July 7, 2020
+* Release post: https://wp.me/p1moTy-qiH
+
+**Major Enhancements**
+
+* When inserting images into your posts, you can now choose images from your Google Photos account, or from the Pexels Free Photos library.
+* WhatsApp block: this new block adds a button so your site's visitors can contact you via WhatsApp with the tap of a button.
+* You can now import Twitter threads into a post with the click of a button.
+* Jetpack Search now includes more options to customize the look of the Search overlay: you can choose between minimal and expanded results, you can hide the Sort option, or change the default sorting option.
+* Jetpack Ads: you can now enable a "Do Not Sell My Personal Information" link as specified in the California Consumer Privacy Act (CCPA) for California site visitors to opt-out of targeted advertising.
+
+**Enhancements**
+
+* Blocks: add more options to customize the look of the Payments block.
+* Blocks: allowing playing a Jetpack video in the block editor.
+* Blocks: add episode link and improve the look of the Podcast player when displaying only one episode.
+* Blocks: add more customization options to the buttons offered by the following blocks: Calendly, Mailchimp, Eventbrite.
+* Blocks: rename "Earn" blocks: "Simple Payments" becomes "Pay with Paypal"; "Recurring Payments" becomes "Payments".
+* Connection Flow: improve the display of connection errors when a site cannot be connected to WordPress.com.
+* Contact Form: improve the "Empty Spam" process to better handle large amount of Spam.
+* Jetpack Search: use the full width of the browser when the site does not use any Jetpack Search Sidebar.
+* Performance: switch from JavaScript library to CSS animations to display loading spinners.
+* Related Posts: improve accessibility of the titles of each Related Post.
+* Site Stats: improve accessibility of the Stats dashboard.
+* Social Logos: update Facebook Logo design.
+* Widgets: improve accessibility of the Contact Info Widget as well as the Blog Stats Widget.
+* Widgets: improve performance of the Display Posts widget by fetching less data.
+
+**Improved compatibility**
+
+* Autoloader: improve the way Jetpack librairies are loaded when used in multiple plugins.
+* Blocks: improve the display of the Tiled Gallery block when used with the AMP plugin.
+* Custom Content Types: ensure that the Comic Post Type is compatible with the AMP plugin.
+* Custom Content Types: allow third-party themes to enqueue their own Portfolio styles.
+* Gravatar Hovercards: avoid validation errors when used with the AMP plugin.
+* Open Graph Meta Tags: avoid displaying Jetpack's Tags when the Rank Math plugin is active.
+* Shortcodes / Embeds: ensure better compatibility of multiple embeds with the AMP plugin.
+* Sharing: ensure that all button styles can be used with the AMP plugin.
+* Sitemaps: avoid conflicts with the Sitemap option that will be available in the upcoming version of WordPress.
+* WordPress.com Toolbar: ensure it is accessible when using the Twenty Twenty theme.
+* WooCommerce: avoid broken resources when using the WooCommerce plugin alongside Jetpack.
+
+**Bug fixes**
+
+* Blocks: avoid layout issues when using the Image Compare block alongside older themes.
+* Blocks: ensure the Eventbrite button can be centered.
+* Blocks: ensure the Podcast block can be loaded when the page is loaded via Infinite Scroll.
+* Blocks: do not render the Slideshow block's markup when no images have been added to the block.
+* Blocks: avoid errors when one adds and edits 2 Image Compare Blocks in a single post.
+* Blocks: fix Form block issues with checkbox fields not being checked by default when the option is selected.
+* Blocks: add missing "Required" option to the Form block's Checkbox field settings.
+* Blocks: avoid caching results from the Latest Instagram Posts block when there are errors with the fetched data.
+* Forms: improve accessibility of the "Required" text used in form fields.
+* Image CDN: avoid using CDN image URL when inserting an image using the image block.
+* Jetpack Search: load translations in the Search overlay on International sites.
+* Publicize: avoid layout issues when displaying broken connections in the Publicize block toolbar.
+* Sharing: avoid relying on jQuery for the official Facebook button.
+* Shortcodes / Embeds: fix the Twitch embed according to new Twitch embed requirements.
+* SEO Tools / Open Graph: improve cleaning up of description meta tags.
+
+= 8.6.1 =
+
+* Release date: June 2, 2020
+
+**Bug Fixes**
+
+* Resolves PHP notice when generating Twitter Cards for posts with images without saved size information.
+* Resolves an issue that can lead to excessive SQL queries.
+
+= 8.6 =
+
+* Release date: June 2, 2020
+* Release post: https://wp.me/p1moTy-pb1
+
+**Major Enhancements**
+
+* Image Compare Block: show off your before / after pictures! This new block allows you to easily compare two images with a slider.
+* Latest Instagram Posts Block: this new block allows you to insert lists of the latest posts from your Instagram feed, on any post or page of your site.
+
+**Enhancements**
+
+* Blocks: add new RSVP, Registration, Appointment, and Feedback form options to the existing Form block.
+* Blocks: add new width option to Form block fields.
+* Blocks: add more customization options to the Subscriptions block.
+* Blocks: use the Mailchimp logo for the Mailchimp block icon.
+* Blocks: add Schema.org metadata to the Star Rating block.
+* Blocks: add alignment options to the Revue block's button.
+* Blocks: add an example usage of the Podcast Player Block.
+* Carousel: new option to remove the Comment form area from the Carousel view.
+* Connection Flow: add new tools allowing for a better Jetpack onboarding for new Jetpack site owners.
+* Connection Flow: ensure connection can happen on sites that can be a bit slower.
+* Dashboard: add new sections for the upcoming Scan feature.
+* Dashboard: allow for easy copying of Sitemap URLs from within the dashboard.
+* Infinite Scroll: add support for running inline scripts.
+* Performance: improve autoloading of Jetpack options.
+* Twitter Cards: use additional post-specific media for Twitter card tags.
+* Synchronization: new experimental feature aiming to minimize the impact of Sync on servers, by having Synchronization actions processed by WordPress.com asynchronously.
+* WordPress.com Toolbar: remove retired "Recommendations" link.
+* WordPress.com Block Editor: offer an option to "Switch to Classic Editor".
+
+**Improved compatibility**
+
+* Blocks: ensure that the Video block can still be used to upload videos with the latest version of the Gutenberg plugin.
+* Connection tools: ensure better compatibility with other plugins that may rely on a Jetpack connection.
+* Contact Form: improve compatibility with the Akismet service.
+* Google Analytics: ensure compatibility with the AMP plugin.
+* Shortcodes & Embeds: ensure that the slideshow and TED shortcodes are compatible with the AMP plugin.
+* SSO: allow third-party plugins to hook into Jetpack's Secure Sign On login form.
+* Widgets: ensure that the Cookies & Consent widget is compatible with the AMP plugin.
+* WordPress.com REST API: improve compatibility with the block editor.
+
+**Bug fixes**
+
+* Blocks: avoid layout issues with the OpenTable block's button.
+* Blocks: fix SVG attributes naming.
+* Blocks: fix infinite scroll compatibility.
+* Blocks: improve the display of currencies in Recurring Payments block.
+* Blocks: ensure Podcast Player icons are always visible, even on sites where WordPress lives in a subdirectory.
+* Dashboard: avoid broken profile image in the Jetpack Dashboard.
+* Embeds: stop using deprecated WordPress option.
+* Embeds: ensure that all valid Spotify embeds are being rendered.
+* Infinite Scroll: fix issues with sites that may customize post queries.
+* Related posts: avoid making requests for Related posts in embedded posts.
+* Search: fix issues with the Instant Search layout when the number of posts per page is set to more than 20.
+* Site Accelerator: avoid breaking links when linking to Wikimedia images.
+* Site Health Tools: correct issue that prevented the WordPress Site Health area from completing all checks.
+* Synchronization: ensure data is properly handled when customizing the Sync experience.
+* Theme Tools: add correct schema.org value for Jetpack Breadcrumbs.
+
 = 8.5 =
 
 * Release date: May 5, 2020

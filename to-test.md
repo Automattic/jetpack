@@ -1,71 +1,49 @@
-## 8.6
+## 8.7
+
+### Ads
+
+Jetpack's Ads feature now includes a "Do Not Sell My Personal Information" setting, as specified in the California Consumer Privacy Act (CCPA) for California site visitors to opt-out of targeted advertising.
+
+To test this, on a site with a Jetpack Premium or Professional plan, enable Ads under Jetpack > Settings > Traffic. On that same card, you'll have access to CCPA options.
+
+- You can then place the Do Not Sell widget or shortcode (`[[ccpa-do-not-sell-link]]`) on the homepage (likely in the footer area).
+- Verify the "Do Not Sell My Personal Information" link appears
+- Click the link, and verify the Modal Notice appears
+- Verify the usprivacy cookie is set to `1YNN`
+- Opt-out from the Modal Notice
+- Verify the usprivacy cookie is set to `1YYN`
+
+### Autoloader
+
+We've made some changes to the "Autoloader" tool we use to manage Jetpack libraries that are used in multiple plugins on the same site. This change should have no performance impact on sites using multiple plugins that rely on Jetpack libraries. The VaultPress plugin is a good example; you should be able to keep using both VaultPress and Jetpack with no issues. You can also test using a plugin like [this one](https://github.com/Automattic/client-example).
 
 ### Blocks
 
-#### Image Compare
+#### External Media
 
-This new block allows you to display and compare two images thanks to a slider. Give it a try by uploading 2 different images into the block (works best with images of the same size).
+When inserting images in the block editor, you can now choose images from your Google Photos account, or from the Pexels Free Photos library. To test this, try using an image, gallery, tiled gallery, or slideshow block and see the new options appear next to the usual option to pick images from your media library.
 
-#### Latest Instagram Posts
+The images you pick should get added to your Media Library for you, and you should be able to continue to use the blocks with no issues.
 
-This new block allows you to display an automatically updating list of the latest posts from your Instagram feed. Give it a try with your own Instagram account, and let us know what you think!
+#### WhatsApp
 
-#### Form Block
+This new block allows you to add a button to any of your posts or pages. Try adding the button, and make sure it works well.
 
-We've also made some changes to the Form block. When you insert a new Form block, you can now choose to create one of our pre-built forms: RSVP, Registration, Appointment, or Feedback.
+### Gathering Twitter Threads
 
-Give it a try by creating a new Form block and picking one of the options. You can also play with the different customization options for each field once you've done so. One of the new options you can play with is the width of each field; this allows you to have multiple fields next to each other within a form.
+We've extended the Twitter Block and added an "Unroll" button that allows you to import full Twitter Threads and their embeds into a post. Give it a try by pasting a tweet that's part of a thread into your block editor. You should see the "unroll" option appear in the block toolbar. Click on it and let us know what you think of the results!
 
-#### Subscriptions
+#### Mailchimp, Calendly, Payments, Eventbrite
 
-We've made a lot of improvements to the Subscriptions block in this release. You now have several options to customize the look of the different elements of the form. To test this, we recommend: 
+We've made a number of changes to add more customization options to the buttons offered by the blocks above. To test this, try editing some of you existing blocks, and try creating new ones: you should now see more options to customize the block in the block sidebar, and any changes you make should appear in the block editor and on the frontend.
 
-- Inserting a subscriptions form block on your site and try all of the new settings in the sidebar for customization.
-- Saving the post and confirming the settings and design updates pass through to the front end of the site.
-- Adding the subscription form widget to a widget area and confirming this still renders and works correctly.
+### Jetpack Search
 
-### Carousel
+We've added some new options to the customizer. Try the following on a site where Jetpack's Instant Search option is activated:
 
-We've added a new toggle under Jetpack > Settings > Writing in your dashboard. It allows you to hide the comments area in the image lightbox. Try toggling it off and ensure that the carousel no longer displays the Comment button, the text box to add a comment, and the comments list.
-
-### Connection tools
-
-We've started working on a number of interface changes to improve the onboarding experience for new Jetpack site owners. To test those changes, you'll want to add the following filters to your test site:
-
-```php
-add_filter( 'jetpack_pre_connection_prompt_helpers', '__return_true' );
-add_filter( 'jetpack_show_setup_wizard', '__return_true' );
-```
-
-It will give you access to new tools:
-
-- Even before you are connected to WordPress.com, you will see messages inviting you to connect under the Posts, Upload, and Widgets admin pages.
-- Until you connect your site to WordPress.com, you will not be able to dismiss the Jetpack connection banner appearing at the top of the dashboard.
-- Once you've connected your site to WordPress.com, you will be offered a new setup experience, available under Jetpack > Set Up or by clicking in the new banner appearing on the main dashboard screen.
-
-Give those a try, and let us know what you think about them.
-
-### Scan
-
-You can now purchase [Jetpack Scan](https://jetpack.com/upgrade/scan/), a Jetpack service that will scan all files on your site and offer one-click fixes to keep your site one step ahead of security threats.
-
-We would encourage you to give the service a try, and give us your feedback on all new interface elements used by the product:
-
-- A new submenu item appearing under the Jetpack menu when you've purchased Jetpack Scan.
-- A new admin bar item appearing when threats are detected on your site.
-- An updated interface under Jetpack > Dashboard and Jetpack > Settings to display the status of Scan whether you've purchased Jetpack Scan or you use one of our Jetpack Plans offering the Scan feature.
-
-### Sync
-
-We're working on a new experimental feature aiming to minimize the impact of Sync on servers, by having Synchronization actions processed by WordPress.com asynchronously.
-
-To enable and test this feature, add the following to a functionality plugin on your site:
-
-```php
-add_filter( 'jetpack_sync_non_blocking', '__return_true' );
-```
-
-You can then test features that rely on Sync, such as Publicize or email subscriptions.
+- Go to Appearance > Customize
+- Ensure that your previous options haven't changed.
+- Try playing with all the options there; they should all be saved properly, and be reflected on the frontend of your site.
 
 ### Others
 
