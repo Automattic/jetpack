@@ -6,6 +6,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import { noop, size } from 'lodash';
+import { ProductIcon } from '@automattic/components';
 
 /**
  * Internal dependencies
@@ -15,7 +16,6 @@ import { getPlanClass } from 'lib/plans/constants';
 import Button from 'components/button';
 import Card from 'components/card';
 import Gridicon from 'components/gridicon';
-import PlanIcon from 'components/plans/plan-icon';
 import { getCurrentVersion } from 'state/initial-state';
 
 import './style.scss';
@@ -80,7 +80,7 @@ class Banner extends Component {
 		if ( product && ! icon ) {
 			return (
 				<div className="dops-banner__icon-plan">
-					<PlanIcon plan={ product } />
+					<ProductIcon slug={ product } />
 				</div>
 			);
 		}
