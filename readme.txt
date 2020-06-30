@@ -130,6 +130,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Blocks: avoid layout issues when using the Image Compare block alongside older themes.
 * Blocks: ensure the Eventbrite button can be centered.
+* Blocks: ensure the Podcast block can be loaded when the page is loaded via Infinite Scroll.
 * Forms: improve accessibility of the "Required" text used in form fields.
 * Publicize: avoid layout issues when displaying broken connections in the Publicize block toolbar.
 
