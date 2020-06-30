@@ -124,6 +124,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Open Graph Meta Tags: avoid displaying Jetpack's Tags when the Rank Math plugin is active.
 * Shortcodes / Embeds: ensure better compatibility of multiple embeds with the AMP plugin.
 * Sharing: ensure that all button styles can be used with the AMP plugin.
+* Sitemaps: avoid conflicts with the Sitemap option that will be available in the upcoming version of WordPress.
 * WordPress.com Toolbar: ensure it is accessible when using the Twenty Twenty theme.
 
 **Bug fixes**
