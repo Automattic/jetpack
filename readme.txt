@@ -126,6 +126,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Improved compatibility**
 
 * Autoloader: improve the way Jetpack librairies are loaded when used in multiple plugins.
+* Blocks: improve the display of the Tiled Gallery block when used with the AMP plugin.
 * Custom Content Types: ensure that the Comic Post Type is compatible with the AMP plugin.
 * Custom Content Types: allow third-party themes to enqueue their own Portfolio styles.
 * Gravatar Hovercards: avoid validation errors when used with the AMP plugin.
