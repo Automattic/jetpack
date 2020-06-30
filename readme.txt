@@ -146,6 +146,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Blocks: avoid errors when one adds and edits 2 Image Compare Blocks in a single post.
 * Blocks: fix Form block issues with checkbox fields not being checked by default when the option is selected.
 * Blocks: add missing "Required" option to the Form block's Checkbox field settings.
+* Blocks: avoid caching results from the Latest Instagram Posts block when there are errors with the fetched data.
 * Forms: improve accessibility of the "Required" text used in form fields.
 * Image CDN: avoid using CDN image URL when inserting an image using the image block.
 * Jetpack Search: load translations in the Search overlay on International sites.
