@@ -21,6 +21,7 @@ class Status {
 	 * @return bool Whether Jetpack's offline mode is active.
 	 */
 	public function is_development_mode() {
+		_deprecated_function( __FUNCTION__, 'Jetpack 8.8.0', 'Automattic\Jetpack\Status->is_offline_mode' );
 		return $this->is_offline_mode();
 	}
 
