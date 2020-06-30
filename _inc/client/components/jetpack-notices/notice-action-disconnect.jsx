@@ -15,13 +15,20 @@ import analytics from 'lib/analytics';
 class NoticeActionDisconnect extends React.Component {
 	static propTypes = {
 		icon: PropTypes.string,
+		errorCode: PropTypes.string,
 	};
 
 	handleDisconnectClick = () => {
-		analytics.tracks.recordEvent( 'jetpack_termination_error_notice_click', {
+		const eventProps = {
 			location: 'dashboard',
 			purpose: 'reconnect',
-		} );
+		};
+
+		if ( this.props.errorCode ) {
+			eventProps.error_code = this.props.errorCode;
+		}
+
+		analytics.tracks.recordEvent( 'jetpack_termination_error_notice_click', eventProps );
 
 		this.props.disconnectSite();
 	};
