@@ -62,6 +62,11 @@ class Invalid_Blog_Token {
 	 * @return void
 	 */
 	public function admin_notice() {
+
+		if ( ! current_user_can( 'jetpack_connect' ) ) {
+			return;
+		}
+
 		?>
 		<div class="notice notice-error is-dismissible jetpack-message jp-connect" style="display:block !important;">
 			<p><?php echo esc_html( $this->message ); ?></p>
