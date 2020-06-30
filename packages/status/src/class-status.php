@@ -52,10 +52,23 @@ class Status {
 		 * @todo Update documentation ^^.
 		 *
 		 * @since 2.2.1
+		 * @deprecated 8.8.0
 		 *
-		 * @param bool $offline_mode Is Jetpack's development mode active.
+		 * @param bool $offline_mode Is Jetpack's offline mode active.
 		 */
-		$offline_mode = (bool) apply_filters( 'jetpack_development_mode', $offline_mode );
+		$offline_mode = (bool) apply_filters_deprecated( 'jetpack_development_mode', array( $offline_mode ), '8.8.0', 'jetpack_offline_mode' );
+
+		/**
+		 * Filters Jetpack's offline mode.
+		 *
+		 * @see https://jetpack.com/support/development-mode/
+		 * @todo Update documentation ^^.
+		 *
+		 * @since 8.8.0
+		 *
+		 * @param bool $offline_mode Is Jetpack's offline mode active.
+		 */
+		$offline_mode = (bool) apply_filters( 'jetpack_offline_mode', $offline_mode );
 
 		return $offline_mode;
 	}
