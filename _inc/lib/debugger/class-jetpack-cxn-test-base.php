@@ -385,7 +385,7 @@ class Jetpack_Cxn_Test_Base {
 	public function output_results_for_cli( $type = 'all', $group = 'all' ) {
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			if ( ( new Status() )->is_development_mode() ) {
-				WP_CLI::line( __( 'Jetpack is in Development Mode:', 'jetpack' ) );
+				WP_CLI::line( __( 'Jetpack is in Offline Mode:', 'jetpack' ) );
 				WP_CLI::line( Jetpack::development_mode_trigger_text() );
 			}
 			WP_CLI::line( __( 'TEST RESULTS:', 'jetpack' ) );

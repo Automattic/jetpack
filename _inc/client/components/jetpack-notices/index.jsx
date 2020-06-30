@@ -111,9 +111,9 @@ export class DevModeNotice extends React.Component {
 			}
 
 			const text = jetpackCreateInterpolateElement(
-				/* translators: reasons is an unordered list of reasons why a site may be in Development mode. */
+				/* translators: reasons is an unordered list of reasons why a site may be in Offline mode. */
 				__(
-					'Currently in <a>Development Mode</a> (some features are disabled) because: <reasons/>',
+					'Currently in <a>Offline Mode</a> (some features are disabled) because: <reasons/>',
 					'jetpack'
 				),
 				{

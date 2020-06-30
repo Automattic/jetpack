@@ -154,9 +154,9 @@ class Main extends React.Component {
 				current_version: this.props.currentVersion,
 			} );
 
-		// Not taking into account development mode here because changing the connection
+		// Not taking into account offline mode here because changing the connection
 		// status without reloading is possible only by disconnecting a live site not
-		// in development mode.
+		// in offline mode.
 		if ( prevProps.siteConnectionStatus !== this.props.siteConnectionStatus ) {
 			const $items = jQuery( '#toplevel_page_jetpack' ).find( 'ul.wp-submenu li' );
 			$items.find( 'a[href$="#/settings"]' ).hide();

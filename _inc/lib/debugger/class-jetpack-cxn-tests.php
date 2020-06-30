@@ -89,7 +89,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 	}
 
 	/**
-	 * Returns a support url based on development mode.
+	 * Returns a support url based on using a development version.
 	 */
 	protected function helper_get_support_url() {
 		return Jetpack::is_development_version()
@@ -193,7 +193,7 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 			$result = self::skipped_test(
 				array(
 					'name'              => $name,
-					'short_description' => __( 'Jetpack is in Development Mode:', 'jetpack' ) . ' ' . Jetpack::development_mode_trigger_text(),
+					'short_description' => __( 'Jetpack is in Offline Mode:', 'jetpack' ) . ' ' . Jetpack::development_mode_trigger_text(),
 				)
 			);
 		} else {

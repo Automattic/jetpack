@@ -126,7 +126,7 @@ export const reducer = combineReducers( {
  * Returns true if site is connected to WordPress.com
  *
  * @param  {Object}      state Global state tree
- * @return {bool|string} True if site is connected, False if it is not, 'dev' if site is in development mode.
+ * @return {bool|string} True if site is connected, False if it is not, 'dev' if site is in offline mode.
  */
 export function getSiteConnectionStatus( state ) {
 	if ( 'object' !== typeof state.jetpack.connection.status.siteConnected ) {
@@ -248,7 +248,7 @@ export function isCurrentUserLinked( state ) {
 }
 
 /**
- * Checks if the site is currently in development mode.
+ * Checks if the site is currently in offline mode.
  *
  * @param  {Object}  state Global state tree
  * @return {boolean} True if site is in dev mode. False otherwise.
@@ -289,7 +289,7 @@ export function requiresConnection( state, slug ) {
 }
 
 /**
- * Checks if the current module is unavailable in development mode.
+ * Checks if the current module is unavailable in offline mode.
  *
  * @param  {Object}  state Global state tree
  * @param  {String}  module Module slug.

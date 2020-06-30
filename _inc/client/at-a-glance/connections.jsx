@@ -33,7 +33,7 @@ import MobileMagicLink from 'components/mobile-magic-link';
 export class DashConnections extends Component {
 	/*
 	 * Render a card for site connection. If it's connected, indicate if user is the connection owner.
-	 * Show alternative message if site is in development mode.
+	 * Show alternative message if site is in offline mode.
 	 *
 	 * @returns {string}
 	 */
@@ -56,7 +56,7 @@ export class DashConnections extends Component {
 					) }
 					<div className="jp-connection-settings__text">
 						{ __(
-							'Your site is in Development Mode, so it can not be connected to WordPress.com.',
+							'Your site is in Offline Mode, so it can not be connected to WordPress.com.',
 							'jetpack'
 						) }
 					</div>

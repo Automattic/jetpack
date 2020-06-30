@@ -299,7 +299,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 			?><div id="<?php echo esc_attr( $this->id ); ?>-wrapper">
 				<div class="jetpack-search-sort-wrapper">
 					<label>
-						<?php esc_html_e( 'Jetpack Search not supported in Development Mode', 'jetpack' ); ?>
+						<?php esc_html_e( 'Jetpack Search not supported in Offline Mode', 'jetpack' ); ?>
 					</label>
 				</div>
 			</div><?php

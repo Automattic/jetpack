@@ -1118,8 +1118,8 @@ class Manager {
 					$caps = array( 'do_not_allow' );
 					break;
 				}
-				// Pass through. If it's not development mode, these should match disconnect.
-				// Let users disconnect if it's development mode, just in case things glitch.
+				// Pass through. If it's not offline mode, these should match disconnect.
+				// Let users disconnect if it's offline mode, just in case things glitch.
 			case 'jetpack_disconnect':
 				/**
 				 * Filters the jetpack_disconnect capability.
