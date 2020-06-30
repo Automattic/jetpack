@@ -15,6 +15,9 @@
 	input[name='email'] {
 		&.error:focus,
 		&.error {
+			outline: 1px;
+			outline-offset: -2px;
+			outline-style: auto;
 			outline-color: var( --color-error );
 		}
 	}
