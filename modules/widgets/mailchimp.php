@@ -131,13 +131,12 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 						);
 
 						$output = sprintf(
-							'<amp-user-notification class="%2$s-wrapper" id="%2$s" layout="nodisplay">
+							'<amp-user-notification class="%1$s-wrapper" id="%1$s" layout="nodisplay">
 								<div class="jetpack-mailchimp-notification">
-									<button class="%2$s-close" on="tap:%2$s.dismiss"></button>
-									%3$s
+									<button class="%1$s-close" on="tap:%1$s.dismiss"></button>
+									%2$s
 								</div>
 							</amp-user-notification>',
-							'',
 							'jetpack-mailchimp-widget',
 							$output
 						);
