@@ -25,6 +25,10 @@ When inserting images in the block editor, you can now choose images from your G
 
 The images you pick should get added to your Media Library for you, and you should be able to continue to use the blocks with no issues.
 
+#### WhatsApp
+
+This new block allows you to add a button to any of your posts or pages. Try adding the button, and make sure it works well.
+
 #### Mailchimp, Calendly, Payments, Eventbrite
 
 We've made a number of changes to add more customization options to the buttons offered by the blocks above. To test this, try editing some of you existing blocks, and try creating new ones: you should now see more options to customize the block in the block sidebar, and any changes you make should appear in the block editor and on the frontend.
