@@ -118,6 +118,43 @@ class Jetpack_Search_Customize {
 			)
 		);
 
+		$id = $setting_prefix . 'post_types_title_placeholder';
+		$wp_customize->add_setting(
+			$id,
+			array( 'type' => 'option' )
+		);
+		$wp_customize->add_control(
+			new Label_Control(
+				$wp_customize,
+				$id,
+				array(
+					'description' => __( 'Choose post types to exclude from search results.', 'jetpack' ),
+					'label'       => __( 'Excluded Post Types', 'jetpack' ),
+					'section'     => $section_id,
+				)
+			)
+		);
+
+		foreach ( get_post_types( array( 'exclude_from_search' => false ), 'objects' ) as $post_type ) {
+			$id = Jetpack_Search_Helpers::generate_post_type_customizer_id( $post_type );
+			$wp_customize->add_setting(
+				$id,
+				array(
+					'default'           => false,
+					'sanitize_callback' => 'rest_sanitize_boolean',
+					'type'              => 'option',
+				)
+			);
+			$wp_customize->add_control(
+				$id,
+				array(
+					'label'   => $post_type->label,
+					'section' => $section_id,
+					'type'    => 'checkbox',
+				)
+			);
+		}
+
 		$id = $setting_prefix . 'result_format';
 		$wp_customize->add_setting(
 			$id,

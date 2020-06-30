@@ -122,6 +122,14 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 			$posts_per_page = 20;
 		}
 
+		$disabled_post_types = array();
+		foreach ( Jetpack_Search_Helpers::generate_post_type_customizer_ids() as $post_type => $customizer_key ) {
+			l( $customizer_key, get_option( $customizer_key, '' ), get_option( $customizer_key, '' ) === '1' || get_option( $customizer_key, '' ) === true );
+			if ( get_option( $customizer_key, '' ) === '1' || get_option( $customizer_key, '' ) === true ) {
+				$disabled_post_types[] = $post_type;
+			}
+		}
+
 		$options = array(
 			'overlayOptions'        => array(
 				'colorTheme'      => get_option( $prefix . 'color_theme', 'light' ),
@@ -143,6 +151,7 @@ class Jetpack_Instant_Search extends Jetpack_Search {
 
 			// search options.
 			'defaultSort'           => get_option( $prefix . 'default_sort', 'relevance' ),
+			'disabledPostTypes'     => $disabled_post_types,
 
 			// widget info.
 			'hasOverlayWidgets'     => count( $overlay_widget_ids ) > 0,
