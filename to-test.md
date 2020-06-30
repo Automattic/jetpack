@@ -19,6 +19,12 @@ We've made some changes to the "Autoloader" tool we use to manage Jetpack librar
 
 ### Blocks
 
+#### External Media
+
+When inserting images in the block editor, you can now choose images from your Google Photos account, or from the Pexels Free Photos library. To test this, try using an image, gallery, tiled gallery, or slideshow block and see the new options appear next to the usual option to pick images from your media library.
+
+The images you pick should get added to your Media Library for you, and you should be able to continue to use the blocks with no issues.
+
 #### Mailchimp, Calendly, Payments, Eventbrite
 
 We've made a number of changes to add more customization options to the buttons offered by the blocks above. To test this, try editing some of you existing blocks, and try creating new ones: you should now see more options to customize the block in the block sidebar, and any changes you make should appear in the block editor and on the frontend.
