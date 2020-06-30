@@ -129,6 +129,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Bug fixes**
 
 * Blocks: avoid layout issues when using the Image Compare block alongside older themes.
+* Blocks: ensure the Eventbrite button can be centered.
 * Forms: improve accessibility of the "Required" text used in form fields.
 * Publicize: avoid layout issues when displaying broken connections in the Publicize block toolbar.
 
