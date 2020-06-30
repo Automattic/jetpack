@@ -103,7 +103,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Major Enhancements**
 
-*
+* Jetpack Search now includes more options to customize the look of the Search overlay: you can hide the Sort option, or change the default sorting option.
 
 **Enhancements**
 
@@ -112,7 +112,6 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Blocks: add more customization options to the buttons offered by the following blocks: Calendly, Mailchimp, Eventbrite.
 * Blocks: rename "Earn" blocks: "Simple Payments" becomes "Pay with Paypal"; "Recurring Payments" becomes "Payments".
 * Contact Form: improve the "Empty Spam" process to better handle large amount of Spam.
-* Jetpack Search: add new option to hide the Sort option from the Search overlay.
 * Jetpack Search: use the full width of the browser when the site does not use any Jetpack Search Sidebar.
 * Performance: switch from JavaScript library to CSS animations to display loading spinners.
 * Related Posts: improve accessibility of the titles of each Related Post.
