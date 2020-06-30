@@ -29,6 +29,10 @@ The images you pick should get added to your Media Library for you, and you shou
 
 This new block allows you to add a button to any of your posts or pages. Try adding the button, and make sure it works well.
 
+### Gathering Twitter Threads
+
+We've extended the Twitter Block and added an "Unroll" button that allows you to import full Twitter Threads and their embeds into a post. Give it a try by pasting a tweet that's part of a thread into your block editor. You should see the "unroll" option appear in the block toolbar. Click on it and let us know what you think of the results!
+
 #### Mailchimp, Calendly, Payments, Eventbrite
 
 We've made a number of changes to add more customization options to the buttons offered by the blocks above. To test this, try editing some of you existing blocks, and try creating new ones: you should now see more options to customize the block in the block sidebar, and any changes you make should appear in the block editor and on the frontend.
