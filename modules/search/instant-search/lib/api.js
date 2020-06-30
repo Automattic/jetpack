@@ -103,7 +103,7 @@ const filterKeyToEsFilter = new Map( [
 	],
 ] );
 
-function buildFilterObject( filterQuery, adminQueryFilter, disabledPostTypes ) {
+function buildFilterObject( filterQuery, adminQueryFilter, excludedPostTypes ) {
 	const filter = { bool: { must: [] } };
 	getFilterKeys()
 		.filter( key => isLengthyArray( filterQuery[ key ] ) )
@@ -121,10 +121,11 @@ function buildFilterObject( filterQuery, adminQueryFilter, disabledPostTypes ) {
 	if ( adminQueryFilter ) {
 		filter.bool.must.push( adminQueryFilter );
 	}
-	if ( isLengthyArray( disabledPostTypes ) ) {
+
+	if ( excludedPostTypes?.length > 0 ) {
 		filter.bool.must.push( {
 			bool: {
-				must_not: disabledPostTypes.map( postType =>
+				must_not: excludedPostTypes.map( postType =>
 					filterKeyToEsFilter.get( 'post_types' )( postType )
 				),
 			},
@@ -145,7 +146,7 @@ function mapSortToApiValue( sort ) {
 
 export function search( {
 	aggregations,
-	disabledPostTypes,
+	excludedPostTypes,
 	filter,
 	pageHandle,
 	query,
@@ -192,7 +193,7 @@ export function search( {
 			aggregations,
 			fields,
 			highlight_fields: highlightFields,
-			filter: buildFilterObject( filter, adminQueryFilter, disabledPostTypes ),
+			filter: buildFilterObject( filter, adminQueryFilter, excludedPostTypes ),
 			query: encodeURIComponent( query ),
 			sort: mapSortToApiValue( sort ),
 			page_handle: pageHandle,
