@@ -147,6 +147,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Blocks: fix Form block issues with checkbox fields not being checked by default when the option is selected.
 * Blocks: add missing "Required" option to the Form block's Checkbox field settings.
 * Forms: improve accessibility of the "Required" text used in form fields.
+* Image CDN: avoid using CDN image URL when inserting an image using the image block.
 * Jetpack Search: load translations in the Search overlay on International sites.
 * Publicize: avoid layout issues when displaying broken connections in the Publicize block toolbar.
 * Sharing: avoid relying on jQuery for the official Facebook button.
