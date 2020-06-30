@@ -127,6 +127,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Sharing: ensure that all button styles can be used with the AMP plugin.
 * Sitemaps: avoid conflicts with the Sitemap option that will be available in the upcoming version of WordPress.
 * WordPress.com Toolbar: ensure it is accessible when using the Twenty Twenty theme.
+* WooCommerce: avoid broken resources when using the WooCommerce plugin alongside Jetpack.
 
 **Bug fixes**
 
