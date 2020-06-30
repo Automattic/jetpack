@@ -11,51 +11,28 @@
 
 namespace Automattic\Jetpack\Debug_Helper;
 
-// phpcs:disable WordPress.WhiteSpace.PrecisionAlignment.Found
-
-/*
- .--..--..--..--..--..--..--..--..--..--..--..--..--..--..--..--.
-/ .. \.. \.. \.. \.. \.. \.. \.. \.. \.. \.. \.. \.. \.. \.. \.. \
-\ \/\ \/\ \/\ \/\ \/\ \/\ \/\ \/\ \/\ \/\ \/\ \/\ \/\ \/\ \/\ \/ /
- \/ /\/ /\/ /\/ /\/ /\/ /\/ /\/ /\/ /\/ /\/ /\/ /\/ /\/ /\/ /\/ /
- / /\/ /`' /`' /`' /`' /`' /`' /`' /`' /`' /`' /`' /`' /`' /\/ /\
-/ /\ \/`--'`--'`--'`--'`--'`--'`--'`--'`--'`--'`--'`--'`--'\ \/\ \
-\ \/\ \                                                    /\ \/ /
- \/ /\ \                                                  / /\/ /
- / /\/ /    MUST COMMENT OUT THE LINE BELOW               \ \/ /\
-/ /\ \/                                                    \ \/\ \
-\ \/\ \             TO ACTIVATE THE BROKEN TOKEN TOOL.     /\ \/ /
- \/ /\ \                                                  / /\/ /
- / /\/ /                                                  \ \/ /\
-/ /\ \/                                                    \ \/\ \
-\ \/\ \.--..--..--..--..--..--..--..--..--..--..--..--..--./\ \/ /
- \/ /\/ ../ ../ ../ ../ ../ ../ ../ ../ ../ ../ ../ ../ ../ /\/ /
- / /\/ /\/ /\/ /\/ /\/ /\/ /\/ /\/ /\/ /\/ /\/ /\/ /\/ /\/ /\/ /\
-/ /\ \/\ \/\ \/\ \/\ \/\ \/\ \/\ \/\ \/\ \/\ \/\ \/\ \/\ \/\ \/\ \
-\ `'\ `'\ `'\ `'\ `'\ `'\ `'\ `'\ `'\ `'\ `'\ `'\ `'\ `'\ `'\ `' /
- `--'`--'`--'`--'`--'`--'`--'`--'`--'`--'`--'`--'`--'`--'`--'`--'
- */
-add_filter( 'jetpack_debug_helper_modules', '__return_empty_array' );
-
-// phpcs:enable
+define( 'JETPACK_DEBUG_HELPER_BASE_PLUGIN_FILE', __FILE__ );
 
 /**
  * Include file names from the modules directory here.
- *
- * @todo Add UI to make this easier to use in a testing situation.
  */
-$modules = array(
-	'class-broken-token.php',
+$jetpack_dev_debug_modules = array(
+	'broken-token' => array(
+		'file'        => 'class-broken-token.php',
+		'name'        => 'Broken token Utilities',
+		'description' => '',
+	),
+	'sync-debug'   => array(
+		'file'        => 'class-jetpack-sync-debug-helper.php',
+		'name'        => 'Sync Debug Utilities',
+		'description' => '',
+	),
 );
 
-/**
- * Filter the features of the Jetpack Debug Helper.
- *
- * This is part of the mu-plugins folder within Jetpack's built-in local Docker environment.
- * This filter does not exist and is non-functional in production code.
- *
- * @param array $modules Array of file names. File names are based on the docker/mu-plugins/jetpack-debug-helper/inc folder.
- */
-foreach ( (array) apply_filters( 'jetpack_debug_helper_modules', $modules ) as $module ) {
-	include_once plugin_dir_path( __FILE__ ) . 'modules/' . $module;
+require_once 'class-admin.php';
+
+foreach ( (array) Admin::get_active_modules() as $module ) {
+	if ( isset( $jetpack_dev_debug_modules[ $module ] ) ) {
+		include_once plugin_dir_path( __FILE__ ) . 'modules/' . $jetpack_dev_debug_modules[ $module ]['file'];
+	}
 }
