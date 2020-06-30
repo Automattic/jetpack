@@ -118,6 +118,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Improved compatibility**
 
+* Autoloader: improve the way Jetpack librairies are loaded when used in multiple plugins.
 * Open Graph Meta Tags: avoid displaying Jetpack's Tags when the Rank Math plugin is active.
 * Shortcodes / Embeds: ensure better compatibility of multiple embeds with the AMP plugin.
 * Sharing: ensure that all button styles can be used with the AMP plugin.
