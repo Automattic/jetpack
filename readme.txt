@@ -119,6 +119,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Performance: switch from JavaScript library to CSS animations to display loading spinners.
 * Related Posts: improve accessibility of the titles of each Related Post.
 * Site Stats: improve accessibility of the Stats dashboard.
+* Social Logos: update Facebook Logo design.
 * Widgets: improve accessibility of the Contact Info Widget as well as the Blog Stats Widget.
 
 **Improved compatibility**
