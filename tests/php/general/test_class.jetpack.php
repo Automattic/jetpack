@@ -480,15 +480,25 @@ EXPECTED;
 		$this->assertFalse( Jetpack::is_development_version() );
 	}
 
-	function test_is_development_mode_filter() {
+	/**
+	 * Tests is_offline_mode filter.
+	 *
+	 * @covers \Automattic\Jetpack\Status::is_offline_mode
+	 */
+	public function test_is_offline_mode_filter() {
 		add_filter( 'jetpack_development_mode', '__return_true' );
-		$this->assertTrue( ( new Status() )->is_development_mode() );
+		$this->assertTrue( ( new Status() )->is_offline_mode() );
 		remove_filter( 'jetpack_development_mode', '__return_true' );
 	}
 
-	function test_is_development_mode_bool() {
+	/**
+	 * Tests is_offline_mode filter's bool type casting.
+	 *
+	 * @covers \Automattic\Jetpack\Status::is_offline_mode
+	 */
+	public function test_is_offline_mode_bool() {
 		add_filter( 'jetpack_development_mode', '__return_zero' );
-		$this->assertFalse( ( new Status() )->is_development_mode() );
+		$this->assertFalse( ( new Status() )->is_offline_mode() );
 		remove_filter( 'jetpack_development_mode', '__return_zero' );
 	}
 

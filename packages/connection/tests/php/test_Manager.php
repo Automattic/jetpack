@@ -333,10 +333,10 @@ class ManagerTest extends TestCase {
 	 * @param array  $expected_caps The expected output.
 	 */
 	public function test_jetpack_connection_custom_caps( $in_dev_mode, $custom_cap, $expected_caps ) {
-		// Mock the site_url call in Status::is_development_mode.
+		// Mock the site_url call in Status::is_offline_mode.
 		$this->mock_function( 'site_url', false, 'Automattic\Jetpack' );
 
-		// Mock the apply_filters( 'jetpack_development_mode', ) call in Status::is_development_mode.
+		// Mock the apply_filters( 'jetpack_development_mode', ) call in Status::is_offline_mode.
 		$this->mock_function( 'apply_filters', $in_dev_mode, 'Automattic\Jetpack' );
 
 		// Mock the apply_filters( 'jetpack_disconnect_cap', ) call in jetpack_connection_custom_caps.

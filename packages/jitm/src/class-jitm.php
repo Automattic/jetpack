@@ -64,7 +64,7 @@ class JITM {
 		}
 
 		// Folks cannot connect to WordPress.com and won't really be able to act on the pre-connection messages. So bail.
-		if ( ( new Status() )->is_development_mode() ) {
+		if ( ( new Status() )->is_offline_mode() ) {
 			return false;
 		}
 

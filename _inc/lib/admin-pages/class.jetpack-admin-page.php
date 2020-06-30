@@ -54,14 +54,14 @@ abstract class Jetpack_Admin_Page {
 	function add_actions() {
 		global $pagenow;
 
-		$is_development_mode = ( new Status() )->is_development_mode();
+		$is_offline_mode = ( new Status() )->is_offline_mode();
 		// If user is not an admin and site is in Dev Mode or not connected yet then don't do anything.
-		if ( ! current_user_can( 'manage_options' ) && ( $is_development_mode || ! Jetpack::is_active() ) ) {
+		if ( ! current_user_can( 'manage_options' ) && ( $is_offline_mode || ! Jetpack::is_active() ) ) {
 			return;
 		}
 
 		// Don't add in the modules page unless modules are available!
-		if ( $this->dont_show_if_not_active && ! Jetpack::is_active() && ! $is_development_mode ) {
+		if ( $this->dont_show_if_not_active && ! Jetpack::is_active() && ! $is_offline_mode ) {
 			return;
 		}
 
@@ -83,7 +83,7 @@ abstract class Jetpack_Admin_Page {
 			( 'admin.php' === $pagenow && isset( $_GET['page'] ) && 'jetpack' === $_GET['page'] )
 			&& ! Jetpack::is_active()
 			&& current_user_can( 'jetpack_connect' )
-			&& ! $is_development_mode
+			&& ! $is_offline_mode
 		) {
 			add_action( 'admin_enqueue_scripts', array( 'Jetpack_Connection_Banner', 'enqueue_banner_scripts' ) );
 			add_action( 'admin_enqueue_scripts', array( 'Jetpack_Connection_Banner', 'enqueue_connect_button_scripts' ) );
@@ -97,7 +97,7 @@ abstract class Jetpack_Admin_Page {
 			( 'index.php' === $pagenow || 'plugins.php' === $pagenow )
 			&& ! Jetpack::is_active()
 			&& current_user_can( 'jetpack_connect' )
-			&& ! $is_development_mode
+			&& ! $is_offline_mode
 		) {
 			add_action( 'admin_enqueue_scripts', array( 'Jetpack_Connection_Banner', 'enqueue_connect_button_scripts' ) );
 		}
@@ -175,7 +175,7 @@ abstract class Jetpack_Admin_Page {
 	 */
 	function check_plan_deactivate_modules( $page ) {
 		if (
-			( new Status() )->is_development_mode()
+			( new Status() )->is_offline_mode()
 			|| ! in_array(
 				$page->base,
 				array(
@@ -276,11 +276,11 @@ abstract class Jetpack_Admin_Page {
 		);
 		$args              = wp_parse_args( $args, $defaults );
 		$jetpack_admin_url = admin_url( 'admin.php?page=jetpack' );
-		$jetpack_about_url = ( Jetpack::is_active() || Jetpack::is_development_mode() )
+		$jetpack_about_url = ( Jetpack::is_active() || Jetpack::is_offline_mode() )
 			? admin_url( 'admin.php?page=jetpack_about' )
 			: Redirect::get_url( 'jetpack' );
 
-		$jetpack_privacy_url = ( Jetpack::is_active() || Jetpack::is_development_mode() )
+		$jetpack_privacy_url = ( Jetpack::is_active() || Jetpack::is_offline_mode() )
 			? $jetpack_admin_url . '#/privacy'
 			: Redirect::get_url( 'a8c-privacy' );
 

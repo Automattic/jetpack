@@ -21,7 +21,7 @@ class Jetpack_Tweetstorm_Helper {
 	 * @return mixed
 	 */
 	public static function gather( $url ) {
-		if ( ( new Status() )->is_development_mode() ) {
+		if ( ( new Status() )->is_offline_mode() ) {
 			return new WP_Error(
 				'dev_mode',
 				__( 'Tweet unrolling is not available in development mode.', 'jetpack' )

@@ -16,32 +16,48 @@ class Status {
 	/**
 	 * Is Jetpack in development (offline) mode?
 	 *
-	 * @return bool Whether Jetpack's development mode is active.
+	 * @deprecated 8.8.0 Use Status->is_offline_mode().
+	 *
+	 * @return bool Whether Jetpack's offline mode is active.
 	 */
 	public function is_development_mode() {
-		$development_mode = false;
-		$site_url         = site_url();
+		return $this->is_offline_mode();
+	}
+
+	/**
+	 * Is Jetpack in offline mode?
+	 *
+	 * This was formerly called "Development Mode", but sites "in development" aren't always offline/localhost.
+	 *
+	 * @since 8.8.0
+	 *
+	 * @return bool Whether Jetpack's offline mode is active.
+	 */
+	public function is_offline_mode() {
+		$offline_mode = false;
+		$site_url     = site_url();
 
 		if ( defined( '\\JETPACK_DEV_DEBUG' ) ) {
-			$development_mode = constant( '\\JETPACK_DEV_DEBUG' );
+			$offline_mode = constant( '\\JETPACK_DEV_DEBUG' );
 		} elseif ( defined( '\\WP_LOCAL_DEV' ) ) {
-			$development_mode = constant( '\\WP_LOCAL_DEV' );
+			$offline_mode = constant( '\\WP_LOCAL_DEV' );
 		} elseif ( $site_url ) {
-			$development_mode = false === strpos( $site_url, '.' );
+			$offline_mode = false === strpos( $site_url, '.' );
 		}
 
 		/**
-		 * Filters Jetpack's development mode.
+		 * Filters Jetpack's offline mode.
 		 *
 		 * @see https://jetpack.com/support/development-mode/
+		 * @todo Update documentation ^^.
 		 *
 		 * @since 2.2.1
 		 *
-		 * @param bool $development_mode Is Jetpack's development mode active.
+		 * @param bool $offline_mode Is Jetpack's development mode active.
 		 */
-		$development_mode = (bool) apply_filters( 'jetpack_development_mode', $development_mode );
+		$offline_mode = (bool) apply_filters( 'jetpack_development_mode', $offline_mode );
 
-		return $development_mode;
+		return $offline_mode;
 	}
 
 	/**

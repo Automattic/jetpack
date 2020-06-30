@@ -6,13 +6,13 @@ Used to retrieve information about the current status of Jetpack and the site ov
 
 ### Usage
 
-Find out whether the site is in development mode:
+Find out whether the site is in offline mode:
 
 ```php
 use Automattic\Jetpack\Status;
 
 $status = new Status();
-$is_development_mode = $status->is_development_mode();
+$is_offline_mode = $status->is_offline_mode();
 ```
 
 Find out whether this is a system with multiple networks:
