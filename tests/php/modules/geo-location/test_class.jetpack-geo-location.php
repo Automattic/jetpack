@@ -21,8 +21,9 @@ class WP_Test_Jetpack_Geo_Location extends WP_UnitTestCase {
 	public function setUp() {
 		global $post, $wp_query;
 
-		$post     = new stdClass();
-		$post->ID = 1;
+		$post            = new stdClass();
+		$post->ID        = 1;
+		$post->post_type = 'post';
 
 		$this->original_wp_query = $wp_query;
 	}
