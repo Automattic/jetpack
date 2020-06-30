@@ -1665,6 +1665,8 @@ class Jetpack {
 
 		if ( defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG ) {
 			$notice = __( 'The JETPACK_DEV_DEBUG constant is defined in wp-config.php or elsewhere.', 'jetpack' );
+		} elseif ( defined( 'WP_LOCAL_DEV' ) && WP_LOCAL_DEV ) {
+			$notice = __( 'The WP_LOCAL_DEV constant is defined in wp-config.php or elsewhere.', 'jetpack' );
 		} elseif ( site_url() && false === strpos( site_url(), '.' ) ) {
 			$notice = __( 'The site URL lacking a dot (e.g. http://localhost).', 'jetpack' );
 		} else {

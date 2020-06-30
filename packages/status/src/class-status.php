@@ -24,6 +24,8 @@ class Status {
 
 		if ( defined( '\\JETPACK_DEV_DEBUG' ) ) {
 			$development_mode = constant( '\\JETPACK_DEV_DEBUG' );
+		} elseif ( defined( '\\WP_LOCAL_DEV' ) ) {
+			$development_mode = constant( '\\WP_LOCAL_DEV' );
 		} elseif ( $site_url ) {
 			$development_mode = false === strpos( $site_url, '.' );
 		}
@@ -99,12 +101,14 @@ class Status {
 				'#\.staging\.kinsta\.com$#i',   // Kinsta.com.
 				'#\.stage\.site$#i',            // DreamPress.
 				'#\.newspackstaging\.com$#i',   // Newspack.
+				'#\.flywheelstaging\.com$#i',   // Flywheel.
 			),
 			'constants' => array(
 				'IS_WPE_SNAPSHOT',      // WP Engine.
 				'KINSTA_DEV_ENV',       // Kinsta.com.
 				'WPSTAGECOACH_STAGING', // WP Stagecoach.
 				'JETPACK_STAGING_MODE', // Generic.
+				'WP_LOCAL_DEV',         // Generic.
 			),
 		);
 		/**
