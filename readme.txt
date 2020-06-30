@@ -129,6 +129,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Blocks: avoid layout issues when using the Image Compare block alongside older themes.
 * Forms: improve accessibility of the "Required" text used in form fields.
+* Publicize: avoid layout issues when displaying broken connections in the Publicize block toolbar.
 
 --------
 
