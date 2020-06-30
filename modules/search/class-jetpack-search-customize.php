@@ -12,6 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 require_once dirname( __FILE__ ) . '/class-jetpack-search-options.php';
 require_once dirname( __FILE__ ) . '/customize-controls/class-label-control.php';
+require_once dirname( __FILE__ ) . '/customize-controls/class-excluded-post-types-control.php';
 
 /**
  * Class to customize search on the site.
@@ -118,13 +119,16 @@ class Jetpack_Search_Customize {
 			)
 		);
 
-		$id = $setting_prefix . 'post_types_title_placeholder';
+		$id = $setting_prefix . 'excluded_post_types';
 		$wp_customize->add_setting(
 			$id,
-			array( 'type' => 'option' )
+			array(
+				'default' => '',
+				'type'    => 'option',
+			)
 		);
 		$wp_customize->add_control(
-			new Label_Control(
+			new Excluded_Post_Types_Control(
 				$wp_customize,
 				$id,
 				array(
@@ -134,26 +138,6 @@ class Jetpack_Search_Customize {
 				)
 			)
 		);
-
-		foreach ( get_post_types( array( 'exclude_from_search' => false ), 'objects' ) as $post_type ) {
-			$id = Jetpack_Search_Helpers::generate_post_type_customizer_id( $post_type );
-			$wp_customize->add_setting(
-				$id,
-				array(
-					'default'           => false,
-					'sanitize_callback' => 'rest_sanitize_boolean',
-					'type'              => 'option',
-				)
-			);
-			$wp_customize->add_control(
-				$id,
-				array(
-					'label'   => $post_type->label,
-					'section' => $section_id,
-					'type'    => 'checkbox',
-				)
-			);
-		}
 
 		$id = $setting_prefix . 'result_format';
 		$wp_customize->add_setting(
