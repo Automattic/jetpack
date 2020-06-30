@@ -886,7 +886,6 @@ EXPECTED;
 	 */
 	private function assertXMLRPCMethodsComply( $required, $allowed, $actual ) {
 		$this->assertArraySubset( $required, $actual );
-
 		$this->assertEquals( [], array_diff( $actual, $required, $allowed ) );
 	}
 
@@ -899,11 +898,11 @@ EXPECTED;
 		$methods = apply_filters( 'xmlrpc_methods', [ 'test.test' => '__return_true' ] );
 
 		$required = [
-			'jetpack.jsonAPI',
 			'jetpack.verifyAction',
 			'jetpack.getUser',
 			'jetpack.remoteRegister',
 			'jetpack.remoteProvision',
+			'jetpack.jsonAPI',
 		];
 
 		// Nothing else is allowed.
@@ -921,19 +920,19 @@ EXPECTED;
 		$methods = apply_filters( 'xmlrpc_methods', [ 'test.test' => '__return_true' ] );
 
 		$required = [
-			'jetpack.jsonAPI',
 			'jetpack.verifyAction',
 			'jetpack.getUser',
 			'jetpack.remoteRegister',
 			'jetpack.remoteProvision',
+			'jetpack.jsonAPI',
 
-			'jetpack.testConnection',
 			'jetpack.testAPIUserCode',
-			'jetpack.featuresAvailable',
-			'jetpack.featuresEnabled',
 			'jetpack.disconnectBlog',
 			'jetpack.unlinkUser',
 			'jetpack.idcUrlValidation',
+			'jetpack.testConnection',
+			'jetpack.featuresAvailable',
+			'jetpack.featuresEnabled',
 
 			'jetpack.syncObject',
 		];
@@ -961,19 +960,19 @@ EXPECTED;
 		] );
 
 		$required = [
-			'jetpack.jsonAPI',
 			'jetpack.verifyAction',
 			'jetpack.getUser',
 			'jetpack.remoteRegister',
 			'jetpack.remoteProvision',
+			'jetpack.jsonAPI',
 
-			'jetpack.testConnection',
 			'jetpack.testAPIUserCode',
-			'jetpack.featuresAvailable',
-			'jetpack.featuresEnabled',
 			'jetpack.disconnectBlog',
 			'jetpack.unlinkUser',
 			'jetpack.idcUrlValidation',
+			'jetpack.testConnection',
+			'jetpack.featuresAvailable',
+			'jetpack.featuresEnabled',
 
 			'metaWeblog.newMediaObject',
 			'jetpack.updateAttachmentParent',
