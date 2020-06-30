@@ -12,9 +12,7 @@ import { EventEmitter } from 'events';
 import Slide from './slide';
 import ProgressBar from './progress-bar';
 
-export const playerEvents = new EventEmitter();
-
-export const Player = ( { slides, ...settings } ) => {
+export const Player = ( { slides, playerEvents, ...settings } ) => {
 	const [ currentSlideIndex, updateSlideIndex ] = useState( 0 );
 	const [ playing, setPlaying ] = useState( false );
 	const [ fullscreen, setFullscreen ] = useState( false );
@@ -147,10 +145,14 @@ export const Player = ( { slides, ...settings } ) => {
 };
 
 export const renderPlayer = ( container, settings ) => {
+	const playerEvents = new EventEmitter();
+
 	render(
 		html`
-			<${Player} ...${settings} />
+			<${Player} playerEvents=${playerEvents} ...${settings} />
 		`,
 		container
 	);
+
+	return playerEvents;
 };

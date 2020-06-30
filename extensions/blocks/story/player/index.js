@@ -9,7 +9,7 @@ import ResizeObserver from 'resize-observer-polyfill';
  */
 import './style.scss';
 import { supportsShadow, toShadow } from './shadow-dom';
-import { renderPlayer, playerEvents } from './player';
+import { renderPlayer } from './player';
 import defaultRenderers from './default-renderers';
 
 const defaultSettings = {
@@ -53,59 +53,70 @@ export default function player( rootElement, params ) {
 		navigator.userAgent
 	);
 
-	playerEvents.on( 'go-fullscreen', () => {
-		if ( settings.playInFullScreen ) {
-			container.classList.add( 'wp-story-fullscreen' );
-			rootElement.classList.add( 'wp-story-fullscreen' );
-			if ( isMobile && document.fullscreenEnabled && ! settings.loadInFullScreen ) {
-				rootElement.requestFullscreen();
-			} else {
-				document.body.classList.add( 'wp-story-in-fullscreen' );
-				document.getElementsByTagName( 'html' )[ 0 ].classList.add( 'wp-story-in-fullscreen' );
+	const registerListeners = playerEvents => {
+		playerEvents.on( 'go-fullscreen', () => {
+			if ( settings.playInFullScreen ) {
+				container.classList.add( 'wp-story-fullscreen' );
+				rootElement.classList.add( 'wp-story-fullscreen' );
+				if ( isMobile && document.fullscreenEnabled && ! settings.loadInFullScreen ) {
+					rootElement.requestFullscreen();
+				} else {
+					document.body.classList.add( 'wp-story-in-fullscreen' );
+					document.getElementsByTagName( 'html' )[ 0 ].classList.add( 'wp-story-in-fullscreen' );
+				}
 			}
-		}
-	} );
+		} );
 
-	playerEvents.on( 'exit-fullscreen', () => {
-		rootElement.classList.remove( 'wp-story-fullscreen' );
-		container.classList.remove( 'wp-story-fullscreen' );
-		if ( isMobile && document.fullscreenEnabled && ! settings.loadInFullScreen ) {
-			rootElement.exitFullscreen();
-		} else {
-			document.body.classList.remove( 'wp-story-in-fullscreen' );
-			document.getElementsByTagName( 'html' )[ 0 ].classList.remove( 'wp-story-in-fullscreen' );
-		}
-	} );
+		playerEvents.on( 'exit-fullscreen', () => {
+			rootElement.classList.remove( 'wp-story-fullscreen' );
+			container.classList.remove( 'wp-story-fullscreen' );
+			if ( isMobile && document.fullscreenEnabled && ! settings.loadInFullScreen ) {
+				rootElement.exitFullscreen();
+			} else {
+				document.body.classList.remove( 'wp-story-in-fullscreen' );
+				document.getElementsByTagName( 'html' )[ 0 ].classList.remove( 'wp-story-in-fullscreen' );
+			}
+		} );
 
-	playerEvents.on( 'end', () => {
-		container.classList.add( 'wp-story-ended' );
-	} );
+		playerEvents.on( 'end', () => {
+			container.classList.add( 'wp-story-ended' );
+		} );
 
-	playerEvents.on( 'play', () => {
-		container.classList.remove( 'wp-story-ended' );
-	} );
+		playerEvents.on( 'play', () => {
+			container.classList.remove( 'wp-story-ended' );
+		} );
 
-	const resize = () => {
-		const slidesMaxHeight = container.querySelector( '.wp-story-wrapper' ).offsetHeight;
-		container.style.width = `${ settings.defaultAspectRatio * slidesMaxHeight }px`;
+		const resize = () => {
+			const slidesMaxHeight = container.querySelector( '.wp-story-wrapper' ).offsetHeight;
+			container.style.width = `${ settings.defaultAspectRatio * slidesMaxHeight }px`;
+		};
+
+		playerEvents.on( 'ready', () => {
+			resize();
+			let pendingRequestAnimationFrame = null;
+			new ResizeObserver( () => {
+				if ( pendingRequestAnimationFrame ) {
+					cancelAnimationFrame( pendingRequestAnimationFrame );
+					pendingRequestAnimationFrame = null;
+				}
+				pendingRequestAnimationFrame = requestAnimationFrame( () => {
+					resize();
+				} );
+			} ).observe( container.querySelector( '.wp-story-wrapper' ) );
+		} );
 	};
 
-	playerEvents.on( 'ready', () => {
-		resize();
-		let pendingRequestAnimationFrame = null;
-		new ResizeObserver( () => {
-			if ( pendingRequestAnimationFrame ) {
-				cancelAnimationFrame( pendingRequestAnimationFrame );
-				pendingRequestAnimationFrame = null;
-			}
-			pendingRequestAnimationFrame = requestAnimationFrame( () => {
-				resize();
-			} );
-		} ).observe( container.querySelector( '.wp-story-wrapper' ) );
-	} );
-
+	let playerEvents = null;
 	const initPlayer = ( newSettings = settings ) => {
-		renderPlayer( root, newSettings );
+		if ( playerEvents ) {
+			playerEvents.removeAllListeners( 'ready' );
+			playerEvents.removeAllListeners( 'play' );
+			playerEvents.removeAllListeners( 'end' );
+			playerEvents.removeAllListeners( 'exit-fullscreen' );
+			playerEvents.removeAllListeners( 'go-fullscreen' );
+		}
+		playerEvents = renderPlayer( root, newSettings );
+		registerListeners( playerEvents );
 	};
 
 	if ( settings.autoload ) {
@@ -129,10 +140,7 @@ export default function player( rootElement, params ) {
 		initPlayer( settings );
 	}
 
-	return {
-		load: initPlayer,
-		on: playerEvents.on.bind( playerEvents ),
-	};
+	return initPlayer;
 }
 
 function parseSlides( slidesWrapper ) {
