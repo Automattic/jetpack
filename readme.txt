@@ -113,7 +113,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Improved compatibility**
 
-* Shortcodes / Embeds: ensure Flickr embeds are compatible with the AMP plugin.
+* Shortcodes / Embeds: ensure Flickr and Dailymotion embeds are compatible with the AMP plugin.
 * Sharing: ensure that all button styles can be used with the AMP plugin.
 
 **Bug fixes**
