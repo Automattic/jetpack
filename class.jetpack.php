@@ -3345,6 +3345,7 @@ p {
 
 		if ( $update_activated_state ) {
 			Jetpack_Options::update_option( 'activated', 4 );
+			$connection->disable_plugin();
 		}
 
 		if ( $jetpack_unique_connection = Jetpack_Options::get_option( 'unique_connection' ) ) {
@@ -3371,8 +3372,6 @@ p {
 
 		// Disable the Heartbeat cron
 		Jetpack_Heartbeat::init()->deactivate();
-
-		$connection->disable_plugin();
 	}
 
 	/**
