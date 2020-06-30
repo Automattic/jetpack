@@ -112,7 +112,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Improved compatibility**
 
-*
+* Shortcodes / Embeds: ensure Flickr embeds are compatible with the AMP plugin.
 
 **Bug fixes**
 
