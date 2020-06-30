@@ -117,7 +117,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
-*
+* Forms: improve accessibility of the "Required" text used in form fields.
 
 --------
 
