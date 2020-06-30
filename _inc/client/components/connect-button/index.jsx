@@ -69,8 +69,8 @@ export class ConnectButton extends React.Component {
 
 	loadIframe = e => {
 		e.preventDefault();
-		// If the iframe is already loaded, return.
-		if ( this.state.isAuthorizing ) {
+		// If the iframe is already loaded or we don't have a connectUrl yet, return.
+		if ( this.state.isAuthorizing || this.props.fetchingConnectUrl ) {
 			return;
 		}
 		// This will disable the connect-button and prevent the iframe from reloading.
