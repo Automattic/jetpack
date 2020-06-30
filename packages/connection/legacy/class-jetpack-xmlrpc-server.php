@@ -72,17 +72,17 @@ class Jetpack_XMLRPC_Server {
 			$jetpack_methods = array_merge(
 				$jetpack_methods,
 				array(
-					'jetpack.testAPIUserCode'   => array( $this, 'test_api_user_code' ),
-					'jetpack.featuresAvailable' => array( $this, 'features_available' ),
-					'jetpack.featuresEnabled'   => array( $this, 'features_enabled' ),
-					'jetpack.disconnectBlog'    => array( $this, 'disconnect_blog' ),
-					'jetpack.unlinkUser'        => array( $this, 'unlink_user' ),
-					'jetpack.idcUrlValidation'  => array( $this, 'validate_urls_for_idc_mitigation' ),
+					'jetpack.testAPIUserCode'  => array( $this, 'test_api_user_code' ),
+					'jetpack.disconnectBlog'   => array( $this, 'disconnect_blog' ),
+					'jetpack.unlinkUser'       => array( $this, 'unlink_user' ),
+					'jetpack.idcUrlValidation' => array( $this, 'validate_urls_for_idc_mitigation' ),
 				)
 			);
 
 			if ( class_exists( 'Jetpack' ) ) {
-				$jetpack_methods['jetpack.testConnection'] = array( $this, 'test_connection' );
+				$jetpack_methods['jetpack.testConnection']    = array( $this, 'test_connection' );
+				$jetpack_methods['jetpack.featuresAvailable'] = array( $this, 'features_available' );
+				$jetpack_methods['jetpack.featuresEnabled']   = array( $this, 'features_enabled' );
 			}
 
 			if ( isset( $core_methods['metaWeblog.editPost'] ) ) {
