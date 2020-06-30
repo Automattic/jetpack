@@ -2,8 +2,6 @@
 
 use Automattic\Jetpack\Assets;
 
-use Jetpack_AMP_Support;
-
 use function Automattic\Jetpack\Extensions\Mailchimp\load_assets as render_block;
 
 if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
@@ -94,15 +92,9 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 			);
 
 			if ( ! empty( $instance['code'] ) ) {
-				// Regular expresion that will match maichimp shortcode.
-				$regex = '(\[mailchimp_subscriber_popup[^\]]+\])';
-
-				// Check if the shortcode exists.
-				preg_match( $regex, $instance['code'], $matches );
-
 				// Process the shortcode only, if exists.
-				if ( ! empty( $matches[0] ) ) {
-					echo do_shortcode( $matches[0] );
+				if ( has_shortcode( $instance['code'], 'mailchimp_subscriber_popup' ) ) {
+					echo do_shortcode( $instance['code'] );
 				}
 			} else {
 				$instance['interests'] = empty( $instance['interests'] ) ? array() : explode( '_', $instance['interests'] );
@@ -140,12 +132,12 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 
 						$output = sprintf(
 							'<amp-user-notification class="%2$s-wrapper" id="%2$s" layout="nodisplay">
-								<div class="%1$s">
+								<div class="jetpack-mailchimp-notification">
 									<button class="%2$s-close" on="tap:%2$s.dismiss"></button>
 									%3$s
 								</div>
 							</amp-user-notification>',
-							esc_attr( $form_classes ),
+							'',
 							'jetpack-mailchimp-widget',
 							$output
 						);
