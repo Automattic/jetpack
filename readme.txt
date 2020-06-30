@@ -124,6 +124,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Autoloader: improve the way Jetpack librairies are loaded when used in multiple plugins.
 * Custom Content Types: ensure that the Comic Post Type is compatible with the AMP plugin.
+* Custom Content Types: allow third-party themes to enqueue their own Portfolio styles.
 * Gravatar Hovercards: avoid validation errors when used with the AMP plugin.
 * Open Graph Meta Tags: avoid displaying Jetpack's Tags when the Rank Math plugin is active.
 * Shortcodes / Embeds: ensure better compatibility of multiple embeds with the AMP plugin.
