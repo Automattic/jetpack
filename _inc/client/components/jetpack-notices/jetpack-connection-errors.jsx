@@ -20,6 +20,7 @@ export class ErrorNoticeCycleConnection extends React.Component {
 
 	static propTypes = {
 		text: PropTypes.string.isRequired,
+		errorCode: PropTypes.string,
 	};
 
 	render() {
@@ -30,7 +31,9 @@ export class ErrorNoticeCycleConnection extends React.Component {
 				status={ 'is-error' }
 				icon={ 'link-break' }
 			>
-				<NoticeActionDisconnect>{ __( 'Reconnect' ) }</NoticeActionDisconnect>
+				<NoticeActionDisconnect errorCode={ this.props.errorCode }>
+					{ __( 'Reconnect' ) }
+				</NoticeActionDisconnect>
 			</SimpleNotice>
 		);
 	}
@@ -42,7 +45,9 @@ export default class JetpackConnectionErrors extends React.Component {
 	};
 
 	actions = {
-		reconnect: message => <ErrorNoticeCycleConnection text={ message } />,
+		reconnect: ( message, code ) => (
+			<ErrorNoticeCycleConnection text={ message } errorCode={ code } />
+		),
 	};
 
 	isActionSupported( action ) {
