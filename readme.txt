@@ -109,6 +109,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Blocks: add more options to customize the look of the Payments block.
 * Blocks: allowing playing a Jetpack video in the block editor.
+* Site Stats: improve accessibility of the Stats dashboard.
 * Widgets: improve accessibility of the Contact Info Widget.
 
 **Improved compatibility**
