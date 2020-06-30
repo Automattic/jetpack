@@ -1,5 +1,9 @@
 ## 8.7
 
+### Autoloader
+
+We've made some changes to the "Autoloader" tool we use to manage Jetpack libraries that are used in multiple plugins on the same site. This change should have no performance impact on sites using multiple plugins that rely on Jetpack libraries. The VaultPress plugin is a good example; you should be able to keep using both VaultPress and Jetpack with no issues. You can also test using a plugin like [this one](https://github.com/Automattic/client-example).
+
 ### Blocks
 
 #### Mailchimp, Calendly, Payments, Eventbrite
