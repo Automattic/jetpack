@@ -139,6 +139,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Blocks: avoid layout issues when using the Image Compare block alongside older themes.
 * Blocks: ensure the Eventbrite button can be centered.
 * Blocks: ensure the Podcast block can be loaded when the page is loaded via Infinite Scroll.
+* Blocks: do not render the Slideshow block's markup when no images have been added to the block.
 * Blocks: avoid errors when one adds and edits 2 Image Compare Blocks in a single post.
 * Blocks: fix Form block issues with checkbox fields not being checked by default when the option is selected.
 * Forms: improve accessibility of the "Required" text used in form fields.
