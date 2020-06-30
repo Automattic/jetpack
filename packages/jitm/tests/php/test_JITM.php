@@ -39,7 +39,7 @@ class Test_Jetpack_JITM extends TestCase {
 			array( 'jetpack_just_in_time_msgs', false, false ),
 		), "Automattic\Jetpack\JITMS" );
 
-		// Used for Status->is_development_mode().
+		// Used for Status->is_offline_mode().
 		$this->mock_filters( array(
 			array( 'jetpack_just_in_time_msgs', false, false ),
 		), "Automattic\Jetpack" );
@@ -56,7 +56,7 @@ class Test_Jetpack_JITM extends TestCase {
 			array( 'jetpack_just_in_time_msgs', false, true ),
 		), "Automattic\Jetpack\JITMS" );
 
-		// Used for Status->is_development_mode().
+		// Used for Status->is_offline_mode().
 		$this->mock_filters( array(
 			array( 'jetpack_just_in_time_msgs', false, true ),
 		), "Automattic\Jetpack" );

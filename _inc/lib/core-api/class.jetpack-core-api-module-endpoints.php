@@ -199,7 +199,7 @@ class Jetpack_Core_API_Module_List_Endpoint {
 			if (
 				isset( $modules[ $slug ]['requires_connection'] )
 				&& $modules[ $slug ]['requires_connection']
-				&& ( new Status() )->is_development_mode()
+				&& ( new Status() )->is_offline_mode()
 			) {
 				$modules[ $slug ]['activated'] = false;
 			}
@@ -366,7 +366,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			if (
 				isset( $module['requires_connection'] )
 				&& $module['requires_connection']
-				&& ( new Status() )->is_development_mode()
+				&& ( new Status() )->is_offline_mode()
 			) {
 				$module['activated'] = false;
 			}

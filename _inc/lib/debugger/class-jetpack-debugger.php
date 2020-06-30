@@ -237,7 +237,7 @@ class Jetpack_Debugger {
 				<?php
 				if (
 					current_user_can( 'jetpack_manage_modules' )
-					&& ( ( new Status() )->is_development_mode() || Jetpack::is_active() )
+					&& ( ( new Status() )->is_offline_mode() || Jetpack::is_active() )
 				) {
 					printf(
 						wp_kses(
