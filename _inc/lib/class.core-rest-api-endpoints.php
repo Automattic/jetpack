@@ -906,7 +906,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return true;
 		}
 
-		return new WP_Error( 'invalid_user_permission_jetpack_disconnect', self::$user_permissions_error_msg, array( 'status' => self::rest_authorization_required_code() ) );
+		return new WP_Error( 'invalid_user_permission_jetpack_disconnect', self::$user_permissions_error_msg, array( 'status' => rest_authorization_required_code() ) );
 
 	}
 
@@ -922,7 +922,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return true;
 		}
 
-		return new WP_Error( 'invalid_user_permission_jetpack_connect', self::$user_permissions_error_msg, array( 'status' => self::rest_authorization_required_code() ) );
+		return new WP_Error( 'invalid_user_permission_jetpack_connect', self::$user_permissions_error_msg, array( 'status' => rest_authorization_required_code() ) );
 
 	}
 
@@ -941,7 +941,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return true;
 		}
 
-		return new WP_Error( 'invalid_user_permission_user_connection_data', self::$user_permissions_error_msg, array( 'status' => self::rest_authorization_required_code() ) );
+		return new WP_Error( 'invalid_user_permission_user_connection_data', self::$user_permissions_error_msg, array( 'status' => rest_authorization_required_code() ) );
 	}
 
 	/**
@@ -957,7 +957,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return true;
 		}
 
-		return new WP_Error( 'invalid_user_permission_set_connection_owner', self::$user_permissions_error_msg, array( 'status' => self::rest_authorization_required_code() ) );
+		return new WP_Error( 'invalid_user_permission_set_connection_owner', self::$user_permissions_error_msg, array( 'status' => rest_authorization_required_code() ) );
 	}
 
 	/**
@@ -974,7 +974,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return true;
 		}
 
-		return new WP_Error( 'invalid_user_permission_unlink_user', self::$user_permissions_error_msg, array( 'status' => self::rest_authorization_required_code() ) );
+		return new WP_Error( 'invalid_user_permission_unlink_user', self::$user_permissions_error_msg, array( 'status' => rest_authorization_required_code() ) );
 	}
 
 	/**
@@ -989,7 +989,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return true;
 		}
 
-		return new WP_Error( 'invalid_user_permission_manage_modules', self::$user_permissions_error_msg, array( 'status' => self::rest_authorization_required_code() ) );
+		return new WP_Error( 'invalid_user_permission_manage_modules', self::$user_permissions_error_msg, array( 'status' => rest_authorization_required_code() ) );
 	}
 
 	/**
@@ -1004,7 +1004,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return true;
 		}
 
-		return new WP_Error( 'invalid_user_permission_configure_modules', self::$user_permissions_error_msg, array( 'status' => self::rest_authorization_required_code() ) );
+		return new WP_Error( 'invalid_user_permission_configure_modules', self::$user_permissions_error_msg, array( 'status' => rest_authorization_required_code() ) );
 	}
 
 	/**
@@ -1019,7 +1019,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return true;
 		}
 
-		return new WP_Error( 'invalid_user_permission_view_admin', self::$user_permissions_error_msg, array( 'status' => self::rest_authorization_required_code() ) );
+		return new WP_Error( 'invalid_user_permission_view_admin', self::$user_permissions_error_msg, array( 'status' => rest_authorization_required_code() ) );
 	}
 
 	/**
@@ -1034,7 +1034,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return true;
 		}
 
-		return new WP_Error( 'invalid_user_permission_identity_crisis', self::$user_permissions_error_msg, array( 'status' => self::rest_authorization_required_code() ) );
+		return new WP_Error( 'invalid_user_permission_identity_crisis', self::$user_permissions_error_msg, array( 'status' => rest_authorization_required_code() ) );
 	}
 
 	/**
@@ -1049,7 +1049,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return true;
 		}
 
-		return new WP_Error( 'invalid_user_permission_manage_settings', self::$user_permissions_error_msg, array( 'status' => self::rest_authorization_required_code() ) );
+		return new WP_Error( 'invalid_user_permission_manage_settings', self::$user_permissions_error_msg, array( 'status' => rest_authorization_required_code() ) );
 	}
 
 	/**
@@ -1064,7 +1064,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return true;
 		}
 
-		return new WP_Error( 'invalid_user_permission_activate_plugins', self::$user_permissions_error_msg, array( 'status' => self::rest_authorization_required_code() ) );
+		return new WP_Error( 'invalid_user_permission_activate_plugins', self::$user_permissions_error_msg, array( 'status' => rest_authorization_required_code() ) );
 	}
 
 	/**
@@ -1077,11 +1077,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return true;
 		}
 
-		return new WP_Error( 'invalid_user_permission_edit_others_posts', self::$user_permissions_error_msg, array( 'status' => self::rest_authorization_required_code() ) );
+		return new WP_Error( 'invalid_user_permission_edit_others_posts', self::$user_permissions_error_msg, array( 'status' => rest_authorization_required_code() ) );
 	}
 
 	/**
-	 * Contextual HTTP error code for authorization failure.
+	 * Deprecated - Contextual HTTP error code for authorization failure.
+	 *
+	 * @deprecated since version 8.8.0.
 	 *
 	 * Taken from rest_authorization_required_code() in WP-API plugin until is added to core.
 	 * @see https://github.com/WP-API/WP-API/commit/7ba0ae6fe4f605d5ffe4ee85b1cd5f9fb46900a6
@@ -1091,7 +1093,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return int
 	 */
 	public static function rest_authorization_required_code() {
-		return is_user_logged_in() ? 403 : 401;
+		_deprecated_function( __METHOD__, 'jetpack-8.8.0', 'rest_authorization_required_code' );
+		return rest_authorization_required_code();
 	}
 
 	/**
