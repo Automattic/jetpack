@@ -10,6 +10,7 @@ div.wp-block-jetpack-whatsapp-button {
 		border-radius: 8px;
 		text-decoration: none;
 		white-space: nowrap;
+		min-height: 50px;
 
 		font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 		font-weight: 500;
@@ -33,6 +34,12 @@ div.wp-block-jetpack-whatsapp-button {
 
 	&.alignright {
 		text-align: right;
+	}
+
+	&.has-no-text {
+		a.whatsapp-block__button {
+			padding-left: 48px;
+		}
 	}
 
 	&:hover {
