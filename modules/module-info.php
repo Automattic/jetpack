@@ -783,25 +783,6 @@ function jetpack_google_analytics_more_info() {
 add_action( 'jetpack_module_more_info_google-analytics', 'jetpack_google_analytics_more_info' );
 
 /**
- * WooCommerce Analytics support link.
- */
-function jetpack_woocommerce_analytics_more_link() {
-	echo esc_url( Redirect::get_url( 'jetpack-support-woocommerce-analytics' ) );
-}
-add_action( 'jetpack_learn_more_button_woocommerce-analytics', 'jetpack_woocommerce_analytics_more_link' );
-
-/**
- * WooCommerce Analytics description.
- */
-function jetpack_woocommerce_analytics_more_info() {
-	esc_html_e(
-		'Enhanced analytics for WooCommerce and Jetpack users.',
-		'jetpack'
-	);
-}
-add_action( 'jetpack_module_more_info_woocommerce-analytics', 'jetpack_woocommerce_analytics_more_info' );
-
-/**
  * Search support link.
  */
 function jetpack_search_more_link() {
