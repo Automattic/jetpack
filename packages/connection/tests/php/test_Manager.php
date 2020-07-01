@@ -17,6 +17,7 @@ use phpmock\Mock;
 use phpmock\MockBuilder;
 use phpmock\MockEnabledException;
 use PHPUnit\Framework\TestCase;
+use WorDBless\Options as WorDBless_Options;
 
 /**
  * Connection Manager functionality testing.
@@ -84,6 +85,7 @@ class ManagerTest extends TestCase {
 	 * Clean up the testing environment.
 	 */
 	public function tearDown() {
+		WorDBless_Options::init()->clear_options();
 		unset( $this->manager );
 		Constants::clear_constants();
 		Mock::disableAll();
@@ -361,6 +363,52 @@ class ManagerTest extends TestCase {
 			'not dev mode, jetpack_disconnect'   => array( false, 'jetpack_disconnect', array( 'manage_options' ) ),
 			'not dev mode, jetpack_connect_user' => array( false, 'jetpack_connect_user', array( 'read' ) ),
 			'not dev mode, unknown cap'          => array( false, 'unknown_cap', self::DEFAULT_TEST_CAPS ),
+		);
+	}
+
+	/**
+	 * Test the `is_registered' method.
+	 *
+	 * @covers Automattic\Jetpack\Connection\Manager::is_registered
+	 * @dataProvider is_registered_data_provider
+	 *
+	 * @param object|boolean $blog_token The blog token. False if the blog token does not exist.
+	 * @param int|boolean    $blog_id The blog id. False if the blog id does not exist.
+	 * @param boolean        $expected_output The expected output.
+	 */
+	public function test_is_registered( $blog_token, $blog_id, $expected_output ) {
+		$this->manager->expects( $this->once() )
+			->method( 'get_access_token' )
+			->will( $this->returnValue( $blog_token ) );
+
+		if ( $blog_id ) {
+			update_option( 'jetpack_options', array( 'id' => $blog_id ) );
+		} else {
+			update_option( 'jetpack_options', array() );
+		}
+
+		$this->assertEquals( $expected_output, $this->manager->is_registered() );
+	}
+
+	/**
+	 * Data provider for test_is_registered.
+	 *
+	 * Structure of the test data arrays:
+	 *     [0] => 'blog_token'      object|boolean The blog token or false if the blog token does not exist.
+	 *     [1] => 'blog_id'         int|boolean The blog id or false if the blog id does not exist.
+	 *     [2] => 'expected_output' boolean The expected output of the call to is_registered.
+	 */
+	public function is_registered_data_provider() {
+		$access_token = (object) array(
+			'secret'           => 'abcd1234',
+			'external_user_id' => 1,
+		);
+
+		return array(
+			'blog token, blog id'       => array( $access_token, 1234, true ),
+			'blog token, no blog id'    => array( $access_token, false, false ),
+			'no blog token, blog id'    => array( false, 1234, false ),
+			'no blog token, no blog id' => array( false, false, false ),
 		);
 	}
 
