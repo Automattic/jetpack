@@ -196,11 +196,11 @@ class Broken_Token {
 			<input type="submit" value="Clear blog token" class="button button-primary button-break-it">
 		</form>
 
-		<p><strong>Break the user token:</strong></p>
+		<p><strong>Break the user tokens:</strong></p>
 		<form action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post">
 			<input type="hidden" name="action" value="clear_user_tokens">
 			<?php wp_nonce_field( 'clear-user-tokens' ); ?>
-			<input type="submit" value="Clear user token" class="button button-primary button-break-it">
+			<input type="submit" value="Clear user tokens" class="button button-primary button-break-it">
 		</form>
 		<br>
 		<form action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post">
@@ -291,7 +291,7 @@ class Broken_Token {
 	public function admin_post_set_invalid_user_tokens() {
 		check_admin_referer( 'set-invalid-user-tokens' );
 		$this->notice_type = 'jetpack-broken';
-		foreach ( Jetpack_Options::get_option( 'user_tokens' ) as $id => $token ) {
+		foreach ( Jetpack_Options::get_option( 'user_tokens', array() ) as $id => $token ) {
 			Jetpack_Options::update_option( 'user_tokens', array( $id => $this->invalid_user_token ) );
 		}
 
