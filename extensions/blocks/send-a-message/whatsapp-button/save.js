@@ -34,7 +34,11 @@ export default function SendAMessageSave( { attributes, className } ) {
 		return url;
 	};
 
-	const cssClassNames = classnames( className, colorClass ? 'is-color-' + colorClass : undefined );
+	const cssClassNames = classnames(
+		className,
+		colorClass ? 'is-color-' + colorClass : undefined,
+		! buttonText.length ? 'has-no-text' : undefined
+	);
 
 	return (
 		<div className={ cssClassNames }>
