@@ -226,7 +226,7 @@
 		"sinon-chai": "3.5.0",
 		"style-loader": "1.2.1",
 		"url-loader": "1.1.2",
-		"winston": "3.2.1"
+		"winston": "3.3.3"
 	},
 	"engines": {
 		"node": ">=10",
