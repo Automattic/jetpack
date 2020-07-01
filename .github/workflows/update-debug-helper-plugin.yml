@@ -1,0 +1,19 @@
+name: Update the Debug Helper plugin mirror repo
+on:
+  push:
+    branches:
+      - add/update-dev-helper-plugin-action # Every time a PR is merged to master.
+    paths:
+      - 'docker/mu-plugins/jetpack-debug-helper/**' # Only when the plugin is modified.
+
+jobs:
+  update_debug_helper_plugin:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Keep Jetpack Debug Helper plugin mirror repo updated
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+        run: |
+          sh ./bin/update-debug-helper-plugin.sh
