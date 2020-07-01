@@ -19,6 +19,7 @@ import {
 	LAYOUT_STYLES,
 } from './constants';
 import { isSimpleSite } from '../../shared/site-type-utils';
+import getCategoryWithFallbacks from '../../shared/get-category-with-fallbacks';
 
 /**
  * Style dependencies
@@ -55,8 +56,8 @@ const layoutStylesWithLabels = LAYOUT_STYLES.map( style => ( {
 /**
  * Filter valid images
  *
- * @param {array} images Array of image objects
- * @return {array} Array of image objects which have id and url
+ * @param {Array} images - Array of image objects
+ * @returns {Array} Array of image objects which have id and url
  */
 function getValidImages( images ) {
 	return filter( images, ( { id, url } ) => id && url );
@@ -201,7 +202,7 @@ export const icon = (
 
 export const settings = {
 	attributes: blockAttributes,
-	category: 'layout',
+	category: getCategoryWithFallbacks( 'media', 'layout' ),
 	description:
 		__( 'Display multiple images in an elegantly organized tiled layout.', 'jetpack' ) +
 		( ! isSimpleSite()
