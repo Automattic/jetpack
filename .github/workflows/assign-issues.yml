@@ -1,0 +1,24 @@
+name: "Assign Issue to PR author"
+on:
+- pull_request
+
+jobs:
+  assign-issue:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set up node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12
+
+      - name: Building Action
+        run: npm install
+        working-directory: ./.github/actions/assign-issues
+
+      - name: Check if a PR fixes an issue
+        uses: ./.github/actions/assign-issues
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
