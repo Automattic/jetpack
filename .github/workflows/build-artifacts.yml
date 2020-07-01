@@ -1,8 +1,22 @@
-name: "Beta builder"
+name: Build artifacts
 on: push
 
 jobs:
+  build_master_job:
+    name: Master
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+    steps:
+      - name: Checkout Jetpack
+        uses: actions/checkout@master
+      - name: Build production version
+        uses: automattic/action-jetpack-build-to-branch@master
+        with:
+          branch_pull: 'master'
+          branch_push: 'master-built'
+          commit_message: 'Automated production build from master'
   build_beta:
+    name: Beta
     runs-on: ubuntu-latest
     steps:
     - name: Checkout Jetpack
