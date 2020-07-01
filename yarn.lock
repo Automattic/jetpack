@@ -9038,10 +9038,10 @@ jed@^1.1.1:
   resolved "https://registry.yarnpkg.com/jed/-/jed-1.1.1.tgz#7a549bbd9ffe1585b0cd0a191e203055bee574b4"
   integrity sha1-elSbvZ/+FYWwzQoZHiAwVb7ldLQ=
 
-jest-allure@0.1.1:
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/jest-allure/-/jest-allure-0.1.1.tgz#95e51a97bbabca7116739b0fd5234b1567ed98e8"
-  integrity sha512-gWLqXXgKUMwM7oBD6p+IdeqJqdJ7hfZ0dJek0E4ZMegJA9LZedvP8j+Uu9Brr9MyCtdn8CYmQ7oThJiDuvwtnA==
+jest-allure@0.1.3:
+  version "0.1.3"
+  resolved "https://registry.yarnpkg.com/jest-allure/-/jest-allure-0.1.3.tgz#acd669d3a5dd933aa230a1e2d5d9cafc623a9989"
+  integrity sha512-EkO3LmkPx/a4VDg81JKtdy6kFXI0D1rHRIJ5Sa9MZaGtFYpgiCJFa6XwTgIySaVN+3+QBbIt1558CEkIW7FKFA==
   dependencies:
     "@types/allure-js-commons" "^0.0.0"
     "@types/jest" "^22.2.3"
