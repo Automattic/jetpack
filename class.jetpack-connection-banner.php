@@ -172,14 +172,10 @@ class Jetpack_Connection_Banner {
 
 		// Due to the limitation in how 3rd party cookies are handled in Safari,
 		// we're falling back to the original flow on Safari desktop and mobile.
-		if ( $is_safari ) {
-			$force_variation = 'original';
-		} elseif ( Constants::is_true( 'JETPACK_SHOULD_USE_CONNECTION_IFRAME' ) ) {
-			$force_variation = 'in_place';
-		} elseif ( Constants::is_defined( 'JETPACK_SHOULD_USE_CONNECTION_IFRAME' ) ) {
+		if ( $is_safari || Constants::is_true( 'JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME' ) ) {
 			$force_variation = 'original';
 		} else {
-			$force_variation = null;
+			$force_variation = 'in_place';
 		}
 
 		$tracking = new Automattic\Jetpack\Tracking();
