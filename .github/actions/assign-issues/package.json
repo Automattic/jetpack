@@ -1,0 +1,19 @@
+{
+	"name": "assign-issues",
+	"version": "1.0.0",
+	"description": "Assigns an issue to a PR author and add a label",
+	"author": "Automattic",
+	"license": "GPL-2.0-or-later",
+	"keywords": [
+		"wordpress",
+		"jetpack",
+		"github",
+		"action"
+	],
+	"main": "index.js",
+	"dependencies": {
+		"@actions/core": "^1.2.3",
+		"@actions/github": "^2.1.1"
+	},
+	"private": true
+}
