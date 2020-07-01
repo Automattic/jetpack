@@ -22,6 +22,7 @@ class Admin {
 	 */
 	public function __construct() {
 		add_action( 'admin_menu', array( $this, 'register_submenu_page' ), 1000 );
+		add_action( 'admin_post_store_debug_active_modules', array( $this, 'update_option' ) );
 	}
 
 	/**
@@ -52,23 +53,20 @@ class Admin {
 	 * Render UI.
 	 */
 	public function render_ui() {
-
-		$this->update_option();
-
 		$stored_options = get_option( self::OPTION_NAME, array() );
 		global $jetpack_dev_debug_modules;
 		?>
 		<h1>Jetpack Debug tools</h1>
 		<p>This plugin adds debugging tools to your jetpack. Choose which tools you want to activate.</p>
 
-		<form method="post">
+		<form action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post">
 			<input type="hidden" name="action" value="store_debug_active_modules">
 			<?php wp_nonce_field( 'store-debug-modules' ); ?>
 
 			<?php foreach ( $jetpack_dev_debug_modules as $module_slug => $module_details ) : ?>
 
 				<p>
-					<input type="checkbox" name="active_modules[]" value="<?php echo esc_attr( $module_slug ); ?>" <?php checked( in_array( $module_slug, $stored_options, true ) ); ?> />
+					<input type="checkbox" name="active_modules[]" value="<?php echo esc_attr( $module_slug ); ?>" <?php checked( in_array( $module_slug, (array) $stored_options, true ) ); ?> />
 					<b><?php echo esc_html( $module_details['name'] ); ?></b>
 					<?php echo esc_html( $module_details['description'] ); ?>
 				</p>
@@ -87,12 +85,14 @@ class Admin {
 	 * Store options.
 	 */
 	public function update_option() {
-
-		if ( isset( $_POST['action'] ) && 'store_debug_active_modules' === $_POST['action'] ) {
-			check_admin_referer( 'store-debug-modules' );
-			update_option( self::OPTION_NAME, $_POST['active_modules'] );
+		check_admin_referer( 'store-debug-modules' );
+		$active_modules = ! empty( $_POST['active_modules'] ) ? (array) $_POST['active_modules'] : array();
+		update_option( self::OPTION_NAME, $active_modules );
+		if ( wp_get_referer() ) {
+			wp_safe_redirect( wp_get_referer() );
+		} else {
+			wp_safe_redirect( get_home_url() );
 		}
-
 	}
 
 }
