@@ -7,7 +7,7 @@
 
 use PHPUnit\Framework\TestCase;
 
-define( WP_PLUGIN_DIR, '/var/www/wp-content/plugins' );
+define( 'WP_PLUGIN_DIR', '/var/www/wp-content/plugins' );
 
 /**
  * Provides unit tests for the methods in the Plugins_Handler class.
