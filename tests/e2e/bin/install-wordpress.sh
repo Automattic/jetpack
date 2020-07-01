@@ -75,7 +75,7 @@ docker-compose $DOCKER_COMPOSE_FILE_OPTIONS run --rm $CONTAINER touch /var/www/h
 
 # NOTE: Force classic connection flow
 # https://github.com/Automattic/jetpack/pull/13288
-docker-compose $DOCKER_COMPOSE_FILE_OPTIONS run --rm -u 33 $CLI config set JETPACK_SHOULD_USE_CONNECTION_IFRAME false --raw --type=constant --quiet
+docker-compose $DOCKER_COMPOSE_FILE_OPTIONS run --rm -u 33 $CLI config set JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME true --raw --type=constant --quiet
 
 
 echo -e $(status_message "Activating Jetpack and test plugins..")
