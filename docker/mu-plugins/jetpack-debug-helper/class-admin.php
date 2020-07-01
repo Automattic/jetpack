@@ -68,7 +68,7 @@ class Admin {
 			<?php foreach ( $jetpack_dev_debug_modules as $module_slug => $module_details ) : ?>
 
 				<p>
-					<input type="checkbox" name="active_modules[]" value="<?php echo esc_attr( $module_slug ); ?>" <?php checked( in_array( $module_slug, $stored_options, true ) ); ?> />
+					<input type="checkbox" name="active_modules[]" value="<?php echo esc_attr( $module_slug ); ?>" <?php checked( in_array( $module_slug, (array) $stored_options, true ) ); ?> />
 					<b><?php echo esc_html( $module_details['name'] ); ?></b>
 					<?php echo esc_html( $module_details['description'] ); ?>
 				</p>
@@ -87,10 +87,10 @@ class Admin {
 	 * Store options.
 	 */
 	public function update_option() {
-
+		check_admin_referer( 'store-debug-modules' );
 		if ( isset( $_POST['action'] ) && 'store_debug_active_modules' === $_POST['action'] ) {
-			check_admin_referer( 'store-debug-modules' );
-			update_option( self::OPTION_NAME, $_POST['active_modules'] );
+			$active_modules = ! empty( $_POST['active_modules'] ) ? (array) $_POST['active_modules'] : array();
+			update_option( self::OPTION_NAME, $active_modules );
 		}
 
 	}
