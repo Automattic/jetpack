@@ -16,13 +16,14 @@ import UAParser from 'ua-parser-js';
 import {
 	getSiteConnectionStatus as _getSiteConnectionStatus,
 	disconnectSite,
-	fetchUserConnectionData,
 	isDisconnectingSite as _isDisconnectingSite,
 	isFetchingConnectUrl as _isFetchingConnectUrl,
 	getConnectUrl as _getConnectUrl,
 	unlinkUser,
+	authorizeUserInPlace,
 	isCurrentUserLinked as _isCurrentUserLinked,
 	isUnlinkingUser as _isUnlinkingUser,
+	isAuthorizingUserInPlace as _isAuthorizingUserInPlace,
 } from 'state/connection';
 import { getSiteRawUrl } from 'state/initial-state';
 import onKeyDownCallback from 'utils/onkeydown-callback';
@@ -49,7 +50,6 @@ export class ConnectButton extends React.Component {
 
 	state = {
 		showModal: false,
-		isAuthorizing: false,
 	};
 
 	handleOpenModal = e => {
@@ -70,26 +70,11 @@ export class ConnectButton extends React.Component {
 	loadIframe = e => {
 		e.preventDefault();
 		// If the iframe is already loaded or we don't have a connectUrl yet, return.
-		if ( this.state.isAuthorizing || this.props.fetchingConnectUrl ) {
+		if ( this.props.isAuthorizing || this.props.fetchingConnectUrl ) {
 			return;
 		}
-		// This will disable the connect-button and prevent the iframe from reloading.
-		this.setState( { isAuthorizing: true } );
-		// Add an event listener to identify successful authorization via iframe.
-		window.addEventListener( 'message', this.receiveData );
-		this.refs.iframe.height = '220';
-		// TODO: Properly fetch 'connectUrl' for iframe authorization.
-		this.refs.iframe.src = this.props.connectUrl.replace( 'authorize', 'authorize_iframe' );
-	};
-
-	receiveData = e => {
-		if ( e.source === this.refs.iframe.contentWindow && e.data === 'close' ) {
-			// Remove listener, our job here is done.
-			window.removeEventListener( 'message', this.receiveData );
-			// Fetch user connection data after successful authorization to trigger state refresh
-			// for linked user.
-			this.props.fetchUserConnectionData();
-		}
+		// Dispatch user in place authorization.
+		this.props.authorizeUserInPlace();
 	};
 
 	renderUserButton = () => {
@@ -120,7 +105,7 @@ export class ConnectButton extends React.Component {
 		const buttonProps = {
 				className: 'is-primary jp-jetpack-connect__button',
 				href: connectUrl,
-				disabled: this.props.fetchingConnectUrl || this.state.isAuthorizing,
+				disabled: this.props.fetchingConnectUrl || this.props.isAuthorizing,
 			},
 			connectLegend = __( 'Link to WordPress.com' );
 
@@ -129,28 +114,15 @@ export class ConnectButton extends React.Component {
 		// thus ignore the 'connectInPlace' property value.
 		const UA = UAParser();
 		const isSafari = -1 !== UA.browser.name.indexOf( 'Safari' ); // can be 'Safari' or 'Safari Mobile'
-		if ( ! this.props.connectInPlace || isSafari ) {
-			return this.props.asLink ? (
-				<a { ...buttonProps }>{ connectLegend }</a>
-			) : (
-				<Button { ...buttonProps }>{ connectLegend }</Button>
-			);
+		// Secondary users in-place connection flow
+		if ( this.props.connectInPlace && ! isSafari ) {
+			buttonProps.onClick = this.loadIframe;
 		}
 
-		// Secondary users in-place connection flow
-		buttonProps.onClick = this.loadIframe;
-
-		return (
-			<div>
-				{ this.props.asLink ? (
-					<a { ...buttonProps }>{ connectLegend }</a>
-				) : (
-					<Button { ...buttonProps }>{ connectLegend }</Button>
-				) }
-				<div className="connect-iframe-wrap">
-					<iframe title="Link to WordPress" ref="iframe" height="0" width="100%"></iframe>
-				</div>
-			</div>
+		return this.props.asLink ? (
+			<a { ...buttonProps }>{ connectLegend }</a>
+		) : (
+			<Button { ...buttonProps }>{ connectLegend }</Button>
 		);
 	};
 
@@ -242,6 +214,7 @@ export default connect(
 			connectUrl: _getConnectUrl( state ),
 			isLinked: _isCurrentUserLinked( state ),
 			isUnlinking: _isUnlinkingUser( state ),
+			isAuthorizing: _isAuthorizingUserInPlace( state ),
 		};
 	},
 	dispatch => {
@@ -252,8 +225,8 @@ export default connect(
 			unlinkUser: () => {
 				return dispatch( unlinkUser() );
 			},
-			fetchUserConnectionData: () => {
-				return dispatch( fetchUserConnectionData() );
+			authorizeUserInPlace: () => {
+				return dispatch( authorizeUserInPlace() );
 			},
 		};
 	}

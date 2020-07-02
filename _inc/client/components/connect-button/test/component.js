@@ -68,11 +68,6 @@ describe( 'ConnectButton', () => {
 			expect( wrapper.find( 'Button' ).props().href ).to.be.equal( 'https://jetpack.wordpress.com/jetpack.authorize/1/' );
 		} );
 
-		it( 'has an iframe without src', () => {
-			expect( wrapper.find( 'iframe' ).first() ).to.exist;
-			expect( wrapper.find( 'iframe' ).first().src ).to.not.exist;
-		} );
-
 		it( 'has an onClick method', () => {
 			expect( wrapper.find( '.jp-jetpack-connect__button' ).first().props().onClick ).to.exist;		} );
 
