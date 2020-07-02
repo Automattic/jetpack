@@ -10,6 +10,7 @@ export const Slide = ( {
 	index,
 	currentSlideIndex,
 	playing,
+	ended,
 	muted,
 	onEnd,
 	onProgress,
@@ -26,6 +27,7 @@ export const Slide = ( {
 		timeout: null,
 	} );
 
+	// Sync playing state with underlying HTMLMediaElement
 	useEffect( () => {
 		if ( isVideo() ) {
 			if ( playing ) {
@@ -36,6 +38,14 @@ export const Slide = ( {
 		}
 	}, [ playing ] );
 
+	// Display end of video on last slide when story ends
+	useEffect( () => {
+		if ( isVideo() && ended && visible ) {
+			mediaRef.current.currentTime = mediaRef.current.duration;
+		}
+	}, [ ended, visible ] );
+
+	// Sync muted state with underlying HTMLMediaElement
 	useEffect( () => {
 		if ( isVideo() ) {
 			mediaRef.current.muted = muted;
@@ -45,6 +55,7 @@ export const Slide = ( {
 		}
 	}, [ muted ] );
 
+	// reset progress state for slides that aren't being displayed
 	useEffect( () => {
 		if ( ! visible ) {
 			updateProgressState( {
@@ -57,8 +68,9 @@ export const Slide = ( {
 				mediaRef.current.currentTime = 0;
 			}
 		}
-	}, [ currentSlideIndex ] );
+	}, [ visible ] );
 
+	// Sync progressState with underlying media playback progress
 	useEffect( () => {
 		clearTimeout( progressState.timeout );
 		if ( playing ) {
@@ -80,8 +92,9 @@ export const Slide = ( {
 		}
 	}, [ playing, progressState ] );
 
+	// Watch progressState and trigger events using onProgress and onEnd callbacks
 	useEffect( () => {
-		if ( ! visible || progressState.duration === null ) {
+		if ( ! playing || progressState.duration === null ) {
 			return;
 		}
 		const percentage = Math.round( ( 100 * progressState.currentTime ) / progressState.duration );
@@ -94,8 +107,9 @@ export const Slide = ( {
 		} else {
 			onProgress( percentage, progressState );
 		}
-	}, [ progressState ] );
+	}, [ playing, progressState ] );
 
+	// Calls onLoaded when underlying media is ready to be played
 	useEffect( () => {
 		waitMediaReady( mediaRef.current ).then( onLoaded );
 	}, [] );

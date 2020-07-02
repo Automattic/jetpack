@@ -349,7 +349,25 @@
 
 		.wp-story-prev-slide,
 		.wp-story-next-slide {
-			display: none;
+			display:block;
+			position: absolute;
+			top: 0;
+			bottom: 0;
+			height: 100%;
+
+			button {
+				display: none;
+			}
+		}
+
+		.wp-story-prev-slide {
+			left: 0;
+			width: 33.33%;
+		}
+
+		.wp-story-next-slide {
+			right: 0;
+			width: 66.66%;
 		}
 
 		.wp-story-controls {

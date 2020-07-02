@@ -55,24 +55,22 @@ export default function Overlay( {
 						onClick=${onPlayPressed}
 					/>
 				`}
-			<div class="wp-story-prev-slide">
+			<div class="wp-story-prev-slide" onClick=${onPreviousSlide}>
 				<${DecoratedButton}
 					size=${44}
 					iconSize=${24}
 					label="Previous Slide"
 					icon="navigate_before"
 					className="outlined-w"
-					onClick=${onPreviousSlide}
 				/>
 			</div>
-			<div class="wp-story-next-slide">
+			<div class="wp-story-next-slide" onClick=${onNextSlide}>
 				<${DecoratedButton}
 					size=${44}
 					iconSize=${24}
 					label="Next Slide"
 					icon="navigate_next"
 					className="outlined-w"
-					onClick=${onNextSlide}
 				/>
 			</div>
 		</div>
