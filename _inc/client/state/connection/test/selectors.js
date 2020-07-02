@@ -69,6 +69,14 @@ describe( 'requests selectors', () => {
 			expect( output ).to.be.equal( state.jetpack.connection.requests.fetchingUserData );
 		} );
 	} );
+
+	describe( '#isAuthorizingUserInPlace', () => {
+		it( 'should return state.jetpack.connection.requests.isAuthorizingUserInPlace', () => {
+			const stateIn = state;
+			const output = isAuthorizingUserInPlace( stateIn );
+			expect( output ).to.be.equal( state.jetpack.connection.requests.isAuthorizingUserInPlace );
+		} );
+	} );
 } );
 
 describe( 'status selectors', () => {

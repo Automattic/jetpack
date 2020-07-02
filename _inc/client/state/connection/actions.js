@@ -19,6 +19,8 @@ import {
 	DISCONNECT_SITE,
 	DISCONNECT_SITE_FAIL,
 	DISCONNECT_SITE_SUCCESS,
+	AUTH_USER_IN_PLACE,
+	AUTH_USER_IN_PLACE_SUCCESS,
 	UNLINK_USER,
 	UNLINK_USER_FAIL,
 	UNLINK_USER_SUCCESS,
@@ -206,5 +208,21 @@ export const unlinkUser = () => {
 					)
 				);
 			} );
+	};
+};
+
+export const authorizeUserInPlace = () => {
+	return dispatch => {
+		dispatch( {
+			type: AUTH_USER_IN_PLACE,
+		} );
+	};
+};
+
+export const authorizeUserInPlaceSuccess = () => {
+	return dispatch => {
+		dispatch( {
+			type: AUTH_USER_IN_PLACE_SUCCESS,
+		} );
 	};
 };
