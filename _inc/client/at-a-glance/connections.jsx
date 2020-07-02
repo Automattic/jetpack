@@ -133,8 +133,19 @@ export class DashConnections extends Component {
 				</div>
 			);
 		} else {
-			cardContent =
-				this.props.isLinked && ! this.props.isFetchingUserData ? (
+			if ( ! this.props.isLinked ) {
+				cardContent = (
+					<div>
+						<div className="jp-connection-settings__info">
+							{ __( 'Link your account to WordPress.com to get the most out of Jetpack.' ) }
+						</div>
+						<div className="jp-connection-settings__actions">{ maybeShowLinkUnlinkBtn }</div>
+					</div>
+				);
+			} else if ( this.props.isFetchingUserData ) {
+				cardContent = __( 'Loading…' );
+			} else {
+				cardContent = (
 					<div>
 						<div className="jp-connection-settings__info">
 							<img
@@ -160,14 +171,8 @@ export class DashConnections extends Component {
 						<div className="jp-connection-settings__actions">{ maybeShowLinkUnlinkBtn }</div>
 						<MobileMagicLink />
 					</div>
-				) : (
-					<div>
-						<div className="jp-connection-settings__info">
-							{ __( 'Link your account to WordPress.com to get the most out of Jetpack.' ) }
-						</div>
-						<div className="jp-connection-settings__actions">{ maybeShowLinkUnlinkBtn }</div>
-					</div>
 				);
+			}
 		}
 
 		return cardContent;
