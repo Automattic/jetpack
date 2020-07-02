@@ -2,7 +2,7 @@
 ( function() {
 	// Open closure.
 	// Local vars.
-	var Scroller, ajaxurl, stats, type, text, totop;
+	var Scroller, ajaxurl, stats, type, text, totop, loading_text;
 
 	// IE requires special handling
 	var isIE = -1 != navigator.userAgent.search( 'MSIE' );
@@ -319,6 +319,7 @@
 		// Create a loader element to show it's working.
 		if ( this.click_handle ) {
 			if ( ! loader ) {
+				document.getElementById( 'infinite-aria' ).textContent = loading_text;
 				loader = document.createElement( 'div' );
 				loader.classList.add( 'infinite-loader' );
 				loader.setAttribute( 'role', 'progress' );
@@ -485,6 +486,13 @@
 
 			// If 'click' type and there are still posts to fetch, add back the handle
 			if ( type == 'click' ) {
+				// add focus to new posts, only in button mode as we know where page focus currently is
+				document
+					.querySelector( '#infinite-view-' + ( self.page + self.offset - 1 ) + ' a:first-of-type' )
+					.focus( {
+						preventScroll: true,
+					} );
+
 				if ( response.lastbatch ) {
 					if ( self.click_handle ) {
 						// Update body classes
@@ -870,6 +878,9 @@
 		type = infiniteScroll.settings.type;
 		text = infiniteScroll.settings.text;
 		totop = infiniteScroll.settings.totop;
+
+		// aria text
+		loading_text = infiniteScroll.settings.loading_text;
 
 		// Initialize the scroller (with the ID of the element from the theme)
 		infiniteScroll.scroller = new Scroller( infiniteScroll.settings );

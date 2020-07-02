@@ -258,3 +258,21 @@
 		position: static;
 	}
 }
+
+/**
+ * Hide infinite aria feedback visually
+ */
+#infinite-aria {
+	position: absolute;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	height: 1px; width: 1px;
+	margin: -1px; padding: 0; border: 0;
+}
+
+/**
+ * Hide focus on infinite wrappers
+ */
+.infinite-wrap:focus {
+	outline: 0 !important;
+}
