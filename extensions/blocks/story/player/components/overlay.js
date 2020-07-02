@@ -19,12 +19,16 @@ export default function Overlay( {
 	tapToPlayPause,
 } ) {
 	const onOverlayPressed = useCallback( () => {
-		tapToPlayPause && onClick();
+		tapToPlayPause && onClick( event );
 	}, [ tapToPlayPause, onClick ] );
 
-	const onPlayPressed = useCallback( () => {
-		! tapToPlayPause && onClick();
-	}, [ tapToPlayPause, onClick ] );
+	const onPlayPressed = useCallback(
+		event => {
+			event.stopPropagation();
+			! tapToPlayPause && onClick();
+		},
+		[ tapToPlayPause, onClick ]
+	);
 
 	return html`
 		<div
@@ -34,6 +38,24 @@ export default function Overlay( {
 			} )}
 			onClick=${onOverlayPressed}
 		>
+			<div class="wp-story-prev-slide" onClick=${onPreviousSlide}>
+				<${DecoratedButton}
+					size=${44}
+					iconSize=${24}
+					label="Previous Slide"
+					icon="navigate_before"
+					className="outlined-w"
+				/>
+			</div>
+			<div class="wp-story-next-slide" onClick=${onNextSlide}>
+				<${DecoratedButton}
+					size=${44}
+					iconSize=${24}
+					label="Next Slide"
+					icon="navigate_next"
+					className="outlined-w"
+				/>
+			</div>
 			${! playing &&
 				! ended &&
 				html`
@@ -55,24 +77,6 @@ export default function Overlay( {
 						onClick=${onPlayPressed}
 					/>
 				`}
-			<div class="wp-story-prev-slide" onClick=${onPreviousSlide}>
-				<${DecoratedButton}
-					size=${44}
-					iconSize=${24}
-					label="Previous Slide"
-					icon="navigate_before"
-					className="outlined-w"
-				/>
-			</div>
-			<div class="wp-story-next-slide" onClick=${onNextSlide}>
-				<${DecoratedButton}
-					size=${44}
-					iconSize=${24}
-					label="Next Slide"
-					icon="navigate_next"
-					className="outlined-w"
-				/>
-			</div>
 		</div>
 	`;
 }
