@@ -829,7 +829,11 @@ class The_Neverending_Home_Page {
 
 			// Check if the taxonomy is attached to one post type only and use its plural name.
 			// If not, use "Posts" without confusing the users.
-			if ( count( $taxonomy->object_type ) < 2 ) {
+			if (
+				is_a( $taxonomy, 'WP_Taxonomy' )
+				&& is_countable( $taxonomy->object_type )
+				&& count( $taxonomy->object_type ) < 2
+			) {
 				$post_type = $taxonomy->object_type[0];
 			}
 		}
