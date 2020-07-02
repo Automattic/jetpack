@@ -55,10 +55,8 @@ class Broken_Token {
 
 	/**
 	 * Options.
-	 *
-	 * PHP 7.1+
 	 */
-	public const STORED_OPTIONS_KEY = 'broken_token_stored_options'; // phpcs:ignore PHPCompatibility.Classes.NewConstVisibility.Found
+	const STORED_OPTIONS_KEY = 'broken_token_stored_options';
 
 	/**
 	 * Token name.
@@ -364,7 +362,7 @@ class Broken_Token {
 	 */
 	public function store_current_options() {
 		update_option(
-			$this::STORED_OPTIONS_KEY,
+			self::STORED_OPTIONS_KEY,
 			array(
 				'blog_token'  => $this->blog_token,
 				'user_tokens' => $this->user_tokens,
@@ -380,14 +378,14 @@ class Broken_Token {
 	 * @return array
 	 */
 	public function get_stored_connection_options() {
-		return get_option( $this::STORED_OPTIONS_KEY );
+		return get_option( self::STORED_OPTIONS_KEY );
 	}
 
 	/**
 	 * Clears all stored connection option values.
 	 */
 	public function clear_stored_options() {
-		delete_option( $this::STORED_OPTIONS_KEY );
+		delete_option( self::STORED_OPTIONS_KEY );
 	}
 
 	/**
