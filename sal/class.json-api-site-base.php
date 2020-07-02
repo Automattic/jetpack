@@ -429,7 +429,7 @@ abstract class SAL_Site {
 			'upload_files'        => current_user_can( 'upload_files' ),
 			'delete_users'        => current_user_can( 'delete_users' ),
 			'remove_users'        => current_user_can( 'remove_users' ),
-			'owns_site'           => $is_wpcom_blog_owner,
+			'own_site'            => $is_wpcom_blog_owner,
 			/**
 		 	 * Filter whether the Hosting section in Calypso should be available for site.
 			 *
