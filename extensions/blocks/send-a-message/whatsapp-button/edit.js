@@ -155,7 +155,7 @@ export default function WhatsAppButtonEdit( { attributes, setAttributes, classNa
 							}
 
 							if ( newPhoneNumber.length > 2 ) {
-								setIsValidPhoneNumber( validatePhoneNumber( phoneNumber ) );
+								setIsValidPhoneNumber( validatePhoneNumber( newPhoneNumber ) );
 							}
 						} }
 						value={ phoneNumber }
