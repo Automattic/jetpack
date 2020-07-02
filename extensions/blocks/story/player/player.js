@@ -42,7 +42,11 @@ export const Player = ( { slides, playerEvents, ...settings } ) => {
 		} else {
 			setPlaying( false );
 			setEnded( true );
+			setCurrentSlideProgress( 100 );
 			playerEvents.emit( 'end' );
+			if ( settings.exitFullScreenOnEnd ) {
+				setFullscreen( false );
+			}
 		}
 	}, [ currentSlideIndex, slides ] );
 
@@ -55,9 +59,6 @@ export const Player = ( { slides, playerEvents, ...settings } ) => {
 
 	useEffect( () => {
 		playerEvents.emit( playing ? 'play' : 'pause' );
-	}, [ playing ] );
-
-	useEffect( () => {
 		if ( playing ) {
 			setEnded( false );
 		}
@@ -107,6 +108,7 @@ export const Player = ( { slides, playerEvents, ...settings } ) => {
 							currentSlideIndex=${currentSlideIndex}
 							playing=${currentSlideIndex === index && playing}
 							muted=${muted}
+							ended=${ended}
 							onProgress=${setCurrentSlideProgress}
 							onLoaded=${() => index === 0 && setLoading( false )}
 							onEnd=${tryNextSlide}

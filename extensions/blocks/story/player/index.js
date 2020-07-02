@@ -20,6 +20,7 @@ const defaultSettings = {
 	renderInterval: 50,
 	startMuted: false,
 	playInFullScreen: true,
+	exitFullScreenOnEnd: true,
 	loadInFullScreen: false,
 	tapToPlayPause: false, // embed feature
 	renderers: defaultRenderers,
