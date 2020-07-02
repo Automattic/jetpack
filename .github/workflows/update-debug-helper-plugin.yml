@@ -2,7 +2,7 @@ name: Update the Debug Helper plugin mirror repo
 on:
   push:
     branches:
-      - add/update-dev-helper-plugin-action # Every time a PR is merged to master.
+      - master # Every time a PR is merged to master.
     paths:
       - 'docker/mu-plugins/jetpack-debug-helper/**' # Only when the plugin is modified.
 
