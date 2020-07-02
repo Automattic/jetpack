@@ -31,6 +31,7 @@ $jetpack_dev_debug_modules = array(
 
 require_once 'class-admin.php';
 
+// Testing GH action.
 foreach ( (array) Admin::get_active_modules() as $module ) {
 	if ( isset( $jetpack_dev_debug_modules[ $module ] ) ) {
 		include_once plugin_dir_path( __FILE__ ) . 'modules/' . $jetpack_dev_debug_modules[ $module ]['file'];
