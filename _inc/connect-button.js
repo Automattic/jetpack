@@ -37,38 +37,14 @@ jQuery( document ).ready( function( $ ) {
 
 			if ( ! jetpackConnectButton.isRegistering ) {
 				if ( 'original' === jpConnect.forceVariation ) {
-					// Forcing original connection flow, `JETPACK_SHOULD_USE_CONNECTION_IFRAME = false`
+					// Forcing original connection flow, `JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME = true`
 					// or we're dealing with Safari which has issues with handling 3rd party cookies.
 					jetpackConnectButton.handleOriginalFlow();
-				} else if ( 'in_place' === jpConnect.forceVariation ) {
-					// Forcing new connection flow, `JETPACK_SHOULD_USE_CONNECTION_IFRAME = true`.
-					jetpackConnectButton.handleConnectInPlaceFlow();
 				} else {
-					// Forcing A/B test driven connection flow variation, `JETPACK_SHOULD_USE_CONNECTION_IFRAME` not defined.
-					jetpackConnectButton.startConnectionFlow();
+					// Default in-place connection flow.
+					jetpackConnectButton.handleConnectInPlaceFlow();
 				}
 			}
-		},
-		startConnectionFlow: function() {
-			var abTestName = 'jetpack_connect_in_place_v4';
-
-			$.ajax( {
-				url: 'https://public-api.wordpress.com/wpcom/v2/abtest/' + abTestName,
-				type: 'GET',
-				error: jetpackConnectButton.handleConnectionError,
-				data: jpConnect.identity,
-				xhrFields: {
-					withCredentials: true,
-				},
-				crossDomain: true,
-				success: function( data ) {
-					if ( data && 'in_place' === data.variation ) {
-						jetpackConnectButton.handleConnectInPlaceFlow();
-						return;
-					}
-					jetpackConnectButton.handleOriginalFlow();
-				},
-			} );
 		},
 		handleOriginalFlow: function() {
 			window.location = connectButton.attr( 'href' );

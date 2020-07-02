@@ -135,7 +135,7 @@ PHP
 
 	# NOTE: Force classic connection flow
 	# https://github.com/Automattic/jetpack/pull/13288
-	wp --allow-root config set JETPACK_SHOULD_USE_CONNECTION_IFRAME false --raw --type=constant
+	wp --allow-root config set JETPACK_SHOULD_NOT_USE_CONNECTION_IFRAME true --raw --type=constant
 
 	wp db create
 
