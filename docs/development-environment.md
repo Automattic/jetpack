@@ -200,8 +200,8 @@ yarn distclean
 
 Jetpack contains several extensions that have a separate build process. You can find information how to build them below: 
 
-* Jetpack Instant Search - [build instructions](../extensions/README.md)
-* Jetpack Block Editor Extensions - [build instructions](../modules/search/instant-search/README.md)
+* Jetpack Instant Search - [build instructions](../modules/search/instant-search/README.md)
+* Jetpack Block Editor Extensions - [build instructions](../extensions/README.md)
 
 ---
 
