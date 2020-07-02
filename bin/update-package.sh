@@ -55,9 +55,9 @@ for package in packages/*; do
 	cd $CLONE_DIR
 
 	# check if composer.json exists
-	COMPOSER_JSON_EXISTS=false
+	COMPOSER_JSON_EXISTED=false
 	if [ -f "composer.json" ]; then
-		COMPOSER_JSON_EXISTS=true
+		COMPOSER_JSON_EXISTED=true
 	fi
 
 	find . | grep -v ".git" | grep -v "^\.*$" | xargs rm -rf # delete all files (to handle deletions in monorepo)
@@ -67,7 +67,7 @@ for package in packages/*; do
 	cp -r $BASE/packages/$NAME/. .
 
 	# Before we commit any changes, ensure that the repo has the basics we need for any package.
-	if $COMPOSER_JSON_EXISTS && [ ! -f "composer.json" ]; then
+	if $COMPOSER_JSON_EXISTED && [ ! -f "composer.json" ]; then
 		echo "  Those changes remove essential parts of the package. They will not be committed."
 	# Commit if there is any change that could be committed
 	elif [ -n "$(git status --porcelain)" ]; then
