@@ -114,7 +114,7 @@ export class DashConnections extends Component {
 
 		if ( this.props.isDevMode ) {
 			// return nothing if this is an account connection card
-			cardContent = (
+			return (
 				<div className="jp-connection-settings__info">
 					{ this.props.userGravatar ? (
 						<img
@@ -132,47 +132,47 @@ export class DashConnections extends Component {
 					</div>
 				</div>
 			);
+		}
+
+		if ( ! this.props.isLinked ) {
+			cardContent = (
+				<div>
+					<div className="jp-connection-settings__info">
+						{ __( 'Link your account to WordPress.com to get the most out of Jetpack.' ) }
+					</div>
+					<div className="jp-connection-settings__actions">{ maybeShowLinkUnlinkBtn }</div>
+				</div>
+			);
+		} else if ( this.props.isFetchingUserData ) {
+			cardContent = __( 'Loading…' );
 		} else {
-			if ( ! this.props.isLinked ) {
-				cardContent = (
-					<div>
-						<div className="jp-connection-settings__info">
-							{ __( 'Link your account to WordPress.com to get the most out of Jetpack.' ) }
+			cardContent = (
+				<div>
+					<div className="jp-connection-settings__info">
+						<img
+							alt="gravatar"
+							width="64"
+							height="64"
+							className="jp-connection-settings__gravatar"
+							src={ this.props.userWpComAvatar }
+						/>
+						<div className="jp-connection-settings__text">
+							{ __( 'Connected as {{span}}%(username)s{{/span}}', {
+								args: {
+									username: this.props.userWpComLogin,
+								},
+								components: {
+									span: <span className="jp-connection-settings__username" />,
+								},
+								comment: '%(username) is the WordPress user login name.',
+							} ) }
+							<div className="jp-connection-settings__email">{ this.props.userWpComEmail }</div>
 						</div>
-						<div className="jp-connection-settings__actions">{ maybeShowLinkUnlinkBtn }</div>
 					</div>
-				);
-			} else if ( this.props.isFetchingUserData ) {
-				cardContent = __( 'Loading…' );
-			} else {
-				cardContent = (
-					<div>
-						<div className="jp-connection-settings__info">
-							<img
-								alt="gravatar"
-								width="64"
-								height="64"
-								className="jp-connection-settings__gravatar"
-								src={ this.props.userWpComAvatar }
-							/>
-							<div className="jp-connection-settings__text">
-								{ __( 'Connected as {{span}}%(username)s{{/span}}', {
-									args: {
-										username: this.props.userWpComLogin,
-									},
-									components: {
-										span: <span className="jp-connection-settings__username" />,
-									},
-									comment: '%(username) is the WordPress user login name.',
-								} ) }
-								<div className="jp-connection-settings__email">{ this.props.userWpComEmail }</div>
-							</div>
-						</div>
-						<div className="jp-connection-settings__actions">{ maybeShowLinkUnlinkBtn }</div>
-						<MobileMagicLink />
-					</div>
-				);
-			}
+					<div className="jp-connection-settings__actions">{ maybeShowLinkUnlinkBtn }</div>
+					<MobileMagicLink />
+				</div>
+			);
 		}
 
 		return cardContent;
