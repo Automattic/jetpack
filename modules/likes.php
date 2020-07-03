@@ -13,7 +13,7 @@
 
 use Automattic\Jetpack\Assets;
 
-Jetpack::add_resource_hint(
+Assets::add_resource_hint(
 	array(
 		'//widgets.wp.com',
 		'//s0.wp.com',

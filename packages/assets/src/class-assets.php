@@ -144,4 +144,29 @@ class Assets {
 		wp_enqueue_script( $handle, self::get_file_url_for_environment( $min_path, $non_min_path ), $deps, $ver, $in_footer );
 	}
 
+	/**
+	 * Passes an array of URLs to wp_resource_hints.
+	 *
+	 * @since 8.8.0
+	 *
+	 * @param string|array $urls URLs to hint.
+	 * @param string       $type One of the supported resource types: dns-prefetch (default), preconnect, prefetch, or prerender.
+	 */
+	public static function add_resource_hint( $urls, $type = 'dns-prefetch' ) {
+		add_filter(
+			'wp_resource_hints',
+			function( $hints, $resource_type ) use ( $urls, $type ) {
+				if ( $resource_type === $type ) {
+					// Type casting to array required since the function accepts a single string.
+					foreach ( (array) $urls as $url ) {
+						$hints[] = $url;
+					}
+				}
+				return $hints;
+			},
+			10,
+			2
+		);
+	}
+
 }

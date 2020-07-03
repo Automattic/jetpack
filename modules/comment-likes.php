@@ -13,7 +13,7 @@
 
 use Automattic\Jetpack\Assets;
 
-Jetpack::add_resource_hint( '//widgets.wp.com', 'dns-prefetch' );
+Assets::add_resource_hint( '//widgets.wp.com', 'dns-prefetch' );
 
 require_once dirname( __FILE__ ) . '/likes/jetpack-likes-master-iframe.php';
 require_once dirname( __FILE__ ) . '/likes/jetpack-likes-settings.php';

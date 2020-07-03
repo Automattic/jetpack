@@ -10,7 +10,7 @@
 
 if ( ! Jetpack::is_module_active( 'videopress' ) ) {
 
-	Jetpack::add_resource_hint(
+	\Automattic\Jetpack\Assets::add_resource_hint(
 		'//v0.wordpress.com',
 		'dns-prefetch'
 	);

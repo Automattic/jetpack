@@ -228,47 +228,6 @@ EXPECTED;
 		$this->assertTrue( $seen_orig );
 	}
 
-	/**
-	 * Tests the add_resource_hint function.
-	 *
-	 * @author kraftbj
-	 * @covers Jetpack::add_resource_hint
-	 * @since 8.8.0
-	 */
-	public function test_add_resource_hint_single_string() {
-		/*
-		 * First test is to confirm that the function works when passing a single string with no type.
-		 */
-		$url = '//single-string.example.com';
-		Jetpack::add_resource_hint( $url );
-		$values = apply_filters( 'wp_resource_hints', array(), 'dns-prefetch' );
-
-		$this->assertContains( $url, $values );
-	}
-
-	/**
-	 * Tests the add_resource_hint function.
-	 *
-	 * @author kraftbj
-	 * @covers Jetpack::add_resource_hint
-	 * @since 8.8.0
-	 */
-	public function test_add_resource_hint_array() {
-		/**
-		 * Next, test an array.
-		 */
-		$urls = array(
-			'//array-1.example.com',
-			'//array-2.example.com',
-		);
-		Jetpack::add_resource_hint( $urls );
-		$values = apply_filters( 'wp_resource_hints', array(), 'dns-prefetch' );
-
-		$this->assertContains( $urls[0], $values );
-		$this->assertContains( $urls[1], $values );
-
-	}
-
 	public function test_activating_deactivating_modules_fires_actions() {
 		self::reset_tracking_of_module_activation();
 

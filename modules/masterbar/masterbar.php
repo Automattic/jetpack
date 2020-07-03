@@ -113,7 +113,7 @@ class A8C_WPCOM_Masterbar {
 			return;
 		}
 
-		Jetpack::add_resource_hint(
+		Assets::add_resource_hint(
 			array(
 				'//s0.wp.com',
 				'//s1.wp.com',

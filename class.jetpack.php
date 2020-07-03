@@ -6896,8 +6896,9 @@ endif;
 	 * @param string|array $urls URLs to hint.
 	 */
 	public static function dns_prefetch( $urls = null ) {
+		_deprecated_function( __FUNCTION__, 'jetpack-8.8.0', 'Automattic\Jetpack\Assets::add_resource_hint' );
 		if ( $urls ) {
-			self::add_resource_hint( $urls );
+			Assets::add_resource_hint( $urls );
 		}
 	}
 
@@ -6905,6 +6906,7 @@ endif;
 	 * Passes an array of URLs to wp_resource_hints.
 	 *
 	 * @since 8.8.0
+	 * @deprecated 8.8.0 -- Just a temporary thing to help me track that I update everything.
 	 *
 	 * @param string|array $urls URLs to hint.
 	 * @param string       $type One of the supported resource types: dns-prefetch (default), preconnect, prefetch, or prerender.
