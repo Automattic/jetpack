@@ -213,11 +213,11 @@ class AssetsTest extends TestCase {
 			'//array-1.example.com',
 			'//array-2.example.com',
 		);
+
 		Assets::add_resource_hint( $urls );
 		$values = apply_filters( 'wp_resource_hints', array(), 'dns-prefetch' );
 
 		$this->assertContains( $urls[0], $values );
 		$this->assertContains( $urls[1], $values );
-
 	}
 }
