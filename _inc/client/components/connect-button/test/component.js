@@ -59,6 +59,7 @@ describe( 'ConnectButton', () => {
 			isSiteConnected: true,
 			connectUser: true,
 			connectInPlace:  true,
+			connectLegend: 'Link your account to WordPress.com',
 		};
 		Object.assign( testProps, currentTestProps );
 
@@ -66,6 +67,10 @@ describe( 'ConnectButton', () => {
 
 		it( 'has a link to jetpack.wordpress.com', () => {
 			expect( wrapper.find( 'Button' ).props().href ).to.be.equal( 'https://jetpack.wordpress.com/jetpack.authorize/1/' );
+		} );
+
+		it( 'its text is: Link your account to WordPress.com', () => {
+			expect( wrapper.find( 'Button' ).render().text() ).to.be.equal( 'Link your account to WordPress.com' );
 		} );
 
 		it( 'has an onClick method', () => {
@@ -97,13 +102,18 @@ describe( 'ConnectButton', () => {
 
 		Object.assign( testProps, {
 			isLinked  : true,
-			unlinkUser: unlinkUser
+			unlinkUser: unlinkUser,
+			connectLegend: 'Unlink your account from WordPress.com',
 		} );
 
 		const wrapper = shallow( <ConnectButton { ...testProps } /> );
 
 		it( 'does not link to a URL', () => {
 			expect( wrapper.find( 'a.jp-jetpack-unlink__button' ).first().props().href ).to.not.exist;
+		} );
+
+		it( 'its text is: Unlink your account from WordPress.com', () => {
+			expect( wrapper.find( 'a.jp-jetpack-unlink__button' ).first().text() ).to.be.equal( 'Unlink your account from WordPress.com' );
 		} );
 
 		it( 'has an onClick method', () => {
@@ -123,13 +133,18 @@ describe( 'ConnectButton', () => {
 			connectUrl     : 'http://example.org/wp-admin/admin.php?page=jetpack&action=register',
 			isSiteConnected: false,
 			isLinked       : false,
-			connectUser    : false
+			connectUser    : false,
+			connectLegend  : 'Connect your site to WordPress.com',
 		} );
 
 		const wrapper = shallow( <ConnectButton { ...testProps } /> );
 
 		it( 'has a link to Jetpack admin page in register mode', () => {
 			expect( wrapper.find( 'Button' ).props().href ).to.have.string( 'http://example.org/wp-admin/admin.php?page=jetpack&action=register' );
+		} );
+
+		it( 'its text is: Connect your site to WordPress.com', () => {
+			expect( wrapper.find( 'Button' ).render().text() ).to.be.equal( 'Connect your site to WordPress.com' );
 		} );
 
 		const wrapper2 = shallow( <ConnectButton { ...testProps } from="somewhere" /> );
@@ -144,7 +159,8 @@ describe( 'ConnectButton', () => {
 
 		const currentTestProps = {
 			isSiteConnected: true,
-			connectUser    : false
+			connectUser    : false,
+			connectLegend  : 'Disconnect your site from WordPress.com',
 		};
 		Object.assign( testProps, currentTestProps );
 
@@ -152,6 +168,10 @@ describe( 'ConnectButton', () => {
 
 		it( 'does not link to a URL', () => {
 			expect( wrapper.find( 'a' ).props().href ).to.not.exist;
+		} );
+
+		it( 'its text is: Disconnect your site from WordPress.com', () => {
+			expect( wrapper.find( 'a' ).text() ).to.be.equal( 'Disconnect your site from WordPress.com' );
 		} );
 
 		it( 'when clicked, handleOpenModal() is called once', () => {

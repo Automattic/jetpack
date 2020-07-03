@@ -38,6 +38,7 @@ export class ConnectButton extends React.Component {
 		connectUser: PropTypes.bool,
 		from: PropTypes.string,
 		asLink: PropTypes.bool,
+		connectLegend: PropTypes.string,
 		connectInPlace: PropTypes.bool,
 	};
 
@@ -90,7 +91,7 @@ export class ConnectButton extends React.Component {
 						onClick={ this.props.unlinkUser }
 						disabled={ this.props.isUnlinking }
 					>
-						{ __( 'Unlink me from WordPress.com' ) }
+						{ this.props.connectLegend || __( 'Unlink me from WordPress.com' ) }
 					</a>
 				</div>
 			);
@@ -107,7 +108,7 @@ export class ConnectButton extends React.Component {
 				href: connectUrl,
 				disabled: this.props.fetchingConnectUrl || this.props.isAuthorizing,
 			},
-			connectLegend = __( 'Link to WordPress.com' );
+			connectLegend = this.props.connectLegend || __( 'Link to WordPress.com' );
 
 		// Due to the limitation in how 3rd party cookies are handled in Safari,
 		// we're falling back to the original flow on Safari desktop and mobile,
@@ -140,7 +141,7 @@ export class ConnectButton extends React.Component {
 					onClick={ this.handleOpenModal }
 					disabled={ this.props.isDisconnecting }
 				>
-					{ __( 'Manage site connection' ) }
+					{ this.props.connectLegend || __( 'Manage site connection' ) }
 				</a>
 			);
 		}
@@ -155,7 +156,7 @@ export class ConnectButton extends React.Component {
 				href: connectUrl,
 				disabled: this.props.fetchingConnectUrl,
 			},
-			connectLegend = __( 'Set up Jetpack' );
+			connectLegend = this.props.connectLegend || __( 'Set up Jetpack' );
 
 		return this.props.asLink ? (
 			<a { ...buttonProps }>{ connectLegend }</a>
