@@ -42,7 +42,7 @@ export class AuthIframe extends React.Component {
 	componentDidMount = () => {
 		// Scroll to the iframe container
 		if ( this.props.scrollToIframe ) {
-			window.scrollTo( 0, this.refs.iframeWrap.offsetTop );
+			window.scrollTo( 0, this.refs.iframeWrap.offsetTop - 10 );
 		}
 		// Add an event listener to identify successful authorization via iframe.
 		window.addEventListener( 'message', this.receiveData );
