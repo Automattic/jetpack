@@ -101,8 +101,6 @@ export default function player( rootElement, params ) {
 	const initPlayer = ( newSettings = settings ) => {
 		if ( playerEvents ) {
 			playerEvents.removeAllListeners( 'ready' );
-			playerEvents.removeAllListeners( 'play' );
-			playerEvents.removeAllListeners( 'end' );
 			playerEvents.removeAllListeners( 'exit-fullscreen' );
 			playerEvents.removeAllListeners( 'go-fullscreen' );
 		}
