@@ -57,7 +57,6 @@ export default function player( rootElement, params ) {
 	const registerListeners = playerEvents => {
 		playerEvents.on( 'go-fullscreen', () => {
 			if ( settings.playInFullScreen ) {
-				container.classList.add( 'wp-story-fullscreen' );
 				rootElement.classList.add( 'wp-story-fullscreen' );
 				if ( isMobile && document.fullscreenEnabled && ! settings.loadInFullScreen ) {
 					rootElement.requestFullscreen();
@@ -68,23 +67,14 @@ export default function player( rootElement, params ) {
 			}
 		} );
 
-		playerEvents.on( 'exit-fullscreen', () => {
-			rootElement.classList.remove( 'wp-story-fullscreen' );
-			container.classList.remove( 'wp-story-fullscreen' );
-			if ( isMobile && document.fullscreenEnabled && ! settings.loadInFullScreen ) {
-				rootElement.exitFullscreen();
+		playerEvents.on( 'exit-fullscreen', async () => {
+			if ( document.fullscreenElement ) {
+				await document.exitFullscreen();
 			} else {
 				document.body.classList.remove( 'wp-story-in-fullscreen' );
 				document.getElementsByTagName( 'html' )[ 0 ].classList.remove( 'wp-story-in-fullscreen' );
 			}
-		} );
-
-		playerEvents.on( 'end', () => {
-			container.classList.add( 'wp-story-ended' );
-		} );
-
-		playerEvents.on( 'play', () => {
-			container.classList.remove( 'wp-story-ended' );
+			rootElement.classList.remove( 'wp-story-fullscreen' );
 		} );
 
 		const resize = () => {
