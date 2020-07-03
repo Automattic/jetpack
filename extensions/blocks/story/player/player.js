@@ -12,6 +12,7 @@ import classNames from 'classnames';
  */
 import Slide from './slide';
 import ProgressBar from './progress-bar';
+import Background from './components/background';
 
 export const Player = ( { slides, playerEvents, ...settings } ) => {
 	const [ currentSlideIndex, updateSlideIndex ] = useState( 0 );
@@ -96,7 +97,7 @@ export const Player = ( { slides, playerEvents, ...settings } ) => {
 	return html`
 		<div
 			class=${classNames( 'wp-story-container', {
-				'wp-story-in-fullscreen': fullscreen,
+				'wp-story-fullscreen': fullscreen,
 				'wp-story-ended': ended,
 			} )}
 		>
@@ -149,6 +150,10 @@ export const Player = ( { slides, playerEvents, ...settings } ) => {
 			/>
 			${settings.renderers.renderControls( html, { playing, muted, setPlaying, setMuted } )}
 		</div>
+		${fullscreen &&
+			html`
+				<${Background} currentMedia=${slides[ currentSlideIndex ]} />
+			`}
 	`;
 };
 
