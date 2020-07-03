@@ -7,7 +7,8 @@ import {
 	isFetchingUserData,
 	getSiteConnectionStatus,
 	getConnectUrl,
-	isCurrentUserLinked
+	isCurrentUserLinked,
+	isAuthorizingUserInPlace
 } from '../reducer';
 
 let state = {
@@ -18,6 +19,7 @@ let state = {
 				fetchingConnectUrl: false,
 				unlinkingUser: true,
 				fetchingUserData: true,
+				authorizingUserInPlace: true,
 			},
 			status: {
 				siteConnected: {
@@ -71,10 +73,10 @@ describe( 'requests selectors', () => {
 	} );
 
 	describe( '#isAuthorizingUserInPlace', () => {
-		it( 'should return state.jetpack.connection.requests.isAuthorizingUserInPlace', () => {
+		it( 'should return state.jetpack.connection.requests.authorizingUserInPlace', () => {
 			const stateIn = state;
 			const output = isAuthorizingUserInPlace( stateIn );
-			expect( output ).to.be.equal( state.jetpack.connection.requests.isAuthorizingUserInPlace );
+			expect( output ).to.be.equal( state.jetpack.connection.requests.authorizingUserInPlace );
 		} );
 	} );
 } );
