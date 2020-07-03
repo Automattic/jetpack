@@ -276,11 +276,12 @@ abstract class Jetpack_Admin_Page {
 		);
 		$args              = wp_parse_args( $args, $defaults );
 		$jetpack_admin_url = admin_url( 'admin.php?page=jetpack' );
-		$jetpack_about_url = ( Jetpack::is_active() || Jetpack::is_offline_mode() )
+		$jetpack_offline   = ( new Status() )->is_offline_mode();
+		$jetpack_about_url = ( Jetpack::is_active() || $jetpack_offline )
 			? admin_url( 'admin.php?page=jetpack_about' )
 			: Redirect::get_url( 'jetpack' );
 
-		$jetpack_privacy_url = ( Jetpack::is_active() || Jetpack::is_offline_mode() )
+		$jetpack_privacy_url = ( Jetpack::is_active() || $jetpack_offline )
 			? $jetpack_admin_url . '#/privacy'
 			: Redirect::get_url( 'a8c-privacy' );
 
