@@ -5,6 +5,7 @@ import { html } from 'htm/preact';
 import { useState, useEffect, useCallback } from 'preact/hooks';
 import { render } from 'preact';
 import { EventEmitter } from 'events';
+import classNames from 'classnames';
 
 /**
  * Internal dependencies
@@ -93,7 +94,12 @@ export const Player = ( { slides, playerEvents, ...settings } ) => {
 	}, [ currentSlideProgress ] );
 
 	return html`
-		<div class="wp-block-jetpack-story_container wp-story-container">
+		<div
+			class=${classNames( 'wp-story-container', {
+				'wp-story-in-fullscreen': fullscreen,
+				'wp-story-ended': ended,
+			} )}
+		>
 			${settings.renderers.renderHeader( html, {
 				...settings.metadata,
 				fullscreen,
