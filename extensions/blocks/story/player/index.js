@@ -23,6 +23,7 @@ const defaultSettings = {
 	exitFullScreenOnEnd: true,
 	loadInFullScreen: false,
 	tapToPlayPause: false, // embed feature
+	blurredBackground: true,
 	renderers: defaultRenderers,
 	shadowDOM: {
 		enabled: true,

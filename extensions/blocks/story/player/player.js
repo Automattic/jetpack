@@ -152,7 +152,7 @@ export const Player = ( { slides, playerEvents, ...settings } ) => {
 		</div>
 		${fullscreen &&
 			html`
-				<${Background} currentMedia=${slides[ currentSlideIndex ]} />
+				<${Background} currentMedia=${settings.blurredBackground && slides[ currentSlideIndex ]} />
 			`}
 	`;
 };
