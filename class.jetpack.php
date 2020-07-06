@@ -1142,6 +1142,15 @@ class Jetpack {
 	 * @return null
 	 */
 	public function register_assets() {
+
+		wp_register_script(
+			'jetpack-jpquery',
+			Assets::get_file_url_for_environment( '_inc/build/jpquery.min.js', '_inc/jpquery.js' ),
+			array(),
+			'20200706',
+			true
+		);
+
 		if ( ! wp_script_is( 'jetpack-gallery-settings', 'registered' ) ) {
 			wp_register_script(
 				'jetpack-gallery-settings',

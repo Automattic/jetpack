@@ -1,6 +1,6 @@
-/* global jetpackCarouselStrings, DocumentTouch */
+/* global jetpackCarouselStrings, DocumentTouch, jpQuery */
 
-jQuery( document ).ready( function( $ ) {
+jpQuery.ready( function( $ ) {
 	// gallery faded layer and container elements
 	var overlay,
 		comments,
@@ -17,8 +17,8 @@ jQuery( document ).ready( function( $ ) {
 		commentInterval,
 		lastSelectedSlide,
 		screenPadding = 110,
-		originalOverflow = $( 'body' ).css( 'overflow' ),
-		originalHOverflow = $( 'html' ).css( 'overflow' ),
+		originalOverflow = getComputedStyle( document.querySelector( 'body' ) )[ 'overflow' ],
+		originalHOverflow = getComputedStyle( document.querySelector( 'html' ) )[ 'overflow' ],
 		proportion = 85,
 		last_known_location_hash = '',
 		imageMeta,
@@ -535,7 +535,7 @@ jQuery( document ).ready( function( $ ) {
 
 	var processSingleImageGallery = function() {
 		// process links that contain img tag with attribute data-attachment-id
-		$( 'a img[data-attachment-id]' ).each( function() {
+		jpQuery.each( 'a img[data-attachment-id]', function() {
 			var container = $( this ).parent();
 
 			// skip if image was already added to gallery by shortcode
@@ -585,7 +585,8 @@ jQuery( document ).ready( function( $ ) {
 	var methods = {
 		testForData: function( gallery ) {
 			gallery = $( gallery ); // make sure we have it as a jQuery object.
-			return ! ( ! gallery.length || ! gallery.data( 'carousel-extra' ) );
+			return jpQuery.data.get( 'carousel-extra' );
+			// return ! ( ! gallery.length || ! gallery.data( 'carousel-extra' ) );
 		},
 
 		testIfOpened: function() {
@@ -1663,7 +1664,7 @@ jQuery( document ).ready( function( $ ) {
 		},
 	};
 
-	$.fn.jp_carousel = function( method ) {
+	jpQuery.fn.jp_carousel = function( method ) {
 		// ask for the HTML of the gallery
 		// Method calling logic
 		if ( methods[ method ] ) {
@@ -1676,8 +1677,11 @@ jQuery( document ).ready( function( $ ) {
 	};
 
 	// register the event listener for starting the gallery
-	$( document.body ).on(
-		'click.jp-carousel',
+	document.body.addEventListener;
+
+	jpQuery.on(
+		'click',
+		'.jp-carousel',
 		'div.gallery, div.tiled-gallery, ul.wp-block-gallery, ul.blocks-gallery-grid, div.wp-block-jetpack-tiled-gallery, a.single-image-gallery',
 		function( e ) {
 			if ( ! $( this ).jp_carousel( 'testForData', e.currentTarget ) ) {
@@ -1726,13 +1730,13 @@ jQuery( document ).ready( function( $ ) {
 	// handle lightbox (single image gallery) for images linking to 'Attachment Page'
 	if ( 1 === Number( jetpackCarouselStrings.single_image_gallery ) ) {
 		processSingleImageGallery();
-		$( document.body ).on( 'post-load', function() {
+		document.body.addEventListener( 'post-load', function() {
 			processSingleImageGallery();
 		} );
 	}
 
 	// Makes carousel work on page load and when back button leads to same URL with carousel hash (ie: no actual document.ready trigger)
-	$( window ).on( 'hashchange.jp-carousel', function() {
+	jpQuery.on( 'hashchange', '.jp-carousel', function() {
 		var hashRegExp = /jp-carousel-(\d+)/,
 			matches,
 			attachmentId,
@@ -1783,7 +1787,7 @@ jQuery( document ).ready( function( $ ) {
 	} );
 
 	if ( window.location.hash ) {
-		$( window ).trigger( 'hashchange' );
+		jpQuery.trigger( window, 'hashchange' );
 	}
 } );
 
