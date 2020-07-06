@@ -7,7 +7,6 @@ import domReady from '@wordpress/dom-ready';
 /**
  * Internal dependencies
  */
-import './style.scss';
 import player from './player';
 
 if ( typeof window !== 'undefined' ) {

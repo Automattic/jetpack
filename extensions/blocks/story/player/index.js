@@ -16,6 +16,7 @@ const defaultSettings = {
 	slides: [],
 	metadata: {},
 	autoload: true,
+	disabled: false,
 	imageTime: 5000,
 	renderInterval: 50,
 	startMuted: false,

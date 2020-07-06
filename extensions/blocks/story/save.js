@@ -3,6 +3,6 @@
  */
 import Story from './story';
 
-export default ( { attributes: { align, mediaFiles }, className } ) => (
-	<Story align={ align } className={ className } mediaFiles={ mediaFiles } />
+export default ( { attributes: { mediaFiles }, className } ) => (
+	<Story mountPlayer={ false } className={ className } mediaFiles={ mediaFiles } />
 );

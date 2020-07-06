@@ -50,6 +50,9 @@ function load_assets( $attributes ) {
  */
 function render( $attributes ) {
 	$get_image_template = function( $media, $index ) {
+		if ( ! isset( $media['id'] ) || ! isset( $media['url'] ) ) {
+			return 'Error retrieving media';
+		}
 		return sprintf(
 			'<img
 				alt="%s"
@@ -63,6 +66,9 @@ function render( $attributes ) {
 		);
 	};
 	$get_video_template = function( $media, $index ) {
+		if ( ! isset( $media['id'] ) || ! isset( $media['mime'] ) || ! isset( $media['url'] ) ) {
+			return 'Error retrieving media';
+		}
 		return sprintf(
 			'<video
 				title="%s"
@@ -95,6 +101,8 @@ function render( $attributes ) {
 		'loadInFullScreen' => ! is_page() && is_singular(),
 	);
 
+	$media_files = isset( $attributes['mediaFiles'] ) ? $attributes['mediaFiles'] : array();
+
 	return sprintf(
 		'<div class="wp-block-jetpack-story wp-story aligncenter" data-settings="%s">
 			<div class="wp-block-jetpack-story_container wp-story-container" style="display: block; opacity: 1;">
@@ -124,6 +132,6 @@ function render( $attributes ) {
 		esc_attr( get_site_icon_url( 32, includes_url( 'images/w-logo-blue.png' ) ) ),
 		esc_html( get_bloginfo( 'name' ) ),
 		esc_html( get_bloginfo( 'description' ) ),
-		join( "\n", array_map( $get_slide_template, $attributes['mediaFiles'], array_keys( $attributes['mediaFiles'] ) ) )
+		join( "\n", array_map( $get_slide_template, $media_files, array_keys( $media_files ) ) )
 	);
 }

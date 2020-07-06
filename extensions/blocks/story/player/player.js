@@ -14,7 +14,7 @@ import Slide from './slide';
 import ProgressBar from './progress-bar';
 import Background from './components/background';
 
-export const Player = ( { slides, playerEvents, ...settings } ) => {
+export const Player = ( { slides, playerEvents, disabled, ...settings } ) => {
 	const [ currentSlideIndex, updateSlideIndex ] = useState( 0 );
 	const [ playing, setPlaying ] = useState( false );
 	const [ fullscreen, setFullscreen ] = useState( false );
@@ -26,17 +26,14 @@ export const Player = ( { slides, playerEvents, ...settings } ) => {
 	const showSlide = ( slideIndex, play = true ) => {
 		setCurrentSlideProgress( 0 );
 		updateSlideIndex( slideIndex );
-
-		if ( play ) {
-			setPlaying( true );
-		}
+		setPlaying( play );
 	};
 
 	const tryPreviousSlide = useCallback( () => {
 		if ( currentSlideIndex > 0 ) {
 			showSlide( currentSlideIndex - 1 );
 		}
-	}, [ currentSlideIndex, slides ] );
+	}, [ currentSlideIndex ] );
 
 	const tryNextSlide = useCallback( () => {
 		if ( currentSlideIndex < slides.length - 1 ) {
@@ -50,7 +47,7 @@ export const Player = ( { slides, playerEvents, ...settings } ) => {
 				setFullscreen( false );
 			}
 		}
-	}, [ currentSlideIndex, slides ] );
+	}, [ currentSlideIndex ] );
 
 	const onExitFullscreen = useCallback( () => {
 		setFullscreen( false );
@@ -59,6 +56,19 @@ export const Player = ( { slides, playerEvents, ...settings } ) => {
 		}
 	}, [ fullscreen ] );
 
+	// pause player when disabled
+	useEffect( () => {
+		if ( disabled && playing ) {
+			setPlaying( false );
+		}
+	}, [ disabled, playing ] );
+
+	// reset player on slide change
+	useEffect( () => {
+		showSlide( 0, false );
+	}, [ slides ] );
+
+	// track play/pause state and check ending
 	useEffect( () => {
 		playerEvents.emit( playing ? 'play' : 'pause' );
 		if ( playing ) {
@@ -99,6 +109,7 @@ export const Player = ( { slides, playerEvents, ...settings } ) => {
 			class=${classNames( 'wp-story-container', {
 				'wp-story-fullscreen': fullscreen,
 				'wp-story-ended': ended,
+				'wp-story-disabled': disabled,
 			} )}
 		>
 			${settings.renderers.renderHeader( html, {
@@ -127,6 +138,7 @@ export const Player = ( { slides, playerEvents, ...settings } ) => {
 			${settings.renderers.renderOverlay( html, {
 				playing,
 				ended,
+				disabled: settings.disabled,
 				tapToPlayPause: ! fullscreen && settings.tapToPlayPause,
 				onClick: () => {
 					if ( ! fullscreen && ! playing && settings.playInFullScreen ) {

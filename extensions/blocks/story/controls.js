@@ -17,13 +17,11 @@ export default ( { allowedMediaTypes, attributes: { mediaFiles }, onSelectMedia 
 			{ !! mediaFiles.length && (
 				<Toolbar>
 					<MediaUpload
+						title={ __( 'Edit Story', 'jetpack' ) }
 						onSelect={ onSelectMedia }
 						allowedTypes={ allowedMediaTypes }
 						multiple
 						value={ mediaFiles.map( file => file.id ) }
-						render={ ( { open } ) => (
-							<EditButton label={ __( 'Edit Story', 'jetpack' ) } onClick={ open } />
-						) }
 					/>
 				</Toolbar>
 			) }
