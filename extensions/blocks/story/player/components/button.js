@@ -10,7 +10,7 @@ import classnames from 'classnames';
 import './icons.scss';
 
 export const MaterialIcon = ( { icon, size = 24 } ) => html`
-	<i class="material-icons ${icon}" style=${{ fontSize: size }}></i>
+	<i class="jetpack-material-icons ${icon}" style=${{ fontSize: size }}></i>
 `;
 
 export const Button = ( {
@@ -27,7 +27,7 @@ export const Button = ( {
 	return html`
 		<button
 			class=${classnames( {
-				'mdc-icon-button': true,
+				'jetpack-mdc-icon-button': true,
 				'circle-icon': circled,
 				outlined: outlined,
 				bordered: bordered,
