@@ -15,6 +15,8 @@ class Test_Jetpack_JITM extends TestCase {
 		$this->mock_add_action();
 		$this->mock_do_action();
 		$this->mock_wp_enqueue_script();
+		//$this->mock_wp_enqueue_script();
+		$this->mock_filters_deprecated();
 
 		// input/output of these functions doesn't matter right now, they just need to exist
 		$this->mock_empty_function( 'wp_register_style' );
@@ -146,6 +148,19 @@ class Test_Jetpack_JITM extends TestCase {
 			);
 		$this->apply_filters_mock = $builder->build();
 		$this->apply_filters_mock->enable();
+	}
+
+	protected function mock_filters_deprecated() {
+		$builder = new MockBuilder();
+		$builder->setNamespace( 'Automattic\Jetpack' )
+		        ->setName( 'apply_filters_deprecated' )
+		        ->setFunction(
+			        function( ...$args ) {
+				        return $args[1][0]; // Return the 2nd argument's first array item.
+			        }
+		        );
+		$this->apply_filters_deprecated_mock = $builder->build();
+		$this->apply_filters_deprecated_mock->enable();
 	}
 
 	protected function clear_mock_filters() {
