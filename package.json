@@ -60,6 +60,7 @@
 		"lint-file": "eslint --ext .js,.jsx",
 		"lint-jquery": "eslint --ext .js,.jsx --config .eslintrc.jquery.js . _inc extensions modules",
 		"lint-jquery-files-only": "yarn run lint-jquery --quiet -f ./tools/eslint-only-filenames-formatter.js",
+		"lint-jquery-rules-only": "yarn run lint-jquery --quiet -f ./tools/eslint-only-rules-formatter.js",
 		"php:compatibility": "composer php:compatibility",
 		"php:lint": "composer php:lint",
 		"php:autofix": "composer php:autofix",
