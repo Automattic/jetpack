@@ -41,7 +41,7 @@ class Jetpack_Tweetstorm_Helper {
 			return WPCOM_Gather_Tweetstorm::gather( $url );
 		}
 
-		$response = Client::wpcom_json_api_request_as_user(
+		$response = Client::wpcom_json_api_request_as_blog(
 			sprintf( '/sites/%d/tweetstorm/gather?url=%s', $site_id, rawurlencode( $url ) ),
 			2,
 			array( 'headers' => array( 'content-type' => 'application/json' ) ),
