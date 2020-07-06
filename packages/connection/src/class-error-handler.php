@@ -129,6 +129,7 @@ class Error_Handler {
 
 		// If the site gets reconnected, clear errors.
 		add_action( 'jetpack_site_registered', array( $this, 'delete_all_errors' ) );
+		add_action( 'jetpack_get_site_data_success', array( $this, 'delete_all_errors' ) );
 	}
 
 	/**
