@@ -69,13 +69,20 @@ function render_block( $attributes, $content ) {
 	$gallery = Jetpack_Instagram_Gallery_Helper::get_instagram_gallery( $access_token, $count );
 
 	if ( is_wp_error( $gallery ) || ! property_exists( $gallery, 'images' ) || 'ERROR' === $gallery->images ) {
-		if ( current_user_can( 'edit_post', get_the_ID() ) ) {
-			$message = esc_html__( 'An error occurred in the Latest Instagram Posts block. Please try again later.', 'jetpack' )
-				. '<br />'
-				. esc_html__( '(Only administrators and the post author will see this message.)', 'jetpack' );
-			return Jetpack_Gutenberg::notice( $message, 'error', Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attributes ) );
+		if ( ! current_user_can( 'edit_post', get_the_ID() ) ) {
+			return '';
 		}
-		return '';
+
+		$connection_unavailable = is_wp_error( $gallery ) && 'instagram_connection_unavailable' === $gallery->get_error_code();
+
+		$error_message = $connection_unavailable
+			? $gallery->get_error_message()
+			: esc_html__( 'An error occurred in the Latest Instagram Posts block. Please try again later.', 'jetpack' );
+
+		$message = $error_message
+			. '<br />'
+			. esc_html__( '(Only administrators and the post author will see this message.)', 'jetpack' );
+		return Jetpack_Gutenberg::notice( $message, 'error', Jetpack_Gutenberg::block_classes( FEATURE_NAME, $attributes ) );
 	}
 
 	if ( empty( $gallery->images ) ) {
