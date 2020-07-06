@@ -47,7 +47,7 @@ jobs:
         run: npm install
         working-directory: ./.github/actions/repo-gardening
 
-      - name: Check if a PR fixes an issue
+      - name: "Run the action (assign, manage milestones, for issues and PRs)"
         uses: ./.github/actions/repo-gardening
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
