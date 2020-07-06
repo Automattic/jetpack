@@ -1,5 +1,6 @@
 @import '../../../shared/styles/gutenberg-base-styles.scss';
 @import '../../../shared/styles/jetpack-variables.scss';
+@import './variables.scss';
 
 .wp-story-container {
 	height: 500px;
@@ -9,7 +10,7 @@
 	list-style: none;
 	padding: 0;
 	z-index: 1;
-	background-color: #0e1112;
+	background-color: $wp-story-background-color;
 	border-radius: 8px;
 
 	&.wp-story-initialized {
@@ -151,7 +152,7 @@
 				min-width: 12px;
 				width: 100%;
 				height: 4px;
-				background: rgba(170, 170, 170, 0.8);
+				background: $wp-story-pagination-bullet-color;
 			}
 
 			.wp-story-pagination-bullet-bar-progress {
@@ -213,7 +214,7 @@
 			@media ( min-width: $break-medium ) {
 				padding: 16px;
 				background: rgb(0,0,0);
-				background: linear-gradient(180deg, rgba(0,0,0,0.6320903361344538) 0%, rgba(0,0,0,0) 100%);
+				background: linear-gradient(180deg, rgba(0,0,0,0.63) 0%, rgba(0,0,0,0) 100%);
 			}
 
 			.wp-story-icon {
@@ -342,7 +343,7 @@
 	top: 0;
 	bottom: 0;
 	z-index: -2;
-	background-color: #0e1112;
+	background-color: $wp-story-background-color;
 
 	svg {
 		width: 0;
@@ -366,7 +367,7 @@
 		right: 0;
 		top: 0;
 		bottom: 0;
-		background-color: #0e1112;
+		background-color: $wp-story-background-color;
 		opacity: 0.88;
 
 		@supports (backdrop-filter: none) {
