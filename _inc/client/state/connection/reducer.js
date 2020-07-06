@@ -178,6 +178,16 @@ export function getConnectUrl( state ) {
 }
 
 /**
+ * Returns an object with information about the WP.com connected user
+ *
+ * @param  {Object} state Global state tree
+ * @return {object}       Returns an object with information about the connected user
+ */
+export function getConnectedWpComUser( state ) {
+	return state.jetpack.connection.user.currentUser.wpcomUser;
+}
+
+/**
  * Returns true if currently disconnecting the site
  *
  * @param  {Object} state Global state tree
