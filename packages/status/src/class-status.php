@@ -57,7 +57,7 @@ class Status {
 		 *
 		 * @param bool $offline_mode Is Jetpack's offline mode active.
 		 */
-		$offline_mode = (bool) apply_filters_deprecated( 'jetpack_development_mode', array( $offline_mode ), '8.8.0', 'jetpack_offline_mode' );
+		$offline_mode = (bool) \apply_filters_deprecated( 'jetpack_development_mode', array( $offline_mode ), '8.8.0', 'jetpack_offline_mode' );
 
 		/**
 		 * Filters Jetpack's offline mode.
@@ -69,7 +69,7 @@ class Status {
 		 *
 		 * @param bool $offline_mode Is Jetpack's offline mode active.
 		 */
-		$offline_mode = (bool) apply_filters( 'jetpack_offline_mode', $offline_mode );
+		$offline_mode = (bool) \apply_filters( 'jetpack_offline_mode', $offline_mode );
 
 		return $offline_mode;
 	}

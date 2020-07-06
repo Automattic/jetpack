@@ -39,8 +39,8 @@ class Test_Status extends TestCase {
 	 * Test setup.
 	 */
 	public function setUp() {
-		$this->status = new Status();
 		Monkey\setUp();
+		$this->status = new Status();
 	}
 
 	/**
