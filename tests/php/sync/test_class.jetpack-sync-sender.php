@@ -4,6 +4,7 @@ use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Defaults;
 use Automattic\Jetpack\Sync\Lock;
 use Automattic\Jetpack\Sync\Modules\Callables;
+use Automattic\Jetpack\Sync\Settings;
 
 
 class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
@@ -249,22 +250,16 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 
 	function test_sends_queue_id_to_server() {
 		add_action( 'my_incremental_action', array( $this->listener, 'action_handler' ) );
-		add_action( 'my_full_sync_action', array( $this->listener, 'full_sync_action_handler' ) );
 
 		do_action( 'my_incremental_action' );
-		do_action( 'my_full_sync_action' );
 
 		$this->sender->do_sync();
-		$this->sender->do_full_sync();
 
 		$incremental_event = $this->server_event_storage->get_most_recent_event( 'my_incremental_action' );
-		$full_sync_event = $this->server_event_storage->get_most_recent_event( 'my_full_sync_action' );
 
 		$this->assertEquals( $incremental_event->queue, $this->listener->get_sync_queue()->id );
-		$this->assertEquals( $this->listener->get_full_sync_queue()->id, $full_sync_event->queue );
 
 		remove_action( 'my_incremental_action', array( $this->listener, 'action_handler' ) );
-		remove_action( 'my_full_sync_action', array( $this->listener, 'full_sync_action_handler' ) );
 	}
 
 	function test_reset_module_also_resets_full_sync_lock() {
@@ -484,41 +479,35 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	/**
-	 * Verify that do_full_sync returns WP_Error when Full Sync is in progress.
+	 * Verify that do_full_sync returns TRUE when Full Sync is in progress.
 	 *
-	 * Note Highlights existing behavior which is broken, correct value should be True.
 	 * For more context see p1HpG7-9pe-p2.
 	 */
 	public function test_do_full_sync_return_in_progress() {
 
-		// udpate settings to In Progress.
-		$settings = array(
-			'started'  => true,
-			'finished' => false,
-			'progress' => array(),
-			'config'   => array(),
-		);
-		\Jetpack_Options::update_raw_option( 'jetpack_sync_full_status', $settings );
+		// Initialize a Full Sync (all modules).
+		$full_sync = Modules::get_module( 'full-sync' );
+		$full_sync->start();
+
+		// Modify send_duration so we don't send all data at once.
+		Settings::update_settings( array( 'full_sync_send_duration' => 0 ) );
 
 		$result = $this->sender->do_full_sync();
-
-		// WP_Error is expected.
-		$this->assertInstanceOf( 'WP_Error', $result );
-		// Correct state would be "True".
+		// True is expected.
+		$this->assertTrue( $result );
 	}
 
 	/**
-	 * Verify that do_full_sync returns WP_Error when Full Sync is complete.
+	 * Verify that do_full_sync returns FALSE when Full Sync is complete.
 	 *
-	 * Note Highlights existing behavior which is broken, correct value should be False.
 	 * For more context see p1HpG7-9pe-p2.
 	 */
 	public function test_do_full_sync_return_complete() {
 
 		// udpate settings to In Progress.
 		$settings = array(
-			'started'  => true,
-			'finished' => true,
+			'started'  => '1594051403',
+			'finished' => '1594051404',
 			'progress' => array(),
 			'config'   => array(),
 		);
@@ -526,15 +515,13 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 
 		$result = $this->sender->do_full_sync();
 
-		// WP_Error is expected.
-		$this->assertInstanceOf( 'WP_Error', $result );
-		// Correct state would be "False".
+		// FALSE is expected.
+		$this->assertFalse( $result );
 	}
 
 	/**
-	 * Verify that do_full_sync returns WP_Error when Full Sync has a send lock.
+	 * Verify that do_full_sync returns TRUE when Full Sync has a send lock.
 	 *
-	 * Note Highlights existing behavior which is broken, correct value should be False.
 	 * For more context see p1HpG7-9pe-p2.
 	 */
 	public function test_do_full_sync_return_send_lock() {
@@ -553,9 +540,9 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 
 		$result = $this->sender->do_full_sync();
 
-		// WP_Error is expected.
-		$this->assertInstanceOf( 'WP_Error', $result );
-		// Correct state would be "False".
+		// TRUE is expected.
+		$this->assertTrue( $result );
+
 		( new Lock() )->remove( 'full_sync' );
 	}
 
