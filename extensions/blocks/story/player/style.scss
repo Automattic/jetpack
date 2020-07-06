@@ -10,6 +10,7 @@
 	padding: 0;
 	z-index: 1;
 	background-color: #0e1112;
+	border-radius: 8px;
 
 	&.wp-story-initialized {
 		opacity: 1;
@@ -150,7 +151,6 @@
 				min-width: 12px;
 				width: 100%;
 				height: 4px;
-				//border-radius: 1.5px;
 				background: rgba(170, 170, 170, 0.8);
 			}
 
@@ -184,6 +184,7 @@
 		height: 100%;
 		max-width: 100%;
 		max-height: 100%;
+		border-radius: 0;
 
 		.wp-story-wrapper {
 			margin-top: 84px;
