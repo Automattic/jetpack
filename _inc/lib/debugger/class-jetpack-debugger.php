@@ -74,7 +74,7 @@ class Jetpack_Debugger {
 						foreach ( $failures as $fail ) {
 							$action_link  = $fail['action'];
 							$action_label = $fail['action_label'];
-							$action       = ( $action_link ) ? '<a href="' . $action_link . '">' . $action_link : $action_label;
+							$action       = ( $action_link ) ? '<a href="' . $action_link . '">' . $action_link . '</a>' : $action_label;
 							echo '<div class="jetpack-test-error">';
 							echo '<p><a class="jetpack-test-heading" href="#">' . esc_html( $fail['short_description'] );
 							echo '<span class="noticon noticon-collapse"></span></a></p>';
