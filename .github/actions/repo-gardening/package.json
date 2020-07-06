@@ -12,9 +12,9 @@
 	],
 	"main": "index.js",
 	"dependencies": {
-		"@actions/core": "^1.2.3",
-		"@actions/github": "^2.1.1",
-		"moment": "^2.27.0"
+		"@actions/core": "1.2.4",
+		"@actions/github": "2.2.0",
+		"moment": "2.27.0"
 	},
 	"private": true
 }
