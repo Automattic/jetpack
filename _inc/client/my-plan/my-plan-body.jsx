@@ -80,7 +80,7 @@ class MyPlanBody extends React.Component {
 
 	render() {
 		let planCard = '';
-		const planClass = 'dev' !== this.props.plan ? getPlanClass( this.props.plan ) : 'dev';
+		const planClass = 'offline' !== this.props.plan ? getPlanClass( this.props.plan ) : 'offline';
 		const premiumThemesActive = includes(
 				this.props.activeFeatures,
 				FEATURE_UNLIMITED_PREMIUM_THEMES
@@ -617,7 +617,7 @@ class MyPlanBody extends React.Component {
 			case 'is-daily-backup-plan':
 			case 'is-realtime-backup-plan':
 			case 'is-search-plan':
-			case 'dev':
+			case 'offline':
 				planCard = (
 					<div className="jp-landing__plan-features">
 						{ jetpackBackupCard }

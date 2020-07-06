@@ -34,7 +34,7 @@ class Media extends React.Component {
 		const videoPressSettings = includes( [ 'is-premium-plan', 'is-business-plan' ], planClass ) && (
 			<SettingsGroup
 				hasChild
-				disableInDevMode
+				disableInOfflineMode
 				module={ videoPress }
 				support={ {
 					link: getRedirectUrl( 'jetpack-support-videopress' ),
@@ -50,7 +50,7 @@ class Media extends React.Component {
 				</p>
 				<ModuleToggle
 					slug="videopress"
-					disabled={ this.props.isUnavailableInDevMode( 'videopress' ) }
+					disabled={ this.props.isUnavailableInOfflineMode( 'videopress' ) }
 					activated={ this.props.getOptionValue( 'videopress' ) }
 					toggling={ this.props.isSavingAnyOption( 'videopress' ) }
 					toggleModule={ this.props.toggleModuleNow }

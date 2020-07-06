@@ -13,7 +13,7 @@ import { __, sprintf, _x } from '@wordpress/i18n';
 import {
 	getSiteConnectionStatus,
 	isCurrentUserLinked,
-	isDevMode,
+	isOfflineMode,
 	isFetchingUserData as _isFetchingUserData,
 	getConnectedWpComUser as _getConnectedWpComUser,
 } from 'state/connection';
@@ -40,7 +40,7 @@ export class DashConnections extends Component {
 	siteConnection() {
 		let cardContent = '';
 
-		if ( this.props.isDevMode ) {
+		if ( this.props.isOfflineMode ) {
 			cardContent = (
 				<div className="jp-connection-settings__info">
 					{ this.props.siteIcon ? (
@@ -101,7 +101,7 @@ export class DashConnections extends Component {
 
 	/*
 	 * Render a card for user linking. If it's connected, show the currently linked user.
-	 * Show an alternative message if site is in Dev Mode.
+	 * Show an alternative message if site is in Offline Mode.
 	 *
 	 * @returns {string}
 	 */
@@ -112,7 +112,7 @@ export class DashConnections extends Component {
 
 		let cardContent = '';
 
-		if ( this.props.isDevMode ) {
+		if ( this.props.isOfflineMode ) {
 			// return nothing if this is an account connection card
 			return (
 				<div className="jp-connection-settings__info">
@@ -220,7 +220,7 @@ export class DashConnections extends Component {
 
 DashConnections.propTypes = {
 	siteConnectionStatus: PropTypes.any.isRequired,
-	isDevMode: PropTypes.bool.isRequired,
+	isOfflineMode: PropTypes.bool.isRequired,
 	userCanDisconnectSite: PropTypes.bool.isRequired,
 	userIsMaster: PropTypes.bool.isRequired,
 	isLinked: PropTypes.bool.isRequired,
@@ -231,7 +231,7 @@ DashConnections.propTypes = {
 export default connect( state => {
 	return {
 		siteConnectionStatus: getSiteConnectionStatus( state ),
-		isDevMode: isDevMode( state ),
+		isOfflineMode: isOfflineMode( state ),
 		userCanDisconnectSite: userCanDisconnectSite( state ),
 		userIsMaster: userIsMaster( state ),
 		userGravatar: getUserGravatar( state ),

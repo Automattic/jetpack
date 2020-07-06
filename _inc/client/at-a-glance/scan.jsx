@@ -18,7 +18,7 @@ import { getSitePlan, isFetchingSiteData } from 'state/site';
 import { getScanStatus, isFetchingScanStatus } from 'state/scan';
 import { isPluginInstalled } from 'state/site/plugins';
 import { getVaultPressScanThreatCount, getVaultPressData } from 'state/at-a-glance';
-import { isDevMode } from 'state/connection';
+import { isOfflineMode } from 'state/connection';
 import DashItem from 'components/dash-item';
 import { get, isArray } from 'lodash';
 import { getUpgradeUrl, showBackups } from 'state/initial-state';
@@ -85,7 +85,7 @@ class DashScan extends Component {
 		vaultPressData: PropTypes.any.isRequired,
 		scanThreats: PropTypes.any.isRequired,
 		sitePlan: PropTypes.object.isRequired,
-		isDevMode: PropTypes.bool.isRequired,
+		isOfflineMode: PropTypes.bool.isRequired,
 		isVaultPressInstalled: PropTypes.bool.isRequired,
 		fetchingSiteData: PropTypes.bool.isRequired,
 		upgradeUrl: PropTypes.string.isRequired,
@@ -96,7 +96,7 @@ class DashScan extends Component {
 		vaultPressData: '',
 		scanThreats: 0,
 		sitePlan: '',
-		isDevMode: false,
+		isOfflineMode: false,
 		isVaultPressInstalled: false,
 		fetchingSiteData: false,
 	};
@@ -278,10 +278,10 @@ class DashScan extends Component {
 			return null;
 		}
 
-		if ( this.props.isDevMode ) {
+		if ( this.props.isOfflineMode ) {
 			return renderCard( {
 				className: 'jp-dash-item__is-inactive',
-				content: __( 'Unavailable in Dev Mode.', 'jetpack' ),
+				content: __( 'Unavailable in Offline Mode.', 'jetpack' ),
 			} );
 		}
 
@@ -317,7 +317,7 @@ export default connect( state => {
 		scanThreats: getVaultPressScanThreatCount( state ),
 		sitePlan,
 		planClass: getPlanClass( get( sitePlan, 'product_slug', '' ) ),
-		isDevMode: isDevMode( state ),
+		isOfflineMode: isOfflineMode( state ),
 		isVaultPressInstalled: isPluginInstalled( state, 'vaultpress/vaultpress.php' ),
 		fetchingSiteData: isFetchingSiteData( state ),
 		showBackups: showBackups( state ),

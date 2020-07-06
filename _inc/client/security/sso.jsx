@@ -54,7 +54,7 @@ export const SSO = withModuleSettingsFormHelpers(
 
 		render() {
 			const isSSOActive = this.props.getOptionValue( 'sso' ),
-				unavailableInDevMode = this.props.isUnavailableInDevMode( 'sso' );
+				unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'sso' );
 			return (
 				<SettingsCard
 					{ ...this.props }
@@ -64,7 +64,7 @@ export const SSO = withModuleSettingsFormHelpers(
 				>
 					<SettingsGroup
 						hasChild
-						disableInDevMode
+						disableInOfflineMode
 						module={ this.props.getModule( 'sso' ) }
 						support={ {
 							text: __(
@@ -82,7 +82,7 @@ export const SSO = withModuleSettingsFormHelpers(
 						</p>
 						<ModuleToggle
 							slug="sso"
-							disabled={ unavailableInDevMode }
+							disabled={ unavailableInOfflineMode }
 							activated={ isSSOActive }
 							toggling={ this.props.isSavingAnyOption( 'sso' ) }
 							toggleModule={ this.props.toggleModuleNow }
@@ -96,7 +96,7 @@ export const SSO = withModuleSettingsFormHelpers(
 								checked={ this.state.jetpack_sso_match_by_email }
 								disabled={
 									! isSSOActive ||
-									unavailableInDevMode ||
+									unavailableInOfflineMode ||
 									this.props.isSavingAnyOption( [ 'sso', 'jetpack_sso_match_by_email' ] )
 								}
 								onChange={ this.handleMatchByEmailToggleChange }
@@ -109,7 +109,7 @@ export const SSO = withModuleSettingsFormHelpers(
 								checked={ this.state.jetpack_sso_require_two_step }
 								disabled={
 									! isSSOActive ||
-									unavailableInDevMode ||
+									unavailableInOfflineMode ||
 									this.props.isSavingAnyOption( [ 'sso', 'jetpack_sso_require_two_step' ] )
 								}
 								onChange={ this.handleTwoStepToggleChange }

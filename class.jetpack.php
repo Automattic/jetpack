@@ -1669,8 +1669,11 @@ class Jetpack {
 			$notice = __( 'The WP_LOCAL_DEV constant is defined in wp-config.php or elsewhere.', 'jetpack' );
 		} elseif ( site_url() && false === strpos( site_url(), '.' ) ) {
 			$notice = __( 'The site URL lacking a dot (e.g. http://localhost).', 'jetpack' );
-		} else {
+			/** This filter is documented in packages/status/src/class-status.php */
+		} elseif ( has_filter( 'jetpack_development_mode' ) && apply_filters( 'jetpack_development_mode', false ) ) { // This is a deprecated filter name.
 			$notice = __( 'The jetpack_development_mode filter is set to true.', 'jetpack' );
+		} else {
+			$notice = __( 'The jetpack_offline_mode filter is set to true.', 'jetpack' );
 		}
 
 		return $notice;

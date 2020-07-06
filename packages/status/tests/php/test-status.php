@@ -58,31 +58,31 @@ class Test_Status extends TestCase {
 	 */
 	public function test_is_offline_mode_default() {
 		Functions\when( 'site_url' )->justReturn( $this->site_url );
-		Filters\expectApplied( 'jetpack_development_mode' )->once()->with( false )->andReturn( false );
+		Filters\expectApplied( 'jetpack_offline_mode' )->once()->with( false )->andReturn( false );
 
 		$this->assertFalse( $this->status->is_offline_mode() );
 	}
 
 	/**
-	 * Test is_offline_mode when using the jetpack_development_mode filter
+	 * Test is_offline_mode when using the jetpack_offline_mode filter
 	 *
 	 * @covers Automattic\Jetpack\Status::is_offline_mode
 	 */
 	public function test_is_offline_mode_filter_true() {
 		Functions\when( 'site_url' )->justReturn( $this->site_url );
-		Filters\expectApplied( 'jetpack_development_mode' )->once()->with( false )->andReturn( true );
+		Filters\expectApplied( 'jetpack_offline_mode' )->once()->with( false )->andReturn( true );
 
 		$this->assertTrue( $this->status->is_offline_mode() );
 	}
 
 	/**
-	 * Test when using a bool value for the jetpack_development_mode filter.
+	 * Test when using a bool value for the jetpack_offline_mode filter.
 	 *
 	 * @covers Automattic\Jetpack\Status::is_offline_mode
 	 */
 	public function test_is_offline_mode_filter_bool() {
 		Functions\when( 'site_url' )->justReturn( $this->site_url );
-		Filters\expectApplied( 'jetpack_development_mode' )->once()->with( false )->andReturn( 0 );
+		Filters\expectApplied( 'jetpack_offline_mode' )->once()->with( false )->andReturn( 0 );
 
 		$this->assertFalse( $this->status->is_offline_mode() );
 	}
@@ -95,7 +95,7 @@ class Test_Status extends TestCase {
 	public function test_is_offline_mode_localhost() {
 		Functions\when( 'site_url' )->justReturn( 'localhost' );
 
-		Filters\expectApplied( 'jetpack_development_mode' )->once()->with( false )->andReturn( false );
+		Filters\expectApplied( 'jetpack_offline_mode' )->once()->with( false )->andReturn( false );
 
 		$this->assertTrue( $this->status->is_offline_mode() );
 	}
@@ -109,7 +109,7 @@ class Test_Status extends TestCase {
 	 */
 	public function test_is_offline_mode_constant() {
 		Functions\when( 'site_url' )->justReturn( $this->site_url );
-		Filters\expectApplied( 'jetpack_development_mode' )->once()->with( false )->andReturn( false );
+		Filters\expectApplied( 'jetpack_offline_mode' )->once()->with( false )->andReturn( false );
 
 		$constants_mocks = $this->mock_constants(
 			array(

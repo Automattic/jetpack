@@ -12,7 +12,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { getModule, getModuleOverride } from 'state/modules';
-import { isUnavailableInDevMode } from 'state/connection';
+import { isUnavailableInOfflineMode } from 'state/connection';
 import { isModuleFound } from 'state/search';
 import Card from 'components/card';
 import QuerySite from 'components/data/query-site';
@@ -24,7 +24,7 @@ class Performance extends Component {
 	render() {
 		const commonProps = {
 			getModule: this.props.module,
-			isUnavailableInDevMode: this.props.isUnavailableInDevMode,
+			isUnavailableInOfflineMode: this.props.isUnavailableInOfflineMode,
 			isModuleFound: this.props.isModuleFound,
 			getModuleOverride: this.props.getModuleOverride,
 		};
@@ -66,7 +66,7 @@ class Performance extends Component {
 export default connect( state => {
 	return {
 		module: module_name => getModule( state, module_name ),
-		isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
+		isUnavailableInOfflineMode: module_name => isUnavailableInOfflineMode( state, module_name ),
 		isModuleFound: module_name => isModuleFound( state, module_name ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
 	};

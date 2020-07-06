@@ -12,7 +12,7 @@ import { includes, noop } from 'lodash';
  * Internal dependencies
  */
 import SupportInfo from 'components/support-info';
-import { isDevMode, isUnavailableInDevMode, isCurrentUserLinked } from 'state/connection';
+import { isOfflineMode, isUnavailableInOfflineMode, isCurrentUserLinked } from 'state/connection';
 import { userCanManageModules, isSitePublic, userCanEditPosts } from 'state/initial-state';
 import { isModuleActivated } from 'state/modules';
 
@@ -29,8 +29,9 @@ export const SettingsGroup = props => {
 		return <span />;
 	}
 
-	const disableInDevMode = props.disableInDevMode && props.isUnavailableInDevMode( module.module );
-	let displayFadeBlock = disableInDevMode;
+	const disableInOfflineMode =
+		props.disableInOfflineMode && props.isUnavailableInOfflineMode( module.module );
+	let displayFadeBlock = disableInOfflineMode;
 
 	if ( 'post-by-email' === module.module && ! props.isLinked ) {
 		displayFadeBlock = true;
@@ -41,7 +42,7 @@ export const SettingsGroup = props => {
 			<Card
 				className={ classNames( {
 					'jp-form-has-child': props.hasChild,
-					'jp-form-settings-disable': disableInDevMode,
+					'jp-form-settings-disable': disableInOfflineMode,
 				} ) }
 			>
 				{ displayFadeBlock && <div className="jp-form-block-fade" /> }
@@ -55,35 +56,35 @@ export const SettingsGroup = props => {
 SettingsGroup.propTypes = {
 	support: PropTypes.object,
 	module: PropTypes.object,
-	disableInDevMode: PropTypes.bool.isRequired,
-	isDevMode: PropTypes.bool.isRequired,
+	disableInOfflineMode: PropTypes.bool.isRequired,
+	isOfflineMode: PropTypes.bool.isRequired,
 	isSitePublic: PropTypes.bool.isRequired,
 	userCanManageModules: PropTypes.bool.isRequired,
 	isLinked: PropTypes.bool.isRequired,
-	isUnavailableInDevMode: PropTypes.func.isRequired,
+	isUnavailableInOfflineMode: PropTypes.func.isRequired,
 	className: PropTypes.string,
 };
 
 SettingsGroup.defaultProps = {
 	support: { text: '', link: '' },
 	module: {},
-	disableInDevMode: false,
-	isDevMode: false,
+	disableInOfflineMode: false,
+	isOfflineMode: false,
 	isSitePublic: true,
 	userCanManageModules: false,
 	isLinked: false,
-	isUnavailableInDevMode: noop,
+	isUnavailableInOfflineMode: noop,
 	className: '',
 };
 
 export default connect( state => {
 	return {
-		isDevMode: isDevMode( state ),
+		isOfflineMode: isOfflineMode( state ),
 		isSitePublic: isSitePublic( state ),
 		userCanManageModules: userCanManageModules( state ),
 		userCanEditPosts: userCanEditPosts( state ),
 		isLinked: isCurrentUserLinked( state ),
 		isModuleActivated: module => isModuleActivated( state, module ),
-		isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
+		isUnavailableInOfflineMode: module_name => isUnavailableInOfflineMode( state, module_name ),
 	};
 } )( SettingsGroup );

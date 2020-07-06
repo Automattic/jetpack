@@ -15,7 +15,7 @@ import DismissableNotices from './dismissable';
 import getRedirectUrl from 'lib/jp-redirect';
 import {
 	getSiteConnectionStatus,
-	getSiteDevMode,
+	getSiteOfflineMode,
 	isStaging,
 	isInIdentityCrisis,
 	isCurrentUserLinked,
@@ -92,21 +92,21 @@ StagingSiteNotice.propTypes = {
 	isInIdentityCrisis: PropTypes.bool.isRequired,
 };
 
-export class DevModeNotice extends React.Component {
-	static displayName = 'DevModeNotice';
+export class OfflineModeNotice extends React.Component {
+	static displayName = 'OfflineModeNotice';
 
 	render() {
-		if ( this.props.siteConnectionStatus === 'dev' ) {
-			const devMode = this.props.siteDevMode,
+		if ( this.props.siteConnectionStatus === 'offline' ) {
+			const offlineMode = this.props.siteOfflineMode,
 				reasons = [];
 
-			if ( devMode.filter ) {
+			if ( offlineMode.filter ) {
 				reasons.push( __( 'The jetpack_development_mode filter is active', 'jetpack' ) );
 			}
-			if ( devMode.constant ) {
+			if ( offlineMode.constant ) {
 				reasons.push( __( 'The JETPACK_DEV_DEBUG constant is defined', 'jetpack' ) );
 			}
-			if ( devMode.url ) {
+			if ( offlineMode.url ) {
 				reasons.push( __( 'Your site URL lacks a dot (e.g. http://localhost)', 'jetpack' ) );
 			}
 
@@ -147,9 +147,9 @@ export class DevModeNotice extends React.Component {
 	}
 }
 
-DevModeNotice.propTypes = {
+OfflineModeNotice.propTypes = {
 	siteConnectionStatus: PropTypes.oneOfType( [ PropTypes.string, PropTypes.bool ] ).isRequired,
-	siteDevMode: PropTypes.oneOfType( [ PropTypes.bool, PropTypes.object ] ).isRequired,
+	siteOfflineMode: PropTypes.oneOfType( [ PropTypes.bool, PropTypes.object ] ).isRequired,
 };
 
 export class UserUnlinked extends React.Component {
@@ -207,9 +207,9 @@ class JetpackNotices extends React.Component {
 					isDevVersion={ this.props.isDevVersion }
 					userIsSubscriber={ this.props.userIsSubscriber }
 				/>
-				<DevModeNotice
+				<OfflineModeNotice
 					siteConnectionStatus={ this.props.siteConnectionStatus }
-					siteDevMode={ this.props.siteDevMode }
+					siteOfflineMode={ this.props.siteOfflineMode }
 				/>
 				<StagingSiteNotice
 					isStaging={ this.props.isStaging }
@@ -245,7 +245,7 @@ export default connect( state => {
 		userIsSubscriber: userIsSubscriber( state ),
 		isLinked: isCurrentUserLinked( state ),
 		isDevVersion: isDevVersion( state ),
-		siteDevMode: getSiteDevMode( state ),
+		siteOfflineMode: getSiteOfflineMode( state ),
 		isStaging: isStaging( state ),
 		isInIdentityCrisis: isInIdentityCrisis( state ),
 		connectionErrors: getConnectionErrors( state ),

@@ -113,7 +113,7 @@ class SiteStatsComponent extends React.Component {
 	render() {
 		const stats = this.props.getModule( 'stats' ),
 			isStatsActive = this.props.getOptionValue( 'stats' ),
-			unavailableInDevMode = this.props.isUnavailableInDevMode( 'stats' ),
+			unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'stats' ),
 			siteRoles = this.props.getSiteRoles();
 
 		if ( 'inactive' === this.props.getModuleOverride( 'stats' ) ) {
@@ -124,7 +124,7 @@ class SiteStatsComponent extends React.Component {
 			return (
 				<Card
 					className={
-						'jp-at-a-glance__stats-card ' + ( this.props.isDevMode ? 'is-inactive' : '' )
+						'jp-at-a-glance__stats-card ' + ( this.props.isOfflineMode ? 'is-inactive' : '' )
 					}
 				>
 					<div className="jp-at-a-glance__stats-inactive">
@@ -138,8 +138,8 @@ class SiteStatsComponent extends React.Component {
 							/>
 						</div>
 						<div className="jp-at-a-glance__stats-inactive-text">
-							{ this.props.isDevMode
-								? __( 'Unavailable in Dev Mode', 'jetpack' )
+							{ this.props.isOfflineMode
+								? __( 'Unavailable in Offline Mode', 'jetpack' )
 								: jetpackCreateInterpolateElement(
 										__(
 											'<a>Activate Site Stats</a> to see detailed stats, likes, followers, subscribers, and more! <a1>Learn More</a1>',
@@ -157,7 +157,7 @@ class SiteStatsComponent extends React.Component {
 										}
 								  ) }
 						</div>
-						{ ! this.props.isDevMode && (
+						{ ! this.props.isOfflineMode && (
 							<div className="jp-at-a-glance__stats-inactive-button">
 								<Button onClick={ this.activateStats } primary={ true }>
 									{ __( 'Activate Site Stats', 'jetpack' ) }
@@ -184,11 +184,11 @@ class SiteStatsComponent extends React.Component {
 					) }
 					clickableHeader={ true }
 					className={ classNames( 'jp-foldable-settings-standalone', {
-						'jp-foldable-settings-disable': unavailableInDevMode,
+						'jp-foldable-settings-disable': unavailableInOfflineMode,
 					} ) }
 				>
 					<SettingsGroup
-						disableInDevMode
+						disableInOfflineMode
 						module={ stats }
 						support={ {
 							text: __(
@@ -201,7 +201,7 @@ class SiteStatsComponent extends React.Component {
 						<FormFieldset>
 							<CompactFormToggle
 								checked={ !! this.props.getOptionValue( 'admin_bar' ) }
-								disabled={ ! isStatsActive || unavailableInDevMode }
+								disabled={ ! isStatsActive || unavailableInOfflineMode }
 								toggling={ this.props.isSavingAnyOption( [ 'stats', 'admin_bar' ] ) }
 								onChange={ this.handleStatsOptionToggle( 'admin_bar' ) }
 							>
@@ -213,7 +213,7 @@ class SiteStatsComponent extends React.Component {
 							</CompactFormToggle>
 							<CompactFormToggle
 								checked={ !! this.props.getOptionValue( 'hide_smile' ) }
-								disabled={ ! isStatsActive || unavailableInDevMode }
+								disabled={ ! isStatsActive || unavailableInOfflineMode }
 								toggling={ this.props.isSavingAnyOption( [ 'stats', 'hide_smile' ] ) }
 								onChange={ this.handleStatsOptionToggle( 'hide_smile' ) }
 							>
@@ -232,7 +232,7 @@ class SiteStatsComponent extends React.Component {
 									checked={ this.state[ `count_roles_${ key }` ] }
 									disabled={
 										! isStatsActive ||
-										unavailableInDevMode ||
+										unavailableInOfflineMode ||
 										this.props.isSavingAnyOption( [ 'stats', 'count_roles' ] )
 									}
 									onChange={ this.handleRoleToggleChange( key, 'count_roles' ) }
@@ -254,7 +254,7 @@ class SiteStatsComponent extends React.Component {
 											checked={ this.state[ `roles_${ key }` ] }
 											disabled={
 												! isStatsActive ||
-												unavailableInDevMode ||
+												unavailableInOfflineMode ||
 												this.props.isSavingAnyOption( [ 'stats', 'roles' ] )
 											}
 											onChange={ this.handleRoleToggleChange( key, 'roles' ) }

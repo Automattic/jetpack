@@ -336,7 +336,7 @@ class ManagerTest extends TestCase {
 		// Mock the site_url call in Status::is_offline_mode.
 		$this->mock_function( 'site_url', false, 'Automattic\Jetpack' );
 
-		// Mock the apply_filters( 'jetpack_development_mode', ) call in Status::is_offline_mode.
+		// Mock the apply_filters( 'jetpack_offline_mode', ) call in Status::is_offline_mode.
 		$this->mock_function( 'apply_filters', $in_offline_mode, 'Automattic\Jetpack' );
 
 		// Mock the apply_filters( 'jetpack_disconnect_cap', ) call in jetpack_connection_custom_caps.

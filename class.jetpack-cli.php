@@ -1618,6 +1618,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 			if (
 				! defined( 'JETPACK_DEV_DEBUG' ) &&
 				! has_filter( 'jetpack_development_mode' ) &&
+				! has_filter( 'jetpack_offline_mode' ) &&
 				false === strpos( site_url(), '.' )
 			) {
 				WP_CLI::error( __( "Jetpack is current in offline mode because the site url does not contain a '.', which often occurs when dynamically setting the WP_SITEURL constant. While in offline mode, the publicize module will not load.", 'jetpack' ) );
