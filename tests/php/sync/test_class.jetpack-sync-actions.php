@@ -119,14 +119,9 @@ class WP_Test_Jetpack_Sync_Actions extends WP_UnitTestCase {
 	 */
 	public function test_do_cron_sync_by_type_full_sync_in_progress() {
 
-		// udpate settings to In Progress.
-		$settings = array(
-			'started'  => true,
-			'finished' => false,
-			'progress' => array(),
-			'config'   => array(),
-		);
-		\Jetpack_Options::update_raw_option( 'jetpack_sync_full_status', $settings );
+		// Initialize a Full Sync (all modules).
+		$full_sync = Modules::get_module( 'full-sync' );
+		$full_sync->start();
 
 		$executions = Actions::do_cron_sync_by_type( 'full_sync' );
 		$this->assertEquals( $executions, 1 );
