@@ -108,7 +108,7 @@ function render( $attributes ) {
 			<div class="wp-block-jetpack-story_container wp-story-container" style="display: block; opacity: 1;">
 				<div class="wp-story-meta">
 					<div class="wp-story-icon">
-						<img alt="Site icon" src="%s" width="32" height=32>
+						<img alt="%s" src="%s" width="32" height=32>
 					</div>
 					<div>
 						<div class="wp-story-site-name">
@@ -118,20 +118,26 @@ function render( $attributes ) {
 							%s
 						</div>
 					</div>
-					<button class="wp-story-exit-fullscreen mdc-icon-button" aria-label="Exit Fullscreen" aria-pressed="false">
-						<i class="material-icons close md-24"></i>
+					<button class="wp-story-exit-fullscreen jetpack-mdc-icon-button">
+						<i class="jetpack-material-icons close md-24"></i>
 					</button>
 				</div>
 				<ul class="wp-story-wrapper">
 					%s
 				</ul>
-				<div class="wp-story-pagination wp-story-pagination-bullets"></div>
+				<div class="wp-story-overlay">
+					<button class="jetpack-mdc-icon-button circle-icon outlined bordered" aria-label="%s" aria-pressed="false">
+						<i class="jetpack-material-icons play_arrow" style="font-size: 56px;"></i>
+					</button>
+				</div>
 			</div>
 		</div>',
 		filter_var( wp_json_encode( $settings ), FILTER_SANITIZE_SPECIAL_CHARS ),
+		__( 'Site icon', 'jetpack' ),
 		esc_attr( get_site_icon_url( 32, includes_url( 'images/w-logo-blue.png' ) ) ),
 		esc_html( get_bloginfo( 'name' ) ),
 		esc_html( get_bloginfo( 'description' ) ),
-		join( "\n", array_map( $get_slide_template, $media_files, array_keys( $media_files ) ) )
+		join( "\n", array_map( $get_slide_template, $media_files, array_keys( $media_files ) ) ),
+		__( 'Exit Fullscreen', 'jetpack' )
 	);
 }
