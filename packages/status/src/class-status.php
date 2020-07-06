@@ -69,7 +69,7 @@ class Status {
 		 *
 		 * @param bool $offline_mode Is Jetpack's offline mode active.
 		 */
-		$offline_mode = (bool) \apply_filters( 'jetpack_offline_mode', $offline_mode );
+		$offline_mode = (bool) apply_filters( 'jetpack_offline_mode', $offline_mode );
 
 		return $offline_mode;
 	}

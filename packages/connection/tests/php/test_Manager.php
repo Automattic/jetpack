@@ -52,7 +52,8 @@ class ManagerTest extends TestCase {
 					}
 				);
 
-		$this->apply_filters = $builder->build();
+		$this->apply_filters            = $builder->build();
+		$this->apply_filters_deprecated = $builder->build();
 
 		$builder = new MockBuilder();
 		$builder->setNamespace( __NAMESPACE__ )
@@ -333,17 +334,28 @@ class ManagerTest extends TestCase {
 	 * @param array  $expected_caps The expected output.
 	 */
 	public function test_jetpack_connection_custom_caps( $in_offline_mode, $custom_cap, $expected_caps ) {
+		$this->apply_filters_deprecated->enable();
 		// Mock the site_url call in Status::is_offline_mode.
 		$this->mock_function( 'site_url', false, 'Automattic\Jetpack' );
 
+		// Mock the apply_filters_deprecated( 'jetpack_development_mode' ) call in Status->is_offline_mode.
+		$this->mock_function( 'apply_filters_deprecated', false, 'Automattic\Jetpack' );
+
+		$this->apply_filters->disable();
 		// Mock the apply_filters( 'jetpack_offline_mode', ) call in Status::is_offline_mode.
-		$this->mock_function( 'apply_filters', $in_offline_mode, 'Automattic\Jetpack' );
+		add_filter(
+			'jetpack_offline_mode',
+			function() use ( $in_offline_mode ) {
+				return $in_offline_mode;
+			}
+		);
 
 		// Mock the apply_filters( 'jetpack_disconnect_cap', ) call in jetpack_connection_custom_caps.
 		$this->mock_function( 'apply_filters', array( 'manage_options' ) );
 
 		$caps = $this->manager->jetpack_connection_custom_caps( self::DEFAULT_TEST_CAPS, $custom_cap, 1, array() );
 		$this->assertEquals( $expected_caps, $caps );
+		$this->apply_filters_deprecated->disable();
 	}
 
 	/**
@@ -357,16 +369,16 @@ class ManagerTest extends TestCase {
 	public function jetpack_connection_custom_caps_data_provider() {
 
 		return array(
-			'dev mode, jetpack_connect'          => array( true, 'jetpack_connect', array( 'do_not_allow' ) ),
-			'dev mode, jetpack_reconnect'        => array( true, 'jetpack_reconnect', array( 'do_not_allow' ) ),
-			'dev mode, jetpack_disconnect'       => array( true, 'jetpack_disconnect', array( 'manage_options' ) ),
-			'dev mode, jetpack_connect_user'     => array( true, 'jetpack_connect_user', array( 'do_not_allow' ) ),
-			'dev mode, unknown cap'              => array( true, 'unknown_cap', self::DEFAULT_TEST_CAPS ),
-			'not dev mode, jetpack_connect'      => array( false, 'jetpack_connect', array( 'manage_options' ) ),
-			'not dev mode, jetpack_reconnect'    => array( false, 'jetpack_reconnect', array( 'manage_options' ) ),
-			'not dev mode, jetpack_disconnect'   => array( false, 'jetpack_disconnect', array( 'manage_options' ) ),
-			'not dev mode, jetpack_connect_user' => array( false, 'jetpack_connect_user', array( 'read' ) ),
-			'not dev mode, unknown cap'          => array( false, 'unknown_cap', self::DEFAULT_TEST_CAPS ),
+			'offline mode, jetpack_connect'          => array( true, 'jetpack_connect', array( 'do_not_allow' ) ),
+			'offline mode, jetpack_reconnect'        => array( true, 'jetpack_reconnect', array( 'do_not_allow' ) ),
+			'offline mode, jetpack_disconnect'       => array( true, 'jetpack_disconnect', array( 'manage_options' ) ),
+			'offline mode, jetpack_connect_user'     => array( true, 'jetpack_connect_user', array( 'do_not_allow' ) ),
+			'offline mode, unknown cap'              => array( true, 'unknown_cap', self::DEFAULT_TEST_CAPS ),
+			'not offline mode, jetpack_connect'      => array( false, 'jetpack_connect', array( 'manage_options' ) ),
+			'not offline mode, jetpack_reconnect'    => array( false, 'jetpack_reconnect', array( 'manage_options' ) ),
+			'not offline mode, jetpack_disconnect'   => array( false, 'jetpack_disconnect', array( 'manage_options' ) ),
+			'not offline mode, jetpack_connect_user' => array( false, 'jetpack_connect_user', array( 'read' ) ),
+			'not offline mode, unknown cap'          => array( false, 'unknown_cap', self::DEFAULT_TEST_CAPS ),
 		);
 	}
 
