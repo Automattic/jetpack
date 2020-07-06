@@ -14,6 +14,12 @@ namespace Automattic\Jetpack\Debug_Helper;
 define( 'JETPACK_DEBUG_HELPER_BASE_PLUGIN_FILE', __FILE__ );
 
 /**
+ * The plugin version.
+ * Increase that if you do any edits to ensure refreshing the cached assets.
+ */
+define( 'JETPACK_DEBUG_HELPER_VERSION', '1.0' );
+
+/**
  * Include file names from the modules directory here.
  */
 $jetpack_dev_debug_modules = array(
