@@ -105,7 +105,7 @@ function render( $attributes ) {
 
 	return sprintf(
 		'<div class="wp-block-jetpack-story wp-story aligncenter" data-settings="%s">
-			<div class="wp-block-jetpack-story_container wp-story-container" style="display: block; opacity: 1;">
+			<div class="wp-story-container">
 				<div class="wp-story-meta">
 					<div class="wp-story-icon">
 						<img alt="%s" src="%s" width="32" height=32>
