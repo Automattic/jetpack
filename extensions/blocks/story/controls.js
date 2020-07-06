@@ -6,11 +6,6 @@ import { Toolbar } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Fragment } from '@wordpress/element';
 
-/**
- * Internal dependencies
- */
-import EditButton from '../../shared/edit-button';
-
 export default ( { allowedMediaTypes, attributes: { mediaFiles }, onSelectMedia } ) => (
 	<Fragment>
 		<BlockControls>
