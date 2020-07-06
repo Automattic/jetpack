@@ -44,7 +44,7 @@ export default withNotices( function StoryEdit( {
 
 	const onSelectMedia = newMediaFiles =>
 		setAttributes( {
-			newMediaFiles: newMediaFiles.map( pickRelevantMediaFiles ),
+			mediaFiles: newMediaFiles.map( pickRelevantMediaFiles ),
 		} );
 
 	const addFiles = files => {
