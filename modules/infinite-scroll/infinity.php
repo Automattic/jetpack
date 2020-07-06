@@ -1342,6 +1342,13 @@ class The_Neverending_Home_Page {
 
 			$results['type'] = 'success';
 
+			/**
+			 * Fires when rendering Infinite Scroll posts.
+			 *
+			 * @module infinite-scroll
+			 *
+			 * @since 2.0.0
+			 */
 			do_action( 'infinite_scroll_render' );
 			$results['html'] = ob_get_clean();
 			if ( empty( $results['html'] ) ) {
@@ -1367,11 +1374,9 @@ class The_Neverending_Home_Page {
 						add_action( 'infinite_scroll_render', $callback );
 
 						/**
-						 * Fires when rendering Infinite Scroll posts.
-						 *
-						 * @module infinite-scroll
-						 *
-						 * @since 2.0.0
+						 * This action is already documented above.
+						 * See https://github.com/Automattic/jetpack/pull/16317/
+						 * for more details as to why it was introduced.
 						 */
 						do_action( 'infinite_scroll_render' );
 
