@@ -57,20 +57,17 @@ $grid-size: 8px;
 	.components-modal__content {
 		overflow: auto;
 		padding-bottom: 0;
+		width: 100%;
+
+		@media ( min-width: 600px ) {
+			width: 90vw;
+			height: 90vh;
+		}
 	}
 }
 
 .jetpack-external-media-browser--is-copying {
 	pointer-events: none;
-}
-
-.components-modal__content {
-	width: 100%;
-
-	@media ( min-width: 600px ) {
-		width: 90vw;
-		height: 90vh;
-	}
 }
 
 .jetpack-external-media-browser {
